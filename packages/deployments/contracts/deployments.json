@@ -2984,6 +2984,16 @@
                           "internalType": "uint32",
                           "name": "destinationDomain",
                           "type": "uint32"
+                        },
+                        {
+                          "internalType": "bool",
+                          "name": "forceSlow",
+                          "type": "bool"
+                        },
+                        {
+                          "internalType": "bool",
+                          "name": "receiveLocal",
+                          "type": "bool"
                         }
                       ],
                       "internalType": "struct IConnextHandler.CallParams",
@@ -3043,6 +3053,19 @@
               "outputs": [
                 {
                   "internalType": "contract IExecutor",
+                  "name": "",
+                  "type": "address"
+                }
+              ],
+              "stateMutability": "view",
+              "type": "function"
+            },
+            {
+              "inputs": [],
+              "name": "getExecutor",
+              "outputs": [
+                {
+                  "internalType": "address",
                   "name": "",
                   "type": "address"
                 }
@@ -3782,6 +3805,16 @@
                           "internalType": "uint32",
                           "name": "destinationDomain",
                           "type": "uint32"
+                        },
+                        {
+                          "internalType": "bool",
+                          "name": "forceSlow",
+                          "type": "bool"
+                        },
+                        {
+                          "internalType": "bool",
+                          "name": "receiveLocal",
+                          "type": "bool"
                         }
                       ],
                       "internalType": "struct IConnextHandler.CallParams",
@@ -3844,7 +3877,7 @@
           ]
         },
         "ConnextHandlerStaging_Implementation": {
-          "address": "0xD34bBf5096c74f79aed0595Bae3C3960DdeE321a",
+          "address": "0xf2dDEA8E887BF5367b663b6B507EB7AD603a599B",
           "abi": [
             {
               "inputs": [],
@@ -4421,6 +4454,16 @@
                           "internalType": "uint32",
                           "name": "destinationDomain",
                           "type": "uint32"
+                        },
+                        {
+                          "internalType": "bool",
+                          "name": "forceSlow",
+                          "type": "bool"
+                        },
+                        {
+                          "internalType": "bool",
+                          "name": "receiveLocal",
+                          "type": "bool"
                         }
                       ],
                       "internalType": "struct IConnextHandler.CallParams",
@@ -4480,6 +4523,19 @@
               "outputs": [
                 {
                   "internalType": "contract IExecutor",
+                  "name": "",
+                  "type": "address"
+                }
+              ],
+              "stateMutability": "view",
+              "type": "function"
+            },
+            {
+              "inputs": [],
+              "name": "getExecutor",
+              "outputs": [
+                {
+                  "internalType": "address",
                   "name": "",
                   "type": "address"
                 }
@@ -5219,6 +5275,16 @@
                           "internalType": "uint32",
                           "name": "destinationDomain",
                           "type": "uint32"
+                        },
+                        {
+                          "internalType": "bool",
+                          "name": "forceSlow",
+                          "type": "bool"
+                        },
+                        {
+                          "internalType": "bool",
+                          "name": "receiveLocal",
+                          "type": "bool"
                         }
                       ],
                       "internalType": "struct IConnextHandler.CallParams",
@@ -7671,7 +7737,7 @@
           ]
         },
         "ConnextLogicStaging": {
-          "address": "0x84C970aAD1A38422bAFb068D65f6577c2d718711",
+          "address": "0x406c47c97f34B9E36a5Fc6Aa3CF750d0f5FaE7aF",
           "abi": [
             {
               "inputs": [],
@@ -7721,6 +7787,11 @@
             {
               "inputs": [],
               "name": "ConnextLogic__execute_maxRoutersExceeded",
+              "type": "error"
+            },
+            {
+              "inputs": [],
+              "name": "ConnextLogic__execute_notReconciled",
               "type": "error"
             },
             {
@@ -7923,6 +7994,16 @@
                           "internalType": "uint32",
                           "name": "destinationDomain",
                           "type": "uint32"
+                        },
+                        {
+                          "internalType": "bool",
+                          "name": "forceSlow",
+                          "type": "bool"
+                        },
+                        {
+                          "internalType": "bool",
+                          "name": "receiveLocal",
+                          "type": "bool"
                         }
                       ],
                       "internalType": "struct IConnextHandler.CallParams",
@@ -8280,6 +8361,16 @@
                           "internalType": "uint32",
                           "name": "destinationDomain",
                           "type": "uint32"
+                        },
+                        {
+                          "internalType": "bool",
+                          "name": "forceSlow",
+                          "type": "bool"
+                        },
+                        {
+                          "internalType": "bool",
+                          "name": "receiveLocal",
+                          "type": "bool"
                         }
                       ],
                       "internalType": "struct IConnextHandler.CallParams",
@@ -12694,7 +12785,7 @@
           ]
         },
         "RelayerFeeRouterStaging": {
-          "address": "0x9B83fFfba210b1653f1A56A6366DFD804a97e3fb",
+          "address": "0xd4706E83Cbaf297597886ac11bbA2c301f42B6AF",
           "abi": [
             {
               "inputs": [],
@@ -21396,6 +21487,16 @@
                           "internalType": "uint32",
                           "name": "destinationDomain",
                           "type": "uint32"
+                        },
+                        {
+                          "internalType": "bool",
+                          "name": "forceSlow",
+                          "type": "bool"
+                        },
+                        {
+                          "internalType": "bool",
+                          "name": "receiveLocal",
+                          "type": "bool"
                         }
                       ],
                       "internalType": "struct IConnextHandler.CallParams",
@@ -21455,6 +21556,19 @@
               "outputs": [
                 {
                   "internalType": "contract IExecutor",
+                  "name": "",
+                  "type": "address"
+                }
+              ],
+              "stateMutability": "view",
+              "type": "function"
+            },
+            {
+              "inputs": [],
+              "name": "getExecutor",
+              "outputs": [
+                {
+                  "internalType": "address",
                   "name": "",
                   "type": "address"
                 }
@@ -22194,6 +22308,16 @@
                           "internalType": "uint32",
                           "name": "destinationDomain",
                           "type": "uint32"
+                        },
+                        {
+                          "internalType": "bool",
+                          "name": "forceSlow",
+                          "type": "bool"
+                        },
+                        {
+                          "internalType": "bool",
+                          "name": "receiveLocal",
+                          "type": "bool"
                         }
                       ],
                       "internalType": "struct IConnextHandler.CallParams",
@@ -22256,7 +22380,7 @@
           ]
         },
         "ConnextHandlerStaging_Implementation": {
-          "address": "0x8192a480C1294E3e61eF8adf45D59e7842DE5525",
+          "address": "0x11D269e9B06E00cf02C95101Fe2d9bc35119B96F",
           "abi": [
             {
               "inputs": [],
@@ -22833,6 +22957,16 @@
                           "internalType": "uint32",
                           "name": "destinationDomain",
                           "type": "uint32"
+                        },
+                        {
+                          "internalType": "bool",
+                          "name": "forceSlow",
+                          "type": "bool"
+                        },
+                        {
+                          "internalType": "bool",
+                          "name": "receiveLocal",
+                          "type": "bool"
                         }
                       ],
                       "internalType": "struct IConnextHandler.CallParams",
@@ -22892,6 +23026,19 @@
               "outputs": [
                 {
                   "internalType": "contract IExecutor",
+                  "name": "",
+                  "type": "address"
+                }
+              ],
+              "stateMutability": "view",
+              "type": "function"
+            },
+            {
+              "inputs": [],
+              "name": "getExecutor",
+              "outputs": [
+                {
+                  "internalType": "address",
                   "name": "",
                   "type": "address"
                 }
@@ -23631,6 +23778,16 @@
                           "internalType": "uint32",
                           "name": "destinationDomain",
                           "type": "uint32"
+                        },
+                        {
+                          "internalType": "bool",
+                          "name": "forceSlow",
+                          "type": "bool"
+                        },
+                        {
+                          "internalType": "bool",
+                          "name": "receiveLocal",
+                          "type": "bool"
                         }
                       ],
                       "internalType": "struct IConnextHandler.CallParams",
@@ -26083,7 +26240,7 @@
           ]
         },
         "ConnextLogicStaging": {
-          "address": "0xC06f4bA54c3e8f72811d60b6e73917c16160Ec64",
+          "address": "0xe492a10c14B6abB8Aa195E57137Fd54D13CB74d0",
           "abi": [
             {
               "inputs": [],
@@ -26133,6 +26290,11 @@
             {
               "inputs": [],
               "name": "ConnextLogic__execute_maxRoutersExceeded",
+              "type": "error"
+            },
+            {
+              "inputs": [],
+              "name": "ConnextLogic__execute_notReconciled",
               "type": "error"
             },
             {
@@ -26335,6 +26497,16 @@
                           "internalType": "uint32",
                           "name": "destinationDomain",
                           "type": "uint32"
+                        },
+                        {
+                          "internalType": "bool",
+                          "name": "forceSlow",
+                          "type": "bool"
+                        },
+                        {
+                          "internalType": "bool",
+                          "name": "receiveLocal",
+                          "type": "bool"
                         }
                       ],
                       "internalType": "struct IConnextHandler.CallParams",
@@ -26692,6 +26864,16 @@
                           "internalType": "uint32",
                           "name": "destinationDomain",
                           "type": "uint32"
+                        },
+                        {
+                          "internalType": "bool",
+                          "name": "forceSlow",
+                          "type": "bool"
+                        },
+                        {
+                          "internalType": "bool",
+                          "name": "receiveLocal",
+                          "type": "bool"
                         }
                       ],
                       "internalType": "struct IConnextHandler.CallParams",
@@ -28205,7 +28387,7 @@
           ]
         },
         "RelayerFeeRouterStaging": {
-          "address": "0xE3A3Ca714c4b2C6a9E7029344E7D19084eaE4955",
+          "address": "0xC3222925450C6bAfEa1FC6a16C92Cf6242CB09B7",
           "abi": [
             {
               "inputs": [],
@@ -37424,6 +37606,16 @@
                           "internalType": "uint32",
                           "name": "destinationDomain",
                           "type": "uint32"
+                        },
+                        {
+                          "internalType": "bool",
+                          "name": "forceSlow",
+                          "type": "bool"
+                        },
+                        {
+                          "internalType": "bool",
+                          "name": "receiveLocal",
+                          "type": "bool"
                         }
                       ],
                       "internalType": "struct IConnextHandler.CallParams",
@@ -37483,6 +37675,19 @@
               "outputs": [
                 {
                   "internalType": "contract IExecutor",
+                  "name": "",
+                  "type": "address"
+                }
+              ],
+              "stateMutability": "view",
+              "type": "function"
+            },
+            {
+              "inputs": [],
+              "name": "getExecutor",
+              "outputs": [
+                {
+                  "internalType": "address",
                   "name": "",
                   "type": "address"
                 }
@@ -38222,6 +38427,16 @@
                           "internalType": "uint32",
                           "name": "destinationDomain",
                           "type": "uint32"
+                        },
+                        {
+                          "internalType": "bool",
+                          "name": "forceSlow",
+                          "type": "bool"
+                        },
+                        {
+                          "internalType": "bool",
+                          "name": "receiveLocal",
+                          "type": "bool"
                         }
                       ],
                       "internalType": "struct IConnextHandler.CallParams",
@@ -38284,7 +38499,7 @@
           ]
         },
         "ConnextHandlerStaging_Implementation": {
-          "address": "0x2A81D0dc28039974eC0516C8129FbD83183BfE08",
+          "address": "0xD99e1bA7ea5c889B4944adF6c47e7652a994ECb9",
           "abi": [
             {
               "inputs": [],
@@ -38861,6 +39076,16 @@
                           "internalType": "uint32",
                           "name": "destinationDomain",
                           "type": "uint32"
+                        },
+                        {
+                          "internalType": "bool",
+                          "name": "forceSlow",
+                          "type": "bool"
+                        },
+                        {
+                          "internalType": "bool",
+                          "name": "receiveLocal",
+                          "type": "bool"
                         }
                       ],
                       "internalType": "struct IConnextHandler.CallParams",
@@ -38920,6 +39145,19 @@
               "outputs": [
                 {
                   "internalType": "contract IExecutor",
+                  "name": "",
+                  "type": "address"
+                }
+              ],
+              "stateMutability": "view",
+              "type": "function"
+            },
+            {
+              "inputs": [],
+              "name": "getExecutor",
+              "outputs": [
+                {
+                  "internalType": "address",
                   "name": "",
                   "type": "address"
                 }
@@ -39659,6 +39897,16 @@
                           "internalType": "uint32",
                           "name": "destinationDomain",
                           "type": "uint32"
+                        },
+                        {
+                          "internalType": "bool",
+                          "name": "forceSlow",
+                          "type": "bool"
+                        },
+                        {
+                          "internalType": "bool",
+                          "name": "receiveLocal",
+                          "type": "bool"
                         }
                       ],
                       "internalType": "struct IConnextHandler.CallParams",
@@ -42111,7 +42359,7 @@
           ]
         },
         "ConnextLogicStaging": {
-          "address": "0xc34bF3b1589cD6fe728e0e5d64B430F284287f8a",
+          "address": "0xd8290adC4004DbE2e6f1D72a50D2bC255D17a7D3",
           "abi": [
             {
               "inputs": [],
@@ -42161,6 +42409,11 @@
             {
               "inputs": [],
               "name": "ConnextLogic__execute_maxRoutersExceeded",
+              "type": "error"
+            },
+            {
+              "inputs": [],
+              "name": "ConnextLogic__execute_notReconciled",
               "type": "error"
             },
             {
@@ -42363,6 +42616,16 @@
                           "internalType": "uint32",
                           "name": "destinationDomain",
                           "type": "uint32"
+                        },
+                        {
+                          "internalType": "bool",
+                          "name": "forceSlow",
+                          "type": "bool"
+                        },
+                        {
+                          "internalType": "bool",
+                          "name": "receiveLocal",
+                          "type": "bool"
                         }
                       ],
                       "internalType": "struct IConnextHandler.CallParams",
@@ -42720,6 +42983,16 @@
                           "internalType": "uint32",
                           "name": "destinationDomain",
                           "type": "uint32"
+                        },
+                        {
+                          "internalType": "bool",
+                          "name": "forceSlow",
+                          "type": "bool"
+                        },
+                        {
+                          "internalType": "bool",
+                          "name": "receiveLocal",
+                          "type": "bool"
                         }
                       ],
                       "internalType": "struct IConnextHandler.CallParams",
@@ -47134,7 +47407,7 @@
           ]
         },
         "RelayerFeeRouterStaging": {
-          "address": "0x4120280599922a777634853062F8bc46E1429970",
+          "address": "0x5F06bD633834139e980216fc347ec3164C0bC8C6",
           "abi": [
             {
               "inputs": [],

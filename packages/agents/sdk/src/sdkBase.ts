@@ -115,7 +115,9 @@ export class NxtpSdkBase {
     return undefined;
   }
 
-  public async xcall(xcallParams: Omit<XCallArgs, "callData">): Promise<providers.TransactionRequest> {
+  public async xcall(
+    xcallParams: Omit<XCallArgs, "callData" | "forceSlow" | "receiveLocal">,
+  ): Promise<providers.TransactionRequest> {
     const { requestContext, methodContext } = createLoggingContext(this.xcall.name);
     this.logger.info("Method start", requestContext, methodContext, { xcallParams });
 
@@ -140,6 +142,12 @@ export class NxtpSdkBase {
 
     const { originDomain } = params;
 
+    const xParams = {
+      ...params,
+      calldata: params.callData || "0x",
+      forceSlow: params.forceSlow || false,
+      receiveLocal: params.receiveLocal || false,
+    };
     const ConnextContractAddress = this.config.chains[originDomain].deployments!.connext;
 
     const chainId = await getChainIdFromDomain(originDomain, this.chainData);
@@ -151,7 +159,7 @@ export class NxtpSdkBase {
 
     const data = this.contracts.connext.encodeFunctionData("xcall", [
       {
-        params,
+        params: xParams,
         amount,
         transactingAssetId,
         relayerFee,

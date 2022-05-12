@@ -15,6 +15,8 @@ export const convertFromDbTransfer = (transfer: any): XTransfer => {
     xparams: {
       to: transfer.to || constants.AddressZero,
       callData: transfer.call_data || "0x",
+      forceSlow: transfer.force_slow || false,
+      receiveLocal: transfer.receiveLocal || false,
     },
 
     idx: BigNumber.from(transfer.idx ?? 0).toString(),

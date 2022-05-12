@@ -55,6 +55,8 @@ export const createTask = async (
         destinationDomain: decoded.params.destinationDomain.toString(),
         to: decoded.params.to,
         callData: decoded.params.callData,
+        forceSlow: decoded.params.forceSlow,
+        receiveLocal: decoded.params.receiveLocal,
       },
       local: decoded.local,
       routers: decoded.routers,

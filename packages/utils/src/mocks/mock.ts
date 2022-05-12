@@ -77,6 +77,8 @@ export const mock: any = {
       callData: "0x",
       originDomain: mock.domain.A,
       destinationDomain: mock.domain.B,
+      forceSlow: false,
+      receiveLocal: false,
       ...overrides,
     }),
     executeArgs: (overrides: Partial<ExecuteArgs> = {}): ExecuteArgs => ({
@@ -156,6 +158,8 @@ export const mock: any = {
           ? {
               to: user,
               callData: "0x",
+              forceSlow: false,
+              receiveLocal: false,
             }
           : undefined,
 
