@@ -239,6 +239,7 @@ const config: HardhatUserConfig = {
       "RelayerFacet",
       "RoutersFacet",
       "StableSwapFacet",
+      "PortalFacet",
     ],
     strict: false,
   },

@@ -25,6 +25,7 @@ import {NomadFacet} from "../contracts/diamond/facets/NomadFacet.sol";
 import {XCallArgs, CallParams} from "../contracts/diamond/libraries/LibConnextStorage.sol";
 import {IDiamondCut} from "../contracts/diamond/interfaces/IDiamondCut.sol";
 import {ConnextMessage} from "../contracts/diamond/libraries/ConnextMessage.sol";
+import {TestSetterFacet, getTestSetterFacetCut} from "./utils/TestSetterFacet.sol";
 
 // running tests (with logging on failure):
 // yarn workspace @connext/nxtp-contracts test:forge -vvv
@@ -41,16 +42,6 @@ contract MockRelayerFeeRouter {
     bytes32[] calldata _transactionIds
   ) external {
     1 == 1;
-  }
-}
-
-contract TestSetterFacet is BaseConnextFacet {
-  function setTestRelayerFees(bytes32 _transferId, uint256 _fee) external {
-    s.relayerFees[_transferId] = _fee;
-  }
-
-  function setTestTransferRelayer(bytes32 _transferId, address _relayer) external {
-    s.transferRelayer[_transferId] = _relayer;
   }
 }
 
@@ -88,19 +79,9 @@ contract ConnextTest is ForgeHelper, Deployer {
   address stableSwap = address(5);
 
   TestSetterFacet testSetterFacet;
+  IConnextFacets connext;
 
   // ============ Test set up ============
-
-  function getTestSetterFacetCut(address _testSetterFacetFacet) internal returns (IDiamondCut.FacetCut memory) {
-    bytes4[] memory testSetterFacetSelectors = new bytes4[](2);
-    testSetterFacetSelectors[0] = TestSetterFacet.setTestRelayerFees.selector;
-    testSetterFacetSelectors[1] = TestSetterFacet.setTestTransferRelayer.selector;
-    return IDiamondCut.FacetCut({
-      facetAddress: _testSetterFacetFacet,
-      action: IDiamondCut.FacetCutAction.Add,
-      functionSelectors: testSetterFacetSelectors
-    });
-  }
 
   function deployMocks() internal {
     relayerFeeRouter = new MockRelayerFeeRouter();
@@ -111,13 +92,7 @@ contract ConnextTest is ForgeHelper, Deployer {
 
   function setUp() public {
     deployMocks();
-    deployConnext(
-      uint256(domain),
-      xAppConnectionManager,
-      tokenRegistry,
-      address(wrapper),
-      address(relayerFeeRouter)
-    );
+    deployConnext(uint256(domain), xAppConnectionManager, tokenRegistry, address(wrapper), address(relayerFeeRouter));
 
     // TestSetterFacetCut
     testSetterFacet = new TestSetterFacet();
@@ -160,8 +135,9 @@ contract ConnextTest is ForgeHelper, Deployer {
       abi.encode(domain, bytes32(uint256(uint160(address(originAdopted)))))
     );
     vm.mockCall(xAppConnectionManager, abi.encodeWithSignature("home()"), abi.encode(home));
-  }
 
+    connext = IConnextFacets(address(connextDiamondProxy));
+  }
 
   // ============ setMaxRouters ============
 
@@ -179,9 +155,7 @@ contract ConnextTest is ForgeHelper, Deployer {
   // Fail if not called by owner
   function test_ConnextHandler__setMaxRouters_failsIfNotOwner() public {
     vm.prank(address(0));
-    vm.expectRevert(
-      abi.encodeWithSelector(BaseConnextFacet.BaseConnextFacet__onlyOwner_notOwner.selector)
-    );
+    vm.expectRevert(abi.encodeWithSelector(BaseConnextFacet.BaseConnextFacet__onlyOwner_notOwner.selector));
     IConnextFacets(address(connextDiamondProxy)).setMaxRoutersPerTransfer(10);
   }
 
@@ -285,18 +259,8 @@ contract ConnextTest is ForgeHelper, Deployer {
     uint256 relayerFee = 0.01 ether;
     address transactingAssetId = address(originAdopted);
 
-    CallParams memory callParams = CallParams(
-      to,
-      bytes("0x"),
-      domain,
-      destinationDomain
-    );
-    XCallArgs memory args = XCallArgs(
-      callParams,
-      transactingAssetId,
-      amount,
-      relayerFee
-    );
+    CallParams memory callParams = CallParams(to, bytes("0x"), domain, destinationDomain);
+    XCallArgs memory args = XCallArgs(callParams, transactingAssetId, amount, relayerFee);
 
     bytes32 id = keccak256(
       abi.encode(0, callParams, address(this), bytes32(abi.encodePacked(canonical)), domain, amount)
@@ -317,12 +281,7 @@ contract ConnextTest is ForgeHelper, Deployer {
     address transactingAssetId = address(originAdopted);
 
     CallParams memory callParams = CallParams(to, bytes(""), domain, destinationDomain);
-    XCallArgs memory args = XCallArgs(
-      callParams,
-      transactingAssetId,
-      amount,
-      relayerFee
-    );
+    XCallArgs memory args = XCallArgs(callParams, transactingAssetId, amount, relayerFee);
 
     bytes32 id = keccak256(
       abi.encode(0, callParams, address(this), bytes32(abi.encodePacked(canonical)), domain, amount)
@@ -354,18 +313,8 @@ contract ConnextTest is ForgeHelper, Deployer {
     uint256 relayerFee = 0;
     address transactingAssetId = address(originAdopted);
 
-    CallParams memory callParams = CallParams(
-      to,
-      bytes("0x"),
-      domain,
-      destinationDomain
-    );
-    XCallArgs memory args = XCallArgs(
-      callParams,
-      transactingAssetId,
-      amount,
-      relayerFee
-    );
+    CallParams memory callParams = CallParams(to, bytes("0x"), domain, destinationDomain);
+    XCallArgs memory args = XCallArgs(callParams, transactingAssetId, amount, relayerFee);
 
     bytes32 id = keccak256(
       abi.encode(0, callParams, address(this), bytes32(abi.encodePacked(canonical)), domain, amount)
@@ -385,18 +334,8 @@ contract ConnextTest is ForgeHelper, Deployer {
     uint256 relayerFee = 0.01 ether;
     address transactingAssetId = address(originAdopted);
 
-    CallParams memory callParams = CallParams(
-      to,
-      bytes("0x"),
-      domain,
-      destinationDomain
-    );
-    XCallArgs memory args = XCallArgs(
-      callParams,
-      transactingAssetId,
-      amount,
-      relayerFee
-    );
+    CallParams memory callParams = CallParams(to, bytes("0x"), domain, destinationDomain);
+    XCallArgs memory args = XCallArgs(callParams, transactingAssetId, amount, relayerFee);
 
     bytes32 id = keccak256(
       abi.encode(0, callParams, address(this), bytes32(abi.encodePacked(canonical)), domain, amount)
@@ -414,18 +353,8 @@ contract ConnextTest is ForgeHelper, Deployer {
     uint256 relayerFee = 0.01 ether;
     address transactingAssetId = address(0);
 
-    CallParams memory callParams = CallParams(
-      to,
-      bytes("0x"),
-      domain,
-      destinationDomain
-    );
-    XCallArgs memory args = XCallArgs(
-      callParams,
-      transactingAssetId,
-      amount,
-      relayerFee
-    );
+    CallParams memory callParams = CallParams(to, bytes("0x"), domain, destinationDomain);
+    XCallArgs memory args = XCallArgs(callParams, transactingAssetId, amount, relayerFee);
 
     bytes32 id = keccak256(
       abi.encode(0, callParams, address(this), bytes32(abi.encodePacked(wrapper)), domain, amount)
@@ -449,18 +378,8 @@ contract ConnextTest is ForgeHelper, Deployer {
     uint256 relayerFee = 0.01 ether;
     address transactingAssetId = address(originAdopted);
 
-    CallParams memory callParams = CallParams(
-      to,
-      bytes("0x"),
-      domain,
-      destinationDomain
-    );
-    XCallArgs memory args = XCallArgs(
-      callParams,
-      transactingAssetId,
-      amount,
-      relayerFee
-    );
+    CallParams memory callParams = CallParams(to, bytes("0x"), domain, destinationDomain);
+    XCallArgs memory args = XCallArgs(callParams, transactingAssetId, amount, relayerFee);
 
     vm.expectRevert(abi.encodeWithSelector(AssetLogic.AssetLogic__handleIncomingAsset_ethWithErcTransfer.selector));
     IConnextFacets(address(connextDiamondProxy)).xcall{value: 0}(args);
@@ -479,18 +398,8 @@ contract ConnextTest is ForgeHelper, Deployer {
     uint256 relayerFee = 0.01 ether;
     address transactingAssetId = address(0);
 
-    CallParams memory callParams = CallParams(
-      to,
-      bytes("0x"),
-      domain,
-      destinationDomain
-    );
-    XCallArgs memory args = XCallArgs(
-      callParams,
-      transactingAssetId,
-      amount,
-      relayerFee
-    );
+    CallParams memory callParams = CallParams(to, bytes("0x"), domain, destinationDomain);
+    XCallArgs memory args = XCallArgs(callParams, transactingAssetId, amount, relayerFee);
 
     vm.mockCall(
       address(tokenRegistry),
@@ -518,12 +427,7 @@ contract ConnextTest is ForgeHelper, Deployer {
     address transactingAssetId = address(originAdopted);
 
     CallParams memory callParams = CallParams(to, bytes(""), domain, destinationDomain);
-    XCallArgs memory args = XCallArgs(
-      callParams,
-      transactingAssetId,
-      amount,
-      relayerFee
-    );
+    XCallArgs memory args = XCallArgs(callParams, transactingAssetId, amount, relayerFee);
 
     bytes32 id = keccak256(
       abi.encode(0, callParams, address(this), bytes32(abi.encodePacked(canonical)), domain, amount)
@@ -600,55 +504,5 @@ contract ConnextTest is ForgeHelper, Deployer {
     uint256 newFee = 0.01 ether;
     IConnextFacets(address(connextDiamondProxy)).bumpTransfer{value: newFee}(transferId);
     assertEq(IConnextFacets(address(connextDiamondProxy)).relayerFees(transferId), newFee);
-  }
-
-  // ============ setAavePool ============
-
-  function test_ConnextHandler__setAavePool_works() public {
-    address aavePool = address(100);
-    assertEq(connext.aavePool(), address(0));
-
-    connext.setAavePool(aavePool);
-
-    assertEq(connext.aavePool(), aavePool);
-  }
-
-  function test_ConnextHandler__setAavePool_failsIfNotOwner() public {
-    address aavePool = address(100);
-
-    vm.prank(address(10));
-    vm.expectRevert(
-      abi.encodeWithSelector(ProposedOwnableUpgradeable.ProposedOwnableUpgradeable__onlyOwner_notOwner.selector)
-    );
-    connext.setAavePool(aavePool);
-  }
-
-  // ============ setAavePortalFee ============
-
-  function test_ConnextHandler__setAavePortalFee_works() public {
-    uint256 fee = 5;
-    assertEq(connext.aavePortalFeeNumerator(), 0);
-
-    connext.setAavePortalFee(fee);
-
-    assertEq(connext.aavePortalFeeNumerator(), fee);
-  }
-
-  function test_ConnextHandler__setAavePortalFee_failsIfNotOwner() public {
-    uint256 fee = 5;
-
-    vm.prank(address(10));
-    vm.expectRevert(
-      abi.encodeWithSelector(ProposedOwnableUpgradeable.ProposedOwnableUpgradeable__onlyOwner_notOwner.selector)
-    );
-
-    connext.setAavePortalFee(fee);
-  }
-
-  function test_ConnextHandler__setAavePortalFee_failsIfInvalidFee() public {
-    uint256 fee = connext.LIQUIDITY_FEE_DENOMINATOR() + 1;
-
-    vm.expectRevert(abi.encodeWithSelector(ConnextHandler.ConnextHandler__setAavePortalFee_invalidFee.selector));
-    connext.setAavePortalFee(fee);
   }
 }

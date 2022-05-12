@@ -231,4 +231,42 @@ library AssetLogic {
       return (pool.swapExact(_amount, _assetIn, _assetOut), _assetOut);
     }
   }
+
+  /**
+   * @notice Calculate amount of tokens you receive on a local nomad asset for the adopted asset
+   * using the stored stable swap
+   * @dev Will not use the stored stable swap if the asset passed in is the adopted asset
+   * @param _asset - The address of the local asset to swap into the adopted asset
+   * @param _amount - The amount of the local asset to swap
+   * @return The amount of adopted asset received from swap
+   * @return The address of asset received post-swap
+   */
+  function calculateSwapFromLocalAssetIfNeeded(address _asset, uint256 _amount)
+    internal
+    view
+    returns (uint256, address)
+  {
+    AppStorage storage s = LibConnextStorage.connextStorage();
+
+    // Get the token id
+    (, bytes32 id) = s.tokenRegistry.getTokenId(_asset);
+
+    // If the adopted asset is the local asset, no need to swap
+    address adopted = s.canonicalToAdopted[id];
+    if (adopted == _asset) {
+      return (_amount, _asset);
+    }
+
+    // Otherwise, calculate swap the asset to the proper local asset
+    if (stableSwapPoolExist(id)) {
+      // if internal swap pool exists
+      uint8 tokenIndexIn = getTokenIndexFromStableSwapPool(id, _asset);
+      uint8 tokenIndexOut = getTokenIndexFromStableSwapPool(id, adopted);
+      return (s.swapStorages[id].calculateSwapInternal(tokenIndexIn, tokenIndexOut, _amount), adopted);
+    } else {
+      IStableSwap pool = s.adoptedToLocalPools[id];
+
+      return (pool.calculateSwap(_asset, adopted, _amount), adopted);
+    }
+  }
 }

@@ -82,6 +82,7 @@ struct ExecuteArgs {
  */
 struct RouterPermissionsManagerInfo {
   mapping(address => bool) approvedRouters;
+  mapping(address => bool) approvedForPortalRouters;
   mapping(address => address) routerRecipients;
   mapping(address => address) routerOwners;
   mapping(address => address) proposedRouterOwners;
@@ -249,6 +250,22 @@ struct AppStorage {
    * @dev getTokenIndex function also relies on this mapping to retrieve token index.
    */
   mapping(bytes32 => mapping(address => uint8)) tokenIndexes;
+  //
+  // AavePortals
+  //
+  /**
+   * @notice Address of Aave Pool contract
+   */
+  address aavePool;
+  /**
+   * @notice Fee percentage numerator for using Portal liquidity
+   * @dev Assumes the same basis points as the liquidity fee
+   */
+  uint256 aavePortalFeeNumerator;
+  /**
+   * @notice Mapping to store the transfer liquidity amount provided by Aave Portals
+   */
+  mapping(bytes32 => uint256) aavePortalsTransfers;
 }
 
 library LibConnextStorage {

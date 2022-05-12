@@ -13,6 +13,7 @@ import {ProposedOwnableFacet} from "../../contracts/diamond/facets/ProposedOwnab
 import {RelayerFacet} from "../../contracts/diamond/facets/RelayerFacet.sol";
 import {RoutersFacet} from "../../contracts/diamond/facets/RoutersFacet.sol";
 import {StableSwapFacet} from "../../contracts/diamond/facets/StableSwapFacet.sol";
+import {PortalFacet} from "../../contracts/diamond/facets/PortalFacet.sol";
 import {ConnextMessage} from "../../contracts/diamond/libraries/ConnextMessage.sol";
 import {XCallArgs, CallParams} from "../../contracts/diamond/libraries/LibConnextStorage.sol";
 import {IDiamondCut} from "../../contracts/diamond/interfaces/IDiamondCut.sol";
@@ -30,6 +31,7 @@ contract Deployer {
   RelayerFacet relayerFacet;
   RoutersFacet routersFacet;
   StableSwapFacet stableSwapAsset;
+  PortalFacet portalFacet;
 
   function getDiamondCutFacetCut(address _diamondCutFacet) internal returns (IDiamondCut.FacetCut memory) {
     bytes4[] memory diamondCutFacetSelectors = new bytes4[](1);
@@ -224,6 +226,26 @@ contract Deployer {
       });
   }
 
+  function getPortalCut(address _portalFacet) internal returns (IDiamondCut.FacetCut memory) {
+    bytes4[] memory portalFacetSelectors = new bytes4[](9);
+    portalFacetSelectors[0] = PortalFacet.aavePool.selector;
+    portalFacetSelectors[1] = PortalFacet.aavePortalFee.selector;
+    portalFacetSelectors[2] = PortalFacet.approveRouterForPortal.selector;
+    portalFacetSelectors[3] = PortalFacet.disapproveRouterForPortal.selector;
+    portalFacetSelectors[4] = PortalFacet.getRouterApprovalForPortal.selector;
+    portalFacetSelectors[5] = PortalFacet.repayAavePortal.selector;
+    portalFacetSelectors[6] = PortalFacet.setAavePool.selector;
+    portalFacetSelectors[7] = PortalFacet.setAavePortalFee.selector;
+    portalFacetSelectors[8] = PortalFacet.getAavePortalsTransfers.selector;
+
+    return
+      IDiamondCut.FacetCut({
+        facetAddress: _portalFacet,
+        action: IDiamondCut.FacetCutAction.Add,
+        functionSelectors: portalFacetSelectors
+      });
+  }
+
   function deployFacets() internal {
     diamondCutFacet = new DiamondCutFacet();
     diamondLoupeFacet = new DiamondLoupeFacet();
@@ -236,10 +258,11 @@ contract Deployer {
     relayerFacet = new RelayerFacet();
     routersFacet = new RoutersFacet();
     stableSwapAsset = new StableSwapFacet();
+    portalFacet = new PortalFacet();
   }
 
   function getFacetCuts() internal returns (IDiamondCut.FacetCut[] memory) {
-    IDiamondCut.FacetCut[] memory facetCuts = new IDiamondCut.FacetCut[](10);
+    IDiamondCut.FacetCut[] memory facetCuts = new IDiamondCut.FacetCut[](11);
     facetCuts[0] = getDiamondCutFacetCut(address(diamondCutFacet));
     facetCuts[1] = getDiamondLoupeFacetCut(address(diamondLoupeFacet));
     facetCuts[2] = getAssetFacetCut(address(assetFacet));
@@ -250,6 +273,7 @@ contract Deployer {
     facetCuts[7] = getRelayerFacetCut(address(relayerFacet));
     facetCuts[8] = getRoutersFacetCut(address(routersFacet));
     facetCuts[9] = getStableSwapFacetCut(address(stableSwapAsset));
+    facetCuts[10] = getPortalCut(address(portalFacet));
 
     return facetCuts;
   }

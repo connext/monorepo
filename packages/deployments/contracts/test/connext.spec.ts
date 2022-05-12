@@ -27,6 +27,7 @@ import {
   DiamondInit,
   AmplificationUtils,
   SwapUtils,
+  PortalFacet,
 } from "../typechain-types";
 
 import {
@@ -182,6 +183,7 @@ describe("Connext", () => {
       AmplificationUtils: amplificationUtils.address,
       SwapUtils: swapUtils.address,
     });
+    const portalFacet = await deployContract<PortalFacet>("PortalFacet");
 
     const diamondInit = await deployContract<DiamondInit>("DiamondInit");
 
@@ -199,6 +201,7 @@ describe("Connext", () => {
         relayerFacet,
         routersFacet,
         stableSwapFacet,
+        portalFacet,
       ],
       admin.address,
       diamondInit.address,
@@ -226,6 +229,7 @@ describe("Connext", () => {
         relayerFacet,
         routersFacet,
         stableSwapFacet,
+        portalFacet,
       ],
       admin.address,
       diamondInit.address,

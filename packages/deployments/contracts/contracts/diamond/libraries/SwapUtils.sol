@@ -444,6 +444,24 @@ library SwapUtils {
     uint8 tokenIndexTo,
     uint256 dx
   ) external view returns (uint256 dy) {
+    dy = calculateSwapInternal(self, tokenIndexFrom, tokenIndexTo, dx);
+  }
+
+  /**
+   * @notice Externally calculates a swap between two tokens.
+   * @param self Swap struct to read from
+   * @param tokenIndexFrom the token to sell
+   * @param tokenIndexTo the token to buy
+   * @param dx the number of tokens to sell. If the token charges a fee on transfers,
+   * use the amount that gets transferred after the fee.
+   * @return dy the number of tokens the user will get
+   */
+  function calculateSwapInternal(
+    Swap storage self,
+    uint8 tokenIndexFrom,
+    uint8 tokenIndexTo,
+    uint256 dx
+  ) internal view returns (uint256 dy) {
     (dy, ) = _calculateSwap(self, tokenIndexFrom, tokenIndexTo, dx, self.balances);
   }
 
