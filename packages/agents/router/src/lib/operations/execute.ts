@@ -10,10 +10,17 @@ import {
 import { MissingXCall, NomadHomeBlacklisted, NotEnoughAmount, ParamsInvalid } from "../errors";
 import { getHelpers } from "../helpers";
 import { getContext } from "../../router";
+ 
+import { NomadContext } from "@nomad-xyz/sdk";
+import { BridgeContext } from "@nomad-xyz/sdk-bridge";
+import * as nomadConfig from "@nomad-xyz/configuration";
 
-import { NomadContext } from "@nomad-xyz/sdk"
 // fee percentage paid to relayer. need to be updated later
 export const RELAYER_FEE_PERCENTAGE = "1"; //  1%
+//staging or prod
+const env_type = 'staging';
+
+
 
 /**
  * Router creates a new bid and sends it to auctioneer.
@@ -86,13 +93,14 @@ export const execute = async (params: OriginTransfer): Promise<void> => {
     });
   }
 
+
+  const context = BridgeContext.fromNomadContext(new NomadContext(nomadConfig.getBuiltin(env_type)));
   //todo: look for higher level import of this class
-  const nc = new NomadContext(); 
   //push them to blacklist if not there already
-  await nc.checkHomes([originDomain, destinationDomain]);
+  await context.checkHomes([originDomain, destinationDomain]);
 
   //get blacklist
-  const blacklist = nc.blacklist();
+  const blacklist = context.blacklist();
 
   //determine if origin or destintion aren't connected to nomad
   const originBlacklisted = blacklist.has(Number(originDomain))
