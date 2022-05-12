@@ -694,6 +694,8 @@ describe("Integration:E2E", () => {
               callData: "0x",
               originDomain: domainInfo.ORIGIN.domain,
               destinationDomain: domainInfo.DESTINATION.domain,
+              forceSlow: false,
+              receiveLocal: false,
             },
             transactingAssetId: originAsset.address,
             amount: TRANSFER_TOKEN_AMOUNT.toString(),
