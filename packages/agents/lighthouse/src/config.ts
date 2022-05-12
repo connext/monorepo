@@ -93,11 +93,6 @@ export const getEnvConfig = (
       diagnostic:
         process.env.NXTP_DIAGNOSTIC_MODE || configJson.mode?.diagnostic || configFile.mode?.diagnostic || false,
     },
-    backendUrl:
-      process.env.NXTP_SEQUENCER ||
-      configJson.backendUrl ||
-      configFile.backendUrl ||
-      "https://postgrest.testnet.staging.connext.ninja",
     polling: {
       backend:
         process.env.NXTP_BACKEND_POLL_INTERVAL ||
@@ -106,7 +101,17 @@ export const getEnvConfig = (
         DEFAULT_BACKEND_POLL_INTERVAL,
     },
     environment: process.env.NXTP_ENVIRONMENT || configJson.environment || configFile.environment || "production",
+    backendUrl:
+      process.env.NXTP_BACKEND_URL ||
+      configJson.backendUrl ||
+      configFile.backendUrl ||
+      "https://postgrest.testnet.connext.ninja",
   };
+
+  nxtpConfig.backendUrl =
+    nxtpConfig.environment === "production"
+      ? "https://postgrest.testnet.connext.ninja"
+      : "https://postgrest.testnet.staging.connext.ninja";
 
   const contractPostfix: ContractPostfix =
     nxtpConfig.environment === "production"
