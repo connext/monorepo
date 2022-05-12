@@ -9,8 +9,8 @@ import { getHelpers } from "./lib/helpers";
 
 // Polling mins and defaults.
 const DEFAULT_CONFIRMATIONS = 3;
-const MIN_BACKEND_POLL_INTERVAL = 10_000;
-const DEFAULT_BACKEND_POLL_INTERVAL = 20_000;
+const MIN_BACKEND_POLL_INTERVAL = 30_000;
+const DEFAULT_BACKEND_POLL_INTERVAL = 60_000;
 
 dotenvConfig();
 
