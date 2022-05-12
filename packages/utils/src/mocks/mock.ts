@@ -160,6 +160,8 @@ export const mock: any = {
           ? {
               to: user,
               callData: "0x",
+              callback: mkAddress("0x"),
+              callbackFee: "0",
               forceSlow: false,
               receiveLocal: false,
             }

@@ -281,7 +281,7 @@ contract ConnextHandlerTest is ForgeHelper {
       domain,
       destinationDomain,
       address(0),
-      0
+      0,
       false,
       false
     );
@@ -316,7 +316,7 @@ contract ConnextHandlerTest is ForgeHelper {
       domain,
       destinationDomain,
       address(0),
-      0
+      0,
       false,
       false
     );
@@ -334,7 +334,7 @@ contract ConnextHandlerTest is ForgeHelper {
     // TODO Correctly calculate the message
     // Harcoded the message from the emitted event since here we are only testing that relayerFee is included
     bytes
-      memory message = hex"00000001000000000000000000000000c94cf1a6d4b8a25e424b3ed8792eed1f1b95b86e030000000000000000000000000000000000000000000000000000000000000064000000000000000000000000000000000000000000000000000000000000000020b4b2eeb4ea213a5e7d1e1d2a3a1a437fbe7c8b3490898b0474b0fe66dda70a747136416651ffe40851fbe308e045079987fc3f10ccfe4b215867a350d94d4e";
+      memory message = hex"00000001000000000000000000000000c94cf1a6d4b8a25e424b3ed8792eed1f1b95b86e030000000000000000000000000000000000000000000000000000000000000064000000000000000000000000000000000000000000000000000000000000000020b4b2eeb4ea213a5e7d1e1d2a3a1a437fbe7c8b3490898b0474b0fe66dda70a3e0ac16162d52ff231902c9bfe2f01f0cdc0af08d6a9ae25612d9972be2e809b";
 
     // NOTE: the `amount` and `bridgedAmt` are 0 because `.balanceOf` of the origin asset returns
     // 0 always via setup function
@@ -363,7 +363,7 @@ contract ConnextHandlerTest is ForgeHelper {
       domain,
       destinationDomain,
       address(0),
-      0
+      0,
       false,
       false
     );
@@ -398,7 +398,7 @@ contract ConnextHandlerTest is ForgeHelper {
       domain,
       destinationDomain,
       address(0),
-      0
+      0,
       false,
       false
     );
@@ -431,7 +431,7 @@ contract ConnextHandlerTest is ForgeHelper {
       domain,
       destinationDomain,
       address(0),
-      0
+      0,
       false,
       false
     );
@@ -470,7 +470,7 @@ contract ConnextHandlerTest is ForgeHelper {
       domain,
       destinationDomain,
       address(0),
-      0
+      0,
       false,
       false
     );
@@ -504,7 +504,7 @@ contract ConnextHandlerTest is ForgeHelper {
       domain,
       destinationDomain,
       address(0),
-      0
+      0,
       false,
       false
     );
@@ -546,7 +546,9 @@ contract ConnextHandlerTest is ForgeHelper {
       domain,
       destinationDomain,
       callbackAddr,
-      callbackFee
+      callbackFee,
+      false,
+      false
     );
     IConnextHandler.XCallArgs memory args = IConnextHandler.XCallArgs(
       callParams,
@@ -586,7 +588,9 @@ contract ConnextHandlerTest is ForgeHelper {
       domain,
       destinationDomain,
       callbackAddr,
-      callbackFee
+      callbackFee,
+      false,
+      false
     );
     IConnextHandler.XCallArgs memory args = IConnextHandler.XCallArgs(
       callParams,
@@ -623,7 +627,9 @@ contract ConnextHandlerTest is ForgeHelper {
       domain,
       destinationDomain,
       callbackAddr,
-      callbackFee
+      callbackFee,
+      false,
+      false
     );
     IConnextHandler.XCallArgs memory args = IConnextHandler.XCallArgs(
       callParams,
@@ -662,7 +668,7 @@ contract ConnextHandlerTest is ForgeHelper {
       domain,
       destinationDomain,
       address(0),
-      0
+      0,
       false,
       false
     );
