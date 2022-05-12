@@ -146,7 +146,7 @@ export class NxtpSdkBase {
       ...params,
       calldata: params.callData || "0x",
       forceSlow: params.forceSlow || false,
-      receiveLocal: params.recieveLocal || false,
+      receiveLocal: params.receiveLocal || false,
     };
     const ConnextContractAddress = this.config.chains[originDomain].deployments!.connext;
 
