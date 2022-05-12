@@ -66,11 +66,19 @@ variable "kovan_alchemy_key_0" {
   type = string
 }
 
+variable "goerli_alchemy_key_0" {
+  type = string
+}
+
 variable "rinkeby_alchemy_key_1" {
   type = string
 }
 
 variable "kovan_alchemy_key_1" {
+  type = string
+}
+
+variable "goerli_alchemy_key_1" {
   type = string
 }
 
