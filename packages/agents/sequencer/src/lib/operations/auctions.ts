@@ -133,6 +133,11 @@ export const executeAuctions = async (_requestContext: RequestContext) => {
             ...(auctions[domain] || {}),
             [transferId]: auction,
           };
+        } else {
+          logger.info("Waiting for auction timeout", requestContext, methodContext, {
+            elapsed,
+            waitTime: config.auctionWaitTime,
+          });
         }
       }
     }),
