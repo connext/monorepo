@@ -83,7 +83,7 @@ export const getEnvConfig = (
   nxtpConfig.backendUrl =
     nxtpConfig.environment === "production"
       ? "https://postgrest.testnet.connext.ninja"
-      : "https://postgrest.staging.connext.ninja";
+      : "https://postgrest.testnet.staging.connext.ninja";
 
   const defaultConfirmations = chainData && (chainData.get("1")?.confirmations ?? 1 + 3);
 
