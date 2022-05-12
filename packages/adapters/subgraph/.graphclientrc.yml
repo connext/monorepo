@@ -43,7 +43,7 @@ sources:
           includeRootOperations: true
           ignore:
             - _SubgraphErrorPolicy_
-  - name: Connext_Rinkeby
+  - name: Connext_Goerli
     handler:
       graphql:
         endpoint: https://api.thegraph.com/subgraphs/name/connext/nxtp-amarok-runtime-v0-goerli
