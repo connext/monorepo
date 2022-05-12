@@ -1,7 +1,6 @@
 import { createLoggingContext, ExecuteArgs, jsonifyError, NxtpError, formatUrl } from "@connext/nxtp-utils";
 import axios from "axios";
 import interval from "interval-promise";
-import { constants } from "ethers";
 
 import { getOperations } from "../../lib/operations";
 import { getContext } from "../../lighthouse";
