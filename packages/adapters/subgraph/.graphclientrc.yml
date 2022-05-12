@@ -43,6 +43,28 @@ sources:
           includeRootOperations: true
           ignore:
             - _SubgraphErrorPolicy_
+  - name: Connext_Rinkeby
+    handler:
+      graphql:
+        endpoint: https://api.thegraph.com/subgraphs/name/connext/nxtp-amarok-runtime-v0-goerli
+        retry: 5
+    transforms:
+      - prefix:
+          value: goerli_
+          includeRootOperations: true
+          ignore:
+            - _SubgraphErrorPolicy_
+  - name: Connext_Staging_Goerli
+    handler:
+      graphql:
+        endpoint: https://api.thegraph.com/subgraphs/name/connext/nxtp-amarok-runtime-staging-goerli
+        retry: 5
+    transforms:
+      - prefix:
+          value: staginggoerli_
+          includeRootOperations: true
+          ignore:
+            - _SubgraphErrorPolicy_
 
 documents:
   - ./example-query.graphql
