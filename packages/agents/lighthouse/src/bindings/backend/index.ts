@@ -30,26 +30,29 @@ export const pollBackend = async () => {
   reconciledTransactions.map(async (transaction: any) => {
     // console.log(transaction);
 
-    try {
-      const executeParams: ExecuteArgs = {
-        params: {
-          originDomain: transaction.origin_domain,
-          destinationDomain: transaction.destination_domain,
-          to: transaction.to,
-          callData: transaction.call_data,
-        },
-        local: transaction.destination_local_asset,
-        routers: [constants.AddressZero],
-        routerSignatures: ["0x"],
-        amount: transaction.destination_local_amount.toString(),
-        nonce: transaction.nonce,
-        originSender: transaction.xcall_caller,
-      };
+    const executeParams: ExecuteArgs = {
+      params: {
+        originDomain: transaction.origin_domain,
+        destinationDomain: transaction.destination_domain,
+        to: transaction.to,
+        callData: transaction.call_data,
+      },
+      local: transaction.destination_local_asset,
+      routers: [],
+      routerSignatures: [],
+      amount: transaction.destination_local_amount.toString(),
+      nonce: transaction.nonce,
+      originSender: transaction.xcall_caller,
+    };
 
-      const transferId = transaction.trasfer_id as string;
+    const transferId = transaction.trasfer_id as string;
+    try {
       await execute(executeParams, transferId);
     } catch (error: any) {
-      logger.error("Error executing", requestContext, methodContext, jsonifyError(error as NxtpError), { transaction });
+      logger.error("Error executing", requestContext, methodContext, jsonifyError(error as NxtpError), {
+        executeParams,
+        transferId,
+      });
     }
   });
 };
