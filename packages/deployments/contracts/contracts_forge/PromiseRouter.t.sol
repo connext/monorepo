@@ -231,6 +231,54 @@ contract PromiseRouterTest is ForgeHelper {
     promiseRouter.process(transferId);
   }
 
+  // Should work if callback fee is zero
+  function test_PromiseRouter__process_shouldWorkIfZeroCallbackfee(bytes calldata returnData) public {
+    vm.assume(returnData.length != 0);
+    bytes32 transferId = "A";
+    address callbackAddress = address(callback);
+    bool success = true;
+    uint256 beforeBalance = 1 ether;
+
+    // transfer 1 ether wei to promiseRouter as callback fee
+    address(promiseRouter).call{value: beforeBalance}("");
+
+    uint256 relayerBeforeBalance = relayer.balance;
+    uint256 callbackFee = 0 ether;
+
+    setApprovedRelayer(relayer, true);
+    setCallbackFee(transferId, callbackFee);
+
+    promiseRouter.mockHandle(callbackAddress, success, returnData);
+
+    bytes29 _msg = bytes29(promiseRouter.promiseMessages(transferId).ref(0).mustBePromiseCallback());
+    assertTrue(_msg.isValid());
+    assertTrue(AddressUpgradeable.isContract(_msg.callbackAddress()));
+    assertTrue(callbackAddress == _msg.callbackAddress());
+
+    // check if callback executed
+    vm.expectCall(
+      address(callback),
+      abi.encodeWithSelector(MockCallback.callback.selector, transferId, success, returnData)
+    );
+
+    vm.expectEmit(true, true, true, true);
+    emit CallbackExecuted(transferId, relayer);
+
+    vm.prank(relayer);
+    promiseRouter.process(transferId);
+
+    // check if promiseMessage cleared after callback
+    assertTrue(promiseRouter.promiseMessages(transferId).length == 0);
+
+    // check if callbackFee cleared after callback
+    assertTrue(promiseRouter.callbackFees(transferId) == 0);
+
+    // check if callback fee is transferred to relayer
+    uint256 relayerAfterBalance = relayer.balance;
+    assertEq(relayerAfterBalance, relayerBeforeBalance + callbackFee);
+    assertEq(address(promiseRouter).balance, beforeBalance - callbackFee);
+  }
+
   // Should work
   function test_PromiseRouter__process_shouldWork(bytes calldata returnData, uint32 _nonce) public {
     vm.assume(returnData.length != 0);
@@ -299,13 +347,10 @@ contract PromiseRouterTest is ForgeHelper {
 
     uint256 amount = 0.5 ether;
 
-    vm.expectEmit(true, false, false, true);
-    emit CallbackFeeAdded(transferId, initialFee, initialFee + amount, address(this));
-
     vm.expectRevert(PromiseRouter.PromiseRouter__bumpCallbackFee_messageUnavailable.selector);
     promiseRouter.bumpCallbackFee{value: amount}(transferId);
 
-    assertEq(promiseRouter.callbackFees(transferId), initialFee + amount);
+    assertEq(promiseRouter.callbackFees(transferId), initialFee);
   }
 
   // Should work

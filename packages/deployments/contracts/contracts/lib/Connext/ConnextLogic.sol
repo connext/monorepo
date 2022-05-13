@@ -781,7 +781,7 @@ library ConnextLogic {
 
     // Transfer callback fee to PromiseRouter if set
     if (_args.xCallArgs.params.callbackFee != 0) {
-      _args.promiseRouter.bumpCallbackFee{value: _args.xCallArgs.params.callbackFee}(transferId);
+      _args.promiseRouter.initCallbackFee{value: _args.xCallArgs.params.callbackFee}(transferId);
     }
 
     bytes memory message = _formatMessage(_args, bridged, transferId, bridgedAmt);

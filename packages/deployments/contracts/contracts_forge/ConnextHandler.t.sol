@@ -610,7 +610,7 @@ contract ConnextHandlerTest is ForgeHelper {
   }
 
   // Should work with callback address and callback fee
-  function test_ConnextHandler__xcall_callbackFeeBumpWorks() public {
+  function test_ConnextHandler__xcall_callbackFeeInitWorks() public {
     address to = address(100);
     uint256 amount = 1 ether;
     uint256 relayerFee = 0.01 ether;
@@ -618,6 +618,9 @@ contract ConnextHandlerTest is ForgeHelper {
     address callbackAddr = address(callback);
     address transactingAssetId = address(originAdopted);
     address promiseRouterAddr = address(connext.promiseRouter());
+
+    vm.prank(promiseRouter.owner());
+    promiseRouter.setConnext(address(connext));
 
     IConnextHandler.CallParams memory callParams = IConnextHandler.CallParams(
       to,
@@ -644,7 +647,7 @@ contract ConnextHandlerTest is ForgeHelper {
 
     assertEq(beforePromiseRouterBalance, 0);
 
-    vm.expectCall(promiseRouterAddr, abi.encodeWithSelector(PromiseRouter.bumpCallbackFee.selector, id));
+    vm.expectCall(promiseRouterAddr, abi.encodeWithSelector(PromiseRouter.initCallbackFee.selector, id));
 
     connext.xcall{value: relayerFee + callbackFee}(args);
 

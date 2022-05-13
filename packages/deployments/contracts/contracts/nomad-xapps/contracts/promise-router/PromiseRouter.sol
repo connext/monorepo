@@ -38,6 +38,7 @@ contract PromiseRouter is Version0, Router, ReentrancyGuardUpgradeable {
   error PromiseRouter__process_notContractCallback();
   error PromiseRouter__bumpCallbackFee_valueIsZero();
   error PromiseRouter__bumpCallbackFee_messageUnavailable();
+  error PromiseRouter__initCallbackFee_valueIsZero();
 
   // ============ Public Storage ============
 
@@ -256,6 +257,18 @@ contract PromiseRouter is Version0, Router, ReentrancyGuardUpgradeable {
     if (callbackFee > 0) {
       AddressUpgradeable.sendValue(payable(msg.sender), callbackFee);
     }
+  }
+
+  /**
+   * @notice This function will be called on the origin domain to init the callback fee while xcall
+   * @param _transferId - The unique identifier of the crosschain transaction
+   */
+  function initCallbackFee(bytes32 _transferId) external payable onlyConnext {
+    if (msg.value == 0) revert PromiseRouter__initCallbackFee_valueIsZero();
+
+    callbackFees[_transferId] += msg.value;
+
+    emit CallbackFeeAdded(_transferId, msg.value, callbackFees[_transferId], msg.sender);
   }
 
   /**
