@@ -470,6 +470,7 @@ jobs:
       AWS_PROFILE: aws-deployer-connext
       TF_VAR_full_image_name_router: ${{ fromJSON(needs.e2e-tests.outputs.router-tags).tags[0] }}
       TF_VAR_full_image_name_sequencer: ${{ fromJSON(needs.e2e-tests.outputs.sequencer-tags).tags[0] }}
+      TF_VAR_full_image_name_lighthouse: ${{ fromJSON(needs.smoke-tests.outputs.lighthouse-tags).tags[0] }}
 
     runs-on: ubuntu-latest
     permissions:
