@@ -719,8 +719,8 @@ library ConnextLogic {
       revert ConnextLogic__xcall_emptyTo();
     }
 
-    // ensure callback fee is zero when callback address is not contract
-    if (!AddressUpgradeable.isContract(_args.xCallArgs.params.callback) && _args.xCallArgs.params.callbackFee > 0) {
+    // ensure callback fee is zero when callback address is empty
+    if (_args.xCallArgs.params.callback == address(0) && _args.xCallArgs.params.callbackFee > 0) {
       revert ConnextLogic__xcall_nonZeroCallbackFeeForNonContractCallback();
     }
   }
