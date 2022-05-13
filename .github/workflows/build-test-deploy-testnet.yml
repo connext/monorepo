@@ -441,8 +441,9 @@ jobs:
           terraform apply -var-file=tfvars.json -auto-approve
 
     outputs:
-      router-tags: ${{ needs.smoke-tests.outputs.router-tags }}
       sequencer-tags: ${{ needs.smoke-tests.outputs.sequencer-tags }}
+      router-tags: ${{ needs.smoke-tests.outputs.router-tags }}
+      lighthouse-tags: ${{ needs.smoke-tests.outputs.lighthouse-tags }}
 
   e2e-tests:
     runs-on: ubuntu-latest
@@ -461,6 +462,7 @@ jobs:
     outputs:
       router-tags: ${{ needs.terraform-services-core-staging.outputs.router-tags }}
       sequencer-tags: ${{ needs.terraform-services-core-staging.outputs.sequencer-tags }}
+      lighthouse-tags: ${{ needs.terraform-services-core-staging.outputs.lighthouse-tags }}
       poller-tags: ${{ needs.terraform-services-backend-staging.outputs.poller-tags }}
 
   terraform-services-core-prod:
@@ -470,7 +472,7 @@ jobs:
       AWS_PROFILE: aws-deployer-connext
       TF_VAR_full_image_name_router: ${{ fromJSON(needs.e2e-tests.outputs.router-tags).tags[0] }}
       TF_VAR_full_image_name_sequencer: ${{ fromJSON(needs.e2e-tests.outputs.sequencer-tags).tags[0] }}
-      TF_VAR_full_image_name_lighthouse: ${{ fromJSON(needs.smoke-tests.outputs.lighthouse-tags).tags[0] }}
+      TF_VAR_full_image_name_lighthouse: ${{ fromJSON(needs.e2e-tests.outputs.lighthouse-tags).tags[0] }}
 
     runs-on: ubuntu-latest
     permissions:
