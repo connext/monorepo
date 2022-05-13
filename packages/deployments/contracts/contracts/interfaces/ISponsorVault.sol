@@ -6,9 +6,9 @@ interface ISponsorVault {
   // - call `addLiquidityFor` to send the calculated fee to the router
   // - return the amount of liquidity router was reimbursed
   function reimburseLiquidityFees(
-    address adopted,
+    address token,
     uint256 amount,
-    address _receiver
+    address receiver
   ) external returns (uint256);
 
   // Should be callable by the Connext contract only. Should:
@@ -17,18 +17,18 @@ interface ISponsorVault {
   // - send the user the destination domain gas
   function reimburseRelayerFees(
     uint32 originDomain,
-    address payable to,
-    uint256 relayerFee
+    address payable receiver,
+    uint256 amount
   ) external;
 
   // Should allow anyone to send funds to the vault for sponsoring fees
-  function deposit(address _token, uint256 _amount) external;
+  function deposit(address _token, uint256 _amount) external payable;
 
   // Should allow the owner of the vault to withdraw funds put in to a given
   // address
   function withdraw(
-    address _token,
-    address _receiver,
-    uint256 _amount
+    address token,
+    address receiver,
+    uint256 amount
   ) external;
 }
