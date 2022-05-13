@@ -224,7 +224,7 @@ contract PromiseRouter is Version0, Router, ReentrancyGuardUpgradeable {
   function process(bytes32 transferId) public payable nonReentrant {
     // parse out the return data and callback address from message
     bytes memory _message = promiseMessages[transferId];
-    if (_message.length == 0) revert PromiseRouter__process_InvalidMessage();
+    if (_message.length == 0) revert PromiseRouter__process_invalidMessage();
 
     bytes29 _msg = _message.ref(0).mustBePromiseCallback();
 
