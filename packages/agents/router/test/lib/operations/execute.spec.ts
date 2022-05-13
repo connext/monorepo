@@ -84,6 +84,8 @@ describe("Operations:Execute", () => {
         xparams: {
           to: 1234,
           callData: 5678,
+          forceSlow: false,
+          receiveLocal: false,
         },
       };
       await expect(execute(invalidParams as any)).to.be.rejectedWith(ParamsInvalid);
