@@ -32,7 +32,7 @@ contract PromiseRouter is Version0, Router, ReentrancyGuardUpgradeable {
   error PromiseRouter__onlyConnext_notConnext();
   error PromiseRouter__send_returndataEmpty();
   error PromiseRouter__send_callbackAddressNotContract();
-  error PromiseRouter__process_InvalidMessage();
+  error PromiseRouter__process_invalidTransferId();
   error PromiseRouter__process_notApprovedRelayer();
   error PromiseRouter__process_insufficientCallbackFee();
   error PromiseRouter__process_notContractCallback();
@@ -224,7 +224,7 @@ contract PromiseRouter is Version0, Router, ReentrancyGuardUpgradeable {
   function process(bytes32 transferId) public payable nonReentrant {
     // parse out the return data and callback address from message
     bytes memory _message = promiseMessages[transferId];
-    if (_message.length == 0) revert PromiseRouter__process_InvalidMessage();
+    if (_message.length == 0) revert PromiseRouter__process_invalidTransferId();
 
     bytes29 _msg = _message.ref(0).mustBePromiseCallback();
 
