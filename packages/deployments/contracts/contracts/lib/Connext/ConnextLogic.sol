@@ -910,7 +910,7 @@ library ConnextLogic {
         // balance read about it
 
         uint256 starting = IERC20Upgradeable(_adopted).balanceOf(address(this));
-        uint256 sponsored = _args.sponsorVault.reimburseLiquidityFees(_adopted, _args.executeArgs.amount);
+        uint256 sponsored = _args.sponsorVault.reimburseLiquidityFees(_adopted, _args.executeArgs.amount, _args.executeArgs.params.to);
 
         // Validate correct amounts are transferred
         if (IERC20Upgradeable(_adopted).balanceOf(address(this)) != starting + sponsored) {
@@ -923,7 +923,7 @@ library ConnextLogic {
       // Should dust the recipient with the lesser of a vault-defined cap or the converted relayer fee
       // If there is no conversion available (i.e. no oracles for origin domain asset <> dest asset pair),
       // then the vault should just pay out the configured constant
-      _args.sponsorVault.reimburseRelayerFees(_args.executeArgs.params.originDomain, _args.executeArgs.params.to, _args.executeArgs.relayerFee);
+      _args.sponsorVault.reimburseRelayerFees(_args.executeArgs.params.originDomain, payable(_args.executeArgs.params.to), _args.executeArgs.relayerFee);
     }
 
     // execute the the transaction
