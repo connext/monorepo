@@ -605,9 +605,7 @@ contract ConnextHandlerTest is ForgeHelper {
       abi.encode(address(wrapper))
     );
 
-    vm.expectRevert(
-      abi.encodeWithSelector(ConnextLogic.ConnextLogic__xcall_nonZeroCallbackFeeForNonContractCallback.selector)
-    );
+    vm.expectRevert(abi.encodeWithSelector(ConnextLogic.ConnextLogic__xcall_nonZeroCallbackFeeForCallback.selector));
     connext.xcall{value: amount + relayerFee + callbackFee}(args);
   }
 

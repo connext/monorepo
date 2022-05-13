@@ -231,24 +231,6 @@ contract PromiseRouterTest is ForgeHelper {
     promiseRouter.process(transferId);
   }
 
-  // Fail if callback fee is zero
-  function test_PromiseRouter__process_failsIfZeroCallbackfee(bytes calldata returnData) public {
-    vm.assume(returnData.length != 0);
-    bytes32 transferId = "A";
-    address callbackAddress = address(callback);
-    bool success = true;
-
-    promiseRouter.mockHandle(callbackAddress, success, returnData);
-
-    setApprovedRelayer(relayer, true);
-    setCallbackFee(transferId, 0 ether);
-
-    vm.expectRevert(abi.encodeWithSelector(PromiseRouter.PromiseRouter__process_insufficientCallbackFee.selector));
-
-    vm.prank(relayer);
-    promiseRouter.process(transferId);
-  }
-
   // Should work
   function test_PromiseRouter__process_shouldWork(bytes calldata returnData, uint32 _nonce) public {
     vm.assume(returnData.length != 0);
