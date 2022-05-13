@@ -235,8 +235,13 @@ contract PromiseRouter is Version0, Router, ReentrancyGuardUpgradeable {
 
     if (!AddressUpgradeable.isContract(callbackAddress)) revert PromiseRouter__process_notContractCallback();
 
+    uint256 callbackFee = callbackFees[transferId];
+
     // remove message
     delete promiseMessages[transferId];
+
+    // remove callback fees
+    callbackFees[transferId] = 0;
 
     // execute callback
     ICallback(callbackAddress).callback(transferId, _msg.returnSuccess(), _msg.returnData());
@@ -244,8 +249,7 @@ contract PromiseRouter is Version0, Router, ReentrancyGuardUpgradeable {
     emit CallbackExecuted(transferId, success, msg.sender);
 
     // Should transfer the stored relayer fee to the msg.sender
-    AddressUpgradeable.sendValue(payable(msg.sender), callbackFees[transferId]);
-    callbackFees[transferId] = 0;
+    AddressUpgradeable.sendValue(payable(msg.sender), callbackFee);
   }
 
   /**
