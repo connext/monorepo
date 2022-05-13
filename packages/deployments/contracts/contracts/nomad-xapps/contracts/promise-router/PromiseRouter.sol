@@ -238,10 +238,11 @@ contract PromiseRouter is Version0, Router, ReentrancyGuardUpgradeable {
 
     if (!AddressUpgradeable.isContract(callbackAddress)) revert PromiseRouter__process_notContractCallback();
 
-    (bool success, ) = callbackAddress.call(
-      abi.encodeWithSelector(ICallback.callback.selector, transferId, _msg.returnSuccess(), _msg.returnData())
-    );
+    // remove message
     delete promiseMessages[transferId];
+
+    // execute callback
+    ICallback(callbackAddress).callback(transferId, _msg.returnSuccess(), _msg.returnData());
 
     emit CallbackExecuted(transferId, success, msg.sender);
 
