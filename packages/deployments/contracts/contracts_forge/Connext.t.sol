@@ -11,6 +11,7 @@ import {ProposedOwnableUpgradeable} from "../contracts/ProposedOwnableUpgradeabl
 import {TestERC20} from "../contracts/test/TestERC20.sol";
 import {WETH} from "../contracts/test/TestWeth.sol";
 
+import {ISponsorVault} from "../contracts/interfaces/ISponsorVault.sol";
 import {MockHome} from "./RelayerFeeRouter.t.sol";
 
 import {Deployer} from "./utils/Deployer.sol";
@@ -52,6 +53,10 @@ contract TestSetterFacet is BaseConnextFacet {
   function setTestTransferRelayer(bytes32 _transferId, address _relayer) external {
     s.transferRelayer[_transferId] = _relayer;
   }
+
+  function setTestSponsorVault(address _sponsorVault) external {
+    s.sponsorVault = ISponsorVault(_sponsorVault);
+  }
 }
 
 contract ConnextTest is ForgeHelper, Deployer {
@@ -71,6 +76,7 @@ contract ConnextTest is ForgeHelper, Deployer {
     address caller
   );
   event TransferRelayerFeesUpdated(bytes32 indexed transferId, uint256 relayerFee, address caller);
+  event SponsorVaultUpdated(address oldSponsorVault, address newSponsorVault, address caller);
 
   // ============ Storage ============
   uint32 domain = 1;
@@ -92,9 +98,10 @@ contract ConnextTest is ForgeHelper, Deployer {
   // ============ Test set up ============
 
   function getTestSetterFacetCut(address _testSetterFacetFacet) internal returns (IDiamondCut.FacetCut memory) {
-    bytes4[] memory testSetterFacetSelectors = new bytes4[](2);
+    bytes4[] memory testSetterFacetSelectors = new bytes4[](3);
     testSetterFacetSelectors[0] = TestSetterFacet.setTestRelayerFees.selector;
     testSetterFacetSelectors[1] = TestSetterFacet.setTestTransferRelayer.selector;
+    testSetterFacetSelectors[2] = TestSetterFacet.setTestSponsorVault.selector;
     return IDiamondCut.FacetCut({
       facetAddress: _testSetterFacetFacet,
       action: IDiamondCut.FacetCutAction.Add,
@@ -162,7 +169,6 @@ contract ConnextTest is ForgeHelper, Deployer {
     vm.mockCall(xAppConnectionManager, abi.encodeWithSignature("home()"), abi.encode(home));
   }
 
-
   // ============ setMaxRouters ============
 
   // Should work
@@ -191,6 +197,50 @@ contract ConnextTest is ForgeHelper, Deployer {
       abi.encodeWithSelector(RoutersFacet.RoutersFacet__setMaxRoutersPerTransfer_invalidMaxRoutersPerTransfer.selector)
     );
     IConnextFacets(address(connextDiamondProxy)).setMaxRoutersPerTransfer(0);
+  }
+
+  // ============ setSponsorVault ============
+
+  function test_ConnextHandler__setSponsorVault_worksAddingNewSponsorVault(address _newSponsorVault) public {
+    vm.assume(_newSponsorVault != address(0));
+
+    vm.expectEmit(true, true, true, true);
+    emit SponsorVaultUpdated(address(0), _newSponsorVault, address(this));
+
+    IConnextFacets(address(connextDiamondProxy)).setSponsorVault(_newSponsorVault);
+    assertEq(address(IConnextFacets(address(connextDiamondProxy)).sponsorVault()), _newSponsorVault);
+  }
+
+  function test_ConnextHandler__setSponsorVault_worksRemovingSponsorVault(address _currentSponsorVault) public {
+    vm.assume(_currentSponsorVault != address(0));
+
+    TestSetterFacet(address(connextDiamondProxy)).setTestSponsorVault(_currentSponsorVault);
+    assertEq(address(IConnextFacets(address(connextDiamondProxy)).sponsorVault()), _currentSponsorVault);
+
+    vm.expectEmit(true, true, true, true);
+    emit SponsorVaultUpdated(_currentSponsorVault, address(0), address(this));
+
+    IConnextFacets(address(connextDiamondProxy)).setSponsorVault(address(0));
+    assertEq(address(IConnextFacets(address(connextDiamondProxy)).sponsorVault()), address(0));
+  }
+
+  function test_ConnextHandler__setSponsorVault_failsIfNotOwner() public {
+    vm.prank(address(0));
+    vm.expectRevert(
+      abi.encodeWithSelector(BaseConnextFacet.BaseConnextFacet__onlyOwner_notOwner.selector)
+    );
+    IConnextFacets(address(connextDiamondProxy)).setSponsorVault(address(1));
+  }
+
+  function test_ConnextHandler__setSponsorVault_failsIfAddingSameSponsorVault(address _currentSponsorVault) public {
+    TestSetterFacet(address(connextDiamondProxy)).setTestSponsorVault(_currentSponsorVault);
+    assertEq(address(IConnextFacets(address(connextDiamondProxy)).sponsorVault()), _currentSponsorVault);
+
+    vm.expectRevert(
+      abi.encodeWithSelector(BridgeFacet.BridgeFacet__setSponsorVault_invalidSponsorVault.selector)
+    );
+
+    IConnextFacets(address(connextDiamondProxy)).setSponsorVault(_currentSponsorVault);
   }
 
   // ============ initiateClaim ============
