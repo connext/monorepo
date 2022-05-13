@@ -290,8 +290,8 @@ contract PromiseRouterTest is ForgeHelper {
     promiseRouter.bumpCallbackFee{value: amount}(transferId);
   }
 
-  // Should work
-  function test_PromiseRouter__bumpCallbackFee_shouldWork() public {
+  // Should fail if message isnt handled
+  function test_PromiseRouter__bumpCallbackFee_shouldFailIfMessageNotHandled() public {
     bytes32 transferId = "A";
 
     uint256 initialFee = 0.5 ether;
@@ -302,8 +302,33 @@ contract PromiseRouterTest is ForgeHelper {
     vm.expectEmit(true, false, false, true);
     emit CallbackFeeAdded(transferId, initialFee, initialFee + amount, address(this));
 
+    vm.expectRevert(PromiseRouter.PromiseRouter__bumpCallbackFee_messageUnavailable.selector);
     promiseRouter.bumpCallbackFee{value: amount}(transferId);
 
     assertEq(promiseRouter.callbackFees(transferId), initialFee + amount);
+  }
+
+  // Should work
+  function test_PromiseRouter__bumpCallbackFee_shouldWork(bytes calldata returnData, uint32 _nonce) public {
+    vm.assume(returnData.length != 0);
+
+    uint64 originAndNonce = (uint64(remoteDomain) << 32) | _nonce;
+    bytes32 transferId = "A";
+    address callbackAddress = address(callback);
+    bool success = true;
+
+    bytes memory message = PromiseMessage.formatPromiseCallback(transferId, callbackAddress, success, returnData);
+    bytes29 _msg = message.ref(0).mustBePromiseCallback();
+
+    vm.expectEmit(true, true, true, true);
+    emit Receive(originAndNonce, remoteDomain, transferId, callbackAddress, success, returnData, message);
+
+    promiseRouter.handle(remoteDomain, _nonce, remote, message);
+    assertTrue(!_msg.isNull());
+
+    uint256 initial = promiseRouter.callbackFees(transferId);
+    uint256 amount = 0.5 ether;
+    promiseRouter.bumpCallbackFee{value: amount}(transferId);
+    assertEq(promiseRouter.callbackFees(transferId), initial + amount);
   }
 }
