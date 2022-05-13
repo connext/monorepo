@@ -37,6 +37,7 @@ contract PromiseRouter is Version0, Router, ReentrancyGuardUpgradeable {
   error PromiseRouter__process_insufficientCallbackFee();
   error PromiseRouter__process_notContractCallback();
   error PromiseRouter__bumpCallbackFee_valueIsZero();
+  error PromiseRouter__bumpCallbackFee_messageUnavailable();
 
   // ============ Public Storage ============
 
@@ -213,7 +214,7 @@ contract PromiseRouter is Version0, Router, ReentrancyGuardUpgradeable {
     bool success = _msg.returnSuccess();
     bytes memory data = _msg.returnData();
 
-    //store Promise message
+    // store Promise message
     promiseMessages[transferId] = _message;
 
     // emit Receive event
@@ -252,7 +253,9 @@ contract PromiseRouter is Version0, Router, ReentrancyGuardUpgradeable {
     emit CallbackExecuted(transferId, msg.sender);
 
     // Should transfer the stored relayer fee to the msg.sender
-    AddressUpgradeable.sendValue(payable(msg.sender), callbackFee);
+    if (callbackFee > 0) {
+      AddressUpgradeable.sendValue(payable(msg.sender), callbackFee);
+    }
   }
 
   /**
@@ -261,6 +264,14 @@ contract PromiseRouter is Version0, Router, ReentrancyGuardUpgradeable {
    */
   function bumpCallbackFee(bytes32 _transferId) external payable {
     if (msg.value == 0) revert PromiseRouter__bumpCallbackFee_valueIsZero();
+
+    // use the presence of the message to evaluate if the fee should be bumped.
+    // this is to check that the user is not bumping a transferId that does not exist, or they
+    // are not bumping the fees of a transfer that has already been processed.
+    // the other options are to (a) track process status in a separate mapping (3 mappings updated)
+    // on process) or (b) use the callbackFees mapping and require the callback fees are nonzero
+    // on xcall (preventing 0-fee callbacks)
+    if (promiseMessages[_transferId].length == 0) revert PromiseRouter__bumpCallbackFee_messageUnavailable();
 
     callbackFees[_transferId] += msg.value;
 
