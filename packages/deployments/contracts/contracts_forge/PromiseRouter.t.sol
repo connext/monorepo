@@ -48,7 +48,7 @@ contract PromiseRouterTest is ForgeHelper {
   );
 
   event CallbackFeeAdded(bytes32 indexed transferId, uint256 addedFee, uint256 totalFee, address caller);
-  event CallbackExecuted(bytes32 indexed transferId, bool success, address relayer);
+  event CallbackExecuted(bytes32 indexed transferId, address relayer);
 
   event SetConnext(address indexed connext);
 
@@ -280,7 +280,7 @@ contract PromiseRouterTest is ForgeHelper {
     );
 
     vm.expectEmit(true, true, true, true);
-    emit CallbackExecuted(transferId, true, relayer);
+    emit CallbackExecuted(transferId, relayer);
 
     vm.prank(relayer);
     promiseRouter.process(transferId);

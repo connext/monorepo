@@ -726,7 +726,9 @@ library ConnextLogic {
     }
 
     // ensure callback is contract if supplied
-    if (_args.xCallArgs.params.callback != address(0) && !Address.isContract(_args.xCallArgs.params.callback)) {
+    if (
+      _args.xCallArgs.params.callback != address(0) && !AddressUpgradeable.isContract(_args.xCallArgs.params.callback)
+    ) {
       revert ConnextLogic__xcall_callbackNotAContract();
     }
   }

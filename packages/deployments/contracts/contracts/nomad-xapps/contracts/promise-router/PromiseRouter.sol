@@ -115,10 +115,9 @@ contract PromiseRouter is Version0, Router, ReentrancyGuardUpgradeable {
   /**
    * @notice Emitted when callback function executed
    * @param transferId The transferId
-   * @param success If the callback executed successfully or not
    * @param relayer The address of the relayer which executed the callback
    */
-  event CallbackExecuted(bytes32 indexed transferId, bool success, address relayer);
+  event CallbackExecuted(bytes32 indexed transferId, address relayer);
 
   /**
    * @notice Emitted when a new Connext address is set
@@ -221,7 +220,11 @@ contract PromiseRouter is Version0, Router, ReentrancyGuardUpgradeable {
     emit Receive(_originAndNonce(_origin, _nonce), _origin, transferId, callbackAddress, success, data, _message);
   }
 
-  function process(bytes32 transferId) public payable nonReentrant {
+  /**
+   * @notice Process stored callback function
+   * @param transferId The transferId to process
+   */
+  function process(bytes32 transferId) public nonReentrant {
     // parse out the return data and callback address from message
     bytes memory _message = promiseMessages[transferId];
     if (_message.length == 0) revert PromiseRouter__process_invalidTransferId();
@@ -246,7 +249,7 @@ contract PromiseRouter is Version0, Router, ReentrancyGuardUpgradeable {
     // execute callback
     ICallback(callbackAddress).callback(transferId, _msg.returnSuccess(), _msg.returnData());
 
-    emit CallbackExecuted(transferId, success, msg.sender);
+    emit CallbackExecuted(transferId, msg.sender);
 
     // Should transfer the stored relayer fee to the msg.sender
     AddressUpgradeable.sendValue(payable(msg.sender), callbackFee);
