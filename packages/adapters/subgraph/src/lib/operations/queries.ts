@@ -13,6 +13,8 @@ export const ORIGIN_TRANSFER_ENTITY = `
       callData
       originDomain
       destinationDomain
+      forceSlow
+      receiveLocal
       # Asset Data
       transactingAsset
       transactingAmount
@@ -40,6 +42,8 @@ export const DESTINATION_TRANSFER_ENTITY = `
       callData
       originDomain
       destinationDomain
+      forceSlow
+      receiveLocal
       # Asset Data
       localAsset
       localAmount

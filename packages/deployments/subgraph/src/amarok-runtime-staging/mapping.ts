@@ -181,6 +181,7 @@ export function handleExecuted(event: Executed): void {
       // TODO: Shouldn't we be throwing an error here? How did a transfer get made with a non-existent
       // router?
       router = new Router(param);
+      router.isActive = true;
       router.save();
     }
     routers.push(router.id);
@@ -333,6 +334,7 @@ function getOrCreateAssetBalance(local: Bytes, routerAddress: Address): AssetBal
   let router = Router.load(routerAddress.toHex());
   if (router == null) {
     router = new Router(routerAddress.toHex());
+    router.isActive = true;
     router.save();
   }
 
