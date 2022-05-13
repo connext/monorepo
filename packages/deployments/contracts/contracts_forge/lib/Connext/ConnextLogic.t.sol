@@ -6,7 +6,7 @@ import "../../ForgeHelper.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
 
-import {ConnextLogic, ConnextMessage, ITokenRegistry, IConnextHandler, IExecutor, IWrapped} from "../../../contracts/lib/Connext/ConnextLogic.sol";
+import {ConnextLogic, ConnextMessage, ITokenRegistry, IConnextHandler, IExecutor, IWrapped, PromiseRouter} from "../../../contracts/lib/Connext/ConnextLogic.sol";
 import {RouterPermissionsManagerInfo} from "../../../contracts/lib/Connext/RouterPermissionsManagerLogic.sol";
 import {IStableSwap} from "../../../contracts/interfaces/IStableSwap.sol";
 import {TestERC20} from "../../../contracts/test/TestERC20.sol";
@@ -35,6 +35,7 @@ contract ConnextLogicTest is ForgeHelper {
   address stableSwap = address(5);
   address canonical = address(4);
   bytes32 tokenIdentifier = bytes32(uint256(uint160(address(canonical))));
+  address promiseRouter = address(6);
   TestERC20 adopted;
   TestERC20 local;
 
@@ -93,6 +94,7 @@ contract ConnextLogicTest is ForgeHelper {
       ITokenRegistry(tokenRegistry),
       IWrapped(address(11111)),
       IExecutor(address(22222)),
+      PromiseRouter(payable(promiseRouter)),
       LIQUIDITY_FEE_NUMERATOR,
       LIQUIDITY_FEE_DENOMINATOR
     );
@@ -146,6 +148,8 @@ contract ConnextLogicTest is ForgeHelper {
       bytes(""),
       domain,
       destinationDomain,
+      address(0),
+      0,
       true,
       false
     );
@@ -187,6 +191,8 @@ contract ConnextLogicTest is ForgeHelper {
       bytes(""),
       domain,
       destinationDomain,
+      address(0),
+      0,
       false,
       true
     );

@@ -77,6 +77,8 @@ export const mock: any = {
       callData: "0x",
       originDomain: mock.domain.A,
       destinationDomain: mock.domain.B,
+      callback: mkAddress("0xbbbb"),
+      callbackFee: "0",
       forceSlow: false,
       receiveLocal: false,
       ...overrides,
@@ -158,6 +160,8 @@ export const mock: any = {
           ? {
               to: user,
               callData: "0x",
+              callback: mkAddress("0x"),
+              callbackFee: "0",
               forceSlow: false,
               receiveLocal: false,
             }

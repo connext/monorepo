@@ -22,13 +22,13 @@ library PromiseMessage {
 
   // ============ Constants ============
   uint256 private constant IDENTIFIER_LEN = 1;
-  // 1 byte identifier + 32 bytes transferId + 20 bytes callback + 32 bytes length + x bytes data
-  // before: 1 byte identifier + 32 bytes transferId + 20 bytes callback = 53 bytes
-  uint256 private constant LENGTH_CALLDATA_START = 53;
-  uint8 private constant LENGTH_CALLDATA_LEN = 32;
+  // 1 byte identifier + 32 bytes transferId + 20 bytes callback + 1 byte success + 32 bytes length + x bytes data
+  // before: 1 byte identifier + 32 bytes transferId + 20 bytes callback + 1 byte success= 54 bytes
+  uint256 private constant LENGTH_RETURNDATA_START = 54;
+  uint8 private constant LENGTH_RETURNDATA_LEN = 32;
 
-  // before: 1 byte identifier + 32 bytes transferId + 20 bytes callback + 32 bytes length = 85 bytes
-  uint256 private constant CALLDATA_START = 85;
+  // before: 1 byte identifier + 32 bytes transferId + 20 bytes callback +  1 byte success + 32 bytes length = 86 bytes
+  uint256 private constant RETURNDATA_START = 86;
 
   // ============ Modifiers ============
 
@@ -48,15 +48,25 @@ library PromiseMessage {
    * @notice Formats an promise callback message
    * @param _transferId The address of the relayer
    * @param _callbackAddress The callback address on destination domain
-   * @param _data The callback data
+   * @param _returnSuccess The success of the call
+   * @param _returnData The return data of the call
    * @return The formatted message
    */
   function formatPromiseCallback(
     bytes32 _transferId,
     address _callbackAddress,
-    bytes calldata _data
+    bool _returnSuccess,
+    bytes calldata _returnData
   ) internal pure returns (bytes memory) {
-    return abi.encodePacked(uint8(Types.PromiseCallback), _transferId, _callbackAddress, _data.length, _data);
+    return
+      abi.encodePacked(
+        uint8(Types.PromiseCallback),
+        _transferId,
+        _callbackAddress,
+        uint8(_returnSuccess ? 1 : 0),
+        _returnData.length,
+        _returnData
+      );
   }
 
   // ============ Getters ============
@@ -82,36 +92,38 @@ library PromiseMessage {
   }
 
   /**
-   * @notice Parse the calldata length from the message
+   * @notice Parse the result of execution on the destination domain
    * @param _view The message
-   * @return The calldata length
+   * @return The call result
    */
-  function lengthOfCalldata(bytes29 _view) internal pure typeAssert(_view, Types.PromiseCallback) returns (uint256) {
-    return _view.indexUint(LENGTH_CALLDATA_START, LENGTH_CALLDATA_LEN);
+  function returnSuccess(bytes29 _view) internal pure typeAssert(_view, Types.PromiseCallback) returns (bool) {
+    // before: 1 byte identifier + 32 bytes transferId + 20 bytes callback = 53 bytes
+    return _view.indexUint(53, 1) == 1;
   }
 
   /**
-   * @notice Parse calldata from the message
+   * @notice Parse the returnData length from the message
    * @param _view The message
-   * @return returnData
+   * @return The returnData length
    */
-  function returnCallData(bytes29 _view)
+  function lengthOfReturnData(bytes29 _view) internal pure returns (uint256) {
+    return _view.indexUint(LENGTH_RETURNDATA_START, LENGTH_RETURNDATA_LEN);
+  }
+
+  /**
+   * @notice Parse returnData from the message
+   * @param _view The message
+   * @return data
+   */
+  function returnData(bytes29 _view)
     internal
     view
     typeAssert(_view, Types.PromiseCallback)
-    returns (bytes memory returnData)
+    returns (bytes memory data)
   {
-    uint256 length = lengthOfCalldata(_view);
+    uint256 length = lengthOfReturnData(_view);
 
-    uint8 bitLength = uint8(length * 8);
-    uint256 _loc = _view.loc();
-
-    uint256 _mask;
-    assembly {
-      // solium-disable-previous-line security/no-inline-assembly
-      _mask := sar(sub(bitLength, 1), 0x8000000000000000000000000000000000000000000000000000000000000000)
-      returnData := and(mload(add(_loc, CALLDATA_START)), _mask)
-    }
+    data = _view.slice(RETURNDATA_START, length, 0).clone();
   }
 
   /**
@@ -121,10 +133,10 @@ library PromiseMessage {
    */
   function isValidPromiseCallbackLength(bytes29 _view) internal pure returns (bool) {
     uint256 _len = _view.len();
-    uint256 _length = lengthOfCalldata(_view);
-    // before = 1 byte identifier + 32 bytes transferId + 20 bytes callback address + 32 bytes length + x bytes data
-    // nonzero callback data
-    return _len > CALLDATA_START && _length > 0 && (CALLDATA_START + _length) == _len;
+    uint256 _length = lengthOfReturnData(_view);
+    // before = 1 byte identifier + 32 bytes transferId + 20 bytes callback address + 1 byte success + 32 bytes length + x bytes data
+    // nonzero return data
+    return _len > RETURNDATA_START && _length > 0 && (RETURNDATA_START + _length) == _len;
   }
 
   /**
