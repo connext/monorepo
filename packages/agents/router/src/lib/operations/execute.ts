@@ -50,8 +50,14 @@ export const execute = async (params: OriginTransfer): Promise<void> => {
     destinationDomain,
     origin,
     transferId,
-    xparams: { callData, to },
+    xparams: { callData, to, forceSlow },
   } = params;
+
+  if (forceSlow) {
+    logger.debug("Opt for slow path", requestContext, methodContext, { transferId });
+    return;
+  }
+
   if (!origin) {
     throw new MissingXCall({ requestContext, methodContext });
   }
