@@ -27,7 +27,7 @@ variable "domain" {
 variable "full_image_name_router" {
   type        = string
   description = "router image name"
-  default     = "ghcr.io/connext/router:0.2.0-alpha.11"
+  default     = "ghcr.io/connext/router:0.2.0-alpha.14"
 }
 
 variable "full_image_name_sequencer" {
