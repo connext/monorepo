@@ -40,6 +40,8 @@ describe("Database client", () => {
       destination_domain varchar(255),
 
       nonce bigint,
+      force_slow boolean,
+      receive_local boolean,
 
       -- xparams
       "to" character(42),

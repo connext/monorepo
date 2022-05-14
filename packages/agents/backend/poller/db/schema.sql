@@ -131,7 +131,9 @@ CREATE TABLE public.transfers (
     reconcile_timestamp integer,
     reconcile_gas_price numeric,
     reconcile_gas_limit numeric,
-    reconcile_block_number integer
+    reconcile_block_number integer,
+    force_slow boolean,
+    receive_local boolean
 );
 
 
@@ -204,4 +206,5 @@ INSERT INTO public.schema_migrations (version) VALUES
     ('20220419085941'),
     ('20220504052525'),
     ('20220505103130'),
-    ('20220506152644');
+    ('20220506152644'),
+    ('20220513235208');
