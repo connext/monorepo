@@ -28,7 +28,7 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment): Promise<voi
   const network = await hre.ethers.provider.getNetwork();
   const domainConfig = getDomainInfoFromChainId(network.chainId);
 
-  console.log("Deploying relayer fee router...");
+  console.log("Fetching relayer fee router...");
   // Get RelayerFeeRouter and TokenRegistry deployments.
   const relayerFeeRouterName = getDeploymentName("RelayerFeeRouterUpgradeBeaconProxy");
   const relayerFeeRouterDeployment = await hre.deployments.getOrNull(relayerFeeRouterName);
@@ -58,7 +58,6 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment): Promise<voi
   if (!tokenRegistryDeployment) {
     throw new Error(`TokenRegistry not deployed`);
   }
-  console.log("Deploying token registry...");
   const tokenRegistry = new hre.ethers.Contract(
     tokenRegistryDeployment.address,
     (await hre.deployments.getOrNull(getDeploymentName("TokenRegistry")))!.abi,
