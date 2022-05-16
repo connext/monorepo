@@ -439,7 +439,7 @@ describe("Connext", () => {
     });
   });
 
-  xdescribe("setupRouter", () => {
+  describe("setupRouter", () => {
     it("should fail if not called by owner", async () => {
       const toAdd = Wallet.createRandom().address;
       await expect(originBridge.connect(user).setupRouter(toAdd, toAdd, toAdd)).to.be.revertedWith(
@@ -450,13 +450,13 @@ describe("Connext", () => {
     it("should fail if it is adding address0", async () => {
       const toAdd = constants.AddressZero;
       await expect(originBridge.setupRouter(toAdd, toAdd, toAdd)).to.be.revertedWith(
-        "ConnextLogic__addRouter_routerEmpty",
+        "RoutersFacet__setupRouter_routerEmpty",
       );
     });
 
     it("should fail if its already added", async () => {
       await expect(originBridge.setupRouter(router.address, router.address, router.address)).to.be.revertedWith(
-        "ConnextLogic__addRouter_alreadyAdded",
+        "RoutersFacet__setupRouter_alreadyAdded",
       );
     });
 
@@ -469,7 +469,7 @@ describe("Connext", () => {
     });
   });
 
-  xdescribe("removeRouter", () => {
+  describe("removeRouter", () => {
     it("should fail if not called by owner", async () => {
       const toAdd = Wallet.createRandom().address;
       await expect(originBridge.connect(user).removeRouter(toAdd)).to.be.revertedWith(
@@ -479,14 +479,14 @@ describe("Connext", () => {
 
     it("should fail if it is adding address0", async () => {
       const toAdd = constants.AddressZero;
-      await expect(originBridge.removeRouter(toAdd)).to.be.revertedWith("ConnextLogic__removeRouter_routerEmpty");
+      await expect(originBridge.removeRouter(toAdd)).to.be.revertedWith("RoutersFacet__removeRouter_routerEmpty");
     });
 
     it("should fail if its already removed", async () => {
       const tx = await originBridge.removeRouter(router.address);
       await tx.wait();
 
-      await expect(originBridge.removeRouter(router.address)).to.be.revertedWith("ConnextLogic__removeRouter_notAdded");
+      await expect(originBridge.removeRouter(router.address)).to.be.revertedWith("RoutersFacet__removeRouter_notAdded");
     });
 
     it("should work", async () => {
@@ -750,12 +750,16 @@ describe("Connext", () => {
 
   describe("removeLiquidity", () => {
     // TODO: should revert if param recipient address is empty and router recipient is also empty
-    xit("should revert if param recipient address is empty", async () => {
+    it("should revert if param recipient address is empty", async () => {
       const amount = "1";
       const assetId = ZERO_ADDRESS;
 
+      const setRouter = await originBridge.connect(router).setRouterRecipient(router.address, ZERO_ADDRESS);
+      await setRouter.wait();
+      expect(await originBridge.getRouterRecipient(router.address)).to.be.eq(ZERO_ADDRESS);
+
       await expect(originBridge.connect(router).removeLiquidity(amount, assetId, ZERO_ADDRESS)).to.be.revertedWith(
-        "ConnextLogic__removeLiquidity_recipientEmpty",
+        "RoutersFacet__removeLiquidity_recipientEmpty",
       );
     });
 

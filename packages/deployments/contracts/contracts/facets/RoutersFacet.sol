@@ -32,7 +32,7 @@ contract RoutersFacet is BaseConnextFacet {
   error RoutersFacet__removeRouter_routerEmpty();
   error RoutersFacet__removeRouter_notAdded();
   error RoutersFacet__setupRouter_routerEmpty();
-  error RoutersFacet__setupRouter_amountIsZero();
+  error RoutersFacet__setupRouter_alreadyAdded();
   error RoutersFacet__proposeRouterOwner_notNewOwner();
   error RoutersFacet__proposeRouterOwner_badRouter();
   error RoutersFacet__setMaxRoutersPerTransfer_invalidMaxRoutersPerTransfer();
@@ -282,7 +282,7 @@ contract RoutersFacet is BaseConnextFacet {
     if (router == address(0)) revert RoutersFacet__setupRouter_routerEmpty();
 
     // Sanity check: needs approval
-    if (s.routerPermissionInfo.approvedRouters[router]) revert RoutersFacet__setupRouter_amountIsZero();
+    if (s.routerPermissionInfo.approvedRouters[router]) revert RoutersFacet__setupRouter_alreadyAdded();
 
     // Approve router
     s.routerPermissionInfo.approvedRouters[router] = true;
