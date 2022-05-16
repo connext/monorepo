@@ -3,19 +3,19 @@ import { ChainData } from "@connext/nxtp-utils";
 import { SubgraphMap } from "../entities";
 import { PrefixInvalid } from "../errors";
 
-import { getMeshOptions } from "./shared";
+import { getSubgraphNames } from "./graphclient";
 
-const getNetwork = (sourceName: string, env: string): RegExpMatchArray | null => {
+export const getNetwork = (sourceName: string, env: string): RegExpMatchArray | null => {
   const result =
     env === "staging" ? sourceName.match(/Connext_Staging_(.*)$/) : sourceName.match(/Connext_(?!Staging)(.*)$/);
   return result;
 };
+
 export const create = async (
   chaindata: Map<string, ChainData>,
   env: "staging" | "production" = "production",
 ): Promise<SubgraphMap> => {
-  const meshOptions = await getMeshOptions();
-  const names = meshOptions.sources.map((source) => source.name);
+  const names = await getSubgraphNames();
 
   // Parse the Network names from the subgraph prefix names in the mesh config.
   const networks = names
