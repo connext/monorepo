@@ -42,7 +42,7 @@ export default task("add-liquidity", "Add liquidity for a router")
       console.log("asset: ", asset);
       console.log("deployer: ", deployer.address);
 
-      const connextName = getDeploymentName("Connext", env);
+      const connextName = getDeploymentName("ConnextHandler", env);
       const connextDeployment = await deployments.get(connextName);
       const connextAddress = _connextAddress ?? connextDeployment.address;
       console.log("connextAddress: ", connextAddress);

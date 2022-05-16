@@ -39,7 +39,7 @@ export default task("setup-asset", "Configures an asset")
       console.log("domain: ", domain);
       console.log("deployer: ", deployer.address);
 
-      const connextName = getDeploymentName("Connext", env);
+      const connextName = getDeploymentName("ConnextHandler", env);
       const connextDeployment = await deployments.get(connextName);
       const connextAddress = _connextAddress ?? connextDeployment.address;
       const connext = new Contract(connextAddress, connextDeployment.abi, deployer);
