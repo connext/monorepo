@@ -1,21 +1,21 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity 0.8.11;
 
-import {Connext} from "../../contracts/diamond/Connext.sol";
-import {DiamondCutFacet} from "../../contracts/diamond/facets/DiamondCutFacet.sol";
-import {DiamondLoupeFacet} from "../../contracts/diamond/facets/DiamondLoupeFacet.sol";
-import {DiamondInit} from "../../contracts/diamond/upgradeInitializers/DiamondInit.sol";
-import {AssetFacet} from "../../contracts/diamond/facets/AssetFacet.sol";
-import {BridgeFacet} from "../../contracts/diamond/facets/BridgeFacet.sol";
-import {NomadFacet} from "../../contracts/diamond/facets/NomadFacet.sol";
-import {OwnershipFacet} from "../../contracts/diamond/facets/OwnershipFacet.sol";
-import {ProposedOwnableFacet} from "../../contracts/diamond/facets/ProposedOwnableFacet.sol";
-import {RelayerFacet} from "../../contracts/diamond/facets/RelayerFacet.sol";
-import {RoutersFacet} from "../../contracts/diamond/facets/RoutersFacet.sol";
-import {StableSwapFacet} from "../../contracts/diamond/facets/StableSwapFacet.sol";
-import {ConnextMessage} from "../../contracts/diamond/libraries/ConnextMessage.sol";
-import {XCallArgs, CallParams} from "../../contracts/diamond/libraries/LibConnextStorage.sol";
-import {IDiamondCut} from "../../contracts/diamond/interfaces/IDiamondCut.sol";
+import {Connext} from "../../contracts/test/Connext.sol";
+import {DiamondCutFacet} from "../../contracts/facets/DiamondCutFacet.sol";
+import {DiamondLoupeFacet} from "../../contracts/facets/DiamondLoupeFacet.sol";
+import {DiamondInit} from "../../contracts/upgradeInitializers/DiamondInit.sol";
+import {AssetFacet} from "../../contracts/facets/AssetFacet.sol";
+import {BridgeFacet} from "../../contracts/facets/BridgeFacet.sol";
+import {NomadFacet} from "../../contracts/facets/NomadFacet.sol";
+import {OwnershipFacet} from "../../contracts/facets/OwnershipFacet.sol";
+import {ProposedOwnableFacet} from "../../contracts/facets/ProposedOwnableFacet.sol";
+import {RelayerFacet} from "../../contracts/facets/RelayerFacet.sol";
+import {RoutersFacet} from "../../contracts/facets/RoutersFacet.sol";
+import {StableSwapFacet} from "../../contracts/facets/StableSwapFacet.sol";
+import {ConnextMessage} from "../../contracts/libraries/ConnextMessage.sol";
+import {XCallArgs, CallParams} from "../../contracts/libraries/LibConnextStorage.sol";
+import {IDiamondCut} from "../../contracts/interfaces/IDiamondCut.sol";
 
 contract Deployer {
   Connext connextDiamondProxy;
