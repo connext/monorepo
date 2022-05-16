@@ -164,9 +164,9 @@ describe("Connext", () => {
 
     // Deploy Libraries
     const amplificationUtils = await deployContract<AmplificationUtils>(
-      "contracts/diamond/libraries/AmplificationUtils.sol:AmplificationUtils",
+      "contracts/libraries/AmplificationUtils.sol:AmplificationUtils",
     );
-    const swapUtils = await deployContract<SwapUtils>("contracts/diamond/libraries/SwapUtils.sol:SwapUtils");
+    const swapUtils = await deployContract<SwapUtils>("contracts/libraries/SwapUtils.sol:SwapUtils");
 
     // Deploy facets
     const diamondCutFacet = await deployContract<DiamondCutFacet>("DiamondCutFacet");
@@ -1530,12 +1530,12 @@ describe("Connext", () => {
       const mint = await destinationAdopted.mint(sponsorVault.address, parseEther("20"));
       await mint.wait();
 
-      await (await admin.sendTransaction({to: sponsorVault.address, value: parseEther("1")})).wait()
+      await (await admin.sendTransaction({ to: sponsorVault.address, value: parseEther("1") })).wait();
 
       // Setup stable swap for adopted => canonical on origin
       const swapCanonical = await stableSwap
-      .connect(admin)
-      .setupPool(originAdopted.address, canonical.address, SEED, SEED);
+        .connect(admin)
+        .setupPool(originAdopted.address, canonical.address, SEED, SEED);
       await swapCanonical.wait();
 
       // Setup stable swap for local => adopted on dest
@@ -1581,7 +1581,7 @@ describe("Connext", () => {
       nonce = (originBridgeEvent!.args as any).nonce;
       message = (originBridgeEvent!.args as any).message;
       transferId = (originBridgeEvent!.args as any).transferId;
-    })
+    });
 
     it("should work with no sponsor vault configured", async () => {
       expect(await destinationBridge.sponsorVault()).to.eq(ZERO_ADDRESS);
@@ -1835,8 +1835,8 @@ describe("Connext", () => {
           routers: [router.address],
           routerSignatures: [await signRouterPathPayload(transferId, "1", router)],
           originSender: user.address,
-        })
-      ).to.revertedWith("BridgeFacet__handleExecuteTransaction_invalidSponsoredAmount()")
+        }),
+      ).to.revertedWith("BridgeFacet__handleExecuteTransaction_invalidSponsoredAmount()");
     });
-  })
+  });
 });
