@@ -1,7 +1,27 @@
-import { expect } from "@connext/nxtp-utils";
-import { stub, SinonStub } from "sinon";
+import { chainDataToMap, expect } from "@connext/nxtp-utils";
+import { stub, SinonStub, restore, reset } from "sinon";
+import * as GraphClientFns from "../../../src/lib/helpers/graphclient";
 
-import { mock } from "@connext/nxtp-utils";
+const mockChainData = chainDataToMap([
+  {
+    name: "Rinkeby Testnet",
+    chainId: 4,
+    domainId: "1111",
+    network: "rinkeby",
+  },
+  {
+    name: "Kovan Testnet",
+    chainId: 42,
+    domainId: "2221",
+    network: "kovan",
+  },
+  {
+    name: "Local Testnet",
+    chainId: 42,
+    domainId: "5555555555555",
+    network: "localtest",
+  },
+]);
 
 import { create, getNetwork } from "../../../src/lib/helpers/create";
 describe("Helpers:create", () => {
@@ -21,8 +41,13 @@ describe("Helpers:create", () => {
     });
   });
   describe("#create", () => {
+    let getSubgraphNamesStub: SinonStub;
     before(() => {
-      // stub(SharedFns, "getMeshOptions").resolves();
+      getSubgraphNamesStub = stub(GraphClientFns, "getSubgraphNames");
+    });
+    after(() => {
+      restore();
+      reset();
     });
   });
 });

@@ -7,6 +7,7 @@
     "script",
     "src/lib/entities",
     "src/lib/errors",
-    "src/lib/operations"
+    "src/lib/operations",
+    "src/lib/helpers/graphclient.ts"
   ]
 }

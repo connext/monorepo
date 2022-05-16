@@ -1,7 +1,6 @@
 import { ChainData } from "@connext/nxtp-utils";
 
 import { SubgraphMap } from "../entities";
-import { PrefixInvalid } from "../errors";
 
 import { getSubgraphNames } from "./graphclient";
 
@@ -25,11 +24,8 @@ export const create = async (
     })
     .map((name) => {
       const result = getNetwork(name, env);
-      if (!result) {
-        throw new PrefixInvalid(name, result);
-      }
       // Should be the first match group.
-      return result[1].toLowerCase();
+      return result![1].toLowerCase();
     });
   const config: SubgraphMap = {
     sources: {},
@@ -56,6 +52,5 @@ export const create = async (
     );
   }
 
-  console.log(config);
   return config;
 };
