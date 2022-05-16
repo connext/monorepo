@@ -14,6 +14,7 @@ import {
   ChainReader,
 } from "@connext/nxtp-txservice";
 
+import { SignerAddressMissing } from "./lib/errors";
 import { NxtpSdkConfig, getConfig } from "./config";
 
 /**
@@ -62,14 +63,24 @@ export class NxtpSdkBase {
   ): Promise<providers.TransactionRequest | undefined> {
     const { requestContext, methodContext } = createLoggingContext(this.approveIfNeeded.name);
 
-    this.logger.info("Method start", requestContext, methodContext, { domain, assetId, amount });
+    const signerAddress = this.config.signerAddress;
+    this.logger.info("Method start", requestContext, methodContext, {
+      domain,
+      assetId,
+      amount,
+      signerAddress,
+    });
+
+    if (!signerAddress) {
+      throw new SignerAddressMissing();
+    }
 
     const chainId = await getChainIdFromDomain(domain, this.chainData);
     if (assetId !== constants.AddressZero) {
       const ConnextContractAddress = this.config.chains[domain].deployments!.connext;
 
       const approvedData = this.contracts.erc20.encodeFunctionData("allowance", [
-        this.config.signerAddress,
+        signerAddress,
         ConnextContractAddress,
       ]);
       const approvedEncoded = await this.chainReader.readTx({
@@ -87,7 +98,7 @@ export class NxtpSdkBase {
         const txRequest = {
           to: assetId,
           data,
-          from: this.config.signerAddress,
+          from: signerAddress,
           value: 0,
           chainId,
         };
@@ -104,9 +115,16 @@ export class NxtpSdkBase {
     return undefined;
   }
 
-  public async xcall(xcallParams: Omit<XCallArgs, "callData">): Promise<providers.TransactionRequest> {
+  public async xcall(
+    xcallParams: Omit<XCallArgs, "callData" | "forceSlow" | "receiveLocal">,
+  ): Promise<providers.TransactionRequest> {
     const { requestContext, methodContext } = createLoggingContext(this.xcall.name);
     this.logger.info("Method start", requestContext, methodContext, { xcallParams });
+
+    const signerAddress = this.config.signerAddress;
+    if (!signerAddress) {
+      throw new SignerAddressMissing();
+    }
 
     // Validate Input schema
     // const validateInput = ajv.compile(XTransferSchema);
@@ -124,6 +142,12 @@ export class NxtpSdkBase {
 
     const { originDomain } = params;
 
+    const xParams = {
+      ...params,
+      calldata: params.callData || "0x",
+      forceSlow: params.forceSlow || false,
+      receiveLocal: params.receiveLocal || false,
+    };
     const ConnextContractAddress = this.config.chains[originDomain].deployments!.connext;
 
     const chainId = await getChainIdFromDomain(originDomain, this.chainData);
@@ -135,22 +159,24 @@ export class NxtpSdkBase {
 
     const data = this.contracts.connext.encodeFunctionData("xcall", [
       {
-        params,
+        params: xParams,
         amount,
         transactingAssetId,
         relayerFee,
       },
     ]);
 
-    this.logger.info("xCall transaction created", requestContext, methodContext);
-
-    return {
+    const txRequest = {
       to: ConnextContractAddress,
       value,
       data,
-      from: this.config.signerAddress,
+      from: signerAddress,
       chainId,
     };
+
+    this.logger.info("xCall transaction created", requestContext, methodContext, txRequest);
+
+    return txRequest;
   }
 
   async bumpTransfer(params: {
@@ -160,6 +186,11 @@ export class NxtpSdkBase {
   }): Promise<providers.TransactionRequest> {
     const { requestContext, methodContext } = createLoggingContext(this.bumpTransfer.name);
     this.logger.info("Method start", requestContext, methodContext, { params });
+
+    const signerAddress = this.config.signerAddress;
+    if (!signerAddress) {
+      throw new SignerAddressMissing();
+    }
 
     const { domain, transferId, relayerFee } = params;
 
@@ -171,14 +202,20 @@ export class NxtpSdkBase {
 
     const data = this.contracts.connext.encodeFunctionData("bumpTransfer", [transferId]);
 
-    this.logger.info(`${this.bumpTransfer.name} transaction created`, requestContext, methodContext);
-
-    return {
+    const txRequest = {
       to: ConnextContractAddress,
       value,
       data,
-      from: this.config.signerAddress,
+      from: signerAddress,
       chainId,
     };
+
+    this.logger.info(`${this.bumpTransfer.name} transaction created`, requestContext, methodContext, txRequest);
+
+    return txRequest;
+  }
+
+  async changeSignerAddress(signerAddress: string) {
+    this.config.signerAddress = signerAddress;
   }
 }

@@ -142,6 +142,8 @@ export function handleXCalled(event: XCalled): void {
   transfer.callData = event.params.xcallArgs.params.callData;
   transfer.originDomain = event.params.xcallArgs.params.originDomain;
   transfer.destinationDomain = event.params.xcallArgs.params.destinationDomain;
+  transfer.forceSlow = event.params.xcallArgs.params.forceSlow;
+  transfer.receiveLocal = event.params.xcallArgs.params.receiveLocal;
 
   // Assets
   transfer.transactingAsset = event.params.args.transactingAssetId;
@@ -179,6 +181,7 @@ export function handleExecuted(event: Executed): void {
       // TODO: Shouldn't we be throwing an error here? How did a transfer get made with a non-existent
       // router?
       router = new Router(param);
+      router.isActive = true;
       router.save();
     }
     routers.push(router.id);
@@ -199,6 +202,8 @@ export function handleExecuted(event: Executed): void {
   transfer.callData = event.params.args.params.callData;
   transfer.originDomain = event.params.args.params.originDomain;
   transfer.destinationDomain = event.params.args.params.destinationDomain;
+  transfer.forceSlow = event.params.args.params.forceSlow;
+  transfer.receiveLocal = event.params.args.params.receiveLocal;
 
   // Assets
   transfer.transactingAmount = event.params.transactingAmount;
@@ -329,6 +334,7 @@ function getOrCreateAssetBalance(local: Bytes, routerAddress: Address): AssetBal
   let router = Router.load(routerAddress.toHex());
   if (router == null) {
     router = new Router(routerAddress.toHex());
+    router.isActive = true;
     router.save();
   }
 

@@ -32,6 +32,8 @@ describe("Helpers:Auctions", () => {
           destinationDomain: transfer.destinationDomain,
           to: transfer.xparams.to,
           callData: transfer.xparams.callData,
+          forceSlow: transfer.xparams.forceSlow,
+          receiveLocal: transfer.xparams.receiveLocal,
         },
         local: mockLocalAsset,
         routers: bids.map((b) => b.router),

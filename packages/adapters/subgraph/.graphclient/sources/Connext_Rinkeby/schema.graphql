@@ -177,6 +177,8 @@ type rinkeby_DestinationTransfer {
   callData: rinkeby_Bytes
   originDomain: BigInt
   destinationDomain: BigInt
+  forceSlow: Boolean
+  receiveLocal: Boolean
   status: rinkeby_TransferStatus
   routers(skip: Int = 0, first: Int = 100, orderBy: rinkeby_Router_orderBy, orderDirection: rinkeby_OrderDirection, where: rinkeby_Router_filter): [rinkeby_Router!]
   originSender: rinkeby_Bytes
@@ -257,6 +259,14 @@ input rinkeby_DestinationTransfer_filter {
   destinationDomain_lte: BigInt
   destinationDomain_in: [BigInt!]
   destinationDomain_not_in: [BigInt!]
+  forceSlow: Boolean
+  forceSlow_not: Boolean
+  forceSlow_in: [Boolean!]
+  forceSlow_not_in: [Boolean!]
+  receiveLocal: Boolean
+  receiveLocal_not: Boolean
+  receiveLocal_in: [Boolean!]
+  receiveLocal_not_in: [Boolean!]
   status: rinkeby_TransferStatus
   status_not: rinkeby_TransferStatus
   status_in: [rinkeby_TransferStatus!]
@@ -402,6 +412,8 @@ enum rinkeby_DestinationTransfer_orderBy {
   callData
   originDomain
   destinationDomain
+  forceSlow
+  receiveLocal
   status
   routers
   originSender
@@ -438,6 +450,8 @@ type rinkeby_OriginTransfer {
   callData: rinkeby_Bytes
   originDomain: BigInt
   destinationDomain: BigInt
+  forceSlow: Boolean
+  receiveLocal: Boolean
   status: rinkeby_TransferStatus
   relayerFee: BigInt
   message: rinkeby_Bytes
@@ -512,6 +526,14 @@ input rinkeby_OriginTransfer_filter {
   destinationDomain_lte: BigInt
   destinationDomain_in: [BigInt!]
   destinationDomain_not_in: [BigInt!]
+  forceSlow: Boolean
+  forceSlow_not: Boolean
+  forceSlow_in: [Boolean!]
+  forceSlow_not_in: [Boolean!]
+  receiveLocal: Boolean
+  receiveLocal_not: Boolean
+  receiveLocal_in: [Boolean!]
+  receiveLocal_not_in: [Boolean!]
   status: rinkeby_TransferStatus
   status_not: rinkeby_TransferStatus
   status_in: [rinkeby_TransferStatus!]
@@ -615,6 +637,8 @@ enum rinkeby_OriginTransfer_orderBy {
   callData
   originDomain
   destinationDomain
+  forceSlow
+  receiveLocal
   status
   relayerFee
   message
