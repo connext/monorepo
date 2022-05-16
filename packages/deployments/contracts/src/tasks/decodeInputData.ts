@@ -19,7 +19,7 @@ export default task("decode-input-data", "Decodes input data")
       throw new Error("Unsupported type");
     }
 
-    const connextDeployment = await deployments.getArtifact("ConnextHandler");
+    const connextDeployment = await deployments.getArtifact("Connext");
     const connextInterface = new Interface(connextDeployment.abi);
 
     const decoded = connextInterface.decodeFunctionData(type, inputData);

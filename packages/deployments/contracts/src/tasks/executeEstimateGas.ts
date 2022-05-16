@@ -22,7 +22,7 @@ export default task("execute-eg", "Prepare a cross-chain tx")
   .setAction(async ({ connextAddress: _connextAddress, env: _env }: TaskArgs, { deployments, ethers }) => {
     const env = mustGetEnv(_env);
     console.log("env:", env);
-    const connextName = getDeploymentName("ConnextHandler", env);
+    const connextName = getDeploymentName("Connext", env);
     let connextAddress = _connextAddress ?? process.env.EG_CONNEXT_ADDRESS;
     if (!connextAddress) {
       const connextDeployment = await deployments.get(connextName);

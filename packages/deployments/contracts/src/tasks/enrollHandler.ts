@@ -28,7 +28,7 @@ export default task("enroll-handler", "Add a remote router")
     console.log("chain:", chain);
     console.log("deployer: ", deployer.address);
 
-    const localRouterDeployment = await deployments.get(getDeploymentName("ConnextHandler", env));
+    const localRouterDeployment = await deployments.get(getDeploymentName("Connext", env));
     const local = _local ?? localRouterDeployment.address;
     console.log("local: ", local);
 

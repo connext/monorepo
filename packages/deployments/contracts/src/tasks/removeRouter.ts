@@ -24,7 +24,7 @@ export default task("remove-router", "Remove a router")
     console.log("router: ", router);
     console.log("namedAccounts: ", deployer.address);
 
-    const connextName = getDeploymentName("ConnextHandler", env);
+    const connextName = getDeploymentName("Connext", env);
     const connextDeployment = await deployments.get(connextName);
     const connextAddress = _connextAddress ?? connextDeployment.address;
     const connext = new Contract(connextAddress, connextDeployment.abi, deployer);

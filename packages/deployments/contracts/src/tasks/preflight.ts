@@ -50,7 +50,7 @@ export default task("preflight", "Ensure correct setup for e2e demo with a speci
         [deployer] = await ethers.getUnnamedSigners();
       }
 
-      const connextName = getDeploymentName("ConnextHandler", env);
+      const connextName = getDeploymentName("Connext", env);
       const connextDeployment = await deployments.get(connextName);
       const connextAddress = _connextAddress ?? connextDeployment.address;
       const connext = new Contract(connextAddress, connextDeployment.abi, deployer);

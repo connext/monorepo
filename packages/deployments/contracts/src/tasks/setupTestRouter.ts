@@ -33,7 +33,7 @@ export default task("setup-test-router", "Add router and test assets")
       const namedAccounts = await getNamedAccounts();
       console.log("namedAccounts: ", namedAccounts);
 
-      const connextName = getDeploymentName("ConnextHandler", env);
+      const connextName = getDeploymentName("Connext", env);
       const connextDeployment = await deployments.get(connextName);
       const connextAddress = _connextAddress ?? connextDeployment.address;
       const connext = new Contract(connextAddress, connextDeployment.abi, deployer);
