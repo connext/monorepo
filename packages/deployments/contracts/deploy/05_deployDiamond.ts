@@ -105,7 +105,7 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment): Promise<voi
 
   // Deploy connext diamond contract
   console.log("Deploying connext diamond...");
-  const connext = await hre.deployments.diamond.deploy(getDeploymentName("Connext"), {
+  const connext = await hre.deployments.diamond.deploy(getDeploymentName("ConnextHandler"), {
     from: deployer.address,
     owner: deployer.address,
     log: true,
@@ -139,7 +139,7 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment): Promise<voi
         relayerFeeRouter.address,
       ],
     },
-    deterministicSalt: keccak256(utils.toUtf8Bytes("connextDiamondProxy")),
+    //deterministicSalt: keccak256(utils.toUtf8Bytes("connextDiamondProxyV1")),
   });
   const connextAddress = connext.address;
   console.log("connextAddress: ", connextAddress);
