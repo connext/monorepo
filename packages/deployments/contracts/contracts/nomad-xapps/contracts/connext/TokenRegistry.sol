@@ -2,7 +2,7 @@
 pragma solidity >=0.6.11;
 
 // ============ Nomad Contracts ============
-import {ConnextMessage} from "./ConnextMessage.sol";
+import {ConnextMessage} from "../../../libraries/ConnextMessage.sol";
 import {XAppConnectionClient} from "../XAppConnectionClient.sol";
 import {Encoding} from "./Encoding.sol";
 import {TypeCasts} from "../../../nomad-core/contracts/XAppConnectionManager.sol";

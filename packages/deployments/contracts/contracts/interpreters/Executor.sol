@@ -3,7 +3,7 @@ pragma solidity 0.8.11;
 
 import {IExecutor} from "../interfaces/IExecutor.sol";
 
-import {LibCrossDomainProperty, TypedMemView} from "../lib/LibCrossDomainProperty.sol";
+import {LibCrossDomainProperty, TypedMemView} from "../libraries/LibCrossDomainProperty.sol";
 
 import {AddressUpgradeable} from "@openzeppelin/contracts-upgradeable/utils/AddressUpgradeable.sol";
 import {SafeERC20Upgradeable, IERC20Upgradeable} from "@openzeppelin/contracts-upgradeable/token/ERC20/utils/SafeERC20Upgradeable.sol";
