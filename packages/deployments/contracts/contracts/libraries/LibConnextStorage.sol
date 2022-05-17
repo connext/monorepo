@@ -25,12 +25,16 @@ import {SwapUtils} from "./SwapUtils.sol";
  * @param callData - The data to execute on the receiving chain. If no crosschain call is needed, then leave empty.
  * @param originDomain - The originating domain (i.e. where `xcall` is called). Must match nomad domain schema
  * @param destinationDomain - The final domain (i.e. where `execute` / `reconcile` are called). Must match nomad domain schema
+ * @param callback - The address on the origin domain of the callback contract
+ * @param callbackFee - The relayer fee to execute the callback
  */
 struct CallParams {
   address to;
   bytes callData;
   uint32 originDomain;
   uint32 destinationDomain;
+  address callback;
+  uint256 callbackFee;
 }
 
 /**

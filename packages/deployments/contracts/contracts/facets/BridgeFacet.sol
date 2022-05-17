@@ -17,6 +17,7 @@ import {ISponsorVault} from "../interfaces/ISponsorVault.sol";
 
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import {ECDSA} from "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
+import {AddressUpgradeable} from "@openzeppelin/contracts-upgradeable/utils/AddressUpgradeable.sol";
 
 contract BridgeFacet is BaseConnextFacet {
   // ============ Libraries ============
@@ -640,7 +641,7 @@ contract BridgeFacet is BaseConnextFacet {
 
       // If callback address is not zero, send on the PromiseRouter
       if (_args.params.callback != address(0)) {
-        _args.promiseRouter.send(_args.params.originDomain, _transferId, _args.params.callback, success, returnData);
+        s.promiseRouter.send(_args.params.originDomain, _transferId, _args.params.callback, success, returnData);
       }
     }
   }
