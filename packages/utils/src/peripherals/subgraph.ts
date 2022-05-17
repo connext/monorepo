@@ -25,6 +25,7 @@ export type SubgraphHealth = {
 export type SubgraphQueryMetaParams = {
   maxBlockNumber: number;
   latestNonce: number;
+  pageSize?: number;
   destinationDomains?: string[];
 };
 
