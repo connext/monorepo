@@ -12,7 +12,7 @@ import {TestERC20} from "../contracts/test/TestERC20.sol";
 import {WETH} from "../contracts/test/TestWeth.sol";
 
 import {ISponsorVault} from "../contracts/interfaces/ISponsorVault.sol";
-import {MockHome, MockRelayerFeeRouter, MockPromiseRouter, MockCallback} from "./Mock.sol";
+import {MockHome, MockRelayerFeeRouter, MockPromiseRouter, MockCallback, TestSetterFacet} from "./Mock.sol";
 
 import {Deployer} from "./utils/Deployer.sol";
 import {IConnextFacets} from "./utils/IConnextFacets.sol";

@@ -1,8 +1,9 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity 0.8.11;
 
-import "../contracts/nomad-xapps/contracts/promise-router/PromiseRouter.sol";
-import "../contracts/interfaces/ICallback.sol";
+import {PromiseRouter} from "../contracts/nomad-xapps/contracts/promise-router/PromiseRouter.sol";
+import {ICallback} from "../contracts/interfaces/ICallback.sol";
+import {BaseConnextFacet} from "../contracts/facets/BaseConnextFacet.sol";
 
 contract MockHome {
   function dispatch(
@@ -56,5 +57,15 @@ contract MockCallback is ICallback {
     bytes memory data
   ) external {
     require(data.length != 0);
+  }
+}
+
+contract TestSetterFacet is BaseConnextFacet {
+  function setTestRelayerFees(bytes32 _transferId, uint256 _fee) external {
+    s.relayerFees[_transferId] = _fee;
+  }
+
+  function setTestTransferRelayer(bytes32 _transferId, address _relayer) external {
+    s.transferRelayer[_transferId] = _relayer;
   }
 }

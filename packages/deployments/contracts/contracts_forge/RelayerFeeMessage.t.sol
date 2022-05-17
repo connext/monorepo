@@ -3,11 +3,7 @@ pragma solidity 0.8.11;
 
 import "./ForgeHelper.sol";
 
-import "../contracts/interfaces/IConnextHandler.sol";
-import "../contracts/nomad-xapps/contracts/relayer-fee-router/RelayerFeeRouter.sol";
-import {Home} from "../contracts/nomad-core/contracts/Home.sol";
-
-import "@openzeppelin/contracts/proxy/ERC1967/ERC1967Proxy.sol";
+import {RelayerFeeMessage, RelayerFeeRouter} from "../contracts/nomad-xapps/contracts/relayer-fee-router/RelayerFeeRouter.sol";
 
 // running tests (with logging on failure):
 // yarn workspace @connext/nxtp-contracts test:forge -vvv

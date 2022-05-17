@@ -3,13 +3,6 @@ pragma solidity 0.8.11;
 
 import "./ForgeHelper.sol";
 
-// import "../contracts/nomad-xapps/contracts/connext/ConnextHandler.sol";
-// import "../contracts/RouterPermissionsManager.sol";
-// import {RouterPermissionsManagerLogic} from "../contracts/lib/Connext/RouterPermissionsManagerLogic.sol";
-// import "../contracts/ProposedOwnableUpgradeable.sol";
-
-// import "@openzeppelin/contracts/proxy/ERC1967/ERC1967Proxy.sol";
-
 import {Deployer} from "./utils/Deployer.sol";
 import {IConnextFacets} from "./utils/IConnextFacets.sol";
 
