@@ -1,13 +1,10 @@
-import { expect, delay, RelayerApiStatusResponseSchema } from "@connext/nxtp-utils";
+import { expect } from "@connext/nxtp-utils";
 import { stub, SinonStub, restore, reset } from "sinon";
 import * as GraphclientFns from "../../../src/lib/helpers/graphclient";
 import * as ParserFns from "../../../src/lib/helpers/parse";
 import { execute } from "../../../src/lib/helpers/execute";
 import { RuntimeError } from "../../../src/lib/errors";
-
-const mockResponse: Map<string, any[]> = new Map();
-mockResponse.set("1337", ["happy1337"]);
-mockResponse.set("1338", ["happy1338"]);
+import { mockResponse } from "../../mock";
 
 describe("Helpers:Client", () => {
   describe("#execute", () => {
