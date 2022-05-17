@@ -1,5 +1,5 @@
 import { expect, delay, RelayerApiStatusResponseSchema } from "@connext/nxtp-utils";
-import { stub, SinonStub } from "sinon";
+import { stub, SinonStub, restore, reset } from "sinon";
 import * as GraphclientFns from "../../../src/lib/helpers/graphclient";
 import * as ParserFns from "../../../src/lib/helpers/parse";
 import { execute } from "../../../src/lib/helpers/execute";
@@ -12,9 +12,13 @@ mockResponse.set("1338", ["happy1338"]);
 describe("Helpers:Client", () => {
   describe("#execute", () => {
     let executeXQueryStub: SinonStub;
-    before(() => {
+    beforeEach(() => {
       executeXQueryStub = stub(GraphclientFns, "executeXQuery");
-      stub(ParserFns, "xquery").resolves(mockResponse);
+      stub(ParserFns, "xquery").returns(mockResponse);
+    });
+    afterEach(() => {
+      restore();
+      reset();
     });
     it("happy: should execute a crosschain query", async () => {
       executeXQueryStub.resolves({ msg: "success" });
