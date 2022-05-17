@@ -24,7 +24,7 @@ import {
   RelayerFacet,
   RoutersFacet,
   StableSwapFacet,
-  ConnextDiamond,
+  ConnextHandler,
   DiamondInit,
   AmplificationUtils,
   SwapUtils,
@@ -109,8 +109,8 @@ describe("Connext", () => {
   let bridgeFacet: BridgeFacet;
   let assetFacet: AssetFacet;
   let routersFacet: RoutersFacet;
-  let originBridge: ConnextDiamond;
-  let destinationBridge: ConnextDiamond;
+  let originBridge: ConnextHandler;
+  let destinationBridge: ConnextHandler;
   let stableSwap: DummySwap;
   let originRelayerFeeRouter: RelayerFeeRouter;
   let destinationRelayerFeeRouter: RelayerFeeRouter;
@@ -187,7 +187,7 @@ describe("Connext", () => {
     const diamondInit = await deployContract<DiamondInit>("DiamondInit");
 
     // Deploy origin diamond
-    originBridge = await deployDiamond<ConnextDiamond>(
+    originBridge = await deployDiamond<ConnextHandler>(
       "Connext",
       [
         diamondCutFacet,
@@ -210,11 +210,11 @@ describe("Connext", () => {
         weth.address,
         originRelayerFeeRouter.address,
       ]),
-      "ConnextDiamond",
+      "ConnextHandler",
     );
 
     // Deploy destination diamond
-    destinationBridge = await deployDiamond<ConnextDiamond>(
+    destinationBridge = await deployDiamond<ConnextHandler>(
       "Connext",
       [
         diamondCutFacet,
@@ -237,7 +237,7 @@ describe("Connext", () => {
         weth.address,
         destinationRelayerFeeRouter.address,
       ]),
-      "ConnextDiamond",
+      "ConnextHandler",
     );
 
     // Deploy home in origin domain
