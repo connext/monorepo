@@ -66,8 +66,8 @@ export const test = async () => {
   // getXCalls(agents)
   console.log(`XCalling...`);
   const agents: Map<string, SubgraphQueryMetaParams> = new Map();
-  agents.set("1111", { maxBlockNumber: 99999999, latestNonce: 0 });
-  agents.set("2221", { maxBlockNumber: 99999999, latestNonce: 0 });
+  agents.set("1111", { maxBlockNumber: 99999999, latestNonce: 0, page: 1, perPage: 5 });
+  agents.set("2221", { maxBlockNumber: 99999999, latestNonce: 0, page: 1, perPage: 2 });
   console.log(await subgraphReader.getXCalls(agents));
   console.log(`XCalling done!`);
 

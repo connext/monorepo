@@ -207,11 +207,13 @@ const orignTransferQueryString = (
   prefix: string,
   originDomain: string,
   fromNonce: number,
-  pageSize: number,
+  page: number,
+  perPage: number,
   destinationDomains: string[],
   maxBlockNumber?: number,
 ) => {
-  return `${prefix}_originTransfers(first: ${pageSize}, where: { originDomain: ${originDomain}, nonce_gte: ${fromNonce}, destinationDomain_in: [${destinationDomains}] ${
+  const skipSize = (page - 1) * perPage;
+  return `${prefix}_originTransfers(first: ${perPage}, skip: ${skipSize}, where: { originDomain: ${originDomain}, nonce_gte: ${fromNonce}, destinationDomain_in: [${destinationDomains}] ${
     maxBlockNumber ? `, blockNumber_lte: ${maxBlockNumber}` : ""
   } }, orderBy: blockNumber, orderDirection: desc) {${ORIGIN_TRANSFER_ENTITY}}`;
 };
@@ -228,7 +230,8 @@ export const getOriginTransfersQuery = (agents: Map<string, SubgraphQueryMetaPar
         prefix,
         domain,
         agents.get(domain)!.latestNonce,
-        agents.get(domain)?.pageSize ?? DEFAULT_PAGE_SIZE,
+        agents.get(domain)?.page ?? 1,
+        agents.get(domain)?.perPage ?? DEFAULT_PAGE_SIZE,
         domains,
         agents.get(domain)!.maxBlockNumber,
       );
