@@ -20,16 +20,16 @@ describe("SdkUtils", () => {
     });
   });
 
-  describe("#getRoutersBalances", () => {
-    it("happy: should work", async () => {
-      expect(nxtpSdkUtils).to.not.be.undefined;
+  // describe("#getRoutersBalances", () => {
+  //   it("happy: should work", async () => {
+  //     expect(nxtpSdkUtils).to.not.be.undefined;
 
-      expect(nxtpSdkUtils.getRoutersBalances).to.be.a("function");
-      // const res = await nxtpSdkUtils.getRoutersBalances();
-      // console.log(res);
-      expect(() => nxtpSdkUtils.getRoutersBalances()).not.throw();
+  //     expect(nxtpSdkUtils.getRoutersBalances).to.be.a("function");
+  //     // const res = await nxtpSdkUtils.getRoutersBalances();
+  //     // console.log(res);
+  //     expect(() => nxtpSdkUtils.getRoutersBalances()).not.throw();
 
-      // check the transactionRequest
-    });
-  });
+  //     // check the transactionRequest
+  //   });
+  // });
 });
