@@ -49,7 +49,7 @@ describe("Executor.sol", async () => {
   });
 
   // TODO: skipped due fail, probably moving to foundry
-  xdescribe("execute", () => {
+  describe("execute", () => {
     it("should fail if not called by connext contract", async () => {
       const amount = "1000";
       const assetId = constants.AddressZero;

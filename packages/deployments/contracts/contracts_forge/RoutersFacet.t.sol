@@ -13,8 +13,8 @@ import "./ForgeHelper.sol";
 import {Deployer} from "./utils/Deployer.sol";
 import {IConnextFacets} from "./utils/IConnextFacets.sol";
 
-import {BaseConnextFacet} from "../contracts/diamond/facets/BaseConnextFacet.sol";
-import {RoutersFacet} from "../contracts/diamond/facets/RoutersFacet.sol";
+import {BaseConnextFacet} from "../contracts/facets/BaseConnextFacet.sol";
+import {RoutersFacet} from "../contracts/facets/RoutersFacet.sol";
 
 // TODO: This is testing the logic conditions in the library and file should be
 // refactored to reflect that, including:
@@ -39,13 +39,7 @@ contract RoutersFacetTest is ForgeHelper, Deployer {
   // ============ Test set up ============
 
   function setUp() public {
-    deployConnext(
-      domain,
-      xAppConnectionManager,
-      tokenRegistry,
-      wrapper,
-      relayerFeeRouter
-    );
+    deployConnext(domain, xAppConnectionManager, tokenRegistry, wrapper, relayerFeeRouter);
   }
 
   // ============ setupRouter ============
@@ -53,19 +47,13 @@ contract RoutersFacetTest is ForgeHelper, Deployer {
   // Fail if not called by owner
   function test_RouterPermissionsManager__setupRouter_failsIfNotOwner() public {
     vm.prank(address(0));
-    vm.expectRevert(
-      abi.encodeWithSelector(BaseConnextFacet.BaseConnextFacet__onlyOwner_notOwner.selector)
-    );
+    vm.expectRevert(abi.encodeWithSelector(BaseConnextFacet.BaseConnextFacet__onlyOwner_notOwner.selector));
     IConnextFacets(address(connextDiamondProxy)).setupRouter(address(1), address(0), address(0));
   }
 
   // Fail if adding address(0) as router
   function test_RouterPermissionsManager__setupRouter_failsIfZeroAddress() public {
-    vm.expectRevert(
-      abi.encodeWithSelector(
-        RoutersFacet.RoutersFacet__setupRouter_routerEmpty.selector
-      )
-    );
+    vm.expectRevert(abi.encodeWithSelector(RoutersFacet.RoutersFacet__setupRouter_routerEmpty.selector));
     IConnextFacets(address(connextDiamondProxy)).setupRouter(address(0), address(0), address(0));
   }
 
@@ -73,11 +61,7 @@ contract RoutersFacetTest is ForgeHelper, Deployer {
   function test_RouterPermissionsManager__setupRouter_failsIfAlreadyApproved() public {
     IConnextFacets(address(connextDiamondProxy)).setupRouter(address(1), address(0), address(0));
 
-    vm.expectRevert(
-      abi.encodeWithSelector(
-        RoutersFacet.RoutersFacet__setupRouter_amountIsZero.selector
-      )
-    );
+    vm.expectRevert(abi.encodeWithSelector(RoutersFacet.RoutersFacet__setupRouter_alreadyAdded.selector));
     IConnextFacets(address(connextDiamondProxy)).setupRouter(address(1), address(0), address(0));
   }
 
@@ -95,29 +79,19 @@ contract RoutersFacetTest is ForgeHelper, Deployer {
   // Fail if not called by owner
   function test_RouterPermissionsManager__removeRouter_failsIfNotOwner() public {
     vm.prank(address(0));
-    vm.expectRevert(
-      abi.encodeWithSelector(BaseConnextFacet.BaseConnextFacet__onlyOwner_notOwner.selector)
-    );
+    vm.expectRevert(abi.encodeWithSelector(BaseConnextFacet.BaseConnextFacet__onlyOwner_notOwner.selector));
     IConnextFacets(address(connextDiamondProxy)).removeRouter(address(1));
   }
 
   // Fail if removing address(0) as router
   function test_RouterPermissionsManager__removeRouter_failsIfZeroAddress() public {
-    vm.expectRevert(
-      abi.encodeWithSelector(
-        RoutersFacet.RoutersFacet__removeRouter_routerEmpty.selector
-      )
-    );
+    vm.expectRevert(abi.encodeWithSelector(RoutersFacet.RoutersFacet__removeRouter_routerEmpty.selector));
     IConnextFacets(address(connextDiamondProxy)).removeRouter(address(0));
   }
 
   // Fail if removing a non-existent router
   function test_RouterPermissionsManager__removeRouter_failsIfNotApproved() public {
-    vm.expectRevert(
-      abi.encodeWithSelector(
-        RoutersFacet.RoutersFacet__removeRouter_notAdded.selector
-      )
-    );
+    vm.expectRevert(abi.encodeWithSelector(RoutersFacet.RoutersFacet__removeRouter_notAdded.selector));
     IConnextFacets(address(connextDiamondProxy)).removeRouter(address(1));
   }
 
@@ -136,11 +110,7 @@ contract RoutersFacetTest is ForgeHelper, Deployer {
     address _router = address(1);
 
     vm.prank(address(2));
-    vm.expectRevert(
-      abi.encodeWithSelector(
-        RoutersFacet.RoutersFacet__onlyRouterOwner_notRouterOwner.selector
-      )
-    );
+    vm.expectRevert(abi.encodeWithSelector(RoutersFacet.RoutersFacet__onlyRouterOwner_notRouterOwner.selector));
     IConnextFacets(address(connextDiamondProxy)).setRouterRecipient(_router, address(0));
   }
 
@@ -150,11 +120,7 @@ contract RoutersFacetTest is ForgeHelper, Deployer {
     IConnextFacets(address(connextDiamondProxy)).setupRouter(_router, address(3), address(3));
 
     vm.prank(address(2));
-    vm.expectRevert(
-      abi.encodeWithSelector(
-        RoutersFacet.RoutersFacet__onlyRouterOwner_notRouterOwner.selector
-      )
-    );
+    vm.expectRevert(abi.encodeWithSelector(RoutersFacet.RoutersFacet__onlyRouterOwner_notRouterOwner.selector));
     IConnextFacets(address(connextDiamondProxy)).setRouterRecipient(_router, address(0));
   }
 
@@ -164,11 +130,7 @@ contract RoutersFacetTest is ForgeHelper, Deployer {
     IConnextFacets(address(connextDiamondProxy)).setupRouter(_router, address(3), address(2));
 
     vm.prank(address(3));
-    vm.expectRevert(
-      abi.encodeWithSelector(
-        RoutersFacet.RoutersFacet__setRouterRecipient_notNewRecipient.selector
-      )
-    );
+    vm.expectRevert(abi.encodeWithSelector(RoutersFacet.RoutersFacet__setRouterRecipient_notNewRecipient.selector));
     IConnextFacets(address(connextDiamondProxy)).setRouterRecipient(_router, address(2));
   }
 
@@ -199,11 +161,7 @@ contract RoutersFacetTest is ForgeHelper, Deployer {
     IConnextFacets(address(connextDiamondProxy)).setupRouter(_router, address(3), address(3));
 
     vm.prank(address(3));
-    vm.expectRevert(
-      abi.encodeWithSelector(
-        RoutersFacet.RoutersFacet__proposeRouterOwner_notNewOwner.selector
-      )
-    );
+    vm.expectRevert(abi.encodeWithSelector(RoutersFacet.RoutersFacet__proposeRouterOwner_notNewOwner.selector));
     IConnextFacets(address(connextDiamondProxy)).proposeRouterOwner(_router, address(3));
   }
 
@@ -215,11 +173,7 @@ contract RoutersFacetTest is ForgeHelper, Deployer {
     IConnextFacets(address(connextDiamondProxy)).proposeRouterOwner(_router, address(2));
 
     vm.prank(address(3));
-    vm.expectRevert(
-      abi.encodeWithSelector(
-        RoutersFacet.RoutersFacet__proposeRouterOwner_badRouter.selector
-      )
-    );
+    vm.expectRevert(abi.encodeWithSelector(RoutersFacet.RoutersFacet__proposeRouterOwner_badRouter.selector));
     IConnextFacets(address(connextDiamondProxy)).proposeRouterOwner(_router, address(2));
   }
 
@@ -240,11 +194,7 @@ contract RoutersFacetTest is ForgeHelper, Deployer {
     address _router = address(1);
 
     vm.prank(address(2));
-    vm.expectRevert(
-      abi.encodeWithSelector(
-        RoutersFacet.RoutersFacet__onlyProposedRouterOwner_notRouterOwner.selector
-      )
-    );
+    vm.expectRevert(abi.encodeWithSelector(RoutersFacet.RoutersFacet__onlyProposedRouterOwner_notRouterOwner.selector));
     IConnextFacets(address(connextDiamondProxy)).acceptProposedRouterOwner(_router);
   }
 
@@ -254,11 +204,7 @@ contract RoutersFacetTest is ForgeHelper, Deployer {
     IConnextFacets(address(connextDiamondProxy)).setupRouter(_router, address(3), address(3));
 
     vm.prank(address(2));
-    vm.expectRevert(
-      abi.encodeWithSelector(
-        RoutersFacet.RoutersFacet__onlyProposedRouterOwner_notRouterOwner.selector
-      )
-    );
+    vm.expectRevert(abi.encodeWithSelector(RoutersFacet.RoutersFacet__onlyProposedRouterOwner_notRouterOwner.selector));
     IConnextFacets(address(connextDiamondProxy)).acceptProposedRouterOwner(_router);
   }
 
@@ -270,11 +216,7 @@ contract RoutersFacetTest is ForgeHelper, Deployer {
 
     vm.prank(address(2));
     vm.expectRevert(
-      abi.encodeWithSelector(
-        RoutersFacet
-          .RoutersFacet__onlyProposedRouterOwner_notProposedRouterOwner
-          .selector
-      )
+      abi.encodeWithSelector(RoutersFacet.RoutersFacet__onlyProposedRouterOwner_notProposedRouterOwner.selector)
     );
     IConnextFacets(address(connextDiamondProxy)).acceptProposedRouterOwner(_router);
   }

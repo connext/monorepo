@@ -69,7 +69,7 @@ describe("StableSwap", async () => {
 
     secondToken = (await erc20Factory.deploy("Second Token", "SECOND")) as GenericERC20;
 
-    const lpTokenFactory = await ethers.getContractFactory("contracts/lib/StableSwap/LPToken.sol:LPToken");
+    const lpTokenFactory = await ethers.getContractFactory("contracts/libraries/LPToken.sol:LPToken");
     swapToken = (await lpTokenFactory.deploy()) as LPToken;
     swapToken.initialize(LP_TOKEN_NAME, LP_TOKEN_SYMBOL);
 
@@ -84,11 +84,11 @@ describe("StableSwap", async () => {
     // swap = await ethers.getContract("Swap");
 
     const amplificationUtilsFactory = await ethers.getContractFactory(
-      "contracts/lib/StableSwap/AmplificationUtils.sol:AmplificationUtils",
+      "contracts/libraries/AmplificationUtils.sol:AmplificationUtils",
     );
     amplificationUtils = (await amplificationUtilsFactory.deploy()) as AmplificationUtils;
 
-    const swapUtilsFactory = await ethers.getContractFactory("contracts/lib/StableSwap/SwapUtils.sol:SwapUtils");
+    const swapUtilsFactory = await ethers.getContractFactory("contracts/libraries/SwapUtils.sol:SwapUtils");
     swapUtils = (await swapUtilsFactory.deploy()) as SwapUtils;
 
     const swapFactory = await ethers.getContractFactory("StableSwap", {
@@ -113,7 +113,7 @@ describe("StableSwap", async () => {
     expect(await swap.getVirtualPrice()).to.be.eq(0);
 
     swapStorage = await swap.swapStorage();
-    swapToken = (await ethers.getContractAt("contracts/lib/StableSwap/LPToken.sol:LPToken", swapStorage.lpToken)) as LPToken;
+    swapToken = (await ethers.getContractAt("contracts/libraries/LPToken.sol:LPToken", swapStorage.lpToken)) as LPToken;
 
     const testStableSwapFactory = await ethers.getContractFactory("TestStableSwap");
     testStableSwap = (await testStableSwapFactory.deploy(swap.address, swapToken.address, 2)) as TestStableSwap;

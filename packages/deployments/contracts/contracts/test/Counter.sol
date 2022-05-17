@@ -3,7 +3,7 @@ pragma solidity 0.8.11;
 
 import "../interfaces/IExecutor.sol";
 
-import "../lib/LibCrossDomainProperty.sol";
+import "../libraries/LibCrossDomainProperty.sol";
 
 import "@openzeppelin/contracts-upgradeable/token/ERC20/utils/SafeERC20Upgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/token/ERC20/IERC20Upgradeable.sol";

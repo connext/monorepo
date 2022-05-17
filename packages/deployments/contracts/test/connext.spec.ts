@@ -24,7 +24,7 @@ import {
   RelayerFacet,
   RoutersFacet,
   StableSwapFacet,
-  ConnextDiamond,
+  ConnextHandler,
   DiamondInit,
   AmplificationUtils,
   SwapUtils,
@@ -109,8 +109,8 @@ describe("Connext", () => {
   let bridgeFacet: BridgeFacet;
   let assetFacet: AssetFacet;
   let routersFacet: RoutersFacet;
-  let originBridge: ConnextDiamond;
-  let destinationBridge: ConnextDiamond;
+  let originBridge: ConnextHandler;
+  let destinationBridge: ConnextHandler;
   let stableSwap: DummySwap;
   let originRelayerFeeRouter: RelayerFeeRouter;
   let destinationRelayerFeeRouter: RelayerFeeRouter;
@@ -164,9 +164,9 @@ describe("Connext", () => {
 
     // Deploy Libraries
     const amplificationUtils = await deployContract<AmplificationUtils>(
-      "contracts/diamond/libraries/AmplificationUtils.sol:AmplificationUtils",
+      "contracts/libraries/AmplificationUtils.sol:AmplificationUtils",
     );
-    const swapUtils = await deployContract<SwapUtils>("contracts/diamond/libraries/SwapUtils.sol:SwapUtils");
+    const swapUtils = await deployContract<SwapUtils>("contracts/libraries/SwapUtils.sol:SwapUtils");
 
     // Deploy facets
     const diamondCutFacet = await deployContract<DiamondCutFacet>("DiamondCutFacet");
@@ -187,7 +187,7 @@ describe("Connext", () => {
     const diamondInit = await deployContract<DiamondInit>("DiamondInit");
 
     // Deploy origin diamond
-    originBridge = await deployDiamond<ConnextDiamond>(
+    originBridge = await deployDiamond<ConnextHandler>(
       "Connext",
       [
         diamondCutFacet,
@@ -210,11 +210,11 @@ describe("Connext", () => {
         weth.address,
         originRelayerFeeRouter.address,
       ]),
-      "ConnextDiamond",
+      "ConnextHandler",
     );
 
     // Deploy destination diamond
-    destinationBridge = await deployDiamond<ConnextDiamond>(
+    destinationBridge = await deployDiamond<ConnextHandler>(
       "Connext",
       [
         diamondCutFacet,
@@ -237,7 +237,7 @@ describe("Connext", () => {
         weth.address,
         destinationRelayerFeeRouter.address,
       ]),
-      "ConnextDiamond",
+      "ConnextHandler",
     );
 
     // Deploy home in origin domain
@@ -439,7 +439,7 @@ describe("Connext", () => {
     });
   });
 
-  xdescribe("setupRouter", () => {
+  describe("setupRouter", () => {
     it("should fail if not called by owner", async () => {
       const toAdd = Wallet.createRandom().address;
       await expect(originBridge.connect(user).setupRouter(toAdd, toAdd, toAdd)).to.be.revertedWith(
@@ -450,13 +450,13 @@ describe("Connext", () => {
     it("should fail if it is adding address0", async () => {
       const toAdd = constants.AddressZero;
       await expect(originBridge.setupRouter(toAdd, toAdd, toAdd)).to.be.revertedWith(
-        "ConnextLogic__addRouter_routerEmpty",
+        "RoutersFacet__setupRouter_routerEmpty",
       );
     });
 
     it("should fail if its already added", async () => {
       await expect(originBridge.setupRouter(router.address, router.address, router.address)).to.be.revertedWith(
-        "ConnextLogic__addRouter_alreadyAdded",
+        "RoutersFacet__setupRouter_alreadyAdded",
       );
     });
 
@@ -469,7 +469,7 @@ describe("Connext", () => {
     });
   });
 
-  xdescribe("removeRouter", () => {
+  describe("removeRouter", () => {
     it("should fail if not called by owner", async () => {
       const toAdd = Wallet.createRandom().address;
       await expect(originBridge.connect(user).removeRouter(toAdd)).to.be.revertedWith(
@@ -479,14 +479,14 @@ describe("Connext", () => {
 
     it("should fail if it is adding address0", async () => {
       const toAdd = constants.AddressZero;
-      await expect(originBridge.removeRouter(toAdd)).to.be.revertedWith("ConnextLogic__removeRouter_routerEmpty");
+      await expect(originBridge.removeRouter(toAdd)).to.be.revertedWith("RoutersFacet__removeRouter_routerEmpty");
     });
 
     it("should fail if its already removed", async () => {
       const tx = await originBridge.removeRouter(router.address);
       await tx.wait();
 
-      await expect(originBridge.removeRouter(router.address)).to.be.revertedWith("ConnextLogic__removeRouter_notAdded");
+      await expect(originBridge.removeRouter(router.address)).to.be.revertedWith("RoutersFacet__removeRouter_notAdded");
     });
 
     it("should work", async () => {
@@ -750,12 +750,16 @@ describe("Connext", () => {
 
   describe("removeLiquidity", () => {
     // TODO: should revert if param recipient address is empty and router recipient is also empty
-    xit("should revert if param recipient address is empty", async () => {
+    it("should revert if param recipient address is empty", async () => {
       const amount = "1";
       const assetId = ZERO_ADDRESS;
 
+      const setRouter = await originBridge.connect(router).setRouterRecipient(router.address, ZERO_ADDRESS);
+      await setRouter.wait();
+      expect(await originBridge.getRouterRecipient(router.address)).to.be.eq(ZERO_ADDRESS);
+
       await expect(originBridge.connect(router).removeLiquidity(amount, assetId, ZERO_ADDRESS)).to.be.revertedWith(
-        "ConnextLogic__removeLiquidity_recipientEmpty",
+        "RoutersFacet__removeLiquidity_recipientEmpty",
       );
     });
 
@@ -1530,12 +1534,12 @@ describe("Connext", () => {
       const mint = await destinationAdopted.mint(sponsorVault.address, parseEther("20"));
       await mint.wait();
 
-      await (await admin.sendTransaction({to: sponsorVault.address, value: parseEther("1")})).wait()
+      await (await admin.sendTransaction({ to: sponsorVault.address, value: parseEther("1") })).wait();
 
       // Setup stable swap for adopted => canonical on origin
       const swapCanonical = await stableSwap
-      .connect(admin)
-      .setupPool(originAdopted.address, canonical.address, SEED, SEED);
+        .connect(admin)
+        .setupPool(originAdopted.address, canonical.address, SEED, SEED);
       await swapCanonical.wait();
 
       // Setup stable swap for local => adopted on dest
@@ -1581,7 +1585,7 @@ describe("Connext", () => {
       nonce = (originBridgeEvent!.args as any).nonce;
       message = (originBridgeEvent!.args as any).message;
       transferId = (originBridgeEvent!.args as any).transferId;
-    })
+    });
 
     it("should work with no sponsor vault configured", async () => {
       expect(await destinationBridge.sponsorVault()).to.eq(ZERO_ADDRESS);
@@ -1835,8 +1839,8 @@ describe("Connext", () => {
           routers: [router.address],
           routerSignatures: [await signRouterPathPayload(transferId, "1", router)],
           originSender: user.address,
-        })
-      ).to.revertedWith("BridgeFacet__handleExecuteTransaction_invalidSponsoredAmount()")
+        }),
+      ).to.revertedWith("BridgeFacet__handleExecuteTransaction_invalidSponsoredAmount()");
     });
-  })
+  });
 });
