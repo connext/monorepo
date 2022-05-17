@@ -10,6 +10,7 @@ import {LibCrossDomainProperty} from "../libraries/LibCrossDomainProperty.sol";
 import {ITokenRegistry, IBridgeToken} from "../nomad-xapps/interfaces/bridge/ITokenRegistry.sol";
 import {TypedMemView} from "../nomad-core/libs/TypedMemView.sol";
 import {TypeCasts} from "../nomad-core/contracts/XAppConnectionManager.sol";
+import {PromiseRouter} from "../nomad-xapps/contracts/promise-router/PromiseRouter.sol";
 
 import {IExecutor} from "../interfaces/IExecutor.sol";
 import {IWrapped} from "../interfaces/IWrapped.sol";
@@ -17,6 +18,7 @@ import {ISponsorVault} from "../interfaces/ISponsorVault.sol";
 
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import {ECDSA} from "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
+import {AddressUpgradeable} from "@openzeppelin/contracts-upgradeable/utils/AddressUpgradeable.sol";
 
 contract BridgeFacet is BaseConnextFacet {
   // ============ Libraries ============
@@ -39,6 +41,8 @@ contract BridgeFacet is BaseConnextFacet {
   error BridgeFacet__xcall_wrongDomain();
   error BridgeFacet__xcall_emptyTo();
   error BridgeFacet__xcall_notSupportedAsset();
+  error BridgeFacet__xcall_nonZeroCallbackFeeForCallback();
+  error BridgeFacet__xcall_callbackNotAContract();
   error BridgeFacet__reconcile_invalidAction();
   error BridgeFacet__reconcile_alreadyReconciled();
   error BridgeFacet__execute_unapprovedRelayer();
@@ -46,6 +50,7 @@ contract BridgeFacet is BaseConnextFacet {
   error BridgeFacet__execute_notSupportedRouter();
   error BridgeFacet__execute_invalidRouterSignature();
   error BridgeFacet__execute_alreadyExecuted();
+  error BridgeFacet__execute_notReconciled();
   error BridgeFacet__handleExecuteTransaction_invalidSponsoredAmount();
   error BridgeFacet__bumpTransfer_valueIsZero();
 
@@ -156,6 +161,10 @@ contract BridgeFacet is BaseConnextFacet {
     return s.sponsorVault;
   }
 
+  function promiseRouter() external view returns (PromiseRouter) {
+    return s.promiseRouter;
+  }
+
   // ============ Public methods ==============
 
   function setSponsorVault(address _sponsorVault) external onlyOwner {
@@ -261,6 +270,16 @@ contract BridgeFacet is BaseConnextFacet {
     if (_args.params.to == address(0)) {
       revert BridgeFacet__xcall_emptyTo();
     }
+
+    // ensure callback fee is zero when callback address is empty
+    if (_args.params.callback == address(0) && _args.params.callbackFee > 0) {
+      revert BridgeFacet__xcall_nonZeroCallbackFeeForCallback();
+    }
+
+    // ensure callback is contract if supplied
+    if (_args.params.callback != address(0) && !AddressUpgradeable.isContract(_args.params.callback)) {
+      revert BridgeFacet__xcall_callbackNotAContract();
+    }
   }
 
   /**
@@ -288,12 +307,21 @@ contract BridgeFacet is BaseConnextFacet {
 
     // transfer funds of transacting asset to the contract from user
     // NOTE: will wrap any native asset transferred to wrapped-native automatically
-    (, uint256 amount) = AssetLogic.handleIncomingAsset(_args.transactingAssetId, _args.amount, _args.relayerFee);
+    (, uint256 amount) = AssetLogic.handleIncomingAsset(
+      _args.transactingAssetId,
+      _args.amount,
+      _args.relayerFee + _args.params.callbackFee
+    );
 
     // swap to the local asset from adopted
     (uint256 bridgedAmt, address bridged) = AssetLogic.swapToLocalAssetIfNeeded(canonical, transactingAssetId, amount);
 
     bytes32 transferId = _getTransferId(_args, canonical);
+
+    // Transfer callback fee to PromiseRouter if set
+    if (_args.params.callbackFee != 0) {
+      s.promiseRouter.initCallbackFee{value: _args.params.callbackFee}(transferId);
+    }
 
     bytes memory message = _formatMessage(_args, bridged, transferId, bridgedAmt);
     s.xAppConnectionManager.home().dispatch(_args.params.destinationDomain, remote, message);
@@ -474,6 +502,10 @@ contract BridgeFacet is BaseConnextFacet {
     // get transfer id
     bytes32 transferId = _getTransferId(_args);
 
+    // get reconciled record
+    bool reconciled = s.reconciledTransfers[transferId];
+    if (_args.params.forceSlow && !reconciled) revert BridgeFacet__execute_notReconciled();
+
     // get the payload the router should have signed
     bytes32 routerHash = keccak256(abi.encode(transferId, pathLength));
 
@@ -494,9 +526,6 @@ contract BridgeFacet is BaseConnextFacet {
     if (s.transferRelayer[transferId] != address(0)) {
       revert BridgeFacet__execute_alreadyExecuted();
     }
-
-    // get reconciled record
-    bool reconciled = s.reconciledTransfers[transferId];
 
     return (transferId, reconciled);
   }
@@ -558,6 +587,11 @@ contract BridgeFacet is BaseConnextFacet {
       }
     }
 
+    // if the local asset is specified, exit
+    if (_args.params.receiveLocal) {
+      return (toSwap, _args.local);
+    }
+
     // swap out of mad* asset into adopted asset if needed
     return AssetLogic.swapFromLocalAssetIfNeeded(_args.local, toSwap);
   }
@@ -606,7 +640,7 @@ contract BridgeFacet is BaseConnextFacet {
     } else {
       // execute calldata w/funds
       AssetLogic.transferAssetFromContract(_adopted, address(s.executor), _amount);
-      s.executor.execute(
+      (bool success, bytes memory returnData) = s.executor.execute(
         _transferId,
         _amount,
         payable(_args.params.to),
@@ -616,6 +650,11 @@ contract BridgeFacet is BaseConnextFacet {
           : LibCrossDomainProperty.EMPTY_BYTES,
         _args.params.callData
       );
+
+      // If callback address is not zero, send on the PromiseRouter
+      if (_args.params.callback != address(0)) {
+        s.promiseRouter.send(_args.params.originDomain, _transferId, _args.params.callback, success, returnData);
+      }
     }
   }
 }

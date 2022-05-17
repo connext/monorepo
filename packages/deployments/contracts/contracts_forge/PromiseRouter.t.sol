@@ -3,13 +3,15 @@ pragma solidity 0.8.11;
 
 import "./ForgeHelper.sol";
 
-import "../contracts/nomad-xapps/contracts/connext/ConnextHandler.sol";
-import "../contracts/nomad-xapps/contracts/promise-router/PromiseRouter.sol";
+import {TypedMemView, PromiseMessage, PromiseRouter, AddressUpgradeable} from "../contracts/nomad-xapps/contracts/promise-router/PromiseRouter.sol";
 import {Home} from "../contracts/nomad-core/contracts/Home.sol";
-import "../contracts/ProposedOwnableUpgradeable.sol";
+import {ProposedOwnableUpgradeable} from "../contracts/ProposedOwnableUpgradeable.sol";
+import {ERC1967Proxy} from "@openzeppelin/contracts/proxy/ERC1967/ERC1967Proxy.sol";
+import {Deployer} from "./utils/Deployer.sol";
+import {IConnextHandler} from "../contracts/interfaces/IConnextHandler.sol";
+import {BaseConnextFacet} from "../contracts/facets/BaseConnextFacet.sol";
 
-import "@openzeppelin/contracts/proxy/ERC1967/ERC1967Proxy.sol";
-import {MockHome, MockCallback, MockPromiseRouter} from "./Mock.sol";
+import {MockHome, MockCallback, MockPromiseRouter, TestSetterFacet} from "./Mock.sol";
 
 // running tests (with logging on failure):
 // yarn workspace @connext/nxtp-contracts test:forge -vvv
@@ -19,7 +21,7 @@ import {MockHome, MockCallback, MockPromiseRouter} from "./Mock.sol";
 // other forge commands: yarn workspace @connext/nxtp-contracts forge <CMD>
 // see docs here: https://onbjerg.github.io/foundry-book/index.html
 
-contract PromiseRouterTest is ForgeHelper {
+contract PromiseRouterTest is ForgeHelper, Deployer {
   using TypedMemView for bytes;
   using TypedMemView for bytes29;
   using PromiseMessage for bytes29;
@@ -60,7 +62,6 @@ contract PromiseRouterTest is ForgeHelper {
 
   address internal xAppConnectionManager = address(1);
   address internal home;
-  ConnextHandler internal connext;
   MockCallback internal callback;
   address internal connext2 = address(3);
   address internal recipient = address(4);
@@ -68,11 +69,13 @@ contract PromiseRouterTest is ForgeHelper {
   uint32 internal localDomain = uint32(123);
   uint32 internal remoteDomain = uint32(1);
   address internal relayer = address(5);
+  address internal tokenRegistry = address(6);
+  address internal wrapper = address(7);
+  address internal relayerFeeRouter = address(8);
 
   // ============ Test set up ============
 
   function setUp() public {
-    connext = new ConnextHandler();
     callback = new MockCallback();
     home = address(new MockHome());
     vm.mockCall(xAppConnectionManager, abi.encodeWithSignature("home()"), abi.encode(home));
@@ -88,7 +91,16 @@ contract PromiseRouterTest is ForgeHelper {
 
     promiseRouter = MockPromiseRouter(payable(address(proxy)));
 
-    promiseRouter.setConnext(address(connext));
+    deployConnext(
+      localDomain,
+      xAppConnectionManager,
+      tokenRegistry,
+      wrapper,
+      relayerFeeRouter,
+      payable(address(proxy))
+    );
+
+    promiseRouter.setConnext(address(connextDiamondProxy));
     promiseRouter.enrollRemoteRouter(remoteDomain, bytes32(remote));
   }
 
@@ -102,15 +114,13 @@ contract PromiseRouterTest is ForgeHelper {
   }
 
   function setApprovedRelayer(address _relayer, bool _approved) internal {
-    stdstore.target(address(connext)).sig(connext.approvedRelayers.selector).with_key(_relayer).checked_write(
-      _approved ? 1 : 0
-    );
+    TestSetterFacet(address(connextDiamondProxy)).setApprovedRelayer(_relayer, _approved);
   }
 
   // ============ initialize ============
   function test_PromiseRouter__initializeParameters_shouldWork() public {
     assertEq(address(promiseRouter.xAppConnectionManager()), address(xAppConnectionManager));
-    assertEq(address(promiseRouter.connext()), address(connext));
+    assertEq(address(promiseRouter.connext()), address(connextDiamondProxy));
   }
 
   // ============ setConnext ============
@@ -123,7 +133,7 @@ contract PromiseRouterTest is ForgeHelper {
     promiseRouter.setConnext(connext2);
     assertEq(address(promiseRouter.connext()), connext2);
 
-    promiseRouter.setConnext(address(connext));
+    promiseRouter.setConnext(address(connextDiamondProxy));
   }
 
   // Fail if not called by owner
@@ -151,7 +161,7 @@ contract PromiseRouterTest is ForgeHelper {
   // Fail if return data is empty
   function test_PromiseRouter__send_failsIfEmptyReturnData(bool returnSuccess, bytes calldata returnData) public {
     vm.assume(returnData.length == 0);
-    vm.prank(address(connext));
+    vm.prank(address(connextDiamondProxy));
     vm.expectRevert(abi.encodeWithSelector(PromiseRouter.PromiseRouter__send_returndataEmpty.selector));
 
     bytes32 transferId = "A";
@@ -163,7 +173,7 @@ contract PromiseRouterTest is ForgeHelper {
   // Fail if callback address is not contract
   function test_PromiseRouter__send_failsIfNonContractCallback(bool returnSuccess, bytes calldata returnData) public {
     vm.assume(returnData.length > 0);
-    vm.prank(address(connext));
+    vm.prank(address(connextDiamondProxy));
     vm.expectRevert(abi.encodeWithSelector(PromiseRouter.PromiseRouter__send_callbackAddressNotContract.selector));
 
     bytes32 transferId = "A";
@@ -174,7 +184,7 @@ contract PromiseRouterTest is ForgeHelper {
 
   // Should work
   function test_PromiseRouter__send_shouldWork(bool returnSuccess, bytes calldata returnData) public {
-    vm.prank(address(connext));
+    vm.prank(address(connextDiamondProxy));
     vm.assume(returnData.length > 0);
 
     bytes32 transferId = "A";

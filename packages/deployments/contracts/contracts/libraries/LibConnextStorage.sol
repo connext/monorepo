@@ -3,6 +3,7 @@ pragma solidity ^0.8.11;
 
 import {XAppConnectionManager} from "../nomad-core/contracts/XAppConnectionManager.sol";
 import {RelayerFeeRouter} from "../nomad-xapps/contracts/relayer-fee-router/RelayerFeeRouter.sol";
+import {PromiseRouter} from "../nomad-xapps/contracts/promise-router/PromiseRouter.sol";
 
 import {ITokenRegistry} from "../nomad-xapps/interfaces/bridge/ITokenRegistry.sol";
 import {IWrapped} from "../interfaces/IWrapped.sol";
@@ -24,12 +25,20 @@ import {SwapUtils} from "./SwapUtils.sol";
  * @param callData - The data to execute on the receiving chain. If no crosschain call is needed, then leave empty.
  * @param originDomain - The originating domain (i.e. where `xcall` is called). Must match nomad domain schema
  * @param destinationDomain - The final domain (i.e. where `execute` / `reconcile` are called). Must match nomad domain schema
+ * @param callback - The address on the origin domain of the callback contract
+ * @param callbackFee - The relayer fee to execute the callback
+ * @param forceSlow - If true, will take slow liquidity path even if it is not a permissioned call
+ * @param receiveLocal - If true, will use the local nomad asset on the destination instead of adopted.
  */
 struct CallParams {
   address to;
   bytes callData;
   uint32 originDomain;
   uint32 destinationDomain;
+  address callback;
+  uint256 callbackFee;
+  bool forceSlow;
+  bool receiveLocal;
 }
 
 /**
@@ -104,142 +113,146 @@ struct AppStorage {
   // The local nomad relayer fee router
   // 2
   RelayerFeeRouter relayerFeeRouter;
+  // The local nomad promise callback router
+  // 3
+  PromiseRouter promiseRouter;
   // /**
   // * @notice The address of the wrapper for the native asset on this domain
   // * @dev Needed because the nomad only handles ERC20 assets
   // */
-  // 3
+  // 4
   IWrapped wrapper;
   // /**
   // * @notice Nonce for the contract, used to keep unique transfer ids.
   // * @dev Assigned at first interaction (xcall on origin domain);
   // */
-  // 4
+  // 5
   uint256 nonce;
   // /**
   // * @notice The external contract that will execute crosschain calldata
   // */
-  // 5
+  // 6
   IExecutor executor;
   // /**
   // * @notice The domain this contract exists on
   // * @dev Must match the nomad domain, which is distinct from the "chainId"
   // */
-  // 6
+  // 7
   uint256 domain;
   // /**
   // * @notice The local nomad token registry
   // */
-  // 7
+  // 8
   ITokenRegistry tokenRegistry;
   // /**
   // * @notice Mapping holding the AMMs for swapping in and out of local assets
   // * @dev Swaps for an adopted asset <> nomad local asset (i.e. POS USDC <> madUSDC on polygon)
   // */
-  // 7
+  // 9
   mapping(bytes32 => IStableSwap) adoptedToLocalPools;
   // /**
   // * @notice Mapping of whitelisted assets on same domain as contract
   // * @dev Mapping is keyed on the canonical token identifier matching what is stored in the token
   // * registry
   // */
-  // 8
+  // 10
   mapping(bytes32 => bool) approvedAssets;
   // /**
   // * @notice Mapping of canonical to adopted assets on this domain
   // * @dev If the adopted asset is the native asset, the keyed address will
   // * be the wrapped asset address
   // */
-  // 9
+  // 11
   mapping(address => ConnextMessage.TokenId) adoptedToCanonical;
   // /**
   // * @notice Mapping of adopted to canonical on this domain
   // * @dev If the adopted asset is the native asset, the stored address will be the
   // * wrapped asset address
   // */
-  // 10
+  // 12
   mapping(bytes32 => address) canonicalToAdopted;
   // /**
   // * @notice Mapping to determine if transfer is reconciled
   // */
-  // 11
+  // 13
   mapping(bytes32 => bool) reconciledTransfers;
   // /**
   // * @notice Mapping holding router address that provided fast liquidity
   // */
-  // 12
+  // 14
   mapping(bytes32 => address[]) routedTransfers;
   // /**
   // * @notice Mapping of router to available balance of an asset
   // * @dev Routers should always store liquidity that they can expect to receive via the bridge on
   // * this domain (the nomad local asset)
   // */
-  // 13
+  // 15
   mapping(address => mapping(address => uint256)) routerBalances;
   // /**
   // * @notice Mapping of approved relayers
   // * @dev Send relayer fee if msg.sender is approvedRelayer. otherwise revert()
   // */
-  // 14
+  // 16
   mapping(address => bool) approvedRelayers;
   // /**
   // * @notice Stores the relayer fee for a transfer. Updated on origin domain when a user calls xcall or bump
   // * @dev This will track all of the relayer fees assigned to a transfer by id, including any bumps made by the relayer
   // */
-  // 15
+  // 17
   mapping(bytes32 => uint256) relayerFees;
   // /**
   // * @notice Stores the relayer of a transfer. Updated on the destination domain when a relayer calls execute
   // * for transfer
   // * @dev When relayer claims, must check that the msg.sender has forwarded transfer
   // */
-  // 16
+  // 18
   mapping(bytes32 => address) transferRelayer;
   // /**
   // * @notice The max amount of routers a payment can be routed through
   // */
-  // 17
+  // 19
   uint256 maxRoutersPerTransfer;
   // /**
   //  * @notice The Vault used for sponsoring fees
   //  */
+  // 20
   ISponsorVault sponsorVault;
   //
   // Router
   //
-  // 18
+  // 21
   mapping(uint32 => bytes32) remotes;
   //
   // XAppConnectionClient
   //
-  // 19
+  // 22
   XAppConnectionManager xAppConnectionManager;
   //
   // ProposedOwnable
   //
-  // 20
-  address _owner;
-  // 21
-  address _proposed;
-  // 22
-  uint256 _proposedOwnershipTimestamp;
   // 23
-  bool _routerOwnershipRenounced;
+  address _owner;
   // 24
-  uint256 _routerOwnershipTimestamp;
+  address _proposed;
   // 25
-  bool _assetOwnershipRenounced;
+  uint256 _proposedOwnershipTimestamp;
   // 26
+  bool _routerOwnershipRenounced;
+  // 27
+  uint256 _routerOwnershipTimestamp;
+  // 28
+  bool _assetOwnershipRenounced;
+  // 29
   uint256 _assetOwnershipTimestamp;
   //
   // RouterPermissionsManager
   //
-  // 27
+  // 30
   RouterPermissionsManagerInfo routerPermissionInfo;
   //
   // ReentrancyGuard
   //
-  // 28
+  // 31
   uint256 _status;
   //
   // StableSwap
@@ -250,11 +263,13 @@ struct AppStorage {
    * Struct storing data responsible for automatic market maker functionalities. In order to
    * access this data, this contract uses SwapUtils library. For more details, see SwapUtils.sol
    */
+  // 32
   mapping(bytes32 => SwapUtils.Swap) swapStorages;
   /**
    * @notice Maps token address to an index in the pool. Used to prevent duplicate tokens in the pool.
    * @dev getTokenIndex function also relies on this mapping to retrieve token index.
    */
+  // 33
   mapping(bytes32 => mapping(address => uint8)) tokenIndexes;
 }
 

@@ -17,6 +17,8 @@ import {ConnextMessage} from "../../contracts/libraries/ConnextMessage.sol";
 import {XCallArgs, CallParams} from "../../contracts/libraries/LibConnextStorage.sol";
 import {IDiamondCut} from "../../contracts/interfaces/IDiamondCut.sol";
 
+import {TestSetterFacet} from "../Mock.sol";
+
 contract Deployer {
   Connext connextDiamondProxy;
   DiamondCutFacet diamondCutFacet;
@@ -30,6 +32,7 @@ contract Deployer {
   RelayerFacet relayerFacet;
   RoutersFacet routersFacet;
   StableSwapFacet stableSwapAsset;
+  TestSetterFacet testSetterFacet;
 
   function getDiamondCutFacetCut(address _diamondCutFacet) internal returns (IDiamondCut.FacetCut memory) {
     bytes4[] memory diamondCutFacetSelectors = new bytes4[](1);
@@ -75,7 +78,7 @@ contract Deployer {
   }
 
   function getBridgeFacetCut(address _bridgeFacet) internal returns (IDiamondCut.FacetCut memory) {
-    bytes4[] memory bridgeFacetSelectors = new bytes4[](14);
+    bytes4[] memory bridgeFacetSelectors = new bytes4[](15);
     bridgeFacetSelectors[0] = BridgeFacet.relayerFees.selector;
     bridgeFacetSelectors[1] = BridgeFacet.routedTransfers.selector;
     bridgeFacetSelectors[2] = BridgeFacet.reconciledTransfers.selector;
@@ -85,11 +88,12 @@ contract Deployer {
     bridgeFacetSelectors[6] = BridgeFacet.nonce.selector;
     bridgeFacetSelectors[7] = BridgeFacet.wrapper.selector;
     bridgeFacetSelectors[8] = BridgeFacet.sponsorVault.selector;
-    bridgeFacetSelectors[9] = BridgeFacet.setSponsorVault.selector;
-    bridgeFacetSelectors[10] = BridgeFacet.xcall.selector;
-    bridgeFacetSelectors[11] = BridgeFacet.handle.selector;
-    bridgeFacetSelectors[12] = BridgeFacet.execute.selector;
-    bridgeFacetSelectors[13] = BridgeFacet.bumpTransfer.selector;
+    bridgeFacetSelectors[9] = BridgeFacet.promiseRouter.selector;
+    bridgeFacetSelectors[10] = BridgeFacet.setSponsorVault.selector;
+    bridgeFacetSelectors[11] = BridgeFacet.xcall.selector;
+    bridgeFacetSelectors[12] = BridgeFacet.handle.selector;
+    bridgeFacetSelectors[13] = BridgeFacet.execute.selector;
+    bridgeFacetSelectors[14] = BridgeFacet.bumpTransfer.selector;
     return
       IDiamondCut.FacetCut({
         facetAddress: _bridgeFacet,
@@ -226,6 +230,20 @@ contract Deployer {
       });
   }
 
+  function getTestSetterFacetCut(address _testSetterFacetFacet) internal returns (IDiamondCut.FacetCut memory) {
+    bytes4[] memory testSetterFacetSelectors = new bytes4[](4);
+    testSetterFacetSelectors[0] = TestSetterFacet.setTestRelayerFees.selector;
+    testSetterFacetSelectors[1] = TestSetterFacet.setTestTransferRelayer.selector;
+    testSetterFacetSelectors[2] = TestSetterFacet.setTestSponsorVault.selector;
+    testSetterFacetSelectors[3] = TestSetterFacet.setApprovedRelayer.selector;
+    return
+      IDiamondCut.FacetCut({
+        facetAddress: _testSetterFacetFacet,
+        action: IDiamondCut.FacetCutAction.Add,
+        functionSelectors: testSetterFacetSelectors
+      });
+  }
+
   function deployFacets() internal {
     diamondCutFacet = new DiamondCutFacet();
     diamondLoupeFacet = new DiamondLoupeFacet();
@@ -238,20 +256,22 @@ contract Deployer {
     relayerFacet = new RelayerFacet();
     routersFacet = new RoutersFacet();
     stableSwapAsset = new StableSwapFacet();
+    testSetterFacet = new TestSetterFacet();
   }
 
   function getFacetCuts() internal returns (IDiamondCut.FacetCut[] memory) {
-    IDiamondCut.FacetCut[] memory facetCuts = new IDiamondCut.FacetCut[](10);
-    facetCuts[0] = getDiamondCutFacetCut(address(diamondCutFacet));
-    facetCuts[1] = getDiamondLoupeFacetCut(address(diamondLoupeFacet));
-    facetCuts[2] = getAssetFacetCut(address(assetFacet));
-    facetCuts[3] = getBridgeFacetCut(address(bridgeFacet));
-    facetCuts[4] = getNomadFacetCut(address(nomadFacet));
-    facetCuts[5] = getOwnershipFacetCut(address(ownershipFacet));
-    facetCuts[6] = getProposedOwnableFacetCut(address(proposedOwnableFacet));
-    facetCuts[7] = getRelayerFacetCut(address(relayerFacet));
-    facetCuts[8] = getRoutersFacetCut(address(routersFacet));
-    facetCuts[9] = getStableSwapFacetCut(address(stableSwapAsset));
+    IDiamondCut.FacetCut[] memory facetCuts = new IDiamondCut.FacetCut[](11);
+    facetCuts[0] = getTestSetterFacetCut(address(testSetterFacet));
+    facetCuts[1] = getDiamondCutFacetCut(address(diamondCutFacet));
+    facetCuts[2] = getDiamondLoupeFacetCut(address(diamondLoupeFacet));
+    facetCuts[3] = getAssetFacetCut(address(assetFacet));
+    facetCuts[4] = getBridgeFacetCut(address(bridgeFacet));
+    facetCuts[5] = getNomadFacetCut(address(nomadFacet));
+    facetCuts[6] = getOwnershipFacetCut(address(ownershipFacet));
+    facetCuts[7] = getProposedOwnableFacetCut(address(proposedOwnableFacet));
+    facetCuts[8] = getRelayerFacetCut(address(relayerFacet));
+    facetCuts[9] = getRoutersFacetCut(address(routersFacet));
+    facetCuts[10] = getStableSwapFacetCut(address(stableSwapAsset));
 
     return facetCuts;
   }
@@ -261,7 +281,8 @@ contract Deployer {
     address xAppConnectionManager,
     address tokenRegistry,
     address wrapper,
-    address relayerFeeRouter
+    address relayerFeeRouter,
+    address payable promiseRouter
   ) internal {
     bytes memory initCallData = abi.encodeWithSelector(
       DiamondInit.init.selector,
@@ -269,7 +290,8 @@ contract Deployer {
       xAppConnectionManager,
       tokenRegistry,
       wrapper,
-      relayerFeeRouter
+      relayerFeeRouter,
+      promiseRouter
     );
 
     deployFacets();

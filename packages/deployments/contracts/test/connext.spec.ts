@@ -28,6 +28,7 @@ import {
   DiamondInit,
   AmplificationUtils,
   SwapUtils,
+  PromiseRouter,
 } from "../typechain-types";
 
 import {
@@ -164,6 +165,15 @@ describe("Connext", () => {
       [destinationXappConnectionManager.address],
     );
 
+    // Deploy PromiseRouters
+    originPromiseRouter = await deployUpgradeableProxy<PromiseRouter>("PromiseRouter", proxyOwner.address, [
+      originXappConnectionManager.address,
+    ]);
+
+    destinationPromiseRouter = await deployUpgradeableProxy<PromiseRouter>("PromiseRouter", proxyOwner.address, [
+      destinationXappConnectionManager.address,
+    ]);
+
     // Deploy Libraries
     const amplificationUtils = await deployContract<AmplificationUtils>(
       "contracts/libraries/AmplificationUtils.sol:AmplificationUtils",
@@ -211,6 +221,7 @@ describe("Connext", () => {
         originTokenRegistry.address,
         weth.address,
         originRelayerFeeRouter.address,
+        originPromiseRouter.address,
       ]),
       "ConnextHandler",
     );
@@ -238,6 +249,7 @@ describe("Connext", () => {
         destinationTokenRegistry.address,
         weth.address,
         destinationRelayerFeeRouter.address,
+        destinationPromiseRouter.address,
       ]),
       "ConnextHandler",
     );
@@ -1557,29 +1569,24 @@ describe("Connext", () => {
       await mint.wait();
 
       await (await admin.sendTransaction({ to: sponsorVault.address, value: parseEther("1") })).wait();
-
       // Setup stable swap for adopted => canonical on origin
       const swapCanonical = await stableSwap
         .connect(admin)
         .setupPool(originAdopted.address, canonical.address, SEED, SEED);
       await swapCanonical.wait();
-
       // Setup stable swap for local => adopted on dest
       const swapLocal = await stableSwap
         .connect(admin)
         .setupPool(destinationAdopted.address, local.address, SEED.mul(2), SEED.mul(2));
       await swapLocal.wait();
-
       // Add router liquidity
       const approveLiq = await local.connect(router).approve(destinationBridge.address, parseEther("100000"));
       await approveLiq.wait();
       const addLiq = await destinationBridge.connect(router).addLiquidity(parseEther("0.1"), local.address);
       await addLiq.wait();
-
       // Approve user
       const approveAmt = await originAdopted.connect(user).approve(originBridge.address, parseEther("100000"));
       await approveAmt.wait();
-
       amount = utils.parseEther("0.0001");
       relayerFee = utils.parseEther("0.00000001");
       routerAmount = amount.mul(9995).div(10000);
@@ -1591,6 +1598,10 @@ describe("Connext", () => {
         callData: "0x",
         originDomain,
         destinationDomain,
+        callback: ZERO_ADDRESS,
+        callbackFee: 0,
+        forceSlow: false,
+        receiveLocal: false,
       };
       transactingAssetId = originAdopted.address;
 
@@ -1598,7 +1609,6 @@ describe("Connext", () => {
         .connect(user)
         .xcall({ params, transactingAssetId, amount, relayerFee }, { value: relayerFee });
       const prepareReceipt = await prepare.wait();
-
       const xcalledTopic = bridgeFacet.filters.XCalled().topics as string[];
       const originBridgeEvent = bridgeFacet.interface.parseLog(
         prepareReceipt.logs.find((l) => l.topics.includes(xcalledTopic[0]))!,
