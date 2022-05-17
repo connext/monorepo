@@ -47,6 +47,22 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment): Promise<voi
     relayerFeeRouterImplementationDeployment.abi,
   ).connect(deployer);
 
+  console.log("Fetching promise router...");
+  const promiseRouterDeployment = await hre.deployments.getOrNull(getDeploymentName("PromiseRouterUpgradeBeaconProxy"));
+  const promiseRouterImplementationDeployment = await hre.deployments.getOrNull(getDeploymentName("RelayerFeeRouter"));
+
+  if (!promiseRouterDeployment || !promiseRouterImplementationDeployment) {
+    throw new Error(
+      `PromiseRouterUpgradeBeaconProxy not deployed. ` +
+        `Upgrade Beacon: ${!!promiseRouterDeployment}; Implementation: ${!!promiseRouterImplementationDeployment}`,
+    );
+  }
+
+  const promiseRouter = new hre.ethers.Contract(
+    promiseRouterDeployment.address,
+    promiseRouterImplementationDeployment.abi,
+  ).connect(deployer);
+
   // Get xapp connection manager
   const xappConnectionManagerDeployment = await hre.deployments.getOrNull(getDeploymentName("XAppConnectionManager"));
   if (!xappConnectionManagerDeployment) {
@@ -136,6 +152,7 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment): Promise<voi
         tokenRegistry.address,
         WRAPPED_ETH_MAP.get(+chainId) ?? constants.AddressZero,
         relayerFeeRouter.address,
+        promiseRouter.address,
       ],
     },
     //deterministicSalt: keccak256(utils.toUtf8Bytes("connextDiamondProxyV1")),
@@ -150,6 +167,15 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment): Promise<voi
     await addTm.wait();
   } else {
     console.log("relayer fee router connext set");
+  }
+
+  // Add connext to promise router
+  if ((await promiseRouter.connext()) !== connextAddress) {
+    console.log("setting connext on promiseRouter router");
+    const addTm = await promiseRouter.connect(deployer).setConnext(connextAddress);
+    await addTm.wait();
+  } else {
+    console.log("promise router connext set");
   }
 
   if (WRAPPED_ETH_MAP.has(+chainId)) {

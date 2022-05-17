@@ -18,6 +18,7 @@ import {BaseConnextFacet} from "../facets/BaseConnextFacet.sol";
 
 import {XAppConnectionManager} from "../nomad-core/contracts/XAppConnectionManager.sol";
 import {RelayerFeeRouter} from "../nomad-xapps/contracts/relayer-fee-router/RelayerFeeRouter.sol";
+import {PromiseRouter} from "../nomad-xapps/contracts/promise-router/PromiseRouter.sol";
 import {ITokenRegistry} from "../nomad-xapps/interfaces/bridge/ITokenRegistry.sol";
 import {Executor} from "../interpreters/Executor.sol";
 import {IWrapped} from "../interfaces/IWrapped.sol";
@@ -34,7 +35,8 @@ contract DiamondInit is BaseConnextFacet {
     address _xAppConnectionManager,
     address _tokenRegistry, // Nomad token registry
     address _wrappedNative,
-    address _relayerFeeRouter
+    address _relayerFeeRouter,
+    address payable _promiseRouter
   ) external {
     // adding ERC165 data
     LibDiamond.DiamondStorage storage ds = LibDiamond.diamondStorage();
@@ -63,6 +65,7 @@ contract DiamondInit is BaseConnextFacet {
     s.domain = _domain;
     s.nonce = 0;
     s.relayerFeeRouter = RelayerFeeRouter(_relayerFeeRouter);
+    s.promiseRouter = PromiseRouter(_promiseRouter);
     s.executor = new Executor(address(this));
     s.tokenRegistry = ITokenRegistry(_tokenRegistry);
     s.wrapper = IWrapped(_wrappedNative);
