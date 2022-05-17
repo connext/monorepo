@@ -19,7 +19,6 @@ import {
   getDestinationTransfersByDomainAndIdsQuery,
   getRouterQuery,
   getOriginTransfersByIdsQuery,
-  getOriginTransfersQueryByDomain,
   getOriginTransfersQuery,
   getOriginTransfersByTransactionHashesQuery,
   getDestinationTransfersByIdsQuery,
