@@ -49,6 +49,7 @@ contract BridgeFacet is BaseConnextFacet {
   error BridgeFacet__execute_notSupportedRouter();
   error BridgeFacet__execute_invalidRouterSignature();
   error BridgeFacet__execute_alreadyExecuted();
+  error BridgeFacet__execute_notReconciled();
   error BridgeFacet__handleExecuteTransaction_invalidSponsoredAmount();
   error BridgeFacet__bumpTransfer_valueIsZero();
 
@@ -496,6 +497,10 @@ contract BridgeFacet is BaseConnextFacet {
     // get transfer id
     bytes32 transferId = _getTransferId(_args);
 
+    // get reconciled record
+    bool reconciled = s.reconciledTransfers[transferId];
+    if (_args.params.forceSlow && !reconciled) revert BridgeFacet__execute_notReconciled();
+
     // get the payload the router should have signed
     bytes32 routerHash = keccak256(abi.encode(transferId, pathLength));
 
@@ -516,9 +521,6 @@ contract BridgeFacet is BaseConnextFacet {
     if (s.transferRelayer[transferId] != address(0)) {
       revert BridgeFacet__execute_alreadyExecuted();
     }
-
-    // get reconciled record
-    bool reconciled = s.reconciledTransfers[transferId];
 
     return (transferId, reconciled);
   }
@@ -578,6 +580,11 @@ contract BridgeFacet is BaseConnextFacet {
           i++;
         }
       }
+    }
+
+    // if the local asset is specified, exit
+    if (_args.params.receiveLocal) {
+      return (toSwap, _args.local);
     }
 
     // swap out of mad* asset into adopted asset if needed
