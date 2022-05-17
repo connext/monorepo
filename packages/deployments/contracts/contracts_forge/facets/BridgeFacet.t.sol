@@ -152,13 +152,23 @@ contract BridgeFacetTest is ForgeHelper, BridgeFacet {
     return (transferId, ExecuteArgs(_params, _local, routers, sigs, _relayerFee, _amount, _nonce, _originSender));
   }
 
+  // Meant to mimic the getTransferId in the contract.
+  function getTransferIdFromExecuteArgs(ExecuteArgs memory _args) public returns (bytes32) {
+    bytes32 transferId = keccak256(
+      abi.encode(_args.nonce, _args.params, _args.originSender, _canonicalTokenId, _canonicalDomain, _args.amount)
+    );
+    console.log("Test::BridgeFacet::getTransferIdFromExecuteArgs:");
+    console.logBytes32(transferId);
+    return transferId;
+  }
+
   function getExecuteArgsNoRouters() public returns (bytes32, ExecuteArgs memory) {
     // form execute args
     bytes[] memory sigs = new bytes[](0);
     address[] memory routers = new address[](0);
     ExecuteArgs memory args = ExecuteArgs(_params, _local, routers, sigs, _relayerFee, _amount, _nonce, _originSender);
     // generate transfer id from execute args
-    bytes32 transferId = this._getTransferId(args);
+    bytes32 transferId = getTransferIdFromExecuteArgs(args);
     return (transferId, args);
   }
 

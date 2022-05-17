@@ -540,7 +540,7 @@ contract BridgeFacet is BaseConnextFacet {
    * @notice Calculates a transferId based on `execute` arguments
    * @dev Need this to prevent stack too deep
    */
-  function _getTransferId(ExecuteArgs calldata _args) public view returns (bytes32) {
+  function _getTransferId(ExecuteArgs calldata _args) private view returns (bytes32) {
     (uint32 tokenDomain, bytes32 tokenId) = s.tokenRegistry.getTokenId(_args.local);
 
     // console.log("got:");
