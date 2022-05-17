@@ -1,7 +1,10 @@
 version: "3.3"
 
 services:
+  ############
+  # ROUTER
   router:
+    container_name: router
     depends_on:
       - sequencer
       - signer
@@ -14,38 +17,17 @@ services:
       options:
         max-size: 10m
     volumes:
-      - ${PWD}/docker/router/:/home/node/agents/sequencer/
+      - ${PWD}/docker/router/:/home/node/agents/router/
       - ${PWD}/docker/router/config.testnet.json:/home/node/packages/agents/router/config.json
     networks:
       - nxtp
-  sequencer:
-    image: ${SEQUENCER_IMAGE}
-    restart: always
-    ports:
-      - "8081:8081"
-    logging:
-      driver: json-file
-      options:
-        max-size: 10m
-    volumes:
-      - ${PWD}/docker/sequencer/:/home/node/agents/sequencer/
-      - ${PWD}/docker/sequencer/config.testnet.json:/home/node/packages/agents/sequencer/config.json
-    networks:
-      - nxtp
   router-cache:
+    container_name: router-cache
     image: redis:latest
     ports:
       - "6379:6379"
     networks:
       - nxtp
-
-  sequencer-cache:
-    image: redis:latest
-    ports:
-      - "6380:6379"
-    networks:
-      - nxtp
-
   signer:
     image: "ghcr.io/connext/web3signer:latest"
     restart: always
@@ -59,6 +41,133 @@ services:
       options:
         max-size: 10m
         tag: "{{.ImageName}}|{{.Name}}|{{.ImageFullID}}|{{.FullID}}"
+    networks:
+      - nxtp
+  ############
+
+  ############
+  # SEQUENCER
+  sequencer:
+    container_name: sequencer
+    image: ${SEQUENCER_IMAGE}
+    restart: always
+    ports:
+      - "8081:8081"
+    logging:
+      driver: json-file
+      options:
+        max-size: 10m
+    volumes:
+      - ${PWD}/docker/sequencer/:/home/node/agents/sequencer/
+      - ${PWD}/docker/sequencer/config.testnet.json:/home/node/packages/agents/sequencer/config.json
+    networks:
+      - nxtp
+  sequencer-cache:
+    container_name: sequencer-cache
+    image: redis:latest
+    ports:
+      - "6380:6379"
+    networks:
+      - nxtp
+  ############
+
+  ############
+  # CHAINS
+  chain-1337:
+    container_name: chain-1337-test
+    image: trufflesuite/ganache-cli:latest
+    command: "--chainId 1337 --mnemonic 'candy maple cake sugar pudding cream honey rich smooth crumble sweet treat' --hostname 0.0.0.0 --blockTime 3 --verbose"
+    ports:
+      - 8545:8545
+    networks:
+      - nxtp
+  chain-1338:
+    container_name: chain-1338-test
+    image: trufflesuite/ganache-cli:latest
+    command: "--chainId 1338 --mnemonic 'candy maple cake sugar pudding cream honey rich smooth crumble sweet treat' --host 0.0.0.0 --blockTime 3 --verbose"
+    ports:
+      - 8546:8545
+    networks:
+      - nxtp
+  ############
+
+  ############
+  # GRAPH NODES
+  graph-node-1337:
+    container_name: graph-node-1337-test
+    image: graphprotocol/graph-node:v0.25.0
+    ports:
+      - "8010:8000"
+      - "8001:8001"
+      - "8020:8020"
+      - "8030:8030"
+      - "8040:8040"
+    depends_on:
+      - ipfs
+      - postgres-1337
+      - chain-1337
+    environment:
+      postgres_host: postgres-1337
+      postgres_user: graph-node
+      postgres_pass: let-me-in
+      postgres_db: graph-node
+      ipfs: "ipfs:5001"
+      ethereum: "mainnet:http://chain-1337:8545"
+      GRAPH_LOG: info
+    networks:
+      - nxtp
+  postgres-1337:
+    container_name: postgres-1337-test
+    image: postgres
+    ports:
+      - "5432:5432"
+    command: ["postgres", "-cshared_preload_libraries=pg_stat_statements"]
+    environment:
+      POSTGRES_USER: graph-node
+      POSTGRES_PASSWORD: let-me-in
+      POSTGRES_DB: graph-node
+    networks:
+      - nxtp
+  graph-node-1338:
+    container_name: graph-node-1338-test
+    image: graphprotocol/graph-node:v0.25.0
+    ports:
+      - "9010:8000"
+      - "9001:8001"
+      - "9020:8020"
+      - "9030:8030"
+      - "9040:8040"
+    depends_on:
+      - ipfs
+      - postgres-1338
+      - chain-1338
+    environment:
+      postgres_host: postgres-1338
+      postgres_user: graph-node
+      postgres_pass: let-me-in
+      postgres_db: graph-node
+      ipfs: "ipfs:5001"
+      ethereum: "mainnet:http://chain-1338:8545"
+      GRAPH_LOG: info
+    networks:
+      - nxtp
+  postgres-1338:
+    container_name: postgres-1338-test
+    image: postgres
+    ports:
+      - "5433:5432"
+    command: ["postgres", "-cshared_preload_libraries=pg_stat_statements"]
+    environment:
+      POSTGRES_USER: graph-node
+      POSTGRES_PASSWORD: let-me-in
+      POSTGRES_DB: graph-node
+    networks:
+      - nxtp
+  ipfs:
+    container_name: ipfs-test
+    image: ipfs/go-ipfs:v0.4.23
+    ports:
+      - "5001:5001"
     networks:
       - nxtp
 

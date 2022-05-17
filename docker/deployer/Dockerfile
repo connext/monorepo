@@ -25,11 +25,6 @@ ARG TEMP_DEPS_DIR
 COPY .yarn /tmp/build/.yarn/
 COPY .yarnrc.yml /tmp/build/
 COPY package.json /tmp/build/
-COPY packages/agents/router/package.json /tmp/build/packages/agents/router/
-COPY packages/adapters/cache/package.json /tmp/build/packages/adapters/cache/
-COPY packages/adapters/subgraph/package.json /tmp/build/packages/adapters/subgraph/
-COPY packages/adapters/web3signer/package.json /tmp/build/packages/adapters/web3signer/
-COPY packages/adapters/txservice/package.json /tmp/build/packages/adapters/txservice/
 COPY packages/deployments/contracts/package.json /tmp/build/packages/deployments/contracts/
 COPY packages/utils/package.json /tmp/build/packages/utils/
 RUN touch /tmp/build/yarn.lock
@@ -40,11 +35,6 @@ RUN yarn install
 
 # ----- Copy source and all other files that affect lint, test, build -----
 COPY config config/
-COPY packages/agents/router /tmp/build/packages/agents/router
-COPY packages/adapters/cache /tmp/build/packages/adapters/cache
-COPY packages/adapters/subgraph /tmp/build/packages/adapters/subgraph
-COPY packages/adapters/web3signer /tmp/build/packages/adapters/web3signer
-COPY packages/adapters/txservice /tmp/build/packages/adapters/txservice
 COPY packages/deployments/contracts /tmp/build/packages/deployments/contracts/
 COPY packages/utils /tmp/build/packages/utils
 COPY .eslintignore /tmp/build/
@@ -59,22 +49,20 @@ RUN yarn build
 
 FROM node as runtime
 
-ENV NODE_ENV=production \
-    PORT=8080
+ENV NODE_ENV=production
 
 ARG COMMIT_HASH
 ENV COMMIT_HASH ${COMMIT_HASH:-unknown}
 
 # ----- Copy files required at runtime by the app -----
 COPY --from=build --chown=node:node /tmp/build /home/node
-#copy config
-COPY docker/router/config.testnet.json /home/node/agents/router/config.json
+
+COPY docker/deployer/docker-entrypoint.sh /home/node/
+RUN chmod +x /home/node/docker-entrypoint.sh
 
 # This user is created in the base image with uid and gid = 1000.
 USER node
 
-WORKDIR /home/node/packages/agents/router
+WORKDIR /home/node
 
-EXPOSE 8080
-
-CMD ["node", "--trace-warnings", "dist/index.js"]
+CMD ./docker-entrypoint.sh
