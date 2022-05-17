@@ -1,12 +1,5 @@
 import { constants, providers, BigNumber } from "ethers";
-import {
-  getChainData,
-  Logger,
-  createLoggingContext,
-  getChainIdFromDomain,
-  ChainData,
-  XCallArgs,
-} from "@connext/nxtp-utils";
+import { Logger, createLoggingContext, getChainIdFromDomain, ChainData, XCallArgs } from "@connext/nxtp-utils";
 import {
   getContractInterfaces,
   ConnextContractInterfaces,
@@ -14,7 +7,8 @@ import {
   ChainReader,
 } from "@connext/nxtp-txservice";
 
-import { SignerAddressMissing } from "./lib/errors";
+import { getChainData } from "./lib/helpers";
+import { SignerAddressMissing, ChainDataUndefined } from "./lib/errors";
 import { NxtpSdkConfig, getConfig } from "./config";
 
 /**
@@ -46,7 +40,7 @@ export class NxtpSdkBase {
   ): Promise<NxtpSdkBase> {
     const chainData = _chainData ?? (await getChainData());
     if (!chainData) {
-      throw new Error("Could not get chain data");
+      throw new ChainDataUndefined();
     }
 
     const nxtpConfig = await getConfig(_config, chainData, contractDeployments);
