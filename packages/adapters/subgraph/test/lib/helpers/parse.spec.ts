@@ -1,64 +1,7 @@
 import { expect, mkAddress, mkBytes32 } from "@connext/nxtp-utils";
 import { destinationTransfer, originTransfer, xquery } from "../../../src/lib/helpers/parse";
-import { stubContext } from "../../mock";
+import { stubContext, mockOriginTransferEntity, mockDestinationTransferEntity } from "../../mock";
 import { restore, reset } from "sinon";
-
-const mockMetaData = {
-  idx: "1",
-  transferId: mkBytes32("0xaaa"),
-  nonce: "0",
-  originDomain: "1111",
-  destinationDomain: "2221",
-};
-
-const mockCallData = {
-  to: mkAddress("0x1"),
-  callData: "0x",
-  forceSlow: false,
-  receiveLocal: false,
-};
-
-const mockOriginTransferEntity = {
-  ...mockMetaData,
-  ...mockCallData,
-  chainId: 4,
-  transactingAsset: mkAddress("0x11"),
-  transactingAmount: "100",
-  bridgedAsset: mkAddress("0x12"),
-  bridgedAmount: "100",
-  relayerFee: "1",
-  caller: mkAddress("0x2"),
-  transactionHash: mkBytes32("0xbbb"),
-  timestamp: "11111111",
-  gasPrice: "10000000000",
-  gasLimit: "1000000",
-  blockNumber: 5000,
-};
-
-const mockDestinationTransferEntity = {
-  ...mockMetaData,
-  ...mockCallData,
-  chainId: 42,
-  status: "Executed",
-  routers: [{ id: mkAddress("0x111") }, { id: mkAddress("0x112") }],
-  transactingAsset: mkAddress("0x11"),
-  transactingAmount: "100",
-  localAsset: mkAddress("0x12"),
-  localAmount: "100",
-  executedTransactionHash: mkBytes32("0xaaa"),
-  originSender: mkAddress("0x13"),
-  executedCaller: mkAddress("0x14"),
-  executedTimestamp: "1000000",
-  executedGasPrice: "10000000000",
-  executedGasLimit: "1000000",
-  executedBlockNumber: 5000,
-  reconciledCaller: mkAddress("0x15"),
-  reconciledTransactionHash: mkBytes32("0xbbb"),
-  reconciledTimestamp: "1000000",
-  reconciledGasPrice: "10000000000",
-  reconciledGasLimit: "1000000",
-  reconciledBlockNumber: 5000,
-};
 
 describe("Helpers:parse", () => {
   describe("#originTransfer", () => {
