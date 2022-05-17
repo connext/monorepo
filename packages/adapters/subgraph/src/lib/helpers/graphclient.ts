@@ -1,3 +1,4 @@
+/* eslint-disable */
 import { getMeshOptions, getBuiltGraphClient } from "../../../.graphclient";
 
 /**
