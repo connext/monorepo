@@ -65,6 +65,7 @@ contract ConnextHandlerTest is ForgeHelper, Deployer {
   address kakaroto = address(3);
   bytes32 internal remote = "remote";
 
+  IConnextHandler connextHandler;
   MockRelayerFeeRouter relayerFeeRouter;
   MockPromiseRouter promiseRouter;
   MockCallback callback;
@@ -95,21 +96,22 @@ contract ConnextHandlerTest is ForgeHelper, Deployer {
       payable(promiseRouter)
     );
 
+    connextHandler = IConnextHandler(address(connextDiamondProxy));
     // Setup asset
-    IConnextHandler(address(connextDiamondProxy)).setupAsset(
+    connextHandler.setupAsset(
       ConnextMessage.TokenId(domain, bytes32(abi.encodePacked(canonical))),
       address(originAdopted),
       stableSwap
     );
 
     // Setup asset wrapper
-    IConnextHandler(address(connextDiamondProxy)).setupAsset(
+    connextHandler.setupAsset(
       ConnextMessage.TokenId(domain, bytes32(abi.encodePacked(address(wrapper)))),
       address(wrapper),
       stableSwap
     );
 
-    IConnextHandler(address(connextDiamondProxy)).enrollRemoteRouter(destinationDomain, remote);
+    connextHandler.enrollRemoteRouter(destinationDomain, remote);
 
     // Mocks
     vm.mockCall(address(originAdopted), abi.encodeWithSelector(IERC20.balanceOf.selector), abi.encode(0));
@@ -137,20 +139,20 @@ contract ConnextHandlerTest is ForgeHelper, Deployer {
 
   // Should work
   function test_ConnextHandler__setMaxRouters_works() public {
-    require(IConnextHandler(address(connextDiamondProxy)).maxRoutersPerTransfer() != 10);
+    require(connextHandler.maxRoutersPerTransfer() != 10);
 
     vm.expectEmit(true, true, true, true);
     emit MaxRoutersPerTransferUpdated(10, address(this));
 
-    IConnextHandler(address(connextDiamondProxy)).setMaxRoutersPerTransfer(10);
-    assertEq(IConnextHandler(address(connextDiamondProxy)).maxRoutersPerTransfer(), 10);
+    connextHandler.setMaxRoutersPerTransfer(10);
+    assertEq(connextHandler.maxRoutersPerTransfer(), 10);
   }
 
   // Fail if not called by owner
   function test_ConnextHandler__setMaxRouters_failsIfNotOwner() public {
     vm.prank(address(0));
     vm.expectRevert(abi.encodeWithSelector(BaseConnextFacet.BaseConnextFacet__onlyOwner_notOwner.selector));
-    IConnextHandler(address(connextDiamondProxy)).setMaxRoutersPerTransfer(10);
+    connextHandler.setMaxRoutersPerTransfer(10);
   }
 
   // Fail maxRouters is 0
@@ -158,7 +160,7 @@ contract ConnextHandlerTest is ForgeHelper, Deployer {
     vm.expectRevert(
       abi.encodeWithSelector(RoutersFacet.RoutersFacet__setMaxRoutersPerTransfer_invalidMaxRoutersPerTransfer.selector)
     );
-    IConnextHandler(address(connextDiamondProxy)).setMaxRoutersPerTransfer(0);
+    connextHandler.setMaxRoutersPerTransfer(0);
   }
 
   // ============ setSponsorVault ============
@@ -169,36 +171,36 @@ contract ConnextHandlerTest is ForgeHelper, Deployer {
     vm.expectEmit(true, true, true, true);
     emit SponsorVaultUpdated(address(0), _newSponsorVault, address(this));
 
-    IConnextHandler(address(connextDiamondProxy)).setSponsorVault(_newSponsorVault);
-    assertEq(address(IConnextHandler(address(connextDiamondProxy)).sponsorVault()), _newSponsorVault);
+    connextHandler.setSponsorVault(_newSponsorVault);
+    assertEq(address(connextHandler.sponsorVault()), _newSponsorVault);
   }
 
   function test_ConnextHandler__setSponsorVault_worksRemovingSponsorVault(address _currentSponsorVault) public {
     vm.assume(_currentSponsorVault != address(0));
 
     TestSetterFacet(address(connextDiamondProxy)).setTestSponsorVault(_currentSponsorVault);
-    assertEq(address(IConnextHandler(address(connextDiamondProxy)).sponsorVault()), _currentSponsorVault);
+    assertEq(address(connextHandler.sponsorVault()), _currentSponsorVault);
 
     vm.expectEmit(true, true, true, true);
     emit SponsorVaultUpdated(_currentSponsorVault, address(0), address(this));
 
-    IConnextHandler(address(connextDiamondProxy)).setSponsorVault(address(0));
-    assertEq(address(IConnextHandler(address(connextDiamondProxy)).sponsorVault()), address(0));
+    connextHandler.setSponsorVault(address(0));
+    assertEq(address(connextHandler.sponsorVault()), address(0));
   }
 
   function test_ConnextHandler__setSponsorVault_failsIfNotOwner() public {
     vm.prank(address(0));
     vm.expectRevert(abi.encodeWithSelector(BaseConnextFacet.BaseConnextFacet__onlyOwner_notOwner.selector));
-    IConnextHandler(address(connextDiamondProxy)).setSponsorVault(address(1));
+    connextHandler.setSponsorVault(address(1));
   }
 
   function test_ConnextHandler__setSponsorVault_failsIfAddingSameSponsorVault(address _currentSponsorVault) public {
     TestSetterFacet(address(connextDiamondProxy)).setTestSponsorVault(_currentSponsorVault);
-    assertEq(address(IConnextHandler(address(connextDiamondProxy)).sponsorVault()), _currentSponsorVault);
+    assertEq(address(connextHandler.sponsorVault()), _currentSponsorVault);
 
     vm.expectRevert(abi.encodeWithSelector(BridgeFacet.BridgeFacet__setSponsorVault_invalidSponsorVault.selector));
 
-    IConnextHandler(address(connextDiamondProxy)).setSponsorVault(_currentSponsorVault);
+    connextHandler.setSponsorVault(_currentSponsorVault);
   }
 
   // ============ initiateClaim ============
@@ -216,7 +218,7 @@ contract ConnextHandlerTest is ForgeHelper, Deployer {
       abi.encodeWithSelector(RelayerFacet.RelayerFacet__initiateClaim_notRelayer.selector, bytes32("BBB"))
     );
 
-    IConnextHandler(address(connextDiamondProxy)).initiateClaim(uint32(1), kakaroto, transactionIds);
+    connextHandler.initiateClaim(uint32(1), kakaroto, transactionIds);
   }
 
   // Should work
@@ -237,7 +239,7 @@ contract ConnextHandlerTest is ForgeHelper, Deployer {
     vm.expectEmit(true, true, true, true);
     emit InitiatedClaim(uint32(domain), kakaroto, kakaroto, transactionIds);
 
-    IConnextHandler(address(connextDiamondProxy)).initiateClaim(uint32(domain), kakaroto, transactionIds);
+    connextHandler.initiateClaim(uint32(domain), kakaroto, transactionIds);
   }
 
   // ============ claim ============
@@ -253,7 +255,7 @@ contract ConnextHandlerTest is ForgeHelper, Deployer {
       abi.encodeWithSelector(RelayerFacet.RelayerFacet__onlyRelayerFeeRouter_notRelayerFeeRouter.selector)
     );
 
-    IConnextHandler(address(connextDiamondProxy)).claim(kakaroto, transactionIds);
+    connextHandler.claim(kakaroto, transactionIds);
   }
 
   // Should work
@@ -277,11 +279,11 @@ contract ConnextHandlerTest is ForgeHelper, Deployer {
     vm.expectEmit(true, true, true, true);
     emit Claimed(kakaroto, aaaFee + bbbFee, transactionIds);
 
-    IConnextHandler(address(connextDiamondProxy)).claim(kakaroto, transactionIds);
+    connextHandler.claim(kakaroto, transactionIds);
 
     assertEq(kakaroto.balance, balanceBefore + aaaFee + bbbFee);
-    assertEq(IConnextHandler(address(connextDiamondProxy)).relayerFees(bytes32("AAA")), 0);
-    assertEq(IConnextHandler(address(connextDiamondProxy)).relayerFees(bytes32("BBB")), 0);
+    assertEq(connextHandler.relayerFees(bytes32("AAA")), 0);
+    assertEq(connextHandler.relayerFees(bytes32("BBB")), 0);
   }
 
   // ============ xCall ============
@@ -300,11 +302,11 @@ contract ConnextHandlerTest is ForgeHelper, Deployer {
       abi.encode(0, callParams, address(this), bytes32(abi.encodePacked(canonical)), domain, amount)
     );
 
-    assertEq(IConnextHandler(address(connextDiamondProxy)).relayerFees(id), 0);
+    assertEq(connextHandler.relayerFees(id), 0);
 
-    IConnextHandler(address(connextDiamondProxy)).xcall{value: relayerFee}(args);
+    connextHandler.xcall{value: relayerFee}(args);
 
-    assertEq(IConnextHandler(address(connextDiamondProxy)).relayerFees(id), relayerFee);
+    assertEq(connextHandler.relayerFees(id), relayerFee);
   }
 
   // Emit relayerFees in XCalled event
@@ -337,7 +339,7 @@ contract ConnextHandlerTest is ForgeHelper, Deployer {
 
     vm.expectEmit(true, true, true, true);
     emit XCalled(id, args, eventArg, 0, message, address(this));
-    IConnextHandler(address(connextDiamondProxy)).xcall{value: relayerFee}(args);
+    connextHandler.xcall{value: relayerFee}(args);
   }
 
   // Works if relayerFee is set to 0
@@ -354,11 +356,11 @@ contract ConnextHandlerTest is ForgeHelper, Deployer {
       abi.encode(0, callParams, address(this), bytes32(abi.encodePacked(canonical)), domain, amount)
     );
 
-    assertEq(IConnextHandler(address(connextDiamondProxy)).relayerFees(id), 0);
+    assertEq(connextHandler.relayerFees(id), 0);
 
-    IConnextHandler(address(connextDiamondProxy)).xcall{value: relayerFee}(args);
+    connextHandler.xcall{value: relayerFee}(args);
 
-    assertEq(IConnextHandler(address(connextDiamondProxy)).relayerFees(id), 0);
+    assertEq(connextHandler.relayerFees(id), 0);
   }
 
   // Correctly account for relayerFee in token transfer
@@ -375,9 +377,9 @@ contract ConnextHandlerTest is ForgeHelper, Deployer {
       abi.encode(0, callParams, address(this), bytes32(abi.encodePacked(canonical)), domain, amount)
     );
 
-    IConnextHandler(address(connextDiamondProxy)).xcall{value: relayerFee}(args);
+    connextHandler.xcall{value: relayerFee}(args);
 
-    assertEq(IConnextHandler(address(connextDiamondProxy)).relayerFees(id), relayerFee);
+    assertEq(connextHandler.relayerFees(id), relayerFee);
   }
 
   // Correctly account for relayerFee in native transfer
@@ -400,9 +402,9 @@ contract ConnextHandlerTest is ForgeHelper, Deployer {
       abi.encode(address(wrapper))
     );
 
-    IConnextHandler(address(connextDiamondProxy)).xcall{value: amount + relayerFee}(args);
+    connextHandler.xcall{value: amount + relayerFee}(args);
 
-    assertEq(IConnextHandler(address(connextDiamondProxy)).relayerFees(id), relayerFee);
+    assertEq(connextHandler.relayerFees(id), relayerFee);
   }
 
   // Fail if relayerFee in param and value does not match in token transfer
@@ -416,13 +418,13 @@ contract ConnextHandlerTest is ForgeHelper, Deployer {
     XCallArgs memory args = XCallArgs(callParams, transactingAssetId, amount, relayerFee);
 
     vm.expectRevert(abi.encodeWithSelector(AssetLogic.AssetLogic__handleIncomingAsset_ethWithErcTransfer.selector));
-    IConnextHandler(address(connextDiamondProxy)).xcall{value: 0}(args);
+    connextHandler.xcall{value: 0}(args);
 
     vm.expectRevert(abi.encodeWithSelector(AssetLogic.AssetLogic__handleIncomingAsset_ethWithErcTransfer.selector));
-    IConnextHandler(address(connextDiamondProxy)).xcall{value: relayerFee - 1}(args);
+    connextHandler.xcall{value: relayerFee - 1}(args);
 
     vm.expectRevert(abi.encodeWithSelector(AssetLogic.AssetLogic__handleIncomingAsset_ethWithErcTransfer.selector));
-    IConnextHandler(address(connextDiamondProxy)).xcall{value: relayerFee + 1}(args);
+    connextHandler.xcall{value: relayerFee + 1}(args);
   }
 
   // Fail if relayerFee in param and value does not match in native transfer
@@ -442,13 +444,13 @@ contract ConnextHandlerTest is ForgeHelper, Deployer {
     );
 
     vm.expectRevert(abi.encodeWithSelector(AssetLogic.AssetLogic__handleIncomingAsset_notAmount.selector));
-    IConnextHandler(address(connextDiamondProxy)).xcall{value: amount}(args);
+    connextHandler.xcall{value: amount}(args);
 
     vm.expectRevert(abi.encodeWithSelector(AssetLogic.AssetLogic__handleIncomingAsset_notAmount.selector));
-    IConnextHandler(address(connextDiamondProxy)).xcall{value: amount + relayerFee - 1}(args);
+    connextHandler.xcall{value: amount + relayerFee - 1}(args);
 
     vm.expectRevert(abi.encodeWithSelector(AssetLogic.AssetLogic__handleIncomingAsset_notAmount.selector));
-    IConnextHandler(address(connextDiamondProxy)).xcall{value: amount + relayerFee + 1}(args);
+    connextHandler.xcall{value: amount + relayerFee + 1}(args);
   }
 
   // Fail if callbackFee in param and value does not match in native transfer
@@ -479,13 +481,13 @@ contract ConnextHandlerTest is ForgeHelper, Deployer {
     );
 
     vm.expectRevert(abi.encodeWithSelector(AssetLogic.AssetLogic__handleIncomingAsset_notAmount.selector));
-    IConnextHandler(address(connextDiamondProxy)).xcall{value: amount}(args);
+    connextHandler.xcall{value: amount}(args);
 
     vm.expectRevert(abi.encodeWithSelector(AssetLogic.AssetLogic__handleIncomingAsset_notAmount.selector));
-    IConnextHandler(address(connextDiamondProxy)).xcall{value: amount + relayerFee + callbackFee - 1}(args);
+    connextHandler.xcall{value: amount + relayerFee + callbackFee - 1}(args);
 
     vm.expectRevert(abi.encodeWithSelector(AssetLogic.AssetLogic__handleIncomingAsset_notAmount.selector));
-    IConnextHandler(address(connextDiamondProxy)).xcall{value: amount + relayerFee + callbackFee + 1}(args);
+    connextHandler.xcall{value: amount + relayerFee + callbackFee + 1}(args);
   }
 
   // Fail if callback address is not contract and callback fee is not zero
@@ -516,7 +518,7 @@ contract ConnextHandlerTest is ForgeHelper, Deployer {
     );
 
     vm.expectRevert(abi.encodeWithSelector(BridgeFacet.BridgeFacet__xcall_nonZeroCallbackFeeForCallback.selector));
-    IConnextHandler(address(connextDiamondProxy)).xcall{value: amount + relayerFee + callbackFee}(args);
+    connextHandler.xcall{value: amount + relayerFee + callbackFee}(args);
   }
 
   // Should work with callback address and callback fee
@@ -527,7 +529,7 @@ contract ConnextHandlerTest is ForgeHelper, Deployer {
     uint256 callbackFee = 0.01 ether;
     address callbackAddr = address(callback);
     address transactingAssetId = address(originAdopted);
-    address payable promiseRouterAddr = payable(IConnextHandler(address(connextDiamondProxy)).promiseRouter());
+    address payable promiseRouterAddr = payable(connextHandler.promiseRouter());
 
     vm.prank(promiseRouter.owner());
     promiseRouter.setConnext(address(connextDiamondProxy));
@@ -554,7 +556,7 @@ contract ConnextHandlerTest is ForgeHelper, Deployer {
 
     vm.expectCall(promiseRouterAddr, abi.encodeWithSelector(PromiseRouter.initCallbackFee.selector, id));
 
-    IConnextHandler(address(connextDiamondProxy)).xcall{value: relayerFee + callbackFee}(args);
+    connextHandler.xcall{value: relayerFee + callbackFee}(args);
 
     assertEq(promiseRouterAddr.balance, callbackFee);
   }
@@ -575,16 +577,16 @@ contract ConnextHandlerTest is ForgeHelper, Deployer {
       abi.encode(0, callParams, address(this), bytes32(abi.encodePacked(canonical)), domain, amount)
     );
 
-    assertEq(IConnextHandler(address(connextDiamondProxy)).relayerFees(id), 0);
+    assertEq(connextHandler.relayerFees(id), 0);
 
-    IConnextHandler(address(connextDiamondProxy)).xcall{value: relayerFee}(args);
+    connextHandler.xcall{value: relayerFee}(args);
 
-    assertEq(IConnextHandler(address(connextDiamondProxy)).relayerFees(id), relayerFee);
+    assertEq(connextHandler.relayerFees(id), relayerFee);
 
     uint256 relayerFeeBump = 0.3 ether;
-    IConnextHandler(address(connextDiamondProxy)).bumpTransfer{value: relayerFeeBump}(id);
+    connextHandler.bumpTransfer{value: relayerFeeBump}(id);
 
-    assertEq(IConnextHandler(address(connextDiamondProxy)).relayerFees(id), relayerFee + relayerFeeBump);
+    assertEq(connextHandler.relayerFees(id), relayerFee + relayerFeeBump);
   }
 
   // Increases relayerFees for the transfer
@@ -594,17 +596,17 @@ contract ConnextHandlerTest is ForgeHelper, Deployer {
     uint256 initialFee = 0.01 ether;
     TestSetterFacet(address(connextDiamondProxy)).setTestRelayerFees(transferId, initialFee);
 
-    assertEq(IConnextHandler(address(connextDiamondProxy)).relayerFees(transferId), initialFee);
+    assertEq(connextHandler.relayerFees(transferId), initialFee);
 
     uint256 amount1 = 1 ether;
-    IConnextHandler(address(connextDiamondProxy)).bumpTransfer{value: amount1}(transferId);
+    connextHandler.bumpTransfer{value: amount1}(transferId);
 
-    assertEq(IConnextHandler(address(connextDiamondProxy)).relayerFees(transferId), initialFee + amount1);
+    assertEq(connextHandler.relayerFees(transferId), initialFee + amount1);
 
     uint256 amount2 = 2 ether;
-    IConnextHandler(address(connextDiamondProxy)).bumpTransfer{value: amount2}(transferId);
+    connextHandler.bumpTransfer{value: amount2}(transferId);
 
-    assertEq(IConnextHandler(address(connextDiamondProxy)).relayerFees(transferId), initialFee + amount1 + amount2);
+    assertEq(connextHandler.relayerFees(transferId), initialFee + amount1 + amount2);
   }
 
   // Emits TransferRelayerFeesUpdated with updated relayerFees
@@ -619,11 +621,11 @@ contract ConnextHandlerTest is ForgeHelper, Deployer {
 
     vm.expectEmit(true, false, false, true);
     emit TransferRelayerFeesUpdated(transferId, initialFee + bump1, address(this));
-    IConnextHandler(address(connextDiamondProxy)).bumpTransfer{value: bump1}(transferId);
+    connextHandler.bumpTransfer{value: bump1}(transferId);
 
     vm.expectEmit(true, false, false, true);
     emit TransferRelayerFeesUpdated(transferId, initialFee + bump1 + bump2, address(this));
-    IConnextHandler(address(connextDiamondProxy)).bumpTransfer{value: bump2}(transferId);
+    connextHandler.bumpTransfer{value: bump2}(transferId);
   }
 
   // Fail if zero value
@@ -634,17 +636,17 @@ contract ConnextHandlerTest is ForgeHelper, Deployer {
     TestSetterFacet(address(connextDiamondProxy)).setTestRelayerFees(transferId, initialFee);
 
     vm.expectRevert(abi.encodeWithSelector(BridgeFacet.BridgeFacet__bumpTransfer_valueIsZero.selector));
-    IConnextHandler(address(connextDiamondProxy)).bumpTransfer{value: 0}(transferId);
+    connextHandler.bumpTransfer{value: 0}(transferId);
   }
 
   // Works if initial relayerFees is zero
   function test_ConnextHandler__bumpTransfer_initialFeeZeroWorks() public {
     bytes32 transferId = bytes32("0x123");
 
-    assertEq(IConnextHandler(address(connextDiamondProxy)).relayerFees(transferId), 0);
+    assertEq(connextHandler.relayerFees(transferId), 0);
 
     uint256 newFee = 0.01 ether;
-    IConnextHandler(address(connextDiamondProxy)).bumpTransfer{value: newFee}(transferId);
-    assertEq(IConnextHandler(address(connextDiamondProxy)).relayerFees(transferId), newFee);
+    connextHandler.bumpTransfer{value: newFee}(transferId);
+    assertEq(connextHandler.relayerFees(transferId), newFee);
   }
 }

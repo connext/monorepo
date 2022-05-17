@@ -74,7 +74,19 @@ contract TestSetterFacet is BaseConnextFacet {
     s.sponsorVault = ISponsorVault(_sponsorVault);
   }
 
-  function setApprovedRelayer(address _relayer, bool _approved) external {
+  function setTestApprovedRelayer(address _relayer, bool _approved) external {
     s.approvedRelayers[_relayer] = _approved;
+  }
+
+  function setTestRouterBalances(
+    address _router,
+    address _local,
+    uint256 _amount
+  ) external {
+    s.routerBalances[_router][_local] = _amount;
+  }
+
+  function setTestApprovedRouter(address _router, bool _approved) external {
+    s.routerPermissionInfo.approvedRouters[_router] = _approved;
   }
 }

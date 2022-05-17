@@ -231,11 +231,13 @@ contract Deployer {
   }
 
   function getTestSetterFacetCut(address _testSetterFacetFacet) internal returns (IDiamondCut.FacetCut memory) {
-    bytes4[] memory testSetterFacetSelectors = new bytes4[](4);
+    bytes4[] memory testSetterFacetSelectors = new bytes4[](6);
     testSetterFacetSelectors[0] = TestSetterFacet.setTestRelayerFees.selector;
     testSetterFacetSelectors[1] = TestSetterFacet.setTestTransferRelayer.selector;
     testSetterFacetSelectors[2] = TestSetterFacet.setTestSponsorVault.selector;
-    testSetterFacetSelectors[3] = TestSetterFacet.setApprovedRelayer.selector;
+    testSetterFacetSelectors[3] = TestSetterFacet.setTestApprovedRelayer.selector;
+    testSetterFacetSelectors[4] = TestSetterFacet.setTestRouterBalances.selector;
+    testSetterFacetSelectors[5] = TestSetterFacet.setTestApprovedRouter.selector;
     return
       IDiamondCut.FacetCut({
         facetAddress: _testSetterFacetFacet,
