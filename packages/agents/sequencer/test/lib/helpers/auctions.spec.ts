@@ -1,4 +1,5 @@
 import { Bid, ExecuteArgs, expect, mkAddress, OriginTransfer, XTransfer } from "@connext/nxtp-utils";
+import { constants } from "ethers";
 import { stub, restore, reset, SinonStub } from "sinon";
 
 import { encodeExecuteFromBids, getDestinationLocalAsset } from "../../../src/lib/helpers/auctions";
@@ -32,6 +33,10 @@ describe("Helpers:Auctions", () => {
           destinationDomain: transfer.destinationDomain,
           to: transfer.xparams.to,
           callData: transfer.xparams.callData,
+          callback: constants.AddressZero,
+          callbackFee: "0",
+          forceSlow: transfer.xparams.forceSlow,
+          receiveLocal: transfer.xparams.receiveLocal,
         },
         local: mockLocalAsset,
         routers: bids.map((b) => b.router),

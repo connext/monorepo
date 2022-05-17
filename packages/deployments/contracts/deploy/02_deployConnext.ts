@@ -45,6 +45,17 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment): Promise<voi
     relayerFeeRouterImplementationDeployment.abi,
   ).connect(deployer);
 
+  // Get Promise Router Deployment
+  const promiseRouterDeployment = await hre.deployments.getOrNull(getDeploymentName("PromiseRouterUpgradeBeaconProxy"));
+  if (!promiseRouterDeployment) {
+    throw new Error(`Promise Router not deployed`);
+  }
+
+  const promiseRouter = new hre.ethers.Contract(
+    promiseRouterDeployment.address,
+    (await hre.deployments.getOrNull(getDeploymentName("PromiseRouter")))!.abi,
+  ).connect(deployer);
+
   // Get xapp connection manager
   const xappConnectionManagerDeployment = await hre.deployments.getOrNull(getDeploymentName("XAppConnectionManager"));
   if (!xappConnectionManagerDeployment) {
@@ -103,6 +114,7 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment): Promise<voi
             tokenRegistry.address,
             WRAPPED_ETH_MAP.get(+chainId) ?? constants.AddressZero,
             relayerFeeRouter.address,
+            promiseRouter.address,
           ],
         },
       },

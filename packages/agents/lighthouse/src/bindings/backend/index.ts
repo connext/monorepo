@@ -1,7 +1,6 @@
 import { createLoggingContext, ExecuteArgs, jsonifyError, NxtpError, formatUrl } from "@connext/nxtp-utils";
 import axios from "axios";
 import interval from "interval-promise";
-import { constants } from "ethers";
 
 import { getOperations } from "../../lib/operations";
 import { getContext } from "../../lighthouse";
@@ -21,11 +20,13 @@ export const bindBackend = async (_pollInterval: number) => {
 };
 
 export const pollBackend = async () => {
+  const { requestContext, methodContext } = createLoggingContext(pollBackend.name);
+  const { logger } = getContext();
   const { execute } = getOperations();
 
   const reconciledTransactions = await getReconciledTransactions();
 
-  for (const transaction of reconciledTransactions) {
+  reconciledTransactions.map(async (transaction: any) => {
     // console.log(transaction);
 
     const executeParams: ExecuteArgs = {
@@ -34,22 +35,33 @@ export const pollBackend = async () => {
         destinationDomain: transaction.destination_domain,
         to: transaction.to,
         callData: transaction.call_data,
+        callback: transaction.callback,
+        callbackFee: transaction.callback_fee,
+        receiveLocal: transaction.receive_local || false,
+        forceSlow: transaction.force_slow || false,
       },
       local: transaction.destination_local_asset,
-      routers: [constants.AddressZero],
-      routerSignatures: ["0x"],
+      routers: [],
+      routerSignatures: [],
       amount: transaction.destination_local_amount.toString(),
       nonce: transaction.nonce,
       originSender: transaction.xcall_caller,
     };
 
     const transferId = transaction.trasfer_id as string;
-    execute(executeParams, transferId);
-  }
+    try {
+      await execute(executeParams, transferId);
+    } catch (error: any) {
+      logger.error("Error executing", requestContext, methodContext, jsonifyError(error as NxtpError), {
+        executeParams,
+        transferId,
+      });
+    }
+  });
 };
 
 export const getReconciledTransactions = async (): Promise<any> => {
-  const { requestContext, methodContext } = createLoggingContext("getReconciledTransactions");
+  const { requestContext, methodContext } = createLoggingContext(getReconciledTransactions.name);
   const {
     // adapters: {},
     logger,

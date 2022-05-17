@@ -58,6 +58,12 @@ export class NotEnoughAmount extends NxtpError {
   }
 }
 
+export class CallDataForNonContract extends NxtpError {
+  constructor(context: any = {}) {
+    super("Calldata specified for an address that is not a contract", context, CallDataForNonContract.name);
+  }
+}
+
 export class RouterNotApproved extends NxtpError {
   constructor(context: any = {}) {
     super("Router not approved", context, RouterNotApproved.name);

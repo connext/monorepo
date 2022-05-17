@@ -164,6 +164,19 @@
     "anonymous": false,
     "inputs": [
       {
+        "indexed": false,
+        "internalType": "uint8",
+        "name": "version",
+        "type": "uint8"
+      }
+    ],
+    "name": "Initialized",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
         "indexed": true,
         "internalType": "address",
         "name": "proposedOwner",
@@ -561,6 +574,16 @@
                 "internalType": "uint32",
                 "name": "destinationDomain",
                 "type": "uint32"
+              },
+              {
+                "internalType": "bool",
+                "name": "forceSlow",
+                "type": "bool"
+              },
+              {
+                "internalType": "bool",
+                "name": "receiveLocal",
+                "type": "bool"
               }
             ],
             "internalType": "struct IConnextHandler.CallParams",
@@ -620,6 +643,19 @@
     "outputs": [
       {
         "internalType": "contract IExecutor",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "getExecutor",
+    "outputs": [
+      {
+        "internalType": "address",
         "name": "",
         "type": "address"
       }
@@ -1359,6 +1395,16 @@
                 "internalType": "uint32",
                 "name": "destinationDomain",
                 "type": "uint32"
+              },
+              {
+                "internalType": "bool",
+                "name": "forceSlow",
+                "type": "bool"
+              },
+              {
+                "internalType": "bool",
+                "name": "receiveLocal",
+                "type": "bool"
               }
             ],
             "internalType": "struct IConnextHandler.CallParams",

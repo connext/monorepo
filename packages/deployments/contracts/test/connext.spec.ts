@@ -114,6 +114,8 @@ describe("Connext", () => {
   let stableSwap: DummySwap;
   let originRelayerFeeRouter: RelayerFeeRouter;
   let destinationRelayerFeeRouter: RelayerFeeRouter;
+  let originPromiseRouter: PromiseRouter;
+  let destinationPromiseRouter: PromiseRouter;
   let home: Home;
   let destinationHome: Home;
   let snapshot: number;
@@ -904,6 +906,10 @@ describe("Connext", () => {
       callData: "0x",
       originDomain,
       destinationDomain,
+      callback: ZERO_ADDRESS,
+      callbackFee: 0,
+      forceSlow: false,
+      receiveLocal: false,
     };
     const transactingAssetId = originAdopted.address;
     const amount = utils.parseEther("0.0001");
@@ -999,6 +1005,10 @@ describe("Connext", () => {
       callData: "0x",
       originDomain,
       destinationDomain,
+      callback: ZERO_ADDRESS,
+      callbackFee: 0,
+      forceSlow: false,
+      receiveLocal: false,
     };
     const transactingAssetId = constants.AddressZero;
     const amount = utils.parseEther("0.0001");
@@ -1103,6 +1113,10 @@ describe("Connext", () => {
       callData: "0x",
       originDomain,
       destinationDomain,
+      callback: ZERO_ADDRESS,
+      callbackFee: 0,
+      forceSlow: false,
+      receiveLocal: false,
     };
     const transactingAssetId = originAdopted.address;
     const amount = utils.parseEther("0.0001");
@@ -1183,6 +1197,10 @@ describe("Connext", () => {
       callData: "0x",
       originDomain,
       destinationDomain,
+      callback: ZERO_ADDRESS,
+      callbackFee: 0,
+      forceSlow: false,
+      receiveLocal: false,
     };
     const amount = utils.parseEther("0.001");
     let message: any;
@@ -1406,6 +1424,10 @@ describe("Connext", () => {
       callData: "0x",
       originDomain,
       destinationDomain,
+      callback: ZERO_ADDRESS,
+      callbackFee: 0,
+      forceSlow: false,
+      receiveLocal: false,
     };
 
     beforeEach(async () => {

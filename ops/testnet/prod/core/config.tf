@@ -47,6 +47,15 @@ locals {
           address = "0xB5AabB55385bfBe31D627E2A717a7B189ddA4F8F"
         }]
       }
+      "3331" = {
+        providers = ["https://eth-goerli.alchemyapi.io/v2/${var.goerli_alchemy_key_0}", "https://rpc.ankr.com/eth_goerli"]
+        assets = [
+          {
+            name    = "TEST"
+            address = "0xD426e23A6a9524101CDC017e01dDc3262B7aA65D"
+          }
+        ]
+      }
     }
 
     environment = "production"
@@ -85,6 +94,15 @@ locals {
           }
         ]
       }
+      "3331" = {
+        providers = ["https://eth-goerli.alchemyapi.io/v2/${var.goerli_alchemy_key_1}", "https://rpc.ankr.com/eth_goerli"]
+        assets = [
+          {
+            name    = "TEST"
+            address = "0xD426e23A6a9524101CDC017e01dDc3262B7aA65D"
+          }
+        ]
+      }
     }
     web3SignerUrl = "https://${module.web3signer.service_endpoint}"
     environment   = "production"
@@ -100,6 +118,9 @@ locals {
       }
       "2221" = {
         providers = ["https://eth-kovan.alchemyapi.io/v2/${var.kovan_alchemy_key_1}"]
+      }
+      "3331" = {
+        providers = ["https://eth-goerli.alchemyapi.io/v2/${var.goerli_alchemy_key_1}", "https://rpc.ankr.com/eth_goerli"]
       }
     }
     environment = "production"

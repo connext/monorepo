@@ -45,6 +45,10 @@ export const originTransfer = (entity: any): OriginTransfer => {
     xparams: {
       to: entity.to,
       callData: entity.callData,
+      callback: entity.callback,
+      callbackFee: entity.callbackFee,
+      forceSlow: entity.forceSlow,
+      receiveLocal: entity.receiveLocal,
     },
 
     // Origin Info
@@ -122,6 +126,10 @@ export const destinationTransfer = (entity: any): DestinationTransfer => {
         ? {
             to: entity.to,
             callData: entity.callData,
+            callback: entity.callback,
+            callbackFee: entity.callbackFee,
+            forceSlow: entity.forceSlow,
+            receiveLocal: entity.receiveLocal,
           }
         : undefined,
 

@@ -7,7 +7,7 @@ import {
   OriginTransfer,
 } from "@connext/nxtp-utils";
 
-import { MissingXCall, NotEnoughAmount, ParamsInvalid } from "../errors";
+import { CallDataForNonContract, MissingXCall, NotEnoughAmount, ParamsInvalid } from "../errors";
 import { getHelpers } from "../helpers";
 import { getContext } from "../../router";
 
@@ -24,7 +24,7 @@ export const execute = async (params: OriginTransfer): Promise<void> => {
 
   const {
     logger,
-    adapters: { wallet, subgraph },
+    adapters: { wallet, subgraph, txservice },
     routerAddress,
   } = getContext();
   const {
@@ -45,7 +45,19 @@ export const execute = async (params: OriginTransfer): Promise<void> => {
     });
   }
 
-  const { originDomain, destinationDomain, origin, transferId } = params;
+  const {
+    originDomain,
+    destinationDomain,
+    origin,
+    transferId,
+    xparams: { callData, to, forceSlow },
+  } = params;
+
+  if (forceSlow) {
+    logger.debug("Opt for slow path", requestContext, methodContext, { transferId });
+    return;
+  }
+
   if (!origin) {
     throw new MissingXCall({ requestContext, methodContext });
   }
@@ -82,8 +94,18 @@ export const execute = async (params: OriginTransfer): Promise<void> => {
       executeLocalAsset,
       routerAddress,
       destinationDomain: destinationDomain,
+      requestContext,
+      methodContext,
     });
   }
+
+  if (callData !== "0x") {
+    const code = await txservice.getCode(+destinationDomain, to);
+    if (code === "0x") {
+      throw new CallDataForNonContract({ transferId, destinationDomain, to, callData, requestContext, methodContext });
+    }
+  }
+
   logger.debug("Sanity checks passed", requestContext, methodContext, { liquidity: balance.toString() });
 
   const fee = DEFAULT_ROUTER_FEE;

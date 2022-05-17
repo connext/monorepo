@@ -70,13 +70,12 @@ export class NxtpSdkUtils {
     }
   }
 
-  async getTransfersByUser(params: { user?: string; status?: XTransferStatus }): Promise<any> {
+  async getTransfersByUser(params: { userAddress: string; status?: XTransferStatus }): Promise<any> {
     const { requestContext, methodContext } = createLoggingContext(this.getTransfersByUser.name);
 
-    const { user, status } = params;
-    const userAddress = user ?? this.config.signerAddress;
+    const { userAddress, status } = params;
 
-    const userIdentifier = `xcall_caller=eq.${userAddress}&`;
+    const userIdentifier = `xcall_caller=eq.${userAddress.toLowerCase()}&`;
     const statusIdentifier = status ? `status=eq.${status}` : "";
     const uri = formatUrl(this.config.backendUrl!, "transfers?", userIdentifier + statusIdentifier);
 
@@ -107,7 +106,7 @@ export class NxtpSdkUtils {
   async getTransferById(transferId: string): Promise<any> {
     const { requestContext, methodContext } = createLoggingContext(this.getTransferById.name);
 
-    const uri = formatUrl(this.config.backendUrl!, "transfers?", `transfer_id=eq.${transferId}`);
+    const uri = formatUrl(this.config.backendUrl!, "transfers?", `transfer_id=eq.${transferId.toLowerCase()}`);
 
     try {
       const response = await axios.get(uri);
@@ -117,27 +116,4 @@ export class NxtpSdkUtils {
       throw error;
     }
   }
-  // async getWhitelistedAsset(domain: string): Promise<string[]> {
-  //   /*  using backend api */
-  //   console.log(domain);
-  //   return ["0x0000000000000000000000000000000000000000"];
-  // }
-
-  // async getTotalLiquidity(domain: string): Promise<{ asset: string; availableLiquidity: string }[]> {
-  //   /* fetch using covalent api and back it up using backend api */
-  //   console.log(domain);
-  //   return [{ asset: "0x0000000000000000000000000000000000000000", availableLiquidity: "0" }];
-  // }
-
-  // Metrics
-  // async getTotalVolume(domain: string): Promise<{ [asset: string]: string }[]> {
-  //   /*  using backend api */
-  //   console.log(domain);
-  //   return [{ "0x": "0" }];
-  // }
-
-  // async getTotalTransfers(domain: string): Promise<string> {
-  //   console.log(domain);
-  //   return "0";
-  // }
 }
