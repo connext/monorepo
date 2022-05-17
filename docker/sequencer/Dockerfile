@@ -35,7 +35,7 @@ RUN touch /tmp/build/yarn.lock
 
 # ----- Install dependencies -----
 # Install dependencies exactly as in the yarn.lock file - no updates.
-RUN yarn install
+RUN yarn install --network-timeout 600000
 
 # ----- Copy source and all other files that affect lint, test, build -----
 COPY config config/
