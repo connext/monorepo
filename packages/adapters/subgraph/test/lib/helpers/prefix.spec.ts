@@ -1,6 +1,5 @@
 import { expect } from "@connext/nxtp-utils";
-import { stub, SinonStub, restore, reset } from "sinon";
-import { DomainInvalid } from "../../../src/lib/errors";
+import { restore, reset } from "sinon";
 import { getDomainFromPrefix, getPrefixForDomain } from "../../../src/lib/helpers/prefix";
 import { stubContext } from "../../mock";
 
