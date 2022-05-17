@@ -207,6 +207,14 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment): Promise<voi
   ).connect(deployer);
   console.log("relayer fee router address:", relayerFeeRouter.address);
   console.log("relayer fee router owner:", await relayerFeeRouter.owner());
+
+  // Deploy promise router
+  console.log("Deploying promise router...");
+  const promiseRouter = (
+    await deployNomadBeaconProxy("PromiseRouter", [xappConnectionManagerAddress], deployer, hre)
+  ).connect(deployer);
+  console.log("promise router address:", promiseRouter.address);
+  console.log("promise router owner:", await promiseRouter.owner());
 };
 
 export default func;

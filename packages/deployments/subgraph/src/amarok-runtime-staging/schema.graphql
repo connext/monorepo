@@ -47,6 +47,8 @@ type OriginTransfer @entity {
   destinationDomain: BigInt
   forceSlow: Boolean
   receiveLocal: Boolean
+  callback: Bytes
+  callbackFee: BigInt
 
   # Event Data
   status: TransferStatus
@@ -87,6 +89,8 @@ type DestinationTransfer @entity {
   destinationDomain: BigInt
   forceSlow: Boolean
   receiveLocal: Boolean
+  callback: Bytes
+  callbackFee: BigInt
 
   # Event Data
   status: TransferStatus
