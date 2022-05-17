@@ -49,7 +49,7 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment): Promise<voi
 
   console.log("Fetching promise router...");
   const promiseRouterDeployment = await hre.deployments.getOrNull(getDeploymentName("PromiseRouterUpgradeBeaconProxy"));
-  const promiseRouterImplementationDeployment = await hre.deployments.getOrNull(getDeploymentName("RelayerFeeRouter"));
+  const promiseRouterImplementationDeployment = await hre.deployments.getOrNull(getDeploymentName("PromiseRouter"));
 
   if (!promiseRouterDeployment || !promiseRouterImplementationDeployment) {
     throw new Error(
