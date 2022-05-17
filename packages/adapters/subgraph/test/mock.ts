@@ -38,6 +38,8 @@ const mockMetaData = {
 const mockCallData = {
   to: mkAddress("0x1"),
   callData: "0x",
+  callback: mkAddress("0xaaa"),
+  callbackFee: "0",
   forceSlow: false,
   receiveLocal: false,
 };

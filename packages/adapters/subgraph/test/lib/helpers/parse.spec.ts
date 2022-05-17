@@ -51,6 +51,8 @@ describe("Helpers:parse", () => {
         xparams: {
           to: "0x1000000000000000000000000000000000000000",
           callData: "0x",
+          callback: "0xaaa0000000000000000000000000000000000000",
+          callbackFee: "0",
           forceSlow: false,
           receiveLocal: false,
         },
@@ -85,6 +87,8 @@ describe("Helpers:parse", () => {
         xparams: {
           to: "0x1000000000000000000000000000000000000000",
           callData: "0x",
+          callback: "0xaaa0000000000000000000000000000000000000",
+          callbackFee: "0",
           forceSlow: false,
           receiveLocal: false,
         },
@@ -187,6 +191,8 @@ describe("Helpers:parse", () => {
         transferId: "0xaaa0000000000000000000000000000000000000000000000000000000000000",
         xparams: {
           callData: "0x",
+          callback: "0xaaa0000000000000000000000000000000000000",
+          callbackFee: "0",
           forceSlow: false,
           receiveLocal: false,
           to: "0x1000000000000000000000000000000000000000",
