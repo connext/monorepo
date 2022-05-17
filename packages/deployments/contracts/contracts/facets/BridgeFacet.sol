@@ -272,7 +272,7 @@ contract BridgeFacet is BaseConnextFacet {
     }
 
     // ensure callback is contract if supplied
-    if (!AddressUpgradeable.isContract(_args.params.callback)) {
+    if (_args.params.callback != address(0) && !AddressUpgradeable.isContract(_args.params.callback)) {
       revert BridgeFacet__xcall_callbackNotAContract();
     }
   }
