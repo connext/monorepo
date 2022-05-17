@@ -10,6 +10,7 @@ import {RouterPermissionsManagerInfo} from "./RouterPermissionsManagerLogic.sol"
 import {AssetLogic} from "./AssetLogic.sol";
 
 import {RelayerFeeRouter} from "../../nomad-xapps/contracts/relayer-fee-router/RelayerFeeRouter.sol";
+import {PromiseRouter} from "../../nomad-xapps/contracts/promise-router/PromiseRouter.sol";
 import {ITokenRegistry, IBridgeToken} from "../../nomad-xapps/interfaces/bridge/ITokenRegistry.sol";
 import {ConnextMessage} from "../../nomad-xapps/contracts/connext/ConnextMessage.sol";
 import {TypedMemView} from "../../nomad-core/libs/TypedMemView.sol";
@@ -43,6 +44,8 @@ library ConnextLogic {
   error ConnextLogic__xcall_emptyTo();
   error ConnextLogic__xcall_notSupportedAsset();
   error ConnextLogic__xcall_relayerFeeIsZero();
+  error ConnextLogic__xcall_nonZeroCallbackFeeForCallback();
+  error ConnextLogic__xcall_callbackNotAContract();
   error ConnextLogic__execute_notReconciled();
   error ConnextLogic__execute_unapprovedRelayer();
   error ConnextLogic__execute_maxRoutersExceeded();
@@ -63,6 +66,7 @@ library ConnextLogic {
     uint256 domain;
     Home home;
     bytes32 remote;
+    PromiseRouter promiseRouter;
   }
 
   struct XCalledEventArgs {
@@ -79,6 +83,7 @@ library ConnextLogic {
     ITokenRegistry tokenRegistry;
     IWrapped wrapper;
     IExecutor executor;
+    PromiseRouter promiseRouter;
     uint256 liquidityFeeNumerator;
     uint256 liquidityFeeDenominator;
   }
@@ -714,6 +719,18 @@ library ConnextLogic {
     if (_args.xCallArgs.params.to == address(0)) {
       revert ConnextLogic__xcall_emptyTo();
     }
+
+    // ensure callback fee is zero when callback address is empty
+    if (_args.xCallArgs.params.callback == address(0) && _args.xCallArgs.params.callbackFee > 0) {
+      revert ConnextLogic__xcall_nonZeroCallbackFeeForCallback();
+    }
+
+    // ensure callback is contract if supplied
+    if (
+      _args.xCallArgs.params.callback != address(0) && !AddressUpgradeable.isContract(_args.xCallArgs.params.callback)
+    ) {
+      revert ConnextLogic__xcall_callbackNotAContract();
+    }
   }
 
   /**
@@ -747,7 +764,7 @@ library ConnextLogic {
     (, uint256 amount) = AssetLogic.handleIncomingAsset(
       _args.xCallArgs.transactingAssetId,
       _args.xCallArgs.amount,
-      _args.xCallArgs.relayerFee,
+      _args.xCallArgs.relayerFee + _args.xCallArgs.params.callbackFee,
       _args.wrapper
     );
 
@@ -761,6 +778,11 @@ library ConnextLogic {
     );
 
     bytes32 transferId = _getTransferId(_args, canonical);
+
+    // Transfer callback fee to PromiseRouter if set
+    if (_args.xCallArgs.params.callbackFee != 0) {
+      _args.promiseRouter.initCallbackFee{value: _args.xCallArgs.params.callbackFee}(transferId);
+    }
 
     bytes memory message = _formatMessage(_args, bridged, transferId, bridgedAmt);
     _args.home.dispatch(_args.xCallArgs.params.destinationDomain, _args.remote, message);
@@ -845,7 +867,7 @@ library ConnextLogic {
       // if the token originates on a remote chain,
       // burn the representation tokens on this chain
       if (_amount > 0) {
-        token.burn(msg.sender, _amount);
+        token.burn(address(this), _amount);
       }
       detailsHash = token.detailsHash();
     }
@@ -886,7 +908,7 @@ library ConnextLogic {
     } else {
       // execute calldata w/funds
       AssetLogic.transferAssetFromContract(_adopted, address(_args.executor), _amount, _args.wrapper);
-      _args.executor.execute(
+      (bool success, bytes memory returnData) = _args.executor.execute(
         _transferId,
         _amount,
         payable(_args.executeArgs.params.to),
@@ -899,6 +921,17 @@ library ConnextLogic {
           : LibCrossDomainProperty.EMPTY_BYTES,
         _args.executeArgs.params.callData
       );
+
+      // If callback address is not zero, send on the PromiseRouter
+      if (_args.executeArgs.params.callback != address(0)) {
+        _args.promiseRouter.send(
+          _args.executeArgs.params.originDomain,
+          _transferId,
+          _args.executeArgs.params.callback,
+          success,
+          returnData
+        );
+      }
     }
   }
 

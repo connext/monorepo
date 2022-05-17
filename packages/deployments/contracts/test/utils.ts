@@ -322,6 +322,8 @@ export const connextXCall = async (
     callData: string;
     originDomain: number;
     destinationDomain: number;
+    callback: string;
+    callbackFee: number;
     forceSlow: boolean;
     receiveLocal: boolean;
   },

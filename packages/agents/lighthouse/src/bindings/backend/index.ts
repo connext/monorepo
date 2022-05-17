@@ -35,6 +35,8 @@ export const pollBackend = async () => {
         destinationDomain: transaction.destination_domain,
         to: transaction.to,
         callData: transaction.call_data,
+        callback: transaction.callback,
+        callbackFee: transaction.callback_fee,
         receiveLocal: transaction.receive_local || false,
         forceSlow: transaction.force_slow || false,
       },

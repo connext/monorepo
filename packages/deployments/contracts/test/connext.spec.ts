@@ -15,6 +15,7 @@ import {
   ConnextHandler,
   ConnextLogic,
   RelayerFeeRouter,
+  PromiseRouter,
 } from "../typechain-types";
 
 import {
@@ -97,6 +98,8 @@ describe("Connext", () => {
   let stableSwap: DummySwap;
   let originRelayerFeeRouter: RelayerFeeRouter;
   let destinationRelayerFeeRouter: RelayerFeeRouter;
+  let originPromiseRouter: PromiseRouter;
+  let destinationPromiseRouter: PromiseRouter;
   let home: Home;
   let destinationHome: Home;
   let snapshot: number;
@@ -149,6 +152,15 @@ describe("Connext", () => {
       [destinationXappConnectionManager.address],
     );
 
+    // Deploy PromiseRouters
+    originPromiseRouter = await deployUpgradeableProxy<PromiseRouter>("PromiseRouter", proxyOwner.address, [
+      originXappConnectionManager.address,
+    ]);
+
+    destinationPromiseRouter = await deployUpgradeableProxy<PromiseRouter>("PromiseRouter", proxyOwner.address, [
+      destinationXappConnectionManager.address,
+    ]);
+
     // Deploy bridge
     originBridge = (
       await deployUpgradeableProxy<ConnextHandler>(
@@ -160,6 +172,7 @@ describe("Connext", () => {
           originTokenRegistry.address,
           weth.address,
           originRelayerFeeRouter.address,
+          originPromiseRouter.address,
         ],
         {
           ConnextLogic: ConnextLogic.address,
@@ -178,6 +191,7 @@ describe("Connext", () => {
           destinationTokenRegistry.address,
           weth.address,
           destinationRelayerFeeRouter.address,
+          destinationPromiseRouter.address,
         ],
         {
           ConnextLogic: ConnextLogic.address,
@@ -846,6 +860,8 @@ describe("Connext", () => {
       callData: "0x",
       originDomain,
       destinationDomain,
+      callback: ZERO_ADDRESS,
+      callbackFee: 0,
       forceSlow: false,
       receiveLocal: false,
     };
@@ -942,6 +958,8 @@ describe("Connext", () => {
       callData: "0x",
       originDomain,
       destinationDomain,
+      callback: ZERO_ADDRESS,
+      callbackFee: 0,
       forceSlow: false,
       receiveLocal: false,
     };
@@ -1047,6 +1065,8 @@ describe("Connext", () => {
       callData: "0x",
       originDomain,
       destinationDomain,
+      callback: ZERO_ADDRESS,
+      callbackFee: 0,
       forceSlow: false,
       receiveLocal: false,
     };
@@ -1126,6 +1146,8 @@ describe("Connext", () => {
       callData: "0x",
       originDomain,
       destinationDomain,
+      callback: ZERO_ADDRESS,
+      callbackFee: 0,
       forceSlow: false,
       receiveLocal: false,
     };
@@ -1346,6 +1368,8 @@ describe("Connext", () => {
       callData: "0x",
       originDomain,
       destinationDomain,
+      callback: ZERO_ADDRESS,
+      callbackFee: 0,
       forceSlow: false,
       receiveLocal: false,
     };
