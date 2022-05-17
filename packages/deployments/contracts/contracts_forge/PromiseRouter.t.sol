@@ -114,7 +114,7 @@ contract PromiseRouterTest is ForgeHelper, Deployer {
   }
 
   function setApprovedRelayer(address _relayer, bool _approved) internal {
-    TestSetterFacet(address(connextDiamondProxy)).setApprovedRelayer(_relayer, _approved);
+    TestSetterFacet(address(connextDiamondProxy)).setTestApprovedRelayer(_relayer, _approved);
   }
 
   // ============ initialize ============
