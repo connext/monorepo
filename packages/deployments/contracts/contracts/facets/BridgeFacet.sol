@@ -540,13 +540,13 @@ contract BridgeFacet is BaseConnextFacet {
    * @notice Calculates a transferId based on `execute` arguments
    * @dev Need this to prevent stack too deep
    */
-  function _getTransferId(ExecuteArgs calldata _args) private view returns (bytes32) {
+  function _getTransferId(ExecuteArgs calldata _args) public view returns (bytes32) {
     (uint32 tokenDomain, bytes32 tokenId) = s.tokenRegistry.getTokenId(_args.local);
 
-    console.log("");
-    console.log("got:");
+    // console.log("got:");
     // console.log("- local", _args.local);
     // console.log("- nonce", _args.nonce);
+
     // console.log("- _params.to", _args.params.to);
     // console.log("- _params.originDomain", _args.params.originDomain);
     // console.log("- _params.destinationDomain", _args.params.destinationDomain);
@@ -556,6 +556,7 @@ contract BridgeFacet is BaseConnextFacet {
     // console.log("- _params.receiveLocal", _args.params.receiveLocal);
     // console.log("- _params.callData");
     // console.logBytes(_args.params.callData);
+
     // console.log("- originSender", _args.originSender);
     // console.log("- tokenId");
     // console.logBytes32(tokenId);
@@ -566,7 +567,7 @@ contract BridgeFacet is BaseConnextFacet {
     bytes32 transferId = keccak256(
       abi.encode(_args.nonce, _args.params, _args.originSender, tokenId, tokenDomain, _args.amount)
     );
-    console.log("- transferId");
+    console.log("BridgeFacet::_getTransferId:");
     console.logBytes32(transferId);
     return transferId;
   }

@@ -108,6 +108,7 @@ contract BridgeFacetTest is ForgeHelper, BridgeFacet {
 
   function getTransferId() public returns (bytes32) {
     // console.log("expecting:");
+    // console.log("- local", _local);
     // console.log("- nonce", _nonce);
     // console.log("- _params.to", _params.to);
     // console.log("- _params.originDomain", _params.originDomain);
@@ -125,11 +126,12 @@ contract BridgeFacetTest is ForgeHelper, BridgeFacet {
     // console.log("- amount", _amount);
     // console.log("- encoded");
     // console.logBytes(abi.encode(_nonce, _params, _originSender, _canonicalTokenId, _canonicalDomain, _amount));
+
     bytes32 transferId = keccak256(
       abi.encode(_nonce, _params, _originSender, _canonicalTokenId, _canonicalDomain, _amount)
     );
-    // console.log("- transferId");
-    // console.logBytes32(transferId);
+    console.log("- transferId");
+    console.logBytes32(transferId);
     return transferId;
   }
 
@@ -148,6 +150,16 @@ contract BridgeFacetTest is ForgeHelper, BridgeFacet {
     // generate router signatures
     bytes[] memory sigs = getRouterSignatures(transferId, routers, keys);
     return (transferId, ExecuteArgs(_params, _local, routers, sigs, _relayerFee, _amount, _nonce, _originSender));
+  }
+
+  function getExecuteArgsNoRouters() public returns (bytes32, ExecuteArgs memory) {
+    // form execute args
+    bytes[] memory sigs = new bytes[](0);
+    address[] memory routers = new address[](0);
+    ExecuteArgs memory args = ExecuteArgs(_params, _local, routers, sigs, _relayerFee, _amount, _nonce, _originSender);
+    // generate transfer id from execute args
+    bytes32 transferId = this._getTransferId(args);
+    return (transferId, args);
   }
 
   function getExecuteArgs(address[] memory routers, uint256[] memory keys)
@@ -211,10 +223,11 @@ contract BridgeFacetTest is ForgeHelper, BridgeFacet {
     _params.forceSlow = true;
 
     // get args
-    (bytes32 transferId, ExecuteArgs memory _args) = getExecuteArgs();
-    console.log("expecting:");
+    (bytes32 transferId, ExecuteArgs memory _args) = getExecuteArgsNoRouters();
+    // console.log("expecting:");
     // console.log("- local", _args.local);
     // console.log("- nonce", _args.nonce);
+
     // console.log("- _params.to", _args.params.to);
     // console.log("- _params.originDomain", _args.params.originDomain);
     // console.log("- _params.destinationDomain", _args.params.destinationDomain);
@@ -224,6 +237,7 @@ contract BridgeFacetTest is ForgeHelper, BridgeFacet {
     // console.log("- _params.receiveLocal", _args.params.receiveLocal);
     // console.log("- _params.callData");
     // console.logBytes(_args.params.callData);
+
     // console.log("- originSender", _args.originSender);
     // console.log("- tokenId");
     // console.logBytes32(_canonicalTokenId);
@@ -233,8 +247,8 @@ contract BridgeFacetTest is ForgeHelper, BridgeFacet {
     // console.logBytes(
     //   abi.encode(_args.nonce, _args.params, _args.originSender, _canonicalTokenId, _canonicalDomain, _args.amount)
     // );
-    console.log("- transferId");
-    console.logBytes32(transferId);
+    // console.log("- transferId");
+    // console.logBytes32(transferId);
 
     // set reconciled context
     s.reconciledTransfers[transferId] = true;
