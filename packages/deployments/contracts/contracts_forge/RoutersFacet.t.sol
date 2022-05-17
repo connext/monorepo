@@ -28,11 +28,12 @@ contract RoutersFacetTest is ForgeHelper, Deployer {
   address wrapper = address(3);
   address relayerFeeRouter = address(4);
   address xAppConnectionManager = address(5);
+  address promiseRouter = address(6);
 
   // ============ Test set up ============
 
   function setUp() public {
-    deployConnext(domain, xAppConnectionManager, tokenRegistry, wrapper, relayerFeeRouter);
+    deployConnext(domain, xAppConnectionManager, tokenRegistry, wrapper, relayerFeeRouter, payable(promiseRouter));
   }
 
   // ============ setupRouter ============

@@ -27,6 +27,8 @@ import {XCallArgs, CallParams} from "../contracts/libraries/LibConnextStorage.so
 import {IDiamondCut} from "../contracts/interfaces/IDiamondCut.sol";
 import {ConnextMessage} from "../contracts/libraries/ConnextMessage.sol";
 
+import {PromiseRouter} from "../contracts/nomad-xapps/contracts/promise-router/PromiseRouter.sol";
+
 // running tests (with logging on failure):
 // yarn workspace @connext/nxtp-contracts test:forge -vvv
 // run a single test:
@@ -35,7 +37,7 @@ import {ConnextMessage} from "../contracts/libraries/ConnextMessage.sol";
 // other forge commands: yarn workspace @connext/nxtp-contracts forge <CMD>
 // see docs here: https://onbjerg.github.io/foundry-book/index.html
 
-contract ConnextHandlerTest is ForgeHelper {
+contract ConnextHandlerTest is ForgeHelper, Deployer {
   // ============ Libraries ============
   using stdStorage for StdStorage;
 
@@ -97,7 +99,14 @@ contract ConnextHandlerTest is ForgeHelper {
 
   function setUp() public {
     deployMocks();
-    deployConnext(uint256(domain), xAppConnectionManager, tokenRegistry, address(wrapper), address(relayerFeeRouter));
+    deployConnext(
+      uint256(domain),
+      xAppConnectionManager,
+      tokenRegistry,
+      address(wrapper),
+      address(relayerFeeRouter),
+      payable(promiseRouter)
+    );
 
     // TestSetterFacetCut
     testSetterFacet = new TestSetterFacet();
@@ -302,22 +311,8 @@ contract ConnextHandlerTest is ForgeHelper {
     uint256 relayerFee = 0.01 ether;
     address transactingAssetId = address(originAdopted);
 
-    IConnextHandler.CallParams memory callParams = IConnextHandler.CallParams(
-      to,
-      bytes("0x"),
-      domain,
-      destinationDomain,
-      address(0),
-      0,
-      false,
-      false
-    );
-    IConnextHandler.XCallArgs memory args = IConnextHandler.XCallArgs(
-      callParams,
-      transactingAssetId,
-      amount,
-      relayerFee
-    );
+    CallParams memory callParams = CallParams(to, bytes("0x"), domain, destinationDomain, address(0), 0, false, false);
+    XCallArgs memory args = XCallArgs(callParams, transactingAssetId, amount, relayerFee);
 
     bytes32 id = keccak256(
       abi.encode(0, callParams, address(this), bytes32(abi.encodePacked(canonical)), domain, amount)
@@ -337,22 +332,8 @@ contract ConnextHandlerTest is ForgeHelper {
     uint256 relayerFee = 0.01 ether;
     address transactingAssetId = address(originAdopted);
 
-    IConnextHandler.CallParams memory callParams = IConnextHandler.CallParams(
-      to,
-      bytes(""),
-      domain,
-      destinationDomain,
-      address(0),
-      0,
-      false,
-      false
-    );
-    IConnextHandler.XCallArgs memory args = IConnextHandler.XCallArgs(
-      callParams,
-      transactingAssetId,
-      amount,
-      relayerFee
-    );
+    CallParams memory callParams = CallParams(to, bytes(""), domain, destinationDomain, address(0), 0, false, false);
+    XCallArgs memory args = XCallArgs(callParams, transactingAssetId, amount, relayerFee);
 
     bytes32 id = keccak256(
       abi.encode(0, callParams, address(this), bytes32(abi.encodePacked(canonical)), domain, amount)
@@ -384,22 +365,8 @@ contract ConnextHandlerTest is ForgeHelper {
     uint256 relayerFee = 0;
     address transactingAssetId = address(originAdopted);
 
-    IConnextHandler.CallParams memory callParams = IConnextHandler.CallParams(
-      to,
-      bytes("0x"),
-      domain,
-      destinationDomain,
-      address(0),
-      0,
-      false,
-      false
-    );
-    IConnextHandler.XCallArgs memory args = IConnextHandler.XCallArgs(
-      callParams,
-      transactingAssetId,
-      amount,
-      relayerFee
-    );
+    CallParams memory callParams = CallParams(to, bytes("0x"), domain, destinationDomain, address(0), 0, false, false);
+    XCallArgs memory args = XCallArgs(callParams, transactingAssetId, amount, relayerFee);
 
     bytes32 id = keccak256(
       abi.encode(0, callParams, address(this), bytes32(abi.encodePacked(canonical)), domain, amount)
@@ -419,22 +386,8 @@ contract ConnextHandlerTest is ForgeHelper {
     uint256 relayerFee = 0.01 ether;
     address transactingAssetId = address(originAdopted);
 
-    IConnextHandler.CallParams memory callParams = IConnextHandler.CallParams(
-      to,
-      bytes("0x"),
-      domain,
-      destinationDomain,
-      address(0),
-      0,
-      false,
-      false
-    );
-    IConnextHandler.XCallArgs memory args = IConnextHandler.XCallArgs(
-      callParams,
-      transactingAssetId,
-      amount,
-      relayerFee
-    );
+    CallParams memory callParams = CallParams(to, bytes("0x"), domain, destinationDomain, address(0), 0, false, false);
+    XCallArgs memory args = XCallArgs(callParams, transactingAssetId, amount, relayerFee);
 
     bytes32 id = keccak256(
       abi.encode(0, callParams, address(this), bytes32(abi.encodePacked(canonical)), domain, amount)
@@ -452,22 +405,8 @@ contract ConnextHandlerTest is ForgeHelper {
     uint256 relayerFee = 0.01 ether;
     address transactingAssetId = address(0);
 
-    IConnextHandler.CallParams memory callParams = IConnextHandler.CallParams(
-      to,
-      bytes("0x"),
-      domain,
-      destinationDomain,
-      address(0),
-      0,
-      false,
-      false
-    );
-    IConnextHandler.XCallArgs memory args = IConnextHandler.XCallArgs(
-      callParams,
-      transactingAssetId,
-      amount,
-      relayerFee
-    );
+    CallParams memory callParams = CallParams(to, bytes("0x"), domain, destinationDomain, address(0), 0, false, false);
+    XCallArgs memory args = XCallArgs(callParams, transactingAssetId, amount, relayerFee);
 
     bytes32 id = keccak256(
       abi.encode(0, callParams, address(this), bytes32(abi.encodePacked(wrapper)), domain, amount)
@@ -491,22 +430,8 @@ contract ConnextHandlerTest is ForgeHelper {
     uint256 relayerFee = 0.01 ether;
     address transactingAssetId = address(originAdopted);
 
-    IConnextHandler.CallParams memory callParams = IConnextHandler.CallParams(
-      to,
-      bytes("0x"),
-      domain,
-      destinationDomain,
-      address(0),
-      0,
-      false,
-      false
-    );
-    IConnextHandler.XCallArgs memory args = IConnextHandler.XCallArgs(
-      callParams,
-      transactingAssetId,
-      amount,
-      relayerFee
-    );
+    CallParams memory callParams = CallParams(to, bytes("0x"), domain, destinationDomain, address(0), 0, false, false);
+    XCallArgs memory args = XCallArgs(callParams, transactingAssetId, amount, relayerFee);
 
     vm.expectRevert(abi.encodeWithSelector(AssetLogic.AssetLogic__handleIncomingAsset_ethWithErcTransfer.selector));
     IConnextFacets(address(connextDiamondProxy)).xcall{value: 0}(args);
@@ -525,22 +450,8 @@ contract ConnextHandlerTest is ForgeHelper {
     uint256 relayerFee = 0.01 ether;
     address transactingAssetId = address(0);
 
-    IConnextHandler.CallParams memory callParams = IConnextHandler.CallParams(
-      to,
-      bytes("0x"),
-      domain,
-      destinationDomain,
-      address(0),
-      0,
-      false,
-      false
-    );
-    IConnextHandler.XCallArgs memory args = IConnextHandler.XCallArgs(
-      callParams,
-      transactingAssetId,
-      amount,
-      relayerFee
-    );
+    CallParams memory callParams = CallParams(to, bytes("0x"), domain, destinationDomain, address(0), 0, false, false);
+    XCallArgs memory args = XCallArgs(callParams, transactingAssetId, amount, relayerFee);
 
     vm.mockCall(
       address(tokenRegistry),
@@ -567,7 +478,7 @@ contract ConnextHandlerTest is ForgeHelper {
     uint256 callbackFee = 0.02 ether;
     address transactingAssetId = address(0);
 
-    IConnextHandler.CallParams memory callParams = IConnextHandler.CallParams(
+    CallParams memory callParams = CallParams(
       to,
       bytes("0x"),
       domain,
@@ -577,12 +488,7 @@ contract ConnextHandlerTest is ForgeHelper {
       false,
       false
     );
-    IConnextHandler.XCallArgs memory args = IConnextHandler.XCallArgs(
-      callParams,
-      transactingAssetId,
-      amount,
-      relayerFee
-    );
+    XCallArgs memory args = XCallArgs(callParams, transactingAssetId, amount, relayerFee);
 
     vm.mockCall(
       address(tokenRegistry),
@@ -591,13 +497,13 @@ contract ConnextHandlerTest is ForgeHelper {
     );
 
     vm.expectRevert(abi.encodeWithSelector(AssetLogic.AssetLogic__handleIncomingAsset_notAmount.selector));
-    connext.xcall{value: amount}(args);
+    IConnextFacets(address(connextDiamondProxy)).xcall{value: amount}(args);
 
     vm.expectRevert(abi.encodeWithSelector(AssetLogic.AssetLogic__handleIncomingAsset_notAmount.selector));
-    connext.xcall{value: amount + relayerFee + callbackFee - 1}(args);
+    IConnextFacets(address(connextDiamondProxy)).xcall{value: amount + relayerFee + callbackFee - 1}(args);
 
     vm.expectRevert(abi.encodeWithSelector(AssetLogic.AssetLogic__handleIncomingAsset_notAmount.selector));
-    connext.xcall{value: amount + relayerFee + callbackFee + 1}(args);
+    IConnextFacets(address(connextDiamondProxy)).xcall{value: amount + relayerFee + callbackFee + 1}(args);
   }
 
   // Fail if callback address is not contract and callback fee is not zero
@@ -609,7 +515,7 @@ contract ConnextHandlerTest is ForgeHelper {
     uint256 callbackFee = 0.02 ether;
     address transactingAssetId = address(0);
 
-    IConnextHandler.CallParams memory callParams = IConnextHandler.CallParams(
+    CallParams memory callParams = CallParams(
       to,
       bytes("0x"),
       domain,
@@ -619,12 +525,7 @@ contract ConnextHandlerTest is ForgeHelper {
       false,
       false
     );
-    IConnextHandler.XCallArgs memory args = IConnextHandler.XCallArgs(
-      callParams,
-      transactingAssetId,
-      amount,
-      relayerFee
-    );
+    XCallArgs memory args = XCallArgs(callParams, transactingAssetId, amount, relayerFee);
 
     vm.mockCall(
       address(tokenRegistry),
@@ -632,8 +533,8 @@ contract ConnextHandlerTest is ForgeHelper {
       abi.encode(address(wrapper))
     );
 
-    vm.expectRevert(abi.encodeWithSelector(ConnextLogic.ConnextLogic__xcall_nonZeroCallbackFeeForCallback.selector));
-    connext.xcall{value: amount + relayerFee + callbackFee}(args);
+    vm.expectRevert(abi.encodeWithSelector(BridgeFacet.BridgeFacet__xcall_nonZeroCallbackFeeForCallback.selector));
+    IConnextFacets(address(connextDiamondProxy)).xcall{value: amount + relayerFee + callbackFee}(args);
   }
 
   // Should work with callback address and callback fee
@@ -644,12 +545,12 @@ contract ConnextHandlerTest is ForgeHelper {
     uint256 callbackFee = 0.01 ether;
     address callbackAddr = address(callback);
     address transactingAssetId = address(originAdopted);
-    address promiseRouterAddr = address(connext.promiseRouter());
+    address payable promiseRouterAddr = payable(IConnextFacets(address(connextDiamondProxy)).promiseRouter());
 
     vm.prank(promiseRouter.owner());
-    promiseRouter.setConnext(address(connext));
+    promiseRouter.setConnext(address(connextDiamondProxy));
 
-    IConnextHandler.CallParams memory callParams = IConnextHandler.CallParams(
+    CallParams memory callParams = CallParams(
       to,
       bytes(""),
       domain,
@@ -659,12 +560,7 @@ contract ConnextHandlerTest is ForgeHelper {
       false,
       false
     );
-    IConnextHandler.XCallArgs memory args = IConnextHandler.XCallArgs(
-      callParams,
-      transactingAssetId,
-      amount,
-      relayerFee
-    );
+    XCallArgs memory args = XCallArgs(callParams, transactingAssetId, amount, relayerFee);
 
     bytes32 id = keccak256(
       abi.encode(0, callParams, address(this), bytes32(abi.encodePacked(canonical)), domain, amount)
@@ -676,7 +572,7 @@ contract ConnextHandlerTest is ForgeHelper {
 
     vm.expectCall(promiseRouterAddr, abi.encodeWithSelector(PromiseRouter.initCallbackFee.selector, id));
 
-    connext.xcall{value: relayerFee + callbackFee}(args);
+    IConnextFacets(address(connextDiamondProxy)).xcall{value: relayerFee + callbackFee}(args);
 
     assertEq(promiseRouterAddr.balance, callbackFee);
   }
@@ -690,22 +586,8 @@ contract ConnextHandlerTest is ForgeHelper {
     uint256 relayerFee = 0.01 ether;
     address transactingAssetId = address(originAdopted);
 
-    IConnextHandler.CallParams memory callParams = IConnextHandler.CallParams(
-      to,
-      bytes(""),
-      domain,
-      destinationDomain,
-      address(0),
-      0,
-      false,
-      false
-    );
-    IConnextHandler.XCallArgs memory args = IConnextHandler.XCallArgs(
-      callParams,
-      transactingAssetId,
-      amount,
-      relayerFee
-    );
+    CallParams memory callParams = CallParams(to, bytes(""), domain, destinationDomain, address(0), 0, false, false);
+    XCallArgs memory args = XCallArgs(callParams, transactingAssetId, amount, relayerFee);
 
     bytes32 id = keccak256(
       abi.encode(0, callParams, address(this), bytes32(abi.encodePacked(canonical)), domain, amount)

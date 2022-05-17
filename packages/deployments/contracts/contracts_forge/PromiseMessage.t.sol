@@ -3,7 +3,7 @@ pragma solidity 0.8.11;
 
 import "./ForgeHelper.sol";
 
-import {PromiseMessage} from "../contracts/nomad-xapps/contracts/promise-router/PromiseMessage.sol";
+import {TypedMemView, PromiseMessage} from "../contracts/nomad-xapps/contracts/promise-router/PromiseMessage.sol";
 
 // running tests (with logging on failure):
 // yarn workspace @connext/nxtp-contracts test:forge -vvv

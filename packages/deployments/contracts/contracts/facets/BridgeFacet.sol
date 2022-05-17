@@ -10,6 +10,7 @@ import {LibCrossDomainProperty} from "../libraries/LibCrossDomainProperty.sol";
 import {ITokenRegistry, IBridgeToken} from "../nomad-xapps/interfaces/bridge/ITokenRegistry.sol";
 import {TypedMemView} from "../nomad-core/libs/TypedMemView.sol";
 import {TypeCasts} from "../nomad-core/contracts/XAppConnectionManager.sol";
+import {PromiseRouter} from "../nomad-xapps/contracts/promise-router/PromiseRouter.sol";
 
 import {IExecutor} from "../interfaces/IExecutor.sol";
 import {IWrapped} from "../interfaces/IWrapped.sol";
@@ -158,6 +159,10 @@ contract BridgeFacet is BaseConnextFacet {
 
   function sponsorVault() public view returns (ISponsorVault) {
     return s.sponsorVault;
+  }
+
+  function promiseRouter() external view returns (PromiseRouter) {
+    return s.promiseRouter;
   }
 
   // ============ Public methods ==============

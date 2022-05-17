@@ -4,7 +4,7 @@ pragma solidity 0.8.11;
 import "./ForgeHelper.sol";
 
 import "../contracts/interfaces/IConnextHandler.sol";
-import {RelayerFeeRouter} from "../contracts/nomad-xapps/contracts/relayer-fee-router/RelayerFeeRouter.sol";
+import {TypedMemView, RelayerFeeMessage, RelayerFeeRouter} from "../contracts/nomad-xapps/contracts/relayer-fee-router/RelayerFeeRouter.sol";
 import {Home} from "../contracts/nomad-core/contracts/Home.sol";
 import {ProposedOwnableUpgradeable} from "../contracts/ProposedOwnableUpgradeable.sol";
 import {ERC1967Proxy} from "@openzeppelin/contracts/proxy/ERC1967/ERC1967Proxy.sol";

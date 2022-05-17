@@ -9,6 +9,7 @@ import {IExecutor} from "../../contracts/interfaces/IExecutor.sol";
 import {ISponsorVault} from "../../contracts/interfaces/ISponsorVault.sol";
 import {XAppConnectionManager} from "../../contracts/nomad-core/contracts/XAppConnectionManager.sol";
 import {RelayerFeeRouter} from "../../contracts/nomad-xapps/contracts/relayer-fee-router/RelayerFeeRouter.sol";
+import {PromiseRouter} from "../../contracts/nomad-xapps/contracts/promise-router/PromiseRouter.sol";
 import {XCallArgs, ExecuteArgs} from "../../contracts/libraries/LibConnextStorage.sol";
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 
@@ -57,6 +58,8 @@ interface IConnextFacets {
   function sponsorVault() external view returns (ISponsorVault);
 
   function setSponsorVault(address _sponsorVault) external;
+
+  function promiseRouter() external view returns (PromiseRouter);
 
   function xcall(XCallArgs calldata _args) external payable returns (bytes32);
 

@@ -3,7 +3,7 @@ pragma solidity 0.8.11;
 
 import "./ForgeHelper.sol";
 
-import {RelayerFeeMessage, RelayerFeeRouter} from "../contracts/nomad-xapps/contracts/relayer-fee-router/RelayerFeeRouter.sol";
+import {TypedMemView, RelayerFeeMessage, RelayerFeeRouter} from "../contracts/nomad-xapps/contracts/relayer-fee-router/RelayerFeeRouter.sol";
 
 // running tests (with logging on failure):
 // yarn workspace @connext/nxtp-contracts test:forge -vvv

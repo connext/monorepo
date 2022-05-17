@@ -75,7 +75,7 @@ contract Deployer {
   }
 
   function getBridgeFacetCut(address _bridgeFacet) internal returns (IDiamondCut.FacetCut memory) {
-    bytes4[] memory bridgeFacetSelectors = new bytes4[](14);
+    bytes4[] memory bridgeFacetSelectors = new bytes4[](15);
     bridgeFacetSelectors[0] = BridgeFacet.relayerFees.selector;
     bridgeFacetSelectors[1] = BridgeFacet.routedTransfers.selector;
     bridgeFacetSelectors[2] = BridgeFacet.reconciledTransfers.selector;
@@ -85,11 +85,12 @@ contract Deployer {
     bridgeFacetSelectors[6] = BridgeFacet.nonce.selector;
     bridgeFacetSelectors[7] = BridgeFacet.wrapper.selector;
     bridgeFacetSelectors[8] = BridgeFacet.sponsorVault.selector;
-    bridgeFacetSelectors[9] = BridgeFacet.setSponsorVault.selector;
-    bridgeFacetSelectors[10] = BridgeFacet.xcall.selector;
-    bridgeFacetSelectors[11] = BridgeFacet.handle.selector;
-    bridgeFacetSelectors[12] = BridgeFacet.execute.selector;
-    bridgeFacetSelectors[13] = BridgeFacet.bumpTransfer.selector;
+    bridgeFacetSelectors[9] = BridgeFacet.promiseRouter.selector;
+    bridgeFacetSelectors[10] = BridgeFacet.setSponsorVault.selector;
+    bridgeFacetSelectors[11] = BridgeFacet.xcall.selector;
+    bridgeFacetSelectors[12] = BridgeFacet.handle.selector;
+    bridgeFacetSelectors[13] = BridgeFacet.execute.selector;
+    bridgeFacetSelectors[14] = BridgeFacet.bumpTransfer.selector;
     return
       IDiamondCut.FacetCut({
         facetAddress: _bridgeFacet,
@@ -261,7 +262,8 @@ contract Deployer {
     address xAppConnectionManager,
     address tokenRegistry,
     address wrapper,
-    address relayerFeeRouter
+    address relayerFeeRouter,
+    address payable promiseRouter
   ) internal {
     bytes memory initCallData = abi.encodeWithSelector(
       DiamondInit.init.selector,
@@ -269,7 +271,8 @@ contract Deployer {
       xAppConnectionManager,
       tokenRegistry,
       wrapper,
-      relayerFeeRouter
+      relayerFeeRouter,
+      promiseRouter
     );
 
     deployFacets();

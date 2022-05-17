@@ -3,7 +3,7 @@ pragma solidity 0.8.11;
 
 import "./ForgeHelper.sol";
 
-import {PromiseRouter} from "../contracts/nomad-xapps/contracts/promise-router/PromiseRouter.sol";
+import {TypedMemView, PromiseMessage, PromiseRouter, AddressUpgradeable} from "../contracts/nomad-xapps/contracts/promise-router/PromiseRouter.sol";
 import {Home} from "../contracts/nomad-core/contracts/Home.sol";
 import {ProposedOwnableUpgradeable} from "../contracts/ProposedOwnableUpgradeable.sol";
 import {ERC1967Proxy} from "@openzeppelin/contracts/proxy/ERC1967/ERC1967Proxy.sol";
@@ -11,7 +11,7 @@ import {Deployer} from "./utils/Deployer.sol";
 import {IConnextFacets} from "./utils/IConnextFacets.sol";
 import {BaseConnextFacet} from "../contracts/facets/BaseConnextFacet.sol";
 
-import {MockHome, MockCallback, MockPromiseRouter} from "./Mock.sol";
+import {MockHome, MockCallback, MockPromiseRouter, TestSetterFacet} from "./Mock.sol";
 
 // running tests (with logging on failure):
 // yarn workspace @connext/nxtp-contracts test:forge -vvv
@@ -91,7 +91,14 @@ contract PromiseRouterTest is ForgeHelper, Deployer {
 
     promiseRouter = MockPromiseRouter(payable(address(proxy)));
 
-    deployConnext(localDomain, xAppConnectionManager, tokenRegistry, wrapper, relayerFeeRouter);
+    deployConnext(
+      localDomain,
+      xAppConnectionManager,
+      tokenRegistry,
+      wrapper,
+      relayerFeeRouter,
+      payable(address(proxy))
+    );
 
     promiseRouter.setConnext(address(connextDiamondProxy));
     promiseRouter.enrollRemoteRouter(remoteDomain, bytes32(remote));
@@ -107,11 +114,7 @@ contract PromiseRouterTest is ForgeHelper, Deployer {
   }
 
   function setApprovedRelayer(address _relayer, bool _approved) internal {
-    stdstore
-      .target(address(connextDiamondProxy))
-      .sig(connextDiamondProxy.approvedRelayers.selector)
-      .with_key(_relayer)
-      .checked_write(_approved ? 1 : 0);
+    TestSetterFacet(address(connextDiamondProxy)).setApprovedRelayer(_relayer, _approved);
   }
 
   // ============ initialize ============
@@ -158,7 +161,7 @@ contract PromiseRouterTest is ForgeHelper, Deployer {
   // Fail if return data is empty
   function test_PromiseRouter__send_failsIfEmptyReturnData(bool returnSuccess, bytes calldata returnData) public {
     vm.assume(returnData.length == 0);
-    vm.prank(address(connext));
+    vm.prank(address(connextDiamondProxy));
     vm.expectRevert(abi.encodeWithSelector(PromiseRouter.PromiseRouter__send_returndataEmpty.selector));
 
     bytes32 transferId = "A";
@@ -170,7 +173,7 @@ contract PromiseRouterTest is ForgeHelper, Deployer {
   // Fail if callback address is not contract
   function test_PromiseRouter__send_failsIfNonContractCallback(bool returnSuccess, bytes calldata returnData) public {
     vm.assume(returnData.length > 0);
-    vm.prank(address(connext));
+    vm.prank(address(connextDiamondProxy));
     vm.expectRevert(abi.encodeWithSelector(PromiseRouter.PromiseRouter__send_callbackAddressNotContract.selector));
 
     bytes32 transferId = "A";
@@ -181,7 +184,7 @@ contract PromiseRouterTest is ForgeHelper, Deployer {
 
   // Should work
   function test_PromiseRouter__send_shouldWork(bool returnSuccess, bytes calldata returnData) public {
-    vm.prank(address(connext));
+    vm.prank(address(connextDiamondProxy));
     vm.assume(returnData.length > 0);
 
     bytes32 transferId = "A";
