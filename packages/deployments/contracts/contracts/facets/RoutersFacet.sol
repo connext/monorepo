@@ -145,6 +145,14 @@ contract RoutersFacet is BaseConnextFacet {
 
   // ============ Public methods ==============
 
+  function LIQUIDITY_FEE_NUMERATOR() public view returns (uint256) {
+    return s.LIQUIDITY_FEE_NUMERATOR;
+  }
+
+  function LIQUIDITY_FEE_DENOMINATOR() public view returns (uint256) {
+    return s.LIQUIDITY_FEE_DENOMINATOR;
+  }
+
   /**
    * @notice Returns the approved router for the given router address
    * @param _router The relevant router address

@@ -69,14 +69,6 @@ contract RelayerFacet is BaseConnextFacet {
     return s.relayerFeeRouter;
   }
 
-  function LIQUIDITY_FEE_NUMERATOR() public view returns (uint256) {
-    return s.LIQUIDITY_FEE_NUMERATOR;
-  }
-
-  function LIQUIDITY_FEE_DENOMINATOR() public view returns (uint256) {
-    return s.LIQUIDITY_FEE_DENOMINATOR;
-  }
-
   // ============ External functions ============
 
   /**
