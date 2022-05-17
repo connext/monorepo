@@ -63,9 +63,6 @@ export const test = async () => {
     ),
   );
 
-  // getOriginTransfers(domain, fromNonce, destinationDomains)
-  console.log(await subgraphReader.getOriginTransfers("1111", 0, ["2222"]));
-
   // getXCalls(agents)
   console.log(`XCalling...`);
   const agents: Map<string, SubgraphQueryMetaParams> = new Map();
@@ -74,10 +71,10 @@ export const test = async () => {
   console.log(await subgraphReader.getXCalls(agents));
   console.log(`XCalling done!`);
 
-  // getOriginTransfersForAll(agents)
+  // getOriginTransfers(agents)
   console.log(`Get origin transfers on the domains...`);
-  console.log(await subgraphReader.getOriginTransfersForAll(agents));
-  console.log(`GetOriginTransfersForAll done!!!`);
+  console.log(await subgraphReader.getOriginTransfers(agents));
+  console.log(`getOriginTransfers done!!!`);
 
   // getDestinationTransfers(transfers)
   const transfers: OriginTransfer[] = [

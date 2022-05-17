@@ -246,32 +246,10 @@ export class SubgraphReader {
   }
 
   /**
-   * Get all transfers on a domain from a specified nonce that are routing to one of the given destination domains.
-   *
-   * @param domain - The domain you want to get transfers from.
-   * @param fromNonce - The nonce to start from (inclusive).
-   * @param destinationDomains - The domains which the retrieved transfers must be going to.
-   * @returns an array of OriginTransfers.
-   */
-  public async getOriginTransfers(
-    domain: string,
-    fromNonce: number,
-    destinationDomains: string[] = [...Object.keys(context.config.sources as object)],
-  ): Promise<XTransfer[]> {
-    const { parser, execute, getPrefixForDomain } = getHelpers();
-    const prefix: string = getPrefixForDomain(domain);
-
-    const query = getOriginTransfersQueryByDomain(prefix, domain, fromNonce, destinationDomains);
-    const response = await execute(query);
-    const transfers = [...response.values()][0] ? [...response.values()][0][0] : [];
-    return transfers.length > 0 ? transfers.map(parser.originTransfer) : [];
-  }
-
-  /**
    * Get the transfers across the multiple domains
    * @param agents - The reference parameters
    */
-  public async getOriginTransfersForAll(agents: Map<string, SubgraphQueryMetaParams>): Promise<XTransfer[]> {
+  public async getOriginTransfers(agents: Map<string, SubgraphQueryMetaParams>): Promise<XTransfer[]> {
     const { execute, parser } = getHelpers();
     const xcalledXQuery = getOriginTransfersQuery(agents);
     const response = await execute(xcalledXQuery);

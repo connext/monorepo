@@ -233,21 +233,6 @@ describe("SubgraphReader", () => {
   });
 
   describe("#getOriginTransfers", () => {
-    it("should be empty", async () => {
-      response.set("1111", [[]]);
-      executeStub.resolves(response);
-      expect(await subgraphReader.getOriginTransfers("1111", 0)).to.be.deep.eq([]);
-    });
-    it("should return the origin transfers", async () => {
-      response.set("1111", [[mockOriginTransferEntity]]);
-      executeStub.resolves(response);
-      expect(await subgraphReader.getOriginTransfers("1111", 0)).to.be.deep.eq([
-        ParserFns.originTransfer(mockOriginTransferEntity),
-      ]);
-    });
-  });
-
-  describe("#getOriginTransfersForAll", () => {
     it("should return the origin transfers across the multichains", async () => {
       response.set("1111", [[mockOriginTransferEntity]]);
       response.set("2221", [[mockOriginTransferEntity]]);
@@ -257,7 +242,7 @@ describe("SubgraphReader", () => {
       agents.set("1111", { maxBlockNumber: 99999999, latestNonce: 0 });
       agents.set("2221", { maxBlockNumber: 99999999, latestNonce: 0 });
 
-      expect(await subgraphReader.getOriginTransfersForAll(agents)).to.be.deep.eq([
+      expect(await subgraphReader.getOriginTransfers(agents)).to.be.deep.eq([
         ParserFns.originTransfer(mockOriginTransferEntity),
         ParserFns.originTransfer(mockOriginTransferEntity),
       ]);
