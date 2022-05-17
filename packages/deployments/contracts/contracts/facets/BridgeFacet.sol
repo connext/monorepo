@@ -39,6 +39,8 @@ contract BridgeFacet is BaseConnextFacet {
   error BridgeFacet__xcall_wrongDomain();
   error BridgeFacet__xcall_emptyTo();
   error BridgeFacet__xcall_notSupportedAsset();
+  error BridgeFacet__xcall_nonZeroCallbackFeeForCallback();
+  error BridgeFacet__xcall_callbackNotAContract();
   error BridgeFacet__reconcile_invalidAction();
   error BridgeFacet__reconcile_alreadyReconciled();
   error BridgeFacet__execute_unapprovedRelayer();
@@ -261,6 +263,16 @@ contract BridgeFacet is BaseConnextFacet {
     if (_args.params.to == address(0)) {
       revert BridgeFacet__xcall_emptyTo();
     }
+
+    // ensure callback fee is zero when callback address is empty
+    if (_args.params.callback == address(0) && _args.params.callbackFee > 0) {
+      revert BridgeFacet__xcall_nonZeroCallbackFeeForCallback();
+    }
+
+    // ensure callback is contract if supplied
+    if (!AddressUpgradeable.isContract(_args.params.callback)) {
+      revert BridgeFacet__xcall_callbackNotAContract();
+    }
   }
 
   /**
@@ -288,12 +300,21 @@ contract BridgeFacet is BaseConnextFacet {
 
     // transfer funds of transacting asset to the contract from user
     // NOTE: will wrap any native asset transferred to wrapped-native automatically
-    (, uint256 amount) = AssetLogic.handleIncomingAsset(_args.transactingAssetId, _args.amount, _args.relayerFee);
+    (, uint256 amount) = AssetLogic.handleIncomingAsset(
+      _args.transactingAssetId,
+      _args.amount,
+      _args.relayerFee + _args.params.callbackFee
+    );
 
     // swap to the local asset from adopted
     (uint256 bridgedAmt, address bridged) = AssetLogic.swapToLocalAssetIfNeeded(canonical, transactingAssetId, amount);
 
     bytes32 transferId = _getTransferId(_args, canonical);
+
+    // Transfer callback fee to PromiseRouter if set
+    if (_args.params.callbackFee != 0) {
+      s.promiseRouter.initCallbackFee{value: _args.params.callbackFee}(transferId);
+    }
 
     bytes memory message = _formatMessage(_args, bridged, transferId, bridgedAmt);
     s.xAppConnectionManager.home().dispatch(_args.params.destinationDomain, remote, message);
@@ -606,7 +627,7 @@ contract BridgeFacet is BaseConnextFacet {
     } else {
       // execute calldata w/funds
       AssetLogic.transferAssetFromContract(_adopted, address(s.executor), _amount);
-      s.executor.execute(
+      (bool success, bytes memory returnData) = s.executor.execute(
         _transferId,
         _amount,
         payable(_args.params.to),
@@ -616,6 +637,11 @@ contract BridgeFacet is BaseConnextFacet {
           : LibCrossDomainProperty.EMPTY_BYTES,
         _args.params.callData
       );
+
+      // If callback address is not zero, send on the PromiseRouter
+      if (_args.params.callback != address(0)) {
+        _args.promiseRouter.send(_args.params.originDomain, _transferId, _args.params.callback, success, returnData);
+      }
     }
   }
 }
