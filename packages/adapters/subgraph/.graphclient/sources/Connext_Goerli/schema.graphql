@@ -177,6 +177,8 @@ type goerli_DestinationTransfer {
   callData: goerli_Bytes
   originDomain: BigInt
   destinationDomain: BigInt
+  forceSlow: Boolean
+  receiveLocal: Boolean
   status: goerli_TransferStatus
   routers(skip: Int = 0, first: Int = 100, orderBy: goerli_Router_orderBy, orderDirection: goerli_OrderDirection, where: goerli_Router_filter): [goerli_Router!]
   originSender: goerli_Bytes
@@ -257,6 +259,14 @@ input goerli_DestinationTransfer_filter {
   destinationDomain_lte: BigInt
   destinationDomain_in: [BigInt!]
   destinationDomain_not_in: [BigInt!]
+  forceSlow: Boolean
+  forceSlow_not: Boolean
+  forceSlow_in: [Boolean!]
+  forceSlow_not_in: [Boolean!]
+  receiveLocal: Boolean
+  receiveLocal_not: Boolean
+  receiveLocal_in: [Boolean!]
+  receiveLocal_not_in: [Boolean!]
   status: goerli_TransferStatus
   status_not: goerli_TransferStatus
   status_in: [goerli_TransferStatus!]
@@ -402,6 +412,8 @@ enum goerli_DestinationTransfer_orderBy {
   callData
   originDomain
   destinationDomain
+  forceSlow
+  receiveLocal
   status
   routers
   originSender
@@ -438,6 +450,8 @@ type goerli_OriginTransfer {
   callData: goerli_Bytes
   originDomain: BigInt
   destinationDomain: BigInt
+  forceSlow: Boolean
+  receiveLocal: Boolean
   status: goerli_TransferStatus
   relayerFee: BigInt
   message: goerli_Bytes
@@ -512,6 +526,14 @@ input goerli_OriginTransfer_filter {
   destinationDomain_lte: BigInt
   destinationDomain_in: [BigInt!]
   destinationDomain_not_in: [BigInt!]
+  forceSlow: Boolean
+  forceSlow_not: Boolean
+  forceSlow_in: [Boolean!]
+  forceSlow_not_in: [Boolean!]
+  receiveLocal: Boolean
+  receiveLocal_not: Boolean
+  receiveLocal_in: [Boolean!]
+  receiveLocal_not_in: [Boolean!]
   status: goerli_TransferStatus
   status_not: goerli_TransferStatus
   status_in: [goerli_TransferStatus!]
@@ -615,6 +637,8 @@ enum goerli_OriginTransfer_orderBy {
   callData
   originDomain
   destinationDomain
+  forceSlow
+  receiveLocal
   status
   relayerFee
   message

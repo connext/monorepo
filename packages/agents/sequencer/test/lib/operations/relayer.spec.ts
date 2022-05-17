@@ -31,6 +31,8 @@ const mockTransfers: OriginTransfer[] = [
     xparams: {
       to: mkAddress("0xbeefdead"),
       callData: "0x0",
+      forceSlow: false,
+      receiveLocal: false,
     },
     local: mkAddress("0xdedddddddddddddd"),
     relayerFee: "0.1",
