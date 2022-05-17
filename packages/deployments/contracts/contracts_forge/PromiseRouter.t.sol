@@ -8,7 +8,7 @@ import {Home} from "../contracts/nomad-core/contracts/Home.sol";
 import {ProposedOwnableUpgradeable} from "../contracts/ProposedOwnableUpgradeable.sol";
 import {ERC1967Proxy} from "@openzeppelin/contracts/proxy/ERC1967/ERC1967Proxy.sol";
 import {Deployer} from "./utils/Deployer.sol";
-import {IConnextFacets} from "./utils/IConnextFacets.sol";
+import {IConnextHandler} from "../contracts/interfaces/IConnextHandler.sol";
 import {BaseConnextFacet} from "../contracts/facets/BaseConnextFacet.sol";
 
 import {MockHome, MockCallback, MockPromiseRouter, TestSetterFacet} from "./Mock.sol";
