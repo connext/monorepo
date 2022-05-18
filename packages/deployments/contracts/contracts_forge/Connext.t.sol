@@ -295,7 +295,17 @@ contract ConnextHandlerTest is ForgeHelper, Deployer {
     uint256 relayerFee = 0.01 ether;
     address transactingAssetId = address(originAdopted);
 
-    CallParams memory callParams = CallParams(to, bytes("0x"), domain, destinationDomain, address(0), 0, false, false);
+    CallParams memory callParams = CallParams(
+      to,
+      bytes("0x"),
+      domain,
+      destinationDomain,
+      to,
+      address(0),
+      0,
+      false,
+      false
+    );
     XCallArgs memory args = XCallArgs(callParams, transactingAssetId, amount, relayerFee);
 
     bytes32 id = keccak256(
@@ -316,7 +326,17 @@ contract ConnextHandlerTest is ForgeHelper, Deployer {
     uint256 relayerFee = 0.01 ether;
     address transactingAssetId = address(originAdopted);
 
-    CallParams memory callParams = CallParams(to, bytes(""), domain, destinationDomain, address(0), 0, false, false);
+    CallParams memory callParams = CallParams(
+      to,
+      bytes(""),
+      domain,
+      destinationDomain,
+      to,
+      address(0),
+      0,
+      false,
+      false
+    );
     XCallArgs memory args = XCallArgs(callParams, transactingAssetId, amount, relayerFee);
 
     bytes32 id = keccak256(
@@ -326,7 +346,7 @@ contract ConnextHandlerTest is ForgeHelper, Deployer {
     // TODO Correctly calculate the message
     // Harcoded the message from the emitted event since here we are only testing that relayerFee is included
     bytes
-      memory message = hex"00000001000000000000000000000000c94cf1a6d4b8a25e424b3ed8792eed1f1b95b86e030000000000000000000000000000000000000000000000000000000000000064000000000000000000000000000000000000000000000000000000000000000020b4b2eeb4ea213a5e7d1e1d2a3a1a437fbe7c8b3490898b0474b0fe66dda70a3e0ac16162d52ff231902c9bfe2f01f0cdc0af08d6a9ae25612d9972be2e809b";
+      memory message = hex"00000001000000000000000000000000c94cf1a6d4b8a25e424b3ed8792eed1f1b95b86e030000000000000000000000000000000000000000000000000000000000000064000000000000000000000000000000000000000000000000000000000000000020b4b2eeb4ea213a5e7d1e1d2a3a1a437fbe7c8b3490898b0474b0fe66dda70ad9ca809ee41cdb0eb60e35635323b62a8591a69fc32e1a156cac4f3153a10360";
 
     // NOTE: the `amount` and `bridgedAmt` are 0 because `.balanceOf` of the origin asset returns
     // 0 always via setup function
@@ -349,7 +369,17 @@ contract ConnextHandlerTest is ForgeHelper, Deployer {
     uint256 relayerFee = 0;
     address transactingAssetId = address(originAdopted);
 
-    CallParams memory callParams = CallParams(to, bytes("0x"), domain, destinationDomain, address(0), 0, false, false);
+    CallParams memory callParams = CallParams(
+      to,
+      bytes("0x"),
+      domain,
+      destinationDomain,
+      to,
+      address(0),
+      0,
+      false,
+      false
+    );
     XCallArgs memory args = XCallArgs(callParams, transactingAssetId, amount, relayerFee);
 
     bytes32 id = keccak256(
@@ -370,7 +400,17 @@ contract ConnextHandlerTest is ForgeHelper, Deployer {
     uint256 relayerFee = 0.01 ether;
     address transactingAssetId = address(originAdopted);
 
-    CallParams memory callParams = CallParams(to, bytes("0x"), domain, destinationDomain, address(0), 0, false, false);
+    CallParams memory callParams = CallParams(
+      to,
+      bytes("0x"),
+      domain,
+      destinationDomain,
+      to,
+      address(0),
+      0,
+      false,
+      false
+    );
     XCallArgs memory args = XCallArgs(callParams, transactingAssetId, amount, relayerFee);
 
     bytes32 id = keccak256(
@@ -389,7 +429,17 @@ contract ConnextHandlerTest is ForgeHelper, Deployer {
     uint256 relayerFee = 0.01 ether;
     address transactingAssetId = address(0);
 
-    CallParams memory callParams = CallParams(to, bytes("0x"), domain, destinationDomain, address(0), 0, false, false);
+    CallParams memory callParams = CallParams(
+      to,
+      bytes("0x"),
+      domain,
+      destinationDomain,
+      to,
+      address(0),
+      0,
+      false,
+      false
+    );
     XCallArgs memory args = XCallArgs(callParams, transactingAssetId, amount, relayerFee);
 
     bytes32 id = keccak256(
@@ -414,7 +464,17 @@ contract ConnextHandlerTest is ForgeHelper, Deployer {
     uint256 relayerFee = 0.01 ether;
     address transactingAssetId = address(originAdopted);
 
-    CallParams memory callParams = CallParams(to, bytes("0x"), domain, destinationDomain, address(0), 0, false, false);
+    CallParams memory callParams = CallParams(
+      to,
+      bytes("0x"),
+      domain,
+      destinationDomain,
+      to,
+      address(0),
+      0,
+      false,
+      false
+    );
     XCallArgs memory args = XCallArgs(callParams, transactingAssetId, amount, relayerFee);
 
     vm.expectRevert(abi.encodeWithSelector(AssetLogic.AssetLogic__handleIncomingAsset_ethWithErcTransfer.selector));
@@ -434,7 +494,17 @@ contract ConnextHandlerTest is ForgeHelper, Deployer {
     uint256 relayerFee = 0.01 ether;
     address transactingAssetId = address(0);
 
-    CallParams memory callParams = CallParams(to, bytes("0x"), domain, destinationDomain, address(0), 0, false, false);
+    CallParams memory callParams = CallParams(
+      to,
+      bytes("0x"),
+      domain,
+      destinationDomain,
+      to,
+      address(0),
+      0,
+      false,
+      false
+    );
     XCallArgs memory args = XCallArgs(callParams, transactingAssetId, amount, relayerFee);
 
     vm.mockCall(
@@ -467,6 +537,7 @@ contract ConnextHandlerTest is ForgeHelper, Deployer {
       bytes("0x"),
       domain,
       destinationDomain,
+      to,
       callbackAddr,
       callbackFee,
       false,
@@ -504,6 +575,7 @@ contract ConnextHandlerTest is ForgeHelper, Deployer {
       bytes("0x"),
       domain,
       destinationDomain,
+      to,
       callbackAddr,
       callbackFee,
       false,
@@ -539,6 +611,7 @@ contract ConnextHandlerTest is ForgeHelper, Deployer {
       bytes(""),
       domain,
       destinationDomain,
+      to,
       callbackAddr,
       callbackFee,
       false,
@@ -570,7 +643,17 @@ contract ConnextHandlerTest is ForgeHelper, Deployer {
     uint256 relayerFee = 0.01 ether;
     address transactingAssetId = address(originAdopted);
 
-    CallParams memory callParams = CallParams(to, bytes(""), domain, destinationDomain, address(0), 0, false, false);
+    CallParams memory callParams = CallParams(
+      to,
+      bytes(""),
+      domain,
+      destinationDomain,
+      to,
+      address(0),
+      0,
+      false,
+      false
+    );
     XCallArgs memory args = XCallArgs(callParams, transactingAssetId, amount, relayerFee);
 
     bytes32 id = keccak256(
