@@ -21,9 +21,9 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
 
   // routers
   uint256 _router0Key = 2;
-  address _router0 = address(2);
+  address _router0 = vm.addr(2);
   uint256 _router1Key = 3;
-  address _router1 = address(3);
+  address _router1 = vm.addr(3);
 
   // default origin sender
   address _originSender = address(4);
@@ -99,7 +99,8 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
     if (pathLen == 0) {
       return signatures;
     }
-    bytes32 toSign = ECDSA.toEthSignedMessageHash(keccak256(abi.encode(_transferId, pathLen)));
+    bytes32 preImage = keccak256(abi.encode(_transferId, pathLen));
+    bytes32 toSign = ECDSA.toEthSignedMessageHash(preImage);
     for (uint256 i; i < pathLen; i++) {
       (uint8 v, bytes32 r, bytes32 _s) = vm.sign(_keys[i], toSign);
       signatures[i] = abi.encodePacked(r, _s, v);
@@ -171,15 +172,19 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
     uint256 prevBalanceTo = token.balanceOf(_params.to);
 
     // execute
+    uint256 transferred = pathLen == 0
+      ? _args.amount
+      : (_args.amount * _liquidityFeeNumerator) / _liquidityFeeDenominator;
     vm.expectEmit(true, true, false, true);
-    emit Executed(_id, _args.params.to, _args, _args.local, _args.amount, address(this));
+    emit Executed(_id, _args.params.to, _args, _args.local, transferred, address(this));
     this.execute(_args);
 
     // check local balance
     if (pathLen > 0) {
       // should decrement router balance
+      uint256 decrement = transferred / pathLen;
       for (uint256 i; i < pathLen; i++) {
-        assertEq(prevLiquidity[i], s.routerBalances[_args.routers[i]][_local] - _amount);
+        assertEq(s.routerBalances[_args.routers[i]][_args.local], prevLiquidity[i] - decrement);
       }
     } else {
       // should decrement balance of bridge
@@ -187,7 +192,7 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
     }
 
     // should increment balance of `to` in `adopted`
-    assertEq(token.balanceOf(_params.to), prevBalanceTo + _amount);
+    assertEq(token.balanceOf(_params.to), prevBalanceTo + transferred);
 
     // should mark the transfer as executed
     assertEq(s.transferRelayer[_id], address(this));
@@ -252,14 +257,15 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
   // should use the local asset if specified (receiveLocal = true)
   function test_BridgeFacet__execute_receiveLocalWorks() public {
     // set test params
-    _params.forceSlow = true;
     _params.receiveLocal = true;
 
     // get args
-    (bytes32 _id, ExecuteArgs memory _args) = getExecuteArgsNoRouters();
+    (bytes32 _id, ExecuteArgs memory _args) = getExecuteArgs();
 
-    // set reconciled context
-    s.reconciledTransfers[_id] = true;
+    // set liquidity context
+    for (uint256 i; i < _args.routers.length; i++) {
+      s.routerBalances[_args.routers[i]][_args.local] += 10 ether;
+    }
 
     executeAndAssert(_id, _args);
   }

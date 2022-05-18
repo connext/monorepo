@@ -7,10 +7,17 @@ import {LibConnextStorage, AppStorage} from "../../contracts/libraries/LibConnex
 import "../ForgeHelper.sol";
 
 contract FacetHelper is ForgeHelper {
+  // token registry / assets
   address _tokenRegistry = address(6);
+
+  // fees
+  uint256 _liquidityFeeNumerator = 9995;
+  uint256 _liquidityFeeDenominator = 10000;
 
   function setDefaults() public {
     AppStorage storage s = LibConnextStorage.connextStorage();
     s.tokenRegistry = ITokenRegistry(_tokenRegistry);
+    s.LIQUIDITY_FEE_NUMERATOR = _liquidityFeeNumerator;
+    s.LIQUIDITY_FEE_DENOMINATOR = _liquidityFeeDenominator;
   }
 }
