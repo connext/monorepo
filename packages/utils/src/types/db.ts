@@ -18,7 +18,7 @@ export const convertFromDbTransfer = (transfer: any): XTransfer => {
       callback: transfer.callback || constants.AddressZero,
       callbackFee: transfer.callbackFee || "0",
       forceSlow: transfer.force_slow || false,
-      receiveLocal: transfer.receiveLocal || false,
+      receiveLocal: transfer.receive_local || false,
     },
 
     idx: BigNumber.from(transfer.idx ?? 0).toString(),

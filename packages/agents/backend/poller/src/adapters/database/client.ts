@@ -16,6 +16,9 @@ const convertToDbTransfer = (transfer: XTransfer): s.transfers.Insertable => {
     to: transfer.xparams?.to,
     call_data: transfer.xparams?.callData,
 
+    force_slow: transfer.xparams?.forceSlow,
+    receive_local: transfer.xparams?.receiveLocal,
+
     idx: BigNumber.from(transfer.idx ?? "0").toNumber(),
     transfer_id: transfer.transferId,
 

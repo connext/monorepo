@@ -40,6 +40,8 @@ describe("Database client", () => {
       destination_domain varchar(255),
 
       nonce bigint,
+      force_slow boolean,
+      receive_local boolean,
 
       -- xparams
       "to" character(42),
@@ -176,6 +178,26 @@ describe("Database client", () => {
     const statusTransfers = await getTransfersByStatus(XTransferStatus.Completed, pool);
     expect(statusTransfers.length).greaterThan(0);
     expect(statusTransfers[0].destination.status).equal(xTransfer.destination.status);
+  });
+
+  it("should save valid boolean fields", async () => {
+    let xTransferLocal = mock.entity.xtransfer();
+    xTransferLocal.xparams.forceSlow = true;
+    xTransferLocal.xparams.receiveLocal = true;
+    await saveTransfers([xTransferLocal], pool);
+    const dbTransfer = await getTransferByTransferId(xTransferLocal.transferId, pool);
+    expect(dbTransfer.transferId).equal(xTransferLocal.transferId);
+    expect(dbTransfer.xparams.forceSlow).equal(true);
+    expect(dbTransfer.xparams.receiveLocal).equal(true);
+  });
+
+  it("should save missing boolean fields with defaults", async () => {
+    const xTransferLocal = mock.entity.xtransfer();
+    await saveTransfers([xTransferLocal], pool);
+    const dbTransfer = await getTransferByTransferId(xTransferLocal.transferId, pool);
+    expect(dbTransfer.transferId).equal(xTransferLocal.transferId);
+    expect(dbTransfer.xparams.forceSlow).equal(false);
+    expect(dbTransfer.xparams.receiveLocal).equal(false);
   });
 
   it("should get latest nonce", async () => {

@@ -1,8 +1,6 @@
-/* eslint-disable */
-import { getBuiltGraphClient } from "./shared";
-
 import { getHelpers } from ".";
 import { RuntimeError } from "../errors";
+import { executeXQuery } from "./graphclient";
 
 /**
  * Executes queries with `variables`
@@ -12,11 +10,8 @@ import { RuntimeError } from "../errors";
  */
 export const execute = async (document: any, variables = {}): Promise<Map<string, any[]>> => {
   try {
-    const { execute } = await getBuiltGraphClient();
     const { parser } = getHelpers();
-
-    // TODO: Document needs to be validated before it gets executed.
-    const response = await execute(document, variables);
+    const response = await executeXQuery(document, variables);
     return parser.xquery(response);
   } catch (e: any) {
     throw new RuntimeError({ document, variables, e });
