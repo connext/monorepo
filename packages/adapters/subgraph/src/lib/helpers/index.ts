@@ -1,15 +1,16 @@
-import { execute } from "./client";
+import { execute } from "./execute";
 import { create } from "./create";
 import * as parser from "./parse";
-import { getMeshOptions, getBuiltGraphClient, getPrefixForDomain, getDomainFromPrefix } from "./shared";
+import { getSubgraphNames, executeXQuery } from "./graphclient";
+import { getPrefixForDomain, getDomainFromPrefix } from "./prefix";
 
 export const getHelpers = () => {
   return {
     execute,
     create,
     parser,
-    getMeshOptions,
-    getBuiltGraphClient,
+    getSubgraphNames,
+    executeXQuery,
     getPrefixForDomain,
     getDomainFromPrefix,
   };

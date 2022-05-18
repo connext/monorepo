@@ -1,4 +1,13 @@
 {
-  "extends": "../../.nycrc.json",
-  "exclude": ["src/index.ts", "test/**/*.ts"]
+  "extends": "../../../.nycrc.json",
+  "exclude": [
+    "src/index.ts",
+    "test/**/*.ts",
+    ".graphclient",
+    "script",
+    "src/lib/entities",
+    "src/lib/errors",
+    "src/lib/operations",
+    "src/lib/helpers/graphclient.ts"
+  ]
 }

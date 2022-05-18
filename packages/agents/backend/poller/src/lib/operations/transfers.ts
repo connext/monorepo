@@ -50,7 +50,7 @@ export const updateTransfers = async () => {
 
   if (subgraphQueryMetaParams.size > 0) {
     // Get origin transfers for all domains in the mapping.
-    const transfers = await subgraph.getOriginTransfersForAll(subgraphQueryMetaParams);
+    const transfers = await subgraph.getOriginTransfers(subgraphQueryMetaParams);
     logger.info("Retrieved origin transfers", requestContext, methodContext, {
       transfers: transfers.map((transfer) => transfer.transferId.slice(0, 8)),
     });

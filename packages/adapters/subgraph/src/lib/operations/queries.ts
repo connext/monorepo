@@ -3,6 +3,7 @@ import { SubgraphQueryMetaParams, XTransferStatus } from "@connext/nxtp-utils";
 
 import { getContext } from "../../reader";
 
+const DEFAULT_PAGE_SIZE = 50;
 export const ORIGIN_TRANSFER_ENTITY = `
       id
       # Meta Data
@@ -206,26 +207,15 @@ const orignTransferQueryString = (
   prefix: string,
   originDomain: string,
   fromNonce: number,
+  page: number,
+  perPage: number,
   destinationDomains: string[],
   maxBlockNumber?: number,
 ) => {
-  return `${prefix}_originTransfers(where: { originDomain: ${originDomain}, nonce_gte: ${fromNonce}, destinationDomain_in: [${destinationDomains}] ${
+  const skipSize = (page - 1) * perPage;
+  return `${prefix}_originTransfers(first: ${perPage}, skip: ${skipSize}, where: { originDomain: ${originDomain}, nonce_gte: ${fromNonce}, destinationDomain_in: [${destinationDomains}] ${
     maxBlockNumber ? `, blockNumber_lte: ${maxBlockNumber}` : ""
   } }, orderBy: blockNumber, orderDirection: desc) {${ORIGIN_TRANSFER_ENTITY}}`;
-};
-
-export const getOriginTransfersQueryByDomain = (
-  prefix: string,
-  originDomain: string,
-  fromNonce: number,
-  destinationDomains: string[],
-): string => {
-  const queryStr = orignTransferQueryString(prefix, originDomain, fromNonce, destinationDomains);
-  return gql`
-    query GetOriginTransfers {
-      ${queryStr}
-    }
-  `;
 };
 
 export const getOriginTransfersQuery = (agents: Map<string, SubgraphQueryMetaParams>): string => {
@@ -240,6 +230,8 @@ export const getOriginTransfersQuery = (agents: Map<string, SubgraphQueryMetaPar
         prefix,
         domain,
         agents.get(domain)!.latestNonce,
+        agents.get(domain)?.page ?? 1,
+        agents.get(domain)?.perPage ?? DEFAULT_PAGE_SIZE,
         domains,
         agents.get(domain)!.maxBlockNumber,
       );
