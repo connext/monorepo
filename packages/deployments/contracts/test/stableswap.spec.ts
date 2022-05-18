@@ -93,8 +93,8 @@ describe("StableSwap", async () => {
 
     const swapFactory = await ethers.getContractFactory("StableSwap", {
       libraries: {
-        SwapUtils: swapUtils.address,
-        AmplificationUtils: amplificationUtils.address,
+        // SwapUtils: swapUtils.address,
+        // AmplificationUtils: amplificationUtils.address,
       },
     });
     swap = (await swapFactory.deploy()) as StableSwap;

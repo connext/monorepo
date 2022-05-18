@@ -79,15 +79,6 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment): Promise<voi
     (await hre.deployments.getOrNull(getDeploymentName("TokenRegistry")))!.abi,
   ).connect(deployer);
 
-  // Deploy Connext logic libraries
-  console.log("Deploying libraries...");
-
-  const assetLogicDeployment = await hre.deployments.deploy(getDeploymentName("AssetLogic"), {
-    from: deployer.address,
-    log: true,
-    contract: "AssetLogic",
-  });
-
   const lpTokenDeployment = await hre.deployments.deploy("LPToken", {
     from: deployer.address,
     log: true,
@@ -103,20 +94,6 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment): Promise<voi
       "NxtpStableLPToken",
     );
   }
-
-  const amplificationUtilsDeployment = await deployments.deploy(getDeploymentName("AmplificationUtils"), {
-    from: deployer.address,
-    log: true,
-    skipIfAlreadyDeployed: true,
-    contract: "AmplificationUtils",
-  });
-
-  const swapUtilsDeployment = await deployments.deploy(getDeploymentName("SwapUtils"), {
-    from: deployer.address,
-    log: true,
-    skipIfAlreadyDeployed: true,
-    contract: "SwapUtils",
-  });
 
   // Deploy connext diamond contract
   console.log("Deploying connext diamond...");
@@ -134,13 +111,11 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment): Promise<voi
         name: getDeploymentName("RoutersFacet"),
         contract: "RoutersFacet",
         args: [],
-        libraries: { AssetLogic: assetLogicDeployment.address },
       },
       {
         name: getDeploymentName("StableSwapFacet"),
         contract: "StableSwapFacet",
         args: [],
-        libraries: { SwapUtils: swapUtilsDeployment.address, AmplificationUtils: amplificationUtilsDeployment.address },
       },
     ],
     execute: {

@@ -174,12 +174,6 @@ describe("Connext", () => {
       destinationXappConnectionManager.address,
     ]);
 
-    // Deploy Libraries
-    const amplificationUtils = await deployContract<AmplificationUtils>(
-      "contracts/libraries/AmplificationUtils.sol:AmplificationUtils",
-    );
-    const swapUtils = await deployContract<SwapUtils>("contracts/libraries/SwapUtils.sol:SwapUtils");
-
     // Deploy facets
     const diamondCutFacet = await deployContract<DiamondCutFacet>("DiamondCutFacet");
     const diamondLoupeFacet = await deployContract<DiamondLoupeFacet>("DiamondLoupeFacet");
@@ -191,10 +185,7 @@ describe("Connext", () => {
     const nomadFacet = await deployContract<NomadFacet>("NomadFacet");
     const proposedOwnableFacet = await deployContract<ProposedOwnableFacet>("ProposedOwnableFacet");
     const relayerFacet = await deployContract<RelayerFacet>("RelayerFacet");
-    const stableSwapFacet = await deployContractWithLibs<StableSwapFacet>("StableSwapFacet", {
-      AmplificationUtils: amplificationUtils.address,
-      SwapUtils: swapUtils.address,
-    });
+    const stableSwapFacet = await deployContract<StableSwapFacet>("StableSwapFacet");
 
     const diamondInit = await deployContract<DiamondInit>("DiamondInit");
 

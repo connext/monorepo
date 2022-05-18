@@ -23,7 +23,7 @@ library AssetLogic {
    * @notice Check if the stabelswap pool exists or not
    * @param canonicalId the canonical token id
    */
-  function stableSwapPoolExist(bytes32 canonicalId) public view returns (bool) {
+  function stableSwapPoolExist(bytes32 canonicalId) internal view returns (bool) {
     AppStorage storage s = LibConnextStorage.connextStorage();
     return s.swapStorages[canonicalId].pooledTokens.length != 0;
   }
@@ -35,7 +35,7 @@ library AssetLogic {
    * @param tokenAddress address of the token
    * @return the index of the given token address
    */
-  function getTokenIndexFromStableSwapPool(bytes32 canonicalId, address tokenAddress) public view returns (uint8) {
+  function getTokenIndexFromStableSwapPool(bytes32 canonicalId, address tokenAddress) internal view returns (uint8) {
     AppStorage storage s = LibConnextStorage.connextStorage();
     uint8 index = s.tokenIndexes[canonicalId][tokenAddress];
     if (address(s.swapStorages[canonicalId].pooledTokens[index]) != tokenAddress)
