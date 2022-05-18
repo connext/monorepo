@@ -5,16 +5,16 @@ import {ECDSA} from "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
 import {IStableSwap} from "../../contracts/interfaces/IStableSwap.sol";
-import {ConnextMessage} from "../../contracts/libraries/ConnextMessage.sol";
 import {ITokenRegistry} from "../../contracts/nomad-xapps/interfaces/bridge/ITokenRegistry.sol";
+import {ConnextMessage} from "../../contracts/libraries/ConnextMessage.sol";
+import {CallParams, ExecuteArgs} from "../../contracts/libraries/LibConnextStorage.sol";
 import {BridgeFacet} from "../../contracts/facets/BridgeFacet.sol";
 import {TestERC20} from "../../contracts/test/TestERC20.sol";
-import {CallParams, ExecuteArgs} from "../../contracts/libraries/LibConnextStorage.sol";
 
 import "../../lib/forge-std/src/console.sol";
-import "../ForgeHelper.sol";
+import "./FacetHelper.sol";
 
-contract BridgeFacetTest is ForgeHelper, BridgeFacet {
+contract BridgeFacetTest is BridgeFacet, FacetHelper {
   // ============ storage ============
   // local asset for this domain
   address _local;
@@ -33,7 +33,6 @@ contract BridgeFacetTest is ForgeHelper, BridgeFacet {
   uint32 _destinationDomain = 2000;
 
   // canonical token details
-  address _tokenRegistry = address(6);
   address _canonical = address(5);
   bytes32 _canonicalTokenId = bytes32(abi.encodePacked(_canonical));
   uint32 _canonicalDomain = _originDomain;
@@ -64,8 +63,10 @@ contract BridgeFacetTest is ForgeHelper, BridgeFacet {
   function setUp() public {
     // deploy any needed contracts
     deployContracts();
-    // setup token registry + mock getTokenId call
-    s.tokenRegistry = ITokenRegistry(_tokenRegistry);
+
+    // set defaults
+    setDefaults();
+
     vm.mockCall(
       _tokenRegistry,
       abi.encodeWithSelector(ITokenRegistry.getTokenId.selector),
@@ -100,37 +101,14 @@ contract BridgeFacetTest is ForgeHelper, BridgeFacet {
     }
     bytes32 toSign = ECDSA.toEthSignedMessageHash(keccak256(abi.encode(_transferId, pathLen)));
     for (uint256 i; i < pathLen; i++) {
-      (uint8 v, bytes32 r, bytes32 s) = vm.sign(_keys[i], toSign);
-      signatures[i] = abi.encodePacked(r, s, v);
+      (uint8 v, bytes32 r, bytes32 _s) = vm.sign(_keys[i], toSign);
+      signatures[i] = abi.encodePacked(r, _s, v);
     }
     return signatures;
   }
 
-  function getTransferId() public returns (bytes32) {
-    // console.log("expecting:");
-    // console.log("- nonce", _nonce);
-    // console.log("- _params.to", _params.to);
-    // console.log("- _params.originDomain", _params.originDomain);
-    // console.log("- _params.destinationDomain", _params.destinationDomain);
-    // console.log("- _params.callback", _params.callback);
-    // console.log("- _params.callbackFee", _params.callbackFee);
-    // console.log("- _params.forceSlow", _params.forceSlow);
-    // console.log("- _params.receiveLocal", _params.receiveLocal);
-    // console.log("- _params.callData");
-    // console.logBytes(_params.callData);
-    // console.log("- originSender", _originSender);
-    // console.log("- tokenId");
-    // console.logBytes32(_canonicalTokenId);
-    // console.log("- tokenDomain", _canonicalDomain);
-    // console.log("- amount", _amount);
-    // console.log("- encoded");
-    // console.logBytes(abi.encode(_nonce, _params, _originSender, _canonicalTokenId, _canonicalDomain, _amount));
-    bytes32 transferId = keccak256(
-      abi.encode(_nonce, _params, _originSender, _canonicalTokenId, _canonicalDomain, _amount)
-    );
-    // console.log("- transferId");
-    // console.logBytes32(transferId);
-    return transferId;
+  function calculateTransferId() public returns (bytes32) {
+    return keccak256(abi.encode(_nonce, _params, _originSender, _canonicalTokenId, _canonicalDomain, _amount));
   }
 
   function _getExecuteArgs(address[] memory routers, uint256[] memory keys)
@@ -144,10 +122,10 @@ contract BridgeFacetTest is ForgeHelper, BridgeFacet {
       keys[0] = _router0Key;
     }
     // generate transfer id
-    bytes32 transferId = getTransferId();
+    bytes32 _id = calculateTransferId();
     // generate router signatures
-    bytes[] memory sigs = getRouterSignatures(transferId, routers, keys);
-    return (transferId, ExecuteArgs(_params, _local, routers, sigs, _relayerFee, _amount, _nonce, _originSender));
+    bytes[] memory sigs = getRouterSignatures(_id, routers, keys);
+    return (_id, ExecuteArgs(_params, _local, routers, sigs, _relayerFee, _amount, _nonce, _originSender));
   }
 
   function getExecuteArgs(address[] memory routers, uint256[] memory keys)
@@ -211,33 +189,15 @@ contract BridgeFacetTest is ForgeHelper, BridgeFacet {
     _params.forceSlow = true;
 
     // get args
-    (bytes32 transferId, ExecuteArgs memory _args) = getExecuteArgs();
+    (bytes32 _id, ExecuteArgs memory _args) = getExecuteArgs();
+    _args.routers = new address[](0);
+    _args.routerSignatures = new bytes[](0);
     console.log("expecting:");
-    // console.log("- local", _args.local);
-    // console.log("- nonce", _args.nonce);
-    // console.log("- _params.to", _args.params.to);
-    // console.log("- _params.originDomain", _args.params.originDomain);
-    // console.log("- _params.destinationDomain", _args.params.destinationDomain);
-    // console.log("- _params.callback", _args.params.callback);
-    // console.log("- _params.callbackFee", _args.params.callbackFee);
-    // console.log("- _params.forceSlow", _args.params.forceSlow);
-    // console.log("- _params.receiveLocal", _args.params.receiveLocal);
-    // console.log("- _params.callData");
-    // console.logBytes(_args.params.callData);
-    // console.log("- originSender", _args.originSender);
-    // console.log("- tokenId");
-    // console.logBytes32(_canonicalTokenId);
-    // console.log("- tokenDomain", _canonicalDomain);
-    // console.log("- amount", _args.amount);
-    // console.log("- encoded");
-    // console.logBytes(
-    //   abi.encode(_args.nonce, _args.params, _args.originSender, _canonicalTokenId, _canonicalDomain, _args.amount)
-    // );
-    console.log("- transferId");
-    console.logBytes32(transferId);
+    console.log("- transferId:");
+    console.logBytes32(_id);
 
     // set reconciled context
-    s.reconciledTransfers[transferId] = true;
+    s.reconciledTransfers[_id] = true;
 
     // get pre-execute liquidity
     uint256 pathLen = _args.routers.length;
@@ -254,7 +214,7 @@ contract BridgeFacetTest is ForgeHelper, BridgeFacet {
 
     // execute
     vm.expectEmit(true, true, false, true);
-    emit Executed(transferId, _params.to, _args, _local, _amount, address(this));
+    emit Executed(_id, _args.params.to, _args, _args.local, _args.amount, address(this));
     this.execute(_args);
 
     // should not change router balances
@@ -269,7 +229,7 @@ contract BridgeFacetTest is ForgeHelper, BridgeFacet {
     assertEq(IERC20(_local).balanceOf(address(this)), prevBalance - _amount);
 
     // should mark the transfer as executed
-    assertEq(s.transferRelayer[transferId], address(this));
+    assertEq(s.transferRelayer[_id], address(this));
   }
 
   // should use the local asset if specified (receiveLocal = true)
