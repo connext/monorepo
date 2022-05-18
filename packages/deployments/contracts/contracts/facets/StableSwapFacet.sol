@@ -242,9 +242,13 @@ contract StableSwapFacet is BaseConnextFacet {
     uint256 minAmountOut,
     uint256 deadline
   ) external payable nonReentrant deadlineCheck(deadline) returns (uint256) {
-    uint8 tokenIndexFrom = getTokenIndex(canonicalId, assetIn);
-    uint8 tokenIndexTo = getTokenIndex(canonicalId, assetOut);
-    return s.swapStorages[canonicalId].swap(tokenIndexFrom, tokenIndexTo, amountIn, minAmountOut);
+    return
+      s.swapStorages[canonicalId].swap(
+        getTokenIndex(canonicalId, assetIn),
+        getTokenIndex(canonicalId, assetOut),
+        amountIn,
+        minAmountOut
+      );
   }
 
   /**

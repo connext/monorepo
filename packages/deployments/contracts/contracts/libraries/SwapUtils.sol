@@ -94,27 +94,27 @@ library SwapUtils {
   }
 
   // the precision all pools tokens will be converted to
-  uint8 public constant POOL_PRECISION_DECIMALS = 18;
+  uint8 internal constant POOL_PRECISION_DECIMALS = 18;
 
   // the denominator used to calculate admin and LP fees. For example, an
   // LP fee might be something like tradeAmount.mul(fee).div(FEE_DENOMINATOR)
-  uint256 private constant FEE_DENOMINATOR = 10**10;
+  uint256 internal constant FEE_DENOMINATOR = 10**10;
 
   // Max swap fee is 1% or 100bps of each swap
-  uint256 public constant MAX_SWAP_FEE = 10**8;
+  uint256 internal constant MAX_SWAP_FEE = 10**8;
 
   // Max adminFee is 100% of the swapFee
   // adminFee does not add additional fee on top of swapFee
   // Instead it takes a certain % of the swapFee. Therefore it has no impact on the
   // users but only on the earnings of LPs
-  uint256 public constant MAX_ADMIN_FEE = 10**10;
+  uint256 internal constant MAX_ADMIN_FEE = 10**10;
 
   // Constant value used as max loop limit
-  uint256 private constant MAX_LOOP_LIMIT = 256;
+  uint256 internal constant MAX_LOOP_LIMIT = 256;
 
   /*** VIEW & PURE FUNCTIONS ***/
 
-  function _getAPrecise(Swap storage self) internal view returns (uint256) {
+  function _getAPrecise(Swap storage self) private view returns (uint256) {
     return AmplificationUtils._getAPrecise(self);
   }
 
@@ -130,7 +130,7 @@ library SwapUtils {
     Swap storage self,
     uint256 tokenAmount,
     uint8 tokenIndex
-  ) external view returns (uint256) {
+  ) internal view returns (uint256) {
     (uint256 availableTokenAmount, ) = _calculateWithdrawOneToken(
       self,
       tokenAmount,
@@ -145,7 +145,7 @@ library SwapUtils {
     uint256 tokenAmount,
     uint8 tokenIndex,
     uint256 totalSupply
-  ) internal view returns (uint256, uint256) {
+  ) private view returns (uint256, uint256) {
     uint256 dy;
     uint256 newY;
     uint256 currentY;
@@ -359,7 +359,7 @@ library SwapUtils {
    * @param self Swap struct to read from
    * @return the virtual price, scaled to precision of POOL_PRECISION_DECIMALS
    */
-  function getVirtualPrice(Swap storage self) external view returns (uint256) {
+  function getVirtualPrice(Swap storage self) internal view returns (uint256) {
     uint256 d = getD(_xp(self), _getAPrecise(self));
     LPToken lpToken = self.lpToken;
     uint256 supply = lpToken.totalSupply();
@@ -443,7 +443,7 @@ library SwapUtils {
     uint8 tokenIndexFrom,
     uint8 tokenIndexTo,
     uint256 dx
-  ) external view returns (uint256 dy) {
+  ) internal view returns (uint256 dy) {
     (dy, ) = _calculateSwap(self, tokenIndexFrom, tokenIndexTo, dx, self.balances);
   }
 
@@ -487,7 +487,7 @@ library SwapUtils {
    * withdrawal
    * @return array of amounts of tokens user will receive
    */
-  function calculateRemoveLiquidity(Swap storage self, uint256 amount) external view returns (uint256[] memory) {
+  function calculateRemoveLiquidity(Swap storage self, uint256 amount) internal view returns (uint256[] memory) {
     return _calculateRemoveLiquidity(self.balances, amount, self.lpToken.totalSupply());
   }
 
@@ -527,7 +527,7 @@ library SwapUtils {
     Swap storage self,
     uint256[] calldata amounts,
     bool deposit
-  ) external view returns (uint256) {
+  ) internal view returns (uint256) {
     uint256 a = _getAPrecise(self);
     uint256[] memory balances = self.balances;
     uint256[] memory multipliers = self.tokenPrecisionMultipliers;
@@ -556,7 +556,7 @@ library SwapUtils {
    * @param index Index of the pooled token
    * @return admin balance in the token's precision
    */
-  function getAdminBalance(Swap storage self, uint256 index) external view returns (uint256) {
+  function getAdminBalance(Swap storage self, uint256 index) internal view returns (uint256) {
     require(index < self.pooledTokens.length, "Token index out of range");
     return self.pooledTokens[index].balanceOf(address(this)).sub(self.balances[index]);
   }
@@ -588,7 +588,7 @@ library SwapUtils {
     uint8 tokenIndexTo,
     uint256 dx,
     uint256 minDy
-  ) external returns (uint256) {
+  ) internal returns (uint256) {
     {
       IERC20 tokenFrom = self.pooledTokens[tokenIndexFrom];
       require(dx <= tokenFrom.balanceOf(msg.sender), "Cannot swap more than you own");
@@ -670,7 +670,7 @@ library SwapUtils {
     Swap storage self,
     uint256[] memory amounts,
     uint256 minToMint
-  ) external returns (uint256) {
+  ) internal returns (uint256) {
     IERC20[] memory pooledTokens = self.pooledTokens;
     require(amounts.length == pooledTokens.length, "Amounts must match pooled tokens");
 
@@ -760,7 +760,7 @@ library SwapUtils {
     Swap storage self,
     uint256 amount,
     uint256[] calldata minAmounts
-  ) external returns (uint256[] memory) {
+  ) internal returns (uint256[] memory) {
     LPToken lpToken = self.lpToken;
     IERC20[] memory pooledTokens = self.pooledTokens;
     require(amount <= lpToken.balanceOf(msg.sender), ">LP.balanceOf");
@@ -797,7 +797,7 @@ library SwapUtils {
     uint256 tokenAmount,
     uint8 tokenIndex,
     uint256 minAmount
-  ) external returns (uint256) {
+  ) internal returns (uint256) {
     LPToken lpToken = self.lpToken;
     IERC20[] memory pooledTokens = self.pooledTokens;
 
@@ -833,7 +833,7 @@ library SwapUtils {
     Swap storage self,
     uint256[] memory amounts,
     uint256 maxBurnAmount
-  ) public returns (uint256) {
+  ) internal returns (uint256) {
     ManageLiquidityInfo memory v = ManageLiquidityInfo(
       0,
       0,
@@ -894,7 +894,7 @@ library SwapUtils {
    * @param self Swap struct to withdraw fees from
    * @param to Address to send the fees to
    */
-  function withdrawAdminFees(Swap storage self, address to) external {
+  function withdrawAdminFees(Swap storage self, address to) internal {
     IERC20[] memory pooledTokens = self.pooledTokens;
     for (uint256 i = 0; i < pooledTokens.length; i++) {
       IERC20 token = pooledTokens[i];
@@ -911,7 +911,7 @@ library SwapUtils {
    * @param self Swap struct to update
    * @param newAdminFee new admin fee to be applied on future transactions
    */
-  function setAdminFee(Swap storage self, uint256 newAdminFee) external {
+  function setAdminFee(Swap storage self, uint256 newAdminFee) internal {
     require(newAdminFee <= MAX_ADMIN_FEE, "Fee is too high");
     self.adminFee = newAdminFee;
 
@@ -924,7 +924,7 @@ library SwapUtils {
    * @param self Swap struct to update
    * @param newSwapFee new swap fee to be applied on future transactions
    */
-  function setSwapFee(Swap storage self, uint256 newSwapFee) external {
+  function setSwapFee(Swap storage self, uint256 newSwapFee) internal {
     require(newSwapFee <= MAX_SWAP_FEE, "Fee is too high");
     self.swapFee = newSwapFee;
 
