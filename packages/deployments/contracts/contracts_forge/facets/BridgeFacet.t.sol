@@ -111,21 +111,25 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
     return keccak256(abi.encode(_nonce, _params, _originSender, _canonicalTokenId, _canonicalDomain, _amount));
   }
 
-  function _getExecuteArgs(address[] memory routers, uint256[] memory keys)
-    public
-    returns (bytes32, ExecuteArgs memory)
-  {
-    if (routers.length == 0) {
+  function _getExecuteArgs(
+    address[] memory routers,
+    uint256[] memory keys,
+    bool fill
+  ) public returns (bytes32, ExecuteArgs memory) {
+    if (routers.length == 0 && fill) {
       routers = new address[](1);
       keys = new uint256[](1);
       routers[0] = _router0;
       keys[0] = _router0Key;
     }
+    // get args
+    bytes[] memory empty = new bytes[](0);
+    ExecuteArgs memory args = ExecuteArgs(_params, _local, routers, empty, _relayerFee, _amount, _nonce, _originSender);
     // generate transfer id
-    bytes32 _id = calculateTransferId();
+    bytes32 _id = getTransferIdFromExecuteArgs(args);
     // generate router signatures
-    bytes[] memory sigs = getRouterSignatures(_id, routers, keys);
-    return (_id, ExecuteArgs(_params, _local, routers, sigs, _relayerFee, _amount, _nonce, _originSender));
+    args.routerSignatures = getRouterSignatures(_id, routers, keys);
+    return (_id, args);
   }
 
   // Meant to mimic the getTransferId in the contract.
@@ -137,26 +141,22 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
   }
 
   function getExecuteArgsNoRouters() public returns (bytes32, ExecuteArgs memory) {
-    // form execute args
-    bytes[] memory sigs = new bytes[](0);
     address[] memory routers = new address[](0);
-    ExecuteArgs memory args = ExecuteArgs(_params, _local, routers, sigs, _relayerFee, _amount, _nonce, _originSender);
-    // generate transfer id from execute args
-    bytes32 transferId = getTransferIdFromExecuteArgs(args);
-    return (transferId, args);
+    uint256[] memory keys = new uint256[](0);
+    return _getExecuteArgs(routers, keys, false);
   }
 
   function getExecuteArgs(address[] memory routers, uint256[] memory keys)
     public
     returns (bytes32, ExecuteArgs memory)
   {
-    return _getExecuteArgs(routers, keys);
+    return _getExecuteArgs(routers, keys, false);
   }
 
   function getExecuteArgs() public returns (bytes32, ExecuteArgs memory) {
     address[] memory routers;
     uint256[] memory keys;
-    return _getExecuteArgs(routers, keys);
+    return _getExecuteArgs(routers, keys, true);
   }
 
   // ============ execute ============
@@ -214,10 +214,7 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
 
     // get pre-execute liquidity
     uint256 pathLen = _args.routers.length;
-    uint256[] memory prevLiquidity = new uint256[](pathLen);
-    for (uint256 i; i < pathLen; i++) {
-      prevLiquidity[i] = s.routerBalances[_args.routers[i]][_args.local];
-    }
+    assertEq(pathLen, 0);
 
     // get pre-execute to balance
     uint256 prevBalanceTo = IERC20(_local).balanceOf(_params.to);
@@ -230,11 +227,6 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
     emit Executed(_id, _args.params.to, _args, _args.local, _args.amount, address(this));
     this.execute(_args);
 
-    // should not change router balances
-    for (uint256 i; i < pathLen; i++) {
-      assertEq(prevLiquidity[i], s.routerBalances[_args.routers[i]][_args.local]);
-    }
-
     // should increment balance of `to` in `adopted`
     assertEq(IERC20(_local).balanceOf(_params.to), prevBalanceTo + _amount);
 
@@ -246,6 +238,7 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
   }
 
   // should use the local asset if specified (receiveLocal = true)
+  function test_BridgeFacet__execute_receiveLocalWorks() public {}
 
   // should work without calldata
 
