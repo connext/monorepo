@@ -77,6 +77,10 @@ export const mock: any = {
       callData: "0x",
       originDomain: mock.domain.A,
       destinationDomain: mock.domain.B,
+      callback: mkAddress("0xbbbb"),
+      callbackFee: "0",
+      forceSlow: false,
+      receiveLocal: false,
       ...overrides,
     }),
     executeArgs: (overrides: Partial<ExecuteArgs> = {}): ExecuteArgs => ({
@@ -111,62 +115,140 @@ export const mock: any = {
       ...overrides,
     }),
     xtransfer: (
-      originDomain: string = mock.domain.A,
-      destinationDomain: string = mock.domain.B,
-      amount = "1000",
-      status: XTransferStatus = XTransferStatus.XCalled,
-      asset: string = mock.asset.A.address,
-      transferId: string = getRandomBytes32(),
-      nonce = 1234,
-      user: string = mkAddress("0xfaded"),
+      overrides: {
+        originDomain?: string;
+        destinationDomain?: string;
+        originChain?: string;
+        destinationChain?: string;
+        amount?: string;
+        status?: XTransferStatus;
+        asset?: string;
+        transferId?: string;
+        nonce?: number;
+        user?: string;
+        relayerFee?: string;
+        routers?: string[];
+      } = {},
     ): XTransfer => {
-      return Object.assign({
+      const originDomain: string = overrides.originDomain ?? mock.domain.A;
+      const destinationDomain: string = overrides.destinationDomain ?? mock.domain.B;
+      const originChain: string = overrides.originChain ?? mock.chain.A;
+      const destinationChain: string = overrides.destinationChain ?? mock.chain.B;
+      const amount = overrides.amount ?? "1000";
+      const status: XTransferStatus | undefined = overrides.status;
+      const asset: string = overrides.asset ?? mock.asset.A.address;
+      const transferId: string = overrides.transferId ?? getRandomBytes32();
+      const nonce = overrides.nonce ?? 1234;
+      const user: string = overrides.user ?? mkAddress("0xfaded");
+      const relayerFee = overrides.relayerFee ?? "12345";
+      const routers = overrides.routers ?? [mock.address.router];
+
+      const shouldHaveOriginDefined = !!relayerFee;
+      const shouldHaveDestinationDefined = !!status;
+      const isReconciledOnly = !shouldHaveOriginDefined && status === XTransferStatus.Reconciled;
+
+      return {
         // Meta
-        originDomain: originDomain,
-        destinationDomain: destinationDomain,
-        status,
-
-        // Transfer Data
-        to: user,
-        transferId,
-        callTo: constants.AddressZero,
-        callData: "0x0",
         idx: "0",
-        nonce,
-        router: mock.address.router,
-        relayerFee: "12345",
+        transferId,
+        nonce: !isReconciledOnly ? nonce : undefined,
+        destinationDomain,
+        originDomain,
 
-        // XCalled
-        xcall: {
-          caller: user,
-          transferringAmount: amount,
-          localAmount: amount,
-          transferringAsset: asset,
-          localAsset: asset,
-          transactionHash: getRandomBytes32(),
-          timestamp: Math.floor(Date.now() / 1000 - 60),
-          gasPrice: utils.parseUnits("5", "gwei").toString(),
-          gasLimit: "80000",
-          blockNumber: 7654321,
-        },
+        // Call Params
+        xparams: !isReconciledOnly
+          ? {
+              to: user,
+              callData: "0x",
+              callback: mkAddress("0x"),
+              callbackFee: "0",
+              forceSlow: false,
+              receiveLocal: false,
+            }
+          : undefined,
 
-        // If status is executed, we should have executed fields defined (but leave reconciled fields empty).
-        execute:
-          status === XTransferStatus.Executed
-            ? {
-                caller: mock.address.relayer,
-                transferringAmount: amount,
-                localAmount: amount,
-                transferringAsset: asset,
-                localAsset: asset,
+        origin: shouldHaveOriginDefined
+          ? {
+              chain: originChain,
+
+              // Assets
+              assets: {
+                transacting: {
+                  asset,
+                  amount,
+                },
+                bridged: {
+                  asset,
+                  amount,
+                },
+              },
+
+              // XCalled
+              xcall: {
+                // Event Data
+                relayerFee,
+                caller: user,
                 transactionHash: getRandomBytes32(),
-                timestamp: Math.floor(Date.now() / 1000 - 30),
+                timestamp: Math.floor(Date.now() / 1000 - 60),
                 gasPrice: utils.parseUnits("5", "gwei").toString(),
                 gasLimit: "80000",
-                blockNumber: 5651345,
-              }
-            : undefined,
-      });
+                blockNumber: 7654321,
+              },
+            }
+          : undefined,
+
+        destination: shouldHaveDestinationDefined
+          ? {
+              chain: destinationChain,
+
+              // Event Data
+              status,
+              routers,
+
+              // Assets
+              assets: {
+                // Transfer must have been Executed in order to have this defined.
+                transacting:
+                  status !== XTransferStatus.Reconciled
+                    ? {
+                        asset,
+                        amount,
+                      }
+                    : undefined,
+                local: {
+                  asset,
+                  amount,
+                },
+              },
+
+              // If status is executed, we should have executed fields defined (but leave reconciled fields empty).
+              execute:
+                status === XTransferStatus.Executed || status === XTransferStatus.Completed
+                  ? {
+                      originSender: user,
+                      caller: mock.address.relayer,
+                      transactionHash: getRandomBytes32(),
+                      timestamp: Math.floor(Date.now() / 1000 - 30),
+                      gasPrice: utils.parseUnits("5", "gwei").toString(),
+                      gasLimit: "80000",
+                      blockNumber: 5651345,
+                    }
+                  : undefined,
+
+              reconcile:
+                status === XTransferStatus.Reconciled || status === XTransferStatus.Completed
+                  ? {
+                      caller: mock.address.relayer,
+                      transactionHash: getRandomBytes32(),
+                      timestamp: Math.floor(Date.now() / 1000),
+                      gasPrice: utils.parseUnits("5", "gwei").toString(),
+                      gasLimit: "100000",
+                      blockNumber: 5651390,
+                    }
+                  : undefined,
+            }
+          : undefined,
+      };
     },
   },
   ethers: {

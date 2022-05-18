@@ -9,5 +9,8 @@
   },
   "[terraform]": {
     "editor.defaultFormatter": "hashicorp.terraform"
+  },
+  "[sql]": {
+    "editor.defaultFormatter": "mtxr.sqltools"
   }
 }

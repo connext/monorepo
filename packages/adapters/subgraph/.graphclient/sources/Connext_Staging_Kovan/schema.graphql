@@ -1,0 +1,1027 @@
+schema {
+  query: Query
+  subscription: Subscription
+}
+
+"Marks the GraphQL type as indexable entity.  Each type that should be an entity is required to be annotated with this directive."
+directive @entity on OBJECT
+
+"Defined a Subgraph ID for an object type"
+directive @subgraphId(id: String!) on OBJECT
+
+"creates a virtual field on the entity that may be queried but cannot be set manually through the mappings API."
+directive @derivedFrom(field: String!) on FIELD_DEFINITION
+
+type stagingkovan_Asset {
+  id: ID!
+  local: stagingkovan_Bytes!
+  adoptedAsset: stagingkovan_Bytes!
+  canonicalId: stagingkovan_Bytes!
+  canonicalDomain: BigInt!
+  blockNumber: BigInt!
+}
+
+type stagingkovan_AssetBalance {
+  id: ID!
+  amount: BigInt!
+  router: stagingkovan_Router!
+  asset: stagingkovan_Asset!
+}
+
+input stagingkovan_AssetBalance_filter {
+  id: ID
+  id_not: ID
+  id_gt: ID
+  id_lt: ID
+  id_gte: ID
+  id_lte: ID
+  id_in: [ID!]
+  id_not_in: [ID!]
+  amount: BigInt
+  amount_not: BigInt
+  amount_gt: BigInt
+  amount_lt: BigInt
+  amount_gte: BigInt
+  amount_lte: BigInt
+  amount_in: [BigInt!]
+  amount_not_in: [BigInt!]
+  router: String
+  router_not: String
+  router_gt: String
+  router_lt: String
+  router_gte: String
+  router_lte: String
+  router_in: [String!]
+  router_not_in: [String!]
+  router_contains: String
+  router_contains_nocase: String
+  router_not_contains: String
+  router_not_contains_nocase: String
+  router_starts_with: String
+  router_starts_with_nocase: String
+  router_not_starts_with: String
+  router_not_starts_with_nocase: String
+  router_ends_with: String
+  router_ends_with_nocase: String
+  router_not_ends_with: String
+  router_not_ends_with_nocase: String
+  asset: String
+  asset_not: String
+  asset_gt: String
+  asset_lt: String
+  asset_gte: String
+  asset_lte: String
+  asset_in: [String!]
+  asset_not_in: [String!]
+  asset_contains: String
+  asset_contains_nocase: String
+  asset_not_contains: String
+  asset_not_contains_nocase: String
+  asset_starts_with: String
+  asset_starts_with_nocase: String
+  asset_not_starts_with: String
+  asset_not_starts_with_nocase: String
+  asset_ends_with: String
+  asset_ends_with_nocase: String
+  asset_not_ends_with: String
+  asset_not_ends_with_nocase: String
+  """Filter for the block changed event."""
+  _change_block: stagingkovan_BlockChangedFilter
+}
+
+enum stagingkovan_AssetBalance_orderBy {
+  id
+  amount
+  router
+  asset
+}
+
+input stagingkovan_Asset_filter {
+  id: ID
+  id_not: ID
+  id_gt: ID
+  id_lt: ID
+  id_gte: ID
+  id_lte: ID
+  id_in: [ID!]
+  id_not_in: [ID!]
+  local: stagingkovan_Bytes
+  local_not: stagingkovan_Bytes
+  local_in: [stagingkovan_Bytes!]
+  local_not_in: [stagingkovan_Bytes!]
+  local_contains: stagingkovan_Bytes
+  local_not_contains: stagingkovan_Bytes
+  adoptedAsset: stagingkovan_Bytes
+  adoptedAsset_not: stagingkovan_Bytes
+  adoptedAsset_in: [stagingkovan_Bytes!]
+  adoptedAsset_not_in: [stagingkovan_Bytes!]
+  adoptedAsset_contains: stagingkovan_Bytes
+  adoptedAsset_not_contains: stagingkovan_Bytes
+  canonicalId: stagingkovan_Bytes
+  canonicalId_not: stagingkovan_Bytes
+  canonicalId_in: [stagingkovan_Bytes!]
+  canonicalId_not_in: [stagingkovan_Bytes!]
+  canonicalId_contains: stagingkovan_Bytes
+  canonicalId_not_contains: stagingkovan_Bytes
+  canonicalDomain: BigInt
+  canonicalDomain_not: BigInt
+  canonicalDomain_gt: BigInt
+  canonicalDomain_lt: BigInt
+  canonicalDomain_gte: BigInt
+  canonicalDomain_lte: BigInt
+  canonicalDomain_in: [BigInt!]
+  canonicalDomain_not_in: [BigInt!]
+  blockNumber: BigInt
+  blockNumber_not: BigInt
+  blockNumber_gt: BigInt
+  blockNumber_lt: BigInt
+  blockNumber_gte: BigInt
+  blockNumber_lte: BigInt
+  blockNumber_in: [BigInt!]
+  blockNumber_not_in: [BigInt!]
+  """Filter for the block changed event."""
+  _change_block: stagingkovan_BlockChangedFilter
+}
+
+enum stagingkovan_Asset_orderBy {
+  id
+  local
+  adoptedAsset
+  canonicalId
+  canonicalDomain
+  blockNumber
+}
+
+scalar stagingkovan_BigDecimal
+
+scalar BigInt
+
+input stagingkovan_BlockChangedFilter {
+  number_gte: Int!
+}
+
+input stagingkovan_Block_height {
+  hash: stagingkovan_Bytes
+  number: Int
+  number_gte: Int
+}
+
+scalar stagingkovan_Bytes
+
+type stagingkovan_DestinationTransfer {
+  id: ID!
+  chainId: BigInt
+  transferId: stagingkovan_Bytes
+  nonce: BigInt
+  to: stagingkovan_Bytes
+  callData: stagingkovan_Bytes
+  originDomain: BigInt
+  destinationDomain: BigInt
+  forceSlow: Boolean
+  receiveLocal: Boolean
+  status: stagingkovan_TransferStatus
+  routers(skip: Int = 0, first: Int = 100, orderBy: stagingkovan_Router_orderBy, orderDirection: stagingkovan_OrderDirection, where: stagingkovan_Router_filter): [stagingkovan_Router!]
+  originSender: stagingkovan_Bytes
+  transactingAsset: stagingkovan_Bytes
+  transactingAmount: BigInt
+  localAsset: stagingkovan_Bytes
+  localAmount: BigInt
+  executedCaller: stagingkovan_Bytes
+  executedTransactionHash: stagingkovan_Bytes
+  executedTimestamp: BigInt
+  executedGasPrice: BigInt
+  executedGasLimit: BigInt
+  executedBlockNumber: BigInt
+  reconciledCaller: stagingkovan_Bytes
+  reconciledTransactionHash: stagingkovan_Bytes
+  reconciledTimestamp: BigInt
+  reconciledGasPrice: BigInt
+  reconciledGasLimit: BigInt
+  reconciledBlockNumber: BigInt
+}
+
+input stagingkovan_DestinationTransfer_filter {
+  id: ID
+  id_not: ID
+  id_gt: ID
+  id_lt: ID
+  id_gte: ID
+  id_lte: ID
+  id_in: [ID!]
+  id_not_in: [ID!]
+  chainId: BigInt
+  chainId_not: BigInt
+  chainId_gt: BigInt
+  chainId_lt: BigInt
+  chainId_gte: BigInt
+  chainId_lte: BigInt
+  chainId_in: [BigInt!]
+  chainId_not_in: [BigInt!]
+  transferId: stagingkovan_Bytes
+  transferId_not: stagingkovan_Bytes
+  transferId_in: [stagingkovan_Bytes!]
+  transferId_not_in: [stagingkovan_Bytes!]
+  transferId_contains: stagingkovan_Bytes
+  transferId_not_contains: stagingkovan_Bytes
+  nonce: BigInt
+  nonce_not: BigInt
+  nonce_gt: BigInt
+  nonce_lt: BigInt
+  nonce_gte: BigInt
+  nonce_lte: BigInt
+  nonce_in: [BigInt!]
+  nonce_not_in: [BigInt!]
+  to: stagingkovan_Bytes
+  to_not: stagingkovan_Bytes
+  to_in: [stagingkovan_Bytes!]
+  to_not_in: [stagingkovan_Bytes!]
+  to_contains: stagingkovan_Bytes
+  to_not_contains: stagingkovan_Bytes
+  callData: stagingkovan_Bytes
+  callData_not: stagingkovan_Bytes
+  callData_in: [stagingkovan_Bytes!]
+  callData_not_in: [stagingkovan_Bytes!]
+  callData_contains: stagingkovan_Bytes
+  callData_not_contains: stagingkovan_Bytes
+  originDomain: BigInt
+  originDomain_not: BigInt
+  originDomain_gt: BigInt
+  originDomain_lt: BigInt
+  originDomain_gte: BigInt
+  originDomain_lte: BigInt
+  originDomain_in: [BigInt!]
+  originDomain_not_in: [BigInt!]
+  destinationDomain: BigInt
+  destinationDomain_not: BigInt
+  destinationDomain_gt: BigInt
+  destinationDomain_lt: BigInt
+  destinationDomain_gte: BigInt
+  destinationDomain_lte: BigInt
+  destinationDomain_in: [BigInt!]
+  destinationDomain_not_in: [BigInt!]
+  forceSlow: Boolean
+  forceSlow_not: Boolean
+  forceSlow_in: [Boolean!]
+  forceSlow_not_in: [Boolean!]
+  receiveLocal: Boolean
+  receiveLocal_not: Boolean
+  receiveLocal_in: [Boolean!]
+  receiveLocal_not_in: [Boolean!]
+  status: stagingkovan_TransferStatus
+  status_not: stagingkovan_TransferStatus
+  status_in: [stagingkovan_TransferStatus!]
+  status_not_in: [stagingkovan_TransferStatus!]
+  routers: [String!]
+  routers_not: [String!]
+  routers_contains: [String!]
+  routers_contains_nocase: [String!]
+  routers_not_contains: [String!]
+  routers_not_contains_nocase: [String!]
+  originSender: stagingkovan_Bytes
+  originSender_not: stagingkovan_Bytes
+  originSender_in: [stagingkovan_Bytes!]
+  originSender_not_in: [stagingkovan_Bytes!]
+  originSender_contains: stagingkovan_Bytes
+  originSender_not_contains: stagingkovan_Bytes
+  transactingAsset: stagingkovan_Bytes
+  transactingAsset_not: stagingkovan_Bytes
+  transactingAsset_in: [stagingkovan_Bytes!]
+  transactingAsset_not_in: [stagingkovan_Bytes!]
+  transactingAsset_contains: stagingkovan_Bytes
+  transactingAsset_not_contains: stagingkovan_Bytes
+  transactingAmount: BigInt
+  transactingAmount_not: BigInt
+  transactingAmount_gt: BigInt
+  transactingAmount_lt: BigInt
+  transactingAmount_gte: BigInt
+  transactingAmount_lte: BigInt
+  transactingAmount_in: [BigInt!]
+  transactingAmount_not_in: [BigInt!]
+  localAsset: stagingkovan_Bytes
+  localAsset_not: stagingkovan_Bytes
+  localAsset_in: [stagingkovan_Bytes!]
+  localAsset_not_in: [stagingkovan_Bytes!]
+  localAsset_contains: stagingkovan_Bytes
+  localAsset_not_contains: stagingkovan_Bytes
+  localAmount: BigInt
+  localAmount_not: BigInt
+  localAmount_gt: BigInt
+  localAmount_lt: BigInt
+  localAmount_gte: BigInt
+  localAmount_lte: BigInt
+  localAmount_in: [BigInt!]
+  localAmount_not_in: [BigInt!]
+  executedCaller: stagingkovan_Bytes
+  executedCaller_not: stagingkovan_Bytes
+  executedCaller_in: [stagingkovan_Bytes!]
+  executedCaller_not_in: [stagingkovan_Bytes!]
+  executedCaller_contains: stagingkovan_Bytes
+  executedCaller_not_contains: stagingkovan_Bytes
+  executedTransactionHash: stagingkovan_Bytes
+  executedTransactionHash_not: stagingkovan_Bytes
+  executedTransactionHash_in: [stagingkovan_Bytes!]
+  executedTransactionHash_not_in: [stagingkovan_Bytes!]
+  executedTransactionHash_contains: stagingkovan_Bytes
+  executedTransactionHash_not_contains: stagingkovan_Bytes
+  executedTimestamp: BigInt
+  executedTimestamp_not: BigInt
+  executedTimestamp_gt: BigInt
+  executedTimestamp_lt: BigInt
+  executedTimestamp_gte: BigInt
+  executedTimestamp_lte: BigInt
+  executedTimestamp_in: [BigInt!]
+  executedTimestamp_not_in: [BigInt!]
+  executedGasPrice: BigInt
+  executedGasPrice_not: BigInt
+  executedGasPrice_gt: BigInt
+  executedGasPrice_lt: BigInt
+  executedGasPrice_gte: BigInt
+  executedGasPrice_lte: BigInt
+  executedGasPrice_in: [BigInt!]
+  executedGasPrice_not_in: [BigInt!]
+  executedGasLimit: BigInt
+  executedGasLimit_not: BigInt
+  executedGasLimit_gt: BigInt
+  executedGasLimit_lt: BigInt
+  executedGasLimit_gte: BigInt
+  executedGasLimit_lte: BigInt
+  executedGasLimit_in: [BigInt!]
+  executedGasLimit_not_in: [BigInt!]
+  executedBlockNumber: BigInt
+  executedBlockNumber_not: BigInt
+  executedBlockNumber_gt: BigInt
+  executedBlockNumber_lt: BigInt
+  executedBlockNumber_gte: BigInt
+  executedBlockNumber_lte: BigInt
+  executedBlockNumber_in: [BigInt!]
+  executedBlockNumber_not_in: [BigInt!]
+  reconciledCaller: stagingkovan_Bytes
+  reconciledCaller_not: stagingkovan_Bytes
+  reconciledCaller_in: [stagingkovan_Bytes!]
+  reconciledCaller_not_in: [stagingkovan_Bytes!]
+  reconciledCaller_contains: stagingkovan_Bytes
+  reconciledCaller_not_contains: stagingkovan_Bytes
+  reconciledTransactionHash: stagingkovan_Bytes
+  reconciledTransactionHash_not: stagingkovan_Bytes
+  reconciledTransactionHash_in: [stagingkovan_Bytes!]
+  reconciledTransactionHash_not_in: [stagingkovan_Bytes!]
+  reconciledTransactionHash_contains: stagingkovan_Bytes
+  reconciledTransactionHash_not_contains: stagingkovan_Bytes
+  reconciledTimestamp: BigInt
+  reconciledTimestamp_not: BigInt
+  reconciledTimestamp_gt: BigInt
+  reconciledTimestamp_lt: BigInt
+  reconciledTimestamp_gte: BigInt
+  reconciledTimestamp_lte: BigInt
+  reconciledTimestamp_in: [BigInt!]
+  reconciledTimestamp_not_in: [BigInt!]
+  reconciledGasPrice: BigInt
+  reconciledGasPrice_not: BigInt
+  reconciledGasPrice_gt: BigInt
+  reconciledGasPrice_lt: BigInt
+  reconciledGasPrice_gte: BigInt
+  reconciledGasPrice_lte: BigInt
+  reconciledGasPrice_in: [BigInt!]
+  reconciledGasPrice_not_in: [BigInt!]
+  reconciledGasLimit: BigInt
+  reconciledGasLimit_not: BigInt
+  reconciledGasLimit_gt: BigInt
+  reconciledGasLimit_lt: BigInt
+  reconciledGasLimit_gte: BigInt
+  reconciledGasLimit_lte: BigInt
+  reconciledGasLimit_in: [BigInt!]
+  reconciledGasLimit_not_in: [BigInt!]
+  reconciledBlockNumber: BigInt
+  reconciledBlockNumber_not: BigInt
+  reconciledBlockNumber_gt: BigInt
+  reconciledBlockNumber_lt: BigInt
+  reconciledBlockNumber_gte: BigInt
+  reconciledBlockNumber_lte: BigInt
+  reconciledBlockNumber_in: [BigInt!]
+  reconciledBlockNumber_not_in: [BigInt!]
+  """Filter for the block changed event."""
+  _change_block: stagingkovan_BlockChangedFilter
+}
+
+enum stagingkovan_DestinationTransfer_orderBy {
+  id
+  chainId
+  transferId
+  nonce
+  to
+  callData
+  originDomain
+  destinationDomain
+  forceSlow
+  receiveLocal
+  status
+  routers
+  originSender
+  transactingAsset
+  transactingAmount
+  localAsset
+  localAmount
+  executedCaller
+  executedTransactionHash
+  executedTimestamp
+  executedGasPrice
+  executedGasLimit
+  executedBlockNumber
+  reconciledCaller
+  reconciledTransactionHash
+  reconciledTimestamp
+  reconciledGasPrice
+  reconciledGasLimit
+  reconciledBlockNumber
+}
+
+"""Defines the order direction, either ascending or descending"""
+enum stagingkovan_OrderDirection {
+  asc
+  desc
+}
+
+type stagingkovan_OriginTransfer {
+  id: ID!
+  chainId: BigInt
+  transferId: stagingkovan_Bytes
+  nonce: BigInt
+  to: stagingkovan_Bytes
+  callData: stagingkovan_Bytes
+  originDomain: BigInt
+  destinationDomain: BigInt
+  forceSlow: Boolean
+  receiveLocal: Boolean
+  status: stagingkovan_TransferStatus
+  relayerFee: BigInt
+  message: stagingkovan_Bytes
+  transactingAsset: stagingkovan_Bytes
+  transactingAmount: BigInt
+  bridgedAsset: stagingkovan_Bytes
+  bridgedAmount: BigInt
+  caller: stagingkovan_Bytes
+  transactionHash: stagingkovan_Bytes
+  timestamp: BigInt
+  gasPrice: BigInt
+  gasLimit: BigInt
+  blockNumber: BigInt
+}
+
+input stagingkovan_OriginTransfer_filter {
+  id: ID
+  id_not: ID
+  id_gt: ID
+  id_lt: ID
+  id_gte: ID
+  id_lte: ID
+  id_in: [ID!]
+  id_not_in: [ID!]
+  chainId: BigInt
+  chainId_not: BigInt
+  chainId_gt: BigInt
+  chainId_lt: BigInt
+  chainId_gte: BigInt
+  chainId_lte: BigInt
+  chainId_in: [BigInt!]
+  chainId_not_in: [BigInt!]
+  transferId: stagingkovan_Bytes
+  transferId_not: stagingkovan_Bytes
+  transferId_in: [stagingkovan_Bytes!]
+  transferId_not_in: [stagingkovan_Bytes!]
+  transferId_contains: stagingkovan_Bytes
+  transferId_not_contains: stagingkovan_Bytes
+  nonce: BigInt
+  nonce_not: BigInt
+  nonce_gt: BigInt
+  nonce_lt: BigInt
+  nonce_gte: BigInt
+  nonce_lte: BigInt
+  nonce_in: [BigInt!]
+  nonce_not_in: [BigInt!]
+  to: stagingkovan_Bytes
+  to_not: stagingkovan_Bytes
+  to_in: [stagingkovan_Bytes!]
+  to_not_in: [stagingkovan_Bytes!]
+  to_contains: stagingkovan_Bytes
+  to_not_contains: stagingkovan_Bytes
+  callData: stagingkovan_Bytes
+  callData_not: stagingkovan_Bytes
+  callData_in: [stagingkovan_Bytes!]
+  callData_not_in: [stagingkovan_Bytes!]
+  callData_contains: stagingkovan_Bytes
+  callData_not_contains: stagingkovan_Bytes
+  originDomain: BigInt
+  originDomain_not: BigInt
+  originDomain_gt: BigInt
+  originDomain_lt: BigInt
+  originDomain_gte: BigInt
+  originDomain_lte: BigInt
+  originDomain_in: [BigInt!]
+  originDomain_not_in: [BigInt!]
+  destinationDomain: BigInt
+  destinationDomain_not: BigInt
+  destinationDomain_gt: BigInt
+  destinationDomain_lt: BigInt
+  destinationDomain_gte: BigInt
+  destinationDomain_lte: BigInt
+  destinationDomain_in: [BigInt!]
+  destinationDomain_not_in: [BigInt!]
+  forceSlow: Boolean
+  forceSlow_not: Boolean
+  forceSlow_in: [Boolean!]
+  forceSlow_not_in: [Boolean!]
+  receiveLocal: Boolean
+  receiveLocal_not: Boolean
+  receiveLocal_in: [Boolean!]
+  receiveLocal_not_in: [Boolean!]
+  status: stagingkovan_TransferStatus
+  status_not: stagingkovan_TransferStatus
+  status_in: [stagingkovan_TransferStatus!]
+  status_not_in: [stagingkovan_TransferStatus!]
+  relayerFee: BigInt
+  relayerFee_not: BigInt
+  relayerFee_gt: BigInt
+  relayerFee_lt: BigInt
+  relayerFee_gte: BigInt
+  relayerFee_lte: BigInt
+  relayerFee_in: [BigInt!]
+  relayerFee_not_in: [BigInt!]
+  message: stagingkovan_Bytes
+  message_not: stagingkovan_Bytes
+  message_in: [stagingkovan_Bytes!]
+  message_not_in: [stagingkovan_Bytes!]
+  message_contains: stagingkovan_Bytes
+  message_not_contains: stagingkovan_Bytes
+  transactingAsset: stagingkovan_Bytes
+  transactingAsset_not: stagingkovan_Bytes
+  transactingAsset_in: [stagingkovan_Bytes!]
+  transactingAsset_not_in: [stagingkovan_Bytes!]
+  transactingAsset_contains: stagingkovan_Bytes
+  transactingAsset_not_contains: stagingkovan_Bytes
+  transactingAmount: BigInt
+  transactingAmount_not: BigInt
+  transactingAmount_gt: BigInt
+  transactingAmount_lt: BigInt
+  transactingAmount_gte: BigInt
+  transactingAmount_lte: BigInt
+  transactingAmount_in: [BigInt!]
+  transactingAmount_not_in: [BigInt!]
+  bridgedAsset: stagingkovan_Bytes
+  bridgedAsset_not: stagingkovan_Bytes
+  bridgedAsset_in: [stagingkovan_Bytes!]
+  bridgedAsset_not_in: [stagingkovan_Bytes!]
+  bridgedAsset_contains: stagingkovan_Bytes
+  bridgedAsset_not_contains: stagingkovan_Bytes
+  bridgedAmount: BigInt
+  bridgedAmount_not: BigInt
+  bridgedAmount_gt: BigInt
+  bridgedAmount_lt: BigInt
+  bridgedAmount_gte: BigInt
+  bridgedAmount_lte: BigInt
+  bridgedAmount_in: [BigInt!]
+  bridgedAmount_not_in: [BigInt!]
+  caller: stagingkovan_Bytes
+  caller_not: stagingkovan_Bytes
+  caller_in: [stagingkovan_Bytes!]
+  caller_not_in: [stagingkovan_Bytes!]
+  caller_contains: stagingkovan_Bytes
+  caller_not_contains: stagingkovan_Bytes
+  transactionHash: stagingkovan_Bytes
+  transactionHash_not: stagingkovan_Bytes
+  transactionHash_in: [stagingkovan_Bytes!]
+  transactionHash_not_in: [stagingkovan_Bytes!]
+  transactionHash_contains: stagingkovan_Bytes
+  transactionHash_not_contains: stagingkovan_Bytes
+  timestamp: BigInt
+  timestamp_not: BigInt
+  timestamp_gt: BigInt
+  timestamp_lt: BigInt
+  timestamp_gte: BigInt
+  timestamp_lte: BigInt
+  timestamp_in: [BigInt!]
+  timestamp_not_in: [BigInt!]
+  gasPrice: BigInt
+  gasPrice_not: BigInt
+  gasPrice_gt: BigInt
+  gasPrice_lt: BigInt
+  gasPrice_gte: BigInt
+  gasPrice_lte: BigInt
+  gasPrice_in: [BigInt!]
+  gasPrice_not_in: [BigInt!]
+  gasLimit: BigInt
+  gasLimit_not: BigInt
+  gasLimit_gt: BigInt
+  gasLimit_lt: BigInt
+  gasLimit_gte: BigInt
+  gasLimit_lte: BigInt
+  gasLimit_in: [BigInt!]
+  gasLimit_not_in: [BigInt!]
+  blockNumber: BigInt
+  blockNumber_not: BigInt
+  blockNumber_gt: BigInt
+  blockNumber_lt: BigInt
+  blockNumber_gte: BigInt
+  blockNumber_lte: BigInt
+  blockNumber_in: [BigInt!]
+  blockNumber_not_in: [BigInt!]
+  """Filter for the block changed event."""
+  _change_block: stagingkovan_BlockChangedFilter
+}
+
+enum stagingkovan_OriginTransfer_orderBy {
+  id
+  chainId
+  transferId
+  nonce
+  to
+  callData
+  originDomain
+  destinationDomain
+  forceSlow
+  receiveLocal
+  status
+  relayerFee
+  message
+  transactingAsset
+  transactingAmount
+  bridgedAsset
+  bridgedAmount
+  caller
+  transactionHash
+  timestamp
+  gasPrice
+  gasLimit
+  blockNumber
+}
+
+type Query {
+  stagingkovan_asset(
+    id: ID!
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: stagingkovan_Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): stagingkovan_Asset
+  stagingkovan_assets(
+    skip: Int = 0
+    first: Int = 100
+    orderBy: stagingkovan_Asset_orderBy
+    orderDirection: stagingkovan_OrderDirection
+    where: stagingkovan_Asset_filter
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: stagingkovan_Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): [stagingkovan_Asset!]!
+  stagingkovan_assetBalance(
+    id: ID!
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: stagingkovan_Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): stagingkovan_AssetBalance
+  stagingkovan_assetBalances(
+    skip: Int = 0
+    first: Int = 100
+    orderBy: stagingkovan_AssetBalance_orderBy
+    orderDirection: stagingkovan_OrderDirection
+    where: stagingkovan_AssetBalance_filter
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: stagingkovan_Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): [stagingkovan_AssetBalance!]!
+  stagingkovan_router(
+    id: ID!
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: stagingkovan_Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): stagingkovan_Router
+  stagingkovan_routers(
+    skip: Int = 0
+    first: Int = 100
+    orderBy: stagingkovan_Router_orderBy
+    orderDirection: stagingkovan_OrderDirection
+    where: stagingkovan_Router_filter
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: stagingkovan_Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): [stagingkovan_Router!]!
+  stagingkovan_originTransfer(
+    id: ID!
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: stagingkovan_Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): stagingkovan_OriginTransfer
+  stagingkovan_originTransfers(
+    skip: Int = 0
+    first: Int = 100
+    orderBy: stagingkovan_OriginTransfer_orderBy
+    orderDirection: stagingkovan_OrderDirection
+    where: stagingkovan_OriginTransfer_filter
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: stagingkovan_Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): [stagingkovan_OriginTransfer!]!
+  stagingkovan_destinationTransfer(
+    id: ID!
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: stagingkovan_Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): stagingkovan_DestinationTransfer
+  stagingkovan_destinationTransfers(
+    skip: Int = 0
+    first: Int = 100
+    orderBy: stagingkovan_DestinationTransfer_orderBy
+    orderDirection: stagingkovan_OrderDirection
+    where: stagingkovan_DestinationTransfer_filter
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: stagingkovan_Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): [stagingkovan_DestinationTransfer!]!
+  """Access to subgraph metadata"""
+  stagingkovan__meta(block: stagingkovan_Block_height): stagingkovan__Meta_
+}
+
+type stagingkovan_Router {
+  id: ID!
+  isActive: Boolean!
+  owner: stagingkovan_Bytes
+  recipient: stagingkovan_Bytes
+  proposedOwner: stagingkovan_Bytes
+  proposedTimestamp: BigInt
+  assetBalances(skip: Int = 0, first: Int = 100, orderBy: stagingkovan_AssetBalance_orderBy, orderDirection: stagingkovan_OrderDirection, where: stagingkovan_AssetBalance_filter): [stagingkovan_AssetBalance!]!
+}
+
+input stagingkovan_Router_filter {
+  id: ID
+  id_not: ID
+  id_gt: ID
+  id_lt: ID
+  id_gte: ID
+  id_lte: ID
+  id_in: [ID!]
+  id_not_in: [ID!]
+  isActive: Boolean
+  isActive_not: Boolean
+  isActive_in: [Boolean!]
+  isActive_not_in: [Boolean!]
+  owner: stagingkovan_Bytes
+  owner_not: stagingkovan_Bytes
+  owner_in: [stagingkovan_Bytes!]
+  owner_not_in: [stagingkovan_Bytes!]
+  owner_contains: stagingkovan_Bytes
+  owner_not_contains: stagingkovan_Bytes
+  recipient: stagingkovan_Bytes
+  recipient_not: stagingkovan_Bytes
+  recipient_in: [stagingkovan_Bytes!]
+  recipient_not_in: [stagingkovan_Bytes!]
+  recipient_contains: stagingkovan_Bytes
+  recipient_not_contains: stagingkovan_Bytes
+  proposedOwner: stagingkovan_Bytes
+  proposedOwner_not: stagingkovan_Bytes
+  proposedOwner_in: [stagingkovan_Bytes!]
+  proposedOwner_not_in: [stagingkovan_Bytes!]
+  proposedOwner_contains: stagingkovan_Bytes
+  proposedOwner_not_contains: stagingkovan_Bytes
+  proposedTimestamp: BigInt
+  proposedTimestamp_not: BigInt
+  proposedTimestamp_gt: BigInt
+  proposedTimestamp_lt: BigInt
+  proposedTimestamp_gte: BigInt
+  proposedTimestamp_lte: BigInt
+  proposedTimestamp_in: [BigInt!]
+  proposedTimestamp_not_in: [BigInt!]
+  """Filter for the block changed event."""
+  _change_block: stagingkovan_BlockChangedFilter
+}
+
+enum stagingkovan_Router_orderBy {
+  id
+  isActive
+  owner
+  recipient
+  proposedOwner
+  proposedTimestamp
+  assetBalances
+}
+
+type Subscription {
+  stagingkovan_asset(
+    id: ID!
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: stagingkovan_Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): stagingkovan_Asset
+  stagingkovan_assets(
+    skip: Int = 0
+    first: Int = 100
+    orderBy: stagingkovan_Asset_orderBy
+    orderDirection: stagingkovan_OrderDirection
+    where: stagingkovan_Asset_filter
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: stagingkovan_Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): [stagingkovan_Asset!]!
+  stagingkovan_assetBalance(
+    id: ID!
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: stagingkovan_Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): stagingkovan_AssetBalance
+  stagingkovan_assetBalances(
+    skip: Int = 0
+    first: Int = 100
+    orderBy: stagingkovan_AssetBalance_orderBy
+    orderDirection: stagingkovan_OrderDirection
+    where: stagingkovan_AssetBalance_filter
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: stagingkovan_Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): [stagingkovan_AssetBalance!]!
+  stagingkovan_router(
+    id: ID!
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: stagingkovan_Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): stagingkovan_Router
+  stagingkovan_routers(
+    skip: Int = 0
+    first: Int = 100
+    orderBy: stagingkovan_Router_orderBy
+    orderDirection: stagingkovan_OrderDirection
+    where: stagingkovan_Router_filter
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: stagingkovan_Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): [stagingkovan_Router!]!
+  stagingkovan_originTransfer(
+    id: ID!
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: stagingkovan_Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): stagingkovan_OriginTransfer
+  stagingkovan_originTransfers(
+    skip: Int = 0
+    first: Int = 100
+    orderBy: stagingkovan_OriginTransfer_orderBy
+    orderDirection: stagingkovan_OrderDirection
+    where: stagingkovan_OriginTransfer_filter
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: stagingkovan_Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): [stagingkovan_OriginTransfer!]!
+  stagingkovan_destinationTransfer(
+    id: ID!
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: stagingkovan_Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): stagingkovan_DestinationTransfer
+  stagingkovan_destinationTransfers(
+    skip: Int = 0
+    first: Int = 100
+    orderBy: stagingkovan_DestinationTransfer_orderBy
+    orderDirection: stagingkovan_OrderDirection
+    where: stagingkovan_DestinationTransfer_filter
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: stagingkovan_Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): [stagingkovan_DestinationTransfer!]!
+  """Access to subgraph metadata"""
+  stagingkovan__meta(block: stagingkovan_Block_height): stagingkovan__Meta_
+}
+
+enum stagingkovan_TransferStatus {
+  XCalled
+  Executed
+  Reconciled
+  Completed
+}
+
+type stagingkovan__Block_ {
+  """The hash of the block"""
+  hash: stagingkovan_Bytes
+  """The block number"""
+  number: Int!
+}
+
+"""The type for the top-level _meta field"""
+type stagingkovan__Meta_ {
+  """
+  Information about a specific subgraph block. The hash of the block
+  will be null if the _meta field has a block constraint that asks for
+  a block number. It will be filled if the _meta field has no block constraint
+  and therefore asks for the latest  block
+  
+  """
+  block: stagingkovan__Block_!
+  """The deployment ID"""
+  deployment: String!
+  """If `true`, the subgraph encountered indexing errors at some past block"""
+  hasIndexingErrors: Boolean!
+}
+
+enum _SubgraphErrorPolicy_ {
+  """Data will be returned even if the subgraph has indexing errors"""
+  allow
+  """
+  If the subgraph has indexing errors, data will be omitted. The default.
+  """
+  deny
+}

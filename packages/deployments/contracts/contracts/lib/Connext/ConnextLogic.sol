@@ -10,6 +10,7 @@ import {RouterPermissionsManagerInfo} from "./RouterPermissionsManagerLogic.sol"
 import {AssetLogic} from "./AssetLogic.sol";
 
 import {RelayerFeeRouter} from "../../nomad-xapps/contracts/relayer-fee-router/RelayerFeeRouter.sol";
+import {PromiseRouter} from "../../nomad-xapps/contracts/promise-router/PromiseRouter.sol";
 import {ITokenRegistry, IBridgeToken} from "../../nomad-xapps/interfaces/bridge/ITokenRegistry.sol";
 import {ConnextMessage} from "../../nomad-xapps/contracts/connext/ConnextMessage.sol";
 import {TypedMemView} from "../../nomad-core/libs/TypedMemView.sol";
@@ -43,6 +44,9 @@ library ConnextLogic {
   error ConnextLogic__xcall_emptyTo();
   error ConnextLogic__xcall_notSupportedAsset();
   error ConnextLogic__xcall_relayerFeeIsZero();
+  error ConnextLogic__xcall_nonZeroCallbackFeeForCallback();
+  error ConnextLogic__xcall_callbackNotAContract();
+  error ConnextLogic__execute_notReconciled();
   error ConnextLogic__execute_unapprovedRelayer();
   error ConnextLogic__execute_maxRoutersExceeded();
   error ConnextLogic__execute_alreadyExecuted();
@@ -62,6 +66,7 @@ library ConnextLogic {
     uint256 domain;
     Home home;
     bytes32 remote;
+    PromiseRouter promiseRouter;
   }
 
   struct XCalledEventArgs {
@@ -78,6 +83,7 @@ library ConnextLogic {
     ITokenRegistry tokenRegistry;
     IWrapped wrapper;
     IExecutor executor;
+    PromiseRouter promiseRouter;
     uint256 liquidityFeeNumerator;
     uint256 liquidityFeeDenominator;
   }
@@ -540,7 +546,9 @@ library ConnextLogic {
       _routerInfo.approvedRouters
     );
 
-    // execute router liquidity when this is a fast transfer
+    // if this is a fast transfer, debit router liquidity. in both the
+    // fast and slow cases the asset should be swapped into the adopted
+    // asset
     (uint256 amount, address adopted) = _handleExecuteLiquidity(
       transferId,
       !reconciled,
@@ -655,6 +663,10 @@ library ConnextLogic {
     // get transfer id
     bytes32 transferId = _getTransferId(_args);
 
+    // get reconciled record
+    bool reconciled = _reconciledTransfers[transferId];
+    if (_args.executeArgs.params.forceSlow && !reconciled) revert ConnextLogic__execute_notReconciled();
+
     // get the payload the router should have signed
     bytes32 routerHash = keccak256(abi.encode(transferId, pathLength));
 
@@ -675,9 +687,6 @@ library ConnextLogic {
     if (_transferRelayer[transferId] != address(0)) {
       revert ConnextLogic__execute_alreadyExecuted();
     }
-
-    // get reconciled record
-    bool reconciled = _reconciledTransfers[transferId];
 
     return (transferId, reconciled);
   }
@@ -709,6 +718,18 @@ library ConnextLogic {
     // ensure theres a recipient defined
     if (_args.xCallArgs.params.to == address(0)) {
       revert ConnextLogic__xcall_emptyTo();
+    }
+
+    // ensure callback fee is zero when callback address is empty
+    if (_args.xCallArgs.params.callback == address(0) && _args.xCallArgs.params.callbackFee > 0) {
+      revert ConnextLogic__xcall_nonZeroCallbackFeeForCallback();
+    }
+
+    // ensure callback is contract if supplied
+    if (
+      _args.xCallArgs.params.callback != address(0) && !AddressUpgradeable.isContract(_args.xCallArgs.params.callback)
+    ) {
+      revert ConnextLogic__xcall_callbackNotAContract();
     }
   }
 
@@ -743,7 +764,7 @@ library ConnextLogic {
     (, uint256 amount) = AssetLogic.handleIncomingAsset(
       _args.xCallArgs.transactingAssetId,
       _args.xCallArgs.amount,
-      _args.xCallArgs.relayerFee,
+      _args.xCallArgs.relayerFee + _args.xCallArgs.params.callbackFee,
       _args.wrapper
     );
 
@@ -757,6 +778,11 @@ library ConnextLogic {
     );
 
     bytes32 transferId = _getTransferId(_args, canonical);
+
+    // Transfer callback fee to PromiseRouter if set
+    if (_args.xCallArgs.params.callbackFee != 0) {
+      _args.promiseRouter.initCallbackFee{value: _args.xCallArgs.params.callbackFee}(transferId);
+    }
 
     bytes memory message = _formatMessage(_args, bridged, transferId, bridgedAmt);
     _args.home.dispatch(_args.xCallArgs.params.destinationDomain, _args.remote, message);
@@ -841,7 +867,7 @@ library ConnextLogic {
       // if the token originates on a remote chain,
       // burn the representation tokens on this chain
       if (_amount > 0) {
-        token.burn(msg.sender, _amount);
+        token.burn(address(this), _amount);
       }
       detailsHash = token.detailsHash();
     }
@@ -882,7 +908,7 @@ library ConnextLogic {
     } else {
       // execute calldata w/funds
       AssetLogic.transferAssetFromContract(_adopted, address(_args.executor), _amount, _args.wrapper);
-      _args.executor.execute(
+      (bool success, bytes memory returnData) = _args.executor.execute(
         _transferId,
         _amount,
         payable(_args.executeArgs.params.to),
@@ -895,6 +921,17 @@ library ConnextLogic {
           : LibCrossDomainProperty.EMPTY_BYTES,
         _args.executeArgs.params.callData
       );
+
+      // If callback address is not zero, send on the PromiseRouter
+      if (_args.executeArgs.params.callback != address(0)) {
+        _args.promiseRouter.send(
+          _args.executeArgs.params.originDomain,
+          _transferId,
+          _args.executeArgs.params.callback,
+          success,
+          returnData
+        );
+      }
     }
   }
 
@@ -924,8 +961,6 @@ library ConnextLogic {
         _args.liquidityFeeDenominator
       );
 
-      // TODO: validate routers signature on path / transferId
-
       // store the routers address
       _routedTransfers[_transferId] = _args.executeArgs.routers;
 
@@ -939,6 +974,11 @@ library ConnextLogic {
           i++;
         }
       }
+    }
+
+    // if the local asset is specified, exit
+    if (_args.executeArgs.params.receiveLocal) {
+      return (toSwap, _args.executeArgs.local);
     }
 
     // swap out of mad* asset into adopted asset if needed

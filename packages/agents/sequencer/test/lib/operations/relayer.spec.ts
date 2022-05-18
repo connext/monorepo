@@ -1,32 +1,38 @@
 import { stub, restore, reset, SinonStub } from "sinon";
-import { mkAddress, expect, XTransfer } from "@connext/nxtp-utils";
+import { mkAddress, expect, OriginTransfer } from "@connext/nxtp-utils";
 
 import { mock, mockRelayerAddress } from "../../mock";
 import { sendToRelayer } from "../../../src/lib/operations/relayer";
 import { ctxMock, getHelpersStub } from "../../globalTestHook";
 
-const mockTransfers: XTransfer[] = [
-  {
-    ...mock.entity.xtransfer(),
-    params: {
-      to: mkAddress("0xbeefdead"),
-      callData: "0x0",
-      originDomain: "1337",
-      destinationDomain: "1338",
-    },
-    local: mkAddress("0xdedddddddddddddd"),
+const mockTransfers: OriginTransfer[] = [
+  mock.entity.xtransfer({
+    originDomain: "1337",
+    destinationDomain: "1338",
+    asset: mkAddress("0xdedddddddddddddd"),
     relayerFee: "0.1",
     amount: "10",
     nonce: 0,
     originSender: mkAddress("0xsenderorigin"),
-  },
+  }),
+  mock.entity.xtransfer({
+    originDomain: "1337",
+    destinationDomain: "1338",
+    asset: mkAddress("0xdedddddddddddddd"),
+    relayerFee: "0.1",
+    amount: "10",
+    nonce: 0,
+    originSender: mkAddress("0xsenderorigin"),
+  }),
   {
     ...mock.entity.xtransfer(),
-    params: {
+    originDomain: "1337",
+    destinationDomain: "1338",
+    xparams: {
       to: mkAddress("0xbeefdead"),
       callData: "0x0",
-      originDomain: "1337",
-      destinationDomain: "1338",
+      forceSlow: false,
+      receiveLocal: false,
     },
     local: mkAddress("0xdedddddddddddddd"),
     relayerFee: "0.1",

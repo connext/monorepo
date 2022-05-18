@@ -2,6 +2,41 @@
 
 ## Next Release
 
+## Amarok 0.2.0-alpha.16
+
+- [all] Support Goerli
+- [all] Update contract interfaces
+
+## Amarok 0.2.0-alpha.15
+
+- [router] Sanity check for bad callData + to
+- [lighthouse] multiple fixes
+- [sdk] fix default backend staging url
+
+## Amarok 0.2.0-alpha.14
+
+- [sdk] Optional signer address
+
+## Amarok 0.2.0-alpha.13
+
+- [ops] Fix lighthouse dockerfile
+
+## Amarok 0.2.0-alpha.12
+
+- [sdk] Allow lower case
+
+## Amarok 0.2.0-alpha.11
+
+- [subgraph] Fix graph-client config
+
+## Amarok 0.2.0-alpha.10
+
+- [backend] Fix backend config and poller
+
+## Amarok 0.2.0-alpha.9
+
+- [sdk] sdk public release
+
 ## Amarok 0.2.0-alpha.8
 
 - [contracts] Relayer fee upgrade

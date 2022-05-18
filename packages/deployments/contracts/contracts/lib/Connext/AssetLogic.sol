@@ -36,9 +36,6 @@ library AssetLogic {
 
     if (_assetId == address(0)) {
       if (msg.value != _assetAmount + _fee) revert AssetLogic__handleIncomingAsset_notAmount();
-
-      // When transferring native asset to the contract, always make sure that the
-      // asset is properly wrapped
       wrapNativeAsset(_assetAmount, _wrapper);
       _assetId = address(_wrapper);
     } else {

@@ -1,6 +1,13 @@
-import { Bid, createLoggingContext, XTransfer, DEFAULT_ROUTER_FEE, ajv, XTransferSchema } from "@connext/nxtp-utils";
+import {
+  Bid,
+  createLoggingContext,
+  DEFAULT_ROUTER_FEE,
+  ajv,
+  XTransferSchema,
+  OriginTransfer,
+} from "@connext/nxtp-utils";
 
-import { MissingXCall, NotEnoughAmount, ParamsInvalid } from "../errors";
+import { CallDataForNonContract, MissingXCall, NotEnoughAmount, ParamsInvalid } from "../errors";
 import { getHelpers } from "../helpers";
 import { getContext } from "../../router";
 
@@ -12,12 +19,12 @@ export const RELAYER_FEE_PERCENTAGE = "1"; //  1%
  *
  * @param params - The crosschain xcall params.
  */
-export const execute = async (params: XTransfer): Promise<void> => {
+export const execute = async (params: OriginTransfer): Promise<void> => {
   const { requestContext, methodContext } = createLoggingContext(execute.name);
 
   const {
     logger,
-    adapters: { wallet, subgraph },
+    adapters: { wallet, subgraph, txservice },
     routerAddress,
   } = getContext();
   const {
@@ -38,15 +45,31 @@ export const execute = async (params: XTransfer): Promise<void> => {
     });
   }
 
-  const { originDomain, destinationDomain, transferId, xcall } = params;
-  if (!xcall) {
+  const {
+    originDomain,
+    destinationDomain,
+    origin,
+    transferId,
+    xparams: { callData, to, forceSlow },
+  } = params;
+
+  if (forceSlow) {
+    logger.debug("Opt for slow path", requestContext, methodContext, { transferId });
+    return;
+  }
+
+  if (!origin) {
     throw new MissingXCall({ requestContext, methodContext });
   }
 
-  const executeLocalAsset = await getDestinationLocalAsset(originDomain, xcall.localAsset, destinationDomain);
+  const executeLocalAsset = await getDestinationLocalAsset(
+    originDomain,
+    origin.assets.bridged.asset,
+    destinationDomain,
+  );
   logger.debug("Got local asset", requestContext, methodContext, { executeLocalAsset });
 
-  const receivingAmount = xcall.localAmount;
+  const receivingAmount = origin.assets.bridged.amount;
 
   // TODO: We should make a list of signatures that reflect which auction rounds we want to bid on,
   // based on a calculation of which rounds we can afford to bid on. For now, this is hardcoded to bid
@@ -55,6 +78,7 @@ export const execute = async (params: XTransfer): Promise<void> => {
   const signatures = {
     "1": await signRouterPathPayload(transferId, "1", wallet),
   };
+
   logger.debug("Signed payloads", requestContext, methodContext, {
     rounds: Object.keys(signatures),
     // Sanitized with ellipsis.
@@ -69,9 +93,19 @@ export const execute = async (params: XTransfer): Promise<void> => {
       receivingAmount: receivingAmount.toString(),
       executeLocalAsset,
       routerAddress,
-      destinationDomain,
+      destinationDomain: destinationDomain,
+      requestContext,
+      methodContext,
     });
   }
+
+  if (callData !== "0x") {
+    const code = await txservice.getCode(+destinationDomain, to);
+    if (code === "0x") {
+      throw new CallDataForNonContract({ transferId, destinationDomain, to, callData, requestContext, methodContext });
+    }
+  }
+
   logger.debug("Sanity checks passed", requestContext, methodContext, { liquidity: balance.toString() });
 
   const fee = DEFAULT_ROUTER_FEE;
