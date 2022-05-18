@@ -132,24 +132,31 @@ export function handleXCalled(event: XCalled): void {
   }
 
   // Meta
+  transfer.chainId = getChainId();
+  transfer.transferId = event.params.transferId;
+  transfer.nonce = event.params.nonce;
+  transfer.status = "XCalled";
+
+  // Call Params
+  transfer.to = event.params.xcallArgs.params.to;
+  transfer.callData = event.params.xcallArgs.params.callData;
   transfer.originDomain = event.params.xcallArgs.params.originDomain;
   transfer.destinationDomain = event.params.xcallArgs.params.destinationDomain;
-  transfer.chainId = getChainId();
+  transfer.forceSlow = event.params.xcallArgs.params.forceSlow;
+  transfer.receiveLocal = event.params.xcallArgs.params.receiveLocal;
 
-  // Transfer Data
-  transfer.transferId = event.params.transferId;
-  transfer.to = event.params.xcallArgs.params.to;
-  transfer.nonce = event.params.nonce;
-  transfer.callData = event.params.xcallArgs.params.callData;
+  // Assets
   transfer.transactingAsset = event.params.args.transactingAssetId;
+  transfer.transactingAmount = event.params.args.amount;
   transfer.bridgedAsset = event.params.args.bridged;
-  transfer.amount = event.params.args.amount;
   transfer.bridgedAmount = event.params.args.bridgedAmt;
+
+  // Event Data
   transfer.relayerFee = event.params.xcallArgs.relayerFee;
-  transfer.caller = event.params.caller;
   transfer.message = event.params.message;
 
-  // Transaction XCalled
+  // XCall Transaction
+  transfer.caller = event.params.caller;
   transfer.transactionHash = event.transaction.hash;
   transfer.timestamp = event.block.timestamp;
   transfer.gasPrice = event.transaction.gasPrice;
@@ -174,9 +181,10 @@ export function handleExecuted(event: Executed): void {
       // TODO: Shouldn't we be throwing an error here? How did a transfer get made with a non-existent
       // router?
       router = new Router(param);
+      router.isActive = true;
       router.save();
     }
-    routers.push(router.id as string);
+    routers.push(router.id);
   }
 
   let transfer = DestinationTransfer.load(event.params.transferId.toHexString());
@@ -185,32 +193,35 @@ export function handleExecuted(event: Executed): void {
   }
 
   // Meta
+  transfer.chainId = getChainId();
+  transfer.transferId = event.params.transferId;
+  transfer.nonce = event.params.args.nonce;
+
+  // Call Data
+  transfer.to = event.params.args.params.to;
+  transfer.callData = event.params.args.params.callData;
   transfer.originDomain = event.params.args.params.originDomain;
   transfer.destinationDomain = event.params.args.params.destinationDomain;
-  transfer.chainId = getChainId();
-  if (transfer.status === "Reconciled") {
+  transfer.forceSlow = event.params.args.params.forceSlow;
+  transfer.receiveLocal = event.params.args.params.receiveLocal;
+
+  // Assets
+  transfer.transactingAmount = event.params.transactingAmount;
+  transfer.transactingAsset = event.params.transactingAsset;
+  transfer.localAsset = event.params.args.local;
+  transfer.localAmount = event.params.args.amount;
+
+  // Event Data
+  if (transfer.status == "Reconciled") {
     transfer.status = "Completed";
   } else {
     transfer.status = "Executed";
   }
-
-  // Transfer Data
-  transfer.transferId = event.params.transferId;
-  transfer.to = event.params.args.params.to;
-  transfer.callData = event.params.args.params.callData;
-  transfer.localAsset = event.params.args.local;
   transfer.routers = routers;
-  transfer.nonce = event.params.args.nonce;
-
-  // Executed
-  transfer.transactingAmount = event.params.transactingAmount;
-  transfer.transactingAsset = event.params.transactingAsset;
   transfer.originSender = event.params.args.originSender;
 
-  transfer.executedAmount = event.params.args.amount;
+  // Executed Transaction
   transfer.executedCaller = event.params.caller;
-
-  // TransactionFulfilled
   transfer.executedTransactionHash = event.transaction.hash;
   transfer.executedTimestamp = event.block.timestamp;
   transfer.executedGasPrice = event.transaction.gasPrice;
@@ -231,6 +242,7 @@ export function handleReconciled(event: Reconciled): void {
     transfer = new DestinationTransfer(event.params.transferId.toHexString());
   }
 
+  // If the routers have already been set by an execute event, don't overwrite them.
   const routers: string[] = [];
   if (transfer.routers !== null) {
     // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
@@ -244,23 +256,25 @@ export function handleReconciled(event: Reconciled): void {
 
   // Meta
   transfer.chainId = getChainId();
+  transfer.transferId = event.params.transferId;
 
-  if (transfer.status === "Executed") {
+  // Call Params
+  transfer.originDomain = event.params.origin;
+
+  // Assets
+  transfer.localAsset = event.params.asset;
+  transfer.localAmount = event.params.amount;
+
+  // Event Data
+  if (transfer.status == "Executed") {
     transfer.status = "Completed";
   } else {
     transfer.status = "Reconciled";
   }
-  // If the routers have already been set by an execute event, don't overwrite them.
   transfer.routers = routers;
 
-  // Transfer Data
-  transfer.originDomain = event.params.origin;
-  transfer.transferId = event.params.transferId;
-  transfer.reconciledAsset = event.params.asset;
-  transfer.reconciledAmount = event.params.amount;
+  // Reconcile Transaction
   transfer.reconciledCaller = event.params.caller;
-
-  // TransactionFulfilled
   transfer.reconciledTransactionHash = event.transaction.hash;
   transfer.reconciledTimestamp = event.block.timestamp;
   transfer.reconciledGasPrice = event.transaction.gasPrice;
@@ -320,6 +334,7 @@ function getOrCreateAssetBalance(local: Bytes, routerAddress: Address): AssetBal
   let router = Router.load(routerAddress.toHex());
   if (router == null) {
     router = new Router(routerAddress.toHex());
+    router.isActive = true;
     router.save();
   }
 

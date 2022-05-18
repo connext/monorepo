@@ -1,0 +1,8 @@
+# @postgrestUrl = http://localhost:3000
+@Url = https://relay.gelato.digital
+@taskId= 0xd2e4471deab0a65dc8502d6bd06a9ba0b92b2fc67544a49420d19846a1643b1a
+
+# just a few examples, more examples here: https://postgrest.org/en/stable/api.html#horizontal-filtering-rows
+
+### query taskId response
+GET {{Url}}/tasks/{{taskId}}

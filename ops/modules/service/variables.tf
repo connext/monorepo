@@ -34,7 +34,11 @@ variable "memory" {
 }
 
 variable "health_check_path" {
-  default = "/healthz"
+  default = "/"
+}
+
+variable "health_check_enabled" {
+  default = true
 }
 
 variable "matcher_ports" {
@@ -84,6 +88,11 @@ variable "base_domain" {
   description = "base domain of the application"
   default     = "connext.ninja"
 }
+
+variable "domain" {
+  description = "domain of deployment"
+}
+
 
 variable "stage" {
   description = "stage of deployment"

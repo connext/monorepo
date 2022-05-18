@@ -1,4 +1,5 @@
-import { Bid, ExecuteArgs, expect, mkAddress, XTransfer } from "@connext/nxtp-utils";
+import { Bid, ExecuteArgs, expect, mkAddress, OriginTransfer, XTransfer } from "@connext/nxtp-utils";
+import { constants } from "ethers";
 import { stub, restore, reset, SinonStub } from "sinon";
 
 import { encodeExecuteFromBids, getDestinationLocalAsset } from "../../../src/lib/helpers/auctions";
@@ -24,21 +25,25 @@ describe("Helpers:Auctions", () => {
     });
 
     it("happy", () => {
-      const transfer: XTransfer = mock.entity.xtransfer();
+      const transfer: OriginTransfer = mock.entity.xtransfer();
       const bids: Bid[] = [mock.entity.bid()];
       const expectedArgs: ExecuteArgs = {
         params: {
           originDomain: transfer.originDomain,
           destinationDomain: transfer.destinationDomain,
-          to: transfer.to,
-          callData: transfer.callData,
+          to: transfer.xparams.to,
+          callData: transfer.xparams.callData,
+          callback: constants.AddressZero,
+          callbackFee: "0",
+          forceSlow: transfer.xparams.forceSlow,
+          receiveLocal: transfer.xparams.receiveLocal,
         },
         local: mockLocalAsset,
         routers: bids.map((b) => b.router),
         routerSignatures: bids.map((b) => b.signatures[bids.length.toString()]),
-        amount: transfer.xcall.localAmount,
+        amount: transfer.origin.assets.bridged.amount,
         nonce: transfer.nonce,
-        originSender: transfer.xcall.caller,
+        originSender: transfer.origin.xcall.caller,
       };
 
       const encoded = encodeExecuteFromBids(bids, transfer, mockLocalAsset);
@@ -47,8 +52,8 @@ describe("Helpers:Auctions", () => {
     });
 
     it("should throw if no xcall", () => {
-      const transfer: XTransfer = mock.entity.xtransfer();
-      transfer.xcall = undefined;
+      const transfer: OriginTransfer = mock.entity.xtransfer();
+      transfer.origin.xcall = undefined;
       const bids: Bid[] = [mock.entity.bid()];
 
       expect(() => encodeExecuteFromBids(bids, transfer, mockLocalAsset)).to.throw();
@@ -68,10 +73,7 @@ describe("Helpers:Auctions", () => {
       const localAsset = await getDestinationLocalAsset(origin, originLocal, destination);
       expect(localAsset).to.be.eq(mockLocalAsset);
       expect((ctxMock.adapters.subgraph as any).getAssetByLocal).calledOnceWithExactly(origin, originLocal);
-      expect((ctxMock.adapters.subgraph as any).getAssetByCanonicalId).calledOnceWithExactly(
-        Number(destination),
-        canonicalId,
-      );
+      expect((ctxMock.adapters.subgraph as any).getAssetByCanonicalId).calledOnceWithExactly(destination, canonicalId);
     });
   });
 });

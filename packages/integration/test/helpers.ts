@@ -5,9 +5,9 @@ import {
   getDeployedTokenRegistryContract,
   getTokenRegistryInterface,
 } from "@connext/nxtp-txservice";
-import { ERC20Abi } from "@connext/nxtp-utils";
+import { delay, ERC20Abi } from "@connext/nxtp-utils";
 
-import { DomainInfo, Environment, ENVIRONMENT, SUBG_TRANSFER_ENTITY_PARAMS, TestAgents } from "./constants";
+import { DomainInfo, TestAgents, Environment, ENVIRONMENT } from "./constants";
 
 /// MARK - Utilities
 export const canonizeTokenId = (data?: utils.BytesLike): Uint8Array => {
@@ -43,21 +43,15 @@ export const formatEtherscanLink = (input: { network: string; hash?: string; add
   return "";
 };
 
-export const formatSubgraphGetTransferQuery = (
-  input: { xcallTransactionHash: string } | { transferId: string },
-): string => {
-  const params = SUBG_TRANSFER_ENTITY_PARAMS;
-  const { xcallTransactionHash, transferId } = input as any;
-  const condition = xcallTransactionHash
-    ? `xcalledTransactionHash: "${xcallTransactionHash}"`
-    : `transferId: "${transferId}"`;
-  return `
-  {
-    transfers(
-      where: { ${condition} }
-    ) {\n\t${params.map((param) => `${param}`).join("\n\t")}
+export const pollSomething = async (input: { attempts: number; parity: number; method: () => Promise<any> }) => {
+  const { attempts, parity, method } = input;
+  for (let i = 0; i < attempts; i++) {
+    const result = await method();
+    if (result) {
+      return result;
     }
-  }`.trim();
+    await delay(parity);
+  }
 };
 
 /// MARK - On-chain Operations

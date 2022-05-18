@@ -1,12 +1,12 @@
 import { constants } from "ethers";
-import { RequestContext, createLoggingContext, XTransfer, Bid, connextRelayerSend } from "@connext/nxtp-utils";
+import { RequestContext, createLoggingContext, Bid, connextRelayerSend, OriginTransfer } from "@connext/nxtp-utils";
 
 import { getContext } from "../../sequencer";
 import { getHelpers } from "../helpers";
 
 export const sendToRelayer = async (
   bids: Bid[],
-  transfer: XTransfer,
+  transfer: OriginTransfer,
   local: string,
   _requestContext: RequestContext,
 ): Promise<string> => {
