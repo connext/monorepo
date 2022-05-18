@@ -227,19 +227,15 @@ contract BridgeFacet is BaseConnextFacet {
    */
   function execute(ExecuteArgs calldata _args) external returns (bytes32) {
     (bytes32 transferId, bool reconciled) = _executeSanityChecks(_args);
-    console.log("_executeSanityChecks");
 
     // execute router liquidity when this is a fast transfer
     (uint256 amount, address adopted) = _handleExecuteLiquidity(transferId, !reconciled, _args);
-    console.log("_handleExecuteLiquidity");
 
     // execute the transaction
     _handleExecuteTransaction(_args, amount, adopted, transferId, reconciled);
-    console.log("_handleExecuteTransaction");
 
     // Set the relayer for this transaction to allow for future claim
     s.transferRelayer[transferId] = msg.sender;
-    console.log("set relayer fee");
 
     // emit event
     emit Executed(transferId, _args.params.to, _args, adopted, amount, msg.sender);
@@ -516,16 +512,21 @@ contract BridgeFacet is BaseConnextFacet {
     bytes32 routerHash = keccak256(abi.encode(transferId, pathLength));
 
     // make sure routers are all approved if needed
-    for (uint256 i; i < pathLength; ) {
-      if (!_isRouterOwnershipRenounced() && !s.routerPermissionInfo.approvedRouters[_args.routers[i]]) {
-        revert BridgeFacet__execute_notSupportedRouter();
+    if (pathLength > 0) {
+      for (uint256 i; i < pathLength; ) {
+        if (!_isRouterOwnershipRenounced() && !s.routerPermissionInfo.approvedRouters[_args.routers[i]]) {
+          revert BridgeFacet__execute_notSupportedRouter();
+        }
+        if (_args.routers[i] != _recoverSignature(routerHash, _args.routerSignatures[i])) {
+          revert BridgeFacet__execute_invalidRouterSignature();
+        }
+        unchecked {
+          i++;
+        }
       }
-      if (_args.routers[i] != _recoverSignature(routerHash, _args.routerSignatures[i])) {
-        revert BridgeFacet__execute_invalidRouterSignature();
-      }
-      unchecked {
-        i++;
-      }
+    } else {
+      // otherwise, make sure liquidity delivered
+      if (!reconciled) revert BridgeFacet__execute_notReconciled();
     }
 
     // require this transfer has not already been executed
@@ -569,6 +570,7 @@ contract BridgeFacet is BaseConnextFacet {
     console.log("- transferId");
     console.logBytes32(transferId);
     return transferId;
+    // return keccak256(abi.encode(_args.nonce, _args.params, _args.originSender, tokenId, tokenDomain, _args.amount));
   }
 
   /**
