@@ -20,8 +20,6 @@ import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import {ECDSA} from "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
 import {AddressUpgradeable} from "@openzeppelin/contracts-upgradeable/utils/AddressUpgradeable.sol";
 
-import "../../lib/forge-std/src/console.sol";
-
 contract BridgeFacet is BaseConnextFacet {
   // ============ Libraries ============
   using TypedMemView for bytes;
@@ -544,34 +542,7 @@ contract BridgeFacet is BaseConnextFacet {
   function _getTransferId(ExecuteArgs calldata _args) private view returns (bytes32) {
     (uint32 tokenDomain, bytes32 tokenId) = s.tokenRegistry.getTokenId(_args.local);
 
-    // console.log("got:");
-    // console.log("- local", _args.local);
-    // console.log("- nonce", _args.nonce);
-
-    // console.log("- _params.to", _args.params.to);
-    // console.log("- _params.originDomain", _args.params.originDomain);
-    // console.log("- _params.destinationDomain", _args.params.destinationDomain);
-    // console.log("- _params.callback", _args.params.callback);
-    // console.log("- _params.callbackFee", _args.params.callbackFee);
-    // console.log("- _params.forceSlow", _args.params.forceSlow);
-    // console.log("- _params.receiveLocal", _args.params.receiveLocal);
-    // console.log("- _params.callData");
-    // console.logBytes(_args.params.callData);
-
-    // console.log("- originSender", _args.originSender);
-    // console.log("- tokenId");
-    // console.logBytes32(tokenId);
-    // console.log("- tokenDomain", tokenDomain);
-    // console.log("- amount", _args.amount);
-    // console.log("- encoded");
-    // console.logBytes(abi.encode(_args.nonce, _args.params, _args.originSender, tokenId, tokenDomain, _args.amount));
-    bytes32 transferId = keccak256(
-      abi.encode(_args.nonce, _args.params, _args.originSender, tokenId, tokenDomain, _args.amount)
-    );
-    console.log("BridgeFacet::_getTransferId:");
-    console.logBytes32(transferId);
-    return transferId;
-    // return keccak256(abi.encode(_args.nonce, _args.params, _args.originSender, tokenId, tokenDomain, _args.amount));
+    return keccak256(abi.encode(_args.nonce, _args.params, _args.originSender, tokenId, tokenDomain, _args.amount));
   }
 
   /**

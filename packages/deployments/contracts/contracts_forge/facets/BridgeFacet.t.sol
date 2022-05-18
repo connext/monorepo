@@ -133,8 +133,6 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
     bytes32 transferId = keccak256(
       abi.encode(_args.nonce, _args.params, _args.originSender, _canonicalTokenId, _canonicalDomain, _args.amount)
     );
-    console.log("Test::BridgeFacet::getTransferIdFromExecuteArgs:");
-    console.logBytes32(transferId);
     return transferId;
   }
 
@@ -210,31 +208,6 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
 
     // get args
     (bytes32 _id, ExecuteArgs memory _args) = getExecuteArgsNoRouters();
-    console.log("expecting:");
-    // console.log("- local", _args.local);
-    // console.log("- nonce", _args.nonce);
-
-    // console.log("- _params.to", _args.params.to);
-    // console.log("- _params.originDomain", _args.params.originDomain);
-    // console.log("- _params.destinationDomain", _args.params.destinationDomain);
-    // console.log("- _params.callback", _args.params.callback);
-    // console.log("- _params.callbackFee", _args.params.callbackFee);
-    // console.log("- _params.forceSlow", _args.params.forceSlow);
-    // console.log("- _params.receiveLocal", _args.params.receiveLocal);
-    // console.log("- _params.callData");
-    // console.logBytes(_args.params.callData);
-
-    // console.log("- originSender", _args.originSender);
-    // console.log("- tokenId");
-    // console.logBytes32(_canonicalTokenId);
-    // console.log("- tokenDomain", _canonicalDomain);
-    // console.log("- amount", _args.amount);
-    // console.log("- encoded");
-    // console.logBytes(
-    //   abi.encode(_args.nonce, _args.params, _args.originSender, _canonicalTokenId, _canonicalDomain, _args.amount)
-    // );
-    console.log("- transferId");
-    console.logBytes32(_id);
 
     // set reconciled context
     s.reconciledTransfers[_id] = true;
