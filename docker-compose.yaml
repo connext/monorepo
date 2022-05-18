@@ -171,12 +171,5 @@ services:
     networks:
       - nxtp
 
-  ############
-  deployer:
-    container_name: deployer
-    image: deployer:latest
-    networks:
-      - nxtp
-
 networks:
   nxtp:
