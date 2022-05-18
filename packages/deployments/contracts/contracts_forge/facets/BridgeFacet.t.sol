@@ -107,10 +107,6 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
     return signatures;
   }
 
-  function calculateTransferId() public returns (bytes32) {
-    return keccak256(abi.encode(_nonce, _params, _originSender, _canonicalTokenId, _canonicalDomain, _amount));
-  }
-
   function _getExecuteArgs(
     address[] memory routers,
     uint256[] memory keys,
@@ -157,6 +153,42 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
     address[] memory routers;
     uint256[] memory keys;
     return _getExecuteArgs(routers, keys, true);
+  }
+
+  function executeAndAssert(bytes32 _id, ExecuteArgs memory _args) public {
+    // get pre-execute liquidity if needed
+    uint256 pathLen = _args.routers.length;
+    uint256[] memory prevLiquidity = new uint256[](pathLen);
+    for (uint256 i; i < pathLen; i++) {
+      prevLiquidity[i] = s.routerBalances[_args.routers[i]][_local];
+    }
+
+    // get pre-execute to balance
+    uint256 prevBalanceTo = IERC20(_local).balanceOf(_params.to);
+
+    // get pre-execute balance here
+    uint256 prevBalance = IERC20(_local).balanceOf(address(this));
+
+    // execute
+    vm.expectEmit(true, true, false, true);
+    emit Executed(_id, _args.params.to, _args, _args.local, _args.amount, address(this));
+    this.execute(_args);
+
+    if (pathLen > 0) {
+      // should decrement router balance
+      for (uint256 i; i < pathLen; i++) {
+        assertEq(prevLiquidity[i], s.routerBalances[_args.routers[i]][_local] - _amount);
+      }
+    } else {
+      // should decrement balance of bridge
+      assertEq(IERC20(_local).balanceOf(address(this)), prevBalance - _amount);
+    }
+
+    // should increment balance of `to` in `adopted`
+    assertEq(IERC20(_local).balanceOf(_params.to), prevBalanceTo + _amount);
+
+    // should mark the transfer as executed
+    assertEq(s.transferRelayer[_id], address(this));
   }
 
   // ============ execute ============
@@ -212,29 +244,7 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
     // set reconciled context
     s.reconciledTransfers[_id] = true;
 
-    // get pre-execute liquidity
-    uint256 pathLen = _args.routers.length;
-    assertEq(pathLen, 0);
-
-    // get pre-execute to balance
-    uint256 prevBalanceTo = IERC20(_local).balanceOf(_params.to);
-
-    // get pre-execute balance here
-    uint256 prevBalance = IERC20(_local).balanceOf(address(this));
-
-    // execute
-    vm.expectEmit(true, true, false, true);
-    emit Executed(_id, _args.params.to, _args, _args.local, _args.amount, address(this));
-    this.execute(_args);
-
-    // should increment balance of `to` in `adopted`
-    assertEq(IERC20(_local).balanceOf(_params.to), prevBalanceTo + _amount);
-
-    // should decrement balance of bridge
-    assertEq(IERC20(_local).balanceOf(address(this)), prevBalance - _amount);
-
-    // should mark the transfer as executed
-    assertEq(s.transferRelayer[_id], address(this));
+    executeAndAssert(_id, _args);
   }
 
   // should use the local asset if specified (receiveLocal = true)
