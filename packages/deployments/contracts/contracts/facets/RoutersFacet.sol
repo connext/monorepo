@@ -151,7 +151,7 @@ contract RoutersFacet is BaseConnextFacet {
     _;
   }
 
-  // ============ Public methods ==============
+  // ============ Getters ==============
 
   function LIQUIDITY_FEE_NUMERATOR() public view returns (uint256) {
     return s.LIQUIDITY_FEE_NUMERATOR;
@@ -215,85 +215,7 @@ contract RoutersFacet is BaseConnextFacet {
     return s.routerBalances[_router][_asset];
   }
 
-  /**
-   * @notice Sets the LIQUIDITY_FEE_NUMERATOR
-   * @dev Admin can set LIQUIDITY_FEE_NUMERATOR variable, Liquidity fee should be less than 5%
-   * @param _numerator new LIQUIDITY_FEE_NUMERATOR
-   */
-  function setLiquidityFeeNumerator(uint256 _numerator) external onlyOwner {
-    if (_numerator < (s.LIQUIDITY_FEE_DENOMINATOR * 100) / 95) revert RoutersFacet__setLiquidityFeeNumerator_tooSmall();
-    s.LIQUIDITY_FEE_NUMERATOR = _numerator;
-
-    emit LiquidityFeeNumeratorUpdated(_numerator, msg.sender);
-  }
-
-  /**
-   * @notice Sets the designated recipient for a router
-   * @dev Router should only be able to set this once otherwise if router key compromised,
-   * no problem is solved since attacker could just update recipient
-   * @param router Router address to set recipient
-   * @param recipient Recipient Address to set to router
-   */
-  function setRouterRecipient(address router, address recipient) external onlyRouterOwner(router) {
-    // Check recipient is changing
-    address _prevRecipient = s.routerPermissionInfo.routerRecipients[router];
-    if (_prevRecipient == recipient) revert RoutersFacet__setRouterRecipient_notNewRecipient();
-
-    // Set new recipient
-    s.routerPermissionInfo.routerRecipients[router] = recipient;
-
-    // Emit event
-    emit RouterRecipientSet(router, _prevRecipient, recipient);
-  }
-
-  /**
-   * @notice Current owner or router may propose a new router owner
-   * @param router Router address to set recipient
-   * @param proposed Proposed owner Address to set to router
-   */
-  function proposeRouterOwner(address router, address proposed) external onlyRouterOwner(router) {
-    // Check that proposed is different than current owner
-    if (getRouterOwner(router) == proposed) revert RoutersFacet__proposeRouterOwner_notNewOwner();
-
-    // Check that proposed is different than current proposed
-    address _currentProposed = s.routerPermissionInfo.proposedRouterOwners[router];
-    if (_currentProposed == proposed) revert RoutersFacet__proposeRouterOwner_badRouter();
-
-    // Set proposed owner + timestamp
-    s.routerPermissionInfo.proposedRouterOwners[router] = proposed;
-    s.routerPermissionInfo.proposedRouterTimestamp[router] = block.timestamp;
-
-    // Emit event
-    emit RouterOwnerProposed(router, _currentProposed, proposed);
-  }
-
-  /**
-   * @notice New router owner must accept role, or previous if proposed is 0x0
-   * @param router Router address to set recipient
-   */
-  function acceptProposedRouterOwner(address router) external onlyProposedRouterOwner(router) {
-    address owner = getRouterOwner(router);
-
-    // Check timestamp has passed
-    if (block.timestamp - s.routerPermissionInfo.proposedRouterTimestamp[router] <= _delay)
-      revert RoutersFacet__acceptProposedRouterOwner_notElapsed();
-
-    // Get current owner + proposed
-    address _proposed = s.routerPermissionInfo.proposedRouterOwners[router];
-
-    // Update the current owner
-    s.routerPermissionInfo.routerOwners[router] = _proposed;
-
-    // Reset proposal + timestamp
-    if (_proposed != address(0)) {
-      // delete proposedRouterOwners[router];
-      s.routerPermissionInfo.proposedRouterOwners[router] = address(0);
-    }
-    s.routerPermissionInfo.proposedRouterTimestamp[router] = 0;
-
-    // Emit event
-    emit RouterOwnerAccepted(router, owner, _proposed);
-  }
+  // ============ Admin methods ==============
 
   /**
    * @notice Used to set router initial properties
@@ -376,6 +298,88 @@ contract RoutersFacet is BaseConnextFacet {
     emit MaxRoutersPerTransferUpdated(_newMaxRouters, msg.sender);
 
     s.maxRoutersPerTransfer = _newMaxRouters;
+  }
+
+  /**
+   * @notice Sets the LIQUIDITY_FEE_NUMERATOR
+   * @dev Admin can set LIQUIDITY_FEE_NUMERATOR variable, Liquidity fee should be less than 5%
+   * @param _numerator new LIQUIDITY_FEE_NUMERATOR
+   */
+  function setLiquidityFeeNumerator(uint256 _numerator) external onlyOwner {
+    if (_numerator < (s.LIQUIDITY_FEE_DENOMINATOR * 100) / 95) revert RoutersFacet__setLiquidityFeeNumerator_tooSmall();
+    s.LIQUIDITY_FEE_NUMERATOR = _numerator;
+
+    emit LiquidityFeeNumeratorUpdated(_numerator, msg.sender);
+  }
+
+  // ============ Public methods ==============
+
+  /**
+   * @notice Sets the designated recipient for a router
+   * @dev Router should only be able to set this once otherwise if router key compromised,
+   * no problem is solved since attacker could just update recipient
+   * @param router Router address to set recipient
+   * @param recipient Recipient Address to set to router
+   */
+  function setRouterRecipient(address router, address recipient) external onlyRouterOwner(router) {
+    // Check recipient is changing
+    address _prevRecipient = s.routerPermissionInfo.routerRecipients[router];
+    if (_prevRecipient == recipient) revert RoutersFacet__setRouterRecipient_notNewRecipient();
+
+    // Set new recipient
+    s.routerPermissionInfo.routerRecipients[router] = recipient;
+
+    // Emit event
+    emit RouterRecipientSet(router, _prevRecipient, recipient);
+  }
+
+  /**
+   * @notice Current owner or router may propose a new router owner
+   * @param router Router address to set recipient
+   * @param proposed Proposed owner Address to set to router
+   */
+  function proposeRouterOwner(address router, address proposed) external onlyRouterOwner(router) {
+    // Check that proposed is different than current owner
+    if (getRouterOwner(router) == proposed) revert RoutersFacet__proposeRouterOwner_notNewOwner();
+
+    // Check that proposed is different than current proposed
+    address _currentProposed = s.routerPermissionInfo.proposedRouterOwners[router];
+    if (_currentProposed == proposed) revert RoutersFacet__proposeRouterOwner_badRouter();
+
+    // Set proposed owner + timestamp
+    s.routerPermissionInfo.proposedRouterOwners[router] = proposed;
+    s.routerPermissionInfo.proposedRouterTimestamp[router] = block.timestamp;
+
+    // Emit event
+    emit RouterOwnerProposed(router, _currentProposed, proposed);
+  }
+
+  /**
+   * @notice New router owner must accept role, or previous if proposed is 0x0
+   * @param router Router address to set recipient
+   */
+  function acceptProposedRouterOwner(address router) external onlyProposedRouterOwner(router) {
+    address owner = getRouterOwner(router);
+
+    // Check timestamp has passed
+    if (block.timestamp - s.routerPermissionInfo.proposedRouterTimestamp[router] <= _delay)
+      revert RoutersFacet__acceptProposedRouterOwner_notElapsed();
+
+    // Get current owner + proposed
+    address _proposed = s.routerPermissionInfo.proposedRouterOwners[router];
+
+    // Update the current owner
+    s.routerPermissionInfo.routerOwners[router] = _proposed;
+
+    // Reset proposal + timestamp
+    if (_proposed != address(0)) {
+      // delete proposedRouterOwners[router];
+      s.routerPermissionInfo.proposedRouterOwners[router] = address(0);
+    }
+    s.routerPermissionInfo.proposedRouterTimestamp[router] = 0;
+
+    // Emit event
+    emit RouterOwnerAccepted(router, owner, _proposed);
   }
 
   /**
