@@ -29,6 +29,7 @@ services:
     networks:
       - nxtp
   signer:
+    container_name: signer
     image: "ghcr.io/connext/web3signer:latest"
     restart: always
     ports:
