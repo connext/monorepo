@@ -576,6 +576,16 @@
                 "type": "uint32"
               },
               {
+                "internalType": "address",
+                "name": "callback",
+                "type": "address"
+              },
+              {
+                "internalType": "uint256",
+                "name": "callbackFee",
+                "type": "uint256"
+              },
+              {
                 "internalType": "bool",
                 "name": "forceSlow",
                 "type": "bool"
@@ -812,6 +822,11 @@
         "internalType": "address",
         "name": "_relayerFeeRouter",
         "type": "address"
+      },
+      {
+        "internalType": "address payable",
+        "name": "_promiseRouter",
+        "type": "address"
       }
     ],
     "name": "initialize",
@@ -840,6 +855,25 @@
     "name": "initiateClaim",
     "outputs": [],
     "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "_relayer",
+        "type": "address"
+      }
+    ],
+    "name": "isApprovedRelayer",
+    "outputs": [
+      {
+        "internalType": "bool",
+        "name": "",
+        "type": "bool"
+      }
+    ],
+    "stateMutability": "view",
     "type": "function"
   },
   {
@@ -900,6 +934,19 @@
     "outputs": [
       {
         "internalType": "address",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "promiseRouter",
+    "outputs": [
+      {
+        "internalType": "contract PromiseRouter",
         "name": "",
         "type": "address"
       }
@@ -1395,6 +1442,16 @@
                 "internalType": "uint32",
                 "name": "destinationDomain",
                 "type": "uint32"
+              },
+              {
+                "internalType": "address",
+                "name": "callback",
+                "type": "address"
+              },
+              {
+                "internalType": "uint256",
+                "name": "callbackFee",
+                "type": "uint256"
               },
               {
                 "internalType": "bool",

@@ -73,13 +73,9 @@ dataSources:
           # LiquidityRemoved: router, to, local, amount, caller
         - event: LiquidityRemoved(indexed address,address,address,uint256,address)
           handler: handleLiquidityRemoved
-          # XCalled: transferId, xcallArgs(params(to, callData, originDomain, destinationDomain), transactingAssetId, amount, relayerFee),
-          #   args(transactingAssetId, amount, bridgedAmt, bridged), nonce, message, caller
-        - event: XCalled(indexed bytes32,((address,bytes,uint32,uint32,bool,bool),address,uint256,uint256),(address,uint256,uint256,address),uint256,bytes,address)
+        - event: XCalled(indexed bytes32,((address,bytes,uint32,uint32,address,uint256,bool,bool),address,uint256,uint256),(address,uint256,uint256,address),uint256,bytes,address)
           handler: handleXCalled
-          # Executed: transferId, to, args(params(to, callData, originDomain, destinationDomain), local, routers, routerSignatures amount,
-          #   nonce, originSender), transactingAsset, transactingAmount, caller
-        - event: Executed(indexed bytes32,indexed address,((address,bytes,uint32,uint32,bool,bool),address,address[],bytes[],uint256,uint256,address),address,uint256,address)
+        - event: Executed(indexed bytes32,indexed address,((address,bytes,uint32,uint32,address,uint256,bool,bool),address,address[],bytes[],uint256,uint256,address),address,uint256,address)
           handler: handleExecuted
           # Reconciled: transferId, origin, routers, asset, amount, caller
         - event: Reconciled(indexed bytes32,indexed uint32,address[],address,uint256,address)
