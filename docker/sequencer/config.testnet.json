@@ -1,6 +1,6 @@
 {
   "redis": {
-    "host": "router-cache",
+    "host": "sequencer-cache",
     "port": 6379
   },
   "server": {
