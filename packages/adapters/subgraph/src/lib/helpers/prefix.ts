@@ -1,10 +1,5 @@
-import { getMeshOptions as _getMeshOptions, getBuiltGraphClient as _getBuiltGraphClient } from "../../../.graphclient";
 import { getContext } from "../../reader";
 import { DomainInvalid } from "../errors";
-
-export const getMeshOptions = _getMeshOptions;
-
-export const getBuiltGraphClient = _getBuiltGraphClient;
 
 /**
  * Finds the subgraph prefix for the given domain in the mesh config.
