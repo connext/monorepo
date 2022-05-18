@@ -11,6 +11,7 @@ import {XAppConnectionManager} from "../nomad-core/contracts/XAppConnectionManag
 import {RelayerFeeRouter} from "../nomad-xapps/contracts/relayer-fee-router/RelayerFeeRouter.sol";
 import {PromiseRouter} from "../nomad-xapps/contracts/promise-router/PromiseRouter.sol";
 import {XCallArgs, ExecuteArgs} from "../libraries/LibConnextStorage.sol";
+import {SwapUtils} from "../libraries/SwapUtils.sol";
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 
 interface IConnextHandler {
@@ -119,10 +120,6 @@ interface IConnextHandler {
 
   function relayerFeeRouter() external view returns (RelayerFeeRouter);
 
-  function LIQUIDITY_FEE_NUMERATOR() external view returns (uint256);
-
-  function LIQUIDITY_FEE_DENOMINATOR() external view returns (uint256);
-
   function addRelayer(address _relayer) external;
 
   function removeRelayer(address _relayer) external;
@@ -136,6 +133,10 @@ interface IConnextHandler {
   function claim(address _recipient, bytes32[] calldata _transferIds) external;
 
   // RoutersFacet
+  function LIQUIDITY_FEE_NUMERATOR() external view returns (uint256);
+
+  function LIQUIDITY_FEE_DENOMINATOR() external view returns (uint256);
+
   function getRouterApproval(address _router) external view returns (bool);
 
   function getRouterRecipient(address _router) external view returns (address);
@@ -166,32 +167,36 @@ interface IConnextHandler {
 
   function setMaxRoutersPerTransfer(uint256 _newMaxRouters) external;
 
-  function addLiquidityFor(
+  function addRouterLiquidityFor(
     uint256 _amount,
     address _local,
     address _router
   ) external payable;
 
-  function addLiquidity(uint256 _amount, address _local) external payable;
+  function addRouterLiquidity(uint256 _amount, address _local) external payable;
 
-  function removeLiquidity(
+  function removeRouterLiquidity(
     uint256 _amount,
     address _local,
     address payable _to
   ) external;
 
   // StableSwapFacet
-  function getA(bytes32 canonicalId) external view returns (uint256);
+  function getSwapStorage(bytes32 canonicalId) external view returns (SwapUtils.Swap memory);
 
-  function getAPrecise(bytes32 canonicalId) external view returns (uint256);
+  function getSwapLPToken(bytes32 canonicalId) external view returns (address);
 
-  function getToken(bytes32 canonicalId, uint8 index) external view returns (IERC20);
+  function getSwapA(bytes32 canonicalId) external view returns (uint256);
 
-  function getTokenIndex(bytes32 canonicalId, address tokenAddress) external view returns (uint8);
+  function getSwapAPrecise(bytes32 canonicalId) external view returns (uint256);
 
-  function getTokenBalance(bytes32 canonicalId, uint8 index) external view returns (uint256);
+  function getSwapToken(bytes32 canonicalId, uint8 index) external view returns (IERC20);
 
-  function getVirtualPrice(bytes32 canonicalId) external view returns (uint256);
+  function getSwapTokenIndex(bytes32 canonicalId, address tokenAddress) external view returns (uint8);
+
+  function getSwapTokenBalance(bytes32 canonicalId, uint8 index) external view returns (uint256);
+
+  function getSwapVirtualPrice(bytes32 canonicalId) external view returns (uint256);
 
   function calculateSwap(
     bytes32 canonicalId,
@@ -200,21 +205,21 @@ interface IConnextHandler {
     uint256 dx
   ) external view returns (uint256);
 
-  function calculateTokenAmount(
+  function calculateSwapTokenAmount(
     bytes32 canonicalId,
     uint256[] calldata amounts,
     bool deposit
   ) external view returns (uint256);
 
-  function calculateRemoveLiquidity(bytes32 canonicalId, uint256 amount) external view returns (uint256[] memory);
+  function calculateRemoveSwapLiquidity(bytes32 canonicalId, uint256 amount) external view returns (uint256[] memory);
 
-  function calculateRemoveLiquidityOneToken(
+  function calculateRemoveSwapLiquidityOneToken(
     bytes32 canonicalId,
     uint256 tokenAmount,
     uint8 tokenIndex
   ) external view returns (uint256);
 
-  function getAdminBalance(bytes32 canonicalId, uint256 index) external view returns (uint256);
+  function getSwapAdminBalance(bytes32 canonicalId, uint256 index) external view returns (uint256);
 
   function swap(
     bytes32 canonicalId,
@@ -234,21 +239,21 @@ interface IConnextHandler {
     uint256 deadline
   ) external payable returns (uint256);
 
-  function addStableLiquidity(
+  function addSwapLiquidity(
     bytes32 canonicalId,
     uint256[] calldata amounts,
     uint256 minToMint,
     uint256 deadline
   ) external returns (uint256);
 
-  function removeStableLiquidity(
+  function removeSwapLiquidity(
     bytes32 canonicalId,
     uint256 amount,
     uint256[] calldata minAmounts,
     uint256 deadline
   ) external returns (uint256[] memory);
 
-  function removeStableLiquidityOneToken(
+  function removeSwapLiquidityOneToken(
     bytes32 canonicalId,
     uint256 tokenAmount,
     uint8 tokenIndex,
@@ -256,14 +261,14 @@ interface IConnextHandler {
     uint256 deadline
   ) external returns (uint256);
 
-  function removeStableLiquidityImbalance(
+  function removeSwapLiquidityImbalance(
     bytes32 canonicalId,
     uint256[] calldata amounts,
     uint256 maxBurnAmount,
     uint256 deadline
   ) external returns (uint256);
 
-  function initializeStableSwap(
+  function initializeSwap(
     bytes32 _canonicalId,
     IERC20[] memory _pooledTokens,
     uint8[] memory decimals,
@@ -275,9 +280,9 @@ interface IConnextHandler {
     address lpTokenTargetAddress
   ) external;
 
-  function withdrawAdminFees(bytes32 canonicalId) external;
+  function withdrawSwapAdminFees(bytes32 canonicalId) external;
 
-  function setAdminFee(bytes32 canonicalId, uint256 newAdminFee) external;
+  function setSwapAdminFee(bytes32 canonicalId, uint256 newAdminFee) external;
 
   function setSwapFee(bytes32 canonicalId, uint256 newSwapFee) external;
 
