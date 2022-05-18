@@ -156,24 +156,26 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
   }
 
   function executeAndAssert(bytes32 _id, ExecuteArgs memory _args) public {
-    // get pre-execute liquidity if needed
+    // get pre-execute liquidity in local
     uint256 pathLen = _args.routers.length;
     uint256[] memory prevLiquidity = new uint256[](pathLen);
     for (uint256 i; i < pathLen; i++) {
       prevLiquidity[i] = s.routerBalances[_args.routers[i]][_local];
     }
 
-    // get pre-execute to balance
-    uint256 prevBalanceTo = IERC20(_local).balanceOf(_params.to);
-
-    // get pre-execute balance here
+    // get pre-execute balance here in local
     uint256 prevBalance = IERC20(_local).balanceOf(address(this));
+
+    // get pre-execute to balance in adopted
+    IERC20 token = IERC20(s.canonicalToAdopted[_canonicalTokenId]);
+    uint256 prevBalanceTo = token.balanceOf(_params.to);
 
     // execute
     vm.expectEmit(true, true, false, true);
     emit Executed(_id, _args.params.to, _args, _args.local, _args.amount, address(this));
     this.execute(_args);
 
+    // check local balance
     if (pathLen > 0) {
       // should decrement router balance
       for (uint256 i; i < pathLen; i++) {
@@ -185,7 +187,7 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
     }
 
     // should increment balance of `to` in `adopted`
-    assertEq(IERC20(_local).balanceOf(_params.to), prevBalanceTo + _amount);
+    assertEq(token.balanceOf(_params.to), prevBalanceTo + _amount);
 
     // should mark the transfer as executed
     assertEq(s.transferRelayer[_id], address(this));
@@ -248,7 +250,19 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
   }
 
   // should use the local asset if specified (receiveLocal = true)
-  function test_BridgeFacet__execute_receiveLocalWorks() public {}
+  function test_BridgeFacet__execute_receiveLocalWorks() public {
+    // set test params
+    _params.forceSlow = true;
+    _params.receiveLocal = true;
+
+    // get args
+    (bytes32 _id, ExecuteArgs memory _args) = getExecuteArgsNoRouters();
+
+    // set reconciled context
+    s.reconciledTransfers[_id] = true;
+
+    executeAndAssert(_id, _args);
+  }
 
   // should work without calldata
 
