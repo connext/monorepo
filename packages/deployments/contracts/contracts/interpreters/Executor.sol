@@ -103,7 +103,7 @@ contract Executor is IExecutor {
     bool isNative = _args.assetId == address(0);
 
     if (!AddressUpgradeable.isContract(_args.to)) {
-      _handleFailure(isNative, _args.assetId, payable(_args.to), payable(_args.recovery), _args.amount);
+      _handleFailure(isNative, false, _args.assetId, payable(_args.to), payable(_args.recovery), _args.amount);
       // Emit event
       emit Executed(
         _args.transferId,
@@ -149,7 +149,7 @@ contract Executor is IExecutor {
 
     // Handle failure cases
     if (!success) {
-      _handleFailure(isNative, _args.assetId, payable(_args.to), payable(_args.recovery), _args.amount);
+      _handleFailure(isNative, true, _args.assetId, payable(_args.to), payable(_args.recovery), _args.amount);
     }
 
     // Emit event
@@ -169,6 +169,7 @@ contract Executor is IExecutor {
 
   function _handleFailure(
     bool isNative,
+    bool hasIncreased,
     address _assetId,
     address payable _to,
     address payable _recovery,
@@ -176,7 +177,9 @@ contract Executor is IExecutor {
   ) private {
     if (!isNative) {
       // Decrease allowance
-      SafeERC20Upgradeable.safeDecreaseAllowance(IERC20Upgradeable(_assetId), _to, _amount);
+      if (hasIncreased) {
+        SafeERC20Upgradeable.safeDecreaseAllowance(IERC20Upgradeable(_assetId), _to, _amount);
+      }
       // Transfer funds
       SafeERC20Upgradeable.safeTransfer(IERC20Upgradeable(_assetId), _recovery, _amount);
     } else {

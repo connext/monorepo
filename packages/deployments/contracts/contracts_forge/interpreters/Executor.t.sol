@@ -182,6 +182,34 @@ contract ExecutorTest is ForgeHelper {
 
   // Fails if not called by connext
 
+  // Should gracefully handle failure of no code at to
+  function test_Executor__execute_handlesNoCodeFailure() public {
+    // Get the calldata
+    bytes memory data = abi.encodeWithSelector(PropertyQuery.setAmount.selector, "");
+    bytes memory property = LibCrossDomainProperty.EMPTY_BYTES;
+
+    // Get starting recovery balance
+    uint256 initRecovery = asset.balanceOf(recovery);
+
+    // send tx
+    uint256 amount = 1200;
+    (bool success, ) = executor.execute(
+      IExecutor.ExecutorArgs(
+        transferId,
+        amount,
+        payable(address(12344321)),
+        payable(recovery),
+        address(asset),
+        property,
+        data
+      )
+    );
+    assertTrue(!success);
+
+    // should have transferred funds to recovery address
+    assertEq(asset.balanceOf(recovery), initRecovery + amount);
+  }
+
   // Should work with native asset
 
   // Should work with tokens
