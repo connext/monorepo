@@ -53,6 +53,7 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
       bytes(""), // callData
       _originDomain, // origin domain
       _destinationDomain, // destination domain
+      address(11), // recovery address
       address(0), // callback
       0, // callbackFee
       false, // forceSlow
