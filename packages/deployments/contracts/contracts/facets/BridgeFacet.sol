@@ -11,6 +11,7 @@ import {ITokenRegistry, IBridgeToken} from "../nomad-xapps/interfaces/bridge/ITo
 import {TypedMemView} from "../nomad-core/libs/TypedMemView.sol";
 import {TypeCasts} from "../nomad-core/contracts/XAppConnectionManager.sol";
 import {PromiseRouter} from "../nomad-xapps/contracts/promise-router/PromiseRouter.sol";
+import {RelayerFeeRouter} from "../nomad-xapps/contracts/relayer-fee-router/RelayerFeeRouter.sol";
 
 import {IExecutor} from "../interfaces/IExecutor.sol";
 import {IWrapped} from "../interfaces/IWrapped.sol";
@@ -18,7 +19,7 @@ import {ISponsorVault} from "../interfaces/ISponsorVault.sol";
 
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import {ECDSA} from "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
-import {AddressUpgradeable} from "@openzeppelin/contracts-upgradeable/utils/AddressUpgradeable.sol";
+import {Address} from "@openzeppelin/contracts/utils/Address.sol";
 
 contract BridgeFacet is BaseConnextFacet {
   // ============ Libraries ============
@@ -37,6 +38,11 @@ contract BridgeFacet is BaseConnextFacet {
 
   // ========== Custom Errors ===========
 
+  error BridgeFacet__setTokenRegistry_invalidTokenRegistry();
+  error BridgeFacet__setRelayerFeeRouter_invalidRelayerFeeRouter();
+  error BridgeFacet__setPromiseRouter_invalidPromiseRouter();
+  error BridgeFacet__setExecutor_invalidExecutor();
+  error BridgeFacet__setWrapper_invalidWrapper();
   error BridgeFacet__setSponsorVault_invalidSponsorVault();
   error BridgeFacet__xcall_wrongDomain();
   error BridgeFacet__xcall_emptyTo();
@@ -123,6 +129,46 @@ contract BridgeFacet is BaseConnextFacet {
    */
   event SponsorVaultUpdated(address oldSponsorVault, address newSponsorVault, address caller);
 
+  /**
+   * @notice Emitted when the tokenRegistry variable is updated
+   * @param oldTokenRegistry - The tokenRegistry old value
+   * @param newTokenRegistry - The tokenRegistry new value
+   * @param caller - The account that called the function
+   */
+  event TokenRegistryUpdated(address oldTokenRegistry, address newTokenRegistry, address caller);
+
+  /**
+   * @notice Emitted when the relayerFeeRouter variable is updated
+   * @param oldRouter - The relayerFeeRouter old value
+   * @param newRouter - The relayerFeeRouter new value
+   * @param caller - The account that called the function
+   */
+  event RelayerFeeRouterUpdated(address oldRouter, address newRouter, address caller);
+
+  /**
+   * @notice Emitted when the promiseRouter variable is updated
+   * @param oldRouter - The promiseRouter old value
+   * @param newRouter - The promiseRouter new value
+   * @param caller - The account that called the function
+   */
+  event PromiseRouterUpdated(address oldRouter, address newRouter, address caller);
+
+  /**
+   * @notice Emitted when the executor variable is updated
+   * @param oldExecutor - The executor old value
+   * @param newExecutor - The executor new value
+   * @param caller - The account that called the function
+   */
+  event ExecutorUpdated(address oldExecutor, address newExecutor, address caller);
+
+  /**
+   * @notice Emitted when the wrapper variable is updated
+   * @param oldWrapper - The wrapper old value
+   * @param newWrapper - The wrapper new value
+   * @param caller - The account that called the function
+   */
+  event WrapperUpdated(address oldWrapper, address newWrapper, address caller);
+
   // ============ Getters ============
 
   function relayerFees(bytes32 _transferId) public view returns (uint256) {
@@ -161,11 +207,53 @@ contract BridgeFacet is BaseConnextFacet {
     return s.sponsorVault;
   }
 
+  function relayerFeeRouter() external view returns (RelayerFeeRouter) {
+    return s.relayerFeeRouter;
+  }
+
   function promiseRouter() external view returns (PromiseRouter) {
     return s.promiseRouter;
   }
 
   // ============ Public methods ==============
+
+  function setTokenRegistry(address _tokenRegistry) external onlyOwner {
+    if (address(s.tokenRegistry) == _tokenRegistry) revert BridgeFacet__setTokenRegistry_invalidTokenRegistry();
+
+    emit SponsorVaultUpdated(address(s.sponsorVault), _tokenRegistry, msg.sender);
+    s.tokenRegistry = ITokenRegistry(_tokenRegistry);
+  }
+
+  function setRelayerFeeRouter(address _relayerFeeRouter) external onlyOwner {
+    if (address(s.relayerFeeRouter) == _relayerFeeRouter)
+      revert BridgeFacet__setRelayerFeeRouter_invalidRelayerFeeRouter();
+
+    emit RelayerFeeRouterUpdated(address(s.relayerFeeRouter), _relayerFeeRouter, msg.sender);
+    s.relayerFeeRouter = RelayerFeeRouter(_relayerFeeRouter);
+  }
+
+  function setPromiseRouter(address payable _promiseRouter) external onlyOwner {
+    if (address(s.promiseRouter) == _promiseRouter) revert BridgeFacet__setPromiseRouter_invalidPromiseRouter();
+
+    emit PromiseRouterUpdated(address(s.promiseRouter), _promiseRouter, msg.sender);
+    s.promiseRouter = PromiseRouter(_promiseRouter);
+  }
+
+  function setExecutor(address _executor) external onlyOwner {
+    if (address(s.executor) == _executor || !Address.isContract(_executor))
+      revert BridgeFacet__setExecutor_invalidExecutor();
+
+    emit ExecutorUpdated(address(s.executor), _executor, msg.sender);
+    s.executor = IExecutor(_executor);
+  }
+
+  function setWrapper(address _wrapper) external onlyOwner {
+    if (address(s.wrapper) == _wrapper || !Address.isContract(_wrapper))
+      revert BridgeFacet__setWrapper_invalidWrapper();
+
+    emit WrapperUpdated(address(s.wrapper), _wrapper, msg.sender);
+    s.wrapper = IWrapped(_wrapper);
+  }
 
   function setSponsorVault(address _sponsorVault) external onlyOwner {
     if (address(s.sponsorVault) == _sponsorVault) revert BridgeFacet__setSponsorVault_invalidSponsorVault();
@@ -277,7 +365,7 @@ contract BridgeFacet is BaseConnextFacet {
     }
 
     // ensure callback is contract if supplied
-    if (_args.params.callback != address(0) && !AddressUpgradeable.isContract(_args.params.callback)) {
+    if (_args.params.callback != address(0) && !Address.isContract(_args.params.callback)) {
       revert BridgeFacet__xcall_callbackNotAContract();
     }
   }
