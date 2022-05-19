@@ -23,16 +23,6 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment): Promise<voi
 
   const UNVERIFIABLE_CONTRACTS = [
     {
-      name: getDeploymentName("ConnextHandler") + "_Implementation",
-      libraries: {
-        // AssetLogic: (await hre.deployments.get(getDeploymentName("AssetLogic"))).address,
-        ConnextLogic: (await hre.deployments.get(getDeploymentName("ConnextLogic"))).address,
-        RouterPermissionsManagerLogic: (await hre.deployments.get(getDeploymentName("RouterPermissionsManagerLogic")))
-          .address,
-      },
-      constructorArgs: [],
-    },
-    {
       name: getDeploymentName("StableSwap"),
       libraries: {
         SwapUtils: (await hre.deployments.get(getDeploymentName("SwapUtils"))).address,
