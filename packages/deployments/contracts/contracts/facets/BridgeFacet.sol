@@ -218,14 +218,15 @@ contract BridgeFacet is BaseConnextFacet {
   // ============ Public methods ==============
 
   function setTokenRegistry(address _tokenRegistry) external onlyOwner {
-    if (address(s.tokenRegistry) == _tokenRegistry) revert BridgeFacet__setTokenRegistry_invalidTokenRegistry();
+    if (address(s.tokenRegistry) == _tokenRegistry || !Address.isContract(_tokenRegistry))
+      revert BridgeFacet__setTokenRegistry_invalidTokenRegistry();
 
-    emit SponsorVaultUpdated(address(s.sponsorVault), _tokenRegistry, msg.sender);
+    emit TokenRegistryUpdated(address(s.tokenRegistry), _tokenRegistry, msg.sender);
     s.tokenRegistry = ITokenRegistry(_tokenRegistry);
   }
 
   function setRelayerFeeRouter(address _relayerFeeRouter) external onlyOwner {
-    if (address(s.relayerFeeRouter) == _relayerFeeRouter)
+    if (address(s.relayerFeeRouter) == _relayerFeeRouter || !Address.isContract(_relayerFeeRouter))
       revert BridgeFacet__setRelayerFeeRouter_invalidRelayerFeeRouter();
 
     emit RelayerFeeRouterUpdated(address(s.relayerFeeRouter), _relayerFeeRouter, msg.sender);
@@ -233,7 +234,8 @@ contract BridgeFacet is BaseConnextFacet {
   }
 
   function setPromiseRouter(address payable _promiseRouter) external onlyOwner {
-    if (address(s.promiseRouter) == _promiseRouter) revert BridgeFacet__setPromiseRouter_invalidPromiseRouter();
+    if (address(s.promiseRouter) == _promiseRouter || !Address.isContract(_promiseRouter))
+      revert BridgeFacet__setPromiseRouter_invalidPromiseRouter();
 
     emit PromiseRouterUpdated(address(s.promiseRouter), _promiseRouter, msg.sender);
     s.promiseRouter = PromiseRouter(_promiseRouter);
