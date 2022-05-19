@@ -40,6 +40,7 @@ export const originTransfer = (entity: any): OriginTransfer => {
     nonce: BigNumber.from(entity.nonce).toNumber(),
     originDomain: entity.originDomain,
     destinationDomain: entity.destinationDomain,
+    relayerFee: entity.relayerFee,
 
     // Call Params
     xparams: {
@@ -49,6 +50,9 @@ export const originTransfer = (entity: any): OriginTransfer => {
       callbackFee: entity.callbackFee,
       forceSlow: entity.forceSlow,
       receiveLocal: entity.receiveLocal,
+      destinationDomain: entity.destinationDomain,
+      originDomain: entity.originDomain,
+      recovery: entity.recovery,
     },
 
     // Origin Info
@@ -130,6 +134,9 @@ export const destinationTransfer = (entity: any): DestinationTransfer => {
             callbackFee: entity.callbackFee,
             forceSlow: entity.forceSlow,
             receiveLocal: entity.receiveLocal,
+            destinationDomain: entity.destinationDomain,
+            originDomain: entity.originDomain,
+            recovery: entity.recovery,
           }
         : undefined,
 
