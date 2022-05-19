@@ -79,6 +79,7 @@
     "dotenv": "16.0.0",
     "eslint": "8.11.0",
     "hardhat-deploy": "0.11.2",
+    "hardhat-diamond-abi": "^2.0.0",
     "hardhat-gas-reporter": "1.0.8",
     "typechain": "8.0.0"
   },
