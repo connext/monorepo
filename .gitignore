@@ -3,8 +3,6 @@
 !.yarn/releases
 !.yarn/plugins
 
-yarn.lock
-
 _tmp
 build
 dist*
