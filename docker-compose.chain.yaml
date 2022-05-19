@@ -6,7 +6,7 @@ services:
       - MNEMONIC=$MNEMONIC
     container_name: chain-1337-test
     image: ghcr.io/foundry-rs/foundry:nightly
-    entrypoint: 'anvil --chain-id 1338 --mnemonic "$MNEMONIC" --host 0.0.0.0 --block-time 3 --verbosity'
+    entrypoint: 'anvil --chain-id 1337 --mnemonic "$MNEMONIC" --host 0.0.0.0 --block-time 3 --verbosity'
     ports:
       - "8547:8545"
   chain-1338:
