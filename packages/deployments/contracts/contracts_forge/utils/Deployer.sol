@@ -8,7 +8,6 @@ import {DiamondInit} from "../../contracts/upgradeInitializers/DiamondInit.sol";
 import {AssetFacet} from "../../contracts/facets/AssetFacet.sol";
 import {BridgeFacet} from "../../contracts/facets/BridgeFacet.sol";
 import {NomadFacet} from "../../contracts/facets/NomadFacet.sol";
-import {OwnershipFacet} from "../../contracts/facets/OwnershipFacet.sol";
 import {ProposedOwnableFacet} from "../../contracts/facets/ProposedOwnableFacet.sol";
 import {RelayerFacet} from "../../contracts/facets/RelayerFacet.sol";
 import {RoutersFacet} from "../../contracts/facets/RoutersFacet.sol";
@@ -27,7 +26,6 @@ contract Deployer {
   AssetFacet assetFacet;
   BridgeFacet bridgeFacet;
   NomadFacet nomadFacet;
-  OwnershipFacet ownershipFacet;
   ProposedOwnableFacet proposedOwnableFacet;
   RelayerFacet relayerFacet;
   RoutersFacet routersFacet;
@@ -125,25 +123,13 @@ contract Deployer {
       });
   }
 
-  function getOwnershipFacetCut(address _ownershipFacet) internal pure returns (IDiamondCut.FacetCut memory) {
-    bytes4[] memory ownershipFacetSelectors = new bytes4[](2);
-    ownershipFacetSelectors[0] = OwnershipFacet.transferOwnership.selector;
-    ownershipFacetSelectors[1] = OwnershipFacet.owner.selector;
-    return
-      IDiamondCut.FacetCut({
-        facetAddress: _ownershipFacet,
-        action: IDiamondCut.FacetCutAction.Add,
-        functionSelectors: ownershipFacetSelectors
-      });
-  }
-
   function getProposedOwnableFacetCut(address _proposedOwnableFacet)
     internal
     pure
     returns (IDiamondCut.FacetCut memory)
   {
     bytes4[] memory proposedOwnableFacetSelectors = new bytes4[](14);
-    proposedOwnableFacetSelectors[0] = ProposedOwnableFacet.proposedOwnableOwner.selector;
+    proposedOwnableFacetSelectors[0] = ProposedOwnableFacet.owner.selector;
     proposedOwnableFacetSelectors[1] = ProposedOwnableFacet.proposed.selector;
     proposedOwnableFacetSelectors[2] = ProposedOwnableFacet.proposedTimestamp.selector;
     proposedOwnableFacetSelectors[3] = ProposedOwnableFacet.routerOwnershipTimestamp.selector;
@@ -266,7 +252,6 @@ contract Deployer {
     assetFacet = new AssetFacet();
     bridgeFacet = new BridgeFacet();
     nomadFacet = new NomadFacet();
-    ownershipFacet = new OwnershipFacet();
     proposedOwnableFacet = new ProposedOwnableFacet();
     relayerFacet = new RelayerFacet();
     routersFacet = new RoutersFacet();
@@ -275,18 +260,17 @@ contract Deployer {
   }
 
   function getFacetCuts() internal view returns (IDiamondCut.FacetCut[] memory) {
-    IDiamondCut.FacetCut[] memory facetCuts = new IDiamondCut.FacetCut[](11);
+    IDiamondCut.FacetCut[] memory facetCuts = new IDiamondCut.FacetCut[](10);
     facetCuts[0] = getTestSetterFacetCut(address(testSetterFacet));
     facetCuts[1] = getDiamondCutFacetCut(address(diamondCutFacet));
     facetCuts[2] = getDiamondLoupeFacetCut(address(diamondLoupeFacet));
     facetCuts[3] = getAssetFacetCut(address(assetFacet));
     facetCuts[4] = getBridgeFacetCut(address(bridgeFacet));
     facetCuts[5] = getNomadFacetCut(address(nomadFacet));
-    facetCuts[6] = getOwnershipFacetCut(address(ownershipFacet));
-    facetCuts[7] = getProposedOwnableFacetCut(address(proposedOwnableFacet));
-    facetCuts[8] = getRelayerFacetCut(address(relayerFacet));
-    facetCuts[9] = getRoutersFacetCut(address(routersFacet));
-    facetCuts[10] = getStableSwapFacetCut(address(stableSwapAsset));
+    facetCuts[6] = getProposedOwnableFacetCut(address(proposedOwnableFacet));
+    facetCuts[7] = getRelayerFacetCut(address(relayerFacet));
+    facetCuts[8] = getRoutersFacetCut(address(routersFacet));
+    facetCuts[9] = getStableSwapFacetCut(address(stableSwapAsset));
 
     return facetCuts;
   }

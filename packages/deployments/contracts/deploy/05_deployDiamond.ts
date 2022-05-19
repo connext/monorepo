@@ -1,12 +1,12 @@
 import { HardhatRuntimeEnvironment } from "hardhat/types";
 import { DeployFunction } from "hardhat-deploy/types";
 import { constants, utils, Wallet } from "ethers";
+import { deployments, ethers } from "hardhat";
+import { keccak256 } from "ethers/lib/utils";
 
 import { SKIP_SETUP, WRAPPED_ETH_MAP } from "../src/constants";
 import { getDeploymentName } from "../src/utils";
 import { getDomainInfoFromChainId } from "../src/nomad";
-import { deployments, ethers } from "hardhat";
-import { keccak256 } from "ethers/lib/utils";
 
 /**
  * Hardhat task defining the contract deployments for nxtp
@@ -118,6 +118,8 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment): Promise<voi
         args: [],
       },
     ],
+    diamondContractArgs: [deployer.address],
+    defaultOwnershipFacet: false,
     execute: {
       contract: "DiamondInit",
       methodName: "init",

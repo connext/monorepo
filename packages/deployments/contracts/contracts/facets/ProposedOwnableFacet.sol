@@ -2,6 +2,8 @@
 pragma solidity 0.8.11;
 
 import {BaseConnextFacet} from "./BaseConnextFacet.sol";
+import {LibDiamond} from "../libraries/LibDiamond.sol";
+import {IProposedOwnable} from "../interfaces/IProposedOwnable.sol";
 
 /**
  * @title ProposedOwnable
@@ -23,7 +25,7 @@ import {BaseConnextFacet} from "./BaseConnextFacet.sol";
  * contract
  *
  */
-contract ProposedOwnableFacet is BaseConnextFacet {
+contract ProposedOwnableFacet is BaseConnextFacet, IProposedOwnable {
   // ========== Custom Errors ===========
   error ProposedOwnableFacet__proposeRouterOwnershipRenunciation_noOwnershipChange();
   error ProposedOwnableFacet__renounceRouterOwnership_noOwnershipChange();
@@ -53,15 +55,11 @@ contract ProposedOwnableFacet is BaseConnextFacet {
 
   event AssetOwnershipRenounced(bool renounced);
 
-  event OwnershipProposed(address indexed proposedOwner);
-
-  event ProposedOwnableOwnershipTransferred(address indexed previousOwner, address indexed newOwner);
-
   /**
    * @notice Returns the address of the current owner.
    */
-  function proposedOwnableOwner() public view returns (address) {
-    return s._owner;
+  function owner() public view returns (address) {
+    return LibDiamond.contractOwner();
   }
 
   /**
@@ -171,7 +169,7 @@ contract ProposedOwnableFacet is BaseConnextFacet {
    * checking if current owner is address(0)
    */
   function renounced() public view returns (bool) {
-    return s._owner == address(0);
+    return owner() == address(0);
   }
 
   /**
@@ -184,7 +182,7 @@ contract ProposedOwnableFacet is BaseConnextFacet {
       revert ProposedOwnableFacet__proposeNewOwner_invalidProposal();
 
     // Sanity check: reasonable proposal
-    if (s._owner == newlyProposed) revert ProposedOwnableFacet__proposeNewOwner_noOwnershipChange();
+    if (owner() == newlyProposed) revert ProposedOwnableFacet__proposeNewOwner_noOwnershipChange();
 
     _setProposed(newlyProposed);
   }
@@ -213,7 +211,7 @@ contract ProposedOwnableFacet is BaseConnextFacet {
    */
   function acceptProposedOwner() public onlyProposed {
     // Contract as source of truth
-    if (s._owner == s._proposed) revert ProposedOwnableFacet__acceptProposedOwner_noOwnershipChange();
+    if (owner() == s._proposed) revert ProposedOwnableFacet__acceptProposedOwner_noOwnershipChange();
 
     // NOTE: no need to check if _proposedOwnershipTimestamp > 0 because
     // the only time this would happen is if the _proposed was never
@@ -253,10 +251,8 @@ contract ProposedOwnableFacet is BaseConnextFacet {
   }
 
   function _setOwner(address newOwner) private {
-    address oldOwner = s._owner;
-    s._owner = newOwner;
     s._proposedOwnershipTimestamp = 0;
-    emit ProposedOwnableOwnershipTransferred(oldOwner, newOwner);
+    LibDiamond.setContractOwner(newOwner);
   }
 
   function _setProposed(address newlyProposed) private {
