@@ -77,6 +77,7 @@ export const XTransferDestinationSchema = Type.Object({
       Type.Object({
         // Executed Event Data
         originSender: Type.Optional(TAddress),
+        relayerFee: TIntegerString,
       }),
     ]),
   ),
@@ -93,7 +94,6 @@ export const XTransferSchema = Type.Intersect([
 
     // NOTE: Nonce is delivered by XCalled and Executed events, but not Reconciled event.
     nonce: Type.Optional(Type.Integer()),
-    relayerFee: Type.Optional(TIntegerString),
 
     // Call Params
     // NOTE: CallParams is emitted by XCalled and Executed events, but not Reconciled event.

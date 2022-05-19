@@ -17,7 +17,9 @@ CREATE TYPE public.transfer_status AS ENUM (
     'XCalled',
     'Executed',
     'Reconciled',
-    'Completed'
+    'Completed',
+    'CompletedSlow',
+    'CompletedFast'
 );
 
 
@@ -133,7 +135,11 @@ CREATE TABLE public.transfers (
     reconcile_gas_limit numeric,
     reconcile_block_number integer,
     force_slow boolean,
-    receive_local boolean
+    receive_local boolean,
+    callback character(42),
+    recovery character(42),
+    callback_fee numeric,
+    execute_relayer_fee numeric
 );
 
 
@@ -207,4 +213,5 @@ INSERT INTO public.schema_migrations (version) VALUES
     ('20220504052525'),
     ('20220505103130'),
     ('20220506152644'),
-    ('20220513235208');
+    ('20220513235208'),
+    ('20220519173917');
