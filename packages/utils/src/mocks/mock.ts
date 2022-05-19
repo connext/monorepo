@@ -163,6 +163,7 @@ export const mock: any = {
               callData: "0x",
               callback: mkAddress("0x"),
               callbackFee: "0",
+              recovery: mkAddress("0x"),
               forceSlow: false,
               receiveLocal: false,
             }

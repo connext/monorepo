@@ -93,6 +93,7 @@ export const XTransferSchema = Type.Intersect([
 
     // NOTE: Nonce is delivered by XCalled and Executed events, but not Reconciled event.
     nonce: Type.Optional(Type.Integer()),
+    relayerFee: Type.Optional(TIntegerString),
 
     // Call Params
     // NOTE: CallParams is emitted by XCalled and Executed events, but not Reconciled event.
@@ -101,6 +102,7 @@ export const XTransferSchema = Type.Intersect([
         to: TAddress,
         callData: Type.String(),
         callback: TAddress,
+        recovery: TAddress,
         callbackFee: TIntegerString,
         forceSlow: Type.Boolean(),
         receiveLocal: Type.Boolean(),

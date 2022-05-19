@@ -43,13 +43,15 @@ describe("Helpers:Auctions", () => {
         routers: bids.map((b) => b.router),
         routerSignatures: bids.map((b) => b.signatures[bids.length.toString()]),
         amount: transfer.origin.assets.bridged.amount,
-        relayerFee: transfer.relayerFee,
+        relayerFee: transfer.origin.xcall.relayerFee,
         nonce: transfer.nonce,
         originSender: transfer.origin.xcall.caller,
       };
 
       const encoded = encodeExecuteFromBids(bids, transfer, mockLocalAsset);
       expect(encoded).to.be.eq(mockEncoded);
+
+      console.log(expectedArgs);
       expect(encodeFunctionDataStub.calledWith("execute", [expectedArgs])).to.be.true;
     });
 
