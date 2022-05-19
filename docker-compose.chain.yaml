@@ -2,15 +2,19 @@ version: "3.3"
 
 services:
   chain-1337:
+    environment:
+      MNEMONIC: 'candy maple cake sugar pudding cream honey rich smooth crumble sweet treat'
     container_name: chain-1337-test
     image: ghcr.io/foundry-rs/foundry:nightly
-    command: "anvil --chain-id 1337 --mnemonic 'candy maple cake sugar pudding cream honey rich smooth crumble sweet treat' --host 0.0.0.0 --block-time 3 --verbosity"
+    entrypoint: 'anvil --chain-id 1338 --mnemonic "$MNEMONIC" --host 0.0.0.0 --block-time 3 --verbosity'
     ports:
       - "8547:8545"
   chain-1338:
+    environment:
+      MNEMONIC: 'candy maple cake sugar pudding cream honey rich smooth crumble sweet treat'
     container_name: chain-1338-test
     image: ghcr.io/foundry-rs/foundry:nightly
-    command: "anvil --chain-id 1338 --mnemonic 'candy maple cake sugar pudding cream honey rich smooth crumble sweet treat' --host 0.0.0.0 --block-time 3 --verbosity"
+    entrypoint: 'anvil --chain-id 1338 --mnemonic "$MNEMONIC" --host 0.0.0.0 --block-time 3 --verbosity'
     ports:
       - "8546:8545"
 
