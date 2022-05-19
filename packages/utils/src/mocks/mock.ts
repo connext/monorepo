@@ -224,7 +224,7 @@ export const mock: any = {
 
               // If status is executed, we should have executed fields defined (but leave reconciled fields empty).
               execute:
-                status === XTransferStatus.Executed || status === XTransferStatus.Completed
+                status === XTransferStatus.Executed || status === XTransferStatus.CompletedSlow
                   ? {
                       originSender: user,
                       caller: mock.address.relayer,
@@ -237,7 +237,7 @@ export const mock: any = {
                   : undefined,
 
               reconcile:
-                status === XTransferStatus.Reconciled || status === XTransferStatus.Completed
+                status === XTransferStatus.Reconciled || status === XTransferStatus.CompletedFast
                   ? {
                       caller: mock.address.relayer,
                       transactionHash: getRandomBytes32(),

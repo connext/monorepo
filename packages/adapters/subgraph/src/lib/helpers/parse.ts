@@ -50,8 +50,8 @@ export const originTransfer = (entity: any): OriginTransfer => {
       callbackFee: entity.callbackFee,
       forceSlow: entity.forceSlow,
       receiveLocal: entity.receiveLocal,
-      destinationDomain: entity.destinationDomain,
       originDomain: entity.originDomain,
+      destinationDomain: entity.destinationDomain,
       recovery: entity.recovery,
     },
 

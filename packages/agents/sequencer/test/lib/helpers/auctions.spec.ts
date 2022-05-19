@@ -35,6 +35,7 @@ describe("Helpers:Auctions", () => {
           callData: transfer.xparams.callData,
           callback: constants.AddressZero,
           callbackFee: "0",
+          recovery: transfer.xparams.recovery,
           forceSlow: transfer.xparams.forceSlow,
           receiveLocal: transfer.xparams.receiveLocal,
         },
