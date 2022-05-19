@@ -363,6 +363,7 @@ export const connextXCall = async (
   relayerFee: number,
   params: {
     to: string;
+    recovery: string;
     callData: string;
     originDomain: number;
     destinationDomain: number;
