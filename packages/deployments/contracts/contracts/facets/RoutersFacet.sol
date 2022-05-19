@@ -40,9 +40,9 @@ contract RoutersFacet is BaseConnextFacet {
   error RoutersFacet__addLiquidityForRouter_amountIsZero();
   error RoutersFacet__addLiquidityForRouter_badRouter();
   error RoutersFacet__addLiquidityForRouter_badAsset();
-  error RoutersFacet__removeLiquidity_recipientEmpty();
-  error RoutersFacet__removeLiquidity_amountIsZero();
-  error RoutersFacet__removeLiquidity_insufficientFunds();
+  error RoutersFacet__removeRouterLiquidity_recipientEmpty();
+  error RoutersFacet__removeRouterLiquidity_amountIsZero();
+  error RoutersFacet__removeRouterLiquidity_insufficientFunds();
   error RoutersFacet__setLiquidityFeeNumerator_tooSmall();
 
   // ============ Properties ============
@@ -111,7 +111,13 @@ contract RoutersFacet is BaseConnextFacet {
    * @param amount - The amount of liquidity added
    * @param caller - The account that called the function
    */
-  event LiquidityAdded(address indexed router, address local, bytes32 canonicalId, uint256 amount, address caller);
+  event RouterLiquidityAdded(
+    address indexed router,
+    address local,
+    bytes32 canonicalId,
+    uint256 amount,
+    address caller
+  );
 
   /**
    * @notice Emitted when a router withdraws liquidity from the contract
@@ -121,7 +127,7 @@ contract RoutersFacet is BaseConnextFacet {
    * @param amount - The amount of liquidity withdrawn
    * @param caller - The account that called the function
    */
-  event LiquidityRemoved(address indexed router, address to, address local, uint256 amount, address caller);
+  event RouterLiquidityRemoved(address indexed router, address to, address local, uint256 amount, address caller);
 
   // ============ Modifiers ============
 
@@ -391,7 +397,7 @@ contract RoutersFacet is BaseConnextFacet {
    * native asset, routers may use `address(0)` or the wrapped asset
    * @param _router The router you are adding liquidity on behalf of
    */
-  function addLiquidityFor(
+  function addRouterLiquidityFor(
     uint256 _amount,
     address _local,
     address _router
@@ -407,7 +413,7 @@ contract RoutersFacet is BaseConnextFacet {
    * @param _local - The address of the asset you're adding liquidity for. If adding liquidity of the
    * native asset, routers may use `address(0)` or the wrapped asset
    */
-  function addLiquidity(uint256 _amount, address _local) external payable nonReentrant {
+  function addRouterLiquidity(uint256 _amount, address _local) external payable nonReentrant {
     _addLiquidityForRouter(_amount, _local, msg.sender);
   }
 
@@ -418,7 +424,7 @@ contract RoutersFacet is BaseConnextFacet {
    * native asset, routers may use `address(0)` or the wrapped asset
    * @param _to The address that will receive the liquidity being removed
    */
-  function removeLiquidity(
+  function removeRouterLiquidity(
     uint256 _amount,
     address _local,
     address payable _to
@@ -428,14 +434,14 @@ contract RoutersFacet is BaseConnextFacet {
     recipient = recipient == address(0) ? _to : recipient;
 
     // Sanity check: to is sensible
-    if (recipient == address(0)) revert RoutersFacet__removeLiquidity_recipientEmpty();
+    if (recipient == address(0)) revert RoutersFacet__removeRouterLiquidity_recipientEmpty();
 
     // Sanity check: nonzero amounts
-    if (_amount == 0) revert RoutersFacet__removeLiquidity_amountIsZero();
+    if (_amount == 0) revert RoutersFacet__removeRouterLiquidity_amountIsZero();
 
     uint256 routerBalance = s.routerBalances[msg.sender][_local];
     // Sanity check: amount can be deducted for the router
-    if (routerBalance < _amount) revert RoutersFacet__removeLiquidity_insufficientFunds();
+    if (routerBalance < _amount) revert RoutersFacet__removeRouterLiquidity_insufficientFunds();
 
     // Update router balances
     unchecked {
@@ -446,7 +452,7 @@ contract RoutersFacet is BaseConnextFacet {
     AssetLogic.transferAssetFromContract(_local, recipient, _amount);
 
     // Emit event
-    emit LiquidityRemoved(msg.sender, recipient, _local, _amount, msg.sender);
+    emit RouterLiquidityRemoved(msg.sender, recipient, _local, _amount, msg.sender);
   }
 
   // ============ Internal functions ============
@@ -489,6 +495,6 @@ contract RoutersFacet is BaseConnextFacet {
     s.routerBalances[_router][asset] += received;
 
     // Emit event
-    emit LiquidityAdded(_router, asset, canonicalId, received, msg.sender);
+    emit RouterLiquidityAdded(_router, asset, canonicalId, received, msg.sender);
   }
 }

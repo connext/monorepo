@@ -676,14 +676,17 @@ contract BridgeFacet is BaseConnextFacet {
       // execute calldata w/funds
       AssetLogic.transferAssetFromContract(_adopted, address(s.executor), _amount);
       (bool success, bytes memory returnData) = s.executor.execute(
-        _transferId,
-        _amount,
-        payable(_args.params.to),
-        _adopted,
-        _reconciled
-          ? LibCrossDomainProperty.formatDomainAndSenderBytes(_args.params.originDomain, _args.originSender)
-          : LibCrossDomainProperty.EMPTY_BYTES,
-        _args.params.callData
+        IExecutor.ExecutorArgs(
+          _transferId,
+          _amount,
+          _args.params.to,
+          _args.params.recovery,
+          _adopted,
+          _reconciled
+            ? LibCrossDomainProperty.formatDomainAndSenderBytes(_args.params.originDomain, _args.originSender)
+            : LibCrossDomainProperty.EMPTY_BYTES,
+          _args.params.callData
+        )
       );
 
       // If callback address is not zero, send on the PromiseRouter

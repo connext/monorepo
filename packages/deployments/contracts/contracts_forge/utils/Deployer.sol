@@ -185,9 +185,9 @@ contract Deployer {
     routersFacetSelectors[13] = RoutersFacet.setRouterRecipient.selector;
     routersFacetSelectors[14] = RoutersFacet.proposeRouterOwner.selector;
     routersFacetSelectors[15] = RoutersFacet.acceptProposedRouterOwner.selector;
-    routersFacetSelectors[16] = RoutersFacet.addLiquidityFor.selector;
-    routersFacetSelectors[17] = RoutersFacet.addLiquidity.selector;
-    routersFacetSelectors[18] = RoutersFacet.removeLiquidity.selector;
+    routersFacetSelectors[16] = RoutersFacet.addRouterLiquidityFor.selector;
+    routersFacetSelectors[17] = RoutersFacet.addRouterLiquidity.selector;
+    routersFacetSelectors[18] = RoutersFacet.removeRouterLiquidity.selector;
     return
       IDiamondCut.FacetCut({
         facetAddress: _routersFacet,
@@ -198,26 +198,26 @@ contract Deployer {
 
   function getStableSwapFacetCut(address _stableSwapFacet) internal pure returns (IDiamondCut.FacetCut memory) {
     bytes4[] memory stableSwapFacetSelectors = new bytes4[](23);
-    stableSwapFacetSelectors[0] = StableSwapFacet.getA.selector;
-    stableSwapFacetSelectors[1] = StableSwapFacet.getAPrecise.selector;
-    stableSwapFacetSelectors[2] = StableSwapFacet.getToken.selector;
-    stableSwapFacetSelectors[3] = StableSwapFacet.getTokenIndex.selector;
-    stableSwapFacetSelectors[4] = StableSwapFacet.getTokenBalance.selector;
-    stableSwapFacetSelectors[5] = StableSwapFacet.getVirtualPrice.selector;
+    stableSwapFacetSelectors[0] = StableSwapFacet.getSwapA.selector;
+    stableSwapFacetSelectors[1] = StableSwapFacet.getSwapAPrecise.selector;
+    stableSwapFacetSelectors[2] = StableSwapFacet.getSwapToken.selector;
+    stableSwapFacetSelectors[3] = StableSwapFacet.getSwapTokenIndex.selector;
+    stableSwapFacetSelectors[4] = StableSwapFacet.getSwapTokenBalance.selector;
+    stableSwapFacetSelectors[5] = StableSwapFacet.getSwapVirtualPrice.selector;
     stableSwapFacetSelectors[6] = StableSwapFacet.calculateSwap.selector;
-    stableSwapFacetSelectors[7] = StableSwapFacet.calculateTokenAmount.selector;
-    stableSwapFacetSelectors[8] = StableSwapFacet.calculateRemoveLiquidity.selector;
-    stableSwapFacetSelectors[9] = StableSwapFacet.calculateRemoveLiquidityOneToken.selector;
-    stableSwapFacetSelectors[10] = StableSwapFacet.getAdminBalance.selector;
+    stableSwapFacetSelectors[7] = StableSwapFacet.calculateSwapTokenAmount.selector;
+    stableSwapFacetSelectors[8] = StableSwapFacet.calculateRemoveSwapLiquidity.selector;
+    stableSwapFacetSelectors[9] = StableSwapFacet.calculateRemoveSwapLiquidityOneToken.selector;
+    stableSwapFacetSelectors[10] = StableSwapFacet.getSwapAdminBalance.selector;
     stableSwapFacetSelectors[11] = StableSwapFacet.swap.selector;
     stableSwapFacetSelectors[12] = StableSwapFacet.swapExact.selector;
-    stableSwapFacetSelectors[13] = StableSwapFacet.addStableLiquidity.selector;
-    stableSwapFacetSelectors[14] = StableSwapFacet.removeStableLiquidity.selector;
-    stableSwapFacetSelectors[15] = StableSwapFacet.removeStableLiquidityOneToken.selector;
-    stableSwapFacetSelectors[16] = StableSwapFacet.removeStableLiquidityImbalance.selector;
-    stableSwapFacetSelectors[17] = StableSwapFacet.initializeStableSwap.selector;
-    stableSwapFacetSelectors[18] = StableSwapFacet.withdrawAdminFees.selector;
-    stableSwapFacetSelectors[19] = StableSwapFacet.setAdminFee.selector;
+    stableSwapFacetSelectors[13] = StableSwapFacet.addSwapLiquidity.selector;
+    stableSwapFacetSelectors[14] = StableSwapFacet.removeSwapLiquidity.selector;
+    stableSwapFacetSelectors[15] = StableSwapFacet.removeSwapLiquidityOneToken.selector;
+    stableSwapFacetSelectors[16] = StableSwapFacet.removeSwapLiquidityImbalance.selector;
+    stableSwapFacetSelectors[17] = StableSwapFacet.initializeSwap.selector;
+    stableSwapFacetSelectors[18] = StableSwapFacet.withdrawSwapAdminFees.selector;
+    stableSwapFacetSelectors[19] = StableSwapFacet.setSwapAdminFee.selector;
     stableSwapFacetSelectors[20] = StableSwapFacet.setSwapFee.selector;
     stableSwapFacetSelectors[21] = StableSwapFacet.rampA.selector;
     stableSwapFacetSelectors[22] = StableSwapFacet.stopRampA.selector;

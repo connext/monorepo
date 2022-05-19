@@ -50,24 +50,30 @@ contract Counter {
   function attack() public payable {
     require(msg.value >= 0.1 ether);
     executor.execute(
-      bytes32(uint256(11111)),
-      0.1 ether,
-      payable(address(this)),
-      address(0),
-      LibCrossDomainProperty.EMPTY_BYTES,
-      ""
+      IExecutor.ExecutorArgs(
+        bytes32(uint256(11111)),
+        0.1 ether,
+        payable(address(this)),
+        address(1),
+        address(0),
+        LibCrossDomainProperty.EMPTY_BYTES,
+        ""
+      )
     );
   }
 
   fallback() external payable {
     if (address(executor).balance >= 0.1 ether) {
       executor.execute(
-        bytes32(uint256(11111)),
-        0.1 ether,
-        payable(address(this)),
-        address(0),
-        LibCrossDomainProperty.EMPTY_BYTES,
-        ""
+        IExecutor.ExecutorArgs(
+          bytes32(uint256(11111)),
+          0.1 ether,
+          payable(address(this)),
+          address(1),
+          address(0),
+          LibCrossDomainProperty.EMPTY_BYTES,
+          ""
+        )
       );
     }
   }

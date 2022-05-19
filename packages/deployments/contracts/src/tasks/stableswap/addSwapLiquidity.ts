@@ -13,7 +13,7 @@ type TaskArgs = {
   env?: Env;
 };
 
-export default task("add-stable-liquidity", "Add liquidity to the stable swap pool")
+export default task("add-swap-liquidity", "Add liquidity to the stable swap pool")
   .addParam("canonical", "Canonical token address")
   .addParam("canonicalAmount", "Amount of the canonical token")
   .addParam("adoptedAmount", "Amount of the adopted token")
@@ -64,8 +64,8 @@ export default task("add-stable-liquidity", "Add liquidity to the stable swap po
       console.log("canonicalId: ", canonicalId);
 
       const [canonicalAsset, adoptedAsset] = await Promise.all([
-        connext.getToken(canonicalId, 0),
-        connext.getToken(canonicalId, 1),
+        connext.getSwapToken(canonicalId, 0),
+        connext.getSwapToken(canonicalId, 1),
       ]);
 
       if (canonicalAsset == constants.AddressZero || adoptedAsset === constants.AddressZero) {
@@ -111,7 +111,7 @@ export default task("add-stable-liquidity", "Add liquidity to the stable swap po
         console.log(`Sufficient adopted allowance: ${adoptedAllowance.toString()}`);
       }
 
-      const tx = await connext.addStableLiquidity(
+      const tx = await connext.addSwapLiquidity(
         canonicalId,
         [canonicalAmount, adoptedAmount],
         _minToMint ?? 0,
