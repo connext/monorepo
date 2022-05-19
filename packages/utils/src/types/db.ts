@@ -17,6 +17,7 @@ export const convertFromDbTransfer = (transfer: any): XTransfer => {
       callData: transfer.call_data || "0x",
       callback: transfer.callback || constants.AddressZero,
       callbackFee: transfer.callbackFee || "0",
+      recovery: transfer.recovery || constants.AddressZero,
       forceSlow: transfer.force_slow || false,
       receiveLocal: transfer.receive_local || false,
     },
