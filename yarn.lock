@@ -784,6 +784,7 @@ __metadata:
     hardhat: 2.9.5
     hardhat-contract-sizer: 2.5.1
     hardhat-deploy: 0.11.5
+    hardhat-diamond-abi: 2.0.0
     hardhat-gas-reporter: 1.0.8
     prettier: 2.6.2
     prettier-plugin-solidity: 1.0.0-dev.21
@@ -11464,6 +11465,18 @@ __metadata:
     qs: ^6.9.4
     zksync-web3: ^0.4.0
   checksum: f12bb2d132e02652072c2069d4f37808e6b8fe047406e86ffdacc52099884cf8267d5ed6b86dd8fa0479c5bff99054ba88a00bc33f66228aef36070598db55b3
+  languageName: node
+  linkType: hard
+
+"hardhat-diamond-abi@npm:2.0.0":
+  version: 2.0.0
+  resolution: "hardhat-diamond-abi@npm:2.0.0"
+  dependencies:
+    debug: ^4.3.3
+    ethers: ^5.5.2
+  peerDependencies:
+    hardhat: ^2.0.0
+  checksum: 54fd34dcb0148de53292c9375ce61ad0d9772023ce35fd09abca6f91565979ef00015da9535bf386d5f673a9fe8a95ff9fa13147098080d69d88705d2a94ec00
   languageName: node
   linkType: hard
 
