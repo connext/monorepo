@@ -55,6 +55,7 @@ export const allRouters = [
   "0x1370C680f2a2Ae22F711B30b917A57F052816485",
   "0xd1bba6744bcf357be986bf4ade36c12592cc2fa2",
   "0x6d3ED3Cb2d467416BCe150751f23034317745697",
+  "0x3ac4dd04b7879713a09cab91d0002f56a3b32f87",
 ];
 
 const networks: string[] = [
@@ -77,7 +78,7 @@ const networks: string[] = [
   "evmos",
 ];
 
-const routers = ["0x6d3ED3Cb2d467416BCe150751f23034317745697"];
+const routers = ["0x3ac4dd04b7879713a09cab91d0002f56a3b32f87"];
 // const routers = allRouters;
 
 const run = async () => {
