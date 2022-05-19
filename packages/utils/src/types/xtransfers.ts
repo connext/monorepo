@@ -118,19 +118,25 @@ export const XTransferSchema = Type.Intersect([
 ]);
 export type XTransfer = Static<typeof XTransferSchema>;
 
+export const CallParamsSchema = Type.Object({
+  to: TAddress,
+  callData: Type.String(),
+  originDomain: Type.String(),
+  destinationDomain: Type.String(),
+  callback: TAddress,
+  recovery: TAddress,
+  callbackFee: TIntegerString,
+  forceSlow: Type.Boolean(),
+  receiveLocal: Type.Boolean(),
+});
+
 export const OriginTransferSchema = Type.Intersect([
   Type.Object({
     originDomain: Type.String(),
     destinationDomain: Type.String(),
     nonce: Type.Integer(),
-    xparams: Type.Object({
-      to: TAddress,
-      callData: Type.String(),
-      callback: TAddress,
-      callbackFee: TIntegerString,
-      forceSlow: Type.Boolean(),
-      receiveLocal: Type.Boolean(),
-    }),
+    xparams: CallParamsSchema,
+    relayerFee: TIntegerString,
   }),
   XTransferCoreSchema,
   Type.Object({
@@ -146,16 +152,7 @@ export const DestinationTransferSchema = Type.Intersect([
     // NOTE: Destination domain is not emitted by Reconciled event.
     destinationDomain: Type.Optional(Type.String()),
     nonce: Type.Optional(Type.Integer()),
-    xparams: Type.Optional(
-      Type.Object({
-        to: TAddress,
-        callData: Type.String(),
-        callback: TAddress,
-        callbackFee: TIntegerString,
-        forceSlow: Type.Boolean(),
-        receiveLocal: Type.Boolean(),
-      }),
-    ),
+    xparams: Type.Optional(CallParamsSchema),
   }),
   XTransferCoreSchema,
   Type.Object({
@@ -164,17 +161,6 @@ export const DestinationTransferSchema = Type.Intersect([
   }),
 ]);
 export type DestinationTransfer = Static<typeof DestinationTransferSchema>;
-
-export const CallParamsSchema = Type.Object({
-  to: TAddress,
-  callData: Type.String(),
-  originDomain: Type.String(),
-  destinationDomain: Type.String(),
-  callback: TAddress,
-  callbackFee: TIntegerString,
-  forceSlow: Type.Boolean(),
-  receiveLocal: Type.Boolean(),
-});
 
 export type CallParams = Static<typeof CallParamsSchema>;
 

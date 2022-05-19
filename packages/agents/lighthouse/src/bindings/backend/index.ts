@@ -39,6 +39,7 @@ export const pollBackend = async () => {
         callbackFee: transaction.callback_fee,
         receiveLocal: transaction.receive_local || false,
         forceSlow: transaction.force_slow || false,
+        recovery: transaction.recovery,
       },
       local: transaction.destination_local_asset,
       routers: [],
@@ -46,6 +47,7 @@ export const pollBackend = async () => {
       amount: transaction.destination_local_amount.toString(),
       nonce: transaction.nonce,
       originSender: transaction.xcall_caller,
+      relayerFee: transaction.relayer_fee,
     };
 
     const transferId = transaction.trasfer_id as string;

@@ -81,6 +81,7 @@ export const mock: any = {
       callbackFee: "0",
       forceSlow: false,
       receiveLocal: false,
+      recovery: mkAddress("0xcccc"),
       ...overrides,
     }),
     executeArgs: (overrides: Partial<ExecuteArgs> = {}): ExecuteArgs => ({
