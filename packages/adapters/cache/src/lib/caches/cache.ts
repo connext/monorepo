@@ -1,5 +1,5 @@
 import { Logger } from "@connext/nxtp-utils";
-import { Redis } from "ioredis";
+import Redis from "ioredis";
 
 import { CacheParams } from "../entities";
 
@@ -16,7 +16,7 @@ export abstract class Cache {
       const IoRedisMock = require("ioredis-mock");
       this.data = new IoRedisMock();
     } else {
-      this.data = new IORedis({
+      this.data = new Redis({
         host: host,
         port: port,
         connectTimeout: 17000,
