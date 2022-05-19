@@ -57,9 +57,21 @@ interface IConnextHandler {
 
   function sponsorVault() external view returns (ISponsorVault);
 
-  function setSponsorVault(address _sponsorVault) external;
-
   function promiseRouter() external view returns (PromiseRouter);
+
+  function relayerFeeRouer() external view returns (RelayerFeeRouter);
+
+  function setTokenRegistry(address _tokenRegistry) external;
+
+  function setRelayerFeeRouter(address _relayerFeeRouter) external;
+
+  function setPromiseRouter(address payable _promiseRouter) external;
+
+  function setExecutor(address _executor) external;
+
+  function setWrapper(address _wrapper) external;
+
+  function setSponsorVault(address _sponsorVault) external;
 
   function xcall(XCallArgs calldata _args) external payable returns (bytes32);
 
@@ -119,10 +131,6 @@ interface IConnextHandler {
 
   function relayerFeeRouter() external view returns (RelayerFeeRouter);
 
-  function LIQUIDITY_FEE_NUMERATOR() external view returns (uint256);
-
-  function LIQUIDITY_FEE_DENOMINATOR() external view returns (uint256);
-
   function addRelayer(address _relayer) external;
 
   function removeRelayer(address _relayer) external;
@@ -147,6 +155,12 @@ interface IConnextHandler {
   function getProposedRouterOwnerTimestamp(address _router) external view returns (uint256);
 
   function maxRoutersPerTransfer() external view returns (uint256);
+
+  function LIQUIDITY_FEE_NUMERATOR() external view returns (uint256);
+
+  function LIQUIDITY_FEE_DENOMINATOR() external view returns (uint256);
+
+  function setLiquidityFeeNumerator(uint256 _numerator) external;
 
   function routerBalances(address _router, address _asset) external view returns (uint256);
 

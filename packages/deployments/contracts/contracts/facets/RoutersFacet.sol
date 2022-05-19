@@ -43,6 +43,7 @@ contract RoutersFacet is BaseConnextFacet {
   error RoutersFacet__removeLiquidity_recipientEmpty();
   error RoutersFacet__removeLiquidity_amountIsZero();
   error RoutersFacet__removeLiquidity_insufficientFunds();
+  error RoutersFacet__setLiquidityFeeNumerator_tooSmall();
 
   // ============ Properties ============
 
@@ -95,6 +96,13 @@ contract RoutersFacet is BaseConnextFacet {
    * @param caller - The account that called the function
    */
   event MaxRoutersPerTransferUpdated(uint256 maxRoutersPerTransfer, address caller);
+
+  /**
+   * @notice Emitted when the LIQUIDITY_FEE_NUMERATOR variable is updated
+   * @param liquidityFeeNumerator - The LIQUIDITY_FEE_NUMERATOR new value
+   * @param caller - The account that called the function
+   */
+  event LiquidityFeeNumeratorUpdated(uint256 liquidityFeeNumerator, address caller);
 
   /**
    * @notice Emitted when a router adds liquidity to the contract
@@ -205,6 +213,18 @@ contract RoutersFacet is BaseConnextFacet {
 
   function routerBalances(address _router, address _asset) public view returns (uint256) {
     return s.routerBalances[_router][_asset];
+  }
+
+  /**
+   * @notice Sets the LIQUIDITY_FEE_NUMERATOR
+   * @dev Admin can set LIQUIDITY_FEE_NUMERATOR variable, Liquidity fee should be less than 5%
+   * @param _numerator new LIQUIDITY_FEE_NUMERATOR
+   */
+  function setLiquidityFeeNumerator(uint256 _numerator) external onlyOwner {
+    if (_numerator < (s.LIQUIDITY_FEE_DENOMINATOR * 100) / 95) revert RoutersFacet__setLiquidityFeeNumerator_tooSmall();
+    s.LIQUIDITY_FEE_NUMERATOR = _numerator;
+
+    emit LiquidityFeeNumeratorUpdated(_numerator, msg.sender);
   }
 
   /**

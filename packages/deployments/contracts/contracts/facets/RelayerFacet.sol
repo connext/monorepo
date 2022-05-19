@@ -3,7 +3,6 @@ pragma solidity 0.8.11;
 
 import {BaseConnextFacet} from "./BaseConnextFacet.sol";
 
-import {RelayerFeeRouter} from "../nomad-xapps/contracts/relayer-fee-router/RelayerFeeRouter.sol";
 import {AddressUpgradeable} from "@openzeppelin/contracts-upgradeable/token/ERC20/utils/SafeERC20Upgradeable.sol";
 
 contract RelayerFacet is BaseConnextFacet {
@@ -63,10 +62,6 @@ contract RelayerFacet is BaseConnextFacet {
 
   function approvedRelayers(address _relayer) public view returns (bool) {
     return s.approvedRelayers[_relayer];
-  }
-
-  function relayerFeeRouter() public view returns (RelayerFeeRouter) {
-    return s.relayerFeeRouter;
   }
 
   // ============ External functions ============
