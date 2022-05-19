@@ -161,10 +161,6 @@ interface IConnextHandler {
 
   function maxRoutersPerTransfer() external view returns (uint256);
 
-  function LIQUIDITY_FEE_NUMERATOR() external view returns (uint256);
-
-  function LIQUIDITY_FEE_DENOMINATOR() external view returns (uint256);
-
   function setLiquidityFeeNumerator(uint256 _numerator) external;
 
   function routerBalances(address _router, address _asset) external view returns (uint256);
