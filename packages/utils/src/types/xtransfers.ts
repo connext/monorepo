@@ -4,9 +4,11 @@ import { TAddress, TIntegerString } from ".";
 
 // dear Jake, please stop changing this to enum
 export const XTransferStatus = {
+  XCalled: "XCalled",
   Executed: "Executed",
   Reconciled: "Reconciled",
-  Completed: "Completed",
+  CompletedFast: "CompletedFast",
+  CompletedSlow: "CompletedSlow",
 } as const;
 export type XTransferStatus = typeof XTransferStatus[keyof typeof XTransferStatus];
 
@@ -83,15 +85,11 @@ export const XTransferDestinationSchema = Type.Object({
   reconcile: Type.Optional(XTransferMethodCallSchema),
 });
 
-export const XTransferCoreSchema = Type.Object({
-  // Meta
-  transferId: Type.String(),
-});
-
 export const XTransferSchema = Type.Intersect([
   Type.Object({
     originDomain: Type.String(),
     destinationDomain: Type.Optional(Type.String()),
+    transferId: Type.String(),
 
     // NOTE: Nonce is delivered by XCalled and Executed events, but not Reconciled event.
     nonce: Type.Optional(Type.Integer()),
@@ -109,7 +107,6 @@ export const XTransferSchema = Type.Intersect([
       }),
     ),
   }),
-  XTransferCoreSchema,
   Type.Object({
     origin: Type.Optional(XTransferOriginSchema),
     destination: Type.Optional(XTransferDestinationSchema),
@@ -133,11 +130,11 @@ export const OriginTransferSchema = Type.Intersect([
   Type.Object({
     originDomain: Type.String(),
     destinationDomain: Type.String(),
+    transferId: Type.String(),
     nonce: Type.Integer(),
     xparams: CallParamsSchema,
     relayerFee: TIntegerString,
   }),
-  XTransferCoreSchema,
   Type.Object({
     origin: XTransferOriginSchema,
     destination: Type.Optional(XTransferDestinationSchema),
@@ -150,10 +147,10 @@ export const DestinationTransferSchema = Type.Intersect([
     originDomain: Type.String(),
     // NOTE: Destination domain is not emitted by Reconciled event.
     destinationDomain: Type.Optional(Type.String()),
+    transferId: Type.String(),
     nonce: Type.Optional(Type.Integer()),
     xparams: Type.Optional(CallParamsSchema),
   }),
-  XTransferCoreSchema,
   Type.Object({
     origin: Type.Optional(XTransferOriginSchema),
     destination: XTransferDestinationSchema,
