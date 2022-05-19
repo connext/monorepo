@@ -45,9 +45,12 @@ describe("Helpers:parse", () => {
       expect(originTransfer(mockOriginTransferEntity)).to.be.deep.eq({
         transferId: "0xaaa0000000000000000000000000000000000000000000000000000000000000",
         nonce: 0,
-        originDomain: "1111",
         destinationDomain: "2221",
+        originDomain: "1111",
+        relayerFee: "1",
         xparams: {
+          destinationDomain: "2221",
+          originDomain: "1111",
           to: "0x1000000000000000000000000000000000000000",
           callData: "0x",
           callback: "0xaaa0000000000000000000000000000000000000",
@@ -81,9 +84,12 @@ describe("Helpers:parse", () => {
       ).to.be.deep.eq({
         transferId: "0xaaa0000000000000000000000000000000000000000000000000000000000000",
         nonce: 0,
-        originDomain: "1111",
         destinationDomain: "2221",
+        originDomain: "1111",
+        relayerFee: "1",
         xparams: {
+          destinationDomain: "2221",
+          originDomain: "1111",
           to: "0x1000000000000000000000000000000000000000",
           callData: "0x",
           callback: "0xaaa0000000000000000000000000000000000000",
@@ -183,13 +189,14 @@ describe("Helpers:parse", () => {
           routers: [mkAddress("0x111"), mkAddress("0x112")],
           status: "Executed",
         },
-        destinationDomain: "2221",
-
         nonce: 0,
         origin: undefined,
-        originDomain: "1111",
         transferId: "0xaaa0000000000000000000000000000000000000000000000000000000000000",
+        destinationDomain: "2221",
+        originDomain: "1111",
         xparams: {
+          destinationDomain: "2221",
+          originDomain: "1111",
           callData: "0x",
           callback: "0xaaa0000000000000000000000000000000000000",
           callbackFee: "0",
