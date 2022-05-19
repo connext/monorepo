@@ -69,7 +69,7 @@ export class NxtpSdkRouter {
     const ConnextContractAddress = this.config.chains[domain].deployments!.connext;
 
     const value = assetId === constants.AddressZero ? BigNumber.from(amount) : constants.Zero;
-    const data = this.contracts.connext.encodeFunctionData("addLiquidityFor", [amount, assetId, router]);
+    const data = this.contracts.connext.encodeFunctionData("addRouterLiquidityFor", [amount, assetId, router]);
 
     const txRequest = {
       to: ConnextContractAddress,

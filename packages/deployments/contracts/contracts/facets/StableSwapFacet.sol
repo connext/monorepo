@@ -41,9 +41,9 @@ contract StableSwapFacet is BaseConnextFacet {
   error StableSwapFacet__initializeSwap_feeExceedMax();
   error StableSwapFacet__initializeSwap_adminFeeExceedMax();
   error StableSwapFacet__initializeSwap_failedInitLpTokenClone();
-  error StableSwapFacet__getToken_outOfRange();
-  error StableSwapFacet__getTokenIndex_notExist();
-  error StableSwapFacet__getTokenBalance_indexOutOfRange();
+  error StableSwapFacet__getSwapToken_outOfRange();
+  error StableSwapFacet__getSwapTokenIndex_notExist();
+  error StableSwapFacet__getSwapTokenBalance_indexOutOfRange();
 
   // ============ Properties ============
 
@@ -58,7 +58,24 @@ contract StableSwapFacet is BaseConnextFacet {
     _;
   }
 
-  /*** VIEW FUNCTIONS ***/
+  // ============ View Functions ============
+  /**
+   * @notice Return Stable swap storage
+   * @param canonicalId the canonical token id
+   * @return SwapUtils.Swap
+   */
+  function getSwapStorage(bytes32 canonicalId) external view returns (SwapUtils.Swap memory) {
+    return s.swapStorages[canonicalId];
+  }
+
+  /**
+   * @notice Return LP token for canonical Id
+   * @param canonicalId the canonical token id
+   * @return LPToken
+   */
+  function getSwapLPToken(bytes32 canonicalId) external view returns (address) {
+    return address(s.swapStorages[canonicalId].lpToken);
+  }
 
   /**
    * @notice Return A, the amplification coefficient * n * (n - 1)
@@ -66,7 +83,7 @@ contract StableSwapFacet is BaseConnextFacet {
    * @param canonicalId the canonical token id
    * @return A parameter
    */
-  function getA(bytes32 canonicalId) external view returns (uint256) {
+  function getSwapA(bytes32 canonicalId) external view returns (uint256) {
     return s.swapStorages[canonicalId].getA();
   }
 
@@ -76,7 +93,7 @@ contract StableSwapFacet is BaseConnextFacet {
    * @param canonicalId the canonical token id
    * @return A parameter in its raw precision form
    */
-  function getAPrecise(bytes32 canonicalId) external view returns (uint256) {
+  function getSwapAPrecise(bytes32 canonicalId) external view returns (uint256) {
     return s.swapStorages[canonicalId].getAPrecise();
   }
 
@@ -86,8 +103,8 @@ contract StableSwapFacet is BaseConnextFacet {
    * @param index the index of the token
    * @return address of the token at given index
    */
-  function getToken(bytes32 canonicalId, uint8 index) public view returns (IERC20) {
-    if (index < s.swapStorages[canonicalId].pooledTokens.length) revert StableSwapFacet__getToken_outOfRange();
+  function getSwapToken(bytes32 canonicalId, uint8 index) public view returns (IERC20) {
+    if (index >= s.swapStorages[canonicalId].pooledTokens.length) revert StableSwapFacet__getSwapToken_outOfRange();
     return s.swapStorages[canonicalId].pooledTokens[index];
   }
 
@@ -98,9 +115,9 @@ contract StableSwapFacet is BaseConnextFacet {
    * @param tokenAddress address of the token
    * @return the index of the given token address
    */
-  function getTokenIndex(bytes32 canonicalId, address tokenAddress) public view returns (uint8) {
+  function getSwapTokenIndex(bytes32 canonicalId, address tokenAddress) public view returns (uint8) {
     uint8 index = s.tokenIndexes[canonicalId][tokenAddress];
-    if (address(getToken(canonicalId, index)) != tokenAddress) revert StableSwapFacet__getTokenIndex_notExist();
+    if (address(getSwapToken(canonicalId, index)) != tokenAddress) revert StableSwapFacet__getSwapTokenIndex_notExist();
     return index;
   }
 
@@ -110,9 +127,9 @@ contract StableSwapFacet is BaseConnextFacet {
    * @param index the index of the token
    * @return current balance of the pooled token at given index with token's native precision
    */
-  function getTokenBalance(bytes32 canonicalId, uint8 index) external view returns (uint256) {
-    if (index >= s.swapStorages[canonicalId].pooledTokens.length)
-      revert StableSwapFacet__getTokenBalance_indexOutOfRange();
+  function getSwapTokenBalance(bytes32 canonicalId, uint8 index) external view returns (uint256) {
+    if (index >= s.swapStorages[canonicalId].balances.length)
+      revert StableSwapFacet__getSwapTokenBalance_indexOutOfRange();
     return s.swapStorages[canonicalId].balances[index];
   }
 
@@ -121,7 +138,7 @@ contract StableSwapFacet is BaseConnextFacet {
    * @param canonicalId the canonical token id
    * @return the virtual price, scaled to the POOL_PRECISION_DECIMALS
    */
-  function getVirtualPrice(bytes32 canonicalId) external view returns (uint256) {
+  function getSwapVirtualPrice(bytes32 canonicalId) external view returns (uint256) {
     return s.swapStorages[canonicalId].getVirtualPrice();
   }
 
@@ -159,7 +176,7 @@ contract StableSwapFacet is BaseConnextFacet {
    * @param deposit whether this is a deposit or a withdrawal
    * @return token amount the user will receive
    */
-  function calculateTokenAmount(
+  function calculateSwapTokenAmount(
     bytes32 canonicalId,
     uint256[] calldata amounts,
     bool deposit
@@ -174,7 +191,7 @@ contract StableSwapFacet is BaseConnextFacet {
    * @param amount the amount of LP tokens that would be burned on withdrawal
    * @return array of token balances that the user will receive
    */
-  function calculateRemoveLiquidity(bytes32 canonicalId, uint256 amount) external view returns (uint256[] memory) {
+  function calculateRemoveSwapLiquidity(bytes32 canonicalId, uint256 amount) external view returns (uint256[] memory) {
     return s.swapStorages[canonicalId].calculateRemoveLiquidity(amount);
   }
 
@@ -187,7 +204,7 @@ contract StableSwapFacet is BaseConnextFacet {
    * @return availableTokenAmount calculated amount of underlying token
    * available to withdraw
    */
-  function calculateRemoveLiquidityOneToken(
+  function calculateRemoveSwapLiquidityOneToken(
     bytes32 canonicalId,
     uint256 tokenAmount,
     uint8 tokenIndex
@@ -201,7 +218,7 @@ contract StableSwapFacet is BaseConnextFacet {
    * @param index Index of the pooled token
    * @return admin's token balance in the token's precision
    */
-  function getAdminBalance(bytes32 canonicalId, uint256 index) external view returns (uint256) {
+  function getSwapAdminBalance(bytes32 canonicalId, uint256 index) external view returns (uint256) {
     return s.swapStorages[canonicalId].getAdminBalance(index);
   }
 
@@ -244,8 +261,8 @@ contract StableSwapFacet is BaseConnextFacet {
   ) external payable nonReentrant deadlineCheck(deadline) returns (uint256) {
     return
       s.swapStorages[canonicalId].swap(
-        getTokenIndex(canonicalId, assetIn),
-        getTokenIndex(canonicalId, assetOut),
+        getSwapTokenIndex(canonicalId, assetIn),
+        getSwapTokenIndex(canonicalId, assetOut),
         amountIn,
         minAmountOut
       );
@@ -260,7 +277,7 @@ contract StableSwapFacet is BaseConnextFacet {
    * @param deadline latest timestamp to accept this transaction
    * @return amount of LP token user minted and received
    */
-  function addStableLiquidity(
+  function addSwapLiquidity(
     bytes32 canonicalId,
     uint256[] calldata amounts,
     uint256 minToMint,
@@ -280,7 +297,7 @@ contract StableSwapFacet is BaseConnextFacet {
    * @param deadline latest timestamp to accept this transaction
    * @return amounts of tokens user received
    */
-  function removeStableLiquidity(
+  function removeSwapLiquidity(
     bytes32 canonicalId,
     uint256 amount,
     uint256[] calldata minAmounts,
@@ -299,7 +316,7 @@ contract StableSwapFacet is BaseConnextFacet {
    * @param deadline latest timestamp to accept this transaction
    * @return amount of chosen token user received
    */
-  function removeStableLiquidityOneToken(
+  function removeSwapLiquidityOneToken(
     bytes32 canonicalId,
     uint256 tokenAmount,
     uint8 tokenIndex,
@@ -320,7 +337,7 @@ contract StableSwapFacet is BaseConnextFacet {
    * @param deadline latest timestamp to accept this transaction
    * @return amount of LP tokens burned
    */
-  function removeStableLiquidityImbalance(
+  function removeSwapLiquidityImbalance(
     bytes32 canonicalId,
     uint256[] calldata amounts,
     uint256 maxBurnAmount,
@@ -348,7 +365,7 @@ contract StableSwapFacet is BaseConnextFacet {
    * @param _adminFee default adminFee to be initialized with
    * @param lpTokenTargetAddress the address of an existing LPToken contract to use as a target
    */
-  function initializeStableSwap(
+  function initializeSwap(
     bytes32 _canonicalId,
     IERC20[] memory _pooledTokens,
     uint8[] memory decimals,
@@ -414,7 +431,7 @@ contract StableSwapFacet is BaseConnextFacet {
    * @notice Withdraw all admin fees to the contract owner
    * @param canonicalId the canonical token id
    */
-  function withdrawAdminFees(bytes32 canonicalId) external onlyOwner {
+  function withdrawSwapAdminFees(bytes32 canonicalId) external onlyOwner {
     s.swapStorages[canonicalId].withdrawAdminFees(msg.sender);
   }
 
@@ -423,7 +440,7 @@ contract StableSwapFacet is BaseConnextFacet {
    * @param canonicalId the canonical token id
    * @param newAdminFee new admin fee to be applied on future transactions
    */
-  function setAdminFee(bytes32 canonicalId, uint256 newAdminFee) external onlyOwner {
+  function setSwapAdminFee(bytes32 canonicalId, uint256 newAdminFee) external onlyOwner {
     s.swapStorages[canonicalId].setAdminFee(newAdminFee);
   }
 

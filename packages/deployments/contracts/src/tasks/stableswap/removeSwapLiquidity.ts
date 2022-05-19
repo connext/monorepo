@@ -64,19 +64,14 @@ export default task("remove-stable-liquidity", "Remove liquidity from the stable
       console.log("canonicalId: ", canonicalId);
 
       const [canonicalAsset, adoptedAsset, lpAsset] = await Promise.all([
-        connext.getToken(canonicalId, 0),
-        connext.getToken(canonicalId, 1),
-        connext.getLPToken(canonicalId),
+        connext.getSwapToken(canonicalId, 0),
+        connext.getSwapToken(canonicalId, 1),
+        connext.getSwapLPToken(canonicalId),
       ]);
 
       if (canonicalAsset == constants.AddressZero || adoptedAsset === constants.AddressZero) {
         throw new Error("StableSwap pool not initialized");
       }
-
-      const decimals = await Promise.all([
-        (await ethers.getContractAt("TestERC20", canonicalAsset as string)).decimals(),
-        (await ethers.getContractAt("TestERC20", adoptedAsset as string)).decimals(),
-      ]);
 
       const lpERC20 = await ethers.getContractAt(getDeploymentName("TestERC20", env), lpAsset as string);
       const lpBalance = await lpERC20.balanceOf(deployer.address);
@@ -106,7 +101,7 @@ export default task("remove-stable-liquidity", "Remove liquidity from the stable
 
       let tx;
       if (tokenIndex >= 0) {
-        tx = await connext.removeStableLiquidityOneToken(
+        tx = await connext.removeSwapLiquidityOneToken(
           canonicalId,
           amount,
           tokenIndex,
@@ -114,7 +109,7 @@ export default task("remove-stable-liquidity", "Remove liquidity from the stable
           Math.floor(new Date().getTime() / 1000 + 600),
         );
       } else {
-        tx = await connext.removeStableLiquidity(
+        tx = await connext.removeSwapLiquidity(
           canonicalId,
           amount,
           [0, 0],

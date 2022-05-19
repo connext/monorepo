@@ -102,7 +102,7 @@ export default task("initialize-stableswap", "Initializes stable swap")
         (await ethers.getContractAt("TestERC20", adopted)).decimals(),
       ]);
 
-      const tx = await connext.initializeStableSwap(
+      const tx = await connext.initializeSwap(
         canonicalId,
         [canonical, adopted],
         decimals,
