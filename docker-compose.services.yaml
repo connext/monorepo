@@ -2,6 +2,7 @@ version: "3.3"
 
 services:
   router:
+    container_name: router
     depends_on:
       - sequencer
       - signer
@@ -16,7 +17,15 @@ services:
     volumes:
       - ${PWD}/docker/router/:/home/node/agents/sequencer/
       - ${PWD}/docker/router/config.testnet.json:/home/node/packages/agents/router/config.json
+
+  router-cache:
+    container_name: router-cache
+    image: redis:latest
+    ports:
+      - "6379:6379"
+
   sequencer:
+    container_name: sequencer
     image: ${SEQUENCER_IMAGE}
     restart: always
     ports:
@@ -28,17 +37,15 @@ services:
     volumes:
       - ${PWD}/docker/sequencer/:/home/node/agents/sequencer/
       - ${PWD}/docker/sequencer/config.testnet.json:/home/node/packages/agents/sequencer/config.json
-  router-cache:
-    image: redis:latest
-    ports:
-      - "6379:6379"
 
   sequencer-cache:
+    container_name: sequencer-cache
     image: redis:latest
     ports:
       - "6380:6379"
 
   signer:
+    container_name: signer
     image: "ghcr.io/connext/web3signer:latest"
     restart: always
     ports:
