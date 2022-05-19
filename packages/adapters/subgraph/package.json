@@ -38,20 +38,20 @@
     "@graphql-mesh/transform-prefix": "0.11.40",
     "@graphql-mesh/transform-rename": "0.12.39",
     "@graphql-mesh/transform-type-merging": "0.3.48",
-    "@sinclair/typebox": "^0.23.4",
-    "@typescript-eslint/eslint-plugin": "^5.16.0",
-    "ethers": "^5.6.1",
+    "@sinclair/typebox": "0.23.4",
+    "@typescript-eslint/eslint-plugin": "5.16.0",
+    "ethers": "5.6.1",
     "graphql": "16.3.0",
-    "graphql-request": "^4.2.0",
-    "graphql-tag": "^2.12.6"
+    "graphql-request": "4.2.0",
+    "graphql-tag": "2.12.6"
   },
   "devDependencies": {
-    "eslint": "^8.11.0",
-    "nyc": "^15.1.0",
-    "ts-mocha": "^9.0.2",
-    "ts-node": "^10.7.0",
-    "tslib": "^2.3.1",
-    "typescript": "^4.6.2"
+    "eslint": "8.11.0",
+    "nyc": "15.1.0",
+    "ts-mocha": "9.0.2",
+    "ts-node": "10.7.0",
+    "tslib": "2.3.1",
+    "typescript": "4.6.2"
   },
   "gitHead": "937a7cde93e6ac1e151c6374f48adf83d3fa4ec6",
   "stableVersion": ""
