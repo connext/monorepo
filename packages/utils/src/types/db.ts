@@ -16,7 +16,7 @@ export const convertFromDbTransfer = (transfer: any): XTransfer => {
       to: transfer.to || constants.AddressZero,
       callData: transfer.call_data || "0x",
       callback: transfer.callback || constants.AddressZero,
-      callbackFee: transfer.callbackFee || "0",
+      callbackFee: transfer.callback_fee || "0",
       recovery: transfer.recovery || constants.AddressZero,
       forceSlow: transfer.force_slow || false,
       receiveLocal: transfer.receive_local || false,
@@ -70,6 +70,8 @@ export const convertFromDbTransfer = (transfer: any): XTransfer => {
             gasPrice: BigNumber.from(BigInt((transfer.execute_gas_price as string) ?? "0")).toString(),
             timestamp: transfer.execute_timestamp!,
             transactionHash: transfer.execute_transaction_hash!,
+            relayerFee: transfer.execute_relayer_fee!,
+            originSender: transfer.execute_origin_sender!,
           },
           reconcile: {
             blockNumber: transfer.reconcile_block_number!,
