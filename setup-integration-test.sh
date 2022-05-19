@@ -1,12 +1,12 @@
 #!/bin/bash
 ##### Contracts
-echo "Deploying contracts to 1337..."
-CHAIN_ID=1337 ETH_PROVIDER_URL=http://127.0.0.1:8545 yarn workspace @connext/nxtp-contracts hardhat deploy --network localhost
-echo "Deployed contracts to 1337"
+echo "Deploying contracts to 4..."
+CHAIN_ID=4 ETH_PROVIDER_URL=http://0.0.0.0:8547 yarn workspace @connext/nxtp-contracts hardhat deploy --network localhost
+echo "Deployed contracts to 4"
 
-echo "Deploying contracts to 1338..."
-CHAIN_ID=1338 ETH_PROVIDER_URL=http://127.0.0.1:8546 yarn workspace @connext/nxtp-contracts hardhat deploy --network localhost
-echo "Deployed contracts to 1338"
+echo "Deploying contracts to 42..."
+CHAIN_ID=42 ETH_PROVIDER_URL=http://0.0.0.0:8546 yarn workspace @connext/nxtp-contracts hardhat deploy --network localhost
+echo "Deployed contracts to 42"
 #####
 
 ##### Subgraph
