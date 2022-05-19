@@ -177,7 +177,6 @@ describe("Connext", () => {
     // Deploy facets
     const diamondCutFacet = await deployContract<DiamondCutFacet>("DiamondCutFacet");
     const diamondLoupeFacet = await deployContract<DiamondLoupeFacet>("DiamondLoupeFacet");
-    const ownershipFacet = await deployContract<OwnershipFacet>("OwnershipFacet");
 
     assetFacet = await deployContract<AssetFacet>("AssetFacet");
     bridgeFacet = await deployContract<BridgeFacet>("BridgeFacet");
@@ -195,7 +194,6 @@ describe("Connext", () => {
       [
         diamondCutFacet,
         diamondLoupeFacet,
-        ownershipFacet,
         assetFacet,
         bridgeFacet,
         nomadFacet,
@@ -223,7 +221,6 @@ describe("Connext", () => {
       [
         diamondCutFacet,
         diamondLoupeFacet,
-        ownershipFacet,
         assetFacet,
         bridgeFacet,
         nomadFacet,

@@ -7,11 +7,10 @@ import {AssetLogic} from "../libraries/AssetLogic.sol";
 import {XCallArgs, ExecuteArgs} from "../libraries/LibConnextStorage.sol";
 
 import {LibCrossDomainProperty} from "../libraries/LibCrossDomainProperty.sol";
-import {ITokenRegistry, IBridgeToken} from "../nomad-xapps/interfaces/bridge/ITokenRegistry.sol";
+import {IBridgeToken} from "../nomad-xapps/interfaces/bridge/ITokenRegistry.sol";
 import {TypedMemView} from "../nomad-core/libs/TypedMemView.sol";
 import {TypeCasts} from "../nomad-core/contracts/XAppConnectionManager.sol";
 import {PromiseRouter} from "../nomad-xapps/contracts/promise-router/PromiseRouter.sol";
-import {RelayerFeeRouter} from "../nomad-xapps/contracts/relayer-fee-router/RelayerFeeRouter.sol";
 
 import {IExecutor} from "../interfaces/IExecutor.sol";
 import {IWrapped} from "../interfaces/IWrapped.sol";
@@ -38,11 +37,8 @@ contract BridgeFacet is BaseConnextFacet {
 
   // ========== Custom Errors ===========
 
-  error BridgeFacet__setTokenRegistry_invalidTokenRegistry();
-  error BridgeFacet__setRelayerFeeRouter_invalidRelayerFeeRouter();
   error BridgeFacet__setPromiseRouter_invalidPromiseRouter();
   error BridgeFacet__setExecutor_invalidExecutor();
-  error BridgeFacet__setWrapper_invalidWrapper();
   error BridgeFacet__setSponsorVault_invalidSponsorVault();
   error BridgeFacet__xcall_wrongDomain();
   error BridgeFacet__xcall_emptyTo();
@@ -130,22 +126,6 @@ contract BridgeFacet is BaseConnextFacet {
   event SponsorVaultUpdated(address oldSponsorVault, address newSponsorVault, address caller);
 
   /**
-   * @notice Emitted when the tokenRegistry variable is updated
-   * @param oldTokenRegistry - The tokenRegistry old value
-   * @param newTokenRegistry - The tokenRegistry new value
-   * @param caller - The account that called the function
-   */
-  event TokenRegistryUpdated(address oldTokenRegistry, address newTokenRegistry, address caller);
-
-  /**
-   * @notice Emitted when the relayerFeeRouter variable is updated
-   * @param oldRouter - The relayerFeeRouter old value
-   * @param newRouter - The relayerFeeRouter new value
-   * @param caller - The account that called the function
-   */
-  event RelayerFeeRouterUpdated(address oldRouter, address newRouter, address caller);
-
-  /**
    * @notice Emitted when the promiseRouter variable is updated
    * @param oldRouter - The promiseRouter old value
    * @param newRouter - The promiseRouter new value
@@ -161,14 +141,6 @@ contract BridgeFacet is BaseConnextFacet {
    */
   event ExecutorUpdated(address oldExecutor, address newExecutor, address caller);
 
-  /**
-   * @notice Emitted when the wrapper variable is updated
-   * @param oldWrapper - The wrapper old value
-   * @param newWrapper - The wrapper new value
-   * @param caller - The account that called the function
-   */
-  event WrapperUpdated(address oldWrapper, address newWrapper, address caller);
-
   // ============ Getters ============
 
   function relayerFees(bytes32 _transferId) public view returns (uint256) {
@@ -183,10 +155,6 @@ contract BridgeFacet is BaseConnextFacet {
     return s.reconciledTransfers[_transferId];
   }
 
-  function tokenRegistry() public view returns (ITokenRegistry) {
-    return s.tokenRegistry;
-  }
-
   function domain() public view returns (uint256) {
     return s.domain;
   }
@@ -199,16 +167,8 @@ contract BridgeFacet is BaseConnextFacet {
     return s.nonce;
   }
 
-  function wrapper() public view returns (IWrapped) {
-    return s.wrapper;
-  }
-
   function sponsorVault() public view returns (ISponsorVault) {
     return s.sponsorVault;
-  }
-
-  function relayerFeeRouter() external view returns (RelayerFeeRouter) {
-    return s.relayerFeeRouter;
   }
 
   function promiseRouter() external view returns (PromiseRouter) {
@@ -216,24 +176,6 @@ contract BridgeFacet is BaseConnextFacet {
   }
 
   // ============ Admin methods ==============
-
-  function setTokenRegistry(address _tokenRegistry) external onlyOwner {
-    address old = address(s.tokenRegistry);
-    if (old == _tokenRegistry || !Address.isContract(_tokenRegistry))
-      revert BridgeFacet__setTokenRegistry_invalidTokenRegistry();
-
-    s.tokenRegistry = ITokenRegistry(_tokenRegistry);
-    emit TokenRegistryUpdated(old, _tokenRegistry, msg.sender);
-  }
-
-  function setRelayerFeeRouter(address _relayerFeeRouter) external onlyOwner {
-    address old = address(s.relayerFeeRouter);
-    if (old == _relayerFeeRouter || !Address.isContract(_relayerFeeRouter))
-      revert BridgeFacet__setRelayerFeeRouter_invalidRelayerFeeRouter();
-
-    s.relayerFeeRouter = RelayerFeeRouter(_relayerFeeRouter);
-    emit RelayerFeeRouterUpdated(old, _relayerFeeRouter, msg.sender);
-  }
 
   function setPromiseRouter(address payable _promiseRouter) external onlyOwner {
     address old = address(s.promiseRouter);
@@ -250,14 +192,6 @@ contract BridgeFacet is BaseConnextFacet {
 
     s.executor = IExecutor(_executor);
     emit ExecutorUpdated(old, _executor, msg.sender);
-  }
-
-  function setWrapper(address _wrapper) external onlyOwner {
-    address old = address(s.wrapper);
-    if (old == _wrapper || !Address.isContract(_wrapper)) revert BridgeFacet__setWrapper_invalidWrapper();
-
-    s.wrapper = IWrapped(_wrapper);
-    emit WrapperUpdated(old, _wrapper, msg.sender);
   }
 
   function setSponsorVault(address _sponsorVault) external onlyOwner {

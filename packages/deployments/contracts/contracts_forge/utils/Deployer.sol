@@ -59,14 +59,18 @@ contract Deployer {
   }
 
   function getAssetFacetCut(address _assetFacet) internal pure returns (IDiamondCut.FacetCut memory) {
-    bytes4[] memory assetFacetSelectors = new bytes4[](7);
+    bytes4[] memory assetFacetSelectors = new bytes4[](11);
     assetFacetSelectors[0] = AssetFacet.canonicalToAdopted.selector;
     assetFacetSelectors[1] = AssetFacet.adoptedToCanonical.selector;
     assetFacetSelectors[2] = AssetFacet.approvedAssets.selector;
     assetFacetSelectors[3] = AssetFacet.adoptedToLocalPools.selector;
-    assetFacetSelectors[4] = AssetFacet.setupAsset.selector;
-    assetFacetSelectors[5] = AssetFacet.addStableSwapPool.selector;
-    assetFacetSelectors[6] = AssetFacet.removeAssetId.selector;
+    assetFacetSelectors[4] = AssetFacet.wrapper.selector;
+    assetFacetSelectors[5] = AssetFacet.tokenRegistry.selector;
+    assetFacetSelectors[6] = AssetFacet.setWrapper.selector;
+    assetFacetSelectors[7] = AssetFacet.setTokenRegistry.selector;
+    assetFacetSelectors[8] = AssetFacet.setupAsset.selector;
+    assetFacetSelectors[9] = AssetFacet.addStableSwapPool.selector;
+    assetFacetSelectors[10] = AssetFacet.removeAssetId.selector;
     return
       IDiamondCut.FacetCut({
         facetAddress: _assetFacet,
@@ -76,31 +80,25 @@ contract Deployer {
   }
 
   function getBridgeFacetCut(address _bridgeFacet) internal pure returns (IDiamondCut.FacetCut memory) {
-    bytes4[] memory bridgeFacetSelectors = new bytes4[](21);
+    bytes4[] memory bridgeFacetSelectors = new bytes4[](15);
     // getters
     bridgeFacetSelectors[0] = BridgeFacet.relayerFees.selector;
     bridgeFacetSelectors[1] = BridgeFacet.routedTransfers.selector;
     bridgeFacetSelectors[2] = BridgeFacet.reconciledTransfers.selector;
-    bridgeFacetSelectors[3] = BridgeFacet.tokenRegistry.selector;
-    bridgeFacetSelectors[4] = BridgeFacet.domain.selector;
-    bridgeFacetSelectors[5] = BridgeFacet.executor.selector;
-    bridgeFacetSelectors[6] = BridgeFacet.nonce.selector;
-    bridgeFacetSelectors[7] = BridgeFacet.wrapper.selector;
-    bridgeFacetSelectors[8] = BridgeFacet.sponsorVault.selector;
-    bridgeFacetSelectors[9] = BridgeFacet.relayerFeeRouter.selector;
-    bridgeFacetSelectors[10] = BridgeFacet.promiseRouter.selector;
+    bridgeFacetSelectors[3] = BridgeFacet.domain.selector;
+    bridgeFacetSelectors[4] = BridgeFacet.executor.selector;
+    bridgeFacetSelectors[5] = BridgeFacet.nonce.selector;
+    bridgeFacetSelectors[6] = BridgeFacet.sponsorVault.selector;
+    bridgeFacetSelectors[7] = BridgeFacet.promiseRouter.selector;
     // admin
-    bridgeFacetSelectors[11] = BridgeFacet.setTokenRegistry.selector;
-    bridgeFacetSelectors[12] = BridgeFacet.setRelayerFeeRouter.selector;
-    bridgeFacetSelectors[13] = BridgeFacet.setPromiseRouter.selector;
-    bridgeFacetSelectors[14] = BridgeFacet.setExecutor.selector;
-    bridgeFacetSelectors[15] = BridgeFacet.setWrapper.selector;
-    bridgeFacetSelectors[16] = BridgeFacet.setSponsorVault.selector;
+    bridgeFacetSelectors[8] = BridgeFacet.setPromiseRouter.selector;
+    bridgeFacetSelectors[9] = BridgeFacet.setExecutor.selector;
+    bridgeFacetSelectors[10] = BridgeFacet.setSponsorVault.selector;
     // public
-    bridgeFacetSelectors[17] = BridgeFacet.xcall.selector;
-    bridgeFacetSelectors[18] = BridgeFacet.handle.selector;
-    bridgeFacetSelectors[19] = BridgeFacet.execute.selector;
-    bridgeFacetSelectors[20] = BridgeFacet.bumpTransfer.selector;
+    bridgeFacetSelectors[11] = BridgeFacet.xcall.selector;
+    bridgeFacetSelectors[12] = BridgeFacet.handle.selector;
+    bridgeFacetSelectors[13] = BridgeFacet.execute.selector;
+    bridgeFacetSelectors[14] = BridgeFacet.bumpTransfer.selector;
     return
       IDiamondCut.FacetCut({
         facetAddress: _bridgeFacet,
@@ -152,13 +150,15 @@ contract Deployer {
   }
 
   function getRelayerFacetCut(address _relayerFacet) internal pure returns (IDiamondCut.FacetCut memory) {
-    bytes4[] memory relayerFacetSelectors = new bytes4[](6);
+    bytes4[] memory relayerFacetSelectors = new bytes4[](8);
     relayerFacetSelectors[0] = RelayerFacet.transferRelayer.selector;
     relayerFacetSelectors[1] = RelayerFacet.approvedRelayers.selector;
-    relayerFacetSelectors[2] = RelayerFacet.addRelayer.selector;
-    relayerFacetSelectors[3] = RelayerFacet.removeRelayer.selector;
-    relayerFacetSelectors[4] = RelayerFacet.initiateClaim.selector;
-    relayerFacetSelectors[5] = RelayerFacet.claim.selector;
+    relayerFacetSelectors[2] = RelayerFacet.relayerFeeRouter.selector;
+    relayerFacetSelectors[3] = RelayerFacet.setRelayerFeeRouter.selector;
+    relayerFacetSelectors[4] = RelayerFacet.addRelayer.selector;
+    relayerFacetSelectors[5] = RelayerFacet.removeRelayer.selector;
+    relayerFacetSelectors[6] = RelayerFacet.initiateClaim.selector;
+    relayerFacetSelectors[7] = RelayerFacet.claim.selector;
     return
       IDiamondCut.FacetCut({
         facetAddress: _relayerFacet,

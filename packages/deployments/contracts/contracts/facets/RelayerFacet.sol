@@ -2,17 +2,27 @@
 pragma solidity 0.8.11;
 
 import {BaseConnextFacet} from "./BaseConnextFacet.sol";
+import {RelayerFeeRouter} from "../nomad-xapps/contracts/relayer-fee-router/RelayerFeeRouter.sol";
 
-import {AddressUpgradeable} from "@openzeppelin/contracts-upgradeable/token/ERC20/utils/SafeERC20Upgradeable.sol";
+import {Address} from "@openzeppelin/contracts/utils/Address.sol";
 
 contract RelayerFacet is BaseConnextFacet {
   // ========== Custom Errors ===========
   error RelayerFacet__onlyRelayerFeeRouter_notRelayerFeeRouter();
+  error RelayerFacet__setRelayerFeeRouter_invalidRelayerFeeRouter();
   error RelayerFacet__addRelayer_alreadyApproved();
   error RelayerFacet__removeRelayer_notApproved();
   error RelayerFacet__initiateClaim_notRelayer(bytes32 transferId);
 
   // ========== Events ===========
+  /**
+   * @notice Emitted when the relayerFeeRouter variable is updated
+   * @param oldRouter - The relayerFeeRouter old value
+   * @param newRouter - The relayerFeeRouter new value
+   * @param caller - The account that called the function
+   */
+  event RelayerFeeRouterUpdated(address oldRouter, address newRouter, address caller);
+
   /**
    * @notice Emitted when a relayer is added or removed from whitelists
    * @param relayer - The relayer address to be added or removed
@@ -62,6 +72,25 @@ contract RelayerFacet is BaseConnextFacet {
 
   function approvedRelayers(address _relayer) public view returns (bool) {
     return s.approvedRelayers[_relayer];
+  }
+
+  function relayerFeeRouter() external view returns (RelayerFeeRouter) {
+    return s.relayerFeeRouter;
+  }
+
+  // ============ Admin functions ============
+
+  /**
+   * @notice Updates the relayer fee router
+   * @param _relayerFeeRouter The address of the new router
+   */
+  function setRelayerFeeRouter(address _relayerFeeRouter) external onlyOwner {
+    address old = address(s.relayerFeeRouter);
+    if (old == _relayerFeeRouter || !Address.isContract(_relayerFeeRouter))
+      revert RelayerFacet__setRelayerFeeRouter_invalidRelayerFeeRouter();
+
+    s.relayerFeeRouter = RelayerFeeRouter(_relayerFeeRouter);
+    emit RelayerFeeRouterUpdated(old, _relayerFeeRouter, msg.sender);
   }
 
   // ============ External functions ============
@@ -133,7 +162,7 @@ contract RelayerFacet is BaseConnextFacet {
       }
     }
 
-    AddressUpgradeable.sendValue(payable(_recipient), total);
+    Address.sendValue(payable(_recipient), total);
 
     emit Claimed(_recipient, total, _transferIds);
   }

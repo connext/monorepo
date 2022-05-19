@@ -4,13 +4,35 @@ pragma solidity ^0.8.11;
 import {BaseConnextFacet} from "./BaseConnextFacet.sol";
 import {ConnextMessage} from "../libraries/ConnextMessage.sol";
 import {IStableSwap} from "../interfaces/IStableSwap.sol";
+import {IWrapped} from "../interfaces/IWrapped.sol";
+import {ITokenRegistry} from "../nomad-xapps/interfaces/bridge/ITokenRegistry.sol";
+
+import {Address} from "@openzeppelin/contracts/utils/Address.sol";
 
 contract AssetFacet is BaseConnextFacet {
   // ========== Custom Errors ===========
+  error AssetFacet__setWrapper_invalidWrapper();
+  error AssetFacet__setTokenRegistry_invalidTokenRegistry();
   error AssetFacet__addAssetId_alreadyAdded();
   error AssetFacet__removeAssetId_notAdded();
 
   // ============ Events ============
+
+  /**
+   * @notice Emitted when the wrapper variable is updated
+   * @param oldWrapper - The wrapper old value
+   * @param newWrapper - The wrapper new value
+   * @param caller - The account that called the function
+   */
+  event WrapperUpdated(address oldWrapper, address newWrapper, address caller);
+
+  /**
+   * @notice Emitted when the tokenRegistry variable is updated
+   * @param oldTokenRegistry - The tokenRegistry old value
+   * @param newTokenRegistry - The tokenRegistry new value
+   * @param caller - The account that called the function
+   */
+  event TokenRegistryUpdated(address oldTokenRegistry, address newTokenRegistry, address caller);
 
   /**
    * @notice Emitted when a new stable-swap AMM is added for the local <> adopted token
@@ -59,6 +81,41 @@ contract AssetFacet is BaseConnextFacet {
 
   function adoptedToLocalPools(bytes32 _adopted) public view returns (IStableSwap) {
     return s.adoptedToLocalPools[_adopted];
+  }
+
+  function wrapper() public view returns (IWrapped) {
+    return s.wrapper;
+  }
+
+  function tokenRegistry() public view returns (ITokenRegistry) {
+    return s.tokenRegistry;
+  }
+
+  // ============ Admin functions ============
+
+  /**
+   * @notice Updates the native-asset wrapper interface
+   * @param _wrapper The address of the new wrapper
+   */
+  function setWrapper(address _wrapper) external onlyOwner {
+    address old = address(s.wrapper);
+    if (old == _wrapper || !Address.isContract(_wrapper)) revert AssetFacet__setWrapper_invalidWrapper();
+
+    s.wrapper = IWrapped(_wrapper);
+    emit WrapperUpdated(old, _wrapper, msg.sender);
+  }
+
+  /**
+   * @notice Updates the token registry
+   * @param _tokenRegistry The new token registry address
+   */
+  function setTokenRegistry(address _tokenRegistry) external onlyOwner {
+    address old = address(s.tokenRegistry);
+    if (old == _tokenRegistry || !Address.isContract(_tokenRegistry))
+      revert AssetFacet__setTokenRegistry_invalidTokenRegistry();
+
+    s.tokenRegistry = ITokenRegistry(_tokenRegistry);
+    emit TokenRegistryUpdated(old, _tokenRegistry, msg.sender);
   }
 
   /**
