@@ -30,7 +30,7 @@ export type ChainConfig = Static<typeof TChainConfig>;
 
 export const NxtpSdkConfigSchema = Type.Object({
   chains: Type.Record(Type.String(), TChainConfig),
-  signerAddress: TAddress,
+  signerAddress: Type.Optional(TAddress),
   logLevel: Type.Optional(TLogLevel),
   backendUrl: Type.Optional(Type.String()),
   maxSlippage: Type.Optional(Type.Number({ minimum: 0, maximum: 100 })),
@@ -53,7 +53,7 @@ export const TValidationChainConfig = Type.Object({
 
 export const NxtpValidationSdkConfigSchema = Type.Object({
   chains: Type.Record(Type.String(), TValidationChainConfig),
-  signerAddress: TAddress,
+  signerAddress: Type.Optional(TAddress),
   logLevel: TLogLevel,
   backendUrl: Type.String(),
   maxSlippage: Type.Number({ minimum: 0, maximum: 100 }),
@@ -77,8 +77,13 @@ export const getEnvConfig = (
     network: _nxtpConfig.network || "mainnet",
     maxSlippage: _nxtpConfig.maxSlippage || DEFAULT_ALLOWED_TOLERANCE,
     environment: _nxtpConfig.environment || "production",
-    backendUrl: _nxtpConfig.backendUrl || "https://postgrest.testnet.staging.connext.ninja",
+    backendUrl: _nxtpConfig.backendUrl || "https://postgrest.testnet.connext.ninja",
   };
+
+  nxtpConfig.backendUrl =
+    nxtpConfig.environment === "production"
+      ? "https://postgrest.testnet.connext.ninja"
+      : "https://postgrest.testnet.staging.connext.ninja";
 
   const defaultConfirmations = chainData && (chainData.get("1")?.confirmations ?? 1 + 3);
 

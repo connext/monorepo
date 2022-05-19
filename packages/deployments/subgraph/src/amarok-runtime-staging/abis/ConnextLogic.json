@@ -51,6 +51,11 @@
   },
   {
     "inputs": [],
+    "name": "ConnextLogic__execute_notReconciled",
+    "type": "error"
+  },
+  {
+    "inputs": [],
     "name": "ConnextLogic__execute_notSupportedRouter",
     "type": "error"
   },
@@ -112,7 +117,17 @@
   },
   {
     "inputs": [],
+    "name": "ConnextLogic__xcall_callbackNotAContract",
+    "type": "error"
+  },
+  {
+    "inputs": [],
     "name": "ConnextLogic__xcall_emptyTo",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "ConnextLogic__xcall_nonZeroCallbackFeeForCallback",
     "type": "error"
   },
   {
@@ -249,6 +264,26 @@
                 "internalType": "uint32",
                 "name": "destinationDomain",
                 "type": "uint32"
+              },
+              {
+                "internalType": "address",
+                "name": "callback",
+                "type": "address"
+              },
+              {
+                "internalType": "uint256",
+                "name": "callbackFee",
+                "type": "uint256"
+              },
+              {
+                "internalType": "bool",
+                "name": "forceSlow",
+                "type": "bool"
+              },
+              {
+                "internalType": "bool",
+                "name": "receiveLocal",
+                "type": "bool"
               }
             ],
             "internalType": "struct IConnextHandler.CallParams",
@@ -606,6 +641,26 @@
                 "internalType": "uint32",
                 "name": "destinationDomain",
                 "type": "uint32"
+              },
+              {
+                "internalType": "address",
+                "name": "callback",
+                "type": "address"
+              },
+              {
+                "internalType": "uint256",
+                "name": "callbackFee",
+                "type": "uint256"
+              },
+              {
+                "internalType": "bool",
+                "name": "forceSlow",
+                "type": "bool"
+              },
+              {
+                "internalType": "bool",
+                "name": "receiveLocal",
+                "type": "bool"
               }
             ],
             "internalType": "struct IConnextHandler.CallParams",

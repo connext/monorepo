@@ -63,21 +63,18 @@ export const test = async () => {
     ),
   );
 
-  // getOriginTransfers(domain, fromNonce, destinationDomains)
-  console.log(await subgraphReader.getOriginTransfers("1111", 0, ["2222"]));
-
   // getXCalls(agents)
   console.log(`XCalling...`);
   const agents: Map<string, SubgraphQueryMetaParams> = new Map();
-  agents.set("1111", { maxBlockNumber: 99999999, latestNonce: 0 });
-  agents.set("2221", { maxBlockNumber: 99999999, latestNonce: 0 });
+  agents.set("1111", { maxBlockNumber: 99999999, latestNonce: 0, page: 1, perPage: 5 });
+  agents.set("2221", { maxBlockNumber: 99999999, latestNonce: 0, page: 1, perPage: 2 });
   console.log(await subgraphReader.getXCalls(agents));
   console.log(`XCalling done!`);
 
-  // getOriginTransfersForAll(agents)
+  // getOriginTransfers(agents)
   console.log(`Get origin transfers on the domains...`);
-  console.log(await subgraphReader.getOriginTransfersForAll(agents));
-  console.log(`GetOriginTransfersForAll done!!!`);
+  console.log(await subgraphReader.getOriginTransfers(agents));
+  console.log(`getOriginTransfers done!!!`);
 
   // getDestinationTransfers(transfers)
   const transfers: OriginTransfer[] = [
@@ -88,6 +85,8 @@ export const test = async () => {
       xparams: {
         to: "0x5a9e792143bf2708b4765c144451dca54f559a19",
         callData: "0x",
+        forceSlow: false,
+        receiveSlow: false,
       },
       transferId: "0xfad20d0b772e21887c75c59b8f2f8d3c235e7815203cc5980e54723004f9d572",
       idx: undefined,
@@ -100,6 +99,8 @@ export const test = async () => {
       xparams: {
         to: "0x5a9e792143bf2708b4765c144451dca54f559a19",
         callData: "0x",
+        forceSlow: false,
+        receiveSlow: false,
       },
       transferId: "0xf3ff58c78a0068093ac06b6c00ff7535e8116b68da4976dc6c3f7029ed319469",
       idx: undefined,
@@ -113,6 +114,8 @@ export const test = async () => {
       xparams: {
         to: "0x5a9e792143bf2708b4765c144451dca54f559a19",
         callData: "0x",
+        forceSlow: false,
+        receiveSlow: false,
       },
       transferId: "0x41d57cb2528103379f476ff8797f468610a046935b38c9b15b2647d639985473",
       idx: undefined,
@@ -126,6 +129,8 @@ export const test = async () => {
       xparams: {
         to: "0x5a9e792143bf2708b4765c144451dca54f559a19",
         callData: "0x",
+        forceSlow: false,
+        receiveSlow: false,
       },
       transferId: "0xb438cae3d126e1d2a5e02b34829130b49279230e14c03ab69795275f625bb0fd",
       idx: undefined,

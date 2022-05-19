@@ -1,4 +1,5 @@
 import { Bid, ExecuteArgs, OriginTransfer } from "@connext/nxtp-utils";
+import { constants } from "ethers";
 
 import { getContext } from "../../sequencer";
 
@@ -18,6 +19,10 @@ export const encodeExecuteFromBids = (bids: Bid[], transfer: OriginTransfer, loc
       destinationDomain: transfer.destinationDomain,
       to: transfer.xparams.to,
       callData: transfer.xparams.callData,
+      callback: transfer.xparams.callback ?? constants.AddressZero,
+      callbackFee: transfer.xparams.callbackFee ?? "0",
+      forceSlow: transfer.xparams.forceSlow,
+      receiveLocal: transfer.xparams.receiveLocal,
     },
     local,
     routers: bids.map((b) => b.router),
@@ -49,7 +54,7 @@ export const getDestinationLocalAsset = async (
   // get canonical asset from orgin domain.
   const sendingDomainAsset = await subgraph.getAssetByLocal(_originDomain, _originLocalAsset);
 
-  const canonicalId = sendingDomainAsset!.canonicalId ;
+  const canonicalId = sendingDomainAsset!.canonicalId;
 
   const destinationDomainAsset = await subgraph.getAssetByCanonicalId(_destinationDomain, canonicalId);
 

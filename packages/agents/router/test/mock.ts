@@ -120,6 +120,7 @@ export const mock = {
       txservice.calculateGasFeeInReceivingTokenForFulfill.resolves(BigNumber.from(120));
       txservice.getTokenPrice.resolves(BigNumber.from(1));
       txservice.getGasEstimate.resolves(BigNumber.from(24001));
+      txservice.getCode.resolves("0x");
 
       const mockReceipt = mock.ethers.receipt();
       txservice.sendTx.resolves(mockReceipt);

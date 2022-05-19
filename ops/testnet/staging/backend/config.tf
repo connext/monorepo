@@ -23,7 +23,8 @@ locals {
     chains = {
       "1111" = {}
       "2221" = {}
+      "3331" = {}
     }
-    environment = "production"
+    environment = var.stage
   })
 }

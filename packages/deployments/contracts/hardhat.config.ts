@@ -116,7 +116,7 @@ const config: HardhatUserConfig = {
       accounts: { mnemonic },
       chainId: 4,
       url: urlOverride || process.env.RINKEBY_ETH_PROVIDER_URL || "http://localhost:8545",
-      minGasPrice: utils.parseUnits("10", "gwei").toString(),
+      gasPrice: utils.parseUnits("20", "gwei").toNumber(),
     },
     goerli: {
       accounts: { mnemonic },
@@ -224,7 +224,7 @@ const config: HardhatUserConfig = {
   },
   diamondAbi: {
     // (required) The name of your Diamond ABI.
-    name: "ConnextDiamond",
+    name: "ConnextHandler",
     // (optional) An array of strings, matched against fully qualified contract names, to
     // determine which contracts are included in your Diamond ABI.
     include: [
