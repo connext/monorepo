@@ -3414,9 +3414,9 @@ __metadata:
   linkType: hard
 
 "@nomad-xyz/configuration@npm:^0.1.0-rc.10":
-  version: 0.1.0-rc.21
-  resolution: "@nomad-xyz/configuration@npm:0.1.0-rc.21"
-  checksum: 28e1e52b890a347c2de48589766474ae8630932920a193e7e4ea2f1e63b743e276f0249b9d30c392ed9e716c89f5f19dd387fe46a0fe0ca75ac55583e1fc665b
+  version: 0.1.0-rc.22
+  resolution: "@nomad-xyz/configuration@npm:0.1.0-rc.22"
+  checksum: d5fb539fffe4070ee029ae539718849cb82ebcb6561fa69db191a8adf83f0cbf4675265ed8bdca60a64f58787a9b090fef2e16f1ea9d7a8bcd9e48cc22ab973c
   languageName: node
   linkType: hard
 
@@ -6685,7 +6685,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"cacache@npm:^16.0.2":
+"cacache@npm:^16.1.0":
   version: 16.1.0
   resolution: "cacache@npm:16.1.0"
   dependencies:
@@ -9565,7 +9565,7 @@ __metadata:
   dependencies:
     bn.js: ^4.11.8
     ethereumjs-util: ^6.0.0
-  checksum: ae074be0bb012857ab5d3ae644d1163b908a48dd724b7d2567cfde309dc72222d460438f2411936a70dc949dc604ce1ef7118f7273bd525815579143c907e336
+  checksum: 03127d09960e5f8a44167463faf25b2894db2f746376dbb8195b789ed11762f93db9c574eaa7c498c400063508e9dfc1c80de2edf5f0e1406b25c87d860ff2f1
   languageName: node
   linkType: hard
 
@@ -11478,7 +11478,7 @@ __metadata:
     yargs-parser: ^16.1.0
   bin:
     gluegun: bin/gluegun
-  checksum: 8d331ff800d15e05eec8045df702c08f6100a63a737ebf7af7e26892a38155ab6e625a8d74f90ce7d7f5c0e30be3c43a672fa97427e09a7deb36876d3f661853
+  checksum: 71abe7f31555f169a47510675596f79193c8f55e4beeb4e6efa06c22d41988fa9c747d5e398af7f8401cca22c08ffb7a6d57b03d764c14858513c9eba23b53b8
   languageName: node
   linkType: hard
 
@@ -14996,11 +14996,11 @@ __metadata:
   linkType: hard
 
 "make-fetch-happen@npm:^10.0.3":
-  version: 10.1.3
-  resolution: "make-fetch-happen@npm:10.1.3"
+  version: 10.1.4
+  resolution: "make-fetch-happen@npm:10.1.4"
   dependencies:
     agentkeepalive: ^4.2.1
-    cacache: ^16.0.2
+    cacache: ^16.1.0
     http-cache-semantics: ^4.1.0
     http-proxy-agent: ^5.0.0
     https-proxy-agent: ^5.0.0
@@ -15015,7 +15015,7 @@ __metadata:
     promise-retry: ^2.0.1
     socks-proxy-agent: ^6.1.1
     ssri: ^9.0.0
-  checksum: 14b9bc5fb65a1a1f53b4579c947d1ebdb18db71eb0b35a2eab612e9642a14127917528fe4ffb2c37aaa0d27dfd7507e4044e6e2e47b43985e8fa18722f535b8f
+  checksum: 9661c146dbfb917254253c88fabab9dad32cbcb4caede888958164a25b987a6d782413d5209333ce4918af403812fd9f01a038cb3b4f2fdf76cca4b1223fbc2b
   languageName: node
   linkType: hard
 

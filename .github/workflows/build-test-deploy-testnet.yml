@@ -34,7 +34,7 @@ jobs:
           node-version: "16"
 
       - name: Yarn install
-        run: yarn install
+        run: yarn install --verbose
 
       - name: Forge install
         run: yarn workspace @connext/nxtp-contracts forge:install
