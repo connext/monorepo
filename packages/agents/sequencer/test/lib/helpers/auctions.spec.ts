@@ -42,6 +42,7 @@ describe("Helpers:Auctions", () => {
         routers: bids.map((b) => b.router),
         routerSignatures: bids.map((b) => b.signatures[bids.length.toString()]),
         amount: transfer.origin.assets.bridged.amount,
+        relayerFee: transfer.relayerFee,
         nonce: transfer.nonce,
         originSender: transfer.origin.xcall.caller,
       };

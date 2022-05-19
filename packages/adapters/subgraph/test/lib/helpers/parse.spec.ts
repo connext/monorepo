@@ -52,6 +52,7 @@ describe("Helpers:parse", () => {
           callData: "0x",
           callback: "0xaaa0000000000000000000000000000000000000",
           callbackFee: "0",
+          recovery: "0x1000000000000000000000000000000000000000",
           forceSlow: false,
           receiveLocal: false,
         },
@@ -87,6 +88,7 @@ describe("Helpers:parse", () => {
           callData: "0x",
           callback: "0xaaa0000000000000000000000000000000000000",
           callbackFee: "0",
+          recovery: "0x1000000000000000000000000000000000000000",
           forceSlow: false,
           receiveLocal: false,
         },
@@ -193,6 +195,7 @@ describe("Helpers:parse", () => {
           callbackFee: "0",
           forceSlow: false,
           receiveLocal: false,
+          recovery: "0x1000000000000000000000000000000000000000",
           to: "0x1000000000000000000000000000000000000000",
         },
       });
