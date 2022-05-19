@@ -85,7 +85,6 @@ export const XTransferDestinationSchema = Type.Object({
 
 export const XTransferCoreSchema = Type.Object({
   // Meta
-  idx: Type.Optional(TIntegerString),
   transferId: Type.String(),
 });
 

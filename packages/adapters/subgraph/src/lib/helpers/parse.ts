@@ -35,7 +35,7 @@ export const originTransfer = (entity: any): OriginTransfer => {
 
   return {
     // Meta Data
-    idx: entity.idx ? entity.idx : undefined,
+
     transferId: entity.transferId,
     nonce: BigNumber.from(entity.nonce).toNumber(),
     originDomain: entity.originDomain,
@@ -118,7 +118,7 @@ export const destinationTransfer = (entity: any): DestinationTransfer => {
 
   return {
     // Meta Data
-    idx: entity.idx ? entity.idx : undefined,
+
     transferId: entity.transferId,
     nonce: entity.nonce ? BigNumber.from(entity.nonce).toNumber() : undefined,
     originDomain: entity.originDomain,

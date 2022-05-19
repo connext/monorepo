@@ -20,8 +20,6 @@ export const convertFromDbTransfer = (transfer: any): XTransfer => {
       forceSlow: transfer.force_slow || false,
       receiveLocal: transfer.receive_local || false,
     },
-
-    idx: BigNumber.from(transfer.idx ?? 0).toString(),
     transferId: transfer.transfer_id,
 
     origin: transfer.origin_chain

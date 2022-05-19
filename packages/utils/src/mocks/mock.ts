@@ -151,7 +151,6 @@ export const mock: any = {
 
       return {
         // Meta
-        idx: "0",
         transferId,
         nonce: !isReconciledOnly ? nonce : undefined,
         destinationDomain,

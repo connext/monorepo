@@ -43,7 +43,6 @@ describe("Helpers:parse", () => {
 
     it("happy-1: should parse the originTransfer entity", () => {
       expect(originTransfer(mockOriginTransferEntity)).to.be.deep.eq({
-        idx: "1",
         transferId: "0xaaa0000000000000000000000000000000000000000000000000000000000000",
         nonce: 0,
         originDomain: "1111",
@@ -77,9 +76,8 @@ describe("Helpers:parse", () => {
     });
     it("happy-2: should parse the originTransfer entity", () => {
       expect(
-        originTransfer({ ...mockOriginTransferEntity, idx: undefined, timestamp: undefined, blockNumber: undefined }),
+        originTransfer({ ...mockOriginTransferEntity, timestamp: undefined, blockNumber: undefined }),
       ).to.be.deep.eq({
-        idx: undefined,
         transferId: "0xaaa0000000000000000000000000000000000000000000000000000000000000",
         nonce: 0,
         originDomain: "1111",
@@ -184,7 +182,7 @@ describe("Helpers:parse", () => {
           status: "Executed",
         },
         destinationDomain: "2221",
-        idx: "1",
+
         nonce: 0,
         origin: undefined,
         originDomain: "1111",
@@ -203,7 +201,7 @@ describe("Helpers:parse", () => {
       expect(
         destinationTransfer({
           ...mockDestinationTransferEntity,
-          idx: undefined,
+
           to: undefined,
           transactingAmount: undefined,
           executedTimestamp: undefined,
@@ -242,7 +240,7 @@ describe("Helpers:parse", () => {
           status: "Executed",
         },
         destinationDomain: "2221",
-        idx: undefined,
+
         nonce: 0,
         origin: undefined,
         originDomain: "1111",
