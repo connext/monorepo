@@ -7,11 +7,10 @@ import {AssetLogic} from "../libraries/AssetLogic.sol";
 import {XCallArgs, ExecuteArgs} from "../libraries/LibConnextStorage.sol";
 
 import {LibCrossDomainProperty} from "../libraries/LibCrossDomainProperty.sol";
-import {ITokenRegistry, IBridgeToken} from "../nomad-xapps/interfaces/bridge/ITokenRegistry.sol";
+import {IBridgeToken} from "../nomad-xapps/interfaces/bridge/ITokenRegistry.sol";
 import {TypedMemView} from "../nomad-core/libs/TypedMemView.sol";
 import {TypeCasts} from "../nomad-core/contracts/XAppConnectionManager.sol";
 import {PromiseRouter} from "../nomad-xapps/contracts/promise-router/PromiseRouter.sol";
-import {RelayerFeeRouter} from "../nomad-xapps/contracts/relayer-fee-router/RelayerFeeRouter.sol";
 
 import {IExecutor} from "../interfaces/IExecutor.sol";
 import {IWrapped} from "../interfaces/IWrapped.sol";
@@ -38,11 +37,8 @@ contract BridgeFacet is BaseConnextFacet {
 
   // ========== Custom Errors ===========
 
-  error BridgeFacet__setTokenRegistry_invalidTokenRegistry();
-  error BridgeFacet__setRelayerFeeRouter_invalidRelayerFeeRouter();
   error BridgeFacet__setPromiseRouter_invalidPromiseRouter();
   error BridgeFacet__setExecutor_invalidExecutor();
-  error BridgeFacet__setWrapper_invalidWrapper();
   error BridgeFacet__setSponsorVault_invalidSponsorVault();
   error BridgeFacet__xcall_wrongDomain();
   error BridgeFacet__xcall_emptyTo();
@@ -130,22 +126,6 @@ contract BridgeFacet is BaseConnextFacet {
   event SponsorVaultUpdated(address oldSponsorVault, address newSponsorVault, address caller);
 
   /**
-   * @notice Emitted when the tokenRegistry variable is updated
-   * @param oldTokenRegistry - The tokenRegistry old value
-   * @param newTokenRegistry - The tokenRegistry new value
-   * @param caller - The account that called the function
-   */
-  event TokenRegistryUpdated(address oldTokenRegistry, address newTokenRegistry, address caller);
-
-  /**
-   * @notice Emitted when the relayerFeeRouter variable is updated
-   * @param oldRouter - The relayerFeeRouter old value
-   * @param newRouter - The relayerFeeRouter new value
-   * @param caller - The account that called the function
-   */
-  event RelayerFeeRouterUpdated(address oldRouter, address newRouter, address caller);
-
-  /**
    * @notice Emitted when the promiseRouter variable is updated
    * @param oldRouter - The promiseRouter old value
    * @param newRouter - The promiseRouter new value
@@ -161,14 +141,6 @@ contract BridgeFacet is BaseConnextFacet {
    */
   event ExecutorUpdated(address oldExecutor, address newExecutor, address caller);
 
-  /**
-   * @notice Emitted when the wrapper variable is updated
-   * @param oldWrapper - The wrapper old value
-   * @param newWrapper - The wrapper new value
-   * @param caller - The account that called the function
-   */
-  event WrapperUpdated(address oldWrapper, address newWrapper, address caller);
-
   // ============ Getters ============
 
   function relayerFees(bytes32 _transferId) public view returns (uint256) {
@@ -183,10 +155,6 @@ contract BridgeFacet is BaseConnextFacet {
     return s.reconciledTransfers[_transferId];
   }
 
-  function tokenRegistry() public view returns (ITokenRegistry) {
-    return s.tokenRegistry;
-  }
-
   function domain() public view returns (uint256) {
     return s.domain;
   }
@@ -199,70 +167,42 @@ contract BridgeFacet is BaseConnextFacet {
     return s.nonce;
   }
 
-  function wrapper() public view returns (IWrapped) {
-    return s.wrapper;
-  }
-
   function sponsorVault() public view returns (ISponsorVault) {
     return s.sponsorVault;
-  }
-
-  function relayerFeeRouter() external view returns (RelayerFeeRouter) {
-    return s.relayerFeeRouter;
   }
 
   function promiseRouter() external view returns (PromiseRouter) {
     return s.promiseRouter;
   }
 
-  // ============ Public methods ==============
-
-  function setTokenRegistry(address _tokenRegistry) external onlyOwner {
-    if (address(s.tokenRegistry) == _tokenRegistry || !Address.isContract(_tokenRegistry))
-      revert BridgeFacet__setTokenRegistry_invalidTokenRegistry();
-
-    emit TokenRegistryUpdated(address(s.tokenRegistry), _tokenRegistry, msg.sender);
-    s.tokenRegistry = ITokenRegistry(_tokenRegistry);
-  }
-
-  function setRelayerFeeRouter(address _relayerFeeRouter) external onlyOwner {
-    if (address(s.relayerFeeRouter) == _relayerFeeRouter || !Address.isContract(_relayerFeeRouter))
-      revert BridgeFacet__setRelayerFeeRouter_invalidRelayerFeeRouter();
-
-    emit RelayerFeeRouterUpdated(address(s.relayerFeeRouter), _relayerFeeRouter, msg.sender);
-    s.relayerFeeRouter = RelayerFeeRouter(_relayerFeeRouter);
-  }
+  // ============ Admin methods ==============
 
   function setPromiseRouter(address payable _promiseRouter) external onlyOwner {
-    if (address(s.promiseRouter) == _promiseRouter || !Address.isContract(_promiseRouter))
+    address old = address(s.promiseRouter);
+    if (old == _promiseRouter || !Address.isContract(_promiseRouter))
       revert BridgeFacet__setPromiseRouter_invalidPromiseRouter();
 
-    emit PromiseRouterUpdated(address(s.promiseRouter), _promiseRouter, msg.sender);
     s.promiseRouter = PromiseRouter(_promiseRouter);
+    emit PromiseRouterUpdated(old, _promiseRouter, msg.sender);
   }
 
   function setExecutor(address _executor) external onlyOwner {
-    if (address(s.executor) == _executor || !Address.isContract(_executor))
-      revert BridgeFacet__setExecutor_invalidExecutor();
+    address old = address(s.executor);
+    if (old == _executor || !Address.isContract(_executor)) revert BridgeFacet__setExecutor_invalidExecutor();
 
-    emit ExecutorUpdated(address(s.executor), _executor, msg.sender);
     s.executor = IExecutor(_executor);
-  }
-
-  function setWrapper(address _wrapper) external onlyOwner {
-    if (address(s.wrapper) == _wrapper || !Address.isContract(_wrapper))
-      revert BridgeFacet__setWrapper_invalidWrapper();
-
-    emit WrapperUpdated(address(s.wrapper), _wrapper, msg.sender);
-    s.wrapper = IWrapped(_wrapper);
+    emit ExecutorUpdated(old, _executor, msg.sender);
   }
 
   function setSponsorVault(address _sponsorVault) external onlyOwner {
-    if (address(s.sponsorVault) == _sponsorVault) revert BridgeFacet__setSponsorVault_invalidSponsorVault();
+    address old = address(s.sponsorVault);
+    if (old == _sponsorVault) revert BridgeFacet__setSponsorVault_invalidSponsorVault();
 
-    emit SponsorVaultUpdated(address(s.sponsorVault), _sponsorVault, msg.sender);
     s.sponsorVault = ISponsorVault(_sponsorVault);
+    emit SponsorVaultUpdated(old, _sponsorVault, msg.sender);
   }
+
+  // ============ Public methods ==============
 
   /**
    * @notice This function is called by a user who is looking to bridge funds

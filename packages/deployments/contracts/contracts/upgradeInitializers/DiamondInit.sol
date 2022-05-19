@@ -11,7 +11,7 @@ pragma solidity ^0.8.0;
 import {LibDiamond} from "../libraries/LibDiamond.sol";
 import {IDiamondLoupe} from "../interfaces/IDiamondLoupe.sol";
 import {IDiamondCut} from "../interfaces/IDiamondCut.sol";
-import {IERC173} from "../interfaces/IERC173.sol";
+import {IProposedOwnable} from "../interfaces/IProposedOwnable.sol";
 import {IERC165} from "../interfaces/IERC165.sol";
 
 import {BaseConnextFacet} from "../facets/BaseConnextFacet.sol";
@@ -43,7 +43,7 @@ contract DiamondInit is BaseConnextFacet {
     ds.supportedInterfaces[type(IERC165).interfaceId] = true;
     ds.supportedInterfaces[type(IDiamondCut).interfaceId] = true;
     ds.supportedInterfaces[type(IDiamondLoupe).interfaceId] = true;
-    ds.supportedInterfaces[type(IERC173).interfaceId] = true;
+    ds.supportedInterfaces[type(IProposedOwnable).interfaceId] = true;
 
     // add your own state variables
     // EIP-2535 specifies that the `diamondCut` function takes two optional
@@ -56,7 +56,6 @@ contract DiamondInit is BaseConnextFacet {
     s.xAppConnectionManager = XAppConnectionManager(_xAppConnectionManager);
 
     // __ProposedOwnable_init
-    s._owner = msg.sender;
 
     // __ReentrancyGuard_init_unchained
     s._status = _NOT_ENTERED;

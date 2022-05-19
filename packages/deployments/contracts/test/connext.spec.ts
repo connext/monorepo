@@ -11,12 +11,10 @@ import {
   UpgradeBeaconController,
   XAppConnectionManager,
   DummySwap,
-  ProposedOwnableUpgradeable,
   RelayerFeeRouter,
   TestSponsorVault,
   DiamondCutFacet,
   DiamondLoupeFacet,
-  OwnershipFacet,
   AssetFacet,
   BridgeFacet,
   NomadFacet,
@@ -26,8 +24,6 @@ import {
   StableSwapFacet,
   ConnextHandler,
   DiamondInit,
-  AmplificationUtils,
-  SwapUtils,
   PromiseRouter,
 } from "../typechain-types";
 
@@ -42,7 +38,6 @@ import {
   takeSnapshot,
   connextXCall,
   deployUpgradeableBeaconProxy,
-  deployContractWithLibs,
   transferProposedOwnershipOnContract,
 } from "./utils";
 
@@ -177,7 +172,6 @@ describe("Connext", () => {
     // Deploy facets
     const diamondCutFacet = await deployContract<DiamondCutFacet>("DiamondCutFacet");
     const diamondLoupeFacet = await deployContract<DiamondLoupeFacet>("DiamondLoupeFacet");
-    const ownershipFacet = await deployContract<OwnershipFacet>("OwnershipFacet");
 
     assetFacet = await deployContract<AssetFacet>("AssetFacet");
     bridgeFacet = await deployContract<BridgeFacet>("BridgeFacet");
@@ -195,7 +189,6 @@ describe("Connext", () => {
       [
         diamondCutFacet,
         diamondLoupeFacet,
-        ownershipFacet,
         assetFacet,
         bridgeFacet,
         nomadFacet,
@@ -223,7 +216,6 @@ describe("Connext", () => {
       [
         diamondCutFacet,
         diamondLoupeFacet,
-        ownershipFacet,
         assetFacet,
         bridgeFacet,
         nomadFacet,
@@ -913,6 +905,7 @@ describe("Connext", () => {
       callbackFee: 0,
       forceSlow: false,
       receiveLocal: false,
+      recovery: user.address,
     };
     const transactingAssetId = originAdopted.address;
     const amount = utils.parseEther("0.0001");
@@ -1012,6 +1005,7 @@ describe("Connext", () => {
       destinationDomain,
       callback: ZERO_ADDRESS,
       callbackFee: 0,
+      recovery: user.address,
       forceSlow: false,
       receiveLocal: false,
     };
@@ -1121,6 +1115,7 @@ describe("Connext", () => {
       callback: ZERO_ADDRESS,
       callbackFee: 0,
       forceSlow: false,
+      recovery: user.address,
       receiveLocal: false,
     };
     const transactingAssetId = originAdopted.address;
@@ -1199,6 +1194,7 @@ describe("Connext", () => {
   describe("multipath", () => {
     const params = {
       to: user.address,
+      recovery: user.address,
       callData: "0x",
       originDomain,
       destinationDomain,
@@ -1426,6 +1422,7 @@ describe("Connext", () => {
   describe("relayerFee", () => {
     const params = {
       to: user.address,
+      recovery: user.address,
       callData: "0x",
       originDomain,
       destinationDomain,
@@ -1595,6 +1592,7 @@ describe("Connext", () => {
         callbackFee: 0,
         forceSlow: false,
         receiveLocal: false,
+        recovery: user.address,
       };
       transactingAssetId = originAdopted.address;
 
@@ -1614,12 +1612,6 @@ describe("Connext", () => {
 
     it("should work with no sponsor vault configured", async () => {
       expect(await destinationBridge.sponsorVault()).to.eq(ZERO_ADDRESS);
-
-      // Get pre-prepare balances
-      const prePrepare = await Promise.all([
-        originAdopted.balanceOf(user.address),
-        canonical.balanceOf(originBridge.address),
-      ]);
 
       // Get pre-execute balances
       const preExecute = await Promise.all([

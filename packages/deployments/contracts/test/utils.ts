@@ -241,7 +241,7 @@ export const transferProposedOwnershipOnContract = async (
   owner: Wallet,
 ) => {
   // Get current owner
-  const current = await contract.proposedOwnableOwner();
+  const current = await contract.owner();
 
   // Propose new owner
   await proposeNewOwnerOnFacetContract(newOwner, owner, contract);
@@ -257,11 +257,11 @@ export const transferProposedOwnershipOnContract = async (
       ? await contract.connect(caller).renounceOwnership()
       : await contract.connect(caller).acceptProposedOwner();
   const acceptReceipt = await acceptTx.wait();
-  assertReceiptEvent(acceptReceipt, "ProposedOwnableOwnershipTransferred", {
+  assertReceiptEvent(acceptReceipt, "OwnershipTransferred", {
     previousOwner: current,
     newOwner,
   });
-  expect(await contract.proposedOwnableOwner()).to.be.eq(newOwner);
+  expect(await contract.owner()).to.be.eq(newOwner);
 };
 
 //// For StableSwap
@@ -363,6 +363,7 @@ export const connextXCall = async (
   relayerFee: number,
   params: {
     to: string;
+    recovery: string;
     callData: string;
     originDomain: number;
     destinationDomain: number;

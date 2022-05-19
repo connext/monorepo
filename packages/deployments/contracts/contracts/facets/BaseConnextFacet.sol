@@ -4,6 +4,7 @@ pragma solidity 0.8.11;
 import {Home} from "../nomad-core/contracts/Home.sol";
 
 import {AppStorage} from "../libraries/LibConnextStorage.sol";
+import {LibDiamond} from "../libraries/LibDiamond.sol";
 
 contract BaseConnextFacet {
   AppStorage internal s;
@@ -67,7 +68,7 @@ contract BaseConnextFacet {
    * @notice Throws if called by any account other than the owner.
    */
   modifier onlyOwner() {
-    if (s._owner != msg.sender) revert BaseConnextFacet__onlyOwner_notOwner();
+    if (LibDiamond.contractOwner() != msg.sender) revert BaseConnextFacet__onlyOwner_notOwner();
     _;
   }
 
@@ -85,7 +86,7 @@ contract BaseConnextFacet {
    * been renounced
    */
   function _isRouterOwnershipRenounced() internal view returns (bool) {
-    return s._owner == address(0) || s._routerOwnershipRenounced;
+    return LibDiamond.contractOwner() == address(0) || s._routerOwnershipRenounced;
   }
 
   /**
@@ -93,7 +94,7 @@ contract BaseConnextFacet {
    * been renounced
    */
   function _isAssetOwnershipRenounced() internal view returns (bool) {
-    return s._owner == address(0) || s._assetOwnershipRenounced;
+    return LibDiamond.contractOwner() == address(0) || s._assetOwnershipRenounced;
   }
 
   /**

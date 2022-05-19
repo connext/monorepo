@@ -233,28 +233,26 @@ struct AppStorage {
   // ProposedOwnable
   //
   // 23
-  address _owner;
-  // 24
   address _proposed;
-  // 25
+  // 24
   uint256 _proposedOwnershipTimestamp;
-  // 26
+  // 25
   bool _routerOwnershipRenounced;
-  // 27
+  // 26
   uint256 _routerOwnershipTimestamp;
-  // 28
+  // 27
   bool _assetOwnershipRenounced;
-  // 29
+  // 28
   uint256 _assetOwnershipTimestamp;
   //
   // RouterPermissionsManager
   //
-  // 30
+  // 29
   RouterPermissionsManagerInfo routerPermissionInfo;
   //
   // ReentrancyGuard
   //
-  // 31
+  // 30
   uint256 _status;
   //
   // StableSwap
@@ -265,13 +263,13 @@ struct AppStorage {
    * Struct storing data responsible for automatic market maker functionalities. In order to
    * access this data, this contract uses SwapUtils library. For more details, see SwapUtils.sol
    */
-  // 32
+  // 31
   mapping(bytes32 => SwapUtils.Swap) swapStorages;
   /**
    * @notice Maps token address to an index in the pool. Used to prevent duplicate tokens in the pool.
    * @dev getTokenIndex function also relies on this mapping to retrieve token index.
    */
-  // 33
+  // 32
   mapping(bytes32 => mapping(address => uint8)) tokenIndexes;
 }
 
