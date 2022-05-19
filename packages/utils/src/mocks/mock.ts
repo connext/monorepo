@@ -91,6 +91,7 @@ export const mock: any = {
       amount: utils.parseEther("1").toString(),
       nonce: 0,
       originSender: mkAddress(),
+      relayerFee: "12345",
       ...overrides,
     }),
     auction: (overrides: Partial<Auction>): Auction => ({

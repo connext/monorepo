@@ -195,6 +195,7 @@ export const ExecuteArgsSchema = Type.Object({
   amount: TIntegerString,
   nonce: Type.Integer(),
   originSender: TAddress,
+  relayerFee: TIntegerString,
 });
 
 export type ExecuteArgs = Static<typeof ExecuteArgsSchema>;
