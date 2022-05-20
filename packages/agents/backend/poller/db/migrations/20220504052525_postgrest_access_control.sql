@@ -8,3 +8,9 @@ grant usage on schema public to reader;
 grant select on public.transfers to reader;
 grant query to reader;
 -- migrate:down
+reassign owned BY query TO postgres;
+drop owned by query;
+drop role query;
+reassign owned BY reader TO postgres;
+drop owned by reader;
+drop role reader;
