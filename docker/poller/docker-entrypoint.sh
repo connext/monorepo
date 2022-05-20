@@ -1,5 +1,9 @@
 #!/bin/sh
 set -eoux pipefail
 
-dbmate up
+dbmate rollback
+dbmate rollback
+dbmate rollback
+dbmate rollback
+dbmate rollback
 node --trace-warnings dist/index.js
