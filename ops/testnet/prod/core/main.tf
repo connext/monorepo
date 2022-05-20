@@ -190,7 +190,7 @@ module "lighthouse_logdna_lambda_exporter" {
   public_subnets       = module.network.public_subnets
   service              = "lighthouse"
   vpc_id               = module.network.vpc_id
-  log_group_arn        = module.sequencer.log_group_arn
+  log_group_arn        = module.lighthouse.log_group_arn
   aws_lambda_s3_bucket = "aws-lamba-logdna-cloudwatch-prod"
 }
 
