@@ -34,6 +34,9 @@ import "./src/tasks/preflight";
 import "./src/tasks/addRelayer";
 import "./src/tasks/executeEstimateGas";
 import "./src/tasks/exportAbi";
+import "./src/tasks/stableswap/initializeSwap";
+import "./src/tasks/stableswap/addSwapLiquidity";
+import "./src/tasks/stableswap/removeSwapLiquidity";
 import { utils } from "ethers";
 
 dotEnvConfig();
