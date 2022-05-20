@@ -17,7 +17,7 @@ import {ConnextMessage} from "../../contracts/libraries/ConnextMessage.sol";
 import {XCallArgs, CallParams} from "../../contracts/libraries/LibConnextStorage.sol";
 import {IDiamondCut} from "../../contracts/interfaces/IDiamondCut.sol";
 
-import {TestSetterFacet} from "../Mock.sol";
+import {TestSetterFacet} from "./Mock.sol";
 
 contract Deployer {
   Connext connextDiamondProxy;

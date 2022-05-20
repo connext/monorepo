@@ -1,14 +1,14 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity 0.8.11;
 
-import "./ForgeHelper.sol";
+import "./utils/ForgeHelper.sol";
 
 import "../contracts/interfaces/IConnextHandler.sol";
 import {TypedMemView, RelayerFeeMessage, RelayerFeeRouter} from "../contracts/nomad-xapps/contracts/relayer-fee-router/RelayerFeeRouter.sol";
 import {Home} from "../contracts/nomad-core/contracts/Home.sol";
 import {ProposedOwnableUpgradeable} from "../contracts/ProposedOwnableUpgradeable.sol";
 import {ERC1967Proxy} from "@openzeppelin/contracts/proxy/ERC1967/ERC1967Proxy.sol";
-import {MockHome, MockConnext} from "./Mock.sol";
+import {MockHome, MockConnext} from "./utils/Mock.sol";
 
 // running tests (with logging on failure):
 // yarn workspace @connext/nxtp-contracts test:forge -vvv

@@ -15,8 +15,8 @@ import {TestERC20} from "../../contracts/test/TestERC20.sol";
 import {IAavePool} from "../../contracts/interfaces/IAavePool.sol";
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
-import "../ForgeHelper.sol";
-import "../Mock.sol";
+import "../utils/ForgeHelper.sol";
+import "../utils/Mock.sol";
 import "./FacetHelper.sol";
 
 contract PortalFacetTest is PortalFacet, FacetHelper {

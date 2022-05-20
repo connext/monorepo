@@ -1,11 +1,11 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity 0.8.11;
 
-import {TypedMemView, PromiseMessage, PromiseRouter} from "../contracts/nomad-xapps/contracts/promise-router/PromiseRouter.sol";
-import {ICallback} from "../contracts/interfaces/ICallback.sol";
-import {IAavePool} from "../contracts/interfaces/IAavePool.sol";
-import {BaseConnextFacet} from "../contracts/facets/BaseConnextFacet.sol";
-import {ISponsorVault} from "../contracts/interfaces/ISponsorVault.sol";
+import {TypedMemView, PromiseMessage, PromiseRouter} from "../../contracts/nomad-xapps/contracts/promise-router/PromiseRouter.sol";
+import {ICallback} from "../../contracts/interfaces/ICallback.sol";
+import {IAavePool} from "../../contracts/interfaces/IAavePool.sol";
+import {BaseConnextFacet} from "../../contracts/facets/BaseConnextFacet.sol";
+import {ISponsorVault} from "../../contracts/interfaces/ISponsorVault.sol";
 
 contract MockHome {
   function dispatch(

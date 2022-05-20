@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity 0.8.11;
 
-import "./ForgeHelper.sol";
+import "./utils/ForgeHelper.sol";
 
 import {TypedMemView, PromiseMessage, PromiseRouter, AddressUpgradeable} from "../contracts/nomad-xapps/contracts/promise-router/PromiseRouter.sol";
 import {Home} from "../contracts/nomad-core/contracts/Home.sol";
@@ -11,7 +11,7 @@ import {Deployer} from "./utils/Deployer.sol";
 import {IConnextHandler} from "../contracts/interfaces/IConnextHandler.sol";
 import {BaseConnextFacet} from "../contracts/facets/BaseConnextFacet.sol";
 
-import {MockHome, MockCallback, MockPromiseRouter, TestSetterFacet} from "./Mock.sol";
+import {MockHome, MockCallback, MockPromiseRouter, TestSetterFacet} from "./utils/Mock.sol";
 
 // running tests (with logging on failure):
 // yarn workspace @connext/nxtp-contracts test:forge -vvv

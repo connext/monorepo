@@ -1,13 +1,13 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity 0.8.11;
 
-import "./ForgeHelper.sol";
+import "../utils/ForgeHelper.sol";
 
-import {Deployer} from "./utils/Deployer.sol";
-import {IConnextHandler} from "../contracts/interfaces/IConnextHandler.sol";
+import {Deployer} from "../utils/Deployer.sol";
+import {IConnextHandler} from "../../contracts/interfaces/IConnextHandler.sol";
 
-import {BaseConnextFacet} from "../contracts/facets/BaseConnextFacet.sol";
-import {RoutersFacet} from "../contracts/facets/RoutersFacet.sol";
+import {BaseConnextFacet} from "../../contracts/facets/BaseConnextFacet.sol";
+import {RoutersFacet} from "../../contracts/facets/RoutersFacet.sol";
 
 // TODO: This is testing the logic conditions in the library and file should be
 // refactored to reflect that, including:

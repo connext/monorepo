@@ -3,7 +3,7 @@ pragma solidity 0.8.11;
 
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
-import "./ForgeHelper.sol";
+import "./utils/ForgeHelper.sol";
 
 import {ITokenRegistry} from "../contracts/nomad-xapps/interfaces/bridge/ITokenRegistry.sol";
 import {AssetLogic} from "../contracts/libraries/AssetLogic.sol";
@@ -12,7 +12,7 @@ import {TestERC20} from "../contracts/test/TestERC20.sol";
 import {WETH} from "../contracts/test/TestWeth.sol";
 
 import {ISponsorVault} from "../contracts/interfaces/ISponsorVault.sol";
-import {MockHome, MockRelayerFeeRouter, MockPromiseRouter, MockCallback, TestSetterFacet} from "./Mock.sol";
+import {MockHome, MockRelayerFeeRouter, MockPromiseRouter, MockCallback, TestSetterFacet} from "./utils/Mock.sol";
 
 import {Deployer} from "./utils/Deployer.sol";
 import {IConnextHandler} from "../contracts/interfaces/IConnextHandler.sol";

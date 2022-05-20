@@ -57,19 +57,12 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
 
   // ============ Test set up ============
   function setUp() public {
-    // set defaults with local == adopted
-    setDefaults(true);
+    // set the defaults
+    setDefaults();
 
-    // setup asset context
-    s.adoptedToCanonical[_adopted] = ConnextMessage.TokenId(_canonicalDomain, _canonicalTokenId);
-    s.adoptedToLocalPools[_canonicalTokenId] = IStableSwap(_stableSwap);
-    s.canonicalToAdopted[_canonicalTokenId] = _adopted;
-
-    vm.mockCall(
-      _tokenRegistry,
-      abi.encodeWithSelector(ITokenRegistry.getTokenId.selector),
-      abi.encode(_canonicalDomain, _canonicalTokenId)
-    );
+    // set the asset context -> you are on the destination domain
+    // with the local asset == adopted asset
+    setAssetContext(_destinationDomain, true);
 
     // setup other context
     s.approvedRelayers[address(this)] = true;
@@ -399,7 +392,7 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
   // should credit router leftovers from portal repayment from positive slippage of amm
   function test_BridgeFacet__handle_creditToRouterLeftoversFromPortalRepayment() public {
     // setup asset with adopted != local
-    setDefaults(false);
+    setAssetContext(_destinationDomain, false);
     // get args
     (bytes32 _id, ExecuteArgs memory _args) = getExecuteArgs();
 

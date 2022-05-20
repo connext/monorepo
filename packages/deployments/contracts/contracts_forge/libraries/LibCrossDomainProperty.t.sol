@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity 0.8.11;
 
-import "../ForgeHelper.sol";
+import "../utils/ForgeHelper.sol";
 
 import "../../contracts/interpreters/Executor.sol";
 

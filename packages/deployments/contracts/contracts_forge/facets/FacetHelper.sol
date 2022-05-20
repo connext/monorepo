@@ -6,7 +6,7 @@ import {LibConnextStorage, AppStorage} from "../../contracts/libraries/LibConnex
 import {ConnextMessage} from "../../contracts/libraries/ConnextMessage.sol";
 import {IStableSwap} from "../../contracts/interfaces/IStableSwap.sol";
 
-import "../ForgeHelper.sol";
+import "../utils/ForgeHelper.sol";
 import {TestERC20} from "../../contracts/test/TestERC20.sol";
 
 contract FacetHelper is ForgeHelper {

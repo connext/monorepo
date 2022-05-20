@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity 0.8.11;
 
-import "./ForgeHelper.sol";
+import "./utils/ForgeHelper.sol";
 
 import {SponsorVault, ITokenExchange, IGasTokenOracle} from "../contracts/SponsorVault.sol";
 
@@ -9,6 +9,7 @@ import {TestERC20} from "../contracts/test/TestERC20.sol";
 
 contract MockTokenExchange is ITokenExchange {
   uint256 private sawpResult;
+
   function setSwapResult(uint256 _sawpResult) external {
     sawpResult = _sawpResult;
   }
@@ -84,9 +85,7 @@ contract SponsorVaultTest is ForgeHelper {
 
   // ============ constructor ============
   function test_SponsorVault__constructor_failsWithConnextZeroAddress() public {
-    vm.expectRevert(
-      abi.encodeWithSelector(SponsorVault.SponsorVault__setConnext_invalidConnext.selector)
-    );
+    vm.expectRevert(abi.encodeWithSelector(SponsorVault.SponsorVault__setConnext_invalidConnext.selector));
 
     new SponsorVault(address(0));
   }
@@ -112,9 +111,7 @@ contract SponsorVaultTest is ForgeHelper {
   }
 
   function test_SponsorVault__setConnext_failsWithConnextZeroAddress() public {
-    vm.expectRevert(
-      abi.encodeWithSelector(SponsorVault.SponsorVault__setConnext_invalidConnext.selector)
-    );
+    vm.expectRevert(abi.encodeWithSelector(SponsorVault.SponsorVault__setConnext_invalidConnext.selector));
 
     vault.setConnext(address(0));
   }
@@ -140,9 +137,7 @@ contract SponsorVaultTest is ForgeHelper {
   }
 
   function test_SponsorVault__setRate_failsWithOriginDomainZero() public {
-    vm.expectRevert(
-      abi.encodeWithSelector(SponsorVault.SponsorVault__setRate_invalidOriginDomain.selector)
-    );
+    vm.expectRevert(abi.encodeWithSelector(SponsorVault.SponsorVault__setRate_invalidOriginDomain.selector));
 
     vault.setRate(0, rate);
   }
@@ -206,7 +201,7 @@ contract SponsorVaultTest is ForgeHelper {
 
   // ============ setTokenExchange ============
 
-    function test_SponsorVault__setTokenExchange_failsIfNotOwner() public {
+  function test_SponsorVault__setTokenExchange_failsIfNotOwner() public {
     vm.prank(address(0));
     vm.expectRevert("Ownable: caller is not the owner");
 
@@ -214,9 +209,7 @@ contract SponsorVaultTest is ForgeHelper {
   }
 
   function test_SponsorVault__setTokenExchange_failsWithConnextZeroAddress() public {
-    vm.expectRevert(
-      abi.encodeWithSelector(SponsorVault.SponsorVault__setTokenExchange_invalidAdopted.selector)
-    );
+    vm.expectRevert(abi.encodeWithSelector(SponsorVault.SponsorVault__setTokenExchange_invalidAdopted.selector));
 
     vault.setTokenExchange(address(0), payable(address(tokenExchange)));
   }
@@ -276,9 +269,7 @@ contract SponsorVaultTest is ForgeHelper {
   function test_SponsorVault__withdraw_fails_removing_more_than_owned() public {
     uint256 balance = address(vault).balance;
 
-    vm.expectRevert(
-      abi.encodeWithSelector(SponsorVault.SponsorVault__withdraw_invalidAmount.selector)
-    );
+    vm.expectRevert(abi.encodeWithSelector(SponsorVault.SponsorVault__withdraw_invalidAmount.selector));
 
     vault.withdraw(address(0), address(this), balance + 1);
   }
@@ -320,9 +311,7 @@ contract SponsorVaultTest is ForgeHelper {
 
   function test_SponsorVault__reimburseLiquidityFees_failsIfNotConnext() public {
     vm.prank(address(0));
-    vm.expectRevert(
-      abi.encodeWithSelector(SponsorVault.SponsorVault__onlyConnext.selector)
-    );
+    vm.expectRevert(abi.encodeWithSelector(SponsorVault.SponsorVault__onlyConnext.selector));
 
     vault.reimburseLiquidityFees(address(1), 1, address(1));
   }
@@ -342,7 +331,9 @@ contract SponsorVaultTest is ForgeHelper {
     assertEq(address(vault).balance, balanceBefore);
   }
 
-  function test_SponsorVault__reimburseLiquidityFees_returns_should_work_with_tokenExchange_swap_balance_when_no_enough_native_token_to_cover_all_required_in() public {
+  function test_SponsorVault__reimburseLiquidityFees_returns_should_work_with_tokenExchange_swap_balance_when_no_enough_native_token_to_cover_all_required_in()
+    public
+  {
     tokenExchange.setSwapResult(1);
     vault.setTokenExchange(address(localToken), payable(address(tokenExchange)));
 
@@ -363,7 +354,9 @@ contract SponsorVaultTest is ForgeHelper {
     assertEq(address(vault).balance, 0);
   }
 
-  function test_SponsorVault__reimburseLiquidityFees_should_work_with_tokenExchange_swap_amount_required_amount_of_native_token() public {
+  function test_SponsorVault__reimburseLiquidityFees_should_work_with_tokenExchange_swap_amount_required_amount_of_native_token()
+    public
+  {
     uint256 liquidityFee = 500;
     tokenExchange.setSwapResult(500);
     uint256 amountIn = tokenExchange.getInGivenExpectedOut(address(localToken), liquidityFee);
@@ -386,7 +379,9 @@ contract SponsorVaultTest is ForgeHelper {
     assertEq(address(vault).balance, balanceBefore - amountIn);
   }
 
-  function test_SponsorVault__reimburseLiquidityFees_should_work_with_tokenExchange_sponsored_less_than_liquidityFee_due_to_slippage() public {
+  function test_SponsorVault__reimburseLiquidityFees_should_work_with_tokenExchange_sponsored_less_than_liquidityFee_due_to_slippage()
+    public
+  {
     uint256 liquidityFee = 500;
     tokenExchange.setSwapResult(500 - 5);
     uint256 amountIn = tokenExchange.getInGivenExpectedOut(address(localToken), liquidityFee);
@@ -423,11 +418,13 @@ contract SponsorVaultTest is ForgeHelper {
     uint256 sponsored = vault.reimburseLiquidityFees(address(localToken), liquidityFee, address(1));
 
     assertEq(sponsored, liquidityFee);
-    assertEq(address(vault).balance, balanceBefore );
+    assertEq(address(vault).balance, balanceBefore);
     assertEq(localToken.balanceOf(address(vault)), balanceLocalBefore - liquidityFee);
   }
 
-  function test_SponsorVault__reimburseLiquidityFees_should_work_with_no_tokenExchange_but_token_balance_sending_available_amount_if_no_enough() public {
+  function test_SponsorVault__reimburseLiquidityFees_should_work_with_no_tokenExchange_but_token_balance_sending_available_amount_if_no_enough()
+    public
+  {
     uint256 balanceLocalBefore = localToken.balanceOf(address(vault));
     uint256 liquidityFee = balanceLocalBefore + 10;
 
@@ -449,9 +446,7 @@ contract SponsorVaultTest is ForgeHelper {
 
   function test_SponsorVault__reimburseRelayerFees_failsIfNotConnext() public {
     vm.prank(address(0));
-    vm.expectRevert(
-      abi.encodeWithSelector(SponsorVault.SponsorVault__onlyConnext.selector)
-    );
+    vm.expectRevert(abi.encodeWithSelector(SponsorVault.SponsorVault__onlyConnext.selector));
 
     vault.reimburseRelayerFees(originDomain, payable(address(this)), 1);
   }
@@ -490,7 +485,7 @@ contract SponsorVaultTest is ForgeHelper {
 
     uint256 balanceBefore = to.balance;
 
-    uint256 expectedFee = (relayerFee * _rate.num / _rate.den);
+    uint256 expectedFee = ((relayerFee * _rate.num) / _rate.den);
 
     vm.expectEmit(true, true, true, true);
     emit ReimburseRelayerFees(expectedFee, to);
@@ -500,7 +495,9 @@ contract SponsorVaultTest is ForgeHelper {
     assertEq(to.balance, balanceBefore + expectedFee);
   }
 
-  function test_SponsorVault__reimburseRelayerFees_should_use_rate_when_no_gasTokenOracle_is_set_partially_sponsoring_the_fee_when_no_enough_balance() public {
+  function test_SponsorVault__reimburseRelayerFees_should_use_rate_when_no_gasTokenOracle_is_set_partially_sponsoring_the_fee_when_no_enough_balance()
+    public
+  {
     SponsorVault.Rate memory _rate = SponsorVault.Rate({num: 1, den: 1});
     uint256 initialVaultBalance = address(vault).balance;
     uint256 relayerFeeCap = initialVaultBalance * 2;
@@ -560,12 +557,9 @@ contract SponsorVaultTest is ForgeHelper {
       abi.encode(gasTokenOracleRate)
     );
 
-    vm.expectCall(
-      address(gasTokenOracle),
-      abi.encodeWithSelector(IGasTokenOracle.getRate.selector, originDomain)
-    );
+    vm.expectCall(address(gasTokenOracle), abi.encodeWithSelector(IGasTokenOracle.getRate.selector, originDomain));
 
-    uint256 expectedFee = (relayerFee * gasTokenOracleRate.num / gasTokenOracleRate.den);
+    uint256 expectedFee = ((relayerFee * gasTokenOracleRate.num) / gasTokenOracleRate.den);
 
     vm.expectEmit(true, true, true, true);
     emit ReimburseRelayerFees(expectedFee, to);
@@ -575,7 +569,9 @@ contract SponsorVaultTest is ForgeHelper {
     assertEq(to.balance, balanceBefore + expectedFee);
   }
 
-  function test_SponsorVault__reimburseRelayerFees_should_use_gasTokenOracle_rate_but_return_relayerFeeCap_when_fee_is_to_high() public {
+  function test_SponsorVault__reimburseRelayerFees_should_use_gasTokenOracle_rate_but_return_relayerFeeCap_when_fee_is_to_high()
+    public
+  {
     SponsorVault.Rate memory _rate = SponsorVault.Rate({num: 1, den: 2});
 
     uint256 relayerFeeCap = 1000;
@@ -596,10 +592,7 @@ contract SponsorVaultTest is ForgeHelper {
       abi.encode(gasTokenOracleRate)
     );
 
-    vm.expectCall(
-      address(gasTokenOracle),
-      abi.encodeWithSelector(IGasTokenOracle.getRate.selector, originDomain)
-    );
+    vm.expectCall(address(gasTokenOracle), abi.encodeWithSelector(IGasTokenOracle.getRate.selector, originDomain));
 
     vm.expectEmit(true, true, true, true);
     emit ReimburseRelayerFees(relayerFeeCap, to);
@@ -609,7 +602,9 @@ contract SponsorVaultTest is ForgeHelper {
     assertEq(to.balance, balanceBefore + relayerFeeCap);
   }
 
-  function test_SponsorVault__reimburseRelayerFees_should_use_gasTokenOracle_rate_partially_sponsoring_the_fee_when_no_enough_balance() public {
+  function test_SponsorVault__reimburseRelayerFees_should_use_gasTokenOracle_rate_partially_sponsoring_the_fee_when_no_enough_balance()
+    public
+  {
     SponsorVault.Rate memory _rate = SponsorVault.Rate({num: 1, den: 2});
 
     address to = address(10);
@@ -622,7 +617,6 @@ contract SponsorVaultTest is ForgeHelper {
     vault.setRate(originDomain, _rate);
     vault.setGasTokenOracle(gasTokenOracle);
 
-
     SponsorVault.Rate memory gasTokenOracleRate = SponsorVault.Rate({num: 1, den: 1});
 
     vm.mockCall(
@@ -631,10 +625,7 @@ contract SponsorVaultTest is ForgeHelper {
       abi.encode(gasTokenOracleRate)
     );
 
-    vm.expectCall(
-      address(gasTokenOracle),
-      abi.encodeWithSelector(IGasTokenOracle.getRate.selector, originDomain)
-    );
+    vm.expectCall(address(gasTokenOracle), abi.encodeWithSelector(IGasTokenOracle.getRate.selector, originDomain));
 
     vm.expectEmit(true, true, true, true);
     emit ReimburseRelayerFees(initialVaultBalance, to);
