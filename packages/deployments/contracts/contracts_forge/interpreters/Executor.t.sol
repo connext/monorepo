@@ -7,6 +7,7 @@ import "../../contracts/test/TestERC20.sol";
 
 import "../../lib/forge-std/src/console.sol";
 
+import "../../contracts/interfaces/IExecutor.sol";
 import "../../contracts/interpreters/Executor.sol";
 
 // running tests (with logging on failure):
@@ -56,6 +57,7 @@ contract ExecutorTest is ForgeHelper {
 
   address connext = address(this);
   address originSender = address(2);
+  address recovery = address(3);
   uint32 origin = uint32(1000);
   bytes32 transferId = keccak256(abi.encode(1));
 
@@ -88,12 +90,15 @@ contract ExecutorTest is ForgeHelper {
     bytes memory data = abi.encodeWithSelector(PropertyQuery.setOriginSender.selector, "");
     // send tx
     (bool success, ) = executor.execute(
-      transferId,
-      0,
-      payable(address(query)),
-      NATIVE_ASSET,
-      LibCrossDomainProperty.EMPTY_BYTES,
-      data
+      IExecutor.ExecutorArgs(
+        transferId,
+        0,
+        payable(address(query)),
+        payable(recovery),
+        NATIVE_ASSET,
+        LibCrossDomainProperty.EMPTY_BYTES,
+        data
+      )
     );
     assertTrue(!success);
   }
@@ -105,7 +110,9 @@ contract ExecutorTest is ForgeHelper {
     bytes memory property = LibCrossDomainProperty.formatDomainAndSenderBytes(origin, originSender);
 
     // send tx
-    (bool success, ) = executor.execute(transferId, 0, payable(address(query)), NATIVE_ASSET, property, data);
+    (bool success, ) = executor.execute(
+      IExecutor.ExecutorArgs(transferId, 0, payable(address(query)), payable(recovery), NATIVE_ASSET, property, data)
+    );
     assertTrue(success);
     assertEq(query.originSender(), originSender);
   }
@@ -118,12 +125,15 @@ contract ExecutorTest is ForgeHelper {
     bytes memory data = abi.encodeWithSelector(PropertyQuery.setOrigin.selector, "");
     // send tx
     (bool success, ) = executor.execute(
-      transferId,
-      0,
-      payable(address(query)),
-      NATIVE_ASSET,
-      LibCrossDomainProperty.EMPTY_BYTES,
-      data
+      IExecutor.ExecutorArgs(
+        transferId,
+        0,
+        payable(address(query)),
+        payable(recovery),
+        NATIVE_ASSET,
+        LibCrossDomainProperty.EMPTY_BYTES,
+        data
+      )
     );
     assertTrue(!success);
   }
@@ -135,7 +145,9 @@ contract ExecutorTest is ForgeHelper {
     bytes memory property = LibCrossDomainProperty.formatDomainAndSenderBytes(origin, originSender);
 
     // send tx
-    (bool success, ) = executor.execute(transferId, 0, payable(address(query)), NATIVE_ASSET, property, data);
+    (bool success, ) = executor.execute(
+      IExecutor.ExecutorArgs(transferId, 0, payable(address(query)), payable(recovery), NATIVE_ASSET, property, data)
+    );
     assertTrue(success);
     assertEq(query.origin(), origin);
   }
@@ -150,7 +162,17 @@ contract ExecutorTest is ForgeHelper {
 
     // send tx
     uint256 amount = 1200;
-    (bool success, ) = executor.execute(transferId, amount, payable(address(query)), address(asset), property, data);
+    (bool success, ) = executor.execute(
+      IExecutor.ExecutorArgs(
+        transferId,
+        amount,
+        payable(address(query)),
+        payable(recovery),
+        address(asset),
+        property,
+        data
+      )
+    );
     assertTrue(success);
     assertEq(query.amt(), amount);
     assertEq(executor.amount(), 0);
@@ -159,6 +181,34 @@ contract ExecutorTest is ForgeHelper {
   // ============ execute ============
 
   // Fails if not called by connext
+
+  // Should gracefully handle failure of no code at to
+  function test_Executor__execute_handlesNoCodeFailure() public {
+    // Get the calldata
+    bytes memory data = abi.encodeWithSelector(PropertyQuery.setAmount.selector, "");
+    bytes memory property = LibCrossDomainProperty.EMPTY_BYTES;
+
+    // Get starting recovery balance
+    uint256 initRecovery = asset.balanceOf(recovery);
+
+    // send tx
+    uint256 amount = 1200;
+    (bool success, ) = executor.execute(
+      IExecutor.ExecutorArgs(
+        transferId,
+        amount,
+        payable(address(12344321)),
+        payable(recovery),
+        address(asset),
+        property,
+        data
+      )
+    );
+    assertTrue(!success);
+
+    // should have transferred funds to recovery address
+    assertEq(asset.balanceOf(recovery), initRecovery + amount);
+  }
 
   // Should work with native asset
 

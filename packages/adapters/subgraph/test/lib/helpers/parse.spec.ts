@@ -43,16 +43,19 @@ describe("Helpers:parse", () => {
 
     it("happy-1: should parse the originTransfer entity", () => {
       expect(originTransfer(mockOriginTransferEntity)).to.be.deep.eq({
-        idx: "1",
         transferId: "0xaaa0000000000000000000000000000000000000000000000000000000000000",
         nonce: 0,
-        originDomain: "1111",
         destinationDomain: "2221",
+        originDomain: "1111",
+        relayerFee: "1",
         xparams: {
+          destinationDomain: "2221",
+          originDomain: "1111",
           to: "0x1000000000000000000000000000000000000000",
           callData: "0x",
           callback: "0xaaa0000000000000000000000000000000000000",
           callbackFee: "0",
+          recovery: "0x1000000000000000000000000000000000000000",
           forceSlow: false,
           receiveLocal: false,
         },
@@ -77,18 +80,21 @@ describe("Helpers:parse", () => {
     });
     it("happy-2: should parse the originTransfer entity", () => {
       expect(
-        originTransfer({ ...mockOriginTransferEntity, idx: undefined, timestamp: undefined, blockNumber: undefined }),
+        originTransfer({ ...mockOriginTransferEntity, timestamp: undefined, blockNumber: undefined }),
       ).to.be.deep.eq({
-        idx: undefined,
         transferId: "0xaaa0000000000000000000000000000000000000000000000000000000000000",
         nonce: 0,
-        originDomain: "1111",
         destinationDomain: "2221",
+        originDomain: "1111",
+        relayerFee: "1",
         xparams: {
+          destinationDomain: "2221",
+          originDomain: "1111",
           to: "0x1000000000000000000000000000000000000000",
           callData: "0x",
           callback: "0xaaa0000000000000000000000000000000000000",
           callbackFee: "0",
+          recovery: "0x1000000000000000000000000000000000000000",
           forceSlow: false,
           receiveLocal: false,
         },
@@ -168,6 +174,7 @@ describe("Helpers:parse", () => {
             caller: "0x1400000000000000000000000000000000000000",
             gasLimit: "1000000",
             gasPrice: "10000000000",
+            relayerFee: "1",
             originSender: "0x1300000000000000000000000000000000000000",
             timestamp: 1000000,
             transactionHash: "0xaaa0000000000000000000000000000000000000000000000000000000000000",
@@ -183,18 +190,20 @@ describe("Helpers:parse", () => {
           routers: [mkAddress("0x111"), mkAddress("0x112")],
           status: "Executed",
         },
-        destinationDomain: "2221",
-        idx: "1",
         nonce: 0,
         origin: undefined,
-        originDomain: "1111",
         transferId: "0xaaa0000000000000000000000000000000000000000000000000000000000000",
+        destinationDomain: "2221",
+        originDomain: "1111",
         xparams: {
+          destinationDomain: "2221",
+          originDomain: "1111",
           callData: "0x",
           callback: "0xaaa0000000000000000000000000000000000000",
           callbackFee: "0",
           forceSlow: false,
           receiveLocal: false,
+          recovery: "0x1000000000000000000000000000000000000000",
           to: "0x1000000000000000000000000000000000000000",
         },
       });
@@ -203,7 +212,7 @@ describe("Helpers:parse", () => {
       expect(
         destinationTransfer({
           ...mockDestinationTransferEntity,
-          idx: undefined,
+
           to: undefined,
           transactingAmount: undefined,
           executedTimestamp: undefined,
@@ -227,6 +236,7 @@ describe("Helpers:parse", () => {
             gasLimit: "1000000",
             gasPrice: "10000000000",
             originSender: "0x1300000000000000000000000000000000000000",
+            relayerFee: "1",
             timestamp: 0,
             transactionHash: "0xaaa0000000000000000000000000000000000000000000000000000000000000",
           },
@@ -242,7 +252,7 @@ describe("Helpers:parse", () => {
           status: "Executed",
         },
         destinationDomain: "2221",
-        idx: undefined,
+
         nonce: 0,
         origin: undefined,
         originDomain: "1111",

@@ -34,7 +34,7 @@ describe("Database client", () => {
     xTransfer = mock.entity.xtransfer({ status: XTransferStatus.Executed });
     pool = new Pool();
     await pool.query(`
-    create type transfer_status as enum ('XCalled', 'Executed', 'Reconciled', 'Completed');
+    create type transfer_status as enum ('XCalled', 'Executed', 'Reconciled', 'CompletedFast', 'CompletedSlow');
     create table transfers (
       origin_domain varchar(255) not null,
       destination_domain varchar(255),
@@ -148,10 +148,10 @@ describe("Database client", () => {
   });
 
   it("should upsert single transfer", async () => {
-    xTransfer.destination.status = XTransferStatus.Completed;
+    xTransfer.destination.status = XTransferStatus.CompletedFast;
     await saveTransfers([xTransfer], pool);
     const dbTransfer = await getTransferByTransferId(xTransfer.transferId, pool);
-    expect(dbTransfer.destination.status).equal(XTransferStatus.Completed);
+    expect(dbTransfer.destination.status).equal(XTransferStatus.CompletedFast);
     expect(dbTransfer.transferId).equal(xTransfer.transferId);
   });
 
@@ -164,18 +164,18 @@ describe("Database client", () => {
 
   it("should upsert multiple transfers", async () => {
     for (let transfer of transfers) {
-      transfer.destination.status = XTransferStatus.Completed;
+      transfer.destination.status = XTransferStatus.CompletedSlow;
     }
     await saveTransfers(transfers, pool);
     for (let transfer of transfers) {
       const dbTransfer = await getTransferByTransferId(transfer.transferId, pool);
-      expect(dbTransfer.destination.status).equal(XTransferStatus.Completed);
+      expect(dbTransfer.destination.status).equal(XTransferStatus.CompletedSlow);
       expect(dbTransfer.transferId).equal(transfer.transferId);
     }
   });
 
   it("should get transfer by status", async () => {
-    const statusTransfers = await getTransfersByStatus(XTransferStatus.Completed, pool);
+    const statusTransfers = await getTransfersByStatus(XTransferStatus.CompletedFast, pool);
     expect(statusTransfers.length).greaterThan(0);
     expect(statusTransfers[0].destination.status).equal(xTransfer.destination.status);
   });
