@@ -124,13 +124,6 @@ export const DOMAINS: Promise<{ ORIGIN: DomainInfo; DESTINATION: DomainInfo }> =
     throw new Error(
       "Could not locate addresses for origin and destination chain assets under contract name: " + ASSET_CONTRACT_NAME,
     );
-  } else if (originChainAsset === destinationChainAsset) {
-    throw new Error(
-      "Something isn't right; origin and destination chain assets cannot be the same. Origin asset: " +
-        originChainAsset +
-        " Destination asset: " +
-        destinationChainAsset,
-    );
   }
 
   /// MARK - Configure providers.
