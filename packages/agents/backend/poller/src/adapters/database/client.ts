@@ -1,5 +1,4 @@
 import { XTransfer, XTransferStatus, RouterBalance, convertFromDbTransfer } from "@connext/nxtp-utils";
-import { BigNumber } from "ethers";
 import { Pool } from "pg";
 import * as db from "zapatos/db";
 import type * as s from "zapatos/schema";
@@ -16,7 +15,9 @@ const convertToDbTransfer = (transfer: XTransfer): s.transfers.Insertable => {
     to: transfer.xparams?.to,
     call_data: transfer.xparams?.callData,
 
-    idx: BigNumber.from(transfer.idx ?? "0").toNumber(),
+    force_slow: transfer.xparams?.forceSlow,
+    receive_local: transfer.xparams?.receiveLocal,
+
     transfer_id: transfer.transferId,
 
     origin_chain: transfer.origin?.chain,

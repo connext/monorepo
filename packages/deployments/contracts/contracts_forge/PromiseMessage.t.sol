@@ -3,10 +3,7 @@ pragma solidity 0.8.11;
 
 import "./ForgeHelper.sol";
 
-import "../contracts/nomad-xapps/contracts/promise-router/PromiseMessage.sol";
-import {Home} from "../contracts/nomad-core/contracts/Home.sol";
-
-import "@openzeppelin/contracts/proxy/ERC1967/ERC1967Proxy.sol";
+import {TypedMemView, PromiseMessage} from "../contracts/nomad-xapps/contracts/promise-router/PromiseMessage.sol";
 
 // running tests (with logging on failure):
 // yarn workspace @connext/nxtp-contracts test:forge -vvv

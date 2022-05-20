@@ -81,6 +81,7 @@ export const mock: any = {
       callbackFee: "0",
       forceSlow: false,
       receiveLocal: false,
+      recovery: mkAddress("0xcccc"),
       ...overrides,
     }),
     executeArgs: (overrides: Partial<ExecuteArgs> = {}): ExecuteArgs => ({
@@ -91,6 +92,7 @@ export const mock: any = {
       amount: utils.parseEther("1").toString(),
       nonce: 0,
       originSender: mkAddress(),
+      relayerFee: "12345",
       ...overrides,
     }),
     auction: (overrides: Partial<Auction>): Auction => ({
@@ -149,7 +151,6 @@ export const mock: any = {
 
       return {
         // Meta
-        idx: "0",
         transferId,
         nonce: !isReconciledOnly ? nonce : undefined,
         destinationDomain,
@@ -162,6 +163,7 @@ export const mock: any = {
               callData: "0x",
               callback: mkAddress("0x"),
               callbackFee: "0",
+              recovery: mkAddress("0x"),
               forceSlow: false,
               receiveLocal: false,
             }
@@ -223,7 +225,7 @@ export const mock: any = {
 
               // If status is executed, we should have executed fields defined (but leave reconciled fields empty).
               execute:
-                status === XTransferStatus.Executed || status === XTransferStatus.Completed
+                status === XTransferStatus.Executed || status === XTransferStatus.CompletedSlow
                   ? {
                       originSender: user,
                       caller: mock.address.relayer,
@@ -232,11 +234,12 @@ export const mock: any = {
                       gasPrice: utils.parseUnits("5", "gwei").toString(),
                       gasLimit: "80000",
                       blockNumber: 5651345,
+                      relayerFee: "12345",
                     }
                   : undefined,
 
               reconcile:
-                status === XTransferStatus.Reconciled || status === XTransferStatus.Completed
+                status === XTransferStatus.Reconciled || status === XTransferStatus.CompletedFast
                   ? {
                       caller: mock.address.relayer,
                       transactionHash: getRandomBytes32(),
