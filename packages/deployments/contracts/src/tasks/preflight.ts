@@ -137,6 +137,21 @@ export default task("preflight", "Ensure correct setup for e2e demo with a speci
       }
       console.log("*** Canonical asset approved!");
 
+      // Initialize Stable swap pool
+      const swapPool = await connext.getSwapStorage(canonicalTokenId);
+      console.log("\nStableSwap Pool Initialized: ", swapPool.pooledTokens.length > 1);
+      if (swapPool.pooledTokens.length == 0) {
+        console.log("*** Initializing Swap Pool!");
+        await run("stableswap/initializeSwap", {
+          canonicalAsset,
+          localAsset,
+          lpTokenName: "Connext Swap LP",
+          lpTokenSymbol: "Connext-Swap-LP",
+          connextAddress,
+        });
+      }
+      console.log("***  Initialized Swap Pool!");
+
       // Make sure the router's signer address has liquidity by checking the Connext
       // contract in the block explorer and reading the routerBalances mapping, putting in the
       // router signer address and Rinkeby asset ID.

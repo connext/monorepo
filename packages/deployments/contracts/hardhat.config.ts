@@ -234,7 +234,6 @@ const config: HardhatUserConfig = {
       "DiamondCutFacet",
       "DiamondLoupeFacet",
       "NomadFacet",
-      "OwnershipFacet",
       "ProposedOwnableFacet",
       "RelayerFacet",
       "RoutersFacet",

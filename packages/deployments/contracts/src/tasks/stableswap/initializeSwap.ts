@@ -1,4 +1,4 @@
-import { BigNumberish, Contract, utils } from "ethers";
+import { Contract } from "ethers";
 import { task } from "hardhat/config";
 
 import { Env, getDeploymentName, mustGetEnv } from "../../utils";

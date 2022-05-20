@@ -3,14 +3,14 @@
   "version": "0.2.0-alpha.16",
   "private": true,
   "devDependencies": {
-    "@istanbuljs/nyc-config-typescript": "^1.0.2",
-    "@jtbennett/ts-project-scripts": "^1.0.0-rc.4",
-    "@typescript-eslint/eslint-plugin": "^5.16.0",
-    "@typescript-eslint/parser": "^5.16.0",
-    "eslint": "^8.11.0",
-    "eslint-plugin-import": "^2.25.4",
-    "eslint-plugin-node": "^11.1.0",
-    "rimraf": "^3.0.2"
+    "@istanbuljs/nyc-config-typescript": "1.0.2",
+    "@jtbennett/ts-project-scripts": "1.0.0-rc.4",
+    "@typescript-eslint/eslint-plugin": "5.25.0",
+    "@typescript-eslint/parser": "5.25.0",
+    "eslint": "8.15.0",
+    "eslint-plugin-import": "2.26.0",
+    "eslint-plugin-node": "11.1.0",
+    "rimraf": "3.0.2"
   },
   "workspaces": [
     "packages/utils",
@@ -45,8 +45,7 @@
     "docker:local:services": "yarn workspace @connext/nxtp-integration docker:services:up && bash setup-integration-test.sh"
   },
   "resolutions": {
-    "@nomiclabs/hardhat-ethers": "https://registry.npmjs.org/hardhat-deploy-ethers/-/hardhat-deploy-ethers-0.3.0-beta.10.tgz",
-    "@nomad-xyz/sdk": "2.0.0-rc.4"
+    "@nomiclabs/hardhat-ethers": "https://registry.npmjs.org/hardhat-deploy-ethers/-/hardhat-deploy-ethers-0.3.0-beta.10.tgz"
   },
   "packageManager": "yarn@3.2.0",
   "stableVersion": "0.1.25"
