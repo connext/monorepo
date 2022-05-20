@@ -2,8 +2,8 @@ import { constants, Contract } from "ethers";
 import { hexlify } from "ethers/lib/utils";
 import { task } from "hardhat/config";
 
-import { canonizeId } from "../nomad";
-import { Env, getDeploymentName, mustGetEnv } from "../utils";
+import { canonizeId } from "../src/nomad";
+import { Env, getDeploymentName, mustGetEnv } from "../src/utils";
 
 type TaskArgs = {
   canonical: string;

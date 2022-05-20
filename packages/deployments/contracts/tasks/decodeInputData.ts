@@ -1,7 +1,7 @@
 import { Interface } from "ethers/lib/utils";
 import { task } from "hardhat/config";
 
-import { Env } from "../utils";
+import { Env } from "../src/utils";
 
 type TaskArgs = {
   inputData: string;

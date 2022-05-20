@@ -4,7 +4,7 @@ import { join } from "path";
 import { ABI } from "hardhat-deploy/types";
 import { task } from "hardhat/config";
 
-import { Env, mustGetEnv } from "../utils";
+import { Env, mustGetEnv } from "../src/utils";
 
 type TaskArgs = {
   relayer: string;

@@ -1,8 +1,8 @@
 import { Contract } from "ethers";
 import { task } from "hardhat/config";
 
-import { getDomainInfoFromChainId } from "../nomad";
-import { Env, getDeploymentName, mustGetEnv } from "../utils";
+import { getDomainInfoFromChainId } from "../src/nomad";
+import { Env, getDeploymentName, mustGetEnv } from "../src/utils";
 
 type TaskArgs = {
   tokenRegistry?: string;
