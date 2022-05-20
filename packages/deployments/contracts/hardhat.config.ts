@@ -25,7 +25,7 @@ import "./src/tasks/setDexPrice";
 import "./src/tasks/setDirectPrice";
 import "./src/tasks/decodeInputData";
 import "./src/tasks/removeRouter";
-import "./src/tasks/enrollHandler";
+import "./src/tasks/enrollHandlers";
 import "./src/tasks/enrollCustom";
 import "./src/tasks/xcall";
 import "./src/tasks/setLocalDomain";
@@ -34,6 +34,9 @@ import "./src/tasks/preflight";
 import "./src/tasks/addRelayer";
 import "./src/tasks/executeEstimateGas";
 import "./src/tasks/exportAbi";
+import "./src/tasks/stableswap/initializeSwap";
+import "./src/tasks/stableswap/addSwapLiquidity";
+import "./src/tasks/stableswap/removeSwapLiquidity";
 import { utils } from "ethers";
 
 dotEnvConfig();

@@ -1,5 +1,6 @@
 import { BigNumber, constants, Contract, providers, utils } from "ethers";
 import { task } from "hardhat/config";
+import { CallParams } from "@connext/nxtp-utils";
 
 import { Env, getDeploymentName, mustGetEnv } from "../utils";
 import { canonizeId, getDomainInfoFromChainId } from "../nomad";
@@ -13,6 +14,11 @@ type TaskArgs = {
   connextAddress?: string;
   env?: Env;
   relayerFee?: string;
+  callback?: string;
+  callbackFee?: string;
+  forceSlow?: string;
+  receiveLocal?: string;
+  recovery?: string;
 };
 
 export default task("xcall", "Prepare a cross-chain tx")
@@ -23,6 +29,11 @@ export default task("xcall", "Prepare a cross-chain tx")
   .addOptionalParam("callData", "Data for external call")
   .addOptionalParam("connextAddress", "Override connext address")
   .addOptionalParam("relayerFee", "Override relayer fee")
+  .addOptionalParam("callback", "Override callback address")
+  .addOptionalParam("callbackFee", "Override callback fee")
+  .addOptionalParam("forceSlow", "Override for forcing slow path")
+  .addOptionalParam("receiveLocal", "Override for receiving local")
+  .addOptionalParam("recovery", "Override for recovery address")
   .addOptionalParam("env", "Environment of contracts")
   .setAction(
     async (
@@ -35,6 +46,11 @@ export default task("xcall", "Prepare a cross-chain tx")
         destinationDomain: _destinationDomain,
         env: _env,
         relayerFee: _relayerFee,
+        callback: _callback,
+        callbackFee: _callbackFee,
+        forceSlow: _forceSlow,
+        receiveLocal: _receiveLocal,
+        recovery: _recovery,
       }: TaskArgs,
       { deployments, ethers },
     ) => {
@@ -106,18 +122,37 @@ export default task("xcall", "Prepare a cross-chain tx")
         throw new Error("Transfer asset ID must be specified as param or from env (TRANSFER_ASSET)");
       }
 
+      // Get the other params
+      const callback = _callback ?? constants.AddressZero;
+      const callbackFee = _callbackFee ?? "0";
+      const forceSlow = _forceSlow === "true" ? true : false;
+      const receiveLocal = _receiveLocal === "true" ? true : false;
+      const recovery = _recovery ?? to;
+
       console.log("originDomain: ", originDomain);
       console.log("destinationDomain: ", destinationDomain);
-      console.log("Transacting asset: ", transactingAssetId);
-      console.log("Transacting amount: ", amount);
+      console.log("transactingAsset: ", transactingAssetId);
+      console.log("amount: ", amount);
       console.log("Transfer to: ", to);
       console.log("callData: ", callData);
+      console.log("callback: ", callback);
+      console.log("callbackFee: ", callbackFee);
+      console.log("forceSlow: ", forceSlow);
+      console.log("receiveLocal: ", receiveLocal);
+      console.log("recovery: ", recovery);
 
       const connextName = getDeploymentName("ConnextHandler", env);
       const connextDeployment = await deployments.get(connextName);
       const connextAddress = _connextAddress ?? connextDeployment.address;
       const connext = new Contract(connextAddress, connextDeployment.abi, sender);
       console.log("connextAddress: ", connextAddress);
+
+      // test
+      const tokenRegistry = await connext.tokenRegistry();
+      if (tokenRegistry === constants.AddressZero) {
+        throw new Error(`TokenRegistry not set on connext`);
+      }
+      console.log("tokenRegistry:", tokenRegistry);
 
       let balance: BigNumber;
       if (transactingAssetId === constants.AddressZero) {
@@ -138,13 +173,20 @@ export default task("xcall", "Prepare a cross-chain tx")
         throw new Error(`Balance ${balance.toString()} is less than amount ${amount}`);
       }
 
+      const params: CallParams = {
+        to,
+        callData,
+        originDomain: `${originDomain}`,
+        destinationDomain: `${destinationDomain}`,
+        recovery,
+        callback,
+        callbackFee,
+        forceSlow,
+        receiveLocal,
+      };
+
       const args = {
-        params: {
-          to,
-          callData,
-          originDomain,
-          destinationDomain,
-        },
+        params,
         transactingAssetId,
         amount,
         relayerFee,
@@ -154,7 +196,7 @@ export default task("xcall", "Prepare a cross-chain tx")
       console.log("encoded: ", encoded);
       console.log("to: ", connext.address);
       console.log("from: ", sender.address);
-      tx = await connext.functions.xcall(args, { from: sender.address });
+      tx = await connext.functions.xcall(args, { from: sender.address, gasLimit: 1_000_000 });
       console.log("tx sent! ", tx.hash);
       await tx.wait();
       console.log("tx mined! ", tx.hash);

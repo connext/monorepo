@@ -54,6 +54,7 @@ export default task("add-liquidity", "Add liquidity for a router")
         const balance = await erc20.balanceOf(deployer.address);
         amount = utils.parseUnits(_amount, (await erc20.decimals()) as BigNumberish);
         console.log("balance: ", balance.toString());
+        console.log("amount: ", amount.toString());
         if (balance.lt(amount)) {
           throw new Error("Not enough balance");
         }

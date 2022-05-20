@@ -1,10 +1,12 @@
-import { Contract } from "ethers";
+import { Contract, utils } from "ethers";
 import { task } from "hardhat/config";
 
 import { Env, getDeploymentName, mustGetEnv } from "../../utils";
+import { canonizeId } from "../../nomad";
 
 type TaskArgs = {
   canonical: string;
+  domain: string;
   adopted: string;
   lpTokenName: string;
   lpTokenSymbol: string;
@@ -19,6 +21,7 @@ type TaskArgs = {
 
 export default task("initialize-stableswap", "Initializes stable swap")
   .addParam("canonical", "Canonical token address")
+  .addParam("domain", "Canonical token domain")
   .addParam("adopted", "Adopted token address")
   .addParam("lpTokenName", "LP token name")
   .addParam("lpTokenSymbol", "Lp token symbol")
@@ -33,6 +36,7 @@ export default task("initialize-stableswap", "Initializes stable swap")
     async (
       {
         canonical,
+        domain: _domain,
         adopted,
         lpTokenName,
         lpTokenSymbol,
@@ -50,20 +54,26 @@ export default task("initialize-stableswap", "Initializes stable swap")
       if (!deployer) {
         [deployer] = await ethers.getUnnamedSigners();
       }
+      const domain = +_domain;
 
       const env = mustGetEnv(_env);
       console.log("env:", env);
       console.log("canonical: ", canonical);
+      console.log("domain:", domain);
       console.log("adopted: ", adopted);
       console.log("lpTokenName: ", lpTokenName);
       console.log("lpTokenSymbol: ", lpTokenSymbol);
-      console.log("a: ", _a);
-      console.log("fee: ", _fee);
-      console.log("adminFee: ", _adminFee);
 
       const INITIAL_A = 200;
       const SWAP_FEE = 4e6; // 4bps FEE_DENOMINATOR = 10 ** 10
       const ADMIN_FEE = 0;
+
+      const a = _a ?? INITIAL_A;
+      const fee = _fee ?? SWAP_FEE;
+      const adminFee = _adminFee ?? ADMIN_FEE;
+      console.log("a: ", a);
+      console.log("fee: ", fee);
+      console.log("adminFee: ", adminFee);
 
       const connextName = getDeploymentName("ConnextHandler", env);
       const connextDeployment = await deployments.get(connextName);
@@ -78,8 +88,8 @@ export default task("initialize-stableswap", "Initializes stable swap")
         (await deployments.get(getDeploymentName("TokenRegistry"))).abi,
         deployer,
       );
+      const canonicalId = utils.hexlify(canonizeId(canonical));
       console.log("tokenRegistryAddress:", tokenRegistry.address);
-      const [domain, canonicalId] = await tokenRegistry.getTokenId(canonical);
       console.log("domain: ", domain);
       console.log("canonicalId: ", canonicalId);
 
@@ -88,23 +98,21 @@ export default task("initialize-stableswap", "Initializes stable swap")
       if (!approvedAsset) {
         throw new Error("Asset not approved");
       }
-
-      const a = _a ?? INITIAL_A;
-      const fee = _fee ?? SWAP_FEE;
-      const adminFee = _adminFee ?? ADMIN_FEE;
+      const local = (await tokenRegistry.getLocalAddress(domain, canonicalId)) as string;
+      console.log("local:", local);
 
       const lpTokenDeployment = await deployments.get(getDeploymentName("LPToken", env));
       const lpTokenTargetAddress = _lpTokenTargetAddress ?? lpTokenDeployment.address;
       console.log("lpTokenTargetAddress: ", lpTokenTargetAddress);
 
       const decimals = await Promise.all([
-        (await ethers.getContractAt("TestERC20", canonical)).decimals(),
+        (await ethers.getContractAt("TestERC20", local)).decimals(),
         (await ethers.getContractAt("TestERC20", adopted)).decimals(),
       ]);
 
       const tx = await connext.initializeSwap(
         canonicalId,
-        [canonical, adopted],
+        [local, adopted],
         decimals,
         lpTokenName,
         lpTokenSymbol,

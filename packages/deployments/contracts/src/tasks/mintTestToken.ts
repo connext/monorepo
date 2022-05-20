@@ -1,4 +1,4 @@
-import { Contract } from "ethers";
+import { BigNumber, Contract, utils } from "ethers";
 import { task } from "hardhat/config";
 
 import { Env, getDeploymentName, mustGetEnv } from "../utils";
@@ -30,9 +30,11 @@ export default task("mint", "Mint test tokens")
     const assetId = _assetId ?? tokenDeployment.address;
     console.log("asset address: ", assetId);
     console.log("receiver: ", receiver);
+    console.log("amount: ", amount);
 
     const erc20 = new Contract(assetId, tokenDeployment.abi, deployer);
-    const tx = await erc20.mint(receiver, amount);
+    const decimals: BigNumber = await erc20.decimals();
+    const tx = await erc20.mint(receiver, utils.parseUnits(amount, decimals));
     console.log("mint tx: ", tx);
     const receipt = await tx.wait(1);
     console.log("mint tx mined: ", receipt.transactionHash);
