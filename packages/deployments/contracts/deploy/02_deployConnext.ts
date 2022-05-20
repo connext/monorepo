@@ -1,7 +1,7 @@
 import { HardhatRuntimeEnvironment } from "hardhat/types";
 import { DeployFunction } from "hardhat-deploy/types";
-import { constants, utils, Wallet } from "ethers";
-import { deployments, ethers } from "hardhat";
+import { constants, Contract, utils, Wallet } from "ethers";
+import { ethers } from "hardhat";
 import { keccak256 } from "ethers/lib/utils";
 
 import { SKIP_SETUP, WRAPPED_ETH_MAP } from "../src/constants";
@@ -131,10 +131,18 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment): Promise<voi
         promiseRouter.address,
       ],
     },
-    //deterministicSalt: keccak256(utils.toUtf8Bytes("connextDiamondProxyV1")),
+    // deterministicSalt: keccak256(utils.toUtf8Bytes("connextDiamondProxyV1")),
   });
   const connextAddress = connext.address;
   console.log("connextAddress: ", connextAddress);
+
+  // Sanity check: did token registry set
+  const contract = new Contract(connext.address, connext.abi, ethers.provider);
+  if ((await contract.tokenRegistry()).toLowerCase() !== tokenRegistry.address.toLowerCase()) {
+    console.log("expected token registry:", tokenRegistry.address);
+    console.log("init-d token registry:", await contract.tokenRegistry());
+    throw new Error(`Improperly init-d token registry`);
+  }
 
   // Add connext to relayer fee router
   if ((await relayerFeeRouter.connext()) !== connextAddress) {
@@ -145,6 +153,8 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment): Promise<voi
     console.log("relayer fee router connext set");
   }
 
+  // TODO: enroll remote relayer fee routers
+
   // Add connext to promise router
   if ((await promiseRouter.connext()) !== connextAddress) {
     console.log("setting connext on promiseRouter router");
@@ -153,6 +163,8 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment): Promise<voi
   } else {
     console.log("promise router connext set");
   }
+
+  // TODO: enroll remote promise routers
 
   if (WRAPPED_ETH_MAP.has(+chainId)) {
     console.log("Deploying ConnextPriceOracle to configured chain");
