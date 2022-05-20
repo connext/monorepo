@@ -2,8 +2,8 @@ import { BigNumber, constants, Contract, utils } from "ethers";
 import { isAddress } from "ethers/lib/utils";
 import { task } from "hardhat/config";
 
-import { Env, getDeploymentName, mustGetEnv } from "../utils";
-import { canonizeId, getDomainInfoFromChainId } from "../nomad";
+import { Env, getDeploymentName, mustGetEnv } from "../src/utils";
+import { canonizeId, getDomainInfoFromChainId } from "../src/nomad";
 
 // Default amount of tokens to mint / add liquidity for.
 const DEFAULT_AMOUNT = "2500000";

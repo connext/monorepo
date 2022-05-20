@@ -1,7 +1,7 @@
 import { BigNumber, Contract } from "ethers";
 import { task } from "hardhat/config";
 
-import { Env, getDeploymentName, mustGetEnv } from "../utils";
+import { Env, getDeploymentName, mustGetEnv } from "../src/utils";
 
 type TaskArgs = {
   type: "asset" | "router";

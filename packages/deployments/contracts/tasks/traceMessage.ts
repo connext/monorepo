@@ -7,9 +7,9 @@ import { config as dotEnvConfig } from "dotenv";
 import { BytesLike, LogDescription } from "ethers/lib/utils";
 import { fetchJson } from "@connext/nxtp-utils";
 
-import config from "../../hardhat.config";
-import { getDomainInfoFromChainId } from "../nomad";
-import { Env, mustGetEnv } from "../utils";
+import config from "../hardhat.config";
+import { getDomainInfoFromChainId } from "../src/nomad";
+import { Env, mustGetEnv } from "../src/utils";
 
 dotEnvConfig();
 

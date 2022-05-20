@@ -2,9 +2,9 @@ import { hexlify } from "ethers/lib/utils";
 import { task } from "hardhat/config";
 import { Contract } from "ethers";
 
-import { canonizeId, getDomainInfoFromChainId } from "../nomad";
-import { Env, getDeploymentName, mustGetEnv } from "../utils";
-import deploymentRecords from "../../deployments.json";
+import { canonizeId, getDomainInfoFromChainId } from "../src/nomad";
+import { Env, getDeploymentName, mustGetEnv } from "../src/utils";
+import deploymentRecords from "../deployments.json";
 
 type TaskArgs = {
   type: "all" | "connext" | "promise" | "relayer";
