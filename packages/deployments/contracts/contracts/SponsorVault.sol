@@ -14,7 +14,7 @@ import {SafeERC20, Address} from "@openzeppelin/contracts/token/ERC20/utils/Safe
  * @author Connext Labs
  * @notice Contains logic for sponsoring liquidity and relayer fees
  */
-contract SponsorVault is ISponsorVault, Ownable{
+contract SponsorVault is ISponsorVault, Ownable {
   // ============ Libraries ============
   using SafeERC20 for IERC20;
 
@@ -114,7 +114,7 @@ contract SponsorVault is ISponsorVault, Ownable{
 
   // ============ Modifiers ============
 
-   /**
+  /**
    * @notice Restricts the caller to connext
    */
   modifier onlyConnext() {
@@ -193,7 +193,11 @@ contract SponsorVault is ISponsorVault, Ownable{
    * @param _receiver The address of the receiver
    * @return Sponsored liquidity fee amount
    */
-  function reimburseLiquidityFees(address _token, uint256 _liquidityFee, address _receiver) external override onlyConnext returns (uint256) {
+  function reimburseLiquidityFees(
+    address _token,
+    uint256 _liquidityFee,
+    address _receiver
+  ) external override onlyConnext returns (uint256) {
     uint256 sponsoredFee;
 
     if (address(tokenExchanges[_token]) != address(0)) {
@@ -205,7 +209,6 @@ contract SponsorVault is ISponsorVault, Ownable{
 
       // sponsored fee may end being less than _liquidityFee due to slippage
       sponsoredFee = tokenExchange.swapExactIn{value: amountIn}(_token, msg.sender);
-
     } else {
       uint256 balance = IERC20(_token).balanceOf(address(this));
       sponsoredFee = balance < _liquidityFee ? balance : _liquidityFee;
@@ -228,7 +231,11 @@ contract SponsorVault is ISponsorVault, Ownable{
    * @param _to The fee recipient
    * @param _originRelayerFee The relayer fee amount in origin domain native token
    */
-  function reimburseRelayerFees(uint32 _originDomain, address payable _to, uint256 _originRelayerFee) external override onlyConnext {
+  function reimburseRelayerFees(
+    uint32 _originDomain,
+    address payable _to,
+    uint256 _originRelayerFee
+  ) external override onlyConnext {
     uint256 sponsoredFee;
     uint256 num;
     uint256 den;
@@ -236,14 +243,14 @@ contract SponsorVault is ISponsorVault, Ownable{
     if (address(gasTokenOracle) != address(0)) {
       (num, den) = gasTokenOracle.getRate(_originDomain);
 
-      sponsoredFee = _originRelayerFee * num / den;
+      sponsoredFee = (_originRelayerFee * num) / den;
     } else {
       num = rates[_originDomain].num;
       den = rates[_originDomain].den;
     }
 
     if (den != 0) {
-      sponsoredFee = _originRelayerFee * num / den;
+      sponsoredFee = (_originRelayerFee * num) / den;
 
       // calculated or max
       sponsoredFee = sponsoredFee > relayerFeeCap ? relayerFeeCap : sponsoredFee;
@@ -251,7 +258,6 @@ contract SponsorVault is ISponsorVault, Ownable{
       sponsoredFee = sponsoredFee > address(this).balance ? address(this).balance : sponsoredFee;
 
       Address.sendValue(_to, sponsoredFee);
-
     }
     emit ReimburseRelayerFees(sponsoredFee, _to);
   }
@@ -277,7 +283,11 @@ contract SponsorVault is ISponsorVault, Ownable{
    * @param _receiver The receiver of the tokens
    * @param _amount The amount to remove
    */
-  function withdraw(address _token, address _receiver, uint256 _amount) external onlyOwner {
+  function withdraw(
+    address _token,
+    address _receiver,
+    uint256 _amount
+  ) external onlyOwner {
     if (_token == address(0)) {
       if (address(this).balance < _amount) revert SponsorVault__withdraw_invalidAmount();
       payable(_receiver).call{value: _amount}("");
@@ -289,7 +299,6 @@ contract SponsorVault is ISponsorVault, Ownable{
     emit Withdraw(_token, _receiver, _amount, msg.sender);
   }
 
-
   // ============ Internal functions ============
 
   function _setConnext(address _connext) internal {
@@ -299,5 +308,4 @@ contract SponsorVault is ISponsorVault, Ownable{
 
     connext = _connext;
   }
-
 }

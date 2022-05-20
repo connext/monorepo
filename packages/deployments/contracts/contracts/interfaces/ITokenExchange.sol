@@ -7,7 +7,6 @@ pragma solidity ^0.8.11;
  * @notice Should be implemented as an adaptor for any DEX chosen for getting tokens to sponsor liquidity fees
  */
 interface ITokenExchange {
-
   /**
    * @notice Returns the amount of native token to swap in for a given expected amount of tokens to sponsor liquidity fees
    * @param token The token
