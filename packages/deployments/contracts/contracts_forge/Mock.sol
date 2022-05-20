@@ -3,6 +3,7 @@ pragma solidity 0.8.11;
 
 import {TypedMemView, PromiseMessage, PromiseRouter} from "../contracts/nomad-xapps/contracts/promise-router/PromiseRouter.sol";
 import {ICallback} from "../contracts/interfaces/ICallback.sol";
+import {IAavePool} from "../contracts/interfaces/IAavePool.sol";
 import {BaseConnextFacet} from "../contracts/facets/BaseConnextFacet.sol";
 import {ISponsorVault} from "../contracts/interfaces/ISponsorVault.sol";
 
@@ -58,6 +59,35 @@ contract MockCallback is ICallback {
     bytes memory data
   ) external {
     require(data.length != 0);
+  }
+}
+
+contract MockPool is IAavePool {
+  uint256 _withdraw = 123456;
+
+  function setWithdraw(uint256 _new) external {
+    _withdraw = _new;
+  }
+
+  function mintUnbacked(
+    address asset,
+    uint256 amount,
+    address onBehalfOf,
+    uint16 referralCode
+  ) external override {}
+
+  function backUnbacked(
+    address asset,
+    uint256 amount,
+    uint256 fee
+  ) external override {}
+
+  function withdraw(
+    address asset,
+    uint256 amount,
+    address to
+  ) external override returns (uint256) {
+    return _withdraw;
   }
 }
 
