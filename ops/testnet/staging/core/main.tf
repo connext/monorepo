@@ -185,7 +185,7 @@ module "lighthouse_logdna_lambda_exporter" {
   environment          = var.environment
   domain               = var.domain
   region               = var.region
-  log_group_name       = module.sequencer.log_group_name
+  log_group_name       = module.lighthouse.log_group_name
   logdna_key           = var.logdna_key
   private_subnets      = module.network.private_subnets
   public_subnets       = module.network.public_subnets
