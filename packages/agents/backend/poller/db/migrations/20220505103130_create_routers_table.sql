@@ -19,4 +19,5 @@ create table asset_balances (
 );
 -- migrate:down
 drop table asset_balances;
+drop table assets;
 drop table routers;
