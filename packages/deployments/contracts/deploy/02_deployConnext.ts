@@ -153,8 +153,6 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment): Promise<voi
     console.log("relayer fee router connext set");
   }
 
-  // TODO: enroll remote relayer fee routers
-
   // Add connext to promise router
   if ((await promiseRouter.connext()) !== connextAddress) {
     console.log("setting connext on promiseRouter router");
@@ -163,8 +161,6 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment): Promise<voi
   } else {
     console.log("promise router connext set");
   }
-
-  // TODO: enroll remote promise routers
 
   if (WRAPPED_ETH_MAP.has(+chainId)) {
     console.log("Deploying ConnextPriceOracle to configured chain");

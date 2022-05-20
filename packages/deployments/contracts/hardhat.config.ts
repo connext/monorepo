@@ -25,7 +25,7 @@ import "./src/tasks/setDexPrice";
 import "./src/tasks/setDirectPrice";
 import "./src/tasks/decodeInputData";
 import "./src/tasks/removeRouter";
-import "./src/tasks/enrollHandler";
+import "./src/tasks/enrollHandlers";
 import "./src/tasks/enrollCustom";
 import "./src/tasks/xcall";
 import "./src/tasks/setLocalDomain";
