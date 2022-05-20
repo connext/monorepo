@@ -10,12 +10,16 @@ export const ORIGIN_TRANSFER_ENTITY = `
       chainId
       transferId
       nonce
+      # call params
       to
       callData
       originDomain
       destinationDomain
       forceSlow
       receiveLocal
+      recovery
+      callback
+      callbackFee
       # Asset Data
       transactingAsset
       transactingAmount
@@ -45,11 +49,15 @@ export const DESTINATION_TRANSFER_ENTITY = `
       destinationDomain
       forceSlow
       receiveLocal
+      recovery
+      callback
+      callbackFee
       # Asset Data
       localAsset
       localAmount
       transactingAsset
       transactingAmount
+      sponsorVaultRelayerFee
       # Executed event Data
       status
       routers {

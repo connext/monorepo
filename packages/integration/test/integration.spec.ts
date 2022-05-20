@@ -567,7 +567,7 @@ describe("Integration:E2E", () => {
             etc: { amount: amount.toString(), asset: destinationAsset.address },
           });
           {
-            const encoded = connext.encodeFunctionData("addLiquidity", [amount, destinationAsset.address]);
+            const encoded = connext.encodeFunctionData("addRouterLiquidity", [amount, destinationAsset.address]);
             const tx = await agents.router.destination.sendTransaction({
               to: destinationConnextAddress,
               data: encoded,
@@ -698,6 +698,7 @@ describe("Integration:E2E", () => {
               receiveLocal: false,
               callback: constants.AddressZero,
               callbackFee: "0",
+              recovery: agents.user.address,
             },
             transactingAssetId: originAsset.address,
             amount: TRANSFER_TOKEN_AMOUNT.toString(),
