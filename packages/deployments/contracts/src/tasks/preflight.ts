@@ -17,6 +17,7 @@ type TaskArgs = {
   pool?: string;
   relayer?: string;
   env?: Env;
+  adopted?: string;
 };
 
 export default task("preflight", "Ensure correct setup for e2e demo with a specified router")
@@ -28,6 +29,7 @@ export default task("preflight", "Ensure correct setup for e2e demo with a speci
   .addOptionalParam("pool", "The adopted <> local stable swap pool address")
   .addOptionalParam("relayer", "The relayer address to approve")
   .addOptionalParam("env", "Environment of contracts")
+  .addOptionalParam("adopted", "Address of adopted asset on network. Defaults to local")
   .setAction(
     async (
       {
@@ -39,6 +41,7 @@ export default task("preflight", "Ensure correct setup for e2e demo with a speci
         pool: _pool,
         relayer: _relayer,
         env: _env,
+        adopted: _adopted,
       }: TaskArgs,
       { deployments, ethers, run },
     ) => {
@@ -107,6 +110,8 @@ export default task("preflight", "Ensure correct setup for e2e demo with a speci
           );
         }
       }
+      const adopted = _adopted ?? localAsset;
+      console.log("adopted: ", adopted);
 
       // Make sure router's signer address is approved.
       const isRouterApproved = await connext.getRouterApproval(router);
@@ -128,7 +133,7 @@ export default task("preflight", "Ensure correct setup for e2e demo with a speci
         console.log("*** Approving canonical asset!");
         await run("setup-asset", {
           canonical: canonicalTokenId,
-          adopted: localAsset,
+          adopted,
           domain: canonicalDomain,
           connextAddress,
           pool,
@@ -138,19 +143,27 @@ export default task("preflight", "Ensure correct setup for e2e demo with a speci
       console.log("*** Canonical asset approved!");
 
       // Initialize Stable swap pool
-      const swapPool = await connext.getSwapStorage(canonicalTokenId);
-      console.log("\nStableSwap Pool Initialized: ", swapPool.pooledTokens.length > 1);
-      if (swapPool.pooledTokens.length == 0) {
-        console.log("*** Initializing Swap Pool!");
-        await run("stableswap/initializeSwap", {
-          canonicalAsset,
-          localAsset,
-          lpTokenName: "Connext Swap LP",
-          lpTokenSymbol: "Connext-Swap-LP",
-          connextAddress,
-        });
+      if (
+        localAsset.toLowerCase() !== canonicalAsset.toLowerCase() &&
+        localAsset.toLowerCase() !== adopted.toLowerCase()
+      ) {
+        const swapPool = await connext.getSwapStorage(canonicalTokenId);
+        console.log("\nStableSwap Pool Initialized: ", swapPool.pooledTokens.length > 1);
+        if (swapPool.pooledTokens.length == 0) {
+          console.log("*** Initializing Swap Pool!");
+          await run("initialize-stableswap", {
+            canonical: canonicalAsset,
+            domain: canonicalDomain,
+            adopted,
+            lpTokenName: "Connext Swap LP",
+            lpTokenSymbol: "Connext-Swap-LP",
+            connextAddress,
+          });
+        }
+        console.log("*** Initialized Swap Pool!");
+      } else {
+        console.log("*** Local is adopted/canonical, no pool to init!");
       }
-      console.log("***  Initialized Swap Pool!");
 
       // Make sure the router's signer address has liquidity by checking the Connext
       // contract in the block explorer and reading the routerBalances mapping, putting in the
