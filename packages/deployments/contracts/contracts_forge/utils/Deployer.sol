@@ -11,7 +11,7 @@ import {NomadFacet} from "../../contracts/facets/NomadFacet.sol";
 import {ProposedOwnableFacet} from "../../contracts/facets/ProposedOwnableFacet.sol";
 import {RelayerFacet} from "../../contracts/facets/RelayerFacet.sol";
 import {RoutersFacet} from "../../contracts/facets/RoutersFacet.sol";
-import {PortalFacet} from "../../contracts/diamond/facets/PortalFacet.sol";
+import {PortalFacet} from "../../contracts/facets/PortalFacet.sol";
 import {StableSwapFacet} from "../../contracts/facets/StableSwapFacet.sol";
 import {ConnextMessage} from "../../contracts/libraries/ConnextMessage.sol";
 import {XCallArgs, CallParams} from "../../contracts/libraries/LibConnextStorage.sol";
@@ -170,7 +170,7 @@ contract Deployer {
   }
 
   function getRoutersFacetCut(address _routersFacet) internal pure returns (IDiamondCut.FacetCut memory) {
-    bytes4[] memory routersFacetSelectors = new bytes4[](19);
+    bytes4[] memory routersFacetSelectors = new bytes4[](21);
     routersFacetSelectors[0] = RoutersFacet.LIQUIDITY_FEE_NUMERATOR.selector;
     routersFacetSelectors[1] = RoutersFacet.LIQUIDITY_FEE_DENOMINATOR.selector;
     routersFacetSelectors[2] = RoutersFacet.getRouterApproval.selector;
@@ -180,16 +180,19 @@ contract Deployer {
     routersFacetSelectors[6] = RoutersFacet.getProposedRouterOwnerTimestamp.selector;
     routersFacetSelectors[7] = RoutersFacet.maxRoutersPerTransfer.selector;
     routersFacetSelectors[8] = RoutersFacet.routerBalances.selector;
-    routersFacetSelectors[9] = RoutersFacet.setupRouter.selector;
-    routersFacetSelectors[10] = RoutersFacet.removeRouter.selector;
-    routersFacetSelectors[11] = RoutersFacet.setMaxRoutersPerTransfer.selector;
-    routersFacetSelectors[12] = RoutersFacet.setLiquidityFeeNumerator.selector;
-    routersFacetSelectors[13] = RoutersFacet.setRouterRecipient.selector;
-    routersFacetSelectors[14] = RoutersFacet.proposeRouterOwner.selector;
-    routersFacetSelectors[15] = RoutersFacet.acceptProposedRouterOwner.selector;
-    routersFacetSelectors[16] = RoutersFacet.addRouterLiquidityFor.selector;
-    routersFacetSelectors[17] = RoutersFacet.addRouterLiquidity.selector;
-    routersFacetSelectors[18] = RoutersFacet.removeRouterLiquidity.selector;
+    routersFacetSelectors[9] = RoutersFacet.getRouterApprovalForPortal.selector;
+    routersFacetSelectors[10] = RoutersFacet.setupRouter.selector;
+    routersFacetSelectors[11] = RoutersFacet.removeRouter.selector;
+    routersFacetSelectors[12] = RoutersFacet.setMaxRoutersPerTransfer.selector;
+    routersFacetSelectors[13] = RoutersFacet.setLiquidityFeeNumerator.selector;
+    routersFacetSelectors[14] = RoutersFacet.approveRouterForPortal.selector;
+    routersFacetSelectors[15] = RoutersFacet.disapproveRouterForPortal.selector;
+    routersFacetSelectors[16] = RoutersFacet.setRouterRecipient.selector;
+    routersFacetSelectors[17] = RoutersFacet.proposeRouterOwner.selector;
+    routersFacetSelectors[18] = RoutersFacet.acceptProposedRouterOwner.selector;
+    routersFacetSelectors[19] = RoutersFacet.addRouterLiquidityFor.selector;
+    routersFacetSelectors[20] = RoutersFacet.addRouterLiquidity.selector;
+    routersFacetSelectors[21] = RoutersFacet.removeRouterLiquidity.selector;
     return
       IDiamondCut.FacetCut({
         facetAddress: _routersFacet,
@@ -231,17 +234,14 @@ contract Deployer {
       });
   }
 
-  function getPortalCut(address _portalFacet) internal returns (IDiamondCut.FacetCut memory) {
-    bytes4[] memory portalFacetSelectors = new bytes4[](9);
-    portalFacetSelectors[0] = PortalFacet.aavePool.selector;
-    portalFacetSelectors[1] = PortalFacet.aavePortalFee.selector;
-    portalFacetSelectors[2] = PortalFacet.approveRouterForPortal.selector;
-    portalFacetSelectors[3] = PortalFacet.disapproveRouterForPortal.selector;
-    portalFacetSelectors[4] = PortalFacet.getRouterApprovalForPortal.selector;
+  function getPortalCut(address _portalFacet) internal pure returns (IDiamondCut.FacetCut memory) {
+    bytes4[] memory portalFacetSelectors = new bytes4[](6);
+    portalFacetSelectors[0] = PortalFacet.getAavePortalsTransfers.selector;
+    portalFacetSelectors[1] = PortalFacet.aavePool.selector;
+    portalFacetSelectors[2] = PortalFacet.aavePortalFee.selector;
+    portalFacetSelectors[3] = PortalFacet.setAavePool.selector;
+    portalFacetSelectors[4] = PortalFacet.setAavePortalFee.selector;
     portalFacetSelectors[5] = PortalFacet.repayAavePortal.selector;
-    portalFacetSelectors[6] = PortalFacet.setAavePool.selector;
-    portalFacetSelectors[7] = PortalFacet.setAavePortalFee.selector;
-    portalFacetSelectors[8] = PortalFacet.getAavePortalsTransfers.selector;
 
     return
       IDiamondCut.FacetCut({
@@ -252,13 +252,17 @@ contract Deployer {
   }
 
   function getTestSetterFacetCut(address _testSetterFacetFacet) internal pure returns (IDiamondCut.FacetCut memory) {
-    bytes4[] memory testSetterFacetSelectors = new bytes4[](6);
+    bytes4[] memory testSetterFacetSelectors = new bytes4[](10);
     testSetterFacetSelectors[0] = TestSetterFacet.setTestRelayerFees.selector;
     testSetterFacetSelectors[1] = TestSetterFacet.setTestTransferRelayer.selector;
-    testSetterFacetSelectors[2] = TestSetterFacet.setTestSponsorVault.selector;
-    testSetterFacetSelectors[3] = TestSetterFacet.setTestApprovedRelayer.selector;
-    testSetterFacetSelectors[4] = TestSetterFacet.setTestRouterBalances.selector;
-    testSetterFacetSelectors[5] = TestSetterFacet.setTestApprovedRouter.selector;
+    testSetterFacetSelectors[2] = TestSetterFacet.setTestApproveRouterForPortal.selector;
+    testSetterFacetSelectors[3] = TestSetterFacet.setTestSponsorVault.selector;
+    testSetterFacetSelectors[4] = TestSetterFacet.setTestApprovedRelayer.selector;
+    testSetterFacetSelectors[5] = TestSetterFacet.setTestRouterBalances.selector;
+    testSetterFacetSelectors[6] = TestSetterFacet.setTestApprovedRouter.selector;
+    testSetterFacetSelectors[7] = TestSetterFacet.setTestCanonicalToAdopted.selector;
+    testSetterFacetSelectors[8] = TestSetterFacet.setTestAavePortalsTransfers.selector;
+    testSetterFacetSelectors[9] = TestSetterFacet.setTestRoutedTransfers.selector;
     return
       IDiamondCut.FacetCut({
         facetAddress: _testSetterFacetFacet,

@@ -262,7 +262,7 @@ library AssetLogic {
       // if internal swap pool exists
       uint8 tokenIndexIn = getTokenIndexFromStableSwapPool(id, _asset);
       uint8 tokenIndexOut = getTokenIndexFromStableSwapPool(id, adopted);
-      return (s.swapStorages[id].calculateSwapInternal(tokenIndexIn, tokenIndexOut, _amount), adopted);
+      return (s.swapStorages[id].calculateSwap(tokenIndexIn, tokenIndexOut, _amount), adopted);
     } else {
       IStableSwap pool = s.adoptedToLocalPools[id];
 

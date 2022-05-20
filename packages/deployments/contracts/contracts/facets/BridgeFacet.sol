@@ -12,11 +12,12 @@ import {TypedMemView} from "../nomad-core/libs/TypedMemView.sol";
 import {TypeCasts} from "../nomad-core/contracts/XAppConnectionManager.sol";
 import {PromiseRouter} from "../nomad-xapps/contracts/promise-router/PromiseRouter.sol";
 
-import {IExecutor} from "../../interfaces/IExecutor.sol";
-import {IWrapped} from "../../interfaces/IWrapped.sol";
-import {IAavePool} from "../../interfaces/IAavePool.sol";
+import {IExecutor} from "../interfaces/IExecutor.sol";
+import {IWrapped} from "../interfaces/IWrapped.sol";
+import {IAavePool} from "../interfaces/IAavePool.sol";
 import {ISponsorVault} from "../interfaces/ISponsorVault.sol";
 
+import {SafeERC20} from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import {ECDSA} from "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
 import {Address} from "@openzeppelin/contracts/utils/Address.sol";
@@ -627,7 +628,7 @@ contract BridgeFacet is BaseConnextFacet {
 
     // if the local asset is specified, exit
     if (_args.params.receiveLocal) {
-      return (toSwap, _args.local);
+      return (fastTransferAmount, _args.local);
     }
 
     // swap out of mad* asset into adopted asset if needed
@@ -818,7 +819,7 @@ contract BridgeFacet is BaseConnextFacet {
     // Later, if we try to increase the allowance it will fail. USDT demands if allowance is not 0, it has to be set to 0 first.
     // TODO: Should we call approve(0) and approve(totalRepayAmount) instead? or with a try catch to not affect gas on all cases?
     // Example: https://github.com/aave/aave-v3-periphery/blob/ca184e5278bcbc10d28c3dbbc604041d7cfac50b/contracts/adapters/paraswap/ParaSwapRepayAdapter.sol#L138-L140
-    SafeERC20Upgradeable.safeIncreaseAllowance(IERC20Upgradeable(adopted), s.aavePool, totalRepayAmount);
+    SafeERC20.safeIncreaseAllowance(IERC20(adopted), s.aavePool, totalRepayAmount);
 
     (bool success, ) = s.aavePool.call(
       abi.encodeWithSelector(IAavePool.backUnbacked.selector, adopted, backUnbackedAmount, portalFee)

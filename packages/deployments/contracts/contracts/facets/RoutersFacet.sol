@@ -243,7 +243,7 @@ contract RoutersFacet is BaseConnextFacet {
    * @param _router The relevant router address
    */
   function getRouterApprovalForPortal(address _router) public view returns (bool) {
-    return s.routerPermissionsInfo.approvedForPortalRouters[_router];
+    return s.routerPermissionInfo.approvedForPortalRouters[_router];
   }
 
   // ============ Admin methods ==============

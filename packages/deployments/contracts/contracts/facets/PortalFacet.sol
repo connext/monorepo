@@ -2,7 +2,7 @@
 pragma solidity 0.8.11;
 
 import {BaseConnextFacet} from "./BaseConnextFacet.sol";
-import {IAavePool} from "../../interfaces/IAavePool.sol";
+import {IAavePool} from "../interfaces/IAavePool.sol";
 import {SafeERC20Upgradeable, IERC20Upgradeable} from "@openzeppelin/contracts-upgradeable/token/ERC20/utils/SafeERC20Upgradeable.sol";
 
 contract PortalFacet is BaseConnextFacet {

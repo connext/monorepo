@@ -70,6 +70,10 @@ contract TestSetterFacet is BaseConnextFacet {
     s.transferRelayer[_transferId] = _relayer;
   }
 
+  function setTestApproveRouterForPortal(address _router, bool _value) external {
+    s.routerPermissionInfo.approvedForPortalRouters[_router] = _value;
+  }
+
   function setTestSponsorVault(address _sponsorVault) external {
     s.sponsorVault = ISponsorVault(_sponsorVault);
   }
@@ -88,5 +92,17 @@ contract TestSetterFacet is BaseConnextFacet {
 
   function setTestApprovedRouter(address _router, bool _approved) external {
     s.routerPermissionInfo.approvedRouters[_router] = _approved;
+  }
+
+  function setTestCanonicalToAdopted(bytes32 _id, address _adopted) external {
+    s.canonicalToAdopted[_id] = _adopted;
+  }
+
+  function setTestAavePortalsTransfers(bytes32 _id, uint256 _amount) external {
+    s.aavePortalsTransfers[_id] = _amount;
+  }
+
+  function setTestRoutedTransfers(bytes32 _id, address[] memory _routers) external {
+    s.routedTransfers[_id] = _routers;
   }
 }

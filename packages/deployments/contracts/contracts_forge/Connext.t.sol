@@ -15,7 +15,6 @@ import {ISponsorVault} from "../contracts/interfaces/ISponsorVault.sol";
 import {MockHome, MockRelayerFeeRouter, MockPromiseRouter, MockCallback, TestSetterFacet} from "./Mock.sol";
 
 import {Deployer} from "./utils/Deployer.sol";
-import {TestSetterFacet, getTestSetterFacetCut} from "./utils/TestSetterFacet.sol";
 import {IConnextHandler} from "../contracts/interfaces/IConnextHandler.sol";
 import {BaseConnextFacet} from "../contracts/facets/BaseConnextFacet.sol";
 import {BridgeFacet} from "../contracts/facets/BridgeFacet.sol";
