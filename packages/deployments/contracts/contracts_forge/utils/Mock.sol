@@ -7,6 +7,12 @@ import {IAavePool} from "../../contracts/interfaces/IAavePool.sol";
 import {BaseConnextFacet} from "../../contracts/facets/BaseConnextFacet.sol";
 import {ISponsorVault} from "../../contracts/interfaces/ISponsorVault.sol";
 
+contract MockXAppConnectionManager {
+  function isReplica(address _replica) external returns (bool) {
+    return true;
+  }
+}
+
 contract MockHome {
   function dispatch(
     uint32 _destinationDomain,

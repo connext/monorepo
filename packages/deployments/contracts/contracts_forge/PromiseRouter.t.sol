@@ -13,6 +13,8 @@ import {BaseConnextFacet} from "../contracts/facets/BaseConnextFacet.sol";
 
 import {MockHome, MockCallback, MockPromiseRouter, TestSetterFacet} from "./utils/Mock.sol";
 
+import "../lib/forge-std/src/console.sol";
+
 // running tests (with logging on failure):
 // yarn workspace @connext/nxtp-contracts test:forge -vvv
 // run a single test:
@@ -91,6 +93,7 @@ contract PromiseRouterTest is ForgeHelper, Deployer {
 
     promiseRouter = MockPromiseRouter(payable(address(proxy)));
 
+    console.log("deploying connext...");
     deployConnext(
       localDomain,
       xAppConnectionManager,
@@ -99,6 +102,7 @@ contract PromiseRouterTest is ForgeHelper, Deployer {
       relayerFeeRouter,
       payable(address(proxy))
     );
+    console.log("deployed!");
 
     promiseRouter.setConnext(address(connextDiamondProxy));
     promiseRouter.enrollRemoteRouter(remoteDomain, bytes32(remote));

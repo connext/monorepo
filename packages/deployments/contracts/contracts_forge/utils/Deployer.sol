@@ -170,7 +170,7 @@ contract Deployer {
   }
 
   function getRoutersFacetCut(address _routersFacet) internal pure returns (IDiamondCut.FacetCut memory) {
-    bytes4[] memory routersFacetSelectors = new bytes4[](21);
+    bytes4[] memory routersFacetSelectors = new bytes4[](22);
     routersFacetSelectors[0] = RoutersFacet.LIQUIDITY_FEE_NUMERATOR.selector;
     routersFacetSelectors[1] = RoutersFacet.LIQUIDITY_FEE_DENOMINATOR.selector;
     routersFacetSelectors[2] = RoutersFacet.getRouterApproval.selector;
@@ -202,30 +202,32 @@ contract Deployer {
   }
 
   function getStableSwapFacetCut(address _stableSwapFacet) internal pure returns (IDiamondCut.FacetCut memory) {
-    bytes4[] memory stableSwapFacetSelectors = new bytes4[](23);
-    stableSwapFacetSelectors[0] = StableSwapFacet.getSwapA.selector;
-    stableSwapFacetSelectors[1] = StableSwapFacet.getSwapAPrecise.selector;
-    stableSwapFacetSelectors[2] = StableSwapFacet.getSwapToken.selector;
-    stableSwapFacetSelectors[3] = StableSwapFacet.getSwapTokenIndex.selector;
-    stableSwapFacetSelectors[4] = StableSwapFacet.getSwapTokenBalance.selector;
-    stableSwapFacetSelectors[5] = StableSwapFacet.getSwapVirtualPrice.selector;
-    stableSwapFacetSelectors[6] = StableSwapFacet.calculateSwap.selector;
-    stableSwapFacetSelectors[7] = StableSwapFacet.calculateSwapTokenAmount.selector;
-    stableSwapFacetSelectors[8] = StableSwapFacet.calculateRemoveSwapLiquidity.selector;
-    stableSwapFacetSelectors[9] = StableSwapFacet.calculateRemoveSwapLiquidityOneToken.selector;
-    stableSwapFacetSelectors[10] = StableSwapFacet.getSwapAdminBalance.selector;
-    stableSwapFacetSelectors[11] = StableSwapFacet.swap.selector;
-    stableSwapFacetSelectors[12] = StableSwapFacet.swapExact.selector;
-    stableSwapFacetSelectors[13] = StableSwapFacet.addSwapLiquidity.selector;
-    stableSwapFacetSelectors[14] = StableSwapFacet.removeSwapLiquidity.selector;
-    stableSwapFacetSelectors[15] = StableSwapFacet.removeSwapLiquidityOneToken.selector;
-    stableSwapFacetSelectors[16] = StableSwapFacet.removeSwapLiquidityImbalance.selector;
-    stableSwapFacetSelectors[17] = StableSwapFacet.initializeSwap.selector;
-    stableSwapFacetSelectors[18] = StableSwapFacet.withdrawSwapAdminFees.selector;
-    stableSwapFacetSelectors[19] = StableSwapFacet.setSwapAdminFee.selector;
-    stableSwapFacetSelectors[20] = StableSwapFacet.setSwapFee.selector;
-    stableSwapFacetSelectors[21] = StableSwapFacet.rampA.selector;
-    stableSwapFacetSelectors[22] = StableSwapFacet.stopRampA.selector;
+    bytes4[] memory stableSwapFacetSelectors = new bytes4[](25);
+    stableSwapFacetSelectors[0] = StableSwapFacet.getSwapStorage.selector;
+    stableSwapFacetSelectors[1] = StableSwapFacet.getSwapLPToken.selector;
+    stableSwapFacetSelectors[2] = StableSwapFacet.getSwapA.selector;
+    stableSwapFacetSelectors[3] = StableSwapFacet.getSwapAPrecise.selector;
+    stableSwapFacetSelectors[4] = StableSwapFacet.getSwapToken.selector;
+    stableSwapFacetSelectors[5] = StableSwapFacet.getSwapTokenIndex.selector;
+    stableSwapFacetSelectors[6] = StableSwapFacet.getSwapTokenBalance.selector;
+    stableSwapFacetSelectors[7] = StableSwapFacet.getSwapVirtualPrice.selector;
+    stableSwapFacetSelectors[8] = StableSwapFacet.calculateSwap.selector;
+    stableSwapFacetSelectors[9] = StableSwapFacet.calculateSwapTokenAmount.selector;
+    stableSwapFacetSelectors[10] = StableSwapFacet.calculateRemoveSwapLiquidity.selector;
+    stableSwapFacetSelectors[11] = StableSwapFacet.calculateRemoveSwapLiquidityOneToken.selector;
+    stableSwapFacetSelectors[12] = StableSwapFacet.getSwapAdminBalance.selector;
+    stableSwapFacetSelectors[13] = StableSwapFacet.swap.selector;
+    stableSwapFacetSelectors[14] = StableSwapFacet.swapExact.selector;
+    stableSwapFacetSelectors[15] = StableSwapFacet.addSwapLiquidity.selector;
+    stableSwapFacetSelectors[16] = StableSwapFacet.removeSwapLiquidity.selector;
+    stableSwapFacetSelectors[17] = StableSwapFacet.removeSwapLiquidityOneToken.selector;
+    stableSwapFacetSelectors[18] = StableSwapFacet.removeSwapLiquidityImbalance.selector;
+    stableSwapFacetSelectors[19] = StableSwapFacet.initializeSwap.selector;
+    stableSwapFacetSelectors[20] = StableSwapFacet.withdrawSwapAdminFees.selector;
+    stableSwapFacetSelectors[21] = StableSwapFacet.setSwapAdminFee.selector;
+    stableSwapFacetSelectors[22] = StableSwapFacet.setSwapFee.selector;
+    stableSwapFacetSelectors[23] = StableSwapFacet.rampA.selector;
+    stableSwapFacetSelectors[24] = StableSwapFacet.stopRampA.selector;
     return
       IDiamondCut.FacetCut({
         facetAddress: _stableSwapFacet,
@@ -283,6 +285,7 @@ contract Deployer {
     routersFacet = new RoutersFacet();
     stableSwapAsset = new StableSwapFacet();
     portalFacet = new PortalFacet();
+    testSetterFacet = new TestSetterFacet();
   }
 
   function getFacetCuts() internal view returns (IDiamondCut.FacetCut[] memory) {

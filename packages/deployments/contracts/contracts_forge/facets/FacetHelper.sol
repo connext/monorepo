@@ -75,7 +75,23 @@ contract FacetHelper is ForgeHelper {
       abi.encode(_canonicalDomain, _canonicalTokenId)
     );
 
+    // set mock to return local token address
+    vm.mockCall(_tokenRegistry, abi.encodeWithSelector(ITokenRegistry.ensureLocalToken.selector), abi.encode(_local));
+
+    // set mock to return proper is local
+    vm.mockCall(
+      _tokenRegistry,
+      abi.encodeWithSelector(ITokenRegistry.isLocalOrigin.selector),
+      abi.encode(domain == _canonicalDomain)
+    );
+
     // set mock to return local address
     vm.mockCall(_tokenRegistry, abi.encodeWithSelector(ITokenRegistry.getLocalAddress.selector), abi.encode(_local));
+  }
+
+  function setRemoteRouterContext(address _origin, uint32 _domain) public {
+    AppStorage storage s = LibConnextStorage.connextStorage();
+    // set remote context
+    s.remotes[_domain] = bytes32(abi.encodePacked(_origin));
   }
 }
