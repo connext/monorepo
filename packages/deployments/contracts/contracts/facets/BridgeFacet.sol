@@ -49,6 +49,7 @@ contract BridgeFacet is BaseConnextFacet {
   error BridgeFacet__xcall_callbackNotAContract();
   error BridgeFacet__reconcile_invalidAction();
   error BridgeFacet__reconcile_alreadyReconciled();
+  error BridgeFacet__reconcile_noPortalRouter();
   error BridgeFacet__execute_unapprovedRelayer();
   error BridgeFacet__execute_maxRoutersExceeded();
   error BridgeFacet__execute_notSupportedRouter();
@@ -290,14 +291,14 @@ contract BridgeFacet is BaseConnextFacet {
   function execute(ExecuteArgs calldata _args) external returns (bytes32) {
     (bytes32 transferId, bool reconciled) = _executeSanityChecks(_args);
 
+    // Set the relayer for this transaction to allow for future claim
+    s.transferRelayer[transferId] = msg.sender;
+
     // execute router liquidity when this is a fast transfer
     (uint256 amount, address adopted) = _handleExecuteLiquidity(transferId, !reconciled, _args);
 
     // execute the transaction
     _handleExecuteTransaction(_args, amount, adopted, transferId, reconciled);
-
-    // Set the relayer for this transaction to allow for future claim
-    s.transferRelayer[transferId] = msg.sender;
 
     // emit event
     emit Executed(transferId, _args.params.to, _args, adopted, amount, msg.sender);
@@ -324,7 +325,7 @@ contract BridgeFacet is BaseConnextFacet {
    * @notice Performs some sanity checks for `xcall`
    * @dev Need this to prevent stack too deep
    */
-  function _xcallSanityChecks(XCallArgs calldata _args) internal {
+  function _xcallSanityChecks(XCallArgs calldata _args) internal view {
     // ensure this is the right domain
     if (_args.params.originDomain != s.domain) {
       revert BridgeFacet__xcall_wrongDomain();
@@ -470,28 +471,35 @@ contract BridgeFacet is BaseConnextFacet {
    */
   function _reconcile(uint32 _origin, bytes memory _message) internal {
     // Parse and process message
-    (uint256 amount, address token, bytes32 transferId) = _reconcileProcessMessage(_message);
+    (uint256 amount, address local, bytes32 transferId, bytes32 canonical) = _reconcileProcessMessage(_message);
 
-    // If fast transfer was made using Portal liquidity, we need to repay
-    (uint256 routersAmount, address routersAsset) = _reconcileProcessPortal(amount, token, transferId);
-
-    // get the transfer
+    // get the routers
     address[] storage routers = s.routedTransfers[transferId];
 
+    // If fast transfer was made using Portal liquidity, we need to repay
+    uint256 portalTransferAmount = s.aavePortalsTransfers[transferId];
+
+    uint256 routersAmount = amount;
     uint256 pathLen = routers.length;
+    if (portalTransferAmount != 0) {
+      // ensure a router took on credit risk
+      if (pathLen != 1) revert BridgeFacet__reconcile_noPortalRouter();
+      routersAmount = _reconcileProcessPortal(amount, local, routers[0], transferId, canonical);
+    }
+
     if (pathLen != 0) {
       // fast liquidity path
       // credit the router the asset
       uint256 routerAmt = routersAmount / pathLen;
       for (uint256 i; i < pathLen; ) {
-        s.routerBalances[routers[i]][routersAsset] += routerAmt;
+        s.routerBalances[routers[i]][local] += routerAmt;
         unchecked {
           i++;
         }
       }
     }
 
-    emit Reconciled(transferId, _origin, routers, token, amount, msg.sender);
+    emit Reconciled(transferId, _origin, routers, local, amount, msg.sender);
   }
 
   /**
@@ -736,6 +744,7 @@ contract BridgeFacet is BaseConnextFacet {
     returns (
       uint256,
       address,
+      bytes32,
       bytes32
     )
   {
@@ -761,7 +770,8 @@ contract BridgeFacet is BaseConnextFacet {
     // (if the token is of remote origin and there is
     // no existing representation token contract, the TokenRegistry will
     // deploy a new one)
-    address token = s.tokenRegistry.ensureLocalToken(tokenId.domain(), tokenId.id());
+    bytes32 canonical = tokenId.id();
+    address token = s.tokenRegistry.ensureLocalToken(tokenId.domain(), canonical);
 
     // load amount once
     uint256 amount = action.amnt();
@@ -787,33 +797,40 @@ contract BridgeFacet is BaseConnextFacet {
     // mark the transfer as reconciled
     s.reconciledTransfers[transferId] = true;
 
-    return (amount, token, transferId);
+    return (amount, token, transferId, canonical);
   }
 
   /**
    * @notice Repays to Aave Portal if the transfer was executed with fast path using Portal liquidity
+   * @param _amount - The amount passed through bridge
+   * @param _local - The local  asset
+   * @param _router - The router who took on portal risk
+   * @param _transferId - The transfer identifier
+   * @param _canonical - The canonical identifier for the local asset
    * @return The amount left after the repayment
-   * @return The address of the adopted asset
    */
   function _reconcileProcessPortal(
     uint256 _amount,
-    address _token,
-    bytes32 _transferId
-  ) private returns (uint256, address) {
-    uint256 portalTransferAmount = s.aavePortalsTransfers[_transferId];
+    address _local,
+    address _router,
+    bytes32 _transferId,
+    bytes32 _canonical
+  ) private returns (uint256) {
+    // When repaying a portal, should use available liquidity if there is not enough balance from
+    // the bridge. First, calculate the amount to be repaid in adopted asset then swap for exactly
+    // that amount. This prevents having to swap excess (i.e. from positive amm slippage) from debt
+    // repayment back into local asset to credit routers
 
-    if (portalTransferAmount == 0) return (_amount, _token);
-
-    // Swap all the transfer amount from local asset to adopted if needed
-    (uint256 adoptedAmountOut, address adopted) = AssetLogic.swapFromLocalAssetIfNeeded(_token, _amount);
-
-    // Calculates the amount to be repaid to the portal
+    // Calculates the amount to be repaid to the portal in adopted asset
     (uint256 totalRepayAmount, uint256 backUnbackedAmount, uint256 portalFee) = _calculatePortalRepayment(
-      adoptedAmountOut,
-      portalTransferAmount,
+      _amount + s.routerBalances[_router][_local],
+      s.aavePortalsTransfers[_transferId],
       _transferId,
-      adopted
+      _local
     );
+
+    // Swap for exact `totalRepayAmount` of adopted asset to repay aave
+    (uint256 amountIn, address adopted) = AssetLogic.swapFromLocalAssetIfNeededForExactOut(_local, totalRepayAmount);
 
     // Edge case with some tokens: Example USDT in ETH Mainnet, after the backUnbacked call there could be a remaining allowance if not the whole amount is pulled by aave.
     // Later, if we try to increase the allowance it will fail. USDT demands if allowance is not 0, it has to be set to 0 first.
@@ -829,7 +846,7 @@ contract BridgeFacet is BaseConnextFacet {
       emit AavePortalRepayment(_transferId, adopted, backUnbackedAmount, portalFee);
     } else {
       // Update the amount repaid to 0, so the amount is credited to the router
-      totalRepayAmount = 0;
+      amountIn = 0;
       emit AavePortalRepaymentDebt(_transferId, adopted, backUnbackedAmount, portalFee);
     }
 
@@ -839,27 +856,32 @@ contract BridgeFacet is BaseConnextFacet {
     // aave can pull a smaller amount than backUnbackedAmount. So there will be an extra amount of assets that needs to be assigned
     // See https://github.com/aave/aave-v3-core/blob/feb3f20885c73025f40cc272b59e7eacfaa02fe4/contracts/protocol/libraries/logic/BridgeLogic.sol#L121
 
+    // TODO: need to credit the router in the local asset, not the adopted asset
+    // potential credits come from (1) positive AMM slippage (2) backUnbacked (see above),
+    // but both are in the form of the adopted asset. Can swap here, but this is cumbersome (maybe
+    // the best?)
+
     // Account leftovers in adopted to routers
-    return (adoptedAmountOut - totalRepayAmount, adopted);
+    return (_amount - amountIn);
   }
 
   /**
    * @notice Calculates the amount to be repaid to Aave Portal in adopted asset. If there is no enough amount to repay
    * the unbacked and the fee, it will partially repay prioritizing the unbacked amount.
    * @dev Assumes the fee is proportional to the unbackedAmount.
-   * @param _availableAmount - The available balance for a repayment
+   * @param _localAmount - The available balance for a repayment
    * @param _portalTransferAmount - The portal transfer amount that needs to be backed
    * @param _transferId - The unique identifier of the crosschain transaction
-   * @param _adopted - The address of the adopted asset that needs to be backed
+   * @param _local - The address of the adopted asset that needs to be backed
    * @return The total amount to be repaid
    * @return The unbacked amount to be backed
    * @return The fee amount to be paid
    */
   function _calculatePortalRepayment(
-    uint256 _availableAmount,
+    uint256 _localAmount,
     uint256 _portalTransferAmount,
     bytes32 _transferId,
-    address _adopted
+    address _local
   )
     internal
     returns (
@@ -871,22 +893,24 @@ contract BridgeFacet is BaseConnextFacet {
     uint256 portalFee = (_portalTransferAmount * s.aavePortalFeeNumerator) / s.LIQUIDITY_FEE_DENOMINATOR;
     uint256 backUnbackedAmount = _portalTransferAmount;
     uint256 totalRepayAmount = backUnbackedAmount + portalFee;
+    // see how much of local asset you would have available post-swap
+    (uint256 availableAmount, address adopted) = AssetLogic.calculateSwapFromLocalAssetIfNeeded(_local, _localAmount);
 
     // If not enough funds to repay the transfer + fees
     // try to repay as much as unbacked as possible
-    if (totalRepayAmount > _availableAmount) {
+    if (totalRepayAmount > availableAmount) {
       uint256 backUnbackedDebt = backUnbackedAmount;
       uint256 portalFeeDebt = portalFee;
 
-      if (_availableAmount > backUnbackedAmount) {
+      if (availableAmount > backUnbackedAmount) {
         // Repay the whole transfer and a partial amount of fees
-        portalFee = _availableAmount - backUnbackedAmount;
+        portalFee = availableAmount - backUnbackedAmount;
 
         backUnbackedDebt = 0;
         portalFeeDebt -= portalFee;
       } else {
         // Repay a partial amount of the transfer and no fees
-        backUnbackedAmount = _availableAmount;
+        backUnbackedAmount = availableAmount;
         portalFee = 0;
 
         backUnbackedDebt -= backUnbackedAmount;
@@ -894,7 +918,7 @@ contract BridgeFacet is BaseConnextFacet {
 
       totalRepayAmount = backUnbackedAmount + portalFee;
 
-      emit AavePortalRepaymentDebt(_transferId, _adopted, backUnbackedDebt, portalFeeDebt);
+      emit AavePortalRepaymentDebt(_transferId, adopted, backUnbackedDebt, portalFeeDebt);
     }
 
     return (totalRepayAmount, backUnbackedAmount, portalFee);

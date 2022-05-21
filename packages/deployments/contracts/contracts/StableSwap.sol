@@ -308,6 +308,20 @@ contract StableSwap is IStableSwap, OwnerPausableUpgradeable, ReentrancyGuardUpg
   }
 
   /**
+   * @notice Swap two tokens using this pool
+   * @param assetIn the token the user wants to swap from
+   * @param assetOut the token the user wants to swap to
+   * @param amountIn the amount of tokens the user wants to swap from
+   */
+  function swapExactOut(
+    uint256 amountIn,
+    address assetIn,
+    address assetOut
+  ) external payable override nonReentrant whenNotPaused returns (uint256) {
+    require(false, "not implemented");
+  }
+
+  /**
    * @notice Add liquidity to the pool with the given amounts of tokens
    * @param amounts the amounts of each token to add, in their native precision
    * @param minToMint the minimum LP tokens adding this amount of liquidity

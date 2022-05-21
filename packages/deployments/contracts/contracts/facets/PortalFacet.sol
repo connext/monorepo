@@ -3,6 +3,7 @@ pragma solidity 0.8.11;
 
 import {BaseConnextFacet} from "./BaseConnextFacet.sol";
 import {IAavePool} from "../interfaces/IAavePool.sol";
+import {AssetLogic} from "../libraries/AssetLogic.sol";
 import {SafeERC20Upgradeable, IERC20Upgradeable} from "@openzeppelin/contracts-upgradeable/token/ERC20/utils/SafeERC20Upgradeable.sol";
 
 contract PortalFacet is BaseConnextFacet {
@@ -62,26 +63,36 @@ contract PortalFacet is BaseConnextFacet {
    * @dev The router must be approved for Portal and with enough liquidity
    */
   function repayAavePortal(
-    address _asset,
+    address _local,
     uint256 _backingAmount,
     uint256 _feeAmount
   ) external {
     if (!s.routerPermissionInfo.approvedForPortalRouters[msg.sender])
       revert PortalFacet__repayAavePortal_notApprovedForPortals();
 
-    uint256 totalAmount = _backingAmount + _feeAmount;
-    uint256 routerBalance = s.routerBalances[msg.sender][_asset];
+    uint256 totalAmount = _backingAmount + _feeAmount; // in adopted
+    uint256 routerBalance = s.routerBalances[msg.sender][_local]; // in local
 
-    if (routerBalance < totalAmount) revert PortalFacet__repayAavePortal_insufficientFunds();
+    // Need to swap into adopted asset or asset that was backing the loan
+    // The router will always be holding collateral in the local asset while the loaned asset
+    // is the adopted asset
+    (uint256 balanceInAdopted, address adopted) = AssetLogic.calculateSwapFromLocalAssetIfNeeded(_local, routerBalance);
 
+    if (balanceInAdopted < totalAmount) revert PortalFacet__repayAavePortal_insufficientFunds();
+
+    // Swap for exact `totalRepayAmount` of adopted asset to repay aave
+    (uint256 amountIn, ) = AssetLogic.swapFromLocalAssetIfNeededForExactOut(_local, totalAmount);
+
+    // decrement router balances
     unchecked {
-      s.routerBalances[msg.sender][_asset] = routerBalance - totalAmount;
+      s.routerBalances[msg.sender][_local] = routerBalance - amountIn;
     }
 
-    SafeERC20Upgradeable.safeIncreaseAllowance(IERC20Upgradeable(_asset), s.aavePool, totalAmount);
+    // back loan
+    SafeERC20Upgradeable.safeIncreaseAllowance(IERC20Upgradeable(adopted), s.aavePool, totalAmount);
 
-    IAavePool(s.aavePool).backUnbacked(_asset, _backingAmount, _feeAmount);
+    IAavePool(s.aavePool).backUnbacked(adopted, _backingAmount, _feeAmount);
 
-    emit AavePortalRouterRepayment(msg.sender, _asset, _backingAmount, _feeAmount);
+    emit AavePortalRouterRepayment(msg.sender, adopted, _backingAmount, _feeAmount);
   }
 }

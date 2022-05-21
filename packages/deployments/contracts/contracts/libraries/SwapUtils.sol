@@ -658,6 +658,19 @@ library SwapUtils {
   }
 
   /**
+   * @notice Should get exact amount out of AMM for asset put in
+   */
+  function swapInternalOut(
+    Swap storage self,
+    uint8 tokenIndexFrom,
+    uint8 tokenIndexTo,
+    uint256 dy,
+    uint256 minDx
+  ) internal returns (uint256) {
+    require(false, "not implemented");
+  }
+
+  /**
    * @notice Add liquidity to the pool
    * @param self Swap struct to read from and write to
    * @param amounts the amounts of each token to add, in their native precision

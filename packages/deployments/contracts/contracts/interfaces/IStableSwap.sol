@@ -43,6 +43,12 @@ interface IStableSwap {
     address assetOut
   ) external payable returns (uint256);
 
+  function swapExactOut(
+    uint256 amountOut,
+    address assetIn,
+    address assetOut
+  ) external payable returns (uint256);
+
   function getA() external view returns (uint256);
 
   function getToken(uint8 index) external view returns (IERC20);
