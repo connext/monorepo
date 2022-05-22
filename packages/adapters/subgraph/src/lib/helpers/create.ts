@@ -13,6 +13,7 @@ export const getNetwork = (sourceName: string, env: string): RegExpMatchArray | 
 export const create = async (
   chaindata: Map<string, ChainData>,
   env: "staging" | "production" = "production",
+  prefixOverride?: string, // optional override for the prefix
 ): Promise<SubgraphMap> => {
   const names = await getSubgraphNames();
 
@@ -35,7 +36,11 @@ export const create = async (
     if (networks.includes(chainData.network)) {
       config.sources[chainData.domainId] = {
         domain: chainData.domainId,
-        prefix: env === "staging" ? `${env}${chainData.network}` : chainData.network,
+        prefix: prefixOverride
+          ? `${prefixOverride}${chainData.network}`
+          : env === "staging"
+          ? `${env}${chainData.network}`
+          : chainData.network,
       };
       config.supported[chainData.domainId] = true;
     } else {

@@ -141,7 +141,7 @@ export const setupSubgraphReader = async (requestContext: RequestContext): Promi
   const methodContext = createMethodContext(setupSubgraphReader.name);
 
   logger.info("Subgraph reader setup in progress...", requestContext, methodContext, {});
-  const subgraphReader = await SubgraphReader.create(chainData, config.environment);
+  const subgraphReader = await SubgraphReader.create(chainData, config.environment, config.subgraphPrefix);
 
   // Pull support for domains that don't have a subgraph.
   const supported: Record<string, boolean> = subgraphReader.supported;

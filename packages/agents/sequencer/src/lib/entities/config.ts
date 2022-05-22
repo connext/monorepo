@@ -43,8 +43,9 @@ export const SequencerConfigSchema = Type.Object({
   server: TServerConfig,
   mode: TModeConfig,
   auctionWaitTime: Type.Number({ minimum: 1000, maximum: 500_000 }),
-  environment: Type.Union([Type.Literal("staging"), Type.Literal("production")]),
   relayerUrl: Type.Optional(Type.String()),
+  subgraphPrefix: Type.Optional(Type.String()),
+  environment: Type.Union([Type.Literal("staging"), Type.Literal("production")]),
 });
 
 export type SequencerConfig = Static<typeof SequencerConfigSchema>;
