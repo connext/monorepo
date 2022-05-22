@@ -12,7 +12,7 @@ type TaskArgs = {
   env?: Env;
 };
 
-export default task("remove-stable-liquidity", "Remove liquidity from the stable swap pool")
+export default task("remove-swap-liquidity", "Remove liquidity from the stable swap pool")
   .addParam("canonical", "Canonical token address")
   .addParam("amount", "Amount of the lp token")
   .addOptionalParam(

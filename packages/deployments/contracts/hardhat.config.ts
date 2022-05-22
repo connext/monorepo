@@ -37,6 +37,7 @@ import "./tasks/exportAbi";
 import "./tasks/stableswap/initializeSwap";
 import "./tasks/stableswap/addSwapLiquidity";
 import "./tasks/stableswap/removeSwapLiquidity";
+import "./tasks/stableswap/setSwapFees";
 import { utils } from "ethers";
 
 dotEnvConfig();
