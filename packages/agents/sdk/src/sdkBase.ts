@@ -1,5 +1,12 @@
 import { constants, providers, BigNumber } from "ethers";
-import { Logger, createLoggingContext, getChainIdFromDomain, ChainData, XCallArgs } from "@connext/nxtp-utils";
+import {
+  Logger,
+  createLoggingContext,
+  getChainIdFromDomain,
+  ChainData,
+  XCallArgs,
+  CallParams,
+} from "@connext/nxtp-utils";
 import {
   getContractInterfaces,
   ConnextContractInterfaces,
@@ -110,7 +117,7 @@ export class NxtpSdkBase {
   }
 
   public async xcall(
-    xcallParams: Omit<XCallArgs, "callData" | "forceSlow" | "receiveLocal">,
+    xcallParams: Omit<XCallArgs, "callData" | "forceSlow" | "receiveLocal" | "callback" | "callbackFee" | "recovery">,
   ): Promise<providers.TransactionRequest> {
     const { requestContext, methodContext } = createLoggingContext(this.xcall.name);
     this.logger.info("Method start", requestContext, methodContext, { xcallParams });
@@ -136,9 +143,12 @@ export class NxtpSdkBase {
 
     const { originDomain } = params;
 
-    const xParams = {
+    const xParams: CallParams = {
       ...params,
-      calldata: params.callData || "0x",
+      callData: params.callData || "0x",
+      callback: params.callback || "0x",
+      callbackFee: params.callbackFee || "0",
+      recovery: params.recovery || params.to,
       forceSlow: params.forceSlow || false,
       receiveLocal: params.receiveLocal || false,
     };
@@ -151,14 +161,13 @@ export class NxtpSdkBase {
         ? BigNumber.from(amount).add(BigNumber.from(relayerFee))
         : BigNumber.from(relayerFee);
 
-    const data = this.contracts.connext.encodeFunctionData("xcall", [
-      {
-        params: xParams,
-        amount,
-        transactingAssetId,
-        relayerFee,
-      },
-    ]);
+    const xcallArgs: XCallArgs = {
+      params: xParams,
+      amount,
+      transactingAssetId,
+      relayerFee,
+    };
+    const data = this.contracts.connext.encodeFunctionData("xcall", [xcallArgs]);
 
     const txRequest = {
       to: ConnextContractAddress,
