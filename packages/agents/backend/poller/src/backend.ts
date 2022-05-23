@@ -36,7 +36,11 @@ export const makeBackend = async (_configOverride?: BackendConfig) => {
   context.logger.info("Config generated", requestContext, methodContext, { config: context.config });
 
   /// MARK - Adapters
-  context.adapters.subgraph = await SubgraphReader.create(chainData, context.config.environment);
+  context.adapters.subgraph = await SubgraphReader.create(
+    chainData,
+    context.config.environment,
+    context.config.subgraphPrefix,
+  );
   context.adapters.database = await getDatabase();
 
   /// MARK - Domains
