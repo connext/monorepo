@@ -406,7 +406,7 @@ contract BridgeFacet is BaseConnextFacet {
       // if the token originates on a remote chain,
       // burn the representation tokens on this chain
       if (_amount > 0) {
-        token.burn(msg.sender, _amount);
+        token.burn(address(this), _amount);
       }
       detailsHash = token.detailsHash();
     }
