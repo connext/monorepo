@@ -815,7 +815,7 @@
           ]
         },
         "BridgeFacet": {
-          "address": "0x0aB48B912a29dA63E18117fE345d7797c5189078",
+          "address": "0x6fCDBBA79F9D2c36CC5929F353a11159528EdAa6",
           "abi": [
             {
               "inputs": [],
@@ -31898,7 +31898,7 @@
           ]
         },
         "BridgeFacet": {
-          "address": "0x0aB48B912a29dA63E18117fE345d7797c5189078",
+          "address": "0x6fCDBBA79F9D2c36CC5929F353a11159528EdAa6",
           "abi": [
             {
               "inputs": [],
@@ -62473,7 +62473,7 @@
           ]
         },
         "BridgeFacet": {
-          "address": "0x0aB48B912a29dA63E18117fE345d7797c5189078",
+          "address": "0x6fCDBBA79F9D2c36CC5929F353a11159528EdAa6",
           "abi": [
             {
               "inputs": [],
