@@ -15,6 +15,7 @@ const DEFAULT_SUBGRAPH_POLL_INTERVAL = 15_000;
 const DEFAULT_CONFIRMATIONS = 3;
 const MIN_CACHE_POLL_INTERVAL = 2_000;
 const DEFAULT_CACHE_POLL_INTERVAL = 20_000;
+const DEFAULT_AUCTION_ROUND_DEPTH = 4;
 
 dotenvConfig();
 
@@ -82,6 +83,7 @@ export const NxtpRouterConfigSchema = Type.Object({
   mode: TModeConfig,
   network: Type.Union([Type.Literal("testnet"), Type.Literal("mainnet"), Type.Literal("local")]),
   polling: TPollingConfig,
+  auctionRoundDepth: Type.Number(),
   environment: Type.Union([Type.Literal("staging"), Type.Literal("production")]),
 });
 
@@ -173,6 +175,11 @@ export const getEnvConfig = (
         configFile.polling?.cach ||
         DEFAULT_CACHE_POLL_INTERVAL,
     },
+    auctionRoundDepth:
+      process.env.AUCTION_ROUND_DEPTH ||
+      configJson.auctionRoundDepth ||
+      configFile.auctionRoundDepth ||
+      DEFAULT_AUCTION_ROUND_DEPTH,
     environment: process.env.NXTP_ENVIRONMENT || configJson.environment || configFile.environment || "production",
   };
 
