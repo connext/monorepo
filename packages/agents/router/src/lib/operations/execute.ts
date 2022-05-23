@@ -10,6 +10,8 @@ import {
 import { CallDataForNonContract, MissingXCall, NotEnoughAmount, ParamsInvalid } from "../errors";
 import { getHelpers } from "../helpers";
 import { getContext } from "../../router";
+import { BigNumber } from "ethers";
+import { getAuctionAmount } from "../helpers/auctions";
 
 // fee percentage paid to relayer. need to be updated later
 export const RELAYER_FEE_PERCENTAGE = "1"; //  1%
@@ -23,6 +25,7 @@ export const execute = async (params: OriginTransfer): Promise<void> => {
   const { requestContext, methodContext } = createLoggingContext(execute.name);
 
   const {
+    config,
     logger,
     adapters: { wallet, subgraph, txservice },
     routerAddress,
@@ -75,29 +78,40 @@ export const execute = async (params: OriginTransfer): Promise<void> => {
   // based on a calculation of which rounds we can afford to bid on. For now, this is hardcoded to bid
   // only on the first auction round.
   // Produce the router path signatures for each auction round we want to bid on.
-  const signatures = {
-    "1": await signRouterPathPayload(transferId, "1", wallet),
-  };
 
-  logger.debug("Signed payloads", requestContext, methodContext, {
-    rounds: Object.keys(signatures),
-    // Sanitized with ellipsis.
-    sigs: Object.values(signatures).map((s) => s.slice(0, 6) + ".."),
-  });
-
-  // sanity check
+  // Make a list of signatures that reflect which auction rounds we want to bid on.
   const balance = await subgraph.getAssetBalance(destinationDomain, routerAddress, executeLocalAsset);
-  if (balance.lt(receivingAmount)) {
+  const signatures: Record<string, string> = {};
+  for (let roundIdx = 1; roundIdx <= config.auctionRoundDepth; roundIdx++) {
+    const amountForRound = getAuctionAmount(roundIdx, BigNumber.from(receivingAmount));
+    if (amountForRound.lte(balance)) {
+      signatures[roundIdx.toString()] = await signRouterPathPayload(transferId, roundIdx.toString(), wallet);
+    } else {
+      logger.debug(`Not enough balance for this round: ${roundIdx}. Skipping!`, requestContext, methodContext, {
+        balance: balance.toString(),
+        amountForRound: amountForRound.toString(),
+      });
+    }
+  }
+
+  if ([...Object.keys(signatures)].length == 0) {
     throw new NotEnoughAmount({
       balance: balance.toString(),
       receivingAmount: receivingAmount.toString(),
       executeLocalAsset,
       routerAddress,
       destinationDomain: destinationDomain,
+      maxRoundDepth: config.auctionRoundDepth,
       requestContext,
       methodContext,
     });
   }
+
+  logger.debug("Signed payloads", requestContext, methodContext, {
+    rounds: Object.keys(signatures),
+    // Sanitized with ellipsis.
+    sigs: Object.values(signatures).map((s) => s.slice(0, 6) + ".."),
+  });
 
   if (callData !== "0x") {
     const code = await txservice.getCode(+destinationDomain, to);
