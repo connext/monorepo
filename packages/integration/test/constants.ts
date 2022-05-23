@@ -260,6 +260,7 @@ export const ROUTER_CONFIG: Promise<RouterConfig> = (async (): Promise<RouterCon
       subgraph: 5_000,
       cache: 5_000,
     },
+    auctionRoundDepth: 4,
     environment,
   };
 })();
