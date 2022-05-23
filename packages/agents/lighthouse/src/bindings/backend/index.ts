@@ -48,7 +48,7 @@ export const pollBackend = async () => {
       amount: transaction.destination_local_amount.toString(),
       nonce: transaction.nonce,
       originSender: transaction.xcall_caller,
-      relayerFee: transaction.relayer_fee,
+      relayerFee: transaction.relayer_fee || "0",
     };
 
     const transferId = transaction.trasfer_id as string;
