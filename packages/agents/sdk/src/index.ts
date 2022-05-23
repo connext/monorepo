@@ -1,4 +1,4 @@
-import { getChainData, Logger } from "@connext/nxtp-utils";
+import { Logger, ChainData } from "@connext/nxtp-utils";
 import { contractDeployments } from "@connext/nxtp-txservice";
 
 import { NxtpSdkConfig, getConfig } from "./config";
@@ -7,26 +7,17 @@ import { NxtpSdkBase } from "./sdkBase";
 import { NxtpSdkRouter } from "./sdkRouter";
 import { NxtpSdkStableSwap } from "./sdkStableSwap";
 
-export { NxtpSdkBase } from "./sdkBase";
-export { NxtpSdkRouter } from "./sdkRouter";
-export { NxtpSdkStableSwap } from "./sdkStableSwap";
-export { NxtpSdkUtils } from "./sdkUtils";
-export { NxtpSdkConfig, NxtpSdkConfigSchema } from "./config";
-
 export const create = async (
   _config: NxtpSdkConfig,
   _logger?: Logger,
+  chainData?: Map<string, ChainData>,
 ): Promise<{
   nxtpSdkBase: NxtpSdkBase;
   nxtpSdkUtils: NxtpSdkUtils;
   nxtpSdkRouter: NxtpSdkRouter;
   nxtpSdkStableSwap: NxtpSdkStableSwap;
 }> => {
-  const chainData = await getChainData();
-  if (!chainData) {
-    throw new Error("Could not get chain data");
-  }
-  const nxtpConfig = await getConfig(_config, chainData, contractDeployments);
+  const nxtpConfig = await getConfig(_config, contractDeployments);
   const logger = _logger || new Logger({ name: "NxtpSdk", level: nxtpConfig.logLevel });
 
   const nxtpSdkUtils = await NxtpSdkUtils.create(nxtpConfig, logger, chainData);
@@ -36,3 +27,9 @@ export const create = async (
 
   return { nxtpSdkBase, nxtpSdkUtils, nxtpSdkRouter, nxtpSdkStableSwap };
 };
+
+export { NxtpSdkBase } from "./sdkBase";
+export { NxtpSdkRouter } from "./sdkRouter";
+export { NxtpSdkStableSwap } from "./sdkStableSwap";
+export { NxtpSdkUtils } from "./sdkUtils";
+export { NxtpSdkConfig, NxtpSdkConfigSchema } from "./config";
