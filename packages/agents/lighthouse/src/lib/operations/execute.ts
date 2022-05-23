@@ -1,4 +1,4 @@
-import { createLoggingContext, ExecuteArgs } from "@connext/nxtp-utils";
+import { createLoggingContext, ExecuteArgs, jsonifyError, NxtpError, RequestContext } from "@connext/nxtp-utils";
 
 import { getOperations } from "../operations";
 import { getContext } from "../../lighthouse";
@@ -11,7 +11,11 @@ export const RELAYER_FEE_PERCENTAGE = "1"; //  1%
  *
  * @param args - The crosschain xcall params.
  */
-export const execute = async (args: ExecuteArgs, transferId: string): Promise<void> => {
+export const execute = async (
+  args: ExecuteArgs,
+  transferId: string,
+  _requestContext: RequestContext,
+): Promise<void> => {
   const { requestContext, methodContext } = createLoggingContext(execute.name);
 
   const {
@@ -32,7 +36,14 @@ export const execute = async (args: ExecuteArgs, transferId: string): Promise<vo
   //     params,
   //   });
   // }
-  const encodedData = contracts.connext.encodeFunctionData("execute", [args]);
+  try {
+    const encodedData = contracts.connext.encodeFunctionData("execute", [args]);
 
-  await sendToRelayer(args, encodedData, transferId, requestContext);
+    await sendToRelayer(args, encodedData, transferId, requestContext);
+  } catch (error: any) {
+    logger.error("Error executing", requestContext, methodContext, jsonifyError(error as NxtpError), {
+      args,
+      transferId,
+    });
+  }
 };
