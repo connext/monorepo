@@ -117,7 +117,7 @@ export class NxtpSdkBase {
   }
 
   public async xcall(
-    xcallParams: Omit<XCallArgs, "callData" | "forceSlow" | "receiveLocal">,
+    xcallParams: Omit<XCallArgs, "callData" | "forceSlow" | "receiveLocal" | "callback" | "callbackFee" | "recovery">,
   ): Promise<providers.TransactionRequest> {
     const { requestContext, methodContext } = createLoggingContext(this.xcall.name);
     this.logger.info("Method start", requestContext, methodContext, { xcallParams });
