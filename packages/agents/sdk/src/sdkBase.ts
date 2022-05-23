@@ -50,7 +50,7 @@ export class NxtpSdkBase {
       throw new ChainDataUndefined();
     }
 
-    const nxtpConfig = await getConfig(_config, chainData, contractDeployments);
+    const nxtpConfig = await getConfig(_config, contractDeployments, chainData);
     const logger = _logger || new Logger({ name: "NxtpSdkBase", level: nxtpConfig.logLevel });
 
     return new NxtpSdkBase(nxtpConfig, logger, chainData);

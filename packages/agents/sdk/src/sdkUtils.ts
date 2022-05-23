@@ -49,7 +49,7 @@ export class NxtpSdkUtils {
       throw new Error("Could not get chain data");
     }
 
-    const nxtpConfig = await getConfig(_config, chainData, contractDeployments);
+    const nxtpConfig = await getConfig(_config, contractDeployments, chainData);
     const logger = _logger
       ? _logger.child({ name: "NxtpSdkUtils" })
       : new Logger({ name: "NxtpSdkUtils", level: nxtpConfig.logLevel });

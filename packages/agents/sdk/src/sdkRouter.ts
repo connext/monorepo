@@ -42,7 +42,7 @@ export class NxtpSdkRouter {
       throw new Error("Could not get chain data");
     }
 
-    const nxtpConfig = await getConfig(_config, chainData, contractDeployments);
+    const nxtpConfig = await getConfig(_config, contractDeployments, chainData);
     const logger = _logger
       ? _logger.child({ name: "NxtpSdkRouter" })
       : new Logger({ name: "NxtpSdkRouter", level: nxtpConfig.logLevel });
