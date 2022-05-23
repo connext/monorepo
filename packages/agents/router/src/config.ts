@@ -83,7 +83,7 @@ export const NxtpRouterConfigSchema = Type.Object({
   mode: TModeConfig,
   network: Type.Union([Type.Literal("testnet"), Type.Literal("mainnet"), Type.Literal("local")]),
   polling: TPollingConfig,
-  auctionRoundDepth: Type.Number(),
+  auctionRoundDepth: Type.Optional(Type.Number()),
   subgraphPrefix: Type.Optional(Type.String()),
   environment: Type.Union([Type.Literal("staging"), Type.Literal("production")]),
 });
