@@ -37,8 +37,8 @@ export const pollBackend = async () => {
         callData: transaction.call_data,
         callback: transaction.callback,
         callbackFee: transaction.callback_fee,
-        receiveLocal: transaction.receive_local || false,
-        forceSlow: transaction.force_slow || false,
+        receiveLocal: transaction.receive_local,
+        forceSlow: transaction.force_slow,
         recovery: transaction.recovery,
       },
       local: transaction.destination_local_asset,
@@ -47,7 +47,7 @@ export const pollBackend = async () => {
       amount: transaction.destination_local_amount.toString(),
       nonce: transaction.nonce,
       originSender: transaction.xcall_caller,
-      relayerFee: transaction.relayer_fee,
+      relayerFee: transaction.xcall_relayer_fee,
     };
 
     const transferId = transaction.trasfer_id as string;
@@ -72,7 +72,6 @@ export const getReconciledTransactions = async (): Promise<any> => {
 
   const statusIdentifier = `status=eq.Reconciled&`;
   const uri = formatUrl(config.backendUrl, "transfers?", statusIdentifier);
-  try {
     const response = await axios.get(uri);
     return response.data;
   } catch (error: any) {
