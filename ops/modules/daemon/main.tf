@@ -33,10 +33,10 @@ resource "aws_ecs_task_definition" "service" {
         retries = 3,
         command = [
           "CMD-SHELL",
-          "curl -f http://127.0.0.1 || exit 1"
+          "pgrep -x node"
         ],
-        timeout: 5,
-        interval: 30,
+        timeout: 3,
+        interval: 10,
         startPeriod: null
       },
       portMappings = [
