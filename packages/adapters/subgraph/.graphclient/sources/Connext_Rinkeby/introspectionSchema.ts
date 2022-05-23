@@ -1,5 +1,5 @@
 // @ts-nocheck
-import { buildASTSchema, DocumentNode } from 'graphql';
+import { buildASTSchema } from 'graphql';
 
 const schemaAST = {
   "kind": "Document",
@@ -13290,7 +13290,7 @@ const schemaAST = {
       "directives": []
     }
   ]
-} as unknown as DocumentNode;
+};
 
 export default buildASTSchema(schemaAST, {
   assumeValid: true,

@@ -1,0 +1,23 @@
+// SPDX-License-Identifier: UNLICENSED
+pragma solidity 0.8.11;
+
+import {ITokenRegistry} from "../../contracts/nomad-xapps/interfaces/bridge/ITokenRegistry.sol";
+import {LibConnextStorage, AppStorage} from "../../contracts/libraries/LibConnextStorage.sol";
+
+import "../ForgeHelper.sol";
+
+contract FacetHelper is ForgeHelper {
+  // token registry / assets
+  address _tokenRegistry = address(6);
+
+  // fees
+  uint256 _liquidityFeeNumerator = 9995;
+  uint256 _liquidityFeeDenominator = 10000;
+
+  function setDefaults() public {
+    AppStorage storage s = LibConnextStorage.connextStorage();
+    s.tokenRegistry = ITokenRegistry(_tokenRegistry);
+    s.LIQUIDITY_FEE_NUMERATOR = _liquidityFeeNumerator;
+    s.LIQUIDITY_FEE_DENOMINATOR = _liquidityFeeDenominator;
+  }
+}

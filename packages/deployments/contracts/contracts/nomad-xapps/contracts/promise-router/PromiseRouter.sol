@@ -234,7 +234,7 @@ contract PromiseRouter is Version0, Router, ReentrancyGuardUpgradeable {
     bytes29 _msg = _message.ref(0).mustBePromiseCallback();
 
     // enforce relayer is whitelisted by calling local connext contract
-    if (!connext.isApprovedRelayer(msg.sender)) revert PromiseRouter__process_notApprovedRelayer();
+    if (!connext.approvedRelayers(msg.sender)) revert PromiseRouter__process_notApprovedRelayer();
 
     address callbackAddress = _msg.callbackAddress();
 
