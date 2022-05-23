@@ -58,7 +58,7 @@ export const updateTransfers = async () => {
   }
 
   // now query pending transfers to see if any status updates happened
-  const xcalledTransfers = await database.getTransfersByStatus("XCalled");
+  const xcalledTransfers = await database.getTransfersByStatus(XTransferStatus.XCalled);
   const executedTransfers = await database.getTransfersByStatus(XTransferStatus.Executed);
   const reconciledTransfers = await database.getTransfersByStatus(XTransferStatus.Reconciled);
 
