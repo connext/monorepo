@@ -177,6 +177,9 @@ type testkovan_DestinationTransfer {
   callData: testkovan_Bytes
   originDomain: BigInt
   destinationDomain: BigInt
+  recovery: testkovan_Bytes
+  callback: testkovan_Bytes
+  callbackFee: BigInt
   forceSlow: Boolean
   receiveLocal: Boolean
   status: testkovan_TransferStatus
@@ -186,6 +189,7 @@ type testkovan_DestinationTransfer {
   transactingAmount: BigInt
   localAsset: testkovan_Bytes
   localAmount: BigInt
+  sponsorVaultRelayerFee: BigInt
   executedCaller: testkovan_Bytes
   executedTransactionHash: testkovan_Bytes
   executedTimestamp: BigInt
@@ -259,6 +263,26 @@ input testkovan_DestinationTransfer_filter {
   destinationDomain_lte: BigInt
   destinationDomain_in: [BigInt!]
   destinationDomain_not_in: [BigInt!]
+  recovery: testkovan_Bytes
+  recovery_not: testkovan_Bytes
+  recovery_in: [testkovan_Bytes!]
+  recovery_not_in: [testkovan_Bytes!]
+  recovery_contains: testkovan_Bytes
+  recovery_not_contains: testkovan_Bytes
+  callback: testkovan_Bytes
+  callback_not: testkovan_Bytes
+  callback_in: [testkovan_Bytes!]
+  callback_not_in: [testkovan_Bytes!]
+  callback_contains: testkovan_Bytes
+  callback_not_contains: testkovan_Bytes
+  callbackFee: BigInt
+  callbackFee_not: BigInt
+  callbackFee_gt: BigInt
+  callbackFee_lt: BigInt
+  callbackFee_gte: BigInt
+  callbackFee_lte: BigInt
+  callbackFee_in: [BigInt!]
+  callbackFee_not_in: [BigInt!]
   forceSlow: Boolean
   forceSlow_not: Boolean
   forceSlow_in: [Boolean!]
@@ -311,6 +335,14 @@ input testkovan_DestinationTransfer_filter {
   localAmount_lte: BigInt
   localAmount_in: [BigInt!]
   localAmount_not_in: [BigInt!]
+  sponsorVaultRelayerFee: BigInt
+  sponsorVaultRelayerFee_not: BigInt
+  sponsorVaultRelayerFee_gt: BigInt
+  sponsorVaultRelayerFee_lt: BigInt
+  sponsorVaultRelayerFee_gte: BigInt
+  sponsorVaultRelayerFee_lte: BigInt
+  sponsorVaultRelayerFee_in: [BigInt!]
+  sponsorVaultRelayerFee_not_in: [BigInt!]
   executedCaller: testkovan_Bytes
   executedCaller_not: testkovan_Bytes
   executedCaller_in: [testkovan_Bytes!]
@@ -412,6 +444,9 @@ enum testkovan_DestinationTransfer_orderBy {
   callData
   originDomain
   destinationDomain
+  recovery
+  callback
+  callbackFee
   forceSlow
   receiveLocal
   status
@@ -421,6 +456,7 @@ enum testkovan_DestinationTransfer_orderBy {
   transactingAmount
   localAsset
   localAmount
+  sponsorVaultRelayerFee
   executedCaller
   executedTransactionHash
   executedTimestamp
@@ -450,6 +486,9 @@ type testkovan_OriginTransfer {
   callData: testkovan_Bytes
   originDomain: BigInt
   destinationDomain: BigInt
+  recovery: testkovan_Bytes
+  callback: testkovan_Bytes
+  callbackFee: BigInt
   forceSlow: Boolean
   receiveLocal: Boolean
   status: testkovan_TransferStatus
@@ -526,6 +565,26 @@ input testkovan_OriginTransfer_filter {
   destinationDomain_lte: BigInt
   destinationDomain_in: [BigInt!]
   destinationDomain_not_in: [BigInt!]
+  recovery: testkovan_Bytes
+  recovery_not: testkovan_Bytes
+  recovery_in: [testkovan_Bytes!]
+  recovery_not_in: [testkovan_Bytes!]
+  recovery_contains: testkovan_Bytes
+  recovery_not_contains: testkovan_Bytes
+  callback: testkovan_Bytes
+  callback_not: testkovan_Bytes
+  callback_in: [testkovan_Bytes!]
+  callback_not_in: [testkovan_Bytes!]
+  callback_contains: testkovan_Bytes
+  callback_not_contains: testkovan_Bytes
+  callbackFee: BigInt
+  callbackFee_not: BigInt
+  callbackFee_gt: BigInt
+  callbackFee_lt: BigInt
+  callbackFee_gte: BigInt
+  callbackFee_lte: BigInt
+  callbackFee_in: [BigInt!]
+  callbackFee_not_in: [BigInt!]
   forceSlow: Boolean
   forceSlow_not: Boolean
   forceSlow_in: [Boolean!]
@@ -637,6 +696,9 @@ enum testkovan_OriginTransfer_orderBy {
   callData
   originDomain
   destinationDomain
+  recovery
+  callback
+  callbackFee
   forceSlow
   receiveLocal
   status
@@ -733,6 +795,84 @@ type Query {
     """
     subgraphError: _SubgraphErrorPolicy_! = deny
   ): [testkovan_Router!]!
+  testkovan_relayer(
+    id: ID!
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: testkovan_Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): testkovan_Relayer
+  testkovan_relayers(
+    skip: Int = 0
+    first: Int = 100
+    orderBy: testkovan_Relayer_orderBy
+    orderDirection: testkovan_OrderDirection
+    where: testkovan_Relayer_filter
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: testkovan_Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): [testkovan_Relayer!]!
+  testkovan_stableSwap(
+    id: ID!
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: testkovan_Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): testkovan_StableSwap
+  testkovan_stableSwaps(
+    skip: Int = 0
+    first: Int = 100
+    orderBy: testkovan_StableSwap_orderBy
+    orderDirection: testkovan_OrderDirection
+    where: testkovan_StableSwap_filter
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: testkovan_Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): [testkovan_StableSwap!]!
+  testkovan_sponsorVault(
+    id: ID!
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: testkovan_Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): testkovan_SponsorVault
+  testkovan_sponsorVaults(
+    skip: Int = 0
+    first: Int = 100
+    orderBy: testkovan_SponsorVault_orderBy
+    orderDirection: testkovan_OrderDirection
+    where: testkovan_SponsorVault_filter
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: testkovan_Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): [testkovan_SponsorVault!]!
   testkovan_originTransfer(
     id: ID!
     """
@@ -787,6 +927,41 @@ type Query {
   ): [testkovan_DestinationTransfer!]!
   """Access to subgraph metadata"""
   testkovan__meta(block: testkovan_Block_height): testkovan__Meta_
+}
+
+type testkovan_Relayer {
+  id: ID!
+  isActive: Boolean!
+  relayer: testkovan_Bytes
+}
+
+input testkovan_Relayer_filter {
+  id: ID
+  id_not: ID
+  id_gt: ID
+  id_lt: ID
+  id_gte: ID
+  id_lte: ID
+  id_in: [ID!]
+  id_not_in: [ID!]
+  isActive: Boolean
+  isActive_not: Boolean
+  isActive_in: [Boolean!]
+  isActive_not_in: [Boolean!]
+  relayer: testkovan_Bytes
+  relayer_not: testkovan_Bytes
+  relayer_in: [testkovan_Bytes!]
+  relayer_not_in: [testkovan_Bytes!]
+  relayer_contains: testkovan_Bytes
+  relayer_not_contains: testkovan_Bytes
+  """Filter for the block changed event."""
+  _change_block: testkovan_BlockChangedFilter
+}
+
+enum testkovan_Relayer_orderBy {
+  id
+  isActive
+  relayer
 }
 
 type testkovan_Router {
@@ -850,6 +1025,82 @@ enum testkovan_Router_orderBy {
   proposedOwner
   proposedTimestamp
   assetBalances
+}
+
+type testkovan_SponsorVault {
+  id: ID!
+  sponsorVault: testkovan_Bytes!
+}
+
+input testkovan_SponsorVault_filter {
+  id: ID
+  id_not: ID
+  id_gt: ID
+  id_lt: ID
+  id_gte: ID
+  id_lte: ID
+  id_in: [ID!]
+  id_not_in: [ID!]
+  sponsorVault: testkovan_Bytes
+  sponsorVault_not: testkovan_Bytes
+  sponsorVault_in: [testkovan_Bytes!]
+  sponsorVault_not_in: [testkovan_Bytes!]
+  sponsorVault_contains: testkovan_Bytes
+  sponsorVault_not_contains: testkovan_Bytes
+  """Filter for the block changed event."""
+  _change_block: testkovan_BlockChangedFilter
+}
+
+enum testkovan_SponsorVault_orderBy {
+  id
+  sponsorVault
+}
+
+type testkovan_StableSwap {
+  id: ID!
+  canonicalId: testkovan_Bytes!
+  domain: BigInt
+  swapPool: testkovan_Bytes!
+}
+
+input testkovan_StableSwap_filter {
+  id: ID
+  id_not: ID
+  id_gt: ID
+  id_lt: ID
+  id_gte: ID
+  id_lte: ID
+  id_in: [ID!]
+  id_not_in: [ID!]
+  canonicalId: testkovan_Bytes
+  canonicalId_not: testkovan_Bytes
+  canonicalId_in: [testkovan_Bytes!]
+  canonicalId_not_in: [testkovan_Bytes!]
+  canonicalId_contains: testkovan_Bytes
+  canonicalId_not_contains: testkovan_Bytes
+  domain: BigInt
+  domain_not: BigInt
+  domain_gt: BigInt
+  domain_lt: BigInt
+  domain_gte: BigInt
+  domain_lte: BigInt
+  domain_in: [BigInt!]
+  domain_not_in: [BigInt!]
+  swapPool: testkovan_Bytes
+  swapPool_not: testkovan_Bytes
+  swapPool_in: [testkovan_Bytes!]
+  swapPool_not_in: [testkovan_Bytes!]
+  swapPool_contains: testkovan_Bytes
+  swapPool_not_contains: testkovan_Bytes
+  """Filter for the block changed event."""
+  _change_block: testkovan_BlockChangedFilter
+}
+
+enum testkovan_StableSwap_orderBy {
+  id
+  canonicalId
+  domain
+  swapPool
 }
 
 type Subscription {
@@ -931,6 +1182,84 @@ type Subscription {
     """
     subgraphError: _SubgraphErrorPolicy_! = deny
   ): [testkovan_Router!]!
+  testkovan_relayer(
+    id: ID!
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: testkovan_Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): testkovan_Relayer
+  testkovan_relayers(
+    skip: Int = 0
+    first: Int = 100
+    orderBy: testkovan_Relayer_orderBy
+    orderDirection: testkovan_OrderDirection
+    where: testkovan_Relayer_filter
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: testkovan_Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): [testkovan_Relayer!]!
+  testkovan_stableSwap(
+    id: ID!
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: testkovan_Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): testkovan_StableSwap
+  testkovan_stableSwaps(
+    skip: Int = 0
+    first: Int = 100
+    orderBy: testkovan_StableSwap_orderBy
+    orderDirection: testkovan_OrderDirection
+    where: testkovan_StableSwap_filter
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: testkovan_Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): [testkovan_StableSwap!]!
+  testkovan_sponsorVault(
+    id: ID!
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: testkovan_Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): testkovan_SponsorVault
+  testkovan_sponsorVaults(
+    skip: Int = 0
+    first: Int = 100
+    orderBy: testkovan_SponsorVault_orderBy
+    orderDirection: testkovan_OrderDirection
+    where: testkovan_SponsorVault_filter
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: testkovan_Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): [testkovan_SponsorVault!]!
   testkovan_originTransfer(
     id: ID!
     """
@@ -991,7 +1320,8 @@ enum testkovan_TransferStatus {
   XCalled
   Executed
   Reconciled
-  Completed
+  CompletedSlow
+  CompletedFast
 }
 
 type testkovan__Block_ {
