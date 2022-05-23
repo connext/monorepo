@@ -52,6 +52,9 @@ describe("Operations:Execute", () => {
         router: mockRouter,
         signatures: {
           "1": mock.signature,
+          "2": mock.signature,
+          "3": mock.signature,
+          "4": mock.signature,
         },
       };
 
@@ -67,8 +70,30 @@ describe("Operations:Execute", () => {
         mockXTransfer.origin.assets.bridged.asset,
         mockXTransfer.destinationDomain,
       );
-      expect(mock.helpers.shared.signRouterPathPayload).to.be.calledOnce;
+      expect(mock.helpers.shared.signRouterPathPayload).to.be.callCount(4);
       expect(mock.helpers.auctions.sendBid.getCall(0).args.slice(0, 1)).to.deep.equal([expectedBid]);
+    });
+
+    it("should choose rounds properly", async () => {
+      const _mockXTransfer = mock.entity.xtransfer({
+        amount: "200",
+      });
+      const _expectedBid: Bid = {
+        transferId: _mockXTransfer.transferId,
+        origin: _mockXTransfer.originDomain,
+        fee: DEFAULT_ROUTER_FEE,
+        router: mockRouter,
+        signatures: {
+          "2": mock.signature,
+          "3": mock.signature,
+          "4": mock.signature,
+        },
+      };
+
+      mockContext.adapters.subgraph.getAssetBalance.resolves("100");
+
+      await execute(_mockXTransfer);
+      expect(mock.helpers.auctions.sendBid.getCall(1).args.slice(0, 1)).to.deep.equal([_expectedBid]);
     });
 
     it("happy with calldata", async () => {
