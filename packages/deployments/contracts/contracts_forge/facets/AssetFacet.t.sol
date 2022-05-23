@@ -1,9 +1,6 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity 0.8.11;
 
-// import {ECDSA} from "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
-// import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
-
 import {LibDiamond} from "../../contracts/libraries/LibDiamond.sol";
 import {IStableSwap} from "../../contracts/interfaces/IStableSwap.sol";
 import {ITokenRegistry} from "../../contracts/nomad-xapps/interfaces/bridge/ITokenRegistry.sol";
@@ -34,22 +31,6 @@ contract AssetFacetTest is AssetFacet, FacetHelper {
   // ============ Test set up ============
   function setUp() public {
     setOwner(_owner);
-    // deploy any needed contracts
-    // deployContracts();
-    // set defaults
-    // setDefaults();
-    // vm.mockCall(
-    //   _tokenRegistry,
-    //   abi.encodeWithSelector(ITokenRegistry.getTokenId.selector),
-    //   abi.encode(_canonicalDomain, _canonicalTokenId)
-    // );
-    // // setup asset context (use local == adopted)
-    // s.adoptedToCanonical[_local] = ConnextMessage.TokenId(_canonicalDomain, _canonicalTokenId);
-    // s.adoptedToLocalPools[_canonicalTokenId] = IStableSwap(address(0));
-    // s.canonicalToAdopted[_canonicalTokenId] = _local;
-    // // setup other context
-    // s.approvedRelayers[address(this)] = true;
-    // s.maxRoutersPerTransfer = 5;
   }
 
   // ============ Utils ==============
@@ -65,7 +46,6 @@ contract AssetFacetTest is AssetFacet, FacetHelper {
     address pool,
     address wrapper
   ) public {
-    // address wrapper = address(new MockWrapper());
     address key = asset == address(0) ? wrapper : asset;
     ConnextMessage.TokenId memory canonical = ConnextMessage.TokenId(_domain, _canonicalTokenId);
 
@@ -75,7 +55,6 @@ contract AssetFacetTest is AssetFacet, FacetHelper {
     vm.expectEmit(true, true, false, true);
     emit StableSwapAdded(_canonicalTokenId, _domain, pool, _owner);
 
-    // vm.prank(_owner);
     this.setupAsset(canonical, asset, pool);
     assertTrue(s.approvedAssets[_canonicalTokenId]);
     assertEq(s.adoptedToCanonical[key].domain, _domain);
@@ -86,13 +65,11 @@ contract AssetFacetTest is AssetFacet, FacetHelper {
 
   // Calls removeAsset and asserts state changes/events
   function removeAssetAndAssert(address adopted, address wrapper) public {
-    // address wrapper = address(new MockWrapper());
     address key = adopted == address(0) ? wrapper : adopted;
 
     vm.expectEmit(true, true, false, true);
     emit AssetRemoved(_canonicalTokenId, _owner);
 
-    // vm.prank(_owner);
     this.removeAssetId(_canonicalTokenId, adopted);
     assertEq(s.approvedAssets[_canonicalTokenId], false);
     assertEq(s.adoptedToCanonical[key].domain, 0);
