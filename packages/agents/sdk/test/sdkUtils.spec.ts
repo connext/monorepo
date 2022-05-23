@@ -1,15 +1,21 @@
 import { expect } from "@connext/nxtp-utils";
+import { stub, restore, reset } from "sinon";
 import { mock } from "./mock";
 import { create, NxtpSdkUtils } from "../src";
 import { getConfig } from "../src/config";
 
 describe("SdkUtils", () => {
   let nxtpSdkUtils: NxtpSdkUtils;
-  before(async () => {
+  beforeEach(async () => {
     const config = await getConfig(mock.config, mock.chainData, mock.deployments);
     const { nxtpSdkUtils: _nxtpSdkUtils } = await create(config);
 
     nxtpSdkUtils = _nxtpSdkUtils;
+  });
+
+  afterEach(async () => {
+    restore();
+    reset();
   });
   describe("#create", () => {
     it("happy: should work", async () => {

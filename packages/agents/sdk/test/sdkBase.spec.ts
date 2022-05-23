@@ -2,20 +2,29 @@ import { stub, restore, reset } from "sinon";
 import { expect } from "@connext/nxtp-utils";
 import { mock } from "./mock";
 import { create, NxtpSdkBase } from "../src";
-import { getConfig } from "../src/config";
+import { getConfig, getEnvConfig } from "../src/config";
 import { ChainDataUndefined } from "../src/lib/errors";
+
+import * as ConfigFns from "../src/config";
 import * as SharedFns from "../src/lib/helpers/shared";
+
+const mockConfig = mock.config();
+const mockChainData = mock.chainData();
+const mockDeployments = mock.contracts.deployments();
 
 describe("SdkBase", () => {
   let nxtpSdkBase: NxtpSdkBase;
-  beforeEach(async () => {
-    const config = await getConfig(mock.config, mock.chainData, mock.deployments);
+  let config;
+
+  before(async () => {
+    config = getEnvConfig(mockConfig, mockChainData, mockDeployments);
+    stub(ConfigFns, "getConfig").resolves(config);
+
     const { nxtpSdkBase: _nxtpSdkBase } = await create(config);
 
     nxtpSdkBase = _nxtpSdkBase;
   });
-
-  afterEach(async () => {
+  afterEach(() => {
     restore();
     reset();
   });
@@ -29,9 +38,8 @@ describe("SdkBase", () => {
     });
 
     it("should error if chaindata is undefined", async () => {
-      stub(SharedFns, "getChainData").returns(undefined);
-      const mConfig = await getConfig(mock.config, undefined, mock.deployments);
-      await expect(create(mConfig)).to.be.rejectedWith(ChainDataUndefined);
+      stub(SharedFns, "getChainData").resolves(undefined);
+      await expect(create(config)).to.be.rejectedWith(ChainDataUndefined);
     });
   });
 
@@ -40,7 +48,8 @@ describe("SdkBase", () => {
       expect(nxtpSdkBase).to.not.be.undefined;
 
       expect(nxtpSdkBase.approveIfNeeded).to.be.a("function");
-      expect(async () => await nxtpSdkBase.approveIfNeeded(mock.domain.A, mock.asset.A.address, "1")).not.throw();
+
+      await expect(nxtpSdkBase.approveIfNeeded(mock.domain.A, mock.asset.A.address, "1")).not.throw();
 
       // check the transactionRequest
     });
