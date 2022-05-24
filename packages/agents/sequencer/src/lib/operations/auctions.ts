@@ -181,8 +181,17 @@ export const executeAuctions = async (_requestContext: RequestContext) => {
         }
 
         const bidsRoundMap = getBidsRoundMap(bids, config.auctionRoundDepth);
+        if ([...Object.keys(bidsRoundMap)].length < 1) {
+          logger.warn("No rounds available for this transferId", requestContext, methodContext, {
+            bidsRoundMap,
+            transferId,
+          });
 
-        // hardcoded round 1
+          continue;
+        }
+
+        for (const roundIdx of [...Object.keys(bidsRoundMap)]) {
+        }
         const availableBids = Object.values(bids).filter((bid) => {
           // TODO: Check to make sure this specific router has enough funds to execute this bid! Right now,
           // all we are doing is an estimateGas call in sendToRelayer below.
@@ -199,7 +208,7 @@ export const executeAuctions = async (_requestContext: RequestContext) => {
         }
 
         // TODO: Sort by fee amount, selecting the best bid available.
-        // Randomly sort the bids.
+        // Randomly sort the biU a
         const randomized = availableBids
           .map((value) => ({ value, sort: Math.random() }))
           .sort((a, b) => a.sort - b.sort)

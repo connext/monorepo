@@ -4,7 +4,7 @@ import { constants } from "ethers";
 import { getContext } from "../../sequencer";
 import { RoundInvalid } from "../errors";
 
-export const encodeExecuteFromBids = (bids: Bid[], transfer: OriginTransfer, local: string): string => {
+export const encodeExecuteFromBids = (round: number, bids: Bid[], transfer: OriginTransfer, local: string): string => {
   const {
     adapters: { contracts },
   } = getContext();
@@ -28,7 +28,7 @@ export const encodeExecuteFromBids = (bids: Bid[], transfer: OriginTransfer, loc
     },
     local,
     routers: bids.map((b) => b.router),
-    routerSignatures: bids.map((b) => b.signatures[bids.length.toString()]),
+    routerSignatures: bids.map((b) => b.signatures[round.toString()]),
     amount: transfer.origin.assets.bridged.amount,
     nonce: transfer.nonce,
     originSender: transfer.origin.xcall.caller,
@@ -71,12 +71,14 @@ export const getDestinationLocalAsset = async (
  * @param roundDepth - The maximum round which is allowed in the sequencer
  * @returns roundId -> array of bids
  */
-export const getBidsRoundMap = (bids: Record<string, Bid>, roundDepth: number): Record<string, Bid[]> => {
-  const availableBids: Record<string, Bid[]> = {};
+export const getBidsRoundMap = (bids: Record<string, Bid>, roundDepth: number): Record<number, Bid[]> => {
+  const availableBids: Record<number, Bid[]> = {};
   // Sanity checks and pick up valid bid combinations
   for (let roundIdx = 1; roundIdx <= roundDepth; roundIdx++) {
     const filteredBids = Object.values(bids).filter((bid) => {
       return Array.from(Object.keys(bid.signatures)).includes(roundIdx.toString());
+    }).map((bid) => {
+      return {...bid, signatures : { roundIdx.toString() : bid.signatures[roundIdx.toString()]}}
     });
 
     // We need 2 ^ (roundIdx - 1) of different bids at least for roundIdx
@@ -100,4 +102,41 @@ export const getMinimumBidsCountForRound = (round: number): number => {
     throw new RoundInvalid({ round, auctionRoundDepth: config.auctionRoundDepth });
   }
   return Math.pow(2, round - 1);
+};
+
+/**
+ * Generate all combinations of an array.
+ * @param sources - Array of input elements.
+ * @param length - Desired length of combinations.
+ * @return - The list of combination arrays.
+ */
+export const generateCombinations = (sources: any[], length: number): any[] => {
+  const sourceLength = sources.length;
+  if (length > sourceLength) return [];
+
+  const combos: any[] = []; // Stores valid combinations as they are generated.
+
+  // Accepts a partial combination, an index into sourceArray,
+  // and the number of elements required to be added to create a full-length combination.
+  // Called recursively to build combinations, adding subsequent elements at each call depth.
+  const makeNextCombos = (workingCombo: any[], currentIndex: number, remainingCount: number) => {
+    const oneAwayFromComboLength = remainingCount == 1;
+
+    // For each element that remaines to be added to the working combination.
+    for (let sourceIndex = currentIndex; sourceIndex < sourceLength; sourceIndex++) {
+      // Get next (possibly partial) combination.
+      const next = [...workingCombo, sources[sourceIndex]];
+
+      if (oneAwayFromComboLength) {
+        // Combo of right length found, save it.
+        combos.push(next);
+      } else {
+        // Otherwise go deeper to add more elements to the current partial combination.
+        makeNextCombos(next, sourceIndex + 1, remainingCount - 1);
+      }
+    }
+  };
+
+  makeNextCombos([], 0, length);
+  return combos;
 };
