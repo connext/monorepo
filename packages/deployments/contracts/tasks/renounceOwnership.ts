@@ -30,29 +30,19 @@ export default task("renounce-ownership", "Renounce Ownership")
     const connext = new Contract(connextAddress, connextDeployment.abi, deployer);
     console.log("connextAddress: ", connextAddress);
 
-    let isRenouncedFunction;
     let ownershipTimestampFunction;
     let proposeRenunciationFunction;
     let renounceFunction;
     if (type === "router") {
-      isRenouncedFunction = connext.isRouterOwnershipRenounced;
       ownershipTimestampFunction = connext.routerOwnershipTimestamp;
       proposeRenunciationFunction = connext.proposeRouterOwnershipRenunciation;
       renounceFunction = connext.renounceRouterOwnership;
     } else if (type === "asset") {
-      isRenouncedFunction = connext.isAssetOwnershipRenounced;
       ownershipTimestampFunction = connext.assetOwnershipTimestamp;
       proposeRenunciationFunction = connext.proposeAssetOwnershipRenunciation;
       renounceFunction = connext.renounceAssetOwnership;
     } else {
       throw new Error("Unsupported type");
-    }
-
-    let ownershipRenounced = await isRenouncedFunction();
-    console.log("ownershipRenounced: ", ownershipRenounced);
-    if (ownershipRenounced === true) {
-      console.log("Ownership has been renounced already");
-      return;
     }
 
     const ownershipTimestamp: BigNumber = await ownershipTimestampFunction();
@@ -67,7 +57,7 @@ export default task("renounce-ownership", "Renounce Ownership")
       console.log("proposeRenunciationFunction tx: ", tx);
       await tx.wait();
       const ownershipTimestamp = await ownershipTimestampFunction();
-      console.log("ownershipTimestamp: ", ownershipTimestamp);
+      console.log("ownershipTimestamp: ", ownershipTimestamp.toString());
       return;
     }
 
@@ -81,7 +71,6 @@ export default task("renounce-ownership", "Renounce Ownership")
     console.log("Delay has expired, proceeding with renunciation");
     const tx = await renounceFunction();
     console.log("renounceFunction tx: ", tx);
-    await tx.wait();
-    ownershipRenounced = await isRenouncedFunction();
-    console.log("ownershipRenounced: ", ownershipRenounced);
+    const rec = await tx.wait();
+    console.log("renounceFunction tx mined! ", rec);
   });
