@@ -307,13 +307,15 @@ export const executeAuctions = async (_requestContext: RequestContext) => {
               break;
             } catch (error: any) {
               logger.error(
-                "Failed to send to relayer, trying next bid if possible",
+                "Failed to send to relayer, trying next combination if possible",
                 requestContext,
                 methodContext,
                 jsonifyError(error as Error),
                 {
                   transferId,
-                  availableBidsCount: availableBids.length,
+                  round: roundIdInNum,
+                  combinations: randomized,
+                  bidsCount: randomCombination.length,
                 },
               );
             }
