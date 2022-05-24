@@ -75,11 +75,15 @@ export const getBidsRoundMap = (bids: Record<string, Bid>, roundDepth: number): 
   const availableBids: Record<number, Bid[]> = {};
   // Sanity checks and pick up valid bid combinations
   for (let roundIdx = 1; roundIdx <= roundDepth; roundIdx++) {
-    const filteredBids = Object.values(bids).filter((bid) => {
-      return Array.from(Object.keys(bid.signatures)).includes(roundIdx.toString());
-    }).map((bid) => {
-      return {...bid, signatures : { roundIdx.toString() : bid.signatures[roundIdx.toString()]}}
-    });
+    const filteredBids = Object.values(bids)
+      .filter((bid) => {
+        return Array.from(Object.keys(bid.signatures)).includes(roundIdx.toString());
+      })
+      .map((bid) => {
+        const signatures: Record<string, string> = {};
+        signatures[roundIdx.toString()] = bid.signatures[roundIdx].toString();
+        return { ...bid, signatures };
+      });
 
     // We need 2 ^ (roundIdx - 1) of different bids at least for roundIdx
     if (filteredBids.length >= getMinimumBidsCountForRound(roundIdx)) {

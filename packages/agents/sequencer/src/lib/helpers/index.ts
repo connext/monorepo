@@ -1,5 +1,11 @@
 import { gelatoSend, isChainSupportedByGelato, getGelatoRelayerAddress } from "./relayer";
-import { encodeExecuteFromBids, getDestinationLocalAsset, getBidsRoundMap } from "./auctions";
+import {
+  encodeExecuteFromBids,
+  getDestinationLocalAsset,
+  getBidsRoundMap,
+  generateCombinations,
+  getMinimumBidsCountForRound,
+} from "./auctions";
 
 export const getHelpers = () => {
   return {
@@ -12,6 +18,8 @@ export const getHelpers = () => {
       encodeExecuteFromBids,
       getDestinationLocalAsset,
       getBidsRoundMap,
+      generateCombinations,
+      getMinimumBidsCountForRound,
     },
   };
 };
