@@ -32,6 +32,10 @@ contract RoutersFacetTest is RoutersFacet, FacetHelper {
   address _routerRecipient0 = address(222000222); // 0x000000000000000000000000000000000d3b745e
   address _routerOwner0 = address(222000333); // 0x000000000000000000000000000000000d3b74cd
 
+  address _routerAgent1 = address(222001111);
+  address _routerRecipient1 = address(222001222);
+  address _routerOwner1 = address(222001333);
+
   address _asset0 = address(333000111);
   address _asset1 = address(333001111);
 
@@ -137,6 +141,7 @@ contract RoutersFacetTest is RoutersFacet, FacetHelper {
 
   // ============ Admin methods ==============
 
+  // setupRouter
   function test_RoutersFacet__setupRouter_success() public {
     assertEq(s.routerPermissionInfo.approvedRouters[_routerAgent0], false);
 
@@ -155,22 +160,270 @@ contract RoutersFacetTest is RoutersFacet, FacetHelper {
     assertEq(s.routerPermissionInfo.approvedRouters[_routerAgent0], true);
     assertEq(s.routerPermissionInfo.routerOwners[_routerAgent0], _routerOwner0);
     assertEq(s.routerPermissionInfo.routerRecipients[_routerAgent0], _routerRecipient0);
+
+    // Should never touch these values:
+    assertEq(s.routerPermissionInfo.proposedRouterOwners[_routerAgent0], address(0));
+    assertEq(s.routerPermissionInfo.proposedRouterTimestamp[_routerAgent0], 0);
   }
 
-  // function test_RoutersFacet__setupRouter_failsIfRouterAddressIsZero
-  // function test_RoutersFacet__setupRouter_failsIfRouterAlreadyApproved
-  // function test_RoutersFacet__setupRouter_shouldAccept0Owner
-  // function test_RoutersFacet__setupRouter_shouldAccept0Recipient
-  // function test_RoutersFacet__setupRouter
+  function test_RoutersFacet__setupRouter_failsIfRouterAddressIsZero() public {
+    vm.expectRevert(RoutersFacet.RoutersFacet__setupRouter_routerEmpty.selector);
+    vm.prank(_owner);
+    this.setupRouter(address(0), _routerOwner0, _routerRecipient0);
+  }
 
-  // function test_RoutersFacet__removeRouter
-  // function test_RoutersFacet__setMaxRoutersPerTransfer
-  // function test_RoutersFacet__setLiquidityFeeNumerator
+  function test_RoutersFacet__setupRouter_failsIfRouterAlreadyApproved() public {
+    s.routerPermissionInfo.approvedRouters[_routerAgent0] = true;
+    vm.expectRevert(RoutersFacet.RoutersFacet__setupRouter_alreadyAdded.selector);
+    vm.prank(_owner);
+    this.setupRouter(_routerAgent0, _routerOwner0, _routerRecipient0);
+  }
+
+  function test_RoutersFacet__setupRouter_shouldHandleNoOwner() public {
+    vm.expectEmit(true, true, false, true);
+    emit RouterAdded(_routerAgent0, _owner);
+
+    vm.expectEmit(true, true, false, true);
+    emit RouterRecipientSet(_routerAgent0, address(0), _routerRecipient0);
+
+    vm.prank(_owner);
+    this.setupRouter(_routerAgent0, address(0), _routerRecipient0);
+
+    assertEq(s.routerPermissionInfo.approvedRouters[_routerAgent0], true);
+    assertEq(s.routerPermissionInfo.routerOwners[_routerAgent0], address(0));
+    assertEq(s.routerPermissionInfo.routerRecipients[_routerAgent0], _routerRecipient0);
+  }
+
+  function test_RoutersFacet__setupRouter_shouldHandleNoRecipient() public {
+    vm.expectEmit(true, true, false, true);
+    emit RouterAdded(_routerAgent0, _owner);
+
+    vm.expectEmit(true, true, false, true);
+    emit RouterOwnerAccepted(_routerAgent0, address(0), _routerOwner0);
+
+    vm.prank(_owner);
+    this.setupRouter(_routerAgent0, _routerOwner0, address(0));
+
+    assertEq(s.routerPermissionInfo.approvedRouters[_routerAgent0], true);
+    assertEq(s.routerPermissionInfo.routerOwners[_routerAgent0], _routerOwner0);
+    assertEq(s.routerPermissionInfo.routerRecipients[_routerAgent0], address(0));
+  }
+
+  // removeRouter
+  function test_RoutersFacet__removeRouter_success() public {
+    s.routerPermissionInfo.approvedRouters[_routerAgent0] = true;
+    s.routerPermissionInfo.routerOwners[_routerAgent0] = _routerOwner0;
+    s.routerPermissionInfo.routerRecipients[_routerAgent0] = _routerRecipient0;
+    // Should also remove these values, if they were previously set.
+    s.routerPermissionInfo.proposedRouterOwners[_routerAgent0] = _routerOwner1;
+    s.routerPermissionInfo.proposedRouterTimestamp[_routerAgent0] = 12345;
+
+    vm.expectEmit(true, true, false, true);
+    emit RouterRemoved(_routerAgent0, _owner);
+
+    vm.expectEmit(true, true, false, true);
+    emit RouterOwnerAccepted(_routerAgent0, _routerOwner0, address(0));
+
+    vm.expectEmit(true, true, false, true);
+    emit RouterRecipientSet(_routerAgent0, _routerRecipient0, address(0));
+
+    vm.prank(_owner);
+    this.removeRouter(_routerAgent0);
+
+    assertEq(s.routerPermissionInfo.approvedRouters[_routerAgent0], false);
+    assertEq(s.routerPermissionInfo.routerOwners[_routerAgent0], address(0));
+    assertEq(s.routerPermissionInfo.routerRecipients[_routerAgent0], address(0));
+    assertEq(s.routerPermissionInfo.proposedRouterOwners[_routerAgent0], address(0));
+    assertEq(s.routerPermissionInfo.proposedRouterTimestamp[_routerAgent0], 0);
+  }
+
+  function test_RoutersFacet__removeRouter_failsIfRouterAddressIsZero() public {
+    vm.expectRevert(RoutersFacet.RoutersFacet__removeRouter_routerEmpty.selector);
+    vm.prank(_owner);
+    this.removeRouter(address(0));
+  }
+
+  function test_RoutersFacet__removeRouter_failsIfRouterNotApproved() public {
+    vm.expectRevert(RoutersFacet.RoutersFacet__removeRouter_notAdded.selector);
+    vm.prank(_owner);
+    this.removeRouter(_routerAgent0);
+  }
+
+  function test_RoutersFacet__removeRouter_handlesNoOwner() public {
+    s.routerPermissionInfo.approvedRouters[_routerAgent0] = true;
+    s.routerPermissionInfo.routerOwners[_routerAgent0] = address(0);
+    s.routerPermissionInfo.routerRecipients[_routerAgent0] = _routerRecipient0;
+    s.routerPermissionInfo.proposedRouterOwners[_routerAgent0] = _routerOwner1;
+    s.routerPermissionInfo.proposedRouterTimestamp[_routerAgent0] = 12345;
+
+    vm.expectEmit(true, true, false, true);
+    emit RouterRemoved(_routerAgent0, _owner);
+
+    vm.expectEmit(true, true, false, true);
+    emit RouterRecipientSet(_routerAgent0, _routerRecipient0, address(0));
+
+    vm.prank(_owner);
+    this.removeRouter(_routerAgent0);
+
+    assertEq(s.routerPermissionInfo.approvedRouters[_routerAgent0], false);
+    assertEq(s.routerPermissionInfo.routerOwners[_routerAgent0], address(0));
+    assertEq(s.routerPermissionInfo.routerRecipients[_routerAgent0], address(0));
+    assertEq(s.routerPermissionInfo.proposedRouterOwners[_routerAgent0], address(0));
+    assertEq(s.routerPermissionInfo.proposedRouterTimestamp[_routerAgent0], 0);
+  }
+
+  function test_RoutersFacet__removeRouter_handlesNoRecipient() public {
+    s.routerPermissionInfo.approvedRouters[_routerAgent0] = true;
+    s.routerPermissionInfo.routerOwners[_routerAgent0] = _routerOwner0;
+    s.routerPermissionInfo.routerRecipients[_routerAgent0] = address(0);
+    s.routerPermissionInfo.proposedRouterOwners[_routerAgent0] = _routerOwner1;
+    s.routerPermissionInfo.proposedRouterTimestamp[_routerAgent0] = 12345;
+
+    vm.expectEmit(true, true, false, true);
+    emit RouterRemoved(_routerAgent0, _owner);
+
+    vm.expectEmit(true, true, false, true);
+    emit RouterOwnerAccepted(_routerAgent0, _routerOwner0, address(0));
+
+    vm.prank(_owner);
+    this.removeRouter(_routerAgent0);
+
+    assertEq(s.routerPermissionInfo.approvedRouters[_routerAgent0], false);
+    assertEq(s.routerPermissionInfo.routerOwners[_routerAgent0], address(0));
+    assertEq(s.routerPermissionInfo.routerRecipients[_routerAgent0], address(0));
+    assertEq(s.routerPermissionInfo.proposedRouterOwners[_routerAgent0], address(0));
+    assertEq(s.routerPermissionInfo.proposedRouterTimestamp[_routerAgent0], 0);
+  }
+
+  // setMaxRoutersPerTransfer
+  function test_RoutersFacet__setMaxRoutersPerTransfer_success() public {
+    // Change from zero.
+    vm.expectEmit(true, true, false, true);
+    emit MaxRoutersPerTransferUpdated(123, _owner);
+
+    s.maxRoutersPerTransfer = 0;
+    vm.prank(_owner);
+    this.setMaxRoutersPerTransfer(123);
+    assertEq(s.maxRoutersPerTransfer, 123);
+
+    // Increasable.
+    vm.expectEmit(true, true, false, true);
+    emit MaxRoutersPerTransferUpdated(9999999, _owner);
+
+    s.maxRoutersPerTransfer = 777;
+    vm.prank(_owner);
+    this.setMaxRoutersPerTransfer(9999999);
+    assertEq(s.maxRoutersPerTransfer, 9999999);
+
+    // Decreasable.
+    vm.expectEmit(true, true, false, true);
+    emit MaxRoutersPerTransferUpdated(1, _owner);
+
+    s.maxRoutersPerTransfer = 777;
+    vm.prank(_owner);
+    this.setMaxRoutersPerTransfer(1);
+    assertEq(s.maxRoutersPerTransfer, 1);
+  }
+
+  function test_RoutersFacet__setMaxRoutersPerTransfer_failsIfZero() public {
+    s.maxRoutersPerTransfer = 10;
+    vm.expectRevert(RoutersFacet.RoutersFacet__setMaxRoutersPerTransfer_invalidMaxRoutersPerTransfer.selector);
+    vm.prank(_owner);
+    this.setMaxRoutersPerTransfer(0);
+    assertEq(s.maxRoutersPerTransfer, 10);
+  }
+
+  function test_RoutersFacet__setMaxRoutersPerTransfer_failsIfRedundant() public {
+    s.maxRoutersPerTransfer = 10;
+    vm.expectRevert(RoutersFacet.RoutersFacet__setMaxRoutersPerTransfer_invalidMaxRoutersPerTransfer.selector);
+    vm.prank(_owner);
+    this.setMaxRoutersPerTransfer(10);
+
+    assertEq(s.maxRoutersPerTransfer, 10);
+  }
+
+  // setLiquidityFeeNumerator
+  function test_RoutersFacet__setLiquidityFeeNumerator_success() public {
+    s.LIQUIDITY_FEE_DENOMINATOR = 10000;
+    s.LIQUIDITY_FEE_NUMERATOR = 9995; // Fee is currently 5 basis points.
+
+    vm.expectEmit(true, true, false, true);
+    emit LiquidityFeeNumeratorUpdated(9970, _owner);
+
+    vm.prank(_owner);
+    this.setLiquidityFeeNumerator(9970); // Set fee to 30 basis points.
+    assertEq(s.LIQUIDITY_FEE_NUMERATOR, 9970);
+  }
+
+  function test_RoutersFacet__setLiquidityFeeNumerator_failsIfTooSmall() public {
+    s.LIQUIDITY_FEE_DENOMINATOR = 10000;
+    s.LIQUIDITY_FEE_NUMERATOR = 9995; // Fee is currently 5 basis points.
+
+    vm.expectRevert(RoutersFacet.RoutersFacet__setLiquidityFeeNumerator_tooSmall.selector);
+    vm.prank(_owner);
+    // Set fee to 600 basis points, which is over the 5% limit.
+    this.setLiquidityFeeNumerator(9400);
+    assertEq(s.LIQUIDITY_FEE_NUMERATOR, 9995);
+  }
+
+  function test_RoutersFacet__setLiquidityFeeNumerator_failsIfTooLarge() public {
+    s.LIQUIDITY_FEE_DENOMINATOR = 10000;
+    s.LIQUIDITY_FEE_NUMERATOR = 9995; // Fee is currently 5 basis points.
+
+    vm.expectRevert(RoutersFacet.RoutersFacet__setLiquidityFeeNumerator_tooLarge.selector);
+    vm.prank(_owner);
+    // Set fee to -100 basis points, literally making the routers give users free money.
+    this.setLiquidityFeeNumerator(10100);
+    assertEq(s.LIQUIDITY_FEE_NUMERATOR, 9995);
+  }
 
   // ============ Public methods ==============
+  // setRouterRecipient
+  function test_RoutersFacet__setRouterRecipient_success() public {
+    s.routerPermissionInfo.approvedRouters[_routerAgent0] = true;
+    s.routerPermissionInfo.routerOwners[_routerAgent0] = _routerOwner0;
+    s.routerPermissionInfo.routerRecipients[_routerAgent0] = _routerRecipient0;
+
+    vm.expectEmit(true, true, false, true);
+    emit RouterRecipientSet(_routerAgent0, _routerRecipient0, _routerRecipient1);
+
+    // Call must come from router owner.
+    vm.prank(_routerOwner0);
+    this.setRouterRecipient(_routerAgent0, _routerRecipient1);
+
+    assertEq(s.routerPermissionInfo.routerRecipients[_routerAgent0], _routerRecipient1);
+
+    // Shouldn't change any of these values:
+    assertEq(s.routerPermissionInfo.approvedRouters[_routerAgent0], true);
+    assertEq(s.routerPermissionInfo.routerOwners[_routerAgent0], _routerOwner0);
+    assertEq(s.routerPermissionInfo.proposedRouterOwners[_routerAgent0], address(0));
+    assertEq(s.routerPermissionInfo.proposedRouterTimestamp[_routerAgent0], 0);
+  }
+
+  function test_RoutersFacet__setRouterRecipient_failsIfRedundantRecipient() public {
+    s.routerPermissionInfo.approvedRouters[_routerAgent0] = true;
+    s.routerPermissionInfo.routerOwners[_routerAgent0] = _routerOwner0;
+    s.routerPermissionInfo.routerRecipients[_routerAgent0] = _routerRecipient0;
+
+    vm.expectRevert(RoutersFacet.RoutersFacet__setRouterRecipient_notNewRecipient.selector);
+    vm.prank(_routerOwner0);
+    this.setRouterRecipient(_routerAgent0, _routerRecipient0);
+
+    assertEq(s.routerPermissionInfo.routerRecipients[_routerAgent0], _routerRecipient0);
+  }
 
   // function test_RoutersFacet__setRouterRecipient
+
+  // function test_RoutersFacet__proposeRouterOwner_success() public {
+
+  // }
+
+  // function test_RoutersFacet__proposeRouterOwner_failsIfRouterNotApproved() public {
+
+  // }
   // function test_RoutersFacet__proposeRouterOwner
+  // function test_RoutersFacet__proposeRouterOwner
+
   // function test_RoutersFacet__acceptProposedRouterOwner
   // function test_RoutersFacet__addRouterLiquidityFor
   // function test_RoutersFacet__addRouterLiquidity

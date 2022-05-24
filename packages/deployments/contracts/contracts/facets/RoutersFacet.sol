@@ -44,6 +44,7 @@ contract RoutersFacet is BaseConnextFacet {
   error RoutersFacet__removeRouterLiquidity_amountIsZero();
   error RoutersFacet__removeRouterLiquidity_insufficientFunds();
   error RoutersFacet__setLiquidityFeeNumerator_tooSmall();
+  error RoutersFacet__setLiquidityFeeNumerator_tooLarge();
 
   // ============ Properties ============
 
@@ -291,6 +292,10 @@ contract RoutersFacet is BaseConnextFacet {
       // delete routerRecipients[router];
       s.routerPermissionInfo.routerRecipients[router] = address(0);
     }
+
+    // Clear any proposed ownership changes
+    s.routerPermissionInfo.proposedRouterOwners[router] = address(0);
+    s.routerPermissionInfo.proposedRouterTimestamp[router] = 0;
   }
 
   /**
@@ -312,7 +317,12 @@ contract RoutersFacet is BaseConnextFacet {
    * @param _numerator new LIQUIDITY_FEE_NUMERATOR
    */
   function setLiquidityFeeNumerator(uint256 _numerator) external onlyOwner {
-    if (_numerator < (s.LIQUIDITY_FEE_DENOMINATOR * 100) / 95) revert RoutersFacet__setLiquidityFeeNumerator_tooSmall();
+    // Slightly misleading: the liquidity fee numerator is not the amount charged,
+    // but the amount received after fees are deducted (e.g. 9995/10000 would be .005%).
+    uint256 denominator = s.LIQUIDITY_FEE_DENOMINATOR;
+    if (_numerator < (denominator * 95) / 100) revert RoutersFacet__setLiquidityFeeNumerator_tooSmall();
+
+    if (_numerator > denominator) revert RoutersFacet__setLiquidityFeeNumerator_tooLarge();
     s.LIQUIDITY_FEE_NUMERATOR = _numerator;
 
     emit LiquidityFeeNumeratorUpdated(_numerator, msg.sender);
