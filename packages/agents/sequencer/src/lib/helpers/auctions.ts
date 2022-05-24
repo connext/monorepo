@@ -112,7 +112,7 @@ export const getMinimumBidsCountForRound = (round: number): number => {
  * Generate all combinations of an array.
  * @param sources - Array of input elements.
  * @param length - Desired length of combinations.
- * @return - The list of combination arrays.
+ * @return - Array of combination arrays.
  */
 export const generateCombinations = (sources: any[], length: number): any[] => {
   const sourceLength = sources.length;
@@ -120,7 +120,7 @@ export const generateCombinations = (sources: any[], length: number): any[] => {
 
   const combos: any[] = []; // Stores valid combinations as they are generated.
 
-  // Accepts a partial combination, an index into sourceArray,
+  // Accepts a partial combination, an index into sources,
   // and the number of elements required to be added to create a full-length combination.
   // Called recursively to build combinations, adding subsequent elements at each call depth.
   const makeNextCombos = (workingCombo: any[], currentIndex: number, remainingCount: number) => {
