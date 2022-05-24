@@ -100,6 +100,10 @@ interface IConnextHandler {
   function enrollRemoteRouter(uint32 _domain, bytes32 _router) external;
 
   // ProposedOwnableFacet
+  function routerOwnershipRenounced() external view returns (bool);
+
+  function assetOwnershipRenounced() external view returns (bool);
+
   function proposedOwnableOwner() external view returns (address);
 
   function proposed() external view returns (address);

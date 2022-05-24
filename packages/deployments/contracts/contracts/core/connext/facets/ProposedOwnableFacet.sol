@@ -63,6 +63,20 @@ contract ProposedOwnableFacet is BaseConnextFacet, IProposedOwnable {
   }
 
   /**
+   * @notice Returns if the router ownership is renounced.
+   */
+  function routerOwnershipRenounced() public view returns (bool) {
+    return s._routerOwnershipRenounced;
+  }
+
+  /**
+   * @notice Returns if the asset ownership is renounced.
+   */
+  function assetOwnershipRenounced() public view returns (bool) {
+    return s._assetOwnershipRenounced;
+  }
+
+  /**
    * @notice Returns the address of the proposed owner.
    */
   function proposed() public view returns (address) {
