@@ -2,6 +2,10 @@
 
 ## Next Release
 
+## Amarok 0.2.0-beta.0
+
+- [all] Update contract architecture
+
 ## Amarok 0.2.0-alpha.16
 
 - [all] Support Goerli
