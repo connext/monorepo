@@ -182,6 +182,14 @@ describe("TransfersCache", () => {
     });
   });
 
+  describe("#pruneCompleted", () => {
+    it("happy: prunes cache", async () => {
+      const domain = 3000;
+      const res = await transfersCache.pruneCompleted(domain);
+      expect(res).to.eq(true);
+    })
+  })
+
   describe("#getErrors", () => {
     it("happy: returns errors for transfer ID", async () => {
       // First, store

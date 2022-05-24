@@ -51,12 +51,12 @@ export class TransfersCache extends Cache {
   //returns int based on success or failure of internal pruning,
   //successful prune could be no prune, unsuccessful prune is one that failed where it shouldnt have ie. @ HDEL
 
-  private async pruneCompleted(domain: number): Promise<void> {
+  public async pruneCompleted(domain: number): Promise<boolean> {
     //is there pending transactions?
     const pending = (await this.data.hget(`${this.prefix}:pending`, domain.toString())) ?? "[]";
-    if (pending === "[]") {
-      //there is pending txns so nothing to prune
-      return;
+    if (pending !== "[]") {
+      //there is pending txns, so nothing to prune
+      return true;
     }
     //there is no pending txns
     //possible edge if status of new transfer changes during fn execution
@@ -71,12 +71,12 @@ export class TransfersCache extends Cache {
           const shouldBeDeleted = transfer.nonce < latestCompleted;
           if (shouldBeDeleted) {
             const deleted = await this.data.hdel(`${this.prefix}:transfers`, transferId);
-            deleted === 1 ? console.log("deleted one record ") : console.log("no deleted record sth wrong");
+            if (deleted !== 1) { return false; }
           
           }
         }
       }
-      return;
+      return true;
     }
   }
 
