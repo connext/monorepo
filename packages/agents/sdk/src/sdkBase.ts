@@ -1,12 +1,5 @@
 import { constants, providers, BigNumber } from "ethers";
-import {
-  Logger,
-  createLoggingContext,
-  getChainIdFromDomain,
-  ChainData,
-  XCallArgs,
-  CallParams,
-} from "@connext/nxtp-utils";
+import { Logger, createLoggingContext, ChainData, XCallArgs, CallParams } from "@connext/nxtp-utils";
 import {
   getContractInterfaces,
   ConnextContractInterfaces,
@@ -14,7 +7,7 @@ import {
   ChainReader,
 } from "@connext/nxtp-txservice";
 
-import { getChainData } from "./lib/helpers";
+import { getChainData, getChainIdFromDomain } from "./lib/helpers";
 import { SignerAddressMissing, ChainDataUndefined } from "./lib/errors";
 import { NxtpSdkConfig, getConfig } from "./config";
 
@@ -25,7 +18,7 @@ import { NxtpSdkConfig, getConfig } from "./config";
 export class NxtpSdkBase {
   public readonly config: NxtpSdkConfig;
   private readonly logger: Logger;
-  private readonly contracts: ConnextContractInterfaces; // Used to read and write to smart contracts.
+  private contracts: ConnextContractInterfaces; // Used to read and write to smart contracts.
   private chainReader: ChainReader;
   public readonly chainData: Map<string, ChainData>;
 
@@ -77,6 +70,7 @@ export class NxtpSdkBase {
     }
 
     const chainId = await getChainIdFromDomain(domain, this.chainData);
+
     if (assetId !== constants.AddressZero) {
       const ConnextContractAddress = this.config.chains[domain].deployments!.connext;
 
@@ -84,12 +78,16 @@ export class NxtpSdkBase {
         signerAddress,
         ConnextContractAddress,
       ]);
+      this.logger.debug("Got approved data", requestContext, methodContext, { approvedData });
       const approvedEncoded = await this.chainReader.readTx({
         to: assetId,
         data: approvedData,
         chainId: Number(domain),
       });
+      this.logger.debug("Got approved data", requestContext, methodContext, { approvedEncoded });
       const [approved] = this.contracts.erc20.decodeFunctionResult("allowance", approvedEncoded);
+      this.logger.debug("Got approved data", requestContext, methodContext, { approved });
+
       this.logger.info("Got approved tokens", requestContext, methodContext, { approved: approved.toString() });
       if (BigNumber.from(approved).lt(amount)) {
         const data = this.contracts.erc20.encodeFunctionData("approve", [

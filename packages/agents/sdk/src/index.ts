@@ -17,7 +17,7 @@ export const create = async (
   nxtpSdkRouter: NxtpSdkRouter;
   nxtpSdkStableSwap: NxtpSdkStableSwap;
 }> => {
-  const nxtpConfig = await getConfig(_config, contractDeployments);
+  const nxtpConfig = await getConfig(_config, contractDeployments, chainData);
   const logger = _logger || new Logger({ name: "NxtpSdk", level: nxtpConfig.logLevel });
 
   const nxtpSdkUtils = await NxtpSdkUtils.create(nxtpConfig, logger, chainData);
