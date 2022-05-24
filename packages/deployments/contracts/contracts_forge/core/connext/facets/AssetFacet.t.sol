@@ -1,15 +1,15 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity 0.8.11;
 
-import {LibDiamond} from "../../contracts/libraries/LibDiamond.sol";
-import {IStableSwap} from "../../contracts/interfaces/IStableSwap.sol";
-import {ITokenRegistry} from "../../contracts/nomad-xapps/interfaces/bridge/ITokenRegistry.sol";
-import {IWrapped} from "../../contracts/interfaces/IWrapped.sol";
-import {ConnextMessage} from "../../contracts/libraries/ConnextMessage.sol";
-import {AssetFacet} from "../../contracts/facets/AssetFacet.sol";
-import {TestERC20} from "../../contracts/test/TestERC20.sol";
+import {LibDiamond} from "../../../../contracts/core/connext/libraries/LibDiamond.sol";
+import {IStableSwap} from "../../../../contracts/core/connext/interfaces/IStableSwap.sol";
+import {ITokenRegistry} from "../../../../contracts/core/connext/interfaces/ITokenRegistry.sol";
+import {IWrapped} from "../../../../contracts/core/connext/interfaces/IWrapped.sol";
+import {ConnextMessage} from "../../../../contracts/core/connext/libraries/ConnextMessage.sol";
+import {AssetFacet} from "../../../../contracts/core/connext/facets/AssetFacet.sol";
+import {TestERC20} from "../../../../contracts/test/TestERC20.sol";
 
-import {MockWrapper, MockTokenRegistry} from "../Mock.sol";
+import {MockWrapper, MockTokenRegistry} from "../../../utils/Mock.sol";
 
 // import "../../lib/forge-std/src/console.sol";
 import "./FacetHelper.sol";
