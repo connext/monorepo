@@ -5,7 +5,7 @@ import "../../utils/ForgeHelper.sol";
 
 import {TypedMemView, PromiseMessage, PromiseRouter, AddressUpgradeable} from "../../../contracts/core/promise/PromiseRouter.sol";
 import {Home} from "../../../contracts/nomad-core/contracts/Home.sol";
-import {ProposedOwnableUpgradeable} from "../../../contracts/core/shared/ProposedOwnable.sol";
+import {ProposedOwnable} from "../../../contracts/core/shared/ProposedOwnable.sol";
 import {ERC1967Proxy} from "@openzeppelin/contracts/proxy/ERC1967/ERC1967Proxy.sol";
 import {Deployer} from "../../utils/Deployer.sol";
 import {IConnextHandler} from "../../../contracts/core/connext/interfaces/IConnextHandler.sol";
@@ -139,9 +139,7 @@ contract PromiseRouterTest is ForgeHelper, Deployer {
   // Fail if not called by owner
   function test_PromiseRouter__setConnext_failsIfNotOwner() public {
     vm.prank(address(0));
-    vm.expectRevert(
-      abi.encodeWithSelector(ProposedOwnableUpgradeable.ProposedOwnableUpgradeable__onlyOwner_notOwner.selector)
-    );
+    vm.expectRevert(abi.encodeWithSelector(ProposedOwnable.ProposedOwnable__onlyOwner_notOwner.selector));
     promiseRouter.setConnext(connext2);
   }
 

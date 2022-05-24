@@ -7,7 +7,7 @@ import {Home} from "../../../contracts/nomad-core/contracts/Home.sol";
 
 import "../../../contracts/core/connext/interfaces/IConnextHandler.sol";
 import {TypedMemView, RelayerFeeMessage, RelayerFeeRouter} from "../../../contracts/core/relayer-fee/RelayerFeeRouter.sol";
-import {ProposedOwnableUpgradeable} from "../../../contracts/core/shared/ProposedOwnable.sol";
+import {ProposedOwnable} from "../../../contracts/core/shared/ProposedOwnable.sol";
 
 import "../../utils/ForgeHelper.sol";
 import {MockHome, MockConnext} from "../../utils/Mock.sol";
@@ -97,9 +97,7 @@ contract RelayerFeeRouterTest is ForgeHelper {
   // Fail if not called by owner
   function test_RelayerFeeRouter__setConnext_failsIfNotOwner() public {
     vm.prank(address(0));
-    vm.expectRevert(
-      abi.encodeWithSelector(ProposedOwnableUpgradeable.ProposedOwnableUpgradeable__onlyOwner_notOwner.selector)
-    );
+    vm.expectRevert(abi.encodeWithSelector(ProposedOwnable.ProposedOwnable__onlyOwner_notOwner.selector));
     relayerFeeRouter.setConnext(connext2);
   }
 
