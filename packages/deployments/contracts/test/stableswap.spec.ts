@@ -69,7 +69,7 @@ describe("StableSwap", async () => {
 
     secondToken = (await erc20Factory.deploy("Second Token", "SECOND")) as GenericERC20;
 
-    const lpTokenFactory = await ethers.getContractFactory("LPToken");
+    const lpTokenFactory = await ethers.getContractFactory("contracts/libraries/LPToken.sol:LPToken");
     swapToken = (await lpTokenFactory.deploy()) as LPToken;
     swapToken.initialize(LP_TOKEN_NAME, LP_TOKEN_SYMBOL);
 
@@ -83,16 +83,18 @@ describe("StableSwap", async () => {
     // Get Swap contract
     // swap = await ethers.getContract("Swap");
 
-    const amplificationUtilsFactory = await ethers.getContractFactory("AmplificationUtils");
+    const amplificationUtilsFactory = await ethers.getContractFactory(
+      "contracts/libraries/AmplificationUtils.sol:AmplificationUtils",
+    );
     amplificationUtils = (await amplificationUtilsFactory.deploy()) as AmplificationUtils;
 
-    const swapUtilsFactory = await ethers.getContractFactory("SwapUtils");
+    const swapUtilsFactory = await ethers.getContractFactory("contracts/libraries/SwapUtils.sol:SwapUtils");
     swapUtils = (await swapUtilsFactory.deploy()) as SwapUtils;
 
     const swapFactory = await ethers.getContractFactory("StableSwap", {
       libraries: {
-        SwapUtils: swapUtils.address,
-        AmplificationUtils: amplificationUtils.address,
+        // SwapUtils: swapUtils.address,
+        // AmplificationUtils: amplificationUtils.address,
       },
     });
     swap = (await swapFactory.deploy()) as StableSwap;
@@ -111,7 +113,7 @@ describe("StableSwap", async () => {
     expect(await swap.getVirtualPrice()).to.be.eq(0);
 
     swapStorage = await swap.swapStorage();
-    swapToken = (await ethers.getContractAt("LPToken", swapStorage.lpToken)) as LPToken;
+    swapToken = (await ethers.getContractAt("contracts/libraries/LPToken.sol:LPToken", swapStorage.lpToken)) as LPToken;
 
     const testStableSwapFactory = await ethers.getContractFactory("TestStableSwap");
     testStableSwap = (await testStableSwapFactory.deploy(swap.address, swapToken.address, 2)) as TestStableSwap;

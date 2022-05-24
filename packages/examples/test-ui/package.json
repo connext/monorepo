@@ -4,20 +4,20 @@
   "dependencies": {
     "@connext/nxtp-sdk": "workspace:*",
     "@connext/nxtp-utils": "workspace:*",
-    "@types/node": "^14.17.5",
-    "@types/react": "^17.0.18",
-    "@types/react-dom": "^17.0.9",
-    "antd": "^4.17.1",
-    "axios": "^0.21.1",
-    "ethers": "^5.5.4",
-    "graphql": "^15.5.3",
-    "graphql-request": "^3.5.0",
-    "pino": "^7.10.0",
-    "react": "^17.0.2",
-    "react-dom": "^17.0.2",
-    "react-scripts": "^4.0.3",
-    "rimraf": "^3.0.2",
-    "typescript": "^4.6.2"
+    "@types/node": "14.17.5",
+    "@types/react": "17.0.18",
+    "@types/react-dom": "17.0.9",
+    "antd": "4.17.1",
+    "axios": "0.21.1",
+    "ethers": "5.5.4",
+    "graphql": "15.5.3",
+    "graphql-request": "3.5.0",
+    "pino": "7.10.0",
+    "react": "17.0.2",
+    "react-dom": "17.0.2",
+    "react-scripts": "4.0.3",
+    "rimraf": "3.0.2",
+    "typescript": "4.6.2"
   },
   "scripts": {
     "start": "SKIP_PREFLIGHT_CHECK=true react-scripts start",
@@ -44,7 +44,7 @@
   },
   "gitHead": "937a7cde93e6ac1e151c6374f48adf83d3fa4ec6",
   "devDependencies": {
-    "@types/eslint": "^7.28.0",
-    "eslint": "^8.11.0"
+    "@types/eslint": "7.28.0",
+    "eslint": "8.11.0"
   }
 }

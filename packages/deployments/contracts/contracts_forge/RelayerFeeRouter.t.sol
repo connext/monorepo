@@ -4,11 +4,11 @@ pragma solidity 0.8.11;
 import "./ForgeHelper.sol";
 
 import "../contracts/interfaces/IConnextHandler.sol";
-import "../contracts/nomad-xapps/contracts/relayer-fee-router/RelayerFeeRouter.sol";
+import {TypedMemView, RelayerFeeMessage, RelayerFeeRouter} from "../contracts/nomad-xapps/contracts/relayer-fee-router/RelayerFeeRouter.sol";
 import {Home} from "../contracts/nomad-core/contracts/Home.sol";
-import "../contracts/ProposedOwnableUpgradeable.sol";
-
-import "@openzeppelin/contracts/proxy/ERC1967/ERC1967Proxy.sol";
+import {ProposedOwnableUpgradeable} from "../contracts/ProposedOwnableUpgradeable.sol";
+import {ERC1967Proxy} from "@openzeppelin/contracts/proxy/ERC1967/ERC1967Proxy.sol";
+import {MockHome, MockConnext} from "./Mock.sol";
 
 // running tests (with logging on failure):
 // yarn workspace @connext/nxtp-contracts test:forge -vvv
@@ -17,22 +17,6 @@ import "@openzeppelin/contracts/proxy/ERC1967/ERC1967Proxy.sol";
 
 // other forge commands: yarn workspace @connext/nxtp-contracts forge <CMD>
 // see docs here: https://onbjerg.github.io/foundry-book/index.html
-
-contract MockHome {
-  function dispatch(
-    uint32 _destinationDomain,
-    bytes32 _recipientAddress,
-    bytes memory _messageBody
-  ) external {
-    1 == 1;
-  }
-}
-
-contract MockConnext {
-  function claim(address _recipient, bytes32[] calldata _transferIds) external {
-    1 == 1;
-  }
-}
 
 contract RelayerFeeRouterTest is ForgeHelper {
   using TypedMemView for bytes;

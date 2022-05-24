@@ -82,6 +82,7 @@ export const NxtpRouterConfigSchema = Type.Object({
   mode: TModeConfig,
   network: Type.Union([Type.Literal("testnet"), Type.Literal("mainnet"), Type.Literal("local")]),
   polling: TPollingConfig,
+  subgraphPrefix: Type.Optional(Type.String()),
   environment: Type.Union([Type.Literal("staging"), Type.Literal("production")]),
 });
 
@@ -173,6 +174,7 @@ export const getEnvConfig = (
         configFile.polling?.cach ||
         DEFAULT_CACHE_POLL_INTERVAL,
     },
+    subgraphPrefix: process.env.NXTP_SUBGRAPH_PREFIX || configJson.subgraphPrefix || configFile.subgraphPrefix,
     environment: process.env.NXTP_ENVIRONMENT || configJson.environment || configFile.environment || "production",
   };
 

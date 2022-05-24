@@ -1,4 +1,5 @@
 import { Bid, ExecuteArgs, OriginTransfer } from "@connext/nxtp-utils";
+import { constants } from "ethers";
 
 import { getContext } from "../../sequencer";
 
@@ -18,8 +19,11 @@ export const encodeExecuteFromBids = (bids: Bid[], transfer: OriginTransfer, loc
       destinationDomain: transfer.destinationDomain,
       to: transfer.xparams.to,
       callData: transfer.xparams.callData,
+      callback: transfer.xparams.callback ?? constants.AddressZero,
+      callbackFee: transfer.xparams.callbackFee ?? "0",
       forceSlow: transfer.xparams.forceSlow,
       receiveLocal: transfer.xparams.receiveLocal,
+      recovery: transfer.xparams.recovery,
     },
     local,
     routers: bids.map((b) => b.router),
@@ -27,6 +31,7 @@ export const encodeExecuteFromBids = (bids: Bid[], transfer: OriginTransfer, loc
     amount: transfer.origin.assets.bridged.amount,
     nonce: transfer.nonce,
     originSender: transfer.origin.xcall.caller,
+    relayerFee: transfer.origin.xcall.relayerFee,
   };
   return contracts.connext.encodeFunctionData("execute", [args]);
 };

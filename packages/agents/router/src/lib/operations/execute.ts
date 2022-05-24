@@ -100,9 +100,7 @@ export const execute = async (params: OriginTransfer): Promise<void> => {
   }
 
   if (callData !== "0x") {
-    console.log("callData: ", callData);
     const code = await txservice.getCode(+destinationDomain, to);
-    console.log("code: ", code);
     if (code === "0x") {
       throw new CallDataForNonContract({ transferId, destinationDomain, to, callData, requestContext, methodContext });
     }

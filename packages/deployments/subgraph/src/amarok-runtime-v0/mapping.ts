@@ -2,21 +2,82 @@
 import { Address, BigInt, Bytes, dataSource } from "@graphprotocol/graph-ts";
 
 import {
-  LiquidityAdded,
-  LiquidityRemoved,
+  RouterLiquidityAdded,
+  RouterLiquidityRemoved,
+  RelayerAdded,
+  RelayerRemoved,
+  StableSwapAdded,
+  SponsorVaultUpdated,
   XCalled,
   Executed,
   Reconciled,
   AssetAdded,
-} from "../../generated/Connext/ConnextLogic";
-import {
   RouterRemoved,
   RouterAdded,
   RouterOwnerAccepted,
   RouterOwnerProposed,
   RouterRecipientSet,
-} from "../../generated/RouterPermissionsManagerLogic/RouterPermissionsManagerLogic";
-import { Asset, AssetBalance, Router, OriginTransfer, DestinationTransfer } from "../../generated/schema";
+} from "../../generated/Connext/ConnextHandler";
+import {
+  Asset,
+  AssetBalance,
+  Router,
+  Relayer,
+  StableSwap,
+  SponsorVault,
+  OriginTransfer,
+  DestinationTransfer,
+} from "../../generated/schema";
+
+export function handleRelayerAdded(event: RelayerAdded): void {
+  let relayerId = event.params.relayer.toHex();
+  let relayer = Relayer.load(relayerId);
+
+  if (relayer == null) {
+    relayer = new Relayer(relayerId);
+    relayer.isActive = true;
+    relayer.relayer = event.params.relayer;
+    relayer.save();
+  }
+}
+
+export function handleStableSwapAdded(event: StableSwapAdded): void {
+  // StableSwapAdded: bytes32 canonicalId, uint32 domain, address swapPool, address caller
+  let stableSwapId =
+    event.params.canonicalId.toHex() + "-" + event.params.domain.toHex() + "-" + event.params.swapPool.toHex();
+  let stableSwap = StableSwap.load(stableSwapId);
+
+  if (stableSwap == null) {
+    stableSwap = new StableSwap(stableSwapId);
+    stableSwap.canonicalId = event.params.canonicalId;
+    stableSwap.domain = event.params.domain;
+    stableSwap.swapPool = event.params.swapPool;
+    stableSwap.save();
+  }
+}
+
+export function handleSponsorVaultUpdated(event: SponsorVaultUpdated): void {
+  // SponsorVaultUpdated: address oldSponsorVault, address newSponsorVault, address caller
+  let sponsorVaultId = event.params.newSponsorVault.toHex();
+  let sponsorVault = SponsorVault.load(sponsorVaultId);
+
+  if (sponsorVault == null) {
+    sponsorVault = new SponsorVault(sponsorVaultId);
+    sponsorVault.sponsorVault = event.params.newSponsorVault;
+    sponsorVault.save();
+  }
+}
+
+export function handleRelayerRemoved(event: RelayerRemoved): void {
+  let relayerId = event.params.relayer.toHex();
+  let relayer = Relayer.load(relayerId);
+
+  if (relayer == null) {
+    relayer = new Relayer(event.params.relayer.toHex());
+    relayer.isActive = false;
+    relayer.save();
+  }
+}
 
 export function handleRouterAdded(event: RouterAdded): void {
   let routerId = event.params.router.toHex();
@@ -91,7 +152,7 @@ export function handleAssetAdded(event: AssetAdded): void {
  *
  * @param event - The contract event to update the subgraph record with
  */
-export function handleLiquidityAdded(event: LiquidityAdded): void {
+export function handleRouterLiquidityAdded(event: RouterLiquidityAdded): void {
   const assetBalance = getOrCreateAssetBalance(event.params.local, event.params.router);
 
   // add new amount
@@ -106,7 +167,7 @@ export function handleLiquidityAdded(event: LiquidityAdded): void {
  *
  * @param event - The contract event to update the subgraph record with
  */
-export function handleLiquidityRemoved(event: LiquidityRemoved): void {
+export function handleRouterLiquidityRemoved(event: RouterLiquidityRemoved): void {
   // ID is of the format ROUTER_ADDRESS-ASSET_ID
   const assetBalance = getOrCreateAssetBalance(event.params.local, event.params.router);
 
@@ -125,7 +186,7 @@ export function handleLiquidityRemoved(event: LiquidityRemoved): void {
 export function handleXCalled(event: XCalled): void {
   // contract checks ensure that this cannot exist at this point, so we can safely create new
   // NOTE: the above case is not always true since malicious users can reuse IDs to try to break the
-  // subgraph. we can protect against this by overwriting if we are able to load a Transactioln
+  // subgraph. we can protect against this by overwriting if we are able to load a Transaction
   let transfer = OriginTransfer.load(event.params.transferId.toHexString());
   if (transfer == null) {
     transfer = new OriginTransfer(event.params.transferId.toHexString());
@@ -144,6 +205,9 @@ export function handleXCalled(event: XCalled): void {
   transfer.destinationDomain = event.params.xcallArgs.params.destinationDomain;
   transfer.forceSlow = event.params.xcallArgs.params.forceSlow;
   transfer.receiveLocal = event.params.xcallArgs.params.receiveLocal;
+  transfer.recovery = event.params.xcallArgs.params.recovery;
+  transfer.callback = event.params.xcallArgs.params.callback;
+  transfer.callbackFee = event.params.xcallArgs.params.callbackFee;
 
   // Assets
   transfer.transactingAsset = event.params.args.transactingAssetId;
@@ -197,13 +261,16 @@ export function handleExecuted(event: Executed): void {
   transfer.transferId = event.params.transferId;
   transfer.nonce = event.params.args.nonce;
 
-  // Call Data
+  // Call params
   transfer.to = event.params.args.params.to;
   transfer.callData = event.params.args.params.callData;
   transfer.originDomain = event.params.args.params.originDomain;
   transfer.destinationDomain = event.params.args.params.destinationDomain;
   transfer.forceSlow = event.params.args.params.forceSlow;
   transfer.receiveLocal = event.params.args.params.receiveLocal;
+  transfer.recovery = event.params.args.params.recovery;
+  transfer.callback = event.params.args.params.callback;
+  transfer.callbackFee = event.params.args.params.callbackFee;
 
   // Assets
   transfer.transactingAmount = event.params.transactingAmount;
@@ -211,9 +278,11 @@ export function handleExecuted(event: Executed): void {
   transfer.localAsset = event.params.args.local;
   transfer.localAmount = event.params.args.amount;
 
+  transfer.sponsorVaultRelayerFee = event.params.args.relayerFee;
+
   // Event Data
   if (transfer.status == "Reconciled") {
-    transfer.status = "Completed";
+    transfer.status = "CompletedSlow";
   } else {
     transfer.status = "Executed";
   }
@@ -267,7 +336,7 @@ export function handleReconciled(event: Reconciled): void {
 
   // Event Data
   if (transfer.status == "Executed") {
-    transfer.status = "Completed";
+    transfer.status = "CompletedFast";
   } else {
     transfer.status = "Reconciled";
   }

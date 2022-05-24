@@ -1,5 +1,4 @@
 import { XTransfer, XTransferStatus, RouterBalance, convertFromDbTransfer } from "@connext/nxtp-utils";
-import { BigNumber } from "ethers";
 import { Pool } from "pg";
 import * as db from "zapatos/db";
 import type * as s from "zapatos/schema";
@@ -15,8 +14,13 @@ const convertToDbTransfer = (transfer: XTransfer): s.transfers.Insertable => {
 
     to: transfer.xparams?.to,
     call_data: transfer.xparams?.callData,
+    callback: transfer.xparams?.callback,
+    callback_fee: transfer.xparams?.callbackFee as any,
+    recovery: transfer.xparams?.recovery,
 
-    idx: BigNumber.from(transfer.idx ?? "0").toNumber(),
+    force_slow: transfer.xparams?.forceSlow,
+    receive_local: transfer.xparams?.receiveLocal,
+
     transfer_id: transfer.transferId,
 
     origin_chain: transfer.origin?.chain,
@@ -29,6 +33,7 @@ const convertToDbTransfer = (transfer: XTransfer): s.transfers.Insertable => {
     xcall_timestamp: transfer.origin?.xcall?.timestamp,
     xcall_gas_price: transfer.origin?.xcall?.gasPrice as any,
     xcall_gas_limit: transfer.origin?.xcall?.gasLimit as any,
+    xcall_relayer_fee: transfer.origin?.xcall?.relayerFee as any,
     xcall_block_number: transfer.origin?.xcall?.blockNumber,
 
     destination_chain: transfer.destination?.chain,
@@ -38,6 +43,7 @@ const convertToDbTransfer = (transfer: XTransfer): s.transfers.Insertable => {
     destination_transacting_amount: transfer.destination?.assets.transacting?.amount as any,
     destination_local_asset: transfer.destination?.assets.local?.asset,
     destination_local_amount: transfer.destination?.assets.local?.amount as any,
+
     execute_caller: transfer.destination?.execute?.caller,
     execute_transaction_hash: transfer.destination?.execute?.transactionHash,
     execute_timestamp: transfer.destination?.execute?.timestamp,
@@ -45,6 +51,9 @@ const convertToDbTransfer = (transfer: XTransfer): s.transfers.Insertable => {
     execute_gas_limit: transfer.destination?.execute?.gasLimit as any,
     execute_block_number: transfer.destination?.execute?.blockNumber,
     execute_origin_sender: transfer.destination?.execute?.originSender,
+    // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
+    execute_relayer_fee: transfer.destination?.execute?.relayerFee as any,
+
     reconcile_caller: transfer.destination?.reconcile?.caller,
     reconcile_transaction_hash: transfer.destination?.reconcile?.transactionHash,
     reconcile_timestamp: transfer.destination?.reconcile?.timestamp,
@@ -77,7 +86,7 @@ export const getTransferByTransferId = async (transfer_id: string, _pool?: Pool)
   return x.length ? convertFromDbTransfer(x[0]) : undefined;
 };
 
-export const getTransfersByStatus = async (status: XTransferStatus | "XCalled", _pool?: Pool): Promise<XTransfer[]> => {
+export const getTransfersByStatus = async (status: XTransferStatus, _pool?: Pool): Promise<XTransfer[]> => {
   const poolToUse = _pool ?? pool;
   const x = await db.sql<s.transfers.SQL, s.transfers.JSONSelectable[]>`SELECT * FROM ${"transfers"} WHERE ${{
     status,

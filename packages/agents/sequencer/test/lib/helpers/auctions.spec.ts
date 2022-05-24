@@ -1,4 +1,5 @@
 import { Bid, ExecuteArgs, expect, mkAddress, OriginTransfer, XTransfer } from "@connext/nxtp-utils";
+import { constants } from "ethers";
 import { stub, restore, reset, SinonStub } from "sinon";
 
 import { encodeExecuteFromBids, getDestinationLocalAsset } from "../../../src/lib/helpers/auctions";
@@ -32,6 +33,9 @@ describe("Helpers:Auctions", () => {
           destinationDomain: transfer.destinationDomain,
           to: transfer.xparams.to,
           callData: transfer.xparams.callData,
+          callback: constants.AddressZero,
+          callbackFee: "0",
+          recovery: transfer.xparams.recovery,
           forceSlow: transfer.xparams.forceSlow,
           receiveLocal: transfer.xparams.receiveLocal,
         },
@@ -39,12 +43,15 @@ describe("Helpers:Auctions", () => {
         routers: bids.map((b) => b.router),
         routerSignatures: bids.map((b) => b.signatures[bids.length.toString()]),
         amount: transfer.origin.assets.bridged.amount,
+        relayerFee: transfer.origin.xcall.relayerFee,
         nonce: transfer.nonce,
         originSender: transfer.origin.xcall.caller,
       };
 
       const encoded = encodeExecuteFromBids(bids, transfer, mockLocalAsset);
       expect(encoded).to.be.eq(mockEncoded);
+
+      console.log(expectedArgs);
       expect(encodeFunctionDataStub.calledWith("execute", [expectedArgs])).to.be.true;
     });
 

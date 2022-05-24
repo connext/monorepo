@@ -94,7 +94,7 @@ describe("Backend operations", () => {
       adapters: {
         subgraph: createStubInstance(SubgraphReader, {
           getOriginTransfers: Promise.resolve(mockSubgraphResponse),
-          getOriginTransfersForAll: Promise.resolve(mockSubgraphResponse),
+          getOriginTransfers: Promise.resolve(mockSubgraphResponse),
           getDestinationTransfers: Promise.resolve(mockSubgraphResponse),
         }),
         database: {

@@ -7,7 +7,7 @@ output "router-dns" {
 }
 
 output "lighthouse-dns" {
-  value = module.lighthouse.dns_name
+  value = module.lighthouse.daemon_service_name
 }
 
 output "sequencer-service-endpoint" {
@@ -18,7 +18,7 @@ output "router-service-endpoint" {
   value = module.router.service_endpoint
 }
 
-output "lighthouse-service-endpoint" {
-  value = module.lighthouse.service_endpoint
+output "lighthouse-service-name" {
+  value = module.lighthouse.daemon_service_name
 }
 
