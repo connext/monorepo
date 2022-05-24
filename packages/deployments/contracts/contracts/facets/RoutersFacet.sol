@@ -422,7 +422,7 @@ contract RoutersFacet is BaseConnextFacet {
    * @param _amount - The amount of liquidity to remove for the router
    * @param _local - The address of the asset you're removing liquidity from. If removing liquidity of the
    * native asset, routers may use `address(0)` or the wrapped asset
-   * @param _to The address that will receive the liquidity being removed
+   * @param _to The address that will receive the liquidity being removed if no router recipient exists.
    */
   function removeRouterLiquidity(
     uint256 _amount,
