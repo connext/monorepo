@@ -1,10 +1,14 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity 0.8.11;
 
+import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+
 import {TypedMemView, PromiseMessage, PromiseRouter} from "../contracts/nomad-xapps/contracts/promise-router/PromiseRouter.sol";
 import {ICallback} from "../contracts/interfaces/ICallback.sol";
 import {BaseConnextFacet} from "../contracts/facets/BaseConnextFacet.sol";
 import {ISponsorVault} from "../contracts/interfaces/ISponsorVault.sol";
+import {ITokenRegistry} from "../contracts/nomad-xapps/interfaces/bridge/ITokenRegistry.sol";
+import {IWrapped} from "../contracts/interfaces/IWrapped.sol";
 
 contract MockHome {
   function dispatch(
@@ -88,5 +92,43 @@ contract TestSetterFacet is BaseConnextFacet {
 
   function setTestApprovedRouter(address _router, bool _approved) external {
     s.routerPermissionInfo.approvedRouters[_router] = _approved;
+  }
+}
+
+contract MockWrapper is IWrapped {
+  function deposit() external payable {}
+
+  function withdraw(uint256 amount) external {}
+}
+
+contract MockTokenRegistry is ITokenRegistry {
+  function isLocalOrigin(address _token) external pure returns (bool) {
+    return true;
+  }
+
+  function ensureLocalToken(uint32 _domain, bytes32 _id) external pure returns (address _local) {
+    return address(42);
+  }
+
+  function mustHaveLocalToken(uint32 _domain, bytes32 _id) external pure returns (IERC20) {
+    return IERC20(address(42));
+  }
+
+  function getLocalAddress(uint32 _domain, bytes32 _id) external pure returns (address _local) {
+    return address(42);
+  }
+
+  function getTokenId(address _token) external pure returns (uint32, bytes32) {
+    return (uint32(42), bytes32("A"));
+  }
+
+  function enrollCustom(
+    uint32 _domain,
+    bytes32 _id,
+    address _custom
+  ) external {}
+
+  function oldReprToCurrentRepr(address _oldRepr) external pure returns (address _currentRepr) {
+    return address(42);
   }
 }
