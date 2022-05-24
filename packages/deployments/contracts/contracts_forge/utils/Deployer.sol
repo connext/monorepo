@@ -2,21 +2,22 @@
 pragma solidity 0.8.11;
 
 import {Connext} from "../../contracts/test/Connext.sol";
-import {DiamondCutFacet} from "../../contracts/facets/DiamondCutFacet.sol";
-import {DiamondLoupeFacet} from "../../contracts/facets/DiamondLoupeFacet.sol";
-import {DiamondInit} from "../../contracts/upgradeInitializers/DiamondInit.sol";
-import {AssetFacet} from "../../contracts/facets/AssetFacet.sol";
-import {BridgeFacet} from "../../contracts/facets/BridgeFacet.sol";
-import {NomadFacet} from "../../contracts/facets/NomadFacet.sol";
-import {ProposedOwnableFacet} from "../../contracts/facets/ProposedOwnableFacet.sol";
-import {RelayerFacet} from "../../contracts/facets/RelayerFacet.sol";
-import {RoutersFacet} from "../../contracts/facets/RoutersFacet.sol";
-import {StableSwapFacet} from "../../contracts/facets/StableSwapFacet.sol";
-import {ConnextMessage} from "../../contracts/libraries/ConnextMessage.sol";
-import {XCallArgs, CallParams} from "../../contracts/libraries/LibConnextStorage.sol";
-import {IDiamondCut} from "../../contracts/interfaces/IDiamondCut.sol";
 
-import {TestSetterFacet} from "../Mock.sol";
+import {DiamondCutFacet} from "../../contracts/core/connext/facets/DiamondCutFacet.sol";
+import {DiamondLoupeFacet} from "../../contracts/core/connext/facets/DiamondLoupeFacet.sol";
+import {DiamondInit} from "../../contracts/core/connext/facets/upgrade-initializers/DiamondInit.sol";
+import {AssetFacet} from "../../contracts/core/connext/facets/AssetFacet.sol";
+import {BridgeFacet} from "../../contracts/core/connext/facets/BridgeFacet.sol";
+import {NomadFacet} from "../../contracts/core/connext/facets/NomadFacet.sol";
+import {ProposedOwnableFacet} from "../../contracts/core/connext/facets/ProposedOwnableFacet.sol";
+import {RelayerFacet} from "../../contracts/core/connext/facets/RelayerFacet.sol";
+import {RoutersFacet} from "../../contracts/core/connext/facets/RoutersFacet.sol";
+import {StableSwapFacet} from "../../contracts/core/connext/facets/StableSwapFacet.sol";
+import {ConnextMessage} from "../../contracts/core/connext/libraries/ConnextMessage.sol";
+import {XCallArgs, CallParams} from "../../contracts/core/connext/libraries/LibConnextStorage.sol";
+import {IDiamondCut} from "../../contracts/core/connext/interfaces/IDiamondCut.sol";
+
+import {TestSetterFacet} from "./Mock.sol";
 
 contract Deployer {
   Connext connextDiamondProxy;
