@@ -389,7 +389,6 @@ contract RoutersFacet is BaseConnextFacet {
 
     // Reset proposal + timestamp
     if (_proposed != address(0)) {
-      // delete proposedRouterOwners[router];
       s.routerPermissionInfo.proposedRouterOwners[router] = address(0);
     }
     s.routerPermissionInfo.proposedRouterTimestamp[router] = 0;
