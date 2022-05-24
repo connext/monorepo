@@ -1,9 +1,10 @@
-import { stub, restore, reset } from "sinon";
+import { createStubInstance, reset, restore, SinonStub, SinonStubbedInstance, stub } from "sinon";
 import { expect } from "@connext/nxtp-utils";
+import { ChainReader } from "@connext/nxtp-txservice";
 import { mock } from "./mock";
-import { create, NxtpSdkBase } from "../src";
-import { getConfig, getEnvConfig } from "../src/config";
-import { ChainDataUndefined } from "../src/lib/errors";
+import { NxtpSdkBase } from "../src/sdkBase";
+import { getEnvConfig } from "../src/config";
+import { ChainDataUndefined, SignerAddressMissing } from "../src/lib/errors";
 
 import * as ConfigFns from "../src/config";
 import * as SharedFns from "../src/lib/helpers/shared";
@@ -11,18 +12,23 @@ import * as SharedFns from "../src/lib/helpers/shared";
 const mockConfig = mock.config();
 const mockChainData = mock.chainData();
 const mockDeployments = mock.contracts.deployments();
+const mockInterfaces = mock.contracts.interfaces();
 
 describe("SdkBase", () => {
   let nxtpSdkBase: NxtpSdkBase;
   let config;
 
-  before(async () => {
+  let chainReader: SinonStubbedInstance<ChainReader>;
+
+  beforeEach(async () => {
+    chainReader = createStubInstance(ChainReader);
     config = getEnvConfig(mockConfig, mockChainData, mockDeployments);
     stub(ConfigFns, "getConfig").resolves(config);
 
-    const { nxtpSdkBase: _nxtpSdkBase } = await create(config);
+    nxtpSdkBase = await NxtpSdkBase.create(mockConfig, undefined, mockChainData);
 
-    nxtpSdkBase = _nxtpSdkBase;
+    (nxtpSdkBase as any).chainReader = chainReader;
+    (nxtpSdkBase as any).contracts = mockInterfaces;
   });
   afterEach(() => {
     restore();
@@ -32,31 +38,52 @@ describe("SdkBase", () => {
   describe("#create", () => {
     it("happy: should work", async () => {
       expect(nxtpSdkBase).to.not.be.undefined;
-
       expect(nxtpSdkBase.config).to.not.be.null;
       expect(nxtpSdkBase.chainData).to.not.be.null;
     });
 
     it("should error if chaindata is undefined", async () => {
       stub(SharedFns, "getChainData").resolves(undefined);
-      await expect(create(config)).to.be.rejectedWith(ChainDataUndefined);
+      await expect(NxtpSdkBase.create(config)).to.be.rejectedWith(ChainDataUndefined);
     });
   });
 
   describe("#approveIfNeeded", () => {
-    it("happy: should work", async () => {
+    it("should error if signerAddress is undefined", async () => {
       expect(nxtpSdkBase).to.not.be.undefined;
+      (nxtpSdkBase as any).config.signerAddress = undefined;
 
+      await expect(nxtpSdkBase.approveIfNeeded(mock.domain.A, mock.asset.A.address, "1")).to.be.rejectedWith(
+        SignerAddressMissing,
+      );
+    });
+
+    it("happy: should work for ERC20", async () => {
+      expect(nxtpSdkBase).to.not.be.undefined;
       expect(nxtpSdkBase.approveIfNeeded).to.be.a("function");
 
-      await expect(nxtpSdkBase.approveIfNeeded(mock.domain.A, mock.asset.A.address, "1")).not.throw();
+      stub(SharedFns, "getChainIdFromDomain").resolves(1337);
+      chainReader.readTx.resolves("0x123");
+      // mockDeployments.erc20.decodeFunctionResult.resolves("0");
+      console.log(mockInterfaces.erc20);
+
+      expect(await nxtpSdkBase.approveIfNeeded(mock.domain.A, mock.asset.A.address, "1")).not.throw();
+
+      // check the transactionRequest
+    });
+
+    it.skip("happy: should work for Native", async () => {
+      expect(nxtpSdkBase).to.not.be.undefined;
+      expect(nxtpSdkBase.approveIfNeeded).to.be.a("function");
+
+      await expect(await nxtpSdkBase.approveIfNeeded(mock.domain.A, mock.asset.A.address, "1")).not.throw();
 
       // check the transactionRequest
     });
   });
 
   describe("#xCall", () => {
-    it("happy: should work", async () => {
+    it.skip("happy: should work", async () => {
       expect(nxtpSdkBase).to.not.be.undefined;
 
       expect(nxtpSdkBase.xcall).to.be.a("function");
@@ -66,7 +93,7 @@ describe("SdkBase", () => {
   });
 
   describe("#bumpTransfer", () => {
-    it("happy: should work", async () => {
+    it.skip("happy: should work", async () => {
       expect(nxtpSdkBase).to.not.be.undefined;
 
       expect(nxtpSdkBase.bumpTransfer).to.be.a("function");

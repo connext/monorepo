@@ -63,7 +63,7 @@ export const mock = {
       erc20.decodeFunctionResult.returns([BigNumber.from(1000)]);
 
       return {
-        erc20: erc20 as any,
+        erc20: erc20 as unknown as ConnextContractInterfaces["erc20"],
         connext: connext as unknown as ConnextContractInterfaces["connext"],
         priceOracle: priceOracle as unknown as ConnextContractInterfaces["priceOracle"],
         tokenRegistry: tokenRegistry as unknown as ConnextContractInterfaces["tokenRegistry"],
