@@ -47,6 +47,46 @@ export class TransfersCache extends Cache {
     return result ? (JSON.parse(result) as XTransfer) : undefined;
   }
 
+  //prune completed by domain could be v blocking, needs piping
+  //returns int based on success or failure of internal pruning,
+  //successful prune could be no prune, unsuccessful prune is one that failed where it shouldnt have ie. @ HDEL
+
+  private async pruneCompleted(domain: number): Promise<void> {
+    //is there pending transactions?
+    const pending = (await this.data.hget(`${this.prefix}:pending`, domain.toString())) ?? "[]";
+    if (pending === "[]") {
+      //there is pending txns so nothing to prune
+      return;
+    }
+    //there is no pending txns
+    //possible edge if status of new transfer changes during fn execution
+    const latestCompleted = await this.getLatestNonce(domain.toString());
+    {
+      //search through all transactions w/ nonce lower than latst completed.
+      //iterate through transfers jsonify, compare and delete if nonce < latestCompleted
+      const transferIds = this.data.hgetall(`${this.prefix}:transfers`);
+      for (const transferId in transferIds) {
+        const transfer = await this.getTransfer(transferId);
+        if (transfer?.nonce) {
+          const shouldBeDeleted = transfer.nonce < latestCompleted;
+          if (shouldBeDeleted) {
+            const deleted = await this.data.hdel(`${this.prefix}:transfers`, transferId);
+            deleted === 1 ? console.log("deleted one record ") : console.log("no deleted record sth wrong");
+          
+          }
+        }
+      }
+      return;
+    }
+  }
+
+  //search through pending find oldest
+  //find next completed after oldest pending
+  //delete the rest
+
+  //keep pending OR latest completed
+  //getlatestnonce and delete all completed below that.
+
   /**
    * Stores a batch of transfers in the cache. All transfer data will be stored (JSON
    * stringified). Transfers are indexed by their transferId. Additionally, adds new pending transfers
@@ -129,6 +169,8 @@ export class TransfersCache extends Cache {
         await this.data.hset(`${this.prefix}:nonce`, domain, nonce);
         await this.data.publish(StoreChannel.NewHighestNonce, JSON.stringify({ domain, nonce }));
       }
+      //prune old cache by domain
+      await this.pruneCompleted(parseInt(domain));
     }
   }
 
