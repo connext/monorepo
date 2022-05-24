@@ -44,12 +44,13 @@ export class SubgraphReader {
   public static async create(
     chainData: Map<string, ChainData>,
     env: "staging" | "production" = "production",
+    prefixOverride?: string, // optional override for the prefix
   ): Promise<SubgraphReader> {
     if (SubgraphReader.instance) {
       return SubgraphReader.instance;
     }
     const { create } = getHelpers();
-    const config = await create(chainData, env);
+    const config = await create(chainData, env, prefixOverride);
     return new SubgraphReader(config);
   }
 

@@ -52,13 +52,13 @@ export const updateTransfers = async () => {
     // Get origin transfers for all domains in the mapping.
     const transfers = await subgraph.getOriginTransfers(subgraphQueryMetaParams);
     logger.info("Retrieved origin transfers", requestContext, methodContext, {
-      transfers: transfers.map((transfer) => transfer.transferId.slice(0, 8)),
+      transfers,
     });
     await database.saveTransfers(transfers);
   }
 
   // now query pending transfers to see if any status updates happened
-  const xcalledTransfers = await database.getTransfersByStatus("XCalled");
+  const xcalledTransfers = await database.getTransfersByStatus(XTransferStatus.XCalled);
   const executedTransfers = await database.getTransfersByStatus(XTransferStatus.Executed);
   const reconciledTransfers = await database.getTransfersByStatus(XTransferStatus.Reconciled);
 

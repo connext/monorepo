@@ -21,6 +21,17 @@ sources:
           includeRootOperations: true
           ignore:
             - _SubgraphErrorPolicy_
+  - name: Connext_Test_Kovan
+    handler:
+      graphql:
+        endpoint: https://api.thegraph.com/subgraphs/name/connext/nxtp-amarok-runtime-test-kovan
+        retry: 5
+    transforms:
+      - prefix:
+          value: testkovan_
+          includeRootOperations: true
+          ignore:
+            - _SubgraphErrorPolicy_
   - name: Connext_Rinkeby
     handler:
       graphql:
@@ -43,6 +54,17 @@ sources:
           includeRootOperations: true
           ignore:
             - _SubgraphErrorPolicy_
+  - name: Connext_Test_Rinkeby
+    handler:
+      graphql:
+        endpoint: https://api.thegraph.com/subgraphs/name/connext/nxtp-amarok-runtime-test-rinkeby
+        retry: 5
+    transforms:
+      - prefix:
+          value: testrinkeby_
+          includeRootOperations: true
+          ignore:
+            - _SubgraphErrorPolicy_
   - name: Connext_Goerli
     handler:
       graphql:
@@ -62,6 +84,17 @@ sources:
     transforms:
       - prefix:
           value: staginggoerli_
+          includeRootOperations: true
+          ignore:
+            - _SubgraphErrorPolicy_
+  - name: Connext_Test_Goerli
+    handler:
+      graphql:
+        endpoint: https://api.thegraph.com/subgraphs/name/connext/nxtp-amarok-runtime-test-goerli
+        retry: 5
+    transforms:
+      - prefix:
+          value: testgoerli_
           includeRootOperations: true
           ignore:
             - _SubgraphErrorPolicy_
