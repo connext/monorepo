@@ -410,7 +410,7 @@
           ]
         },
         "AssetFacetStaging": {
-          "address": "0x3Bc635e0da59294D2A43416F601d4A357781110c",
+          "address": "0x85787C1A0F0527f1b64B1EB2ed760eea44f27E0A",
           "abi": [
             {
               "inputs": [],
@@ -815,7 +815,7 @@
           ]
         },
         "BridgeFacet": {
-          "address": "0x0aB48B912a29dA63E18117fE345d7797c5189078",
+          "address": "0x6fCDBBA79F9D2c36CC5929F353a11159528EdAa6",
           "abi": [
             {
               "inputs": [],
@@ -1757,7 +1757,7 @@
           ]
         },
         "BridgeFacetStaging": {
-          "address": "0x1C098BF6cb4E3226EA1bD0401E4E88b1097B9029",
+          "address": "0x6fCDBBA79F9D2c36CC5929F353a11159528EdAa6",
           "abi": [
             {
               "inputs": [],
@@ -18747,7 +18747,7 @@
           ]
         },
         "NomadFacetStaging": {
-          "address": "0xE988E5bbC7ae2f1C4439bd6F2E7eA8DE89aFCb7F",
+          "address": "0x46dF6D05Cc6777C9bA082B84f5C1Ea501401De83",
           "abi": [
             {
               "inputs": [],
@@ -19649,7 +19649,7 @@
           ]
         },
         "PromiseRouterStaging": {
-          "address": "0x9Cb49e8a0af7577f114c444d50b9F2C6776295e8",
+          "address": "0xB913Eab77a6BE540308Ec7beB14a9B33c8bc51AB",
           "abi": [
             {
               "inputs": [],
@@ -19860,19 +19860,6 @@
                 }
               ],
               "name": "CallbackFeeAdded",
-              "type": "event"
-            },
-            {
-              "anonymous": false,
-              "inputs": [
-                {
-                  "indexed": false,
-                  "internalType": "uint8",
-                  "name": "version",
-                  "type": "uint8"
-                }
-              ],
-              "name": "Initialized",
               "type": "event"
             },
             {
@@ -20940,7 +20927,7 @@
           ]
         },
         "ProposedOwnableFacetStaging": {
-          "address": "0xD9D68104bb173b0ac01Ee95Cf557DbCe87640845",
+          "address": "0xCbDa54F90dDED46E42c49C938E98A197bEf814E0",
           "abi": [
             {
               "inputs": [],
@@ -21576,7 +21563,7 @@
           ]
         },
         "RelayerFacetStaging": {
-          "address": "0x81f7A4aDd0E2De2174E649549aFFe98A9ED37105",
+          "address": "0xDAe764Ba34Db7A352F22bFF8cC0E856724aBDE36",
           "abi": [
             {
               "inputs": [],
@@ -22490,7 +22477,7 @@
           ]
         },
         "RelayerFeeRouterStaging": {
-          "address": "0x8673cCe1668e1F4707d299DA79A0a2FF7c4725C6",
+          "address": "0x0460AF089F1683106b1e7f5756D3f54a157D61f7",
           "abi": [
             {
               "inputs": [],
@@ -22616,19 +22603,6 @@
                 }
               ],
               "name": "AssetOwnershipRenunciationProposed",
-              "type": "event"
-            },
-            {
-              "anonymous": false,
-              "inputs": [
-                {
-                  "indexed": false,
-                  "internalType": "uint8",
-                  "name": "version",
-                  "type": "uint8"
-                }
-              ],
-              "name": "Initialized",
               "type": "event"
             },
             {
@@ -23943,7 +23917,7 @@
           ]
         },
         "RoutersFacetStaging": {
-          "address": "0x10346C8a986D55d5dBae6215c55D36Deb7B347Af",
+          "address": "0xa07c1f0b9607dd2f1d5f48793b18B3fcbBD10c72",
           "abi": [
             {
               "inputs": [],
@@ -26383,7 +26357,7 @@
           ]
         },
         "StableSwapFacetStaging": {
-          "address": "0xE037371a7a833C1a79a1bF103B768bA294366b3F",
+          "address": "0x6DAC844B4ab2284bC6b12bEE5c06258A00a8f9B5",
           "abi": [
             {
               "inputs": [],
@@ -29236,7 +29210,7 @@
           ]
         },
         "TokenRegistryStaging": {
-          "address": "0xa5B4058DC01Df44cA347432E903147e0d4B3Fd0D",
+          "address": "0x741ae5328b51A0e4970d5150216B3926DAc4317e",
           "abi": [
             {
               "inputs": [],
@@ -29347,19 +29321,6 @@
                 }
               ],
               "name": "AssetOwnershipRenunciationProposed",
-              "type": "event"
-            },
-            {
-              "anonymous": false,
-              "inputs": [
-                {
-                  "indexed": false,
-                  "internalType": "uint8",
-                  "name": "version",
-                  "type": "uint8"
-                }
-              ],
-              "name": "Initialized",
               "type": "event"
             },
             {
@@ -31532,7 +31493,7 @@
           ]
         },
         "AssetFacetStaging": {
-          "address": "0x3Bc635e0da59294D2A43416F601d4A357781110c",
+          "address": "0x85787C1A0F0527f1b64B1EB2ed760eea44f27E0A",
           "abi": [
             {
               "inputs": [],
@@ -31937,7 +31898,7 @@
           ]
         },
         "BridgeFacet": {
-          "address": "0x0aB48B912a29dA63E18117fE345d7797c5189078",
+          "address": "0x6fCDBBA79F9D2c36CC5929F353a11159528EdAa6",
           "abi": [
             {
               "inputs": [],
@@ -32879,7 +32840,7 @@
           ]
         },
         "BridgeFacetStaging": {
-          "address": "0x1C098BF6cb4E3226EA1bD0401E4E88b1097B9029",
+          "address": "0x6fCDBBA79F9D2c36CC5929F353a11159528EdAa6",
           "abi": [
             {
               "inputs": [],
@@ -49361,7 +49322,7 @@
           ]
         },
         "NomadFacetStaging": {
-          "address": "0xE988E5bbC7ae2f1C4439bd6F2E7eA8DE89aFCb7F",
+          "address": "0x46dF6D05Cc6777C9bA082B84f5C1Ea501401De83",
           "abi": [
             {
               "inputs": [],
@@ -50263,7 +50224,7 @@
           ]
         },
         "PromiseRouterStaging": {
-          "address": "0x66430C97b52a7AD3Ee3e8670bbc8C7e193878538",
+          "address": "0xB4950038e1dEdB93EF644A55AA51De4b6a4b7d92",
           "abi": [
             {
               "inputs": [],
@@ -50474,19 +50435,6 @@
                 }
               ],
               "name": "CallbackFeeAdded",
-              "type": "event"
-            },
-            {
-              "anonymous": false,
-              "inputs": [
-                {
-                  "indexed": false,
-                  "internalType": "uint8",
-                  "name": "version",
-                  "type": "uint8"
-                }
-              ],
-              "name": "Initialized",
               "type": "event"
             },
             {
@@ -51554,7 +51502,7 @@
           ]
         },
         "ProposedOwnableFacetStaging": {
-          "address": "0xD9D68104bb173b0ac01Ee95Cf557DbCe87640845",
+          "address": "0xCbDa54F90dDED46E42c49C938E98A197bEf814E0",
           "abi": [
             {
               "inputs": [],
@@ -52190,7 +52138,7 @@
           ]
         },
         "RelayerFacetStaging": {
-          "address": "0x81f7A4aDd0E2De2174E649549aFFe98A9ED37105",
+          "address": "0xDAe764Ba34Db7A352F22bFF8cC0E856724aBDE36",
           "abi": [
             {
               "inputs": [],
@@ -53104,7 +53052,7 @@
           ]
         },
         "RelayerFeeRouterStaging": {
-          "address": "0x6E03311Ecbe7d5180404fd32BAa4eAB474041974",
+          "address": "0x9FD67b680a514DA3ef62Dd72e51b3C632EF9ea2D",
           "abi": [
             {
               "inputs": [],
@@ -53230,19 +53178,6 @@
                 }
               ],
               "name": "AssetOwnershipRenunciationProposed",
-              "type": "event"
-            },
-            {
-              "anonymous": false,
-              "inputs": [
-                {
-                  "indexed": false,
-                  "internalType": "uint8",
-                  "name": "version",
-                  "type": "uint8"
-                }
-              ],
-              "name": "Initialized",
               "type": "event"
             },
             {
@@ -54557,7 +54492,7 @@
           ]
         },
         "RoutersFacetStaging": {
-          "address": "0x10346C8a986D55d5dBae6215c55D36Deb7B347Af",
+          "address": "0xa07c1f0b9607dd2f1d5f48793b18B3fcbBD10c72",
           "abi": [
             {
               "inputs": [],
@@ -56997,7 +56932,7 @@
           ]
         },
         "StableSwapFacetStaging": {
-          "address": "0xE037371a7a833C1a79a1bF103B768bA294366b3F",
+          "address": "0x6DAC844B4ab2284bC6b12bEE5c06258A00a8f9B5",
           "abi": [
             {
               "inputs": [],
@@ -59850,7 +59785,7 @@
           ]
         },
         "TokenRegistryStaging": {
-          "address": "0x71e8193F6F3E636F8e9071DD47EA2f0A5E572eaC",
+          "address": "0x93A49a77d2E0ABA1b877E0231fb9CC458629Abd5",
           "abi": [
             {
               "inputs": [],
@@ -59961,19 +59896,6 @@
                 }
               ],
               "name": "AssetOwnershipRenunciationProposed",
-              "type": "event"
-            },
-            {
-              "anonymous": false,
-              "inputs": [
-                {
-                  "indexed": false,
-                  "internalType": "uint8",
-                  "name": "version",
-                  "type": "uint8"
-                }
-              ],
-              "name": "Initialized",
               "type": "event"
             },
             {
@@ -62146,7 +62068,7 @@
           ]
         },
         "AssetFacetStaging": {
-          "address": "0x3Bc635e0da59294D2A43416F601d4A357781110c",
+          "address": "0x85787C1A0F0527f1b64B1EB2ed760eea44f27E0A",
           "abi": [
             {
               "inputs": [],
@@ -62551,7 +62473,7 @@
           ]
         },
         "BridgeFacet": {
-          "address": "0x0aB48B912a29dA63E18117fE345d7797c5189078",
+          "address": "0x6fCDBBA79F9D2c36CC5929F353a11159528EdAa6",
           "abi": [
             {
               "inputs": [],
@@ -63493,7 +63415,7 @@
           ]
         },
         "BridgeFacetStaging": {
-          "address": "0x1C098BF6cb4E3226EA1bD0401E4E88b1097B9029",
+          "address": "0x6fCDBBA79F9D2c36CC5929F353a11159528EdAa6",
           "abi": [
             {
               "inputs": [],
@@ -80635,7 +80557,7 @@
           ]
         },
         "NomadFacetStaging": {
-          "address": "0xE988E5bbC7ae2f1C4439bd6F2E7eA8DE89aFCb7F",
+          "address": "0x46dF6D05Cc6777C9bA082B84f5C1Ea501401De83",
           "abi": [
             {
               "inputs": [],
@@ -81537,7 +81459,7 @@
           ]
         },
         "PromiseRouterStaging": {
-          "address": "0x9d607ac62C6DEd368cAa8948e16527A695BE0DB5",
+          "address": "0x7FFd65B0a60dDEdFa21592Fa62432E0DbFc49D12",
           "abi": [
             {
               "inputs": [],
@@ -81748,19 +81670,6 @@
                 }
               ],
               "name": "CallbackFeeAdded",
-              "type": "event"
-            },
-            {
-              "anonymous": false,
-              "inputs": [
-                {
-                  "indexed": false,
-                  "internalType": "uint8",
-                  "name": "version",
-                  "type": "uint8"
-                }
-              ],
-              "name": "Initialized",
               "type": "event"
             },
             {
@@ -82828,7 +82737,7 @@
           ]
         },
         "ProposedOwnableFacetStaging": {
-          "address": "0xD9D68104bb173b0ac01Ee95Cf557DbCe87640845",
+          "address": "0xCbDa54F90dDED46E42c49C938E98A197bEf814E0",
           "abi": [
             {
               "inputs": [],
@@ -83464,7 +83373,7 @@
           ]
         },
         "RelayerFacetStaging": {
-          "address": "0x81f7A4aDd0E2De2174E649549aFFe98A9ED37105",
+          "address": "0xDAe764Ba34Db7A352F22bFF8cC0E856724aBDE36",
           "abi": [
             {
               "inputs": [],
@@ -84378,7 +84287,7 @@
           ]
         },
         "RelayerFeeRouterStaging": {
-          "address": "0xc080AC4e514394D5Fadc66104Ba91327a3b83b54",
+          "address": "0xbE3d37B36B12Fd3881556bBFF78D5Bb23db6aAdE",
           "abi": [
             {
               "inputs": [],
@@ -84504,19 +84413,6 @@
                 }
               ],
               "name": "AssetOwnershipRenunciationProposed",
-              "type": "event"
-            },
-            {
-              "anonymous": false,
-              "inputs": [
-                {
-                  "indexed": false,
-                  "internalType": "uint8",
-                  "name": "version",
-                  "type": "uint8"
-                }
-              ],
-              "name": "Initialized",
               "type": "event"
             },
             {
@@ -85831,7 +85727,7 @@
           ]
         },
         "RoutersFacetStaging": {
-          "address": "0x10346C8a986D55d5dBae6215c55D36Deb7B347Af",
+          "address": "0xa07c1f0b9607dd2f1d5f48793b18B3fcbBD10c72",
           "abi": [
             {
               "inputs": [],
@@ -88271,7 +88167,7 @@
           ]
         },
         "StableSwapFacetStaging": {
-          "address": "0xE037371a7a833C1a79a1bF103B768bA294366b3F",
+          "address": "0x6DAC844B4ab2284bC6b12bEE5c06258A00a8f9B5",
           "abi": [
             {
               "inputs": [],
@@ -91124,7 +91020,7 @@
           ]
         },
         "TokenRegistryStaging": {
-          "address": "0x6016283F33Cbde29A03B86A832c3F8C52B1FB1fc",
+          "address": "0x0258040D7C2e72feb896dB642e482eAB6cc99272",
           "abi": [
             {
               "inputs": [],
@@ -91235,19 +91131,6 @@
                 }
               ],
               "name": "AssetOwnershipRenunciationProposed",
-              "type": "event"
-            },
-            {
-              "anonymous": false,
-              "inputs": [
-                {
-                  "indexed": false,
-                  "internalType": "uint8",
-                  "name": "version",
-                  "type": "uint8"
-                }
-              ],
-              "name": "Initialized",
               "type": "event"
             },
             {

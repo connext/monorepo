@@ -9,7 +9,7 @@ FROM node:16.3.0-alpine as node
 
 FROM node as build
 RUN apk update
-RUN apk add git
+RUN apk add git curl
 
 ENV HOME=/tmp/build \
     PATH=/tmp/build/node_modules/.bin:./node_modules/.bin:${PATH}

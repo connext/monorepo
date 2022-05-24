@@ -172,14 +172,17 @@ contract AssetFacet is BaseConnextFacet {
     // Sanity check: already approval
     if (!s.approvedAssets[_canonicalId]) revert AssetFacet__removeAssetId_notAdded();
 
-    // Update mapping
+    // Delete from approved assets mapping
     delete s.approvedAssets[_canonicalId];
 
-    // Update pools
+    // Delete from pools
     delete s.adoptedToLocalPools[_canonicalId];
 
-    // Update adopted mapping
+    // Delete from adopted mapping
     delete s.adoptedToCanonical[_adoptedAssetId == address(0) ? address(s.wrapper) : _adoptedAssetId];
+
+    // Delete from canonical mapping
+    delete s.canonicalToAdopted[_canonicalId];
 
     // Emit event
     emit AssetRemoved(_canonicalId, msg.sender);
