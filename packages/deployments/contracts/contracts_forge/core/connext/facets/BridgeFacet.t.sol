@@ -63,7 +63,7 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
   // ============ Test set up ============
   function setUp() public {
     // deploy any needed contracts
-    deployContracts();
+    utils_deployContracts();
 
     // set defaults
     setDefaults();
@@ -84,13 +84,16 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
     s.maxRoutersPerTransfer = 5;
   }
 
-  function deployContracts() public {
+  // ============ Utils ============
+  // Utils used in the following tests.
+  // Used in set up for deploying any needed peripheral contracts.
+  function utils_deployContracts() public {
     // deploy the local token
     _local = address(new TestERC20());
   }
 
-  // ============ utils ============
-  function getRouterSignatures(
+  // Makes some mock router signatures.
+  function utils_makeRouterSignatures(
     bytes32 _transferId,
     address[] memory _routers,
     uint256[] memory _keys
@@ -109,7 +112,8 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
     return signatures;
   }
 
-  function _getExecuteArgs(
+  // Makes some mock execute arguments.
+  function utils_makeExecuteArgs(
     address[] memory routers,
     uint256[] memory keys,
     bool fill
@@ -124,40 +128,47 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
     bytes[] memory empty = new bytes[](0);
     ExecuteArgs memory args = ExecuteArgs(_params, _local, routers, empty, _relayerFee, _amount, _nonce, _originSender);
     // generate transfer id
-    bytes32 _id = getTransferIdFromExecuteArgs(args);
+    bytes32 _id = utils_getTransferIdFromExecuteArgs(args);
     // generate router signatures
-    args.routerSignatures = getRouterSignatures(_id, routers, keys);
+    args.routerSignatures = utils_makeRouterSignatures(_id, routers, keys);
     return (_id, args);
   }
 
-  // Meant to mimic the getTransferId in the contract.
-  function getTransferIdFromExecuteArgs(ExecuteArgs memory _args) public returns (bytes32) {
+  // Meant to mimic the `getTransferId` method in the BridgeFacet contract.
+  function utils_getTransferIdFromExecuteArgs(ExecuteArgs memory _args) public returns (bytes32) {
     bytes32 transferId = keccak256(
       abi.encode(_args.nonce, _args.params, _args.originSender, _canonicalTokenId, _canonicalDomain, _args.amount)
     );
     return transferId;
   }
 
-  function getExecuteArgsNoRouters() public returns (bytes32, ExecuteArgs memory) {
+  // Specifically makes execute arguments with no routers/signatures for slow liq simulation.
+  function utils_makeExecuteArgsNoRouters() public returns (bytes32, ExecuteArgs memory) {
     address[] memory routers = new address[](0);
     uint256[] memory keys = new uint256[](0);
-    return _getExecuteArgs(routers, keys, false);
+    return utils_makeExecuteArgs(routers, keys, false);
   }
 
-  function getExecuteArgs(address[] memory routers, uint256[] memory keys)
+  function utils_makeExecuteArgs(address[] memory routers, uint256[] memory keys)
     public
     returns (bytes32, ExecuteArgs memory)
   {
-    return _getExecuteArgs(routers, keys, false);
+    return utils_makeExecuteArgs(routers, keys, false);
   }
 
-  function getExecuteArgs() public returns (bytes32, ExecuteArgs memory) {
+  function utils_makeExecuteArgs() public returns (bytes32, ExecuteArgs memory) {
     address[] memory routers;
     uint256[] memory keys;
-    return _getExecuteArgs(routers, keys, true);
+    return utils_makeExecuteArgs(routers, keys, true);
   }
 
-  function executeAndAssert(bytes32 _id, ExecuteArgs memory _args) public {
+  // ============== Helpers ==================
+  // Helpers used for executing target methods with given params that assert expected base behavior.
+
+  // TODO: helpers_xcallAndAssert
+
+  // Calls `execute` on the target method with the given args and asserts expected behavior.
+  function helpers_executeAndAssert(bytes32 _id, ExecuteArgs memory _args) public {
     // get pre-execute liquidity in local
     uint256 pathLen = _args.routers.length;
     uint256[] memory prevLiquidity = new uint256[](pathLen);
@@ -199,6 +210,8 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
     assertEq(s.transferRelayer[_id], address(this));
   }
 
+  // ============ Tests ==============
+
   // ============ execute ============
 
   // ============ execute failure cases
@@ -209,7 +222,7 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
     s.approvedRelayers[address(this)] = false;
 
     // get args
-    (, ExecuteArgs memory args) = getExecuteArgs();
+    (, ExecuteArgs memory args) = utils_makeExecuteArgs();
 
     // expect failure
     vm.expectRevert(BridgeFacet.BridgeFacet__execute_unapprovedRelayer.selector);
@@ -224,7 +237,7 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
     _params.forceSlow = true;
 
     // get args
-    (bytes32 transferId, ExecuteArgs memory args) = getExecuteArgs();
+    (bytes32 transferId, ExecuteArgs memory args) = utils_makeExecuteArgs();
 
     // expect failure
     vm.expectRevert(BridgeFacet.BridgeFacet__execute_notReconciled.selector);
@@ -247,12 +260,12 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
     _params.forceSlow = true;
 
     // get args
-    (bytes32 _id, ExecuteArgs memory _args) = getExecuteArgsNoRouters();
+    (bytes32 _id, ExecuteArgs memory _args) = utils_makeExecuteArgsNoRouters();
 
     // set reconciled context
     s.reconciledTransfers[_id] = true;
 
-    executeAndAssert(_id, _args);
+    helpers_executeAndAssert(_id, _args);
   }
 
   // should use the local asset if specified (receiveLocal = true)
@@ -261,14 +274,14 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
     _params.receiveLocal = true;
 
     // get args
-    (bytes32 _id, ExecuteArgs memory _args) = getExecuteArgs();
+    (bytes32 _id, ExecuteArgs memory _args) = utils_makeExecuteArgs();
 
     // set liquidity context
     for (uint256 i; i < _args.routers.length; i++) {
       s.routerBalances[_args.routers[i]][_args.local] += 10 ether;
     }
 
-    executeAndAssert(_id, _args);
+    helpers_executeAndAssert(_id, _args);
   }
 
   // should work without calldata
