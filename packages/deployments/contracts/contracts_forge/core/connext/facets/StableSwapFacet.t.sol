@@ -3,17 +3,10 @@ pragma solidity 0.8.11;
 
 import "../../../utils/ForgeHelper.sol";
 
+import {LibDiamond} from "../../../../contracts/core/connext/libraries/LibDiamond.sol";
 import {IConnextHandler} from "../../../../contracts/core/connext/interfaces/IConnextHandler.sol";
 import {BaseConnextFacet} from "../../../../contracts/core/connext/facets/BaseConnextFacet.sol";
-import {StableSwapFacet} from "../../../../contracts/core/connext/facets/RoutersFacet.sol";
-
-// TODO: This is testing the logic conditions in the library and file should be
-// refactored to reflect that, including:
-// - Renaming test contract
-// - Refactoring test logic (use storage on contract)
-//
-// Instead, this file should test the functions within `RouterPermissionsManager` that
-// are not present in the logic lib (i.e. the getters)
+import {StableSwapFacet} from "../../../../contracts/core/connext/facets/StableSwapFacet.sol";
 
 contract StableSwapFacetTest is ForgeHelper, StableSwapFacet {
   // ============ Libraries ============
