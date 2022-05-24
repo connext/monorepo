@@ -101,7 +101,7 @@ export const executeAuctions = async (_requestContext: RequestContext) => {
     relayer: { sendToRelayer },
   } = getOperations();
   const {
-    auctions: { getDestinationLocalAsset },
+    auctions: { getDestinationLocalAsset, getBidsRoundMap },
   } = getHelpers();
   const { requestContext, methodContext } = createLoggingContext(executeAuctions.name, _requestContext);
   logger.debug(`Method start: ${executeAuctions.name}`, requestContext, methodContext);
@@ -180,7 +180,8 @@ export const executeAuctions = async (_requestContext: RequestContext) => {
           continue;
         }
 
-        // TODO: Reimplement auction rounds!
+        const bidsRoundMap = getBidsRoundMap(bids, config.auctionRoundDepth);
+
         // hardcoded round 1
         const availableBids = Object.values(bids).filter((bid) => {
           // TODO: Check to make sure this specific router has enough funds to execute this bid! Right now,

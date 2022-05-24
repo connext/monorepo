@@ -2,6 +2,7 @@ import { Bid, ExecuteArgs, OriginTransfer } from "@connext/nxtp-utils";
 import { constants } from "ethers";
 
 import { getContext } from "../../sequencer";
+import { RoundInvalid } from "../errors";
 
 export const encodeExecuteFromBids = (bids: Bid[], transfer: OriginTransfer, local: string): string => {
   const {
@@ -62,4 +63,41 @@ export const getDestinationLocalAsset = async (
 
   const localAddress = destinationDomainAsset!.local;
   return localAddress;
+};
+
+/**
+ * Picks up the valid bids and groups the bids by round
+ * @param bids - The array of raw bids
+ * @param roundDepth - The maximum round which is allowed in the sequencer
+ * @returns roundId -> array of bids
+ */
+export const getBidsRoundMap = (bids: Record<string, Bid>, roundDepth: number): Record<string, Bid[]> => {
+  const availableBids: Record<string, Bid[]> = {};
+  // Sanity checks and pick up valid bid combinations
+  for (let roundIdx = 1; roundIdx <= roundDepth; roundIdx++) {
+    const filteredBids = Object.values(bids).filter((bid) => {
+      return Array.from(Object.keys(bid.signatures)).includes(roundIdx.toString());
+    });
+
+    // We need 2 ^ (roundIdx - 1) of different bids at least for roundIdx
+    if (filteredBids.length >= getMinimumBidsCountForRound(roundIdx)) {
+      availableBids[roundIdx] = filteredBids;
+    }
+  }
+
+  return availableBids;
+};
+
+/**
+ * Calculates the minimum number of bids for the round
+ * round 1 -> amount / 1, round 2 -> amount / 2, round 3 -> amount / 4, round4 -> amount / 8
+ * @param round The round id to calculate the minimum number of bids for
+ * @returns - The number of bids
+ */
+export const getMinimumBidsCountForRound = (round: number): number => {
+  const { config } = getContext();
+  if (round < 1 || round > config.auctionRoundDepth || Math.trunc(round) != round) {
+    throw new RoundInvalid({ round, auctionRoundDepth: config.auctionRoundDepth });
+  }
+  return Math.pow(2, round - 1);
 };
