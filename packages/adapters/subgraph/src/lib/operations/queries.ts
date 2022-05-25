@@ -80,6 +80,25 @@ export const DESTINATION_TRANSFER_ENTITY = `
       reconciledBlockNumber
 `;
 
+export const BLOCK_NUMBER_ENTITY = `
+      block {
+        number
+      }
+`;
+const lastedBlockNumberQuery = (prefix: string): string => {
+  return `${prefix}__meta { ${BLOCK_NUMBER_ENTITY}}`;
+};
+export const getLastestBlockNumberQuery = (prefixes: string[]): string => {
+  let combinedQuery = "";
+  for (const prefix of prefixes) {
+    combinedQuery += lastedBlockNumberQuery(prefix);
+  }
+
+  return gql`    
+    query GetBlockNumber { 
+      ${combinedQuery}
+  }`;
+};
 export const getAssetBalanceQuery = (prefix: string, router: string, local: string): string => {
   const queryString = `
     ${prefix}_assetBalance(id: "${local}-${router}") {
