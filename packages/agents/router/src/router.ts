@@ -145,7 +145,7 @@ export const setupSubgraphReader = async (requestContext: RequestContext): Promi
   const allowedChainData: Map<string, ChainData> = new Map();
   for (const allowedDomain of allowedDomains) {
     if (chainData.has(allowedDomain)) {
-      allowedChainData.set(allowedDomain, chainData.get(allowedDomain));
+      allowedChainData.set(allowedDomain, chainData.get(allowedDomain)!);
     }
   }
   logger.info("Subgraph reader setup in progress...", requestContext, methodContext, {});
