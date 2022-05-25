@@ -290,7 +290,7 @@ contract BridgeFacet is BaseConnextFacet {
    * @notice Performs some sanity checks for `xcall`
    * @dev Need this to prevent stack too deep
    */
-  function _xcallSanityChecks(XCallArgs calldata _args) internal {
+  function _xcallSanityChecks(XCallArgs calldata _args) internal view {
     // ensure this is the right domain
     if (_args.params.originDomain != s.domain) {
       revert BridgeFacet__xcall_wrongDomain();
@@ -435,28 +435,27 @@ contract BridgeFacet is BaseConnextFacet {
    * include execution here
    */
   function _reconcile(uint32 _origin, bytes memory _message) internal {
-    // parse tokenId and action from message
+    // Parse tokenId and action from the message.
     bytes29 msg_ = _message.ref(0).mustBeMessage();
     bytes29 tokenId = msg_.tokenId();
     bytes29 action = msg_.action();
 
-    // assert the action is valid
+    // Assert that the action is valid.
     if (!action.isTransfer()) {
       revert BridgeFacet__reconcile_invalidAction();
     }
 
-    // load the transferId
+    // Load the transferId.
     bytes32 transferId = action.transferId();
 
-    // ensure the transaction has not been handled
+    // Ensure the transaction has not already been handled, i.e. previously reconciled.
     if (s.reconciledTransfers[transferId]) {
       revert BridgeFacet__reconcile_alreadyReconciled();
     }
 
-    // get the token contract for the given tokenId on this chain
-    // (if the token is of remote origin and there is
-    // no existing representation token contract, the TokenRegistry will
-    // deploy a new one)
+    // Get the appropriate local token contract for the given tokenId on this chain.
+    // NOTE: If the token is of remote origin and there is no existing representation token contract,
+    // the TokenRegistry will deploy a new one.
     address token = s.tokenRegistry.ensureLocalToken(tokenId.domain(), tokenId.id());
 
     // load amount once
@@ -477,19 +476,17 @@ contract BridgeFacet is BaseConnextFacet {
       // Tell the token what its detailsHash is
       IBridgeToken(token).setDetailsHash(details);
     }
-    // NOTE: if the token is of local origin, it means it was escrowed
-    // in this contract at xcall
+    // NOTE: If the token is local on the origin domain, it means it was escrowed in the corresponding
+    // bridge contract on the origin domain within the xcall.
 
-    // mark the transfer as reconciled
+    // Mark the transfer as reconciled.
     s.reconciledTransfers[transferId] = true;
 
-    // get the transfer
+    // If the transfer was executed using fast-liquidity provided by routers, then this value would be set.
     address[] storage routers = s.routedTransfers[transferId];
-
     uint256 pathLen = routers.length;
     if (pathLen != 0) {
-      // fast liquidity path
-      // credit the router the asset
+      // Credit each router that provided liquidity their due 'share' of the asset.
       uint256 routerAmt = amount / pathLen;
       for (uint256 i; i < pathLen; ) {
         s.routerBalances[routers[i]][token] += routerAmt;
@@ -517,34 +514,39 @@ contract BridgeFacet is BaseConnextFacet {
    * @notice Performs some sanity checks for `execute`
    * @dev Need this to prevent stack too deep
    */
-  function _executeSanityChecks(ExecuteArgs calldata _args) private returns (bytes32, bool) {
-    // If the sender is not approved relayer, revert()
+  function _executeSanityChecks(ExecuteArgs calldata _args) private view returns (bytes32, bool) {
+    // If the caller is not an approved relayer, revert.
     if (!s.approvedRelayers[msg.sender]) {
       revert BridgeFacet__execute_unapprovedRelayer();
     }
 
-    // get number of facilitating routers
+    // Path length refers to the number of facilitating routers. A transfer is considered 'multipath'
+    // if multiple routers provide liquidity (in even 'shares') for it.
     uint256 pathLength = _args.routers.length;
 
-    // make sure number of routers is valid
+    // Make sure number of routers is below the configured maximum.
     if (pathLength > s.maxRoutersPerTransfer) revert BridgeFacet__execute_maxRoutersExceeded();
 
-    // get transfer id
     bytes32 transferId = _getTransferId(_args);
 
-    // get reconciled record
+    // Retrieve the reconciled record. If the transfer is `forceSlow` then it must be reconciled first
+    // before it's executed.
     bool reconciled = s.reconciledTransfers[transferId];
     if (_args.params.forceSlow && !reconciled) revert BridgeFacet__execute_notReconciled();
 
-    // get the payload the router should have signed
+    // Derive the payload for which each router should have produced a signature.
     bytes32 routerHash = keccak256(abi.encode(transferId, pathLength));
 
-    // make sure routers are all approved if needed
     if (pathLength > 0) {
       for (uint256 i; i < pathLength; ) {
+        // Make sure the router is approved.
+        // If router ownership is renounced (_RouterOwnershipRenounced() is true), then the router whitelist
+        // no longer applies and we can skip this approval step.
         if (!_isRouterOwnershipRenounced() && !s.routerPermissionInfo.approvedRouters[_args.routers[i]]) {
           revert BridgeFacet__execute_notSupportedRouter();
         }
+        // Validate the signature. We'll recover the signer's address using the expected payload and basic ECDSA
+        // signature scheme recovery. The address for each signature must match the router's address.
         if (_args.routers[i] != _recoverSignature(routerHash, _args.routerSignatures[i])) {
           revert BridgeFacet__execute_invalidRouterSignature();
         }
@@ -553,11 +555,13 @@ contract BridgeFacet is BaseConnextFacet {
         }
       }
     } else {
-      // otherwise, make sure liquidity delivered
+      // If there are no routers for this transfer, this `execute` must be a slow liquidity route; in which
+      // case, we must make sure the transfer's been reconciled.
       if (!reconciled) revert BridgeFacet__execute_notReconciled();
     }
 
-    // require this transfer has not already been executed
+    // Require that this transfer has not already been executed. If it were executed, the `transferRelayer`
+    // would have been set in the previous call (to enable the caller to claim relayer fees).
     if (s.transferRelayer[transferId] != address(0)) {
       revert BridgeFacet__execute_alreadyExecuted();
     }
@@ -600,20 +604,22 @@ contract BridgeFacet is BaseConnextFacet {
   ) private returns (uint256, address) {
     uint256 toSwap = _args.amount;
     uint256 pathLen = _args.routers.length;
-    if (_isFast) {
-      // this is the fast liquidity path
-      // ensure the router is whitelisted
 
-      // calculate amount with fast liquidity fee
+    // If this is a fast liquidity path, we should handle deducting from applicable routers' liquidity.
+    // If this is a slow liquidity path, the transfer must have been reconciled (if we've reached this point),
+    // and the funds would have been custodied in this contract. The exact custodied amount is untracked in state
+    // (since the amount is hashed in the transfer ID itself) - thus, no updates are required.
+    if (_isFast) {
+      // Calculate amount that routers will provide with the fast-liquidity fee deducted.
       toSwap = _getFastTransferAmount(_args.amount, s.LIQUIDITY_FEE_NUMERATOR, s.LIQUIDITY_FEE_DENOMINATOR);
 
-      // store the routers address
+      // Save the addressess of all routers providing liquidity for this transfer.
       s.routedTransfers[_transferId] = _args.routers;
 
-      // for each router, assert they are approved, and deduct liquidity
+      // Router amount is the amount that each individual router will be sending.
       uint256 routerAmount = toSwap / pathLen;
+      // For each router in the path, decrement liquidity.
       for (uint256 i; i < pathLen; ) {
-        // decrement routers liquidity
         s.routerBalances[_args.routers[i]][_args.local] -= routerAmount;
 
         unchecked {
@@ -622,12 +628,12 @@ contract BridgeFacet is BaseConnextFacet {
       }
     }
 
-    // if the local asset is specified, exit
+    // If the local asset is specified as desired by definition of the transfer, exit.
     if (_args.params.receiveLocal) {
       return (toSwap, _args.local);
     }
 
-    // swap out of mad* asset into adopted asset if needed
+    // Swap out of mad* asset into adopted asset if needed.
     return AssetLogic.swapFromLocalAssetIfNeeded(_args.local, toSwap);
   }
 

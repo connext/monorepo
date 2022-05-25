@@ -303,6 +303,13 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
   // bumpTransfer
 
   // ============ execute ============
+
+  // TODO: These tests wouldn't actually test anything right now because router 'approval'
+  // isn't actually checked, only implicit approval (via router liquidity amount) is checked.
+  // should work with unapproved router if ownership renounced
+  // should work with unapproved router if router-whitelist ownership renounced
+  // should fail if the router is not approved and ownership is not renounced
+
   // ============ execute fail cases
   // should fail if msg.sender is not an approved relayer
   function test_BridgeFacet__execute_failIfRelayerNotApproved() public {
@@ -317,32 +324,56 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
     this.execute(args);
   }
 
-  // should fail if the # of routers > maxRouters
-
-  // should fail if it is a slow transfer (forceSlow = true) and not reconciled
-  function test_BridgeFacet__execute_failIfForceSlowAndNotReconciled() public {
-    // set test params
+  // should fail if it is a slow transfer (forceSlow = true) and we try to execute with routers
+  function test_BridgeFacet__execute_failIfForceSlowAndRoutersSet() public {
     _params.forceSlow = true;
 
-    // get args
-    (bytes32 transferId, ExecuteArgs memory args) = utils_makeExecuteArgs(0);
+    // Routers providing liquidity implies this is a fast-liquidity transfer. If we're forcing slow,
+    // this should fail.
+    (bytes32 transferId, ExecuteArgs memory args) = utils_makeExecuteArgs(2);
 
-    // expect failure
     vm.expectRevert(BridgeFacet.BridgeFacet__execute_notReconciled.selector);
     this.execute(args);
   }
 
-  // should fail if the router is not approved and ownership is not renounced
+  // should fail if it is a slow transfer (forceSlow = true) and not reconciled
+  function test_BridgeFacet__execute_failIfForceSlowAndNotReconciled() public {
+    _params.forceSlow = true;
+
+    (bytes32 transferId, ExecuteArgs memory args) = utils_makeExecuteArgs(0);
+
+    vm.expectRevert(BridgeFacet.BridgeFacet__execute_notReconciled.selector);
+    this.execute(args);
+  }
+
+  // should fail if no routers were passed in and not reconciled
+  function test_BridgeFacet__execute_failIfNoRoutersAndNotReconciled() public {
+    // Setting no routers in the execute call means that the transfer must already be reconciled.
+    (bytes32 transferId, ExecuteArgs memory args) = utils_makeExecuteArgs(0);
+
+    vm.expectRevert(BridgeFacet.BridgeFacet__execute_notReconciled.selector);
+    this.execute(args);
+  }
 
   // should fail if the router signature is invalid
 
-  // should fail if it was already executed : s.transferRelayer[transferId] != address(0)
+  // should fail if it was already executed (s.transferRelayer[transferId] != address(0))
+
+  // should fail if the router does not have sufficient funds
+  function test_BridgeFacet__execute_failIfInsufficientFunds() public {
+    (bytes32 transferId, ExecuteArgs memory args) = utils_makeExecuteArgs(0);
+
+    vm.expectRevert(BridgeFacet.BridgeFacet__execute_notReconciled.selector);
+    this.execute(args);
+  }
 
   // should fail if sponsored vault did not fund contract
 
   // multipath: should fail if pathLength > maxRouters
 
   // multipath: should fail if any 1 router has insufficient tokens
+
+  //
 
   // ============ execute success cases
   // should use slow liquidity if specified (forceSlow = true)
@@ -365,12 +396,12 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
     _params.receiveLocal = true;
 
     // get args
-    (bytes32 _id, ExecuteArgs memory _args) = utils_makeExecuteArgs(1);
+    (bytes32 id, ExecuteArgs memory args) = utils_makeExecuteArgs(1);
 
     // set liquidity context
-    s.routerBalances[_args.routers[0]][_args.local] += 10 ether;
+    s.routerBalances[args.routers[0]][args.local] += 10 ether;
 
-    helpers_executeAndAssert(_id, _args);
+    helpers_executeAndAssert(id, args);
   }
 
   // should work without calldata
@@ -486,11 +517,6 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
     // Recovery address should not receive the funds if the call succeeded.
     assertEq(IERC20(args.local).balanceOf(_recovery), 0);
   }
-
-  // TODO: These tests wouldn't actually test anything right now because router 'approval'
-  // isn't actually checked, only router liquidity amount is checked.
-  // should work with unapproved router if ownership renounced
-  // should work with unapproved router if router-whitelist ownership renounced
 
   // multipath: should subtract equally from each router's liquidity
   function test_BridgeFacet__execute_multipath() public {
