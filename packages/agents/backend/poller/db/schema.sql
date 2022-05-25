@@ -17,7 +17,6 @@ CREATE TYPE public.transfer_status AS ENUM (
     'XCalled',
     'Executed',
     'Reconciled',
-    'Completed',
     'CompletedSlow',
     'CompletedFast'
 );
@@ -209,9 +208,5 @@ ALTER TABLE ONLY public.asset_balances
 --
 
 INSERT INTO public.schema_migrations (version) VALUES
-    ('20220419085941'),
-    ('20220504052525'),
-    ('20220505103130'),
-    ('20220506152644'),
-    ('20220513235208'),
-    ('20220519173917');
+    ('20220520150644'),
+    ('20220524141906');

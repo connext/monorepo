@@ -60,7 +60,8 @@ export const getEnvConfig = (
     mode: {
       cleanup: process.env.SEQ_CLEANUP_MODE || configJson.mode?.cleanup || configFile.mode?.cleanup || false,
     },
-    environment: process.env.NXTP_ENVIRONMENT || configJson.environment || configFile.environment || "production",
+    subgraphPrefix: process.env.SEQ_SUBGRAPH_PREFIX || configJson.subgraphPrefix || configFile.subgraphPrefix,
+    environment: process.env.SEQ_ENVIRONMENT || configJson.environment || configFile.environment || "production",
   };
 
   const defaultConfirmations = chainData && (chainData.get("1")?.confirmations ?? 1 + 3);

@@ -15,13 +15,13 @@ import {
 import { abi as Erc20Abi } from "../artifacts/contracts/test/TestERC20.sol/TestERC20.json";
 import {
   ProposedOwnableUpgradeable,
-  GenericERC20,
   UpgradeBeaconProxy,
   TestERC20,
   TransparentUpgradeableProxy,
   ConnextHandler,
   BridgeFacet,
   ProposedOwnableFacet,
+  IERC20,
 } from "../typechain-types";
 import { Artifact } from "hardhat/types";
 
@@ -288,7 +288,7 @@ export async function getCurrentBlockTimestamp(): Promise<number> {
   return block.timestamp;
 }
 
-export async function getUserTokenBalances(address: string | Signer, tokens: GenericERC20[]): Promise<BigNumber[]> {
+export async function getUserTokenBalances(address: string | Signer, tokens: IERC20[]): Promise<BigNumber[]> {
   const balanceArray = [];
 
   if (address instanceof Signer) {
@@ -302,7 +302,7 @@ export async function getUserTokenBalances(address: string | Signer, tokens: Gen
   return balanceArray;
 }
 
-export async function getUserTokenBalance(address: string | Signer, token: GenericERC20): Promise<BigNumber> {
+export async function getUserTokenBalance(address: string | Signer, token: IERC20): Promise<BigNumber> {
   if (address instanceof Signer) {
     address = await address.getAddress();
   }

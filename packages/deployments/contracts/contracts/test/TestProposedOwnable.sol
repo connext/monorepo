@@ -1,8 +1,9 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity 0.8.11;
 
-import "../ProposedOwnableUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
+
+import "../core/shared/ProposedOwnable.sol";
 
 contract TestProposedOwnable is Initializable, ProposedOwnableUpgradeable {
   uint256 private value;

@@ -40,7 +40,7 @@
     "ethers": "5.6.6",
     "interval-promise": "1.4.0",
     "pg": "8.7.3",
-    "zapatos": "5.0.4"
+    "zapatos": "6.0.1"
   },
   "devDependencies": {
     "@types/pg": "8.6.5",

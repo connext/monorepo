@@ -25,6 +25,7 @@ export const Backend = Type.Object({
     Type.Literal("silent"),
   ]),
   database: TDatabaseConfig,
+  subgraphPrefix: Type.Optional(Type.String()),
   environment: Type.Union([Type.Literal("staging"), Type.Literal("production")]),
 });
 
@@ -64,10 +65,11 @@ export const getEnvConfig = (): BackendConfig => {
       process.env.BACKEND_LOG_LEVEL ||
       configJson.logLevel ||
       configFile.logLevel ||
-      process.env.NXTP_LOG_LEVEL ||
+      process.env.BACKEND_LOG_LEVEL ||
       "info",
     database: { url: process.env.DATABASE_URL || configJson.databaseUrl || configFile.databaseUrl },
-    environment: process.env.NXTP_ENVIRONMENT || configJson.environment || configFile.environment || "production",
+    subgraphPrefix: process.env.BACKEND_SUBGRAPH_PREFIX || configJson.subgraphPrefix || configFile.subgraphPrefix,
+    environment: process.env.BACKEND_ENVIRONMENT || configJson.environment || configFile.environment || "production",
   };
 
   const validate = ajv.compile(Backend);

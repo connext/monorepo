@@ -1,0 +1,20 @@
+[
+  {
+    "subgraphName": "connext/nxtp-amarok-runtime-test-rinkeby",
+    "network": "rinkeby",
+    "address": "0x2307Ed9f152FA9b3DcDfe2385d279D8C2A9DF2b0",
+    "startBlock": 10730832
+  },
+  {
+    "subgraphName": "connext/nxtp-amarok-runtime-test-kovan",
+    "network": "kovan",
+    "address": "0x3366A61A701FA84A86448225471Ec53c5c4ad49f",
+    "startBlock": 31780684
+  },
+  {
+    "subgraphName": "connext/nxtp-amarok-runtime-test-goerli",
+    "network": "goerli",
+    "address": "0xEC3A723DE47a644b901DC269829bf8718F175EBF",
+    "startBlock": 6939503
+  }
+]

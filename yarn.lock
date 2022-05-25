@@ -658,37 +658,7 @@ __metadata:
     ts-node: 10.7.0
     tslib: 2.4.0
     typescript: 4.6.4
-    zapatos: 5.0.4
-  languageName: unknown
-  linkType: soft
-
-"@connext/lighthouse@workspace:packages/agents/lighthouse":
-  version: 0.0.0-use.local
-  resolution: "@connext/lighthouse@workspace:packages/agents/lighthouse"
-  dependencies:
-    "@connext/nxtp-txservice": "workspace:*"
-    "@connext/nxtp-utils": "workspace:*"
-    "@graphql-codegen/cli": 2.6.2
-    "@sinclair/typebox": 0.23.5
-    "@types/mocha": 9.1.1
-    "@types/sinon": 10.0.11
-    axios: 0.27.2
-    concurrently: 7.2.0
-    dotenv: 16.0.1
-    eslint: 8.15.0
-    ethers: 5.6.6
-    fastify: 3.29.0
-    graphql: 16.5.0
-    interval-promise: 1.4.0
-    mocha: 10.0.0
-    nodemon: 2.0.16
-    nyc: 15.1.0
-    pino-pretty: 7.6.1
-    prom-client: 14.0.1
-    rimraf: 3.0.2
-    sinon: 14.0.0
-    ts-mocha: 10.0.0
-    typescript: 4.6.4
+    zapatos: 6.0.1
   languageName: unknown
   linkType: soft
 
@@ -757,9 +727,9 @@ __metadata:
   resolution: "@connext/nxtp-contracts@workspace:packages/deployments/contracts"
   dependencies:
     "@connext/nxtp-utils": "workspace:*"
-    "@nomad-xyz/configuration": 0.1.0-rc.22
-    "@nomad-xyz/sdk": 2.0.0-rc.16
-    "@nomad-xyz/sdk-bridge": 1.0.0-rc.16
+    "@nomad-xyz/configuration": 0.1.0-rc.23
+    "@nomad-xyz/sdk": 2.0.0-rc.17
+    "@nomad-xyz/sdk-bridge": 1.0.0-rc.17
     "@nomiclabs/hardhat-ethers": 2.0.6
     "@nomiclabs/hardhat-etherscan": 3.0.3
     "@nomiclabs/hardhat-waffle": 2.0.3
@@ -781,13 +751,13 @@ __metadata:
     eslint: 8.15.0
     ethereum-waffle: 3.4.4
     ethers: 5.6.6
-    hardhat: 2.9.5
+    hardhat: 2.9.6
     hardhat-contract-sizer: 2.5.1
     hardhat-deploy: 0.11.5
     hardhat-diamond-abi: 2.0.0
     hardhat-gas-reporter: 1.0.8
     prettier: 2.6.2
-    prettier-plugin-solidity: 1.0.0-dev.21
+    prettier-plugin-solidity: 1.0.0-beta.19
     rimraf: 3.0.2
     sinclair: 0.2.0
     sinon: 14.0.0
@@ -835,6 +805,36 @@ __metadata:
     ts-mocha: 10.0.0
     ts-node: 10.7.0
     tslib: 2.4.0
+    typescript: 4.6.4
+  languageName: unknown
+  linkType: soft
+
+"@connext/nxtp-lighthouse@workspace:packages/agents/lighthouse":
+  version: 0.0.0-use.local
+  resolution: "@connext/nxtp-lighthouse@workspace:packages/agents/lighthouse"
+  dependencies:
+    "@connext/nxtp-txservice": "workspace:*"
+    "@connext/nxtp-utils": "workspace:*"
+    "@graphql-codegen/cli": 2.6.2
+    "@sinclair/typebox": 0.23.5
+    "@types/mocha": 9.1.1
+    "@types/sinon": 10.0.11
+    axios: 0.27.2
+    concurrently: 7.2.0
+    dotenv: 16.0.1
+    eslint: 8.15.0
+    ethers: 5.6.6
+    fastify: 3.29.0
+    graphql: 16.5.0
+    interval-promise: 1.4.0
+    mocha: 10.0.0
+    nodemon: 2.0.16
+    nyc: 15.1.0
+    pino-pretty: 7.6.1
+    prom-client: 14.0.1
+    rimraf: 3.0.2
+    sinon: 14.0.0
+    ts-mocha: 10.0.0
     typescript: 4.6.4
   languageName: unknown
   linkType: soft
@@ -3206,10 +3206,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@nomad-xyz/configuration@npm:0.1.0-rc.22, @nomad-xyz/configuration@npm:^0.1.0-rc.21":
-  version: 0.1.0-rc.22
-  resolution: "@nomad-xyz/configuration@npm:0.1.0-rc.22"
-  checksum: d5fb539fffe4070ee029ae539718849cb82ebcb6561fa69db191a8adf83f0cbf4675265ed8bdca60a64f58787a9b090fef2e16f1ea9d7a8bcd9e48cc22ab973c
+"@nomad-xyz/configuration@npm:0.1.0-rc.23, @nomad-xyz/configuration@npm:^0.1.0-rc.23":
+  version: 0.1.0-rc.23
+  resolution: "@nomad-xyz/configuration@npm:0.1.0-rc.23"
+  checksum: 45f5e5efb0394d06299304f09b681e53deece1c8dd8b17fe1091fc09286f3ae26c3ccae8daf523c63d5e3614492845680b844fd50677788fe9e371de767fabdc
   languageName: node
   linkType: hard
 
@@ -3259,29 +3259,29 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@nomad-xyz/sdk-bridge@npm:1.0.0-rc.16":
-  version: 1.0.0-rc.16
-  resolution: "@nomad-xyz/sdk-bridge@npm:1.0.0-rc.16"
+"@nomad-xyz/sdk-bridge@npm:1.0.0-rc.17":
+  version: 1.0.0-rc.17
+  resolution: "@nomad-xyz/sdk-bridge@npm:1.0.0-rc.17"
   dependencies:
-    "@nomad-xyz/configuration": ^0.1.0-rc.21
+    "@nomad-xyz/configuration": ^0.1.0-rc.23
     "@nomad-xyz/contracts-bridge": ^1.0.0-rc.2
-    "@nomad-xyz/sdk": ^2.0.0-rc.16
+    "@nomad-xyz/sdk": ^2.0.0-rc.17
     ethers: ^5.0.0
     web3: ^1.6.1
-  checksum: 33b2e5b7f8ae5609dd07056f702cc54923a958c9e2333f769976792d18b1017c7cfd4a963714b9842edfd4bc64a9b24a906b0e504dcd39fb7c788337a60cf6b5
+  checksum: 3a6ee6c05b8cbe87c42d164739749c97b2b5d5dff5a53e6c9a9a1073b19dda30229dad82bc31e1edb84ecea361e8bc99a11d7e26bd284ada0e292c71b258bd44
   languageName: node
   linkType: hard
 
-"@nomad-xyz/sdk@npm:2.0.0-rc.16, @nomad-xyz/sdk@npm:^2.0.0-rc.16":
-  version: 2.0.0-rc.16
-  resolution: "@nomad-xyz/sdk@npm:2.0.0-rc.16"
+"@nomad-xyz/sdk@npm:2.0.0-rc.17, @nomad-xyz/sdk@npm:^2.0.0-rc.17":
+  version: 2.0.0-rc.17
+  resolution: "@nomad-xyz/sdk@npm:2.0.0-rc.17"
   dependencies:
-    "@nomad-xyz/configuration": ^0.1.0-rc.21
+    "@nomad-xyz/configuration": ^0.1.0-rc.23
     "@nomad-xyz/contracts-core": ^1.0.0-rc.2
     "@nomad-xyz/multi-provider": ^1.0.0-rc.4
     axios: ^0.27.2
     ethers: ^5.0.0
-  checksum: e8d727cd6d455244221fb248333742575bea67efb28f6756da4d35a99700ae5a29e8afacbdb340449f26247a84d59efd3267c36afbb6622780e409d09804bd77
+  checksum: 31694539411754a30b96ea222d32f568cc5b0626e42fae2e6f5c60dac5bb9fcb85fe608c6cdcc3ee434088bec81545762718c1223c981c7c0e219015d85de25d
   languageName: node
   linkType: hard
 
@@ -11493,9 +11493,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"hardhat@npm:2.9.5":
-  version: 2.9.5
-  resolution: "hardhat@npm:2.9.5"
+"hardhat@npm:2.9.6":
+  version: 2.9.6
+  resolution: "hardhat@npm:2.9.6"
   dependencies:
     "@ethereumjs/block": ^3.6.2
     "@ethereumjs/blockchain": ^5.5.2
@@ -11524,7 +11524,7 @@ __metadata:
     find-up: ^2.1.0
     fp-ts: 1.19.3
     fs-extra: ^7.0.1
-    glob: ^7.1.3
+    glob: 7.2.0
     immutable: ^4.0.0-rc.12
     io-ts: 1.10.4
     lodash: ^4.17.11
@@ -11549,7 +11549,7 @@ __metadata:
     chai: ^4.2.0
   bin:
     hardhat: internal/cli/cli.js
-  checksum: 231a12c1f19c9d1e468bf90d44ee3808a99e1189952eda8ba134daa732ed8fd6d1237c70adef37fdf3deb7eab0739986f88abd0ef5e7c2d6302d8fb3f13bfa7c
+  checksum: 479942921a4f1616fb40eec524044d027ef1114020b7a520d2fb764c32acce33e31ea141d20dfee7e1db1ca395af4121218aaf35a553488b45933bb44011cbb9
   languageName: node
   linkType: hard
 
@@ -17405,11 +17405,11 @@ __metadata:
   languageName: node
   linkType: hard
 
-"prettier-plugin-solidity@npm:1.0.0-dev.21":
-  version: 1.0.0-dev.21
-  resolution: "prettier-plugin-solidity@npm:1.0.0-dev.21"
+"prettier-plugin-solidity@npm:1.0.0-beta.19":
+  version: 1.0.0-beta.19
+  resolution: "prettier-plugin-solidity@npm:1.0.0-beta.19"
   dependencies:
-    "@solidity-parser/parser": ^0.14.1
+    "@solidity-parser/parser": ^0.14.0
     emoji-regex: ^10.0.0
     escape-string-regexp: ^4.0.0
     semver: ^7.3.5
@@ -17417,7 +17417,7 @@ __metadata:
     string-width: ^4.2.3
   peerDependencies:
     prettier: ^2.3.0
-  checksum: 3c43bb7404c380091310e59be718ec0161d268e4674e5e658723f7a7bc9b0f541df9816a8e7bd93b9e73a289f1e13ea1eab58027d4ee51d25460ea6e63c0c99e
+  checksum: 830297e27551137bd38d153b96ca2977ef6d8438fd0857cad8b7168d984ba054b401871892d0409aadfb4ea10212d4da95de0a5949f55c113d3307cd156cd719
   languageName: node
   linkType: hard
 
@@ -23098,16 +23098,16 @@ __metadata:
   languageName: node
   linkType: hard
 
-"zapatos@npm:5.0.4":
-  version: 5.0.4
-  resolution: "zapatos@npm:5.0.4"
+"zapatos@npm:6.0.1":
+  version: 6.0.1
+  resolution: "zapatos@npm:6.0.1"
   peerDependencies:
     "@types/pg": ">=7.14.3"
     pg: ">=7.18.2"
     typescript: ">=4.1"
   bin:
     zapatos: dist/generate/cli.js
-  checksum: fc8ee9634205e3e0a4af4255893c917b46a2efadd7b7fa3de9908b371dd7dc4206dee91f3ebd72c245c1f820183e733996dc4028311d94c6e6e082875862faf1
+  checksum: 9f84cff51398dd65ec0e55620f711ac36605e4f941389f9218a8e818194b29c60be372ab26ec0fbbef59f3fcac85486b078f069ee0a7bbb058e9a3bfe82b90f8
   languageName: node
   linkType: hard
 

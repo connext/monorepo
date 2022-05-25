@@ -1,17 +1,15 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity 0.8.11;
 
-import {TypedMemView, PromiseMessage, PromiseRouter} from "../../contracts/nomad-xapps/contracts/promise-router/PromiseRouter.sol";
-import {ICallback} from "../../contracts/interfaces/ICallback.sol";
-import {IAavePool} from "../../contracts/interfaces/IAavePool.sol";
-import {BaseConnextFacet} from "../../contracts/facets/BaseConnextFacet.sol";
-import {ISponsorVault} from "../../contracts/interfaces/ISponsorVault.sol";
+import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
-contract MockXAppConnectionManager {
-  function isReplica(address _replica) external returns (bool) {
-    return true;
-  }
-}
+import {TypedMemView, PromiseMessage, PromiseRouter} from "../../contracts/core/promise/PromiseRouter.sol";
+import {ICallback} from "../../contracts/core/promise/interfaces/ICallback.sol";
+import {BaseConnextFacet} from "../../contracts/core/connext/facets/BaseConnextFacet.sol";
+import {IAavePool} from "../../contracts/core/connext/interfaces/IAavePool.sol";
+import {ISponsorVault} from "../../contracts/core/connext/interfaces/ISponsorVault.sol";
+import {ITokenRegistry} from "../../contracts/core/connext/interfaces/ITokenRegistry.sol";
+import {IWrapped} from "../../contracts/core/connext/interfaces/IWrapped.sol";
 
 contract MockHome {
   function dispatch(
@@ -140,5 +138,43 @@ contract TestSetterFacet is BaseConnextFacet {
 
   function setTestRoutedTransfers(bytes32 _id, address[] memory _routers) external {
     s.routedTransfers[_id] = _routers;
+  }
+}
+
+contract MockWrapper is IWrapped {
+  function deposit() external payable {}
+
+  function withdraw(uint256 amount) external {}
+}
+
+contract MockTokenRegistry is ITokenRegistry {
+  function isLocalOrigin(address _token) external pure returns (bool) {
+    return true;
+  }
+
+  function ensureLocalToken(uint32 _domain, bytes32 _id) external pure returns (address _local) {
+    return address(42);
+  }
+
+  function mustHaveLocalToken(uint32 _domain, bytes32 _id) external pure returns (IERC20) {
+    return IERC20(address(42));
+  }
+
+  function getLocalAddress(uint32 _domain, bytes32 _id) external pure returns (address _local) {
+    return address(42);
+  }
+
+  function getTokenId(address _token) external pure returns (uint32, bytes32) {
+    return (uint32(42), bytes32("A"));
+  }
+
+  function enrollCustom(
+    uint32 _domain,
+    bytes32 _id,
+    address _custom
+  ) external {}
+
+  function oldReprToCurrentRepr(address _oldRepr) external pure returns (address _currentRepr) {
+    return address(42);
   }
 }

@@ -1,10 +1,11 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity 0.8.11;
 
-import "../interfaces/IStableSwap.sol";
 import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import "@openzeppelin/contracts/utils/Address.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+
+import "../core/connext/interfaces/IStableSwap.sol";
 
 /**
  * This contract is designed to be used in tests *only*!! Has no logic about
