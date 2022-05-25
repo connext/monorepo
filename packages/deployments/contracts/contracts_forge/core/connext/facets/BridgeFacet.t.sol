@@ -4,17 +4,19 @@ pragma solidity 0.8.11;
 import {ECDSA} from "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
+import {XAppConnectionManager} from "../../../../contracts/nomad-core/contracts/XAppConnectionManager.sol";
 import {IStableSwap} from "../../../../contracts/core/connext/interfaces/IStableSwap.sol";
 import {ITokenRegistry} from "../../../../contracts/core/connext/interfaces/ITokenRegistry.sol";
 import {IExecutor} from "../../../../contracts/core/connext/interfaces/IExecutor.sol";
 import {Executor} from "../../../../contracts/core/connext/helpers/Executor.sol";
 import {ConnextMessage} from "../../../../contracts/core/connext/libraries/ConnextMessage.sol";
 import {LibCrossDomainProperty} from "../../../../contracts/core/connext/libraries/LibCrossDomainProperty.sol";
-import {CallParams, ExecuteArgs} from "../../../../contracts/core/connext/libraries/LibConnextStorage.sol";
+import {CallParams, ExecuteArgs, XCallArgs} from "../../../../contracts/core/connext/libraries/LibConnextStorage.sol";
 import {LibDiamond} from "../../../../contracts/core/connext/libraries/LibDiamond.sol";
 import {BridgeFacet} from "../../../../contracts/core/connext/facets/BridgeFacet.sol";
 import {TestERC20} from "../../../../contracts/test/TestERC20.sol";
 
+import {MockXAppConnectionManager, MockHome} from "../../../utils/Mock.sol";
 import "../../../../lib/forge-std/src/console.sol";
 import "./FacetHelper.sol";
 
@@ -73,15 +75,20 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
 
   // local asset for this domain
   address _local;
-
   // executor contract
   address _executor;
-
   // mock xapp contract
   address _xapp;
+  // mock xapp connection manager
+  address _xapp_connection_manager;
+  // mock home
+  address _xapp_home;
 
   // default origin sender
   address _originSender = address(4);
+
+  // destination remote handler id
+  bytes32 _remote = bytes32("remote");
 
   // domains
   uint32 _originDomain = 1000;
@@ -145,6 +152,10 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
     vm.prank(address(this));
     LibDiamond.DiamondStorage storage ds = LibDiamond.diamondStorage();
     ds.contractOwner = _ds_owner;
+
+    // NOTE: Currently, only domain check is with xcall.
+    s.domain = _originDomain;
+    s.remotes[_destinationDomain] = _remote;
   }
 
   // ============ Utils ============
@@ -159,6 +170,28 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
     s.executor = IExecutor(_executor);
     // Deploy a mock xapp consumer.
     _xapp = address(new MockXApp());
+
+    // Deploy a mock home.
+    _xapp_home = address(new MockHome());
+    // Deploy a mock xapp connection manager.
+    _xapp_connection_manager = address(new MockXAppConnectionManager(MockHome(_xapp_home)));
+    s.xAppConnectionManager = XAppConnectionManager(_xapp_connection_manager);
+  }
+
+  // Meant to mimic the corresponding `_getTransferId` method in the BridgeFacet contract.
+  function utils_getTransferIdFromExecuteArgs(ExecuteArgs memory _args) public returns (bytes32) {
+    return
+      keccak256(
+        abi.encode(_args.nonce, _args.params, _args.originSender, _canonicalTokenId, _canonicalDomain, _args.amount)
+      );
+  }
+
+  // Meant to mimic the corresponding `_getTransferId` method in the BridgeFacet contract.
+  function utils_getTransferIdFromXCallArgs(XCallArgs memory _args, ConnextMessage.TokenId memory _canonical)
+    public
+    returns (bytes32)
+  {
+    return keccak256(abi.encode(s.nonce, _args.params, msg.sender, _canonical.id, _canonical.domain, _args.amount));
   }
 
   // Makes some mock router signatures.
@@ -198,14 +231,6 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
     return (_id, args);
   }
 
-  // Meant to mimic the `getTransferId` method in the BridgeFacet contract.
-  function utils_getTransferIdFromExecuteArgs(ExecuteArgs memory _args) public returns (bytes32) {
-    bytes32 transferId = keccak256(
-      abi.encode(_args.nonce, _args.params, _args.originSender, _canonicalTokenId, _canonicalDomain, _args.amount)
-    );
-    return transferId;
-  }
-
   // Make execute args, fill in a number of router/key pairs.
   // Specifically input 0 to make execute arguments with no routers/keys for slow liq simulation.
   function utils_makeExecuteArgs(uint256 num) public returns (bytes32, ExecuteArgs memory) {
@@ -230,10 +255,68 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
     return (_amount * s.LIQUIDITY_FEE_NUMERATOR) / s.LIQUIDITY_FEE_DENOMINATOR;
   }
 
+  function utils_makeXCallArgs() public returns (bytes32, XCallArgs memory) {
+    // get args
+    XCallArgs memory args = XCallArgs(
+      _params,
+      _local, // transactingAssetId : could be adopted, local, or wrapped.
+      _amount,
+      _relayerFee
+    );
+    // generate transfer id
+    bytes32 _id = utils_getTransferIdFromXCallArgs(args, s.adoptedToCanonical[_local]);
+
+    return (_id, args);
+  }
+
   // ============== Helpers ==================
   // Helpers used for executing target methods with given params that assert expected base behavior.
 
-  // TODO: helpers_xcallAndAssert
+  // Calls `xcall` with given args and handles standard assertions.
+  function helpers_xcallAndAssert(
+    bytes32 _id,
+    XCallArgs memory _args,
+    uint256 dealTokens,
+    uint256 dealEth
+  ) public {
+    uint256 fees = _args.relayerFee + _args.params.callbackFee;
+
+    TestERC20 localToken = TestERC20(_local);
+    uint256 initialUserBalance = localToken.balanceOf(_originSender);
+
+    uint256 initialContractBalance = localToken.balanceOf(address(this));
+
+    // Mint the specified amount of tokens for the user.
+    localToken.mint(_originSender, dealTokens);
+    // Deal the user required eth.
+    deal(_originSender, dealEth);
+
+    // Approve the target contract to spend the specified amount of tokens.
+    vm.prank(_originSender);
+    localToken.approve(address(this), dealTokens);
+
+    // IERC20 adoptedToken = IERC20(s.canonicalToAdopted[_canonicalTokenId]);
+    // uint256 prevBalanceTo = adoptedToken.balanceOf(_originSender);
+
+    vm.prank(_originSender);
+    this.xcall{value: fees}(_args);
+    // assertEq(localToken.balanceOf(_originSender), initialUserBalance - _args.amount);
+    // assertEq(localToken.balanceOf(address(this)), initialContractBalance + _args.amount);
+  }
+
+  // Shortcut for the above fn.
+  function helpers_xcallAndAssert(
+    bytes32 _id,
+    XCallArgs memory _args,
+    uint256 dealTokens
+  ) public {
+    helpers_xcallAndAssert(_id, _args, dealTokens, 100 ether);
+  }
+
+  // Shortcut for the above fn. Uses the amount for the transfer.
+  function helpers_xcallAndAssert(bytes32 _id, XCallArgs memory _args) public {
+    helpers_xcallAndAssert(_id, _args, _args.amount, 100 ether);
+  }
 
   // Calls `execute` on the target method with the given args and asserts expected behavior.
   function helpers_executeAndAssert(
@@ -306,7 +389,36 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
   // setSponsorVault
 
   // ============ Public methods ==============
-  // xcall
+
+  // ============ xcall ============
+
+  // ============ xcall fail cases
+  // fails if origin domain is incorrect
+  // fails if destination domain does not have an xapp router registered
+  // fails if recipient `to` not a valid address (i.e. != address(0))
+  // fails if callback address is empty and callback fee is > 0
+  // fails if callback is defined but not a contract
+  // fails if callback is defined (and is a contract) but callback fee is 0
+  // fails if asset is not supported (i.e. s.adoptedToCanonical[transactingAssetId].id == bytes32(0))
+
+  // fails if native token transfer and amount of native tokens sent is < amount + relayerFee
+  // AssetLogic__handleIncomingAsset_notAmount
+
+  // fails if native token transfer and amount of native tokens sent is < amount + relayerFee + callbackFee
+  // AssetLogic__handleIncomingAsset_notAmount
+
+  // fails if native tokens sent < relayerFee + callbackFee
+  // AssetLogic__handleIncomingAsset_ethWithErcTransfer
+
+  // fails if user has insufficient tokens
+
+  // ============ xcall success cases
+  // base case
+  function test_BridgeFacet__xcall_shouldWork() public {
+    (bytes32 transferId, XCallArgs memory args) = utils_makeXCallArgs();
+    helpers_xcallAndAssert(transferId, args);
+  }
+
   // handle (reconcile)
 
   // bumpTransfer

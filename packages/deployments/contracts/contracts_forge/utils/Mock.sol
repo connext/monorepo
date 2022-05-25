@@ -10,6 +10,18 @@ import {ISponsorVault} from "../../contracts/core/connext/interfaces/ISponsorVau
 import {ITokenRegistry} from "../../contracts/core/connext/interfaces/ITokenRegistry.sol";
 import {IWrapped} from "../../contracts/core/connext/interfaces/IWrapped.sol";
 
+contract MockXAppConnectionManager {
+  MockHome _home;
+
+  constructor(MockHome home) public {
+    _home = home;
+  }
+
+  function home() external returns (MockHome) {
+    return _home;
+  }
+}
+
 contract MockHome {
   function dispatch(
     uint32 _destinationDomain,
