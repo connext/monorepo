@@ -116,4 +116,22 @@ export class NxtpSdkUtils {
       throw error;
     }
   }
+
+  async getTransferByTransactionHash(transactionHash: string): Promise<any> {
+    const { requestContext, methodContext } = createLoggingContext(this.getTransferByTransactionHash.name);
+
+    const uri = formatUrl(
+      this.config.backendUrl!,
+      "transfers?",
+      `xcall_transaction_hash=eq.${transactionHash.toLowerCase()}`,
+    );
+
+    try {
+      const response = await axios.get(uri);
+      return response.data;
+    } catch (error: any) {
+      this.logger.error(`backend api request failed`, requestContext, methodContext, jsonifyError(error as Error));
+      throw error;
+    }
+  }
 }
