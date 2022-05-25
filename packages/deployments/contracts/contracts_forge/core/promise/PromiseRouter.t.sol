@@ -215,10 +215,7 @@ contract PromiseRouterTest is ForgeHelper, Deployer {
 
     promiseRouter.handle(remoteDomain, _nonce, remote, message);
     assertTrue(!_msg.isNull());
-    assertEq(
-      keccak256(abi.encodePacked(promiseRouter.promiseMessages(transferId))),
-      keccak256(abi.encodePacked(message))
-    );
+    assertEq(promiseRouter.messageHashes(transferId), _msg.keccak());
   }
 
   // ============ process ============
@@ -230,13 +227,15 @@ contract PromiseRouterTest is ForgeHelper, Deployer {
     bool success = true;
 
     promiseRouter.mockHandle(callbackAddress, success, returnData);
+    bytes memory message = PromiseMessage.formatPromiseCallback(transferId, callbackAddress, success, returnData);
+    bytes29 _msg = message.ref(0).mustBePromiseCallback();
 
     setApprovedRelayer(relayer, false);
 
     vm.expectRevert(abi.encodeWithSelector(PromiseRouter.PromiseRouter__process_notApprovedRelayer.selector));
 
     vm.prank(relayer);
-    promiseRouter.process(transferId);
+    promiseRouter.process(transferId, message);
   }
 
   // Should work if callback fee is zero
@@ -257,8 +256,10 @@ contract PromiseRouterTest is ForgeHelper, Deployer {
     setCallbackFee(transferId, callbackFee);
 
     promiseRouter.mockHandle(callbackAddress, success, returnData);
+    bytes memory message = PromiseMessage.formatPromiseCallback(transferId, callbackAddress, success, returnData);
+    bytes29 _msg = message.ref(0).mustBePromiseCallback();
 
-    bytes29 _msg = bytes29(promiseRouter.promiseMessages(transferId).ref(0).mustBePromiseCallback());
+    assertEq(_msg.keccak(), promiseRouter.messageHashes(transferId));
     assertTrue(_msg.isValid());
     assertTrue(AddressUpgradeable.isContract(_msg.callbackAddress()));
     assertTrue(callbackAddress == _msg.callbackAddress());
@@ -273,10 +274,10 @@ contract PromiseRouterTest is ForgeHelper, Deployer {
     emit CallbackExecuted(transferId, relayer);
 
     vm.prank(relayer);
-    promiseRouter.process(transferId);
+    promiseRouter.process(transferId, message);
 
     // check if promiseMessage cleared after callback
-    assertTrue(promiseRouter.promiseMessages(transferId).length == 0);
+    assertEq(promiseRouter.messageHashes(transferId), bytes32(0));
 
     // check if callbackFee cleared after callback
     assertTrue(promiseRouter.callbackFees(transferId) == 0);
@@ -305,11 +306,14 @@ contract PromiseRouterTest is ForgeHelper, Deployer {
     setCallbackFee(transferId, callbackFee);
 
     promiseRouter.mockHandle(callbackAddress, success, returnData);
+    bytes memory message = PromiseMessage.formatPromiseCallback(transferId, callbackAddress, success, returnData);
+    // bytes29 _msg = message.ref(0).mustBePromiseCallback();
 
-    bytes29 _msg = bytes29(promiseRouter.promiseMessages(transferId).ref(0).mustBePromiseCallback());
-    assertTrue(_msg.isValid());
-    assertTrue(AddressUpgradeable.isContract(_msg.callbackAddress()));
-    assertTrue(callbackAddress == _msg.callbackAddress());
+    // assertEq(_msg.keccak(), promiseRouter.messageHashes(transferId));
+
+    // assertTrue(_msg.isValid());
+    // assertTrue(AddressUpgradeable.isContract(_msg.callbackAddress()));
+    // assertTrue(callbackAddress == _msg.callbackAddress());
 
     // check if callback executed
     vm.expectCall(
@@ -321,13 +325,13 @@ contract PromiseRouterTest is ForgeHelper, Deployer {
     emit CallbackExecuted(transferId, relayer);
 
     vm.prank(relayer);
-    promiseRouter.process(transferId);
+    promiseRouter.process(transferId, message);
 
     // check if promiseMessage cleared after callback
-    assertTrue(promiseRouter.promiseMessages(transferId).length == 0);
+    assertEq(promiseRouter.messageHashes(transferId), bytes32(0));
 
     // check if callbackFee cleared after callback
-    assertTrue(promiseRouter.callbackFees(transferId) == 0);
+    assertEq(promiseRouter.callbackFees(transferId), 0);
 
     // check if callback fee is transferred to relayer
     uint256 relayerAfterBalance = relayer.balance;

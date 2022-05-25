@@ -33,6 +33,7 @@ contract PromiseRouter is Version0, Router, ReentrancyGuardUpgradeable {
   error PromiseRouter__send_returndataEmpty();
   error PromiseRouter__send_callbackAddressNotContract();
   error PromiseRouter__process_invalidTransferId();
+  error PromiseRouter__process_invalidMessage();
   error PromiseRouter__process_notApprovedRelayer();
   error PromiseRouter__process_insufficientCallbackFee();
   error PromiseRouter__process_notContractCallback();
@@ -48,7 +49,7 @@ contract PromiseRouter is Version0, Router, ReentrancyGuardUpgradeable {
    * @notice Mapping of transferId to promise callback messages
    * @dev While handling the message, it will parse transferId from incomming message and store the message in the mapping
    */
-  mapping(bytes32 => bytes) public promiseMessages;
+  mapping(bytes32 => bytes32) public messageHashes;
 
   /**
    * @notice Mapping of transferId to callback fee
@@ -216,7 +217,7 @@ contract PromiseRouter is Version0, Router, ReentrancyGuardUpgradeable {
     bytes memory data = _msg.returnData();
 
     // store Promise message
-    promiseMessages[transferId] = _message;
+    messageHashes[transferId] = _msg.keccak();
 
     // emit Receive event
     emit Receive(_originAndNonce(_origin, _nonce), _origin, transferId, callbackAddress, success, data, _message);
@@ -226,12 +227,13 @@ contract PromiseRouter is Version0, Router, ReentrancyGuardUpgradeable {
    * @notice Process stored callback function
    * @param transferId The transferId to process
    */
-  function process(bytes32 transferId) public nonReentrant {
+  function process(bytes32 transferId, bytes calldata _message) public nonReentrant {
     // parse out the return data and callback address from message
-    bytes memory _message = promiseMessages[transferId];
-    if (_message.length == 0) revert PromiseRouter__process_invalidTransferId();
+    bytes32 messageHash = messageHashes[transferId];
+    if (messageHash == bytes32(0)) revert PromiseRouter__process_invalidTransferId();
 
     bytes29 _msg = _message.ref(0).mustBePromiseCallback();
+    if (messageHash != _msg.keccak()) revert PromiseRouter__process_invalidMessage();
 
     // enforce relayer is whitelisted by calling local connext contract
     if (!connext.approvedRelayers(msg.sender)) revert PromiseRouter__process_notApprovedRelayer();
@@ -243,7 +245,7 @@ contract PromiseRouter is Version0, Router, ReentrancyGuardUpgradeable {
     uint256 callbackFee = callbackFees[transferId];
 
     // remove message
-    delete promiseMessages[transferId];
+    delete messageHashes[transferId];
 
     // remove callback fees
     callbackFees[transferId] = 0;
@@ -284,7 +286,7 @@ contract PromiseRouter is Version0, Router, ReentrancyGuardUpgradeable {
     // the other options are to (a) track process status in a separate mapping (3 mappings updated)
     // on process) or (b) use the callbackFees mapping and require the callback fees are nonzero
     // on xcall (preventing 0-fee callbacks)
-    if (promiseMessages[_transferId].length == 0) revert PromiseRouter__bumpCallbackFee_messageUnavailable();
+    if (messageHashes[_transferId] == bytes32(0)) revert PromiseRouter__bumpCallbackFee_messageUnavailable();
 
     callbackFees[_transferId] += msg.value;
 
