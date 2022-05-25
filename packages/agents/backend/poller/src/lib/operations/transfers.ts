@@ -1,39 +1,29 @@
 import { createLoggingContext, OriginTransfer, XTransferStatus, SubgraphQueryMetaParams } from "@connext/nxtp-utils";
 
-import { getSubgraphHealth } from "../../shared";
 import { getContext } from "../../backend";
 
 export const updateTransfers = async () => {
   const {
     adapters: { subgraph, database },
     logger,
-    config,
-    chainData,
     domains,
   } = getContext();
   const { requestContext, methodContext } = createLoggingContext("updateTransfers");
 
   const subgraphQueryMetaParams: Map<string, SubgraphQueryMetaParams> = new Map();
+  const lastestBlockNumbers: Map<string, number> = await subgraph.getLatestBlockNumber(domains);
 
   for (const domain of domains) {
-    // Update subgraph health and get the subgraphs' latest synced block.
-    // TODO: Handle multiple health endpoints (i.e. backups); handle multiple subgraphs for a given domain.
-    // TODO: Move this health check to SubgraphReader.
     let latestBlockNumber: number | undefined = undefined;
-    const network = chainData.get(domain)!.network;
-    // TODO: Remove hardcoded.
-    const healthUrl = "https://api.thegraph.com/index-node/graphql";
-    const subgraphName = `nxtp-amarok-runtime-${config.environment === "staging" ? "staging" : "v0"}-${network}`;
-    const subgraphHealth = await getSubgraphHealth(subgraphName, healthUrl);
-    if (subgraphHealth && subgraphHealth.synced) {
-      latestBlockNumber = subgraphHealth.latestBlock;
+    if (lastestBlockNumbers.has(domain)) {
+      latestBlockNumber = lastestBlockNumbers.get(domain)!;
     }
+
     if (!latestBlockNumber) {
       logger.error("Error getting the latestBlockNumber for domain.", requestContext, methodContext, undefined, {
         domain,
-        subgraphName,
         latestBlockNumber,
-        healthUrl,
+        lastestBlockNumbers,
       });
       continue;
     }
