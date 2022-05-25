@@ -20,17 +20,18 @@ contract AssetFacetTest is AssetFacet, FacetHelper {
   address _owner = address(12345);
 
   // sample data
-  uint32 _domain = 1000;
+  uint32 _domain = _originDomain;
 
-  address _local = address(7);
-  bytes32 _localTokenId = bytes32(abi.encodePacked(_local));
-
-  address _canonical = address(5);
-  bytes32 _canonicalTokenId = bytes32(abi.encodePacked(_canonical));
+  bytes32 _localTokenId;
 
   // ============ Test set up ============
   function setUp() public {
     setOwner(_owner);
+
+    _local = address(7);
+    _localTokenId = bytes32(abi.encodePacked(_local));
+    _canonical = address(5);
+    _canonicalTokenId = bytes32(abi.encodePacked(_canonical));
   }
 
   // ============ Utils ==============

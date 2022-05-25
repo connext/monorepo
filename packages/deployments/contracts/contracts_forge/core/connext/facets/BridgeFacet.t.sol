@@ -9,8 +9,11 @@ import {IStableSwap} from "../../../../contracts/core/connext/interfaces/IStable
 import {ITokenRegistry} from "../../../../contracts/core/connext/interfaces/ITokenRegistry.sol";
 import {ConnextMessage} from "../../../../contracts/core/connext/libraries/ConnextMessage.sol";
 import {CallParams, ExecuteArgs} from "../../../../contracts/core/connext/libraries/LibConnextStorage.sol";
+import {XAppConnectionManager} from "../../../../contracts/nomad-core/contracts/XAppConnectionManager.sol";
 import {BridgeFacet} from "../../../../contracts/core/connext/facets/BridgeFacet.sol";
 import {TestERC20} from "../../../../contracts/test/TestERC20.sol";
+
+import {MockPool, MockXAppConnectionManager} from "../../../utils/Mock.sol";
 
 import "../../../../lib/forge-std/src/console.sol";
 import "./FacetHelper.sol";

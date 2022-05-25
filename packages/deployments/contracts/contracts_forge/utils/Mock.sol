@@ -11,6 +11,12 @@ import {ISponsorVault} from "../../contracts/core/connext/interfaces/ISponsorVau
 import {ITokenRegistry} from "../../contracts/core/connext/interfaces/ITokenRegistry.sol";
 import {IWrapped} from "../../contracts/core/connext/interfaces/IWrapped.sol";
 
+contract MockXAppConnectionManager {
+  function isReplica(address _replica) external returns (bool) {
+    return true;
+  }
+}
+
 contract MockHome {
   function dispatch(
     uint32 _destinationDomain,
