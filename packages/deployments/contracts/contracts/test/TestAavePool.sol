@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity 0.8.11;
 
-import {IAavePool} from "../interfaces/IAavePool.sol";
+import {IAavePool} from "../core/connext/interfaces/IAavePool.sol";
 
 contract TestAavePool is IAavePool {
   bool revertCall;
