@@ -146,7 +146,7 @@ export class NxtpSdkBase {
     const xParams: CallParams = {
       ...params,
       callData: params.callData || "0x",
-      callback: params.callback || "0x",
+      callback: params.callback || constants.AddressZero,
       callbackFee: params.callbackFee || "0",
       recovery: params.recovery || params.to,
       forceSlow: params.forceSlow || false,
