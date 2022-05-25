@@ -60,6 +60,14 @@ describe("SdkBase", () => {
       );
     });
 
+    it("happy: should work for Native", async () => {
+      expect(nxtpSdkBase).to.not.be.undefined;
+      expect(nxtpSdkBase.approveIfNeeded).to.be.a("function");
+
+      const res = await nxtpSdkBase.approveIfNeeded(mock.domain.A, constants.AddressZero, "1");
+      expect(res).to.be.undefined;
+    });
+
     it("happy: should work for ERC20 when allowance sufficient", async () => {
       expect(nxtpSdkBase).to.not.be.undefined;
       expect(nxtpSdkBase.approveIfNeeded).to.be.a("function");
@@ -76,8 +84,9 @@ describe("SdkBase", () => {
 
       chainReader.readTx.resolves("0x0000000000000000000000000000000000000000000000000000000000000000");
 
+      const mockConnextAddresss = mockConfig.chains[mock.domain.A].deployments.connext;
       const mockAssetId = mock.asset.A.address;
-      const data = getErc20Interface().encodeFunctionData("approve", [mockAssetId, constants.MaxUint256]);
+      const data = getErc20Interface().encodeFunctionData("approve", [mockConnextAddresss, constants.MaxUint256]);
 
       const mockApproveTxRequest: providers.TransactionRequest = {
         to: mockAssetId,
@@ -88,16 +97,7 @@ describe("SdkBase", () => {
       };
 
       const res = await nxtpSdkBase.approveIfNeeded(mock.domain.A, mockAssetId, "1");
-      console.log(res);
-      expect(res).to.be.eq(mockApproveTxRequest);
-    });
-
-    it("happy: should work for Native", async () => {
-      expect(nxtpSdkBase).to.not.be.undefined;
-      expect(nxtpSdkBase.approveIfNeeded).to.be.a("function");
-
-      const res = await nxtpSdkBase.approveIfNeeded(mock.domain.A, constants.AddressZero, "1");
-      expect(res).to.be.undefined;
+      expect(res).to.be.deep.eq(mockApproveTxRequest);
     });
   });
 
