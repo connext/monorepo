@@ -527,6 +527,7 @@ contract BridgeFacet is BaseConnextFacet {
     // Make sure number of routers is below the configured maximum.
     if (pathLength > s.maxRoutersPerTransfer) revert BridgeFacet__execute_maxRoutersExceeded();
 
+    // Derive transfer ID based on given arguments.
     bytes32 transferId = _getTransferId(_args);
 
     // Retrieve the reconciled record. If the transfer is `forceSlow` then it must be reconciled first
@@ -534,12 +535,15 @@ contract BridgeFacet is BaseConnextFacet {
     bool reconciled = s.reconciledTransfers[transferId];
     if (_args.params.forceSlow && !reconciled) revert BridgeFacet__execute_notReconciled();
 
-    // Derive the payload for which each router should have produced a signature.
+    // Hash the payload for which each router should have produced a signature.
+    // Each router should have signed the `transferId` (which implicitly signs call params,
+    // amount, and tokenId) as well as the `pathLength`, or the number of routers with which
+    // they are splitting liquidity provision.
     bytes32 routerHash = keccak256(abi.encode(transferId, pathLength));
 
     if (pathLength > 0) {
       for (uint256 i; i < pathLength; ) {
-        // Make sure the router is approved.
+        // Make sure the router is approved, if applicable.
         // If router ownership is renounced (_RouterOwnershipRenounced() is true), then the router whitelist
         // no longer applies and we can skip this approval step.
         if (!_isRouterOwnershipRenounced() && !s.routerPermissionInfo.approvedRouters[_args.routers[i]]) {
@@ -551,6 +555,7 @@ contract BridgeFacet is BaseConnextFacet {
         if (_args.routers[i] != _recoverSignature(routerHash, _args.routerSignatures[i])) {
           revert BridgeFacet__execute_invalidRouterSignature();
         }
+
         unchecked {
           i++;
         }

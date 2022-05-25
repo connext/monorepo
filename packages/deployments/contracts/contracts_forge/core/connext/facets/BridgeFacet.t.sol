@@ -304,8 +304,7 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
 
   // ============ execute ============
 
-  // TODO: These tests wouldn't actually test anything right now because router 'approval'
-  // isn't actually checked, only implicit approval (via router liquidity amount) is checked.
+  // TODO:
   // should work with unapproved router if ownership renounced
   // should work with unapproved router if router-whitelist ownership renounced
   // should fail if the router is not approved and ownership is not renounced
@@ -356,8 +355,34 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
   }
 
   // should fail if the router signature is invalid
+  function test_BridgeFacet__execute_failIfSignatureInvalid() public {
+    // Using multipath; this should fail if any 1 router signature is invalid.
+    (bytes32 transferId, ExecuteArgs memory args) = utils_makeExecuteArgs(4);
+
+    for (uint256 i; i < args.routers.length; i++) {
+      s.routerBalances[args.routers[i]][args.local] += 10 ether;
+    }
+
+    // Make an invalid transfer ID based on (slightly) altered params.
+    _params.originDomain = 1001;
+    (bytes32 invalidTransferId, ExecuteArgs memory invalidArgs) = utils_makeExecuteArgs(4);
+    // The signature of the last router in the group will be invalid.
+    args.routerSignatures[3] = invalidArgs.routerSignatures[3];
+
+    vm.expectRevert(BridgeFacet.BridgeFacet__execute_invalidRouterSignature.selector);
+    this.execute(args);
+  }
 
   // should fail if it was already executed (s.transferRelayer[transferId] != address(0))
+  function test_BridgeFacet__execute_failIfAlreadyExecuted() public {
+    (bytes32 transferId, ExecuteArgs memory args) = utils_makeExecuteArgs(1);
+    s.transferRelayer[transferId] = address(this);
+
+    s.routerBalances[args.routers[0]][args.local] += 10 ether;
+
+    vm.expectRevert(BridgeFacet.BridgeFacet__execute_alreadyExecuted.selector);
+    this.execute(args);
+  }
 
   // should fail if the router does not have sufficient tokens
   function test_BridgeFacet__execute_failIfRouterHasInsufficientFunds() public {
@@ -549,6 +574,8 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
 
   // multipath: should subtract equally from each router's liquidity
   function test_BridgeFacet__execute_multipath() public {
+    _amount = 1 ether;
+
     // Call the mock xapp just to ensure that the full execute e2e remains uniform.
     _params.callData = abi.encodeWithSelector(MockXApp.fulfill.selector, _local, TEST_MESSAGE);
     _params.to = _xapp;
@@ -557,8 +584,11 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
     uint256 pathLength = s.maxRoutersPerTransfer;
     (bytes32 transferId, ExecuteArgs memory args) = utils_makeExecuteArgs(pathLength);
 
-    for (uint256 i; i < args.routers.length; i++) {
-      s.routerBalances[args.routers[i]][args.local] += 10 ether;
+    // Sanity check: assuming the multipath is > 1, no router should need to have more than half of the
+    // transfer amount.
+    s.routerBalances[args.routers[0]][args.local] = 0.5 ether;
+    for (uint256 i = 1; i < args.routers.length; i++) {
+      s.routerBalances[args.routers[i]][args.local] = 10 ether;
     }
 
     uint256 amount = utils_getFastTransferAmount(args.amount);
@@ -567,11 +597,15 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
     helpers_executeAndAssert(transferId, args);
     // Recovery address should not receive any funds if the call was successful.
     assertEq(IERC20(args.local).balanceOf(_recovery), 0);
-    for (uint256 i; i < args.routers.length; i++) {
+    // Make sure routers had their funds deducted correctly.
+    assertEq(s.routerBalances[args.routers[0]][args.local], 0.5 ether - routerAmountSent);
+    for (uint256 i = 1; i < args.routers.length; i++) {
       assertEq(s.routerBalances[args.routers[i]][args.local], 10 ether - routerAmountSent);
     }
   }
 
   // should work with sponsorship from sponsor vault
   // TODO: see _handleExecuteTransaction
+
+  // TODO: test callback handling
 }
