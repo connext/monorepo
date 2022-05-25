@@ -1,4 +1,4 @@
-import { getChainData, OriginTransfer, SubgraphQueryMetaParams } from "@connext/nxtp-utils";
+import { ChainData, getChainData, OriginTransfer, SubgraphQueryMetaParams } from "@connext/nxtp-utils";
 import { gql } from "graphql-request";
 
 import { SubgraphReader } from "../src/reader";
@@ -8,9 +8,17 @@ export const test = async () => {
   // This needs to be removed after getting integrated into other packages.
   // rinkeby => (domain: 1111, network: rinkeby)
   // kovan => (domain: 2221, network: kovan)
+  // goerli => (domain: 3331, network: goerli)
+  const allowedDomains = ["1111", "2221", "3331"];
 
   const chainData = await getChainData();
-  const subgraphReader = await SubgraphReader.create(chainData!, "production");
+  const allowedChainData: Map<string, ChainData> = new Map();
+  for (const allowedDomain of allowedDomains) {
+    if (chainData.has(allowedDomain)) {
+      allowedChainData.set(allowedDomain, chainData.get(allowedDomain)!);
+    }
+  }
+  const subgraphReader = await SubgraphReader.create(allowedChainData!, "production");
 
   // test -> query()
   const query = gql`
@@ -26,6 +34,11 @@ export const test = async () => {
   const routersResponse = await subgraphReader.query(query);
   console.log([...routersResponse.values()][0][0]);
   console.log([...routersResponse.values()][1][0]);
+
+  // getLastesBlockNumber(domains)
+  const lastesBlockNumbers = await subgraphReader.getLatestBlockNumber(allowedDomains);
+  console.log("> lastesBlockNumber: ");
+  console.log(lastesBlockNumbers);
 
   // getAssetBalance(domain, router, local)
   console.log(
