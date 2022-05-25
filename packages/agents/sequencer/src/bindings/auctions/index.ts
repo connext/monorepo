@@ -1,5 +1,5 @@
 import interval from "interval-promise";
-import { createLoggingContext } from "@connext/nxtp-utils";
+import { createLoggingContext, jsonifyError } from "@connext/nxtp-utils";
 
 import { getOperations } from "../../lib/operations";
 import { getContext } from "../../sequencer";
@@ -25,7 +25,11 @@ export const bindAuctions = async (
     if (config.mode.cleanup) {
       stop();
     } else {
-      await executeAuctions(requestContext);
+      try {
+        await executeAuctions(requestContext);
+      } catch (e: unknown) {
+        logger.error("Error in auction execution loop", requestContext, methodContext, jsonifyError(e as Error));
+      }
     }
   }, _executorPollInterval);
 };

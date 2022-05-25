@@ -36,14 +36,16 @@ export const execute = async (
   //     params,
   //   });
   // }
+  let encodedData = "";
   try {
-    const encodedData = contracts.connext.encodeFunctionData("execute", [args]);
-
-    await sendToRelayer(args, encodedData, transferId, requestContext);
+    encodedData = contracts.connext.encodeFunctionData("execute", [args]);
   } catch (error: any) {
-    logger.error("Error executing", requestContext, methodContext, jsonifyError(error as NxtpError), {
+    logger.error("Error encoding execute data", requestContext, methodContext, jsonifyError(error as NxtpError), {
       args,
       transferId,
     });
+    return;
   }
+
+  await sendToRelayer(args, encodedData, transferId, requestContext);
 };

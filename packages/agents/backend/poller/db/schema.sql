@@ -208,4 +208,5 @@ ALTER TABLE ONLY public.asset_balances
 --
 
 INSERT INTO public.schema_migrations (version) VALUES
-    ('20220520150644');
+    ('20220520150644'),
+    ('20220524141906');
