@@ -148,7 +148,7 @@ export class NxtpSdkUtils {
     const rangeIdentifier = `?limit=${limit}&offset=${offset}`;
     const orderIdentifier = `?order=xcall_timestamp.desc`;
 
-    const uri = formatUrl(this.config.backendUrl!, "transfers?", statusIdentifier, rangeIdentifier, orderIdentifier);
+    const uri = formatUrl(this.config.backendUrl!, "transfers?", statusIdentifier + rangeIdentifier + orderIdentifier);
 
     try {
       const response = await axios.get(uri);
