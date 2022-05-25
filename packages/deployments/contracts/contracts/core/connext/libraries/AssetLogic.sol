@@ -324,7 +324,7 @@ library AssetLogic {
     } else {
       IStableSwap pool = s.adoptedToLocalPools[id];
 
-      return (pool.calculateSwap(_asset, adopted, _amount), adopted);
+      return (pool.calculateSwapFromAddress(_asset, adopted, _amount), adopted);
     }
   }
 
@@ -358,7 +358,7 @@ library AssetLogic {
     } else {
       IStableSwap pool = s.adoptedToLocalPools[id];
 
-      return (pool.calculateSwap(_asset, local, _amount), local);
+      return (pool.calculateSwapFromAddress(_asset, local, _amount), local);
     }
   }
 }

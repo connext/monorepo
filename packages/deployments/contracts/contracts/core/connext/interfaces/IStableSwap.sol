@@ -66,7 +66,7 @@ interface IStableSwap {
     uint256 dx
   ) external view returns (uint256);
 
-  function calculateSwap(
+  function calculateSwapFromAddress(
     address assetIn,
     address assetOut,
     uint256 amountIn

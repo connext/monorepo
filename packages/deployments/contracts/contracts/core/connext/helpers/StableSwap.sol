@@ -192,7 +192,7 @@ contract StableSwap is IStableSwap, OwnerPausableUpgradeable, ReentrancyGuardUpg
    * @param amountIn the amount of tokens the user wants to swap from
    * @return amount of tokens the user will receive
    */
-  function calculateSwap(
+  function calculateSwapFromAddress(
     address assetIn,
     address assetOut,
     uint256 amountIn
