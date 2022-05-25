@@ -97,9 +97,9 @@ export const getTransfersByStatus = async (
   const poolToUse = _pool ?? pool;
   const x = await db.sql<s.transfers.SQL, s.transfers.JSONSelectable[]>`SELECT * FROM ${"transfers"} WHERE ${{
     status,
-  }} ORDER BY "transfers.xcall_timestamp" ${raw(`${orderDirection}`)} LIMIT ${db.param(limit)} OFFSET ${db.param(
-    offset,
-  )}`.run(poolToUse);
+  }} ORDER BY "xcall_timestamp" ${raw(`${orderDirection}`)} LIMIT ${db.param(limit)} OFFSET ${db.param(offset)}`.run(
+    poolToUse,
+  );
   return x.map(convertFromDbTransfer);
 };
 

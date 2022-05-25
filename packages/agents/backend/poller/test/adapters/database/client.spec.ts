@@ -21,17 +21,13 @@ import {
   saveRouterBalances,
 } from "../../../src/adapters/database/client";
 
-const db = newDb();
-const { Pool } = db.adapters.createPg();
-
 describe.only("Database client", () => {
   let pool: pg.Pool;
-  let xTransfer: XTransfer;
-  let transfers: XTransfer[] = [];
   const batchSize = 10;
 
-  before(async () => {
-    xTransfer = mock.entity.xtransfer({ status: XTransferStatus.Executed });
+  beforeEach(async () => {
+    const db = newDb();
+    const { Pool } = db.adapters.createPg();
     pool = new Pool();
     await pool.query(`
     CREATE TYPE transfer_status AS ENUM (
@@ -181,6 +177,7 @@ describe.only("Database client", () => {
   });
 
   it("should save single transfer", async () => {
+    const xTransfer = mock.entity.xtransfer({ status: XTransferStatus.Executed });
     await saveTransfers([xTransfer], pool);
   });
 
@@ -197,6 +194,7 @@ describe.only("Database client", () => {
   });
 
   it("should upsert single transfer", async () => {
+    const xTransfer = mock.entity.xtransfer({ status: XTransferStatus.Executed });
     xTransfer.destination.status = XTransferStatus.CompletedFast;
     await saveTransfers([xTransfer], pool);
     const dbTransfer = await getTransferByTransferId(xTransfer.transferId, pool);
@@ -205,6 +203,7 @@ describe.only("Database client", () => {
   });
 
   it("should save multiple transfers", async () => {
+    const transfers: XTransfer[] = [];
     for (var _i = 0; _i < batchSize; _i++) {
       transfers.push(mock.entity.xtransfer({ status: XTransferStatus.Executed }));
     }
@@ -212,6 +211,7 @@ describe.only("Database client", () => {
   });
 
   it("should upsert multiple transfers", async () => {
+    const transfers: XTransfer[] = [];
     for (let transfer of transfers) {
       transfer.destination.status = XTransferStatus.CompletedSlow;
     }
@@ -224,12 +224,15 @@ describe.only("Database client", () => {
   });
 
   it("should get transfer by status", async () => {
+    const xTransfer = mock.entity.xtransfer({ status: XTransferStatus.CompletedFast });
+    await saveTransfers([xTransfer], pool);
+
     const statusTransfers = await getTransfersByStatus(XTransferStatus.CompletedFast, 10, 0, "ASC", pool);
     expect(statusTransfers.length).greaterThan(0);
     expect(statusTransfers[0].destination.status).equal(xTransfer.destination.status);
   });
 
-  it.only("should get transfer by status with limit", async () => {
+  it("should get transfer by status with limit and ascending order", async () => {
     const transfers = Array(10)
       .fill(0)
       .map((_a, index) => {
@@ -240,8 +243,50 @@ describe.only("Database client", () => {
       });
     await saveTransfers(transfers, pool);
     const set1 = await getTransfersByStatus(XTransferStatus.Executed, 4, 0, "ASC", pool);
-    console.log("set1: ", set1);
+    expect(set1[0].nonce).to.eq(1);
+  });
+
+  it("should get transfer by status with limit and descending order", async () => {
+    const transfers = Array(10)
+      .fill(0)
+      .map((_a, index) => {
+        const t: XTransfer = mock.entity.xtransfer({ status: XTransferStatus.Executed });
+        t.nonce = index + 1;
+        t.origin.xcall.timestamp = index + 1;
+        return t;
+      });
+    await saveTransfers(transfers, pool);
+    const set1 = await getTransfersByStatus(XTransferStatus.Executed, 4, 0, "DESC", pool);
     expect(set1[0].nonce).to.eq(10);
+  });
+
+  it("should get transfer by status with limit", async () => {
+    const transfers = Array(10)
+      .fill(0)
+      .map((_a, index) => {
+        const t: XTransfer = mock.entity.xtransfer({ status: XTransferStatus.Executed });
+        t.nonce = index + 1;
+        t.origin.xcall.timestamp = index + 1;
+        return t;
+      });
+    await saveTransfers(transfers, pool);
+    const set1 = await getTransfersByStatus(XTransferStatus.Executed, 4, 0, "DESC", pool);
+    expect(set1.length).to.eq(4);
+  });
+
+  it("should get transfer by status with limit from offset", async () => {
+    const transfers = Array(10)
+      .fill(0)
+      .map((_a, index) => {
+        const t: XTransfer = mock.entity.xtransfer({ status: XTransferStatus.Executed });
+        t.nonce = index + 1;
+        t.origin.xcall.timestamp = index + 1;
+        return t;
+      });
+    await saveTransfers(transfers, pool);
+    const set1 = await getTransfersByStatus(XTransferStatus.Executed, 1, 9, "DESC", pool);
+    expect(set1.length).to.eq(1);
+    expect(set1[0].nonce).to.eq(1);
   });
 
   it("should save valid boolean fields", async () => {
@@ -265,6 +310,8 @@ describe.only("Database client", () => {
   });
 
   it("should get latest nonce", async () => {
+    const xTransfer = mock.entity.xtransfer();
+    await saveTransfers([xTransfer], pool);
     const nonce = await getLatestNonce("1337", pool);
     expect(nonce).equal(1234);
   });
