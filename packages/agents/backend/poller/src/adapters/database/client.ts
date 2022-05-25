@@ -1,6 +1,7 @@
 import { XTransfer, XTransferStatus, RouterBalance, convertFromDbTransfer } from "@connext/nxtp-utils";
 import { Pool } from "pg";
 import * as db from "zapatos/db";
+import { raw } from "zapatos/db";
 import type * as s from "zapatos/schema";
 
 import { pool } from "./index";
@@ -96,7 +97,7 @@ export const getTransfersByStatus = async (
   const poolToUse = _pool ?? pool;
   const x = await db.sql<s.transfers.SQL, s.transfers.JSONSelectable[]>`SELECT * FROM ${"transfers"} WHERE ${{
     status,
-  }} ORDER BY "transfers.xcall_timestamp" ${db.param(orderDirection)} LIMIT ${db.param(limit)} OFFSET ${db.param(
+  }} ORDER BY "transfers.xcall_timestamp" ${raw(`${orderDirection}`)} LIMIT ${db.param(limit)} OFFSET ${db.param(
     offset,
   )}`.run(poolToUse);
   return x.map(convertFromDbTransfer);

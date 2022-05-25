@@ -24,7 +24,7 @@ import {
 const db = newDb();
 const { Pool } = db.adapters.createPg();
 
-describe("Database client", () => {
+describe.only("Database client", () => {
   let pool: pg.Pool;
   let xTransfer: XTransfer;
   let transfers: XTransfer[] = [];
@@ -227,6 +227,21 @@ describe("Database client", () => {
     const statusTransfers = await getTransfersByStatus(XTransferStatus.CompletedFast, 10, 0, "ASC", pool);
     expect(statusTransfers.length).greaterThan(0);
     expect(statusTransfers[0].destination.status).equal(xTransfer.destination.status);
+  });
+
+  it.only("should get transfer by status with limit", async () => {
+    const transfers = Array(10)
+      .fill(0)
+      .map((_a, index) => {
+        const t: XTransfer = mock.entity.xtransfer({ status: XTransferStatus.Executed });
+        t.nonce = index + 1;
+        t.origin.xcall.timestamp = index + 1;
+        return t;
+      });
+    await saveTransfers(transfers, pool);
+    const set1 = await getTransfersByStatus(XTransferStatus.Executed, 4, 0, "ASC", pool);
+    console.log("set1: ", set1);
+    expect(set1[0].nonce).to.eq(10);
   });
 
   it("should save valid boolean fields", async () => {
