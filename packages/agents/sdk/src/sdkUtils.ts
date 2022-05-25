@@ -88,6 +88,24 @@ export class NxtpSdkUtils {
     }
   }
 
+  async getTransfersByRouter(params: { routerAddress: string; status?: XTransferStatus }): Promise<any> {
+    const { requestContext, methodContext } = createLoggingContext(this.getTransfersByUser.name);
+
+    const { routerAddress, status } = params;
+
+    const routerIdentifier = `routers=cs.%${routerAddress.toLowerCase()}%7D&`;
+    const statusIdentifier = status ? `status=eq.${status}` : "";
+    const uri = formatUrl(this.config.backendUrl!, "transfers?", routerIdentifier + statusIdentifier);
+
+    try {
+      const response = await axios.get(uri);
+      return response.data;
+    } catch (error: any) {
+      this.logger.error(`backend api request failed`, requestContext, methodContext, jsonifyError(error as Error));
+      throw error;
+    }
+  }
+
   async getTransfersByStatus(status: XTransferStatus): Promise<any> {
     const { requestContext, methodContext } = createLoggingContext(this.getTransfersByStatus.name);
 
