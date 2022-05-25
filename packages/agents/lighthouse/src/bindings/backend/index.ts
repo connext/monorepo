@@ -41,36 +41,36 @@ export const pollBackend = async () => {
 
   await Promise.all(
     reconciledTransactions.map(async (transaction: any) => {
-      const xTransfer = convertFromDbTransfer(transaction);
-
-      const executeParams: ExecuteArgs = {
-        params: {
-          originDomain: xTransfer.originDomain,
-          destinationDomain: xTransfer.destinationDomain!,
-          to: xTransfer.xparams!.to,
-          callData: xTransfer.xparams!.callData,
-          callback: xTransfer.xparams?.callback || constants.AddressZero,
-          callbackFee: xTransfer.xparams?.callbackFee || "0",
-          receiveLocal: xTransfer.xparams?.receiveLocal || false,
-          forceSlow: xTransfer.xparams?.forceSlow || false,
-          recovery: xTransfer.xparams?.recovery || xTransfer.xparams!.to,
-        },
-        local: xTransfer.destination!.assets.local.asset,
-        routers: [],
-        routerSignatures: [],
-        amount: xTransfer.destination!.assets.local.amount.toString(),
-        nonce: xTransfer.nonce!,
-        originSender: xTransfer.origin!.xcall.caller,
-        relayerFee: xTransfer.origin?.xcall.relayerFee || "0",
-      };
-
-      const transferId = xTransfer.transferId;
       try {
+        const xTransfer = convertFromDbTransfer(transaction);
+
+        const executeParams: ExecuteArgs = {
+          params: {
+            originDomain: xTransfer.originDomain,
+            destinationDomain: xTransfer.destinationDomain!,
+            to: xTransfer.xparams!.to,
+            callData: xTransfer.xparams!.callData,
+            callback: xTransfer.xparams?.callback || constants.AddressZero,
+            callbackFee: xTransfer.xparams?.callbackFee || "0",
+            receiveLocal: xTransfer.xparams?.receiveLocal || false,
+            forceSlow: xTransfer.xparams?.forceSlow || false,
+            recovery: xTransfer.xparams?.recovery || xTransfer.xparams!.to,
+          },
+          local: xTransfer.destination!.assets.local.asset,
+          routers: [],
+          routerSignatures: [],
+          amount: xTransfer.destination!.assets.local.amount.toString(),
+          nonce: xTransfer.nonce!,
+          originSender: xTransfer.origin!.xcall.caller,
+          relayerFee: xTransfer.origin?.xcall.relayerFee || "0",
+        };
+
+        const transferId = xTransfer.transferId;
+
         await execute(executeParams, transferId, requestContext);
       } catch (error: any) {
         logger.error("Error Backend Binding", requestContext, methodContext, jsonifyError(error as NxtpError), {
-          executeParams,
-          transferId,
+          transaction,
         });
       }
     }),
