@@ -456,10 +456,10 @@ contract BridgeFacet is BaseConnextFacet {
     );
 
     // get the tokenID
-    (uint32 domain, bytes32 id) = s.tokenRegistry.getTokenId(_asset);
+    (uint32 _domain, bytes32 _id) = s.tokenRegistry.getTokenId(_asset);
 
     // format token id
-    bytes29 tokenId = ConnextMessage.formatTokenId(domain, id);
+    bytes29 tokenId = ConnextMessage.formatTokenId(_domain, _id);
 
     // send message
     return ConnextMessage.formatMessage(tokenId, action);
