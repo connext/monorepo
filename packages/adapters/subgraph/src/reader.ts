@@ -23,6 +23,7 @@ import {
   getOriginTransfersByTransactionHashesQuery,
   getDestinationTransfersByIdsQuery,
   getAssetBalancesAllRoutersQuery,
+  getLastestBlockNumberQuery,
 } from "./lib/operations";
 import { SubgraphMap } from "./lib/entities";
 
@@ -63,6 +64,25 @@ export class SubgraphReader {
   public async query(query: string): Promise<any> {
     const { execute } = getHelpers();
     return await execute(query);
+  }
+
+  /**
+   * Gets the latest blockNumber for domains.
+   * @param domains The domain list you're getting the lastest blockNumber for
+   */
+  public async getLatestBlockNumber(domains: string[]): Promise<Map<string, number>> {
+    const { execute, getPrefixForDomain } = getHelpers();
+    const prefixes = domains.map((domain) => getPrefixForDomain(domain));
+    const query = getLastestBlockNumberQuery(prefixes);
+    const response = await execute(query);
+    const blockNumberRes: Map<string, number> = new Map();
+    for (const domain of response.keys()) {
+      if (response.has(domain) && response.get(domain)!.length > 0) {
+        const blockInfo = response.get(domain)![0];
+        blockNumberRes.set(domain, Number(blockInfo.block.number));
+      }
+    }
+    return blockNumberRes;
   }
 
   /**
