@@ -3,6 +3,7 @@ pragma solidity 0.8.11;
 
 import {ITokenRegistry} from "../../../../contracts/core/connext/interfaces/ITokenRegistry.sol";
 import {LibConnextStorage, AppStorage} from "../../../../contracts/core/connext/libraries/LibConnextStorage.sol";
+import {TestERC20} from "../../../../contracts/test/TestERC20.sol";
 
 import "../../../utils/ForgeHelper.sol";
 
