@@ -545,6 +545,7 @@ contract BridgeFacet is BaseConnextFacet {
         if (!_isRouterOwnershipRenounced() && !s.routerPermissionInfo.approvedRouters[_args.routers[i]]) {
           revert BridgeFacet__execute_notSupportedRouter();
         }
+
         // Validate the signature. We'll recover the signer's address using the expected payload and basic ECDSA
         // signature scheme recovery. The address for each signature must match the router's address.
         if (_args.routers[i] != _recoverSignature(routerHash, _args.routerSignatures[i])) {
@@ -620,6 +621,8 @@ contract BridgeFacet is BaseConnextFacet {
       uint256 routerAmount = toSwap / pathLen;
       // For each router in the path, decrement liquidity.
       for (uint256 i; i < pathLen; ) {
+        // NOTE: There are no prior checks to ensure that router has sufficient funding.
+        // Instead, we rely on this operation throwing an arithmetic error if underflow occurs.
         s.routerBalances[_args.routers[i]][_args.local] -= routerAmount;
 
         unchecked {

@@ -359,21 +359,50 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
 
   // should fail if it was already executed (s.transferRelayer[transferId] != address(0))
 
-  // should fail if the router does not have sufficient funds
-  function test_BridgeFacet__execute_failIfInsufficientFunds() public {
-    (bytes32 transferId, ExecuteArgs memory args) = utils_makeExecuteArgs(0);
+  // should fail if the router does not have sufficient tokens
+  function test_BridgeFacet__execute_failIfRouterHasInsufficientFunds() public {
+    _amount = 5 ether;
 
-    vm.expectRevert(BridgeFacet.BridgeFacet__execute_notReconciled.selector);
+    (bytes32 transferId, ExecuteArgs memory args) = utils_makeExecuteArgs(1);
+
+    s.routerBalances[args.routers[0]][args.local] += 4.5 ether;
+
+    vm.expectRevert(stdError.arithmeticError);
     this.execute(args);
   }
 
   // should fail if sponsored vault did not fund contract
 
   // multipath: should fail if pathLength > maxRouters
+  function test_BridgeFacet__execute_failIfPathLengthGreaterThanMaxRouters() public {
+    (bytes32 transferId, ExecuteArgs memory args) = utils_makeExecuteArgs(s.maxRoutersPerTransfer + 1);
+
+    for (uint256 i; i < args.routers.length; i++) {
+      s.routerBalances[args.routers[i]][args.local] += 10 ether;
+    }
+
+    vm.expectRevert(BridgeFacet.BridgeFacet__execute_maxRoutersExceeded.selector);
+    this.execute(args);
+  }
 
   // multipath: should fail if any 1 router has insufficient tokens
+  function test_BridgeFacet__execute_failIfAnyRouterHasInsufficientFunds() public {
+    _amount = 5 ether;
 
-  //
+    (bytes32 transferId, ExecuteArgs memory args) = utils_makeExecuteArgs(s.maxRoutersPerTransfer);
+
+    uint256 routerAmountSent = _amount / args.routers.length; // The amount each individual router will send.
+
+    // Set the first router's balance to be (slightly) less than the amount that they'd need to send.
+    s.routerBalances[args.routers[0]][args.local] = routerAmountSent - 0.1 ether;
+    for (uint256 i = 1; i < args.routers.length; i++) {
+      // The other routers have plenty of funds.
+      s.routerBalances[args.routers[i]][args.local] = 50 ether;
+    }
+
+    vm.expectRevert(stdError.arithmeticError);
+    this.execute(args);
+  }
 
   // ============ execute success cases
   // should use slow liquidity if specified (forceSlow = true)
