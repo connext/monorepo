@@ -18,20 +18,22 @@ import "../../../../lib/forge-std/src/console.sol";
 import "./FacetHelper.sol";
 
 contract MockXApp {
-  event MockXAppEvent(address caller, address asset, bytes32 message);
+  event MockXAppEvent(address caller, address asset, bytes32 message, uint256 amount);
 
-  function good(address asset, bytes32 message) external returns (bool, bytes32) {
-    emit MockXAppEvent(msg.sender, asset, message);
-
+  // This method call will transfer asset to this contract and succeed.
+  function good(address asset, bytes32 message) external returns (bytes32) {
     IExecutor executor = IExecutor(address(msg.sender));
+
+    emit MockXAppEvent(msg.sender, asset, message, executor.amount());
 
     IERC20(asset).transferFrom(address(executor), address(this), executor.amount());
 
-    return (true, bytes32("good"));
+    return (bytes32("good"));
   }
 
   // TODO: Read from originDomain/originSender properties
 
+  // This method call will fail.
   function bad() external {
     require(false, "bad");
   }
@@ -183,27 +185,17 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
     return (_amount * s.LIQUIDITY_FEE_NUMERATOR) / s.LIQUIDITY_FEE_DENOMINATOR;
   }
 
-  // TODO: For some reason, `emit IExecutor.Execute` is not working.
-  // Having to use this redundant event definition instead.
-  event MockExecutedEvent(
-    bytes32 indexed transferId,
-    address indexed to,
-    address indexed recovery,
-    address assetId,
-    uint256 amount,
-    bytes _properties,
-    bytes callData,
-    bytes returnData,
-    bool success
-  );
-
   // ============== Helpers ==================
   // Helpers used for executing target methods with given params that assert expected base behavior.
 
   // TODO: helpers_xcallAndAssert
 
   // Calls `execute` on the target method with the given args and asserts expected behavior.
-  function helpers_executeAndAssert(bytes32 _id, ExecuteArgs memory _args) public {
+  function helpers_executeAndAssert(
+    bytes32 _id,
+    ExecuteArgs memory _args,
+    bool toShouldReceive // Whether the `to` address should receive the tokens.
+  ) public {
     // get pre-execute liquidity in local
     uint256 pathLen = _args.routers.length;
     uint256[] memory prevLiquidity = new uint256[](pathLen);
@@ -238,8 +230,13 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
       assertEq(IERC20(_local).balanceOf(address(this)), prevBalance - _amount);
     }
 
-    // should increment balance of `to` in `adopted`
-    assertEq(token.balanceOf(_params.to), prevBalanceTo + transferred);
+    if (toShouldReceive) {
+      // should increment balance of `to` in `adopted`
+      assertEq(token.balanceOf(_params.to), prevBalanceTo + transferred);
+    } else {
+      // should NOT have incremented balance of `to` in `adopted`
+      assertEq(token.balanceOf(_params.to), prevBalanceTo);
+    }
 
     // should mark the transfer as executed
     assertEq(s.transferRelayer[_id], address(this));
@@ -249,6 +246,11 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
     for (uint256 i; i < savedRouters.length; i++) {
       assertEq(savedRouters[i], _args.routers[i]);
     }
+  }
+
+  // Shortcut for above method
+  function helpers_executeAndAssert(bytes32 _id, ExecuteArgs memory _args) public {
+    helpers_executeAndAssert(_id, _args, true);
   }
 
   // ============ Tests ==============
@@ -366,13 +368,11 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
     s.routerBalances[args.routers[0]][args.local] += 10 ether;
 
     uint256 amount = utils_getFastTransferAmount(args.amount);
-    address adopted = args.local;
 
+    // TODO: Would be great to check for this emit, but currently it's not visible to compiler for some reason.
     // bytes memory returnData;
-
     // vm.expectEmit(true, true, false, true);
     // emit IExecutor.Executed(
-    // emit MockExecutedEvent(
     //   transferId,
     //   args.params.to,
     //   args.params.recovery,
@@ -386,12 +386,34 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
     //   true
     // );
 
+    // TODO: Can't emit this event either!
+    // vm.expectEmit(true, true, false, true);
+    // emit MockXApp.MockXAppEvent(address(this), _local, bytes32("test message"), amount);
+
     helpers_executeAndAssert(transferId, args);
     // Recovery address should not receive any funds if the call was successful.
     assertEq(IERC20(args.local).balanceOf(recovery), 0);
   }
 
   // should work with failing calldata : contract call failed
+  function test_BridgeFacet__execute_failingCalldata() public {
+    address recovery = address(12345);
+    // Set the args.to to the mock xapp address, and args.callData to the `bad` fn.
+    _params.callData = abi.encodeWithSelector(MockXApp.bad.selector);
+    _params.to = _xapp;
+    _params.recovery = recovery;
+
+    (bytes32 transferId, ExecuteArgs memory args) = utils_makeExecuteArgs(1);
+
+    s.routerBalances[args.routers[0]][args.local] += 10 ether;
+
+    uint256 amount = utils_getFastTransferAmount(args.amount);
+    address adopted = args.local;
+
+    helpers_executeAndAssert(transferId, args, false);
+    // Recovery address should receive the funds if the call failed.
+    assertEq(IERC20(args.local).balanceOf(recovery), amount);
+  }
 
   // should work with failing calldata : `to` is not a contract (should call _handleFailure)
 
