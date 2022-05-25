@@ -171,7 +171,7 @@ describe("Database client", () => {
   });
 
   it("should handle undefined status", async () => {
-    const statusTransfers = await getTransfersByStatus(undefined, pool);
+    const statusTransfers = await getTransfersByStatus(undefined, 10, 0, "ASC", pool);
     expect(statusTransfers.length).equal(0);
   });
 
@@ -224,7 +224,7 @@ describe("Database client", () => {
   });
 
   it("should get transfer by status", async () => {
-    const statusTransfers = await getTransfersByStatus(XTransferStatus.CompletedFast, pool);
+    const statusTransfers = await getTransfersByStatus(XTransferStatus.CompletedFast, 10, 0, "ASC", pool);
     expect(statusTransfers.length).greaterThan(0);
     expect(statusTransfers[0].destination.status).equal(xTransfer.destination.status);
   });

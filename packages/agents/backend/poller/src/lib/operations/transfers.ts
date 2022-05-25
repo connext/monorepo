@@ -57,24 +57,45 @@ export const updateTransfers = async () => {
     await database.saveTransfers(transfers);
   }
 
-  // now query pending transfers to see if any status updates happened
-  const xcalledTransfers = await database.getTransfersByStatus(XTransferStatus.XCalled);
-  const executedTransfers = await database.getTransfersByStatus(XTransferStatus.Executed);
-  const reconciledTransfers = await database.getTransfersByStatus(XTransferStatus.Reconciled);
+  const PAGE_SIZE = 25;
+  let page = 0;
+  let done = false;
+  while (!done) {
+    // now query pending transfers to see if any status updates happened
+    const xcalledTransfers = await database.getTransfersByStatus(
+      XTransferStatus.XCalled,
+      PAGE_SIZE,
+      PAGE_SIZE * page,
+      "ASC",
+    );
+    const executedTransfers = await database.getTransfersByStatus(
+      XTransferStatus.Executed,
+      PAGE_SIZE,
+      PAGE_SIZE * page,
+      "ASC",
+    );
+    const reconciledTransfers = await database.getTransfersByStatus(
+      XTransferStatus.Reconciled,
+      PAGE_SIZE,
+      PAGE_SIZE * page,
+      "ASC",
+    );
 
-  logger.debug("Got pending", requestContext, methodContext, {
-    xcalledTransfers: xcalledTransfers.map((transfer) => transfer.transferId),
-    executedTransfers: executedTransfers.map((transfer) => transfer.transferId),
-    reconciledTransfers: reconciledTransfers.map((transfer) => transfer.transferId),
-  });
+    logger.debug("Got pending", requestContext, methodContext, {
+      xcalledTransfers: xcalledTransfers.map((transfer) => transfer.transferId),
+      executedTransfers: executedTransfers.map((transfer) => transfer.transferId),
+      reconciledTransfers: reconciledTransfers.map((transfer) => transfer.transferId),
+    });
 
-  const destinationTransfers = await subgraph.getDestinationTransfers(
-    xcalledTransfers.concat(executedTransfers).concat(reconciledTransfers) as OriginTransfer[],
-  );
-  logger.debug("Got destination transfers for pending", requestContext, methodContext, {
-    destinationTransfers: destinationTransfers.map((transfer) => {
-      return { transferId: transfer.transferId, status: transfer.destination?.status };
-    }),
-  });
-  await database.saveTransfers(destinationTransfers);
+    const destinationTransfers = await subgraph.getDestinationTransfers(
+      xcalledTransfers.concat(executedTransfers).concat(reconciledTransfers) as OriginTransfer[],
+    );
+    logger.debug("Got destination transfers for pending", requestContext, methodContext, {
+      destinationTransfers: destinationTransfers.map((transfer) => {
+        return { transferId: transfer.transferId, status: transfer.destination?.status };
+      }),
+    });
+    await database.saveTransfers(destinationTransfers);
+    page += 1;
+  }
 };

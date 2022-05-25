@@ -30,16 +30,11 @@ const testnetRouters = [
   "0x7B2df12ee8C618673C25566a60E3412733C6CdBe",
   "0x2835909645F8E4903D81db6a20484439f458AbAD",
   "0x1b459cb897c4Df7132c0C63B34A7d3E83c246202",
+  "0xe2C2586a54E039b8ff3a36a55265b5E9263Cba4D",
+  "0x719EDDFf0658677fE2528010e3eeefDEAC49B88C",
 ];
 
-// const routers = [
-//   "0xfa818B787B81f675bFf2360e37256b726BAb0649",
-//   "0xA59057F7B69d68e6DfbfbBEb6821Bd1512424A81",
-//   "0xB7FfA9214ed97aE74925E741BB295e986cf4a9be",
-//   "0x7B2df12ee8C618673C25566a60E3412733C6CdBe",
-//   "0x2835909645F8E4903D81db6a20484439f458AbAD",
-//   "0x1b459cb897c4Df7132c0C63B34A7d3E83c246202",
-// ];
+// const routers = ["0xe2C2586a54E039b8ff3a36a55265b5E9263Cba4D", "0x719EDDFf0658677fE2528010e3eeefDEAC49B88C"];
 const routers: string[] = testnetRouters;
 const env = "production";
 
@@ -53,7 +48,7 @@ const run = async () => {
 
   for (const n of networks) {
     for (const r of routerAddresses) {
-      console.log("Running add router script for", n);
+      console.log(`Running add router script for router ${r} on network ${n}`);
       const { stdout: out, stderr: err } = await exec(
         `yarn hardhat setup-router --network ${n} --router ${r} --env ${env}`,
       );
