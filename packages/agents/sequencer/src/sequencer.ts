@@ -34,7 +34,7 @@ export const makeSequencer = async (_configOverride?: SequencerConfig) => {
 
     /// MARK - Adapters
     context.adapters.cache = await setupCache(context.config.redis, context.logger, requestContext);
-    context.adapters.subgraph = await setupSubgraphReader(context.chainData, context.logger, requestContext);
+    context.adapters.subgraph = await setupSubgraphReader(requestContext);
     context.adapters.chainreader = new ChainReader(
       context.logger.child({ module: "ChainReader", level: context.config.logLevel }),
       context.config.chains,
@@ -89,16 +89,21 @@ export const setupCache = async (
   return cacheInstance;
 };
 
-export const setupSubgraphReader = async (
-  chainData: Map<string, ChainData>,
-  logger: Logger,
-  requestContext: RequestContext,
-): Promise<SubgraphReader> => {
+export const setupSubgraphReader = async (requestContext: RequestContext): Promise<SubgraphReader> => {
+  const { chainData, logger, config } = getContext();
   const methodContext = createMethodContext(setupSubgraphReader.name);
+
+  const allowedDomains = [...Object.keys(config.chains)];
+  const allowedChainData: Map<string, ChainData> = new Map();
+  for (const allowedDomain of allowedDomains) {
+    if (chainData.has(allowedDomain)) {
+      allowedChainData.set(allowedDomain, chainData.get(allowedDomain));
+    }
+  }
 
   logger.info("Subgraph reader setup in progress...", requestContext, methodContext, {});
   const subgraphReader = await SubgraphReader.create(
-    chainData,
+    allowedChainData,
     context.config.environment,
     context.config.subgraphPrefix,
   );
