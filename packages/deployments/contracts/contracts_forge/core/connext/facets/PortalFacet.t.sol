@@ -1,22 +1,22 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity 0.8.11;
 
-import {Deployer} from "../utils/Deployer.sol";
-import {IConnextHandler} from "../../contracts/interfaces/IConnextHandler.sol";
-import {IStableSwap} from "../../contracts/interfaces/IStableSwap.sol";
+import {Deployer} from "../../../utils/Deployer.sol";
+import {IConnextHandler} from "../../../../contracts/core/connext/interfaces/IConnextHandler.sol";
+import {IStableSwap} from "../../../../contracts/core/connext/interfaces/IStableSwap.sol";
+import {IAavePool} from "../../../../contracts/core/connext/interfaces/IAavePool.sol";
+import {IDiamondCut} from "../../../../contracts/core/connext/interfaces/IDiamondCut.sol";
 
-import {BaseConnextFacet} from "../../contracts/facets/BaseConnextFacet.sol";
-import {LibDiamond} from "../../contracts/libraries/LibDiamond.sol";
-import {ConnextMessage} from "../../contracts/libraries/ConnextMessage.sol";
-import {PortalFacet} from "../../contracts/facets/PortalFacet.sol";
-import {IDiamondCut} from "../../contracts/interfaces/IDiamondCut.sol";
-import {TestAavePool} from "../../contracts/test/TestAavePool.sol";
-import {TestERC20} from "../../contracts/test/TestERC20.sol";
-import {IAavePool} from "../../contracts/interfaces/IAavePool.sol";
+import {BaseConnextFacet} from "../../../../contracts/core/connext/facets/BaseConnextFacet.sol";
+import {LibDiamond} from "../../../../contracts/core/connext/libraries/LibDiamond.sol";
+import {ConnextMessage} from "../../../../contracts/core/connext/libraries/ConnextMessage.sol";
+import {PortalFacet} from "../../../../contracts/core/connext/facets/PortalFacet.sol";
+import {TestAavePool} from "../../../../contracts/test/TestAavePool.sol";
+import {TestERC20} from "../../../../contracts/test/TestERC20.sol";
+
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
-import "../utils/ForgeHelper.sol";
-import "../utils/Mock.sol";
+import "../../../utils/Mock.sol";
 import "./FacetHelper.sol";
 
 contract PortalFacetTest is PortalFacet, FacetHelper {
