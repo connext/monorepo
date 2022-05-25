@@ -59,6 +59,14 @@ contract DummySwap is IStableSwap {
     return amountIn;
   }
 
+  function swapExactOut(
+    uint256 amountOut,
+    address assetIn,
+    address assetOut
+  ) external payable returns (uint256) {
+    require(false, "!implemented");
+  }
+
   function getA() external view returns (uint256) {
     require(false, "!implemented");
   }
