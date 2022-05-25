@@ -3,7 +3,6 @@ import { SubgraphQueryMetaParams, XTransferStatus } from "@connext/nxtp-utils";
 
 import { getContext } from "../../reader";
 
-const DEFAULT_PAGE_SIZE = 50;
 export const ORIGIN_TRANSFER_ENTITY = `
       id
       # Meta Data
