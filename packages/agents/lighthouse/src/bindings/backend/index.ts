@@ -1,4 +1,5 @@
 import { createLoggingContext, ExecuteArgs, jsonifyError, NxtpError, formatUrl } from "@connext/nxtp-utils";
+import { constants } from "ethers";
 import axios from "axios";
 import interval from "interval-promise";
 
@@ -35,10 +36,11 @@ export const pollBackend = async () => {
         destinationDomain: transaction.destination_domain,
         to: transaction.to,
         callData: transaction.call_data,
-        callback: transaction.callback,
-        callbackFee: transaction.callback_fee,
+        callback: transaction.callback || constants.AddressZero,
+        callbackFee: transaction.callback_fee || "0",
         receiveLocal: transaction.receive_local || false,
         forceSlow: transaction.force_slow || false,
+        recovery: transaction.recovery || transaction.to,
       },
       local: transaction.destination_local_asset,
       routers: [],
@@ -46,13 +48,14 @@ export const pollBackend = async () => {
       amount: transaction.destination_local_amount.toString(),
       nonce: transaction.nonce,
       originSender: transaction.xcall_caller,
+      relayerFee: transaction.relayer_fee || "0",
     };
 
     const transferId = transaction.trasfer_id as string;
     try {
-      await execute(executeParams, transferId);
+      await execute(executeParams, transferId, requestContext);
     } catch (error: any) {
-      logger.error("Error executing", requestContext, methodContext, jsonifyError(error as NxtpError), {
+      logger.error("Error Backend Binding", requestContext, methodContext, jsonifyError(error as NxtpError), {
         executeParams,
         transferId,
       });

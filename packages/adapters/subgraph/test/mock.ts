@@ -28,7 +28,6 @@ mockResponse.set("1337", ["happy1337"]);
 mockResponse.set("1338", ["happy1338"]);
 
 const mockMetaData = {
-  idx: "1",
   transferId: mkBytes32("0xaaa"),
   nonce: "0",
   originDomain: "1111",
@@ -41,6 +40,7 @@ const mockCallData = {
   callback: mkAddress("0xaaa"),
   callbackFee: "0",
   forceSlow: false,
+  recovery: mkAddress("0x1"),
   receiveLocal: false,
 };
 

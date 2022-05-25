@@ -18,9 +18,9 @@ declare module 'zapatos/schema' {
 
   /* --- enums --- */
 
-  export type transfer_status = 'Completed' | 'Executed' | 'Reconciled' | 'XCalled';
+  export type transfer_status = 'Completed' | 'CompletedFast' | 'CompletedSlow' | 'Executed' | 'Reconciled' | 'XCalled';
   export namespace every {
-    export type transfer_status = ['Completed', 'Executed', 'Reconciled', 'XCalled'];
+    export type transfer_status = ['Completed', 'CompletedFast', 'CompletedSlow', 'Executed', 'Reconciled', 'XCalled'];
   }
 
   /* --- tables --- */
@@ -905,6 +905,30 @@ declare module 'zapatos/schema' {
       * - Nullable, no default
       */
       receive_local: boolean | null;
+      /**
+      * **transfers.callback**
+      * - `bpchar` in database
+      * - Nullable, no default
+      */
+      callback: string | null;
+      /**
+      * **transfers.recovery**
+      * - `bpchar` in database
+      * - Nullable, no default
+      */
+      recovery: string | null;
+      /**
+      * **transfers.callback_fee**
+      * - `numeric` in database
+      * - Nullable, no default
+      */
+      callback_fee: number | null;
+      /**
+      * **transfers.execute_relayer_fee**
+      * - `numeric` in database
+      * - Nullable, no default
+      */
+      execute_relayer_fee: number | null;
     }
     export interface JSONSelectable {
       /**
@@ -1153,6 +1177,30 @@ declare module 'zapatos/schema' {
       * - Nullable, no default
       */
       receive_local: boolean | null;
+      /**
+      * **transfers.callback**
+      * - `bpchar` in database
+      * - Nullable, no default
+      */
+      callback: string | null;
+      /**
+      * **transfers.recovery**
+      * - `bpchar` in database
+      * - Nullable, no default
+      */
+      recovery: string | null;
+      /**
+      * **transfers.callback_fee**
+      * - `numeric` in database
+      * - Nullable, no default
+      */
+      callback_fee: number | null;
+      /**
+      * **transfers.execute_relayer_fee**
+      * - `numeric` in database
+      * - Nullable, no default
+      */
+      execute_relayer_fee: number | null;
     }
     export interface Whereable {
       /**
@@ -1401,6 +1449,30 @@ declare module 'zapatos/schema' {
       * - Nullable, no default
       */
       receive_local?: boolean | db.Parameter<boolean> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, boolean | db.Parameter<boolean> | db.SQLFragment | db.ParentColumn>;
+      /**
+      * **transfers.callback**
+      * - `bpchar` in database
+      * - Nullable, no default
+      */
+      callback?: string | db.Parameter<string> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
+      /**
+      * **transfers.recovery**
+      * - `bpchar` in database
+      * - Nullable, no default
+      */
+      recovery?: string | db.Parameter<string> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
+      /**
+      * **transfers.callback_fee**
+      * - `numeric` in database
+      * - Nullable, no default
+      */
+      callback_fee?: number | db.Parameter<number> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, number | db.Parameter<number> | db.SQLFragment | db.ParentColumn>;
+      /**
+      * **transfers.execute_relayer_fee**
+      * - `numeric` in database
+      * - Nullable, no default
+      */
+      execute_relayer_fee?: number | db.Parameter<number> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, number | db.Parameter<number> | db.SQLFragment | db.ParentColumn>;
     }
     export interface Insertable {
       /**
@@ -1649,6 +1721,30 @@ declare module 'zapatos/schema' {
       * - Nullable, no default
       */
       receive_local?: boolean | db.Parameter<boolean> | null | db.DefaultType | db.SQLFragment;
+      /**
+      * **transfers.callback**
+      * - `bpchar` in database
+      * - Nullable, no default
+      */
+      callback?: string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment;
+      /**
+      * **transfers.recovery**
+      * - `bpchar` in database
+      * - Nullable, no default
+      */
+      recovery?: string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment;
+      /**
+      * **transfers.callback_fee**
+      * - `numeric` in database
+      * - Nullable, no default
+      */
+      callback_fee?: number | db.Parameter<number> | null | db.DefaultType | db.SQLFragment;
+      /**
+      * **transfers.execute_relayer_fee**
+      * - `numeric` in database
+      * - Nullable, no default
+      */
+      execute_relayer_fee?: number | db.Parameter<number> | null | db.DefaultType | db.SQLFragment;
     }
     export interface Updatable {
       /**
@@ -1897,6 +1993,30 @@ declare module 'zapatos/schema' {
       * - Nullable, no default
       */
       receive_local?: boolean | db.Parameter<boolean> | null | db.DefaultType | db.SQLFragment | db.SQLFragment<any, boolean | db.Parameter<boolean> | null | db.DefaultType | db.SQLFragment>;
+      /**
+      * **transfers.callback**
+      * - `bpchar` in database
+      * - Nullable, no default
+      */
+      callback?: string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment | db.SQLFragment<any, string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment>;
+      /**
+      * **transfers.recovery**
+      * - `bpchar` in database
+      * - Nullable, no default
+      */
+      recovery?: string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment | db.SQLFragment<any, string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment>;
+      /**
+      * **transfers.callback_fee**
+      * - `numeric` in database
+      * - Nullable, no default
+      */
+      callback_fee?: number | db.Parameter<number> | null | db.DefaultType | db.SQLFragment | db.SQLFragment<any, number | db.Parameter<number> | null | db.DefaultType | db.SQLFragment>;
+      /**
+      * **transfers.execute_relayer_fee**
+      * - `numeric` in database
+      * - Nullable, no default
+      */
+      execute_relayer_fee?: number | db.Parameter<number> | null | db.DefaultType | db.SQLFragment | db.SQLFragment<any, number | db.Parameter<number> | null | db.DefaultType | db.SQLFragment>;
     }
     export type UniqueIndex = 'transfers_pkey';
     export type Column = keyof Selectable;

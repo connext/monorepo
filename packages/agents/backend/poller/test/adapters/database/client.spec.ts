@@ -34,25 +34,65 @@ describe("Database client", () => {
     xTransfer = mock.entity.xtransfer({ status: XTransferStatus.Executed });
     pool = new Pool();
     await pool.query(`
-    create type transfer_status as enum ('XCalled', 'Executed', 'Reconciled', 'Completed');
-    create table transfers (
-      origin_domain varchar(255) not null,
-      destination_domain varchar(255),
-
+    CREATE TYPE transfer_status AS ENUM (
+      'XCalled',
+      'Executed',
+      'Reconciled',
+      'CompletedSlow',
+      'CompletedFast'
+    );
+    CREATE TABLE asset_balances (
+      asset_canonical_id character(66) NOT NULL,
+      asset_domain character varying(255) NOT NULL,
+      router_address character(42) NOT NULL,
+      balance numeric DEFAULT 0 NOT NULL
+    );
+    CREATE TABLE assets (
+      local character(42) NOT NULL,
+      adopted character(42) NOT NULL,
+      canonical_id character(66) NOT NULL,
+      canonical_domain character varying(255) NOT NULL,
+      domain character varying(255) NOT NULL
+    );
+    CREATE TABLE routers (address character(42) NOT NULL);
+    CREATE VIEW routers_with_balances AS
+    SELECT routers.address,
+      asset_balances.asset_canonical_id,
+      asset_balances.asset_domain,
+      asset_balances.router_address,
+      asset_balances.balance,
+      assets.local,
+      assets.adopted,
+      assets.canonical_id,
+      assets.canonical_domain,
+      assets.domain
+    FROM (
+        (
+          routers
+          JOIN asset_balances ON (
+            (routers.address = asset_balances.router_address)
+          )
+        )
+        JOIN assets ON (
+          (
+            (
+              asset_balances.asset_canonical_id = assets.canonical_id
+            )
+            AND (
+              (asset_balances.asset_domain)::text = (assets.domain)::text
+            )
+          )
+        )
+      );
+    CREATE TABLE transfers (
+      origin_domain character varying(255) NOT NULL,
+      destination_domain character varying(255),
       nonce bigint,
-      force_slow boolean,
-      receive_local boolean,
-
-      -- xparams
       "to" character(42),
       call_data text,
-
-      -- XTransferCoreSchema
       idx bigint,
-      transfer_id character(66) primary key,
-
-      -- origin
-      origin_chain varchar(255),
+      transfer_id character(66) NOT NULL,
+      origin_chain character varying(255),
       origin_transacting_asset character(42),
       origin_transacting_amount numeric,
       origin_bridged_asset character(42),
@@ -64,11 +104,9 @@ describe("Database client", () => {
       xcall_gas_limit numeric,
       xcall_block_number integer,
       xcall_relayer_fee numeric,
-
-      -- destination
-      destination_chain varchar(255),
-      status transfer_status not null default 'XCalled',
-      routers character(42)[],
+      destination_chain character varying(255),
+      status transfer_status DEFAULT 'XCalled'::transfer_status NOT NULL,
+      routers character(42) [],
       destination_transacting_asset character(42),
       destination_transacting_amount numeric,
       destination_local_asset character(42),
@@ -85,34 +123,45 @@ describe("Database client", () => {
       reconcile_timestamp integer,
       reconcile_gas_price numeric,
       reconcile_gas_limit numeric,
-      reconcile_block_number integer
+      reconcile_block_number integer,
+      force_slow boolean,
+      receive_local boolean,
+      callback character(42),
+      recovery character(42),
+      callback_fee numeric,
+      execute_relayer_fee numeric
     );
-    
-    create table routers ("address" character(42) primary key);
-    create table assets (
-      "local" character(42) not null,
-      adopted character(42) not null,
-      canonical_id character(66) not null,
-      canonical_domain varchar(255) not null,
-      domain varchar(255) not null,
-      primary key (canonical_id, domain)
-    );
-    create table asset_balances (
-      asset_canonical_id character(66) not null,
-      asset_domain varchar(255) not null,
-      router_address character(42) not null,
-      balance numeric not null default 0,
-      primary key (asset_canonical_id, asset_domain, router_address),
-      constraint fk_router foreign key(router_address) references routers("address"),
-      constraint fk_asset foreign key(asset_canonical_id, asset_domain) references assets(canonical_id, domain)
-    );
-
-    create view routers_with_balances as
-    select *
-    from routers
-      join asset_balances on routers."address" = asset_balances.router_address
-      join assets on asset_balances.asset_canonical_id = assets.canonical_id
-      and asset_balances.asset_domain = assets.domain;
+    --
+    -- Name: asset_balances asset_balances_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+    --
+    ALTER TABLE ONLY asset_balances
+    ADD CONSTRAINT asset_balances_pkey PRIMARY KEY (asset_canonical_id, asset_domain, router_address);
+    --
+    -- Name: assets assets_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+    --
+    ALTER TABLE ONLY assets
+    ADD CONSTRAINT assets_pkey PRIMARY KEY (canonical_id, domain);
+    --
+    -- Name: routers routers_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+    --
+    ALTER TABLE ONLY routers
+    ADD CONSTRAINT routers_pkey PRIMARY KEY (address);
+    --
+    -- Name: transfers transfers_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+    --
+    ALTER TABLE ONLY transfers
+    ADD CONSTRAINT transfers_pkey PRIMARY KEY (transfer_id);
+    --
+    -- Name: asset_balances fk_asset; Type: FK CONSTRAINT; Schema: public; Owner: -
+    --
+    ALTER TABLE ONLY asset_balances
+    ADD CONSTRAINT fk_asset FOREIGN KEY (asset_canonical_id, asset_domain) REFERENCES assets(canonical_id, domain);
+    --
+    -- Name: asset_balances fk_router; Type: FK CONSTRAINT; Schema: public; Owner: -
+    --
+    ALTER TABLE ONLY asset_balances
+    ADD CONSTRAINT fk_router FOREIGN KEY (router_address) REFERENCES routers(address);
+    --
     `);
   });
 
@@ -148,10 +197,10 @@ describe("Database client", () => {
   });
 
   it("should upsert single transfer", async () => {
-    xTransfer.destination.status = XTransferStatus.Completed;
+    xTransfer.destination.status = XTransferStatus.CompletedFast;
     await saveTransfers([xTransfer], pool);
     const dbTransfer = await getTransferByTransferId(xTransfer.transferId, pool);
-    expect(dbTransfer.destination.status).equal(XTransferStatus.Completed);
+    expect(dbTransfer.destination.status).equal(XTransferStatus.CompletedFast);
     expect(dbTransfer.transferId).equal(xTransfer.transferId);
   });
 
@@ -164,18 +213,18 @@ describe("Database client", () => {
 
   it("should upsert multiple transfers", async () => {
     for (let transfer of transfers) {
-      transfer.destination.status = XTransferStatus.Completed;
+      transfer.destination.status = XTransferStatus.CompletedSlow;
     }
     await saveTransfers(transfers, pool);
     for (let transfer of transfers) {
       const dbTransfer = await getTransferByTransferId(transfer.transferId, pool);
-      expect(dbTransfer.destination.status).equal(XTransferStatus.Completed);
+      expect(dbTransfer.destination.status).equal(XTransferStatus.CompletedSlow);
       expect(dbTransfer.transferId).equal(transfer.transferId);
     }
   });
 
   it("should get transfer by status", async () => {
-    const statusTransfers = await getTransfersByStatus(XTransferStatus.Completed, pool);
+    const statusTransfers = await getTransfersByStatus(XTransferStatus.CompletedFast, pool);
     expect(statusTransfers.length).greaterThan(0);
     expect(statusTransfers[0].destination.status).equal(xTransfer.destination.status);
   });

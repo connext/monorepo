@@ -1,5 +1,5 @@
-output "poller-dns" {
-  value = module.poller.dns_name
+output "poller-service-name" {
+  value = module.poller.daemon_service_name
 }
 
 output "postgrest-dns" {

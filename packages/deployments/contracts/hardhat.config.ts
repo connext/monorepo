@@ -1,3 +1,4 @@
+import "hardhat-diamond-abi";
 import "@typechain/hardhat";
 import "@nomiclabs/hardhat-ethers";
 import "@nomiclabs/hardhat-waffle";
@@ -12,27 +13,31 @@ import "hardhat-contract-sizer";
 import { config as dotEnvConfig } from "dotenv";
 import { HardhatUserConfig } from "hardhat/types";
 
-import "./src/tasks/setupRouter";
-import "./src/tasks/setupAsset";
-import "./src/tasks/addLiquidity";
-import "./src/tasks/mintTestToken";
-import "./src/tasks/setupTestRouter";
-import "./src/tasks/renounceOwnership";
-import "./src/tasks/proposeTransferOwnership";
-import "./src/tasks/setAggregator";
-import "./src/tasks/setDexPrice";
-import "./src/tasks/setDirectPrice";
-import "./src/tasks/decodeInputData";
-import "./src/tasks/removeRouter";
-import "./src/tasks/enrollHandler";
-import "./src/tasks/enrollCustom";
-import "./src/tasks/xcall";
-import "./src/tasks/setLocalDomain";
-import "./src/tasks/traceMessage";
-import "./src/tasks/preflight";
-import "./src/tasks/addRelayer";
-import "./src/tasks/executeEstimateGas";
-import "./src/tasks/exportAbi";
+import "./tasks/setupRouter";
+import "./tasks/setupAsset";
+import "./tasks/addLiquidity";
+import "./tasks/mintTestToken";
+import "./tasks/setupTestRouter";
+import "./tasks/renounceOwnership";
+import "./tasks/proposeTransferOwnership";
+import "./tasks/setAggregator";
+import "./tasks/setDexPrice";
+import "./tasks/setDirectPrice";
+import "./tasks/decodeInputData";
+import "./tasks/removeRouter";
+import "./tasks/enrollHandlers";
+import "./tasks/enrollCustom";
+import "./tasks/xcall";
+import "./tasks/setLocalDomain";
+import "./tasks/traceMessage";
+import "./tasks/preflight";
+import "./tasks/addRelayer";
+import "./tasks/executeEstimateGas";
+import "./tasks/exportAbi";
+import "./tasks/stableswap/initializeSwap";
+import "./tasks/stableswap/addSwapLiquidity";
+import "./tasks/stableswap/removeSwapLiquidity";
+import "./tasks/stableswap/setSwapFees";
 import { utils } from "ethers";
 
 dotEnvConfig();
@@ -220,6 +225,25 @@ const config: HardhatUserConfig = {
   },
   gasReporter: {
     enabled: process.env.REPORT_GAS == "true",
+  },
+  diamondAbi: {
+    // (required) The name of your Diamond ABI.
+    name: "ConnextHandler",
+    // (optional) An array of strings, matched against fully qualified contract names, to
+    // determine which contracts are included in your Diamond ABI.
+    include: [
+      "AssetFacet",
+      "BaseConnextFacet",
+      "BridgeFacet",
+      "DiamondCutFacet",
+      "DiamondLoupeFacet",
+      "NomadFacet",
+      "ProposedOwnableFacet",
+      "RelayerFacet",
+      "RoutersFacet",
+      "StableSwapFacet",
+    ],
+    strict: false,
   },
 };
 

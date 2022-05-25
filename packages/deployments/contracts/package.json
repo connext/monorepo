@@ -1,6 +1,6 @@
 {
   "name": "@connext/nxtp-contracts",
-  "version": "0.2.0-alpha.16",
+  "version": "0.2.0-beta.0",
   "description": "",
   "scripts": {
     "test": "yarn test:hardhat && yarn test:forge",
@@ -39,9 +39,9 @@
   "author": "Connext",
   "license": "ISC",
   "devDependencies": {
-    "@nomad-xyz/configuration": "0.1.0-rc.22",
-    "@nomad-xyz/sdk": "2.0.0-rc.16",
-    "@nomad-xyz/sdk-bridge": "1.0.0-rc.16",
+    "@nomad-xyz/configuration": "0.1.0-rc.23",
+    "@nomad-xyz/sdk": "2.0.0-rc.17",
+    "@nomad-xyz/sdk-bridge": "1.0.0-rc.17",
     "@nomiclabs/hardhat-ethers": "2.0.6",
     "@nomiclabs/hardhat-etherscan": "3.0.3",
     "@nomiclabs/hardhat-waffle": "2.0.3",
@@ -57,10 +57,10 @@
     "chai": "4.3.6",
     "ethereum-waffle": "3.4.4",
     "ethers": "5.6.6",
-    "hardhat": "2.9.5",
+    "hardhat": "2.9.6",
     "hardhat-contract-sizer": "2.5.1",
     "prettier": "2.6.2",
-    "prettier-plugin-solidity": "1.0.0-dev.21",
+    "prettier-plugin-solidity": "1.0.0-beta.19",
     "rimraf": "3.0.2",
     "sinclair": "0.2.0",
     "sinon": "14.0.0",
@@ -79,6 +79,7 @@
     "dotenv": "16.0.1",
     "eslint": "8.15.0",
     "hardhat-deploy": "0.11.5",
+    "hardhat-diamond-abi": "2.0.0",
     "hardhat-gas-reporter": "1.0.8",
     "typechain": "8.0.0"
   },

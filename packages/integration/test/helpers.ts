@@ -145,7 +145,7 @@ export const convertToCanonicalAsset = async (
     to: contract,
     data: encoded,
   });
-  const canonicalAsset = connext.decodeFunctionResult("adoptedToCanonical", result)[1] as string;
+  const canonicalAsset = connext.decodeFunctionResult("adoptedToCanonical", result)[0][1] as string;
 
   const canonicalTokenId = utils.hexlify(canonizeTokenId(canonicalAsset));
   return { canonicalAsset, canonicalTokenId };
@@ -187,7 +187,7 @@ export const checkOnchainLocalAsset = async (
       to: contract,
       data: encoded,
     });
-    adoptedToCanonical = connext.decodeFunctionResult("adoptedToCanonical", result)[1] as string;
+    adoptedToCanonical = connext.decodeFunctionResult("adoptedToCanonical", result)[0][1] as string;
   }
   const canonicalTokenId = utils.hexlify(canonizeTokenId(adoptedToCanonical));
 

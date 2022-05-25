@@ -14,7 +14,7 @@ import {
 import { solidity } from "ethereum-waffle";
 import { ethers, waffle } from "hardhat";
 
-import { GenericERC20, LPToken, StableSwap, SwapUtils, AmplificationUtils, TestStableSwap } from "../typechain-types";
+import { TestERC20, LPToken, StableSwap, SwapUtils, AmplificationUtils, TestStableSwap } from "../typechain-types";
 import chai from "chai";
 
 chai.use(solidity);
@@ -26,8 +26,8 @@ describe("StableSwap", async () => {
   let testStableSwap: TestStableSwap;
   let swapUtils: SwapUtils;
   let amplificationUtils: AmplificationUtils;
-  let firstToken: GenericERC20;
-  let secondToken: GenericERC20;
+  let firstToken: TestERC20;
+  let secondToken: TestERC20;
   let swapToken: LPToken;
   let owner: Signer;
   let user1: Signer;
@@ -63,13 +63,13 @@ describe("StableSwap", async () => {
     user2Address = await user2.getAddress();
 
     // Deploy dummy tokens
-    const erc20Factory = await ethers.getContractFactory("GenericERC20");
+    const erc20Factory = await ethers.getContractFactory("TestERC20");
 
-    firstToken = (await erc20Factory.deploy("First Token", "FIRST")) as GenericERC20;
+    firstToken = (await erc20Factory.deploy()) as TestERC20;
 
-    secondToken = (await erc20Factory.deploy("Second Token", "SECOND")) as GenericERC20;
+    secondToken = (await erc20Factory.deploy()) as TestERC20;
 
-    const lpTokenFactory = await ethers.getContractFactory("LPToken");
+    const lpTokenFactory = await ethers.getContractFactory("contracts/core/connext/helpers/LPToken.sol:LPToken");
     swapToken = (await lpTokenFactory.deploy()) as LPToken;
     swapToken.initialize(LP_TOKEN_NAME, LP_TOKEN_SYMBOL);
 
@@ -83,16 +83,20 @@ describe("StableSwap", async () => {
     // Get Swap contract
     // swap = await ethers.getContract("Swap");
 
-    const amplificationUtilsFactory = await ethers.getContractFactory("AmplificationUtils");
+    const amplificationUtilsFactory = await ethers.getContractFactory(
+      "contracts/core/connext/libraries/AmplificationUtils.sol:AmplificationUtils",
+    );
     amplificationUtils = (await amplificationUtilsFactory.deploy()) as AmplificationUtils;
 
-    const swapUtilsFactory = await ethers.getContractFactory("SwapUtils");
+    const swapUtilsFactory = await ethers.getContractFactory(
+      "contracts/core/connext/libraries/SwapUtils.sol:SwapUtils",
+    );
     swapUtils = (await swapUtilsFactory.deploy()) as SwapUtils;
 
     const swapFactory = await ethers.getContractFactory("StableSwap", {
       libraries: {
-        SwapUtils: swapUtils.address,
-        AmplificationUtils: amplificationUtils.address,
+        // SwapUtils: swapUtils.address,
+        // AmplificationUtils: amplificationUtils.address,
       },
     });
     swap = (await swapFactory.deploy()) as StableSwap;
@@ -111,7 +115,10 @@ describe("StableSwap", async () => {
     expect(await swap.getVirtualPrice()).to.be.eq(0);
 
     swapStorage = await swap.swapStorage();
-    swapToken = (await ethers.getContractAt("LPToken", swapStorage.lpToken)) as LPToken;
+    swapToken = (await ethers.getContractAt(
+      "contracts/core/connext/helpers/LPToken.sol:LPToken",
+      swapStorage.lpToken,
+    )) as LPToken;
 
     const testStableSwapFactory = await ethers.getContractFactory("TestStableSwap");
     testStableSwap = (await testStableSwapFactory.deploy(swap.address, swapToken.address, 2)) as TestStableSwap;
@@ -384,7 +391,7 @@ describe("StableSwap", async () => {
 
       const [firstTokenBalanceBefore, secondTokenBalanceBefore, poolTokenBalanceBefore] = await getUserTokenBalances(
         user1,
-        [firstToken, secondToken, swapToken as unknown as GenericERC20],
+        [firstToken, secondToken, swapToken as unknown as TestERC20],
       );
 
       expect(poolTokenBalanceBefore).to.eq(BigNumber.from("1996275270169644725"));
@@ -535,7 +542,7 @@ describe("StableSwap", async () => {
 
       const [firstTokenBalanceBefore, secondTokenBalanceBefore, poolTokenBalanceBefore] = await getUserTokenBalances(
         user1,
-        [firstToken, secondToken, swapToken as unknown as GenericERC20],
+        [firstToken, secondToken, swapToken as unknown as TestERC20],
       );
 
       // User 1 withdraws imbalanced tokens
@@ -550,7 +557,7 @@ describe("StableSwap", async () => {
 
       const [firstTokenBalanceAfter, secondTokenBalanceAfter, poolTokenBalanceAfter] = await getUserTokenBalances(
         user1,
-        [firstToken, secondToken, swapToken as unknown as GenericERC20],
+        [firstToken, secondToken, swapToken as unknown as TestERC20],
       );
 
       // Check the actual returned token amounts match the requested amounts
