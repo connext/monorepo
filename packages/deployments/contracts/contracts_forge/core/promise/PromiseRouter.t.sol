@@ -91,7 +91,6 @@ contract PromiseRouterTest is ForgeHelper, Deployer {
 
     promiseRouter = MockPromiseRouter(payable(address(proxy)));
 
-    console.log("deploying connext...");
     deployConnext(
       localDomain,
       xAppConnectionManager,
@@ -100,7 +99,6 @@ contract PromiseRouterTest is ForgeHelper, Deployer {
       relayerFeeRouter,
       payable(address(proxy))
     );
-    console.log("deployed!");
 
     promiseRouter.setConnext(address(connextDiamondProxy));
     promiseRouter.enrollRemoteRouter(remoteDomain, bytes32(remote));
