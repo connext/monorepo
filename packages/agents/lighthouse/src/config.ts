@@ -101,17 +101,14 @@ export const getEnvConfig = (
         DEFAULT_BACKEND_POLL_INTERVAL,
     },
     environment: process.env.NXTP_ENVIRONMENT || configJson.environment || configFile.environment || "production",
-    backendUrl:
-      process.env.NXTP_BACKEND_URL ||
-      configJson.backendUrl ||
-      configFile.backendUrl ||
-      "https://postgrest.testnet.connext.ninja",
+    backendUrl: process.env.NXTP_BACKEND_URL || configJson.backendUrl || configFile.backendUrl,
   };
 
   nxtpConfig.backendUrl =
-    nxtpConfig.environment === "production"
+    nxtpConfig.backendUrl ??
+    (nxtpConfig.environment === "production"
       ? "https://postgrest.testnet.connext.ninja"
-      : "https://postgrest.testnet.staging.connext.ninja";
+      : "https://postgrest.testnet.staging.connext.ninja");
 
   const contractPostfix: ContractPostfix =
     nxtpConfig.environment === "production"

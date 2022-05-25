@@ -6,6 +6,7 @@ import {
   jsonifyError,
   Logger,
   RequestContext,
+  ChainData,
 } from "@connext/nxtp-utils";
 import { SubgraphReader } from "@connext/nxtp-adapters-subgraph";
 import { StoreManager } from "@connext/nxtp-adapters-cache";
@@ -140,8 +141,15 @@ export const setupSubgraphReader = async (requestContext: RequestContext): Promi
   const { logger, chainData, config } = context;
   const methodContext = createMethodContext(setupSubgraphReader.name);
 
-  logger.info("Subgraph reader setup in progress...", requestContext, methodContext, {});
-  const subgraphReader = await SubgraphReader.create(chainData, config.environment);
+  const allowedDomains = [...Object.keys(config.chains)];
+  const allowedChainData: Map<string, ChainData> = new Map();
+  for (const allowedDomain of allowedDomains) {
+    if (chainData.has(allowedDomain)) {
+      allowedChainData.set(allowedDomain, chainData.get(allowedDomain)!);
+    }
+  }
+  logger.info("Subgraph reader setup in progress...", requestContext, methodContext, { allowedChainData });
+  const subgraphReader = await SubgraphReader.create(allowedChainData, config.environment, config.subgraphPrefix);
 
   // Pull support for domains that don't have a subgraph.
   const supported: Record<string, boolean> = subgraphReader.supported;

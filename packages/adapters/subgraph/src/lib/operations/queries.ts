@@ -9,10 +9,16 @@ export const ORIGIN_TRANSFER_ENTITY = `
       chainId
       transferId
       nonce
+      # call params
       to
       callData
       originDomain
       destinationDomain
+      forceSlow
+      receiveLocal
+      recovery
+      callback
+      callbackFee
       # Asset Data
       transactingAsset
       transactingAmount
@@ -40,11 +46,17 @@ export const DESTINATION_TRANSFER_ENTITY = `
       callData
       originDomain
       destinationDomain
+      forceSlow
+      receiveLocal
+      recovery
+      callback
+      callbackFee
       # Asset Data
       localAsset
       localAmount
       transactingAsset
       transactingAmount
+      sponsorVaultRelayerFee
       # Executed event Data
       status
       routers {
@@ -67,6 +79,25 @@ export const DESTINATION_TRANSFER_ENTITY = `
       reconciledBlockNumber
 `;
 
+export const BLOCK_NUMBER_ENTITY = `
+      block {
+        number
+      }
+`;
+const lastedBlockNumberQuery = (prefix: string): string => {
+  return `${prefix}__meta { ${BLOCK_NUMBER_ENTITY}}`;
+};
+export const getLastestBlockNumberQuery = (prefixes: string[]): string => {
+  let combinedQuery = "";
+  for (const prefix of prefixes) {
+    combinedQuery += lastedBlockNumberQuery(prefix);
+  }
+
+  return gql`    
+    query GetBlockNumber { 
+      ${combinedQuery}
+  }`;
+};
 export const getAssetBalanceQuery = (prefix: string, router: string, local: string): string => {
   const queryString = `
     ${prefix}_assetBalance(id: "${local}-${router}") {
@@ -208,20 +239,6 @@ const orignTransferQueryString = (
   return `${prefix}_originTransfers(where: { originDomain: ${originDomain}, nonce_gte: ${fromNonce}, destinationDomain_in: [${destinationDomains}] ${
     maxBlockNumber ? `, blockNumber_lte: ${maxBlockNumber}` : ""
   } }, orderBy: blockNumber, orderDirection: desc) {${ORIGIN_TRANSFER_ENTITY}}`;
-};
-
-export const getOriginTransfersQueryByDomain = (
-  prefix: string,
-  originDomain: string,
-  fromNonce: number,
-  destinationDomains: string[],
-): string => {
-  const queryStr = orignTransferQueryString(prefix, originDomain, fromNonce, destinationDomains);
-  return gql`
-    query GetOriginTransfers {
-      ${queryStr}
-    }
-  `;
 };
 
 export const getOriginTransfersQuery = (agents: Map<string, SubgraphQueryMetaParams>): string => {

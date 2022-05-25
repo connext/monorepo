@@ -2,8 +2,8 @@
 pragma solidity 0.8.11;
 
 import {ERC20} from "@openzeppelin/contracts/token/ERC20/ERC20.sol";
-import {IBridgeToken} from "../nomad-xapps/interfaces/bridge/IBridgeToken.sol";
-import {ConnextMessage} from "../nomad-xapps/contracts/connext/ConnextMessage.sol";
+import {IBridgeToken} from "../core/connext/interfaces/IBridgeToken.sol";
+import {ConnextMessage} from "../core/connext/libraries/ConnextMessage.sol";
 
 /**
  * @notice This token is ONLY useful for testing

@@ -1,21 +1,21 @@
 import { ChainData } from "@connext/nxtp-utils";
 
 import { SubgraphMap } from "../entities";
-import { PrefixInvalid } from "../errors";
 
-import { getMeshOptions } from "./shared";
+import { getSubgraphNames } from "./graphclient";
 
-const getNetwork = (sourceName: string, env: string): RegExpMatchArray | null => {
+export const getNetwork = (sourceName: string, env: string): RegExpMatchArray | null => {
   const result =
     env === "staging" ? sourceName.match(/Connext_Staging_(.*)$/) : sourceName.match(/Connext_(?!Staging)(.*)$/);
   return result;
 };
+
 export const create = async (
   chaindata: Map<string, ChainData>,
   env: "staging" | "production" = "production",
+  prefixOverride?: string, // optional override for the prefix
 ): Promise<SubgraphMap> => {
-  const meshOptions = await getMeshOptions();
-  const names = meshOptions.sources.map((source) => source.name);
+  const names = await getSubgraphNames();
 
   // Parse the Network names from the subgraph prefix names in the mesh config.
   const networks = names
@@ -25,11 +25,8 @@ export const create = async (
     })
     .map((name) => {
       const result = getNetwork(name, env);
-      if (!result) {
-        throw new PrefixInvalid(name, result);
-      }
       // Should be the first match group.
-      return result[1].toLowerCase();
+      return result![1].toLowerCase();
     });
   const config: SubgraphMap = {
     sources: {},
@@ -39,7 +36,11 @@ export const create = async (
     if (networks.includes(chainData.network)) {
       config.sources[chainData.domainId] = {
         domain: chainData.domainId,
-        prefix: env === "staging" ? `${env}${chainData.network}` : chainData.network,
+        prefix: prefixOverride
+          ? `${prefixOverride}${chainData.network}`
+          : env === "staging"
+          ? `${env}${chainData.network}`
+          : chainData.network,
       };
       config.supported[chainData.domainId] = true;
     } else {
@@ -56,6 +57,5 @@ export const create = async (
     );
   }
 
-  console.log(config);
   return config;
 };

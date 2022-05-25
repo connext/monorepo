@@ -35,18 +35,24 @@ export const originTransfer = (entity: any): OriginTransfer => {
 
   return {
     // Meta Data
-    idx: entity.idx ? entity.idx : undefined,
+
     transferId: entity.transferId,
     nonce: BigNumber.from(entity.nonce).toNumber(),
     originDomain: entity.originDomain,
     destinationDomain: entity.destinationDomain,
+    relayerFee: entity.relayerFee,
 
     // Call Params
     xparams: {
       to: entity.to,
       callData: entity.callData,
+      callback: entity.callback,
+      callbackFee: entity.callbackFee,
       forceSlow: entity.forceSlow,
       receiveLocal: entity.receiveLocal,
+      originDomain: entity.originDomain,
+      destinationDomain: entity.destinationDomain,
+      recovery: entity.recovery,
     },
 
     // Origin Info
@@ -112,7 +118,7 @@ export const destinationTransfer = (entity: any): DestinationTransfer => {
 
   return {
     // Meta Data
-    idx: entity.idx ? entity.idx : undefined,
+
     transferId: entity.transferId,
     nonce: entity.nonce ? BigNumber.from(entity.nonce).toNumber() : undefined,
     originDomain: entity.originDomain,
@@ -124,8 +130,13 @@ export const destinationTransfer = (entity: any): DestinationTransfer => {
         ? {
             to: entity.to,
             callData: entity.callData,
+            callback: entity.callback,
+            callbackFee: entity.callbackFee,
             forceSlow: entity.forceSlow,
             receiveLocal: entity.receiveLocal,
+            destinationDomain: entity.destinationDomain,
+            originDomain: entity.originDomain,
+            recovery: entity.recovery,
           }
         : undefined,
 
@@ -167,6 +178,7 @@ export const destinationTransfer = (entity: any): DestinationTransfer => {
             gasPrice: entity.executedGasPrice,
             gasLimit: entity.executedGasLimit,
             blockNumber: BigNumber.from(entity.executedBlockNumber ?? "0").toNumber(),
+            relayerFee: entity.relayerFee ?? "1",
           }
         : undefined,
 

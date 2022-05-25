@@ -39,7 +39,7 @@ locals {
         assets = [
           {
             name    = "TEST"
-            address = "0xB7b1d3cC52E658922b2aF00c5729001ceA98142C"
+            address = "0x3FFc03F05D1869f493c7dbf913E636C6280e0ff9"
           }
         ]
       }
@@ -47,10 +47,19 @@ locals {
         assets = [
           {
             name    = "TEST"
-            address = "0xB5AabB55385bfBe31D627E2A717a7B189ddA4F8F"
+            address = "0x3FFc03F05D1869f493c7dbf913E636C6280e0ff9"
           }
         ]
         providers = ["https://eth-kovan.alchemyapi.io/v2/${var.kovan_alchemy_key_0}"]
+      }
+      "3331" = {
+        providers = ["https://eth-goerli.alchemyapi.io/v2/${var.kovan_alchemy_key_0}", "https://rpc.ankr.com/eth_goerli"]
+        assets = [
+          {
+            name    = "TEST"
+            address = "0x3FFc03F05D1869f493c7dbf913E636C6280e0ff9"
+          }
+        ]
       }
     }
 
@@ -77,7 +86,7 @@ locals {
         assets = [
           {
             name    = "TEST"
-            address = "0xB7b1d3cC52E658922b2aF00c5729001ceA98142C"
+            address = "0x3FFc03F05D1869f493c7dbf913E636C6280e0ff9"
           }
         ]
       }
@@ -86,7 +95,16 @@ locals {
         assets = [
           {
             name    = "TEST"
-            address = "0xB5AabB55385bfBe31D627E2A717a7B189ddA4F8F"
+            address = "0x3FFc03F05D1869f493c7dbf913E636C6280e0ff9"
+          }
+        ]
+      }
+      "3331" = {
+        providers = ["https://eth-goerli.alchemyapi.io/v2/${var.kovan_alchemy_key_1}", "https://rpc.ankr.com/eth_goerli"]
+        assets = [
+          {
+            name    = "TEST"
+            address = "0x3FFc03F05D1869f493c7dbf913E636C6280e0ff9"
           }
         ]
       }
@@ -107,6 +125,9 @@ locals {
       }
       "2221" = {
         providers = ["https://eth-kovan.alchemyapi.io/v2/${var.kovan_alchemy_key_1}"]
+      }
+      "3331" = {
+        providers = ["https://eth-goerli.alchemyapi.io/v2/${var.kovan_alchemy_key_1}", "https://rpc.ankr.com/eth_goerli"]
       }
     }
     environment = var.stage

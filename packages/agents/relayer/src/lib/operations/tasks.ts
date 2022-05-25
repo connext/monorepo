@@ -55,8 +55,11 @@ export const createTask = async (
         destinationDomain: decoded.params.destinationDomain.toString(),
         to: decoded.params.to,
         callData: decoded.params.callData,
+        callback: decoded.params.callback,
+        callbackFee: decoded.params.callbackFee,
         forceSlow: decoded.params.forceSlow,
         receiveLocal: decoded.params.receiveLocal,
+        recovery: decoded.params.recovery,
       },
       local: decoded.local,
       routers: decoded.routers,
@@ -64,6 +67,7 @@ export const createTask = async (
       amount: decoded.amount.toString(),
       nonce: (decoded.nonce as BigNumber).toNumber(),
       originSender: decoded.originSender,
+      relayerFee: decoded.relayerFee,
     };
     logger.debug("Parsed execute arguments", requestContext, methodContext, { args });
   } catch (error: unknown) {

@@ -34,7 +34,7 @@ export const makeSequencer = async (_configOverride?: SequencerConfig) => {
 
     /// MARK - Adapters
     context.adapters.cache = await setupCache(context.config.redis, context.logger, requestContext);
-    context.adapters.subgraph = await setupSubgraphReader(context.chainData, context.logger, requestContext);
+    context.adapters.subgraph = await setupSubgraphReader(requestContext);
     context.adapters.chainreader = new ChainReader(
       context.logger.child({ module: "ChainReader", level: context.config.logLevel }),
       context.config.chains,
@@ -89,15 +89,24 @@ export const setupCache = async (
   return cacheInstance;
 };
 
-export const setupSubgraphReader = async (
-  chainData: Map<string, ChainData>,
-  logger: Logger,
-  requestContext: RequestContext,
-): Promise<SubgraphReader> => {
+export const setupSubgraphReader = async (requestContext: RequestContext): Promise<SubgraphReader> => {
+  const { chainData, logger, config } = getContext();
   const methodContext = createMethodContext(setupSubgraphReader.name);
 
-  logger.info("Subgraph reader setup in progress...", requestContext, methodContext, {});
-  const subgraphReader = await SubgraphReader.create(chainData, context.config.environment);
+  const allowedDomains = [...Object.keys(config.chains)];
+  const allowedChainData: Map<string, ChainData> = new Map();
+  for (const allowedDomain of allowedDomains) {
+    if (chainData.has(allowedDomain)) {
+      allowedChainData.set(allowedDomain, chainData.get(allowedDomain)!);
+    }
+  }
+
+  logger.info("Subgraph reader setup in progress...", requestContext, methodContext, { allowedChainData });
+  const subgraphReader = await SubgraphReader.create(
+    allowedChainData,
+    context.config.environment,
+    context.config.subgraphPrefix,
+  );
 
   // Pull support for domains that don't have a subgraph.
   const supported: Record<string, boolean> = subgraphReader.supported;

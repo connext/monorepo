@@ -1,19 +1,17 @@
 import { utils } from "ethers";
 import _contractDeployments from "@connext/nxtp-contracts/deployments.json";
 import {
-  IERC20Minimal as TIERC20Minimal,
+  IERC20 as TIERC20Minimal,
   ConnextHandler as TConnext,
   ConnextPriceOracle as TConnextPriceOracle,
   TokenRegistry as TTokenRegistry,
   StableSwap as TStableSwap,
-  RouterPermissionsManager as TRouterPermissionsManager,
 } from "@connext/nxtp-contracts/typechain-types";
-import PriceOracleArtifact from "@connext/nxtp-contracts/artifacts/contracts/ConnextPriceOracle.sol/ConnextPriceOracle.json";
-import ERC20Artifact from "@connext/nxtp-contracts/artifacts/contracts/interfaces/IERC20Minimal.sol/IERC20Minimal.json";
-import ConnextArtifact from "@connext/nxtp-contracts/artifacts/contracts/nomad-xapps/contracts/connext/ConnextHandler.sol/ConnextHandler.json";
-import StableSwapArtifact from "@connext/nxtp-contracts/artifacts/contracts/StableSwap.sol/StableSwap.json";
-import TokenRegistryArtifact from "@connext/nxtp-contracts/artifacts/contracts/nomad-xapps/contracts/connext/TokenRegistry.sol/TokenRegistry.json";
-import RouterPermissionsManagerArtifact from "@connext/nxtp-contracts/artifacts/contracts/RouterPermissionsManager.sol/RouterPermissionsManager.json";
+import PriceOracleArtifact from "@connext/nxtp-contracts/artifacts/contracts/core/connext/helpers/ConnextPriceOracle.sol/ConnextPriceOracle.json";
+import ERC20Artifact from "@connext/nxtp-contracts/artifacts/contracts/core/connext/helpers/OZERC20.sol/ERC20.json";
+import ConnextArtifact from "@connext/nxtp-contracts/artifacts/hardhat-diamond-abi/ConnextHandler.sol/ConnextHandler.json";
+import StableSwapArtifact from "@connext/nxtp-contracts/artifacts/contracts/core/connext/helpers/StableSwap.sol/StableSwap.json";
+import TokenRegistryArtifact from "@connext/nxtp-contracts/artifacts/contracts/core/connext/helpers/TokenRegistry.sol/TokenRegistry.json";
 
 export type ContractPostfix = "Staging" | "";
 
@@ -138,9 +136,6 @@ export const getTokenRegistryInterface = () =>
   new utils.Interface(TokenRegistryArtifact.abi) as TTokenRegistry["interface"];
 
 export const getStableSwapInterface = () => new utils.Interface(StableSwapArtifact.abi) as TStableSwap["interface"];
-
-export const getRouterPermissionsManagerInterface = () =>
-  new utils.Interface(RouterPermissionsManagerArtifact.abi) as TRouterPermissionsManager["interface"];
 
 export type ConnextContractInterfaces = {
   erc20: TIERC20Minimal["interface"];

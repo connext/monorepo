@@ -58,8 +58,14 @@ export const execute = async (params: OriginTransfer): Promise<void> => {
     destinationDomain,
     origin,
     transferId,
-    xparams: { callData, to },
+    xparams: { callData, to, forceSlow },
   } = params;
+
+  if (forceSlow) {
+    logger.debug("Opt for slow path", requestContext, methodContext, { transferId });
+    return;
+  }
+
   if (!origin) {
     throw new MissingXCall({ requestContext, methodContext });
   }
@@ -101,24 +107,11 @@ export const execute = async (params: OriginTransfer): Promise<void> => {
     });
   }
 
-
-  const context = BridgeContext.fromNomadContext(new NomadContext(nomadConfig.getBuiltin(env_type)));
-  //todo: look for higher level import of this class
-  //push them to blacklist if not there already
-  await context.checkHomes([originDomain, destinationDomain]);
-
-  //get blacklist
-  const blacklist = context.blacklist();
-
-  //determine if origin or destintion aren't connected to nomad
-  const originBlacklisted = blacklist.has(Number(originDomain))
-  const destinationBlacklisted = blacklist.has(Number(destinationDomain));
-
-  if (originBlacklisted || destinationBlacklisted) {
-    throw new NomadHomeBlacklisted({
-      originDomainBlacklisted: originBlacklisted,
-      destinationBlacklisted: destinationBlacklisted
-    })
+  if (callData !== "0x") {
+    const code = await txservice.getCode(+destinationDomain, to);
+    if (code === "0x") {
+      throw new CallDataForNonContract({ transferId, destinationDomain, to, callData, requestContext, methodContext });
+    }
   }
 
   logger.debug("Sanity checks passed", requestContext, methodContext, { liquidity: balance.toString() });

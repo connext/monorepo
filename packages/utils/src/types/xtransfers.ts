@@ -4,9 +4,11 @@ import { TAddress, TIntegerString } from ".";
 
 // dear Jake, please stop changing this to enum
 export const XTransferStatus = {
+  XCalled: "XCalled",
   Executed: "Executed",
   Reconciled: "Reconciled",
-  Completed: "Completed",
+  CompletedFast: "CompletedFast",
+  CompletedSlow: "CompletedSlow",
 } as const;
 export type XTransferStatus = typeof XTransferStatus[keyof typeof XTransferStatus];
 
@@ -75,6 +77,7 @@ export const XTransferDestinationSchema = Type.Object({
       Type.Object({
         // Executed Event Data
         originSender: Type.Optional(TAddress),
+        relayerFee: TIntegerString,
       }),
     ]),
   ),
@@ -83,16 +86,11 @@ export const XTransferDestinationSchema = Type.Object({
   reconcile: Type.Optional(XTransferMethodCallSchema),
 });
 
-export const XTransferCoreSchema = Type.Object({
-  // Meta
-  idx: Type.Optional(TIntegerString),
-  transferId: Type.String(),
-});
-
 export const XTransferSchema = Type.Intersect([
   Type.Object({
     originDomain: Type.String(),
     destinationDomain: Type.Optional(Type.String()),
+    transferId: Type.String(),
 
     // NOTE: Nonce is delivered by XCalled and Executed events, but not Reconciled event.
     nonce: Type.Optional(Type.Integer()),
@@ -103,12 +101,14 @@ export const XTransferSchema = Type.Intersect([
       Type.Object({
         to: TAddress,
         callData: Type.String(),
+        callback: TAddress,
+        recovery: TAddress,
+        callbackFee: TIntegerString,
         forceSlow: Type.Boolean(),
         receiveLocal: Type.Boolean(),
       }),
     ),
   }),
-  XTransferCoreSchema,
   Type.Object({
     origin: Type.Optional(XTransferOriginSchema),
     destination: Type.Optional(XTransferDestinationSchema),
@@ -116,19 +116,27 @@ export const XTransferSchema = Type.Intersect([
 ]);
 export type XTransfer = Static<typeof XTransferSchema>;
 
+export const CallParamsSchema = Type.Object({
+  to: TAddress,
+  callData: Type.String(),
+  originDomain: Type.String(),
+  destinationDomain: Type.String(),
+  callback: TAddress,
+  callbackFee: TIntegerString,
+  recovery: TAddress,
+  forceSlow: Type.Boolean(),
+  receiveLocal: Type.Boolean(),
+});
+
 export const OriginTransferSchema = Type.Intersect([
   Type.Object({
     originDomain: Type.String(),
     destinationDomain: Type.String(),
+    transferId: Type.String(),
     nonce: Type.Integer(),
-    xparams: Type.Object({
-      to: TAddress,
-      callData: Type.String(),
-      forceSlow: Type.Boolean(),
-      receiveLocal: Type.Boolean(),
-    }),
+    xparams: CallParamsSchema,
+    relayerFee: TIntegerString,
   }),
-  XTransferCoreSchema,
   Type.Object({
     origin: XTransferOriginSchema,
     destination: Type.Optional(XTransferDestinationSchema),
@@ -141,32 +149,16 @@ export const DestinationTransferSchema = Type.Intersect([
     originDomain: Type.String(),
     // NOTE: Destination domain is not emitted by Reconciled event.
     destinationDomain: Type.Optional(Type.String()),
+    transferId: Type.String(),
     nonce: Type.Optional(Type.Integer()),
-    xparams: Type.Optional(
-      Type.Object({
-        to: TAddress,
-        callData: Type.String(),
-        forceSlow: Type.Boolean(),
-        receiveLocal: Type.Boolean(),
-      }),
-    ),
+    xparams: Type.Optional(CallParamsSchema),
   }),
-  XTransferCoreSchema,
   Type.Object({
     origin: Type.Optional(XTransferOriginSchema),
     destination: XTransferDestinationSchema,
   }),
 ]);
 export type DestinationTransfer = Static<typeof DestinationTransferSchema>;
-
-export const CallParamsSchema = Type.Object({
-  to: TAddress,
-  callData: Type.String(),
-  originDomain: Type.String(),
-  destinationDomain: Type.String(),
-  forceSlow: Type.Boolean(),
-  receiveLocal: Type.Boolean(),
-});
 
 export type CallParams = Static<typeof CallParamsSchema>;
 
@@ -187,6 +179,7 @@ export const ExecuteArgsSchema = Type.Object({
   amount: TIntegerString,
   nonce: Type.Integer(),
   originSender: TAddress,
+  relayerFee: TIntegerString,
 });
 
 export type ExecuteArgs = Static<typeof ExecuteArgsSchema>;

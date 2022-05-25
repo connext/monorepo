@@ -36,7 +36,7 @@ RUN touch /tmp/build/yarn.lock
 
 # ----- Install dependencies -----
 # Install dependencies exactly as in the yarn.lock file - no updates.
-RUN SKIP_FORGE=1 yarn install
+RUN yarn install
 
 # ----- Copy source and all other files that affect lint, test, build -----
 COPY config config/
@@ -51,7 +51,7 @@ COPY .eslintignore /tmp/build/
 COPY .eslintrc.js /tmp/build/
 
 # ----- Lint, test and build -----
-RUN SKIP_FORGE=1 yarn build
+RUN yarn build
 
 # ----------------------------------------
 # Copy files to the deployment image.
@@ -67,8 +67,6 @@ ENV COMMIT_HASH ${COMMIT_HASH:-unknown}
 
 # ----- Copy files required at runtime by the app -----
 COPY --from=build --chown=node:node /tmp/build /home/node
-#copy config
-COPY docker/router/config.testnet.json /home/node/agents/router/config.json
 
 # This user is created in the base image with uid and gid = 1000.
 USER node

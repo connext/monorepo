@@ -42,24 +42,24 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   /////////////////////////////////////////////////////////////////////////////////
   ////  AmplificationUtils
   /////////////////////////////////////////////////////////////////////////////////
-  const amplificationUtilsName = getDeploymentName("AmplificationUtils");
-  const amplificationUtilsDeployment = await deployments.deploy(amplificationUtilsName, {
-    from: deployer.address,
-    log: true,
-    skipIfAlreadyDeployed: true,
-    contract: "AmplificationUtils",
-  });
+  // const amplificationUtilsName = getDeploymentName("AmplificationUtils");
+  // const amplificationUtilsDeployment = await deployments.deploy(amplificationUtilsName, {
+  //   from: deployer.address,
+  //   log: true,
+  //   skipIfAlreadyDeployed: true,
+  //   contract: "AmplificationUtils",
+  // });
 
   /////////////////////////////////////////////////////////////////////////////////
   ////  SwapUtils
   /////////////////////////////////////////////////////////////////////////////////
-  const swapUtilsName = getDeploymentName("SwapUtils");
-  const swapUtilsDeployment = await deployments.deploy(swapUtilsName, {
-    from: deployer.address,
-    log: true,
-    skipIfAlreadyDeployed: true,
-    contract: "SwapUtils",
-  });
+  // const swapUtilsName = getDeploymentName("SwapUtils");
+  // const swapUtilsDeployment = await deployments.deploy(swapUtilsName, {
+  //   from: deployer.address,
+  //   log: true,
+  //   skipIfAlreadyDeployed: true,
+  //   contract: "SwapUtils",
+  // });
 
   /////////////////////////////////////////////////////////////////////////////////
   ////  StableSwap
@@ -68,10 +68,6 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   await deployments.deploy(stableSwapName, {
     from: deployer.address,
     log: true,
-    libraries: {
-      SwapUtils: swapUtilsDeployment.address,
-      AmplificationUtils: amplificationUtilsDeployment.address,
-    },
     skipIfAlreadyDeployed: true,
     contract: "StableSwap",
   });
