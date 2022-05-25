@@ -53,7 +53,7 @@ export class NxtpSdkBase {
     domain: string,
     assetId: string,
     amount: string,
-    infiniteApprove = false,
+    infiniteApprove = true,
   ): Promise<providers.TransactionRequest | undefined> {
     const { requestContext, methodContext } = createLoggingContext(this.approveIfNeeded.name);
 
