@@ -273,7 +273,6 @@ contract BridgeFacet is BaseConnextFacet {
   }
 
   /**
-
    * @notice Anyone can call this function on the origin domain to increase the relayer fee for a transfer.
    * @param _transferId - The unique identifier of the crosschain transaction
    */

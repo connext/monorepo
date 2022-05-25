@@ -6,7 +6,10 @@ import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
 import {IStableSwap} from "../../../../contracts/core/connext/interfaces/IStableSwap.sol";
 import {ITokenRegistry} from "../../../../contracts/core/connext/interfaces/ITokenRegistry.sol";
+import {IExecutor} from "../../../../contracts/core/connext/interfaces/IExecutor.sol";
+import {Executor} from "../../../../contracts/core/connext/helpers/Executor.sol";
 import {ConnextMessage} from "../../../../contracts/core/connext/libraries/ConnextMessage.sol";
+import {LibCrossDomainProperty} from "../../../../contracts/core/connext/libraries/LibCrossDomainProperty.sol";
 import {CallParams, ExecuteArgs} from "../../../../contracts/core/connext/libraries/LibConnextStorage.sol";
 import {BridgeFacet} from "../../../../contracts/core/connext/facets/BridgeFacet.sol";
 import {TestERC20} from "../../../../contracts/test/TestERC20.sol";
@@ -14,16 +17,36 @@ import {TestERC20} from "../../../../contracts/test/TestERC20.sol";
 import "../../../../lib/forge-std/src/console.sol";
 import "./FacetHelper.sol";
 
+contract MockXApp {
+  event MockXAppEvent(address caller, address asset, bytes32 message);
+
+  function good(address asset, bytes32 message) external returns (bool, bytes32) {
+    emit MockXAppEvent(msg.sender, asset, message);
+
+    IExecutor executor = IExecutor(address(msg.sender));
+
+    IERC20(asset).transferFrom(address(executor), address(this), executor.amount());
+
+    return (true, bytes32("good"));
+  }
+
+  // TODO: Read from originDomain/originSender properties
+
+  function bad() external {
+    require(false, "bad");
+  }
+}
+
 contract BridgeFacetTest is BridgeFacet, FacetHelper {
   // ============ storage ============
   // local asset for this domain
   address _local;
 
-  // routers
-  uint256 _router0Key = 2;
-  address _router0 = vm.addr(2);
-  uint256 _router1Key = 3;
-  address _router1 = vm.addr(3);
+  // executor contract
+  address _executor;
+
+  // mock xapp contract
+  address _xapp;
 
   // default origin sender
   address _originSender = address(4);
@@ -86,10 +109,16 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
 
   // ============ Utils ============
   // Utils used in the following tests.
+
   // Used in set up for deploying any needed peripheral contracts.
   function utils_deployContracts() public {
-    // deploy the local token
+    // Deploy the local token.
     _local = address(new TestERC20());
+    // Deploy an executor.
+    _executor = address(new Executor(address(this)));
+    s.executor = IExecutor(_executor);
+    // Deploy a mock xapp consumer.
+    _xapp = address(new MockXApp());
   }
 
   // Makes some mock router signatures.
@@ -112,18 +141,11 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
     return signatures;
   }
 
-  // Makes some mock execute arguments.
-  function utils_makeExecuteArgs(
-    address[] memory routers,
-    uint256[] memory keys,
-    bool fill
-  ) public returns (bytes32, ExecuteArgs memory) {
-    if (routers.length == 0 && fill) {
-      routers = new address[](1);
-      keys = new uint256[](1);
-      routers[0] = _router0;
-      keys[0] = _router0Key;
-    }
+  // Makes some mock execute arguments with given router/key pairs.
+  function utils_makeExecuteArgs(address[] memory routers, uint256[] memory keys)
+    public
+    returns (bytes32, ExecuteArgs memory)
+  {
     // get args
     bytes[] memory empty = new bytes[](0);
     ExecuteArgs memory args = ExecuteArgs(_params, _local, routers, empty, _relayerFee, _amount, _nonce, _originSender);
@@ -142,25 +164,38 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
     return transferId;
   }
 
-  // Specifically makes execute arguments with no routers/signatures for slow liq simulation.
-  function utils_makeExecuteArgsNoRouters() public returns (bytes32, ExecuteArgs memory) {
-    address[] memory routers = new address[](0);
-    uint256[] memory keys = new uint256[](0);
-    return utils_makeExecuteArgs(routers, keys, false);
+  // Make execute args, fill in a number of router/key pairs.
+  // Specifically input 0 to make execute arguments with no routers/keys for slow liq simulation.
+  function utils_makeExecuteArgs(uint256 num) public returns (bytes32, ExecuteArgs memory) {
+    address[] memory routers = new address[](num);
+    uint256[] memory keys = new uint256[](num);
+    for (uint256 i; i < num; i++) {
+      routers[i] = vm.addr(777 + i);
+      keys[i] = 777 + i;
+    }
+    return utils_makeExecuteArgs(routers, keys);
   }
 
-  function utils_makeExecuteArgs(address[] memory routers, uint256[] memory keys)
-    public
-    returns (bytes32, ExecuteArgs memory)
-  {
-    return utils_makeExecuteArgs(routers, keys, false);
+  // Intended to mock the fast transfer amount calculation in the target contract.
+  function utils_getFastTransferAmount(uint256 _amount) public returns (uint256) {
+    // This is the method used internally to get the amount of tokens to transfer after liquidity
+    // fees are taken.
+    return (_amount * s.LIQUIDITY_FEE_NUMERATOR) / s.LIQUIDITY_FEE_DENOMINATOR;
   }
 
-  function utils_makeExecuteArgs() public returns (bytes32, ExecuteArgs memory) {
-    address[] memory routers;
-    uint256[] memory keys;
-    return utils_makeExecuteArgs(routers, keys, true);
-  }
+  // TODO: For some reason, `emit IExecutor.Execute` is not working.
+  // Having to use this redundant event definition instead.
+  event MockExecutedEvent(
+    bytes32 indexed transferId,
+    address indexed to,
+    address indexed recovery,
+    address assetId,
+    uint256 amount,
+    bytes _properties,
+    bytes callData,
+    bytes returnData,
+    bool success
+  );
 
   // ============== Helpers ==================
   // Helpers used for executing target methods with given params that assert expected base behavior.
@@ -208,21 +243,38 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
 
     // should mark the transfer as executed
     assertEq(s.transferRelayer[_id], address(this));
+
+    // should have assigned transfer as routed
+    address[] memory savedRouters = s.routedTransfers[_id];
+    for (uint256 i; i < savedRouters.length; i++) {
+      assertEq(savedRouters[i], _args.routers[i]);
+    }
   }
 
   // ============ Tests ==============
 
+  // TODO: Getters/view methods
+
+  // ============ Admin methods ==============
+  // setPromiseRouter
+  // setExecutor
+  // setSponsorVault
+
+  // ============ Public methods ==============
+  // xcall
+  // handle (reconcile)
+  // execute
+  // bumpTransfer
+
   // ============ execute ============
-
-  // ============ execute failure cases
-
+  // ============ execute fail cases
   // should fail if msg.sender is not an approved relayer
   function test_BridgeFacet__execute_failIfRelayerNotApproved() public {
     // set context
     s.approvedRelayers[address(this)] = false;
 
     // get args
-    (, ExecuteArgs memory args) = utils_makeExecuteArgs();
+    (, ExecuteArgs memory args) = utils_makeExecuteArgs(1);
 
     // expect failure
     vm.expectRevert(BridgeFacet.BridgeFacet__execute_unapprovedRelayer.selector);
@@ -237,7 +289,7 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
     _params.forceSlow = true;
 
     // get args
-    (bytes32 transferId, ExecuteArgs memory args) = utils_makeExecuteArgs();
+    (bytes32 transferId, ExecuteArgs memory args) = utils_makeExecuteArgs(0);
 
     // expect failure
     vm.expectRevert(BridgeFacet.BridgeFacet__execute_notReconciled.selector);
@@ -248,19 +300,20 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
 
   // should fail if the router signature is invalid
 
-  // should fail if it was already executed
+  // should fail if it was already executed : s.transferRelayer[transferId] != address(0)
 
   // should fail if sponsored vault did not fund contract
 
-  // ============ execute success cases
+  // should fail if pathLength > maxRouters
 
+  // ============ execute success cases
   // should use slow liquidity if specified (forceSlow = true)
   function test_BridgeFacet__execute_forceSlowWorks() public {
     // set test params
     _params.forceSlow = true;
 
     // get args
-    (bytes32 _id, ExecuteArgs memory _args) = utils_makeExecuteArgsNoRouters();
+    (bytes32 _id, ExecuteArgs memory _args) = utils_makeExecuteArgs(0);
 
     // set reconciled context
     s.reconciledTransfers[_id] = true;
@@ -274,7 +327,7 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
     _params.receiveLocal = true;
 
     // get args
-    (bytes32 _id, ExecuteArgs memory _args) = utils_makeExecuteArgs();
+    (bytes32 _id, ExecuteArgs memory _args) = utils_makeExecuteArgs(1);
 
     // set liquidity context
     for (uint256 i; i < _args.routers.length; i++) {
@@ -285,14 +338,71 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
   }
 
   // should work without calldata
+  function test_BridgeFacet__execute_noCalldataWorks() public {
+    _params.callData = bytes("");
+    (bytes32 id, ExecuteArgs memory args) = utils_makeExecuteArgs(1);
+
+    s.routerBalances[args.routers[0]][args.local] += 10 ether;
+
+    uint256 amount = utils_getFastTransferAmount(args.amount);
+
+    // Sanity check: caller should previously have 0 tokens.
+    assertEq(IERC20(args.local).balanceOf(args.params.to), 0);
+    // With no calldata set, this method call should just send funds directly to the user.
+    helpers_executeAndAssert(id, args);
+    assertEq(IERC20(args.local).balanceOf(args.params.to), amount);
+  }
 
   // should work with successful calldata
+  function test_BridgeFacet__execute_successfulCalldata() public {
+    address recovery = address(12345);
+    // Set the args.to to the mock xapp address, and args.callData to the `good` fn.
+    _params.callData = abi.encodeWithSelector(MockXApp.good.selector, _local, bytes32("test message"));
+    _params.to = _xapp;
+    _params.recovery = recovery;
 
-  // should work with failing calldata
+    (bytes32 transferId, ExecuteArgs memory args) = utils_makeExecuteArgs(1);
+
+    s.routerBalances[args.routers[0]][args.local] += 10 ether;
+
+    uint256 amount = utils_getFastTransferAmount(args.amount);
+    address adopted = args.local;
+
+    // bytes memory returnData;
+
+    // vm.expectEmit(true, true, false, true);
+    // emit IExecutor.Executed(
+    // emit MockExecutedEvent(
+    //   transferId,
+    //   args.params.to,
+    //   args.params.recovery,
+    //   adopted,
+    //   amount,
+    //   // Should be EMPTY_BYTES because the originDomain/originSender properties have not been
+    //   // optimistically verified if the call has not been reconciled.
+    //   LibCrossDomainProperty.EMPTY_BYTES,
+    //   args.params.callData,
+    //   returnData,
+    //   true
+    // );
+
+    helpers_executeAndAssert(transferId, args);
+    // Recovery address should not receive any funds if the call was successful.
+    assertEq(IERC20(args.local).balanceOf(recovery), 0);
+  }
+
+  // should work with failing calldata : contract call failed
+
+  // should work with failing calldata : `to` is not a contract (should call _handleFailure)
 
   // should work if already reconciled (happening in slow liquidity mode)
 
   // should work with unapproved router if ownership renounced
 
   // should work with unapproved router if router-whitelist ownership renounced
+
+  // multipath: should subtract equally from each router's liquidity
+
+  // should work with sponsorship from sponsor vault
+  // TODO: see _handleExecuteTransaction
 }
