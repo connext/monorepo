@@ -18,10 +18,17 @@ import "../../../../lib/forge-std/src/console.sol";
 import "./FacetHelper.sol";
 
 contract MockXApp {
+  bytes32 constant TEST_MESSAGE = bytes32("test message");
+
   event MockXAppEvent(address caller, address asset, bytes32 message, uint256 amount);
 
+  modifier checkMockMessage(bytes32 message) {
+    require(keccak256(abi.encode(message)) == keccak256(abi.encode(TEST_MESSAGE)), "Mock message invalid!");
+    _;
+  }
+
   // This method call will transfer asset to this contract and succeed.
-  function good(address asset, bytes32 message) external returns (bytes32) {
+  function fulfill(address asset, bytes32 message) external checkMockMessage(message) returns (bytes32) {
     IExecutor executor = IExecutor(address(msg.sender));
 
     emit MockXAppEvent(msg.sender, asset, message, executor.amount());
@@ -31,15 +38,34 @@ contract MockXApp {
     return (bytes32("good"));
   }
 
-  // TODO: Read from originDomain/originSender properties
+  // Read from originDomain/originSender properties and validate them based on arguments.
+  function fulfillWithProperties(
+    address asset,
+    bytes32 message,
+    uint256 expectedOriginDomain,
+    address expectedOriginSender
+  ) external checkMockMessage(message) returns (bytes32) {
+    IExecutor executor = IExecutor(address(msg.sender));
 
-  // This method call will fail.
-  function bad() external {
+    emit MockXAppEvent(msg.sender, asset, message, executor.amount());
+
+    IERC20(asset).transferFrom(address(executor), address(this), executor.amount());
+
+    require(expectedOriginDomain == executor.origin(), "Origin domain incorrect");
+    require(expectedOriginSender == executor.originSender(), "Origin sender incorrect");
+
+    return (bytes32("good"));
+  }
+
+  // This method call will always fail.
+  function fail() external {
     require(false, "bad");
   }
 }
 
 contract BridgeFacetTest is BridgeFacet, FacetHelper {
+  bytes32 constant TEST_MESSAGE = bytes32("test message");
+
   // ============ storage ============
   // local asset for this domain
   address _local;
@@ -71,6 +97,9 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
   // default nonce on xcall
   uint256 _nonce = 1;
 
+  // default recovery address
+  address constant _recovery = address(12121212);
+
   // default CallParams
   CallParams _params =
     CallParams(
@@ -78,7 +107,7 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
       bytes(""), // callData
       _originDomain, // origin domain
       _destinationDomain, // destination domain
-      address(11), // recovery address
+      _recovery, // recovery address
       address(0), // callback
       0, // callbackFee
       false, // forceSlow
@@ -153,8 +182,10 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
     ExecuteArgs memory args = ExecuteArgs(_params, _local, routers, empty, _relayerFee, _amount, _nonce, _originSender);
     // generate transfer id
     bytes32 _id = utils_getTransferIdFromExecuteArgs(args);
-    // generate router signatures
-    args.routerSignatures = utils_makeRouterSignatures(_id, routers, keys);
+    // generate router signatures if applicable
+    if (routers.length > 0) {
+      args.routerSignatures = utils_makeRouterSignatures(_id, routers, keys);
+    }
     return (_id, args);
   }
 
@@ -169,6 +200,11 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
   // Make execute args, fill in a number of router/key pairs.
   // Specifically input 0 to make execute arguments with no routers/keys for slow liq simulation.
   function utils_makeExecuteArgs(uint256 num) public returns (bytes32, ExecuteArgs memory) {
+    if (num == 0) {
+      address[] memory routers;
+      uint256[] memory keys;
+      return utils_makeExecuteArgs(routers, keys);
+    }
     address[] memory routers = new address[](num);
     uint256[] memory keys = new uint256[](num);
     for (uint256 i; i < num; i++) {
@@ -211,9 +247,7 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
     uint256 prevBalanceTo = token.balanceOf(_params.to);
 
     // execute
-    uint256 transferred = pathLen == 0
-      ? _args.amount
-      : (_args.amount * _liquidityFeeNumerator) / _liquidityFeeDenominator;
+    uint256 transferred = pathLen == 0 ? _args.amount : utils_getFastTransferAmount(_args.amount);
     vm.expectEmit(true, true, false, true);
     emit Executed(_id, _args.params.to, _args, _args.local, transferred, address(this));
     this.execute(_args);
@@ -306,7 +340,9 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
 
   // should fail if sponsored vault did not fund contract
 
-  // should fail if pathLength > maxRouters
+  // multipath: should fail if pathLength > maxRouters
+
+  // multipath: should fail if any 1 router has insufficient tokens
 
   // ============ execute success cases
   // should use slow liquidity if specified (forceSlow = true)
@@ -332,9 +368,7 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
     (bytes32 _id, ExecuteArgs memory _args) = utils_makeExecuteArgs(1);
 
     // set liquidity context
-    for (uint256 i; i < _args.routers.length; i++) {
-      s.routerBalances[_args.routers[i]][_args.local] += 10 ether;
-    }
+    s.routerBalances[_args.routers[0]][_args.local] += 10 ether;
 
     helpers_executeAndAssert(_id, _args);
   }
@@ -357,19 +391,16 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
 
   // should work with successful calldata
   function test_BridgeFacet__execute_successfulCalldata() public {
-    address recovery = address(12345);
-    // Set the args.to to the mock xapp address, and args.callData to the `good` fn.
-    _params.callData = abi.encodeWithSelector(MockXApp.good.selector, _local, bytes32("test message"));
+    // Set the args.to to the mock xapp address, and args.callData to the `fulfill` fn.
+    _params.callData = abi.encodeWithSelector(MockXApp.fulfill.selector, _local, TEST_MESSAGE);
     _params.to = _xapp;
-    _params.recovery = recovery;
 
     (bytes32 transferId, ExecuteArgs memory args) = utils_makeExecuteArgs(1);
 
     s.routerBalances[args.routers[0]][args.local] += 10 ether;
 
-    uint256 amount = utils_getFastTransferAmount(args.amount);
-
     // TODO: Would be great to check for this emit, but currently it's not visible to compiler for some reason.
+    // uint256 amount = utils_getFastTransferAmount(args.amount);
     // bytes memory returnData;
     // vm.expectEmit(true, true, false, true);
     // emit IExecutor.Executed(
@@ -392,38 +423,99 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
 
     helpers_executeAndAssert(transferId, args);
     // Recovery address should not receive any funds if the call was successful.
-    assertEq(IERC20(args.local).balanceOf(recovery), 0);
+    assertEq(IERC20(args.local).balanceOf(_recovery), 0);
   }
 
   // should work with failing calldata : contract call failed
   function test_BridgeFacet__execute_failingCalldata() public {
-    address recovery = address(12345);
-    // Set the args.to to the mock xapp address, and args.callData to the `bad` fn.
-    _params.callData = abi.encodeWithSelector(MockXApp.bad.selector);
+    // Set the args.to to the mock xapp address, and args.callData to the `fail` fn.
+    _params.callData = abi.encodeWithSelector(MockXApp.fail.selector);
     _params.to = _xapp;
-    _params.recovery = recovery;
 
     (bytes32 transferId, ExecuteArgs memory args) = utils_makeExecuteArgs(1);
 
     s.routerBalances[args.routers[0]][args.local] += 10 ether;
 
     uint256 amount = utils_getFastTransferAmount(args.amount);
-    address adopted = args.local;
 
     helpers_executeAndAssert(transferId, args, false);
     // Recovery address should receive the funds if the call failed.
-    assertEq(IERC20(args.local).balanceOf(recovery), amount);
+    assertEq(IERC20(args.local).balanceOf(_recovery), amount);
+    // TODO: Check allowance is the same as before.
   }
 
   // should work with failing calldata : `to` is not a contract (should call _handleFailure)
+  function test_BridgeFacet__execute_handleToIsNotAContract() public {
+    // Setting the calldata to be for fulfill... but obviously, that method should never be called.
+    // Because `to` is not a valid contract address.
+    _params.callData = abi.encodeWithSelector(MockXApp.fulfill.selector, _local, TEST_MESSAGE);
+    _params.to = address(42);
+
+    (bytes32 transferId, ExecuteArgs memory args) = utils_makeExecuteArgs(1);
+
+    s.routerBalances[args.routers[0]][args.local] += 10 ether;
+
+    uint256 amount = utils_getFastTransferAmount(args.amount);
+
+    helpers_executeAndAssert(transferId, args, false);
+    // Recovery address should receive the funds if the call failed.
+    assertEq(IERC20(args.local).balanceOf(_recovery), amount);
+  }
 
   // should work if already reconciled (happening in slow liquidity mode)
+  function test_BridgeFacet__execute_handleAlreadyReconciled() public {
+    // Set the args.to to the mock xapp address, and args.callData to the
+    // `fulfillWithProperties` fn. This will check to make sure `originDomain` and
+    // `originSender` properties are correctly set.
+    _params.callData = abi.encodeWithSelector(
+      MockXApp.fulfillWithProperties.selector,
+      _local,
+      TEST_MESSAGE,
+      _originDomain,
+      _originSender
+    );
+    _params.to = _xapp;
 
+    // We specify that 0 routers are in the path for this execution.
+    (bytes32 transferId, ExecuteArgs memory args) = utils_makeExecuteArgs(0);
+
+    // Transfer has already been reconciled.
+    s.reconciledTransfers[transferId] = true;
+
+    helpers_executeAndAssert(transferId, args, true);
+    // Recovery address should not receive the funds if the call succeeded.
+    assertEq(IERC20(args.local).balanceOf(_recovery), 0);
+  }
+
+  // TODO: These tests wouldn't actually test anything right now because router 'approval'
+  // isn't actually checked, only router liquidity amount is checked.
   // should work with unapproved router if ownership renounced
-
   // should work with unapproved router if router-whitelist ownership renounced
 
   // multipath: should subtract equally from each router's liquidity
+  function test_BridgeFacet__execute_multipath() public {
+    // Call the mock xapp just to ensure that the full execute e2e remains uniform.
+    _params.callData = abi.encodeWithSelector(MockXApp.fulfill.selector, _local, TEST_MESSAGE);
+    _params.to = _xapp;
+
+    // Should work if the pathLength == max routers.
+    uint256 pathLength = s.maxRoutersPerTransfer;
+    (bytes32 transferId, ExecuteArgs memory args) = utils_makeExecuteArgs(pathLength);
+
+    for (uint256 i; i < args.routers.length; i++) {
+      s.routerBalances[args.routers[i]][args.local] += 10 ether;
+    }
+
+    uint256 amount = utils_getFastTransferAmount(args.amount);
+    uint256 routerAmountSent = amount / pathLength; // The amount each individual router will send.
+
+    helpers_executeAndAssert(transferId, args);
+    // Recovery address should not receive any funds if the call was successful.
+    assertEq(IERC20(args.local).balanceOf(_recovery), 0);
+    for (uint256 i; i < args.routers.length; i++) {
+      assertEq(s.routerBalances[args.routers[i]][args.local], 10 ether - routerAmountSent);
+    }
+  }
 
   // should work with sponsorship from sponsor vault
   // TODO: see _handleExecuteTransaction
