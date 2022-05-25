@@ -11,6 +11,7 @@ import {Executor} from "../../../../contracts/core/connext/helpers/Executor.sol"
 import {ConnextMessage} from "../../../../contracts/core/connext/libraries/ConnextMessage.sol";
 import {LibCrossDomainProperty} from "../../../../contracts/core/connext/libraries/LibCrossDomainProperty.sol";
 import {CallParams, ExecuteArgs} from "../../../../contracts/core/connext/libraries/LibConnextStorage.sol";
+import {LibDiamond} from "../../../../contracts/core/connext/libraries/LibDiamond.sol";
 import {BridgeFacet} from "../../../../contracts/core/connext/facets/BridgeFacet.sol";
 import {TestERC20} from "../../../../contracts/test/TestERC20.sol";
 
@@ -67,6 +68,9 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
   bytes32 constant TEST_MESSAGE = bytes32("test message");
 
   // ============ storage ============
+  // diamond storage contract owner
+  address _ds_owner = address(987654321);
+
   // local asset for this domain
   address _local;
 
@@ -136,6 +140,11 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
     // setup other context
     s.approvedRelayers[address(this)] = true;
     s.maxRoutersPerTransfer = 5;
+    s._routerOwnershipRenounced = true;
+
+    vm.prank(address(this));
+    LibDiamond.DiamondStorage storage ds = LibDiamond.diamondStorage();
+    ds.contractOwner = _ds_owner;
   }
 
   // ============ Utils ============
@@ -299,15 +308,10 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
   // ============ Public methods ==============
   // xcall
   // handle (reconcile)
-  // execute
+
   // bumpTransfer
 
   // ============ execute ============
-
-  // TODO:
-  // should work with unapproved router if ownership renounced
-  // should work with unapproved router if router-whitelist ownership renounced
-  // should fail if the router is not approved and ownership is not renounced
 
   // ============ execute fail cases
   // should fail if msg.sender is not an approved relayer
@@ -354,8 +358,35 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
     this.execute(args);
   }
 
+  // should fail if the router is not approved and ownership is not renounced
+  function test_BridgeFacet__execute_failIfRouterNotApproved() public {
+    s._routerOwnershipRenounced = false;
+
+    (, ExecuteArgs memory args) = utils_makeExecuteArgs(1);
+    s.routerPermissionInfo.approvedRouters[args.routers[0]] = false;
+
+    vm.expectRevert(BridgeFacet.BridgeFacet__execute_notSupportedRouter.selector);
+    this.execute(args);
+  }
+
   // should fail if the router signature is invalid
   function test_BridgeFacet__execute_failIfSignatureInvalid() public {
+    (bytes32 transferId, ExecuteArgs memory args) = utils_makeExecuteArgs(1);
+
+    s.routerBalances[args.routers[0]][args.local] += 10 ether;
+
+    // Make invalid args based on (slightly) altered params.
+    _params.originDomain = 1001;
+    (, ExecuteArgs memory invalidArgs) = utils_makeExecuteArgs(4);
+    // The signature of the last router in the group will be invalid.
+    args.routerSignatures[0] = invalidArgs.routerSignatures[0];
+
+    vm.expectRevert(BridgeFacet.BridgeFacet__execute_invalidRouterSignature.selector);
+    this.execute(args);
+  }
+
+  // multipath: should fail if any 1 router's signature is invalid
+  function test_BridgeFacet__execute_failIfAnySignatureInvalid() public {
     // Using multipath; this should fail if any 1 router signature is invalid.
     (bytes32 transferId, ExecuteArgs memory args) = utils_makeExecuteArgs(4);
 
@@ -363,9 +394,9 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
       s.routerBalances[args.routers[i]][args.local] += 10 ether;
     }
 
-    // Make an invalid transfer ID based on (slightly) altered params.
+    // Make invalid args based on (slightly) altered params.
     _params.originDomain = 1001;
-    (bytes32 invalidTransferId, ExecuteArgs memory invalidArgs) = utils_makeExecuteArgs(4);
+    (, ExecuteArgs memory invalidArgs) = utils_makeExecuteArgs(4);
     // The signature of the last router in the group will be invalid.
     args.routerSignatures[3] = invalidArgs.routerSignatures[3];
 
@@ -446,22 +477,31 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
 
   // should use the local asset if specified (receiveLocal = true)
   function test_BridgeFacet__execute_receiveLocalWorks() public {
-    // set test params
     _params.receiveLocal = true;
 
-    // get args
-    (bytes32 id, ExecuteArgs memory args) = utils_makeExecuteArgs(1);
+    (bytes32 transferId, ExecuteArgs memory args) = utils_makeExecuteArgs(1);
 
-    // set liquidity context
     s.routerBalances[args.routers[0]][args.local] += 10 ether;
 
-    helpers_executeAndAssert(id, args);
+    helpers_executeAndAssert(transferId, args);
+  }
+
+  // should work with approved router if router ownership is not renounced
+  function test_BridgeFacet__execute_approvedRouterWorks() public {
+    s._routerOwnershipRenounced = false;
+
+    (bytes32 transferId, ExecuteArgs memory args) = utils_makeExecuteArgs(1);
+
+    s.routerBalances[args.routers[0]][args.local] += 10 ether;
+    s.routerPermissionInfo.approvedRouters[args.routers[0]] = true;
+
+    helpers_executeAndAssert(transferId, args);
   }
 
   // should work without calldata
   function test_BridgeFacet__execute_noCalldataWorks() public {
     _params.callData = bytes("");
-    (bytes32 id, ExecuteArgs memory args) = utils_makeExecuteArgs(1);
+    (bytes32 transferId, ExecuteArgs memory args) = utils_makeExecuteArgs(1);
 
     s.routerBalances[args.routers[0]][args.local] += 10 ether;
 
@@ -470,7 +510,7 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
     // Sanity check: caller should previously have 0 tokens.
     assertEq(IERC20(args.local).balanceOf(args.params.to), 0);
     // With no calldata set, this method call should just send funds directly to the user.
-    helpers_executeAndAssert(id, args);
+    helpers_executeAndAssert(transferId, args);
     assertEq(IERC20(args.local).balanceOf(args.params.to), amount);
   }
 
