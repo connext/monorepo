@@ -390,28 +390,26 @@ contract BridgeFacet is BaseConnextFacet {
     bytes32 _transferId,
     uint256 _amount
   ) internal returns (bytes memory) {
-    // get token
+    // Cast asset to bridge token interface.
     IBridgeToken token = IBridgeToken(_asset);
 
-    // declare details
     bytes32 detailsHash;
-
     if (s.tokenRegistry.isLocalOrigin(_asset)) {
       // TODO: do we want to store a mapping of custodied token balances here?
 
-      // token is local, custody token on this chain
-      // query token contract for details and calculate detailsHash
+      // Token is local for this domain. We should custody the token here.
+      // Query token contract for details and calculate detailsHash.
       detailsHash = ConnextMessage.formatDetailsHash(token.name(), token.symbol(), token.decimals());
     } else {
-      // if the token originates on a remote chain,
-      // burn the representation tokens on this chain
+      // If the token originates on a remote chain, burn the representation tokens on this chain.
       if (_amount > 0) {
         token.burn(address(this), _amount);
       }
       detailsHash = token.detailsHash();
     }
 
-    // format action
+    // Format the message action.
+    // The action is the part of the message that represents what has to happen for the transfer. it includes the detailsHash in case a new token must be deployed, the transfer recipient, the amount, and the transfer id. the _amount is used by _reconcile to potentially mint more tokens when the nomad message lands
     bytes29 action = ConnextMessage.formatTransfer(
       TypeCasts.addressToBytes32(_args.params.to),
       _amount,
@@ -419,13 +417,12 @@ contract BridgeFacet is BaseConnextFacet {
       _transferId
     );
 
-    // get the tokenID
-    (uint32 domain, bytes32 id) = s.tokenRegistry.getTokenId(_asset);
+    // Get the token's canonical domain and ID.
+    (uint32 canonicalDomain, bytes32 canonicalId) = s.tokenRegistry.getTokenId(_asset);
 
-    // format token id
-    bytes29 tokenId = ConnextMessage.formatTokenId(domain, id);
+    // Format the token's ID for messaging.
+    bytes29 tokenId = ConnextMessage.formatTokenId(canonicalDomain, canonicalId);
 
-    // send message
     return ConnextMessage.formatMessage(tokenId, action);
   }
 

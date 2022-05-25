@@ -127,24 +127,29 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
 
   // ============ Test set up ============
   function setUp() public {
-    // deploy any needed contracts
+    // Deploy any needed contracts.
     utils_deployContracts();
 
-    // set defaults
     setDefaults();
 
+    // Set up asset context. By default, local is the adopted asset - the one the 'user'
+    // is using - and is representational (meaning canonically it belongs to another chain).
     vm.mockCall(
       _tokenRegistry,
       abi.encodeWithSelector(ITokenRegistry.getTokenId.selector),
       abi.encode(_canonicalDomain, _canonicalTokenId)
     );
 
-    // setup asset context (use local == adopted)
     s.adoptedToCanonical[_local] = ConnextMessage.TokenId(_canonicalDomain, _canonicalTokenId);
     s.adoptedToLocalPools[_canonicalTokenId] = IStableSwap(address(0));
     s.canonicalToAdopted[_canonicalTokenId] = _local;
 
-    // setup other context
+    utils_makeLocalAssetRepresentational();
+
+    // By default, the local asset will be used as the 'adopted' asset sent by the user in `xcall`, for instance.
+    vm.mockCall(_tokenRegistry, abi.encodeWithSelector(ITokenRegistry.getLocalAddress.selector), abi.encode(_local));
+
+    // Other context setup: configuration, storage, etc.
     s.approvedRelayers[address(this)] = true;
     s.maxRoutersPerTransfer = 5;
     s._routerOwnershipRenounced = true;
@@ -153,13 +158,25 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
     LibDiamond.DiamondStorage storage ds = LibDiamond.diamondStorage();
     ds.contractOwner = _ds_owner;
 
-    // NOTE: Currently, only domain check is with xcall.
+    // NOTE: Currently, the only time we check for the domain in params to match the contract's
+    // domain is within the `xcall` method - so it's safe to set the contract domain to be origin.
     s.domain = _originDomain;
     s.remotes[_destinationDomain] = _remote;
   }
 
   // ============ Utils ============
   // Utils used in the following tests.
+
+  // Make it so the local asset used for testing is canonical / considered to be locally originating.
+  function utils_makeLocalAssetCanonical() public {
+    vm.mockCall(_tokenRegistry, abi.encodeWithSelector(ITokenRegistry.isLocalOrigin.selector), abi.encode(bool(true)));
+  }
+
+  // Make it so the local asset used for testing is representational / considered to be originating from another chain.
+  // In order to send the asset via xcall, it will be burnt.
+  function utils_makeLocalAssetRepresentational() public {
+    vm.mockCall(_tokenRegistry, abi.encodeWithSelector(ITokenRegistry.isLocalOrigin.selector), abi.encode(bool(false)));
+  }
 
   // Used in set up for deploying any needed peripheral contracts.
   function utils_deployContracts() public {
@@ -681,8 +698,8 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
     // TODO: Check allowance is the same as before.
   }
 
-  // should work with failing calldata : `to` is not a contract (should call _handleFailure)
-  function test_BridgeFacet__execute_handleToIsNotAContract() public {
+  // should work with failing calldata : recipient `to` is not a contract (should call _handleFailure)
+  function test_BridgeFacet__execute_handleRecipientNotAContract() public {
     // Setting the calldata to be for fulfill... but obviously, that method should never be called.
     // Because `to` is not a valid contract address.
     _params.callData = abi.encodeWithSelector(MockXApp.fulfill.selector, _local, TEST_MESSAGE);
@@ -760,4 +777,5 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
   // TODO: see _handleExecuteTransaction
 
   // TODO: test callback handling
+  // TODO: test native asset handling
 }

@@ -141,7 +141,7 @@ contract BridgeToken is Version0, IBridgeToken, OwnableUpgradeable, ERC20 {
   // ============ Public Functions ============
 
   /**
-   * @dev silence the compiler being dumb
+   * @dev See {IERC20-balanceOf}.
    */
   function balanceOf(address _account) public view override(IBridgeToken, ERC20) returns (uint256) {
     return ERC20.balanceOf(_account);
