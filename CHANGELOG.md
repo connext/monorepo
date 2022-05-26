@@ -2,6 +2,10 @@
 
 ## Next Release
 
+- [sdk] multiple sdk updates
+- [sdk] unit test
+- [poller] backend pagination
+
 ## Amarok 0.2.0-beta.0
 
 - [all] Update contract architecture
