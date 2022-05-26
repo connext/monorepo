@@ -159,7 +159,7 @@ export class NxtpSdkUtils {
 
     const { routerAddress, status, range } = params;
 
-    const routerIdentifier = `routers=cs.%${routerAddress.toLowerCase()}%7D&`;
+    const routerIdentifier = `routers=cs.%7B${routerAddress.toLowerCase()}%7D&`;
     const statusIdentifier = status ? `status=eq.${status}` : "";
 
     const searchIdentifier = routerIdentifier + statusIdentifier;
