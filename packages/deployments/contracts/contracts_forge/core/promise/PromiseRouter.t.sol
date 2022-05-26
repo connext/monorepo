@@ -175,7 +175,7 @@ contract PromiseRouterTest is ForgeHelper, Deployer {
     vm.expectRevert(abi.encodeWithSelector(PromiseRouter.PromiseRouter__send_callbackAddressNotContract.selector));
 
     bytes32 transferId = "A";
-    address callbackAddress = address(1);
+    address callbackAddress = address(0);
 
     promiseRouter.send(remoteDomain, transferId, callbackAddress, returnSuccess, returnData);
   }
