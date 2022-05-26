@@ -108,6 +108,6 @@ export const sendToRelayer = async (
     relayerFee,
   });
 
-  const taskId = await relayer.send(destinationChainId, destinationConnextAddress, encodedData, _requestContext);
+  await relayer.send(destinationChainId, destinationConnextAddress, encodedData, _requestContext);
   return;
 };

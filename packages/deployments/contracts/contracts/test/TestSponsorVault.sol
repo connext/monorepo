@@ -1,8 +1,9 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity 0.8.11;
 
-import "../interfaces/ISponsorVault.sol";
 import {IERC20Upgradeable} from "@openzeppelin/contracts-upgradeable/token/ERC20/IERC20Upgradeable.sol";
+
+import "../core/connext/interfaces/ISponsorVault.sol";
 
 contract TestSponsorVault is ISponsorVault {
   uint256 liquidityFeeToSend;
