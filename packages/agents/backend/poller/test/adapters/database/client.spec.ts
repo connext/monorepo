@@ -21,7 +21,7 @@ import {
   saveRouterBalances,
 } from "../../../src/adapters/database/client";
 
-describe.only("Database client", () => {
+describe("Database client", () => {
   let pool: pg.Pool;
   const batchSize = 10;
 

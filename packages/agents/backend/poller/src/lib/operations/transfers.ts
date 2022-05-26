@@ -1,4 +1,10 @@
-import { createLoggingContext, OriginTransfer, XTransferStatus, SubgraphQueryMetaParams } from "@connext/nxtp-utils";
+import {
+  createLoggingContext,
+  OriginTransfer,
+  XTransferStatus,
+  SubgraphQueryMetaParams,
+  XTransfer,
+} from "@connext/nxtp-utils";
 
 import { getContext } from "../../backend";
 
@@ -52,19 +58,19 @@ export const updateTransfers = async () => {
   let done = false;
   while (!done) {
     // now query pending transfers to see if any status updates happened
-    const xcalledTransfers = await database.getTransfersByStatus(
+    let xcalledTransfers = await database.getTransfersByStatus(
       XTransferStatus.XCalled,
       PAGE_SIZE,
       PAGE_SIZE * page,
       "ASC",
     );
-    const executedTransfers = await database.getTransfersByStatus(
+    let executedTransfers = await database.getTransfersByStatus(
       XTransferStatus.Executed,
       PAGE_SIZE,
       PAGE_SIZE * page,
       "ASC",
     );
-    const reconciledTransfers = await database.getTransfersByStatus(
+    let reconciledTransfers = await database.getTransfersByStatus(
       XTransferStatus.Reconciled,
       PAGE_SIZE,
       PAGE_SIZE * page,
@@ -87,5 +93,12 @@ export const updateTransfers = async () => {
     });
     await database.saveTransfers(destinationTransfers);
     page += 1;
+
+    if (xcalledTransfers.concat(executedTransfers).concat(reconciledTransfers).length == 0) {
+      done = true;
+    }
+    xcalledTransfers = [];
+    executedTransfers = [];
+    reconciledTransfers = [];
   }
 };
