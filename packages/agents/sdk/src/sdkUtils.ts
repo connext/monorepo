@@ -101,19 +101,10 @@ export class NxtpSdkUtils {
     }
   }
 
-  async getTransfersByRouter(params: {
-    routerAddress: string;
-    status?: XTransferStatus;
-    range?: { limit?: number; offset?: number };
-  }): Promise<any> {
-    const { requestContext, methodContext } = createLoggingContext(this.getTransfersByUser.name);
+  async getTransfers(params: { range?: { limit?: number; offset?: number } }): Promise<any> {
+    const { requestContext, methodContext } = createLoggingContext(this.getTransfersByStatus.name);
 
-    const { routerAddress, status, range } = params;
-
-    const routerIdentifier = `routers=cs.%${routerAddress.toLowerCase()}%7D&`;
-    const statusIdentifier = status ? `status=eq.${status}` : "";
-
-    const searchIdentifier = routerIdentifier + statusIdentifier;
+    const { range } = params;
 
     const limit = range?.limit ? range.limit : 0;
     const offset = range?.offset ? range.offset : 10;
@@ -121,7 +112,7 @@ export class NxtpSdkUtils {
     const rangeIdentifier = `?limit=${limit}&offset=${offset}`;
     const orderIdentifier = `?order=xcall_timestamp.desc`;
 
-    const uri = formatUrl(this.config.backendUrl!, "transfers?", searchIdentifier + rangeIdentifier + orderIdentifier);
+    const uri = formatUrl(this.config.backendUrl!, "transfers?", rangeIdentifier + orderIdentifier);
 
     try {
       const response = await axios.get(uri);
@@ -149,6 +140,37 @@ export class NxtpSdkUtils {
     const orderIdentifier = `?order=xcall_timestamp.desc`;
 
     const uri = formatUrl(this.config.backendUrl!, "transfers?", statusIdentifier + rangeIdentifier + orderIdentifier);
+
+    try {
+      const response = await axios.get(uri);
+      return response.data;
+    } catch (error: any) {
+      this.logger.error(`backend api request failed`, requestContext, methodContext, jsonifyError(error as Error));
+      throw error;
+    }
+  }
+
+  async getTransfersByRouter(params: {
+    routerAddress: string;
+    status?: XTransferStatus;
+    range?: { limit?: number; offset?: number };
+  }): Promise<any> {
+    const { requestContext, methodContext } = createLoggingContext(this.getTransfersByUser.name);
+
+    const { routerAddress, status, range } = params;
+
+    const routerIdentifier = `routers=cs.%${routerAddress.toLowerCase()}%7D&`;
+    const statusIdentifier = status ? `status=eq.${status}` : "";
+
+    const searchIdentifier = routerIdentifier + statusIdentifier;
+
+    const limit = range?.limit ? range.limit : 0;
+    const offset = range?.offset ? range.offset : 10;
+
+    const rangeIdentifier = `?limit=${limit}&offset=${offset}`;
+    const orderIdentifier = `?order=xcall_timestamp.desc`;
+
+    const uri = formatUrl(this.config.backendUrl!, "transfers?", searchIdentifier + rangeIdentifier + orderIdentifier);
 
     try {
       const response = await axios.get(uri);
