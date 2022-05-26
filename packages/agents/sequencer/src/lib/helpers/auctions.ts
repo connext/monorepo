@@ -67,7 +67,7 @@ export const getDestinationLocalAsset = async (
 
 /**
  * Picks up the valid bids and groups the bids by round
- * @param bids - The array of raw bids
+ * @param bids - The array of raw bids, mapping between `router` and `bid` for the specific transferId
  * @param roundDepth - The maximum round which is allowed in the sequencer
  * @returns roundId -> array of bids
  */
