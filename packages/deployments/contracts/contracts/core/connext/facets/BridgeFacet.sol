@@ -213,10 +213,79 @@ contract BridgeFacet is BaseConnextFacet {
    * @return The transfer id of the crosschain transfer
    */
   function xcall(XCallArgs calldata _args) external payable returns (bytes32) {
-    _xcallSanityChecks(_args);
+    // Sanity checks.
+    {
+      // ensure this is the right domain
+      if (_args.params.originDomain != s.domain) {
+        revert BridgeFacet__xcall_wrongDomain();
+      }
+
+      // ensure theres a recipient defined
+      if (_args.params.to == address(0)) {
+        revert BridgeFacet__xcall_emptyTo();
+      }
+
+      // ensure callback fee is zero when callback address is empty
+      if (_args.params.callback == address(0) && _args.params.callbackFee > 0) {
+        revert BridgeFacet__xcall_nonZeroCallbackFeeForCallback();
+      }
+
+      // ensure callback is contract if supplied
+      if (_args.params.callback != address(0) && !Address.isContract(_args.params.callback)) {
+        revert BridgeFacet__xcall_callbackNotAContract();
+      }
+    }
 
     // get the true transacting asset id (using wrapped native instead native)
-    (bytes32 transferId, bytes memory message, XCalledEventArgs memory eventArgs) = _xcallProcess(_args);
+    bytes32 transferId;
+    bytes memory message;
+    XCalledEventArgs memory eventArgs;
+    {
+      // get remote BridgeRouter address; revert if not found
+      bytes32 remote = _mustHaveRemote(_args.params.destinationDomain);
+
+      address transactingAssetId = _args.transactingAssetId == address(0)
+        ? address(s.wrapper)
+        : _args.transactingAssetId;
+
+      // check that the asset is supported -- can be either adopted or local
+      ConnextMessage.TokenId memory canonical = s.adoptedToCanonical[transactingAssetId];
+      if (canonical.id == bytes32(0)) {
+        revert BridgeFacet__xcall_notSupportedAsset();
+      }
+
+      // transfer funds of transacting asset to the contract from user
+      // NOTE: will wrap any native asset transferred to wrapped-native automatically
+      (, uint256 amount) = AssetLogic.handleIncomingAsset(
+        _args.transactingAssetId,
+        _args.amount,
+        _args.relayerFee + _args.params.callbackFee
+      );
+
+      // swap to the local asset from adopted
+      (uint256 bridgedAmt, address bridged) = AssetLogic.swapToLocalAssetIfNeeded(
+        canonical,
+        transactingAssetId,
+        amount
+      );
+
+      transferId = _getTransferId(_args, canonical);
+
+      // Transfer callback fee to PromiseRouter if set
+      if (_args.params.callbackFee != 0) {
+        s.promiseRouter.initCallbackFee{value: _args.params.callbackFee}(transferId);
+      }
+
+      message = _formatMessage(_args, bridged, transferId, bridgedAmt);
+      s.xAppConnectionManager.home().dispatch(_args.params.destinationDomain, remote, message);
+
+      eventArgs = XCalledEventArgs({
+        transactingAssetId: transactingAssetId,
+        amount: amount,
+        bridgedAmt: bridgedAmt,
+        bridged: bridged
+      });
+    }
 
     // Store the relayer fee
     s.relayerFees[transferId] = _args.relayerFee;
@@ -287,88 +356,6 @@ contract BridgeFacet is BaseConnextFacet {
   // ============ Private Functions ============
 
   /**
-   * @notice Performs some sanity checks for `xcall`
-   * @dev Need this to prevent stack too deep
-   */
-  function _xcallSanityChecks(XCallArgs calldata _args) internal view {
-    // ensure this is the right domain
-    if (_args.params.originDomain != s.domain) {
-      revert BridgeFacet__xcall_wrongDomain();
-    }
-
-    // ensure theres a recipient defined
-    if (_args.params.to == address(0)) {
-      revert BridgeFacet__xcall_emptyTo();
-    }
-
-    // ensure callback fee is zero when callback address is empty
-    if (_args.params.callback == address(0) && _args.params.callbackFee > 0) {
-      revert BridgeFacet__xcall_nonZeroCallbackFeeForCallback();
-    }
-
-    // ensure callback is contract if supplied
-    if (_args.params.callback != address(0) && !Address.isContract(_args.params.callback)) {
-      revert BridgeFacet__xcall_callbackNotAContract();
-    }
-  }
-
-  /**
-   * @notice Processes an `xcall`
-   * @dev Need this to prevent stack too deep
-   */
-  function _xcallProcess(XCallArgs calldata _args)
-    internal
-    returns (
-      bytes32,
-      bytes memory,
-      XCalledEventArgs memory
-    )
-  {
-    // get remote BridgeRouter address; revert if not found
-    bytes32 remote = _mustHaveRemote(_args.params.destinationDomain);
-
-    address transactingAssetId = _args.transactingAssetId == address(0) ? address(s.wrapper) : _args.transactingAssetId;
-
-    // check that the asset is supported -- can be either adopted or local
-    ConnextMessage.TokenId memory canonical = s.adoptedToCanonical[transactingAssetId];
-    if (canonical.id == bytes32(0)) {
-      revert BridgeFacet__xcall_notSupportedAsset();
-    }
-
-    // transfer funds of transacting asset to the contract from user
-    // NOTE: will wrap any native asset transferred to wrapped-native automatically
-    (, uint256 amount) = AssetLogic.handleIncomingAsset(
-      _args.transactingAssetId,
-      _args.amount,
-      _args.relayerFee + _args.params.callbackFee
-    );
-
-    // swap to the local asset from adopted
-    (uint256 bridgedAmt, address bridged) = AssetLogic.swapToLocalAssetIfNeeded(canonical, transactingAssetId, amount);
-
-    bytes32 transferId = _getTransferId(_args, canonical);
-
-    // Transfer callback fee to PromiseRouter if set
-    if (_args.params.callbackFee != 0) {
-      s.promiseRouter.initCallbackFee{value: _args.params.callbackFee}(transferId);
-    }
-
-    bytes memory message = _formatMessage(_args, bridged, transferId, bridgedAmt);
-    s.xAppConnectionManager.home().dispatch(_args.params.destinationDomain, remote, message);
-
-    return (
-      transferId,
-      message,
-      XCalledEventArgs({
-        transactingAssetId: transactingAssetId,
-        amount: amount,
-        bridgedAmt: bridgedAmt,
-        bridged: bridged
-      })
-    );
-  }
-
-  /**
    * @notice Calculates a transferId based on `xcall` arguments
    * @dev Need this to prevent stack too deep
    */
@@ -409,7 +396,10 @@ contract BridgeFacet is BaseConnextFacet {
     }
 
     // Format the message action.
-    // The action is the part of the message that represents what has to happen for the transfer. it includes the detailsHash in case a new token must be deployed, the transfer recipient, the amount, and the transfer id. the _amount is used by _reconcile to potentially mint more tokens when the nomad message lands
+    // The action is the part of the message that represents what has to happen for the transfer.
+    // It includes the `detailsHash` in case a new token must be deployed, the transfer recipient,
+    // the amount, and the transfer ID. The `amount` here is used by reconcile, once the message is
+    // confirmed, to potentially mint more tokens
     bytes29 action = ConnextMessage.formatTransfer(
       TypeCasts.addressToBytes32(_args.params.to),
       _amount,
