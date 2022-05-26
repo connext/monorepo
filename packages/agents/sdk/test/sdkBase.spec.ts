@@ -1,7 +1,7 @@
 import { createStubInstance, reset, restore, SinonStub, SinonStubbedInstance, stub } from "sinon";
 import { expect } from "@connext/nxtp-utils";
-import { ChainReader, getErc20Interface } from "@connext/nxtp-txservice";
-import { constants, providers } from "ethers";
+import { ChainReader, getErc20Interface, getConnextInterface } from "@connext/nxtp-txservice";
+import { constants, providers, BigNumber } from "ethers";
 import { mock } from "./mock";
 import { NxtpSdkBase } from "../src/sdkBase";
 import { getEnvConfig } from "../src/config";
@@ -13,6 +13,9 @@ import * as SharedFns from "../src/lib/helpers/shared";
 const mockConfig = mock.config();
 const mockChainData = mock.chainData();
 const mockDeployments = mock.contracts.deployments();
+
+const mockConnextAddresss = mockConfig.chains[mock.domain.A].deployments.connext;
+const mockAssetId = mock.asset.A.address;
 
 const chainId = 1337;
 describe("SdkBase", () => {
@@ -83,9 +86,6 @@ describe("SdkBase", () => {
       expect(nxtpSdkBase.approveIfNeeded).to.be.a("function");
 
       chainReader.readTx.resolves("0x0000000000000000000000000000000000000000000000000000000000000000");
-
-      const mockConnextAddresss = mockConfig.chains[mock.domain.A].deployments.connext;
-      const mockAssetId = mock.asset.A.address;
       const data = getErc20Interface().encodeFunctionData("approve", [mockConnextAddresss, constants.MaxUint256]);
 
       const mockApproveTxRequest: providers.TransactionRequest = {
@@ -102,12 +102,53 @@ describe("SdkBase", () => {
   });
 
   describe("#xCall", () => {
-    it.skip("happy: should work", async () => {
+    it("should error if signerAddress is undefined", async () => {
       expect(nxtpSdkBase).to.not.be.undefined;
+      (nxtpSdkBase as any).config.signerAddress = undefined;
 
+      await expect(nxtpSdkBase.xcall(mock.entity.xcallArgs())).to.be.rejectedWith(SignerAddressMissing);
+    });
+
+    it("happy: should work if ERC20", async () => {
+      expect(nxtpSdkBase).to.not.be.undefined;
       expect(nxtpSdkBase.xcall).to.be.a("function");
 
-      // check the transactionRequest
+      const mockXcallArgs = mock.entity.xcallArgs();
+      const data = getConnextInterface().encodeFunctionData("xcall", [mockXcallArgs]);
+
+      const mockApproveTxRequest: providers.TransactionRequest = {
+        to: mockConnextAddresss,
+        data,
+        from: mock.config().signerAddress,
+        value: BigNumber.from(mockXcallArgs.relayerFee),
+        chainId,
+      };
+
+      const res = await nxtpSdkBase.xcall(mockXcallArgs);
+      expect(res).to.be.deep.eq(mockApproveTxRequest);
+    });
+
+    it("happy: should work if Native", async () => {
+      expect(nxtpSdkBase).to.not.be.undefined;
+      expect(nxtpSdkBase.xcall).to.be.a("function");
+
+      const mockXcallArgs = mock.entity.xcallArgs({ transactingAssetId: constants.AddressZero });
+      const data = getConnextInterface().encodeFunctionData("xcall", [mockXcallArgs]);
+
+      const mockApproveTxRequest: providers.TransactionRequest = {
+        to: mockConnextAddresss,
+        data,
+        from: mock.config().signerAddress,
+        value: BigNumber.from(mockXcallArgs.amount).add(BigNumber.from(mockXcallArgs.relayerFee)),
+        chainId,
+      };
+
+      const res = await nxtpSdkBase.xcall(mockXcallArgs);
+      console.log(
+        BigNumber.from(mockXcallArgs.amount).add(BigNumber.from(mockXcallArgs.relayerFee)).toString(),
+        res.value.toString(),
+      );
+      expect(res).to.be.deep.eq(mockApproveTxRequest);
     });
   });
 
