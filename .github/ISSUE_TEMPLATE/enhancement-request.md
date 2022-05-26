@@ -7,14 +7,14 @@ assignees: ''
 
 ---
 
-### Problem
+**Problem**
 A clear and concise description of what the problem is
 
-### Solution Ideas
+**Ideas to solve this**
 A clear and concise description of what you think could solve this problem.
 
-### Acceptance Criteria
+**Acceptance Criteria**
 [ ] X happens
 [ ] Y happens
 
-### Other
+**Other**
