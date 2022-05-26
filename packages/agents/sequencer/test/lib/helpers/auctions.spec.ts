@@ -1,8 +1,14 @@
 import { Bid, ExecuteArgs, expect, mkAddress, OriginTransfer, XTransfer } from "@connext/nxtp-utils";
 import { constants } from "ethers";
 import { stub, restore, reset, SinonStub } from "sinon";
+import { RoundInvalid } from "../../../src/lib/errors";
 
-import { encodeExecuteFromBids, getDestinationLocalAsset } from "../../../src/lib/helpers/auctions";
+import {
+  encodeExecuteFromBids,
+  generateCombinations,
+  getDestinationLocalAsset,
+  getMinimumBidsCountForRound,
+} from "../../../src/lib/helpers/auctions";
 import { ctxMock } from "../../globalTestHook";
 import { mock } from "../../mock";
 
@@ -78,6 +84,50 @@ describe("Helpers:Auctions", () => {
       expect(localAsset).to.be.eq(mockLocalAsset);
       expect((ctxMock.adapters.subgraph as any).getAssetByLocal).calledOnceWithExactly(origin, originLocal);
       expect((ctxMock.adapters.subgraph as any).getAssetByCanonicalId).calledOnceWithExactly(destination, canonicalId);
+    });
+  });
+
+  describe("#generateCombinations", () => {
+    it("happy", () => {
+      const sources = ["A", "B", "C", "D"];
+      const combination1 = [["A"], ["B"], ["C"], ["D"]];
+      const combination2 = [
+        ["A", "B"],
+        ["A", "C"],
+        ["A", "D"],
+        ["B", "C"],
+        ["B", "D"],
+        ["C", "D"],
+      ];
+      const combination3 = [
+        ["A", "B", "C"],
+        ["A", "B", "D"],
+        ["A", "C", "D"],
+        ["B", "C", "D"],
+      ];
+      expect(generateCombinations(sources, 1)).to.be.deep.eq(combination1);
+      expect(generateCombinations(sources, 2)).to.be.deep.eq(combination2);
+      expect(generateCombinations(sources, 3)).to.be.deep.eq(combination3);
+    });
+  });
+
+  describe("#getMinimumBidsCountForRound", () => {
+    afterEach(() => {
+      restore();
+      reset();
+    });
+    it("throw an error if a round isn't within the specified boundary", () => {
+      expect(() => getMinimumBidsCountForRound(0)).to.throw(`Rounds invalid`);
+      expect(() => getMinimumBidsCountForRound(5)).to.throw(`Rounds invalid`);
+    });
+    it("throw an error if a round number isn't an integer", () => {
+      expect(() => getMinimumBidsCountForRound(1.1)).to.throw(`Rounds invalid`);
+    });
+    it("happy: should return the number of bids to complete the round", () => {
+      expect(getMinimumBidsCountForRound(1)).to.be.eq(1);
+      expect(getMinimumBidsCountForRound(2)).to.be.eq(2);
+      expect(getMinimumBidsCountForRound(3)).to.be.eq(4);
+      expect(getMinimumBidsCountForRound(4)).to.be.eq(8);
     });
   });
 });
