@@ -87,7 +87,7 @@ export class NxtpSdkUtils {
     const limit = range?.limit ? range.limit : 0;
     const offset = range?.offset ? range.offset : 10;
 
-    const rangeIdentifier = `?limit=${limit}&offset=${offset}`;
+    const rangeIdentifier = `&limit=${limit}&offset=${offset}`;
     const orderIdentifier = `&order=xcall_timestamp.desc`;
 
     const uri = formatUrl(this.config.backendUrl!, "transfers?", searchIdentifier + rangeIdentifier + orderIdentifier);
@@ -167,7 +167,7 @@ export class NxtpSdkUtils {
     const limit = range?.limit ? range.limit : 0;
     const offset = range?.offset ? range.offset : 10;
 
-    const rangeIdentifier = `?limit=${limit}&offset=${offset}`;
+    const rangeIdentifier = `&limit=${limit}&offset=${offset}`;
     const orderIdentifier = `&order=xcall_timestamp.desc`;
 
     const uri = formatUrl(this.config.backendUrl!, "transfers?", searchIdentifier + rangeIdentifier + orderIdentifier);
