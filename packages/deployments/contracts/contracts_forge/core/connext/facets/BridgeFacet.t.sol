@@ -299,26 +299,25 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
     uint256 fees = _args.relayerFee + _args.params.callbackFee;
 
     TestERC20 localToken = TestERC20(_local);
-    uint256 initialUserBalance = localToken.balanceOf(_originSender);
-
-    uint256 initialContractBalance = localToken.balanceOf(address(this));
 
     // Mint the specified amount of tokens for the user.
     localToken.mint(_originSender, dealTokens);
     // Deal the user required eth.
     deal(_originSender, dealEth);
 
+    uint256 initialUserBalance = localToken.balanceOf(_originSender);
+    uint256 initialContractBalance = localToken.balanceOf(address(this));
+
     // Approve the target contract to spend the specified amount of tokens.
     vm.prank(_originSender);
     localToken.approve(address(this), dealTokens);
 
-    // IERC20 adoptedToken = IERC20(s.canonicalToAdopted[_canonicalTokenId]);
-    // uint256 prevBalanceTo = adoptedToken.balanceOf(_originSender);
-
     vm.prank(_originSender);
     this.xcall{value: fees}(_args);
-    // assertEq(localToken.balanceOf(_originSender), initialUserBalance - _args.amount);
-    // assertEq(localToken.balanceOf(address(this)), initialContractBalance + _args.amount);
+    assertEq(localToken.balanceOf(_originSender), initialUserBalance - _args.amount);
+    // NOTE: Because the tokens are a representational local asset, they are burnt. The contract
+    // should NOT be holding any additional tokens after xcall completes.
+    assertEq(localToken.balanceOf(address(this)), initialContractBalance);
   }
 
   // Shortcut for the above fn.
@@ -436,7 +435,10 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
     helpers_xcallAndAssert(transferId, args);
   }
 
-  // handle (reconcile)
+  // should send promise router callback fee
+
+  // ======= handle (reconcile) =======
+  // handle
 
   // bumpTransfer
 

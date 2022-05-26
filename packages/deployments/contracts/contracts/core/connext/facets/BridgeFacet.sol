@@ -236,14 +236,14 @@ contract BridgeFacet is BaseConnextFacet {
       }
     }
 
-    // get the true transacting asset id (using wrapped native instead native)
     bytes32 transferId;
     bytes memory message;
     XCalledEventArgs memory eventArgs;
     {
-      // get remote BridgeRouter address; revert if not found
+      // Get the remote BridgeRouter address; revert if not found.
       bytes32 remote = _mustHaveRemote(_args.params.destinationDomain);
 
+      // Get the true transacting asset id (using wrapped native instead native, if applicable).
       address transactingAssetId = _args.transactingAssetId == address(0)
         ? address(s.wrapper)
         : _args.transactingAssetId;
