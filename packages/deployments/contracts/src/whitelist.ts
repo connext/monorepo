@@ -99,7 +99,7 @@ const run = async () => {
 
   for (const n of networks) {
     for (const r of routerAddresses) {
-      console.log("Running add router script for", n);
+      console.log(`Running add router script for router ${r} on network ${n}`);
       const { stdout: out, stderr: err } = await exec(
         `yarn hardhat setup-router --network ${n} --router ${r} --env ${env}`,
       );

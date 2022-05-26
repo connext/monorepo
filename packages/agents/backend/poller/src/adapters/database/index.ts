@@ -8,7 +8,13 @@ import { getLatestNonce, getTransfersByStatus, saveTransfers, saveRouterBalances
 export type Database = {
   saveTransfers: (xtransfers: XTransfer[], _pool?: Pool) => Promise<void>;
   getLatestNonce: (domain: string, _pool?: Pool) => Promise<number>;
-  getTransfersByStatus: (status: XTransferStatus, _pool?: Pool) => Promise<XTransfer[]>;
+  getTransfersByStatus: (
+    status: XTransferStatus,
+    limit: number,
+    offset?: number,
+    orderDirection?: "ASC" | "DESC",
+    _pool?: Pool,
+  ) => Promise<XTransfer[]>;
   saveRouterBalances: (routerBalances: RouterBalance[], _pool?: Pool) => Promise<void>;
 };
 

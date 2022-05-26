@@ -9,11 +9,12 @@ import { BackendConfig } from "../../../src/config";
 import { SubgraphReader } from "@connext/nxtp-adapters-subgraph";
 
 const mockSubgraphResponse = [mock.entity.xtransfer() as OriginTransfer, mock.entity.xtransfer() as OriginTransfer];
+const mockEmptySubgraphResponse = [];
 
 const mockConfig: BackendConfig = {
   pollInterval: 15000,
   logLevel: "silent",
-  database: { url: "postgres://postgres:qwerty@localhost:5432/connext?sslmode=disable" },
+  database: { url: "postgres://postgres:qwery@localhost:5432/connext?sslmode=disable" },
   environment: "production",
 };
 
@@ -72,8 +73,17 @@ const mockChainData = chainDataToMap([
   },
 ]);
 
+const mockBlockNumber: Map<string, number> = new Map();
+mockBlockNumber.set("2000", 1234567);
+mockBlockNumber.set("3000", 1234567);
+mockBlockNumber.set("1337", 1234567);
+mockBlockNumber.set("1338", 1234567);
+mockBlockNumber.set("10", 1234567);
+
+const mockNoBlockNumber: Map<string, number> = new Map();
+mockNoBlockNumber.set("99999", 1234567);
+
 describe("Backend operations", () => {
-  let getSubgraphHealthStub: SinonStub;
   let mockContext: backend.AppContext;
 
   beforeEach(() => {
@@ -82,7 +92,9 @@ describe("Backend operations", () => {
     const getLatestNonceStub = stub(dbClient, "getLatestNonce");
     getLatestNonceStub.resolves(10);
     const getTransfersByStatusStub = stub(dbClient, "getTransfersByStatus");
-    getTransfersByStatusStub.resolves(mockSubgraphResponse);
+    getTransfersByStatusStub.onFirstCall().resolves(mockSubgraphResponse);
+    getTransfersByStatusStub.onSecondCall().resolves(mockSubgraphResponse);
+    getTransfersByStatusStub.onThirdCall().resolves(mockSubgraphResponse);
     const saveRouterBalancesStub = stub(dbClient, "saveRouterBalances");
     saveRouterBalancesStub.resolves();
 
@@ -93,7 +105,6 @@ describe("Backend operations", () => {
       }),
       adapters: {
         subgraph: createStubInstance(SubgraphReader, {
-          getOriginTransfers: Promise.resolve(mockSubgraphResponse),
           getOriginTransfers: Promise.resolve(mockSubgraphResponse),
           getDestinationTransfers: Promise.resolve(mockSubgraphResponse),
         }),
@@ -109,6 +120,8 @@ describe("Backend operations", () => {
       domains: ["1337", "1338"],
     };
     stub(backend, "getContext").returns(mockContext);
+
+    (mockContext.adapters.subgraph.getLatestBlockNumber as SinonStub).resolves(mockBlockNumber);
   });
 
   afterEach(() => {
@@ -117,62 +130,26 @@ describe("Backend operations", () => {
   });
 
   it("should poll subgraph with block zero", async () => {
-    getSubgraphHealthStub = stub(SharedFns, "getSubgraphHealth");
-    getSubgraphHealthStub.resolves({
-      chainHeadBlock: 0,
-      latestBlock: 0,
-      lastHealthyBlock: 0,
-      network: "mocknet",
-      fatalError: undefined,
-      health: "healthy",
-      synced: true,
-      url: "http://example.com",
-    });
     await expect(poller()).to.eventually.not.be.rejected;
   });
 
   it("should poll subgraph with mock non zero block", async () => {
-    getSubgraphHealthStub = stub(SharedFns, "getSubgraphHealth");
-    getSubgraphHealthStub.resolves({
-      chainHeadBlock: 1234567,
-      latestBlock: 1234567,
-      lastHealthyBlock: 100,
-      network: "mocknet",
-      fatalError: undefined,
-      health: "healthy",
-      synced: true,
-      url: "https://example.com",
-    });
     await expect(poller()).to.eventually.not.be.rejected;
   });
 
   it("should poll subgraph with mock backend", async () => {
-    getSubgraphHealthStub = stub(SharedFns, "getSubgraphHealth");
-    getSubgraphHealthStub.resolves({
-      chainHeadBlock: 1234567,
-      latestBlock: 1234567,
-      lastHealthyBlock: 100,
-      network: "mocknet",
-      fatalError: undefined,
-      health: "healthy",
-      synced: true,
-      url: "http://example.com",
-    });
     await expect(poller()).to.eventually.not.be.rejected;
   });
 
   it("should poll subgraph with mock backend empty response", async () => {
-    getSubgraphHealthStub = stub(SharedFns, "getSubgraphHealth");
-    getSubgraphHealthStub.resolves({
-      chainHeadBlock: 1234567,
-      latestBlock: 1234567,
-      lastHealthyBlock: 100,
-      network: "mocknet",
-      fatalError: undefined,
-      health: "healthy",
-      synced: true,
-      url: "http://example.com",
-    });
+    (mockContext.adapters.subgraph.getOriginTransfers as SinonStub).resolves([]);
+    (mockContext.adapters.subgraph.getDestinationTransfers as SinonStub).resolves([]);
+
+    await expect(poller()).to.eventually.not.be.rejected;
+  });
+
+  it("should poll subgraph with mock backend no block number", async () => {
+    (mockContext.adapters.subgraph.getLatestBlockNumber as SinonStub).resolves(mockNoBlockNumber);
     (mockContext.adapters.subgraph.getOriginTransfers as SinonStub).resolves([]);
     (mockContext.adapters.subgraph.getDestinationTransfers as SinonStub).resolves([]);
 
