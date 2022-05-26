@@ -2,6 +2,10 @@
 
 ## Next Release
 
+## Amarok 0.2.0-beta.6
+
+- [sdk] Fix URL
+
 ## Amarok 0.2.0-beta.5
 
 - [sdk] Fix limits
