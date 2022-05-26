@@ -1,6 +1,6 @@
 {
   "extends": "@istanbuljs/nyc-config-typescript",
-  "exclude": ["src/subgraph/queries.ts", "src/error.ts", "test/**/*.ts"],
+  "exclude": ["src/sdkStableSwap.ts", "src/lib/errors/*.ts", "src/lib/helpers/*.ts", "test/**/*.ts"],
   "all": true,
   "check-coverage": true,
   "branches": 65,
