@@ -175,7 +175,7 @@ contract PromiseRouter is Version0, Router, ReentrancyGuardUpgradeable {
     bytes calldata _returnData
   ) external onlyConnext {
     if (_returnData.length == 0) revert PromiseRouter__send_returndataEmpty();
-    if (!AddressUpgradeable.isContract(_callbackAddress)) revert PromiseRouter__send_callbackAddressNotContract();
+    if (_callbackAddress == address(0)) revert PromiseRouter__send_callbackAddressNotContract();
 
     // get remote PromiseRouter address; revert if not found
     bytes32 remote = _mustHaveRemote(_domain);
