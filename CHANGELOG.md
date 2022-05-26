@@ -2,6 +2,10 @@
 
 ## Next Release
 
+## Amarok 0.2.0-beta.4
+
+- [sdk] Fix limits
+
 ## Amarok 0.2.0-beta.3
 
 - [sdk] fix api uri

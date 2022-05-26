@@ -84,8 +84,8 @@ export class NxtpSdkUtils {
 
     const searchIdentifier = userIdentifier + statusIdentifier;
 
-    const limit = range?.limit ? range.limit : 0;
-    const offset = range?.offset ? range.offset : 10;
+    const limit = range?.limit ? range.limit : 10;
+    const offset = range?.offset ? range.offset : 0;
 
     const rangeIdentifier = `&limit=${limit}&offset=${offset}`;
     const orderIdentifier = `&order=xcall_timestamp.desc`;
@@ -106,8 +106,8 @@ export class NxtpSdkUtils {
 
     const { range } = params;
 
-    const limit = range?.limit ? range.limit : 0;
-    const offset = range?.offset ? range.offset : 10;
+    const limit = range?.limit ? range.limit : 10;
+    const offset = range?.offset ? range.offset : 0;
 
     const rangeIdentifier = `limit=${limit}&offset=${offset}`;
     const orderIdentifier = `&order=xcall_timestamp.desc`;
