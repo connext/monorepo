@@ -38,7 +38,9 @@ export const pollBackend = async () => {
   const { logger } = getContext();
   const { execute } = getOperations();
 
+  logger.debug("Polling backend", requestContext, methodContext, {});
   const reconciledTransactions = await getReconciledTransactions();
+  logger.debug("Get reconciled transactions", requestContext, methodContext, { reconciledTransactions });
 
   await Promise.all(
     reconciledTransactions.map(async (transaction: any) => {
@@ -84,6 +86,7 @@ export const getReconciledTransactions = async (): Promise<any> => {
 
   const statusIdentifier = `status=eq.Reconciled&${transfersCastForUrl}`;
   const uri = formatUrl(config.backendUrl, "transfers?", statusIdentifier);
+  logger.debug("Getting transactions from URI", requestContext, methodContext, { uri });
   try {
     const response = await axios.get(uri);
     return response.data;

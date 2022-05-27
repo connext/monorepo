@@ -2,7 +2,13 @@
 
 ## Next Release
 
-- [lighthouse][sdk] Fix URL generation
+## Amarok 0.2.0-beta.8
+
+- [router] Paginate the router queries
+
+## Amarok 0.2.0-beta.7
+
+- [lighthouse][sdk] Fix URL generation for BigNumber
 
 ## Amarok 0.2.0-beta.6
 
