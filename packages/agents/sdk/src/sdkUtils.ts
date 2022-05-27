@@ -1,4 +1,4 @@
-import { Logger, ChainData, formatUrl, XTransferStatus } from "@connext/nxtp-utils";
+import { Logger, ChainData, formatUrl, XTransferStatus, transfersCastForUrl } from "@connext/nxtp-utils";
 import {
   getContractInterfaces,
   ConnextContractInterfaces,
@@ -76,7 +76,11 @@ export class NxtpSdkUtils {
     const rangeIdentifier = `&limit=${limit}&offset=${offset}`;
     const orderIdentifier = `&order=xcall_timestamp.desc`;
 
-    const uri = formatUrl(this.config.backendUrl!, "transfers?", searchIdentifier + rangeIdentifier + orderIdentifier);
+    const uri = formatUrl(
+      this.config.backendUrl!,
+      "transfers?",
+      searchIdentifier + rangeIdentifier + orderIdentifier + `&${transfersCastForUrl}`,
+    );
 
     // Validate uri
     validateUri(uri);
@@ -93,7 +97,11 @@ export class NxtpSdkUtils {
     const rangeIdentifier = `limit=${limit}&offset=${offset}`;
     const orderIdentifier = `&order=xcall_timestamp.desc`;
 
-    const uri = formatUrl(this.config.backendUrl!, "transfers?", rangeIdentifier + orderIdentifier);
+    const uri = formatUrl(
+      this.config.backendUrl!,
+      "transfers?",
+      rangeIdentifier + orderIdentifier + `&${transfersCastForUrl}`,
+    );
 
     // Validate uri
     validateUri(uri);
@@ -115,7 +123,11 @@ export class NxtpSdkUtils {
     const rangeIdentifier = `&limit=${limit}&offset=${offset}`;
     const orderIdentifier = `&order=xcall_timestamp.desc`;
 
-    const uri = formatUrl(this.config.backendUrl!, "transfers?", statusIdentifier + rangeIdentifier + orderIdentifier);
+    const uri = formatUrl(
+      this.config.backendUrl!,
+      "transfers?",
+      statusIdentifier + rangeIdentifier + orderIdentifier + `&${transfersCastForUrl}`,
+    );
 
     // Validate uri
     validateUri(uri);
@@ -141,7 +153,11 @@ export class NxtpSdkUtils {
     const rangeIdentifier = `&limit=${limit}&offset=${offset}`;
     const orderIdentifier = `&order=xcall_timestamp.desc`;
 
-    const uri = formatUrl(this.config.backendUrl!, "transfers?", searchIdentifier + rangeIdentifier + orderIdentifier);
+    const uri = formatUrl(
+      this.config.backendUrl!,
+      "transfers?",
+      searchIdentifier + rangeIdentifier + orderIdentifier + `&${transfersCastForUrl}`,
+    );
 
     // Validate uri
     validateUri(uri);
@@ -150,7 +166,11 @@ export class NxtpSdkUtils {
   }
 
   async getTransferById(transferId: string): Promise<any> {
-    const uri = formatUrl(this.config.backendUrl!, "transfers?", `transfer_id=eq.${transferId.toLowerCase()}`);
+    const uri = formatUrl(
+      this.config.backendUrl!,
+      "transfers?",
+      `transfer_id=eq.${transferId.toLowerCase()}&${transfersCastForUrl}`,
+    );
     // Validate uri
     validateUri(uri);
 
@@ -161,7 +181,7 @@ export class NxtpSdkUtils {
     const uri = formatUrl(
       this.config.backendUrl!,
       "transfers?",
-      `xcall_transaction_hash=eq.${transactionHash.toLowerCase()}`,
+      `xcall_transaction_hash=eq.${transactionHash.toLowerCase()}&${transfersCastForUrl}`,
     );
 
     // Validate uri
