@@ -13,6 +13,12 @@ resource "aws_ecs_task_definition" "service" {
   cpu                      = var.cpu
   memory                   = var.memory
   execution_role_arn       = var.execution_role_arn
+  tags                     = {
+    Environment = var.environment
+    Stage = var.stage
+    Family = var.container_family
+    Domain = var.domain
+  }
   container_definitions    = jsonencode([
     {
       name        = "${var.environment}-${var.stage}-${var.container_family}"
@@ -33,6 +39,20 @@ resource "aws_ecs_task_definition" "service" {
         {
           containerPort = var.container_port
           hostPort      = var.container_port
+        }
+      ]
+    },
+    {
+      name = "datadog-agent-${var.environment}-${var.stage}-${var.container_family}",
+      image = "public.ecr.aws/datadog/agent:latest",
+      environment = [
+        {
+          name = "DD_API_KEY",
+          value = var.dd_api_key
+        },
+        {
+          name = "ECS_FARGATE",
+          value = "true"
         }
       ]
     }
