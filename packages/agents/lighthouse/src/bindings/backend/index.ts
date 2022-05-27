@@ -87,6 +87,7 @@ export const getReconciledTransactions = async (): Promise<any> => {
 
   const statusIdentifier = `status=eq.Reconciled&`;
   const uri = formatUrl(config.backendUrl, "transfers?", statusIdentifier);
+  logger.debug("Getting transactions from URI", requestContext, methodContext, { uri });
   try {
     const response = await axios.get(uri);
     return response.data;
