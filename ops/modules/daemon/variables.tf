@@ -47,3 +47,7 @@ variable "stage" {
 variable "container_env_vars" {
   description = "env vars for running container"
 }
+
+variable "dd_api_key" {
+  description = "DataDog API Key"
+}

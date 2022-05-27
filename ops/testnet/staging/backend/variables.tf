@@ -43,3 +43,7 @@ variable "postgres_user" {
   type    = string
   default = "connext"
 }
+
+variable "dd_api_key" {
+  type = string
+}
