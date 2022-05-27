@@ -11,3 +11,15 @@ export class ChainDataUndefined extends NxtpError {
     super("Chain Data Undefined", context, ChainDataUndefined.name);
   }
 }
+
+export class ParamsInvalid extends NxtpError {
+  constructor(context: any = {}) {
+    super("Params invalid", context, ParamsInvalid.name);
+  }
+}
+
+export class UriInvalid extends NxtpError {
+  constructor(context: any = {}) {
+    super("Uri invalid", context, UriInvalid.name);
+  }
+}
