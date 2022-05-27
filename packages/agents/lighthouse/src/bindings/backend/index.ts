@@ -38,7 +38,9 @@ export const pollBackend = async () => {
   const { logger } = getContext();
   const { execute } = getOperations();
 
+  logger.debug("Polling backend", requestContext, methodContext, {});
   const reconciledTransactions = await getReconciledTransactions();
+  logger.debug("Get reconciled transactions", requestContext, methodContext, { reconciledTransactions });
 
   await Promise.all(
     reconciledTransactions.map(async (transaction: any) => {
