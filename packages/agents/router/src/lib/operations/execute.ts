@@ -13,8 +13,6 @@ import { getContext } from "../../router";
 
 import { NomadContext } from "@nomad-xyz/sdk";
 import { BridgeContext } from "@nomad-xyz/sdk-bridge";
-import * as nomadConfig from "@nomad-xyz/configuration";
-import { config } from "dotenv";
 
 // fee percentage paid to relayer. need to be updated later
 export const RELAYER_FEE_PERCENTAGE = "1"; //  1%
