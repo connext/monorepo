@@ -69,9 +69,9 @@ module "postgrest" {
   container_family         = "postgrest"
   container_port           = 3000
   loadbalancer_port        = 80
-  cpu                      = 256
-  memory                   = 512
-  instance_count           = 1
+  cpu                      = 512
+  memory                   = 1024
+  instance_count           = 2
   timeout                  = 180
   environment              = var.environment
   stage                    = var.stage
