@@ -9,13 +9,18 @@ import { getContext } from "../../router";
 export const DEFAULT_SAFE_CONFIRMATIONS = 5;
 
 export const bindCache = async (_pollInterval?: number) => {
-  const { config } = getContext();
+  const { config, logger } = getContext();
+  const { requestContext, methodContext } = createLoggingContext(bindCache.name);
   const pollInterval = _pollInterval ?? config.polling.cache;
   interval(async (_, stop) => {
     if (config.mode.cleanup) {
       stop();
     } else {
-      await pollCache();
+      try {
+        await pollCache();
+      } catch (e: unknown) {
+        logger.error("Error binding cache", requestContext, methodContext, jsonifyError(e as Error));
+      }
     }
   }, pollInterval);
 };
