@@ -23,3 +23,9 @@ export class UriInvalid extends NxtpError {
     super("Uri invalid", context, UriInvalid.name);
   }
 }
+
+export class ApiRequestFailed extends NxtpError {
+  constructor(context: any = {}) {
+    super("Api Request failed", context, ApiRequestFailed.name);
+  }
+}

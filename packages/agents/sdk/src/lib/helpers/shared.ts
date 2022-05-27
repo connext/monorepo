@@ -28,7 +28,7 @@ export const axiosGetRequest = async (uri: string): Promise<any> => {
   try {
     const response = await axios.get(uri);
     return response.data;
-  } catch (err: any) {
-    throw new ApiRequestFailed({ error: jsonifyError(err) });
+  } catch (err) {
+    throw new ApiRequestFailed({ error: jsonifyError(err as Error) });
   }
 };
