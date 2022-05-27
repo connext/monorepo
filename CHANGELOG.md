@@ -2,6 +2,38 @@
 
 ## Next Release
 
+- [lighthouse][sdk] Fix URL generation
+
+## Amarok 0.2.0-beta.6
+
+- [sdk] Fix URL
+
+## Amarok 0.2.0-beta.5
+
+- [sdk] Fix limits
+
+## Amarok 0.2.0-beta.4
+
+- [sdk] Fix limits
+
+## Amarok 0.2.0-beta.3
+
+- [sdk] fix api uri
+
+## Amarok 0.2.0-beta.2
+
+- [sdk] fix api uri
+
+## Amarok 0.2.0-beta.1
+
+- [sdk] multiple sdk updates
+- [sdk] unit test
+- [poller] backend pagination
+
+## Amarok 0.2.0-beta.0
+
+- [all] Update contract architecture
+
 ## Amarok 0.2.0-alpha.16
 
 - [all] Support Goerli

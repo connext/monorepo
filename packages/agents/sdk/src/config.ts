@@ -3,6 +3,8 @@ import { Type, Static } from "@sinclair/typebox";
 import { ajv, ChainData, TAddress, TLogLevel } from "@connext/nxtp-utils";
 import { ConnextContractDeployments, ContractPostfix } from "@connext/nxtp-txservice";
 
+import { getChainData } from "./lib/helpers";
+
 const DEFAULT_ALLOWED_TOLERANCE = 10; // in percent
 
 export const TAssetDescription = Type.Object({
@@ -139,9 +141,13 @@ let nxtpConfig: NxtpSdkConfig | undefined;
  */
 export const getConfig = async (
   _nxtpConfig: NxtpSdkConfig,
-  chainData: Map<string, ChainData>,
   deployments: ConnextContractDeployments,
+  _chainData?: Map<string, ChainData>,
 ): Promise<NxtpSdkConfig> => {
+  let chainData = _chainData;
+  if (!chainData) {
+    chainData = await getChainData();
+  }
   if (!nxtpConfig) {
     nxtpConfig = getEnvConfig(_nxtpConfig, chainData, deployments);
   }

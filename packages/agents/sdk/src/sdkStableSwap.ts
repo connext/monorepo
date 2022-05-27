@@ -43,7 +43,7 @@ export class NxtpSdkStableSwap {
       throw new Error("Could not get chain data");
     }
 
-    const nxtpConfig = await getConfig(_config, chainData, contractDeployments);
+    const nxtpConfig = await getConfig(_config, contractDeployments, chainData);
     const logger = _logger
       ? _logger.child({ name: "NxtpSdkStableSwap" })
       : new Logger({ name: "NxtpSdkStableSwap", level: nxtpConfig.logLevel });
