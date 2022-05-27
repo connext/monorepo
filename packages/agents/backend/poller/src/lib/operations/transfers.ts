@@ -90,9 +90,11 @@ export const updateTransfers = async () => {
 
     if (xcalledTransfers.concat(executedTransfers).concat(reconciledTransfers).length == 0) {
       done = true;
+      logger.debug("Processed all pending transfers. Last page", requestContext, methodContext, { page });
     }
     xcalledTransfers = [];
     executedTransfers = [];
     reconciledTransfers = [];
+    logger.debug("Processed pending transfers for page", requestContext, methodContext, { page });
   }
 };
