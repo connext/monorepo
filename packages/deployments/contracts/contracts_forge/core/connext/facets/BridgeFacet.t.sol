@@ -3,6 +3,7 @@ pragma solidity 0.8.11;
 
 import {ECDSA} from "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import {Address} from "@openzeppelin/contracts/utils/Address.sol";
 
 import {XAppConnectionManager} from "../../../../contracts/nomad-core/contracts/XAppConnectionManager.sol";
 import {IStableSwap} from "../../../../contracts/core/connext/interfaces/IStableSwap.sol";
@@ -15,56 +16,11 @@ import {CallParams, ExecuteArgs, XCallArgs} from "../../../../contracts/core/con
 import {LibDiamond} from "../../../../contracts/core/connext/libraries/LibDiamond.sol";
 import {BridgeFacet} from "../../../../contracts/core/connext/facets/BridgeFacet.sol";
 import {TestERC20} from "../../../../contracts/test/TestERC20.sol";
+import {PromiseRouter} from "../../../../contracts/core/promise/PromiseRouter.sol";
 
-import {MockXAppConnectionManager, MockHome} from "../../../utils/Mock.sol";
+import {MockXAppConnectionManager, MockHome, MockXApp, MockPromiseRouter, MockCallback} from "../../../utils/Mock.sol";
 import "../../../../lib/forge-std/src/console.sol";
 import "./FacetHelper.sol";
-
-contract MockXApp {
-  bytes32 constant TEST_MESSAGE = bytes32("test message");
-
-  event MockXAppEvent(address caller, address asset, bytes32 message, uint256 amount);
-
-  modifier checkMockMessage(bytes32 message) {
-    require(keccak256(abi.encode(message)) == keccak256(abi.encode(TEST_MESSAGE)), "Mock message invalid!");
-    _;
-  }
-
-  // This method call will transfer asset to this contract and succeed.
-  function fulfill(address asset, bytes32 message) external checkMockMessage(message) returns (bytes32) {
-    IExecutor executor = IExecutor(address(msg.sender));
-
-    emit MockXAppEvent(msg.sender, asset, message, executor.amount());
-
-    IERC20(asset).transferFrom(address(executor), address(this), executor.amount());
-
-    return (bytes32("good"));
-  }
-
-  // Read from originDomain/originSender properties and validate them based on arguments.
-  function fulfillWithProperties(
-    address asset,
-    bytes32 message,
-    uint256 expectedOriginDomain,
-    address expectedOriginSender
-  ) external checkMockMessage(message) returns (bytes32) {
-    IExecutor executor = IExecutor(address(msg.sender));
-
-    emit MockXAppEvent(msg.sender, asset, message, executor.amount());
-
-    IERC20(asset).transferFrom(address(executor), address(this), executor.amount());
-
-    require(expectedOriginDomain == executor.origin(), "Origin domain incorrect");
-    require(expectedOriginSender == executor.originSender(), "Origin sender incorrect");
-
-    return (bytes32("good"));
-  }
-
-  // This method call will always fail.
-  function fail() external {
-    require(false, "bad");
-  }
-}
 
 contract BridgeFacetTest is BridgeFacet, FacetHelper {
   bytes32 constant TEST_MESSAGE = bytes32("test message");
@@ -80,9 +36,13 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
   // mock xapp contract
   address _xapp;
   // mock xapp connection manager
-  address _xapp_connection_manager;
+  address _xappConnectionManager;
   // mock home
-  address _xapp_home;
+  address _xappHome;
+  // mock promise router
+  address payable _promiseRouter;
+  // mock callback contract
+  address _callback;
 
   // default origin sender
   address _originSender = address(4);
@@ -109,7 +69,7 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
   uint256 _nonce = 1;
 
   // default recovery address
-  address constant _recovery = address(12121212);
+  address constant _recovery = address(121212);
 
   // default CallParams
   CallParams _params =
@@ -149,6 +109,10 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
     // By default, the local asset will be used as the 'adopted' asset sent by the user in `xcall`, for instance.
     vm.mockCall(_tokenRegistry, abi.encodeWithSelector(ITokenRegistry.getLocalAddress.selector), abi.encode(_local));
 
+    // Promise router mock calls.
+    vm.mockCall(_promiseRouter, abi.encodeWithSelector(PromiseRouter.send.selector), abi.encode());
+    vm.mockCall(_promiseRouter, abi.encodeWithSelector(PromiseRouter.initCallbackFee.selector), abi.encode());
+
     // Other context setup: configuration, storage, etc.
     s.approvedRelayers[address(this)] = true;
     s.maxRoutersPerTransfer = 5;
@@ -165,18 +129,7 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
   }
 
   // ============ Utils ============
-  // Utils used in the following tests.
-
-  // Make it so the local asset used for testing is canonical / considered to be locally originating.
-  function utils_makeLocalAssetCanonical() public {
-    vm.mockCall(_tokenRegistry, abi.encodeWithSelector(ITokenRegistry.isLocalOrigin.selector), abi.encode(bool(true)));
-  }
-
-  // Make it so the local asset used for testing is representational / considered to be originating from another chain.
-  // In order to send the asset via xcall, it will be burnt.
-  function utils_makeLocalAssetRepresentational() public {
-    vm.mockCall(_tokenRegistry, abi.encodeWithSelector(ITokenRegistry.isLocalOrigin.selector), abi.encode(bool(false)));
-  }
+  // Utils used in the following tests (as well as setup).
 
   // Used in set up for deploying any needed peripheral contracts.
   function utils_deployContracts() public {
@@ -189,10 +142,39 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
     _xapp = address(new MockXApp());
 
     // Deploy a mock home.
-    _xapp_home = address(new MockHome());
+    _xappHome = address(new MockHome());
     // Deploy a mock xapp connection manager.
-    _xapp_connection_manager = address(new MockXAppConnectionManager(MockHome(_xapp_home)));
-    s.xAppConnectionManager = XAppConnectionManager(_xapp_connection_manager);
+    _xappConnectionManager = address(new MockXAppConnectionManager(MockHome(_xappHome)));
+    s.xAppConnectionManager = XAppConnectionManager(_xappConnectionManager);
+    // Deploy the promise router.
+    // s.promiseRouter = new PromiseRouter(); //payable(address(4242)));
+    s.promiseRouter = new MockPromiseRouter();
+    // s.promiseRouter = PromiseRouter(payable(address(7)));
+    _promiseRouter = payable(s.promiseRouter);
+    // vm.store(_promiseRouter, bytes32(uint256(0)), bytes32(bytes20(address(this))));
+
+    // Deploy a mock callback.
+    _callback = address(new MockCallback());
+  }
+
+  // Make it so the local asset used for testing is canonical / considered to be locally originating.
+  function utils_makeLocalAssetCanonical() public {
+    vm.mockCall(_tokenRegistry, abi.encodeWithSelector(ITokenRegistry.isLocalOrigin.selector), abi.encode(bool(true)));
+  }
+
+  // Make it so the local asset used for testing is representational / considered to be originating from another chain.
+  // In order to send the asset via xcall, it will be burnt.
+  function utils_makeLocalAssetRepresentational() public {
+    vm.mockCall(_tokenRegistry, abi.encodeWithSelector(ITokenRegistry.isLocalOrigin.selector), abi.encode(bool(false)));
+  }
+
+  // Meant to mimic the corresponding `_getTransferId` method in the BridgeFacet contract.
+  function utils_getTransferIdFromXCallArgs(
+    XCallArgs memory _args,
+    address sender,
+    ConnextMessage.TokenId memory _canonical
+  ) public returns (bytes32) {
+    return keccak256(abi.encode(s.nonce, _args.params, sender, _canonical.id, _canonical.domain, _args.amount));
   }
 
   // Meant to mimic the corresponding `_getTransferId` method in the BridgeFacet contract.
@@ -203,12 +185,19 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
       );
   }
 
-  // Meant to mimic the corresponding `_getTransferId` method in the BridgeFacet contract.
-  function utils_getTransferIdFromXCallArgs(XCallArgs memory _args, ConnextMessage.TokenId memory _canonical)
-    public
-    returns (bytes32)
-  {
-    return keccak256(abi.encode(s.nonce, _args.params, msg.sender, _canonical.id, _canonical.domain, _args.amount));
+  // Makes some mock xcall arguments using params set in storage.
+  function utils_makeXCallArgs() public returns (bytes32, XCallArgs memory) {
+    // get args
+    XCallArgs memory args = XCallArgs(
+      _params,
+      _local, // transactingAssetId : could be adopted, local, or wrapped.
+      _amount,
+      _relayerFee
+    );
+    // generate transfer id
+    bytes32 _id = utils_getTransferIdFromXCallArgs(args, _originSender, s.adoptedToCanonical[_local]);
+
+    return (_id, args);
   }
 
   // Makes some mock router signatures.
@@ -272,20 +261,6 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
     return (_amount * s.LIQUIDITY_FEE_NUMERATOR) / s.LIQUIDITY_FEE_DENOMINATOR;
   }
 
-  function utils_makeXCallArgs() public returns (bytes32, XCallArgs memory) {
-    // get args
-    XCallArgs memory args = XCallArgs(
-      _params,
-      _local, // transactingAssetId : could be adopted, local, or wrapped.
-      _amount,
-      _relayerFee
-    );
-    // generate transfer id
-    bytes32 _id = utils_getTransferIdFromXCallArgs(args, s.adoptedToCanonical[_local]);
-
-    return (_id, args);
-  }
-
   // ============== Helpers ==================
   // Helpers used for executing target methods with given params that assert expected base behavior.
 
@@ -312,12 +287,46 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
     vm.prank(_originSender);
     localToken.approve(address(this), dealTokens);
 
+    // NOTE: the `amount` and `bridgedAmt` are 0 because `.balanceOf` of the origin asset returns
+    // 0 always via setup function
+    // BridgeFacet.XCalledEventArgs memory eventArg = BridgeFacet.XCalledEventArgs({
+    //   transactingAssetId: address(_args.local),
+    //   amount: 0,
+    //   bridgedAmt: 0,
+    //   bridged: address(_args.local)
+    // });
+
+    // vm.expectEmit(true, true, true, true);
+    // emit XCalled(id, args, eventArg, 0, message, _originSender);
+
+    // TODO:
+    // Correctly account for relayerFee in native transfer
+    // Correctly account for relayerFee in token transfer
+    // Works if relayerFee is set to 0
+    // Emit relayerFees in XCalled event
+    // Update relayerFees mapping
+
+    if (_args.params.callbackFee > 0) {
+      // CallbackFee is paid by the user.
+      vm.expectCall(_promiseRouter, abi.encodeWithSelector(PromiseRouter.initCallbackFee.selector, _id));
+    }
+
+    assertEq(s.relayerFees[_id], 0);
+
     vm.prank(_originSender);
     this.xcall{value: fees}(_args);
     assertEq(localToken.balanceOf(_originSender), initialUserBalance - _args.amount);
     // NOTE: Because the tokens are a representational local asset, they are burnt. The contract
     // should NOT be holding any additional tokens after xcall completes.
     assertEq(localToken.balanceOf(address(this)), initialContractBalance);
+
+    assertEq(s.relayerFees[_id], _args.relayerFee);
+
+    if (_args.params.callbackFee > 0) {
+      // TODO: For some reason, balance isn't changing. Perhaps the vm.mockCall prevents this?
+      // CallbackFee should be delivered to the PromiseRouter.
+      // assertEq(_promiseRouter.balance, _params.callbackFee);
+    }
   }
 
   // Shortcut for the above fn.
@@ -331,7 +340,13 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
 
   // Shortcut for the above fn. Uses the amount for the transfer.
   function helpers_xcallAndAssert(bytes32 _id, XCallArgs memory _args) public {
-    helpers_xcallAndAssert(_id, _args, _args.amount, 100 ether);
+    helpers_xcallAndAssert(_id, _args, _args.amount);
+  }
+
+  // Shortcut for the above fn. Generates args within this method.
+  function helpers_xcallAndAssert() public {
+    (bytes32 transferId, XCallArgs memory args) = utils_makeXCallArgs();
+    helpers_xcallAndAssert(transferId, args);
   }
 
   // Calls `execute` on the target method with the given args and asserts expected behavior.
@@ -412,10 +427,15 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
   // fails if origin domain is incorrect
   // fails if destination domain does not have an xapp router registered
   // fails if recipient `to` not a valid address (i.e. != address(0))
-  // fails if callback address is empty and callback fee is > 0
+  // fails if callback address is not a contract and callback fee is > 0
   // fails if callback is defined but not a contract
   // fails if callback is defined (and is a contract) but callback fee is 0
   // fails if asset is not supported (i.e. s.adoptedToCanonical[transactingAssetId].id == bytes32(0))
+
+  // fails if callbackFee in param and value does not match in native transfer
+  // fails if relayerFee in param and value does not match in native transfer
+
+  // Fail if relayerFee in param and value does not match in token transfer
 
   // fails if native token transfer and amount of native tokens sent is < amount + relayerFee
   // AssetLogic__handleIncomingAsset_notAmount
@@ -431,11 +451,15 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
   // ============ xcall success cases
   // base case
   function test_BridgeFacet__xcall_shouldWork() public {
-    (bytes32 transferId, XCallArgs memory args) = utils_makeXCallArgs();
-    helpers_xcallAndAssert(transferId, args);
+    helpers_xcallAndAssert();
   }
 
   // should send promise router callback fee
+  function test_BridgeFacet__xcall_shouldHandleCallbackFee() public {
+    _params.callback = _callback;
+    _params.callbackFee = 0.02 ether;
+    helpers_xcallAndAssert();
+  }
 
   // ======= handle (reconcile) =======
   // handle
@@ -778,6 +802,6 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
   // should work with sponsorship from sponsor vault
   // TODO: see _handleExecuteTransaction
 
-  // TODO: test callback handling
+  // TODO: test callback handling, should send the promise router the return data
   // TODO: test native asset handling
 }

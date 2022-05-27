@@ -215,22 +215,22 @@ contract BridgeFacet is BaseConnextFacet {
   function xcall(XCallArgs calldata _args) external payable returns (bytes32) {
     // Sanity checks.
     {
-      // ensure this is the right domain
+      // Correct origin domain.
       if (_args.params.originDomain != s.domain) {
         revert BridgeFacet__xcall_wrongDomain();
       }
 
-      // ensure theres a recipient defined
+      // Recipient is defined.
       if (_args.params.to == address(0)) {
         revert BridgeFacet__xcall_emptyTo();
       }
 
-      // ensure callback fee is zero when callback address is empty
+      // Callback fee is zero when callback address is empty.
       if (_args.params.callback == address(0) && _args.params.callbackFee > 0) {
         revert BridgeFacet__xcall_nonZeroCallbackFeeForCallback();
       }
 
-      // ensure callback is contract if supplied
+      // Callback is contract if supplied.
       if (_args.params.callback != address(0) && !Address.isContract(_args.params.callback)) {
         revert BridgeFacet__xcall_callbackNotAContract();
       }

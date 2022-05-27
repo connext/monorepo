@@ -9,6 +9,7 @@ import {BaseConnextFacet} from "../../contracts/core/connext/facets/BaseConnextF
 import {ISponsorVault} from "../../contracts/core/connext/interfaces/ISponsorVault.sol";
 import {ITokenRegistry} from "../../contracts/core/connext/interfaces/ITokenRegistry.sol";
 import {IWrapped} from "../../contracts/core/connext/interfaces/IWrapped.sol";
+import {IExecutor} from "../../contracts/core/connext/interfaces/IExecutor.sol";
 
 contract MockXAppConnectionManager {
   MockHome _home;
@@ -35,6 +36,52 @@ contract MockHome {
 contract MockConnext {
   function claim(address _recipient, bytes32[] calldata _transferIds) external {
     1 == 1;
+  }
+}
+
+contract MockXApp {
+  bytes32 constant TEST_MESSAGE = bytes32("test message");
+
+  event MockXAppEvent(address caller, address asset, bytes32 message, uint256 amount);
+
+  modifier checkMockMessage(bytes32 message) {
+    require(keccak256(abi.encode(message)) == keccak256(abi.encode(TEST_MESSAGE)), "Mock message invalid!");
+    _;
+  }
+
+  // This method call will transfer asset to this contract and succeed.
+  function fulfill(address asset, bytes32 message) external checkMockMessage(message) returns (bytes32) {
+    IExecutor executor = IExecutor(address(msg.sender));
+
+    emit MockXAppEvent(msg.sender, asset, message, executor.amount());
+
+    IERC20(asset).transferFrom(address(executor), address(this), executor.amount());
+
+    return (bytes32("good"));
+  }
+
+  // Read from originDomain/originSender properties and validate them based on arguments.
+  function fulfillWithProperties(
+    address asset,
+    bytes32 message,
+    uint256 expectedOriginDomain,
+    address expectedOriginSender
+  ) external checkMockMessage(message) returns (bytes32) {
+    IExecutor executor = IExecutor(address(msg.sender));
+
+    emit MockXAppEvent(msg.sender, asset, message, executor.amount());
+
+    IERC20(asset).transferFrom(address(executor), address(this), executor.amount());
+
+    require(expectedOriginDomain == executor.origin(), "Origin domain incorrect");
+    require(expectedOriginSender == executor.originSender(), "Origin sender incorrect");
+
+    return (bytes32("good"));
+  }
+
+  // This method call will always fail.
+  function fail() external pure {
+    require(false, "bad");
   }
 }
 
