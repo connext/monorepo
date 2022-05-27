@@ -7,18 +7,31 @@ import {
   OriginTransfer,
 } from "@connext/nxtp-utils";
 
-import { CallDataForNonContract, MissingXCall, NomadHomeBlacklisted, NotEnoughAmount, ParamsInvalid } from "../errors";
+import { MissingXCall, NomadHomeBlacklisted, NotEnoughAmount, ParamsInvalid } from "../errors";
 import { getHelpers } from "../helpers";
 import { getContext } from "../../router";
 
 import { NomadContext } from "@nomad-xyz/sdk";
 import { BridgeContext } from "@nomad-xyz/sdk-bridge";
 import * as nomadConfig from "@nomad-xyz/configuration";
+import { config } from "dotenv";
 
 // fee percentage paid to relayer. need to be updated later
 export const RELAYER_FEE_PERCENTAGE = "1"; //  1%
-//staging or prod
-const env_type = "staging";
+//helper function to match our config environments with nomads
+const nxtpEnvToNomadEnv = (envOverride?: string): string => {
+  const nxtpConfig = envOverride ? envOverride : getContext().config.environment;
+  switch (nxtpConfig) {
+    case "production":
+      return "production";
+    case "staging":
+      //is this possibly development?
+      return "staging";
+    default:
+      return "staging";
+  }
+};
+const env_type = nxtpEnvToNomadEnv();
 
 /**
  * Router creates a new bid and sends it to auctioneer.
@@ -105,13 +118,7 @@ export const execute = async (params: OriginTransfer): Promise<void> => {
     });
   }
 
-  if (callData !== "0x") {
-    const code = await txservice.getCode(+destinationDomain, to);
-    if (code === "0x") {
-      throw new CallDataForNonContract({ transferId, destinationDomain, to, callData, requestContext, methodContext });
-    }
-  }
-  const context = BridgeContext.fromNomadContext(new NomadContext(nomadConfig.getBuiltin(env_type)));
+  const context = BridgeContext.fromNomadContext(new NomadContext(env_type));
   //todo: look for higher level import of this class
   //push them to blacklist if not there already
   await context.checkHomes([originDomain, destinationDomain]);
@@ -129,6 +136,7 @@ export const execute = async (params: OriginTransfer): Promise<void> => {
       destinationBlacklisted: destinationBlacklisted,
     });
   }
+
   logger.debug("Sanity checks passed", requestContext, methodContext, { liquidity: balance.toString() });
 
   const fee = DEFAULT_ROUTER_FEE;
