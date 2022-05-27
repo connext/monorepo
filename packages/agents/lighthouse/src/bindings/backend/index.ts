@@ -5,6 +5,7 @@ import {
   NxtpError,
   formatUrl,
   convertFromDbTransfer,
+  transfersCastForUrl,
 } from "@connext/nxtp-utils";
 import { constants } from "ethers";
 import axios from "axios";
@@ -79,13 +80,9 @@ export const pollBackend = async () => {
 
 export const getReconciledTransactions = async (): Promise<any> => {
   const { requestContext, methodContext } = createLoggingContext(getReconciledTransactions.name);
-  const {
-    // adapters: {},
-    logger,
-    config,
-  } = getContext();
+  const { logger, config } = getContext();
 
-  const statusIdentifier = `status=eq.Reconciled&`;
+  const statusIdentifier = `status=eq.Reconciled&${transfersCastForUrl}`;
   const uri = formatUrl(config.backendUrl, "transfers?", statusIdentifier);
   try {
     const response = await axios.get(uri);
