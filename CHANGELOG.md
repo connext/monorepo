@@ -2,6 +2,10 @@
 
 ## Next Release
 
+## Amarok 0.2.0-beta.7
+
+- [lighthouse][sdk] Fix URL generation for BigNumber
+
 ## Amarok 0.2.0-beta.6
 
 - [sdk] Fix URL
