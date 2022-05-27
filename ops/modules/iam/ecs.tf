@@ -9,7 +9,8 @@ resource "aws_iam_role_policy" "ecr_admin_policy" {
     {
       "Action": [
         "ecr:*",
-        "logs:*"
+        "logs:*",
+        "ecs:*"
       ],
       "Effect": "Allow",
       "Resource": "*"

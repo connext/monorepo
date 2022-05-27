@@ -44,7 +44,9 @@ export class NxtpSdkBase {
     }
 
     const nxtpConfig = await getConfig(_config, contractDeployments, chainData);
-    const logger = _logger || new Logger({ name: "NxtpSdkBase", level: nxtpConfig.logLevel });
+    const logger = _logger
+      ? _logger.child({ name: "NxtpSdkBase" })
+      : new Logger({ name: "NxtpSdkBase", level: nxtpConfig.logLevel });
 
     return new NxtpSdkBase(nxtpConfig, logger, chainData);
   }
@@ -153,11 +155,12 @@ export class NxtpSdkBase {
     const ConnextContractAddress = this.config.chains[originDomain].deployments!.connext;
 
     const chainId = await getChainIdFromDomain(originDomain, this.chainData);
+
     // if transactingAssetId is AddressZero then we are adding relayerFee to amount for value
-    const value =
-      transactingAssetId === constants.AddressZero
-        ? BigNumber.from(amount).add(BigNumber.from(relayerFee))
-        : BigNumber.from(relayerFee);
+
+    const totalFee = BigNumber.from(relayerFee).add(BigNumber.from(xParams.callbackFee));
+
+    const value = transactingAssetId === constants.AddressZero ? BigNumber.from(amount).add(totalFee) : totalFee;
 
     const xcallArgs: XCallArgs = {
       params: xParams,

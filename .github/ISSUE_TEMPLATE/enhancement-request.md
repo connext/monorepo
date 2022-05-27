@@ -1,6 +1,6 @@
 ---
 name: Enhancement request
-about: Suggest an idea for this project
+about: We want to intentionally add, improve, optimize something
 title: As a user, I need/want to do something
 labels: Enhancement
 assignees: ''
