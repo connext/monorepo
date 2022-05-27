@@ -53,9 +53,11 @@ module "poller_db" {
   db_subnet_group_subnet_ids = module.network.public_subnets
 }
 
+
 module "postgrest" {
   source                   = "../../../modules/service"
   region                   = var.region
+  dd_api_key               = var.dd_api_key
   zone_id                  = data.aws_route53_zone.primary.zone_id
   ecs_cluster_sg           = module.network.ecs_task_sg
   allow_all_sg             = module.network.allow_all_sg
@@ -86,6 +88,7 @@ module "postgrest" {
 module "poller" {
   source                   = "../../../modules/daemon"
   region                   = var.region
+  dd_api_key               = var.dd_api_key
   execution_role_arn       = data.aws_iam_role.ecr_admin_role.arn
   cluster_id               = module.ecs.ecs_cluster_id
   vpc_id                   = module.network.vpc_id
