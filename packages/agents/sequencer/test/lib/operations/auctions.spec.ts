@@ -7,6 +7,7 @@ import {
   getNtpTimeSeconds,
   XTransfer,
   XTransferStatus,
+  mkSig,
 } from "@connext/nxtp-utils";
 import { stub, restore, reset, SinonStub } from "sinon";
 import { constants, BigNumber } from "ethers";
@@ -15,7 +16,9 @@ import { ctxMock, getOperationsStub, getHelpersStub } from "../../globalTestHook
 import { mock } from "../../mock";
 import { AuctionExpired, MissingXCall, ParamsInvalid } from "../../../src/lib/errors";
 import { executeAuctions, storeBid } from "../../../src/lib/operations/auctions";
+import { generateCombinations, getBidsRoundMap, getMinimumBidsCountForRound } from "../../../src/lib/helpers/auctions";
 
+import * as AuctionHelperFns from "../../../src/lib/helpers/auctions";
 const { requestContext } = mock.loggingContext("BID-TEST");
 
 describe("Operations:Auctions", () => {
@@ -65,10 +68,14 @@ describe("Operations:Auctions", () => {
 
     encodeExecuteFromBidStub = stub().resolves(getRandomBytes32());
     getDestinationLocalAssetStub = stub().resolves(mock.asset.A.address);
+
     getHelpersStub.returns({
       auctions: {
         encodeExecuteFromBid: encodeExecuteFromBidStub,
         getDestinationLocalAsset: getDestinationLocalAssetStub,
+        getBidsRoundMap,
+        generateCombinations,
+        getMinimumBidsCountForRound,
       },
     });
   });
@@ -176,50 +183,226 @@ describe("Operations:Auctions", () => {
           timestamp: (getNtpTimeSeconds() - ctxMock.config.auctionWaitTime - 20).toString(),
         }),
       );
-    const mockTransfersBatch = (count: number) => new Array(count).fill(0).map(() => mock.entity.xtransfer());
 
-    it("happy case: should send best bid to the relayer for each transfer", async () => {
+    it("should pick up the auction rounds which has enough number of bids", async () => {
       const taskId = getRandomBytes32();
       sendToRelayerStub.resolves(taskId);
+      const transferId = getRandomBytes32();
+      getQueuedTransfersStub.resolves([transferId]);
 
-      const count = 3;
+      const router1 = mkAddress("0x111");
+      const router2 = mkAddress("0x112");
+      const router3 = mkAddress("0x113");
+      const bids: Record<string, Bid> = {};
+      bids[router1] = {
+        transferId: transferId,
+        origin: "1111",
+        router: router1,
+        fee: "0",
+        signatures: {
+          "1": mkSig("0xrouter1_1"),
+        },
+      };
+      bids[router2] = {
+        transferId: transferId,
+        origin: "1111",
+        router: router2,
+        fee: "2",
+        signatures: {
+          "1": mkSig("0xrouter2_1"),
+          "2": mkSig("0xrouter2_2"),
+          "4": mkSig("0xrouter2_4"),
+        },
+      };
+      bids[router3] = {
+        transferId: transferId,
+        origin: "1111",
+        router: router3,
+        fee: "1",
+        signatures: {
+          "1": mkSig("0xrouter3_1"),
+          "2": mkSig("0xrouter3_2"),
+          "3": mkSig("0xrouter3_3"),
+        },
+      };
 
-      const transfers = mockTransfersBatch(count);
-      for (let i = 0; i < count; i++) {
-        getTransferStub.onCall(i).resolves(transfers[i]);
-      }
+      const auction = mock.entity.auction({
+        timestamp: (getNtpTimeSeconds() - ctxMock.config.auctionWaitTime - 20).toString(),
+        bids,
+      });
+      getAuctionStub.resolves(auction);
 
-      const transferIds = transfers.map((t) => t.transferId);
-      getQueuedTransfersStub.resolves(transferIds);
-
-      const auctions = mockAuctionDataBatch(count);
-      for (let i = 0; i < count; i++) {
-        getAuctionStub.onCall(i).resolves(auctions[i]);
-      }
-
+      const transfer = mock.entity.xtransfer({ transferId });
+      getTransferStub.resolves(transfer);
       await executeAuctions(requestContext);
+      expect(sendToRelayerStub.callCount).to.be.eq(1);
+      expect(sendToRelayerStub.getCall(0).args[0]).to.be.eq(1);
+      expect(sendToRelayerStub.getCall(0).args[1]).to.be.deep.eq([
+        {
+          transferId: transferId,
+          origin: "1111",
+          router: router1,
+          fee: "0",
+          signatures: {
+            "1": mkSig("0xrouter1_1"),
+          },
+        },
+      ]);
+      expect(setStatusStub.getCall(0).args).to.be.deep.eq([transferId, AuctionStatus.Sent]);
+      expect(upsertTaskStub.getCall(0).args).to.be.deep.eq([{ transferId, taskId }]);
+    });
 
-      expect(getQueuedTransfersStub.callCount).to.eq(1);
+    it("should pick up the bid with the lowest fee amount", async () => {
+      const taskId = getRandomBytes32();
+      sendToRelayerStub.resolves(taskId);
+      const transferId = getRandomBytes32();
+      getQueuedTransfersStub.resolves([transferId]);
 
-      expect(getAuctionStub.callCount).to.be.eq(count);
-      expect(getTransferStub.callCount).to.be.eq(count);
-      expect(sendToRelayerStub.callCount).to.be.eq(count);
+      const router1 = mkAddress("0x111");
+      const router2 = mkAddress("0x112");
+      const router3 = mkAddress("0x113");
+      const router4 = mkAddress("0x114");
+      const bids: Record<string, Bid> = {};
+      bids[router1] = {
+        transferId: transferId,
+        origin: "1111",
+        router: router1,
+        fee: "10",
+        signatures: {
+          "1": mkSig("0xrouter1_1"),
+        },
+      };
+      bids[router2] = {
+        transferId: transferId,
+        origin: "1111",
+        router: router2,
+        fee: "20",
+        signatures: {
+          "1": mkSig("0xrouter2_1"),
+        },
+      };
+      bids[router3] = {
+        transferId: transferId,
+        origin: "1111",
+        router: router3,
+        fee: "5",
+        signatures: {
+          "1": mkSig("0xrouter3_1"),
+        },
+      };
+      bids[router4] = {
+        transferId: transferId,
+        origin: "1111",
+        router: router4,
+        fee: "7",
+        signatures: {
+          "1": mkSig("0xrouter4_1"),
+        },
+      };
+      const auction = mock.entity.auction({
+        timestamp: (getNtpTimeSeconds() - ctxMock.config.auctionWaitTime - 20).toString(),
+        bids,
+      });
+      getAuctionStub.resolves(auction);
 
-      for (let i = 0; i < count; i++) {
-        expect(getAuctionStub.getCall(i).args).to.be.deep.eq([transferIds[i]]);
-        expect(getTransferStub.getCall(i).args).to.be.deep.eq([transferIds[i]]);
-        expect(sendToRelayerStub.getCall(i).args[0].length).to.eq(1);
+      const transfer = mock.entity.xtransfer({ transferId });
+      getTransferStub.resolves(transfer);
+      await executeAuctions(requestContext);
+      expect(sendToRelayerStub.callCount).to.be.eq(1);
+      expect(sendToRelayerStub.getCall(0).args[0]).to.be.eq(1);
+      expect(sendToRelayerStub.getCall(0).args[1]).to.be.deep.eq([
+        {
+          transferId: transferId,
+          origin: "1111",
+          router: router3,
+          fee: "5",
+          signatures: {
+            "1": mkSig("0xrouter3_1"),
+          },
+        },
+      ]);
+      expect(setStatusStub.getCall(0).args).to.be.deep.eq([transferId, AuctionStatus.Sent]);
+      expect(upsertTaskStub.getCall(0).args).to.be.deep.eq([{ transferId, taskId }]);
+    });
 
-        const bids = sendToRelayerStub.getCall(i).args[0];
-        const transfer = sendToRelayerStub.getCall(i).args[1];
-        expect(transfer).to.deep.eq(transfers[i]);
-        for (const bid of bids) {
-          expect(Object.keys(auctions[i].bids)).to.include(bid.router);
-        }
+    it("should pick up a round-2 auction if a round-1 auction doesn't exist", async () => {
+      const taskId = getRandomBytes32();
+      sendToRelayerStub.resolves(taskId);
+      const transferId = getRandomBytes32();
+      getQueuedTransfersStub.resolves([transferId]);
 
-        expect(setStatusStub.getCall(i).args).to.be.deep.eq([transferIds[i], AuctionStatus.Sent]);
-        expect(upsertTaskStub.getCall(i).args).to.be.deep.eq([{ transferId: transferIds[i], taskId }]);
-      }
+      const router1 = mkAddress("0x111");
+      const router2 = mkAddress("0x112");
+      const router3 = mkAddress("0x113");
+      const bids: Record<string, Bid> = {};
+      bids[router1] = {
+        transferId: transferId,
+        origin: "1111",
+        router: router1,
+        fee: "1",
+        signatures: {
+          "2": mkSig("0xrouter1_2"),
+          "3": mkSig("0xrouter1_3"),
+          "4": mkSig("0xrouter1_4"),
+        },
+      };
+      bids[router2] = {
+        transferId: transferId,
+        origin: "1111",
+        router: router2,
+        fee: "2",
+        signatures: {
+          "2": mkSig("0xrouter2_2"),
+          "3": mkSig("0xrouter2_3"),
+        },
+      };
+
+      bids[router3] = {
+        transferId: transferId,
+        origin: "1111",
+        router: router3,
+        fee: "0",
+        signatures: {
+          "2": mkSig("0xrouter3_2"),
+          "4": mkSig("0xrouter3_4"),
+        },
+      };
+
+      const auction = mock.entity.auction({
+        timestamp: (getNtpTimeSeconds() - ctxMock.config.auctionWaitTime - 20).toString(),
+        bids,
+      });
+      getAuctionStub.resolves(auction);
+
+      const transfer = mock.entity.xtransfer({ transferId });
+      getTransferStub.resolves(transfer);
+      await executeAuctions(requestContext);
+      expect(sendToRelayerStub.callCount).to.be.eq(1);
+
+      // round-2 needs to be selected
+      expect(sendToRelayerStub.getCall(0).args[0]).to.be.eq(2);
+      expect(sendToRelayerStub.getCall(0).args[1]).to.be.deep.eq([
+        {
+          transferId: transferId,
+          origin: "1111",
+          router: router1,
+          fee: "1",
+          signatures: {
+            "2": mkSig("0xrouter1_2"),
+          },
+        },
+        {
+          transferId: transferId,
+          origin: "1111",
+          router: router3,
+          fee: "0",
+          signatures: {
+            "2": mkSig("0xrouter3_2"),
+          },
+        },
+      ]);
+      expect(setStatusStub.getCall(0).args).to.be.deep.eq([transferId, AuctionStatus.Sent]);
+      expect(upsertTaskStub.getCall(0).args).to.be.deep.eq([{ transferId, taskId }]);
     });
 
     it("should ignore if time elapsed is insufficient", async () => {
@@ -407,48 +590,6 @@ describe("Operations:Auctions", () => {
       expect(getAuctionStub.callCount).to.be.eq(1);
       expect(getTransferStub.callCount).to.be.eq(1);
       expect(sendToRelayerStub.callCount).to.be.eq(0);
-    });
-
-    it("should select a bid from multiple bids", async () => {
-      const taskId = getRandomBytes32();
-      sendToRelayerStub.resolves(taskId);
-
-      const router1 = mkAddress("0x1");
-      const router2 = mkAddress("0x2");
-      const router3 = mkAddress("0x3");
-
-      const transfer = mock.entity.xtransfer();
-      const transferId = transfer.transferId;
-
-      getQueuedTransfersStub.resolves([transferId]);
-      const auction = mock.entity.auction({
-        timestamp: (getNtpTimeSeconds() - ctxMock.config.auctionWaitTime - 20).toString(),
-        bids: [
-          {
-            ...mock.entity.bid(),
-            router: router1,
-          },
-          {
-            ...mock.entity.bid(),
-            router: router2,
-          },
-          {
-            ...mock.entity.bid(),
-            router: router3,
-          },
-        ],
-      });
-      getAuctionStub.resolves(auction);
-      getTransferStub.resolves(transfer);
-
-      await executeAuctions(requestContext);
-
-      expect(getAuctionStub.callCount).to.be.eq(1);
-      expect(getTransferStub.callCount).to.be.eq(1);
-      expect(sendToRelayerStub.callCount).to.be.eq(1);
-
-      // Just selected 1 router.
-      expect(sendToRelayerStub.getCall(0).args[0].length).to.eq(1);
     });
 
     it.skip("should handle multipath", async () => {

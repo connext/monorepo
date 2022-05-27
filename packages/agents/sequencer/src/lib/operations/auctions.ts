@@ -192,17 +192,20 @@ export const executeAuctions = async (_requestContext: RequestContext) => {
         }
 
         for (const roundIdx of availableRoundIds) {
+          logger.debug(`Selecting the round ${roundIdx}`, requestContext, methodContext, { availableRoundIds });
           const roundIdInNum = Number(roundIdx);
           const totalBids = bidsRoundMap[roundIdInNum];
           const combinatedBidsForRound = generateCombinations(
             totalBids,
             getMinimumBidsCountForRound(roundIdInNum),
           ) as Bid[][];
-
           // TODO. Sort by fee amount, selecting the best bid combination available.
           const randomized = combinatedBidsForRound
-            .map((value) => ({ value, sort: Math.random() }))
-            .sort((a, b) => a.sort - b.sort)
+            .map((value) => ({
+              value,
+              sort: value.reduce((prev, curr) => BigNumber.from(prev).add(BigNumber.from(curr.fee)), BigNumber.from(0)),
+            }))
+            .sort((a, b) => (a.sort.gt(b.sort) ? 0 : -1))
             .map(({ value }) => value);
 
           let taskId: string | undefined;
@@ -348,6 +351,8 @@ export const executeAuctions = async (_requestContext: RequestContext) => {
 
           await cache.auctions.setStatus(transferId, AuctionStatus.Sent);
           await cache.auctions.upsertTask({ transferId, taskId });
+
+          break;
         }
       }
     }),

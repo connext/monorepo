@@ -122,7 +122,8 @@ export const execute = async (params: OriginTransfer): Promise<void> => {
 
   logger.debug("Sanity checks passed", requestContext, methodContext, { liquidity: balance.toString() });
 
-  const fee = DEFAULT_ROUTER_FEE;
+  // TODO. Needs to calculate fee amount in BigNumber and pass it into Bid.
+  const fee = "0";
   const bid: Bid = {
     transferId,
     origin: originDomain,
