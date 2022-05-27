@@ -1,12 +1,13 @@
 import {
   ajv,
   TUrl,
+  jsonifyError,
   getChainData as _getChainData,
   getChainIdFromDomain as _getChainIdFromDomain,
 } from "@connext/nxtp-utils";
 import axios from "axios";
 
-import { UriInvalid } from "../errors/index";
+import { UriInvalid, ApiRequestFailed } from "../errors/index";
 
 export const getChainData = _getChainData;
 export const getChainIdFromDomain = _getChainIdFromDomain;
@@ -27,7 +28,7 @@ export const axiosGetRequest = async (uri: string): Promise<any> => {
   try {
     const response = await axios.get(uri);
     return response.data;
-  } catch (error: any) {
-    throw error;
+  } catch (err: any) {
+    throw new ApiRequestFailed({ error: jsonifyError(err) });
   }
 };
