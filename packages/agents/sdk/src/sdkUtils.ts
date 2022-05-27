@@ -1,20 +1,13 @@
-import {
-  getChainData,
-  Logger,
-  ChainData,
-  formatUrl,
-  createLoggingContext,
-  XTransferStatus,
-  jsonifyError,
-} from "@connext/nxtp-utils";
+import { Logger, ChainData, formatUrl, XTransferStatus } from "@connext/nxtp-utils";
 import {
   getContractInterfaces,
   ConnextContractInterfaces,
   contractDeployments,
   ChainReader,
 } from "@connext/nxtp-txservice";
-import axios from "axios";
 
+import { getChainData, validateUri, axiosGetRequest } from "./lib/helpers";
+import { ChainDataUndefined } from "./lib/errors";
 import { NxtpSdkConfig, getConfig } from "./config";
 
 /**
@@ -46,7 +39,7 @@ export class NxtpSdkUtils {
   ): Promise<NxtpSdkUtils> {
     const chainData = _chainData ?? (await getChainData());
     if (!chainData) {
-      throw new Error("Could not get chain data");
+      throw new ChainDataUndefined();
     }
 
     const nxtpConfig = await getConfig(_config, contractDeployments, chainData);
@@ -58,16 +51,11 @@ export class NxtpSdkUtils {
   }
 
   async getRoutersData(): Promise<any> {
-    const { requestContext, methodContext } = createLoggingContext(this.getRoutersData.name);
     const uri = formatUrl(this.config.backendUrl!, "routers_with_balances");
+    // Validate uri
+    validateUri(uri);
 
-    try {
-      const response = await axios.get(uri);
-      return response.data;
-    } catch (error: any) {
-      this.logger.error(`backend api request failed`, requestContext, methodContext, jsonifyError(error as Error));
-      throw error;
-    }
+    return await axiosGetRequest(uri);
   }
 
   async getTransfersByUser(params: {
@@ -75,8 +63,6 @@ export class NxtpSdkUtils {
     status?: XTransferStatus;
     range?: { limit?: number; offset?: number };
   }): Promise<any> {
-    const { requestContext, methodContext } = createLoggingContext(this.getTransfersByUser.name);
-
     const { userAddress, status, range } = params;
 
     const userIdentifier = `xcall_caller=eq.${userAddress.toLowerCase()}&`;
@@ -92,18 +78,13 @@ export class NxtpSdkUtils {
 
     const uri = formatUrl(this.config.backendUrl!, "transfers?", searchIdentifier + rangeIdentifier + orderIdentifier);
 
-    try {
-      const response = await axios.get(uri);
-      return response.data;
-    } catch (error: any) {
-      this.logger.error(`backend api request failed`, requestContext, methodContext, jsonifyError(error as Error));
-      throw error;
-    }
+    // Validate uri
+    validateUri(uri);
+
+    return await axiosGetRequest(uri);
   }
 
   async getTransfers(params: { range?: { limit?: number; offset?: number } }): Promise<any> {
-    const { requestContext, methodContext } = createLoggingContext(this.getTransfersByStatus.name);
-
     const { range } = params;
 
     const limit = range?.limit ? range.limit : 10;
@@ -114,21 +95,16 @@ export class NxtpSdkUtils {
 
     const uri = formatUrl(this.config.backendUrl!, "transfers?", rangeIdentifier + orderIdentifier);
 
-    try {
-      const response = await axios.get(uri);
-      return response.data;
-    } catch (error: any) {
-      this.logger.error(`backend api request failed`, requestContext, methodContext, jsonifyError(error as Error));
-      throw error;
-    }
+    // Validate uri
+    validateUri(uri);
+
+    return await axiosGetRequest(uri);
   }
 
   async getTransfersByStatus(params: {
     status: XTransferStatus;
     range?: { limit?: number; offset?: number };
   }): Promise<any> {
-    const { requestContext, methodContext } = createLoggingContext(this.getTransfersByStatus.name);
-
     const { status, range } = params;
 
     const statusIdentifier = `status=eq.${status}`;
@@ -141,13 +117,10 @@ export class NxtpSdkUtils {
 
     const uri = formatUrl(this.config.backendUrl!, "transfers?", statusIdentifier + rangeIdentifier + orderIdentifier);
 
-    try {
-      const response = await axios.get(uri);
-      return response.data;
-    } catch (error: any) {
-      this.logger.error(`backend api request failed`, requestContext, methodContext, jsonifyError(error as Error));
-      throw error;
-    }
+    // Validate uri
+    validateUri(uri);
+
+    return await axiosGetRequest(uri);
   }
 
   async getTransfersByRouter(params: {
@@ -155,8 +128,6 @@ export class NxtpSdkUtils {
     status?: XTransferStatus;
     range?: { limit?: number; offset?: number };
   }): Promise<any> {
-    const { requestContext, methodContext } = createLoggingContext(this.getTransfersByUser.name);
-
     const { routerAddress, status, range } = params;
 
     const routerIdentifier = `routers=cs.%7B${routerAddress.toLowerCase()}%7D&`;
@@ -172,44 +143,34 @@ export class NxtpSdkUtils {
 
     const uri = formatUrl(this.config.backendUrl!, "transfers?", searchIdentifier + rangeIdentifier + orderIdentifier);
 
-    try {
-      const response = await axios.get(uri);
-      return response.data;
-    } catch (error: any) {
-      this.logger.error(`backend api request failed`, requestContext, methodContext, jsonifyError(error as Error));
-      throw error;
-    }
+    // Validate uri
+    validateUri(uri);
+
+    return await axiosGetRequest(uri);
   }
 
   async getTransferById(transferId: string): Promise<any> {
-    const { requestContext, methodContext } = createLoggingContext(this.getTransferById.name);
-
     const uri = formatUrl(this.config.backendUrl!, "transfers?", `transfer_id=eq.${transferId.toLowerCase()}`);
+    // Validate uri
+    validateUri(uri);
 
-    try {
-      const response = await axios.get(uri);
-      return response.data;
-    } catch (error: any) {
-      this.logger.error(`backend api request failed`, requestContext, methodContext, jsonifyError(error as Error));
-      throw error;
-    }
+    return await axiosGetRequest(uri);
   }
 
   async getTransferByTransactionHash(transactionHash: string): Promise<any> {
-    const { requestContext, methodContext } = createLoggingContext(this.getTransferByTransactionHash.name);
-
     const uri = formatUrl(
       this.config.backendUrl!,
       "transfers?",
       `xcall_transaction_hash=eq.${transactionHash.toLowerCase()}`,
     );
 
-    try {
-      const response = await axios.get(uri);
-      return response.data;
-    } catch (error: any) {
-      this.logger.error(`backend api request failed`, requestContext, methodContext, jsonifyError(error as Error));
-      throw error;
-    }
+    // Validate uri
+    validateUri(uri);
+
+    return await axiosGetRequest(uri);
+  }
+
+  async changeSignerAddress(signerAddress: string) {
+    this.config.signerAddress = signerAddress;
   }
 }

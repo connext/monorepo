@@ -35,8 +35,6 @@ describe("Index", () => {
       expect(nxtpSdkStableSwap).to.not.be.undefined;
       expect(nxtpSdkUtils).to.not.be.undefined;
 
-      expect(nxtpSdkBase).to.not.be.null;
-
       expect(nxtpSdkBase.xcall).to.be.a("function");
     });
   });
