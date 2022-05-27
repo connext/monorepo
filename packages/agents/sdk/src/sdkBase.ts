@@ -44,7 +44,9 @@ export class NxtpSdkBase {
     }
 
     const nxtpConfig = await getConfig(_config, contractDeployments, chainData);
-    const logger = _logger || new Logger({ name: "NxtpSdkBase", level: nxtpConfig.logLevel });
+    const logger = _logger
+      ? _logger.child({ name: "NxtpSdkBase" })
+      : new Logger({ name: "NxtpSdkBase", level: nxtpConfig.logLevel });
 
     return new NxtpSdkBase(nxtpConfig, logger, chainData);
   }
