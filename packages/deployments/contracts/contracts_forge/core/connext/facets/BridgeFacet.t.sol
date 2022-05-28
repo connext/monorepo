@@ -5,9 +5,11 @@ import {ECDSA} from "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import {Address} from "@openzeppelin/contracts/utils/Address.sol";
 
-import {XAppConnectionManager} from "../../../../contracts/nomad-core/contracts/XAppConnectionManager.sol";
+import {XAppConnectionManager, TypeCasts} from "../../../../contracts/nomad-core/contracts/XAppConnectionManager.sol";
+
 import {IStableSwap} from "../../../../contracts/core/connext/interfaces/IStableSwap.sol";
 import {ITokenRegistry} from "../../../../contracts/core/connext/interfaces/ITokenRegistry.sol";
+import {IBridgeToken} from "../../../../contracts/core/connext/interfaces/IBridgeToken.sol";
 import {IExecutor} from "../../../../contracts/core/connext/interfaces/IExecutor.sol";
 import {Executor} from "../../../../contracts/core/connext/helpers/Executor.sol";
 import {ConnextMessage} from "../../../../contracts/core/connext/libraries/ConnextMessage.sol";
@@ -25,7 +27,7 @@ import "./FacetHelper.sol";
 contract BridgeFacetTest is BridgeFacet, FacetHelper {
   bytes32 constant TEST_MESSAGE = bytes32("test message");
 
-  // ============ storage ============
+  // ============ Storage ============
   // diamond storage contract owner
   address _ds_owner = address(987654321);
 
@@ -261,6 +263,34 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
     return (_amount * s.LIQUIDITY_FEE_NUMERATOR) / s.LIQUIDITY_FEE_DENOMINATOR;
   }
 
+  // Mimics the xcall message formatting. Reduced functionality : won't burn any tokens, for example.
+  function utils_formatMessage(
+    XCallArgs memory _args,
+    address _asset,
+    bytes32 _transferId,
+    uint256 _amount
+  ) public returns (bytes memory) {
+    IBridgeToken token = IBridgeToken(_asset);
+
+    bytes32 detailsHash;
+    if (s.tokenRegistry.isLocalOrigin(_asset)) {
+      detailsHash = ConnextMessage.formatDetailsHash(token.name(), token.symbol(), token.decimals());
+    } else {
+      detailsHash = token.detailsHash();
+    }
+
+    bytes29 action = ConnextMessage.formatTransfer(
+      TypeCasts.addressToBytes32(_args.params.to),
+      _amount,
+      detailsHash,
+      _transferId
+    );
+    (uint32 canonicalDomain, bytes32 canonicalId) = s.tokenRegistry.getTokenId(_asset);
+    bytes29 tokenId = ConnextMessage.formatTokenId(canonicalDomain, canonicalId);
+
+    return ConnextMessage.formatMessage(tokenId, action);
+  }
+
   // ============== Helpers ==================
   // Helpers used for executing target methods with given params that assert expected base behavior.
 
@@ -269,7 +299,7 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
     bytes32 _id,
     XCallArgs memory _args,
     uint256 dealTokens,
-    uint256 dealEth
+    bool shouldSucceed
   ) public {
     uint256 fees = _args.relayerFee + _args.params.callbackFee;
 
@@ -278,7 +308,7 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
     // Mint the specified amount of tokens for the user.
     localToken.mint(_originSender, dealTokens);
     // Deal the user required eth.
-    deal(_originSender, dealEth);
+    deal(_originSender, 100 ether);
 
     uint256 initialUserBalance = localToken.balanceOf(_originSender);
     uint256 initialContractBalance = localToken.balanceOf(address(this));
@@ -287,24 +317,24 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
     vm.prank(_originSender);
     localToken.approve(address(this), dealTokens);
 
-    // NOTE: the `amount` and `bridgedAmt` are 0 because `.balanceOf` of the origin asset returns
-    // 0 always via setup function
-    // BridgeFacet.XCalledEventArgs memory eventArg = BridgeFacet.XCalledEventArgs({
-    //   transactingAssetId: address(_args.local),
-    //   amount: 0,
-    //   bridgedAmt: 0,
-    //   bridged: address(_args.local)
-    // });
-
-    // vm.expectEmit(true, true, true, true);
-    // emit XCalled(id, args, eventArg, 0, message, _originSender);
-
     // TODO:
     // Correctly account for relayerFee in native transfer
     // Correctly account for relayerFee in token transfer
     // Works if relayerFee is set to 0
-    // Emit relayerFees in XCalled event
-    // Update relayerFees mapping
+
+    if (shouldSucceed) {
+      // TODO: Handle bridgedAmt changing after swap?
+      uint256 bridgedAmt = _args.amount;
+      BridgeFacet.XCalledEventArgs memory eventArgs = BridgeFacet.XCalledEventArgs({
+        transactingAssetId: _args.transactingAssetId,
+        amount: _args.amount,
+        bridgedAmt: bridgedAmt,
+        bridged: _local
+      });
+      bytes memory message = this.utils_formatMessage(_args, _local, _id, bridgedAmt);
+      vm.expectEmit(true, true, true, true);
+      emit XCalled(_id, _args, eventArgs, s.nonce, message, _originSender);
+    }
 
     if (_args.params.callbackFee > 0) {
       // CallbackFee is paid by the user.
@@ -319,7 +349,7 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
     // NOTE: Because the tokens are a representational local asset, they are burnt. The contract
     // should NOT be holding any additional tokens after xcall completes.
     assertEq(localToken.balanceOf(address(this)), initialContractBalance);
-
+    // Should have updated relayer fees mapping.
     assertEq(s.relayerFees[_id], _args.relayerFee);
 
     if (_args.params.callbackFee > 0) {
@@ -329,24 +359,17 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
     }
   }
 
-  // Shortcut for the above fn.
-  function helpers_xcallAndAssert(
-    bytes32 _id,
-    XCallArgs memory _args,
-    uint256 dealTokens
-  ) public {
-    helpers_xcallAndAssert(_id, _args, dealTokens, 100 ether);
-  }
-
-  // Shortcut for the above fn. Uses the amount for the transfer.
-  function helpers_xcallAndAssert(bytes32 _id, XCallArgs memory _args) public {
-    helpers_xcallAndAssert(_id, _args, _args.amount);
-  }
-
-  // Shortcut for the above fn. Generates args within this method.
-  function helpers_xcallAndAssert() public {
+  // Shortcut for the main fn. Generates args within this method.
+  function helpers_xcallAndAssert(bool shouldSucceed) public {
     (bytes32 transferId, XCallArgs memory args) = utils_makeXCallArgs();
-    helpers_xcallAndAssert(transferId, args);
+    helpers_xcallAndAssert(transferId, args, args.amount, shouldSucceed);
+  }
+
+  // Shortcut for the main fn.
+  function helpers_xcallAndAssert(uint256 dealTokens) public {
+    (bytes32 transferId, XCallArgs memory args) = utils_makeXCallArgs();
+    bool shouldSucceed = dealTokens >= args.amount;
+    helpers_xcallAndAssert(transferId, args, dealTokens, shouldSucceed);
   }
 
   // Calls `execute` on the target method with the given args and asserts expected behavior.
@@ -451,14 +474,14 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
   // ============ xcall success cases
   // base case
   function test_BridgeFacet__xcall_shouldWork() public {
-    helpers_xcallAndAssert();
+    helpers_xcallAndAssert(true);
   }
 
   // should send promise router callback fee
   function test_BridgeFacet__xcall_shouldHandleCallbackFee() public {
     _params.callback = _callback;
     _params.callbackFee = 0.02 ether;
-    helpers_xcallAndAssert();
+    helpers_xcallAndAssert(true);
   }
 
   // ======= handle (reconcile) =======
