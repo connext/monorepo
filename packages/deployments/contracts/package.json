@@ -39,7 +39,6 @@
   "author": "Connext",
   "license": "ISC",
   "devDependencies": {
-    "@nomad-xyz/configuration": "0.1.0-rc.23",
     "@nomad-xyz/sdk": "2.0.0-rc.17",
     "@nomad-xyz/sdk-bridge": "1.0.0-rc.17",
     "@nomiclabs/hardhat-ethers": "2.0.6",
@@ -72,6 +71,7 @@
   },
   "dependencies": {
     "@connext/nxtp-utils": "workspace:*",
+    "@nomad-xyz/configuration": "0.1.0-rc.24",
     "@openzeppelin/hardhat-upgrades": "1.16.1",
     "@typescript-eslint/eslint-plugin": "5.25.0",
     "adv": "0.1.5",

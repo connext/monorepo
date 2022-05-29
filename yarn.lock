@@ -727,7 +727,7 @@ __metadata:
   resolution: "@connext/nxtp-contracts@workspace:packages/deployments/contracts"
   dependencies:
     "@connext/nxtp-utils": "workspace:*"
-    "@nomad-xyz/configuration": 0.1.0-rc.23
+    "@nomad-xyz/configuration": 0.1.0-rc.24
     "@nomad-xyz/sdk": 2.0.0-rc.17
     "@nomad-xyz/sdk-bridge": 1.0.0-rc.17
     "@nomiclabs/hardhat-ethers": 2.0.6
@@ -3206,7 +3206,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@nomad-xyz/configuration@npm:0.1.0-rc.23, @nomad-xyz/configuration@npm:^0.1.0-rc.23":
+"@nomad-xyz/configuration@npm:0.1.0-rc.24":
+  version: 0.1.0-rc.24
+  resolution: "@nomad-xyz/configuration@npm:0.1.0-rc.24"
+  checksum: dd9d15d715b6eb128e9d6b332184d12a126307fdca9ea4adc5a0b589d2aa5831aa8df9a9cca0190763f9683b977e095a558c2a05175f7fb3b63b9fbd47e826b1
+  languageName: node
+  linkType: hard
+
+"@nomad-xyz/configuration@npm:^0.1.0-rc.23":
   version: 0.1.0-rc.23
   resolution: "@nomad-xyz/configuration@npm:0.1.0-rc.23"
   checksum: 45f5e5efb0394d06299304f09b681e53deece1c8dd8b17fe1091fc09286f3ae26c3ccae8daf523c63d5e3614492845680b844fd50677788fe9e371de767fabdc
