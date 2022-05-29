@@ -158,7 +158,7 @@ export default task("xcall", "Prepare a cross-chain tx")
       if (transactingAssetId === constants.AddressZero) {
         balance = await ethers.provider.getBalance(sender.address);
       } else {
-        const erc20 = await ethers.getContractAt("IERC20Minimal", transactingAssetId, sender);
+        const erc20 = await ethers.getContractAt("IERC20", transactingAssetId, sender);
         const allowance = await erc20.allowance(sender.address, connextAddress);
         if (allowance.lt(amount)) {
           console.log("Approving tokens");
@@ -198,7 +198,13 @@ export default task("xcall", "Prepare a cross-chain tx")
       console.log("from: ", sender.address);
       tx = await connext.functions.xcall(args, { from: sender.address, gasLimit: 1_000_000 });
       console.log("tx sent! ", tx.hash);
-      await tx.wait();
-      console.log("tx mined! ", tx.hash);
+      const rec = await tx.wait();
+      rec.logs.forEach((log, index) => {
+        try {
+          const l = connext.interface.parseLog(log);
+          console.log(`log at index ${index}: `, l);
+        } catch (e: unknown) {}
+      });
+      console.log("tx mined! ", rec.transactionHash);
     },
   );
