@@ -209,6 +209,10 @@ export const executeAuctions = async (_requestContext: RequestContext) => {
           let taskId: string | undefined;
           // Try every bid until we find one that works.
           for (const randomBid of randomized) {
+            logger.info("Trying bid", requestContext, methodContext, {
+              transferId,
+              randomBid,
+            });
             // Sanity: Check if this router has enough funds.
             const { router } = randomBid;
             const asset = await getDestinationLocalAsset(
