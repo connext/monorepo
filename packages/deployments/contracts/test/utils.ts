@@ -364,6 +364,7 @@ export const connextXCall = async (
   params: {
     to: string;
     recovery: string;
+    agent: string;
     callData: string;
     originDomain: number;
     destinationDomain: number;

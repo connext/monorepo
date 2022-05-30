@@ -77,7 +77,7 @@ const executeProxyWrite = async <T extends Contract>(
 const createFixtureLoader = waffle.createFixtureLoader;
 describe("Connext", () => {
   // Get wallets
-  const [admin, router, user, router2, router3, proxyOwner] = waffle.provider.getWallets() as Wallet[];
+  const [admin, router, user, router2, router3, proxyOwner, agent] = waffle.provider.getWallets() as Wallet[];
 
   // Token scenario:
   // - user prepares in adopted on origin
@@ -901,6 +901,7 @@ describe("Connext", () => {
       callData: "0x",
       originDomain,
       destinationDomain,
+      agent: agent.address,
       callback: ZERO_ADDRESS,
       callbackFee: 0,
       forceSlow: false,
@@ -1003,6 +1004,7 @@ describe("Connext", () => {
       callData: "0x",
       originDomain,
       destinationDomain,
+      agent: agent.address,
       callback: ZERO_ADDRESS,
       callbackFee: 0,
       recovery: user.address,
@@ -1112,6 +1114,7 @@ describe("Connext", () => {
       callData: "0x",
       originDomain,
       destinationDomain,
+      agent: agent.address,
       callback: ZERO_ADDRESS,
       callbackFee: 0,
       forceSlow: false,
@@ -1198,6 +1201,7 @@ describe("Connext", () => {
       callData: "0x",
       originDomain,
       destinationDomain,
+      agent: agent.address,
       callback: ZERO_ADDRESS,
       callbackFee: 0,
       forceSlow: false,
@@ -1426,6 +1430,7 @@ describe("Connext", () => {
       callData: "0x",
       originDomain,
       destinationDomain,
+      agent: agent.address,
       callback: ZERO_ADDRESS,
       callbackFee: 0,
       forceSlow: false,
@@ -1588,6 +1593,7 @@ describe("Connext", () => {
         callData: "0x",
         originDomain,
         destinationDomain,
+        agent: agent.address,
         callback: ZERO_ADDRESS,
         callbackFee: 0,
         forceSlow: false,

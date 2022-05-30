@@ -48,7 +48,7 @@ contract BridgeFacet is BaseConnextFacet {
   error BridgeFacet__xcall_callbackNotAContract();
   error BridgeFacet__reconcile_invalidAction();
   error BridgeFacet__reconcile_alreadyReconciled();
-  error BridgeFacet__execute_unapprovedRelayer();
+  error BridgeFacet__execute_unapprovedSender();
   error BridgeFacet__execute_maxRoutersExceeded();
   error BridgeFacet__execute_notSupportedRouter();
   error BridgeFacet__execute_invalidRouterSignature();
@@ -518,10 +518,10 @@ contract BridgeFacet is BaseConnextFacet {
    * @notice Performs some sanity checks for `execute`
    * @dev Need this to prevent stack too deep
    */
-  function _executeSanityChecks(ExecuteArgs calldata _args) private returns (bytes32, bool) {
+  function _executeSanityChecks(ExecuteArgs calldata _args) private view returns (bytes32, bool) {
     // If the sender is not approved relayer, revert()
-    if (!s.approvedRelayers[msg.sender]) {
-      revert BridgeFacet__execute_unapprovedRelayer();
+    if (!s.approvedRelayers[msg.sender] && msg.sender != _args.params.agent) {
+      revert BridgeFacet__execute_unapprovedSender();
     }
 
     // get number of facilitating routers

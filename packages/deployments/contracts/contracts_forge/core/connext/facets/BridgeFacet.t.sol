@@ -19,6 +19,9 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
   // local asset for this domain
   address _local;
 
+  // agents
+  address _agent = address(123456654321);
+
   // routers
   uint256 _router0Key = 2;
   address _router0 = vm.addr(2);
@@ -53,6 +56,7 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
       bytes(""), // callData
       _originDomain, // origin domain
       _destinationDomain, // destination domain
+      _agent, // agent
       address(11), // recovery address
       address(0), // callback
       0, // callbackFee
@@ -157,7 +161,11 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
     return _getExecuteArgs(routers, keys, true);
   }
 
-  function executeAndAssert(bytes32 _id, ExecuteArgs memory _args) public {
+  function executeAndAssert(
+    bytes32 _id,
+    ExecuteArgs memory _args,
+    bool useAgent
+  ) public {
     // get pre-execute liquidity in local
     uint256 pathLen = _args.routers.length;
     uint256[] memory prevLiquidity = new uint256[](pathLen);
@@ -176,8 +184,10 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
     uint256 transferred = pathLen == 0
       ? _args.amount
       : (_args.amount * _liquidityFeeNumerator) / _liquidityFeeDenominator;
+    address sender = useAgent ? _agent : address(this);
     vm.expectEmit(true, true, false, true);
-    emit Executed(_id, _args.params.to, _args, _args.local, transferred, address(this));
+    emit Executed(_id, _args.params.to, _args, _args.local, transferred, sender);
+    vm.prank(sender);
     this.execute(_args);
 
     // check local balance
@@ -196,15 +206,15 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
     assertEq(token.balanceOf(_params.to), prevBalanceTo + transferred);
 
     // should mark the transfer as executed
-    assertEq(s.transferRelayer[_id], address(this));
+    assertEq(s.transferRelayer[_id], sender);
   }
 
   // ============ execute ============
 
   // ============ execute failure cases
 
-  // should fail if msg.sender is not an approved relayer
-  function test_BridgeFacet__execute_failIfRelayerNotApproved() public {
+  // should fail if msg.sender is not an approved relayer or approved agent
+  function test_BridgeFacet__execute_failIfSenderNotApproved() public {
     // set context
     s.approvedRelayers[address(this)] = false;
 
@@ -212,7 +222,7 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
     (, ExecuteArgs memory args) = getExecuteArgs();
 
     // expect failure
-    vm.expectRevert(BridgeFacet.BridgeFacet__execute_unapprovedRelayer.selector);
+    vm.expectRevert(BridgeFacet.BridgeFacet__execute_unapprovedSender.selector);
     this.execute(args);
   }
 
@@ -241,6 +251,20 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
 
   // ============ execute success cases
 
+  // should work if sent by user-specified initiator (using slow liq)
+  function test_BridgeFacet__execute_initiatorSendWorks() public {
+    // set test params
+    _params.forceSlow = true;
+
+    // get args
+    (bytes32 _id, ExecuteArgs memory _args) = getExecuteArgsNoRouters();
+
+    // set reconciled context
+    s.reconciledTransfers[_id] = true;
+
+    executeAndAssert(_id, _args, true);
+  }
+
   // should use slow liquidity if specified (forceSlow = true)
   function test_BridgeFacet__execute_forceSlowWorks() public {
     // set test params
@@ -252,7 +276,7 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
     // set reconciled context
     s.reconciledTransfers[_id] = true;
 
-    executeAndAssert(_id, _args);
+    executeAndAssert(_id, _args, false);
   }
 
   // should use the local asset if specified (receiveLocal = true)
@@ -268,7 +292,7 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
       s.routerBalances[_args.routers[i]][_args.local] += 10 ether;
     }
 
-    executeAndAssert(_id, _args);
+    executeAndAssert(_id, _args, false);
   }
 
   // should work without calldata

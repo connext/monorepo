@@ -63,6 +63,7 @@ contract ConnextHandlerTest is ForgeHelper, Deployer {
   address tokenRegistry = address(2);
   address kakaroto = address(3);
   bytes32 internal remote = "remote";
+  address agent = address(123456654321);
 
   IConnextHandler connextHandler;
   MockRelayerFeeRouter relayerFeeRouter;
@@ -299,6 +300,7 @@ contract ConnextHandlerTest is ForgeHelper, Deployer {
       bytes("0x"),
       domain,
       destinationDomain,
+      agent,
       to,
       address(0),
       0,
@@ -330,6 +332,7 @@ contract ConnextHandlerTest is ForgeHelper, Deployer {
       bytes(""),
       domain,
       destinationDomain,
+      agent,
       to,
       address(0),
       0,
@@ -345,7 +348,7 @@ contract ConnextHandlerTest is ForgeHelper, Deployer {
     // TODO Correctly calculate the message
     // Harcoded the message from the emitted event since here we are only testing that relayerFee is included
     bytes
-      memory message = hex"00000001000000000000000000000000185a4dc360ce69bdccee33b3784b0282f7961aea030000000000000000000000000000000000000000000000000000000000000064000000000000000000000000000000000000000000000000000000000000000020b4b2eeb4ea213a5e7d1e1d2a3a1a437fbe7c8b3490898b0474b0fe66dda70ad61794aecac5d0f4ed6bde473107a4beda948af71d3d89b8a1572e2b7b6bd389";
+      memory message = hex"00000001000000000000000000000000185a4dc360ce69bdccee33b3784b0282f7961aea030000000000000000000000000000000000000000000000000000000000000064000000000000000000000000000000000000000000000000000000000000000020b4b2eeb4ea213a5e7d1e1d2a3a1a437fbe7c8b3490898b0474b0fe66dda70a6cbe2fbf9da0e95e9e53222cfa0bb4c24971d478546f1e0d84d27b5ccef2074d";
 
     // NOTE: the `amount` and `bridgedAmt` are 0 because `.balanceOf` of the origin asset returns
     // 0 always via setup function
@@ -373,6 +376,7 @@ contract ConnextHandlerTest is ForgeHelper, Deployer {
       bytes("0x"),
       domain,
       destinationDomain,
+      agent,
       to,
       address(0),
       0,
@@ -404,6 +408,7 @@ contract ConnextHandlerTest is ForgeHelper, Deployer {
       bytes("0x"),
       domain,
       destinationDomain,
+      agent,
       to,
       address(0),
       0,
@@ -433,6 +438,7 @@ contract ConnextHandlerTest is ForgeHelper, Deployer {
       bytes("0x"),
       domain,
       destinationDomain,
+      agent,
       to,
       address(0),
       0,
@@ -468,6 +474,7 @@ contract ConnextHandlerTest is ForgeHelper, Deployer {
       bytes("0x"),
       domain,
       destinationDomain,
+      agent,
       to,
       address(0),
       0,
@@ -498,6 +505,7 @@ contract ConnextHandlerTest is ForgeHelper, Deployer {
       bytes("0x"),
       domain,
       destinationDomain,
+      agent,
       to,
       address(0),
       0,
@@ -536,6 +544,7 @@ contract ConnextHandlerTest is ForgeHelper, Deployer {
       bytes("0x"),
       domain,
       destinationDomain,
+      agent,
       to,
       callbackAddr,
       callbackFee,
@@ -574,6 +583,7 @@ contract ConnextHandlerTest is ForgeHelper, Deployer {
       bytes("0x"),
       domain,
       destinationDomain,
+      agent,
       to,
       callbackAddr,
       callbackFee,
@@ -610,6 +620,7 @@ contract ConnextHandlerTest is ForgeHelper, Deployer {
       bytes(""),
       domain,
       destinationDomain,
+      agent,
       to,
       callbackAddr,
       callbackFee,
@@ -647,6 +658,7 @@ contract ConnextHandlerTest is ForgeHelper, Deployer {
       bytes(""),
       domain,
       destinationDomain,
+      agent,
       to,
       address(0),
       0,
