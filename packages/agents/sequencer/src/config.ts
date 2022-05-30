@@ -8,6 +8,8 @@ import { SequencerConfig, SequencerConfigSchema } from "./lib/entities";
 const MIN_SUBGRAPH_SYNC_BUFFER = 25;
 const DEFAULT_AUCTION_WAIT_TIME = 30_000;
 
+const DEFAULT_SUPPORTED_BID_VERSION = "0.2.0-beta.0";
+
 export const getEnvConfig = (
   chainData: Map<string, ChainData>,
   deployments: ConnextContractDeployments,
@@ -60,6 +62,11 @@ export const getEnvConfig = (
     mode: {
       cleanup: process.env.SEQ_CLEANUP_MODE || configJson.mode?.cleanup || configFile.mode?.cleanup || false,
     },
+    supportedBidVersion:
+      process.env.SEQ_SUPPORTED_BID_VERSION ||
+      configJson.supportedBidVersion ||
+      configFile.supportedBidVersion ||
+      DEFAULT_SUPPORTED_BID_VERSION,
     subgraphPrefix: process.env.SEQ_SUBGRAPH_PREFIX || configJson.subgraphPrefix || configFile.subgraphPrefix,
     environment: process.env.SEQ_ENVIRONMENT || configJson.environment || configFile.environment || "production",
   };
