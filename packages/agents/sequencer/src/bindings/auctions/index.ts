@@ -18,10 +18,10 @@ export const bindAuctions = async (
   const {
     auctions: { executeAuctions },
   } = getOperations();
-  const { requestContext, methodContext } = createLoggingContext(bindAuctions.name);
-  logger.info("Binding bid selection polling loop", requestContext, methodContext);
 
   interval(async (_, stop) => {
+    const { requestContext, methodContext } = createLoggingContext(bindAuctions.name);
+    logger.info("Binding bid selection polling loop", requestContext, methodContext);
     if (config.mode.cleanup) {
       stop();
     } else {

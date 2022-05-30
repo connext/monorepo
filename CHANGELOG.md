@@ -2,6 +2,8 @@
 
 ## Next Release
 
+- [router] Parallelize sending bids to sequencer
+
 ## Amarok 0.2.0-beta.8
 
 - [router] Paginate the router queries

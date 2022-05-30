@@ -75,6 +75,7 @@ export const sendToRelayer = async (
     to: destinationConnextAddress,
     data: encodedData,
     from: relayerAddress,
+    transferId: transfer.transferId,
   });
   const gas = await chainreader.getGasEstimateWithRevertCode(Number(transfer.destinationDomain), {
     chainId: destinationChainId,
@@ -89,6 +90,7 @@ export const sendToRelayer = async (
     domain: transfer.destinationDomain,
     gas: gas.toString(),
     relayerFee,
+    transferId: transfer.transferId,
   });
 
   const taskId = await relayer.send(destinationChainId, destinationConnextAddress, encodedData, _requestContext);
