@@ -43,6 +43,7 @@ contract RoutersFacet is BaseConnextFacet {
   error RoutersFacet__removeRouterLiquidity_recipientEmpty();
   error RoutersFacet__removeRouterLiquidity_amountIsZero();
   error RoutersFacet__removeRouterLiquidity_insufficientFunds();
+  error RoutersFacet__removeRouterLiquidityFor_notOwner();
   error RoutersFacet__setLiquidityFeeNumerator_tooSmall();
 
   // ============ Properties ============
@@ -429,30 +430,28 @@ contract RoutersFacet is BaseConnextFacet {
     address _local,
     address payable _to
   ) external nonReentrant {
-    // transfer to specicfied recipient IF recipient not set
-    address recipient = getRouterRecipient(msg.sender);
-    recipient = recipient == address(0) ? _to : recipient;
+    _removeLiquidityForRouter(_amount, _local, _to, msg.sender);
+  }
 
-    // Sanity check: to is sensible
-    if (recipient == address(0)) revert RoutersFacet__removeRouterLiquidity_recipientEmpty();
+  /**
+   * @notice This is used by any router owner to decrease their available liquidity for a given asset.
+   * @param _amount - The amount of liquidity to remove for the router
+   * @param _local - The address of the asset you're removing liquidity from. If removing liquidity of the
+   * native asset, routers may use `address(0)` or the wrapped asset
+   * @param _to The address that will receive the liquidity being removed
+   * @param _router The address of the router
+   */
+  function removeRouterLiquidityFor(
+    uint256 _amount,
+    address _local,
+    address payable _to,
+    address _router
+  ) external nonReentrant {
+    // Caller must be the router owner
+    if (msg.sender != getRouterOwner(_router)) revert RoutersFacet__removeRouterLiquidityFor_notOwner();
 
-    // Sanity check: nonzero amounts
-    if (_amount == 0) revert RoutersFacet__removeRouterLiquidity_amountIsZero();
-
-    uint256 routerBalance = s.routerBalances[msg.sender][_local];
-    // Sanity check: amount can be deducted for the router
-    if (routerBalance < _amount) revert RoutersFacet__removeRouterLiquidity_insufficientFunds();
-
-    // Update router balances
-    unchecked {
-      s.routerBalances[msg.sender][_local] = routerBalance - _amount;
-    }
-
-    // Transfer from contract to specified to
-    AssetLogic.transferAssetFromContract(_local, recipient, _amount);
-
-    // Emit event
-    emit RouterLiquidityRemoved(msg.sender, recipient, _local, _amount, msg.sender);
+    // Remove liquidity
+    _removeLiquidityForRouter(_amount, _local, _to, _router);
   }
 
   // ============ Internal functions ============
@@ -496,5 +495,45 @@ contract RoutersFacet is BaseConnextFacet {
 
     // Emit event
     emit RouterLiquidityAdded(_router, asset, canonicalId, received, msg.sender);
+  }
+
+  /**
+   * @notice This is used by any router owner to decrease their available liquidity for a given asset.
+   * @param _amount - The amount of liquidity to remove for the router
+   * @param _local - The address of the asset you're removing liquidity from. If removing liquidity of the
+   * native asset, routers may use `address(0)` or the wrapped asset
+   * @param _to The address that will receive the liquidity being removed
+   * @param _router The address of the router
+   */
+  function _removeLiquidityForRouter(
+    uint256 _amount,
+    address _local,
+    address payable _to,
+    address _router
+  ) internal {
+    // transfer to specicfied recipient IF recipient not set
+    address recipient = getRouterRecipient(_router);
+    recipient = recipient == address(0) ? _to : recipient;
+
+    // Sanity check: to is sensible
+    if (recipient == address(0)) revert RoutersFacet__removeRouterLiquidity_recipientEmpty();
+
+    // Sanity check: nonzero amounts
+    if (_amount == 0) revert RoutersFacet__removeRouterLiquidity_amountIsZero();
+
+    uint256 routerBalance = s.routerBalances[_router][_local];
+    // Sanity check: amount can be deducted for the router
+    if (routerBalance < _amount) revert RoutersFacet__removeRouterLiquidity_insufficientFunds();
+
+    // Update router balances
+    unchecked {
+      s.routerBalances[_router][_local] = routerBalance - _amount;
+    }
+
+    // Transfer from contract to specified to
+    AssetLogic.transferAssetFromContract(_local, recipient, _amount);
+
+    // Emit event
+    emit RouterLiquidityRemoved(_router, recipient, _local, _amount, msg.sender);
   }
 }
