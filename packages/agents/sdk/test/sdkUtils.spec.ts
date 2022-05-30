@@ -49,6 +49,7 @@ describe("SdkUtils", () => {
       expect(nxtpUtils.config).to.not.be.null;
       expect(nxtpUtils.chainData).to.not.be.null;
 
+      expect(nxtpUtils.parseConnextTransactionReceipt).to.be.a("function");
       expect(nxtpUtils.getRoutersData).to.be.a("function");
       expect(nxtpUtils.getTransfersByUser).to.be.a("function");
       expect(nxtpUtils.getTransfers).to.be.a("function");
@@ -62,6 +63,14 @@ describe("SdkUtils", () => {
     it("should error if chaindata is undefined", async () => {
       stub(SharedFns, "getChainData").resolves(undefined);
       await expect(NxtpSdkUtils.create(config)).to.be.rejectedWith(ChainDataUndefined);
+    });
+  });
+
+  describe("#parseConnextTransactionReceipt", () => {
+    it("happy: should work", async () => {
+      const res = nxtpUtils.parseConnextTransactionReceipt(mock.ethers.receipt());
+
+      expect(res).to.not.be.undefined;
     });
   });
 
