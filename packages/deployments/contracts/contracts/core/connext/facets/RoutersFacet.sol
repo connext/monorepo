@@ -401,7 +401,7 @@ contract RoutersFacet is BaseConnextFacet {
     uint256 _amount,
     address _local,
     address _router
-  ) external payable nonReentrant {
+  ) external payable nonReentrant whenNotPaused {
     _addLiquidityForRouter(_amount, _local, _router);
   }
 
@@ -413,7 +413,7 @@ contract RoutersFacet is BaseConnextFacet {
    * @param _local - The address of the asset you're adding liquidity for. If adding liquidity of the
    * native asset, routers may use `address(0)` or the wrapped asset
    */
-  function addRouterLiquidity(uint256 _amount, address _local) external payable nonReentrant {
+  function addRouterLiquidity(uint256 _amount, address _local) external payable nonReentrant whenNotPaused {
     _addLiquidityForRouter(_amount, _local, msg.sender);
   }
 
@@ -428,7 +428,7 @@ contract RoutersFacet is BaseConnextFacet {
     uint256 _amount,
     address _local,
     address payable _to
-  ) external nonReentrant {
+  ) external nonReentrant whenNotPaused {
     // transfer to specicfied recipient IF recipient not set
     address recipient = getRouterRecipient(msg.sender);
     recipient = recipient == address(0) ? _to : recipient;

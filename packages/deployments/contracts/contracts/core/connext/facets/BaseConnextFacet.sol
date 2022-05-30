@@ -22,6 +22,9 @@ contract BaseConnextFacet {
   error BaseConnextFacet__onlyReplica_notReplica();
   error BaseConnextFacet__onlyOwner_notOwner();
   error BaseConnextFacet__onlyProposed_notProposedOwner();
+  error BaseConnextFacet__whenBridgeNotPaused_bridgePaused();
+  error BaseConnextFacet__whenBridgeNotPaused_swapPaused();
+  error BaseConnextFacet__whenBridgeNotPaused_paused();
 
   // ============ Modifiers ============
 
@@ -77,6 +80,33 @@ contract BaseConnextFacet {
    */
   modifier onlyProposed() {
     if (s._proposed != msg.sender) revert BaseConnextFacet__onlyProposed_notProposedOwner();
+    _;
+  }
+
+  /**
+   * @notice Throws if bridge or all functionality is paused
+   */
+  modifier whenBridgeNotPaused() {
+    if (s._paused == PausedFunctions.Bridge || s._paused == PausedFunctions.All)
+      revert BaseConnextFacet__whenBridgeNotPaused_bridgePaused();
+    _;
+  }
+
+  /**
+   * @notice Throws if swap or all functionality is paused
+   */
+  modifier whenSwapNotPaused() {
+    if (s._paused == PausedFunctions.Swap || s._paused == PausedFunctions.All)
+      revert BaseConnextFacet__whenBridgeNotPaused_swapPaused();
+    _;
+  }
+
+  /**
+   * @notice Throws if all functionality is paused
+   */
+  modifier whenNotPaused() {
+    if (s._paused == PausedFunctions.All || )
+      revert BaseConnextFacet__whenBridgeNotPaused_paused();
     _;
   }
 

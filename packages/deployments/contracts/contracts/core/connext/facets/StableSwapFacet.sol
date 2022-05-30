@@ -241,7 +241,7 @@ contract StableSwapFacet is BaseConnextFacet {
     uint256 dx,
     uint256 minDy,
     uint256 deadline
-  ) external nonReentrant deadlineCheck(deadline) returns (uint256) {
+  ) external nonReentrant deadlineCheck(deadline) whenSwapNotPaused returns (uint256) {
     return s.swapStorages[canonicalId].swap(tokenIndexFrom, tokenIndexTo, dx, minDy);
   }
 
@@ -259,7 +259,7 @@ contract StableSwapFacet is BaseConnextFacet {
     address assetOut,
     uint256 minAmountOut,
     uint256 deadline
-  ) external payable nonReentrant deadlineCheck(deadline) returns (uint256) {
+  ) external payable nonReentrant deadlineCheck(deadline) whenSwapNotPaused returns (uint256) {
     return
       s.swapStorages[canonicalId].swap(
         getSwapTokenIndex(canonicalId, assetIn),
@@ -283,7 +283,7 @@ contract StableSwapFacet is BaseConnextFacet {
     uint256[] calldata amounts,
     uint256 minToMint,
     uint256 deadline
-  ) external nonReentrant deadlineCheck(deadline) returns (uint256) {
+  ) external nonReentrant deadlineCheck(deadline) whenSwapNotPaused returns (uint256) {
     return s.swapStorages[canonicalId].addLiquidity(amounts, minToMint);
   }
 
@@ -303,7 +303,7 @@ contract StableSwapFacet is BaseConnextFacet {
     uint256 amount,
     uint256[] calldata minAmounts,
     uint256 deadline
-  ) external nonReentrant deadlineCheck(deadline) returns (uint256[] memory) {
+  ) external nonReentrant deadlineCheck(deadline) whenSwapNotPaused returns (uint256[] memory) {
     return s.swapStorages[canonicalId].removeLiquidity(amount, minAmounts);
   }
 
@@ -323,7 +323,7 @@ contract StableSwapFacet is BaseConnextFacet {
     uint8 tokenIndex,
     uint256 minAmount,
     uint256 deadline
-  ) external nonReentrant deadlineCheck(deadline) returns (uint256) {
+  ) external nonReentrant deadlineCheck(deadline) whenSwapNotPaused returns (uint256) {
     return s.swapStorages[canonicalId].removeLiquidityOneToken(tokenAmount, tokenIndex, minAmount);
   }
 
@@ -343,7 +343,7 @@ contract StableSwapFacet is BaseConnextFacet {
     uint256[] calldata amounts,
     uint256 maxBurnAmount,
     uint256 deadline
-  ) external nonReentrant deadlineCheck(deadline) returns (uint256) {
+  ) external nonReentrant deadlineCheck(deadline) whenSwapNotPaused returns (uint256) {
     return s.swapStorages[canonicalId].removeLiquidityImbalance(amounts, maxBurnAmount);
   }
 
