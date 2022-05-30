@@ -173,6 +173,7 @@ const testnetRouters = [
   "0xEAae7A7C7b736dd8f3654359bF60d3814dDEaa97",
   "0xA821000798e47Ac6FBc2e1D632CA3322eC289d2C",
   "0x3d09910a68f946631A88567a640a4AE4973d8C58",
+  "0xE7056A12774f75730B0240defCB8f823bB0c9cD2",
 ];
 
 const routers: string[] = testnetRouters;
