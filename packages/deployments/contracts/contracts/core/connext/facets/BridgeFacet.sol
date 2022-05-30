@@ -120,6 +120,12 @@ contract BridgeFacet is BaseConnextFacet {
   event TransferRelayerFeesUpdated(bytes32 indexed transferId, uint256 relayerFee, address caller);
 
   /**
+   * @notice Emitted when a transfer will accept the local asset instead of the
+   * previously specified adopted asset.
+   * @param transferId - The unique identifier of the crosschain transaction
+   * @param canonicalId - The canonical identifier for the local asset
+   * @param canonicalDomain - The canonical domain for the local asset
+   * @param amount - The amount for the transfer
    */
   event ForcedReceiveLocal(
     bytes32 indexed transferId,
@@ -295,8 +301,16 @@ contract BridgeFacet is BaseConnextFacet {
   }
 
   /**
-   * @notice Anyone can call this function on the origin domain to increase the relayer fee for a transfer.
-   * @param _params - The unique identifier of the crosschain transaction
+   * @notice A user-specified agent can call this to accept the local asset instead of the
+   * previously specified adopted asset.
+   * @dev Should be called in situations where transfers are facing unfavorable slippage
+   * conditions for extended periods
+   * @param _params - The call params for the transaction
+   * @param _amount - The amount of transferring asset the tx called xcall with
+   * @param _nonce - The nonce for the transfer
+   * @param _canonicalId - The identifier of the canonical asseted associated with the transfer
+   * @param _canonicalDomain - The domain of the canonical asseted associated with the transfer
+   * @param _originSender - The msg.sender of the origin call
    */
   function forceReceiveLocal(
     CallParams calldata _params,
