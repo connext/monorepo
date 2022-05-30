@@ -5,6 +5,7 @@ import {
   contractDeployments,
   ChainReader,
 } from "@connext/nxtp-txservice";
+import { providers } from "ethers";
 
 import { getChainData, validateUri, axiosGetRequest } from "./lib/helpers";
 import { ChainDataUndefined } from "./lib/errors";
@@ -48,6 +49,18 @@ export class NxtpSdkUtils {
       : new Logger({ name: "NxtpSdkUtils", level: nxtpConfig.logLevel });
 
     return new NxtpSdkUtils(nxtpConfig, logger, chainData);
+  }
+
+  async parseConnextTransactionReceipt(transactionReceipt: providers.TransactionReceipt): Promise<any> {
+    const parsedlogs: any = [];
+    transactionReceipt.logs.forEach((log) => {
+      try {
+        const l = this.contracts.connext.parseLog(log);
+        parsedlogs.push(l);
+      } catch (e: unknown) {}
+    });
+
+    return parsedlogs;
   }
 
   async getRoutersData(): Promise<any> {
