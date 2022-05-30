@@ -51,13 +51,11 @@ export class NxtpSdkUtils {
     return new NxtpSdkUtils(nxtpConfig, logger, chainData);
   }
 
-  async parseConnextTransactionReceipt(transactionReceipt: providers.TransactionReceipt): Promise<any> {
+  public parseConnextTransactionReceipt(transactionReceipt: providers.TransactionReceipt): any {
     const parsedlogs: any = [];
     transactionReceipt.logs.forEach((log) => {
-      try {
-        const l = this.contracts.connext.parseLog(log);
-        parsedlogs.push(l);
-      } catch (e: unknown) {}
+      const l = this.contracts.connext.parseLog(log);
+      parsedlogs.push(l);
     });
 
     return parsedlogs;
