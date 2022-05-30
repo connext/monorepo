@@ -182,6 +182,17 @@ export const executeAuctions = async (_requestContext: RequestContext) => {
             return;
           }
 
+          const destTx = await subgraph.getDestinationTransferById(transfer.destinationDomain!, transferId);
+          if (!!destTx) {
+            logger.error("Transfer already executed", requestContext, methodContext, undefined, {
+              transferId,
+              transfer,
+              bids,
+            });
+            await cache.auctions.setStatus(transferId, AuctionStatus.Executed);
+            return;
+          }
+
           // TODO: Reimplement auction rounds!
           // hardcoded round 1
           const availableBids = Object.values(bids).filter((bid) => {
