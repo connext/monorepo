@@ -3,12 +3,13 @@ import * as fs from "fs";
 import { ajv, ChainData } from "@connext/nxtp-utils";
 import { ConnextContractDeployments, ContractPostfix } from "@connext/nxtp-txservice";
 
+// @ts-ignore
+import { version } from "../package.json";
+
 import { SequencerConfig, SequencerConfigSchema } from "./lib/entities";
 
 const MIN_SUBGRAPH_SYNC_BUFFER = 25;
 const DEFAULT_AUCTION_WAIT_TIME = 30_000;
-
-const DEFAULT_SUPPORTED_BID_VERSION = "0.2.0-beta.0";
 
 export const getEnvConfig = (
   chainData: Map<string, ChainData>,
@@ -66,7 +67,7 @@ export const getEnvConfig = (
       process.env.SEQ_SUPPORTED_BID_VERSION ||
       configJson.supportedBidVersion ||
       configFile.supportedBidVersion ||
-      DEFAULT_SUPPORTED_BID_VERSION,
+      version,
     subgraphPrefix: process.env.SEQ_SUBGRAPH_PREFIX || configJson.subgraphPrefix || configFile.subgraphPrefix,
     environment: process.env.SEQ_ENVIRONMENT || configJson.environment || configFile.environment || "production",
   };
