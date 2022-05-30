@@ -196,6 +196,13 @@ interface IConnextHandler {
 
   function addRouterLiquidity(uint256 _amount, address _local) external payable;
 
+  function removeRouterLiquidityFor(
+    uint256 _amount,
+    address _local,
+    address payable _to,
+    address _router
+  ) external;
+
   function removeRouterLiquidity(
     uint256 _amount,
     address _local,
