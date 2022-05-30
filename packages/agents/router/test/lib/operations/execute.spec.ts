@@ -48,7 +48,7 @@ describe("Operations:Execute", () => {
       const expectedBid: Bid = {
         transferId: mockXTransfer.transferId,
         origin: mockXTransfer.originDomain,
-        fee: DEFAULT_ROUTER_FEE,
+        fee: "0",
         router: mockRouter,
         signatures: {
           "1": mock.signature,
@@ -81,7 +81,7 @@ describe("Operations:Execute", () => {
       const _expectedBid: Bid = {
         transferId: _mockXTransfer.transferId,
         origin: _mockXTransfer.originDomain,
-        fee: DEFAULT_ROUTER_FEE,
+        fee: "0",
         router: mockRouter,
         signatures: {
           "2": mock.signature,
