@@ -1,6 +1,6 @@
 import { constants, utils, BigNumber } from "ethers";
 import { reset, restore } from "sinon";
-import { Bid, DEFAULT_ROUTER_FEE, expect, OriginTransfer } from "@connext/nxtp-utils";
+import { Bid, expect, OriginTransfer } from "@connext/nxtp-utils";
 
 import * as ExecuteFns from "../../../src/lib/operations/execute";
 import {

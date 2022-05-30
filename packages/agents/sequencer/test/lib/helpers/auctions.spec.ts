@@ -1,17 +1,6 @@
-import {
-  Bid,
-  ExecuteArgs,
-  expect,
-  mkAddress,
-  mkBytes32,
-  mkHash,
-  mkSig,
-  OriginTransfer,
-  XTransfer,
-} from "@connext/nxtp-utils";
+import { Bid, ExecuteArgs, expect, mkAddress, mkBytes32, mkSig, OriginTransfer } from "@connext/nxtp-utils";
 import { constants } from "ethers";
 import { stub, restore, reset, SinonStub } from "sinon";
-import { RoundInvalid } from "../../../src/lib/errors";
 
 import {
   encodeExecuteFromBids,
