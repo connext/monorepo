@@ -291,7 +291,7 @@ contract BridgeFacet is BaseConnextFacet {
    * @notice Performs some sanity checks for `xcall`
    * @dev Need this to prevent stack too deep
    */
-  function _xcallSanityChecks(XCallArgs calldata _args) internal {
+  function _xcallSanityChecks(XCallArgs calldata _args) internal view {
     // ensure this is the right domain
     if (_args.params.originDomain != s.domain) {
       revert BridgeFacet__xcall_wrongDomain();
@@ -345,7 +345,12 @@ contract BridgeFacet is BaseConnextFacet {
     );
 
     // swap to the local asset from adopted
-    (uint256 bridgedAmt, address bridged) = AssetLogic.swapToLocalAssetIfNeeded(canonical, transactingAssetId, amount);
+    (uint256 bridgedAmt, address bridged) = AssetLogic.swapToLocalAssetIfNeeded(
+      canonical,
+      transactingAssetId,
+      amount,
+      _args.params.slippageTol
+    );
 
     bytes32 transferId = _getTransferId(_args, canonical);
 
@@ -629,7 +634,7 @@ contract BridgeFacet is BaseConnextFacet {
     }
 
     // swap out of mad* asset into adopted asset if needed
-    return AssetLogic.swapFromLocalAssetIfNeeded(_args.local, toSwap);
+    return AssetLogic.swapFromLocalAssetIfNeeded(_args.local, toSwap, _args.params.slippageTol);
   }
 
   /**

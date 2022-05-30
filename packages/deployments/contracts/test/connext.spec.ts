@@ -907,6 +907,7 @@ describe("Connext", () => {
       forceSlow: false,
       receiveLocal: false,
       recovery: user.address,
+      slippageTol: 9990,
     };
     const transactingAssetId = originAdopted.address;
     const amount = utils.parseEther("0.0001");
@@ -1010,6 +1011,7 @@ describe("Connext", () => {
       recovery: user.address,
       forceSlow: false,
       receiveLocal: false,
+      slippageTol: 9990,
     };
     const transactingAssetId = constants.AddressZero;
     const amount = utils.parseEther("0.0001");
@@ -1120,6 +1122,7 @@ describe("Connext", () => {
       forceSlow: false,
       recovery: user.address,
       receiveLocal: false,
+      slippageTol: 9990,
     };
     const transactingAssetId = originAdopted.address;
     const amount = utils.parseEther("0.0001");
@@ -1206,6 +1209,7 @@ describe("Connext", () => {
       callbackFee: 0,
       forceSlow: false,
       receiveLocal: false,
+      slippageTol: 9990,
     };
     const amount = utils.parseEther("0.001");
     let message: any;
@@ -1435,6 +1439,7 @@ describe("Connext", () => {
       callbackFee: 0,
       forceSlow: false,
       receiveLocal: false,
+      slippageTol: 9990,
     };
 
     beforeEach(async () => {
@@ -1599,6 +1604,7 @@ describe("Connext", () => {
         forceSlow: false,
         receiveLocal: false,
         recovery: user.address,
+        slippageTol: 9990,
       };
       transactingAssetId = originAdopted.address;
 

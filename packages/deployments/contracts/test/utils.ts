@@ -10,6 +10,7 @@ import {
   providers,
   Signer,
   Wallet,
+  BigNumberish,
 } from "ethers/lib/ethers";
 
 import { abi as Erc20Abi } from "../artifacts/contracts/test/TestERC20.sol/TestERC20.json";
@@ -372,6 +373,7 @@ export const connextXCall = async (
     callbackFee: number;
     forceSlow: boolean;
     receiveLocal: boolean;
+    slippageTol: BigNumberish;
   },
   connext: ConnextHandler,
   bridgeFacet: BridgeFacet,

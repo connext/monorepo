@@ -305,7 +305,8 @@ contract ConnextHandlerTest is ForgeHelper, Deployer {
       address(0),
       0,
       false,
-      false
+      false,
+      9900 // slippageTol
     );
     XCallArgs memory args = XCallArgs(callParams, transactingAssetId, amount, relayerFee);
 
@@ -337,7 +338,8 @@ contract ConnextHandlerTest is ForgeHelper, Deployer {
       address(0),
       0,
       false,
-      false
+      false,
+      9900 // slippageTol
     );
     XCallArgs memory args = XCallArgs(callParams, transactingAssetId, amount, relayerFee);
 
@@ -348,7 +350,7 @@ contract ConnextHandlerTest is ForgeHelper, Deployer {
     // TODO Correctly calculate the message
     // Harcoded the message from the emitted event since here we are only testing that relayerFee is included
     bytes
-      memory message = hex"00000001000000000000000000000000185a4dc360ce69bdccee33b3784b0282f7961aea030000000000000000000000000000000000000000000000000000000000000064000000000000000000000000000000000000000000000000000000000000000020b4b2eeb4ea213a5e7d1e1d2a3a1a437fbe7c8b3490898b0474b0fe66dda70a6cbe2fbf9da0e95e9e53222cfa0bb4c24971d478546f1e0d84d27b5ccef2074d";
+      memory message = hex"00000001000000000000000000000000185a4dc360ce69bdccee33b3784b0282f7961aea030000000000000000000000000000000000000000000000000000000000000064000000000000000000000000000000000000000000000000000000000000000020b4b2eeb4ea213a5e7d1e1d2a3a1a437fbe7c8b3490898b0474b0fe66dda70a99abcdc4a573fee029d9137bb672649fcdf7fd2a2195d7c253c050cf7f569d14";
 
     // NOTE: the `amount` and `bridgedAmt` are 0 because `.balanceOf` of the origin asset returns
     // 0 always via setup function
@@ -381,7 +383,8 @@ contract ConnextHandlerTest is ForgeHelper, Deployer {
       address(0),
       0,
       false,
-      false
+      false,
+      9900 // slippageTol
     );
     XCallArgs memory args = XCallArgs(callParams, transactingAssetId, amount, relayerFee);
 
@@ -413,7 +416,8 @@ contract ConnextHandlerTest is ForgeHelper, Deployer {
       address(0),
       0,
       false,
-      false
+      false,
+      9900 // slippageTol
     );
     XCallArgs memory args = XCallArgs(callParams, transactingAssetId, amount, relayerFee);
 
@@ -443,7 +447,8 @@ contract ConnextHandlerTest is ForgeHelper, Deployer {
       address(0),
       0,
       false,
-      false
+      false,
+      9900 // slippageTol
     );
     XCallArgs memory args = XCallArgs(callParams, transactingAssetId, amount, relayerFee);
 
@@ -479,7 +484,8 @@ contract ConnextHandlerTest is ForgeHelper, Deployer {
       address(0),
       0,
       false,
-      false
+      false,
+      9900 // slippageTol
     );
     XCallArgs memory args = XCallArgs(callParams, transactingAssetId, amount, relayerFee);
 
@@ -510,7 +516,8 @@ contract ConnextHandlerTest is ForgeHelper, Deployer {
       address(0),
       0,
       false,
-      false
+      false,
+      9900 // slippageTol
     );
     XCallArgs memory args = XCallArgs(callParams, transactingAssetId, amount, relayerFee);
 
@@ -549,7 +556,8 @@ contract ConnextHandlerTest is ForgeHelper, Deployer {
       callbackAddr,
       callbackFee,
       false,
-      false
+      false,
+      9900 // slippageTol
     );
     XCallArgs memory args = XCallArgs(callParams, transactingAssetId, amount, relayerFee);
 
@@ -588,7 +596,8 @@ contract ConnextHandlerTest is ForgeHelper, Deployer {
       callbackAddr,
       callbackFee,
       false,
-      false
+      false,
+      9900 // slippageTol
     );
     XCallArgs memory args = XCallArgs(callParams, transactingAssetId, amount, relayerFee);
 
@@ -625,7 +634,8 @@ contract ConnextHandlerTest is ForgeHelper, Deployer {
       callbackAddr,
       callbackFee,
       false,
-      false
+      false,
+      9900 // slippageTol
     );
     XCallArgs memory args = XCallArgs(callParams, transactingAssetId, amount, relayerFee);
 
@@ -663,7 +673,8 @@ contract ConnextHandlerTest is ForgeHelper, Deployer {
       address(0),
       0,
       false,
-      false
+      false,
+      9900 // slippageTol
     );
     XCallArgs memory args = XCallArgs(callParams, transactingAssetId, amount, relayerFee);
 

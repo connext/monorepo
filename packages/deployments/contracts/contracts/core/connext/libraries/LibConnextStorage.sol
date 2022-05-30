@@ -32,6 +32,7 @@ import {SwapUtils} from "./SwapUtils.sol";
  * @param callbackFee - The relayer fee to execute the callback
  * @param forceSlow - If true, will take slow liquidity path even if it is not a permissioned call
  * @param receiveLocal - If true, will use the local nomad asset on the destination instead of adopted.
+ * @param slippageTol - Max bps of original due to slippage (i.e. would be 9995 to tolerate .05% slippage)
  */
 struct CallParams {
   address to;
@@ -44,6 +45,7 @@ struct CallParams {
   uint256 callbackFee;
   bool forceSlow;
   bool receiveLocal;
+  uint256 slippageTol;
 }
 
 /**

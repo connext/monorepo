@@ -61,7 +61,8 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
       address(0), // callback
       0, // callbackFee
       false, // forceSlow
-      false // receiveLocal
+      false, // receiveLocal
+      9900 // slippageTol
     );
 
   // ============ Test set up ============
