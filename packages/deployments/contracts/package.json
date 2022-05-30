@@ -39,7 +39,6 @@
   "author": "Connext",
   "license": "ISC",
   "devDependencies": {
-    "@nomad-xyz/excessively-safe-call": "0.0.1-rc.1",
     "@nomad-xyz/sdk": "2.0.0-rc.17",
     "@nomad-xyz/sdk-bridge": "1.0.0-rc.17",
     "@nomiclabs/hardhat-ethers": "2.0.6",

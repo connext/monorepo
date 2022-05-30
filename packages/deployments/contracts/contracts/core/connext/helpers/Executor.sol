@@ -3,7 +3,9 @@ pragma solidity 0.8.11;
 
 import {AddressUpgradeable} from "@openzeppelin/contracts-upgradeable/utils/AddressUpgradeable.sol";
 import {SafeERC20Upgradeable, IERC20Upgradeable} from "@openzeppelin/contracts-upgradeable/token/ERC20/utils/SafeERC20Upgradeable.sol";
-import {ExcessivelySafeCall} from "@nomad-xyz/excessively-safe-call/src/ExcessivelySafeCall.sol";
+// import {ExcessivelySafeCall} from "@nomad-xyz/excessively-safe-call/src/ExcessivelySafeCall.sol";
+// TODO: see note in below file re: npm
+import {ExcessivelySafeCall} from "../../../nomad-core/libs/ExcessivelySafeCall.sol";
 
 import {IExecutor} from "../interfaces/IExecutor.sol";
 
