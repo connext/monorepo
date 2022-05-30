@@ -914,7 +914,7 @@ describe("Connext", () => {
     const relayerFee = utils.parseEther("0.00000001");
     const prepare = await originBridge
       .connect(user)
-      .xcall({ params, transactingAssetId, amount, relayerFee }, { value: relayerFee });
+      .xcall({ params: { ...params, relayerFee }, transactingAssetId, amount }, { value: relayerFee });
     const prepareReceipt = await prepare.wait();
 
     // Check balance of user + bridge
@@ -943,11 +943,10 @@ describe("Connext", () => {
     // Fulfill with the router
     const routerAmount = amount.mul(9995).div(10000);
     const execute = await destinationBridge.connect(router).execute({
-      params,
+      params: { ...params, relayerFee },
       nonce,
       local: local.address,
       amount,
-      relayerFee,
       routers: [router.address],
       routerSignatures: [await signRouterPathPayload(transferId, "1", router)],
       originSender: user.address,
@@ -1018,7 +1017,7 @@ describe("Connext", () => {
     const relayerFee = utils.parseEther("0.00000001");
     const prepare = await originBridge
       .connect(user)
-      .xcall({ params, transactingAssetId, amount, relayerFee }, { value: amount.add(relayerFee) });
+      .xcall({ params: { ...params, relayerFee }, transactingAssetId, amount }, { value: amount.add(relayerFee) });
     const prepareReceipt = await prepare.wait();
 
     // Check balance of user + bridge
@@ -1050,11 +1049,10 @@ describe("Connext", () => {
     // Fulfill with the router
     const routerAmount = amount.mul(9_995).div(10_000);
     const fulfill = await destinationBridge.connect(router).execute({
-      params,
+      params: { ...params, relayerFee },
       nonce,
       local: destinationAdopted.address,
       amount,
-      relayerFee,
       routers: [router.address],
       routerSignatures: [await signRouterPathPayload(transferId, "1", router)],
       originSender: user.address,
@@ -1129,7 +1127,7 @@ describe("Connext", () => {
     const relayerFee = utils.parseEther("0.00000001");
     const prepare = await originBridge
       .connect(user)
-      .xcall({ params, transactingAssetId, amount, relayerFee }, { value: relayerFee });
+      .xcall({ params: { ...params, relayerFee }, transactingAssetId, amount }, { value: relayerFee });
     const prepareReceipt = await prepare.wait();
 
     const xcalledTopic = bridgeFacet.filters.XCalled().topics as string[];
@@ -1143,11 +1141,10 @@ describe("Connext", () => {
 
     // Fulfill with the router
     const execute = await destinationBridge.connect(router).execute({
-      params,
+      params: { ...params, relayerFee },
       nonce,
       local: local.address,
       amount,
-      relayerFee,
       routers: [router.address],
       routerSignatures: [await signRouterPathPayload(transferId, "1", router)],
       originSender: user.address,
@@ -1165,11 +1162,10 @@ describe("Connext", () => {
     // before reconcile
     await expect(
       destinationBridge.connect(router).execute({
-        params,
+        params: { ...params, relayerFee },
         nonce,
         local: local.address,
         amount,
-        relayerFee,
         routers: [router.address],
         routerSignatures: [await signRouterPathPayload(transferId, "1", router)],
         originSender: user.address,
@@ -1185,11 +1181,10 @@ describe("Connext", () => {
     // after reconcile
     await expect(
       destinationBridge.connect(router).execute({
-        params,
+        params: { ...params, relayerFee },
         nonce,
         local: local.address,
         amount,
-        relayerFee,
         routers: [router.address],
         routerSignatures: [await signRouterPathPayload(transferId, "1", router)],
         originSender: user.address,
@@ -1252,7 +1247,7 @@ describe("Connext", () => {
       relayerFee = utils.parseEther("0.00000001");
       const prepare = await originBridge
         .connect(user)
-        .xcall({ params, transactingAssetId, amount, relayerFee }, { value: relayerFee });
+        .xcall({ params: { ...params, relayerFee }, transactingAssetId, amount }, { value: relayerFee });
       const prepareReceipt = await prepare.wait();
 
       const xcalledTopic = bridgeFacet.filters.XCalled().topics as string[];
@@ -1291,11 +1286,10 @@ describe("Connext", () => {
         );
 
         const execute = await destinationBridge.connect(router).execute({
-          params,
+          params: { ...params, relayerFee },
           nonce,
           local: local.address,
           amount,
-          relayerFee,
           routers: routerAddresses,
           routerSignatures,
           originSender: user.address,
@@ -1369,11 +1363,10 @@ describe("Connext", () => {
       // Reverts on router3 math subtraction
       await expect(
         destinationBridge.connect(router).execute({
-          params,
+          params: { ...params, relayerFee },
           nonce,
           local: local.address,
           amount,
-          relayerFee,
           routers: routerAddresses,
           routerSignatures,
           originSender: user.address,
@@ -1385,11 +1378,10 @@ describe("Connext", () => {
 
       // Double check that now it works
       await destinationBridge.connect(router).execute({
-        params,
+        params: { ...params, relayerFee },
         nonce,
         local: local.address,
         amount,
-        relayerFee,
         routers: routerAddresses,
         routerSignatures,
         originSender: user.address,
@@ -1414,11 +1406,10 @@ describe("Connext", () => {
 
       await expect(
         destinationBridge.connect(router).execute({
-          params,
+          params: { ...params, relayerFee },
           nonce,
           local: local.address,
           amount: routersAmount,
-          relayerFee,
           routers: routerAddresses,
           routerSignatures,
           originSender: user.address,
@@ -1472,8 +1463,7 @@ describe("Connext", () => {
             user,
             originAdopted,
             amounts[i],
-            relayerFees[i],
-            params,
+            { ...params, relayerFee: relayerFees[i] },
             originBridge,
             bridgeFacet,
           );
@@ -1500,11 +1490,10 @@ describe("Connext", () => {
         // Execute transfers
         for (let i = 0; i < transferIds.length; i++) {
           await destinationBridge.connect(router).execute({
-            params,
+            params: { ...params, relayerFee: relayerFees[i] },
             nonce: transferIds[i].nonce,
             local: local.address,
             amount: amounts[i],
-            relayerFee: relayerFees[i],
             routers: [router.address],
             routerSignatures: [await signRouterPathPayload(transferIds[i].transferId, "1", router)],
             originSender: user.address,
@@ -1605,12 +1594,13 @@ describe("Connext", () => {
         receiveLocal: false,
         recovery: user.address,
         slippageTol: 9990,
+        relayerFee,
       };
       transactingAssetId = originAdopted.address;
 
       const prepare = await originBridge
         .connect(user)
-        .xcall({ params, transactingAssetId, amount, relayerFee }, { value: relayerFee });
+        .xcall({ params, transactingAssetId, amount }, { value: relayerFee });
       const prepareReceipt = await prepare.wait();
       const xcalledTopic = bridgeFacet.filters.XCalled().topics as string[];
       const originBridgeEvent = bridgeFacet.interface.parseLog(
@@ -1637,7 +1627,6 @@ describe("Connext", () => {
         nonce,
         local: local.address,
         amount,
-        relayerFee,
         routers: [router.address],
         routerSignatures: [await signRouterPathPayload(transferId, "1", router)],
         originSender: user.address,
@@ -1680,7 +1669,6 @@ describe("Connext", () => {
         nonce,
         local: local.address,
         amount,
-        relayerFee,
         routers: [router.address],
         routerSignatures: [await signRouterPathPayload(transferId, "1", router)],
         originSender: user.address,
@@ -1727,7 +1715,6 @@ describe("Connext", () => {
         nonce,
         local: local.address,
         amount,
-        relayerFee,
         routers: [router.address],
         routerSignatures: [await signRouterPathPayload(transferId, "1", router)],
         originSender: user.address,
@@ -1775,7 +1762,6 @@ describe("Connext", () => {
         nonce,
         local: local.address,
         amount,
-        relayerFee,
         routers: [router.address],
         routerSignatures: [await signRouterPathPayload(transferId, "1", router)],
         originSender: user.address,
@@ -1820,7 +1806,6 @@ describe("Connext", () => {
         nonce,
         local: local.address,
         amount,
-        relayerFee,
         routers: [router.address],
         routerSignatures: [await signRouterPathPayload(transferId, "1", router)],
         originSender: user.address,
@@ -1864,7 +1849,6 @@ describe("Connext", () => {
           nonce,
           local: local.address,
           amount,
-          relayerFee,
           routers: [router.address],
           routerSignatures: [await signRouterPathPayload(transferId, "1", router)],
           originSender: user.address,

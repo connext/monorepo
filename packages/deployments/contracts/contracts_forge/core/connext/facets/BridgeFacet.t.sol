@@ -60,6 +60,7 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
       address(11), // recovery address
       address(0), // callback
       0, // callbackFee
+      _relayerFee, // relayer fee
       false, // forceSlow
       false, // receiveLocal
       9900 // slippageTol
@@ -127,7 +128,7 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
     }
     // get args
     bytes[] memory empty = new bytes[](0);
-    ExecuteArgs memory args = ExecuteArgs(_params, _local, routers, empty, _relayerFee, _amount, _nonce, _originSender);
+    ExecuteArgs memory args = ExecuteArgs(_params, _local, routers, empty, _amount, _nonce, _originSender);
     // generate transfer id
     bytes32 _id = getTransferIdFromExecuteArgs(args);
     // generate router signatures
