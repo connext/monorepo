@@ -165,7 +165,8 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
   function executeAndAssert(
     bytes32 _id,
     ExecuteArgs memory _args,
-    bool useAgent
+    bool useAgent,
+    bool localOverride
   ) public {
     // get pre-execute liquidity in local
     uint256 pathLen = _args.routers.length;
@@ -178,8 +179,10 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
     uint256 prevBalance = IERC20(_local).balanceOf(address(this));
 
     // get pre-execute to balance in adopted
-    IERC20 token = IERC20(s.canonicalToAdopted[_canonicalTokenId]);
-    uint256 prevBalanceTo = token.balanceOf(_params.to);
+    IERC20 receivingToken = IERC20(
+      _args.params.receiveLocal || localOverride ? _local : s.canonicalToAdopted[_canonicalTokenId]
+    );
+    uint256 prevBalanceTo = receivingToken.balanceOf(_params.to);
 
     // execute
     uint256 transferred = pathLen == 0
@@ -203,8 +206,8 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
       assertEq(IERC20(_local).balanceOf(address(this)), prevBalance - _amount);
     }
 
-    // should increment balance of `to` in `adopted`
-    assertEq(token.balanceOf(_params.to), prevBalanceTo + transferred);
+    // should increment balance of `to` in receiving token
+    assertEq(receivingToken.balanceOf(_params.to), prevBalanceTo + transferred);
 
     // should mark the transfer as executed
     assertEq(s.transferRelayer[_id], sender);
@@ -263,7 +266,7 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
     // set reconciled context
     s.reconciledTransfers[_id] = true;
 
-    executeAndAssert(_id, _args, true);
+    executeAndAssert(_id, _args, true, false);
   }
 
   // should use slow liquidity if specified (forceSlow = true)
@@ -277,10 +280,10 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
     // set reconciled context
     s.reconciledTransfers[_id] = true;
 
-    executeAndAssert(_id, _args, false);
+    executeAndAssert(_id, _args, false, false);
   }
 
-  // should use the local asset if specified (receiveLocal = true)
+  // should use the local asset if specified in params
   function test_BridgeFacet__execute_receiveLocalWorks() public {
     // set test params
     _params.receiveLocal = true;
@@ -293,7 +296,26 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
       s.routerBalances[_args.routers[i]][_args.local] += 10 ether;
     }
 
-    executeAndAssert(_id, _args, false);
+    executeAndAssert(_id, _args, false, false);
+  }
+
+  // should use the local asset if specified in overrides
+  function test_BridgeFacet__execute_receiveLocalOverridesWorks() public {
+    // set test params
+    _params.receiveLocal = false;
+
+    // get args
+    (bytes32 _id, ExecuteArgs memory _args) = getExecuteArgs();
+
+    // set override
+    s.receiveLocalOverrides[_id] = true;
+
+    // set liquidity context
+    for (uint256 i; i < _args.routers.length; i++) {
+      s.routerBalances[_args.routers[i]][_args.local] += 10 ether;
+    }
+
+    executeAndAssert(_id, _args, false, true);
   }
 
   // should work without calldata
@@ -307,4 +329,34 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
   // should work with unapproved router if ownership renounced
 
   // should work with unapproved router if router-whitelist ownership renounced
+
+  // ============ forceReceiveLocal ============
+
+  // should fail if the sender is invalid
+  function test_BridgeFacet__forceReceiveLocal_failsIfNotAgent() public {
+    // get args
+    (bytes32 _id, ExecuteArgs memory _args) = getExecuteArgs();
+
+    // set sender
+    vm.prank(address(55555555));
+
+    vm.expectRevert(BridgeFacet.BridgeFacet__forceReceiveLocal_invalidSender.selector);
+    this.forceReceiveLocal(_args.params, _args.amount, _nonce, _canonicalTokenId, _canonicalDomain, _originSender);
+  }
+
+  // should work
+  function test_BridgeFacet__forceReceiveLocal_works() public {
+    // get args
+    (bytes32 _id, ExecuteArgs memory _args) = getExecuteArgs();
+
+    // expect event
+    vm.expectEmit(true, true, false, true);
+    emit ForcedReceiveLocal(_id, _canonicalTokenId, _canonicalDomain, _args.amount);
+
+    // set sender
+    vm.prank(_params.agent);
+
+    this.forceReceiveLocal(_args.params, _args.amount, _nonce, _canonicalTokenId, _canonicalDomain, _originSender);
+    assertTrue(s.receiveLocalOverrides[_id]);
+  }
 }
