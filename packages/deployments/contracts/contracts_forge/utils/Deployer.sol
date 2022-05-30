@@ -171,7 +171,7 @@ contract Deployer {
   }
 
   function getRoutersFacetCut(address _routersFacet) internal pure returns (IDiamondCut.FacetCut memory) {
-    bytes4[] memory routersFacetSelectors = new bytes4[](22);
+    bytes4[] memory routersFacetSelectors = new bytes4[](23);
     routersFacetSelectors[0] = RoutersFacet.LIQUIDITY_FEE_NUMERATOR.selector;
     routersFacetSelectors[1] = RoutersFacet.LIQUIDITY_FEE_DENOMINATOR.selector;
     routersFacetSelectors[2] = RoutersFacet.getRouterApproval.selector;
@@ -194,6 +194,7 @@ contract Deployer {
     routersFacetSelectors[19] = RoutersFacet.addRouterLiquidityFor.selector;
     routersFacetSelectors[20] = RoutersFacet.addRouterLiquidity.selector;
     routersFacetSelectors[21] = RoutersFacet.removeRouterLiquidity.selector;
+    routersFacetSelectors[22] = RoutersFacet.removeRouterLiquidityFor.selector;
     return
       IDiamondCut.FacetCut({
         facetAddress: _routersFacet,

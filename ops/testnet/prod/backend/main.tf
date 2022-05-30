@@ -56,6 +56,7 @@ module "poller_db" {
 module "postgrest" {
   source                   = "../../../modules/service"
   region                   = var.region
+  dd_api_key               = var.dd_api_key
   zone_id                  = data.aws_route53_zone.primary.zone_id
   ecs_cluster_sg           = module.network.ecs_task_sg
   allow_all_sg             = module.network.allow_all_sg
@@ -69,9 +70,9 @@ module "postgrest" {
   container_family         = "postgrest"
   container_port           = 3000
   loadbalancer_port        = 80
-  cpu                      = 256
-  memory                   = 512
-  instance_count           = 1
+  cpu                      = 512
+  memory                   = 1024
+  instance_count           = 2
   timeout                  = 180
   environment              = var.environment
   stage                    = var.stage
@@ -84,23 +85,24 @@ module "postgrest" {
 }
 
 module "poller" {
-  source                   = "../../../modules/daemon"
-  region                   = var.region
-  execution_role_arn       = data.aws_iam_role.ecr_admin_role.arn
-  cluster_id               = module.ecs.ecs_cluster_id
-  vpc_id                   = module.network.vpc_id
-  private_subnets          = module.network.private_subnets
-  docker_image             = var.full_image_name_poller
-  container_family         = "poller"
-  container_port           = 8080
-  cpu                      = 256
-  memory                   = 512
-  instance_count           = 1
-  environment              = var.environment
-  stage                    = var.stage
-  domain                   = var.domain
-  service_security_groups  = flatten([module.network.allow_all_sg, module.network.ecs_task_sg])
-  container_env_vars       = local.poller_env_vars
+  source                  = "../../../modules/daemon"
+  region                  = var.region
+  dd_api_key              = var.dd_api_key
+  execution_role_arn      = data.aws_iam_role.ecr_admin_role.arn
+  cluster_id              = module.ecs.ecs_cluster_id
+  vpc_id                  = module.network.vpc_id
+  private_subnets         = module.network.private_subnets
+  docker_image            = var.full_image_name_poller
+  container_family        = "poller"
+  container_port          = 8080
+  cpu                     = 512
+  memory                  = 2048
+  instance_count          = 1
+  environment             = var.environment
+  stage                   = var.stage
+  domain                  = var.domain
+  service_security_groups = flatten([module.network.allow_all_sg, module.network.ecs_task_sg])
+  container_env_vars      = local.poller_env_vars
 }
 
 module "network" {
