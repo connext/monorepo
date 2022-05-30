@@ -405,6 +405,10 @@ describe("Operations:Auctions", () => {
       expect(upsertTaskStub.getCall(0).args).to.be.deep.eq([{ transferId, taskId }]);
     });
 
+    it("should skip the combination with the bid of which router has insufficient liquidity", async () => {});
+
+    it("should update the liquidity in the cache if sent the path successfully", async () => {});
+
     it("should ignore if time elapsed is insufficient", async () => {
       const taskId = getRandomBytes32();
       sendToRelayerStub.resolves(taskId);
