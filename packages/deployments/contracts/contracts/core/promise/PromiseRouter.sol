@@ -2,7 +2,7 @@
 pragma solidity 0.8.11;
 
 import {Home} from "../../nomad-core/contracts/Home.sol";
-import {Version0} from "../../nomad-core/contracts/Version0.sol";
+// import {Version0} from "../../nomad-core/contracts/Version0.sol";
 import {TypedMemView} from "../../nomad-core/libs/TypedMemView.sol";
 
 import {AddressUpgradeable} from "@openzeppelin/contracts-upgradeable/utils/AddressUpgradeable.sol";
@@ -13,6 +13,7 @@ import {IBridgeToken} from "../connext/interfaces/IBridgeToken.sol";
 
 import {Router} from "../shared/Router.sol";
 import {XAppConnectionClient} from "../shared/XAppConnectionClient.sol";
+import {Version0} from "../shared/Version0.sol";
 
 import {ICallback} from "./interfaces/ICallback.sol";
 import {PromiseMessage} from "./libraries/PromiseMessage.sol";
