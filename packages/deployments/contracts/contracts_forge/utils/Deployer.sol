@@ -13,6 +13,7 @@ import {ProposedOwnableFacet} from "../../contracts/core/connext/facets/Proposed
 import {RelayerFacet} from "../../contracts/core/connext/facets/RelayerFacet.sol";
 import {RoutersFacet} from "../../contracts/core/connext/facets/RoutersFacet.sol";
 import {StableSwapFacet} from "../../contracts/core/connext/facets/StableSwapFacet.sol";
+import {VersionFacet} from "../../contracts/core/connext/facets/VersionFacet.sol";
 import {ConnextMessage} from "../../contracts/core/connext/libraries/ConnextMessage.sol";
 import {XCallArgs, CallParams} from "../../contracts/core/connext/libraries/LibConnextStorage.sol";
 import {IDiamondCut} from "../../contracts/core/connext/interfaces/IDiamondCut.sol";
@@ -31,6 +32,7 @@ contract Deployer {
   RelayerFacet relayerFacet;
   RoutersFacet routersFacet;
   StableSwapFacet stableSwapAsset;
+  VersionFacet versionFacet;
   TestSetterFacet testSetterFacet;
 
   function getDiamondCutFacetCut(address _diamondCutFacet) internal pure returns (IDiamondCut.FacetCut memory) {
@@ -231,6 +233,17 @@ contract Deployer {
       });
   }
 
+  function getVersionFacetCut(address _versionFacet) internal pure returns (IDiamondCut.FacetCut memory) {
+    bytes4[] memory versionFacetSelectors = new bytes4[](1);
+    versionFacetSelectors[0] = VersionFacet.VERSION.selector;
+    return
+      IDiamondCut.FacetCut({
+        facetAddress: _versionFacet,
+        action: IDiamondCut.FacetCutAction.Add,
+        functionSelectors: versionFacetSelectors
+      });
+  }
+
   function getTestSetterFacetCut(address _testSetterFacetFacet) internal pure returns (IDiamondCut.FacetCut memory) {
     bytes4[] memory testSetterFacetSelectors = new bytes4[](6);
     testSetterFacetSelectors[0] = TestSetterFacet.setTestRelayerFees.selector;
@@ -258,11 +271,12 @@ contract Deployer {
     relayerFacet = new RelayerFacet();
     routersFacet = new RoutersFacet();
     stableSwapAsset = new StableSwapFacet();
+    versionFacet = new VersionFacet();
     testSetterFacet = new TestSetterFacet();
   }
 
   function getFacetCuts() internal view returns (IDiamondCut.FacetCut[] memory) {
-    IDiamondCut.FacetCut[] memory facetCuts = new IDiamondCut.FacetCut[](10);
+    IDiamondCut.FacetCut[] memory facetCuts = new IDiamondCut.FacetCut[](11);
     facetCuts[0] = getTestSetterFacetCut(address(testSetterFacet));
     facetCuts[1] = getDiamondCutFacetCut(address(diamondCutFacet));
     facetCuts[2] = getDiamondLoupeFacetCut(address(diamondLoupeFacet));
@@ -273,6 +287,7 @@ contract Deployer {
     facetCuts[7] = getRelayerFacetCut(address(relayerFacet));
     facetCuts[8] = getRoutersFacetCut(address(routersFacet));
     facetCuts[9] = getStableSwapFacetCut(address(stableSwapAsset));
+    facetCuts[10] = getVersionFacetCut(address(versionFacet));
 
     return facetCuts;
   }
