@@ -68,7 +68,8 @@ contract DummySwap is IStableSwap {
   }
 
   function getTokenIndex(address tokenAddress) external view returns (uint8) {
-    require(false, "!implemented");
+    return uint8(1);
+    // require(false, "!implemented");
   }
 
   function getTokenBalance(uint8 index) external view returns (uint256) {
@@ -84,15 +85,21 @@ contract DummySwap is IStableSwap {
     uint8 tokenIndexTo,
     uint256 dx
   ) external view returns (uint256) {
-    require(false, "!implemented");
+    // return 1:1
+    return dx;
   }
 
   function calculateTokenAmount(uint256[] calldata amounts, bool deposit) external view returns (uint256) {
-    require(false, "!implemented");
+    return amounts[0];
+    // require(false, "!implemented");
   }
 
   function calculateRemoveLiquidity(uint256 amount) external view returns (uint256[] memory) {
-    require(false, "!implemented");
+    // require(false, "!implemented");
+    uint256[] memory ret = new uint256[](2);
+    ret[0] = amount;
+    ret[1] = amount;
+    return ret;
   }
 
   function calculateRemoveLiquidityOneToken(uint256 tokenAmount, uint8 tokenIndex)
@@ -100,7 +107,8 @@ contract DummySwap is IStableSwap {
     view
     returns (uint256 availableTokenAmount)
   {
-    require(false, "!implemented");
+    availableTokenAmount = tokenAmount;
+    // require(false, "!implemented");
   }
 
   function initialize(
@@ -131,7 +139,8 @@ contract DummySwap is IStableSwap {
     uint256 minToMint,
     uint256 deadline
   ) external returns (uint256) {
-    require(false, "!implemented");
+    return amounts[0];
+    // require(false, "!implemented");
   }
 
   function removeLiquidity(
@@ -139,7 +148,8 @@ contract DummySwap is IStableSwap {
     uint256[] calldata minAmounts,
     uint256 deadline
   ) external returns (uint256[] memory) {
-    require(false, "!implemented");
+    return minAmounts;
+    // require(false, "!implemented");
   }
 
   function removeLiquidityOneToken(
@@ -148,7 +158,8 @@ contract DummySwap is IStableSwap {
     uint256 minAmount,
     uint256 deadline
   ) external returns (uint256) {
-    require(false, "!implemented");
+    return tokenAmount;
+    // require(false, "!implemented");
   }
 
   function removeLiquidityImbalance(

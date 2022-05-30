@@ -8,7 +8,7 @@ import {RelayerFeeRouter} from "../../relayer-fee/RelayerFeeRouter.sol";
 import {PromiseRouter} from "../../promise/PromiseRouter.sol";
 
 import {ConnextMessage} from "../libraries/ConnextMessage.sol";
-import {XCallArgs, ExecuteArgs} from "../libraries/LibConnextStorage.sol";
+import {XCallArgs, ExecuteArgs, CallParams} from "../libraries/LibConnextStorage.sol";
 import {SwapUtils} from "../libraries/SwapUtils.sol";
 
 import {IStableSwap} from "./IStableSwap.sol";
@@ -89,6 +89,15 @@ interface IConnextHandler {
   function execute(ExecuteArgs calldata _args) external returns (bytes32 transferId);
 
   function bumpTransfer(bytes32 _transferId) external payable;
+
+  function forceReceiveLocal(
+    CallParams calldata _params,
+    uint256 _amount,
+    uint256 _nonce,
+    bytes32 _canonicalId,
+    uint32 _canonicalDomain,
+    address _originSender
+  ) external payable;
 
   // NomadFacet
   function xAppConnectionManager() external view returns (XAppConnectionManager);

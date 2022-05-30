@@ -275,6 +275,14 @@ struct AppStorage {
    */
   // 32
   mapping(bytes32 => mapping(address => uint8)) tokenIndexes;
+  //
+  // BridgeFacet (cont.) TODO: can we move this
+  //
+  /**
+   * @notice Stores whether a transfer has had `receiveLocal` overrides forced
+   */
+  // 33
+  mapping(bytes32 => bool) receiveLocalOverrides;
 }
 
 library LibConnextStorage {

@@ -11,7 +11,7 @@ import {BaseConnextFacet} from "./BaseConnextFacet.sol";
 
 import {ConnextMessage} from "../libraries/ConnextMessage.sol";
 import {AssetLogic} from "../libraries/AssetLogic.sol";
-import {XCallArgs, ExecuteArgs} from "../libraries/LibConnextStorage.sol";
+import {XCallArgs, ExecuteArgs, CallParams} from "../libraries/LibConnextStorage.sol";
 import {LibCrossDomainProperty} from "../libraries/LibCrossDomainProperty.sol";
 
 import {PromiseRouter} from "../../promise/PromiseRouter.sol";
@@ -56,6 +56,7 @@ contract BridgeFacet is BaseConnextFacet {
   error BridgeFacet__execute_notReconciled();
   error BridgeFacet__handleExecuteTransaction_invalidSponsoredAmount();
   error BridgeFacet__bumpTransfer_valueIsZero();
+  error BridgeFacet__forceReceiveLocal_invalidSender();
 
   // ============ Events ============
 
@@ -117,6 +118,15 @@ contract BridgeFacet is BaseConnextFacet {
    * @param caller - The account that called the function
    */
   event TransferRelayerFeesUpdated(bytes32 indexed transferId, uint256 relayerFee, address caller);
+
+  /**
+   */
+  event ForcedReceiveLocal(
+    bytes32 indexed transferId,
+    bytes32 indexed canonicalId,
+    uint32 canonicalDomain,
+    uint256 amount
+  );
 
   /**
    * @notice Emitted when the sponsorVault variable is updated
@@ -273,7 +283,6 @@ contract BridgeFacet is BaseConnextFacet {
   }
 
   /**
-
    * @notice Anyone can call this function on the origin domain to increase the relayer fee for a transfer.
    * @param _transferId - The unique identifier of the crosschain transaction
    */
@@ -283,6 +292,31 @@ contract BridgeFacet is BaseConnextFacet {
     s.relayerFees[_transferId] += msg.value;
 
     emit TransferRelayerFeesUpdated(_transferId, s.relayerFees[_transferId], msg.sender);
+  }
+
+  /**
+   * @notice Anyone can call this function on the origin domain to increase the relayer fee for a transfer.
+   * @param _params - The unique identifier of the crosschain transaction
+   */
+  function forceReceiveLocal(
+    CallParams calldata _params,
+    uint256 _amount,
+    uint256 _nonce,
+    bytes32 _canonicalId,
+    uint32 _canonicalDomain,
+    address _originSender
+  ) external {
+    // Enforce caller
+    if (msg.sender != _params.agent) revert BridgeFacet__forceReceiveLocal_invalidSender();
+
+    // Calculate transfer id
+    bytes32 transferId = _calculateTransferId(_params, _amount, _nonce, _canonicalId, _canonicalDomain, _originSender);
+
+    // Store receive local
+    s.receiveLocalOverrides[transferId] = true;
+
+    // Emit event
+    emit ForcedReceiveLocal(transferId, _canonicalId, _canonicalDomain, _amount);
   }
 
   // ============ Private Functions ============
@@ -372,18 +406,6 @@ contract BridgeFacet is BaseConnextFacet {
         bridged: bridged
       })
     );
-  }
-
-  /**
-   * @notice Calculates a transferId based on `xcall` arguments
-   * @dev Need this to prevent stack too deep
-   */
-  function _getTransferId(XCallArgs calldata _args, ConnextMessage.TokenId memory _canonical)
-    private
-    view
-    returns (bytes32)
-  {
-    return keccak256(abi.encode(s.nonce, _args.params, msg.sender, _canonical.id, _canonical.domain, _args.amount));
   }
 
   /**
@@ -572,13 +594,40 @@ contract BridgeFacet is BaseConnextFacet {
   }
 
   /**
+   * @notice Calculates a transferId based on `xcall` arguments
+   * @dev Need this to prevent stack too deep
+   */
+  function _getTransferId(XCallArgs calldata _args, ConnextMessage.TokenId memory _canonical)
+    private
+    view
+    returns (bytes32)
+  {
+    // return keccak256(abi.encode(s.nonce, _args.params, msg.sender, _canonical.id, _canonical.domain, _args.amount));
+    return _calculateTransferId(_args.params, _args.amount, s.nonce, _canonical.id, _canonical.domain, msg.sender);
+  }
+
+  /**
    * @notice Calculates a transferId based on `execute` arguments
    * @dev Need this to prevent stack too deep
    */
   function _getTransferId(ExecuteArgs calldata _args) private view returns (bytes32) {
     (uint32 tokenDomain, bytes32 tokenId) = s.tokenRegistry.getTokenId(_args.local);
+    return _calculateTransferId(_args.params, _args.amount, _args.nonce, tokenId, tokenDomain, _args.originSender);
+  }
 
-    return keccak256(abi.encode(_args.nonce, _args.params, _args.originSender, tokenId, tokenDomain, _args.amount));
+  /**
+   * @notice Calculates a transferId based on `xcall` arguments
+   * @dev Need this to prevent stack too deep
+   */
+  function _calculateTransferId(
+    CallParams calldata _params,
+    uint256 _amount,
+    uint256 _nonce,
+    bytes32 _canonicalId,
+    uint32 _canonicalDomain,
+    address _originSender
+  ) private pure returns (bytes32) {
+    return keccak256(abi.encode(_nonce, _params, _originSender, _canonicalId, _canonicalDomain, _amount));
   }
 
   /**
@@ -628,8 +677,9 @@ contract BridgeFacet is BaseConnextFacet {
       }
     }
 
-    // if the local asset is specified, exit
-    if (_args.params.receiveLocal) {
+    // if the local asset is specified, or the adopted asset was overridden (i.e. when
+    // user facing slippage conditions outside of their boundaries), exit
+    if (_args.params.receiveLocal || s.receiveLocalOverrides[_transferId]) {
       return (toSwap, _args.local);
     }
 
