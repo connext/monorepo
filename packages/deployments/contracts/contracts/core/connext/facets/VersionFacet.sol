@@ -11,9 +11,13 @@ import {AppStorage} from "../libraries/LibConnextStorage.sol";
  * @dev Should be interface-compatible with https://github.com/nomad-xyz/monorepo/blob/main/packages/contracts-core/contracts/Version0.sol
  **/
 contract VersionFacet is BaseConnextFacet {
+  // ============ Constants ==============
+
+  uint8 internal immutable _version = 0;
+
   // ============ Getters ==============
 
   function VERSION() public pure returns (uint8) {
-    return 0;
+    return _version;
   }
 }
