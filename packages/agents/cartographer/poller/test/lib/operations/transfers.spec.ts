@@ -1,17 +1,17 @@
 import { createStubInstance, SinonStub, stub, restore, reset } from "sinon";
 import * as SharedFns from "../../../src/shared";
 import { expect, mock, chainDataToMap, Logger, OriginTransfer } from "@connext/nxtp-utils";
-import * as backend from "../../../src/backend";
+import * as backend from "../../../src/cartographer";
 import { poller } from "../../../src/bindings/poller";
 
 import * as dbClient from "../../../src/adapters/database/client";
-import { BackendConfig } from "../../../src/config";
+import { CartographerConfig } from "../../../src/config";
 import { SubgraphReader } from "@connext/nxtp-adapters-subgraph";
 
 const mockSubgraphResponse = [mock.entity.xtransfer() as OriginTransfer, mock.entity.xtransfer() as OriginTransfer];
 const mockEmptySubgraphResponse = [];
 
-const mockConfig: BackendConfig = {
+const mockConfig: CartographerConfig = {
   pollInterval: 15000,
   logLevel: "silent",
   database: { url: "postgres://postgres:qwery@localhost:5432/connext?sslmode=disable" },
