@@ -1,6 +1,6 @@
 import { createLoggingContext } from "@connext/nxtp-utils";
 
-import { getContext } from "../../backend";
+import { getContext } from "../../cartographer";
 
 export const updateRouters = async () => {
   const {

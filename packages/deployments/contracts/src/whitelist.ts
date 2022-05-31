@@ -186,7 +186,10 @@ const testnetRouters = [
   // "0xdc06e8f87B6F96E02E1340435C2858A2E8aBdb54",
   // "0x16eB77862b6Ce7b160c06CA7496472aa7B63878F",
   // "0x22cfDfE654BA880Bc600Df1c6503D648c46dd496",
-  "0xc4eac3bfae3f3c951225c16848ddcab3d6a5abbf",
+  // "0xc4eac3bfae3f3c951225c16848ddcab3d6a5abbf",
+  // "0x057b888af98b3D63B07cFb541FF5e32478579ACC",
+  "0xb24408a05bb5E3E959512dF62607d7E3aa3c4F38",
+  "0xC9A5611EAC19151e0dE8c4575eAec45411780739",
 ];
 
 const routers: string[] = testnetRouters;
