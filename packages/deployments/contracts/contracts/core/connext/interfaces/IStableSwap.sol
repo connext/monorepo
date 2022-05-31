@@ -40,13 +40,15 @@ interface IStableSwap {
   function swapExact(
     uint256 amountIn,
     address assetIn,
-    address assetOut
+    address assetOut,
+    uint256 minAmountOut
   ) external payable returns (uint256);
 
   function swapExactOut(
     uint256 amountOut,
     address assetIn,
-    address assetOut
+    address assetOut,
+    uint256 maxAmountIn
   ) external payable returns (uint256);
 
   function getA() external view returns (uint256);

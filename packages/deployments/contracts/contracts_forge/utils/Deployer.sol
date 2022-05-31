@@ -204,7 +204,7 @@ contract Deployer {
   }
 
   function getStableSwapFacetCut(address _stableSwapFacet) internal pure returns (IDiamondCut.FacetCut memory) {
-    bytes4[] memory stableSwapFacetSelectors = new bytes4[](25);
+    bytes4[] memory stableSwapFacetSelectors = new bytes4[](26);
     stableSwapFacetSelectors[0] = StableSwapFacet.getSwapStorage.selector;
     stableSwapFacetSelectors[1] = StableSwapFacet.getSwapLPToken.selector;
     stableSwapFacetSelectors[2] = StableSwapFacet.getSwapA.selector;
@@ -220,16 +220,17 @@ contract Deployer {
     stableSwapFacetSelectors[12] = StableSwapFacet.getSwapAdminBalance.selector;
     stableSwapFacetSelectors[13] = StableSwapFacet.swap.selector;
     stableSwapFacetSelectors[14] = StableSwapFacet.swapExact.selector;
-    stableSwapFacetSelectors[15] = StableSwapFacet.addSwapLiquidity.selector;
-    stableSwapFacetSelectors[16] = StableSwapFacet.removeSwapLiquidity.selector;
-    stableSwapFacetSelectors[17] = StableSwapFacet.removeSwapLiquidityOneToken.selector;
-    stableSwapFacetSelectors[18] = StableSwapFacet.removeSwapLiquidityImbalance.selector;
-    stableSwapFacetSelectors[19] = StableSwapFacet.initializeSwap.selector;
-    stableSwapFacetSelectors[20] = StableSwapFacet.withdrawSwapAdminFees.selector;
-    stableSwapFacetSelectors[21] = StableSwapFacet.setSwapAdminFee.selector;
-    stableSwapFacetSelectors[22] = StableSwapFacet.setSwapFee.selector;
-    stableSwapFacetSelectors[23] = StableSwapFacet.rampA.selector;
-    stableSwapFacetSelectors[24] = StableSwapFacet.stopRampA.selector;
+    stableSwapFacetSelectors[15] = StableSwapFacet.swapExactOut.selector;
+    stableSwapFacetSelectors[16] = StableSwapFacet.addSwapLiquidity.selector;
+    stableSwapFacetSelectors[17] = StableSwapFacet.removeSwapLiquidity.selector;
+    stableSwapFacetSelectors[18] = StableSwapFacet.removeSwapLiquidityOneToken.selector;
+    stableSwapFacetSelectors[19] = StableSwapFacet.removeSwapLiquidityImbalance.selector;
+    stableSwapFacetSelectors[20] = StableSwapFacet.initializeSwap.selector;
+    stableSwapFacetSelectors[21] = StableSwapFacet.withdrawSwapAdminFees.selector;
+    stableSwapFacetSelectors[22] = StableSwapFacet.setSwapAdminFee.selector;
+    stableSwapFacetSelectors[23] = StableSwapFacet.setSwapFee.selector;
+    stableSwapFacetSelectors[24] = StableSwapFacet.rampA.selector;
+    stableSwapFacetSelectors[25] = StableSwapFacet.stopRampA.selector;
     return
       IDiamondCut.FacetCut({
         facetAddress: _stableSwapFacet,

@@ -290,6 +290,15 @@ interface IConnextHandler {
     uint256 deadline
   ) external payable returns (uint256);
 
+  function swapExactOut(
+    bytes32 canonicalId,
+    uint256 amountOut,
+    address assetIn,
+    address assetOut,
+    uint256 maxAmountIn,
+    uint256 deadline
+  ) external payable returns (uint256);
+
   function addSwapLiquidity(
     bytes32 canonicalId,
     uint256[] calldata amounts,

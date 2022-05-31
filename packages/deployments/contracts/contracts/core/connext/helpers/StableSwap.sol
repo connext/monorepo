@@ -313,15 +313,17 @@ contract StableSwap is IStableSwap, OwnerPausableUpgradeable, ReentrancyGuardUpg
    * @param assetIn the token the user wants to swap from
    * @param assetOut the token the user wants to swap to
    * @param amountIn the amount of tokens the user wants to swap from
+   * @param minAmountOut the min amount of tokens the user wants to swap to
    */
   function swapExact(
     uint256 amountIn,
     address assetIn,
-    address assetOut
+    address assetOut,
+    uint256 minAmountOut
   ) external payable override nonReentrant whenNotPaused returns (uint256) {
     uint8 tokenIndexFrom = getTokenIndex(assetIn);
     uint8 tokenIndexTo = getTokenIndex(assetOut);
-    return swapStorage.swap(tokenIndexFrom, tokenIndexTo, amountIn, 0);
+    return swapStorage.swap(tokenIndexFrom, tokenIndexTo, amountIn, minAmountOut);
   }
 
   /**
@@ -329,16 +331,17 @@ contract StableSwap is IStableSwap, OwnerPausableUpgradeable, ReentrancyGuardUpg
    * @param assetIn the token the user wants to swap from
    * @param assetOut the token the user wants to swap to
    * @param amountOut the amount of tokens the user wants to swap to
+   * @param maxAmountIn the max amount of tokens the user wants to swap from
    */
   function swapExactOut(
     uint256 amountOut,
     address assetIn,
-    address assetOut
+    address assetOut,
+    uint256 maxAmountIn
   ) external payable override nonReentrant whenNotPaused returns (uint256) {
     uint8 tokenIndexFrom = getTokenIndex(assetIn);
     uint8 tokenIndexTo = getTokenIndex(assetOut);
-    uint256 balance = IERC20(assetIn).balanceOf(msg.sender);
-    return swapStorage.swapOut(tokenIndexFrom, tokenIndexTo, amountOut, balance);
+    return swapStorage.swapOut(tokenIndexFrom, tokenIndexTo, amountOut, maxAmountIn);
   }
 
   /**
