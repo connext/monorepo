@@ -7,7 +7,7 @@ import { SequencerConfig, SequencerConfigSchema } from "./lib/entities";
 
 const MIN_SUBGRAPH_SYNC_BUFFER = 25;
 const DEFAULT_AUCTION_WAIT_TIME = 30_000;
-const DEFAULT_AUCTION_ROUND_DEPTH = 4;
+const DEFAULT_AUCTION_ROUND_DEPTH = 3;
 
 export const getEnvConfig = (
   chainData: Map<string, ChainData>,
