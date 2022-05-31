@@ -181,6 +181,17 @@ export const executeAuctions = async (_requestContext: RequestContext) => {
             return;
           }
 
+          const destTx = await subgraph.getDestinationTransferById(transfer.destinationDomain!, transferId);
+          if (!!destTx) {
+            logger.error("Transfer already executed", requestContext, methodContext, undefined, {
+              transferId,
+              transfer,
+              bids,
+            });
+            await cache.auctions.setStatus(transferId, AuctionStatus.Executed);
+            return;
+          }
+
           const bidsRoundMap = getBidsRoundMap(bids, config.auctionRoundDepth);
           const availableRoundIds = [...Object.keys(bidsRoundMap)].sort((a, b) => Number(a) - Number(b));
           if ([...Object.keys(bidsRoundMap)].length < 1) {

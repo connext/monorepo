@@ -545,6 +545,22 @@ describe("Operations:Auctions", () => {
       expect(sendToRelayerStub.callCount).to.be.eq(0);
     });
 
+    it("should ignore if transfer is executed", async () => {
+      (ctxMock.adapters.subgraph.getDestinationTransferById as SinonStub).resolves({ foo: "bar" });
+
+      getTransferStub.resolves(mock.entity.xtransfer());
+
+      getQueuedTransfersStub.resolves([mock.entity.xtransfer().transferId]);
+      const auction = mockAuctionDataBatch(1)[0];
+      getAuctionStub.resolves(auction);
+
+      await executeAuctions(requestContext);
+
+      expect(getAuctionStub.callCount).to.be.eq(1);
+      expect(getTransferStub.callCount).to.be.eq(1);
+      expect(sendToRelayerStub.callCount).to.be.eq(0);
+    });
+
     it("should ignore if transfer xcall or relayer fee undefined", async () => {
       getLiquidityStub.resolves(BigNumber.from("10000000000000000000"));
       const taskId = getRandomBytes32();
