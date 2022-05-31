@@ -73,11 +73,11 @@ export const getAuctionStatus = async (
 export const getAuctionAmount = (roundId: number, receivingAmount: BigNumber): BigNumber => {
   const { config } = getContext();
   roundId = Math.trunc(roundId);
-  if (roundId > config.auctionRoundDepth || roundId < 1) {
+  if (roundId > config.maxPathLength || roundId < 1) {
     throw new InvalidAuctionRound({
       roundId,
       startRound: 1,
-      maxRoundDepth: config.auctionRoundDepth,
+      maxRoundDepth: config.maxPathLength,
     });
   }
 

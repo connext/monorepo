@@ -7,7 +7,7 @@ import { SequencerConfig, SequencerConfigSchema } from "./lib/entities";
 
 const MIN_SUBGRAPH_SYNC_BUFFER = 25;
 const DEFAULT_AUCTION_WAIT_TIME = 30_000;
-const DEFAULT_AUCTION_ROUND_DEPTH = 4;
+const DEFAULT_MAX_PATH_LENGTH = 4;
 
 export const getEnvConfig = (
   chainData: Map<string, ChainData>,
@@ -62,7 +62,7 @@ export const getEnvConfig = (
       cleanup: process.env.SEQ_CLEANUP_MODE || configJson.mode?.cleanup || configFile.mode?.cleanup || false,
     },
     subgraphPrefix: process.env.SEQ_SUBGRAPH_PREFIX || configJson.subgraphPrefix || configFile.subgraphPrefix,
-    auctionRoundDepth: process.env.AUCTION_ROUND_DEPTH || configJson.auctionRoundDepth || DEFAULT_AUCTION_ROUND_DEPTH,
+    maxPathLength: process.env.MAX_PATH_LENGTH || configJson.maxPathLength || DEFAULT_MAX_PATH_LENGTH,
     environment: process.env.SEQ_ENVIRONMENT || configJson.environment || configFile.environment || "production",
   };
 

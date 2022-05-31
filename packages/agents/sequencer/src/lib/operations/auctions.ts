@@ -192,7 +192,7 @@ export const executeAuctions = async (_requestContext: RequestContext) => {
             return;
           }
 
-          const bidsRoundMap = getBidsRoundMap(bids, config.auctionRoundDepth);
+          const bidsRoundMap = getBidsRoundMap(bids, config.maxPathLength);
           const availableRoundIds = [...Object.keys(bidsRoundMap)].sort((a, b) => Number(a) - Number(b));
           if ([...Object.keys(bidsRoundMap)].length < 1) {
             logger.warn("No rounds available for this transferId", requestContext, methodContext, {

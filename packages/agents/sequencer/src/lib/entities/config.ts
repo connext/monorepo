@@ -45,7 +45,7 @@ export const SequencerConfigSchema = Type.Object({
   auctionWaitTime: Type.Number({ minimum: 1000, maximum: 500_000 }),
   relayerUrl: Type.Optional(Type.String()),
   subgraphPrefix: Type.Optional(Type.String()),
-  auctionRoundDepth: Type.Number(),
+  maxPathLength: Type.Number(),
   environment: Type.Union([Type.Literal("staging"), Type.Literal("production")]),
 });
 

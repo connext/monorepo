@@ -81,7 +81,7 @@ export const mock = {
       subgraph: 10_000,
       cache: 10_000,
     },
-    auctionRoundDepth: 4,
+    maxPathLength: 4,
     environment: "staging",
   }),
   adapters: {
