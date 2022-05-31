@@ -146,170 +146,188 @@ export const executeAuctions = async (_requestContext: RequestContext) => {
   // Handling each domain in parallel, but each individual transfer synchronously. This is to account
   // for the fact that one transfer's auction might affect another. For instance, a router might have
   // 100 tokens to LP, but bid on 2 100-token transfers. We shouldn't send both of those bids.
+  // RS: going to try out parallelizing it anyways, its okay if a few of them fail
   await Promise.all(
     Object.keys(auctions).map(async (domain) => {
-      for (const transferId of Object.keys(auctions[domain])) {
-        const { bids, origin, destination } = auctions[domain][transferId];
-        logger.info("Started selecting bids", requestContext, methodContext, {
-          bids,
-          origin,
-          destination,
-          transferId,
-        });
-
-        // NOTE: Should be an OriginTransfer, but we will sanity check below.
-        const transfer = (await cache.transfers.getTransfer(transferId)) as OriginTransfer | undefined;
-        if (!transfer) {
-          // This should never happen.
-          // TODO: Should this be tossed out? We literally can't handle a transfer without the xcall data.
-          logger.error("Transfer data not found for transfer!", requestContext, methodContext, undefined, {
-            transferId,
+      await Promise.all(
+        Object.keys(auctions[domain]).map(async (transferId) => {
+          const { bids, origin, destination } = auctions[domain][transferId];
+          logger.info("Started selecting bids", requestContext, methodContext, {
+            bids,
             origin,
             destination,
-            bids,
-          });
-          continue;
-        } else if (!transfer.origin) {
-          // TODO: Same as above!
-          // Again, shouldn't happen: sequencer should not have accepted an auction for a transfer with no xcall.
-          logger.error("XCall or Relayer Fee not found for transfer!", requestContext, methodContext, undefined, {
-            transferId,
-            transfer,
-            bids,
-          });
-          continue;
-        }
-
-        // TODO: Reimplement auction rounds!
-        // hardcoded round 1
-        const availableBids = Object.values(bids).filter((bid) => {
-          // TODO: Check to make sure this specific router has enough funds to execute this bid! Right now,
-          // all we are doing is an estimateGas call in sendToRelayer below.
-          return Array.from(Object.keys(bid.signatures)).includes("1");
-        });
-        if (availableBids.length < 1) {
-          logger.warn("No bids available for this round", requestContext, methodContext, {
-            availableBids,
             transferId,
           });
-          // Not enough router bids to form a transfer for this round.
-          // (e.g. for round 3, we need 3 router bids to form a multipath transfer)
-          continue;
-        }
 
-        // TODO: Sort by fee amount, selecting the best bid available.
-        // Randomly sort the bids.
-        const randomized = availableBids
-          .map((value) => ({ value, sort: Math.random() }))
-          .sort((a, b) => a.sort - b.sort)
-          .map(({ value }) => value);
+          // NOTE: Should be an OriginTransfer, but we will sanity check below.
+          const transfer = (await cache.transfers.getTransfer(transferId)) as OriginTransfer | undefined;
+          if (!transfer) {
+            // This should never happen.
+            // TODO: Should this be tossed out? We literally can't handle a transfer without the xcall data.
+            logger.error("Transfer data not found for transfer!", requestContext, methodContext, undefined, {
+              transferId,
+              origin,
+              destination,
+              bids,
+            });
+            return;
+          } else if (!transfer.origin) {
+            // TODO: Same as above!
+            // Again, shouldn't happen: sequencer should not have accepted an auction for a transfer with no xcall.
+            logger.error("XCall or Relayer Fee not found for transfer!", requestContext, methodContext, undefined, {
+              transferId,
+              transfer,
+              bids,
+            });
+            return;
+          }
 
-        let taskId: string | undefined;
-        // Try every bid until we find one that works.
-        for (const randomBid of randomized) {
-          // Sanity: Check if this router has enough funds.
-          const { router } = randomBid;
-          const asset = await getDestinationLocalAsset(
-            transfer.originDomain,
-            transfer.origin.assets.bridged.asset,
-            destination,
-          );
-          // TODO: Should use amount from router's bid.
-          const amount = transfer.origin.assets.bridged.amount;
+          const destTx = await subgraph.getDestinationTransferById(transfer.destinationDomain!, transferId);
+          if (destTx) {
+            logger.error("Transfer already executed", requestContext, methodContext, undefined, {
+              transferId,
+              transfer,
+              bids,
+            });
+            await cache.auctions.setStatus(transferId, AuctionStatus.Executed);
+            return;
+          }
 
-          let routerLiquidity: BigNumber | undefined = await cache.routers.getLiquidity(router, destination, asset);
-          if (!routerLiquidity) {
-            // Either we haven't cached the liquidity yet, or the value cached has become expired.
-            routerLiquidity = await subgraph.getAssetBalance(destination, router, asset);
-            if (!routerLiquidity.eq(constants.Zero)) {
-              await cache.routers.setLiquidity(router, destination, asset, routerLiquidity);
-            } else {
-              // NOTE: Using WARN level here as this is unexpected behavior... routers who are bidding on a transfer should
-              // have added liquidity for the asset on the corresponding domain.
-              logger.warn("Skipped bid from router; liquidity not found in subgraph", requestContext, methodContext, {
+          // TODO: Reimplement auction rounds!
+          // hardcoded round 1
+          const availableBids = Object.values(bids).filter((bid) => {
+            // TODO: Check to make sure this specific router has enough funds to execute this bid! Right now,
+            // all we are doing is an estimateGas call in sendToRelayer below.
+            return Array.from(Object.keys(bid.signatures)).includes("1");
+          });
+          if (availableBids.length < 1) {
+            logger.warn("No bids available for this round", requestContext, methodContext, {
+              availableBids,
+              transferId,
+            });
+            // Not enough router bids to form a transfer for this round.
+            // (e.g. for round 3, we need 3 router bids to form a multipath transfer)
+            return;
+          }
+
+          // TODO: Sort by fee amount, selecting the best bid available.
+          // Randomly sort the bids.
+          const randomized = availableBids
+            .map((value) => ({ value, sort: Math.random() }))
+            .sort((a, b) => a.sort - b.sort)
+            .map(({ value }) => value);
+
+          let taskId: string | undefined;
+          // Try every bid until we find one that works.
+          for (const randomBid of randomized) {
+            logger.info("Trying bid", requestContext, methodContext, {
+              transferId,
+              randomBid,
+            });
+            // Sanity: Check if this router has enough funds.
+            const { router } = randomBid;
+            const asset = await getDestinationLocalAsset(
+              transfer.originDomain,
+              transfer.origin.assets.bridged.asset,
+              destination,
+            );
+            // TODO: Should use amount from router's bid.
+            const amount = transfer.origin.assets.bridged.amount;
+
+            let routerLiquidity: BigNumber | undefined = await cache.routers.getLiquidity(router, destination, asset);
+            if (!routerLiquidity) {
+              // Either we haven't cached the liquidity yet, or the value cached has become expired.
+              routerLiquidity = await subgraph.getAssetBalance(destination, router, asset);
+              if (!routerLiquidity.eq(constants.Zero)) {
+                await cache.routers.setLiquidity(router, destination, asset, routerLiquidity);
+              } else {
+                // NOTE: Using WARN level here as this is unexpected behavior... routers who are bidding on a transfer should
+                // have added liquidity for the asset on the corresponding domain.
+                logger.warn("Skipped bid from router; liquidity not found in subgraph", requestContext, methodContext, {
+                  transfer: {
+                    transferId,
+                    asset,
+                    destination,
+                    amount: amount.toString(),
+                  },
+                  assetBalanceId: `${asset.toLowerCase()}-${router.toLowerCase()}`,
+                  routerLiquidity,
+                  router,
+                });
+                return;
+              }
+            }
+
+            if (routerLiquidity.lt(amount)) {
+              logger.info("Skipped bid from router: insufficient liquidity", requestContext, methodContext, {
                 transfer: {
                   transferId,
                   asset,
                   destination,
                   amount: amount.toString(),
                 },
-                assetBalanceId: `${asset.toLowerCase()}-${router.toLowerCase()}`,
-                routerLiquidity,
                 router,
+                liquidity: routerLiquidity.toString(),
               });
-              continue;
+              return;
+            }
+
+            try {
+              logger.debug("Sending bid to relayer", requestContext, methodContext, {
+                transferId,
+                bid: {
+                  // NOTE: Obfuscating signatures here for safety.
+                  router: randomBid.router,
+                  fee: randomBid.fee,
+                },
+              });
+              // Send the relayer request based on chosen bids.
+              taskId = await sendToRelayer([randomBid], transfer, asset, requestContext);
+              logger.info("Sent bid to relayer", requestContext, methodContext, {
+                transferId,
+                taskId,
+                origin,
+                destination,
+              });
+
+              // Update router liquidity record to reflect spending.
+              routerLiquidity = routerLiquidity.sub(amount);
+              await cache.routers.setLiquidity(router, destination, asset, routerLiquidity);
+
+              // Break out from the bid selection loop.
+              return;
+            } catch (error: any) {
+              logger.error(
+                "Failed to send to relayer, trying next bid if possible",
+                requestContext,
+                methodContext,
+                jsonifyError(error as Error),
+                {
+                  transferId,
+                  availableBidsCount: availableBids.length,
+                },
+              );
             }
           }
-
-          if (routerLiquidity.lt(amount)) {
-            logger.info("Skipped bid from router: insufficient liquidity", requestContext, methodContext, {
-              transfer: {
-                transferId,
-                asset,
-                destination,
-                amount: amount.toString(),
-              },
-              router,
-              liquidity: routerLiquidity.toString(),
-            });
-            continue;
-          }
-
-          try {
-            logger.debug("Sending bid to relayer", requestContext, methodContext, {
-              transferId,
-              bid: {
-                // NOTE: Obfuscating signatures here for safety.
-                router: randomBid.router,
-                fee: randomBid.fee,
-              },
-            });
-            // Send the relayer request based on chosen bids.
-            taskId = await sendToRelayer([randomBid], transfer, asset, requestContext);
-            logger.info("Sent bid to relayer", requestContext, methodContext, {
-              transferId,
-              taskId,
-              origin,
-              destination,
-            });
-
-            // Update router liquidity record to reflect spending.
-            routerLiquidity = routerLiquidity.sub(amount);
-            await cache.routers.setLiquidity(router, destination, asset, routerLiquidity);
-
-            // Break out from the bid selection loop.
-            break;
-          } catch (error: any) {
+          if (!taskId) {
             logger.error(
-              "Failed to send to relayer, trying next bid if possible",
+              "No bids sent to relayer",
               requestContext,
               methodContext,
-              jsonifyError(error as Error),
+              jsonifyError(new Error("No successfully sent bids")),
               {
                 transferId,
-                availableBidsCount: availableBids.length,
+                origin,
+                destination,
+                bids,
               },
             );
+            return;
           }
-        }
-        if (!taskId) {
-          logger.error(
-            "No bids sent to relayer",
-            requestContext,
-            methodContext,
-            jsonifyError(new Error("No successfully sent bids")),
-            {
-              transferId,
-              origin,
-              destination,
-              bids,
-            },
-          );
-          continue;
-        }
-        await cache.auctions.setStatus(transferId, AuctionStatus.Sent);
-        await cache.auctions.upsertTask({ transferId, taskId });
-      }
+          await cache.auctions.setStatus(transferId, AuctionStatus.Sent);
+          await cache.auctions.upsertTask({ transferId, taskId });
+        }),
+      );
     }),
   );
 };

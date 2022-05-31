@@ -5,6 +5,9 @@
 ### PING
 GET {{sequencerUrl}}/ping
 
+### QUEUED TRANSFERS
+GET {{sequencerUrl}}/queued
+
 ### CLEAR CACHE
 POST {{sequencerUrl}}/clear-cache
 Content-Type: application/json
