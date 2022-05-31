@@ -4,6 +4,7 @@ pragma solidity 0.8.11;
 import {ECDSA} from "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
+import {AssetLogic} from "../../../../contracts/core/connext/libraries/AssetLogic.sol";
 import {IStableSwap} from "../../../../contracts/core/connext/interfaces/IStableSwap.sol";
 import {ITokenRegistry} from "../../../../contracts/core/connext/interfaces/ITokenRegistry.sol";
 import {ConnextMessage} from "../../../../contracts/core/connext/libraries/ConnextMessage.sol";
@@ -251,7 +252,7 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
     }
 
     // expect failure
-    vm.expectRevert(BaseConnextFacet.AssetLogic__swapFromLocalAssetIfNeeded_swapPaused.selector);
+    vm.expectRevert(AssetLogic.AssetLogic__swapFromLocalAssetIfNeeded_swapPaused.selector);
     this.execute(args);
   }
 
