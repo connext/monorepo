@@ -3,7 +3,7 @@ import {
   encodeExecuteFromBids,
   getDestinationLocalAsset,
   getBidsRoundMap,
-  generateCombinations,
+  getAllSubsets,
   getMinimumBidsCountForRound,
 } from "./auctions";
 
@@ -18,7 +18,7 @@ export const getHelpers = () => {
       encodeExecuteFromBids,
       getDestinationLocalAsset,
       getBidsRoundMap,
-      generateCombinations,
+      getAllSubsets,
       getMinimumBidsCountForRound,
     },
   };

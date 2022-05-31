@@ -16,7 +16,7 @@ import { ctxMock, getOperationsStub, getHelpersStub } from "../../globalTestHook
 import { mock } from "../../mock";
 import { AuctionExpired, MissingXCall, ParamsInvalid } from "../../../src/lib/errors";
 import { executeAuctions, storeBid } from "../../../src/lib/operations/auctions";
-import { generateCombinations, getBidsRoundMap, getMinimumBidsCountForRound } from "../../../src/lib/helpers/auctions";
+import { getAllSubsets, getBidsRoundMap, getMinimumBidsCountForRound } from "../../../src/lib/helpers/auctions";
 
 import * as AuctionHelperFns from "../../../src/lib/helpers/auctions";
 const { requestContext } = mock.loggingContext("BID-TEST");
@@ -73,7 +73,7 @@ describe("Operations:Auctions", () => {
         encodeExecuteFromBid: encodeExecuteFromBidStub,
         getDestinationLocalAsset: getDestinationLocalAssetStub,
         getBidsRoundMap,
-        generateCombinations,
+        getAllSubsets,
         getMinimumBidsCountForRound,
       },
     });

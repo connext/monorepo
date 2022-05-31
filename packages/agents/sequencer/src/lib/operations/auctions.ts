@@ -101,7 +101,7 @@ export const executeAuctions = async (_requestContext: RequestContext) => {
     relayer: { sendToRelayer },
   } = getOperations();
   const {
-    auctions: { getDestinationLocalAsset, getBidsRoundMap, generateCombinations, getMinimumBidsCountForRound },
+    auctions: { getDestinationLocalAsset, getBidsRoundMap, getAllSubsets, getMinimumBidsCountForRound },
   } = getHelpers();
   const { requestContext, methodContext } = createLoggingContext(executeAuctions.name, _requestContext);
   logger.debug(`Method start: ${executeAuctions.name}`, requestContext, methodContext);
@@ -207,7 +207,7 @@ export const executeAuctions = async (_requestContext: RequestContext) => {
             logger.debug(`Selecting the round ${roundIdx}`, requestContext, methodContext, { availableRoundIds });
             const roundIdInNum = Number(roundIdx);
             const totalBids = bidsRoundMap[roundIdInNum];
-            const combinedBidsForRound = generateCombinations(
+            const combinedBidsForRound = getAllSubsets(
               totalBids,
               getMinimumBidsCountForRound(roundIdInNum),
             ) as Bid[][];

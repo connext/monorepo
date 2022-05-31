@@ -114,7 +114,7 @@ export const getMinimumBidsCountForRound = (round: number): number => {
  * @param length - Desired length of combinations.
  * @return - Array of combination arrays.
  */
-export const generateCombinations = (sources: any[], length: number): any[] => {
+export const getAllSubsets = (sources: any[], length: number): any[] => {
   const sourceLength = sources.length;
   if (length > sourceLength) return [];
 

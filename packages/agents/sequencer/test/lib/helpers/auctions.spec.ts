@@ -4,7 +4,7 @@ import { stub, restore, reset, SinonStub } from "sinon";
 
 import {
   encodeExecuteFromBids,
-  generateCombinations,
+  getAllSubsets,
   getBidsRoundMap,
   getDestinationLocalAsset,
   getMinimumBidsCountForRound,
@@ -205,7 +205,7 @@ describe("Helpers:Auctions", () => {
     });
   });
 
-  describe("#generateCombinations", () => {
+  describe("#getAllSubsets", () => {
     it("happy", () => {
       const sources = ["A", "B", "C", "D"];
       const combination1 = [["A"], ["B"], ["C"], ["D"]];
@@ -223,9 +223,9 @@ describe("Helpers:Auctions", () => {
         ["A", "C", "D"],
         ["B", "C", "D"],
       ];
-      expect(generateCombinations(sources, 1)).to.be.deep.eq(combination1);
-      expect(generateCombinations(sources, 2)).to.be.deep.eq(combination2);
-      expect(generateCombinations(sources, 3)).to.be.deep.eq(combination3);
+      expect(getAllSubsets(sources, 1)).to.be.deep.eq(combination1);
+      expect(getAllSubsets(sources, 2)).to.be.deep.eq(combination2);
+      expect(getAllSubsets(sources, 3)).to.be.deep.eq(combination3);
     });
   });
 
