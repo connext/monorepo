@@ -182,7 +182,7 @@ export const executeAuctions = async (_requestContext: RequestContext) => {
           }
 
           const destTx = await subgraph.getDestinationTransferById(transfer.destinationDomain!, transferId);
-          if (!!destTx) {
+          if (destTx) {
             logger.error("Transfer already executed", requestContext, methodContext, undefined, {
               transferId,
               transfer,

@@ -1,9 +1,9 @@
 import { Bid, createLoggingContext, ajv, XTransferSchema, OriginTransfer } from "@connext/nxtp-utils";
+import { BigNumber } from "ethers";
 
 import { CallDataForNonContract, MissingXCall, NotEnoughAmount, ParamsInvalid } from "../errors";
 import { getHelpers } from "../helpers";
 import { getContext } from "../../router";
-import { BigNumber } from "ethers";
 import { getAuctionAmount } from "../helpers/auctions";
 
 // fee percentage paid to relayer. need to be updated later

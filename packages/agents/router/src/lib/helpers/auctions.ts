@@ -8,10 +8,10 @@ import {
   jsonifyError,
   formatUrl,
 } from "@connext/nxtp-utils";
+import { BigNumber } from "ethers";
 
 import { getContext } from "../../router";
 import { AuctionExpired, InvalidAuctionRound, SequencerResponseInvalid } from "../errors";
-import { BigNumber } from "ethers";
 
 export const sendBid = async (bid: Bid, _requestContext: RequestContext): Promise<any> => {
   const { config, logger } = getContext();
