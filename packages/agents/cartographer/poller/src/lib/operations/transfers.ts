@@ -1,6 +1,6 @@
 import { createLoggingContext, OriginTransfer, XTransferStatus, SubgraphQueryMetaParams } from "@connext/nxtp-utils";
 
-import { getContext } from "../../backend";
+import { getContext } from "../../cartographer";
 
 export const updateTransfers = async () => {
   const {

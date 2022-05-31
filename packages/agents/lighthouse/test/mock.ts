@@ -46,13 +46,13 @@ export const mock = {
     },
     logLevel: "info",
     network: "testnet",
-    backendUrl: "https://postgrest.testnet.staging.connext.ninja",
+    cartographerUrl: "https://postgrest.testnet.staging.connext.ninja",
     mode: {
       diagnostic: false,
       cleanup: false,
     },
     polling: {
-      backend: 10_000,
+      cartographer: 10_000,
     },
     environment: "staging",
   }),

@@ -1,5 +1,5 @@
-output "poller-service-name" {
-  value = module.poller.daemon_service_name
+output "cartographer-service-name" {
+  value = module.cartographer.daemon_service_name
 }
 
 output "postgrest-dns" {
@@ -11,10 +11,10 @@ output "postgrest-service-endpoint" {
 }
 
 output "db-instance-endpoint" {
-  value = module.poller_db.db_instance_endpoint
+  value = module.cartographer_db.db_instance_endpoint
 }
 
 output "db-instance-fixed-address" {
-  value = module.poller_db.db_instance_fixed_address
+  value = module.cartographer_db.db_instance_fixed_address
 }
 

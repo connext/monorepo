@@ -27,7 +27,7 @@ ARG TEMP_DEPS_DIR
 COPY .yarn /tmp/build/.yarn/
 COPY .yarnrc.yml /tmp/build/
 COPY package.json /tmp/build/
-COPY packages/agents/backend/poller/package.json /tmp/build/packages/agents/backend/poller/
+COPY packages/agents/cartographer/poller/package.json /tmp/build/packages/agents/cartographer/poller/
 COPY packages/adapters/subgraph/package.json /tmp/build/packages/adapters/subgraph/
 COPY packages/utils/package.json /tmp/build/packages/utils/
 RUN touch /tmp/build/yarn.lock
@@ -38,7 +38,7 @@ RUN yarn install
 
 # ----- Copy source and all other files that affect lint, test, build -----
 COPY config config/
-COPY packages/agents/backend/poller /tmp/build/packages/agents/backend/poller
+COPY packages/agents/cartographer/poller /tmp/build/packages/agents/cartographer/poller
 COPY packages/adapters/subgraph /tmp/build/packages/adapters/subgraph
 COPY packages/utils /tmp/build/packages/utils
 COPY .eslintignore /tmp/build/
@@ -62,12 +62,12 @@ ENV COMMIT_HASH ${COMMIT_HASH:-unknown}
 COPY --from=build --chown=node:node /tmp/build /home/node
 COPY --from=build --chown=node:node /usr/local/bin/dbmate /usr/local/bin/dbmate
 
-COPY docker/poller/docker-entrypoint.sh /home/node/packages/agents/backend/poller
-RUN chmod +x /home/node/packages/agents/backend/poller/docker-entrypoint.sh
+COPY docker/cartographer/docker-entrypoint.sh /home/node/packages/agents/cartographer/poller
+RUN chmod +x /home/node/packages/agents/cartographer/poller/docker-entrypoint.sh
 
 # This user is created in the base image with uid and gid = 1000.
 USER node
 
-WORKDIR /home/node/packages/agents/backend/poller
+WORKDIR /home/node/packages/agents/cartographer/poller
 
 CMD ./docker-entrypoint.sh

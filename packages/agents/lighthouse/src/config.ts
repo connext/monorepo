@@ -9,8 +9,8 @@ import { getHelpers } from "./lib/helpers";
 
 // Polling mins and defaults.
 const DEFAULT_CONFIRMATIONS = 3;
-const MIN_BACKEND_POLL_INTERVAL = 30_000;
-const DEFAULT_BACKEND_POLL_INTERVAL = 60_000;
+const MIN_CARTOGRAPHER_POLL_INTERVAL = 30_000;
+const DEFAULT_CARTOGRAPHER_POLL_INTERVAL = 60_000;
 
 dotenvConfig();
 
@@ -30,14 +30,14 @@ export const TModeConfig = Type.Object({
 });
 
 export const TPollingConfig = Type.Object({
-  backend: Type.Integer({ minimum: MIN_BACKEND_POLL_INTERVAL }),
+  cartographer: Type.Integer({ minimum: MIN_CARTOGRAPHER_POLL_INTERVAL }),
 });
 
 export const NxtpLighthouseConfigSchema = Type.Object({
   chains: Type.Record(Type.String(), TChainConfig),
   logLevel: TLogLevel,
   network: Type.Union([Type.Literal("testnet"), Type.Literal("mainnet"), Type.Literal("local")]),
-  backendUrl: Type.String(),
+  cartographerUrl: Type.String(),
   mode: TModeConfig,
   polling: TPollingConfig,
   environment: Type.Union([Type.Literal("staging"), Type.Literal("production")]),
@@ -94,18 +94,18 @@ export const getEnvConfig = (
         process.env.NXTP_DIAGNOSTIC_MODE || configJson.mode?.diagnostic || configFile.mode?.diagnostic || false,
     },
     polling: {
-      backend:
-        process.env.NXTP_BACKEND_POLL_INTERVAL ||
+      cartographer:
+        process.env.NXTP_CARTOGRAPHER_POLL_INTERVAL ||
         configJson.polling?.cache ||
         configFile.polling?.cach ||
-        DEFAULT_BACKEND_POLL_INTERVAL,
+        DEFAULT_CARTOGRAPHER_POLL_INTERVAL,
     },
     environment: process.env.NXTP_ENVIRONMENT || configJson.environment || configFile.environment || "production",
-    backendUrl: process.env.NXTP_BACKEND_URL || configJson.backendUrl || configFile.backendUrl,
+    cartographerUrl: process.env.NXTP_CARTOGRAPHER_URL || configJson.cartographerUrl || configFile.cartographerUrl,
   };
 
-  nxtpConfig.backendUrl =
-    nxtpConfig.backendUrl ??
+  nxtpConfig.cartographerUrl =
+    nxtpConfig.cartographerUrl ??
     (nxtpConfig.environment === "production"
       ? "https://postgrest.testnet.connext.ninja"
       : "https://postgrest.testnet.staging.connext.ninja");
