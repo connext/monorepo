@@ -78,7 +78,8 @@ export const execute = async (params: OriginTransfer): Promise<void> => {
   for (let roundIdx = 1; roundIdx <= config.auctionRoundDepth; roundIdx++) {
     const amountForRound = getAuctionAmount(roundIdx, BigNumber.from(receivingAmount));
     if (amountForRound.lte(balance)) {
-      signatures[roundIdx.toString()] = await signRouterPathPayload(transferId, roundIdx.toString(), wallet);
+      const pathLen = Math.pow(2, roundIdx - 1);
+      signatures[roundIdx.toString()] = await signRouterPathPayload(transferId, pathLen.toString(), wallet);
     } else {
       logger.debug(`Not enough balance for this round: ${roundIdx}. Skipping!`, requestContext, methodContext, {
         balance: balance.toString(),
