@@ -26,7 +26,8 @@ contract DummySwap is IStableSwap {
   function swapExact(
     uint256 amountIn,
     address assetIn,
-    address assetOut
+    address assetOut,
+    uint256 minAmountOut
   ) external payable returns (uint256) {
     // make sure pool is setup
     require(poolAssets[assetIn] == assetOut, "!setup");
@@ -62,7 +63,8 @@ contract DummySwap is IStableSwap {
   function swapExactOut(
     uint256 amountOut,
     address assetIn,
-    address assetOut
+    address assetOut,
+    uint256 maxAmountIn
   ) external payable returns (uint256) {
     require(false, "!implemented");
   }

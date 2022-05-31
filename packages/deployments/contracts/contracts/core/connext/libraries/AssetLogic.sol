@@ -252,7 +252,7 @@ library AssetLogic {
       IStableSwap pool = s.adoptedToLocalPools[_canonicalId];
       SafeERC20.safeApprove(IERC20(_assetIn), address(pool), _amount);
 
-      return (pool.swapExact(_amount, _assetIn, _assetOut), _assetOut);
+      return (pool.swapExact(_amount, _assetIn, _assetOut, 0), _assetOut);
     }
   }
 
@@ -287,7 +287,7 @@ library AssetLogic {
       uint256 _amountIn = pool.calculateSwapOut(tokenIndexIn, tokenIndexOut, _amountOut);
       SafeERC20.safeApprove(IERC20(_assetIn), address(pool), _amountIn);
 
-      return (pool.swapExactOut(_amountOut, _assetIn, _assetOut), _assetOut);
+      return (pool.swapExactOut(_amountOut, _assetIn, _assetOut, _amountIn), _assetOut);
     }
   }
 
