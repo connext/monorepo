@@ -75,7 +75,7 @@ export const execute = async (params: OriginTransfer): Promise<void> => {
   // Make a list of signatures that reflect which auction rounds we want to bid on.
   const balance = await subgraph.getAssetBalance(destinationDomain, routerAddress, executeLocalAsset);
   const signatures: Record<string, string> = {};
-  for (let roundIdx = 1; roundIdx <= config.maxPathLength; roundIdx++) {
+  for (let roundIdx = 1; roundIdx <= config.auctionRoundDepth; roundIdx++) {
     const amountForRound = getAuctionAmount(roundIdx, BigNumber.from(receivingAmount));
     if (amountForRound.lte(balance)) {
       signatures[roundIdx.toString()] = await signRouterPathPayload(transferId, roundIdx.toString(), wallet);
@@ -94,7 +94,7 @@ export const execute = async (params: OriginTransfer): Promise<void> => {
       executeLocalAsset,
       routerAddress,
       destinationDomain: destinationDomain,
-      maxRoundDepth: config.maxPathLength,
+      maxRoundDepth: config.auctionRoundDepth,
       requestContext,
       methodContext,
     });

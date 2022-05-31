@@ -102,8 +102,8 @@ export const getBidsRoundMap = (bids: Record<string, Bid>, roundDepth: number): 
  */
 export const getMinimumBidsCountForRound = (round: number): number => {
   const { config } = getContext();
-  if (round < 1 || round > config.maxPathLength || Math.trunc(round) != round) {
-    throw new RoundInvalid({ round, maxPathLength: config.maxPathLength });
+  if (round < 1 || round > config.auctionRoundDepth || Math.trunc(round) != round) {
+    throw new RoundInvalid({ round, auctionRoundDepth: config.auctionRoundDepth });
   }
   return Math.pow(2, round - 1);
 };

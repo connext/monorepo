@@ -260,7 +260,7 @@ export const ROUTER_CONFIG: Promise<RouterConfig> = (async (): Promise<RouterCon
       subgraph: 5_000,
       cache: 5_000,
     },
-    maxPathLength: 4,
+    auctionRoundDepth: 4,
     environment,
   };
 })();
@@ -294,7 +294,7 @@ export const SEQUENCER_CONFIG: Promise<SequencerConfig> = (async (): Promise<Seq
       cleanup: false,
     },
     auctionWaitTime: 1,
-    maxPathLength: 4,
+    auctionRoundDepth: 4,
     network: "testnet",
     environment: ENVIRONMENT.toString() as "staging" | "production",
     relayerUrl: LOCAL_RELAYER_ENABLED ? `http://${LOCALHOST}:8082` : undefined,
