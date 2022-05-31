@@ -695,7 +695,7 @@ library SwapUtils {
     uint256 dxFee;
     uint256[] memory balances = self.balances;
     (dx, dxFee) = _calculateSwapInv(self, tokenIndexFrom, tokenIndexTo, dy, balances);
-    require(dx <= maxDx, "Swap didn't result in min tokens");
+    require(dx <= maxDx, "Swap needs more than max tokens");
 
     uint256 dxAdminFee = dxFee.mul(self.adminFee).div(FEE_DENOMINATOR).div(
       self.tokenPrecisionMultipliers[tokenIndexFrom]
