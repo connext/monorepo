@@ -115,7 +115,7 @@ describe("Backend operations", () => {
           saveRouterBalances: dbClient.saveRouterBalances,
         },
       },
-      config: mockConfig as BackendConfig,
+      config: mockConfig as CartographerConfig,
       chainData: mockChainData,
       domains: ["1337", "1338"],
     };
@@ -159,7 +159,7 @@ describe("Backend operations", () => {
   it("should throw error on backend loadup", async () => {
     process.env.DATABASE_URL = "invalid_URI";
     try {
-      await backend.makeBackend();
+      await backend.makeCartographer();
     } catch (Error) {}
   });
 });
