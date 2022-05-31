@@ -26,7 +26,7 @@ import {IProposedOwnable} from "../../shared/interfaces/IProposedOwnable.sol";
  * contract
  *
  */
-contract ProposedOwnableFacet is BaseConnextFacet, Pausable, IProposedOwnable {
+contract ProposedOwnableFacet is BaseConnextFacet, IProposedOwnable {
   // ========== Custom Errors ===========
   error ProposedOwnableFacet__proposeRouterOwnershipRenunciation_noOwnershipChange();
   error ProposedOwnableFacet__renounceRouterOwnership_noOwnershipChange();
@@ -250,9 +250,9 @@ contract ProposedOwnableFacet is BaseConnextFacet, Pausable, IProposedOwnable {
   }
 
   function setPausedFunctions(PausedFunctions _paused) public onlyOwner {
-    PauseFunction old = s._paused;
+    PausedFunctions old = s._paused;
     s._paused = _paused;
-    emit PausedFunctionSet(old, _paused);
+    emit SetPausedFunction(old, _paused);
   }
 
   ////// INTERNAL //////

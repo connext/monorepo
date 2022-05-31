@@ -3,7 +3,7 @@ pragma solidity 0.8.11;
 
 import {Home} from "../../../nomad-core/contracts/Home.sol";
 
-import {AppStorage} from "../libraries/LibConnextStorage.sol";
+import {AppStorage, PausedFunctions} from "../libraries/LibConnextStorage.sol";
 import {LibDiamond} from "../libraries/LibDiamond.sol";
 
 contract BaseConnextFacet {
@@ -105,8 +105,7 @@ contract BaseConnextFacet {
    * @notice Throws if all functionality is paused
    */
   modifier whenNotPaused() {
-    if (s._paused == PausedFunctions.All || )
-      revert BaseConnextFacet__whenBridgeNotPaused_paused();
+    if (s._paused == PausedFunctions.All) revert BaseConnextFacet__whenBridgeNotPaused_paused();
     _;
   }
 
