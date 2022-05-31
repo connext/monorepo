@@ -13,7 +13,7 @@ import { constants, BigNumber } from "ethers";
 
 import { ctxMock, getOperationsStub, getHelpersStub } from "../../globalTestHook";
 import { mock } from "../../mock";
-import { AuctionExpired, MissingXCall, ParamsInvalid } from "../../../src/lib/errors";
+import { AuctionExpired, BidVersionInvalid, MissingXCall, ParamsInvalid } from "../../../src/lib/errors";
 import { executeAuctions, storeBid } from "../../../src/lib/operations/auctions";
 
 const { requestContext } = mock.loggingContext("BID-TEST");
@@ -118,6 +118,14 @@ describe("Operations:Auctions", () => {
       };
 
       await expect(storeBid(invalidBid2, requestContext)).to.be.rejectedWith(ParamsInvalid);
+    });
+
+    it("should error if bidVersion is lower than supported version", async () => {
+      const invalidBid1: any = {
+        ...mock.entity.bid(),
+        routerVersion: "0.0",
+      };
+      await expect(storeBid(invalidBid1, requestContext)).to.be.rejectedWith(BidVersionInvalid);
     });
 
     it("should error if the auction has expired", async () => {
