@@ -26,7 +26,7 @@ module "cartographer_db" {
   domain                = "cartographer"
   source                = "../../../modules/db"
   identifier            = "rds-postgres-cartographer-${var.environment}-${var.stage}"
-  instance_class        = "db.t2.small"
+  instance_class        = "db.t2.medium"
   allocated_storage     = 5
   max_allocated_storage = 10
 
