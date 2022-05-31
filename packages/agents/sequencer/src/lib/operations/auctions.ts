@@ -262,24 +262,24 @@ export const executeAuctions = async (_requestContext: RequestContext) => {
                     insufficientRouterExist = true;
                     break;
                   }
+                }
 
-                  routerLiquidityMap.set(router, routerLiquidity);
+                routerLiquidityMap.set(router, routerLiquidity);
 
-                  if (routerLiquidity.lt(assignedAmount)) {
-                    logger.info("Skipped bid from router: insufficient liquidity", requestContext, methodContext, {
-                      transfer: {
-                        transferId,
-                        asset,
-                        destination,
-                        totalAmount: amount.toString(),
-                        assignedAmount,
-                      },
-                      router,
-                      liquidity: routerLiquidity.toString(),
-                    });
-                    insufficientRouterExist = true;
-                    break;
-                  }
+                if (routerLiquidity.lt(assignedAmount)) {
+                  logger.info("Skipped bid from router: insufficient liquidity", requestContext, methodContext, {
+                    transfer: {
+                      transferId,
+                      asset,
+                      destination,
+                      totalAmount: amount.toString(),
+                      assignedAmount,
+                    },
+                    router,
+                    liquidity: routerLiquidity.toString(),
+                  });
+                  insufficientRouterExist = true;
+                  break;
                 }
               }
 
