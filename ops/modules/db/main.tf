@@ -4,7 +4,7 @@ resource "aws_db_instance" "db" {
   identifier = var.identifier
 
   engine            = "postgres"
-  engine_version    = "14"
+  engine_version    = "14.2"
   instance_class    = var.instance_class
   allocated_storage = var.allocated_storage
 
@@ -52,9 +52,6 @@ resource "aws_db_instance" "db" {
 resource "aws_db_subnet_group" "default" {
   name       = "rds-subnet-group-${var.environment}-${var.stage}"
   subnet_ids = var.db_subnet_group_subnet_ids
-  lifecycle {
-    create_before_destroy = true
-  }
 }
 
 

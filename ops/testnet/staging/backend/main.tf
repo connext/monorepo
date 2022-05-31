@@ -26,7 +26,7 @@ module "cartographer_db" {
   domain                = "cartographer"
   source                = "../../../modules/db"
   identifier            = "rds-postgres-cartographer-${var.environment}-${var.stage}"
-  instance_class        = "db.t2.medium"
+  instance_class        = "db.t3.medium"
   allocated_storage     = 5
   max_allocated_storage = 10
 
@@ -43,7 +43,7 @@ module "cartographer_db" {
     Domain      = var.domain
   }
 
-  parameter_group_name = "default.postgres11"
+  parameter_group_name = "default.postgres14"
   vpc_id               = module.network.vpc_id
 
   hosted_zone_id             = data.aws_route53_zone.primary.zone_id
