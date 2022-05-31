@@ -18,7 +18,6 @@ import { AuctionExpired, MissingXCall, ParamsInvalid } from "../../../src/lib/er
 import { executeAuctions, storeBid } from "../../../src/lib/operations/auctions";
 import { getAllSubsets, getBidsRoundMap, getMinimumBidsCountForRound } from "../../../src/lib/helpers/auctions";
 
-import * as AuctionHelperFns from "../../../src/lib/helpers/auctions";
 const { requestContext } = mock.loggingContext("BID-TEST");
 
 describe("Operations:Auctions", () => {
@@ -112,7 +111,7 @@ describe("Operations:Auctions", () => {
     it("should error if input validation fails", async () => {
       const invalidBid1: any = {
         ...mock.entity.bid(),
-        fee: 1,
+        router: 1,
       };
       await expect(storeBid(invalidBid1, requestContext)).to.be.rejectedWith(ParamsInvalid);
 
@@ -203,7 +202,6 @@ describe("Operations:Auctions", () => {
         transferId: transferId,
         origin: "1111",
         router: router1,
-        fee: "0",
         signatures: {
           "1": mkSig("0xrouter1_1"),
         },
@@ -212,7 +210,6 @@ describe("Operations:Auctions", () => {
         transferId: transferId,
         origin: "1111",
         router: router2,
-        fee: "2",
         signatures: {
           "1": mkSig("0xrouter2_1"),
           "2": mkSig("0xrouter2_2"),
@@ -223,7 +220,6 @@ describe("Operations:Auctions", () => {
         transferId: transferId,
         origin: "1111",
         router: router3,
-        fee: "1",
         signatures: {
           "1": mkSig("0xrouter3_1"),
           "2": mkSig("0xrouter3_2"),
@@ -247,83 +243,8 @@ describe("Operations:Auctions", () => {
           transferId: transferId,
           origin: "1111",
           router: router1,
-          fee: "0",
           signatures: {
             "1": mkSig("0xrouter1_1"),
-          },
-        },
-      ]);
-      expect(setStatusStub.getCall(0).args).to.be.deep.eq([transferId, AuctionStatus.Sent]);
-      expect(upsertTaskStub.getCall(0).args).to.be.deep.eq([{ transferId, taskId }]);
-    });
-
-    it("should pick up the bid with the lowest fee amount", async () => {
-      getLiquidityStub.resolves(BigNumber.from("10000000000000000000"));
-      const taskId = getRandomBytes32();
-      sendToRelayerStub.resolves(taskId);
-      const transferId = getRandomBytes32();
-      getQueuedTransfersStub.resolves([transferId]);
-
-      const router1 = mkAddress("0x111");
-      const router2 = mkAddress("0x112");
-      const router3 = mkAddress("0x113");
-      const router4 = mkAddress("0x114");
-      const bids: Record<string, Bid> = {};
-      bids[router1] = {
-        transferId: transferId,
-        origin: "1111",
-        router: router1,
-        fee: "10",
-        signatures: {
-          "1": mkSig("0xrouter1_1"),
-        },
-      };
-      bids[router2] = {
-        transferId: transferId,
-        origin: "1111",
-        router: router2,
-        fee: "20",
-        signatures: {
-          "1": mkSig("0xrouter2_1"),
-        },
-      };
-      bids[router3] = {
-        transferId: transferId,
-        origin: "1111",
-        router: router3,
-        fee: "5",
-        signatures: {
-          "1": mkSig("0xrouter3_1"),
-        },
-      };
-      bids[router4] = {
-        transferId: transferId,
-        origin: "1111",
-        router: router4,
-        fee: "7",
-        signatures: {
-          "1": mkSig("0xrouter4_1"),
-        },
-      };
-      const auction = mock.entity.auction({
-        timestamp: (getNtpTimeSeconds() - ctxMock.config.auctionWaitTime - 20).toString(),
-        bids,
-      });
-      getAuctionStub.resolves(auction);
-
-      const transfer = mock.entity.xtransfer({ transferId });
-      getTransferStub.resolves(transfer);
-      await executeAuctions(requestContext);
-      expect(sendToRelayerStub.callCount).to.be.eq(1);
-      expect(sendToRelayerStub.getCall(0).args[0]).to.be.eq(1);
-      expect(sendToRelayerStub.getCall(0).args[1]).to.be.deep.eq([
-        {
-          transferId: transferId,
-          origin: "1111",
-          router: router3,
-          fee: "5",
-          signatures: {
-            "1": mkSig("0xrouter3_1"),
           },
         },
       ]);
@@ -346,7 +267,6 @@ describe("Operations:Auctions", () => {
         transferId: transferId,
         origin: "1111",
         router: router1,
-        fee: "1",
         signatures: {
           "2": mkSig("0xrouter1_2"),
           "3": mkSig("0xrouter1_3"),
@@ -357,7 +277,6 @@ describe("Operations:Auctions", () => {
         transferId: transferId,
         origin: "1111",
         router: router2,
-        fee: "2",
         signatures: {
           "2": mkSig("0xrouter2_2"),
           "3": mkSig("0xrouter2_3"),
@@ -368,7 +287,6 @@ describe("Operations:Auctions", () => {
         transferId: transferId,
         origin: "1111",
         router: router3,
-        fee: "0",
         signatures: {
           "2": mkSig("0xrouter3_2"),
           "4": mkSig("0xrouter3_4"),
@@ -393,7 +311,6 @@ describe("Operations:Auctions", () => {
           transferId: transferId,
           origin: "1111",
           router: router1,
-          fee: "1",
           signatures: {
             "2": mkSig("0xrouter1_2"),
           },
@@ -401,10 +318,9 @@ describe("Operations:Auctions", () => {
         {
           transferId: transferId,
           origin: "1111",
-          router: router3,
-          fee: "0",
+          router: router2,
           signatures: {
-            "2": mkSig("0xrouter3_2"),
+            "2": mkSig("0xrouter2_2"),
           },
         },
       ]);
@@ -426,7 +342,6 @@ describe("Operations:Auctions", () => {
         transferId: transferId,
         origin: "1111",
         router: router1,
-        fee: "1",
         signatures: {
           "2": mkSig("0xrouter1_2"),
           "3": mkSig("0xrouter1_3"),
@@ -437,7 +352,6 @@ describe("Operations:Auctions", () => {
         transferId: transferId,
         origin: "1111",
         router: router2,
-        fee: "2",
         signatures: {
           "2": mkSig("0xrouter2_2"),
           "3": mkSig("0xrouter2_3"),
@@ -448,7 +362,6 @@ describe("Operations:Auctions", () => {
         transferId: transferId,
         origin: "1111",
         router: router3,
-        fee: "0",
         signatures: {
           "2": mkSig("0xrouter3_2"),
           "4": mkSig("0xrouter3_4"),
@@ -482,7 +395,6 @@ describe("Operations:Auctions", () => {
           transferId: transferId,
           origin: "1111",
           router: router1,
-          fee: "1",
           signatures: {
             "2": mkSig("0xrouter1_2"),
           },
@@ -491,7 +403,6 @@ describe("Operations:Auctions", () => {
           transferId: transferId,
           origin: "1111",
           router: router2,
-          fee: "2",
           signatures: {
             "2": mkSig("0xrouter2_2"),
           },

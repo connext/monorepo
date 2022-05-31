@@ -115,7 +115,6 @@ export const mock: any = {
       transferId: getRandomBytes32(),
       origin: mock.domain.A,
       router: mock.address.router,
-      fee: "0",
       signatures: {
         "1": getRandomBytes32(),
         "2": getRandomBytes32(),

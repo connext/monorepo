@@ -207,26 +207,11 @@ export const executeAuctions = async (_requestContext: RequestContext) => {
             logger.debug(`Selecting the round ${roundIdx}`, requestContext, methodContext, { availableRoundIds });
             const roundIdInNum = Number(roundIdx);
             const totalBids = bidsRoundMap[roundIdInNum];
-            const combinedBidsForRound = getAllSubsets(
-              totalBids,
-              getMinimumBidsCountForRound(roundIdInNum),
-            ) as Bid[][];
-            // TODO. Sort by fee amount, selecting the best bid combination available.
-            const randomized = combinedBidsForRound
-              .map((value) => ({
-                value,
-                sort: value.reduce(
-                  (prev, curr) => BigNumber.from(prev).add(BigNumber.from(curr.fee)),
-                  BigNumber.from(0),
-                ),
-              }))
-              .sort((a, b) => (a.sort.gt(b.sort) ? 0 : -1))
-              .map(({ value }) => value);
-
+            const combinedBidsForRound = getAllSubsets(totalBids, getMinimumBidsCountForRound(roundIdInNum)) as Bid[][];
             let taskId: string | undefined;
 
             // Try every combinations until we find one that works.
-            for (const randomCombination of randomized) {
+            for (const randomCombination of combinedBidsForRound) {
               const asset = await getDestinationLocalAsset(
                 transfer.originDomain,
                 transfer.origin.assets.bridged.asset,
@@ -303,11 +288,6 @@ export const executeAuctions = async (_requestContext: RequestContext) => {
                   bid: {
                     // NOTE: Obfuscating signatures here for safety.
                     routers: randomCombination.map((bid) => bid.router),
-                    fee: randomCombination.map((bid) => bid.fee),
-                    totalFee: randomCombination.reduce(
-                      (prevValue, currentBid) => prevValue.add(BigNumber.from(currentBid.fee)),
-                      BigNumber.from(0),
-                    ),
                   },
                 });
                 // Send the relayer request based on chosen bids.
@@ -336,7 +316,7 @@ export const executeAuctions = async (_requestContext: RequestContext) => {
                   {
                     transferId,
                     round: roundIdInNum,
-                    combinations: randomized,
+                    combinations: combinedBidsForRound,
                     bidsCount: randomCombination.length,
                   },
                 );
@@ -354,7 +334,7 @@ export const executeAuctions = async (_requestContext: RequestContext) => {
                   origin,
                   destination,
                   round: roundIdInNum,
-                  combinations: randomized,
+                  combinations: combinedBidsForRound,
                 },
               );
               continue;
@@ -365,7 +345,7 @@ export const executeAuctions = async (_requestContext: RequestContext) => {
               origin,
               destination,
               round: roundIdInNum,
-              combinations: randomized,
+              combinations: combinedBidsForRound,
             });
 
             await cache.auctions.setStatus(transferId, AuctionStatus.Sent);
