@@ -103,6 +103,14 @@ contract DummySwap is IStableSwap {
     require(false, "!implemented");
   }
 
+  function calculateSwapOut(
+    uint8 tokenIndexFrom,
+    uint8 tokenIndexTo,
+    uint256 dy
+  ) external view returns (uint256) {
+    require(false, "!implemented");
+  }
+
   function calculateTokenAmount(uint256[] calldata amounts, bool deposit) external view returns (uint256) {
     require(false, "!implemented");
   }

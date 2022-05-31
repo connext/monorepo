@@ -219,6 +219,21 @@ contract StableSwap is IStableSwap, OwnerPausableUpgradeable, ReentrancyGuardUpg
   }
 
   /**
+   * @notice Calculate amount of tokens you receive on swap
+   * @param tokenIndexFrom the token the user wants to sell
+   * @param tokenIndexTo the token the user wants to buy
+   * @param dy the amount of tokens the user wants to buy
+   * @return amount of tokens the user have to transfer
+   */
+  function calculateSwapOut(
+    uint8 tokenIndexFrom,
+    uint8 tokenIndexTo,
+    uint256 dy
+  ) external view override returns (uint256) {
+    return swapStorage.calculateSwapInv(tokenIndexFrom, tokenIndexTo, dy);
+  }
+
+  /**
    * @notice A simple method to calculate prices from deposits or
    * withdrawals, excluding fees but including slippage. This is
    * helpful as an input into the various "min" parameters on calls
@@ -313,14 +328,17 @@ contract StableSwap is IStableSwap, OwnerPausableUpgradeable, ReentrancyGuardUpg
    * @notice Swap two tokens using this pool
    * @param assetIn the token the user wants to swap from
    * @param assetOut the token the user wants to swap to
-   * @param amountIn the amount of tokens the user wants to swap from
+   * @param amountOut the amount of tokens the user wants to swap to
    */
   function swapExactOut(
-    uint256 amountIn,
+    uint256 amountOut,
     address assetIn,
     address assetOut
   ) external payable override nonReentrant whenNotPaused returns (uint256) {
-    require(false, "not implemented");
+    uint8 tokenIndexFrom = getTokenIndex(assetIn);
+    uint8 tokenIndexTo = getTokenIndex(assetOut);
+    uint256 balance = IERC20(assetIn).balanceOf(msg.sender);
+    return swapStorage.swapOut(tokenIndexFrom, tokenIndexTo, amountOut, balance);
   }
 
   /**
