@@ -10,8 +10,8 @@ export const transfersCastForUrl =
   "select=origin_domain,destination_domain,nonce,to,call_data,idx,transfer_id,origin_chain,origin_transacting_asset,origin_transacting_amount::text,origin_bridged_asset,origin_bridged_amount::text,xcall_caller,xcall_transaction_hash,xcall_timestamp,xcall_gas_price::text,xcall_gas_limit::text,xcall_block_number,xcall_relayer_fee::text,destination_chain,status,routers,destination_transacting_asset,destination_transacting_amount::text,destination_local_asset,destination_local_amount::text,execute_caller,execute_transaction_hash,execute_timestamp,execute_gas_price::text,execute_gas_limit::text,execute_block_number,execute_origin_sender,reconcile_caller,reconcile_transaction_hash,reconcile_timestamp,reconcile_gas_price::text,reconcile_gas_limit::text,reconcile_block_number,force_slow,receive_local,callback,recovery,callback_fee,execute_relayer_fee::text";
 
 /**
- * Converts a transfer from the backend db through either DB queries or Postgrest into the XTranfer type
- * @param transfer the transfer from the backend db as a JSON object
+ * Converts a transfer from the cartographer db through either DB queries or Postgrest into the XTranfer type
+ * @param transfer the transfer from the cartographer db as a JSON object
  * @returns an XTRansfer object
  */
 export const convertFromDbTransfer = (transfer: any): XTransfer => {

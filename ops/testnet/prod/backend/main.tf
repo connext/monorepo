@@ -22,13 +22,13 @@ data "aws_route53_zone" "primary" {
   zone_id = "Z03634792TWUEHHQ5L0YX"
 }
 
-module "poller_db" {
-  domain                = "poller"
+module "cartographer_db" {
+  domain                = "cartographer"
   source                = "../../../modules/db"
-  identifier            = "rds-postgres-poller-${var.environment}"
-  instance_class        = "db.t2.small"
-  allocated_storage     = 5
-  max_allocated_storage = 10
+  identifier            = "rds-postgres-cartographer-${var.environment}"
+  instance_class        = "db.t4g.large"
+  allocated_storage     = 10
+  max_allocated_storage = 30
 
 
   name     = "connext" // db name
@@ -84,7 +84,7 @@ module "postgrest" {
   domain                   = var.domain
 }
 
-module "poller" {
+module "cartographer" {
   source                  = "../../../modules/daemon"
   region                  = var.region
   dd_api_key              = var.dd_api_key
@@ -92,8 +92,8 @@ module "poller" {
   cluster_id              = module.ecs.ecs_cluster_id
   vpc_id                  = module.network.vpc_id
   private_subnets         = module.network.private_subnets
-  docker_image            = var.full_image_name_poller
-  container_family        = "poller"
+  docker_image            = var.full_image_name_cartographer
+  container_family        = "cartographer"
   container_port          = 8080
   cpu                     = 512
   memory                  = 2048
@@ -102,7 +102,7 @@ module "poller" {
   stage                   = var.stage
   domain                  = var.domain
   service_security_groups = flatten([module.network.allow_all_sg, module.network.ecs_task_sg])
-  container_env_vars      = local.poller_env_vars
+  container_env_vars      = local.cartographer_env_vars
 }
 
 module "network" {

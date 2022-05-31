@@ -22,11 +22,11 @@ data "aws_route53_zone" "primary" {
   zone_id = "Z03634792TWUEHHQ5L0YX"
 }
 
-module "poller_db" {
-  domain                = "poller"
+module "cartographer_db" {
+  domain                = "cartographer"
   source                = "../../../modules/db"
-  identifier            = "rds-postgres-poller-${var.environment}-${var.stage}"
-  instance_class        = "db.t2.small"
+  identifier            = "rds-postgres-cartographer-${var.environment}-${var.stage}"
+  instance_class        = "db.t2.medium"
   allocated_storage     = 5
   max_allocated_storage = 10
 
@@ -85,25 +85,25 @@ module "postgrest" {
   domain                   = var.domain
 }
 
-module "poller" {
-  source                   = "../../../modules/daemon"
-  region                   = var.region
-  dd_api_key               = var.dd_api_key
-  execution_role_arn       = data.aws_iam_role.ecr_admin_role.arn
-  cluster_id               = module.ecs.ecs_cluster_id
-  vpc_id                   = module.network.vpc_id
-  private_subnets          = module.network.private_subnets
-  docker_image             = var.full_image_name_poller
-  container_family         = "poller"
-  container_port           = 8080
-  cpu                      = 256
-  memory                   = 512
-  instance_count           = 1
-  environment              = var.environment
-  stage                    = var.stage
-  domain                   = var.domain
-  service_security_groups  = flatten([module.network.allow_all_sg, module.network.ecs_task_sg])
-  container_env_vars       = local.poller_env_vars
+module "cartographer" {
+  source                  = "../../../modules/daemon"
+  region                  = var.region
+  dd_api_key              = var.dd_api_key
+  execution_role_arn      = data.aws_iam_role.ecr_admin_role.arn
+  cluster_id              = module.ecs.ecs_cluster_id
+  vpc_id                  = module.network.vpc_id
+  private_subnets         = module.network.private_subnets
+  docker_image            = var.full_image_name_cartographer
+  container_family        = "cartographer"
+  container_port          = 8080
+  cpu                     = 256
+  memory                  = 512
+  instance_count          = 1
+  environment             = var.environment
+  stage                   = var.stage
+  domain                  = var.domain
+  service_security_groups = flatten([module.network.allow_all_sg, module.network.ecs_task_sg])
+  container_env_vars      = local.cartographer_env_vars
 }
 
 module "network" {
