@@ -207,12 +207,12 @@ export const executeAuctions = async (_requestContext: RequestContext) => {
             logger.debug(`Selecting the round ${roundIdx}`, requestContext, methodContext, { availableRoundIds });
             const roundIdInNum = Number(roundIdx);
             const totalBids = bidsRoundMap[roundIdInNum];
-            const combinatedBidsForRound = generateCombinations(
+            const combinedBidsForRound = generateCombinations(
               totalBids,
               getMinimumBidsCountForRound(roundIdInNum),
             ) as Bid[][];
             // TODO. Sort by fee amount, selecting the best bid combination available.
-            const randomized = combinatedBidsForRound
+            const randomized = combinedBidsForRound
               .map((value) => ({
                 value,
                 sort: value.reduce(
