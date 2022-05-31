@@ -4,7 +4,7 @@ import { getDeployedConnextContract, _getContractDeployments } from "@connext/nx
 import { SequencerConfig } from "@connext/nxtp-sequencer/src/lib/entities/config";
 import { NxtpRouterConfig as RouterConfig, ChainConfig as RouterChainConfig } from "@connext/nxtp-router/src/config";
 import { RelayerConfig } from "@connext/nxtp-relayer/src/lib/entities/config";
-import { BackendConfig } from "@connext/backend-poller/src/config";
+import { CartographerConfig } from "@connext/cartographer-poller/src/config";
 
 export enum Environment {
   Staging = "staging",
@@ -28,7 +28,7 @@ export const ENVIRONMENT: "staging" | "production" = (process.env.ENV ||
 
 // Whether or not to run certain agents locally.
 export const LOCAL_RELAYER_ENABLED = process.env.LOCAL_RELAYER_ENABLED === "true";
-export const LOCAL_BACKEND_ENABLED = process.env.LOCAL_BACKEND_ENABLED === "true";
+export const LOCAL_CARTOGRAPHER_ENABLED = process.env.LOCAL_CARTOGRAPHER_ENABLED === "true";
 
 // TODO: May need to increase this at some point:
 export const RELAYER_FEE_AMOUNT = utils.parseEther("0.0000000001"); // In ETH.
@@ -332,8 +332,8 @@ export const RELAYER_CONFIG: Promise<RelayerConfig> = (async (): Promise<Relayer
   };
 })();
 
-/// MARK - BACKEND CONFIG
-export const BACKEND_CONFIG: Promise<BackendConfig> = (async (): Promise<BackendConfig> => {
+/// MARK - CARTOGRAPHER CONFIG
+export const CARTOGRAPHER_CONFIG: Promise<CartographerConfig> = (async (): Promise<CartographerConfig> => {
   return {
     database: {
       url: "postgres://postgres:qwerty@localhost:5432/connext?sslmode=disable",

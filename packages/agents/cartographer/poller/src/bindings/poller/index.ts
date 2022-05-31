@@ -1,7 +1,7 @@
 import { createLoggingContext, jsonifyError, NxtpError } from "@connext/nxtp-utils";
 import interval from "interval-promise";
 
-import { getContext } from "../../backend";
+import { getContext } from "../../cartographer";
 import { updateTransfers } from "../../lib/operations";
 import { updateRouters } from "../../lib/operations/routers";
 
