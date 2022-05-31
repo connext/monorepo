@@ -204,10 +204,16 @@ export const executeAuctions = async (_requestContext: RequestContext) => {
           }
 
           for (const roundIdx of availableRoundIds) {
-            logger.debug(`Selecting the round ${roundIdx}`, requestContext, methodContext, { availableRoundIds });
             const roundIdInNum = Number(roundIdx);
             const totalBids = bidsRoundMap[roundIdInNum];
             const combinedBidsForRound = getAllSubsets(totalBids, getMinimumBidsCountForRound(roundIdInNum)) as Bid[][];
+            logger.debug(`Selecting the round ${roundIdx}`, requestContext, methodContext, {
+              availableRoundIds,
+              totalBidsCount: totalBids.length,
+              totalBids: totalBids,
+              combinationCount: combinedBidsForRound.length,
+              combinations: combinedBidsForRound,
+            });
             let taskId: string | undefined;
 
             // Try every combinations until we find one that works.
