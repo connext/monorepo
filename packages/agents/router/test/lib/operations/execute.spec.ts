@@ -84,6 +84,7 @@ describe("Operations:Execute", () => {
         transferId: _mockXTransfer.transferId,
         origin: _mockXTransfer.originDomain,
         router: mockRouter,
+        routerVersion: version,
         signatures: {
           "2": mock.signature,
           "3": mock.signature,
