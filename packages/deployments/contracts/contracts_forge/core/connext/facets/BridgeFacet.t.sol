@@ -14,6 +14,7 @@ import {IWrapped} from "../../../../contracts/core/connext/interfaces/IWrapped.s
 import {IExecutor} from "../../../../contracts/core/connext/interfaces/IExecutor.sol";
 import {Executor} from "../../../../contracts/core/connext/helpers/Executor.sol";
 import {ConnextMessage} from "../../../../contracts/core/connext/libraries/ConnextMessage.sol";
+import {AssetLogic} from "../../../../contracts/core/connext/libraries/AssetLogic.sol";
 import {LibCrossDomainProperty} from "../../../../contracts/core/connext/libraries/LibCrossDomainProperty.sol";
 import {CallParams, ExecuteArgs, XCallArgs} from "../../../../contracts/core/connext/libraries/LibConnextStorage.sol";
 import {LibDiamond} from "../../../../contracts/core/connext/libraries/LibDiamond.sol";
@@ -187,7 +188,7 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
   }
 
   // Make it so the local asset used for testing is representational / considered to be originating from another chain.
-  // In order to send the asset via xcall, it will be burnt.
+  // In order to send the asset via xcall, the tokens will be burnt.
   function utils_makeLocalAssetRepresentational() public {
     vm.mockCall(_tokenRegistry, abi.encodeWithSelector(ITokenRegistry.isLocalOrigin.selector), abi.encode(bool(false)));
   }
@@ -508,12 +509,7 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
     helpers_xcallAndAssert(BridgeFacet.BridgeFacet__xcall_wrongDomain.selector);
   }
 
-  // fails if destination domain does not have an xapp router registered
-  // function test_BridgeFacet__xcall_failIfDomainIncorrect() public {
-  //   _originDomain = 999999;
-  //   vm.expectRevert(BridgeFacet.BridgeFacet__xcall_wrongDomain.selector);
-  //   helpers_xcallAndAssert(false);
-  // }
+  // TODO: fails if destination domain does not have an xapp router registered
 
   // fails if recipient `to` not a valid address (i.e. != address(0))
   function test_BridgeFacet__xcall_failIfMoRecipient() public {
@@ -529,11 +525,6 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
   }
 
   // TODO?: fails if callback is defined (and is a contract) but callback fee is 0 ??
-  // function test_BridgeFacet__xcall_failIfCallbackContractSetButNoCallbackFee() public {
-  //   _params.callback = _callback;
-  //   _params.callbackFee = 0;
-  //   helpers_xcallAndAssert(BridgeFacet.BridgeFacet__xcall_nonZeroCallbackFeeForCallback.selector);
-  // }
 
   // fails if callback is defined but not a contract
   function test_BridgeFacet__xcall_failIfCallbackNotAContract() public {
@@ -543,8 +534,31 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
   }
 
   // fails if asset is not supported (i.e. s.adoptedToCanonical[transactingAssetId].id == bytes32(0))
+  function test_BridgeFacet__xcall_failIfAssetNotSupported() public {
+    s.adoptedToCanonical[_local] = ConnextMessage.TokenId(0, bytes32(0));
+    helpers_xcallAndAssert(BridgeFacet.BridgeFacet__xcall_notSupportedAsset.selector);
+  }
+
+  // fails if native asset wrapper is not supported (i.e. s.adoptedToCanonical[transactingAssetId].id == bytes32(0))
+  function test_BridgeFacet__xcall_failIfNativeAssetWrapperNotSupported() public {
+    utils_useNative(true);
+    s.adoptedToCanonical[address(s.wrapper)] = ConnextMessage.TokenId(0, bytes32(0));
+    helpers_xcallAndAssert(BridgeFacet.BridgeFacet__xcall_notSupportedAsset.selector);
+  }
 
   // fails if callbackFee in param and value does not match in native transfer
+  function test_BridgeFacet__xcall_failNativeAssetCallbackFeeAndMismatch() public {
+    vm.deal(_originSender, 100 ether);
+    utils_useNative(true);
+    _params.callback = _callback;
+    _params.callbackFee = 0.01 ether;
+    (, XCallArgs memory args) = utils_makeXCallArgs();
+    vm.expectRevert(AssetLogic.AssetLogic__handleIncomingAsset_notAmount.selector);
+    vm.prank(_originSender);
+    // Sending only the amount + relayer fee - callbackFee is not covered!
+    this.xcall{value: args.relayerFee + args.amount}(args);
+  }
+
   // fails if relayerFee in param and value does not match in native transfer
 
   // Fail if relayerFee in param and value does not match in token transfer
