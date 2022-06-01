@@ -275,16 +275,16 @@ library AssetLogic {
     AppStorage storage s = LibConnextStorage.connextStorage();
 
     // Swap the asset to the proper local asset
-
-    uint8 tokenIndexIn = getTokenIndexFromStableSwapPool(_canonicalId, _assetIn);
-    uint8 tokenIndexOut = getTokenIndexFromStableSwapPool(_canonicalId, _assetOut);
+    // TODO slippage!!!!
     if (stableSwapPoolExist(_canonicalId)) {
       // if internal swap pool exists
+      uint8 tokenIndexIn = getTokenIndexFromStableSwapPool(_canonicalId, _assetIn);
+      uint8 tokenIndexOut = getTokenIndexFromStableSwapPool(_canonicalId, _assetOut);
       return (s.swapStorages[_canonicalId].swapInternalOut(tokenIndexIn, tokenIndexOut, _amountOut, 0), _assetOut);
     } else {
       // Otherwise, swap via stable swap pool
       IStableSwap pool = s.adoptedToLocalPools[_canonicalId];
-      uint256 _amountIn = pool.calculateSwapOut(tokenIndexIn, tokenIndexOut, _amountOut);
+      uint256 _amountIn = pool.calculateSwapOutFromAddress(_assetIn, _assetOut, _amountOut);
       SafeERC20.safeApprove(IERC20(_assetIn), address(pool), _amountIn);
 
       return (pool.swapExactOut(_amountOut, _assetIn, _assetOut, _amountIn), _assetOut);
