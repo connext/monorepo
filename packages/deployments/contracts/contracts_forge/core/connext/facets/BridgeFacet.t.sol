@@ -359,12 +359,9 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
 
     assertEq(s.relayerFees[transferId], 0);
 
+    vm.deal(_originSender, 100 ether);
     vm.prank(_originSender);
-    if (isNative) {
-      this.xcall{value: fees + args.amount}(args);
-    } else {
-      this.xcall{value: fees}(args);
-    }
+    this.xcall{value: isNative ? fees + args.amount : fees}(args);
 
     if (isNative) {
       // assertEq(payable(_originSender).balance, initialUserBalance - fees - args.amount);
