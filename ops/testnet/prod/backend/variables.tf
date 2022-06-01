@@ -25,10 +25,10 @@ variable "environment" {
   default     = "testnet"
 }
 
-variable "full_image_name_poller" {
+variable "full_image_name_cartographer" {
   type        = string
   description = "router image name"
-  default     = "ghcr.io/connext/poller:0.2.0-alpha.15"
+  default     = "ghcr.io/connext/cartographer:0.2.0-alpha.15"
 }
 
 variable "certificate_arn_testnet" {

@@ -9,7 +9,7 @@ docker run -p 5432:5432 -e POSTGRES_PASSWORD=qwerty postgres
 - Run database migrations:
 
 ```sh
-yarn workspace @connext/backend-poller dbmate up
+yarn workspace @connext/cartographer-poller dbmate up
 ```
 
 - Install [`dbmate`](https://github.com/amacneil/dbmate) (instructions for Mac OS / Unix):
@@ -57,7 +57,7 @@ DATABASE_URL=postgres://postgres:qwerty@localhost:5432/connext?sslmode=disable
 - Run poller:
 
 ```sh
-yarn workspace @connext/backend-poller dev
+yarn workspace @connext/cartographer-poller dev
 ```
 
 # Updating DB Schema
@@ -65,17 +65,17 @@ yarn workspace @connext/backend-poller dev
 In order to update the database schema, create a new migration:
 
 ```sh
-yarn workspace @connext/backend-poller dbmate new migration_name
+yarn workspace @connext/cartographer-poller dbmate new migration_name
 ```
 
 Edit the migration file and run the migration:
 
 ```sh
-yarn workspace @connext/backend-poller dbmate up
+yarn workspace @connext/cartographer-poller dbmate up
 ```
 
 Create the Typescript schema using [Zapatos](https://jawj.github.io/zapatos/):
 
 ```sh
-yarn workspace @connext/backend-poller zapatos
+yarn workspace @connext/cartographer-poller zapatos
 ```

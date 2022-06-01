@@ -51,7 +51,7 @@ export class NxtpSdkUtils {
   }
 
   async getRoutersData(): Promise<any> {
-    const uri = formatUrl(this.config.backendUrl!, "routers_with_balances");
+    const uri = formatUrl(this.config.cartographerUrl!, "routers_with_balances");
     // Validate uri
     validateUri(uri);
 
@@ -77,7 +77,7 @@ export class NxtpSdkUtils {
     const orderIdentifier = `&order=xcall_timestamp.desc`;
 
     const uri = formatUrl(
-      this.config.backendUrl!,
+      this.config.cartographerUrl!,
       "transfers?",
       searchIdentifier + rangeIdentifier + orderIdentifier + `&${transfersCastForUrl}`,
     );
@@ -98,7 +98,7 @@ export class NxtpSdkUtils {
     const orderIdentifier = `&order=xcall_timestamp.desc`;
 
     const uri = formatUrl(
-      this.config.backendUrl!,
+      this.config.cartographerUrl!,
       "transfers?",
       rangeIdentifier + orderIdentifier + `&${transfersCastForUrl}`,
     );
@@ -124,7 +124,7 @@ export class NxtpSdkUtils {
     const orderIdentifier = `&order=xcall_timestamp.desc`;
 
     const uri = formatUrl(
-      this.config.backendUrl!,
+      this.config.cartographerUrl!,
       "transfers?",
       statusIdentifier + rangeIdentifier + orderIdentifier + `&${transfersCastForUrl}`,
     );
@@ -154,7 +154,7 @@ export class NxtpSdkUtils {
     const orderIdentifier = `&order=xcall_timestamp.desc`;
 
     const uri = formatUrl(
-      this.config.backendUrl!,
+      this.config.cartographerUrl!,
       "transfers?",
       searchIdentifier + rangeIdentifier + orderIdentifier + `&${transfersCastForUrl}`,
     );
@@ -167,7 +167,7 @@ export class NxtpSdkUtils {
 
   async getTransferById(transferId: string): Promise<any> {
     const uri = formatUrl(
-      this.config.backendUrl!,
+      this.config.cartographerUrl!,
       "transfers?",
       `transfer_id=eq.${transferId.toLowerCase()}&${transfersCastForUrl}`,
     );
@@ -179,7 +179,7 @@ export class NxtpSdkUtils {
 
   async getTransferByTransactionHash(transactionHash: string): Promise<any> {
     const uri = formatUrl(
-      this.config.backendUrl!,
+      this.config.cartographerUrl!,
       "transfers?",
       `xcall_transaction_hash=eq.${transactionHash.toLowerCase()}&${transfersCastForUrl}`,
     );
