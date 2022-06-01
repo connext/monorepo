@@ -9,7 +9,6 @@ import {SafeERC20Upgradeable, IERC20Upgradeable} from "@openzeppelin/contracts-u
 contract PortalFacet is BaseConnextFacet {
   // ========== Custom Errors ===========
   error PortalFacet__setAavePortalFee_invalidFee();
-  error PortalFacet__repayAavePortal_notApprovedForPortals();
   error PortalFacet__repayAavePortal_insufficientFunds();
 
   // ============ Events ============
