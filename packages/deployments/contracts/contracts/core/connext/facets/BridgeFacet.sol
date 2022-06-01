@@ -21,8 +21,6 @@ import {IExecutor} from "../interfaces/IExecutor.sol";
 import {IWrapped} from "../interfaces/IWrapped.sol";
 import {ISponsorVault} from "../interfaces/ISponsorVault.sol";
 
-import "../../../../lib/forge-std/src/console.sol";
-
 contract BridgeFacet is BaseConnextFacet {
   // ============ Libraries ============
   using TypedMemView for bytes;
