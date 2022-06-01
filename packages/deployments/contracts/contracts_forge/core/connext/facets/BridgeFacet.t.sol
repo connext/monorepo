@@ -341,7 +341,6 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
       // TODO: Handle bridgedAmt changing after swap?
       uint256 bridgedAmt = args.amount;
       address bridged = isNative ? address(s.wrapper) : _local;
-      console.log("bridged", bridged, bridgedAmt);
       BridgeFacet.XCalledEventArgs memory eventArgs = BridgeFacet.XCalledEventArgs({
         transactingAssetId: args.transactingAssetId,
         amount: args.amount,
@@ -507,13 +506,13 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
   // fails if user has insufficient tokens
 
   // ============ xcall success cases
-  // base case
-  function test_BridgeFacet__xcall_works() public {
+  // local token transfer
+  function test_BridgeFacet__xcall_tokenTransferWorks() public {
     helpers_xcallAndAssert(true);
   }
 
   // native asset transfer
-  function test_BridgeFacet__xcall_nativeAssetWorks() public {
+  function test_BridgeFacet__xcall_nativeTransferWorks() public {
     _local = address(0);
     helpers_xcallAndAssert(true);
   }
@@ -526,6 +525,10 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
   }
 
   // works if relayer fee is set to 0
+  function test_BridgeFacet__xcall_zeroRelayerFeeWorks() public {
+    _relayerFee = 0;
+    helpers_xcallAndAssert(true);
+  }
 
   // ======= handle (reconcile) =======
   // handle

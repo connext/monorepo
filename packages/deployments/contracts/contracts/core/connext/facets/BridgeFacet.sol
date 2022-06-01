@@ -250,12 +250,6 @@ contract BridgeFacet is BaseConnextFacet {
         ? address(s.wrapper)
         : _args.transactingAssetId;
 
-      require(address(s.wrapper) != address(0), "Wrapper invalid");
-      require(transactingAssetId != address(0), "Asset ID invalid");
-
-      console.log("converted", transactingAssetId);
-      console.log(_args.transactingAssetId);
-
       // check that the asset is supported -- can be either adopted or local
       ConnextMessage.TokenId memory canonical = s.adoptedToCanonical[transactingAssetId];
       if (canonical.id == bytes32(0)) {
@@ -276,8 +270,6 @@ contract BridgeFacet is BaseConnextFacet {
         transactingAssetId,
         amount
       );
-      console.log(bridgedAmt, bridged);
-      require(bridged != address(0), "bridged asset invalid");
 
       transferId = _getTransferId(_args, canonical);
 
