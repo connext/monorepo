@@ -546,35 +546,94 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
     helpers_xcallAndAssert(BridgeFacet.BridgeFacet__xcall_notSupportedAsset.selector);
   }
 
-  // fails if callbackFee in param and value does not match in native transfer
-  function test_BridgeFacet__xcall_failNativeAssetCallbackFeeAndMismatch() public {
+  // fails if native token transfer and amount of native tokens sent is < amount + relayerFee + callbackFee
+  function test_BridgeFacet__xcall_failNativeAssetCallbackFeeInsufficient() public {
     vm.deal(_originSender, 100 ether);
     utils_useNative(true);
     _params.callback = _callback;
     _params.callbackFee = 0.01 ether;
+
     (, XCallArgs memory args) = utils_makeXCallArgs();
+
     vm.expectRevert(AssetLogic.AssetLogic__handleIncomingAsset_notAmount.selector);
     vm.prank(_originSender);
-    // Sending only the amount + relayer fee - callbackFee is not covered!
+    // Sending only the amount + relayer fee; callbackFee is not covered!
     this.xcall{value: args.relayerFee + args.amount}(args);
   }
 
-  // fails if relayerFee in param and value does not match in native transfer
-
-  // Fail if relayerFee in param and value does not match in token transfer
-
   // fails if native token transfer and amount of native tokens sent is < amount + relayerFee
-  // AssetLogic__handleIncomingAsset_notAmount
+  function test_BridgeFacet__xcall_failNativeAssetRelayerFeeInsufficient() public {
+    vm.deal(_originSender, 100 ether);
+    utils_useNative(true);
+    _relayerFee = 0.002 ether;
 
-  // fails if native token transfer and amount of native tokens sent is < amount + relayerFee + callbackFee
-  // AssetLogic__handleIncomingAsset_notAmount
+    (, XCallArgs memory args) = utils_makeXCallArgs();
+
+    vm.expectRevert(AssetLogic.AssetLogic__handleIncomingAsset_notAmount.selector);
+    vm.prank(_originSender);
+    // Sending only the amount; relayer fee is not covered!
+    this.xcall{value: args.amount}(args);
+  }
 
   // fails if erc20 transfer and eth sent < relayerFee + callbackFee
-  // AssetLogic__handleIncomingAsset_ethWithErcTransfer
+  function test_BridgeFacet__xcall_failEthWithErc20TransferInsufficient() public {
+    vm.deal(_originSender, 100 ether);
+    _relayerFee = 0.1 ether;
+
+    (, XCallArgs memory args) = utils_makeXCallArgs();
+
+    vm.expectRevert(AssetLogic.AssetLogic__handleIncomingAsset_ethWithErcTransfer.selector);
+    vm.prank(_originSender);
+    // Sending insufficent eth to cover relayer fee.
+    this.xcall{value: 0.08 ether}(args);
+  }
+
   // fails if erc20 transfer and eth sent > relayerFee + callbackFee
-  // AssetLogic__handleIncomingAsset_ethWithErcTransfer
+  function test_BridgeFacet__xcall_failEthWithErc20TransferUnnecessary() public {
+    vm.deal(_originSender, 100 ether);
+    _relayerFee = 0.1 ether;
+
+    (, XCallArgs memory args) = utils_makeXCallArgs();
+
+    vm.expectRevert(AssetLogic.AssetLogic__handleIncomingAsset_ethWithErcTransfer.selector);
+    vm.prank(_originSender);
+    // Sending too much eth.
+    this.xcall{value: 1 ether}(args);
+  }
 
   // fails if user has insufficient tokens
+  function test_BridgeFacet__xcall_failInsufficientErc20Tokens() public {
+    _amount = 10.1 ether;
+    TestERC20 localToken = TestERC20(_local);
+    localToken.mint(_originSender, 10 ether);
+    vm.prank(_originSender);
+    localToken.approve(address(this), 10.1 ether);
+
+    vm.deal(_originSender, 100 ether);
+
+    (, XCallArgs memory args) = utils_makeXCallArgs();
+
+    vm.expectRevert("ERC20: transfer amount exceeds balance");
+    vm.prank(_originSender);
+    this.xcall{value: args.relayerFee}(args);
+  }
+
+  // fails if user has not set enough allowance
+  function test_BridgeFacet__xcall_failInsufficientErc20Approval() public {
+    _amount = 10.1 ether;
+    TestERC20 localToken = TestERC20(_local);
+    localToken.mint(_originSender, 10.1 ether);
+    vm.prank(_originSender);
+    localToken.approve(address(this), 10 ether);
+
+    vm.deal(_originSender, 100 ether);
+
+    (, XCallArgs memory args) = utils_makeXCallArgs();
+
+    vm.expectRevert("ERC20: transfer amount exceeds allowance");
+    vm.prank(_originSender);
+    this.xcall{value: args.relayerFee}(args);
+  }
 
   // ============ xcall success cases
   // local token transfer
