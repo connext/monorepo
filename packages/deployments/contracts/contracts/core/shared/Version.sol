@@ -2,9 +2,9 @@
 pragma solidity 0.8.11;
 
 /**
- * @title Version0
+ * @title Version
  * @notice Version getter for contracts
  **/
-contract Version0 {
+contract Version {
   uint8 public constant VERSION = 0;
 }
