@@ -828,7 +828,7 @@ describe("StableSwap", async () => {
       ]);
 
       // User 1 successfully initiates swap
-      await swap.connect(user1).swapExact(String(1e17), firstToken.address, secondToken.address);
+      await swap.connect(user1).swapExact(String(1e17), firstToken.address, secondToken.address, 0);
 
       // Check the sent and received amounts are as expected
       const [tokenFromBalanceAfter, tokenToBalanceAfter] = await getUserTokenBalances(user1, [firstToken, secondToken]);
