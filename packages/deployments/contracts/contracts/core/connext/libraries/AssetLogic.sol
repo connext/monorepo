@@ -150,27 +150,20 @@ library AssetLogic {
   ) internal returns (uint256, address) {
     AppStorage storage s = LibConnextStorage.connextStorage();
 
-    // Check to see if the asset must be swapped because it is not the local asset
-    if (_canonical.id == bytes32(0)) {
-      // This is *not* the adopted asset, meaning it must be the local asset
-      return (_amount, _asset);
-    }
-
-    // Get the local token for this domain (may return canonical or representation)
+    // Get the local token for this domain (may return canonical or representation).
     address local = s.tokenRegistry.getLocalAddress(_canonical.domain, _canonical.id);
 
-    // if theres no amount, no need to swap
+    // If theres no amount. If so, no need to swap.
     if (_amount == 0) {
       return (_amount, local);
     }
 
-    // Check the case where the adopted asset *is* the local asset
+    // Check the case where the adopted asset *is* the local asset. If so, no need to swap.
     if (local == _asset) {
-      // No need to swap
       return (_amount, _asset);
     }
 
-    // Swap the asset to the proper local asset
+    // Swap the asset to the proper local asset.
     return _swapAsset(_canonical.id, _asset, local, _amount);
   }
 
