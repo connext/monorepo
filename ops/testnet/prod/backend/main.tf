@@ -84,6 +84,24 @@ module "postgrest" {
   domain                   = var.domain
 }
 
+
+module "postgrest_logdna_lambda_exporter" {
+  source               = "../../../modules/lambda"
+  stage                = var.stage
+  environment          = var.environment
+  domain               = var.domain
+  region               = var.region
+  log_group_name       = module.postgrest.log_group_name
+  logdna_key           = var.logdna_key
+  private_subnets      = module.network.private_subnets
+  public_subnets       = module.network.public_subnets
+  service              = "postgrest"
+  vpc_id               = module.network.vpc_id
+  log_group_arn        = module.postgrest.log_group_arn
+  aws_lambda_s3_bucket = "aws-lamba-logdna-cloudwatch-prod"
+}
+
+
 module "cartographer" {
   source                  = "../../../modules/daemon"
   region                  = var.region
@@ -104,6 +122,23 @@ module "cartographer" {
   service_security_groups = flatten([module.network.allow_all_sg, module.network.ecs_task_sg])
   container_env_vars      = local.cartographer_env_vars
 }
+
+module "cartographer_logdna_lambda_exporter" {
+  source               = "../../../modules/lambda"
+  stage                = var.stage
+  environment          = var.environment
+  domain               = var.domain
+  region               = var.region
+  log_group_name       = module.cartographer.log_group_name
+  logdna_key           = var.logdna_key
+  private_subnets      = module.network.private_subnets
+  public_subnets       = module.network.public_subnets
+  service              = "cartographer"
+  vpc_id               = module.network.vpc_id
+  log_group_arn        = module.cartographer.log_group_arn
+  aws_lambda_s3_bucket = "aws-lamba-logdna-cloudwatch-prod"
+}
+
 
 module "network" {
   source      = "../../../modules/networking"

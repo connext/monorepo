@@ -35,6 +35,7 @@ contract AssetFacetTest is AssetFacet, FacetHelper {
   }
 
   // ============ Utils ==============
+  // Set diamond storage owner
   function setOwner(address owner) internal {
     // set owner
     LibDiamond.DiamondStorage storage ds = LibDiamond.diamondStorage();
