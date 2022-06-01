@@ -35,7 +35,7 @@
     "src/**/*"
   ],
   "dependencies": {
-    "@connext/backend-poller": "workspace:*",
+    "@connext/cartographer-poller": "workspace:*",
     "@connext/nxtp-adapters-cache": "workspace:*",
     "@connext/nxtp-adapters-subgraph": "workspace:*",
     "@connext/nxtp-adapters-web3signer": "workspace:*",
