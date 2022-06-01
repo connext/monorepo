@@ -71,6 +71,7 @@ export const mock = {
     mode: {
       cleanup: false,
     },
+    supportedBidVersion: "0.0.1",
     environment: "staging",
   }),
   adapters: {

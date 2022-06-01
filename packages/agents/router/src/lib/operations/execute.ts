@@ -5,6 +5,8 @@ import { CallDataForNonContract, MissingXCall, NotEnoughAmount, ParamsInvalid } 
 import { getHelpers } from "../helpers";
 import { getContext } from "../../router";
 import { getAuctionAmount } from "../helpers/auctions";
+// @ts-ignore
+import { version } from "../../../package.json";
 
 // fee percentage paid to relayer. need to be updated later
 export const RELAYER_FEE_PERCENTAGE = "1"; //  1%
@@ -117,6 +119,7 @@ export const execute = async (params: OriginTransfer): Promise<void> => {
   logger.debug("Sanity checks passed", requestContext, methodContext, { liquidity: balance.toString() });
 
   const bid: Bid = {
+    routerVersion: version,
     transferId,
     origin: originDomain,
     router: routerAddress.toLowerCase(),

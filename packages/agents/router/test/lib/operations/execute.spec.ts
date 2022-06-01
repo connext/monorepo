@@ -11,6 +11,8 @@ import {
   CallDataForNonContract,
 } from "../../../src/lib/errors";
 import { mock, stubContext, stubHelpers } from "../../mock";
+// @ts-ignore
+import { version } from "../../../package.json";
 
 const { execute } = ExecuteFns;
 
@@ -46,6 +48,7 @@ describe("Operations:Execute", () => {
 
     it("happy", async () => {
       const expectedBid: Bid = {
+        routerVersion: version,
         transferId: mockXTransfer.transferId,
         origin: mockXTransfer.originDomain,
         router: mockRouter,

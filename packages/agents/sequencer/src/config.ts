@@ -3,6 +3,9 @@ import * as fs from "fs";
 import { ajv, ChainData } from "@connext/nxtp-utils";
 import { ConnextContractDeployments, ContractPostfix } from "@connext/nxtp-txservice";
 
+// @ts-ignore
+import { version } from "../package.json";
+
 import { SequencerConfig, SequencerConfigSchema } from "./lib/entities";
 
 const MIN_SUBGRAPH_SYNC_BUFFER = 25;
@@ -61,6 +64,11 @@ export const getEnvConfig = (
     mode: {
       cleanup: process.env.SEQ_CLEANUP_MODE || configJson.mode?.cleanup || configFile.mode?.cleanup || false,
     },
+    supportedBidVersion:
+      process.env.SEQ_SUPPORTED_BID_VERSION ||
+      configJson.supportedBidVersion ||
+      configFile.supportedBidVersion ||
+      version,
     subgraphPrefix: process.env.SEQ_SUBGRAPH_PREFIX || configJson.subgraphPrefix || configFile.subgraphPrefix,
     auctionRoundDepth: process.env.AUCTION_ROUND_DEPTH || configJson.auctionRoundDepth || DEFAULT_AUCTION_ROUND_DEPTH,
     environment: process.env.SEQ_ENVIRONMENT || configJson.environment || configFile.environment || "production",
