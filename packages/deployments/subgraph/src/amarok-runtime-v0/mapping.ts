@@ -94,7 +94,7 @@ export function handleRouterRemoved(event: RouterRemoved): void {
   let routerId = event.params.router.toHex();
   let router = Router.load(routerId);
   if (!router) {
-    throw new Error(`No router found when trying to remove`);
+    router = new Router(routerId);
   }
   router.isActive = false;
   router.save();
@@ -104,7 +104,8 @@ export function handleRouterRecipientSet(event: RouterRecipientSet): void {
   let routerId = event.params.router.toHex();
   let router = Router.load(routerId);
   if (!router) {
-    throw new Error(`No router found when trying to update recipient`);
+    router = new Router(routerId);
+    router.isActive = true;
   }
   router.recipient = event.params.newRecipient;
   router.save();
@@ -114,7 +115,8 @@ export function handleRouterOwnerProposed(event: RouterOwnerProposed): void {
   let routerId = event.params.router.toHex();
   let router = Router.load(routerId);
   if (!router) {
-    throw new Error(`No router found when trying to propose owner`);
+    router = new Router(routerId);
+    router.isActive = true;
   }
   router.proposedOwner = event.params.newProposed;
   router.proposedTimestamp = event.block.timestamp;
@@ -125,7 +127,8 @@ export function handleRouterOwnerAccepted(event: RouterOwnerAccepted): void {
   let routerId = event.params.router.toHex();
   let router = Router.load(routerId);
   if (!router) {
-    throw new Error(`No router found when trying to accept owner`);
+    router = new Router(routerId);
+    router.isActive = true;
   }
   router.owner = event.params.newOwner;
   router.proposedOwner = null;

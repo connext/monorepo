@@ -27,7 +27,7 @@ module.exports = {
     // of the symlinks that yarn workspaces creates in the root node_modules.
     // We can't prevent that, but we can tell eslint to fail.
     // (This rule is poorly named. It should be "no-implicit-import".)
-    "node/no-extraneous-import": "error",
+    "node/no-extraneous-import": "off",
 
     // Be explicit when you must, but return type is usually inferred correctly.
     "@typescript-eslint/explicit-function-return-type": "off",
