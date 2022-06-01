@@ -5,6 +5,7 @@ import {
   contractDeployments,
   ChainReader,
 } from "@connext/nxtp-txservice";
+import { providers } from "ethers";
 
 import { getChainData, validateUri, axiosGetRequest } from "./lib/helpers";
 import { ChainDataUndefined } from "./lib/errors";
@@ -50,8 +51,18 @@ export class NxtpSdkUtils {
     return new NxtpSdkUtils(nxtpConfig, logger, chainData);
   }
 
+  public parseConnextTransactionReceipt(transactionReceipt: providers.TransactionReceipt): any {
+    const parsedlogs: any = [];
+    transactionReceipt.logs.forEach((log) => {
+      const l = this.contracts.connext.parseLog(log);
+      parsedlogs.push(l);
+    });
+
+    return parsedlogs;
+  }
+
   async getRoutersData(): Promise<any> {
-    const uri = formatUrl(this.config.backendUrl!, "routers_with_balances");
+    const uri = formatUrl(this.config.cartographerUrl!, "routers_with_balances");
     // Validate uri
     validateUri(uri);
 
@@ -77,7 +88,7 @@ export class NxtpSdkUtils {
     const orderIdentifier = `&order=xcall_timestamp.desc`;
 
     const uri = formatUrl(
-      this.config.backendUrl!,
+      this.config.cartographerUrl!,
       "transfers?",
       searchIdentifier + rangeIdentifier + orderIdentifier + `&${transfersCastForUrl}`,
     );
@@ -98,7 +109,7 @@ export class NxtpSdkUtils {
     const orderIdentifier = `&order=xcall_timestamp.desc`;
 
     const uri = formatUrl(
-      this.config.backendUrl!,
+      this.config.cartographerUrl!,
       "transfers?",
       rangeIdentifier + orderIdentifier + `&${transfersCastForUrl}`,
     );
@@ -124,7 +135,7 @@ export class NxtpSdkUtils {
     const orderIdentifier = `&order=xcall_timestamp.desc`;
 
     const uri = formatUrl(
-      this.config.backendUrl!,
+      this.config.cartographerUrl!,
       "transfers?",
       statusIdentifier + rangeIdentifier + orderIdentifier + `&${transfersCastForUrl}`,
     );
@@ -154,7 +165,7 @@ export class NxtpSdkUtils {
     const orderIdentifier = `&order=xcall_timestamp.desc`;
 
     const uri = formatUrl(
-      this.config.backendUrl!,
+      this.config.cartographerUrl!,
       "transfers?",
       searchIdentifier + rangeIdentifier + orderIdentifier + `&${transfersCastForUrl}`,
     );
@@ -167,7 +178,7 @@ export class NxtpSdkUtils {
 
   async getTransferById(transferId: string): Promise<any> {
     const uri = formatUrl(
-      this.config.backendUrl!,
+      this.config.cartographerUrl!,
       "transfers?",
       `transfer_id=eq.${transferId.toLowerCase()}&${transfersCastForUrl}`,
     );
@@ -179,7 +190,7 @@ export class NxtpSdkUtils {
 
   async getTransferByTransactionHash(transactionHash: string): Promise<any> {
     const uri = formatUrl(
-      this.config.backendUrl!,
+      this.config.cartographerUrl!,
       "transfers?",
       `xcall_transaction_hash=eq.${transactionHash.toLowerCase()}&${transfersCastForUrl}`,
     );

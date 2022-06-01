@@ -10,6 +10,8 @@ import {
 import { CallDataForNonContract, MissingXCall, NotEnoughAmount, ParamsInvalid } from "../errors";
 import { getHelpers } from "../helpers";
 import { getContext } from "../../router";
+// @ts-ignore
+import { version } from "../../../package.json";
 
 // fee percentage paid to relayer. need to be updated later
 export const RELAYER_FEE_PERCENTAGE = "1"; //  1%
@@ -110,6 +112,7 @@ export const execute = async (params: OriginTransfer): Promise<void> => {
 
   const fee = DEFAULT_ROUTER_FEE;
   const bid: Bid = {
+    routerVersion: version,
     transferId,
     origin: originDomain,
     router: routerAddress.toLowerCase(),

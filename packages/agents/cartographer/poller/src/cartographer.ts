@@ -3,7 +3,7 @@ import { ChainData, createMethodContext, createRequestContext, getChainData, Log
 
 import { Database, getDatabase } from "./adapters/database";
 import { bindPoller } from "./bindings";
-import { BackendConfig, getConfig } from "./config";
+import { CartographerConfig, getConfig } from "./config";
 
 export type AppContext = {
   logger: Logger;
@@ -11,7 +11,7 @@ export type AppContext = {
     subgraph: SubgraphReader; // Aggregates subgraphs in a FallbackSubgraph for each chain.
     database: Database; // Database adapter.
   };
-  config: BackendConfig;
+  config: CartographerConfig;
   chainData: Map<string, ChainData>;
   domains: string[]; // List of all supported domains.
 };
@@ -19,9 +19,9 @@ export type AppContext = {
 const context: AppContext = {} as any;
 export const getContext = () => context;
 
-export const makeBackend = async (_configOverride?: BackendConfig) => {
-  const requestContext = createRequestContext("Backend Init");
-  const methodContext = createMethodContext(makeBackend.name);
+export const makeCartographer = async (_configOverride?: CartographerConfig) => {
+  const requestContext = createRequestContext("Cartographer Init");
+  const methodContext = createMethodContext(makeCartographer.name);
   context.adapters = {} as any;
 
   /// MARK - Config
@@ -31,7 +31,7 @@ export const makeBackend = async (_configOverride?: BackendConfig) => {
   context.config = _configOverride ?? (await getConfig());
   context.logger = new Logger({
     level: context.config.logLevel,
-    name: "Backend",
+    name: "Cartographer",
   });
   context.logger.info("Config generated", requestContext, methodContext, { config: context.config });
 
@@ -51,7 +51,7 @@ export const makeBackend = async (_configOverride?: BackendConfig) => {
   /// MARK - Bindings
   await bindPoller();
 
-  context.logger.info("Backend initialized!", requestContext, methodContext, {
+  context.logger.info("Cartographer initialized!", requestContext, methodContext, {
     domains: context.domains,
   });
   context.logger.info(`

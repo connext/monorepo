@@ -13,7 +13,7 @@ export const TDatabaseConfig = Type.Object({
   url: Type.String({ format: "uri" }),
 });
 
-export const Backend = Type.Object({
+export const Cartographer = Type.Object({
   pollInterval: Type.Integer({ minimum: 1000 }),
   logLevel: Type.Union([
     Type.Literal("fatal"),
@@ -29,26 +29,26 @@ export const Backend = Type.Object({
   environment: Type.Union([Type.Literal("staging"), Type.Literal("production")]),
 });
 
-export type BackendConfig = Static<typeof Backend>;
+export type CartographerConfig = Static<typeof Cartographer>;
 
 /**
  * Gets and validates the router config from the environment.
  *
  * @returns The router config with sensible defaults
  */
-export const getEnvConfig = (): BackendConfig => {
+export const getEnvConfig = (): CartographerConfig => {
   let configJson: Record<string, any> = {};
   let configFile: any = {};
 
   try {
-    configJson = JSON.parse(process.env.BACKEND_CONFIG || "");
+    configJson = JSON.parse(process.env.CARTOGRAPHER_CONFIG || "");
   } catch (e: unknown) {
-    console.info("No BACKEND_CONFIG exists, using config file and individual env vars");
+    console.info("No CARTOGRAPHER_CONFIG exists, using config file and individual env vars");
   }
   try {
     let json: string;
 
-    const path = process.env.BACKEND_CONFIG_FILE ?? "config.json";
+    const path = process.env.CARTOGRAPHER_CONFIG_FILE ?? "config.json";
     if (existsSync(path)) {
       json = readFileSync(path, { encoding: "utf-8" });
       configFile = JSON.parse(json);
@@ -58,21 +58,25 @@ export const getEnvConfig = (): BackendConfig => {
     process.exit(1);
   }
 
-  const nxtpConfig: BackendConfig = {
+  const nxtpConfig: CartographerConfig = {
     pollInterval:
-      process.env.BACKEND_POLL_INTERVAL || configJson.pollInterval || configFile.pollInterval || DEFAULT_POLL_INTERVAL,
+      process.env.CARTOGRAPHER_POLL_INTERVAL ||
+      configJson.pollInterval ||
+      configFile.pollInterval ||
+      DEFAULT_POLL_INTERVAL,
     logLevel:
-      process.env.BACKEND_LOG_LEVEL ||
+      process.env.CARTOGRAPHER_LOG_LEVEL ||
       configJson.logLevel ||
       configFile.logLevel ||
-      process.env.BACKEND_LOG_LEVEL ||
+      process.env.CARTOGRAPHER_LOG_LEVEL ||
       "info",
     database: { url: process.env.DATABASE_URL || configJson.databaseUrl || configFile.databaseUrl },
-    subgraphPrefix: process.env.BACKEND_SUBGRAPH_PREFIX || configJson.subgraphPrefix || configFile.subgraphPrefix,
-    environment: process.env.BACKEND_ENVIRONMENT || configJson.environment || configFile.environment || "production",
+    subgraphPrefix: process.env.CARTOGRAPHER_SUBGRAPH_PREFIX || configJson.subgraphPrefix || configFile.subgraphPrefix,
+    environment:
+      process.env.CARTOGRAPHER_ENVIRONMENT || configJson.environment || configFile.environment || "production",
   };
 
-  const validate = ajv.compile(Backend);
+  const validate = ajv.compile(Cartographer);
 
   const valid = validate(nxtpConfig);
 
@@ -83,14 +87,14 @@ export const getEnvConfig = (): BackendConfig => {
   return nxtpConfig;
 };
 
-let nxtpConfig: BackendConfig | undefined;
+let nxtpConfig: CartographerConfig | undefined;
 
 /**
  * Caches and returns the environment config
  *
  * @returns The config
  */
-export const getConfig = async (): Promise<BackendConfig> => {
+export const getConfig = async (): Promise<CartographerConfig> => {
   if (!nxtpConfig) {
     nxtpConfig = getEnvConfig();
   }

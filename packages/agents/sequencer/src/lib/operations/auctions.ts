@@ -11,8 +11,9 @@ import {
   jsonifyError,
   OriginTransfer,
 } from "@connext/nxtp-utils";
+import { compare } from "compare-versions";
 
-import { AuctionExpired, MissingXCall, ParamsInvalid } from "../errors";
+import { AuctionExpired, MissingXCall, ParamsInvalid, BidVersionInvalid } from "../errors";
 import { getContext } from "../../sequencer";
 import { getHelpers } from "../helpers";
 
@@ -21,6 +22,7 @@ import { getOperations } from ".";
 export const storeBid = async (bid: Bid, _requestContext: RequestContext): Promise<void> => {
   const {
     logger,
+    config,
     adapters: { cache, subgraph },
   } = getContext();
   const { requestContext, methodContext } = createLoggingContext(storeBid.name, _requestContext);
@@ -35,6 +37,15 @@ export const storeBid = async (bid: Bid, _requestContext: RequestContext): Promi
     const msg = validateInput.errors?.map((err: any) => `${err.instancePath} - ${err.message}`).join(",");
     throw new ParamsInvalid({
       paramsError: msg,
+      bid,
+    });
+  }
+
+  // check if bid router version is compatible with hosted sequencer
+  const checkVersion = compare(bid.routerVersion, config.supportedBidVersion!, "<");
+  if (checkVersion) {
+    throw new BidVersionInvalid({
+      supportedBidVersion: config.supportedBidVersion,
       bid,
     });
   }
@@ -183,7 +194,7 @@ export const executeAuctions = async (_requestContext: RequestContext) => {
           }
 
           const destTx = await subgraph.getDestinationTransferById(transfer.destinationDomain!, transferId);
-          if (!!destTx) {
+          if (destTx) {
             logger.error("Transfer already executed", requestContext, methodContext, undefined, {
               transferId,
               transfer,

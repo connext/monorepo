@@ -22,13 +22,13 @@ data "aws_route53_zone" "primary" {
   zone_id = "Z03634792TWUEHHQ5L0YX"
 }
 
-module "poller_db" {
-  domain                = "poller"
+module "cartographer_db" {
+  domain                = "cartographer"
   source                = "../../../modules/db"
-  identifier            = "rds-postgres-poller-${var.environment}"
-  instance_class        = "db.t2.small"
-  allocated_storage     = 5
-  max_allocated_storage = 10
+  identifier            = "rds-postgres-cartographer-${var.environment}"
+  instance_class        = "db.t4g.large"
+  allocated_storage     = 10
+  max_allocated_storage = 30
 
 
   name     = "connext" // db name
@@ -43,7 +43,7 @@ module "poller_db" {
     Domain      = var.domain
   }
 
-  parameter_group_name = "default.postgres11"
+  parameter_group_name = "default.postgres14"
   vpc_id               = module.network.vpc_id
 
   hosted_zone_id             = data.aws_route53_zone.primary.zone_id
@@ -84,7 +84,25 @@ module "postgrest" {
   domain                   = var.domain
 }
 
-module "poller" {
+
+module "postgrest_logdna_lambda_exporter" {
+  source               = "../../../modules/lambda"
+  stage                = var.stage
+  environment          = var.environment
+  domain               = var.domain
+  region               = var.region
+  log_group_name       = module.postgrest.log_group_name
+  logdna_key           = var.logdna_key
+  private_subnets      = module.network.private_subnets
+  public_subnets       = module.network.public_subnets
+  service              = "postgrest"
+  vpc_id               = module.network.vpc_id
+  log_group_arn        = module.postgrest.log_group_arn
+  aws_lambda_s3_bucket = "aws-lamba-logdna-cloudwatch-staging"
+}
+
+
+module "cartographer" {
   source                  = "../../../modules/daemon"
   region                  = var.region
   dd_api_key              = var.dd_api_key
@@ -92,8 +110,8 @@ module "poller" {
   cluster_id              = module.ecs.ecs_cluster_id
   vpc_id                  = module.network.vpc_id
   private_subnets         = module.network.private_subnets
-  docker_image            = var.full_image_name_poller
-  container_family        = "poller"
+  docker_image            = var.full_image_name_cartographer
+  container_family        = "cartographer"
   container_port          = 8080
   cpu                     = 512
   memory                  = 2048
@@ -102,8 +120,25 @@ module "poller" {
   stage                   = var.stage
   domain                  = var.domain
   service_security_groups = flatten([module.network.allow_all_sg, module.network.ecs_task_sg])
-  container_env_vars      = local.poller_env_vars
+  container_env_vars      = local.cartographer_env_vars
 }
+
+module "cartographer_logdna_lambda_exporter" {
+  source               = "../../../modules/lambda"
+  stage                = var.stage
+  environment          = var.environment
+  domain               = var.domain
+  region               = var.region
+  log_group_name       = module.cartographer.log_group_name
+  logdna_key           = var.logdna_key
+  private_subnets      = module.network.private_subnets
+  public_subnets       = module.network.public_subnets
+  service              = "cartographer"
+  vpc_id               = module.network.vpc_id
+  log_group_arn        = module.cartographer.log_group_arn
+  aws_lambda_s3_bucket = "aws-lamba-logdna-cloudwatch-staging"
+}
+
 
 module "network" {
   source      = "../../../modules/networking"
