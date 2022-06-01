@@ -26,7 +26,8 @@ contract DummySwap is IStableSwap {
   function swapExact(
     uint256 amountIn,
     address assetIn,
-    address assetOut
+    address assetOut,
+    uint256 minReceived
   ) external payable returns (uint256) {
     // make sure pool is setup
     require(poolAssets[assetIn] == assetOut, "!setup");
@@ -45,6 +46,8 @@ contract DummySwap is IStableSwap {
     } else {
       SafeERC20.safeTransferFrom(IERC20(assetIn), msg.sender, address(this), amountIn);
     }
+
+    require(minReceived < amountIn, "!min");
 
     // transfer out (simple 1:1)
     if (assetOutIsNative) {

@@ -1,7 +1,7 @@
 import { jsonifyError, XTransfer, XTransferStatus, RouterBalance } from "@connext/nxtp-utils";
 import { Pool } from "pg";
 
-import { getContext } from "../../backend";
+import { getContext } from "../../cartographer";
 
 import { getLatestNonce, getTransfersByStatus, saveTransfers, saveRouterBalances } from "./client";
 

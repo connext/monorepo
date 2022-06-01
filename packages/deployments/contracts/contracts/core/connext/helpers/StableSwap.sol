@@ -281,11 +281,13 @@ contract StableSwap is IStableSwap, OwnerPausableUpgradeable, ReentrancyGuardUpg
    * @param assetIn the token the user wants to swap from
    * @param assetOut the token the user wants to swap to
    * @param amountIn the amount of tokens the user wants to swap from
+   * @param minReceived the minimum amount received from the swap
    */
   function swapExact(
     uint256 amountIn,
     address assetIn,
-    address assetOut
+    address assetOut,
+    uint256 minReceived
   ) external payable override nonReentrant whenNotPaused returns (uint256) {
     uint8 tokenIndexFrom = getTokenIndex(assetIn);
     uint8 tokenIndexTo = getTokenIndex(assetOut);

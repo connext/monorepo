@@ -51,7 +51,6 @@ describe("Helpers:Auctions", () => {
       const encoded = encodeExecuteFromBids(bids, transfer, mockLocalAsset);
       expect(encoded).to.be.eq(mockEncoded);
 
-      console.log(expectedArgs);
       expect(encodeFunctionDataStub.calledWith("execute", [expectedArgs])).to.be.true;
     });
 

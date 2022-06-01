@@ -17,28 +17,28 @@ import { getContext } from "../../lighthouse";
 // Ought to be configured properly for each network; we consult the chain config below.
 export const DEFAULT_SAFE_CONFIRMATIONS = 5;
 
-export const bindBackend = async (_pollInterval: number) => {
+export const bindCartographer = async (_pollInterval: number) => {
   const { config, logger } = getContext();
-  const { requestContext, methodContext } = createLoggingContext(bindBackend.name);
+  const { requestContext, methodContext } = createLoggingContext(bindCartographer.name);
   interval(async (_, stop) => {
     if (config.mode.cleanup) {
       stop();
     } else {
       try {
-        await pollBackend();
+        await pollCartographer();
       } catch (e: unknown) {
-        logger.error("Error in pollBackend", requestContext, methodContext, jsonifyError(e as Error));
+        logger.error("Error in pollCartographer", requestContext, methodContext, jsonifyError(e as Error));
       }
     }
   }, _pollInterval);
 };
 
-export const pollBackend = async () => {
-  const { requestContext, methodContext } = createLoggingContext(pollBackend.name);
+export const pollCartographer = async () => {
+  const { requestContext, methodContext } = createLoggingContext(pollCartographer.name);
   const { logger } = getContext();
   const { execute } = getOperations();
 
-  logger.debug("Polling backend", requestContext, methodContext, {});
+  logger.debug("Polling cartographer", requestContext, methodContext, {});
   const reconciledTransactions = await getReconciledTransactions();
   logger.debug("Get reconciled transactions", requestContext, methodContext, { reconciledTransactions });
 
@@ -72,7 +72,7 @@ export const pollBackend = async () => {
 
         await execute(executeParams, transferId, requestContext);
       } catch (error: any) {
-        logger.error("Error Backend Binding", requestContext, methodContext, jsonifyError(error as NxtpError), {
+        logger.error("Error Cartographer Binding", requestContext, methodContext, jsonifyError(error as NxtpError), {
           transaction,
         });
       }
@@ -85,14 +85,14 @@ export const getReconciledTransactions = async (): Promise<any> => {
   const { logger, config } = getContext();
 
   const statusIdentifier = `status=eq.Reconciled&${transfersCastForUrl}`;
-  const uri = formatUrl(config.backendUrl, "transfers?", statusIdentifier);
+  const uri = formatUrl(config.cartographerUrl, "transfers?", statusIdentifier);
   logger.debug("Getting transactions from URI", requestContext, methodContext, { uri });
   try {
     const response = await axios.get(uri);
     return response.data;
   } catch (error: any) {
     logger.error(
-      "Backend api request failed, waiting for next loop",
+      "Cartographer api request failed, waiting for next loop",
       requestContext,
       methodContext,
       jsonifyError(error as NxtpError),
