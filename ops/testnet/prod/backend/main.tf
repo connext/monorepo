@@ -113,7 +113,7 @@ module "cartographer" {
   docker_image            = var.full_image_name_cartographer
   container_family        = "cartographer"
   container_port          = 8080
-  cpu                     = 512
+  cpu                     = 1024
   memory                  = 2048
   instance_count          = 1
   environment             = var.environment
