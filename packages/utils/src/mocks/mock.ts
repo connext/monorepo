@@ -263,7 +263,7 @@ export const mock: any = {
     },
   },
   ethers: {
-    receipt: (): providers.TransactionReceipt =>
+    receipt: (overrides: Partial<providers.TransactionReceipt> = {}): providers.TransactionReceipt =>
       ({
         blockHash: "foo",
         blockNumber: 1,
@@ -279,6 +279,7 @@ export const mock: any = {
         logs: [],
         logsBloom: "",
         transactionIndex: 1,
+        ...overrides,
       } as unknown as providers.TransactionReceipt),
   },
   contracts: {
