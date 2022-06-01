@@ -421,13 +421,29 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
     // get args
     (bytes32 _id, ExecuteArgs memory _args) = getExecuteArgs();
 
-    // get the total debt
+    // get the total debt in adopted
     uint256 portaled = (_args.amount * _liquidityFeeNumerator) / _liquidityFeeDenominator;
 
     // set remainder -- comes from positive slippage
-    uint256 remainder = 0.2 ether;
+    uint256 remainder = 0.01 ether;
     // set mock + storage (using external pool)
-    vm.mockCall(_stableSwap, abi.encodeWithSelector(IStableSwap.swapExact.selector), abi.encode(remainder + portaled));
+    emit log_named_int("amount", int256(_args.amount));
+    emit log_named_int("xx", int256(remainder + portaled));
+    vm.mockCall(
+      _stableSwap,
+      abi.encodeWithSelector(IStableSwap.swapExactOut.selector),
+      abi.encode(remainder + portaled)
+    );
+    vm.mockCall(
+      _stableSwap,
+      abi.encodeWithSelector(IStableSwap.calculateSwapFromAddress.selector),
+      abi.encode(_args.amount)
+    );
+    vm.mockCall(
+      _stableSwap,
+      abi.encodeWithSelector(IStableSwap.calculateSwapOutFromAddress.selector),
+      abi.encode(_args.amount)
+    );
 
     // get the portal fee
     uint256 fee = (portaled * _portalFeeNumerator) / _liquidityFeeDenominator;

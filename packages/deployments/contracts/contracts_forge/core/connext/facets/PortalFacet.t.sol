@@ -126,23 +126,6 @@ contract PortalFacetTest is PortalFacet, FacetHelper {
     assertEq(s.routerBalances[router][_local], init - backing - fee);
   }
 
-  // should work when the local asset is not the adopted asset
-
-  // fails if the router is not approved
-  function test_PortalFacet__repayAavePortal_failsIfNotApprovedForPortals() public {
-    // set approval context
-    s.routerPermissionInfo.approvedForPortalRouters[router] = false;
-
-    // set debt amount
-    uint256 backing = 1111;
-    uint256 fee = 111;
-
-    // coming from router
-    vm.prank(router);
-    vm.expectRevert(abi.encodeWithSelector(PortalFacet.PortalFacet__repayAavePortal_notApprovedForPortals.selector));
-    this.repayAavePortal(_local, backing, fee);
-  }
-
   // fails if not enough balance
   function test_PortalFacet__repayAavePortal_failsIfInsufficientAmount() public {
     // set approval context
