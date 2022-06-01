@@ -47,7 +47,7 @@ contract RoutersFacet is BaseConnextFacet {
   error RoutersFacet__setLiquidityFeeNumerator_tooSmall();
   error RoutersFacet__approveRouterForPortal_notRouter();
   error RoutersFacet__approveRouterForPortal_alreadyApproved();
-  error RoutersFacet__disapproveRouterForPortal_notApproved();
+  error RoutersFacet__unapproveRouterForPortal_notApproved();
 
   // ============ Properties ============
 
@@ -120,7 +120,7 @@ contract RoutersFacet is BaseConnextFacet {
    * @param router - The address of the disapproved router
    * @param caller - The account that called the function
    */
-  event RouterDisapprovedForPortal(address router, address caller);
+  event RouterUnapprovedForPortal(address router, address caller);
 
   /**
    * @notice Emitted when a router adds liquidity to the contract
@@ -240,7 +240,7 @@ contract RoutersFacet is BaseConnextFacet {
   }
 
   /**
-   * @notice Returns wether the router is approved for portals or not
+   * @notice Returns whether the router is approved for portals or not
    * @param _router The relevant router address
    */
   function getRouterApprovalForPortal(address _router) public view returns (bool) {
@@ -348,7 +348,7 @@ contract RoutersFacet is BaseConnextFacet {
    * @notice Allow router to use Portals
    * @param _router - The router address to approve
    */
-  function approveRouterForPortal(address _router) external {
+  function approveRouterForPortal(address _router) external onlyOwner {
     if (!s.routerPermissionInfo.approvedRouters[_router]) revert RoutersFacet__approveRouterForPortal_notRouter();
     if (s.routerPermissionInfo.approvedForPortalRouters[_router])
       revert RoutersFacet__approveRouterForPortal_alreadyApproved();
@@ -362,13 +362,13 @@ contract RoutersFacet is BaseConnextFacet {
    * @notice Remove router access to use Portals
    * @param _router - The router address to remove approval
    */
-  function disapproveRouterForPortal(address _router) external {
+  function unapproveRouterForPortal(address _router) external onlyOwner {
     if (!s.routerPermissionInfo.approvedForPortalRouters[_router])
-      revert RoutersFacet__disapproveRouterForPortal_notApproved();
+      revert RoutersFacet__unapproveRouterForPortal_notApproved();
 
     s.routerPermissionInfo.approvedForPortalRouters[_router] = false;
 
-    emit RouterDisapprovedForPortal(_router, msg.sender);
+    emit RouterUnapprovedForPortal(_router, msg.sender);
   }
 
   // ============ Public methods ==============

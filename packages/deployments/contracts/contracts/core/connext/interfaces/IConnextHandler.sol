@@ -220,7 +220,7 @@ interface IConnextHandler {
 
   function approveRouterForPortal(address _router) external;
 
-  function disapproveRouterForPortal(address _router) external;
+  function unapproveRouterForPortal(address _router) external;
 
   function setAavePool(address _aavePool) external;
 

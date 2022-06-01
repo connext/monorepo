@@ -754,17 +754,17 @@ contract BridgeFacet is BaseConnextFacet {
     bytes29 tokenId = msg_.tokenId();
     bytes29 action = msg_.action();
 
-    // assert the action is valid
-    if (!action.isTransfer()) {
-      revert BridgeFacet__reconcile_invalidAction();
-    }
-
     // load the transferId
     bytes32 transferId = action.transferId();
 
     // ensure the transaction has not been handled
     if (s.reconciledTransfers[transferId]) {
       revert BridgeFacet__reconcile_alreadyReconciled();
+    }
+
+    // assert the action is valid
+    if (!action.isTransfer()) {
+      revert BridgeFacet__reconcile_invalidAction();
     }
 
     // get the token contract for the given tokenId on this chain

@@ -215,7 +215,7 @@ library AssetLogic {
     // If the adopted asset is the local asset, no need to swap
     address adopted = s.canonicalToAdopted[id];
     if (adopted == _asset) {
-      return (0, _asset);
+      return (_amount, _asset);
     }
 
     // Swap the asset to the proper local asset

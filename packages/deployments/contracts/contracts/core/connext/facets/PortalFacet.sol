@@ -67,9 +67,6 @@ contract PortalFacet is BaseConnextFacet {
     uint256 _backingAmount,
     uint256 _feeAmount
   ) external {
-    if (!s.routerPermissionInfo.approvedForPortalRouters[msg.sender])
-      revert PortalFacet__repayAavePortal_notApprovedForPortals();
-
     uint256 totalAmount = _backingAmount + _feeAmount; // in adopted
     uint256 routerBalance = s.routerBalances[msg.sender][_local]; // in local
 
