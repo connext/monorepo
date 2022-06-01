@@ -98,7 +98,7 @@ module "postgrest_logdna_lambda_exporter" {
   service              = "postgrest"
   vpc_id               = module.network.vpc_id
   log_group_arn        = module.postgrest.log_group_arn
-  aws_lambda_s3_bucket = "aws-lamba-logdna-cloudwatch-staging"
+  aws_lambda_s3_bucket = "aws-lamba-logdna-cloudwatch-prod"
 }
 
 
@@ -136,7 +136,7 @@ module "cartographer_logdna_lambda_exporter" {
   service              = "cartographer"
   vpc_id               = module.network.vpc_id
   log_group_arn        = module.cartographer.log_group_arn
-  aws_lambda_s3_bucket = "aws-lamba-logdna-cloudwatch-staging"
+  aws_lambda_s3_bucket = "aws-lamba-logdna-cloudwatch-prod"
 }
 
 
