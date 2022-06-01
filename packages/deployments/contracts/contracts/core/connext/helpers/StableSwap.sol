@@ -220,6 +220,23 @@ contract StableSwap is IStableSwap, OwnerPausableUpgradeable, ReentrancyGuardUpg
 
   /**
    * @notice Calculate amount of tokens you receive on swap
+   * @param assetIn the token the user wants to swap from
+   * @param assetOut the token the user wants to swap to
+   * @param amountOut the amount of tokens the user wants to swap to
+   * @return amount of tokens the user will receive
+   */
+  function calculateSwapOutFromAddress(
+    address assetIn,
+    address assetOut,
+    uint256 amountOut
+  ) external view override returns (uint256) {
+    uint8 tokenIndexFrom = getTokenIndex(assetIn);
+    uint8 tokenIndexTo = getTokenIndex(assetOut);
+    return swapStorage.calculateSwapInv(tokenIndexFrom, tokenIndexTo, amountOut);
+  }
+
+  /**
+   * @notice Calculate amount of tokens you receive on swap
    * @param tokenIndexFrom the token the user wants to sell
    * @param tokenIndexTo the token the user wants to buy
    * @param dy the amount of tokens the user wants to buy
