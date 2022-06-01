@@ -3,6 +3,8 @@ import { Type, Static } from "@sinclair/typebox";
 import { ajv, ChainData, TAddress, TLogLevel } from "@connext/nxtp-utils";
 import { ConnextContractDeployments, ContractPostfix } from "@connext/nxtp-txservice";
 
+import { getChainData } from "./lib/helpers";
+
 const DEFAULT_ALLOWED_TOLERANCE = 10; // in percent
 
 export const TAssetDescription = Type.Object({
@@ -32,7 +34,7 @@ export const NxtpSdkConfigSchema = Type.Object({
   chains: Type.Record(Type.String(), TChainConfig),
   signerAddress: Type.Optional(TAddress),
   logLevel: Type.Optional(TLogLevel),
-  backendUrl: Type.Optional(Type.String()),
+  cartographerUrl: Type.Optional(Type.String()),
   maxSlippage: Type.Optional(Type.Number({ minimum: 0, maximum: 100 })),
   network: Type.Optional(Type.Union([Type.Literal("testnet"), Type.Literal("mainnet"), Type.Literal("local")])),
   environment: Type.Optional(Type.Union([Type.Literal("staging"), Type.Literal("production")])),
@@ -55,7 +57,7 @@ export const NxtpValidationSdkConfigSchema = Type.Object({
   chains: Type.Record(Type.String(), TValidationChainConfig),
   signerAddress: Type.Optional(TAddress),
   logLevel: TLogLevel,
-  backendUrl: Type.String(),
+  cartographerUrl: Type.String(),
   maxSlippage: Type.Number({ minimum: 0, maximum: 100 }),
   network: Type.Union([Type.Literal("testnet"), Type.Literal("mainnet"), Type.Literal("local")]),
   environment: Type.Union([Type.Literal("staging"), Type.Literal("production")]),
@@ -77,10 +79,10 @@ export const getEnvConfig = (
     network: _nxtpConfig.network || "mainnet",
     maxSlippage: _nxtpConfig.maxSlippage || DEFAULT_ALLOWED_TOLERANCE,
     environment: _nxtpConfig.environment || "production",
-    backendUrl: _nxtpConfig.backendUrl || "https://postgrest.testnet.connext.ninja",
+    cartographerUrl: _nxtpConfig.cartographerUrl || "https://postgrest.testnet.connext.ninja",
   };
 
-  nxtpConfig.backendUrl =
+  nxtpConfig.cartographerUrl =
     nxtpConfig.environment === "production"
       ? "https://postgrest.testnet.connext.ninja"
       : "https://postgrest.testnet.staging.connext.ninja";
@@ -139,9 +141,13 @@ let nxtpConfig: NxtpSdkConfig | undefined;
  */
 export const getConfig = async (
   _nxtpConfig: NxtpSdkConfig,
-  chainData: Map<string, ChainData>,
   deployments: ConnextContractDeployments,
+  _chainData?: Map<string, ChainData>,
 ): Promise<NxtpSdkConfig> => {
+  let chainData = _chainData;
+  if (!chainData) {
+    chainData = await getChainData();
+  }
   if (!nxtpConfig) {
     nxtpConfig = getEnvConfig(_nxtpConfig, chainData, deployments);
   }

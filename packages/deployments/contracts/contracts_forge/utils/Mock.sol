@@ -110,7 +110,7 @@ contract MockPromiseRouter is PromiseRouter {
     bytes memory message = PromiseMessage.formatPromiseCallback(transferId, callbackAddress, returnSuccess, returnData);
     bytes29 _msg = message.ref(0).mustBePromiseCallback();
 
-    promiseMessages[transferId] = message;
+    messageHashes[transferId] = _msg.keccak();
   }
 }
 

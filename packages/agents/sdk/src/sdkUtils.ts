@@ -1,20 +1,13 @@
-import {
-  getChainData,
-  Logger,
-  ChainData,
-  formatUrl,
-  createLoggingContext,
-  XTransferStatus,
-  jsonifyError,
-} from "@connext/nxtp-utils";
+import { Logger, ChainData, formatUrl, XTransferStatus, transfersCastForUrl } from "@connext/nxtp-utils";
 import {
   getContractInterfaces,
   ConnextContractInterfaces,
   contractDeployments,
   ChainReader,
 } from "@connext/nxtp-txservice";
-import axios from "axios";
 
+import { getChainData, validateUri, axiosGetRequest } from "./lib/helpers";
+import { ChainDataUndefined } from "./lib/errors";
 import { NxtpSdkConfig, getConfig } from "./config";
 
 /**
@@ -46,10 +39,10 @@ export class NxtpSdkUtils {
   ): Promise<NxtpSdkUtils> {
     const chainData = _chainData ?? (await getChainData());
     if (!chainData) {
-      throw new Error("Could not get chain data");
+      throw new ChainDataUndefined();
     }
 
-    const nxtpConfig = await getConfig(_config, chainData, contractDeployments);
+    const nxtpConfig = await getConfig(_config, contractDeployments, chainData);
     const logger = _logger
       ? _logger.child({ name: "NxtpSdkUtils" })
       : new Logger({ name: "NxtpSdkUtils", level: nxtpConfig.logLevel });
@@ -58,62 +51,146 @@ export class NxtpSdkUtils {
   }
 
   async getRoutersData(): Promise<any> {
-    const { requestContext, methodContext } = createLoggingContext(this.getRoutersData.name);
-    const uri = formatUrl(this.config.backendUrl!, "routers_with_balances");
+    const uri = formatUrl(this.config.cartographerUrl!, "routers_with_balances");
+    // Validate uri
+    validateUri(uri);
 
-    try {
-      const response = await axios.get(uri);
-      return response.data;
-    } catch (error: any) {
-      this.logger.error(`backend api request failed`, requestContext, methodContext, jsonifyError(error as Error));
-      throw error;
-    }
+    return await axiosGetRequest(uri);
   }
 
-  async getTransfersByUser(params: { userAddress: string; status?: XTransferStatus }): Promise<any> {
-    const { requestContext, methodContext } = createLoggingContext(this.getTransfersByUser.name);
-
-    const { userAddress, status } = params;
+  async getTransfersByUser(params: {
+    userAddress: string;
+    status?: XTransferStatus;
+    range?: { limit?: number; offset?: number };
+  }): Promise<any> {
+    const { userAddress, status, range } = params;
 
     const userIdentifier = `xcall_caller=eq.${userAddress.toLowerCase()}&`;
     const statusIdentifier = status ? `status=eq.${status}` : "";
-    const uri = formatUrl(this.config.backendUrl!, "transfers?", userIdentifier + statusIdentifier);
 
-    try {
-      const response = await axios.get(uri);
-      return response.data;
-    } catch (error: any) {
-      this.logger.error(`backend api request failed`, requestContext, methodContext, jsonifyError(error as Error));
-      throw error;
-    }
+    const searchIdentifier = userIdentifier + statusIdentifier;
+
+    const limit = range?.limit ? range.limit : 10;
+    const offset = range?.offset ? range.offset : 0;
+
+    const rangeIdentifier = `&limit=${limit}&offset=${offset}`;
+    const orderIdentifier = `&order=xcall_timestamp.desc`;
+
+    const uri = formatUrl(
+      this.config.cartographerUrl!,
+      "transfers?",
+      searchIdentifier + rangeIdentifier + orderIdentifier + `&${transfersCastForUrl}`,
+    );
+
+    // Validate uri
+    validateUri(uri);
+
+    return await axiosGetRequest(uri);
   }
 
-  async getTransfersByStatus(status: XTransferStatus): Promise<any> {
-    const { requestContext, methodContext } = createLoggingContext(this.getTransfersByStatus.name);
+  async getTransfers(params: { range?: { limit?: number; offset?: number } }): Promise<any> {
+    const { range } = params;
+
+    const limit = range?.limit ? range.limit : 10;
+    const offset = range?.offset ? range.offset : 0;
+
+    const rangeIdentifier = `limit=${limit}&offset=${offset}`;
+    const orderIdentifier = `&order=xcall_timestamp.desc`;
+
+    const uri = formatUrl(
+      this.config.cartographerUrl!,
+      "transfers?",
+      rangeIdentifier + orderIdentifier + `&${transfersCastForUrl}`,
+    );
+
+    // Validate uri
+    validateUri(uri);
+
+    return await axiosGetRequest(uri);
+  }
+
+  async getTransfersByStatus(params: {
+    status: XTransferStatus;
+    range?: { limit?: number; offset?: number };
+  }): Promise<any> {
+    const { status, range } = params;
 
     const statusIdentifier = `status=eq.${status}`;
-    const uri = formatUrl(this.config.backendUrl!, "transfers?", statusIdentifier);
 
-    try {
-      const response = await axios.get(uri);
-      return response.data;
-    } catch (error: any) {
-      this.logger.error(`backend api request failed`, requestContext, methodContext, jsonifyError(error as Error));
-      throw error;
-    }
+    const limit = range?.limit ? range.limit : 10;
+    const offset = range?.offset ? range.offset : 0;
+
+    const rangeIdentifier = `&limit=${limit}&offset=${offset}`;
+    const orderIdentifier = `&order=xcall_timestamp.desc`;
+
+    const uri = formatUrl(
+      this.config.cartographerUrl!,
+      "transfers?",
+      statusIdentifier + rangeIdentifier + orderIdentifier + `&${transfersCastForUrl}`,
+    );
+
+    // Validate uri
+    validateUri(uri);
+
+    return await axiosGetRequest(uri);
+  }
+
+  async getTransfersByRouter(params: {
+    routerAddress: string;
+    status?: XTransferStatus;
+    range?: { limit?: number; offset?: number };
+  }): Promise<any> {
+    const { routerAddress, status, range } = params;
+
+    const routerIdentifier = `routers=cs.%7B${routerAddress.toLowerCase()}%7D&`;
+    const statusIdentifier = status ? `status=eq.${status}` : "";
+
+    const searchIdentifier = routerIdentifier + statusIdentifier;
+
+    const limit = range?.limit ? range.limit : 10;
+    const offset = range?.offset ? range.offset : 0;
+
+    const rangeIdentifier = `&limit=${limit}&offset=${offset}`;
+    const orderIdentifier = `&order=xcall_timestamp.desc`;
+
+    const uri = formatUrl(
+      this.config.cartographerUrl!,
+      "transfers?",
+      searchIdentifier + rangeIdentifier + orderIdentifier + `&${transfersCastForUrl}`,
+    );
+
+    // Validate uri
+    validateUri(uri);
+
+    return await axiosGetRequest(uri);
   }
 
   async getTransferById(transferId: string): Promise<any> {
-    const { requestContext, methodContext } = createLoggingContext(this.getTransferById.name);
+    const uri = formatUrl(
+      this.config.cartographerUrl!,
+      "transfers?",
+      `transfer_id=eq.${transferId.toLowerCase()}&${transfersCastForUrl}`,
+    );
+    // Validate uri
+    validateUri(uri);
 
-    const uri = formatUrl(this.config.backendUrl!, "transfers?", `transfer_id=eq.${transferId.toLowerCase()}`);
+    return await axiosGetRequest(uri);
+  }
 
-    try {
-      const response = await axios.get(uri);
-      return response.data;
-    } catch (error: any) {
-      this.logger.error(`backend api request failed`, requestContext, methodContext, jsonifyError(error as Error));
-      throw error;
-    }
+  async getTransferByTransactionHash(transactionHash: string): Promise<any> {
+    const uri = formatUrl(
+      this.config.cartographerUrl!,
+      "transfers?",
+      `xcall_transaction_hash=eq.${transactionHash.toLowerCase()}&${transfersCastForUrl}`,
+    );
+
+    // Validate uri
+    validateUri(uri);
+
+    return await axiosGetRequest(uri);
+  }
+
+  async changeSignerAddress(signerAddress: string) {
+    this.config.signerAddress = signerAddress;
   }
 }

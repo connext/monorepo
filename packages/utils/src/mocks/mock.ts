@@ -10,7 +10,7 @@ import {
   ExecuteArgs,
   createLoggingContext,
 } from "..";
-import { Auction } from "../types";
+import { Auction, XCallArgs } from "../types";
 import { getNtpTimeSeconds } from "../helpers";
 
 import { mkAddress, mkBytes32, mkSig } from ".";
@@ -84,6 +84,13 @@ export const mock: any = {
       recovery: mkAddress("0xcccc"),
       ...overrides,
     }),
+    xcallArgs: (overrides: Partial<XCallArgs> = {}): XCallArgs => ({
+      params: mock.entity.callParams(),
+      transactingAssetId: mock.asset.A.address,
+      amount: utils.parseEther("1").toString(),
+      relayerFee: "123",
+      ...overrides,
+    }),
     executeArgs: (overrides: Partial<ExecuteArgs> = {}): ExecuteArgs => ({
       params: mock.entity.callParams(),
       local: mock.asset.A.address,
@@ -105,6 +112,7 @@ export const mock: any = {
       ...overrides,
     }),
     bid: (overrides: Partial<Bid> = {}): Bid => ({
+      routerVersion: "0.0.1",
       transferId: getRandomBytes32(),
       origin: mock.domain.A,
       router: mock.address.router,
