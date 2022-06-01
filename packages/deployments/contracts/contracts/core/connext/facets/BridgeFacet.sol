@@ -225,7 +225,7 @@ contract BridgeFacet is BaseConnextFacet {
         revert BridgeFacet__xcall_emptyTo();
       }
 
-      // Callback fee is zero when callback address is empty.
+      // If callback address is not set, callback fee should be 0.
       if (_args.params.callback == address(0) && _args.params.callbackFee > 0) {
         revert BridgeFacet__xcall_nonZeroCallbackFeeForCallback();
       }
@@ -243,26 +243,26 @@ contract BridgeFacet is BaseConnextFacet {
       // Get the remote BridgeRouter address; revert if not found.
       bytes32 remote = _mustHaveRemote(_args.params.destinationDomain);
 
-      // Get the true transacting asset id (using wrapped native instead native, if applicable).
+      // Get the true transacting asset ID (using wrapper instead of native, if applicable).
       address transactingAssetId = _args.transactingAssetId == address(0)
         ? address(s.wrapper)
         : _args.transactingAssetId;
 
-      // check that the asset is supported -- can be either adopted or local
+      // Check that the asset is supported -- can be either adopted or local.
       ConnextMessage.TokenId memory canonical = s.adoptedToCanonical[transactingAssetId];
       if (canonical.id == bytes32(0)) {
         revert BridgeFacet__xcall_notSupportedAsset();
       }
 
-      // transfer funds of transacting asset to the contract from user
-      // NOTE: will wrap any native asset transferred to wrapped-native automatically
+      // Transfer funds of transacting asset to the contract from the user.
+      // NOTE: Will wrap any native asset transferred to wrapped-native automatically.
       (, uint256 amount) = AssetLogic.handleIncomingAsset(
         _args.transactingAssetId,
         _args.amount,
         _args.relayerFee + _args.params.callbackFee
       );
 
-      // swap to the local asset from adopted
+      // Swap to the local asset from adopted if applicable.
       (uint256 bridgedAmt, address bridged) = AssetLogic.swapToLocalAssetIfNeeded(
         canonical,
         transactingAssetId,
@@ -279,6 +279,7 @@ contract BridgeFacet is BaseConnextFacet {
       message = _formatMessage(_args, bridged, transferId, bridgedAmt);
       s.xAppConnectionManager.home().dispatch(_args.params.destinationDomain, remote, message);
 
+      // Format arguments for XCalled event that will be emitted below.
       eventArgs = XCalledEventArgs({
         transactingAssetId: transactingAssetId,
         amount: amount,

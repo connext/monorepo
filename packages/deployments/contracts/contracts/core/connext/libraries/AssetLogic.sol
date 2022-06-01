@@ -153,7 +153,7 @@ library AssetLogic {
     // Get the local token for this domain (may return canonical or representation).
     address local = s.tokenRegistry.getLocalAddress(_canonical.domain, _canonical.id);
 
-    // If theres no amount. If so, no need to swap.
+    // If there's no amount, no need to swap.
     if (_amount == 0) {
       return (_amount, local);
     }

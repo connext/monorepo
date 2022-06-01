@@ -9,6 +9,7 @@ import {BaseConnextFacet} from "../../contracts/core/connext/facets/BaseConnextF
 import {ISponsorVault} from "../../contracts/core/connext/interfaces/ISponsorVault.sol";
 import {ITokenRegistry} from "../../contracts/core/connext/interfaces/ITokenRegistry.sol";
 import {IWrapped} from "../../contracts/core/connext/interfaces/IWrapped.sol";
+import {ERC20} from "../../contracts/core/connext/helpers/OZERC20.sol";
 import {IExecutor} from "../../contracts/core/connext/interfaces/IExecutor.sol";
 
 contract MockXAppConnectionManager {
@@ -154,7 +155,7 @@ contract TestSetterFacet is BaseConnextFacet {
   }
 }
 
-contract MockWrapper is IWrapped {
+contract MockWrapper is IWrapped, ERC20 {
   function deposit() external payable {}
 
   function withdraw(uint256 amount) external {}
