@@ -70,8 +70,8 @@ module "postgrest" {
   container_family         = "postgrest"
   container_port           = 3000
   loadbalancer_port        = 80
-  cpu                      = 512
-  memory                   = 1024
+  cpu                      = 1024
+  memory                   = 2048
   instance_count           = 2
   timeout                  = 180
   environment              = var.environment
@@ -98,7 +98,7 @@ module "postgrest_logdna_lambda_exporter" {
   service              = "postgrest"
   vpc_id               = module.network.vpc_id
   log_group_arn        = module.postgrest.log_group_arn
-  aws_lambda_s3_bucket = "aws-lamba-logdna-cloudwatch-staging"
+  aws_lambda_s3_bucket = "aws-lamba-logdna-cloudwatch-prod"
 }
 
 
@@ -136,7 +136,7 @@ module "cartographer_logdna_lambda_exporter" {
   service              = "cartographer"
   vpc_id               = module.network.vpc_id
   log_group_arn        = module.cartographer.log_group_arn
-  aws_lambda_s3_bucket = "aws-lamba-logdna-cloudwatch-staging"
+  aws_lambda_s3_bucket = "aws-lamba-logdna-cloudwatch-prod"
 }
 
 
