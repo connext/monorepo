@@ -89,3 +89,7 @@ variable "logdna_key" {
 variable "web3_signer_private_key" {
   type = string
 }
+
+variable "dd_api_key" {
+  type = string
+}

@@ -108,7 +108,6 @@ struct AppStorage {
   //
   // ConnextHandler
   //
-  // TODO: enable setting these constants via admin fn
   // 0
   uint256 LIQUIDITY_FEE_NUMERATOR;
   // 1

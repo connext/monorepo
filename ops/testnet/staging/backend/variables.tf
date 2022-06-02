@@ -25,10 +25,10 @@ variable "environment" {
   default     = "testnet"
 }
 
-variable "full_image_name_poller" {
+variable "full_image_name_cartographer" {
   type        = string
   description = "router image name"
-  default     = "ghcr.io/connext/poller:sha-3a98ba9"
+  default     = "ghcr.io/connext/cartographer:sha-e9a9943"
 }
 
 variable "certificate_arn_testnet" {
@@ -42,4 +42,12 @@ variable "postgres_password" {
 variable "postgres_user" {
   type    = string
   default = "connext"
+}
+
+variable "dd_api_key" {
+  type = string
+}
+
+variable "logdna_key" {
+  type = string
 }

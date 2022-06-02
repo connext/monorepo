@@ -2,13 +2,12 @@ import { task } from "hardhat/config";
 import { NomadContext, NomadStatus, MessageStatus, AnnotatedLifecycleEvent, NomadMessage } from "@nomad-xyz/sdk";
 import { BridgeContext } from "@nomad-xyz/sdk-bridge";
 import { BigNumber, providers, Wallet } from "ethers";
-import * as nomadConfig from "@nomad-xyz/configuration";
 import { config as dotEnvConfig } from "dotenv";
 import { BytesLike, LogDescription } from "ethers/lib/utils";
 import { fetchJson } from "@connext/nxtp-utils";
 
 import config from "../hardhat.config";
-import { getDomainInfoFromChainId } from "../src/nomad";
+import { getDomainInfoFromChainId, getNomadConfig } from "../src/nomad";
 import { Env, mustGetEnv } from "../src/utils";
 
 dotEnvConfig();
@@ -69,7 +68,6 @@ export default task("trace-message", "See the status of a nomad message")
   .setAction(async ({ transaction, destination: _destination, process: _process, env: _env }: TaskArgs, { ethers }) => {
     const env = mustGetEnv(_env);
     console.log("env:", env);
-
     const destination = +_destination;
     const shouldProcess = _process === "true" ? true : false;
     console.log("transaction: ", transaction);
@@ -78,11 +76,13 @@ export default task("trace-message", "See the status of a nomad message")
 
     // Get the domain + context
     const network = await ethers.provider.getNetwork();
+    const nomadConfig = getNomadConfig(network.chainId);
     const { domain: originDomain, name: originName } = getDomainInfoFromChainId(network.chainId);
-    const s3Url = `https://nomadxyz-${env}-proofs.s3.us-west-2.amazonaws.com/`;
 
-    const context = BridgeContext.fromNomadContext(new NomadContext(nomadConfig.getBuiltin(env)));
+    const context = BridgeContext.fromNomadContext(new NomadContext(nomadConfig));
     const destinationChainId = context.mustGetDomain(destination).specs.chainId;
+
+    const s3Url = "https://nomadxyz-staging-proofs.s3.us-west-2.amazonaws.com/";
 
     // Register origin provider
     context.registerProvider(originDomain, ethers.provider);
@@ -90,7 +90,7 @@ export default task("trace-message", "See the status of a nomad message")
     // Register destination provider
     const [, destHardhatConfig] =
       Object.entries(config.networks ?? {}).find(([, value]) => {
-        return destinationChainId === value?.chainId;
+        return destinationChainId === (value as any)?.chainId;
       }) ?? [];
     if (!destHardhatConfig || !(destHardhatConfig as any).url) {
       throw new Error(`No provider url found in hardhat.config.ts for chain: ${destination}`);
@@ -128,13 +128,14 @@ export default task("trace-message", "See the status of a nomad message")
         console.log("cant process on replica, not an acceptable root");
         return;
       }
-      console.log("processing on replica", replica.address);
       const msgHash = dispatchEvent.args.messageHash as string;
       const status = await replica.messages(msgHash);
+      const url = `${s3Url}${originName}_${dispatchEvent.args.leafIndex.toString()}`;
+      console.log("processing on replica", status, replica.address, url);
       let processTx;
       if (status === 0) {
         // Must prove and process
-        const data = await fetchJson(`${s3Url}${originName}_${dispatchEvent.args.leafIndex.toString()}`);
+        const data = await fetchJson(url);
         processTx = await replica.proveAndProcess(
           data.message as BytesLike,
           // @ts-ignore

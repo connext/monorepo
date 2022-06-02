@@ -45,6 +45,20 @@ resource "aws_ecs_task_definition" "service" {
           hostPort      = var.container_port
         }
       ]
+    },
+    {
+      name = "datadog-agent-${var.environment}-${var.stage}-${var.container_family}",
+      image = "public.ecr.aws/datadog/agent:latest",
+      environment = [
+        {
+          name = "DD_API_KEY",
+          value = var.dd_api_key
+        },
+        {
+          name = "ECS_FARGATE",
+          value = "true"
+        }
+      ]
     }
   ])
 }
