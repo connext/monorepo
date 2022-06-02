@@ -240,6 +240,7 @@ export function handleXCalled(event: XCalled): void {
  */
 export function handleExecuted(event: Executed): void {
   const num = event.params.args.routers.length;
+  const amount = event.params.args.amount;
   const routers: string[] = [];
   for (let i = 0; i < num; i++) {
     const param = event.params.args.routers[i].toHex();
@@ -251,7 +252,13 @@ export function handleExecuted(event: Executed): void {
       router.isActive = true;
       router.save();
     }
+
     routers.push(router.id);
+
+    // Update router's liquidity
+    const assetBalance = getOrCreateAssetBalance(event.params.args.local, event.params.args.routers[i]);
+    assetBalance.amount = assetBalance.amount.minus(amount.div(BigInt.fromI32(num)));
+    assetBalance.save();
   }
 
   let transfer = DestinationTransfer.load(event.params.transferId.toHexString());
@@ -314,6 +321,7 @@ export function handleReconciled(event: Reconciled): void {
     transfer = new DestinationTransfer(event.params.transferId.toHexString());
   }
 
+  const amount = event.params.amount;
   // If the routers have already been set by an execute event, don't overwrite them.
   const routers: string[] = [];
   if (transfer.routers !== null) {
@@ -323,6 +331,11 @@ export function handleReconciled(event: Reconciled): void {
     for (let i = 0; i < n; i++) {
       const router: string = r[i];
       routers.push(router);
+
+      // Update router's liquidity
+      const assetBalance = getOrCreateAssetBalance(event.params.asset, Address.fromString(router));
+      assetBalance.amount = assetBalance.amount.minus(amount.div(BigInt.fromI32(n)));
+      assetBalance.save();
     }
   }
 
