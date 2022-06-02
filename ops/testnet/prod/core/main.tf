@@ -44,7 +44,7 @@ module "router" {
   health_check_path        = "/ping"
   container_port           = 8080
   loadbalancer_port        = 80
-  cpu                      = 512
+  cpu                      = 1024
   memory                   = 2048
   instance_count           = 1
   timeout                  = 180
