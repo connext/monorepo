@@ -472,7 +472,7 @@ contract BridgeFacet is BaseConnextFacet {
    */
   function _reconcile(uint32 _origin, bytes memory _message) internal {
     // Parse and process message
-    (uint256 amount, address local, bytes32 transferId, bytes32 canonical) = _reconcileProcessMessage(_message);
+    (uint256 amount, address local, bytes32 transferId, ) = _reconcileProcessMessage(_message);
 
     // get the routers
     address[] storage routers = s.routedTransfers[transferId];
@@ -480,20 +480,25 @@ contract BridgeFacet is BaseConnextFacet {
     // If fast transfer was made using Portal liquidity, we need to repay
     uint256 portalTransferAmount = s.aavePortalsTransfers[transferId];
 
-    uint256 routersAmount = amount;
+    uint256 toDistribute = amount;
+    bool credit = true;
     uint256 pathLen = routers.length;
     if (portalTransferAmount != 0) {
       // ensure a router took on credit risk
       if (pathLen != 1) revert BridgeFacet__reconcile_noPortalRouter();
-      routersAmount = _reconcileProcessPortal(amount, local, routers[0], transferId, canonical);
+      (toDistribute, credit) = _reconcileProcessPortal(amount, local, routers[0], transferId);
     }
 
     if (pathLen != 0) {
       // fast liquidity path
       // credit the router the asset
-      uint256 routerAmt = routersAmount / pathLen;
+      uint256 routerAmt = toDistribute / pathLen;
       for (uint256 i; i < pathLen; ) {
-        s.routerBalances[routers[i]][local] += routerAmt;
+        if (credit) {
+          s.routerBalances[routers[i]][local] += routerAmt;
+        } else {
+          s.routerBalances[routers[i]][local] -= routerAmt;
+        }
         unchecked {
           i++;
         }
@@ -807,16 +812,15 @@ contract BridgeFacet is BaseConnextFacet {
    * @param _local - The local  asset
    * @param _router - The router who took on portal risk
    * @param _transferId - The transfer identifier
-   * @param _canonical - The canonical identifier for the local asset
-   * @return The amount left after the repayment
+   * @return The amount to distribute amongst the routers after repayment
+   * @return Whether the amount returned should be credited or not
    */
   function _reconcileProcessPortal(
     uint256 _amount,
     address _local,
     address _router,
-    bytes32 _transferId,
-    bytes32 _canonical
-  ) private returns (uint256) {
+    bytes32 _transferId
+  ) private returns (uint256, bool) {
     // When repaying a portal, should use available liquidity if there is not enough balance from
     // the bridge. First, calculate the amount to be repaid in adopted asset then swap for exactly
     // that amount. This prevents having to swap excess (i.e. from positive amm slippage) from debt
@@ -831,6 +835,7 @@ contract BridgeFacet is BaseConnextFacet {
     );
 
     // Swap for exact `totalRepayAmount` of adopted asset to repay aave
+    // amountIn is the amount that was actually taken to perform the swap (i.e. amount of local asset swapped)
     (uint256 amountIn, address adopted) = AssetLogic.swapFromLocalAssetIfNeededForExactOut(_local, totalRepayAmount);
 
     // Edge case with some tokens: Example USDT in ETH Mainnet, after the backUnbacked call there could be a remaining allowance if not the whole amount is pulled by aave.
@@ -857,13 +862,16 @@ contract BridgeFacet is BaseConnextFacet {
     // aave can pull a smaller amount than backUnbackedAmount. So there will be an extra amount of assets that needs to be assigned
     // See https://github.com/aave/aave-v3-core/blob/feb3f20885c73025f40cc272b59e7eacfaa02fe4/contracts/protocol/libraries/logic/BridgeLogic.sol#L121
 
-    // TODO: need to credit the router in the local asset, not the adopted asset
-    // potential credits come from (1) positive AMM slippage (2) backUnbacked (see above),
-    // but both are in the form of the adopted asset. Can swap here, but this is cumbersome (maybe
-    // the best?)
-
-    // Account leftovers in adopted to routers
-    return (_amount - amountIn);
+    // Calculate the amount to distribute amongst the routers (i.e. profit or debt remaining here)
+    if (_amount >= amountIn) {
+      // In this case, the amount of local asset swapped for adopted to repay the loan is less
+      // than the amount in the payment. Any extra should be credited to the router
+      return (_amount - amountIn, true);
+    } else {
+      // In this case, the amount of local asset swapped for adopted to repay the loan is more
+      // than the amount in the payment. Any extra should be debited from the router's local balance
+      return (amountIn - _amount, false);
+    }
   }
 
   /**

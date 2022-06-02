@@ -15,7 +15,7 @@ import {TestERC20} from "../../../../contracts/test/TestERC20.sol";
 
 import {MockPool, MockXAppConnectionManager} from "../../../utils/Mock.sol";
 
-import "../../../../lib/forge-std/src/console.sol";
+import "forge-std/console.sol";
 import "./FacetHelper.sol";
 
 // test_BridgeFacet__handle_creditToRouterIfNotPortalTransfer
@@ -371,11 +371,15 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
     // set remote context
     setRemoteRouterContext(_originFacet, _originDomain);
 
+    // construct message
+    bytes memory message = buildMessage(_id);
+
     // get current router balance
     uint256 initLiquidity = s.routerBalances[_router0][_local];
 
-    // construct message
-    bytes memory message = buildMessage(_id);
+    uint256 profit = _args.amount - portaled - fee;
+    console.log("initLiquidity", initLiquidity);
+    console.log("expected final liq", profit + initLiquidity);
 
     // set expected calls
     vm.expectCall(_local, abi.encodeWithSelector(IERC20.approve.selector, _aavePool, portaled + fee));
@@ -388,7 +392,6 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
     this.handle(_params.originDomain, uint32(_nonce), bytes32(abi.encodePacked(_originFacet)), message);
 
     // verify router liquidity remains unchanged
-    uint256 profit = _args.amount - portaled - fee;
     assertEq(s.routerBalances[_router0][_local], initLiquidity + profit);
   }
 
@@ -423,17 +426,13 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
 
     // get the total debt in adopted
     uint256 portaled = (_args.amount * _liquidityFeeNumerator) / _liquidityFeeDenominator;
-
+    uint256 fee = (portaled * _portalFeeNumerator) / _liquidityFeeDenominator;
     // set remainder -- comes from positive slippage
     uint256 remainder = 0.01 ether;
+    uint256 swappedIn = portaled + fee - remainder; // amount it cost on AMM to get repay amt
+
     // set mock + storage (using external pool)
-    emit log_named_int("amount", int256(_args.amount));
-    emit log_named_int("xx", int256(remainder + portaled));
-    vm.mockCall(
-      _stableSwap,
-      abi.encodeWithSelector(IStableSwap.swapExactOut.selector),
-      abi.encode(remainder + portaled)
-    );
+    vm.mockCall(_stableSwap, abi.encodeWithSelector(IStableSwap.swapExactOut.selector), abi.encode(swappedIn));
     vm.mockCall(
       _stableSwap,
       abi.encodeWithSelector(IStableSwap.calculateSwapFromAddress.selector),
@@ -446,8 +445,7 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
     );
 
     // get the portal fee
-    uint256 fee = (portaled * _portalFeeNumerator) / _liquidityFeeDenominator;
-    uint256 gains = remainder - fee;
+    uint256 gains = (_args.amount - swappedIn) / _args.routers.length;
 
     // set transfer context (handled by portal, already routed)
     s.aavePortalsTransfers[_id] = portaled;
@@ -455,7 +453,7 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
 
     bytes memory message = buildMessage(_id);
 
-    uint256 initLiquidity = s.routerBalances[_router0][_adopted];
+    uint256 initLiquidity = s.routerBalances[_router0][_local];
 
     vm.expectCall(_adopted, abi.encodeWithSelector(IERC20.approve.selector, _aavePool, portaled + fee));
 
@@ -466,7 +464,61 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
 
     this.handle(_params.originDomain, uint32(_nonce), bytes32(abi.encodePacked(_originFacet)), message);
 
-    assertEq(s.routerBalances[_router0][_adopted], initLiquidity + gains);
+    assertEq(s.routerBalances[_router0][_local], initLiquidity + gains);
+  }
+
+  // should debit router local balance if there are sufficient funds to cover diff
+  function test_BridgeFacet__handle_creditToRouterLeftoversFromPortalRepayment() public {
+    // setup asset with adopted != local
+    setAssetContext(_destinationDomain, false);
+
+    // set remote context
+    setRemoteRouterContext(_originFacet, _originDomain);
+
+    // get args
+    (bytes32 _id, ExecuteArgs memory _args) = getExecuteArgs();
+
+    // get the total debt in adopted
+    uint256 portaled = (_args.amount * _liquidityFeeNumerator) / _liquidityFeeDenominator;
+    uint256 fee = (portaled * _portalFeeNumerator) / _liquidityFeeDenominator;
+    // set remainder -- comes from positive slippage
+    uint256 remainder = 0.01 ether;
+    uint256 swappedIn = portaled + fee - remainder; // amount it cost on AMM to get repay amt
+
+    // set mock + storage (using external pool)
+    vm.mockCall(_stableSwap, abi.encodeWithSelector(IStableSwap.swapExactOut.selector), abi.encode(swappedIn));
+    vm.mockCall(
+      _stableSwap,
+      abi.encodeWithSelector(IStableSwap.calculateSwapFromAddress.selector),
+      abi.encode(_args.amount)
+    );
+    vm.mockCall(
+      _stableSwap,
+      abi.encodeWithSelector(IStableSwap.calculateSwapOutFromAddress.selector),
+      abi.encode(_args.amount)
+    );
+
+    // get the portal fee
+    uint256 gains = (_args.amount - swappedIn) / _args.routers.length;
+
+    // set transfer context (handled by portal, already routed)
+    s.aavePortalsTransfers[_id] = portaled;
+    s.routedTransfers[_id] = _args.routers;
+
+    bytes memory message = buildMessage(_id);
+
+    uint256 initLiquidity = s.routerBalances[_router0][_local];
+
+    vm.expectCall(_adopted, abi.encodeWithSelector(IERC20.approve.selector, _aavePool, portaled + fee));
+
+    vm.expectCall(_aavePool, abi.encodeWithSelector(IAavePool.backUnbacked.selector, _adopted, portaled, fee));
+
+    vm.expectEmit(true, true, true, true);
+    emit AavePortalRepayment(_id, _adopted, portaled, fee);
+
+    this.handle(_params.originDomain, uint32(_nonce), bytes32(abi.encodePacked(_originFacet)), message);
+
+    assertEq(s.routerBalances[_router0][_local], initLiquidity + gains);
   }
 
   // should emit a debt event and repay all principle + as much fee as possible if
