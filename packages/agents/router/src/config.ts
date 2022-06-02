@@ -84,6 +84,7 @@ export const NxtpRouterConfigSchema = Type.Object({
   polling: TPollingConfig,
   subgraphPrefix: Type.Optional(Type.String()),
   environment: Type.Union([Type.Literal("staging"), Type.Literal("production")]),
+  nomad_environment: Type.Union([Type.Literal("staging"), Type.Literal("production")]),
 });
 
 export type NxtpRouterConfig = Static<typeof NxtpRouterConfigSchema>;

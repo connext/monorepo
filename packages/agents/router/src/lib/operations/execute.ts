@@ -17,19 +17,8 @@ import { BridgeContext } from "@nomad-xyz/sdk-bridge";
 // fee percentage paid to relayer. need to be updated later
 export const RELAYER_FEE_PERCENTAGE = "1"; //  1%
 //helper function to match our config environments with nomads
-const nxtpEnvToNomadEnv = (envOverride?: string): string => {
-  const nxtpConfig = envOverride ? envOverride : getContext().config.environment;
-  switch (nxtpConfig) {
-    case "production":
-      return "production";
-    case "staging":
-      //is this possibly development?
-      return "staging";
-    default:
-      return "staging";
-  }
-};
-const env_type = nxtpEnvToNomadEnv();
+
+const env_type = getContext().config.nomad_environment;
 
 /**
  * Router creates a new bid and sends it to auctioneer.
