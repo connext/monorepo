@@ -334,7 +334,7 @@ export function handleReconciled(event: Reconciled): void {
 
       // Update router's liquidity
       const assetBalance = getOrCreateAssetBalance(event.params.asset, Address.fromString(router));
-      assetBalance.amount = assetBalance.amount.minus(amount.div(BigInt.fromI32(n)));
+      assetBalance.amount = assetBalance.amount.plus(amount.div(BigInt.fromI32(n)));
       assetBalance.save();
     }
   }
