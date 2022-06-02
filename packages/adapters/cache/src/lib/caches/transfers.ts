@@ -51,11 +51,12 @@ export class TransfersCache extends Cache {
   //returns int based on success or failure of internal pruning,
   //successful prune could be no prune, unsuccessful prune is one that failed where it shouldnt have ie. @ HDEL
 
-  public async pruneCompleted(domain: number): Promise<boolean> {
+  public async pruneTransfers(domain: number): Promise<boolean> {
     //is there pending transactions?
-    const pending = (await this.data.hget(`${this.prefix}:pending`, domain.toString())) ?? "[]";
-    if (pending !== "[]") {
-      //there is pending txns, so nothing to prune
+    const pending = await this.getPending(domain.toString());
+    
+    //dont delete pending
+    if (pending) {
       return true;
     }
     //there is no pending txns
@@ -170,7 +171,7 @@ export class TransfersCache extends Cache {
         await this.data.publish(StoreChannel.NewHighestNonce, JSON.stringify({ domain, nonce }));
       }
       //prune old cache by domain
-      await this.pruneCompleted(parseInt(domain));
+      await this.pruneTransfers(parseInt(domain));
     }
   }
 

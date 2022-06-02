@@ -22,12 +22,14 @@ const fakeTxs = [
 ];
 
 describe("TransfersCache", () => {
+  const rmock = new RedisMock();
+
   beforeEach(async () => {
     transfersCache = new TransfersCache({ host: "mock", port: 1234, mock: true, logger });
   });
 
   afterEach(async () => {
-    new RedisMock().flushall();
+    // new RedisMock().flushall();
   });
 
   describe("#getLatestNonce", () => {
@@ -115,7 +117,9 @@ describe("TransfersCache", () => {
 
   describe("#getPending", () => {
     it("happy: returns pending transfer IDs", async () => {
-      // First, store
+      // First, flush
+      await rmock.flushall();
+      //then store
       const transferId = getRandomBytes32();
       const domain = "1234";
       await (transfersCache as any).addPending(domain, transferId);
@@ -124,6 +128,7 @@ describe("TransfersCache", () => {
     });
 
     it("should create a new domain entry if it doesn't exist and return empty array", async () => {
+      await rmock.flushall();
       const res = await transfersCache.getPending("1234");
       expect(res).to.deep.eq([]);
     });
@@ -139,6 +144,7 @@ describe("TransfersCache", () => {
     });
 
     it("should append to current array, not overwrite", async () => {
+      await rmock.flushall();
       const domain = "1234";
       const transferIds = new Array(10).fill(0).map(() => getRandomBytes32());
       for (const transferId of transferIds) {
@@ -151,6 +157,7 @@ describe("TransfersCache", () => {
 
   describe("#removePending", () => {
     it("happy: should remove from array of pending transfers", async () => {
+      await rmock.flushall();
       const domain = "1234";
       const transferIds = new Array(10).fill(0).map(() => getRandomBytes32());
       for (const transferId of transferIds) {
@@ -167,6 +174,9 @@ describe("TransfersCache", () => {
     });
 
     it("shouldn't remove anything if non-existant transfer ID is passed in", async () => {
+      //flush cache before
+      await rmock.flushall();
+
       const domain = "1234";
       const transferIds = new Array(10).fill(0).map(() => getRandomBytes32());
       for (const transferId of transferIds) {
@@ -182,13 +192,61 @@ describe("TransfersCache", () => {
     });
   });
 
-  describe("#pruneCompleted", () => {
-    it("happy: prunes cache", async () => {
+  describe("#prunePending", () => {
+    it("happy: should not prune pending transactions ", async () => {
       const domain = 3000;
-      const res = await transfersCache.pruneCompleted(domain);
-      expect(res).to.eq(true);
-    })
-  })
+      //add some pending txns back
+      const transferIds = new Array(10).fill(0).map(() => getRandomBytes32());
+      for (const transferId of transferIds) {
+        await (transfersCache as any).addPending(domain, transferId);
+      }
+
+      const pendingBefore = await transfersCache.getPending("3000");
+
+      const res = await transfersCache.pruneTransfers(domain);
+
+      const stillPending = await transfersCache.getPending("3000");
+
+      console.log("Still Pending", stillPending);
+
+      expect(stillPending).to.deep.eq([]);
+      console.log(res, stillPending);
+      expect(pendingBefore).to.not.eq(stillPending);
+    });
+
+    it("happy: should prune all old transactions ", async () => {
+      await rmock.flushall();
+      const domain = 3000;
+
+      //create 10 XTransfers and save
+      const xtransfers = new Array(10).fill(0).map(() =>
+        mock.entity.xtransfer({
+          originDomain: domain.toString(),
+          transferId: getRandomBytes32(),
+          nonce: Math.floor(Math.random() * 10000),
+        }),
+      );
+
+      let highestTransfer = xtransfers.reduce((p, c) => {
+        return (p.nonce > c.nonce) ? p : c;
+      });
+
+      //stores new transfrs deleting old ones if any
+      await transfersCache.storeTransfers(xtransfers);
+      //delete all the completed transfers except the
+      await transfersCache.pruneTransfers(domain);
+
+      const transferShouldBeDeleted = xtransfers.filter((txfr) => {
+        return txfr.transferId !== highestTransfer.transferId;
+      })[0];
+
+      const deletedTransfer = await transfersCache.getTransfer(transferShouldBeDeleted.transferId);
+      const transferStillExists = await transfersCache.getTransfer(highestTransfer.transferId);
+
+      expect(deletedTransfer).to.deep.eq([]);
+      expect(transferStillExists.transferId).to.eq(highestTransfer.transferId);
+    });
+  });
 
   describe("#getErrors", () => {
     it("happy: returns errors for transfer ID", async () => {
