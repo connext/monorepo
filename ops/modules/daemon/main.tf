@@ -22,11 +22,15 @@ resource "aws_ecs_task_definition" "service" {
       environment = var.container_env_vars
       networkMode = "awsvpc"
       logConfiguration = {
-        logDriver = "awslogs",
+        logDriver = "awsfirelens",
         options = {
-          awslogs-group         = aws_cloudwatch_log_group.container.name,
-          awslogs-region        = var.region,
-          awslogs-stream-prefix = "logs"
+          Name       = "datadog",
+          apiKey     = var.dd_api_key,
+          dd_service = var.container_family,
+          dd_source  = "fargate-app",
+          dd_tags    = "domain:${var.domain},env:${var.environment},stage:${var.stage},service:${var.container_family}",
+          TLS        = "on",
+          provider   = "ecs"
         }
       }
       healthCheck = {
