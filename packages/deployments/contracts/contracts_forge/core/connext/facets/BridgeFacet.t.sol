@@ -468,12 +468,16 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
   }
 
   // should debit router local balance if there are sufficient funds to cover diff
-  function test_BridgeFacet__handle_creditToRouterLeftoversFromPortalRepayment() public {
+  function test_BridgeFacet__handle_debitFromRouterLiquidityForPortalRepayment() public {
     // setup asset with adopted != local
     setAssetContext(_destinationDomain, false);
 
     // set remote context
     setRemoteRouterContext(_originFacet, _originDomain);
+
+    // set original liquidity amount
+    uint256 remainder = 0.01 ether;
+    s.routerBalances[_router0][_local] = remainder;
 
     // get args
     (bytes32 _id, ExecuteArgs memory _args) = getExecuteArgs();
@@ -482,8 +486,7 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
     uint256 portaled = (_args.amount * _liquidityFeeNumerator) / _liquidityFeeDenominator;
     uint256 fee = (portaled * _portalFeeNumerator) / _liquidityFeeDenominator;
     // set remainder -- comes from positive slippage
-    uint256 remainder = 0.01 ether;
-    uint256 swappedIn = portaled + fee - remainder; // amount it cost on AMM to get repay amt
+    uint256 swappedIn = portaled + fee + remainder;
 
     // set mock + storage (using external pool)
     vm.mockCall(_stableSwap, abi.encodeWithSelector(IStableSwap.swapExactOut.selector), abi.encode(swappedIn));
@@ -499,7 +502,7 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
     );
 
     // get the portal fee
-    uint256 gains = (_args.amount - swappedIn) / _args.routers.length;
+    uint256 losses = (swappedIn - _args.amount) / _args.routers.length;
 
     // set transfer context (handled by portal, already routed)
     s.aavePortalsTransfers[_id] = portaled;
@@ -518,7 +521,7 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
 
     this.handle(_params.originDomain, uint32(_nonce), bytes32(abi.encodePacked(_originFacet)), message);
 
-    assertEq(s.routerBalances[_router0][_local], initLiquidity + gains);
+    assertEq(s.routerBalances[_router0][_local], initLiquidity - losses);
   }
 
   // should emit a debt event and repay all principle + as much fee as possible if
