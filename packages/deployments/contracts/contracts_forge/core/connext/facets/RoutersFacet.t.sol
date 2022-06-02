@@ -11,7 +11,6 @@ import {TestERC20} from "../../../../contracts/test/TestERC20.sol";
 
 import {MockWrapper, MockTokenRegistry} from "../../../utils/Mock.sol";
 
-// import "../../lib/forge-std/src/console.sol";
 import "./FacetHelper.sol";
 
 contract RoutersFacetTest is RoutersFacet, FacetHelper {
