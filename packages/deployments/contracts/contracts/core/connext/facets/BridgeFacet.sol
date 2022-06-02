@@ -235,7 +235,7 @@ contract BridgeFacet is BaseConnextFacet {
     (bytes32 transferId, bytes memory message, XCalledEventArgs memory eventArgs) = _xcallProcess(_args);
 
     // Store the relayer fee
-    s.relayerFees[transferId] = _args.relayerFee;
+    s.relayerFees[transferId] = _args.params.relayerFee;
 
     // emit event
     emit XCalled(transferId, _args, eventArgs, s.nonce, message, msg.sender);
@@ -389,7 +389,7 @@ contract BridgeFacet is BaseConnextFacet {
     (, uint256 amount) = AssetLogic.handleIncomingAsset(
       _args.transactingAssetId,
       _args.amount,
-      _args.relayerFee + _args.params.callbackFee
+      _args.params.relayerFee + _args.params.callbackFee
     );
 
     // swap to the local asset from adopted
@@ -735,7 +735,7 @@ contract BridgeFacet is BaseConnextFacet {
       // Should dust the recipient with the lesser of a vault-defined cap or the converted relayer fee
       // If there is no conversion available (i.e. no oracles for origin domain asset <> dest asset pair),
       // then the vault should just pay out the configured constant
-      s.sponsorVault.reimburseRelayerFees(_args.params.originDomain, payable(_args.params.to), _args.relayerFee);
+      s.sponsorVault.reimburseRelayerFees(_args.params.originDomain, payable(_args.params.to), _args.params.relayerFee);
     }
 
     // execute the the transaction

@@ -361,7 +361,6 @@ export const connextXCall = async (
   user: Wallet,
   asset: TestERC20,
   amount: number,
-  relayerFee: number,
   params: {
     to: string;
     recovery: string;
@@ -374,6 +373,7 @@ export const connextXCall = async (
     forceSlow: boolean;
     receiveLocal: boolean;
     slippageTol: BigNumberish;
+    relayerFee: BigNumberish;
   },
   connext: ConnextHandler,
   bridgeFacet: BridgeFacet,
@@ -385,7 +385,7 @@ export const connextXCall = async (
   const transactingAssetId = asset.address;
   const prepare = await connext
     .connect(user)
-    .xcall({ params, transactingAssetId, amount, relayerFee }, { value: relayerFee });
+    .xcall({ params, transactingAssetId, amount }, { value: params.relayerFee });
   const prepareReceipt = await prepare.wait();
 
   const xcalledTopic = bridgeFacet.filters.XCalled().topics as string[];
