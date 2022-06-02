@@ -434,8 +434,6 @@ contract BridgeFacet is BaseConnextFacet {
     bytes32 detailsHash;
 
     if (s.tokenRegistry.isLocalOrigin(_asset)) {
-      // TODO: do we want to store a mapping of custodied token balances here?
-
       // token is local, custody token on this chain
       // query token contract for details and calculate detailsHash
       detailsHash = ConnextMessage.formatDetailsHash(token.name(), token.symbol(), token.decimals());
@@ -791,7 +789,6 @@ contract BridgeFacet is BaseConnextFacet {
     // *only* be minted by `handle`. They are still used in the generation of
     // the transferId so routers must provide them correctly to be reimbursed
 
-    // TODO: do we need to keep this
     bytes32 details = action.detailsHash();
 
     // if the token is of remote origin, mint the tokens. will either
@@ -861,11 +858,12 @@ contract BridgeFacet is BaseConnextFacet {
       emit AavePortalRepaymentDebt(_transferId, adopted, backUnbackedAmount, portalFee);
     }
 
-    // TODO: Do we need to check balance before and after to get the exact amount paid and give the routers the rest?
-    // Aave accounts a global unbacked variable per asset for all, not by address/bridge.
+    // NOTE: Aave accounts a global unbacked variable per asset for all, not by address/bridge.
     // Someone can repay more than it should, so then a the moment of calling backUnbacked()
     // aave can pull a smaller amount than backUnbackedAmount. So there will be an extra amount of assets that needs to be assigned
     // See https://github.com/aave/aave-v3-core/blob/feb3f20885c73025f40cc272b59e7eacfaa02fe4/contracts/protocol/libraries/logic/BridgeLogic.sol#L121
+    // If we wanted to handle this difference, we should check the balance before and after calling
+    // `backUnbacked` and credit the difference to the router
 
     // Calculate the amount to distribute amongst the routers (i.e. profit or debt remaining here)
     if (_amount >= amountIn) {
