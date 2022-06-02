@@ -53,6 +53,7 @@ contract BridgeFacet is BaseConnextFacet {
   error BridgeFacet__execute_notSupportedRouter();
   error BridgeFacet__execute_invalidRouterSignature();
   error BridgeFacet__execute_alreadyExecuted();
+  error BridgeFacet__execute_alreadyReconciled();
   error BridgeFacet__execute_notReconciled();
   error BridgeFacet__handleExecuteTransaction_invalidSponsoredAmount();
   error BridgeFacet__bumpTransfer_valueIsZero();
@@ -540,8 +541,12 @@ contract BridgeFacet is BaseConnextFacet {
     // get the payload the router should have signed
     bytes32 routerHash = keccak256(abi.encode(transferId, pathLength));
 
-    // make sure routers are all approved if needed
-    if (pathLength > 0) {
+    // check the reconciled status is correct
+    // (i.e. if there are routers provided, the transfer must *not* be reconciled)
+    if (pathLength > 0) // make sure routers are all approved if needed
+    {
+      if (reconciled) revert BridgeFacet__execute_alreadyReconciled();
+
       for (uint256 i; i < pathLength; ) {
         if (!_isRouterOwnershipRenounced() && !s.routerPermissionInfo.approvedRouters[_args.routers[i]]) {
           revert BridgeFacet__execute_notSupportedRouter();
