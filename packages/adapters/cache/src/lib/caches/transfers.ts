@@ -81,13 +81,6 @@ export class TransfersCache extends Cache {
     }
   }
 
-  //search through pending find oldest
-  //find next completed after oldest pending
-  //delete the rest
-
-  //keep pending OR latest completed
-  //getlatestnonce and delete all completed below that.
-
   /**
    * Stores a batch of transfers in the cache. All transfer data will be stored (JSON
    * stringified). Transfers are indexed by their transferId. Additionally, adds new pending transfers
