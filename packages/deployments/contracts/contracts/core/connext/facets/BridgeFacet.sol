@@ -471,7 +471,7 @@ contract BridgeFacet is BaseConnextFacet {
    */
   function _reconcile(uint32 _origin, bytes memory _message) internal {
     // Parse and process message
-    (uint256 amount, address local, bytes32 transferId, ) = _reconcileProcessMessage(_message);
+    (uint256 amount, address local, bytes32 transferId) = _reconcileProcessMessage(_message);
 
     // get the routers
     address[] storage routers = s.routedTransfers[transferId];
@@ -753,7 +753,6 @@ contract BridgeFacet is BaseConnextFacet {
     returns (
       uint256,
       address,
-      bytes32,
       bytes32
     )
   {
@@ -805,7 +804,7 @@ contract BridgeFacet is BaseConnextFacet {
     // mark the transfer as reconciled
     s.reconciledTransfers[transferId] = true;
 
-    return (amount, token, transferId, canonical);
+    return (amount, token, transferId);
   }
 
   /**
