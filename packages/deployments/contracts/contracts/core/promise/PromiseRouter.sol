@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT OR Apache-2.0
-pragma solidity 0.8.11;
+pragma solidity 0.8.14;
 
 import {Home} from "../../nomad-core/contracts/Home.sol";
 import {Version0} from "../../nomad-core/contracts/Version0.sol";
