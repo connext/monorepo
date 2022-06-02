@@ -70,8 +70,8 @@ module "postgrest" {
   container_family         = "postgrest"
   container_port           = 3000
   loadbalancer_port        = 80
-  cpu                      = 512
-  memory                   = 1024
+  cpu                      = 1024
+  memory                   = 2048
   instance_count           = 2
   timeout                  = 180
   environment              = var.environment
@@ -113,7 +113,7 @@ module "cartographer" {
   docker_image            = var.full_image_name_cartographer
   container_family        = "cartographer"
   container_port          = 8080
-  cpu                     = 512
+  cpu                     = 1024
   memory                  = 2048
   instance_count          = 1
   environment             = var.environment

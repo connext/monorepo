@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: UNLICENSED
-pragma solidity 0.8.11;
+pragma solidity 0.8.14;
 
 import {BaseConnextFacet} from "./BaseConnextFacet.sol";
 import {LibDiamond} from "../libraries/LibDiamond.sol";
