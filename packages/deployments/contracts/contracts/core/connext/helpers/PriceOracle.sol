@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: UNLICENSED
-pragma solidity 0.8.11;
+pragma solidity 0.8.14;
 
 abstract contract PriceOracle {
   /// @notice Indicator that this is a PriceOracle contract (for inspection)
