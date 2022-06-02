@@ -202,8 +202,8 @@ library AssetLogic {
    * @notice Swaps a local nomad asset for the adopted asset using the stored stable swap
    * @dev Will not swap if the asset passed in is the adopted asset
    * @param _asset - The address of the local asset to swap into the adopted asset
-   * @param _amount - The amount of the local asset to swap
-   * @return The amount of adopted asset put into  swap
+   * @param _amount - The exact amount to receive out of the swap
+   * @return The amount of local asset put into  swap
    * @return The address of asset received post-swap
    */
   function swapFromLocalAssetIfNeededForExactOut(address _asset, uint256 _amount) internal returns (uint256, address) {
