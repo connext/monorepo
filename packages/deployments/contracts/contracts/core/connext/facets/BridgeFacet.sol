@@ -206,11 +206,23 @@ contract BridgeFacet is BaseConnextFacet {
   // ============ Public methods ==============
 
   /**
-   * @notice This function is called by a user who is looking to bridge funds
-   * @dev This contract must have approval to transfer the adopted assets. They are then swapped to
-   * the local nomad assets via the configured AMM and sent over the bridge router.
-   * @param _args - The XCallArgs
-   * @return The transfer id of the crosschain transfer
+   * @notice Initiates a cross-chain transfer of funds, calldata, and/or various named properties using the nomad
+   * network.
+   *
+   * @dev For ERC20 transfers, this contract must have approval to transfer the input (transacting) assets. The adopted
+   * assets will be swapped for their local nomad asset counterparts (i.e. bridgable tokens) via the configured AMM if
+   * necessary. In the event that the adopted assets *are* local nomad assets, no swap is needed. The local tokens will
+   * then be sent via the bridge router. If the local assets are representational for an asset on another chain, we will
+   * burn the tokens here. If the local assets are canonical (meaning that the adopted<>local asset pairing is native
+   * to this chain), we will custody the tokens here.
+   *
+   * For native transfers, the native asset will be wrapped by depositing them to the configured Wrapper contract. Next,
+   * the wrapper tokens (e.g. WETH) are swapped for their local nomad asset counterparts via the configured AMM.
+   * Those local tokens will then be sent via the bridge router. Since the local assets would always be canonical in this
+   * case, custody of the local assets will be kept here.
+   *
+   * @param _args - The XCallArgs arguments.
+   * @return bytes32 - The transfer ID of the newly created crosschain transfer.
    */
   function xcall(XCallArgs calldata _args) external payable returns (bytes32) {
     // Sanity checks.
@@ -300,13 +312,17 @@ contract BridgeFacet is BaseConnextFacet {
   }
 
   /**
-   * @notice Handles an incoming message
-   * @dev This function relies on nomad relayers and should not consume arbitrary amounts of
-   * gas
-   * @param _origin The origin domain
-   * @param _nonce The unique identifier for the message from origin to destination
-   * @param _sender The sender address
-   * @param _message The message
+   * @notice The interface-compliant entrypoint for nomad relayers. Handles an incoming nomad router message that has
+   * been verified optimistically. Wraps `_reconcile`, which contains the business logic involved in completing the
+   * xchain update.
+   *
+   * @dev Since this method will be called by nomad relayers, it should not consume arbitrary amounts of gas under
+   * any circumstances.
+   *
+   * @param _origin - The origin domain's numeric ID.
+   * @param _nonce - The unique numeric identifier for the message from origin to destination.
+   * @param _sender - The sender identifier.
+   * @param _message - The message bytes.
    */
   function handle(
     uint32 _origin,
@@ -314,15 +330,21 @@ contract BridgeFacet is BaseConnextFacet {
     bytes32 _sender,
     bytes memory _message
   ) external onlyReplica onlyRemoteRouter(_origin, _sender) {
-    // handle the action
     _reconcile(_origin, _message);
   }
 
   /**
-   * @notice Called on the destination domain to disburse correct assets to end recipient
-   * and execute any included calldata
-   * @dev Can be called prior to or after `handle`, depending if fast liquidity is being
-   * used.
+   * @notice Called on a destination domain to disburse correct assets to end recipient and execute any included
+   * calldata.
+   *
+   * @dev Can be called before or after `handle` [reconcile] is called (regarding the same transfer), depending on
+   * whether the fast liquidity route (i.e. funds provided by routers) is being used for this transfer. As a result,
+   * executed calldata (including properties like `originSender`) may or may not be verified depending on whether the
+   * reconcile has been completed (i.e. the optimistic confirmation period has elapsed).
+   *
+   * @param _args - ExecuteArgs arguments.
+   * @return bytes32 - The transfer ID of the crosschain transfer. Should match the xcall's transfer ID in order for
+   * reconciliation to occur.
    */
   function execute(ExecuteArgs calldata _args) external returns (bytes32) {
     (bytes32 transferId, bool reconciled) = _executeSanityChecks(_args);
@@ -418,9 +440,19 @@ contract BridgeFacet is BaseConnextFacet {
   }
 
   /**
-   * @notice Called via `handle` to manage funds associated with a transaction
-   * @dev Will either (a) credit router or (b) make funds available for execution. Don't
-   * include execution here
+   * @notice Called via `handle`. Will either (a) credit the router(s) if fast liquidity was provided (i.e. `execute`
+   * has already occurred) or (b) make funds available for execution, updating state to mark the transfer as having
+   * been reconciled (i.e. verified).
+   *
+   * @dev The output asset will be the one registered under the canonical token ID in the TokenRegistry. If the output
+   * asset is an adopted token, the bridged nomad counterpart (i.e. the local asset) will be minted then swapped via
+   * the configured AMM to the adopted token. If the target output is the canonical token (i.e. this domain is the
+   * canonical domain for the token), then we will release custody of the appropriate amount of that canonical token
+   * (tokens which were previously deposited into this bridge via outgoing `xcall`s). If the target adopted token
+   * is also the local nomad asset (which would be minted here), then no swap is necessary.
+   *
+   * @param _origin - The origin domain's numeric ID.
+   * @param _message - The bridged message bytes.
    */
   function _reconcile(uint32 _origin, bytes memory _message) internal {
     // Parse tokenId and action from the message.

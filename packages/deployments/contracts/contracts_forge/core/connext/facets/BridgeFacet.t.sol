@@ -660,10 +660,11 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
     helpers_xcallAndAssert();
   }
 
-  // ======= handle (reconcile) =======
-  // handle
+  // =========== handle ==========
+  // TODO: test handle? stub `_reconcile` and basically just test only nomad router permissions
 
-  // bumpTransfer
+  // =========== reconcile ==========
+  // reconcile
 
   // ============ execute ============
 
