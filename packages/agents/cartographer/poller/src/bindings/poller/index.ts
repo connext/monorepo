@@ -10,7 +10,7 @@ export const DEFAULT_SAFE_CONFIRMATIONS = 5;
 
 let stoppedExternally = false;
 
-const stopExternally = () => {
+export const stopExternally = () => {
   stoppedExternally = true;
 };
 
