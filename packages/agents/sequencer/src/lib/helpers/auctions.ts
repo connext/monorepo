@@ -2,8 +2,9 @@ import { Bid, ExecuteArgs, OriginTransfer } from "@connext/nxtp-utils";
 import { constants } from "ethers";
 
 import { getContext } from "../../sequencer";
+import { RoundInvalid } from "../errors";
 
-export const encodeExecuteFromBids = (bids: Bid[], transfer: OriginTransfer, local: string): string => {
+export const encodeExecuteFromBids = (round: number, bids: Bid[], transfer: OriginTransfer, local: string): string => {
   const {
     adapters: { contracts },
   } = getContext();
@@ -27,7 +28,7 @@ export const encodeExecuteFromBids = (bids: Bid[], transfer: OriginTransfer, loc
     },
     local,
     routers: bids.map((b) => b.router),
-    routerSignatures: bids.map((b) => b.signatures[bids.length.toString()]),
+    routerSignatures: bids.map((b) => b.signatures[round.toString()]),
     amount: transfer.origin.assets.bridged.amount,
     nonce: transfer.nonce,
     originSender: transfer.origin.xcall.caller,
@@ -62,4 +63,84 @@ export const getDestinationLocalAsset = async (
 
   const localAddress = destinationDomainAsset!.local;
   return localAddress;
+};
+
+/**
+ * Picks up the valid bids and groups the bids by round
+ * @param bids - The array of raw bids, mapping between `router` and `bid` for the specific transferId
+ * @param roundDepth - The maximum round which is allowed in the sequencer
+ * @returns roundId -> array of bids
+ */
+export const getBidsRoundMap = (bids: Record<string, Bid>, roundDepth: number): Record<number, Bid[]> => {
+  const availableBids: Record<number, Bid[]> = {};
+  // Sanity checks and pick up valid bid combinations
+  for (let roundIdx = 1; roundIdx <= roundDepth; roundIdx++) {
+    const filteredBids = Object.values(bids)
+      .filter((bid) => {
+        return Array.from(Object.keys(bid.signatures)).includes(roundIdx.toString());
+      })
+      .map((bid) => {
+        const signatures: Record<string, string> = {};
+        signatures[roundIdx.toString()] = bid.signatures[roundIdx].toString();
+        return { ...bid, signatures };
+      });
+
+    // We need 2 ^ (roundIdx - 1) of different bids at least for roundIdx
+    if (filteredBids.length >= getMinimumBidsCountForRound(roundIdx)) {
+      availableBids[roundIdx] = filteredBids;
+    }
+  }
+
+  return availableBids;
+};
+
+/**
+ * Calculates the minimum number of bids for the round
+ * round 1 -> amount / 1, round 2 -> amount / 2, round 3 -> amount / 4, round4 -> amount / 8
+ * @param round The round id to calculate the minimum number of bids for
+ * @returns - The number of bids
+ */
+export const getMinimumBidsCountForRound = (round: number): number => {
+  const { config } = getContext();
+  if (round < 1 || round > config.auctionRoundDepth || Math.trunc(round) != round) {
+    throw new RoundInvalid({ round, auctionRoundDepth: config.auctionRoundDepth });
+  }
+  return Math.pow(2, round - 1);
+};
+
+/**
+ * Generate all combinations of an array.
+ * @param sources - Array of input elements.
+ * @param length - Desired length of combinations.
+ * @return - Array of combination arrays.
+ */
+export const getAllSubsets = (sources: any[], length: number): any[] => {
+  const sourceLength = sources.length;
+  if (length > sourceLength) return [];
+
+  const combos: any[] = []; // Stores valid combinations as they are generated.
+
+  // Accepts a partial combination, an index into sources,
+  // and the number of elements required to be added to create a full-length combination.
+  // Called recursively to build combinations, adding subsequent elements at each call depth.
+  const makeNextCombos = (workingCombo: any[], currentIndex: number, remainingCount: number) => {
+    const oneAwayFromComboLength = remainingCount == 1;
+
+    // For each element that remaines to be added to the working combination.
+    for (let sourceIndex = currentIndex; sourceIndex < sourceLength; sourceIndex++) {
+      // Get next (possibly partial) combination.
+      const next = [...workingCombo, sources[sourceIndex]];
+
+      if (oneAwayFromComboLength) {
+        // Combo of right length found, save it.
+        combos.push(next);
+      } else {
+        // Otherwise go deeper to add more elements to the current partial combination.
+        makeNextCombos(next, sourceIndex + 1, remainingCount - 1);
+      }
+    }
+  };
+
+  makeNextCombos([], 0, length);
+  return combos;
 };

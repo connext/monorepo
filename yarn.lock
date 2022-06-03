@@ -3112,10 +3112,17 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@nomad-xyz/configuration@npm:0.1.0-rc.24, @nomad-xyz/configuration@npm:^0.1.0-rc.23":
+"@nomad-xyz/configuration@npm:0.1.0-rc.24":
   version: 0.1.0-rc.24
   resolution: "@nomad-xyz/configuration@npm:0.1.0-rc.24"
   checksum: dd9d15d715b6eb128e9d6b332184d12a126307fdca9ea4adc5a0b589d2aa5831aa8df9a9cca0190763f9683b977e095a558c2a05175f7fb3b63b9fbd47e826b1
+  languageName: node
+  linkType: hard
+
+"@nomad-xyz/configuration@npm:^0.1.0-rc.23":
+  version: 0.1.0-rc.23
+  resolution: "@nomad-xyz/configuration@npm:0.1.0-rc.23"
+  checksum: 45f5e5efb0394d06299304f09b681e53deece1c8dd8b17fe1091fc09286f3ae26c3ccae8daf523c63d5e3614492845680b844fd50677788fe9e371de767fabdc
   languageName: node
   linkType: hard
 
@@ -9310,7 +9317,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"ethereumjs-common@npm:^1.1.0, ethereumjs-common@npm:^1.3.2, ethereumjs-common@npm:^1.5.0":
+"ethereumjs-common@npm:^1.1.0, ethereumjs-common@npm:^1.3.24, ethereumjs-common@npm:^1.5.0":
   version: 1.5.2
   resolution: "ethereumjs-common@npm:1.5.2"
   checksum: 3fc64faced268e0c61da50c5db76d18cfd44325d5706792f32ac8c85c0e800d52db284f042c3bd0623daf59b946176ef7dbea476d1b0252492137fa4549a3349
@@ -11106,7 +11113,7 @@ __metadata:
     yargs-parser: ^16.1.0
   bin:
     gluegun: bin/gluegun
-  checksum: 39134821c7233bae61fa0d85bcc5ab4ccd2cbe00173c53cc3cab74c4f29d54de939809832fc4e9bedb896a0795313d28f854bc7d5abe7b154bf7d77c319398bd
+  checksum: 429c1577b6867b3b718dc8c33f1149b98c77f263603c17da7adbec236e7ec4544a8bde5bac43d4128bc44cd179cd18c1fc56483194aaeadb4d6f49a7ab6d07e0
   languageName: node
   linkType: hard
 
@@ -21693,7 +21700,7 @@ __metadata:
   dependencies:
     crypto-browserify: 3.12.0
     eth-lib: 0.2.8
-    ethereumjs-common: ^1.3.2
+    ethereumjs-common: ^1.3.24
     ethereumjs-tx: ^2.1.1
     scrypt-js: ^3.0.1
     underscore: 1.9.1
