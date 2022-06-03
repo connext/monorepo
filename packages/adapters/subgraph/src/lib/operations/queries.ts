@@ -1,5 +1,5 @@
 import { gql } from "graphql-request";
-import { SubgraphQueryMetaParams, XTransferStatus } from "@connext/nxtp-utils";
+import { SubgraphQueryMetaParams, XTransferStatus, SubgraphQueryByTimestampMetaParams } from "@connext/nxtp-utils";
 
 import { getContext } from "../../reader";
 

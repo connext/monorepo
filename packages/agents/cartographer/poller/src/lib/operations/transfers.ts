@@ -45,18 +45,33 @@ export const updateTransfers = async () => {
       destinationDomains: domains,
     });
 
+    const executedTimestamp = await database.getLatestExecuteTimestamp(domain);
+
     subgraphExecuteQueryMetaParams.set(domain, {
       maxBlockNumber: latestBlockNumber,
       destinationDomains: domains,
+      fromTimestamp: executedTimestamp,
     });
+
+    const reconciledTimestamp = await database.getLatestReconcileTimestamp(domain);
+
     subgraphReconcileQueryMetaParams.set(domain, {
       maxBlockNumber: latestBlockNumber,
-      latestNonce,
+      fromTimestamp: reconciledTimestamp,
       destinationDomains: domains,
     });
   }
 
   if (subgraphQueryMetaParams.size > 0) {
+    // Get origin transfers for all domains in the mapping.
+    const transfers = await subgraph.getOriginTransfers(subgraphQueryMetaParams);
+    logger.info("Retrieved origin transfers", requestContext, methodContext, {
+      transfers,
+    });
+    await database.saveTransfers(transfers);
+  }
+
+  if (subgraphExecuteQueryMetaParams.size > 0) {
     // Get origin transfers for all domains in the mapping.
     const transfers = await subgraph.getOriginTransfers(subgraphQueryMetaParams);
     logger.info("Retrieved origin transfers", requestContext, methodContext, {
