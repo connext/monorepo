@@ -29,6 +29,8 @@ contract PortalFacetTest is PortalFacet, FacetHelper {
   address router = address(1111);
   address aavePool;
 
+  bytes32 _id = bytes32(abi.encodePacked(address(123)));
+
   // ============ Test set up ============
 
   function setUp() public {
@@ -99,14 +101,16 @@ contract PortalFacetTest is PortalFacet, FacetHelper {
     // set approval context
     s.routerPermissionInfo.approvedForPortalRouters[router] = true;
 
-    // set liquidity
-    uint256 init = 10 ether;
-    s.routerBalances[router][_local] = init;
-    assertTrue(IERC20(_local).balanceOf(address(this)) > init);
-
     // set debt amount
     uint256 backing = 1111;
     uint256 fee = 111;
+
+    // set liquidity
+    uint256 init = 10 ether;
+    s.routerBalances[router][_local] = init;
+    s.portalDebt[_id] = backing;
+    s.portalFeeDebt[_id] = fee;
+    assertTrue(IERC20(_local).balanceOf(address(this)) > init);
 
     // set pool
     s.aavePool = aavePool;
@@ -120,7 +124,7 @@ contract PortalFacetTest is PortalFacet, FacetHelper {
     vm.expectEmit(true, true, true, true);
     emit AavePortalRouterRepayment(router, _local, backing, fee);
     vm.prank(router);
-    this.repayAavePortal(_local, backing, fee, backing);
+    this.repayAavePortal(_local, backing, fee, backing, _id);
 
     // assert balance decrement
     assertEq(s.routerBalances[router][_local], init - backing - fee);
@@ -141,6 +145,6 @@ contract PortalFacetTest is PortalFacet, FacetHelper {
     // call coming from router
     vm.prank(router);
     vm.expectRevert(abi.encodeWithSelector(PortalFacet.PortalFacet__repayAavePortal_insufficientFunds.selector));
-    this.repayAavePortal(_local, backing, fee, backing);
+    this.repayAavePortal(_local, backing, fee, backing, _id);
   }
 }

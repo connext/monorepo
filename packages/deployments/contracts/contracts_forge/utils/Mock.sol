@@ -138,8 +138,12 @@ contract TestSetterFacet is BaseConnextFacet {
     s.canonicalToAdopted[_id] = _adopted;
   }
 
-  function setTestAavePortalsTransfers(bytes32 _id, uint256 _amount) external {
-    s.aavePortalsTransfers[_id] = _amount;
+  function setTestAavePortalDebt(bytes32 _id, uint256 _amount) external {
+    s.portalDebt[_id] = _amount;
+  }
+
+  function setTestAavePortalFeeDebt(bytes32 _id, uint256 _amount) external {
+    s.portalFeeDebt[_id] = _amount;
   }
 
   function setTestRoutedTransfers(bytes32 _id, address[] memory _routers) external {

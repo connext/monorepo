@@ -400,7 +400,8 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
 
     this.execute(_args);
 
-    assertEq(s.aavePortalsTransfers[_id], userAmount);
+    assertEq(s.portalDebt[_id], userAmount);
+    assertEq(s.portalFeeDebt[_id], (userAmount * _portalFeeNumerator) / _liquidityFeeDenominator);
     assertEq(s.routerBalances[_args.routers[0]][_args.local], 0);
   }
 
@@ -418,7 +419,8 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
     uint256 fee = (portaled * _portalFeeNumerator) / _liquidityFeeDenominator;
 
     // set transfer context (handled by portal, already routed)
-    s.aavePortalsTransfers[_id] = portaled;
+    s.portalFeeDebt[_id] = fee;
+    s.portalDebt[_id] = portaled;
     s.routedTransfers[_id] = _args.routers;
 
     // set remote context
@@ -501,7 +503,8 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
     uint256 gains = (_args.amount - swappedIn) / _args.routers.length;
 
     // set transfer context (handled by portal, already routed)
-    s.aavePortalsTransfers[_id] = portaled;
+    s.portalFeeDebt[_id] = fee;
+    s.portalDebt[_id] = portaled;
     s.routedTransfers[_id] = _args.routers;
 
     bytes memory message = buildMessage(_id);
@@ -536,17 +539,18 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
 
     // get the back unbacked amount
     uint256 portaled = (_args.amount * _liquidityFeeNumerator) / _liquidityFeeDenominator;
-
-    // set transfer context (handled by portal, already routed)
-    s.aavePortalsTransfers[_id] = portaled;
-    s.routedTransfers[_id] = _args.routers;
     // set high transfer fee
     s.aavePortalFeeNumerator = 10;
+    // get the portal fee
+    uint256 portalFee = (portaled * s.aavePortalFeeNumerator) / _liquidityFeeDenominator;
+
+    // set transfer context (handled by portal, already routed)
+    s.portalDebt[_id] = portaled;
+    s.portalFeeDebt[_id] = portalFee;
+    s.routedTransfers[_id] = _args.routers;
     // set remote context
     setRemoteRouterContext(_originFacet, _originDomain);
 
-    // get the portal fee
-    uint256 portalFee = (portaled * s.aavePortalFeeNumerator) / _liquidityFeeDenominator;
     // get outstanding debt on fee
     uint256 feePayment = _args.amount - portaled;
     uint256 outstanding = portalFee - feePayment;
@@ -571,6 +575,8 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
     this.handle(_params.originDomain, uint32(_nonce), bytes32(abi.encodePacked(_originFacet)), message);
 
     assertEq(s.routerBalances[_router0][_local], initLiquidity);
+    assertEq(s.portalDebt[_id], 0);
+    assertEq(s.portalFeeDebt[_id], outstanding);
   }
 
   function test_BridgeFacet__handle_emitDebtEventIfPortalFeeNotRepaid() public {

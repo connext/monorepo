@@ -242,13 +242,14 @@ contract Deployer {
   }
 
   function getPortalCut(address _portalFacet) internal pure returns (IDiamondCut.FacetCut memory) {
-    bytes4[] memory portalFacetSelectors = new bytes4[](6);
-    portalFacetSelectors[0] = PortalFacet.getAavePortalsTransfers.selector;
-    portalFacetSelectors[1] = PortalFacet.aavePool.selector;
-    portalFacetSelectors[2] = PortalFacet.aavePortalFee.selector;
-    portalFacetSelectors[3] = PortalFacet.setAavePool.selector;
-    portalFacetSelectors[4] = PortalFacet.setAavePortalFee.selector;
-    portalFacetSelectors[5] = PortalFacet.repayAavePortal.selector;
+    bytes4[] memory portalFacetSelectors = new bytes4[](7);
+    portalFacetSelectors[0] = PortalFacet.getAavePortalDebt.selector;
+    portalFacetSelectors[1] = PortalFacet.getAavePortalFeeDebt.selector;
+    portalFacetSelectors[2] = PortalFacet.aavePool.selector;
+    portalFacetSelectors[3] = PortalFacet.aavePortalFee.selector;
+    portalFacetSelectors[4] = PortalFacet.setAavePool.selector;
+    portalFacetSelectors[5] = PortalFacet.setAavePortalFee.selector;
+    portalFacetSelectors[6] = PortalFacet.repayAavePortal.selector;
 
     return
       IDiamondCut.FacetCut({
@@ -270,7 +271,7 @@ contract Deployer {
   }
 
   function getTestSetterFacetCut(address _testSetterFacetFacet) internal pure returns (IDiamondCut.FacetCut memory) {
-    bytes4[] memory testSetterFacetSelectors = new bytes4[](10);
+    bytes4[] memory testSetterFacetSelectors = new bytes4[](11);
     testSetterFacetSelectors[0] = TestSetterFacet.setTestRelayerFees.selector;
     testSetterFacetSelectors[1] = TestSetterFacet.setTestTransferRelayer.selector;
     testSetterFacetSelectors[2] = TestSetterFacet.setTestApproveRouterForPortal.selector;
@@ -279,8 +280,9 @@ contract Deployer {
     testSetterFacetSelectors[5] = TestSetterFacet.setTestRouterBalances.selector;
     testSetterFacetSelectors[6] = TestSetterFacet.setTestApprovedRouter.selector;
     testSetterFacetSelectors[7] = TestSetterFacet.setTestCanonicalToAdopted.selector;
-    testSetterFacetSelectors[8] = TestSetterFacet.setTestAavePortalsTransfers.selector;
-    testSetterFacetSelectors[9] = TestSetterFacet.setTestRoutedTransfers.selector;
+    testSetterFacetSelectors[8] = TestSetterFacet.setTestAavePortalDebt.selector;
+    testSetterFacetSelectors[9] = TestSetterFacet.setTestAavePortalFeeDebt.selector;
+    testSetterFacetSelectors[10] = TestSetterFacet.setTestRoutedTransfers.selector;
     return
       IDiamondCut.FacetCut({
         facetAddress: _testSetterFacetFacet,
