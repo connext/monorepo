@@ -28,6 +28,12 @@ export type SubgraphQueryMetaParams = {
   destinationDomains?: string[];
 };
 
+export type SubgraphQueryByTimestampMetaParams = {
+  maxBlockNumber: number;
+  fromTimestamp: number;
+  destinationDomains?: string[];
+};
+
 const MIN_SUBGRAPH_MAX_LAG = 25;
 export const SubgraphReaderChainConfigSchema = Type.Object({
   analytics: Type.Array(

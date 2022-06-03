@@ -1,4 +1,10 @@
-import { createLoggingContext, OriginTransfer, XTransferStatus, SubgraphQueryMetaParams } from "@connext/nxtp-utils";
+import {
+  createLoggingContext,
+  OriginTransfer,
+  XTransferStatus,
+  SubgraphQueryMetaParams,
+  SubgraphQueryByTimestampMetaParams,
+} from "@connext/nxtp-utils";
 
 import { getContext } from "../../cartographer";
 
@@ -11,6 +17,8 @@ export const updateTransfers = async () => {
   const { requestContext, methodContext } = createLoggingContext("updateTransfers");
 
   const subgraphQueryMetaParams: Map<string, SubgraphQueryMetaParams> = new Map();
+  const subgraphExecuteQueryMetaParams: Map<string, SubgraphQueryByTimestampMetaParams> = new Map();
+  const subgraphReconcileQueryMetaParams: Map<string, SubgraphQueryByTimestampMetaParams> = new Map();
   const lastestBlockNumbers: Map<string, number> = await subgraph.getLatestBlockNumber(domains);
 
   for (const domain of domains) {
@@ -32,6 +40,16 @@ export const updateTransfers = async () => {
     const latestNonce = await database.getLatestNonce(domain);
 
     subgraphQueryMetaParams.set(domain, {
+      maxBlockNumber: latestBlockNumber,
+      latestNonce,
+      destinationDomains: domains,
+    });
+
+    subgraphExecuteQueryMetaParams.set(domain, {
+      maxBlockNumber: latestBlockNumber,
+      destinationDomains: domains,
+    });
+    subgraphReconcileQueryMetaParams.set(domain, {
       maxBlockNumber: latestBlockNumber,
       latestNonce,
       destinationDomains: domains,
