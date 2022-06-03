@@ -19,6 +19,8 @@ import {
   getLatestNonce,
   saveTransfers,
   saveRouterBalances,
+  getLatestExecuteTimestamp,
+  getLatestReconcileTimestamp,
 } from "../../../src/adapters/database/client";
 
 describe("Database client", () => {
@@ -405,5 +407,33 @@ describe("Database client", () => {
     const res = await pool.query(`SELECT * FROM routers_with_balances`);
     const rb = convertToRouterBalance(res.rows);
     expect(rb).to.deep.eq(routerBalances);
+  });
+
+  describe("#getLatestExecuteTimestamp", async () => {
+    it("should get latest execute timestamp", async () => {
+      const xTransfer1: XTransfer = mock.entity.xtransfer({ status: XTransferStatus.Executed });
+      xTransfer1.destination.execute.timestamp = 1;
+      const xTransfer2: XTransfer = mock.entity.xtransfer({ status: XTransferStatus.Executed });
+      xTransfer2.destination.execute.timestamp = 2;
+      const xTransfer3: XTransfer = mock.entity.xtransfer({ status: XTransferStatus.Executed });
+      xTransfer3.destination.execute.timestamp = 3;
+      await saveTransfers([xTransfer1, xTransfer2, xTransfer3], pool);
+      const timestamp = await getLatestExecuteTimestamp(xTransfer1.destinationDomain, pool);
+      expect(timestamp).equal(3);
+    });
+  });
+
+  describe("#getLatestReconcileTimestamp", async () => {
+    it("should get latest execute timestamp", async () => {
+      const xTransfer1: XTransfer = mock.entity.xtransfer({ status: XTransferStatus.Reconciled });
+      xTransfer1.destination.reconcile.timestamp = 1;
+      const xTransfer2: XTransfer = mock.entity.xtransfer({ status: XTransferStatus.Reconciled });
+      xTransfer2.destination.reconcile.timestamp = 2;
+      const xTransfer3: XTransfer = mock.entity.xtransfer({ status: XTransferStatus.Reconciled });
+      xTransfer3.destination.reconcile.timestamp = 3;
+      await saveTransfers([xTransfer1, xTransfer2, xTransfer3], pool);
+      const timestamp = await getLatestReconcileTimestamp(xTransfer1.destinationDomain, pool);
+      expect(timestamp).equal(3);
+    });
   });
 });

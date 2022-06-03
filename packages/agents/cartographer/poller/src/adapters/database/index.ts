@@ -8,7 +8,6 @@ import {
   getTransfersByStatus,
   saveTransfers,
   saveRouterBalances,
-  getLatestXCallTimestamp,
   getLatestExecuteTimestamp,
   getLatestReconcileTimestamp,
 } from "./client";
@@ -24,7 +23,6 @@ export type Database = {
     _pool?: Pool,
   ) => Promise<XTransfer[]>;
   saveRouterBalances: (routerBalances: RouterBalance[], _pool?: Pool) => Promise<void>;
-  getLatestXCallTimestamp: (domain: string, _pool?: Pool) => Promise<number>;
   getLatestExecuteTimestamp: (domain: string, _pool?: Pool) => Promise<number>;
   getLatestReconcileTimestamp: (domain: string, _pool?: Pool) => Promise<number>;
 };
@@ -48,7 +46,6 @@ export const getDatabase = async (): Promise<Database> => {
     saveTransfers,
     getTransfersByStatus,
     saveRouterBalances,
-    getLatestXCallTimestamp,
     getLatestExecuteTimestamp,
     getLatestReconcileTimestamp,
   };
