@@ -113,6 +113,8 @@ describe("Backend operations", () => {
           getLatestNonce: dbClient.getLatestNonce,
           getTransfersByStatus: dbClient.getTransfersByStatus,
           saveRouterBalances: dbClient.saveRouterBalances,
+          getLatestExecuteTimestamp: dbClient.getLatestExecuteTimestamp,
+          getLatestReconcileTimestamp: dbClient.getLatestReconcileTimestamp,
         },
       },
       config: mockConfig as CartographerConfig,
