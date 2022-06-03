@@ -52,6 +52,13 @@ export const makeCartographer = async (_configOverride?: CartographerConfig) => 
   context.logger.info("Cartographer initialized!", requestContext, methodContext, {
     domains: context.domains,
   });
+  context.logger.info(`
+  _|_|_|     _|_|     _|      _|   _|      _|   _|_|_|_|   _|      _|   _|_|_|_|_|
+_|         _|    _|   _|_|    _|   _|_|    _|   _|           _|  _|         _|
+_|         _|    _|   _|  _|  _|   _|  _|  _|   _|_|_|         _|           _|
+_|         _|    _|   _|    _|_|   _|    _|_|   _|           _|  _|         _|
+  _|_|_|     _|_|     _|      _|   _|      _|   _|_|_|_|   _|      _|       _|
+`);
 
   await poller();
 };

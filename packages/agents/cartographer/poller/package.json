@@ -25,7 +25,7 @@
     "dbmate": "dbmate"
   },
   "nodemonConfig": {
-    "exec": "pm2 start ./dist/index.js --source-map-support | pino-pretty",
+    "exec": "pm2 start ./dist/index.js --source-map-support --kill-timeout 5000 --cron-restart=\"* * * * *\" --time | pino-pretty",
     "delay": "500",
     "ext": "js,json",
     "watch": []
