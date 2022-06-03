@@ -303,7 +303,11 @@ struct AppStorage {
   /**
    * @notice Mapping to store the transfer liquidity amount provided by Aave Portals
    */
-  mapping(bytes32 => uint256) aavePortalsTransfers;
+  mapping(bytes32 => uint256) portalDebt;
+  /**
+   * @notice Mapping to store the transfer liquidity amount provided by Aave Portals
+   */
+  mapping(bytes32 => uint256) portalFeeDebt;
 }
 
 library LibConnextStorage {

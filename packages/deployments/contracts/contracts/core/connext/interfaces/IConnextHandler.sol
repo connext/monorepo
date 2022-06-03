@@ -214,7 +214,9 @@ interface IConnextHandler {
   // PortalFacet
   function getRouterApprovalForPortal(address _router) external view returns (bool);
 
-  function getAavePortalsTransfers(bytes32 _transferId) external view returns (uint256);
+  function getAavePortalDebt(bytes32 _transferId) external view returns (uint256);
+
+  function getAavePortalFeeDebt(bytes32 _transferId) external view returns (uint256);
 
   function aavePool() external view returns (address);
 
@@ -231,7 +233,9 @@ interface IConnextHandler {
   function repayAavePortal(
     address _asset,
     uint256 _backingAmount,
-    uint256 _feeAmount
+    uint256 _feeAmount,
+    uint256 _maxIn,
+    bytes32 _transferId
   ) external;
 
   // StableSwapFacet

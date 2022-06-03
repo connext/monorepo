@@ -10,6 +10,8 @@ contract PortalFacet is BaseConnextFacet {
   // ========== Custom Errors ===========
   error PortalFacet__setAavePortalFee_invalidFee();
   error PortalFacet__repayAavePortal_insufficientFunds();
+  error PortalFacet__repayAavePortal_backingTooHigh();
+  error PortalFacet__repayAavePortal_feeTooHigh();
   error PortalFacet__repayAavePortal_swapFailed();
 
   // ============ Events ============
@@ -25,8 +27,12 @@ contract PortalFacet is BaseConnextFacet {
 
   // ============ Getters methods ==============
 
-  function getAavePortalsTransfers(bytes32 _transferId) external view returns (uint256) {
-    return s.aavePortalsTransfers[_transferId];
+  function getAavePortalDebt(bytes32 _transferId) external view returns (uint256) {
+    return s.portalDebt[_transferId];
+  }
+
+  function getAavePortalFeeDebt(bytes32 _transferId) external view returns (uint256) {
+    return s.portalDebt[_transferId];
   }
 
   function aavePool() external view returns (address) {
@@ -70,13 +76,20 @@ contract PortalFacet is BaseConnextFacet {
     address _local,
     uint256 _backingAmount,
     uint256 _feeAmount,
-    uint256 _maxIn
+    uint256 _maxIn,
+    bytes32 _transferId
   ) external {
     uint256 totalAmount = _backingAmount + _feeAmount; // in adopted
     uint256 routerBalance = s.routerBalances[msg.sender][_local]; // in local
 
+    // Sanity check: has that much to spend
     if (routerBalance < _maxIn) revert PortalFacet__repayAavePortal_insufficientFunds();
 
+    // Sanity check: not overpaying principle
+    if (_backingAmount > s.portalDebt[_transferId]) revert PortalFacet__repayAavePortal_backingTooHigh();
+
+    // Sanity check: not overpaying fees
+    if (_feeAmount > s.portalFeeDebt[_transferId]) revert PortalFacet__repayAavePortal_feeTooHigh();
     // Need to swap into adopted asset or asset that was backing the loan
     // The router will always be holding collateral in the local asset while the loaned asset
     // is the adopted asset
@@ -88,12 +101,12 @@ contract PortalFacet is BaseConnextFacet {
       _maxIn
     );
 
-    if (!success) revert PortalFacet__repayAavePortal_swapFailed();
-
     // decrement router balances
     unchecked {
-      s.routerBalances[msg.sender][_local] = routerBalance - amountIn;
+      s.routerBalances[msg.sender][_local] -= amountIn;
     }
+
+    if (!success) revert PortalFacet__repayAavePortal_swapFailed();
 
     // back loan
     SafeERC20Upgradeable.safeIncreaseAllowance(IERC20Upgradeable(adopted), s.aavePool, totalAmount);

@@ -479,7 +479,7 @@ contract BridgeFacet is BaseConnextFacet {
     // If fast transfer was made using portal liquidity, we need to repay
     // FIXME: routers can repay any-amount out-of-band using the `repayAavePortal` method
     // or by interacting with the aave contracts directly
-    uint256 portalTransferAmount = s.aavePortalsTransfers[transferId];
+    uint256 portalTransferAmount = s.portalDebt[transferId] + s.portalFeeDebt[transferId];
 
     uint256 toDistribute = amount;
     uint256 pathLen = routers.length;
@@ -731,7 +731,11 @@ contract BridgeFacet is BaseConnextFacet {
     // Improvement: Instead of withdrawing to address(this), withdraw directly to the user or executor to save 1 transfer
     IAavePool(s.aavePool).withdraw(adopted, userAmount, address(this));
 
-    s.aavePortalsTransfers[_transferId] = userAmount;
+    // Store principle debt
+    s.portalDebt[_transferId] = userAmount;
+
+    // Store fee debt
+    s.portalFeeDebt[_transferId] = (s.aavePortalFeeNumerator * userAmount) / s.LIQUIDITY_FEE_DENOMINATOR;
 
     emit AavePortalMintUnbacked(_transferId, _router, adopted, userAmount);
 
@@ -826,10 +830,13 @@ contract BridgeFacet is BaseConnextFacet {
     // Calculates the amount to be repaid to the portal in adopted asset
     (uint256 totalRepayAmount, uint256 backUnbackedAmount, uint256 portalFee) = _calculatePortalRepayment(
       _amount,
-      s.aavePortalsTransfers[_transferId],
       _transferId,
       _local
     );
+
+    // Update the debt amounts before swapping
+    s.portalDebt[_transferId] -= backUnbackedAmount;
+    s.portalFeeDebt[_transferId] -= portalFee;
 
     // Swap for exact `totalRepayAmount` of adopted asset to repay aave, with a maximum of the minted amount
     // as the slippage ceiling
@@ -887,7 +894,6 @@ contract BridgeFacet is BaseConnextFacet {
    * the unbacked and the fee, it will partially repay prioritizing the unbacked amount.
    * @dev Assumes the fee is proportional to the unbackedAmount.
    * @param _localAmount - The available balance for a repayment
-   * @param _portalTransferAmount - The portal transfer amount that needs to be backed
    * @param _transferId - The unique identifier of the crosschain transaction
    * @param _local - The address of the adopted asset that needs to be backed
    * @return The total amount to be repaid
@@ -896,7 +902,6 @@ contract BridgeFacet is BaseConnextFacet {
    */
   function _calculatePortalRepayment(
     uint256 _localAmount,
-    uint256 _portalTransferAmount,
     bytes32 _transferId,
     address _local
   )
@@ -907,8 +912,8 @@ contract BridgeFacet is BaseConnextFacet {
       uint256
     )
   {
-    uint256 portalFee = (_portalTransferAmount * s.aavePortalFeeNumerator) / s.LIQUIDITY_FEE_DENOMINATOR;
-    uint256 backUnbackedAmount = _portalTransferAmount;
+    uint256 portalFee = s.portalFeeDebt[_transferId];
+    uint256 backUnbackedAmount = s.portalDebt[_transferId];
     uint256 totalRepayAmount = backUnbackedAmount + portalFee;
     // see how much of local asset you would have available post-swap
     (uint256 availableAmount, address adopted) = AssetLogic.calculateSwapFromLocalAssetIfNeeded(_local, _localAmount);
