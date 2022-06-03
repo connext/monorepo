@@ -28,9 +28,9 @@ import {IBridgeToken} from "../interfaces/IBridgeToken.sol";
  * transfer is for an asset of local origin. If not, it checks for an existing
  * representation contract. If no such representation exists, it deploys a new
  * representation contract. It then stores the relationship in the
- * "reprToCanonical" and "canonicalToRepr" mappings to ensure we can always
- * perform a lookup in either direction
- * Note that locally originating tokens should NEVER be represented in these lookup tables.
+ * `representationToCanonical` and `canonicalToRepresentation` mappings to ensure
+ * we can always perform a lookup in either direction.
+ * NOTE: The locally originating tokens should NEVER be represented in these lookup tables.
  */
 contract TokenRegistry is Initializable, XAppConnectionClient, ITokenRegistry {
   // ============ Libraries ============

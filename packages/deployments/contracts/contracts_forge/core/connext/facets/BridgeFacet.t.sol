@@ -9,6 +9,7 @@ import {XAppConnectionManager, TypeCasts} from "../../../../contracts/nomad-core
 
 import {IStableSwap} from "../../../../contracts/core/connext/interfaces/IStableSwap.sol";
 import {ITokenRegistry} from "../../../../contracts/core/connext/interfaces/ITokenRegistry.sol";
+import {TokenRegistry} from "../../../../contracts/core/connext/helpers/TokenRegistry.sol";
 import {IBridgeToken} from "../../../../contracts/core/connext/interfaces/IBridgeToken.sol";
 import {IWrapped} from "../../../../contracts/core/connext/interfaces/IWrapped.sol";
 import {IExecutor} from "../../../../contracts/core/connext/interfaces/IExecutor.sol";
@@ -106,6 +107,15 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
       abi.encodeWithSelector(ITokenRegistry.getTokenId.selector),
       abi.encode(_canonicalDomain, _canonicalId)
     );
+    // vm.mockCall(
+    //   _tokenRegistry,
+    //   abi.encodeWithSelector(ITokenRegistry.getLocalAddress.selector),
+    //   abi.encode(_canonicalDomain, _canonicalId)
+    // );
+    vm.mockCall(_tokenRegistry, abi.encodeWithSelector(ITokenRegistry.ensureLocalToken.selector), abi.encode(_local));
+    // TODO: Not working?
+    // TokenRegistry(_tokenRegistry).setLocalDomain(_originDomain);
+    // vm.store(_tokenRegistry, bytes32(uint256(0)), bytes32(uint32(_originDomain)));
 
     s.adoptedToCanonical[address(s.wrapper)] = ConnextMessage.TokenId(_canonicalDomain, _canonicalId);
     s.adoptedToCanonical[_local] = ConnextMessage.TokenId(_canonicalDomain, _canonicalId);
@@ -157,7 +167,6 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
     // Deploy the promise router.
     s.promiseRouter = new MockPromiseRouter();
     _promiseRouter = payable(s.promiseRouter);
-    // vm.store(_promiseRouter, bytes32(uint256(0)), bytes32(bytes20(address(this))));
 
     // Deploy wrapper for native asset.
     s.wrapper = IWrapped(new MockWrapper());
@@ -362,7 +371,7 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
         bridgedAmt: bridgedAmt,
         bridged: bridged
       });
-      bytes memory message = this.utils_formatMessage(args, bridged, transferId, bridgedAmt);
+      bytes memory message = utils_formatMessage(args, bridged, transferId, bridgedAmt);
       vm.expectEmit(true, true, true, true);
       emit XCalled(transferId, args, eventArgs, s.nonce, message, _originSender);
 
@@ -487,6 +496,51 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
   // Shortcut for above method
   function helpers_executeAndAssert(bytes32 transferId, ExecuteArgs memory _args) public {
     helpers_executeAndAssert(transferId, _args, true);
+  }
+
+  // Helper for calling `reconcile` and asserting expected behavior.
+  function helpers_reconcileAndAssert(
+    bytes32 transferId,
+    XCallArgs memory args,
+    bytes4 expectedError
+  ) public {
+    bool isNative = args.transactingAssetId == address(0);
+    bool shouldSucceed = keccak256(abi.encode(expectedError)) == keccak256(abi.encode(bytes4("")));
+
+    // Derive message from xcall arguments.
+    bytes memory message;
+    address bridged;
+    {
+      uint256 bridgedAmt = args.amount;
+      bridged = isNative ? address(s.wrapper) : _local;
+      BridgeFacet.XCalledEventArgs memory eventArgs = BridgeFacet.XCalledEventArgs({
+        transactingAssetId: isNative ? address(s.wrapper) : args.transactingAssetId,
+        amount: args.amount,
+        bridgedAmt: bridgedAmt,
+        bridged: bridged
+      });
+      message = utils_formatMessage(args, bridged, transferId, bridgedAmt);
+    }
+
+    // Get pre-reconcile balances.
+    uint256 prevBalance;
+    if (isNative) {
+      prevBalance = IERC20(_local).balanceOf(address(this));
+    } else {
+      prevBalance = payable(address(this)).balance;
+    }
+
+    _reconcile(_originDomain, message);
+  }
+
+  function helpers_reconcileAndAssert(bytes4 expectedError) public {
+    (bytes32 transferId, XCallArgs memory args) = utils_makeXCallArgs();
+    helpers_reconcileAndAssert(transferId, args, expectedError);
+  }
+
+  // Shortcut for above method.
+  function helpers_reconcileAndAssert() public {
+    helpers_reconcileAndAssert(bytes4(""));
   }
 
   // ============ Tests ==============
@@ -665,6 +719,9 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
 
   // =========== reconcile ==========
   // reconcile
+  function test_BridgeFacet__reconcile_works() public {
+    helpers_reconcileAndAssert();
+  }
 
   // ============ execute ============
 
