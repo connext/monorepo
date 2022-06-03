@@ -1,10 +1,4 @@
-import {
-  createLoggingContext,
-  OriginTransfer,
-  XTransferStatus,
-  SubgraphQueryMetaParams,
-  SubgraphQueryByTimestampMetaParams,
-} from "@connext/nxtp-utils";
+import { createLoggingContext, SubgraphQueryMetaParams, SubgraphQueryByTimestampMetaParams } from "@connext/nxtp-utils";
 
 import { getContext } from "../../cartographer";
 
