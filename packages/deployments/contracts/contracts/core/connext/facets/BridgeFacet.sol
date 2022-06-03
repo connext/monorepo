@@ -213,7 +213,7 @@ contract BridgeFacet is BaseConnextFacet {
    * @param _args - The XCallArgs
    * @return The transfer id of the crosschain transfer
    */
-  function xcall(XCallArgs calldata _args) external payable returns (bytes32) {
+  function xcall(XCallArgs calldata _args) external payable whenBridgeNotPaused returns (bytes32) {
     _xcallSanityChecks(_args);
 
     // get the true transacting asset id (using wrapped native instead native)
@@ -255,7 +255,7 @@ contract BridgeFacet is BaseConnextFacet {
    * @dev Can be called prior to or after `handle`, depending if fast liquidity is being
    * used.
    */
-  function execute(ExecuteArgs calldata _args) external returns (bytes32) {
+  function execute(ExecuteArgs calldata _args) external whenBridgeNotPaused returns (bytes32) {
     (bytes32 transferId, bool reconciled) = _executeSanityChecks(_args);
 
     // execute router liquidity when this is a fast transfer
@@ -278,7 +278,7 @@ contract BridgeFacet is BaseConnextFacet {
    * @notice Anyone can call this function on the origin domain to increase the relayer fee for a transfer.
    * @param _transferId - The unique identifier of the crosschain transaction
    */
-  function bumpTransfer(bytes32 _transferId) external payable {
+  function bumpTransfer(bytes32 _transferId) external payable whenBridgeNotPaused {
     if (msg.value == 0) revert BridgeFacet__bumpTransfer_valueIsZero();
 
     s.relayerFees[_transferId] += msg.value;
