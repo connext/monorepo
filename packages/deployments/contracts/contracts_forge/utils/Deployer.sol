@@ -255,6 +255,9 @@ contract Deployer {
         facetAddress: _portalFacet,
         action: IDiamondCut.FacetCutAction.Add,
         functionSelectors: portalFacetSelectors
+      });
+  }
+
   function getVersionFacetCut(address _versionFacet) internal pure returns (IDiamondCut.FacetCut memory) {
     bytes4[] memory versionFacetSelectors = new bytes4[](1);
     versionFacetSelectors[0] = VersionFacet.VERSION.selector;
