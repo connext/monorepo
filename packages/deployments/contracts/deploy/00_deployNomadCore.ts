@@ -55,10 +55,12 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment): Promise<voi
     args: [network.chainId],
     skipIfAlreadyDeployed: true,
     log: true,
+    gasLimit: 2_000_000,
   });
   console.log("home address: ", home.address);
   const homeC = await hre.ethers.getContract(homeName);
-  await homeC.initialize(updaterManager.address, { from: deployer.address });
+  const tx = await homeC.initialize(updaterManager.address, { from: deployer.address });
+  await tx.wait();
 };
 
 export default func;
