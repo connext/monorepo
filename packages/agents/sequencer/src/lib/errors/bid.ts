@@ -27,3 +27,9 @@ export class MissingXCall extends NxtpError {
     );
   }
 }
+
+export class RoundInvalid extends NxtpError {
+  constructor(context: any = {}) {
+    super(`Rounds invalid`, context, RoundInvalid.name);
+  }
+}

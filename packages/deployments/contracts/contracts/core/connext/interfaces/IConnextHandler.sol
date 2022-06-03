@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: UNLICENSED
-pragma solidity 0.8.11;
+pragma solidity 0.8.14;
 
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import {XAppConnectionManager} from "../../../nomad-core/contracts/XAppConnectionManager.sol";
@@ -41,6 +41,8 @@ interface IConnextHandler {
   function isRouterOwnershipRenounced() external view returns (bool);
 
   function isAssetOwnershipRenounced() external view returns (bool);
+
+  function VERSION() external view returns (uint8);
 
   // BridgeFacet
   function relayerFees(bytes32 _transferId) external view returns (uint256);

@@ -116,7 +116,6 @@ export const mock: any = {
       transferId: getRandomBytes32(),
       origin: mock.domain.A,
       router: mock.address.router,
-      fee: "0.05",
       signatures: {
         "1": getRandomBytes32(),
         "2": getRandomBytes32(),
@@ -263,7 +262,7 @@ export const mock: any = {
     },
   },
   ethers: {
-    receipt: (): providers.TransactionReceipt =>
+    receipt: (overrides: Partial<providers.TransactionReceipt> = {}): providers.TransactionReceipt =>
       ({
         blockHash: "foo",
         blockNumber: 1,
@@ -279,6 +278,7 @@ export const mock: any = {
         logs: [],
         logsBloom: "",
         transactionIndex: 1,
+        ...overrides,
       } as unknown as providers.TransactionReceipt),
   },
   contracts: {
