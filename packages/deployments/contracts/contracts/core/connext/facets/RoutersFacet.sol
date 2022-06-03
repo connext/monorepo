@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: UNLICENSED
-pragma solidity 0.8.11;
+pragma solidity 0.8.14;
 
 import {BaseConnextFacet} from "./BaseConnextFacet.sol";
 import {AssetLogic} from "../libraries/AssetLogic.sol";
@@ -45,6 +45,7 @@ contract RoutersFacet is BaseConnextFacet {
   error RoutersFacet__removeRouterLiquidity_insufficientFunds();
   error RoutersFacet__removeRouterLiquidityFor_notOwner();
   error RoutersFacet__setLiquidityFeeNumerator_tooSmall();
+  error RoutersFacet__setLiquidityFeeNumerator_tooLarge();
 
   // ============ Properties ============
 
@@ -292,6 +293,10 @@ contract RoutersFacet is BaseConnextFacet {
       // delete routerRecipients[router];
       s.routerPermissionInfo.routerRecipients[router] = address(0);
     }
+
+    // Clear any proposed ownership changes
+    s.routerPermissionInfo.proposedRouterOwners[router] = address(0);
+    s.routerPermissionInfo.proposedRouterTimestamp[router] = 0;
   }
 
   /**
@@ -313,7 +318,12 @@ contract RoutersFacet is BaseConnextFacet {
    * @param _numerator new LIQUIDITY_FEE_NUMERATOR
    */
   function setLiquidityFeeNumerator(uint256 _numerator) external onlyOwner {
-    if (_numerator < (s.LIQUIDITY_FEE_DENOMINATOR * 100) / 95) revert RoutersFacet__setLiquidityFeeNumerator_tooSmall();
+    // Slightly misleading: the liquidity fee numerator is not the amount charged,
+    // but the amount received after fees are deducted (e.g. 9995/10000 would be .005%).
+    uint256 denominator = s.LIQUIDITY_FEE_DENOMINATOR;
+    if (_numerator < (denominator * 95) / 100) revert RoutersFacet__setLiquidityFeeNumerator_tooSmall();
+
+    if (_numerator > denominator) revert RoutersFacet__setLiquidityFeeNumerator_tooLarge();
     s.LIQUIDITY_FEE_NUMERATOR = _numerator;
 
     emit LiquidityFeeNumeratorUpdated(_numerator, msg.sender);
@@ -380,7 +390,6 @@ contract RoutersFacet is BaseConnextFacet {
 
     // Reset proposal + timestamp
     if (_proposed != address(0)) {
-      // delete proposedRouterOwners[router];
       s.routerPermissionInfo.proposedRouterOwners[router] = address(0);
     }
     s.routerPermissionInfo.proposedRouterTimestamp[router] = 0;
@@ -402,7 +411,7 @@ contract RoutersFacet is BaseConnextFacet {
     uint256 _amount,
     address _local,
     address _router
-  ) external payable nonReentrant {
+  ) external payable nonReentrant whenNotPaused {
     _addLiquidityForRouter(_amount, _local, _router);
   }
 
@@ -414,7 +423,7 @@ contract RoutersFacet is BaseConnextFacet {
    * @param _local - The address of the asset you're adding liquidity for. If adding liquidity of the
    * native asset, routers may use `address(0)` or the wrapped asset
    */
-  function addRouterLiquidity(uint256 _amount, address _local) external payable nonReentrant {
+  function addRouterLiquidity(uint256 _amount, address _local) external payable nonReentrant whenNotPaused {
     _addLiquidityForRouter(_amount, _local, msg.sender);
   }
 
@@ -431,7 +440,7 @@ contract RoutersFacet is BaseConnextFacet {
     address _local,
     address payable _to,
     address _router
-  ) external nonReentrant {
+  ) external nonReentrant whenNotPaused {
     // Caller must be the router owner
     if (msg.sender != getRouterOwner(_router)) revert RoutersFacet__removeRouterLiquidityFor_notOwner();
 
@@ -444,13 +453,13 @@ contract RoutersFacet is BaseConnextFacet {
    * @param _amount - The amount of liquidity to remove for the router
    * @param _local - The address of the asset you're removing liquidity from. If removing liquidity of the
    * native asset, routers may use `address(0)` or the wrapped asset
-   * @param _to The address that will receive the liquidity being removed
+   * @param _to The address that will receive the liquidity being removed if no router recipient exists.
    */
   function removeRouterLiquidity(
     uint256 _amount,
     address _local,
     address payable _to
-  ) external nonReentrant {
+  ) external nonReentrant whenNotPaused {
     _removeLiquidityForRouter(_amount, _local, _to, msg.sender);
   }
 
