@@ -120,7 +120,7 @@ contract PortalFacetTest is PortalFacet, FacetHelper {
     vm.expectEmit(true, true, true, true);
     emit AavePortalRouterRepayment(router, _local, backing, fee);
     vm.prank(router);
-    this.repayAavePortal(_local, backing, fee);
+    this.repayAavePortal(_local, backing, fee, backing);
 
     // assert balance decrement
     assertEq(s.routerBalances[router][_local], init - backing - fee);
@@ -141,6 +141,6 @@ contract PortalFacetTest is PortalFacet, FacetHelper {
     // call coming from router
     vm.prank(router);
     vm.expectRevert(abi.encodeWithSelector(PortalFacet.PortalFacet__repayAavePortal_insufficientFunds.selector));
-    this.repayAavePortal(_local, backing, fee);
+    this.repayAavePortal(_local, backing, fee, backing);
   }
 }

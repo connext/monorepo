@@ -10,6 +10,7 @@ contract PortalFacet is BaseConnextFacet {
   // ========== Custom Errors ===========
   error PortalFacet__setAavePortalFee_invalidFee();
   error PortalFacet__repayAavePortal_insufficientFunds();
+  error PortalFacet__repayAavePortal_swapFailed();
 
   // ============ Events ============
 
@@ -59,25 +60,35 @@ contract PortalFacet is BaseConnextFacet {
 
   /**
    * @notice Used by routers to perform a manual repayment to Aave Portals to cover any outstanding debt
-   * @dev The router must be approved for Portal and with enough liquidity
+   * @dev The router must be approved for portal and with enough liquidity
+   * @param _local The local asset (what router stores liquidity in)
+   * @param _backingAmount The principle to be paid (in adopted asset)
+   * @param _feeAmount The fee to be paid (in adopted asset)
+   * @param _maxIn The max value of the local asset to swap for the _backingAmount of adopted asset
    */
   function repayAavePortal(
     address _local,
     uint256 _backingAmount,
-    uint256 _feeAmount
+    uint256 _feeAmount,
+    uint256 _maxIn
   ) external {
     uint256 totalAmount = _backingAmount + _feeAmount; // in adopted
     uint256 routerBalance = s.routerBalances[msg.sender][_local]; // in local
 
+    if (routerBalance < _maxIn) revert PortalFacet__repayAavePortal_insufficientFunds();
+
     // Need to swap into adopted asset or asset that was backing the loan
     // The router will always be holding collateral in the local asset while the loaned asset
     // is the adopted asset
-    (uint256 balanceInAdopted, address adopted) = AssetLogic.calculateSwapFromLocalAssetIfNeeded(_local, routerBalance);
-
-    if (balanceInAdopted < totalAmount) revert PortalFacet__repayAavePortal_insufficientFunds();
 
     // Swap for exact `totalRepayAmount` of adopted asset to repay aave
-    (uint256 amountIn, ) = AssetLogic.swapFromLocalAssetIfNeededForExactOut(_local, totalAmount);
+    (bool success, uint256 amountIn, address adopted) = AssetLogic.swapFromLocalAssetIfNeededForExactOut(
+      _local,
+      totalAmount,
+      _maxIn
+    );
+
+    if (!success) revert PortalFacet__repayAavePortal_swapFailed();
 
     // decrement router balances
     unchecked {
