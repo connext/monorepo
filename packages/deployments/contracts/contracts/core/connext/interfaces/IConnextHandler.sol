@@ -42,6 +42,8 @@ interface IConnextHandler {
 
   function isAssetOwnershipRenounced() external view returns (bool);
 
+  function VERSION() external view returns (uint8);
+
   // BridgeFacet
   function relayerFees(bytes32 _transferId) external view returns (uint256);
 

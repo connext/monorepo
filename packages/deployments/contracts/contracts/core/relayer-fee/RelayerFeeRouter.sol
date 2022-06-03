@@ -2,20 +2,20 @@
 pragma solidity 0.8.14;
 
 import {Home} from "../../nomad-core/contracts/Home.sol";
-import {Version0} from "../../nomad-core/contracts/Version0.sol";
 import {TypedMemView} from "../../nomad-core/libs/TypedMemView.sol";
 
 import {IConnextHandler} from "../connext/interfaces/IConnextHandler.sol";
 
 import {Router} from "../shared/Router.sol";
 import {XAppConnectionClient} from "../shared/XAppConnectionClient.sol";
+import {Version} from "../shared/Version.sol";
 
 import {RelayerFeeMessage} from "./libraries/RelayerFeeMessage.sol";
 
 /**
  * @title RelayerFeeRouter
  */
-contract RelayerFeeRouter is Version0, Router {
+contract RelayerFeeRouter is Version, Router {
   // ============ Libraries ============
 
   using TypedMemView for bytes;
