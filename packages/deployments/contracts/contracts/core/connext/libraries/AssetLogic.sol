@@ -206,7 +206,18 @@ library AssetLogic {
    * @return The amount of local asset put into  swap
    * @return The address of asset received post-swap
    */
-  function swapFromLocalAssetIfNeededForExactOut(address _asset, uint256 _amount) internal returns (uint256, address) {
+  function swapFromLocalAssetIfNeededForExactOut(
+    address _asset,
+    uint256 _amount,
+    uint256 _maxIn
+  )
+    internal
+    returns (
+      bool,
+      uint256,
+      address
+    )
+  {
     AppStorage storage s = LibConnextStorage.connextStorage();
 
     // Get the token id
@@ -215,11 +226,10 @@ library AssetLogic {
     // If the adopted asset is the local asset, no need to swap
     address adopted = s.canonicalToAdopted[id];
     if (adopted == _asset) {
-      return (_amount, _asset);
+      return (true, _amount, _asset);
     }
 
-    // Swap the asset to the proper local asset
-    return _swapAssetOut(id, _asset, adopted, _amount);
+    return _swapAssetOut(id, _asset, adopted, _amount, _maxIn);
   }
 
   /**
@@ -270,25 +280,52 @@ library AssetLogic {
     bytes32 _canonicalId,
     address _assetIn,
     address _assetOut,
-    uint256 _amountOut
-  ) internal returns (uint256, address) {
+    uint256 _amountOut,
+    uint256 _maxIn
+  )
+    internal
+    returns (
+      bool,
+      uint256,
+      address
+    )
+  {
     AppStorage storage s = LibConnextStorage.connextStorage();
 
+    bool success;
+    uint256 amountIn;
+
     // Swap the asset to the proper local asset
-    // TODO slippage!!!!
     if (stableSwapPoolExist(_canonicalId)) {
+      // get internal swap pool
+      SwapUtils.Swap storage ipool = s.swapStorages[_canonicalId];
       // if internal swap pool exists
       uint8 tokenIndexIn = getTokenIndexFromStableSwapPool(_canonicalId, _assetIn);
       uint8 tokenIndexOut = getTokenIndexFromStableSwapPool(_canonicalId, _assetOut);
-      return (s.swapStorages[_canonicalId].swapInternalOut(tokenIndexIn, tokenIndexOut, _amountOut, 0), _assetOut);
+      // calculate slippage before performing swap
+      // NOTE: this is less efficient then relying on the `swapInternalOut` revert, but makes it easier
+      // to handle slippage failures (this can be called during reconcile, so must not fail)
+      if (_maxIn <= ipool.calculateSwapInv(tokenIndexIn, tokenIndexOut, _amountOut)) {
+        success = true;
+        amountIn = ipool.swapInternalOut(tokenIndexIn, tokenIndexOut, _amountOut, 0);
+      }
+      // slippage is too high to perform swap: success = false, amountIn = 0
     } else {
       // Otherwise, swap via stable swap pool
       IStableSwap pool = s.adoptedToLocalPools[_canonicalId];
       uint256 _amountIn = pool.calculateSwapOutFromAddress(_assetIn, _assetOut, _amountOut);
-      SafeERC20.safeApprove(IERC20(_assetIn), address(pool), _amountIn);
+      if (_maxIn <= _amountIn) {
+        // set the success
+        success = true;
 
-      return (pool.swapExactOut(_amountOut, _assetIn, _assetOut, _amountIn), _assetOut);
+        // perform the swap
+        SafeERC20.safeApprove(IERC20(_assetIn), address(pool), _amountIn);
+        amountIn = pool.swapExactOut(_amountOut, _assetIn, _assetOut, _amountIn);
+      }
+      // slippage is too high to perform swap: success = false, amountIn = 0
     }
+
+    return (success, amountIn, _assetOut);
   }
 
   /**
