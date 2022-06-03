@@ -26,7 +26,7 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment): Promise<voi
   console.log("deployer: ", deployer.address);
 
   const network = await hre.ethers.provider.getNetwork();
-  const domainConfig = getDomainInfoFromChainId(network.chainId);
+  const domainConfig = await getDomainInfoFromChainId(network.chainId, hre);
 
   console.log("Fetching relayer fee router...");
   // Get RelayerFeeRouter and TokenRegistry deployments.

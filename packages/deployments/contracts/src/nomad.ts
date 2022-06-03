@@ -1,7 +1,10 @@
 import { utils } from "ethers";
 import * as configuration from "@nomad-xyz/configuration";
+import { deployments } from "hardhat";
 
+import { getDeploymentName } from "../src/utils";
 import { MAINNET_CHAINS } from "./constants";
+import { HardhatRuntimeEnvironment } from "hardhat/types";
 
 export type Address = string;
 
@@ -118,7 +121,23 @@ export const getNomadConfig = (chainId: number): configuration.NomadConfig => {
   return nomadConfig;
 };
 
-export const getDomainInfoFromChainId = (chainId: number): NomadDomainInfo => {
+export const getDomainInfoFromChainId = async (
+  chainId: number,
+  hre: HardhatRuntimeEnvironment,
+): Promise<NomadDomainInfo> => {
+  if ([1337, 1338].includes(chainId)) {
+    return {
+      contracts: {
+        bridge: {
+          bridgeToken: { beacon: (await hre.deployments.get(getDeploymentName(`BridgeTokenUpgradeBeacon`))).address },
+        },
+        core: {
+          replicas: [],
+          home: { proxy: (await hre.deployments.get(getDeploymentName(`HomeUpgradeBeaconProxy`))).address },
+        },
+      },
+    } as any;
+  }
   const nomadConfig = getNomadConfig(chainId);
   const [name, domainConfig] =
     Object.entries(nomadConfig.protocol.networks).find(([_, info]) => {

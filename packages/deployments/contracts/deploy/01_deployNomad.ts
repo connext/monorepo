@@ -8,7 +8,7 @@ import { getDomainInfoFromChainId, getNomadConfig } from "../src/nomad";
 
 config();
 
-const deployNomadBeaconProxy = async <T extends Contract = Contract>(
+export const deployNomadBeaconProxy = async <T extends Contract = Contract>(
   name: string,
   args: any[],
   deployer: Signer & { address: string },
@@ -133,7 +133,7 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment): Promise<voi
   // ========== Start: Nomad BridgeRouter Deployment ==========
   const network = await hre.ethers.provider.getNetwork();
   const nomadConfig = getNomadConfig(network.chainId);
-  const domainConfig = getDomainInfoFromChainId(network.chainId);
+  const domainConfig = await getDomainInfoFromChainId(network.chainId, hre);
 
   // Deploy xapp connection manager
   console.log("Deploying xapp connection manager...");

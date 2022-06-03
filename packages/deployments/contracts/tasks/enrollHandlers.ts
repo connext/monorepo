@@ -16,10 +16,10 @@ export default task("enroll-handlers", "Add a remote router")
   .addParam("type", "Which handler to enroll (all, connext, promise, relayer")
   .addParam("chains", "List of all chain ids to deploy to (comma-separated)")
   .addOptionalParam("env", "Environment of contracts")
-  .setAction(async ({ type, chains: _chains, env: _env }: TaskArgs, { deployments, ethers }) => {
-    let { deployer } = await ethers.getNamedSigners();
+  .setAction(async ({ type, chains: _chains, env: _env }: TaskArgs, hre) => {
+    let { deployer } = await hre.ethers.getNamedSigners();
     if (!deployer) {
-      [deployer] = await ethers.getUnnamedSigners();
+      [deployer] = await hre.ethers.getUnnamedSigners();
     }
 
     const chains = _chains.split(",").map((c) => +c);
@@ -56,10 +56,10 @@ export default task("enroll-handlers", "Add a remote router")
 
     for (const { chain, remotes } of handlers) {
       console.log(`enrolling ${remotes.length} remote handlers for ${chain}`);
-      const { domain } = getDomainInfoFromChainId(chain);
+      const { domain } = await getDomainInfoFromChainId(chain, hre);
       for (const { address, name } of remotes) {
-        const localRouterDeployment = await deployments.get(name);
-        const { abi: localRouterAbi } = await deployments.get(
+        const localRouterDeployment = await hre.deployments.get(name);
+        const { abi: localRouterAbi } = await hre.deployments.get(
           // handle nomad upgrade naming case
           name.includes("UpgradeBeaconProxy") ? getDeploymentName(name.split("UpgradeBeaconProxy")[0], env) : name,
         );

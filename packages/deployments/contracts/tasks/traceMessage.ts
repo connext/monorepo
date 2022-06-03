@@ -65,7 +65,7 @@ export default task("trace-message", "See the status of a nomad message")
   .addParam("destination", "The destination domain id")
   .addOptionalParam("process", "Whether or not to attempt to process")
   .addOptionalParam("env", "Environment of contracts")
-  .setAction(async ({ transaction, destination: _destination, process: _process, env: _env }: TaskArgs, { ethers }) => {
+  .setAction(async ({ transaction, destination: _destination, process: _process, env: _env }: TaskArgs, hre) => {
     const env = mustGetEnv(_env);
     console.log("env:", env);
     const destination = +_destination;
@@ -75,9 +75,9 @@ export default task("trace-message", "See the status of a nomad message")
     console.log("shouldProcess", shouldProcess);
 
     // Get the domain + context
-    const network = await ethers.provider.getNetwork();
+    const network = await hre.ethers.provider.getNetwork();
     const nomadConfig = getNomadConfig(network.chainId);
-    const { domain: originDomain, name: originName } = getDomainInfoFromChainId(network.chainId);
+    const { domain: originDomain, name: originName } = await getDomainInfoFromChainId(network.chainId, hre);
 
     const context = BridgeContext.fromNomadContext(new NomadContext(nomadConfig));
     const destinationChainId = context.mustGetDomain(destination).specs.chainId;
@@ -85,7 +85,7 @@ export default task("trace-message", "See the status of a nomad message")
     const s3Url = "https://nomadxyz-staging-proofs.s3.us-west-2.amazonaws.com/";
 
     // Register origin provider
-    context.registerProvider(originDomain, ethers.provider);
+    context.registerProvider(originDomain, hre.ethers.provider);
 
     // Register destination provider
     const [, destHardhatConfig] =
@@ -99,7 +99,7 @@ export default task("trace-message", "See the status of a nomad message")
     context.registerProvider(destination, destinationProvider);
 
     // Get the receipt
-    const receipt = await ethers.provider.getTransactionReceipt(transaction);
+    const receipt = await hre.ethers.provider.getTransactionReceipt(transaction);
     if (!receipt) {
       throw new Error(`Could not find receipt for ${transaction}`);
     }
