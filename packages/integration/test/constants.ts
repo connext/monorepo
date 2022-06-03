@@ -338,7 +338,6 @@ export const CARTOGRAPHER_CONFIG: Promise<CartographerConfig> = (async (): Promi
     },
     logLevel: "debug",
     pollInterval: 4_000,
-    pollIterations: 10,
     environment: "staging",
   };
 })();

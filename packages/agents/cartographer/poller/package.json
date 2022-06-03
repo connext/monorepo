@@ -10,7 +10,7 @@
   ],
   "scripts": {
     "dev": "concurrently -i -k -n 'app,tsc' -c 'green,cyan' 'nodemon'",
-    "start": "pm2 start dist/index.js --source-map-support --kill-timeout 60000 --cron-restart=\"*/10 * * * *\" --time",
+    "start": "pm2 start dist/index.js --source-map-support --kill-timeout 5000 --cron-restart=\"* * * * *\" --time",
     "stop": "pm2 delete index",
     "monitor": "pm2 monit",
     "logs": "pm2 logs --json",

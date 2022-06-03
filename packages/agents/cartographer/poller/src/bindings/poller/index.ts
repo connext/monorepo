@@ -1,5 +1,4 @@
 import { createLoggingContext, jsonifyError, NxtpError } from "@connext/nxtp-utils";
-import interval from "interval-promise";
 
 import { getContext } from "../../cartographer";
 import { updateTransfers } from "../../lib/operations";
@@ -7,33 +6,6 @@ import { updateRouters } from "../../lib/operations/routers";
 
 // Ought to be configured properly for each network; we consult the chain config below.
 export const DEFAULT_SAFE_CONFIRMATIONS = 5;
-
-let stoppedExternally = false;
-
-export const stopExternally = () => {
-  stoppedExternally = true;
-};
-
-process.on("SIGINT", function () {
-  stopExternally();
-});
-
-export const bindPoller = async (_pollInterval?: number, _pollIterations?: number) => {
-  const { config } = getContext();
-  const pollInterval = _pollInterval ?? config.pollInterval;
-  const pollIterations = _pollIterations ?? config.pollIterations;
-  interval(
-    async (iteration, stop) => {
-      if (stoppedExternally) {
-        stop();
-      } else {
-        await poller();
-      }
-    },
-    pollInterval,
-    { iterations: pollIterations },
-  );
-};
 
 export const poller = async () => {
   const { logger } = getContext();

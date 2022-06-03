@@ -6,7 +6,6 @@ import { config as dotenvConfig } from "dotenv";
 import { ajv } from "@connext/nxtp-utils";
 
 const DEFAULT_POLL_INTERVAL = 15_000;
-const DEFAULT_POLL_ITERATIONS = 10;
 
 dotenvConfig();
 
@@ -16,7 +15,6 @@ export const TDatabaseConfig = Type.Object({
 
 export const Cartographer = Type.Object({
   pollInterval: Type.Integer({ minimum: 1000 }),
-  pollIterations: Type.Integer({ minimum: 1 }),
   logLevel: Type.Union([
     Type.Literal("fatal"),
     Type.Literal("error"),
@@ -66,11 +64,6 @@ export const getEnvConfig = (): CartographerConfig => {
       configJson.pollInterval ||
       configFile.pollInterval ||
       DEFAULT_POLL_INTERVAL,
-    pollIterations:
-      process.env.CARTOGRAPHER_POLL_ITERATIONS ||
-      configJson.pollIterations ||
-      configFile.pollIterations ||
-      DEFAULT_POLL_ITERATIONS,
     logLevel:
       process.env.CARTOGRAPHER_LOG_LEVEL ||
       configJson.logLevel ||

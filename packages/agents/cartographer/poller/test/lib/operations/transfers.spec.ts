@@ -2,7 +2,7 @@ import { createStubInstance, SinonStub, stub, restore, reset } from "sinon";
 import * as SharedFns from "../../../src/shared";
 import { expect, mock, chainDataToMap, Logger, OriginTransfer } from "@connext/nxtp-utils";
 import * as backend from "../../../src/cartographer";
-import { poller, bindPoller, stopExternally } from "../../../src/bindings/poller";
+import { poller } from "../../../src/bindings/poller";
 
 import * as dbClient from "../../../src/adapters/database/client";
 import { CartographerConfig } from "../../../src/config";
@@ -13,7 +13,6 @@ const mockEmptySubgraphResponse = [];
 
 const mockConfig: CartographerConfig = {
   pollInterval: 15000,
-  pollIterations: 10,
   logLevel: "silent",
   database: { url: "postgres://postgres:qwery@localhost:5432/connext?sslmode=disable" },
   environment: "production",
@@ -140,20 +139,6 @@ describe("Backend operations", () => {
 
   it("should poll subgraph with mock backend", async () => {
     await expect(poller()).to.eventually.not.be.rejected;
-  });
-
-  it("should poll subgraph with mock backend", async () => {
-    mockContext.config.pollIterations = 1;
-    await expect(bindPoller()).to.eventually.not.be.rejected;
-  });
-
-  it("should poll subgraph with override polling config", async () => {
-    await expect(bindPoller(0, 0)).to.eventually.not.be.rejected;
-  });
-
-  it("should poll subgraph with mock backend with stop", async () => {
-    stopExternally();
-    await expect(bindPoller()).to.eventually.not.be.rejected;
   });
 
   it("should poll subgraph with mock backend empty response", async () => {
