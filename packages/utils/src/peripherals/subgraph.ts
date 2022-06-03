@@ -26,12 +26,14 @@ export type SubgraphQueryMetaParams = {
   maxBlockNumber: number;
   latestNonce: number;
   destinationDomains?: string[];
+  orderDirection?: "asc" | "desc";
 };
 
 export type SubgraphQueryByTimestampMetaParams = {
   maxBlockNumber: number;
   fromTimestamp: number;
   destinationDomains?: string[];
+  orderDirection?: "asc" | "desc";
 };
 
 const MIN_SUBGRAPH_MAX_LAG = 25;

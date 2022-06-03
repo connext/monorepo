@@ -43,6 +43,7 @@ export const updateTransfers = async () => {
       maxBlockNumber: latestBlockNumber,
       latestNonce,
       destinationDomains: domains,
+      orderDirection: "asc",
     });
 
     const executedTimestamp = await database.getLatestExecuteTimestamp(domain);
@@ -51,6 +52,7 @@ export const updateTransfers = async () => {
       maxBlockNumber: latestBlockNumber,
       destinationDomains: domains,
       fromTimestamp: executedTimestamp,
+      orderDirection: "asc",
     });
 
     const reconciledTimestamp = await database.getLatestReconcileTimestamp(domain);
@@ -59,6 +61,7 @@ export const updateTransfers = async () => {
       maxBlockNumber: latestBlockNumber,
       fromTimestamp: reconciledTimestamp,
       destinationDomains: domains,
+      orderDirection: "asc",
     });
   }
 

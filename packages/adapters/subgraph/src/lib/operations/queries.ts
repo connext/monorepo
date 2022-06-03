@@ -229,16 +229,24 @@ export const getOriginTransfersByTransactionHashesQuery = (prefix: string, hashe
   `;
 };
 
-const orignTransferQueryString = (
+const originTransferQueryString = (
   prefix: string,
   originDomain: string,
   fromNonce: number,
   destinationDomains: string[],
   maxBlockNumber?: number,
+  orderDirection: "asc" | "desc" = "desc",
 ) => {
-  return `${prefix}_originTransfers(where: { originDomain: ${originDomain}, nonce_gte: ${fromNonce}, destinationDomain_in: [${destinationDomains}] ${
-    maxBlockNumber ? `, blockNumber_lte: ${maxBlockNumber}` : ""
-  } }, orderBy: blockNumber, orderDirection: desc) {${ORIGIN_TRANSFER_ENTITY}}`;
+  return `${prefix}_originTransfers(
+    where: { 
+      originDomain: ${originDomain}, 
+      nonce_gte: ${fromNonce}, 
+      destinationDomain_in: [${destinationDomains}] 
+      ${maxBlockNumber ? `, blockNumber_lte: ${maxBlockNumber}` : ""} 
+    }, 
+    orderBy: blockNumber, 
+    orderDirection: ${orderDirection}
+  ) {${ORIGIN_TRANSFER_ENTITY}}`;
 };
 
 export const getOriginTransfersQuery = (agents: Map<string, SubgraphQueryMetaParams>): string => {
@@ -249,7 +257,7 @@ export const getOriginTransfersQuery = (agents: Map<string, SubgraphQueryMetaPar
   for (const domain of domains) {
     const prefix = config.sources[domain].prefix;
     if (agents.has(domain)) {
-      combinedQuery += orignTransferQueryString(
+      combinedQuery += originTransferQueryString(
         prefix,
         domain,
         agents.get(domain)!.latestNonce,
@@ -274,6 +282,7 @@ const destinationTransfersByExecuteTimestampQueryString = (
   fromTimestamp: number,
   destinationDomains: string[],
   maxBlockNumber?: number,
+  orderDirection: "asc" | "desc" = "desc",
 ) => {
   return `
   ${prefix}_originTransfers(
@@ -283,8 +292,8 @@ const destinationTransfersByExecuteTimestampQueryString = (
       destinationDomain_in: [${destinationDomains}] 
       ${maxBlockNumber ? `, blockNumber_lte: ${maxBlockNumber}` : ""} 
     }, 
-    orderBy: blockNumber, 
-    orderDirection: desc
+    orderBy: executedTimestamp, 
+    orderDirection: ${orderDirection}
   ) {${ORIGIN_TRANSFER_ENTITY}}`;
 };
 
@@ -323,6 +332,7 @@ const destinationTransfersByReconcileTimestampQueryString = (
   fromTimestamp: number,
   destinationDomains: string[],
   maxBlockNumber?: number,
+  orderDirection: "asc" | "desc" = "desc",
 ) => {
   return `
   ${prefix}_originTransfers(
@@ -332,8 +342,8 @@ const destinationTransfersByReconcileTimestampQueryString = (
       destinationDomain_in: [${destinationDomains}] 
       ${maxBlockNumber ? `, blockNumber_lte: ${maxBlockNumber}` : ""} 
     }, 
-    orderBy: blockNumber, 
-    orderDirection: desc
+    orderBy: executedTimestamp, 
+    orderDirection: ${orderDirection}
   ) {${ORIGIN_TRANSFER_ENTITY}}`;
 };
 
