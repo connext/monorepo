@@ -617,9 +617,14 @@ contract BridgeFacet is BaseConnextFacet {
       // store the routers address
       s.routedTransfers[_transferId] = _args.routers;
 
-      // If router does not have enough liquidity, try to use Aave Portals
+      // If router does not have enough liquidity, try to use Aave Portals.
+      // only one router should be responsible for taking on this credit risk, and it should only
+      // deal with transfers expecting adopted assets (to avoid introducing runtime slippage)
       if (
-        pathLen == 1 && s.routerBalances[_args.routers[0]][_args.local] < fastTransferAmount && s.aavePool != address(0)
+        !args.params.receiveLocal &&
+        pathLen == 1 &&
+        s.routerBalances[_args.routers[0]][_args.local] < fastTransferAmount &&
+        s.aavePool != address(0)
       ) {
         if (!s.routerPermissionInfo.approvedForPortalRouters[_args.routers[0]])
           revert BridgeFacet__execute_notApprovedForPortals();
