@@ -93,8 +93,6 @@ contract RelayerFacet is BaseConnextFacet {
     emit RelayerFeeRouterUpdated(old, _relayerFeeRouter, msg.sender);
   }
 
-  // ============ External functions ============
-
   /**
    * @notice Used to add approved relayer
    * @param _relayer - The relayer address to add
@@ -117,6 +115,8 @@ contract RelayerFacet is BaseConnextFacet {
     emit RelayerRemoved(_relayer, msg.sender);
   }
 
+  // ============ External functions ============
+
   /**
    * @notice Called by relayer when they want to claim owed funds on a given domain
    * @dev Domain should be the origin domain of all the transfer ids
@@ -128,7 +128,7 @@ contract RelayerFacet is BaseConnextFacet {
     uint32 _domain,
     address _recipient,
     bytes32[] calldata _transferIds
-  ) external {
+  ) external whenNotPaused {
     // Ensure the relayer can claim all transfers specified
     for (uint256 i; i < _transferIds.length; ) {
       if (s.transferRelayer[_transferIds[i]] != msg.sender)

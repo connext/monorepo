@@ -3,6 +3,7 @@ pragma solidity 0.8.14;
 
 import {BaseConnextFacet} from "./BaseConnextFacet.sol";
 import {LibDiamond} from "../libraries/LibDiamond.sol";
+import {PausedFunctions} from "../libraries/LibConnextStorage.sol";
 import {IProposedOwnable} from "../../shared/interfaces/IProposedOwnable.sol";
 
 /**
@@ -47,6 +48,8 @@ contract ProposedOwnableFacet is BaseConnextFacet, IProposedOwnable {
 
   uint256 private constant _delay = 7 days;
 
+  // ============ Events ============
+
   event RouterOwnershipRenunciationProposed(uint256 timestamp);
 
   event RouterOwnershipRenounced(bool renounced);
@@ -54,6 +57,10 @@ contract ProposedOwnableFacet is BaseConnextFacet, IProposedOwnable {
   event AssetOwnershipRenunciationProposed(uint256 timestamp);
 
   event AssetOwnershipRenounced(bool renounced);
+
+  event SetPausedFunction(PausedFunctions previous, PausedFunctions current);
+
+  // ============ External: Getters ============
 
   /**
    * @notice Returns the address of the current owner.
@@ -110,6 +117,8 @@ contract ProposedOwnableFacet is BaseConnextFacet, IProposedOwnable {
   function delay() public view returns (uint256) {
     return _delay;
   }
+
+  // ============ External ============
 
   /**
    * @notice Indicates if the ownership of the router whitelist has
@@ -238,6 +247,12 @@ contract ProposedOwnableFacet is BaseConnextFacet, IProposedOwnable {
 
     // Emit event, set new owner, reset timestamp
     _setOwner(s._proposed);
+  }
+
+  function setPausedFunctions(PausedFunctions _paused) public onlyOwner {
+    PausedFunctions old = s._paused;
+    s._paused = _paused;
+    emit SetPausedFunction(old, _paused);
   }
 
   ////// INTERNAL //////

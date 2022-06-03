@@ -83,7 +83,7 @@ struct ExecuteArgs {
 }
 
 /**
- * @notice Contains RouterPermissionsManager related state
+ * @notice Contains RouterFacet related state
  * @param approvedRouters - Mapping of whitelisted router addresses
  * @param routerRecipients - Mapping of router withdraw recipient addresses.
  * If set, all liquidity is withdrawn only to this address. Must be set by routerOwner
@@ -102,6 +102,17 @@ struct RouterPermissionsManagerInfo {
   mapping(address => address) routerOwners;
   mapping(address => address) proposedRouterOwners;
   mapping(address => uint256) proposedRouterTimestamp;
+}
+
+/**
+ * @notice Types of functionality that can be paused
+ * @dev Contract admin can update this value
+ */
+enum PausedFunctions {
+  None,
+  Bridge,
+  Swap,
+  All
 }
 
 struct AppStorage {
@@ -246,7 +257,7 @@ struct AppStorage {
   // 28
   uint256 _assetOwnershipTimestamp;
   //
-  // RouterPermissionsManager
+  // RouterFacet
   //
   // 29
   RouterPermissionsManagerInfo routerPermissionInfo;
@@ -272,6 +283,11 @@ struct AppStorage {
    */
   // 32
   mapping(bytes32 => mapping(address => uint8)) tokenIndexes;
+  /**
+   * @notice Stores whether or not briding, AMMs, have been paused
+   */
+  // 33
+  PausedFunctions _paused;
   //
   // AavePortals
   //

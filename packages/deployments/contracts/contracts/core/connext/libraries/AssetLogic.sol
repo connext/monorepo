@@ -8,7 +8,7 @@ import {IStableSwap} from "../interfaces/IStableSwap.sol";
 import {ITokenRegistry} from "../interfaces/ITokenRegistry.sol";
 
 import {ConnextMessage} from "./ConnextMessage.sol";
-import {LibConnextStorage, AppStorage} from "./LibConnextStorage.sol";
+import {LibConnextStorage, AppStorage, PausedFunctions} from "./LibConnextStorage.sol";
 import {SwapUtils} from "./SwapUtils.sol";
 
 library AssetLogic {
@@ -17,6 +17,8 @@ library AssetLogic {
   error AssetLogic__handleIncomingAsset_notAmount();
   error AssetLogic__handleIncomingAsset_ethWithErcTransfer();
   error AssetLogic__transferAssetFromContract_notNative();
+  error AssetLogic__swapToLocalAssetIfNeeded_swapPaused();
+  error AssetLogic__swapFromLocalAssetIfNeeded_swapPaused();
   error AssetLogic__getTokenIndexFromStableSwapPool_notExist();
 
   /**
@@ -170,6 +172,12 @@ library AssetLogic {
       return (_amount, _asset);
     }
 
+    // NOTE: Normally, this would be checked via the `whenSwapNotPaused` modifier (as in the
+    // StableSwapFacet). However, when entering an internal swap, the best place to check
+    // is in these swap functions where swaps can be stopped. You can check here for only
+    // swap pauses (general pauses are checked before this function is called)
+    if (s._paused == PausedFunctions.Swap) revert AssetLogic__swapToLocalAssetIfNeeded_swapPaused();
+
     // Swap the asset to the proper local asset
     return _swapAsset(_canonical.id, _asset, local, _amount);
   }
@@ -193,6 +201,12 @@ library AssetLogic {
     if (adopted == _asset) {
       return (_amount, _asset);
     }
+
+    // NOTE: Normally, this would be checked via the `whenSwapNotPaused` modifier (as in the
+    // StableSwapFacet). However, when entering an internal swap, the best place to check
+    // is in these swap functions where swaps can be stopped. You can check here for only
+    // swap pauses (general pauses are checked before this function is called)
+    if (s._paused == PausedFunctions.Swap) revert AssetLogic__swapFromLocalAssetIfNeeded_swapPaused();
 
     // Swap the asset to the proper local asset
     return _swapAsset(id, _asset, adopted, _amount);

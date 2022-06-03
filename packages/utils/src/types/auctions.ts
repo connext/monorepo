@@ -1,13 +1,12 @@
 import { Type, Static } from "@sinclair/typebox";
 
-import { TAddress, TDecimalString, TIntegerString } from "./primitives";
+import { TAddress, TIntegerString } from "./primitives";
 
 export const BidSchema = Type.Object({
   routerVersion: Type.String(),
   transferId: Type.String(), // The Transfer ID.
   origin: Type.String(), // Origin domain of the transfer. Needed for sequencer to confirm transfer is valid.
   router: TAddress, // The address of the router sending this bid.
-  fee: TDecimalString, // Router % fee.
   // Array indexed by auction round (determines how many router(s) the sequencer may split the transfer between).
   signatures: Type.Record(TIntegerString, Type.String()),
 });

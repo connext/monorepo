@@ -64,7 +64,7 @@ describe("#relayer", () => {
     });
 
     it("should send the bid to the relayer", async () => {
-      await sendToRelayer(mockBids.slice(0, 1), mockTransfers[0], mockLocalAsset, loggingContext.requestContext);
+      await sendToRelayer(1, mockBids.slice(0, 1), mockTransfers[0], mockLocalAsset, loggingContext.requestContext);
       expect(ctxMock.adapters.chainreader.getGasEstimateWithRevertCode).to.be.calledOnceWith(Number(mock.domain.B));
       expect((ctxMock.adapters.chainreader.getGasEstimateWithRevertCode as SinonStub).getCall(0).args[1]).to.deep.eq({
         chainId: Number(mock.chain.B),
