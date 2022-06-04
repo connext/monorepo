@@ -57,9 +57,9 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment): Promise<voi
     gasLimit: 2_000_000,
   });
   console.log("home address: ", home.address);
-  // const homeC = await hre.ethers.getContract(homeName);
-  // const tx = await homeC.initialize(updaterManager.address, { from: deployer.address });
-  // await tx.wait();
+  const homeC = await hre.ethers.getContract(homeName);
+  const tx = await homeC.initialize(updaterManager.address, { from: deployer.address });
+  await tx.wait();
 };
 
 export default func;
