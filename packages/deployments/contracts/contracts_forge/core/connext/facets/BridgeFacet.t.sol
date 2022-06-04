@@ -208,7 +208,7 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
     address sender,
     bytes32 canonicalId,
     uint32 canonicalDomain
-  ) public pure returns (bytes32) {
+  ) public view returns (bytes32) {
     return keccak256(abi.encode(s.nonce, _args.params, sender, canonicalId, canonicalDomain, _args.amount));
   }
 
@@ -326,9 +326,7 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
 
   // Wraps reconcile in order to enable externalizing the call.
   function utils_wrappedReconcile(uint32 origin, bytes memory message) external {
-    // uint256 gas = gasleft();
     _reconcile(origin, message);
-    // console.log(gas - gasleft());
   }
 
   // ============== Helpers ==================
@@ -468,9 +466,7 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
     uint256 transferred = pathLen == 0 ? _args.amount : utils_getFastTransferAmount(_args.amount);
     vm.expectEmit(true, true, false, true);
     emit Executed(transferId, _args.params.to, _args, _args.local, transferred, address(this));
-    // uint256 gas = gasleft();
     this.execute(_args);
-    // console.log(gas - gasleft());
 
     // check local balance
     if (pathLen > 0) {
@@ -1104,7 +1100,7 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
   function test_BridgeFacet__execute_multipath() public {
     _amount = 1 ether;
 
-    // Call the mock xapp just to ensure that the full execute e2e remains uniform.
+    // We're going to call the mock xapp just to ensure that the full execute e2e remains uniform.
     _params.callData = abi.encodeWithSelector(MockXApp.fulfill.selector, _local, TEST_MESSAGE);
     _params.to = _xapp;
 
