@@ -225,6 +225,7 @@ contract BridgeFacet is BaseConnextFacet {
    * @param _args - The XCallArgs arguments.
    * @return bytes32 - The transfer ID of the newly created crosschain transfer.
    */
+  // fixme: make nonreentrant
   function xcall(XCallArgs calldata _args) external payable whenBridgeNotPaused returns (bytes32) {
     // Sanity checks.
     {
@@ -264,6 +265,9 @@ contract BridgeFacet is BaseConnextFacet {
       // Check that the asset is supported -- can be either adopted or local.
       ConnextMessage.TokenId memory canonical = s.adoptedToCanonical[transactingAssetId];
       if (canonical.id == bytes32(0)) {
+        // FIXME: edgecase where you want to xcall with mad asset when different adopted
+        // asset is registered. In this case, we should query the token registry to
+        // get the canonical information for this token.
         revert BridgeFacet__xcall_notSupportedAsset();
       }
 
@@ -301,12 +305,14 @@ contract BridgeFacet is BaseConnextFacet {
       });
     }
 
+    // fixme: cei
     // Store the relayer fee
     s.relayerFees[transferId] = _args.relayerFee;
 
     // emit event
     emit XCalled(transferId, _args, eventArgs, s.nonce, message, msg.sender);
 
+    // fixme: cei
     s.nonce += 1;
 
     return transferId;

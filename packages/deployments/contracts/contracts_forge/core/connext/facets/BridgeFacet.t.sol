@@ -26,7 +26,7 @@ import {TestERC20} from "../../../../contracts/test/TestERC20.sol";
 import {PromiseRouter} from "../../../../contracts/core/promise/PromiseRouter.sol";
 
 import {MockXAppConnectionManager, MockHome, MockXApp, MockPromiseRouter, MockCallback, MockWrapper} from "../../../utils/Mock.sol";
-import "../../../../lib/forge-std/src/console.sol";
+import "forge-std/console.sol";
 import "./FacetHelper.sol";
 
 contract BridgeFacetTest is BridgeFacet, FacetHelper {
@@ -327,6 +327,7 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
   }
 
   // Wraps reconcile in order to enable externalizing the call.
+  // FIXME: see what this means, unclear
   function utils_wrappedReconcile(uint32 origin, bytes memory message) external {
     _reconcile(origin, message);
   }
@@ -353,6 +354,7 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
       initialUserBalance = payable(_originSender).balance;
       initialContractBalance = payable(address(this)).balance;
     } else {
+      // FIXME: always using local token here?
       TestERC20 localToken = TestERC20(_local);
 
       // Mint the specified amount of tokens for the user.
@@ -369,10 +371,12 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
     assertEq(s.relayerFees[transferId], 0);
 
     if (shouldSucceed) {
+      // FIXME: yes, need to check slippage changes
       // TODO: Handle bridgedAmt changing after swap?
       uint256 bridgedAmt = args.amount;
       address bridged = isNative ? address(s.wrapper) : _local;
       BridgeFacet.XCalledEventArgs memory eventArgs = BridgeFacet.XCalledEventArgs({
+        // FIXME: transacting asset should be address(0) if using native
         transactingAssetId: isNative ? address(s.wrapper) : args.transactingAssetId,
         amount: args.amount,
         bridgedAmt: bridgedAmt,
@@ -409,6 +413,9 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
         // NOTE: Because the tokens are a representational local asset, they are burnt. The contract
         // should NOT be holding any additional tokens after xcall completes.
         // TODO: Handle tokens being canonical asset - should be custodied instead.
+        // FIXME: need to handle the case where the user sends in the adopted asset, not the local
+        // (i.e. balance of the origin sender should be decremented in different asset)
+        // FIXME: need to assert mock calls
         assertEq(TestERC20(_local).balanceOf(address(this)), initialContractBalance);
       }
       // Should have updated relayer fees mapping.
@@ -444,6 +451,7 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
     helpers_xcallAndAssert(transferId, args, dealTokens, bytes4(""));
   }
 
+  // FIXME: what about handling assertions on external call data calls?
   // Calls `execute` on the target method with the given args and asserts expected behavior.
   function helpers_executeAndAssert(
     bytes32 transferId,
@@ -519,6 +527,7 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
     address bridged;
     {
       uint256 bridgedAmt = args.amount;
+      // FIXME: wrong asset, handle adopted
       bridged = isNative ? address(s.wrapper) : _local;
       BridgeFacet.XCalledEventArgs memory eventArgs = BridgeFacet.XCalledEventArgs({
         transactingAssetId: isNative ? address(s.wrapper) : args.transactingAssetId,
@@ -551,6 +560,7 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
       vm.expectRevert(expectedError);
     }
 
+    // FIXME: still dont know what this does
     this.utils_wrappedReconcile(_originDomain, message);
 
     if (shouldSucceed) {
@@ -579,17 +589,71 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
   // ============ Tests ==============
 
   // TODO: Getters/view methods
+  // FIXME: update assertions to make sure these are implicitly tested
 
   // ============ Admin methods ==============
   // setPromiseRouter
+  // FIXME: open question, test the modifiers within a base connext facet
+  // test? probably makes most sense rather than repeatedly testing the same
+  // code
+  function test_BridgeFacet__setPromiseRouter_failIfNotOwner() public {
+    require(false, "not tested");
+  }
+
+  function test_BridgeFacet__setPromiseRouter_failIfNoChange() public {
+    require(false, "not tested");
+  }
+
+  function test_BridgeFacet__setPromiseRouter_failIfNotContract() public {
+    require(false, "not tested");
+  }
+
+  function test_BridgeFacet__setPromiseRouter_works() public {
+    require(false, "not tested");
+  }
   // setExecutor
+  function test_BridgeFacet__setExecutor_failIfNotOwner() public {
+    require(false, "not tested");
+  }
+
+  function test_BridgeFacet__setExecutor_failIfNoChange() public {
+    require(false, "not tested");
+  }
+
+  function test_BridgeFacet__setExecutor_failIfNotContract() public {
+    require(false, "not tested");
+  }
+
+  function test_BridgeFacet__setExecutor_works() public {
+    require(false, "not tested");
+  }
   // setSponsorVault
+  function test_BridgeFacet__setSponsorVault_failIfNotOwner() public {
+    require(false, "not tested");
+  }
+
+  function test_BridgeFacet__setSponsorVault_failIfNoChange() public {
+    require(false, "not tested");
+  }
+
+  function test_BridgeFacet__setSponsorVault_failIfNotContract() public {
+    require(false, "not tested");
+  }
+
+  function test_BridgeFacet__setSponsorVault_works() public {
+    require(false, "not tested");
+  }
 
   // ============ Public methods ==============
 
   // ============ xcall ============
 
   // ============ xcall fail cases
+  // fails if paused
+  function test_BridgeFacet__xcall_failIfPaused() public {
+    require(false, "not tested");
+  }
+
   // fails if origin domain is incorrect
   function test_BridgeFacet__xcall_failIfDomainIncorrect() public {
     _params.originDomain = 999999;
@@ -597,9 +661,11 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
   }
 
   // TODO: fails if destination domain does not have an xapp router registered
+  // FIXME: this should be tested at the integration level (i.e. when we deploy
+  // the contracts via Deployer.sol), or on a facet that asserts this
 
   // fails if recipient `to` not a valid address (i.e. != address(0))
-  function test_BridgeFacet__xcall_failIfMoRecipient() public {
+  function test_BridgeFacet__xcall_failIfNoRecipient() public {
     _params.to = address(0);
     helpers_xcallAndAssert(BridgeFacet.BridgeFacet__xcall_emptyTo.selector);
   }
@@ -612,6 +678,7 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
   }
 
   // TODO?: fails if callback is defined (and is a contract) but callback fee is 0 ??
+  // FIXME: should allow this behavior
 
   // fails if callback is defined but not a contract
   function test_BridgeFacet__xcall_failIfCallbackNotAContract() public {
@@ -620,6 +687,8 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
     helpers_xcallAndAssert(BridgeFacet.BridgeFacet__xcall_callbackNotAContract.selector);
   }
 
+  // FIXME: this may not allow you to send in mad assets on chains where you have the
+  // adopted asset address sent to something else. see fixme in source file
   // fails if asset is not supported (i.e. s.adoptedToCanonical[transactingAssetId].id == bytes32(0))
   function test_BridgeFacet__xcall_failIfAssetNotSupported() public {
     s.adoptedToCanonical[_local] = ConnextMessage.TokenId(0, bytes32(0));
@@ -633,6 +702,8 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
     helpers_xcallAndAssert(BridgeFacet.BridgeFacet__xcall_notSupportedAsset.selector);
   }
 
+  // FIXME: this is antipattern. the asset logic library functions should be handled
+  // in a separate test file, 
   // fails if native token transfer and amount of native tokens sent is < amount + relayerFee + callbackFee
   function test_BridgeFacet__xcall_failNativeAssetCallbackFeeInsufficient() public {
     vm.deal(_originSender, 100 ether);
@@ -648,6 +719,7 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
     this.xcall{value: args.relayerFee + args.amount}(args);
   }
 
+  // FIXME: move to AssetLogic.t.sol
   // fails if native token transfer and amount of native tokens sent is < amount + relayerFee
   function test_BridgeFacet__xcall_failNativeAssetRelayerFeeInsufficient() public {
     vm.deal(_originSender, 100 ether);
@@ -662,6 +734,7 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
     this.xcall{value: args.amount}(args);
   }
 
+  // FIXME: move to AssetLogic.t.sol
   // fails if erc20 transfer and eth sent < relayerFee + callbackFee
   function test_BridgeFacet__xcall_failEthWithErc20TransferInsufficient() public {
     vm.deal(_originSender, 100 ether);
@@ -675,6 +748,7 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
     this.xcall{value: 0.08 ether}(args);
   }
 
+  // FIXME: move to AssetLogic.t.sol
   // fails if erc20 transfer and eth sent > relayerFee + callbackFee
   function test_BridgeFacet__xcall_failEthWithErc20TransferUnnecessary() public {
     vm.deal(_originSender, 100 ether);
@@ -688,6 +762,7 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
     this.xcall{value: 1 ether}(args);
   }
 
+  // FIXME: move to AssetLogic.t.sol
   // fails if user has insufficient tokens
   function test_BridgeFacet__xcall_failInsufficientErc20Tokens() public {
     _amount = 10.1 ether;
@@ -722,6 +797,8 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
     this.xcall{value: args.relayerFee}(args);
   }
 
+  // FIXME: need to add cases around slippage
+
   // ============ xcall success cases
   // local token transfer
   function test_BridgeFacet__xcall_tokenTransferWorks() public {
@@ -732,6 +809,31 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
   function test_BridgeFacet__xcall_nativeTransferWorks() public {
     utils_useNative(true);
     helpers_xcallAndAssert();
+  }
+
+  // FIXME: adopted asset transfer
+  function test_BridgeFacet__xcall_adoptedTransferWorks() public {
+    require(false, "not tested");
+  }
+
+  // FIXME: should work with fee on transfer tokens
+  function test_BridgeFacet__xcall_feeOnTransferWorks() public {
+    require(false, "not tested");
+  }
+
+  // FIXME: should work with positive slippage
+  function test_BridgeFacet__xcall_worksWithPositiveSlippage() public {
+    require(false, "not tested");
+  }
+
+  // FIXME: should work with negative slippage
+  function test_BridgeFacet__xcall_worksWithNegativeSlippage() public {
+    require(false, "not tested");
+  }
+
+  // FIXME: should work with 0 value
+  function test_BridgeFacet__xcall_worksWithNegativeSlippage() public {
+    require(false, "not tested");
   }
 
   // should send promise router callback fee
@@ -747,17 +849,33 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
     helpers_xcallAndAssert();
   }
 
-  // =========== handle ==========
+  // FIXME: works with callback fee set to 0
+  function test_BridgeFacet__xcall_zeroCallbackFeesWorks() public {
+    require(false, "not tested");
+  }
+
+  // FIXME: works if swap isnt required and swaps are paused
+  function test_BridgeFacet__xcall_worksIfNoSwapAndSwapPaused() public {
+    require(false, "not tested");
+  }
+
+  // =========== handle / reconcile ==========
+  // FIXME: only needs tests depending on where we want to put the modifier tests
   // TODO: test handle? stub `_reconcile` and basically just test only nomad router permissions
 
-  // =========== reconcile ==========
   // ============ reconcile fail cases
   // fail if message is invalid
   // mustBeMessage > tryAsMessage > assertValid
   // typeOf(memView) == 0xffffffffff || not(gt( (loc(memView) + len(memView)) , mload(0x40)))
   // "Validity assertion failed"
+  function test_BridgeFacet__reconcile_invalidMessage() public {
+    require(false, "not tested");
+  }
 
   // fails if action is not transfer
+  function test_BridgeFacet__reconcile_invalidTransfer() public {
+    require(false, "not tested");
+  }
 
   // fails if already reconciled (s.reconciledTransfers[transferId] = true)
   function test_BridgeFacet__reconcile_failIfAlreadyReconciled() public {
@@ -770,19 +888,17 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
 
   // ============ reconcile success cases
   // works with local representational tokens (remote origin, so they will be minted)
-  function test_BridgeFacet__reconcile_localTokenWorks() public {
+  function test_BridgeFacet__reconcile_worksWithLocal() public {
     helpers_reconcileAndAssert();
   }
 
-  // TODO: works with canonical token (local origin, so we release from custody)
-  // function test_BridgeFacet__reconcile_canonicalTokenWorks() public {
+  function test_BridgeFacet__reconcile_worksWithCanonical() public {
+    require(false, "not tested");
+  }
 
-  // TODO: works with minted local => representational via amm stableswap
-
-  // TODO: works using native asset
-  // function test_BridgeFacet__reconcile_nativeAssetWorks() public {
-
-  // TODO: deploys a new representational token if needed (in TokenRegistry.ensureLocalToken)
+  function test_BridgeFacet__reconcile_worksPreExecute() public {
+    require(false, "not tested");
+  }
 
   // funds router when post-execute (fast liquidity route)
   function test_BridgeFacet__reconcile_fastLiquiditySingleRouterWorks() public {
@@ -864,6 +980,29 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
     this.execute(args);
   }
 
+  // multipath: should fail if pathLength > maxRouters
+  function test_BridgeFacet__execute_failIfPathLengthGreaterThanMaxRouters() public {
+    (bytes32 transferId, ExecuteArgs memory args) = utils_makeExecuteArgs(s.maxRoutersPerTransfer + 1);
+
+    for (uint256 i; i < args.routers.length; i++) {
+      s.routerBalances[args.routers[i]][args.local] += 10 ether;
+    }
+
+    vm.expectRevert(BridgeFacet.BridgeFacet__execute_maxRoutersExceeded.selector);
+    this.execute(args);
+  }
+
+
+  // should fail if it is a slow transfer (forceSlow = true) and not reconciled
+  function test_BridgeFacet__execute_failIfForceSlowAndNotReconciled() public {
+    _params.forceSlow = true;
+
+    (bytes32 transferId, ExecuteArgs memory args) = utils_makeExecuteArgs(0);
+
+    vm.expectRevert(BridgeFacet.BridgeFacet__execute_notReconciled.selector);
+    this.execute(args);
+  }
+
   // should fail if it is a slow transfer (forceSlow = true) and we try to execute with routers
   function test_BridgeFacet__execute_failIfForceSlowAndRoutersSet() public {
     _params.forceSlow = true;
@@ -871,16 +1010,6 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
     // Routers providing liquidity implies this is a fast-liquidity transfer. If we're forcing slow,
     // this should fail.
     (bytes32 transferId, ExecuteArgs memory args) = utils_makeExecuteArgs(2);
-
-    vm.expectRevert(BridgeFacet.BridgeFacet__execute_notReconciled.selector);
-    this.execute(args);
-  }
-
-  // should fail if it is a slow transfer (forceSlow = true) and not reconciled
-  function test_BridgeFacet__execute_failIfForceSlowAndNotReconciled() public {
-    _params.forceSlow = true;
-
-    (bytes32 transferId, ExecuteArgs memory args) = utils_makeExecuteArgs(0);
 
     vm.expectRevert(BridgeFacet.BridgeFacet__execute_notReconciled.selector);
     this.execute(args);
@@ -964,20 +1093,6 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
     this.execute(args);
   }
 
-  // should fail if sponsored vault did not fund contract
-
-  // multipath: should fail if pathLength > maxRouters
-  function test_BridgeFacet__execute_failIfPathLengthGreaterThanMaxRouters() public {
-    (bytes32 transferId, ExecuteArgs memory args) = utils_makeExecuteArgs(s.maxRoutersPerTransfer + 1);
-
-    for (uint256 i; i < args.routers.length; i++) {
-      s.routerBalances[args.routers[i]][args.local] += 10 ether;
-    }
-
-    vm.expectRevert(BridgeFacet.BridgeFacet__execute_maxRoutersExceeded.selector);
-    this.execute(args);
-  }
-
   // multipath: should fail if any 1 router has insufficient tokens
   function test_BridgeFacet__execute_failIfAnyRouterHasInsufficientFunds() public {
     _amount = 5 ether;
@@ -996,6 +1111,8 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
     vm.expectRevert(stdError.arithmeticError);
     this.execute(args);
   }
+
+  // should fail if sponsored vault did not fund contract with returned amount
 
   // ============ execute success cases
   // should use slow liquidity if specified (forceSlow = true)
@@ -1035,6 +1152,37 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
     helpers_executeAndAssert(transferId, args);
   }
 
+    // FIXME: should work with 0 value
+  function test_BridgeFacet__execute_worksWith0Value() public {
+    require(false, "not tested");
+  }
+
+  // FIXME: should work if no sponsor vault set
+  function test_BridgeFacet__execute_worksWithoutVault() public {
+    require(false, "not tested");
+  }
+
+  // FIXME: should sponsor if fast liquidity is used and sponsor vault set
+  function test_BridgeFacet__execute_worksWithSponsorLiquidity() public {
+    require(false, "not tested");
+  }
+
+  // FIXME: should not sponsor fast liquidity if using slow mode
+  function test_BridgeFacet__execute_noSlowSponsorLiquidity() public {
+    require(false, "not tested");
+  }
+
+  // FIXME: some of these tests can likely be handled with stronger assertions
+  // FIXME: should not sponsor fast liquidity if using slow mode
+  function test_BridgeFacet__execute_sponsorsRelayersSlow() public {
+    require(false, "not tested");
+  }
+
+  // FIXME: should not sponsor fast liquidity if using slow mode
+  function test_BridgeFacet__execute_sponsorsRelayersFast() public {
+    require(false, "not tested");
+  }
+
   // should work without calldata
   function test_BridgeFacet__execute_noCalldataWorks() public {
     _params.callData = bytes("");
@@ -1052,6 +1200,7 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
   }
 
   // should work with successful calldata
+  // FIXME: need to assert the mock calls here
   function test_BridgeFacet__execute_successfulCalldata() public {
     // Set the args.to to the mock xapp address, and args.callData to the `fulfill` fn.
     _params.callData = abi.encodeWithSelector(MockXApp.fulfill.selector, _local, TEST_MESSAGE);
@@ -1088,7 +1237,14 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
     assertEq(IERC20(args.local).balanceOf(_recovery), 0);
   }
 
+  // FIXME: should provide origin properties if calldata is authenticated (i.e. used the
+  // slow liquidity path)
+  function test_BridgeFacet__execute_usesAuthenticatedCallData() public {
+    require(false, "not tested");
+  }
+
   // should work with failing calldata : contract call failed
+  // FIXME: need to assert that promise router was called
   function test_BridgeFacet__execute_failingCalldata() public {
     // Set the args.to to the mock xapp address, and args.callData to the `fail` fn.
     _params.callData = abi.encodeWithSelector(MockXApp.fail.selector);
@@ -1106,6 +1262,7 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
     // TODO: Check allowance is the same as before.
   }
 
+  // FIXME: this is antipattern, needs to be within Executor.t.sol
   // should work with failing calldata : recipient `to` is not a contract (should call _handleFailure)
   function test_BridgeFacet__execute_handleRecipientNotAContract() public {
     // Setting the calldata to be for fulfill... but obviously, that method should never be called.
@@ -1149,6 +1306,7 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
     assertEq(IERC20(args.local).balanceOf(_recovery), 0);
   }
 
+  // FIXME: this is antipattern, needs to be within Executor.t.sol
   // multipath: should subtract equally from each router's liquidity
   function test_BridgeFacet__execute_multipath() public {
     _amount = 1 ether;
@@ -1186,4 +1344,20 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
 
   // TODO: test callback handling, should send the promise router the return data
   // TODO: test native asset handling
+  // FIXME: these should be in executor ^^
+
+  // ============ bumpTransfer ============
+  // ============ bumpTransfer fail cases
+  function test_BridgeFacet__bumpTransfer_failsIfPaused() public {
+    require(false, "not tested");
+  }
+
+  function test_BridgeFacet__bumpTransfer_failsIfNoValue() public {
+    require(false, "not tested");
+  }
+
+  // ============ bumpTransfer success cases
+  function test_BridgeFacet__bumpTransfer_works() public {
+    require(false, "not tested");
+  }
 }
