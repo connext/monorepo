@@ -1,17 +1,20 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity 0.8.14;
 
-import {BaseConnextFacet} from "./BaseConnextFacet.sol";
-import {IAavePool} from "../interfaces/IAavePool.sol";
-import {AssetLogic} from "../libraries/AssetLogic.sol";
 import {SafeERC20Upgradeable, IERC20Upgradeable} from "@openzeppelin/contracts-upgradeable/token/ERC20/utils/SafeERC20Upgradeable.sol";
+
+import {BaseConnextFacet} from "./BaseConnextFacet.sol";
+
+import {IAavePool} from "../interfaces/IAavePool.sol";
+
+import {AssetLogic} from "../libraries/AssetLogic.sol";
+import {ConnextMessage} from "../libraries/ConnextMessage.sol";
 
 contract PortalFacet is BaseConnextFacet {
   // ========== Custom Errors ===========
   error PortalFacet__setAavePortalFee_invalidFee();
   error PortalFacet__repayAavePortal_insufficientFunds();
-  error PortalFacet__repayAavePortal_backingTooHigh();
-  error PortalFacet__repayAavePortal_feeTooHigh();
+  error PortalFacet__repayAavePortalFor_notSupportedAsset();
   error PortalFacet__repayAavePortal_swapFailed();
 
   // ============ Events ============
@@ -66,7 +69,8 @@ contract PortalFacet is BaseConnextFacet {
 
   /**
    * @notice Used by routers to perform a manual repayment to Aave Portals to cover any outstanding debt
-   * @dev The router must be approved for portal and with enough liquidity
+   * @dev The router must be approved for portal and with enough liquidity, and must be the caller of this
+   * function
    * @param _local The local asset (what router stores liquidity in)
    * @param _backingAmount The principle to be paid (in adopted asset)
    * @param _feeAmount The fee to be paid (in adopted asset)
@@ -85,11 +89,6 @@ contract PortalFacet is BaseConnextFacet {
     // Sanity check: has that much to spend
     if (routerBalance < _maxIn) revert PortalFacet__repayAavePortal_insufficientFunds();
 
-    // Sanity check: not overpaying principle
-    if (_backingAmount > s.portalDebt[_transferId]) revert PortalFacet__repayAavePortal_backingTooHigh();
-
-    // Sanity check: not overpaying fees
-    if (_feeAmount > s.portalFeeDebt[_transferId]) revert PortalFacet__repayAavePortal_feeTooHigh();
     // Need to swap into adopted asset or asset that was backing the loan
     // The router will always be holding collateral in the local asset while the loaned asset
     // is the adopted asset
@@ -109,10 +108,83 @@ contract PortalFacet is BaseConnextFacet {
     if (!success) revert PortalFacet__repayAavePortal_swapFailed();
 
     // back loan
-    SafeERC20Upgradeable.safeIncreaseAllowance(IERC20Upgradeable(adopted), s.aavePool, totalAmount);
+    _backLoan(_local, _backingAmount, _feeAmount, _transferId);
+  }
 
-    IAavePool(s.aavePool).backUnbacked(adopted, _backingAmount, _feeAmount);
+  /**
+   * @notice This allows anyone to repay the portal in the adopted asset for a given router
+   * and transfer
+   * @dev Should always be paying in the backing asset for the aave loan
+   * @param _router Router who took out the credit
+   * @param _adopted Address of the adopted asset (asset backing the loan)
+   * @param _backingAmount Amount of principle to repay
+   * @param _feeAmount Amount of fees to repay
+   * @param _transferId Corresponding transfer id for the fees
+   */
+  function repayAavePortalFor(
+    address _router,
+    address _adopted,
+    uint256 _backingAmount,
+    uint256 _feeAmount,
+    bytes32 _transferId
+  ) external payable {
+    address adopted = _adopted == address(0) ? address(s.wrapper) : _adopted;
+    // Ensure the asset is whitelisted
+    ConnextMessage.TokenId memory canonical = s.adoptedToCanonical[adopted];
+    if (canonical.id == bytes32(0)) {
+      revert PortalFacet__repayAavePortalFor_notSupportedAsset();
+    }
 
-    emit AavePortalRouterRepayment(msg.sender, adopted, _backingAmount, _feeAmount);
+    // Transfer funds to the contract
+    uint256 total = _backingAmount + _feeAmount;
+    (, uint256 amount) = AssetLogic.handleIncomingAsset(_adopted, total, 0);
+
+    // If this was a fee on transfer token, reduce the total
+    if (amount < total) {
+      uint256 missing = total - amount;
+      if (missing < _feeAmount) {
+        // Debit fee amount
+        _feeAmount -= missing;
+      } else {
+        // Debit backing amount
+        missing -= _feeAmount;
+        _feeAmount = 0;
+        _backingAmount -= missing;
+      }
+    }
+
+    // No need to swap because this is the adopted asset. Simply
+    // repay the loan
+    _backLoan(adopted, _backingAmount, _feeAmount, _transferId);
+  }
+
+  // ============ Internal functions ============
+
+  /**
+   * @notice Calls backUnbacked on the aave contracts
+   * @dev Assumes funds in adopted asset are already on contract
+   * @param _asset Address of the adopted asset (asset backing the loan)
+   * @param _backing Amount of principle to repay
+   * @param _fee Amount of fees to repay
+   * @param _transferId Corresponding transfer id for the fees
+   */
+  function _backLoan(
+    address _asset,
+    uint256 _backing,
+    uint256 _fee,
+    bytes32 _transferId
+  ) internal {
+    // reduce debt
+    s.portalDebt[_transferId] -= _backing;
+    s.portalFeeDebt[_transferId] -= _fee;
+
+    // increase allowance
+    SafeERC20Upgradeable.safeIncreaseAllowance(IERC20Upgradeable(_asset), s.aavePool, _backing + _fee);
+
+    // back loan
+    IAavePool(s.aavePool).backUnbacked(_asset, _backing, _fee);
+
+    // emit event
+    emit AavePortalRouterRepayment(msg.sender, _asset, _backing, _fee);
   }
 }

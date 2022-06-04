@@ -238,6 +238,14 @@ interface IConnextHandler {
     bytes32 _transferId
   ) external;
 
+  function repayAavePortalFor(
+    address _router,
+    address _adopted,
+    uint256 _backingAmount,
+    uint256 _feeAmount,
+    bytes32 _transferId
+  ) external;
+
   // StableSwapFacet
   function getSwapStorage(bytes32 canonicalId) external view returns (SwapUtils.Swap memory);
 

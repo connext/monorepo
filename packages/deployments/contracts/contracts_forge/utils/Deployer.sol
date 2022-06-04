@@ -242,7 +242,7 @@ contract Deployer {
   }
 
   function getPortalCut(address _portalFacet) internal pure returns (IDiamondCut.FacetCut memory) {
-    bytes4[] memory portalFacetSelectors = new bytes4[](7);
+    bytes4[] memory portalFacetSelectors = new bytes4[](8);
     portalFacetSelectors[0] = PortalFacet.getAavePortalDebt.selector;
     portalFacetSelectors[1] = PortalFacet.getAavePortalFeeDebt.selector;
     portalFacetSelectors[2] = PortalFacet.aavePool.selector;
@@ -250,6 +250,7 @@ contract Deployer {
     portalFacetSelectors[4] = PortalFacet.setAavePool.selector;
     portalFacetSelectors[5] = PortalFacet.setAavePortalFee.selector;
     portalFacetSelectors[6] = PortalFacet.repayAavePortal.selector;
+    portalFacetSelectors[7] = PortalFacet.repayAavePortalFor.selector;
 
     return
       IDiamondCut.FacetCut({
