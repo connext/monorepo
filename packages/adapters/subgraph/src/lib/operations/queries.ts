@@ -1,5 +1,5 @@
 import { gql } from "graphql-request";
-import { SubgraphQueryMetaParams, XTransferStatus } from "@connext/nxtp-utils";
+import { SubgraphQueryMetaParams, XTransferStatus, SubgraphQueryByTimestampMetaParams } from "@connext/nxtp-utils";
 
 import { getContext } from "../../reader";
 
@@ -229,16 +229,24 @@ export const getOriginTransfersByTransactionHashesQuery = (prefix: string, hashe
   `;
 };
 
-const orignTransferQueryString = (
+const originTransferQueryString = (
   prefix: string,
   originDomain: string,
   fromNonce: number,
   destinationDomains: string[],
   maxBlockNumber?: number,
+  orderDirection: "asc" | "desc" = "desc",
 ) => {
-  return `${prefix}_originTransfers(where: { originDomain: ${originDomain}, nonce_gte: ${fromNonce}, destinationDomain_in: [${destinationDomains}] ${
-    maxBlockNumber ? `, blockNumber_lte: ${maxBlockNumber}` : ""
-  } }, orderBy: blockNumber, orderDirection: desc) {${ORIGIN_TRANSFER_ENTITY}}`;
+  return `${prefix}_originTransfers(
+    where: { 
+      originDomain: ${originDomain}, 
+      nonce_gte: ${fromNonce}, 
+      destinationDomain_in: [${destinationDomains}] 
+      ${maxBlockNumber ? `, blockNumber_lte: ${maxBlockNumber}` : ""} 
+    }, 
+    orderBy: blockNumber, 
+    orderDirection: ${orderDirection}
+  ) {${ORIGIN_TRANSFER_ENTITY}}`;
 };
 
 export const getOriginTransfersQuery = (agents: Map<string, SubgraphQueryMetaParams>): string => {
@@ -249,7 +257,7 @@ export const getOriginTransfersQuery = (agents: Map<string, SubgraphQueryMetaPar
   for (const domain of domains) {
     const prefix = config.sources[domain].prefix;
     if (agents.has(domain)) {
-      combinedQuery += orignTransferQueryString(
+      combinedQuery += originTransferQueryString(
         prefix,
         domain,
         agents.get(domain)!.latestNonce,
@@ -263,6 +271,106 @@ export const getOriginTransfersQuery = (agents: Map<string, SubgraphQueryMetaPar
 
   return gql`
     query GetOriginTransfers { 
+        ${combinedQuery}
+      }
+  `;
+};
+
+const destinationTransfersByExecuteTimestampQueryString = (
+  prefix: string,
+  originDomain: string,
+  fromTimestamp: number,
+  destinationDomains: string[],
+  maxBlockNumber?: number,
+  orderDirection: "asc" | "desc" = "desc",
+) => {
+  return `
+  ${prefix}_originTransfers(
+    where: { 
+      originDomain: ${originDomain}, 
+      executedTimestamp_gte: ${fromTimestamp}, 
+      destinationDomain_in: [${destinationDomains}] 
+      ${maxBlockNumber ? `, blockNumber_lte: ${maxBlockNumber}` : ""} 
+    }, 
+    orderBy: executedTimestamp, 
+    orderDirection: ${orderDirection}
+  ) {${ORIGIN_TRANSFER_ENTITY}}`;
+};
+
+export const getDestinationTransfersByExecuteTimestampQuery = (
+  params: Map<string, SubgraphQueryByTimestampMetaParams>,
+): string => {
+  const { config } = getContext();
+
+  let combinedQuery = "";
+  const domains = Object.keys(config.sources);
+  for (const domain of domains) {
+    const prefix = config.sources[domain].prefix;
+    if (params.has(domain)) {
+      combinedQuery += destinationTransfersByExecuteTimestampQueryString(
+        prefix,
+        domain,
+        params.get(domain)!.fromTimestamp,
+        domains,
+        params.get(domain)!.maxBlockNumber,
+      );
+    } else {
+      console.log(`No agents for domain: ${domain}`);
+    }
+  }
+
+  return gql`
+    query GetDestinationTransfersByExecuteTimestamp { 
+        ${combinedQuery}
+      }
+  `;
+};
+
+const destinationTransfersByReconcileTimestampQueryString = (
+  prefix: string,
+  originDomain: string,
+  fromTimestamp: number,
+  destinationDomains: string[],
+  maxBlockNumber?: number,
+  orderDirection: "asc" | "desc" = "desc",
+) => {
+  return `
+  ${prefix}_originTransfers(
+    where: { 
+      originDomain: ${originDomain}, 
+      reconciledTimestamp_gte: ${fromTimestamp}, 
+      destinationDomain_in: [${destinationDomains}] 
+      ${maxBlockNumber ? `, blockNumber_lte: ${maxBlockNumber}` : ""} 
+    }, 
+    orderBy: executedTimestamp, 
+    orderDirection: ${orderDirection}
+  ) {${ORIGIN_TRANSFER_ENTITY}}`;
+};
+
+export const getDestinationTransfersByReconcileTimestampQuery = (
+  params: Map<string, SubgraphQueryByTimestampMetaParams>,
+): string => {
+  const { config } = getContext();
+
+  let combinedQuery = "";
+  const domains = Object.keys(config.sources);
+  for (const domain of domains) {
+    const prefix = config.sources[domain].prefix;
+    if (params.has(domain)) {
+      combinedQuery += destinationTransfersByReconcileTimestampQueryString(
+        prefix,
+        domain,
+        params.get(domain)!.fromTimestamp,
+        domains,
+        params.get(domain)!.maxBlockNumber,
+      );
+    } else {
+      console.log(`No agents for domain: ${domain}`);
+    }
+  }
+
+  return gql`
+    query GetDestinationTransfersByReconcileTimestamp { 
         ${combinedQuery}
       }
   `;
