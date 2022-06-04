@@ -109,6 +109,7 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment): Promise<voi
       { name: getDeploymentName("RelayerFacet"), contract: "RelayerFacet", args: [] },
       { name: getDeploymentName("RoutersFacet"), contract: "RoutersFacet", args: [] },
       { name: getDeploymentName("StableSwapFacet"), contract: "StableSwapFacet", args: [] },
+      { name: getDeploymentName("VersionFacet"), contract: "VersionFacet", args: [] },
     ],
     defaultOwnershipFacet: false,
     execute: {
@@ -198,7 +199,7 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment): Promise<voi
     deployment = await hre.deployments.deploy("TestERC20", {
       from: deployer.address,
       log: true,
-      deterministicDeployment: keccak256(utils.toUtf8Bytes("connextTestERC20")),
+      //deterministicDeployment: keccak256(utils.toUtf8Bytes("connextTestERC20")),
       skipIfAlreadyDeployed: true,
     });
     console.log("TestERC20: ", deployment.address);

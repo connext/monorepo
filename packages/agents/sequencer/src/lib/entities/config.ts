@@ -46,6 +46,7 @@ export const SequencerConfigSchema = Type.Object({
   supportedBidVersion: Type.Optional(Type.String()),
   relayerUrl: Type.Optional(Type.String()),
   subgraphPrefix: Type.Optional(Type.String()),
+  auctionRoundDepth: Type.Number(),
   environment: Type.Union([Type.Literal("staging"), Type.Literal("production")]),
 });
 

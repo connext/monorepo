@@ -410,7 +410,7 @@
           ]
         },
         "AssetFacetStaging": {
-          "address": "0x85787C1A0F0527f1b64B1EB2ed760eea44f27E0A",
+          "address": "0x6f372C2b55864b54B8B1428A9cB83b9Fd7589181",
           "abi": [
             {
               "inputs": [],
@@ -450,6 +450,21 @@
             {
               "inputs": [],
               "name": "BaseConnextFacet__onlyReplica_notReplica",
+              "type": "error"
+            },
+            {
+              "inputs": [],
+              "name": "BaseConnextFacet__whenBridgeNotPaused_bridgePaused",
+              "type": "error"
+            },
+            {
+              "inputs": [],
+              "name": "BaseConnextFacet__whenBridgeNotPaused_paused",
+              "type": "error"
+            },
+            {
+              "inputs": [],
+              "name": "BaseConnextFacet__whenBridgeNotPaused_swapPaused",
               "type": "error"
             },
             {
@@ -1757,7 +1772,7 @@
           ]
         },
         "BridgeFacetStaging": {
-          "address": "0x6fCDBBA79F9D2c36CC5929F353a11159528EdAa6",
+          "address": "0x2eFf2EB372864a6B6CfCeE8cC16B95e4500220ec",
           "abi": [
             {
               "inputs": [],
@@ -1772,6 +1787,16 @@
             {
               "inputs": [],
               "name": "AssetLogic__handleIncomingAsset_notAmount",
+              "type": "error"
+            },
+            {
+              "inputs": [],
+              "name": "AssetLogic__swapFromLocalAssetIfNeeded_swapPaused",
+              "type": "error"
+            },
+            {
+              "inputs": [],
+              "name": "AssetLogic__swapToLocalAssetIfNeeded_swapPaused",
               "type": "error"
             },
             {
@@ -1801,12 +1826,32 @@
             },
             {
               "inputs": [],
+              "name": "BaseConnextFacet__whenBridgeNotPaused_bridgePaused",
+              "type": "error"
+            },
+            {
+              "inputs": [],
+              "name": "BaseConnextFacet__whenBridgeNotPaused_paused",
+              "type": "error"
+            },
+            {
+              "inputs": [],
+              "name": "BaseConnextFacet__whenBridgeNotPaused_swapPaused",
+              "type": "error"
+            },
+            {
+              "inputs": [],
               "name": "BridgeFacet__bumpTransfer_valueIsZero",
               "type": "error"
             },
             {
               "inputs": [],
               "name": "BridgeFacet__execute_alreadyExecuted",
+              "type": "error"
+            },
+            {
+              "inputs": [],
+              "name": "BridgeFacet__execute_alreadyReconciled",
               "type": "error"
             },
             {
@@ -6441,6 +6486,21 @@
               "type": "error"
             },
             {
+              "inputs": [],
+              "name": "BaseConnextFacet__whenBridgeNotPaused_bridgePaused",
+              "type": "error"
+            },
+            {
+              "inputs": [],
+              "name": "BaseConnextFacet__whenBridgeNotPaused_paused",
+              "type": "error"
+            },
+            {
+              "inputs": [],
+              "name": "BaseConnextFacet__whenBridgeNotPaused_swapPaused",
+              "type": "error"
+            },
+            {
               "anonymous": false,
               "inputs": [
                 {
@@ -6817,6 +6877,16 @@
             },
             {
               "inputs": [],
+              "name": "AssetLogic__swapFromLocalAssetIfNeeded_swapPaused",
+              "type": "error"
+            },
+            {
+              "inputs": [],
+              "name": "AssetLogic__swapToLocalAssetIfNeeded_swapPaused",
+              "type": "error"
+            },
+            {
+              "inputs": [],
               "name": "AssetLogic__transferAssetFromContract_notNative",
               "type": "error"
             },
@@ -6828,6 +6898,11 @@
             {
               "inputs": [],
               "name": "BridgeFacet__execute_alreadyExecuted",
+              "type": "error"
+            },
+            {
+              "inputs": [],
+              "name": "BridgeFacet__execute_alreadyReconciled",
               "type": "error"
             },
             {
@@ -7940,10 +8015,42 @@
               "type": "event"
             },
             {
+              "anonymous": false,
+              "inputs": [
+                {
+                  "indexed": false,
+                  "internalType": "enum PausedFunctions",
+                  "name": "previous",
+                  "type": "uint8"
+                },
+                {
+                  "indexed": false,
+                  "internalType": "enum PausedFunctions",
+                  "name": "current",
+                  "type": "uint8"
+                }
+              ],
+              "name": "SetPausedFunction",
+              "type": "event"
+            },
+            {
               "inputs": [],
               "name": "acceptProposedOwner",
               "outputs": [],
               "stateMutability": "nonpayable",
+              "type": "function"
+            },
+            {
+              "inputs": [],
+              "name": "assetOwnershipRenounced",
+              "outputs": [
+                {
+                  "internalType": "bool",
+                  "name": "",
+                  "type": "bool"
+                }
+              ],
+              "stateMutability": "view",
               "type": "function"
             },
             {
@@ -8074,6 +8181,19 @@
             },
             {
               "inputs": [],
+              "name": "routerOwnershipRenounced",
+              "outputs": [
+                {
+                  "internalType": "bool",
+                  "name": "",
+                  "type": "bool"
+                }
+              ],
+              "stateMutability": "view",
+              "type": "function"
+            },
+            {
+              "inputs": [],
               "name": "routerOwnershipTimestamp",
               "outputs": [
                 {
@@ -8083,6 +8203,19 @@
                 }
               ],
               "stateMutability": "view",
+              "type": "function"
+            },
+            {
+              "inputs": [
+                {
+                  "internalType": "enum PausedFunctions",
+                  "name": "_paused",
+                  "type": "uint8"
+                }
+              ],
+              "name": "setPausedFunctions",
+              "outputs": [],
+              "stateMutability": "nonpayable",
               "type": "function"
             },
             {
@@ -8418,6 +8551,11 @@
             },
             {
               "inputs": [],
+              "name": "RoutersFacet__removeRouterLiquidityFor_notOwner",
+              "type": "error"
+            },
+            {
+              "inputs": [],
               "name": "RoutersFacet__removeRouterLiquidity_amountIsZero",
               "type": "error"
             },
@@ -8439,6 +8577,11 @@
             {
               "inputs": [],
               "name": "RoutersFacet__removeRouter_routerEmpty",
+              "type": "error"
+            },
+            {
+              "inputs": [],
+              "name": "RoutersFacet__setLiquidityFeeNumerator_tooLarge",
               "type": "error"
             },
             {
@@ -8929,6 +9072,34 @@
                 }
               ],
               "name": "removeRouterLiquidity",
+              "outputs": [],
+              "stateMutability": "nonpayable",
+              "type": "function"
+            },
+            {
+              "inputs": [
+                {
+                  "internalType": "uint256",
+                  "name": "_amount",
+                  "type": "uint256"
+                },
+                {
+                  "internalType": "address",
+                  "name": "_local",
+                  "type": "address"
+                },
+                {
+                  "internalType": "address payable",
+                  "name": "_to",
+                  "type": "address"
+                },
+                {
+                  "internalType": "address",
+                  "name": "_router",
+                  "type": "address"
+                }
+              ],
+              "name": "removeRouterLiquidityFor",
               "outputs": [],
               "stateMutability": "nonpayable",
               "type": "function"
@@ -9818,6 +9989,19 @@
               "name": "withdrawSwapAdminFees",
               "outputs": [],
               "stateMutability": "nonpayable",
+              "type": "function"
+            },
+            {
+              "inputs": [],
+              "name": "VERSION",
+              "outputs": [
+                {
+                  "internalType": "uint8",
+                  "name": "",
+                  "type": "uint8"
+                }
+              ],
+              "stateMutability": "pure",
               "type": "function"
             },
             {
@@ -18101,7 +18285,7 @@
           ]
         },
         "DiamondInit": {
-          "address": "0x75a95b457B3045173C1CBd5f36925Ef1d9AAd2Ac",
+          "address": "0x63cD41fB5982CC4cA60f761Fb9521274F80d5087",
           "abi": [
             {
               "inputs": [],
@@ -18121,6 +18305,21 @@
             {
               "inputs": [],
               "name": "BaseConnextFacet__onlyReplica_notReplica",
+              "type": "error"
+            },
+            {
+              "inputs": [],
+              "name": "BaseConnextFacet__whenBridgeNotPaused_bridgePaused",
+              "type": "error"
+            },
+            {
+              "inputs": [],
+              "name": "BaseConnextFacet__whenBridgeNotPaused_paused",
+              "type": "error"
+            },
+            {
+              "inputs": [],
+              "name": "BaseConnextFacet__whenBridgeNotPaused_swapPaused",
               "type": "error"
             },
             {
@@ -18747,7 +18946,7 @@
           ]
         },
         "NomadFacetStaging": {
-          "address": "0x46dF6D05Cc6777C9bA082B84f5C1Ea501401De83",
+          "address": "0xD9588e9E60DD6e077B82BD2EAB3637b90730aAF4",
           "abi": [
             {
               "inputs": [],
@@ -18767,6 +18966,21 @@
             {
               "inputs": [],
               "name": "BaseConnextFacet__onlyReplica_notReplica",
+              "type": "error"
+            },
+            {
+              "inputs": [],
+              "name": "BaseConnextFacet__whenBridgeNotPaused_bridgePaused",
+              "type": "error"
+            },
+            {
+              "inputs": [],
+              "name": "BaseConnextFacet__whenBridgeNotPaused_paused",
+              "type": "error"
+            },
+            {
+              "inputs": [],
+              "name": "BaseConnextFacet__whenBridgeNotPaused_swapPaused",
               "type": "error"
             },
             {
@@ -19482,7 +19696,7 @@
           ]
         },
         "PromiseRouterStaging": {
-          "address": "0x58bF1d0B38fEf3A7ac9209B388A93EBb3A7499F0",
+          "address": "0xF21225932D5bF910DF71d4D40Ae33Ac1734E710E",
           "abi": [
             {
               "inputs": [],
@@ -20593,7 +20807,7 @@
           ]
         },
         "ProposedOwnableFacetStaging": {
-          "address": "0xCbDa54F90dDED46E42c49C938E98A197bEf814E0",
+          "address": "0xe91c1B5F4110e7267B5b5d4b7E27eF191A23997e",
           "abi": [
             {
               "inputs": [],
@@ -20613,6 +20827,21 @@
             {
               "inputs": [],
               "name": "BaseConnextFacet__onlyReplica_notReplica",
+              "type": "error"
+            },
+            {
+              "inputs": [],
+              "name": "BaseConnextFacet__whenBridgeNotPaused_bridgePaused",
+              "type": "error"
+            },
+            {
+              "inputs": [],
+              "name": "BaseConnextFacet__whenBridgeNotPaused_paused",
+              "type": "error"
+            },
+            {
+              "inputs": [],
+              "name": "BaseConnextFacet__whenBridgeNotPaused_swapPaused",
               "type": "error"
             },
             {
@@ -20775,10 +21004,42 @@
               "type": "event"
             },
             {
+              "anonymous": false,
+              "inputs": [
+                {
+                  "indexed": false,
+                  "internalType": "enum PausedFunctions",
+                  "name": "previous",
+                  "type": "uint8"
+                },
+                {
+                  "indexed": false,
+                  "internalType": "enum PausedFunctions",
+                  "name": "current",
+                  "type": "uint8"
+                }
+              ],
+              "name": "SetPausedFunction",
+              "type": "event"
+            },
+            {
               "inputs": [],
               "name": "acceptProposedOwner",
               "outputs": [],
               "stateMutability": "nonpayable",
+              "type": "function"
+            },
+            {
+              "inputs": [],
+              "name": "assetOwnershipRenounced",
+              "outputs": [
+                {
+                  "internalType": "bool",
+                  "name": "",
+                  "type": "bool"
+                }
+              ],
+              "stateMutability": "view",
               "type": "function"
             },
             {
@@ -20909,6 +21170,19 @@
             },
             {
               "inputs": [],
+              "name": "routerOwnershipRenounced",
+              "outputs": [
+                {
+                  "internalType": "bool",
+                  "name": "",
+                  "type": "bool"
+                }
+              ],
+              "stateMutability": "view",
+              "type": "function"
+            },
+            {
+              "inputs": [],
               "name": "routerOwnershipTimestamp",
               "outputs": [
                 {
@@ -20918,6 +21192,19 @@
                 }
               ],
               "stateMutability": "view",
+              "type": "function"
+            },
+            {
+              "inputs": [
+                {
+                  "internalType": "enum PausedFunctions",
+                  "name": "_paused",
+                  "type": "uint8"
+                }
+              ],
+              "name": "setPausedFunctions",
+              "outputs": [],
+              "stateMutability": "nonpayable",
               "type": "function"
             }
           ]
@@ -21229,7 +21516,7 @@
           ]
         },
         "RelayerFacetStaging": {
-          "address": "0xDAe764Ba34Db7A352F22bFF8cC0E856724aBDE36",
+          "address": "0x1396FC556A65a6B8608196214808fC115610aa74",
           "abi": [
             {
               "inputs": [],
@@ -21249,6 +21536,21 @@
             {
               "inputs": [],
               "name": "BaseConnextFacet__onlyReplica_notReplica",
+              "type": "error"
+            },
+            {
+              "inputs": [],
+              "name": "BaseConnextFacet__whenBridgeNotPaused_bridgePaused",
+              "type": "error"
+            },
+            {
+              "inputs": [],
+              "name": "BaseConnextFacet__whenBridgeNotPaused_paused",
+              "type": "error"
+            },
+            {
+              "inputs": [],
+              "name": "BaseConnextFacet__whenBridgeNotPaused_swapPaused",
               "type": "error"
             },
             {
@@ -22143,91 +22445,46 @@
           ]
         },
         "RelayerFeeRouterStaging": {
-          "address": "0x0460AF089F1683106b1e7f5756D3f54a157D61f7",
+          "address": "0x5D9F5974994963b3B42d205E3326dDD232B3c261",
           "abi": [
             {
               "inputs": [],
-              "name": "ProposedOwnableUpgradeable__acceptProposedOwner_delayNotElapsed",
+              "name": "ProposedOwnable__acceptProposedOwner_delayNotElapsed",
               "type": "error"
             },
             {
               "inputs": [],
-              "name": "ProposedOwnableUpgradeable__acceptProposedOwner_noOwnershipChange",
+              "name": "ProposedOwnable__onlyOwner_notOwner",
               "type": "error"
             },
             {
               "inputs": [],
-              "name": "ProposedOwnableUpgradeable__onlyOwner_notOwner",
+              "name": "ProposedOwnable__onlyProposed_notProposedOwner",
               "type": "error"
             },
             {
               "inputs": [],
-              "name": "ProposedOwnableUpgradeable__onlyProposed_notProposedOwner",
+              "name": "ProposedOwnable__proposeNewOwner_invalidProposal",
               "type": "error"
             },
             {
               "inputs": [],
-              "name": "ProposedOwnableUpgradeable__proposeAssetOwnershipRenunciation_noOwnershipChange",
+              "name": "ProposedOwnable__proposeNewOwner_noOwnershipChange",
               "type": "error"
             },
             {
               "inputs": [],
-              "name": "ProposedOwnableUpgradeable__proposeNewOwner_invalidProposal",
+              "name": "ProposedOwnable__renounceOwnership_delayNotElapsed",
               "type": "error"
             },
             {
               "inputs": [],
-              "name": "ProposedOwnableUpgradeable__proposeNewOwner_noOwnershipChange",
+              "name": "ProposedOwnable__renounceOwnership_invalidProposal",
               "type": "error"
             },
             {
               "inputs": [],
-              "name": "ProposedOwnableUpgradeable__proposeRouterOwnershipRenunciation_noOwnershipChange",
-              "type": "error"
-            },
-            {
-              "inputs": [],
-              "name": "ProposedOwnableUpgradeable__renounceAssetOwnership_delayNotElapsed",
-              "type": "error"
-            },
-            {
-              "inputs": [],
-              "name": "ProposedOwnableUpgradeable__renounceAssetOwnership_noOwnershipChange",
-              "type": "error"
-            },
-            {
-              "inputs": [],
-              "name": "ProposedOwnableUpgradeable__renounceAssetOwnership_noProposal",
-              "type": "error"
-            },
-            {
-              "inputs": [],
-              "name": "ProposedOwnableUpgradeable__renounceOwnership_delayNotElapsed",
-              "type": "error"
-            },
-            {
-              "inputs": [],
-              "name": "ProposedOwnableUpgradeable__renounceOwnership_invalidProposal",
-              "type": "error"
-            },
-            {
-              "inputs": [],
-              "name": "ProposedOwnableUpgradeable__renounceOwnership_noProposal",
-              "type": "error"
-            },
-            {
-              "inputs": [],
-              "name": "ProposedOwnableUpgradeable__renounceRouterOwnership_delayNotElapsed",
-              "type": "error"
-            },
-            {
-              "inputs": [],
-              "name": "ProposedOwnableUpgradeable__renounceRouterOwnership_noOwnershipChange",
-              "type": "error"
-            },
-            {
-              "inputs": [],
-              "name": "ProposedOwnableUpgradeable__renounceRouterOwnership_noProposal",
+              "name": "ProposedOwnable__renounceOwnership_noProposal",
               "type": "error"
             },
             {
@@ -22244,32 +22501,6 @@
               "inputs": [],
               "name": "RelayerFeeRouter__send_recipientEmpty",
               "type": "error"
-            },
-            {
-              "anonymous": false,
-              "inputs": [
-                {
-                  "indexed": false,
-                  "internalType": "bool",
-                  "name": "renounced",
-                  "type": "bool"
-                }
-              ],
-              "name": "AssetOwnershipRenounced",
-              "type": "event"
-            },
-            {
-              "anonymous": false,
-              "inputs": [
-                {
-                  "indexed": false,
-                  "internalType": "uint256",
-                  "name": "timestamp",
-                  "type": "uint256"
-                }
-              ],
-              "name": "AssetOwnershipRenunciationProposed",
-              "type": "event"
             },
             {
               "anonymous": false,
@@ -22332,32 +22563,6 @@
                 }
               ],
               "name": "Receive",
-              "type": "event"
-            },
-            {
-              "anonymous": false,
-              "inputs": [
-                {
-                  "indexed": false,
-                  "internalType": "bool",
-                  "name": "renounced",
-                  "type": "bool"
-                }
-              ],
-              "name": "RouterOwnershipRenounced",
-              "type": "event"
-            },
-            {
-              "anonymous": false,
-              "inputs": [
-                {
-                  "indexed": false,
-                  "internalType": "uint256",
-                  "name": "timestamp",
-                  "type": "uint256"
-                }
-              ],
-              "name": "RouterOwnershipRenunciationProposed",
               "type": "event"
             },
             {
@@ -22428,19 +22633,6 @@
               "name": "acceptProposedOwner",
               "outputs": [],
               "stateMutability": "nonpayable",
-              "type": "function"
-            },
-            {
-              "inputs": [],
-              "name": "assetOwnershipTimestamp",
-              "outputs": [
-                {
-                  "internalType": "uint256",
-                  "name": "",
-                  "type": "uint256"
-                }
-              ],
-              "stateMutability": "view",
               "type": "function"
             },
             {
@@ -22530,32 +22722,6 @@
             },
             {
               "inputs": [],
-              "name": "isAssetOwnershipRenounced",
-              "outputs": [
-                {
-                  "internalType": "bool",
-                  "name": "",
-                  "type": "bool"
-                }
-              ],
-              "stateMutability": "view",
-              "type": "function"
-            },
-            {
-              "inputs": [],
-              "name": "isRouterOwnershipRenounced",
-              "outputs": [
-                {
-                  "internalType": "bool",
-                  "name": "",
-                  "type": "bool"
-                }
-              ],
-              "stateMutability": "view",
-              "type": "function"
-            },
-            {
-              "inputs": [],
               "name": "owner",
               "outputs": [
                 {
@@ -22568,13 +22734,6 @@
               "type": "function"
             },
             {
-              "inputs": [],
-              "name": "proposeAssetOwnershipRenunciation",
-              "outputs": [],
-              "stateMutability": "nonpayable",
-              "type": "function"
-            },
-            {
               "inputs": [
                 {
                   "internalType": "address",
@@ -22583,13 +22742,6 @@
                 }
               ],
               "name": "proposeNewOwner",
-              "outputs": [],
-              "stateMutability": "nonpayable",
-              "type": "function"
-            },
-            {
-              "inputs": [],
-              "name": "proposeRouterOwnershipRenunciation",
               "outputs": [],
               "stateMutability": "nonpayable",
               "type": "function"
@@ -22641,21 +22793,7 @@
             },
             {
               "inputs": [],
-              "name": "renounceAssetOwnership",
-              "outputs": [],
-              "stateMutability": "nonpayable",
-              "type": "function"
-            },
-            {
-              "inputs": [],
               "name": "renounceOwnership",
-              "outputs": [],
-              "stateMutability": "nonpayable",
-              "type": "function"
-            },
-            {
-              "inputs": [],
-              "name": "renounceRouterOwnership",
               "outputs": [],
               "stateMutability": "nonpayable",
               "type": "function"
@@ -22668,19 +22806,6 @@
                   "internalType": "bool",
                   "name": "",
                   "type": "bool"
-                }
-              ],
-              "stateMutability": "view",
-              "type": "function"
-            },
-            {
-              "inputs": [],
-              "name": "routerOwnershipTimestamp",
-              "outputs": [
-                {
-                  "internalType": "uint256",
-                  "name": "",
-                  "type": "uint256"
                 }
               ],
               "stateMutability": "view",
@@ -23583,7 +23708,7 @@
           ]
         },
         "RoutersFacetStaging": {
-          "address": "0xa07c1f0b9607dd2f1d5f48793b18B3fcbBD10c72",
+          "address": "0xad63D9AD2bFF640ab9f603752cEBA3Ea89d01866",
           "abi": [
             {
               "inputs": [],
@@ -23618,6 +23743,21 @@
             {
               "inputs": [],
               "name": "BaseConnextFacet__onlyReplica_notReplica",
+              "type": "error"
+            },
+            {
+              "inputs": [],
+              "name": "BaseConnextFacet__whenBridgeNotPaused_bridgePaused",
+              "type": "error"
+            },
+            {
+              "inputs": [],
+              "name": "BaseConnextFacet__whenBridgeNotPaused_paused",
+              "type": "error"
+            },
+            {
+              "inputs": [],
+              "name": "BaseConnextFacet__whenBridgeNotPaused_swapPaused",
               "type": "error"
             },
             {
@@ -23672,6 +23812,11 @@
             },
             {
               "inputs": [],
+              "name": "RoutersFacet__removeRouterLiquidityFor_notOwner",
+              "type": "error"
+            },
+            {
+              "inputs": [],
               "name": "RoutersFacet__removeRouterLiquidity_amountIsZero",
               "type": "error"
             },
@@ -23693,6 +23838,11 @@
             {
               "inputs": [],
               "name": "RoutersFacet__removeRouter_routerEmpty",
+              "type": "error"
+            },
+            {
+              "inputs": [],
+              "name": "RoutersFacet__setLiquidityFeeNumerator_tooLarge",
               "type": "error"
             },
             {
@@ -24183,6 +24333,34 @@
                 }
               ],
               "name": "removeRouterLiquidity",
+              "outputs": [],
+              "stateMutability": "nonpayable",
+              "type": "function"
+            },
+            {
+              "inputs": [
+                {
+                  "internalType": "uint256",
+                  "name": "_amount",
+                  "type": "uint256"
+                },
+                {
+                  "internalType": "address",
+                  "name": "_local",
+                  "type": "address"
+                },
+                {
+                  "internalType": "address payable",
+                  "name": "_to",
+                  "type": "address"
+                },
+                {
+                  "internalType": "address",
+                  "name": "_router",
+                  "type": "address"
+                }
+              ],
+              "name": "removeRouterLiquidityFor",
               "outputs": [],
               "stateMutability": "nonpayable",
               "type": "function"
@@ -26023,7 +26201,7 @@
           ]
         },
         "StableSwapFacetStaging": {
-          "address": "0x6DAC844B4ab2284bC6b12bEE5c06258A00a8f9B5",
+          "address": "0xb894E49cFB3F5Ef8d064341dB8C7aD7A05fe1c59",
           "abi": [
             {
               "inputs": [],
@@ -26043,6 +26221,21 @@
             {
               "inputs": [],
               "name": "BaseConnextFacet__onlyReplica_notReplica",
+              "type": "error"
+            },
+            {
+              "inputs": [],
+              "name": "BaseConnextFacet__whenBridgeNotPaused_bridgePaused",
+              "type": "error"
+            },
+            {
+              "inputs": [],
+              "name": "BaseConnextFacet__whenBridgeNotPaused_paused",
+              "type": "error"
+            },
+            {
+              "inputs": [],
+              "name": "BaseConnextFacet__whenBridgeNotPaused_swapPaused",
               "type": "error"
             },
             {
@@ -27778,7 +27971,7 @@
           ]
         },
         "TestERC20": {
-          "address": "0x3FFc03F05D1869f493c7dbf913E636C6280e0ff9",
+          "address": "0x851358BD554DBc32cD03e4bbfe48Deb72eB14c2F",
           "abi": [
             {
               "inputs": [],
@@ -28876,118 +29069,47 @@
           ]
         },
         "TokenRegistryStaging": {
-          "address": "0x741ae5328b51A0e4970d5150216B3926DAc4317e",
+          "address": "0xaf2F42dcdf21aA34478Fc8069b9c208F214D4204",
           "abi": [
             {
               "inputs": [],
-              "name": "ProposedOwnableUpgradeable__acceptProposedOwner_delayNotElapsed",
+              "name": "ProposedOwnable__acceptProposedOwner_delayNotElapsed",
               "type": "error"
             },
             {
               "inputs": [],
-              "name": "ProposedOwnableUpgradeable__acceptProposedOwner_noOwnershipChange",
+              "name": "ProposedOwnable__onlyOwner_notOwner",
               "type": "error"
             },
             {
               "inputs": [],
-              "name": "ProposedOwnableUpgradeable__onlyOwner_notOwner",
+              "name": "ProposedOwnable__onlyProposed_notProposedOwner",
               "type": "error"
             },
             {
               "inputs": [],
-              "name": "ProposedOwnableUpgradeable__onlyProposed_notProposedOwner",
+              "name": "ProposedOwnable__proposeNewOwner_invalidProposal",
               "type": "error"
             },
             {
               "inputs": [],
-              "name": "ProposedOwnableUpgradeable__proposeAssetOwnershipRenunciation_noOwnershipChange",
+              "name": "ProposedOwnable__proposeNewOwner_noOwnershipChange",
               "type": "error"
             },
             {
               "inputs": [],
-              "name": "ProposedOwnableUpgradeable__proposeNewOwner_invalidProposal",
+              "name": "ProposedOwnable__renounceOwnership_delayNotElapsed",
               "type": "error"
             },
             {
               "inputs": [],
-              "name": "ProposedOwnableUpgradeable__proposeNewOwner_noOwnershipChange",
+              "name": "ProposedOwnable__renounceOwnership_invalidProposal",
               "type": "error"
             },
             {
               "inputs": [],
-              "name": "ProposedOwnableUpgradeable__proposeRouterOwnershipRenunciation_noOwnershipChange",
+              "name": "ProposedOwnable__renounceOwnership_noProposal",
               "type": "error"
-            },
-            {
-              "inputs": [],
-              "name": "ProposedOwnableUpgradeable__renounceAssetOwnership_delayNotElapsed",
-              "type": "error"
-            },
-            {
-              "inputs": [],
-              "name": "ProposedOwnableUpgradeable__renounceAssetOwnership_noOwnershipChange",
-              "type": "error"
-            },
-            {
-              "inputs": [],
-              "name": "ProposedOwnableUpgradeable__renounceAssetOwnership_noProposal",
-              "type": "error"
-            },
-            {
-              "inputs": [],
-              "name": "ProposedOwnableUpgradeable__renounceOwnership_delayNotElapsed",
-              "type": "error"
-            },
-            {
-              "inputs": [],
-              "name": "ProposedOwnableUpgradeable__renounceOwnership_invalidProposal",
-              "type": "error"
-            },
-            {
-              "inputs": [],
-              "name": "ProposedOwnableUpgradeable__renounceOwnership_noProposal",
-              "type": "error"
-            },
-            {
-              "inputs": [],
-              "name": "ProposedOwnableUpgradeable__renounceRouterOwnership_delayNotElapsed",
-              "type": "error"
-            },
-            {
-              "inputs": [],
-              "name": "ProposedOwnableUpgradeable__renounceRouterOwnership_noOwnershipChange",
-              "type": "error"
-            },
-            {
-              "inputs": [],
-              "name": "ProposedOwnableUpgradeable__renounceRouterOwnership_noProposal",
-              "type": "error"
-            },
-            {
-              "anonymous": false,
-              "inputs": [
-                {
-                  "indexed": false,
-                  "internalType": "bool",
-                  "name": "renounced",
-                  "type": "bool"
-                }
-              ],
-              "name": "AssetOwnershipRenounced",
-              "type": "event"
-            },
-            {
-              "anonymous": false,
-              "inputs": [
-                {
-                  "indexed": false,
-                  "internalType": "uint256",
-                  "name": "timestamp",
-                  "type": "uint256"
-                }
-              ],
-              "name": "AssetOwnershipRenunciationProposed",
-              "type": "event"
             },
             {
               "anonymous": false,
@@ -29025,32 +29147,6 @@
               "anonymous": false,
               "inputs": [
                 {
-                  "indexed": false,
-                  "internalType": "bool",
-                  "name": "renounced",
-                  "type": "bool"
-                }
-              ],
-              "name": "RouterOwnershipRenounced",
-              "type": "event"
-            },
-            {
-              "anonymous": false,
-              "inputs": [
-                {
-                  "indexed": false,
-                  "internalType": "uint256",
-                  "name": "timestamp",
-                  "type": "uint256"
-                }
-              ],
-              "name": "RouterOwnershipRenunciationProposed",
-              "type": "event"
-            },
-            {
-              "anonymous": false,
-              "inputs": [
-                {
                   "indexed": true,
                   "internalType": "uint32",
                   "name": "domain",
@@ -29077,19 +29173,6 @@
               "name": "acceptProposedOwner",
               "outputs": [],
               "stateMutability": "nonpayable",
-              "type": "function"
-            },
-            {
-              "inputs": [],
-              "name": "assetOwnershipTimestamp",
-              "outputs": [
-                {
-                  "internalType": "uint256",
-                  "name": "",
-                  "type": "uint256"
-                }
-              ],
-              "stateMutability": "view",
               "type": "function"
             },
             {
@@ -29310,19 +29393,6 @@
               "type": "function"
             },
             {
-              "inputs": [],
-              "name": "isAssetOwnershipRenounced",
-              "outputs": [
-                {
-                  "internalType": "bool",
-                  "name": "",
-                  "type": "bool"
-                }
-              ],
-              "stateMutability": "view",
-              "type": "function"
-            },
-            {
               "inputs": [
                 {
                   "internalType": "address",
@@ -29331,19 +29401,6 @@
                 }
               ],
               "name": "isLocalOrigin",
-              "outputs": [
-                {
-                  "internalType": "bool",
-                  "name": "",
-                  "type": "bool"
-                }
-              ],
-              "stateMutability": "view",
-              "type": "function"
-            },
-            {
-              "inputs": [],
-              "name": "isRouterOwnershipRenounced",
               "outputs": [
                 {
                   "internalType": "bool",
@@ -29411,13 +29468,6 @@
               "type": "function"
             },
             {
-              "inputs": [],
-              "name": "proposeAssetOwnershipRenunciation",
-              "outputs": [],
-              "stateMutability": "nonpayable",
-              "type": "function"
-            },
-            {
               "inputs": [
                 {
                   "internalType": "address",
@@ -29426,13 +29476,6 @@
                 }
               ],
               "name": "proposeNewOwner",
-              "outputs": [],
-              "stateMutability": "nonpayable",
-              "type": "function"
-            },
-            {
-              "inputs": [],
-              "name": "proposeRouterOwnershipRenunciation",
               "outputs": [],
               "stateMutability": "nonpayable",
               "type": "function"
@@ -29465,21 +29508,7 @@
             },
             {
               "inputs": [],
-              "name": "renounceAssetOwnership",
-              "outputs": [],
-              "stateMutability": "nonpayable",
-              "type": "function"
-            },
-            {
-              "inputs": [],
               "name": "renounceOwnership",
-              "outputs": [],
-              "stateMutability": "nonpayable",
-              "type": "function"
-            },
-            {
-              "inputs": [],
-              "name": "renounceRouterOwnership",
               "outputs": [],
               "stateMutability": "nonpayable",
               "type": "function"
@@ -29516,19 +29545,6 @@
                   "internalType": "bytes32",
                   "name": "id",
                   "type": "bytes32"
-                }
-              ],
-              "stateMutability": "view",
-              "type": "function"
-            },
-            {
-              "inputs": [],
-              "name": "routerOwnershipTimestamp",
-              "outputs": [
-                {
-                  "internalType": "uint256",
-                  "name": "",
-                  "type": "uint256"
                 }
               ],
               "stateMutability": "view",
@@ -29906,6 +29922,59 @@
               "name": "upgrade",
               "outputs": [],
               "stateMutability": "nonpayable",
+              "type": "function"
+            }
+          ]
+        },
+        "VersionFacetStaging": {
+          "address": "0x57f7a7c220ba09fb86E73232B5Af6C8588C72e75",
+          "abi": [
+            {
+              "inputs": [],
+              "name": "BaseConnextFacet__onlyOwner_notOwner",
+              "type": "error"
+            },
+            {
+              "inputs": [],
+              "name": "BaseConnextFacet__onlyProposed_notProposedOwner",
+              "type": "error"
+            },
+            {
+              "inputs": [],
+              "name": "BaseConnextFacet__onlyRemoteRouter_notRemoteRouter",
+              "type": "error"
+            },
+            {
+              "inputs": [],
+              "name": "BaseConnextFacet__onlyReplica_notReplica",
+              "type": "error"
+            },
+            {
+              "inputs": [],
+              "name": "BaseConnextFacet__whenBridgeNotPaused_bridgePaused",
+              "type": "error"
+            },
+            {
+              "inputs": [],
+              "name": "BaseConnextFacet__whenBridgeNotPaused_paused",
+              "type": "error"
+            },
+            {
+              "inputs": [],
+              "name": "BaseConnextFacet__whenBridgeNotPaused_swapPaused",
+              "type": "error"
+            },
+            {
+              "inputs": [],
+              "name": "VERSION",
+              "outputs": [
+                {
+                  "internalType": "uint8",
+                  "name": "",
+                  "type": "uint8"
+                }
+              ],
+              "stateMutability": "pure",
               "type": "function"
             }
           ]
@@ -31159,7 +31228,7 @@
           ]
         },
         "AssetFacetStaging": {
-          "address": "0x85787C1A0F0527f1b64B1EB2ed760eea44f27E0A",
+          "address": "0x6f372C2b55864b54B8B1428A9cB83b9Fd7589181",
           "abi": [
             {
               "inputs": [],
@@ -31199,6 +31268,21 @@
             {
               "inputs": [],
               "name": "BaseConnextFacet__onlyReplica_notReplica",
+              "type": "error"
+            },
+            {
+              "inputs": [],
+              "name": "BaseConnextFacet__whenBridgeNotPaused_bridgePaused",
+              "type": "error"
+            },
+            {
+              "inputs": [],
+              "name": "BaseConnextFacet__whenBridgeNotPaused_paused",
+              "type": "error"
+            },
+            {
+              "inputs": [],
+              "name": "BaseConnextFacet__whenBridgeNotPaused_swapPaused",
               "type": "error"
             },
             {
@@ -32506,7 +32590,7 @@
           ]
         },
         "BridgeFacetStaging": {
-          "address": "0x6fCDBBA79F9D2c36CC5929F353a11159528EdAa6",
+          "address": "0x2eFf2EB372864a6B6CfCeE8cC16B95e4500220ec",
           "abi": [
             {
               "inputs": [],
@@ -32521,6 +32605,16 @@
             {
               "inputs": [],
               "name": "AssetLogic__handleIncomingAsset_notAmount",
+              "type": "error"
+            },
+            {
+              "inputs": [],
+              "name": "AssetLogic__swapFromLocalAssetIfNeeded_swapPaused",
+              "type": "error"
+            },
+            {
+              "inputs": [],
+              "name": "AssetLogic__swapToLocalAssetIfNeeded_swapPaused",
               "type": "error"
             },
             {
@@ -32550,12 +32644,32 @@
             },
             {
               "inputs": [],
+              "name": "BaseConnextFacet__whenBridgeNotPaused_bridgePaused",
+              "type": "error"
+            },
+            {
+              "inputs": [],
+              "name": "BaseConnextFacet__whenBridgeNotPaused_paused",
+              "type": "error"
+            },
+            {
+              "inputs": [],
+              "name": "BaseConnextFacet__whenBridgeNotPaused_swapPaused",
+              "type": "error"
+            },
+            {
+              "inputs": [],
               "name": "BridgeFacet__bumpTransfer_valueIsZero",
               "type": "error"
             },
             {
               "inputs": [],
               "name": "BridgeFacet__execute_alreadyExecuted",
+              "type": "error"
+            },
+            {
+              "inputs": [],
+              "name": "BridgeFacet__execute_alreadyReconciled",
               "type": "error"
             },
             {
@@ -37190,6 +37304,21 @@
               "type": "error"
             },
             {
+              "inputs": [],
+              "name": "BaseConnextFacet__whenBridgeNotPaused_bridgePaused",
+              "type": "error"
+            },
+            {
+              "inputs": [],
+              "name": "BaseConnextFacet__whenBridgeNotPaused_paused",
+              "type": "error"
+            },
+            {
+              "inputs": [],
+              "name": "BaseConnextFacet__whenBridgeNotPaused_swapPaused",
+              "type": "error"
+            },
+            {
               "anonymous": false,
               "inputs": [
                 {
@@ -37566,6 +37695,16 @@
             },
             {
               "inputs": [],
+              "name": "AssetLogic__swapFromLocalAssetIfNeeded_swapPaused",
+              "type": "error"
+            },
+            {
+              "inputs": [],
+              "name": "AssetLogic__swapToLocalAssetIfNeeded_swapPaused",
+              "type": "error"
+            },
+            {
+              "inputs": [],
               "name": "AssetLogic__transferAssetFromContract_notNative",
               "type": "error"
             },
@@ -37577,6 +37716,11 @@
             {
               "inputs": [],
               "name": "BridgeFacet__execute_alreadyExecuted",
+              "type": "error"
+            },
+            {
+              "inputs": [],
+              "name": "BridgeFacet__execute_alreadyReconciled",
               "type": "error"
             },
             {
@@ -38689,10 +38833,42 @@
               "type": "event"
             },
             {
+              "anonymous": false,
+              "inputs": [
+                {
+                  "indexed": false,
+                  "internalType": "enum PausedFunctions",
+                  "name": "previous",
+                  "type": "uint8"
+                },
+                {
+                  "indexed": false,
+                  "internalType": "enum PausedFunctions",
+                  "name": "current",
+                  "type": "uint8"
+                }
+              ],
+              "name": "SetPausedFunction",
+              "type": "event"
+            },
+            {
               "inputs": [],
               "name": "acceptProposedOwner",
               "outputs": [],
               "stateMutability": "nonpayable",
+              "type": "function"
+            },
+            {
+              "inputs": [],
+              "name": "assetOwnershipRenounced",
+              "outputs": [
+                {
+                  "internalType": "bool",
+                  "name": "",
+                  "type": "bool"
+                }
+              ],
+              "stateMutability": "view",
               "type": "function"
             },
             {
@@ -38823,6 +38999,19 @@
             },
             {
               "inputs": [],
+              "name": "routerOwnershipRenounced",
+              "outputs": [
+                {
+                  "internalType": "bool",
+                  "name": "",
+                  "type": "bool"
+                }
+              ],
+              "stateMutability": "view",
+              "type": "function"
+            },
+            {
+              "inputs": [],
               "name": "routerOwnershipTimestamp",
               "outputs": [
                 {
@@ -38832,6 +39021,19 @@
                 }
               ],
               "stateMutability": "view",
+              "type": "function"
+            },
+            {
+              "inputs": [
+                {
+                  "internalType": "enum PausedFunctions",
+                  "name": "_paused",
+                  "type": "uint8"
+                }
+              ],
+              "name": "setPausedFunctions",
+              "outputs": [],
+              "stateMutability": "nonpayable",
               "type": "function"
             },
             {
@@ -39167,6 +39369,11 @@
             },
             {
               "inputs": [],
+              "name": "RoutersFacet__removeRouterLiquidityFor_notOwner",
+              "type": "error"
+            },
+            {
+              "inputs": [],
               "name": "RoutersFacet__removeRouterLiquidity_amountIsZero",
               "type": "error"
             },
@@ -39188,6 +39395,11 @@
             {
               "inputs": [],
               "name": "RoutersFacet__removeRouter_routerEmpty",
+              "type": "error"
+            },
+            {
+              "inputs": [],
+              "name": "RoutersFacet__setLiquidityFeeNumerator_tooLarge",
               "type": "error"
             },
             {
@@ -39678,6 +39890,34 @@
                 }
               ],
               "name": "removeRouterLiquidity",
+              "outputs": [],
+              "stateMutability": "nonpayable",
+              "type": "function"
+            },
+            {
+              "inputs": [
+                {
+                  "internalType": "uint256",
+                  "name": "_amount",
+                  "type": "uint256"
+                },
+                {
+                  "internalType": "address",
+                  "name": "_local",
+                  "type": "address"
+                },
+                {
+                  "internalType": "address payable",
+                  "name": "_to",
+                  "type": "address"
+                },
+                {
+                  "internalType": "address",
+                  "name": "_router",
+                  "type": "address"
+                }
+              ],
+              "name": "removeRouterLiquidityFor",
               "outputs": [],
               "stateMutability": "nonpayable",
               "type": "function"
@@ -40567,6 +40807,19 @@
               "name": "withdrawSwapAdminFees",
               "outputs": [],
               "stateMutability": "nonpayable",
+              "type": "function"
+            },
+            {
+              "inputs": [],
+              "name": "VERSION",
+              "outputs": [
+                {
+                  "internalType": "uint8",
+                  "name": "",
+                  "type": "uint8"
+                }
+              ],
+              "stateMutability": "pure",
               "type": "function"
             },
             {
@@ -48342,7 +48595,7 @@
           ]
         },
         "DiamondInit": {
-          "address": "0x75a95b457B3045173C1CBd5f36925Ef1d9AAd2Ac",
+          "address": "0x63cD41fB5982CC4cA60f761Fb9521274F80d5087",
           "abi": [
             {
               "inputs": [],
@@ -48362,6 +48615,21 @@
             {
               "inputs": [],
               "name": "BaseConnextFacet__onlyReplica_notReplica",
+              "type": "error"
+            },
+            {
+              "inputs": [],
+              "name": "BaseConnextFacet__whenBridgeNotPaused_bridgePaused",
+              "type": "error"
+            },
+            {
+              "inputs": [],
+              "name": "BaseConnextFacet__whenBridgeNotPaused_paused",
+              "type": "error"
+            },
+            {
+              "inputs": [],
+              "name": "BaseConnextFacet__whenBridgeNotPaused_swapPaused",
               "type": "error"
             },
             {
@@ -48988,7 +49256,7 @@
           ]
         },
         "NomadFacetStaging": {
-          "address": "0x46dF6D05Cc6777C9bA082B84f5C1Ea501401De83",
+          "address": "0xD9588e9E60DD6e077B82BD2EAB3637b90730aAF4",
           "abi": [
             {
               "inputs": [],
@@ -49008,6 +49276,21 @@
             {
               "inputs": [],
               "name": "BaseConnextFacet__onlyReplica_notReplica",
+              "type": "error"
+            },
+            {
+              "inputs": [],
+              "name": "BaseConnextFacet__whenBridgeNotPaused_bridgePaused",
+              "type": "error"
+            },
+            {
+              "inputs": [],
+              "name": "BaseConnextFacet__whenBridgeNotPaused_paused",
+              "type": "error"
+            },
+            {
+              "inputs": [],
+              "name": "BaseConnextFacet__whenBridgeNotPaused_swapPaused",
               "type": "error"
             },
             {
@@ -49723,7 +50006,7 @@
           ]
         },
         "PromiseRouterStaging": {
-          "address": "0x4F2eb961Ba47FcC2d10c10BD3aBE014AeCddad4C",
+          "address": "0x7b2a195E04918489d516C0b3D7a211Fd936e36f5",
           "abi": [
             {
               "inputs": [],
@@ -50834,7 +51117,7 @@
           ]
         },
         "ProposedOwnableFacetStaging": {
-          "address": "0xCbDa54F90dDED46E42c49C938E98A197bEf814E0",
+          "address": "0xe91c1B5F4110e7267B5b5d4b7E27eF191A23997e",
           "abi": [
             {
               "inputs": [],
@@ -50854,6 +51137,21 @@
             {
               "inputs": [],
               "name": "BaseConnextFacet__onlyReplica_notReplica",
+              "type": "error"
+            },
+            {
+              "inputs": [],
+              "name": "BaseConnextFacet__whenBridgeNotPaused_bridgePaused",
+              "type": "error"
+            },
+            {
+              "inputs": [],
+              "name": "BaseConnextFacet__whenBridgeNotPaused_paused",
+              "type": "error"
+            },
+            {
+              "inputs": [],
+              "name": "BaseConnextFacet__whenBridgeNotPaused_swapPaused",
               "type": "error"
             },
             {
@@ -51016,10 +51314,42 @@
               "type": "event"
             },
             {
+              "anonymous": false,
+              "inputs": [
+                {
+                  "indexed": false,
+                  "internalType": "enum PausedFunctions",
+                  "name": "previous",
+                  "type": "uint8"
+                },
+                {
+                  "indexed": false,
+                  "internalType": "enum PausedFunctions",
+                  "name": "current",
+                  "type": "uint8"
+                }
+              ],
+              "name": "SetPausedFunction",
+              "type": "event"
+            },
+            {
               "inputs": [],
               "name": "acceptProposedOwner",
               "outputs": [],
               "stateMutability": "nonpayable",
+              "type": "function"
+            },
+            {
+              "inputs": [],
+              "name": "assetOwnershipRenounced",
+              "outputs": [
+                {
+                  "internalType": "bool",
+                  "name": "",
+                  "type": "bool"
+                }
+              ],
+              "stateMutability": "view",
               "type": "function"
             },
             {
@@ -51150,6 +51480,19 @@
             },
             {
               "inputs": [],
+              "name": "routerOwnershipRenounced",
+              "outputs": [
+                {
+                  "internalType": "bool",
+                  "name": "",
+                  "type": "bool"
+                }
+              ],
+              "stateMutability": "view",
+              "type": "function"
+            },
+            {
+              "inputs": [],
               "name": "routerOwnershipTimestamp",
               "outputs": [
                 {
@@ -51159,6 +51502,19 @@
                 }
               ],
               "stateMutability": "view",
+              "type": "function"
+            },
+            {
+              "inputs": [
+                {
+                  "internalType": "enum PausedFunctions",
+                  "name": "_paused",
+                  "type": "uint8"
+                }
+              ],
+              "name": "setPausedFunctions",
+              "outputs": [],
+              "stateMutability": "nonpayable",
               "type": "function"
             }
           ]
@@ -51470,7 +51826,7 @@
           ]
         },
         "RelayerFacetStaging": {
-          "address": "0xDAe764Ba34Db7A352F22bFF8cC0E856724aBDE36",
+          "address": "0x1396FC556A65a6B8608196214808fC115610aa74",
           "abi": [
             {
               "inputs": [],
@@ -51490,6 +51846,21 @@
             {
               "inputs": [],
               "name": "BaseConnextFacet__onlyReplica_notReplica",
+              "type": "error"
+            },
+            {
+              "inputs": [],
+              "name": "BaseConnextFacet__whenBridgeNotPaused_bridgePaused",
+              "type": "error"
+            },
+            {
+              "inputs": [],
+              "name": "BaseConnextFacet__whenBridgeNotPaused_paused",
+              "type": "error"
+            },
+            {
+              "inputs": [],
+              "name": "BaseConnextFacet__whenBridgeNotPaused_swapPaused",
               "type": "error"
             },
             {
@@ -52384,91 +52755,46 @@
           ]
         },
         "RelayerFeeRouterStaging": {
-          "address": "0x9FD67b680a514DA3ef62Dd72e51b3C632EF9ea2D",
+          "address": "0xf56E88f78Ab4d7Adbf70Ce58Ca65525EC499069F",
           "abi": [
             {
               "inputs": [],
-              "name": "ProposedOwnableUpgradeable__acceptProposedOwner_delayNotElapsed",
+              "name": "ProposedOwnable__acceptProposedOwner_delayNotElapsed",
               "type": "error"
             },
             {
               "inputs": [],
-              "name": "ProposedOwnableUpgradeable__acceptProposedOwner_noOwnershipChange",
+              "name": "ProposedOwnable__onlyOwner_notOwner",
               "type": "error"
             },
             {
               "inputs": [],
-              "name": "ProposedOwnableUpgradeable__onlyOwner_notOwner",
+              "name": "ProposedOwnable__onlyProposed_notProposedOwner",
               "type": "error"
             },
             {
               "inputs": [],
-              "name": "ProposedOwnableUpgradeable__onlyProposed_notProposedOwner",
+              "name": "ProposedOwnable__proposeNewOwner_invalidProposal",
               "type": "error"
             },
             {
               "inputs": [],
-              "name": "ProposedOwnableUpgradeable__proposeAssetOwnershipRenunciation_noOwnershipChange",
+              "name": "ProposedOwnable__proposeNewOwner_noOwnershipChange",
               "type": "error"
             },
             {
               "inputs": [],
-              "name": "ProposedOwnableUpgradeable__proposeNewOwner_invalidProposal",
+              "name": "ProposedOwnable__renounceOwnership_delayNotElapsed",
               "type": "error"
             },
             {
               "inputs": [],
-              "name": "ProposedOwnableUpgradeable__proposeNewOwner_noOwnershipChange",
+              "name": "ProposedOwnable__renounceOwnership_invalidProposal",
               "type": "error"
             },
             {
               "inputs": [],
-              "name": "ProposedOwnableUpgradeable__proposeRouterOwnershipRenunciation_noOwnershipChange",
-              "type": "error"
-            },
-            {
-              "inputs": [],
-              "name": "ProposedOwnableUpgradeable__renounceAssetOwnership_delayNotElapsed",
-              "type": "error"
-            },
-            {
-              "inputs": [],
-              "name": "ProposedOwnableUpgradeable__renounceAssetOwnership_noOwnershipChange",
-              "type": "error"
-            },
-            {
-              "inputs": [],
-              "name": "ProposedOwnableUpgradeable__renounceAssetOwnership_noProposal",
-              "type": "error"
-            },
-            {
-              "inputs": [],
-              "name": "ProposedOwnableUpgradeable__renounceOwnership_delayNotElapsed",
-              "type": "error"
-            },
-            {
-              "inputs": [],
-              "name": "ProposedOwnableUpgradeable__renounceOwnership_invalidProposal",
-              "type": "error"
-            },
-            {
-              "inputs": [],
-              "name": "ProposedOwnableUpgradeable__renounceOwnership_noProposal",
-              "type": "error"
-            },
-            {
-              "inputs": [],
-              "name": "ProposedOwnableUpgradeable__renounceRouterOwnership_delayNotElapsed",
-              "type": "error"
-            },
-            {
-              "inputs": [],
-              "name": "ProposedOwnableUpgradeable__renounceRouterOwnership_noOwnershipChange",
-              "type": "error"
-            },
-            {
-              "inputs": [],
-              "name": "ProposedOwnableUpgradeable__renounceRouterOwnership_noProposal",
+              "name": "ProposedOwnable__renounceOwnership_noProposal",
               "type": "error"
             },
             {
@@ -52485,32 +52811,6 @@
               "inputs": [],
               "name": "RelayerFeeRouter__send_recipientEmpty",
               "type": "error"
-            },
-            {
-              "anonymous": false,
-              "inputs": [
-                {
-                  "indexed": false,
-                  "internalType": "bool",
-                  "name": "renounced",
-                  "type": "bool"
-                }
-              ],
-              "name": "AssetOwnershipRenounced",
-              "type": "event"
-            },
-            {
-              "anonymous": false,
-              "inputs": [
-                {
-                  "indexed": false,
-                  "internalType": "uint256",
-                  "name": "timestamp",
-                  "type": "uint256"
-                }
-              ],
-              "name": "AssetOwnershipRenunciationProposed",
-              "type": "event"
             },
             {
               "anonymous": false,
@@ -52573,32 +52873,6 @@
                 }
               ],
               "name": "Receive",
-              "type": "event"
-            },
-            {
-              "anonymous": false,
-              "inputs": [
-                {
-                  "indexed": false,
-                  "internalType": "bool",
-                  "name": "renounced",
-                  "type": "bool"
-                }
-              ],
-              "name": "RouterOwnershipRenounced",
-              "type": "event"
-            },
-            {
-              "anonymous": false,
-              "inputs": [
-                {
-                  "indexed": false,
-                  "internalType": "uint256",
-                  "name": "timestamp",
-                  "type": "uint256"
-                }
-              ],
-              "name": "RouterOwnershipRenunciationProposed",
               "type": "event"
             },
             {
@@ -52669,19 +52943,6 @@
               "name": "acceptProposedOwner",
               "outputs": [],
               "stateMutability": "nonpayable",
-              "type": "function"
-            },
-            {
-              "inputs": [],
-              "name": "assetOwnershipTimestamp",
-              "outputs": [
-                {
-                  "internalType": "uint256",
-                  "name": "",
-                  "type": "uint256"
-                }
-              ],
-              "stateMutability": "view",
               "type": "function"
             },
             {
@@ -52771,32 +53032,6 @@
             },
             {
               "inputs": [],
-              "name": "isAssetOwnershipRenounced",
-              "outputs": [
-                {
-                  "internalType": "bool",
-                  "name": "",
-                  "type": "bool"
-                }
-              ],
-              "stateMutability": "view",
-              "type": "function"
-            },
-            {
-              "inputs": [],
-              "name": "isRouterOwnershipRenounced",
-              "outputs": [
-                {
-                  "internalType": "bool",
-                  "name": "",
-                  "type": "bool"
-                }
-              ],
-              "stateMutability": "view",
-              "type": "function"
-            },
-            {
-              "inputs": [],
               "name": "owner",
               "outputs": [
                 {
@@ -52809,13 +53044,6 @@
               "type": "function"
             },
             {
-              "inputs": [],
-              "name": "proposeAssetOwnershipRenunciation",
-              "outputs": [],
-              "stateMutability": "nonpayable",
-              "type": "function"
-            },
-            {
               "inputs": [
                 {
                   "internalType": "address",
@@ -52824,13 +53052,6 @@
                 }
               ],
               "name": "proposeNewOwner",
-              "outputs": [],
-              "stateMutability": "nonpayable",
-              "type": "function"
-            },
-            {
-              "inputs": [],
-              "name": "proposeRouterOwnershipRenunciation",
               "outputs": [],
               "stateMutability": "nonpayable",
               "type": "function"
@@ -52882,21 +53103,7 @@
             },
             {
               "inputs": [],
-              "name": "renounceAssetOwnership",
-              "outputs": [],
-              "stateMutability": "nonpayable",
-              "type": "function"
-            },
-            {
-              "inputs": [],
               "name": "renounceOwnership",
-              "outputs": [],
-              "stateMutability": "nonpayable",
-              "type": "function"
-            },
-            {
-              "inputs": [],
-              "name": "renounceRouterOwnership",
               "outputs": [],
               "stateMutability": "nonpayable",
               "type": "function"
@@ -52909,19 +53116,6 @@
                   "internalType": "bool",
                   "name": "",
                   "type": "bool"
-                }
-              ],
-              "stateMutability": "view",
-              "type": "function"
-            },
-            {
-              "inputs": [],
-              "name": "routerOwnershipTimestamp",
-              "outputs": [
-                {
-                  "internalType": "uint256",
-                  "name": "",
-                  "type": "uint256"
                 }
               ],
               "stateMutability": "view",
@@ -53824,7 +54018,7 @@
           ]
         },
         "RoutersFacetStaging": {
-          "address": "0xa07c1f0b9607dd2f1d5f48793b18B3fcbBD10c72",
+          "address": "0xad63D9AD2bFF640ab9f603752cEBA3Ea89d01866",
           "abi": [
             {
               "inputs": [],
@@ -53859,6 +54053,21 @@
             {
               "inputs": [],
               "name": "BaseConnextFacet__onlyReplica_notReplica",
+              "type": "error"
+            },
+            {
+              "inputs": [],
+              "name": "BaseConnextFacet__whenBridgeNotPaused_bridgePaused",
+              "type": "error"
+            },
+            {
+              "inputs": [],
+              "name": "BaseConnextFacet__whenBridgeNotPaused_paused",
+              "type": "error"
+            },
+            {
+              "inputs": [],
+              "name": "BaseConnextFacet__whenBridgeNotPaused_swapPaused",
               "type": "error"
             },
             {
@@ -53913,6 +54122,11 @@
             },
             {
               "inputs": [],
+              "name": "RoutersFacet__removeRouterLiquidityFor_notOwner",
+              "type": "error"
+            },
+            {
+              "inputs": [],
               "name": "RoutersFacet__removeRouterLiquidity_amountIsZero",
               "type": "error"
             },
@@ -53934,6 +54148,11 @@
             {
               "inputs": [],
               "name": "RoutersFacet__removeRouter_routerEmpty",
+              "type": "error"
+            },
+            {
+              "inputs": [],
+              "name": "RoutersFacet__setLiquidityFeeNumerator_tooLarge",
               "type": "error"
             },
             {
@@ -54424,6 +54643,34 @@
                 }
               ],
               "name": "removeRouterLiquidity",
+              "outputs": [],
+              "stateMutability": "nonpayable",
+              "type": "function"
+            },
+            {
+              "inputs": [
+                {
+                  "internalType": "uint256",
+                  "name": "_amount",
+                  "type": "uint256"
+                },
+                {
+                  "internalType": "address",
+                  "name": "_local",
+                  "type": "address"
+                },
+                {
+                  "internalType": "address payable",
+                  "name": "_to",
+                  "type": "address"
+                },
+                {
+                  "internalType": "address",
+                  "name": "_router",
+                  "type": "address"
+                }
+              ],
+              "name": "removeRouterLiquidityFor",
               "outputs": [],
               "stateMutability": "nonpayable",
               "type": "function"
@@ -56264,7 +56511,7 @@
           ]
         },
         "StableSwapFacetStaging": {
-          "address": "0x6DAC844B4ab2284bC6b12bEE5c06258A00a8f9B5",
+          "address": "0xb894E49cFB3F5Ef8d064341dB8C7aD7A05fe1c59",
           "abi": [
             {
               "inputs": [],
@@ -56284,6 +56531,21 @@
             {
               "inputs": [],
               "name": "BaseConnextFacet__onlyReplica_notReplica",
+              "type": "error"
+            },
+            {
+              "inputs": [],
+              "name": "BaseConnextFacet__whenBridgeNotPaused_bridgePaused",
+              "type": "error"
+            },
+            {
+              "inputs": [],
+              "name": "BaseConnextFacet__whenBridgeNotPaused_paused",
+              "type": "error"
+            },
+            {
+              "inputs": [],
+              "name": "BaseConnextFacet__whenBridgeNotPaused_swapPaused",
               "type": "error"
             },
             {
@@ -58019,7 +58281,7 @@
           ]
         },
         "TestERC20": {
-          "address": "0x3FFc03F05D1869f493c7dbf913E636C6280e0ff9",
+          "address": "0x851358BD554DBc32cD03e4bbfe48Deb72eB14c2F",
           "abi": [
             {
               "inputs": [],
@@ -59117,118 +59379,47 @@
           ]
         },
         "TokenRegistryStaging": {
-          "address": "0x93A49a77d2E0ABA1b877E0231fb9CC458629Abd5",
+          "address": "0x508872224B0e261B2008cbFebB5b0eD26081808d",
           "abi": [
             {
               "inputs": [],
-              "name": "ProposedOwnableUpgradeable__acceptProposedOwner_delayNotElapsed",
+              "name": "ProposedOwnable__acceptProposedOwner_delayNotElapsed",
               "type": "error"
             },
             {
               "inputs": [],
-              "name": "ProposedOwnableUpgradeable__acceptProposedOwner_noOwnershipChange",
+              "name": "ProposedOwnable__onlyOwner_notOwner",
               "type": "error"
             },
             {
               "inputs": [],
-              "name": "ProposedOwnableUpgradeable__onlyOwner_notOwner",
+              "name": "ProposedOwnable__onlyProposed_notProposedOwner",
               "type": "error"
             },
             {
               "inputs": [],
-              "name": "ProposedOwnableUpgradeable__onlyProposed_notProposedOwner",
+              "name": "ProposedOwnable__proposeNewOwner_invalidProposal",
               "type": "error"
             },
             {
               "inputs": [],
-              "name": "ProposedOwnableUpgradeable__proposeAssetOwnershipRenunciation_noOwnershipChange",
+              "name": "ProposedOwnable__proposeNewOwner_noOwnershipChange",
               "type": "error"
             },
             {
               "inputs": [],
-              "name": "ProposedOwnableUpgradeable__proposeNewOwner_invalidProposal",
+              "name": "ProposedOwnable__renounceOwnership_delayNotElapsed",
               "type": "error"
             },
             {
               "inputs": [],
-              "name": "ProposedOwnableUpgradeable__proposeNewOwner_noOwnershipChange",
+              "name": "ProposedOwnable__renounceOwnership_invalidProposal",
               "type": "error"
             },
             {
               "inputs": [],
-              "name": "ProposedOwnableUpgradeable__proposeRouterOwnershipRenunciation_noOwnershipChange",
+              "name": "ProposedOwnable__renounceOwnership_noProposal",
               "type": "error"
-            },
-            {
-              "inputs": [],
-              "name": "ProposedOwnableUpgradeable__renounceAssetOwnership_delayNotElapsed",
-              "type": "error"
-            },
-            {
-              "inputs": [],
-              "name": "ProposedOwnableUpgradeable__renounceAssetOwnership_noOwnershipChange",
-              "type": "error"
-            },
-            {
-              "inputs": [],
-              "name": "ProposedOwnableUpgradeable__renounceAssetOwnership_noProposal",
-              "type": "error"
-            },
-            {
-              "inputs": [],
-              "name": "ProposedOwnableUpgradeable__renounceOwnership_delayNotElapsed",
-              "type": "error"
-            },
-            {
-              "inputs": [],
-              "name": "ProposedOwnableUpgradeable__renounceOwnership_invalidProposal",
-              "type": "error"
-            },
-            {
-              "inputs": [],
-              "name": "ProposedOwnableUpgradeable__renounceOwnership_noProposal",
-              "type": "error"
-            },
-            {
-              "inputs": [],
-              "name": "ProposedOwnableUpgradeable__renounceRouterOwnership_delayNotElapsed",
-              "type": "error"
-            },
-            {
-              "inputs": [],
-              "name": "ProposedOwnableUpgradeable__renounceRouterOwnership_noOwnershipChange",
-              "type": "error"
-            },
-            {
-              "inputs": [],
-              "name": "ProposedOwnableUpgradeable__renounceRouterOwnership_noProposal",
-              "type": "error"
-            },
-            {
-              "anonymous": false,
-              "inputs": [
-                {
-                  "indexed": false,
-                  "internalType": "bool",
-                  "name": "renounced",
-                  "type": "bool"
-                }
-              ],
-              "name": "AssetOwnershipRenounced",
-              "type": "event"
-            },
-            {
-              "anonymous": false,
-              "inputs": [
-                {
-                  "indexed": false,
-                  "internalType": "uint256",
-                  "name": "timestamp",
-                  "type": "uint256"
-                }
-              ],
-              "name": "AssetOwnershipRenunciationProposed",
-              "type": "event"
             },
             {
               "anonymous": false,
@@ -59266,32 +59457,6 @@
               "anonymous": false,
               "inputs": [
                 {
-                  "indexed": false,
-                  "internalType": "bool",
-                  "name": "renounced",
-                  "type": "bool"
-                }
-              ],
-              "name": "RouterOwnershipRenounced",
-              "type": "event"
-            },
-            {
-              "anonymous": false,
-              "inputs": [
-                {
-                  "indexed": false,
-                  "internalType": "uint256",
-                  "name": "timestamp",
-                  "type": "uint256"
-                }
-              ],
-              "name": "RouterOwnershipRenunciationProposed",
-              "type": "event"
-            },
-            {
-              "anonymous": false,
-              "inputs": [
-                {
                   "indexed": true,
                   "internalType": "uint32",
                   "name": "domain",
@@ -59318,19 +59483,6 @@
               "name": "acceptProposedOwner",
               "outputs": [],
               "stateMutability": "nonpayable",
-              "type": "function"
-            },
-            {
-              "inputs": [],
-              "name": "assetOwnershipTimestamp",
-              "outputs": [
-                {
-                  "internalType": "uint256",
-                  "name": "",
-                  "type": "uint256"
-                }
-              ],
-              "stateMutability": "view",
               "type": "function"
             },
             {
@@ -59551,19 +59703,6 @@
               "type": "function"
             },
             {
-              "inputs": [],
-              "name": "isAssetOwnershipRenounced",
-              "outputs": [
-                {
-                  "internalType": "bool",
-                  "name": "",
-                  "type": "bool"
-                }
-              ],
-              "stateMutability": "view",
-              "type": "function"
-            },
-            {
               "inputs": [
                 {
                   "internalType": "address",
@@ -59572,19 +59711,6 @@
                 }
               ],
               "name": "isLocalOrigin",
-              "outputs": [
-                {
-                  "internalType": "bool",
-                  "name": "",
-                  "type": "bool"
-                }
-              ],
-              "stateMutability": "view",
-              "type": "function"
-            },
-            {
-              "inputs": [],
-              "name": "isRouterOwnershipRenounced",
               "outputs": [
                 {
                   "internalType": "bool",
@@ -59652,13 +59778,6 @@
               "type": "function"
             },
             {
-              "inputs": [],
-              "name": "proposeAssetOwnershipRenunciation",
-              "outputs": [],
-              "stateMutability": "nonpayable",
-              "type": "function"
-            },
-            {
               "inputs": [
                 {
                   "internalType": "address",
@@ -59667,13 +59786,6 @@
                 }
               ],
               "name": "proposeNewOwner",
-              "outputs": [],
-              "stateMutability": "nonpayable",
-              "type": "function"
-            },
-            {
-              "inputs": [],
-              "name": "proposeRouterOwnershipRenunciation",
               "outputs": [],
               "stateMutability": "nonpayable",
               "type": "function"
@@ -59706,21 +59818,7 @@
             },
             {
               "inputs": [],
-              "name": "renounceAssetOwnership",
-              "outputs": [],
-              "stateMutability": "nonpayable",
-              "type": "function"
-            },
-            {
-              "inputs": [],
               "name": "renounceOwnership",
-              "outputs": [],
-              "stateMutability": "nonpayable",
-              "type": "function"
-            },
-            {
-              "inputs": [],
-              "name": "renounceRouterOwnership",
               "outputs": [],
               "stateMutability": "nonpayable",
               "type": "function"
@@ -59757,19 +59855,6 @@
                   "internalType": "bytes32",
                   "name": "id",
                   "type": "bytes32"
-                }
-              ],
-              "stateMutability": "view",
-              "type": "function"
-            },
-            {
-              "inputs": [],
-              "name": "routerOwnershipTimestamp",
-              "outputs": [
-                {
-                  "internalType": "uint256",
-                  "name": "",
-                  "type": "uint256"
                 }
               ],
               "stateMutability": "view",
@@ -60985,6 +61070,59 @@
               "type": "function"
             }
           ]
+        },
+        "VersionFacetStaging": {
+          "address": "0x57f7a7c220ba09fb86E73232B5Af6C8588C72e75",
+          "abi": [
+            {
+              "inputs": [],
+              "name": "BaseConnextFacet__onlyOwner_notOwner",
+              "type": "error"
+            },
+            {
+              "inputs": [],
+              "name": "BaseConnextFacet__onlyProposed_notProposedOwner",
+              "type": "error"
+            },
+            {
+              "inputs": [],
+              "name": "BaseConnextFacet__onlyRemoteRouter_notRemoteRouter",
+              "type": "error"
+            },
+            {
+              "inputs": [],
+              "name": "BaseConnextFacet__onlyReplica_notReplica",
+              "type": "error"
+            },
+            {
+              "inputs": [],
+              "name": "BaseConnextFacet__whenBridgeNotPaused_bridgePaused",
+              "type": "error"
+            },
+            {
+              "inputs": [],
+              "name": "BaseConnextFacet__whenBridgeNotPaused_paused",
+              "type": "error"
+            },
+            {
+              "inputs": [],
+              "name": "BaseConnextFacet__whenBridgeNotPaused_swapPaused",
+              "type": "error"
+            },
+            {
+              "inputs": [],
+              "name": "VERSION",
+              "outputs": [
+                {
+                  "internalType": "uint8",
+                  "name": "",
+                  "type": "uint8"
+                }
+              ],
+              "stateMutability": "pure",
+              "type": "function"
+            }
+          ]
         }
       }
     }
@@ -61400,7 +61538,7 @@
           ]
         },
         "AssetFacetStaging": {
-          "address": "0x85787C1A0F0527f1b64B1EB2ed760eea44f27E0A",
+          "address": "0x6f372C2b55864b54B8B1428A9cB83b9Fd7589181",
           "abi": [
             {
               "inputs": [],
@@ -61440,6 +61578,21 @@
             {
               "inputs": [],
               "name": "BaseConnextFacet__onlyReplica_notReplica",
+              "type": "error"
+            },
+            {
+              "inputs": [],
+              "name": "BaseConnextFacet__whenBridgeNotPaused_bridgePaused",
+              "type": "error"
+            },
+            {
+              "inputs": [],
+              "name": "BaseConnextFacet__whenBridgeNotPaused_paused",
+              "type": "error"
+            },
+            {
+              "inputs": [],
+              "name": "BaseConnextFacet__whenBridgeNotPaused_swapPaused",
               "type": "error"
             },
             {
@@ -62747,7 +62900,7 @@
           ]
         },
         "BridgeFacetStaging": {
-          "address": "0x6fCDBBA79F9D2c36CC5929F353a11159528EdAa6",
+          "address": "0x2eFf2EB372864a6B6CfCeE8cC16B95e4500220ec",
           "abi": [
             {
               "inputs": [],
@@ -62762,6 +62915,16 @@
             {
               "inputs": [],
               "name": "AssetLogic__handleIncomingAsset_notAmount",
+              "type": "error"
+            },
+            {
+              "inputs": [],
+              "name": "AssetLogic__swapFromLocalAssetIfNeeded_swapPaused",
+              "type": "error"
+            },
+            {
+              "inputs": [],
+              "name": "AssetLogic__swapToLocalAssetIfNeeded_swapPaused",
               "type": "error"
             },
             {
@@ -62791,12 +62954,32 @@
             },
             {
               "inputs": [],
+              "name": "BaseConnextFacet__whenBridgeNotPaused_bridgePaused",
+              "type": "error"
+            },
+            {
+              "inputs": [],
+              "name": "BaseConnextFacet__whenBridgeNotPaused_paused",
+              "type": "error"
+            },
+            {
+              "inputs": [],
+              "name": "BaseConnextFacet__whenBridgeNotPaused_swapPaused",
+              "type": "error"
+            },
+            {
+              "inputs": [],
               "name": "BridgeFacet__bumpTransfer_valueIsZero",
               "type": "error"
             },
             {
               "inputs": [],
               "name": "BridgeFacet__execute_alreadyExecuted",
+              "type": "error"
+            },
+            {
+              "inputs": [],
+              "name": "BridgeFacet__execute_alreadyReconciled",
               "type": "error"
             },
             {
@@ -67431,6 +67614,21 @@
               "type": "error"
             },
             {
+              "inputs": [],
+              "name": "BaseConnextFacet__whenBridgeNotPaused_bridgePaused",
+              "type": "error"
+            },
+            {
+              "inputs": [],
+              "name": "BaseConnextFacet__whenBridgeNotPaused_paused",
+              "type": "error"
+            },
+            {
+              "inputs": [],
+              "name": "BaseConnextFacet__whenBridgeNotPaused_swapPaused",
+              "type": "error"
+            },
+            {
               "anonymous": false,
               "inputs": [
                 {
@@ -67807,6 +68005,16 @@
             },
             {
               "inputs": [],
+              "name": "AssetLogic__swapFromLocalAssetIfNeeded_swapPaused",
+              "type": "error"
+            },
+            {
+              "inputs": [],
+              "name": "AssetLogic__swapToLocalAssetIfNeeded_swapPaused",
+              "type": "error"
+            },
+            {
+              "inputs": [],
               "name": "AssetLogic__transferAssetFromContract_notNative",
               "type": "error"
             },
@@ -67818,6 +68026,11 @@
             {
               "inputs": [],
               "name": "BridgeFacet__execute_alreadyExecuted",
+              "type": "error"
+            },
+            {
+              "inputs": [],
+              "name": "BridgeFacet__execute_alreadyReconciled",
               "type": "error"
             },
             {
@@ -68930,10 +69143,42 @@
               "type": "event"
             },
             {
+              "anonymous": false,
+              "inputs": [
+                {
+                  "indexed": false,
+                  "internalType": "enum PausedFunctions",
+                  "name": "previous",
+                  "type": "uint8"
+                },
+                {
+                  "indexed": false,
+                  "internalType": "enum PausedFunctions",
+                  "name": "current",
+                  "type": "uint8"
+                }
+              ],
+              "name": "SetPausedFunction",
+              "type": "event"
+            },
+            {
               "inputs": [],
               "name": "acceptProposedOwner",
               "outputs": [],
               "stateMutability": "nonpayable",
+              "type": "function"
+            },
+            {
+              "inputs": [],
+              "name": "assetOwnershipRenounced",
+              "outputs": [
+                {
+                  "internalType": "bool",
+                  "name": "",
+                  "type": "bool"
+                }
+              ],
+              "stateMutability": "view",
               "type": "function"
             },
             {
@@ -69064,6 +69309,19 @@
             },
             {
               "inputs": [],
+              "name": "routerOwnershipRenounced",
+              "outputs": [
+                {
+                  "internalType": "bool",
+                  "name": "",
+                  "type": "bool"
+                }
+              ],
+              "stateMutability": "view",
+              "type": "function"
+            },
+            {
+              "inputs": [],
               "name": "routerOwnershipTimestamp",
               "outputs": [
                 {
@@ -69073,6 +69331,19 @@
                 }
               ],
               "stateMutability": "view",
+              "type": "function"
+            },
+            {
+              "inputs": [
+                {
+                  "internalType": "enum PausedFunctions",
+                  "name": "_paused",
+                  "type": "uint8"
+                }
+              ],
+              "name": "setPausedFunctions",
+              "outputs": [],
+              "stateMutability": "nonpayable",
               "type": "function"
             },
             {
@@ -69408,6 +69679,11 @@
             },
             {
               "inputs": [],
+              "name": "RoutersFacet__removeRouterLiquidityFor_notOwner",
+              "type": "error"
+            },
+            {
+              "inputs": [],
               "name": "RoutersFacet__removeRouterLiquidity_amountIsZero",
               "type": "error"
             },
@@ -69429,6 +69705,11 @@
             {
               "inputs": [],
               "name": "RoutersFacet__removeRouter_routerEmpty",
+              "type": "error"
+            },
+            {
+              "inputs": [],
+              "name": "RoutersFacet__setLiquidityFeeNumerator_tooLarge",
               "type": "error"
             },
             {
@@ -69919,6 +70200,34 @@
                 }
               ],
               "name": "removeRouterLiquidity",
+              "outputs": [],
+              "stateMutability": "nonpayable",
+              "type": "function"
+            },
+            {
+              "inputs": [
+                {
+                  "internalType": "uint256",
+                  "name": "_amount",
+                  "type": "uint256"
+                },
+                {
+                  "internalType": "address",
+                  "name": "_local",
+                  "type": "address"
+                },
+                {
+                  "internalType": "address payable",
+                  "name": "_to",
+                  "type": "address"
+                },
+                {
+                  "internalType": "address",
+                  "name": "_router",
+                  "type": "address"
+                }
+              ],
+              "name": "removeRouterLiquidityFor",
               "outputs": [],
               "stateMutability": "nonpayable",
               "type": "function"
@@ -70808,6 +71117,19 @@
               "name": "withdrawSwapAdminFees",
               "outputs": [],
               "stateMutability": "nonpayable",
+              "type": "function"
+            },
+            {
+              "inputs": [],
+              "name": "VERSION",
+              "outputs": [
+                {
+                  "internalType": "uint8",
+                  "name": "",
+                  "type": "uint8"
+                }
+              ],
+              "stateMutability": "pure",
               "type": "function"
             },
             {
@@ -79256,7 +79578,7 @@
           ]
         },
         "DiamondInit": {
-          "address": "0x75a95b457B3045173C1CBd5f36925Ef1d9AAd2Ac",
+          "address": "0x63cD41fB5982CC4cA60f761Fb9521274F80d5087",
           "abi": [
             {
               "inputs": [],
@@ -79276,6 +79598,21 @@
             {
               "inputs": [],
               "name": "BaseConnextFacet__onlyReplica_notReplica",
+              "type": "error"
+            },
+            {
+              "inputs": [],
+              "name": "BaseConnextFacet__whenBridgeNotPaused_bridgePaused",
+              "type": "error"
+            },
+            {
+              "inputs": [],
+              "name": "BaseConnextFacet__whenBridgeNotPaused_paused",
+              "type": "error"
+            },
+            {
+              "inputs": [],
+              "name": "BaseConnextFacet__whenBridgeNotPaused_swapPaused",
               "type": "error"
             },
             {
@@ -79889,7 +80226,7 @@
           ]
         },
         "NomadFacetStaging": {
-          "address": "0x46dF6D05Cc6777C9bA082B84f5C1Ea501401De83",
+          "address": "0xD9588e9E60DD6e077B82BD2EAB3637b90730aAF4",
           "abi": [
             {
               "inputs": [],
@@ -79909,6 +80246,21 @@
             {
               "inputs": [],
               "name": "BaseConnextFacet__onlyReplica_notReplica",
+              "type": "error"
+            },
+            {
+              "inputs": [],
+              "name": "BaseConnextFacet__whenBridgeNotPaused_bridgePaused",
+              "type": "error"
+            },
+            {
+              "inputs": [],
+              "name": "BaseConnextFacet__whenBridgeNotPaused_paused",
+              "type": "error"
+            },
+            {
+              "inputs": [],
+              "name": "BaseConnextFacet__whenBridgeNotPaused_swapPaused",
               "type": "error"
             },
             {
@@ -80624,7 +80976,7 @@
           ]
         },
         "PromiseRouterStaging": {
-          "address": "0x0A01668dAFFF37C551F06fB1fa2aAB0516AaFFC3",
+          "address": "0x1EcA2Fd93baE800FFCBb57Fd2a295846c46bC905",
           "abi": [
             {
               "inputs": [],
@@ -81735,7 +82087,7 @@
           ]
         },
         "ProposedOwnableFacetStaging": {
-          "address": "0xCbDa54F90dDED46E42c49C938E98A197bEf814E0",
+          "address": "0xe91c1B5F4110e7267B5b5d4b7E27eF191A23997e",
           "abi": [
             {
               "inputs": [],
@@ -81755,6 +82107,21 @@
             {
               "inputs": [],
               "name": "BaseConnextFacet__onlyReplica_notReplica",
+              "type": "error"
+            },
+            {
+              "inputs": [],
+              "name": "BaseConnextFacet__whenBridgeNotPaused_bridgePaused",
+              "type": "error"
+            },
+            {
+              "inputs": [],
+              "name": "BaseConnextFacet__whenBridgeNotPaused_paused",
+              "type": "error"
+            },
+            {
+              "inputs": [],
+              "name": "BaseConnextFacet__whenBridgeNotPaused_swapPaused",
               "type": "error"
             },
             {
@@ -81917,10 +82284,42 @@
               "type": "event"
             },
             {
+              "anonymous": false,
+              "inputs": [
+                {
+                  "indexed": false,
+                  "internalType": "enum PausedFunctions",
+                  "name": "previous",
+                  "type": "uint8"
+                },
+                {
+                  "indexed": false,
+                  "internalType": "enum PausedFunctions",
+                  "name": "current",
+                  "type": "uint8"
+                }
+              ],
+              "name": "SetPausedFunction",
+              "type": "event"
+            },
+            {
               "inputs": [],
               "name": "acceptProposedOwner",
               "outputs": [],
               "stateMutability": "nonpayable",
+              "type": "function"
+            },
+            {
+              "inputs": [],
+              "name": "assetOwnershipRenounced",
+              "outputs": [
+                {
+                  "internalType": "bool",
+                  "name": "",
+                  "type": "bool"
+                }
+              ],
+              "stateMutability": "view",
               "type": "function"
             },
             {
@@ -82051,6 +82450,19 @@
             },
             {
               "inputs": [],
+              "name": "routerOwnershipRenounced",
+              "outputs": [
+                {
+                  "internalType": "bool",
+                  "name": "",
+                  "type": "bool"
+                }
+              ],
+              "stateMutability": "view",
+              "type": "function"
+            },
+            {
+              "inputs": [],
               "name": "routerOwnershipTimestamp",
               "outputs": [
                 {
@@ -82060,6 +82472,19 @@
                 }
               ],
               "stateMutability": "view",
+              "type": "function"
+            },
+            {
+              "inputs": [
+                {
+                  "internalType": "enum PausedFunctions",
+                  "name": "_paused",
+                  "type": "uint8"
+                }
+              ],
+              "name": "setPausedFunctions",
+              "outputs": [],
+              "stateMutability": "nonpayable",
               "type": "function"
             }
           ]
@@ -82371,7 +82796,7 @@
           ]
         },
         "RelayerFacetStaging": {
-          "address": "0xDAe764Ba34Db7A352F22bFF8cC0E856724aBDE36",
+          "address": "0x1396FC556A65a6B8608196214808fC115610aa74",
           "abi": [
             {
               "inputs": [],
@@ -82391,6 +82816,21 @@
             {
               "inputs": [],
               "name": "BaseConnextFacet__onlyReplica_notReplica",
+              "type": "error"
+            },
+            {
+              "inputs": [],
+              "name": "BaseConnextFacet__whenBridgeNotPaused_bridgePaused",
+              "type": "error"
+            },
+            {
+              "inputs": [],
+              "name": "BaseConnextFacet__whenBridgeNotPaused_paused",
+              "type": "error"
+            },
+            {
+              "inputs": [],
+              "name": "BaseConnextFacet__whenBridgeNotPaused_swapPaused",
               "type": "error"
             },
             {
@@ -83285,91 +83725,46 @@
           ]
         },
         "RelayerFeeRouterStaging": {
-          "address": "0xbE3d37B36B12Fd3881556bBFF78D5Bb23db6aAdE",
+          "address": "0xf1983007523C45dd4363377D23bd73eA5D34f6c9",
           "abi": [
             {
               "inputs": [],
-              "name": "ProposedOwnableUpgradeable__acceptProposedOwner_delayNotElapsed",
+              "name": "ProposedOwnable__acceptProposedOwner_delayNotElapsed",
               "type": "error"
             },
             {
               "inputs": [],
-              "name": "ProposedOwnableUpgradeable__acceptProposedOwner_noOwnershipChange",
+              "name": "ProposedOwnable__onlyOwner_notOwner",
               "type": "error"
             },
             {
               "inputs": [],
-              "name": "ProposedOwnableUpgradeable__onlyOwner_notOwner",
+              "name": "ProposedOwnable__onlyProposed_notProposedOwner",
               "type": "error"
             },
             {
               "inputs": [],
-              "name": "ProposedOwnableUpgradeable__onlyProposed_notProposedOwner",
+              "name": "ProposedOwnable__proposeNewOwner_invalidProposal",
               "type": "error"
             },
             {
               "inputs": [],
-              "name": "ProposedOwnableUpgradeable__proposeAssetOwnershipRenunciation_noOwnershipChange",
+              "name": "ProposedOwnable__proposeNewOwner_noOwnershipChange",
               "type": "error"
             },
             {
               "inputs": [],
-              "name": "ProposedOwnableUpgradeable__proposeNewOwner_invalidProposal",
+              "name": "ProposedOwnable__renounceOwnership_delayNotElapsed",
               "type": "error"
             },
             {
               "inputs": [],
-              "name": "ProposedOwnableUpgradeable__proposeNewOwner_noOwnershipChange",
+              "name": "ProposedOwnable__renounceOwnership_invalidProposal",
               "type": "error"
             },
             {
               "inputs": [],
-              "name": "ProposedOwnableUpgradeable__proposeRouterOwnershipRenunciation_noOwnershipChange",
-              "type": "error"
-            },
-            {
-              "inputs": [],
-              "name": "ProposedOwnableUpgradeable__renounceAssetOwnership_delayNotElapsed",
-              "type": "error"
-            },
-            {
-              "inputs": [],
-              "name": "ProposedOwnableUpgradeable__renounceAssetOwnership_noOwnershipChange",
-              "type": "error"
-            },
-            {
-              "inputs": [],
-              "name": "ProposedOwnableUpgradeable__renounceAssetOwnership_noProposal",
-              "type": "error"
-            },
-            {
-              "inputs": [],
-              "name": "ProposedOwnableUpgradeable__renounceOwnership_delayNotElapsed",
-              "type": "error"
-            },
-            {
-              "inputs": [],
-              "name": "ProposedOwnableUpgradeable__renounceOwnership_invalidProposal",
-              "type": "error"
-            },
-            {
-              "inputs": [],
-              "name": "ProposedOwnableUpgradeable__renounceOwnership_noProposal",
-              "type": "error"
-            },
-            {
-              "inputs": [],
-              "name": "ProposedOwnableUpgradeable__renounceRouterOwnership_delayNotElapsed",
-              "type": "error"
-            },
-            {
-              "inputs": [],
-              "name": "ProposedOwnableUpgradeable__renounceRouterOwnership_noOwnershipChange",
-              "type": "error"
-            },
-            {
-              "inputs": [],
-              "name": "ProposedOwnableUpgradeable__renounceRouterOwnership_noProposal",
+              "name": "ProposedOwnable__renounceOwnership_noProposal",
               "type": "error"
             },
             {
@@ -83386,32 +83781,6 @@
               "inputs": [],
               "name": "RelayerFeeRouter__send_recipientEmpty",
               "type": "error"
-            },
-            {
-              "anonymous": false,
-              "inputs": [
-                {
-                  "indexed": false,
-                  "internalType": "bool",
-                  "name": "renounced",
-                  "type": "bool"
-                }
-              ],
-              "name": "AssetOwnershipRenounced",
-              "type": "event"
-            },
-            {
-              "anonymous": false,
-              "inputs": [
-                {
-                  "indexed": false,
-                  "internalType": "uint256",
-                  "name": "timestamp",
-                  "type": "uint256"
-                }
-              ],
-              "name": "AssetOwnershipRenunciationProposed",
-              "type": "event"
             },
             {
               "anonymous": false,
@@ -83474,32 +83843,6 @@
                 }
               ],
               "name": "Receive",
-              "type": "event"
-            },
-            {
-              "anonymous": false,
-              "inputs": [
-                {
-                  "indexed": false,
-                  "internalType": "bool",
-                  "name": "renounced",
-                  "type": "bool"
-                }
-              ],
-              "name": "RouterOwnershipRenounced",
-              "type": "event"
-            },
-            {
-              "anonymous": false,
-              "inputs": [
-                {
-                  "indexed": false,
-                  "internalType": "uint256",
-                  "name": "timestamp",
-                  "type": "uint256"
-                }
-              ],
-              "name": "RouterOwnershipRenunciationProposed",
               "type": "event"
             },
             {
@@ -83570,19 +83913,6 @@
               "name": "acceptProposedOwner",
               "outputs": [],
               "stateMutability": "nonpayable",
-              "type": "function"
-            },
-            {
-              "inputs": [],
-              "name": "assetOwnershipTimestamp",
-              "outputs": [
-                {
-                  "internalType": "uint256",
-                  "name": "",
-                  "type": "uint256"
-                }
-              ],
-              "stateMutability": "view",
               "type": "function"
             },
             {
@@ -83672,32 +84002,6 @@
             },
             {
               "inputs": [],
-              "name": "isAssetOwnershipRenounced",
-              "outputs": [
-                {
-                  "internalType": "bool",
-                  "name": "",
-                  "type": "bool"
-                }
-              ],
-              "stateMutability": "view",
-              "type": "function"
-            },
-            {
-              "inputs": [],
-              "name": "isRouterOwnershipRenounced",
-              "outputs": [
-                {
-                  "internalType": "bool",
-                  "name": "",
-                  "type": "bool"
-                }
-              ],
-              "stateMutability": "view",
-              "type": "function"
-            },
-            {
-              "inputs": [],
               "name": "owner",
               "outputs": [
                 {
@@ -83710,13 +84014,6 @@
               "type": "function"
             },
             {
-              "inputs": [],
-              "name": "proposeAssetOwnershipRenunciation",
-              "outputs": [],
-              "stateMutability": "nonpayable",
-              "type": "function"
-            },
-            {
               "inputs": [
                 {
                   "internalType": "address",
@@ -83725,13 +84022,6 @@
                 }
               ],
               "name": "proposeNewOwner",
-              "outputs": [],
-              "stateMutability": "nonpayable",
-              "type": "function"
-            },
-            {
-              "inputs": [],
-              "name": "proposeRouterOwnershipRenunciation",
               "outputs": [],
               "stateMutability": "nonpayable",
               "type": "function"
@@ -83783,21 +84073,7 @@
             },
             {
               "inputs": [],
-              "name": "renounceAssetOwnership",
-              "outputs": [],
-              "stateMutability": "nonpayable",
-              "type": "function"
-            },
-            {
-              "inputs": [],
               "name": "renounceOwnership",
-              "outputs": [],
-              "stateMutability": "nonpayable",
-              "type": "function"
-            },
-            {
-              "inputs": [],
-              "name": "renounceRouterOwnership",
               "outputs": [],
               "stateMutability": "nonpayable",
               "type": "function"
@@ -83810,19 +84086,6 @@
                   "internalType": "bool",
                   "name": "",
                   "type": "bool"
-                }
-              ],
-              "stateMutability": "view",
-              "type": "function"
-            },
-            {
-              "inputs": [],
-              "name": "routerOwnershipTimestamp",
-              "outputs": [
-                {
-                  "internalType": "uint256",
-                  "name": "",
-                  "type": "uint256"
                 }
               ],
               "stateMutability": "view",
@@ -84725,7 +84988,7 @@
           ]
         },
         "RoutersFacetStaging": {
-          "address": "0xa07c1f0b9607dd2f1d5f48793b18B3fcbBD10c72",
+          "address": "0xad63D9AD2bFF640ab9f603752cEBA3Ea89d01866",
           "abi": [
             {
               "inputs": [],
@@ -84760,6 +85023,21 @@
             {
               "inputs": [],
               "name": "BaseConnextFacet__onlyReplica_notReplica",
+              "type": "error"
+            },
+            {
+              "inputs": [],
+              "name": "BaseConnextFacet__whenBridgeNotPaused_bridgePaused",
+              "type": "error"
+            },
+            {
+              "inputs": [],
+              "name": "BaseConnextFacet__whenBridgeNotPaused_paused",
+              "type": "error"
+            },
+            {
+              "inputs": [],
+              "name": "BaseConnextFacet__whenBridgeNotPaused_swapPaused",
               "type": "error"
             },
             {
@@ -84814,6 +85092,11 @@
             },
             {
               "inputs": [],
+              "name": "RoutersFacet__removeRouterLiquidityFor_notOwner",
+              "type": "error"
+            },
+            {
+              "inputs": [],
               "name": "RoutersFacet__removeRouterLiquidity_amountIsZero",
               "type": "error"
             },
@@ -84835,6 +85118,11 @@
             {
               "inputs": [],
               "name": "RoutersFacet__removeRouter_routerEmpty",
+              "type": "error"
+            },
+            {
+              "inputs": [],
+              "name": "RoutersFacet__setLiquidityFeeNumerator_tooLarge",
               "type": "error"
             },
             {
@@ -85325,6 +85613,34 @@
                 }
               ],
               "name": "removeRouterLiquidity",
+              "outputs": [],
+              "stateMutability": "nonpayable",
+              "type": "function"
+            },
+            {
+              "inputs": [
+                {
+                  "internalType": "uint256",
+                  "name": "_amount",
+                  "type": "uint256"
+                },
+                {
+                  "internalType": "address",
+                  "name": "_local",
+                  "type": "address"
+                },
+                {
+                  "internalType": "address payable",
+                  "name": "_to",
+                  "type": "address"
+                },
+                {
+                  "internalType": "address",
+                  "name": "_router",
+                  "type": "address"
+                }
+              ],
+              "name": "removeRouterLiquidityFor",
               "outputs": [],
               "stateMutability": "nonpayable",
               "type": "function"
@@ -87165,7 +87481,7 @@
           ]
         },
         "StableSwapFacetStaging": {
-          "address": "0x6DAC844B4ab2284bC6b12bEE5c06258A00a8f9B5",
+          "address": "0xb894E49cFB3F5Ef8d064341dB8C7aD7A05fe1c59",
           "abi": [
             {
               "inputs": [],
@@ -87185,6 +87501,21 @@
             {
               "inputs": [],
               "name": "BaseConnextFacet__onlyReplica_notReplica",
+              "type": "error"
+            },
+            {
+              "inputs": [],
+              "name": "BaseConnextFacet__whenBridgeNotPaused_bridgePaused",
+              "type": "error"
+            },
+            {
+              "inputs": [],
+              "name": "BaseConnextFacet__whenBridgeNotPaused_paused",
+              "type": "error"
+            },
+            {
+              "inputs": [],
+              "name": "BaseConnextFacet__whenBridgeNotPaused_swapPaused",
               "type": "error"
             },
             {
@@ -88920,7 +89251,7 @@
           ]
         },
         "TestERC20": {
-          "address": "0x3FFc03F05D1869f493c7dbf913E636C6280e0ff9",
+          "address": "0x851358BD554DBc32cD03e4bbfe48Deb72eB14c2F",
           "abi": [
             {
               "inputs": [],
@@ -90018,118 +90349,47 @@
           ]
         },
         "TokenRegistryStaging": {
-          "address": "0x0258040D7C2e72feb896dB642e482eAB6cc99272",
+          "address": "0x56b0ab8A34755ea568Da159cf0475bF288207d1b",
           "abi": [
             {
               "inputs": [],
-              "name": "ProposedOwnableUpgradeable__acceptProposedOwner_delayNotElapsed",
+              "name": "ProposedOwnable__acceptProposedOwner_delayNotElapsed",
               "type": "error"
             },
             {
               "inputs": [],
-              "name": "ProposedOwnableUpgradeable__acceptProposedOwner_noOwnershipChange",
+              "name": "ProposedOwnable__onlyOwner_notOwner",
               "type": "error"
             },
             {
               "inputs": [],
-              "name": "ProposedOwnableUpgradeable__onlyOwner_notOwner",
+              "name": "ProposedOwnable__onlyProposed_notProposedOwner",
               "type": "error"
             },
             {
               "inputs": [],
-              "name": "ProposedOwnableUpgradeable__onlyProposed_notProposedOwner",
+              "name": "ProposedOwnable__proposeNewOwner_invalidProposal",
               "type": "error"
             },
             {
               "inputs": [],
-              "name": "ProposedOwnableUpgradeable__proposeAssetOwnershipRenunciation_noOwnershipChange",
+              "name": "ProposedOwnable__proposeNewOwner_noOwnershipChange",
               "type": "error"
             },
             {
               "inputs": [],
-              "name": "ProposedOwnableUpgradeable__proposeNewOwner_invalidProposal",
+              "name": "ProposedOwnable__renounceOwnership_delayNotElapsed",
               "type": "error"
             },
             {
               "inputs": [],
-              "name": "ProposedOwnableUpgradeable__proposeNewOwner_noOwnershipChange",
+              "name": "ProposedOwnable__renounceOwnership_invalidProposal",
               "type": "error"
             },
             {
               "inputs": [],
-              "name": "ProposedOwnableUpgradeable__proposeRouterOwnershipRenunciation_noOwnershipChange",
+              "name": "ProposedOwnable__renounceOwnership_noProposal",
               "type": "error"
-            },
-            {
-              "inputs": [],
-              "name": "ProposedOwnableUpgradeable__renounceAssetOwnership_delayNotElapsed",
-              "type": "error"
-            },
-            {
-              "inputs": [],
-              "name": "ProposedOwnableUpgradeable__renounceAssetOwnership_noOwnershipChange",
-              "type": "error"
-            },
-            {
-              "inputs": [],
-              "name": "ProposedOwnableUpgradeable__renounceAssetOwnership_noProposal",
-              "type": "error"
-            },
-            {
-              "inputs": [],
-              "name": "ProposedOwnableUpgradeable__renounceOwnership_delayNotElapsed",
-              "type": "error"
-            },
-            {
-              "inputs": [],
-              "name": "ProposedOwnableUpgradeable__renounceOwnership_invalidProposal",
-              "type": "error"
-            },
-            {
-              "inputs": [],
-              "name": "ProposedOwnableUpgradeable__renounceOwnership_noProposal",
-              "type": "error"
-            },
-            {
-              "inputs": [],
-              "name": "ProposedOwnableUpgradeable__renounceRouterOwnership_delayNotElapsed",
-              "type": "error"
-            },
-            {
-              "inputs": [],
-              "name": "ProposedOwnableUpgradeable__renounceRouterOwnership_noOwnershipChange",
-              "type": "error"
-            },
-            {
-              "inputs": [],
-              "name": "ProposedOwnableUpgradeable__renounceRouterOwnership_noProposal",
-              "type": "error"
-            },
-            {
-              "anonymous": false,
-              "inputs": [
-                {
-                  "indexed": false,
-                  "internalType": "bool",
-                  "name": "renounced",
-                  "type": "bool"
-                }
-              ],
-              "name": "AssetOwnershipRenounced",
-              "type": "event"
-            },
-            {
-              "anonymous": false,
-              "inputs": [
-                {
-                  "indexed": false,
-                  "internalType": "uint256",
-                  "name": "timestamp",
-                  "type": "uint256"
-                }
-              ],
-              "name": "AssetOwnershipRenunciationProposed",
-              "type": "event"
             },
             {
               "anonymous": false,
@@ -90167,32 +90427,6 @@
               "anonymous": false,
               "inputs": [
                 {
-                  "indexed": false,
-                  "internalType": "bool",
-                  "name": "renounced",
-                  "type": "bool"
-                }
-              ],
-              "name": "RouterOwnershipRenounced",
-              "type": "event"
-            },
-            {
-              "anonymous": false,
-              "inputs": [
-                {
-                  "indexed": false,
-                  "internalType": "uint256",
-                  "name": "timestamp",
-                  "type": "uint256"
-                }
-              ],
-              "name": "RouterOwnershipRenunciationProposed",
-              "type": "event"
-            },
-            {
-              "anonymous": false,
-              "inputs": [
-                {
                   "indexed": true,
                   "internalType": "uint32",
                   "name": "domain",
@@ -90219,19 +90453,6 @@
               "name": "acceptProposedOwner",
               "outputs": [],
               "stateMutability": "nonpayable",
-              "type": "function"
-            },
-            {
-              "inputs": [],
-              "name": "assetOwnershipTimestamp",
-              "outputs": [
-                {
-                  "internalType": "uint256",
-                  "name": "",
-                  "type": "uint256"
-                }
-              ],
-              "stateMutability": "view",
               "type": "function"
             },
             {
@@ -90452,19 +90673,6 @@
               "type": "function"
             },
             {
-              "inputs": [],
-              "name": "isAssetOwnershipRenounced",
-              "outputs": [
-                {
-                  "internalType": "bool",
-                  "name": "",
-                  "type": "bool"
-                }
-              ],
-              "stateMutability": "view",
-              "type": "function"
-            },
-            {
               "inputs": [
                 {
                   "internalType": "address",
@@ -90473,19 +90681,6 @@
                 }
               ],
               "name": "isLocalOrigin",
-              "outputs": [
-                {
-                  "internalType": "bool",
-                  "name": "",
-                  "type": "bool"
-                }
-              ],
-              "stateMutability": "view",
-              "type": "function"
-            },
-            {
-              "inputs": [],
-              "name": "isRouterOwnershipRenounced",
               "outputs": [
                 {
                   "internalType": "bool",
@@ -90553,13 +90748,6 @@
               "type": "function"
             },
             {
-              "inputs": [],
-              "name": "proposeAssetOwnershipRenunciation",
-              "outputs": [],
-              "stateMutability": "nonpayable",
-              "type": "function"
-            },
-            {
               "inputs": [
                 {
                   "internalType": "address",
@@ -90568,13 +90756,6 @@
                 }
               ],
               "name": "proposeNewOwner",
-              "outputs": [],
-              "stateMutability": "nonpayable",
-              "type": "function"
-            },
-            {
-              "inputs": [],
-              "name": "proposeRouterOwnershipRenunciation",
               "outputs": [],
               "stateMutability": "nonpayable",
               "type": "function"
@@ -90607,21 +90788,7 @@
             },
             {
               "inputs": [],
-              "name": "renounceAssetOwnership",
-              "outputs": [],
-              "stateMutability": "nonpayable",
-              "type": "function"
-            },
-            {
-              "inputs": [],
               "name": "renounceOwnership",
-              "outputs": [],
-              "stateMutability": "nonpayable",
-              "type": "function"
-            },
-            {
-              "inputs": [],
-              "name": "renounceRouterOwnership",
               "outputs": [],
               "stateMutability": "nonpayable",
               "type": "function"
@@ -90658,19 +90825,6 @@
                   "internalType": "bytes32",
                   "name": "id",
                   "type": "bytes32"
-                }
-              ],
-              "stateMutability": "view",
-              "type": "function"
-            },
-            {
-              "inputs": [],
-              "name": "routerOwnershipTimestamp",
-              "outputs": [
-                {
-                  "internalType": "uint256",
-                  "name": "",
-                  "type": "uint256"
                 }
               ],
               "stateMutability": "view",
@@ -91048,6 +91202,59 @@
               "name": "upgrade",
               "outputs": [],
               "stateMutability": "nonpayable",
+              "type": "function"
+            }
+          ]
+        },
+        "VersionFacetStaging": {
+          "address": "0x57f7a7c220ba09fb86E73232B5Af6C8588C72e75",
+          "abi": [
+            {
+              "inputs": [],
+              "name": "BaseConnextFacet__onlyOwner_notOwner",
+              "type": "error"
+            },
+            {
+              "inputs": [],
+              "name": "BaseConnextFacet__onlyProposed_notProposedOwner",
+              "type": "error"
+            },
+            {
+              "inputs": [],
+              "name": "BaseConnextFacet__onlyRemoteRouter_notRemoteRouter",
+              "type": "error"
+            },
+            {
+              "inputs": [],
+              "name": "BaseConnextFacet__onlyReplica_notReplica",
+              "type": "error"
+            },
+            {
+              "inputs": [],
+              "name": "BaseConnextFacet__whenBridgeNotPaused_bridgePaused",
+              "type": "error"
+            },
+            {
+              "inputs": [],
+              "name": "BaseConnextFacet__whenBridgeNotPaused_paused",
+              "type": "error"
+            },
+            {
+              "inputs": [],
+              "name": "BaseConnextFacet__whenBridgeNotPaused_swapPaused",
+              "type": "error"
+            },
+            {
+              "inputs": [],
+              "name": "VERSION",
+              "outputs": [
+                {
+                  "internalType": "uint8",
+                  "name": "",
+                  "type": "uint8"
+                }
+              ],
+              "stateMutability": "pure",
               "type": "function"
             }
           ]

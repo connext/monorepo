@@ -1,1 +1,1 @@
-export { bindPoller } from "./poller";
+export { poller } from "./poller";
