@@ -366,7 +366,7 @@ contract BridgeFacet is BaseConnextFacet {
 
     address transactingAssetId = _args.transactingAssetId == address(0) ? address(s.wrapper) : _args.transactingAssetId;
 
-    // check that the asset is supported -- can be either adopted or local
+    // check that the asset is supported -- can be either adopted or local as the key
     ConnextMessage.TokenId memory canonical = s.adoptedToCanonical[transactingAssetId];
     if (canonical.id == bytes32(0)) {
       revert BridgeFacet__xcall_notSupportedAsset();
@@ -621,7 +621,7 @@ contract BridgeFacet is BaseConnextFacet {
       // only one router should be responsible for taking on this credit risk, and it should only
       // deal with transfers expecting adopted assets (to avoid introducing runtime slippage)
       if (
-        !args.params.receiveLocal &&
+        !_args.params.receiveLocal &&
         pathLen == 1 &&
         s.routerBalances[_args.routers[0]][_args.local] < fastTransferAmount &&
         s.aavePool != address(0)

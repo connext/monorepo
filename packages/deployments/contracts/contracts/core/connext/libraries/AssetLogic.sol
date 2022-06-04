@@ -345,10 +345,10 @@ library AssetLogic {
   /**
    * @notice Calculate amount of tokens you receive on a local nomad asset for the adopted asset
    * using the stored stable swap
-   * @dev Will not use the stored stable swap if the asset passed in is the adopted asset
-   * @param _asset - The address of the local asset to swap into the adopted asset
+   * @dev Will not use the stored stable swap if the asset passed in is the local asset
+   * @param _asset - The address of the local asset to swap into the local asset
    * @param _amount - The amount of the local asset to swap
-   * @return The amount of adopted asset received from swap
+   * @return The amount of local asset received from swap
    * @return The address of asset received post-swap
    */
   function calculateSwapFromLocalAssetIfNeeded(address _asset, uint256 _amount)
