@@ -6,7 +6,6 @@ import { config } from "dotenv";
 import { getDeploymentName } from "../src/utils";
 
 import { deployNomadBeaconProxy } from "./01_deployNomad";
-import { getDomainInfoFromChainId } from "../src/nomad";
 
 config();
 
@@ -58,10 +57,10 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment): Promise<voi
     gasLimit: 2_000_000,
   });
   console.log("home address: ", home.address);
-  const homeC = await hre.ethers.getContract(homeName);
-  const tx = await homeC.initialize(updaterManager.address, { from: deployer.address });
-  await tx.wait();
+  // const homeC = await hre.ethers.getContract(homeName);
+  // const tx = await homeC.initialize(updaterManager.address, { from: deployer.address });
+  // await tx.wait();
 };
 
 export default func;
-func.tags = ["NomadCore"];
+func.tags = ["NomadCore", "local"];

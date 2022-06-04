@@ -218,4 +218,4 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment): Promise<voi
 };
 
 export default func;
-func.tags = ["Nomad"];
+func.tags = ["Nomad", "prod", "local"];
