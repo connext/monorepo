@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT OR Apache-2.0
-pragma solidity 0.8.11;
+pragma solidity 0.8.14;
 
 // import {TypedMemView} from "@summa-tx/memview-sol/contracts/TypedMemView.sol";
 import {TypedMemView} from "../../../nomad-core/libs/TypedMemView.sol";

@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: UNLICENSED
-pragma solidity 0.8.11;
+pragma solidity 0.8.14;
 
 import {ECDSA} from "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
@@ -7,6 +7,7 @@ import {Address} from "@openzeppelin/contracts/utils/Address.sol";
 
 import {XAppConnectionManager, TypeCasts} from "../../../../contracts/nomad-core/contracts/XAppConnectionManager.sol";
 
+import {AssetLogic} from "../../../../contracts/core/connext/libraries/AssetLogic.sol";
 import {IStableSwap} from "../../../../contracts/core/connext/interfaces/IStableSwap.sol";
 import {ITokenRegistry} from "../../../../contracts/core/connext/interfaces/ITokenRegistry.sol";
 import {TokenRegistry} from "../../../../contracts/core/connext/helpers/TokenRegistry.sol";
@@ -17,9 +18,10 @@ import {Executor} from "../../../../contracts/core/connext/helpers/Executor.sol"
 import {ConnextMessage} from "../../../../contracts/core/connext/libraries/ConnextMessage.sol";
 import {AssetLogic} from "../../../../contracts/core/connext/libraries/AssetLogic.sol";
 import {LibCrossDomainProperty} from "../../../../contracts/core/connext/libraries/LibCrossDomainProperty.sol";
-import {CallParams, ExecuteArgs, XCallArgs} from "../../../../contracts/core/connext/libraries/LibConnextStorage.sol";
+import {CallParams, ExecuteArgs, XCallArgs, PausedFunctions} from "../../../../contracts/core/connext/libraries/LibConnextStorage.sol";
 import {LibDiamond} from "../../../../contracts/core/connext/libraries/LibDiamond.sol";
 import {BridgeFacet} from "../../../../contracts/core/connext/facets/BridgeFacet.sol";
+import {BaseConnextFacet} from "../../../../contracts/core/connext/facets/BaseConnextFacet.sol";
 import {TestERC20} from "../../../../contracts/test/TestERC20.sol";
 import {PromiseRouter} from "../../../../contracts/core/promise/PromiseRouter.sol";
 
@@ -798,6 +800,57 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
 
   // ============ execute ============
   // ============ execute fail cases
+  // should fail if bridging paused
+  function test_BridgeFacet__execute_failIfBridgingPaused() public {
+    // set context
+    s._paused = PausedFunctions.Bridge;
+
+    // get args
+    (, ExecuteArgs memory args) = getExecuteArgs();
+
+    // expect failure
+    vm.expectRevert(BaseConnextFacet.BaseConnextFacet__whenBridgeNotPaused_bridgePaused.selector);
+    this.execute(args);
+  }
+
+  // should fail if all paused
+  function test_BridgeFacet__execute_failIfAllPaused() public {
+    // set context
+    s._paused = PausedFunctions.All;
+
+    // get args
+    (, ExecuteArgs memory args) = getExecuteArgs();
+
+    // expect failure
+    vm.expectRevert(BaseConnextFacet.BaseConnextFacet__whenBridgeNotPaused_bridgePaused.selector);
+    this.execute(args);
+  }
+
+  // should fail if all swap paused && needs swap
+  function test_BridgeFacet__execute_failIfSwapPaused() public {
+    // setup asset context (use local == adopted)
+    address adopted = address(11111111111111111);
+    s.adoptedToCanonical[adopted] = ConnextMessage.TokenId(_canonicalDomain, _canonicalTokenId);
+    s.adoptedToLocalPools[_canonicalTokenId] = IStableSwap(address(0));
+    s.canonicalToAdopted[_canonicalTokenId] = adopted;
+    vm.mockCall(_tokenRegistry, abi.encodeWithSelector(ITokenRegistry.getLocalAddress.selector), abi.encode(adopted));
+
+    // set context
+    s._paused = PausedFunctions.Swap;
+
+    // get args
+    (, ExecuteArgs memory args) = getExecuteArgs();
+
+    // set liquidity context
+    for (uint256 i; i < args.routers.length; i++) {
+      s.routerBalances[args.routers[i]][args.local] += 10 ether;
+    }
+
+    // expect failure
+    vm.expectRevert(AssetLogic.AssetLogic__swapFromLocalAssetIfNeeded_swapPaused.selector);
+    this.execute(args);
+  }
+
   // should fail if msg.sender is not an approved relayer
   function test_BridgeFacet__execute_failIfRelayerNotApproved() public {
     // set context

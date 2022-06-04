@@ -3,7 +3,14 @@ import { Pool } from "pg";
 
 import { getContext } from "../../cartographer";
 
-import { getLatestNonce, getTransfersByStatus, saveTransfers, saveRouterBalances } from "./client";
+import {
+  getLatestNonce,
+  getTransfersByStatus,
+  saveTransfers,
+  saveRouterBalances,
+  getLatestExecuteTimestamp,
+  getLatestReconcileTimestamp,
+} from "./client";
 
 export type Database = {
   saveTransfers: (xtransfers: XTransfer[], _pool?: Pool) => Promise<void>;
@@ -16,6 +23,8 @@ export type Database = {
     _pool?: Pool,
   ) => Promise<XTransfer[]>;
   saveRouterBalances: (routerBalances: RouterBalance[], _pool?: Pool) => Promise<void>;
+  getLatestExecuteTimestamp: (domain: string, _pool?: Pool) => Promise<number>;
+  getLatestReconcileTimestamp: (domain: string, _pool?: Pool) => Promise<number>;
 };
 
 export let pool: Pool;
@@ -32,5 +41,12 @@ export const getDatabase = async (): Promise<Database> => {
     throw new Error("Database connection error");
   }
 
-  return { getLatestNonce, saveTransfers, getTransfersByStatus, saveRouterBalances };
+  return {
+    getLatestNonce,
+    saveTransfers,
+    getTransfersByStatus,
+    saveRouterBalances,
+    getLatestExecuteTimestamp,
+    getLatestReconcileTimestamp,
+  };
 };

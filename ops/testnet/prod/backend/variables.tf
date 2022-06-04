@@ -47,3 +47,7 @@ variable "postgres_user" {
 variable "dd_api_key" {
   type = string
 }
+
+variable "logdna_key" {
+  type = string
+}

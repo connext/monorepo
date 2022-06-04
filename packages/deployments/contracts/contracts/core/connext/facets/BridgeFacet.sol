@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: UNLICENSED
-pragma solidity 0.8.11;
+pragma solidity 0.8.14;
 
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import {ECDSA} from "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
@@ -20,8 +20,6 @@ import {IBridgeToken} from "../interfaces/IBridgeToken.sol";
 import {IExecutor} from "../interfaces/IExecutor.sol";
 import {IWrapped} from "../interfaces/IWrapped.sol";
 import {ISponsorVault} from "../interfaces/ISponsorVault.sol";
-
-import "../../../../lib/forge-std/src/console.sol";
 
 contract BridgeFacet is BaseConnextFacet {
   // ============ Libraries ============
@@ -55,6 +53,7 @@ contract BridgeFacet is BaseConnextFacet {
   error BridgeFacet__execute_notSupportedRouter();
   error BridgeFacet__execute_invalidRouterSignature();
   error BridgeFacet__execute_alreadyExecuted();
+  error BridgeFacet__execute_alreadyReconciled();
   error BridgeFacet__execute_notReconciled();
   error BridgeFacet__handleExecuteTransaction_invalidSponsoredAmount();
   error BridgeFacet__bumpTransfer_valueIsZero();
@@ -226,7 +225,7 @@ contract BridgeFacet is BaseConnextFacet {
    * @param _args - The XCallArgs arguments.
    * @return bytes32 - The transfer ID of the newly created crosschain transfer.
    */
-  function xcall(XCallArgs calldata _args) external payable returns (bytes32) {
+  function xcall(XCallArgs calldata _args) external payable whenBridgeNotPaused returns (bytes32) {
     // Sanity checks.
     {
       // Correct origin domain.
@@ -348,7 +347,7 @@ contract BridgeFacet is BaseConnextFacet {
    * @return bytes32 - The transfer ID of the crosschain transfer. Should match the xcall's transfer ID in order for
    * reconciliation to occur.
    */
-  function execute(ExecuteArgs calldata _args) external returns (bytes32) {
+  function execute(ExecuteArgs calldata _args) external whenBridgeNotPaused returns (bytes32) {
     (bytes32 transferId, bool reconciled) = _executeSanityChecks(_args);
 
     // execute router liquidity when this is a fast transfer
@@ -370,7 +369,7 @@ contract BridgeFacet is BaseConnextFacet {
    * @notice Anyone can call this function on the origin domain to increase the relayer fee for a transfer.
    * @param _transferId - The unique identifier of the crosschain transaction
    */
-  function bumpTransfer(bytes32 _transferId) external payable {
+  function bumpTransfer(bytes32 _transferId) external payable whenBridgeNotPaused {
     if (msg.value == 0) revert BridgeFacet__bumpTransfer_valueIsZero();
 
     s.relayerFees[_transferId] += msg.value;
@@ -564,7 +563,12 @@ contract BridgeFacet is BaseConnextFacet {
     // they are splitting liquidity provision.
     bytes32 routerHash = keccak256(abi.encode(transferId, pathLength));
 
-    if (pathLength > 0) {
+    // check the reconciled status is correct
+    // (i.e. if there are routers provided, the transfer must *not* be reconciled)
+    if (pathLength > 0) // make sure routers are all approved if needed
+    {
+      if (reconciled) revert BridgeFacet__execute_alreadyReconciled();
+
       for (uint256 i; i < pathLength; ) {
         // Make sure the router is approved, if applicable.
         // If router ownership is renounced (_RouterOwnershipRenounced() is true), then the router whitelist

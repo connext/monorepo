@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT OR Apache-2.0
-pragma solidity 0.8.11;
+pragma solidity 0.8.14;
 
 import {Version0} from "../../../nomad-core/contracts/Version0.sol";
 import {TypeCasts} from "../../../nomad-core/contracts/XAppConnectionManager.sol";

@@ -4,6 +4,7 @@ sources:
       graphql:
         endpoint: https://api.thegraph.com/subgraphs/name/connext/nxtp-amarok-runtime-v0-kovan
         retry: 5
+        timeout: 30000 # 30 seconds
     transforms:
       - prefix:
           value: kovan_
@@ -18,6 +19,7 @@ sources:
       graphql:
         endpoint: https://api.thegraph.com/subgraphs/name/connext/nxtp-amarok-runtime-staging-kovan
         retry: 5
+        timeout: 30000 # 30 seconds
     transforms:
       - prefix:
           value: stagingkovan_
@@ -32,6 +34,7 @@ sources:
       graphql:
         endpoint: https://api.thegraph.com/subgraphs/name/connext/nxtp-amarok-runtime-test-kovan
         retry: 5
+        timeout: 30000 # 30 seconds
     transforms:
       - prefix:
           value: testkovan_
@@ -46,6 +49,7 @@ sources:
       graphql:
         endpoint: https://api.thegraph.com/subgraphs/name/connext/nxtp-amarok-runtime-v0-rinkeby
         retry: 5
+        timeout: 30000 # 30 seconds
     transforms:
       - prefix:
           value: rinkeby_
@@ -60,6 +64,7 @@ sources:
       graphql:
         endpoint: https://api.thegraph.com/subgraphs/name/connext/nxtp-amarok-runtime-staging-rinkeby
         retry: 5
+        timeout: 30000 # 30 seconds
     transforms:
       - prefix:
           value: stagingrinkeby_
@@ -74,6 +79,7 @@ sources:
       graphql:
         endpoint: https://api.thegraph.com/subgraphs/name/connext/nxtp-amarok-runtime-test-rinkeby
         retry: 5
+        timeout: 30000 # 30 seconds
     transforms:
       - prefix:
           value: testrinkeby_
@@ -88,6 +94,7 @@ sources:
       graphql:
         endpoint: https://api.thegraph.com/subgraphs/name/connext/nxtp-amarok-runtime-v0-goerli
         retry: 5
+        timeout: 30000 # 30 seconds
     transforms:
       - prefix:
           value: goerli_
@@ -102,6 +109,7 @@ sources:
       graphql:
         endpoint: https://api.thegraph.com/subgraphs/name/connext/nxtp-amarok-runtime-staging-goerli
         retry: 5
+        timeout: 30000 # 30 seconds
     transforms:
       - prefix:
           value: staginggoerli_
@@ -116,6 +124,7 @@ sources:
       graphql:
         endpoint: https://api.thegraph.com/subgraphs/name/connext/nxtp-amarok-runtime-test-goerli
         retry: 5
+        timeout: 30000 # 30 seconds
     transforms:
       - prefix:
           value: testgoerli_

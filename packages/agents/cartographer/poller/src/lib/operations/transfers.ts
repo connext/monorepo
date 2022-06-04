@@ -1,4 +1,4 @@
-import { createLoggingContext, OriginTransfer, XTransferStatus, SubgraphQueryMetaParams } from "@connext/nxtp-utils";
+import { createLoggingContext, SubgraphQueryMetaParams, SubgraphQueryByTimestampMetaParams } from "@connext/nxtp-utils";
 
 import { getContext } from "../../cartographer";
 
@@ -11,6 +11,8 @@ export const updateTransfers = async () => {
   const { requestContext, methodContext } = createLoggingContext("updateTransfers");
 
   const subgraphQueryMetaParams: Map<string, SubgraphQueryMetaParams> = new Map();
+  const subgraphExecuteQueryMetaParams: Map<string, SubgraphQueryByTimestampMetaParams> = new Map();
+  const subgraphReconcileQueryMetaParams: Map<string, SubgraphQueryByTimestampMetaParams> = new Map();
   const lastestBlockNumbers: Map<string, number> = await subgraph.getLatestBlockNumber(domains);
 
   for (const domain of domains) {
@@ -35,6 +37,25 @@ export const updateTransfers = async () => {
       maxBlockNumber: latestBlockNumber,
       latestNonce,
       destinationDomains: domains,
+      orderDirection: "asc",
+    });
+
+    const executedTimestamp = await database.getLatestExecuteTimestamp(domain);
+
+    subgraphExecuteQueryMetaParams.set(domain, {
+      maxBlockNumber: latestBlockNumber,
+      destinationDomains: domains,
+      fromTimestamp: executedTimestamp,
+      orderDirection: "asc",
+    });
+
+    const reconciledTimestamp = await database.getLatestReconcileTimestamp(domain);
+
+    subgraphReconcileQueryMetaParams.set(domain, {
+      maxBlockNumber: latestBlockNumber,
+      fromTimestamp: reconciledTimestamp,
+      destinationDomains: domains,
+      orderDirection: "asc",
     });
   }
 
@@ -47,60 +68,21 @@ export const updateTransfers = async () => {
     await database.saveTransfers(transfers);
   }
 
-  const PAGE_SIZE = 25;
-  let page = 0;
-  let done = false;
-  while (!done) {
-    // now query pending transfers to see if any status updates happened
-    let xcalledTransfers = await database.getTransfersByStatus(
-      XTransferStatus.XCalled,
-      PAGE_SIZE,
-      PAGE_SIZE * page,
-      "ASC",
-    );
-    let executedTransfers = await database.getTransfersByStatus(
-      XTransferStatus.Executed,
-      PAGE_SIZE,
-      PAGE_SIZE * page,
-      "ASC",
-    );
-    let reconciledTransfers = await database.getTransfersByStatus(
-      XTransferStatus.Reconciled,
-      PAGE_SIZE,
-      PAGE_SIZE * page,
-      "ASC",
-    );
-
-    logger.debug("Got pending", requestContext, methodContext, {
-      xcalledTransfers: xcalledTransfers.map((transfer) => transfer.transferId),
-      executedTransfers: executedTransfers.map((transfer) => transfer.transferId),
-      reconciledTransfers: reconciledTransfers.map((transfer) => transfer.transferId),
+  if (subgraphExecuteQueryMetaParams.size > 0) {
+    // Get origin transfers for all domains in the mapping.
+    const transfers = await subgraph.getDestinationTransfersByExecuteTimestamp(subgraphExecuteQueryMetaParams);
+    logger.info("Retrieved destination transfers by execute timestamp", requestContext, methodContext, {
+      transfers,
     });
+    await database.saveTransfers(transfers);
+  }
 
-    const destinationTransfers = await subgraph.getDestinationTransfers(
-      xcalledTransfers.concat(executedTransfers).concat(reconciledTransfers) as OriginTransfer[],
-    );
-    logger.debug("Got destination transfers for pending", requestContext, methodContext, {
-      destinationTransfers: destinationTransfers.map((transfer) => {
-        return { transferId: transfer.transferId, status: transfer.destination?.status };
-      }),
+  if (subgraphReconcileQueryMetaParams.size > 0) {
+    // Get origin transfers for all domains in the mapping.
+    const transfers = await subgraph.getDestinationTransfersByReconcileTimestamp(subgraphReconcileQueryMetaParams);
+    logger.info("Retrieved destination transfers by reconcile timestamp", requestContext, methodContext, {
+      transfers,
     });
-    await database.saveTransfers(destinationTransfers);
-    page += 1;
-
-    if (xcalledTransfers.concat(executedTransfers).concat(reconciledTransfers).length == 0) {
-      done = true;
-      logger.debug("Processed all pending transfers. Last page", requestContext, methodContext, {
-        lastPage: page,
-        pageSize: PAGE_SIZE,
-      });
-    }
-    xcalledTransfers = [];
-    executedTransfers = [];
-    reconciledTransfers = [];
-    logger.debug("Processed pending transfers for page", requestContext, methodContext, {
-      lastPage: page,
-      pageSize: PAGE_SIZE,
-    });
+    await database.saveTransfers(transfers);
   }
 };
