@@ -470,42 +470,41 @@ contract BridgeFacet is BaseConnextFacet {
     // Load the transferId.
     bytes32 transferId = action.transferId();
 
-    // Ensure the transaction has not already been handled, i.e. previously reconciled.
+    // Ensure the transaction has not already been handled (i.e. previously reconciled).
     if (s.reconciledTransfers[transferId]) {
       revert BridgeFacet__reconcile_alreadyReconciled();
     }
+
+    // NOTE: `tokenId` and `amount` must be in plaintext in the message so funds can *only* be minted by
+    // `handle`. They are both used in the generation of the `transferId` so routers must provide them
+    // correctly to be reimbursed.
 
     // Get the appropriate local token contract for the given tokenId on this chain.
     // NOTE: If the token is of remote origin and there is no existing representation token contract,
     // the TokenRegistry will deploy a new one.
     address token = s.tokenRegistry.ensureLocalToken(tokenId.domain(), tokenId.id());
 
-    // load amount once
+    // Load amount once.
     uint256 amount = action.amnt();
 
-    // NOTE: tokenId + amount must be in plaintext in message so funds can
-    // *only* be minted by `handle`. They are still used in the generation of
-    // the transferId so routers must provide them correctly to be reimbursed
-
-    // TODO: do we need to keep this
-    bytes32 details = action.detailsHash();
-
-    // if the token is of remote origin, mint the tokens. will either
-    // - be credited to router (fast liquidity)
-    // - be reserved for execution (slow liquidity)
+    // Mint tokens if the asset is of remote origin (i.e. is representational).
+    // NOTE: If the asset IS of local origin (meaning it's canonical), then the tokens will already be held
+    // in escrow in this contract (from previous `xcall`s).
     if (!s.tokenRegistry.isLocalOrigin(token)) {
       IBridgeToken(token).mint(address(this), amount);
-      // Tell the token what its detailsHash is
+
+      // Update the recorded `detailsHash` for the token (name, symbol, decimals).
+      // TODO: do we need to keep this
+      bytes32 details = action.detailsHash();
       IBridgeToken(token).setDetailsHash(details);
     }
-    // NOTE: If the token is local on the origin domain, it means it was escrowed in the corresponding
-    // bridge contract on the origin domain within the xcall.
 
     // Mark the transfer as reconciled.
     s.reconciledTransfers[transferId] = true;
 
-    // If the transfer was executed using fast-liquidity provided by routers, then this value would be set.
-    address[] storage routers = s.routedTransfers[transferId];
+    // If the transfer was executed using fast-liquidity provided by routers, then this value would be set
+    // to the participating routers.
+    address[] memory routers = s.routedTransfers[transferId];
     uint256 pathLen = routers.length;
     if (pathLen != 0) {
       // Credit each router that provided liquidity their due 'share' of the asset.
@@ -517,6 +516,8 @@ contract BridgeFacet is BaseConnextFacet {
         }
       }
     }
+    // NOTE: If the transfer was not executed using fast-liquidity, then the funds will be reserved for
+    // execution (i.e. funds will be delivered to the transfer's recipient in a subsequent `execute` call).
 
     emit Reconciled(transferId, _origin, routers, token, amount, msg.sender);
   }

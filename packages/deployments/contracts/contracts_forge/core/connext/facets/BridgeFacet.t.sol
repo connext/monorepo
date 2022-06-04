@@ -324,6 +324,13 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
     return ConnextMessage.formatMessage(tokenId, action);
   }
 
+  // Wraps reconcile in order to enable externalizing the call.
+  function utils_wrappedReconcile(uint32 origin, bytes memory message) external {
+    uint256 gas = gasleft();
+    _reconcile(origin, message);
+    console.log(gas - gasleft());
+  }
+
   // ============== Helpers ==================
   // Helpers used for executing target methods with given params that assert expected base behavior.
 
@@ -522,15 +529,41 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
       message = utils_formatMessage(args, bridged, transferId, bridgedAmt);
     }
 
+    uint256[] memory routerBalances = new uint256[](s.routedTransfers[transferId].length);
+    for (uint256 i = 0; i < s.routedTransfers[transferId].length; i++) {
+      // Warming up the slot in order to make gas estimates more accurate to appropriate conditions.
+      s.routerBalances[s.routedTransfers[transferId][i]][bridged] = 1 ether;
+      routerBalances[i] = 1 ether;
+    }
+
     // Get pre-reconcile balances.
     uint256 prevBalance;
     if (isNative) {
-      prevBalance = IERC20(_local).balanceOf(address(this));
-    } else {
       prevBalance = payable(address(this)).balance;
+    } else {
+      prevBalance = IERC20(bridged).balanceOf(address(this));
     }
 
-    _reconcile(_originDomain, message);
+    if (shouldSucceed) {
+      vm.expectEmit(true, true, true, true);
+      emit Reconciled(transferId, _originDomain, s.routedTransfers[transferId], _local, args.amount, address(this));
+    } else {
+      vm.expectRevert(expectedError);
+    }
+
+    this.utils_wrappedReconcile(_originDomain, message);
+
+    if (shouldSucceed) {
+      assertEq(s.reconciledTransfers[transferId], true);
+      address[] storage routers = s.routedTransfers[transferId];
+      if (routers.length > 0) {
+        // Fast liquidity route. Should have reimbursed routers.
+        uint256 routerAmt = args.amount / s.routedTransfers[transferId].length;
+        for (uint256 i = 0; i < routers.length; i++) {
+          assertEq(s.routerBalances[routers[i]][_local], routerBalances[i] + routerAmt);
+        }
+      }
+    }
   }
 
   function helpers_reconcileAndAssert(bytes4 expectedError) public {
@@ -718,13 +751,60 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
   // TODO: test handle? stub `_reconcile` and basically just test only nomad router permissions
 
   // =========== reconcile ==========
-  // reconcile
-  function test_BridgeFacet__reconcile_works() public {
+  // ============ reconcile fail cases
+  // fail if message is invalid
+  // mustBeMessage > tryAsMessage > assertValid
+  // typeOf(memView) == 0xffffffffff || not(gt( (loc(memView) + len(memView)) , mload(0x40)))
+  // "Validity assertion failed"
+
+  // fails if action is not transfer
+
+  // fails if already reconciled (s.reconciledTransfers[transferId] = true)
+  function test_BridgeFacet__reconcile_failIfAlreadyReconciled() public {
+    (bytes32 transferId, XCallArgs memory args) = utils_makeXCallArgs();
+    s.reconciledTransfers[transferId] = true;
+    helpers_reconcileAndAssert(transferId, args, BridgeFacet.BridgeFacet__reconcile_alreadyReconciled.selector);
+  }
+
+  // TODO?: fails if canonical asset and not enough balance ??
+
+  // ============ reconcile success cases
+  // works with local representational tokens (remote origin, so they will be minted)
+  function test_BridgeFacet__reconcile_localTokenWorks() public {
     helpers_reconcileAndAssert();
   }
 
-  // ============ execute ============
+  function test_BridgeFacet__reconcile_localTokenWorks2() public {
+    (bytes32 transferId, XCallArgs memory args) = utils_makeXCallArgs();
+    s.routedTransfers[transferId] = new address[](0);
+    helpers_reconcileAndAssert(transferId, args, bytes4(""));
+  }
 
+  // TODO: works with canonical token (local origin, so we release from custody)
+  // function test_BridgeFacet__reconcile_canonicalTokenWorks() public {
+
+  // TODO: works with minted local => representational via amm stableswap
+
+  // TODO: works using native asset
+  // function test_BridgeFacet__reconcile_nativeAssetWorks() public {
+
+  // TODO: deploys a new representational token if needed (in TokenRegistry.ensureLocalToken)
+
+  // funds router when post-execute (fast liquidity route)
+  function test_BridgeFacet__reconcile_fastLiquiditySingleRouterWorks() public {
+    (bytes32 transferId, XCallArgs memory args) = utils_makeXCallArgs();
+    s.routedTransfers[transferId] = [address(42)];
+    helpers_reconcileAndAssert(transferId, args, bytes4(""));
+  }
+
+  // funds routers when post-execute multipath (fast liquidity route)
+  function test_BridgeFacet__reconcile_fastLiquidityMultipathWorks() public {
+    (bytes32 transferId, XCallArgs memory args) = utils_makeXCallArgs();
+    s.routedTransfers[transferId] = [address(42), address(43), address(44), address(45)];
+    helpers_reconcileAndAssert(transferId, args, bytes4(""));
+  }
+
+  // ============ execute ============
   // ============ execute fail cases
   // should fail if msg.sender is not an approved relayer
   function test_BridgeFacet__execute_failIfRelayerNotApproved() public {
