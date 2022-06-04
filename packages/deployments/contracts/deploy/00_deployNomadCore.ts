@@ -46,20 +46,8 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment): Promise<voi
   });
   console.log("updaterManager address: ", updaterManager.address);
 
-  // TODO: use proper nomad deployment
-  const homeName = getDeploymentName(`Home`);
-  const home = await hre.deployments.deploy(homeName, {
-    contract: "Home",
-    from: deployer.address,
-    args: [network.chainId],
-    skipIfAlreadyDeployed: true,
-    log: true,
-    gasLimit: 2_000_000,
-  });
+  const home = await deployNomadBeaconProxy("Home", [updaterManager.address], deployer, hre, [network.chainId]);
   console.log("home address: ", home.address);
-  const homeC = await hre.ethers.getContract(homeName);
-  const tx = await homeC.initialize(updaterManager.address, { from: deployer.address });
-  await tx.wait();
 };
 
 export default func;

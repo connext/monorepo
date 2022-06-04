@@ -13,6 +13,7 @@ export const deployNomadBeaconProxy = async <T extends Contract = Contract>(
   args: any[],
   deployer: Signer & { address: string },
   hre: HardhatRuntimeEnvironment,
+  implementationArgs: any[] = [],
 ): Promise<T> => {
   // get names
   const implementationName = getDeploymentName(name);
@@ -55,7 +56,7 @@ export const deployNomadBeaconProxy = async <T extends Contract = Contract>(
       // Must upgrade the proxy
       // First, deploy new implementation
       const upgradeDeployment = await hre.deployments.deploy(implementationName, {
-        args: [],
+        args: implementationArgs,
         from: deployer.address,
         skipIfAlreadyDeployed: false,
         log: true,
@@ -78,7 +79,7 @@ export const deployNomadBeaconProxy = async <T extends Contract = Contract>(
 
     // 1. Deploy implementation
     const implementationDeployment = await hre.deployments.deploy(implementationName, {
-      args: [],
+      args: implementationArgs,
       from: deployer.address,
       skipIfAlreadyDeployed: true,
       log: true,
