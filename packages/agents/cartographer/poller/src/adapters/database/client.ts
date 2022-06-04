@@ -116,7 +116,6 @@ export const getLatestExecuteTimestamp = async (domain: string, _pool?: Pool): P
   const transfer = await db.sql<s.transfers.SQL, s.transfers.JSONSelectable[]>`SELECT * FROM ${"transfers"} WHERE ${{
     destination_domain: domain,
   }} ORDER BY "execute_timestamp" DESC LIMIT 1`.run(poolToUse);
-  console.log("transfer: ", transfer);
   return transfer[0]?.execute_timestamp ?? 0;
 };
 

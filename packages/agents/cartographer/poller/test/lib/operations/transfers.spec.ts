@@ -97,6 +97,10 @@ describe("Backend operations", () => {
     getTransfersByStatusStub.onThirdCall().resolves(mockSubgraphResponse);
     const saveRouterBalancesStub = stub(dbClient, "saveRouterBalances");
     saveRouterBalancesStub.resolves();
+    const getLatestExecuteTimestampStub = stub(dbClient, "getLatestExecuteTimestamp");
+    getLatestExecuteTimestampStub.resolves(0);
+    const getLatestReconcileTimestampStub = stub(dbClient, "getLatestReconcileTimestamp");
+    getLatestReconcileTimestampStub.resolves(0);
 
     mockContext = {
       logger: new Logger({
