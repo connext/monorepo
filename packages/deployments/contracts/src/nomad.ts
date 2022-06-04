@@ -127,6 +127,8 @@ export const getDomainInfoFromChainId = async (
 ): Promise<NomadDomainInfo> => {
   if ([1337, 1338].includes(chainId)) {
     return {
+      name: `local${chainId}`,
+      domain: chainId,
       contracts: {
         bridge: {
           bridgeToken: { beacon: (await hre.deployments.get(getDeploymentName(`BridgeTokenUpgradeBeacon`))).address },
