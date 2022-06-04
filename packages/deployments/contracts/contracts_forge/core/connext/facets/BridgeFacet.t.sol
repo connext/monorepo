@@ -208,7 +208,7 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
     address sender,
     bytes32 canonicalId,
     uint32 canonicalDomain
-  ) public returns (bytes32) {
+  ) public pure returns (bytes32) {
     return keccak256(abi.encode(s.nonce, _args.params, sender, canonicalId, canonicalDomain, _args.amount));
   }
 
@@ -326,9 +326,9 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
 
   // Wraps reconcile in order to enable externalizing the call.
   function utils_wrappedReconcile(uint32 origin, bytes memory message) external {
-    uint256 gas = gasleft();
+    // uint256 gas = gasleft();
     _reconcile(origin, message);
-    console.log(gas - gasleft());
+    // console.log(gas - gasleft());
   }
 
   // ============== Helpers ==================
@@ -468,7 +468,9 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
     uint256 transferred = pathLen == 0 ? _args.amount : utils_getFastTransferAmount(_args.amount);
     vm.expectEmit(true, true, false, true);
     emit Executed(transferId, _args.params.to, _args, _args.local, transferred, address(this));
+    // uint256 gas = gasleft();
     this.execute(_args);
+    // console.log(gas - gasleft());
 
     // check local balance
     if (pathLen > 0) {
@@ -772,12 +774,6 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
   // works with local representational tokens (remote origin, so they will be minted)
   function test_BridgeFacet__reconcile_localTokenWorks() public {
     helpers_reconcileAndAssert();
-  }
-
-  function test_BridgeFacet__reconcile_localTokenWorks2() public {
-    (bytes32 transferId, XCallArgs memory args) = utils_makeXCallArgs();
-    s.routedTransfers[transferId] = new address[](0);
-    helpers_reconcileAndAssert(transferId, args, bytes4(""));
   }
 
   // TODO: works with canonical token (local origin, so we release from custody)

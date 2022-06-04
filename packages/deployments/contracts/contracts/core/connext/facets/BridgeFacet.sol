@@ -504,6 +504,8 @@ contract BridgeFacet is BaseConnextFacet {
 
     // If the transfer was executed using fast-liquidity provided by routers, then this value would be set
     // to the participating routers.
+    // NOTE: If the transfer was not executed using fast-liquidity, then the funds will be reserved for
+    // execution (i.e. funds will be delivered to the transfer's recipient in a subsequent `execute` call).
     address[] memory routers = s.routedTransfers[transferId];
     uint256 pathLen = routers.length;
     if (pathLen != 0) {
@@ -516,8 +518,6 @@ contract BridgeFacet is BaseConnextFacet {
         }
       }
     }
-    // NOTE: If the transfer was not executed using fast-liquidity, then the funds will be reserved for
-    // execution (i.e. funds will be delivered to the transfer's recipient in a subsequent `execute` call).
 
     emit Reconciled(transferId, _origin, routers, token, amount, msg.sender);
   }
@@ -632,13 +632,14 @@ contract BridgeFacet is BaseConnextFacet {
     ExecuteArgs calldata _args
   ) private returns (uint256, address) {
     uint256 toSwap = _args.amount;
-    uint256 pathLen = _args.routers.length;
 
     // If this is a fast liquidity path, we should handle deducting from applicable routers' liquidity.
     // If this is a slow liquidity path, the transfer must have been reconciled (if we've reached this point),
     // and the funds would have been custodied in this contract. The exact custodied amount is untracked in state
     // (since the amount is hashed in the transfer ID itself) - thus, no updates are required.
     if (_isFast) {
+      uint256 pathLen = _args.routers.length;
+
       // Calculate amount that routers will provide with the fast-liquidity fee deducted.
       toSwap = _getFastTransferAmount(_args.amount, s.LIQUIDITY_FEE_NUMERATOR, s.LIQUIDITY_FEE_DENOMINATOR);
 
