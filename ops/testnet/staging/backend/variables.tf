@@ -28,7 +28,7 @@ variable "environment" {
 variable "full_image_name_cartographer" {
   type        = string
   description = "router image name"
-  default     = "ghcr.io/connext/cartographer:sha-d4e6e55"
+  default     = "ghcr.io/connext/cartographer:sha-2ed1a17"
 }
 
 variable "certificate_arn_testnet" {
