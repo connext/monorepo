@@ -1,3 +1,4 @@
-import { makeCartographer } from "./cartographer";
+import { fork } from "child_process";
 
-makeCartographer();
+fork("transfersPoller");
+fork("routersPoller");

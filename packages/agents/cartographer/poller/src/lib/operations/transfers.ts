@@ -1,6 +1,6 @@
 import { createLoggingContext, SubgraphQueryMetaParams, SubgraphQueryByTimestampMetaParams } from "@connext/nxtp-utils";
 
-import { getContext } from "../../cartographer";
+import { getContext } from "../../transfersPoller";
 
 export const updateTransfers = async () => {
   const {
