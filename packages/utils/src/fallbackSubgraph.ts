@@ -334,7 +334,7 @@ export class FallbackSubgraph<T> {
           this.subgraphs.set(item.url, subgraph);
         });
       } else if (getBlockNumberSupported) {
-        const _latestBlock = getBlockNumber();
+        const _latestBlock = getBlockNumber!();
         await Promise.all(
           Array.from(this.subgraphs.values()).map(async (subgraph) => {
             try {
