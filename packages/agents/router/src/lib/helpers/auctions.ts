@@ -8,9 +8,10 @@ import {
   jsonifyError,
   formatUrl,
 } from "@connext/nxtp-utils";
+import { BigNumber } from "ethers";
 
 import { getContext } from "../../router";
-import { AuctionExpired, SequencerResponseInvalid } from "../errors";
+import { AuctionExpired, InvalidAuctionRound, SequencerResponseInvalid } from "../errors";
 
 export const sendBid = async (bid: Bid, _requestContext: RequestContext): Promise<any> => {
   const { config, logger } = getContext();
@@ -62,4 +63,23 @@ export const getAuctionStatus = async (
     logger.error(`Bids by TransferId Get Error`, requestContext, methodContext, jsonifyError(error as Error));
     throw error;
   }
+};
+
+/**
+ * Calculates the auction amount for `roundId`. Router needs to decide which rounds it needs to bid on.
+ * @param roundId - The round number you're going to get the auction amount.
+ * @param receivingAmount - The total amount
+ */
+export const getAuctionAmount = (roundId: number, receivingAmount: BigNumber): BigNumber => {
+  const { config } = getContext();
+  roundId = Math.trunc(roundId);
+  if (roundId > config.auctionRoundDepth || roundId < 1) {
+    throw new InvalidAuctionRound({
+      roundId,
+      startRound: 1,
+      maxRoundDepth: config.auctionRoundDepth,
+    });
+  }
+
+  return receivingAmount.div(Math.pow(2, roundId - 1));
 };

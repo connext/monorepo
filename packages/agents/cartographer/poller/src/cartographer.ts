@@ -2,7 +2,7 @@ import { SubgraphReader } from "@connext/nxtp-adapters-subgraph";
 import { ChainData, createMethodContext, createRequestContext, getChainData, Logger } from "@connext/nxtp-utils";
 
 import { Database, getDatabase } from "./adapters/database";
-import { bindPoller } from "./bindings";
+import { poller } from "./bindings";
 import { CartographerConfig, getConfig } from "./config";
 
 export type AppContext = {
@@ -49,16 +49,16 @@ export const makeCartographer = async (_configOverride?: CartographerConfig) => 
   context.domains = Object.keys(supported).filter((domain) => supported[domain]);
 
   /// MARK - Bindings
-  await bindPoller();
-
   context.logger.info("Cartographer initialized!", requestContext, methodContext, {
     domains: context.domains,
   });
   context.logger.info(`
-    _|_|_|     _|_|     _|      _|   _|      _|   _|_|_|_|   _|      _|   _|_|_|_|_|
-  _|         _|    _|   _|_|    _|   _|_|    _|   _|           _|  _|         _|
-  _|         _|    _|   _|  _|  _|   _|  _|  _|   _|_|_|         _|           _|
-  _|         _|    _|   _|    _|_|   _|    _|_|   _|           _|  _|         _|
-    _|_|_|     _|_|     _|      _|   _|      _|   _|_|_|_|   _|      _|       _|
-  `);
+  _|_|_|     _|_|     _|      _|   _|      _|   _|_|_|_|   _|      _|   _|_|_|_|_|
+_|         _|    _|   _|_|    _|   _|_|    _|   _|           _|  _|         _|
+_|         _|    _|   _|  _|  _|   _|  _|  _|   _|_|_|         _|           _|
+_|         _|    _|   _|    _|_|   _|    _|_|   _|           _|  _|         _|
+  _|_|_|     _|_|     _|      _|   _|      _|   _|_|_|_|   _|      _|       _|
+`);
+
+  await poller();
 };

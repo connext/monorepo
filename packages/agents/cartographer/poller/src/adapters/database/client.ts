@@ -111,6 +111,22 @@ export const getLatestNonce = async (domain: string, _pool?: Pool): Promise<numb
   return transfer[0]?.nonce ?? 0;
 };
 
+export const getLatestExecuteTimestamp = async (domain: string, _pool?: Pool): Promise<number> => {
+  const poolToUse = _pool ?? pool;
+  const transfer = await db.sql<s.transfers.SQL, s.transfers.JSONSelectable[]>`SELECT * FROM ${"transfers"} WHERE ${{
+    destination_domain: domain,
+  }} ORDER BY "execute_timestamp" DESC LIMIT 1`.run(poolToUse);
+  return transfer[0]?.execute_timestamp ?? 0;
+};
+
+export const getLatestReconcileTimestamp = async (domain: string, _pool?: Pool): Promise<number> => {
+  const poolToUse = _pool ?? pool;
+  const transfer = await db.sql<s.transfers.SQL, s.transfers.JSONSelectable[]>`SELECT * FROM ${"transfers"} WHERE ${{
+    destination_domain: domain,
+  }} ORDER BY "reconcile_timestamp" DESC LIMIT 1`.run(poolToUse);
+  return transfer[0]?.reconcile_timestamp ?? 0;
+};
+
 export const saveRouterBalances = async (routerBalances: RouterBalance[], _pool?: Pool): Promise<void> => {
   const poolToUse = _pool ?? pool;
   const routers: s.routers.Insertable[] = routerBalances.map((router) => {

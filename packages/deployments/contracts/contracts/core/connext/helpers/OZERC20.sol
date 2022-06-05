@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity 0.8.11;
+pragma solidity 0.8.14;
 
 // This is modified from "@openzeppelin/contracts/token/ERC20/IERC20.sol"
 // Modifications were made to make the tokenName, tokenSymbol, and
