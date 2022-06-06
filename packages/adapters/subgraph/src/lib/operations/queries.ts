@@ -285,12 +285,12 @@ const destinationTransfersByExecuteTimestampQueryString = (
   orderDirection: "asc" | "desc" = "desc",
 ) => {
   return `
-  ${prefix}_originTransfers(
+  ${prefix}_destinationTransfers(
     where: { 
       originDomain: ${originDomain}, 
       executedTimestamp_gte: ${fromTimestamp}, 
       destinationDomain_in: [${destinationDomains}] 
-      ${maxBlockNumber ? `, blockNumber_lte: ${maxBlockNumber}` : ""} 
+      ${maxBlockNumber ? `, executedBlockNumber_lte: ${maxBlockNumber}` : ""} 
     }, 
     orderBy: executedTimestamp, 
     orderDirection: ${orderDirection}
@@ -335,12 +335,12 @@ const destinationTransfersByReconcileTimestampQueryString = (
   orderDirection: "asc" | "desc" = "desc",
 ) => {
   return `
-  ${prefix}_originTransfers(
+  ${prefix}_destinationTransfers(
     where: { 
       originDomain: ${originDomain}, 
       reconciledTimestamp_gte: ${fromTimestamp}, 
       destinationDomain_in: [${destinationDomains}] 
-      ${maxBlockNumber ? `, blockNumber_lte: ${maxBlockNumber}` : ""} 
+      ${maxBlockNumber ? `, reconciledBlockNumber_lte: ${maxBlockNumber}` : ""} 
     }, 
     orderBy: executedTimestamp, 
     orderDirection: ${orderDirection}

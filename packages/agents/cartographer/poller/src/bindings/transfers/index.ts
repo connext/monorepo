@@ -1,20 +1,18 @@
 import { createLoggingContext, jsonifyError, NxtpError } from "@connext/nxtp-utils";
 
-import { getContext } from "../../cartographer";
+import { getContext } from "../../shared";
 import { updateTransfers } from "../../lib/operations";
-import { updateRouters } from "../../lib/operations/routers";
 
 // Ought to be configured properly for each network; we consult the chain config below.
 export const DEFAULT_SAFE_CONFIRMATIONS = 5;
 
-export const poller = async () => {
+export const bindTransfers = async () => {
   const { logger } = getContext();
-  const { requestContext, methodContext } = createLoggingContext(poller.name);
+  const { requestContext, methodContext } = createLoggingContext(bindTransfers.name);
   try {
-    logger.debug("Polling loop start", requestContext, methodContext);
+    logger.debug("Bind transfers polling loop start", requestContext, methodContext);
     await updateTransfers();
-    await updateRouters();
-    logger.debug("Polling loop complete", requestContext, methodContext);
+    logger.debug("Bind transfers polling loop complete", requestContext, methodContext);
   } catch (err: unknown) {
     logger.error(
       "Error getting txs, waiting for next loop",

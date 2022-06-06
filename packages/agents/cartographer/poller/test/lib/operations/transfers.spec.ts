@@ -1,12 +1,15 @@
 import { createStubInstance, SinonStub, stub, restore, reset } from "sinon";
-import * as SharedFns from "../../../src/shared";
 import { expect, mock, chainDataToMap, Logger, OriginTransfer } from "@connext/nxtp-utils";
-import * as backend from "../../../src/cartographer";
-import { poller } from "../../../src/bindings/poller";
+import * as transfersPoller from "../../../src/transfersPoller";
+import * as routersPoller from "../../../src/routersPoller";
+import { bindTransfers } from "../../../src/bindings/transfers";
+import { bindRouters } from "../../../src/bindings/routers";
 
 import * as dbClient from "../../../src/adapters/database/client";
 import { CartographerConfig } from "../../../src/config";
 import { SubgraphReader } from "@connext/nxtp-adapters-subgraph";
+import { AppContext } from "../../../src/shared";
+import * as shared from "../../../src/shared";
 
 const mockSubgraphResponse = [mock.entity.xtransfer() as OriginTransfer, mock.entity.xtransfer() as OriginTransfer];
 const mockEmptySubgraphResponse = [];
@@ -84,7 +87,7 @@ const mockNoBlockNumber: Map<string, number> = new Map();
 mockNoBlockNumber.set("99999", 1234567);
 
 describe("Backend operations", () => {
-  let mockContext: backend.AppContext;
+  let mockContext: AppContext;
 
   beforeEach(() => {
     const saveTransfersStub = stub(dbClient, "saveTransfers");
@@ -125,7 +128,7 @@ describe("Backend operations", () => {
       chainData: mockChainData,
       domains: ["1337", "1338"],
     };
-    stub(backend, "getContext").returns(mockContext);
+    stub(shared, "getContext").returns(mockContext);
 
     (mockContext.adapters.subgraph.getLatestBlockNumber as SinonStub).resolves(mockBlockNumber);
   });
@@ -136,22 +139,22 @@ describe("Backend operations", () => {
   });
 
   it("should poll subgraph with block zero", async () => {
-    await expect(poller()).to.eventually.not.be.rejected;
+    await expect(bindTransfers()).to.eventually.not.be.rejected;
   });
 
   it("should poll subgraph with mock non zero block", async () => {
-    await expect(poller()).to.eventually.not.be.rejected;
+    await expect(bindTransfers()).to.eventually.not.be.rejected;
   });
 
   it("should poll subgraph with mock backend", async () => {
-    await expect(poller()).to.eventually.not.be.rejected;
+    await expect(bindTransfers()).to.eventually.not.be.rejected;
   });
 
   it("should poll subgraph with mock backend empty response", async () => {
     (mockContext.adapters.subgraph.getOriginTransfers as SinonStub).resolves([]);
     (mockContext.adapters.subgraph.getDestinationTransfers as SinonStub).resolves([]);
 
-    await expect(poller()).to.eventually.not.be.rejected;
+    await expect(bindTransfers()).to.eventually.not.be.rejected;
   });
 
   it("should poll subgraph with mock backend no block number", async () => {
@@ -159,13 +162,47 @@ describe("Backend operations", () => {
     (mockContext.adapters.subgraph.getOriginTransfers as SinonStub).resolves([]);
     (mockContext.adapters.subgraph.getDestinationTransfers as SinonStub).resolves([]);
 
-    await expect(poller()).to.eventually.not.be.rejected;
+    await expect(bindTransfers()).to.eventually.not.be.rejected;
   });
 
   it("should throw error on backend loadup", async () => {
     process.env.DATABASE_URL = "invalid_URI";
     try {
-      await backend.makeCartographer();
+      await transfersPoller.makeTransfersPoller();
+    } catch (Error) {}
+  });
+
+  it("should poll subgraph with block zero", async () => {
+    await expect(bindRouters()).to.eventually.not.be.rejected;
+  });
+
+  it("should poll subgraph with mock non zero block", async () => {
+    await expect(bindRouters()).to.eventually.not.be.rejected;
+  });
+
+  it("should poll subgraph with mock backend", async () => {
+    await expect(bindRouters()).to.eventually.not.be.rejected;
+  });
+
+  it("should poll subgraph with mock backend empty response", async () => {
+    (mockContext.adapters.subgraph.getOriginTransfers as SinonStub).resolves([]);
+    (mockContext.adapters.subgraph.getDestinationTransfers as SinonStub).resolves([]);
+
+    await expect(bindRouters()).to.eventually.not.be.rejected;
+  });
+
+  it("should poll subgraph with mock backend no block number", async () => {
+    (mockContext.adapters.subgraph.getLatestBlockNumber as SinonStub).resolves(mockNoBlockNumber);
+    (mockContext.adapters.subgraph.getOriginTransfers as SinonStub).resolves([]);
+    (mockContext.adapters.subgraph.getDestinationTransfers as SinonStub).resolves([]);
+
+    await expect(bindRouters()).to.eventually.not.be.rejected;
+  });
+
+  it("should throw error on backend loadup", async () => {
+    process.env.DATABASE_URL = "invalid_URI";
+    try {
+      await routersPoller.makeRoutersPoller();
     } catch (Error) {}
   });
 });
