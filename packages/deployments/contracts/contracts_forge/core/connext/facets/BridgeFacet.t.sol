@@ -27,9 +27,11 @@ import {BaseConnextFacet} from "../../../../contracts/core/connext/facets/BaseCo
 import {TestERC20} from "../../../../contracts/test/TestERC20.sol";
 import {PromiseRouter} from "../../../../contracts/core/promise/PromiseRouter.sol";
 
-import {MockXAppConnectionManager, MockHome, MockXApp, MockPromiseRouter, MockCallback, MockWrapper} from "../../../utils/Mock.sol";
-import "forge-std/console.sol";
+import {MockXAppConnectionManager, MockHome, MockXApp, MockPromiseRouter, MockCallback, MockWrapper, MockSponsorVault} from "../../../utils/Mock.sol";
+
 import "./FacetHelper.sol";
+
+import "forge-std/console.sol";
 
 contract BridgeFacetTest is BridgeFacet, FacetHelper {
   bytes32 constant TEST_MESSAGE = bytes32("test message");
@@ -611,8 +613,8 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
 
   function utils_getExecuteBalances(IERC20 asset, address _to) public returns (ExecuteBalances memory) {
     uint256 bridge = IERC20(_local).balanceOf(address(this));
-    uint256 to = asset.balanceOf(_to);
-    uint256 executor = asset.balanceOf(_executor);
+    uint256 to = address(asset) == address(s.wrapper) ? payable(_to).balance : asset.balanceOf(_to);
+    uint256 executor = address(asset) == address(s.wrapper) ? payable(_executor).balance : asset.balanceOf(_executor);
     return ExecuteBalances(bridge, to, executor);
   }
 
@@ -661,14 +663,22 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
     }
 
     // expected transfer out of contract
-    vm.expectCall(
-      _inputs.token,
-      abi.encodeWithSelector(
-        IERC20.transfer.selector,
-        _inputs.callsExternal ? _executor : _args.params.to,
-        _inputs.expectedAmt
-      )
-    );
+    if (_args.amount > 0) {
+      if (_inputs.token == address(s.wrapper)) {
+        // wrapper withdrawal
+        vm.expectCall(_inputs.token, abi.encodeWithSelector(IWrapped.withdraw.selector, _inputs.expectedAmt));
+      } else {
+        // token transfer
+        vm.expectCall(
+          _inputs.token,
+          abi.encodeWithSelector(
+            IERC20.transfer.selector,
+            _inputs.callsExternal ? _executor : _args.params.to,
+            _inputs.expectedAmt
+          )
+        );
+      }
+    }
 
     // expected executor call
     if (_inputs.callsExternal) {
@@ -710,7 +720,6 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
     }
   }
 
-  // FIXME: what about handling assertions on external call data calls?
   // Calls `execute` on the target method with the given args and asserts expected behavior.
   function helpers_executeAndAssert(
     bytes32 transferId,
@@ -746,6 +755,10 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
       );
     }
 
+    if (address(token) == address(s.wrapper)) {
+      vm.mockCall(address(token), abi.encodeWithSelector(IWrapped.withdraw.selector), abi.encode(true));
+    }
+
     // setup execute mock
     vm.mockCall(
       _executor,
@@ -776,13 +789,15 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
         }
       }
     }
-    console.log("verified router decrements");
 
     ExecuteBalances memory finalBalances = utils_getExecuteBalances(token, _args.params.to);
 
-    // should always decrement bridge balances
-    assertEq(finalBalances.bridge, prevBalances.bridge - routerAmt);
-    console.log("verified bridge decrements");
+    // NOTE: the balance of the bridge *should* always decrement in local, however that depends on
+    // the token executing the `swap` / `withdraw` call when a swap is needed (which we have as mocked).
+    // Instead, assert the swap functions on the pool were called correctly
+    if (!shouldSwap && address(token) != address(s.wrapper)) {
+      assertEq(finalBalances.bridge, prevBalances.bridge - routerAmt);
+    }
 
     if (callsExternal) {
       // should increment balance of executor
@@ -790,28 +805,22 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
       // NOTE: recovery address testing should be done in Executor.t.sol
       // as such, executor balance should *always* increment
       assertEq(finalBalances.executor, prevBalances.executor + expectedAmt);
-      console.log("verified executor delta", externalCallSucceeds);
       assertEq(token.balanceOf(_params.to), prevBalances.to);
-      console.log("verified to flat");
     } else {
       // should have incremented balance of `to`
       // should NOT increment balance of executor
       assertEq(finalBalances.to, prevBalances.to + expectedAmt);
-      console.log("verified to increment");
       assertEq(finalBalances.executor, prevBalances.executor);
-      console.log("verified executor flat");
     }
 
     // should mark the transfer as executed
     assertEq(s.transferRelayer[transferId], address(this));
-    console.log("verified relayer stored");
 
     // should have assigned transfer as routed
     address[] memory savedRouters = this.routedTransfers(transferId);
     for (uint256 i; i < savedRouters.length; i++) {
       assertEq(savedRouters[i], _args.routers[i]);
     }
-    console.log("verified routers saved for reimbursement");
   }
 
   // Shortcut for above method:
@@ -833,9 +842,10 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
   function helpers_executeAndAssert(
     bytes32 transferId,
     ExecuteArgs memory _args,
-    uint256 expected
+    uint256 expected,
+    bool shouldSwap
   ) public {
-    helpers_executeAndAssert(transferId, _args, expected, false, false, false);
+    helpers_executeAndAssert(transferId, _args, expected, false, false, shouldSwap);
   }
 
   // Helper for calling `reconcile` and asserting expected behavior.
@@ -885,7 +895,6 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
       vm.expectRevert(expectedError);
     }
 
-    // FIXME: still dont know what this does
     this.utils_wrappedReconcile(_originDomain, message);
 
     if (shouldSucceed) {
@@ -953,9 +962,7 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
 
   // ============ Admin methods ==============
   // setPromiseRouter
-  // FIXME: open question, test the modifiers within a base connext facet
-  // test? probably makes most sense rather than repeatedly testing the same
-  // code
+  // FIXME: move modifier tests to BaseConnextFacet.t.sol
   function test_BridgeFacet__setPromiseRouter_failIfNotOwner() public {
     // require(false, "not tested");
   }
@@ -1012,7 +1019,7 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
 
   // ============ xcall fail cases
   // fails if paused
-  // FIXME: move to base connext test file
+  // FIXME: move to BaseConnextFacet.t.sol
   function test_BridgeFacet__xcall_failIfPaused() public {
     // require(false, "not tested");
   }
@@ -1040,9 +1047,6 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
     helpers_xcallAndAssert(BridgeFacet.BridgeFacet__xcall_nonZeroCallbackFeeForCallback.selector);
   }
 
-  // TODO?: fails if callback is defined (and is a contract) but callback fee is 0 ??
-  // FIXME: should allow this behavior
-
   // fails if callback is defined but not a contract
   function test_BridgeFacet__xcall_failIfCallbackNotAContract() public {
     _params.callback = address(42);
@@ -1065,8 +1069,7 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
     helpers_xcallAndAssert(BridgeFacet.BridgeFacet__xcall_notSupportedAsset.selector);
   }
 
-  // FIXME: this is antipattern. the asset logic library functions should be handled
-  // in a separate test file,
+  // FIXME: move to AssetLogic.t.sol
   // fails if native token transfer and amount of native tokens sent is < amount + relayerFee + callbackFee
   function test_BridgeFacet__xcall_failNativeAssetCallbackFeeInsufficient() public {
     vm.deal(_originSender, 100 ether);
@@ -1262,15 +1265,15 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
     helpers_xcallAndAssert(_amount, false);
   }
 
-  // FIXME: works if swap isnt required and swaps are paused
-  // move to base connext facet test
+  // FIXME: move to BaseConnextFacet.t.sol
+  // works if swap isnt required and swaps are paused
   function test_BridgeFacet__xcall_worksIfNoSwapAndSwapPaused() public {
     // require(false, "not tested");
   }
 
   // =========== handle / reconcile ==========
-  // FIXME: only needs tests depending on where we want to put the modifier tests
-  // TODO: test handle? stub `_reconcile` and basically just test only nomad router permissions
+  // NOTE: modifier tests happen in BaseConnext.t.sol. Below are the reconcile (internal fn)
+  // unit tests
 
   // ============ reconcile fail cases
   // fail if message is invalid
@@ -1325,6 +1328,8 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
 
   // ============ execute ============
   // ============ execute fail cases
+
+  // FIXME: move to `BaseConnextFacet.t.sol`
   // should fail if bridging paused
   function test_BridgeFacet__execute_failIfBridgingPaused() public {
     // set context
@@ -1338,6 +1343,7 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
     this.execute(args);
   }
 
+  // FIXME: move to `BaseConnextFacet.t.sol`
   // should fail if all paused
   function test_BridgeFacet__execute_failIfAllPaused() public {
     // set context
@@ -1351,6 +1357,7 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
     this.execute(args);
   }
 
+  // FIXME: move to `BaseConnextFacet.t.sol`
   // should fail if all swap paused && needs swap
   function test_BridgeFacet__execute_failIfSwapPaused() public {
     // setup asset context (use local == adopted)
@@ -1521,6 +1528,23 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
   }
 
   // should fail if sponsored vault did not fund contract with returned amount
+  function test_BridgeFacet__execute_failIfSponsorVaultLied() public {
+    (, ExecuteArgs memory args) = utils_makeExecuteArgs(1);
+    s.routerPermissionInfo.approvedRouters[args.routers[0]] = true;
+    for (uint256 i = 0; i < args.routers.length; i++) {
+      // The other routers have plenty of funds.
+      s.routerBalances[args.routers[i]][args.local] = 50 ether;
+    }
+
+    // set mock sponsor vault
+    address vault = address(123456654321);
+    s.sponsorVault = ISponsorVault(vault);
+    // set change
+    vm.mockCall(vault, abi.encodeWithSelector(ISponsorVault.reimburseLiquidityFees.selector), abi.encode(10 ether));
+
+    vm.expectRevert(BridgeFacet.BridgeFacet__handleExecuteTransaction_invalidSponsoredAmount.selector);
+    this.execute(args);
+  }
 
   // ============ execute success cases
   // should use slow liquidity if specified (forceSlow = true)
@@ -1555,9 +1579,7 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
   }
 
   // should work with approved router if router ownership is not renounced
-  function test_BridgeFacet__execute_approvedRouterWorks() public {
-    s._routerOwnershipRenounced = false;
-
+  function test_BridgeFacet__execute_worksWithLocalAsAdopted() public {
     (bytes32 transferId, ExecuteArgs memory args) = utils_makeExecuteArgs(1);
 
     s.routerBalances[args.routers[0]][args.local] += 10 ether;
@@ -1569,35 +1591,157 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
     helpers_executeAndAssert(transferId, args);
   }
 
-  // FIXME: should work with 0 value
+  // works when local != adopted
+  function test_BridgeFacet__execute_worksWithAdopted() public {
+    // set asset context (local != adopted)
+    utils_setupAsset(false, false);
+
+    (bytes32 transferId, ExecuteArgs memory args) = utils_makeExecuteArgs(1);
+
+    s.routerBalances[args.routers[0]][args.local] += 10 ether;
+    s.routerPermissionInfo.approvedRouters[args.routers[0]] = true;
+
+    helpers_executeAndAssert(transferId, args, utils_getFastTransferAmount(args.amount), true);
+  }
+
+  // works when local != adopted, should work with +ve slippage
+  function test_BridgeFacet__execute_worksWithPositiveSlippage() public {
+    (bytes32 transferId, ExecuteArgs memory args) = utils_makeExecuteArgs(1);
+
+    s.routerBalances[args.routers[0]][args.local] += 10 ether;
+    s.routerPermissionInfo.approvedRouters[args.routers[0]] = true;
+
+    // set asset context (local != adopted)
+    utils_setupAsset(false, false);
+
+    helpers_executeAndAssert(transferId, args, utils_getFastTransferAmount(args.amount) + 1 ether, true);
+  }
+
+  // works when local != adopted, should work with -ve slippage
+  function test_BridgeFacet__execute_worksWithNegativeSlippage() public {
+    (bytes32 transferId, ExecuteArgs memory args) = utils_makeExecuteArgs(1);
+
+    s.routerBalances[args.routers[0]][args.local] += 10 ether;
+    s.routerPermissionInfo.approvedRouters[args.routers[0]] = true;
+
+    // set asset context (local != adopted)
+    utils_setupAsset(false, false);
+
+    helpers_executeAndAssert(transferId, args, utils_getFastTransferAmount(args.amount) - 0.01 ether, true);
+  }
+
+  // works when on canonical domain
+  function test_BridgeFacet__execute_worksOnCanonical() public {
+    // set asset context (local == adopted)
+    utils_setupAsset(true, true);
+
+    (bytes32 transferId, ExecuteArgs memory args) = utils_makeExecuteArgs(1);
+
+    s.routerBalances[args.routers[0]][args.local] += 10 ether;
+    s.routerPermissionInfo.approvedRouters[args.routers[0]] = true;
+
+    helpers_executeAndAssert(transferId, args);
+  }
+
+  // should work when adopted asset is native asset and on canonical
+  // (adopted == wrapper)
+  function test_BridgeFacet__execute_worksWithNativeOnCanonical() public {
+    // set asset context (local == adopted)
+    utils_setupNative(true, true);
+
+    (bytes32 transferId, ExecuteArgs memory args) = utils_makeExecuteArgs(1);
+
+    s.routerBalances[args.routers[0]][args.local] += 10 ether;
+    s.routerPermissionInfo.approvedRouters[args.routers[0]] = true;
+
+    helpers_executeAndAssert(transferId, args);
+  }
+
+  // should work when adopted asset is native asset and on remote
+  // (adopted == wrapper)
+  function test_BridgeFacet__execute_worksWithNativeOnRemote() public {
+    // set asset context (local != adopted)
+    utils_setupNative(false, false);
+
+    (bytes32 transferId, ExecuteArgs memory args) = utils_makeExecuteArgs(1);
+
+    s.routerBalances[args.routers[0]][args.local] += 10 ether;
+    s.routerPermissionInfo.approvedRouters[args.routers[0]] = true;
+
+    helpers_executeAndAssert(transferId, args, utils_getFastTransferAmount(args.amount), true);
+  }
+
+  // should work with unapproved router if router ownership is renounced
+  function test_BridgeFacet__execute_worksWithUnapprovedIfNoWhitelist() public {
+    s._routerOwnershipRenounced = true;
+
+    (bytes32 transferId, ExecuteArgs memory args) = utils_makeExecuteArgs(1);
+
+    s.routerBalances[args.routers[0]][args.local] += 10 ether;
+    s.routerPermissionInfo.approvedRouters[args.routers[0]] = false;
+
+    // set asset context (local == adopted)
+    utils_setupAsset(true, false);
+
+    helpers_executeAndAssert(transferId, args);
+  }
+
+  // should work with 0 value
   function test_BridgeFacet__execute_worksWith0Value() public {
-    // require(false, "not tested");
+    _amount = 0;
+
+    (bytes32 transferId, ExecuteArgs memory args) = utils_makeExecuteArgs(1);
+
+    // set asset context (local == adopted)
+    utils_setupAsset(true, false);
+
+    helpers_executeAndAssert(transferId, args);
   }
 
-  // FIXME: should work if no sponsor vault set
+  // should work if no sponsor vault set
   function test_BridgeFacet__execute_worksWithoutVault() public {
-    // require(false, "not tested");
+    s.sponsorVault = ISponsorVault(address(0));
+
+    (bytes32 transferId, ExecuteArgs memory args) = utils_makeExecuteArgs(1);
+
+    // set asset context (local == adopted)
+    utils_setupAsset(true, false);
+
+    helpers_executeAndAssert(transferId, args);
   }
 
-  // FIXME: should sponsor if fast liquidity is used and sponsor vault set
+  // should sponsor if fast liquidity is used and sponsor vault set
   function test_BridgeFacet__execute_worksWithSponsorLiquidity() public {
-    // require(false, "not tested");
+    // setup vault
+    uint256 vaultAmount = 10000;
+    MockSponsorVault vault = new MockSponsorVault(vaultAmount);
+    s.sponsorVault = vault;
+
+    // set asset context (local == adopted)
+    utils_setupAsset(true, false);
+
+    (bytes32 transferId, ExecuteArgs memory args) = utils_makeExecuteArgs(1);
+    s.routerBalances[args.routers[0]][args.local] += 10 ether;
+
+    helpers_executeAndAssert(transferId, args, utils_getFastTransferAmount(args.amount) + vaultAmount, false);
   }
 
-  // FIXME: should not sponsor fast liquidity if using slow mode
-  function test_BridgeFacet__execute_noSlowSponsorLiquidity() public {
-    // require(false, "not tested");
-  }
-
-  // FIXME: some of these tests can likely be handled with stronger assertions
-  // FIXME: should not sponsor fast liquidity if using slow mode
+  // should sponsor relayer fee in slow liquidity
   function test_BridgeFacet__execute_sponsorsRelayersSlow() public {
-    // require(false, "not tested");
-  }
+    // set test params
+    _params.forceSlow = true;
+    s.sponsorVault = ISponsorVault(address(1234554321));
 
-  // FIXME: should not sponsor fast liquidity if using slow mode
-  function test_BridgeFacet__execute_sponsorsRelayersFast() public {
-    // require(false, "not tested");
+    // set asset context (local == adopted)
+    utils_setupAsset(true, false);
+
+    // get args
+    (bytes32 transferId, ExecuteArgs memory _args) = utils_makeExecuteArgs(0);
+
+    // set reconciled context
+    s.reconciledTransfers[transferId] = true;
+
+    helpers_executeAndAssert(transferId, _args);
   }
 
   // should work without calldata
@@ -1614,7 +1758,7 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
     helpers_executeAndAssert(transferId, args);
   }
 
-  // should work with successful calldata
+  // should work with successful calldata and using fast liquidity
   function test_BridgeFacet__execute_successfulCalldata() public {
     // Set the args.to to the mock xapp address, and args.callData to the `fulfill` fn.
     _params.callData = abi.encodeWithSelector(MockXApp.fulfill.selector, _local, TEST_MESSAGE);
@@ -1627,12 +1771,6 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
     utils_setupAsset(true, false);
 
     helpers_executeAndAssert(transferId, args, utils_getFastTransferAmount(args.amount), true, true, false);
-  }
-
-  // FIXME: should provide origin properties if calldata is authenticated (i.e. used the
-  // slow liquidity path)
-  function test_BridgeFacet__execute_usesAuthenticatedCallData() public {
-    // require(false, "not tested");
   }
 
   // should work with failing calldata : contract call failed
@@ -1649,10 +1787,25 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
     utils_setupAsset(true, false);
 
     helpers_executeAndAssert(transferId, args, utils_getFastTransferAmount(args.amount), true, false, false);
-    // TODO: Check allowance is the same as before.
   }
 
-  // FIXME: this is antipattern, needs to be within Executor.t.sol
+  // should work with a callback
+  function test_BridgeFacet__execute_worksWithCallback() public {
+    // set asset context (local == adopted)
+    utils_setupAsset(true, false);
+
+    _params.callback = address(123456654321);
+    // Set the args.to to the mock xapp address, and args.callData to the `fulfill` fn.
+    _params.callData = abi.encodeWithSelector(MockXApp.fulfill.selector, _local, TEST_MESSAGE);
+
+    (bytes32 transferId, ExecuteArgs memory args) = utils_makeExecuteArgs(1);
+
+    s.routerBalances[args.routers[0]][args.local] += 10 ether;
+
+    helpers_executeAndAssert(transferId, args, utils_getFastTransferAmount(args.amount), true, true, false);
+  }
+
+  // FIXME: move to Executor.t.sol
   // should work with failing calldata : recipient `to` is not a contract (should call _handleFailure)
   function test_BridgeFacet__execute_handleRecipientNotAContract() public {
     // Setting the calldata to be for fulfill... but obviously, that method should never be called.
@@ -1670,7 +1823,8 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
     helpers_executeAndAssert(transferId, args, utils_getFastTransferAmount(args.amount), true, true, false);
   }
 
-  // should work if already reconciled (happening in slow liquidity mode)
+  // should work if already reconciled (happening in slow liquidity mode, uses
+  // authenticated data)
   function test_BridgeFacet__execute_handleAlreadyReconciled() public {
     // set asset context (local == adopted)
     utils_setupAsset(true, false);
@@ -1696,7 +1850,6 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
     helpers_executeAndAssert(transferId, args, args.amount, true, true, false);
   }
 
-  // FIXME: this is antipattern, needs to be within Executor.t.sol
   // multipath: should subtract equally from each router's liquidity
   function test_BridgeFacet__execute_multipath() public {
     _amount = 1 ether;
@@ -1721,13 +1874,6 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
 
     helpers_executeAndAssert(transferId, args);
   }
-
-  // should work with sponsorship from sponsor vault
-  // TODO: see _handleExecuteTransaction
-
-  // TODO: test callback handling, should send the promise router the return data
-  // TODO: test native asset handling
-  // FIXME: these should be in executor ^^
 
   // ============ bumpTransfer ============
   // ============ bumpTransfer fail cases

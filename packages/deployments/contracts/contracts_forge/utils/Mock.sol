@@ -10,6 +10,7 @@ import {ISponsorVault} from "../../contracts/core/connext/interfaces/ISponsorVau
 import {ITokenRegistry} from "../../contracts/core/connext/interfaces/ITokenRegistry.sol";
 import {IWrapped} from "../../contracts/core/connext/interfaces/IWrapped.sol";
 import {ERC20} from "../../contracts/core/connext/helpers/OZERC20.sol";
+import {TestERC20} from "../../contracts/test/TestERC20.sol";
 import {IExecutor} from "../../contracts/core/connext/interfaces/IExecutor.sol";
 
 contract MockXAppConnectionManager {
@@ -191,4 +192,42 @@ contract MockTokenRegistry is ITokenRegistry {
   function oldReprToCurrentRepr(address _oldRepr) external pure returns (address _currentRepr) {
     return address(42);
   }
+}
+
+contract MockSponsorVault is ISponsorVault {
+  uint256 liquidity;
+
+  constructor(uint256 _liquidity) {
+    liquidity = _liquidity;
+  }
+
+  function setLiquidity(uint256 _liquidity) external {
+    liquidity = _liquidity;
+  }
+
+  function reimburseLiquidityFees(
+    address token,
+    uint256 amount,
+    address receiver
+  ) external returns (uint256) {
+    TestERC20(token).mint(msg.sender, liquidity);
+    return liquidity;
+  }
+
+  function reimburseRelayerFees(
+    uint32 originDomain,
+    address payable receiver,
+    uint256 amount
+  ) external {}
+
+  // Should allow anyone to send funds to the vault for sponsoring fees
+  function deposit(address _token, uint256 _amount) external payable {}
+
+  // Should allow the owner of the vault to withdraw funds put in to a given
+  // address
+  function withdraw(
+    address token,
+    address receiver,
+    uint256 amount
+  ) external {}
 }
