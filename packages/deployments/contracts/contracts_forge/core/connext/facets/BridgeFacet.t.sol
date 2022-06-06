@@ -1575,7 +1575,7 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
     // set asset context (local != adopted)
     utils_setupAsset(false, false);
 
-    helpers_executeAndAssert(transferId, args);
+    helpers_executeAndAssert(transferId, args, utils_getFastTransferAmount(args.amount), false);
   }
 
   // should work with approved router if router ownership is not renounced
