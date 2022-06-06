@@ -225,8 +225,7 @@ contract BridgeFacet is BaseConnextFacet {
    * @param _args - The XCallArgs arguments.
    * @return bytes32 - The transfer ID of the newly created crosschain transfer.
    */
-  // fixme: make nonreentrant
-  function xcall(XCallArgs calldata _args) external payable whenBridgeNotPaused returns (bytes32) {
+  function xcall(XCallArgs calldata _args) external payable whenBridgeNotPaused nonReentrant returns (bytes32) {
     // Sanity checks.
     {
       // Correct origin domain.
@@ -353,7 +352,7 @@ contract BridgeFacet is BaseConnextFacet {
    * @return bytes32 - The transfer ID of the crosschain transfer. Should match the xcall's transfer ID in order for
    * reconciliation to occur.
    */
-  function execute(ExecuteArgs calldata _args) external whenBridgeNotPaused returns (bytes32) {
+  function execute(ExecuteArgs calldata _args) external whenBridgeNotPaused nonReentrant returns (bytes32) {
     (bytes32 transferId, bool reconciled) = _executeSanityChecks(_args);
 
     // execute router liquidity when this is a fast transfer
