@@ -1,6 +1,6 @@
 import { createLoggingContext, jsonifyError, NxtpError } from "@connext/nxtp-utils";
 
-import { getContext } from "../../transfersPoller";
+import { getContext } from "../../shared";
 import { updateTransfers } from "../../lib/operations";
 
 // Ought to be configured properly for each network; we consult the chain config below.

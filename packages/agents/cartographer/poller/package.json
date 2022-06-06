@@ -9,7 +9,8 @@
     "src/**/*"
   ],
   "scripts": {
-    "dev": "concurrently -i -k -n 'app,tsc' -c 'green,cyan' 'nodemon'",
+    "pm": "pm2-runtime cartographer.config.js",
+    "dev": "concurrently -i -k -n 'app,tsc' -c 'green,cyan' 'pm2-runtime --watch dist/index.js'",
     "start": "pm2 start dist/index.js --source-map-support --kill-timeout 5000 --cron-restart=\"* * * * *\" --time",
     "stop": "pm2 delete index",
     "monitor": "pm2 monit",
@@ -25,7 +26,7 @@
     "dbmate": "dbmate"
   },
   "nodemonConfig": {
-    "exec": "pm2 start ./dist/index.js --source-map-support --kill-timeout 5000 --cron-restart=\"* * * * *\" --time -f | pino-pretty",
+    "exec": "pm2-runtime start ./dist/index.js --source-map-support --kill-timeout 5000 --cron-restart=\"* * * * *\" --time -f --attach | pino-pretty",
     "delay": "500",
     "ext": "js,json",
     "watch": []

@@ -1,23 +1,10 @@
 import { SubgraphReader } from "@connext/nxtp-adapters-subgraph";
-import { ChainData, createMethodContext, createRequestContext, getChainData, Logger } from "@connext/nxtp-utils";
+import { createMethodContext, createRequestContext, getChainData, Logger } from "@connext/nxtp-utils";
 
-import { Database, getDatabase } from "./adapters/database";
+import { getDatabase } from "./adapters/database";
 import { bindTransfers } from "./bindings";
 import { CartographerConfig, getConfig } from "./config";
-
-export type AppContext = {
-  logger: Logger;
-  adapters: {
-    subgraph: SubgraphReader; // Aggregates subgraphs in a FallbackSubgraph for each chain.
-    database: Database; // Database adapter.
-  };
-  config: CartographerConfig;
-  chainData: Map<string, ChainData>;
-  domains: string[]; // List of all supported domains.
-};
-
-const context: AppContext = {} as any;
-export const getContext = () => context;
+import { context } from "./shared";
 
 export const makeTransfersPoller = async (_configOverride?: CartographerConfig) => {
   const requestContext = createRequestContext("Transfers Poller Init");

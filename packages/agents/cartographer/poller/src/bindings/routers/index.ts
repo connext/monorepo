@@ -1,6 +1,6 @@
 import { createLoggingContext, jsonifyError, NxtpError } from "@connext/nxtp-utils";
 
-import { getContext } from "../../routersPoller";
+import { getContext } from "../../shared";
 import { updateRouters } from "../../lib/operations/routers";
 
 // Ought to be configured properly for each network; we consult the chain config below.
