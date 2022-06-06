@@ -360,13 +360,13 @@ contract BridgeFacet is BaseConnextFacet {
     (uint256 amount, address adopted) = _handleExecuteLiquidity(transferId, !reconciled, _args);
 
     // execute the transaction
-    _handleExecuteTransaction(_args, amount, adopted, transferId, reconciled);
+    uint256 amountWithSponsors = _handleExecuteTransaction(_args, amount, adopted, transferId, reconciled);
 
     // Set the relayer for this transaction to allow for future claim
     s.transferRelayer[transferId] = msg.sender;
 
     // emit event
-    emit Executed(transferId, _args.params.to, _args, adopted, amount, msg.sender);
+    emit Executed(transferId, _args.params.to, _args, adopted, amountWithSponsors, msg.sender);
 
     return transferId;
   }
@@ -689,7 +689,7 @@ contract BridgeFacet is BaseConnextFacet {
     address _adopted,
     bytes32 _transferId,
     bool _reconciled
-  ) private {
+  ) private returns (uint256) {
     // If the domain if sponsored
     if (address(s.sponsorVault) != address(0)) {
       // fast liquidity path
@@ -742,5 +742,7 @@ contract BridgeFacet is BaseConnextFacet {
         s.promiseRouter.send(_args.params.originDomain, _transferId, _args.params.callback, success, returnData);
       }
     }
+
+    return _amount;
   }
 }
