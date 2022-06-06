@@ -357,16 +357,17 @@ contract BridgeFacet is BaseConnextFacet {
     (bytes32 transferId, bool reconciled) = _executeSanityChecks(_args);
 
     // execute router liquidity when this is a fast transfer
-    (uint256 amount, address adopted) = _handleExecuteLiquidity(transferId, !reconciled, _args);
+    // asset will be adopted unless specified to be local in params
+    (uint256 amount, address asset) = _handleExecuteLiquidity(transferId, !reconciled, _args);
 
     // execute the transaction
-    uint256 amountWithSponsors = _handleExecuteTransaction(_args, amount, adopted, transferId, reconciled);
+    uint256 amountWithSponsors = _handleExecuteTransaction(_args, amount, asset, transferId, reconciled);
 
     // Set the relayer for this transaction to allow for future claim
     s.transferRelayer[transferId] = msg.sender;
 
     // emit event
-    emit Executed(transferId, _args.params.to, _args, adopted, amountWithSponsors, msg.sender);
+    emit Executed(transferId, _args.params.to, _args, asset, amountWithSponsors, msg.sender);
 
     return transferId;
   }
@@ -686,7 +687,7 @@ contract BridgeFacet is BaseConnextFacet {
   function _handleExecuteTransaction(
     ExecuteArgs calldata _args,
     uint256 _amount,
-    address _adopted,
+    address _asset, // adopted (or local if specified)
     bytes32 _transferId,
     bool _reconciled
   ) private returns (uint256) {
@@ -699,11 +700,11 @@ contract BridgeFacet is BaseConnextFacet {
         // there are no malicious `Vaults` that do not transfer the correct amount. Should likely do a
         // balance read about it
 
-        uint256 starting = IERC20(_adopted).balanceOf(address(this));
-        uint256 sponsored = s.sponsorVault.reimburseLiquidityFees(_adopted, _args.amount, _args.params.to);
+        uint256 starting = IERC20(_asset).balanceOf(address(this));
+        uint256 sponsored = s.sponsorVault.reimburseLiquidityFees(_asset, _args.amount, _args.params.to);
 
         // Validate correct amounts are transferred
-        if (IERC20(_adopted).balanceOf(address(this)) != starting + sponsored) {
+        if (IERC20(_asset).balanceOf(address(this)) != starting + sponsored) {
           revert BridgeFacet__handleExecuteTransaction_invalidSponsoredAmount();
         }
 
@@ -719,17 +720,17 @@ contract BridgeFacet is BaseConnextFacet {
     // execute the the transaction
     if (keccak256(_args.params.callData) == EMPTY) {
       // no call data, send funds to the user
-      AssetLogic.transferAssetFromContract(_adopted, _args.params.to, _amount);
+      AssetLogic.transferAssetFromContract(_asset, _args.params.to, _amount);
     } else {
       // execute calldata w/funds
-      AssetLogic.transferAssetFromContract(_adopted, address(s.executor), _amount);
+      AssetLogic.transferAssetFromContract(_asset, address(s.executor), _amount);
       (bool success, bytes memory returnData) = s.executor.execute(
         IExecutor.ExecutorArgs(
           _transferId,
           _amount,
           _args.params.to,
           _args.params.recovery,
-          _adopted,
+          _asset,
           _reconciled
             ? LibCrossDomainProperty.formatDomainAndSenderBytes(_args.params.originDomain, _args.originSender)
             : LibCrossDomainProperty.EMPTY_BYTES,
