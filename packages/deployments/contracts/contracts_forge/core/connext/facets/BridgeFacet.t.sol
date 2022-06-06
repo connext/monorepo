@@ -1702,10 +1702,11 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
   function test_BridgeFacet__execute_worksWithoutVault() public {
     s.sponsorVault = ISponsorVault(address(0));
 
-    (bytes32 transferId, ExecuteArgs memory args) = utils_makeExecuteArgs(1);
-
     // set asset context (local == adopted)
     utils_setupAsset(true, false);
+
+    (bytes32 transferId, ExecuteArgs memory args) = utils_makeExecuteArgs(1);
+    s.routerBalances[args.routers[0]][args.local] += 10 ether;
 
     helpers_executeAndAssert(transferId, args);
   }
@@ -1728,9 +1729,10 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
 
   // should sponsor relayer fee in slow liquidity
   function test_BridgeFacet__execute_sponsorsRelayersSlow() public {
-    // set test params
-    _params.forceSlow = true;
-    s.sponsorVault = ISponsorVault(address(1234554321));
+    // set test vault
+    uint256 vaultAmount = 10000;
+    MockSponsorVault vault = new MockSponsorVault(vaultAmount);
+    s.sponsorVault = vault;
 
     // set asset context (local == adopted)
     utils_setupAsset(true, false);
