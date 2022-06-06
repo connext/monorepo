@@ -446,7 +446,7 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
     );
 
     // if the token is a representation token, ensure that burn is called
-    if (bridged == _local) {
+    if (bridged != _canonical && bridgedAmt > 0) {
       vm.expectCall(_local, abi.encodeWithSelector(TestERC20.burn.selector, address(this), bridgedAmt));
     }
   }
