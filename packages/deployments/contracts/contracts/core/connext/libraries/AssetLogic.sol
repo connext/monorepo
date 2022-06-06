@@ -120,6 +120,11 @@ library AssetLogic {
     address _to,
     uint256 _amount
   ) internal {
+    // If amount is 0 do nothing
+    if (_amount == 0) {
+      return;
+    }
+
     AppStorage storage s = LibConnextStorage.connextStorage();
 
     // No native assets should ever be stored on this contract
