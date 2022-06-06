@@ -7,6 +7,7 @@ import {Address} from "@openzeppelin/contracts/utils/Address.sol";
 
 import {XAppConnectionManager, TypeCasts} from "../../../../contracts/nomad-core/contracts/XAppConnectionManager.sol";
 import {Home} from "../../../../contracts/nomad-core/contracts/Home.sol";
+import {TypedMemView} from "../../../../contracts/nomad-core/libs/TypedMemView.sol";
 
 import {AssetLogic} from "../../../../contracts/core/connext/libraries/AssetLogic.sol";
 import {IStableSwap} from "../../../../contracts/core/connext/interfaces/IStableSwap.sol";
@@ -18,6 +19,7 @@ import {IWrapped} from "../../../../contracts/core/connext/interfaces/IWrapped.s
 import {IExecutor} from "../../../../contracts/core/connext/interfaces/IExecutor.sol";
 import {Executor} from "../../../../contracts/core/connext/helpers/Executor.sol";
 import {ConnextMessage} from "../../../../contracts/core/connext/libraries/ConnextMessage.sol";
+import {RelayerFeeMessage} from "../../../../contracts/core/relayer-fee/libraries/RelayerFeeMessage.sol";
 import {AssetLogic} from "../../../../contracts/core/connext/libraries/AssetLogic.sol";
 import {LibCrossDomainProperty} from "../../../../contracts/core/connext/libraries/LibCrossDomainProperty.sol";
 import {CallParams, ExecuteArgs, XCallArgs, PausedFunctions} from "../../../../contracts/core/connext/libraries/LibConnextStorage.sol";
@@ -34,6 +36,11 @@ import "./FacetHelper.sol";
 import "forge-std/console.sol";
 
 contract BridgeFacetTest is BridgeFacet, FacetHelper {
+  // ============ Libs ============
+  using TypedMemView for bytes29;
+  using TypedMemView for bytes;
+  // ============ Constants ============
+
   bytes32 constant TEST_MESSAGE = bytes32("test message");
 
   // ============ Storage ============
@@ -859,24 +866,20 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
 
     // Derive message from xcall arguments.
     bytes memory message;
-    address bridged;
     {
-      uint256 bridgedAmt = args.amount;
-      // FIXME: wrong asset, handle adopted
-      bridged = isNative ? address(s.wrapper) : _local;
       BridgeFacet.XCalledEventArgs memory eventArgs = BridgeFacet.XCalledEventArgs({
         transactingAssetId: isNative ? address(s.wrapper) : args.transactingAssetId,
         amount: args.amount,
-        bridgedAmt: bridgedAmt,
-        bridged: bridged
+        bridgedAmt: args.amount,
+        bridged: _local
       });
-      message = utils_formatMessage(args, bridged, transferId, bridgedAmt);
+      message = utils_formatMessage(args, _local, transferId, args.amount);
     }
 
     uint256[] memory routerBalances = new uint256[](s.routedTransfers[transferId].length);
     for (uint256 i = 0; i < s.routedTransfers[transferId].length; i++) {
       // Warming up the slot in order to make gas estimates more accurate to appropriate conditions.
-      s.routerBalances[s.routedTransfers[transferId][i]][bridged] = 1 ether;
+      s.routerBalances[s.routedTransfers[transferId][i]][_local] = 1 ether;
       routerBalances[i] = 1 ether;
     }
 
@@ -885,10 +888,14 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
     if (isNative) {
       prevBalance = payable(address(this)).balance;
     } else {
-      prevBalance = IERC20(bridged).balanceOf(address(this));
+      prevBalance = IERC20(_local).balanceOf(address(this));
     }
 
     if (shouldSucceed) {
+      // check that the mint is called properly
+      if (_local != _canonical) {
+        vm.expectCall(_local, abi.encodeWithSelector(TestERC20.mint.selector, address(this), args.amount));
+      }
       vm.expectEmit(true, true, true, true);
       emit Reconciled(transferId, _originDomain, s.routedTransfers[transferId], _local, args.amount, address(this));
     } else {
@@ -962,7 +969,7 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
 
   // ============ Admin methods ==============
   // setPromiseRouter
-  // FIXME: move modifier tests to BaseConnextFacet.t.sol
+  // FIXME: move to BaseConnextFacet.t.sol
   function test_BridgeFacet__setPromiseRouter_failIfNotOwner() public {
     // require(false, "not tested");
   }
@@ -1276,40 +1283,56 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
   // unit tests
 
   // ============ reconcile fail cases
-  // fail if message is invalid
-  // mustBeMessage > tryAsMessage > assertValid
-  // typeOf(memView) == 0xffffffffff || not(gt( (loc(memView) + len(memView)) , mload(0x40)))
-  // "Validity assertion failed"
+
+  // should not process invalid messages
   function test_BridgeFacet__reconcile_invalidMessage() public {
-    // require(false, "not tested");
+    bytes memory _message = bytes("");
+    vm.expectRevert(bytes("Validity assertion failed"));
+    _reconcile(_originDomain, _message);
   }
 
   // fails if action is not transfer
   function test_BridgeFacet__reconcile_invalidTransfer() public {
-    // require(false, "not tested");
+    bytes29 tokenId = ConnextMessage.formatTokenId(_canonicalDomain, _canonicalId);
+    bytes29 action = abi
+      .encodePacked(ConnextMessage.Types.Message, bytes32("recip"), uint256(100), bytes32("details"), bytes32("id"))
+      .ref(0)
+      .castTo(uint40(ConnextMessage.Types.Message));
+    bytes29[] memory _views = new bytes29[](2);
+    _views[0] = tokenId;
+    _views[1] = action;
+    bytes memory _message = TypedMemView.join(_views);
+    vm.expectRevert(BridgeFacet.BridgeFacet__reconcile_invalidAction.selector);
+    _reconcile(_originDomain, _message);
   }
 
   // fails if already reconciled (s.reconciledTransfers[transferId] = true)
   function test_BridgeFacet__reconcile_failIfAlreadyReconciled() public {
+    utils_setupAsset(true, false);
     (bytes32 transferId, XCallArgs memory args) = utils_makeXCallArgs();
     s.reconciledTransfers[transferId] = true;
     helpers_reconcileAndAssert(transferId, args, BridgeFacet.BridgeFacet__reconcile_alreadyReconciled.selector);
   }
 
-  // TODO?: fails if canonical asset and not enough balance ??
-
   // ============ reconcile success cases
   // works with local representational tokens (remote origin, so they will be minted)
   function test_BridgeFacet__reconcile_worksWithLocal() public {
+    utils_setupAsset(true, false);
     helpers_reconcileAndAssert();
   }
 
   function test_BridgeFacet__reconcile_worksWithCanonical() public {
-    // require(false, "not tested");
+    utils_setupAsset(true, true);
+    helpers_reconcileAndAssert();
   }
 
+  // funds contract when pre-execute (slow liquidity route)
   function test_BridgeFacet__reconcile_worksPreExecute() public {
-    // require(false, "not tested");
+    utils_setupAsset(true, false);
+    (bytes32 transferId, XCallArgs memory args) = utils_makeXCallArgs();
+    delete s.routedTransfers[transferId];
+
+    helpers_reconcileAndAssert(transferId, args, bytes4(""));
   }
 
   // funds router when post-execute (fast liquidity route)
