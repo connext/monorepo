@@ -971,53 +971,165 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
   // setPromiseRouter
   // FIXME: move to BaseConnextFacet.t.sol
   function test_BridgeFacet__setPromiseRouter_failIfNotOwner() public {
-    // require(false, "not tested");
+    // constants
+    address old = address(123);
+    address updated = address(_local);
+
+    // set storage
+    s.promiseRouter = PromiseRouter(payable(old));
+
+    // test revert
+    vm.prank(_originSender);
+    vm.expectRevert(BaseConnextFacet.BaseConnextFacet__onlyOwner_notOwner.selector);
+    this.setPromiseRouter(payable(updated));
   }
 
   function test_BridgeFacet__setPromiseRouter_failIfNoChange() public {
-    // require(false, "not tested");
+    // constants
+    address old = address(123);
+    address updated = old;
+
+    // set storage
+    s.promiseRouter = PromiseRouter(payable(old));
+
+    // test revert
+    vm.prank(LibDiamond.contractOwner());
+    vm.expectRevert(BridgeFacet.BridgeFacet__setPromiseRouter_invalidPromiseRouter.selector);
+    this.setPromiseRouter(payable(updated));
   }
 
   function test_BridgeFacet__setPromiseRouter_failIfNotContract() public {
-    // require(false, "not tested");
+    // constants
+    address old = address(123);
+    address updated = address(456);
+
+    // set storage
+    s.promiseRouter = PromiseRouter(payable(old));
+
+    // test revert
+    vm.prank(LibDiamond.contractOwner());
+    vm.expectRevert(BridgeFacet.BridgeFacet__setPromiseRouter_invalidPromiseRouter.selector);
+    this.setPromiseRouter(payable(updated));
   }
 
   function test_BridgeFacet__setPromiseRouter_works() public {
-    // require(false, "not tested");
+    // constants
+    address old = address(123);
+    address updated = address(_local);
+
+    // set storage
+    s.promiseRouter = PromiseRouter(payable(old));
+
+    // test success
+    vm.prank(LibDiamond.contractOwner());
+    vm.expectEmit(true, true, true, true);
+    emit PromiseRouterUpdated(old, updated, LibDiamond.contractOwner());
+    this.setPromiseRouter(payable(updated));
+    assertEq(address(this.promiseRouter()), updated);
   }
 
   // setExecutor
   function test_BridgeFacet__setExecutor_failIfNotOwner() public {
-    // require(false, "not tested");
+    // constants
+    address old = address(123);
+    address updated = address(_local);
+
+    // set storage
+    s.executor = IExecutor(payable(old));
+
+    // test revert
+    vm.prank(_originSender);
+    vm.expectRevert(BaseConnextFacet.BaseConnextFacet__onlyOwner_notOwner.selector);
+    this.setExecutor(payable(updated));
   }
 
   function test_BridgeFacet__setExecutor_failIfNoChange() public {
-    // require(false, "not tested");
+    // constants
+    address old = address(123);
+    address updated = old;
+
+    // set storage
+    s.executor = IExecutor(payable(old));
+
+    // test revert
+    vm.prank(LibDiamond.contractOwner());
+    vm.expectRevert(BridgeFacet.BridgeFacet__setExecutor_invalidExecutor.selector);
+    this.setExecutor(payable(updated));
   }
 
   function test_BridgeFacet__setExecutor_failIfNotContract() public {
-    // require(false, "not tested");
+    // constants
+    address old = address(123);
+    address updated = address(456);
+
+    // set storage
+    s.executor = IExecutor(payable(old));
+
+    // test revert
+    vm.prank(LibDiamond.contractOwner());
+    vm.expectRevert(BridgeFacet.BridgeFacet__setExecutor_invalidExecutor.selector);
+    this.setExecutor(payable(updated));
   }
 
   function test_BridgeFacet__setExecutor_works() public {
-    // require(false, "not tested");
+    // constants
+    address old = address(123);
+    address updated = address(_local);
+
+    // set storage
+    s.executor = IExecutor(payable(old));
+
+    // test revert
+    vm.prank(LibDiamond.contractOwner());
+    vm.expectEmit(true, true, true, true);
+    emit ExecutorUpdated(old, updated, LibDiamond.contractOwner());
+    this.setExecutor(payable(updated));
+    assertEq(address(this.executor()), updated);
   }
 
   // setSponsorVault
   function test_BridgeFacet__setSponsorVault_failIfNotOwner() public {
-    // require(false, "not tested");
+    // constants
+    address old = address(123);
+    address updated = old;
+
+    // set storage
+    s.sponsorVault = ISponsorVault(payable(old));
+
+    // test revert
+    vm.prank(_originSender);
+    vm.expectRevert(BaseConnextFacet.BaseConnextFacet__onlyOwner_notOwner.selector);
+    this.setSponsorVault(payable(updated));
   }
 
   function test_BridgeFacet__setSponsorVault_failIfNoChange() public {
-    // require(false, "not tested");
-  }
+    // constants
+    address old = address(123);
+    address updated = old;
 
-  function test_BridgeFacet__setSponsorVault_failIfNotContract() public {
-    // require(false, "not tested");
+    // set storage
+    s.sponsorVault = ISponsorVault(payable(old));
+
+    // test revert
+    vm.prank(LibDiamond.contractOwner());
+    vm.expectRevert(BridgeFacet.BridgeFacet__setSponsorVault_invalidSponsorVault.selector);
+    this.setSponsorVault(payable(updated));
   }
 
   function test_BridgeFacet__setSponsorVault_works() public {
-    // require(false, "not tested");
+    // constants
+    address old = address(123);
+    address updated = address(_local);
+
+    // set storage
+    s.sponsorVault = ISponsorVault(payable(old));
+
+    // test revert
+    vm.prank(LibDiamond.contractOwner());
+    vm.expectEmit(true, true, true, true);
+    emit SponsorVaultUpdated(old, updated, LibDiamond.contractOwner());
+    this.setSponsorVault(payable(updated));
+    assertEq(address(this.sponsorVault()), updated);
   }
 
   // ============ Public methods ==============
