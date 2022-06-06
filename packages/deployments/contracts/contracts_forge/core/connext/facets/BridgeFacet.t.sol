@@ -1902,16 +1902,33 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
 
   // ============ bumpTransfer ============
   // ============ bumpTransfer fail cases
+
+  // FIXME: move to BaseConnextFacet.t.sol
   function test_BridgeFacet__bumpTransfer_failsIfPaused() public {
     // require(false, "not tested");
   }
 
+  // fails if no msg.value provided
   function test_BridgeFacet__bumpTransfer_failsIfNoValue() public {
-    // require(false, "not tested");
+    bytes32 transferId = bytes32("id");
+
+    vm.expectRevert(BridgeFacet.BridgeFacet__bumpTransfer_valueIsZero.selector);
+    this.bumpTransfer(transferId);
   }
 
   // ============ bumpTransfer success cases
+
+  // works
   function test_BridgeFacet__bumpTransfer_works() public {
-    // require(false, "not tested");
+    bytes32 transferId = bytes32("id");
+    uint256 fee = 0.1 ether;
+
+    uint256 previous = this.relayerFees(transferId);
+
+    vm.expectEmit(true, true, true, true);
+    emit TransferRelayerFeesUpdated(transferId, previous + fee, address(this));
+    this.bumpTransfer{value: fee}(transferId);
+
+    assertEq(this.relayerFees(transferId), previous + fee);
   }
 }
