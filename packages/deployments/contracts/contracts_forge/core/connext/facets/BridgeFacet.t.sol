@@ -296,8 +296,7 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
     XCallArgs memory args = XCallArgs(
       _params,
       _adopted == address(s.wrapper) ? address(0) : _adopted, // transactingAssetId : could be adopted, local, or wrapped.
-      _amount,
-      _relayerFee
+      _amount
     );
     // generate transfer id
     bytes32 transferId = utils_getTransferIdFromXCallArgs(args, _originSender, _canonicalId, _canonicalDomain);
@@ -310,8 +309,7 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
     XCallArgs memory args = XCallArgs(
       _params,
       transactingAssetId, // transactingAssetId : could be adopted, local, or wrapped.
-      _amount,
-      _relayerFee
+      _amount
     );
     // generate transfer id
     bytes32 transferId = utils_getTransferIdFromXCallArgs(args, _originSender, _canonicalId, _canonicalDomain);
@@ -519,7 +517,7 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
       vm.expectRevert(expectedError);
     }
 
-    uint256 fees = args.relayerFee + args.params.callbackFee;
+    uint256 fees = args.params.relayerFee + args.params.callbackFee;
     vm.prank(_originSender);
     this.xcall{value: isNative ? fees + args.amount : fees}(args);
 
@@ -527,7 +525,7 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
       if (isNative) {
         // Should have custodied the relayer fee, sent any callback fee to the promise router, and deposited the
         // amount into the wrapper contract.
-        assertEq(payable(address(this)).balance, initialContractBalance + args.relayerFee);
+        assertEq(payable(address(this)).balance, initialContractBalance + args.params.relayerFee);
       } else {
         // User should have been debited fees... but also tx cost?
         // assertEq(payable(_originSender).balance, initialUserBalance - fees);
@@ -554,7 +552,7 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
         }
       }
       // Should have updated relayer fees mapping.
-      assertEq(this.relayerFees(transferId), args.relayerFee);
+      assertEq(this.relayerFees(transferId), args.params.relayerFee);
 
       if (args.params.callbackFee > 0) {
         // TODO: For some reason, balance isn't changing. Perhaps the vm.mockCall prevents this?
@@ -672,7 +670,7 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
           ISponsorVault.reimburseRelayerFees.selector,
           _originDomain,
           _args.params.to,
-          _args.relayerFee
+          _args.params.relayerFee
         )
       );
     }
@@ -1217,7 +1215,7 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
     vm.expectRevert(AssetLogic.AssetLogic__handleIncomingAsset_notAmount.selector);
     vm.prank(_originSender);
     // Sending only the amount + relayer fee; callbackFee is not covered!
-    this.xcall{value: args.relayerFee + args.amount}(args);
+    this.xcall{value: args.params.relayerFee + args.amount}(args);
   }
 
   // FIXME: move to AssetLogic.t.sol
@@ -1279,7 +1277,7 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
 
     vm.expectRevert("ERC20: transfer amount exceeds balance");
     vm.prank(_originSender);
-    this.xcall{value: args.relayerFee}(args);
+    this.xcall{value: args.params.relayerFee}(args);
   }
 
   // fails if user has not set enough allowance
@@ -1296,7 +1294,7 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
 
     vm.expectRevert("ERC20: transfer amount exceeds allowance");
     vm.prank(_originSender);
-    this.xcall{value: args.relayerFee}(args);
+    this.xcall{value: args.params.relayerFee}(args);
   }
 
   // ============ xcall success cases
@@ -1558,7 +1556,7 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
     (, ExecuteArgs memory args) = utils_makeExecuteArgs(1);
 
     // expect failure
-    vm.expectRevert(BridgeFacet.BridgeFacet__execute_unapprovedRelayer.selector);
+    vm.expectRevert(BridgeFacet.BridgeFacet__execute_unapprovedSender.selector);
     this.execute(args);
   }
 

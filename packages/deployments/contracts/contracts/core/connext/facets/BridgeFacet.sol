@@ -304,7 +304,7 @@ contract BridgeFacet is BaseConnextFacet {
       (, uint256 amount) = AssetLogic.handleIncomingAsset(
         _args.transactingAssetId,
         _args.amount,
-        _args.relayerFee + _args.params.callbackFee
+        _args.params.relayerFee + _args.params.callbackFee
       );
 
       // Swap to the local asset from adopted if applicable.
