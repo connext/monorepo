@@ -334,6 +334,7 @@ export const RELAYER_CONFIG: Promise<RelayerConfig> = (async (): Promise<Relayer
 
 /// MARK - CARTOGRAPHER CONFIG
 export const CARTOGRAPHER_CONFIG: Promise<CartographerConfig> = (async (): Promise<CartographerConfig> => {
+  const { ORIGIN, DESTINATION } = await DOMAINS;
   return {
     database: {
       url: "postgres://postgres:qwerty@localhost:5432/connext?sslmode=disable",
@@ -341,5 +342,9 @@ export const CARTOGRAPHER_CONFIG: Promise<CartographerConfig> = (async (): Promi
     logLevel: "debug",
     pollInterval: 4_000,
     environment: "staging",
+    chains: {
+      [ORIGIN.domain]: {},
+      [DESTINATION.domain]: {},
+    },
   };
 })();
