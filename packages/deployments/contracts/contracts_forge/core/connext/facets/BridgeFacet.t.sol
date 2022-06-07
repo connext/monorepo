@@ -2134,11 +2134,6 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
     uint256 remainder = 1 gwei;
     uint256 swappedIn = portaled + fee + remainder; // amount it cost on AMM to get repay amt
 
-    console.log("amount", _args.amount);
-    console.log("portaled", portaled);
-    console.log("fee", fee);
-    console.log("swppedIn", swappedIn);
-
     // set mock + storage (using external pool)
     vm.mockCall(_stableSwap, abi.encodeWithSelector(IStableSwap.swapExactOut.selector), abi.encode(swappedIn));
     vm.mockCall(

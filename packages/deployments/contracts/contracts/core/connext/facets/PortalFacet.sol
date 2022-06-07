@@ -14,8 +14,9 @@ contract PortalFacet is BaseConnextFacet {
   // ========== Custom Errors ===========
   error PortalFacet__setAavePortalFee_invalidFee();
   error PortalFacet__repayAavePortal_insufficientFunds();
-  error PortalFacet__repayAavePortalFor_notSupportedAsset();
   error PortalFacet__repayAavePortal_swapFailed();
+  error PortalFacet__repayAavePortalFor_notSupportedAsset();
+  error PortalFacet__repayAavePortalFor_zeroAmount();
 
   // ============ Events ============
 
@@ -100,12 +101,12 @@ contract PortalFacet is BaseConnextFacet {
       _maxIn
     );
 
+    if (!success) revert PortalFacet__repayAavePortal_swapFailed();
+
     // decrement router balances
     unchecked {
       s.routerBalances[msg.sender][_local] -= amountIn;
     }
-
-    if (!success) revert PortalFacet__repayAavePortal_swapFailed();
 
     // back loan
     _backLoan(_local, _backingAmount, _feeAmount, _transferId);
@@ -137,6 +138,8 @@ contract PortalFacet is BaseConnextFacet {
 
     // Transfer funds to the contract
     uint256 total = _backingAmount + _feeAmount;
+    if (total == 0) revert PortalFacet__repayAavePortalFor_zeroAmount();
+
     (, uint256 amount) = AssetLogic.handleIncomingAsset(_adopted, total, 0);
 
     // If this was a fee on transfer token, reduce the total
