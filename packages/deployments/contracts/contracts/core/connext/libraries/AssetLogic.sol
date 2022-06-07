@@ -12,7 +12,10 @@ import {LibConnextStorage, AppStorage, PausedFunctions} from "./LibConnextStorag
 import {SwapUtils} from "./SwapUtils.sol";
 
 library AssetLogic {
+  // ============ Libraries ============
   using SwapUtils for SwapUtils.Swap;
+
+  // ============ Errors ============
 
   error AssetLogic__handleIncomingAsset_notAmount();
   error AssetLogic__handleIncomingAsset_ethWithErcTransfer();
@@ -20,6 +23,8 @@ library AssetLogic {
   error AssetLogic__swapToLocalAssetIfNeeded_swapPaused();
   error AssetLogic__swapFromLocalAssetIfNeeded_swapPaused();
   error AssetLogic__getTokenIndexFromStableSwapPool_notExist();
+
+  // ============ Internal ============
 
   /**
    * @notice Check if the stabelswap pool exists or not
@@ -198,6 +203,11 @@ library AssetLogic {
     address adopted = s.canonicalToAdopted[id];
     if (adopted == _asset) {
       return (_amount, _asset);
+    }
+
+    // If 0 valued, do nothing
+    if (_amount == 0) {
+      return (_amount, adopted);
     }
 
     // NOTE: Normally, this would be checked via the `whenSwapNotPaused` modifier (as in the
