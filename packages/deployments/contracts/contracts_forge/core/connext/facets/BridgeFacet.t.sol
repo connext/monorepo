@@ -1075,7 +1075,6 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
     helpers_xcallAndAssert(BridgeFacet.BridgeFacet__xcall_notSupportedAsset.selector);
   }
 
-  // FIXME: move to AssetLogic.t.sol
   // fails if native token transfer and amount of native tokens sent is < amount + relayerFee + callbackFee
   function test_BridgeFacet__xcall_failNativeAssetCallbackFeeInsufficient() public {
     vm.deal(_originSender, 100 ether);
@@ -1091,22 +1090,6 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
     this.xcall{value: args.relayerFee + args.amount}(args);
   }
 
-  // FIXME: move to AssetLogic.t.sol
-  // fails if native token transfer and amount of native tokens sent is < amount + relayerFee
-  function test_BridgeFacet__xcall_failNativeAssetRelayerFeeInsufficient() public {
-    vm.deal(_originSender, 100 ether);
-    utils_setupNative(true, true);
-    _relayerFee = 0.002 ether;
-
-    (, XCallArgs memory args) = utils_makeXCallArgs();
-
-    vm.expectRevert(AssetLogic.AssetLogic__handleIncomingAsset_notAmount.selector);
-    vm.prank(_originSender);
-    // Sending only the amount; relayer fee is not covered!
-    this.xcall{value: args.amount}(args);
-  }
-
-  // FIXME: move to AssetLogic.t.sol
   // fails if erc20 transfer and eth sent < relayerFee + callbackFee
   function test_BridgeFacet__xcall_failEthWithErc20TransferInsufficient() public {
     utils_setupAsset(true, false);
@@ -1121,7 +1104,6 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
     this.xcall{value: 0.08 ether}(args);
   }
 
-  // FIXME: move to AssetLogic.t.sol
   // fails if erc20 transfer and eth sent > relayerFee + callbackFee
   function test_BridgeFacet__xcall_failEthWithErc20TransferUnnecessary() public {
     vm.deal(_originSender, 100 ether);
@@ -1135,7 +1117,6 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
     this.xcall{value: 1 ether}(args);
   }
 
-  // FIXME: move to AssetLogic.t.sol
   // fails if user has insufficient tokens
   function test_BridgeFacet__xcall_failInsufficientErc20Tokens() public {
     _amount = 10.1 ether;
