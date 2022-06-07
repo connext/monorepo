@@ -2,4 +2,4 @@
 set -eoux pipefail
 
 dbmate up
-node --trace-warnings dist/index.js
+pm2-runtime cartographer.config.js

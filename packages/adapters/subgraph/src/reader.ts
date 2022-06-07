@@ -8,6 +8,7 @@ import {
   DestinationTransfer,
   RouterBalance,
   AssetBalance,
+  SubgraphQueryByTimestampMetaParams,
 } from "@connext/nxtp-utils";
 
 import { getHelpers } from "./lib/helpers";
@@ -24,6 +25,8 @@ import {
   getDestinationTransfersByIdsQuery,
   getAssetBalancesAllRoutersQuery,
   getLastestBlockNumberQuery,
+  getDestinationTransfersByExecuteTimestampQuery,
+  getDestinationTransfersByReconcileTimestampQuery,
 } from "./lib/operations";
 import { SubgraphMap } from "./lib/entities";
 
@@ -286,6 +289,48 @@ export class SubgraphReader {
       .map(parser.originTransfer);
 
     return originTransfers;
+  }
+
+  public async getDestinationTransfersByExecuteTimestamp(
+    params: Map<string, SubgraphQueryByTimestampMetaParams>,
+  ): Promise<XTransfer[]> {
+    const { execute, parser } = getHelpers();
+    const xcalledXQuery = getDestinationTransfersByExecuteTimestampQuery(params);
+    const response = await execute(xcalledXQuery);
+
+    const transfers: any[] = [];
+    for (const key of response.keys()) {
+      const value = response.get(key);
+      transfers.push(value?.flat());
+    }
+
+    const destinationTransfers: XTransfer[] = transfers
+      .flat()
+      .filter((x: any) => !!x)
+      .map(parser.destinationTransfer);
+
+    return destinationTransfers;
+  }
+
+  public async getDestinationTransfersByReconcileTimestamp(
+    params: Map<string, SubgraphQueryByTimestampMetaParams>,
+  ): Promise<XTransfer[]> {
+    const { execute, parser } = getHelpers();
+    const xcalledXQuery = getDestinationTransfersByReconcileTimestampQuery(params);
+    const response = await execute(xcalledXQuery);
+
+    const transfers: any[] = [];
+    for (const key of response.keys()) {
+      const value = response.get(key);
+      transfers.push(value?.flat());
+    }
+
+    const destinationTransfers: XTransfer[] = transfers
+      .flat()
+      .filter((x: any) => !!x)
+      .map(parser.destinationTransfer);
+
+    return destinationTransfers;
   }
 
   /**
