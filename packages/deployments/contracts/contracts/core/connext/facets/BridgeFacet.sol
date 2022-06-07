@@ -562,7 +562,7 @@ contract BridgeFacet is BaseConnextFacet {
     if (portalTransferAmount != 0) {
       // ensure a router took on credit risk
       if (pathLen != 1) revert BridgeFacet__reconcile_noPortalRouter();
-      toDistribute = _reconcileProcessPortal(amount, local, routers[0], transferId);
+      toDistribute = _reconcileProcessPortal(amount, token, routers[0], transferId);
     }
 
     if (pathLen != 0) {
@@ -570,14 +570,14 @@ contract BridgeFacet is BaseConnextFacet {
       // Credit each router that provided liquidity their due 'share' of the asset.
       uint256 routerAmt = toDistribute / pathLen;
       for (uint256 i; i < pathLen; ) {
-        s.routerBalances[routers[i]][local] += routerAmt;
+        s.routerBalances[routers[i]][token] += routerAmt;
         unchecked {
           i++;
         }
       }
     }
 
-    emit Reconciled(transferId, _origin, routers, local, amount, msg.sender);
+    emit Reconciled(transferId, _origin, routers, token, amount, msg.sender);
   }
 
   /**
