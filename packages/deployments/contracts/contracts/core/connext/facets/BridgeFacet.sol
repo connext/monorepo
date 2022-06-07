@@ -277,6 +277,12 @@ contract BridgeFacet is BaseConnextFacet {
         canonical = ConnextMessage.TokenId(canonicalDomain, canonicalId);
       }
 
+      transferId = _getTransferId(_args, canonical);
+      s.nonce += 1;
+
+      // Store the relayer fee
+      s.relayerFees[transferId] = _args.relayerFee;
+
       // Transfer funds of transacting asset to the contract from the user.
       // NOTE: Will wrap any native asset transferred to wrapped-native automatically.
       (, uint256 amount) = AssetLogic.handleIncomingAsset(
@@ -291,8 +297,6 @@ contract BridgeFacet is BaseConnextFacet {
         transactingAssetId,
         amount
       );
-
-      transferId = _getTransferId(_args, canonical);
 
       // Transfer callback fee to PromiseRouter if set
       if (_args.params.callbackFee != 0) {
@@ -311,15 +315,8 @@ contract BridgeFacet is BaseConnextFacet {
       });
     }
 
-    // fixme: cei
-    // Store the relayer fee
-    s.relayerFees[transferId] = _args.relayerFee;
-
     // emit event
-    emit XCalled(transferId, _args, eventArgs, s.nonce, message, msg.sender);
-
-    // fixme: cei
-    s.nonce += 1;
+    emit XCalled(transferId, _args, eventArgs, s.nonce - 1, message, msg.sender);
 
     return transferId;
   }
