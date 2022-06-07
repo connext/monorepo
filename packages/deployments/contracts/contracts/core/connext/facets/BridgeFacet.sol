@@ -739,7 +739,7 @@ contract BridgeFacet is BaseConnextFacet {
 
     // If the local asset is specified as desired by definition of the transfer, exit.
     if (_args.params.receiveLocal) {
-      return (fastTransferAmount, _args.local);
+      return (toSwap, _args.local);
     }
 
     // Swap out of mad* asset into adopted asset if needed.
