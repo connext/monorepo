@@ -157,9 +157,14 @@ contract TestSetterFacet is BaseConnextFacet {
 }
 
 contract MockWrapper is IWrapped, ERC20 {
-  function deposit() external payable {}
+  function deposit() external payable {
+    _mint(msg.sender, msg.value);
+  }
 
-  function withdraw(uint256 amount) external {}
+  function withdraw(uint256 amount) external {
+    _burn(msg.sender, amount);
+    msg.sender.call{value: amount}("");
+  }
 }
 
 contract MockTokenRegistry is ITokenRegistry {

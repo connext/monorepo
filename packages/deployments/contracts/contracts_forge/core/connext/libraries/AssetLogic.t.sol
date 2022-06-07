@@ -15,6 +15,11 @@ import "forge-std/console.sol";
 
 // Helper to call library with native value functions
 contract LibCaller {
+  constructor(address _wrapper) {
+    AppStorage storage s = LibConnextStorage.connextStorage();
+    s.wrapper = IWrapped(_wrapper);
+  }
+
   function handleIncomingAsset(
     address _assetId,
     uint256 _assetAmount,
@@ -25,6 +30,10 @@ contract LibCaller {
 
   function deposit(IWrapped wrapper) public payable {
     wrapper.deposit{ value: msg.value }();
+  }
+
+  function transferAssetToContract(address _assetId, uint256 _amount) public {
+    AssetLogic.transferAssetToContract(_assetId, _amount);
   }
 }
 
@@ -40,7 +49,7 @@ contract AssetLogicTest is BaseConnextFacet, FacetHelper {
     utils_setupAsset(false, false);
     // // set stable swap
     // utils_setMockStableSwap();
-    caller = new LibCaller();
+    caller = new LibCaller(_wrapper);
   }
 
   // ============ utils ============
@@ -75,6 +84,37 @@ contract AssetLogicTest is BaseConnextFacet, FacetHelper {
     s.swapStorages[_canonicalId] = swap;
     s.tokenIndexes[_canonicalId][_adopted] = 0;
     
+  }
+
+  // transfers specified asset to contract
+  function utils_handleIncomingAssetAndAssert(address assetId, uint256 amount, uint256 fee) public {
+    bool isNative = assetId == address(0);
+
+    // get initial balances
+    uint256 initDestAssetBalance = IERC20(isNative ? _wrapper : assetId).balanceOf(address(caller));
+    uint256 initDestFeeBalance = address(caller).balance;
+
+    uint256 initSrcAssetBalance = isNative ? address(this).balance : IERC20(assetId).balanceOf(address(this));
+    uint256 initSrcFeeBalance = address(this).balance;
+
+    // approve
+    if (!isNative) {
+      IERC20(assetId).approve(address(caller), amount);
+    }
+
+    caller.handleIncomingAsset{ value: isNative ? amount + fee : fee }(assetId, amount, fee);
+
+    // caller balance always goes up in token (wrapper if native)
+    assertEq(IERC20(isNative ? _wrapper : assetId).balanceOf(address(caller)), initDestAssetBalance + amount);
+    // fees on caller
+    assertEq(address(caller).balance, initDestFeeBalance + fee);
+    if (isNative) {
+      // balance deducted from source in native for both
+      assertEq(address(this).balance, initSrcAssetBalance - fee - amount);
+    } else {
+      assertEq(IERC20(assetId).balanceOf(address(this)), initSrcAssetBalance - amount);
+      assertEq(address(this).balance, initSrcFeeBalance - fee);
+    }
   }
 
   // transfers specified asset from contract
@@ -173,30 +213,65 @@ contract AssetLogicTest is BaseConnextFacet, FacetHelper {
 
   // ============ handleIncomingAsset ============
   function test_AssetLogic_handleIncomingAsset_failsIfValueBadWhenNative() public {
+    address assetId = address(0);
+    uint256 amount = 10;
+    uint256 fee = 1;
     vm.expectRevert(AssetLogic.AssetLogic__handleIncomingAsset_notAmount.selector);
-    AssetLogic.handleIncomingAsset(address(0), 10, 1);
+    caller.handleIncomingAsset(assetId, amount, fee);
   }
 
   function test_AssetLogic_handleIncomingAsset_failsIfValueBad() public {
+    address assetId = address(1);
+    uint256 amount = 10;
+    uint256 fee = 1;
     vm.expectRevert(AssetLogic.AssetLogic__handleIncomingAsset_ethWithErcTransfer.selector);
-    caller.handleIncomingAsset{value: 10}(_local, 10, 1);
+    caller.handleIncomingAsset(assetId, amount, fee);
   }
 
-  function test_AssetLogic_handleIncomingAsset_works() public {
+  function test_AssetLogic_handleIncomingAsset_worksWithToken() public {
+    address assetId = _local;
+    uint256 amount = 10;
+    uint256 fee = 1;
+    utils_handleIncomingAssetAndAssert(assetId, amount, fee);
   }
 
-  function test_AssetLogic_handleIncomingAsset_worksWithNative() public {}
+  function test_AssetLogic_handleIncomingAsset_worksWithNative() public {
+    address assetId = address(0);
+    uint256 amount = 10;
+    uint256 fee = 0;
+    utils_handleIncomingAssetAndAssert(assetId, amount, fee);
+  }
 
-  function test_AssetLogic_handleIncomingAsset_worksWithNativeAndFee() public {}
+  function test_AssetLogic_handleIncomingAsset_worksWithNativeAndFee() public {
+    address assetId = address(0);
+    uint256 amount = 10;
+    uint256 fee = 3;
+    utils_handleIncomingAssetAndAssert(assetId, amount, fee);
+  }
 
+  // FIXME: special token
   function test_AssetLogic_handleIncomingAsset_worksWithFeeOnTransfer() public {}
 
   // ============ wrapNativeAsset ============
-  function test_AssetLogic_wrapNativeAsset_works() public {}
+  function test_AssetLogic_wrapNativeAsset_works() public {
+    uint256 initEth = address(this).balance;
+    uint256 initWeth = IERC20(_wrapper).balanceOf(address(this));
+    AssetLogic.wrapNativeAsset(100);
+    assertEq(address(this).balance, initEth - 100);
+    assertEq(IERC20(_wrapper).balanceOf(address(this)), initWeth + 100);
+  }
 
   // ============ transferAssetToContract ============
-  function test_AssetLogic_transferAssetToContract_works() public {}
+  function test_AssetLogic_transferAssetToContract_works() public {
+    uint256 initSrc = IERC20(_local).balanceOf(address(this));
+    uint256 initDest = IERC20(_local).balanceOf(address(caller));
+    IERC20(_local).approve(address(caller), 100);
+    caller.transferAssetToContract(_local, 100);
+    assertEq(IERC20(_local).balanceOf(address(this)), initSrc - 100);
+    assertEq(IERC20(_local).balanceOf(address(caller)), initDest + 100);
+  }
 
+  // FIXME: special token
   function test_AssetLogic_transferAssetToContract_worksWithFeeOnTransfer() public {}
 
   // ============ transferAssetFromContract ============
