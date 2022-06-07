@@ -47,10 +47,6 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
   // diamond storage contract owner
   address _ds_owner = address(987654321);
 
-  // adopted asset for this domain
-  address _adopted;
-  // local asset for this domain
-  address _local;
   // executor contract
   address _executor;
   // mock xapp contract
@@ -64,26 +60,8 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
   // mock callback contract
   address _callback;
 
-  // native asset wrapper
-  address _wrapper;
-
   // default origin sender
   address _originSender = address(4);
-
-  // destination remote handler id
-  bytes32 _remote = bytes32("remote");
-
-  // domains
-  uint32 _originDomain = 1000;
-  uint32 _destinationDomain = 2000;
-
-  // canonical token details
-  address _canonical;
-  bytes32 _canonicalId;
-  uint32 _canonicalDomain = _originDomain;
-
-  // stable swap address
-  address _stableSwap = address(5555555555555555555);
 
   // relayer fee
   uint256 _relayerFee = 0.1 ether;
@@ -116,7 +94,7 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
     // Deploy any needed contracts.
     utils_deployContracts();
 
-    setDefaults();
+    utils_setFees();
 
     // Set up asset context. By default, local is the adopted asset - the one the 'user'
     // is using - and is representational (meaning canonically it belongs to another chain).
@@ -137,8 +115,7 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
 
     // NOTE: Currently, the only time we check for the domain in params to match the contract's
     // domain is within the `xcall` method - so it's safe to set the contract domain to be origin.
-    s.domain = _originDomain;
-    s.remotes[_destinationDomain] = _remote;
+    utils_setRemote(true);
   }
 
   // ============ Utils ============
@@ -146,13 +123,7 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
 
   // Used in set up for deploying any needed peripheral contracts.
   function utils_deployContracts() public {
-    // Deploy the adopted token.
-    _adopted = address(new TestERC20());
-    // Deploy the local token.
-    _local = address(new TestERC20());
-    // Deploy the canonical token.
-    _canonical = address(new TestERC20());
-    _canonicalId = bytes32(abi.encodePacked(_canonical));
+    utils_deployAssetContracts();
     // Deploy an executor.
     _executor = address(new Executor(address(this)));
     s.executor = IExecutor(_executor);
@@ -168,102 +139,8 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
     s.promiseRouter = new MockPromiseRouter();
     _promiseRouter = payable(s.promiseRouter);
 
-    // Deploy wrapper for native asset.
-    s.wrapper = IWrapped(new MockWrapper());
-    _wrapper = address(s.wrapper);
-    vm.mockCall(_wrapper, abi.encodeWithSelector(IBridgeToken.name.selector), abi.encode("TestERC20"));
-    vm.mockCall(_wrapper, abi.encodeWithSelector(IBridgeToken.symbol.selector), abi.encode("TEST"));
-    vm.mockCall(_wrapper, abi.encodeWithSelector(IBridgeToken.decimals.selector), abi.encode(18));
-
     // Deploy a mock callback.
     _callback = address(new MockCallback());
-  }
-
-  // Sets the storage and token registry return results.
-  function utils_setupAsset(bool localIsAdopted, bool onCanonical) public {
-    if (onCanonical) {
-      _local = _canonical;
-      _canonicalDomain = _originDomain;
-    } else {
-      // If the local is already set to the canonical (i.e. from some defaults)
-      // redeploy
-      if (_local == _canonical) {
-        _local = address(new TestERC20());
-      }
-      _canonicalDomain = _destinationDomain;
-    }
-    if (localIsAdopted) {
-      _adopted = _local;
-      _stableSwap = address(0);
-    } else {
-      // If the adopted is already set as the local, redeploy
-      if (_adopted == _local) {
-        _adopted = address(new TestERC20());
-      }
-      if (_stableSwap == address(0)) {
-        _stableSwap = address(5555555555555555555);
-      }
-    }
-    // token registry should always return the canonical
-    vm.mockCall(
-      _tokenRegistry,
-      abi.encodeWithSelector(ITokenRegistry.getTokenId.selector),
-      abi.encode(_canonicalDomain, _canonicalId)
-    );
-
-    // if you are not on canonical domain, ensure the local origin returns false
-    // (indicates whether token should be burned or not)
-    vm.mockCall(
-      _tokenRegistry,
-      abi.encodeWithSelector(ITokenRegistry.isLocalOrigin.selector, _local),
-      abi.encode(onCanonical)
-    );
-
-    // ensure local token should always return the local token wrt current domain
-    vm.mockCall(_tokenRegistry, abi.encodeWithSelector(ITokenRegistry.ensureLocalToken.selector), abi.encode(_local));
-
-    // Ensure token registry is always returned properly
-    vm.mockCall(_tokenRegistry, abi.encodeWithSelector(ITokenRegistry.getLocalAddress.selector), abi.encode(_local));
-
-    // Setup the storage variables
-    s.adoptedToCanonical[_adopted] = ConnextMessage.TokenId(_canonicalDomain, _canonicalId);
-    s.adoptedToLocalPools[_canonicalId] = IStableSwap(_stableSwap);
-    s.canonicalToAdopted[_canonicalId] = _adopted;
-
-    // // Log stored vars
-    // console.log("setup asset:");
-    // console.log("- adopted:", _adopted);
-    // console.log("- local:", _local);
-    // console.log("- canonical:", _canonical);
-    // console.log("- stableSwap:", _stableSwap);
-    // console.log("- wrapper:", address(s.wrapper));
-    // console.log("- isLocalOrigin", onCanonical);
-  }
-
-  function utils_setupNative(bool localIsAdopted, bool onCanonical) public {
-    // When you are using the native asset:
-    // - canonical asset will always be the wrapper
-    // - adopted asset will always be the wrapper
-    // - the local asset may or may not be the wrapper
-    if (onCanonical) {
-      // The wrapper is canonical when on the canonical domain
-      // only
-      _canonical = address(s.wrapper);
-      _canonicalId = bytes32(abi.encodePacked(_canonical));
-    } else {
-      // If localIsAdopted, then the local asset is the wrapper
-      if (localIsAdopted) {
-        // this is like if madETH is adopted on cronos. in this case,
-        // the wrapper must also have the `detailsHash()` functionality
-        // this is handled in the other utility function (see `utils_formatMessage`)
-        _local = address(new TestERC20());
-        _adopted = _local;
-      } else {
-        // The adopted asset is the wrapper, local is bridge token
-        _adopted = address(s.wrapper);
-      }
-    }
-    utils_setupAsset(localIsAdopted, onCanonical);
   }
 
   // Meant to mimic the corresponding `_getTransferId` method in the BridgeFacet contract.
