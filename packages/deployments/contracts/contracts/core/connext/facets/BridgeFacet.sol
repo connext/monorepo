@@ -264,10 +264,17 @@ contract BridgeFacet is BaseConnextFacet {
       // Check that the asset is supported -- can be either adopted or local.
       ConnextMessage.TokenId memory canonical = s.adoptedToCanonical[transactingAssetId];
       if (canonical.id == bytes32(0)) {
-        // FIXME: edgecase where you want to xcall with mad asset when different adopted
-        // asset is registered. In this case, we should query the token registry to
-        // get the canonical information for this token.
-        revert BridgeFacet__xcall_notSupportedAsset();
+        // Here, the asset is *not* the adopted asset. The only other valid option
+        // is for this asset to be the local asset (i.e. transferring madEth on optimism)
+        // NOTE: it *cannot* be the canonical asset. the canonical asset is only used on
+        // the canonical domain, where it is *also* the adopted asset.
+        if (s.tokenRegistry.isLocalOrigin(transactingAssetId)) {
+          // revert, using a token of local origin that is not registered as adopted
+          revert BridgeFacet__xcall_notSupportedAsset();
+        }
+
+        (uint32 canonicalDomain, bytes32 canonicalId) = s.tokenRegistry.getTokenId(transactingAssetId);
+        canonical = ConnextMessage.TokenId(canonicalDomain, canonicalId);
       }
 
       // Transfer funds of transacting asset to the contract from the user.

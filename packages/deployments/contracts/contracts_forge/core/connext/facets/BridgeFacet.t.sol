@@ -213,7 +213,11 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
 
     // if you are not on canonical domain, ensure the local origin returns false
     // (indicates whether token should be burned or not)
-    vm.mockCall(_tokenRegistry, abi.encodeWithSelector(ITokenRegistry.isLocalOrigin.selector), abi.encode(onCanonical));
+    vm.mockCall(
+      _tokenRegistry,
+      abi.encodeWithSelector(ITokenRegistry.isLocalOrigin.selector, _local),
+      abi.encode(onCanonical)
+    );
 
     // ensure local token should always return the local token wrt current domain
     vm.mockCall(_tokenRegistry, abi.encodeWithSelector(ITokenRegistry.ensureLocalToken.selector), abi.encode(_local));
@@ -524,6 +528,7 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
 
         // Check that the user has been debited the correct amount of tokens.
         assertEq(TestERC20(args.transactingAssetId).balanceOf(_originSender), initialUserBalance - args.amount);
+        console.log("verified user balance changed");
 
         // Check that the contract has been credited the correct amount of tokens.
         // NOTE: Because the tokens are a representational local asset, they are burnt. The contract
@@ -537,16 +542,29 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
           // the prod difference in balance is net 0. However, because the swap here is mocked,
           // when a swap occurrs no balance increase of local happens (i.e. if swap needed, the
           // balance will decrease by bridgedAmt / what is burned)
-          uint256 expected = initialContractBalance - bridgedAmt;
-          if (args.transactingAssetId == _local) {
-            // also sent funds in
-            expected += args.amount;
-          }
+          uint256 expected = args.transactingAssetId == _local
+            ? initialContractBalance
+            : initialContractBalance - bridgedAmt;
+          console.log("initial", initialContractBalance);
+          console.log("amount in", args.amount);
+          console.log("bridged amount", bridgedAmt);
+          console.log("shouldSwap", shouldSwap);
+          console.log("transactingAsset", args.transactingAssetId);
+          console.log("_local", _local);
+          console.log("final", TestERC20(_local).balanceOf(address(this)));
+          // if (shouldSwap && args.transactingAssetId == _local) {
+          //   // config shortcut, using adopted == local (because should swap out of local)
+          //   // user sent in adopted funds, were not transferred out in swap due to above
+          //   // also sent funds in
+          //   expected += args.amount;
+          // }
           assertEq(TestERC20(_local).balanceOf(address(this)), expected);
+          console.log("verified contract balance changed");
         }
       }
       // Should have updated relayer fees mapping.
       assertEq(this.relayerFees(transferId), args.relayerFee);
+      console.log("verified relayer fee");
 
       if (args.params.callbackFee > 0) {
         // TODO: For some reason, balance isn't changing. Perhaps the vm.mockCall prevents this?
@@ -1173,11 +1191,19 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
     helpers_xcallAndAssert(BridgeFacet.BridgeFacet__xcall_callbackNotAContract.selector);
   }
 
-  // FIXME: this may not allow you to send in mad assets on chains where you have the
-  // adopted asset address sent to something else. see fixme in source file
-  // fails if asset is not supported (i.e. s.adoptedToCanonical[transactingAssetId].id == bytes32(0))
+  // fails if asset is not supported (i.e. s.adoptedToCanonical[transactingAssetId].id == bytes32(0) and using non-local)
   function test_BridgeFacet__xcall_failIfAssetNotSupported() public {
-    s.adoptedToCanonical[_local] = ConnextMessage.TokenId(0, bytes32(0));
+    // setup asset with local != adopted, not on canonical domain
+    utils_setupAsset(false, false);
+
+    s.adoptedToCanonical[_adopted] = ConnextMessage.TokenId(0, bytes32(0));
+
+    // ensure token registry returns true for local origin
+    vm.mockCall(
+      address(s.tokenRegistry),
+      abi.encodeWithSelector(ITokenRegistry.isLocalOrigin.selector, _adopted),
+      abi.encode(true)
+    );
     helpers_xcallAndAssert(BridgeFacet.BridgeFacet__xcall_notSupportedAsset.selector);
   }
 
@@ -1297,7 +1323,6 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
   // canonincal token transfer on canonical domain
   function test_BridgeFacet__xcall_canonicalTokenTransferWorks() public {
     utils_setupAsset(true, true);
-    utils_makeXCallArgs(_canonical);
     helpers_xcallAndAssert(_amount, false);
   }
 
@@ -1306,6 +1331,22 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
     uint256 bridged = (_amount * 9995) / _liquidityFeeDenominator;
     utils_setupAsset(false, false);
     helpers_xcallAndAssert(bridged, true);
+  }
+
+  // local token transfer on non-canonical domain, local != adopted, send in local
+  // (i.e. i should be able to xcall with madEth on optimism)
+  function test_BridgeFacet__xcall_localTokenTransferWorksWhenNotAdopted() public {
+    // local is not adopted, not on canonical domain, sending in local
+    utils_setupAsset(false, false);
+    s.adoptedToCanonical[_local] = ConnextMessage.TokenId(0, bytes32(0));
+    (bytes32 transferId, XCallArgs memory args) = utils_makeXCallArgs();
+    vm.mockCall(
+      _tokenRegistry,
+      abi.encodeWithSelector(ITokenRegistry.isLocalOrigin.selector, _local),
+      abi.encode(false)
+    );
+    args.transactingAssetId = _local;
+    helpers_xcallAndAssert(transferId, args, args.amount, args.amount, bytes4(""), false);
   }
 
   // local token transfer on non-canonical domain (local == adopted)
