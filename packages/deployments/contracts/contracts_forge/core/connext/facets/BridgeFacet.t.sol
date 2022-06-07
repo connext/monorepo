@@ -528,7 +528,6 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
 
         // Check that the user has been debited the correct amount of tokens.
         assertEq(TestERC20(args.transactingAssetId).balanceOf(_originSender), initialUserBalance - args.amount);
-        console.log("verified user balance changed");
 
         // Check that the contract has been credited the correct amount of tokens.
         // NOTE: Because the tokens are a representational local asset, they are burnt. The contract
@@ -545,26 +544,11 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
           uint256 expected = args.transactingAssetId == _local
             ? initialContractBalance
             : initialContractBalance - bridgedAmt;
-          console.log("initial", initialContractBalance);
-          console.log("amount in", args.amount);
-          console.log("bridged amount", bridgedAmt);
-          console.log("shouldSwap", shouldSwap);
-          console.log("transactingAsset", args.transactingAssetId);
-          console.log("_local", _local);
-          console.log("final", TestERC20(_local).balanceOf(address(this)));
-          // if (shouldSwap && args.transactingAssetId == _local) {
-          //   // config shortcut, using adopted == local (because should swap out of local)
-          //   // user sent in adopted funds, were not transferred out in swap due to above
-          //   // also sent funds in
-          //   expected += args.amount;
-          // }
           assertEq(TestERC20(_local).balanceOf(address(this)), expected);
-          console.log("verified contract balance changed");
         }
       }
       // Should have updated relayer fees mapping.
       assertEq(this.relayerFees(transferId), args.relayerFee);
-      console.log("verified relayer fee");
 
       if (args.params.callbackFee > 0) {
         // TODO: For some reason, balance isn't changing. Perhaps the vm.mockCall prevents this?
