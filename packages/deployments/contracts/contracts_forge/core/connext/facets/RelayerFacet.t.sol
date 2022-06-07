@@ -3,6 +3,7 @@ pragma solidity 0.8.14;
 
 import {Address} from "@openzeppelin/contracts/utils/Address.sol";
 
+import {LibDiamond} from "../../../../contracts/core/connext/libraries/LibDiamond.sol";
 import {PausedFunctions} from "../../../../contracts/core/connext/libraries/LibConnextStorage.sol";
 import {RelayerFeeRouter} from "../../../../contracts/core/relayer-fee/RelayerFeeRouter.sol";
 import {RelayerFacet, BaseConnextFacet} from "../../../../contracts/core/connext/facets/RelayerFacet.sol";
@@ -14,6 +15,9 @@ import "./FacetHelper.sol";
 
 contract RelayerFacetTest is RelayerFacet, FacetHelper {
   // ============ storage ============
+    // owner
+  address _owner = address(12345);
+
   // sample data
   uint32 _domain = 1000;
 
@@ -22,22 +26,23 @@ contract RelayerFacetTest is RelayerFacet, FacetHelper {
 
   // ============ Test set up ============
   function setUp() public {
-    bytes memory code = address((new RelayerFeeRouter())).code;
+    setOwner(_owner);
+
+    bytes memory code = address(new RelayerFeeRouter()).code;
     vm.etch(_relayerFeeRouter, code);
     s.relayerFeeRouter = RelayerFeeRouter(_relayerFeeRouter);
   }
 
   // ============ Utils ==============
-  // // Deploy contracts used in the tests
-  // function utils_deployContracts() internal {
-  //   // Deploy the relayerFeeRouter
-  //   _relayerFeeRouter = address(new RelayerFeeRouter());
-  // }
-
+  // Set diamond storage owner
+  function setOwner(address owner) internal {
+    LibDiamond.DiamondStorage storage ds = LibDiamond.diamondStorage();
+    ds.contractOwner = owner;
+  }
   // ============ Test methods ============
   // ============ Modifiers ============
   // TODO: onlyRelayerFeeRouter
-  // whenNotPaused?
+  // whenNotPaused? onlyOwner?
 
   // ============ Getters ==============
   // function test_RelayerFacet__transferRelayer
@@ -45,9 +50,122 @@ contract RelayerFacetTest is RelayerFacet, FacetHelper {
   // function test_RelayerFacet__relayerFeeRouter
 
   // ============ Admin functions ============
-  // function test_RelayerFacet__setRelayerFeeRouter
-  // function test_RelayerFacet__addRelayer
-  // function test_RelayerFacet__removeRelayer
+  // setRelayerFeeRouter
+  // fail if not owner
+  function test_RelayerFacet__setRelayerFeeRouter_failsIfNotOwner() public {
+    vm.expectRevert(
+      BaseConnextFacet.BaseConnextFacet__onlyOwner_notOwner.selector
+    );
+
+    this.setRelayerFeeRouter(address(42));
+  }
+
+  // fail if same as previous relayer fee router
+  function test_RelayerFacet__setRelayerFeeRouter_failsIfRedundant() public {
+    vm.expectRevert(
+      RelayerFacet.RelayerFacet__setRelayerFeeRouter_invalidRelayerFeeRouter.selector
+    );
+
+    vm.prank(_owner);
+    this.setRelayerFeeRouter(_relayerFeeRouter);
+  }
+
+  // fail if address is not contract
+  function test_RelayerFacet__setRelayerFeeRouter_failsIfAddressNotContract() public {
+    vm.expectRevert(
+      RelayerFacet.RelayerFacet__setRelayerFeeRouter_invalidRelayerFeeRouter.selector
+    );
+
+    vm.prank(_owner);
+    this.setRelayerFeeRouter(address(42));
+  }
+
+  // works; updates relayerFeeRouter
+  function test_RelayerFacet__setRelayerFeeRouter_works() public {
+    address newRelayerFeeRouter = address(42);
+    bytes memory code = address(new RelayerFeeRouter()).code;
+    vm.etch(newRelayerFeeRouter, code);
+
+    vm.expectEmit(true, true, true, true);
+    emit RelayerFeeRouterUpdated(_relayerFeeRouter, newRelayerFeeRouter, _owner);
+
+    vm.prank(_owner);
+    this.setRelayerFeeRouter(newRelayerFeeRouter);
+
+    assertEq(address(s.relayerFeeRouter), newRelayerFeeRouter);
+  }
+
+  // addRelayer
+  // fails if not owner
+  function test_RelayerFacet__addRelayer_failsIfNotOwner() public {
+    vm.expectRevert(
+      BaseConnextFacet.BaseConnextFacet__onlyOwner_notOwner.selector
+    );
+
+    this.addRelayer(address(42));
+  }
+
+  // fails if already approved
+  function test_RelayerFacet__addRelayer_failsIfAlreadyApproved() public {
+    address relayer = address(42);
+    s.approvedRelayers[relayer] = true;
+    vm.expectRevert(
+      RelayerFacet.RelayerFacet__addRelayer_alreadyApproved.selector
+    );
+
+    vm.prank(_owner);
+    this.addRelayer(relayer);
+  }
+
+  // works; adds an approved relayer
+  function test_RelayerFacet__addRelayer_works() public {
+    address relayer = address(42);
+    s.approvedRelayers[relayer] = false;
+
+    vm.expectEmit(true, true, true, true);
+    emit RelayerAdded(relayer, _owner);
+
+    vm.prank(_owner);
+    this.addRelayer(relayer);
+
+    assertEq(s.approvedRelayers[relayer], true);
+  }
+
+  // removeRelayer
+  // fails if not owner
+  function test_RelayerFacet__removeRelayer_failsIfNotOwner() public {
+    vm.expectRevert(
+      BaseConnextFacet.BaseConnextFacet__onlyOwner_notOwner.selector
+    );
+
+    this.removeRelayer(address(42));
+  }
+
+  // fails if not approved / already removed
+  function test_RelayerFacet__removeRelayer_failsIfAlreadyUnapproved() public {
+    address relayer = address(42);
+    s.approvedRelayers[relayer] = false;
+    vm.expectRevert(
+      RelayerFacet.RelayerFacet__removeRelayer_notApproved.selector
+    );
+
+    vm.prank(_owner);
+    this.removeRelayer(relayer);
+  }
+
+  // works; removes an approved relayer
+  function test_RelayerFacet__removeRelayer_works() public {
+    address relayer = address(42);
+    s.approvedRelayers[relayer] = true;
+
+    vm.expectEmit(true, true, true, true);
+    emit RelayerRemoved(relayer, _owner);
+
+    vm.prank(_owner);
+    this.removeRelayer(relayer);
+
+    assertEq(s.approvedRelayers[relayer], false);
+  }
 
   // ============ External functions ============
   // initiateClaim
