@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: UNLICENSED
-pragma solidity 0.8.11;
+pragma solidity 0.8.14;
 
 import {XAppConnectionManager} from "../../../nomad-core/contracts/XAppConnectionManager.sol";
 
@@ -87,7 +87,7 @@ struct ExecuteArgs {
 }
 
 /**
- * @notice Contains RouterPermissionsManager related state
+ * @notice Contains RouterFacet related state
  * @param approvedRouters - Mapping of whitelisted router addresses
  * @param routerRecipients - Mapping of router withdraw recipient addresses.
  * If set, all liquidity is withdrawn only to this address. Must be set by routerOwner
@@ -105,6 +105,17 @@ struct RouterPermissionsManagerInfo {
   mapping(address => address) routerOwners;
   mapping(address => address) proposedRouterOwners;
   mapping(address => uint256) proposedRouterTimestamp;
+}
+
+/**
+ * @notice Types of functionality that can be paused
+ * @dev Contract admin can update this value
+ */
+enum PausedFunctions {
+  None,
+  Bridge,
+  Swap,
+  All
 }
 
 struct AppStorage {
@@ -249,7 +260,7 @@ struct AppStorage {
   // 28
   uint256 _assetOwnershipTimestamp;
   //
-  // RouterPermissionsManager
+  // RouterFacet
   //
   // 29
   RouterPermissionsManagerInfo routerPermissionInfo;
@@ -275,13 +286,18 @@ struct AppStorage {
    */
   // 32
   mapping(bytes32 => mapping(address => uint8)) tokenIndexes;
+  /**
+   * @notice Stores whether or not briding, AMMs, have been paused
+   */
+  // 33
+  PausedFunctions _paused;
   //
   // BridgeFacet (cont.) TODO: can we move this
   //
   /**
    * @notice Stores whether a transfer has had `receiveLocal` overrides forced
    */
-  // 33
+  // 34
   mapping(bytes32 => bool) receiveLocalOverrides;
 }
 

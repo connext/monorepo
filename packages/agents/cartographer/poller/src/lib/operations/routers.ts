@@ -1,6 +1,6 @@
 import { createLoggingContext } from "@connext/nxtp-utils";
 
-import { getContext } from "../../cartographer";
+import { getContext } from "../../shared";
 
 export const updateRouters = async () => {
   const {
@@ -11,7 +11,7 @@ export const updateRouters = async () => {
   const { requestContext, methodContext } = createLoggingContext(updateRouters.name);
 
   for (const domain of domains) {
-    logger.debug("Saving balances", requestContext, methodContext, { domain });
+    logger.debug("Retrieving balances", requestContext, methodContext, { domain });
     const balances = await subgraph.getAssetBalancesAllRouters(domain);
     await database.saveRouterBalances(balances);
     logger.debug("Saved balances", requestContext, methodContext, { domain });

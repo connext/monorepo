@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: UNLICENSED
-pragma solidity 0.8.11;
+pragma solidity 0.8.14;
 
 import {SafeERC20, IERC20, Address} from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 
@@ -8,7 +8,7 @@ import {IStableSwap} from "../interfaces/IStableSwap.sol";
 import {ITokenRegistry} from "../interfaces/ITokenRegistry.sol";
 
 import {ConnextMessage} from "./ConnextMessage.sol";
-import {LibConnextStorage, AppStorage} from "./LibConnextStorage.sol";
+import {LibConnextStorage, AppStorage, PausedFunctions} from "./LibConnextStorage.sol";
 import {SwapUtils} from "./SwapUtils.sol";
 
 library AssetLogic {
@@ -19,6 +19,8 @@ library AssetLogic {
   error AssetLogic__handleIncomingAsset_notAmount();
   error AssetLogic__handleIncomingAsset_ethWithErcTransfer();
   error AssetLogic__transferAssetFromContract_notNative();
+  error AssetLogic__swapToLocalAssetIfNeeded_swapPaused();
+  error AssetLogic__swapFromLocalAssetIfNeeded_swapPaused();
   error AssetLogic__getTokenIndexFromStableSwapPool_notExist();
 
   // ============ Internal ============
@@ -122,6 +124,11 @@ library AssetLogic {
     address _to,
     uint256 _amount
   ) internal {
+    // If amount is 0 do nothing
+    if (_amount == 0) {
+      return;
+    }
+
     AppStorage storage s = LibConnextStorage.connextStorage();
 
     // No native assets should ever be stored on this contract
@@ -156,27 +163,26 @@ library AssetLogic {
   ) internal returns (uint256, address) {
     AppStorage storage s = LibConnextStorage.connextStorage();
 
-    // Check to see if the asset must be swapped because it is not the local asset
-    if (_canonical.id == bytes32(0)) {
-      // This is *not* the adopted asset, meaning it must be the local asset
-      return (_amount, _asset);
-    }
-
-    // Get the local token for this domain (may return canonical or representation)
+    // Get the local token for this domain (may return canonical or representation).
     address local = s.tokenRegistry.getLocalAddress(_canonical.domain, _canonical.id);
 
-    // if theres no amount, no need to swap
+    // If there's no amount, no need to swap.
     if (_amount == 0) {
       return (_amount, local);
     }
 
-    // Check the case where the adopted asset *is* the local asset
+    // Check the case where the adopted asset *is* the local asset. If so, no need to swap.
     if (local == _asset) {
-      // No need to swap
       return (_amount, _asset);
     }
 
-    // Swap the asset to the proper local asset
+    // NOTE: Normally, this would be checked via the `whenSwapNotPaused` modifier (as in the
+    // StableSwapFacet). However, when entering an internal swap, the best place to check
+    // is in these swap functions where swaps can be stopped. You can check here for only
+    // swap pauses (general pauses are checked before this function is called)
+    if (s._paused == PausedFunctions.Swap) revert AssetLogic__swapToLocalAssetIfNeeded_swapPaused();
+
+    // Swap the asset to the proper local asset.
     return _swapAsset(_canonical.id, _asset, local, _amount, _slippageTol);
   }
 
@@ -204,6 +210,12 @@ library AssetLogic {
     if (adopted == _asset) {
       return (_amount, _asset);
     }
+
+    // NOTE: Normally, this would be checked via the `whenSwapNotPaused` modifier (as in the
+    // StableSwapFacet). However, when entering an internal swap, the best place to check
+    // is in these swap functions where swaps can be stopped. You can check here for only
+    // swap pauses (general pauses are checked before this function is called)
+    if (s._paused == PausedFunctions.Swap) revert AssetLogic__swapFromLocalAssetIfNeeded_swapPaused();
 
     // Swap the asset to the proper local asset
     return _swapAsset(id, _asset, adopted, _amount, _slippageTol);
@@ -245,9 +257,7 @@ library AssetLogic {
     } else {
       // Otherwise, swap via stable swap pool
       IStableSwap pool = s.adoptedToLocalPools[_canonicalId];
-
-      // Approve pool
-      SafeERC20.safeApprove(IERC20(_assetIn), address(pool), _amount);
+      SafeERC20.safeIncreaseAllowance(IERC20(_assetIn), address(pool), _amount);
 
       return (pool.swapExact(_amount, _assetIn, _assetOut, minReceived), _assetOut);
     }

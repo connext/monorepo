@@ -260,6 +260,7 @@ export const ROUTER_CONFIG: Promise<RouterConfig> = (async (): Promise<RouterCon
       subgraph: 5_000,
       cache: 5_000,
     },
+    auctionRoundDepth: 4,
     environment,
   };
 })();
@@ -293,6 +294,7 @@ export const SEQUENCER_CONFIG: Promise<SequencerConfig> = (async (): Promise<Seq
       cleanup: false,
     },
     auctionWaitTime: 1,
+    auctionRoundDepth: 4,
     network: "testnet",
     environment: ENVIRONMENT.toString() as "staging" | "production",
     relayerUrl: LOCAL_RELAYER_ENABLED ? `http://${LOCALHOST}:8082` : undefined,
@@ -332,6 +334,7 @@ export const RELAYER_CONFIG: Promise<RelayerConfig> = (async (): Promise<Relayer
 
 /// MARK - CARTOGRAPHER CONFIG
 export const CARTOGRAPHER_CONFIG: Promise<CartographerConfig> = (async (): Promise<CartographerConfig> => {
+  const { ORIGIN, DESTINATION } = await DOMAINS;
   return {
     database: {
       url: "postgres://postgres:qwerty@localhost:5432/connext?sslmode=disable",
@@ -339,5 +342,9 @@ export const CARTOGRAPHER_CONFIG: Promise<CartographerConfig> = (async (): Promi
     logLevel: "debug",
     pollInterval: 4_000,
     environment: "staging",
+    chains: {
+      [ORIGIN.domain]: {},
+      [DESTINATION.domain]: {},
+    },
   };
 })();

@@ -5,6 +5,7 @@ import { getContext } from "../../sequencer";
 import { getHelpers } from "../helpers";
 
 export const sendToRelayer = async (
+  round: number,
   bids: Bid[],
   transfer: OriginTransfer,
   local: string,
@@ -28,7 +29,7 @@ export const sendToRelayer = async (
 
   const destinationConnextAddress = config.chains[transfer.destinationDomain].deployments.connext;
 
-  const encodedData = encodeExecuteFromBids(bids, transfer, local);
+  const encodedData = encodeExecuteFromBids(round, bids, transfer, local);
 
   const relayerFee = {
     // TODO: Is this correct?

@@ -1,8 +1,7 @@
 // SPDX-License-Identifier: MIT OR Apache-2.0
-pragma solidity 0.8.11;
+pragma solidity 0.8.14;
 
 import {Home} from "../../nomad-core/contracts/Home.sol";
-import {Version0} from "../../nomad-core/contracts/Version0.sol";
 import {TypedMemView} from "../../nomad-core/libs/TypedMemView.sol";
 
 import {AddressUpgradeable} from "@openzeppelin/contracts-upgradeable/utils/AddressUpgradeable.sol";
@@ -13,6 +12,7 @@ import {IBridgeToken} from "../connext/interfaces/IBridgeToken.sol";
 
 import {Router} from "../shared/Router.sol";
 import {XAppConnectionClient} from "../shared/XAppConnectionClient.sol";
+import {Version} from "../shared/Version.sol";
 
 import {ICallback} from "./interfaces/ICallback.sol";
 import {PromiseMessage} from "./libraries/PromiseMessage.sol";
@@ -20,7 +20,7 @@ import {PromiseMessage} from "./libraries/PromiseMessage.sol";
 /**
  * @title PromiseRouter
  */
-contract PromiseRouter is Version0, Router, ReentrancyGuardUpgradeable {
+contract PromiseRouter is Version, Router, ReentrancyGuardUpgradeable {
   // ============ Libraries ============
 
   using TypedMemView for bytes;
@@ -31,7 +31,7 @@ contract PromiseRouter is Version0, Router, ReentrancyGuardUpgradeable {
 
   error PromiseRouter__onlyConnext_notConnext();
   error PromiseRouter__send_returndataEmpty();
-  error PromiseRouter__send_callbackAddressNotContract();
+  error PromiseRouter__send_callbackEmpty();
   error PromiseRouter__process_invalidTransferId();
   error PromiseRouter__process_invalidMessage();
   error PromiseRouter__process_notApprovedRelayer();
@@ -175,7 +175,7 @@ contract PromiseRouter is Version0, Router, ReentrancyGuardUpgradeable {
     bytes calldata _returnData
   ) external onlyConnext {
     if (_returnData.length == 0) revert PromiseRouter__send_returndataEmpty();
-    if (_callbackAddress == address(0)) revert PromiseRouter__send_callbackAddressNotContract();
+    if (_callbackAddress == address(0)) revert PromiseRouter__send_callbackEmpty();
 
     // get remote PromiseRouter address; revert if not found
     bytes32 remote = _mustHaveRemote(_domain);

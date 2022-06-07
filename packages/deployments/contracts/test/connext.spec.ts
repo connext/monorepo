@@ -1194,7 +1194,7 @@ describe("Connext", () => {
         routerSignatures: [await signRouterPathPayload(transferId, "1", router)],
         originSender: user.address,
       }),
-    ).to.revertedWith("BridgeFacet__execute_alreadyExecuted()");
+    ).to.revertedWith("BridgeFacet__execute_alreadyReconciled()");
   });
 
   describe("multipath", () => {
