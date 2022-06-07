@@ -317,22 +317,22 @@ library AssetLogic {
       // calculate slippage before performing swap
       // NOTE: this is less efficient then relying on the `swapInternalOut` revert, but makes it easier
       // to handle slippage failures (this can be called during reconcile, so must not fail)
-      if (_maxIn <= ipool.calculateSwapInv(tokenIndexIn, tokenIndexOut, _amountOut)) {
+      if (_maxIn >= ipool.calculateSwapInv(tokenIndexIn, tokenIndexOut, _amountOut)) {
         success = true;
-        amountIn = ipool.swapInternalOut(tokenIndexIn, tokenIndexOut, _amountOut, 0);
+        amountIn = ipool.swapInternalOut(tokenIndexIn, tokenIndexOut, _amountOut, _maxIn);
       }
       // slippage is too high to perform swap: success = false, amountIn = 0
     } else {
       // Otherwise, swap via stable swap pool
       IStableSwap pool = s.adoptedToLocalPools[_canonicalId];
       uint256 _amountIn = pool.calculateSwapOutFromAddress(_assetIn, _assetOut, _amountOut);
-      if (_maxIn <= _amountIn) {
+      if (_maxIn >= _amountIn) {
         // set the success
         success = true;
 
         // perform the swap
         SafeERC20.safeApprove(IERC20(_assetIn), address(pool), _amountIn);
-        amountIn = pool.swapExactOut(_amountOut, _assetIn, _assetOut, _amountIn);
+        amountIn = pool.swapExactOut(_amountOut, _assetIn, _assetOut, _maxIn);
       }
       // slippage is too high to perform swap: success = false, amountIn = 0
     }
