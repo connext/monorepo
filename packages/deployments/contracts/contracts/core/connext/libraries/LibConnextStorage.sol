@@ -32,6 +32,7 @@ import {SwapUtils} from "./SwapUtils.sol";
  * @param callbackFee - The relayer fee to execute the callback
  * @param forceSlow - If true, will take slow liquidity path even if it is not a permissioned call
  * @param receiveLocal - If true, will use the local nomad asset on the destination instead of adopted.
+ * @param relayerFee - The amount of relayer fee the tx called xcall with
  * @param slippageTol - Max bps of original due to slippage (i.e. would be 9995 to tolerate .05% slippage)
  */
 struct CallParams {
@@ -43,6 +44,7 @@ struct CallParams {
   address recovery;
   address callback;
   uint256 callbackFee;
+  uint256 relayerFee;
   bool forceSlow;
   bool receiveLocal;
   uint256 slippageTol;
@@ -54,13 +56,11 @@ struct CallParams {
  * @param transactingAssetId - The asset the caller sent with the transfer. Can be the adopted, canonical,
  * or the representational asset
  * @param amount - The amount of transferring asset the tx called xcall with
- * @param relayerFee - The amount of relayer fee the tx called xcall with
  */
 struct XCallArgs {
   CallParams params;
   address transactingAssetId; // Could be adopted, local, or wrapped
   uint256 amount;
-  uint256 relayerFee;
 }
 
 /**
@@ -71,7 +71,6 @@ struct XCallArgs {
  * @param routers - The routers who you are sending the funds on behalf of
  * @param amount - The amount of liquidity the router provided or the bridge forwarded, depending on
  * if fast liquidity was used
- * @param relayerFee - The relayer fee amount
  * @param nonce - The nonce used to generate transfer id
  * @param originSender - The msg.sender of the xcall on origin domain
  */
@@ -80,7 +79,6 @@ struct ExecuteArgs {
   address local; // local representation of canonical token
   address[] routers;
   bytes[] routerSignatures;
-  uint256 relayerFee;
   uint256 amount;
   uint256 nonce;
   address originSender;

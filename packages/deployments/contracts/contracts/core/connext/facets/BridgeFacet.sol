@@ -297,7 +297,7 @@ contract BridgeFacet is BaseConnextFacet {
       s.nonce += 1;
 
       // Store the relayer fee
-      s.relayerFees[transferId] = _args.relayerFee;
+      s.relayerFees[transferId] = _args.params.relayerFee;
 
       // Transfer funds of transacting asset to the contract from the user.
       // NOTE: Will wrap any native asset transferred to wrapped-native automatically.
@@ -783,7 +783,7 @@ contract BridgeFacet is BaseConnextFacet {
       // Should dust the recipient with the lesser of a vault-defined cap or the converted relayer fee
       // If there is no conversion available (i.e. no oracles for origin domain asset <> dest asset pair),
       // then the vault should just pay out the configured constant
-      s.sponsorVault.reimburseRelayerFees(_args.params.originDomain, payable(_args.params.to), _args.relayerFee);
+      s.sponsorVault.reimburseRelayerFees(_args.params.originDomain, payable(_args.params.to), _args.params.relayerFee);
     }
 
     // execute the the transaction
