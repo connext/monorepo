@@ -93,6 +93,26 @@ contract AssetLogicTest is BaseConnextFacet, FacetHelper {
     assertEq(out, _adopted);
   }
 
+  // Sets up env to swap from local -> adopted using external pools only
+  function utils_swapToLocalAndAssertViaExternal(address asset, uint256 amount, uint256 swapOut) internal {
+    // set mock
+    vm.mockCall(_stableSwap, abi.encodeWithSelector(IStableSwap.swapExact.selector), abi.encode(swapOut));
+
+    bool willSwap = asset == _adopted && amount > 0;
+    if (willSwap) {
+      // expect pool approval
+      vm.expectCall(_adopted, abi.encodeWithSelector(IERC20.approve.selector, _stableSwap, amount));
+      // expect swap
+      vm.expectCall(_stableSwap, abi.encodeWithSelector(IStableSwap.swapExact.selector, amount, _adopted, _local));
+    }
+
+    (uint256 received, address out) = AssetLogic.swapToLocalAssetIfNeeded(ConnextMessage.TokenId(_canonicalDomain, _canonicalId), asset, amount);
+    // assert return amount
+    assertEq(received, willSwap ? swapOut : amount);
+    // assert return asset
+    assertEq(out, _local);
+  }
+
   // ============ stableSwapPoolExist ============
   function test_AssetLogic_stableSwapPoolExist_works() public {
     utils_setMockStableSwap();
@@ -151,15 +171,32 @@ contract AssetLogicTest is BaseConnextFacet, FacetHelper {
   function test_AssetLogic_transferAssetFromContract_worksForNative() public {}
 
   // ============ swapToLocalAssetIfNeeded ============
-  function test_AssetLogic_swapToLocalAssetIfNeeded_failsIfPaused() public {}
 
-  function test_AssetLogic_swapToLocalAssetIfNeeded_worksIfZero() public {}
+  // should revert
+  function testFail_AssetLogic_swapToLocalAssetIfNeeded_failsIfPaused() public {
+    s._paused = PausedFunctions.Swap;
+    // NOTE: this function should fail with the following error, but the `expectRevert` will not
+    // work because it checks for `CALL` results not `JUMP` results. see:
+    // https://book.getfoundry.sh/cheatcodes/expect-revert.html
+    // vm.expectRevert(AssetLogic.AssetLogic__swapFromLocalAssetIfNeeded_swapPaused.selector);
+    // AssetLogic.swapFromLocalAssetIfNeeded(_local, 10000);
+    utils_swapToLocalAndAssertViaExternal(_adopted, 1 ether, 0.9 ether);
+  }
+
+  // doesnt swap
+  function test_AssetLogic_swapToLocalAssetIfNeeded_worksIfZero() public {
+    utils_swapToLocalAndAssertViaExternal(_adopted, 0, 10000);
+  }
 
   // does not swap if already local
-  function test_AssetLogic_swapToLocalAssetIfNeeded_worksIfLocal() public {}
+  function test_AssetLogic_swapToLocalAssetIfNeeded_worksWithLocal() public {
+    utils_swapToLocalAndAssertViaExternal(_local, 1 ether, 0.9 ether);
+  }
 
   // works
-  function test_AssetLogic_swapToLocalAssetIfNeeded_works() public {}
+  function test_AssetLogic_swapToLocalAssetIfNeeded_worksWithAdopted() public {
+    utils_swapToLocalAndAssertViaExternal(_adopted, 1 ether, 0.9 ether);
+  }
 
   // ============ swapFromLocalAssetIfNeeded ============
   // should revert
@@ -173,8 +210,9 @@ contract AssetLogicTest is BaseConnextFacet, FacetHelper {
     utils_swapFromLocalAndAssertViaExternal(_local, 1 ether, 0.9 ether);
   }
 
+  // doesnt swap
   function test_AssetLogic_swapFromLocalAssetIfNeeded_worksIfZero() public {
-    utils_swapFromLocalAndAssertViaExternal(_adopted, 0, 0.1 ether);
+    utils_swapFromLocalAndAssertViaExternal(_local, 0, 0.1 ether);
   }
 
   // does not swap if already adopted
