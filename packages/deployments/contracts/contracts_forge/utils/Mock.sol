@@ -24,9 +24,7 @@ contract MockXAppConnectionManager {
   function home() external returns (MockHome) {
     return _home;
   }
-}
 
-contract MockXAppConnectionManager {
   function isReplica(address _replica) external returns (bool) {
     return true;
   }

@@ -29,11 +29,9 @@ import {BaseConnextFacet} from "../../../../contracts/core/connext/facets/BaseCo
 import {TestERC20} from "../../../../contracts/test/TestERC20.sol";
 import {PromiseRouter} from "../../../../contracts/core/promise/PromiseRouter.sol";
 
-import {MockXAppConnectionManager, MockHome, MockXApp, MockPromiseRouter, MockCallback, MockWrapper, MockSponsorVault} from "../../../utils/Mock.sol";
+import "../../../utils/Mock.sol";
 
 import "./FacetHelper.sol";
-
-import "forge-std/console.sol";
 
 contract BridgeFacetTest is BridgeFacet, FacetHelper {
   // ============ Libs ============
@@ -47,10 +45,6 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
   // diamond storage contract owner
   address _ds_owner = address(987654321);
 
-  // adopted asset for this domain
-  address _adopted;
-  // local asset for this domain
-  address _local;
   // executor contract
   address _executor;
   // mock xapp contract
@@ -79,13 +73,6 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
 
   // aave pool details
   address _aavePool;
-  // canonical token details
-  address _canonical;
-  bytes32 _canonicalId;
-  uint32 _canonicalDomain = _originDomain;
-
-  // stable swap address
-  address _stableSwap = address(5555555555555555555);
 
   // relayer fee
   uint256 _relayerFee = 0.1 ether;
@@ -154,7 +141,7 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
     _local = address(new TestERC20());
     // Deploy the canonical token.
     _canonical = address(new TestERC20());
-    _canonicalId = bytes32(abi.encodePacked(_canonical));
+    _canonicalTokenId = bytes32(abi.encodePacked(_canonical));
     // Deploy an executor.
     _executor = address(new Executor(address(this)));
     s.executor = IExecutor(_executor);
@@ -214,7 +201,7 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
     vm.mockCall(
       _tokenRegistry,
       abi.encodeWithSelector(ITokenRegistry.getTokenId.selector),
-      abi.encode(_canonicalDomain, _canonicalId)
+      abi.encode(_canonicalDomain, _canonicalTokenId)
     );
 
     // if you are not on canonical domain, ensure the local origin returns false
@@ -232,9 +219,9 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
     vm.mockCall(_tokenRegistry, abi.encodeWithSelector(ITokenRegistry.getLocalAddress.selector), abi.encode(_local));
 
     // Setup the storage variables
-    s.adoptedToCanonical[_adopted] = ConnextMessage.TokenId(_canonicalDomain, _canonicalId);
-    s.adoptedToLocalPools[_canonicalId] = IStableSwap(_stableSwap);
-    s.canonicalToAdopted[_canonicalId] = _adopted;
+    s.adoptedToCanonical[_adopted] = ConnextMessage.TokenId(_canonicalDomain, _canonicalTokenId);
+    s.adoptedToLocalPools[_canonicalTokenId] = IStableSwap(_stableSwap);
+    s.canonicalToAdopted[_canonicalTokenId] = _adopted;
 
     // // Log stored vars
     // console.log("setup asset:");
@@ -255,7 +242,7 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
       // The wrapper is canonical when on the canonical domain
       // only
       _canonical = address(s.wrapper);
-      _canonicalId = bytes32(abi.encodePacked(_canonical));
+      _canonicalTokenId = bytes32(abi.encodePacked(_canonical));
     } else {
       // If localIsAdopted, then the local asset is the wrapper
       if (localIsAdopted) {
@@ -286,7 +273,7 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
   function utils_getTransferIdFromExecuteArgs(ExecuteArgs memory _args) public returns (bytes32) {
     return
       keccak256(
-        abi.encode(_args.nonce, _args.params, _args.originSender, _canonicalId, _canonicalDomain, _args.amount)
+        abi.encode(_args.nonce, _args.params, _args.originSender, _canonicalTokenId, _canonicalDomain, _args.amount)
       );
   }
 
@@ -300,7 +287,7 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
       _relayerFee
     );
     // generate transfer id
-    bytes32 transferId = utils_getTransferIdFromXCallArgs(args, _originSender, _canonicalId, _canonicalDomain);
+    bytes32 transferId = utils_getTransferIdFromXCallArgs(args, _originSender, _canonicalTokenId, _canonicalDomain);
 
     return (transferId, args);
   }
@@ -314,7 +301,7 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
       _relayerFee
     );
     // generate transfer id
-    bytes32 transferId = utils_getTransferIdFromXCallArgs(args, _originSender, _canonicalId, _canonicalDomain);
+    bytes32 transferId = utils_getTransferIdFromXCallArgs(args, _originSender, _canonicalTokenId, _canonicalDomain);
 
     return (transferId, args);
   }
@@ -1462,7 +1449,7 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
 
   // fails if action is not transfer
   function test_BridgeFacet__reconcile_invalidTransfer() public {
-    bytes29 tokenId = ConnextMessage.formatTokenId(_canonicalDomain, _canonicalId);
+    bytes29 tokenId = ConnextMessage.formatTokenId(_canonicalDomain, _canonicalTokenId);
     bytes29 action = abi
       .encodePacked(ConnextMessage.Types.Message, bytes32("recip"), uint256(100), bytes32("details"), bytes32("id"))
       .ref(0)
@@ -1554,9 +1541,9 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
   function test_BridgeFacet__execute_failIfSwapPaused() public {
     // setup asset context (use local == adopted)
     address adopted = address(11111111111111111);
-    s.adoptedToCanonical[adopted] = ConnextMessage.TokenId(_canonicalDomain, _canonicalId);
-    s.adoptedToLocalPools[_canonicalId] = IStableSwap(address(0));
-    s.canonicalToAdopted[_canonicalId] = adopted;
+    s.adoptedToCanonical[adopted] = ConnextMessage.TokenId(_canonicalDomain, _canonicalTokenId);
+    s.adoptedToLocalPools[_canonicalTokenId] = IStableSwap(address(0));
+    s.canonicalToAdopted[_canonicalTokenId] = adopted;
     vm.mockCall(_tokenRegistry, abi.encodeWithSelector(ITokenRegistry.getLocalAddress.selector), abi.encode(adopted));
 
     // set context
@@ -1692,9 +1679,9 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
   function test_BridgeFacet__execute_failIfRouterHasInsufficientFunds() public {
     _amount = 5 ether;
 
-    (bytes32 transferId, ExecuteArgs memory args) = utils_makeExecuteArgs(1);
+    (bytes32 transferId, ExecuteArgs memory args) = utils_makeExecuteArgs(2);
 
-    s.routerBalances[args.routers[0]][args.local] += 4.5 ether;
+    s.routerBalances[args.routers[0]][args.local] = 1.5 ether;
 
     vm.expectRevert(stdError.arithmeticError);
     this.execute(args);
@@ -1999,12 +1986,12 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
     helpers_executeAndAssert(transferId, args, utils_getFastTransferAmount(args.amount), true, true, false);
   }
 
-  // should work with unapproved router if router-whitelist ownership renounced
+  // should work with unapproved router if router-whitelist ownership renouncedcanonicalId
 
   // ============ execute fail with aave portals
-  function testFail_BridgeFacet__execute_failsIfNoLiquidityAndAaveNotEnabled() public {
+  function test_BridgeFacet__execute_failsIfNoLiquidityAndAaveNotEnabled() public {
     // get args
-    (bytes32 _id, ExecuteArgs memory _args) = getExecuteArgs();
+    (bytes32 _id, ExecuteArgs memory _args) = utils_makeExecuteArgs(1);
 
     // set liquidity context
     for (uint256 i; i < _args.routers.length; i++) {
@@ -2014,19 +2001,16 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
     // set aave not enabled
     s.aavePool = address(0);
 
-    // Will fail on unchecked with:
-
+    vm.expectRevert(stdError.arithmeticError);
     this.execute(_args);
   }
 
   function test_BridgeFacet__execute_failsIfRouterNotApprovedForPortal() public {
-    // get args
-    (bytes32 _id, ExecuteArgs memory _args) = getExecuteArgs();
+    _amount = 5 ether;
 
-    // set liquidity context
-    for (uint256 i; i < _args.routers.length; i++) {
-      s.routerBalances[_args.routers[i]][_args.local] = 0 ether;
-    }
+    (bytes32 _id, ExecuteArgs memory _args) = utils_makeExecuteArgs(1);
+
+    s.routerBalances[_args.routers[0]][_args.local] = 4.5 ether;
 
     // set aave enabled
     s.aavePool = _aavePool;
@@ -2038,7 +2022,7 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
   // ============ execute success with aave portal
   function test_BridgeFacet__execute_worksWithAave() public {
     // get args
-    (bytes32 _id, ExecuteArgs memory _args) = getExecuteArgs();
+    (bytes32 _id, ExecuteArgs memory _args) = utils_makeExecuteArgs(1);
 
     // get fast liquidity amount
     uint256 userAmount = (_args.amount * _liquidityFeeNumerator) / _liquidityFeeDenominator;
@@ -2060,7 +2044,7 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
     );
 
     vm.expectEmit(true, true, true, true);
-    emit AavePortalMintUnbacked(_id, _router0, _args.local, userAmount);
+    emit AavePortalMintUnbacked(_id, _args.routers[0], _args.local, userAmount);
 
     this.execute(_args);
 
@@ -2074,7 +2058,7 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
   // ============ handle with aave portals
   function test_BridgeFacet__handle_worksWithPortals() public {
     // get args
-    (bytes32 _id, ExecuteArgs memory _args) = getExecuteArgs();
+    (bytes32 _id, ExecuteArgs memory _args) = utils_makeExecuteArgs(1);
 
     // get the total debt
     uint256 portaled = (_args.amount * _liquidityFeeNumerator) / _liquidityFeeDenominator;
@@ -2094,7 +2078,7 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
     bytes memory message = buildMessage(_id);
 
     // get current router balance
-    uint256 initLiquidity = s.routerBalances[_router0][_local];
+    uint256 initLiquidity = s.routerBalances[_args.routers[0]][_local];
 
     uint256 profit = _args.amount - portaled - fee;
     console.log("initLiquidity", initLiquidity);
@@ -2111,55 +2095,60 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
     this.handle(_params.originDomain, uint32(_nonce), bytes32(abi.encodePacked(_originFacet)), message);
 
     // verify router liquidity remains unchanged
-    assertEq(s.routerBalances[_router0][_local], initLiquidity + profit);
+    assertEq(s.routerBalances[_args.routers[0]][_local], initLiquidity + profit);
   }
 
   // should credit router if they provided liquidity
   function test_BridgeFacet__handle_creditToRouterIfNotPortalTransfer() public {
     // get args
-    (bytes32 _id, ExecuteArgs memory _args) = getExecuteArgs();
+    (bytes32 _id, ExecuteArgs memory _args) = utils_makeExecuteArgs(1);
 
     // set routed transfer context
     s.routedTransfers[_id] = _args.routers;
     uint256 initLiquidity = 10 ether;
-    s.routerBalances[_router0][_local] = initLiquidity;
+    s.routerBalances[_args.routers[0]][_local] = initLiquidity;
     setRemoteRouterContext(_destinationFacet, _destinationDomain);
 
     bytes memory message = buildMessage(_id);
 
     this.handle(_params.destinationDomain, uint32(_nonce), bytes32(abi.encodePacked(_destinationFacet)), message);
 
-    assertEq(s.routerBalances[_router0][_local], initLiquidity + _args.amount);
+    assertEq(s.routerBalances[_args.routers[0]][_local], initLiquidity + _args.amount);
   }
 
   // should credit router leftovers from portal repayment from positive slippage of amm
   function test_BridgeFacet__handle_creditToRouterLeftoversFromPortalRepayment() public {
     // setup asset with adopted != local
-    setAssetContext(_destinationDomain, false);
+    utils_setupAsset(false, true);
 
     // set remote context
     setRemoteRouterContext(_originFacet, _originDomain);
 
     // get args
-    (bytes32 _id, ExecuteArgs memory _args) = getExecuteArgs();
+    (bytes32 _id, ExecuteArgs memory _args) = utils_makeExecuteArgs(1);
 
     // get the total debt in adopted
     uint256 portaled = (_args.amount * _liquidityFeeNumerator) / _liquidityFeeDenominator;
     uint256 fee = (portaled * _portalFeeNumerator) / _liquidityFeeDenominator;
     // set remainder -- comes from positive slippage
-    uint256 remainder = 0.01 ether;
-    uint256 swappedIn = portaled + fee - remainder; // amount it cost on AMM to get repay amt
+    uint256 remainder = 1 gwei;
+    uint256 swappedIn = portaled + fee + remainder; // amount it cost on AMM to get repay amt
+
+    console.log("amount", _args.amount);
+    console.log("portaled", portaled);
+    console.log("fee", fee);
+    console.log("swppedIn", swappedIn);
 
     // set mock + storage (using external pool)
     vm.mockCall(_stableSwap, abi.encodeWithSelector(IStableSwap.swapExactOut.selector), abi.encode(swappedIn));
     vm.mockCall(
       _stableSwap,
-      abi.encodeWithSelector(IStableSwap.calculateSwapFromAddress.selector),
-      abi.encode(_args.amount)
+      abi.encodeWithSelector(IStableSwap.calculateSwapOutFromAddress.selector),
+      abi.encode(swappedIn)
     );
     vm.mockCall(
       _stableSwap,
-      abi.encodeWithSelector(IStableSwap.calculateSwapOutFromAddress.selector),
+      abi.encodeWithSelector(IStableSwap.calculateSwapFromAddress.selector),
       abi.encode(_args.amount)
     );
 
@@ -2173,7 +2162,11 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
 
     bytes memory message = buildMessage(_id);
 
-    uint256 initLiquidity = s.routerBalances[_router0][_local];
+    uint256 initLiquidity = s.routerBalances[_args.routers[0]][_local];
+
+    console.log("initLiquidity", initLiquidity);
+    console.log("gains", gains);
+    console.log("initLiquidity + gains", initLiquidity + gains);
 
     vm.expectCall(_adopted, abi.encodeWithSelector(IERC20.approve.selector, _aavePool, portaled + fee));
 
@@ -2184,7 +2177,7 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
 
     this.handle(_params.originDomain, uint32(_nonce), bytes32(abi.encodePacked(_originFacet)), message);
 
-    assertEq(s.routerBalances[_router0][_local], initLiquidity + gains);
+    assertEq(s.routerBalances[_args.routers[0]][_local], initLiquidity + gains);
   }
 
   // should emit a debt event and repay all principle + as much fee as possible if
@@ -2199,7 +2192,7 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
     //   expected profit: profit = init + amount - fast - principle
 
     // get args
-    (bytes32 _id, ExecuteArgs memory _args) = getExecuteArgs();
+    (bytes32 _id, ExecuteArgs memory _args) = utils_makeExecuteArgs(1);
 
     // get the back unbacked amount
     uint256 portaled = (_args.amount * _liquidityFeeNumerator) / _liquidityFeeDenominator;
@@ -2221,7 +2214,7 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
 
     bytes memory message = buildMessage(_id);
 
-    uint256 initLiquidity = s.routerBalances[_router0][_local];
+    uint256 initLiquidity = s.routerBalances[_args.routers[0]][_local];
 
     vm.expectCall(_local, abi.encodeWithSelector(IERC20.approve.selector, _aavePool, _args.amount));
 
@@ -2238,7 +2231,7 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
 
     this.handle(_params.originDomain, uint32(_nonce), bytes32(abi.encodePacked(_originFacet)), message);
 
-    assertEq(s.routerBalances[_router0][_local], initLiquidity);
+    assertEq(s.routerBalances[_args.routers[0]][_local], initLiquidity);
     assertEq(s.portalDebt[_id], 0);
     assertEq(s.portalFeeDebt[_id], outstanding);
   }
