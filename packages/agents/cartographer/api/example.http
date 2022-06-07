@@ -1,5 +1,6 @@
 @postgrestUrl = http://localhost:3000
 @postgrestUrl = https://postgrest.testnet.connext.ninja
+@postgrestUrl = https://postgrest.testnet.staging.connext.ninja
 
 # just a few examples, more examples here: https://postgrest.org/en/stable/api.html#horizontal-filtering-rows
 
@@ -13,7 +14,7 @@ GET {{postgrestUrl}}/transfers?and=(origin_domain.in.("1111","2221"),destination
 GET {{postgrestUrl}}/transfers?transfer_id=eq.0x48a01ae23d9f8e40635493ccd35dab80c8a48bea2767c6e8294bf7e010c19437
 
 ### GET TRANSFERS BY STATUS
-GET {{postgrestUrl}}/transfers?status=eq.CompletedSlow&limit=1
+GET {{postgrestUrl}}/transfers?status=eq.CompletedSlow&limit=1&order=xcall_timestamp.desc
 Prefer: count=planned
 
 ### GET TRANSFERS BY USER
