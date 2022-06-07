@@ -27971,7 +27971,7 @@
           ]
         },
         "TestERC20": {
-          "address": "0x851358BD554DBc32cD03e4bbfe48Deb72eB14c2F",
+          "address": "0x3FFc03F05D1869f493c7dbf913E636C6280e0ff9",
           "abi": [
             {
               "inputs": [],
@@ -58281,7 +58281,7 @@
           ]
         },
         "TestERC20": {
-          "address": "0x851358BD554DBc32cD03e4bbfe48Deb72eB14c2F",
+          "address": "0x3FFc03F05D1869f493c7dbf913E636C6280e0ff9",
           "abi": [
             {
               "inputs": [],
@@ -60236,6 +60236,59 @@
             }
           ]
         },
+        "VersionFacetStaging": {
+          "address": "0x57f7a7c220ba09fb86E73232B5Af6C8588C72e75",
+          "abi": [
+            {
+              "inputs": [],
+              "name": "BaseConnextFacet__onlyOwner_notOwner",
+              "type": "error"
+            },
+            {
+              "inputs": [],
+              "name": "BaseConnextFacet__onlyProposed_notProposedOwner",
+              "type": "error"
+            },
+            {
+              "inputs": [],
+              "name": "BaseConnextFacet__onlyRemoteRouter_notRemoteRouter",
+              "type": "error"
+            },
+            {
+              "inputs": [],
+              "name": "BaseConnextFacet__onlyReplica_notReplica",
+              "type": "error"
+            },
+            {
+              "inputs": [],
+              "name": "BaseConnextFacet__whenBridgeNotPaused_bridgePaused",
+              "type": "error"
+            },
+            {
+              "inputs": [],
+              "name": "BaseConnextFacet__whenBridgeNotPaused_paused",
+              "type": "error"
+            },
+            {
+              "inputs": [],
+              "name": "BaseConnextFacet__whenBridgeNotPaused_swapPaused",
+              "type": "error"
+            },
+            {
+              "inputs": [],
+              "name": "VERSION",
+              "outputs": [
+                {
+                  "internalType": "uint8",
+                  "name": "",
+                  "type": "uint8"
+                }
+              ],
+              "stateMutability": "pure",
+              "type": "function"
+            }
+          ]
+        },
         "XAppConnectionManager": {
           "address": "0x9F1759A1D4665D5681fD6F031eeA0e913c61411A",
           "abi": [
@@ -61067,59 +61120,6 @@
                 }
               ],
               "stateMutability": "view",
-              "type": "function"
-            }
-          ]
-        },
-        "VersionFacetStaging": {
-          "address": "0x57f7a7c220ba09fb86E73232B5Af6C8588C72e75",
-          "abi": [
-            {
-              "inputs": [],
-              "name": "BaseConnextFacet__onlyOwner_notOwner",
-              "type": "error"
-            },
-            {
-              "inputs": [],
-              "name": "BaseConnextFacet__onlyProposed_notProposedOwner",
-              "type": "error"
-            },
-            {
-              "inputs": [],
-              "name": "BaseConnextFacet__onlyRemoteRouter_notRemoteRouter",
-              "type": "error"
-            },
-            {
-              "inputs": [],
-              "name": "BaseConnextFacet__onlyReplica_notReplica",
-              "type": "error"
-            },
-            {
-              "inputs": [],
-              "name": "BaseConnextFacet__whenBridgeNotPaused_bridgePaused",
-              "type": "error"
-            },
-            {
-              "inputs": [],
-              "name": "BaseConnextFacet__whenBridgeNotPaused_paused",
-              "type": "error"
-            },
-            {
-              "inputs": [],
-              "name": "BaseConnextFacet__whenBridgeNotPaused_swapPaused",
-              "type": "error"
-            },
-            {
-              "inputs": [],
-              "name": "VERSION",
-              "outputs": [
-                {
-                  "internalType": "uint8",
-                  "name": "",
-                  "type": "uint8"
-                }
-              ],
-              "stateMutability": "pure",
               "type": "function"
             }
           ]
@@ -89251,7 +89251,7 @@
           ]
         },
         "TestERC20": {
-          "address": "0x851358BD554DBc32cD03e4bbfe48Deb72eB14c2F",
+          "address": "0x3FFc03F05D1869f493c7dbf913E636C6280e0ff9",
           "abi": [
             {
               "inputs": [],
@@ -92095,6 +92095,13 @@
           ]
         }
       }
+    }
+  ],
+  "31337": [
+    {
+      "name": "hardhat",
+      "chainId": "31337",
+      "contracts": {}
     }
   ]
 }
