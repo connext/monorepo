@@ -12,6 +12,7 @@ contract RelayerFacet is BaseConnextFacet {
   error RelayerFacet__setRelayerFeeRouter_invalidRelayerFeeRouter();
   error RelayerFacet__addRelayer_alreadyApproved();
   error RelayerFacet__removeRelayer_notApproved();
+  error RelayerFacet__initiateClaim_emptyClaim();
   error RelayerFacet__initiateClaim_notRelayer(bytes32 transferId);
 
   // ========== Events ===========
@@ -118,8 +119,10 @@ contract RelayerFacet is BaseConnextFacet {
   // ============ External functions ============
 
   /**
-   * @notice Called by relayer when they want to claim owed funds on a given domain
-   * @dev Domain should be the origin domain of all the transfer ids
+   * @notice Called by relayer when they want to claim owed funds on a given domain.
+   *
+   * @dev Domain should be the origin domain of all the transfer IDs.
+   *
    * @param _recipient - address on origin chain to send claimed funds to
    * @param _domain - domain to claim funds on
    * @param _transferIds - transferIds to claim
@@ -129,16 +132,21 @@ contract RelayerFacet is BaseConnextFacet {
     address _recipient,
     bytes32[] calldata _transferIds
   ) external whenNotPaused {
-    // Ensure the relayer can claim all transfers specified
+    // Make sure the transferIds length is greater than 0.
+    // This is to make sure a valid relayer is calling this function.
+    if (_transferIds.length == 0) revert RelayerFacet__initiateClaim_emptyClaim();
+
+    // Ensure the relayer can claim all transfers specified.
     for (uint256 i; i < _transferIds.length; ) {
       if (s.transferRelayer[_transferIds[i]] != msg.sender)
         revert RelayerFacet__initiateClaim_notRelayer(_transferIds[i]);
+      delete s.transferRelayer[_transferIds[i]];
       unchecked {
         i++;
       }
     }
 
-    // Send transferIds via nomad
+    // Send transferIds via nomad.
     s.relayerFeeRouter.send(_domain, _recipient, _transferIds);
 
     emit InitiatedClaim(_domain, _recipient, msg.sender, _transferIds);
