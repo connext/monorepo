@@ -45,9 +45,49 @@ contract RelayerFacetTest is RelayerFacet, FacetHelper {
   // whenNotPaused? onlyOwner?
 
   // ============ Getters ==============
-  // function test_RelayerFacet__transferRelayer
-  // function test_RelayerFacet__approvedRelayers
-  // function test_RelayerFacet__relayerFeeRouter
+  // transferRelayer
+  // retrieves empty if not set
+  function test_RelayerFacet__transferRelayer_empty() public {
+    bytes32 transferId = bytes32("test");
+    assertEq(this.transferRelayer(transferId), address(0));
+  }
+
+  // retrieves defined value
+  function test_RelayerFacet__transferRelayer_defined() public {
+    bytes32 transferId = bytes32("test");
+    s.transferRelayer[transferId] = address(42);
+    assertEq(this.transferRelayer(transferId), address(42));
+  }
+
+  // approvedRelayers
+  // retrieves false if not set
+  function test_RelayerFacet__approvedRelayers_empty() public {
+    assertEq(this.approvedRelayers(address(42)), false);
+  }
+
+  // true works
+  function test_RelayerFacet__approvedRelayers_definedTrue() public {
+    s.approvedRelayers[_relayer] = true;
+    assertEq(this.approvedRelayers(_relayer), true);
+  }
+
+  // false works
+  function test_RelayerFacet__approvedRelayers_definedFalse() public {
+    s.approvedRelayers[_relayer] = false;
+    assertEq(this.approvedRelayers(_relayer), false);
+  }
+
+  // relayerFeeRouter
+  // retrieves empty if not set
+  function test_RelayerFacet__relayerFeeRouter_empty() public {
+    s.relayerFeeRouter = RelayerFeeRouter(address(0));
+    assertEq(address(this.relayerFeeRouter()), address(0));
+  }
+
+  // retrieves defined
+  function test_RelayerFacet__relayerFeeRouter_defined() public {
+    assertEq(address(this.relayerFeeRouter()), _relayerFeeRouter);
+  }
 
   // ============ Admin functions ============
   // setRelayerFeeRouter
