@@ -1,7 +1,6 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity 0.8.14;
 
-import "../facets/FacetHelper.sol";
 import "../../../../contracts/core/connext/libraries/AssetLogic.sol";
 import "../../../../contracts/core/connext/libraries/SwapUtils.sol";
 import {IWrapped} from "../../../../contracts/core/connext/interfaces/IWrapped.sol";
@@ -10,31 +9,41 @@ import {ConnextMessage} from "../../../../contracts/core/connext/libraries/Conne
 import {LibConnextStorage, AppStorage, PausedFunctions} from "../../../../contracts/core/connext/libraries/LibConnextStorage.sol";
 import {ITokenRegistry} from "../../../../contracts/core/connext/interfaces/ITokenRegistry.sol";
 
-import "../../../../lib/forge-std/src/console.sol";
+import "../facets/FacetHelper.sol";
+
+import "forge-std/console.sol";
+
+// Helper to call library with native value functions
+contract LibCaller {
+  function handleIncomingAsset(
+    address _assetId,
+    uint256 _assetAmount,
+    uint256 _fee
+  ) public payable {
+    AssetLogic.handleIncomingAsset(_assetId, _assetAmount, _fee);
+  }
+}
 
 contract AssetLogicTest is BaseConnextFacet, FacetHelper {
   // ============ Storage ============
-  uint32 domain = 1;
-  address canonical = address(2);
-  address asset = address(3);
-  address adopted = address(4);
-  address tokenAddr1 = address(11);
-  bytes32 canonicalTokenId = bytes32(abi.encodePacked(canonical));
-  uint32 canonicalDomain = domain;
+  LibCaller caller;
 
   // ============ Setup ============
-
   function setUp() public {
     // set defaults
-    setDefaults();
-
-    // set stable swap
-    setMockStableSwap();
+    utils_deployAssetContracts();
+    // set up assets (including remote swap)
+    utils_setupAsset(false, false);
+    // // set stable swap
+    // utils_setMockStableSwap();
+    caller = new LibCaller();
   }
 
-  function setMockStableSwap() internal {
+  // ============ utils ============
+
+  function utils_setMockStableSwap() internal {
     IERC20[] memory _pooledTokens = new IERC20[](1);
-    _pooledTokens[0] = IERC20(tokenAddr1);
+    _pooledTokens[0] = IERC20(_adopted);
     uint256[] memory _tokenPrecisionMultipliers = new uint256[](1);
     _tokenPrecisionMultipliers[0] = 1;
     uint256[] memory  _balances = new uint256[](1);
@@ -59,42 +68,64 @@ contract AssetLogicTest is BaseConnextFacet, FacetHelper {
         balances: _balances
     });
 
-    s.swapStorages[canonicalTokenId] = swap;
-    s.tokenIndexes[canonicalTokenId][tokenAddr1] = 0;
+    s.swapStorages[_canonicalId] = swap;
+    s.tokenIndexes[_canonicalId][_adopted] = 0;
     
   }
 
-  // ============ stableSwapPoolExist ============
+  // Sets up env to swap from local -> adopted using external pools only
+  function utils_swapFromLocalAndAssertViaExternal(address asset, uint256 amount, uint256 swapOut) internal {
+    // set mock
+    vm.mockCall(_stableSwap, abi.encodeWithSelector(IStableSwap.swapExact.selector), abi.encode(swapOut));
 
+    bool willSwap = asset == _local && amount > 0;
+    if (willSwap) {
+      // expect pool approval
+      vm.expectCall(_local, abi.encodeWithSelector(IERC20.approve.selector, _stableSwap, amount));
+      // expect swap
+      vm.expectCall(_stableSwap, abi.encodeWithSelector(IStableSwap.swapExact.selector, amount, _local, _adopted));
+    }
+
+    (uint256 received, address out) = AssetLogic.swapFromLocalAssetIfNeeded(asset, amount);
+    // assert return amount
+    assertEq(received, willSwap ? swapOut : amount);
+    // assert return asset
+    assertEq(out, _adopted);
+  }
+
+  // ============ stableSwapPoolExist ============
   function test_AssetLogic_stableSwapPoolExist_works() public {
-      assertEq(AssetLogic.stableSwapPoolExist(canonicalTokenId), true);
-      assertEq(AssetLogic.stableSwapPoolExist(bytes32(abi.encodePacked(address(5)))), false);
+    utils_setMockStableSwap();
+    assertEq(AssetLogic.stableSwapPoolExist(_canonicalId), true);
+    assertEq(AssetLogic.stableSwapPoolExist(bytes32(abi.encodePacked(address(5)))), false);
   }
 
   // ============ getTokenIndexFromStableSwapPool ============
-
   function test_AssetLogic_getTokenIndexFromStableSwapPool_failsIfNotFound() public {
-      address arbitrary = address(555555555555);
-      vm.expectRevert(AssetLogic.AssetLogic__getTokenIndexFromStableSwapPool_notExist.selector);
-      AssetLogic.getTokenIndexFromStableSwapPool(canonicalTokenId, arbitrary);
+    utils_setMockStableSwap();
+    address arbitrary = address(555555555555);
+    vm.expectRevert(AssetLogic.AssetLogic__getTokenIndexFromStableSwapPool_notExist.selector);
+    AssetLogic.getTokenIndexFromStableSwapPool(_canonicalId, arbitrary);
   }
 
   function test_AssetLogic_getTokenIndexFromStableSwapPool_works() public {
-      assertEq(AssetLogic.getTokenIndexFromStableSwapPool(canonicalTokenId, tokenAddr1), 0);
+    utils_setMockStableSwap();
+    assertEq(AssetLogic.getTokenIndexFromStableSwapPool(_canonicalId, _adopted), 0);
   }
 
   // ============ handleIncomingAsset ============
-
   function test_AssetLogic_handleIncomingAsset_failsIfValueBadWhenNative() public {
-      vm.expectRevert(AssetLogic.AssetLogic__handleIncomingAsset_notAmount.selector);
-      AssetLogic.handleIncomingAsset(address(0), 10, 1);
+    vm.expectRevert(AssetLogic.AssetLogic__handleIncomingAsset_notAmount.selector);
+    AssetLogic.handleIncomingAsset(address(0), 10, 1);
   }
 
   function test_AssetLogic_handleIncomingAsset_failsIfValueBad() public {
-      // TODO. need to determine how to setup a mock for msg.value for library.
+    vm.expectRevert(AssetLogic.AssetLogic__handleIncomingAsset_ethWithErcTransfer.selector);
+    caller.handleIncomingAsset{value: 10}(_local, 10, 1);
   }
 
-  function test_AssetLogic_handleIncomingAsset_works() public {}
+  function test_AssetLogic_handleIncomingAsset_works() public {
+  }
 
   function test_AssetLogic_handleIncomingAsset_worksWithNative() public {}
 
@@ -103,17 +134,14 @@ contract AssetLogicTest is BaseConnextFacet, FacetHelper {
   function test_AssetLogic_handleIncomingAsset_worksWithFeeOnTransfer() public {}
 
   // ============ wrapNativeAsset ============
-
   function test_AssetLogic_wrapNativeAsset_works() public {}
 
   // ============ transferAssetToContract ============
-
   function test_AssetLogic_transferAssetToContract_works() public {}
 
   function test_AssetLogic_transferAssetToContract_worksWithFeeOnTransfer() public {}
 
   // ============ transferAssetFromContract ============
-
   function test_AssetLogic_transferAssetFromContract_failsIfNoAsset() public {}
 
   function test_AssetLogic_transferAssetFromContract_works() public {}
@@ -123,7 +151,6 @@ contract AssetLogicTest is BaseConnextFacet, FacetHelper {
   function test_AssetLogic_transferAssetFromContract_worksForNative() public {}
 
   // ============ swapToLocalAssetIfNeeded ============
-
   function test_AssetLogic_swapToLocalAssetIfNeeded_failsIfPaused() public {}
 
   function test_AssetLogic_swapToLocalAssetIfNeeded_worksIfZero() public {}
@@ -135,41 +162,28 @@ contract AssetLogicTest is BaseConnextFacet, FacetHelper {
   function test_AssetLogic_swapToLocalAssetIfNeeded_works() public {}
 
   // ============ swapFromLocalAssetIfNeeded ============
-
   // should revert
   function testFail_AssetLogic_swapFromLocalAssetIfNeeded_revertIfSwappingPaused() public {
-    s.canonicalToAdopted[canonicalTokenId] = adopted;
     s._paused = PausedFunctions.Swap;
-
-    vm.mockCall(
-      _tokenRegistry,
-      abi.encodeWithSelector(ITokenRegistry.getTokenId.selector),
-      abi.encode(canonicalDomain, canonicalTokenId)
-    );
-
     // NOTE: this function should fail with the following error, but the `expectRevert` will not
     // work because it checks for `CALL` results not `JUMP` results. see:
     // https://book.getfoundry.sh/cheatcodes/expect-revert.html
     // vm.expectRevert(AssetLogic.AssetLogic__swapFromLocalAssetIfNeeded_swapPaused.selector);
-
-    AssetLogic.swapFromLocalAssetIfNeeded(asset, 10000);
+    // AssetLogic.swapFromLocalAssetIfNeeded(_local, 10000);
+    utils_swapFromLocalAndAssertViaExternal(_local, 1 ether, 0.9 ether);
   }
 
-  function test_AssetLogic_swapFromLocalAssetIfNeeded_worksIfZero() public {}
+  function test_AssetLogic_swapFromLocalAssetIfNeeded_worksIfZero() public {
+    utils_swapFromLocalAndAssertViaExternal(_adopted, 0, 0.1 ether);
+  }
 
   // does not swap if already adopted
-  function test_AssetLogic_swapFromLocalAssetIfNeeded_worksIfAdopted() public {}
+  function test_AssetLogic_swapFromLocalAssetIfNeeded_worksWithAdopted() public {
+    utils_swapFromLocalAndAssertViaExternal(_adopted, 1 ether, 0.9 ether);
+  }
 
-  // should work
-  function test_AssetLogic_swapFromLocalAssetIfNeeded_works() public {
-    vm.mockCall(
-      _tokenRegistry,
-      abi.encodeWithSelector(ITokenRegistry.getTokenId.selector),
-      abi.encode(canonicalDomain, canonicalTokenId)
-    );
-    s.canonicalToAdopted[canonicalTokenId] = asset;
-    (uint256 _amount, address _asset) = AssetLogic.swapFromLocalAssetIfNeeded(asset, 10000);
-    assertEq(_amount, 10000);
-    assertEq(_asset, asset);
+  // should work (swap local for adopted)
+  function test_AssetLogic_swapFromLocalAssetIfNeeded_worksWithLocal() public {
+    utils_swapFromLocalAndAssertViaExternal(_local, 1 ether, 0.9 ether);
   }
 }
