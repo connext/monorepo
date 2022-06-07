@@ -22,6 +22,10 @@ contract LibCaller {
   ) public payable {
     AssetLogic.handleIncomingAsset(_assetId, _assetAmount, _fee);
   }
+
+  function deposit(IWrapped wrapper) public payable {
+    wrapper.deposit{ value: msg.value }();
+  }
 }
 
 contract AssetLogicTest is BaseConnextFacet, FacetHelper {
@@ -71,6 +75,40 @@ contract AssetLogicTest is BaseConnextFacet, FacetHelper {
     s.swapStorages[_canonicalId] = swap;
     s.tokenIndexes[_canonicalId][_adopted] = 0;
     
+  }
+
+  // transfers specified asset from contract
+  function utils_transferFromContractAndAssert(address assetId, address to, uint256 amount) public {
+    bool isNative = assetId == _wrapper;
+    // fund caller
+    if (isNative) {
+      IWrapped(_wrapper).deposit{ value: 10 ether}();
+    } else {
+      TestERC20(assetId).mint(address(this), 10 ether);
+    }
+
+    // set expects
+    if (amount > 0) {
+      if (isNative) {
+        // Should withdraw
+        vm.expectCall(_wrapper, abi.encodeWithSelector(IWrapped.withdraw.selector, amount));
+      } else {
+        // Should transfer funds to user
+        vm.expectCall(assetId, abi.encodeWithSelector(IERC20.transfer.selector, to, amount));
+      }
+    } // otherwise, no calls should be made
+
+    // get initial balances
+    uint256 initContract = IERC20(assetId).balanceOf(address(this));
+    uint256 initTarget = isNative ? to.balance : IERC20(assetId).balanceOf(to);
+
+    // call
+    AssetLogic.transferAssetFromContract(assetId, to, amount);
+
+    // assert balance changes on contract + target
+    uint256 finalTarget = isNative ? to.balance : IERC20(assetId).balanceOf(to);
+    assertEq(IERC20(assetId).balanceOf(address(this)), initContract - amount);
+    assertEq(finalTarget, initTarget + amount);
   }
 
   // Sets up env to swap from local -> adopted using external pools only
@@ -162,13 +200,40 @@ contract AssetLogicTest is BaseConnextFacet, FacetHelper {
   function test_AssetLogic_transferAssetToContract_worksWithFeeOnTransfer() public {}
 
   // ============ transferAssetFromContract ============
-  function test_AssetLogic_transferAssetFromContract_failsIfNoAsset() public {}
+  function test_AssetLogic_transferAssetFromContract_failsIfNoAsset() public {
+    // set constants
+    address assetId = address(0);
+    address to = address(12345);
+    uint256 amount = 12345678;
+    vm.expectRevert(AssetLogic.AssetLogic__transferAssetFromContract_notNative.selector);
+    AssetLogic.transferAssetFromContract(assetId, to, amount);
+  }
 
-  function test_AssetLogic_transferAssetFromContract_works() public {}
+  function test_AssetLogic_transferAssetFromContract_works() public {
+    // set constants
+    address assetId = _local;
+    address to = address(12345);
+    uint256 amount = 12345678;
+    utils_transferFromContractAndAssert(assetId, to, amount);
+  }
 
-  function test_AssetLogic_transferAssetFromContract_worksIfZero() public {}
+  function test_AssetLogic_transferAssetFromContract_worksIfZero() public {
+    // set constants
+    address assetId = _local;
+    address to = address(12345);
+    uint256 amount = 0;
+    utils_transferFromContractAndAssert(assetId, to, amount);
+  }
 
-  function test_AssetLogic_transferAssetFromContract_worksForNative() public {}
+  function test_AssetLogic_transferAssetFromContract_worksForNative() public {
+    // setup asset
+    utils_setupNative(false, false);
+    // set constants
+    address assetId = _wrapper; // native asset will be wrapper
+    address to = address(12345);
+    uint256 amount = 12345678;
+    utils_transferFromContractAndAssert(assetId, to, amount);
+  }
 
   // ============ swapToLocalAssetIfNeeded ============
 
