@@ -125,7 +125,7 @@ export const getDomainInfoFromChainId = async (
   chainId: number,
   hre: HardhatRuntimeEnvironment,
 ): Promise<NomadDomainInfo> => {
-  if ([1337, 1338].includes(chainId)) {
+  if ([1337, 1338, 31337].includes(chainId)) {
     return {
       name: `local${chainId}`,
       domain: chainId,

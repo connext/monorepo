@@ -18,7 +18,7 @@ config();
  */
 const func: DeployFunction = async (hre: HardhatRuntimeEnvironment): Promise<void> => {
   const network = await hre.ethers.provider.getNetwork();
-  if (network.chainId !== 1337 && network.chainId !== 1338) {
+  if (![1337, 1338, 31337].includes(network.chainId)) {
     console.error("Do not run nomad core deployment on non-local networks");
     return;
   }

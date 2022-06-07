@@ -9,9 +9,9 @@ import "@tenderly/hardhat-tenderly";
 import "@nomiclabs/hardhat-etherscan";
 import "@openzeppelin/hardhat-upgrades";
 import "hardhat-contract-sizer";
+import { HardhatUserConfig } from "hardhat/types";
 
 import { config as dotEnvConfig } from "dotenv";
-import { HardhatUserConfig } from "hardhat/types";
 
 import "./tasks/setupRouter";
 import "./tasks/setupAsset";
