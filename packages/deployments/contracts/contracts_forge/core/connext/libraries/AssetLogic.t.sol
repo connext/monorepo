@@ -40,15 +40,20 @@ contract AssetLogicTest is BaseConnextFacet, FacetHelper {
   }
 
   // should revert
-  function test_AssetLogic_swapFromLocalAssetIfNeeded_revertIfSwappingPaused() public {
+  function testFail_AssetLogic_swapFromLocalAssetIfNeeded_revertIfSwappingPaused() public {
     s.canonicalToAdopted[canonicalTokenId] = adopted;
     s._paused = PausedFunctions.Swap;
+
     vm.mockCall(
       _tokenRegistry,
       abi.encodeWithSelector(ITokenRegistry.getTokenId.selector),
       abi.encode(canonicalDomain, canonicalTokenId)
     );
-    vm.expectRevert(AssetLogic.AssetLogic__swapFromLocalAssetIfNeeded_swapPaused.selector);
+
+    // NOTE: this function should fail with the following error, but the `expectRevert` will not
+    // work because it checks for `CALL` results not `JUMP` results. see:
+    // https://book.getfoundry.sh/cheatcodes/expect-revert.html
+    // vm.expectRevert(AssetLogic.AssetLogic__swapFromLocalAssetIfNeeded_swapPaused.selector);
 
     AssetLogic.swapFromLocalAssetIfNeeded(asset, 10000);
   }
