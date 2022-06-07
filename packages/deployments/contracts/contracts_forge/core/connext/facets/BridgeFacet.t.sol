@@ -441,9 +441,16 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
       );
 
       // swapExact on pool should have been called
+      uint256 minReceived = (args.amount * args.params.slippageTol) / s.LIQUIDITY_FEE_DENOMINATOR;
       vm.expectCall(
         _stableSwap,
-        abi.encodeWithSelector(IStableSwap.swapExact.selector, args.amount, eventArgs.transactingAssetId, _local)
+        abi.encodeWithSelector(
+          IStableSwap.swapExact.selector,
+          args.amount,
+          eventArgs.transactingAssetId,
+          _local,
+          minReceived
+        )
       );
     }
 
@@ -643,9 +650,10 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
       // register expected approval
       vm.expectCall(_local, abi.encodeWithSelector(IERC20.approve.selector, _stableSwap, _inputs.routerAmt));
       // register expected swap amount
+      uint256 minReceived = (_inputs.routerAmt * _args.params.slippageTol) / s.LIQUIDITY_FEE_DENOMINATOR;
       vm.expectCall(
         _stableSwap,
-        abi.encodeWithSelector(IStableSwap.swapExact.selector, _inputs.routerAmt, _local, _adopted)
+        abi.encodeWithSelector(IStableSwap.swapExact.selector, _inputs.routerAmt, _local, _adopted, minReceived)
       );
     }
 
