@@ -359,15 +359,15 @@ contract BridgeFacet is BaseConnextFacet {
   function execute(ExecuteArgs calldata _args) external whenBridgeNotPaused nonReentrant returns (bytes32) {
     (bytes32 transferId, bool reconciled) = _executeSanityChecks(_args);
 
+    // Set the relayer for this transaction to allow for future claim
+    s.transferRelayer[transferId] = msg.sender;
+
     // execute router liquidity when this is a fast transfer
     // asset will be adopted unless specified to be local in params
     (uint256 amount, address asset) = _handleExecuteLiquidity(transferId, !reconciled, _args);
 
     // execute the transaction
     uint256 amountWithSponsors = _handleExecuteTransaction(_args, amount, asset, transferId, reconciled);
-
-    // Set the relayer for this transaction to allow for future claim
-    s.transferRelayer[transferId] = msg.sender;
 
     // emit event
     emit Executed(transferId, _args.params.to, _args, asset, amountWithSponsors, msg.sender);
