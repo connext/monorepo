@@ -150,3 +150,9 @@ grant usage on schema public to reader;
 grant select on public.transfers to reader;
 grant query to reader;
 -- migrate:down
+DROP VIEW routers_with_balances CASCADE;
+DROP TABLE routers CASCADE;
+DROP TABLE asset_balances CASCADE;
+DROP TABLE assets CASCADE;
+DROP TABLE transfers CASCADE;
+DROP TYPE transfer_status;
