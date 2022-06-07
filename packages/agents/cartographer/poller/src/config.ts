@@ -13,6 +13,8 @@ export const TDatabaseConfig = Type.Object({
   url: Type.String({ format: "uri" }),
 });
 
+export const TChains = Type.Record(Type.String(), Type.Object({}));
+
 export const Cartographer = Type.Object({
   pollInterval: Type.Integer({ minimum: 1000 }),
   logLevel: Type.Union([
@@ -27,6 +29,7 @@ export const Cartographer = Type.Object({
   database: TDatabaseConfig,
   subgraphPrefix: Type.Optional(Type.String()),
   environment: Type.Union([Type.Literal("staging"), Type.Literal("production")]),
+  chains: TChains,
 });
 
 export type CartographerConfig = Static<typeof Cartographer>;
@@ -40,10 +43,11 @@ export const getEnvConfig = (): CartographerConfig => {
   let configJson: Record<string, any> = {};
   let configFile: any = {};
 
+  console.log("process.env.CARTOGRAPHER_CONFIG: ", process.env.CARTOGRAPHER_CONFIG);
   try {
-    configJson = JSON.parse(process.env.CARTOGRAPHER_CONFIG || "");
+    configJson = JSON.parse(process.env.CARTOGRAPHER_CONFIG || "{}");
   } catch (e: unknown) {
-    console.info("No CARTOGRAPHER_CONFIG exists, using config file and individual env vars");
+    console.info("No CARTOGRAPHER_CONFIG exists, using config file and individual env vars", e);
   }
   try {
     let json: string;
@@ -74,6 +78,7 @@ export const getEnvConfig = (): CartographerConfig => {
     subgraphPrefix: process.env.CARTOGRAPHER_SUBGRAPH_PREFIX || configJson.subgraphPrefix || configFile.subgraphPrefix,
     environment:
       process.env.CARTOGRAPHER_ENVIRONMENT || configJson.environment || configFile.environment || "production",
+    chains: process.env.CARTOGRAPHER_CHAINS || configJson.chains || configFile.chains || {},
   };
 
   const validate = ajv.compile(Cartographer);

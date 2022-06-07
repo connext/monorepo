@@ -58,18 +58,8 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
   // mock callback contract
   address _callback;
 
-  // native asset wrapper
-  address _wrapper;
-
   // default origin sender
   address _originSender = address(4);
-
-  // destination remote handler id
-  bytes32 _remote = bytes32("remote");
-
-  // domains
-  address _originFacet = address(111222);
-  address _destinationFacet = address(222111);
 
   // aave pool details
   address _aavePool;
@@ -105,7 +95,7 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
     // Deploy any needed contracts.
     utils_deployContracts();
 
-    setDefaults();
+    utils_setFees();
 
     // Set up asset context. By default, local is the adopted asset - the one the 'user'
     // is using - and is representational (meaning canonically it belongs to another chain).
@@ -126,8 +116,7 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
 
     // NOTE: Currently, the only time we check for the domain in params to match the contract's
     // domain is within the `xcall` method - so it's safe to set the contract domain to be origin.
-    s.domain = _originDomain;
-    s.remotes[_destinationDomain] = _remote;
+    utils_setRemote(true);
   }
 
   // ============ Utils ============
@@ -135,13 +124,7 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
 
   // Used in set up for deploying any needed peripheral contracts.
   function utils_deployContracts() public {
-    // Deploy the adopted token.
-    _adopted = address(new TestERC20());
-    // Deploy the local token.
-    _local = address(new TestERC20());
-    // Deploy the canonical token.
-    _canonical = address(new TestERC20());
-    _canonicalTokenId = bytes32(abi.encodePacked(_canonical));
+    utils_deployAssetContracts();
     // Deploy an executor.
     _executor = address(new Executor(address(this)));
     s.executor = IExecutor(_executor);
@@ -157,106 +140,12 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
     s.promiseRouter = new MockPromiseRouter();
     _promiseRouter = payable(s.promiseRouter);
 
-    // Deploy wrapper for native asset.
-    s.wrapper = IWrapped(new MockWrapper());
-    _wrapper = address(s.wrapper);
-    vm.mockCall(_wrapper, abi.encodeWithSelector(IBridgeToken.name.selector), abi.encode("TestERC20"));
-    vm.mockCall(_wrapper, abi.encodeWithSelector(IBridgeToken.symbol.selector), abi.encode("TEST"));
-    vm.mockCall(_wrapper, abi.encodeWithSelector(IBridgeToken.decimals.selector), abi.encode(18));
-
     // Deploy a mock callback.
     _callback = address(new MockCallback());
 
     // setup aave pool
     _aavePool = address(new MockPool());
     s.aavePool = _aavePool;
-  }
-
-  // Sets the storage and token registry return results.
-  function utils_setupAsset(bool localIsAdopted, bool onCanonical) public {
-    if (onCanonical) {
-      _local = _canonical;
-      _canonicalDomain = _originDomain;
-    } else {
-      // If the local is already set to the canonical (i.e. from some defaults)
-      // redeploy
-      if (_local == _canonical) {
-        _local = address(new TestERC20());
-      }
-      _canonicalDomain = _destinationDomain;
-    }
-    if (localIsAdopted) {
-      _adopted = _local;
-      _stableSwap = address(0);
-    } else {
-      // If the adopted is already set as the local, redeploy
-      if (_adopted == _local) {
-        _adopted = address(new TestERC20());
-      }
-      if (_stableSwap == address(0)) {
-        _stableSwap = address(5555555555555555555);
-      }
-    }
-    // token registry should always return the canonical
-    vm.mockCall(
-      _tokenRegistry,
-      abi.encodeWithSelector(ITokenRegistry.getTokenId.selector),
-      abi.encode(_canonicalDomain, _canonicalTokenId)
-    );
-
-    // if you are not on canonical domain, ensure the local origin returns false
-    // (indicates whether token should be burned or not)
-    vm.mockCall(
-      _tokenRegistry,
-      abi.encodeWithSelector(ITokenRegistry.isLocalOrigin.selector, _local),
-      abi.encode(onCanonical)
-    );
-
-    // ensure local token should always return the local token wrt current domain
-    vm.mockCall(_tokenRegistry, abi.encodeWithSelector(ITokenRegistry.ensureLocalToken.selector), abi.encode(_local));
-
-    // Ensure token registry is always returned properly
-    vm.mockCall(_tokenRegistry, abi.encodeWithSelector(ITokenRegistry.getLocalAddress.selector), abi.encode(_local));
-
-    // Setup the storage variables
-    s.adoptedToCanonical[_adopted] = ConnextMessage.TokenId(_canonicalDomain, _canonicalTokenId);
-    s.adoptedToLocalPools[_canonicalTokenId] = IStableSwap(_stableSwap);
-    s.canonicalToAdopted[_canonicalTokenId] = _adopted;
-
-    // // Log stored vars
-    // console.log("setup asset:");
-    // console.log("- adopted:", _adopted);
-    // console.log("- local:", _local);
-    // console.log("- canonical:", _canonical);
-    // console.log("- stableSwap:", _stableSwap);
-    // console.log("- wrapper:", address(s.wrapper));
-    // console.log("- isLocalOrigin", onCanonical);
-  }
-
-  function utils_setupNative(bool localIsAdopted, bool onCanonical) public {
-    // When you are using the native asset:
-    // - canonical asset will always be the wrapper
-    // - adopted asset will always be the wrapper
-    // - the local asset may or may not be the wrapper
-    if (onCanonical) {
-      // The wrapper is canonical when on the canonical domain
-      // only
-      _canonical = address(s.wrapper);
-      _canonicalTokenId = bytes32(abi.encodePacked(_canonical));
-    } else {
-      // If localIsAdopted, then the local asset is the wrapper
-      if (localIsAdopted) {
-        // this is like if madETH is adopted on cronos. in this case,
-        // the wrapper must also have the `detailsHash()` functionality
-        // this is handled in the other utility function (see `utils_formatMessage`)
-        _local = address(new TestERC20());
-        _adopted = _local;
-      } else {
-        // The adopted asset is the wrapper, local is bridge token
-        _adopted = address(s.wrapper);
-      }
-    }
-    utils_setupAsset(localIsAdopted, onCanonical);
   }
 
   // Meant to mimic the corresponding `_getTransferId` method in the BridgeFacet contract.
@@ -521,7 +410,6 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
 
         // Check that the user has been debited the correct amount of tokens.
         assertEq(TestERC20(args.transactingAssetId).balanceOf(_originSender), initialUserBalance - args.amount);
-        console.log("verified user balance changed");
 
         // Check that the contract has been credited the correct amount of tokens.
         // NOTE: Because the tokens are a representational local asset, they are burnt. The contract
@@ -538,26 +426,11 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
           uint256 expected = args.transactingAssetId == _local
             ? initialContractBalance
             : initialContractBalance - bridgedAmt;
-          console.log("initial", initialContractBalance);
-          console.log("amount in", args.amount);
-          console.log("bridged amount", bridgedAmt);
-          console.log("shouldSwap", shouldSwap);
-          console.log("transactingAsset", args.transactingAssetId);
-          console.log("_local", _local);
-          console.log("final", TestERC20(_local).balanceOf(address(this)));
-          // if (shouldSwap && args.transactingAssetId == _local) {
-          //   // config shortcut, using adopted == local (because should swap out of local)
-          //   // user sent in adopted funds, were not transferred out in swap due to above
-          //   // also sent funds in
-          //   expected += args.amount;
-          // }
           assertEq(TestERC20(_local).balanceOf(address(this)), expected);
-          console.log("verified contract balance changed");
         }
       }
       // Should have updated relayer fees mapping.
       assertEq(this.relayerFees(transferId), args.relayerFee);
-      console.log("verified relayer fee");
 
       if (args.params.callbackFee > 0) {
         // TODO: For some reason, balance isn't changing. Perhaps the vm.mockCall prevents this?
@@ -1217,7 +1090,6 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
     helpers_xcallAndAssert(BridgeFacet.BridgeFacet__xcall_notSupportedAsset.selector);
   }
 
-  // FIXME: move to AssetLogic.t.sol
   // fails if native token transfer and amount of native tokens sent is < amount + relayerFee + callbackFee
   function test_BridgeFacet__xcall_failNativeAssetCallbackFeeInsufficient() public {
     vm.deal(_originSender, 100 ether);
@@ -1233,22 +1105,6 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
     this.xcall{value: args.relayerFee + args.amount}(args);
   }
 
-  // FIXME: move to AssetLogic.t.sol
-  // fails if native token transfer and amount of native tokens sent is < amount + relayerFee
-  function test_BridgeFacet__xcall_failNativeAssetRelayerFeeInsufficient() public {
-    vm.deal(_originSender, 100 ether);
-    utils_setupNative(true, true);
-    _relayerFee = 0.002 ether;
-
-    (, XCallArgs memory args) = utils_makeXCallArgs();
-
-    vm.expectRevert(AssetLogic.AssetLogic__handleIncomingAsset_notAmount.selector);
-    vm.prank(_originSender);
-    // Sending only the amount; relayer fee is not covered!
-    this.xcall{value: args.amount}(args);
-  }
-
-  // FIXME: move to AssetLogic.t.sol
   // fails if erc20 transfer and eth sent < relayerFee + callbackFee
   function test_BridgeFacet__xcall_failEthWithErc20TransferInsufficient() public {
     utils_setupAsset(true, false);
@@ -1263,7 +1119,6 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
     this.xcall{value: 0.08 ether}(args);
   }
 
-  // FIXME: move to AssetLogic.t.sol
   // fails if erc20 transfer and eth sent > relayerFee + callbackFee
   function test_BridgeFacet__xcall_failEthWithErc20TransferUnnecessary() public {
     vm.deal(_originSender, 100 ether);
@@ -1277,7 +1132,6 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
     this.xcall{value: 1 ether}(args);
   }
 
-  // FIXME: move to AssetLogic.t.sol
   // fails if user has insufficient tokens
   function test_BridgeFacet__xcall_failInsufficientErc20Tokens() public {
     _amount = 10.1 ether;

@@ -19,9 +19,7 @@ contract RoutersFacetTest is RoutersFacet, FacetHelper {
   address _owner = address(12345);
 
   // sample data
-  uint32 _domain = 1000;
-
-  bytes32 _localTokenId = bytes32(abi.encodePacked(_local));
+  uint32 _domain = _originDomain;
 
   address _routerAgent0 = address(222000111); // 0x000000000000000000000000000000000d3b73ef
   address _routerRecipient0 = address(222000222); // 0x000000000000000000000000000000000d3b745e

@@ -33,7 +33,7 @@ export const makeTransfersPoller = async (_configOverride?: CartographerConfig) 
   /// MARK - Domains
   // Filter out the supported domains from the subgraph.
   const supported = context.adapters.subgraph.supported;
-  context.domains = Object.keys(supported).filter((domain) => supported[domain]);
+  context.domains = Object.keys(context.config.chains).filter((domain) => supported[domain]);
 
   /// MARK - Bindings
   context.logger.info("Transfers Poller initialized!", requestContext, methodContext, {
