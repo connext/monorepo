@@ -140,7 +140,6 @@ contract RelayerFacet is BaseConnextFacet {
     for (uint256 i; i < _transferIds.length; ) {
       if (s.transferRelayer[_transferIds[i]] != msg.sender)
         revert RelayerFacet__initiateClaim_notRelayer(_transferIds[i]);
-      delete s.transferRelayer[_transferIds[i]];
       unchecked {
         i++;
       }

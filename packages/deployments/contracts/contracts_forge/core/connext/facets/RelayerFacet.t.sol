@@ -52,7 +52,7 @@ contract RelayerFacetTest is RelayerFacet, FacetHelper {
   // ============ External functions ============
   // initiateClaim
   // should fail if not relayer for the transfer (1/1)
-  function test_RelayerFacet__initiateClaim_singleClaimFailsIfNotRelayer() public {
+  function test_RelayerFacet__initiateClaim_failsSingleClaimIfNotRelayer() public {
     bytes32[] memory transferIds = new bytes32[](1);
     transferIds[0] = bytes32("test");
     s.transferRelayer[transferIds[0]] = address(42);
@@ -65,7 +65,7 @@ contract RelayerFacetTest is RelayerFacet, FacetHelper {
   }
 
   // should fail if not relayer for the transfer (1/200)
-  function test_RelayerFacet__initiateClaim_multipleClaimsfailIfNotRelayer() public {
+  function test_RelayerFacet__initiateClaim_failsMultipleClaimsIfNotRelayer() public {
     uint count = 200;
     bytes32[] memory transferIds = new bytes32[](count);
     for (uint32 i = 0; i < count; i++) {
