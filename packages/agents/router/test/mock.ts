@@ -82,6 +82,7 @@ export const mock = {
       cache: 10_000,
     },
     environment: "staging",
+    nomadEnvironment: "staging"
   }),
   adapters: {
     wallet: (): SinonStubbedInstance<Wallet> => {

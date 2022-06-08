@@ -64,6 +64,7 @@ locals {
     }
 
     environment = var.stage
+    nomadEnvironment = var.nomad_environment
   })
 }
 
@@ -111,6 +112,7 @@ locals {
     }
     web3SignerUrl = "https://${module.web3signer.service_endpoint}"
     environment   = var.stage
+    nomadEnvironment = var.nomad_environment
   })
 }
 
