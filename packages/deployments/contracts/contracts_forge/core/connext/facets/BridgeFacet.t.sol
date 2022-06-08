@@ -22,7 +22,7 @@ import {ConnextMessage} from "../../../../contracts/core/connext/libraries/Conne
 import {RelayerFeeMessage} from "../../../../contracts/core/relayer-fee/libraries/RelayerFeeMessage.sol";
 import {AssetLogic} from "../../../../contracts/core/connext/libraries/AssetLogic.sol";
 import {LibCrossDomainProperty} from "../../../../contracts/core/connext/libraries/LibCrossDomainProperty.sol";
-import {CallParams, ExecuteArgs, XCallArgs, PausedFunctions} from "../../../../contracts/core/connext/libraries/LibConnextStorage.sol";
+import {CallParams, ExecuteArgs, XCallArgs} from "../../../../contracts/core/connext/libraries/LibConnextStorage.sol";
 import {LibDiamond} from "../../../../contracts/core/connext/libraries/LibDiamond.sol";
 import {BridgeFacet} from "../../../../contracts/core/connext/facets/BridgeFacet.sol";
 import {BaseConnextFacet} from "../../../../contracts/core/connext/facets/BaseConnextFacet.sol";
@@ -1781,56 +1781,16 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
   // ============ execute fail cases
 
   // FIXME: move to `BaseConnextFacet.t.sol`
-  // should fail if bridging paused
-  function test_BridgeFacet__execute_failIfBridgingPaused() public {
+  // should fail if paused
+  function test_BridgeFacet__execute_failIfPaused() public {
     // set context
-    s._paused = PausedFunctions.Bridge;
+    s._paused = true;
 
     // get args
     (, ExecuteArgs memory args) = utils_makeExecuteArgs(1);
 
     // expect failure
-    vm.expectRevert(BaseConnextFacet.BaseConnextFacet__whenBridgeNotPaused_bridgePaused.selector);
-    this.execute(args);
-  }
-
-  // FIXME: move to `BaseConnextFacet.t.sol`
-  // should fail if all paused
-  function test_BridgeFacet__execute_failIfAllPaused() public {
-    // set context
-    s._paused = PausedFunctions.All;
-
-    // get args
-    (, ExecuteArgs memory args) = utils_makeExecuteArgs(1);
-
-    // expect failure
-    vm.expectRevert(BaseConnextFacet.BaseConnextFacet__whenBridgeNotPaused_bridgePaused.selector);
-    this.execute(args);
-  }
-
-  // FIXME: move to `BaseConnextFacet.t.sol`
-  // should fail if all swap paused && needs swap
-  function test_BridgeFacet__execute_failIfSwapPaused() public {
-    // setup asset context (use local == adopted)
-    address adopted = address(11111111111111111);
-    s.adoptedToCanonical[adopted] = ConnextMessage.TokenId(_canonicalDomain, _canonicalId);
-    s.adoptedToLocalPools[_canonicalId] = IStableSwap(address(0));
-    s.canonicalToAdopted[_canonicalId] = adopted;
-    vm.mockCall(_tokenRegistry, abi.encodeWithSelector(ITokenRegistry.getLocalAddress.selector), abi.encode(adopted));
-
-    // set context
-    s._paused = PausedFunctions.Swap;
-
-    // get args
-    (, ExecuteArgs memory args) = utils_makeExecuteArgs(1);
-
-    // set liquidity context
-    for (uint256 i; i < args.routers.length; i++) {
-      s.routerBalances[args.routers[i]][args.local] += 10 ether;
-    }
-
-    // expect failure
-    vm.expectRevert(AssetLogic.AssetLogic__swapFromLocalAssetIfNeeded_swapPaused.selector);
+    vm.expectRevert(BaseConnextFacet.BaseConnextFacet__whenNotPaused_paused.selector);
     this.execute(args);
   }
 
