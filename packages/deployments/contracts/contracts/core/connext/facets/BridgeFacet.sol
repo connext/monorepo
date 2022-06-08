@@ -225,7 +225,7 @@ contract BridgeFacet is BaseConnextFacet {
    * @param _args - The XCallArgs arguments.
    * @return bytes32 - The transfer ID of the newly created crosschain transfer.
    */
-  function xcall(XCallArgs calldata _args) external payable whenBridgeNotPaused nonReentrant returns (bytes32) {
+  function xcall(XCallArgs calldata _args) external payable whenNotPaused nonReentrant returns (bytes32) {
     // Sanity checks.
     {
       // Correct origin domain.
@@ -356,7 +356,7 @@ contract BridgeFacet is BaseConnextFacet {
    * @return bytes32 - The transfer ID of the crosschain transfer. Should match the xcall's transfer ID in order for
    * reconciliation to occur.
    */
-  function execute(ExecuteArgs calldata _args) external whenBridgeNotPaused nonReentrant returns (bytes32) {
+  function execute(ExecuteArgs calldata _args) external whenNotPaused nonReentrant returns (bytes32) {
     (bytes32 transferId, bool reconciled) = _executeSanityChecks(_args);
 
     // Set the relayer for this transaction to allow for future claim
@@ -379,7 +379,7 @@ contract BridgeFacet is BaseConnextFacet {
    * @notice Anyone can call this function on the origin domain to increase the relayer fee for a transfer.
    * @param _transferId - The unique identifier of the crosschain transaction
    */
-  function bumpTransfer(bytes32 _transferId) external payable whenBridgeNotPaused {
+  function bumpTransfer(bytes32 _transferId) external payable whenNotPaused {
     if (msg.value == 0) revert BridgeFacet__bumpTransfer_valueIsZero();
 
     s.relayerFees[_transferId] += msg.value;

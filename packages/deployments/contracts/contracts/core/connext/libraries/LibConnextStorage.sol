@@ -103,17 +103,6 @@ struct RouterPermissionsManagerInfo {
   mapping(address => uint256) proposedRouterTimestamp;
 }
 
-/**
- * @notice Types of functionality that can be paused
- * @dev Contract admin can update this value
- */
-enum PausedFunctions {
-  None,
-  Bridge,
-  Swap,
-  All
-}
-
 struct AppStorage {
   bool initialized;
   //
@@ -287,7 +276,7 @@ struct AppStorage {
    * @notice Stores whether or not briding, AMMs, have been paused
    */
   // 33
-  PausedFunctions _paused;
+  bool _paused;
 }
 
 library LibConnextStorage {
