@@ -4,17 +4,17 @@ services:
   chain-1337:
     environment:
       - MNEMONIC=$MNEMONIC
+      - CHAIN_ID=1337
     container_name: chain-1337-test
-    image: trufflesuite/ganache-cli:latest
-    command: '--chain-id 1337 --mnemonic "$MNEMONIC" --host 0.0.0.0 --block-time 3'
+    image: chain:latest
     ports:
       - "8547:8545"
   chain-1338:
     environment:
       - MNEMONIC=$MNEMONIC
+      - CHAIN_ID=1338
     container_name: chain-1338-test
-    image: trufflesuite/ganache-cli:latest
-    command: '--chain-id 1338 --mnemonic "$MNEMONIC" --host 0.0.0.0 --block-time 3'
+    image: chain:latest
     ports:
       - "8546:8545"
 

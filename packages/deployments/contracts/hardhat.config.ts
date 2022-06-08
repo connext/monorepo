@@ -98,12 +98,14 @@ const config: HardhatUserConfig = {
       accounts: { mnemonic },
       chainId: 1337,
       url: urlOverride || "http://localhost:8545",
+      saveDeployments: false,
       allowUnlimitedContractSize: true,
     },
     local_1338: {
       accounts: { mnemonic },
       chainId: 1338,
       url: urlOverride || "http://localhost:8546",
+      saveDeployments: false,
       allowUnlimitedContractSize: true,
     },
     mainnet: {
