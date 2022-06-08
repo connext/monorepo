@@ -67,7 +67,7 @@ contract SwapUtilsTest is ForgeHelper {
   uint256 lpTokenSupply = uint256(1000);
 
   uint256 tokenBalance = uint256(1000);
-  uint256 token2Balance = uint256(1000);
+  uint256 tokenBalance2 = uint256(1000);
 
   uint256 amount = uint256(10);
   uint8 tokenIndexFrom = uint8(0);
@@ -91,7 +91,7 @@ contract SwapUtilsTest is ForgeHelper {
 
     balances = new uint256[](2);
     balances[0] = uint256(tokenBalance);
-    balances[1] = uint256(token2Balance);
+    balances[1] = uint256(tokenBalance2);
 
     swap = SwapUtils.Swap(
       initialA,
@@ -205,7 +205,58 @@ contract SwapUtilsTest is ForgeHelper {
   function test_SwapUtils__calculateSwap_works() public {
     uint256 dy = SwapUtils.calculateSwap(swap, tokenIndexFrom, tokenIndexTo, amount);
 
-    console.logUint(dy);
     assertEq(dy, uint256(9));
+  }
+
+  // ============ _calculateSwap ============
+
+  // Should work
+  function test_SwapUtils___calculateSwap_works() public {
+    uint256 dy;
+    uint256 dyFee;
+
+    (dy, dyFee) = SwapUtils._calculateSwap(swap, tokenIndexFrom, tokenIndexTo, amount, balances);
+
+    assertEq(dy, uint256(9));
+    assertEq(dyFee, uint256(0));
+  }
+
+  // ============ calculateRemoveLiquidity ============
+
+  // Should work
+  function test_SwapUtils__calculateRemoveLiquidity_works() public {
+    vm.mockCall(address(lpToken), abi.encodeWithSelector(IERC20.totalSupply.selector), abi.encode(lpTokenSupply));
+    uint256[] memory res = SwapUtils.calculateRemoveLiquidity(swap, amount);
+
+    assertEq(res[0], amount);
+    assertEq(res[1], amount);
+  }
+
+  // ============ _calculateRemoveLiquidity ============
+
+  // Should work
+  function test_SwapUtils___calculateRemoveLiquidity_works() public {
+    uint256[] memory res = SwapUtils._calculateRemoveLiquidity(balances, amount, lpTokenSupply);
+
+    assertEq(res[0], amount);
+    assertEq(res[1], amount);
+  }
+
+  // ============ calculateTokenAmount ============
+
+  // Should work
+  function test_SwapUtils__calculateTokenAmount_worksIfDeposit() public {
+    uint256[] calldata tokenAmounts = [uint256(tokenBalance), uint256(tokenBalance2)];
+    uint256 res = SwapUtils.calculateTokenAmount(swap, tokenAmounts, true);
+
+    console.logUint(res);
+  }
+
+  // Should work
+  function test_SwapUtils__calculateTokenAmount_worksIfWithdraw() public {
+    uint256[] calldata tokenAmounts = [uint256(tokenBalance), uint256(tokenBalance2)];
+
+    uint256 res = SwapUtils.calculateTokenAmount(swap, tokenAmounts, false);
+    console.logUint(res);
   }
 }
