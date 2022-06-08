@@ -336,7 +336,7 @@ library AssetLogic {
       // Otherwise, swap via stable swap pool
       IStableSwap pool = s.adoptedToLocalPools[_canonicalId];
       uint256 _amountIn = pool.calculateSwapOutFromAddress(_assetIn, _assetOut, _amountOut);
-      if (_maxIn >= _amountIn) {
+      if (_amountIn <= _maxIn) {
         // set the success
         success = true;
 
