@@ -106,6 +106,7 @@ contract StableSwap is IStableSwap, OwnerPausableUpgradeable, ReentrancyGuardUpg
     swapStorage.pooledTokens = _pooledTokens;
     swapStorage.tokenPrecisionMultipliers = precisionMultipliers;
     swapStorage.balances = new uint256[](_pooledTokens.length);
+    swapStorage.adminFees = new uint256[](_pooledTokens.length);
     swapStorage.initialA = _a * AmplificationUtils.A_PRECISION;
     swapStorage.futureA = _a * AmplificationUtils.A_PRECISION;
     // swapStorage.initialATime = 0;
