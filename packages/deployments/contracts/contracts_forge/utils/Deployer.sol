@@ -129,7 +129,7 @@ contract Deployer {
     pure
     returns (IDiamondCut.FacetCut memory)
   {
-    bytes4[] memory proposedOwnableFacetSelectors = new bytes4[](14);
+    bytes4[] memory proposedOwnableFacetSelectors = new bytes4[](16);
     proposedOwnableFacetSelectors[0] = ProposedOwnableFacet.owner.selector;
     proposedOwnableFacetSelectors[1] = ProposedOwnableFacet.proposed.selector;
     proposedOwnableFacetSelectors[2] = ProposedOwnableFacet.proposedTimestamp.selector;
@@ -144,6 +144,8 @@ contract Deployer {
     proposedOwnableFacetSelectors[11] = ProposedOwnableFacet.proposeNewOwner.selector;
     proposedOwnableFacetSelectors[12] = ProposedOwnableFacet.renounceOwnership.selector;
     proposedOwnableFacetSelectors[13] = ProposedOwnableFacet.acceptProposedOwner.selector;
+    proposedOwnableFacetSelectors[14] = ProposedOwnableFacet.pause.selector;
+    proposedOwnableFacetSelectors[15] = ProposedOwnableFacet.unpause.selector;
     return
       IDiamondCut.FacetCut({
         facetAddress: _proposedOwnableFacet,
