@@ -27,4 +27,22 @@ contract DiamondCutFacet is IDiamondCut {
     LibDiamond.enforceIsContractOwner();
     LibDiamond.diamondCut(_diamondCut, _init, _calldata);
   }
+
+  function proposeDiamondCut(
+    FacetCut[] calldata _diamondCut,
+    address _init,
+    bytes calldata _calldata
+  ) external {
+    LibDiamond.enforceIsContractOwner();
+    LibDiamond.proposeDiamondCut(_diamondCut, _init, _calldata);
+  }
+
+  function rescindDiamondCut(
+    FacetCut[] calldata _diamondCut,
+    address _init,
+    bytes calldata _calldata
+  ) external {
+    LibDiamond.enforceIsContractOwner();
+    LibDiamond.rescindDiamondCut(_diamondCut, _init, _calldata);
+  }
 }

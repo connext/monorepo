@@ -40,7 +40,15 @@ interface IStableSwap {
   function swapExact(
     uint256 amountIn,
     address assetIn,
-    address assetOut
+    address assetOut,
+    uint256 minAmountOut
+  ) external payable returns (uint256);
+
+  function swapExactOut(
+    uint256 amountOut,
+    address assetIn,
+    address assetOut,
+    uint256 maxAmountIn
   ) external payable returns (uint256);
 
   function getA() external view returns (uint256);
@@ -58,6 +66,24 @@ interface IStableSwap {
     uint8 tokenIndexFrom,
     uint8 tokenIndexTo,
     uint256 dx
+  ) external view returns (uint256);
+
+  function calculateSwapOut(
+    uint8 tokenIndexFrom,
+    uint8 tokenIndexTo,
+    uint256 dy
+  ) external view returns (uint256);
+
+  function calculateSwapFromAddress(
+    address assetIn,
+    address assetOut,
+    uint256 amountIn
+  ) external view returns (uint256);
+
+  function calculateSwapOutFromAddress(
+    address assetIn,
+    address assetOut,
+    uint256 amountOut
   ) external view returns (uint256);
 
   function calculateTokenAmount(uint256[] calldata amounts, bool deposit) external view returns (uint256);

@@ -449,6 +449,23 @@ library SwapUtils {
   }
 
   /**
+   * @notice Externally calculates a swap between two tokens.
+   * @param self Swap struct to read from
+   * @param tokenIndexFrom the token to sell
+   * @param tokenIndexTo the token to buy
+   * @param dy the number of tokens to buy.
+   * @return dx the number of tokens the user have to transfer + fee
+   */
+  function calculateSwapInv(
+    Swap storage self,
+    uint8 tokenIndexFrom,
+    uint8 tokenIndexTo,
+    uint256 dy
+  ) internal view returns (uint256 dx) {
+    (dx, ) = _calculateSwapInv(self, tokenIndexFrom, tokenIndexTo, dy, self.balances);
+  }
+
+  /**
    * @notice Internally calculates a swap between two tokens.
    *
    * @dev The caller is expected to transfer the actual amounts (dx and dy)
@@ -477,6 +494,41 @@ library SwapUtils {
     dy = xp[tokenIndexTo].sub(y).sub(1);
     dyFee = dy.mul(self.swapFee).div(FEE_DENOMINATOR);
     dy = dy.sub(dyFee).div(multipliers[tokenIndexTo]);
+  }
+
+  /**
+   * @notice Internally calculates a swap between two tokens.
+   *
+   * @dev The caller is expected to transfer the actual amounts (dx and dy)
+   * using the token contracts.
+   *
+   * @param self Swap struct to read from
+   * @param tokenIndexFrom the token to sell
+   * @param tokenIndexTo the token to buy
+   * @param dy the number of tokens to buy. If the token charges a fee on transfers,
+   * use the amount that gets transferred after the fee.
+   * @return dx the number of tokens the user have to deposit
+   * @return dxFee the associated fee
+   */
+  function _calculateSwapInv(
+    Swap storage self,
+    uint8 tokenIndexFrom,
+    uint8 tokenIndexTo,
+    uint256 dy,
+    uint256[] memory balances
+  ) internal view returns (uint256 dx, uint256 dxFee) {
+    uint256[] memory multipliers = self.tokenPrecisionMultipliers;
+    uint256[] memory xp = _xp(balances, multipliers);
+    require(tokenIndexFrom < xp.length && tokenIndexTo < xp.length, "Token index out of range");
+
+    uint256 a = _getAPrecise(self);
+    uint256 d0 = getD(xp, a);
+
+    xp[tokenIndexTo] = xp[tokenIndexTo].sub(dy.mul(multipliers[tokenIndexTo]));
+    uint256 x = getYD(a, tokenIndexFrom, xp, d0);
+    dx = x.sub(xp[tokenIndexFrom]).add(1);
+    dxFee = dx.mul(self.swapFee).div(FEE_DENOMINATOR);
+    dx = dx.add(dxFee).div(multipliers[tokenIndexFrom]);
   }
 
   /**
@@ -622,6 +674,55 @@ library SwapUtils {
   }
 
   /**
+   * @notice swap two tokens in the pool
+   * @param self Swap struct to read from and write to
+   * @param tokenIndexFrom the token the user wants to sell
+   * @param tokenIndexTo the token the user wants to buy
+   * @param dy the amount of tokens the user wants to buy
+   * @param maxDx the max amount the user would like to send.
+   * @return amount of token user have to transfer on swap
+   */
+  function swapOut(
+    Swap storage self,
+    uint8 tokenIndexFrom,
+    uint8 tokenIndexTo,
+    uint256 dy,
+    uint256 maxDx
+  ) internal returns (uint256) {
+    require(dy <= self.balances[tokenIndexTo], "Cannot get more than pool balance");
+
+    uint256 dx;
+    uint256 dxFee;
+    uint256[] memory balances = self.balances;
+    (dx, dxFee) = _calculateSwapInv(self, tokenIndexFrom, tokenIndexTo, dy, balances);
+    require(dx <= maxDx, "Swap needs more than max tokens");
+
+    uint256 dxAdminFee = dxFee.mul(self.adminFee).div(FEE_DENOMINATOR).div(
+      self.tokenPrecisionMultipliers[tokenIndexFrom]
+    );
+
+    self.balances[tokenIndexFrom] = balances[tokenIndexFrom].add(dx).sub(dxAdminFee);
+    self.balances[tokenIndexTo] = balances[tokenIndexTo].sub(dy);
+
+    {
+      IERC20 tokenFrom = self.pooledTokens[tokenIndexFrom];
+      require(dx <= tokenFrom.balanceOf(msg.sender), "Cannot swap more than you own");
+      // Transfer tokens first to see if a fee was charged on transfer
+      uint256 beforeBalance = tokenFrom.balanceOf(address(this));
+      tokenFrom.safeTransferFrom(msg.sender, address(this), dx);
+
+      // Use the actual transferred amount for AMM math
+      require(dx == tokenFrom.balanceOf(address(this)).sub(beforeBalance), "not support fee token");
+    }
+
+    self.pooledTokens[tokenIndexTo].safeTransfer(msg.sender, dy);
+
+    emit TokenSwap(msg.sender, dx, dy, tokenIndexFrom, tokenIndexTo);
+
+    return dx;
+  }
+
+  /**
    * @notice swap two tokens in the pool internally
    * @param self Swap struct to read from and write to
    * @param tokenIndexFrom the token the user wants to sell
@@ -656,6 +757,36 @@ library SwapUtils {
     emit TokenSwap(msg.sender, dx, dy, tokenIndexFrom, tokenIndexTo);
 
     return dy;
+  }
+
+  /**
+   * @notice Should get exact amount out of AMM for asset put in
+   */
+  function swapInternalOut(
+    Swap storage self,
+    uint8 tokenIndexFrom,
+    uint8 tokenIndexTo,
+    uint256 dy,
+    uint256 maxDx
+  ) internal returns (uint256) {
+    require(dy <= self.balances[tokenIndexTo], "Cannot get more than pool balance");
+
+    uint256 dx;
+    uint256 dxFee;
+    uint256[] memory balances = self.balances;
+    (dx, dxFee) = _calculateSwapInv(self, tokenIndexFrom, tokenIndexTo, dy, balances);
+    require(dx <= maxDx, "Swap didn't result in min tokens");
+
+    uint256 dxAdminFee = dxFee.mul(self.adminFee).div(FEE_DENOMINATOR).div(
+      self.tokenPrecisionMultipliers[tokenIndexFrom]
+    );
+
+    self.balances[tokenIndexFrom] = balances[tokenIndexFrom].add(dx).sub(dxAdminFee);
+    self.balances[tokenIndexTo] = balances[tokenIndexTo].sub(dy);
+
+    emit TokenSwap(msg.sender, dx, dy, tokenIndexFrom, tokenIndexTo);
+
+    return dx;
   }
 
   /**

@@ -9,7 +9,7 @@ import {XAppConnectionManager, TypeCasts} from "../../../../contracts/nomad-core
 import {Home} from "../../../../contracts/nomad-core/contracts/Home.sol";
 import {TypedMemView} from "../../../../contracts/nomad-core/libs/TypedMemView.sol";
 
-import {AssetLogic} from "../../../../contracts/core/connext/libraries/AssetLogic.sol";
+import {IAavePool} from "../../../../contracts/core/connext/interfaces/IAavePool.sol";
 import {IStableSwap} from "../../../../contracts/core/connext/interfaces/IStableSwap.sol";
 import {ISponsorVault} from "../../../../contracts/core/connext/interfaces/ISponsorVault.sol";
 import {ITokenRegistry} from "../../../../contracts/core/connext/interfaces/ITokenRegistry.sol";
@@ -22,18 +22,16 @@ import {ConnextMessage} from "../../../../contracts/core/connext/libraries/Conne
 import {RelayerFeeMessage} from "../../../../contracts/core/relayer-fee/libraries/RelayerFeeMessage.sol";
 import {AssetLogic} from "../../../../contracts/core/connext/libraries/AssetLogic.sol";
 import {LibCrossDomainProperty} from "../../../../contracts/core/connext/libraries/LibCrossDomainProperty.sol";
-import {CallParams, ExecuteArgs, XCallArgs, PausedFunctions} from "../../../../contracts/core/connext/libraries/LibConnextStorage.sol";
+import {CallParams, ExecuteArgs, XCallArgs} from "../../../../contracts/core/connext/libraries/LibConnextStorage.sol";
 import {LibDiamond} from "../../../../contracts/core/connext/libraries/LibDiamond.sol";
 import {BridgeFacet} from "../../../../contracts/core/connext/facets/BridgeFacet.sol";
 import {BaseConnextFacet} from "../../../../contracts/core/connext/facets/BaseConnextFacet.sol";
 import {TestERC20} from "../../../../contracts/test/TestERC20.sol";
 import {PromiseRouter} from "../../../../contracts/core/promise/PromiseRouter.sol";
 
-import {MockXAppConnectionManager, MockHome, MockXApp, MockPromiseRouter, MockCallback, MockWrapper, MockSponsorVault} from "../../../utils/Mock.sol";
+import "../../../utils/Mock.sol";
 
 import "./FacetHelper.sol";
-
-import "forge-std/console.sol";
 
 contract BridgeFacetTest is BridgeFacet, FacetHelper {
   // ============ Libs ============
@@ -47,10 +45,6 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
   // diamond storage contract owner
   address _ds_owner = address(987654321);
 
-  // adopted asset for this domain
-  address _adopted;
-  // local asset for this domain
-  address _local;
   // executor contract
   address _executor;
   // mock xapp contract
@@ -64,26 +58,11 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
   // mock callback contract
   address _callback;
 
-  // native asset wrapper
-  address _wrapper;
-
   // default origin sender
   address _originSender = address(4);
 
-  // destination remote handler id
-  bytes32 _remote = bytes32("remote");
-
-  // domains
-  uint32 _originDomain = 1000;
-  uint32 _destinationDomain = 2000;
-
-  // canonical token details
-  address _canonical;
-  bytes32 _canonicalId;
-  uint32 _canonicalDomain = _originDomain;
-
-  // stable swap address
-  address _stableSwap = address(5555555555555555555);
+  // aave pool details
+  address _aavePool;
 
   // relayer fee
   uint256 _relayerFee = 0.1 ether;
@@ -116,7 +95,7 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
     // Deploy any needed contracts.
     utils_deployContracts();
 
-    setDefaults();
+    utils_setFees();
 
     // Set up asset context. By default, local is the adopted asset - the one the 'user'
     // is using - and is representational (meaning canonically it belongs to another chain).
@@ -137,8 +116,7 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
 
     // NOTE: Currently, the only time we check for the domain in params to match the contract's
     // domain is within the `xcall` method - so it's safe to set the contract domain to be origin.
-    s.domain = _originDomain;
-    s.remotes[_destinationDomain] = _remote;
+    utils_setRemote(true);
   }
 
   // ============ Utils ============
@@ -146,13 +124,7 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
 
   // Used in set up for deploying any needed peripheral contracts.
   function utils_deployContracts() public {
-    // Deploy the adopted token.
-    _adopted = address(new TestERC20());
-    // Deploy the local token.
-    _local = address(new TestERC20());
-    // Deploy the canonical token.
-    _canonical = address(new TestERC20());
-    _canonicalId = bytes32(abi.encodePacked(_canonical));
+    utils_deployAssetContracts();
     // Deploy an executor.
     _executor = address(new Executor(address(this)));
     s.executor = IExecutor(_executor);
@@ -168,102 +140,12 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
     s.promiseRouter = new MockPromiseRouter();
     _promiseRouter = payable(s.promiseRouter);
 
-    // Deploy wrapper for native asset.
-    s.wrapper = IWrapped(new MockWrapper());
-    _wrapper = address(s.wrapper);
-    vm.mockCall(_wrapper, abi.encodeWithSelector(IBridgeToken.name.selector), abi.encode("TestERC20"));
-    vm.mockCall(_wrapper, abi.encodeWithSelector(IBridgeToken.symbol.selector), abi.encode("TEST"));
-    vm.mockCall(_wrapper, abi.encodeWithSelector(IBridgeToken.decimals.selector), abi.encode(18));
-
     // Deploy a mock callback.
     _callback = address(new MockCallback());
-  }
 
-  // Sets the storage and token registry return results.
-  function utils_setupAsset(bool localIsAdopted, bool onCanonical) public {
-    if (onCanonical) {
-      _local = _canonical;
-      _canonicalDomain = _originDomain;
-    } else {
-      // If the local is already set to the canonical (i.e. from some defaults)
-      // redeploy
-      if (_local == _canonical) {
-        _local = address(new TestERC20());
-      }
-      _canonicalDomain = _destinationDomain;
-    }
-    if (localIsAdopted) {
-      _adopted = _local;
-      _stableSwap = address(0);
-    } else {
-      // If the adopted is already set as the local, redeploy
-      if (_adopted == _local) {
-        _adopted = address(new TestERC20());
-      }
-      if (_stableSwap == address(0)) {
-        _stableSwap = address(5555555555555555555);
-      }
-    }
-    // token registry should always return the canonical
-    vm.mockCall(
-      _tokenRegistry,
-      abi.encodeWithSelector(ITokenRegistry.getTokenId.selector),
-      abi.encode(_canonicalDomain, _canonicalId)
-    );
-
-    // if you are not on canonical domain, ensure the local origin returns false
-    // (indicates whether token should be burned or not)
-    vm.mockCall(
-      _tokenRegistry,
-      abi.encodeWithSelector(ITokenRegistry.isLocalOrigin.selector, _local),
-      abi.encode(onCanonical)
-    );
-
-    // ensure local token should always return the local token wrt current domain
-    vm.mockCall(_tokenRegistry, abi.encodeWithSelector(ITokenRegistry.ensureLocalToken.selector), abi.encode(_local));
-
-    // Ensure token registry is always returned properly
-    vm.mockCall(_tokenRegistry, abi.encodeWithSelector(ITokenRegistry.getLocalAddress.selector), abi.encode(_local));
-
-    // Setup the storage variables
-    s.adoptedToCanonical[_adopted] = ConnextMessage.TokenId(_canonicalDomain, _canonicalId);
-    s.adoptedToLocalPools[_canonicalId] = IStableSwap(_stableSwap);
-    s.canonicalToAdopted[_canonicalId] = _adopted;
-
-    // // Log stored vars
-    // console.log("setup asset:");
-    // console.log("- adopted:", _adopted);
-    // console.log("- local:", _local);
-    // console.log("- canonical:", _canonical);
-    // console.log("- stableSwap:", _stableSwap);
-    // console.log("- wrapper:", address(s.wrapper));
-    // console.log("- isLocalOrigin", onCanonical);
-  }
-
-  function utils_setupNative(bool localIsAdopted, bool onCanonical) public {
-    // When you are using the native asset:
-    // - canonical asset will always be the wrapper
-    // - adopted asset will always be the wrapper
-    // - the local asset may or may not be the wrapper
-    if (onCanonical) {
-      // The wrapper is canonical when on the canonical domain
-      // only
-      _canonical = address(s.wrapper);
-      _canonicalId = bytes32(abi.encodePacked(_canonical));
-    } else {
-      // If localIsAdopted, then the local asset is the wrapper
-      if (localIsAdopted) {
-        // this is like if madETH is adopted on cronos. in this case,
-        // the wrapper must also have the `detailsHash()` functionality
-        // this is handled in the other utility function (see `utils_formatMessage`)
-        _local = address(new TestERC20());
-        _adopted = _local;
-      } else {
-        // The adopted asset is the wrapper, local is bridge token
-        _adopted = address(s.wrapper);
-      }
-    }
-    utils_setupAsset(localIsAdopted, onCanonical);
+    // setup aave pool
+    _aavePool = address(new MockPool(false));
+    s.aavePool = _aavePool;
   }
 
   // Meant to mimic the corresponding `_getTransferId` method in the BridgeFacet contract.
@@ -405,6 +287,27 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
   // Wraps reconcile in order to enable externalizing the call.
   function utils_wrappedReconcile(uint32 origin, bytes memory message) external {
     _reconcile(origin, message);
+  }
+
+  struct PortalInfo {
+    uint256 fee;
+    uint256 debt;
+    uint256 total;
+    bool aaveReturns;
+  }
+
+  function utils_setPortals(
+    bytes32 _id,
+    uint256 _amount,
+    uint256 _fee
+  ) public returns (PortalInfo memory) {
+    s.portalFeeDebt[_id] = _fee;
+    s.portalDebt[_id] = _amount;
+    return PortalInfo(_fee, _amount, _fee + _amount, true);
+  }
+
+  function utils_setPortals(bytes32 _id, uint256 _amount) public returns (PortalInfo memory) {
+    return utils_setPortals(_id, _amount, (_amount * _portalFeeNumerator) / _liquidityFeeDenominator);
   }
 
   // ============== Helpers ==================
@@ -608,6 +511,8 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
     uint256 bridge;
     uint256 to;
     uint256 executor;
+    uint256 debt;
+    uint256 feeDebt;
   }
 
   struct ExecuteTestInputs {
@@ -618,13 +523,20 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
     bool externalCallSucceeds;
     bool shouldSwap; // Whether the `to` address should receive the tokens.
     bool isSlow;
+    bool usesPortals;
   }
 
-  function utils_getExecuteBalances(IERC20 asset, address _to) public returns (ExecuteBalances memory) {
+  function utils_getExecuteBalances(
+    bytes32 transferId,
+    IERC20 asset,
+    address _to
+  ) public returns (ExecuteBalances memory) {
+    uint256 debt = s.portalDebt[transferId];
+    uint256 fee = s.portalFeeDebt[transferId];
     uint256 bridge = IERC20(_local).balanceOf(address(this));
     uint256 to = address(asset) == address(s.wrapper) ? payable(_to).balance : asset.balanceOf(_to);
     uint256 executor = address(asset) == address(s.wrapper) ? payable(_executor).balance : asset.balanceOf(_executor);
-    return ExecuteBalances(bridge, to, executor);
+    return ExecuteBalances(bridge, to, executor, debt, fee);
   }
 
   function helpers_setupExecuteAssertions(
@@ -633,6 +545,21 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
     ExecuteTestInputs memory _inputs
   ) public {
     // ----- register expected calls
+
+    // expects portal
+    if (_inputs.usesPortals) {
+      // mint position
+      vm.expectCall(
+        _aavePool,
+        abi.encodeWithSelector(IAavePool.mintUnbacked.selector, _adopted, _inputs.routerAmt, address(this), 0)
+      );
+
+      // withdraw
+      vm.expectCall(
+        _aavePool,
+        abi.encodeWithSelector(IAavePool.withdraw.selector, _adopted, _inputs.routerAmt, address(this))
+      );
+    }
 
     // expected swap
     if (_inputs.shouldSwap) {
@@ -736,19 +663,22 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
     uint256 expectedAmt, // amount out of swap
     bool callsExternal,
     bool externalCallSucceeds,
-    bool shouldSwap // Whether the `to` address should receive the tokens.
+    bool shouldSwap, // Whether the `to` address should receive the tokens.
+    bool usesAave
   ) public {
     // get pre-execute liquidity in local
     uint256 pathLen = _args.routers.length;
     bool isSlow = pathLen == 0;
     uint256[] memory prevLiquidity = new uint256[](pathLen);
-    for (uint256 i; i < pathLen; i++) {
-      prevLiquidity[i] = s.routerBalances[_args.routers[i]][_local];
+    {
+      for (uint256 i; i < pathLen; i++) {
+        prevLiquidity[i] = s.routerBalances[_args.routers[i]][_local];
+      }
     }
 
     // get pre-execute balance here in local
     IERC20 token = IERC20(shouldSwap ? _adopted : _local);
-    ExecuteBalances memory prevBalances = utils_getExecuteBalances(token, _args.params.to);
+    ExecuteBalances memory prevBalances = utils_getExecuteBalances(transferId, token, _args.params.to);
 
     // execute
     // expected amount is impacted by (1) fast liquidity fees (2) slippage
@@ -779,8 +709,22 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
     helpers_setupExecuteAssertions(
       transferId,
       _args,
-      ExecuteTestInputs(expectedAmt, routerAmt, address(token), callsExternal, externalCallSucceeds, shouldSwap, isSlow)
+      ExecuteTestInputs(
+        expectedAmt,
+        routerAmt,
+        address(token),
+        callsExternal,
+        externalCallSucceeds,
+        shouldSwap,
+        isSlow,
+        usesAave
+      )
     );
+
+    if (usesAave) {
+      vm.expectEmit(true, true, true, true);
+      emit AavePortalMintUnbacked(transferId, _args.routers[0], address(token), expectedAmt);
+    }
 
     // register expected emit event
     vm.expectEmit(true, true, false, true);
@@ -791,35 +735,51 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
     // check local balance
     {
       if (pathLen > 0) {
-        // should decrement router balance
-        uint256 decrement = routerAmt / pathLen;
+        // should decrement router balance unless using aave
         for (uint256 i; i < pathLen; i++) {
-          assertEq(s.routerBalances[_args.routers[i]][_args.local], prevLiquidity[i] - decrement);
+          assertEq(
+            s.routerBalances[_args.routers[i]][_args.local],
+            usesAave ? prevLiquidity[i] : prevLiquidity[i] - (routerAmt / pathLen)
+          );
         }
       }
     }
 
-    ExecuteBalances memory finalBalances = utils_getExecuteBalances(token, _args.params.to);
+    {
+      // assertions
+      ExecuteBalances memory finalBalances = utils_getExecuteBalances(transferId, token, _args.params.to);
 
-    // NOTE: the balance of the bridge *should* always decrement in local, however that depends on
-    // the token executing the `swap` / `withdraw` call when a swap is needed (which we have as mocked).
-    // Instead, assert the swap functions on the pool were called correctly
-    if (!shouldSwap && address(token) != address(s.wrapper)) {
-      assertEq(finalBalances.bridge, prevBalances.bridge - routerAmt);
-    }
+      // NOTE: the balance of the bridge *should* always decrement in local, however that depends on
+      // the token executing the `swap` / `withdraw` call when a swap is needed (which we have as mocked).
+      // Instead, assert the swap functions on the pool were called correctly
+      if (!shouldSwap && address(token) != address(s.wrapper)) {
+        // NOTE: when using aave would normally send you funds for the position minted,
+        // but we are not adding any funds from the pool, so always decrement
+        assertEq(finalBalances.bridge, prevBalances.bridge - routerAmt);
+      }
 
-    if (callsExternal) {
-      // should increment balance of executor
-      // should NOT increment balance of to
-      // NOTE: recovery address testing should be done in Executor.t.sol
-      // as such, executor balance should *always* increment
-      assertEq(finalBalances.executor, prevBalances.executor + expectedAmt);
-      assertEq(token.balanceOf(_params.to), prevBalances.to);
-    } else {
-      // should have incremented balance of `to`
-      // should NOT increment balance of executor
-      assertEq(finalBalances.to, prevBalances.to + expectedAmt);
-      assertEq(finalBalances.executor, prevBalances.executor);
+      if (usesAave) {
+        uint256 fee = (routerAmt * _portalFeeNumerator) / _liquidityFeeDenominator;
+        assertEq(finalBalances.feeDebt, prevBalances.feeDebt + fee);
+        assertEq(finalBalances.debt, prevBalances.debt + routerAmt);
+      } else {
+        assertEq(finalBalances.feeDebt, prevBalances.feeDebt);
+        assertEq(finalBalances.debt, prevBalances.debt);
+      }
+
+      if (callsExternal) {
+        // should increment balance of executor
+        // should NOT increment balance of to
+        // NOTE: recovery address testing should be done in Executor.t.sol
+        // as such, executor balance should *always* increment
+        assertEq(finalBalances.executor, prevBalances.executor + expectedAmt);
+        assertEq(token.balanceOf(_params.to), prevBalances.to);
+      } else {
+        // should have incremented balance of `to`
+        // should NOT increment balance of executor
+        assertEq(finalBalances.to, prevBalances.to + expectedAmt);
+        assertEq(finalBalances.executor, prevBalances.executor);
+      }
     }
 
     // should mark the transfer as executed
@@ -832,6 +792,27 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
     }
   }
 
+  function helpers_executeAndAssert(
+    bytes32 transferId,
+    ExecuteArgs memory _args,
+    uint256 expectedAmt, // amount out of swap
+    bool callsExternal,
+    bool externalCallSucceeds,
+    bool shouldSwap // Whether the `to` address should receive the tokens.
+  ) public {
+    helpers_executeAndAssert(transferId, _args, expectedAmt, callsExternal, externalCallSucceeds, shouldSwap, false);
+  }
+
+  function buildMessage(bytes32 _id) private returns (bytes memory) {
+    bytes32 detailsHash = keccak256("test");
+
+    bytes29 action = ConnextMessage.formatTransfer(bytes32(uint256(uint160(_params.to))), _amount, detailsHash, _id);
+    bytes29 tokenId = ConnextMessage.formatTokenId(_canonicalDomain, _canonicalId);
+
+    return ConnextMessage.formatMessage(tokenId, action);
+  }
+
+  // ============ execute ============
   // Shortcut for above method:
   // - local == adopted
   // - does not call external
@@ -857,12 +838,84 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
     helpers_executeAndAssert(transferId, _args, expected, false, false, shouldSwap);
   }
 
+  function helpers_setupReconcilePortalAssertions(
+    bytes32 transferId,
+    XCallArgs memory args,
+    PortalInfo memory init,
+    PortalInfo memory repayment,
+    uint256 amountIn,
+    uint256 amountOut
+  ) public {
+    if (repayment.total == 0) {
+      // noting to assert
+      return;
+    }
+    // if local != adopted, need to swap into adopted
+    if (_local != _adopted) {
+      // should call calculate always
+      vm.expectCall(
+        _stableSwap,
+        abi.encodeWithSelector(IStableSwap.calculateSwapFromAddress.selector, _local, _adopted, args.amount)
+      );
+
+      // will swap and repay IFF within slippage
+      if (amountIn <= args.amount) {
+        // slippage ok, call approve
+        vm.expectCall(_local, abi.encodeWithSelector(IERC20.approve.selector, _stableSwap, amountIn));
+        // should call swap
+        vm.expectCall(
+          _stableSwap,
+          abi.encodeWithSelector(IStableSwap.swapExactOut.selector, repayment.total, _local, _adopted, args.amount)
+        );
+      } // otherwise slippage is too high and it should not try to repay the rest of the loan
+    }
+
+    if (amountIn > 0) {
+      // approval of pool for sum
+      vm.expectCall(_adopted, abi.encodeWithSelector(IERC20.approve.selector, _aavePool, repayment.total));
+
+      // approval of payback
+      vm.expectCall(
+        _aavePool,
+        abi.encodeWithSelector(IAavePool.backUnbacked.selector, _adopted, repayment.debt, repayment.fee)
+      );
+
+      vm.expectEmit(true, true, true, true);
+      emit AavePortalRepayment(transferId, _adopted, repayment.debt, repayment.fee);
+
+      // check if there will be a debt event
+      if (repayment.total < init.total) {
+        // // FIXME: logs are the same in the corresponding event (when insufficient fees)
+        // // but `expectEmit` call is not working
+        // vm.expectEmit(true, false, false, true);
+        // emit AavePortalRepaymentDebt(transferId, _adopted, init.debt - repayment.debt, init.fee - repayment.fee);
+      }
+    } else {
+      // slippage maximums hit, emit full debt in event
+      vm.expectEmit(true, true, true, true);
+      emit AavePortalRepaymentDebt(transferId, _adopted, init.debt, init.fee);
+    }
+  }
+
+  struct SwapInfo {
+    uint256 input;
+    uint256 output; // the equivalent amount of `out` token for given `in`
+  }
+
   // Helper for calling `reconcile` and asserting expected behavior.
   function helpers_reconcileAndAssert(
     bytes32 transferId,
     XCallArgs memory args,
-    bytes4 expectedError
+    bytes4 expectedError,
+    PortalInfo memory repayment,
+    SwapInfo memory swap
   ) public {
+    PortalInfo memory init = PortalInfo(
+      s.portalFeeDebt[transferId],
+      s.portalDebt[transferId],
+      s.portalDebt[transferId] + s.portalFeeDebt[transferId],
+      true
+    );
     bool isNative = args.transactingAssetId == address(0);
     bool shouldSucceed = keccak256(abi.encode(expectedError)) == keccak256(abi.encode(bytes4("")));
 
@@ -893,11 +946,37 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
       prevBalance = IERC20(_local).balanceOf(address(this));
     }
 
+    // Mock calls for swap if needed
+    if (_local != _adopted && init.total > 0) {
+      // mock calculate equivalent of bridged amount in adopted
+      vm.mockCall(
+        _stableSwap,
+        abi.encodeWithSelector(IStableSwap.calculateSwapFromAddress.selector),
+        abi.encode(swap.output)
+      );
+      vm.mockCall(
+        _stableSwap,
+        abi.encodeWithSelector(IStableSwap.calculateSwapOutFromAddress.selector),
+        abi.encode(swap.input)
+      );
+      // mock swap
+      vm.mockCall(_stableSwap, abi.encodeWithSelector(IStableSwap.swapExactOut.selector), abi.encode(swap.input));
+    }
+
+    if (!repayment.aaveReturns) {
+      // Force failure on call
+      _aavePool = address(new MockPool(true));
+      s.aavePool = _aavePool;
+    }
+
     if (shouldSucceed) {
       // check that the mint is called properly
       if (_local != _canonical) {
         vm.expectCall(_local, abi.encodeWithSelector(TestERC20.mint.selector, address(this), args.amount));
       }
+
+      helpers_setupReconcilePortalAssertions(transferId, args, init, repayment, swap.input, swap.output);
+
       vm.expectEmit(true, true, true, true);
       emit Reconciled(transferId, _originDomain, s.routedTransfers[transferId], _local, args.amount, address(this));
     } else {
@@ -910,13 +989,41 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
       assertEq(this.reconciledTransfers(transferId), true);
       address[] memory routers = this.routedTransfers(transferId);
       if (routers.length > 0) {
+        uint256 routerAmt;
+        if (init.total > 0 && repayment.aaveReturns) {
+          routerAmt = swap.input > args.amount ? args.amount : args.amount - swap.input;
+        } else {
+          routerAmt = args.amount / s.routedTransfers[transferId].length;
+        }
         // Fast liquidity route. Should have reimbursed routers.
-        uint256 routerAmt = args.amount / s.routedTransfers[transferId].length;
         for (uint256 i = 0; i < routers.length; i++) {
           assertEq(s.routerBalances[routers[i]][_local], routerBalances[i] + routerAmt);
         }
       }
+
+      if (init.total > 0) {
+        // assert repayment
+        assertEq(s.portalDebt[transferId], init.debt - repayment.debt);
+        assertEq(s.portalFeeDebt[transferId], init.fee - repayment.fee);
+      }
     }
+  }
+
+  function helpers_reconcileAndAssert(
+    bytes32 transferId,
+    XCallArgs memory args,
+    bytes4 expectedError,
+    PortalInfo memory repayment
+  ) public {
+    helpers_reconcileAndAssert(transferId, args, expectedError, repayment, SwapInfo(repayment.total, args.amount));
+  }
+
+  function helpers_reconcileAndAssert(
+    bytes32 transferId,
+    XCallArgs memory args,
+    bytes4 expectedError
+  ) public {
+    helpers_reconcileAndAssert(transferId, args, expectedError, PortalInfo(0, 0, 0, true));
   }
 
   function helpers_reconcileAndAssert(bytes4 expectedError) public {
@@ -1198,7 +1305,6 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
     helpers_xcallAndAssert(BridgeFacet.BridgeFacet__xcall_notSupportedAsset.selector);
   }
 
-  // FIXME: move to AssetLogic.t.sol
   // fails if native token transfer and amount of native tokens sent is < amount + relayerFee + callbackFee
   function test_BridgeFacet__xcall_failNativeAssetCallbackFeeInsufficient() public {
     vm.deal(_originSender, 100 ether);
@@ -1214,22 +1320,6 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
     this.xcall{value: args.relayerFee + args.amount}(args);
   }
 
-  // FIXME: move to AssetLogic.t.sol
-  // fails if native token transfer and amount of native tokens sent is < amount + relayerFee
-  function test_BridgeFacet__xcall_failNativeAssetRelayerFeeInsufficient() public {
-    vm.deal(_originSender, 100 ether);
-    utils_setupNative(true, true);
-    _relayerFee = 0.002 ether;
-
-    (, XCallArgs memory args) = utils_makeXCallArgs();
-
-    vm.expectRevert(AssetLogic.AssetLogic__handleIncomingAsset_notAmount.selector);
-    vm.prank(_originSender);
-    // Sending only the amount; relayer fee is not covered!
-    this.xcall{value: args.amount}(args);
-  }
-
-  // FIXME: move to AssetLogic.t.sol
   // fails if erc20 transfer and eth sent < relayerFee + callbackFee
   function test_BridgeFacet__xcall_failEthWithErc20TransferInsufficient() public {
     utils_setupAsset(true, false);
@@ -1244,7 +1334,6 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
     this.xcall{value: 0.08 ether}(args);
   }
 
-  // FIXME: move to AssetLogic.t.sol
   // fails if erc20 transfer and eth sent > relayerFee + callbackFee
   function test_BridgeFacet__xcall_failEthWithErc20TransferUnnecessary() public {
     vm.deal(_originSender, 100 ether);
@@ -1258,7 +1347,6 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
     this.xcall{value: 1 ether}(args);
   }
 
-  // FIXME: move to AssetLogic.t.sol
   // fails if user has insufficient tokens
   function test_BridgeFacet__xcall_failInsufficientErc20Tokens() public {
     _amount = 10.1 ether;
@@ -1451,6 +1539,24 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
     helpers_reconcileAndAssert(transferId, args, BridgeFacet.BridgeFacet__reconcile_alreadyReconciled.selector);
   }
 
+  // fails if portal record, but used in slow mode
+  function test_BridgeFacet__reconcile_failsIfPortalAndNoRouter() public {
+    utils_setupAsset(true, false);
+    (bytes32 transferId, XCallArgs memory args) = utils_makeXCallArgs();
+    delete s.routedTransfers[transferId];
+
+    // set portal fee debt
+    s.portalDebt[transferId] = 15;
+    s.portalFeeDebt[transferId] = 10;
+
+    helpers_reconcileAndAssert(
+      transferId,
+      args,
+      BridgeFacet.BridgeFacet__reconcile_noPortalRouter.selector,
+      PortalInfo(10, 15, 25, true)
+    );
+  }
+
   // ============ reconcile success cases
   // works with local representational tokens (remote origin, so they will be minted)
   function test_BridgeFacet__reconcile_worksWithLocal() public {
@@ -1486,60 +1592,205 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
     helpers_reconcileAndAssert(transferId, args, bytes4(""));
   }
 
+  // should work with portals without swap
+  function test_BridgeFacet__reconcile_canUsePortalsWithoutSwap() public {
+    utils_setupAsset(true, false);
+    // get args
+    (bytes32 transferId, XCallArgs memory args) = utils_makeXCallArgs();
+
+    // set router
+    address router = address(456545654);
+    s.routedTransfers[transferId] = [router];
+
+    // get the total debt (no repayment)
+    uint256 portaled = (args.amount * _liquidityFeeNumerator) / _liquidityFeeDenominator;
+    PortalInfo memory portals = utils_setPortals(transferId, portaled);
+
+    // assume full repayment
+    helpers_reconcileAndAssert(transferId, args, bytes4(""), portals);
+  }
+
+  // should work with portals with swap
+  function test_BridgeFacet__reconcile_canUsePortalsWithSwap() public {
+    utils_setupAsset(false, false);
+    // get args
+    (bytes32 transferId, XCallArgs memory args) = utils_makeXCallArgs();
+
+    // set router
+    address router = address(456545654);
+    s.routedTransfers[transferId] = [router];
+
+    // get the total debt (no repayment)
+    uint256 portaled = (args.amount * _liquidityFeeNumerator) / _liquidityFeeDenominator;
+    PortalInfo memory portals = utils_setPortals(transferId, portaled);
+
+    // assume full repayment
+    helpers_reconcileAndAssert(transferId, args, bytes4(""), portals, SwapInfo(args.amount - 10000, args.amount));
+  }
+
+  function test_BridgeFacet__reconcile_handlesPortalSwapFailures() public {
+    utils_setupAsset(false, false);
+    // get args
+    (bytes32 transferId, XCallArgs memory args) = utils_makeXCallArgs();
+
+    // set router
+    address router = address(456545654);
+    s.routedTransfers[transferId] = [router];
+
+    // get the total debt (no repayment)
+    uint256 portaled = (args.amount * _liquidityFeeNumerator) / _liquidityFeeDenominator;
+    PortalInfo memory init = utils_setPortals(transferId, portaled);
+
+    // assume ratio of 10:1 (i.e. you put in 10x, the amount out from args.amount is 1/10 val)
+    helpers_reconcileAndAssert(
+      transferId,
+      args,
+      bytes4(""),
+      PortalInfo(0, 0, 0, true),
+      SwapInfo(args.amount * 10, args.amount * 10)
+    );
+  }
+
+  // should credit router leftovers from portal repayment from positive slippage of amm
+  // or previous
+  function test_BridgeFacet__reconcile_handlesPortalDebtSurplusViaSwap() public {
+    utils_setupAsset(false, false);
+    // get args
+    (bytes32 transferId, XCallArgs memory args) = utils_makeXCallArgs();
+
+    // set router
+    address router = address(456545654);
+    s.routedTransfers[transferId] = [router];
+
+    // get the total debt (no repayment)
+    uint256 portaled = (args.amount * _liquidityFeeNumerator) / _liquidityFeeDenominator;
+    PortalInfo memory portals = utils_setPortals(transferId, portaled);
+
+    // assume full repayment
+    helpers_reconcileAndAssert(
+      transferId,
+      args,
+      bytes4(""),
+      portals,
+      SwapInfo(args.amount - 0.01 ether, args.amount + 0.2 ether)
+    );
+  }
+
+  // at some point some of the fee is repaid, remainder goes to router liq
+  function test_BridgeFacet__reconcile_handlesPortalDebtSurplusViaFeeRepayment() public {
+    utils_setupAsset(true, false);
+    // get args
+    (bytes32 transferId, XCallArgs memory args) = utils_makeXCallArgs();
+
+    // set router
+    address router = address(456545654);
+    s.routedTransfers[transferId] = [router];
+
+    // get the total debt (no repayment)
+    uint256 portaled = (args.amount * _liquidityFeeNumerator) / _liquidityFeeDenominator;
+    uint256 fullFee = (args.amount * _portalFeeNumerator) / _liquidityFeeDenominator;
+    uint256 paid = fullFee / 2;
+    PortalInfo memory portals = utils_setPortals(transferId, portaled, fullFee - paid);
+
+    // assume full repayment
+    helpers_reconcileAndAssert(transferId, args, bytes4(""), portals);
+  }
+
+  // at some point some of the principle is repaid, remainder goes to router liq
+  function test_BridgeFacet__reconcile_handlesPortalDebtSurplusViaPrincipleRepayment() public {
+    utils_setupAsset(true, false);
+    // get args
+    (bytes32 transferId, XCallArgs memory args) = utils_makeXCallArgs();
+
+    // set router
+    address router = address(456545654);
+    s.routedTransfers[transferId] = [router];
+
+    // get the total debt (no repayment)
+    uint256 portaled = (args.amount * _liquidityFeeNumerator) / _liquidityFeeDenominator;
+    uint256 fee = (args.amount * _portalFeeNumerator) / _liquidityFeeDenominator;
+    uint256 paid = portaled / 2;
+    PortalInfo memory portals = utils_setPortals(transferId, portaled - paid, fee);
+
+    // assume full repayment
+    helpers_reconcileAndAssert(transferId, args, bytes4(""), portals);
+  }
+
+  // should prioritize debt as: as much principle as possible then as much fee as possible
+  function test_BridgeFacet__reconcile_handlesPortalDeficitPartialPrinciple() public {
+    // in this case, the swap only gives enough out to handle *some* of the amount portaled.
+    // specifically, it can only handle amount < principle
+    utils_setupAsset(false, false);
+    // get args
+    (bytes32 transferId, XCallArgs memory args) = utils_makeXCallArgs();
+
+    // set router
+    address router = address(456545654);
+    s.routedTransfers[transferId] = [router];
+
+    // set the total debt
+    uint256 portaled = (args.amount * _liquidityFeeNumerator) / _liquidityFeeDenominator;
+    PortalInfo memory init = utils_setPortals(transferId, portaled);
+
+    // decrement portal repayment
+    uint256 debtRepaid = (init.debt * 9997) / 10000; // 3bps debt remaining
+    PortalInfo memory repayment = PortalInfo(0, debtRepaid, debtRepaid, true);
+    helpers_reconcileAndAssert(transferId, args, bytes4(""), repayment, SwapInfo(init.total, debtRepaid));
+  }
+
+  function test_BridgeFacet__reconcile_handlesPortalDeficitPartialFee() public {
+    // in this case, the swap only gives enough out to handle *some* of the amount portaled.
+    // specifically, it can only handle principle < amount < total
+    utils_setupAsset(false, false);
+    // get args
+    (bytes32 transferId, XCallArgs memory args) = utils_makeXCallArgs();
+
+    // set router
+    address router = address(456545654);
+    s.routedTransfers[transferId] = [router];
+
+    // set the total debt
+    uint256 portaled = (args.amount * _liquidityFeeNumerator) / _liquidityFeeDenominator;
+    PortalInfo memory init = utils_setPortals(transferId, portaled);
+
+    uint256 debtRepaid = (init.total * 9997) / 10000; // 3bps debt remaining
+    PortalInfo memory repayment = PortalInfo(debtRepaid - init.debt, init.debt, debtRepaid, true);
+
+    // assume full repayment
+    helpers_reconcileAndAssert(transferId, args, bytes4(""), repayment, SwapInfo(init.total, debtRepaid));
+  }
+
+  function test_BridgeFacet__reconcile_handlesPortalFailureToRepayFromAave() public {
+    utils_setupAsset(true, false);
+    // get args
+    (bytes32 transferId, XCallArgs memory args) = utils_makeXCallArgs();
+
+    // set router
+    address router = address(456545654);
+    s.routedTransfers[transferId] = [router];
+
+    // get the total debt (no repayment)
+    uint256 portaled = (args.amount * _liquidityFeeNumerator) / _liquidityFeeDenominator;
+    PortalInfo memory init = utils_setPortals(transferId, portaled);
+
+    // assume no repayment (aave will not be mocked)
+    helpers_reconcileAndAssert(transferId, args, bytes4(""), PortalInfo(0, 0, 0, false));
+  }
+
   // ============ execute ============
   // ============ execute fail cases
 
   // FIXME: move to `BaseConnextFacet.t.sol`
-  // should fail if bridging paused
-  function test_BridgeFacet__execute_failIfBridgingPaused() public {
+  // should fail if paused
+  function test_BridgeFacet__execute_failIfPaused() public {
     // set context
-    s._paused = PausedFunctions.Bridge;
+    s._paused = true;
 
     // get args
     (, ExecuteArgs memory args) = utils_makeExecuteArgs(1);
 
     // expect failure
-    vm.expectRevert(BaseConnextFacet.BaseConnextFacet__whenBridgeNotPaused_bridgePaused.selector);
-    this.execute(args);
-  }
-
-  // FIXME: move to `BaseConnextFacet.t.sol`
-  // should fail if all paused
-  function test_BridgeFacet__execute_failIfAllPaused() public {
-    // set context
-    s._paused = PausedFunctions.All;
-
-    // get args
-    (, ExecuteArgs memory args) = utils_makeExecuteArgs(1);
-
-    // expect failure
-    vm.expectRevert(BaseConnextFacet.BaseConnextFacet__whenBridgeNotPaused_bridgePaused.selector);
-    this.execute(args);
-  }
-
-  // FIXME: move to `BaseConnextFacet.t.sol`
-  // should fail if all swap paused && needs swap
-  function test_BridgeFacet__execute_failIfSwapPaused() public {
-    // setup asset context (use local == adopted)
-    address adopted = address(11111111111111111);
-    s.adoptedToCanonical[adopted] = ConnextMessage.TokenId(_canonicalDomain, _canonicalId);
-    s.adoptedToLocalPools[_canonicalId] = IStableSwap(address(0));
-    s.canonicalToAdopted[_canonicalId] = adopted;
-    vm.mockCall(_tokenRegistry, abi.encodeWithSelector(ITokenRegistry.getLocalAddress.selector), abi.encode(adopted));
-
-    // set context
-    s._paused = PausedFunctions.Swap;
-
-    // get args
-    (, ExecuteArgs memory args) = utils_makeExecuteArgs(1);
-
-    // set liquidity context
-    for (uint256 i; i < args.routers.length; i++) {
-      s.routerBalances[args.routers[i]][args.local] += 10 ether;
-    }
-
-    // expect failure
-    vm.expectRevert(AssetLogic.AssetLogic__swapFromLocalAssetIfNeeded_swapPaused.selector);
+    vm.expectRevert(BaseConnextFacet.BaseConnextFacet__whenNotPaused_paused.selector);
     this.execute(args);
   }
 
@@ -1660,9 +1911,9 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
   function test_BridgeFacet__execute_failIfRouterHasInsufficientFunds() public {
     _amount = 5 ether;
 
-    (bytes32 transferId, ExecuteArgs memory args) = utils_makeExecuteArgs(1);
+    (bytes32 transferId, ExecuteArgs memory args) = utils_makeExecuteArgs(2);
 
-    s.routerBalances[args.routers[0]][args.local] += 4.5 ether;
+    s.routerBalances[args.routers[0]][args.local] = 1.5 ether;
 
     vm.expectRevert(stdError.arithmeticError);
     this.execute(args);
@@ -1704,6 +1955,20 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
 
     vm.expectRevert(BridgeFacet.BridgeFacet__handleExecuteTransaction_invalidSponsoredAmount.selector);
     this.execute(args);
+  }
+
+  function test_BridgeFacet__execute_failsIfRouterNotApprovedForPortal() public {
+    _amount = 5 ether;
+
+    (bytes32 _id, ExecuteArgs memory _args) = utils_makeExecuteArgs(1);
+
+    s.routerBalances[_args.routers[0]][_args.local] = 4.5 ether;
+
+    // set aave enabled
+    s.aavePool = _aavePool;
+
+    vm.expectRevert(abi.encodeWithSelector(BridgeFacet.BridgeFacet__execute_notApprovedForPortals.selector));
+    this.execute(_args);
   }
 
   // ============ execute success cases
@@ -1951,6 +2216,22 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
     helpers_executeAndAssert(transferId, args, utils_getFastTransferAmount(args.amount), true, false, false);
   }
 
+  function test_BridgeFacet__execute_failsIfNoLiquidityAndAaveNotEnabled() public {
+    // get args
+    (bytes32 _id, ExecuteArgs memory _args) = utils_makeExecuteArgs(1);
+
+    // set liquidity context
+    for (uint256 i; i < _args.routers.length; i++) {
+      s.routerBalances[_args.routers[i]][_args.local] = 0 ether;
+    }
+
+    // set aave not enabled
+    s.aavePool = address(0);
+
+    vm.expectRevert(stdError.arithmeticError);
+    this.execute(_args);
+  }
+
   // should work with a callback
   function test_BridgeFacet__execute_worksWithCallback() public {
     // set asset context (local == adopted)
@@ -1967,105 +2248,21 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
     helpers_executeAndAssert(transferId, args, utils_getFastTransferAmount(args.amount), true, true, false);
   }
 
-  // FIXME: move to Executor.t.sol
-  // should work with failing calldata : recipient `to` is not a contract (should call _handleFailure)
-  function test_BridgeFacet__execute_handleRecipientNotAContract() public {
-    // Setting the calldata to be for fulfill... but obviously, that method should never be called.
-    // Because `to` is not a valid contract address.
-    _params.callData = abi.encodeWithSelector(MockXApp.fulfill.selector, _local, TEST_MESSAGE);
-    _params.to = address(42);
+  // can use liquidity from portals
+  function test_BridgeFacet__execute_worksWithAave() public {
+    // set asset context (local == adopted)
+    utils_setupAsset(true, false);
 
     (bytes32 transferId, ExecuteArgs memory args) = utils_makeExecuteArgs(1);
 
-    s.routerBalances[args.routers[0]][args.local] += 10 ether;
+    // set liquidity
+    s.routerBalances[args.routers[0]][args.local] = 0;
 
-    // set asset context (local == adopted)
-    utils_setupAsset(true, false);
+    // set approval
+    s.routerPermissionInfo.approvedForPortalRouters[args.routers[0]] = true;
 
-    helpers_executeAndAssert(transferId, args, utils_getFastTransferAmount(args.amount), true, true, false);
+    helpers_executeAndAssert(transferId, args, utils_getFastTransferAmount(args.amount), false, true, false, true);
   }
 
-  // should work if already reconciled (happening in slow liquidity mode, uses
-  // authenticated data)
-  function test_BridgeFacet__execute_handleAlreadyReconciled() public {
-    // set asset context (local == adopted)
-    utils_setupAsset(true, false);
-
-    // Set the args.to to the mock xapp address, and args.callData to the
-    // `fulfillWithProperties` fn. This will check to make sure `originDomain` and
-    // `originSender` properties are correctly set.
-    _params.callData = abi.encodeWithSelector(
-      MockXApp.fulfillWithProperties.selector,
-      _local,
-      TEST_MESSAGE,
-      _originDomain,
-      _originSender
-    );
-    _params.to = _xapp;
-
-    // We specify that 0 routers are in the path for this execution.
-    (bytes32 transferId, ExecuteArgs memory args) = utils_makeExecuteArgs(0);
-
-    // Transfer has already been reconciled.
-    s.reconciledTransfers[transferId] = true;
-
-    helpers_executeAndAssert(transferId, args, args.amount, true, true, false);
-  }
-
-  // multipath: should subtract equally from each router's liquidity
-  function test_BridgeFacet__execute_multipath() public {
-    _amount = 1 ether;
-
-    // Should work if the pathLength == max routers.
-    uint256 pathLength = s.maxRoutersPerTransfer;
-    (bytes32 transferId, ExecuteArgs memory args) = utils_makeExecuteArgs(pathLength);
-
-    // Add initial liquiidty
-    for (uint256 i = 1; i < args.routers.length; i++) {
-      s.routerBalances[args.routers[i]][args.local] = 10 ether;
-    }
-    // Sanity check: assuming the multipath is > 1, no router should need to have more than half of the
-    // transfer amount.
-    s.routerBalances[args.routers[0]][args.local] = 0.5 ether;
-
-    uint256 amount = utils_getFastTransferAmount(args.amount);
-    uint256 routerAmountSent = amount / pathLength; // The amount each individual router will send.
-
-    // set asset context (local == adopted)
-    utils_setupAsset(true, false);
-
-    helpers_executeAndAssert(transferId, args);
-  }
-
-  // ============ bumpTransfer ============
-  // ============ bumpTransfer fail cases
-
-  // FIXME: move to BaseConnextFacet.t.sol
-  function test_BridgeFacet__bumpTransfer_failsIfPaused() public {
-    // require(false, "not tested");
-  }
-
-  // fails if no msg.value provided
-  function test_BridgeFacet__bumpTransfer_failsIfNoValue() public {
-    bytes32 transferId = bytes32("id");
-
-    vm.expectRevert(BridgeFacet.BridgeFacet__bumpTransfer_valueIsZero.selector);
-    this.bumpTransfer(transferId);
-  }
-
-  // ============ bumpTransfer success cases
-
-  // works
-  function test_BridgeFacet__bumpTransfer_works() public {
-    bytes32 transferId = bytes32("id");
-    uint256 fee = 0.1 ether;
-
-    uint256 previous = this.relayerFees(transferId);
-
-    vm.expectEmit(true, true, true, true);
-    emit TransferRelayerFeesUpdated(transferId, previous + fee, address(this));
-    this.bumpTransfer{value: fee}(transferId);
-
-    assertEq(this.relayerFees(transferId), previous + fee);
-  }
+  // should work with unapproved router if router-whitelist ownership renouncedcanonicalId
 }
