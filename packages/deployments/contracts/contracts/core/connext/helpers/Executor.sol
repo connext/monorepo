@@ -1,8 +1,11 @@
 // SPDX-License-Identifier: UNLICENSED
-pragma solidity 0.8.11;
+pragma solidity 0.8.14;
 
 import {AddressUpgradeable} from "@openzeppelin/contracts-upgradeable/utils/AddressUpgradeable.sol";
 import {SafeERC20Upgradeable, IERC20Upgradeable} from "@openzeppelin/contracts-upgradeable/token/ERC20/utils/SafeERC20Upgradeable.sol";
+// import {ExcessivelySafeCall} from "@nomad-xyz/excessively-safe-call/src/ExcessivelySafeCall.sol";
+// TODO: see note in below file re: npm
+import {ExcessivelySafeCall} from "../../../nomad-core/libs/ExcessivelySafeCall.sol";
 
 import {IExecutor} from "../interfaces/IExecutor.sol";
 
@@ -26,6 +29,18 @@ contract Executor is IExecutor {
   address private immutable connext;
   bytes private properties = LibCrossDomainProperty.EMPTY_BYTES;
   uint256 private amnt;
+
+  /**
+   * @notice The amount of gas needed to execute _handleFailure
+   * @dev Used to calculate the amount of gas to reserve from transaction
+   * to properly handle failure cases
+   */
+  uint256 public FAILURE_GAS = 100_000; // Allowance decrease + transfer
+
+  /**
+   * @notice The maximum number of bytes to store in the return data
+   */
+  uint16 public MAX_COPY = 256;
 
   // ============ Constructor =============
 
@@ -137,9 +152,18 @@ contract Executor is IExecutor {
     // Set the amount as well
     amnt = _args.amount;
 
+    // Ensure there is enough gas to handle failures
+    uint256 gas = gasleft() - FAILURE_GAS;
+
     // Try to execute the callData
     // the low level call will return `false` if its execution reverts
-    (success, returnData) = _args.to.call{value: isNative ? _args.amount : 0}(_args.callData);
+    (success, returnData) = ExcessivelySafeCall.excessivelySafeCall(
+      _args.to,
+      gas,
+      isNative ? _args.amount : 0,
+      MAX_COPY,
+      _args.callData
+    );
 
     // Unset properties
     properties = LibCrossDomainProperty.EMPTY_BYTES;

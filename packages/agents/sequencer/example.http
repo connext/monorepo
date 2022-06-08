@@ -1,9 +1,12 @@
 @sequencerUrl = http://localhost:8081
-# @sequencerUrl = https://sequencer.testnet.staging.connext.ninja
-@adminToken = foo
+@sequencerUrl = https://sequencer.testnet.connext.ninja
+@adminToken = blahblah
 
 ### PING
 GET {{sequencerUrl}}/ping
+
+### QUEUED TRANSFERS
+GET {{sequencerUrl}}/queued
 
 ### CLEAR CACHE
 POST {{sequencerUrl}}/clear-cache

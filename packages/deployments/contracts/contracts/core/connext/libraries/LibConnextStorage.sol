@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: UNLICENSED
-pragma solidity 0.8.11;
+pragma solidity 0.8.14;
 
 import {XAppConnectionManager} from "../../../nomad-core/contracts/XAppConnectionManager.sol";
 
@@ -83,7 +83,7 @@ struct ExecuteArgs {
 }
 
 /**
- * @notice Contains RouterPermissionsManager related state
+ * @notice Contains RouterFacet related state
  * @param approvedRouters - Mapping of whitelisted router addresses
  * @param routerRecipients - Mapping of router withdraw recipient addresses.
  * If set, all liquidity is withdrawn only to this address. Must be set by routerOwner
@@ -97,6 +97,7 @@ struct ExecuteArgs {
  */
 struct RouterPermissionsManagerInfo {
   mapping(address => bool) approvedRouters;
+  mapping(address => bool) approvedForPortalRouters;
   mapping(address => address) routerRecipients;
   mapping(address => address) routerOwners;
   mapping(address => address) proposedRouterOwners;
@@ -108,7 +109,6 @@ struct AppStorage {
   //
   // ConnextHandler
   //
-  // TODO: enable setting these constants via admin fn
   // 0
   uint256 LIQUIDITY_FEE_NUMERATOR;
   // 1
@@ -246,7 +246,7 @@ struct AppStorage {
   // 28
   uint256 _assetOwnershipTimestamp;
   //
-  // RouterPermissionsManager
+  // RouterFacet
   //
   // 29
   RouterPermissionsManagerInfo routerPermissionInfo;
@@ -272,6 +272,31 @@ struct AppStorage {
    */
   // 32
   mapping(bytes32 => mapping(address => uint8)) tokenIndexes;
+  /**
+   * @notice Stores whether or not briding, AMMs, have been paused
+   */
+  // 33
+  bool _paused;
+  //
+  // AavePortals
+  //
+  /**
+   * @notice Address of Aave Pool contract
+   */
+  address aavePool;
+  /**
+   * @notice Fee percentage numerator for using Portal liquidity
+   * @dev Assumes the same basis points as the liquidity fee
+   */
+  uint256 aavePortalFeeNumerator;
+  /**
+   * @notice Mapping to store the transfer liquidity amount provided by Aave Portals
+   */
+  mapping(bytes32 => uint256) portalDebt;
+  /**
+   * @notice Mapping to store the transfer liquidity amount provided by Aave Portals
+   */
+  mapping(bytes32 => uint256) portalFeeDebt;
 }
 
 library LibConnextStorage {

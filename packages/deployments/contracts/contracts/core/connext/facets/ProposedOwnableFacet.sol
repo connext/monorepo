@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: UNLICENSED
-pragma solidity 0.8.11;
+pragma solidity 0.8.14;
 
 import {BaseConnextFacet} from "./BaseConnextFacet.sol";
 import {LibDiamond} from "../libraries/LibDiamond.sol";
@@ -47,6 +47,8 @@ contract ProposedOwnableFacet is BaseConnextFacet, IProposedOwnable {
 
   uint256 private constant _delay = 7 days;
 
+  // ============ Events ============
+
   event RouterOwnershipRenunciationProposed(uint256 timestamp);
 
   event RouterOwnershipRenounced(bool renounced);
@@ -54,6 +56,12 @@ contract ProposedOwnableFacet is BaseConnextFacet, IProposedOwnable {
   event AssetOwnershipRenunciationProposed(uint256 timestamp);
 
   event AssetOwnershipRenounced(bool renounced);
+
+  event Paused();
+
+  event Unpaused();
+
+  // ============ External: Getters ============
 
   /**
    * @notice Returns the address of the current owner.
@@ -110,6 +118,8 @@ contract ProposedOwnableFacet is BaseConnextFacet, IProposedOwnable {
   function delay() public view returns (uint256) {
     return _delay;
   }
+
+  // ============ External ============
 
   /**
    * @notice Indicates if the ownership of the router whitelist has
@@ -238,6 +248,16 @@ contract ProposedOwnableFacet is BaseConnextFacet, IProposedOwnable {
 
     // Emit event, set new owner, reset timestamp
     _setOwner(s._proposed);
+  }
+
+  function pause() public onlyOwner {
+    s._paused = true;
+    emit Paused();
+  }
+
+  function unpause() public onlyOwner {
+    s._paused = false;
+    emit Unpaused();
   }
 
   ////// INTERNAL //////

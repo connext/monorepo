@@ -27,19 +27,19 @@ variable "domain" {
 variable "full_image_name_router" {
   type        = string
   description = "router image name"
-  default     = "ghcr.io/connext/router:0.2.0-alpha.15"
+  default     = "ghcr.io/connext/router:0.2.0-beta.10"
 }
 
 variable "full_image_name_sequencer" {
   type        = string
   description = "sequencer image name"
-  default     = "ghcr.io/connext/sequencer:0.2.0-alpha.15"
+  default     = "ghcr.io/connext/sequencer:0.2.0-beta.10"
 }
 
 variable "full_image_name_lighthouse" {
   type        = string
   description = "router image name"
-  default     = "ghcr.io/connext/lighthouse:0.2.0-alpha.14"
+  default     = "ghcr.io/connext/lighthouse:0.2.0-beta.10"
 }
 
 variable "mnemonic" {
@@ -87,5 +87,9 @@ variable "logdna_key" {
 }
 
 variable "web3_signer_private_key" {
+  type = string
+}
+
+variable "dd_api_key" {
   type = string
 }

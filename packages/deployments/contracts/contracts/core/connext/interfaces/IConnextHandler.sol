@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: UNLICENSED
-pragma solidity 0.8.11;
+pragma solidity 0.8.14;
 
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import {XAppConnectionManager} from "../../../nomad-core/contracts/XAppConnectionManager.sol";
@@ -41,6 +41,8 @@ interface IConnextHandler {
   function isRouterOwnershipRenounced() external view returns (bool);
 
   function isAssetOwnershipRenounced() external view returns (bool);
+
+  function VERSION() external view returns (uint8);
 
   // BridgeFacet
   function relayerFees(bytes32 _transferId) external view returns (uint256);
@@ -132,6 +134,10 @@ interface IConnextHandler {
 
   function acceptProposedOwner() external;
 
+  function pause() external;
+
+  function unpause() external;
+
   // RelayerFacet
   function transferRelayer(bytes32 _transferId) external view returns (address);
 
@@ -196,10 +202,52 @@ interface IConnextHandler {
 
   function addRouterLiquidity(uint256 _amount, address _local) external payable;
 
+  function removeRouterLiquidityFor(
+    uint256 _amount,
+    address _local,
+    address payable _to,
+    address _router
+  ) external;
+
   function removeRouterLiquidity(
     uint256 _amount,
     address _local,
     address payable _to
+  ) external;
+
+  // PortalFacet
+  function getRouterApprovalForPortal(address _router) external view returns (bool);
+
+  function getAavePortalDebt(bytes32 _transferId) external view returns (uint256);
+
+  function getAavePortalFeeDebt(bytes32 _transferId) external view returns (uint256);
+
+  function aavePool() external view returns (address);
+
+  function aavePortalFee() external view returns (uint256);
+
+  function approveRouterForPortal(address _router) external;
+
+  function unapproveRouterForPortal(address _router) external;
+
+  function setAavePool(address _aavePool) external;
+
+  function setAavePortalFee(uint256 _aavePortalFeeNumerator) external;
+
+  function repayAavePortal(
+    address _asset,
+    uint256 _backingAmount,
+    uint256 _feeAmount,
+    uint256 _maxIn,
+    bytes32 _transferId
+  ) external;
+
+  function repayAavePortalFor(
+    address _router,
+    address _adopted,
+    uint256 _backingAmount,
+    uint256 _feeAmount,
+    bytes32 _transferId
   ) external;
 
   // StableSwapFacet
@@ -257,6 +305,15 @@ interface IConnextHandler {
     address assetIn,
     address assetOut,
     uint256 minAmountOut,
+    uint256 deadline
+  ) external payable returns (uint256);
+
+  function swapExactOut(
+    bytes32 canonicalId,
+    uint256 amountOut,
+    address assetIn,
+    address assetOut,
+    uint256 maxAmountIn,
     uint256 deadline
   ) external payable returns (uint256);
 

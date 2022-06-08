@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity 0.8.11;
+pragma solidity 0.8.14;
 
 /******************************************************************************\
 * Author: Nick Mudge <nick@perfectabstractions.com> (https://twitter.com/mudgen)
@@ -12,6 +12,8 @@ import {IDiamondCut} from "../interfaces/IDiamondCut.sol";
 
 library LibDiamond {
   bytes32 constant DIAMOND_STORAGE_POSITION = keccak256("diamond.standard.diamond.storage");
+
+  uint256 private constant _delay = 7 days;
 
   struct FacetAddressAndPosition {
     address facetAddress;
@@ -36,6 +38,8 @@ library LibDiamond {
     mapping(bytes4 => bool) supportedInterfaces;
     // owner of the contract
     address contractOwner;
+    // hash of proposed facets => acceptance time
+    mapping(bytes32 => uint256) acceptanceTimes;
   }
 
   function diamondStorage() internal pure returns (DiamondStorage storage ds) {
@@ -62,6 +66,29 @@ library LibDiamond {
     require(msg.sender == diamondStorage().contractOwner, "LibDiamond: Must be contract owner");
   }
 
+  event DiamondCutProposed(IDiamondCut.FacetCut[] _diamondCut, address _init, bytes _calldata, uint256 deadline);
+
+  function proposeDiamondCut(
+    IDiamondCut.FacetCut[] memory _diamondCut,
+    address _init,
+    bytes memory _calldata
+  ) internal {
+    uint256 acceptance = block.timestamp + _delay;
+    diamondStorage().acceptanceTimes[keccak256(abi.encode(_diamondCut))] = acceptance;
+    emit DiamondCutProposed(_diamondCut, _init, _calldata, acceptance);
+  }
+
+  event DiamondCutRescinded(IDiamondCut.FacetCut[] _diamondCut, address _init, bytes _calldata);
+
+  function rescindDiamondCut(
+    IDiamondCut.FacetCut[] memory _diamondCut,
+    address _init,
+    bytes memory _calldata
+  ) internal {
+    diamondStorage().acceptanceTimes[keccak256(abi.encode(_diamondCut))] = 0;
+    emit DiamondCutRescinded(_diamondCut, _init, _calldata);
+  }
+
   event DiamondCut(IDiamondCut.FacetCut[] _diamondCut, address _init, bytes _calldata);
 
   // Internal function version of diamondCut
@@ -70,6 +97,10 @@ library LibDiamond {
     address _init,
     bytes memory _calldata
   ) internal {
+    require(
+      diamondStorage().acceptanceTimes[keccak256(abi.encode(_diamondCut))] < block.timestamp,
+      "LibDiamond: delay not elapsed"
+    );
     for (uint256 facetIndex; facetIndex < _diamondCut.length; facetIndex++) {
       IDiamondCut.FacetCutAction action = _diamondCut[facetIndex].action;
       if (action == IDiamondCut.FacetCutAction.Add) {

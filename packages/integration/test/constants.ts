@@ -4,7 +4,7 @@ import { getDeployedConnextContract, _getContractDeployments } from "@connext/nx
 import { SequencerConfig } from "@connext/nxtp-sequencer/src/lib/entities/config";
 import { NxtpRouterConfig as RouterConfig, ChainConfig as RouterChainConfig } from "@connext/nxtp-router/src/config";
 import { RelayerConfig } from "@connext/nxtp-relayer/src/lib/entities/config";
-import { BackendConfig } from "@connext/backend-poller/src/config";
+import { CartographerConfig } from "@connext/cartographer-poller/src/config";
 
 export enum Environment {
   Staging = "staging",
@@ -28,7 +28,7 @@ export const ENVIRONMENT: "staging" | "production" = (process.env.ENV ||
 
 // Whether or not to run certain agents locally.
 export const LOCAL_RELAYER_ENABLED = process.env.LOCAL_RELAYER_ENABLED === "true";
-export const LOCAL_BACKEND_ENABLED = process.env.LOCAL_BACKEND_ENABLED === "true";
+export const LOCAL_CARTOGRAPHER_ENABLED = process.env.LOCAL_CARTOGRAPHER_ENABLED === "true";
 
 // TODO: May need to increase this at some point:
 export const RELAYER_FEE_AMOUNT = utils.parseEther("0.0000000001"); // In ETH.
@@ -260,6 +260,7 @@ export const ROUTER_CONFIG: Promise<RouterConfig> = (async (): Promise<RouterCon
       subgraph: 5_000,
       cache: 5_000,
     },
+    auctionRoundDepth: 4,
     environment,
   };
 })();
@@ -293,6 +294,7 @@ export const SEQUENCER_CONFIG: Promise<SequencerConfig> = (async (): Promise<Seq
       cleanup: false,
     },
     auctionWaitTime: 1,
+    auctionRoundDepth: 4,
     network: "testnet",
     environment: ENVIRONMENT.toString() as "staging" | "production",
     relayerUrl: LOCAL_RELAYER_ENABLED ? `http://${LOCALHOST}:8082` : undefined,
@@ -330,8 +332,9 @@ export const RELAYER_CONFIG: Promise<RelayerConfig> = (async (): Promise<Relayer
   };
 })();
 
-/// MARK - BACKEND CONFIG
-export const BACKEND_CONFIG: Promise<BackendConfig> = (async (): Promise<BackendConfig> => {
+/// MARK - CARTOGRAPHER CONFIG
+export const CARTOGRAPHER_CONFIG: Promise<CartographerConfig> = (async (): Promise<CartographerConfig> => {
+  const { ORIGIN, DESTINATION } = await DOMAINS;
   return {
     database: {
       url: "postgres://postgres:qwerty@localhost:5432/connext?sslmode=disable",
@@ -339,5 +342,9 @@ export const BACKEND_CONFIG: Promise<BackendConfig> = (async (): Promise<Backend
     logLevel: "debug",
     pollInterval: 4_000,
     environment: "staging",
+    chains: {
+      [ORIGIN.domain]: {},
+      [DESTINATION.domain]: {},
+    },
   };
 })();

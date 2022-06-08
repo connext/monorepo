@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: UNLICENSED
-pragma solidity 0.8.11;
+pragma solidity 0.8.14;
 
 import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
@@ -290,7 +290,7 @@ contract SponsorVault is ISponsorVault, Ownable {
   ) external onlyOwner {
     if (_token == address(0)) {
       if (address(this).balance < _amount) revert SponsorVault__withdraw_invalidAmount();
-      payable(_receiver).call{value: _amount}("");
+      Address.sendValue(payable(_receiver), _amount);
     } else {
       if (IERC20(_token).balanceOf(address(this)) < _amount) revert SponsorVault__withdraw_invalidAmount();
       IERC20(_token).safeTransfer(_receiver, _amount);
