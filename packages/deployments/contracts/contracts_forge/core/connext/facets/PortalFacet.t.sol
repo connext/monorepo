@@ -264,6 +264,8 @@ contract PortalFacetTest is PortalFacet, FacetHelper {
     assertEq(s.routerBalances[router][_local], init - amountIn);
   }
 
+  // ============ repayAavePortalFor ============
+
   // fails if not supported asset
   function test_PortalFacet__repayAavePortalFor_failsIfNotSupportedAsset() public {
     // set debt amount
