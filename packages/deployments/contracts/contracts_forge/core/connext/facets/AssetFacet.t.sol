@@ -21,11 +21,13 @@ contract AssetFacetTest is AssetFacet, FacetHelper {
   address _owner = address(12345);
 
   // sample data
-  uint32 _domain = 1000;
+  uint32 _domain = _originDomain;
 
   // ============ Test set up ============
   function setUp() public {
     setOwner(_owner);
+    utils_deployAssetContracts();
+    utils_setFees();
   }
 
   // ============ Utils ==============
@@ -125,6 +127,7 @@ contract AssetFacetTest is AssetFacet, FacetHelper {
   }
 
   function test_AssetFacet__wrapper_notSet() public {
+    s.wrapper = IWrapped(address(0));
     assertEq(address(this.wrapper()), address(0));
   }
 
@@ -135,6 +138,7 @@ contract AssetFacetTest is AssetFacet, FacetHelper {
   }
 
   function test_AssetFacet__tokenRegistry_notSet() public {
+    s.tokenRegistry = ITokenRegistry(address(0));
     assertEq(address(this.tokenRegistry()), address(0));
   }
 
