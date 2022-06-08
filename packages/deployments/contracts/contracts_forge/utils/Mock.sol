@@ -14,6 +14,8 @@ import {ERC20} from "../../contracts/core/connext/helpers/OZERC20.sol";
 import {TestERC20} from "../../contracts/test/TestERC20.sol";
 import {IExecutor} from "../../contracts/core/connext/interfaces/IExecutor.sol";
 
+import "forge-std/console.sol";
+
 contract MockXAppConnectionManager {
   MockHome _home;
 
@@ -134,6 +136,12 @@ contract MockCallback is ICallback {
 contract MockPool is IAavePool {
   uint256 _withdraw = 123456;
 
+  bool fails;
+
+  constructor(bool _fails) {
+    fails = _fails;
+  }
+
   function setWithdraw(uint256 _new) external {
     _withdraw = _new;
   }
@@ -149,7 +157,11 @@ contract MockPool is IAavePool {
     address asset,
     uint256 amount,
     uint256 fee
-  ) external override {}
+  ) external override {
+    if (fails) {
+      require(false, "fail");
+    }
+  }
 
   function withdraw(
     address asset,

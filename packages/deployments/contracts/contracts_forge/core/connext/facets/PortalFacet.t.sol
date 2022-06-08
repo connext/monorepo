@@ -43,7 +43,7 @@ contract PortalFacetTest is PortalFacet, FacetHelper {
     LibDiamond.setContractOwner(address(this));
 
     // setup aave pool
-    aavePool = address(new MockPool());
+    aavePool = address(new MockPool(false));
     // set pool
     s.aavePool = aavePool;
   }

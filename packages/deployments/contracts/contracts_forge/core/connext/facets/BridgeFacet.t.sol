@@ -144,7 +144,7 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
     _callback = address(new MockCallback());
 
     // setup aave pool
-    _aavePool = address(new MockPool());
+    _aavePool = address(new MockPool(false));
     s.aavePool = _aavePool;
   }
 
@@ -293,6 +293,7 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
     uint256 fee;
     uint256 debt;
     uint256 total;
+    bool aaveReturns;
   }
 
   function utils_setPortals(
@@ -302,7 +303,7 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
   ) public returns (PortalInfo memory) {
     s.portalFeeDebt[_id] = _fee;
     s.portalDebt[_id] = _amount;
-    return PortalInfo(_fee, _amount, _fee + _amount);
+    return PortalInfo(_fee, _amount, _fee + _amount, true);
   }
 
   function utils_setPortals(bytes32 _id, uint256 _amount) public returns (PortalInfo memory) {
@@ -510,6 +511,8 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
     uint256 bridge;
     uint256 to;
     uint256 executor;
+    uint256 debt;
+    uint256 feeDebt;
   }
 
   struct ExecuteTestInputs {
@@ -520,13 +523,20 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
     bool externalCallSucceeds;
     bool shouldSwap; // Whether the `to` address should receive the tokens.
     bool isSlow;
+    bool usesPortals;
   }
 
-  function utils_getExecuteBalances(IERC20 asset, address _to) public returns (ExecuteBalances memory) {
+  function utils_getExecuteBalances(
+    bytes32 transferId,
+    IERC20 asset,
+    address _to
+  ) public returns (ExecuteBalances memory) {
+    uint256 debt = s.portalDebt[transferId];
+    uint256 fee = s.portalFeeDebt[transferId];
     uint256 bridge = IERC20(_local).balanceOf(address(this));
     uint256 to = address(asset) == address(s.wrapper) ? payable(_to).balance : asset.balanceOf(_to);
     uint256 executor = address(asset) == address(s.wrapper) ? payable(_executor).balance : asset.balanceOf(_executor);
-    return ExecuteBalances(bridge, to, executor);
+    return ExecuteBalances(bridge, to, executor, debt, fee);
   }
 
   function helpers_setupExecuteAssertions(
@@ -535,6 +545,21 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
     ExecuteTestInputs memory _inputs
   ) public {
     // ----- register expected calls
+
+    // expects portal
+    if (_inputs.usesPortals) {
+      // mint position
+      vm.expectCall(
+        _aavePool,
+        abi.encodeWithSelector(IAavePool.mintUnbacked.selector, _adopted, _inputs.routerAmt, address(this), 0)
+      );
+
+      // withdraw
+      vm.expectCall(
+        _aavePool,
+        abi.encodeWithSelector(IAavePool.withdraw.selector, _adopted, _inputs.routerAmt, address(this))
+      );
+    }
 
     // expected swap
     if (_inputs.shouldSwap) {
@@ -638,19 +663,22 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
     uint256 expectedAmt, // amount out of swap
     bool callsExternal,
     bool externalCallSucceeds,
-    bool shouldSwap // Whether the `to` address should receive the tokens.
+    bool shouldSwap, // Whether the `to` address should receive the tokens.
+    bool usesAave
   ) public {
     // get pre-execute liquidity in local
     uint256 pathLen = _args.routers.length;
     bool isSlow = pathLen == 0;
     uint256[] memory prevLiquidity = new uint256[](pathLen);
-    for (uint256 i; i < pathLen; i++) {
-      prevLiquidity[i] = s.routerBalances[_args.routers[i]][_local];
+    {
+      for (uint256 i; i < pathLen; i++) {
+        prevLiquidity[i] = s.routerBalances[_args.routers[i]][_local];
+      }
     }
 
     // get pre-execute balance here in local
     IERC20 token = IERC20(shouldSwap ? _adopted : _local);
-    ExecuteBalances memory prevBalances = utils_getExecuteBalances(token, _args.params.to);
+    ExecuteBalances memory prevBalances = utils_getExecuteBalances(transferId, token, _args.params.to);
 
     // execute
     // expected amount is impacted by (1) fast liquidity fees (2) slippage
@@ -681,8 +709,22 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
     helpers_setupExecuteAssertions(
       transferId,
       _args,
-      ExecuteTestInputs(expectedAmt, routerAmt, address(token), callsExternal, externalCallSucceeds, shouldSwap, isSlow)
+      ExecuteTestInputs(
+        expectedAmt,
+        routerAmt,
+        address(token),
+        callsExternal,
+        externalCallSucceeds,
+        shouldSwap,
+        isSlow,
+        usesAave
+      )
     );
+
+    if (usesAave) {
+      vm.expectEmit(true, true, true, true);
+      emit AavePortalMintUnbacked(transferId, _args.routers[0], address(token), expectedAmt);
+    }
 
     // register expected emit event
     vm.expectEmit(true, true, false, true);
@@ -693,35 +735,51 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
     // check local balance
     {
       if (pathLen > 0) {
-        // should decrement router balance
-        uint256 decrement = routerAmt / pathLen;
+        // should decrement router balance unless using aave
         for (uint256 i; i < pathLen; i++) {
-          assertEq(s.routerBalances[_args.routers[i]][_args.local], prevLiquidity[i] - decrement);
+          assertEq(
+            s.routerBalances[_args.routers[i]][_args.local],
+            usesAave ? prevLiquidity[i] : prevLiquidity[i] - (routerAmt / pathLen)
+          );
         }
       }
     }
 
-    ExecuteBalances memory finalBalances = utils_getExecuteBalances(token, _args.params.to);
+    {
+      // assertions
+      ExecuteBalances memory finalBalances = utils_getExecuteBalances(transferId, token, _args.params.to);
 
-    // NOTE: the balance of the bridge *should* always decrement in local, however that depends on
-    // the token executing the `swap` / `withdraw` call when a swap is needed (which we have as mocked).
-    // Instead, assert the swap functions on the pool were called correctly
-    if (!shouldSwap && address(token) != address(s.wrapper)) {
-      assertEq(finalBalances.bridge, prevBalances.bridge - routerAmt);
-    }
+      // NOTE: the balance of the bridge *should* always decrement in local, however that depends on
+      // the token executing the `swap` / `withdraw` call when a swap is needed (which we have as mocked).
+      // Instead, assert the swap functions on the pool were called correctly
+      if (!shouldSwap && address(token) != address(s.wrapper)) {
+        // NOTE: when using aave would normally send you funds for the position minted,
+        // but we are not adding any funds from the pool, so always decrement
+        assertEq(finalBalances.bridge, prevBalances.bridge - routerAmt);
+      }
 
-    if (callsExternal) {
-      // should increment balance of executor
-      // should NOT increment balance of to
-      // NOTE: recovery address testing should be done in Executor.t.sol
-      // as such, executor balance should *always* increment
-      assertEq(finalBalances.executor, prevBalances.executor + expectedAmt);
-      assertEq(token.balanceOf(_params.to), prevBalances.to);
-    } else {
-      // should have incremented balance of `to`
-      // should NOT increment balance of executor
-      assertEq(finalBalances.to, prevBalances.to + expectedAmt);
-      assertEq(finalBalances.executor, prevBalances.executor);
+      if (usesAave) {
+        uint256 fee = (routerAmt * _portalFeeNumerator) / _liquidityFeeDenominator;
+        assertEq(finalBalances.feeDebt, prevBalances.feeDebt + fee);
+        assertEq(finalBalances.debt, prevBalances.debt + routerAmt);
+      } else {
+        assertEq(finalBalances.feeDebt, prevBalances.feeDebt);
+        assertEq(finalBalances.debt, prevBalances.debt);
+      }
+
+      if (callsExternal) {
+        // should increment balance of executor
+        // should NOT increment balance of to
+        // NOTE: recovery address testing should be done in Executor.t.sol
+        // as such, executor balance should *always* increment
+        assertEq(finalBalances.executor, prevBalances.executor + expectedAmt);
+        assertEq(token.balanceOf(_params.to), prevBalances.to);
+      } else {
+        // should have incremented balance of `to`
+        // should NOT increment balance of executor
+        assertEq(finalBalances.to, prevBalances.to + expectedAmt);
+        assertEq(finalBalances.executor, prevBalances.executor);
+      }
     }
 
     // should mark the transfer as executed
@@ -732,6 +790,17 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
     for (uint256 i; i < savedRouters.length; i++) {
       assertEq(savedRouters[i], _args.routers[i]);
     }
+  }
+
+  function helpers_executeAndAssert(
+    bytes32 transferId,
+    ExecuteArgs memory _args,
+    uint256 expectedAmt, // amount out of swap
+    bool callsExternal,
+    bool externalCallSucceeds,
+    bool shouldSwap // Whether the `to` address should receive the tokens.
+  ) public {
+    helpers_executeAndAssert(transferId, _args, expectedAmt, callsExternal, externalCallSucceeds, shouldSwap, false);
   }
 
   function buildMessage(bytes32 _id) private returns (bytes memory) {
@@ -769,17 +838,83 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
     helpers_executeAndAssert(transferId, _args, expected, false, false, shouldSwap);
   }
 
+  function helpers_setupReconcilePortalAssertions(
+    bytes32 transferId,
+    XCallArgs memory args,
+    PortalInfo memory init,
+    PortalInfo memory repayment,
+    uint256 amountIn,
+    uint256 amountOut
+  ) public {
+    if (repayment.total == 0) {
+      // noting to assert
+      return;
+    }
+    // if local != adopted, need to swap into adopted
+    if (_local != _adopted) {
+      // should call calculate always
+      vm.expectCall(
+        _stableSwap,
+        abi.encodeWithSelector(IStableSwap.calculateSwapFromAddress.selector, _local, _adopted, args.amount)
+      );
+
+      // will swap and repay IFF within slippage
+      if (amountIn <= args.amount) {
+        // slippage ok, call approve
+        vm.expectCall(_local, abi.encodeWithSelector(IERC20.approve.selector, _stableSwap, amountIn));
+        // should call swap
+        vm.expectCall(
+          _stableSwap,
+          abi.encodeWithSelector(IStableSwap.swapExactOut.selector, repayment.total, _local, _adopted, args.amount)
+        );
+      } // otherwise slippage is too high and it should not try to repay the rest of the loan
+    }
+
+    if (amountIn > 0) {
+      // approval of pool for sum
+      vm.expectCall(_adopted, abi.encodeWithSelector(IERC20.approve.selector, _aavePool, repayment.total));
+
+      // approval of payback
+      vm.expectCall(
+        _aavePool,
+        abi.encodeWithSelector(IAavePool.backUnbacked.selector, _adopted, repayment.debt, repayment.fee)
+      );
+
+      vm.expectEmit(true, true, true, true);
+      emit AavePortalRepayment(transferId, _adopted, repayment.debt, repayment.fee);
+
+      // check if there will be a debt event
+      if (repayment.total < init.total) {
+        // // FIXME: logs are the same in the corresponding event (when insufficient fees)
+        // // but `expectEmit` call is not working
+        // vm.expectEmit(true, false, false, true);
+        // emit AavePortalRepaymentDebt(transferId, _adopted, init.debt - repayment.debt, init.fee - repayment.fee);
+      }
+    } else {
+      // slippage maximums hit, emit full debt in event
+      vm.expectEmit(true, true, true, true);
+      emit AavePortalRepaymentDebt(transferId, _adopted, init.debt, init.fee);
+    }
+  }
+
+  struct SwapInfo {
+    uint256 input;
+    uint256 output; // the equivalent amount of `out` token for given `in`
+  }
+
   // Helper for calling `reconcile` and asserting expected behavior.
   function helpers_reconcileAndAssert(
     bytes32 transferId,
     XCallArgs memory args,
     bytes4 expectedError,
-    PortalInfo memory repayment
+    PortalInfo memory repayment,
+    SwapInfo memory swap
   ) public {
     PortalInfo memory init = PortalInfo(
       s.portalFeeDebt[transferId],
       s.portalDebt[transferId],
-      s.portalDebt[transferId] + s.portalFeeDebt[transferId]
+      s.portalDebt[transferId] + s.portalFeeDebt[transferId],
+      true
     );
     bool isNative = args.transactingAssetId == address(0);
     bool shouldSucceed = keccak256(abi.encode(expectedError)) == keccak256(abi.encode(bytes4("")));
@@ -811,37 +946,36 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
       prevBalance = IERC20(_local).balanceOf(address(this));
     }
 
+    // Mock calls for swap if needed
+    if (_local != _adopted && init.total > 0) {
+      // mock calculate equivalent of bridged amount in adopted
+      vm.mockCall(
+        _stableSwap,
+        abi.encodeWithSelector(IStableSwap.calculateSwapFromAddress.selector),
+        abi.encode(swap.output)
+      );
+      vm.mockCall(
+        _stableSwap,
+        abi.encodeWithSelector(IStableSwap.calculateSwapOutFromAddress.selector),
+        abi.encode(swap.input)
+      );
+      // mock swap
+      vm.mockCall(_stableSwap, abi.encodeWithSelector(IStableSwap.swapExactOut.selector), abi.encode(swap.input));
+    }
+
+    if (!repayment.aaveReturns) {
+      // Force failure on call
+      _aavePool = address(new MockPool(true));
+      s.aavePool = _aavePool;
+    }
+
     if (shouldSucceed) {
       // check that the mint is called properly
       if (_local != _canonical) {
         vm.expectCall(_local, abi.encodeWithSelector(TestERC20.mint.selector, address(this), args.amount));
       }
 
-      // if you should repay, expect the approve to pool and back call
-      if (repayment.total > 0) {
-        // if local != adopted, need to swap
-        if (_local != _adopted) {
-          console.log("******* expects not setup for reconcile with swap");
-        }
-
-        // approval of pool for sum
-        vm.expectCall(_adopted, abi.encodeWithSelector(IERC20.approve.selector, _aavePool, repayment.total));
-
-        // approval of payback
-        vm.expectCall(
-          _aavePool,
-          abi.encodeWithSelector(IAavePool.backUnbacked.selector, _adopted, repayment.debt, repayment.fee)
-        );
-
-        vm.expectEmit(true, true, true, true);
-        emit AavePortalRepayment(transferId, _adopted, repayment.debt, repayment.fee);
-
-        // check if there will be a debt event
-        if (repayment.total < init.total) {
-          vm.expectEmit(true, true, true, true);
-          emit AavePortalRepaymentDebt(transferId, _adopted, init.fee - repayment.fee, init.debt - repayment.debt);
-        }
-      }
+      helpers_setupReconcilePortalAssertions(transferId, args, init, repayment, swap.input, swap.output);
 
       vm.expectEmit(true, true, true, true);
       emit Reconciled(transferId, _originDomain, s.routedTransfers[transferId], _local, args.amount, address(this));
@@ -856,9 +990,8 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
       address[] memory routers = this.routedTransfers(transferId);
       if (routers.length > 0) {
         uint256 routerAmt;
-        if (init.total > 0) {
-          // TODO: update with swap, need some amount debited input
-          routerAmt = args.amount - repayment.total;
+        if (init.total > 0 && repayment.aaveReturns) {
+          routerAmt = swap.input > args.amount ? args.amount : args.amount - swap.input;
         } else {
           routerAmt = args.amount / s.routedTransfers[transferId].length;
         }
@@ -867,7 +1000,22 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
           assertEq(s.routerBalances[routers[i]][_local], routerBalances[i] + routerAmt);
         }
       }
+
+      if (init.total > 0) {
+        // assert repayment
+        assertEq(s.portalDebt[transferId], init.debt - repayment.debt);
+        assertEq(s.portalFeeDebt[transferId], init.fee - repayment.fee);
+      }
     }
+  }
+
+  function helpers_reconcileAndAssert(
+    bytes32 transferId,
+    XCallArgs memory args,
+    bytes4 expectedError,
+    PortalInfo memory repayment
+  ) public {
+    helpers_reconcileAndAssert(transferId, args, expectedError, repayment, SwapInfo(repayment.total, args.amount));
   }
 
   function helpers_reconcileAndAssert(
@@ -875,12 +1023,12 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
     XCallArgs memory args,
     bytes4 expectedError
   ) public {
-    helpers_reconcileAndAssert(transferId, args, expectedError, PortalInfo(0, 0, 0));
+    helpers_reconcileAndAssert(transferId, args, expectedError, PortalInfo(0, 0, 0, true));
   }
 
   function helpers_reconcileAndAssert(bytes4 expectedError) public {
     (bytes32 transferId, XCallArgs memory args) = utils_makeXCallArgs();
-    helpers_reconcileAndAssert(transferId, args, expectedError, PortalInfo(0, 0, 0));
+    helpers_reconcileAndAssert(transferId, args, expectedError);
   }
 
   // Shortcut for above method.
@@ -1405,7 +1553,7 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
       transferId,
       args,
       BridgeFacet.BridgeFacet__reconcile_noPortalRouter.selector,
-      PortalInfo(10, 15, 25)
+      PortalInfo(10, 15, 25, true)
     );
   }
 
@@ -1458,33 +1606,176 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
     uint256 portaled = (args.amount * _liquidityFeeNumerator) / _liquidityFeeDenominator;
     PortalInfo memory portals = utils_setPortals(transferId, portaled);
 
-    // get current router balance
-    uint256 initLiquidity = s.routerBalances[router][_local];
-    uint256 profit = args.amount - portals.total;
-
     // assume full repayment
     helpers_reconcileAndAssert(transferId, args, bytes4(""), portals);
   }
 
   // should work with portals with swap
-  function test_BridgeFacet__reconcile_canUsePortalsWithSwap() public {}
+  function test_BridgeFacet__reconcile_canUsePortalsWithSwap() public {
+    utils_setupAsset(false, false);
+    // get args
+    (bytes32 transferId, XCallArgs memory args) = utils_makeXCallArgs();
 
-  function test_BridgeFacet__reconcile_handlesPortalSwapFailures() public {}
+    // set router
+    address router = address(456545654);
+    s.routedTransfers[transferId] = [router];
+
+    // get the total debt (no repayment)
+    uint256 portaled = (args.amount * _liquidityFeeNumerator) / _liquidityFeeDenominator;
+    PortalInfo memory portals = utils_setPortals(transferId, portaled);
+
+    // assume full repayment
+    helpers_reconcileAndAssert(transferId, args, bytes4(""), portals, SwapInfo(args.amount - 10000, args.amount));
+  }
+
+  function test_BridgeFacet__reconcile_handlesPortalSwapFailures() public {
+    utils_setupAsset(false, false);
+    // get args
+    (bytes32 transferId, XCallArgs memory args) = utils_makeXCallArgs();
+
+    // set router
+    address router = address(456545654);
+    s.routedTransfers[transferId] = [router];
+
+    // get the total debt (no repayment)
+    uint256 portaled = (args.amount * _liquidityFeeNumerator) / _liquidityFeeDenominator;
+    PortalInfo memory init = utils_setPortals(transferId, portaled);
+
+    // assume ratio of 10:1 (i.e. you put in 10x, the amount out from args.amount is 1/10 val)
+    helpers_reconcileAndAssert(
+      transferId,
+      args,
+      bytes4(""),
+      PortalInfo(0, 0, 0, true),
+      SwapInfo(args.amount * 10, args.amount * 10)
+    );
+  }
 
   // should credit router leftovers from portal repayment from positive slippage of amm
   // or previous
-  function test_BridgeFacet__reconcile_handlesPortalDebtSurplusViaSwap() public {}
+  function test_BridgeFacet__reconcile_handlesPortalDebtSurplusViaSwap() public {
+    utils_setupAsset(false, false);
+    // get args
+    (bytes32 transferId, XCallArgs memory args) = utils_makeXCallArgs();
 
-  function test_BridgeFacet__reconcile_handlesPortalDebtSurplusViaFeeRepayment() public {}
+    // set router
+    address router = address(456545654);
+    s.routedTransfers[transferId] = [router];
 
-  function test_BridgeFacet__reconcile_handlesPortalDebtSurplusViaPrincipleRepayment() public {}
+    // get the total debt (no repayment)
+    uint256 portaled = (args.amount * _liquidityFeeNumerator) / _liquidityFeeDenominator;
+    PortalInfo memory portals = utils_setPortals(transferId, portaled);
+
+    // assume full repayment
+    helpers_reconcileAndAssert(
+      transferId,
+      args,
+      bytes4(""),
+      portals,
+      SwapInfo(args.amount - 0.01 ether, args.amount + 0.2 ether)
+    );
+  }
+
+  // at some point some of the fee is repaid, remainder goes to router liq
+  function test_BridgeFacet__reconcile_handlesPortalDebtSurplusViaFeeRepayment() public {
+    utils_setupAsset(true, false);
+    // get args
+    (bytes32 transferId, XCallArgs memory args) = utils_makeXCallArgs();
+
+    // set router
+    address router = address(456545654);
+    s.routedTransfers[transferId] = [router];
+
+    // get the total debt (no repayment)
+    uint256 portaled = (args.amount * _liquidityFeeNumerator) / _liquidityFeeDenominator;
+    uint256 fullFee = (args.amount * _portalFeeNumerator) / _liquidityFeeDenominator;
+    uint256 paid = fullFee / 2;
+    PortalInfo memory portals = utils_setPortals(transferId, portaled, fullFee - paid);
+
+    // assume full repayment
+    helpers_reconcileAndAssert(transferId, args, bytes4(""), portals);
+  }
+
+  // at some point some of the principle is repaid, remainder goes to router liq
+  function test_BridgeFacet__reconcile_handlesPortalDebtSurplusViaPrincipleRepayment() public {
+    utils_setupAsset(true, false);
+    // get args
+    (bytes32 transferId, XCallArgs memory args) = utils_makeXCallArgs();
+
+    // set router
+    address router = address(456545654);
+    s.routedTransfers[transferId] = [router];
+
+    // get the total debt (no repayment)
+    uint256 portaled = (args.amount * _liquidityFeeNumerator) / _liquidityFeeDenominator;
+    uint256 fee = (args.amount * _portalFeeNumerator) / _liquidityFeeDenominator;
+    uint256 paid = portaled / 2;
+    PortalInfo memory portals = utils_setPortals(transferId, portaled - paid, fee);
+
+    // assume full repayment
+    helpers_reconcileAndAssert(transferId, args, bytes4(""), portals);
+  }
 
   // should prioritize debt as: as much principle as possible then as much fee as possible
-  function test_BridgeFacet__reconcile_handlesPortalDeficitPartialPrinciple() public {}
+  function test_BridgeFacet__reconcile_handlesPortalDeficitPartialPrinciple() public {
+    // in this case, the swap only gives enough out to handle *some* of the amount portaled.
+    // specifically, it can only handle amount < principle
+    utils_setupAsset(false, false);
+    // get args
+    (bytes32 transferId, XCallArgs memory args) = utils_makeXCallArgs();
 
-  function test_BridgeFacet__reconcile_handlesPortalDeficitPartialFee() public {}
+    // set router
+    address router = address(456545654);
+    s.routedTransfers[transferId] = [router];
 
-  function test_BridgeFacet__reconcile_handlesPortalFailureToRepay() public {}
+    // set the total debt
+    uint256 portaled = (args.amount * _liquidityFeeNumerator) / _liquidityFeeDenominator;
+    PortalInfo memory init = utils_setPortals(transferId, portaled);
+
+    // decrement portal repayment
+    uint256 debtRepaid = (init.debt * 9997) / 10000; // 3bps debt remaining
+    PortalInfo memory repayment = PortalInfo(0, debtRepaid, debtRepaid, true);
+    helpers_reconcileAndAssert(transferId, args, bytes4(""), repayment, SwapInfo(init.total, debtRepaid));
+  }
+
+  function test_BridgeFacet__reconcile_handlesPortalDeficitPartialFee() public {
+    // in this case, the swap only gives enough out to handle *some* of the amount portaled.
+    // specifically, it can only handle principle < amount < total
+    utils_setupAsset(false, false);
+    // get args
+    (bytes32 transferId, XCallArgs memory args) = utils_makeXCallArgs();
+
+    // set router
+    address router = address(456545654);
+    s.routedTransfers[transferId] = [router];
+
+    // set the total debt
+    uint256 portaled = (args.amount * _liquidityFeeNumerator) / _liquidityFeeDenominator;
+    PortalInfo memory init = utils_setPortals(transferId, portaled);
+
+    uint256 debtRepaid = (init.total * 9997) / 10000; // 3bps debt remaining
+    PortalInfo memory repayment = PortalInfo(debtRepaid - init.debt, init.debt, debtRepaid, true);
+
+    // assume full repayment
+    helpers_reconcileAndAssert(transferId, args, bytes4(""), repayment, SwapInfo(init.total, debtRepaid));
+  }
+
+  function test_BridgeFacet__reconcile_handlesPortalFailureToRepayFromAave() public {
+    utils_setupAsset(true, false);
+    // get args
+    (bytes32 transferId, XCallArgs memory args) = utils_makeXCallArgs();
+
+    // set router
+    address router = address(456545654);
+    s.routedTransfers[transferId] = [router];
+
+    // get the total debt (no repayment)
+    uint256 portaled = (args.amount * _liquidityFeeNumerator) / _liquidityFeeDenominator;
+    PortalInfo memory init = utils_setPortals(transferId, portaled);
+
+    // assume no repayment (aave will not be mocked)
+    helpers_reconcileAndAssert(transferId, args, bytes4(""), PortalInfo(0, 0, 0, false));
+  }
 
   // ============ execute ============
   // ============ execute fail cases
@@ -1704,6 +1995,20 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
 
     vm.expectRevert(BridgeFacet.BridgeFacet__handleExecuteTransaction_invalidSponsoredAmount.selector);
     this.execute(args);
+  }
+
+  function test_BridgeFacet__execute_failsIfRouterNotApprovedForPortal() public {
+    _amount = 5 ether;
+
+    (bytes32 _id, ExecuteArgs memory _args) = utils_makeExecuteArgs(1);
+
+    s.routerBalances[_args.routers[0]][_args.local] = 4.5 ether;
+
+    // set aave enabled
+    s.aavePool = _aavePool;
+
+    vm.expectRevert(abi.encodeWithSelector(BridgeFacet.BridgeFacet__execute_notApprovedForPortals.selector));
+    this.execute(_args);
   }
 
   // ============ execute success cases
@@ -1967,20 +2272,6 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
     this.execute(_args);
   }
 
-  function test_BridgeFacet__execute_failsIfRouterNotApprovedForPortal() public {
-    _amount = 5 ether;
-
-    (bytes32 _id, ExecuteArgs memory _args) = utils_makeExecuteArgs(1);
-
-    s.routerBalances[_args.routers[0]][_args.local] = 4.5 ether;
-
-    // set aave enabled
-    s.aavePool = _aavePool;
-
-    vm.expectRevert(abi.encodeWithSelector(BridgeFacet.BridgeFacet__execute_notApprovedForPortals.selector));
-    this.execute(_args);
-  }
-
   // should work with a callback
   function test_BridgeFacet__execute_worksWithCallback() public {
     // set asset context (local == adopted)
@@ -1997,248 +2288,21 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
     helpers_executeAndAssert(transferId, args, utils_getFastTransferAmount(args.amount), true, true, false);
   }
 
+  // can use liquidity from portals
   function test_BridgeFacet__execute_worksWithAave() public {
-    // get args
-    (bytes32 _id, ExecuteArgs memory _args) = utils_makeExecuteArgs(1);
+    // set asset context (local == adopted)
+    utils_setupAsset(true, false);
 
-    // get fast liquidity amount
-    uint256 userAmount = (_args.amount * _liquidityFeeNumerator) / _liquidityFeeDenominator;
+    (bytes32 transferId, ExecuteArgs memory args) = utils_makeExecuteArgs(1);
 
-    // set liquidity to 0
-    s.routerBalances[_args.routers[0]][_args.local] = 0;
+    // set liquidity
+    s.routerBalances[args.routers[0]][args.local] = 0;
 
     // set approval
-    s.routerPermissionInfo.approvedForPortalRouters[_args.routers[0]] = true;
+    s.routerPermissionInfo.approvedForPortalRouters[args.routers[0]] = true;
 
-    // set aave call checks
-    vm.expectCall(
-      _aavePool,
-      abi.encodeWithSelector(IAavePool.mintUnbacked.selector, _args.local, userAmount, address(this), 0)
-    );
-    vm.expectCall(
-      _aavePool,
-      abi.encodeWithSelector(IAavePool.withdraw.selector, _args.local, userAmount, address(this))
-    );
-
-    vm.expectEmit(true, true, true, true);
-    emit AavePortalMintUnbacked(_id, _args.routers[0], _args.local, userAmount);
-
-    this.execute(_args);
-
-    assertEq(s.portalDebt[_id], userAmount);
-    assertEq(s.portalFeeDebt[_id], (userAmount * _portalFeeNumerator) / _liquidityFeeDenominator);
-    assertEq(s.routerBalances[_args.routers[0]][_args.local], 0);
+    helpers_executeAndAssert(transferId, args, utils_getFastTransferAmount(args.amount), false, true, false, true);
   }
 
   // should work with unapproved router if router-whitelist ownership renouncedcanonicalId
-
-  // // ============ handle ============
-
-  // function test_BridgeFacet__handle_worksWithPortals() public {
-  //   // get args
-  //   (bytes32 _id, ExecuteArgs memory _args) = utils_makeExecuteArgs(1);
-
-  //   // get the total debt
-  //   uint256 portaled = (_args.amount * _liquidityFeeNumerator) / _liquidityFeeDenominator;
-
-  //   // get the portal fee
-  //   uint256 fee = (portaled * _portalFeeNumerator) / _liquidityFeeDenominator;
-
-  //   // set transfer context (handled by portal, already routed)
-  //   s.portalFeeDebt[_id] = fee;
-  //   s.portalDebt[_id] = portaled;
-  //   s.routedTransfers[_id] = _args.routers;
-
-  //   // set remote context
-  //   setRemoteRouterContext(_originFacet, _originDomain);
-
-  //   // construct message
-  //   bytes memory message = buildMessage(_id);
-
-  //   // get current router balance
-  //   uint256 initLiquidity = s.routerBalances[_args.routers[0]][_local];
-
-  //   uint256 profit = _args.amount - portaled - fee;
-  //   console.log("initLiquidity", initLiquidity);
-  //   console.log("expected final liq", profit + initLiquidity);
-
-  //   // set expected calls
-  //   vm.expectCall(_local, abi.encodeWithSelector(IERC20.approve.selector, _aavePool, portaled + fee));
-
-  //   vm.expectCall(_aavePool, abi.encodeWithSelector(IAavePool.backUnbacked.selector, _local, portaled, fee));
-
-  //   vm.expectEmit(true, true, true, true);
-  //   emit AavePortalRepayment(_id, _local, portaled, fee);
-
-  //   this.handle(_params.originDomain, uint32(_nonce), bytes32(abi.encodePacked(_originFacet)), message);
-
-  //   // verify router liquidity remains unchanged
-  //   assertEq(s.routerBalances[_args.routers[0]][_local], initLiquidity + profit);
-  // }
-
-  // // should credit router leftovers from portal repayment from positive slippage of amm
-  // function test_BridgeFacet__handle_creditToRouterLeftoversFromPortalRepayment() public {
-  //   // setup asset with adopted != local
-  //   utils_setupAsset(false, true);
-
-  //   // set remote context
-  //   setRemoteRouterContext(_originFacet, _originDomain);
-
-  //   // get args
-  //   (bytes32 _id, ExecuteArgs memory _args) = utils_makeExecuteArgs(1);
-
-  //   // get the total debt in adopted
-  //   uint256 portaled = (_args.amount * _liquidityFeeNumerator) / _liquidityFeeDenominator;
-  //   uint256 fee = (portaled * _portalFeeNumerator) / _liquidityFeeDenominator;
-  //   // set remainder -- comes from positive slippage
-  //   uint256 remainder = 1 gwei;
-  //   uint256 swappedIn = portaled + fee + remainder; // amount it cost on AMM to get repay amt
-
-  //   // set mock + storage (using external pool)
-  //   vm.mockCall(_stableSwap, abi.encodeWithSelector(IStableSwap.swapExactOut.selector), abi.encode(swappedIn));
-  //   vm.mockCall(
-  //     _stableSwap,
-  //     abi.encodeWithSelector(IStableSwap.calculateSwapOutFromAddress.selector),
-  //     abi.encode(swappedIn)
-  //   );
-  //   vm.mockCall(
-  //     _stableSwap,
-  //     abi.encodeWithSelector(IStableSwap.calculateSwapFromAddress.selector),
-  //     abi.encode(_args.amount)
-  //   );
-
-  //   // get the portal fee
-  //   uint256 gains = (_args.amount - swappedIn) / _args.routers.length;
-
-  //   // set transfer context (handled by portal, already routed)
-  //   s.portalFeeDebt[_id] = fee;
-  //   s.portalDebt[_id] = portaled;
-  //   s.routedTransfers[_id] = _args.routers;
-
-  //   bytes memory message = buildMessage(_id);
-
-  //   uint256 initLiquidity = s.routerBalances[_args.routers[0]][_local];
-
-  //   console.log("initLiquidity", initLiquidity);
-  //   console.log("gains", gains);
-  //   console.log("initLiquidity + gains", initLiquidity + gains);
-
-  //   vm.expectCall(_adopted, abi.encodeWithSelector(IERC20.approve.selector, _aavePool, portaled + fee));
-
-  //   vm.expectCall(_aavePool, abi.encodeWithSelector(IAavePool.backUnbacked.selector, _adopted, portaled, fee));
-
-  //   vm.expectEmit(true, true, true, true);
-  //   emit AavePortalRepayment(_id, _adopted, portaled, fee);
-
-  //   this.handle(_params.originDomain, uint32(_nonce), bytes32(abi.encodePacked(_originFacet)), message);
-
-  //   assertEq(s.routerBalances[_args.routers[0]][_local], initLiquidity + gains);
-  // }
-
-  // // should emit a debt event and repay all principle + as much fee as possible if
-  // // insufficient _amount on reconcile
-  // function test_BridgeFacet__handle_emitDebtEventIfPortalPartiallyRepaid() public {
-  //   // scenario:
-  //   // - router used portal to execute a transaction
-  //   // - on handle, router only has enough liquidity to pay the portal principle,
-  //   //   but not the portal fee.
-  //   // - expected debt: portal fee = principle * aaveFee / denom
-  //   //   expected principle: fast = amount * liqFee / denom
-  //   //   expected profit: profit = init + amount - fast - principle
-
-  //   // get args
-  //   (bytes32 _id, ExecuteArgs memory _args) = utils_makeExecuteArgs(1);
-
-  //   // get the back unbacked amount
-  //   uint256 portaled = (_args.amount * _liquidityFeeNumerator) / _liquidityFeeDenominator;
-  //   // set high transfer fee
-  //   s.aavePortalFeeNumerator = 10;
-  //   // get the portal fee
-  //   uint256 portalFee = (portaled * s.aavePortalFeeNumerator) / _liquidityFeeDenominator;
-
-  //   // set transfer context (handled by portal, already routed)
-  //   s.portalDebt[_id] = portaled;
-  //   s.portalFeeDebt[_id] = portalFee;
-  //   s.routedTransfers[_id] = _args.routers;
-  //   // set remote context
-  //   setRemoteRouterContext(_originFacet, _originDomain);
-
-  //   // get outstanding debt on fee
-  //   uint256 feePayment = _args.amount - portaled;
-  //   uint256 outstanding = portalFee - feePayment;
-
-  //   bytes memory message = buildMessage(_id);
-
-  //   uint256 initLiquidity = s.routerBalances[_args.routers[0]][_local];
-
-  //   vm.expectCall(_local, abi.encodeWithSelector(IERC20.approve.selector, _aavePool, _args.amount));
-
-  //   vm.expectCall(_aavePool, abi.encodeWithSelector(IAavePool.backUnbacked.selector, _local, portaled, feePayment));
-
-  //   vm.expectEmit(true, true, true, true);
-  //   emit AavePortalRepaymentDebt(_id, _local, 0, outstanding);
-
-  //   vm.expectEmit(true, true, true, true);
-  //   emit AavePortalRepayment(_id, _local, portaled, feePayment);
-
-  //   vm.expectEmit(true, true, true, true);
-  //   emit Reconciled(_id, _params.originDomain, _args.routers, _adopted, _args.amount, address(this));
-
-  //   this.handle(_params.originDomain, uint32(_nonce), bytes32(abi.encodePacked(_originFacet)), message);
-
-  //   assertEq(s.routerBalances[_args.routers[0]][_local], initLiquidity);
-  //   assertEq(s.portalDebt[_id], 0);
-  //   assertEq(s.portalFeeDebt[_id], outstanding);
-  // }
-
-  // function test_BridgeFacet__handle_emitDebtEventIfPortalFeeNotRepaid() public {
-  //   // uint256 feeNum = 5;
-  //   // uint256 feeDenom = 10000;
-  //   // uint256 amount = 1 ether;
-  //   // uint256 feeNotPaid = (amount * feeNum) / feeDenom;
-  //   // bytes32 transferId = keccak256("testTransferId");
-  //   // bytes memory message = buildMessage(address(10), address(adopted), transferId, amount);
-  //   // address[] memory routers = new address[](1);
-  //   // routers[0] = router;
-  //   // TestSetterFacet(address(connextDiamondProxy)).setTestAavePortalsTransfers(transferId, amount);
-  //   // TestSetterFacet(address(connextDiamondProxy)).setTestRoutedTransfers(transferId, routers);
-  //   // uint256 previousRouterBalance = connext.routerBalances(router, address(adopted));
-  //   // vm.expectCall(address(adopted), abi.encodeWithSelector(IERC20.approve.selector, address(aavePool), amount));
-  //   // vm.expectCall(
-  //   //   address(aavePool),
-  //   //   abi.encodeWithSelector(IAavePool.backUnbacked.selector, address(adopted), amount, 0)
-  //   // );
-  //   // vm.expectEmit(true, true, true, true);
-  //   // emit AavePortalRepaymentDebt(transferId, address(adopted), 0, feeNotPaid);
-  //   // vm.expectEmit(true, true, true, true);
-  //   // emit AavePortalRepayment(transferId, address(adopted), amount, 0);
-  //   // connext.handle(originDomain, 0, _destinationFacet, message);
-  //   // assertEq(connext.routerBalances(router, address(adopted)), previousRouterBalance);
-  // }
-
-  // function test_BridgeFacet__handle_notRevertIfPortalRepayFails() public {
-  //   // uint256 feeNum = 5;
-  //   // uint256 feeDenom = 10000;
-  //   // uint256 amount = 1 ether;
-  //   // uint256 fee = (amount * feeNum) / feeDenom;
-  //   // bytes32 transferId = keccak256("testTransferId");
-  //   // bytes memory message = buildMessage(address(10), address(adopted), transferId, amount + fee);
-  //   // address[] memory routers = new address[](1);
-  //   // routers[0] = router;
-  //   // TestSetterFacet(address(connextDiamondProxy)).setTestAavePortalsTransfers(transferId, amount);
-  //   // TestSetterFacet(address(connextDiamondProxy)).setTestRoutedTransfers(transferId, routers);
-  //   // // mock repay to fail
-  //   // aavePool.setRevertCall(true);
-  //   // uint256 previousRouterBalance = connext.routerBalances(router, address(adopted));
-  //   // vm.expectCall(address(adopted), abi.encodeWithSelector(IERC20.approve.selector, address(aavePool), amount + fee));
-  //   // vm.expectCall(
-  //   //   address(aavePool),
-  //   //   abi.encodeWithSelector(IAavePool.backUnbacked.selector, address(adopted), amount, fee)
-  //   // );
-  //   // vm.expectEmit(true, true, true, true);
-  //   // emit AavePortalRepaymentDebt(transferId, address(adopted), amount, fee);
-  //   // connext.handle(originDomain, 0, _destinationFacet, message);
-  //   // // Amount should be credited to the router so it can later repay the debt
-  //   // assertEq(connext.routerBalances(router, address(adopted)), previousRouterBalance + amount + fee);
-  // }
 }
