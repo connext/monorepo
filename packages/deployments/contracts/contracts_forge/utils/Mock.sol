@@ -6,12 +6,15 @@ import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import {TypedMemView, PromiseMessage, PromiseRouter} from "../../contracts/core/promise/PromiseRouter.sol";
 import {ICallback} from "../../contracts/core/promise/interfaces/ICallback.sol";
 import {BaseConnextFacet} from "../../contracts/core/connext/facets/BaseConnextFacet.sol";
+import {IAavePool} from "../../contracts/core/connext/interfaces/IAavePool.sol";
 import {ISponsorVault} from "../../contracts/core/connext/interfaces/ISponsorVault.sol";
 import {ITokenRegistry} from "../../contracts/core/connext/interfaces/ITokenRegistry.sol";
 import {IWrapped} from "../../contracts/core/connext/interfaces/IWrapped.sol";
 import {ERC20} from "../../contracts/core/connext/helpers/OZERC20.sol";
 import {TestERC20} from "../../contracts/test/TestERC20.sol";
 import {IExecutor} from "../../contracts/core/connext/interfaces/IExecutor.sol";
+
+import "forge-std/console.sol";
 
 contract MockXAppConnectionManager {
   MockHome _home;
@@ -22,6 +25,10 @@ contract MockXAppConnectionManager {
 
   function home() external returns (MockHome) {
     return _home;
+  }
+
+  function isReplica(address _replica) external returns (bool) {
+    return true;
   }
 }
 
@@ -126,6 +133,45 @@ contract MockCallback is ICallback {
   }
 }
 
+contract MockPool is IAavePool {
+  uint256 _withdraw = 123456;
+
+  bool fails;
+
+  constructor(bool _fails) {
+    fails = _fails;
+  }
+
+  function setWithdraw(uint256 _new) external {
+    _withdraw = _new;
+  }
+
+  function mintUnbacked(
+    address asset,
+    uint256 amount,
+    address onBehalfOf,
+    uint16 referralCode
+  ) external override {}
+
+  function backUnbacked(
+    address asset,
+    uint256 amount,
+    uint256 fee
+  ) external override {
+    if (fails) {
+      require(false, "fail");
+    }
+  }
+
+  function withdraw(
+    address asset,
+    uint256 amount,
+    address to
+  ) external override returns (uint256) {
+    return _withdraw;
+  }
+}
+
 contract TestSetterFacet is BaseConnextFacet {
   function setTestRelayerFees(bytes32 _transferId, uint256 _fee) external {
     s.relayerFees[_transferId] = _fee;
@@ -133,6 +179,10 @@ contract TestSetterFacet is BaseConnextFacet {
 
   function setTestTransferRelayer(bytes32 _transferId, address _relayer) external {
     s.transferRelayer[_transferId] = _relayer;
+  }
+
+  function setTestApproveRouterForPortal(address _router, bool _value) external {
+    s.routerPermissionInfo.approvedForPortalRouters[_router] = _value;
   }
 
   function setTestSponsorVault(address _sponsorVault) external {
@@ -153,6 +203,22 @@ contract TestSetterFacet is BaseConnextFacet {
 
   function setTestApprovedRouter(address _router, bool _approved) external {
     s.routerPermissionInfo.approvedRouters[_router] = _approved;
+  }
+
+  function setTestCanonicalToAdopted(bytes32 _id, address _adopted) external {
+    s.canonicalToAdopted[_id] = _adopted;
+  }
+
+  function setTestAavePortalDebt(bytes32 _id, uint256 _amount) external {
+    s.portalDebt[_id] = _amount;
+  }
+
+  function setTestAavePortalFeeDebt(bytes32 _id, uint256 _amount) external {
+    s.portalFeeDebt[_id] = _amount;
+  }
+
+  function setTestRoutedTransfers(bytes32 _id, address[] memory _routers) external {
+    s.routedTransfers[_id] = _routers;
   }
 }
 

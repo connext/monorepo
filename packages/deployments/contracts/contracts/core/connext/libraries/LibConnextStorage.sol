@@ -97,6 +97,7 @@ struct ExecuteArgs {
  */
 struct RouterPermissionsManagerInfo {
   mapping(address => bool) approvedRouters;
+  mapping(address => bool) approvedForPortalRouters;
   mapping(address => address) routerRecipients;
   mapping(address => address) routerOwners;
   mapping(address => address) proposedRouterOwners;
@@ -282,12 +283,31 @@ struct AppStorage {
    */
   // 32
   mapping(bytes32 => mapping(address => uint8)) tokenIndexes;
-  // TODO: can i move this
   /**
    * @notice Stores whether or not briding, AMMs, have been paused
    */
   // 33
   PausedFunctions _paused;
+  //
+  // AavePortals
+  //
+  /**
+   * @notice Address of Aave Pool contract
+   */
+  address aavePool;
+  /**
+   * @notice Fee percentage numerator for using Portal liquidity
+   * @dev Assumes the same basis points as the liquidity fee
+   */
+  uint256 aavePortalFeeNumerator;
+  /**
+   * @notice Mapping to store the transfer liquidity amount provided by Aave Portals
+   */
+  mapping(bytes32 => uint256) portalDebt;
+  /**
+   * @notice Mapping to store the transfer liquidity amount provided by Aave Portals
+   */
+  mapping(bytes32 => uint256) portalFeeDebt;
 }
 
 library LibConnextStorage {

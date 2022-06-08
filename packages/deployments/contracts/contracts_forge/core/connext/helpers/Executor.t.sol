@@ -38,7 +38,7 @@ contract PropertyQuery is ForgeHelper {
     return amt;
   }
 
-  function receive() public payable {}
+  receive() external payable {}
 }
 
 contract ExecutorTest is ForgeHelper {
