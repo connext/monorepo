@@ -180,6 +180,30 @@ contract ExecutorTest is ForgeHelper {
   // ============ execute ============
 
   // Fails if not called by connext
+  function test_Executor__execute_revertIfNotConnext() public {
+    // Get the calldata
+    bytes memory data = abi.encodeWithSelector(PropertyQuery.setAmount.selector, "");
+    bytes memory property = LibCrossDomainProperty.EMPTY_BYTES;
+
+    // Get starting recovery balance
+    uint256 initRecovery = asset.balanceOf(recovery);
+
+    // send tx
+    uint256 amount = 1200;
+    vm.expectRevert(bytes("#OC:027"));
+    vm.prank(address(12345));
+    (bool success, ) = executor.execute(
+      IExecutor.ExecutorArgs(
+        transferId,
+        amount,
+        payable(address(12344321)),
+        payable(recovery),
+        address(asset),
+        property,
+        data
+      )
+    );
+  }
 
   // Should gracefully handle failure of no code at to
   function test_Executor__execute_handlesNoCodeFailure() public {

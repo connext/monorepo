@@ -43,7 +43,7 @@ contract AmplificationUtilsTest is FacetHelper {
   // ============ utils ============
 
   // ============ getA ============
-  function test_AmplificationUtils_getA_works() public {
+  function test_AmplificationUtils__getA_works() public {
     vm.warp(500);
     // a0 + (a1 - a0) * (block.timestamp - t0) / (t1 - t0) ====>
     // a0: 1000, a1: 10000, block.timestamp: 500, t0: 100, t1: 1000;
@@ -51,7 +51,7 @@ contract AmplificationUtilsTest is FacetHelper {
   }
 
   // ============ getAPrecise ============
-  function test_AmplificationUtils_getAPrecise_works() public {
+  function test_AmplificationUtils__getAPrecise_works() public {
     vm.warp(500);
     // a0 + (a1 - a0) * (block.timestamp - t0) / (t1 - t0) ====>
     // a0: 1000, a1: 10000, block.timestamp: 500, t0: 100, t1: 1000;
@@ -59,7 +59,7 @@ contract AmplificationUtilsTest is FacetHelper {
   }
 
   // ============ _getAPrecise ============
-  function test_AmplificationUtils__getAPrecise_works() public {
+  function test_AmplificationUtils___getAPrecise_works() public {
     vm.warp(500);
     swap.initialA = 10000;
     swap.futureA = 1000;
@@ -78,37 +78,37 @@ contract AmplificationUtilsTest is FacetHelper {
   }
 
   // ============ rampA ============
-  function test_AmplificationUtils_rampA_revertIfWaitTimeNotEnough() public {
+  function test_AmplificationUtils__rampA_revertIfWaitTimeNotEnough() public {
     vm.expectRevert(bytes("Wait 1 day before starting ramp"));
     vm.warp(500);
     AmplificationUtils.rampA(swap, 10000, 10000);
   }
 
-  function test_AmplificationUtils_rampA_revertIfInsufficientRampTime() public {
+  function test_AmplificationUtils__rampA_revertIfInsufficientRampTime() public {
     vm.expectRevert(bytes("Insufficient ramp time"));
     vm.warp(86600);
     AmplificationUtils.rampA(swap, 10000, 10000);
   }
 
-  function test_AmplificationUtils_rampA_revertIfInvalidFutureTime() public {
+  function test_AmplificationUtils__rampA_revertIfInvalidFutureTime() public {
     vm.expectRevert(bytes("futureA_ must be > 0 and < MAX_A"));
     vm.warp(86600);
     AmplificationUtils.rampA(swap, 10**7, 1382400);
   }
 
-  function test_AmplificationUtils_rampA_revertIfFuturePriceTooSmall() public {
+  function test_AmplificationUtils__rampA_revertIfFuturePriceTooSmall() public {
     vm.expectRevert(bytes("futureA_ is too small"));
     vm.warp(86600);
     AmplificationUtils.rampA(swap, 10, 1382400);
   }
 
-  function test_AmplificationUtils_rampA_revertIfFuturePriceTooLarge() public {
+  function test_AmplificationUtils__rampA_revertIfFuturePriceTooLarge() public {
     vm.expectRevert(bytes("futureA_ is too large"));
     vm.warp(86600);
     AmplificationUtils.rampA(swap, 10**5, 1382400);
   }
 
-  function test_AmplificationUtils_rampA_works() public {
+  function test_AmplificationUtils__rampA_works() public {
     vm.warp(86600);
     vm.expectEmit(true, true, true, true);
     emit RampA(10000, 10000, 86600, 1382400);
@@ -116,14 +116,14 @@ contract AmplificationUtilsTest is FacetHelper {
   }
 
   // ============ stopRampA ============
-  function test_AmplificationUtils_stopRampA_revertIfRampStopped() public {
+  function test_AmplificationUtils__stopRampA_revertIfRampStopped() public {
     swap.futureATime = 86400;
     vm.expectRevert(bytes("Ramp is already stopped"));
     vm.warp(86600);
     AmplificationUtils.stopRampA(swap);
   }
 
-  function test_AmplificationUtils_stopRampA_works() public {
+  function test_AmplificationUtils__stopRampA_works() public {
     swap.futureATime = 1000;
     vm.warp(500);
     vm.expectEmit(true, true, true, true);
