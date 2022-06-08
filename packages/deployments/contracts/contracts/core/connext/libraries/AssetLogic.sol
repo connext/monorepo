@@ -15,7 +15,8 @@ library AssetLogic {
   // ============ Libraries ============
   using SwapUtils for SwapUtils.Swap;
 
-  // ============ Events ============
+  // ============ Errors ============
+
   error AssetLogic__handleIncomingAsset_notAmount();
   error AssetLogic__handleIncomingAsset_ethWithErcTransfer();
   error AssetLogic__transferAssetFromContract_notNative();
@@ -209,6 +210,11 @@ library AssetLogic {
     address adopted = s.canonicalToAdopted[id];
     if (adopted == _asset) {
       return (_amount, _asset);
+    }
+
+    // If 0 valued, do nothing
+    if (_amount == 0) {
+      return (_amount, adopted);
     }
 
     // NOTE: Normally, this would be checked via the `whenSwapNotPaused` modifier (as in the
