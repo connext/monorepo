@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: UNLICENSED
-pragma solidity 0.8.11;
+pragma solidity 0.8.14;
 
 import "../../../utils/ForgeHelper.sol";
 
@@ -38,7 +38,7 @@ contract PropertyQuery is ForgeHelper {
     return amt;
   }
 
-  function receive() public payable {}
+  receive() external payable {}
 }
 
 contract ExecutorTest is ForgeHelper {

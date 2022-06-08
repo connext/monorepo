@@ -3,11 +3,12 @@ import { Wallet, utils, BigNumber, providers, constants } from "ethers";
 import { makeSequencer } from "@connext/nxtp-sequencer/src/sequencer";
 import { makeRouter } from "@connext/nxtp-router/src/router";
 import { makeRelayer } from "@connext/nxtp-relayer/src/relayer";
-import { makeBackend } from "@connext/backend-poller/src/backend";
+import { makeRoutersPoller } from "@connext/cartographer-poller/src/routersPoller";
+import { makeTransfersPoller } from "@connext/cartographer-poller/src/transfersPoller";
 import { SequencerConfig } from "@connext/nxtp-sequencer/src/lib/entities/config";
 import { NxtpRouterConfig as RouterConfig } from "@connext/nxtp-router/src/config";
 import { RelayerConfig } from "@connext/nxtp-relayer/src/lib/entities/config";
-import { BackendConfig } from "@connext/backend-poller/src/config";
+import { CartographerConfig } from "@connext/cartographer-poller/src/config";
 import {
   AuctionsApiErrorResponse,
   AuctionsApiGetAuctionStatusResponse,
@@ -42,8 +43,8 @@ import {
   LOCAL_RELAYER_ENABLED,
   CANONICAL_ASSET,
   CHAIN_DATA,
-  LOCAL_BACKEND_ENABLED,
-  BACKEND_CONFIG,
+  LOCAL_CARTOGRAPHER_ENABLED,
+  CARTOGRAPHER_CONFIG,
   ENVIRONMENT,
 } from "./constants";
 import {
@@ -82,7 +83,7 @@ describe("Integration:E2E", () => {
   let routerConfig: RouterConfig;
   let sequencerConfig: SequencerConfig;
   let relayerConfig: RelayerConfig;
-  let backendConfig: BackendConfig;
+  let cartographerConfig: CartographerConfig;
 
   // Services.
   let chainreader: ChainReader;
@@ -100,7 +101,7 @@ describe("Integration:E2E", () => {
     routerConfig = await ROUTER_CONFIG;
     sequencerConfig = await SEQUENCER_CONFIG;
     relayerConfig = await RELAYER_CONFIG;
-    backendConfig = await BACKEND_CONFIG;
+    cartographerConfig = await CARTOGRAPHER_CONFIG;
 
     // Init agents.
     const router = ROUTER_MNEMONIC ? Wallet.fromMnemonic(ROUTER_MNEMONIC) : undefined;
@@ -645,9 +646,10 @@ describe("Integration:E2E", () => {
 
     /// MARK - Initialize local agents (if applicable).
     {
-      if (LOCAL_BACKEND_ENABLED) {
-        log.next("BACKEND START");
-        await makeBackend(backendConfig);
+      if (LOCAL_CARTOGRAPHER_ENABLED) {
+        log.next("CARTOGRAPHER START");
+        await makeRoutersPoller(cartographerConfig);
+        await makeTransfersPoller(cartographerConfig);
         await delay(1_000);
       }
 

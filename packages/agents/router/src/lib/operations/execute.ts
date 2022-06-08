@@ -1,15 +1,12 @@
-import {
-  Bid,
-  createLoggingContext,
-  DEFAULT_ROUTER_FEE,
-  ajv,
-  XTransferSchema,
-  OriginTransfer,
-} from "@connext/nxtp-utils";
+import { Bid, createLoggingContext, ajv, XTransferSchema, OriginTransfer } from "@connext/nxtp-utils";
+import { BigNumber } from "ethers";
 
-import { MissingXCall, NomadHomeBlacklisted, NotEnoughAmount, ParamsInvalid } from "../errors";
+import { CallDataForNonContract, MissingXCall, NomadHomeBlacklisted, NotEnoughAmount, ParamsInvalid } from "../errors";
 import { getHelpers } from "../helpers";
 import { getContext } from "../../router";
+import { getAuctionAmount } from "../helpers/auctions";
+// @ts-ignore
+import { version } from "../../../package.json";
 
 import { NomadContext } from "@nomad-xyz/sdk";
 import { BridgeContext } from "@nomad-xyz/sdk-bridge";
@@ -18,7 +15,7 @@ import { BridgeContext } from "@nomad-xyz/sdk-bridge";
 export const RELAYER_FEE_PERCENTAGE = "1"; //  1%
 //helper function to match our config environments with nomads
 
-const env_type = getContext().config.nomad_environment;
+const env_type = getContext().config.nomadEnvironment;
 
 /**
  * Router creates a new bid and sends it to auctioneer.
@@ -29,6 +26,7 @@ export const execute = async (params: OriginTransfer): Promise<void> => {
   const { requestContext, methodContext } = createLoggingContext(execute.name);
 
   const {
+    config,
     logger,
     adapters: { wallet, subgraph, txservice },
     routerAddress,
@@ -81,25 +79,31 @@ export const execute = async (params: OriginTransfer): Promise<void> => {
   // based on a calculation of which rounds we can afford to bid on. For now, this is hardcoded to bid
   // only on the first auction round.
   // Produce the router path signatures for each auction round we want to bid on.
-  const signatures = {
-    "1": await signRouterPathPayload(transferId, "1", wallet),
-  };
 
-  logger.debug("Signed payloads", requestContext, methodContext, {
-    rounds: Object.keys(signatures),
-    // Sanitized with ellipsis.
-    sigs: Object.values(signatures).map((s) => s.slice(0, 6) + ".."),
-  });
-
-  // sanity check
+  // Make a list of signatures that reflect which auction rounds we want to bid on.
   const balance = await subgraph.getAssetBalance(destinationDomain, routerAddress, executeLocalAsset);
-  if (balance.lt(receivingAmount)) {
+  const signatures: Record<string, string> = {};
+  for (let roundIdx = 1; roundIdx <= config.auctionRoundDepth; roundIdx++) {
+    const amountForRound = getAuctionAmount(roundIdx, BigNumber.from(receivingAmount));
+    if (amountForRound.lte(balance)) {
+      const pathLen = Math.pow(2, roundIdx - 1);
+      signatures[roundIdx.toString()] = await signRouterPathPayload(transferId, pathLen.toString(), wallet);
+    } else {
+      logger.debug(`Not enough balance for this round: ${roundIdx}. Skipping!`, requestContext, methodContext, {
+        balance: balance.toString(),
+        amountForRound: amountForRound.toString(),
+      });
+    }
+  }
+
+  if ([...Object.keys(signatures)].length == 0) {
     throw new NotEnoughAmount({
       balance: balance.toString(),
       receivingAmount: receivingAmount.toString(),
       executeLocalAsset,
       routerAddress,
       destinationDomain: destinationDomain,
+      maxRoundDepth: config.auctionRoundDepth,
       requestContext,
       methodContext,
     });
@@ -117,6 +121,12 @@ export const execute = async (params: OriginTransfer): Promise<void> => {
   const originBlacklisted = blacklist.has(Number(originDomain));
   const destinationBlacklisted = blacklist.has(Number(destinationDomain));
 
+  logger.debug("Signed payloads", requestContext, methodContext, {
+    rounds: Object.keys(signatures),
+    // Sanitized with ellipsis.
+    sigs: Object.values(signatures).map((s) => s.slice(0, 6) + ".."),
+  });
+
   if (originBlacklisted || destinationBlacklisted) {
     throw new NomadHomeBlacklisted({
       originDomainBlacklisted: originBlacklisted,
@@ -124,14 +134,20 @@ export const execute = async (params: OriginTransfer): Promise<void> => {
     });
   }
 
+  if (callData !== "0x") {
+    const code = await txservice.getCode(+destinationDomain, to);
+    if (code === "0x") {
+      throw new CallDataForNonContract({ transferId, destinationDomain, to, callData, requestContext, methodContext });
+    }
+  }
+
   logger.debug("Sanity checks passed", requestContext, methodContext, { liquidity: balance.toString() });
 
-  const fee = DEFAULT_ROUTER_FEE;
   const bid: Bid = {
+    routerVersion: version,
     transferId,
     origin: originDomain,
     router: routerAddress.toLowerCase(),
-    fee,
     signatures,
   };
 

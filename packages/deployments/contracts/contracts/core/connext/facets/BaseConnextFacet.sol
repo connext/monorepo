@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: UNLICENSED
-pragma solidity 0.8.11;
+pragma solidity 0.8.14;
 
 import {Home} from "../../../nomad-core/contracts/Home.sol";
 
@@ -22,6 +22,7 @@ contract BaseConnextFacet {
   error BaseConnextFacet__onlyReplica_notReplica();
   error BaseConnextFacet__onlyOwner_notOwner();
   error BaseConnextFacet__onlyProposed_notProposedOwner();
+  error BaseConnextFacet__whenNotPaused_paused();
 
   // ============ Modifiers ============
 
@@ -77,6 +78,14 @@ contract BaseConnextFacet {
    */
   modifier onlyProposed() {
     if (s._proposed != msg.sender) revert BaseConnextFacet__onlyProposed_notProposedOwner();
+    _;
+  }
+
+  /**
+   * @notice Throws if all functionality is paused
+   */
+  modifier whenNotPaused() {
+    if (s._paused) revert BaseConnextFacet__whenNotPaused_paused();
     _;
   }
 

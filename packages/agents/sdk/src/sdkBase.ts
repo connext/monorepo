@@ -1,13 +1,5 @@
 import { constants, providers, BigNumber } from "ethers";
-import {
-  getChainData,
-  Logger,
-  createLoggingContext,
-  getChainIdFromDomain,
-  ChainData,
-  XCallArgs,
-  CallParams,
-} from "@connext/nxtp-utils";
+import { Logger, createLoggingContext, ChainData, XCallArgs, CallParams } from "@connext/nxtp-utils";
 import {
   getContractInterfaces,
   ConnextContractInterfaces,
@@ -15,7 +7,8 @@ import {
   ChainReader,
 } from "@connext/nxtp-txservice";
 
-import { SignerAddressMissing } from "./lib/errors";
+import { getChainData, getChainIdFromDomain } from "./lib/helpers";
+import { SignerAddressMissing, ChainDataUndefined } from "./lib/errors";
 import { NxtpSdkConfig, getConfig } from "./config";
 
 /**
@@ -25,7 +18,7 @@ import { NxtpSdkConfig, getConfig } from "./config";
 export class NxtpSdkBase {
   public readonly config: NxtpSdkConfig;
   private readonly logger: Logger;
-  private readonly contracts: ConnextContractInterfaces; // Used to read and write to smart contracts.
+  private contracts: ConnextContractInterfaces; // Used to read and write to smart contracts.
   private chainReader: ChainReader;
   public readonly chainData: Map<string, ChainData>;
 
@@ -47,11 +40,13 @@ export class NxtpSdkBase {
   ): Promise<NxtpSdkBase> {
     const chainData = _chainData ?? (await getChainData());
     if (!chainData) {
-      throw new Error("Could not get chain data");
+      throw new ChainDataUndefined();
     }
 
-    const nxtpConfig = await getConfig(_config, chainData, contractDeployments);
-    const logger = _logger || new Logger({ name: "NxtpSdkBase", level: nxtpConfig.logLevel });
+    const nxtpConfig = await getConfig(_config, contractDeployments, chainData);
+    const logger = _logger
+      ? _logger.child({ name: "NxtpSdkBase" })
+      : new Logger({ name: "NxtpSdkBase", level: nxtpConfig.logLevel });
 
     return new NxtpSdkBase(nxtpConfig, logger, chainData);
   }
@@ -60,7 +55,7 @@ export class NxtpSdkBase {
     domain: string,
     assetId: string,
     amount: string,
-    infiniteApprove = false,
+    infiniteApprove = true,
   ): Promise<providers.TransactionRequest | undefined> {
     const { requestContext, methodContext } = createLoggingContext(this.approveIfNeeded.name);
 
@@ -77,6 +72,7 @@ export class NxtpSdkBase {
     }
 
     const chainId = await getChainIdFromDomain(domain, this.chainData);
+
     if (assetId !== constants.AddressZero) {
       const ConnextContractAddress = this.config.chains[domain].deployments!.connext;
 
@@ -84,12 +80,16 @@ export class NxtpSdkBase {
         signerAddress,
         ConnextContractAddress,
       ]);
+      this.logger.debug("Got approved data", requestContext, methodContext, { approvedData });
       const approvedEncoded = await this.chainReader.readTx({
         to: assetId,
         data: approvedData,
         chainId: Number(domain),
       });
+      this.logger.debug("Got approved data", requestContext, methodContext, { approvedEncoded });
       const [approved] = this.contracts.erc20.decodeFunctionResult("allowance", approvedEncoded);
+      this.logger.debug("Got approved data", requestContext, methodContext, { approved });
+
       this.logger.info("Got approved tokens", requestContext, methodContext, { approved: approved.toString() });
       if (BigNumber.from(approved).lt(amount)) {
         const data = this.contracts.erc20.encodeFunctionData("approve", [
@@ -155,11 +155,12 @@ export class NxtpSdkBase {
     const ConnextContractAddress = this.config.chains[originDomain].deployments!.connext;
 
     const chainId = await getChainIdFromDomain(originDomain, this.chainData);
+
     // if transactingAssetId is AddressZero then we are adding relayerFee to amount for value
-    const value =
-      transactingAssetId === constants.AddressZero
-        ? BigNumber.from(amount).add(BigNumber.from(relayerFee))
-        : BigNumber.from(relayerFee);
+
+    const totalFee = BigNumber.from(relayerFee).add(BigNumber.from(xParams.callbackFee));
+
+    const value = transactingAssetId === constants.AddressZero ? BigNumber.from(amount).add(totalFee) : totalFee;
 
     const xcallArgs: XCallArgs = {
       params: xParams,

@@ -67,9 +67,11 @@ export const mock = {
     },
     network: "testnet",
     auctionWaitTime: 1_000,
+    auctionRoundDepth: 4,
     mode: {
       cleanup: false,
     },
+    supportedBidVersion: "0.0.1",
     environment: "staging",
   }),
   adapters: {

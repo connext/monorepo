@@ -1,0 +1,4 @@
+{
+  "extends": "../../../../.nycrc.json",
+  "exclude": ["cartographer.config.js", "src/zapatos/schema.d.ts", "src/adapters/database/index.ts"]
+}

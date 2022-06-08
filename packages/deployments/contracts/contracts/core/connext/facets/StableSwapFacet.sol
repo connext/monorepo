@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: UNLICENSED
-pragma solidity 0.8.11;
+pragma solidity 0.8.14;
 
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import {Clones} from "@openzeppelin/contracts/proxy/Clones.sol";
@@ -241,7 +241,7 @@ contract StableSwapFacet is BaseConnextFacet {
     uint256 dx,
     uint256 minDy,
     uint256 deadline
-  ) external nonReentrant deadlineCheck(deadline) returns (uint256) {
+  ) external nonReentrant deadlineCheck(deadline) whenNotPaused returns (uint256) {
     return s.swapStorages[canonicalId].swap(tokenIndexFrom, tokenIndexTo, dx, minDy);
   }
 
@@ -259,13 +259,37 @@ contract StableSwapFacet is BaseConnextFacet {
     address assetOut,
     uint256 minAmountOut,
     uint256 deadline
-  ) external payable nonReentrant deadlineCheck(deadline) returns (uint256) {
+  ) external payable nonReentrant deadlineCheck(deadline) whenNotPaused returns (uint256) {
     return
       s.swapStorages[canonicalId].swap(
         getSwapTokenIndex(canonicalId, assetIn),
         getSwapTokenIndex(canonicalId, assetOut),
         amountIn,
         minAmountOut
+      );
+  }
+
+  /**
+   * @notice Swap two tokens using this pool
+   * @param canonicalId the canonical token id
+   * @param assetIn the token the user wants to swap from
+   * @param assetOut the token the user wants to swap to
+   * @param amountOut the amount of tokens the user wants to swap to
+   */
+  function swapExactOut(
+    bytes32 canonicalId,
+    uint256 amountOut,
+    address assetIn,
+    address assetOut,
+    uint256 maxAmountIn,
+    uint256 deadline
+  ) external payable nonReentrant deadlineCheck(deadline) returns (uint256) {
+    return
+      s.swapStorages[canonicalId].swapOut(
+        getSwapTokenIndex(canonicalId, assetIn),
+        getSwapTokenIndex(canonicalId, assetOut),
+        amountOut,
+        maxAmountIn
       );
   }
 
@@ -303,7 +327,7 @@ contract StableSwapFacet is BaseConnextFacet {
     uint256 amount,
     uint256[] calldata minAmounts,
     uint256 deadline
-  ) external nonReentrant deadlineCheck(deadline) returns (uint256[] memory) {
+  ) external nonReentrant deadlineCheck(deadline) whenNotPaused returns (uint256[] memory) {
     return s.swapStorages[canonicalId].removeLiquidity(amount, minAmounts);
   }
 
@@ -323,7 +347,7 @@ contract StableSwapFacet is BaseConnextFacet {
     uint8 tokenIndex,
     uint256 minAmount,
     uint256 deadline
-  ) external nonReentrant deadlineCheck(deadline) returns (uint256) {
+  ) external nonReentrant deadlineCheck(deadline) whenNotPaused returns (uint256) {
     return s.swapStorages[canonicalId].removeLiquidityOneToken(tokenAmount, tokenIndex, minAmount);
   }
 
@@ -343,7 +367,7 @@ contract StableSwapFacet is BaseConnextFacet {
     uint256[] calldata amounts,
     uint256 maxBurnAmount,
     uint256 deadline
-  ) external nonReentrant deadlineCheck(deadline) returns (uint256) {
+  ) external nonReentrant deadlineCheck(deadline) whenNotPaused returns (uint256) {
     return s.swapStorages[canonicalId].removeLiquidityImbalance(amounts, maxBurnAmount);
   }
 
@@ -423,6 +447,7 @@ contract StableSwapFacet is BaseConnextFacet {
       pooledTokens: _pooledTokens,
       tokenPrecisionMultipliers: precisionMultipliers,
       balances: new uint256[](_pooledTokens.length),
+      adminFees: new uint256[](_pooledTokens.length),
       initialATime: 0,
       futureATime: 0
     });

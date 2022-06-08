@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.11;
+pragma solidity 0.8.14;
 
 /******************************************************************************\
 * Author: Nick Mudge <nick@perfectabstractions.com> (https://twitter.com/mudgen)
@@ -26,5 +26,23 @@ contract DiamondCutFacet is IDiamondCut {
   ) external override {
     LibDiamond.enforceIsContractOwner();
     LibDiamond.diamondCut(_diamondCut, _init, _calldata);
+  }
+
+  function proposeDiamondCut(
+    FacetCut[] calldata _diamondCut,
+    address _init,
+    bytes calldata _calldata
+  ) external {
+    LibDiamond.enforceIsContractOwner();
+    LibDiamond.proposeDiamondCut(_diamondCut, _init, _calldata);
+  }
+
+  function rescindDiamondCut(
+    FacetCut[] calldata _diamondCut,
+    address _init,
+    bytes calldata _calldata
+  ) external {
+    LibDiamond.enforceIsContractOwner();
+    LibDiamond.rescindDiamondCut(_diamondCut, _init, _calldata);
   }
 }

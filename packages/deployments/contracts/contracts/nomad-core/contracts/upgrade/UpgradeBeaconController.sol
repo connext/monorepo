@@ -14,6 +14,7 @@ import {Address} from "@openzeppelin/contracts/utils/Address.sol";
  * @dev This implementation is a minimal version inspired by 0age's implementation:
  * https://github.com/dharma-eng/dharma-smart-wallet/blob/master/contracts/upgradeability/DharmaUpgradeBeaconController.sol
  */
+// TODO: upgrade to `ProposedOwnable`
 contract UpgradeBeaconController is Ownable {
   // ============ Events ============
 

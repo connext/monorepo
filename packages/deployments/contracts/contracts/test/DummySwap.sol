@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: UNLICENSED
-pragma solidity 0.8.11;
+pragma solidity 0.8.14;
 
 import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import "@openzeppelin/contracts/utils/Address.sol";
@@ -26,7 +26,8 @@ contract DummySwap is IStableSwap {
   function swapExact(
     uint256 amountIn,
     address assetIn,
-    address assetOut
+    address assetOut,
+    uint256 minAmountOut
   ) external payable returns (uint256) {
     // make sure pool is setup
     require(poolAssets[assetIn] == assetOut, "!setup");
@@ -59,6 +60,15 @@ contract DummySwap is IStableSwap {
     return amountIn;
   }
 
+  function swapExactOut(
+    uint256 amountOut,
+    address assetIn,
+    address assetOut,
+    uint256 maxAmountIn
+  ) external payable returns (uint256) {
+    require(false, "!implemented");
+  }
+
   function getA() external view returns (uint256) {
     require(false, "!implemented");
   }
@@ -79,10 +89,34 @@ contract DummySwap is IStableSwap {
     require(false, "!implemented");
   }
 
+  function calculateSwapFromAddress(
+    address assetIn,
+    address assetOut,
+    uint256 amountIn
+  ) external view returns (uint256) {
+    require(false, "!implemented");
+  }
+
   function calculateSwap(
     uint8 tokenIndexFrom,
     uint8 tokenIndexTo,
     uint256 dx
+  ) external view returns (uint256) {
+    require(false, "!implemented");
+  }
+
+  function calculateSwapOutFromAddress(
+    address assetIn,
+    address assetOut,
+    uint256 amountOut
+  ) external view returns (uint256) {
+    require(false, "!implemented");
+  }
+
+  function calculateSwapOut(
+    uint8 tokenIndexFrom,
+    uint8 tokenIndexTo,
+    uint256 dy
   ) external view returns (uint256) {
     require(false, "!implemented");
   }

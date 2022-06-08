@@ -93,3 +93,9 @@ export class NomadHomeBlacklisted extends NxtpError {
     super("Home network is on blacklist (nomad down)", context, NomadHomeBlacklisted.name);
   }
 }
+
+export class InvalidAuctionRound extends NxtpError {
+  constructor(context: any = {}) {
+    super("Invalid auction round", context, InvalidAuctionRound.name);
+  }
+}

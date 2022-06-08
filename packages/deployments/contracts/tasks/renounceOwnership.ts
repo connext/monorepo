@@ -33,16 +33,29 @@ export default task("renounce-ownership", "Renounce Ownership")
     let ownershipTimestampFunction;
     let proposeRenunciationFunction;
     let renounceFunction;
+    let renouncedEvent;
     if (type === "router") {
       ownershipTimestampFunction = connext.routerOwnershipTimestamp;
       proposeRenunciationFunction = connext.proposeRouterOwnershipRenunciation;
       renounceFunction = connext.renounceRouterOwnership;
+      renouncedEvent = "RouterOwnershipRenounced";
     } else if (type === "asset") {
       ownershipTimestampFunction = connext.assetOwnershipTimestamp;
       proposeRenunciationFunction = connext.proposeAssetOwnershipRenunciation;
       renounceFunction = connext.renounceAssetOwnership;
+      renouncedEvent = "AssetOwnershipRenounced";
     } else {
       throw new Error("Unsupported type");
+    }
+
+    // Check to see if renunciation event has ever been emitted
+    const [event] = await connext.queryFilter(
+      connext.filters[renouncedEvent](),
+      connextDeployment.receipt?.blockNumber,
+    );
+    if (event) {
+      console.log(`${type} ownership already renounced: ${event.transactionHash}`);
+      return;
     }
 
     const ownershipTimestamp: BigNumber = await ownershipTimestampFunction();
@@ -60,11 +73,11 @@ export default task("renounce-ownership", "Renounce Ownership")
       console.log("ownershipTimestamp: ", ownershipTimestamp.toString());
       return;
     }
+    const DELAY_SECONDS = 7 * 24 * 60 * 60; // 7 days
 
-    if (ownershipTimestamp.gt(currentTime)) {
-      console.log(
-        `Ownership delay has not expired yet, expires in: ${ownershipTimestamp.sub(currentTime).toString()} seconds`,
-      );
+    const elapsed = BigNumber.from(currentTime).sub(ownershipTimestamp);
+    if (elapsed.lt(DELAY_SECONDS)) {
+      console.log(`Ownership delay has not expired yet, expires in: ${DELAY_SECONDS - elapsed.toNumber()}s`);
       return;
     }
 
