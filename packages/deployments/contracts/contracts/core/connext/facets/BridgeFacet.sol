@@ -948,8 +948,11 @@ contract BridgeFacet is BaseConnextFacet {
       _amount
     );
     if (!swapSuccess) {
+      // Reset values
+      s.portalDebt[_transferId] += backUnbackedAmount;
+      s.portalFeeDebt[_transferId] += portalFee;
       // Emit debt event of full portal value and exit
-      emit AavePortalRepaymentDebt(_transferId, adopted, backUnbackedAmount, portalFee);
+      emit AavePortalRepaymentDebt(_transferId, adopted, s.portalDebt[_transferId], s.portalFeeDebt[_transferId]);
       return (_amount);
     }
 
@@ -966,12 +969,16 @@ contract BridgeFacet is BaseConnextFacet {
     if (success) {
       emit AavePortalRepayment(_transferId, adopted, backUnbackedAmount, portalFee);
     } else {
+      // Reset values
+      s.portalDebt[_transferId] += backUnbackedAmount;
+      s.portalFeeDebt[_transferId] += portalFee;
+
       // Decrease the allowance
       SafeERC20.safeDecreaseAllowance(IERC20(adopted), s.aavePool, totalRepayAmount);
 
       // Update the amount repaid to 0, so the amount is credited to the router
       amountIn = 0;
-      emit AavePortalRepaymentDebt(_transferId, adopted, backUnbackedAmount, portalFee);
+      emit AavePortalRepaymentDebt(_transferId, adopted, s.portalDebt[_transferId], s.portalFeeDebt[_transferId]);
     }
 
     // NOTE: Aave accounts a global unbacked variable per asset for all, not by address/bridge.
