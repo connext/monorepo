@@ -143,6 +143,10 @@ interface IConnextHandler {
 
   function acceptProposedOwner() external;
 
+  function pause() external;
+
+  function unpause() external;
+
   // RelayerFacet
   function transferRelayer(bytes32 _transferId) external view returns (address);
 

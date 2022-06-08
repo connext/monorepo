@@ -6,7 +6,7 @@ import "../../../../contracts/core/connext/libraries/SwapUtils.sol";
 import {IWrapped} from "../../../../contracts/core/connext/interfaces/IWrapped.sol";
 import {BaseConnextFacet} from "../../../../contracts/core/connext/facets/BaseConnextFacet.sol";
 import {ConnextMessage} from "../../../../contracts/core/connext/libraries/ConnextMessage.sol";
-import {LibConnextStorage, AppStorage, PausedFunctions} from "../../../../contracts/core/connext/libraries/LibConnextStorage.sol";
+import {LibConnextStorage, AppStorage} from "../../../../contracts/core/connext/libraries/LibConnextStorage.sol";
 import {ITokenRegistry} from "../../../../contracts/core/connext/interfaces/ITokenRegistry.sol";
 
 import "../facets/FacetHelper.sol";
@@ -313,17 +313,6 @@ contract AssetLogicTest is BaseConnextFacet, FacetHelper {
 
   // ============ swapToLocalAssetIfNeeded ============
 
-  // should revert
-  function testFail_AssetLogic_swapToLocalAssetIfNeeded_failsIfPaused() public {
-    s._paused = PausedFunctions.Swap;
-    // NOTE: this function should fail with the following error, but the `expectRevert` will not
-    // work because it checks for `CALL` results not `JUMP` results. see:
-    // https://book.getfoundry.sh/cheatcodes/expect-revert.html
-    // vm.expectRevert(AssetLogic.AssetLogic__swapFromLocalAssetIfNeeded_swapPaused.selector);
-    // AssetLogic.swapFromLocalAssetIfNeeded(_local, 10000);
-    utils_swapToLocalAndAssertViaExternal(_adopted, 1 ether, 0.9 ether);
-  }
-
   // doesnt swap
   function test_AssetLogic_swapToLocalAssetIfNeeded_worksIfZero() public {
     utils_swapToLocalAndAssertViaExternal(_adopted, 0, 10000);
@@ -340,16 +329,6 @@ contract AssetLogicTest is BaseConnextFacet, FacetHelper {
   }
 
   // ============ swapFromLocalAssetIfNeeded ============
-  // should revert
-  function testFail_AssetLogic_swapFromLocalAssetIfNeeded_revertIfSwappingPaused() public {
-    s._paused = PausedFunctions.Swap;
-    // NOTE: this function should fail with the following error, but the `expectRevert` will not
-    // work because it checks for `CALL` results not `JUMP` results. see:
-    // https://book.getfoundry.sh/cheatcodes/expect-revert.html
-    // vm.expectRevert(AssetLogic.AssetLogic__swapFromLocalAssetIfNeeded_swapPaused.selector);
-    // AssetLogic.swapFromLocalAssetIfNeeded(_local, 10000);
-    utils_swapFromLocalAndAssertViaExternal(_local, 1 ether, 0.9 ether);
-  }
 
   // doesnt swap
   function test_AssetLogic_swapFromLocalAssetIfNeeded_worksIfZero() public {

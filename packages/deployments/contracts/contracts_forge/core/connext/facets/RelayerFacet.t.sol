@@ -4,7 +4,6 @@ pragma solidity 0.8.14;
 import {Address} from "@openzeppelin/contracts/utils/Address.sol";
 
 import {LibDiamond} from "../../../../contracts/core/connext/libraries/LibDiamond.sol";
-import {PausedFunctions} from "../../../../contracts/core/connext/libraries/LibConnextStorage.sol";
 import {RelayerFeeRouter} from "../../../../contracts/core/relayer-fee/RelayerFeeRouter.sol";
 import {RelayerFacet, BaseConnextFacet} from "../../../../contracts/core/connext/facets/RelayerFacet.sol";
 
@@ -15,7 +14,7 @@ import "./FacetHelper.sol";
 
 contract RelayerFacetTest is RelayerFacet, FacetHelper {
   // ============ storage ============
-    // owner
+  // owner
   address _owner = address(12345);
 
   // sample data
@@ -39,6 +38,7 @@ contract RelayerFacetTest is RelayerFacet, FacetHelper {
     LibDiamond.DiamondStorage storage ds = LibDiamond.diamondStorage();
     ds.contractOwner = owner;
   }
+
   // ============ Test methods ============
   // ============ Modifiers ============
   // TODO: onlyRelayerFeeRouter
@@ -93,18 +93,14 @@ contract RelayerFacetTest is RelayerFacet, FacetHelper {
   // setRelayerFeeRouter
   // fail if not owner
   function test_RelayerFacet__setRelayerFeeRouter_failsIfNotOwner() public {
-    vm.expectRevert(
-      BaseConnextFacet.BaseConnextFacet__onlyOwner_notOwner.selector
-    );
+    vm.expectRevert(BaseConnextFacet.BaseConnextFacet__onlyOwner_notOwner.selector);
 
     this.setRelayerFeeRouter(address(42));
   }
 
   // fail if same as previous relayer fee router
   function test_RelayerFacet__setRelayerFeeRouter_failsIfRedundant() public {
-    vm.expectRevert(
-      RelayerFacet.RelayerFacet__setRelayerFeeRouter_invalidRelayerFeeRouter.selector
-    );
+    vm.expectRevert(RelayerFacet.RelayerFacet__setRelayerFeeRouter_invalidRelayerFeeRouter.selector);
 
     vm.prank(_owner);
     this.setRelayerFeeRouter(_relayerFeeRouter);
@@ -112,9 +108,7 @@ contract RelayerFacetTest is RelayerFacet, FacetHelper {
 
   // fail if address is not contract
   function test_RelayerFacet__setRelayerFeeRouter_failsIfAddressNotContract() public {
-    vm.expectRevert(
-      RelayerFacet.RelayerFacet__setRelayerFeeRouter_invalidRelayerFeeRouter.selector
-    );
+    vm.expectRevert(RelayerFacet.RelayerFacet__setRelayerFeeRouter_invalidRelayerFeeRouter.selector);
 
     vm.prank(_owner);
     this.setRelayerFeeRouter(address(42));
@@ -138,9 +132,7 @@ contract RelayerFacetTest is RelayerFacet, FacetHelper {
   // addRelayer
   // fails if not owner
   function test_RelayerFacet__addRelayer_failsIfNotOwner() public {
-    vm.expectRevert(
-      BaseConnextFacet.BaseConnextFacet__onlyOwner_notOwner.selector
-    );
+    vm.expectRevert(BaseConnextFacet.BaseConnextFacet__onlyOwner_notOwner.selector);
 
     this.addRelayer(address(42));
   }
@@ -149,9 +141,7 @@ contract RelayerFacetTest is RelayerFacet, FacetHelper {
   function test_RelayerFacet__addRelayer_failsIfAlreadyApproved() public {
     address relayer = address(42);
     s.approvedRelayers[relayer] = true;
-    vm.expectRevert(
-      RelayerFacet.RelayerFacet__addRelayer_alreadyApproved.selector
-    );
+    vm.expectRevert(RelayerFacet.RelayerFacet__addRelayer_alreadyApproved.selector);
 
     vm.prank(_owner);
     this.addRelayer(relayer);
@@ -174,9 +164,7 @@ contract RelayerFacetTest is RelayerFacet, FacetHelper {
   // removeRelayer
   // fails if not owner
   function test_RelayerFacet__removeRelayer_failsIfNotOwner() public {
-    vm.expectRevert(
-      BaseConnextFacet.BaseConnextFacet__onlyOwner_notOwner.selector
-    );
+    vm.expectRevert(BaseConnextFacet.BaseConnextFacet__onlyOwner_notOwner.selector);
 
     this.removeRelayer(address(42));
   }
@@ -185,9 +173,7 @@ contract RelayerFacetTest is RelayerFacet, FacetHelper {
   function test_RelayerFacet__removeRelayer_failsIfAlreadyUnapproved() public {
     address relayer = address(42);
     s.approvedRelayers[relayer] = false;
-    vm.expectRevert(
-      RelayerFacet.RelayerFacet__removeRelayer_notApproved.selector
-    );
+    vm.expectRevert(RelayerFacet.RelayerFacet__removeRelayer_notApproved.selector);
 
     vm.prank(_owner);
     this.removeRelayer(relayer);
@@ -224,7 +210,7 @@ contract RelayerFacetTest is RelayerFacet, FacetHelper {
 
   // should fail if not relayer for the transfer (1/200)
   function test_RelayerFacet__initiateClaim_failsMultipleClaimsIfNotRelayer() public {
-    uint count = 200;
+    uint256 count = 200;
     bytes32[] memory transferIds = new bytes32[](count);
     for (uint32 i = 0; i < count; i++) {
       transferIds[i] = bytes32(abi.encode(i));
@@ -242,11 +228,9 @@ contract RelayerFacetTest is RelayerFacet, FacetHelper {
   // should fail if paused
   function test_RelayerFacet__initiateClaim_failsIfPaused() public {
     bytes32[] memory transferIds = new bytes32[](0);
-    s._paused = PausedFunctions.All;
+    s._paused = true;
 
-    vm.expectRevert(
-      BaseConnextFacet.BaseConnextFacet__whenBridgeNotPaused_paused.selector
-    );
+    vm.expectRevert(BaseConnextFacet.BaseConnextFacet__whenNotPaused_paused.selector);
     vm.prank(_relayer);
     this.initiateClaim(_domain, _relayer, transferIds);
   }
@@ -255,16 +239,14 @@ contract RelayerFacetTest is RelayerFacet, FacetHelper {
   function test_RelayerFacet__initiateClaim_failsIfTransferIdsEmpty() public {
     bytes32[] memory transferIds = new bytes32[](0);
 
-    vm.expectRevert(
-      RelayerFacet.RelayerFacet__initiateClaim_emptyClaim.selector
-    );
+    vm.expectRevert(RelayerFacet.RelayerFacet__initiateClaim_emptyClaim.selector);
     vm.prank(_relayer);
     this.initiateClaim(_domain, _relayer, transferIds);
   }
 
   // sends transferIds via the relayer router
   function test_RelayerFacet__initiateClaim_sendsClaim() public {
-    uint count = 1000;
+    uint256 count = 1000;
     bytes32[] memory transferIds = new bytes32[](count);
     for (uint32 i = 0; i < count; i++) {
       transferIds[i] = bytes32(abi.encode(i));
@@ -273,24 +255,14 @@ contract RelayerFacetTest is RelayerFacet, FacetHelper {
 
     vm.mockCall(
       address(s.relayerFeeRouter),
-      abi.encodeWithSelector(
-        RelayerFeeRouter.send.selector,
-        _domain,
-        _relayer,
-        transferIds
-      ),
+      abi.encodeWithSelector(RelayerFeeRouter.send.selector, _domain, _relayer, transferIds),
       bytes("")
     );
     s.relayerFeeRouter.send(_domain, _relayer, transferIds);
 
     vm.expectCall(
       _relayerFeeRouter,
-      abi.encodeWithSelector(
-        RelayerFeeRouter.send.selector,
-        _domain,
-        _relayer,
-        transferIds
-      )
+      abi.encodeWithSelector(RelayerFeeRouter.send.selector, _domain, _relayer, transferIds)
     );
 
     vm.expectEmit(true, true, true, true);
@@ -313,7 +285,7 @@ contract RelayerFacetTest is RelayerFacet, FacetHelper {
   function test_RelayerFacet__claim_sendsFeesForSingleClaim() public {
     bytes32[] memory transferIds = new bytes32[](1);
     s.relayerFees[transferIds[0]] = 0.06 ether;
-    
+
     vm.expectEmit(true, true, true, true);
     emit Claimed(_relayer, 0.06 ether, transferIds);
 
@@ -326,7 +298,7 @@ contract RelayerFacetTest is RelayerFacet, FacetHelper {
 
   // sends total value from multiple transfers
   function test_RelayerFacet__claim_sendsFeesForMultipleClaims() public {
-    uint count = 1;
+    uint256 count = 1;
     bytes32[] memory transferIds = new bytes32[](count);
     uint256 total;
     for (uint32 i = 0; i < count; i++) {
@@ -334,7 +306,7 @@ contract RelayerFacetTest is RelayerFacet, FacetHelper {
       total += 0.0123 ether;
       s.relayerFees[transferIds[i]] = 0.0123 ether;
     }
-    
+
     vm.expectEmit(true, true, true, true);
     emit Claimed(_relayer, total, transferIds);
 
@@ -342,7 +314,7 @@ contract RelayerFacetTest is RelayerFacet, FacetHelper {
     this.claim(_relayer, transferIds);
 
     assertEq(payable(_relayer).balance, total);
-    for (uint i = 0; i < count; i++) {
+    for (uint256 i = 0; i < count; i++) {
       assertEq(s.relayerFees[transferIds[i]], 0);
     }
   }
