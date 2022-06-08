@@ -135,6 +135,8 @@ contract ConnextPriceOracle is PriceOracle {
 
       return price;
     }
+
+    return 0;
   }
 
   function setDexPriceInfo(
