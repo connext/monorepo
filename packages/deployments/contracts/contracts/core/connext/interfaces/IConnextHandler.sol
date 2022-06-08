@@ -220,6 +220,41 @@ interface IConnextHandler {
     address payable _to
   ) external;
 
+  // PortalFacet
+  function getRouterApprovalForPortal(address _router) external view returns (bool);
+
+  function getAavePortalDebt(bytes32 _transferId) external view returns (uint256);
+
+  function getAavePortalFeeDebt(bytes32 _transferId) external view returns (uint256);
+
+  function aavePool() external view returns (address);
+
+  function aavePortalFee() external view returns (uint256);
+
+  function approveRouterForPortal(address _router) external;
+
+  function unapproveRouterForPortal(address _router) external;
+
+  function setAavePool(address _aavePool) external;
+
+  function setAavePortalFee(uint256 _aavePortalFeeNumerator) external;
+
+  function repayAavePortal(
+    address _asset,
+    uint256 _backingAmount,
+    uint256 _feeAmount,
+    uint256 _maxIn,
+    bytes32 _transferId
+  ) external;
+
+  function repayAavePortalFor(
+    address _router,
+    address _adopted,
+    uint256 _backingAmount,
+    uint256 _feeAmount,
+    bytes32 _transferId
+  ) external;
+
   // StableSwapFacet
   function getSwapStorage(bytes32 canonicalId) external view returns (SwapUtils.Swap memory);
 
@@ -275,6 +310,15 @@ interface IConnextHandler {
     address assetIn,
     address assetOut,
     uint256 minAmountOut,
+    uint256 deadline
+  ) external payable returns (uint256);
+
+  function swapExactOut(
+    bytes32 canonicalId,
+    uint256 amountOut,
+    address assetIn,
+    address assetOut,
+    uint256 maxAmountIn,
     uint256 deadline
   ) external payable returns (uint256);
 

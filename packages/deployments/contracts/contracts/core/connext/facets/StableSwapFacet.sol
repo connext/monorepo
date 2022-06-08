@@ -270,6 +270,30 @@ contract StableSwapFacet is BaseConnextFacet {
   }
 
   /**
+   * @notice Swap two tokens using this pool
+   * @param canonicalId the canonical token id
+   * @param assetIn the token the user wants to swap from
+   * @param assetOut the token the user wants to swap to
+   * @param amountOut the amount of tokens the user wants to swap to
+   */
+  function swapExactOut(
+    bytes32 canonicalId,
+    uint256 amountOut,
+    address assetIn,
+    address assetOut,
+    uint256 maxAmountIn,
+    uint256 deadline
+  ) external payable nonReentrant deadlineCheck(deadline) returns (uint256) {
+    return
+      s.swapStorages[canonicalId].swapOut(
+        getSwapTokenIndex(canonicalId, assetIn),
+        getSwapTokenIndex(canonicalId, assetOut),
+        amountOut,
+        maxAmountIn
+      );
+  }
+
+  /**
    * @notice Add liquidity to the pool with the given amounts of tokens
    * @param canonicalId the canonical token id
    * @param amounts the amounts of each token to add, in their native precision

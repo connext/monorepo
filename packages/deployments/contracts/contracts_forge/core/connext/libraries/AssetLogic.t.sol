@@ -44,6 +44,7 @@ contract AssetLogicTest is BaseConnextFacet, FacetHelper {
   // ============ Setup ============
   function setUp() public {
     // set defaults
+    utils_setFees();
     utils_deployAssetContracts();
     // set up assets (including remote swap)
     utils_setupAsset(false, false);
@@ -164,7 +165,7 @@ contract AssetLogicTest is BaseConnextFacet, FacetHelper {
       vm.expectCall(_stableSwap, abi.encodeWithSelector(IStableSwap.swapExact.selector, amount, _local, _adopted));
     }
 
-    (uint256 received, address out) = AssetLogic.swapFromLocalAssetIfNeeded(asset, amount);
+    (uint256 received, address out) = AssetLogic.swapFromLocalAssetIfNeeded(asset, amount, _liquidityFeeDenominator);
     // assert return amount
     assertEq(received, willSwap ? swapOut : amount);
     // assert return asset
@@ -184,7 +185,7 @@ contract AssetLogicTest is BaseConnextFacet, FacetHelper {
       vm.expectCall(_stableSwap, abi.encodeWithSelector(IStableSwap.swapExact.selector, amount, _adopted, _local));
     }
 
-    (uint256 received, address out) = AssetLogic.swapToLocalAssetIfNeeded(ConnextMessage.TokenId(_canonicalDomain, _canonicalId), asset, amount);
+    (uint256 received, address out) = AssetLogic.swapToLocalAssetIfNeeded(ConnextMessage.TokenId(_canonicalDomain, _canonicalId), asset, amount, _liquidityFeeDenominator);
     // assert return amount
     assertEq(received, willSwap ? swapOut : amount);
     // assert return asset

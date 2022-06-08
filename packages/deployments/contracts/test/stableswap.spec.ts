@@ -901,6 +901,59 @@ describe("StableSwap", async () => {
     });
   });
 
+  describe.only("swapExact", () => {
+    it("Reverts with 'Token index out of range'", async () => {
+      await expect(swap.calculateSwapOut(0, 9, String(1e17))).to.be.revertedWith("Token index out of range");
+    });
+
+    it("Reverts with 'Cannot get more than pool balance'", async () => {
+      await expect(
+        swap.connect(user1).swapExactOut(MAX_UINT256, firstToken.address, secondToken.address, String(1e20)),
+      ).to.be.revertedWith("Cannot get more than pool balance");
+    });
+
+    it("Succeeds with expected swap amounts", async () => {
+      // User 1 calculates how much token to receive
+      const calculatedSwapReturn = await swap.calculateSwapOut(0, 1, String(1e17));
+      expect(calculatedSwapReturn).to.eq(BigNumber.from("100298575938780351"));
+
+      const [tokenFromBalanceBefore, tokenToBalanceBefore] = await getUserTokenBalances(user1, [
+        firstToken,
+        secondToken,
+      ]);
+
+      // User 1 successfully initiates swap
+      await swap
+        .connect(user1)
+        .swapExactOut(String(1e17), firstToken.address, secondToken.address, calculatedSwapReturn);
+
+      // Check the sent and received amounts are as expected
+      const [tokenFromBalanceAfter, tokenToBalanceAfter] = await getUserTokenBalances(user1, [firstToken, secondToken]);
+      expect(tokenFromBalanceBefore.sub(tokenFromBalanceAfter)).to.eq(calculatedSwapReturn);
+      expect(tokenToBalanceAfter.sub(tokenToBalanceBefore)).to.eq(BigNumber.from(String(1e17)));
+    });
+
+    it("Reverts when maxDx is not reached", async () => {
+      // User 1 calculates how much token to receive
+      const calculatedSwapReturn = await swap.calculateSwapOut(0, 1, String(1e17));
+      expect(calculatedSwapReturn).to.eq(BigNumber.from("100298575938780351"));
+
+      // User 1 initiates swap
+      await expect(
+        swap
+          .connect(user1)
+          .swapExactOut(String(1e17), firstToken.address, secondToken.address, calculatedSwapReturn.sub(1)),
+      ).to.be.revertedWith("Swap needs more than max tokens");
+    });
+
+    it("Emits TokenSwap event", async () => {
+      // User 1 initiates swap
+      await expect(
+        swap.connect(user1).swapExactOut(String(1e17), firstToken.address, secondToken.address, MAX_UINT256),
+      ).to.emit(swap, "TokenSwap");
+    });
+  });
+
   describe("getVirtualPrice", () => {
     it("Returns expected value after initial deposit", async () => {
       expect(await swap.getVirtualPrice()).to.eq(BigNumber.from(String(1e18)));

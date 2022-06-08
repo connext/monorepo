@@ -25,6 +25,7 @@ import {
   ConnextHandler,
   DiamondInit,
   PromiseRouter,
+  PortalFacet,
 } from "../typechain-types";
 
 import {
@@ -105,6 +106,7 @@ describe("Connext", () => {
   let bridgeFacet: BridgeFacet;
   let assetFacet: AssetFacet;
   let routersFacet: RoutersFacet;
+  let portalFacet: PortalFacet;
   let originBridge: ConnextHandler;
   let destinationBridge: ConnextHandler;
   let stableSwap: DummySwap;
@@ -176,6 +178,7 @@ describe("Connext", () => {
     assetFacet = await deployContract<AssetFacet>("AssetFacet");
     bridgeFacet = await deployContract<BridgeFacet>("BridgeFacet");
     routersFacet = await deployContract<RoutersFacet>("RoutersFacet");
+    portalFacet = await deployContract<PortalFacet>("PortalFacet");
     const nomadFacet = await deployContract<NomadFacet>("NomadFacet");
     const proposedOwnableFacet = await deployContract<ProposedOwnableFacet>("ProposedOwnableFacet");
     const relayerFacet = await deployContract<RelayerFacet>("RelayerFacet");
@@ -196,6 +199,7 @@ describe("Connext", () => {
         relayerFacet,
         routersFacet,
         stableSwapFacet,
+        portalFacet,
       ],
       admin.address,
       diamondInit.address,
@@ -223,6 +227,7 @@ describe("Connext", () => {
         relayerFacet,
         routersFacet,
         stableSwapFacet,
+        portalFacet,
       ],
       admin.address,
       diamondInit.address,

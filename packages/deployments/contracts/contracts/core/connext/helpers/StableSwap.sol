@@ -187,6 +187,23 @@ contract StableSwap is IStableSwap, OwnerPausableUpgradeable, ReentrancyGuardUpg
 
   /**
    * @notice Calculate amount of tokens you receive on swap
+   * @param assetIn the token the user wants to swap from
+   * @param assetOut the token the user wants to swap to
+   * @param amountIn the amount of tokens the user wants to swap from
+   * @return amount of tokens the user will receive
+   */
+  function calculateSwapFromAddress(
+    address assetIn,
+    address assetOut,
+    uint256 amountIn
+  ) external view override returns (uint256) {
+    uint8 tokenIndexFrom = getTokenIndex(assetIn);
+    uint8 tokenIndexTo = getTokenIndex(assetOut);
+    return swapStorage.calculateSwap(tokenIndexFrom, tokenIndexTo, amountIn);
+  }
+
+  /**
+   * @notice Calculate amount of tokens you receive on swap
    * @param tokenIndexFrom the token the user wants to sell
    * @param tokenIndexTo the token the user wants to buy
    * @param dx the amount of tokens the user wants to sell. If the token charges
@@ -199,6 +216,38 @@ contract StableSwap is IStableSwap, OwnerPausableUpgradeable, ReentrancyGuardUpg
     uint256 dx
   ) external view override returns (uint256) {
     return swapStorage.calculateSwap(tokenIndexFrom, tokenIndexTo, dx);
+  }
+
+  /**
+   * @notice Calculate amount of tokens you receive on swap
+   * @param assetIn the token the user wants to swap from
+   * @param assetOut the token the user wants to swap to
+   * @param amountOut the amount of tokens the user wants to swap to
+   * @return amount of tokens the user will receive
+   */
+  function calculateSwapOutFromAddress(
+    address assetIn,
+    address assetOut,
+    uint256 amountOut
+  ) external view override returns (uint256) {
+    uint8 tokenIndexFrom = getTokenIndex(assetIn);
+    uint8 tokenIndexTo = getTokenIndex(assetOut);
+    return swapStorage.calculateSwapInv(tokenIndexFrom, tokenIndexTo, amountOut);
+  }
+
+  /**
+   * @notice Calculate amount of tokens you receive on swap
+   * @param tokenIndexFrom the token the user wants to sell
+   * @param tokenIndexTo the token the user wants to buy
+   * @param dy the amount of tokens the user wants to buy
+   * @return amount of tokens the user have to transfer
+   */
+  function calculateSwapOut(
+    uint8 tokenIndexFrom,
+    uint8 tokenIndexTo,
+    uint256 dy
+  ) external view override returns (uint256) {
+    return swapStorage.calculateSwapInv(tokenIndexFrom, tokenIndexTo, dy);
   }
 
   /**
@@ -281,17 +330,35 @@ contract StableSwap is IStableSwap, OwnerPausableUpgradeable, ReentrancyGuardUpg
    * @param assetIn the token the user wants to swap from
    * @param assetOut the token the user wants to swap to
    * @param amountIn the amount of tokens the user wants to swap from
-   * @param minReceived the minimum amount received from the swap
+   * @param minAmountOut the min amount of tokens the user wants to swap to
    */
   function swapExact(
     uint256 amountIn,
     address assetIn,
     address assetOut,
-    uint256 minReceived
+    uint256 minAmountOut
   ) external payable override nonReentrant whenNotPaused returns (uint256) {
     uint8 tokenIndexFrom = getTokenIndex(assetIn);
     uint8 tokenIndexTo = getTokenIndex(assetOut);
-    return swapStorage.swap(tokenIndexFrom, tokenIndexTo, amountIn, 0);
+    return swapStorage.swap(tokenIndexFrom, tokenIndexTo, amountIn, minAmountOut);
+  }
+
+  /**
+   * @notice Swap two tokens using this pool
+   * @param assetIn the token the user wants to swap from
+   * @param assetOut the token the user wants to swap to
+   * @param amountOut the amount of tokens the user wants to swap to
+   * @param maxAmountIn the max amount of tokens the user wants to swap from
+   */
+  function swapExactOut(
+    uint256 amountOut,
+    address assetIn,
+    address assetOut,
+    uint256 maxAmountIn
+  ) external payable override nonReentrant whenNotPaused returns (uint256) {
+    uint8 tokenIndexFrom = getTokenIndex(assetIn);
+    uint8 tokenIndexTo = getTokenIndex(assetOut);
+    return swapStorage.swapOut(tokenIndexFrom, tokenIndexTo, amountOut, maxAmountIn);
   }
 
   /**
