@@ -11,7 +11,7 @@ import {ITokenRegistry} from "../../../../contracts/core/connext/interfaces/ITok
 
 import "../facets/FacetHelper.sol";
 
-import "forge-std/console.sol";
+
 
 // Helper to call library with native value functions
 contract LibCaller {
