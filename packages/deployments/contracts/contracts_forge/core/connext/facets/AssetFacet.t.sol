@@ -26,11 +26,8 @@ contract AssetFacetTest is AssetFacet, FacetHelper {
   // ============ Test set up ============
   function setUp() public {
     setOwner(_owner);
-
-    _local = address(7);
-    _localTokenId = bytes32(abi.encodePacked(_local));
-    _canonical = address(5);
-    _canonicalTokenId = bytes32(abi.encodePacked(_canonical));
+    utils_deployAssetContracts();
+    utils_setFees();
   }
 
   // ============ Utils ==============
@@ -130,6 +127,7 @@ contract AssetFacetTest is AssetFacet, FacetHelper {
   }
 
   function test_AssetFacet__wrapper_notSet() public {
+    s.wrapper = IWrapped(address(0));
     assertEq(address(this.wrapper()), address(0));
   }
 
@@ -140,6 +138,7 @@ contract AssetFacetTest is AssetFacet, FacetHelper {
   }
 
   function test_AssetFacet__tokenRegistry_notSet() public {
+    s.tokenRegistry = ITokenRegistry(address(0));
     assertEq(address(this.tokenRegistry()), address(0));
   }
 

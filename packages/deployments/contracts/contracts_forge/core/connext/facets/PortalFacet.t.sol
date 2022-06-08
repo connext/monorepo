@@ -23,7 +23,6 @@ contract PortalFacetTest is PortalFacet, FacetHelper {
   // ============ Storage ============
   uint32 domain = _originDomain;
   address bridgeRouter = address(1);
-  address wrapper = address(3);
   address relayerFeeRouter = address(4);
   address xAppConnectionManager = address(5);
   address router = address(1111);
@@ -34,10 +33,11 @@ contract PortalFacetTest is PortalFacet, FacetHelper {
   // ============ Test set up ============
 
   function setUp() public {
-    setDefaults();
+    utils_deployAssetContracts();
+    utils_setFees();
 
     // we are on the origin domain where local == canonical
-    setAssetContext(domain, true);
+    utils_setupAsset(true, true);
 
     // set the owner to this contract
     LibDiamond.setContractOwner(address(this));
@@ -151,7 +151,7 @@ contract PortalFacetTest is PortalFacet, FacetHelper {
   // fails if swap failed
   function test_PortalFacet__repayAavePortal_failsIfSwapFailed() public {
     // we are on the destination domain where local != canonical
-    setAssetContext(_destinationDomain, false);
+    utils_setupAsset(false, false);
 
     // set approval context
     s.routerPermissionInfo.approvedForPortalRouters[router] = true;
@@ -180,7 +180,7 @@ contract PortalFacetTest is PortalFacet, FacetHelper {
 
   function test_PortalFacet__repayAavePortal_failsIfRepalyTooMuch() public {
     // we are on the destination domain where local != canonical
-    setAssetContext(_destinationDomain, false);
+    utils_setupAsset(false, false);
 
     // set approval context
     s.routerPermissionInfo.approvedForPortalRouters[router] = true;
@@ -221,7 +221,7 @@ contract PortalFacetTest is PortalFacet, FacetHelper {
 
   function test_PortalFacet__repayAavePortal_shouldWorkUsingSwap() public {
     // we are on the destination domain where local != canonical
-    setAssetContext(_destinationDomain, false);
+    utils_setupAsset(false, false);
 
     // set approval context
     s.routerPermissionInfo.approvedForPortalRouters[router] = true;
@@ -271,7 +271,7 @@ contract PortalFacetTest is PortalFacet, FacetHelper {
     uint256 fee = 111;
 
     // we are on the destination domain where local != canonical
-    setAssetContext(_destinationDomain, false);
+    utils_setupAsset(false, false);
 
     address adopted = address(1);
     assertTrue(adopted != _adopted);
@@ -287,7 +287,7 @@ contract PortalFacetTest is PortalFacet, FacetHelper {
     uint256 fee = 0;
 
     // we are on the destination domain where local != canonical
-    setAssetContext(_destinationDomain, false);
+    utils_setupAsset(false, false);
 
     vm.expectRevert(abi.encodeWithSelector(PortalFacet.PortalFacet__repayAavePortalFor_zeroAmount.selector));
     this.repayAavePortalFor(router, _adopted, backing, fee, _id);
@@ -296,7 +296,7 @@ contract PortalFacetTest is PortalFacet, FacetHelper {
   // should work
   function test_PortalFacet__repayAavePortalFor_shouldWork() public {
     // we are on the destination domain where local != canonical
-    setAssetContext(_destinationDomain, false);
+    utils_setupAsset(false, false);
 
     // set debt amount
     uint256 backing = 1111;
