@@ -14,12 +14,18 @@ contract AmplificationUtilsTest is FacetHelper {
 
   // ============ Setup ============
   function setUp() public {
-    IERC20[] memory _pooledTokens = new IERC20[](1);
-    _pooledTokens[0] = IERC20(_adopted);
-    uint256[] memory _tokenPrecisionMultipliers = new uint256[](1);
+    IERC20[] memory _pooledTokens = new IERC20[](2);
+    _pooledTokens[0] = IERC20(address(11));
+    _pooledTokens[1] = IERC20(address(22));
+
+    uint256[] memory _tokenPrecisionMultipliers = new uint256[](2);
     _tokenPrecisionMultipliers[0] = 1;
-    uint256[] memory _balances = new uint256[](1);
+    _tokenPrecisionMultipliers[1] = 1;
+
+    uint256[] memory _balances = new uint256[](2);
     _balances[0] = 100;
+    _balances[1] = 100;
+
     swap = SwapUtils.Swap({
       initialA: 1000,
       futureA: 10000,
@@ -39,12 +45,16 @@ contract AmplificationUtilsTest is FacetHelper {
   // ============ getA ============
   function test_AmplificationUtils_getA_works() public {
     vm.warp(500);
+    // a0 + (a1 - a0) * (block.timestamp - t0) / (t1 - t0) ====>
+    // a0: 1000, a1: 10000, block.timestamp: 500, t0: 100, t1: 1000;
     assertEq(AmplificationUtils.getA(swap), 50);
   }
 
   // ============ getAPrecise ============
   function test_AmplificationUtils_getAPrecise_works() public {
     vm.warp(500);
+    // a0 + (a1 - a0) * (block.timestamp - t0) / (t1 - t0) ====>
+    // a0: 1000, a1: 10000, block.timestamp: 500, t0: 100, t1: 1000;
     assertEq(AmplificationUtils.getAPrecise(swap), 5000);
   }
 
@@ -53,12 +63,17 @@ contract AmplificationUtilsTest is FacetHelper {
     vm.warp(500);
     swap.initialA = 10000;
     swap.futureA = 1000;
+    // a0 - (a0 - a1) * (block.timestamp - t0) / (t1 - t0) ====>
+    // a0: 1000, a1: 10000, block.timestamp: 500, t0: 100, t1: 1000;
     assertEq(AmplificationUtils._getAPrecise(swap), 6000);
     swap.initialA = 1000;
     swap.futureA = 10000;
     vm.warp(500);
+    // a0 + (a1 - a0) * (block.timestamp - t0) / (t1 - t0) ====>
+    // a0: 1000, a1: 10000, block.timestamp: 500, t0: 100, t1: 1000;
     assertEq(AmplificationUtils._getAPrecise(swap), 5000);
     vm.warp(1500);
+    // should be equal to `a1` because block.timestamp > t1:[1000]
     assertEq(AmplificationUtils._getAPrecise(swap), 10000);
   }
 
