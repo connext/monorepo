@@ -901,7 +901,7 @@ describe("StableSwap", async () => {
     });
   });
 
-  describe.only("swapExact", () => {
+  describe("swapExact", () => {
     it("Reverts with 'Token index out of range'", async () => {
       await expect(swap.calculateSwapOut(0, 9, String(1e17))).to.be.revertedWith("Token index out of range");
     });
