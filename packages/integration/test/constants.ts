@@ -26,6 +26,8 @@ export const ENVIRONMENT: "staging" | "production" = (process.env.ENV ||
   process.env.ENVIRONMENT ||
   Environment.Staging) as "staging" | "production";
 
+export const NOMAD_ENVIRONMENT: "staging" | "production" = (process.env.NXTP_NOMAD_ENVIRONMENT ||
+  Environment.Staging) as "staging" | "production";
 // Whether or not to run certain agents locally.
 export const LOCAL_RELAYER_ENABLED = process.env.LOCAL_RELAYER_ENABLED === "true";
 export const LOCAL_CARTOGRAPHER_ENABLED = process.env.LOCAL_CARTOGRAPHER_ENABLED === "true";
@@ -262,6 +264,7 @@ export const ROUTER_CONFIG: Promise<RouterConfig> = (async (): Promise<RouterCon
     },
     auctionRoundDepth: 4,
     environment,
+    nomadEnvironment: NOMAD_ENVIRONMENT,
   };
 })();
 

@@ -11,7 +11,7 @@ import {ITokenRegistry} from "../../../../contracts/core/connext/interfaces/ITok
 
 import "../facets/FacetHelper.sol";
 
-import "forge-std/console.sol";
+
 
 // Helper to call library with native value functions
 contract LibCaller {
@@ -55,12 +55,15 @@ contract AssetLogicTest is BaseConnextFacet, FacetHelper {
   // ============ utils ============
 
   function utils_setMockStableSwap() internal {
-    IERC20[] memory _pooledTokens = new IERC20[](1);
+    IERC20[] memory _pooledTokens = new IERC20[](2);
     _pooledTokens[0] = IERC20(_adopted);
-    uint256[] memory _tokenPrecisionMultipliers = new uint256[](1);
+    _pooledTokens[1] = IERC20(address(22));
+    uint256[] memory _tokenPrecisionMultipliers = new uint256[](2);
     _tokenPrecisionMultipliers[0] = 1;
-    uint256[] memory  _balances = new uint256[](1);
+    _tokenPrecisionMultipliers[1] = 1;
+    uint256[] memory  _balances = new uint256[](2);
     _balances[0] = 100;
+    _balances[1] = 100;
     SwapUtils.Swap memory swap = SwapUtils.Swap({
         initialA : 0,
         futureA : 0,
@@ -78,7 +81,8 @@ contract AssetLogicTest is BaseConnextFacet, FacetHelper {
         tokenPrecisionMultipliers: _tokenPrecisionMultipliers,
         // the pool balance of each token, in the token's precision
         // the contract's actual token balance might differ
-        balances: _balances
+        balances: _balances,
+        adminFees:  new uint256[](2)
     });
 
     s.swapStorages[_canonicalId] = swap;

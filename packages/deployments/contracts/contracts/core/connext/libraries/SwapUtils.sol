@@ -70,6 +70,8 @@ library SwapUtils {
     // the pool balance of each token, in the token's precision
     // the contract's actual token balance might differ
     uint256[] balances;
+    // the admin fee balance of each token, in the token's precision
+    uint256[] adminFees;
   }
 
   // Struct storing variables used in calculations in the
@@ -612,7 +614,7 @@ library SwapUtils {
    */
   function getAdminBalance(Swap storage self, uint256 index) internal view returns (uint256) {
     require(index < self.pooledTokens.length, "Token index out of range");
-    return self.pooledTokens[index].balanceOf(address(this)).sub(self.balances[index]);
+    return self.adminFees[index];
   }
 
   /**
@@ -666,6 +668,9 @@ library SwapUtils {
 
     self.balances[tokenIndexFrom] = balances[tokenIndexFrom].add(dx);
     self.balances[tokenIndexTo] = balances[tokenIndexTo].sub(dy).sub(dyAdminFee);
+    if (dyAdminFee > 0) {
+      self.adminFees[tokenIndexTo] = self.adminFees[tokenIndexTo].add(dyAdminFee);
+    }
 
     self.pooledTokens[tokenIndexTo].safeTransfer(msg.sender, dy);
 
@@ -704,6 +709,9 @@ library SwapUtils {
 
     self.balances[tokenIndexFrom] = balances[tokenIndexFrom].add(dx).sub(dxAdminFee);
     self.balances[tokenIndexTo] = balances[tokenIndexTo].sub(dy);
+    if (dxAdminFee > 0) {
+      self.adminFees[tokenIndexFrom] = self.adminFees[tokenIndexFrom].add(dxAdminFee);
+    }
 
     {
       IERC20 tokenFrom = self.pooledTokens[tokenIndexFrom];
@@ -755,6 +763,10 @@ library SwapUtils {
     self.balances[tokenIndexFrom] = balances[tokenIndexFrom].add(dx);
     self.balances[tokenIndexTo] = balances[tokenIndexTo].sub(dy).sub(dyAdminFee);
 
+    if (dyAdminFee > 0) {
+      self.adminFees[tokenIndexTo] = self.adminFees[tokenIndexTo].add(dyAdminFee);
+    }
+
     emit TokenSwap(msg.sender, dx, dy, tokenIndexFrom, tokenIndexTo);
 
     return dy;
@@ -784,6 +796,10 @@ library SwapUtils {
 
     self.balances[tokenIndexFrom] = balances[tokenIndexFrom].add(dx).sub(dxAdminFee);
     self.balances[tokenIndexTo] = balances[tokenIndexTo].sub(dy);
+
+    if (dxAdminFee > 0) {
+      self.adminFees[tokenIndexFrom] = self.adminFees[tokenIndexFrom].add(dxAdminFee);
+    }
 
     emit TokenSwap(msg.sender, dx, dy, tokenIndexFrom, tokenIndexTo);
 
@@ -856,7 +872,9 @@ library SwapUtils {
       for (uint256 i = 0; i < pooledTokens.length; i++) {
         uint256 idealBalance = v.d1.mul(v.balances[i]).div(v.d0);
         fees[i] = feePerToken.mul(idealBalance.difference(newBalances[i])).div(FEE_DENOMINATOR);
-        self.balances[i] = newBalances[i].sub(fees[i].mul(self.adminFee).div(FEE_DENOMINATOR));
+        uint256 adminFee = fees[i].mul(self.adminFee).div(FEE_DENOMINATOR);
+        self.balances[i] = newBalances[i].sub(adminFee);
+        self.adminFees[i] = self.adminFees[i].add(adminFee);
         newBalances[i] = newBalances[i].sub(fees[i]);
       }
       v.d2 = getD(_xp(newBalances, v.multipliers), v.preciseA);
@@ -945,7 +963,11 @@ library SwapUtils {
 
     require(dy >= minAmount, "dy < minAmount");
 
-    self.balances[tokenIndex] = self.balances[tokenIndex].sub(dy.add(dyFee.mul(self.adminFee).div(FEE_DENOMINATOR)));
+    uint256 adminFee = dyFee.mul(self.adminFee).div(FEE_DENOMINATOR);
+    self.balances[tokenIndex] = self.balances[tokenIndex].sub(dy.add(adminFee));
+    if (adminFee > 0) {
+      self.adminFees[tokenIndex] = self.adminFees[tokenIndex].add(adminFee);
+    }
     lpToken.burnFrom(msg.sender, tokenAmount);
     pooledTokens[tokenIndex].safeTransfer(msg.sender, dy);
 
@@ -1001,7 +1023,9 @@ library SwapUtils {
         uint256 idealBalance = v.d1.mul(v.balances[i]).div(v.d0);
         uint256 difference = idealBalance.difference(balances1[i]);
         fees[i] = feePerToken.mul(difference).div(FEE_DENOMINATOR);
-        self.balances[i] = balances1[i].sub(fees[i].mul(self.adminFee).div(FEE_DENOMINATOR));
+        uint256 adminFee = fees[i].mul(self.adminFee).div(FEE_DENOMINATOR);
+        self.balances[i] = balances1[i].sub(adminFee);
+        self.adminFees[i] = self.adminFees[i].add(adminFee);
         balances1[i] = balances1[i].sub(fees[i]);
       }
 
@@ -1033,7 +1057,7 @@ library SwapUtils {
     IERC20[] memory pooledTokens = self.pooledTokens;
     for (uint256 i = 0; i < pooledTokens.length; i++) {
       IERC20 token = pooledTokens[i];
-      uint256 balance = token.balanceOf(address(this)).sub(self.balances[i]);
+      uint256 balance = self.adminFees[i];
       if (balance != 0) {
         token.safeTransfer(to, balance);
       }

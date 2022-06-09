@@ -447,6 +447,7 @@ contract StableSwapFacet is BaseConnextFacet {
       pooledTokens: _pooledTokens,
       tokenPrecisionMultipliers: precisionMultipliers,
       balances: new uint256[](_pooledTokens.length),
+      adminFees: new uint256[](_pooledTokens.length),
       initialATime: 0,
       futureATime: 0
     });

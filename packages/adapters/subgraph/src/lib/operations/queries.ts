@@ -263,6 +263,7 @@ export const getOriginTransfersQuery = (agents: Map<string, SubgraphQueryMetaPar
         agents.get(domain)!.latestNonce,
         domains,
         agents.get(domain)!.maxBlockNumber,
+        agents.get(domain)!.orderDirection,
       );
     } else {
       console.log(`No agents for domain: ${domain}`);
