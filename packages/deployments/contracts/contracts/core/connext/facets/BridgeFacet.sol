@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity 0.8.14;
 
+import {SafeERC20} from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import {ECDSA} from "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
 import {Address} from "@openzeppelin/contracts/utils/Address.sol";
@@ -19,6 +20,7 @@ import {PromiseRouter} from "../../promise/PromiseRouter.sol";
 import {IBridgeToken} from "../interfaces/IBridgeToken.sol";
 import {IExecutor} from "../interfaces/IExecutor.sol";
 import {IWrapped} from "../interfaces/IWrapped.sol";
+import {IAavePool} from "../interfaces/IAavePool.sol";
 import {ISponsorVault} from "../interfaces/ISponsorVault.sol";
 
 contract BridgeFacet is BaseConnextFacet {
@@ -48,15 +50,21 @@ contract BridgeFacet is BaseConnextFacet {
   error BridgeFacet__xcall_callbackNotAContract();
   error BridgeFacet__reconcile_invalidAction();
   error BridgeFacet__reconcile_alreadyReconciled();
+  error BridgeFacet__reconcile_noPortalRouter();
   error BridgeFacet__execute_unapprovedRelayer();
   error BridgeFacet__execute_maxRoutersExceeded();
   error BridgeFacet__execute_notSupportedRouter();
   error BridgeFacet__execute_invalidRouterSignature();
   error BridgeFacet__execute_alreadyExecuted();
+  error BridgeFacet__execute_notApprovedForPortals();
   error BridgeFacet__execute_alreadyReconciled();
   error BridgeFacet__execute_notReconciled();
   error BridgeFacet__handleExecuteTransaction_invalidSponsoredAmount();
   error BridgeFacet__bumpTransfer_valueIsZero();
+
+  // ============ Properties ============
+
+  uint16 public constant AAVE_REFERRAL_CODE = 0;
 
   // ============ Events ============
 
@@ -118,6 +126,33 @@ contract BridgeFacet is BaseConnextFacet {
    * @param caller - The account that called the function
    */
   event TransferRelayerFeesUpdated(bytes32 indexed transferId, uint256 relayerFee, address caller);
+
+  /**
+   * @notice Emitted when a router used Aave Portal liquidity for fast transfer
+   * @param transferId - The unique identifier of the crosschain transaction
+   * @param router - The authorized router that used Aave Portal liquidity
+   * @param asset - The asset that was provided by Aave Portal
+   * @param amount - The amount of asset that was provided by Aave Portal
+   */
+  event AavePortalMintUnbacked(bytes32 indexed transferId, address indexed router, address asset, uint256 amount);
+
+  /**
+   * @notice Emitted when executed a Portal repayment
+   * @param transferId - The unique identifier of the crosschain transaction
+   * @param asset - The asset that was repaid
+   * @param amount - The amount that was repaid
+   * @param fee - The fee amount that was repaid
+   */
+  event AavePortalRepayment(bytes32 indexed transferId, address asset, uint256 amount, uint256 fee);
+
+  /**
+   * @notice Emitted when there is no enough assets to repay or the repayment failed
+   * @param transferId - The unique identifier of the crosschain transaction
+   * @param asset - The asset that in which the debt is nominated
+   * @param amount - The amount that is pending to be repaid
+   * @param fee - The fee amount that is pending to be repaid
+   */
+  event AavePortalRepaymentDebt(bytes32 indexed transferId, address asset, uint256 amount, uint256 fee);
 
   /**
    * @notice Emitted when the sponsorVault variable is updated
@@ -225,7 +260,7 @@ contract BridgeFacet is BaseConnextFacet {
    * @param _args - The XCallArgs arguments.
    * @return bytes32 - The transfer ID of the newly created crosschain transfer.
    */
-  function xcall(XCallArgs calldata _args) external payable whenBridgeNotPaused nonReentrant returns (bytes32) {
+  function xcall(XCallArgs calldata _args) external payable whenNotPaused nonReentrant returns (bytes32) {
     // Sanity checks.
     {
       // Correct origin domain.
@@ -356,7 +391,7 @@ contract BridgeFacet is BaseConnextFacet {
    * @return bytes32 - The transfer ID of the crosschain transfer. Should match the xcall's transfer ID in order for
    * reconciliation to occur.
    */
-  function execute(ExecuteArgs calldata _args) external whenBridgeNotPaused nonReentrant returns (bytes32) {
+  function execute(ExecuteArgs calldata _args) external whenNotPaused nonReentrant returns (bytes32) {
     (bytes32 transferId, bool reconciled) = _executeSanityChecks(_args);
 
     // Set the relayer for this transaction to allow for future claim
@@ -379,7 +414,7 @@ contract BridgeFacet is BaseConnextFacet {
    * @notice Anyone can call this function on the origin domain to increase the relayer fee for a transfer.
    * @param _transferId - The unique identifier of the crosschain transaction
    */
-  function bumpTransfer(bytes32 _transferId) external payable whenBridgeNotPaused {
+  function bumpTransfer(bytes32 _transferId) external payable whenNotPaused {
     if (msg.value == 0) revert BridgeFacet__bumpTransfer_valueIsZero();
 
     s.relayerFees[_transferId] += msg.value;
@@ -516,10 +551,24 @@ contract BridgeFacet is BaseConnextFacet {
     // NOTE: If the transfer was not executed using fast-liquidity, then the funds will be reserved for
     // execution (i.e. funds will be delivered to the transfer's recipient in a subsequent `execute` call).
     address[] memory routers = s.routedTransfers[transferId];
+
+    // If fast transfer was made using portal liquidity, we need to repay
+    // FIXME: routers can repay any-amount out-of-band using the `repayAavePortal` method
+    // or by interacting with the aave contracts directly
+    uint256 portalTransferAmount = s.portalDebt[transferId] + s.portalFeeDebt[transferId];
+
+    uint256 toDistribute = amount;
     uint256 pathLen = routers.length;
+    if (portalTransferAmount != 0) {
+      // ensure a router took on credit risk
+      if (pathLen != 1) revert BridgeFacet__reconcile_noPortalRouter();
+      toDistribute = _reconcileProcessPortal(amount, token, routers[0], transferId);
+    }
+
     if (pathLen != 0) {
+      // fast liquidity path
       // Credit each router that provided liquidity their due 'share' of the asset.
-      uint256 routerAmt = amount / pathLen;
+      uint256 routerAmt = toDistribute / pathLen;
       for (uint256 i; i < pathLen; ) {
         s.routerBalances[routers[i]][token] += routerAmt;
         unchecked {
@@ -660,16 +709,30 @@ contract BridgeFacet is BaseConnextFacet {
       // Save the addressess of all routers providing liquidity for this transfer.
       s.routedTransfers[_transferId] = _args.routers;
 
-      // Router amount is the amount that each individual router will be sending.
-      uint256 routerAmount = toSwap / pathLen;
-      // For each router in the path, decrement liquidity.
-      for (uint256 i; i < pathLen; ) {
-        // NOTE: There are no prior checks to ensure that router has sufficient funding.
-        // Instead, we rely on this operation throwing an arithmetic error if underflow occurs.
-        s.routerBalances[_args.routers[i]][_args.local] -= routerAmount;
+      // If router does not have enough liquidity, try to use Aave Portals.
+      // only one router should be responsible for taking on this credit risk, and it should only
+      // deal with transfers expecting adopted assets (to avoid introducing runtime slippage)
+      if (
+        !_args.params.receiveLocal &&
+        pathLen == 1 &&
+        s.routerBalances[_args.routers[0]][_args.local] < toSwap &&
+        s.aavePool != address(0)
+      ) {
+        if (!s.routerPermissionInfo.approvedForPortalRouters[_args.routers[0]])
+          revert BridgeFacet__execute_notApprovedForPortals();
 
-        unchecked {
-          i++;
+        // Portal provides the adopted asset so we early return here
+        return _executePortalTransfer(_transferId, toSwap, _args.local, _args.routers[0]);
+      } else {
+        // for each router, assert they are approved, and deduct liquidity
+        uint256 routerAmount = toSwap / pathLen;
+        for (uint256 i; i < pathLen; ) {
+          // decrement routers liquidity
+          s.routerBalances[_args.routers[i]][_args.local] -= routerAmount;
+
+          unchecked {
+            i++;
+          }
         }
       }
     }
@@ -748,5 +811,244 @@ contract BridgeFacet is BaseConnextFacet {
     }
 
     return _amount;
+  }
+
+  /**
+   * @notice Uses Aave Portals to provide fast liquidity
+   */
+  function _executePortalTransfer(
+    bytes32 _transferId,
+    uint256 _fastTransferAmount,
+    address _local,
+    address _router
+  ) internal returns (uint256, address) {
+    // Calculate local to adopted swap output if needed
+    (uint256 userAmount, address adopted) = AssetLogic.calculateSwapFromLocalAssetIfNeeded(_local, _fastTransferAmount);
+
+    IAavePool(s.aavePool).mintUnbacked(adopted, userAmount, address(this), AAVE_REFERRAL_CODE);
+
+    // Improvement: Instead of withdrawing to address(this), withdraw directly to the user or executor to save 1 transfer
+    IAavePool(s.aavePool).withdraw(adopted, userAmount, address(this));
+
+    // Store principle debt
+    s.portalDebt[_transferId] = userAmount;
+
+    // Store fee debt
+    s.portalFeeDebt[_transferId] = (s.aavePortalFeeNumerator * userAmount) / s.LIQUIDITY_FEE_DENOMINATOR;
+
+    emit AavePortalMintUnbacked(_transferId, _router, adopted, userAmount);
+
+    return (userAmount, adopted);
+  }
+
+  /**
+   * @notice Parses the message and process the transfer
+   * @dev Will mint the tokens if the token originates on a remote origin
+   * @return The message amount
+   * @return The message token
+   * @return The message transfer id
+   */
+  function _reconcileProcessMessage(bytes memory _message)
+    internal
+    returns (
+      uint256,
+      address,
+      bytes32
+    )
+  {
+    // parse tokenId and action from message
+    bytes29 msg_ = _message.ref(0).mustBeMessage();
+    bytes29 tokenId = msg_.tokenId();
+    bytes29 action = msg_.action();
+
+    // load the transferId
+    bytes32 transferId = action.transferId();
+
+    // ensure the transaction has not been handled
+    if (s.reconciledTransfers[transferId]) {
+      revert BridgeFacet__reconcile_alreadyReconciled();
+    }
+
+    // assert the action is valid
+    if (!action.isTransfer()) {
+      revert BridgeFacet__reconcile_invalidAction();
+    }
+
+    // get the token contract for the given tokenId on this chain
+    // (if the token is of remote origin and there is
+    // no existing representation token contract, the TokenRegistry will
+    // deploy a new one)
+    bytes32 canonical = tokenId.id();
+    address token = s.tokenRegistry.ensureLocalToken(tokenId.domain(), canonical);
+
+    // load amount once
+    uint256 amount = action.amnt();
+
+    // NOTE: tokenId + amount must be in plaintext in message so funds can
+    // *only* be minted by `handle`. They are still used in the generation of
+    // the transferId so routers must provide them correctly to be reimbursed
+
+    bytes32 details = action.detailsHash();
+
+    // if the token is of remote origin, mint the tokens. will either
+    // - be credited to router (fast liquidity)
+    // - be reserved for execution (slow liquidity)
+    if (!s.tokenRegistry.isLocalOrigin(token)) {
+      IBridgeToken(token).mint(address(this), amount);
+      // Tell the token what its detailsHash is
+      IBridgeToken(token).setDetailsHash(details);
+    }
+    // NOTE: if the token is of local origin, it means it was escrowed
+    // in this contract at xcall
+
+    // mark the transfer as reconciled
+    s.reconciledTransfers[transferId] = true;
+
+    return (amount, token, transferId);
+  }
+
+  /**
+   * @notice Repays to Aave Portal if the transfer was executed with fast path using Portal liquidity
+   * @param _amount - The amount passed through bridge
+   * @param _local - The local  asset
+   * @param _router - The router who took on portal risk
+   * @param _transferId - The transfer identifier
+   * @return The amount to distribute amongst the routers after repayment
+   */
+  function _reconcileProcessPortal(
+    uint256 _amount,
+    address _local,
+    address _router,
+    bytes32 _transferId
+  ) private returns (uint256) {
+    // When repaying a portal, should use available liquidity if there is not enough balance from
+    // the bridge. First, calculate the amount to be repaid in adopted asset then swap for exactly
+    // that amount. This prevents having to swap excess (i.e. from positive amm slippage) from debt
+    // repayment back into local asset to credit routers
+
+    // Calculates the amount to be repaid to the portal in adopted asset
+    (uint256 totalRepayAmount, uint256 backUnbackedAmount, uint256 portalFee) = _calculatePortalRepayment(
+      _amount,
+      _transferId,
+      _local
+    );
+
+    // Update the debt amounts before swapping
+    s.portalDebt[_transferId] -= backUnbackedAmount;
+    s.portalFeeDebt[_transferId] -= portalFee;
+
+    // Swap for exact `totalRepayAmount` of adopted asset to repay aave, with a maximum of the minted amount
+    // as the slippage ceiling
+    // amountIn is the amount that was actually taken to perform the swap (i.e. amount of local asset swapped)
+    // NOTE: this function can revert if the slippage ceiling is hit. Using the low-level calls helps us
+    // handle the case where slippage was hit
+    (bool swapSuccess, uint256 amountIn, address adopted) = AssetLogic.swapFromLocalAssetIfNeededForExactOut(
+      _local,
+      totalRepayAmount,
+      _amount
+    );
+    if (!swapSuccess) {
+      // Reset values
+      s.portalDebt[_transferId] += backUnbackedAmount;
+      s.portalFeeDebt[_transferId] += portalFee;
+      // Emit debt event of full portal value and exit
+      emit AavePortalRepaymentDebt(_transferId, adopted, s.portalDebt[_transferId], s.portalFeeDebt[_transferId]);
+      return (_amount);
+    }
+
+    // Edge case with some tokens: Example USDT in ETH Mainnet, after the backUnbacked call there could be a remaining allowance if not the whole amount is pulled by aave.
+    // Later, if we try to increase the allowance it will fail. USDT demands if allowance is not 0, it has to be set to 0 first.
+    // TODO: Should we call approve(0) and approve(totalRepayAmount) instead? or with a try catch to not affect gas on all cases?
+    // Example: https://github.com/aave/aave-v3-periphery/blob/ca184e5278bcbc10d28c3dbbc604041d7cfac50b/contracts/adapters/paraswap/ParaSwapRepayAdapter.sol#L138-L140
+    SafeERC20.safeIncreaseAllowance(IERC20(adopted), s.aavePool, totalRepayAmount);
+
+    (bool success, ) = s.aavePool.call(
+      abi.encodeWithSelector(IAavePool.backUnbacked.selector, adopted, backUnbackedAmount, portalFee)
+    );
+
+    if (success) {
+      emit AavePortalRepayment(_transferId, adopted, backUnbackedAmount, portalFee);
+    } else {
+      // Reset values
+      s.portalDebt[_transferId] += backUnbackedAmount;
+      s.portalFeeDebt[_transferId] += portalFee;
+
+      // Decrease the allowance
+      SafeERC20.safeDecreaseAllowance(IERC20(adopted), s.aavePool, totalRepayAmount);
+
+      // Update the amount repaid to 0, so the amount is credited to the router
+      amountIn = 0;
+      emit AavePortalRepaymentDebt(_transferId, adopted, s.portalDebt[_transferId], s.portalFeeDebt[_transferId]);
+    }
+
+    // NOTE: Aave accounts a global unbacked variable per asset for all, not by address/bridge.
+    // Someone can repay more than it should, so then a the moment of calling backUnbacked()
+    // aave can pull a smaller amount than backUnbackedAmount. So there will be an extra amount of assets that needs to be assigned
+    // See https://github.com/aave/aave-v3-core/blob/feb3f20885c73025f40cc272b59e7eacfaa02fe4/contracts/protocol/libraries/logic/BridgeLogic.sol#L121
+    // If we wanted to handle this difference, we should check the balance before and after calling
+    // `backUnbacked` and credit the difference to the router
+
+    // Calculate the amount to distribute to the router. There are cases (i.e. positive slippage)
+    // where router has gained extra because of the AMM, these funds should be distributed.
+    // Because we are using the `_amount` a sthe maximum amount in, the `amountIn` should always be
+    // <= _amount (i.e. this will be +ive)
+    return (_amount - amountIn);
+  }
+
+  /**
+   * @notice Calculates the amount to be repaid to Aave Portal in adopted asset. If there is no enough amount to repay
+   * the unbacked and the fee, it will partially repay prioritizing the unbacked amount.
+   * @dev Assumes the fee is proportional to the unbackedAmount.
+   * @param _localAmount - The available balance for a repayment
+   * @param _transferId - The unique identifier of the crosschain transaction
+   * @param _local - The address of the adopted asset that needs to be backed
+   * @return The total amount to be repaid
+   * @return The unbacked amount to be backed
+   * @return The fee amount to be paid
+   */
+  function _calculatePortalRepayment(
+    uint256 _localAmount,
+    bytes32 _transferId,
+    address _local
+  )
+    internal
+    returns (
+      uint256,
+      uint256,
+      uint256
+    )
+  {
+    uint256 portalFee = s.portalFeeDebt[_transferId];
+    uint256 backUnbackedAmount = s.portalDebt[_transferId];
+    uint256 totalRepayAmount = backUnbackedAmount + portalFee;
+    // see how much of local asset you would have available post-swap
+    (uint256 availableAmount, address adopted) = AssetLogic.calculateSwapFromLocalAssetIfNeeded(_local, _localAmount);
+
+    // If not enough funds to repay the transfer + fees
+    // try to repay as much as unbacked as possible
+    if (totalRepayAmount > availableAmount) {
+      uint256 backUnbackedDebt = backUnbackedAmount;
+      uint256 portalFeeDebt = portalFee;
+
+      if (availableAmount > backUnbackedAmount) {
+        // Repay the whole transfer and a partial amount of fees
+        portalFee = availableAmount - backUnbackedAmount;
+
+        backUnbackedDebt = 0;
+        portalFeeDebt -= portalFee;
+      } else {
+        // Repay a partial amount of the transfer and no fees
+        backUnbackedAmount = availableAmount;
+        portalFee = 0;
+
+        backUnbackedDebt -= backUnbackedAmount;
+      }
+
+      totalRepayAmount = backUnbackedAmount + portalFee;
+
+      emit AavePortalRepaymentDebt(_transferId, adopted, backUnbackedDebt, portalFeeDebt);
+    }
+
+    return (totalRepayAmount, backUnbackedAmount, portalFee);
   }
 }

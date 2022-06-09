@@ -421,7 +421,7 @@ describe("Database client", () => {
     expect(timestamp).equal(3);
   });
 
-  it("should get latest execute timestamp", async () => {
+  it("should get latest reconcile timestamp", async () => {
     const xTransfer1: XTransfer = mock.entity.xtransfer({ status: XTransferStatus.Reconciled });
     xTransfer1.destination.reconcile.timestamp = 1;
     const xTransfer2: XTransfer = mock.entity.xtransfer({ status: XTransferStatus.Reconciled });
@@ -431,5 +431,23 @@ describe("Database client", () => {
     await saveTransfers([xTransfer1, xTransfer2, xTransfer3], pool);
     const timestamp = await getLatestReconcileTimestamp(xTransfer1.destinationDomain, pool);
     expect(timestamp).equal(3);
+  });
+
+  it("should get latest nonce when no data", async () => {
+    const xTransfer1: XTransfer = mock.entity.xtransfer({ status: XTransferStatus.Executed });
+    const nonce = await getLatestNonce(xTransfer1.destinationDomain, pool);
+    expect(nonce).equal(0);
+  });
+
+  it("should get latest execute timestamp when no data", async () => {
+    const xTransfer1: XTransfer = mock.entity.xtransfer({ status: XTransferStatus.Executed });
+    const timestamp = await getLatestExecuteTimestamp(xTransfer1.destinationDomain, pool);
+    expect(timestamp).equal(0);
+  });
+
+  it("should get latest reconcile timestamp when no data", async () => {
+    const xTransfer1: XTransfer = mock.entity.xtransfer({ status: XTransferStatus.Reconciled });
+    const timestamp = await getLatestReconcileTimestamp(xTransfer1.destinationDomain, pool);
+    expect(timestamp).equal(0);
   });
 });

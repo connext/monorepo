@@ -11,7 +11,6 @@ import {TestERC20} from "../../../../contracts/test/TestERC20.sol";
 
 import {MockWrapper, MockTokenRegistry} from "../../../utils/Mock.sol";
 
-// import "../../lib/forge-std/src/console.sol";
 import "./FacetHelper.sol";
 
 contract RoutersFacetTest is RoutersFacet, FacetHelper {
@@ -20,13 +19,7 @@ contract RoutersFacetTest is RoutersFacet, FacetHelper {
   address _owner = address(12345);
 
   // sample data
-  uint32 _domain = 1000;
-
-  address _local = address(7);
-  bytes32 _localTokenId = bytes32(abi.encodePacked(_local));
-
-  address _canonical = address(5);
-  bytes32 _canonicalTokenId = bytes32(abi.encodePacked(_canonical));
+  uint32 _domain = _originDomain;
 
   address _routerAgent0 = address(222000111); // 0x000000000000000000000000000000000d3b73ef
   address _routerRecipient0 = address(222000222); // 0x000000000000000000000000000000000d3b745e
