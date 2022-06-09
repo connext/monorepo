@@ -11,6 +11,8 @@ import {IExecutor} from "../interfaces/IExecutor.sol";
 
 import {LibCrossDomainProperty, TypedMemView} from "../libraries/LibCrossDomainProperty.sol";
 
+import "forge-std/console.sol";
+
 /**
  * @title Executor
  * @author Connext <support@connext.network>
@@ -54,7 +56,7 @@ contract Executor is IExecutor {
    * @notice Errors if the sender is not Connext
    */
   modifier onlyConnext() {
-    require(msg.sender == connext, "#OC:027");
+    require(msg.sender == connext, "!connext");
     _;
   }
 
@@ -116,6 +118,8 @@ contract Executor is IExecutor {
     bytes memory returnData;
 
     bool isNative = _args.assetId == address(0);
+
+    if (isNative) require(msg.value == _args.amount, "!equal");
 
     if (!AddressUpgradeable.isContract(_args.to)) {
       _handleFailure(isNative, false, _args.assetId, payable(_args.to), payable(_args.recovery), _args.amount);
