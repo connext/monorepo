@@ -4,7 +4,6 @@ pragma solidity 0.8.14;
 import "../../../utils/ForgeHelper.sol";
 
 import "../../../../contracts/test/TestERC20.sol";
-import "../../../../lib/forge-std/src/console.sol";
 
 import "../../../../contracts/core/connext/interfaces/IExecutor.sol";
 import "../../../../contracts/core/connext/helpers/Executor.sol";
@@ -34,7 +33,7 @@ contract MockStaking {
 
   function stake(address asset, uint256 amount) public payable {
     if (asset == address(0)) {
-      require(msg.value == amount, "!mismatch");
+      require(msg.value == amount, "!equal");
     } else {
       IERC20(asset).transferFrom(msg.sender, address(this), amount);
     }

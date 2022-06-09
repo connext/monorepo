@@ -11,8 +11,6 @@ import {IExecutor} from "../interfaces/IExecutor.sol";
 
 import {LibCrossDomainProperty, TypedMemView} from "../libraries/LibCrossDomainProperty.sol";
 
-import "forge-std/console.sol";
-
 /**
  * @title Executor
  * @author Connext <support@connext.network>
