@@ -26,6 +26,8 @@ export const ENVIRONMENT: "staging" | "production" = (process.env.ENV ||
   process.env.ENVIRONMENT ||
   Environment.Staging) as "staging" | "production";
 
+export const NOMAD_ENVIRONMENT: "staging" | "production" = (process.env.NXTP_NOMAD_ENVIRONMENT ||
+  Environment.Staging) as "staging" | "production";
 // Whether or not to run certain agents locally.
 export const LOCAL_RELAYER_ENABLED = process.env.LOCAL_RELAYER_ENABLED === "true";
 export const LOCAL_CARTOGRAPHER_ENABLED = process.env.LOCAL_CARTOGRAPHER_ENABLED === "true";
@@ -262,6 +264,7 @@ export const ROUTER_CONFIG: Promise<RouterConfig> = (async (): Promise<RouterCon
     },
     auctionRoundDepth: 4,
     environment,
+    nomadEnvironment: NOMAD_ENVIRONMENT,
   };
 })();
 
@@ -334,6 +337,7 @@ export const RELAYER_CONFIG: Promise<RelayerConfig> = (async (): Promise<Relayer
 
 /// MARK - CARTOGRAPHER CONFIG
 export const CARTOGRAPHER_CONFIG: Promise<CartographerConfig> = (async (): Promise<CartographerConfig> => {
+  const { ORIGIN, DESTINATION } = await DOMAINS;
   return {
     database: {
       url: "postgres://postgres:qwerty@localhost:5432/connext?sslmode=disable",
@@ -341,5 +345,9 @@ export const CARTOGRAPHER_CONFIG: Promise<CartographerConfig> = (async (): Promi
     logLevel: "debug",
     pollInterval: 4_000,
     environment: "staging",
+    chains: {
+      [ORIGIN.domain]: {},
+      [DESTINATION.domain]: {},
+    },
   };
 })();

@@ -8,10 +8,10 @@
     "editor.defaultFormatter": "esbenp.prettier-vscode"
   },
   "[terraform]": {
-    "editor.defaultFormatter": "hashicorp.terraform-preview"
+    "editor.defaultFormatter": "hashicorp.terraform"
   },
   "[sql]": {
     "editor.defaultFormatter": "mtxr.sqltools"
   },
-  "solidity.compileUsingRemoteVersion": "v0.8.11+commit.d7f03943"
+  "solidity.compileUsingRemoteVersion": "v0.8.14+commit.80d49f37"
 }

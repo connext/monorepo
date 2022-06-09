@@ -53,6 +53,8 @@ RUN yarn build
 
 FROM node as runtime
 
+RUN npm install pm2 -pg
+
 ENV NODE_ENV=production
 
 ARG COMMIT_HASH

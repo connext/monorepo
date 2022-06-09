@@ -263,6 +263,7 @@ export const getOriginTransfersQuery = (agents: Map<string, SubgraphQueryMetaPar
         agents.get(domain)!.latestNonce,
         domains,
         agents.get(domain)!.maxBlockNumber,
+        agents.get(domain)!.orderDirection,
       );
     } else {
       console.log(`No agents for domain: ${domain}`);
@@ -285,12 +286,12 @@ const destinationTransfersByExecuteTimestampQueryString = (
   orderDirection: "asc" | "desc" = "desc",
 ) => {
   return `
-  ${prefix}_originTransfers(
+  ${prefix}_destinationTransfers(
     where: { 
       originDomain: ${originDomain}, 
       executedTimestamp_gte: ${fromTimestamp}, 
       destinationDomain_in: [${destinationDomains}] 
-      ${maxBlockNumber ? `, blockNumber_lte: ${maxBlockNumber}` : ""} 
+      ${maxBlockNumber ? `, executedBlockNumber_lte: ${maxBlockNumber}` : ""} 
     }, 
     orderBy: executedTimestamp, 
     orderDirection: ${orderDirection}
@@ -335,12 +336,12 @@ const destinationTransfersByReconcileTimestampQueryString = (
   orderDirection: "asc" | "desc" = "desc",
 ) => {
   return `
-  ${prefix}_originTransfers(
+  ${prefix}_destinationTransfers(
     where: { 
       originDomain: ${originDomain}, 
       reconciledTimestamp_gte: ${fromTimestamp}, 
       destinationDomain_in: [${destinationDomains}] 
-      ${maxBlockNumber ? `, blockNumber_lte: ${maxBlockNumber}` : ""} 
+      ${maxBlockNumber ? `, reconciledBlockNumber_lte: ${maxBlockNumber}` : ""} 
     }, 
     orderBy: executedTimestamp, 
     orderDirection: ${orderDirection}

@@ -1,27 +1,14 @@
 import { SubgraphReader } from "@connext/nxtp-adapters-subgraph";
-import { ChainData, createMethodContext, createRequestContext, getChainData, Logger } from "@connext/nxtp-utils";
+import { createMethodContext, createRequestContext, getChainData, Logger } from "@connext/nxtp-utils";
 
-import { Database, getDatabase } from "./adapters/database";
-import { poller } from "./bindings";
+import { getDatabase } from "./adapters/database";
+import { bindTransfers } from "./bindings";
 import { CartographerConfig, getConfig } from "./config";
+import { context } from "./shared";
 
-export type AppContext = {
-  logger: Logger;
-  adapters: {
-    subgraph: SubgraphReader; // Aggregates subgraphs in a FallbackSubgraph for each chain.
-    database: Database; // Database adapter.
-  };
-  config: CartographerConfig;
-  chainData: Map<string, ChainData>;
-  domains: string[]; // List of all supported domains.
-};
-
-const context: AppContext = {} as any;
-export const getContext = () => context;
-
-export const makeCartographer = async (_configOverride?: CartographerConfig) => {
-  const requestContext = createRequestContext("Cartographer Init");
-  const methodContext = createMethodContext(makeCartographer.name);
+export const makeTransfersPoller = async (_configOverride?: CartographerConfig) => {
+  const requestContext = createRequestContext("Transfers Poller Init");
+  const methodContext = createMethodContext(makeTransfersPoller.name);
   context.adapters = {} as any;
 
   /// MARK - Config
@@ -46,10 +33,10 @@ export const makeCartographer = async (_configOverride?: CartographerConfig) => 
   /// MARK - Domains
   // Filter out the supported domains from the subgraph.
   const supported = context.adapters.subgraph.supported;
-  context.domains = Object.keys(supported).filter((domain) => supported[domain]);
+  context.domains = Object.keys(context.config.chains).filter((domain) => supported[domain]);
 
   /// MARK - Bindings
-  context.logger.info("Cartographer initialized!", requestContext, methodContext, {
+  context.logger.info("Transfers Poller initialized!", requestContext, methodContext, {
     domains: context.domains,
   });
   context.logger.info(`
@@ -60,5 +47,5 @@ _|         _|    _|   _|    _|_|   _|    _|_|   _|           _|  _|         _|
   _|_|_|     _|_|     _|      _|   _|      _|   _|_|_|_|   _|      _|       _|
 `);
 
-  await poller();
+  await bindTransfers();
 };

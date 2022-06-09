@@ -3,7 +3,8 @@ import { Wallet, utils, BigNumber, providers, constants } from "ethers";
 import { makeSequencer } from "@connext/nxtp-sequencer/src/sequencer";
 import { makeRouter } from "@connext/nxtp-router/src/router";
 import { makeRelayer } from "@connext/nxtp-relayer/src/relayer";
-import { makeCartographer } from "@connext/cartographer-poller/src/cartographer";
+import { makeRoutersPoller } from "@connext/cartographer-poller/src/routersPoller";
+import { makeTransfersPoller } from "@connext/cartographer-poller/src/transfersPoller";
 import { SequencerConfig } from "@connext/nxtp-sequencer/src/lib/entities/config";
 import { NxtpRouterConfig as RouterConfig } from "@connext/nxtp-router/src/config";
 import { RelayerConfig } from "@connext/nxtp-relayer/src/lib/entities/config";
@@ -647,7 +648,8 @@ describe("Integration:E2E", () => {
     {
       if (LOCAL_CARTOGRAPHER_ENABLED) {
         log.next("CARTOGRAPHER START");
-        await makeCartographer(cartographerConfig);
+        await makeRoutersPoller(cartographerConfig);
+        await makeTransfersPoller(cartographerConfig);
         await delay(1_000);
       }
 

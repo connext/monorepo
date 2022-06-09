@@ -3,7 +3,6 @@ pragma solidity 0.8.14;
 
 import {BaseConnextFacet} from "./BaseConnextFacet.sol";
 import {LibDiamond} from "../libraries/LibDiamond.sol";
-import {PausedFunctions} from "../libraries/LibConnextStorage.sol";
 import {IProposedOwnable} from "../../shared/interfaces/IProposedOwnable.sol";
 
 /**
@@ -58,7 +57,9 @@ contract ProposedOwnableFacet is BaseConnextFacet, IProposedOwnable {
 
   event AssetOwnershipRenounced(bool renounced);
 
-  event SetPausedFunction(PausedFunctions previous, PausedFunctions current);
+  event Paused();
+
+  event Unpaused();
 
   // ============ External: Getters ============
 
@@ -249,10 +250,14 @@ contract ProposedOwnableFacet is BaseConnextFacet, IProposedOwnable {
     _setOwner(s._proposed);
   }
 
-  function setPausedFunctions(PausedFunctions _paused) public onlyOwner {
-    PausedFunctions old = s._paused;
-    s._paused = _paused;
-    emit SetPausedFunction(old, _paused);
+  function pause() public onlyOwner {
+    s._paused = true;
+    emit Paused();
+  }
+
+  function unpause() public onlyOwner {
+    s._paused = false;
+    emit Unpaused();
   }
 
   ////// INTERNAL //////

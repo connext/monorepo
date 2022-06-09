@@ -1,5 +1,5 @@
 import { constants, utils, BigNumber } from "ethers";
-import { reset, restore } from "sinon";
+import { reset, restore, SinonStub, stub } from "sinon";
 import { Bid, expect, OriginTransfer } from "@connext/nxtp-utils";
 
 import * as ExecuteFns from "../../../src/lib/operations/execute";
@@ -9,6 +9,7 @@ import {
   NotEnoughAmount,
   MissingXCall,
   CallDataForNonContract,
+  NomadHomeBlacklisted,
 } from "../../../src/lib/errors";
 import { mock, stubContext, stubHelpers } from "../../mock";
 // @ts-ignore
@@ -18,6 +19,10 @@ const { execute } = ExecuteFns;
 
 describe("Operations:Execute", () => {
   let mockContext: any;
+  let getBlacklistStub: SinonStub<
+    [originDomain: string, destinationDomain: string, nomadEnvironment: string],
+    Promise<{ originBlacklisted: boolean; destinationBlacklisted: boolean }>
+  >;
 
   describe("#execute", () => {
     const mockFulfillLocalAsset = mock.asset.A.address;
@@ -39,6 +44,9 @@ describe("Operations:Execute", () => {
       mock.helpers.shared.signRouterPathPayload.resolves(mock.signature);
       mockContext.adapters.subgraph.isRouterApproved.resolves(true);
       mockContext.adapters.subgraph.getAssetBalance.resolves(constants.MaxUint256);
+
+      getBlacklistStub = stub(ExecuteFns, "getBlacklist");
+      getBlacklistStub.resolves({ originBlacklisted: false, destinationBlacklisted: false });
     });
 
     afterEach(async () => {
@@ -135,6 +143,24 @@ describe("Operations:Execute", () => {
           origin: undefined,
         }),
       ).to.be.rejectedWith(MissingXCall);
+    });
+
+    it("should throw on blacklisted origin", async () => {
+      getBlacklistStub.resolves({ originBlacklisted: true, destinationBlacklisted: false });
+
+      await expect(execute(mockXTransfer)).to.be.rejectedWith(NomadHomeBlacklisted);
+    });
+
+    it("should throw on blacklisted destination", async () => {
+      getBlacklistStub.resolves({ originBlacklisted: false, destinationBlacklisted: true });
+
+      await expect(execute(mockXTransfer)).to.be.rejectedWith(NomadHomeBlacklisted);
+    });
+
+    it("should throw on both destination and origin blacklisted", async () => {
+      getBlacklistStub.resolves({ originBlacklisted: true, destinationBlacklisted: true });
+
+      await expect(execute(mockXTransfer)).to.be.rejectedWith(NomadHomeBlacklisted);
     });
 
     it.skip("should error if slippage invalid", async () => {

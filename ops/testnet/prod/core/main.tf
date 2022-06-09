@@ -55,22 +55,6 @@ module "router" {
   container_env_vars       = local.router_env_vars
 }
 
-module "router_logdna_lambda_exporter" {
-  source               = "../../../modules/lambda"
-  stage                = var.stage
-  environment          = var.environment
-  domain               = var.domain
-  region               = var.region
-  log_group_name       = module.router.log_group_name
-  logdna_key           = var.logdna_key
-  private_subnets      = module.network.private_subnets
-  public_subnets       = module.network.public_subnets
-  service              = "router"
-  vpc_id               = module.network.vpc_id
-  log_group_arn        = module.router.log_group_arn
-  aws_lambda_s3_bucket = "aws-lamba-logdna-cloudwatch-prod"
-}
-
 
 module "sequencer" {
   source                   = "../../../modules/service"
@@ -101,22 +85,6 @@ module "sequencer" {
   service_security_groups  = flatten([module.network.allow_all_sg, module.network.ecs_task_sg])
   cert_arn                 = var.certificate_arn_testnet
   container_env_vars       = local.sequencer_env_vars
-}
-
-module "sequencer_logdna_lambda_exporter" {
-  source               = "../../../modules/lambda"
-  stage                = var.stage
-  environment          = var.environment
-  domain               = var.domain
-  region               = var.region
-  log_group_name       = module.sequencer.log_group_name
-  logdna_key           = var.logdna_key
-  private_subnets      = module.network.private_subnets
-  public_subnets       = module.network.public_subnets
-  service              = "sequencer"
-  vpc_id               = module.network.vpc_id
-  log_group_arn        = module.sequencer.log_group_arn
-  aws_lambda_s3_bucket = "aws-lamba-logdna-cloudwatch-prod"
 }
 
 module "web3signer" {
@@ -170,22 +138,6 @@ module "lighthouse" {
   domain                  = var.domain
   service_security_groups = flatten([module.network.allow_all_sg, module.network.ecs_task_sg])
   container_env_vars      = local.lighthouse_env_vars
-}
-
-module "lighthouse_logdna_lambda_exporter" {
-  source               = "../../../modules/lambda"
-  stage                = var.stage
-  environment          = var.environment
-  domain               = var.domain
-  region               = var.region
-  log_group_name       = module.lighthouse.log_group_name
-  logdna_key           = var.logdna_key
-  private_subnets      = module.network.private_subnets
-  public_subnets       = module.network.public_subnets
-  service              = "lighthouse"
-  vpc_id               = module.network.vpc_id
-  log_group_arn        = module.lighthouse.log_group_arn
-  aws_lambda_s3_bucket = "aws-lamba-logdna-cloudwatch-prod"
 }
 
 
