@@ -6,7 +6,7 @@ services:
       - MNEMONIC=$MNEMONIC
       - CHAIN_ID=1337
     container_name: chain-1337-test
-    image: chain:latest
+    image: ghcr.io/connext/chain:latest
     ports:
       - "8547:8545"
   chain-1338:
@@ -14,7 +14,7 @@ services:
       - MNEMONIC=$MNEMONIC
       - CHAIN_ID=1338
     container_name: chain-1338-test
-    image: chain:latest
+    image: ghcr.io/connext/chain:latest
     ports:
       - "8546:8545"
 
