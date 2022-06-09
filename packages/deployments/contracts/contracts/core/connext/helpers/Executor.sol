@@ -184,7 +184,9 @@ contract Executor is IExecutor {
     // simply require an approval, and it is unclear if they can handle
     // funds transferred directly to them (i.e. Uniswap)
 
-    if (!isNative) {
+    bool hasValue = _args.amount > 0;
+
+    if (!isNative && hasValue) {
       SafeERC20.safeIncreaseAllowance(IERC20(_args.assetId), _args.to, _args.amount);
     }
 
@@ -218,7 +220,7 @@ contract Executor is IExecutor {
 
     // Handle failure cases
     if (!success) {
-      _sendToRecovery(isNative, true, _args.assetId, payable(_args.to), payable(_args.recovery), _args.amount);
+      _sendToRecovery(isNative, hasValue, _args.assetId, payable(_args.to), payable(_args.recovery), _args.amount);
     }
 
     // Emit event
@@ -255,6 +257,10 @@ contract Executor is IExecutor {
     address payable _recovery,
     uint256 _amount
   ) private {
+    if (_amount == 0) {
+      // Nothing to do, exit early
+      return;
+    }
     if (!_isNative) {
       // Decrease allowance
       if (_hasIncreased) {

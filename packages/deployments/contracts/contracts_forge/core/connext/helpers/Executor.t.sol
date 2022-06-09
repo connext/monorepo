@@ -327,7 +327,7 @@ contract ExecutorTest is ForgeHelper {
     // Get starting recovery balance
     uint256 initRecovery = asset.balanceOf(recovery);
 
-    uint256 amount = 0;
+    uint256 amount = 10000;
     address to = address(mockStaking);
 
     // Get the expected return results
@@ -351,6 +351,34 @@ contract ExecutorTest is ForgeHelper {
 
     assertTrue(!success);
     assertEq(asset.balanceOf(recovery), initRecovery + amount);
+  }
+
+  // Should hande the case if excessivlySafeCall fails
+  function test_Executor__execute_handlesExcessivelySafeCallFailure0Value() public {
+    // Get the calldata
+    bytes memory data = abi.encodeWithSelector(MockStaking.descreaseNonce.selector, "");
+    bytes memory property = LibCrossDomainProperty.EMPTY_BYTES;
+
+    // Get starting recovery balance
+    uint256 initRecovery = asset.balanceOf(recovery);
+
+    uint256 amount = 0;
+    address to = address(mockStaking);
+
+    // Get the expected return results
+    (, bytes memory ret) = to.call(data);
+
+    // no calls because no amount
+
+    vm.expectEmit(true, true, true, true);
+    emit Executed(transferId, to, recovery, address(asset), amount, property, data, ret, false);
+
+    (bool success, ) = executor.execute(
+      IExecutor.ExecutorArgs(transferId, amount, to, payable(recovery), address(asset), property, data)
+    );
+
+    assertTrue(!success);
+    assertEq(asset.balanceOf(recovery), initRecovery);
   }
 
   // Should work with native asset
