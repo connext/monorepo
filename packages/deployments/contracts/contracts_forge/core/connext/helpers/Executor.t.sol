@@ -205,8 +205,8 @@ contract ExecutorTest is ForgeHelper {
     );
   }
 
-  // Should gracefully handle failure of no code at to
-  function test_Executor__execute_handlesNoCodeFailure() public {
+  // Should gracefully handle failure of no code at to with tokens
+  function test_Executor__execute_handlesNoCodeFailureWithTokens() public {
     // Get the calldata
     bytes memory data = abi.encodeWithSelector(PropertyQuery.setAmount.selector, "");
     bytes memory property = LibCrossDomainProperty.EMPTY_BYTES;
@@ -233,13 +233,43 @@ contract ExecutorTest is ForgeHelper {
     assertEq(asset.balanceOf(recovery), initRecovery + amount);
   }
 
+  // Should gracefully handle failure of no code at to with native assets
+  function test_Executor__execute_handlesNoCodeFailureWithNativeAsset() public {
+    // Get the calldata
+    bytes memory data = abi.encodeWithSelector(PropertyQuery.setAmount.selector, "");
+    bytes memory property = LibCrossDomainProperty.EMPTY_BYTES;
+
+    // Get starting recovery balance
+    uint256 initRecovery = asset.balanceOf(recovery);
+
+    // send tx
+    uint256 amount = 1200;
+    (bool success, ) = executor.execute(
+      IExecutor.ExecutorArgs(
+        transferId,
+        amount,
+        payable(address(12344321)),
+        payable(recovery),
+        address(asset),
+        property,
+        data
+      )
+    );
+    assertTrue(!success);
+
+    // should have transferred funds to recovery address
+    assertEq(asset.balanceOf(recovery), initRecovery + amount);
+  }
+
+  // Should hande the case if excessivlySafeCall fails
+  function test_Executor__execute_handlesExcessivelySafeCallFailure() public {}
+
   // Should work with native asset
+  function test_Executor__execute_worksWithNativeAsset() public {}
 
   // Should work with tokens
+  function test_Executor__execute_worksWithToken() public {}
 
   // Should decrease allowance if external call fails & using tokens
-
-  // Should not set properties if it is the default value from LibCrossDomainProperty
-
-  // Should set properties if they are provided
+  function test_Executor__execute_decreaseAllowanceIfExternalCallsFailsAndUsingTokens() public {}
 }
