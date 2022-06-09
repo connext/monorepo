@@ -34,13 +34,13 @@ resource "aws_ecs_task_definition" "service" {
         }
       }
       healthCheck = {
-        retries = 3,
+        retries = 10,
         command = [
           "CMD-SHELL",
           "pgrep -x node"
         ],
         timeout : 3,
-        interval : 10,
+        interval : 30,
         startPeriod : null
       },
       portMappings = [

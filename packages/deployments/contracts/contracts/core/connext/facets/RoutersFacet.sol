@@ -46,6 +46,9 @@ contract RoutersFacet is BaseConnextFacet {
   error RoutersFacet__removeRouterLiquidityFor_notOwner();
   error RoutersFacet__setLiquidityFeeNumerator_tooSmall();
   error RoutersFacet__setLiquidityFeeNumerator_tooLarge();
+  error RoutersFacet__approveRouterForPortal_notRouter();
+  error RoutersFacet__approveRouterForPortal_alreadyApproved();
+  error RoutersFacet__unapproveRouterForPortal_notApproved();
 
   // ============ Properties ============
 
@@ -105,6 +108,20 @@ contract RoutersFacet is BaseConnextFacet {
    * @param caller - The account that called the function
    */
   event LiquidityFeeNumeratorUpdated(uint256 liquidityFeeNumerator, address caller);
+
+  /**
+   * @notice Emitted when a router is approved for Portal
+   * @param router - The address of the approved router
+   * @param caller - The account that called the function
+   */
+  event RouterApprovedForPortal(address router, address caller);
+
+  /**
+   * @notice Emitted when a router is disapproved for Portal
+   * @param router - The address of the disapproved router
+   * @param caller - The account that called the function
+   */
+  event RouterUnapprovedForPortal(address router, address caller);
 
   /**
    * @notice Emitted when a router adds liquidity to the contract
@@ -223,6 +240,14 @@ contract RoutersFacet is BaseConnextFacet {
     return s.routerBalances[_router][_asset];
   }
 
+  /**
+   * @notice Returns whether the router is approved for portals or not
+   * @param _router The relevant router address
+   */
+  function getRouterApprovalForPortal(address _router) public view returns (bool) {
+    return s.routerPermissionInfo.approvedForPortalRouters[_router];
+  }
+
   // ============ Admin methods ==============
 
   /**
@@ -327,6 +352,33 @@ contract RoutersFacet is BaseConnextFacet {
     s.LIQUIDITY_FEE_NUMERATOR = _numerator;
 
     emit LiquidityFeeNumeratorUpdated(_numerator, msg.sender);
+  }
+
+  /**
+   * @notice Allow router to use Portals
+   * @param _router - The router address to approve
+   */
+  function approveRouterForPortal(address _router) external onlyOwner {
+    if (!s.routerPermissionInfo.approvedRouters[_router]) revert RoutersFacet__approveRouterForPortal_notRouter();
+    if (s.routerPermissionInfo.approvedForPortalRouters[_router])
+      revert RoutersFacet__approveRouterForPortal_alreadyApproved();
+
+    s.routerPermissionInfo.approvedForPortalRouters[_router] = true;
+
+    emit RouterApprovedForPortal(_router, msg.sender);
+  }
+
+  /**
+   * @notice Remove router access to use Portals
+   * @param _router - The router address to remove approval
+   */
+  function unapproveRouterForPortal(address _router) external onlyOwner {
+    if (!s.routerPermissionInfo.approvedForPortalRouters[_router])
+      revert RoutersFacet__unapproveRouterForPortal_notApproved();
+
+    s.routerPermissionInfo.approvedForPortalRouters[_router] = false;
+
+    emit RouterUnapprovedForPortal(_router, msg.sender);
   }
 
   // ============ Public methods ==============

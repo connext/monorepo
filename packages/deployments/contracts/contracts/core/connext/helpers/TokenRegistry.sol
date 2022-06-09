@@ -28,9 +28,9 @@ import {IBridgeToken} from "../interfaces/IBridgeToken.sol";
  * transfer is for an asset of local origin. If not, it checks for an existing
  * representation contract. If no such representation exists, it deploys a new
  * representation contract. It then stores the relationship in the
- * "reprToCanonical" and "canonicalToRepr" mappings to ensure we can always
- * perform a lookup in either direction
- * Note that locally originating tokens should NEVER be represented in these lookup tables.
+ * `representationToCanonical` and `canonicalToRepresentation` mappings to ensure
+ * we can always perform a lookup in either direction.
+ * NOTE: The locally originating tokens should NEVER be represented in these lookup tables.
  */
 contract TokenRegistry is Initializable, XAppConnectionClient, ITokenRegistry {
   // ============ Libraries ============
@@ -108,14 +108,14 @@ contract TokenRegistry is Initializable, XAppConnectionClient, ITokenRegistry {
    * if the token is remote and no local representation exists, deploy the representation contract
    * @param _domain the token's native domain
    * @param _id the token's id on its native domain
-   * @return _local the address of the local token contract
+   * @return _token the address of the local token contract
    */
-  function ensureLocalToken(uint32 _domain, bytes32 _id) external override returns (address _local) {
-    _local = getLocalAddress(_domain, _id);
-    if (_local == address(0)) {
+  function ensureLocalToken(uint32 _domain, bytes32 _id) external override returns (address _token) {
+    _token = getLocalAddress(_domain, _id);
+    if (_token == address(0)) {
       // Representation does not exist yet;
       // deploy representation contract
-      _local = _deployToken(_domain, _id);
+      _token = _deployToken(_domain, _id);
     }
   }
 
@@ -169,15 +169,15 @@ contract TokenRegistry is Initializable, XAppConnectionClient, ITokenRegistry {
 
   /**
    * @notice Return tokenId for a local token address
-   * @param _local the local address of the token contract (representation or canonical)
+   * @param _token the local address of the token contract (representation or canonical)
    * @return _domain canonical domain
    * @return _id canonical identifier on that domain
    */
-  function getTokenId(address _local) external view override returns (uint32 _domain, bytes32 _id) {
-    ConnextMessage.TokenId memory _tokenId = representationToCanonical[_local];
+  function getTokenId(address _token) external view override returns (uint32 _domain, bytes32 _id) {
+    ConnextMessage.TokenId memory _tokenId = representationToCanonical[_token];
     if (_tokenId.domain == 0) {
       _domain = _localDomain();
-      _id = TypeCasts.addressToBytes32(_local);
+      _id = TypeCasts.addressToBytes32(_token);
     } else {
       _domain = _tokenId.domain;
       _id = _tokenId.id;
@@ -191,10 +191,10 @@ contract TokenRegistry is Initializable, XAppConnectionClient, ITokenRegistry {
    * will return `address(0)`.
    * @param _domain the domain of the canonical version.
    * @param _id the identifier of the canonical version in its domain.
-   * @return _local the local address of the token contract (representation or canonical)
+   * @return _token the local address of the token contract (representation or canonical)
    */
-  function getLocalAddress(uint32 _domain, address _id) external view returns (address _local) {
-    _local = getLocalAddress(_domain, TypeCasts.addressToBytes32(_id));
+  function getLocalAddress(uint32 _domain, address _id) external view returns (address _token) {
+    _token = getLocalAddress(_domain, TypeCasts.addressToBytes32(_id));
   }
 
   /**
@@ -204,15 +204,15 @@ contract TokenRegistry is Initializable, XAppConnectionClient, ITokenRegistry {
    * will return `address(0)`.
    * @param _domain the domain of the canonical version.
    * @param _id the identifier of the canonical version in its domain.
-   * @return _local the local address of the token contract (representation or canonical)
+   * @return _token the local address of the token contract (representation or canonical)
    */
-  function getLocalAddress(uint32 _domain, bytes32 _id) public view override returns (address _local) {
+  function getLocalAddress(uint32 _domain, bytes32 _id) public view override returns (address _token) {
     if (_domain == _localDomain()) {
       // Token is of local origin
-      _local = TypeCasts.bytes32ToAddress(_id);
+      _token = TypeCasts.bytes32ToAddress(_id);
     } else {
       // Token is a representation of a token of remote origin
-      _local = getRepresentationAddress(_domain, _id);
+      _token = getRepresentationAddress(_domain, _id);
     }
   }
 
@@ -221,12 +221,12 @@ contract TokenRegistry is Initializable, XAppConnectionClient, ITokenRegistry {
    * canonical tokenId; revert if there is no local token
    * @param _domain the token's native domain
    * @param _id the token's id on its native domain
-   * @return the local IERC20 token contract
+   * @return IERC20 for the local IERC20 token contract
    */
   function mustHaveLocalToken(uint32 _domain, bytes32 _id) external view override returns (IERC20) {
-    address _local = getLocalAddress(_domain, _id);
-    require(_local != address(0), "!token");
-    return IERC20(_local);
+    address _token = getLocalAddress(_domain, _id);
+    require(_token != address(0), "!token");
+    return IERC20(_token);
   }
 
   /**

@@ -1,6 +1,6 @@
 import { createLoggingContext, SubgraphQueryMetaParams, SubgraphQueryByTimestampMetaParams } from "@connext/nxtp-utils";
 
-import { getContext } from "../../cartographer";
+import { getContext } from "../../shared";
 
 export const updateTransfers = async () => {
   const {
@@ -35,7 +35,7 @@ export const updateTransfers = async () => {
 
     subgraphQueryMetaParams.set(domain, {
       maxBlockNumber: latestBlockNumber,
-      latestNonce,
+      latestNonce: latestNonce == 0 ? 0 : latestNonce + 1,
       destinationDomains: domains,
       orderDirection: "asc",
     });

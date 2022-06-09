@@ -874,6 +874,9 @@ __metadata:
     "@connext/nxtp-txservice": "workspace:*"
     "@connext/nxtp-utils": "workspace:*"
     "@graphql-codegen/cli": 2.6.2
+    "@nomad-xyz/configuration": ^0.1.0-rc.24
+    "@nomad-xyz/sdk": ^2.0.0-rc.17
+    "@nomad-xyz/sdk-bridge": ^1.0.0-rc.17
     "@sinclair/typebox": 0.23.5
     "@types/mocha": 9.1.1
     "@types/sinon": 10.0.11
@@ -3113,7 +3116,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@nomad-xyz/configuration@npm:0.1.0-rc.24, @nomad-xyz/configuration@npm:^0.1.0-rc.23":
+"@nomad-xyz/configuration@npm:0.1.0-rc.24, @nomad-xyz/configuration@npm:^0.1.0-rc.23, @nomad-xyz/configuration@npm:^0.1.0-rc.24":
   version: 0.1.0-rc.24
   resolution: "@nomad-xyz/configuration@npm:0.1.0-rc.24"
   checksum: dd9d15d715b6eb128e9d6b332184d12a126307fdca9ea4adc5a0b589d2aa5831aa8df9a9cca0190763f9683b977e095a558c2a05175f7fb3b63b9fbd47e826b1
@@ -3166,7 +3169,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@nomad-xyz/sdk-bridge@npm:1.0.0-rc.17":
+"@nomad-xyz/sdk-bridge@npm:1.0.0-rc.17, @nomad-xyz/sdk-bridge@npm:^1.0.0-rc.17":
   version: 1.0.0-rc.17
   resolution: "@nomad-xyz/sdk-bridge@npm:1.0.0-rc.17"
   dependencies:
