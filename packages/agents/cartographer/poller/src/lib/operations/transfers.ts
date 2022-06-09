@@ -35,7 +35,7 @@ export const updateTransfers = async () => {
 
     subgraphQueryMetaParams.set(domain, {
       maxBlockNumber: latestBlockNumber,
-      latestNonce: latestNonce + 1,
+      latestNonce: latestNonce == 0 ? 0 : latestNonce + 1,
       destinationDomains: domains,
       orderDirection: "asc",
     });

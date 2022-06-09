@@ -36,7 +36,8 @@ contract AmplificationUtilsTest is FacetHelper {
       lpToken: LPToken(address(100)),
       pooledTokens: _pooledTokens,
       tokenPrecisionMultipliers: _tokenPrecisionMultipliers,
-      balances: _balances
+      balances: _balances,
+      adminFees: new uint256[](2)
     });
   }
 

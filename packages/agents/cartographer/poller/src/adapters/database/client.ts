@@ -3,6 +3,7 @@ import { Pool } from "pg";
 import * as db from "zapatos/db";
 import { raw } from "zapatos/db";
 import type * as s from "zapatos/schema";
+import { BigNumber } from "ethers";
 
 import { pool } from "./index";
 
@@ -108,7 +109,7 @@ export const getLatestNonce = async (domain: string, _pool?: Pool): Promise<numb
   const transfer = await db.sql<s.transfers.SQL, s.transfers.JSONSelectable[]>`SELECT * FROM ${"transfers"} WHERE ${{
     origin_domain: domain,
   }} ORDER BY "nonce" DESC LIMIT 1`.run(poolToUse);
-  return transfer[0]?.nonce ?? 0;
+  return BigNumber.from(transfer[0]?.nonce ?? 0).toNumber();
 };
 
 export const getLatestExecuteTimestamp = async (domain: string, _pool?: Pool): Promise<number> => {
@@ -116,7 +117,7 @@ export const getLatestExecuteTimestamp = async (domain: string, _pool?: Pool): P
   const transfer = await db.sql<s.transfers.SQL, s.transfers.JSONSelectable[]>`SELECT * FROM ${"transfers"} WHERE ${{
     destination_domain: domain,
   }} ORDER BY "execute_timestamp" DESC LIMIT 1`.run(poolToUse);
-  return transfer[0]?.execute_timestamp ?? 0;
+  return BigNumber.from(transfer[0]?.execute_timestamp ?? 0).toNumber();
 };
 
 export const getLatestReconcileTimestamp = async (domain: string, _pool?: Pool): Promise<number> => {
@@ -124,7 +125,7 @@ export const getLatestReconcileTimestamp = async (domain: string, _pool?: Pool):
   const transfer = await db.sql<s.transfers.SQL, s.transfers.JSONSelectable[]>`SELECT * FROM ${"transfers"} WHERE ${{
     destination_domain: domain,
   }} ORDER BY "reconcile_timestamp" DESC LIMIT 1`.run(poolToUse);
-  return transfer[0]?.reconcile_timestamp ?? 0;
+  return BigNumber.from(transfer[0]?.reconcile_timestamp ?? 0).toNumber();
 };
 
 export const saveRouterBalances = async (routerBalances: RouterBalance[], _pool?: Pool): Promise<void> => {
