@@ -7,7 +7,6 @@ import {SafeERC20, IERC20} from "@openzeppelin/contracts/token/ERC20/utils/SafeE
 import {LPToken} from "../helpers/LPToken.sol";
 import {AmplificationUtils} from "./AmplificationUtils.sol";
 import {MathUtils} from "./MathUtils.sol";
-import "../../../../lib/forge-std/src/console.sol";
 
 /**
  * @title SwapUtils library
@@ -835,11 +834,9 @@ library SwapUtils {
       self.tokenPrecisionMultipliers
     );
     v.totalSupply = v.lpToken.totalSupply();
-    console.log("totalSupply", v.totalSupply);
     if (v.totalSupply != 0) {
       v.d0 = getD(_xp(v.balances, v.multipliers), v.preciseA);
     }
-    console.log("d0", v.d0);
 
     uint256[] memory newBalances = new uint256[](pooledTokens.length);
 
@@ -860,7 +857,6 @@ library SwapUtils {
 
     // invariant after change
     v.d1 = getD(_xp(newBalances, v.multipliers), v.preciseA);
-    console.log("d1", v.d1);
     require(v.d1 > v.d0, "D should increase");
 
     // updated to reflect fees and calculate the user's LP tokens

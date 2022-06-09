@@ -6,6 +6,7 @@ import "./FacetHelper.sol";
 import {LibDiamond} from "../../../../contracts/core/connext/libraries/LibDiamond.sol";
 import {IConnextHandler} from "../../../../contracts/core/connext/interfaces/IConnextHandler.sol";
 import {BaseConnextFacet} from "../../../../contracts/core/connext/facets/BaseConnextFacet.sol";
+import {AddressUpgradeable} from "@openzeppelin/contracts-upgradeable/utils/AddressUpgradeable.sol";
 import "../../../../contracts/core/connext/facets/StableSwapFacet.sol";
 
 contract StableSwapFacetTest is FacetHelper, StableSwapFacet {
@@ -99,19 +100,104 @@ contract StableSwapFacetTest is FacetHelper, StableSwapFacet {
   // ============ Tests ============
 
   // ============ View Functions ============
-  // function test_StableSwapFacet__getSwapStorage
-  // function test_StableSwapFacet__getSwapLPToken
-  // function test_StableSwapFacet__getSwapA
-  // function test_StableSwapFacet__getSwapAPrecise
-  // function test_StableSwapFacet__getSwapToken
-  // function test_StableSwapFacet__getSwapTokenIndex
-  // function test_StableSwapFacet__getSwapTokenBalance
-  // function test_StableSwapFacet__getSwapVirtualPrice
-  // function test_StableSwapFacet__calculateSwap
-  // function test_StableSwapFacet__calculateSwapTokenAmount
-  // function test_StableSwapFacet__calculateRemoveSwapLiquidity
-  // function test_StableSwapFacet__calculateRemoveSwapLiquidityOneToken
-  // function test_StableSwapFacet__getSwapAdminBalance
+  function test_StableSwapFacet__getSwapStorage_shouldWork() public {
+    SwapUtils.Swap memory swapStorage = this.getSwapStorage(_canonicalId);
+
+    assertEq(swapStorage.initialA, INITIAL_A_VALUE * AmplificationUtils.A_PRECISION);
+    assertEq(swapStorage.futureA, INITIAL_A_VALUE * AmplificationUtils.A_PRECISION);
+    assertEq(swapStorage.swapFee, SWAP_FEE);
+    assertEq(swapStorage.adminFee, 0);
+  }
+
+  function test_StableSwapFacet__getSwapLPToken_shouldWork() public {
+    address lpToken = this.getSwapLPToken(_canonicalId);
+
+    assertTrue(AddressUpgradeable.isContract(lpToken));
+    assertEq(LPToken(lpToken).name(), LP_TOKEN_NAME);
+    assertEq(LPToken(lpToken).symbol(), LP_TOKEN_SYMBOL);
+  }
+
+  function test_StableSwapFacet__getSwapA_shouldWork() public {
+    assertEq(this.getSwapA(_canonicalId), AmplificationUtils.getA(s.swapStorages[_canonicalId]));
+  }
+
+  function test_StableSwapFacet__getSwapAPrecise() public {
+    assertEq(this.getSwapAPrecise(_canonicalId), AmplificationUtils.getAPrecise(s.swapStorages[_canonicalId]));
+  }
+
+  function test_StableSwapFacet__getSwapToken_shouldWork() public {
+    assertEq(address(this.getSwapToken(_canonicalId, 0)), address(_local));
+    assertEq(address(this.getSwapToken(_canonicalId, 1)), address(_adopted));
+
+    vm.expectRevert(StableSwapFacet.StableSwapFacet__getSwapToken_outOfRange.selector);
+    this.getSwapToken(_canonicalId, 2);
+  }
+
+  function test_StableSwapFacet__getSwapTokenIndex_shouldWork() public {
+    assertEq(this.getSwapTokenIndex(_canonicalId, _local), 0);
+    assertEq(this.getSwapTokenIndex(_canonicalId, _adopted), 1);
+
+    vm.expectRevert(StableSwapFacet.StableSwapFacet__getSwapTokenIndex_notExist.selector);
+    this.getSwapTokenIndex(_canonicalId, address(1));
+  }
+
+  function test_StableSwapFacet__getSwapTokenBalance_shouldWork() public {
+    assertEq(this.getSwapTokenBalance(_canonicalId, 0), this.getSwapStorage(_canonicalId).balances[0]);
+
+    vm.expectRevert(StableSwapFacet.StableSwapFacet__getSwapTokenBalance_indexOutOfRange.selector);
+    this.getSwapTokenBalance(_canonicalId, 2);
+  }
+
+  function test_StableSwapFacet__getSwapVirtualPrice_shouldWork() public {
+    assertEq(this.getSwapVirtualPrice(_canonicalId), SwapUtils.getVirtualPrice(s.swapStorages[_canonicalId]));
+  }
+
+  function test_StableSwapFacet__calculateSwap_shouldWork() public {
+    uint256 dx = 100;
+
+    vm.expectRevert("Token index out of range");
+    this.calculateSwap(bytes32(0), 0, 1, dx);
+
+    assertEq(
+      this.calculateSwap(_canonicalId, 0, 1, dx),
+      SwapUtils.calculateSwap(s.swapStorages[_canonicalId], 0, 1, dx)
+    );
+  }
+
+  function test_StableSwapFacet__calculateSwapTokenAmount_shouldWork() public {
+    uint256[] memory _amounts = new uint256[](2);
+    _amounts[0] = 100;
+    _amounts[1] = 100;
+
+    vm.expectRevert();
+    this.calculateSwapTokenAmount(bytes32(0), _amounts, true);
+
+    _amounts[0] = this.getSwapTokenBalance(_canonicalId, 0) + 1;
+    vm.expectRevert("Cannot withdraw more than available");
+    this.calculateSwapTokenAmount(_canonicalId, _amounts, false);
+  }
+
+  function test_StableSwapFacet__calculateRemoveSwapLiquidity_shouldWork() public {
+    assertEq(
+      this.calculateRemoveSwapLiquidity(_canonicalId, 100)[0],
+      SwapUtils.calculateRemoveLiquidity(s.swapStorages[_canonicalId], 100)[0]
+    );
+    assertEq(
+      this.calculateRemoveSwapLiquidity(_canonicalId, 100)[1],
+      SwapUtils.calculateRemoveLiquidity(s.swapStorages[_canonicalId], 100)[1]
+    );
+  }
+
+  function test_StableSwapFacet__calculateRemoveSwapLiquidityOneToken_shouldWork() public {
+    assertEq(
+      this.calculateRemoveSwapLiquidityOneToken(_canonicalId, 100, 0),
+      SwapUtils.calculateWithdrawOneToken(s.swapStorages[_canonicalId], 100, 0)
+    );
+  }
+
+  function test_StableSwapFacet__getSwapAdminBalance_shouldWork() public {
+    assertEq(this.getSwapAdminBalance(_canonicalId, 0), SwapUtils.getAdminBalance(s.swapStorages[_canonicalId], 0));
+  }
 
   // ======= State-Modifying Functions ========
   // function test_StableSwapFacet__swap
