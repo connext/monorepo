@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity 0.8.14;
 
-import {AddressUpgradeable} from "@openzeppelin/contracts-upgradeable/utils/AddressUpgradeable.sol";
-import {SafeERC20Upgradeable, IERC20Upgradeable} from "@openzeppelin/contracts-upgradeable/token/ERC20/utils/SafeERC20Upgradeable.sol";
+import {Address} from "@openzeppelin/contracts/utils/Address.sol";
+import {SafeERC20, IERC20} from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 // import {ExcessivelySafeCall} from "@nomad-xyz/excessively-safe-call/src/ExcessivelySafeCall.sol";
 // TODO: see note in below file re: npm
 import {ExcessivelySafeCall} from "../../../nomad-core/libs/ExcessivelySafeCall.sol";
@@ -119,7 +119,7 @@ contract Executor is IExecutor {
 
     if (isNative) require(msg.value == _args.amount, "!amount");
 
-    if (!AddressUpgradeable.isContract(_args.to)) {
+    if (!Address.isContract(_args.to)) {
       _handleFailure(isNative, false, _args.assetId, payable(_args.to), payable(_args.recovery), _args.amount);
       // Emit event
       emit Executed(
@@ -142,7 +142,7 @@ contract Executor is IExecutor {
     // funds transferred directly to them (i.e. Uniswap)
 
     if (!isNative) {
-      SafeERC20Upgradeable.safeIncreaseAllowance(IERC20Upgradeable(_args.assetId), _args.to, _args.amount);
+      SafeERC20.safeIncreaseAllowance(IERC20(_args.assetId), _args.to, _args.amount);
     }
 
     // If it should set the properties, set them.
@@ -204,13 +204,13 @@ contract Executor is IExecutor {
     if (!isNative) {
       // Decrease allowance
       if (hasIncreased) {
-        SafeERC20Upgradeable.safeDecreaseAllowance(IERC20Upgradeable(_assetId), _to, _amount);
+        SafeERC20.safeDecreaseAllowance(IERC20(_assetId), _to, _amount);
       }
       // Transfer funds
-      SafeERC20Upgradeable.safeTransfer(IERC20Upgradeable(_assetId), _recovery, _amount);
+      SafeERC20.safeTransfer(IERC20(_assetId), _recovery, _amount);
     } else {
       // Transfer funds
-      AddressUpgradeable.sendValue(_recovery, _amount);
+      Address.sendValue(_recovery, _amount);
     }
   }
 }
