@@ -306,7 +306,8 @@ jobs:
         build-and-push-router-image,
         build-and-push-sequencer-image,
         build-and-push-web3signer,
-        build-and-push-cartographer-image,
+        build-and-push-cartographer-routers-image,
+        build-and-push-cartographer-transfers-image,
         build-and-push-lighthouse-image,
       ]
     env:
@@ -326,7 +327,8 @@ jobs:
     outputs:
       router-tags: ${{ needs.build-and-push-router-image.outputs.json }}
       sequencer-tags: ${{ needs.build-and-push-sequencer-image.outputs.json }}
-      cartographer-tags: ${{ needs.build-and-push-cartographer-image.outputs.json }}
+      cartographer-routers-tags: ${{ needs.build-and-push-cartographer-routers-image.outputs.json }}
+      cartographer-transfers-tags: ${{ needs.build-and-push-cartographer-transfers-image.outputs.json }}
       lighthouse-tags: ${{ needs.build-and-push-lighthouse-image.outputs.json }}
 
   terraform-infra:
@@ -371,7 +373,8 @@ jobs:
     needs: [smoke-tests, terraform-infra]
     env:
       AWS_PROFILE: aws-deployer-connext
-      TF_VAR_full_image_name_cartographer: ${{ fromJSON(needs.smoke-tests.outputs.cartographer-tags).tags[0] }}
+      TF_VAR_full_image_name_cartographer_routers: ${{ fromJSON(needs.smoke-tests.outputs.cartographer-routers-tags).tags[0] }}
+      TF_VAR_full_image_name_cartographer_transfers: ${{ fromJSON(needs.smoke-tests.outputs.cartographer-transfers-tags).tags[0] }}
 
     runs-on: ubuntu-latest
     permissions:
@@ -423,7 +426,8 @@ jobs:
           terraform apply -var-file=tfvars.json -auto-approve
 
     outputs:
-      cartographer-tags: ${{ needs.smoke-tests.outputs.cartographer-tags }}
+      cartographer-routers-tags: ${{ needs.smoke-tests.outputs.cartographer-routers-tags }}
+      cartographer-transfers-tags: ${{ needs.smoke-tests.outputs.cartographer-transfers-tags }}
 
   terraform-services-core-staging:
     needs: [smoke-tests, terraform-infra]
@@ -505,7 +509,8 @@ jobs:
       router-tags: ${{ needs.terraform-services-core-staging.outputs.router-tags }}
       sequencer-tags: ${{ needs.terraform-services-core-staging.outputs.sequencer-tags }}
       lighthouse-tags: ${{ needs.terraform-services-core-staging.outputs.lighthouse-tags }}
-      cartographer-tags: ${{ needs.terraform-services-backend-staging.outputs.cartographer-tags }}
+      cartographer-routers-tags: ${{ needs.terraform-services-backend-staging.outputs.cartographer-routers-tags }}
+      cartographer-transfers-tags: ${{ needs.terraform-services-backend-staging.outputs.cartographer-transfers-tags }}
 
   terraform-services-core-prod:
     if: github.ref == 'refs/heads/prod'
@@ -569,7 +574,8 @@ jobs:
     needs: [e2e-tests]
     env:
       AWS_PROFILE: aws-deployer-connext
-      TF_VAR_full_image_name_cartographer: ${{ fromJSON(needs.e2e-tests.outputs.cartographer-tags).tags[0] }}
+      TF_VAR_full_image_name_cartographer_routers: ${{ fromJSON(needs.e2e-tests.outputs.cartographer-routers-tags).tags[0] }}
+      TF_VAR_full_image_name_cartographer_transfers: ${{ fromJSON(needs.e2e-tests.outputs.cartographer-transfers-tags).tags[0] }}
 
     runs-on: ubuntu-latest
     permissions:

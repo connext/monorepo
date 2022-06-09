@@ -25,10 +25,16 @@ variable "environment" {
   default     = "testnet"
 }
 
-variable "full_image_name_cartographer" {
+variable "full_image_name_cartographer_routers" {
   type        = string
-  description = "router image name"
-  default     = "ghcr.io/connext/cartographer:sha-2ed1a17"
+  description = "cartographer routers image name"
+  default     = "ghcr.io/connext/cartographer-routers:sha-2ed1a17"
+}
+
+variable "full_image_name_cartographer_transfers" {
+  type        = string
+  description = "cartographer transfers image name"
+  default     = "ghcr.io/connext/cartographer-transfers:sha-2ed1a17"
 }
 
 variable "certificate_arn_testnet" {
