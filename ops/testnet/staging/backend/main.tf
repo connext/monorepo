@@ -105,6 +105,7 @@ module "cartographer" {
   domain                  = var.domain
   service_security_groups = flatten([module.network.allow_all_sg, module.network.ecs_task_sg])
   container_env_vars      = local.cartographer_env_vars
+  health_check_command    = ["CMD-SHELL", "pm2 list | grep routers-poller || exit 1"]
 }
 
 module "network" {
