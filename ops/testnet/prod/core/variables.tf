@@ -20,6 +20,11 @@ variable "environment" {
   default     = "testnet"
 }
 
+variable "nomad_environment" {
+  description = "nomad environment type"
+  default = "staging"
+}
+
 variable "domain" {
   default = "core"
 }
