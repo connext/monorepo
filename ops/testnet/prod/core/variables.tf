@@ -87,10 +87,6 @@ variable "goerli_alchemy_key_1" {
   type = string
 }
 
-variable "logdna_key" {
-  type = string
-}
-
 variable "web3_signer_private_key" {
   type = string
 }
