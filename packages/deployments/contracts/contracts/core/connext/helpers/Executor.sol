@@ -34,23 +34,29 @@ contract Executor is IExecutor {
   address private immutable connext;
 
   /**
-   * @notice Properties set for access via reentrancy
-   * @dev Contracts that are being called during `execute` may set
-   * properties. Generally, these properties will only be non-null
-   * if the data was authenticated (i.e. reconciled / fraud window
-   * elapsed).
+   * @notice Transaction properties that are accessible by external contracts.
+   * These properties are the `origin` and `originSender` of the transfer, and are
+   * only set once the data has been authenticated (i.e. nomad fraud window
+   * elapsed)
+   * @dev Contracts that interact with this (i.e. ones that are processing the calldata
+   * for a transfer) can use these cross domain properties to permission crosschain calls
+   * via:
    *
-   * Callers can access these by using code:
-   * `IExecutor(msg.sender).originSender();`
+   * `require(PERMISSIONED == IExecutor(msg.sender).originSender(), "!authed");`
+   *
+   * If the data has not been authenticated, these properties are set to empty, and the
+   * above code will revert
    */
   bytes private properties = LibCrossDomainProperty.EMPTY_BYTES;
 
   /**
-   * @notice Amount transferred
-   * @dev This is always accessible via reentrancy. May *NOT* be the exact amount
-   * transferred due to AMM slippage
+   * @notice Amount transferred via the crosschain transaction. This is always
+   * accessible (i.e. set even if the data is not authenticated) by contracts
+   * processing calldata.
+   * @dev This amount could be different than the amount transferred by the user from the
+   * origin domain due to the AMM slippage.
    *
-   * Callers can access these by using code:
+   * Callers can access the amount via:
    * `IExecutor(msg.sender).amount();`
    */
   uint256 private amnt;
