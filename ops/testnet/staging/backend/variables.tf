@@ -53,3 +53,12 @@ variable "postgres_user" {
 variable "dd_api_key" {
   type = string
 }
+
+variable "health_check_command" {
+  type        = list(string)
+  description = "Path to health check endpoint"
+  default = [
+    "CMD-SHELL",
+    "pgrep -x node"
+  ]
+}
