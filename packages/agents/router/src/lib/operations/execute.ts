@@ -14,7 +14,25 @@ import { BridgeContext } from "@nomad-xyz/sdk-bridge";
 // fee percentage paid to relayer. need to be updated later
 export const RELAYER_FEE_PERCENTAGE = "1"; //  1%
 //helper function to match our config environments with nomads
+export const getBlacklist = async (
+  originDomain: string,
+  destinationDomain: string,
+  nomadEnvironment: string,
+): Promise<{ originBlacklisted: boolean; destinationBlacklisted: boolean }> => {
+  const context = BridgeContext.fromNomadContext(new NomadContext(nomadEnvironment));
+  //todo: look for higher level import of this class
+  //push them to blacklist if not there already
+  await context.checkHomes([originDomain, destinationDomain]);
 
+  //get blacklist
+  const blacklist = context.blacklist();
+
+  //determine if origin or destintion aren't connected to nomad
+  const originBlacklisted = blacklist.has(Number(originDomain));
+  const destinationBlacklisted = blacklist.has(Number(destinationDomain));
+
+  return { originBlacklisted, destinationBlacklisted };
+};
 /**
  * Router creates a new bid and sends it to auctioneer.
  *
@@ -107,17 +125,11 @@ export const execute = async (params: OriginTransfer): Promise<void> => {
     });
   }
 
-  const context = BridgeContext.fromNomadContext(new NomadContext(config.nomadEnvironment));
-  //todo: look for higher level import of this class
-  //push them to blacklist if not there already
-  await context.checkHomes([originDomain, destinationDomain]);
-
-  //get blacklist
-  const blacklist = context.blacklist();
-
-  //determine if origin or destintion aren't connected to nomad
-  const originBlacklisted = blacklist.has(Number(originDomain));
-  const destinationBlacklisted = blacklist.has(Number(destinationDomain));
+  const { originBlacklisted, destinationBlacklisted } = await getBlacklist(
+    originDomain,
+    destinationDomain,
+    config.nomadEnvironment,
+  );
 
   logger.debug("Signed payloads", requestContext, methodContext, {
     rounds: Object.keys(signatures),
