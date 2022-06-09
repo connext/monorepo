@@ -64,7 +64,6 @@ locals {
     }
 
     environment = var.stage
-    nomadEnvironment = var.nomad_environment
   })
 }
 
