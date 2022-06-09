@@ -241,17 +241,28 @@ contract ExecutorTest is ForgeHelper {
     );
   }
 
-  // Should revert if msg.value isn't equal to args.amount
-  function test_Executor__execute_revertsIfNotEqual() public {
+  // Should gracefully handle failures if value != amount
+  function test_Executor__execute_handlesIfValueIsNotAmount() public {
     // Get the calldata
     bytes memory data = abi.encodeWithSelector(MockStaking.stake.selector, address(0), 100);
     bytes memory property = LibCrossDomainProperty.EMPTY_BYTES;
 
     uint256 amount = 100;
-    vm.expectRevert(bytes("!amount"));
+    address to = address(mockStaking);
+
+    uint256 initRecovery = recovery.balance;
+    uint256 initTo = to.balance;
+
+    vm.expectEmit(true, true, true, true);
+    emit Executed(transferId, to, recovery, address(0), 99, property, data, bytes(""), false);
+
     (bool success, ) = executor.execute{value: 99}(
       IExecutor.ExecutorArgs(transferId, amount, address(mockStaking), payable(recovery), address(0), property, data)
     );
+    assertTrue(!success);
+
+    assertEq(to.balance, initTo);
+    assertEq(recovery.balance, initRecovery + 99);
   }
 
   // Should gracefully handle failure of no code at to

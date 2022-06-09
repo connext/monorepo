@@ -142,7 +142,25 @@ contract Executor is IExecutor {
 
     bool isNative = _args.assetId == address(0);
 
-    if (isNative) require(msg.value == _args.amount, "!amount");
+    // If the amount is not the same as the value, send what exists to the recovery address
+    // and emit the executed event. This allows callers to process the failure and
+    // ensures funds sent to contract always redirected to recovery
+    if (isNative && msg.value != _args.amount) {
+      _sendToRecovery(isNative, false, _args.assetId, payable(_args.to), payable(_args.recovery), msg.value);
+      // Emit event
+      emit Executed(
+        _args.transferId,
+        _args.to,
+        _args.recovery,
+        _args.assetId,
+        msg.value,
+        _args.properties,
+        _args.callData,
+        returnData,
+        success
+      );
+      return (success, returnData);
+    }
 
     if (!Address.isContract(_args.to)) {
       _sendToRecovery(isNative, false, _args.assetId, payable(_args.to), payable(_args.recovery), _args.amount);
