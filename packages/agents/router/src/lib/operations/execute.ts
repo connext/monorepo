@@ -15,8 +15,6 @@ import { BridgeContext } from "@nomad-xyz/sdk-bridge";
 export const RELAYER_FEE_PERCENTAGE = "1"; //  1%
 //helper function to match our config environments with nomads
 
-const env_type = getContext().config.nomadEnvironment;
-
 /**
  * Router creates a new bid and sends it to auctioneer.
  *
@@ -109,7 +107,7 @@ export const execute = async (params: OriginTransfer): Promise<void> => {
     });
   }
 
-  const context = BridgeContext.fromNomadContext(new NomadContext(env_type));
+  const context = BridgeContext.fromNomadContext(new NomadContext(config.nomadEnvironment));
   //todo: look for higher level import of this class
   //push them to blacklist if not there already
   await context.checkHomes([originDomain, destinationDomain]);
