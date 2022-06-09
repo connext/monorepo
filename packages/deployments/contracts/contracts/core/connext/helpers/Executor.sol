@@ -17,6 +17,8 @@ import {LibCrossDomainProperty, TypedMemView} from "../libraries/LibCrossDomainP
  * @notice This library contains an `execute` function that is callabale by
  * an associated Connext contract. This is used to execute
  * arbitrary calldata on a receiving chain.
+ * @dev In the event this external call fails, funds will be sent to a provided
+ * recovery address. Consequently, funds held in this contract should be transitory
  */
 contract Executor is IExecutor {
   // ============ Libraries =============
@@ -26,8 +28,31 @@ contract Executor is IExecutor {
 
   // ============ Properties =============
 
+  /**
+   * @notice Address of associated connext
+   */
   address private immutable connext;
+
+  /**
+   * @notice Properties set for access via reentrancy
+   * @dev Contracts that are being called during `execute` may set
+   * properties. Generally, these properties will only be non-null
+   * if the data was authenticated (i.e. reconciled / fraud window
+   * elapsed).
+   *
+   * Callers can access these by using code:
+   * `IExecutor(msg.sender).originSender();`
+   */
   bytes private properties = LibCrossDomainProperty.EMPTY_BYTES;
+
+  /**
+   * @notice Amount transferred
+   * @dev This is always accessible via reentrancy. May *NOT* be the exact amount
+   * transferred due to AMM slippage
+   *
+   * Callers can access these by using code:
+   * `IExecutor(msg.sender).amount();`
+   */
   uint256 private amnt;
 
   /**
@@ -193,17 +218,28 @@ contract Executor is IExecutor {
     return (success, returnData);
   }
 
+  /**
+   * @notice Sends funds to the specified recovery address
+   * @dev Called if the external call data fails, it's not a contract, or the amount in native
+   * asset is incorrect.
+   * @param _isNative - Whether the asset is native or not
+   * @param _hasIncreased - Whether the allowance was increased
+   * @param _assetId - Asset associated with call
+   * @param _to - Where call was attempted
+   * @param _recovery - Where to send funds
+   * @param _amount - Amount to send
+   */
   function _handleFailure(
-    bool isNative,
-    bool hasIncreased,
+    bool _isNative,
+    bool _hasIncreased,
     address _assetId,
     address payable _to,
     address payable _recovery,
     uint256 _amount
   ) private {
-    if (!isNative) {
+    if (!_isNative) {
       // Decrease allowance
-      if (hasIncreased) {
+      if (_hasIncreased) {
         SafeERC20.safeDecreaseAllowance(IERC20(_assetId), _to, _amount);
       }
       // Transfer funds
