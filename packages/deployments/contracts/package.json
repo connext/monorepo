@@ -9,7 +9,7 @@
     "test:forge": "yarn forge test --gas-report",
     "forge": "forge",
     "forge:install": "forge install",
-    "build": "hardhat compile",
+    "build": "hardhat compile && tsc --build ./tsconfig.build.json",
     "coverage": "hardhat coverage --solcoverjs ./.solcover.js",
     "whitelist": "ts-node ./src/whitelist.ts",
     "create-router": "ts-node ./src/createRouter.ts",
@@ -25,7 +25,7 @@
     "hardhat": "hardhat",
     "size": "hardhat size-contracts"
   },
-  "main": "dist/index.js",
+  "main": "dist/src/index.js",
   "types": "typechain/index.ts",
   "files": [
     "dist/**/*",
