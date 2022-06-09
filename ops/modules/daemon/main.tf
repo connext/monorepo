@@ -35,10 +35,7 @@ resource "aws_ecs_task_definition" "service" {
       }
       healthCheck = {
         retries = 10,
-        command = [
-          "CMD-SHELL",
-          "pgrep -x node"
-        ],
+        command = var.health_check_command,
         timeout : 3,
         interval : 30,
         startPeriod : null
@@ -88,8 +85,8 @@ resource "aws_ecs_task_definition" "service" {
         type = "fluentbit",
         options = {
           enable-ecs-log-metadata = "true"
-          config-file-type = "file"
-          config-file-value = "/fluent-bit/configs/parse-json.conf"
+          config-file-type        = "file"
+          config-file-value       = "/fluent-bit/configs/parse-json.conf"
         }
       }
     }
