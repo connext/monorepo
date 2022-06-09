@@ -301,6 +301,7 @@ jobs:
       ROUTER_IMAGE: ${{ fromJSON(needs.build-and-push-router-image.outputs.json).tags[0] }}
       SEQUENCER_IMAGE: ${{ fromJSON(needs.build-and-push-sequencer-image.outputs.json).tags[0] }}
       WEB3_SIGNER_PRIVATE_KEY: ${{ secrets.WEB3_SIGNER_TESTNET_PRIVATE_KEY }}
+      MNEMONIC: "candy maple cake sugar pudding cream honey rich smooth crumble sweet treat"
     steps:
       - name: Checkout repository
         uses: actions/checkout@v2

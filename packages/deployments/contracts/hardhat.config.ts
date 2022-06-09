@@ -9,9 +9,9 @@ import "@tenderly/hardhat-tenderly";
 import "@nomiclabs/hardhat-etherscan";
 import "@openzeppelin/hardhat-upgrades";
 import "hardhat-contract-sizer";
-import { HardhatUserConfig } from "hardhat/types";
-
 import { config as dotEnvConfig } from "dotenv";
+import { HardhatUserConfig } from "hardhat/types";
+import { utils } from "ethers";
 
 import "./tasks/setupRouter";
 import "./tasks/setupAsset";
@@ -38,7 +38,6 @@ import "./tasks/stableswap/initializeSwap";
 import "./tasks/stableswap/addSwapLiquidity";
 import "./tasks/stableswap/removeSwapLiquidity";
 import "./tasks/stableswap/setSwapFees";
-import { utils } from "ethers";
 
 dotEnvConfig();
 
