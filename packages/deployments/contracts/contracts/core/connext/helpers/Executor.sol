@@ -56,7 +56,7 @@ contract Executor is IExecutor {
   uint256 private amnt;
 
   /**
-   * @notice The amount of gas needed to execute _handleFailure
+   * @notice The amount of gas needed to execute _sendToRecovery
    * @dev Used to calculate the amount of gas to reserve from transaction
    * to properly handle failure cases
    */
@@ -145,7 +145,7 @@ contract Executor is IExecutor {
     if (isNative) require(msg.value == _args.amount, "!amount");
 
     if (!Address.isContract(_args.to)) {
-      _handleFailure(isNative, false, _args.assetId, payable(_args.to), payable(_args.recovery), _args.amount);
+      _sendToRecovery(isNative, false, _args.assetId, payable(_args.to), payable(_args.recovery), _args.amount);
       // Emit event
       emit Executed(
         _args.transferId,
@@ -200,7 +200,7 @@ contract Executor is IExecutor {
 
     // Handle failure cases
     if (!success) {
-      _handleFailure(isNative, true, _args.assetId, payable(_args.to), payable(_args.recovery), _args.amount);
+      _sendToRecovery(isNative, true, _args.assetId, payable(_args.to), payable(_args.recovery), _args.amount);
     }
 
     // Emit event
@@ -229,7 +229,7 @@ contract Executor is IExecutor {
    * @param _recovery - Where to send funds
    * @param _amount - Amount to send
    */
-  function _handleFailure(
+  function _sendToRecovery(
     bool _isNative,
     bool _hasIncreased,
     address _assetId,
