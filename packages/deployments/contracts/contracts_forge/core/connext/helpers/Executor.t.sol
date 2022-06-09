@@ -28,7 +28,7 @@ contract MockStaking {
 
   function stake(address asset, uint256 amount) public payable returns (uint256) {
     if (asset == address(0)) {
-      require(msg.value == amount, "!equal");
+      require(msg.value == amount, "!amount");
     } else {
       IERC20(asset).transferFrom(msg.sender, address(this), amount);
     }
@@ -248,7 +248,7 @@ contract ExecutorTest is ForgeHelper {
     bytes memory property = LibCrossDomainProperty.EMPTY_BYTES;
 
     uint256 amount = 100;
-    vm.expectRevert(bytes("!equal"));
+    vm.expectRevert(bytes("!amount"));
     (bool success, ) = executor.execute{value: 99}(
       IExecutor.ExecutorArgs(transferId, amount, address(mockStaking), payable(recovery), address(0), property, data)
     );

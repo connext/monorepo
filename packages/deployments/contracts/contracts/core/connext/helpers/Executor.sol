@@ -117,7 +117,7 @@ contract Executor is IExecutor {
 
     bool isNative = _args.assetId == address(0);
 
-    if (isNative) require(msg.value == _args.amount, "!equal");
+    if (isNative) require(msg.value == _args.amount, "!amount");
 
     if (!AddressUpgradeable.isContract(_args.to)) {
       _handleFailure(isNative, false, _args.assetId, payable(_args.to), payable(_args.recovery), _args.amount);
