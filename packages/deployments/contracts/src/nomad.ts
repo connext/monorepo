@@ -1,10 +1,10 @@
 import { utils } from "ethers";
 import * as configuration from "@nomad-xyz/configuration";
-import { deployments } from "hardhat";
+import { HardhatRuntimeEnvironment } from "hardhat/types";
 
 import { getDeploymentName } from "../src/utils";
+
 import { MAINNET_CHAINS } from "./constants";
-import { HardhatRuntimeEnvironment } from "hardhat/types";
 
 export type Address = string;
 
