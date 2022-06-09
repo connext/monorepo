@@ -8,6 +8,9 @@ import {IWrapped} from "../../../../contracts/core/connext/interfaces/IWrapped.s
 
 import {ConnextMessage} from "../../../../contracts/core/connext/libraries/ConnextMessage.sol";
 import {LibConnextStorage, AppStorage} from "../../../../contracts/core/connext/libraries/LibConnextStorage.sol";
+import {TestERC20} from "../../../../contracts/test/TestERC20.sol";
+import {ConnextMessage} from "../../../../contracts/core/connext/libraries/ConnextMessage.sol";
+import {IStableSwap} from "../../../../contracts/core/connext/interfaces/IStableSwap.sol";
 
 import {TestERC20} from "../../../../contracts/test/TestERC20.sol";
 
@@ -45,6 +48,8 @@ contract FacetHelper is ForgeHelper {
   // fees
   uint256 _liquidityFeeNumerator = 9995;
   uint256 _liquidityFeeDenominator = 10000;
+  // fees for credit
+  uint256 _portalFeeNumerator = 5;
 
   // ============ Utils ============
 
@@ -53,6 +58,7 @@ contract FacetHelper is ForgeHelper {
     AppStorage storage s = LibConnextStorage.connextStorage();
     s.LIQUIDITY_FEE_NUMERATOR = _liquidityFeeNumerator;
     s.LIQUIDITY_FEE_DENOMINATOR = _liquidityFeeDenominator;
+    s.aavePortalFeeNumerator = _portalFeeNumerator;
   }
 
   // Sets remote router context

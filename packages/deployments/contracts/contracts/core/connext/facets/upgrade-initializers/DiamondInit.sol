@@ -55,24 +55,27 @@ contract DiamondInit is BaseConnextFacet {
     // in order to set state variables in the diamond during deployment or an upgrade
     // More info here: https://eips.ethereum.org/EIPS/eip-2535#diamond-interface
 
-    // __XAppConnectionClient_initialize
-    s.xAppConnectionManager = XAppConnectionManager(_xAppConnectionManager);
+    if (!s.initialized) {
+      s.initialized = true;
+      // __XAppConnectionClient_initialize
+      s.xAppConnectionManager = XAppConnectionManager(_xAppConnectionManager);
 
-    // __ProposedOwnable_init
+      // __ProposedOwnable_init
 
-    // __ReentrancyGuard_init_unchained
-    s._status = _NOT_ENTERED;
+      // __ReentrancyGuard_init_unchained
+      s._status = _NOT_ENTERED;
 
-    // ConnextHandler
-    s.domain = _domain;
-    s.nonce = 0;
-    s.relayerFeeRouter = RelayerFeeRouter(_relayerFeeRouter);
-    s.promiseRouter = PromiseRouter(_promiseRouter);
-    s.executor = new Executor(address(this));
-    s.tokenRegistry = ITokenRegistry(_tokenRegistry);
-    s.wrapper = IWrapped(_wrappedNative);
-    s.LIQUIDITY_FEE_NUMERATOR = 9995;
-    s.LIQUIDITY_FEE_DENOMINATOR = 10000;
-    s.maxRoutersPerTransfer = 5;
+      // ConnextHandler
+      s.domain = _domain;
+      s.nonce = 0;
+      s.relayerFeeRouter = RelayerFeeRouter(_relayerFeeRouter);
+      s.promiseRouter = PromiseRouter(_promiseRouter);
+      s.executor = new Executor(address(this));
+      s.tokenRegistry = ITokenRegistry(_tokenRegistry);
+      s.wrapper = IWrapped(_wrappedNative);
+      s.LIQUIDITY_FEE_NUMERATOR = 9995;
+      s.LIQUIDITY_FEE_DENOMINATOR = 10000;
+      s.maxRoutersPerTransfer = 5;
+    }
   }
 }

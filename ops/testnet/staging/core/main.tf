@@ -55,23 +55,6 @@ module "router" {
   container_env_vars       = local.router_env_vars
 }
 
-module "router_logdna_lambda_exporter" {
-  source               = "../../../modules/lambda"
-  stage                = var.stage
-  environment          = var.environment
-  domain               = var.domain
-  region               = var.region
-  log_group_name       = module.router.log_group_name
-  logdna_key           = var.logdna_key
-  private_subnets      = module.network.private_subnets
-  public_subnets       = module.network.public_subnets
-  service              = "router"
-  vpc_id               = module.network.vpc_id
-  log_group_arn        = module.router.log_group_arn
-  aws_lambda_s3_bucket = "aws-lamba-logdna-cloudwatch-staging"
-}
-
-
 module "sequencer" {
   source                   = "../../../modules/service"
   stage                    = var.stage
@@ -101,22 +84,6 @@ module "sequencer" {
   service_security_groups  = flatten([module.network.allow_all_sg, module.network.ecs_task_sg])
   cert_arn                 = var.certificate_arn_testnet
   container_env_vars       = local.sequencer_env_vars
-}
-
-module "sequencer_logdna_lambda_exporter" {
-  source               = "../../../modules/lambda"
-  stage                = var.stage
-  environment          = var.environment
-  domain               = var.domain
-  region               = var.region
-  log_group_name       = module.sequencer.log_group_name
-  logdna_key           = var.logdna_key
-  private_subnets      = module.network.private_subnets
-  public_subnets       = module.network.public_subnets
-  service              = "sequencer"
-  vpc_id               = module.network.vpc_id
-  log_group_arn        = module.sequencer.log_group_arn
-  aws_lambda_s3_bucket = "aws-lamba-logdna-cloudwatch-staging"
 }
 
 module "web3signer" {
@@ -149,44 +116,6 @@ module "web3signer" {
   service_security_groups  = flatten([module.network.allow_all_sg, module.network.ecs_task_sg])
   cert_arn                 = var.certificate_arn_testnet
   container_env_vars       = local.web3signer_env_vars
-
-}
-
-module "lighthouse" {
-  source                   = "../../../modules/daemon"
-  region                   = var.region
-  dd_api_key               = var.dd_api_key
-  execution_role_arn       = data.aws_iam_role.ecr_admin_role.arn
-  cluster_id               = module.ecs.ecs_cluster_id
-  vpc_id                   = module.network.vpc_id
-  private_subnets          = module.network.private_subnets
-  docker_image             = var.full_image_name_lighthouse
-  container_family         = "lighthouse"
-  container_port           = 8080
-  cpu                      = 256
-  memory                   = 512
-  instance_count           = 1
-  environment              = var.environment
-  stage                    = var.stage
-  domain                   = var.domain
-  service_security_groups  = flatten([module.network.allow_all_sg, module.network.ecs_task_sg])
-  container_env_vars       = local.lighthouse_env_vars
-}
-
-module "lighthouse_logdna_lambda_exporter" {
-  source               = "../../../modules/lambda"
-  stage                = var.stage
-  environment          = var.environment
-  domain               = var.domain
-  region               = var.region
-  log_group_name       = module.lighthouse.log_group_name
-  logdna_key           = var.logdna_key
-  private_subnets      = module.network.private_subnets
-  public_subnets       = module.network.public_subnets
-  service              = "lighthouse"
-  vpc_id               = module.network.vpc_id
-  log_group_arn        = module.lighthouse.log_group_arn
-  aws_lambda_s3_bucket = "aws-lamba-logdna-cloudwatch-staging"
 }
 
 
