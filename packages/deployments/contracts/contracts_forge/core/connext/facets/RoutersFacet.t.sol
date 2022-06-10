@@ -10,8 +10,7 @@ import {RoutersFacet, BaseConnextFacet} from "../../../../contracts/core/connext
 import {TestERC20} from "../../../../contracts/test/TestERC20.sol";
 
 import {MockWrapper, MockTokenRegistry} from "../../../utils/Mock.sol";
-
-import "./FacetHelper.sol";
+import "../../../utils/FacetHelper.sol";
 
 contract RoutersFacetTest is RoutersFacet, FacetHelper {
   // ============ storage ============

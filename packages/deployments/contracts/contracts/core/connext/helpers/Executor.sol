@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity 0.8.14;
 
-import {AddressUpgradeable} from "@openzeppelin/contracts-upgradeable/utils/AddressUpgradeable.sol";
-import {SafeERC20Upgradeable, IERC20Upgradeable} from "@openzeppelin/contracts-upgradeable/token/ERC20/utils/SafeERC20Upgradeable.sol";
+import {Address} from "@openzeppelin/contracts/utils/Address.sol";
+import {SafeERC20, IERC20} from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 // import {ExcessivelySafeCall} from "@nomad-xyz/excessively-safe-call/src/ExcessivelySafeCall.sol";
 // TODO: see note in below file re: npm
 import {ExcessivelySafeCall} from "../../../nomad-core/libs/ExcessivelySafeCall.sol";
@@ -17,6 +17,8 @@ import {LibCrossDomainProperty, TypedMemView} from "../libraries/LibCrossDomainP
  * @notice This library contains an `execute` function that is callabale by
  * an associated Connext contract. This is used to execute
  * arbitrary calldata on a receiving chain.
+ * @dev In the event this external call fails, funds will be sent to a provided
+ * recovery address. Consequently, funds held in this contract should be transitory
  */
 contract Executor is IExecutor {
   // ============ Libraries =============
@@ -26,12 +28,41 @@ contract Executor is IExecutor {
 
   // ============ Properties =============
 
+  /**
+   * @notice Address of associated connext
+   */
   address private immutable connext;
+
+  /**
+   * @notice Transaction properties that are accessible by external contracts.
+   * These properties are the `origin` and `originSender` of the transfer, and are
+   * only set once the data has been authenticated (i.e. nomad fraud window
+   * elapsed)
+   * @dev Contracts that interact with this (i.e. ones that are processing the calldata
+   * for a transfer) can use these cross domain properties to permission crosschain calls
+   * via:
+   *
+   * `require(PERMISSIONED == IExecutor(msg.sender).originSender(), "!authed");`
+   *
+   * If the data has not been authenticated, these properties are set to empty, and the
+   * above code will revert
+   */
   bytes private properties = LibCrossDomainProperty.EMPTY_BYTES;
+
+  /**
+   * @notice Amount transferred via the crosschain transaction. This is always
+   * accessible (i.e. set even if the data is not authenticated) by contracts
+   * processing calldata.
+   * @dev This amount could be different than the amount transferred by the user from the
+   * origin domain due to the AMM slippage.
+   *
+   * Callers can access the amount via:
+   * `IExecutor(msg.sender).amount();`
+   */
   uint256 private amnt;
 
   /**
-   * @notice The amount of gas needed to execute _handleFailure
+   * @notice The amount of gas needed to execute _sendToRecovery
    * @dev Used to calculate the amount of gas to reserve from transaction
    * to properly handle failure cases
    */
@@ -54,7 +85,7 @@ contract Executor is IExecutor {
    * @notice Errors if the sender is not Connext
    */
   modifier onlyConnext() {
-    require(msg.sender == connext, "#OC:027");
+    require(msg.sender == connext, "!connext");
     _;
   }
 
@@ -117,8 +148,28 @@ contract Executor is IExecutor {
 
     bool isNative = _args.assetId == address(0);
 
-    if (!AddressUpgradeable.isContract(_args.to)) {
-      _handleFailure(isNative, false, _args.assetId, payable(_args.to), payable(_args.recovery), _args.amount);
+    // If the amount is not the same as the value, send what exists to the recovery address
+    // and emit the executed event. This allows callers to process the failure and
+    // ensures funds sent to contract always redirected to recovery
+    if (isNative && msg.value != _args.amount) {
+      _sendToRecovery(isNative, false, _args.assetId, payable(_args.to), payable(_args.recovery), msg.value);
+      // Emit event
+      emit Executed(
+        _args.transferId,
+        _args.to,
+        _args.recovery,
+        _args.assetId,
+        msg.value,
+        _args.properties,
+        _args.callData,
+        returnData,
+        success
+      );
+      return (success, returnData);
+    }
+
+    if (!Address.isContract(_args.to)) {
+      _sendToRecovery(isNative, false, _args.assetId, payable(_args.to), payable(_args.recovery), _args.amount);
       // Emit event
       emit Executed(
         _args.transferId,
@@ -139,8 +190,10 @@ contract Executor is IExecutor {
     // simply require an approval, and it is unclear if they can handle
     // funds transferred directly to them (i.e. Uniswap)
 
-    if (!isNative) {
-      SafeERC20Upgradeable.safeIncreaseAllowance(IERC20Upgradeable(_args.assetId), _args.to, _args.amount);
+    bool hasValue = _args.amount > 0;
+
+    if (!isNative && hasValue) {
+      SafeERC20.safeIncreaseAllowance(IERC20(_args.assetId), _args.to, _args.amount);
     }
 
     // If it should set the properties, set them.
@@ -173,7 +226,7 @@ contract Executor is IExecutor {
 
     // Handle failure cases
     if (!success) {
-      _handleFailure(isNative, true, _args.assetId, payable(_args.to), payable(_args.recovery), _args.amount);
+      _sendToRecovery(isNative, hasValue, _args.assetId, payable(_args.to), payable(_args.recovery), _args.amount);
     }
 
     // Emit event
@@ -191,24 +244,39 @@ contract Executor is IExecutor {
     return (success, returnData);
   }
 
-  function _handleFailure(
-    bool isNative,
-    bool hasIncreased,
+  /**
+   * @notice Sends funds to the specified recovery address
+   * @dev Called if the external call data fails, it's not a contract, or the amount in native
+   * asset is incorrect.
+   * @param _isNative - Whether the asset is native or not
+   * @param _hasIncreased - Whether the allowance was increased
+   * @param _assetId - Asset associated with call
+   * @param _to - Where call was attempted
+   * @param _recovery - Where to send funds
+   * @param _amount - Amount to send
+   */
+  function _sendToRecovery(
+    bool _isNative,
+    bool _hasIncreased,
     address _assetId,
     address payable _to,
     address payable _recovery,
     uint256 _amount
   ) private {
-    if (!isNative) {
+    if (_amount == 0) {
+      // Nothing to do, exit early
+      return;
+    }
+    if (!_isNative) {
       // Decrease allowance
-      if (hasIncreased) {
-        SafeERC20Upgradeable.safeDecreaseAllowance(IERC20Upgradeable(_assetId), _to, _amount);
+      if (_hasIncreased) {
+        SafeERC20.safeDecreaseAllowance(IERC20(_assetId), _to, _amount);
       }
       // Transfer funds
-      SafeERC20Upgradeable.safeTransfer(IERC20Upgradeable(_assetId), _recovery, _amount);
+      SafeERC20.safeTransfer(IERC20(_assetId), _recovery, _amount);
     } else {
       // Transfer funds
-      AddressUpgradeable.sendValue(_recovery, _amount);
+      Address.sendValue(_recovery, _amount);
     }
   }
 }
