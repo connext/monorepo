@@ -9,7 +9,7 @@ import {ConnextMessage} from "../../../../contracts/core/connext/libraries/Conne
 import {LibConnextStorage, AppStorage} from "../../../../contracts/core/connext/libraries/LibConnextStorage.sol";
 import {ITokenRegistry} from "../../../../contracts/core/connext/interfaces/ITokenRegistry.sol";
 
-import "../facets/FacetHelper.sol";
+import "../../../utils/FacetHelper.sol";
 
 
 

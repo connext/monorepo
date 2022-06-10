@@ -10,8 +10,7 @@ import {AssetFacet} from "../../../../contracts/core/connext/facets/AssetFacet.s
 import {TestERC20} from "../../../../contracts/test/TestERC20.sol";
 
 import {MockWrapper, MockTokenRegistry} from "../../../utils/Mock.sol";
-
-import "./FacetHelper.sol";
+import "../../../utils/FacetHelper.sol";
 
 import "forge-std/console.sol";
 

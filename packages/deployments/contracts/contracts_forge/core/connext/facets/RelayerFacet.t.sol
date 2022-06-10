@@ -8,9 +8,9 @@ import {RelayerFeeRouter} from "../../../../contracts/core/relayer-fee/RelayerFe
 import {RelayerFacet, BaseConnextFacet} from "../../../../contracts/core/connext/facets/RelayerFacet.sol";
 
 import {MockWrapper, MockTokenRegistry} from "../../../utils/Mock.sol";
+import "../../../utils/FacetHelper.sol";
 
-import "../../../../lib/forge-std/src/console.sol";
-import "./FacetHelper.sol";
+import "forge-std/console.sol";
 
 contract RelayerFacetTest is RelayerFacet, FacetHelper {
   // ============ storage ============
