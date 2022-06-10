@@ -1,5 +1,9 @@
-output "cartographer-service-name" {
-  value = module.cartographer.daemon_service_name
+output "cartographer-routers-service-name" {
+  value = module.cartographer-routers.daemon_service_name
+}
+
+output "cartographer-transfers-service-name" {
+  value = module.cartographer-transfers.daemon_service_name
 }
 
 output "postgrest-dns" {
