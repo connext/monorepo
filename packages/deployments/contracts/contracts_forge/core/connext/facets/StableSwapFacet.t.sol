@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity 0.8.14;
 
-import "./FacetHelper.sol";
+import "../../../utils/FacetHelper.sol";
 
 import {LibDiamond} from "../../../../contracts/core/connext/libraries/LibDiamond.sol";
 import {IConnextHandler} from "../../../../contracts/core/connext/interfaces/IConnextHandler.sol";
@@ -24,7 +24,7 @@ contract StableSwapFacetTest is FacetHelper, StableSwapFacet {
   uint256 SWAP_FEE = 1e7;
   string LP_TOKEN_NAME = "Test LP Token Name";
   string LP_TOKEN_SYMBOL = "TESTLP";
-  uint256 blockTimestamp = 100;
+  uint256 blockTimestamp = 2 days;
 
   // ============ Test set up ============
   function setUp() public {
@@ -52,8 +52,26 @@ contract StableSwapFacetTest is FacetHelper, StableSwapFacet {
     _pooledTokens[0] = IERC20(_local);
     _pooledTokens[1] = IERC20(_adopted);
 
+    // Mint Token0, Token1 to Owner, User1, User2
     TestERC20(_local).mint(_owner, 10 ether);
     TestERC20(_adopted).mint(_owner, 10 ether);
+
+    TestERC20(_local).mint(_user1, 10 ether);
+    TestERC20(_adopted).mint(_user1, 10 ether);
+
+    TestERC20(_local).mint(_user2, 10 ether);
+    TestERC20(_adopted).mint(_user2, 10 ether);
+
+    // Approve Token0, Token1 from User1, User2
+    vm.startPrank(_user1);
+    TestERC20(_local).approve(address(this), 10 ether);
+    TestERC20(_adopted).approve(address(this), 10 ether);
+    vm.stopPrank();
+
+    vm.startPrank(_user2);
+    TestERC20(_local).approve(address(this), 10 ether);
+    TestERC20(_adopted).approve(address(this), 10 ether);
+    vm.stopPrank();
 
     uint8[] memory _decimals = new uint8[](2);
     _decimals[0] = 18;
@@ -95,6 +113,26 @@ contract StableSwapFacetTest is FacetHelper, StableSwapFacet {
 
     this.addSwapLiquidity(_canonicalId, amounts, 0, blockTimestamp + 10);
     vm.stopPrank();
+  }
+
+  function utils_swapExact(
+    uint256 amountIn,
+    address assetIn,
+    address assetOut,
+    uint256 minAmountOut
+  ) public returns (uint256) {
+    vm.warp(blockTimestamp);
+    return this.swapExact(_canonicalId, amountIn, assetIn, assetOut, minAmountOut, blockTimestamp + 10);
+  }
+
+  function utils_swapExactOut(
+    uint256 amountOut,
+    address assetIn,
+    address assetOut,
+    uint256 maxAmountIn
+  ) public returns (uint256) {
+    vm.warp(blockTimestamp);
+    return this.swapExactOut(_canonicalId, amountOut, assetIn, assetOut, maxAmountIn, blockTimestamp + 10);
   }
 
   // ============ Tests ============
@@ -459,8 +497,199 @@ contract StableSwapFacetTest is FacetHelper, StableSwapFacet {
   }
 
   // function test_StableSwapFacet__withdrawSwapAdminFees
+  function test_StableSwapFacet__withdrawSwapAdminFess_failIfNotOwner() public {
+    assertTrue(_owner != address(1));
+
+    vm.prank(address(1));
+    vm.expectRevert(BaseConnextFacet.BaseConnextFacet__onlyOwner_notOwner.selector);
+
+    this.withdrawSwapAdminFees(_canonicalId);
+  }
+
+  function test_StableSwapFacet__withdrawSwapAdminFess_successIfNoFees() public {
+    vm.startPrank(_owner);
+    this.setSwapAdminFee(_canonicalId, 1e8);
+
+    uint256 beforeBalance0 = IERC20(_local).balanceOf(_owner);
+    uint256 beforeBalance1 = IERC20(_adopted).balanceOf(_owner);
+
+    this.withdrawSwapAdminFees(_canonicalId);
+
+    assertEq(IERC20(_local).balanceOf(_owner), beforeBalance0);
+    assertEq(IERC20(_adopted).balanceOf(_owner), beforeBalance1);
+
+    vm.stopPrank();
+  }
+
+  function test_StableSwapFacet__withdrawSwapAdminFess_shouldWorkWithExpectedAmount() public {
+    vm.startPrank(_owner);
+    this.setSwapAdminFee(_canonicalId, 1e8);
+    utils_swapExact(1e17, _local, _adopted, 0);
+    utils_swapExact(1e17, _adopted, _local, 0);
+
+    assertEq(this.getSwapAdminBalance(_canonicalId, 0), 1001973776101);
+    assertEq(this.getSwapAdminBalance(_canonicalId, 1), 998024139765);
+
+    uint256 beforeBalance0 = IERC20(_local).balanceOf(_owner);
+    uint256 beforeBalance1 = IERC20(_adopted).balanceOf(_owner);
+
+    this.withdrawSwapAdminFees(_canonicalId);
+
+    assertEq(IERC20(_local).balanceOf(_owner), beforeBalance0 + 1001973776101);
+    assertEq(IERC20(_adopted).balanceOf(_owner), beforeBalance1 + 998024139765);
+    vm.stopPrank();
+  }
+
   // function test_StableSwapFacet__setSwapAdminFee
+  function test_StableSwapFacet__setSwapAdminFee_failIfNotOwner() public {
+    assertTrue(_owner != address(1));
+
+    vm.prank(address(1));
+    vm.expectRevert(BaseConnextFacet.BaseConnextFacet__onlyOwner_notOwner.selector);
+
+    this.setSwapAdminFee(_canonicalId, 1e8);
+  }
+
+  function test_StableSwapFacet__setSwapAdminFee_failIfHigherThanLimit() public {
+    vm.startPrank(_owner);
+    this.setSwapAdminFee(_canonicalId, SwapUtils.MAX_ADMIN_FEE);
+    assertEq(this.getSwapStorage(_canonicalId).adminFee, SwapUtils.MAX_ADMIN_FEE);
+
+    vm.expectRevert("Fee is too high");
+    this.setSwapAdminFee(_canonicalId, SwapUtils.MAX_ADMIN_FEE + 1);
+    vm.stopPrank();
+  }
+
+  function test_StableSwapFacet__setSwapAdminFee_shouldWork() public {
+    vm.startPrank(_owner);
+    uint256 adminFee = SwapUtils.MAX_ADMIN_FEE;
+    this.setSwapAdminFee(_canonicalId, adminFee);
+    assertEq(this.getSwapStorage(_canonicalId).adminFee, adminFee);
+    vm.stopPrank();
+  }
+
   // function test_StableSwapFacet__setSwapFee
+  function test_StableSwapFacet__setSwapFee_failIfNotOwner() public {
+    assertTrue(_owner != address(1));
+
+    vm.prank(address(1));
+    vm.expectRevert(BaseConnextFacet.BaseConnextFacet__onlyOwner_notOwner.selector);
+
+    this.setSwapFee(_canonicalId, 1e8);
+  }
+
+  function test_StableSwapFacet__setSwapFee_failIfHigherThanLimit() public {
+    vm.startPrank(_owner);
+    this.setSwapFee(_canonicalId, SwapUtils.MAX_SWAP_FEE);
+    assertEq(this.getSwapStorage(_canonicalId).swapFee, SwapUtils.MAX_SWAP_FEE);
+
+    vm.expectRevert("Fee is too high");
+    this.setSwapFee(_canonicalId, SwapUtils.MAX_SWAP_FEE + 1);
+    vm.stopPrank();
+  }
+
+  function test_StableSwapFacet__setSwapFee_shouldWork() public {
+    vm.startPrank(_owner);
+    uint256 swapFee = SwapUtils.MAX_SWAP_FEE;
+    this.setSwapFee(_canonicalId, swapFee);
+    assertEq(this.getSwapStorage(_canonicalId).swapFee, swapFee);
+    vm.stopPrank();
+  }
+
   // function test_StableSwapFacet__rampA
+  function test_StableSwapFacet__rampA_failIfNotOwner() public {
+    assertTrue(_owner != address(1));
+
+    vm.prank(address(1));
+    vm.expectRevert(BaseConnextFacet.BaseConnextFacet__onlyOwner_notOwner.selector);
+
+    this.rampA(_canonicalId, 100, blockTimestamp + 14 days + 1);
+  }
+
+  function test_StableSwapFacet__rampA_shouldWorkWithUpwards() public {
+    // Create imbalanced pool to measure virtual price change
+    // We expect virtual price to increase as A decreases
+    utils_addLiquidity(1 ether, 0);
+
+    vm.startPrank(_owner);
+
+    uint256 endTimestamp = blockTimestamp + 14 days + 1;
+    this.rampA(_canonicalId, 100, endTimestamp);
+
+    // +0 seconds since ramp A
+    assertEq(this.getSwapA(_canonicalId), INITIAL_A_VALUE);
+    assertEq(this.getSwapAPrecise(_canonicalId), INITIAL_A_VALUE * AmplificationUtils.A_PRECISION);
+    assertEq(this.getSwapVirtualPrice(_canonicalId), 1000167146429977312);
+
+    // set timestamp to +100000 seconds
+    vm.warp(blockTimestamp + 100000);
+    assertEq(this.getSwapA(_canonicalId), 54);
+    assertEq(this.getSwapAPrecise(_canonicalId), 5413);
+    assertEq(this.getSwapVirtualPrice(_canonicalId), 1000258443200231295);
+
+    // set timestamp to the end of ramp period
+    vm.warp(endTimestamp);
+    assertEq(this.getSwapA(_canonicalId), 100);
+    assertEq(this.getSwapAPrecise(_canonicalId), 10000);
+    assertEq(this.getSwapVirtualPrice(_canonicalId), 1000771363829405068);
+
+    vm.stopPrank();
+  }
+
+  function test_StableSwapFacet__rampA_shouldWorkWithDownwards() public {
+    // Create imbalanced pool to measure virtual price change
+    // We expect virtual price to increase as A decreases
+    utils_addLiquidity(1 ether, 0);
+
+    vm.startPrank(_owner);
+
+    uint256 endTimestamp = blockTimestamp + 14 days + 1;
+    this.rampA(_canonicalId, 25, endTimestamp);
+
+    // +0 seconds since ramp A
+    assertEq(this.getSwapA(_canonicalId), INITIAL_A_VALUE);
+    assertEq(this.getSwapAPrecise(_canonicalId), INITIAL_A_VALUE * AmplificationUtils.A_PRECISION);
+    assertEq(this.getSwapVirtualPrice(_canonicalId), 1000167146429977312);
+
+    // set timestamp to +100000 seconds
+    vm.warp(blockTimestamp + 100000);
+    assertEq(this.getSwapA(_canonicalId), 47);
+    assertEq(this.getSwapAPrecise(_canonicalId), 4794);
+    assertEq(this.getSwapVirtualPrice(_canonicalId), 1000115870150391894);
+
+    // set timestamp to the end of ramp period
+    vm.warp(endTimestamp);
+    assertEq(this.getSwapA(_canonicalId), 25);
+    assertEq(this.getSwapAPrecise(_canonicalId), 2500);
+    assertEq(this.getSwapVirtualPrice(_canonicalId), 998999574522335473);
+
+    vm.stopPrank();
+  }
+
   // function test_StableSwapFacet__stopRampA
+  function test_StableSwapFacet__stopRampA_failIfNotOwner() public {
+    assertTrue(_owner != address(1));
+
+    vm.prank(address(1));
+    vm.expectRevert(BaseConnextFacet.BaseConnextFacet__onlyOwner_notOwner.selector);
+
+    this.stopRampA(_canonicalId);
+  }
+
+  function test_StableSwapFacet__stopRampA_shouldWork() public {
+    vm.startPrank(_owner);
+    uint256 endTimestamp = blockTimestamp + 14 days + 1;
+    this.rampA(_canonicalId, 100, endTimestamp);
+
+    uint256 currentTimestmp = blockTimestamp + 100000;
+    vm.warp(currentTimestmp);
+    this.stopRampA(_canonicalId);
+
+    assertEq(this.getSwapStorage(_canonicalId).initialA, 5413);
+    assertEq(this.getSwapStorage(_canonicalId).futureA, 5413);
+    assertEq(this.getSwapStorage(_canonicalId).initialATime, currentTimestmp);
+    assertEq(this.getSwapStorage(_canonicalId).futureATime, currentTimestmp);
+
+    vm.stopPrank();
+  }
 }
