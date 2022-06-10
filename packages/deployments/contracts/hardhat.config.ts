@@ -179,7 +179,7 @@ const config: HardhatUserConfig = {
     moonbeam: {
       accounts: { mnemonic: mainnetMnemonic ?? mnemonic },
       chainId: 1284,
-      url: "https://moonbeam.blastapi.io/82a109fb-a44d-4097-9240-1261735c7e93",
+      url: "https://rpc.api.moonbeam.network",
       gasPrice: 1,
     },
     mbase: {

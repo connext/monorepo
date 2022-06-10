@@ -28,8 +28,11 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment): Promise<voi
   console.log("deployer: ", deployer.address);
 
   const network = await hre.ethers.provider.getNetwork();
+  console.log("network: ", network);
   const domainConfig = getDomainInfoFromChainId(network.chainId);
   console.log("domainConfig: ", domainConfig);
+  const price = await hre.ethers.provider.getGasPrice();
+  console.log("price: ", price.toString());
 
   // Get xapp connection manager
   const deployConfig = deployConfigs[chainId];
