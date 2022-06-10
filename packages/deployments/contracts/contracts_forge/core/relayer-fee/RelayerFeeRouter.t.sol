@@ -4,21 +4,11 @@ pragma solidity 0.8.14;
 import {ERC1967Proxy} from "@openzeppelin/contracts/proxy/ERC1967/ERC1967Proxy.sol";
 
 import {Home} from "../../../contracts/nomad-core/contracts/Home.sol";
-
-import "../../../contracts/core/connext/interfaces/IConnextHandler.sol";
 import {TypedMemView, RelayerFeeMessage, RelayerFeeRouter} from "../../../contracts/core/relayer-fee/RelayerFeeRouter.sol";
 import {ProposedOwnable} from "../../../contracts/core/shared/ProposedOwnable.sol";
 
-import "../../utils/ForgeHelper.sol";
 import {MockHome, MockConnext} from "../../utils/Mock.sol";
-
-// running tests (with logging on failure):
-// yarn workspace @connext/nxtp-contracts test:forge -vvv
-// run a single test:
-// yarn workspace @connext/nxtp-contracts test:forge -m testAddRouterAlreadyApproved -vvv
-
-// other forge commands: yarn workspace @connext/nxtp-contracts forge <CMD>
-// see docs here: https://onbjerg.github.io/foundry-book/index.html
+import "../../utils/ForgeHelper.sol";
 
 contract RelayerFeeRouterTest is ForgeHelper {
   using TypedMemView for bytes;
