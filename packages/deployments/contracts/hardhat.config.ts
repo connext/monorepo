@@ -9,6 +9,7 @@ import "@tenderly/hardhat-tenderly";
 import "@nomiclabs/hardhat-etherscan";
 import "@openzeppelin/hardhat-upgrades";
 import "hardhat-contract-sizer";
+import "hardhat-abi-exporter";
 import { config as dotEnvConfig } from "dotenv";
 import { HardhatUserConfig } from "hardhat/types";
 import { utils } from "ethers";
@@ -246,6 +247,16 @@ const config: HardhatUserConfig = {
       "PortalFacet",
     ],
     strict: false,
+  },
+  typechain: {
+    outDir: "src/typechain-types",
+  },
+  abiExporter: {
+    path: "./abi",
+    runOnCompile: true,
+    clear: true,
+    spacing: 2,
+    pretty: true,
   },
 };
 

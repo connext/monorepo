@@ -26,15 +26,12 @@
     "size": "hardhat size-contracts"
   },
   "main": "dist/src/index.js",
-  "types": "typechain/index.ts",
+  "types": "dist/src/index.d.ts",
   "files": [
     "dist/**/*",
-    "src/**/*",
-    "typechain-types",
-    "artifacts",
     "deployments.json",
     "contracts",
-    "deploy"
+    "abi"
   ],
   "author": "Connext",
   "license": "ISC",
@@ -57,6 +54,7 @@
     "ethereum-waffle": "3.4.4",
     "ethers": "5.6.8",
     "hardhat": "2.9.6",
+    "hardhat-abi-exporter": "^2.9.0",
     "hardhat-contract-sizer": "2.5.1",
     "prettier": "2.6.2",
     "prettier-plugin-solidity": "1.0.0-dev.21",

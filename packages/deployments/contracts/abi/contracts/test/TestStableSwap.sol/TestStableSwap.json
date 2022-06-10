@@ -1,0 +1,16 @@
+[
+  "constructor(address,address,uint8)",
+  "event PoolCreated(address,address,uint256,uint256)",
+  "event Swapped(address,address,uint256,uint256)",
+  "function MAX_INT() view returns (uint256)",
+  "function lpToken() view returns (address)",
+  "function n() view returns (uint8)",
+  "function setupPool(address,address,uint256,uint256) payable",
+  "function swap() view returns (address)",
+  "function swapExact(uint256,address,address) payable returns (uint256)",
+  "function test_addLiquidity(uint256[],uint256)",
+  "function test_removeLiquidity(uint256,uint256[])",
+  "function test_removeLiquidityImbalance(uint256[],uint256)",
+  "function test_removeLiquidityOneToken(uint256,uint8,uint256)",
+  "function test_swap(uint8,uint8,uint256,uint256)"
+]
