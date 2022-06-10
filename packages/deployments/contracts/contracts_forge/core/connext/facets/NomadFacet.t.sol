@@ -6,7 +6,7 @@ import {LibDiamond} from "../../../../contracts/core/connext/libraries/LibDiamon
 import {NomadFacet} from "../../../../contracts/core/connext/facets/NomadFacet.sol";
 
 import "../../../utils/Mock.sol";
-import "./FacetHelper.sol";
+import "../../../utils/FacetHelper.sol";
 
 contract NomadFacetTest is NomadFacet, FacetHelper {
   // ============ xAppConnectionManager ============

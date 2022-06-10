@@ -2,7 +2,7 @@
 pragma solidity 0.8.14;
 
 import "../../../../contracts/core/connext/libraries/SwapUtils.sol";
-import "../facets/FacetHelper.sol";
+import "../../../utils/FacetHelper.sol";
 
 contract AmplificationUtilsTest is FacetHelper {
   // ============ Storage ============
