@@ -57,6 +57,7 @@ contract SwapUtilsTest is ForgeHelper {
   TestERC20 token2;
   IERC20[] pooledTokens;
   uint256[] tokenPrecisionMultipliers;
+  uint256[] adminsFees;
   uint256[] balances;
 
   SwapUtils.Swap swap;
@@ -70,6 +71,7 @@ contract SwapUtilsTest is ForgeHelper {
   uint256 tokenBalance2 = uint256(1000);
 
   uint256 amount = uint256(10);
+  uint256 dx = uint256(10);
   uint8 tokenIndexFrom = uint8(0);
   uint8 tokenIndexTo = uint8(1);
 
@@ -88,6 +90,10 @@ contract SwapUtilsTest is ForgeHelper {
     tokenPrecisionMultipliers = new uint256[](2);
     tokenPrecisionMultipliers[0] = uint256(1);
     tokenPrecisionMultipliers[1] = uint256(1);
+
+    adminsFees = new uint256[](2);
+    adminsFees[0] = uint256(1);
+    adminsFees[1] = uint256(1);
 
     balances = new uint256[](2);
     balances[0] = uint256(tokenBalance);
@@ -116,8 +122,21 @@ contract SwapUtilsTest is ForgeHelper {
   // Should work
   function test_SwapUtils__calculateWithdrawOneToken_works() public {
     vm.mockCall(address(lpToken), abi.encodeWithSelector(IERC20.totalSupply.selector), abi.encode(lpTokenSupply));
-    uint256 res = SwapUtils.calculateWithdrawOneToken(swap, amount, tokenIndexFrom);
-    assertEq(res, uint256(19));
+    uint256 availableTokenAmount = SwapUtils.calculateWithdrawOneToken(swap, amount, tokenIndexFrom);
+    assertEq(availableTokenAmount, uint256(19));
+  }
+
+  // ============ _calculateWithdrawOneToken ============
+
+  // Should work
+  function test_SwapUtils___calculateWithdrawOneToken_works() public {
+    vm.mockCall(address(lpToken), abi.encodeWithSelector(IERC20.totalSupply.selector), abi.encode(lpTokenSupply));
+
+    uint256 dy;
+    uint256 dyFee;
+    (dy, dyFee) = SwapUtils._calculateWithdrawOneToken(swap, amount, tokenIndexFrom, lpTokenSupply);
+    assertEq(dy, uint256(19));
+    assertEq(dyFee, uint256(0));
   }
 
   // ============ calculateWithdrawOneTokenDY ============
@@ -196,7 +215,11 @@ contract SwapUtilsTest is ForgeHelper {
   // Should work
   function test_SwapUtils__getY_works() public {
     uint256[] memory xp = SwapUtils._xp(swap);
-    // uint256 y = SwapUtils.getY(preciseA, tokenIndexFrom, tokenIndexTo, x, xp);
+    uint256 x = dx.mul(tokenPrecisionMultipliers[tokenIndexFrom]).add(xp[tokenIndexFrom]);
+    uint256 y = SwapUtils.getY(preciseA, tokenIndexFrom, tokenIndexTo, x, xp);
+
+    console.logUint(y);
+    assertEq(y, uint256(980));
   }
 
   // ============ calculateSwap ============
@@ -246,17 +269,13 @@ contract SwapUtilsTest is ForgeHelper {
 
   // Should work
   function test_SwapUtils__calculateTokenAmount_worksIfDeposit() public {
-    uint256[] calldata tokenAmounts = [uint256(tokenBalance), uint256(tokenBalance2)];
-    uint256 res = SwapUtils.calculateTokenAmount(swap, tokenAmounts, true);
-
-    console.logUint(res);
+    // uint256 res = SwapUtils.calculateTokenAmount(swap, abi.encode(balances), true);
+    // console.logUint(res);
   }
 
   // Should work
   function test_SwapUtils__calculateTokenAmount_worksIfWithdraw() public {
-    uint256[] calldata tokenAmounts = [uint256(tokenBalance), uint256(tokenBalance2)];
-
-    uint256 res = SwapUtils.calculateTokenAmount(swap, tokenAmounts, false);
-    console.logUint(res);
+    // uint256 res = SwapUtils.calculateTokenAmount(swap, abi.encode(balances), false);
+    // console.logUint(res);
   }
 }
