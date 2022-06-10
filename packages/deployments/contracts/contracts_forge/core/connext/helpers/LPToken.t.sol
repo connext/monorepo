@@ -20,14 +20,14 @@ contract LPTokenTest is ForgeHelper {
   }
 
   // ============ initialize ============
-  function test_LPToken_initialize_works() public {
+  function test_LPToken__initialize_works() public {
     LPToken _lpToken1 = new LPToken();
     _lpToken1.initialize("Test LP1", "TestLP1");
     assertEq(_lpToken1.name(), "Test LP1");
     assertEq(_lpToken1.symbol(), "TestLP1");
   }
 
-  function test_LPToken_initialize_failsIfAlreadyInitialized() public {
+  function test_LPToken__initialize_failsIfAlreadyInitialized() public {
     LPToken _lpToken = new LPToken();
     _lpToken.initialize("TestName", "TestSymbol");
     vm.expectRevert(bytes("Initializable: contract is already initialized"));
@@ -37,7 +37,7 @@ contract LPTokenTest is ForgeHelper {
   }
 
   // ============ mint ============
-  function test_LPToken_mint_works() public {
+  function test_LPToken__mint_works() public {
     address _arbitrary = address(12345);
     uint256 mintAmount = 100;
     uint256 oldBalance = lpToken.balanceOf(_arbitrary);
@@ -46,7 +46,7 @@ contract LPTokenTest is ForgeHelper {
     assertEq(newBalance - oldBalance, mintAmount);
   }
 
-  function test_LPToken_mint_revertIfNoOwner() public {
+  function test_LPToken__mint_revertIfNoOwner() public {
     address _arbitrary = address(12345);
     uint256 mintAmount = 100;
     uint256 oldBalance = lpToken.balanceOf(_arbitrary);
@@ -57,7 +57,7 @@ contract LPTokenTest is ForgeHelper {
     assertEq(newBalance - oldBalance, 0);
   }
 
-  function test_LPToken_mint_revertIfInvalidMintAmount() public {
+  function test_LPToken__mint_revertIfInvalidMintAmount() public {
     address _arbitrary = address(12345);
     uint256 oldBalance = lpToken.balanceOf(_arbitrary);
     vm.expectRevert(bytes("LPToken: cannot mint 0"));
@@ -67,7 +67,7 @@ contract LPTokenTest is ForgeHelper {
   }
 
   // ============ _beforeTokenTransfer ============
-  function test_LPToken__beforeTokenTransfer_works() public {
+  function test_LPToken___beforeTokenTransfer_works() public {
     lpToken.mint(address(this), 10000);
     address _arbitrary = address(12345);
     uint256 oldBalance = lpToken.balanceOf(_arbitrary);
@@ -76,7 +76,7 @@ contract LPTokenTest is ForgeHelper {
     assertEq(newBalance - oldBalance, 100);
   }
 
-  function test_LPToken__beforeTokenTransfer_revertIfSelfTargeting() public {
+  function test_LPToken___beforeTokenTransfer_revertIfSelfTargeting() public {
     lpToken.mint(address(this), 100);
     vm.expectRevert(bytes("LPToken: cannot send to itself"));
     lpToken.transfer(address(lpToken), 100);

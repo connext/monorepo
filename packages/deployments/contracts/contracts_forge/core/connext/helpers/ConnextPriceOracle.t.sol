@@ -46,17 +46,17 @@ contract ConnextPriceOracleTest is ForgeHelper {
   }
 
   // ============ getTokenPrice ============
-  function test_ConnextPriceOracle_getTokenPrice_worksIfExistsInAssetPrices() public {
+  function test_ConnextPriceOracle__getTokenPrice_worksIfExistsInAssetPrices() public {
     priceOracle.setDirectPrice(_tokenA, 1e18);
     assertEq(priceOracle.getTokenPrice(_tokenA), 1e18);
   }
 
-  function test_ConnextPriceOracle_getTokenPrice_worksIfAggregatorExists() public {
+  function test_ConnextPriceOracle__getTokenPrice_worksIfAggregatorExists() public {
     assertEq(priceOracle.getTokenPrice(address(0)), 1e18);
     assertEq(priceOracle.getTokenPrice(_wrapped), 1e18);
   }
 
-  function test_ConnextPriceOracle_getTokenPrice_worksIfDexRecordExists() public {
+  function test_ConnextPriceOracle__getTokenPrice_worksIfDexRecordExists() public {
     address mockLpAddress = address(11111);
     TestERC20(_tokenA).mint(mockLpAddress, 100);
     TestERC20(_tokenB).mint(mockLpAddress, 200);
@@ -65,21 +65,21 @@ contract ConnextPriceOracleTest is ForgeHelper {
     assertEq(priceOracle.getTokenPrice(_tokenB), 5e17);
   }
 
-  function test_ConnextPriceOracle_getTokenPrice_worksIfv1Exists() public {
+  function test_ConnextPriceOracle__getTokenPrice_worksIfv1Exists() public {
     assertEq(priceOracle.getTokenPrice(_tokenV1), 1e18);
   }
 
-  function test_ConnextPriceOracle_getTokenPrice_fails() public {
+  function test_ConnextPriceOracle__getTokenPrice_fails() public {
     assertEq(priceOracle.getTokenPrice(address(12345)), 0);
   }
 
   // ============ getPriceFromOracle ============
-  function test_ConnextPriceOracle_getPriceFromOracle_works() public {
+  function test_ConnextPriceOracle__getPriceFromOracle_works() public {
     assertEq(priceOracle.getPriceFromOracle(_wrapped), 1e18);
   }
 
   // ============ getPriceFromDex ============
-  function test_ConnextPriceOracle_getPriceFromDex_works() public {
+  function test_ConnextPriceOracle__getPriceFromDex_works() public {
     address mockLpAddress = address(11111);
     TestERC20(_tokenA).mint(mockLpAddress, 100);
     TestERC20(_tokenB).mint(mockLpAddress, 200);
@@ -88,34 +88,34 @@ contract ConnextPriceOracleTest is ForgeHelper {
     assertEq(priceOracle.getPriceFromDex(_tokenB), 5e17);
   }
 
-  function test_ConnextPriceOracle_getPriceFromDex_fails() public {
+  function test_ConnextPriceOracle__getPriceFromDex_fails() public {
     assertEq(priceOracle.getPriceFromDex(address(12345)), 0);
   }
 
   // ============ getPriceFromChainlink ============
-  function test_ConnextPriceOracle_getPriceFromChainlink_works() public {
+  function test_ConnextPriceOracle__getPriceFromChainlink_works() public {
     assertEq(priceOracle.getPriceFromChainlink(_wrapped), 1e18);
   }
 
-  function test_ConnextPriceOracle_getPriceFromChainlink_fails() public {
+  function test_ConnextPriceOracle__getPriceFromChainlink_fails() public {
     assertEq(priceOracle.getPriceFromChainlink(address(12345)), 0);
   }
 
   // ============ setDexPriceInfo ============
-  function test_ConnextPriceOracle_setDexPriceInfo_failsIfNotAdmin() public {
+  function test_ConnextPriceOracle__setDexPriceInfo_failsIfNotAdmin() public {
     address mockLpAddress = address(11111);
     vm.expectRevert(bytes("caller is not the admin"));
     vm.prank(address(12345));
     priceOracle.setDexPriceInfo(_tokenB, address(12345), mockLpAddress, true);
   }
 
-  function test_ConnextPriceOracle_setDexPriceInfo_failsIfInvalidBaseToken() public {
+  function test_ConnextPriceOracle__setDexPriceInfo_failsIfInvalidBaseToken() public {
     address mockLpAddress = address(11111);
     vm.expectRevert(bytes("invalid base token"));
     priceOracle.setDexPriceInfo(_tokenB, address(12345), mockLpAddress, true);
   }
 
-  function test_ConnextPriceOracle_setDexPriceInfo_worksIfOnlyAdmin() public {
+  function test_ConnextPriceOracle__setDexPriceInfo_worksIfOnlyAdmin() public {
     address mockLpAddress = address(11111);
     TestERC20(_tokenA).mint(mockLpAddress, 100);
     TestERC20(_tokenB).mint(mockLpAddress, 200);
@@ -127,14 +127,14 @@ contract ConnextPriceOracleTest is ForgeHelper {
   }
 
   // ============ setDirectPrice ============
-  function test_ConnextPriceOracle_setDirectPrice_worksIfOnlyAdmin() public {
+  function test_ConnextPriceOracle__setDirectPrice_worksIfOnlyAdmin() public {
     vm.expectEmit(true, true, true, true);
     emit DirectPriceUpdated(_tokenA, 0, 2e18);
     priceOracle.setDirectPrice(_tokenA, 2e18);
     assertEq(priceOracle.assetPrices(_tokenA), 2e18);
   }
 
-  function test_ConnextPriceOracle_setDirectPrice_failsIfNotAdmin() public {
+  function test_ConnextPriceOracle__setDirectPrice_failsIfNotAdmin() public {
     vm.expectRevert(bytes("caller is not the admin"));
     vm.prank(address(12345));
     priceOracle.setDirectPrice(_tokenA, 2e18);
@@ -142,14 +142,14 @@ contract ConnextPriceOracleTest is ForgeHelper {
   }
 
   // ============ setV1PriceOracle ============
-  function test_ConnextPriceOracle_setV1PriceOracle_worksIfOnlyAdmin() public {
+  function test_ConnextPriceOracle__setV1PriceOracle_worksIfOnlyAdmin() public {
     ConnextPriceOracle newV1PriceOracle = new ConnextPriceOracle(_wrapped);
     vm.expectEmit(true, true, true, true);
     emit V1PriceOracleUpdated(address(v1PriceOracle), address(newV1PriceOracle));
     priceOracle.setV1PriceOracle(address(newV1PriceOracle));
   }
 
-  function test_ConnextPriceOracle_setV1PriceOracle_failsIfNotAdmin() public {
+  function test_ConnextPriceOracle__setV1PriceOracle_failsIfNotAdmin() public {
     ConnextPriceOracle newV1PriceOracle = new ConnextPriceOracle(_wrapped);
     vm.expectRevert(bytes("caller is not the admin"));
     vm.prank(address(12345));
@@ -157,14 +157,14 @@ contract ConnextPriceOracleTest is ForgeHelper {
   }
 
   // ============ setAdmin ============
-  function test_ConnextPriceOracle_setAdmin_worksIfOnlyAdmin() public {
+  function test_ConnextPriceOracle__setAdmin_worksIfOnlyAdmin() public {
     address newAdmin = address(333);
     vm.expectEmit(true, true, true, true);
     emit NewAdmin(address(this), newAdmin);
     priceOracle.setAdmin(newAdmin);
   }
 
-  function test_ConnextPriceOracle_setAdmin_failsIfNotAdmin() public {
+  function test_ConnextPriceOracle__setAdmin_failsIfNotAdmin() public {
     address newAdmin = address(333);
     vm.expectRevert(bytes("caller is not the admin"));
     vm.prank(address(12345));
@@ -172,7 +172,7 @@ contract ConnextPriceOracleTest is ForgeHelper {
   }
 
   // ============ setAggregators ============
-  function test_ConnextPriceOracle_setAggregators_worksIfOnlyAdmin() public {
+  function test_ConnextPriceOracle__setAggregators_worksIfOnlyAdmin() public {
     address[] memory _tokenAddresses = new address[](2);
     address _tokenAddr1 = address(11);
     address _tokenAddr2 = address(22);
@@ -191,7 +191,7 @@ contract ConnextPriceOracleTest is ForgeHelper {
     priceOracle.setAggregators(_tokenAddresses, _sources);
   }
 
-  function test_ConnextPriceOracle_setAggregators_failsIfNotAdmin() public {
+  function test_ConnextPriceOracle__setAggregators_failsIfNotAdmin() public {
     address[] memory _tokenAddresses = new address[](2);
     address _tokenAddr1 = address(11);
     address _tokenAddr2 = address(22);

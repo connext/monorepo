@@ -30,8 +30,7 @@ import {TestERC20} from "../../../../contracts/test/TestERC20.sol";
 import {PromiseRouter} from "../../../../contracts/core/promise/PromiseRouter.sol";
 
 import "../../../utils/Mock.sol";
-
-import "./FacetHelper.sol";
+import "../../../utils/FacetHelper.sol";
 
 contract BridgeFacetTest is BridgeFacet, FacetHelper {
   // ============ Libs ============
