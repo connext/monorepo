@@ -25,10 +25,16 @@ variable "environment" {
   default     = "testnet"
 }
 
-variable "full_image_name_cartographer" {
+variable "full_image_name_cartographer_routers" {
   type        = string
-  description = "router image name"
-  default     = "ghcr.io/connext/cartographer:0.2.0-beta.10"
+  description = "cartographer routers image name"
+  default     = "ghcr.io/connext/cartographer-routers:0.2.0-beta.10"
+}
+
+variable "full_image_name_cartographer_transfers" {
+  type        = string
+  description = "cartographer transfers image name"
+  default     = "ghcr.io/connext/cartographer-transfers:0.2.0-beta.10"
 }
 
 variable "certificate_arn_testnet" {
@@ -46,4 +52,13 @@ variable "postgres_user" {
 
 variable "dd_api_key" {
   type = string
+}
+
+variable "health_check_command" {
+  type        = list(string)
+  description = "Path to health check endpoint"
+  default = [
+    "CMD-SHELL",
+    "pgrep -x node"
+  ]
 }
