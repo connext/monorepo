@@ -94,7 +94,7 @@ module "cartographer-routers" {
   vpc_id                  = module.network.vpc_id
   private_subnets         = module.network.private_subnets
   docker_image            = var.full_image_name_cartographer_routers
-  container_family        = "cartographer"
+  container_family        = "cartographer_routers"
   container_port          = 8080
   cpu                     = 1024
   memory                  = 2048
@@ -116,7 +116,7 @@ module "cartographer-transfers" {
   vpc_id                  = module.network.vpc_id
   private_subnets         = module.network.private_subnets
   docker_image            = var.full_image_name_cartographer_transfers
-  container_family        = "cartographer"
+  container_family        = "cartographer_transfer"
   container_port          = 8080
   cpu                     = 1024
   memory                  = 2048
