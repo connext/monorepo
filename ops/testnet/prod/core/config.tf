@@ -104,8 +104,10 @@ locals {
         ]
       }
     }
-    web3SignerUrl = "https://${module.web3signer.service_endpoint}"
-    environment   = "production"
+    web3SignerUrl    = "https://${module.web3signer.service_endpoint}"
+    environment      = "production"
+    nomadEnvironment = var.nomad_environment
+
   })
 }
 

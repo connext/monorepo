@@ -34,13 +34,10 @@ resource "aws_ecs_task_definition" "service" {
         }
       }
       healthCheck = {
-        retries = 3,
-        command = [
-          "CMD-SHELL",
-          "pgrep -x node"
-        ],
+        retries = 10,
+        command = var.health_check_command,
         timeout : 3,
-        interval : 10,
+        interval : 30,
         startPeriod : null
       },
       portMappings = [
@@ -83,11 +80,13 @@ resource "aws_ecs_task_definition" "service" {
     },
     {
       name  = "fluent-bit-agent-${var.environment}-${var.stage}-${var.container_family}",
-      image = "amazon/aws-for-fluent-bit:latest",
+      image = "public.ecr.aws/aws-observability/aws-for-fluent-bit:latest",
       firelensConfiguration = {
         type = "fluentbit",
         options = {
           enable-ecs-log-metadata = "true"
+          config-file-type        = "file"
+          config-file-value       = "/fluent-bit/configs/parse-json.conf"
         }
       }
     }

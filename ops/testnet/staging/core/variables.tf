@@ -25,23 +25,28 @@ variable "environment" {
   default     = "testnet"
 }
 
+variable "nomad_environment" {
+  description = "nomad environment type"
+  default = "staging"
+}
+
 variable "full_image_name_router" {
   type        = string
   description = "router image name"
-  default     = "ghcr.io/connext/router:sha-d4e6e55"
+  default     = "ghcr.io/connext/router:sha-2ed1a17"
 }
 
 
 variable "full_image_name_sequencer" {
   type        = string
   description = "sequencer image name"
-  default     = "ghcr.io/connext/sequencer:sha-d4e6e55"
+  default     = "ghcr.io/connext/sequencer:sha-2ed1a17"
 }
 
 variable "full_image_name_lighthouse" {
   type        = string
   description = "router image name"
-  default     = "ghcr.io/connext/lighthouse:sha-d4e6e55"
+  default     = "ghcr.io/connext/lighthouse:sha-2ed1a17"
 }
 
 variable "mnemonic" {
@@ -81,10 +86,6 @@ variable "kovan_alchemy_key_1" {
 }
 
 variable "goerli_alchemy_key_1" {
-  type = string
-}
-
-variable "logdna_key" {
   type = string
 }
 

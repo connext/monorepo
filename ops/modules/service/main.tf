@@ -80,11 +80,13 @@ resource "aws_ecs_task_definition" "service" {
     },
     {
       name  = "fluent-bit-agent-${var.environment}-${var.stage}-${var.container_family}",
-      image = "amazon/aws-for-fluent-bit:latest",
+      image = "public.ecr.aws/aws-observability/aws-for-fluent-bit:latest",
       firelensConfiguration = {
         type = "fluentbit",
         options = {
           enable-ecs-log-metadata = "true"
+          config-file-type = "file"
+          config-file-value = "/fluent-bit/configs/parse-json.conf"
         }
       }
     }

@@ -10,9 +10,9 @@ import {AssetFacet} from "../../../../contracts/core/connext/facets/AssetFacet.s
 import {TestERC20} from "../../../../contracts/test/TestERC20.sol";
 
 import {MockWrapper, MockTokenRegistry} from "../../../utils/Mock.sol";
+import "../../../utils/FacetHelper.sol";
 
-// import "../../lib/forge-std/src/console.sol";
-import "./FacetHelper.sol";
+import "forge-std/console.sol";
 
 contract AssetFacetTest is AssetFacet, FacetHelper {
   // ============ storage ============
@@ -20,17 +20,13 @@ contract AssetFacetTest is AssetFacet, FacetHelper {
   address _owner = address(12345);
 
   // sample data
-  uint32 _domain = 1000;
-
-  address _local = address(7);
-  bytes32 _localTokenId = bytes32(abi.encodePacked(_local));
-
-  address _canonical = address(5);
-  bytes32 _canonicalTokenId = bytes32(abi.encodePacked(_canonical));
+  uint32 _domain = _originDomain;
 
   // ============ Test set up ============
   function setUp() public {
     setOwner(_owner);
+    utils_deployAssetContracts();
+    utils_setFees();
   }
 
   // ============ Utils ==============
@@ -42,61 +38,57 @@ contract AssetFacetTest is AssetFacet, FacetHelper {
   }
 
   // Calls setupAsset and asserts state changes/events
-  function setupAssetAndAssert(
-    address asset,
-    address pool,
-    address wrapper
-  ) public {
-    address key = asset == address(0) ? wrapper : asset;
-    ConnextMessage.TokenId memory canonical = ConnextMessage.TokenId(_domain, _canonicalTokenId);
+  function setupAssetAndAssert(address asset, address pool) public {
+    address key = asset == address(0) ? _wrapper : asset;
+    ConnextMessage.TokenId memory canonical = ConnextMessage.TokenId(_domain, _canonicalId);
 
     vm.expectEmit(true, true, false, true);
-    emit AssetAdded(_canonicalTokenId, _domain, asset, key, _owner);
+    emit AssetAdded(_canonicalId, _domain, asset, key, _owner);
 
     vm.expectEmit(true, true, false, true);
-    emit StableSwapAdded(_canonicalTokenId, _domain, pool, _owner);
+    emit StableSwapAdded(_canonicalId, _domain, pool, _owner);
 
     this.setupAsset(canonical, asset, pool);
-    assertTrue(s.approvedAssets[_canonicalTokenId]);
+    assertTrue(s.approvedAssets[_canonicalId]);
     assertEq(s.adoptedToCanonical[key].domain, _domain);
-    assertEq(s.adoptedToCanonical[key].id, _canonicalTokenId);
-    assertEq(s.canonicalToAdopted[_canonicalTokenId], key);
-    assertEq(address(s.adoptedToLocalPools[_canonicalTokenId]), pool);
+    assertEq(s.adoptedToCanonical[key].id, _canonicalId);
+    assertEq(s.canonicalToAdopted[_canonicalId], key);
+    assertEq(address(s.adoptedToLocalPools[_canonicalId]), pool);
   }
 
   // Calls removeAsset and asserts state changes/events
-  function removeAssetAndAssert(address adopted, address wrapper) public {
-    address key = adopted == address(0) ? wrapper : adopted;
+  function removeAssetAndAssert(address adopted) public {
+    address key = adopted == address(0) ? _wrapper : adopted;
 
     vm.expectEmit(true, true, false, true);
-    emit AssetRemoved(_canonicalTokenId, _owner);
+    emit AssetRemoved(_canonicalId, _owner);
 
-    this.removeAssetId(_canonicalTokenId, adopted);
-    assertEq(s.approvedAssets[_canonicalTokenId], false);
+    this.removeAssetId(_canonicalId, adopted);
+    assertEq(s.approvedAssets[_canonicalId], false);
     assertEq(s.adoptedToCanonical[key].domain, 0);
     assertEq(s.adoptedToCanonical[key].id, bytes32(0));
-    assertEq(s.canonicalToAdopted[_canonicalTokenId], address(0));
-    assertEq(address(s.adoptedToLocalPools[_canonicalTokenId]), address(0));
+    assertEq(s.canonicalToAdopted[_canonicalId], address(0));
+    assertEq(address(s.adoptedToLocalPools[_canonicalId]), address(0));
   }
 
   // ============ Getters ============
   // canonicalToAdopted
   function test_AssetFacet__canonicalToAdopted_success() public {
-    s.canonicalToAdopted[_canonicalTokenId] = _local;
-    assertTrue(this.canonicalToAdopted(_canonicalTokenId) == _local);
+    s.canonicalToAdopted[_canonicalId] = _local;
+    assertTrue(this.canonicalToAdopted(_canonicalId) == _local);
   }
 
   function test_AssetFacet__canonicalToAdopted_notFound() public {
-    assertTrue(this.canonicalToAdopted(_canonicalTokenId) == address(0));
+    assertTrue(this.canonicalToAdopted(_canonicalId) == address(0));
   }
 
   // adoptedToCanonical
   function test_AssetFacet__adoptedToCanonical_success() public {
     s.adoptedToCanonical[_local].domain = _domain;
-    s.adoptedToCanonical[_local].id = _canonicalTokenId;
+    s.adoptedToCanonical[_local].id = _canonicalId;
     ConnextMessage.TokenId memory canonical = this.adoptedToCanonical(_local);
     assertEq(canonical.domain, _domain);
-    assertEq(canonical.id, _canonicalTokenId);
+    assertEq(canonical.id, _canonicalId);
   }
 
   function test_AssetFacet__adoptedToCanonical_notFound() public {
@@ -107,23 +99,23 @@ contract AssetFacetTest is AssetFacet, FacetHelper {
 
   // approvedAssets
   function test_AssetFacet__approvedAssets_success() public {
-    s.approvedAssets[_canonicalTokenId] = true;
-    assertTrue(this.approvedAssets(_canonicalTokenId));
+    s.approvedAssets[_canonicalId] = true;
+    assertTrue(this.approvedAssets(_canonicalId));
   }
 
   function test_AssetFacet__approvedAssets_notFound() public {
-    assertTrue(this.approvedAssets(_canonicalTokenId) == false);
+    assertTrue(this.approvedAssets(_canonicalId) == false);
   }
 
   // adoptedToLocalPools
   function test_AssetFacet__adoptedToLocalPools_success() public {
     address stableSwap = address(42);
-    s.adoptedToLocalPools[_localTokenId] = IStableSwap(stableSwap);
-    assertEq(address(this.adoptedToLocalPools(_localTokenId)), stableSwap);
+    s.adoptedToLocalPools[_canonicalId] = IStableSwap(stableSwap);
+    assertEq(address(this.adoptedToLocalPools(_canonicalId)), stableSwap);
   }
 
   function test_AssetFacet__adoptedToLocalPools_notFound() public {
-    assertEq(address(this.adoptedToLocalPools(_localTokenId)), address(0));
+    assertEq(address(this.adoptedToLocalPools(_canonicalId)), address(0));
   }
 
   // wrapper
@@ -134,6 +126,7 @@ contract AssetFacetTest is AssetFacet, FacetHelper {
   }
 
   function test_AssetFacet__wrapper_notSet() public {
+    s.wrapper = IWrapped(address(0));
     assertEq(address(this.wrapper()), address(0));
   }
 
@@ -144,6 +137,7 @@ contract AssetFacetTest is AssetFacet, FacetHelper {
   }
 
   function test_AssetFacet__tokenRegistry_notSet() public {
+    s.tokenRegistry = ITokenRegistry(address(0));
     assertEq(address(this.tokenRegistry()), address(0));
   }
 
@@ -219,23 +213,21 @@ contract AssetFacetTest is AssetFacet, FacetHelper {
     address stableSwap = address(5678);
 
     vm.prank(_owner);
-    setupAssetAndAssert(asset, stableSwap, address(0));
+    setupAssetAndAssert(asset, stableSwap);
   }
 
   function test_AssetFacet__setupAsset_successNativeAsset() public {
     address asset = address(0);
     address stableSwap = address(0);
 
-    address wrapper = address(new MockWrapper());
-    s.wrapper = IWrapped(wrapper);
     vm.prank(_owner);
-    setupAssetAndAssert(asset, stableSwap, wrapper);
+    setupAssetAndAssert(asset, stableSwap);
   }
 
   function test_AssetFacet__setupAsset_failIfRedundant() public {
-    ConnextMessage.TokenId memory canonical = ConnextMessage.TokenId(_domain, _canonicalTokenId);
+    ConnextMessage.TokenId memory canonical = ConnextMessage.TokenId(_domain, _canonicalId);
     address asset = address(new TestERC20());
-    s.approvedAssets[_canonicalTokenId] = true;
+    s.approvedAssets[_canonicalId] = true;
 
     vm.prank(_owner);
     vm.expectRevert(AssetFacet.AssetFacet__addAssetId_alreadyAdded.selector);
@@ -247,55 +239,54 @@ contract AssetFacetTest is AssetFacet, FacetHelper {
     address stableSwap = address(65);
 
     vm.expectEmit(true, true, false, true);
-    emit StableSwapAdded(_canonicalTokenId, _domain, stableSwap, _owner);
+    emit StableSwapAdded(_canonicalId, _domain, stableSwap, _owner);
 
-    ConnextMessage.TokenId memory canonical = ConnextMessage.TokenId(_domain, _canonicalTokenId);
+    ConnextMessage.TokenId memory canonical = ConnextMessage.TokenId(_domain, _canonicalId);
 
     vm.prank(_owner);
     this.addStableSwapPool(canonical, stableSwap);
-    assertEq(address(s.adoptedToLocalPools[_canonicalTokenId]), stableSwap);
+    assertEq(address(s.adoptedToLocalPools[_canonicalId]), stableSwap);
   }
 
   function test_AssetFacet__addStableSwapPool_canDelete() public {
     address og = address(65);
-    s.adoptedToLocalPools[_canonicalTokenId] = IStableSwap(og);
+    s.adoptedToLocalPools[_canonicalId] = IStableSwap(og);
     address empty = address(0);
 
     vm.expectEmit(true, true, false, true);
-    emit StableSwapAdded(_canonicalTokenId, _domain, empty, _owner);
+    emit StableSwapAdded(_canonicalId, _domain, empty, _owner);
 
-    ConnextMessage.TokenId memory canonical = ConnextMessage.TokenId(_domain, _canonicalTokenId);
+    ConnextMessage.TokenId memory canonical = ConnextMessage.TokenId(_domain, _canonicalId);
 
     vm.prank(_owner);
     this.addStableSwapPool(canonical, empty);
-    assertEq(address(s.adoptedToLocalPools[_canonicalTokenId]), empty);
+    assertEq(address(s.adoptedToLocalPools[_canonicalId]), empty);
   }
 
   // removeAssetId
   function test_AssetFacet__removeAssetId_successErc20Token() public {
     vm.prank(_owner);
-    setupAssetAndAssert(_local, address(12), address(12));
+    setupAssetAndAssert(_local, address(12));
+    console.log("setup");
 
     vm.prank(_owner);
-    removeAssetAndAssert(_local, address(12));
+    removeAssetAndAssert(_local);
   }
 
   function test_AssetFacet__removeAssetId_successNativeAsset() public {
     address local = address(0);
-    address wrapper = address(new MockWrapper());
-    s.wrapper = IWrapped(wrapper);
 
     vm.prank(_owner);
-    setupAssetAndAssert(local, address(0), wrapper);
+    setupAssetAndAssert(local, address(0));
 
     vm.prank(_owner);
-    removeAssetAndAssert(local, wrapper);
+    removeAssetAndAssert(local);
   }
 
   function test_AssetFacet__removeAssetId_failIfNotAlreadyApproved() public {
     vm.expectRevert(AssetFacet.AssetFacet__removeAssetId_notAdded.selector);
 
     vm.prank(_owner);
-    this.removeAssetId(_canonicalTokenId, _local);
+    this.removeAssetId(_canonicalId, _local);
   }
 }

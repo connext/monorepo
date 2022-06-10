@@ -53,6 +53,8 @@ RUN yarn build
 
 FROM node as runtime
 
+RUN npm install pm2 -pg
+
 ENV NODE_ENV=production
 
 ARG COMMIT_HASH
@@ -62,7 +64,7 @@ ENV COMMIT_HASH ${COMMIT_HASH:-unknown}
 COPY --from=build --chown=node:node /tmp/build /home/node
 COPY --from=build --chown=node:node /usr/local/bin/dbmate /usr/local/bin/dbmate
 
-COPY docker/cartographer/docker-entrypoint.sh /home/node/packages/agents/cartographer/poller
+COPY docker/cartographer/transfers/docker-entrypoint.sh /home/node/packages/agents/cartographer/poller
 RUN chmod +x /home/node/packages/agents/cartographer/poller/docker-entrypoint.sh
 
 # This user is created in the base image with uid and gid = 1000.
