@@ -3,7 +3,7 @@ pragma solidity 0.8.14;
 
 import {LibDiamond} from "../../../../contracts/core/connext/libraries/LibDiamond.sol";
 
-import {NomadFacet} from "../../../../contracts/core/connext/facets/NomadFacet.sol";
+import {NomadFacet, BaseConnextFacet} from "../../../../contracts/core/connext/facets/NomadFacet.sol";
 
 import "../../../utils/Mock.sol";
 import "../../../utils/FacetHelper.sol";
@@ -26,6 +26,14 @@ contract NomadFacetTest is NomadFacet, FacetHelper {
     assertEq(address(this.xAppConnectionManager()), value);
   }
 
+  function test_NomadFacet__setXAppConnectionManager_failsIfNotOwner() public {
+    assertEq(address(this.xAppConnectionManager()), address(0));
+    address value = address(1234);
+    vm.prank(address(2345));
+    vm.expectRevert(abi.encodeWithSelector(BaseConnextFacet.BaseConnextFacet__onlyOwner_notOwner.selector));
+    this.setXAppConnectionManager(value);
+  }
+
   // ============ enrollRemoteRouter ============
   function test_NomadFacet__enrollRemoteRouter_works() public {
     assertEq(this.remotes(_originDomain), bytes32(0));
@@ -33,5 +41,12 @@ contract NomadFacetTest is NomadFacet, FacetHelper {
     vm.prank(LibDiamond.contractOwner());
     this.enrollRemoteRouter(_originDomain, _remote);
     assertEq(this.remotes(_originDomain), _remote);
+  }
+
+  function test_NomadFacet__enrollRemoteRouter_failsIfNotOwner() public {
+    assertEq(this.remotes(_originDomain), bytes32(0));
+    vm.prank(address(2345));
+    vm.expectRevert(abi.encodeWithSelector(BaseConnextFacet.BaseConnextFacet__onlyOwner_notOwner.selector));
+    this.enrollRemoteRouter(_originDomain, _remote);
   }
 }
