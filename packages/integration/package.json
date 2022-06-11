@@ -25,6 +25,7 @@
     "docker:all:up": "yarn docker:services:up && sleep 30 && yarn docker:router:up",
     "docker:all:down": "docker-compose -f ops/sequencer.docker-compose.yml -f ops/messaging.docker-compose.yml -f ops/web3signer.docker-compose.yml -f ops/router.docker-compose.yml down",
     "concurrency:router": "ts-node ./test/load/routerConcurrency.ts",
+    "loadtest": "ts-node ./test/src/tests/ping_pong/pingPong.ts",
     "cyclical:router": "ts-node ./test/load/routerCyclical.ts | tee packages/integration/logs.json",
     "concurrency:txservice": "ts-node ./test/load/txserviceConcurrency.ts"
   },
