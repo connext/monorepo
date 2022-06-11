@@ -293,7 +293,7 @@ const destinationTransfersByExecuteTimestampQueryString = (
     }, 
     orderBy: executedTimestamp, 
     orderDirection: ${orderDirection}
-  ) {${ORIGIN_TRANSFER_ENTITY}}`;
+  ) {${DESTINATION_TRANSFER_ENTITY}}`;
 };
 
 export const getDestinationTransfersByExecuteTimestampQuery = (
@@ -340,7 +340,7 @@ const destinationTransfersByReconcileTimestampQueryString = (
     }, 
     orderBy: executedTimestamp, 
     orderDirection: ${orderDirection}
-  ) {${ORIGIN_TRANSFER_ENTITY}}`;
+  ) {${DESTINATION_TRANSFER_ENTITY}}`;
 };
 
 export const getDestinationTransfersByReconcileTimestampQuery = (
