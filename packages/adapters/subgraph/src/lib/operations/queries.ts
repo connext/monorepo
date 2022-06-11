@@ -311,6 +311,7 @@ export const getDestinationTransfersByExecuteTimestampQuery = (
         params.get(domain)!.fromTimestamp,
         domains,
         params.get(domain)!.maxBlockNumber,
+        params.get(domain)!.orderDirection,
       );
     } else {
       console.log(`No agents for domain: ${domain}`);
@@ -358,6 +359,7 @@ export const getDestinationTransfersByReconcileTimestampQuery = (
         params.get(domain)!.fromTimestamp,
         domains,
         params.get(domain)!.maxBlockNumber,
+        params.get(domain)!.orderDirection,
       );
     } else {
       console.log(`No agents for domain: ${domain}`);
