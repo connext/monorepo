@@ -6,8 +6,6 @@ module.exports = {
       kill_timeout: 1500,
       cron_restart: "*/5 * * * *",
     },
-  ],
-  apps: [
     {
       name: "routers-poller",
       script: "./dist/entryRouters.js",

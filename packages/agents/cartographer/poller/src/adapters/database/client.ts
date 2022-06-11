@@ -98,9 +98,9 @@ export const getTransfersByStatus = async (
   const poolToUse = _pool ?? pool;
   const x = await db.sql<s.transfers.SQL, s.transfers.JSONSelectable[]>`SELECT * FROM ${"transfers"} WHERE ${{
     status,
-  }} ORDER BY "xcall_timestamp" ${raw(`${orderDirection}`)} LIMIT ${db.param(limit)} OFFSET ${db.param(offset)}`.run(
-    poolToUse,
-  );
+  }} ORDER BY "xcall_timestamp" ${raw(`${orderDirection}`)} NULLS LAST LIMIT ${db.param(limit)} OFFSET ${db.param(
+    offset,
+  )}`.run(poolToUse);
   return x.map(convertFromDbTransfer);
 };
 
@@ -108,7 +108,7 @@ export const getLatestNonce = async (domain: string, _pool?: Pool): Promise<numb
   const poolToUse = _pool ?? pool;
   const transfer = await db.sql<s.transfers.SQL, s.transfers.JSONSelectable[]>`SELECT * FROM ${"transfers"} WHERE ${{
     origin_domain: domain,
-  }} ORDER BY "nonce" DESC LIMIT 1`.run(poolToUse);
+  }} ORDER BY "nonce" DESC NULLS LAST LIMIT 1`.run(poolToUse);
   return BigNumber.from(transfer[0]?.nonce ?? 0).toNumber();
 };
 
@@ -116,7 +116,7 @@ export const getLatestExecuteTimestamp = async (domain: string, _pool?: Pool): P
   const poolToUse = _pool ?? pool;
   const transfer = await db.sql<s.transfers.SQL, s.transfers.JSONSelectable[]>`SELECT * FROM ${"transfers"} WHERE ${{
     destination_domain: domain,
-  }} ORDER BY "execute_timestamp" DESC LIMIT 1`.run(poolToUse);
+  }} ORDER BY "execute_timestamp" DESC NULLS LAST LIMIT 1`.run(poolToUse);
   return BigNumber.from(transfer[0]?.execute_timestamp ?? 0).toNumber();
 };
 
@@ -124,7 +124,7 @@ export const getLatestReconcileTimestamp = async (domain: string, _pool?: Pool):
   const poolToUse = _pool ?? pool;
   const transfer = await db.sql<s.transfers.SQL, s.transfers.JSONSelectable[]>`SELECT * FROM ${"transfers"} WHERE ${{
     destination_domain: domain,
-  }} ORDER BY "reconcile_timestamp" DESC LIMIT 1`.run(poolToUse);
+  }} ORDER BY "reconcile_timestamp" DESC NULLS LAST LIMIT 1`.run(poolToUse);
   return BigNumber.from(transfer[0]?.reconcile_timestamp ?? 0).toNumber();
 };
 
