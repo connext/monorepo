@@ -3,7 +3,7 @@ import { Step } from "../../lib/Step";
 import { Task } from "../../lib/Task";
 import { TestManager, Test } from "../../lib/Test";
 
-const createWalletAction = new GenerateWallet(() => console.log("finished"));
+const createWalletAction = new GenerateWallet(() => console.log("final"));
 // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
 const createWalletCheckBalanceStep = new Step([createWalletAction]);
 const FundWallets: Task = new Task("FundWallets", [createWalletCheckBalanceStep]);
