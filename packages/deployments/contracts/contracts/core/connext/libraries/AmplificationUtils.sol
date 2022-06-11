@@ -29,7 +29,7 @@ library AmplificationUtils {
    * @param self Swap struct to read from
    * @return A parameter
    */
-  function getA(SwapUtils.Swap storage self) internal view returns (uint256) {
+  function getA(SwapUtils.Swap storage self) external view returns (uint256) {
     return _getAPrecise(self).div(A_PRECISION);
   }
 
@@ -39,7 +39,7 @@ library AmplificationUtils {
    * @param self Swap struct to read from
    * @return A parameter in its raw precision form
    */
-  function getAPrecise(SwapUtils.Swap storage self) internal view returns (uint256) {
+  function getAPrecise(SwapUtils.Swap storage self) external view returns (uint256) {
     return _getAPrecise(self);
   }
 
@@ -80,7 +80,7 @@ library AmplificationUtils {
     SwapUtils.Swap storage self,
     uint256 futureA_,
     uint256 futureTime_
-  ) internal {
+  ) external {
     require(block.timestamp >= self.initialATime.add(1 days), "Wait 1 day before starting ramp");
     require(futureTime_ >= block.timestamp.add(MIN_RAMP_TIME), "Insufficient ramp time");
     require(futureA_ > 0 && futureA_ < MAX_A, "futureA_ must be > 0 and < MAX_A");
@@ -107,7 +107,7 @@ library AmplificationUtils {
    * cannot be called for another 24 hours
    * @param self Swap struct to update
    */
-  function stopRampA(SwapUtils.Swap storage self) internal {
+  function stopRampA(SwapUtils.Swap storage self) external {
     require(self.futureATime > block.timestamp, "Ramp is already stopped");
 
     uint256 currentA = _getAPrecise(self);

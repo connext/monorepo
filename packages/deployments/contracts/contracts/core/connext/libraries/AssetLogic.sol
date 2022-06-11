@@ -30,7 +30,7 @@ library AssetLogic {
    * @notice Check if the stabelswap pool exists or not
    * @param canonicalId the canonical token id
    */
-  function stableSwapPoolExist(bytes32 canonicalId) internal view returns (bool) {
+  function stableSwapPoolExist(bytes32 canonicalId) public view returns (bool) {
     AppStorage storage s = LibConnextStorage.connextStorage();
     return s.swapStorages[canonicalId].pooledTokens.length != 0;
   }
@@ -42,7 +42,7 @@ library AssetLogic {
    * @param tokenAddress address of the token
    * @return the index of the given token address
    */
-  function getTokenIndexFromStableSwapPool(bytes32 canonicalId, address tokenAddress) internal view returns (uint8) {
+  function getTokenIndexFromStableSwapPool(bytes32 canonicalId, address tokenAddress) public view returns (uint8) {
     AppStorage storage s = LibConnextStorage.connextStorage();
     uint8 index = s.tokenIndexes[canonicalId][tokenAddress];
     if (address(s.swapStorages[canonicalId].pooledTokens[index]) != tokenAddress)
@@ -66,7 +66,7 @@ library AssetLogic {
     address _assetId,
     uint256 _assetAmount,
     uint256 _fee
-  ) internal returns (address, uint256) {
+  ) external returns (address, uint256) {
     AppStorage storage s = LibConnextStorage.connextStorage();
 
     uint256 trueAmount = _assetAmount;
@@ -104,7 +104,7 @@ library AssetLogic {
    * @param _amount - The specified amount to transfer
    * @return The amount of the asset that was seen by the contract
    */
-  function transferAssetToContract(address _assetId, uint256 _amount) internal returns (uint256) {
+  function transferAssetToContract(address _assetId, uint256 _amount) public returns (uint256) {
     // Validate correct amounts are transferred
     uint256 starting = IERC20(_assetId).balanceOf(address(this));
 
@@ -124,7 +124,7 @@ library AssetLogic {
     address _assetId,
     address _to,
     uint256 _amount
-  ) internal {
+  ) public {
     // If amount is 0 do nothing
     if (_amount == 0) {
       return;
@@ -159,7 +159,7 @@ library AssetLogic {
     ConnextMessage.TokenId memory _canonical,
     address _asset,
     uint256 _amount
-  ) internal returns (uint256, address) {
+  ) external returns (uint256, address) {
     AppStorage storage s = LibConnextStorage.connextStorage();
 
     // Get the local token for this domain (may return canonical or representation).
@@ -187,7 +187,7 @@ library AssetLogic {
    * @return The amount of adopted asset received from swap
    * @return The address of asset received post-swap
    */
-  function swapFromLocalAssetIfNeeded(address _asset, uint256 _amount) internal returns (uint256, address) {
+  function swapFromLocalAssetIfNeeded(address _asset, uint256 _amount) external returns (uint256, address) {
     AppStorage storage s = LibConnextStorage.connextStorage();
 
     // Get the token id
@@ -221,7 +221,7 @@ library AssetLogic {
     uint256 _amount,
     uint256 _maxIn
   )
-    internal
+    external
     returns (
       bool,
       uint256,
@@ -348,7 +348,7 @@ library AssetLogic {
    * @return The address of asset received post-swap
    */
   function calculateSwapFromLocalAssetIfNeeded(address _asset, uint256 _amount)
-    internal
+    external
     view
     returns (uint256, address)
   {
@@ -385,7 +385,7 @@ library AssetLogic {
    * @return The amount of local asset received from swap
    * @return The address of asset received post-swap
    */
-  function calculateSwapToLocalAssetIfNeeded(address _asset, uint256 _amount) internal view returns (uint256, address) {
+  function calculateSwapToLocalAssetIfNeeded(address _asset, uint256 _amount) external view returns (uint256, address) {
     AppStorage storage s = LibConnextStorage.connextStorage();
 
     // Get the token id

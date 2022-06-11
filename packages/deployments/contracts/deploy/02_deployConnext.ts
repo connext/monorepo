@@ -94,6 +94,28 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment): Promise<voi
     );
   }
 
+  // Deploy Connext logic libraries
+  console.log("Deploying libraries...");
+  const assetLogicDeployment = await hre.deployments.deploy(getDeploymentName("AssetLogic"), {
+    from: deployer.address,
+    log: true,
+    contract: "AssetLogic",
+  });
+
+  const amplificationUtilsDeployment = await hre.deployments.deploy(getDeploymentName("AmplificationUtils"), {
+    from: deployer.address,
+    log: true,
+    skipIfAlreadyDeployed: true,
+    contract: "AmplificationUtils",
+  });
+
+  const swapUtilsDeployment = await hre.deployments.deploy(getDeploymentName("SwapUtils"), {
+    from: deployer.address,
+    log: true,
+    skipIfAlreadyDeployed: true,
+    contract: "SwapUtils",
+  });
+
   // Deploy connext diamond contract
   console.log("Deploying connext diamond...");
   const connext = await hre.deployments.diamond.deploy(getDeploymentName("ConnextHandler"), {
@@ -102,12 +124,33 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment): Promise<voi
     log: true,
     facets: [
       { name: getDeploymentName("AssetFacet"), contract: "AssetFacet", args: [] },
-      { name: getDeploymentName("BridgeFacet"), contract: "BridgeFacet", args: [] },
+      {
+        name: getDeploymentName("BridgeFacet"),
+        contract: "BridgeFacet",
+        args: [],
+        libraries: { AssetLogic: assetLogicDeployment.address },
+      },
       { name: getDeploymentName("NomadFacet"), contract: "NomadFacet", args: [] },
       { name: getDeploymentName("ProposedOwnableFacet"), contract: "ProposedOwnableFacet", args: [] },
       { name: getDeploymentName("RelayerFacet"), contract: "RelayerFacet", args: [] },
-      { name: getDeploymentName("RoutersFacet"), contract: "RoutersFacet", args: [] },
-      { name: getDeploymentName("StableSwapFacet"), contract: "StableSwapFacet", args: [] },
+      {
+        name: getDeploymentName("RoutersFacet"),
+        contract: "RoutersFacet",
+        args: [],
+        libraries: { AssetLogic: assetLogicDeployment.address },
+      },
+      {
+        name: getDeploymentName("StableSwapFacet"),
+        contract: "StableSwapFacet",
+        args: [],
+        libraries: { SwapUtils: swapUtilsDeployment.address, AmplificationUtils: amplificationUtilsDeployment.address },
+      },
+      {
+        name: getDeploymentName("PortalFacet"),
+        contract: "PortalFacet",
+        args: [],
+        libraries: { AssetLogic: assetLogicDeployment.address },
+      },
       { name: getDeploymentName("VersionFacet"), contract: "VersionFacet", args: [] },
     ],
     defaultOwnershipFacet: false,
