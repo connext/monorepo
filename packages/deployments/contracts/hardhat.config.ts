@@ -46,7 +46,9 @@ const mnemonic =
   process.env.MNEMONIC ||
   "candy maple cake sugar pudding cream honey rich smooth crumble sweet treat";
 
-const mainnetMnemonic = process.env.MAINNET_MNEMONIC || "";
+const mainnetMnemonic = process.env.MAINNET_MNEMONIC;
+console.log("mainnetMnemonic: ", mainnetMnemonic);
+console.log("mnemonic: ", mnemonic);
 
 const config: HardhatUserConfig = {
   solidity: {
@@ -186,6 +188,11 @@ const config: HardhatUserConfig = {
       accounts: { mnemonic },
       chainId: 1287,
       url: "https://moonbeam-alpha.api.onfinality.io/public",
+    },
+    evmos: {
+      accounts: { mnemonic: mainnetMnemonic ?? mnemonic },
+      chainId: 9001,
+      url: "https://eth.bd.evmos.org:8545",
     },
     "arbitrum-one": {
       accounts: { mnemonic },
