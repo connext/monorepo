@@ -16,7 +16,8 @@
     "tasks/**/*.ts",
     "src/**/*.ts",
     "./artifacts",
-    "./deployments.json"
+    "./deployments.json",
+    "./abi/**/*.json"
   ],
   "exclude": ["test/**/*.ts"],
   "references": [
