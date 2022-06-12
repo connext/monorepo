@@ -86,6 +86,29 @@ module "postgrest" {
 }
 
 
+module "cartographer-routers-cron" {
+  source                  = "../../../modules/cron"
+  region                  = var.region
+  dd_api_key              = var.dd_api_key
+  execution_role_arn      = data.aws_iam_role.ecr_admin_role.arn
+  cluster_id              = module.ecs.ecs_cluster_id
+  ecs_cluster_arn         = module.ecs.ecs_cluster_arn
+  vpc_id                  = module.network.vpc_id
+  private_subnets         = module.network.private_subnets
+  docker_image            = var.full_image_name_cartographer_routers
+  container_family        = "cartographer_router_cron"
+  container_port          = 8080
+  cpu                     = 256
+  memory                  = 512
+  instance_count          = 1
+  environment             = var.environment
+  stage                   = var.stage
+  domain                  = var.domain
+  service_security_groups = flatten([module.network.allow_all_sg, module.network.ecs_task_sg])
+  container_env_vars      = local.cartographer_env_vars
+}
+
+
 module "cartographer-routers" {
   source                  = "../../../modules/daemon"
   region                  = var.region
