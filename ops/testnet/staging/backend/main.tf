@@ -95,7 +95,7 @@ module "cartographer-routers-cron" {
   ecs_cluster_arn         = module.ecs.ecs_cluster_arn
   vpc_id                  = module.network.vpc_id
   private_subnets         = module.network.private_subnets
-  docker_image            = var.full_image_name_cartographer_routers
+  docker_image            = var.full_image_name_cartographer_routers_cron
   container_family        = "cartographer_router_cron"
   container_port          = 8080
   cpu                     = 256

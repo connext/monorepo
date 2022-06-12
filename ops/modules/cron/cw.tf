@@ -1,6 +1,6 @@
 resource "aws_cloudwatch_event_rule" "event_rule" {
   name                = "${var.environment}-${var.stage}-${var.container_family}"
-  schedule_expression = "*/2 * * * *"
+  schedule_expression = "cron(0/5 * * * ? *)"
 }
 
 // Failure notification configuration (using Cloudwatch)
@@ -20,7 +20,7 @@ resource "aws_cloudwatch_event_target" "ecs_scheduled_task" {
     task_count          = 1
     task_definition_arn = aws_ecs_task_definition.service.arn
     network_configuration {
-      subnets = var.subnet_ids
+      subnets = var.private_subnets
     }
   }
 }

@@ -28,13 +28,19 @@ variable "environment" {
 variable "full_image_name_cartographer_routers" {
   type        = string
   description = "cartographer routers image name"
-  default     = "ghcr.io/connext/cartographer-routers:sha-2ed1a17"
+  default     = "ghcr.io/connext/cartographer-routers:sha-2d55c17"
+}
+
+variable "full_image_name_cartographer_routers_cron" {
+  type        = string
+  description = "cartographer routers image name"
+  default     = "ghcr.io/connext/cartographer-routers:sha-3564289"
 }
 
 variable "full_image_name_cartographer_transfers" {
   type        = string
   description = "cartographer transfers image name"
-  default     = "ghcr.io/connext/cartographer-transfers:sha-2ed1a17"
+  default     = "ghcr.io/connext/cartographer-transfers:sha-2d55c17"
 }
 
 variable "certificate_arn_testnet" {
