@@ -26,7 +26,7 @@ import {
   DiamondInit,
   PromiseRouter,
   PortalFacet,
-} from "../typechain-types";
+} from "../src/typechain-types";
 
 import {
   asyncForEach,

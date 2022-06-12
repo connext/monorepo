@@ -781,6 +781,7 @@ __metadata:
     "@connext/nxtp-contracts": "workspace:*"
     "@connext/nxtp-relayer": "workspace:*"
     "@connext/nxtp-router": "workspace:*"
+    "@connext/nxtp-sdk": "workspace:*"
     "@connext/nxtp-sequencer": "workspace:*"
     "@connext/nxtp-txservice": "workspace:*"
     "@connext/nxtp-utils": "workspace:*"
