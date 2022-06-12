@@ -13,7 +13,11 @@ export const enrollCustom = async (
   const tokenRegistry = new utils.Interface(TokenRegistryAbi as string[]);
   await Promise.all(
     otherTokens.map(async (token) => {
-      const data = tokenRegistry.encodeFunctionData("enrollCustom", [canonicalId, canonicalId, token.tokenAddress]);
+      const data = tokenRegistry.encodeFunctionData("enrollCustom", [
+        canonicalToken.domain,
+        canonicalId,
+        token.tokenAddress,
+      ]);
       await txService.sendTx({ to: token.TokenRegistry, data, value: 0, chainId: +token.domain }, requestContext);
     }),
   );

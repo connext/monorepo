@@ -1,7 +1,7 @@
-import { Logger } from "@connext/nxtp-utils";
+import { createRequestContext, Logger } from "@connext/nxtp-utils";
 import { TransactionService } from "@connext/nxtp-txservice";
 import { NxtpSdkBase } from "@connext/nxtp-sdk";
-import { constants, Wallet } from "ethers";
+import { constants, utils, Wallet } from "ethers";
 
 import { enrollHandlers } from "./helpers/enrollHandlers";
 import { enrollCustom } from "./helpers/enrollCustom";
@@ -25,6 +25,7 @@ const txService = new TransactionService(
   wallet,
 );
 
+const requestContext = createRequestContext("e2e");
 describe("e2e", () => {
   let sdk: NxtpSdkBase;
   before(async () => {
@@ -110,6 +111,14 @@ describe("e2e", () => {
       environment: "production",
       signerAddress: wallet.address,
     });
+
+    let tx = await sdk.approveIfNeeded("1337", "0x8e4C131B37383E431B9cd0635D3cF9f3F628EDae", "1", true);
+    if (tx) {
+      await txService.sendTx({ chainId: 1337, to: tx.to!, value: 0, data: utils.hexlify(tx.data!) }, requestContext);
+    }
+    if (tx) {
+      tx = await sdk.approveIfNeeded("1338", "0x8e4C131B37383E431B9cd0635D3cF9f3F628EDae", "1", true);
+    }
   });
 
   it.only("sends a simple transfer with fast path", async () => {
