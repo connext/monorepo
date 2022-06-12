@@ -675,23 +675,23 @@ jobs:
 
       - name: Decrypt Testnet Secrets
         id: decrypt
-        run: sops -d ops/env/testnet/backend/secrets.prod.json > ops/testnet/prod/backend/tfvars.json
+        run: sops -d ops/env/mainnet/backend/secrets.prod.json > ops/mainnet/prod/backend/tfvars.json
 
       - name: Terraform Init
         id: init
-        working-directory: ./ops/testnet/prod/backend
+        working-directory: ./ops/mainnet/prod/backend
         run: terraform init
 
       - name: Terraform Plan
         id: plan
-        working-directory: ./ops/testnet/prod/backend
+        working-directory: ./ops/mainnet/prod/backend
         run: |
           terraform plan -var-file=tfvars.json
         continue-on-error: true
 
       - name: Terraform Docker Image onto AWS
         id: apply
-        working-directory: ./ops/testnet/prod/backend
+        working-directory: ./ops/mainnet/prod/backend
         run: |
           terraform apply -var-file=tfvars.json -auto-approve
 
