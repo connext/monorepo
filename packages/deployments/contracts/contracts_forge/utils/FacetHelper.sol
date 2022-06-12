@@ -1,21 +1,21 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity 0.8.14;
 
-import {IBridgeToken} from "../../../../contracts/core/connext/interfaces/IBridgeToken.sol";
-import {ITokenRegistry} from "../../../../contracts/core/connext/interfaces/ITokenRegistry.sol";
-import {IStableSwap} from "../../../../contracts/core/connext/interfaces/IStableSwap.sol";
-import {IWrapped} from "../../../../contracts/core/connext/interfaces/IWrapped.sol";
+import {IBridgeToken} from "../../contracts/core/connext/interfaces/IBridgeToken.sol";
+import {ITokenRegistry} from "../../contracts/core/connext/interfaces/ITokenRegistry.sol";
+import {IStableSwap} from "../../contracts/core/connext/interfaces/IStableSwap.sol";
+import {IWrapped} from "../../contracts/core/connext/interfaces/IWrapped.sol";
 
-import {ConnextMessage} from "../../../../contracts/core/connext/libraries/ConnextMessage.sol";
-import {LibConnextStorage, AppStorage} from "../../../../contracts/core/connext/libraries/LibConnextStorage.sol";
-import {TestERC20} from "../../../../contracts/test/TestERC20.sol";
-import {ConnextMessage} from "../../../../contracts/core/connext/libraries/ConnextMessage.sol";
-import {IStableSwap} from "../../../../contracts/core/connext/interfaces/IStableSwap.sol";
+import {ConnextMessage} from "../../contracts/core/connext/libraries/ConnextMessage.sol";
+import {LibConnextStorage, AppStorage} from "../../contracts/core/connext/libraries/LibConnextStorage.sol";
+import {TestERC20} from "../../contracts/test/TestERC20.sol";
+import {ConnextMessage} from "../../contracts/core/connext/libraries/ConnextMessage.sol";
+import {IStableSwap} from "../../contracts/core/connext/interfaces/IStableSwap.sol";
 
-import {TestERC20} from "../../../../contracts/test/TestERC20.sol";
+import {TestERC20} from "../../contracts/test/TestERC20.sol";
 
-import {MockWrapper} from "../../../utils/Mock.sol";
-import "../../../utils/ForgeHelper.sol";
+import {MockWrapper} from "./Mock.sol";
+import "./ForgeHelper.sol";
 
 contract FacetHelper is ForgeHelper {
   // ============ Storage ============

@@ -64,6 +64,7 @@ export const updateTransfers = async () => {
     const transfers = await subgraph.getOriginTransfers(subgraphQueryMetaParams);
     logger.info("Retrieved origin transfers", requestContext, methodContext, {
       transfers,
+      count: transfers.length,
     });
     await database.saveTransfers(transfers);
   }
@@ -73,6 +74,7 @@ export const updateTransfers = async () => {
     const transfers = await subgraph.getDestinationTransfersByExecuteTimestamp(subgraphExecuteQueryMetaParams);
     logger.info("Retrieved destination transfers by execute timestamp", requestContext, methodContext, {
       transfers,
+      count: transfers.length,
     });
     await database.saveTransfers(transfers);
   }
@@ -82,6 +84,7 @@ export const updateTransfers = async () => {
     const transfers = await subgraph.getDestinationTransfersByReconcileTimestamp(subgraphReconcileQueryMetaParams);
     logger.info("Retrieved destination transfers by reconcile timestamp", requestContext, methodContext, {
       transfers,
+      count: transfers.length,
     });
     await database.saveTransfers(transfers);
   }

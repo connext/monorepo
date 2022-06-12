@@ -5,14 +5,6 @@ import "../../../utils/ForgeHelper.sol";
 
 import {TypedMemView, RelayerFeeMessage, RelayerFeeRouter} from "../../../../contracts/core/relayer-fee/RelayerFeeRouter.sol";
 
-// running tests (with logging on failure):
-// yarn workspace @connext/nxtp-contracts test:forge -vvv
-// run a single test:
-// yarn workspace @connext/nxtp-contracts test:forge -m testAddRouterAlreadyApproved -vvv
-
-// other forge commands: yarn workspace @connext/nxtp-contracts forge <CMD>
-// see docs here: https://onbjerg.github.io/foundry-book/index.html
-
 contract RelayerFeeMessageTest is ForgeHelper {
   // ============ Libraries ============
   using TypedMemView for bytes;
