@@ -1,6 +1,4 @@
 import { Logger, XTransferStatus, expect, mock, getRandomBytes32, mkAddress } from "@connext/nxtp-utils";
-import sinon from "sinon";
-
 import { TransfersCache } from "../../../src/index";
 
 const logger = new Logger({ level: "debug" });
@@ -195,8 +193,9 @@ describe("TransfersCache", () => {
 
   describe("#prunePending", () => {
     const maxPruneTimeMs = 10_000;
+    const testOnRealDb = false;
 
-    it("happy: should not prune pending transactions ", async () => {
+    it("happy: mock should not prune pending transactions ", async () => {
       const domain = 3000;
       //add some pending txns back
       const transferIds = new Array(10).fill(0).map(() => getRandomBytes32());
@@ -210,13 +209,10 @@ describe("TransfersCache", () => {
 
       const stillPending = await transfersCache.getPending("3000");
 
-      console.log("Still Pending", stillPending);
-
-      console.log("stuffs", res, pendingBefore, stillPending);
       expect(pendingBefore).to.deep.eq(stillPending);
     });
 
-    it("happy: should prune all old completed transactions ", async () => {
+    it("happy: mock should prune all old completed transactions ", async () => {
       await rmock.flushall();
       const domain = 3000;
 
@@ -266,6 +262,23 @@ describe("TransfersCache", () => {
       //set max prune time limit
       expect(endPrune).to.be.lte(startPrune + maxPruneTimeMs);
     });
+
+    it('should use real db to test pruning', async() => {
+      if (testOnRealDb) {
+        const realTransferCache = new TransfersCache({ host: "localhost", port: 6379, mock: false, logger });
+        const startPrune = Date.now();
+        await realTransferCache.pruneTransfers(3331);
+        await realTransferCache.pruneTransfers(2221);
+        await realTransferCache.pruneTransfers(1111);
+
+        const endPrune = Date.now();
+
+        console.log('endPrune', endPrune);
+        //always false
+        expect(endPrune).to.be.lte(startPrune + (maxPruneTimeMs * 1000));
+
+      }
+    })
   });
 
   describe("#getErrors", () => {
