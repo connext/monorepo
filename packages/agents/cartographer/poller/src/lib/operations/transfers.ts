@@ -31,11 +31,12 @@ export const updateTransfers = async () => {
     }
 
     // Retrieve latest nonce from the database; will reflect the most recent origin transfers we've saved for this domain.
-    const latestNonce = await database.getLatestNonce(domain);
+    const currentNonce = await database.getLatestNonce(domain);
+    const lastXCallNonce = await database.getLastXCallNonce(domain);
 
     subgraphQueryMetaParams.set(domain, {
       maxBlockNumber: latestBlockNumber,
-      latestNonce: latestNonce == 0 ? 0 : latestNonce + 1,
+      latestNonce: lastXCallNonce < currentNonce ? lastXCallNonce : currentNonce + 1,
       destinationDomains: domains,
       orderDirection: "asc",
     });

@@ -112,6 +112,14 @@ export const getLatestNonce = async (domain: string, _pool?: Pool): Promise<numb
   return BigNumber.from(transfer[0]?.nonce ?? 0).toNumber();
 };
 
+export const getLastXCallNonce = async (domain: string, _pool?: Pool): Promise<number> => {
+  const poolToUse = _pool ?? pool;
+  const transfer = await db.sql<s.transfers.SQL, s.transfers.JSONSelectable[]>`SELECT * FROM ${"transfers"} WHERE ${{
+    origin_domain: domain,
+  }} AND "xcall_timestamp" IS NULL ORDER BY "nonce" ASC LIMIT 1`.run(poolToUse);
+  return BigNumber.from(transfer[0]?.nonce ?? 0).toNumber();
+};
+
 export const getLatestExecuteTimestamp = async (domain: string, _pool?: Pool): Promise<number> => {
   const poolToUse = _pool ?? pool;
   const transfer = await db.sql<s.transfers.SQL, s.transfers.JSONSelectable[]>`SELECT * FROM ${"transfers"} WHERE ${{
