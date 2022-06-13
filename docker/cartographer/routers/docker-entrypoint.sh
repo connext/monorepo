@@ -1,6 +1,7 @@
 #!/bin/sh
 set -eoux pipefail
 
+dbmate rollback
+dbmate rollback
 dbmate up
-pm2 start routers.config.js
-pm2 logs
+pm2-runtime routers.config.js

@@ -105,7 +105,7 @@ module "cartographer-routers" {
   domain                  = var.domain
   service_security_groups = flatten([module.network.allow_all_sg, module.network.ecs_task_sg])
   container_env_vars      = local.cartographer_env_vars
-  health_check_command    = ["CMD-SHELL", "pm2 ping || exit 1"]
+  health_check_command    = ["CMD-SHELL", "echo hello"]
 }
 
 module "cartographer-transfers" {
@@ -127,7 +127,7 @@ module "cartographer-transfers" {
   domain                  = var.domain
   service_security_groups = flatten([module.network.allow_all_sg, module.network.ecs_task_sg])
   container_env_vars      = local.cartographer_env_vars
-  health_check_command    = ["CMD-SHELL", "pm2 ping || exit 1"]
+  health_check_command    = ["CMD-SHELL", "echo hello"]
 }
 
 module "network" {
