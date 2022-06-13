@@ -100,6 +100,8 @@ describe("Backend operations", () => {
     getTransfersByStatusStub.onThirdCall().resolves(mockSubgraphResponse);
     const saveRouterBalancesStub = stub(dbClient, "saveRouterBalances");
     saveRouterBalancesStub.resolves();
+    const getLatestXCallTimestampStub = stub(dbClient, "getLatestXCallTimestamp");
+    getLatestXCallTimestampStub.resolves(0);
     const getLatestExecuteTimestampStub = stub(dbClient, "getLatestExecuteTimestamp");
     getLatestExecuteTimestampStub.resolves(0);
     const getLatestReconcileTimestampStub = stub(dbClient, "getLatestReconcileTimestamp");
@@ -120,6 +122,7 @@ describe("Backend operations", () => {
           getLatestNonce: dbClient.getLatestNonce,
           getTransfersByStatus: dbClient.getTransfersByStatus,
           saveRouterBalances: dbClient.saveRouterBalances,
+          getLatestXCallTimestamp: dbClient.getLatestXCallTimestamp,
           getLatestExecuteTimestamp: dbClient.getLatestExecuteTimestamp,
           getLatestReconcileTimestamp: dbClient.getLatestReconcileTimestamp,
         },
