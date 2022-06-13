@@ -335,7 +335,37 @@ contract StableSwapFacetTest is FacetHelper, StableSwapFacet {
   }
 
   // function test_StableSwapFacet__addSwapLiquidity
+  function test_StableSwapFacet__addSwapLiquidity_failIfNotMatchPooledToken() public {
+    s._paused = true;
+
+    uint256[] memory amounts = new uint256[](1);
+    amounts[0] = 1 ether;
+
+    vm.prank(_user1);
+    vm.expectRevert("Amounts must match pooled tokens");
+    this.addSwapLiquidity(_canonicalId, amounts, 0, blockTimestamp + 1);
+  }
+
+  function test_StableSwapFacet__addSwapLiquidity_shouldWork() public {
+    vm.startPrank(_user1);
+    uint256[] memory amounts = new uint256[](2);
+    amounts[0] = 1 ether;
+    amounts[1] = 3 ether;
+
+    uint256 calculatedPoolTokenAmount = this.calculateSwapTokenAmount(_canonicalId, amounts, true);
+    uint256 calculatedPoolTokenAmountWithSlippage = (calculatedPoolTokenAmount * 999) / 1000;
+
+    this.addSwapLiquidity(_canonicalId, amounts, calculatedPoolTokenAmountWithSlippage, blockTimestamp + 1);
+
+    uint256 actualPoolTokenAmount = IERC20(this.getSwapLPToken(_canonicalId)).balanceOf(_user1);
+
+    // The actual pool token amount is less than 4e18 due to the imbalance of the underlying tokens
+    assertEq(actualPoolTokenAmount, 3991672211258372957);
+    vm.stopPrank();
+  }
+
   // function test_StableSwapFacet__removeSwapLiquidity
+
   // function test_StableSwapFacet__removeSwapLiquidityOneToken
   // function test_StableSwapFacet__removeSwapLiquidityImbalance
 
