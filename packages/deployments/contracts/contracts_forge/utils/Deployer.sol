@@ -1,22 +1,25 @@
 // SPDX-License-Identifier: UNLICENSED
-pragma solidity 0.8.11;
+pragma solidity 0.8.14;
 
 import {Connext} from "../../contracts/test/Connext.sol";
-import {DiamondCutFacet} from "../../contracts/facets/DiamondCutFacet.sol";
-import {DiamondLoupeFacet} from "../../contracts/facets/DiamondLoupeFacet.sol";
-import {DiamondInit} from "../../contracts/upgradeInitializers/DiamondInit.sol";
-import {AssetFacet} from "../../contracts/facets/AssetFacet.sol";
-import {BridgeFacet} from "../../contracts/facets/BridgeFacet.sol";
-import {NomadFacet} from "../../contracts/facets/NomadFacet.sol";
-import {ProposedOwnableFacet} from "../../contracts/facets/ProposedOwnableFacet.sol";
-import {RelayerFacet} from "../../contracts/facets/RelayerFacet.sol";
-import {RoutersFacet} from "../../contracts/facets/RoutersFacet.sol";
-import {StableSwapFacet} from "../../contracts/facets/StableSwapFacet.sol";
-import {ConnextMessage} from "../../contracts/libraries/ConnextMessage.sol";
-import {XCallArgs, CallParams} from "../../contracts/libraries/LibConnextStorage.sol";
-import {IDiamondCut} from "../../contracts/interfaces/IDiamondCut.sol";
 
-import {TestSetterFacet} from "../Mock.sol";
+import {DiamondCutFacet} from "../../contracts/core/connext/facets/DiamondCutFacet.sol";
+import {DiamondLoupeFacet} from "../../contracts/core/connext/facets/DiamondLoupeFacet.sol";
+import {DiamondInit} from "../../contracts/core/connext/facets/upgrade-initializers/DiamondInit.sol";
+import {AssetFacet} from "../../contracts/core/connext/facets/AssetFacet.sol";
+import {BridgeFacet} from "../../contracts/core/connext/facets/BridgeFacet.sol";
+import {NomadFacet} from "../../contracts/core/connext/facets/NomadFacet.sol";
+import {ProposedOwnableFacet} from "../../contracts/core/connext/facets/ProposedOwnableFacet.sol";
+import {RelayerFacet} from "../../contracts/core/connext/facets/RelayerFacet.sol";
+import {RoutersFacet} from "../../contracts/core/connext/facets/RoutersFacet.sol";
+import {StableSwapFacet} from "../../contracts/core/connext/facets/StableSwapFacet.sol";
+import {PortalFacet} from "../../contracts/core/connext/facets/PortalFacet.sol";
+import {VersionFacet} from "../../contracts/core/connext/facets/VersionFacet.sol";
+import {ConnextMessage} from "../../contracts/core/connext/libraries/ConnextMessage.sol";
+import {XCallArgs, CallParams} from "../../contracts/core/connext/libraries/LibConnextStorage.sol";
+import {IDiamondCut} from "../../contracts/core/connext/interfaces/IDiamondCut.sol";
+
+import {TestSetterFacet} from "./Mock.sol";
 
 contract Deployer {
   Connext connextDiamondProxy;
@@ -30,6 +33,8 @@ contract Deployer {
   RelayerFacet relayerFacet;
   RoutersFacet routersFacet;
   StableSwapFacet stableSwapAsset;
+  PortalFacet portalFacet;
+  VersionFacet versionFacet;
   TestSetterFacet testSetterFacet;
 
   function getDiamondCutFacetCut(address _diamondCutFacet) internal pure returns (IDiamondCut.FacetCut memory) {
@@ -126,7 +131,7 @@ contract Deployer {
     pure
     returns (IDiamondCut.FacetCut memory)
   {
-    bytes4[] memory proposedOwnableFacetSelectors = new bytes4[](14);
+    bytes4[] memory proposedOwnableFacetSelectors = new bytes4[](16);
     proposedOwnableFacetSelectors[0] = ProposedOwnableFacet.owner.selector;
     proposedOwnableFacetSelectors[1] = ProposedOwnableFacet.proposed.selector;
     proposedOwnableFacetSelectors[2] = ProposedOwnableFacet.proposedTimestamp.selector;
@@ -141,6 +146,8 @@ contract Deployer {
     proposedOwnableFacetSelectors[11] = ProposedOwnableFacet.proposeNewOwner.selector;
     proposedOwnableFacetSelectors[12] = ProposedOwnableFacet.renounceOwnership.selector;
     proposedOwnableFacetSelectors[13] = ProposedOwnableFacet.acceptProposedOwner.selector;
+    proposedOwnableFacetSelectors[14] = ProposedOwnableFacet.pause.selector;
+    proposedOwnableFacetSelectors[15] = ProposedOwnableFacet.unpause.selector;
     return
       IDiamondCut.FacetCut({
         facetAddress: _proposedOwnableFacet,
@@ -168,7 +175,7 @@ contract Deployer {
   }
 
   function getRoutersFacetCut(address _routersFacet) internal pure returns (IDiamondCut.FacetCut memory) {
-    bytes4[] memory routersFacetSelectors = new bytes4[](19);
+    bytes4[] memory routersFacetSelectors = new bytes4[](23);
     routersFacetSelectors[0] = RoutersFacet.LIQUIDITY_FEE_NUMERATOR.selector;
     routersFacetSelectors[1] = RoutersFacet.LIQUIDITY_FEE_DENOMINATOR.selector;
     routersFacetSelectors[2] = RoutersFacet.getRouterApproval.selector;
@@ -178,16 +185,20 @@ contract Deployer {
     routersFacetSelectors[6] = RoutersFacet.getProposedRouterOwnerTimestamp.selector;
     routersFacetSelectors[7] = RoutersFacet.maxRoutersPerTransfer.selector;
     routersFacetSelectors[8] = RoutersFacet.routerBalances.selector;
-    routersFacetSelectors[9] = RoutersFacet.setupRouter.selector;
-    routersFacetSelectors[10] = RoutersFacet.removeRouter.selector;
-    routersFacetSelectors[11] = RoutersFacet.setMaxRoutersPerTransfer.selector;
-    routersFacetSelectors[12] = RoutersFacet.setLiquidityFeeNumerator.selector;
-    routersFacetSelectors[13] = RoutersFacet.setRouterRecipient.selector;
-    routersFacetSelectors[14] = RoutersFacet.proposeRouterOwner.selector;
-    routersFacetSelectors[15] = RoutersFacet.acceptProposedRouterOwner.selector;
-    routersFacetSelectors[16] = RoutersFacet.addRouterLiquidityFor.selector;
-    routersFacetSelectors[17] = RoutersFacet.addRouterLiquidity.selector;
-    routersFacetSelectors[18] = RoutersFacet.removeRouterLiquidity.selector;
+    routersFacetSelectors[9] = RoutersFacet.getRouterApprovalForPortal.selector;
+    routersFacetSelectors[10] = RoutersFacet.setupRouter.selector;
+    routersFacetSelectors[11] = RoutersFacet.removeRouter.selector;
+    routersFacetSelectors[12] = RoutersFacet.setMaxRoutersPerTransfer.selector;
+    routersFacetSelectors[13] = RoutersFacet.setLiquidityFeeNumerator.selector;
+    routersFacetSelectors[14] = RoutersFacet.approveRouterForPortal.selector;
+    routersFacetSelectors[15] = RoutersFacet.unapproveRouterForPortal.selector;
+    routersFacetSelectors[16] = RoutersFacet.setRouterRecipient.selector;
+    routersFacetSelectors[17] = RoutersFacet.proposeRouterOwner.selector;
+    routersFacetSelectors[18] = RoutersFacet.acceptProposedRouterOwner.selector;
+    routersFacetSelectors[19] = RoutersFacet.addRouterLiquidityFor.selector;
+    routersFacetSelectors[20] = RoutersFacet.addRouterLiquidity.selector;
+    routersFacetSelectors[21] = RoutersFacet.removeRouterLiquidity.selector;
+    routersFacetSelectors[22] = RoutersFacet.removeRouterLiquidityFor.selector;
     return
       IDiamondCut.FacetCut({
         facetAddress: _routersFacet,
@@ -197,30 +208,33 @@ contract Deployer {
   }
 
   function getStableSwapFacetCut(address _stableSwapFacet) internal pure returns (IDiamondCut.FacetCut memory) {
-    bytes4[] memory stableSwapFacetSelectors = new bytes4[](23);
-    stableSwapFacetSelectors[0] = StableSwapFacet.getSwapA.selector;
-    stableSwapFacetSelectors[1] = StableSwapFacet.getSwapAPrecise.selector;
-    stableSwapFacetSelectors[2] = StableSwapFacet.getSwapToken.selector;
-    stableSwapFacetSelectors[3] = StableSwapFacet.getSwapTokenIndex.selector;
-    stableSwapFacetSelectors[4] = StableSwapFacet.getSwapTokenBalance.selector;
-    stableSwapFacetSelectors[5] = StableSwapFacet.getSwapVirtualPrice.selector;
-    stableSwapFacetSelectors[6] = StableSwapFacet.calculateSwap.selector;
-    stableSwapFacetSelectors[7] = StableSwapFacet.calculateSwapTokenAmount.selector;
-    stableSwapFacetSelectors[8] = StableSwapFacet.calculateRemoveSwapLiquidity.selector;
-    stableSwapFacetSelectors[9] = StableSwapFacet.calculateRemoveSwapLiquidityOneToken.selector;
-    stableSwapFacetSelectors[10] = StableSwapFacet.getSwapAdminBalance.selector;
-    stableSwapFacetSelectors[11] = StableSwapFacet.swap.selector;
-    stableSwapFacetSelectors[12] = StableSwapFacet.swapExact.selector;
-    stableSwapFacetSelectors[13] = StableSwapFacet.addSwapLiquidity.selector;
-    stableSwapFacetSelectors[14] = StableSwapFacet.removeSwapLiquidity.selector;
-    stableSwapFacetSelectors[15] = StableSwapFacet.removeSwapLiquidityOneToken.selector;
-    stableSwapFacetSelectors[16] = StableSwapFacet.removeSwapLiquidityImbalance.selector;
-    stableSwapFacetSelectors[17] = StableSwapFacet.initializeSwap.selector;
-    stableSwapFacetSelectors[18] = StableSwapFacet.withdrawSwapAdminFees.selector;
-    stableSwapFacetSelectors[19] = StableSwapFacet.setSwapAdminFee.selector;
-    stableSwapFacetSelectors[20] = StableSwapFacet.setSwapFee.selector;
-    stableSwapFacetSelectors[21] = StableSwapFacet.rampA.selector;
-    stableSwapFacetSelectors[22] = StableSwapFacet.stopRampA.selector;
+    bytes4[] memory stableSwapFacetSelectors = new bytes4[](26);
+    stableSwapFacetSelectors[0] = StableSwapFacet.getSwapStorage.selector;
+    stableSwapFacetSelectors[1] = StableSwapFacet.getSwapLPToken.selector;
+    stableSwapFacetSelectors[2] = StableSwapFacet.getSwapA.selector;
+    stableSwapFacetSelectors[3] = StableSwapFacet.getSwapAPrecise.selector;
+    stableSwapFacetSelectors[4] = StableSwapFacet.getSwapToken.selector;
+    stableSwapFacetSelectors[5] = StableSwapFacet.getSwapTokenIndex.selector;
+    stableSwapFacetSelectors[6] = StableSwapFacet.getSwapTokenBalance.selector;
+    stableSwapFacetSelectors[7] = StableSwapFacet.getSwapVirtualPrice.selector;
+    stableSwapFacetSelectors[8] = StableSwapFacet.calculateSwap.selector;
+    stableSwapFacetSelectors[9] = StableSwapFacet.calculateSwapTokenAmount.selector;
+    stableSwapFacetSelectors[10] = StableSwapFacet.calculateRemoveSwapLiquidity.selector;
+    stableSwapFacetSelectors[11] = StableSwapFacet.calculateRemoveSwapLiquidityOneToken.selector;
+    stableSwapFacetSelectors[12] = StableSwapFacet.getSwapAdminBalance.selector;
+    stableSwapFacetSelectors[13] = StableSwapFacet.swap.selector;
+    stableSwapFacetSelectors[14] = StableSwapFacet.swapExact.selector;
+    stableSwapFacetSelectors[15] = StableSwapFacet.swapExactOut.selector;
+    stableSwapFacetSelectors[16] = StableSwapFacet.addSwapLiquidity.selector;
+    stableSwapFacetSelectors[17] = StableSwapFacet.removeSwapLiquidity.selector;
+    stableSwapFacetSelectors[18] = StableSwapFacet.removeSwapLiquidityOneToken.selector;
+    stableSwapFacetSelectors[19] = StableSwapFacet.removeSwapLiquidityImbalance.selector;
+    stableSwapFacetSelectors[20] = StableSwapFacet.initializeSwap.selector;
+    stableSwapFacetSelectors[21] = StableSwapFacet.withdrawSwapAdminFees.selector;
+    stableSwapFacetSelectors[22] = StableSwapFacet.setSwapAdminFee.selector;
+    stableSwapFacetSelectors[23] = StableSwapFacet.setSwapFee.selector;
+    stableSwapFacetSelectors[24] = StableSwapFacet.rampA.selector;
+    stableSwapFacetSelectors[25] = StableSwapFacet.stopRampA.selector;
     return
       IDiamondCut.FacetCut({
         facetAddress: _stableSwapFacet,
@@ -229,14 +243,49 @@ contract Deployer {
       });
   }
 
+  function getPortalCut(address _portalFacet) internal pure returns (IDiamondCut.FacetCut memory) {
+    bytes4[] memory portalFacetSelectors = new bytes4[](8);
+    portalFacetSelectors[0] = PortalFacet.getAavePortalDebt.selector;
+    portalFacetSelectors[1] = PortalFacet.getAavePortalFeeDebt.selector;
+    portalFacetSelectors[2] = PortalFacet.aavePool.selector;
+    portalFacetSelectors[3] = PortalFacet.aavePortalFee.selector;
+    portalFacetSelectors[4] = PortalFacet.setAavePool.selector;
+    portalFacetSelectors[5] = PortalFacet.setAavePortalFee.selector;
+    portalFacetSelectors[6] = PortalFacet.repayAavePortal.selector;
+    portalFacetSelectors[7] = PortalFacet.repayAavePortalFor.selector;
+
+    return
+      IDiamondCut.FacetCut({
+        facetAddress: _portalFacet,
+        action: IDiamondCut.FacetCutAction.Add,
+        functionSelectors: portalFacetSelectors
+      });
+  }
+
+  function getVersionFacetCut(address _versionFacet) internal pure returns (IDiamondCut.FacetCut memory) {
+    bytes4[] memory versionFacetSelectors = new bytes4[](1);
+    versionFacetSelectors[0] = VersionFacet.VERSION.selector;
+    return
+      IDiamondCut.FacetCut({
+        facetAddress: _versionFacet,
+        action: IDiamondCut.FacetCutAction.Add,
+        functionSelectors: versionFacetSelectors
+      });
+  }
+
   function getTestSetterFacetCut(address _testSetterFacetFacet) internal pure returns (IDiamondCut.FacetCut memory) {
-    bytes4[] memory testSetterFacetSelectors = new bytes4[](6);
+    bytes4[] memory testSetterFacetSelectors = new bytes4[](11);
     testSetterFacetSelectors[0] = TestSetterFacet.setTestRelayerFees.selector;
     testSetterFacetSelectors[1] = TestSetterFacet.setTestTransferRelayer.selector;
-    testSetterFacetSelectors[2] = TestSetterFacet.setTestSponsorVault.selector;
-    testSetterFacetSelectors[3] = TestSetterFacet.setTestApprovedRelayer.selector;
-    testSetterFacetSelectors[4] = TestSetterFacet.setTestRouterBalances.selector;
-    testSetterFacetSelectors[5] = TestSetterFacet.setTestApprovedRouter.selector;
+    testSetterFacetSelectors[2] = TestSetterFacet.setTestApproveRouterForPortal.selector;
+    testSetterFacetSelectors[3] = TestSetterFacet.setTestSponsorVault.selector;
+    testSetterFacetSelectors[4] = TestSetterFacet.setTestApprovedRelayer.selector;
+    testSetterFacetSelectors[5] = TestSetterFacet.setTestRouterBalances.selector;
+    testSetterFacetSelectors[6] = TestSetterFacet.setTestApprovedRouter.selector;
+    testSetterFacetSelectors[7] = TestSetterFacet.setTestCanonicalToAdopted.selector;
+    testSetterFacetSelectors[8] = TestSetterFacet.setTestAavePortalDebt.selector;
+    testSetterFacetSelectors[9] = TestSetterFacet.setTestAavePortalFeeDebt.selector;
+    testSetterFacetSelectors[10] = TestSetterFacet.setTestRoutedTransfers.selector;
     return
       IDiamondCut.FacetCut({
         facetAddress: _testSetterFacetFacet,
@@ -256,11 +305,13 @@ contract Deployer {
     relayerFacet = new RelayerFacet();
     routersFacet = new RoutersFacet();
     stableSwapAsset = new StableSwapFacet();
+    portalFacet = new PortalFacet();
+    versionFacet = new VersionFacet();
     testSetterFacet = new TestSetterFacet();
   }
 
   function getFacetCuts() internal view returns (IDiamondCut.FacetCut[] memory) {
-    IDiamondCut.FacetCut[] memory facetCuts = new IDiamondCut.FacetCut[](10);
+    IDiamondCut.FacetCut[] memory facetCuts = new IDiamondCut.FacetCut[](12);
     facetCuts[0] = getTestSetterFacetCut(address(testSetterFacet));
     facetCuts[1] = getDiamondCutFacetCut(address(diamondCutFacet));
     facetCuts[2] = getDiamondLoupeFacetCut(address(diamondLoupeFacet));
@@ -271,6 +322,8 @@ contract Deployer {
     facetCuts[7] = getRelayerFacetCut(address(relayerFacet));
     facetCuts[8] = getRoutersFacetCut(address(routersFacet));
     facetCuts[9] = getStableSwapFacetCut(address(stableSwapAsset));
+    facetCuts[10] = getPortalCut(address(portalFacet));
+    facetCuts[11] = getVersionFacetCut(address(versionFacet));
 
     return facetCuts;
   }

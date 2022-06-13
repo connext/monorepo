@@ -81,7 +81,9 @@ export const mock = {
       subgraph: 10_000,
       cache: 10_000,
     },
+    auctionRoundDepth: 4,
     environment: "staging",
+    nomadEnvironment: "staging"
   }),
   adapters: {
     wallet: (): SinonStubbedInstance<Wallet> => {

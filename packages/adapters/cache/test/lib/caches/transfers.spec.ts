@@ -1,4 +1,5 @@
 import { Logger, XTransferStatus, expect, mock, getRandomBytes32, mkAddress } from "@connext/nxtp-utils";
+import sinon from "sinon";
 
 import { TransfersCache } from "../../../src/index";
 
@@ -193,6 +194,8 @@ describe("TransfersCache", () => {
   });
 
   describe("#prunePending", () => {
+    const maxPruneTimeMs = 10_000;
+
     it("happy: should not prune pending transactions ", async () => {
       const domain = 3000;
       //add some pending txns back
@@ -209,42 +212,59 @@ describe("TransfersCache", () => {
 
       console.log("Still Pending", stillPending);
 
-      expect(stillPending).to.deep.eq([]);
-      console.log(res, stillPending);
-      expect(pendingBefore).to.not.eq(stillPending);
+      console.log("stuffs", res, pendingBefore, stillPending);
+      expect(pendingBefore).to.deep.eq(stillPending);
     });
 
-    it("happy: should prune all old transactions ", async () => {
+    it("happy: should prune all old completed transactions ", async () => {
       await rmock.flushall();
       const domain = 3000;
 
-      //create 10 XTransfers and save
+      //create 10 finished Xtransfers
       const xtransfers = new Array(10).fill(0).map(() =>
         mock.entity.xtransfer({
           originDomain: domain.toString(),
           transferId: getRandomBytes32(),
           nonce: Math.floor(Math.random() * 10000),
+          status: "CompletedFast",
         }),
       );
 
-      let highestTransfer = xtransfers.reduce((p, c) => {
-        return (p.nonce > c.nonce) ? p : c;
+      //get completed transfer with highest nonce (this one should stay around after the prune
+      const highestTransfer = xtransfers.reduce((p, c) => {
+        return p.nonce > c.nonce ? p : c;
       });
 
-      //stores new transfrs deleting old ones if any
-      await transfersCache.storeTransfers(xtransfers);
-      //delete all the completed transfers except the
-      await transfersCache.pruneTransfers(domain);
-
-      const transferShouldBeDeleted = xtransfers.filter((txfr) => {
+      //all the transfers that should be deleted by prune (lower nonce than highestTransfer)
+      const transfersShouldBeDeleted = xtransfers.filter((txfr) => {
         return txfr.transferId !== highestTransfer.transferId;
-      })[0];
+      });
 
-      const deletedTransfer = await transfersCache.getTransfer(transferShouldBeDeleted.transferId);
+      //stores the transfers normally
+      await transfersCache.storeTransfers(xtransfers);
+      //delete all the newly stored completed transfers except the one with the highest nonce
+      const startPrune = Date.now();
+      await transfersCache.pruneTransfers(domain);
+      const endPrune = Date.now();
+
       const transferStillExists = await transfersCache.getTransfer(highestTransfer.transferId);
 
-      expect(deletedTransfer).to.deep.eq([]);
-      expect(transferStillExists.transferId).to.eq(highestTransfer.transferId);
+      //test all nonces are less than the highest.
+      let deletedNoncesHaveHigherNonce = true;
+
+      transfersShouldBeDeleted.forEach((txfr) =>
+        txfr.nonce > highestTransfer.nonce
+          ? (deletedNoncesHaveHigherNonce = true)
+          : (deletedNoncesHaveHigherNonce = false),
+      );
+
+      expect(deletedNoncesHaveHigherNonce).to.eq(false);
+
+      //should deep equal but saving adds a mock asset id etc.
+      expect(transferStillExists?.transferId).to.eq(highestTransfer.transferId);
+
+      //set max prune time limit
+      expect(endPrune).to.be.lte(startPrune + maxPruneTimeMs);
     });
   });
 

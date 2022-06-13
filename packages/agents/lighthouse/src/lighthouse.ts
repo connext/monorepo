@@ -4,7 +4,7 @@ import { getContractInterfaces, ChainReader, contractDeployments } from "@connex
 
 import { setupRelayer } from "./adapters";
 import { getConfig } from "./config";
-import { bindBackend } from "./bindings";
+import { bindCartographer } from "./bindings";
 import { AppContext } from "./lib/entities";
 
 // AppContext instance used for interacting with adapters, config, etc.
@@ -43,7 +43,7 @@ export const makeLighthouse = async () => {
     context.adapters.relayer = await setupRelayer();
 
     // Set up bindings.
-    await bindBackend(context.config.polling.backend);
+    await bindCartographer(context.config.polling.cartographer);
 
     logger.info("Lighthouse ready!");
   } catch (e: unknown) {

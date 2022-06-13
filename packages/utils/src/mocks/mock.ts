@@ -10,7 +10,7 @@ import {
   ExecuteArgs,
   createLoggingContext,
 } from "..";
-import { Auction } from "../types";
+import { Auction, XCallArgs } from "../types";
 import { getNtpTimeSeconds } from "../helpers";
 
 import { mkAddress, mkBytes32, mkSig } from ".";
@@ -84,6 +84,13 @@ export const mock: any = {
       recovery: mkAddress("0xcccc"),
       ...overrides,
     }),
+    xcallArgs: (overrides: Partial<XCallArgs> = {}): XCallArgs => ({
+      params: mock.entity.callParams(),
+      transactingAssetId: mock.asset.A.address,
+      amount: utils.parseEther("1").toString(),
+      relayerFee: "123",
+      ...overrides,
+    }),
     executeArgs: (overrides: Partial<ExecuteArgs> = {}): ExecuteArgs => ({
       params: mock.entity.callParams(),
       local: mock.asset.A.address,
@@ -105,10 +112,10 @@ export const mock: any = {
       ...overrides,
     }),
     bid: (overrides: Partial<Bid> = {}): Bid => ({
+      routerVersion: "0.0.1",
       transferId: getRandomBytes32(),
       origin: mock.domain.A,
       router: mock.address.router,
-      fee: "0.05",
       signatures: {
         "1": getRandomBytes32(),
         "2": getRandomBytes32(),
@@ -255,7 +262,7 @@ export const mock: any = {
     },
   },
   ethers: {
-    receipt: (): providers.TransactionReceipt =>
+    receipt: (overrides: Partial<providers.TransactionReceipt> = {}): providers.TransactionReceipt =>
       ({
         blockHash: "foo",
         blockNumber: 1,
@@ -271,6 +278,7 @@ export const mock: any = {
         logs: [],
         logsBloom: "",
         transactionIndex: 1,
+        ...overrides,
       } as unknown as providers.TransactionReceipt),
   },
   contracts: {

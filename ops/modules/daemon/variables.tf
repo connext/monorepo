@@ -47,3 +47,16 @@ variable "stage" {
 variable "container_env_vars" {
   description = "env vars for running container"
 }
+
+variable "dd_api_key" {
+  description = "DataDog API Key"
+}
+
+variable "health_check_command" {
+  type        = list(string)
+  description = "Path to health check endpoint"
+  default = [
+    "CMD-SHELL",
+    "pgrep -x node"
+  ]
+}

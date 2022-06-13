@@ -37,14 +37,14 @@ locals {
         providers = ["https://eth-rinkeby.alchemyapi.io/v2/${var.rinkeby_alchemy_key_0}", "https://rpc.ankr.com/eth_rinkeby"]
         assets = [{
           name    = "TEST"
-          address = "0xB7b1d3cC52E658922b2aF00c5729001ceA98142C"
+          address = "0x3FFc03F05D1869f493c7dbf913E636C6280e0ff9"
         }]
       }
       "2221" = {
         providers = ["https://eth-kovan.alchemyapi.io/v2/${var.kovan_alchemy_key_0}"]
         assets = [{
           name    = "TEST"
-          address = "0xB5AabB55385bfBe31D627E2A717a7B189ddA4F8F"
+          address = "0x3FFc03F05D1869f493c7dbf913E636C6280e0ff9"
         }]
       }
       "3331" = {
@@ -52,7 +52,7 @@ locals {
         assets = [
           {
             name    = "TEST"
-            address = "0xD426e23A6a9524101CDC017e01dDc3262B7aA65D"
+            address = "0x3FFc03F05D1869f493c7dbf913E636C6280e0ff9"
           }
         ]
       }
@@ -81,7 +81,7 @@ locals {
         assets = [
           {
             name    = "TEST"
-            address = "0xB7b1d3cC52E658922b2aF00c5729001ceA98142C"
+            address = "0x3FFc03F05D1869f493c7dbf913E636C6280e0ff9"
           }
         ]
       }
@@ -90,7 +90,7 @@ locals {
         assets = [
           {
             name    = "TEST"
-            address = "0xB5AabB55385bfBe31D627E2A717a7B189ddA4F8F"
+            address = "0x3FFc03F05D1869f493c7dbf913E636C6280e0ff9"
           }
         ]
       }
@@ -99,13 +99,15 @@ locals {
         assets = [
           {
             name    = "TEST"
-            address = "0xD426e23A6a9524101CDC017e01dDc3262B7aA65D"
+            address = "0x3FFc03F05D1869f493c7dbf913E636C6280e0ff9"
           }
         ]
       }
     }
-    web3SignerUrl = "https://${module.web3signer.service_endpoint}"
-    environment   = "production"
+    web3SignerUrl    = "https://${module.web3signer.service_endpoint}"
+    environment      = "production"
+    nomadEnvironment = var.nomad_environment
+
   })
 }
 

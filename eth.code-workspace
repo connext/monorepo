@@ -1,0 +1,16 @@
+{
+  "folders": [
+    {
+      "path": "."
+    },
+    {
+      "path": "../contracts"
+    },
+    {
+      "path": "../monorepo"
+    }
+  ],
+  "settings": {
+    "solidity.compileUsingRemoteVersion": "v0.8.11+commit.d7f03943"
+  }
+}

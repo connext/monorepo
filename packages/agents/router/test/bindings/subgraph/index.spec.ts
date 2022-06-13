@@ -51,16 +51,6 @@ describe("Bindings:Subgraph", () => {
 
   describe("#pollSubgraph", () => {
     it("happy: should retrieve xcalls from the subgraph and cache them", async () => {
-      getSubgraphHealthStub.resolves({
-        chainHeadBlock: 1234567,
-        latestBlock: 1234567,
-        lastHealthyBlock: 100,
-        network: "mocknet",
-        fatalError: undefined,
-        health: "healthy",
-        synced: true,
-        url: "https://example.com",
-      });
       const mockInfo = {
         [mock.chain.A]: {
           latestBlockNumber: 1234567,
@@ -74,10 +64,15 @@ describe("Bindings:Subgraph", () => {
         },
       };
 
+      const mockBlockNumber: Map<string, number> = new Map();
+      mockBlockNumber.set(mock.chain.A, 1234567);
+      mockBlockNumber.set(mock.chain.B, 1234567);
+
       mockContext.adapters.cache.transfers.getLatestNonce.callsFake((domain: string) => mockInfo[domain].latestNonce);
       mockContext.config.chains[mock.domain.A].confirmations = mockInfo[mock.domain.A].safeConfirmations;
       mockContext.config.chains[mock.domain.B].confirmations = mockInfo[mock.domain.B].safeConfirmations;
       const mockSubgraphResponse = [mock.entity.xtransfer(), mock.entity.xtransfer()];
+      mockContext.adapters.subgraph.getLatestBlockNumber.resolves(mockBlockNumber);
       mockContext.adapters.subgraph.getXCalls.resolves(mockSubgraphResponse);
 
       await bindSubgraphFns.pollSubgraph();
@@ -90,16 +85,6 @@ describe("Bindings:Subgraph", () => {
     });
 
     it("happy: should read DEFAULT_SAFE_CONFIRMATIONS if `confirmation` doesn't exist", async () => {
-      getSubgraphHealthStub.resolves({
-        chainHeadBlock: 1234567,
-        latestBlock: 1234567,
-        lastHealthyBlock: 100,
-        network: "mocknet",
-        fatalError: undefined,
-        health: "healthy",
-        synced: true,
-        url: "https://example.com",
-      });
       const mockInfo = {
         [mock.chain.A]: {
           latestBlockNumber: 1234567,
@@ -111,10 +96,15 @@ describe("Bindings:Subgraph", () => {
         },
       };
 
+      const mockBlockNumber: Map<string, number> = new Map();
+      mockBlockNumber.set(mock.chain.A, 1234567);
+      mockBlockNumber.set(mock.chain.B, 1234567);
+
       mockContext.adapters.cache.transfers.getLatestNonce.callsFake((domain: string) => mockInfo[domain].latestNonce);
       mockContext.config.chains[mock.chain.A].confirmations = null;
       mockContext.config.chains[mock.chain.B].confirmations = null;
       const mockSubgraphResponse = [mock.entity.xtransfer(), mock.entity.xtransfer()];
+      mockContext.adapters.subgraph.getLatestBlockNumber.resolves(mockBlockNumber);
       mockContext.adapters.subgraph.getXCalls.resolves(mockSubgraphResponse);
 
       await bindSubgraphFns.pollSubgraph();

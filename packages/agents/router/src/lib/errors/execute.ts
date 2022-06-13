@@ -87,3 +87,15 @@ export class SanityCheckFailed extends NxtpError {
     super("Sanity check failed", context, SanityCheckFailed.name);
   }
 }
+
+export class NomadHomeBlacklisted extends NxtpError {
+  constructor(context: any = {}) {
+    super("Home network is on blacklist (nomad down)", context, NomadHomeBlacklisted.name);
+  }
+}
+
+export class InvalidAuctionRound extends NxtpError {
+  constructor(context: any = {}) {
+    super("Invalid auction round", context, InvalidAuctionRound.name);
+  }
+}

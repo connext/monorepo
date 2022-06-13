@@ -30,28 +30,31 @@ export default task("renounce-ownership", "Renounce Ownership")
     const connext = new Contract(connextAddress, connextDeployment.abi, deployer);
     console.log("connextAddress: ", connextAddress);
 
-    let isRenouncedFunction;
     let ownershipTimestampFunction;
     let proposeRenunciationFunction;
     let renounceFunction;
+    let renouncedEvent;
     if (type === "router") {
-      isRenouncedFunction = connext.isRouterOwnershipRenounced;
       ownershipTimestampFunction = connext.routerOwnershipTimestamp;
       proposeRenunciationFunction = connext.proposeRouterOwnershipRenunciation;
       renounceFunction = connext.renounceRouterOwnership;
+      renouncedEvent = "RouterOwnershipRenounced";
     } else if (type === "asset") {
-      isRenouncedFunction = connext.isAssetOwnershipRenounced;
       ownershipTimestampFunction = connext.assetOwnershipTimestamp;
       proposeRenunciationFunction = connext.proposeAssetOwnershipRenunciation;
       renounceFunction = connext.renounceAssetOwnership;
+      renouncedEvent = "AssetOwnershipRenounced";
     } else {
       throw new Error("Unsupported type");
     }
 
-    let ownershipRenounced = await isRenouncedFunction();
-    console.log("ownershipRenounced: ", ownershipRenounced);
-    if (ownershipRenounced === true) {
-      console.log("Ownership has been renounced already");
+    // Check to see if renunciation event has ever been emitted
+    const [event] = await connext.queryFilter(
+      connext.filters[renouncedEvent](),
+      connextDeployment.receipt?.blockNumber,
+    );
+    if (event) {
+      console.log(`${type} ownership already renounced: ${event.transactionHash}`);
       return;
     }
 
@@ -67,21 +70,20 @@ export default task("renounce-ownership", "Renounce Ownership")
       console.log("proposeRenunciationFunction tx: ", tx);
       await tx.wait();
       const ownershipTimestamp = await ownershipTimestampFunction();
-      console.log("ownershipTimestamp: ", ownershipTimestamp);
+      console.log("ownershipTimestamp: ", ownershipTimestamp.toString());
       return;
     }
+    const DELAY_SECONDS = 7 * 24 * 60 * 60; // 7 days
 
-    if (ownershipTimestamp.gt(currentTime)) {
-      console.log(
-        `Ownership delay has not expired yet, expires in: ${ownershipTimestamp.sub(currentTime).toString()} seconds`,
-      );
+    const elapsed = BigNumber.from(currentTime).sub(ownershipTimestamp);
+    if (elapsed.lt(DELAY_SECONDS)) {
+      console.log(`Ownership delay has not expired yet, expires in: ${DELAY_SECONDS - elapsed.toNumber()}s`);
       return;
     }
 
     console.log("Delay has expired, proceeding with renunciation");
     const tx = await renounceFunction();
     console.log("renounceFunction tx: ", tx);
-    await tx.wait();
-    ownershipRenounced = await isRenouncedFunction();
-    console.log("ownershipRenounced: ", ownershipRenounced);
+    const rec = await tx.wait();
+    console.log("renounceFunction tx mined! ", rec);
   });

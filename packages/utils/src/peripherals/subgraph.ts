@@ -25,9 +25,15 @@ export type SubgraphHealth = {
 export type SubgraphQueryMetaParams = {
   maxBlockNumber: number;
   latestNonce: number;
-  page?: number;
-  perPage?: number;
   destinationDomains?: string[];
+  orderDirection?: "asc" | "desc";
+};
+
+export type SubgraphQueryByTimestampMetaParams = {
+  maxBlockNumber: number;
+  fromTimestamp: number;
+  destinationDomains?: string[];
+  orderDirection?: "asc" | "desc";
 };
 
 const MIN_SUBGRAPH_MAX_LAG = 25;

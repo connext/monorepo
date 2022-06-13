@@ -94,7 +94,7 @@ export function handleRouterRemoved(event: RouterRemoved): void {
   let routerId = event.params.router.toHex();
   let router = Router.load(routerId);
   if (!router) {
-    throw new Error(`No router found when trying to remove`);
+    router = new Router(routerId);
   }
   router.isActive = false;
   router.save();
@@ -104,7 +104,8 @@ export function handleRouterRecipientSet(event: RouterRecipientSet): void {
   let routerId = event.params.router.toHex();
   let router = Router.load(routerId);
   if (!router) {
-    throw new Error(`No router found when trying to update recipient`);
+    router = new Router(routerId);
+    router.isActive = true;
   }
   router.recipient = event.params.newRecipient;
   router.save();
@@ -114,7 +115,8 @@ export function handleRouterOwnerProposed(event: RouterOwnerProposed): void {
   let routerId = event.params.router.toHex();
   let router = Router.load(routerId);
   if (!router) {
-    throw new Error(`No router found when trying to propose owner`);
+    router = new Router(routerId);
+    router.isActive = true;
   }
   router.proposedOwner = event.params.newProposed;
   router.proposedTimestamp = event.block.timestamp;
@@ -125,7 +127,8 @@ export function handleRouterOwnerAccepted(event: RouterOwnerAccepted): void {
   let routerId = event.params.router.toHex();
   let router = Router.load(routerId);
   if (!router) {
-    throw new Error(`No router found when trying to accept owner`);
+    router = new Router(routerId);
+    router.isActive = true;
   }
   router.owner = event.params.newOwner;
   router.proposedOwner = null;
@@ -237,6 +240,7 @@ export function handleXCalled(event: XCalled): void {
  */
 export function handleExecuted(event: Executed): void {
   const num = event.params.args.routers.length;
+  const amount = event.params.args.amount;
   const routers: string[] = [];
   for (let i = 0; i < num; i++) {
     const param = event.params.args.routers[i].toHex();
@@ -248,7 +252,13 @@ export function handleExecuted(event: Executed): void {
       router.isActive = true;
       router.save();
     }
+
     routers.push(router.id);
+
+    // Update router's liquidity
+    const assetBalance = getOrCreateAssetBalance(event.params.args.local, event.params.args.routers[i]);
+    assetBalance.amount = assetBalance.amount.minus(amount.div(BigInt.fromI32(num)));
+    assetBalance.save();
   }
 
   let transfer = DestinationTransfer.load(event.params.transferId.toHexString());
@@ -311,6 +321,7 @@ export function handleReconciled(event: Reconciled): void {
     transfer = new DestinationTransfer(event.params.transferId.toHexString());
   }
 
+  const amount = event.params.amount;
   // If the routers have already been set by an execute event, don't overwrite them.
   const routers: string[] = [];
   if (transfer.routers !== null) {
@@ -320,6 +331,11 @@ export function handleReconciled(event: Reconciled): void {
     for (let i = 0; i < n; i++) {
       const router: string = r[i];
       routers.push(router);
+
+      // Update router's liquidity
+      const assetBalance = getOrCreateAssetBalance(event.params.asset, Address.fromString(router));
+      assetBalance.amount = assetBalance.amount.plus(amount.div(BigInt.fromI32(n)));
+      assetBalance.save();
     }
   }
 

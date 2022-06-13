@@ -1,33 +1,32 @@
 // SPDX-License-Identifier: UNLICENSED
-pragma solidity 0.8.11;
+pragma solidity 0.8.14;
 
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
-import "./ForgeHelper.sol";
+import "./utils/ForgeHelper.sol";
+import {MockHome, MockRelayerFeeRouter, MockPromiseRouter, MockCallback, TestSetterFacet} from "./utils/Mock.sol";
+import {Deployer} from "./utils/Deployer.sol";
 
-import {ITokenRegistry} from "../contracts/nomad-xapps/interfaces/bridge/ITokenRegistry.sol";
-import {AssetLogic} from "../contracts/libraries/AssetLogic.sol";
-import {ProposedOwnableUpgradeable} from "../contracts/ProposedOwnableUpgradeable.sol";
 import {TestERC20} from "../contracts/test/TestERC20.sol";
 import {WETH} from "../contracts/test/TestWeth.sol";
 
-import {ISponsorVault} from "../contracts/interfaces/ISponsorVault.sol";
-import {MockHome, MockRelayerFeeRouter, MockPromiseRouter, MockCallback, TestSetterFacet} from "./Mock.sol";
+import {ProposedOwnableUpgradeable} from "../contracts/core/shared/ProposedOwnable.sol";
 
-import {Deployer} from "./utils/Deployer.sol";
-import {IConnextHandler} from "../contracts/interfaces/IConnextHandler.sol";
+import {IConnextHandler} from "../contracts/core/connext/interfaces/IConnextHandler.sol";
+import {ITokenRegistry} from "../contracts/core/connext/interfaces/ITokenRegistry.sol";
+import {ISponsorVault} from "../contracts/core/connext/interfaces/ISponsorVault.sol";
+import {AssetLogic} from "../contracts/core/connext/libraries/AssetLogic.sol";
+import {BaseConnextFacet} from "../contracts/core/connext/facets/BaseConnextFacet.sol";
+import {BridgeFacet} from "../contracts/core/connext/facets/BridgeFacet.sol";
+import {RelayerFacet} from "../contracts/core/connext/facets/RelayerFacet.sol";
+import {RoutersFacet} from "../contracts/core/connext/facets/RoutersFacet.sol";
+import {AssetFacet} from "../contracts/core/connext/facets/AssetFacet.sol";
+import {NomadFacet} from "../contracts/core/connext/facets/NomadFacet.sol";
+import {XCallArgs, CallParams} from "../contracts/core/connext/libraries/LibConnextStorage.sol";
+import {IDiamondCut} from "../contracts/core/connext/interfaces/IDiamondCut.sol";
+import {ConnextMessage} from "../contracts/core/connext/libraries/ConnextMessage.sol";
 
-import {BaseConnextFacet} from "../contracts/facets/BaseConnextFacet.sol";
-import {BridgeFacet} from "../contracts/facets/BridgeFacet.sol";
-import {RelayerFacet} from "../contracts/facets/RelayerFacet.sol";
-import {RoutersFacet} from "../contracts/facets/RoutersFacet.sol";
-import {AssetFacet} from "../contracts/facets/AssetFacet.sol";
-import {NomadFacet} from "../contracts/facets/NomadFacet.sol";
-import {XCallArgs, CallParams} from "../contracts/libraries/LibConnextStorage.sol";
-import {IDiamondCut} from "../contracts/interfaces/IDiamondCut.sol";
-import {ConnextMessage} from "../contracts/libraries/ConnextMessage.sol";
-
-import {PromiseRouter} from "../contracts/nomad-xapps/contracts/promise-router/PromiseRouter.sol";
+import {PromiseRouter} from "../contracts/core/promise/PromiseRouter.sol";
 
 // running tests (with logging on failure):
 // yarn workspace @connext/nxtp-contracts test:forge -vvv

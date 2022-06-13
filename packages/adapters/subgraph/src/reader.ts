@@ -8,6 +8,7 @@ import {
   DestinationTransfer,
   RouterBalance,
   AssetBalance,
+  SubgraphQueryByTimestampMetaParams,
 } from "@connext/nxtp-utils";
 
 import { getHelpers } from "./lib/helpers";
@@ -23,6 +24,9 @@ import {
   getOriginTransfersByTransactionHashesQuery,
   getDestinationTransfersByIdsQuery,
   getAssetBalancesAllRoutersQuery,
+  getLastestBlockNumberQuery,
+  getDestinationTransfersByExecuteTimestampQuery,
+  getDestinationTransfersByReconcileTimestampQuery,
 } from "./lib/operations";
 import { SubgraphMap } from "./lib/entities";
 
@@ -63,6 +67,25 @@ export class SubgraphReader {
   public async query(query: string): Promise<any> {
     const { execute } = getHelpers();
     return await execute(query);
+  }
+
+  /**
+   * Gets the latest blockNumber for domains.
+   * @param domains The domain list you're getting the lastest blockNumber for
+   */
+  public async getLatestBlockNumber(domains: string[]): Promise<Map<string, number>> {
+    const { execute, getPrefixForDomain } = getHelpers();
+    const prefixes = domains.map((domain) => getPrefixForDomain(domain));
+    const query = getLastestBlockNumberQuery(prefixes);
+    const response = await execute(query);
+    const blockNumberRes: Map<string, number> = new Map();
+    for (const domain of response.keys()) {
+      if (response.has(domain) && response.get(domain)!.length > 0) {
+        const blockInfo = response.get(domain)![0];
+        blockNumberRes.set(domain, Number(blockInfo.block.number));
+      }
+    }
+    return blockNumberRes;
   }
 
   /**
@@ -266,6 +289,48 @@ export class SubgraphReader {
       .map(parser.originTransfer);
 
     return originTransfers;
+  }
+
+  public async getDestinationTransfersByExecuteTimestamp(
+    params: Map<string, SubgraphQueryByTimestampMetaParams>,
+  ): Promise<XTransfer[]> {
+    const { execute, parser } = getHelpers();
+    const xcalledXQuery = getDestinationTransfersByExecuteTimestampQuery(params);
+    const response = await execute(xcalledXQuery);
+
+    const transfers: any[] = [];
+    for (const key of response.keys()) {
+      const value = response.get(key);
+      transfers.push(value?.flat());
+    }
+
+    const destinationTransfers: XTransfer[] = transfers
+      .flat()
+      .filter((x: any) => !!x)
+      .map(parser.destinationTransfer);
+
+    return destinationTransfers;
+  }
+
+  public async getDestinationTransfersByReconcileTimestamp(
+    params: Map<string, SubgraphQueryByTimestampMetaParams>,
+  ): Promise<XTransfer[]> {
+    const { execute, parser } = getHelpers();
+    const xcalledXQuery = getDestinationTransfersByReconcileTimestampQuery(params);
+    const response = await execute(xcalledXQuery);
+
+    const transfers: any[] = [];
+    for (const key of response.keys()) {
+      const value = response.get(key);
+      transfers.push(value?.flat());
+    }
+
+    const destinationTransfers: XTransfer[] = transfers
+      .flat()
+      .filter((x: any) => !!x)
+      .map(parser.destinationTransfer);
+
+    return destinationTransfers;
   }
 
   /**
