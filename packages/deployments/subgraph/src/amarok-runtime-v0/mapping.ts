@@ -17,6 +17,7 @@ import {
   RouterOwnerAccepted,
   RouterOwnerProposed,
   RouterRecipientSet,
+  MaxRoutersPerTransferUpdated,
 } from "../../generated/Connext/ConnextHandler";
 import {
   Asset,
@@ -27,8 +28,10 @@ import {
   SponsorVault,
   OriginTransfer,
   DestinationTransfer,
+  Setting,
 } from "../../generated/schema";
 
+const DEFAULT_MAX_ROUTERS_PER_TRANSFER = 5;
 export function handleRelayerAdded(event: RelayerAdded): void {
   let relayerId = event.params.relayer.toHex();
   let relayer = Relayer.load(relayerId);
@@ -87,6 +90,13 @@ export function handleRouterAdded(event: RouterAdded): void {
     router = new Router(event.params.router.toHex());
     router.isActive = true;
     router.save();
+  }
+
+  let settingEntity = Setting.load("1");
+  if (settingEntity == null) {
+    settingEntity = new Setting("1");
+    settingEntity.maxRoutersPerTransfer = BigInt.fromI32(DEFAULT_MAX_ROUTERS_PER_TRANSFER);
+    settingEntity.save();
   }
 }
 
@@ -179,6 +189,20 @@ export function handleRouterLiquidityRemoved(event: RouterLiquidityRemoved): voi
 
   // save
   assetBalance.save();
+}
+
+/**
+ * Updates the max amounts of routers the token can be routed through
+ */
+export function handleMaxRoutersPerTransferUpdated(event: MaxRoutersPerTransferUpdated): void {
+  let settingEntity = Setting.load("1");
+  if (settingEntity == null) {
+    settingEntity = new Setting("1");
+  }
+
+  settingEntity.maxRoutersPerTransfer = event.params.maxRoutersPerTransfer;
+  settingEntity.caller = event.params.caller;
+  settingEntity.save();
 }
 
 /**
