@@ -5,7 +5,6 @@ import { getContext } from "../../shared";
 
 import {
   getLatestNonce,
-  getLastXCallNonce,
   getTransfersByStatus,
   saveTransfers,
   saveRouterBalances,
@@ -16,7 +15,6 @@ import {
 export type Database = {
   saveTransfers: (xtransfers: XTransfer[], _pool?: Pool) => Promise<void>;
   getLatestNonce: (domain: string, _pool?: Pool) => Promise<number>;
-  getLastXCallNonce: (domain: string, _pool?: Pool) => Promise<number>;
   getTransfersByStatus: (
     status: XTransferStatus,
     limit: number,
@@ -45,7 +43,6 @@ export const getDatabase = async (): Promise<Database> => {
 
   return {
     getLatestNonce,
-    getLastXCallNonce,
     saveTransfers,
     getTransfersByStatus,
     saveRouterBalances,

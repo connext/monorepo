@@ -17,7 +17,6 @@ import {
   getTransferByTransferId,
   getTransfersByStatus,
   getLatestNonce,
-  getLastXCallNonce,
   saveTransfers,
   saveRouterBalances,
   getLatestExecuteTimestamp,
@@ -319,54 +318,6 @@ describe("Database client", () => {
     expect(nonce).equal(1234);
   });
 
-  it("should get last XCalled nonce", async () => {
-    const xTransfer = mock.entity.xtransfer();
-    xTransfer.origin.xcall.timestamp = undefined;
-    xTransfer.nonce = 1;
-    await saveTransfers([xTransfer], pool);
-    const xTransfer2 = mock.entity.xtransfer();
-    xTransfer2.nonce = 111;
-    await saveTransfers([xTransfer2], pool);
-    const nonce = await getLastXCallNonce("1337", pool);
-    expect(nonce).equal(1);
-  });
-
-  it("should get last XCalled nonce with other domain nonce behind", async () => {
-    const xTransfer = mock.entity.xtransfer();
-    xTransfer.origin.xcall.timestamp = undefined;
-    xTransfer.nonce = 5;
-    xTransfer.chain = 1337;
-    await saveTransfers([xTransfer], pool);
-    const xTransfer2 = mock.entity.xtransfer();
-    xTransfer2.nonce = 111;
-    await saveTransfers([xTransfer2], pool);
-    const xTransfer3 = mock.entity.xtransfer();
-    xTransfer3.origin.xcall.timestamp = undefined;
-    xTransfer.nonce = 1;
-    xTransfer.chain = 1338;
-    await saveTransfers([xTransfer3], pool);
-    const nonce = await getLastXCallNonce("1337", pool);
-    expect(nonce).equal(5);
-  });
-
-  it("should get last XCalled nonce with other domain nonce ahead", async () => {
-    const xTransfer = mock.entity.xtransfer();
-    xTransfer.origin.xcall.timestamp = undefined;
-    xTransfer.nonce = 5;
-    xTransfer.chain = 1337;
-    await saveTransfers([xTransfer], pool);
-    const xTransfer2 = mock.entity.xtransfer();
-    xTransfer2.nonce = 111;
-    await saveTransfers([xTransfer2], pool);
-    const xTransfer3 = mock.entity.xtransfer();
-    xTransfer3.origin.xcall.timestamp = undefined;
-    xTransfer.nonce = 10;
-    xTransfer.chain = 1338;
-    await saveTransfers([xTransfer3], pool);
-    const nonce = await getLastXCallNonce("1337", pool);
-    expect(nonce).equal(5);
-  });
-
   it("should set a router balance", async () => {
     const routerBalances: RouterBalance[] = [
       {
@@ -485,12 +436,6 @@ describe("Database client", () => {
   it("should get latest nonce when no data", async () => {
     const xTransfer1: XTransfer = mock.entity.xtransfer({ status: XTransferStatus.Executed });
     const nonce = await getLatestNonce(xTransfer1.destinationDomain, pool);
-    expect(nonce).equal(0);
-  });
-
-  it("should get latest XCall nonce when no data", async () => {
-    const xTransfer1: XTransfer = mock.entity.xtransfer({ status: XTransferStatus.Executed });
-    const nonce = await getLastXCallNonce(xTransfer1.destinationDomain, pool);
     expect(nonce).equal(0);
   });
 
