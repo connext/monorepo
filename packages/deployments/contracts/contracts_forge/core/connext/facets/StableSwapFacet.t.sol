@@ -239,7 +239,101 @@ contract StableSwapFacetTest is FacetHelper, StableSwapFacet {
 
   // ======= State-Modifying Functions ========
   // function test_StableSwapFacet__swap
+  function test_StableSwapFacet__swap_failIfPaused() public {
+    s._paused = true;
+
+    vm.prank(_user1);
+    vm.expectRevert(BaseConnextFacet.BaseConnextFacet__whenNotPaused_paused.selector);
+    this.swap(_canonicalId, 0, 1, 1 ether, 0, blockTimestamp + 10);
+  }
+
+  function test_StableSwapFacet__swap_failIfMoreThanBalance() public {
+    uint256 fromTokenBalance = this.getSwapToken(_canonicalId, 0).balanceOf(_user1);
+    vm.startPrank(_user1);
+    vm.expectRevert("Cannot swap more than you own");
+    this.swap(_canonicalId, 0, 1, fromTokenBalance + 10, 0, blockTimestamp + 10);
+    vm.stopPrank();
+  }
+
+  function test_StableSwapFacet__swap_shouldWork() public {
+    uint256 amount = 1e17;
+    uint256 calculatedSwapReturn = this.calculateSwap(_canonicalId, 0, 1, amount);
+    assertEq(calculatedSwapReturn, 99702611562565289);
+
+    uint256 tokenFromBalanceBefore = IERC20(_local).balanceOf(_user1);
+    uint256 tokenToBalanceBefore = IERC20(_adopted).balanceOf(_user1);
+
+    vm.startPrank(_user1);
+    this.swap(_canonicalId, 0, 1, amount, calculatedSwapReturn, blockTimestamp + 10);
+    vm.stopPrank();
+
+    assertEq(tokenFromBalanceBefore - amount, IERC20(_local).balanceOf(_user1));
+    assertEq(tokenToBalanceBefore + calculatedSwapReturn, IERC20(_adopted).balanceOf(_user1));
+  }
+
+  function test_StableSwapFacet__swap_failIfNotMinDy() public {
+    uint256 amount = 1e17;
+    uint256 calculatedSwapReturn = this.calculateSwap(_canonicalId, 0, 1, amount);
+    assertEq(calculatedSwapReturn, 99702611562565289);
+
+    vm.startPrank(_user2);
+    this.swap(_canonicalId, 0, 1, amount, 0, blockTimestamp + 10);
+    vm.stopPrank();
+
+    vm.startPrank(_user1);
+    vm.expectRevert("Swap didn't result in min tokens");
+    this.swap(_canonicalId, 0, 1, amount, calculatedSwapReturn, blockTimestamp + 10);
+    vm.stopPrank();
+  }
+
   // function test_StableSwapFacet__swapExact
+  function test_StableSwapFacet__swapExact_failIfPaused() public {
+    s._paused = true;
+
+    vm.prank(_user1);
+    vm.expectRevert(BaseConnextFacet.BaseConnextFacet__whenNotPaused_paused.selector);
+    this.swapExact(_canonicalId, 1 ether, _local, _adopted, 0, blockTimestamp + 10);
+  }
+
+  function test_StableSwapFacet__swapExact_failIfMoreThanBalance() public {
+    uint256 fromTokenBalance = this.getSwapToken(_canonicalId, 0).balanceOf(_user1);
+    vm.startPrank(_user1);
+    vm.expectRevert("Cannot swap more than you own");
+    this.swapExact(_canonicalId, fromTokenBalance + 10, _local, _adopted, 0, blockTimestamp + 10);
+    vm.stopPrank();
+  }
+
+  function test_StableSwapFacet__swapExact_shouldWork() public {
+    uint256 amount = 1e17;
+    uint256 calculatedSwapReturn = this.calculateSwap(_canonicalId, 0, 1, amount);
+    assertEq(calculatedSwapReturn, 99702611562565289);
+
+    uint256 tokenFromBalanceBefore = IERC20(_local).balanceOf(_user1);
+    uint256 tokenToBalanceBefore = IERC20(_adopted).balanceOf(_user1);
+
+    vm.startPrank(_user1);
+    this.swapExact(_canonicalId, amount, _local, _adopted, calculatedSwapReturn, blockTimestamp + 10);
+    vm.stopPrank();
+
+    assertEq(tokenFromBalanceBefore - amount, IERC20(_local).balanceOf(_user1));
+    assertEq(tokenToBalanceBefore + calculatedSwapReturn, IERC20(_adopted).balanceOf(_user1));
+  }
+
+  function test_StableSwapFacet__swapExact_failIfNotMinDy() public {
+    uint256 amount = 1e17;
+    uint256 calculatedSwapReturn = this.calculateSwap(_canonicalId, 0, 1, amount);
+    assertEq(calculatedSwapReturn, 99702611562565289);
+
+    vm.startPrank(_user2);
+    this.swapExact(_canonicalId, amount, _local, _adopted, 0, blockTimestamp + 10);
+    vm.stopPrank();
+
+    vm.startPrank(_user1);
+    vm.expectRevert("Swap didn't result in min tokens");
+    this.swapExact(_canonicalId, amount, _local, _adopted, calculatedSwapReturn, blockTimestamp + 10);
+    vm.stopPrank();
+  }
+
   // function test_StableSwapFacet__addSwapLiquidity
   // function test_StableSwapFacet__removeSwapLiquidity
   // function test_StableSwapFacet__removeSwapLiquidityOneToken
