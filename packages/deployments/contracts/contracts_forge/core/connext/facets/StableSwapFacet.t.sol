@@ -53,24 +53,24 @@ contract StableSwapFacetTest is FacetHelper, StableSwapFacet {
     _pooledTokens[1] = IERC20(_adopted);
 
     // Mint Token0, Token1 to Owner, User1, User2
-    TestERC20(_local).mint(_owner, 10 ether);
-    TestERC20(_adopted).mint(_owner, 10 ether);
+    TestERC20(_local).mint(_owner, 100 ether);
+    TestERC20(_adopted).mint(_owner, 100 ether);
 
-    TestERC20(_local).mint(_user1, 10 ether);
-    TestERC20(_adopted).mint(_user1, 10 ether);
+    TestERC20(_local).mint(_user1, 100 ether);
+    TestERC20(_adopted).mint(_user1, 100 ether);
 
-    TestERC20(_local).mint(_user2, 10 ether);
-    TestERC20(_adopted).mint(_user2, 10 ether);
+    TestERC20(_local).mint(_user2, 100 ether);
+    TestERC20(_adopted).mint(_user2, 100 ether);
 
     // Approve Token0, Token1 from User1, User2
     vm.startPrank(_user1);
-    TestERC20(_local).approve(address(this), 10 ether);
-    TestERC20(_adopted).approve(address(this), 10 ether);
+    TestERC20(_local).approve(address(this), 100 ether);
+    TestERC20(_adopted).approve(address(this), 100 ether);
     vm.stopPrank();
 
     vm.startPrank(_user2);
-    TestERC20(_local).approve(address(this), 10 ether);
-    TestERC20(_adopted).approve(address(this), 10 ether);
+    TestERC20(_local).approve(address(this), 100 ether);
+    TestERC20(_adopted).approve(address(this), 100 ether);
     vm.stopPrank();
 
     uint8[] memory _decimals = new uint8[](2);
@@ -570,6 +570,18 @@ contract StableSwapFacetTest is FacetHelper, StableSwapFacet {
     vm.stopPrank();
   }
 
+  function test_StableSwapFacet__removeSwapLiquidityImbalance_failIfNotMatchPoolTokens() public {
+    vm.startPrank(_user1);
+
+    uint256[] memory removeAmounts = new uint256[](1);
+    removeAmounts[0] = 1 ether;
+
+    vm.expectRevert("Amounts should match pool tokens");
+    this.removeSwapLiquidityImbalance(_canonicalId, removeAmounts, 100 ether, blockTimestamp + 1);
+
+    vm.stopPrank();
+  }
+
   function test_StableSwapFacet__removeSwapLiquidityImbalance_failIfMoreThanLpBalance() public {
     vm.startPrank(_user1);
     uint256[] memory amounts = new uint256[](2);
@@ -639,6 +651,51 @@ contract StableSwapFacetTest is FacetHelper, StableSwapFacet {
     assertEq(actualPoolTokenBurned, 1000934178112841889);
     assertTrue(actualPoolTokenBurned >= maxPoolTokenAmountToBeBurnedPositiveSlippage);
     assertTrue(actualPoolTokenBurned <= maxPoolTokenAmountToBeBurnedNegativeSlippage);
+
+    vm.stopPrank();
+  }
+
+  function test_StableSwapFacet__removeSwapLiquidityImbalance_failIfFrontRun() public {
+    vm.startPrank(_user1);
+
+    uint256[] memory amounts = new uint256[](2);
+    amounts[0] = 2 ether;
+    amounts[1] = 0.01 ether;
+
+    uint256[] memory removeAmounts = new uint256[](2);
+    removeAmounts[0] = 1 ether;
+    removeAmounts[1] = 0.01 ether;
+
+    this.addSwapLiquidity(_canonicalId, amounts, 0, blockTimestamp + 1);
+
+    address swapToken = this.getSwapLPToken(_canonicalId);
+    uint256 firstTokenBalanceBefore = IERC20(_local).balanceOf(_user1);
+    uint256 secondTokenBalanceBefore = IERC20(_adopted).balanceOf(_user1);
+    uint256 poolTokenBalanceBefore = IERC20(swapToken).balanceOf(_user1);
+
+    assertEq(poolTokenBalanceBefore, 1996275270169644725);
+
+    // User 1 calculates amount of pool token to be burned
+    uint256 maxPoolTokenAmountToBeBurned = this.calculateSwapTokenAmount(_canonicalId, removeAmounts, false);
+
+    // ±0.1% range of pool token to be burned
+    uint256 maxPoolTokenAmountToBeBurnedNegativeSlippage = (maxPoolTokenAmountToBeBurned * 1001) / 1000;
+    uint256 maxPoolTokenAmountToBeBurnedPositiveSlippage = (maxPoolTokenAmountToBeBurned * 999) / 1000;
+
+    vm.stopPrank();
+    utils_addLiquidity(0.01 ether, 10 ether);
+
+    vm.startPrank(_user1);
+
+    IERC20(swapToken).approve(address(this), maxPoolTokenAmountToBeBurnedNegativeSlippage);
+
+    vm.expectRevert("tokenAmount > maxBurnAmount");
+    this.removeSwapLiquidityImbalance(
+      _canonicalId,
+      removeAmounts,
+      maxPoolTokenAmountToBeBurnedNegativeSlippage,
+      blockTimestamp + 1
+    );
 
     vm.stopPrank();
   }
