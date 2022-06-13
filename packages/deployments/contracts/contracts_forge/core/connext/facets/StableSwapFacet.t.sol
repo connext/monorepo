@@ -335,9 +335,19 @@ contract StableSwapFacetTest is FacetHelper, StableSwapFacet {
   }
 
   // function test_StableSwapFacet__addSwapLiquidity
-  function test_StableSwapFacet__addSwapLiquidity_failIfNotMatchPooledToken() public {
+  function test_StableSwapFacet__addSwapLiquidity_failIfPaused() public {
     s._paused = true;
 
+    uint256[] memory amounts = new uint256[](2);
+    amounts[0] = 1 ether;
+    amounts[1] = 3 ether;
+
+    vm.prank(_user1);
+    vm.expectRevert(BaseConnextFacet.BaseConnextFacet__whenNotPaused_paused.selector);
+    this.addSwapLiquidity(_canonicalId, amounts, 0, blockTimestamp + 1);
+  }
+
+  function test_StableSwapFacet__addSwapLiquidity_failIfNotMatchPooledToken() public {
     uint256[] memory amounts = new uint256[](1);
     amounts[0] = 1 ether;
 
@@ -365,9 +375,273 @@ contract StableSwapFacetTest is FacetHelper, StableSwapFacet {
   }
 
   // function test_StableSwapFacet__removeSwapLiquidity
+  function test_StableSwapFacet__removeSwapLiquidity_failIfPaused() public {
+    s._paused = true;
+
+    uint256[] memory minAmounts = new uint256[](2);
+    minAmounts[0] = 0 ether;
+    minAmounts[1] = 0 ether;
+
+    vm.prank(_user1);
+    vm.expectRevert(BaseConnextFacet.BaseConnextFacet__whenNotPaused_paused.selector);
+    this.removeSwapLiquidity(_canonicalId, 2 ether, minAmounts, blockTimestamp + 1);
+  }
+
+  function test_StableSwapFacet__removeSwapLiquidity_failIfNotMatchPooledToken() public {
+    uint256[] memory minAmounts = new uint256[](1);
+    minAmounts[0] = 0;
+
+    vm.prank(_owner);
+    vm.expectRevert("minAmounts must match poolTokens");
+    this.removeSwapLiquidity(_canonicalId, 1 ether, minAmounts, blockTimestamp + 1);
+  }
+
+  function test_StableSwapFacet__removeSwapLiquidity_shouldWork() public {
+    vm.startPrank(_user1);
+
+    uint256[] memory amounts = new uint256[](2);
+    amounts[0] = 2 ether;
+    amounts[1] = 0.01 ether;
+
+    this.addSwapLiquidity(_canonicalId, amounts, 0, blockTimestamp + 1);
+
+    address swapToken = this.getSwapLPToken(_canonicalId);
+    uint256 firstTokenBalanceBefore = IERC20(_local).balanceOf(_user1);
+    uint256 secondTokenBalanceBefore = IERC20(_adopted).balanceOf(_user1);
+    uint256 poolTokenBalanceBefore = IERC20(swapToken).balanceOf(_user1);
+
+    assertEq(poolTokenBalanceBefore, 1996275270169644725);
+
+    uint256[] memory expectedAmounts = new uint256[](2);
+    expectedAmounts = this.calculateRemoveSwapLiquidity(_canonicalId, poolTokenBalanceBefore);
+
+    assertEq(expectedAmounts[0], 1498601924450190405);
+    assertEq(expectedAmounts[1], 504529314564897436);
+
+    IERC20(swapToken).approve(address(this), poolTokenBalanceBefore);
+
+    this.removeSwapLiquidity(_canonicalId, poolTokenBalanceBefore, expectedAmounts, blockTimestamp + 1);
+
+    assertEq(firstTokenBalanceBefore + expectedAmounts[0], IERC20(_local).balanceOf(_user1));
+    assertEq(secondTokenBalanceBefore + expectedAmounts[1], IERC20(_adopted).balanceOf(_user1));
+    vm.stopPrank();
+  }
 
   // function test_StableSwapFacet__removeSwapLiquidityOneToken
+  function test_StableSwapFacet__removeSwapLiquidityOneToken_failIfPaused() public {
+    s._paused = true;
+
+    vm.prank(_user1);
+    vm.expectRevert(BaseConnextFacet.BaseConnextFacet__whenNotPaused_paused.selector);
+    this.removeSwapLiquidityOneToken(_canonicalId, 2 ether, 0, 0, blockTimestamp + 1);
+  }
+
+  function test_StableSwapFacet__removeSwapLiquidityOneToken_failIfMoreThanLpBalance() public {
+    vm.startPrank(_user1);
+    uint256[] memory amounts = new uint256[](2);
+    amounts[0] = 2 ether;
+    amounts[1] = 0.01 ether;
+
+    this.addSwapLiquidity(_canonicalId, amounts, 0, blockTimestamp + 1);
+
+    address swapToken = this.getSwapLPToken(_canonicalId);
+    uint256 poolTokenBalanceBefore = IERC20(swapToken).balanceOf(_user1);
+
+    assertEq(poolTokenBalanceBefore, 1996275270169644725);
+
+    IERC20(swapToken).approve(address(this), poolTokenBalanceBefore + 10);
+
+    vm.expectRevert(">LP.balanceOf");
+    this.removeSwapLiquidityOneToken(_canonicalId, poolTokenBalanceBefore + 10, 0, 0, blockTimestamp + 1);
+
+    vm.stopPrank();
+  }
+
+  function test_StableSwapFacet__removeSwapLiquidityOneToken_shouldWork() public {
+    vm.startPrank(_user1);
+
+    uint256[] memory amounts = new uint256[](2);
+    amounts[0] = 2 ether;
+    amounts[1] = 0.01 ether;
+
+    this.addSwapLiquidity(_canonicalId, amounts, 0, blockTimestamp + 1);
+
+    address swapToken = this.getSwapLPToken(_canonicalId);
+    uint256 firstTokenBalanceBefore = IERC20(_local).balanceOf(_user1);
+    uint256 secondTokenBalanceBefore = IERC20(_adopted).balanceOf(_user1);
+    uint256 poolTokenBalanceBefore = IERC20(swapToken).balanceOf(_user1);
+
+    assertEq(poolTokenBalanceBefore, 1996275270169644725);
+
+    // User 1 calculates the amount of underlying token to receive.
+    uint256 calculatedFirstTokenAmount = this.calculateRemoveSwapLiquidityOneToken(
+      _canonicalId,
+      poolTokenBalanceBefore,
+      0
+    );
+    assertEq(calculatedFirstTokenAmount, 2008990034631583696);
+
+    IERC20(swapToken).approve(address(this), poolTokenBalanceBefore);
+
+    this.removeSwapLiquidityOneToken(
+      _canonicalId,
+      poolTokenBalanceBefore,
+      0,
+      calculatedFirstTokenAmount,
+      blockTimestamp + 1
+    );
+
+    assertEq(firstTokenBalanceBefore + calculatedFirstTokenAmount, IERC20(_local).balanceOf(_user1));
+    assertEq(secondTokenBalanceBefore, IERC20(_adopted).balanceOf(_user1));
+    vm.stopPrank();
+  }
+
+  function test_StableSwapFacet__removeSwapLiquidityOneToken_failIfFrontRun() public {
+    vm.startPrank(_user1);
+
+    uint256[] memory amounts = new uint256[](2);
+    amounts[0] = 2 ether;
+    amounts[1] = 0.01 ether;
+
+    this.addSwapLiquidity(_canonicalId, amounts, 0, blockTimestamp + 1);
+
+    address swapToken = this.getSwapLPToken(_canonicalId);
+    uint256 firstTokenBalanceBefore = IERC20(_local).balanceOf(_user1);
+    uint256 secondTokenBalanceBefore = IERC20(_adopted).balanceOf(_user1);
+    uint256 poolTokenBalanceBefore = IERC20(swapToken).balanceOf(_user1);
+
+    assertEq(poolTokenBalanceBefore, 1996275270169644725);
+
+    // User 1 calculates the amount of underlying token to receive.
+    uint256 calculatedFirstTokenAmount = this.calculateRemoveSwapLiquidityOneToken(
+      _canonicalId,
+      poolTokenBalanceBefore,
+      0
+    );
+    assertEq(calculatedFirstTokenAmount, 2008990034631583696);
+    vm.stopPrank();
+
+    vm.startPrank(_user2);
+    amounts[0] = 0.01 ether;
+    amounts[1] = 10 ether;
+    this.addSwapLiquidity(_canonicalId, amounts, 0, blockTimestamp + 10);
+    vm.stopPrank();
+
+    vm.startPrank(_user1);
+    IERC20(swapToken).approve(address(this), poolTokenBalanceBefore);
+
+    vm.expectRevert("dy < minAmount");
+    this.removeSwapLiquidityOneToken(
+      _canonicalId,
+      poolTokenBalanceBefore,
+      0,
+      calculatedFirstTokenAmount,
+      blockTimestamp + 1
+    );
+
+    vm.stopPrank();
+  }
+
   // function test_StableSwapFacet__removeSwapLiquidityImbalance
+  function test_StableSwapFacet__removeSwapLiquidityImbalance_failIfPaused() public {
+    vm.startPrank(_user1);
+    uint256[] memory amounts = new uint256[](2);
+    amounts[0] = 2 ether;
+    amounts[1] = 0.01 ether;
+
+    this.addSwapLiquidity(_canonicalId, amounts, 0, blockTimestamp + 1);
+
+    address swapToken = this.getSwapLPToken(_canonicalId);
+    uint256 poolTokenBalanceBefore = IERC20(swapToken).balanceOf(_user1);
+
+    assertEq(poolTokenBalanceBefore, 1996275270169644725);
+
+    IERC20(swapToken).approve(address(this), poolTokenBalanceBefore);
+
+    uint256[] memory removeAmounts = new uint256[](2);
+    removeAmounts[0] = 1 ether;
+    removeAmounts[1] = 0.01 ether;
+
+    s._paused = true;
+
+    vm.expectRevert(BaseConnextFacet.BaseConnextFacet__whenNotPaused_paused.selector);
+    this.removeSwapLiquidityImbalance(_canonicalId, removeAmounts, 100 ether, blockTimestamp + 1);
+
+    vm.stopPrank();
+  }
+
+  function test_StableSwapFacet__removeSwapLiquidityImbalance_failIfMoreThanLpBalance() public {
+    vm.startPrank(_user1);
+    uint256[] memory amounts = new uint256[](2);
+    amounts[0] = 2 ether;
+    amounts[1] = 0.01 ether;
+
+    this.addSwapLiquidity(_canonicalId, amounts, 0, blockTimestamp + 1);
+
+    address swapToken = this.getSwapLPToken(_canonicalId);
+    uint256 poolTokenBalanceBefore = IERC20(swapToken).balanceOf(_user1);
+
+    assertEq(poolTokenBalanceBefore, 1996275270169644725);
+
+    uint256[] memory removeAmounts = new uint256[](2);
+    removeAmounts[0] = 1 ether;
+    removeAmounts[1] = 0.01 ether;
+
+    IERC20(swapToken).approve(address(this), poolTokenBalanceBefore);
+
+    vm.expectRevert(">LP.balanceOf");
+    this.removeSwapLiquidityImbalance(_canonicalId, removeAmounts, poolTokenBalanceBefore + 1, blockTimestamp + 1);
+
+    vm.stopPrank();
+  }
+
+  function test_StableSwapFacet__removeSwapLiquidityImbalance_shouldWork() public {
+    vm.startPrank(_user1);
+
+    uint256[] memory amounts = new uint256[](2);
+    amounts[0] = 2 ether;
+    amounts[1] = 0.01 ether;
+
+    uint256[] memory removeAmounts = new uint256[](2);
+    removeAmounts[0] = 1 ether;
+    removeAmounts[1] = 0.01 ether;
+
+    this.addSwapLiquidity(_canonicalId, amounts, 0, blockTimestamp + 1);
+
+    address swapToken = this.getSwapLPToken(_canonicalId);
+    uint256 firstTokenBalanceBefore = IERC20(_local).balanceOf(_user1);
+    uint256 secondTokenBalanceBefore = IERC20(_adopted).balanceOf(_user1);
+    uint256 poolTokenBalanceBefore = IERC20(swapToken).balanceOf(_user1);
+
+    assertEq(poolTokenBalanceBefore, 1996275270169644725);
+
+    // User 1 calculates amount of pool token to be burned
+    uint256 maxPoolTokenAmountToBeBurned = this.calculateSwapTokenAmount(_canonicalId, removeAmounts, false);
+
+    // ±0.1% range of pool token to be burned
+    uint256 maxPoolTokenAmountToBeBurnedNegativeSlippage = (maxPoolTokenAmountToBeBurned * 1001) / 1000;
+    uint256 maxPoolTokenAmountToBeBurnedPositiveSlippage = (maxPoolTokenAmountToBeBurned * 999) / 1000;
+
+    IERC20(swapToken).approve(address(this), maxPoolTokenAmountToBeBurnedNegativeSlippage);
+
+    this.removeSwapLiquidityImbalance(
+      _canonicalId,
+      removeAmounts,
+      maxPoolTokenAmountToBeBurnedNegativeSlippage,
+      blockTimestamp + 1
+    );
+
+    assertEq(firstTokenBalanceBefore + removeAmounts[0], IERC20(_local).balanceOf(_user1));
+    assertEq(secondTokenBalanceBefore + removeAmounts[1], IERC20(_adopted).balanceOf(_user1));
+
+    uint256 actualPoolTokenBurned = poolTokenBalanceBefore - IERC20(swapToken).balanceOf(_user1);
+
+    assertEq(actualPoolTokenBurned, 1000934178112841889);
+    assertTrue(actualPoolTokenBurned >= maxPoolTokenAmountToBeBurnedPositiveSlippage);
+    assertTrue(actualPoolTokenBurned <= maxPoolTokenAmountToBeBurnedNegativeSlippage);
+
+    vm.stopPrank();
+  }
 
   // =========== Admin Functions ============
   function test_StableSwapFacet__initializeSwap_failIfNotOwner() public {
