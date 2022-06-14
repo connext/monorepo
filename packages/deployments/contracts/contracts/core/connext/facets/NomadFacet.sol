@@ -74,14 +74,6 @@ contract NomadFacet is BaseConnextFacet {
     return s.remotes[_domain];
   }
 
-  function routedTransfers(bytes32 _transferId) public view returns (address[] memory) {
-    return s.routedTransfers[_transferId];
-  }
-
-  function reconciledTransfers(bytes32 _transferId) public view returns (bool) {
-    return s.reconciledTransfers[_transferId];
-  }
-
   // ============ External functions ============
 
   /**

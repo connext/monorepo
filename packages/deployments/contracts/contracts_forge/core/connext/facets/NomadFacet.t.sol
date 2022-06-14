@@ -6,11 +6,14 @@ import {TypedMemView} from "../../../../contracts/nomad-core/libs/TypedMemView.s
 
 import {LibDiamond} from "../../../../contracts/core/connext/libraries/LibDiamond.sol";
 
-import {NomadFacet, BaseConnextFacet} from "../../../../contracts/core/connext/facets/NomadFacet.sol";
+import {NomadFacet} from "../../../../contracts/core/connext/facets/NomadFacet.sol";
+import {BaseConnextFacet} from "../../../../contracts/core/connext/facets/BaseConnextFacet.sol";
 import {CallParams, ExecuteArgs, XCallArgs} from "../../../../contracts/core/connext/libraries/LibConnextStorage.sol";
 
 import "../../../utils/Mock.sol";
 import "../../../utils/FacetHelper.sol";
+
+import "../../../../lib/forge-std/src/console.sol";
 
 contract NomadFacetTest is NomadFacet, FacetHelper {
   // ============ Libs ============
@@ -29,12 +32,10 @@ contract NomadFacetTest is NomadFacet, FacetHelper {
     uint256 output; // the equivalent amount of `out` token for given `in`
   }
 
-  function setUp() public {
-    // Deploy any needed contracts.
-    utils_deployContracts();
-  }
-
   // ========== Storage ===========
+  // diamond storage contract owner
+  address _ds_owner = address(987654321);
+
   // aave pool details
   address _aavePool;
 
@@ -67,7 +68,25 @@ contract NomadFacetTest is NomadFacet, FacetHelper {
       false // receiveLocal
     );
 
+  // ============ Test set up ============
+  function setUp() public {
+    // Deploy any needed contracts.
+    utils_deployContracts();
+    utils_deployAssetContracts();
+
+    vm.prank(address(this));
+    LibDiamond.DiamondStorage storage ds = LibDiamond.diamondStorage();
+    ds.contractOwner = _ds_owner;
+  }
+
   // ============ Utils ============
+  // Used in set up for deploying any needed peripheral contracts.
+  function utils_deployContracts() public {
+    // setup aave pool
+    _aavePool = address(new MockPool(false));
+    s.aavePool = _aavePool;
+  }
+
   // Meant to mimic the corresponding `_getTransferId` method in the BridgeFacet contract.
   function utils_getTransferIdFromXCallArgs(
     XCallArgs memory _args,
@@ -105,13 +124,6 @@ contract NomadFacetTest is NomadFacet, FacetHelper {
     bytes32 transferId = utils_getTransferIdFromXCallArgs(args, _originSender, _canonicalId, _canonicalDomain);
 
     return (transferId, args);
-  }
-
-  // Used in set up for deploying any needed peripheral contracts.
-  function utils_deployContracts() public {
-    // setup aave pool
-    _aavePool = address(new MockPool(false));
-    s.aavePool = _aavePool;
   }
 
   // Wraps reconcile in order to enable externalizing the call.
@@ -234,10 +246,7 @@ contract NomadFacetTest is NomadFacet, FacetHelper {
     bool shouldSucceed = keccak256(abi.encode(expectedError)) == keccak256(abi.encode(bytes4("")));
 
     // Derive message from xcall arguments.
-    bytes memory message;
-    {
-      message = utils_formatMessage(_params.to, _local, transferId, args.amount);
-    }
+    bytes memory message = utils_formatMessage(_params.to, _local, transferId, args.amount);
 
     uint256[] memory routerBalances = new uint256[](s.routedTransfers[transferId].length);
     for (uint256 i = 0; i < s.routedTransfers[transferId].length; i++) {
@@ -295,7 +304,7 @@ contract NomadFacetTest is NomadFacet, FacetHelper {
 
     if (shouldSucceed) {
       assertEq(this.reconciledTransfers(transferId), true);
-      address[] memory routers = this.routedTransfers(transferId);
+      address[] memory routers = s.routedTransfers[transferId];
       if (routers.length > 0) {
         uint256 routerAmt;
         if (init.total > 0 && repayment.aaveReturns) {
@@ -462,6 +471,7 @@ contract NomadFacetTest is NomadFacet, FacetHelper {
 
   // funds router when post-execute (fast liquidity route)
   function test_NomadFacet__reconcile_fastLiquiditySingleRouterWorks() public {
+    utils_setupAsset(true, false);
     (bytes32 transferId, XCallArgs memory args) = utils_makeXCallArgs();
     s.routedTransfers[transferId] = [address(42)];
     helpers_reconcileAndAssert(transferId, args, bytes4(""));
@@ -469,6 +479,7 @@ contract NomadFacetTest is NomadFacet, FacetHelper {
 
   // funds routers when post-execute multipath (fast liquidity route)
   function test_NomadFacet__reconcile_fastLiquidityMultipathWorks() public {
+    utils_setupAsset(true, false);
     (bytes32 transferId, XCallArgs memory args) = utils_makeXCallArgs();
     s.routedTransfers[transferId] = [address(42), address(43), address(44), address(45)];
     helpers_reconcileAndAssert(transferId, args, bytes4(""));
