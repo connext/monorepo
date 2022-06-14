@@ -1,14 +1,20 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity 0.8.14;
 
-import {LibDiamond} from "../../../../contracts/core/connext/libraries/LibDiamond.sol";
+import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
+import {LibDiamond} from "../../../../contracts/core/connext/libraries/LibDiamond.sol";
+import {SwapUtils} from "../../../../contracts/core/connext/libraries/SwapUtils.sol";
+import {AmplificationUtils} from "../../../../contracts/core/connext/libraries/AmplificationUtils.sol";
+import {LPToken} from "../../../../contracts/core/connext/helpers/LPToken.sol";
+
+import {BaseConnextFacet} from "../../../../contracts/core/connext/facets/BaseConnextFacet.sol";
 import {StableSwapFacet} from "../../../../contracts/core/connext/facets/StableSwapFacet.sol";
 import {SwapAdminFacet} from "../../../../contracts/core/connext/facets/SwapAdminFacet.sol";
 
 import "../../../utils/FacetHelper.sol";
 
-contract SwapAdminFacetTest is SwapAdminFacet, FacetHelper {
+contract SwapAdminFacetTest is SwapAdminFacet, StableSwapFacet, FacetHelper {
   // ============ Libraries ============
   using SwapUtils for SwapUtils.Swap;
   using AmplificationUtils for SwapUtils.Swap;
@@ -20,6 +26,9 @@ contract SwapAdminFacetTest is SwapAdminFacet, FacetHelper {
   address _user1 = address(1);
   address _user2 = address(2);
   LPToken _lpTokenTarget;
+
+  // TODO: Should initialize StableSwapFacet separately instead of inheriting here.
+  // address _stableSwapFacet;
 
   // Test Values
   uint256 INITIAL_A_VALUE = 50;
@@ -37,6 +46,8 @@ contract SwapAdminFacetTest is SwapAdminFacet, FacetHelper {
 
     // set the owner to this contract
     setOwner(_owner);
+
+    // _stableSwapFacet = address(new StableSwapFacet());
 
     utils_initializeSwap();
     utils_addLiquidity(1 ether, 1 ether);

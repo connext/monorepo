@@ -18,12 +18,11 @@ import {AmplificationUtils, SwapUtils} from "../libraries/AmplificationUtils.sol
  *
  * In case of emergencies, admin can pause additional deposits, swaps, or single-asset withdraws - which
  * stops the ratio of the tokens in the pool from changing.
+ *
  * Users can always withdraw their tokens via multi-asset withdraws.
  *
- * @dev Most of the logic is stored as a library `SwapUtils` for the sake of reducing contract's
- * deployment size.
+ * @dev Most of the logic is stored as a library `SwapUtils` for the sake of contract readability.
  */
-
 contract StableSwapFacet is BaseConnextFacet {
   using SwapUtils for SwapUtils.Swap;
   using AmplificationUtils for SwapUtils.Swap;

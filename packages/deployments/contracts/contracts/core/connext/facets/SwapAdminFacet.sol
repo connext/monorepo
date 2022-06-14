@@ -9,15 +9,12 @@ import {Clones} from "@openzeppelin/contracts/proxy/Clones.sol";
 
 /**
  * @title SwapAdminFacet
- * @notice Contract module which provides only-admin control mechanism,
+ * @notice Contract module which exposes only-admin controls for the StableSwapFacet
+ * contract.
  *
  * @dev This module is used through inheritance. It will make available the
  * modifier `onlyOwner`, which can be applied to your functions to restrict
  * their use to the owner.
- *
- * @dev The majority of this code was taken from the openzeppelin Ownable
- * contract
- *
  */
 contract SwapAdminFacet is BaseConnextFacet {
   using SwapUtils for SwapUtils.Swap;
