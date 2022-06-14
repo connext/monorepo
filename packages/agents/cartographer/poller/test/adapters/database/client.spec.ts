@@ -199,6 +199,43 @@ describe("Database client", () => {
     expect(dbTransfer.transferId).equal(xTransfer.transferId);
   });
 
+  it("should upsert origin and then destination side transfer", async () => {
+    const xTransfer = mock.entity.xtransfer({ status: XTransferStatus.XCalled });
+    const xcall_timestamp = xTransfer.origin.xcall.timestamp;
+    xTransfer.destination = undefined;
+    const origin = xTransfer.origin;
+    await saveTransfers([xTransfer], pool);
+    const xTransferDestination = mock.entity.xtransfer({ status: XTransferStatus.CompletedFast });
+    xTransfer.destination = xTransferDestination.destination;
+    xTransfer.origin = undefined;
+    const reconcile_timestamp = xTransfer.destination.reconcile.timestamp;
+    await saveTransfers([xTransfer], pool);
+    const dbTransfer = await getTransferByTransferId(xTransfer.transferId, pool);
+    expect(dbTransfer.destination.status).equal(XTransferStatus.CompletedFast);
+    expect(dbTransfer.origin?.xcall.timestamp).equal(xcall_timestamp);
+    expect(dbTransfer?.destination?.reconcile?.timestamp).deep.equal(reconcile_timestamp);
+    expect(dbTransfer.transferId).equal(xTransfer.transferId);
+    expect(dbTransfer?.origin).deep.equal(origin);
+  });
+
+  it("should upsert destination and then origin side transfer", async () => {
+    const xTransfer = mock.entity.xtransfer({ status: XTransferStatus.CompletedFast });
+    const origin = xTransfer.origin;
+    xTransfer.origin = undefined;
+    const reconcile_timestamp = xTransfer.destination.reconcile.timestamp;
+    await saveTransfers([xTransfer], pool);
+    xTransfer.origin = origin;
+    xTransfer.destination = undefined;
+    const xcall_timestamp = xTransfer.origin.xcall.timestamp;
+    await saveTransfers([xTransfer], pool);
+    const dbTransfer = await getTransferByTransferId(xTransfer.transferId, pool);
+    expect(dbTransfer.destination.status).equal(XTransferStatus.CompletedFast);
+    expect(dbTransfer.origin?.xcall.timestamp).equal(xcall_timestamp);
+    expect(dbTransfer?.destination?.reconcile?.timestamp).deep.equal(reconcile_timestamp);
+    expect(dbTransfer.transferId).equal(xTransfer.transferId);
+    expect(dbTransfer?.origin).deep.equal(origin);
+  });
+
   it("should save multiple transfers", async () => {
     const transfers: XTransfer[] = [];
     for (var _i = 0; _i < batchSize; _i++) {

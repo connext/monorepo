@@ -39,7 +39,7 @@ const convertToDbTransfer = (transfer: XTransfer): s.transfers.Insertable => {
     xcall_block_number: transfer.origin?.xcall?.blockNumber,
 
     destination_chain: transfer.destination?.chain,
-    status: transfer.destination?.status ?? "XCalled",
+    status: transfer.destination?.status,
     routers: transfer.destination?.routers,
     destination_transacting_asset: transfer.destination?.assets.transacting?.asset,
     destination_transacting_amount: transfer.destination?.assets.transacting?.amount as any,
@@ -65,6 +65,10 @@ const convertToDbTransfer = (transfer: XTransfer): s.transfers.Insertable => {
   };
 };
 
+const sanitizeNull = (obj: { [s: string]: any }): any => {
+  return Object.fromEntries(Object.entries(obj).filter(([_, v]) => v != null));
+};
+
 export const saveTransfers = async (xtransfers: XTransfer[], _pool?: Pool): Promise<void> => {
   const poolToUse = _pool ?? pool;
   const transfers: s.transfers.Insertable[] = xtransfers.map(convertToDbTransfer);
@@ -72,7 +76,7 @@ export const saveTransfers = async (xtransfers: XTransfer[], _pool?: Pool): Prom
   // TODO: make this a single query! we should be able to do this with postgres
   // TODO: Perfomance implications to be evaluated. Upgrade to batching of configured batch size N.
   for (const oneTransfer of transfers) {
-    const transfer = { ...oneTransfer };
+    const transfer = sanitizeNull(oneTransfer);
     await db.sql<s.transfers.SQL, s.transfers.JSONSelectable[]>`INSERT INTO ${"transfers"} (${db.cols(transfer)})
     VALUES (${db.vals(transfer)}) ON CONFLICT ("transfer_id") DO UPDATE SET (${db.cols(transfer)}) = (${db.vals(
       transfer,
