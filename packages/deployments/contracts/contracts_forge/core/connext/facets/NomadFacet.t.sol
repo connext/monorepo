@@ -29,12 +29,15 @@ contract NomadFacetTest is NomadFacet, FacetHelper {
     uint256 output; // the equivalent amount of `out` token for given `in`
   }
 
-  function setUp() public {
-    // Deploy any needed contracts.
-    utils_deployContracts();
-  }
-
   // ========== Storage ===========
+  // diamond storage contract owner
+  address _ds_owner = address(987654321);
+
+  // mock xapp connection manager
+  address _xappConnectionManager;
+  // mock home
+  address _xappHome;
+
   // aave pool details
   address _aavePool;
 
@@ -67,7 +70,30 @@ contract NomadFacetTest is NomadFacet, FacetHelper {
       false // receiveLocal
     );
 
+  // ============ Test set up ============
+  function setUp() public {
+    // Deploy any needed contracts.
+    utils_deployContracts();
+
+    vm.prank(address(this));
+    LibDiamond.DiamondStorage storage ds = LibDiamond.diamondStorage();
+    ds.contractOwner = _ds_owner;
+  }
+
   // ============ Utils ============
+  // Used in set up for deploying any needed peripheral contracts.
+  function utils_deployContracts() public {
+    // setup aave pool
+    _aavePool = address(new MockPool(false));
+    s.aavePool = _aavePool;
+
+    // Deploy a mock home.
+    _xappHome = address(new MockHome());
+    // Deploy a mock xapp connection manager.
+    _xappConnectionManager = address(new MockXAppConnectionManager(MockHome(_xappHome)));
+    s.xAppConnectionManager = XAppConnectionManager(_xappConnectionManager);
+  }
+
   // Meant to mimic the corresponding `_getTransferId` method in the BridgeFacet contract.
   function utils_getTransferIdFromXCallArgs(
     XCallArgs memory _args,
@@ -105,13 +131,6 @@ contract NomadFacetTest is NomadFacet, FacetHelper {
     bytes32 transferId = utils_getTransferIdFromXCallArgs(args, _originSender, _canonicalId, _canonicalDomain);
 
     return (transferId, args);
-  }
-
-  // Used in set up for deploying any needed peripheral contracts.
-  function utils_deployContracts() public {
-    // setup aave pool
-    _aavePool = address(new MockPool(false));
-    s.aavePool = _aavePool;
   }
 
   // Wraps reconcile in order to enable externalizing the call.

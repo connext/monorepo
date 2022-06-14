@@ -85,7 +85,7 @@ contract Deployer {
   }
 
   function getBridgeFacetCut(address _bridgeFacet) internal pure returns (IDiamondCut.FacetCut memory) {
-    bytes4[] memory bridgeFacetSelectors = new bytes4[](15);
+    bytes4[] memory bridgeFacetSelectors = new bytes4[](12);
     // getters
     bridgeFacetSelectors[0] = BridgeFacet.relayerFees.selector;
     bridgeFacetSelectors[1] = BridgeFacet.domain.selector;
@@ -99,8 +99,8 @@ contract Deployer {
     bridgeFacetSelectors[8] = BridgeFacet.setSponsorVault.selector;
     // public
     bridgeFacetSelectors[9] = BridgeFacet.xcall.selector;
-    bridgeFacetSelectors[11] = BridgeFacet.execute.selector;
-    bridgeFacetSelectors[12] = BridgeFacet.bumpTransfer.selector;
+    bridgeFacetSelectors[10] = BridgeFacet.execute.selector;
+    bridgeFacetSelectors[11] = BridgeFacet.bumpTransfer.selector;
     return
       IDiamondCut.FacetCut({
         facetAddress: _bridgeFacet,
@@ -110,7 +110,7 @@ contract Deployer {
   }
 
   function getNomadFacetCut(address _nomadFacet) internal pure returns (IDiamondCut.FacetCut memory) {
-    bytes4[] memory nomadFacetSelectors = new bytes4[](4);
+    bytes4[] memory nomadFacetSelectors = new bytes4[](7);
     nomadFacetSelectors[0] = NomadFacet.xAppConnectionManager.selector;
     nomadFacetSelectors[1] = NomadFacet.remotes.selector;
     nomadFacetSelectors[2] = NomadFacet.routedTransfers.selector;
