@@ -4,7 +4,6 @@ import { Pool } from "pg";
 import { getContext } from "../../shared";
 
 import {
-  getLatestNonce,
   getTransfersByStatus,
   saveTransfers,
   saveRouterBalances,
@@ -15,7 +14,6 @@ import {
 
 export type Database = {
   saveTransfers: (xtransfers: XTransfer[], _pool?: Pool) => Promise<void>;
-  getLatestNonce: (domain: string, _pool?: Pool) => Promise<number>;
   getTransfersByStatus: (
     status: XTransferStatus,
     limit: number,
@@ -44,7 +42,6 @@ export const getDatabase = async (): Promise<Database> => {
   }
 
   return {
-    getLatestNonce,
     saveTransfers,
     getTransfersByStatus,
     saveRouterBalances,

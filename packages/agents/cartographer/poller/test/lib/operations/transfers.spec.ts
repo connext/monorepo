@@ -92,8 +92,6 @@ describe("Backend operations", () => {
   beforeEach(() => {
     const saveTransfersStub = stub(dbClient, "saveTransfers");
     saveTransfersStub.resolves();
-    const getLatestNonceStub = stub(dbClient, "getLatestNonce");
-    getLatestNonceStub.resolves(10);
     const getTransfersByStatusStub = stub(dbClient, "getTransfersByStatus");
     getTransfersByStatusStub.onFirstCall().resolves(mockSubgraphResponse);
     getTransfersByStatusStub.onSecondCall().resolves(mockSubgraphResponse);
@@ -119,7 +117,6 @@ describe("Backend operations", () => {
         }),
         database: {
           saveTransfers: dbClient.saveTransfers,
-          getLatestNonce: dbClient.getLatestNonce,
           getTransfersByStatus: dbClient.getTransfersByStatus,
           saveRouterBalances: dbClient.saveRouterBalances,
           getLatestXCallTimestamp: dbClient.getLatestXCallTimestamp,
