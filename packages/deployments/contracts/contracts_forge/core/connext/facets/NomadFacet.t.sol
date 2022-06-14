@@ -304,7 +304,7 @@ contract NomadFacetTest is NomadFacet, FacetHelper {
 
     if (shouldSucceed) {
       assertEq(this.reconciledTransfers(transferId), true);
-      address[] memory routers = this.routedTransfers(transferId);
+      address[] memory routers = s.routedTransfers[transferId];
       if (routers.length > 0) {
         uint256 routerAmt;
         if (init.total > 0 && repayment.aaveReturns) {

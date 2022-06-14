@@ -145,6 +145,14 @@ contract BridgeFacet is BaseConnextFacet {
     return s.relayerFees[_transferId];
   }
 
+  function routedTransfers(bytes32 _transferId) public view returns (address[] memory) {
+    return s.routedTransfers[_transferId];
+  }
+
+  function reconciledTransfers(bytes32 _transferId) public view returns (bool) {
+    return s.reconciledTransfers[_transferId];
+  }
+
   function domain() public view returns (uint256) {
     return s.domain;
   }
