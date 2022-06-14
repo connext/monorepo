@@ -286,6 +286,7 @@ contract ProposedOwnableFacet is BaseConnextFacet, IProposedOwnable {
 
   function _setOwner(address newOwner) private {
     s._proposedOwnershipTimestamp = 0;
+    s._proposed = address(0);
     LibDiamond.setContractOwner(newOwner);
   }
 
