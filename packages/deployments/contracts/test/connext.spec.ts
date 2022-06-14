@@ -104,6 +104,7 @@ describe("Connext", () => {
   let local: TestERC20;
   let weth: WETH;
   let bridgeFacet: BridgeFacet;
+  let nomadFacet: NomadFacet;
   let assetFacet: AssetFacet;
   let routersFacet: RoutersFacet;
   let portalFacet: PortalFacet;
@@ -179,7 +180,7 @@ describe("Connext", () => {
     bridgeFacet = await deployContract<BridgeFacet>("BridgeFacet");
     routersFacet = await deployContract<RoutersFacet>("RoutersFacet");
     portalFacet = await deployContract<PortalFacet>("PortalFacet");
-    const nomadFacet = await deployContract<NomadFacet>("NomadFacet");
+    nomadFacet = await deployContract<NomadFacet>("NomadFacet");
     const proposedOwnableFacet = await deployContract<ProposedOwnableFacet>("ProposedOwnableFacet");
     const relayerFacet = await deployContract<RelayerFacet>("RelayerFacet");
     const stableSwapFacet = await deployContract<StableSwapFacet>("StableSwapFacet");
@@ -1262,7 +1263,7 @@ describe("Connext", () => {
       message = originBridgeEvent.args.message;
       bridgedAmount = originBridgeEvent.args.args.bridgedAmt;
 
-      reconciledTopics = bridgeFacet.filters.Reconciled().topics as string[];
+      reconciledTopics = nomadFacet.filters.Reconciled().topics as string[];
     });
 
     const routerScenarios = [[router], [router, router2], [router, router2, router3]];
@@ -1325,7 +1326,7 @@ describe("Connext", () => {
           .handle(originDomain, 0, addressToBytes32(originBridge.address), message);
 
         const reconcileReceipt = await reconcile.wait();
-        const reconciledEvent = bridgeFacet.interface.parseLog(
+        const reconciledEvent = nomadFacet.interface.parseLog(
           reconcileReceipt.logs.find((l) => l.topics.includes(reconciledTopics[0]))!,
         );
 
