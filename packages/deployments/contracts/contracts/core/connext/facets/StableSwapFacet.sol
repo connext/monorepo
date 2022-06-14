@@ -230,7 +230,7 @@ contract StableSwapFacet is BaseConnextFacet {
     uint256 minDy,
     uint256 deadline
   ) external nonReentrant deadlineCheck(deadline) whenNotPaused returns (uint256) {
-    return s.swapStorages[canonicalId].swapInternal(tokenIndexFrom, tokenIndexTo, dx, minDy);
+    return s.swapStorages[canonicalId].swap(tokenIndexFrom, tokenIndexTo, dx, minDy);
   }
 
   /**
@@ -249,7 +249,7 @@ contract StableSwapFacet is BaseConnextFacet {
     uint256 deadline
   ) external payable nonReentrant deadlineCheck(deadline) whenNotPaused returns (uint256) {
     return
-      s.swapStorages[canonicalId].swapInternal(
+      s.swapStorages[canonicalId].swap(
         getSwapTokenIndex(canonicalId, assetIn),
         getSwapTokenIndex(canonicalId, assetOut),
         amountIn,
@@ -273,7 +273,7 @@ contract StableSwapFacet is BaseConnextFacet {
     uint256 deadline
   ) external payable nonReentrant deadlineCheck(deadline) whenNotPaused returns (uint256) {
     return
-      s.swapStorages[canonicalId].swapInternalOut(
+      s.swapStorages[canonicalId].swapOut(
         getSwapTokenIndex(canonicalId, assetIn),
         getSwapTokenIndex(canonicalId, assetOut),
         amountOut,
