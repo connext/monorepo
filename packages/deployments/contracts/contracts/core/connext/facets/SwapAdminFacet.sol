@@ -39,6 +39,53 @@ contract SwapAdminFacet is BaseConnextFacet {
 
   // ============ Events ============
 
+  /**
+   * @notice Emitted when the owner calls `initializeSwap`
+   * @param canonicalId - Identifier for asset
+   * @param swap - The swap that was initialized
+   * @param caller - The caller of the function
+   */
+  event SwapInitialized(bytes32 indexed canonicalId, SwapUtils.Swap swap, address caller);
+
+  /**
+   * @notice Emitted when the owner withdraws admin fees
+   * @param canonicalId - Identifier for asset
+   * @param caller - The caller of the function
+   */
+  event AdminFeesWithdrawn(bytes32 indexed canonicalId, address caller);
+
+  /**
+   * @notice Emitted when the owner sets admin fees
+   * @param canonicalId - Identifier for asset
+   * @param newAdminFee - The updated fee
+   * @param caller - The caller of the function
+   */
+  event AdminFeesSet(bytes32 indexed canonicalId, uint256 newAdminFee, address caller);
+
+  /**
+   * @notice Emitted when the owner sets swap fees
+   * @param canonicalId - Identifier for asset
+   * @param newSwapFee - The updated fee
+   * @param caller - The caller of the function
+   */
+  event SwapFeesSet(bytes32 indexed canonicalId, uint256 newSwapFee, address caller);
+
+  /**
+   * @notice Emitted when the owner starts ramping up or down the A parameter
+   * @param canonicalId - Identifier for asset
+   * @param futureA - The final A value after ramp
+   * @param futureTime - The time A should reach the final value
+   * @param caller - The caller of the function
+   */
+  event RampAStarted(bytes32 indexed canonicalId, uint256 futureA, uint256 futureTime, address caller);
+
+  /**
+   * @notice Emitted when the owner stops ramping up or down the A parameter
+   * @param canonicalId - Identifier for asset
+   * @param caller - The caller of the function
+   */
+  event RampAStopped(bytes32 indexed canonicalId, address caller);
+
   // ============ External: Getters ============
 
   /*** StableSwap ADMIN FUNCTIONS ***/
@@ -107,7 +154,7 @@ contract SwapAdminFacet is BaseConnextFacet {
     if (!lpToken.initialize(lpTokenName, lpTokenSymbol)) revert SwapAdminFacet__initializeSwap_failedInitLpTokenClone();
 
     // Initialize swapStorage struct
-    s.swapStorages[_canonicalId] = SwapUtils.Swap({
+    SwapUtils.Swap memory entry = SwapUtils.Swap({
       initialA: _a * AmplificationUtils.A_PRECISION,
       futureA: _a * AmplificationUtils.A_PRECISION,
       swapFee: _fee,
@@ -120,6 +167,8 @@ contract SwapAdminFacet is BaseConnextFacet {
       initialATime: 0,
       futureATime: 0
     });
+    s.swapStorages[_canonicalId] = entry;
+    emit SwapInitialized(_canonicalId, entry, msg.sender);
   }
 
   /**
@@ -128,6 +177,7 @@ contract SwapAdminFacet is BaseConnextFacet {
    */
   function withdrawSwapAdminFees(bytes32 canonicalId) external onlyOwner {
     s.swapStorages[canonicalId].withdrawAdminFees(msg.sender);
+    emit AdminFeesWithdrawn(canonicalId, msg.sender);
   }
 
   /**
@@ -137,6 +187,7 @@ contract SwapAdminFacet is BaseConnextFacet {
    */
   function setSwapAdminFee(bytes32 canonicalId, uint256 newAdminFee) external onlyOwner {
     s.swapStorages[canonicalId].setAdminFee(newAdminFee);
+    emit AdminFeesSet(canonicalId, newAdminFee, msg.sender);
   }
 
   /**
@@ -146,6 +197,7 @@ contract SwapAdminFacet is BaseConnextFacet {
    */
   function setSwapFee(bytes32 canonicalId, uint256 newSwapFee) external onlyOwner {
     s.swapStorages[canonicalId].setSwapFee(newSwapFee);
+    emit SwapFeesSet(canonicalId, newSwapFee, msg.sender);
   }
 
   /**
@@ -162,6 +214,7 @@ contract SwapAdminFacet is BaseConnextFacet {
     uint256 futureTime
   ) external onlyOwner {
     s.swapStorages[canonicalId].rampA(futureA, futureTime);
+    emit RampAStarted(canonicalId, futureA, futureTime, msg.sender);
   }
 
   /**
@@ -170,5 +223,6 @@ contract SwapAdminFacet is BaseConnextFacet {
    */
   function stopRampA(bytes32 canonicalId) external onlyOwner {
     s.swapStorages[canonicalId].stopRampA();
+    emit RampAStopped(canonicalId, msg.sender);
   }
 }
