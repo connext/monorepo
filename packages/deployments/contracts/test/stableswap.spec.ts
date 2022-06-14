@@ -14,7 +14,14 @@ import {
 import { solidity } from "ethereum-waffle";
 import { ethers, waffle } from "hardhat";
 
-import { TestERC20, LPToken, StableSwap, SwapUtils, AmplificationUtils, TestStableSwap } from "../typechain-types";
+import {
+  TestERC20,
+  LPToken,
+  StableSwap,
+  SwapUtilsExternal,
+  AmplificationUtilsExternal,
+  TestStableSwap,
+} from "../typechain-types";
 import chai from "chai";
 
 chai.use(solidity);
@@ -24,8 +31,8 @@ describe("StableSwap", async () => {
   let signers: Array<Signer>;
   let swap: StableSwap;
   let testStableSwap: TestStableSwap;
-  let swapUtils: SwapUtils;
-  let amplificationUtils: AmplificationUtils;
+  let swapUtils: SwapUtilsExternal;
+  let amplificationUtils: AmplificationUtilsExternal;
   let firstToken: TestERC20;
   let secondToken: TestERC20;
   let swapToken: LPToken;
@@ -84,19 +91,19 @@ describe("StableSwap", async () => {
     // swap = await ethers.getContract("Swap");
 
     const amplificationUtilsFactory = await ethers.getContractFactory(
-      "contracts/core/connext/libraries/AmplificationUtils.sol:AmplificationUtils",
+      "contracts/core/connext/libraries/AmplificationUtilsExternal.sol:AmplificationUtilsExternal",
     );
-    amplificationUtils = (await amplificationUtilsFactory.deploy()) as AmplificationUtils;
+    amplificationUtils = (await amplificationUtilsFactory.deploy()) as AmplificationUtilsExternal;
 
     const swapUtilsFactory = await ethers.getContractFactory(
-      "contracts/core/connext/libraries/SwapUtils.sol:SwapUtils",
+      "contracts/core/connext/libraries/SwapUtilsExternal.sol:SwapUtilsExternal",
     );
-    swapUtils = (await swapUtilsFactory.deploy()) as SwapUtils;
+    swapUtils = (await swapUtilsFactory.deploy()) as SwapUtilsExternal;
 
     const swapFactory = await ethers.getContractFactory("StableSwap", {
       libraries: {
-        // SwapUtils: swapUtils.address,
-        // AmplificationUtils: amplificationUtils.address,
+        SwapUtilsExternal: swapUtils.address,
+        AmplificationUtilsExternal: amplificationUtils.address,
       },
     });
     swap = (await swapFactory.deploy()) as StableSwap;

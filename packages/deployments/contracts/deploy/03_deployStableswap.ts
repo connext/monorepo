@@ -42,24 +42,24 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   /////////////////////////////////////////////////////////////////////////////////
   ////  AmplificationUtils
   /////////////////////////////////////////////////////////////////////////////////
-  // const amplificationUtilsName = getDeploymentName("AmplificationUtils");
-  // const amplificationUtilsDeployment = await deployments.deploy(amplificationUtilsName, {
-  //   from: deployer.address,
-  //   log: true,
-  //   skipIfAlreadyDeployed: true,
-  //   contract: "AmplificationUtils",
-  // });
+  const amplificationUtilsName = getDeploymentName("AmplificationUtilsExternal");
+  const amplificationUtilsDeployment = await deployments.deploy(amplificationUtilsName, {
+    from: deployer.address,
+    log: true,
+    skipIfAlreadyDeployed: true,
+    contract: "AmplificationUtilsExternal",
+  });
 
   /////////////////////////////////////////////////////////////////////////////////
   ////  SwapUtils
   /////////////////////////////////////////////////////////////////////////////////
-  // const swapUtilsName = getDeploymentName("SwapUtils");
-  // const swapUtilsDeployment = await deployments.deploy(swapUtilsName, {
-  //   from: deployer.address,
-  //   log: true,
-  //   skipIfAlreadyDeployed: true,
-  //   contract: "SwapUtils",
-  // });
+  const swapUtilsName = getDeploymentName("SwapUtilsExternal");
+  const swapUtilsDeployment = await deployments.deploy(swapUtilsName, {
+    from: deployer.address,
+    log: true,
+    skipIfAlreadyDeployed: true,
+    contract: "SwapUtilsExternal",
+  });
 
   /////////////////////////////////////////////////////////////////////////////////
   ////  StableSwap
@@ -69,6 +69,10 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
     from: deployer.address,
     log: true,
     skipIfAlreadyDeployed: true,
+    libraries: {
+      SwapUtilsExternal: swapUtilsDeployment.address,
+      AmplificationUtilsExternal: amplificationUtilsDeployment.address,
+    },
     contract: "StableSwap",
   });
 };

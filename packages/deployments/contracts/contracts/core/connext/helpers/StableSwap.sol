@@ -6,7 +6,7 @@ import {Clones} from "@openzeppelin/contracts/proxy/Clones.sol";
 import {ReentrancyGuardUpgradeable} from "@openzeppelin/contracts-upgradeable/security/ReentrancyGuardUpgradeable.sol";
 
 import {IStableSwap} from "../interfaces/IStableSwap.sol";
-import {AmplificationUtils, SwapUtils} from "../libraries/AmplificationUtils.sol";
+import {AmplificationUtilsExternal, SwapUtilsExternal} from "../libraries/AmplificationUtilsExternal.sol";
 
 import {OwnerPausableUpgradeable} from "./OwnerPausableUpgradeable.sol";
 import {LPToken} from "./LPToken.sol";
@@ -25,17 +25,17 @@ import {LPToken} from "./LPToken.sol";
  * stops the ratio of the tokens in the pool from changing.
  * Users can always withdraw their tokens via multi-asset withdraws.
  *
- * @dev Most of the logic is stored as a library `SwapUtils` for the sake of reducing contract's
+ * @dev Most of the logic is stored as a library `SwapUtilsExternal` for the sake of reducing contract's
  * deployment size.
  */
 contract StableSwap is IStableSwap, OwnerPausableUpgradeable, ReentrancyGuardUpgradeable {
   using SafeERC20 for IERC20;
-  using SwapUtils for SwapUtils.Swap;
-  using AmplificationUtils for SwapUtils.Swap;
+  using SwapUtilsExternal for SwapUtilsExternal.Swap;
+  using AmplificationUtilsExternal for SwapUtilsExternal.Swap;
 
   // Struct storing data responsible for automatic market maker functionalities. In order to
-  // access this data, this contract uses SwapUtils library. For more details, see SwapUtils.sol
-  SwapUtils.Swap public swapStorage;
+  // access this data, this contract uses SwapUtilsExternal library. For more details, see SwapUtilsExternal.sol
+  SwapUtilsExternal.Swap public swapStorage;
 
   // Maps token address to an index in the pool. Used to prevent duplicate tokens in the pool.
   // getTokenIndex function also relies on this mapping to retrieve token index.
@@ -87,15 +87,15 @@ contract StableSwap is IStableSwap, OwnerPausableUpgradeable, ReentrancyGuardUpg
         );
       }
       require(address(_pooledTokens[i]) != address(0), "The 0 address isn't an ERC-20");
-      require(decimals[i] <= SwapUtils.POOL_PRECISION_DECIMALS, "Token decimals exceeds max");
-      precisionMultipliers[i] = 10**uint256(SwapUtils.POOL_PRECISION_DECIMALS - decimals[i]);
+      require(decimals[i] <= SwapUtilsExternal.POOL_PRECISION_DECIMALS, "Token decimals exceeds max");
+      precisionMultipliers[i] = 10**uint256(SwapUtilsExternal.POOL_PRECISION_DECIMALS - decimals[i]);
       tokenIndexes[address(_pooledTokens[i])] = i;
     }
 
     // Check _a, _fee, _adminFee, _withdrawFee parameters
-    require(_a < AmplificationUtils.MAX_A, "_a exceeds maximum");
-    require(_fee < SwapUtils.MAX_SWAP_FEE, "_fee exceeds maximum");
-    require(_adminFee < SwapUtils.MAX_ADMIN_FEE, "_adminFee exceeds maximum");
+    require(_a < AmplificationUtilsExternal.MAX_A, "_a exceeds maximum");
+    require(_fee < SwapUtilsExternal.MAX_SWAP_FEE, "_fee exceeds maximum");
+    require(_adminFee < SwapUtilsExternal.MAX_ADMIN_FEE, "_adminFee exceeds maximum");
 
     // Initialize a LPToken contract
     LPToken lpToken = LPToken(Clones.clone(lpTokenTargetAddress));
@@ -107,8 +107,8 @@ contract StableSwap is IStableSwap, OwnerPausableUpgradeable, ReentrancyGuardUpg
     swapStorage.tokenPrecisionMultipliers = precisionMultipliers;
     swapStorage.balances = new uint256[](_pooledTokens.length);
     swapStorage.adminFees = new uint256[](_pooledTokens.length);
-    swapStorage.initialA = _a * AmplificationUtils.A_PRECISION;
-    swapStorage.futureA = _a * AmplificationUtils.A_PRECISION;
+    swapStorage.initialA = _a * AmplificationUtilsExternal.A_PRECISION;
+    swapStorage.futureA = _a * AmplificationUtilsExternal.A_PRECISION;
     // swapStorage.initialATime = 0;
     // swapStorage.futureATime = 0;
     swapStorage.swapFee = _fee;
