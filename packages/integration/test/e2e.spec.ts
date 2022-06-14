@@ -1,4 +1,5 @@
 import { createRequestContext, Logger } from "@connext/nxtp-utils";
+import { ConnextHandlerAbi } from "@connext/nxtp-contracts";
 import { TransactionService } from "@connext/nxtp-txservice";
 import { NxtpSdkBase } from "@connext/nxtp-sdk";
 import { constants, utils, Wallet } from "ethers";
@@ -67,14 +68,14 @@ describe("e2e", () => {
     logger.info("Enrolled custom");
 
     logger.info("Setting up router...");
-    await setupRouter(
-      "0x627306090abaB3A6e1400e9345bC60c78a8BEf57",
-      [
-        { ConnextHandler: "0x8273e4B8ED6c78e252a9fCa5563Adfcc75C91b2A", domain: "1337" },
-        { ConnextHandler: "0x8273e4B8ED6c78e252a9fCa5563Adfcc75C91b2A", domain: "1338" },
-      ],
-      txService,
-    );
+    // await setupRouter(
+    //   "0x627306090abaB3A6e1400e9345bC60c78a8BEf57",
+    //   [
+    //     { ConnextHandler: "0x8273e4B8ED6c78e252a9fCa5563Adfcc75C91b2A", domain: "1337" },
+    //     { ConnextHandler: "0x8273e4B8ED6c78e252a9fCa5563Adfcc75C91b2A", domain: "1338" },
+    //   ],
+    //   txService,
+    // );
     logger.info("Set up router");
 
     logger.info("Setting up assets...");
@@ -122,7 +123,7 @@ describe("e2e", () => {
   });
 
   it.only("sends a simple transfer with fast path", async () => {
-    await sdk.xcall({
+    const tx = await sdk.xcall({
       amount: "1",
       params: {
         originDomain: "1337",
@@ -137,6 +138,18 @@ describe("e2e", () => {
       },
       relayerFee: "1",
       transactingAssetId: "0x8e4C131B37383E431B9cd0635D3cF9f3F628EDae",
+    });
+
+    const receipt = await txService.sendTx(
+      { to: tx.to!, value: tx.value ?? 0, data: utils.hexlify(tx.data!), chainId: 1337 },
+      requestContext,
+    );
+
+    receipt.logs.forEach((log, index) => {
+      try {
+        const l = new utils.Interface(ConnextHandlerAbi as string[]).parseLog(log);
+        console.log(`log at index ${index}: `, l);
+      } catch (e: unknown) {}
     });
   });
 });

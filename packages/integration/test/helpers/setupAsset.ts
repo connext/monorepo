@@ -1,5 +1,5 @@
 import { createRequestContext } from "@connext/nxtp-utils";
-import { canonizeId, ConnextHandlerAbi } from "@connext/nxtp-contracts";
+import { canonizeId, ConnextHandlerInterface } from "@connext/nxtp-contracts";
 import { constants, utils } from "ethers";
 import { TransactionService } from "@connext/nxtp-txservice";
 
@@ -11,11 +11,22 @@ export const setupAsset = async (
   const requestContext = createRequestContext(setupAsset.name);
   const canonicalId = utils.hexlify(canonizeId(canonical.tokenAddress));
   for (const domain of domains) {
-    const data = new utils.Interface(ConnextHandlerAbi as string[]).encodeFunctionData("setupAsset", [
-      canonicalId,
-      domain.adopted,
-      domain.pool ?? constants.AddressZero,
-    ]);
-    await txService.sendTx({ to: domain.ConnextHandler, data, value: 0, chainId: +domain }, requestContext);
+    const readData = ConnextHandlerInterface.encodeFunctionData("canonicalToAdopted", [canonicalId]);
+    const adopted = await txService.readTx({ chainId: +domain.domain, data: readData, to: domain.ConnextHandler });
+    console.log("adopted: ", adopted);
+    console.log("domain.adopted: ", domain.adopted);
+    console.log("domain.domain: ", domain.domain);
+    console.log("canonicalId: ", canonicalId);
+    console.log("domain.pool: ", domain.pool ?? constants.AddressZero);
+    if (adopted !== domain.adopted) {
+      const data = ConnextHandlerInterface.encodeFunctionData("setupAsset", [
+        { domain: +domain.domain, id: canonicalId },
+        domain.adopted,
+        domain.pool ?? constants.AddressZero,
+      ]);
+
+      console.log("data: ", data);
+      await txService.sendTx({ to: domain.ConnextHandler, data, value: 0, chainId: +domain.domain }, requestContext);
+    }
   }
 };

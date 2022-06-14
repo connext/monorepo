@@ -1,4 +1,4 @@
-import { canonizeId, TokenRegistryAbi } from "@connext/nxtp-contracts";
+import { canonizeId, TokenRegistryInterface } from "@connext/nxtp-contracts";
 import { TransactionService } from "@connext/nxtp-txservice";
 import { createRequestContext } from "@connext/nxtp-utils";
 import { utils } from "ethers";
@@ -10,15 +10,21 @@ export const enrollCustom = async (
 ) => {
   const requestContext = createRequestContext(enrollCustom.name);
   const canonicalId = utils.hexlify(canonizeId(canonicalToken.tokenAddress));
-  const tokenRegistry = new utils.Interface(TokenRegistryAbi as string[]);
   await Promise.all(
     otherTokens.map(async (token) => {
-      const data = tokenRegistry.encodeFunctionData("enrollCustom", [
-        canonicalToken.domain,
+      const readData = TokenRegistryInterface.encodeFunctionData("getLocalAddress(uint32,bytes32)", [
+        +canonicalToken.domain,
         canonicalId,
-        token.tokenAddress,
       ]);
-      await txService.sendTx({ to: token.TokenRegistry, data, value: 0, chainId: +token.domain }, requestContext);
+      const registered = await txService.readTx({ chainId: +token.domain, data: readData, to: token.TokenRegistry });
+      if (registered !== token.tokenAddress) {
+        const data = TokenRegistryInterface.encodeFunctionData("enrollCustom", [
+          canonicalToken.domain,
+          canonicalId,
+          token.tokenAddress,
+        ]);
+        await txService.sendTx({ to: token.TokenRegistry, data, value: 0, chainId: +token.domain }, requestContext);
+      }
     }),
   );
 };

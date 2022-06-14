@@ -1,6 +1,5 @@
 import { createRequestContext } from "@connext/nxtp-utils";
-import { ConnextHandlerAbi } from "@connext/nxtp-contracts";
-import { utils } from "ethers";
+import { ConnextHandlerInterface } from "@connext/nxtp-contracts";
 import { TransactionService } from "@connext/nxtp-txservice";
 
 export const setupRouter = async (
@@ -9,12 +8,29 @@ export const setupRouter = async (
   txService: TransactionService,
 ) => {
   const requestContext = createRequestContext(setupRouter.name);
-  const data = new utils.Interface(ConnextHandlerAbi as string[]).encodeFunctionData("setupRouter", [
-    routerAddress,
-    routerAddress,
-    routerAddress,
-  ]);
+  const data = ConnextHandlerInterface.encodeFunctionData("setupRouter", [routerAddress, routerAddress, routerAddress]);
   for (const domain of domains) {
-    await txService.sendTx({ to: domain.ConnextHandler, data, value: 0, chainId: +domain }, requestContext);
+    console.log("domain: ", domain);
+    let readData = ConnextHandlerInterface.encodeFunctionData("getRouterApproval", [routerAddress]);
+    const approved = await txService.readTx({
+      chainId: +domain.domain,
+      data: readData,
+      to: domain.ConnextHandler,
+    });
+    readData = ConnextHandlerInterface.encodeFunctionData("getRouterOwner", [routerAddress]);
+    const owner = await txService.readTx({
+      chainId: +domain.domain,
+      data: readData,
+      to: domain.ConnextHandler,
+    });
+    readData = ConnextHandlerInterface.encodeFunctionData("getRouterRecipient", [routerAddress]);
+    const recipient = await txService.readTx({
+      chainId: +domain.domain,
+      data: readData,
+      to: domain.ConnextHandler,
+    });
+    if (!approved || owner !== routerAddress || recipient !== routerAddress) {
+      await txService.sendTx({ to: domain.ConnextHandler, data, value: 0, chainId: +domain.domain }, requestContext);
+    }
   }
 };
