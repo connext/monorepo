@@ -24,6 +24,7 @@ export const TChainConfig = Type.Object({
     Type.Object({
       connext: TAddress,
       stableSwap: Type.Optional(TAddress),
+      stableSwapFacet: Type.Optional(TAddress),
     }),
   ),
 });
@@ -50,6 +51,7 @@ export const TValidationChainConfig = Type.Object({
   deployments: Type.Object({
     connext: TAddress,
     stableSwap: Type.Optional(TAddress),
+    stableSwapFacet: Type.Optional(TAddress),
   }),
 });
 

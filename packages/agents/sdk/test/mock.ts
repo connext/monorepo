@@ -23,6 +23,7 @@ export const mock = {
         deployments: {
           connext: mkAddress("0xabcdef123"),
           stableSwap: mkAddress("0xabcdef123"),
+          stableSwapFacet: mkAddress("0xabcdef123"),
         },
         gasStations: [],
       },
@@ -33,6 +34,7 @@ export const mock = {
         deployments: {
           connext: mkAddress("0xabcdef123"),
           stableSwap: mkAddress("0xabcdef123"),
+          stableSwapFacet: mkAddress("0xabcdef123"),
         },
         gasStations: [],
       },
@@ -58,6 +60,10 @@ export const mock = {
       stableSwap.encodeFunctionData.returns(encodedDataMock);
       stableSwap.decodeFunctionResult.returns([BigNumber.from(1000)]);
 
+      const stableSwapFacet = createStubInstance(utils.Interface);
+      stableSwapFacet.encodeFunctionData.returns(encodedDataMock);
+      stableSwapFacet.decodeFunctionResult.returns([BigNumber.from(1000)]);
+
       const erc20 = createStubInstance(utils.Interface);
       erc20.encodeFunctionData.returns(encodedDataMock);
       erc20.decodeFunctionResult.returns([BigNumber.from(1000)]);
@@ -68,6 +74,7 @@ export const mock = {
         priceOracle: priceOracle as unknown as ConnextContractInterfaces["priceOracle"],
         tokenRegistry: tokenRegistry as unknown as ConnextContractInterfaces["tokenRegistry"],
         stableSwap: stableSwap as unknown as ConnextContractInterfaces["stableSwap"],
+        stableSwapFacet: stableSwapFacet as unknown as ConnextContractInterfaces["stableSwapFacet"],
       };
     },
     deployments: (): ConnextContractDeployments => {
