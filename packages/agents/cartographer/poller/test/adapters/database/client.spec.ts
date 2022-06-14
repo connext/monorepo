@@ -16,9 +16,9 @@ import { utils } from "ethers";
 import {
   getTransferByTransferId,
   getTransfersByStatus,
-  getLatestNonce,
   saveTransfers,
   saveRouterBalances,
+  getLatestXCallTimestamp,
   getLatestExecuteTimestamp,
   getLatestReconcileTimestamp,
 } from "../../../src/adapters/database/client";
@@ -173,11 +173,6 @@ describe("Database client", () => {
     expect(statusTransfers.length).equal(0);
   });
 
-  it("should get latest nonce of new or unkonwn chain", async () => {
-    const nonce = await getLatestNonce("unknown_chain", pool);
-    expect(nonce).equal(0);
-  });
-
   it("should save single transfer", async () => {
     const xTransfer = mock.entity.xtransfer({ status: XTransferStatus.Executed });
     await saveTransfers([xTransfer], pool);
@@ -202,6 +197,43 @@ describe("Database client", () => {
     const dbTransfer = await getTransferByTransferId(xTransfer.transferId, pool);
     expect(dbTransfer.destination.status).equal(XTransferStatus.CompletedFast);
     expect(dbTransfer.transferId).equal(xTransfer.transferId);
+  });
+
+  it("should upsert origin and then destination side transfer", async () => {
+    const xTransfer = mock.entity.xtransfer({ status: XTransferStatus.XCalled });
+    const xcall_timestamp = xTransfer.origin.xcall.timestamp;
+    xTransfer.destination = undefined;
+    const origin = xTransfer.origin;
+    await saveTransfers([xTransfer], pool);
+    const xTransferDestination = mock.entity.xtransfer({ status: XTransferStatus.CompletedFast });
+    xTransfer.destination = xTransferDestination.destination;
+    xTransfer.origin = undefined;
+    const reconcile_timestamp = xTransfer.destination.reconcile.timestamp;
+    await saveTransfers([xTransfer], pool);
+    const dbTransfer = await getTransferByTransferId(xTransfer.transferId, pool);
+    expect(dbTransfer.destination.status).equal(XTransferStatus.CompletedFast);
+    expect(dbTransfer.origin?.xcall.timestamp).equal(xcall_timestamp);
+    expect(dbTransfer?.destination?.reconcile?.timestamp).deep.equal(reconcile_timestamp);
+    expect(dbTransfer.transferId).equal(xTransfer.transferId);
+    expect(dbTransfer?.origin).deep.equal(origin);
+  });
+
+  it("should upsert destination and then origin side transfer", async () => {
+    const xTransfer = mock.entity.xtransfer({ status: XTransferStatus.CompletedFast });
+    const origin = xTransfer.origin;
+    xTransfer.origin = undefined;
+    const reconcile_timestamp = xTransfer.destination.reconcile.timestamp;
+    await saveTransfers([xTransfer], pool);
+    xTransfer.origin = origin;
+    xTransfer.destination = undefined;
+    const xcall_timestamp = xTransfer.origin.xcall.timestamp;
+    await saveTransfers([xTransfer], pool);
+    const dbTransfer = await getTransferByTransferId(xTransfer.transferId, pool);
+    expect(dbTransfer.destination.status).equal(XTransferStatus.CompletedFast);
+    expect(dbTransfer.origin?.xcall.timestamp).equal(xcall_timestamp);
+    expect(dbTransfer?.destination?.reconcile?.timestamp).deep.equal(reconcile_timestamp);
+    expect(dbTransfer.transferId).equal(xTransfer.transferId);
+    expect(dbTransfer?.origin).deep.equal(origin);
   });
 
   it("should save multiple transfers", async () => {
@@ -311,13 +343,6 @@ describe("Database client", () => {
     expect(dbTransfer.xparams.receiveLocal).equal(false);
   });
 
-  it("should get latest nonce", async () => {
-    const xTransfer = mock.entity.xtransfer();
-    await saveTransfers([xTransfer], pool);
-    const nonce = await getLatestNonce("1337", pool);
-    expect(nonce).equal(1234);
-  });
-
   it("should set a router balance", async () => {
     const routerBalances: RouterBalance[] = [
       {
@@ -409,6 +434,18 @@ describe("Database client", () => {
     expect(rb).to.deep.eq(routerBalances);
   });
 
+  it("should get latest xcall timestamp", async () => {
+    const xTransfer1: XTransfer = mock.entity.xtransfer({ status: XTransferStatus.XCalled });
+    xTransfer1.origin.xcall.timestamp = 1;
+    const xTransfer2: XTransfer = mock.entity.xtransfer({ status: XTransferStatus.XCalled });
+    xTransfer2.origin.xcall.timestamp = 2;
+    const xTransfer3: XTransfer = mock.entity.xtransfer({ status: XTransferStatus.XCalled });
+    xTransfer3.origin.xcall.timestamp = 3;
+    await saveTransfers([xTransfer1, xTransfer2, xTransfer3], pool);
+    const timestamp = await getLatestXCallTimestamp(xTransfer1.originDomain, pool);
+    expect(timestamp).equal(3);
+  });
+
   it("should get latest execute timestamp", async () => {
     const xTransfer1: XTransfer = mock.entity.xtransfer({ status: XTransferStatus.Executed });
     xTransfer1.destination.execute.timestamp = 1;
@@ -433,10 +470,10 @@ describe("Database client", () => {
     expect(timestamp).equal(3);
   });
 
-  it("should get latest nonce when no data", async () => {
-    const xTransfer1: XTransfer = mock.entity.xtransfer({ status: XTransferStatus.Executed });
-    const nonce = await getLatestNonce(xTransfer1.destinationDomain, pool);
-    expect(nonce).equal(0);
+  it("should get latest xcall timestamp when no data", async () => {
+    const xTransfer1: XTransfer = mock.entity.xtransfer({ status: XTransferStatus.XCalled });
+    const timestamp = await getLatestXCallTimestamp(xTransfer1.originDomain, pool);
+    expect(timestamp).equal(0);
   });
 
   it("should get latest execute timestamp when no data", async () => {

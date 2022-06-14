@@ -277,6 +277,56 @@ export const getOriginTransfersQuery = (agents: Map<string, SubgraphQueryMetaPar
   `;
 };
 
+const originByXCalledTimestampQueryString = (
+  prefix: string,
+  originDomain: string,
+  fromTimestamp: number,
+  destinationDomains: string[],
+  maxBlockNumber?: number,
+  orderDirection: "asc" | "desc" = "desc",
+) => {
+  return `${prefix}_originTransfers(
+    where: {
+      originDomain: ${originDomain},
+      timestamp_gte: ${fromTimestamp},
+      destinationDomain_in: [${destinationDomains}]
+      ${maxBlockNumber ? `, blockNumber_lte: ${maxBlockNumber}` : ""}
+    },
+    orderBy: timestamp,
+    orderDirection: ${orderDirection}
+  ) {${ORIGIN_TRANSFER_ENTITY}}`;
+};
+
+export const getOriginTransfersByXCallTimestampQuery = (
+  params: Map<string, SubgraphQueryByTimestampMetaParams>,
+): string => {
+  const { config } = getContext();
+
+  let combinedQuery = "";
+  const domains = Object.keys(config.sources);
+  for (const domain of domains) {
+    const prefix = config.sources[domain].prefix;
+    if (params.has(domain)) {
+      combinedQuery += originByXCalledTimestampQueryString(
+        prefix,
+        domain,
+        params.get(domain)!.fromTimestamp,
+        domains,
+        params.get(domain)!.maxBlockNumber,
+        params.get(domain)!.orderDirection,
+      );
+    } else {
+      console.log(`No agents for domain: ${domain}`);
+    }
+  }
+
+  return gql`
+    query GetOriginTransfersByXCallTimestamp {
+        ${combinedQuery}
+      }
+  `;
+};
+
 const destinationTransfersByExecuteTimestampQueryString = (
   prefix: string,
   fromTimestamp: number,
