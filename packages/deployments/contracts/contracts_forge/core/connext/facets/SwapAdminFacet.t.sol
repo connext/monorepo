@@ -3,12 +3,12 @@ pragma solidity 0.8.14;
 
 import {LibDiamond} from "../../../../contracts/core/connext/libraries/LibDiamond.sol";
 
-import "../../../../contracts/core/connext/facets/StableSwapFacet.sol";
-import "../../../../contracts/core/connext/facets/SwapAdminFacet.sol";
+import {StableSwapFacet} from "../../../../contracts/core/connext/facets/StableSwapFacet.sol";
+import {SwapAdminFacet} from "../../../../contracts/core/connext/facets/SwapAdminFacet.sol";
 
 import "../../../utils/FacetHelper.sol";
 
-contract SwapAdminFacetTest is FacetHelper, SwapAdminFacet, StableSwapFacet {
+contract SwapAdminFacetTest is SwapAdminFacet, FacetHelper {
   // ============ Libraries ============
   using SwapUtils for SwapUtils.Swap;
   using AmplificationUtils for SwapUtils.Swap;
