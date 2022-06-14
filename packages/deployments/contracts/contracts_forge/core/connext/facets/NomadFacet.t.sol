@@ -13,8 +13,6 @@ import {CallParams, ExecuteArgs, XCallArgs} from "../../../../contracts/core/con
 import "../../../utils/Mock.sol";
 import "../../../utils/FacetHelper.sol";
 
-import "../../../../lib/forge-std/src/console.sol";
-
 contract NomadFacetTest is NomadFacet, FacetHelper {
   // ============ Libs ============
   using TypedMemView for bytes29;
@@ -303,7 +301,7 @@ contract NomadFacetTest is NomadFacet, FacetHelper {
     this.utils_wrappedReconcile(_originDomain, message);
 
     if (shouldSucceed) {
-      assertEq(this.reconciledTransfers(transferId), true);
+      assertEq(s.reconciledTransfers[transferId], true);
       address[] memory routers = s.routedTransfers[transferId];
       if (routers.length > 0) {
         uint256 routerAmt;
