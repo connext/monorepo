@@ -88,22 +88,19 @@ contract Deployer {
     bytes4[] memory bridgeFacetSelectors = new bytes4[](15);
     // getters
     bridgeFacetSelectors[0] = BridgeFacet.relayerFees.selector;
-    bridgeFacetSelectors[1] = BridgeFacet.routedTransfers.selector;
-    bridgeFacetSelectors[2] = BridgeFacet.reconciledTransfers.selector;
-    bridgeFacetSelectors[3] = BridgeFacet.domain.selector;
-    bridgeFacetSelectors[4] = BridgeFacet.executor.selector;
-    bridgeFacetSelectors[5] = BridgeFacet.nonce.selector;
-    bridgeFacetSelectors[6] = BridgeFacet.sponsorVault.selector;
-    bridgeFacetSelectors[7] = BridgeFacet.promiseRouter.selector;
+    bridgeFacetSelectors[1] = BridgeFacet.domain.selector;
+    bridgeFacetSelectors[2] = BridgeFacet.executor.selector;
+    bridgeFacetSelectors[3] = BridgeFacet.nonce.selector;
+    bridgeFacetSelectors[4] = BridgeFacet.sponsorVault.selector;
+    bridgeFacetSelectors[5] = BridgeFacet.promiseRouter.selector;
     // admin
-    bridgeFacetSelectors[8] = BridgeFacet.setPromiseRouter.selector;
-    bridgeFacetSelectors[9] = BridgeFacet.setExecutor.selector;
-    bridgeFacetSelectors[10] = BridgeFacet.setSponsorVault.selector;
+    bridgeFacetSelectors[6] = BridgeFacet.setPromiseRouter.selector;
+    bridgeFacetSelectors[7] = BridgeFacet.setExecutor.selector;
+    bridgeFacetSelectors[8] = BridgeFacet.setSponsorVault.selector;
     // public
-    bridgeFacetSelectors[11] = BridgeFacet.xcall.selector;
-    bridgeFacetSelectors[12] = BridgeFacet.handle.selector;
-    bridgeFacetSelectors[13] = BridgeFacet.execute.selector;
-    bridgeFacetSelectors[14] = BridgeFacet.bumpTransfer.selector;
+    bridgeFacetSelectors[9] = BridgeFacet.xcall.selector;
+    bridgeFacetSelectors[11] = BridgeFacet.execute.selector;
+    bridgeFacetSelectors[12] = BridgeFacet.bumpTransfer.selector;
     return
       IDiamondCut.FacetCut({
         facetAddress: _bridgeFacet,
@@ -116,8 +113,11 @@ contract Deployer {
     bytes4[] memory nomadFacetSelectors = new bytes4[](4);
     nomadFacetSelectors[0] = NomadFacet.xAppConnectionManager.selector;
     nomadFacetSelectors[1] = NomadFacet.remotes.selector;
-    nomadFacetSelectors[2] = NomadFacet.setXAppConnectionManager.selector;
-    nomadFacetSelectors[3] = NomadFacet.enrollRemoteRouter.selector;
+    nomadFacetSelectors[2] = NomadFacet.routedTransfers.selector;
+    nomadFacetSelectors[3] = NomadFacet.reconciledTransfers.selector;
+    nomadFacetSelectors[4] = NomadFacet.setXAppConnectionManager.selector;
+    nomadFacetSelectors[5] = NomadFacet.enrollRemoteRouter.selector;
+    nomadFacetSelectors[6] = NomadFacet.handle.selector;
     return
       IDiamondCut.FacetCut({
         facetAddress: _nomadFacet,
