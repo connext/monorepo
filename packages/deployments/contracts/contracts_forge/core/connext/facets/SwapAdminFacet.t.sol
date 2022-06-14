@@ -9,6 +9,12 @@ import "../../../../contracts/core/connext/facets/SwapAdminFacet.sol";
 import "../../../utils/FacetHelper.sol";
 
 contract SwapAdminFacetTest is FacetHelper, SwapAdminFacet, StableSwapFacet {
+  // ============ Libraries ============
+  using SwapUtils for SwapUtils.Swap;
+  using AmplificationUtils for SwapUtils.Swap;
+
+  // ============ Storage ============
+
   // owner
   address _owner = address(1234);
   address _user1 = address(1);
@@ -349,7 +355,33 @@ contract SwapAdminFacetTest is FacetHelper, SwapAdminFacet, StableSwapFacet {
     uint256 adminFee = 0;
     uint256 fee = SWAP_FEE;
 
+    address token;
+
     bytes32 canonicalId = bytes32(abi.encodePacked(address(_pooledTokens[0])));
+    uint256[] memory precisionMultipliers = new uint256[](_pooledTokens.length);
+    for (uint8 i = 0; i < _pooledTokens.length; i++) {
+      precisionMultipliers[i] = 10**uint256(SwapUtils.POOL_PRECISION_DECIMALS - _decimals[i]);
+      s.tokenIndexes[_canonicalId][address(_pooledTokens[i])] = i;
+    }
+
+    vm.expectEmit(true, true, true, true);
+    emit SwapInitialized(
+      canonicalId,
+      SwapUtils.Swap({
+        initialA: a * AmplificationUtils.A_PRECISION,
+        futureA: a * AmplificationUtils.A_PRECISION,
+        swapFee: fee,
+        adminFee: adminFee,
+        lpToken: LPToken(address(0xbfFb01bB2DDb4EfA87cB78EeCB8115AFAe6d2032)),
+        pooledTokens: _pooledTokens,
+        tokenPrecisionMultipliers: precisionMultipliers,
+        balances: new uint256[](_pooledTokens.length),
+        adminFees: new uint256[](_pooledTokens.length),
+        initialATime: 0,
+        futureATime: 0
+      }),
+      _owner
+    );
 
     vm.prank(_owner);
     this.initializeSwap(
@@ -409,6 +441,9 @@ contract SwapAdminFacetTest is FacetHelper, SwapAdminFacet, StableSwapFacet {
     uint256 beforeBalance0 = IERC20(_local).balanceOf(_owner);
     uint256 beforeBalance1 = IERC20(_adopted).balanceOf(_owner);
 
+    vm.expectEmit(true, true, true, true);
+    emit AdminFeesWithdrawn(_canonicalId, _owner);
+
     this.withdrawSwapAdminFees(_canonicalId);
 
     assertEq(IERC20(_local).balanceOf(_owner), beforeBalance0 + 1001973776101);
@@ -439,6 +474,8 @@ contract SwapAdminFacetTest is FacetHelper, SwapAdminFacet, StableSwapFacet {
   function test_SwapAdminFacet__setSwapAdminFee_shouldWork() public {
     vm.startPrank(_owner);
     uint256 adminFee = SwapUtils.MAX_ADMIN_FEE;
+    vm.expectEmit(true, true, true, true);
+    emit AdminFeesSet(_canonicalId, adminFee, _owner);
     this.setSwapAdminFee(_canonicalId, adminFee);
     assertEq(this.getSwapStorage(_canonicalId).adminFee, adminFee);
     vm.stopPrank();
@@ -467,6 +504,8 @@ contract SwapAdminFacetTest is FacetHelper, SwapAdminFacet, StableSwapFacet {
   function test_SwapAdminFacet__setSwapFee_shouldWork() public {
     vm.startPrank(_owner);
     uint256 swapFee = SwapUtils.MAX_SWAP_FEE;
+    vm.expectEmit(true, true, true, true);
+    emit SwapFeesSet(_canonicalId, swapFee, _owner);
     this.setSwapFee(_canonicalId, swapFee);
     assertEq(this.getSwapStorage(_canonicalId).swapFee, swapFee);
     vm.stopPrank();
@@ -490,6 +529,9 @@ contract SwapAdminFacetTest is FacetHelper, SwapAdminFacet, StableSwapFacet {
     vm.startPrank(_owner);
 
     uint256 endTimestamp = blockTimestamp + 14 days + 1;
+
+    vm.expectEmit(true, true, true, true);
+    emit RampAStarted(_canonicalId, 100, endTimestamp, _owner);
     this.rampA(_canonicalId, 100, endTimestamp);
 
     // +0 seconds since ramp A
@@ -520,6 +562,8 @@ contract SwapAdminFacetTest is FacetHelper, SwapAdminFacet, StableSwapFacet {
     vm.startPrank(_owner);
 
     uint256 endTimestamp = blockTimestamp + 14 days + 1;
+    vm.expectEmit(true, true, true, true);
+    emit RampAStarted(_canonicalId, 25, endTimestamp, _owner);
     this.rampA(_canonicalId, 25, endTimestamp);
 
     // +0 seconds since ramp A
@@ -559,6 +603,8 @@ contract SwapAdminFacetTest is FacetHelper, SwapAdminFacet, StableSwapFacet {
 
     uint256 currentTimestmp = blockTimestamp + 100000;
     vm.warp(currentTimestmp);
+    vm.expectEmit(true, true, true, true);
+    emit RampAStopped(_canonicalId, _owner);
     this.stopRampA(_canonicalId);
 
     assertEq(this.getSwapStorage(_canonicalId).initialA, 5413);
