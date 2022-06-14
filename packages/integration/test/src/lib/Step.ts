@@ -12,10 +12,7 @@ export class Step {
     private stepResult: StepResults | undefined = undefined;
 
     constructor(initialActions: Action[]) {
-        for (const action of initialActions) {
-            this.actions.push(action);
-        }
-    
+        this.actions = initialActions;
     }
 
     private stop() {
@@ -37,22 +34,10 @@ export class Step {
     }
 
     public start() {
-        this.actions[0].init();
-        this.actions[0].do();
-        
-        // for (const a of this.actions) {
-        //     a.init();
-        //     // const emitter = a.getEEmitter();
-        //     // emitter.addListener(ActionListeners.ResultListener, (res:ResultListenerData) => {
-        //     //     //fail whole step 
-        //     //     if (res.Results) {
-        //     //         console.log(`New address ${JSON.stringify(res.Results)}`);
-        //     //         this.succeedStep();            
-        //     //     }
-                
-        //     // })
-        //     a.do();
-        // }
+        for (const a of this.actions) {
+            a.init();
+            a.do();
+        }
     }
 }
 

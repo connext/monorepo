@@ -1,3 +1,4 @@
+import { TIntegerString } from "@connext/nxtp-utils";
 import * as events from "events";
 
 export enum ActionListeners {
@@ -10,7 +11,7 @@ export type ResultListenerData = {
   Results: { msg: "Results"; data: any };
 };
 
-type CallbackFunctionVariadicAnyReturn = (data:ResultListenerData, ...args: any[]) => any;
+type CallbackFunctionVariadicAnyReturn = (data: ResultListenerData, ...args: any[]) => any;
 
 export class Action {
   private events = new events.EventEmitter();
@@ -18,16 +19,17 @@ export class Action {
 
   private isTerminal = false;
 
-
-
   protected registerResultListener(listenerCb: CallbackFunctionVariadicAnyReturn) {
-    this.events.on(ActionListeners.ResultListener, function (data: ResultListenerData) {
+    this.events.on(ActionListeners.ResultListener, (data: ResultListenerData) => {
       console.log("recieved result");
       listenerCb(data);
     });
   }
+  protected deregister() {
+    this.events.removeAllListeners();
+  }
   public emitResult(res: ResultListenerData) {
-     this.events.emit(ActionListeners.ResultListener, res);
+    this.events.emit(ActionListeners.ResultListener, res);
   }
 
   public getEEmitter(): events.EventEmitter {
