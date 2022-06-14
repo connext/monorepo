@@ -8,8 +8,9 @@ import {IConnextHandler} from "../../../../contracts/core/connext/interfaces/ICo
 import {BaseConnextFacet} from "../../../../contracts/core/connext/facets/BaseConnextFacet.sol";
 import {AddressUpgradeable} from "@openzeppelin/contracts-upgradeable/utils/AddressUpgradeable.sol";
 import "../../../../contracts/core/connext/facets/StableSwapFacet.sol";
+import "../../../../contracts/core/connext/facets/SwapAdminFacet.sol";
 
-contract StableSwapFacetTest is FacetHelper, StableSwapFacet {
+contract StableSwapFacetTest is FacetHelper, StableSwapFacet, SwapAdminFacet {
   // ============ Libraries ============
   using stdStorage for StdStorage;
 
