@@ -15,6 +15,10 @@ type AgentEventData = {
     event: {event:AgentEvents, data: AgentEventDataTypes}
 }
 
+function ethBalanceUpdatedListener() {
+    
+}
+
 export class Agent {
     private mnemonic;
     constructor(mnemonic: string) {

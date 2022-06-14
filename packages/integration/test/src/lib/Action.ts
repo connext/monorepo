@@ -10,24 +10,24 @@ export type ResultListenerData = {
   Results: { msg: "Results"; data: any };
 };
 
+type CallbackFunctionVariadicAnyReturn = (data:ResultListenerData, ...args: any[]) => any;
+
 export class Action {
   private events = new events.EventEmitter();
   //if this action fails should we stop the test entirely?
 
   private isTerminal = false;
 
-  constructor(listenerCbFn: Function) {
-    this.registerResultListener(listenerCbFn);
-  }
 
-  public registerResultListener(listenerCb: Function) {
+
+  protected registerResultListener(listenerCb: CallbackFunctionVariadicAnyReturn) {
     this.events.on(ActionListeners.ResultListener, function (data: ResultListenerData) {
       console.log("recieved result");
-      listenerCb();
+      listenerCb(data);
     });
   }
   public emitResult(res: ResultListenerData) {
-    this.events.emit(ActionListeners.ResultListener, res);
+     this.events.emit(ActionListeners.ResultListener, res);
   }
 
   public getEEmitter(): events.EventEmitter {

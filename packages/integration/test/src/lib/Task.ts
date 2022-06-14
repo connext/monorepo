@@ -9,9 +9,9 @@ export class Task {
     }
 
     public async startTask() {
-        this.steps.map((step) => {
+        for(const step of this.steps){
             step.start();
-        })
+        }
     }
 }
 
