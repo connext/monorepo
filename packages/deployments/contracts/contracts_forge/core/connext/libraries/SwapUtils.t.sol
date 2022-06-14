@@ -109,7 +109,8 @@ contract SwapUtilsTest is ForgeHelper {
       lpToken,
       pooledTokens,
       tokenPrecisionMultipliers,
-      balances
+      balances,
+      adminsFees
     );
 
     preciseA = AmplificationUtils._getAPrecise(swap);
@@ -124,19 +125,6 @@ contract SwapUtilsTest is ForgeHelper {
     vm.mockCall(address(lpToken), abi.encodeWithSelector(IERC20.totalSupply.selector), abi.encode(lpTokenSupply));
     uint256 availableTokenAmount = SwapUtils.calculateWithdrawOneToken(swap, amount, tokenIndexFrom);
     assertEq(availableTokenAmount, uint256(19));
-  }
-
-  // ============ _calculateWithdrawOneToken ============
-
-  // Should work
-  function test_SwapUtils___calculateWithdrawOneToken_works() public {
-    vm.mockCall(address(lpToken), abi.encodeWithSelector(IERC20.totalSupply.selector), abi.encode(lpTokenSupply));
-
-    uint256 dy;
-    uint256 dyFee;
-    (dy, dyFee) = SwapUtils._calculateWithdrawOneToken(swap, amount, tokenIndexFrom, lpTokenSupply);
-    assertEq(dy, uint256(19));
-    assertEq(dyFee, uint256(0));
   }
 
   // ============ calculateWithdrawOneTokenDY ============
