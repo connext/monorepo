@@ -224,6 +224,27 @@ contract StableSwapFacet is BaseConnextFacet {
   }
 
   /*** STATE MODIFYING FUNCTIONS ***/
+
+  /**
+   * @notice Swap two tokens using this pool
+   * @param canonicalId the canonical token id
+   * @param tokenIndexFrom the token the user wants to swap from
+   * @param tokenIndexTo the token the user wants to swap to
+   * @param dx the amount of tokens the user wants to swap from
+   * @param minDy the min amount the user would like to receive, or revert.
+   * @param deadline latest timestamp to accept this transaction
+   */
+  function swap(
+    bytes32 canonicalId,
+    uint8 tokenIndexFrom,
+    uint8 tokenIndexTo,
+    uint256 dx,
+    uint256 minDy,
+    uint256 deadline
+  ) external nonReentrant deadlineCheck(deadline) whenNotPaused returns (uint256) {
+    return s.swapStorages[canonicalId].swapInternal(tokenIndexFrom, tokenIndexTo, dx, minDy);
+  }
+
   /**
    * @notice Swap two tokens using this pool
    * @param canonicalId the canonical token id
