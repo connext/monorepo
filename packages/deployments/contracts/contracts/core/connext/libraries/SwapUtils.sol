@@ -731,6 +731,108 @@ library SwapUtils {
   }
 
   /**
+   * @notice swap two tokens in the pool
+   * @param self Swap struct to read from and write to
+   * @param tokenIndexFrom the token the user wants to sell
+   * @param tokenIndexTo the token the user wants to buy
+   * @param dx the amount of tokens the user wants to sell
+   * @param minDy the min amount the user would like to receive, or revert.
+   * @return amount of token user received on swap
+   */
+  function swap(
+    Swap storage self,
+    uint8 tokenIndexFrom,
+    uint8 tokenIndexTo,
+    uint256 dx,
+    uint256 minDy
+  ) internal returns (uint256) {
+    {
+      IERC20 tokenFrom = self.pooledTokens[tokenIndexFrom];
+      require(dx <= tokenFrom.balanceOf(msg.sender), "Cannot swap more than you own");
+      // Transfer tokens first to see if a fee was charged on transfer
+      uint256 beforeBalance = tokenFrom.balanceOf(address(this));
+      tokenFrom.safeTransferFrom(msg.sender, address(this), dx);
+
+      // Use the actual transferred amount for AMM math
+      dx = tokenFrom.balanceOf(address(this)).sub(beforeBalance);
+    }
+
+    uint256 dy;
+    uint256 dyFee;
+    uint256[] memory balances = self.balances;
+    (dy, dyFee) = _calculateSwap(self, tokenIndexFrom, tokenIndexTo, dx, balances);
+    require(dy >= minDy, "Swap didn't result in min tokens");
+
+    uint256 dyAdminFee = dyFee.mul(self.adminFee).div(FEE_DENOMINATOR).div(
+      self.tokenPrecisionMultipliers[tokenIndexTo]
+    );
+
+    self.balances[tokenIndexFrom] = balances[tokenIndexFrom].add(dx);
+    self.balances[tokenIndexTo] = balances[tokenIndexTo].sub(dy).sub(dyAdminFee);
+    if (dyAdminFee > 0) {
+      self.adminFees[tokenIndexTo] = self.adminFees[tokenIndexTo].add(dyAdminFee);
+    }
+
+    self.pooledTokens[tokenIndexTo].safeTransfer(msg.sender, dy);
+
+    emit TokenSwap(msg.sender, dx, dy, tokenIndexFrom, tokenIndexTo);
+
+    return dy;
+  }
+
+  /**
+   * @notice swap two tokens in the pool
+   * @param self Swap struct to read from and write to
+   * @param tokenIndexFrom the token the user wants to sell
+   * @param tokenIndexTo the token the user wants to buy
+   * @param dy the amount of tokens the user wants to buy
+   * @param maxDx the max amount the user would like to send.
+   * @return amount of token user have to transfer on swap
+   */
+  function swapOut(
+    Swap storage self,
+    uint8 tokenIndexFrom,
+    uint8 tokenIndexTo,
+    uint256 dy,
+    uint256 maxDx
+  ) internal returns (uint256) {
+    require(dy <= self.balances[tokenIndexTo], "Cannot get more than pool balance");
+
+    uint256 dx;
+    uint256 dxFee;
+    uint256[] memory balances = self.balances;
+    (dx, dxFee) = _calculateSwapInv(self, tokenIndexFrom, tokenIndexTo, dy, balances);
+    require(dx <= maxDx, "Swap needs more than max tokens");
+
+    uint256 dxAdminFee = dxFee.mul(self.adminFee).div(FEE_DENOMINATOR).div(
+      self.tokenPrecisionMultipliers[tokenIndexFrom]
+    );
+
+    self.balances[tokenIndexFrom] = balances[tokenIndexFrom].add(dx).sub(dxAdminFee);
+    self.balances[tokenIndexTo] = balances[tokenIndexTo].sub(dy);
+    if (dxAdminFee > 0) {
+      self.adminFees[tokenIndexFrom] = self.adminFees[tokenIndexFrom].add(dxAdminFee);
+    }
+
+    {
+      IERC20 tokenFrom = self.pooledTokens[tokenIndexFrom];
+      require(dx <= tokenFrom.balanceOf(msg.sender), "Cannot swap more than you own");
+      // Transfer tokens first to see if a fee was charged on transfer
+      uint256 beforeBalance = tokenFrom.balanceOf(address(this));
+      tokenFrom.safeTransferFrom(msg.sender, address(this), dx);
+
+      // Use the actual transferred amount for AMM math
+      require(dx == tokenFrom.balanceOf(address(this)).sub(beforeBalance), "not support fee token");
+    }
+
+    self.pooledTokens[tokenIndexTo].safeTransfer(msg.sender, dy);
+
+    emit TokenSwap(msg.sender, dx, dy, tokenIndexFrom, tokenIndexTo);
+
+    return dx;
+  }
+
+  /**
    * @notice swap two tokens in the pool internally
    * @param self Swap struct to read from and write to
    * @param tokenIndexFrom the token the user wants to sell
