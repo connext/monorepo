@@ -19,9 +19,9 @@ export class Action {
 
   private isTerminal = false;
 
+  //all actions must implement this.
   protected registerResultListener(listenerCb: CallbackFunctionVariadicAnyReturn) {
     this.events.on(ActionListeners.ResultListener, (data: ResultListenerData) => {
-      console.log("recieved result");
       listenerCb(data);
     });
   }
