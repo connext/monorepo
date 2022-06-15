@@ -98,6 +98,23 @@ export const getLastestBlockNumberQuery = (prefixes: string[]): string => {
       ${combinedQuery}
   }`;
 };
+
+const maxRoutersPerTransferQuery = (prefix: string): string => {
+  return `${prefix}_setting (id: "1") {maxRoutersPerTransfer}`;
+};
+export const getMaxRoutersPerTransferQuery = (prefixes: string[]): string => {
+  let combinedQuery = "";
+  for (const prefix of prefixes) {
+    combinedQuery += maxRoutersPerTransferQuery(prefix);
+  }
+
+  return gql`
+    query GetMaxRoutersPerTransfer {
+      ${combinedQuery}
+    }
+  `;
+};
+
 export const getAssetBalanceQuery = (prefix: string, router: string, local: string): string => {
   const queryString = `
     ${prefix}_assetBalance(id: "${local}-${router}") {

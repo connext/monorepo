@@ -96,6 +96,7 @@ export function handleRouterAdded(event: RouterAdded): void {
   if (settingEntity == null) {
     settingEntity = new Setting("1");
     settingEntity.maxRoutersPerTransfer = BigInt.fromI32(DEFAULT_MAX_ROUTERS_PER_TRANSFER);
+    settingEntity.caller = Address.zero();
     settingEntity.save();
   }
 }

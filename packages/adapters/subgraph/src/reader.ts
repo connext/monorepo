@@ -28,6 +28,7 @@ import {
   getDestinationTransfersByExecuteTimestampQuery,
   getDestinationTransfersByReconcileTimestampQuery,
   getOriginTransfersByXCallTimestampQuery,
+  getMaxRoutersPerTransferQuery,
 } from "./lib/operations";
 import { SubgraphMap } from "./lib/entities";
 
@@ -87,6 +88,25 @@ export class SubgraphReader {
       }
     }
     return blockNumberRes;
+  }
+
+  /**
+   * Gets the maxRoutersPerTransfer for domains
+   * @param domains The domain list you're getting the maxRoutersPerTransfer for
+   */
+  public async getMaxRoutersPerTransfer(domains: string[]): Promise<Map<string, number>> {
+    const { execute, getPrefixForDomain } = getHelpers();
+    const prefixes = domains.map((domain) => getPrefixForDomain(domain));
+    const query = getMaxRoutersPerTransferQuery(prefixes);
+    const response = await execute(query);
+    const maxRoutersRes: Map<string, number> = new Map();
+    for (const domain of response.keys()) {
+      if (response.has(domain) && response.get(domain)!.length > 0) {
+        const settingInfo = response.get(domain)![0];
+        maxRoutersRes.set(domain, Number(settingInfo.maxRoutersPerTransfer));
+      }
+    }
+    return maxRoutersRes;
   }
 
   /**
