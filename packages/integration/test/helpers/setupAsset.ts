@@ -13,11 +13,6 @@ export const setupAsset = async (
   for (const domain of domains) {
     const readData = ConnextHandlerInterface.encodeFunctionData("canonicalToAdopted", [canonicalId]);
     const adopted = await txService.readTx({ chainId: +domain.domain, data: readData, to: domain.ConnextHandler });
-    console.log("adopted: ", adopted);
-    console.log("domain.adopted: ", domain.adopted);
-    console.log("domain.domain: ", domain.domain);
-    console.log("canonicalId: ", canonicalId);
-    console.log("domain.pool: ", domain.pool ?? constants.AddressZero);
     if (adopted !== domain.adopted) {
       // @ts-ignore
       const data = ConnextHandlerInterface.encodeFunctionData("setupAsset", [
