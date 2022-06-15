@@ -19,8 +19,9 @@ export const setupAsset = async (
     console.log("canonicalId: ", canonicalId);
     console.log("domain.pool: ", domain.pool ?? constants.AddressZero);
     if (adopted !== domain.adopted) {
+      // @ts-ignore
       const data = ConnextHandlerInterface.encodeFunctionData("setupAsset", [
-        [  domain.domain, canonicalId ],
+        [domain.domain, canonicalId],
         domain.adopted,
         domain.pool ?? constants.AddressZero,
       ]);
