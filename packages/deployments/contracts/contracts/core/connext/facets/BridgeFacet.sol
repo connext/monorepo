@@ -316,7 +316,7 @@ contract BridgeFacet is BaseConnextFacet {
         s.promiseRouter.initCallbackFee{value: _args.params.callbackFee}(transferId);
       }
 
-      message = _formatMessage(_args, bridged, transferId, bridgedAmt);
+      message = _formatMessage(_args, canonical.id, canonical.domain, bridged, transferId, bridgedAmt);
       s.xAppConnectionManager.home().dispatch(_args.params.destinationDomain, remote, message);
 
       // Format arguments for XCalled event that will be emitted below.
@@ -419,6 +419,8 @@ contract BridgeFacet is BaseConnextFacet {
    */
   function _formatMessage(
     XCallArgs calldata _args,
+    bytes32 _canonicalId,
+    uint32 _canonicalDomain,
     address _asset,
     bytes32 _transferId,
     uint256 _amount
@@ -453,13 +455,8 @@ contract BridgeFacet is BaseConnextFacet {
       _transferId
     );
 
-    // Get the token's canonical domain and ID.
-    (uint32 canonicalDomain, bytes32 canonicalId) = s.tokenRegistry.getTokenId(_asset);
-
-    // Format the token's ID for messaging.
-    bytes29 tokenId = ConnextMessage.formatTokenId(canonicalDomain, canonicalId);
-
-    return ConnextMessage.formatMessage(tokenId, action);
+    // Format the message
+    return ConnextMessage.formatMessage(ConnextMessage.formatTokenId(_canonicalDomain, _canonicalId), action);
   }
 
   /**
@@ -733,7 +730,12 @@ contract BridgeFacet is BaseConnextFacet {
     address _router
   ) internal returns (uint256, address) {
     // Calculate local to adopted swap output if needed
-    (uint256 userAmount, address adopted) = AssetLogic.calculateSwapFromLocalAssetIfNeeded(_local, _fastTransferAmount);
+    (, bytes32 id) = s.tokenRegistry.getTokenId(_local);
+    (uint256 userAmount, address adopted) = AssetLogic.calculateSwapFromLocalAssetIfNeeded(
+      id,
+      _local,
+      _fastTransferAmount
+    );
 
     IAavePool(s.aavePool).mintUnbacked(adopted, userAmount, address(this), AAVE_REFERRAL_CODE);
 

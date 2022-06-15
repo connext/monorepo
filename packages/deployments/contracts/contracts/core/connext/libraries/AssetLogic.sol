@@ -224,6 +224,7 @@ library AssetLogic {
    * @return The address of asset received post-swap
    */
   function swapFromLocalAssetIfNeededForExactOut(
+    bytes32 _canonicalId,
     address _asset,
     uint256 _amount,
     uint256 _maxIn
@@ -237,16 +238,13 @@ library AssetLogic {
   {
     AppStorage storage s = LibConnextStorage.connextStorage();
 
-    // Get the token id
-    (, bytes32 id) = s.tokenRegistry.getTokenId(_asset);
-
     // If the adopted asset is the local asset, no need to swap
-    address adopted = s.canonicalToAdopted[id];
+    address adopted = s.canonicalToAdopted[_canonicalId];
     if (adopted == _asset) {
       return (true, _amount, _asset);
     }
 
-    return _swapAssetOut(id, _asset, adopted, _amount, _maxIn);
+    return _swapAssetOut(_canonicalId, _asset, adopted, _amount, _maxIn);
   }
 
   /**
@@ -362,30 +360,27 @@ library AssetLogic {
    * @return The amount of local asset received from swap
    * @return The address of asset received post-swap
    */
-  function calculateSwapFromLocalAssetIfNeeded(address _asset, uint256 _amount)
-    internal
-    view
-    returns (uint256, address)
-  {
+  function calculateSwapFromLocalAssetIfNeeded(
+    bytes32 _canonicalId,
+    address _asset,
+    uint256 _amount
+  ) internal view returns (uint256, address) {
     AppStorage storage s = LibConnextStorage.connextStorage();
 
-    // Get the token id
-    (, bytes32 id) = s.tokenRegistry.getTokenId(_asset);
-
     // If the adopted asset is the local asset, no need to swap
-    address adopted = s.canonicalToAdopted[id];
+    address adopted = s.canonicalToAdopted[_canonicalId];
     if (adopted == _asset) {
       return (_amount, _asset);
     }
 
     // Otherwise, calculate swap the asset to the proper local asset
-    if (stableSwapPoolExist(id)) {
+    if (stableSwapPoolExist(_canonicalId)) {
       // if internal swap pool exists
-      uint8 tokenIndexIn = getTokenIndexFromStableSwapPool(id, _asset);
-      uint8 tokenIndexOut = getTokenIndexFromStableSwapPool(id, adopted);
-      return (s.swapStorages[id].calculateSwap(tokenIndexIn, tokenIndexOut, _amount), adopted);
+      uint8 tokenIndexIn = getTokenIndexFromStableSwapPool(_canonicalId, _asset);
+      uint8 tokenIndexOut = getTokenIndexFromStableSwapPool(_canonicalId, adopted);
+      return (s.swapStorages[_canonicalId].calculateSwap(tokenIndexIn, tokenIndexOut, _amount), adopted);
     } else {
-      IStableSwap pool = s.adoptedToLocalPools[id];
+      IStableSwap pool = s.adoptedToLocalPools[_canonicalId];
 
       return (pool.calculateSwapFromAddress(_asset, adopted, _amount), adopted);
     }
