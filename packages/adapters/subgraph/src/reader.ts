@@ -27,6 +27,7 @@ import {
   getLastestBlockNumberQuery,
   getDestinationTransfersByExecuteTimestampQuery,
   getDestinationTransfersByReconcileTimestampQuery,
+  getOriginTransfersByXCallTimestampQuery,
 } from "./lib/operations";
 import { SubgraphMap } from "./lib/entities";
 
@@ -275,6 +276,27 @@ export class SubgraphReader {
   public async getOriginTransfers(agents: Map<string, SubgraphQueryMetaParams>): Promise<XTransfer[]> {
     const { execute, parser } = getHelpers();
     const xcalledXQuery = getOriginTransfersQuery(agents);
+    const response = await execute(xcalledXQuery);
+
+    const transfers: any[] = [];
+    for (const key of response.keys()) {
+      const value = response.get(key);
+      transfers.push(value?.flat());
+    }
+
+    const originTransfers: XTransfer[] = transfers
+      .flat()
+      .filter((x: any) => !!x)
+      .map(parser.originTransfer);
+
+    return originTransfers;
+  }
+
+  public async getOriginTransfersByXCallTimestamp(
+    params: Map<string, SubgraphQueryByTimestampMetaParams>,
+  ): Promise<XTransfer[]> {
+    const { execute, parser } = getHelpers();
+    const xcalledXQuery = getOriginTransfersByXCallTimestampQuery(params);
     const response = await execute(xcalledXQuery);
 
     const transfers: any[] = [];

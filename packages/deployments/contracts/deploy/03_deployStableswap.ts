@@ -61,16 +61,16 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   //   contract: "SwapUtils",
   // });
 
-  /////////////////////////////////////////////////////////////////////////////////
-  ////  StableSwap
-  /////////////////////////////////////////////////////////////////////////////////
-  const stableSwapName = getDeploymentName("StableSwap");
-  await deployments.deploy(stableSwapName, {
-    from: deployer.address,
-    log: true,
-    skipIfAlreadyDeployed: true,
-    contract: "StableSwap",
-  });
+  // /////////////////////////////////////////////////////////////////////////////////
+  // ////  StableSwap
+  // /////////////////////////////////////////////////////////////////////////////////
+  // const stableSwapName = getDeploymentName("StableSwap");
+  // await deployments.deploy(stableSwapName, {
+  //   from: deployer.address,
+  //   log: true,
+  //   skipIfAlreadyDeployed: true,
+  //   contract: "StableSwap",
+  // });
 };
 
 export default func;

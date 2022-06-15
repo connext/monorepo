@@ -46,7 +46,7 @@ contract RoutersFacet is BaseConnextFacet {
   error RoutersFacet__removeRouterLiquidityFor_notOwner();
   error RoutersFacet__setLiquidityFeeNumerator_tooSmall();
   error RoutersFacet__setLiquidityFeeNumerator_tooLarge();
-  error RoutersFacet__approveRouterForPortal_notRouter();
+  error RoutersFacet__approveRouterForPortal_notAdded();
   error RoutersFacet__approveRouterForPortal_alreadyApproved();
   error RoutersFacet__unapproveRouterForPortal_notApproved();
 
@@ -359,7 +359,8 @@ contract RoutersFacet is BaseConnextFacet {
    * @param _router - The router address to approve
    */
   function approveRouterForPortal(address _router) external onlyOwner {
-    if (!s.routerPermissionInfo.approvedRouters[_router]) revert RoutersFacet__approveRouterForPortal_notRouter();
+    if (!s.routerPermissionInfo.approvedRouters[_router] && !_isRouterOwnershipRenounced())
+      revert RoutersFacet__approveRouterForPortal_notAdded();
     if (s.routerPermissionInfo.approvedForPortalRouters[_router])
       revert RoutersFacet__approveRouterForPortal_alreadyApproved();
 

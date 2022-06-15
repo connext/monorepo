@@ -263,32 +263,36 @@ export function handleXCalled(event: XCalled): void {
  * @param event - The contract event used to update the subgraph
  */
 export function handleExecuted(event: Executed): void {
-  const num = event.params.args.routers.length;
-  const amount = event.params.args.amount;
-  const routers: string[] = [];
-  for (let i = 0; i < num; i++) {
-    const param = event.params.args.routers[i].toHex();
-    let router = Router.load(param);
-    if (router == null) {
-      // TODO: Shouldn't we be throwing an error here? How did a transfer get made with a non-existent
-      // router?
-      router = new Router(param);
-      router.isActive = true;
-      router.save();
-    }
-
-    routers.push(router.id);
-
-    // Update router's liquidity
-    const assetBalance = getOrCreateAssetBalance(event.params.args.local, event.params.args.routers[i]);
-    assetBalance.amount = assetBalance.amount.minus(amount.div(BigInt.fromI32(num)));
-    assetBalance.save();
-  }
-
+  // Load transfer details
   let transfer = DestinationTransfer.load(event.params.transferId.toHexString());
   if (transfer == null) {
     transfer = new DestinationTransfer(event.params.transferId.toHexString());
   }
+
+  const num = event.params.args.routers.length;
+  const amount = event.params.args.amount;
+  const routers: string[] = [];
+
+  if (transfer.status != "Reconciled") {
+    for (let i = 0; i < num; i++) {
+      const param = event.params.args.routers[i].toHex();
+      let router = Router.load(param);
+      if (router == null) {
+        // TODO: Shouldn't we be throwing an error here? How did a transfer get made with a non-existent
+        // router?
+        router = new Router(param);
+        router.isActive = true;
+        router.save();
+      }
+
+      routers.push(router.id);
+
+      // Update router's liquidity
+      const assetBalance = getOrCreateAssetBalance(event.params.args.local, event.params.args.routers[i]);
+      assetBalance.amount = assetBalance.amount.minus(amount.div(BigInt.fromI32(num)));
+      assetBalance.save();
+    }
+  } // otherwise no routers used
 
   // Meta
   transfer.chainId = getChainId();
@@ -393,9 +397,11 @@ export function handleReconciled(event: Reconciled): void {
   transfer.save();
 }
 
+// eslint-disable-next-line @typescript-eslint/ban-types
 function getChainId(): BigInt {
   // try to get chainId from the mapping
   let network = dataSource.network();
+  // eslint-disable-next-line @typescript-eslint/ban-types
   let chainId: BigInt;
   if (network == "mainnet") {
     chainId = BigInt.fromI32(1);
