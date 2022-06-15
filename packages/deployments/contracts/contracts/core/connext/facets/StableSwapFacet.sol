@@ -270,7 +270,7 @@ contract StableSwapFacet is BaseConnextFacet {
     address assetOut,
     uint256 maxAmountIn,
     uint256 deadline
-  ) external payable nonReentrant deadlineCheck(deadline) returns (uint256) {
+  ) external payable nonReentrant deadlineCheck(deadline) whenNotPaused returns (uint256) {
     return
       s.swapStorages[canonicalId].swapOut(
         getSwapTokenIndex(canonicalId, assetIn),
