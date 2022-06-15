@@ -59,11 +59,14 @@ contract NomadFacetTest is NomadFacet, FacetHelper {
       bytes(""), // callData
       _originDomain, // origin domain
       _destinationDomain, // destination domain
+      address(112233332211), //agent
       _recovery, // recovery address
       address(0), // callback
       0, // callbackFee
+      _relayerFee, // relayer fee
       false, // forceSlow
-      false // receiveLocal
+      false, // receiveLocal
+      9900 // slippage tol
     );
 
   // ============ Test set up ============
@@ -101,8 +104,7 @@ contract NomadFacetTest is NomadFacet, FacetHelper {
     XCallArgs memory args = XCallArgs(
       _params,
       _adopted == address(s.wrapper) ? address(0) : _adopted, // transactingAssetId : could be adopted, local, or wrapped.
-      _amount,
-      _relayerFee
+      _amount
     );
     // generate transfer id
     bytes32 transferId = utils_getTransferIdFromXCallArgs(args, _originSender, _canonicalId, _canonicalDomain);
@@ -115,8 +117,7 @@ contract NomadFacetTest is NomadFacet, FacetHelper {
     XCallArgs memory args = XCallArgs(
       _params,
       transactingAssetId, // transactingAssetId : could be adopted, local, or wrapped.
-      _amount,
-      _relayerFee
+      _amount
     );
     // generate transfer id
     bytes32 transferId = utils_getTransferIdFromXCallArgs(args, _originSender, _canonicalId, _canonicalDomain);
