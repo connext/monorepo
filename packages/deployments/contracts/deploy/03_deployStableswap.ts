@@ -2,8 +2,6 @@ import { HardhatRuntimeEnvironment } from "hardhat/types";
 import { DeployFunction } from "hardhat-deploy/types";
 import { Wallet } from "ethers";
 
-import { getDeploymentName } from "../src/utils";
-
 const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   const { deployments } = hre;
 
@@ -61,16 +59,16 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   //   contract: "SwapUtils",
   // });
 
-  /////////////////////////////////////////////////////////////////////////////////
-  ////  StableSwap
-  /////////////////////////////////////////////////////////////////////////////////
-  const stableSwapName = getDeploymentName("StableSwap");
-  await deployments.deploy(stableSwapName, {
-    from: deployer.address,
-    log: true,
-    skipIfAlreadyDeployed: true,
-    contract: "StableSwap",
-  });
+  // /////////////////////////////////////////////////////////////////////////////////
+  // ////  StableSwap
+  // /////////////////////////////////////////////////////////////////////////////////
+  // const stableSwapName = getDeploymentName("StableSwap");
+  // await deployments.deploy(stableSwapName, {
+  //   from: deployer.address,
+  //   log: true,
+  //   skipIfAlreadyDeployed: true,
+  //   contract: "StableSwap",
+  // });
 };
 
 export default func;
