@@ -113,6 +113,7 @@ Congratulations! You have deployed a new set of amarok contracts. Now, we have t
    ```
 
    When you set the asset up using `ensure-local`, the only person that can `mint` the token
+   is the deployer.
 
 3. Once you have enrolled the handlers and set up the local assets, you should run the `preflight` task. The preflight task will do the following in an idempotent way:
 
