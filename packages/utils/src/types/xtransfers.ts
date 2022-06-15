@@ -104,8 +104,11 @@ export const XTransferSchema = Type.Intersect([
         callback: TAddress,
         recovery: TAddress,
         callbackFee: TIntegerString,
+        relayerFee: TIntegerString,
+        agent: TAddress,
         forceSlow: Type.Boolean(),
         receiveLocal: Type.Boolean(),
+        slippageTol: TIntegerString,
       }),
     ),
   }),
@@ -123,9 +126,12 @@ export const CallParamsSchema = Type.Object({
   destinationDomain: Type.String(),
   callback: TAddress,
   callbackFee: TIntegerString,
+  relayerFee: TIntegerString,
+  agent: TAddress,
   recovery: TAddress,
   forceSlow: Type.Boolean(),
   receiveLocal: Type.Boolean(),
+  slippageTol: TIntegerString,
 });
 
 export const OriginTransferSchema = Type.Intersect([

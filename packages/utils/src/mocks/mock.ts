@@ -79,9 +79,12 @@ export const mock: any = {
       destinationDomain: mock.domain.B,
       callback: mkAddress("0xbbbb"),
       callbackFee: "0",
+      relayerFee: "0",
       forceSlow: false,
       receiveLocal: false,
+      agent: mkAddress(),
       recovery: mkAddress("0xcccc"),
+      slippageTol: "0",
       ...overrides,
     }),
     xcallArgs: (overrides: Partial<XCallArgs> = {}): XCallArgs => ({
@@ -170,9 +173,12 @@ export const mock: any = {
               callData: "0x",
               callback: mkAddress("0x"),
               callbackFee: "0",
+              relayerFee: "0",
               recovery: mkAddress("0x"),
+              agent: mkAddress("0x"),
               forceSlow: false,
               receiveLocal: false,
+              slippageTol: "0",
             }
           : undefined,
 
