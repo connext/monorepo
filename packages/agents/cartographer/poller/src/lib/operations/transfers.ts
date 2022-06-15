@@ -35,7 +35,6 @@ export const updateTransfers = async () => {
 
     subgraphXCallQueryMetaParams.set(domain, {
       maxBlockNumber: latestBlockNumber,
-      destinationDomains: domains,
       fromTimestamp: xCallTimestamp,
       orderDirection: "asc",
     });
@@ -44,7 +43,6 @@ export const updateTransfers = async () => {
 
     subgraphExecuteQueryMetaParams.set(domain, {
       maxBlockNumber: latestBlockNumber,
-      destinationDomains: domains,
       fromTimestamp: executedTimestamp,
       orderDirection: "asc",
     });
@@ -54,7 +52,6 @@ export const updateTransfers = async () => {
     subgraphReconcileQueryMetaParams.set(domain, {
       maxBlockNumber: latestBlockNumber,
       fromTimestamp: reconciledTimestamp,
-      destinationDomains: domains,
       orderDirection: "asc",
     });
   }
