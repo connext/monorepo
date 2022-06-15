@@ -10,10 +10,7 @@ import {AssetFacet} from "../../../../contracts/core/connext/facets/AssetFacet.s
 import {TestERC20} from "../../../../contracts/test/TestERC20.sol";
 
 import {MockWrapper, MockTokenRegistry} from "../../../utils/Mock.sol";
-
-import "./FacetHelper.sol";
-
-import "forge-std/console.sol";
+import "../../../utils/FacetHelper.sol";
 
 contract AssetFacetTest is AssetFacet, FacetHelper {
   // ============ storage ============
@@ -268,7 +265,6 @@ contract AssetFacetTest is AssetFacet, FacetHelper {
   function test_AssetFacet__removeAssetId_successErc20Token() public {
     vm.prank(_owner);
     setupAssetAndAssert(_local, address(12));
-    console.log("setup");
 
     vm.prank(_owner);
     removeAssetAndAssert(_local);

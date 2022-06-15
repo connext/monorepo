@@ -9,7 +9,7 @@ import {ConnextMessage} from "../../../../contracts/core/connext/libraries/Conne
 import {LibConnextStorage, AppStorage} from "../../../../contracts/core/connext/libraries/LibConnextStorage.sol";
 import {ITokenRegistry} from "../../../../contracts/core/connext/interfaces/ITokenRegistry.sol";
 
-import "../facets/FacetHelper.sol";
+import "../../../utils/FacetHelper.sol";
 
 
 
@@ -197,27 +197,27 @@ contract AssetLogicTest is BaseConnextFacet, FacetHelper {
   }
 
   // ============ stableSwapPoolExist ============
-  function test_AssetLogic_stableSwapPoolExist_works() public {
+  function test_AssetLogic__stableSwapPoolExist_works() public {
     utils_setMockStableSwap();
     assertEq(AssetLogic.stableSwapPoolExist(_canonicalId), true);
     assertEq(AssetLogic.stableSwapPoolExist(bytes32(abi.encodePacked(address(5)))), false);
   }
 
   // ============ getTokenIndexFromStableSwapPool ============
-  function test_AssetLogic_getTokenIndexFromStableSwapPool_failsIfNotFound() public {
+  function test_AssetLogic__getTokenIndexFromStableSwapPool_failsIfNotFound() public {
     utils_setMockStableSwap();
     address arbitrary = address(555555555555);
     vm.expectRevert(AssetLogic.AssetLogic__getTokenIndexFromStableSwapPool_notExist.selector);
     AssetLogic.getTokenIndexFromStableSwapPool(_canonicalId, arbitrary);
   }
 
-  function test_AssetLogic_getTokenIndexFromStableSwapPool_works() public {
+  function test_AssetLogic__getTokenIndexFromStableSwapPool_works() public {
     utils_setMockStableSwap();
     assertEq(AssetLogic.getTokenIndexFromStableSwapPool(_canonicalId, _adopted), 0);
   }
 
   // ============ handleIncomingAsset ============
-  function test_AssetLogic_handleIncomingAsset_failsIfValueBadWhenNative() public {
+  function test_AssetLogic__handleIncomingAsset_failsIfValueBadWhenNative() public {
     address assetId = address(0);
     uint256 amount = 10;
     uint256 fee = 1;
@@ -225,7 +225,7 @@ contract AssetLogicTest is BaseConnextFacet, FacetHelper {
     caller.handleIncomingAsset(assetId, amount, fee);
   }
 
-  function test_AssetLogic_handleIncomingAsset_failsIfValueBad() public {
+  function test_AssetLogic__handleIncomingAsset_failsIfValueBad() public {
     address assetId = address(1);
     uint256 amount = 10;
     uint256 fee = 1;
@@ -233,21 +233,21 @@ contract AssetLogicTest is BaseConnextFacet, FacetHelper {
     caller.handleIncomingAsset(assetId, amount, fee);
   }
 
-  function test_AssetLogic_handleIncomingAsset_worksWithToken() public {
+  function test_AssetLogic__handleIncomingAsset_worksWithToken() public {
     address assetId = _local;
     uint256 amount = 10;
     uint256 fee = 1;
     utils_handleIncomingAssetAndAssert(assetId, amount, fee);
   }
 
-  function test_AssetLogic_handleIncomingAsset_worksWithNative() public {
+  function test_AssetLogic__handleIncomingAsset_worksWithNative() public {
     address assetId = address(0);
     uint256 amount = 10;
     uint256 fee = 0;
     utils_handleIncomingAssetAndAssert(assetId, amount, fee);
   }
 
-  function test_AssetLogic_handleIncomingAsset_worksWithNativeAndFee() public {
+  function test_AssetLogic__handleIncomingAsset_worksWithNativeAndFee() public {
     address assetId = address(0);
     uint256 amount = 10;
     uint256 fee = 3;
@@ -255,10 +255,10 @@ contract AssetLogicTest is BaseConnextFacet, FacetHelper {
   }
 
   // FIXME: special token
-  function test_AssetLogic_handleIncomingAsset_worksWithFeeOnTransfer() public {}
+  function test_AssetLogic__handleIncomingAsset_worksWithFeeOnTransfer() public {}
 
   // ============ wrapNativeAsset ============
-  function test_AssetLogic_wrapNativeAsset_works() public {
+  function test_AssetLogic__wrapNativeAsset_works() public {
     uint256 initEth = address(this).balance;
     uint256 initWeth = IERC20(_wrapper).balanceOf(address(this));
     AssetLogic.wrapNativeAsset(100);
@@ -267,7 +267,7 @@ contract AssetLogicTest is BaseConnextFacet, FacetHelper {
   }
 
   // ============ transferAssetToContract ============
-  function test_AssetLogic_transferAssetToContract_works() public {
+  function test_AssetLogic__transferAssetToContract_works() public {
     uint256 initSrc = IERC20(_local).balanceOf(address(this));
     uint256 initDest = IERC20(_local).balanceOf(address(caller));
     IERC20(_local).approve(address(caller), 100);
@@ -277,10 +277,10 @@ contract AssetLogicTest is BaseConnextFacet, FacetHelper {
   }
 
   // FIXME: special token
-  function test_AssetLogic_transferAssetToContract_worksWithFeeOnTransfer() public {}
+  function test_AssetLogic__transferAssetToContract_worksWithFeeOnTransfer() public {}
 
   // ============ transferAssetFromContract ============
-  function test_AssetLogic_transferAssetFromContract_failsIfNoAsset() public {
+  function test_AssetLogic__transferAssetFromContract_failsIfNoAsset() public {
     // set constants
     address assetId = address(0);
     address to = address(12345);
@@ -289,7 +289,7 @@ contract AssetLogicTest is BaseConnextFacet, FacetHelper {
     AssetLogic.transferAssetFromContract(assetId, to, amount);
   }
 
-  function test_AssetLogic_transferAssetFromContract_works() public {
+  function test_AssetLogic__transferAssetFromContract_works() public {
     // set constants
     address assetId = _local;
     address to = address(12345);
@@ -297,7 +297,7 @@ contract AssetLogicTest is BaseConnextFacet, FacetHelper {
     utils_transferFromContractAndAssert(assetId, to, amount);
   }
 
-  function test_AssetLogic_transferAssetFromContract_worksIfZero() public {
+  function test_AssetLogic__transferAssetFromContract_worksIfZero() public {
     // set constants
     address assetId = _local;
     address to = address(12345);
@@ -305,7 +305,7 @@ contract AssetLogicTest is BaseConnextFacet, FacetHelper {
     utils_transferFromContractAndAssert(assetId, to, amount);
   }
 
-  function test_AssetLogic_transferAssetFromContract_worksForNative() public {
+  function test_AssetLogic__transferAssetFromContract_worksForNative() public {
     // setup asset
     utils_setupNative(false, false);
     // set constants
@@ -318,34 +318,34 @@ contract AssetLogicTest is BaseConnextFacet, FacetHelper {
   // ============ swapToLocalAssetIfNeeded ============
 
   // doesnt swap
-  function test_AssetLogic_swapToLocalAssetIfNeeded_worksIfZero() public {
+  function test_AssetLogic__swapToLocalAssetIfNeeded_worksIfZero() public {
     utils_swapToLocalAndAssertViaExternal(_adopted, 0, 10000);
   }
 
   // does not swap if already local
-  function test_AssetLogic_swapToLocalAssetIfNeeded_worksWithLocal() public {
+  function test_AssetLogic__swapToLocalAssetIfNeeded_worksWithLocal() public {
     utils_swapToLocalAndAssertViaExternal(_local, 1 ether, 0.9 ether);
   }
 
   // works
-  function test_AssetLogic_swapToLocalAssetIfNeeded_worksWithAdopted() public {
+  function test_AssetLogic__swapToLocalAssetIfNeeded_worksWithAdopted() public {
     utils_swapToLocalAndAssertViaExternal(_adopted, 1 ether, 0.9 ether);
   }
 
   // ============ swapFromLocalAssetIfNeeded ============
 
   // doesnt swap
-  function test_AssetLogic_swapFromLocalAssetIfNeeded_worksIfZero() public {
+  function test_AssetLogic__swapFromLocalAssetIfNeeded_worksIfZero() public {
     utils_swapFromLocalAndAssertViaExternal(_local, 0, 0.1 ether);
   }
 
   // does not swap if already adopted
-  function test_AssetLogic_swapFromLocalAssetIfNeeded_worksWithAdopted() public {
+  function test_AssetLogic__swapFromLocalAssetIfNeeded_worksWithAdopted() public {
     utils_swapFromLocalAndAssertViaExternal(_adopted, 1 ether, 0.9 ether);
   }
 
   // should work (swap local for adopted)
-  function test_AssetLogic_swapFromLocalAssetIfNeeded_worksWithLocal() public {
+  function test_AssetLogic__swapFromLocalAssetIfNeeded_worksWithLocal() public {
     utils_swapFromLocalAndAssertViaExternal(_local, 1 ether, 0.9 ether);
   }
 }

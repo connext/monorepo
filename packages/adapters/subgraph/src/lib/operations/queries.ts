@@ -263,6 +263,7 @@ export const getOriginTransfersQuery = (agents: Map<string, SubgraphQueryMetaPar
         agents.get(domain)!.latestNonce,
         domains,
         agents.get(domain)!.maxBlockNumber,
+        agents.get(domain)!.orderDirection,
       );
     } else {
       console.log(`No agents for domain: ${domain}`);
@@ -276,9 +277,58 @@ export const getOriginTransfersQuery = (agents: Map<string, SubgraphQueryMetaPar
   `;
 };
 
-const destinationTransfersByExecuteTimestampQueryString = (
+const originByXCalledTimestampQueryString = (
   prefix: string,
   originDomain: string,
+  fromTimestamp: number,
+  destinationDomains: string[],
+  maxBlockNumber?: number,
+  orderDirection: "asc" | "desc" = "desc",
+) => {
+  return `${prefix}_originTransfers(
+    where: {
+      originDomain: ${originDomain},
+      timestamp_gte: ${fromTimestamp},
+      destinationDomain_in: [${destinationDomains}]
+      ${maxBlockNumber ? `, blockNumber_lte: ${maxBlockNumber}` : ""}
+    },
+    orderBy: timestamp,
+    orderDirection: ${orderDirection}
+  ) {${ORIGIN_TRANSFER_ENTITY}}`;
+};
+
+export const getOriginTransfersByXCallTimestampQuery = (
+  params: Map<string, SubgraphQueryByTimestampMetaParams>,
+): string => {
+  const { config } = getContext();
+
+  let combinedQuery = "";
+  const domains = Object.keys(config.sources);
+  for (const domain of domains) {
+    const prefix = config.sources[domain].prefix;
+    if (params.has(domain)) {
+      combinedQuery += originByXCalledTimestampQueryString(
+        prefix,
+        domain,
+        params.get(domain)!.fromTimestamp,
+        domains,
+        params.get(domain)!.maxBlockNumber,
+        params.get(domain)!.orderDirection,
+      );
+    } else {
+      console.log(`No agents for domain: ${domain}`);
+    }
+  }
+
+  return gql`
+    query GetOriginTransfersByXCallTimestamp {
+        ${combinedQuery}
+      }
+  `;
+};
+
+const destinationTransfersByExecuteTimestampQueryString = (
+  prefix: string,
   fromTimestamp: number,
   destinationDomains: string[],
   maxBlockNumber?: number,
@@ -287,14 +337,13 @@ const destinationTransfersByExecuteTimestampQueryString = (
   return `
   ${prefix}_destinationTransfers(
     where: { 
-      originDomain: ${originDomain}, 
       executedTimestamp_gte: ${fromTimestamp}, 
       destinationDomain_in: [${destinationDomains}] 
       ${maxBlockNumber ? `, executedBlockNumber_lte: ${maxBlockNumber}` : ""} 
     }, 
     orderBy: executedTimestamp, 
     orderDirection: ${orderDirection}
-  ) {${ORIGIN_TRANSFER_ENTITY}}`;
+  ) {${DESTINATION_TRANSFER_ENTITY}}`;
 };
 
 export const getDestinationTransfersByExecuteTimestampQuery = (
@@ -309,10 +358,10 @@ export const getDestinationTransfersByExecuteTimestampQuery = (
     if (params.has(domain)) {
       combinedQuery += destinationTransfersByExecuteTimestampQueryString(
         prefix,
-        domain,
         params.get(domain)!.fromTimestamp,
         domains,
         params.get(domain)!.maxBlockNumber,
+        params.get(domain)!.orderDirection,
       );
     } else {
       console.log(`No agents for domain: ${domain}`);
@@ -328,7 +377,6 @@ export const getDestinationTransfersByExecuteTimestampQuery = (
 
 const destinationTransfersByReconcileTimestampQueryString = (
   prefix: string,
-  originDomain: string,
   fromTimestamp: number,
   destinationDomains: string[],
   maxBlockNumber?: number,
@@ -337,14 +385,13 @@ const destinationTransfersByReconcileTimestampQueryString = (
   return `
   ${prefix}_destinationTransfers(
     where: { 
-      originDomain: ${originDomain}, 
       reconciledTimestamp_gte: ${fromTimestamp}, 
       destinationDomain_in: [${destinationDomains}] 
       ${maxBlockNumber ? `, reconciledBlockNumber_lte: ${maxBlockNumber}` : ""} 
     }, 
     orderBy: executedTimestamp, 
     orderDirection: ${orderDirection}
-  ) {${ORIGIN_TRANSFER_ENTITY}}`;
+  ) {${DESTINATION_TRANSFER_ENTITY}}`;
 };
 
 export const getDestinationTransfersByReconcileTimestampQuery = (
@@ -359,10 +406,10 @@ export const getDestinationTransfersByReconcileTimestampQuery = (
     if (params.has(domain)) {
       combinedQuery += destinationTransfersByReconcileTimestampQueryString(
         prefix,
-        domain,
         params.get(domain)!.fromTimestamp,
         domains,
         params.get(domain)!.maxBlockNumber,
+        params.get(domain)!.orderDirection,
       );
     } else {
       console.log(`No agents for domain: ${domain}`);
