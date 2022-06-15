@@ -95,7 +95,9 @@ contract PortalFacet is BaseConnextFacet {
     // is the adopted asset
 
     // Swap for exact `totalRepayAmount` of adopted asset to repay aave
+    (, bytes32 id) = s.tokenRegistry.getTokenId(_local);
     (bool success, uint256 amountIn, address adopted) = AssetLogic.swapFromLocalAssetIfNeededForExactOut(
+      id,
       _local,
       totalAmount,
       _maxIn
@@ -109,21 +111,19 @@ contract PortalFacet is BaseConnextFacet {
     }
 
     // back loan
-    _backLoan(_local, _backingAmount, _feeAmount, _transferId);
+    _backLoan(adopted, _backingAmount, _feeAmount, _transferId);
   }
 
   /**
    * @notice This allows anyone to repay the portal in the adopted asset for a given router
    * and transfer
    * @dev Should always be paying in the backing asset for the aave loan
-   * @param _router Router who took out the credit
    * @param _adopted Address of the adopted asset (asset backing the loan)
    * @param _backingAmount Amount of principle to repay
    * @param _feeAmount Amount of fees to repay
    * @param _transferId Corresponding transfer id for the fees
    */
   function repayAavePortalFor(
-    address _router,
     address _adopted,
     uint256 _backingAmount,
     uint256 _feeAmount,
