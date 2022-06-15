@@ -298,7 +298,6 @@ const originByXCalledTimestampQueryString = (
   prefix: string,
   originDomain: string,
   fromTimestamp: number,
-  destinationDomains: string[],
   maxBlockNumber?: number,
   orderDirection: "asc" | "desc" = "desc",
 ) => {
@@ -306,7 +305,6 @@ const originByXCalledTimestampQueryString = (
     where: {
       originDomain: ${originDomain},
       timestamp_gte: ${fromTimestamp},
-      destinationDomain_in: [${destinationDomains}]
       ${maxBlockNumber ? `, blockNumber_lte: ${maxBlockNumber}` : ""}
     },
     orderBy: timestamp,
@@ -328,7 +326,6 @@ export const getOriginTransfersByXCallTimestampQuery = (
         prefix,
         domain,
         params.get(domain)!.fromTimestamp,
-        domains,
         params.get(domain)!.maxBlockNumber,
         params.get(domain)!.orderDirection,
       );
@@ -347,7 +344,6 @@ export const getOriginTransfersByXCallTimestampQuery = (
 const destinationTransfersByExecuteTimestampQueryString = (
   prefix: string,
   fromTimestamp: number,
-  destinationDomains: string[],
   maxBlockNumber?: number,
   orderDirection: "asc" | "desc" = "desc",
 ) => {
@@ -355,7 +351,6 @@ const destinationTransfersByExecuteTimestampQueryString = (
   ${prefix}_destinationTransfers(
     where: { 
       executedTimestamp_gte: ${fromTimestamp}, 
-      destinationDomain_in: [${destinationDomains}] 
       ${maxBlockNumber ? `, executedBlockNumber_lte: ${maxBlockNumber}` : ""} 
     }, 
     orderBy: executedTimestamp, 
@@ -376,7 +371,6 @@ export const getDestinationTransfersByExecuteTimestampQuery = (
       combinedQuery += destinationTransfersByExecuteTimestampQueryString(
         prefix,
         params.get(domain)!.fromTimestamp,
-        domains,
         params.get(domain)!.maxBlockNumber,
         params.get(domain)!.orderDirection,
       );
@@ -395,7 +389,6 @@ export const getDestinationTransfersByExecuteTimestampQuery = (
 const destinationTransfersByReconcileTimestampQueryString = (
   prefix: string,
   fromTimestamp: number,
-  destinationDomains: string[],
   maxBlockNumber?: number,
   orderDirection: "asc" | "desc" = "desc",
 ) => {
@@ -403,7 +396,6 @@ const destinationTransfersByReconcileTimestampQueryString = (
   ${prefix}_destinationTransfers(
     where: { 
       reconciledTimestamp_gte: ${fromTimestamp}, 
-      destinationDomain_in: [${destinationDomains}] 
       ${maxBlockNumber ? `, reconciledBlockNumber_lte: ${maxBlockNumber}` : ""} 
     }, 
     orderBy: executedTimestamp, 
@@ -424,7 +416,6 @@ export const getDestinationTransfersByReconcileTimestampQuery = (
       combinedQuery += destinationTransfersByReconcileTimestampQueryString(
         prefix,
         params.get(domain)!.fromTimestamp,
-        domains,
         params.get(domain)!.maxBlockNumber,
         params.get(domain)!.orderDirection,
       );
