@@ -97,10 +97,12 @@ describe("e2e", () => {
         "1337": {
           assets: [{ address: "0x8e4C131B37383E431B9cd0635D3cF9f3F628EDae", name: "TEST" }],
           providers: ["http://localhost:8547"],
+          deployments: { connext: "0x8273e4B8ED6c78e252a9fCa5563Adfcc75C91b2A" },
         },
         "1338": {
           assets: [{ address: "0x8e4C131B37383E431B9cd0635D3cF9f3F628EDae", name: "TEST" }],
           providers: ["http://localhost:8546"],
+          deployments: { connext: "0x8273e4B8ED6c78e252a9fCa5563Adfcc75C91b2A" },
         },
       },
       cartographerUrl: "http://localhost:3000",
