@@ -7,6 +7,13 @@ import {SwapUtils, LPToken, AmplificationUtils, MathUtils, SafeERC20, SafeMath, 
 import "../../../../contracts/core/connext/helpers/StableSwap.sol";
 import {TestERC20} from "../../../../contracts/test/TestERC20.sol";
 
+// Helper to call library with native value functions
+contract LibCaller is StableSwap {
+  function getSwapStorage() external view returns (SwapUtils.Swap memory) {
+    return swapStorage;
+  }
+}
+
 contract SwapUtilsTest is ForgeHelper {
   // ============ Libraries ============
   using SwapUtils for SwapUtils.Swap;
@@ -55,13 +62,12 @@ contract SwapUtilsTest is ForgeHelper {
   address _user1 = address(1);
   address _user2 = address(2);
 
-  StableSwap stableSwap;
+  LibCaller caller;
+  SwapUtils.Swap swapStorage;
 
   LPToken lpToken;
   TestERC20 token0;
   TestERC20 token1;
-
-  SwapUtils.Swap swapStorage;
 
   // ============ Setup ============
 
@@ -69,6 +75,9 @@ contract SwapUtilsTest is ForgeHelper {
     utils_initializeSwap();
 
     utils_addLiquidity(1 ether, 1 ether);
+
+    swapStorage = caller.getSwapStorage();
+    lpToken = swapStorage.lpToken;
   }
 
   // ============ Utils ============
@@ -102,10 +111,6 @@ contract SwapUtilsTest is ForgeHelper {
     _decimals[0] = 18;
     _decimals[1] = 18;
 
-    uint256[] memory tokenPrecisionMultipliers = new uint256[](2);
-    tokenPrecisionMultipliers[0] = uint256(1);
-    tokenPrecisionMultipliers[1] = uint256(1);
-
     uint256 _a = INITIAL_A_VALUE;
     uint256 _adminFee = 0;
     uint256 _fee = SWAP_FEE;
@@ -115,20 +120,11 @@ contract SwapUtilsTest is ForgeHelper {
 
     vm.startPrank(_owner);
 
-    stableSwap = new StableSwap();
-    stableSwap.initialize(
-      _pooledTokens,
-      _decimals,
-      LP_TOKEN_NAME,
-      LP_TOKEN_SYMBOL,
-      _a,
-      _fee,
-      _adminFee,
-      address(lpToken)
-    );
+    caller = new LibCaller();
+    caller.initialize(_pooledTokens, _decimals, LP_TOKEN_NAME, LP_TOKEN_SYMBOL, _a, _fee, _adminFee, address(lpToken));
     vm.stopPrank();
 
-    assertEq(stableSwap.getVirtualPrice(), 0);
+    assertEq(caller.getVirtualPrice(), 0);
 
     vm.warp(blockTimestamp);
   }
@@ -139,10 +135,10 @@ contract SwapUtilsTest is ForgeHelper {
     amounts[1] = amount2;
 
     vm.startPrank(_user1);
-    IERC20(swapStorage.pooledTokens[0]).approve(address(stableSwap), 100 ether);
-    IERC20(swapStorage.pooledTokens[1]).approve(address(stableSwap), 100 ether);
+    IERC20(caller.getSwapStorage().pooledTokens[0]).approve(address(caller), 100 ether);
+    IERC20(caller.getSwapStorage().pooledTokens[1]).approve(address(caller), 100 ether);
 
-    stableSwap.addLiquidity(amounts, 0, blockTimestamp + 1);
+    caller.addLiquidity(amounts, 0, blockTimestamp + 1);
     vm.stopPrank();
   }
 
@@ -150,161 +146,127 @@ contract SwapUtilsTest is ForgeHelper {
 
   // Should work
   function test_SwapUtils__calculateWithdrawOneToken_works() public {
-    uint256 lpTokenSupply = stablelpToken.totalSupply();
+    uint256 lpTokenSupply = lpToken.totalSupply();
     uint256 amount = 0.01 ether;
-    uint256 availableTokenAmount = SwapUtils.calculateWithdrawOneToken(swap, amount, 0);
-    assertEq(availableTokenAmount, uint256(19));
+    uint256 availableTokenAmount = caller.calculateRemoveLiquidityOneToken(amount, 0);
+    assertEq(availableTokenAmount, 9994508116007042);
   }
 
-  // // ============ calculateWithdrawOneTokenDY ============
+  // =========== calculateWithdrawOneTokenDY ============
 
-  // // Should work
-  // function test_SwapUtils__calculateWithdrawOneTokenDY_works() public {
-  //   uint256 dy;
-  //   uint256 newY;
-  //   uint256 currentY;
-  //   uint256 lpTokenSupply = lpToken.totalSupply();
-  //   uint256 amount = 0.01 ether;
+  // Should work
+  function test_SwapUtils__calculateWithdrawOneTokenDY_works() public {
+    uint256 dy;
+    uint256 newY;
+    uint256 currentY;
+    uint256 lpTokenSupply = lpToken.totalSupply();
+    uint256 amount = 0.01 ether;
 
-  //   (dy, newY, currentY) = SwapUtils.calculateWithdrawOneTokenDY(swap, 0, amount, lpTokenSupply);
-  //   assertEq(dy, uint256(19));
-  //   assertEq(newY, uint256(980));
-  //   assertEq(currentY, uint256(lpTokenSupply));
-  // }
+    (dy, newY, currentY) = swapStorage.calculateWithdrawOneTokenDY(0, amount, lpTokenSupply);
+    assertEq(dy, uint256(9994508116007042));
+    assertEq(newY, uint256(990000492622791685));
+    assertEq(currentY, uint256(1000000000000000000));
+  }
 
-  // // ============ getYD ============
+  // ============ getYD ============
 
-  // // Should work
-  // function test_SwapUtils__getYD_works() public {
-  //   uint256 lpTokenSupply = lpToken.totalSupply();
-  //   uint256 amount = 0.01 ether;
+  // Should work
+  function test_SwapUtils__getYD_works() public {
+    uint256 lpTokenSupply = lpToken.totalSupply();
+    uint256 amount = 0.01 ether;
 
-  //   uint256[] memory xp = SwapUtils._xp(swap);
+    uint256[] memory xp = SwapUtils._xp(swapStorage);
 
-  //   uint256 d0 = SwapUtils.getD(xp, swapStorage.getAPrecise());
-  //   uint256 d1 = d0.sub(amount.mul(d0).div(lpTokenSupply));
+    uint256 d0 = SwapUtils.getD(xp, swapStorage.getAPrecise());
+    uint256 d1 = d0.sub(amount.mul(d0).div(lpTokenSupply));
 
-  //   uint256 newY = SwapUtils.getYD(swapStorage.getAPrecise(), 0, xp, d1);
+    uint256 newY = SwapUtils.getYD(swapStorage.getAPrecise(), 0, xp, d1);
 
-  //   assertEq(newY, uint256(980));
-  // }
+    assertEq(newY, uint256(990000492622791685));
+  }
 
-  // // ============ getD ============
+  // ============ getD ============
 
-  // // Should work
-  // function test_SwapUtils__getD_works() public {
-  //   uint256[] memory xp = SwapUtils._xp(swap);
-  //   uint256 d0 = SwapUtils.getD(xp, swapStorage.getAPrecise());
+  // Should work
+  function test_SwapUtils__getD_works() public {
+    uint256[] memory xp = SwapUtils._xp(swapStorage);
+    uint256 d0 = SwapUtils.getD(xp, swapStorage.getAPrecise());
 
-  //   assertEq(d0, uint256(2000));
-  // }
+    assertEq(d0, uint256(2000000000000000000));
+  }
 
-  // // ============ _xp ============
+  // ============ _xp ============
 
-  // // Should work
-  // function test_SwapUtils___xp_works() public {
-  //   uint256[] memory xp = SwapUtils._xp(swap);
+  // Should work
+  function test_SwapUtils___xp_works() public {
+    uint256[] memory xp = SwapUtils._xp(swapStorage);
 
-  //   uint256 numTokens = swapStorage.balances.length;
-  //   for (uint256 i = 0; i < numTokens; i++) {
-  //     assertEq(xp[0], swapStorage.balances[0].mul(swapStorage.tokenPrecisionMultipliers[0]));
-  //   }
-  // }
+    uint256 numTokens = swapStorage.balances.length;
+    for (uint256 i = 0; i < numTokens; i++) {
+      assertEq(xp[0], swapStorage.balances[0].mul(swapStorage.tokenPrecisionMultipliers[0]));
+    }
+  }
 
-  // // ============ getVirtualPrice ============
+  // ============ getVirtualPrice ============
 
-  // // Should work
-  // function test_SwapUtils__getVirtualPrice_worksWithSupplyZero() public {
-  //   uint256 virtualPrice = SwapUtils.getVirtualPrice(swap);
+  // Should work
+  function test_SwapUtils__getVirtualPrice_worksWithSupply() public {
+    uint256 lpTokenSupply = lpToken.totalSupply();
+    uint256 virtualPrice = SwapUtils.getVirtualPrice(swapStorage);
 
-  //   assertEq(virtualPrice, uint256(0));
-  // }
+    uint256[] memory xp = SwapUtils._xp(swapStorage);
+    uint256 d = SwapUtils.getD(xp, swapStorage.getAPrecise());
 
-  // // Should work
-  // function test_SwapUtils__getVirtualPrice_worksWithSupply() public {
-  //   uint256 lpTokenSupply = lpToken.totalSupply();
-  //   uint256 virtualPrice = SwapUtils.getVirtualPrice(swap);
+    uint256 verify = d.mul(10**uint256(SwapUtils.POOL_PRECISION_DECIMALS)).div(lpTokenSupply);
 
-  //   uint256[] memory xp = SwapUtils._xp(swap);
-  //   uint256 d = SwapUtils.getD(xp, swapStorage.getAPrecise());
+    assertEq(virtualPrice, uint256(verify));
+  }
 
-  //   uint256 verify = d.mul(10**uint256(SwapUtils.POOL_PRECISION_DECIMALS)).div(lpTokenSupply);
+  // ============ getY ============
 
-  //   assertEq(virtualPrice, uint256(verify));
-  // }
+  // Should work
+  function test_SwapUtils__getY_works() public {
+    uint256[] memory xp = SwapUtils._xp(swapStorage);
+    uint256 dx = 0.1 ether;
+    uint256 x = dx.mul(swapStorage.tokenPrecisionMultipliers[0]).add(xp[0]);
+    uint256 y = SwapUtils.getY(swapStorage.getAPrecise(), 0, 1, x, xp);
 
-  // // ============ getY ============
+    assertEq(y, uint256(900197586023458169));
+  }
 
-  // // Should work
-  // function test_SwapUtils__getY_works() public {
-  //   uint256[] memory xp = SwapUtils._xp(swap);
-  //   uint256 dx = 0.1 ether;
-  //   uint256 x = dx.mul(swapStorage.tokenPrecisionMultipliers[0]).add(xp[0]);
-  //   uint256 y = SwapUtils.getY(swapStorage.getAPrecise(), 0, 1, x, xp);
+  // ============ calculateSwap ============
 
-  //   console.logUint(y);
-  //   assertEq(y, uint256(980));
-  // }
+  // Should work
+  function test_SwapUtils__calculateSwap_works() public {
+    uint256 amount = 0.01 ether;
+    uint256 dy = SwapUtils.calculateSwap(swapStorage, 0, 1, amount);
 
-  // // ============ calculateSwap ============
+    assertEq(dy, uint256(9988041372295327));
+  }
 
-  // // Should work
-  // function test_SwapUtils__calculateSwap_works() public {
-  //   uint256 amount = 0.01 ether;
-  //   uint256 dy = SwapUtils.calculateSwap(swap, 0, 1, amount);
+  // ============ _calculateSwap ============
 
-  //   assertEq(dy, uint256(9));
-  // }
+  // Should work
+  function test_SwapUtils___calculateSwap_works() public {
+    uint256 dy;
+    uint256 dyFee;
+    uint256 amount = 0.01 ether;
 
-  // // ============ _calculateSwap ============
+    (dy, dyFee) = SwapUtils._calculateSwap(swapStorage, 0, 1, amount, swapStorage.balances);
 
-  // // Should work
-  // function test_SwapUtils___calculateSwap_works() public {
-  //   uint256 dy;
-  //   uint256 dyFee;
-  //   uint256 amount = 0.01 ether;
+    assertEq(dy, 9988041372295327);
+    assertEq(dyFee, 9998039411707);
+  }
 
-  //   (dy, dyFee) = SwapUtils._calculateSwap(swap, 0, 1, amount, swapStorage.balances);
+  // ============ _calculateRemoveLiquidity ============
 
-  //   assertEq(dy, uint256(9));
-  //   assertEq(dyFee, uint256(0));
-  // }
+  // Should work
+  function test_SwapUtils___calculateRemoveLiquidity_works() public {
+    uint256 lpTokenSupply = lpToken.totalSupply();
+    uint256 amount = 0.01 ether;
+    uint256[] memory res = SwapUtils._calculateRemoveLiquidity(swapStorage.balances, amount, lpTokenSupply);
 
-  // // ============ calculateRemoveLiquidity ============
-
-  // // Should work
-  // function test_SwapUtils__calculateRemoveLiquidity_works() public {
-  //   uint256 lpTokenSupply = lpToken.totalSupply();
-  //   uint256 amount = 0.01 ether;
-  //   uint256[] memory res = SwapUtils.calculateRemoveLiquidity(swap, amount);
-
-  //   assertEq(res[0], amount);
-  //   assertEq(res[1], amount);
-  // }
-
-  // // ============ _calculateRemoveLiquidity ============
-
-  // // Should work
-  // function test_SwapUtils___calculateRemoveLiquidity_works() public {
-  //   uint256 lpTokenSupply = lpToken.totalSupply();
-  //   uint256 amount = 0.01 ether;
-  //   uint256[] memory res = SwapUtils._calculateRemoveLiquidity(swapStorage.balances, amount, lpTokenSupply);
-
-  //   assertEq(res[0], amount);
-  //   assertEq(res[1], amount);
-  // }
-
-  // // ============ calculateTokenAmount ============
-
-  // // Should work
-  // function test_SwapUtils__calculateTokenAmount_worksIfDeposit() public {
-  //   // uint256 res = SwapUtils.calculateTokenAmount(swap, abi.encode(balances), true);
-  //   // console.logUint(res);
-  // }
-
-  // // Should work
-  // function test_SwapUtils__calculateTokenAmount_worksIfWithdraw() public {
-  //   // uint256 res = SwapUtils.calculateTokenAmount(swap, abi.encode(balances), false);
-  //   // console.logUint(res);
-  // }
+    assertEq(res[0], 5000000000000000);
+    assertEq(res[1], 5000000000000000);
+  }
 }
