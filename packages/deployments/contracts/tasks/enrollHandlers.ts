@@ -22,7 +22,12 @@ export default task("enroll-handlers", "Add a remote router")
       [deployer] = await ethers.getUnnamedSigners();
     }
 
-    const chains = _chains.split(",").map((c) => +c);
+    const current = await ethers.provider.getNetwork();
+
+    const chains = _chains
+      .split(",")
+      .map((c) => +c)
+      .filter((c) => c != current.chainId);
     const env = mustGetEnv(_env);
     console.log("env:", env);
     console.log("type:", type);
