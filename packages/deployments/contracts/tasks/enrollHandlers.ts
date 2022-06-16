@@ -1,6 +1,6 @@
 import { hexlify } from "ethers/lib/utils";
 import { task } from "hardhat/config";
-import { Contract } from "ethers";
+import { Contract} from "ethers";
 
 import { canonizeId, getDomainInfoFromChainId } from "../src/nomad";
 import { Env, getDeploymentName, mustGetEnv } from "../src/utils";
@@ -22,7 +22,7 @@ export default task("enroll-handlers", "Add a remote router")
       [deployer] = await hre.ethers.getUnnamedSigners();
     }
 
-    const current = await ethers.provider.getNetwork();
+    const current = await hre.ethers.provider.getNetwork();
 
     const chains = _chains
       .split(",")

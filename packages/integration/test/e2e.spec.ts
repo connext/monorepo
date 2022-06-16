@@ -126,6 +126,7 @@ describe("e2e", () => {
       amount: "1",
       params: {
         originDomain: "1337",
+    
         destinationDomain: "1338",
         to: wallet.address,
         callback: constants.AddressZero,

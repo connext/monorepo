@@ -13,7 +13,7 @@
   "error RoutersFacet__addLiquidityForRouter_badRouter()",
   "error RoutersFacet__addLiquidityForRouter_routerEmpty()",
   "error RoutersFacet__approveRouterForPortal_alreadyApproved()",
-  "error RoutersFacet__approveRouterForPortal_notRouter()",
+  "error RoutersFacet__approveRouterForPortal_notAdded()",
   "error RoutersFacet__onlyProposedRouterOwner_notProposedRouterOwner()",
   "error RoutersFacet__onlyProposedRouterOwner_notRouterOwner()",
   "error RoutersFacet__onlyRouterOwner_notRouterOwner()",

@@ -208,7 +208,6 @@ describe.skip("Integration:E2E", () => {
             domain,
           });
           if (!isApproved) {
-            if (deployer) {
               log.info("Router is not approved. Using deployer to approve.");
               // Router is not approved. Use deployer to approve router.
               const encoded = connext.encodeFunctionData("setupRouter", [
