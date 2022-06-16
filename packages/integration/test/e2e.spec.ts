@@ -9,6 +9,52 @@ import { enrollCustom } from "./helpers/enrollCustom";
 import { setupRouter } from "./helpers/setupRouter";
 import { setupAsset } from "./helpers/setupAsset";
 
+// TODO: Move to a sep. constants file (current constants file is for live integration tests).
+
+const defaultWallet = Wallet.fromMnemonic("candy maple cake sugar pudding cream honey rich smooth crumble sweet treat");
+const PARAMETERS = {
+  ENVIRONMENT: "production",
+  AGENTS: {
+    ROUTER: {
+      address: "0x627306090abaB3A6e1400e9345bC60c78a8BEf57",
+    },
+    CARTOGRAPHER: {
+      url: "http://localhost:3000",
+    },
+    USER: {
+      address: defaultWallet.address,
+      signer: defaultWallet,
+    },
+  },
+  // NOTE: Current test parameters / setup here assumes the token used is local on both chains.
+  // i.e. there's no swap from adopted -> local on origin or local -> adopted on destination
+  ASSET: {
+    address: "0x8e4C131B37383E431B9cd0635D3cF9f3F628EDae",
+    name: "TEST",
+  },
+  A: {
+    DOMAIN: "1337",
+    CHAIN: 1337,
+    RPC: ["http://localhost:8547"],
+    DEPLOYMENTS: {
+      ConnextHandler: "0x8273e4B8ED6c78e252a9fCa5563Adfcc75C91b2A",
+      PromiseRouterUpgradeBeaconProxy: "0xbaAA2a3237035A2c7fA2A33c76B44a8C6Fe18e87",
+      RelayerFeeRouterUpgradeBeaconProxy: "0xEcFcaB0A285d3380E488A39B4BB21e777f8A4EaC",
+    },
+  },
+  B: {
+    DOMAIN: "1338",
+    CHAIN: 1338,
+    RPC: ["http://localhost:8546"],
+    DEPLOYMENTS: {
+      ConnextHandler: "0x8273e4B8ED6c78e252a9fCa5563Adfcc75C91b2A",
+      PromiseRouterUpgradeBeaconProxy: "0xbaAA2a3237035A2c7fA2A33c76B44a8C6Fe18e87",
+      RelayerFeeRouterUpgradeBeaconProxy: "0xEcFcaB0A285d3380E488A39B4BB21e777f8A4EaC",
+      TokenRegistry: "0x75c35C980C0d37ef46DF04d31A140b65503c0eEd",
+    },
+  },
+};
+
 const logger = new Logger({ name: "e2e" });
 
 const wallet = Wallet.fromMnemonic("candy maple cake sugar pudding cream honey rich smooth crumble sweet treat");
@@ -16,11 +62,11 @@ const wallet = Wallet.fromMnemonic("candy maple cake sugar pudding cream honey r
 const txService = new TransactionService(
   logger,
   {
-    "1337": {
-      providers: ["http://localhost:8547"],
+    [PARAMETERS.A.DOMAIN]: {
+      providers: PARAMETERS.A.RPC,
     },
-    "1338": {
-      providers: ["http://localhost:8546"],
+    [PARAMETERS.B.DOMAIN]: {
+      providers: PARAMETERS.B.RPC,
     },
   },
   wallet,
@@ -34,16 +80,12 @@ describe("e2e", () => {
     await enrollHandlers(
       [
         {
-          domain: "1337",
-          ConnextHandler: "0x8273e4B8ED6c78e252a9fCa5563Adfcc75C91b2A",
-          PromiseRouterUpgradeBeaconProxy: "0xbaAA2a3237035A2c7fA2A33c76B44a8C6Fe18e87",
-          RelayerFeeRouterUpgradeBeaconProxy: "0xEcFcaB0A285d3380E488A39B4BB21e777f8A4EaC",
+          domain: PARAMETERS.A.DOMAIN,
+          ...PARAMETERS.A.DEPLOYMENTS,
         },
         {
-          domain: "1338",
-          ConnextHandler: "0x8273e4B8ED6c78e252a9fCa5563Adfcc75C91b2A",
-          PromiseRouterUpgradeBeaconProxy: "0xbaAA2a3237035A2c7fA2A33c76B44a8C6Fe18e87",
-          RelayerFeeRouterUpgradeBeaconProxy: "0xEcFcaB0A285d3380E488A39B4BB21e777f8A4EaC",
+          domain: PARAMETERS.B.DOMAIN,
+          ...PARAMETERS.B.DEPLOYMENTS,
         },
       ],
       txService,
@@ -53,14 +95,14 @@ describe("e2e", () => {
     logger.info("Enrolling custom...");
     await enrollCustom(
       {
-        domain: "1337",
-        tokenAddress: "0x8e4C131B37383E431B9cd0635D3cF9f3F628EDae",
+        domain: PARAMETERS.A.DOMAIN,
+        tokenAddress: PARAMETERS.ASSET.address,
       },
       [
         {
-          domain: "1338",
-          tokenAddress: "0x8e4C131B37383E431B9cd0635D3cF9f3F628EDae",
-          TokenRegistry: "0x75c35C980C0d37ef46DF04d31A140b65503c0eEd",
+          domain: PARAMETERS.B.DOMAIN,
+          tokenAddress: PARAMETERS.ASSET.address,
+          TokenRegistry: PARAMETERS.B.DEPLOYMENTS.TokenRegistry,
         },
       ],
       txService,
@@ -69,10 +111,10 @@ describe("e2e", () => {
 
     logger.info("Setting up router...");
     await setupRouter(
-      "0x627306090abaB3A6e1400e9345bC60c78a8BEf57",
+      PARAMETERS.AGENTS.ROUTER.address,
       [
-        { ConnextHandler: "0x8273e4B8ED6c78e252a9fCa5563Adfcc75C91b2A", domain: "1337" },
-        { ConnextHandler: "0x8273e4B8ED6c78e252a9fCa5563Adfcc75C91b2A", domain: "1338" },
+        { ConnextHandler: PARAMETERS.A.DEPLOYMENTS.ConnextHandler, domain: PARAMETERS.A.DOMAIN },
+        { ConnextHandler: PARAMETERS.B.DEPLOYMENTS.ConnextHandler, domain: PARAMETERS.B.DOMAIN },
       ],
       txService,
     );
@@ -80,12 +122,13 @@ describe("e2e", () => {
 
     logger.info("Setting up assets...");
     await setupAsset(
-      { domain: "1337", tokenAddress: "0x8e4C131B37383E431B9cd0635D3cF9f3F628EDae" },
+      { domain: PARAMETERS.A.DOMAIN, tokenAddress: PARAMETERS.ASSET.address },
       [
         {
-          domain: "1338",
-          ConnextHandler: "0x8273e4B8ED6c78e252a9fCa5563Adfcc75C91b2A",
-          adopted: "0x8e4C131B37383E431B9cd0635D3cF9f3F628EDae",
+          domain: PARAMETERS.B.DOMAIN,
+          ConnextHandler: PARAMETERS.B.DEPLOYMENTS.ConnextHandler,
+          // NOTE: Same as local; this means we won't be doing any swaps.
+          adopted: PARAMETERS.ASSET.address,
         },
       ],
       txService,
@@ -94,50 +137,49 @@ describe("e2e", () => {
 
     sdk = await NxtpSdkBase.create({
       chains: {
-        "1337": {
-          assets: [{ address: "0x8e4C131B37383E431B9cd0635D3cF9f3F628EDae", name: "TEST" }],
-          providers: ["http://localhost:8547"],
-          deployments: { connext: "0x8273e4B8ED6c78e252a9fCa5563Adfcc75C91b2A" },
-          chainId: 1337,
+        [PARAMETERS.A.DOMAIN]: {
+          assets: [{ address: PARAMETERS.ASSET.address, name: PARAMETERS.ASSET.name }],
+          providers: PARAMETERS.A.RPC,
+          deployments: { connext: PARAMETERS.A.DEPLOYMENTS.ConnextHandler },
+          chainId: PARAMETERS.A.CHAIN,
         },
-        "1338": {
-          assets: [{ address: "0x8e4C131B37383E431B9cd0635D3cF9f3F628EDae", name: "TEST" }],
-          providers: ["http://localhost:8546"],
-          deployments: { connext: "0x8273e4B8ED6c78e252a9fCa5563Adfcc75C91b2A" },
-          chainId: 1338,
+        [PARAMETERS.B.DOMAIN]: {
+          assets: [{ address: PARAMETERS.ASSET.address, name: PARAMETERS.ASSET.name }],
+          providers: PARAMETERS.B.RPC,
+          deployments: { connext: PARAMETERS.B.DEPLOYMENTS.ConnextHandler },
+          chainId: PARAMETERS.B.CHAIN,
         },
       },
-      cartographerUrl: "http://localhost:3000",
-      environment: "production",
-      signerAddress: wallet.address,
+      cartographerUrl: PARAMETERS.AGENTS.CARTOGRAPHER.url,
+      environment: PARAMETERS.ENVIRONMENT as "production" | "staging",
+      signerAddress: PARAMETERS.AGENTS.USER.address,
     });
 
-    let tx = await sdk.approveIfNeeded("1337", "0x8e4C131B37383E431B9cd0635D3cF9f3F628EDae", "1", true);
+    let tx = await sdk.approveIfNeeded(PARAMETERS.A.DOMAIN, PARAMETERS.ASSET.address, "1", true);
     if (tx) {
       await txService.sendTx({ chainId: 1337, to: tx.to!, value: 0, data: utils.hexlify(tx.data!) }, requestContext);
     }
     if (tx) {
-      tx = await sdk.approveIfNeeded("1338", "0x8e4C131B37383E431B9cd0635D3cF9f3F628EDae", "1", true);
+      tx = await sdk.approveIfNeeded(PARAMETERS.B.DOMAIN, PARAMETERS.ASSET.address, "1", true);
     }
   });
 
   it.only("sends a simple transfer with fast path", async () => {
     const tx = await sdk.xcall({
-      amount: "1",
+      amount: "1000",
       params: {
-        originDomain: "1337",
-
-        destinationDomain: "1338",
-        to: wallet.address,
+        originDomain: PARAMETERS.A.DOMAIN,
+        destinationDomain: PARAMETERS.B.DOMAIN,
+        to: PARAMETERS.AGENTS.USER.address,
         callback: constants.AddressZero,
         callbackFee: "0",
         callData: "0x",
         forceSlow: false,
         receiveLocal: false,
-        recovery: wallet.address,
+        recovery: PARAMETERS.AGENTS.USER.address,
       },
-      relayerFee: "1",
-      transactingAssetId: "0x8e4C131B37383E431B9cd0635D3cF9f3F628EDae",
+      relayerFee: "0",
+      transactingAssetId: PARAMETERS.ASSET.address,
     });
 
     const receipt = await txService.sendTx(
