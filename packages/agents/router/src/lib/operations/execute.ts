@@ -19,7 +19,7 @@ export const getBlacklist = async (
   destinationDomain: string,
   nomadEnvironment: string,
 ): Promise<{ originBlacklisted: boolean; destinationBlacklisted: boolean }> => {
-  const context = BridgeContext.fromNomadContext(new NomadContext(nomadEnvironment));
+  const { bridgeContext: context } = getContext();
   //todo: look for higher level import of this class
   //push them to blacklist if not there already
   await context.checkHomes([Number(originDomain), Number(destinationDomain)]);
