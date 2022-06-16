@@ -3,6 +3,7 @@ import { getChainData, mkBytes32, ChainData } from "@connext/nxtp-utils";
 import { getDeployedConnextContract, _getContractDeployments } from "@connext/nxtp-txservice";
 import { SequencerConfig } from "@connext/nxtp-sequencer/src/lib/entities/config";
 import { NxtpRouterConfig as RouterConfig, ChainConfig as RouterChainConfig } from "@connext/nxtp-router/src/config";
+import { version as routerPackageVersion } from "@connext/nxtp-router/package.json";
 import { RelayerConfig } from "@connext/nxtp-relayer/src/lib/entities/config";
 import { CartographerConfig } from "@connext/cartographer-poller/src/config";
 
@@ -296,9 +297,10 @@ export const SEQUENCER_CONFIG: Promise<SequencerConfig> = (async (): Promise<Seq
     mode: {
       cleanup: false,
     },
-    auctionWaitTime: 1,
-    auctionRoundDepth: 4,
+    auctionWaitTime: 5_000,
+    auctionRoundDepth: 3,
     network: "testnet",
+    supportedBidVersion: routerPackageVersion,
     environment: ENVIRONMENT.toString() as "staging" | "production",
     relayerUrl: LOCAL_RELAYER_ENABLED ? `http://${LOCALHOST}:8082` : undefined,
   };

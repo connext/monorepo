@@ -246,9 +246,9 @@ export function handleExecuted(event: Executed): void {
   }
 
   const num = event.params.args.routers.length;
-  const amount = event.params.args.amount;
+  const amount = event.params.transactingAmount;
+  const routerAmount = amount.div(BigInt.fromI32(num));
   const routers: string[] = [];
-
   if (transfer.status != "Reconciled") {
     for (let i = 0; i < num; i++) {
       const param = event.params.args.routers[i].toHex();

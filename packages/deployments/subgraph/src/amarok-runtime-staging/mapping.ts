@@ -246,7 +246,8 @@ export function handleExecuted(event: Executed): void {
   }
 
   const num = event.params.args.routers.length;
-  const amount = event.params.args.amount;
+  const amount = event.params.transactingAmount;
+  const routerAmount = amount.div(BigInt.fromI32(num));
   const routers: string[] = [];
   if (transfer.status != "Reconciled") {
     for (let i = 0; i < num; i++) {
@@ -264,7 +265,7 @@ export function handleExecuted(event: Executed): void {
 
       // Update router's liquidity
       const assetBalance = getOrCreateAssetBalance(event.params.args.local, event.params.args.routers[i]);
-      assetBalance.amount = assetBalance.amount.minus(amount.div(BigInt.fromI32(num)));
+      assetBalance.amount = assetBalance.amount.minus(routerAmount);
       assetBalance.save();
     }
   } // otherwise no routers used
