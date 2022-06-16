@@ -22,7 +22,7 @@ export const getBlacklist = async (
   const context = BridgeContext.fromNomadContext(new NomadContext(nomadEnvironment));
   //todo: look for higher level import of this class
   //push them to blacklist if not there already
-  await context.checkHomes([originDomain, destinationDomain]);
+  await context.checkHomes([Number(originDomain), Number(destinationDomain)]);
 
   //get blacklist
   const blacklist = context.blacklist();
