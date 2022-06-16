@@ -8,16 +8,12 @@ import { getAuctionAmount } from "../helpers/auctions";
 // @ts-ignore
 import { version } from "../../../package.json";
 
-import { NomadContext } from "@nomad-xyz/sdk";
-import { BridgeContext } from "@nomad-xyz/sdk-bridge";
-
 // fee percentage paid to relayer. need to be updated later
 export const RELAYER_FEE_PERCENTAGE = "1"; //  1%
 //helper function to match our config environments with nomads
 export const getBlacklist = async (
   originDomain: string,
   destinationDomain: string,
-  nomadEnvironment: string,
 ): Promise<{ originBlacklisted: boolean; destinationBlacklisted: boolean }> => {
   const { bridgeContext: context } = getContext();
   //todo: look for higher level import of this class
