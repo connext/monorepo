@@ -265,7 +265,7 @@ export function handleExecuted(event: Executed): void {
 
       // Update router's liquidity
       const assetBalance = getOrCreateAssetBalance(event.params.args.local, event.params.args.routers[i]);
-      assetBalance.amount = assetBalance.amount.minus(amount.div(BigInt.fromI32(num)));
+      assetBalance.amount = assetBalance.amount.minus(routerAmount);
       assetBalance.save();
     }
   } // otherwise no routers used
