@@ -24,6 +24,11 @@ type Router @entity {
   proposedTimestamp: BigInt
   assetBalances: [AssetBalance!]! @derivedFrom(field: "router")
 }
+type Setting @entity {
+  id: ID!
+  maxRoutersPerTransfer: BigInt!
+  caller: Bytes!
+}
 
 type Relayer @entity {
   id: ID!

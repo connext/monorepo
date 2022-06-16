@@ -17,6 +17,7 @@ import axios from "axios";
 import { getConfig, NxtpRouterConfig } from "./config";
 import { bindMetrics, bindPrices, bindSubgraph, bindServer, bindCache } from "./bindings";
 import { AppContext } from "./lib/entities";
+import { getHelpers } from "./lib/helpers";
 
 // AppContext instance used for interacting with adapters, config, etc.
 const context: AppContext = {} as any;
@@ -59,6 +60,8 @@ export const makeRouter = async (_configOverride?: NxtpRouterConfig) => {
       context.adapters.wallet,
     );
     context.adapters.contracts = getContractInterfaces();
+
+    /// MARK - Validation for auctionRoundDepth
 
     /// MARK - Cold Start Housekeeping
     try {
@@ -139,6 +142,9 @@ export const setupCache = async (requestContext: RequestContext): Promise<StoreM
 
 export const setupSubgraphReader = async (requestContext: RequestContext): Promise<SubgraphReader> => {
   const { logger, chainData, config } = context;
+  const {
+    auctions: { getMinimumBidsCountForRound },
+  } = getHelpers();
   const methodContext = createMethodContext(setupSubgraphReader.name);
 
   const allowedDomains = [...Object.keys(config.chains)];
@@ -161,5 +167,21 @@ export const setupSubgraphReader = async (requestContext: RequestContext): Promi
   }
 
   logger.info("Subgraph reader setup is done!", requestContext, methodContext, {});
+
+  logger.info("Validating the auction round depth for each domain...");
+  const maxRoutersPerTransfer = await subgraphReader.getMaxRoutersPerTransfer(Object.keys(supported));
+  for (const domain of maxRoutersPerTransfer.keys()) {
+    const configuredMaxRouters = getMinimumBidsCountForRound(config.auctionRoundDepth);
+    if (maxRoutersPerTransfer.has(domain) && configuredMaxRouters > maxRoutersPerTransfer.get(domain)!) {
+      logger.info("Validation error, Invalid auctionRoundDepth configured!", requestContext, methodContext, {
+        domain,
+        auctionRoundDepth: config.auctionRoundDepth,
+        configured: configuredMaxRouters,
+        onchain: maxRoutersPerTransfer.get(domain),
+      });
+      process.exit(1);
+    }
+  }
+
   return subgraphReader;
 };
