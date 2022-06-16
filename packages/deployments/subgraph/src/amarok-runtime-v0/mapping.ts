@@ -246,8 +246,10 @@ export function handleExecuted(event: Executed): void {
   }
 
   const num = event.params.args.routers.length;
-  const amount = event.params.transactingAmount;
-  const routerAmount = amount.div(BigInt.fromI32(num));
+  const amount = event.params.args.amount;
+  // TODO: Move from using hardcoded fee calc to using configured liquidity fee numerator.
+  const feesTaken = amount.times(BigInt.fromI32(5)).div(BigInt.fromI32(10000));
+  const routerAmount = amount.minus(feesTaken).div(BigInt.fromI32(num));
   const routers: string[] = [];
   if (transfer.status != "Reconciled") {
     for (let i = 0; i < num; i++) {
