@@ -121,11 +121,7 @@ export const execute = async (params: OriginTransfer): Promise<void> => {
     });
   }
 
-  const { originBlacklisted, destinationBlacklisted } = await getBlacklist(
-    originDomain,
-    destinationDomain,
-    config.nomadEnvironment,
-  );
+  const { originBlacklisted, destinationBlacklisted } = await getBlacklist(originDomain, destinationDomain);
 
   logger.debug("Signed payloads", requestContext, methodContext, {
     rounds: Object.keys(signatures),
