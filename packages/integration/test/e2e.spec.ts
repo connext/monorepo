@@ -126,7 +126,7 @@ describe("e2e", () => {
       amount: "1",
       params: {
         originDomain: "1337",
-    
+
         destinationDomain: "1338",
         to: wallet.address,
         callback: constants.AddressZero,
@@ -147,8 +147,8 @@ describe("e2e", () => {
 
     receipt.logs.forEach((log, index) => {
       try {
-        const l = new utils.Interface(ConnextHandlerAbi as string[]).parseLog(log);
-        console.log(`log at index ${index}: `, l);
+        const iface = new utils.Interface(ConnextHandlerAbi).parseLog(log);
+        console.log(`log at index ${index}: `, iface);
       } catch (e: unknown) {}
     });
   });
