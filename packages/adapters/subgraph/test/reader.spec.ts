@@ -351,4 +351,26 @@ describe("SubgraphReader", () => {
       expect(await subgraphReader.getDestinationTransfers(originTransfers)).to.be.deep.eq([transferEntity]);
     });
   });
+
+  describe("#getLatestBlockNumber", () => {
+    it("should return latestBlockNumber per domain", async () => {
+      response.set("1111", [{ block: { number: 100 } }]);
+      response.set("2221", [{ block: { number: 200 } }]);
+      executeStub.resolves(response);
+      const res = await subgraphReader.getLatestBlockNumber(["1111", "2221"]);
+      expect(res.get("1111")).to.be.eq(100);
+      expect(res.get("2221")).to.be.eq(200);
+    });
+  });
+
+  describe("#getMaxRoutersPerTransfer", () => {
+    it("should return maxRoutersPerTransfer per domain", async () => {
+      response.set("1111", [{ maxRoutersPerTransfer: 3 }]);
+      response.set("2221", [{ maxRoutersPerTransfer: 3 }]);
+      executeStub.resolves(response);
+      const res = await subgraphReader.getMaxRoutersPerTransfer(["1111", "2221"]);
+      expect(res.get("1111")).to.be.eq(3);
+      expect(res.get("2221")).to.be.eq(3);
+    });
+  });
 });
