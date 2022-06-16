@@ -4,17 +4,16 @@ import { Pool } from "pg";
 import { getContext } from "../../shared";
 
 import {
-  getLatestNonce,
   getTransfersByStatus,
   saveTransfers,
   saveRouterBalances,
+  getLatestXCallTimestamp,
   getLatestExecuteTimestamp,
   getLatestReconcileTimestamp,
 } from "./client";
 
 export type Database = {
   saveTransfers: (xtransfers: XTransfer[], _pool?: Pool) => Promise<void>;
-  getLatestNonce: (domain: string, _pool?: Pool) => Promise<number>;
   getTransfersByStatus: (
     status: XTransferStatus,
     limit: number,
@@ -23,6 +22,7 @@ export type Database = {
     _pool?: Pool,
   ) => Promise<XTransfer[]>;
   saveRouterBalances: (routerBalances: RouterBalance[], _pool?: Pool) => Promise<void>;
+  getLatestXCallTimestamp: (domain: string, _pool?: Pool) => Promise<number>;
   getLatestExecuteTimestamp: (domain: string, _pool?: Pool) => Promise<number>;
   getLatestReconcileTimestamp: (domain: string, _pool?: Pool) => Promise<number>;
 };
@@ -42,10 +42,10 @@ export const getDatabase = async (): Promise<Database> => {
   }
 
   return {
-    getLatestNonce,
     saveTransfers,
     getTransfersByStatus,
     saveRouterBalances,
+    getLatestXCallTimestamp,
     getLatestExecuteTimestamp,
     getLatestReconcileTimestamp,
   };

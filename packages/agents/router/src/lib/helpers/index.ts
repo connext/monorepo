@@ -1,4 +1,4 @@
-import { getAuctionStatus, sendBid } from "./auctions";
+import { getAuctionStatus, sendBid, getMinimumBidsCountForRound } from "./auctions";
 import {
   getDestinationLocalAsset,
   getTransactionId,
@@ -15,6 +15,7 @@ export const getHelpers = () => {
     auctions: {
       getAuctionStatus,
       sendBid,
+      getMinimumBidsCountForRound,
     },
     shared: {
       getDestinationLocalAsset,

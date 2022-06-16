@@ -31,7 +31,7 @@ COPY packages/adapters/subgraph/package.json /tmp/build/packages/adapters/subgra
 COPY packages/adapters/txservice/package.json /tmp/build/packages/adapters/txservice/
 COPY packages/deployments/contracts/package.json /tmp/build/packages/deployments/contracts/
 COPY packages/utils/package.json /tmp/build/packages/utils/
-RUN touch /tmp/build/yarn.lock
+COPY yarn.lock /tmp/build/
 
 # ----- Install dependencies -----
 # Install dependencies exactly as in the yarn.lock file - no updates.
