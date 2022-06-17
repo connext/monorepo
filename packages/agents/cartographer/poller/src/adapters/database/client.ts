@@ -108,6 +108,40 @@ export const getTransfersByStatus = async (
   return x.map(convertFromDbTransfer);
 };
 
+export const getTransfersWithOriginPending = async (
+  domain: string,
+  limit: number,
+  orderDirection: "ASC" | "DESC" = "ASC",
+  _pool?: Pool,
+): Promise<string[]> => {
+  const poolToUse = _pool ?? pool;
+  const transfers = await db.sql<s.transfers.SQL, s.transfers.JSONSelectable[]>`SELECT * FROM ${"transfers"} WHERE ${{
+    origin_domain: domain,
+  }} AND "xcall_timestamp" IS NULL ORDER BY "update_time", "nonce" ${raw(
+    `${orderDirection}`,
+  )} NULLS LAST LIMIT ${db.param(limit)}`.run(poolToUse);
+
+  const transfer_ids = transfers.map((transfer) => transfer.transfer_id);
+  return transfer_ids;
+};
+
+export const getTransfersWithDestinationPending = async (
+  domain: string,
+  limit: number,
+  orderDirection: "ASC" | "DESC" = "ASC",
+  _pool?: Pool,
+): Promise<string[]> => {
+  const poolToUse = _pool ?? pool;
+  const transfers = await db.sql<s.transfers.SQL, s.transfers.JSONSelectable[]>`SELECT * FROM ${"transfers"} WHERE ${{
+    destination_domain: domain,
+  }} AND ("xcall_timestamp" IS NOT NULL AND ("execute_timestamp" IS NULL OR "reconcile_timestamp" IS NULL)) ORDER BY "update_time", "nonce" ${raw(
+    `${orderDirection}`,
+  )} NULLS LAST LIMIT ${db.param(limit)}`.run(poolToUse);
+
+  const transfer_ids = transfers.map((transfer) => transfer.transfer_id);
+  return transfer_ids;
+};
+
 export const getLatestXCallTimestamp = async (domain: string, _pool?: Pool): Promise<number> => {
   const poolToUse = _pool ?? pool;
   const transfer = await db.sql<s.transfers.SQL, s.transfers.JSONSelectable[]>`SELECT * FROM ${"transfers"} WHERE ${{

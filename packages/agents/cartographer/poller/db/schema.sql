@@ -22,6 +22,20 @@ CREATE TYPE public.transfer_status AS ENUM (
 );
 
 
+--
+-- Name: trigger_set_timestamp(); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.trigger_set_timestamp() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$
+BEGIN
+  NEW.update_time = NOW();
+  RETURN NEW;
+END;
+$$;
+
+
 SET default_tablespace = '';
 
 SET default_table_access_method = heap;
@@ -138,7 +152,8 @@ CREATE TABLE public.transfers (
     callback character(42),
     recovery character(42),
     callback_fee numeric,
-    execute_relayer_fee numeric
+    execute_relayer_fee numeric,
+    update_time timestamp without time zone DEFAULT CURRENT_TIMESTAMP NOT NULL
 );
 
 
@@ -183,6 +198,13 @@ ALTER TABLE ONLY public.transfers
 
 
 --
+-- Name: transfers update_time_on_transfers; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER update_time_on_transfers BEFORE UPDATE ON public.transfers FOR EACH ROW EXECUTE FUNCTION public.trigger_set_timestamp();
+
+
+--
 -- Name: asset_balances fk_asset; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -209,4 +231,5 @@ ALTER TABLE ONLY public.asset_balances
 
 INSERT INTO public.schema_migrations (version) VALUES
     ('20220520150644'),
-    ('20220524141906');
+    ('20220524141906'),
+    ('20220617215641');

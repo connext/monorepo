@@ -9,6 +9,7 @@ import {
   RouterBalance,
   AssetBalance,
   SubgraphQueryByTimestampMetaParams,
+  SubgraphQueryByTransferIDsMetaParams,
 } from "@connext/nxtp-utils";
 
 import { getHelpers } from "./lib/helpers";
@@ -29,6 +30,8 @@ import {
   getDestinationTransfersByReconcileTimestampQuery,
   getOriginTransfersByXCallTimestampQuery,
   getMaxRoutersPerTransferQuery,
+  getOriginTransfersByIDsCombinedQuery,
+  getDestinationTransfersByIDsCombinedQuery,
 } from "./lib/operations";
 import { SubgraphMap } from "./lib/entities";
 
@@ -359,6 +362,46 @@ export class SubgraphReader {
   ): Promise<XTransfer[]> {
     const { execute, parser } = getHelpers();
     const xcalledXQuery = getDestinationTransfersByReconcileTimestampQuery(params);
+    const response = await execute(xcalledXQuery);
+
+    const transfers: any[] = [];
+    for (const key of response.keys()) {
+      const value = response.get(key);
+      transfers.push(value?.flat());
+    }
+
+    const destinationTransfers: XTransfer[] = transfers
+      .flat()
+      .filter((x: any) => !!x)
+      .map(parser.destinationTransfer);
+
+    return destinationTransfers;
+  }
+
+  public async getOriginTransfersById(params: Map<string, SubgraphQueryByTransferIDsMetaParams>): Promise<XTransfer[]> {
+    const { execute, parser } = getHelpers();
+    const xcalledXQuery = getOriginTransfersByIDsCombinedQuery(params);
+    const response = await execute(xcalledXQuery);
+
+    const transfers: any[] = [];
+    for (const key of response.keys()) {
+      const value = response.get(key);
+      transfers.push(value?.flat());
+    }
+
+    const originTransfers: XTransfer[] = transfers
+      .flat()
+      .filter((x: any) => !!x)
+      .map(parser.originTransfer);
+
+    return originTransfers;
+  }
+
+  public async getDestinationTransfersById(
+    params: Map<string, SubgraphQueryByTransferIDsMetaParams>,
+  ): Promise<XTransfer[]> {
+    const { execute, parser } = getHelpers();
+    const xcalledXQuery = getDestinationTransfersByIDsCombinedQuery(params);
     const response = await execute(xcalledXQuery);
 
     const transfers: any[] = [];
