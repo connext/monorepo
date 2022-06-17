@@ -6,9 +6,11 @@ import { SubgraphReader } from "@connext/nxtp-adapters-subgraph";
 import { Web3Signer } from "@connext/nxtp-adapters-web3signer";
 
 import { NxtpRouterConfig } from "../../config";
+import { BridgeContext } from "@nomad-xyz/sdk-bridge";
 
 export type AppContext = {
   logger: Logger;
+  bridgeContext: BridgeContext;
   adapters: {
     // Stateful interfaces for peripherals.
     wallet: Wallet | Web3Signer; // Used for signing metatxs for bids.
