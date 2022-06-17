@@ -17,7 +17,7 @@ export const LOCALHOST = "localhost"; // alt. 0.0.0.0
 const ASSET_CONTRACT_NAME = "TestERC20";
 
 /// MARK - Integration Settings
-const DEFAULT_ROUTE = ["2221", "1111"]; // Kovan => Rinkeby
+const DEFAULT_ROUTE = ["1111", "3331"]; // Rinkeby => Goerli
 
 // Override of what the canonical asset should be.
 export const CANONICAL_ASSET = process.env.CANONICAL_ASSET;
