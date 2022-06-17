@@ -661,7 +661,7 @@ contract BridgeFacet is BaseConnextFacet {
     }
 
     // swap out of mad* asset into adopted asset if needed
-    return AssetLogic.swapFromLocalAssetIfNeeded(_args.local, toSwap, _args.params.slippageTol);
+    return AssetLogic.swapFromLocalAssetIfNeeded(_canonicalId, _args.local, toSwap, _args.params.slippageTol);
   }
 
   /**

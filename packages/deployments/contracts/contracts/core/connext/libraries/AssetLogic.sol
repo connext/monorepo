@@ -191,17 +191,15 @@ library AssetLogic {
    * @return The address of asset received post-swap
    */
   function swapFromLocalAssetIfNeeded(
+    bytes32 _canonicalId,
     address _asset,
     uint256 _amount,
     uint256 _slippageTol
   ) internal returns (uint256, address) {
     AppStorage storage s = LibConnextStorage.connextStorage();
 
-    // Get the token id
-    (, bytes32 id) = s.tokenRegistry.getTokenId(_asset);
-
     // If the adopted asset is the local asset, no need to swap
-    address adopted = s.canonicalToAdopted[id];
+    address adopted = s.canonicalToAdopted[_canonicalId];
     if (adopted == _asset) {
       return (_amount, _asset);
     }
@@ -212,7 +210,7 @@ library AssetLogic {
     }
 
     // Swap the asset to the proper local asset
-    return _swapAsset(id, _asset, adopted, _amount, _slippageTol);
+    return _swapAsset(_canonicalId, _asset, adopted, _amount, _slippageTol);
   }
 
   /**
