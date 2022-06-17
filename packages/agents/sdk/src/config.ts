@@ -10,6 +10,7 @@ const DEFAULT_ALLOWED_TOLERANCE = 10; // in percent
 export const TAssetDescription = Type.Object({
   name: Type.String(),
   address: TAddress,
+  symbol: Type.String(),
   mainnetEquivalent: Type.Optional(TAddress),
 });
 

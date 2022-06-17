@@ -23,7 +23,6 @@ export const mock = {
         deployments: {
           connext: mkAddress("0xabcdef123"),
           stableSwap: mkAddress("0xabcdef123"),
-          stableSwapFacet: mkAddress("0xabcdef123"),
         },
         gasStations: [],
       },
@@ -34,7 +33,6 @@ export const mock = {
         deployments: {
           connext: mkAddress("0xabcdef123"),
           stableSwap: mkAddress("0xabcdef123"),
-          stableSwapFacet: mkAddress("0xabcdef123"),
         },
         gasStations: [],
       },
@@ -74,7 +72,6 @@ export const mock = {
         priceOracle: priceOracle as unknown as ConnextContractInterfaces["priceOracle"],
         tokenRegistry: tokenRegistry as unknown as ConnextContractInterfaces["tokenRegistry"],
         stableSwap: stableSwap as unknown as ConnextContractInterfaces["stableSwap"],
-        stableSwapFacet: stableSwapFacet as unknown as ConnextContractInterfaces["stableSwapFacet"],
       };
     },
     deployments: (): ConnextContractDeployments => {
@@ -85,6 +82,7 @@ export const mock = {
         }),
         priceOracle: (_: number) => ({ address: mkAddress("0xbaddad"), abi: {} }),
         tokenRegistry: (_: number) => ({ address: mkAddress("0xbbbddd"), abi: {} }),
+        stableSwap: (_: number) => ({ address: mkAddress("0xbbbdcc"), abi: {} }),
       };
     },
   },
