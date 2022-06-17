@@ -6,15 +6,11 @@ import {
   ConnextPriceOracle as TConnextPriceOracle,
   TokenRegistry as TTokenRegistry,
   StableSwap as TStableSwap,
-  StableSwapFacet as TStableSwapFacet,
-  AssetFacet as TAssetFacet,
 } from "@connext/nxtp-contracts/typechain-types";
 import PriceOracleArtifact from "@connext/nxtp-contracts/artifacts/contracts/core/connext/helpers/ConnextPriceOracle.sol/ConnextPriceOracle.json";
 import ERC20Artifact from "@connext/nxtp-contracts/artifacts/contracts/core/connext/helpers/OZERC20.sol/ERC20.json";
 import ConnextArtifact from "@connext/nxtp-contracts/artifacts/hardhat-diamond-abi/ConnextHandler.sol/ConnextHandler.json";
 import StableSwapArtifact from "@connext/nxtp-contracts/artifacts/contracts/core/connext/helpers/StableSwap.sol/StableSwap.json";
-import StableSwapFacetArtifact from "@connext/nxtp-contracts/artifacts/contracts/core/connext/facets/StableSwapFacet.sol/StableSwapFacet.json";
-import AssetFacetArtifact from "@connext/nxtp-contracts/artifacts/contracts/core/connext/facets/AssetFacet.sol/AssetFacet.json";
 import TokenRegistryArtifact from "@connext/nxtp-contracts/artifacts/contracts/core/connext/helpers/TokenRegistry.sol/TokenRegistry.json";
 
 export type ContractPostfix = "Staging" | "";
@@ -117,34 +113,6 @@ export const getDeployedStableSwapContract = (
   return contract ? { address: contract.address, abi: contract.abi } : undefined;
 };
 
-export const getDeployedStableSwapFacetContract = (
-  chainId: number,
-  postfix: ContractPostfix = "",
-): { address: string; abi: any } | undefined => {
-  const _contractDeployments = _getContractDeployments();
-  const record = _contractDeployments[chainId.toString()] ?? {};
-  const name = Object.keys(record)[0] as string | undefined;
-  if (!name) {
-    return undefined;
-  }
-  const contract = record[name]?.contracts ? record[name]?.contracts[`StableSwapFacet${postfix}`] : undefined;
-  return contract ? { address: contract.address, abi: contract.abi } : undefined;
-};
-
-export const getDeployedAssetFacetContract = (
-  chainId: number,
-  postfix: ContractPostfix = "",
-): { address: string; abi: any } | undefined => {
-  const _contractDeployments = _getContractDeployments();
-  const record = _contractDeployments[chainId.toString()] ?? {};
-  const name = Object.keys(record)[0] as string | undefined;
-  if (!name) {
-    return undefined;
-  }
-  const contract = record[name]?.contracts ? record[name]?.contracts[`AssetFacet${postfix}`] : undefined;
-  return contract ? { address: contract.address, abi: contract.abi } : undefined;
-};
-
 export type ConnextContractDeploymentGetter = (
   chainId: number,
   postfix?: ContractPostfix,
@@ -155,8 +123,6 @@ export type ConnextContractDeployments = {
   priceOracle: ConnextContractDeploymentGetter;
   tokenRegistry: ConnextContractDeploymentGetter;
   stableSwap: ConnextContractDeploymentGetter;
-  stableSwapFacet: ConnextContractDeploymentGetter;
-  assetFacet: ConnextContractDeploymentGetter;
 };
 
 export const contractDeployments: ConnextContractDeployments = {
@@ -164,8 +130,6 @@ export const contractDeployments: ConnextContractDeployments = {
   priceOracle: getDeployedPriceOracleContract,
   tokenRegistry: getDeployedTokenRegistryContract,
   stableSwap: getDeployedStableSwapContract,
-  stableSwapFacet: getDeployedStableSwapFacetContract,
-  assetFacet: getDeployedAssetFacetContract,
 };
 
 /// MARK - CONTRACT INTERFACES
@@ -188,19 +152,12 @@ export const getTokenRegistryInterface = () =>
 
 export const getStableSwapInterface = () => new utils.Interface(StableSwapArtifact.abi) as TStableSwap["interface"];
 
-export const getStableSwapFacetInterface = () =>
-  new utils.Interface(StableSwapFacetArtifact.abi) as TStableSwapFacet["interface"];
-
-export const getAssetFacetInterface = () => new utils.Interface(AssetFacetArtifact.abi) as TAssetFacet["interface"];
-
 export type ConnextContractInterfaces = {
   erc20: TIERC20Minimal["interface"];
   connext: TConnext["interface"];
   priceOracle: TConnextPriceOracle["interface"];
   tokenRegistry: TTokenRegistry["interface"];
   stableSwap: TStableSwap["interface"];
-  stableSwapFacet: TStableSwapFacet["interface"];
-  assetFacet: TAssetFacet["interface"];
 };
 
 export const getContractInterfaces = (): ConnextContractInterfaces => ({
@@ -209,6 +166,4 @@ export const getContractInterfaces = (): ConnextContractInterfaces => ({
   priceOracle: getPriceOracleInterface(),
   tokenRegistry: getTokenRegistryInterface(),
   stableSwap: getStableSwapInterface(),
-  stableSwapFacet: getStableSwapFacetInterface(),
-  assetFacet: getAssetFacetInterface(),
 });
