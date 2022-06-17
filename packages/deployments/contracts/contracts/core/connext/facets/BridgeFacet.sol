@@ -348,14 +348,17 @@ contract BridgeFacet is BaseConnextFacet {
    * reconciliation to occur.
    */
   function execute(ExecuteArgs calldata _args) external whenNotPaused nonReentrant returns (bytes32) {
-    (bytes32 transferId, bool reconciled) = _executeSanityChecks(_args);
+    // Retrieve canonical domain and ID for the transacting asset.
+    (uint32 canonicalDomain, bytes32 canonicalId) = s.tokenRegistry.getTokenId(_args.local);
+
+    (bytes32 transferId, bool reconciled) = _executeSanityChecks(_args, canonicalDomain, canonicalId);
 
     // Set the relayer for this transaction to allow for future claim
     s.transferRelayer[transferId] = msg.sender;
 
     // execute router liquidity when this is a fast transfer
     // asset will be adopted unless specified to be local in params
-    (uint256 amount, address asset) = _handleExecuteLiquidity(transferId, !reconciled, _args);
+    (uint256 amount, address asset) = _handleExecuteLiquidity(transferId, canonicalId, !reconciled, _args);
 
     // execute the transaction
     uint256 amountWithSponsors = _handleExecuteTransaction(_args, amount, asset, transferId, reconciled);
@@ -474,7 +477,11 @@ contract BridgeFacet is BaseConnextFacet {
    * @notice Performs some sanity checks for `execute`
    * @dev Need this to prevent stack too deep
    */
-  function _executeSanityChecks(ExecuteArgs calldata _args) private view returns (bytes32, bool) {
+  function _executeSanityChecks(
+    ExecuteArgs calldata _args,
+    uint32 canonicalDomain,
+    bytes32 canonicalId
+  ) private view returns (bytes32, bool) {
     // If the sender is not approved relayer, revert
     if (!s.approvedRelayers[msg.sender] && msg.sender != _args.params.agent) {
       revert BridgeFacet__execute_unapprovedSender();
@@ -488,7 +495,7 @@ contract BridgeFacet is BaseConnextFacet {
     if (pathLength > s.maxRoutersPerTransfer) revert BridgeFacet__execute_maxRoutersExceeded();
 
     // Derive transfer ID based on given arguments.
-    bytes32 transferId = _getTransferId(_args);
+    bytes32 transferId = _getTransferId(_args, canonicalDomain, canonicalId);
 
     // Retrieve the reconciled record. If the transfer is `forceSlow` then it must be reconciled first
     // before it's executed.
@@ -549,7 +556,6 @@ contract BridgeFacet is BaseConnextFacet {
     view
     returns (bytes32)
   {
-    // return keccak256(abi.encode(s.nonce, _args.params, msg.sender, _canonical.id, _canonical.domain, _args.amount));
     return _calculateTransferId(_args.params, _args.amount, s.nonce, _canonical.id, _canonical.domain, msg.sender);
   }
 
@@ -557,9 +563,13 @@ contract BridgeFacet is BaseConnextFacet {
    * @notice Calculates a transferId based on `execute` arguments
    * @dev Need this to prevent stack too deep
    */
-  function _getTransferId(ExecuteArgs calldata _args) private view returns (bytes32) {
-    (uint32 tokenDomain, bytes32 tokenId) = s.tokenRegistry.getTokenId(_args.local);
-    return _calculateTransferId(_args.params, _args.amount, _args.nonce, tokenId, tokenDomain, _args.originSender);
+  function _getTransferId(
+    ExecuteArgs calldata _args,
+    uint32 canonicalDomain,
+    bytes32 canonicalId
+  ) private pure returns (bytes32) {
+    return
+      _calculateTransferId(_args.params, _args.amount, _args.nonce, canonicalId, canonicalDomain, _args.originSender);
   }
 
   /**
@@ -597,6 +607,7 @@ contract BridgeFacet is BaseConnextFacet {
    */
   function _handleExecuteLiquidity(
     bytes32 _transferId,
+    bytes32 _canonicalId,
     bool _isFast,
     ExecuteArgs calldata _args
   ) private returns (uint256, address) {
@@ -628,7 +639,7 @@ contract BridgeFacet is BaseConnextFacet {
           revert BridgeFacet__execute_notApprovedForPortals();
 
         // Portal provides the adopted asset so we early return here
-        return _executePortalTransfer(_transferId, toSwap, _args.local, _args.routers[0]);
+        return _executePortalTransfer(_transferId, _canonicalId, toSwap, _args.local, _args.routers[0]);
       } else {
         // for each router, assert they are approved, and deduct liquidity
         uint256 routerAmount = toSwap / pathLen;
@@ -725,14 +736,14 @@ contract BridgeFacet is BaseConnextFacet {
    */
   function _executePortalTransfer(
     bytes32 _transferId,
+    bytes32 _canonicalId,
     uint256 _fastTransferAmount,
     address _local,
     address _router
   ) internal returns (uint256, address) {
     // Calculate local to adopted swap output if needed
-    (, bytes32 id) = s.tokenRegistry.getTokenId(_local);
     (uint256 userAmount, address adopted) = AssetLogic.calculateSwapFromLocalAssetIfNeeded(
-      id,
+      _canonicalId,
       _local,
       _fastTransferAmount
     );
