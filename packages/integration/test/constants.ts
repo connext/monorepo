@@ -36,7 +36,7 @@ export const LOCAL_CARTOGRAPHER_ENABLED = process.env.LOCAL_CARTOGRAPHER_ENABLED
 // TODO: May need to increase this at some point:
 export const RELAYER_FEE_AMOUNT = utils.parseEther("0.0000000001"); // In ETH.
 export const TRANSFER_TOKEN_AMOUNT = utils.parseEther("2.5"); // In TEST.
-export const ROUTER_DESIRED_LIQUIDITY = utils.parseEther("1000000"); // In TEST.
+export const ROUTER_DESIRED_LIQUIDITY = utils.parseEther("1000"); // In TEST.
 
 // Min amounts needed for testing.
 export const MIN_USER_ETH = utils.parseEther("0.02").add(RELAYER_FEE_AMOUNT);
@@ -263,7 +263,7 @@ export const ROUTER_CONFIG: Promise<RouterConfig> = (async (): Promise<RouterCon
       subgraph: 5_000,
       cache: 5_000,
     },
-    auctionRoundDepth: 4,
+    auctionRoundDepth: 3,
     environment,
     nomadEnvironment: NOMAD_ENVIRONMENT,
   };
