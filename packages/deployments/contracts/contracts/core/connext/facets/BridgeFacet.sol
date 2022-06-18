@@ -289,12 +289,6 @@ contract BridgeFacet is BaseConnextFacet {
         canonical = ConnextMessage.TokenId(canonicalDomain, canonicalId);
       }
 
-      transferId = _getTransferId(_args, canonical);
-      s.nonce += 1;
-
-      // Store the relayer fee
-      s.relayerFees[transferId] = _args.params.relayerFee;
-
       // Transfer funds of transacting asset to the contract from the user.
       // NOTE: Will wrap any native asset transferred to wrapped-native automatically.
       (, uint256 amount) = AssetLogic.handleIncomingAsset(
@@ -310,6 +304,15 @@ contract BridgeFacet is BaseConnextFacet {
         amount,
         _args.params.slippageTol
       );
+
+      // Calculate the transfer id
+      transferId = _getTransferId(_args, canonical, bridgedAmt);
+      s.nonce += 1;
+
+      // Store the relayer fee
+      // NOTE: this has to be done *after* transferring in + swapping assets because
+      // the transfer id uses the amount that is bridged (i.e. amount in local asset)
+      s.relayerFees[transferId] = _args.params.relayerFee;
 
       // Transfer callback fee to PromiseRouter if set
       if (_args.params.callbackFee != 0) {
@@ -547,13 +550,12 @@ contract BridgeFacet is BaseConnextFacet {
    * @notice Calculates a transferId based on `xcall` arguments
    * @dev Need this to prevent stack too deep
    */
-  function _getTransferId(XCallArgs calldata _args, ConnextMessage.TokenId memory _canonical)
-    private
-    view
-    returns (bytes32)
-  {
-    // return keccak256(abi.encode(s.nonce, _args.params, msg.sender, _canonical.id, _canonical.domain, _args.amount));
-    return _calculateTransferId(_args.params, _args.amount, s.nonce, _canonical.id, _canonical.domain, msg.sender);
+  function _getTransferId(
+    XCallArgs calldata _args,
+    ConnextMessage.TokenId memory _canonical,
+    uint256 bridgedAmt
+  ) private view returns (bytes32) {
+    return _calculateTransferId(_args.params, bridgedAmt, s.nonce, _canonical.id, _canonical.domain, msg.sender);
   }
 
   /**
