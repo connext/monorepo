@@ -104,6 +104,10 @@ describe("Backend operations", () => {
     getLatestExecuteTimestampStub.resolves(0);
     const getLatestReconcileTimestampStub = stub(dbClient, "getLatestReconcileTimestamp");
     getLatestReconcileTimestampStub.resolves(0);
+    const getTransfersWithOriginPendingStub = stub(dbClient, "getTransfersWithOriginPending");
+    getTransfersWithOriginPendingStub.resolves([]);
+    const getTransfersWithDestinationPendingpStub = stub(dbClient, "getTransfersWithDestinationPending");
+    getTransfersWithDestinationPendingpStub.resolves([]);
 
     mockContext = {
       logger: new Logger({
@@ -122,6 +126,8 @@ describe("Backend operations", () => {
           getLatestXCallTimestamp: dbClient.getLatestXCallTimestamp,
           getLatestExecuteTimestamp: dbClient.getLatestExecuteTimestamp,
           getLatestReconcileTimestamp: dbClient.getLatestReconcileTimestamp,
+          getTransfersWithOriginPending: dbClient.getTransfersWithOriginPending,
+          getTransfersWithDestinationPending: dbClient.getTransfersWithDestinationPending,
         },
       },
       config: mockConfig as CartographerConfig,
