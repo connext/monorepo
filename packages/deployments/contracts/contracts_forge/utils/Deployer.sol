@@ -349,7 +349,7 @@ contract Deployer {
     address wrapper,
     address relayerFeeRouter,
     address payable promiseRouter
-  ) internal {
+  ) internal returns (address) {
     bytes memory initCallData = abi.encodeWithSelector(
       DiamondInit.init.selector,
       domain,
@@ -363,5 +363,6 @@ contract Deployer {
     deployFacets();
 
     connextDiamondProxy = new Connext(address(this), address(diamondInit), initCallData, getFacetCuts());
+    return address(connextDiamondProxy);
   }
 }
