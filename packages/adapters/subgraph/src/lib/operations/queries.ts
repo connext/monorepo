@@ -168,7 +168,7 @@ export const getAssetBalancesRoutersQuery = (
     ${prefix}_routers(
     skip: ${offset},
     orderBy: id,
-    orderDirection: ${orderDirection})) {
+    orderDirection: ${orderDirection}) {
       id
       assetBalances {
         amount
