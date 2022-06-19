@@ -1,11 +1,7 @@
 import { providers, utils } from "ethers";
 import { getChainData, Logger, createLoggingContext, ChainData } from "@connext/nxtp-utils";
-import {
-  getContractInterfaces,
-  ConnextContractInterfaces,
-  contractDeployments,
-  ChainReader,
-} from "@connext/nxtp-txservice";
+import { getContractInterfaces, contractDeployments, ChainReader } from "@connext/nxtp-txservice";
+import { ConnextHandler as TConnext, TokenRegistry as TTokenRegistry } from "@connext/nxtp-contracts/typechain-types";
 
 import { NxtpSdkConfig, getConfig } from "./config";
 import { getChainIdFromDomain } from "./lib/helpers";
@@ -22,7 +18,8 @@ export interface IPoolStats {
 }
 
 export interface IPoolData {
-  id: string;
+  chainId: number;
+  domainId: string;
   name: string;
   symbol: string;
   address: string;
@@ -30,35 +27,64 @@ export interface IPoolData {
   lpTokenAddress: string;
 }
 
+export class Pool implements IPoolData {
+  chainId: number;
+  domainId: string;
+  name: string;
+  symbol: string; // in the form of <TKN>-mad<TKN>
+  address: string;
+  assets: string[]; // [0] is adopted, [1] is representation
+  lpTokenAddress: string;
+
+  constructor(
+    chainId: number,
+    domainId: string,
+    name: string,
+    symbol: string,
+    address: string,
+    assets: string[],
+    lpTokenAddress: string,
+  ) {
+    this.chainId = chainId;
+    this.domainId = domainId;
+    this.name = name;
+    this.symbol = symbol;
+    this.address = address;
+    this.assets = assets;
+    this.lpTokenAddress = lpTokenAddress;
+  }
+}
+
 /**
  * @classdesc Lightweight class to facilitate interaction with StableSwap Pools.
  * @dev This class will either interact with internal StableSwapFacet pools or external StableSwap pools
- *      depending on which type of pool is being used for the canonical token.
+ *      depending on which type of pool is being used for each asset.
+ *      Note: SDK currently only supports internal StableSwapFacet pools.
  *
  */
 export class NxtpSdkPool {
   public readonly config: NxtpSdkConfig;
-  private readonly logger: Logger;
-  private readonly contracts: ConnextContractInterfaces; // Used to read and write to smart contracts.
-  private chainReader: ChainReader;
-
   public readonly chainData: Map<string, ChainData>;
+  public readonly connext: TConnext["interface"];
+  public readonly tokenRegistry: TTokenRegistry["interface"];
 
-  constructor(config: NxtpSdkConfig, logger: Logger, chainData: Map<string, ChainData>) {
+  private readonly logger: Logger;
+  private readonly chainReader: ChainReader;
+
+  constructor(config: NxtpSdkConfig, logger: Logger, chainData: Map<string, ChainData>, chainReader: ChainReader) {
     this.config = config;
     this.logger = logger;
     this.chainData = chainData;
-    this.contracts = getContractInterfaces();
-    this.chainReader = new ChainReader(
-      this.logger.child({ module: "ChainReader" }, this.config.logLevel),
-      this.config.chains,
-    );
+    this.chainReader = chainReader;
+    this.connext = getContractInterfaces().connext;
+    this.tokenRegistry = getContractInterfaces().tokenRegistry;
   }
 
   static async create(
     _config: NxtpSdkConfig,
     _logger?: Logger,
     _chainData?: Map<string, ChainData>,
+    _chainReader?: ChainReader,
   ): Promise<NxtpSdkPool> {
     const chainData = _chainData ?? (await getChainData());
     if (!chainData) {
@@ -66,107 +92,108 @@ export class NxtpSdkPool {
     }
 
     const nxtpConfig = await getConfig(_config, contractDeployments, chainData);
+
     const logger = _logger
       ? _logger.child({ name: "NxtpSdkPool" })
       : new Logger({ name: "NxtpSdkPool", level: nxtpConfig.logLevel });
 
-    return new NxtpSdkPool(nxtpConfig, logger, chainData);
+    const chainReader =
+      _chainReader ?? new ChainReader(logger.child({ module: "ChainReader" }, nxtpConfig.logLevel), nxtpConfig.chains);
+
+    return new NxtpSdkPool(nxtpConfig, logger, chainData, chainReader);
   }
 
-  async getCanonicalTokenId(domain: string, adoptedAsset: string): Promise<string> {
-    const tokenRegistryContractAddress = this.config.chains[domain].deployments!.stableSwapFacet;
+  async getCanonicalFromLocal(domainId: string, address: string): Promise<{ domain: string; id: string }> {
+    const tokenRegistryContractAddress = this.config.chains[domainId].deployments!.tokenRegistry;
     if (!tokenRegistryContractAddress) {
       throw new ContractAddressMissing();
     }
+    const chainId = await getChainIdFromDomain(domainId, this.chainData);
 
-    const chainId = await getChainIdFromDomain(domain, this.chainData);
-
-    const data = this.contracts.tokenRegistry.encodeFunctionData("getCanonicalTokenId", [adoptedAsset]);
+    const data = this.tokenRegistry.encodeFunctionData("getTokenId", [address]);
     const encoded = await this.chainReader.readTx({
       to: tokenRegistryContractAddress,
       data: data,
       chainId: chainId,
     });
-    const [, id] = this.contracts.tokenRegistry.decodeFunctionResult("getCanonicalTokenId", encoded);
-
-    return id;
+    const [canonicalDomain, canonicalTokenId] = this.tokenRegistry.decodeFunctionResult("getTokenId", encoded);
+    return { domain: canonicalDomain, id: canonicalTokenId };
   }
 
   async calculateTokenAmount(
-    domain: string,
-    canonicalTokenId: string,
+    domainId: string,
+    canonicalId: string,
     amounts: string[],
     isDeposit = true,
   ): Promise<string> {
-    const { requestContext, methodContext } = createLoggingContext(this.calculateTokenAmount.name);
-    this.logger.info("Method start", requestContext, methodContext, { amounts, isDeposit });
-
-    const stableSwapFacetContractAddress = this.config.chains[domain].deployments!.stableSwapFacet;
-    if (!stableSwapFacetContractAddress) {
+    const connextContract = this.config.chains[domainId]?.deployments?.connext;
+    if (!connextContract) {
       throw new ContractAddressMissing();
     }
+    const chainId = await getChainIdFromDomain(domainId, this.chainData);
 
-    const chainId = await getChainIdFromDomain(domain, this.chainData);
-
-    const data = this.contracts.stableSwapFacet.encodeFunctionData("calculateSwapTokenAmount", [
-      canonicalTokenId,
-      amounts,
-      true,
-    ]);
+    const data = this.connext.encodeFunctionData("calculateSwapTokenAmount", [canonicalId, amounts, isDeposit]);
     const encoded = await this.chainReader.readTx({
-      to: stableSwapFacetContractAddress,
+      to: connextContract,
       data: data,
       chainId: chainId,
     });
-    this.logger.info(`${this.calculateTokenAmount.name} created `, requestContext, methodContext);
-    const [amount] = this.contracts.stableSwapFacet.decodeFunctionResult("calculateSwapTokenAmount", encoded);
+    const [amount] = this.connext.decodeFunctionResult("calculateSwapTokenAmount", encoded);
 
     return amount;
   }
 
-  // Swap is done by lookup of local/adopted asset in LibConnextStorage.sol:
-  //   mapping(bytes32 => SwapUtils.Swap) swapStorages;
+  async calculateRemoveSwapLiquidity(domainId: string, amount: string, canonicalId: string): Promise<number[]> {
+    const connextContract = this.config.chains[domainId]?.deployments?.connext;
+    if (!connextContract) {
+      throw new ContractAddressMissing();
+    }
+    const chainId = await getChainIdFromDomain(domainId, this.chainData);
+
+    const data = this.connext.encodeFunctionData("calculateRemoveSwapLiquidity", [canonicalId, amount]);
+    const encoded = await this.chainReader.readTx({
+      to: connextContract,
+      data: data,
+      chainId: chainId,
+    });
+    const [amounts] = this.connext.decodeFunctionResult("calculateRemoveSwapLiquidity", encoded);
+    return amounts;
+  }
+
   async addLiquidity(
-    domain: string,
-    adoptedAsset: string,
+    domainId: string,
+    canonicalId: string,
     amounts: string[], // [0] for adopted asset, [1] for local asset
+    estimateGas = false,
     deadline?: number,
-    estimateGas?: boolean,
   ): Promise<providers.TransactionRequest> {
-    // TODO
-    // if (!estimateGas) {
-    //   await _ensureAllowed;
-    // }
+    // TODO: handle estimateGas=true
+
+    // TODO: find the right value for this
     if (!deadline) {
-      deadline = 100;
+      const now = new Date();
+      deadline = now.setHours(now.getHours() + 1);
     }
 
     const { requestContext, methodContext } = createLoggingContext(this.addLiquidity.name);
-    this.logger.info("Method start", requestContext, methodContext, { domain, amounts, deadline, estimateGas });
+    this.logger.info("Method start", requestContext, methodContext, { domainId, amounts, deadline, estimateGas });
 
     const signerAddress = this.config.signerAddress;
     if (!signerAddress) {
       throw new SignerAddressMissing();
     }
+    const chainId = await getChainIdFromDomain(domainId, this.chainData);
 
-    const chainId = await getChainIdFromDomain(domain, this.chainData);
-
-    const stableSwapFacetcontractAddress = this.config.chains[domain].deployments!.stableSwapFacet;
-    if (!stableSwapFacetcontractAddress) {
+    const connextContract = this.config.chains[chainId]?.deployments?.connext;
+    if (!connextContract) {
       throw new ContractAddressMissing();
     }
 
-    const canonicalTokenId = await this.getCanonicalTokenId(domain, adoptedAsset);
-    const minToMint = await this.calculateTokenAmount(domain, canonicalTokenId, amounts);
+    const minToMint = await this.calculateTokenAmount(domainId, canonicalId, amounts);
 
-    const data = this.contracts.stableSwapFacet.encodeFunctionData("addSwapLiquidity", [
-      canonicalTokenId,
-      amounts,
-      minToMint,
-      deadline,
-    ]);
+    const data = this.connext.encodeFunctionData("addSwapLiquidity", [canonicalId, amounts, minToMint, deadline]);
     const txRequest = {
-      to: stableSwapFacetcontractAddress,
+      to: connextContract,
       value: 0,
       data,
       from: signerAddress,
