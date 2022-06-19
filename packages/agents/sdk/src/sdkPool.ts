@@ -164,8 +164,8 @@ export class NxtpSdkPool {
     domainId: string,
     canonicalId: string,
     amounts: string[], // [0] for adopted asset, [1] for local asset
-    estimateGas = false,
     deadline?: number,
+    estimateGas = false,
   ): Promise<providers.TransactionRequest> {
     // TODO: handle estimateGas=true
 
@@ -202,5 +202,115 @@ export class NxtpSdkPool {
     this.logger.info(`${this.addLiquidity.name} transaction created `, requestContext, methodContext);
 
     return txRequest;
+  }
+
+  async removeLiquidity(
+    domainId: string,
+    canonicalId: string,
+    amount: string,
+    deadline?: number,
+    estimateGas = false,
+  ): Promise<providers.TransactionRequest> {
+    // TODO: handle estimateGas=true
+
+    // TODO: find the right value for this
+    if (!deadline) {
+      const now = new Date();
+      deadline = now.setHours(now.getHours() + 1);
+    }
+
+    const { requestContext, methodContext } = createLoggingContext(this.removeLiquidity.name);
+    this.logger.info("Method start", requestContext, methodContext, { domainId, amount, deadline, estimateGas });
+
+    const signerAddress = this.config.signerAddress;
+    if (!signerAddress) {
+      throw new SignerAddressMissing();
+    }
+    const chainId = await getChainIdFromDomain(domainId, this.chainData);
+
+    const connextContract = this.config.chains[chainId]?.deployments?.connext;
+    if (!connextContract) {
+      throw new ContractAddressMissing();
+    }
+
+    const minAmounts = this.calculateRemoveSwapLiquidity(domainId, amount, canonicalId);
+
+    const data = this.connext.encodeFunctionData("removeSwapLiquidity", [canonicalId, amount, minAmounts, deadline]);
+    const txRequest = {
+      to: connextContract,
+      value: 0,
+      data,
+      from: signerAddress,
+      chainId,
+    };
+    this.logger.info(`${this.addLiquidity.name} transaction created `, requestContext, methodContext);
+
+    return txRequest;
+  }
+
+  /**
+   * @dev Each asset should have a Pool for adopted<>local unless adopted==local
+   *      or the asset is already canonical to the local domain.
+   */
+  async getPools(domainId: string, chainData: Map<string, ChainData>) {
+    const chainId = await getChainIdFromDomain(domainId, chainData);
+    const chainConfig = this.config.chains[chainId];
+
+    const connextContract = chainConfig?.deployments?.connext;
+    if (!connextContract) {
+      throw new ContractAddressMissing();
+    }
+    const tokenRegistryContract = chainConfig.deployments?.tokenRegistry;
+    if (!tokenRegistryContract) {
+      throw new ContractAddressMissing();
+    }
+
+    const pools = new Map<string, Pool>();
+
+    Object.values(chainConfig.assets).forEach(async (asset) => {
+      // Fetch the canonical domain and token ID for this local asset
+      let encoded = this.tokenRegistry.encodeFunctionData("getTokenId", [asset.address]);
+      let result = await this.chainReader.readTx({
+        chainId: chainId,
+        to: tokenRegistryContract,
+        data: encoded,
+      });
+      const [canonicalDomain, canonicalTokenId] = this.tokenRegistry.decodeFunctionResult("getTokenId", result);
+      const canonicalTokenIdBytes = utils.hexlify(canonicalTokenId as string);
+      const canonicalChainId = await getChainIdFromDomain(canonicalDomain.toString() as string, this.chainData);
+
+      // If the canonical domain is the same as the local domain, then there is no pool
+      if (canonicalChainId !== chainId) {
+        encoded = this.connext.encodeFunctionData("canonicalToAdopted", [canonicalTokenIdBytes]);
+        result = await this.chainReader.readTx({
+          chainId: chainId,
+          to: connextContract,
+          data: encoded,
+        });
+        const adopted = this.connext.decodeFunctionResult("canonicalToAdopted", result)[0][1] as string;
+
+        // If the adopted token is the same as the local token, then there is no pool
+        if (adopted != asset.address) {
+          encoded = this.connext.encodeFunctionData("getSwapLPToken", [canonicalTokenIdBytes]);
+          result = await this.chainReader.readTx({
+            chainId: chainId,
+            to: connextContract,
+            data: encoded,
+          });
+          const lpToken = this.connext.decodeFunctionResult("getSwapLPToken", result)[0][1] as string;
+
+          const pool = new Pool(
+            chainId,
+            domainId,
+            canonicalTokenIdBytes,
+            `${asset.symbol}-mad${asset.symbol}`,
+            asset.address,
+            [adopted, asset.address],
+            lpToken,
+          );
+          pools.set(asset.name, pool);
+        }
+      }
+    });
   }
 }
