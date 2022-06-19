@@ -66,6 +66,16 @@ CREATE TABLE public.assets (
 
 
 --
+-- Name: checkpoints; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.checkpoints (
+    check_name character varying(255) NOT NULL,
+    check_point numeric DEFAULT 0 NOT NULL
+);
+
+
+--
 -- Name: routers; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -174,6 +184,14 @@ ALTER TABLE ONLY public.assets
 
 
 --
+-- Name: checkpoints checkpoints_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.checkpoints
+    ADD CONSTRAINT checkpoints_pkey PRIMARY KEY (check_name);
+
+
+--
 -- Name: routers routers_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -232,4 +250,5 @@ ALTER TABLE ONLY public.asset_balances
 INSERT INTO public.schema_migrations (version) VALUES
     ('20220520150644'),
     ('20220524141906'),
-    ('20220617215641');
+    ('20220617215641'),
+    ('20220618065158');

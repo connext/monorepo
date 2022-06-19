@@ -84,6 +84,27 @@ export const saveTransfers = async (xtransfers: XTransfer[], _pool?: Pool): Prom
   }
 };
 
+export const saveCheckPoint = async (check: string, point: number, _pool?: Pool): Promise<void> => {
+  const poolToUse = _pool ?? pool;
+  const checkpoint = { check_name: check, check_point: point };
+
+  await db.sql<s.checkpoints.SQL, s.checkpoints.JSONSelectable[]>`INSERT INTO ${"checkpoints"} (${db.cols(checkpoint)})
+    VALUES (${db.vals(checkpoint)}) ON CONFLICT ("check_name") DO UPDATE SET (${db.cols(checkpoint)}) = (${db.vals(
+    checkpoint,
+  )}) RETURNING *`.run(poolToUse);
+};
+
+export const getCheckPoint = async (check_name: string, _pool?: Pool): Promise<number> => {
+  const poolToUse = _pool ?? pool;
+  const result = await db.sql<
+    s.checkpoints.SQL,
+    s.checkpoints.JSONSelectable[]
+  >`SELECT * FROM ${"checkpoints"} WHERE ${{
+    check_name,
+  }}`.run(poolToUse);
+  return BigNumber.from(result[0]?.check_point ?? 0).toNumber();
+};
+
 export const getTransferByTransferId = async (transfer_id: string, _pool?: Pool): Promise<XTransfer | undefined> => {
   const poolToUse = _pool ?? pool;
   const x = await db.sql<s.transfers.SQL, s.transfers.JSONSelectable[]>`SELECT * FROM ${"transfers"} WHERE ${{
@@ -136,34 +157,10 @@ export const getTransfersWithDestinationPending = async (
     destination_domain: domain,
   }} AND ("xcall_timestamp" IS NOT NULL AND ("execute_timestamp" IS NULL OR "reconcile_timestamp" IS NULL)) ORDER BY "update_time", "nonce" ${raw(
     `${orderDirection}`,
-  )} NULLS LAST LIMIT ${db.param(limit)}`.run(poolToUse);
+  )} LIMIT ${db.param(limit)}`.run(poolToUse);
 
   const transfer_ids = transfers.map((transfer) => transfer.transfer_id);
   return transfer_ids;
-};
-
-export const getLatestXCallTimestamp = async (domain: string, _pool?: Pool): Promise<number> => {
-  const poolToUse = _pool ?? pool;
-  const transfer = await db.sql<s.transfers.SQL, s.transfers.JSONSelectable[]>`SELECT * FROM ${"transfers"} WHERE ${{
-    origin_domain: domain,
-  }} ORDER BY "xcall_timestamp" DESC NULLS LAST LIMIT 1`.run(poolToUse);
-  return BigNumber.from(transfer[0]?.xcall_timestamp ?? 0).toNumber();
-};
-
-export const getLatestExecuteTimestamp = async (domain: string, _pool?: Pool): Promise<number> => {
-  const poolToUse = _pool ?? pool;
-  const transfer = await db.sql<s.transfers.SQL, s.transfers.JSONSelectable[]>`SELECT * FROM ${"transfers"} WHERE ${{
-    destination_domain: domain,
-  }} ORDER BY "execute_timestamp" DESC NULLS LAST LIMIT 1`.run(poolToUse);
-  return BigNumber.from(transfer[0]?.execute_timestamp ?? 0).toNumber();
-};
-
-export const getLatestReconcileTimestamp = async (domain: string, _pool?: Pool): Promise<number> => {
-  const poolToUse = _pool ?? pool;
-  const transfer = await db.sql<s.transfers.SQL, s.transfers.JSONSelectable[]>`SELECT * FROM ${"transfers"} WHERE ${{
-    destination_domain: domain,
-  }} ORDER BY "reconcile_timestamp" DESC NULLS LAST LIMIT 1`.run(poolToUse);
-  return BigNumber.from(transfer[0]?.reconcile_timestamp ?? 0).toNumber();
 };
 
 export const saveRouterBalances = async (routerBalances: RouterBalance[], _pool?: Pool): Promise<void> => {

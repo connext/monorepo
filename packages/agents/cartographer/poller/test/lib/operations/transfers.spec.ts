@@ -98,12 +98,10 @@ describe("Backend operations", () => {
     getTransfersByStatusStub.onThirdCall().resolves(mockSubgraphResponse);
     const saveRouterBalancesStub = stub(dbClient, "saveRouterBalances");
     saveRouterBalancesStub.resolves();
-    const getLatestXCallTimestampStub = stub(dbClient, "getLatestXCallTimestamp");
-    getLatestXCallTimestampStub.resolves(0);
-    const getLatestExecuteTimestampStub = stub(dbClient, "getLatestExecuteTimestamp");
-    getLatestExecuteTimestampStub.resolves(0);
-    const getLatestReconcileTimestampStub = stub(dbClient, "getLatestReconcileTimestamp");
-    getLatestReconcileTimestampStub.resolves(0);
+    const getCheckPointStub = stub(dbClient, "getCheckPoint");
+    getCheckPointStub.resolves(0);
+    const saveCheckPointStub = stub(dbClient, "saveCheckPoint");
+    saveCheckPointStub.resolves();
     const getTransfersWithOriginPendingStub = stub(dbClient, "getTransfersWithOriginPending");
     getTransfersWithOriginPendingStub.resolves([]);
     const getTransfersWithDestinationPendingpStub = stub(dbClient, "getTransfersWithDestinationPending");
@@ -116,18 +114,20 @@ describe("Backend operations", () => {
       }),
       adapters: {
         subgraph: createStubInstance(SubgraphReader, {
-          getOriginTransfers: Promise.resolve(mockSubgraphResponse),
-          getDestinationTransfers: Promise.resolve(mockSubgraphResponse),
+          getOriginTransfersByNonce: Promise.resolve(mockSubgraphResponse),
+          getDestinationTransfersByNonce: Promise.resolve(mockSubgraphResponse),
+          getDestinationTransfersByReconcileTimestamp: Promise.resolve(mockSubgraphResponse),
+          getOriginTransfersById: Promise.resolve(mockSubgraphResponse),
+          getDestinationTransfersById: Promise.resolve(mockSubgraphResponse),
         }),
         database: {
           saveTransfers: dbClient.saveTransfers,
           getTransfersByStatus: dbClient.getTransfersByStatus,
           saveRouterBalances: dbClient.saveRouterBalances,
-          getLatestXCallTimestamp: dbClient.getLatestXCallTimestamp,
-          getLatestExecuteTimestamp: dbClient.getLatestExecuteTimestamp,
-          getLatestReconcileTimestamp: dbClient.getLatestReconcileTimestamp,
           getTransfersWithOriginPending: dbClient.getTransfersWithOriginPending,
           getTransfersWithDestinationPending: dbClient.getTransfersWithDestinationPending,
+          getCheckPoint: dbClient.getCheckPoint,
+          saveCheckPoint: dbClient.saveCheckPoint,
         },
       },
       config: mockConfig as CartographerConfig,
@@ -157,16 +157,16 @@ describe("Backend operations", () => {
   });
 
   it("should poll subgraph with mock backend empty response", async () => {
-    (mockContext.adapters.subgraph.getOriginTransfers as SinonStub).resolves([]);
-    (mockContext.adapters.subgraph.getDestinationTransfers as SinonStub).resolves([]);
+    (mockContext.adapters.subgraph.getDestinationTransfersByNonce as SinonStub).resolves([]);
+    (mockContext.adapters.subgraph.getDestinationTransfersByNonce as SinonStub).resolves([]);
 
     await expect(bindTransfers()).to.eventually.not.be.rejected;
   });
 
   it("should poll subgraph with mock backend no block number", async () => {
     (mockContext.adapters.subgraph.getLatestBlockNumber as SinonStub).resolves(mockNoBlockNumber);
-    (mockContext.adapters.subgraph.getOriginTransfers as SinonStub).resolves([]);
-    (mockContext.adapters.subgraph.getDestinationTransfers as SinonStub).resolves([]);
+    (mockContext.adapters.subgraph.getOriginTransfersByNonce as SinonStub).resolves([]);
+    (mockContext.adapters.subgraph.getDestinationTransfersByNonce as SinonStub).resolves([]);
 
     await expect(bindTransfers()).to.eventually.not.be.rejected;
   });
@@ -186,21 +186,19 @@ describe("Backend operations", () => {
     await expect(bindRouters()).to.eventually.not.be.rejected;
   });
 
-  it("should poll subgraph with mock backend", async () => {
-    await expect(bindRouters()).to.eventually.not.be.rejected;
-  });
-
   it("should poll subgraph with mock backend empty response", async () => {
-    (mockContext.adapters.subgraph.getOriginTransfers as SinonStub).resolves([]);
-    (mockContext.adapters.subgraph.getDestinationTransfers as SinonStub).resolves([]);
+    (mockContext.adapters.subgraph.getDestinationTransfersByNonce as SinonStub).resolves([]);
+    (mockContext.adapters.subgraph.getDestinationTransfersByNonce as SinonStub).resolves([]);
+    (mockContext.adapters.subgraph.getOriginTransfersById as SinonStub).resolves([]);
+    (mockContext.adapters.subgraph.getDestinationTransfersByNonce as SinonStub).resolves([]);
 
     await expect(bindRouters()).to.eventually.not.be.rejected;
   });
 
   it("should poll subgraph with mock backend no block number", async () => {
     (mockContext.adapters.subgraph.getLatestBlockNumber as SinonStub).resolves(mockNoBlockNumber);
-    (mockContext.adapters.subgraph.getOriginTransfers as SinonStub).resolves([]);
-    (mockContext.adapters.subgraph.getDestinationTransfers as SinonStub).resolves([]);
+    (mockContext.adapters.subgraph.getDestinationTransfersByNonce as SinonStub).resolves([]);
+    (mockContext.adapters.subgraph.getDestinationTransfersByNonce as SinonStub).resolves([]);
 
     await expect(bindRouters()).to.eventually.not.be.rejected;
   });
