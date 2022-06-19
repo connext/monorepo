@@ -159,9 +159,16 @@ export const getAssetBalancesQuery = (prefix: string, router: string): string =>
     `;
 };
 
-export const getAssetBalancesAllRoutersQuery = (prefix: string): string => {
+export const getAssetBalancesRoutersQuery = (
+  prefix: string,
+  offset: number,
+  orderDirection: "asc" | "desc" = "desc",
+): string => {
   const queryString = `
-    ${prefix}_routers {
+    ${prefix}_routers(
+    skip: ${offset},
+    orderBy: id,
+    orderDirection: ${orderDirection})) {
       id
       assetBalances {
         amount
@@ -176,7 +183,7 @@ export const getAssetBalancesAllRoutersQuery = (prefix: string): string => {
     }`;
 
   return gql`
-      query getAssetBalancesAllRoutersQuery {
+      query getAssetBalancesRoutersQuery {
         ${queryString}
       }
     `;

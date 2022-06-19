@@ -11,9 +11,19 @@ export const updateRouters = async () => {
   const { requestContext, methodContext } = createLoggingContext(updateRouters.name);
 
   for (const domain of domains) {
-    logger.debug("Retrieving balances", requestContext, methodContext, { domain });
-    const balances = await subgraph.getAssetBalancesAllRouters(domain);
+    const offset = await database.getCheckPoint("router_" + domain);
+    logger.debug("Retrieving balances", requestContext, methodContext, {
+      domain: domain,
+      offset: offset,
+    });
+
+    const balances = await subgraph.getAssetBalancesRouters(domain, offset, "asc");
     await database.saveRouterBalances(balances);
-    logger.debug("Saved balances", requestContext, methodContext, { domain });
+
+    // Reset offset at the end of the cycle.
+    const newOffset = balances.length == 0 ? 0 : offset + balances.length;
+    await database.saveCheckPoint("router_" + domain, newOffset);
+
+    logger.debug("Saved balances", requestContext, methodContext, { domain: domain, offset: newOffset });
   }
 };

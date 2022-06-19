@@ -24,7 +24,7 @@ import {
   getOriginTransfersQuery,
   getOriginTransfersByTransactionHashesQuery,
   getDestinationTransfersByIdsQuery,
-  getAssetBalancesAllRoutersQuery,
+  getAssetBalancesRoutersQuery,
   getLastestBlockNumberQuery,
   getMaxRoutersPerTransferQuery,
   getOriginTransfersByIDsCombinedQuery,
@@ -153,16 +153,20 @@ export class SubgraphReader {
   }
 
   /**
-   * Returns available liquidity for all of the routers assets on target chain.
+   * Returns available liquidity for of the routers assets on target chain.
    *
    * @param domain - The domain you want to determine liquidity on
    * @returns An array of asset ids and amounts of liquidity
    */
-  public async getAssetBalancesAllRouters(domain: string): Promise<RouterBalance[]> {
+  public async getAssetBalancesRouters(
+    domain: string,
+    offset: number,
+    orderDirection: "asc" | "desc" = "desc",
+  ): Promise<RouterBalance[]> {
     const { execute, getPrefixForDomain } = getHelpers();
     const prefix = getPrefixForDomain(domain);
 
-    const query = getAssetBalancesAllRoutersQuery(prefix);
+    const query = getAssetBalancesRoutersQuery(prefix, offset, orderDirection);
     const response = await execute(query);
     const routers = [...response.values()][0][0];
     return routers.map((router: any) => {
