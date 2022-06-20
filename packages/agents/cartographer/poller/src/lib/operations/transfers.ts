@@ -119,7 +119,7 @@ export const updateTransfers = async () => {
     await database.saveTransfers(transfers);
 
     for (const domain of domains) {
-      const domainTransfers = transfers.filter((transfer) => transfer.originDomain === domain);
+      const domainTransfers = transfers.filter((transfer) => transfer.destinationDomain === domain);
       const max = getMaxNonce(domainTransfers);
       const latest = subgraphDestinationQueryMetaParams.get(domain)?.latestNonce ?? 0;
       if (domainTransfers.length > 0 && max > latest) {
