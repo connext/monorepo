@@ -13,13 +13,12 @@ import { StoreManager } from "@connext/nxtp-adapters-cache";
 import { Web3Signer } from "@connext/nxtp-adapters-web3signer";
 import { getContractInterfaces, TransactionService, contractDeployments } from "@connext/nxtp-txservice";
 import axios from "axios";
+import { BridgeContext } from "@nomad-xyz/sdk-bridge";
 
 import { getConfig, NxtpRouterConfig } from "./config";
 import { bindMetrics, bindPrices, bindSubgraph, bindServer, bindCache } from "./bindings";
 import { AppContext } from "./lib/entities";
 import { getHelpers } from "./lib/helpers";
-import { BridgeContext } from "@nomad-xyz/sdk-bridge";
-import { NomadContext } from "@nomad-xyz/sdk";
 
 // AppContext instance used for interacting with adapters, config, etc.
 const context: AppContext = {} as any;
@@ -54,7 +53,7 @@ export const makeRouter = async (_configOverride?: NxtpRouterConfig) => {
     });
 
     /// MARK - BridgeContext
-    context.bridgeContext = BridgeContext.fromNomadContext(new NomadContext(context.config.nomadEnvironment));
+    context.bridgeContext = new BridgeContext(context.config.nomadEnvironment);
 
     /// MARK - Adapters
     context.adapters.cache = await setupCache(requestContext);
