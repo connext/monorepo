@@ -87,6 +87,16 @@ contract ConnextTest is ForgeHelper, Deployer {
 
   event Claimed(address indexed recipient, uint256 total, bytes32[] transferIds);
 
+  event Send(
+    uint32 domain,
+    bytes32 remote,
+    bytes32 transferId,
+    address callbackAddress,
+    bool success,
+    bytes data,
+    bytes message
+  );
+
   // ============ Storage ============
   // ============ Config
   uint32 _origin = 1111;
@@ -126,6 +136,9 @@ contract ConnextTest is ForgeHelper, Deployer {
   // ============ Connext
   IConnextHandler _originConnext;
   IConnextHandler _destinationConnext;
+
+  // ============ Payable ============
+  receive() external payable {}
 
   // ============ Test set up ============
   function setUp() public {
@@ -932,6 +945,58 @@ contract ConnextTest is ForgeHelper, Deployer {
   }
 
   // you should be able to use a callback
+  function test_Connext__callbacksWork() public {
+    // 0. setup contracts
+    utils_setupAssets(_origin, true);
+    MockCalldata callTo = new MockCalldata(address(this), _origin);
+    bytes memory callData = abi.encodeWithSelector(MockCalldata.unpermissionedCall.selector, _destinationAdopted);
+    MockCallback callback = new MockCallback();
+
+    (, bytes memory sample) = address(callTo).call(callData);
+
+    // 1. xcall
+    XCallArgs memory xcall = XCallArgs(utils_createCallParams(_destination), _originLocal, 1 ether);
+    xcall.params.to = address(callTo);
+    xcall.params.callData = callData;
+    xcall.params.callback = address(callback);
+    XCalledEventArgs memory eventArgs = XCalledEventArgs(
+      _originLocal, // transacting
+      xcall.amount, // amount in
+      xcall.amount, // amount bridged
+      _originLocal // asset bridged
+    );
+    bytes32 transferId = utils_xcallAndAssert(xcall, eventArgs);
+
+    // 2. call `execute` on the destination
+    ExecuteArgs memory execute = utils_createExecuteArgs(xcall.params, 2, transferId, eventArgs.bridgedAmt);
+    utils_executeAndAssert(execute, transferId, utils_getFastTransferAmount(execute.amount));
+    // NOTE: execute only passes if external call passes because of balance assertions on `to`
+
+    // 3. call `handle` on promise router
+    bytes memory promiseMessage = abi.encodePacked(
+      uint8(1),
+      transferId,
+      address(callback),
+      uint8(1),
+      sample.length,
+      sample
+    );
+    _originPromise.handle(_destination, 0, TypeCasts.addressToBytes32(address(_destinationPromise)), promiseMessage);
+
+    // 4. bump callback fee
+    uint256 bump = 0.01 ether;
+    uint256 initRouter = address(_originPromise).balance;
+    _originPromise.bumpCallbackFee{value: bump}(transferId);
+    assertEq(_originPromise.callbackFees(transferId), bump + xcall.params.callbackFee);
+    assertEq(address(_originPromise).balance, initRouter + bump);
+
+    // 5. call `process` on promise router
+    uint256 initRelayer = address(this).balance;
+    _originPromise.process(transferId, promiseMessage);
+    assertTrue(callback.transferSuccess(transferId));
+    assertEq(_originPromise.callbackFees(transferId), 0);
+    assertEq(address(this).balance, initRelayer + bump + xcall.params.callbackFee);
+  }
 
   // you should be able to use a sponsor vault
 

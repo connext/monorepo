@@ -124,12 +124,16 @@ contract MockPromiseRouter is PromiseRouter {
 }
 
 contract MockCallback is ICallback {
+  mapping(bytes32 => bool) public transferSuccess;
+  mapping(bytes32 => bytes32) public transferData;
+
   function callback(
     bytes32 transferId,
     bool success,
     bytes memory data
   ) external {
-    require(data.length != 0);
+    transferSuccess[transferId] = success;
+    transferData[transferId] = keccak256(data);
   }
 }
 
