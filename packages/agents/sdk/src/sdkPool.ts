@@ -120,6 +120,29 @@ export class NxtpSdkPool {
     return { domain: canonicalDomain, id: canonicalTokenId };
   }
 
+  async getTokenIndex(domainId: string, tokenAddress: string): Promise<number> {
+    const { requestContext, methodContext } = createLoggingContext(this.getTokenIndex.name);
+    this.logger.info("Method start", requestContext, methodContext, { tokenAddress });
+
+    const chainId = await getChainIdFromDomain(domainId, this.chainData);
+
+    const connextContract = this.config.chains[domainId].deployments!.connext;
+    if (!connextContract) {
+      throw new ContractAddressMissing();
+    }
+
+    const canonicalId = (await this.getCanonicalFromLocal(domainId, tokenAddress)).id;
+    const encoded = this.connext.encodeFunctionData("getSwapTokenIndex", [canonicalId, tokenAddress]);
+    const result = await this.chainReader.readTx({
+      chainId: chainId,
+      to: connextContract,
+      data: encoded,
+    });
+    const [tokenIndex] = this.connext.decodeFunctionResult("getSwapTokenIndex", result);
+
+    return tokenIndex;
+  }
+
   async calculateTokenAmount(
     domainId: string,
     canonicalId: string,
@@ -143,7 +166,7 @@ export class NxtpSdkPool {
     return amount;
   }
 
-  async calculateRemoveSwapLiquidity(domainId: string, amount: string, canonicalId: string): Promise<number[]> {
+  async calculateRemoveSwapLiquidity(domainId: string, amount: string, canonicalId: string): Promise<string[]> {
     const connextContract = this.config.chains[domainId]?.deployments?.connext;
     if (!connextContract) {
       throw new ContractAddressMissing();
@@ -157,7 +180,37 @@ export class NxtpSdkPool {
       chainId: chainId,
     });
     const [amounts] = this.connext.decodeFunctionResult("calculateRemoveSwapLiquidity", encoded);
+
     return amounts;
+  }
+
+  async calculateSwap(
+    domainId: string,
+    canonicalId: string,
+    tokenIndexFrom: number,
+    tokenIndexTo: number,
+    amount: string,
+  ): Promise<number> {
+    const chainId = await getChainIdFromDomain(domainId, this.chainData);
+    const connextContract = this.config.chains[domainId].deployments!.connext;
+    if (!connextContract) {
+      throw new ContractAddressMissing();
+    }
+
+    const encoded = this.connext.encodeFunctionData("calculateSwap", [
+      canonicalId,
+      tokenIndexFrom,
+      tokenIndexTo,
+      amount,
+    ]);
+    const result = await this.chainReader.readTx({
+      chainId: chainId,
+      to: connextContract,
+      data: encoded,
+    });
+    const [minAmount] = this.connext.decodeFunctionResult("calculateSwap", result);
+
+    return minAmount;
   }
 
   async addLiquidity(
@@ -197,7 +250,6 @@ export class NxtpSdkPool {
       value: 0,
       data,
       from: signerAddress,
-      chainId,
     };
     this.logger.info(`${this.addLiquidity.name} transaction created `, requestContext, methodContext);
 
@@ -233,7 +285,7 @@ export class NxtpSdkPool {
       throw new ContractAddressMissing();
     }
 
-    const minAmounts = this.calculateRemoveSwapLiquidity(domainId, amount, canonicalId);
+    const minAmounts = await this.calculateRemoveSwapLiquidity(domainId, amount, canonicalId);
 
     const data = this.connext.encodeFunctionData("removeSwapLiquidity", [canonicalId, amount, minAmounts, deadline]);
     const txRequest = {
@@ -241,9 +293,71 @@ export class NxtpSdkPool {
       value: 0,
       data,
       from: signerAddress,
-      chainId,
     };
     this.logger.info(`${this.addLiquidity.name} transaction created `, requestContext, methodContext);
+
+    return txRequest;
+  }
+
+  async swap(
+    domainId: string,
+    canonicalId: string,
+    from: string,
+    to: string,
+    amount: string,
+    deadline?: number,
+    estimateGas = false,
+  ): Promise<providers.TransactionRequest> {
+    // TODO: handle estimateGas=true
+
+    // TODO: find the right value for this
+    if (!deadline) {
+      const now = new Date();
+      deadline = now.setHours(now.getHours() + 1);
+    }
+
+    const signerAddress = this.config.signerAddress;
+    if (!signerAddress) {
+      throw new SignerAddressMissing();
+    }
+
+    const chainId = await getChainIdFromDomain(domainId, this.chainData);
+    const chainConfig = this.config.chains[chainId];
+    const connextContract = chainConfig.deployments?.tokenRegistry;
+    if (!connextContract) {
+      throw new ContractAddressMissing();
+    }
+
+    const { requestContext, methodContext } = createLoggingContext(this.swap.name);
+    this.logger.info("Method start", requestContext, methodContext, {
+      domainId,
+      canonicalId,
+      from,
+      to,
+      amount,
+      deadline,
+      estimateGas,
+    });
+
+    const tokenIndexFrom = await this.getTokenIndex(domainId, from);
+    const tokenIndexTo = await this.getTokenIndex(domainId, to);
+    const minDy = await this.calculateSwap(domainId, canonicalId, tokenIndexFrom, tokenIndexTo, amount);
+
+    const data = this.connext.encodeFunctionData("swap", [
+      canonicalId,
+      tokenIndexFrom,
+      tokenIndexTo,
+      amount,
+      minDy,
+      deadline,
+    ]);
+    const txRequest = {
+      to: connextContract,
+      value: 0,
+      data,
+      from: signerAddress,
+    };
+    this.logger.info(`${this.swap.name} transaction created `, requestContext, methodContext);
 
     return txRequest;
   }
