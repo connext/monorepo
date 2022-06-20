@@ -1,4 +1,4 @@
-import { logger as ethersLogger, Wallet } from "ethers";
+import { logger as ethersLogger, logger, Wallet } from "ethers";
 import {
   createMethodContext,
   createRequestContext,
@@ -13,13 +13,12 @@ import { StoreManager } from "@connext/nxtp-adapters-cache";
 import { Web3Signer } from "@connext/nxtp-adapters-web3signer";
 import { getContractInterfaces, TransactionService, contractDeployments } from "@connext/nxtp-txservice";
 import axios from "axios";
+import { BridgeContext } from "@nomad-xyz/sdk-bridge";
 
 import { getConfig, NxtpRouterConfig } from "./config";
 import { bindMetrics, bindPrices, bindSubgraph, bindServer, bindCache } from "./bindings";
 import { AppContext } from "./lib/entities";
 import { getHelpers } from "./lib/helpers";
-import { BridgeContext } from "@nomad-xyz/sdk-bridge";
-import { NomadContext } from "@nomad-xyz/sdk";
 
 // AppContext instance used for interacting with adapters, config, etc.
 const context: AppContext = {} as any;
@@ -54,7 +53,7 @@ export const makeRouter = async (_configOverride?: NxtpRouterConfig) => {
     });
 
     /// MARK - BridgeContext
-    context.bridgeContext = BridgeContext.fromNomadContext(new NomadContext(context.config.nomadEnvironment));
+    context.bridgeContext = setupBridgeContext(requestContext);
 
     /// MARK - Adapters
     context.adapters.cache = await setupCache(requestContext);
@@ -189,4 +188,21 @@ export const setupSubgraphReader = async (requestContext: RequestContext): Promi
   }
 
   return subgraphReader;
+};
+
+export const setupBridgeContext = (requestContext: RequestContext): BridgeContext => {
+  const { config } = context;
+  const methodContext = createMethodContext(setupBridgeContext.name);
+  logger.info("BridgeContext setup in progress...", requestContext, methodContext, {});
+  const bridgeContext = new BridgeContext(config.nomadEnvironment);
+
+  const allowedDomains = [...Object.keys(config.chains)];
+  for (const allowedDomain of allowedDomains) {
+    const chainData = config.chains[allowedDomain];
+    chainData.providers.map((provider) => {
+      bridgeContext.registerRpcProvider(Number(allowedDomain), provider);
+    });
+  }
+  logger.info("BridgeContext setup done!", requestContext, methodContext, {});
+  return bridgeContext;
 };
