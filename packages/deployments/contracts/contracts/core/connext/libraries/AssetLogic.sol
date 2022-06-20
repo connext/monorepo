@@ -285,6 +285,8 @@ library AssetLogic {
     } else {
       // Otherwise, swap via stable swap pool
       IStableSwap pool = s.adoptedToLocalPools[_canonicalId];
+      // NOTE: if pool is not registered here, then the approval will fail
+      // as it will approve to the zero-address
       SafeERC20.safeIncreaseAllowance(IERC20(_assetIn), address(pool), _amount);
 
       return (pool.swapExact(_amount, _assetIn, _assetOut, minReceived), _assetOut);
