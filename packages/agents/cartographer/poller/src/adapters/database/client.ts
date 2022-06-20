@@ -154,7 +154,7 @@ export const getTransfersWithDestinationPending = async (
 ): Promise<string[]> => {
   const poolToUse = _pool ?? pool;
   const transfers = await db.sql<s.transfers.SQL, s.transfers.JSONSelectable[]>`SELECT * FROM ${"transfers"} WHERE ${{
-    destination_domain: domain,
+    origin_domain: domain,
   }} AND ("xcall_timestamp" IS NOT NULL AND ("execute_timestamp" IS NULL OR "reconcile_timestamp" IS NULL)) ORDER BY "update_time" ${raw(
     `${orderDirection}`,
   )} LIMIT ${db.param(limit)}`.run(poolToUse);
