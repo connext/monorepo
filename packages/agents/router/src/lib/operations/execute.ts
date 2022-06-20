@@ -8,21 +8,17 @@ import { getAuctionAmount } from "../helpers/auctions";
 // @ts-ignore
 import { version } from "../../../package.json";
 
-import { NomadContext } from "@nomad-xyz/sdk";
-import { BridgeContext } from "@nomad-xyz/sdk-bridge";
-
 // fee percentage paid to relayer. need to be updated later
 export const RELAYER_FEE_PERCENTAGE = "1"; //  1%
 //helper function to match our config environments with nomads
 export const getBlacklist = async (
   originDomain: string,
   destinationDomain: string,
-  nomadEnvironment: string,
 ): Promise<{ originBlacklisted: boolean; destinationBlacklisted: boolean }> => {
-  const context = BridgeContext.fromNomadContext(new NomadContext(nomadEnvironment));
+  const { bridgeContext: context } = getContext();
   //todo: look for higher level import of this class
   //push them to blacklist if not there already
-  await context.checkHomes([originDomain, destinationDomain]);
+  await context.checkHomes([Number(originDomain), Number(destinationDomain)]);
 
   //get blacklist
   const blacklist = context.blacklist();
@@ -125,11 +121,7 @@ export const execute = async (params: OriginTransfer): Promise<void> => {
     });
   }
 
-  const { originBlacklisted, destinationBlacklisted } = await getBlacklist(
-    originDomain,
-    destinationDomain,
-    config.nomadEnvironment,
-  );
+  const { originBlacklisted, destinationBlacklisted } = await getBlacklist(originDomain, destinationDomain);
 
   logger.debug("Signed payloads", requestContext, methodContext, {
     rounds: Object.keys(signatures),
