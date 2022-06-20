@@ -302,3 +302,35 @@ contract MockSponsorVault is ISponsorVault {
     uint256 amount
   ) external {}
 }
+
+contract MockCalldata {
+  address public originSender;
+  uint32 public originDomain;
+
+  bool public called = false;
+
+  constructor(address _originSender, uint32 _originDomain) {
+    setPermissions(_originSender, _originDomain);
+  }
+
+  function setPermissions(address _originSender, uint32 _originDomain) public {
+    originSender = _originSender;
+    originDomain = _originDomain;
+  }
+
+  function permissionedCall(address asset) public returns (bool) {
+    require(IExecutor(msg.sender).originSender() == originSender);
+    require(IExecutor(msg.sender).origin() == originDomain);
+    // transfer funds from sender
+    IERC20(asset).transferFrom(msg.sender, address(this), IExecutor(msg.sender).amount());
+    called = true;
+    return called;
+  }
+
+  function unpermissionedCall(address asset) public returns (bool) {
+    // transfer funds from sender
+    IERC20(asset).transferFrom(msg.sender, address(this), IExecutor(msg.sender).amount());
+    called = true;
+    return called;
+  }
+}

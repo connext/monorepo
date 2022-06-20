@@ -26,6 +26,8 @@ import "./utils/ForgeHelper.sol";
 import "./utils/Mock.sol";
 import "./utils/Deployer.sol";
 
+import "forge-std/console.sol";
+
 struct XCalledEventArgs {
   address transactingAssetId;
   uint256 amount;
@@ -875,8 +877,59 @@ contract ConnextTest is ForgeHelper, Deployer {
   }
 
   // you should be able to execute unpermissioned external call data
+  function test_Connext__unpermissionedCallsWork() public {
+    // 0. setup contracts
+    utils_setupAssets(_origin, true);
+    MockCalldata callTo = new MockCalldata(address(this), _origin);
+    bytes memory callData = abi.encodeWithSelector(MockCalldata.unpermissionedCall.selector, _destinationAdopted);
+
+    // 1. xcall
+    XCallArgs memory xcall = XCallArgs(utils_createCallParams(_destination), _originLocal, 1 ether);
+    xcall.params.to = address(callTo);
+    xcall.params.callData = callData;
+    XCalledEventArgs memory eventArgs = XCalledEventArgs(
+      _originLocal, // transacting
+      xcall.amount, // amount in
+      xcall.amount, // amount bridged
+      _originLocal // asset bridged
+    );
+    bytes32 transferId = utils_xcallAndAssert(xcall, eventArgs);
+
+    // 2. call `execute` on the destination
+    ExecuteArgs memory execute = utils_createExecuteArgs(xcall.params, 2, transferId, eventArgs.bridgedAmt);
+    utils_executeAndAssert(execute, transferId, utils_getFastTransferAmount(execute.amount));
+    // NOTE: execute only passes if external call passes because of balance assertions on `to`
+  }
 
   // you should be able to execute permissioned external call data
+  function test_Connext__permissionedCallsWork() public {
+    // 0. setup contracts
+    utils_setupAssets(_origin, true);
+    MockCalldata callTo = new MockCalldata(address(this), _origin);
+    bytes memory callData = abi.encodeWithSelector(MockCalldata.permissionedCall.selector, _destinationAdopted);
+
+    // 1. xcall
+    XCallArgs memory xcall = XCallArgs(utils_createCallParams(_destination), _originLocal, 1 ether);
+    xcall.params.to = address(callTo);
+    xcall.params.callData = callData;
+    XCalledEventArgs memory eventArgs = XCalledEventArgs(
+      _originLocal, // transacting
+      xcall.amount, // amount in
+      xcall.amount, // amount bridged
+      _originLocal // asset bridged
+    );
+    bytes32 transferId = utils_xcallAndAssert(xcall, eventArgs);
+
+    // create execute args
+    ExecuteArgs memory execute = utils_createExecuteArgs(xcall.params, 0, transferId, eventArgs.bridgedAmt);
+
+    // 2. call `handle` on the destination
+    utils_handleAndAssert(transferId, eventArgs.bridgedAmt, xcall.params.to, execute.routers);
+
+    // 3. call `execute` on the destination
+    utils_executeAndAssert(execute, transferId, execute.amount);
+    // NOTE: execute only passes if external call passes because of balance assertions on `to`
+  }
 
   // you should be able to use a callback
 
