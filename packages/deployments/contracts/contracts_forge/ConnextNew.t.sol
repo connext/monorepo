@@ -41,6 +41,14 @@ struct XCallBalances {
   uint256 callerNative;
 }
 
+// Holds all balances that are impacted by an execute
+struct ExecuteBalances {
+  uint256 bridgeLocal;
+  uint256 bridgeReceiving; // local -or- adopted
+  uint256[] liquidity;
+  uint256 toReceiving; // local -or- adopted
+}
+
 contract ConnextTest is ForgeHelper, Deployer {
   // ============ Events ============
   event XCalled(
@@ -49,6 +57,24 @@ contract ConnextTest is ForgeHelper, Deployer {
     XCalledEventArgs args,
     uint256 nonce,
     bytes message,
+    address caller
+  );
+
+  event Executed(
+    bytes32 indexed transferId,
+    address indexed to,
+    ExecuteArgs args,
+    address transactingAsset,
+    uint256 transactingAmount,
+    address caller
+  );
+
+  event Reconciled(
+    bytes32 indexed transferId,
+    uint32 indexed origin,
+    address[] routers,
+    address asset,
+    uint256 amount,
     address caller
   );
 
@@ -111,6 +137,10 @@ contract ConnextTest is ForgeHelper, Deployer {
     _destinationWrapper = address(new WETH());
     _destinationLocal = address(new TestERC20());
     _destinationAdopted = address(new TestERC20());
+
+    // fund weth wrappers for convenience
+    vm.deal(_originWrapper, 100 ether);
+    vm.deal(_destinationWrapper, 100 ether);
   }
 
   function utils_deployNomad() public {
@@ -144,6 +174,9 @@ contract ConnextTest is ForgeHelper, Deployer {
     // set local domains
     _originRegistry.setLocalDomain(_origin);
     _destinationRegistry.setLocalDomain(_destination);
+
+    // set this to be a replica so we can call `handle` directly
+    _destinationManager.ownerEnrollReplica(address(this), _origin);
   }
 
   function utils_deployPromiseRouter() public {
@@ -210,6 +243,10 @@ contract ConnextTest is ForgeHelper, Deployer {
     // enroll remotes
     _originConnext.enrollRemoteRouter(_destination, TypeCasts.addressToBytes32(address(_destinationConnext)));
     _destinationConnext.enrollRemoteRouter(_origin, TypeCasts.addressToBytes32(address(_originConnext)));
+
+    // whitelist contract as router
+    _originConnext.addRelayer(address(this));
+    _destinationConnext.addRelayer(address(this));
   }
 
   function utils_setupAssets(uint32 canonicalDomain, bool localIsAdopted) public {
@@ -231,11 +268,11 @@ contract ConnextTest is ForgeHelper, Deployer {
       _originRegistry.enrollCustom(canonicalDomain, canonicalId, _originLocal);
     }
     // Setup asset whitelist
-    _originConnext.setupAsset(
-      ConnextMessage.TokenId(canonicalDomain, canonicalId),
-      localIsAdopted ? _originLocal : _originAdopted,
-      address(0)
-    );
+    if (localIsAdopted) {
+      _originAdopted = _originLocal;
+      _destinationAdopted = _destinationLocal;
+    }
+    _originConnext.setupAsset(ConnextMessage.TokenId(canonicalDomain, canonicalId), _originAdopted, address(0));
 
     // Handle destination
     if (_destination != canonicalDomain) {
@@ -244,7 +281,7 @@ contract ConnextTest is ForgeHelper, Deployer {
     // Setup asset whitelist
     _destinationConnext.setupAsset(
       ConnextMessage.TokenId(canonicalDomain, canonicalId),
-      localIsAdopted ? _destinationLocal : _destinationAdopted,
+      _destinationAdopted,
       address(0)
     );
 
@@ -317,6 +354,15 @@ contract ConnextTest is ForgeHelper, Deployer {
     TestERC20(_originAdopted).mint(address(this), toMint);
     TestERC20(_destinationAdopted).mint(address(this), toMint);
     TestERC20(_canonical).mint(address(this), toMint);
+
+    // setup + fund the pools if needed
+    if (_originLocal != _originAdopted) {
+      utils_setupPool(_origin, canonicalId, 100 ether);
+    }
+
+    if (_destinationLocal != _destinationAdopted) {
+      utils_setupPool(_destination, canonicalId, 100 ether);
+    }
   }
 
   function utils_setupPool(
@@ -401,6 +447,7 @@ contract ConnextTest is ForgeHelper, Deployer {
       );
   }
 
+  // ============ XCall helpers
   function utils_getXCallBalances(address transacting, address bridge) public returns (XCallBalances memory) {
     bool isDestination = bridge == address(_destinationConnext);
     return
@@ -416,14 +463,13 @@ contract ConnextTest is ForgeHelper, Deployer {
       );
   }
 
-  function utils_xcallAndAssert(XCallArgs memory _args, XCalledEventArgs memory _event) public {
+  function utils_xcallAndAssert(XCallArgs memory _args, XCalledEventArgs memory _event) public returns (bytes32) {
     // Approve the bridge
     if (_args.transactingAssetId != address(0)) {
       IERC20(_args.transactingAssetId).approve(address(_originConnext), _args.amount);
     }
     // Get initial balances
     XCallBalances memory initial = utils_getXCallBalances(_event.transactingAssetId, address(_originConnext));
-    console.log("got initial balances");
 
     // Expect an event
     uint256 nonce = 0;
@@ -444,20 +490,20 @@ contract ConnextTest is ForgeHelper, Deployer {
     emit XCalled(transferId, _args, _event, nonce, message, address(this));
 
     // Make call
-    console.log("------ xcall");
     uint256 transactingNative = _args.transactingAssetId == address(0) ? _args.amount : 0;
-    _originConnext.xcall{value: _args.params.relayerFee + _args.params.callbackFee + transactingNative}(_args);
+    bytes32 ret = _originConnext.xcall{value: _args.params.relayerFee + _args.params.callbackFee + transactingNative}(
+      _args
+    );
+    assertEq(ret, transferId);
 
     // Check balances
     XCallBalances memory end = utils_getXCallBalances(_event.transactingAssetId, address(_originConnext));
-    console.log("------ xcall done, checking balances..");
     assertEq(
       end.bridgeTransacting,
-      _args.transactingAssetId == _originLocal
+      _args.transactingAssetId == _originLocal && _originLocal != _canonical
         ? initial.bridgeTransacting // will be burnt
         : initial.bridgeTransacting + _args.amount // custodied or swapped
     );
-    console.log("bridge transacting");
     assertEq(
       end.bridgeLocal,
       // local is either custodied (canonical) or burned (representative) after swap
@@ -466,36 +512,225 @@ contract ConnextTest is ForgeHelper, Deployer {
         ? initial.bridgeLocal
         : initial.bridgeLocal - _event.bridgedAmt
     );
-    console.log("bridge local");
     assertEq(end.bridgeNative, initial.bridgeNative + _args.params.relayerFee);
-    console.log("bridge native");
     assertEq(end.callerTransacting, initial.callerTransacting - _args.amount);
-    console.log("caller transacting");
     assertEq(
       end.callerNative,
       initial.callerNative - _args.params.relayerFee - _args.params.callbackFee - transactingNative
     );
-    console.log("caller native");
+    return ret;
   }
 
-  // ============ Testing scenarions ============
+  // ============ Execute helpers
+  function utils_createRouters(uint256 num, bytes32 transferId) public returns (address[] memory, bytes[] memory) {
+    if (num == 0) {
+      address[] memory routers;
+      bytes[] memory signatures;
+      return (routers, signatures);
+    }
+    address[] memory routers = new address[](num);
+    bytes[] memory signatures = new bytes[](num);
+
+    bytes32 toSign = ECDSA.toEthSignedMessageHash(keccak256(abi.encode(transferId, num)));
+
+    // setup liquidity
+    uint256 liquidity = 20 ether;
+    IERC20(_destinationLocal).approve(address(_destinationConnext), liquidity * num);
+    for (uint256 i; i < num; i++) {
+      routers[i] = vm.addr(777 + i);
+      (uint8 v, bytes32 r, bytes32 _s) = vm.sign(777 + i, toSign);
+      signatures[i] = abi.encodePacked(r, _s, v);
+
+      // whitelist all routers
+      _destinationConnext.setupRouter(routers[i], address(0), address(0));
+
+      // add liquidity for all routers
+      _destinationConnext.addRouterLiquidityFor(liquidity, _destinationLocal, routers[i]);
+    }
+
+    return (routers, signatures);
+  }
+
+  function utils_createExecuteArgs(
+    CallParams memory params,
+    uint256 pathLen,
+    bytes32 transferId,
+    uint256 bridgedAmt
+  ) public returns (ExecuteArgs memory) {
+    (address[] memory routers, bytes[] memory routerSignatures) = utils_createRouters(pathLen, transferId);
+    return
+      ExecuteArgs(
+        params, // CallParams
+        _destinationLocal, // local asset
+        routers, // routers
+        routerSignatures, // router signatures
+        bridgedAmt, // amount
+        0, // nonce
+        address(this) // originSender
+      );
+  }
+
+  function utils_getFastTransferAmount(uint256 amount) public returns (uint256) {
+    return (amount * 9995) / 10000;
+  }
+
+  function utils_getExecuteBalances(
+    address local,
+    address receiving,
+    address bridge,
+    address recipient,
+    address[] memory routers
+  ) public returns (ExecuteBalances memory) {
+    uint256[] memory routerBalances = new uint256[](routers.length);
+    for (uint256 i; i < routers.length; i++) {
+      routerBalances[i] = _destinationConnext.routerBalances(routers[i], local);
+    }
+    return
+      ExecuteBalances(
+        IERC20(local).balanceOf(bridge), // bridge local
+        IERC20(receiving).balanceOf(bridge), // bridge receiving
+        // NOTE: if native, you still want to check the wrapper balance on the bridge as that
+        // will be what changes (not the case for the recipient)
+        routerBalances, // router liquidity
+        receiving == _destinationWrapper ? recipient.balance : IERC20(receiving).balanceOf(recipient) // to receivec
+      );
+  }
+
+  function utils_executeAndAssert(
+    ExecuteArgs memory args,
+    bytes32 transferId,
+    uint256 out
+  ) public {
+    // Get initial balances
+    address receiving = args.params.receiveLocal ? _destinationLocal : _destinationAdopted;
+    ExecuteBalances memory initial = utils_getExecuteBalances(
+      args.local,
+      receiving,
+      address(_destinationConnext),
+      args.params.to,
+      args.routers
+    );
+
+    // Expect an event
+    vm.expectEmit(true, true, true, true);
+    emit Executed(transferId, args.params.to, args, receiving, out, address(this));
+
+    // execute on bridge
+    _destinationConnext.execute(args);
+
+    // assert updated balances
+    ExecuteBalances memory end = utils_getExecuteBalances(
+      args.local,
+      receiving,
+      address(_destinationConnext),
+      args.params.to,
+      args.routers
+    );
+
+    bool isFast = args.routers.length != 0;
+    // You are using internal swaps, so the amount of the local asset on the bridge
+    // should *not* change iff you are using adopted assets. However, the router liquidity
+    // and bridge adopted balance should drop
+    if (!args.params.receiveLocal && _destinationLocal != _destinationAdopted) {
+      assertEq(end.bridgeLocal, initial.bridgeLocal);
+    } // else, local checked in receiving
+    assertEq(end.bridgeReceiving, initial.bridgeReceiving - out);
+
+    // router loses the liquidity it provides (local)
+    uint256 debited = isFast ? (utils_getFastTransferAmount(args.amount)) / args.routers.length : 0;
+    address[] memory stored = _destinationConnext.routedTransfers(transferId);
+    for (uint256 i; i < args.routers.length; i++) {
+      assertEq(stored[i], args.routers[i]);
+      assertEq(end.liquidity[i], initial.liquidity[i] - debited);
+    }
+
+    // recipient gains (adopted/specified)
+    assertEq(end.toReceiving, initial.toReceiving + out);
+
+    // relayer stored
+    assertEq(_destinationConnext.transferRelayer(transferId), address(this));
+  }
+
+  // ============ Handle helpers
+  function utils_createMessage(
+    bytes32 transferId,
+    uint256 bridgedAmt,
+    address to
+  ) public returns (bytes memory) {
+    bytes32 detailsHash = TestERC20(_originLocal).detailsHash();
+
+    bytes29 action = ConnextMessage.formatTransfer(TypeCasts.addressToBytes32(to), bridgedAmt, detailsHash, transferId);
+    bytes29 tokenId = ConnextMessage.formatTokenId(_canonicalDomain, TypeCasts.addressToBytes32(_canonical));
+
+    return ConnextMessage.formatMessage(tokenId, action);
+  }
+
+  function utils_handleAndAssert(
+    bytes32 transferId,
+    uint256 bridgedAmt,
+    address to,
+    address[] memory routers
+  ) public {
+    // Ensure the balance of the bridge increases IFF the destination is not the
+    // canonical domain
+    bool shouldMint = _destination != _canonicalDomain;
+
+    // Get initial bridge balance and router liquidity
+    uint256 initLocal = IERC20(_destinationLocal).balanceOf(address(_destinationConnext));
+    uint256[] memory initLiquidity = new uint256[](routers.length);
+    for (uint256 i; i < routers.length; i++) {
+      initLiquidity[i] = _destinationConnext.routerBalances(routers[i], _destinationLocal);
+    }
+
+    // expect emit
+    vm.expectEmit(true, true, true, true);
+    emit Reconciled(transferId, _origin, routers, _destinationLocal, bridgedAmt, address(this));
+
+    _destinationConnext.handle(
+      _origin,
+      0,
+      TypeCasts.addressToBytes32(address(_originConnext)),
+      utils_createMessage(transferId, bridgedAmt, to)
+    );
+
+    // assert bridge balance
+    assertEq(
+      IERC20(_destinationLocal).balanceOf(address(_destinationConnext)),
+      shouldMint ? initLocal + bridgedAmt : initLocal
+    );
+
+    // assert router liquidity balance
+    uint256 credited = routers.length > 0 ? bridgedAmt / routers.length : 0;
+    for (uint256 i; i < routers.length; i++) {
+      assertEq(_destinationConnext.routerBalances(routers[i], _destinationLocal), initLiquidity[i] + credited);
+    }
+
+    // assert transfer marked as reconciled
+    assertTrue(_destinationConnext.reconciledTransfers(transferId));
+  }
+
+  // ============ Testing scenarios ============
   // you should be able to bridge tokens (local == adopted)
   function test_Connext__bridgingTokensShouldWorkFastNoSwap() public {
     /// 0. setup contracts
     utils_setupAssets(_origin, true);
 
     // 1. `xcall` on the origin
-    XCallArgs memory args = XCallArgs(utils_createCallParams(_destination), _originLocal, 1 ether);
+    XCallArgs memory xcall = XCallArgs(utils_createCallParams(_destination), _originLocal, 1 ether);
     XCalledEventArgs memory eventArgs = XCalledEventArgs(
       _originLocal, // transacting
-      args.amount, // amount in
-      args.amount, // amount bridged
+      xcall.amount, // amount in
+      xcall.amount, // amount bridged
       _originLocal // asset bridged
     );
-    utils_xcallAndAssert(args, eventArgs);
+    bytes32 transferId = utils_xcallAndAssert(xcall, eventArgs);
 
     // 2. call `execute` on the destination
+    ExecuteArgs memory execute = utils_createExecuteArgs(xcall.params, 2, transferId, eventArgs.bridgedAmt);
+    utils_executeAndAssert(execute, transferId, utils_getFastTransferAmount(execute.amount));
+
     // 3. call `handle` on the destination
+    utils_handleAndAssert(transferId, eventArgs.bridgedAmt, xcall.params.to, execute.routers);
   }
 
   // you should be able to bridge tokens (local != adopted)
@@ -511,17 +746,26 @@ contract ConnextTest is ForgeHelper, Deployer {
       1, // adopted idx always 1
       args.amount // no min
     );
-    console.log("expecting to bridge", expected);
     XCalledEventArgs memory eventArgs = XCalledEventArgs(
       _originAdopted, // transacting
       args.amount, // amount in
       expected, // amount bridged
       _originLocal // asset bridged
     );
-    utils_xcallAndAssert(args, eventArgs);
+    bytes32 transferId = utils_xcallAndAssert(args, eventArgs);
 
     // 2. call `execute` on the destination
+    ExecuteArgs memory execute = utils_createExecuteArgs(args.params, 2, transferId, eventArgs.bridgedAmt);
+    uint256 swapped = _destinationConnext.calculateSwap(
+      TypeCasts.addressToBytes32(_canonical),
+      1, // adopted idx always 1
+      0, // local idx always 0
+      utils_getFastTransferAmount(execute.amount)
+    );
+    utils_executeAndAssert(execute, transferId, swapped);
+
     // 3. call `handle` on the destination
+    utils_handleAndAssert(transferId, eventArgs.bridgedAmt, args.params.to, execute.routers);
   }
 
   // you should be able to bridge eth
@@ -537,10 +781,21 @@ contract ConnextTest is ForgeHelper, Deployer {
       args.amount, // amount bridged
       _originWrapper // asset bridged
     );
-    utils_xcallAndAssert(args, eventArgs);
+    bytes32 transferId = utils_xcallAndAssert(args, eventArgs);
 
     // 2. call `execute` on the destination
+    ExecuteArgs memory execute = utils_createExecuteArgs(args.params, 2, transferId, eventArgs.bridgedAmt);
+    // NOTE: you swap the madETH for WETH on the destination (because origin is canonical)
+    uint256 swapped = _destinationConnext.calculateSwap(
+      TypeCasts.addressToBytes32(_canonical),
+      1, // adopted idx always 1
+      0, // local idx always 0
+      utils_getFastTransferAmount(execute.amount)
+    );
+    utils_executeAndAssert(execute, transferId, swapped);
+
     // 3. call `handle` on the destination
+    utils_handleAndAssert(transferId, eventArgs.bridgedAmt, args.params.to, execute.routers);
   }
 
   // you should be able to bridge local asset (local != adopted)
@@ -556,10 +811,45 @@ contract ConnextTest is ForgeHelper, Deployer {
       args.amount, // amount bridged
       _originLocal // asset bridged
     );
-    utils_xcallAndAssert(args, eventArgs);
+    bytes32 transferId = utils_xcallAndAssert(args, eventArgs);
 
     // 2. call `execute` on the destination
+    ExecuteArgs memory execute = utils_createExecuteArgs(args.params, 2, transferId, eventArgs.bridgedAmt);
+    uint256 swapped = _destinationConnext.calculateSwap(
+      TypeCasts.addressToBytes32(_canonical),
+      1, // adopted idx always 1
+      0, // local idx always 0
+      utils_getFastTransferAmount(execute.amount)
+    );
+    utils_executeAndAssert(execute, transferId, swapped);
+
     // 3. call `handle` on the destination
+    utils_handleAndAssert(transferId, eventArgs.bridgedAmt, args.params.to, execute.routers);
+  }
+
+  // you should be able to use the slow path
+  function test_Connext__bridgingTokensShouldWorkSlow() public {
+    /// 0. setup contracts
+    utils_setupAssets(_other, true); // local is adopted
+
+    // 1. `xcall` on the origin
+    XCallArgs memory args = XCallArgs(utils_createCallParams(_destination), _originLocal, 1 ether);
+    XCalledEventArgs memory eventArgs = XCalledEventArgs(
+      _originLocal, // transacting
+      args.amount, // amount in
+      args.amount, // amount bridged
+      _originLocal // asset bridged
+    );
+    bytes32 transferId = utils_xcallAndAssert(args, eventArgs);
+
+    // create execute args
+    ExecuteArgs memory execute = utils_createExecuteArgs(args.params, 0, transferId, eventArgs.bridgedAmt);
+
+    // 2. call `handle` on the destination
+    utils_handleAndAssert(transferId, eventArgs.bridgedAmt, args.params.to, execute.routers);
+
+    // 3. call `execute` on the destination
+    utils_executeAndAssert(execute, transferId, eventArgs.bridgedAmt);
   }
 
   // you should be able to execute unpermissioned external call data
