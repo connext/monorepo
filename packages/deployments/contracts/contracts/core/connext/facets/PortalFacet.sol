@@ -36,7 +36,7 @@ contract PortalFacet is BaseConnextFacet {
   }
 
   function getAavePortalFeeDebt(bytes32 _transferId) external view returns (uint256) {
-    return s.portalDebt[_transferId];
+    return s.portalFeeDebt[_transferId];
   }
 
   function aavePool() external view returns (address) {
