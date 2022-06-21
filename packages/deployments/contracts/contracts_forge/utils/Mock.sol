@@ -2,6 +2,7 @@
 pragma solidity 0.8.14;
 
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import {Address} from "@openzeppelin/contracts/utils/Address.sol";
 
 import {TypedMemView, PromiseMessage, PromiseRouter} from "../../contracts/core/promise/PromiseRouter.sol";
 import {ICallback} from "../../contracts/core/promise/interfaces/ICallback.sol";
@@ -124,26 +125,24 @@ contract MockPromiseRouter is PromiseRouter {
 }
 
 contract MockCallback is ICallback {
+  mapping(bytes32 => bool) public transferSuccess;
+  mapping(bytes32 => bytes32) public transferData;
+
   function callback(
     bytes32 transferId,
     bool success,
     bytes memory data
   ) external {
-    require(data.length != 0);
+    transferSuccess[transferId] = success;
+    transferData[transferId] = keccak256(data);
   }
 }
 
 contract MockPool is IAavePool {
-  uint256 _withdraw = 123456;
-
   bool fails;
 
   constructor(bool _fails) {
     fails = _fails;
-  }
-
-  function setWithdraw(uint256 _new) external {
-    _withdraw = _new;
   }
 
   function mintUnbacked(
@@ -151,16 +150,16 @@ contract MockPool is IAavePool {
     uint256 amount,
     address onBehalfOf,
     uint16 referralCode
-  ) external override {}
+  ) external override {
+    TestERC20(asset).mint(address(this), amount);
+  }
 
   function backUnbacked(
     address asset,
     uint256 amount,
     uint256 fee
   ) external override {
-    if (fails) {
-      require(false, "fail");
-    }
+    require(!fails, "fail");
   }
 
   function withdraw(
@@ -168,7 +167,8 @@ contract MockPool is IAavePool {
     uint256 amount,
     address to
   ) external override returns (uint256) {
-    return _withdraw;
+    TestERC20(asset).transfer(msg.sender, amount);
+    return amount;
   }
 }
 
@@ -267,9 +267,11 @@ contract MockTokenRegistry is ITokenRegistry {
 
 contract MockSponsorVault is ISponsorVault {
   uint256 liquidity;
+  uint256 dust;
 
-  constructor(uint256 _liquidity) {
+  constructor(uint256 _liquidity, uint256 _dust) {
     liquidity = _liquidity;
+    dust = _dust;
   }
 
   function setLiquidity(uint256 _liquidity) external {
@@ -289,7 +291,9 @@ contract MockSponsorVault is ISponsorVault {
     uint32 originDomain,
     address payable receiver,
     uint256 amount
-  ) external {}
+  ) external {
+    Address.sendValue(receiver, dust);
+  }
 
   // Should allow anyone to send funds to the vault for sponsoring fees
   function deposit(address _token, uint256 _amount) external payable {}
@@ -301,4 +305,36 @@ contract MockSponsorVault is ISponsorVault {
     address receiver,
     uint256 amount
   ) external {}
+}
+
+contract MockCalldata {
+  address public originSender;
+  uint32 public originDomain;
+
+  bool public called = false;
+
+  constructor(address _originSender, uint32 _originDomain) {
+    setPermissions(_originSender, _originDomain);
+  }
+
+  function setPermissions(address _originSender, uint32 _originDomain) public {
+    originSender = _originSender;
+    originDomain = _originDomain;
+  }
+
+  function permissionedCall(address asset) public returns (bool) {
+    require(IExecutor(msg.sender).originSender() == originSender);
+    require(IExecutor(msg.sender).origin() == originDomain);
+    // transfer funds from sender
+    IERC20(asset).transferFrom(msg.sender, address(this), IExecutor(msg.sender).amount());
+    called = true;
+    return called;
+  }
+
+  function unpermissionedCall(address asset) public returns (bool) {
+    // transfer funds from sender
+    IERC20(asset).transferFrom(msg.sender, address(this), IExecutor(msg.sender).amount());
+    called = true;
+    return called;
+  }
 }

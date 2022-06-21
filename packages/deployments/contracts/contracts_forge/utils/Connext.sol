@@ -8,9 +8,9 @@ pragma solidity 0.8.14;
 * Implementation of a diamond.
 /******************************************************************************/
 
-import {LibDiamond} from "../core/connext/libraries/LibDiamond.sol";
-import {IDiamondCut} from "../core/connext/interfaces/IDiamondCut.sol";
-import {AppStorage} from "../core/connext/libraries/LibConnextStorage.sol";
+import {LibDiamond} from "../../contracts/core/connext/libraries/LibDiamond.sol";
+import {IDiamondCut} from "../../contracts/core/connext/interfaces/IDiamondCut.sol";
+import {AppStorage} from "../../contracts/core/connext/libraries/LibConnextStorage.sol";
 
 contract Connext {
   AppStorage s;

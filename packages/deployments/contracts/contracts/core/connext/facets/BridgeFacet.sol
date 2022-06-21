@@ -289,12 +289,6 @@ contract BridgeFacet is BaseConnextFacet {
         canonical = ConnextMessage.TokenId(canonicalDomain, canonicalId);
       }
 
-      transferId = _getTransferId(_args, canonical);
-      s.nonce += 1;
-
-      // Store the relayer fee
-      s.relayerFees[transferId] = _args.params.relayerFee;
-
       // Transfer funds of transacting asset to the contract from the user.
       // NOTE: Will wrap any native asset transferred to wrapped-native automatically.
       (, uint256 amount) = AssetLogic.handleIncomingAsset(
@@ -310,6 +304,15 @@ contract BridgeFacet is BaseConnextFacet {
         amount,
         _args.params.slippageTol
       );
+
+      // Calculate the transfer id
+      transferId = _getTransferId(_args, canonical, bridgedAmt);
+      s.nonce += 1;
+
+      // Store the relayer fee
+      // NOTE: this has to be done *after* transferring in + swapping assets because
+      // the transfer id uses the amount that is bridged (i.e. amount in local asset)
+      s.relayerFees[transferId] = _args.params.relayerFee;
 
       // Transfer callback fee to PromiseRouter if set
       if (_args.params.callbackFee != 0) {
@@ -551,12 +554,12 @@ contract BridgeFacet is BaseConnextFacet {
    * @notice Calculates a transferId based on `xcall` arguments
    * @dev Need this to prevent stack too deep
    */
-  function _getTransferId(XCallArgs calldata _args, ConnextMessage.TokenId memory _canonical)
-    private
-    view
-    returns (bytes32)
-  {
-    return _calculateTransferId(_args.params, _args.amount, s.nonce, _canonical.id, _canonical.domain, msg.sender);
+  function _getTransferId(
+    XCallArgs calldata _args,
+    ConnextMessage.TokenId memory _canonical,
+    uint256 bridgedAmt
+  ) private view returns (bytes32) {
+    return _calculateTransferId(_args.params, bridgedAmt, s.nonce, _canonical.id, _canonical.domain, msg.sender);
   }
 
   /**
@@ -742,25 +745,21 @@ contract BridgeFacet is BaseConnextFacet {
     address _router
   ) internal returns (uint256, address) {
     // Calculate local to adopted swap output if needed
-    (uint256 userAmount, address adopted) = AssetLogic.calculateSwapFromLocalAssetIfNeeded(
-      _canonicalId,
-      _local,
-      _fastTransferAmount
-    );
+    address adopted = s.canonicalToAdopted[_canonicalId];
 
-    IAavePool(s.aavePool).mintUnbacked(adopted, userAmount, address(this), AAVE_REFERRAL_CODE);
+    IAavePool(s.aavePool).mintUnbacked(adopted, _fastTransferAmount, address(this), AAVE_REFERRAL_CODE);
 
     // Improvement: Instead of withdrawing to address(this), withdraw directly to the user or executor to save 1 transfer
-    IAavePool(s.aavePool).withdraw(adopted, userAmount, address(this));
+    IAavePool(s.aavePool).withdraw(adopted, _fastTransferAmount, address(this));
 
     // Store principle debt
-    s.portalDebt[_transferId] = userAmount;
+    s.portalDebt[_transferId] = _fastTransferAmount;
 
     // Store fee debt
-    s.portalFeeDebt[_transferId] = (s.aavePortalFeeNumerator * userAmount) / s.LIQUIDITY_FEE_DENOMINATOR;
+    s.portalFeeDebt[_transferId] = (s.aavePortalFeeNumerator * _fastTransferAmount) / s.LIQUIDITY_FEE_DENOMINATOR;
 
-    emit AavePortalMintUnbacked(_transferId, _router, adopted, userAmount);
+    emit AavePortalMintUnbacked(_transferId, _router, adopted, _fastTransferAmount);
 
-    return (userAmount, adopted);
+    return (_fastTransferAmount, adopted);
   }
 }

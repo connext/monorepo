@@ -52,7 +52,6 @@ contract ConnextPriceOracleTest is ForgeHelper {
   }
 
   function test_ConnextPriceOracle__getTokenPrice_worksIfAggregatorExists() public {
-    assertEq(priceOracle.getTokenPrice(address(0)), 1e18);
     assertEq(priceOracle.getTokenPrice(_wrapped), 1e18);
   }
 
@@ -63,6 +62,11 @@ contract ConnextPriceOracleTest is ForgeHelper {
     priceOracle.setDirectPrice(_tokenA, 1e18);
     priceOracle.setDexPriceInfo(_tokenB, _tokenA, mockLpAddress, true);
     assertEq(priceOracle.getTokenPrice(_tokenB), 5e17);
+  }
+
+  // should work for the native asset
+  function test_ConnextPriceOracle__getTokenPrice_worksForNative() public {
+    assertEq(priceOracle.getTokenPrice(address(0)), 1e18);
   }
 
   function test_ConnextPriceOracle__getTokenPrice_worksIfv1Exists() public {
@@ -76,6 +80,11 @@ contract ConnextPriceOracleTest is ForgeHelper {
   // ============ getPriceFromOracle ============
   function test_ConnextPriceOracle__getPriceFromOracle_works() public {
     assertEq(priceOracle.getPriceFromOracle(_wrapped), 1e18);
+  }
+
+  // should work if the token is not configured
+  function test_ConnextPriceOracle__getPriceFromOracle_returnZeroIfNotConfigured() public {
+    assertEq(priceOracle.getPriceFromOracle(address(123123123123)), 0);
   }
 
   // ============ getPriceFromDex ============

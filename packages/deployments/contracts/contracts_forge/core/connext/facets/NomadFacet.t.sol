@@ -59,14 +59,14 @@ contract NomadFacetTest is NomadFacet, FacetHelper {
       bytes(""), // callData
       _originDomain, // origin domain
       _destinationDomain, // destination domain
-      address(1111111111111144444545454), // agent,
+      address(112233332211), // agent
       _recovery, // recovery address
       address(0), // callback
       0, // callbackFee
-      _relayerFee, // relayerFee
+      _relayerFee, // relayer fee
       false, // forceSlow
       false, // receiveLocal
-      10000 // slippage tol
+      9900 // slippage tol
     );
 
   // ============ Test set up ============
