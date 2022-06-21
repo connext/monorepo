@@ -1,4 +1,9 @@
-import { Bid, ExecuteArgs, OriginTransfer } from "@connext/nxtp-utils";
+import {
+  Bid,
+  ExecuteArgs,
+  OriginTransfer,
+  getMinimumBidsCountForRound as _getMinimumBidsCountForRound,
+} from "@connext/nxtp-utils";
 import { constants } from "ethers";
 
 import { getContext } from "../../sequencer";
@@ -108,7 +113,7 @@ export const getMinimumBidsCountForRound = (round: number): number => {
   if (round < 1 || round > config.auctionRoundDepth || Math.trunc(round) != round) {
     throw new RoundInvalid({ round, auctionRoundDepth: config.auctionRoundDepth });
   }
-  return Math.pow(2, round - 1);
+  return _getMinimumBidsCountForRound(round);
 };
 
 /**

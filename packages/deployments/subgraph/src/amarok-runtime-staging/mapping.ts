@@ -17,6 +17,7 @@ import {
   RouterOwnerAccepted,
   RouterOwnerProposed,
   RouterRecipientSet,
+  MaxRoutersPerTransferUpdated,
 } from "../../generated/Connext/ConnextHandler";
 import {
   Asset,
@@ -27,8 +28,10 @@ import {
   SponsorVault,
   OriginTransfer,
   DestinationTransfer,
+  Setting,
 } from "../../generated/schema";
 
+const DEFAULT_MAX_ROUTERS_PER_TRANSFER = 5;
 export function handleRelayerAdded(event: RelayerAdded): void {
   let relayerId = event.params.relayer.toHex();
   let relayer = Relayer.load(relayerId);
@@ -87,6 +90,14 @@ export function handleRouterAdded(event: RouterAdded): void {
     router = new Router(event.params.router.toHex());
     router.isActive = true;
     router.save();
+  }
+
+  let settingEntity = Setting.load("1");
+  if (settingEntity == null) {
+    settingEntity = new Setting("1");
+    settingEntity.maxRoutersPerTransfer = BigInt.fromI32(DEFAULT_MAX_ROUTERS_PER_TRANSFER);
+    settingEntity.caller = Address.zero();
+    settingEntity.save();
   }
 }
 
@@ -182,6 +193,20 @@ export function handleRouterLiquidityRemoved(event: RouterLiquidityRemoved): voi
 }
 
 /**
+ * Updates the max amounts of routers the token can be routed through
+ */
+export function handleMaxRoutersPerTransferUpdated(event: MaxRoutersPerTransferUpdated): void {
+  let settingEntity = Setting.load("1");
+  if (settingEntity == null) {
+    settingEntity = new Setting("1");
+  }
+
+  settingEntity.maxRoutersPerTransfer = event.params.maxRoutersPerTransfer;
+  settingEntity.caller = event.params.caller;
+  settingEntity.save();
+}
+
+/**
  * Creates subgraph records when TransactionPrepared events are emitted.
  *
  * @param event - The contract event used to create the subgraph record
@@ -247,6 +272,9 @@ export function handleExecuted(event: Executed): void {
 
   const num = event.params.args.routers.length;
   const amount = event.params.args.amount;
+  // TODO: Move from using hardcoded fee calc to using configured liquidity fee numerator.
+  const feesTaken = amount.times(BigInt.fromI32(5)).div(BigInt.fromI32(10000));
+  const routerAmount = amount.minus(feesTaken).div(BigInt.fromI32(num));
   const routers: string[] = [];
   if (transfer.status != "Reconciled") {
     for (let i = 0; i < num; i++) {
@@ -264,7 +292,7 @@ export function handleExecuted(event: Executed): void {
 
       // Update router's liquidity
       const assetBalance = getOrCreateAssetBalance(event.params.args.local, event.params.args.routers[i]);
-      assetBalance.amount = assetBalance.amount.minus(amount.div(BigInt.fromI32(num)));
+      assetBalance.amount = assetBalance.amount.minus(routerAmount);
       assetBalance.save();
     }
   } // otherwise no routers used
