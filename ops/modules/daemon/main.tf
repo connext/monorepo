@@ -62,6 +62,35 @@ resource "aws_ecs_task_definition" "service" {
         {
           name  = "DD_APM_ENABLED",
           value = "true"
+        },
+        {
+          name  = "DD_DOGSTATSD_NON_LOCAL_TRAFFIC",
+          value = "true"
+        },
+
+        {
+          name  = "DD_APM_NON_LOCAL_TRAFFIC",
+          value = "true"
+        },
+
+        {
+          name  = "DD_PROCESS_AGENT_ENABLED",
+          value = "true"
+        },
+
+        {
+          name  = "DD_TRACE_ANALYTICS_ENABLED",
+          value = "true"
+        },
+
+        {
+          name  = "DD_RUNTIME_METRICS_ENABLED",
+          value = "true"
+        },
+
+        {
+          name  = "DD_LOGS_INJECTION",
+          value = "true"
         }
       ]
 
