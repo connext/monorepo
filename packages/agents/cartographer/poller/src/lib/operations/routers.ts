@@ -12,12 +12,14 @@ export const updateRouters = async () => {
 
   for (const domain of domains) {
     const offset = await database.getCheckPoint("router_" + domain);
+    const limit = 100;
     logger.debug("Retrieving balances", requestContext, methodContext, {
       domain: domain,
       offset: offset,
+      limit: limit,
     });
 
-    const balances = await subgraph.getAssetBalancesRouters(domain, offset, "asc");
+    const balances = await subgraph.getAssetBalancesRouters(domain, offset, limit, "asc");
     await database.saveRouterBalances(balances);
 
     // Reset offset at the end of the cycle.

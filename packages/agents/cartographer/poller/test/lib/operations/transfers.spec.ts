@@ -12,7 +12,7 @@ import { AppContext } from "../../../src/shared";
 import * as shared from "../../../src/shared";
 
 const mockSubgraphResponse = [mock.entity.xtransfer() as OriginTransfer, mock.entity.xtransfer() as OriginTransfer];
-const mockEmptySubgraphResponse = [];
+const mockRouterResponse = [{}, {}];
 
 const mockConfig: CartographerConfig = {
   pollInterval: 15000,
@@ -104,8 +104,8 @@ describe("Backend operations", () => {
     saveCheckPointStub.resolves();
     const getTransfersWithOriginPendingStub = stub(dbClient, "getTransfersWithOriginPending");
     getTransfersWithOriginPendingStub.resolves([]);
-    const getTransfersWithDestinationPendingpStub = stub(dbClient, "getTransfersWithDestinationPending");
-    getTransfersWithDestinationPendingpStub.resolves([]);
+    const getTransfersWithDestinationPendingStub = stub(dbClient, "getTransfersWithDestinationPending");
+    getTransfersWithDestinationPendingStub.resolves([]);
 
     mockContext = {
       logger: new Logger({
@@ -116,9 +116,10 @@ describe("Backend operations", () => {
         subgraph: createStubInstance(SubgraphReader, {
           getOriginTransfersByNonce: Promise.resolve(mockSubgraphResponse),
           getDestinationTransfersByNonce: Promise.resolve(mockSubgraphResponse),
-          getDestinationTransfersByReconcileTimestamp: Promise.resolve(mockSubgraphResponse),
+          getDestinationTransfersByDomainAndReconcileTimestamp: Promise.resolve(mockSubgraphResponse),
           getOriginTransfersById: Promise.resolve(mockSubgraphResponse),
           getDestinationTransfersById: Promise.resolve(mockSubgraphResponse),
+          getAssetBalancesRouters: Promise.resolve(mockRouterResponse),
         }),
         database: {
           saveTransfers: dbClient.saveTransfers,
@@ -157,8 +158,10 @@ describe("Backend operations", () => {
   });
 
   it("should poll subgraph with mock backend empty response", async () => {
+    (mockContext.adapters.subgraph.getOriginTransfersByNonce as SinonStub).resolves([]);
     (mockContext.adapters.subgraph.getDestinationTransfersByNonce as SinonStub).resolves([]);
-    (mockContext.adapters.subgraph.getDestinationTransfersByNonce as SinonStub).resolves([]);
+    (mockContext.adapters.subgraph.getOriginTransfersById as SinonStub).resolves([]);
+    (mockContext.adapters.subgraph.getDestinationTransfersById as SinonStub).resolves([]);
 
     await expect(bindTransfers()).to.eventually.not.be.rejected;
   });
@@ -167,6 +170,8 @@ describe("Backend operations", () => {
     (mockContext.adapters.subgraph.getLatestBlockNumber as SinonStub).resolves(mockNoBlockNumber);
     (mockContext.adapters.subgraph.getOriginTransfersByNonce as SinonStub).resolves([]);
     (mockContext.adapters.subgraph.getDestinationTransfersByNonce as SinonStub).resolves([]);
+    (mockContext.adapters.subgraph.getOriginTransfersById as SinonStub).resolves([]);
+    (mockContext.adapters.subgraph.getDestinationTransfersById as SinonStub).resolves([]);
 
     await expect(bindTransfers()).to.eventually.not.be.rejected;
   });
@@ -178,27 +183,17 @@ describe("Backend operations", () => {
     } catch (Error) {}
   });
 
-  it("should poll subgraph with block zero", async () => {
-    await expect(bindRouters()).to.eventually.not.be.rejected;
-  });
-
   it("should poll subgraph with mock non zero block", async () => {
     await expect(bindRouters()).to.eventually.not.be.rejected;
   });
 
   it("should poll subgraph with mock backend empty response", async () => {
-    (mockContext.adapters.subgraph.getDestinationTransfersByNonce as SinonStub).resolves([]);
-    (mockContext.adapters.subgraph.getDestinationTransfersByNonce as SinonStub).resolves([]);
-    (mockContext.adapters.subgraph.getOriginTransfersById as SinonStub).resolves([]);
-    (mockContext.adapters.subgraph.getDestinationTransfersByNonce as SinonStub).resolves([]);
-
+    (mockContext.adapters.subgraph.getAssetBalancesRouters as SinonStub).resolves([]);
     await expect(bindRouters()).to.eventually.not.be.rejected;
   });
 
-  it("should poll subgraph with mock backend no block number", async () => {
-    (mockContext.adapters.subgraph.getLatestBlockNumber as SinonStub).resolves(mockNoBlockNumber);
-    (mockContext.adapters.subgraph.getDestinationTransfersByNonce as SinonStub).resolves([]);
-    (mockContext.adapters.subgraph.getDestinationTransfersByNonce as SinonStub).resolves([]);
+  it("should poll subgraph with mock response", async () => {
+    (mockContext.adapters.subgraph.getAssetBalancesRouters as SinonStub).resolves(mockRouterResponse);
 
     await expect(bindRouters()).to.eventually.not.be.rejected;
   });

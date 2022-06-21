@@ -490,7 +490,7 @@ describe("Database client", () => {
     const xTransfer4: XTransfer = mock.entity.xtransfer({ status: XTransferStatus.Executed });
     xTransfer4.destination.execute.timestamp = 4;
     await saveTransfers([xTransfer1, xTransfer2, xTransfer3], pool);
-    const transfers = await getTransfersWithDestinationPending(xTransfer3.originDomain, 100, "ASC", pool);
+    const transfers = await getTransfersWithDestinationPending(xTransfer3.destinationDomain, 100, "ASC", pool);
     expect(transfers.length).greaterThan(0);
     expect(transfers).includes(xTransfer3Id);
   });

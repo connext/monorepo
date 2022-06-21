@@ -111,7 +111,7 @@ describe("SubgraphReader", () => {
         ],
       ]);
       executeStub.resolves(response);
-      expect(await subgraphReader.getAssetBalancesRouters("1111")).to.be.deep.eq([
+      expect(await subgraphReader.getAssetBalancesRouters("1111", 0, 100)).to.be.deep.eq([
         {
           router: mkAddress("aaa"),
           assets: [
@@ -326,7 +326,7 @@ describe("SubgraphReader", () => {
     });
   });
 
-  describe("#getDestinationTransfersByReconcileTimestamp", () => {
+  describe("#getDestinationTransfersByDomainAndReconcileTimestamp", () => {
     it("should return the destination transfers across the multichains", async () => {
       response.set("1111", [[mockDestinationTransferEntity]]);
       response.set("2221", [[mockDestinationTransferEntity]]);
@@ -334,9 +334,10 @@ describe("SubgraphReader", () => {
 
       const agents: Map<string, SubgraphQueryByTimestampMetaParams> = new Map();
       agents.set("1111", { maxBlockNumber: 99999999, fromTimestamp: 0 });
-      agents.set("2221", { maxBlockNumber: 99999999, fromTimestamp: 0 });
 
-      expect(await subgraphReader.getDestinationTransfersByReconcileTimestamp(agents)).to.be.deep.eq([
+      expect(
+        await subgraphReader.getDestinationTransfersByDomainAndReconcileTimestamp(agents.get("1111")!, "1111"),
+      ).to.be.deep.eq([
         ParserFns.destinationTransfer(mockDestinationTransferEntity),
         ParserFns.destinationTransfer(mockDestinationTransferEntity),
       ]);

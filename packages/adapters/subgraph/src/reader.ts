@@ -31,7 +31,7 @@ import {
   getDestinationTransfersByIDsCombinedQuery,
   getOriginTransfersByNonceQuery,
   getDestinationTransfersByNonceQuery,
-  getDestinationTransfersByReconcileTimestampQuery,
+  getDestinationTransfersByDomainAndReconcileTimestampQuery,
 } from "./lib/operations";
 import { SubgraphMap } from "./lib/entities";
 
@@ -161,12 +161,13 @@ export class SubgraphReader {
   public async getAssetBalancesRouters(
     domain: string,
     offset: number,
+    limit: number,
     orderDirection: "asc" | "desc" = "desc",
   ): Promise<RouterBalance[]> {
     const { execute, getPrefixForDomain } = getHelpers();
     const prefix = getPrefixForDomain(domain);
 
-    const query = getAssetBalancesRoutersQuery(prefix, offset, orderDirection);
+    const query = getAssetBalancesRoutersQuery(prefix, offset, limit, orderDirection);
     const response = await execute(query);
     const routers = [...response.values()][0][0];
     return routers.map((router: any) => {
@@ -397,11 +398,12 @@ export class SubgraphReader {
     return destinationTransfers;
   }
 
-  public async getDestinationTransfersByReconcileTimestamp(
-    params: Map<string, SubgraphQueryByTimestampMetaParams>,
+  public async getDestinationTransfersByDomainAndReconcileTimestamp(
+    param: SubgraphQueryByTimestampMetaParams,
+    domain: string,
   ): Promise<XTransfer[]> {
     const { execute, parser } = getHelpers();
-    const xcalledXQuery = getDestinationTransfersByReconcileTimestampQuery(params);
+    const xcalledXQuery = getDestinationTransfersByDomainAndReconcileTimestampQuery(param, domain);
     const response = await execute(xcalledXQuery);
 
     const transfers: any[] = [];

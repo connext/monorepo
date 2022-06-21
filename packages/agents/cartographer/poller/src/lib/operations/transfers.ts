@@ -33,127 +33,130 @@ export const updateTransfers = async () => {
   const subgraphReconcileQueryMetaParams: Map<string, SubgraphQueryByTimestampMetaParams> = new Map();
   const lastestBlockNumbers: Map<string, number> = await subgraph.getLatestBlockNumber(domains);
 
-  for (const domain of domains) {
-    let latestBlockNumber: number | undefined = undefined;
-    if (lastestBlockNumbers.has(domain)) {
-      latestBlockNumber = lastestBlockNumbers.get(domain)!;
-    }
+  await Promise.all(
+    domains.map(async (domain) => {
+      let latestBlockNumber: number | undefined = undefined;
+      if (lastestBlockNumbers.has(domain)) {
+        latestBlockNumber = lastestBlockNumbers.get(domain)!;
+      }
 
-    if (!latestBlockNumber) {
-      logger.error("Error getting the latestBlockNumber for domain.", requestContext, methodContext, undefined, {
-        domain,
-        latestBlockNumber,
-        lastestBlockNumbers,
+      if (!latestBlockNumber) {
+        logger.error("Error getting the latestBlockNumber for domain.", requestContext, methodContext, undefined, {
+          domain,
+          latestBlockNumber,
+          lastestBlockNumbers,
+        });
+        return;
+      }
+
+      // Retrieve the most recent origin transfers we've saved for this domain.
+      const latestOriginNonce = await database.getCheckPoint("origin_nonce_" + domain);
+
+      subgraphOriginQueryMetaParams.set(domain, {
+        maxBlockNumber: latestBlockNumber,
+        latestNonce: latestOriginNonce == 0 ? latestOriginNonce : latestOriginNonce + 1,
+        orderDirection: "asc",
       });
-      continue;
-    }
 
-    // Retrieve the most recent origin transfers we've saved for this domain.
-    const latestOriginNonce = await database.getCheckPoint("origin_nonce_" + domain);
+      // Retrieve the most recent destination transfers we've saved for this domain.
+      const latestDestinationNonce = await database.getCheckPoint("destination_nonce_" + domain);
 
-    subgraphOriginQueryMetaParams.set(domain, {
-      maxBlockNumber: latestBlockNumber,
-      latestNonce: latestOriginNonce == 0 ? latestOriginNonce : latestOriginNonce + 1,
-      orderDirection: "asc",
-    });
+      subgraphDestinationQueryMetaParams.set(domain, {
+        maxBlockNumber: latestBlockNumber,
+        latestNonce: latestDestinationNonce == 0 ? latestDestinationNonce : latestDestinationNonce + 1,
+        orderDirection: "asc",
+      });
 
-    // Retrieve the most recent destination transfers we've saved for this domain.
-    const latestDestinationNonce = await database.getCheckPoint("destination_nonce_" + domain);
+      const reconciledTimestamp = await database.getCheckPoint("destination_reconcile_timestamp_" + domain);
 
-    subgraphDestinationQueryMetaParams.set(domain, {
-      maxBlockNumber: latestBlockNumber,
-      latestNonce: latestDestinationNonce == 0 ? latestDestinationNonce : latestDestinationNonce + 1,
-      orderDirection: "asc",
-    });
+      subgraphReconcileQueryMetaParams.set(domain, {
+        maxBlockNumber: latestBlockNumber,
+        fromTimestamp: reconciledTimestamp,
+        orderDirection: "asc",
+      });
 
-    const reconciledTimestamp = await database.getCheckPoint("destination_reconcile_timestamp_" + domain);
+      const pendingOriginTransfersIDs = await database.getTransfersWithOriginPending(domain, 100, "ASC");
 
-    subgraphReconcileQueryMetaParams.set(domain, {
-      maxBlockNumber: latestBlockNumber,
-      fromTimestamp: reconciledTimestamp,
-      destinationDomains: domains,
-      orderDirection: "asc",
-    });
+      subgraphOriginPendingQueryMetaParams.set(domain, {
+        maxBlockNumber: latestBlockNumber,
+        transferIDs: pendingOriginTransfersIDs,
+      });
 
-    const pendingOriginTransfersIDs = await database.getTransfersWithOriginPending(domain, 100, "ASC");
+      const pendingDestinationTransfersIDs = await database.getTransfersWithDestinationPending(domain, 100, "ASC");
 
-    subgraphOriginPendingQueryMetaParams.set(domain, {
-      maxBlockNumber: latestBlockNumber,
-      transferIDs: pendingOriginTransfersIDs,
-    });
-
-    const pendingDestinationTransfersIDs = await database.getTransfersWithDestinationPending(domain, 100, "ASC");
-
-    subgraphDestinationPendingQueryMetaParams.set(domain, {
-      maxBlockNumber: latestBlockNumber,
-      transferIDs: pendingDestinationTransfersIDs,
-    });
-  }
+      subgraphDestinationPendingQueryMetaParams.set(domain, {
+        maxBlockNumber: latestBlockNumber,
+        transferIDs: pendingDestinationTransfersIDs,
+      });
+    }),
+  );
 
   if (subgraphOriginQueryMetaParams.size > 0) {
     // Get origin transfers for all domains in the mapping.
     const transfers = await subgraph.getOriginTransfersByNonce(subgraphOriginQueryMetaParams);
     logger.info("Retrieved origin transfers by nonce", requestContext, methodContext, {
-      transfers,
+      transfers: transfers,
       count: transfers.length,
     });
     await database.saveTransfers(transfers);
 
-    for (const domain of domains) {
-      const domainTransfers = transfers.filter((transfer) => transfer.originDomain === domain);
-      const max = getMaxNonce(domainTransfers);
-      const latest = subgraphOriginQueryMetaParams.get(domain)?.latestNonce ?? 0;
-      if (domainTransfers.length > 0 && max > latest) {
-        await database.saveCheckPoint("origin_nonce_" + domain, max);
-      }
-    }
+    await Promise.all(
+      domains.map(async (domain) => {
+        const domainTransfers = transfers.filter((transfer) => transfer.originDomain === domain);
+        const max = getMaxNonce(domainTransfers);
+        const latest = subgraphOriginQueryMetaParams.get(domain)?.latestNonce ?? 0;
+        if (domainTransfers.length > 0 && max > latest) {
+          await database.saveCheckPoint("origin_nonce_" + domain, max);
+        }
+      }),
+    );
   }
 
   if (subgraphDestinationQueryMetaParams.size > 0) {
     // Get destination transfers for all domains in the mapping.
     const transfers = await subgraph.getDestinationTransfersByNonce(subgraphDestinationQueryMetaParams);
     logger.info("Retrieved destination transfers by nonce", requestContext, methodContext, {
-      transfers,
+      transfers: transfers,
       count: transfers.length,
     });
     await database.saveTransfers(transfers);
 
-    for (const domain of domains) {
-      const domainTransfers = transfers.filter((transfer) => transfer.destinationDomain === domain);
-      const max = getMaxNonce(domainTransfers);
-      const latest = subgraphDestinationQueryMetaParams.get(domain)?.latestNonce ?? 0;
-      if (domainTransfers.length > 0 && max > latest) {
-        await database.saveCheckPoint("destination_nonce_" + domain, max);
-      }
-    }
+    await Promise.all(
+      domains.map(async (domain) => {
+        const domainTransfers = transfers.filter((transfer) => transfer.destinationDomain === domain);
+        const max = getMaxNonce(domainTransfers);
+        const latest = subgraphDestinationQueryMetaParams.get(domain)?.latestNonce ?? 0;
+        if (domainTransfers.length > 0 && max > latest) {
+          await database.saveCheckPoint("destination_nonce_" + domain, max);
+        }
+      }),
+    );
   }
 
-  if (subgraphReconcileQueryMetaParams.size > 0) {
-    // Get destination transfers for all domains in the mapping.
-    const transfers = await subgraph.getDestinationTransfersByReconcileTimestamp(subgraphReconcileQueryMetaParams);
-    logger.info("Retrieved destination transfers by reconcile timestamp", requestContext, methodContext, {
-      transfers,
-      count: transfers.length,
-    });
-    await database.saveTransfers(transfers);
+  await Promise.all(
+    domains.map(async (domain) => {
+      // Get destination transfers per domain.
+      const domainParams = subgraphReconcileQueryMetaParams.get(domain)!;
+      const domainTransfers = await subgraph.getDestinationTransfersByDomainAndReconcileTimestamp(domainParams, domain);
+      logger.info("Retrieved destination transfers by reconcile timestamp by domain", requestContext, methodContext, {
+        transfers: domainTransfers,
+        domain: domain,
+        count: domainTransfers.length,
+      });
+      await database.saveTransfers(domainTransfers);
 
-    for (const domain of domains) {
-      const domainTransfers = transfers.filter((transfer) => transfer.originDomain === domain);
       const max = getMaxReconcileTimestamp(domainTransfers);
       const latest = subgraphReconcileQueryMetaParams.get(domain)?.fromTimestamp ?? 0;
       if (domainTransfers.length > 0 && max > latest) {
-        await database.saveCheckPoint(
-          "destination_reconcile_timestamp_" + domain,
-          getMaxReconcileTimestamp(domainTransfers),
-        );
+        await database.saveCheckPoint("destination_reconcile_timestamp_" + domain, max);
       }
-    }
-  }
+    }),
+  );
 
   if (subgraphOriginPendingQueryMetaParams.size > 0) {
     const transfers = await subgraph.getOriginTransfersById(subgraphOriginPendingQueryMetaParams);
     logger.info("Retrieved origin transfers by id", requestContext, methodContext, {
-      transfers,
+      transfers: transfers,
       count: transfers.length,
     });
     await database.saveTransfers(transfers);
@@ -162,7 +165,7 @@ export const updateTransfers = async () => {
   if (subgraphDestinationPendingQueryMetaParams.size > 0) {
     const transfers = await subgraph.getDestinationTransfersById(subgraphDestinationPendingQueryMetaParams);
     logger.info("Retrieved destination transfers by id", requestContext, methodContext, {
-      transfers,
+      transfers: transfers,
       count: transfers.length,
     });
     await database.saveTransfers(transfers);

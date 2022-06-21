@@ -138,9 +138,9 @@ export const getTransfersWithOriginPending = async (
   const poolToUse = _pool ?? pool;
   const transfers = await db.sql<s.transfers.SQL, s.transfers.JSONSelectable[]>`SELECT * FROM ${"transfers"} WHERE ${{
     origin_domain: domain,
-  }} AND "xcall_timestamp" IS NULL ORDER BY "update_time", "nonce" ${raw(
-    `${orderDirection}`,
-  )} NULLS LAST LIMIT ${db.param(limit)}`.run(poolToUse);
+  }} AND "xcall_timestamp" IS NULL ORDER BY "update_time" ${raw(`${orderDirection}`)} LIMIT ${db.param(limit)}`.run(
+    poolToUse,
+  );
 
   const transfer_ids = transfers.map((transfer) => transfer.transfer_id);
   return transfer_ids;
@@ -153,9 +153,9 @@ export const getTransfersWithDestinationPending = async (
   _pool?: Pool,
 ): Promise<string[]> => {
   const poolToUse = _pool ?? pool;
-  const transfers = await db.sql<s.transfers.SQL, s.transfers.JSONSelectable[]>`SELECT * FROM ${"transfers"} WHERE ${{
-    origin_domain: domain,
-  }} AND ("xcall_timestamp" IS NOT NULL AND ("execute_timestamp" IS NULL OR "reconcile_timestamp" IS NULL)) ORDER BY "update_time" ${raw(
+  const transfers = await db.sql<s.transfers.SQL, s.transfers.JSONSelectable[]>`SELECT * FROM ${"transfers"} WHERE (${{
+    destination_domain: domain,
+  }} OR "destination_domain" IS NULL) AND ("xcall_timestamp" IS NOT NULL AND ("execute_timestamp" IS NULL OR "reconcile_timestamp" IS NULL)) ORDER BY "update_time" ${raw(
     `${orderDirection}`,
   )} LIMIT ${db.param(limit)}`.run(poolToUse);
 
