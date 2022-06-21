@@ -726,7 +726,10 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
       if (!_inputs.shouldSwap && _inputs.token != address(s.wrapper)) {
         // NOTE: when using aave would normally send you funds for the position minted,
         // but we are not adding any funds from the pool, so always decrement
-        assertEq(finalBalances.bridge, prevBalances.bridge - _inputs.routerAmt);
+        assertEq(
+          finalBalances.bridge,
+          _inputs.usesPortals ? prevBalances.bridge : prevBalances.bridge - _inputs.routerAmt
+        );
       }
 
       if (_inputs.usesPortals) {

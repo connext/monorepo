@@ -26,8 +26,6 @@ import "./utils/ForgeHelper.sol";
 import "./utils/Mock.sol";
 import "./utils/Deployer.sol";
 
-import "forge-std/console.sol";
-
 struct XCalledEventArgs {
   address transactingAssetId;
   uint256 amount;
@@ -50,6 +48,14 @@ struct ExecuteBalances {
   uint256 bridgeReceiving; // local -or- adopted
   uint256[] liquidity;
   uint256 toReceiving; // local -or- adopted
+}
+
+// Holds all balances that are impacted by a reconcile
+struct ReconcileBalances {
+  uint256 bridgeLocal;
+  uint256[] liquidity;
+  uint256 portalDebt;
+  uint256 portalFeeDebt;
 }
 
 contract ConnextTest is ForgeHelper, Deployer {
@@ -559,7 +565,11 @@ contract ConnextTest is ForgeHelper, Deployer {
   }
 
   // ============ Execute helpers
-  function utils_createRouters(uint256 num, bytes32 transferId) public returns (address[] memory, bytes[] memory) {
+  function utils_createRouters(
+    uint256 num,
+    bytes32 transferId,
+    uint256 liquidity
+  ) public returns (address[] memory, bytes[] memory) {
     if (num == 0) {
       address[] memory routers;
       bytes[] memory signatures;
@@ -571,8 +581,9 @@ contract ConnextTest is ForgeHelper, Deployer {
     bytes32 toSign = ECDSA.toEthSignedMessageHash(keccak256(abi.encode(transferId, num)));
 
     // setup liquidity
-    uint256 liquidity = 20 ether;
-    IERC20(_destinationLocal).approve(address(_destinationConnext), liquidity * num);
+    if (liquidity > 0) {
+      IERC20(_destinationLocal).approve(address(_destinationConnext), liquidity * num);
+    }
     for (uint256 i; i < num; i++) {
       routers[i] = vm.addr(777 + i);
       (uint8 v, bytes32 r, bytes32 _s) = vm.sign(777 + i, toSign);
@@ -582,7 +593,9 @@ contract ConnextTest is ForgeHelper, Deployer {
       _destinationConnext.setupRouter(routers[i], address(0), address(0));
 
       // add liquidity for all routers
-      _destinationConnext.addRouterLiquidityFor(liquidity, _destinationLocal, routers[i]);
+      if (liquidity > 0) {
+        _destinationConnext.addRouterLiquidityFor(liquidity, _destinationLocal, routers[i]);
+      }
     }
 
     return (routers, signatures);
@@ -592,9 +605,10 @@ contract ConnextTest is ForgeHelper, Deployer {
     CallParams memory params,
     uint256 pathLen,
     bytes32 transferId,
-    uint256 bridgedAmt
+    uint256 bridgedAmt,
+    uint256 liquidity
   ) public returns (ExecuteArgs memory) {
-    (address[] memory routers, bytes[] memory routerSignatures) = utils_createRouters(pathLen, transferId);
+    (address[] memory routers, bytes[] memory routerSignatures) = utils_createRouters(pathLen, transferId, liquidity);
     return
       ExecuteArgs(
         params, // CallParams
@@ -605,6 +619,15 @@ contract ConnextTest is ForgeHelper, Deployer {
         0, // nonce
         address(this) // originSender
       );
+  }
+
+  function utils_createExecuteArgs(
+    CallParams memory params,
+    uint256 pathLen,
+    bytes32 transferId,
+    uint256 bridgedAmt
+  ) public returns (ExecuteArgs memory) {
+    return utils_createExecuteArgs(params, pathLen, transferId, bridgedAmt, 20 ether);
   }
 
   function utils_getFastTransferAmount(uint256 amount) public returns (uint256) {
@@ -637,7 +660,8 @@ contract ConnextTest is ForgeHelper, Deployer {
     ExecuteArgs memory args,
     bytes32 transferId,
     uint256 bridgeOut,
-    uint256 vaultOut
+    uint256 vaultOut,
+    bool usesPortals
   ) public {
     // Get initial balances
     address receiving = args.params.receiveLocal ? _destinationLocal : _destinationAdopted;
@@ -672,14 +696,14 @@ contract ConnextTest is ForgeHelper, Deployer {
     if (!args.params.receiveLocal && _destinationLocal != _destinationAdopted) {
       assertEq(end.bridgeLocal, initial.bridgeLocal);
     } // else, local checked in receiving
-    assertEq(end.bridgeReceiving, initial.bridgeReceiving - bridgeOut);
+    assertEq(end.bridgeReceiving, usesPortals ? initial.bridgeReceiving : initial.bridgeReceiving - bridgeOut);
 
     // router loses the liquidity it provides (local)
     uint256 debited = isFast ? (utils_getFastTransferAmount(args.amount)) / args.routers.length : 0;
     address[] memory stored = _destinationConnext.routedTransfers(transferId);
     for (uint256 i; i < args.routers.length; i++) {
       assertEq(stored[i], args.routers[i]);
-      assertEq(end.liquidity[i], initial.liquidity[i] - debited);
+      assertEq(end.liquidity[i], usesPortals ? initial.liquidity[i] : initial.liquidity[i] - debited);
     }
 
     // recipient gains (adopted/specified)
@@ -687,6 +711,15 @@ contract ConnextTest is ForgeHelper, Deployer {
 
     // relayer stored
     assertEq(_destinationConnext.transferRelayer(transferId), address(this));
+
+    if (!usesPortals) {
+      return;
+    }
+    assertEq(_destinationConnext.getAavePortalDebt(transferId), bridgeOut);
+    assertEq(
+      _destinationConnext.getAavePortalFeeDebt(transferId),
+      (bridgeOut * _destinationConnext.aavePortalFee()) / 10000
+    );
   }
 
   function utils_executeAndAssert(
@@ -694,7 +727,7 @@ contract ConnextTest is ForgeHelper, Deployer {
     bytes32 transferId,
     uint256 bridgeOut
   ) public {
-    utils_executeAndAssert(args, transferId, bridgeOut, 0);
+    utils_executeAndAssert(args, transferId, bridgeOut, 0, false);
   }
 
   // ============ Handle helpers
@@ -711,22 +744,46 @@ contract ConnextTest is ForgeHelper, Deployer {
     return ConnextMessage.formatMessage(tokenId, action);
   }
 
+  function utils_getReconcileBalances(bytes32 transferId, address[] memory routers)
+    public
+    returns (ReconcileBalances memory)
+  {
+    uint256[] memory initLiquidity = new uint256[](routers.length);
+    for (uint256 i; i < routers.length; i++) {
+      initLiquidity[i] = _destinationConnext.routerBalances(routers[i], _destinationLocal);
+    }
+    return
+      ReconcileBalances(
+        IERC20(_destinationLocal).balanceOf(address(_destinationConnext)),
+        initLiquidity,
+        _destinationConnext.getAavePortalDebt(transferId),
+        _destinationConnext.getAavePortalFeeDebt(transferId)
+      );
+  }
+
   function utils_handleAndAssert(
     bytes32 transferId,
     uint256 bridgedAmt,
     address to,
-    address[] memory routers
+    address[] memory routers,
+    bool usesPortals
   ) public {
     // Ensure the balance of the bridge increases IFF the destination is not the
     // canonical domain
     bool shouldMint = _destination != _canonicalDomain;
 
-    // Get initial bridge balance and router liquidity
-    uint256 initLocal = IERC20(_destinationLocal).balanceOf(address(_destinationConnext));
-    uint256[] memory initLiquidity = new uint256[](routers.length);
-    for (uint256 i; i < routers.length; i++) {
-      initLiquidity[i] = _destinationConnext.routerBalances(routers[i], _destinationLocal);
+    uint256 repayAmount = bridgedAmt;
+    if (usesPortals) {
+      repayAmount = _destinationConnext.calculateSwap(
+        TypeCasts.addressToBytes32(_canonical),
+        0, // local idx always 0
+        1, // adopted idx always 1
+        bridgedAmt
+      );
     }
+
+    // Get initial bridge balance and router liquidity
+    ReconcileBalances memory initial = utils_getReconcileBalances(transferId, routers);
 
     // expect emit
     vm.expectEmit(true, true, true, true);
@@ -742,17 +799,40 @@ contract ConnextTest is ForgeHelper, Deployer {
     // assert bridge balance
     assertEq(
       IERC20(_destinationLocal).balanceOf(address(_destinationConnext)),
-      shouldMint ? initLocal + bridgedAmt : initLocal
+      shouldMint ? initial.bridgeLocal + bridgedAmt : initial.bridgeLocal
     );
 
+    ReconcileBalances memory end = utils_getReconcileBalances(transferId, routers);
+
     // assert router liquidity balance
-    uint256 credited = routers.length > 0 ? bridgedAmt / routers.length : 0;
-    for (uint256 i; i < routers.length; i++) {
-      assertEq(_destinationConnext.routerBalances(routers[i], _destinationLocal), initLiquidity[i] + credited);
+    if (!usesPortals) {
+      uint256 credited = routers.length > 0 ? bridgedAmt / routers.length : 0;
+      for (uint256 i; i < routers.length; i++) {
+        assertEq(end.liquidity[i], initial.liquidity[i] + credited);
+      }
+      assertEq(end.portalDebt, 0);
+      assertEq(end.portalFeeDebt, 0);
+    } else {
+      uint256 debtPaid = repayAmount > initial.portalDebt ? initial.portalDebt : repayAmount;
+      repayAmount -= debtPaid;
+      uint256 feePaid = repayAmount > initial.portalFeeDebt ? initial.portalFeeDebt : repayAmount;
+      repayAmount -= feePaid;
+      assertEq(end.liquidity[0], initial.liquidity[0] + repayAmount);
+      assertEq(end.portalDebt, initial.portalDebt - debtPaid);
+      assertEq(end.portalFeeDebt, initial.portalFeeDebt - feePaid);
     }
 
     // assert transfer marked as reconciled
     assertTrue(_destinationConnext.reconciledTransfers(transferId));
+  }
+
+  function utils_handleAndAssert(
+    bytes32 transferId,
+    uint256 bridgedAmt,
+    address to,
+    address[] memory routers
+  ) public {
+    utils_handleAndAssert(transferId, bridgedAmt, to, routers, false);
   }
 
   // ============ Testing scenarios ============
@@ -1031,7 +1111,13 @@ contract ConnextTest is ForgeHelper, Deployer {
     uint256 initLiquidity = IERC20(_destinationLocal).balanceOf(xcall.params.to);
     uint256 initReceiver = xcall.params.to.balance;
     ExecuteArgs memory execute = utils_createExecuteArgs(xcall.params, 2, transferId, eventArgs.bridgedAmt);
-    utils_executeAndAssert(execute, transferId, utils_getFastTransferAmount(execute.amount), liquidityReimbursement);
+    utils_executeAndAssert(
+      execute,
+      transferId,
+      utils_getFastTransferAmount(execute.amount),
+      liquidityReimbursement,
+      false
+    );
 
     assertEq(xcall.params.to.balance, initReceiver + dust);
     assertEq(
@@ -1041,6 +1127,33 @@ contract ConnextTest is ForgeHelper, Deployer {
   }
 
   // you should be able to use a portal
+  function test_Connext__portalsShouldWork() public {
+    // 0. deploy pool + setup contracts
+    utils_setupAssets(_origin, false); // local != adopted
+    MockPool aavePool = new MockPool(false);
+    _destinationConnext.setAavePool(address(aavePool));
+    _destinationConnext.setAavePortalFee(5);
+
+    // 1. `xcall` on the origin
+    XCallArgs memory args = XCallArgs(utils_createCallParams(_destination), _originAdopted, 1 ether);
+    XCalledEventArgs memory eventArgs = XCalledEventArgs(
+      _originAdopted, // transacting
+      args.amount, // amount in
+      args.amount, // amount bridged
+      _originLocal // asset bridged
+    );
+    bytes32 transferId = utils_xcallAndAssert(args, eventArgs);
+
+    // 2. call `execute` on the destination
+    ExecuteArgs memory execute = utils_createExecuteArgs(args.params, 1, transferId, eventArgs.bridgedAmt, 0);
+    // whitelist routers for portal
+    _destinationConnext.approveRouterForPortal(execute.routers[0]);
+    assertTrue(_destinationConnext.getRouterApprovalForPortal(execute.routers[0]));
+    utils_executeAndAssert(execute, transferId, utils_getFastTransferAmount(eventArgs.bridgedAmt), 0, true);
+
+    // 3. call `handle` on the destination
+    utils_handleAndAssert(transferId, eventArgs.bridgedAmt, args.params.to, execute.routers, true);
+  }
 
   // you should be able to bump + claim relayer fees
   function test_Connext__relayerFeeBumpingAndClaimingWorks() public {

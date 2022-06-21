@@ -139,16 +139,10 @@ contract MockCallback is ICallback {
 }
 
 contract MockPool is IAavePool {
-  uint256 _withdraw = 123456;
-
   bool fails;
 
   constructor(bool _fails) {
     fails = _fails;
-  }
-
-  function setWithdraw(uint256 _new) external {
-    _withdraw = _new;
   }
 
   function mintUnbacked(
@@ -156,16 +150,16 @@ contract MockPool is IAavePool {
     uint256 amount,
     address onBehalfOf,
     uint16 referralCode
-  ) external override {}
+  ) external override {
+    TestERC20(asset).mint(address(this), amount);
+  }
 
   function backUnbacked(
     address asset,
     uint256 amount,
     uint256 fee
   ) external override {
-    if (fails) {
-      require(false, "fail");
-    }
+    require(!fails, "fail");
   }
 
   function withdraw(
@@ -173,7 +167,8 @@ contract MockPool is IAavePool {
     uint256 amount,
     address to
   ) external override returns (uint256) {
-    return _withdraw;
+    TestERC20(asset).transfer(msg.sender, amount);
+    return amount;
   }
 }
 
