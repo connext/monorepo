@@ -636,7 +636,8 @@ contract ConnextTest is ForgeHelper, Deployer {
   function utils_executeAndAssert(
     ExecuteArgs memory args,
     bytes32 transferId,
-    uint256 out
+    uint256 bridgeOut,
+    uint256 vaultOut
   ) public {
     // Get initial balances
     address receiving = args.params.receiveLocal ? _destinationLocal : _destinationAdopted;
@@ -650,7 +651,7 @@ contract ConnextTest is ForgeHelper, Deployer {
 
     // Expect an event
     vm.expectEmit(true, true, true, true);
-    emit Executed(transferId, args.params.to, args, receiving, out, address(this));
+    emit Executed(transferId, args.params.to, args, receiving, bridgeOut + vaultOut, address(this));
 
     // execute on bridge
     _destinationConnext.execute(args);
@@ -671,7 +672,7 @@ contract ConnextTest is ForgeHelper, Deployer {
     if (!args.params.receiveLocal && _destinationLocal != _destinationAdopted) {
       assertEq(end.bridgeLocal, initial.bridgeLocal);
     } // else, local checked in receiving
-    assertEq(end.bridgeReceiving, initial.bridgeReceiving - out);
+    assertEq(end.bridgeReceiving, initial.bridgeReceiving - bridgeOut);
 
     // router loses the liquidity it provides (local)
     uint256 debited = isFast ? (utils_getFastTransferAmount(args.amount)) / args.routers.length : 0;
@@ -682,10 +683,18 @@ contract ConnextTest is ForgeHelper, Deployer {
     }
 
     // recipient gains (adopted/specified)
-    assertEq(end.toReceiving, initial.toReceiving + out);
+    assertEq(end.toReceiving, initial.toReceiving + bridgeOut + vaultOut);
 
     // relayer stored
     assertEq(_destinationConnext.transferRelayer(transferId), address(this));
+  }
+
+  function utils_executeAndAssert(
+    ExecuteArgs memory args,
+    bytes32 transferId,
+    uint256 bridgeOut
+  ) public {
+    utils_executeAndAssert(args, transferId, bridgeOut, 0);
   }
 
   // ============ Handle helpers
@@ -999,6 +1008,37 @@ contract ConnextTest is ForgeHelper, Deployer {
   }
 
   // you should be able to use a sponsor vault
+  function test_Connext__sponsorVaultsWork() public {
+    // 0. deploy sponsor vault + setup contracts
+    utils_setupAssets(_origin, true);
+    uint256 liquidityReimbursement = 0.1 ether;
+    uint256 dust = 0.01 ether;
+    MockSponsorVault vault = new MockSponsorVault(liquidityReimbursement, dust);
+    vm.deal(address(vault), 100 ether); // fund for dusting
+    _destinationConnext.setSponsorVault(address(vault));
+
+    // 1. xcall
+    XCallArgs memory xcall = XCallArgs(utils_createCallParams(_destination), _originLocal, 1 ether);
+    XCalledEventArgs memory eventArgs = XCalledEventArgs(
+      _originLocal, // transacting
+      xcall.amount, // amount in
+      xcall.amount, // amount bridged
+      _originLocal // asset bridged
+    );
+    bytes32 transferId = utils_xcallAndAssert(xcall, eventArgs);
+
+    // 2. call `execute` on the destination
+    uint256 initLiquidity = IERC20(_destinationLocal).balanceOf(xcall.params.to);
+    uint256 initReceiver = xcall.params.to.balance;
+    ExecuteArgs memory execute = utils_createExecuteArgs(xcall.params, 2, transferId, eventArgs.bridgedAmt);
+    utils_executeAndAssert(execute, transferId, utils_getFastTransferAmount(execute.amount), liquidityReimbursement);
+
+    assertEq(xcall.params.to.balance, initReceiver + dust);
+    assertEq(
+      IERC20(_destinationLocal).balanceOf(xcall.params.to),
+      initLiquidity + utils_getFastTransferAmount(execute.amount) + liquidityReimbursement
+    );
+  }
 
   // you should be able to use a portal
 

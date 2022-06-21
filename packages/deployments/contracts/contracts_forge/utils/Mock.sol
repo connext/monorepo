@@ -2,6 +2,7 @@
 pragma solidity 0.8.14;
 
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import {Address} from "@openzeppelin/contracts/utils/Address.sol";
 
 import {TypedMemView, PromiseMessage, PromiseRouter} from "../../contracts/core/promise/PromiseRouter.sol";
 import {ICallback} from "../../contracts/core/promise/interfaces/ICallback.sol";
@@ -271,9 +272,11 @@ contract MockTokenRegistry is ITokenRegistry {
 
 contract MockSponsorVault is ISponsorVault {
   uint256 liquidity;
+  uint256 dust;
 
-  constructor(uint256 _liquidity) {
+  constructor(uint256 _liquidity, uint256 _dust) {
     liquidity = _liquidity;
+    dust = _dust;
   }
 
   function setLiquidity(uint256 _liquidity) external {
@@ -293,7 +296,9 @@ contract MockSponsorVault is ISponsorVault {
     uint32 originDomain,
     address payable receiver,
     uint256 amount
-  ) external {}
+  ) external {
+    Address.sendValue(receiver, dust);
+  }
 
   // Should allow anyone to send funds to the vault for sponsoring fees
   function deposit(address _token, uint256 _amount) external payable {}
