@@ -745,25 +745,21 @@ contract BridgeFacet is BaseConnextFacet {
     address _router
   ) internal returns (uint256, address) {
     // Calculate local to adopted swap output if needed
-    (uint256 userAmount, address adopted) = AssetLogic.calculateSwapFromLocalAssetIfNeeded(
-      _canonicalId,
-      _local,
-      _fastTransferAmount
-    );
+    address adopted = s.canonicalToAdopted[_canonicalId];
 
-    IAavePool(s.aavePool).mintUnbacked(adopted, userAmount, address(this), AAVE_REFERRAL_CODE);
+    IAavePool(s.aavePool).mintUnbacked(adopted, _fastTransferAmount, address(this), AAVE_REFERRAL_CODE);
 
     // Improvement: Instead of withdrawing to address(this), withdraw directly to the user or executor to save 1 transfer
-    IAavePool(s.aavePool).withdraw(adopted, userAmount, address(this));
+    IAavePool(s.aavePool).withdraw(adopted, _fastTransferAmount, address(this));
 
     // Store principle debt
-    s.portalDebt[_transferId] = userAmount;
+    s.portalDebt[_transferId] = _fastTransferAmount;
 
     // Store fee debt
-    s.portalFeeDebt[_transferId] = (s.aavePortalFeeNumerator * userAmount) / s.LIQUIDITY_FEE_DENOMINATOR;
+    s.portalFeeDebt[_transferId] = (s.aavePortalFeeNumerator * _fastTransferAmount) / s.LIQUIDITY_FEE_DENOMINATOR;
 
-    emit AavePortalMintUnbacked(_transferId, _router, adopted, userAmount);
+    emit AavePortalMintUnbacked(_transferId, _router, adopted, _fastTransferAmount);
 
-    return (userAmount, adopted);
+    return (_fastTransferAmount, adopted);
   }
 }
