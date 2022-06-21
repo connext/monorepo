@@ -1,6 +1,8 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity 0.8.14;
 
+import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+
 import {LibDiamond} from "../../../../contracts/core/connext/libraries/LibDiamond.sol";
 import {IStableSwap} from "../../../../contracts/core/connext/interfaces/IStableSwap.sol";
 import {ITokenRegistry} from "../../../../contracts/core/connext/interfaces/ITokenRegistry.sol";
@@ -38,6 +40,8 @@ contract RoutersFacetTest is RoutersFacet, FacetHelper {
   // ============ Test set up ============
   function setUp() public {
     setOwner(_owner);
+    utils_deployAssetContracts();
+    utils_setupAsset(true, false);
   }
 
   // ============ Utils ==============
@@ -137,7 +141,26 @@ contract RoutersFacetTest is RoutersFacet, FacetHelper {
 
   // ============ Admin methods ==============
 
-  // setupRouter
+  function test_RoutersFacet__setupRouter_failsIfNotOwner() public {
+    vm.expectRevert(BaseConnextFacet.BaseConnextFacet__onlyOwner_notOwner.selector);
+    vm.prank(address(123456123));
+    this.setupRouter(address(0), _routerOwner0, _routerRecipient0);
+  }
+
+  function test_RoutersFacet__setupRouter_failsIfRouterAddressIsZero() public {
+    vm.expectRevert(RoutersFacet.RoutersFacet__setupRouter_routerEmpty.selector);
+    vm.prank(_owner);
+    this.setupRouter(address(0), _routerOwner0, _routerRecipient0);
+  }
+
+  function test_RoutersFacet__setupRouter_failsIfRouterAlreadyApproved() public {
+    s.routerPermissionInfo.approvedRouters[_routerAgent0] = true;
+    vm.expectRevert(RoutersFacet.RoutersFacet__setupRouter_alreadyAdded.selector);
+    vm.prank(_owner);
+    this.setupRouter(_routerAgent0, _routerOwner0, _routerRecipient0);
+  }
+
+  // setupRouter -- set owner, router, recipient
   function test_RoutersFacet__setupRouter_success() public {
     assertEq(s.routerPermissionInfo.approvedRouters[_routerAgent0], false);
 
@@ -160,25 +183,6 @@ contract RoutersFacetTest is RoutersFacet, FacetHelper {
     // Should never touch these values:
     assertEq(s.routerPermissionInfo.proposedRouterOwners[_routerAgent0], address(0));
     assertEq(s.routerPermissionInfo.proposedRouterTimestamp[_routerAgent0], 0);
-  }
-
-  function test_RoutersFacet__setupRouter_failsIfNotOwner() public {
-    vm.expectRevert(BaseConnextFacet.BaseConnextFacet__onlyOwner_notOwner.selector);
-    vm.prank(address(123456123));
-    this.setupRouter(address(0), _routerOwner0, _routerRecipient0);
-  }
-
-  function test_RoutersFacet__setupRouter_failsIfRouterAddressIsZero() public {
-    vm.expectRevert(RoutersFacet.RoutersFacet__setupRouter_routerEmpty.selector);
-    vm.prank(_owner);
-    this.setupRouter(address(0), _routerOwner0, _routerRecipient0);
-  }
-
-  function test_RoutersFacet__setupRouter_failsIfRouterAlreadyApproved() public {
-    s.routerPermissionInfo.approvedRouters[_routerAgent0] = true;
-    vm.expectRevert(RoutersFacet.RoutersFacet__setupRouter_alreadyAdded.selector);
-    vm.prank(_owner);
-    this.setupRouter(_routerAgent0, _routerOwner0, _routerRecipient0);
   }
 
   function test_RoutersFacet__setupRouter_shouldHandleNoOwner() public {
@@ -395,6 +399,68 @@ contract RoutersFacetTest is RoutersFacet, FacetHelper {
     // Set fee to -100 basis points, literally making the routers give users free money.
     this.setLiquidityFeeNumerator(10100);
     assertEq(s.LIQUIDITY_FEE_NUMERATOR, 9995);
+  }
+
+  // approveRouterForPortal
+  // fails if not approved and ownership not renounced
+  function test_RoutersFacet__approveRouterForPortal_failsIfNotApproved() public {
+    vm.expectRevert(RoutersFacet.RoutersFacet__approveRouterForPortal_notAdded.selector);
+    vm.prank(_owner);
+    this.approveRouterForPortal(_routerAgent0);
+  }
+
+  // fails if already approved for portals
+  function test_RoutersFacet__approveRouterForPortal_failsIfAlreadyApproved() public {
+    s._routerOwnershipRenounced = true;
+    s.routerPermissionInfo.approvedForPortalRouters[_routerAgent0] = true;
+    vm.expectRevert(RoutersFacet.RoutersFacet__approveRouterForPortal_alreadyApproved.selector);
+    vm.prank(_owner);
+    this.approveRouterForPortal(_routerAgent0);
+  }
+
+  // works
+  function test_RoutersFacet__approveRouterForPortal_success() public {
+    s._routerOwnershipRenounced = true;
+    vm.expectEmit(true, true, true, true);
+    emit RouterApprovedForPortal(_routerAgent0, _owner);
+
+    vm.prank(_owner);
+    this.approveRouterForPortal(_routerAgent0);
+    assertTrue(s.routerPermissionInfo.approvedForPortalRouters[_routerAgent0]);
+  }
+
+  // works if router is not whitelisted, but router ownership renounced
+  function test_RoutersFacet__approveRouterForPortal_successWhenWhitelistRemoved() public {
+    // ensure router ownership renounced and not whitelited
+    s.routerPermissionInfo.approvedForPortalRouters[_routerAgent0] = false;
+    s._routerOwnershipRenounced = true;
+
+    vm.expectEmit(true, true, true, true);
+    emit RouterApprovedForPortal(_routerAgent0, _owner);
+
+    vm.prank(_owner);
+    this.approveRouterForPortal(_routerAgent0);
+    assertTrue(s.routerPermissionInfo.approvedForPortalRouters[_routerAgent0]);
+  }
+
+  // unapproveRouterForPortal
+  // fails if already unapproved for portals
+  function test_RoutersFacet__unapproveRouterForPortal_failsIfNotApproved() public {
+    s.routerPermissionInfo.approvedForPortalRouters[_routerAgent0] = false;
+    vm.expectRevert(RoutersFacet.RoutersFacet__unapproveRouterForPortal_notApproved.selector);
+    vm.prank(_owner);
+    this.unapproveRouterForPortal(_routerAgent0);
+  }
+
+  // works
+  function test_RoutersFacet__unapproveRouterForPortal_success() public {
+    s.routerPermissionInfo.approvedForPortalRouters[_routerAgent0] = true;
+    vm.expectEmit(true, true, true, true);
+    emit RouterUnapprovedForPortal(_routerAgent0, _owner);
+
+    vm.prank(_owner);
+    this.unapproveRouterForPortal(_routerAgent0);
+    assertTrue(!s.routerPermissionInfo.approvedForPortalRouters[_routerAgent0]);
   }
 
   // ============ Public methods ==============
@@ -616,11 +682,221 @@ contract RoutersFacetTest is RoutersFacet, FacetHelper {
     this.acceptProposedRouterOwner(_routerAgent0);
   }
 
-  // function test_RoutersFacet__addRouterLiquidityFor
-  // function test_RoutersFacet__addRouterLiquidity
-  // function test_RoutersFacet__removeRouterLiquidity
+  // addLiquidityForRouter
+  function test_RoutersFacet__addLiquidityForRouter_failsIfNoRouter() public {
+    uint256 amount = 10;
+    vm.expectRevert(RoutersFacet.RoutersFacet__addLiquidityForRouter_routerEmpty.selector);
+    this.addRouterLiquidityFor(amount, _local, address(0));
+  }
 
-  // ============ Internal functions ============
+  function test_RoutersFacet__addLiquidityForRouter_failsIfNoAmount() public {
+    uint256 amount = 0;
+    vm.expectRevert(RoutersFacet.RoutersFacet__addLiquidityForRouter_amountIsZero.selector);
+    this.addRouterLiquidityFor(amount, _local, _routerAgent0);
+  }
 
-  // function test_RoutersFacet___addLiquidityForRouter
+  function test_RoutersFacet__addLiquidityForRouter_failsIfRouterUnapproved() public {
+    s.routerPermissionInfo.approvedRouters[_routerAgent0] = false;
+    uint256 amount = 10000;
+    vm.expectRevert(RoutersFacet.RoutersFacet__addLiquidityForRouter_badRouter.selector);
+    this.addRouterLiquidityFor(amount, _local, _routerAgent0);
+  }
+
+  function test_RoutersFacet__addLiquidityForRouter_failsIfAssetUnapproved() public {
+    s.routerPermissionInfo.approvedRouters[_routerAgent0] = true;
+    s.approvedAssets[_canonicalId] = false;
+    uint256 amount = 10000;
+    vm.expectRevert(RoutersFacet.RoutersFacet__addLiquidityForRouter_badAsset.selector);
+    this.addRouterLiquidityFor(amount, _local, _routerAgent0);
+  }
+
+  function test_RoutersFacet__addLiquidityForRouter_worksForToken() public {
+    s.routerPermissionInfo.approvedRouters[_routerAgent0] = true;
+    s.approvedAssets[_canonicalId] = true;
+    address caller = address(1233422312);
+    TestERC20(_local).mint(caller, 10 ether);
+
+    uint256 amount = 10000;
+
+    uint256 initCaller = IERC20(_local).balanceOf(caller);
+    uint256 initLiquidity = this.routerBalances(_routerAgent0, _local);
+
+    vm.prank(caller);
+    IERC20(_local).approve(address(this), amount);
+
+    vm.expectEmit(true, true, true, true);
+    emit RouterLiquidityAdded(_routerAgent0, _local, _canonicalId, amount, caller);
+    vm.prank(caller);
+    this.addRouterLiquidityFor(amount, _local, _routerAgent0);
+
+    assertEq(IERC20(_local).balanceOf(caller), initCaller - amount);
+    assertEq(this.routerBalances(_routerAgent0, _local), initLiquidity + amount);
+  }
+
+  function test_RoutersFacet__addLiquidityForRouter_worksForNative() public {
+    utils_setupNative(true, true);
+    s.routerPermissionInfo.approvedRouters[_routerAgent0] = true;
+    s.approvedAssets[_canonicalId] = true;
+
+    uint256 amount = 10000;
+
+    uint256 initCaller = address(this).balance;
+    uint256 initLiquidity = this.routerBalances(_routerAgent0, _wrapper);
+
+    vm.expectEmit(true, true, true, true);
+    emit RouterLiquidityAdded(_routerAgent0, _wrapper, _canonicalId, amount, address(this));
+    this.addRouterLiquidityFor{value: amount}(amount, address(0), _routerAgent0);
+
+    assertEq(address(this).balance, initCaller - amount);
+    assertEq(this.routerBalances(_routerAgent0, _wrapper), initLiquidity + amount);
+  }
+
+  // addLiquidity
+  function test_RoutersFacet__addLiquidity_routerIsSender() public {
+    s.routerPermissionInfo.approvedRouters[_routerAgent0] = true;
+    s.approvedAssets[_canonicalId] = true;
+    TestERC20(_local).mint(_routerAgent0, 10 ether);
+
+    uint256 amount = 10000;
+
+    uint256 initCaller = IERC20(_local).balanceOf(_routerAgent0);
+    uint256 initLiquidity = this.routerBalances(_routerAgent0, _local);
+
+    vm.prank(_routerAgent0);
+    IERC20(_local).approve(address(this), amount);
+
+    vm.expectEmit(true, true, true, true);
+    emit RouterLiquidityAdded(_routerAgent0, address(_local), _canonicalId, amount, _routerAgent0);
+    vm.prank(_routerAgent0);
+    this.addRouterLiquidity(amount, _local);
+
+    assertEq(IERC20(_local).balanceOf(_routerAgent0), initCaller - amount);
+    assertEq(this.routerBalances(_routerAgent0, _local), initLiquidity + amount);
+  }
+
+  // removeRouterLiquidityFor
+  function test_RoutersFacet__removeRouterLiquidityFor_failsIfNotRouterOwner() public {
+    s.routerPermissionInfo.routerRecipients[_routerAgent0] = address(0);
+    s.routerPermissionInfo.routerOwners[_routerAgent0] = address(0);
+    address to = address(0);
+    uint256 amount = 100;
+    vm.expectRevert(RoutersFacet.RoutersFacet__removeRouterLiquidityFor_notOwner.selector);
+    vm.prank(address(123567));
+    this.removeRouterLiquidityFor(amount, _local, payable(to), _routerAgent0);
+  }
+
+  function test_RoutersFacet__removeRouterLiquidityFor_works() public {
+    s.routerPermissionInfo.routerRecipients[_routerAgent0] = address(0);
+    s.routerPermissionInfo.routerOwners[_routerAgent0] = address(0);
+    s.routerBalances[_routerAgent0][_local] = 10 ether;
+
+    address to = address(12);
+    uint256 amount = 100;
+
+    uint256 initLiquidity = this.routerBalances(_routerAgent0, _local);
+    uint256 initBalance = IERC20(_local).balanceOf(to);
+
+    vm.expectEmit(true, true, true, true);
+    emit RouterLiquidityRemoved(_routerAgent0, to, _local, amount, _routerAgent0);
+    vm.prank(_routerAgent0);
+    this.removeRouterLiquidityFor(amount, _local, payable(to), _routerAgent0);
+
+    assertEq(this.routerBalances(_routerAgent0, _local), initLiquidity - amount);
+    assertEq(IERC20(_local).balanceOf(to), initBalance + amount);
+  }
+
+  // removeRouterLiquidity
+  function test_RoutersFacet__removeRouterLiquidity_failsIfNoRecipient() public {
+    s.routerPermissionInfo.routerRecipients[_routerAgent0] = address(0);
+    s.routerPermissionInfo.routerOwners[_routerAgent0] = address(0);
+    address to = address(0);
+    uint256 amount = 100;
+    vm.expectRevert(RoutersFacet.RoutersFacet__removeRouterLiquidity_recipientEmpty.selector);
+    vm.prank(_routerAgent0);
+    this.removeRouterLiquidity(amount, _local, payable(to));
+  }
+
+  function test_RoutersFacet__removeRouterLiquidity_failsIfNoAmount() public {
+    s.routerPermissionInfo.routerRecipients[_routerAgent0] = address(0);
+    s.routerPermissionInfo.routerOwners[_routerAgent0] = address(0);
+    address to = address(12345);
+    uint256 amount = 0;
+    vm.expectRevert(RoutersFacet.RoutersFacet__removeRouterLiquidity_amountIsZero.selector);
+    vm.prank(_routerAgent0);
+    this.removeRouterLiquidity(amount, _local, payable(to));
+  }
+
+  function test_RoutersFacet__removeRouterLiquidity_failsIfNotEnoughFunds() public {
+    s.routerPermissionInfo.routerRecipients[_routerAgent0] = address(0);
+    s.routerPermissionInfo.routerOwners[_routerAgent0] = address(0);
+    s.routerBalances[_routerAgent0][_local] = 0;
+    address to = address(12345);
+    uint256 amount = 10000;
+    vm.expectRevert(RoutersFacet.RoutersFacet__removeRouterLiquidity_insufficientFunds.selector);
+    vm.prank(_routerAgent0);
+    this.removeRouterLiquidity(amount, _local, payable(to));
+  }
+
+  // removeLiquidity
+  function test_RoutersFacet__removeRouterLiquidity_worksWithRecipientSet() public {
+    s.routerPermissionInfo.routerRecipients[_routerAgent0] = _routerRecipient0;
+    s.routerPermissionInfo.routerOwners[_routerAgent0] = address(0);
+    s.routerBalances[_routerAgent0][_local] = 10 ether;
+
+    address to = address(1234);
+    uint256 amount = 100;
+
+    uint256 initLiquidity = this.routerBalances(_routerAgent0, _local);
+    uint256 initBalance = IERC20(_local).balanceOf(_routerRecipient0);
+
+    vm.expectEmit(true, true, true, true);
+    emit RouterLiquidityRemoved(_routerAgent0, _routerRecipient0, _local, amount, _routerAgent0);
+    vm.prank(_routerAgent0);
+    this.removeRouterLiquidity(amount, _local, payable(to));
+
+    assertEq(this.routerBalances(_routerAgent0, _local), initLiquidity - amount);
+    assertEq(IERC20(_local).balanceOf(_routerRecipient0), initBalance + amount);
+  }
+
+  function test_RoutersFacet__removeRouterLiquidity_worksWithToken() public {
+    s.routerPermissionInfo.routerRecipients[_routerAgent0] = address(0);
+    s.routerPermissionInfo.routerOwners[_routerAgent0] = address(0);
+    s.routerBalances[_routerAgent0][_local] = 10 ether;
+
+    address to = address(1234);
+    uint256 amount = 100;
+
+    uint256 initLiquidity = this.routerBalances(_routerAgent0, _local);
+    uint256 initBalance = IERC20(_local).balanceOf(to);
+
+    vm.expectEmit(true, true, true, true);
+    emit RouterLiquidityRemoved(_routerAgent0, to, _local, amount, _routerAgent0);
+    vm.prank(_routerAgent0);
+    this.removeRouterLiquidity(amount, _local, payable(to));
+
+    assertEq(this.routerBalances(_routerAgent0, _local), initLiquidity - amount);
+    assertEq(IERC20(_local).balanceOf(to), initBalance + amount);
+  }
+
+  function test_RoutersFacet__removeRouterLiquidity_worksWithNative() public {
+    utils_setupNative(true, true);
+    s.routerPermissionInfo.routerRecipients[_routerAgent0] = address(0);
+    s.routerPermissionInfo.routerOwners[_routerAgent0] = address(0);
+    s.routerBalances[_routerAgent0][_wrapper] = 10 ether;
+    MockWrapper(_wrapper).deposit{value: 1 ether}();
+
+    address to = address(1234);
+    uint256 amount = 100;
+
+    uint256 initLiquidity = this.routerBalances(_routerAgent0, _wrapper);
+    uint256 initBalance = to.balance;
+
+    vm.expectEmit(true, true, true, true);
+    emit RouterLiquidityRemoved(_routerAgent0, to, address(0), amount, _routerAgent0);
+    vm.prank(_routerAgent0);
+    this.removeRouterLiquidity(amount, address(0), payable(to));
+
+    assertEq(this.routerBalances(_routerAgent0, _wrapper), initLiquidity - amount);
+    assertEq(to.balance, initBalance + amount);
+  }
 }

@@ -22,6 +22,20 @@ CREATE TYPE public.transfer_status AS ENUM (
 );
 
 
+--
+-- Name: trigger_set_timestamp(); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.trigger_set_timestamp() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$
+BEGIN
+  NEW.update_time = NOW();
+  RETURN NEW;
+END;
+$$;
+
+
 SET default_tablespace = '';
 
 SET default_table_access_method = heap;
@@ -48,6 +62,16 @@ CREATE TABLE public.assets (
     canonical_id character(66) NOT NULL,
     canonical_domain character varying(255) NOT NULL,
     domain character varying(255) NOT NULL
+);
+
+
+--
+-- Name: checkpoints; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.checkpoints (
+    check_name character varying(255) NOT NULL,
+    check_point numeric DEFAULT 0 NOT NULL
 );
 
 
@@ -138,7 +162,8 @@ CREATE TABLE public.transfers (
     callback character(42),
     recovery character(42),
     callback_fee numeric,
-    execute_relayer_fee numeric
+    execute_relayer_fee numeric,
+    update_time timestamp without time zone DEFAULT CURRENT_TIMESTAMP NOT NULL
 );
 
 
@@ -156,6 +181,14 @@ ALTER TABLE ONLY public.asset_balances
 
 ALTER TABLE ONLY public.assets
     ADD CONSTRAINT assets_pkey PRIMARY KEY (canonical_id, domain);
+
+
+--
+-- Name: checkpoints checkpoints_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.checkpoints
+    ADD CONSTRAINT checkpoints_pkey PRIMARY KEY (check_name);
 
 
 --
@@ -180,6 +213,13 @@ ALTER TABLE ONLY public.schema_migrations
 
 ALTER TABLE ONLY public.transfers
     ADD CONSTRAINT transfers_pkey PRIMARY KEY (transfer_id);
+
+
+--
+-- Name: transfers update_time_on_transfers; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER update_time_on_transfers BEFORE UPDATE ON public.transfers FOR EACH ROW EXECUTE FUNCTION public.trigger_set_timestamp();
 
 
 --
@@ -209,4 +249,6 @@ ALTER TABLE ONLY public.asset_balances
 
 INSERT INTO public.schema_migrations (version) VALUES
     ('20220520150644'),
-    ('20220524141906');
+    ('20220524141906'),
+    ('20220617215641'),
+    ('20220618065158');

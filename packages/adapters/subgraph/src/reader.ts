@@ -8,6 +8,7 @@ import {
   DestinationTransfer,
   RouterBalance,
   AssetBalance,
+  SubgraphQueryByTransferIDsMetaParams,
   SubgraphQueryByTimestampMetaParams,
 } from "@connext/nxtp-utils";
 
@@ -23,10 +24,14 @@ import {
   getOriginTransfersQuery,
   getOriginTransfersByTransactionHashesQuery,
   getDestinationTransfersByIdsQuery,
-  getAssetBalancesAllRoutersQuery,
+  getAssetBalancesRoutersQuery,
   getLastestBlockNumberQuery,
-  getDestinationTransfersByExecuteTimestampQuery,
-  getDestinationTransfersByReconcileTimestampQuery,
+  getMaxRoutersPerTransferQuery,
+  getOriginTransfersByIDsCombinedQuery,
+  getDestinationTransfersByIDsCombinedQuery,
+  getOriginTransfersByNonceQuery,
+  getDestinationTransfersByNonceQuery,
+  getDestinationTransfersByDomainAndReconcileTimestampQuery,
 } from "./lib/operations";
 import { SubgraphMap } from "./lib/entities";
 
@@ -89,6 +94,25 @@ export class SubgraphReader {
   }
 
   /**
+   * Gets the maxRoutersPerTransfer for domains
+   * @param domains The domain list you're getting the maxRoutersPerTransfer for
+   */
+  public async getMaxRoutersPerTransfer(domains: string[]): Promise<Map<string, number>> {
+    const { execute, getPrefixForDomain } = getHelpers();
+    const prefixes = domains.map((domain) => getPrefixForDomain(domain));
+    const query = getMaxRoutersPerTransferQuery(prefixes);
+    const response = await execute(query);
+    const maxRoutersRes: Map<string, number> = new Map();
+    for (const domain of response.keys()) {
+      if (response.has(domain) && response.get(domain)!.length > 0) {
+        const settingInfo = response.get(domain)![0];
+        maxRoutersRes.set(domain, Number(settingInfo.maxRoutersPerTransfer));
+      }
+    }
+    return maxRoutersRes;
+  }
+
+  /**
    * Returns available liquidity for the given asset on the Connext on the provided chain.
    *
    * @param domain - The domain you want to determine liquidity on
@@ -129,16 +153,21 @@ export class SubgraphReader {
   }
 
   /**
-   * Returns available liquidity for all of the routers assets on target chain.
+   * Returns available liquidity for of the routers assets on target chain.
    *
    * @param domain - The domain you want to determine liquidity on
    * @returns An array of asset ids and amounts of liquidity
    */
-  public async getAssetBalancesAllRouters(domain: string): Promise<RouterBalance[]> {
+  public async getAssetBalancesRouters(
+    domain: string,
+    offset: number,
+    limit: number,
+    orderDirection: "asc" | "desc" = "desc",
+  ): Promise<RouterBalance[]> {
     const { execute, getPrefixForDomain } = getHelpers();
     const prefix = getPrefixForDomain(domain);
 
-    const query = getAssetBalancesAllRoutersQuery(prefix);
+    const query = getAssetBalancesRoutersQuery(prefix, offset, limit, orderDirection);
     const response = await execute(query);
     const routers = [...response.values()][0][0];
     return routers.map((router: any) => {
@@ -291,11 +320,28 @@ export class SubgraphReader {
     return originTransfers;
   }
 
-  public async getDestinationTransfersByExecuteTimestamp(
-    params: Map<string, SubgraphQueryByTimestampMetaParams>,
-  ): Promise<XTransfer[]> {
+  public async getOriginTransfersByNonce(params: Map<string, SubgraphQueryMetaParams>): Promise<XTransfer[]> {
     const { execute, parser } = getHelpers();
-    const xcalledXQuery = getDestinationTransfersByExecuteTimestampQuery(params);
+    const xcalledXQuery = getOriginTransfersByNonceQuery(params);
+    const response = await execute(xcalledXQuery);
+
+    const transfers: any[] = [];
+    for (const key of response.keys()) {
+      const value = response.get(key);
+      transfers.push(value?.flat());
+    }
+
+    const originTransfers: XTransfer[] = transfers
+      .flat()
+      .filter((x: any) => !!x)
+      .map(parser.originTransfer);
+
+    return originTransfers;
+  }
+
+  public async getDestinationTransfersByNonce(params: Map<string, SubgraphQueryMetaParams>): Promise<XTransfer[]> {
+    const { execute, parser } = getHelpers();
+    const xcalledXQuery = getDestinationTransfersByNonceQuery(params);
     const response = await execute(xcalledXQuery);
 
     const transfers: any[] = [];
@@ -312,11 +358,52 @@ export class SubgraphReader {
     return destinationTransfers;
   }
 
-  public async getDestinationTransfersByReconcileTimestamp(
-    params: Map<string, SubgraphQueryByTimestampMetaParams>,
+  public async getOriginTransfersById(params: Map<string, SubgraphQueryByTransferIDsMetaParams>): Promise<XTransfer[]> {
+    const { execute, parser } = getHelpers();
+    const xcalledXQuery = getOriginTransfersByIDsCombinedQuery(params);
+    const response = await execute(xcalledXQuery);
+
+    const transfers: any[] = [];
+    for (const key of response.keys()) {
+      const value = response.get(key);
+      transfers.push(value?.flat());
+    }
+
+    const originTransfers: XTransfer[] = transfers
+      .flat()
+      .filter((x: any) => !!x)
+      .map(parser.originTransfer);
+
+    return originTransfers;
+  }
+
+  public async getDestinationTransfersById(
+    params: Map<string, SubgraphQueryByTransferIDsMetaParams>,
   ): Promise<XTransfer[]> {
     const { execute, parser } = getHelpers();
-    const xcalledXQuery = getDestinationTransfersByReconcileTimestampQuery(params);
+    const xcalledXQuery = getDestinationTransfersByIDsCombinedQuery(params);
+    const response = await execute(xcalledXQuery);
+
+    const transfers: any[] = [];
+    for (const key of response.keys()) {
+      const value = response.get(key);
+      transfers.push(value?.flat());
+    }
+
+    const destinationTransfers: XTransfer[] = transfers
+      .flat()
+      .filter((x: any) => !!x)
+      .map(parser.destinationTransfer);
+
+    return destinationTransfers;
+  }
+
+  public async getDestinationTransfersByDomainAndReconcileTimestamp(
+    param: SubgraphQueryByTimestampMetaParams,
+    domain: string,
+  ): Promise<XTransfer[]> {
+    const { execute, parser } = getHelpers();
+    const xcalledXQuery = getDestinationTransfersByDomainAndReconcileTimestampQuery(param, domain);
     const response = await execute(xcalledXQuery);
 
     const transfers: any[] = [];

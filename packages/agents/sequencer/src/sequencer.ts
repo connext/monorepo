@@ -16,6 +16,7 @@ import { getConfig } from "./config";
 import { AppContext } from "./lib/entities/context";
 import { bindServer, bindAuctions } from "./bindings";
 import { setupRelayer } from "./adapters";
+import { getHelpers } from "./lib/helpers";
 
 const context: AppContext = {} as any;
 export const getContext = () => context;
@@ -91,6 +92,9 @@ export const setupCache = async (
 
 export const setupSubgraphReader = async (requestContext: RequestContext): Promise<SubgraphReader> => {
   const { chainData, logger, config } = getContext();
+  const {
+    auctions: { getMinimumBidsCountForRound },
+  } = getHelpers();
   const methodContext = createMethodContext(setupSubgraphReader.name);
 
   const allowedDomains = [...Object.keys(config.chains)];
@@ -118,5 +122,20 @@ export const setupSubgraphReader = async (requestContext: RequestContext): Promi
   }
 
   logger.info("Subgraph reader setup is done!", requestContext, methodContext, {});
+
+  logger.info("Validating the auction round depth for each domain...");
+  const maxRoutersPerTransfer = await subgraphReader.getMaxRoutersPerTransfer(Object.keys(supported));
+  for (const domain of maxRoutersPerTransfer.keys()) {
+    const configuredMaxRouters = getMinimumBidsCountForRound(config.auctionRoundDepth);
+    if (maxRoutersPerTransfer.has(domain) && configuredMaxRouters > maxRoutersPerTransfer.get(domain)!) {
+      logger.info("Validation error, Invalid auctionRoundDepth configured!", requestContext, methodContext, {
+        domain,
+        auctionRoundDepth: config.auctionRoundDepth,
+        configured: configuredMaxRouters,
+        onchain: maxRoutersPerTransfer.get(domain),
+      });
+      process.exit(1);
+    }
+  }
   return subgraphReader;
 };

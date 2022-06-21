@@ -36,6 +36,11 @@ export type SubgraphQueryByTimestampMetaParams = {
   orderDirection?: "asc" | "desc";
 };
 
+export type SubgraphQueryByTransferIDsMetaParams = {
+  maxBlockNumber: number;
+  transferIDs: string[];
+};
+
 const MIN_SUBGRAPH_MAX_LAG = 25;
 export const SubgraphReaderChainConfigSchema = Type.Object({
   analytics: Type.Array(
