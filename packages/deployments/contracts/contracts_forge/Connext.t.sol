@@ -20,8 +20,8 @@ import {RelayerFeeRouter} from "../contracts/core/relayer-fee/RelayerFeeRouter.s
 import {RelayerFeeMessage} from "../contracts/core/relayer-fee/libraries/RelayerFeeMessage.sol";
 
 import {TestERC20} from "../contracts/test/TestERC20.sol";
-import {WETH} from "../contracts/test/TestWeth.sol";
 
+import {WETH} from "./utils/TestWeth.sol";
 import "./utils/ForgeHelper.sol";
 import "./utils/Mock.sol";
 import "./utils/Deployer.sol";

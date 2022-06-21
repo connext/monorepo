@@ -4,7 +4,7 @@ pragma solidity 0.8.14;
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import {Address} from "@openzeppelin/contracts/utils/Address.sol";
 
-import "./TestERC20.sol";
+import {TestERC20} from "../../contracts/test/TestERC20.sol";
 
 /* This token is ONLY useful for testing
  * Anybody can mint as many tokens as they like
