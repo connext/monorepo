@@ -48,11 +48,14 @@ export const originTransfer = (entity: any): OriginTransfer => {
       callData: entity.callData,
       callback: entity.callback,
       callbackFee: entity.callbackFee,
+      relayerFee: entity.relayerFee,
       forceSlow: entity.forceSlow,
       receiveLocal: entity.receiveLocal,
       originDomain: entity.originDomain,
       destinationDomain: entity.destinationDomain,
       recovery: entity.recovery,
+      agent: entity.agent,
+      slippageTol: entity.slippageTol,
     },
 
     // Origin Info
@@ -132,11 +135,14 @@ export const destinationTransfer = (entity: any): DestinationTransfer => {
             callData: entity.callData,
             callback: entity.callback,
             callbackFee: entity.callbackFee,
+            relayerFee: entity.relayerFee,
             forceSlow: entity.forceSlow,
             receiveLocal: entity.receiveLocal,
             destinationDomain: entity.destinationDomain,
             originDomain: entity.originDomain,
             recovery: entity.recovery,
+            agent: entity.agent,
+            slippageTol: entity.slippageTol,
           }
         : undefined,
 

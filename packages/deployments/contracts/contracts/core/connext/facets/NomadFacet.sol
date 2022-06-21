@@ -156,7 +156,8 @@ contract NomadFacet is BaseConnextFacet {
     // Get the appropriate local token contract for the given tokenId on this chain.
     // NOTE: If the token is of remote origin and there is no existing representation token contract,
     // the TokenRegistry will deploy a new one.
-    address token = s.tokenRegistry.ensureLocalToken(tokenId.domain(), tokenId.id());
+    bytes32 canonicalId = tokenId.id(); // load once
+    address token = s.tokenRegistry.ensureLocalToken(tokenId.domain(), canonicalId);
 
     // Load amount once.
     uint256 amount = action.amnt();
@@ -192,7 +193,7 @@ contract NomadFacet is BaseConnextFacet {
     if (portalTransferAmount != 0) {
       // ensure a router took on credit risk
       if (pathLen != 1) revert NomadFacet__reconcile_noPortalRouter();
-      toDistribute = _reconcileProcessPortal(amount, token, routers[0], transferId);
+      toDistribute = _reconcileProcessPortal(canonicalId, amount, token, transferId);
     }
 
     if (pathLen != 0) {
@@ -211,83 +212,16 @@ contract NomadFacet is BaseConnextFacet {
   }
 
   /**
-   * @notice Parses the message and process the transfer
-   * @dev Will mint the tokens if the token originates on a remote origin
-   * @return The message amount
-   * @return The message token
-   * @return The message transfer id
-   */
-  function _reconcileProcessMessage(bytes memory _message)
-    internal
-    returns (
-      uint256,
-      address,
-      bytes32
-    )
-  {
-    // parse tokenId and action from message
-    bytes29 msg_ = _message.ref(0).mustBeMessage();
-    bytes29 tokenId = msg_.tokenId();
-    bytes29 action = msg_.action();
-
-    // load the transferId
-    bytes32 transferId = action.transferId();
-
-    // ensure the transaction has not been handled
-    if (s.reconciledTransfers[transferId]) {
-      revert NomadFacet__reconcile_alreadyReconciled();
-    }
-
-    // assert the action is valid
-    if (!action.isTransfer()) {
-      revert NomadFacet__reconcile_invalidAction();
-    }
-
-    // get the token contract for the given tokenId on this chain
-    // (if the token is of remote origin and there is
-    // no existing representation token contract, the TokenRegistry will
-    // deploy a new one)
-    bytes32 canonical = tokenId.id();
-    address token = s.tokenRegistry.ensureLocalToken(tokenId.domain(), canonical);
-
-    // load amount once
-    uint256 amount = action.amnt();
-
-    // NOTE: tokenId + amount must be in plaintext in message so funds can
-    // *only* be minted by `handle`. They are still used in the generation of
-    // the transferId so routers must provide them correctly to be reimbursed
-
-    bytes32 details = action.detailsHash();
-
-    // if the token is of remote origin, mint the tokens. will either
-    // - be credited to router (fast liquidity)
-    // - be reserved for execution (slow liquidity)
-    if (!s.tokenRegistry.isLocalOrigin(token)) {
-      IBridgeToken(token).mint(address(this), amount);
-      // Tell the token what its detailsHash is
-      IBridgeToken(token).setDetailsHash(details);
-    }
-    // NOTE: if the token is of local origin, it means it was escrowed
-    // in this contract at xcall
-
-    // mark the transfer as reconciled
-    s.reconciledTransfers[transferId] = true;
-
-    return (amount, token, transferId);
-  }
-
-  /**
    * @notice Repays to Aave Portal if the transfer was executed with fast path using Portal liquidity
    * @param _amount - The amount passed through bridge
    * @param _local - The local  asset
-   * @param _router - The router who took on portal risk
    * @param _transferId - The transfer identifier
    * @return The amount to distribute amongst the routers after repayment
    */
   function _reconcileProcessPortal(
+    bytes32 _canonicalId,
     uint256 _amount,
     address _local,
-    address _router,
     bytes32 _transferId
   ) private returns (uint256) {
     // When repaying a portal, should use available liquidity if there is not enough balance from
@@ -297,6 +231,7 @@ contract NomadFacet is BaseConnextFacet {
 
     // Calculates the amount to be repaid to the portal in adopted asset
     (uint256 totalRepayAmount, uint256 backUnbackedAmount, uint256 portalFee) = _calculatePortalRepayment(
+      _canonicalId,
       _amount,
       _transferId,
       _local
@@ -312,6 +247,7 @@ contract NomadFacet is BaseConnextFacet {
     // NOTE: this function can revert if the slippage ceiling is hit. Using the low-level calls helps us
     // handle the case where slippage was hit
     (bool swapSuccess, uint256 amountIn, address adopted) = AssetLogic.swapFromLocalAssetIfNeededForExactOut(
+      _canonicalId,
       _local,
       totalRepayAmount,
       _amount
@@ -376,6 +312,7 @@ contract NomadFacet is BaseConnextFacet {
    * @return The fee amount to be paid
    */
   function _calculatePortalRepayment(
+    bytes32 _canonicalId,
     uint256 _localAmount,
     bytes32 _transferId,
     address _local
@@ -391,7 +328,11 @@ contract NomadFacet is BaseConnextFacet {
     uint256 backUnbackedAmount = s.portalDebt[_transferId];
     uint256 totalRepayAmount = backUnbackedAmount + portalFee;
     // see how much of local asset you would have available post-swap
-    (uint256 availableAmount, address adopted) = AssetLogic.calculateSwapFromLocalAssetIfNeeded(_local, _localAmount);
+    (uint256 availableAmount, address adopted) = AssetLogic.calculateSwapFromLocalAssetIfNeeded(
+      _canonicalId,
+      _local,
+      _localAmount
+    );
 
     // If not enough funds to repay the transfer + fees
     // try to repay as much as unbacked as possible

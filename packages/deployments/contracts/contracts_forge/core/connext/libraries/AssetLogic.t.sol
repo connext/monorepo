@@ -169,7 +169,8 @@ contract AssetLogicTest is BaseConnextFacet, FacetHelper {
       vm.expectCall(_stableSwap, abi.encodeWithSelector(IStableSwap.swapExact.selector, amount, _local, _adopted));
     }
 
-    (uint256 received, address out) = AssetLogic.swapFromLocalAssetIfNeeded(asset, amount, _liquidityFeeDenominator);
+    (, bytes32 canonicalId) = s.tokenRegistry.getTokenId(asset);
+    (uint256 received, address out) = AssetLogic.swapFromLocalAssetIfNeeded(canonicalId, asset, amount, _liquidityFeeDenominator);
     // assert return amount
     assertEq(received, willSwap ? swapOut : amount);
     // assert return asset

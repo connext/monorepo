@@ -1,4 +1,9 @@
-import { Bid, ExecuteArgs, OriginTransfer } from "@connext/nxtp-utils";
+import {
+  Bid,
+  ExecuteArgs,
+  OriginTransfer,
+  getMinimumBidsCountForRound as _getMinimumBidsCountForRound,
+} from "@connext/nxtp-utils";
 import { constants } from "ethers";
 
 import { getContext } from "../../sequencer";
@@ -22,9 +27,12 @@ export const encodeExecuteFromBids = (round: number, bids: Bid[], transfer: Orig
       callData: transfer.xparams.callData,
       callback: transfer.xparams.callback ?? constants.AddressZero,
       callbackFee: transfer.xparams.callbackFee ?? "0",
+      relayerFee: transfer.xparams.relayerFee ?? "0",
       forceSlow: transfer.xparams.forceSlow,
       receiveLocal: transfer.xparams.receiveLocal,
       recovery: transfer.xparams.recovery,
+      agent: transfer.xparams.agent,
+      slippageTol: transfer.xparams.slippageTol,
     },
     local,
     routers: bids.map((b) => b.router),
@@ -105,7 +113,7 @@ export const getMinimumBidsCountForRound = (round: number): number => {
   if (round < 1 || round > config.auctionRoundDepth || Math.trunc(round) != round) {
     throw new RoundInvalid({ round, auctionRoundDepth: config.auctionRoundDepth });
   }
-  return Math.pow(2, round - 1);
+  return _getMinimumBidsCountForRound(round);
 };
 
 /**

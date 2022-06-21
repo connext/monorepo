@@ -2,12 +2,20 @@ locals {
   sequencer_env_vars = [
     { name = "SEQ_CONFIG", value = local.local_sequencer_config },
     { name = "ENVIRONMENT", value = var.environment },
-    { name = "STAGE", value = var.stage }
+    { name = "STAGE", value = var.stage },
+    { name = "DD_PROFILING_ENABLED", value = "true" },
+    { name = "DD_ENV", value = var.stage },
+    { name = "DD_SERVICE", value = "sequencer-${var.environment}" }
+
+
   ]
   router_env_vars = [
     { name = "NXTP_CONFIG", value = local.local_router_config },
     { name = "ENVIRONMENT", value = var.environment },
-    { name = "STAGE", value = var.stage }
+    { name = "STAGE", value = var.stage },
+    { name = "DD_PROFILING_ENABLED", value = "true" },
+    { name = "DD_ENV", value = var.stage },
+    { name = "DD_SERVICE", value = "router-${var.environment}" }
   ]
   lighthouse_env_vars = [
     { name = "NXTP_CONFIG", value = local.local_lighthouse_config },

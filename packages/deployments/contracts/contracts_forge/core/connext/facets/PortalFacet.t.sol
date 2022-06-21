@@ -253,10 +253,10 @@ contract PortalFacetTest is PortalFacet, FacetHelper {
     vm.mockCall(s.aavePool, abi.encodeWithSelector(IAavePool.backUnbacked.selector), abi.encode(true));
 
     // make call
-    vm.expectCall(_local, abi.encodeWithSelector(IERC20.approve.selector, aavePool, backing + fee));
-    vm.expectCall(aavePool, abi.encodeWithSelector(IAavePool.backUnbacked.selector, _local, backing, fee));
+    vm.expectCall(_adopted, abi.encodeWithSelector(IERC20.approve.selector, aavePool, backing + fee));
+    vm.expectCall(aavePool, abi.encodeWithSelector(IAavePool.backUnbacked.selector, _adopted, backing, fee));
     vm.expectEmit(true, true, true, true);
-    emit AavePortalRouterRepayment(router, _local, backing, fee);
+    emit AavePortalRouterRepayment(router, _adopted, backing, fee);
     vm.prank(router);
     this.repayAavePortal(_local, backing, fee, maxIn, _id);
 
@@ -279,7 +279,7 @@ contract PortalFacetTest is PortalFacet, FacetHelper {
     assertTrue(adopted != _adopted);
 
     vm.expectRevert(abi.encodeWithSelector(PortalFacet.PortalFacet__repayAavePortalFor_notSupportedAsset.selector));
-    this.repayAavePortalFor(router, adopted, backing, fee, _id);
+    this.repayAavePortalFor(adopted, backing, fee, _id);
   }
 
   // fails if zero amount
@@ -292,7 +292,7 @@ contract PortalFacetTest is PortalFacet, FacetHelper {
     utils_setupAsset(false, false);
 
     vm.expectRevert(abi.encodeWithSelector(PortalFacet.PortalFacet__repayAavePortalFor_zeroAmount.selector));
-    this.repayAavePortalFor(router, _adopted, backing, fee, _id);
+    this.repayAavePortalFor(_adopted, backing, fee, _id);
   }
 
   // should work
@@ -320,7 +320,7 @@ contract PortalFacetTest is PortalFacet, FacetHelper {
     vm.expectEmit(true, true, true, true);
     emit AavePortalRouterRepayment(sender, _adopted, backing, fee);
     vm.prank(sender);
-    this.repayAavePortalFor(router, _adopted, backing, fee, _id);
+    this.repayAavePortalFor(_adopted, backing, fee, _id);
 
     // assert balance decrement
     assertEq(IERC20(_adopted).balanceOf(sender), 0);

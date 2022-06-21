@@ -59,7 +59,7 @@ contract NomadFacetTest is NomadFacet, FacetHelper {
       bytes(""), // callData
       _originDomain, // origin domain
       _destinationDomain, // destination domain
-      address(112233332211), //agent
+      address(112233332211), // agent
       _recovery, // recovery address
       address(0), // callback
       0, // callbackFee

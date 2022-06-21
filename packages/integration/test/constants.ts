@@ -3,6 +3,7 @@ import { getChainData, mkBytes32, ChainData } from "@connext/nxtp-utils";
 import { getDeployedConnextContract, _getContractDeployments } from "@connext/nxtp-txservice";
 import { SequencerConfig } from "@connext/nxtp-sequencer/src/lib/entities/config";
 import { NxtpRouterConfig as RouterConfig, ChainConfig as RouterChainConfig } from "@connext/nxtp-router/src/config";
+import { version as routerPackageVersion } from "@connext/nxtp-router/package.json";
 import { RelayerConfig } from "@connext/nxtp-relayer/src/lib/entities/config";
 import { CartographerConfig } from "@connext/cartographer-poller/src/config";
 
@@ -16,7 +17,7 @@ export const LOCALHOST = "localhost"; // alt. 0.0.0.0
 const ASSET_CONTRACT_NAME = "TestERC20";
 
 /// MARK - Integration Settings
-const DEFAULT_ROUTE = ["2221", "1111"]; // Kovan => Rinkeby
+const DEFAULT_ROUTE = ["1111", "3331"]; // Rinkeby => Goerli
 
 // Override of what the canonical asset should be.
 export const CANONICAL_ASSET = process.env.CANONICAL_ASSET;
@@ -35,7 +36,7 @@ export const LOCAL_CARTOGRAPHER_ENABLED = process.env.LOCAL_CARTOGRAPHER_ENABLED
 // TODO: May need to increase this at some point:
 export const RELAYER_FEE_AMOUNT = utils.parseEther("0.0000000001"); // In ETH.
 export const TRANSFER_TOKEN_AMOUNT = utils.parseEther("2.5"); // In TEST.
-export const ROUTER_DESIRED_LIQUIDITY = utils.parseEther("1000000"); // In TEST.
+export const ROUTER_DESIRED_LIQUIDITY = utils.parseEther("1000"); // In TEST.
 
 // Min amounts needed for testing.
 export const MIN_USER_ETH = utils.parseEther("0.02").add(RELAYER_FEE_AMOUNT);
@@ -262,7 +263,7 @@ export const ROUTER_CONFIG: Promise<RouterConfig> = (async (): Promise<RouterCon
       subgraph: 5_000,
       cache: 5_000,
     },
-    auctionRoundDepth: 4,
+    auctionRoundDepth: 3,
     environment,
     nomadEnvironment: NOMAD_ENVIRONMENT,
   };
@@ -296,9 +297,10 @@ export const SEQUENCER_CONFIG: Promise<SequencerConfig> = (async (): Promise<Seq
     mode: {
       cleanup: false,
     },
-    auctionWaitTime: 1,
-    auctionRoundDepth: 4,
+    auctionWaitTime: 5_000,
+    auctionRoundDepth: 3,
     network: "testnet",
+    supportedBidVersion: routerPackageVersion,
     environment: ENVIRONMENT.toString() as "staging" | "production",
     relayerUrl: LOCAL_RELAYER_ENABLED ? `http://${LOCALHOST}:8082` : undefined,
   };
