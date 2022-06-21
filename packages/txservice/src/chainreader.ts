@@ -462,7 +462,7 @@ export class ChainReader {
 
     // Use Gelato Oracle if it's configured and available for the chain id
     let gelatoEstimatedFee: BigNumber | undefined;
-    if (this.config[chainIdForTokenPrice] && this.config[chainIdForTokenPrice].gelatoOracle) {
+    if (this.config[chainIdForGasPrice] && this.config[chainIdForGasPrice].gelatoOracle) {
       const inputDecimals = await this.getDecimalsForAsset(chainId, assetId);
       gelatoEstimatedFee = await this.calculateGelatoFee(
         chainIdForGasPrice,
