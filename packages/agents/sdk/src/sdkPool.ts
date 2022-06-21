@@ -6,26 +6,7 @@ import { ConnextHandler as TConnext, TokenRegistry as TTokenRegistry } from "@co
 import { NxtpSdkConfig, getConfig } from "./config";
 import { getChainIdFromDomain } from "./lib/helpers";
 import { SignerAddressMissing, ContractAddressMissing, ChainDataUndefined } from "./lib/errors";
-
-export interface IPoolStats {
-  liquidity: number;
-  volume: number;
-  fees: number;
-  apy: {
-    year: number;
-    total: number;
-  };
-}
-
-export interface IPoolData {
-  chainId: number;
-  domainId: string;
-  name: string;
-  symbol: string;
-  address: string;
-  assets: string[];
-  lpTokenAddress: string;
-}
+import { IPoolStats, IPoolData } from "./interfaces";
 
 export class Pool implements IPoolData {
   chainId: number;
@@ -102,6 +83,8 @@ export class NxtpSdkPool {
 
     return new NxtpSdkPool(nxtpConfig, logger, chainData, chainReader);
   }
+
+  // ------------------- Read Operations ------------------- //
 
   async getCanonicalFromLocal(domainId: string, address: string): Promise<{ domain: string; id: string }> {
     const tokenRegistryContractAddress = this.config.chains[domainId].deployments!.tokenRegistry;
@@ -213,6 +196,8 @@ export class NxtpSdkPool {
     return minAmount;
   }
 
+  // ------------------- Pool Operations ------------------- //
+
   async addLiquidity(
     domainId: string,
     canonicalId: string,
@@ -323,7 +308,7 @@ export class NxtpSdkPool {
 
     const chainId = await getChainIdFromDomain(domainId, this.chainData);
     const chainConfig = this.config.chains[chainId];
-    const connextContract = chainConfig.deployments?.tokenRegistry;
+    const connextContract = chainConfig.deployments?.connext;
     if (!connextContract) {
       throw new ContractAddressMissing();
     }
@@ -362,12 +347,14 @@ export class NxtpSdkPool {
     return txRequest;
   }
 
+  // ------------------- Pool Data ------------------- //
+
   /**
    * @dev Each asset should have a Pool for adopted<>local unless adopted==local
    *      or the asset is already canonical to the local domain.
    */
-  async getPools(domainId: string, chainData: Map<string, ChainData>) {
-    const chainId = await getChainIdFromDomain(domainId, chainData);
+  async getPools(domainId: string): Promise<Map<string, Pool>> {
+    const chainId = await getChainIdFromDomain(domainId, this.chainData);
     const chainConfig = this.config.chains[chainId];
 
     const connextContract = chainConfig?.deployments?.connext;
@@ -426,5 +413,27 @@ export class NxtpSdkPool {
         }
       }
     });
+
+    return pools;
+  }
+
+  async getBalance(domainId: string, canonicalId: string, tokenAddress: string) {
+    const chainId = await getChainIdFromDomain(domainId, this.chainData);
+    const chainConfig = this.config.chains[chainId];
+    const connextContract = chainConfig.deployments?.connext;
+    if (!connextContract) {
+      throw new ContractAddressMissing();
+    }
+
+    const tokenIndex = await this.getTokenIndex(domainId, tokenAddress);
+    const encoded = this.connext.encodeFunctionData("getSwapTokenBalance", [canonicalId, tokenIndex]);
+    const result = await this.chainReader.readTx({
+      chainId: chainId,
+      to: connextContract,
+      data: encoded,
+    });
+    const [balance] = this.connext.decodeFunctionResult("getSwapTokenBalance", result);
+
+    return balance;
   }
 }
