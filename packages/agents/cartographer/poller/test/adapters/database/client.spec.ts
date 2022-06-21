@@ -17,10 +17,11 @@ import {
   getTransferByTransferId,
   getTransfersByStatus,
   saveTransfers,
+  saveCheckPoint,
   saveRouterBalances,
-  getLatestXCallTimestamp,
-  getLatestExecuteTimestamp,
-  getLatestReconcileTimestamp,
+  getTransfersWithOriginPending,
+  getTransfersWithDestinationPending,
+  getCheckPoint,
 } from "../../../src/adapters/database/client";
 
 describe("Database client", () => {
@@ -51,6 +52,10 @@ describe("Database client", () => {
       canonical_id character(66) NOT NULL,
       canonical_domain character varying(255) NOT NULL,
       domain character varying(255) NOT NULL
+    );
+    CREATE TABLE public.checkpoints (
+      check_name character varying(255) NOT NULL,
+      check_point numeric DEFAULT 0 NOT NULL
     );
     CREATE TABLE routers (address character(42) NOT NULL);
     CREATE VIEW routers_with_balances AS
@@ -127,7 +132,8 @@ describe("Database client", () => {
       callback character(42),
       recovery character(42),
       callback_fee numeric,
-      execute_relayer_fee numeric
+      execute_relayer_fee numeric,
+      update_time timestamp without time zone DEFAULT CURRENT_TIMESTAMP NOT NULL
     );
     --
     -- Name: asset_balances asset_balances_pkey; Type: CONSTRAINT; Schema: public; Owner: -
@@ -139,6 +145,11 @@ describe("Database client", () => {
     --
     ALTER TABLE ONLY assets
     ADD CONSTRAINT assets_pkey PRIMARY KEY (canonical_id, domain);
+    --
+    -- Name: checkpoints checkpoints_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+    --
+    ALTER TABLE ONLY public.checkpoints
+    ADD CONSTRAINT checkpoints_pkey PRIMARY KEY (check_name);
     --
     -- Name: routers routers_pkey; Type: CONSTRAINT; Schema: public; Owner: -
     --
@@ -434,57 +445,81 @@ describe("Database client", () => {
     expect(rb).to.deep.eq(routerBalances);
   });
 
-  it("should get latest xcall timestamp", async () => {
-    const xTransfer1: XTransfer = mock.entity.xtransfer({ status: XTransferStatus.XCalled });
-    xTransfer1.origin.xcall.timestamp = 1;
-    const xTransfer2: XTransfer = mock.entity.xtransfer({ status: XTransferStatus.XCalled });
-    xTransfer2.origin.xcall.timestamp = 2;
-    const xTransfer3: XTransfer = mock.entity.xtransfer({ status: XTransferStatus.XCalled });
-    xTransfer3.origin.xcall.timestamp = 3;
-    await saveTransfers([xTransfer1, xTransfer2, xTransfer3], pool);
-    const timestamp = await getLatestXCallTimestamp(xTransfer1.originDomain, pool);
-    expect(timestamp).equal(3);
+  it("should router balance when no data", async () => {
+    const routerBalances: RouterBalance[] = [];
+    await saveRouterBalances(routerBalances, pool);
+    const res = await pool.query(`SELECT * FROM routers_with_balances`);
+    const rb = convertToRouterBalance(res.rows);
+    expect(rb).to.deep.eq(routerBalances);
   });
 
-  it("should get latest execute timestamp", async () => {
+  it("should set and get checkpoint", async () => {
+    const nonce = 8239764;
+    const name = "nonce_checkpoint";
+    await saveCheckPoint(name, nonce, pool);
+    const result = await getCheckPoint(name, pool);
+    expect(result).equal(nonce);
+  });
+
+  it("should get transfers missing origin data", async () => {
     const xTransfer1: XTransfer = mock.entity.xtransfer({ status: XTransferStatus.Executed });
     xTransfer1.destination.execute.timestamp = 1;
     const xTransfer2: XTransfer = mock.entity.xtransfer({ status: XTransferStatus.Executed });
     xTransfer2.destination.execute.timestamp = 2;
-    const xTransfer3: XTransfer = mock.entity.xtransfer({ status: XTransferStatus.Executed });
-    xTransfer3.destination.execute.timestamp = 3;
+    const xTransfer3 = mock.entity.xtransfer({ status: XTransferStatus.Reconciled });
+    xTransfer3.origin = undefined;
+    const xTransfer3Id = xTransfer3.transferId;
+    await saveTransfers([xTransfer3], pool);
+    const xTransfer4: XTransfer = mock.entity.xtransfer({ status: XTransferStatus.Executed });
+    xTransfer4.destination.execute.timestamp = 4;
     await saveTransfers([xTransfer1, xTransfer2, xTransfer3], pool);
-    const timestamp = await getLatestExecuteTimestamp(xTransfer1.destinationDomain, pool);
-    expect(timestamp).equal(3);
+    const transfers = await getTransfersWithOriginPending(xTransfer3.originDomain, 100, "ASC", pool);
+    expect(transfers.length).greaterThan(0);
+    expect(transfers).includes(xTransfer3Id);
   });
 
-  it("should get latest reconcile timestamp", async () => {
-    const xTransfer1: XTransfer = mock.entity.xtransfer({ status: XTransferStatus.Reconciled });
-    xTransfer1.destination.reconcile.timestamp = 1;
-    const xTransfer2: XTransfer = mock.entity.xtransfer({ status: XTransferStatus.Reconciled });
-    xTransfer2.destination.reconcile.timestamp = 2;
-    const xTransfer3: XTransfer = mock.entity.xtransfer({ status: XTransferStatus.Reconciled });
-    xTransfer3.destination.reconcile.timestamp = 3;
-    await saveTransfers([xTransfer1, xTransfer2, xTransfer3], pool);
-    const timestamp = await getLatestReconcileTimestamp(xTransfer1.destinationDomain, pool);
-    expect(timestamp).equal(3);
-  });
-
-  it("should get latest xcall timestamp when no data", async () => {
-    const xTransfer1: XTransfer = mock.entity.xtransfer({ status: XTransferStatus.XCalled });
-    const timestamp = await getLatestXCallTimestamp(xTransfer1.originDomain, pool);
-    expect(timestamp).equal(0);
-  });
-
-  it("should get latest execute timestamp when no data", async () => {
+  it("should get transfers missing destination data", async () => {
     const xTransfer1: XTransfer = mock.entity.xtransfer({ status: XTransferStatus.Executed });
-    const timestamp = await getLatestExecuteTimestamp(xTransfer1.destinationDomain, pool);
+    xTransfer1.destination.execute.timestamp = 1;
+    const xTransfer2: XTransfer = mock.entity.xtransfer({ status: XTransferStatus.Executed });
+    xTransfer2.destination.execute.timestamp = 2;
+    const xTransfer3 = mock.entity.xtransfer({ status: XTransferStatus.XCalled });
+    xTransfer3.destination = undefined;
+    const xTransfer3Id = xTransfer3.transferId;
+    await saveTransfers([xTransfer3], pool);
+    const xTransfer4: XTransfer = mock.entity.xtransfer({ status: XTransferStatus.Executed });
+    xTransfer4.destination.execute.timestamp = 4;
+    await saveTransfers([xTransfer1, xTransfer2, xTransfer3], pool);
+    const transfers = await getTransfersWithDestinationPending(xTransfer3.destinationDomain, 100, "ASC", pool);
+    expect(transfers.length).greaterThan(0);
+    expect(transfers).includes(xTransfer3Id);
+  });
+
+  it("should get checkpoint when no data", async () => {
+    const timestamp = await getCheckPoint(undefined, pool);
     expect(timestamp).equal(0);
   });
 
-  it("should get latest reconcile timestamp when no data", async () => {
+  it("should get pending origin transfers when no data", async () => {
+    const xTransfer1: XTransfer = mock.entity.xtransfer({ status: XTransferStatus.XCalled });
+    const transfers = await getTransfersWithOriginPending(xTransfer1.originDomain, 100, undefined, pool);
+    expect(transfers.length).equal(0);
+  });
+
+  it("should get destination transfers when no data", async () => {
     const xTransfer1: XTransfer = mock.entity.xtransfer({ status: XTransferStatus.Reconciled });
-    const timestamp = await getLatestReconcileTimestamp(xTransfer1.destinationDomain, pool);
-    expect(timestamp).equal(0);
+    const transfers = await getTransfersWithDestinationPending(xTransfer1.destinationDomain, 100, undefined, pool);
+    expect(transfers.length).equal(0);
+  });
+
+  it("should throw errors", async () => {
+    await expect(getTransferByTransferId("")).to.eventually.not.be.rejected;
+    await expect(getTransfersByStatus(undefined, undefined)).to.eventually.not.be.rejected;
+    await expect(saveTransfers(undefined)).to.eventually.not.be.rejected;
+    await expect(saveRouterBalances([])).to.eventually.not.be.rejected;
+    await expect(getTransfersWithDestinationPending(undefined, undefined)).to.eventually.not.be.rejected;
+    await expect(getTransfersWithOriginPending(undefined, undefined)).to.eventually.not.be.rejected;
+    await expect(getCheckPoint(undefined, undefined)).to.eventually.not.be.rejected;
+    await expect(saveCheckPoint(undefined, undefined, undefined)).to.eventually.not.be.rejected;
   });
 });
