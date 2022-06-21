@@ -158,9 +158,10 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
     XCallArgs memory _args,
     address sender,
     bytes32 canonicalId,
-    uint32 canonicalDomain
+    uint32 canonicalDomain,
+    uint256 bridigedAmt
   ) public view returns (bytes32) {
-    return keccak256(abi.encode(s.nonce, _args.params, sender, canonicalId, canonicalDomain, _args.amount));
+    return keccak256(abi.encode(s.nonce, _args.params, sender, canonicalId, canonicalDomain, bridigedAmt));
   }
 
   // Meant to mimic the corresponding `_getTransferId` method in the BridgeFacet contract.
@@ -172,7 +173,7 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
   }
 
   // Makes some mock xcall arguments using params set in storage.
-  function utils_makeXCallArgs() public returns (bytes32, XCallArgs memory) {
+  function utils_makeXCallArgs(uint256 bridged) public returns (bytes32, XCallArgs memory) {
     // get args
     XCallArgs memory args = XCallArgs(
       _params,
@@ -180,12 +181,12 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
       _amount
     );
     // generate transfer id
-    bytes32 transferId = utils_getTransferIdFromXCallArgs(args, _originSender, _canonicalId, _canonicalDomain);
+    bytes32 transferId = utils_getTransferIdFromXCallArgs(args, _originSender, _canonicalId, _canonicalDomain, bridged);
 
     return (transferId, args);
   }
 
-  function utils_makeXCallArgs(address transactingAssetId) public returns (bytes32, XCallArgs memory) {
+  function utils_makeXCallArgs(address transactingAssetId, uint256 bridged) public returns (bytes32, XCallArgs memory) {
     // get args
     XCallArgs memory args = XCallArgs(
       _params,
@@ -193,7 +194,7 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
       _amount
     );
     // generate transfer id
-    bytes32 transferId = utils_getTransferIdFromXCallArgs(args, _originSender, _canonicalId, _canonicalDomain);
+    bytes32 transferId = utils_getTransferIdFromXCallArgs(args, _originSender, _canonicalId, _canonicalDomain, bridged);
 
     return (transferId, args);
   }
@@ -454,13 +455,13 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
     uint256 bridged,
     bool swaps
   ) public {
-    (bytes32 transferId, XCallArgs memory args) = utils_makeXCallArgs();
+    (bytes32 transferId, XCallArgs memory args) = utils_makeXCallArgs(bridged);
     uint256 dealTokens = (args.transactingAssetId == address(0)) ? 0 : args.amount;
     helpers_xcallAndAssert(transferId, args, dealTokens, bridged, expectedError, swaps);
   }
 
   function helpers_xcallAndAssert(bytes4 expectedError) public {
-    (bytes32 transferId, XCallArgs memory args) = utils_makeXCallArgs();
+    (bytes32 transferId, XCallArgs memory args) = utils_makeXCallArgs(_amount);
     uint256 dealTokens = (args.transactingAssetId == address(0)) ? 0 : args.amount;
     helpers_xcallAndAssert(transferId, args, dealTokens, 0, expectedError, false);
   }
@@ -476,7 +477,7 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
     address transacting,
     bool swaps
   ) public {
-    (bytes32 transferId, XCallArgs memory args) = utils_makeXCallArgs(transacting);
+    (bytes32 transferId, XCallArgs memory args) = utils_makeXCallArgs(transacting, bridged);
     uint256 dealTokens = transacting == address(0) ? 0 : args.amount;
     helpers_xcallAndAssert(transferId, args, dealTokens, bridged, bytes4(""), swaps);
   }
@@ -487,7 +488,7 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
     uint256 bridged,
     bool swaps
   ) public {
-    (bytes32 transferId, XCallArgs memory args) = utils_makeXCallArgs();
+    (bytes32 transferId, XCallArgs memory args) = utils_makeXCallArgs(bridged);
     helpers_xcallAndAssert(transferId, args, dealTokens, bridged, bytes4(""), swaps);
   }
 
@@ -1136,7 +1137,7 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
     _params.callback = _callback;
     _params.callbackFee = 0.01 ether;
 
-    (, XCallArgs memory args) = utils_makeXCallArgs();
+    (, XCallArgs memory args) = utils_makeXCallArgs(_amount);
 
     vm.expectRevert(AssetLogic.AssetLogic__handleIncomingAsset_notAmount.selector);
     vm.prank(_originSender);
@@ -1150,7 +1151,7 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
     vm.deal(_originSender, 100 ether);
     _relayerFee = 0.1 ether;
 
-    (, XCallArgs memory args) = utils_makeXCallArgs();
+    (, XCallArgs memory args) = utils_makeXCallArgs(_amount);
 
     vm.expectRevert(AssetLogic.AssetLogic__handleIncomingAsset_ethWithErcTransfer.selector);
     vm.prank(_originSender);
@@ -1163,7 +1164,7 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
     vm.deal(_originSender, 100 ether);
     _relayerFee = 0.1 ether;
 
-    (, XCallArgs memory args) = utils_makeXCallArgs();
+    (, XCallArgs memory args) = utils_makeXCallArgs(_amount);
 
     vm.expectRevert(AssetLogic.AssetLogic__handleIncomingAsset_ethWithErcTransfer.selector);
     vm.prank(_originSender);
@@ -1181,7 +1182,7 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
 
     vm.deal(_originSender, 100 ether);
 
-    (, XCallArgs memory args) = utils_makeXCallArgs();
+    (, XCallArgs memory args) = utils_makeXCallArgs(_amount);
 
     vm.expectRevert("ERC20: transfer amount exceeds balance");
     vm.prank(_originSender);
@@ -1198,7 +1199,7 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
 
     vm.deal(_originSender, 100 ether);
 
-    (, XCallArgs memory args) = utils_makeXCallArgs();
+    (, XCallArgs memory args) = utils_makeXCallArgs(_amount);
 
     vm.expectRevert("ERC20: transfer amount exceeds allowance");
     vm.prank(_originSender);
@@ -1235,7 +1236,7 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
     // local is not adopted, not on canonical domain, sending in local
     utils_setupAsset(false, false);
     s.adoptedToCanonical[_local] = ConnextMessage.TokenId(0, bytes32(0));
-    (bytes32 transferId, XCallArgs memory args) = utils_makeXCallArgs();
+    (bytes32 transferId, XCallArgs memory args) = utils_makeXCallArgs(_amount);
     vm.mockCall(
       _tokenRegistry,
       abi.encodeWithSelector(ITokenRegistry.isLocalOrigin.selector, _local),
@@ -1690,7 +1691,7 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
   function test_BridgeFacet__execute_worksWithSponsorLiquidity() public {
     // setup vault
     uint256 vaultAmount = 10000;
-    MockSponsorVault vault = new MockSponsorVault(vaultAmount);
+    MockSponsorVault vault = new MockSponsorVault(vaultAmount, 0);
     s.sponsorVault = vault;
 
     // set asset context (local == adopted)
@@ -1706,7 +1707,7 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
   function test_BridgeFacet__execute_sponsorsRelayersSlow() public {
     // set test vault
     uint256 vaultAmount = 10000;
-    MockSponsorVault vault = new MockSponsorVault(vaultAmount);
+    MockSponsorVault vault = new MockSponsorVault(vaultAmount, 0);
     s.sponsorVault = vault;
 
     // set asset context (local == adopted)
