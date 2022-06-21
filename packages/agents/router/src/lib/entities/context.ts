@@ -4,9 +4,9 @@ import { ConnextContractInterfaces, TransactionService } from "@connext/nxtp-txs
 import { StoreManager } from "@connext/nxtp-adapters-cache";
 import { SubgraphReader } from "@connext/nxtp-adapters-subgraph";
 import { Web3Signer } from "@connext/nxtp-adapters-web3signer";
+import { BridgeContext } from "@nomad-xyz/sdk-bridge";
 
 import { NxtpRouterConfig } from "../../config";
-import { BridgeContext } from "@nomad-xyz/sdk-bridge";
 
 export type AppContext = {
   logger: Logger;
