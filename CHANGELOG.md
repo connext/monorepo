@@ -2,6 +2,8 @@
 
 ## Next Release
 
+- [utils] Arbitrum gas estimation fix
+
 ## 0.1.36
 
 - [utils] Optimism gas estimation fix
