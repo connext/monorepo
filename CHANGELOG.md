@@ -2,6 +2,8 @@
 
 ## Next Release
 
+## 0.1.37
+
 - [utils] Arbitrum gas estimation fix
 
 ## 0.1.36
