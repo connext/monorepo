@@ -5,7 +5,7 @@ locals {
     { name = "DATABASE_URL", value = "postgres://${var.postgres_user}:${var.postgres_password}@${module.cartographer_db.db_instance_endpoint}/connext" },
     { name = "ENVIRONMENT", value = var.environment },
     { name = "STAGE", value = var.stage },
-    { name = "DD_PROFILING_ENABLED", value = "true" },
+    { name = "DD_PROFILING_ENABLED", value = "false" },
     { name = "DD_ENV", value = var.stage }
   ]
 
