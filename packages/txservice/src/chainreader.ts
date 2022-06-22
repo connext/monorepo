@@ -32,6 +32,11 @@ import { RpcProviderAggregator } from "./rpcProviderAggregator";
 
 // TODO: Condense caching.
 export const cachedPriceMap: Map<string, { timestamp: number; price: BigNumber }> = new Map();
+
+// TODO: Sometimes gelato estimates fees much much higher than the real cost for the arbitrum network.
+// Until they get this fixed, we need to exclude arbitrum network from the fee calculation.
+const EXCLUDED_NETWORKS_FOR_GELATO = [42261];
+
 /**
  * @classdesc Performs onchain reads with embedded retries.
  */
@@ -462,7 +467,11 @@ export class ChainReader {
 
     // Use Gelato Oracle if it's configured and available for the chain id
     let gelatoEstimatedFee: BigNumber | undefined;
-    if (this.config[chainIdForTokenPrice] && this.config[chainIdForTokenPrice].gelatoOracle) {
+    if (
+      this.config[chainIdForGasPrice] &&
+      this.config[chainIdForGasPrice].gelatoOracle &&
+      !EXCLUDED_NETWORKS_FOR_GELATO.includes(chainIdForGasPrice)
+    ) {
       const inputDecimals = await this.getDecimalsForAsset(chainId, assetId);
       gelatoEstimatedFee = await this.calculateGelatoFee(
         chainIdForGasPrice,
