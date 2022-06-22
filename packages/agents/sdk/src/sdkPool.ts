@@ -1,4 +1,4 @@
-import { providers, utils } from "ethers";
+import { providers } from "ethers";
 import { getChainData, Logger, createLoggingContext, ChainData } from "@connext/nxtp-utils";
 import { getContractInterfaces, contractDeployments, ChainReader } from "@connext/nxtp-txservice";
 import { ConnextHandler as TConnext, TokenRegistry as TTokenRegistry, IERC20Extended } from "@connext/nxtp-contracts/typechain-types";
@@ -96,7 +96,7 @@ export class NxtpSdkPool {
 
   // ------------------- Read Operations ------------------- //
 
-  async getCanonicalFromLocal(domainId: string, address: string): Promise<{ domain: string; id: string }> {
+  async getCanonicalFromLocal(domainId: string, address: string): Promise<[string, string]> {
     const tokenRegistryContractAddress = this.config.chains[domainId].deployments!.tokenRegistry;
     if (!tokenRegistryContractAddress) {
       throw new ContractAddressMissing();
@@ -110,7 +110,7 @@ export class NxtpSdkPool {
       data: encoded,
     });
     const [canonicalDomain, canonicalTokenId] = this.tokenRegistry.decodeFunctionResult("getTokenId", result);
-    return { domain: canonicalDomain, id: canonicalTokenId };
+    return [canonicalDomain, canonicalTokenId];
   }
 
   async getTokenIndex(domainId: string, canonicalId: string, address: string): Promise<number> {
@@ -394,11 +394,13 @@ export class NxtpSdkPool {
 
   // ------------------- Pool Data ------------------- //
 
-  /**
-   * @dev Each asset should have a Pool for adopted<>local unless adopted==local
-   *      or the asset is already canonical to the local domain.
-   */
-  async getPools(domainId: string): Promise<Map<string, Pool>> {
+  async getPool(domainId: string, address: string): Promise<Pool | undefined> {
+    const [canonicalDomain, canonicalId] = await this.getCanonicalFromLocal(domainId, address);
+    const pool = this.pools.get(domainId)?.get(canonicalId);
+    if (pool) {
+      return pool;
+    }
+
     const chainId = await getChainIdFromDomain(domainId, this.chainData);
     const chainConfig = this.config.chains[chainId];
 
@@ -411,54 +413,65 @@ export class NxtpSdkPool {
       throw new ContractAddressMissing();
     }
 
-    const pools = new Map<string, Pool>();
+    const canonicalChainId = await getChainIdFromDomain(canonicalDomain, this.chainData);
 
-    Object.values(chainConfig.assets).forEach(async (asset) => {
-      // Fetch the canonical domain and token ID for this local asset
-      let encoded = this.tokenRegistry.encodeFunctionData("getTokenId", [asset.address]);
+    // If the canonical domain is the same as the local domain, then there is no pool
+    if (canonicalChainId !== chainId) {
+      let encoded = this.connext.encodeFunctionData("canonicalToAdopted", [canonicalId]);
       let result = await this.chainReader.readTx({
         chainId: chainId,
-        to: tokenRegistryContract,
+        to: connextContract,
         data: encoded,
       });
-      const [canonicalDomain, canonicalTokenId] = this.tokenRegistry.decodeFunctionResult("getTokenId", result);
-      const canonicalTokenIdBytes = utils.hexlify(canonicalTokenId as string);
-      const canonicalChainId = await getChainIdFromDomain(canonicalDomain.toString() as string, this.chainData);
+      const adopted = this.connext.decodeFunctionResult("canonicalToAdopted", result)[0][1] as string;
 
-      // If the canonical domain is the same as the local domain, then there is no pool
-      if (canonicalChainId !== chainId) {
-        encoded = this.connext.encodeFunctionData("canonicalToAdopted", [canonicalTokenIdBytes]);
+      // If the adopted token is the same as the local token, then there is no pool
+      if (adopted != address) {
+        encoded = this.connext.encodeFunctionData("getSwapLPToken", [canonicalId]);
         result = await this.chainReader.readTx({
           chainId: chainId,
           to: connextContract,
           data: encoded,
         });
-        const adopted = this.connext.decodeFunctionResult("canonicalToAdopted", result)[0][1] as string;
+        const lpTokenAddress = this.connext.decodeFunctionResult("getSwapLPToken", result)[0][1] as string;
 
-        // If the adopted token is the same as the local token, then there is no pool
-        if (adopted != asset.address) {
-          encoded = this.connext.encodeFunctionData("getSwapLPToken", [canonicalTokenIdBytes]);
-          result = await this.chainReader.readTx({
-            chainId: chainId,
-            to: connextContract,
-            data: encoded,
-          });
-          const lpToken = this.connext.decodeFunctionResult("getSwapLPToken", result)[0][1] as string;
+        encoded = this.erc20.encodeFunctionData("decimals");
+        result = await this.chainReader.readTx({
+          chainId: chainId,
+          to: address,
+          data: encoded,
+        });
+        const localDecimals = this.erc20.decodeFunctionResult("decimals", result)[0][1] as number;
 
-          const pool = new Pool(
-            chainId,
-            domainId,
-            canonicalTokenIdBytes,
-            `${asset.symbol}-mad${asset.symbol}`,
-            asset.address,
-            [adopted, asset.address],
-            lpToken,
-          );
-          pools.set(asset.name, pool);
-        }
+        result = await this.chainReader.readTx({
+          chainId: chainId,
+          to: adopted,
+          data: encoded,
+        });
+        const adoptedDecimals = this.erc20.decodeFunctionResult("decimals", result)[0][1] as number;
+
+        encoded = this.erc20.encodeFunctionData("symbol");
+        result = await this.chainReader.readTx({
+          chainId: chainId,
+          to: adopted,
+          data: encoded,
+        });
+        const tokenSymbol = this.erc20.decodeFunctionResult("symbol", result)[0][1] as string;
+
+        const pool = new Pool(
+          chainId,
+          domainId,
+          canonicalId,
+          `${tokenSymbol}-mad${tokenSymbol}`,
+          [adopted, address],
+          [adoptedDecimals, localDecimals],
+          lpTokenAddress,
+        );
+
+        return pool;
       }
-    });
+    }
 
-    return pools;
+    return;
   }
 }

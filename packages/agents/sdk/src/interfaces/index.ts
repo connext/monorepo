@@ -13,7 +13,8 @@ export interface IPoolData {
   domainId: string;
   name: string;
   symbol: string;
-  address: string;
-  assets: string[];
+  tokens: string[]; // [0] is adopted, [1] is representation
+  decimals: number[];
   lpTokenAddress: string;
+  address?: string;
 }
