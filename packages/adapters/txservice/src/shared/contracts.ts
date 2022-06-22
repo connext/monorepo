@@ -2,6 +2,7 @@ import { utils } from "ethers";
 import _contractDeployments from "@connext/nxtp-contracts/deployments.json";
 import {
   IERC20 as TIERC20Minimal,
+  IERC20Extended as TIERC20Extended,
   ConnextHandler as TConnext,
   ConnextPriceOracle as TConnextPriceOracle,
   TokenRegistry as TTokenRegistry,
@@ -9,6 +10,7 @@ import {
 } from "@connext/nxtp-contracts/typechain-types";
 import PriceOracleArtifact from "@connext/nxtp-contracts/artifacts/contracts/core/connext/helpers/ConnextPriceOracle.sol/ConnextPriceOracle.json";
 import ERC20Artifact from "@connext/nxtp-contracts/artifacts/contracts/core/connext/helpers/OZERC20.sol/ERC20.json";
+import ERC20ExtendedArtifact from "@connext/nxtp-contracts/artifacts/contracts/core/connext/interfaces/IERC20Extended.sol/IERC20Extended.json";
 import ConnextArtifact from "@connext/nxtp-contracts/artifacts/hardhat-diamond-abi/ConnextHandler.sol/ConnextHandler.json";
 import StableSwapArtifact from "@connext/nxtp-contracts/artifacts/contracts/core/connext/helpers/StableSwap.sol/StableSwap.json";
 import TokenRegistryArtifact from "@connext/nxtp-contracts/artifacts/contracts/core/connext/helpers/TokenRegistry.sol/TokenRegistry.json";
@@ -142,6 +144,9 @@ export const contractDeployments: ConnextContractDeployments = {
 
 export const getErc20Interface = () => new utils.Interface(ERC20Artifact.abi) as TIERC20Minimal["interface"];
 
+export const getErc20ExtendedInterface = () =>
+  new utils.Interface(ERC20ExtendedArtifact.abi) as TIERC20Extended["interface"];
+
 export const getConnextInterface = () => new utils.Interface(ConnextArtifact.abi) as TConnext["interface"];
 
 export const getPriceOracleInterface = () =>
@@ -154,6 +159,7 @@ export const getStableSwapInterface = () => new utils.Interface(StableSwapArtifa
 
 export type ConnextContractInterfaces = {
   erc20: TIERC20Minimal["interface"];
+  erc20Extended: TIERC20Extended["interface"];
   connext: TConnext["interface"];
   priceOracle: TConnextPriceOracle["interface"];
   tokenRegistry: TTokenRegistry["interface"];
@@ -162,6 +168,7 @@ export type ConnextContractInterfaces = {
 
 export const getContractInterfaces = (): ConnextContractInterfaces => ({
   erc20: getErc20Interface(),
+  erc20Extended: getErc20ExtendedInterface(),
   connext: getConnextInterface(),
   priceOracle: getPriceOracleInterface(),
   tokenRegistry: getTokenRegistryInterface(),
