@@ -506,11 +506,11 @@ jobs:
         run: echo "to be implemented..."
 
     outputs:
-      router-tags: ${{ needs.terraform-services-core-staging.outputs.router-tags }}
-      sequencer-tags: ${{ needs.terraform-services-core-staging.outputs.sequencer-tags }}
-      lighthouse-tags: ${{ needs.terraform-services-core-staging.outputs.lighthouse-tags }}
-      cartographer-routers-tags: ${{ needs.terraform-services-backend-staging.outputs.cartographer-routers-tags }}
-      cartographer-transfers-tags: ${{ needs.terraform-services-backend-staging.outputs.cartographer-transfers-tags }}
+      router-tags: ${{ needs.terraform-services-core-staging-testnet.outputs.router-tags }}
+      sequencer-tags: ${{ needs.terraform-services-core-staging-testnet.outputs.sequencer-tags }}
+      lighthouse-tags: ${{ needs.terraform-services-core-staging-testnet.outputs.lighthouse-tags }}
+      cartographer-routers-tags: ${{ needs.terraform-services-backend-staging-testnet.outputs.cartographer-routers-tags }}
+      cartographer-transfers-tags: ${{ needs.terraform-services-backend-staging-testnet.outputs.cartographer-transfers-tags }}
 
   terraform-services-core-prod-testnet:
     if: github.ref == 'refs/heads/prod'
