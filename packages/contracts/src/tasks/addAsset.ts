@@ -1,12 +1,12 @@
 import { task } from "hardhat/config";
 
 export default task("add-asset", "Add a asset")
-  .addParam("assetId", "Token address")
+  .addParam("asset", "Token address")
   .addOptionalParam("txManagerAddress", "Override tx manager address")
-  .setAction(async ({ assetId, txManagerAddress: _txManagerAddress }, { deployments, getNamedAccounts, ethers }) => {
+  .setAction(async ({ asset, txManagerAddress: _txManagerAddress }, { deployments, getNamedAccounts, ethers }) => {
     const namedAccounts = await getNamedAccounts();
 
-    console.log("assetId: ", assetId);
+    console.log("asset: ", asset);
     console.log("namedAccounts: ", namedAccounts);
 
     let txManagerAddress = _txManagerAddress;
@@ -17,17 +17,17 @@ export default task("add-asset", "Add a asset")
     console.log("txManagerAddress: ", txManagerAddress);
 
     const txManager = await ethers.getContractAt("TransactionManager", txManagerAddress);
-    const approved = await txManager.approvedAssets(assetId);
+    const approved = await txManager.approvedAssets(asset);
     if (approved) {
       console.log("approved, no need to add");
       return;
     }
-    const tx = await txManager.addAssetId(assetId, { from: namedAccounts.deployer });
+    const tx = await txManager.addAssetId(asset, { from: namedAccounts.deployer });
 
     console.log("addAssetId tx: ", tx);
     const receipt = await tx.wait();
     console.log("addAssetId tx mined: ", receipt.transactionHash);
 
-    const isAssetApproved = await txManager.approvedAssets(assetId);
+    const isAssetApproved = await txManager.approvedAssets(asset);
     console.log("isAssetApproved: ", isAssetApproved);
   });
