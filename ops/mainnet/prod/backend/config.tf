@@ -4,7 +4,9 @@ locals {
     { name = "CARTOGRAPHER_CONFIG", value = local.local_cartographer_config },
     { name = "DATABASE_URL", value = "postgres://${var.postgres_user}:${var.postgres_password}@${module.cartographer_db.db_instance_endpoint}/connext" },
     { name = "ENVIRONMENT", value = var.environment },
-    { name = "STAGE", value = var.stage }
+    { name = "STAGE", value = var.stage },
+    { name = "DD_PROFILING_ENABLED", value = "true" },
+    { name = "DD_ENV", value = var.stage }
   ]
 
   postgrest_env_vars = [
