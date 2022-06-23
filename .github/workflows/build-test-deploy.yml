@@ -369,7 +369,7 @@ jobs:
         run: |
           terraform apply -auto-approve
 
-  terraform-services-backend-staging:
+  terraform-services-backend-staging-testnet:
     needs: [smoke-tests, terraform-infra]
     env:
       AWS_PROFILE: aws-deployer-connext
@@ -429,7 +429,7 @@ jobs:
       cartographer-routers-tags: ${{ needs.smoke-tests.outputs.cartographer-routers-tags }}
       cartographer-transfers-tags: ${{ needs.smoke-tests.outputs.cartographer-transfers-tags }}
 
-  terraform-services-core-staging:
+  terraform-services-core-staging-testnet:
     needs: [smoke-tests, terraform-infra]
     env:
       AWS_PROFILE: aws-deployer-connext
@@ -493,10 +493,10 @@ jobs:
 
   e2e-tests:
     runs-on: ubuntu-latest
-    needs: [terraform-services-core-staging, terraform-services-backend-staging]
+    needs: [terraform-services-core-staging-testnet, terraform-services-backend-staging-testnet]
     env:
-      ROUTER_IMAGE: ${{ fromJSON(needs.terraform-services-core-staging.outputs.router-tags).tags[0] }}
-      SEQUENCER_IMAGE: ${{ fromJSON(needs.terraform-services-core-staging.outputs.sequencer-tags).tags[0] }}
+      ROUTER_IMAGE: ${{ fromJSON(needs.terraform-services-core-staging-testnet.outputs.router-tags).tags[0] }}
+      SEQUENCER_IMAGE: ${{ fromJSON(needs.terraform-services-core-staging-testnet.outputs.sequencer-tags).tags[0] }}
 
     steps:
       - name: Checkout repository
@@ -512,7 +512,7 @@ jobs:
       cartographer-routers-tags: ${{ needs.terraform-services-backend-staging.outputs.cartographer-routers-tags }}
       cartographer-transfers-tags: ${{ needs.terraform-services-backend-staging.outputs.cartographer-transfers-tags }}
 
-  terraform-services-core-prod:
+  terraform-services-core-prod-testnet:
     if: github.ref == 'refs/heads/prod'
     needs: [e2e-tests]
     env:
@@ -569,7 +569,12 @@ jobs:
         run: |
           terraform apply -var-file=tfvars.json -auto-approve
 
-  terraform-services-backend-prod:
+    outputs:
+      router-tags: ${{ needs.e2e-tests.outputs.router-tags }}
+      sequencer-tags: ${{ needs.e2e-tests.outputs.sequencer-tags }}
+      lighthouse-tags: ${{ needs.e2e-tests.outputs.lighthouse-tags }}
+
+  terraform-services-backend-prod-testnet:
     if: github.ref == 'refs/heads/prod'
     needs: [e2e-tests]
     env:
@@ -623,5 +628,126 @@ jobs:
       - name: Terraform Docker Image onto AWS
         id: apply
         working-directory: ./ops/testnet/prod/backend
+        run: |
+          terraform apply -var-file=tfvars.json -auto-approve
+
+    outputs:
+      router-tags: ${{ needs.e2e-tests.outputs.router-tags }}
+      sequencer-tags: ${{ needs.e2e-tests.outputs.sequencer-tags }}
+      lighthouse-tags: ${{ needs.e2e-tests.outputs.lighthouse-tags }}
+      cartographer-routers-tags: ${{ needs.e2e-tests.outputs.cartographer-routers-tags }}
+      cartographer-transfers-tags: ${{ needs.e2e-tests.outputs.cartographer-transfers-tags }}
+
+  terraform-services-backend-prod-mainnet:
+    if: github.ref == 'refs/heads/prod'
+    needs: [terraform-services-core-prod-testnet, terraform-services-backend-prod-testnet]
+    env:
+      AWS_PROFILE: aws-deployer-connext
+      TF_VAR_full_image_name_cartographer_routers: ${{ fromJSON(needs.terraform-services-backend-prod-testnet.outputs.cartographer-routers-tags).tags[0] }}
+      TF_VAR_full_image_name_cartographer_transfers: ${{ fromJSON(needs.terraform-services-backend-prod-testnet.outputs.cartographer-transfers-tags).tags[0] }}
+
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v1
+        with:
+          terraform_version: 1.1.7
+
+      - name: Setup Sops
+        uses: mdgreenwald/mozilla-sops-action@v1.2.0
+        with:
+          version: "3.7.2"
+
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Configure AWS Credentials
+        uses: Fooji/create-aws-profile-action@v1
+        with:
+          profile: aws-deployer-connext
+          region: us-east-1
+          key: ${{ secrets.DEPLOYER_AWS_ACCESS_KEY_ID }}
+          secret: ${{ secrets.DEPLOYER_AWS_SECRET_ACCESS_KEY }}
+
+      - name: Decrypt Testnet Secrets
+        id: decrypt
+        run: sops -d ops/env/mainnet/backend/secrets.prod.json > ops/mainnet/prod/backend/tfvars.json
+
+      - name: Terraform Init
+        id: init
+        working-directory: ./ops/mainnet/prod/backend
+        run: terraform init
+
+      - name: Terraform Plan
+        id: plan
+        working-directory: ./ops/mainnet/prod/backend
+        run: |
+          terraform plan -var-file=tfvars.json
+        continue-on-error: true
+
+      - name: Terraform Docker Image onto AWS
+        id: apply
+        working-directory: ./ops/mainnet/prod/backend
+        run: |
+          terraform apply -var-file=tfvars.json -auto-approve
+
+  terraform-services-core-prod-mainnet:
+    if: github.ref == 'refs/heads/prod'
+    needs: [terraform-services-core-prod-testnet, terraform-services-backend-prod-testnet]
+    env:
+      AWS_PROFILE: aws-deployer-connext
+      TF_VAR_full_image_name_router: ${{ fromJSON(needs.terraform-services-backend-prod-testnet.outputs.router-tags).tags[0] }}
+      TF_VAR_full_image_name_sequencer: ${{ fromJSON(needs.terraform-services-backend-prod-testnet.outputs.sequencer-tags).tags[0] }}
+      TF_VAR_full_image_name_lighthouse: ${{ fromJSON(needs.terraform-services-backend-prod-testnet.outputs.lighthouse-tags).tags[0] }}
+
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v1
+        with:
+          terraform_version: 1.1.7
+
+      - name: Setup Sops
+        uses: mdgreenwald/mozilla-sops-action@v1.2.0
+        with:
+          version: "3.7.2"
+
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Configure AWS Credentials
+        uses: Fooji/create-aws-profile-action@v1
+        with:
+          profile: aws-deployer-connext
+          region: us-east-1
+          key: ${{ secrets.DEPLOYER_AWS_ACCESS_KEY_ID }}
+          secret: ${{ secrets.DEPLOYER_AWS_SECRET_ACCESS_KEY }}
+
+      - name: Decrypt Testnet Production Secrets
+        id: decrypt
+        run: sops -d ops/env/mainnet/core/secrets.prod.json > ops/mainnet/prod/core/tfvars.json
+
+      - name: Terraform Init
+        id: init
+        working-directory: ./ops/mainnet/prod/core
+        run: terraform init
+
+      - name: Terraform Plan
+        id: plan
+        working-directory: ./ops/mainnet/prod/core
+        run: |
+          terraform plan -var-file=tfvars.json
+        continue-on-error: true
+
+      - name: Terraform Docker Image onto AWS
+        id: apply
+        working-directory: ./ops/mainnet/prod/core
         run: |
           terraform apply -var-file=tfvars.json -auto-approve
