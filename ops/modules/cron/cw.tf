@@ -1,7 +1,8 @@
 resource "aws_cloudwatch_event_rule" "event_rule" {
   name                = "${var.environment}-${var.stage}-${var.container_family}"
-  schedule_expression = "cron(0/5 * * * ? *)"
+  schedule_expression = var.schedule_expression
 }
+
 
 // Failure notification configuration (using Cloudwatch)
 // -----------------------------------------------------
