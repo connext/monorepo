@@ -7,13 +7,18 @@ import { getContext } from "../../router";
 export const DEFAULT_SAFE_CONFIRMATIONS = 5;
 
 export const bindSubgraph = async (_pollInterval?: number) => {
-  const { config } = getContext();
+  const { config, logger } = getContext();
+  const { requestContext, methodContext } = createLoggingContext(bindSubgraph.name);
   const pollInterval = _pollInterval ?? config.polling.subgraph;
   interval(async (_, stop) => {
     if (config.mode.cleanup) {
       stop();
     } else {
-      await pollSubgraph();
+      try {
+        await pollSubgraph();
+      } catch (e: unknown) {
+        logger.error("Error binding cache", requestContext, methodContext, jsonifyError(e as Error));
+      }
     }
   }, pollInterval);
 };

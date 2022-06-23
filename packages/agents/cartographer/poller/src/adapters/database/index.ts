@@ -4,17 +4,17 @@ import { Pool } from "pg";
 import { getContext } from "../../shared";
 
 import {
-  getLatestNonce,
   getTransfersByStatus,
+  getTransfersWithOriginPending,
+  getTransfersWithDestinationPending,
   saveTransfers,
   saveRouterBalances,
-  getLatestExecuteTimestamp,
-  getLatestReconcileTimestamp,
+  saveCheckPoint,
+  getCheckPoint,
 } from "./client";
 
 export type Database = {
   saveTransfers: (xtransfers: XTransfer[], _pool?: Pool) => Promise<void>;
-  getLatestNonce: (domain: string, _pool?: Pool) => Promise<number>;
   getTransfersByStatus: (
     status: XTransferStatus,
     limit: number,
@@ -22,9 +22,21 @@ export type Database = {
     orderDirection?: "ASC" | "DESC",
     _pool?: Pool,
   ) => Promise<XTransfer[]>;
+  getTransfersWithOriginPending: (
+    domain: string,
+    limit: number,
+    orderDirection?: "ASC" | "DESC",
+    _pool?: Pool,
+  ) => Promise<string[]>;
+  getTransfersWithDestinationPending: (
+    domain: string,
+    limit: number,
+    orderDirection?: "ASC" | "DESC",
+    _pool?: Pool,
+  ) => Promise<string[]>;
   saveRouterBalances: (routerBalances: RouterBalance[], _pool?: Pool) => Promise<void>;
-  getLatestExecuteTimestamp: (domain: string, _pool?: Pool) => Promise<number>;
-  getLatestReconcileTimestamp: (domain: string, _pool?: Pool) => Promise<number>;
+  saveCheckPoint: (check: string, point: number, _pool?: Pool) => Promise<void>;
+  getCheckPoint: (check_name: string, _pool?: Pool) => Promise<number>;
 };
 
 export let pool: Pool;
@@ -42,11 +54,12 @@ export const getDatabase = async (): Promise<Database> => {
   }
 
   return {
-    getLatestNonce,
     saveTransfers,
     getTransfersByStatus,
+    getTransfersWithOriginPending,
+    getTransfersWithDestinationPending,
     saveRouterBalances,
-    getLatestExecuteTimestamp,
-    getLatestReconcileTimestamp,
+    saveCheckPoint,
+    getCheckPoint,
   };
 };

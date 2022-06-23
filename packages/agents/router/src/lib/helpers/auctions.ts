@@ -7,6 +7,7 @@ import {
   createLoggingContext,
   jsonifyError,
   formatUrl,
+  getMinimumBidsCountForRound as _getMinimumBidsCountForRound,
 } from "@connext/nxtp-utils";
 import { BigNumber } from "ethers";
 
@@ -71,15 +72,21 @@ export const getAuctionStatus = async (
  * @param receivingAmount - The total amount
  */
 export const getAuctionAmount = (roundId: number, receivingAmount: BigNumber): BigNumber => {
+  return receivingAmount.div(getMinimumBidsCountForRound(roundId));
+};
+
+/**
+ * Calculates the number of routers needed for a specific round
+ * @param roundId - The round number
+ */
+export const getMinimumBidsCountForRound = (roundId: number): number => {
   const { config } = getContext();
-  roundId = Math.trunc(roundId);
-  if (roundId > config.auctionRoundDepth || roundId < 1) {
+  if (roundId > config.auctionRoundDepth || roundId < 1 || roundId != Math.trunc(roundId)) {
     throw new InvalidAuctionRound({
       roundId,
       startRound: 1,
       maxRoundDepth: config.auctionRoundDepth,
     });
   }
-
-  return receivingAmount.div(Math.pow(2, roundId - 1));
+  return _getMinimumBidsCountForRound(roundId);
 };

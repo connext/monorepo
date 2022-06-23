@@ -1,5 +1,14 @@
 import { stub, SinonStub, restore, reset } from "sinon";
-import { expect, mkAddress, mkBytes32, OriginTransfer, SubgraphQueryMetaParams, XTransfer } from "@connext/nxtp-utils";
+import {
+  expect,
+  mkAddress,
+  mkBytes32,
+  OriginTransfer,
+  SubgraphQueryMetaParams,
+  SubgraphQueryByTimestampMetaParams,
+  SubgraphQueryByTransferIDsMetaParams,
+  XTransfer,
+} from "@connext/nxtp-utils";
 import {
   mockChainData,
   mockDestinationTransferEntity,
@@ -79,7 +88,7 @@ describe("SubgraphReader", () => {
     });
   });
 
-  describe("#getAssetBalancesAllRouters", () => {
+  describe("#getAssetBalancesRouters", () => {
     it("should return the router balances", async () => {
       response.set("1111", [
         [
@@ -102,7 +111,7 @@ describe("SubgraphReader", () => {
         ],
       ]);
       executeStub.resolves(response);
-      expect(await subgraphReader.getAssetBalancesAllRouters("1111")).to.be.deep.eq([
+      expect(await subgraphReader.getAssetBalancesRouters("1111", 0, 100)).to.be.deep.eq([
         {
           router: mkAddress("aaa"),
           assets: [
@@ -232,6 +241,40 @@ describe("SubgraphReader", () => {
     });
   });
 
+  describe("#getOriginTransfersById", () => {
+    it("should return the origin transfers", async () => {
+      response.set("1111", [[mockOriginTransferEntity]]);
+      response.set("2221", [[mockOriginTransferEntity]]);
+      executeStub.resolves(response);
+
+      const agents: Map<string, SubgraphQueryByTransferIDsMetaParams> = new Map();
+      agents.set("1111", { maxBlockNumber: 99999999, transferIDs: [] });
+      agents.set("2221", { maxBlockNumber: 99999999, transferIDs: [] });
+
+      expect(await subgraphReader.getOriginTransfersById(agents)).to.be.deep.eq([
+        ParserFns.originTransfer(mockOriginTransferEntity),
+        ParserFns.originTransfer(mockOriginTransferEntity),
+      ]);
+    });
+  });
+
+  describe("#getDestinationTransfersById", () => {
+    it("should return the destination transfers", async () => {
+      response.set("1111", [[mockDestinationTransferEntity]]);
+      response.set("2221", [[mockDestinationTransferEntity]]);
+      executeStub.resolves(response);
+
+      const agents: Map<string, SubgraphQueryByTransferIDsMetaParams> = new Map();
+      agents.set("1111", { maxBlockNumber: 99999999, transferIDs: [] });
+      agents.set("2221", { maxBlockNumber: 99999999, transferIDs: [] });
+
+      expect(await subgraphReader.getDestinationTransfersById(agents)).to.be.deep.eq([
+        ParserFns.destinationTransfer(mockDestinationTransferEntity),
+        ParserFns.destinationTransfer(mockDestinationTransferEntity),
+      ]);
+    });
+  });
+
   describe("#getOriginTransfers", () => {
     it("should return the origin transfers across the multichains", async () => {
       response.set("1111", [[mockOriginTransferEntity]]);
@@ -245,6 +288,58 @@ describe("SubgraphReader", () => {
       expect(await subgraphReader.getOriginTransfers(agents)).to.be.deep.eq([
         ParserFns.originTransfer(mockOriginTransferEntity),
         ParserFns.originTransfer(mockOriginTransferEntity),
+      ]);
+    });
+  });
+
+  describe("#getOriginTransfersByNonce", () => {
+    it("should return the origin transfers across the multichains", async () => {
+      response.set("1111", [[mockOriginTransferEntity]]);
+      response.set("2221", [[mockOriginTransferEntity]]);
+      executeStub.resolves(response);
+
+      const agents: Map<string, SubgraphQueryMetaParams> = new Map();
+      agents.set("1111", { maxBlockNumber: 99999999, latestNonce: 0 });
+      agents.set("2221", { maxBlockNumber: 99999999, latestNonce: 0 });
+
+      expect(await subgraphReader.getOriginTransfersByNonce(agents)).to.be.deep.eq([
+        ParserFns.originTransfer(mockOriginTransferEntity),
+        ParserFns.originTransfer(mockOriginTransferEntity),
+      ]);
+    });
+  });
+
+  describe("#getDestinationTransfersByNonce", () => {
+    it("should return the destination transfers", async () => {
+      response.set("1111", [[mockDestinationTransferEntity]]);
+      response.set("2221", [[mockDestinationTransferEntity]]);
+      executeStub.resolves(response);
+
+      const agents: Map<string, SubgraphQueryMetaParams> = new Map();
+      agents.set("1111", { maxBlockNumber: 99999999, latestNonce: 0 });
+      agents.set("2221", { maxBlockNumber: 99999999, latestNonce: 0 });
+
+      expect(await subgraphReader.getDestinationTransfersByNonce(agents)).to.be.deep.eq([
+        ParserFns.destinationTransfer(mockDestinationTransferEntity),
+        ParserFns.destinationTransfer(mockDestinationTransferEntity),
+      ]);
+    });
+  });
+
+  describe("#getDestinationTransfersByDomainAndReconcileTimestamp", () => {
+    it("should return the destination transfers across the multichains", async () => {
+      response.set("1111", [[mockDestinationTransferEntity]]);
+      response.set("2221", [[mockDestinationTransferEntity]]);
+      executeStub.resolves(response);
+
+      const agents: Map<string, SubgraphQueryByTimestampMetaParams> = new Map();
+      agents.set("1111", { maxBlockNumber: 99999999, fromTimestamp: 0 });
+
+      expect(
+        await subgraphReader.getDestinationTransfersByDomainAndReconcileTimestamp(agents.get("1111")!, "1111"),
+      ).to.be.deep.eq([
+        ParserFns.destinationTransfer(mockDestinationTransferEntity),
+        ParserFns.destinationTransfer(mockDestinationTransferEntity),
       ]);
     });
   });
@@ -349,6 +444,28 @@ describe("SubgraphReader", () => {
       const transferEntity: XTransfer = ParserFns.originTransfer(originTransferEntity1);
       transferEntity.destination = ParserFns.destinationTransfer(destinationTransferEntity).destination;
       expect(await subgraphReader.getDestinationTransfers(originTransfers)).to.be.deep.eq([transferEntity]);
+    });
+  });
+
+  describe("#getLatestBlockNumber", () => {
+    it("should return latestBlockNumber per domain", async () => {
+      response.set("1111", [{ block: { number: 100 } }]);
+      response.set("2221", [{ block: { number: 200 } }]);
+      executeStub.resolves(response);
+      const res = await subgraphReader.getLatestBlockNumber(["1111", "2221"]);
+      expect(res.get("1111")).to.be.eq(100);
+      expect(res.get("2221")).to.be.eq(200);
+    });
+  });
+
+  describe("#getMaxRoutersPerTransfer", () => {
+    it("should return maxRoutersPerTransfer per domain", async () => {
+      response.set("1111", [{ maxRoutersPerTransfer: 3 }]);
+      response.set("2221", [{ maxRoutersPerTransfer: 3 }]);
+      executeStub.resolves(response);
+      const res = await subgraphReader.getMaxRoutersPerTransfer(["1111", "2221"]);
+      expect(res.get("1111")).to.be.eq(3);
+      expect(res.get("2221")).to.be.eq(3);
     });
   });
 });

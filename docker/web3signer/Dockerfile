@@ -16,6 +16,6 @@ COPY --chown=web3signer:web3signer docker-entrypoint.sh ./
 RUN chown -R web3signer:web3signer /opt/web3signer && \
     chmod 744 docker-entrypoint.sh prepare-config.sh
 
-user web3signer
+USER web3signer
 
 ENTRYPOINT bash ./docker-entrypoint.sh

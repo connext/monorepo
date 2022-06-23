@@ -18,7 +18,12 @@ export const makeRoutersPoller = async (_configOverride?: CartographerConfig) =>
   context.config = _configOverride ?? (await getConfig());
   context.logger = new Logger({
     level: context.config.logLevel,
-    name: "Cartographer",
+    name: "cartographer-routers",
+    formatters: {
+      level: (label) => {
+        return { level: label.toUpperCase() };
+      },
+    },
   });
   context.logger.info("Config generated", requestContext, methodContext, { config: context.config });
 

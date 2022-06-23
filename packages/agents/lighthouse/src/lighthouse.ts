@@ -29,6 +29,11 @@ export const makeLighthouse = async () => {
     context.logger = new Logger({
       level: context.config.logLevel,
       name: "lighthouse",
+      formatters: {
+        level: (label) => {
+          return { level: label.toUpperCase() };
+        },
+      },
     });
     context.logger.info("Hello, World! Generated config!", requestContext, methodContext, {
       config: { ...context.config, mnemonic: "*****" },

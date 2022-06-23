@@ -4,9 +4,7 @@ pragma solidity 0.8.14;
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
 import "../../../utils/ForgeHelper.sol";
-
 import "../../../../contracts/test/TestERC20.sol";
-
 import "../../../../contracts/core/connext/interfaces/IExecutor.sol";
 import "../../../../contracts/core/connext/helpers/Executor.sol";
 
@@ -106,8 +104,6 @@ contract ExecutorTest is ForgeHelper {
     // fund executor
     asset.mint(address(executor), 10 ether);
   }
-
-  // ============ Utils ============
 
   // ============ getConnext ============
 
