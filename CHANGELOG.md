@@ -2,6 +2,10 @@
 
 ## Next Release
 
+## 0.1.38
+
+- [utils] more fixes on arbitrum fees
+
 ## 0.1.37
 
 - [utils] Arbitrum gas estimation fix
