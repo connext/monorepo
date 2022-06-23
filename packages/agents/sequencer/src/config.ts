@@ -70,7 +70,11 @@ export const getEnvConfig = (
       configFile.supportedBidVersion ||
       version,
     subgraphPrefix: process.env.SEQ_SUBGRAPH_PREFIX || configJson.subgraphPrefix || configFile.subgraphPrefix,
-    auctionRoundDepth: process.env.AUCTION_ROUND_DEPTH || configJson.auctionRoundDepth || DEFAULT_AUCTION_ROUND_DEPTH,
+    auctionRoundDepth:
+      process.env.AUCTION_ROUND_DEPTH ||
+      configJson.auctionRoundDepth ||
+      configFile.auctionRoundDepth ||
+      DEFAULT_AUCTION_ROUND_DEPTH,
     environment: process.env.SEQ_ENVIRONMENT || configJson.environment || configFile.environment || "production",
   };
 

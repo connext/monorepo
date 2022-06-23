@@ -103,7 +103,7 @@ module "cartographer-routers" {
   stage                   = var.stage
   domain                  = var.domain
   service_security_groups = flatten([module.network.allow_all_sg, module.network.ecs_task_sg])
-  container_env_vars      = local.cartographer_env_vars
+  container_env_vars      = concat(local.cartographer_env_vars, [{ name = "DD_SERVICE", value = "cartographer-routers-${var.environment}" }])
   health_check_command    = ["CMD-SHELL", "echo hello"]
 }
 
@@ -125,7 +125,7 @@ module "cartographer-transfers" {
   stage                   = var.stage
   domain                  = var.domain
   service_security_groups = flatten([module.network.allow_all_sg, module.network.ecs_task_sg])
-  container_env_vars      = local.cartographer_env_vars
+  container_env_vars      = concat(local.cartographer_env_vars, [{ name = "DD_SERVICE", value = "cartographer-transfers-${var.environment}" }])
   health_check_command    = ["CMD-SHELL", "echo hello"]
 }
 

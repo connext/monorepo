@@ -2,12 +2,20 @@ locals {
   sequencer_env_vars = [
     { name = "SEQ_CONFIG", value = local.local_sequencer_config },
     { name = "ENVIRONMENT", value = var.environment },
-    { name = "STAGE", value = var.stage }
+    { name = "STAGE", value = var.stage },
+    { name = "DD_PROFILING_ENABLED", value = "true" },
+    { name = "DD_ENV", value = var.stage },
+    { name = "DD_SERVICE", value = "sequencer-${var.environment}" }
+
+
   ]
   router_env_vars = [
     { name = "NXTP_CONFIG", value = local.local_router_config },
     { name = "ENVIRONMENT", value = var.environment },
-    { name = "STAGE", value = var.stage }
+    { name = "STAGE", value = var.stage },
+    { name = "DD_PROFILING_ENABLED", value = "true" },
+    { name = "DD_ENV", value = var.stage },
+    { name = "DD_SERVICE", value = "router-${var.environment}" }
   ]
   lighthouse_env_vars = [
     { name = "NXTP_CONFIG", value = local.local_lighthouse_config },
@@ -35,7 +43,7 @@ locals {
     logLevel = "debug"
     chains = {
       "1111" = {
-        providers = ["https://eth-rinkeby.alchemyapi.io/v2/${var.rinkeby_alchemy_key_0}", "https://rpc.ankr.com/eth_rinkeby"]
+        providers = ["https://eth-rinkeby.alchemyapi.io/v2/${var.rinkeby_alchemy_key_0}"]
         assets = [
           {
             name    = "TEST"
@@ -53,7 +61,7 @@ locals {
         providers = ["https://eth-kovan.alchemyapi.io/v2/${var.kovan_alchemy_key_0}"]
       }
       "3331" = {
-        providers = ["https://eth-goerli.alchemyapi.io/v2/${var.kovan_alchemy_key_0}", "https://rpc.ankr.com/eth_goerli"]
+        providers = ["https://eth-goerli.alchemyapi.io/v2/${var.kovan_alchemy_key_0}"]
         assets = [
           {
             name    = "TEST"
@@ -82,7 +90,7 @@ locals {
     }
     chains = {
       "1111" = {
-        providers = ["https://eth-rinkeby.alchemyapi.io/v2/${var.rinkeby_alchemy_key_1}", "https://rpc.ankr.com/eth_rinkeby"]
+        providers = ["https://eth-rinkeby.alchemyapi.io/v2/${var.rinkeby_alchemy_key_1}"]
         assets = [
           {
             name    = "TEST"
@@ -100,7 +108,7 @@ locals {
         ]
       }
       "3331" = {
-        providers = ["https://eth-goerli.alchemyapi.io/v2/${var.kovan_alchemy_key_1}", "https://rpc.ankr.com/eth_goerli"]
+        providers = ["https://eth-goerli.alchemyapi.io/v2/${var.kovan_alchemy_key_1}"]
         assets = [
           {
             name    = "TEST"
@@ -109,8 +117,8 @@ locals {
         ]
       }
     }
-    web3SignerUrl = "https://${module.web3signer.service_endpoint}"
-    environment   = var.stage
+    web3SignerUrl    = "https://${module.web3signer.service_endpoint}"
+    environment      = var.stage
     nomadEnvironment = var.nomad_environment
   })
 }
@@ -122,13 +130,13 @@ locals {
     logLevel = "debug"
     chains = {
       "1111" = {
-        providers = ["https://eth-rinkeby.alchemyapi.io/v2/${var.rinkeby_alchemy_key_1}", "https://rpc.ankr.com/eth_rinkeby"]
+        providers = ["https://eth-rinkeby.alchemyapi.io/v2/${var.rinkeby_alchemy_key_1}"]
       }
       "2221" = {
         providers = ["https://eth-kovan.alchemyapi.io/v2/${var.kovan_alchemy_key_1}"]
       }
       "3331" = {
-        providers = ["https://eth-goerli.alchemyapi.io/v2/${var.kovan_alchemy_key_1}", "https://rpc.ankr.com/eth_goerli"]
+        providers = ["https://eth-goerli.alchemyapi.io/v2/${var.kovan_alchemy_key_1}"]
       }
     }
     environment = var.stage

@@ -62,6 +62,35 @@ resource "aws_ecs_task_definition" "service" {
         {
           name  = "DD_APM_ENABLED",
           value = "true"
+        },
+        {
+          name  = "DD_DOGSTATSD_NON_LOCAL_TRAFFIC",
+          value = "true"
+        },
+
+        {
+          name  = "DD_APM_NON_LOCAL_TRAFFIC",
+          value = "true"
+        },
+
+        {
+          name  = "DD_PROCESS_AGENT_ENABLED",
+          value = "true"
+        },
+
+        {
+          name  = "DD_TRACE_ANALYTICS_ENABLED",
+          value = "true"
+        },
+
+        {
+          name  = "DD_RUNTIME_METRICS_ENABLED",
+          value = "true"
+        },
+
+        {
+          name  = "DD_LOGS_INJECTION",
+          value = "true"
         }
       ]
 
@@ -85,8 +114,8 @@ resource "aws_ecs_task_definition" "service" {
         type = "fluentbit",
         options = {
           enable-ecs-log-metadata = "true"
-          config-file-type = "file"
-          config-file-value = "/fluent-bit/configs/parse-json.conf"
+          config-file-type        = "file"
+          config-file-value       = "/fluent-bit/configs/parse-json.conf"
         }
       }
     }
