@@ -30,7 +30,7 @@ COPY package.json /tmp/build/
 COPY packages/agents/cartographer/poller/package.json /tmp/build/packages/agents/cartographer/poller/
 COPY packages/adapters/subgraph/package.json /tmp/build/packages/adapters/subgraph/
 COPY packages/utils/package.json /tmp/build/packages/utils/
-RUN touch /tmp/build/yarn.lock
+COPY yarn.lock /tmp/build/
 
 # ----- Install dependencies -----
 # Install dependencies exactly as in the yarn.lock file - no updates.

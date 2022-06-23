@@ -834,7 +834,6 @@ library SwapUtils {
       self.tokenPrecisionMultipliers
     );
     v.totalSupply = v.lpToken.totalSupply();
-
     if (v.totalSupply != 0) {
       v.d0 = getD(_xp(v.balances, v.multipliers), v.preciseA);
     }

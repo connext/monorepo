@@ -60,4 +60,6 @@ dataSources:
           handler: handleRouterOwnerProposed
         - event: RouterOwnerAccepted(indexed address,indexed address,indexed address)
           handler: handleRouterOwnerAccepted
+        - event: MaxRoutersPerTransferUpdated(uint256,address)
+          handler: handleMaxRoutersPerTransferUpdated
       file: ./src/amarok-runtime-staging/mapping.ts

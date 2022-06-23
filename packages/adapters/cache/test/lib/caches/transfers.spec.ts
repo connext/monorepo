@@ -1,5 +1,4 @@
 import { Logger, XTransferStatus, expect, mock, getRandomBytes32, mkAddress } from "@connext/nxtp-utils";
-
 import { TransfersCache } from "../../../src/index";
 
 const logger = new Logger({ level: "debug" });
@@ -22,12 +21,14 @@ const fakeTxs = [
 ];
 
 describe("TransfersCache", () => {
+  const rmock = new RedisMock();
+
   beforeEach(async () => {
     transfersCache = new TransfersCache({ host: "mock", port: 1234, mock: true, logger });
   });
 
   afterEach(async () => {
-    new RedisMock().flushall();
+    // new RedisMock().flushall();
   });
 
   describe("#getLatestNonce", () => {
@@ -115,7 +116,9 @@ describe("TransfersCache", () => {
 
   describe("#getPending", () => {
     it("happy: returns pending transfer IDs", async () => {
-      // First, store
+      // First, flush
+      await rmock.flushall();
+      //then store
       const transferId = getRandomBytes32();
       const domain = "1234";
       await (transfersCache as any).addPending(domain, transferId);
@@ -124,6 +127,7 @@ describe("TransfersCache", () => {
     });
 
     it("should create a new domain entry if it doesn't exist and return empty array", async () => {
+      await rmock.flushall();
       const res = await transfersCache.getPending("1234");
       expect(res).to.deep.eq([]);
     });
@@ -139,6 +143,7 @@ describe("TransfersCache", () => {
     });
 
     it("should append to current array, not overwrite", async () => {
+      await rmock.flushall();
       const domain = "1234";
       const transferIds = new Array(10).fill(0).map(() => getRandomBytes32());
       for (const transferId of transferIds) {
@@ -151,6 +156,7 @@ describe("TransfersCache", () => {
 
   describe("#removePending", () => {
     it("happy: should remove from array of pending transfers", async () => {
+      await rmock.flushall();
       const domain = "1234";
       const transferIds = new Array(10).fill(0).map(() => getRandomBytes32());
       for (const transferId of transferIds) {
@@ -167,6 +173,9 @@ describe("TransfersCache", () => {
     });
 
     it("shouldn't remove anything if non-existant transfer ID is passed in", async () => {
+      //flush cache before
+      await rmock.flushall();
+
       const domain = "1234";
       const transferIds = new Array(10).fill(0).map(() => getRandomBytes32());
       for (const transferId of transferIds) {
@@ -180,6 +189,96 @@ describe("TransfersCache", () => {
       const res = await transfersCache.getPending(domain);
       expect(res).to.deep.eq(transferIds);
     });
+  });
+
+  describe("#prunePending", () => {
+    const maxPruneTimeMs = 10_000;
+    const testOnRealDb = false;
+
+    it("happy: mock should not prune pending transactions ", async () => {
+      const domain = 3000;
+      //add some pending txns back
+      const transferIds = new Array(10).fill(0).map(() => getRandomBytes32());
+      for (const transferId of transferIds) {
+        await (transfersCache as any).addPending(domain, transferId);
+      }
+
+      const pendingBefore = await transfersCache.getPending("3000");
+
+      const res = await transfersCache.pruneTransfers(domain);
+
+      const stillPending = await transfersCache.getPending("3000");
+
+      expect(pendingBefore).to.deep.eq(stillPending);
+    });
+
+    it("happy: mock should prune all old completed transactions ", async () => {
+      await rmock.flushall();
+      const domain = 3000;
+
+      //create 10 finished Xtransfers
+      const xtransfers = new Array(10).fill(0).map(() =>
+        mock.entity.xtransfer({
+          originDomain: domain.toString(),
+          transferId: getRandomBytes32(),
+          nonce: Math.floor(Math.random() * 10000),
+          status: "CompletedFast",
+        }),
+      );
+
+      //get completed transfer with highest nonce (this one should stay around after the prune
+      const highestTransfer = xtransfers.reduce((p, c) => {
+        return p.nonce > c.nonce ? p : c;
+      });
+
+      //all the transfers that should be deleted by prune (lower nonce than highestTransfer)
+      const transfersShouldBeDeleted = xtransfers.filter((txfr) => {
+        return txfr.transferId !== highestTransfer.transferId;
+      });
+
+      //stores the transfers normally
+      await transfersCache.storeTransfers(xtransfers);
+      //delete all the newly stored completed transfers except the one with the highest nonce
+      const startPrune = Date.now();
+      await transfersCache.pruneTransfers(domain);
+      const endPrune = Date.now();
+
+      const transferStillExists = await transfersCache.getTransfer(highestTransfer.transferId);
+
+      //test all nonces are less than the highest.
+      let deletedNoncesHaveHigherNonce = true;
+
+      transfersShouldBeDeleted.forEach((txfr) =>
+        txfr.nonce > highestTransfer.nonce
+          ? (deletedNoncesHaveHigherNonce = true)
+          : (deletedNoncesHaveHigherNonce = false),
+      );
+
+      expect(deletedNoncesHaveHigherNonce).to.eq(false);
+
+      //should deep equal but saving adds a mock asset id etc.
+      expect(transferStillExists?.transferId).to.eq(highestTransfer.transferId);
+
+      //set max prune time limit
+      expect(endPrune).to.be.lte(startPrune + maxPruneTimeMs);
+    });
+
+    it('should use real db to test pruning', async() => {
+      if (testOnRealDb) {
+        const realTransferCache = new TransfersCache({ host: "localhost", port: 6379, mock: false, logger });
+        const startPrune = Date.now();
+        await realTransferCache.pruneTransfers(3331);
+        await realTransferCache.pruneTransfers(2221);
+        await realTransferCache.pruneTransfers(1111);
+
+        const endPrune = Date.now();
+
+        console.log('endPrune', endPrune);
+        //always false
+        expect(endPrune).to.be.lte(startPrune + (maxPruneTimeMs * 1000));
+
+      }
+    })
   });
 
   describe("#getErrors", () => {
