@@ -35,7 +35,7 @@ export const cachedPriceMap: Map<string, { timestamp: number; price: BigNumber }
 
 // TODO: Sometimes gelato estimates fees much much higher than the real cost for the arbitrum network.
 // Until they get this fixed, we need to exclude arbitrum network from the fee calculation.
-const EXCLUDED_NETWORKS_FOR_GELATO = [42261];
+const EXCLUDED_NETWORKS_FOR_GELATO = [42161];
 
 /**
  * @classdesc Performs onchain reads with embedded retries.
