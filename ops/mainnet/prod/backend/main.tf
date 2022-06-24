@@ -105,7 +105,7 @@ module "cartographer-routers-cron" {
   domain                  = var.domain
   service_security_groups = flatten([module.network.allow_all_sg, module.network.ecs_task_sg])
   container_env_vars      = concat(local.cartographer_env_vars, [{ name = "DD_SERVICE", value = "cartographer-routers-${var.environment}" }])
-  schedule_expression     = "cron(0/3 * * * ? *)"
+  schedule_expression     = "cron(* * * * ? *)"
 }
 
 
@@ -129,7 +129,7 @@ module "cartographer-transfers-cron" {
   domain                  = var.domain
   service_security_groups = flatten([module.network.allow_all_sg, module.network.ecs_task_sg])
   container_env_vars      = concat(local.cartographer_env_vars, [{ name = "DD_SERVICE", value = "cartographer-transfers-${var.environment}" }])
-  schedule_expression     = "cron(0/3 * * * ? *)"
+  schedule_expression     = "cron(* * * * ? *)"
 }
 
 
