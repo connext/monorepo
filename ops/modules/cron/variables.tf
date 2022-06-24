@@ -58,5 +58,5 @@ variable "ecs_cluster_arn" {
 
 variable "schedule_expression" {
   description = "how to schedule the cron job"
-  default = "cron(0/5 * * * ? *)"
+  default = "cron(* * * * ? *)"
 }
