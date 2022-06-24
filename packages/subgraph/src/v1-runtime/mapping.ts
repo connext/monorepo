@@ -198,32 +198,34 @@ export function handleTransactionFulfilled(event: TransactionFulfilled): void {
   let transactionId =
     event.params.transactionId.toHex() + "-" + event.params.user.toHex() + "-" + event.params.router.toHex();
   let transaction = Transaction.load(transactionId);
-  transaction!.status = "Fulfilled";
-  transaction!.relayerFee = event.params.args.relayerFee;
-  transaction!.signature = event.params.args.signature;
-  transaction!.callData = event.params.args.callData.toHexString();
-  transaction!.externalCallSuccess = event.params.success;
-  transaction!.externalCallReturnData = event.params.returnData;
-  transaction!.externalCallIsContract = event.params.isContract;
-  transaction!.fulfillCaller = event.params.caller;
-  transaction!.fulfillTransactionHash = event.transaction.hash;
-  transaction!.fulfillMeta = event.params.args.encodedMeta;
-  transaction!.fulfillTimestamp = event.block.timestamp;
+  if (transaction) {
+    transaction!.status = "Fulfilled";
+    transaction!.relayerFee = event.params.args.relayerFee;
+    transaction!.signature = event.params.args.signature;
+    transaction!.callData = event.params.args.callData.toHexString();
+    transaction!.externalCallSuccess = event.params.success;
+    transaction!.externalCallReturnData = event.params.returnData;
+    transaction!.externalCallIsContract = event.params.isContract;
+    transaction!.fulfillCaller = event.params.caller;
+    transaction!.fulfillTransactionHash = event.transaction.hash;
+    transaction!.fulfillMeta = event.params.args.encodedMeta;
+    transaction!.fulfillTimestamp = event.block.timestamp;
 
-  transaction!.save();
+    transaction!.save();
 
-  // router receives liquidity back on sender fulfill
-  if (transaction!.chainId == transaction!.sendingChainId) {
-    let assetBalanceId = transaction!.sendingAssetId.toHex() + "-" + event.params.router.toHex();
-    let assetBalance = AssetBalance.load(assetBalanceId);
-    if (assetBalance == null) {
-      assetBalance = new AssetBalance(assetBalanceId);
-      assetBalance.assetId = transaction!.sendingAssetId;
-      assetBalance.router = event.params.router.toHex();
-      assetBalance.amount = new BigInt(0);
+    // router receives liquidity back on sender fulfill
+    if (transaction!.chainId == transaction!.sendingChainId) {
+      let assetBalanceId = transaction!.sendingAssetId.toHex() + "-" + event.params.router.toHex();
+      let assetBalance = AssetBalance.load(assetBalanceId);
+      if (assetBalance == null) {
+        assetBalance = new AssetBalance(assetBalanceId);
+        assetBalance.assetId = transaction!.sendingAssetId;
+        assetBalance.router = event.params.router.toHex();
+        assetBalance.amount = new BigInt(0);
+      }
+      assetBalance.amount = assetBalance.amount.plus(transaction!.amount);
+      assetBalance.save();
     }
-    assetBalance.amount = assetBalance.amount.plus(transaction!.amount);
-    assetBalance.save();
   }
 }
 
@@ -237,25 +239,27 @@ export function handleTransactionCancelled(event: TransactionCancelled): void {
   let transactionId =
     event.params.transactionId.toHex() + "-" + event.params.user.toHex() + "-" + event.params.router.toHex();
   let transaction = Transaction.load(transactionId);
-  transaction!.status = "Cancelled";
-  transaction!.cancelCaller = event.params.caller;
-  transaction!.cancelTransactionHash = event.transaction.hash;
-  transaction!.cancelMeta = event.params.args.encodedMeta;
-  transaction!.cancelTimestamp = event.block.timestamp;
+  if (transaction) {
+    transaction!.status = "Cancelled";
+    transaction!.cancelCaller = event.params.caller;
+    transaction!.cancelTransactionHash = event.transaction.hash;
+    transaction!.cancelMeta = event.params.args.encodedMeta;
+    transaction!.cancelTimestamp = event.block.timestamp;
 
-  transaction!.save();
+    transaction!.save();
 
-  // router receives liquidity back on receiver cancel
-  if (transaction!.chainId == transaction!.receivingChainId) {
-    let assetBalanceId = transaction!.receivingAssetId.toHex() + "-" + event.params.router.toHex();
-    let assetBalance = AssetBalance.load(assetBalanceId);
-    if (assetBalance == null) {
-      assetBalance = new AssetBalance(assetBalanceId);
-      assetBalance.assetId = transaction!.receivingAssetId;
-      assetBalance.router = event.params.router.toHex();
-      assetBalance.amount = new BigInt(0);
+    // router receives liquidity back on receiver cancel
+    if (transaction!.chainId == transaction!.receivingChainId) {
+      let assetBalanceId = transaction!.receivingAssetId.toHex() + "-" + event.params.router.toHex();
+      let assetBalance = AssetBalance.load(assetBalanceId);
+      if (assetBalance == null) {
+        assetBalance = new AssetBalance(assetBalanceId);
+        assetBalance.assetId = transaction!.receivingAssetId;
+        assetBalance.router = event.params.router.toHex();
+        assetBalance.amount = new BigInt(0);
+      }
+      assetBalance.amount = assetBalance.amount.plus(transaction!.amount);
+      assetBalance.save();
     }
-    assetBalance.amount = assetBalance.amount.plus(transaction!.amount);
-    assetBalance.save();
   }
 }
