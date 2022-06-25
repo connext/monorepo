@@ -240,6 +240,11 @@ contract SponsorVault is ISponsorVault, Ownable {
     uint256 num;
     uint256 den;
 
+    if (_to.balance > relayerFeeCap || Address.isContract(_to)) {
+      // Already has fees, and the address is a contract
+      return;
+    }
+
     if (address(gasTokenOracle) != address(0)) {
       (num, den) = gasTokenOracle.getRate(_originDomain);
 
@@ -259,6 +264,7 @@ contract SponsorVault is ISponsorVault, Ownable {
 
       Address.sendValue(_to, sponsoredFee);
     }
+
     emit ReimburseRelayerFees(sponsoredFee, _to);
   }
 
