@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: UNLICENSED
-pragma solidity 0.8.14;
+pragma solidity 0.8.15;
 
 import {BaseConnextFacet} from "./BaseConnextFacet.sol";
 import {AssetLogic} from "../libraries/AssetLogic.sol";
