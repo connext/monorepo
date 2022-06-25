@@ -4,6 +4,7 @@ pragma solidity 0.8.14;
 import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import {SafeERC20, Address} from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
+import {ReentrancyGuard} from "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 
 import {ISponsorVault} from "../interfaces/ISponsorVault.sol";
 import {ITokenExchange} from "../interfaces/ITokenExchange.sol";
@@ -14,7 +15,7 @@ import {IGasTokenOracle} from "../interfaces/IGasTokenOracle.sol";
  * @author Connext Labs
  * @notice Contains logic for sponsoring liquidity and relayer fees
  */
-contract SponsorVault is ISponsorVault, Ownable {
+contract SponsorVault is ISponsorVault, ReentrancyGuard, Ownable {
   // ============ Libraries ============
   using SafeERC20 for IERC20;
 
@@ -293,7 +294,7 @@ contract SponsorVault is ISponsorVault, Ownable {
     address _token,
     address _receiver,
     uint256 _amount
-  ) external onlyOwner {
+  ) external onlyOwner nonReentrant {
     if (_token == address(0)) {
       if (address(this).balance < _amount) revert SponsorVault__withdraw_invalidAmount();
       Address.sendValue(payable(_receiver), _amount);
