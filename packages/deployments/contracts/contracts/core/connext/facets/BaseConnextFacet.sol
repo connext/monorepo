@@ -112,7 +112,7 @@ contract BaseConnextFacet {
    * @param _router The address of the potential remote xApp Router
    */
   function _isRemoteRouter(uint32 _domain, bytes32 _router) internal view returns (bool) {
-    return s.remotes[_domain] == _router;
+    return s.remotes[_domain] == _router && _router != bytes32(0);
   }
 
   /**
