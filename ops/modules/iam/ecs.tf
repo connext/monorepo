@@ -1,64 +1,44 @@
-resource "aws_iam_role_policy" "ecr_admin_policy" {
-  name = "ecr_admin_policy"
-  role = aws_iam_role.ecr_admin_role.id
+data "aws_caller_identity" "current" {}
 
-  policy = <<EOF
-{
-  "Version": "2012-10-17",
-  "Statement": [
-    {
-      "Action": [
-        "ecr:*",
-        "logs:*",
-        "ecs:*"
-      ],
-      "Effect": "Allow",
-      "Resource": "*"
+data "aws_iam_policy_document" "cloudwatch_assume_role" {
+  statement {
+    principals {
+      type = "Service"
+      identifiers = [
+        "events.amazonaws.com",
+        "ecs-tasks.amazonaws.com",
+        "logs.amazonaws.com"
+      ]
     }
-  ]
+    actions = ["sts:AssumeRole"]
+  }
 }
-EOF
+
+data "aws_iam_policy_document" "task_execution_cloudwatch_access" {
+  statement {
+    effect = "Allow"
+    actions = [
+      "logs:*",
+    ]
+    resources = [      
+      "arn:aws:logs:us-east-1:*:*", 
+      "arn:aws:logs:us-east-2:*:*", 
+      "arn:aws:logs:us-west-1:*:*", 
+      "arn:aws:logs:us-west-2:*:*"]
+  }
 }
+
 
 resource "aws_iam_role" "ecr_admin_role" {
   name               = "erc_admin_role"
-  assume_role_policy = <<EOF
-{
-  "Version": "2012-10-17",
-  "Statement": [
-    {
-      "Action": "sts:AssumeRole",
-      "Principal": {
-        "Service": "ecs-tasks.amazonaws.com"
-      },
-      "Effect": "Allow",
-      "Sid": ""
-    }
-  ]
-}
-EOF
+  assume_role_policy = data.aws_iam_policy_document.cloudwatch_assume_role.json
 }
 
-
-resource "aws_iam_role" "ecs-service-role" {
-  assume_role_policy = <<EOF
-{
-  "Version": "2012-10-17",
-  "Statement": [
-    {
-      "Action": "sts:AssumeRole",
-      "Principal": {
-        "Service": "ecs.amazonaws.com"
-      },
-      "Effect": "Allow",
-      "Sid": ""
-    }
-  ]
+resource "aws_iam_role_policy_attachment" "cloudwatch" {
+  role       = aws_iam_role.ecr_admin_role.name
+  policy_arn = aws_iam_policy.cloudwatch.arn
 }
-EOF
-}
-
-resource "aws_iam_role_policy_attachment" "ecs-service-role-attachment" {
-  role       = aws_iam_role.ecs-service-role.name
-  policy_arn = "arn:aws:iam::aws:policy/service-role/AmazonEC2ContainerServiceRole"
+resource "aws_iam_policy" "cloudwatch" {
+  name   = "ecs-cloudwatch-execution"
+  policy = data.aws_iam_policy_document.task_execution_cloudwatch_access.json
 }

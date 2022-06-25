@@ -21,7 +21,15 @@ export const makeRelayer = async (_configOverride?: RelayerConfig) => {
     const chainData = await getChainData();
     context.chainData = chainData;
     context.config = _configOverride ?? (await getConfig(chainData, contractDeployments));
-    context.logger = new Logger({ level: context.config.logLevel });
+    context.logger = new Logger({
+      level: context.config.logLevel,
+      name: "relayer",
+      formatters: {
+        level: (label) => {
+          return { level: label.toUpperCase() };
+        },
+      },
+    });
     context.logger.info("Relayer config generated.", requestContext, methodContext, {
       config: { ...context.config, mnemonic: "*****" },
     });

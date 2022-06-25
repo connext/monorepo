@@ -2,4 +2,4 @@
 set -eoux pipefail
 
 # dbmate up
-pm2-runtime transfers.config.js
+node dist/entryTransfers.js

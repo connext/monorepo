@@ -6,8 +6,7 @@ locals {
     { name = "ENVIRONMENT", value = var.environment },
     { name = "STAGE", value = var.stage },
     { name = "DD_PROFILING_ENABLED", value = "true" },
-    { name = "DD_ENV", value = var.stage },
-    { name = "DD_SERVICE", value = "cartographer-${var.environment}" }
+    { name = "DD_ENV", value = var.stage }
   ]
 
   postgrest_env_vars = [

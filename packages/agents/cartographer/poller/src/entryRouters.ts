@@ -2,5 +2,5 @@ import tracer from "dd-trace";
 
 import { makeRoutersPoller } from "./routersPoller";
 
-tracer.init();
+tracer.init({ profiling: true, runtimeMetrics: true });
 makeRoutersPoller();

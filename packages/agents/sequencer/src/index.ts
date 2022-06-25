@@ -5,5 +5,5 @@ import { makeSequencer } from "./sequencer";
 export { SequencerConfig, ChainConfig } from "./lib/entities";
 export { makeSequencer };
 
-tracer.init();
+tracer.init({ profiling: true, runtimeMetrics: true });
 makeSequencer();

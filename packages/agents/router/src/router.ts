@@ -47,6 +47,11 @@ export const makeRouter = async (_configOverride?: NxtpRouterConfig) => {
     context.logger = new Logger({
       level: context.config.logLevel,
       name: context.routerAddress,
+      formatters: {
+        level: (label) => {
+          return { level: label.toUpperCase() };
+        },
+      },
     });
     context.logger.info("Generated config.", requestContext, methodContext, {
       config: { ...context.config, mnemonic: context.config.mnemonic ? "*****" : "N/A" },
