@@ -688,20 +688,33 @@ contract BridgeFacet is BaseConnextFacet {
         // balance read about it
 
         uint256 starting = IERC20(_asset).balanceOf(address(this));
-        uint256 sponsored = s.sponsorVault.reimburseLiquidityFees(_asset, _args.amount, _args.params.to);
+        (bool success, bytes memory data) = address(s.sponsorVault).call(
+          abi.encodeWithSelector(s.sponsorVault.reimburseLiquidityFees.selector, _asset, _args.amount, _args.params.to)
+        );
 
-        // Validate correct amounts are transferred
-        if (IERC20(_asset).balanceOf(address(this)) != starting + sponsored) {
-          revert BridgeFacet__handleExecuteTransaction_invalidSponsoredAmount();
+        if (success) {
+          uint256 sponsored = abi.decode(data, (uint256));
+
+          // Validate correct amounts are transferred
+          if (IERC20(_asset).balanceOf(address(this)) != starting + sponsored) {
+            revert BridgeFacet__handleExecuteTransaction_invalidSponsoredAmount();
+          }
+
+          _amount = _amount + sponsored;
         }
-
-        _amount = _amount + sponsored;
       }
 
       // Should dust the recipient with the lesser of a vault-defined cap or the converted relayer fee
       // If there is no conversion available (i.e. no oracles for origin domain asset <> dest asset pair),
       // then the vault should just pay out the configured constant
-      s.sponsorVault.reimburseRelayerFees(_args.params.originDomain, payable(_args.params.to), _args.params.relayerFee);
+      address(s.sponsorVault).call(
+        abi.encodeWithSelector(
+          s.sponsorVault.reimburseRelayerFees.selector,
+          _args.params.originDomain,
+          payable(_args.params.to),
+          _args.params.relayerFee
+        )
+      );
     }
 
     // execute the the transaction
