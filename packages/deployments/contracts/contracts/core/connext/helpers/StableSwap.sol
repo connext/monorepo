@@ -33,6 +33,12 @@ contract StableSwap is IStableSwap, OwnerPausableUpgradeable, ReentrancyGuardUpg
   using SwapUtils for SwapUtils.Swap;
   using AmplificationUtils for SwapUtils.Swap;
 
+  // ============ Upgrade Gap ============
+
+  uint256[49] private __GAP; // gap for upgrade safety
+
+  // ============ Storage ============
+
   // Struct storing data responsible for automatic market maker functionalities. In order to
   // access this data, this contract uses SwapUtils library. For more details, see SwapUtils.sol
   SwapUtils.Swap public swapStorage;
@@ -40,6 +46,8 @@ contract StableSwap is IStableSwap, OwnerPausableUpgradeable, ReentrancyGuardUpg
   // Maps token address to an index in the pool. Used to prevent duplicate tokens in the pool.
   // getTokenIndex function also relies on this mapping to retrieve token index.
   mapping(address => uint8) private tokenIndexes;
+
+  // ============ Initializers ============
 
   /**
    * @notice Initializes this Swap contract with the given parameters.
@@ -115,7 +123,7 @@ contract StableSwap is IStableSwap, OwnerPausableUpgradeable, ReentrancyGuardUpg
     swapStorage.adminFee = _adminFee;
   }
 
-  /*** MODIFIERS ***/
+  // ============ Modifiers ============
 
   /**
    * @notice Modifier to check deadline against current timestamp
@@ -126,7 +134,7 @@ contract StableSwap is IStableSwap, OwnerPausableUpgradeable, ReentrancyGuardUpg
     _;
   }
 
-  /*** VIEW FUNCTIONS ***/
+  // ============ View functions ============
 
   /**
    * @notice Return A, the amplification coefficient * n * (n - 1)
@@ -306,7 +314,7 @@ contract StableSwap is IStableSwap, OwnerPausableUpgradeable, ReentrancyGuardUpg
     return swapStorage.getAdminBalance(index);
   }
 
-  /*** STATE MODIFYING FUNCTIONS ***/
+  // ============ External functions ============
 
   /**
    * @notice Swap two tokens using this pool
@@ -432,7 +440,7 @@ contract StableSwap is IStableSwap, OwnerPausableUpgradeable, ReentrancyGuardUpg
     return swapStorage.removeLiquidityImbalance(amounts, maxBurnAmount);
   }
 
-  /*** ADMIN FUNCTIONS ***/
+  // ============ Admin functions ============
 
   /**
    * @notice Withdraw all admin fees to the contract owner

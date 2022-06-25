@@ -11,6 +11,12 @@ import {OwnableUpgradeable} from "@openzeppelin/contracts-upgradeable/access/Own
  * @dev Only Swap contracts should initialize and own LPToken contracts.
  */
 contract LPToken is ERC20BurnableUpgradeable, OwnableUpgradeable {
+  // ============ Upgrade Gap ============
+
+  uint256[49] private __GAP; // gap for upgrade safety
+
+  // ============ Initializer ============
+
   /**
    * @notice Initializes this LPToken contract with the given name and symbol
    * @dev The caller of this function will become the owner. A Swap contract should call this
@@ -25,6 +31,8 @@ contract LPToken is ERC20BurnableUpgradeable, OwnableUpgradeable {
     return true;
   }
 
+  // ============ External functions ============
+
   /**
    * @notice Mints the given amount of LPToken to the recipient.
    * @dev only owner can call this mint function
@@ -35,6 +43,8 @@ contract LPToken is ERC20BurnableUpgradeable, OwnableUpgradeable {
     require(amount != 0, "LPToken: cannot mint 0");
     _mint(recipient, amount);
   }
+
+  // ============ Internal functions ============
 
   /**
    * @dev Overrides ERC20._beforeTokenTransfer() which get called on every transfers including
