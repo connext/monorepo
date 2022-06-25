@@ -39,7 +39,7 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment): Promise<voi
 
   // Get xapp connection manager
   const deployConfig = deployConfigs[chainId];
-  let xappConnectionManagerAddress = deployConfig.XAppConnectionManager;
+  let xappConnectionManagerAddress = deployConfig?.XAppConnectionManager;
   if (!xappConnectionManagerAddress) {
     const xappConnectionManagerDeployment = await hre.deployments.getOrNull(getDeploymentName("XAppConnectionManager"));
     if (!xappConnectionManagerDeployment) {
@@ -49,7 +49,7 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment): Promise<voi
   }
 
   console.log("Fetching token registry...");
-  let tokenRegistryAddress = deployConfig.TokenRegistry;
+  let tokenRegistryAddress = deployConfig?.TokenRegistry;
   if (!tokenRegistryAddress) {
     const tokenRegistryDeployment = await hre.deployments.getOrNull(
       getDeploymentName("TokenRegistryUpgradeBeaconProxy"),
