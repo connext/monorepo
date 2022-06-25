@@ -212,11 +212,11 @@ contract SponsorVault is ISponsorVault, Ownable {
     } else {
       uint256 balance = IERC20(_token).balanceOf(address(this));
       sponsoredFee = balance < _liquidityFee ? balance : _liquidityFee;
+    }
 
-      // some ERC20 do not allow to transfer 0 amount
-      if (sponsoredFee > 0) {
-        IERC20(_token).safeTransfer(msg.sender, sponsoredFee);
-      }
+    // only transfer if it is more than 0
+    if (sponsoredFee > 0) {
+      IERC20(_token).safeTransfer(msg.sender, sponsoredFee);
     }
 
     emit ReimburseLiquidityFees(_token, sponsoredFee, _receiver);
