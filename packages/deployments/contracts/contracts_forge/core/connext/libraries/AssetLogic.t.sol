@@ -10,7 +10,7 @@ import {LibConnextStorage, AppStorage} from "../../../../contracts/core/connext/
 import {ITokenRegistry} from "../../../../contracts/core/connext/interfaces/ITokenRegistry.sol";
 
 import "../../../utils/FacetHelper.sol";
-
+import "../../../utils/Mock.sol";
 
 
 // Helper to call library with native value functions
@@ -255,9 +255,6 @@ contract AssetLogicTest is BaseConnextFacet, FacetHelper {
     utils_handleIncomingAssetAndAssert(assetId, amount, fee);
   }
 
-  // FIXME: special token
-  function test_AssetLogic__handleIncomingAsset_worksWithFeeOnTransfer() public {}
-
   // ============ wrapNativeAsset ============
   function test_AssetLogic__wrapNativeAsset_works() public {
     uint256 initEth = address(this).balance;
@@ -277,8 +274,11 @@ contract AssetLogicTest is BaseConnextFacet, FacetHelper {
     assertEq(IERC20(_local).balanceOf(address(caller)), initDest + 100);
   }
 
-  // FIXME: special token
-  function test_AssetLogic__transferAssetToContract_worksWithFeeOnTransfer() public {}
+  function test_AssetLogic__transferAssetToContract_failsWithFeeOnTransfer() public {
+    FeeERC20 fee = new FeeERC20();
+    vm.expectRevert(AssetLogic.AssetLogic__transferAssetToContract_feeOnTransferNotSupported.selector);
+    caller.transferAssetToContract(address(fee), 100);
+  }
 
   // ============ transferAssetFromContract ============
   function test_AssetLogic__transferAssetFromContract_failsIfNoAsset() public {

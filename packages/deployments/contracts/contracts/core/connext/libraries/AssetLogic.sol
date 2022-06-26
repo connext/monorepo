@@ -19,6 +19,7 @@ library AssetLogic {
 
   error AssetLogic__handleIncomingAsset_notAmount();
   error AssetLogic__handleIncomingAsset_ethWithErcTransfer();
+  error AssetLogic__transferAssetToContract_feeOnTransferNotSupported();
   error AssetLogic__transferAssetFromContract_notNative();
   error AssetLogic__swapToLocalAssetIfNeeded_swapPaused();
   error AssetLogic__swapFromLocalAssetIfNeeded_swapPaused();
@@ -109,8 +110,11 @@ library AssetLogic {
     uint256 starting = IERC20(_assetId).balanceOf(address(this));
 
     SafeERC20.safeTransferFrom(IERC20(_assetId), msg.sender, address(this), _amount);
-    // Calculate the *actual* amount that was sent here
-    return IERC20(_assetId).balanceOf(address(this)) - starting;
+    // Ensure this was not a fee-on-transfer token
+    if (IERC20(_assetId).balanceOf(address(this)) - starting != _amount) {
+      revert AssetLogic__transferAssetToContract_feeOnTransferNotSupported();
+    }
+    return _amount;
   }
 
   /**
