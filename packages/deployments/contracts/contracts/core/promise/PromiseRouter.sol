@@ -128,9 +128,6 @@ contract PromiseRouter is Version, Router, ReentrancyGuardUpgradeable {
    */
   event SetConnext(address indexed connext);
 
-  // ======== Receive =======
-  receive() external payable {}
-
   // ============ Modifiers ============
 
   /**
