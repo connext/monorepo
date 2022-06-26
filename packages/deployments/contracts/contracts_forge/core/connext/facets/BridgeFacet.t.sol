@@ -143,7 +143,7 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
     s.xAppConnectionManager = XAppConnectionManager(_xappConnectionManager);
     // Deploy the promise router.
     s.promiseRouter = new MockPromiseRouter();
-    _promiseRouter = payable(s.promiseRouter);
+    _promiseRouter = payable(address(s.promiseRouter));
 
     // Deploy a mock callback.
     _callback = address(new MockCallback());
