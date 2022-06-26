@@ -342,6 +342,10 @@ library AssetLogic {
         success = true;
 
         // perform the swap
+        // Edge case with some tokens: Example USDT in ETH Mainnet, after the backUnbacked call there could be a remaining allowance if not the whole amount is pulled by aave.
+        // Later, if we try to increase the allowance it will fail. USDT demands if allowance is not 0, it has to be set to 0 first.
+        // Example: https://github.com/aave/aave-v3-periphery/blob/ca184e5278bcbc10d28c3dbbc604041d7cfac50b/contracts/adapters/paraswap/ParaSwapRepayAdapter.sol#L138-L140
+        SafeERC20.safeApprove(IERC20(_assetIn), address(pool), 0);
         SafeERC20.safeApprove(IERC20(_assetIn), address(pool), _amountIn);
         amountIn = pool.swapExactOut(_amountOut, _assetIn, _assetOut, _maxIn);
       }
