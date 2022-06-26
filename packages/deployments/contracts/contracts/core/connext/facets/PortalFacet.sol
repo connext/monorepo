@@ -106,9 +106,7 @@ contract PortalFacet is BaseConnextFacet {
     if (!success) revert PortalFacet__repayAavePortal_swapFailed();
 
     // decrement router balances
-    unchecked {
-      s.routerBalances[msg.sender][_local] -= amountIn;
-    }
+    s.routerBalances[msg.sender][_local] -= amountIn;
 
     // back loan
     _backLoan(adopted, _backingAmount, _feeAmount, _transferId);
