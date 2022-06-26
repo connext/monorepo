@@ -1055,6 +1055,7 @@ library SwapUtils {
       IERC20 token = pooledTokens[i];
       uint256 balance = self.adminFees[i];
       if (balance != 0) {
+        self.adminFees[i] = 0;
         token.safeTransfer(to, balance);
       }
     }
