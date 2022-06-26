@@ -49,6 +49,8 @@ contract ConnextPriceOracle is PriceOracle {
   address public wrapped;
   address public v1PriceOracle;
 
+  uint256 public constant VALID_PERIOD = 1 minutes;
+
   /// @notice Chainlink Aggregators
   mapping(address => AggregatorV3Interface) public aggregators;
 
@@ -59,8 +61,13 @@ contract ConnextPriceOracle is PriceOracle {
     bool active; // Active status of price record 0
   }
 
+  struct Price {
+    uint256 updatedAt;
+    uint256 price;
+  }
+
   mapping(address => PriceInfo) public priceRecords;
-  mapping(address => uint256) public assetPrices;
+  mapping(address => Price) public assetPrices;
 
   event NewAdmin(address oldAdmin, address newAdmin);
   event PriceRecordUpdated(address token, address baseToken, address lpToken, bool _active);
@@ -83,7 +90,10 @@ contract ConnextPriceOracle is PriceOracle {
     if (_tokenAddress == address(0)) {
       tokenAddress = wrapped;
     }
-    uint256 tokenPrice = assetPrices[tokenAddress];
+    uint256 tokenPrice = assetPrices[tokenAddress].price;
+    if (tokenPrice > 0 && ((block.timestamp - assetPrices[tokenAddress].updatedAt) <= VALID_PERIOD)) {
+      return tokenPrice;
+    }
     if (tokenPrice == 0) {
       tokenPrice = getPriceFromOracle(tokenAddress);
     }
@@ -155,9 +165,25 @@ contract ConnextPriceOracle is PriceOracle {
     emit PriceRecordUpdated(_token, _baseToken, _lpToken, _active);
   }
 
-  function setDirectPrice(address _token, uint256 _price) external onlyAdmin {
-    emit DirectPriceUpdated(_token, assetPrices[_token], _price);
-    assetPrices[_token] = _price;
+  function setDirectPrice(
+    address _token,
+    uint256 _price,
+    uint256 _timestamp
+  ) external onlyAdmin {
+    require(_price > 0, "bad price");
+
+    if (block.timestamp > _timestamp) {
+      // reject stale price
+      require(block.timestamp - _timestamp < VALID_PERIOD, "bad timestamp");
+    } else {
+      // reject future timestamp (<3s is allowed)
+      require(_timestamp - block.timestamp < 3, "in future");
+      _timestamp = block.timestamp;
+    }
+    emit DirectPriceUpdated(_token, assetPrices[_token].price, _price);
+
+    assetPrices[_token].price = _price;
+    assetPrices[_token].updatedAt = _timestamp;
   }
 
   function setV1PriceOracle(address _v1PriceOracle) external onlyAdmin {
