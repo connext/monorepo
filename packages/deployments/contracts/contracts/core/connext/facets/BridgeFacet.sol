@@ -170,7 +170,7 @@ contract BridgeFacet is BaseConnextFacet {
     return s.reconciledTransfers[_transferId];
   }
 
-  function domain() public view returns (uint256) {
+  function domain() public view returns (uint32) {
     return s.domain;
   }
 
