@@ -74,7 +74,7 @@ library LibDiamond {
     bytes memory _calldata
   ) internal {
     uint256 acceptance = block.timestamp + _delay;
-    diamondStorage().acceptanceTimes[keccak256(abi.encode(_diamondCut))] = acceptance;
+    diamondStorage().acceptanceTimes[keccak256(abi.encode(_diamondCut, _init, _calldata))] = acceptance;
     emit DiamondCutProposed(_diamondCut, _init, _calldata, acceptance);
   }
 
