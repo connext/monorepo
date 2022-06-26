@@ -49,6 +49,7 @@ contract BridgeFacet is BaseConnextFacet {
   error BridgeFacet__xcall_nonZeroCallbackFeeForCallback();
   error BridgeFacet__xcall_callbackNotAContract();
   error BridgeFacet__execute_unapprovedSender();
+  error BridgeFacet__execute_wrongDomain();
   error BridgeFacet__execute_maxRoutersExceeded();
   error BridgeFacet__execute_notSupportedRouter();
   error BridgeFacet__execute_invalidRouterSignature();
@@ -488,6 +489,11 @@ contract BridgeFacet is BaseConnextFacet {
     // If the sender is not approved relayer, revert
     if (!s.approvedRelayers[msg.sender] && msg.sender != _args.params.agent) {
       revert BridgeFacet__execute_unapprovedSender();
+    }
+
+    // If this is not the destination domain revert
+    if (_args.params.destinationDomain != s.domain) {
+      revert BridgeFacet__execute_wrongDomain();
     }
 
     // Path length refers to the number of facilitating routers. A transfer is considered 'multipath'

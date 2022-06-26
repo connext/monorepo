@@ -224,6 +224,7 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
     public
     returns (bytes32, ExecuteArgs memory)
   {
+    s.domain = _destinationDomain;
     // get args
     bytes[] memory empty = new bytes[](0);
     ExecuteArgs memory args = ExecuteArgs(_params, _local, routers, empty, _amount, _nonce, _originSender);
