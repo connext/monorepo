@@ -155,17 +155,14 @@ export const mock = {
     },
   },
   helpers: {
-    auctions: {
-      getAuctionStatus: stub(),
-      sendBid: stub(),
-    },
-    execute: {
-      sanityCheck: stub(),
+    relayer: {
+      gelatoSend: stub(),
+      isChainSupportedByGelato: stub(),
+      getGelatoRelayerAddress: stub(),
     },
     shared: {
-      getDestinationLocalAsset: stub(),
-      getTransactionId: stub(),
-      signRouterPathPayload: stub(),
+      existsSync: stub(),
+      readFileSync: stub(),
     },
   },
   operations: {
