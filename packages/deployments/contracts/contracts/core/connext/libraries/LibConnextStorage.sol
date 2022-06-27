@@ -143,7 +143,7 @@ struct AppStorage {
   // * @dev Must match the nomad domain, which is distinct from the "chainId"
   // */
   // 7
-  uint256 domain;
+  uint32 domain;
   // /**
   // * @notice The local nomad token registry
   // */

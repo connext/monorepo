@@ -275,8 +275,8 @@ library AssetLogic {
       // if internal swap pool exists
       return (
         s.swapStorages[_canonicalId].swapInternal(
-          getTokenIndexFromStableSwapPool(_canonicalId, _assetOut),
           getTokenIndexFromStableSwapPool(_canonicalId, _assetIn),
+          getTokenIndexFromStableSwapPool(_canonicalId, _assetOut),
           _amount,
           minReceived
         ),
