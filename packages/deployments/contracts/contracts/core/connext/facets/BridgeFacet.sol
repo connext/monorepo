@@ -58,6 +58,7 @@ contract BridgeFacet is BaseConnextFacet {
   error BridgeFacet__execute_alreadyReconciled();
   error BridgeFacet__execute_notReconciled();
   error BridgeFacet__handleExecuteTransaction_invalidSponsoredAmount();
+  error BridgeFacet__executePortalTransfer_insufficientAmountWithdrawn();
   error BridgeFacet__bumpTransfer_valueIsZero();
   error BridgeFacet__forceReceiveLocal_invalidSender();
 
@@ -769,7 +770,9 @@ contract BridgeFacet is BaseConnextFacet {
     IAavePool(s.aavePool).mintUnbacked(adopted, _fastTransferAmount, address(this), AAVE_REFERRAL_CODE);
 
     // Improvement: Instead of withdrawing to address(this), withdraw directly to the user or executor to save 1 transfer
-    IAavePool(s.aavePool).withdraw(adopted, _fastTransferAmount, address(this));
+    uint256 amountWithdrawn = IAavePool(s.aavePool).withdraw(adopted, _fastTransferAmount, address(this));
+
+    if (amountWithdrawn < _fastTransferAmount) revert BridgeFacet__executePortalTransfer_insufficientAmountWithdrawn();
 
     // Store principle debt
     s.portalDebt[_transferId] = _fastTransferAmount;
