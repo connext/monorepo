@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: UNLICENSED
-pragma solidity 0.8.14;
+pragma solidity 0.8.15;
 
 import "../../../utils/FacetHelper.sol";
 
@@ -16,7 +16,7 @@ contract StableSwapFacetTest is FacetHelper, StableSwapFacet, SwapAdminFacet {
 
   // owner
   address _owner = address(1234);
-  address _user1 = address(1);
+  address _user1 = address(1111);
   address _user2 = address(2);
   LPToken _lpTokenTarget;
 
@@ -177,7 +177,7 @@ contract StableSwapFacetTest is FacetHelper, StableSwapFacet, SwapAdminFacet {
     assertEq(this.getSwapTokenIndex(_canonicalId, _adopted), 1);
 
     vm.expectRevert(StableSwapFacet.StableSwapFacet__getSwapTokenIndex_notExist.selector);
-    this.getSwapTokenIndex(_canonicalId, address(1));
+    this.getSwapTokenIndex(_canonicalId, address(1111));
   }
 
   function test_StableSwapFacet__getSwapTokenBalance_shouldWork() public {
@@ -371,7 +371,7 @@ contract StableSwapFacetTest is FacetHelper, StableSwapFacet, SwapAdminFacet {
     uint256 actualPoolTokenAmount = IERC20(this.getSwapLPToken(_canonicalId)).balanceOf(_user1);
 
     // The actual pool token amount is less than 4e18 due to the imbalance of the underlying tokens
-    assertEq(actualPoolTokenAmount, 3991672211258372957);
+    assertEq(actualPoolTokenAmount, 3991672211258374952);
     vm.stopPrank();
   }
 
@@ -411,7 +411,7 @@ contract StableSwapFacetTest is FacetHelper, StableSwapFacet, SwapAdminFacet {
     uint256 secondTokenBalanceBefore = IERC20(_adopted).balanceOf(_user1);
     uint256 poolTokenBalanceBefore = IERC20(swapToken).balanceOf(_user1);
 
-    assertEq(poolTokenBalanceBefore, 1996275270169644725);
+    assertEq(poolTokenBalanceBefore, 1996275270169645723);
 
     uint256[] memory expectedAmounts = new uint256[](2);
     expectedAmounts = this.calculateRemoveSwapLiquidity(_canonicalId, poolTokenBalanceBefore);
@@ -448,7 +448,7 @@ contract StableSwapFacetTest is FacetHelper, StableSwapFacet, SwapAdminFacet {
     address swapToken = this.getSwapLPToken(_canonicalId);
     uint256 poolTokenBalanceBefore = IERC20(swapToken).balanceOf(_user1);
 
-    assertEq(poolTokenBalanceBefore, 1996275270169644725);
+    assertEq(poolTokenBalanceBefore, 1996275270169645723);
 
     IERC20(swapToken).approve(address(this), poolTokenBalanceBefore + 10);
 
@@ -472,7 +472,7 @@ contract StableSwapFacetTest is FacetHelper, StableSwapFacet, SwapAdminFacet {
     uint256 secondTokenBalanceBefore = IERC20(_adopted).balanceOf(_user1);
     uint256 poolTokenBalanceBefore = IERC20(swapToken).balanceOf(_user1);
 
-    assertEq(poolTokenBalanceBefore, 1996275270169644725);
+    assertEq(poolTokenBalanceBefore, 1996275270169645723);
 
     // User 1 calculates the amount of underlying token to receive.
     uint256 calculatedFirstTokenAmount = this.calculateRemoveSwapLiquidityOneToken(
@@ -511,7 +511,7 @@ contract StableSwapFacetTest is FacetHelper, StableSwapFacet, SwapAdminFacet {
     uint256 secondTokenBalanceBefore = IERC20(_adopted).balanceOf(_user1);
     uint256 poolTokenBalanceBefore = IERC20(swapToken).balanceOf(_user1);
 
-    assertEq(poolTokenBalanceBefore, 1996275270169644725);
+    assertEq(poolTokenBalanceBefore, 1996275270169645723);
 
     // User 1 calculates the amount of underlying token to receive.
     uint256 calculatedFirstTokenAmount = this.calculateRemoveSwapLiquidityOneToken(
@@ -555,7 +555,7 @@ contract StableSwapFacetTest is FacetHelper, StableSwapFacet, SwapAdminFacet {
     address swapToken = this.getSwapLPToken(_canonicalId);
     uint256 poolTokenBalanceBefore = IERC20(swapToken).balanceOf(_user1);
 
-    assertEq(poolTokenBalanceBefore, 1996275270169644725);
+    assertEq(poolTokenBalanceBefore, 1996275270169645723);
 
     IERC20(swapToken).approve(address(this), poolTokenBalanceBefore);
 
@@ -594,7 +594,7 @@ contract StableSwapFacetTest is FacetHelper, StableSwapFacet, SwapAdminFacet {
     address swapToken = this.getSwapLPToken(_canonicalId);
     uint256 poolTokenBalanceBefore = IERC20(swapToken).balanceOf(_user1);
 
-    assertEq(poolTokenBalanceBefore, 1996275270169644725);
+    assertEq(poolTokenBalanceBefore, 1996275270169645723);
 
     uint256[] memory removeAmounts = new uint256[](2);
     removeAmounts[0] = 1 ether;
@@ -626,7 +626,7 @@ contract StableSwapFacetTest is FacetHelper, StableSwapFacet, SwapAdminFacet {
     uint256 secondTokenBalanceBefore = IERC20(_adopted).balanceOf(_user1);
     uint256 poolTokenBalanceBefore = IERC20(swapToken).balanceOf(_user1);
 
-    assertEq(poolTokenBalanceBefore, 1996275270169644725);
+    assertEq(poolTokenBalanceBefore, 1996275270169645723);
 
     // User 1 calculates amount of pool token to be burned
     uint256 maxPoolTokenAmountToBeBurned = this.calculateSwapTokenAmount(_canonicalId, removeAmounts, false);
@@ -649,7 +649,7 @@ contract StableSwapFacetTest is FacetHelper, StableSwapFacet, SwapAdminFacet {
 
     uint256 actualPoolTokenBurned = poolTokenBalanceBefore - IERC20(swapToken).balanceOf(_user1);
 
-    assertEq(actualPoolTokenBurned, 1000934178112841889);
+    assertEq(actualPoolTokenBurned, 1000934178112842390);
     assertTrue(actualPoolTokenBurned >= maxPoolTokenAmountToBeBurnedPositiveSlippage);
     assertTrue(actualPoolTokenBurned <= maxPoolTokenAmountToBeBurnedNegativeSlippage);
 
@@ -674,7 +674,7 @@ contract StableSwapFacetTest is FacetHelper, StableSwapFacet, SwapAdminFacet {
     uint256 secondTokenBalanceBefore = IERC20(_adopted).balanceOf(_user1);
     uint256 poolTokenBalanceBefore = IERC20(swapToken).balanceOf(_user1);
 
-    assertEq(poolTokenBalanceBefore, 1996275270169644725);
+    assertEq(poolTokenBalanceBefore, 1996275270169645723);
 
     // User 1 calculates amount of pool token to be burned
     uint256 maxPoolTokenAmountToBeBurned = this.calculateSwapTokenAmount(_canonicalId, removeAmounts, false);

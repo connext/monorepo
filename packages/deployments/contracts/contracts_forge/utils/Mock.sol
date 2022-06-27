@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: UNLICENSED
-pragma solidity 0.8.14;
+pragma solidity 0.8.15;
 
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import {Address} from "@openzeppelin/contracts/utils/Address.sol";
@@ -336,5 +336,42 @@ contract MockCalldata {
     IERC20(asset).transferFrom(msg.sender, address(this), IExecutor(msg.sender).amount());
     called = true;
     return called;
+  }
+}
+
+contract FeeERC20 is ERC20 {
+  uint256 public fee = 1;
+
+  constructor() ERC20() {
+    _mint(msg.sender, 1000000 ether);
+  }
+
+  function setFee(uint256 _fee) external {
+    fee = _fee;
+  }
+
+  function mint(address account, uint256 amount) external {
+    _mint(account, amount);
+  }
+
+  function burn(address account, uint256 amount) external {
+    _burn(account, amount);
+  }
+
+  function transfer(address account, uint256 amount) public override returns (bool) {
+    uint256 toTransfer = amount - fee;
+    _transfer(msg.sender, account, toTransfer);
+    return true;
+  }
+
+  function transferFrom(
+    address sender,
+    address recipient,
+    uint256 amount
+  ) public override returns (bool) {
+    uint256 toTransfer = amount - fee;
+    _burn(sender, fee);
+    _transfer(sender, recipient, toTransfer);
+    return true;
   }
 }

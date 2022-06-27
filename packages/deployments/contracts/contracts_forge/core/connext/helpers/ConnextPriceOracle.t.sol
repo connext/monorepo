@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: UNLICENSED
-pragma solidity 0.8.14;
+pragma solidity 0.8.15;
 
 import "../../../utils/ForgeHelper.sol";
 import {TestAggregator} from "../../../../contracts/test/TestAggregator.sol";
@@ -40,14 +40,14 @@ contract ConnextPriceOracleTest is ForgeHelper {
     address[] memory sources = new address[](1);
     tokenAddresses[0] = _wrapped;
     sources[0] = _aggregator;
-    v1PriceOracle.setDirectPrice(_tokenV1, 1e18);
+    v1PriceOracle.setDirectPrice(_tokenV1, 1e18, block.timestamp);
     priceOracle.setAggregators(tokenAddresses, sources);
     priceOracle.setV1PriceOracle(address(v1PriceOracle));
   }
 
   // ============ getTokenPrice ============
   function test_ConnextPriceOracle__getTokenPrice_worksIfExistsInAssetPrices() public {
-    priceOracle.setDirectPrice(_tokenA, 1e18);
+    priceOracle.setDirectPrice(_tokenA, 1e18, block.timestamp);
     assertEq(priceOracle.getTokenPrice(_tokenA), 1e18);
   }
 
@@ -59,7 +59,7 @@ contract ConnextPriceOracleTest is ForgeHelper {
     address mockLpAddress = address(11111);
     TestERC20(_tokenA).mint(mockLpAddress, 100);
     TestERC20(_tokenB).mint(mockLpAddress, 200);
-    priceOracle.setDirectPrice(_tokenA, 1e18);
+    priceOracle.setDirectPrice(_tokenA, 1e18, block.timestamp);
     priceOracle.setDexPriceInfo(_tokenB, _tokenA, mockLpAddress, true);
     assertEq(priceOracle.getTokenPrice(_tokenB), 5e17);
   }
@@ -92,7 +92,7 @@ contract ConnextPriceOracleTest is ForgeHelper {
     address mockLpAddress = address(11111);
     TestERC20(_tokenA).mint(mockLpAddress, 100);
     TestERC20(_tokenB).mint(mockLpAddress, 200);
-    priceOracle.setDirectPrice(_tokenA, 1e18);
+    priceOracle.setDirectPrice(_tokenA, 1e18, block.timestamp);
     priceOracle.setDexPriceInfo(_tokenB, _tokenA, mockLpAddress, true);
     assertEq(priceOracle.getPriceFromDex(_tokenB), 5e17);
   }
@@ -128,7 +128,7 @@ contract ConnextPriceOracleTest is ForgeHelper {
     address mockLpAddress = address(11111);
     TestERC20(_tokenA).mint(mockLpAddress, 100);
     TestERC20(_tokenB).mint(mockLpAddress, 200);
-    priceOracle.setDirectPrice(_tokenA, 1e18);
+    priceOracle.setDirectPrice(_tokenA, 1e18, block.timestamp);
     vm.expectEmit(true, true, true, true);
     emit PriceRecordUpdated(_tokenB, _tokenA, mockLpAddress, true);
     priceOracle.setDexPriceInfo(_tokenB, _tokenA, mockLpAddress, true);
@@ -139,15 +139,18 @@ contract ConnextPriceOracleTest is ForgeHelper {
   function test_ConnextPriceOracle__setDirectPrice_worksIfOnlyAdmin() public {
     vm.expectEmit(true, true, true, true);
     emit DirectPriceUpdated(_tokenA, 0, 2e18);
-    priceOracle.setDirectPrice(_tokenA, 2e18);
-    assertEq(priceOracle.assetPrices(_tokenA), 2e18);
+    priceOracle.setDirectPrice(_tokenA, 2e18, block.timestamp);
+    (uint256 timestamp, uint256 price) = priceOracle.assetPrices(_tokenA);
+    assertEq(timestamp, block.timestamp);
+    assertEq(price, 2e18);
   }
 
   function test_ConnextPriceOracle__setDirectPrice_failsIfNotAdmin() public {
     vm.expectRevert(bytes("caller is not the admin"));
     vm.prank(address(12345));
-    priceOracle.setDirectPrice(_tokenA, 2e18);
-    assertEq(priceOracle.assetPrices(_tokenA), 0);
+    priceOracle.setDirectPrice(_tokenA, 2e18, block.timestamp);
+    (uint256 price, ) = priceOracle.assetPrices(_tokenA);
+    assertEq(price, 0);
   }
 
   // ============ setV1PriceOracle ============

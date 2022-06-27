@@ -1,9 +1,10 @@
 // SPDX-License-Identifier: UNLICENSED
-pragma solidity 0.8.14;
+pragma solidity 0.8.15;
 
 import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import {SafeERC20, Address} from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
+import {ReentrancyGuard} from "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 
 import {ISponsorVault} from "../interfaces/ISponsorVault.sol";
 import {ITokenExchange} from "../interfaces/ITokenExchange.sol";
@@ -14,7 +15,7 @@ import {IGasTokenOracle} from "../interfaces/IGasTokenOracle.sol";
  * @author Connext Labs
  * @notice Contains logic for sponsoring liquidity and relayer fees
  */
-contract SponsorVault is ISponsorVault, Ownable {
+contract SponsorVault is ISponsorVault, ReentrancyGuard, Ownable {
   // ============ Libraries ============
   using SafeERC20 for IERC20;
 
@@ -212,11 +213,11 @@ contract SponsorVault is ISponsorVault, Ownable {
     } else {
       uint256 balance = IERC20(_token).balanceOf(address(this));
       sponsoredFee = balance < _liquidityFee ? balance : _liquidityFee;
+    }
 
-      // some ERC20 do not allow to transfer 0 amount
-      if (sponsoredFee > 0) {
-        IERC20(_token).safeTransfer(msg.sender, sponsoredFee);
-      }
+    // only transfer if it is more than 0
+    if (sponsoredFee > 0) {
+      IERC20(_token).safeTransfer(msg.sender, sponsoredFee);
     }
 
     emit ReimburseLiquidityFees(_token, sponsoredFee, _receiver);
@@ -240,6 +241,11 @@ contract SponsorVault is ISponsorVault, Ownable {
     uint256 num;
     uint256 den;
 
+    if (_to.balance > relayerFeeCap || Address.isContract(_to)) {
+      // Already has fees, and the address is a contract
+      return;
+    }
+
     if (address(gasTokenOracle) != address(0)) {
       (num, den) = gasTokenOracle.getRate(_originDomain);
 
@@ -259,6 +265,7 @@ contract SponsorVault is ISponsorVault, Ownable {
 
       Address.sendValue(_to, sponsoredFee);
     }
+
     emit ReimburseRelayerFees(sponsoredFee, _to);
   }
 
@@ -287,7 +294,7 @@ contract SponsorVault is ISponsorVault, Ownable {
     address _token,
     address _receiver,
     uint256 _amount
-  ) external onlyOwner {
+  ) external onlyOwner nonReentrant {
     if (_token == address(0)) {
       if (address(this).balance < _amount) revert SponsorVault__withdraw_invalidAmount();
       Address.sendValue(payable(_receiver), _amount);

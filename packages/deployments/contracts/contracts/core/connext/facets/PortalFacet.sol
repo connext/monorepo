@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: UNLICENSED
-pragma solidity 0.8.14;
+pragma solidity 0.8.15;
 
 import {SafeERC20Upgradeable, IERC20Upgradeable} from "@openzeppelin/contracts-upgradeable/token/ERC20/utils/SafeERC20Upgradeable.sol";
 
@@ -106,9 +106,7 @@ contract PortalFacet is BaseConnextFacet {
     if (!success) revert PortalFacet__repayAavePortal_swapFailed();
 
     // decrement router balances
-    unchecked {
-      s.routerBalances[msg.sender][_local] -= amountIn;
-    }
+    s.routerBalances[msg.sender][_local] -= amountIn;
 
     // back loan
     _backLoan(adopted, _backingAmount, _feeAmount, _transferId);

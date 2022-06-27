@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: UNLICENSED
-pragma solidity 0.8.14;
+pragma solidity 0.8.15;
 
 import {ECDSA} from "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
@@ -143,7 +143,7 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
     s.xAppConnectionManager = XAppConnectionManager(_xappConnectionManager);
     // Deploy the promise router.
     s.promiseRouter = new MockPromiseRouter();
-    _promiseRouter = payable(s.promiseRouter);
+    _promiseRouter = payable(address(s.promiseRouter));
 
     // Deploy a mock callback.
     _callback = address(new MockCallback());
@@ -224,6 +224,7 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
     public
     returns (bytes32, ExecuteArgs memory)
   {
+    s.domain = _destinationDomain;
     // get args
     bytes[] memory empty = new bytes[](0);
     ExecuteArgs memory args = ExecuteArgs(_params, _local, routers, empty, _amount, _nonce, _originSender);

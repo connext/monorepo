@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: UNLICENSED
-pragma solidity 0.8.14;
+pragma solidity 0.8.15;
 
 import {XAppConnectionManager} from "../../../contracts/nomad-core/contracts/XAppConnectionManager.sol";
 import {Home} from "../../../contracts/nomad-core/contracts/Home.sol";

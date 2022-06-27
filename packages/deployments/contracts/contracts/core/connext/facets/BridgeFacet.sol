@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: UNLICENSED
-pragma solidity 0.8.14;
+pragma solidity 0.8.15;
 
 import {SafeERC20} from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
@@ -49,6 +49,7 @@ contract BridgeFacet is BaseConnextFacet {
   error BridgeFacet__xcall_nonZeroCallbackFeeForCallback();
   error BridgeFacet__xcall_callbackNotAContract();
   error BridgeFacet__execute_unapprovedSender();
+  error BridgeFacet__execute_wrongDomain();
   error BridgeFacet__execute_maxRoutersExceeded();
   error BridgeFacet__execute_notSupportedRouter();
   error BridgeFacet__execute_invalidRouterSignature();
@@ -490,6 +491,11 @@ contract BridgeFacet is BaseConnextFacet {
       revert BridgeFacet__execute_unapprovedSender();
     }
 
+    // If this is not the destination domain revert
+    if (_args.params.destinationDomain != s.domain) {
+      revert BridgeFacet__execute_wrongDomain();
+    }
+
     // Path length refers to the number of facilitating routers. A transfer is considered 'multipath'
     // if multiple routers provide liquidity (in even 'shares') for it.
     uint256 pathLength = _args.routers.length;
@@ -688,20 +694,33 @@ contract BridgeFacet is BaseConnextFacet {
         // balance read about it
 
         uint256 starting = IERC20(_asset).balanceOf(address(this));
-        uint256 sponsored = s.sponsorVault.reimburseLiquidityFees(_asset, _args.amount, _args.params.to);
+        (bool success, bytes memory data) = address(s.sponsorVault).call(
+          abi.encodeWithSelector(s.sponsorVault.reimburseLiquidityFees.selector, _asset, _args.amount, _args.params.to)
+        );
 
-        // Validate correct amounts are transferred
-        if (IERC20(_asset).balanceOf(address(this)) != starting + sponsored) {
-          revert BridgeFacet__handleExecuteTransaction_invalidSponsoredAmount();
+        if (success) {
+          uint256 sponsored = abi.decode(data, (uint256));
+
+          // Validate correct amounts are transferred
+          if (IERC20(_asset).balanceOf(address(this)) != starting + sponsored) {
+            revert BridgeFacet__handleExecuteTransaction_invalidSponsoredAmount();
+          }
+
+          _amount = _amount + sponsored;
         }
-
-        _amount = _amount + sponsored;
       }
 
       // Should dust the recipient with the lesser of a vault-defined cap or the converted relayer fee
       // If there is no conversion available (i.e. no oracles for origin domain asset <> dest asset pair),
       // then the vault should just pay out the configured constant
-      s.sponsorVault.reimburseRelayerFees(_args.params.originDomain, payable(_args.params.to), _args.params.relayerFee);
+      address(s.sponsorVault).call(
+        abi.encodeWithSelector(
+          s.sponsorVault.reimburseRelayerFees.selector,
+          _args.params.originDomain,
+          payable(_args.params.to),
+          _args.params.relayerFee
+        )
+      );
     }
 
     // execute the the transaction

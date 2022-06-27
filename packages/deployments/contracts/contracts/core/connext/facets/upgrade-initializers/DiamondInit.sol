@@ -56,6 +56,9 @@ contract DiamondInit is BaseConnextFacet {
     // More info here: https://eips.ethereum.org/EIPS/eip-2535#diamond-interface
 
     if (!s.initialized) {
+      // ensure this is the owner
+      LibDiamond.enforceIsContractOwner();
+
       s.initialized = true;
       // __XAppConnectionClient_initialize
       s.xAppConnectionManager = XAppConnectionManager(_xAppConnectionManager);

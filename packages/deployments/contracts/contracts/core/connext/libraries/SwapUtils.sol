@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: UNLICENSED
-pragma solidity 0.8.14;
+pragma solidity 0.8.15;
 
 import {SafeMath} from "@openzeppelin/contracts/utils/math/SafeMath.sol";
 import {SafeERC20, IERC20} from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
@@ -1055,6 +1055,7 @@ library SwapUtils {
       IERC20 token = pooledTokens[i];
       uint256 balance = self.adminFees[i];
       if (balance != 0) {
+        self.adminFees[i] = 0;
         token.safeTransfer(to, balance);
       }
     }

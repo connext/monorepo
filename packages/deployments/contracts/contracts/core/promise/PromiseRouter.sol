@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT OR Apache-2.0
-pragma solidity 0.8.14;
+pragma solidity 0.8.15;
 
 import {Home} from "../../nomad-core/contracts/Home.sol";
 import {TypedMemView} from "../../nomad-core/libs/TypedMemView.sol";
@@ -127,9 +127,6 @@ contract PromiseRouter is Version, Router, ReentrancyGuardUpgradeable {
    * @param connext The new connext address
    */
   event SetConnext(address indexed connext);
-
-  // ======== Receive =======
-  receive() external payable {}
 
   // ============ Modifiers ============
 

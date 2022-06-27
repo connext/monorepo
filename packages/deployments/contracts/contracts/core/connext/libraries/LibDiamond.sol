@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity 0.8.14;
+pragma solidity 0.8.15;
 
 /******************************************************************************\
 * Author: Nick Mudge <nick@perfectabstractions.com> (https://twitter.com/mudgen)
@@ -74,7 +74,7 @@ library LibDiamond {
     bytes memory _calldata
   ) internal {
     uint256 acceptance = block.timestamp + _delay;
-    diamondStorage().acceptanceTimes[keccak256(abi.encode(_diamondCut))] = acceptance;
+    diamondStorage().acceptanceTimes[keccak256(abi.encode(_diamondCut, _init, _calldata))] = acceptance;
     emit DiamondCutProposed(_diamondCut, _init, _calldata, acceptance);
   }
 
@@ -97,10 +97,11 @@ library LibDiamond {
     address _init,
     bytes memory _calldata
   ) internal {
-    require(
-      diamondStorage().acceptanceTimes[keccak256(abi.encode(_diamondCut))] < block.timestamp,
-      "LibDiamond: delay not elapsed"
-    );
+    DiamondStorage storage ds = diamondStorage();
+    if (ds.facetAddresses.length != 0) {
+      uint256 time = ds.acceptanceTimes[keccak256(abi.encode(_diamondCut))];
+      require(time > 0 && time < block.timestamp, "LibDiamond: delay not elapsed");
+    } // Otherwise, this is the first instance of deployment and it can be set automatically
     for (uint256 facetIndex; facetIndex < _diamondCut.length; facetIndex++) {
       IDiamondCut.FacetCutAction action = _diamondCut[facetIndex].action;
       if (action == IDiamondCut.FacetCutAction.Add) {

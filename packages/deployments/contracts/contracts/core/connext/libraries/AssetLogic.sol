@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: UNLICENSED
-pragma solidity 0.8.14;
+pragma solidity 0.8.15;
 
 import {SafeERC20, IERC20, Address} from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 
@@ -19,6 +19,7 @@ library AssetLogic {
 
   error AssetLogic__handleIncomingAsset_notAmount();
   error AssetLogic__handleIncomingAsset_ethWithErcTransfer();
+  error AssetLogic__transferAssetToContract_feeOnTransferNotSupported();
   error AssetLogic__transferAssetFromContract_notNative();
   error AssetLogic__swapToLocalAssetIfNeeded_swapPaused();
   error AssetLogic__swapFromLocalAssetIfNeeded_swapPaused();
@@ -109,8 +110,11 @@ library AssetLogic {
     uint256 starting = IERC20(_assetId).balanceOf(address(this));
 
     SafeERC20.safeTransferFrom(IERC20(_assetId), msg.sender, address(this), _amount);
-    // Calculate the *actual* amount that was sent here
-    return IERC20(_assetId).balanceOf(address(this)) - starting;
+    // Ensure this was not a fee-on-transfer token
+    if (IERC20(_assetId).balanceOf(address(this)) - starting != _amount) {
+      revert AssetLogic__transferAssetToContract_feeOnTransferNotSupported();
+    }
+    return _amount;
   }
 
   /**
@@ -342,6 +346,10 @@ library AssetLogic {
         success = true;
 
         // perform the swap
+        // Edge case with some tokens: Example USDT in ETH Mainnet, after the backUnbacked call there could be a remaining allowance if not the whole amount is pulled by aave.
+        // Later, if we try to increase the allowance it will fail. USDT demands if allowance is not 0, it has to be set to 0 first.
+        // Example: https://github.com/aave/aave-v3-periphery/blob/ca184e5278bcbc10d28c3dbbc604041d7cfac50b/contracts/adapters/paraswap/ParaSwapRepayAdapter.sol#L138-L140
+        SafeERC20.safeApprove(IERC20(_assetIn), address(pool), 0);
         SafeERC20.safeApprove(IERC20(_assetIn), address(pool), _amountIn);
         amountIn = pool.swapExactOut(_amountOut, _assetIn, _assetOut, _maxIn);
       }

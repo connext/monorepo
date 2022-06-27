@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: UNLICENSED
-pragma solidity 0.8.14;
+pragma solidity 0.8.15;
 
 import {Home} from "../../../nomad-core/contracts/Home.sol";
 
@@ -112,7 +112,7 @@ contract BaseConnextFacet {
    * @param _router The address of the potential remote xApp Router
    */
   function _isRemoteRouter(uint32 _domain, bytes32 _router) internal view returns (bool) {
-    return s.remotes[_domain] == _router;
+    return s.remotes[_domain] == _router && _router != bytes32(0);
   }
 
   /**
