@@ -1,4 +1,4 @@
-import { stub, restore, reset, SinonStub } from "sinon";
+import { stub, SinonStub } from "sinon";
 import { mkAddress, expect, XTransfer } from "@connext/nxtp-utils";
 
 import { mock } from "../../mock";
@@ -53,7 +53,6 @@ describe("Adapters: Gelato", () => {
     isChainSupportedByGelatoStub = stub();
     encodeExecuteFromBidsStub = stub();
     getGelatoRelayerStub = stub();
-    console.log({ getHelpersStub });
     getHelpersStub.returns({
       relayer: {
         gelatoSend: gelatoSendStub.resolves(mockAxiosSuccessResponse),
@@ -86,6 +85,18 @@ describe("Adapters: Gelato", () => {
       console.log("taskId: ", taskId);
       expect(gelatoSendStub).to.be.calledOnce;
       expect(taskId).to.eq(mockAxiosSuccessResponse.taskId);
+    });
+
+    it("should throw if the chain isn't supported by gelato", async () => {
+      isChainSupportedByGelatoStub.resolves(false);
+      expect(
+        send(
+          mock.chain.A,
+          ctxMock.config.chains[mock.domain.A].deployments.connext,
+          "0xbeed",
+          loggingContext.requestContext,
+        ),
+      ).to.eventually.be.rejectedWith(new Error("Chain not supported by gelato."));
     });
   });
 });

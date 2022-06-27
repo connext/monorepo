@@ -4,7 +4,7 @@ import { stub, SinonStub } from "sinon";
 import { stubContext, stubOperations } from "../../mock";
 import { getReconciledTransactions } from "../../../src/bindings";
 
-describe("Bindings:Backend", () => {
+describe("Bindings:LightHouse", () => {
   let mockContext: any;
 
   beforeEach(() => {

@@ -2,7 +2,7 @@ import { chainDataToMap, expect } from "@connext/nxtp-utils";
 import { stub, restore, reset } from "sinon";
 
 import { getEnvConfig, getConfig } from "../src/config";
-import * as SharedFns from "../src/lib/helpers/shared";
+
 import { mock } from "./mock";
 
 const mockConfig = mock.config();
@@ -156,11 +156,9 @@ describe("Config", () => {
     });
 
     it("should read config from default filepath", () => {
-      stub(SharedFns, "existsSync").returns(true);
-      stub(SharedFns, "readFileSync").returns(JSON.stringify(mockConfig));
       stub(process, "env").value({
         ...process.env,
-        NXTP_CONFIG_FILE: "buggypath",
+        NXTP_CONFIG: JSON.stringify(mockConfig),
       });
 
       expect(() => getEnvConfig(mockChainData, mockDeployments)).not.throw();

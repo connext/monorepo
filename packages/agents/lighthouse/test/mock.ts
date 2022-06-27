@@ -167,6 +167,7 @@ export const mock = {
   },
   operations: {
     execute: stub(),
+    sendToRelayer: stub(),
   },
 };
 
