@@ -12,6 +12,7 @@
     "./scripts",
     "./deploy",
     "./deployHelpers",
+    "./deployConfig",
     "./typechain_types",
     "tasks/**/*.ts",
     "src/**/*.ts",

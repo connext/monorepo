@@ -1,12 +1,9 @@
 import { HardhatRuntimeEnvironment } from "hardhat/types";
 import { DeployFunction } from "hardhat-deploy/types";
 import { Contract, Signer, BigNumber, Wallet } from "ethers";
-import { config } from "dotenv";
 
 import { getDeploymentName } from "../src/utils";
 import { getDomainInfoFromChainId, getNomadConfig } from "../src/nomad";
-
-config();
 
 export const deployNomadBeaconProxy = async <T extends Contract = Contract>(
   name: string,
@@ -201,21 +198,6 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment): Promise<voi
       console.log(`replica for ${replicaDomainName} (${replicaDomain}) enrolled`);
     }
   }
-  // Deploy relayer fee router
-  console.log("Deploying relayer fee router...");
-  const relayerFeeRouter = (
-    await deployNomadBeaconProxy("RelayerFeeRouter", [xappConnectionManagerAddress], deployer, hre)
-  ).connect(deployer);
-  console.log("relayer fee router address:", relayerFeeRouter.address);
-  console.log("relayer fee router owner:", await relayerFeeRouter.owner());
-
-  // Deploy promise router
-  console.log("Deploying promise router...");
-  const promiseRouter = (
-    await deployNomadBeaconProxy("PromiseRouter", [xappConnectionManagerAddress], deployer, hre)
-  ).connect(deployer);
-  console.log("promise router address:", promiseRouter.address);
-  console.log("promise router owner:", await promiseRouter.owner());
 };
 
 export default func;

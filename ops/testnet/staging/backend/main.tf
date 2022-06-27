@@ -86,16 +86,17 @@ module "postgrest" {
 }
 
 
-module "cartographer-routers" {
-  source                  = "../../../modules/daemon"
+module "cartographer-routers-cron" {
+  source                  = "../../../modules/cron"
   region                  = var.region
   dd_api_key              = var.dd_api_key
   execution_role_arn      = data.aws_iam_role.ecr_admin_role.arn
   cluster_id              = module.ecs.ecs_cluster_id
+  ecs_cluster_arn         = module.ecs.ecs_cluster_arn
   vpc_id                  = module.network.vpc_id
   private_subnets         = module.network.private_subnets
   docker_image            = var.full_image_name_cartographer_routers
-  container_family        = "cartographer_routers"
+  container_family        = "cartographer_routers_cron"
   container_port          = 8080
   cpu                     = 256
   memory                  = 512
@@ -104,20 +105,22 @@ module "cartographer-routers" {
   stage                   = var.stage
   domain                  = var.domain
   service_security_groups = flatten([module.network.allow_all_sg, module.network.ecs_task_sg])
-  container_env_vars      = local.cartographer_env_vars
-  health_check_command    = ["CMD-SHELL", "echo hello"]
+  container_env_vars      = concat(local.cartographer_env_vars, [{ name = "DD_SERVICE", value = "cartographer-routers-${var.environment}" }])
+  schedule_expression     = "cron(* * * * ? *)"
 }
 
-module "cartographer-transfers" {
-  source                  = "../../../modules/daemon"
+
+module "cartographer-transfers-cron" {
+  source                  = "../../../modules/cron"
   region                  = var.region
   dd_api_key              = var.dd_api_key
   execution_role_arn      = data.aws_iam_role.ecr_admin_role.arn
   cluster_id              = module.ecs.ecs_cluster_id
+  ecs_cluster_arn         = module.ecs.ecs_cluster_arn
   vpc_id                  = module.network.vpc_id
   private_subnets         = module.network.private_subnets
   docker_image            = var.full_image_name_cartographer_transfers
-  container_family        = "cartographer_transfer"
+  container_family        = "cartographer_transfers_cron"
   container_port          = 8080
   cpu                     = 256
   memory                  = 512
@@ -126,8 +129,8 @@ module "cartographer-transfers" {
   stage                   = var.stage
   domain                  = var.domain
   service_security_groups = flatten([module.network.allow_all_sg, module.network.ecs_task_sg])
-  container_env_vars      = local.cartographer_env_vars
-  health_check_command    = ["CMD-SHELL", "echo hello"]
+  container_env_vars      = concat(local.cartographer_env_vars, [{ name = "DD_SERVICE", value = "cartographer-transfers-${var.environment}" }])
+  schedule_expression     = "cron(* * * * ? *)"
 }
 
 module "network" {

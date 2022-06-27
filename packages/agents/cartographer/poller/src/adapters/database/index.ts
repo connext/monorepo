@@ -5,11 +5,12 @@ import { getContext } from "../../shared";
 
 import {
   getTransfersByStatus,
+  getTransfersWithOriginPending,
+  getTransfersWithDestinationPending,
   saveTransfers,
   saveRouterBalances,
-  getLatestXCallTimestamp,
-  getLatestExecuteTimestamp,
-  getLatestReconcileTimestamp,
+  saveCheckPoint,
+  getCheckPoint,
 } from "./client";
 
 export type Database = {
@@ -21,10 +22,21 @@ export type Database = {
     orderDirection?: "ASC" | "DESC",
     _pool?: Pool,
   ) => Promise<XTransfer[]>;
+  getTransfersWithOriginPending: (
+    domain: string,
+    limit: number,
+    orderDirection?: "ASC" | "DESC",
+    _pool?: Pool,
+  ) => Promise<string[]>;
+  getTransfersWithDestinationPending: (
+    domain: string,
+    limit: number,
+    orderDirection?: "ASC" | "DESC",
+    _pool?: Pool,
+  ) => Promise<string[]>;
   saveRouterBalances: (routerBalances: RouterBalance[], _pool?: Pool) => Promise<void>;
-  getLatestXCallTimestamp: (domain: string, _pool?: Pool) => Promise<number>;
-  getLatestExecuteTimestamp: (domain: string, _pool?: Pool) => Promise<number>;
-  getLatestReconcileTimestamp: (domain: string, _pool?: Pool) => Promise<number>;
+  saveCheckPoint: (check: string, point: number, _pool?: Pool) => Promise<void>;
+  getCheckPoint: (check_name: string, _pool?: Pool) => Promise<number>;
 };
 
 export let pool: Pool;
@@ -44,9 +56,10 @@ export const getDatabase = async (): Promise<Database> => {
   return {
     saveTransfers,
     getTransfersByStatus,
+    getTransfersWithOriginPending,
+    getTransfersWithDestinationPending,
     saveRouterBalances,
-    getLatestXCallTimestamp,
-    getLatestExecuteTimestamp,
-    getLatestReconcileTimestamp,
+    saveCheckPoint,
+    getCheckPoint,
   };
 };

@@ -72,4 +72,4 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
 };
 
 export default func;
-func.tags = ["StableSwap", "prod", "local"];
+func.tags = ["StableSwap", "prod", "local", "mainnet"];

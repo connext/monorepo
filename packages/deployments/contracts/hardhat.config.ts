@@ -10,8 +10,6 @@ import "@nomiclabs/hardhat-etherscan";
 import "@openzeppelin/hardhat-upgrades";
 import "hardhat-contract-sizer";
 import "hardhat-abi-exporter";
-import { config as dotEnvConfig } from "dotenv";
-import { HardhatUserConfig } from "hardhat/types";
 import { utils } from "ethers";
 
 import "./tasks/setupRouter";
@@ -40,8 +38,6 @@ import "./tasks/stableswap/addSwapLiquidity";
 import "./tasks/stableswap/removeSwapLiquidity";
 import "./tasks/stableswap/setSwapFees";
 
-dotEnvConfig();
-
 const urlOverride = process.env.ETH_PROVIDER_URL;
 const chainId = parseInt(process.env.CHAIN_ID ?? "1337", 10);
 
@@ -49,6 +45,10 @@ const mnemonic =
   process.env.SUGAR_DADDY ||
   process.env.MNEMONIC ||
   "candy maple cake sugar pudding cream honey rich smooth crumble sweet treat";
+
+const mainnetMnemonic = process.env.MAINNET_MNEMONIC;
+console.log("mainnetMnemonic: ", mainnetMnemonic);
+console.log("mnemonic: ", mnemonic);
 
 const config: HardhatUserConfig = {
   solidity: {
@@ -181,7 +181,7 @@ const config: HardhatUserConfig = {
       gasPrice: 5000000000,
     },
     moonbeam: {
-      accounts: { mnemonic },
+      accounts: { mnemonic: mainnetMnemonic ?? mnemonic },
       chainId: 1284,
       url: "https://rpc.api.moonbeam.network",
     },
@@ -189,6 +189,11 @@ const config: HardhatUserConfig = {
       accounts: { mnemonic },
       chainId: 1287,
       url: "https://moonbeam-alpha.api.onfinality.io/public",
+    },
+    evmos: {
+      accounts: { mnemonic: mainnetMnemonic ?? mnemonic },
+      chainId: 9001,
+      url: "https://eth.bd.evmos.org:8545",
     },
     "arbitrum-one": {
       accounts: { mnemonic },
