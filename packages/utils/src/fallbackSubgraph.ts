@@ -1,4 +1,3 @@
-import axios, { AxiosResponse } from "axios";
 import { request as graphQLRequest } from "graphql-request";
 import PriorityQueue from "p-queue";
 
@@ -46,29 +45,6 @@ type Subgraph<T> = {
     reliability: number;
     avgExecTime: number;
   };
-};
-
-// Return types for subgraph health endpoint.
-type SubgraphHealthError = {
-  message: string;
-  block: number;
-  handler: any;
-};
-
-type SubgraphHealth = {
-  data: {
-    chainHeadBlock: number;
-    syncedBlock: number | undefined;
-    lastHealthyBlock: number | undefined;
-    network: string;
-    fatalError: SubgraphHealthError | undefined;
-    health:
-      | "healthy" // Subgraph syncing normally
-      | "unhealthy" // Subgraph syncing but with errors
-      | "failed"; // Subgraph halted due to errors
-    synced: boolean;
-  };
-  url: string;
 };
 
 // TODO: Would be cool if we could pass in like, 1/4 * maxLag * blockLengthMs (and get the blockLengthMs from chain reader, which determines that value on init)
@@ -277,54 +253,13 @@ export class FallbackSubgraph<T> {
         return;
       }
 
-      // Target this chain's endpoint.
-      const endpointUrl = endpoint.concat(`/?chainId=${this.chainId}`);
-      let response: AxiosResponse<SubgraphHealth[]> | undefined = undefined;
-      let endpointError: any = undefined;
-      try {
-        response = await withRetries(async () => {
-          return await axios.get(endpointUrl);
-        });
-      } catch (e: any) {
-        endpointError = e;
-      }
-
-      // Check to make sure the health endpoint does support this chain. If it isn't supported, we
-      // need to resort to getting the subgraph's synced block number directly and comparing it to
-      // the chain's block number instead.
-      const healthEndpointSupported =
-        response && response.data && response.data.length > 0 && !response.data.toString().includes("No subgraph for");
       // Check to make sure that the subgraphs do indeed have a GetBlockNumber method, if we need to
       // fall back to that.
       const getBlockNumberSupported =
         !!getBlockNumber &&
         Array.from(this.subgraphs.values()).every((subgraph) => !!(subgraph.client as any).GetBlockNumber);
 
-      if (healthEndpointSupported) {
-        const chainHeadBlock = Math.max(...response!.data.map((item) => item.data.chainHeadBlock));
-        // Parse the response, handle each subgraph in the response.
-        response!.data.forEach((item: any) => {
-          const info = item.data;
-          // If we don't have this subgraph mapped, create a new one to work with.
-          const subgraph: Subgraph<T> = this.subgraphs.get(item.url) ?? this.createSubgraphRecord(item.url);
-          const syncedBlock: number | undefined = info.syncedBlock;
-          const latestBlock: number = chainHeadBlock;
-          const lag: number | undefined = syncedBlock ? latestBlock - syncedBlock : undefined;
-          const synced: boolean = lag ? lag <= this.maxLag : info.synced ? info.synced : true;
-          // Update the record accordingly.
-          subgraph.record = {
-            ...subgraph.record,
-            synced,
-            latestBlock: latestBlock,
-            syncedBlock: syncedBlock ?? subgraph.record.syncedBlock,
-            // Want to avoid a lag value of -1, which happens due to asyncronous reporting of latest
-            // block vs synced block.
-            lag: Math.max(0, lag ?? this.maxLag),
-            error: info.fatalError,
-          };
-          this.subgraphs.set(item.url, subgraph);
-        });
-      } else if (getBlockNumberSupported) {
+      if (getBlockNumberSupported) {
         const _latestBlock = getBlockNumber!();
         await Promise.all(
           Array.from(this.subgraphs.values()).map(async (subgraph) => {
@@ -366,7 +301,6 @@ export class FallbackSubgraph<T> {
               chainId: this.chainId,
               hasSynced: this.hasSynced,
               inSync: this.inSync,
-              healthEndpointSupported,
               getBlockNumberSupported,
               subgraphs: Array.from(this.subgraphs.values()),
               endpointError,
