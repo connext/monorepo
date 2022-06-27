@@ -636,31 +636,38 @@ contract BridgeFacet is BaseConnextFacet {
       // Save the addressess of all routers providing liquidity for this transfer.
       s.routedTransfers[_transferId] = _args.routers;
 
-      // If router does not have enough liquidity, try to use Aave Portals.
-      // only one router should be responsible for taking on this credit risk, and it should only
-      // deal with transfers expecting adopted assets (to avoid introducing runtime slippage)
-      if (
-        !_args.params.receiveLocal &&
-        pathLen == 1 &&
-        s.routerBalances[_args.routers[0]][_args.local] < toSwap &&
-        s.aavePool != address(0)
-      ) {
-        if (!s.routerPermissionInfo.approvedForPortalRouters[_args.routers[0]])
-          revert BridgeFacet__execute_notApprovedForPortals();
+      if (pathLen == 1) {
+        // If router does not have enough liquidity, try to use Aave Portals.
+        // only one router should be responsible for taking on this credit risk, and it should only
+        // deal with transfers expecting adopted assets (to avoid introducing runtime slippage).
+        if (
+          !_args.params.receiveLocal &&
+          s.routerBalances[_args.routers[0]][_args.local] < toSwap &&
+          s.aavePool != address(0)
+        ) {
+          if (!s.routerPermissionInfo.approvedForPortalRouters[_args.routers[0]])
+            revert BridgeFacet__execute_notApprovedForPortals();
 
-        // Portal provides the adopted asset so we early return here
-        return _executePortalTransfer(_transferId, _canonicalId, toSwap, _args.local, _args.routers[0]);
+          // Portal provides the adopted asset so we early return here
+          return _executePortalTransfer(_transferId, _canonicalId, toSwap, _args.local, _args.routers[0]);
+        } else {
+          // Decrement the router's liquidity.
+          s.routerBalances[_args.routers[0]][_args.local] -= toSwap;
+        }
       } else {
-        // for each router, assert they are approved, and deduct liquidity
+        // For each router, assert they are approved, and deduct liquidity.
         uint256 routerAmount = toSwap / pathLen;
-        for (uint256 i; i < pathLen; ) {
-          // decrement routers liquidity
+        for (uint256 i; i < pathLen - 1; ) {
+          // Decrement router's liquidity.
           s.routerBalances[_args.routers[i]][_args.local] -= routerAmount;
 
           unchecked {
             i++;
           }
         }
+        // The last router in the multipath will sweep the remaining balance to account for remainder dust.
+        uint256 toSweep = routerAmount + (toSwap % pathLen);
+        s.routerBalances[_args.routers[pathLen - 1]][_args.local] -= toSweep;
       }
     }
 
