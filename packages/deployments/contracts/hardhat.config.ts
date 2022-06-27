@@ -10,6 +10,7 @@ import "@nomiclabs/hardhat-etherscan";
 import "@openzeppelin/hardhat-upgrades";
 import "hardhat-contract-sizer";
 import "hardhat-abi-exporter";
+import { HardhatUserConfig } from "hardhat/types";
 import { utils } from "ethers";
 
 import "./tasks/setupRouter";
