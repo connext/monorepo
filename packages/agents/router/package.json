@@ -41,6 +41,7 @@
   "author": "Connext",
   "license": "ISC",
   "dependencies": {
+    "@cloudamqp/amqp-client": "^2.0.3",
     "@connext/nxtp-adapters-cache": "workspace:*",
     "@connext/nxtp-adapters-subgraph": "workspace:*",
     "@connext/nxtp-adapters-web3signer": "workspace:*",

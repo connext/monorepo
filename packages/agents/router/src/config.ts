@@ -87,6 +87,7 @@ export const NxtpRouterConfigSchema = Type.Object({
   subgraphPrefix: Type.Optional(Type.String()),
   environment: Type.Union([Type.Literal("staging"), Type.Literal("production")]),
   nomadEnvironment: Type.Union([Type.Literal("staging"), Type.Literal("production")]),
+  messageQueueUrl: Type.String({ format: "uri" }),
 });
 
 export type NxtpRouterConfig = Static<typeof NxtpRouterConfigSchema>;
@@ -184,7 +185,9 @@ export const getEnvConfig = (
       DEFAULT_AUCTION_ROUND_DEPTH,
     subgraphPrefix: process.env.NXTP_SUBGRAPH_PREFIX || configJson.subgraphPrefix || configFile.subgraphPrefix,
     environment: process.env.NXTP_ENVIRONMENT || configJson.environment || configFile.environment || "production",
-    nomadEnvironment: process.env.NXTP_NOMAD_ENVIRONMENT || configJson.nomadEnvironment || configFile.nomadEnvironment || "staging",
+    nomadEnvironment:
+      process.env.NXTP_NOMAD_ENVIRONMENT || configJson.nomadEnvironment || configFile.nomadEnvironment || "staging",
+    messageQueueUrl: process.env.NXTP_MESSAGE_QUEUE_URL || configJson.messageQueueUrl || configFile.messageQueueUrl,
   };
 
   if (!nxtpConfig.mnemonic && !nxtpConfig.web3SignerUrl) {

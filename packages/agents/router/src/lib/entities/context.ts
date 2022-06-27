@@ -5,6 +5,7 @@ import { StoreManager } from "@connext/nxtp-adapters-cache";
 import { SubgraphReader } from "@connext/nxtp-adapters-subgraph";
 import { Web3Signer } from "@connext/nxtp-adapters-web3signer";
 import { BridgeContext } from "@nomad-xyz/sdk-bridge";
+import { AMQPClient } from "@cloudamqp/amqp-client";
 
 import { NxtpRouterConfig } from "../../config";
 
@@ -22,4 +23,5 @@ export type AppContext = {
   config: NxtpRouterConfig;
   chainData: Map<string, ChainData>;
   routerAddress: string;
+  mqClient: AMQPClient;
 };
