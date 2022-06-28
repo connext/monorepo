@@ -5,6 +5,8 @@
     "src/lighthouse.ts",
     "src/adapters/index.ts",
     "src/bindings/index.ts",
+    "src//lib/operations/index.ts",
+    "src/lib/helpers/*.ts",
     "src/lib/errors/*.ts",
     "src/lib/entities/*.ts",
     "test/**/*.ts",
