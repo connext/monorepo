@@ -71,6 +71,9 @@ NOTE: Do **NOT** run the router or sequencer separately, both will be initialize
 
 ## Steps
 
+1. Run `bash setup-integration-test.sh`
+2. Run `yarn workspace @connext/nxtp-integration run test`
+
 ## Logs from Deployment
 
 Used to get local addresses for use in test scripts.
