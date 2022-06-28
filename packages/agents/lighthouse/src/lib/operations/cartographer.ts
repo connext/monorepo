@@ -12,6 +12,7 @@ import { constants } from "ethers";
 
 import { getOperations } from "../../lib/operations";
 import { getContext } from "../../lighthouse";
+import { ApiRequestFailed } from "../errors/cartographer";
 
 export const pollCartographer = async () => {
   const { requestContext, methodContext } = createLoggingContext(pollCartographer.name);
@@ -33,11 +34,11 @@ export const pollCartographer = async () => {
             destinationDomain: xTransfer.destinationDomain!,
             to: xTransfer.xparams!.to,
             callData: xTransfer.xparams!.callData,
-            callback: xTransfer.xparams?.callback || constants.AddressZero,
-            callbackFee: xTransfer.xparams?.callbackFee || "0",
-            receiveLocal: xTransfer.xparams?.receiveLocal || false,
-            forceSlow: xTransfer.xparams?.forceSlow || false,
-            recovery: xTransfer.xparams?.recovery || xTransfer.xparams!.to,
+            callback: xTransfer.xparams!.callback,
+            callbackFee: xTransfer.xparams!.callbackFee,
+            receiveLocal: xTransfer.xparams!.receiveLocal,
+            forceSlow: xTransfer.xparams!.forceSlow,
+            recovery: xTransfer.xparams!.recovery,
           },
           local: xTransfer.destination!.assets.local.asset,
           routers: [],
@@ -45,7 +46,7 @@ export const pollCartographer = async () => {
           amount: xTransfer.destination!.assets.local.amount.toString(),
           nonce: xTransfer.nonce!,
           originSender: xTransfer.origin!.xcall.caller,
-          relayerFee: xTransfer.origin?.xcall.relayerFee || "0",
+          relayerFee: xTransfer.origin!.xcall.relayerFee,
         };
 
         const transferId = xTransfer.transferId;
@@ -71,12 +72,6 @@ export const getReconciledTransactions = async (): Promise<any> => {
     const response = await axios.get(uri);
     return response.data;
   } catch (error: any) {
-    logger.error(
-      "Cartographer api request failed, waiting for next loop",
-      requestContext,
-      methodContext,
-      jsonifyError(error as NxtpError),
-      { uri },
-    );
+    throw new ApiRequestFailed({ uri, error: jsonifyError(error as NxtpError) });
   }
 };

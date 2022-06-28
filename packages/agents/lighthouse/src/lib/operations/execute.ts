@@ -1,16 +1,7 @@
-import {
-  ajv,
-  createLoggingContext,
-  ExecuteArgs,
-  ExecuteArgsSchema,
-  jsonifyError,
-  NxtpError,
-  RequestContext,
-} from "@connext/nxtp-utils";
+import { ajv, createLoggingContext, ExecuteArgs, ExecuteArgsSchema, RequestContext } from "@connext/nxtp-utils";
 
 import { getOperations } from "../operations";
 import { getContext } from "../../lighthouse";
-import { assertInputObjectType } from "graphql";
 
 // fee percentage paid to relayer. need to be updated later
 export const RELAYER_FEE_PERCENTAGE = "1"; //  1%

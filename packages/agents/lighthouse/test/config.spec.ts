@@ -1,7 +1,8 @@
 import { chainDataToMap, expect } from "@connext/nxtp-utils";
-import { stub, restore, reset } from "sinon";
+import { stub, restore, reset, SinonStub } from "sinon";
 
 import { getEnvConfig, getConfig } from "../src/config";
+import { getHelpersStub } from "./globalTestHook";
 
 import { mock } from "./mock";
 
@@ -11,6 +12,18 @@ const mockDeployments = mock.contracts.deployments();
 
 describe("Config", () => {
   const testChainId = mock.chain.A;
+  let existsSyncStub: SinonStub;
+  let readFileSyncStub: SinonStub;
+  beforeEach(() => {
+    existsSyncStub = stub().returns(true);
+    readFileSyncStub = stub().returns(JSON.stringify(mockConfig));
+    getHelpersStub.returns({
+      shared: {
+        existsSync: existsSyncStub,
+        readFileSync: readFileSyncStub,
+      },
+    });
+  });
 
   afterEach(() => {
     restore();
@@ -36,6 +49,17 @@ describe("Config", () => {
         NXTP_CONFIG_FILE: "buggypath",
         NXTP_NETWORK: "testnet",
         NXTP_CONFIG: JSON.stringify(mockConfig),
+      });
+
+      expect(() => getEnvConfig(mockChainData, mockDeployments)).not.throw();
+    });
+
+    it("should read configFile if parsing the configuration fails", () => {
+      stub(process, "env").value({
+        ...process.env,
+        NXTP_CONFIG_FILE: "buggypath",
+        NXTP_NETWORK: "testnet",
+        NXTP_CONFIG: "buggyJSON",
       });
 
       expect(() => getEnvConfig(mockChainData, mockDeployments)).not.throw();

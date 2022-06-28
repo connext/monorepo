@@ -78,7 +78,6 @@ export const getEnvConfig = (
     console.error("Error reading config file!");
     process.exit(1);
   }
-  // return configFile;
 
   const nxtpConfig: NxtpLighthouseConfig = {
     chains: process.env.NXTP_CHAIN_CONFIG
