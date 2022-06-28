@@ -33,11 +33,9 @@ WEB3_SIGNER_PRIVATE_KEY=0x40816775943c21f1e8e8569518046476e0a9557c6f71e3b11aae49
 MNEMONIC=${DEFAULT_MNEMONIC}
 " > .env
 
-# echo "Starting 1337 and 1338 local chains..."
-# docker compose -f docker-compose.chains.yaml up -d --force-recreate
-# sleep 4
-# docker compose -f docker-compose.services.yaml up -d --force-recreate
-# sleep 10
+echo "Starting 1337 and 1338 local chains..."
+docker compose -f docker-compose.chains.yaml -f docker-compose.services.yaml up -d --force-recreate
+sleep 4
 
 ##### Contracts
 echo "Deploying contracts to 1337..."
