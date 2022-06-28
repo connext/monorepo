@@ -35,7 +35,7 @@ MNEMONIC=${DEFAULT_MNEMONIC}
 
 echo "Starting 1337 and 1338 local chains..."
 docker compose -f docker-compose.chains.yaml -f docker-compose.services.yaml up -d --force-recreate
-sleep 4
+sleep 10
 
 ##### Contracts
 echo "Deploying contracts to 1337..."
