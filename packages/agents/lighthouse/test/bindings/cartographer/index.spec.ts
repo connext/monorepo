@@ -1,8 +1,7 @@
 import { expect, delay } from "@connext/nxtp-utils";
-import { stub, SinonStub, restore, reset } from "sinon";
+import { stub, SinonStub } from "sinon";
 
 import { stubContext } from "../../mock";
-import { getReconciledTransactions } from "../../../src/bindings";
 import { ctxMock, getOperationsStub } from "../../globalTestHook";
 import { bindCartographer } from "../../../src/bindings";
 
@@ -17,21 +16,20 @@ describe("Bindings:LightHouse", () => {
     mockContext = stubContext();
   });
   describe("#bindCartographer", () => {
+    it("should catch the error if pollCartographer throws", async () => {
+      pollCartographerStub.throws(new Error(`Running a cartographer failed!`));
+      ctxMock.config.mode.cleanup = false;
+      await bindCartographer(10);
+      await delay(20);
+      ctxMock.config.mode.cleanup = true;
+      expect(pollCartographerStub.callCount).to.be.gte(1);
+    });
     it("happy: should start an interval loop that calls polling fn", async () => {
       ctxMock.config.mode.cleanup = false;
       await bindCartographer(10);
-      delay(20);
+      await delay(20);
+      ctxMock.config.mode.cleanup = true;
       expect(pollCartographerStub.callCount).to.be.gte(1);
-    });
-  });
-  describe("#pollCartographer", () => {});
-  describe("#getReconciledTransactions", () => {
-    it("happy: should work ", async () => {
-      // Override the poll interval to 10ms so we can test the interval loop
-
-      const res = await getReconciledTransactions();
-      console.log(res);
-      // TODO: slight race here?
     });
   });
 });

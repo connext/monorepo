@@ -1,7 +1,7 @@
 import { utils, BigNumber, Wallet, constants } from "ethers";
 import { createStubInstance, SinonStub, SinonStubbedInstance, stub } from "sinon";
 import { ConnextContractDeployments, ConnextContractInterfaces, ChainReader } from "@connext/nxtp-txservice";
-import { mkAddress, Logger, mock as _mock, mkBytes32 } from "@connext/nxtp-utils";
+import { mkAddress, Logger, mock as _mock, mkBytes32, createLoggingContext } from "@connext/nxtp-utils";
 
 import { NxtpLighthouseConfig } from "../src/config";
 import { AppContext } from "../src/lib/entities/context";
@@ -12,6 +12,8 @@ import * as operations from "../src/lib/operations";
 
 export const mockTaskId = mkBytes32("0xabcdef123");
 export const mockRelayerAddress = mkAddress("0xabcdef123");
+export const encodedDataMock = "0xabcde";
+export const requestContext = createLoggingContext("LIGHTHOUSE-TEST").requestContext;
 
 export const mock = {
   ..._mock,
@@ -55,6 +57,7 @@ export const mock = {
       cartographer: 10_000,
     },
     environment: "staging",
+    relayerUrl: "http://www.example.com",
   }),
   adapters: {
     chainreader: (): SinonStubbedInstance<ChainReader> => {
@@ -68,14 +71,13 @@ export const mock = {
       chainreader.calculateGasFeeInReceivingTokenForFulfill.resolves(BigNumber.from(120));
       chainreader.getTokenPrice.resolves(BigNumber.from(1));
       chainreader.getGasEstimate.resolves(BigNumber.from(24001));
+      chainreader.getGasEstimateWithRevertCode.resolves(BigNumber.from(1));
 
       const mockReceipt = mock.ethers.receipt();
       chainreader.getTransactionReceipt.resolves(mockReceipt);
       return chainreader;
     },
     contracts: (): SinonStubbedInstance<ConnextContractInterfaces> => {
-      const encodedDataMock = "0xabcde";
-
       const connext = createStubInstance(utils.Interface);
       connext.encodeFunctionData.returns(encodedDataMock);
       connext.decodeFunctionResult.returns([BigNumber.from(1000)]);
@@ -113,8 +115,6 @@ export const mock = {
   },
   contracts: {
     interfaces: (): SinonStubbedInstance<ConnextContractInterfaces> => {
-      const encodedDataMock = "0xabcde";
-
       const connext = createStubInstance(utils.Interface);
       connext.encodeFunctionData.returns(encodedDataMock);
       connext.decodeFunctionResult.returns([BigNumber.from(1000)]);

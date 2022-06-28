@@ -1,47 +1,14 @@
 import { stub, SinonStub } from "sinon";
-import { mkAddress, expect, XTransfer } from "@connext/nxtp-utils";
+import { mkAddress, expect } from "@connext/nxtp-utils";
 
-import { mock } from "../../mock";
+import { mock, requestContext } from "../../mock";
 import { send } from "../../../src/adapters/relayer/gelato";
 import { RelayerSendFailed } from "../../../src/lib/errors";
 import { ctxMock, getHelpersStub } from "../../globalTestHook";
 
-const mockTransfers: XTransfer[] = [
-  {
-    ...mock.entity.xtransfer(),
-    params: {
-      to: mkAddress("0xbeefdead"),
-      callData: "0x0",
-      originDomain: "1337",
-      destinationDomain: "1338",
-    },
-    local: mkAddress("0xdedddddddddddddd"),
-    relayerFee: "0.1",
-    amount: "10",
-    nonce: 0,
-    originSender: mkAddress("0xsenderorigin"),
-  },
-  {
-    ...mock.entity.xtransfer(),
-    params: {
-      to: mkAddress("0xbeefdead"),
-      callData: "0x0",
-      originDomain: "1337",
-      destinationDomain: "1338",
-    },
-    local: mkAddress("0xdedddddddddddddd"),
-    relayerFee: "0.1",
-    amount: "10",
-    nonce: 7,
-    originSender: mkAddress("0xoriginsender"),
-  },
-];
-
-const mockBids = [mock.entity.bid(mockTransfers[0]), mock.entity.bid(mockTransfers[1])];
-
 const mockAxiosErrorResponse = { isAxiosError: true, code: 500, response: "Invalid fee" };
 const mockAxiosSuccessResponse = { taskId: 1, msg: "success" };
-const loggingContext = mock.loggingContext("LIGHTHOUSE-TEST");
+
 describe("Adapters: Gelato", () => {
   let gelatoSendStub: SinonStub;
   let isChainSupportedByGelatoStub: SinonStub;
@@ -66,12 +33,7 @@ describe("Adapters: Gelato", () => {
     it("should error if gelato returns error", async () => {
       gelatoSendStub.resolves(mockAxiosErrorResponse);
       expect(
-        send(
-          mock.chain.A,
-          ctxMock.config.chains[mock.domain.A].deployments.connext,
-          "0xbeed",
-          loggingContext.requestContext,
-        ),
+        send(mock.chain.A, ctxMock.config.chains[mock.domain.A].deployments.connext, "0xbeed", requestContext),
       ).to.eventually.be.rejectedWith(RelayerSendFailed);
     });
 
@@ -80,7 +42,7 @@ describe("Adapters: Gelato", () => {
         mock.chain.A,
         ctxMock.config.chains[mock.domain.A].deployments.connext,
         "0xbeed",
-        loggingContext.requestContext,
+        requestContext,
       );
       console.log("taskId: ", taskId);
       expect(gelatoSendStub).to.be.calledOnce;
@@ -90,12 +52,7 @@ describe("Adapters: Gelato", () => {
     it("should throw if the chain isn't supported by gelato", async () => {
       isChainSupportedByGelatoStub.resolves(false);
       expect(
-        send(
-          mock.chain.A,
-          ctxMock.config.chains[mock.domain.A].deployments.connext,
-          "0xbeed",
-          loggingContext.requestContext,
-        ),
+        send(mock.chain.A, ctxMock.config.chains[mock.domain.A].deployments.connext, "0xbeed", requestContext),
       ).to.eventually.be.rejectedWith(new Error("Chain not supported by gelato."));
     });
   });

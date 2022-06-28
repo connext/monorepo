@@ -12,13 +12,10 @@ export const bindCartographer = async (_pollInterval: number) => {
   const { requestContext, methodContext } = createLoggingContext(bindCartographer.name);
   const { pollCartographer } = getOperations();
   interval(async (_, stop) => {
-    console.log("pollCartographer.....1");
-    console.log(config.mode.cleanup);
     if (config.mode.cleanup) {
       stop();
     } else {
       try {
-        console.log("pollCartographer.....");
         await pollCartographer();
       } catch (e: unknown) {
         logger.error("Error in pollCartographer", requestContext, methodContext, jsonifyError(e as Error));

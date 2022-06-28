@@ -1,7 +1,16 @@
-import { createLoggingContext, ExecuteArgs, jsonifyError, NxtpError, RequestContext } from "@connext/nxtp-utils";
+import {
+  ajv,
+  createLoggingContext,
+  ExecuteArgs,
+  ExecuteArgsSchema,
+  jsonifyError,
+  NxtpError,
+  RequestContext,
+} from "@connext/nxtp-utils";
 
 import { getOperations } from "../operations";
 import { getContext } from "../../lighthouse";
+import { assertInputObjectType } from "graphql";
 
 // fee percentage paid to relayer. need to be updated later
 export const RELAYER_FEE_PERCENTAGE = "1"; //  1%
@@ -26,26 +35,13 @@ export const execute = async (
 
   logger.info("Method start", requestContext, methodContext, { args });
 
-  // Validate Input schema
-  // const validateInput = ajv.compile(XTransferSchema);
-  // const validInput = validateInput(params);
-  // if (!validInput) {
-  //   const msg = validateInput.errors?.map((err: any) => `${err.instancePath} - ${err.message}`).join(",");
-  //   throw new ParamsInvalid({
-  //     paramsError: msg,
-  //     params,
-  //   });
-  // }
-  let encodedData = "";
-  try {
-    encodedData = contracts.connext.encodeFunctionData("execute", [args]);
-  } catch (error: any) {
-    logger.error("Error encoding execute data", requestContext, methodContext, jsonifyError(error as NxtpError), {
-      args,
-      transferId,
-    });
-    return;
+  // Validate input schema
+  const validate = ajv.compile(ExecuteArgsSchema);
+  const valid = validate(args);
+  if (!valid) {
+    throw new Error(validate.errors?.map((err: unknown) => JSON.stringify(err, null, 2)).join(","));
   }
 
+  const encodedData = contracts.connext.encodeFunctionData("execute", [args]);
   await sendToRelayer(args, encodedData, transferId, requestContext);
 };
