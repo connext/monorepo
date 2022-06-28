@@ -4,7 +4,6 @@ import {
   gelatoSend as _gelatoSend,
   isChainSupportedByGelato as _isChainSupportedByGelato,
   getGelatoRelayerAddress as _getGelatoRelayerAddress,
-  connextRelayerSend as _connextRelayerSend,
 } from "@connext/nxtp-utils";
 
 export const existsSync = fs.existsSync;
