@@ -29,7 +29,7 @@ const PARAMETERS = {
   // NOTE: Current test parameters / setup here assumes the token used is local on both chains.
   // i.e. there's no swap from adopted -> local on origin or local -> adopted on destination
   ASSET: {
-    address: "0x8e4C131B37383E431B9cd0635D3cF9f3F628EDae",
+    address: "0x1411CB266FCEd1587b0AA29E9d5a9Ef3Db64A9C5",
     name: "TEST",
   },
   A: {
