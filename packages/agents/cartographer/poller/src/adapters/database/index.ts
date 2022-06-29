@@ -65,11 +65,5 @@ export const getDatabase = async (): Promise<Database> => {
 };
 
 export const closeDatabase = async (): Promise<void> => {
-  const { logger } = getContext();
-  try {
-    await pool.end();
-  } catch (e: unknown) {
-    logger.error("Database connection error", undefined, undefined, jsonifyError(e as Error));
-    throw new Error("Database connection error");
-  }
+  await pool.end();
 };
