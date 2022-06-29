@@ -16,7 +16,7 @@ services:
         max-size: 10m
     volumes:
       - ${PWD}/docker/router/:/home/node/agents/sequencer/
-      - ${PWD}/docker/router/config.testnet.json:/home/node/packages/agents/router/config.json
+      - ${PWD}/docker/router/config.local.json:/home/node/packages/agents/router/config.json
 
   router-cache:
     container_name: router-cache
@@ -36,7 +36,7 @@ services:
         max-size: 10m
     volumes:
       - ${PWD}/docker/sequencer/:/home/node/agents/sequencer/
-      - ${PWD}/docker/sequencer/config.testnet.json:/home/node/packages/agents/sequencer/config.json
+      - ${PWD}/docker/sequencer/config.local.json:/home/node/packages/agents/sequencer/config.json
 
   sequencer-cache:
     container_name: sequencer-cache
