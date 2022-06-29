@@ -1,12 +1,5 @@
 import { constants } from "ethers";
-import {
-  RequestContext,
-  createLoggingContext,
-  connextRelayerSend,
-  ExecuteArgs,
-  jsonifyError,
-  NxtpError,
-} from "@connext/nxtp-utils";
+import { RequestContext, createLoggingContext, ExecuteArgs, jsonifyError, NxtpError } from "@connext/nxtp-utils";
 
 import { getContext } from "../../lighthouse";
 import { getHelpers } from "../helpers";
@@ -17,15 +10,10 @@ export const sendToRelayer = async (
   transferId: string,
   _requestContext: RequestContext,
 ): Promise<void> => {
-  const {
-    logger,
-    chainData,
-    config,
-    adapters: { chainreader, relayer },
-  } = getContext();
+  const { logger, chainData, config } = getContext();
 
   const {
-    relayer: { getGelatoRelayerAddress },
+    relayer: { getGelatoRelayerAddress, connextRelayerSend, externalRelayerSend, getGasEstimateWithRevertCode },
   } = getHelpers();
 
   const { requestContext, methodContext } = createLoggingContext(sendToRelayer.name, _requestContext);
@@ -82,8 +70,7 @@ export const sendToRelayer = async (
       data: encodedData,
       from: relayerAddress,
     });
-
-    await chainreader.getGasEstimateWithRevertCode(Number(args.params.destinationDomain), {
+    await getGasEstimateWithRevertCode(Number(args.params.destinationDomain), {
       chainId: destinationChainId,
       to: destinationConnextAddress,
       data: encodedData,
@@ -101,13 +88,19 @@ export const sendToRelayer = async (
     return;
   }
 
-  logger.info("Sending meta tx to relayer", requestContext, methodContext, {
+  logger.info("Sending meta tx to the external relayer", requestContext, methodContext, {
     relayer: relayerAddress,
     connext: destinationConnextAddress,
     domain: args.params.destinationDomain,
     relayerFee,
   });
 
-  await relayer.send(destinationChainId, destinationConnextAddress, encodedData, _requestContext);
-  return;
+  const result = await externalRelayerSend(destinationChainId, destinationConnextAddress, encodedData, _requestContext);
+  logger.info(`Sent meta tx to the external relayer`, requestContext, methodContext, {
+    relayer: relayerAddress,
+    connext: destinationConnextAddress,
+    domain: args.params.destinationDomain,
+    relayerFee,
+    result,
+  });
 };
