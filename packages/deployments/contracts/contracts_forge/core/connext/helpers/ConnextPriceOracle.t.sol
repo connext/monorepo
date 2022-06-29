@@ -140,7 +140,7 @@ contract ConnextPriceOracleTest is ForgeHelper {
     assertEq(priceOracle.getPriceFromChainlink(_tokenAddr2), 1e18);
   }
 
-  function testFails_ConnextPriceOracle__getPriceFromChainlink_returnsZeroIfAggregatorReverts() public {
+  function test_ConnextPriceOracle__getPriceFromChainlink_returnsZeroIfAggregatorReverts() public {
     address[] memory _tokenAddresses = new address[](2);
     address _tokenAddr1 = address(11);
     address _tokenAddr2 = address(22);

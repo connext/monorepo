@@ -149,7 +149,7 @@ contract ConnextPriceOracle is PriceOracle {
         }
 
         return price;
-      } catch Error(string memory) {
+      } catch {
         // return 0 to be able to fetch the price from next oracles
         return 0;
       }
