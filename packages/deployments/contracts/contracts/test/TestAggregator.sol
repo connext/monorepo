@@ -11,7 +11,15 @@ contract TestAggregator {
 
   uint256 public version = 1;
 
-  int256 public mockAnswer = 1e18;
+  int256 public mockAnswer = 1;
+
+  bool stopped;
+  // This error is used for only testing
+  error TestAggregator_Stopped();
+
+  constructor(uint8 _decimals) {
+    decimals = _decimals;
+  }
 
   // getRoundData and latestRoundData should both raise "No data present"
   // if they do not have data to report, instead of returning unset values
@@ -27,7 +35,10 @@ contract TestAggregator {
       uint80 answeredInRound
     )
   {
-    return (_roundId, mockAnswer, 0, block.timestamp, 1e18);
+    if (stopped) {
+      revert TestAggregator_Stopped();
+    }
+    return (_roundId, mockAnswer * int256(10**decimals), 0, block.timestamp, 1e18);
   }
 
   function latestRoundData()
@@ -41,10 +52,17 @@ contract TestAggregator {
       uint80 answeredInRound
     )
   {
-    return (1, mockAnswer, 0, block.timestamp, 1e18);
+    if (stopped) {
+      revert TestAggregator_Stopped();
+    }
+    return (1, mockAnswer * int256(10**decimals), 0, block.timestamp, 1e18);
   }
 
-  function updateMockAnswer(int256 _answer) public {
+  function updateMockAnswer(int256 _answer) external {
     mockAnswer = _answer;
+  }
+
+  function stop() external {
+    stopped = true;
   }
 }
