@@ -69,6 +69,24 @@ NOTE: Do **NOT** run the router or sequencer separately, both will be initialize
 
 # E2E Local Environment
 
+## Build Local Images
+
+Why? If you need to run the test locally against local changes, you can build the images yourself.
+
+- `docker build --tag sequencer:latest --file ./docker/sequencer/Dockerfile .`
+- `docker build --tag router:latest --file ./docker/router/Dockerfile .`
+
+## Create .env
+
+Create a `.env` at the repo root:
+
+```
+ROUTER_IMAGE=router:latest
+SEQUENCER_IMAGE=sequencer:latest
+```
+
+These values can be substituted with live images i.e. `ROUTER_IMAGE=ghcr.io/connext/router:sha-ABCDEF`
+
 ## Steps
 
 1. Run `bash setup-integration-test.sh`
