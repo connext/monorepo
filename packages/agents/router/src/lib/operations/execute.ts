@@ -1,7 +1,7 @@
 import { Bid, createLoggingContext, ajv, XTransferSchema, OriginTransfer } from "@connext/nxtp-utils";
 import { BigNumber } from "ethers";
 
-import { CallDataForNonContract, MissingXCall, NomadHomeBlacklisted, NotEnoughAmount, ParamsInvalid } from "../errors";
+import { CallDataForNonContract, MissingXCall, NotEnoughAmount, ParamsInvalid } from "../errors";
 import { getHelpers } from "../helpers";
 import { getContext } from "../../router";
 import { getAuctionAmount } from "../helpers/auctions";
