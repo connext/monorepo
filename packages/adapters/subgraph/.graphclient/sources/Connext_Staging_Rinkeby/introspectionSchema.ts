@@ -926,6 +926,21 @@ const schemaAST = {
           "kind": "InputValueDefinition",
           "name": {
             "kind": "Name",
+            "value": "router_"
+          },
+          "type": {
+            "kind": "NamedType",
+            "name": {
+              "kind": "Name",
+              "value": "Router_filter"
+            }
+          },
+          "directives": []
+        },
+        {
+          "kind": "InputValueDefinition",
+          "name": {
+            "kind": "Name",
             "value": "asset"
           },
           "type": {
@@ -1230,6 +1245,21 @@ const schemaAST = {
             "name": {
               "kind": "Name",
               "value": "String"
+            }
+          },
+          "directives": []
+        },
+        {
+          "kind": "InputValueDefinition",
+          "name": {
+            "kind": "Name",
+            "value": "asset_"
+          },
+          "type": {
+            "kind": "NamedType",
+            "name": {
+              "kind": "Name",
+              "value": "Asset_filter"
             }
           },
           "directives": []
@@ -4475,6 +4505,21 @@ const schemaAST = {
                   "value": "String"
                 }
               }
+            }
+          },
+          "directives": []
+        },
+        {
+          "kind": "InputValueDefinition",
+          "name": {
+            "kind": "Name",
+            "value": "routers_"
+          },
+          "type": {
+            "kind": "NamedType",
+            "name": {
+              "kind": "Name",
+              "value": "Router_filter"
             }
           },
           "directives": []
@@ -14095,6 +14140,21 @@ const schemaAST = {
                   "value": "BigInt"
                 }
               }
+            }
+          },
+          "directives": []
+        },
+        {
+          "kind": "InputValueDefinition",
+          "name": {
+            "kind": "Name",
+            "value": "assetBalances_"
+          },
+          "type": {
+            "kind": "NamedType",
+            "name": {
+              "kind": "Name",
+              "value": "AssetBalance_filter"
             }
           },
           "directives": []

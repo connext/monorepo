@@ -134,6 +134,36 @@ sources:
       - autoPagination:
           validateSchema: true
           limitOfRecords: 250
+  - name: Connext_Local_1337
+    handler:
+      graphql:
+        endpoint: http://localhost:8010/subgraphs/name/connext/nxtp
+        retry: 5
+        timeout: 30000 # 30 seconds
+    transforms:
+      - prefix:
+          value: local1337_
+          includeRootOperations: true
+          ignore:
+            - _SubgraphErrorPolicy_
+      - autoPagination:
+          validateSchema: true
+          limitOfRecords: 250
+  - name: Connext_Local_1338
+    handler:
+      graphql:
+        endpoint: http://localhost:9010/subgraphs/name/connext/nxtp
+        retry: 5
+        timeout: 30000 # 30 seconds
+    transforms:
+      - prefix:
+          value: local1338_
+          includeRootOperations: true
+          ignore:
+            - _SubgraphErrorPolicy_
+      - autoPagination:
+          validateSchema: true
+          limitOfRecords: 250
 
 documents:
   - ./example-query.graphql
