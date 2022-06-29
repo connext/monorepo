@@ -10,27 +10,25 @@
     "port": 8080
   },
   "chains": {
-    "1111": {
-      "providers": ["https://rpc.ankr.com/eth_rinkeby"],
+    "1337": {
+      "providers": ["http://chain-1337:8545"],
       "assets": [
         {
           "name": "TEST",
-          "address": "0xB7b1d3cC52E658922b2aF00c5729001ceA98142C"
+          "address": "0x1411CB266FCEd1587b0AA29E9d5a9Ef3Db64A9C5"
         }
       ]
     },
-    "2221": {
-      "providers": ["https://kovan.infura.io/v3/38f8f85747014e87b48035d84398a97c"],
+    "1338": {
+      "providers": ["http://chain-1338:8545"],
       "assets": [
         {
           "name": "TEST",
-          "address": "0xB5AabB55385bfBe31D627E2A717a7B189ddA4F8F"
+          "address": "0x1411CB266FCEd1587b0AA29E9d5a9Ef3Db64A9C5"
         }
       ]
     }
   },
   "web3SignerUrl": "http://signer:9000",
-  "environment": "staging"
+  "environment": "production"
 }
-
-
