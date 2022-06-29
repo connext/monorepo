@@ -100,8 +100,13 @@ contract ConnextPriceOracle is PriceOracle {
     PriceInfo storage priceInfo = priceRecords[_tokenAddress];
     if (priceInfo.active) {
       uint256 rawTokenAmount = IERC20Extended(priceInfo.token).balanceOf(priceInfo.lpToken);
-      uint256 tokenDecimalDelta = 18 - uint256(IERC20Extended(priceInfo.token).decimals());
-      uint256 tokenAmount = rawTokenAmount.mul(10**tokenDecimalDelta);
+      uint256 tokenDecimals = uint256(IERC20Extended(priceInfo.token).decimals());
+      uint256 tokenAmount = 0;
+      if (tokenDecimals > 18) {
+        tokenAmount = rawTokenAmount.div(10**(tokenDecimals - 18));
+      } else {
+        tokenAmount = rawTokenAmount.div(10**(18 - tokenDecimals));
+      }
       uint256 rawBaseTokenAmount = IERC20Extended(priceInfo.baseToken).balanceOf(priceInfo.lpToken);
       uint256 baseTokenDecimals = uint256(IERC20Extended(priceInfo.baseToken).decimals());
       uint256 baseTokenAmount = 0;

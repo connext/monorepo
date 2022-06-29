@@ -3,8 +3,25 @@ pragma solidity 0.8.14;
 
 import "../../../utils/ForgeHelper.sol";
 import {TestAggregator} from "../../../../contracts/test/TestAggregator.sol";
-import {TestERC20} from "../../../../contracts/test/TestERC20.sol";
+import {ERC20} from "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import "../../../../contracts/core/connext/helpers/ConnextPriceOracle.sol";
+
+contract MockERC20 is ERC20 {
+  uint8 public _decimals;
+
+  constructor(uint8 decimals) ERC20("MockERC20", "MockERC20") {
+    _decimals = decimals;
+    _mint(msg.sender, 1000000 ether);
+  }
+
+  function decimals() public view override(ERC20) returns (uint8) {
+    return _decimals;
+  }
+
+  function mint(address account, uint256 amount) external {
+    _mint(account, amount);
+  }
+}
 
 contract ConnextPriceOracleTest is ForgeHelper {
   // ============ Storage ============
@@ -32,9 +49,9 @@ contract ConnextPriceOracleTest is ForgeHelper {
   function utils_deployAndSetup() public {
     priceOracle = new ConnextPriceOracle(_wrapped);
     v1PriceOracle = new ConnextPriceOracle(_tokenV1);
-    _aggregator = address(new TestAggregator());
-    _tokenA = address(new TestERC20());
-    _tokenB = address(new TestERC20());
+    _aggregator = address(new TestAggregator(18));
+    _tokenA = address(new MockERC20(18));
+    _tokenB = address(new MockERC20(36));
 
     address[] memory tokenAddresses = new address[](1);
     address[] memory sources = new address[](1);
@@ -58,8 +75,8 @@ contract ConnextPriceOracleTest is ForgeHelper {
 
   function test_ConnextPriceOracle__getTokenPrice_worksIfDexRecordExists() public {
     address mockLpAddress = address(11111);
-    TestERC20(_tokenA).mint(mockLpAddress, 100);
-    TestERC20(_tokenB).mint(mockLpAddress, 200);
+    MockERC20(_tokenA).mint(mockLpAddress, 100 * 1e18);
+    MockERC20(_tokenB).mint(mockLpAddress, 200 * 1e36);
     priceOracle.setDirectPrice(_tokenA, 1e18);
     priceOracle.setDexPriceInfo(_tokenB, _tokenA, mockLpAddress, true);
     assertEq(priceOracle.getTokenPrice(_tokenB), 5e17);
@@ -81,8 +98,8 @@ contract ConnextPriceOracleTest is ForgeHelper {
   // ============ getPriceFromDex ============
   function test_ConnextPriceOracle__getPriceFromDex_works() public {
     address mockLpAddress = address(11111);
-    TestERC20(_tokenA).mint(mockLpAddress, 100);
-    TestERC20(_tokenB).mint(mockLpAddress, 200);
+    MockERC20(_tokenA).mint(mockLpAddress, 100 * 1e18);
+    MockERC20(_tokenB).mint(mockLpAddress, 200 * 1e36);
     priceOracle.setDirectPrice(_tokenA, 1e18);
     priceOracle.setDexPriceInfo(_tokenB, _tokenA, mockLpAddress, true);
     assertEq(priceOracle.getPriceFromDex(_tokenB), 5e17);
@@ -101,6 +118,52 @@ contract ConnextPriceOracleTest is ForgeHelper {
     assertEq(priceOracle.getPriceFromChainlink(address(12345)), 0);
   }
 
+  function test_ConnextPriceOracle__getPriceFromChainlink_worksIfGreaterThan18() public {
+    address[] memory _tokenAddresses = new address[](2);
+    address _tokenAddr1 = address(11);
+    address _tokenAddr2 = address(22);
+    _tokenAddresses[0] = _tokenAddr1;
+    _tokenAddresses[1] = _tokenAddr2;
+
+    address[] memory _sources = new address[](2);
+    address _aggregator1 = address(new TestAggregator(24));
+    address _aggregator2 = address(new TestAggregator(36));
+    _sources[0] = _aggregator1;
+    _sources[1] = _aggregator2;
+    vm.expectEmit(true, true, true, true);
+    for (uint256 i = 0; i < 2; i++) {
+      emit AggregatorUpdated(_tokenAddresses[i], _sources[i]);
+    }
+    priceOracle.setAggregators(_tokenAddresses, _sources);
+
+    assertEq(priceOracle.getPriceFromChainlink(_tokenAddr1), 1e18);
+    assertEq(priceOracle.getPriceFromChainlink(_tokenAddr2), 1e18);
+  }
+
+  function testFails_ConnextPriceOracle__getPriceFromChainlink_returnsZeroIfAggregatorReverts() public {
+    address[] memory _tokenAddresses = new address[](2);
+    address _tokenAddr1 = address(11);
+    address _tokenAddr2 = address(22);
+    _tokenAddresses[0] = _tokenAddr1;
+    _tokenAddresses[1] = _tokenAddr2;
+
+    address[] memory _sources = new address[](2);
+    address _aggregator1 = address(new TestAggregator(24));
+    address _aggregator2 = address(new TestAggregator(36));
+    _sources[0] = _aggregator1;
+    _sources[1] = _aggregator2;
+    vm.expectEmit(true, true, true, true);
+    for (uint256 i = 0; i < 2; i++) {
+      emit AggregatorUpdated(_tokenAddresses[i], _sources[i]);
+    }
+    priceOracle.setAggregators(_tokenAddresses, _sources);
+
+    assertEq(priceOracle.getPriceFromChainlink(_tokenAddr1), 1e18);
+
+    TestAggregator(_aggregator2).stop();
+    assertEq(priceOracle.getPriceFromChainlink(_tokenAddr2), 0);
+  }
+
   // ============ setDexPriceInfo ============
   function test_ConnextPriceOracle__setDexPriceInfo_failsIfNotAdmin() public {
     address mockLpAddress = address(11111);
@@ -117,8 +180,8 @@ contract ConnextPriceOracleTest is ForgeHelper {
 
   function test_ConnextPriceOracle__setDexPriceInfo_worksIfOnlyAdmin() public {
     address mockLpAddress = address(11111);
-    TestERC20(_tokenA).mint(mockLpAddress, 100);
-    TestERC20(_tokenB).mint(mockLpAddress, 200);
+    MockERC20(_tokenA).mint(mockLpAddress, 100 * 1e18);
+    MockERC20(_tokenB).mint(mockLpAddress, 200 * 1e36);
     priceOracle.setDirectPrice(_tokenA, 1e18);
     vm.expectEmit(true, true, true, true);
     emit PriceRecordUpdated(_tokenB, _tokenA, mockLpAddress, true);
@@ -180,8 +243,8 @@ contract ConnextPriceOracleTest is ForgeHelper {
     _tokenAddresses[1] = _tokenAddr2;
 
     address[] memory _sources = new address[](2);
-    address _aggregator1 = address(new TestAggregator());
-    address _aggregator2 = address(new TestAggregator());
+    address _aggregator1 = address(new TestAggregator(18));
+    address _aggregator2 = address(new TestAggregator(36));
     _sources[0] = _aggregator1;
     _sources[1] = _aggregator2;
     vm.expectEmit(true, true, true, true);
@@ -199,8 +262,8 @@ contract ConnextPriceOracleTest is ForgeHelper {
     _tokenAddresses[1] = _tokenAddr2;
 
     address[] memory _sources = new address[](2);
-    address _aggregator1 = address(new TestAggregator());
-    address _aggregator2 = address(new TestAggregator());
+    address _aggregator1 = address(new TestAggregator(18));
+    address _aggregator2 = address(new TestAggregator(36));
     _sources[0] = _aggregator1;
     _sources[1] = _aggregator2;
     vm.expectRevert(bytes("caller is not the admin"));
