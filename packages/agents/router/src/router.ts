@@ -58,7 +58,7 @@ export const makeRouter = async (_configOverride?: NxtpRouterConfig) => {
     });
 
     /// MARK - BridgeContext
-    context.bridgeContext = setupBridgeContext(requestContext);
+    context.bridgeContext = context.config.nomadEnvironment !== "none" ? setupBridgeContext(requestContext) : undefined;
 
     /// MARK - Adapters
     context.adapters.cache = await setupCache(requestContext);
