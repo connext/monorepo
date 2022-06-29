@@ -103,8 +103,13 @@ contract ConnextPriceOracle is PriceOracle {
       uint256 tokenDecimalDelta = 18 - uint256(IERC20Extended(priceInfo.token).decimals());
       uint256 tokenAmount = rawTokenAmount.mul(10**tokenDecimalDelta);
       uint256 rawBaseTokenAmount = IERC20Extended(priceInfo.baseToken).balanceOf(priceInfo.lpToken);
-      uint256 baseTokenDecimalDelta = 18 - uint256(IERC20Extended(priceInfo.baseToken).decimals());
-      uint256 baseTokenAmount = rawBaseTokenAmount.mul(10**baseTokenDecimalDelta);
+      uint256 baseTokenDecimals = uint256(IERC20Extended(priceInfo.baseToken).decimals());
+      uint256 baseTokenAmount = 0;
+      if (baseTokenDecimals > 18) {
+        baseTokenAmount = rawBaseTokenAmount.div(10**(baseTokenDecimals - 18));
+      } else {
+        baseTokenAmount = rawBaseTokenAmount.mul(10**(18 - baseTokenDecimals));
+      }
       uint256 baseTokenPrice = getTokenPrice(priceInfo.baseToken);
       uint256 tokenPrice = baseTokenPrice.mul(baseTokenAmount).div(tokenAmount);
 
@@ -122,18 +127,27 @@ contract ConnextPriceOracle is PriceOracle {
   function getPriceFromChainlink(address _tokenAddress) public view returns (uint256) {
     AggregatorV3Interface aggregator = aggregators[_tokenAddress];
     if (address(aggregator) != address(0)) {
-      (, int256 answer, , , ) = aggregator.latestRoundData();
+      try aggregator.latestRoundData() returns (uint80, int256 answer, uint256, uint256, uint80) {
+        // It's fine for price to be 0. We have two price feeds.
+        if (answer == 0) {
+          return 0;
+        }
 
-      // It's fine for price to be 0. We have two price feeds.
-      if (answer == 0) {
+        uint256 retVal = uint256(answer);
+        uint256 price = 0;
+        // Make the decimals to 1e18.
+        uint256 aggregatorDecimals = uint256(aggregator.decimals());
+        if (aggregatorDecimals > 18) {
+          price = retVal.div(10**(aggregatorDecimals - 18));
+        } else {
+          price = retVal.mul(10**(18 - aggregatorDecimals));
+        }
+
+        return price;
+      } catch Error(string memory) {
+        // return 0 to be able to fetch the price from next oracles
         return 0;
       }
-
-      // Extend the decimals to 1e18.
-      uint256 retVal = uint256(answer);
-      uint256 price = retVal.mul(10**(18 - uint256(aggregator.decimals())));
-
-      return price;
     }
 
     return 0;
