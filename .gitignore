@@ -37,3 +37,4 @@ packages/integration/ops/config/router/*.yaml
 **/.terraform.lock.hcl
 ops/**/tfvars.json
 .idea
+packages/agents/router/config.*.json
