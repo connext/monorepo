@@ -43,7 +43,7 @@ export let pool: Pool;
 
 export const getDatabase = async (): Promise<Database> => {
   const { config, logger } = getContext();
-  pool = new Pool({ connectionString: config.database.url });
+  pool = new Pool({ connectionString: config.database.url, idleTimeoutMillis: 3000, allowExitOnIdle: true });
   pool.on("error", (err: Error) => logger.error("Database error", undefined, undefined, jsonifyError(err))); // don't let a pg restart kill your app
 
   try {
@@ -62,4 +62,14 @@ export const getDatabase = async (): Promise<Database> => {
     saveCheckPoint,
     getCheckPoint,
   };
+};
+
+export const closeDatabase = async (): Promise<void> => {
+  const { logger } = getContext();
+  try {
+    await pool.end();
+  } catch (e: unknown) {
+    logger.error("Database connection error", undefined, undefined, jsonifyError(e as Error));
+    throw new Error("Database connection error");
+  }
 };
