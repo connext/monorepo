@@ -26,10 +26,6 @@ SEQ_ENVIRONMENT=production
 NXTP_ENVIRONMENT=production
 NXTP_NOMAD_ENVIRONMENT=staging
 
-# Docker-hosted local chains and services configuration
-ROUTER_IMAGE=ghcr.io/connext/router:sha-65da413
-SEQUENCER_IMAGE=ghcr.io/connext/sequencer:sha-65da413
-WEB3_SIGNER_PRIVATE_KEY=0x40816775943c21f1e8e8569518046476e0a9557c6f71e3b11aae4955823f166d
 MNEMONIC=${DEFAULT_MNEMONIC}
 " > .env
 
