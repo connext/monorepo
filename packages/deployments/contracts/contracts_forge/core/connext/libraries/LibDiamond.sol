@@ -41,14 +41,14 @@ contract LibDiamondTest is ForgeHelper, Deployer {
 
   // ============ Utils ============
 
-  // Should work First initialize
+  // Should work: first initialization
   function test_LibDiamond__initializeDiamondCut_works() public {
     assertTrue(connextDiamondProxy.isInitialized());
     assertTrue(executor != address(0));
   }
 
-  // Should work Second initialzie
-  function test_LibDiamond__initializeDiamondCut_notInitializeSecond() public {
+  // Second initialization should not alter state.
+  function test_LibDiamond__initializeDiamondCut_ignoreDuplicateInit() public {
     uint32 newDomain = 2;
     address newXAppConnectionManager = address(11);
     address newWrapper = address(12);
