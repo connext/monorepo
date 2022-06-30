@@ -253,7 +253,7 @@ contract PromiseRouter is Version, Router, ReentrancyGuardUpgradeable {
     emit CallbackExecuted(transferId, msg.sender);
 
     // Should transfer the stored relayer fee to the msg.sender
-    if (callbackFee > 0) {
+    if (callbackFee != 0) {
       AddressUpgradeable.sendValue(payable(msg.sender), callbackFee);
     }
   }

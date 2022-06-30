@@ -133,7 +133,7 @@ contract AssetLogicTest is BaseConnextFacet, FacetHelper {
     }
 
     // set expects
-    if (amount > 0) {
+    if (amount != 0) {
       if (isNative) {
         // Should withdraw
         vm.expectCall(_wrapper, abi.encodeWithSelector(IWrapped.withdraw.selector, amount));
@@ -161,7 +161,7 @@ contract AssetLogicTest is BaseConnextFacet, FacetHelper {
     // set mock
     vm.mockCall(_stableSwap, abi.encodeWithSelector(IStableSwap.swapExact.selector), abi.encode(swapOut));
 
-    bool willSwap = asset == _local && amount > 0;
+    bool willSwap = asset == _local && amount != 0;
     if (willSwap) {
       // expect pool approval
       vm.expectCall(_local, abi.encodeWithSelector(IERC20.approve.selector, _stableSwap, amount));
@@ -182,7 +182,7 @@ contract AssetLogicTest is BaseConnextFacet, FacetHelper {
     // set mock
     vm.mockCall(_stableSwap, abi.encodeWithSelector(IStableSwap.swapExact.selector), abi.encode(swapOut));
 
-    bool willSwap = asset == _adopted && amount > 0;
+    bool willSwap = asset == _adopted && amount != 0;
     if (willSwap) {
       // expect pool approval
       vm.expectCall(_adopted, abi.encodeWithSelector(IERC20.approve.selector, _stableSwap, amount));

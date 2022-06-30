@@ -253,7 +253,7 @@ contract BridgeFacet is BaseConnextFacet {
       }
 
       // If callback address is not set, callback fee should be 0.
-      if (_args.params.callback == address(0) && _args.params.callbackFee > 0) {
+      if (_args.params.callback == address(0) && _args.params.callbackFee != 0) {
         revert BridgeFacet__xcall_nonZeroCallbackFeeForCallback();
       }
 
@@ -445,7 +445,7 @@ contract BridgeFacet is BaseConnextFacet {
       detailsHash = ConnextMessage.formatDetailsHash(token.name(), token.symbol(), token.decimals());
     } else {
       // If the token originates on a remote chain, burn the representation tokens on this chain.
-      if (_amount > 0) {
+      if (_amount != 0) {
         token.burn(address(this), _amount);
       }
       detailsHash = token.detailsHash();
@@ -520,7 +520,7 @@ contract BridgeFacet is BaseConnextFacet {
 
     // check the reconciled status is correct
     // (i.e. if there are routers provided, the transfer must *not* be reconciled)
-    if (pathLength > 0) // make sure routers are all approved if needed
+    if (pathLength != 0) // make sure routers are all approved if needed
     {
       if (reconciled) revert BridgeFacet__execute_alreadyReconciled();
 

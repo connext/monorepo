@@ -216,7 +216,7 @@ contract SponsorVault is ISponsorVault, ReentrancyGuard, Ownable {
     }
 
     // only transfer if it is more than 0
-    if (sponsoredFee > 0) {
+    if (sponsoredFee != 0) {
       IERC20(_token).safeTransfer(msg.sender, sponsoredFee);
     }
 

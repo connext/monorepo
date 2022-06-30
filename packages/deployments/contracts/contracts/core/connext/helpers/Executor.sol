@@ -190,7 +190,7 @@ contract Executor is IExecutor {
     // simply require an approval, and it is unclear if they can handle
     // funds transferred directly to them (i.e. Uniswap)
 
-    bool hasValue = _args.amount > 0;
+    bool hasValue = _args.amount != 0;
 
     if (!isNative && hasValue) {
       SafeERC20.safeIncreaseAllowance(IERC20(_args.assetId), _args.to, _args.amount);

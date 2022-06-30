@@ -91,7 +91,7 @@ contract ConnextPriceOracle is PriceOracle {
       tokenAddress = wrapped;
     }
     uint256 tokenPrice = assetPrices[tokenAddress].price;
-    if (tokenPrice > 0 && ((block.timestamp - assetPrices[tokenAddress].updatedAt) <= VALID_PERIOD)) {
+    if (tokenPrice != 0 && ((block.timestamp - assetPrices[tokenAddress].updatedAt) <= VALID_PERIOD)) {
       return tokenPrice;
     }
     if (tokenPrice == 0) {
@@ -176,7 +176,7 @@ contract ConnextPriceOracle is PriceOracle {
   ) external onlyAdmin {
     PriceInfo storage priceInfo = priceRecords[_token];
     uint256 baseTokenPrice = getTokenPrice(_baseToken);
-    require(baseTokenPrice > 0, "invalid base token");
+    require(baseTokenPrice != 0, "invalid base token");
     priceInfo.token = _token;
     priceInfo.baseToken = _baseToken;
     priceInfo.lpToken = _lpToken;
@@ -189,7 +189,7 @@ contract ConnextPriceOracle is PriceOracle {
     uint256 _price,
     uint256 _timestamp
   ) external onlyAdmin {
-    require(_price > 0, "bad price");
+    require(_price != 0, "bad price");
 
     if (block.timestamp > _timestamp) {
       // reject stale price

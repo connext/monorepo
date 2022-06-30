@@ -581,7 +581,7 @@ contract ConnextTest is ForgeHelper, Deployer {
     bytes32 toSign = ECDSA.toEthSignedMessageHash(keccak256(abi.encode(transferId, num)));
 
     // setup liquidity
-    if (liquidity > 0) {
+    if (liquidity != 0) {
       IERC20(_destinationLocal).approve(address(_destinationConnext), liquidity * num);
     }
     for (uint256 i; i < num; i++) {
@@ -593,7 +593,7 @@ contract ConnextTest is ForgeHelper, Deployer {
       _destinationConnext.setupRouter(routers[i], address(0), address(0));
 
       // add liquidity for all routers
-      if (liquidity > 0) {
+      if (liquidity != 0) {
         _destinationConnext.addRouterLiquidityFor(liquidity, _destinationLocal, routers[i]);
       }
     }
@@ -806,7 +806,7 @@ contract ConnextTest is ForgeHelper, Deployer {
 
     // assert router liquidity balance
     if (!usesPortals) {
-      uint256 credited = routers.length > 0 ? bridgedAmt / routers.length : 0;
+      uint256 credited = routers.length != 0 ? bridgedAmt / routers.length : 0;
       for (uint256 i; i < routers.length; i++) {
         assertEq(end.liquidity[i], initial.liquidity[i] + credited);
       }

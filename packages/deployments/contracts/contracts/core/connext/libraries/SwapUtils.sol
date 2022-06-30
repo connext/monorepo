@@ -395,7 +395,7 @@ library SwapUtils {
     uint256 d = getD(_xp(self), _getAPrecise(self));
     LPToken lpToken = self.lpToken;
     uint256 supply = lpToken.totalSupply();
-    if (supply > 0) {
+    if (supply != 0) {
       return d.mul(10**uint256(POOL_PRECISION_DECIMALS)).div(supply);
     }
     return 0;
@@ -714,7 +714,7 @@ library SwapUtils {
 
     self.balances[tokenIndexFrom] = balances[tokenIndexFrom].add(dx);
     self.balances[tokenIndexTo] = balances[tokenIndexTo].sub(dy).sub(dyAdminFee);
-    if (dyAdminFee > 0) {
+    if (dyAdminFee != 0) {
       self.adminFees[tokenIndexTo] = self.adminFees[tokenIndexTo].add(dyAdminFee);
     }
 
@@ -755,7 +755,7 @@ library SwapUtils {
 
     self.balances[tokenIndexFrom] = balances[tokenIndexFrom].add(dx).sub(dxAdminFee);
     self.balances[tokenIndexTo] = balances[tokenIndexTo].sub(dy);
-    if (dxAdminFee > 0) {
+    if (dxAdminFee != 0) {
       self.adminFees[tokenIndexFrom] = self.adminFees[tokenIndexFrom].add(dxAdminFee);
     }
 
@@ -809,7 +809,7 @@ library SwapUtils {
     self.balances[tokenIndexFrom] = balances[tokenIndexFrom].add(dx);
     self.balances[tokenIndexTo] = balances[tokenIndexTo].sub(dy).sub(dyAdminFee);
 
-    if (dyAdminFee > 0) {
+    if (dyAdminFee != 0) {
       self.adminFees[tokenIndexTo] = self.adminFees[tokenIndexTo].add(dyAdminFee);
     }
 
@@ -843,7 +843,7 @@ library SwapUtils {
     self.balances[tokenIndexFrom] = balances[tokenIndexFrom].add(dx).sub(dxAdminFee);
     self.balances[tokenIndexTo] = balances[tokenIndexTo].sub(dy);
 
-    if (dxAdminFee > 0) {
+    if (dxAdminFee != 0) {
       self.adminFees[tokenIndexFrom] = self.adminFees[tokenIndexFrom].add(dxAdminFee);
     }
 
@@ -889,7 +889,7 @@ library SwapUtils {
     uint256[] memory newBalances = new uint256[](numTokens);
 
     for (uint256 i; i < numTokens; ) {
-      require(v.totalSupply != 0 || amounts[i] > 0, "Must supply all tokens in pool");
+      require(v.totalSupply != 0 || amounts[i] != 0, "Must supply all tokens in pool");
 
       // Transfer tokens first to see if a fee was charged on transfer
       if (amounts[i] != 0) {
@@ -1024,7 +1024,7 @@ library SwapUtils {
 
     uint256 adminFee = dyFee.mul(self.adminFee).div(FEE_DENOMINATOR);
     self.balances[tokenIndex] = self.balances[tokenIndex].sub(dy.add(adminFee));
-    if (adminFee > 0) {
+    if (adminFee != 0) {
       self.adminFees[tokenIndex] = self.adminFees[tokenIndex].add(adminFee);
     }
     lpToken.burnFrom(msg.sender, tokenAmount);

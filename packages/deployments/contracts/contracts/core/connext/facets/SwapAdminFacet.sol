@@ -129,7 +129,7 @@ contract SwapAdminFacet is BaseConnextFacet {
     uint256[] memory precisionMultipliers = new uint256[](decimals.length);
 
     for (uint8 i; i < numPooledTokens; ) {
-      if (i > 0) {
+      if (i != 0) {
         // Check if index is already used. Check if 0th element is a duplicate.
         if (s.tokenIndexes[_canonicalId][address(_pooledTokens[i])] != 0 || _pooledTokens[0] == _pooledTokens[i])
           revert SwapAdminFacet__initializeSwap_duplicateTokens();

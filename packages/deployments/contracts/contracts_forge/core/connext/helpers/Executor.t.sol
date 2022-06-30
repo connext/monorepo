@@ -19,7 +19,7 @@ contract MockStaking {
   }
 
   function descreaseNonce() public returns (uint256) {
-    require(nonce > 0, "!underflow");
+    require(nonce != 0, "!underflow");
     nonce--;
     return nonce;
   }
