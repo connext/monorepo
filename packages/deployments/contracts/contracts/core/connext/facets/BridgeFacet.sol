@@ -212,7 +212,8 @@ contract BridgeFacet is BaseConnextFacet {
 
   function setSponsorVault(address _sponsorVault) external onlyOwner {
     address old = address(s.sponsorVault);
-    if (old == _sponsorVault) revert BridgeFacet__setSponsorVault_invalidSponsorVault();
+    if (old == _sponsorVault || !Address.isContract(_sponsorVault))
+      revert BridgeFacet__setSponsorVault_invalidSponsorVault();
 
     s.sponsorVault = ISponsorVault(_sponsorVault);
     emit SponsorVaultUpdated(old, _sponsorVault, msg.sender);
