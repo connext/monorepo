@@ -1,6 +1,5 @@
 import { task } from "hardhat/config";
 import { NomadContext, NomadStatus, MessageStatus, AnnotatedLifecycleEvent, NomadMessage } from "@nomad-xyz/sdk";
-import { BridgeContext } from "@nomad-xyz/sdk-bridge";
 import { BigNumber, providers, Wallet } from "ethers";
 import { config as dotEnvConfig } from "dotenv";
 import { BytesLike, LogDescription } from "ethers/lib/utils";
@@ -79,7 +78,7 @@ export default task("trace-message", "See the status of a nomad message")
     const nomadConfig = getNomadConfig(network.chainId);
     const { domain: originDomain, name: originName } = getDomainInfoFromChainId(network.chainId);
 
-    const context = BridgeContext.fromNomadContext(new NomadContext(nomadConfig));
+    const context = new NomadContext(nomadConfig);
     const destinationChainId = context.mustGetDomain(destination).specs.chainId;
 
     const s3Url = "https://nomadxyz-staging-proofs.s3.us-west-2.amazonaws.com/";
@@ -133,7 +132,7 @@ export default task("trace-message", "See the status of a nomad message")
       const url = `${s3Url}${originName}_${dispatchEvent.args.leafIndex.toString()}`;
       console.log("processing on replica", status, replica.address, url);
       let processTx;
-      if (status === 0) {
+      if (parseInt(String(status)) === 0) {
         // Must prove and process
         const data = await fetchJson(url);
         processTx = await replica.proveAndProcess(
@@ -142,7 +141,7 @@ export default task("trace-message", "See the status of a nomad message")
           data.proof.path as unknown,
           BigNumber.from(data.proof.index),
         );
-      } else if (status === 1) {
+      } else if (parseInt(String(status)) === 1) {
         // Must simply process
         processTx = await replica.process(dispatchEvent.args.message as string);
       } else {

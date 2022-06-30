@@ -1,7 +1,7 @@
 import { SubgraphReader } from "@connext/nxtp-adapters-subgraph";
 import { createMethodContext, createRequestContext, getChainData, Logger } from "@connext/nxtp-utils";
 
-import { getDatabase } from "./adapters/database";
+import { closeDatabase, getDatabase } from "./adapters/database";
 import { bindRouters } from "./bindings";
 import { CartographerConfig, getConfig } from "./config";
 import { context } from "./shared";
@@ -53,4 +53,5 @@ _|         _|    _|   _|    _|_|   _|    _|_|   _|           _|  _|         _|
 `);
 
   await bindRouters();
+  await closeDatabase();
 };
