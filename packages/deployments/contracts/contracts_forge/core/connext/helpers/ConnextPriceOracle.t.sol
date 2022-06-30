@@ -173,6 +173,44 @@ contract ConnextPriceOracleTest is ForgeHelper {
     assertEq(priceOracle.getPriceFromChainlink(_tokenAddr2), 0);
   }
 
+  function test_ConnextPriceOracle__getPriceFromChainlink_returnsZeroIfReturnsStalePrice() public {
+    address[] memory _tokenAddresses = new address[](1);
+    address _tokenAddr = address(11);
+    _tokenAddresses[0] = _tokenAddr;
+
+    address[] memory _sources = new address[](1);
+    address _aggregator = address(new TestAggregator(24));
+    _sources[0] = _aggregator;
+    vm.expectEmit(true, true, true, true);
+    for (uint256 i = 0; i < 1; i++) {
+      emit AggregatorUpdated(_tokenAddresses[i], _sources[i]);
+    }
+    priceOracle.setAggregators(_tokenAddresses, _sources);
+
+    assertEq(priceOracle.getPriceFromChainlink(_tokenAddr), 1e18);
+    TestAggregator(_aggregator).updateMockData(2, 1, 1e8, 1);
+    assertEq(priceOracle.getPriceFromChainlink(_tokenAddr), 0);
+  }
+
+  function test_ConnextPriceOracle__getPriceFromChainlink_returnsZeroIfRoundsNotCompleted() public {
+    address[] memory _tokenAddresses = new address[](1);
+    address _tokenAddr = address(11);
+    _tokenAddresses[0] = _tokenAddr;
+
+    address[] memory _sources = new address[](1);
+    address _aggregator = address(new TestAggregator(24));
+    _sources[0] = _aggregator;
+    vm.expectEmit(true, true, true, true);
+    for (uint256 i = 0; i < 1; i++) {
+      emit AggregatorUpdated(_tokenAddresses[i], _sources[i]);
+    }
+    priceOracle.setAggregators(_tokenAddresses, _sources);
+
+    assertEq(priceOracle.getPriceFromChainlink(_tokenAddr), 1e18);
+    TestAggregator(_aggregator).updateMockData(2, 1, 0, 2);
+    assertEq(priceOracle.getPriceFromChainlink(_tokenAddr), 0);
+  }
+
   // ============ setDexPriceInfo ============
   function test_ConnextPriceOracle__setDexPriceInfo_failsIfNotAdmin() public {
     address mockLpAddress = address(11111);

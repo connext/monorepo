@@ -170,7 +170,7 @@ describe("ConnextPriceOracle.sol", () => {
 
     it("should return 0 if aggregator answers with 0", async () => {
       const tokenAddress = mkAddress("0xaaa");
-      let tx = await aggregatorMock.connect(wallet).updateMockAnswer(parseEther("0"));
+      let tx = await aggregatorMock.connect(wallet).updateMockData(1, 0, "100", 1);
       await tx.wait();
       tx = await connextPriceOracle.connect(wallet).setAggregators([tokenAddress], [aggregatorMock.address]);
       await tx.wait();
@@ -181,7 +181,7 @@ describe("ConnextPriceOracle.sol", () => {
 
     it("should return if aggregator is configured", async () => {
       const tokenAddress = mkAddress("0xaaa");
-      let tx = await aggregatorMock.connect(wallet).updateMockAnswer("1");
+      let tx = await aggregatorMock.connect(wallet).updateMockData(1, 1, "100", 1);
       await tx.wait();
       tx = await connextPriceOracle.connect(wallet).setAggregators([tokenAddress], [aggregatorMock.address]);
       await tx.wait();
