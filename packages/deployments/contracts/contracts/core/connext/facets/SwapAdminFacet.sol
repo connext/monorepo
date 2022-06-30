@@ -122,11 +122,13 @@ contract SwapAdminFacet is BaseConnextFacet {
     if (_pooledTokens.length <= 1 || _pooledTokens.length > 32)
       revert SwapAdminFacet__initializeSwap_invalidPooledTokens();
 
-    if (_pooledTokens.length != decimals.length) revert SwapAdminFacet__initializeSwap_decimalsMismatch();
+    uint8 numPooledTokens = uint8(_pooledTokens.length);
+
+    if (numPooledTokens != decimals.length) revert SwapAdminFacet__initializeSwap_decimalsMismatch();
 
     uint256[] memory precisionMultipliers = new uint256[](decimals.length);
 
-    for (uint8 i = 0; i < _pooledTokens.length; ) {
+    for (uint8 i = 0; i < numPooledTokens; ) {
       if (i > 0) {
         // Check if index is already used. Check if 0th element is a duplicate.
         if (s.tokenIndexes[_canonicalId][address(_pooledTokens[i])] != 0 || _pooledTokens[0] == _pooledTokens[i])

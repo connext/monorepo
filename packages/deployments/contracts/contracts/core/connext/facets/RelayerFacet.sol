@@ -134,10 +134,11 @@ contract RelayerFacet is BaseConnextFacet {
   ) external whenNotPaused {
     // Make sure the transferIds length is greater than 0.
     // This is to make sure a valid relayer is calling this function.
-    if (_transferIds.length == 0) revert RelayerFacet__initiateClaim_emptyClaim();
+    uint256 numTransfers = _transferIds.length;
+    if (numTransfers == 0) revert RelayerFacet__initiateClaim_emptyClaim();
 
     // Ensure the relayer can claim all transfers specified.
-    for (uint256 i; i < _transferIds.length; ) {
+    for (uint256 i; i < numTransfers; ) {
       if (s.transferRelayer[_transferIds[i]] != msg.sender)
         revert RelayerFacet__initiateClaim_notRelayer(_transferIds[i]);
       unchecked {
@@ -159,9 +160,10 @@ contract RelayerFacet is BaseConnextFacet {
    * @param _transferIds - transferIds to claim
    */
   function claim(address _recipient, bytes32[] calldata _transferIds) external onlyRelayerFeeRouter {
+    uint256 numTransfers = _transferIds.length;
     // Tally amounts owed
     uint256 total;
-    for (uint256 i; i < _transferIds.length; ) {
+    for (uint256 i; i < numTransfers; ) {
       total += s.relayerFees[_transferIds[i]];
       s.relayerFees[_transferIds[i]] = 0;
       unchecked {
