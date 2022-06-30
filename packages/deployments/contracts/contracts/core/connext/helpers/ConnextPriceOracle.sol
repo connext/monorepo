@@ -132,9 +132,17 @@ contract ConnextPriceOracle is PriceOracle {
   function getPriceFromChainlink(address _tokenAddress) public view returns (uint256) {
     AggregatorV3Interface aggregator = aggregators[_tokenAddress];
     if (address(aggregator) != address(0)) {
-      try aggregator.latestRoundData() returns (uint80, int256 answer, uint256, uint256, uint80) {
-        // It's fine for price to be 0. We have two price feeds.
-        if (answer == 0) {
+      try aggregator.latestRoundData() returns (
+        uint80 roundId,
+        int256 answer,
+        uint256,
+        uint256 updateAt,
+        uint80 answeredInRound
+      ) {
+        // It's fine for price to be 0. We have more price feeds.
+        if (answer == 0 || answeredInRound < roundId || updateAt == 0) {
+          // answeredInRound > roundId ===> ChainLink Error: Stale price
+          // updatedAt = 0 ===> ChainLink Error: Round not complete
           return 0;
         }
 
