@@ -261,7 +261,8 @@ contract SponsorVault is ISponsorVault, ReentrancyGuard, Ownable {
       // calculated or max
       sponsoredFee = sponsoredFee > relayerFeeCap ? relayerFeeCap : sponsoredFee;
       // calculated or leftover
-      sponsoredFee = sponsoredFee > address(this).balance ? address(this).balance : sponsoredFee;
+      uint256 balance = address(this).balance;
+      sponsoredFee = sponsoredFee > balance ? balance : sponsoredFee;
 
       Address.sendValue(_to, sponsoredFee);
     }
