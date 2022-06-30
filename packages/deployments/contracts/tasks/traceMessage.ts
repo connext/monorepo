@@ -132,7 +132,7 @@ export default task("trace-message", "See the status of a nomad message")
       const url = `${s3Url}${originName}_${dispatchEvent.args.leafIndex.toString()}`;
       console.log("processing on replica", status, replica.address, url);
       let processTx;
-      if (parseInt(status) === 0) {
+      if (parseInt(String(status)) === 0) {
         // Must prove and process
         const data = await fetchJson(url);
         processTx = await replica.proveAndProcess(
@@ -141,7 +141,7 @@ export default task("trace-message", "See the status of a nomad message")
           data.proof.path as unknown,
           BigNumber.from(data.proof.index),
         );
-      } else if (parseInt(status) === 1) {
+      } else if (parseInt(String(status)) === 1) {
         // Must simply process
         processTx = await replica.process(dispatchEvent.args.message as string);
       } else {
