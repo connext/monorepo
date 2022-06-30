@@ -27,7 +27,7 @@ NXTP_ENVIRONMENT=production
 NXTP_NOMAD_ENVIRONMENT=staging
 
 MNEMONIC=${DEFAULT_MNEMONIC}
-" > .env
+" >> .env
 
 echo "Starting 1337 and 1338 local chains..."
 docker compose -f docker-compose.chains.yaml -f docker-compose.services.yaml up -d --force-recreate
