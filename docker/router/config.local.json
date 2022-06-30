@@ -31,5 +31,5 @@
   },
   "web3SignerUrl": "http://signer:9000",
   "environment": "production",
-  "nomadEnvironmnent": "none"
+  "nomadEnvironment": "none"
 }
