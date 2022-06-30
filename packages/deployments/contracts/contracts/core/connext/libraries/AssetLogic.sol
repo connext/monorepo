@@ -350,7 +350,7 @@ library AssetLogic {
         // Later, if we try to increase the allowance it will fail. USDT demands if allowance is not 0, it has to be set to 0 first.
         // Example: https://github.com/aave/aave-v3-periphery/blob/ca184e5278bcbc10d28c3dbbc604041d7cfac50b/contracts/adapters/paraswap/ParaSwapRepayAdapter.sol#L138-L140
         SafeERC20.safeApprove(IERC20(_assetIn), address(pool), 0);
-        SafeERC20.safeApprove(IERC20(_assetIn), address(pool), _amountIn);
+        SafeERC20.safeIncreaseAllowance(IERC20(_assetIn), address(pool), _amountIn);
         amountIn = pool.swapExactOut(_amountOut, _assetIn, _assetOut, _maxIn);
       }
       // slippage is too high to perform swap: success = false, amountIn = 0
