@@ -539,7 +539,7 @@ contract BridgeFacet is BaseConnextFacet {
         }
 
         unchecked {
-          i++;
+          ++i;
         }
       }
     } else {
@@ -662,7 +662,7 @@ contract BridgeFacet is BaseConnextFacet {
           s.routerBalances[_args.routers[i]][_args.local] -= routerAmount;
 
           unchecked {
-            i++;
+            ++i;
           }
         }
         // The last router in the multipath will sweep the remaining balance to account for remainder dust.

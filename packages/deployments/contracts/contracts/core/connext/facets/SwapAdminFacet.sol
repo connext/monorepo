@@ -126,7 +126,7 @@ contract SwapAdminFacet is BaseConnextFacet {
 
     uint256[] memory precisionMultipliers = new uint256[](decimals.length);
 
-    for (uint8 i = 0; i < _pooledTokens.length; i++) {
+    for (uint8 i = 0; i < _pooledTokens.length; ) {
       if (i > 0) {
         // Check if index is already used. Check if 0th element is a duplicate.
         if (s.tokenIndexes[_canonicalId][address(_pooledTokens[i])] != 0 || _pooledTokens[0] == _pooledTokens[i])
@@ -139,6 +139,10 @@ contract SwapAdminFacet is BaseConnextFacet {
 
       precisionMultipliers[i] = 10**uint256(SwapUtils.POOL_PRECISION_DECIMALS - decimals[i]);
       s.tokenIndexes[_canonicalId][address(_pooledTokens[i])] = i;
+
+      unchecked {
+        ++i;
+      }
     }
 
     // Check _a, _fee, _adminFee, _withdrawFee parameters

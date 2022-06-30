@@ -218,9 +218,13 @@ contract ConnextPriceOracle is PriceOracle {
   }
 
   function setAggregators(address[] calldata tokenAddresses, address[] calldata sources) external onlyAdmin {
-    for (uint256 i = 0; i < tokenAddresses.length; i++) {
+    for (uint256 i = 0; i < tokenAddresses.length; ) {
       aggregators[tokenAddresses[i]] = AggregatorV3Interface(sources[i]);
       emit AggregatorUpdated(tokenAddresses[i], sources[i]);
+
+      unchecked {
+        ++i;
+      }
     }
   }
 }

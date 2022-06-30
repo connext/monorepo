@@ -203,7 +203,7 @@ contract NomadFacet is BaseConnextFacet {
       for (uint256 i; i < pathLen; ) {
         s.routerBalances[routers[i]][token] += routerAmt;
         unchecked {
-          i++;
+          ++i;
         }
       }
     }

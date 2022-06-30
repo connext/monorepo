@@ -82,7 +82,7 @@ library RelayerFeeMessage {
       ids[i] = _view.index(TRANSFER_IDS_START + i * TRANSFER_ID_LEN, TRANSFER_ID_LEN);
 
       unchecked {
-        i++;
+        ++i;
       }
     }
     return ids;

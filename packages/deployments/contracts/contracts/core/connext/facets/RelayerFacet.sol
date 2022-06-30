@@ -141,7 +141,7 @@ contract RelayerFacet is BaseConnextFacet {
       if (s.transferRelayer[_transferIds[i]] != msg.sender)
         revert RelayerFacet__initiateClaim_notRelayer(_transferIds[i]);
       unchecked {
-        i++;
+        ++i;
       }
     }
 
@@ -165,7 +165,7 @@ contract RelayerFacet is BaseConnextFacet {
       total += s.relayerFees[_transferIds[i]];
       s.relayerFees[_transferIds[i]] = 0;
       unchecked {
-        i++;
+        ++i;
       }
     }
 
