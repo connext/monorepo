@@ -100,14 +100,18 @@ export class SubgraphReader {
   public async getMaxRoutersPerTransfer(domains: string[]): Promise<Map<string, number>> {
     const { execute, getPrefixForDomain } = getHelpers();
     const prefixes = domains.map((domain) => getPrefixForDomain(domain));
-    const query = getMaxRoutersPerTransferQuery(prefixes);
-    const response = await execute(query);
     const maxRoutersRes: Map<string, number> = new Map();
-    for (const domain of response.keys()) {
-      if (response.has(domain) && response.get(domain)!.length > 0) {
-        const settingInfo = response.get(domain)![0];
-        maxRoutersRes.set(domain, Number(settingInfo.maxRoutersPerTransfer));
+    const query = getMaxRoutersPerTransferQuery(prefixes);
+    try {
+      const response = await execute(query);
+      for (const domain of response.keys()) {
+        if (response.has(domain) && response.get(domain)!.length > 0) {
+          const settingInfo = response.get(domain)![0];
+          maxRoutersRes.set(domain, Number(settingInfo.maxRoutersPerTransfer));
+        }
       }
+    } catch (e: unknown) {
+      domains.forEach((domain) => maxRoutersRes.set(domain, 5));
     }
     return maxRoutersRes;
   }

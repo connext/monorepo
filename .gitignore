@@ -38,3 +38,4 @@ packages/integration/ops/config/router/*.yaml
 ops/**/tfvars.json
 .idea
 packages/agents/router/config.*.json
+packages/agents/sequencer/config.*.json
