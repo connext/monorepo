@@ -315,11 +315,15 @@ library SwapUtils {
 
     for (uint256 i = 0; i < MAX_LOOP_LIMIT; ) {
       uint256 dP = d;
-      for (uint256 j = 0; j < numTokens; j++) {
+      for (uint256 j = 0; j < numTokens; ) {
         dP = dP.mul(d).div(xp[j].mul(numTokens));
         // If we were to protect the division loss we would have to keep the denominator separate
         // and divide at the end. However this leads to overflow with large numTokens or/and D.
         // dP = dP * D * D * D * ... overflow!
+
+        unchecked {
+          ++j
+        }
       }
       prevD = d;
       d = nA.mul(s).div(AmplificationUtils.A_PRECISION).add(dP.mul(numTokens)).mul(d).div(
