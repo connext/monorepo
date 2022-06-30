@@ -1,9 +1,11 @@
 #!/bin/bash
-export LOCALHOST="127.0.0.1"
+LOCALHOST="127.0.0.1"
 # LOCALHOST="localhost"
-export SEQUENCER_PORT="8081"
-export ROUTER_PORT="8080"
-export DEFAULT_MNEMONIC="candy maple cake sugar pudding cream honey rich smooth crumble sweet treat"
+SEQUENCER_PORT="8081"
+ROUTER_PORT="8080"
+DEFAULT_MNEMONIC="candy maple cake sugar pudding cream honey rich smooth crumble sweet treat"
+ROUTER_IMAGE=router:latest
+SEQUENCER_IMAGE=sequencer:latest
 
 # AUCTION_ROUND_DEPTH
 # NXTP_SUBGRAPH_POLL_INTERVAL
@@ -27,7 +29,10 @@ NXTP_ENVIRONMENT=production
 NXTP_NOMAD_ENVIRONMENT=staging
 
 MNEMONIC=${DEFAULT_MNEMONIC}
-" >> .env
+
+ROUTER_IMAGE=${ROUTER_IMAGE}
+SEQUENCER_IMAGE=${SEQUENCER_IMAGE}
+" > .env
 
 echo "Starting 1337 and 1338 local chains..."
 docker compose -f docker-compose.chains.yaml -f docker-compose.services.yaml up -d --force-recreate

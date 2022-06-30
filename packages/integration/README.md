@@ -76,16 +76,9 @@ Why? If you need to run the test locally against local changes, you can build th
 - `docker build --tag sequencer:latest --file ./docker/sequencer/Dockerfile .`
 - `docker build --tag router:latest --file ./docker/router/Dockerfile .`
 
-## Create .env
+## Edit Config If Needed
 
-Create a `.env` at the repo root:
-
-```
-ROUTER_IMAGE=router:latest
-SEQUENCER_IMAGE=sequencer:latest
-```
-
-These values can be substituted with live images i.e. `ROUTER_IMAGE=ghcr.io/connext/router:sha-ABCDEF`
+In `setup-integration-test.sh` there is a section that creates a `.env` file. Anything here such as image tags can be changed to reflect the test design. For example, if you want to run the test against a different image, you can change the tag in the bash file variables for `ROUTER_IMAGE` and `SEQUENCER_IMAGE`.
 
 ## Steps
 
