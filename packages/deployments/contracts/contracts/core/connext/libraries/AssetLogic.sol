@@ -256,6 +256,7 @@ library AssetLogic {
    * @param _assetIn - The address of the from asset
    * @param _assetOut - The address of the to asset
    * @param _amount - The amount of the local asset to swap
+   * @param _slippageTol - Max bps of original due to slippage (i.e. would be 9995 to tolerate .05% slippage)
    * @return The amount of assetOut
    * @return The address of assetOut
    */
@@ -300,6 +301,7 @@ library AssetLogic {
    * @param _assetIn - The address of the from asset
    * @param _assetOut - The address of the to asset
    * @param _amountOut - The amount of the _assetOut to swap
+   * @return Success value
    * @return The amount of assetIn
    * @return The address of assetOut
    */
