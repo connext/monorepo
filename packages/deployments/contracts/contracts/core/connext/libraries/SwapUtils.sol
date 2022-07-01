@@ -101,16 +101,16 @@ library SwapUtils {
 
   // the denominator used to calculate admin and LP fees. For example, an
   // LP fee might be something like tradeAmount.mul(fee).div(FEE_DENOMINATOR)
-  uint256 internal constant FEE_DENOMINATOR = 10**10;
+  uint256 internal constant FEE_DENOMINATOR = 1e10;
 
   // Max swap fee is 1% or 100bps of each swap
-  uint256 internal constant MAX_SWAP_FEE = 10**8;
+  uint256 internal constant MAX_SWAP_FEE = 1e8;
 
   // Max adminFee is 100% of the swapFee
   // adminFee does not add additional fee on top of swapFee
   // Instead it takes a certain % of the swapFee. Therefore it has no impact on the
   // users but only on the earnings of LPs
-  uint256 internal constant MAX_ADMIN_FEE = 10**10;
+  uint256 internal constant MAX_ADMIN_FEE = 1e10;
 
   // Constant value used as max loop limit
   uint256 internal constant MAX_LOOP_LIMIT = 256;
