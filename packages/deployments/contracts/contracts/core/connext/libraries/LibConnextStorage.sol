@@ -1,13 +1,13 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity 0.8.15;
 
-import {XAppConnectionManager} from "../../../nomad-core/contracts/XAppConnectionManager.sol";
-
 import {RelayerFeeRouter} from "../../relayer-fee/RelayerFeeRouter.sol";
 import {PromiseRouter} from "../../promise/PromiseRouter.sol";
 
-import {ITokenRegistry} from "../interfaces/ITokenRegistry.sol";
-import {IWrapped} from "../interfaces/IWrapped.sol";
+import {ITokenRegistry} from "../../../nomad-bridge/interfaces/ITokenRegistry.sol";
+import {IWeth} from "../../../nomad-bridge/interfaces/IWeth.sol";
+
+import {IBridgeRouter} from "../interfaces/IBridgeRouter.sol";
 import {IExecutor} from "../interfaces/IExecutor.sol";
 import {IStableSwap} from "../interfaces/IStableSwap.sol";
 import {ISponsorVault} from "../interfaces/ISponsorVault.sol";
@@ -107,131 +107,128 @@ struct RouterPermissionsManagerInfo {
 }
 
 struct AppStorage {
+  //
+  // 0
   bool initialized;
   //
   // ConnextHandler
   //
-  // 0
-  uint256 LIQUIDITY_FEE_NUMERATOR;
   // 1
+  uint256 LIQUIDITY_FEE_NUMERATOR;
+  // 2
   uint256 LIQUIDITY_FEE_DENOMINATOR;
   // The local nomad relayer fee router
-  // 2
+  // 3
   RelayerFeeRouter relayerFeeRouter;
   // The local nomad promise callback router
-  // 3
+  // 4
   PromiseRouter promiseRouter;
   // /**
   // * @notice The address of the wrapper for the native asset on this domain
   // * @dev Needed because the nomad only handles ERC20 assets
   // */
-  // 4
-  IWrapped wrapper;
+  // 5
+  IWeth wrapper;
   // /**
   // * @notice Nonce for the contract, used to keep unique transfer ids.
   // * @dev Assigned at first interaction (xcall on origin domain);
   // */
-  // 5
+  // 6
   uint256 nonce;
   // /**
   // * @notice The external contract that will execute crosschain calldata
   // */
-  // 6
+  // 7
   IExecutor executor;
   // /**
   // * @notice The domain this contract exists on
   // * @dev Must match the nomad domain, which is distinct from the "chainId"
   // */
-  // 7
+  // 8
   uint32 domain;
   // /**
   // * @notice The local nomad token registry
   // */
-  // 8
+  // 9
   ITokenRegistry tokenRegistry;
   // /**
   // * @notice Mapping holding the AMMs for swapping in and out of local assets
   // * @dev Swaps for an adopted asset <> nomad local asset (i.e. POS USDC <> madUSDC on polygon)
   // */
-  // 9
+  // 10
   mapping(bytes32 => IStableSwap) adoptedToLocalPools;
   // /**
   // * @notice Mapping of whitelisted assets on same domain as contract
   // * @dev Mapping is keyed on the canonical token identifier matching what is stored in the token
   // * registry
   // */
-  // 10
+  // 11
   mapping(bytes32 => bool) approvedAssets;
   // /**
   // * @notice Mapping of canonical to adopted assets on this domain
   // * @dev If the adopted asset is the native asset, the keyed address will
   // * be the wrapped asset address
   // */
-  // 11
+  // 12
   mapping(address => ConnextMessage.TokenId) adoptedToCanonical;
   // /**
   // * @notice Mapping of adopted to canonical on this domain
   // * @dev If the adopted asset is the native asset, the stored address will be the
   // * wrapped asset address
   // */
-  // 12
+  // 13
   mapping(bytes32 => address) canonicalToAdopted;
   // /**
   // * @notice Mapping to determine if transfer is reconciled
   // */
-  // 13
+  // 14
   mapping(bytes32 => bool) reconciledTransfers;
   // /**
   // * @notice Mapping holding router address that provided fast liquidity
   // */
-  // 14
+  // 15
   mapping(bytes32 => address[]) routedTransfers;
   // /**
   // * @notice Mapping of router to available balance of an asset
   // * @dev Routers should always store liquidity that they can expect to receive via the bridge on
   // * this domain (the nomad local asset)
   // */
-  // 15
+  // 16
   mapping(address => mapping(address => uint256)) routerBalances;
   // /**
   // * @notice Mapping of approved relayers
   // * @dev Send relayer fee if msg.sender is approvedRelayer. otherwise revert()
   // */
-  // 16
+  // 17
   mapping(address => bool) approvedRelayers;
   // /**
   // * @notice Stores the relayer fee for a transfer. Updated on origin domain when a user calls xcall or bump
   // * @dev This will track all of the relayer fees assigned to a transfer by id, including any bumps made by the relayer
   // */
-  // 17
+  // 18
   mapping(bytes32 => uint256) relayerFees;
   // /**
   // * @notice Stores the relayer of a transfer. Updated on the destination domain when a relayer calls execute
   // * for transfer
   // * @dev When relayer claims, must check that the msg.sender has forwarded transfer
   // */
-  // 18
+  // 19
   mapping(bytes32 => address) transferRelayer;
   // /**
   // * @notice The max amount of routers a payment can be routed through
   // */
-  // 19
+  // 20
   uint256 maxRoutersPerTransfer;
   // /**
   //  * @notice The Vault used for sponsoring fees
   //  */
-  // 20
-  ISponsorVault sponsorVault;
-  //
-  // Router
-  //
   // 21
-  mapping(uint32 => bytes32) remotes;
-  //
-  // XAppConnectionClient
-  //
+  ISponsorVault sponsorVault;
+  // /**
+  //  * @notice The address of the nomad bridge router for this chain
+  //  */
   // 22
-  XAppConnectionManager xAppConnectionManager;
+  IBridgeRouter bridgeRouter;
   //
   // ProposedOwnable
   //

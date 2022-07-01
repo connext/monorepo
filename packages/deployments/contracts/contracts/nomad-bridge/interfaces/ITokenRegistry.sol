@@ -1,6 +1,11 @@
 // SPDX-License-Identifier: MIT OR Apache-2.0
 pragma solidity 0.8.15;
 
+// ============ Internal Imports ============
+import {IBridgeToken} from "./IBridgeToken.sol";
+import {BridgeMessage} from "../BridgeMessage.sol";
+
+// ============ External Imports ============
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
 interface ITokenRegistry {

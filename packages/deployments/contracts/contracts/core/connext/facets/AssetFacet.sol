@@ -3,11 +3,12 @@ pragma solidity 0.8.15;
 
 import {Address} from "@openzeppelin/contracts/utils/Address.sol";
 
+import {IWeth} from "../../../nomad-bridge/interfaces/IWeth.sol";
+import {ITokenRegistry} from "../../../nomad-bridge/interfaces/ITokenRegistry.sol";
+
 import {BaseConnextFacet} from "./BaseConnextFacet.sol";
 import {ConnextMessage} from "../libraries/ConnextMessage.sol";
 import {IStableSwap} from "../interfaces/IStableSwap.sol";
-import {IWrapped} from "../interfaces/IWrapped.sol";
-import {ITokenRegistry} from "../interfaces/ITokenRegistry.sol";
 
 contract AssetFacet is BaseConnextFacet {
   // ========== Custom Errors ===========
@@ -84,7 +85,7 @@ contract AssetFacet is BaseConnextFacet {
     return s.adoptedToLocalPools[_adopted];
   }
 
-  function wrapper() public view returns (IWrapped) {
+  function wrapper() public view returns (IWeth) {
     return s.wrapper;
   }
 
@@ -102,7 +103,7 @@ contract AssetFacet is BaseConnextFacet {
     address old = address(s.wrapper);
     if (old == _wrapper || !Address.isContract(_wrapper)) revert AssetFacet__setWrapper_invalidWrapper();
 
-    s.wrapper = IWrapped(_wrapper);
+    s.wrapper = IWeth(_wrapper);
     emit WrapperUpdated(old, _wrapper, msg.sender);
   }
 

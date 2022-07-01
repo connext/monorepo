@@ -1,13 +1,14 @@
 // SPDX-License-Identifier: MIT OR Apache-2.0
 pragma solidity 0.8.15;
 
-import {Version0} from "../../../nomad-core/contracts/Version0.sol";
-import {TypeCasts} from "../../../nomad-core/contracts/XAppConnectionManager.sol";
+// ============ Internal Imports ============
+import {BridgeMessage} from "./BridgeMessage.sol";
+import {IBridgeToken} from "./interfaces/IBridgeToken.sol";
+import {ERC20} from "./vendored/OZERC20.sol";
+// ============ External Imports ============
+import {Version0} from "../nomad-core/contracts/Version0.sol";
+import {TypeCasts} from "../nomad-core/contracts/XAppConnectionManager.sol";
 import {OwnableUpgradeable} from "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
-
-import {IBridgeToken} from "../interfaces/IBridgeToken.sol";
-import {ERC20} from "./OZERC20.sol";
-import {ConnextMessage} from "../libraries/ConnextMessage.sol";
 
 contract BridgeToken is Version0, IBridgeToken, OwnableUpgradeable, ERC20 {
   // ============ Immutables ============
@@ -92,7 +93,7 @@ contract BridgeToken is Version0, IBridgeToken, OwnableUpgradeable, ERC20 {
     // these once. After the first transfer is made, detailsHash will be
     // set, allowing anyone to supply correct name/symbols/decimals
     require(
-      _isFirstDetails || ConnextMessage.formatDetailsHash(_newName, _newSymbol, _newDecimals) == detailsHash,
+      _isFirstDetails || BridgeMessage.getDetailsHash(_newName, _newSymbol, _newDecimals) == detailsHash,
       "!committed details"
     );
     // careful with naming convention change here
@@ -141,7 +142,7 @@ contract BridgeToken is Version0, IBridgeToken, OwnableUpgradeable, ERC20 {
   // ============ Public Functions ============
 
   /**
-   * @dev See {IERC20-balanceOf}.
+   * @dev silence the compiler being dumb
    */
   function balanceOf(address _account) public view override(IBridgeToken, ERC20) returns (uint256) {
     return ERC20.balanceOf(_account);
@@ -201,5 +202,14 @@ contract BridgeToken is Version0, IBridgeToken, OwnableUpgradeable, ERC20 {
   // required for solidity inheritance
   function transferOwnership(address _newOwner) public override(IBridgeToken, OwnableUpgradeable) onlyOwner {
     OwnableUpgradeable.transferOwnership(_newOwner);
+  }
+
+  /**
+   * @dev should be impossible to renounce ownership;
+   * we override OpenZeppelin OwnableUpgradeable's
+   * implementation of renounceOwnership to make it a no-op
+   */
+  function renounceOwnership() public override onlyOwner {
+    // do nothing
   }
 }

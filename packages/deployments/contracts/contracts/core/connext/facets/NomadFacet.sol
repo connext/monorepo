@@ -7,14 +7,22 @@ import {TypedMemView} from "../../../nomad-core/libs/TypedMemView.sol";
 
 import {XAppConnectionManager} from "../../../nomad-core/contracts/XAppConnectionManager.sol";
 
+import {IBridgeToken} from "../../../nomad-bridge/interfaces/IBridgeToken.sol";
+
 import {ConnextMessage} from "../libraries/ConnextMessage.sol";
 import {AssetLogic} from "../libraries/AssetLogic.sol";
 
-import {IBridgeToken} from "../interfaces/IBridgeToken.sol";
 import {IAavePool} from "../interfaces/IAavePool.sol";
 
 import {BaseConnextFacet} from "./BaseConnextFacet.sol";
 
+/**
+ * @title NomadFacet
+ * @notice This is the facet that holds all the functionality needed for nomad to reconcile
+ * the transfer
+ *
+ * TODO: maybe move into bridge facet again?
+ */
 contract NomadFacet is BaseConnextFacet {
   // ============ Libraries ============
   using TypedMemView for bytes;
@@ -49,74 +57,17 @@ contract NomadFacet is BaseConnextFacet {
   /**
    * @notice Emitted when `reconciled` is called by the bridge on the destination domain
    * @param transferId - The unique identifier of the crosschain transaction
-   * @param origin - The origin domain of the transfer
    * @param routers - The CallParams.recipient provided, created as indexed parameter
    * @param asset - The asset that was provided by the bridge
    * @param amount - The amount that was provided by the bridge
    * @param caller - The account that called the function
    */
-  event Reconciled(
-    bytes32 indexed transferId,
-    uint32 indexed origin,
-    address[] routers,
-    address asset,
-    uint256 amount,
-    address caller
-  );
-
-  // ============ Getters functions ============
-
-  function xAppConnectionManager() public view returns (XAppConnectionManager) {
-    return s.xAppConnectionManager;
-  }
-
-  function remotes(uint32 _domain) public view returns (bytes32) {
-    return s.remotes[_domain];
-  }
+  event Reconciled(bytes32 indexed transferId, address[] routers, address asset, uint256 amount, address caller);
 
   // ============ External functions ============
 
   /**
-   * @notice Modify the contract the xApp uses to validate Replica contracts
-   * @param _xAppConnectionManager The address of the xAppConnectionManager contract
-   */
-  function setXAppConnectionManager(address _xAppConnectionManager) external onlyOwner {
-    s.xAppConnectionManager = XAppConnectionManager(_xAppConnectionManager);
-  }
-
-  /**
-   * @notice Register the address of a Router contract for the same xApp on a remote chain
-   * @param _domain The domain of the remote xApp Router
-   * @param _router The address of the remote xApp Router
-   */
-  function enrollRemoteRouter(uint32 _domain, bytes32 _router) external onlyOwner {
-    s.remotes[_domain] = _router;
-  }
-
-  /**
-   * @notice The interface-compliant entrypoint for nomad relayers. Handles an incoming nomad router message that has
-   * been verified optimistically. Wraps `_reconcile`, which contains the business logic involved in completing the
-   * xchain update.
-   *
-   * @dev Since this method will be called by nomad relayers, it should not consume arbitrary amounts of gas under
-   * any circumstances.
-   *
-   * @param _origin - The origin domain's numeric ID.
-   * @param _nonce - The unique numeric identifier for the message from origin to destination.
-   * @param _sender - The sender identifier.
-   * @param _message - The message bytes.
-   */
-  function handle(
-    uint32 _origin,
-    uint32 _nonce,
-    bytes32 _sender,
-    bytes memory _message
-  ) external onlyReplica onlyRemoteRouter(_origin, _sender) {
-    _reconcile(_origin, _message);
-  }
-
-  /**
-   * @notice Called via `handle`. Will either (a) credit the router(s) if fast liquidity was provided (i.e. `execute`
+   * @notice Called via `handle` on Nomad BridgeRouter. Will either (a) credit the router(s) if fast liquidity was provided (i.e. `execute`
    * has already occurred) or (b) make funds available for execution, updating state to mark the transfer as having
    * been reconciled (i.e. verified).
    *
@@ -127,51 +78,23 @@ contract NomadFacet is BaseConnextFacet {
    * (tokens which were previously deposited into this bridge via outgoing `xcall`s). If the target adopted token
    * is also the local nomad asset (which would be minted here), then no swap is necessary.
    *
-   * @param _origin - The origin domain's numeric ID.
-   * @param _message - The bridged message bytes.
+   * @param transferId - The unique identifier for the transfer
+   * @param amount - The amount bridged
+   * @param canonicalId - The canonical identifier of the token
+   * @param canonicalDomain - The canonical domain of the token
+   * @param localToken - The address of the token representation on this domain, or the canonical
+   * address if you are on the canonical domain
    */
-  function _reconcile(uint32 _origin, bytes memory _message) internal {
-    // Parse tokenId and action from the message.
-    bytes29 msg_ = _message.ref(0).mustBeMessage();
-    bytes29 tokenId = msg_.tokenId();
-    bytes29 action = msg_.action();
-
-    // Assert that the action is valid.
-    if (!action.isTransfer()) {
-      revert NomadFacet__reconcile_invalidAction();
-    }
-
-    // Load the transferId.
-    bytes32 transferId = action.transferId();
-
+  function reconcile(
+    bytes32 transferId,
+    uint256 amount,
+    bytes32 canonicalId,
+    uint32 canonicalDomain,
+    address localToken
+  ) external onlyBridgeRouter {
     // Ensure the transaction has not already been handled (i.e. previously reconciled).
     if (s.reconciledTransfers[transferId]) {
       revert NomadFacet__reconcile_alreadyReconciled();
-    }
-
-    // NOTE: `tokenId` and `amount` must be in plaintext in the message so funds can *only* be minted by
-    // `handle`. They are both used in the generation of the `transferId` so routers must provide them
-    // correctly to be reimbursed.
-
-    // Get the appropriate local token contract for the given tokenId on this chain.
-    // NOTE: If the token is of remote origin and there is no existing representation token contract,
-    // the TokenRegistry will deploy a new one.
-    bytes32 canonicalId = tokenId.id(); // load once
-    address token = s.tokenRegistry.ensureLocalToken(tokenId.domain(), canonicalId);
-
-    // Load amount once.
-    uint256 amount = action.amnt();
-
-    // Mint tokens if the asset is of remote origin (i.e. is representational).
-    // NOTE: If the asset IS of local origin (meaning it's canonical), then the tokens will already be held
-    // in escrow in this contract (from previous `xcall`s).
-    if (!s.tokenRegistry.isLocalOrigin(token)) {
-      IBridgeToken(token).mint(address(this), amount);
-
-      // Update the recorded `detailsHash` for the token (name, symbol, decimals).
-      // TODO: do we need to keep this
-      bytes32 details = action.detailsHash();
-      IBridgeToken(token).setDetailsHash(details);
     }
 
     // Mark the transfer as reconciled.
@@ -193,7 +116,7 @@ contract NomadFacet is BaseConnextFacet {
     if (portalTransferAmount != 0) {
       // ensure a router took on credit risk
       if (pathLen != 1) revert NomadFacet__reconcile_noPortalRouter();
-      toDistribute = _reconcileProcessPortal(canonicalId, amount, token, transferId);
+      toDistribute = _reconcileProcessPortal(canonicalId, amount, localToken, transferId);
     }
 
     if (pathLen != 0) {
@@ -201,14 +124,14 @@ contract NomadFacet is BaseConnextFacet {
       // Credit each router that provided liquidity their due 'share' of the asset.
       uint256 routerAmt = toDistribute / pathLen;
       for (uint256 i; i < pathLen; ) {
-        s.routerBalances[routers[i]][token] += routerAmt;
+        s.routerBalances[routers[i]][localToken] += routerAmt;
         unchecked {
           i++;
         }
       }
     }
 
-    emit Reconciled(transferId, _origin, routers, token, amount, msg.sender);
+    emit Reconciled(transferId, routers, localToken, amount, msg.sender);
   }
 
   /**

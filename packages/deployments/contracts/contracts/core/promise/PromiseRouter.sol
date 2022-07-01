@@ -8,7 +8,6 @@ import {AddressUpgradeable} from "@openzeppelin/contracts-upgradeable/utils/Addr
 import {ReentrancyGuardUpgradeable} from "@openzeppelin/contracts-upgradeable/security/ReentrancyGuardUpgradeable.sol";
 
 import {IConnextHandler} from "../connext/interfaces/IConnextHandler.sol";
-import {IBridgeToken} from "../connext/interfaces/IBridgeToken.sol";
 
 import {Router} from "../shared/Router.sol";
 import {XAppConnectionClient} from "../shared/XAppConnectionClient.sol";

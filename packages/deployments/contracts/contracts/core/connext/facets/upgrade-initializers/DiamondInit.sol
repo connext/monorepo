@@ -11,8 +11,9 @@ pragma solidity ^0.8.0;
 import {IDiamondLoupe} from "../../interfaces/IDiamondLoupe.sol";
 import {IDiamondCut} from "../../interfaces/IDiamondCut.sol";
 import {IERC165} from "../../interfaces/IERC165.sol";
-import {IWrapped} from "../../interfaces/IWrapped.sol";
-import {ITokenRegistry} from "../../interfaces/ITokenRegistry.sol";
+
+import {IWeth} from "../../../../nomad-bridge/interfaces/IWeth.sol";
+import {ITokenRegistry} from "../../../../nomad-bridge/interfaces/ITokenRegistry.sol";
 
 import {Executor} from "../../helpers/Executor.sol";
 
@@ -60,8 +61,6 @@ contract DiamondInit is BaseConnextFacet {
       LibDiamond.enforceIsContractOwner();
 
       s.initialized = true;
-      // __XAppConnectionClient_initialize
-      s.xAppConnectionManager = XAppConnectionManager(_xAppConnectionManager);
 
       // __ProposedOwnable_init
 
@@ -74,7 +73,7 @@ contract DiamondInit is BaseConnextFacet {
       s.promiseRouter = PromiseRouter(_promiseRouter);
       s.executor = new Executor(address(this));
       s.tokenRegistry = ITokenRegistry(_tokenRegistry);
-      s.wrapper = IWrapped(_wrappedNative);
+      s.wrapper = IWeth(_wrappedNative);
       s.LIQUIDITY_FEE_NUMERATOR = 9995;
       s.LIQUIDITY_FEE_DENOMINATOR = 10000;
       s.maxRoutersPerTransfer = 5;

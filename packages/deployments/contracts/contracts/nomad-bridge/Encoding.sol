@@ -41,13 +41,11 @@ library Encoding {
       }
     }
     // abusing underflow here =_=
-    unchecked {
-      for (uint8 i = 15; i < 255; i -= 1) {
-        uint8 _b = uint8(_bytes >> (i * 8));
-        _secondHalf |= _byteHex(_b);
-        if (i != 0) {
-          _secondHalf <<= 16;
-        }
+    for (uint8 i = 15; i < 255; i -= 1) {
+      uint8 _b = uint8(_bytes >> (i * 8));
+      _secondHalf |= _byteHex(_b);
+      if (i != 0) {
+        _secondHalf <<= 16;
       }
     }
   }

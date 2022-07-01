@@ -4,6 +4,9 @@ pragma solidity 0.8.15;
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import {XAppConnectionManager} from "../../../nomad-core/contracts/XAppConnectionManager.sol";
 
+import {IWeth} from "../../../nomad-bridge/interfaces/IWeth.sol";
+import {ITokenRegistry} from "../../../nomad-bridge/interfaces/ITokenRegistry.sol";
+
 import {RelayerFeeRouter} from "../../relayer-fee/RelayerFeeRouter.sol";
 import {PromiseRouter} from "../../promise/PromiseRouter.sol";
 
@@ -12,8 +15,6 @@ import {XCallArgs, ExecuteArgs, CallParams} from "../libraries/LibConnextStorage
 import {SwapUtils} from "../libraries/SwapUtils.sol";
 
 import {IStableSwap} from "./IStableSwap.sol";
-import {ITokenRegistry} from "./ITokenRegistry.sol";
-import {IWrapped} from "./IWrapped.sol";
 import {IExecutor} from "./IExecutor.sol";
 import {ISponsorVault} from "./ISponsorVault.sol";
 
@@ -59,13 +60,11 @@ interface IConnextHandler {
 
   function nonce() external view returns (uint256);
 
-  function wrapper() external view returns (IWrapped);
+  function wrapper() external view returns (IWeth);
 
   function sponsorVault() external view returns (ISponsorVault);
 
   function promiseRouter() external view returns (PromiseRouter);
-
-  function relayerFeeRouer() external view returns (RelayerFeeRouter);
 
   function setTokenRegistry(address _tokenRegistry) external;
 
@@ -79,14 +78,11 @@ interface IConnextHandler {
 
   function setSponsorVault(address _sponsorVault) external;
 
+  function setBridgeRouter(address _bridge) external;
+
   function xcall(XCallArgs calldata _args) external payable returns (bytes32);
 
-  function handle(
-    uint32 _origin,
-    uint32 _nonce,
-    bytes32 _sender,
-    bytes memory _message
-  ) external;
+  function reconcile(uint32 _origin, bytes memory _message) external;
 
   function execute(ExecuteArgs calldata _args) external returns (bytes32 transferId);
 
