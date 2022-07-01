@@ -12,7 +12,7 @@ import {LibCrossDomainProperty, TypedMemView} from "../libraries/LibCrossDomainP
 /**
  * @title Executor
  * @author Connext <support@connext.network>
- * @notice This library contains an `execute` function that is callabale by
+ * @notice This library contains an `execute` function that is callable by
  * an associated Connext contract. This is used to execute
  * arbitrary calldata on a receiving chain.
  * @dev In the event this external call fails, funds will be sent to a provided

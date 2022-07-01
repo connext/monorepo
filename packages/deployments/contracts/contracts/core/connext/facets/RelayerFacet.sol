@@ -32,7 +32,7 @@ contract RelayerFacet is BaseConnextFacet {
   event RelayerAdded(address relayer, address caller);
 
   /**
-   * @notice Emitted when a rlayer is added or removed from whitelists
+   * @notice Emitted when a relayer is added or removed from whitelists
    * @param relayer - The relayer address to be added or removed
    * @param caller - The account that called the function
    */

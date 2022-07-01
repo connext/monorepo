@@ -295,7 +295,7 @@ contract NomadFacet is BaseConnextFacet {
 
     // Calculate the amount to distribute to the router. There are cases (i.e. positive slippage)
     // where router has gained extra because of the AMM, these funds should be distributed.
-    // Because we are using the `_amount` a sthe maximum amount in, the `amountIn` should always be
+    // Because we are using the `_amount` as the maximum amount in, the `amountIn` should always be
     // <= _amount (i.e. this will be +ive)
     return (_amount - amountIn);
   }

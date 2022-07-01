@@ -115,7 +115,7 @@ contract ProposedOwnableFacet is BaseConnextFacet, IProposedOwnable {
   /**
    * @notice Returns the delay period before a new owner can be accepted.
    */
-  function delay() public view returns (uint256) {
+  function delay() public pure returns (uint256) {
     return _delay;
   }
 
@@ -140,7 +140,7 @@ contract ProposedOwnableFacet is BaseConnextFacet, IProposedOwnable {
    * been renounced
    */
   function renounceRouterOwnership() public onlyOwner {
-    // Contract as sournce of truth
+    // Contract as sounce of truth
     // Will fail if all ownership is renounced by modifier
     if (s._routerOwnershipRenounced) revert ProposedOwnableFacet__renounceRouterOwnership_noOwnershipChange();
 
@@ -160,7 +160,7 @@ contract ProposedOwnableFacet is BaseConnextFacet, IProposedOwnable {
    * been renounced
    */
   function proposeAssetOwnershipRenunciation() public onlyOwner {
-    // Contract as sournce of truth
+    // Contract as source of truth
     // Will fail if all ownership is renounced by modifier
     if (s._assetOwnershipRenounced) revert ProposedOwnableFacet__proposeAssetOwnershipRenunciation_noOwnershipChange();
 
@@ -173,7 +173,7 @@ contract ProposedOwnableFacet is BaseConnextFacet, IProposedOwnable {
    * been renounced
    */
   function renounceAssetOwnership() public onlyOwner {
-    // Contract as sournce of truth
+    // Contract as source of truth
     // Will fail if all ownership is renounced by modifier
     if (s._assetOwnershipRenounced) revert ProposedOwnableFacet__renounceAssetOwnership_noOwnershipChange();
 

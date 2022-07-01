@@ -531,31 +531,30 @@ contract RoutersFacet is BaseConnextFacet {
     address _local,
     address _router
   ) internal {
-    // Sanity check: router is sensible
+    // Sanity check: router is sensible.
     if (_router == address(0)) revert RoutersFacet__addLiquidityForRouter_routerEmpty();
 
-    // Sanity check: nonzero amounts
+    // Sanity check: nonzero amounts.
     if (_amount == 0) revert RoutersFacet__addLiquidityForRouter_amountIsZero();
 
-    // Get the canonical asset id from the representation
+    // Get the canonical asset ID from the representation.
     (, bytes32 canonicalId) = s.tokenRegistry.getTokenId(_local == address(0) ? address(s.wrapper) : _local);
 
-    // Router is approved
+    // Sanity check: router is approved.
     if (!_isRouterOwnershipRenounced() && !getRouterApproval(_router))
       revert RoutersFacet__addLiquidityForRouter_badRouter();
 
-    // Asset is approved
+    // Sanity check: asset is approved.
     if (!_isAssetOwnershipRenounced() && !s.approvedAssets[canonicalId])
       revert RoutersFacet__addLiquidityForRouter_badAsset();
 
-    // Transfer funds to contract
+    // Transfer funds to contract.
     (address asset, uint256 received) = AssetLogic.handleIncomingAsset(_local, _amount, 0);
 
     // Update the router balances. Happens after pulling funds to account for
-    // the fee on transfer tokens
+    // the fee on transfer tokens.
     s.routerBalances[_router][asset] += received;
 
-    // Emit event
     emit RouterLiquidityAdded(_router, asset, canonicalId, received, msg.sender);
   }
 
@@ -573,34 +572,33 @@ contract RoutersFacet is BaseConnextFacet {
     address payable _to,
     address _router
   ) internal {
-    // transfer to specicfied recipient IF recipient not set
+    // Transfer to specified recipient IF recipient not set.
     address recipient = getRouterRecipient(_router);
     recipient = recipient == address(0) ? _to : recipient;
 
-    // Sanity check: to is sensible
+    // Sanity check: to is sensible.
     if (recipient == address(0)) revert RoutersFacet__removeRouterLiquidity_recipientEmpty();
 
-    // Sanity check: nonzero amounts
+    // Sanity check: nonzero amounts.
     if (_amount == 0) revert RoutersFacet__removeRouterLiquidity_amountIsZero();
 
-    // Get the local key
+    // Get the local key.
     address key = _local == address(0) ? address(s.wrapper) : _local;
 
-    // Get existing router balance
+    // Get existing router balance.
     uint256 routerBalance = s.routerBalances[_router][key];
 
-    // Sanity check: amount can be deducted for the router
+    // Sanity check: amount can be deducted for the router.
     if (routerBalance < _amount) revert RoutersFacet__removeRouterLiquidity_insufficientFunds();
 
-    // Update router balances
+    // Update router balances.
     unchecked {
       s.routerBalances[_router][key] = routerBalance - _amount;
     }
 
-    // Transfer from contract to specified to
+    // Transfer from contract to specified `to` address.
     AssetLogic.transferAssetFromContract(key, recipient, _amount);
 
-    // Emit event
     emit RouterLiquidityRemoved(_router, recipient, _local, _amount, msg.sender);
   }
 }

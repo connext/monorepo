@@ -226,7 +226,7 @@ contract BridgeFacet is BaseConnextFacet {
    * network.
    *
    * @dev For ERC20 transfers, this contract must have approval to transfer the input (transacting) assets. The adopted
-   * assets will be swapped for their local nomad asset counterparts (i.e. bridgable tokens) via the configured AMM if
+   * assets will be swapped for their local nomad asset counterparts (i.e. bridgeable tokens) via the configured AMM if
    * necessary. In the event that the adopted assets *are* local nomad assets, no swap is needed. The local tokens will
    * then be sent via the bridge router. If the local assets are representational for an asset on another chain, we will
    * burn the tokens here. If the local assets are canonical (meaning that the adopted<>local asset pairing is native
@@ -396,8 +396,8 @@ contract BridgeFacet is BaseConnextFacet {
    * @param _params - The call params for the transaction
    * @param _amount - The amount of transferring asset the tx called xcall with
    * @param _nonce - The nonce for the transfer
-   * @param _canonicalId - The identifier of the canonical asseted associated with the transfer
-   * @param _canonicalDomain - The domain of the canonical asseted associated with the transfer
+   * @param _canonicalId - The identifier of the canonical asset associated with the transfer
+   * @param _canonicalDomain - The domain of the canonical asset associated with the transfer
    * @param _originSender - The msg.sender of the origin call
    */
   function forceReceiveLocal(
@@ -636,7 +636,7 @@ contract BridgeFacet is BaseConnextFacet {
       // Calculate amount that routers will provide with the fast-liquidity fee deducted.
       toSwap = _getFastTransferAmount(_args.amount, s.LIQUIDITY_FEE_NUMERATOR, s.LIQUIDITY_FEE_DENOMINATOR);
 
-      // Save the addressess of all routers providing liquidity for this transfer.
+      // Save the addresses of all routers providing liquidity for this transfer.
       s.routedTransfers[_transferId] = _args.routers;
 
       if (pathLen == 1) {
