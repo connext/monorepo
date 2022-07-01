@@ -622,8 +622,11 @@ contract BridgeFacet is BaseConnextFacet {
     bool _isFast,
     ExecuteArgs calldata _args
   ) private returns (uint256, address) {
-    uint256 toSwap = _args.amount;
+    if (_args.amount == 0) {
+      return (0, _args.local);
+    }
 
+    uint256 toSwap = _args.amount;
     // If this is a fast liquidity path, we should handle deducting from applicable routers' liquidity.
     // If this is a slow liquidity path, the transfer must have been reconciled (if we've reached this point),
     // and the funds would have been custodied in this contract. The exact custodied amount is untracked in state
