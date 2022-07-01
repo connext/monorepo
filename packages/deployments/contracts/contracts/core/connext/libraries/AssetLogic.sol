@@ -3,10 +3,10 @@ pragma solidity 0.8.15;
 
 import {SafeERC20, IERC20, Address} from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 
-import {IWeth} from "../../../nomad-bridge/interfaces/IWeth.sol";
-import {ITokenRegistry} from "../../../nomad-bridge/interfaces/ITokenRegistry.sol";
-
 import {IStableSwap} from "../interfaces/IStableSwap.sol";
+
+import {IWeth} from "../interfaces/IWeth.sol";
+import {ITokenRegistry} from "../interfaces/ITokenRegistry.sol";
 
 import {ConnextMessage} from "./ConnextMessage.sol";
 import {LibConnextStorage, AppStorage} from "./LibConnextStorage.sol";

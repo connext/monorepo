@@ -3,12 +3,11 @@ pragma solidity 0.8.15;
 
 import {Address} from "@openzeppelin/contracts/utils/Address.sol";
 
-import {IWeth} from "../../../nomad-bridge/interfaces/IWeth.sol";
-import {ITokenRegistry} from "../../../nomad-bridge/interfaces/ITokenRegistry.sol";
-
 import {BaseConnextFacet} from "./BaseConnextFacet.sol";
 import {ConnextMessage} from "../libraries/ConnextMessage.sol";
 import {IStableSwap} from "../interfaces/IStableSwap.sol";
+import {IWeth} from "../interfaces/IWeth.sol";
+import {ITokenRegistry} from "../interfaces/ITokenRegistry.sol";
 
 contract AssetFacet is BaseConnextFacet {
   // ========== Custom Errors ===========

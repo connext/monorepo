@@ -11,9 +11,8 @@ pragma solidity ^0.8.0;
 import {IDiamondLoupe} from "../../interfaces/IDiamondLoupe.sol";
 import {IDiamondCut} from "../../interfaces/IDiamondCut.sol";
 import {IERC165} from "../../interfaces/IERC165.sol";
-
-import {IWeth} from "../../../../nomad-bridge/interfaces/IWeth.sol";
-import {ITokenRegistry} from "../../../../nomad-bridge/interfaces/ITokenRegistry.sol";
+import {IWeth} from "../../interfaces/IWeth.sol";
+import {ITokenRegistry} from "../../interfaces/ITokenRegistry.sol";
 
 import {Executor} from "../../helpers/Executor.sol";
 

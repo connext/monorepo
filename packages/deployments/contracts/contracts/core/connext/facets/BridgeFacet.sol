@@ -8,9 +8,6 @@ import {Address} from "@openzeppelin/contracts/utils/Address.sol";
 import {TypedMemView} from "../../../nomad-core/libs/TypedMemView.sol";
 import {TypeCasts} from "../../../nomad-core/contracts/XAppConnectionManager.sol";
 
-import {IWeth} from "../../../nomad-bridge/interfaces/IWeth.sol";
-import {ITokenRegistry} from "../../../nomad-bridge/interfaces/ITokenRegistry.sol";
-
 import {BaseConnextFacet} from "./BaseConnextFacet.sol";
 
 import {ConnextMessage} from "../libraries/ConnextMessage.sol";
@@ -20,6 +17,8 @@ import {LibCrossDomainProperty} from "../libraries/LibCrossDomainProperty.sol";
 
 import {PromiseRouter} from "../../promise/PromiseRouter.sol";
 
+import {IWeth} from "../interfaces/IWeth.sol";
+import {ITokenRegistry} from "../interfaces/ITokenRegistry.sol";
 import {IExecutor} from "../interfaces/IExecutor.sol";
 import {IAavePool} from "../interfaces/IAavePool.sol";
 import {ISponsorVault} from "../interfaces/ISponsorVault.sol";

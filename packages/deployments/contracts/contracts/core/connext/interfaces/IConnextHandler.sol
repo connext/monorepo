@@ -4,9 +4,6 @@ pragma solidity 0.8.15;
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import {XAppConnectionManager} from "../../../nomad-core/contracts/XAppConnectionManager.sol";
 
-import {IWeth} from "../../../nomad-bridge/interfaces/IWeth.sol";
-import {ITokenRegistry} from "../../../nomad-bridge/interfaces/ITokenRegistry.sol";
-
 import {RelayerFeeRouter} from "../../relayer-fee/RelayerFeeRouter.sol";
 import {PromiseRouter} from "../../promise/PromiseRouter.sol";
 
@@ -17,6 +14,8 @@ import {SwapUtils} from "../libraries/SwapUtils.sol";
 import {IStableSwap} from "./IStableSwap.sol";
 import {IExecutor} from "./IExecutor.sol";
 import {ISponsorVault} from "./ISponsorVault.sol";
+import {IWeth} from "./IWeth.sol";
+import {ITokenRegistry} from "./ITokenRegistry.sol";
 
 interface IConnextHandler {
   // AssetFacet
