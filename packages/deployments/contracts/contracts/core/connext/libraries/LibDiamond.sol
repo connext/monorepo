@@ -63,7 +63,7 @@ library LibDiamond {
   }
 
   function enforceIsContractOwner() internal view {
-    require(msg.sender == diamondStorage().contractOwner, "LibDiamond: Must be contract owner");
+    require(msg.sender == diamondStorage().contractOwner, "LibDiamond: !contract owner");
   }
 
   event DiamondCutProposed(IDiamondCut.FacetCut[] _diamondCut, address _init, bytes _calldata, uint256 deadline);
