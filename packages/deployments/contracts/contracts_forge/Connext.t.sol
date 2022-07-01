@@ -481,11 +481,11 @@ contract ConnextTest is ForgeHelper, Deployer {
         destination, // dest domain
         address(2222), // agent
         address(3333), // recovery
+        false, // forceSlow
+        false, // receiveLocal
         address(0), // callback
         0, // callbackFee
         0, // relayerFee
-        false, // forceSlow
-        false, // receiveLocal
         9900 // slippage tol
       );
   }

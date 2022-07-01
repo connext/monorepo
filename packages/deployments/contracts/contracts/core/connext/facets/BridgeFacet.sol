@@ -266,6 +266,7 @@ contract BridgeFacet is BaseConnextFacet {
 
     bytes32 transferId;
     bytes memory message;
+    uint256 _sNonce;
     XCalledEventArgs memory eventArgs;
     {
       // Get the remote BridgeRouter address; revert if not found.
@@ -310,7 +311,7 @@ contract BridgeFacet is BaseConnextFacet {
 
       // Calculate the transfer id
       transferId = _getTransferId(_args, canonical, bridgedAmt);
-      uint256 _sNonce = s.nonce++;
+      _sNonce = s.nonce++;
 
       // Store the relayer fee
       // NOTE: this has to be done *after* transferring in + swapping assets because

@@ -87,11 +87,11 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
       _destinationDomain, // destination domain
       _agent, // agent
       _recovery, // recovery address
+      false, // forceSlow
+      false, // receiveLocal
       address(0), // callback
       0, // callbackFee
       _relayerFee, // relayer fee
-      false, // forceSlow
-      false, // receiveLocal
       9900 // slippageTol
     );
 

@@ -142,13 +142,20 @@ contract PortalFacet is BaseConnextFacet {
 
     // If this was a fee on transfer token, reduce the total
     if (amount < total) {
-      uint256 missing = unchecked { total - amount };
+      uint256 missing;
+      unchecked {
+        missing = total - amount;
+      }
       if (missing < _feeAmount) {
         // Debit fee amount
-        _feeAmount = unchecked { _feeAmount - missing } ;
+        unchecked {
+          _feeAmount -= missing;
+        }
       } else {
         // Debit backing amount
-        missing = unchecked { missing - _feeAmount };
+        unchecked {
+          missing -= _feeAmount;
+        }
         _feeAmount = 0;
         _backingAmount -= missing;
       }
