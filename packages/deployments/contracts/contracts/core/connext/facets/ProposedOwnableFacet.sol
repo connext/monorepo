@@ -293,6 +293,6 @@ contract ProposedOwnableFacet is BaseConnextFacet, IProposedOwnable {
   function _setProposed(address newlyProposed) private {
     s._proposedOwnershipTimestamp = block.timestamp;
     s._proposed = newlyProposed;
-    emit OwnershipProposed(s._proposed);
+    emit OwnershipProposed(newlyProposed);
   }
 }
