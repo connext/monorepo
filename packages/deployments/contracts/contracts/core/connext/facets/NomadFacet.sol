@@ -342,7 +342,7 @@ contract NomadFacet is BaseConnextFacet {
 
       if (availableAmount > backUnbackedAmount) {
         // Repay the whole transfer and a partial amount of fees
-        portalFee = availableAmount - backUnbackedAmount;
+        portalFee = unchecked { availableAmount - backUnbackedAmount };
 
         backUnbackedDebt = 0;
         portalFeeDebt -= portalFee;
