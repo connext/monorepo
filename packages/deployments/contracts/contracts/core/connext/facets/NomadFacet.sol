@@ -7,12 +7,11 @@ import {TypedMemView} from "../../../nomad-core/libs/TypedMemView.sol";
 
 import {XAppConnectionManager} from "../../../nomad-core/contracts/XAppConnectionManager.sol";
 
-import {IBridgeToken} from "../../../nomad-bridge/interfaces/IBridgeToken.sol";
-
 import {ConnextMessage} from "../libraries/ConnextMessage.sol";
 import {AssetLogic} from "../libraries/AssetLogic.sol";
 
 import {IAavePool} from "../interfaces/IAavePool.sol";
+import {IBridgeRouter} from "../interfaces/IBridgeRouter.sol";
 
 import {BaseConnextFacet} from "./BaseConnextFacet.sol";
 
@@ -33,6 +32,7 @@ contract NomadFacet is BaseConnextFacet {
   error NomadFacet__reconcile_invalidAction();
   error NomadFacet__reconcile_alreadyReconciled();
   error NomadFacet__reconcile_noPortalRouter();
+  error NomadFacet__setBridgeRouter_invalidBridge();
 
   // ============ Events ============
 
@@ -63,6 +63,14 @@ contract NomadFacet is BaseConnextFacet {
    * @param caller - The account that called the function
    */
   event Reconciled(bytes32 indexed transferId, address[] routers, address asset, uint256 amount, address caller);
+
+  /**
+   * @notice Emitted when the bridgeRouter variable is updated
+   * @param oldBridgeRouter - The bridgeRouter old value
+   * @param newBridgeRouter - The bridgeRouter new value
+   * @param caller - The account that called the function
+   */
+  event BridgeRouterUpdated(address oldBridgeRouter, address newBridgeRouter, address caller);
 
   // ============ External functions ============
 
@@ -133,6 +141,21 @@ contract NomadFacet is BaseConnextFacet {
 
     emit Reconciled(transferId, routers, localToken, amount, msg.sender);
   }
+
+  /**
+   * @notice Updates the bridge router
+   * @param _bridgeRouter The new bridge router address
+   */
+  function setBridgeRouter(address _bridgeRouter) external onlyOwner {
+    address old = address(s.bridgeRouter);
+    if (old == _bridgeRouter) {
+      revert NomadFacet__setBridgeRouter_invalidBridge();
+    }
+    s.bridgeRouter = IBridgeRouter(_bridgeRouter);
+    emit BridgeRouterUpdated(old, _bridgeRouter, msg.sender);
+  }
+
+  // ============ Internal functions ============
 
   /**
    * @notice Repays to Aave Portal if the transfer was executed with fast path using Portal liquidity
