@@ -212,7 +212,7 @@ contract SponsorVault is ISponsorVault, ReentrancyGuard, Ownable {
       sponsoredFee = tokenExchange.swapExactIn{value: amountIn}(_token, msg.sender);
     } else {
       uint256 balance = IERC20(_token).balanceOf(address(this));
-      sponsoredFee = balance < _liquidityFee ? balance : _liquidityFee;
+      sponsoredFee = balance <= _liquidityFee ? balance : _liquidityFee;
     }
 
     // only transfer if it is more than 0
@@ -259,10 +259,10 @@ contract SponsorVault is ISponsorVault, ReentrancyGuard, Ownable {
       sponsoredFee = (_originRelayerFee * num) / den;
 
       // calculated or max
-      sponsoredFee = sponsoredFee > relayerFeeCap ? relayerFeeCap : sponsoredFee;
+      sponsoredFee = sponsoredFee >= relayerFeeCap ? relayerFeeCap : sponsoredFee;
       // calculated or leftover
       uint256 balance = address(this).balance;
-      sponsoredFee = sponsoredFee > balance ? balance : sponsoredFee;
+      sponsoredFee = sponsoredFee >= balance ? balance : sponsoredFee;
 
       Address.sendValue(_to, sponsoredFee);
     }
