@@ -240,7 +240,7 @@ contract BridgeFacet is BaseConnextFacet {
    * @param _args - The XCallArgs arguments.
    * @return bytes32 - The transfer ID of the newly created crosschain transfer.
    */
-  function xcall(XCallArgs calldata _args) external payable whenNotPaused nonReentrant returns (bytes32) {
+  function xcall(XCallArgs calldata _args) external payable nonReentrant whenNotPaused returns (bytes32) {
     // Sanity checks.
     {
       // Correct origin domain.
@@ -354,7 +354,7 @@ contract BridgeFacet is BaseConnextFacet {
    * @return bytes32 - The transfer ID of the crosschain transfer. Should match the xcall's transfer ID in order for
    * reconciliation to occur.
    */
-  function execute(ExecuteArgs calldata _args) external whenNotPaused nonReentrant returns (bytes32) {
+  function execute(ExecuteArgs calldata _args) external nonReentrant whenNotPaused returns (bytes32) {
     // Retrieve canonical domain and ID for the transacting asset.
     (uint32 canonicalDomain, bytes32 canonicalId) = s.tokenRegistry.getTokenId(_args.local);
 
@@ -440,8 +440,6 @@ contract BridgeFacet is BaseConnextFacet {
 
     bytes32 detailsHash;
     if (s.tokenRegistry.isLocalOrigin(_asset)) {
-      // TODO: do we want to store a mapping of custodied token balances here?
-
       // Token is local for this domain. We should custody the token here.
       // Query token contract for details and calculate detailsHash.
       detailsHash = ConnextMessage.formatDetailsHash(token.name(), token.symbol(), token.decimals());
