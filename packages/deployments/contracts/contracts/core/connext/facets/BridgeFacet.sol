@@ -654,7 +654,7 @@ contract BridgeFacet is BaseConnextFacet {
             revert BridgeFacet__execute_notApprovedForPortals();
 
           // Portal provides the adopted asset so we early return here
-          return _executePortalTransfer(_transferId, _canonicalId, toSwap, _args.local, _args.routers[0]);
+          return _executePortalTransfer(_transferId, _canonicalId, toSwap, _args.routers[0]);
         } else {
           // Decrement the router's liquidity.
           s.routerBalances[_args.routers[0]][_args.local] -= toSwap;
@@ -773,7 +773,6 @@ contract BridgeFacet is BaseConnextFacet {
     bytes32 _transferId,
     bytes32 _canonicalId,
     uint256 _fastTransferAmount,
-    address _local,
     address _router
   ) internal returns (uint256, address) {
     // Calculate local to adopted swap output if needed
