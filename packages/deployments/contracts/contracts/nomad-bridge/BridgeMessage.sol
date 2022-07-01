@@ -21,7 +21,8 @@ library BridgeMessage {
     TokenId, // 1
     Message, // 2
     Transfer, // 3
-    FastTransfer // 4
+    FastTransfer, // 4
+    ConnextTransfer // 5
   }
 
   // ============ Structs ============
@@ -38,7 +39,7 @@ library BridgeMessage {
 
   uint256 private constant TOKEN_ID_LEN = 36; // 4 bytes domain + 32 bytes id
   uint256 private constant IDENTIFIER_LEN = 1;
-  uint256 private constant TRANSFER_LEN = 97; // 1 byte identifier + 32 bytes recipient + 32 bytes amount + 32 bytes detailsHash
+  uint256 private constant TRANSFER_LEN = 129; // 1 byte identifier + 32 bytes recipient + 32 bytes amount + 32 bytes detailsHash + 32 bytes externalId
 
   // ============ Modifiers ============
 
@@ -130,18 +131,30 @@ library BridgeMessage {
   }
 
   /**
+   * @notice Checks that the message is of type ConnextTransfer
+   * @param _action The message
+   * @return True if the message is of type ConnextTransfer
+   */
+  function isConnextTransfer(bytes29 _action) internal pure returns (bool) {
+    return isType(_action, Types.ConnextTransfer);
+  }
+
+  /**
    * @notice Formats Transfer
    * @param _to The recipient address as bytes32
    * @param _amnt The transfer amount
    * @param _detailsHash The hash of the token name, symbol, and decimals
+   * @param _externalId The external identifier of the transfer
    * @return
    */
   function formatTransfer(
     bytes32 _to,
     uint256 _amnt,
-    bytes32 _detailsHash
+    bytes32 _detailsHash,
+    bytes32 _externalId
   ) internal pure returns (bytes29) {
-    return abi.encodePacked(Types.Transfer, _to, _amnt, _detailsHash).ref(0).castTo(uint40(Types.Transfer));
+    Types transferType = _externalId == bytes32(0) ? Types.Transfer : Types.ConnextTransfer;
+    return abi.encodePacked(transferType, _to, _amnt, _detailsHash, _externalId).ref(0).castTo(uint40(transferType));
   }
 
   /**
@@ -291,6 +304,16 @@ library BridgeMessage {
   function detailsHash(bytes29 _transferAction) internal pure returns (bytes32) {
     // before = 1 byte identifier + 32 bytes ID + 32 bytes amount = 65 bytes
     return _transferAction.index(65, 32);
+  }
+
+  /**
+   * @notice Retrieves the externalId from a Transfer
+   * @param _transferAction The message
+   * @return The external id
+   */
+  function externalId(bytes29 _transferAction) internal pure returns (bytes32) {
+    // before = 1 byte identifier
+    return _transferAction.index(97, 32);
   }
 
   /**

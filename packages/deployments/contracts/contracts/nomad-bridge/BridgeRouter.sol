@@ -5,6 +5,7 @@ pragma solidity 0.8.15;
 import {BridgeMessage} from "./BridgeMessage.sol";
 import {IBridgeToken} from "./interfaces/IBridgeToken.sol";
 import {ITokenRegistry} from "./interfaces/ITokenRegistry.sol";
+import {IConnext} from "./interfaces/IConnext.sol";
 // ============ External Imports ============
 import {XAppConnectionClient} from "../core/shared/XAppConnectionClient.sol";
 import {Router} from "../core/shared/Router.sol";
@@ -36,6 +37,8 @@ contract BridgeRouter is Version0, Router {
   ITokenRegistry public tokenRegistry;
   // token transfer prefill ID => LP that pre-filled message to provide fast liquidity
   mapping(bytes32 => address) public liquidityProvider;
+  // reference to connext contract on this domain
+  IConnext public connext;
 
   // ============ Upgrade Gap ============
 
@@ -85,7 +88,12 @@ contract BridgeRouter is Version0, Router {
 
   // ======== Initializer ========
 
-  function initialize(address _tokenRegistry, address _xAppConnectionManager) public initializer {
+  function initialize(
+    address _tokenRegistry,
+    address _xAppConnectionManager,
+    address _connext
+  ) public initializer {
+    connext = IConnext(_connext);
     tokenRegistry = ITokenRegistry(_tokenRegistry);
     __XAppConnectionClient_initialize(_xAppConnectionManager);
   }
@@ -111,9 +119,11 @@ contract BridgeRouter is Version0, Router {
     bytes29 _action = _msg.action();
     // handle message based on the intended action
     if (_action.isTransfer()) {
-      _handleTransfer(_origin, _nonce, _tokenId, _action, false);
+      _handleTransfer(_origin, _nonce, _tokenId, _action, false, false);
     } else if (_action.isFastTransfer()) {
-      _handleTransfer(_origin, _nonce, _tokenId, _action, true);
+      _handleTransfer(_origin, _nonce, _tokenId, _action, true, false);
+    } else if (_action.isConnextTransfer()) {
+      _handleTransfer(_origin, _nonce, _tokenId, _action, false, true);
     } else {
       require(false, "!valid action");
     }
@@ -135,35 +145,29 @@ contract BridgeRouter is Version0, Router {
     bytes32 _recipient,
     bool /*_enableFast - deprecated field, left argument for backwards compatibility */
   ) external {
-    require(_amount > 0, "!amnt");
     require(_recipient != bytes32(0), "!recip");
-    // get remote BridgeRouter address; revert if not found
-    bytes32 _remote = _mustHaveRemote(_destination);
-    // Setup vars used in both if branches
-    IBridgeToken _t = IBridgeToken(_token);
-    bytes32 _detailsHash;
-    // remove tokens from circulation on this chain
-    if (tokenRegistry.isLocalOrigin(_token)) {
-      // if the token originates on this chain,
-      // hold the tokens in escrow in the Router
-      IERC20(_token).safeTransferFrom(msg.sender, address(this), _amount);
-      // query token contract for details and calculate detailsHash
-      _detailsHash = BridgeMessage.getDetailsHash(_t.name(), _t.symbol(), _t.decimals());
-    } else {
-      // if the token originates on a remote chain,
-      // burn the representation tokens on this chain
-      _t.burn(msg.sender, _amount);
-      _detailsHash = _t.detailsHash();
-    }
-    // format Transfer Tokens action
-    bytes29 _action = BridgeMessage.formatTransfer(_recipient, _amount, _detailsHash);
-    // get the tokenID
-    (uint32 _domain, bytes32 _id) = tokenRegistry.getTokenId(_token);
-    bytes29 _tokenId = BridgeMessage.formatTokenId(_domain, _id);
-    // send message to remote chain via Nomad
-    Home(xAppConnectionManager.home()).dispatch(_destination, _remote, BridgeMessage.formatMessage(_tokenId, _action));
-    // emit Send event to record token sender
-    emit Send(_token, msg.sender, _destination, _recipient, _amount, false);
+    _send(_token, _amount, _destination, _recipient, bytes32(0));
+  }
+
+  /**
+   * @notice Send tokens to connext on a remote chain
+   * @param _token The token address
+   * @param _amount The token amount
+   * @param _destination The destination domain
+   * @param _externalId The external identifier
+   */
+  function xsend(
+    address _token,
+    uint256 _amount,
+    uint32 _destination,
+    bytes32 _externalId
+  ) external {
+    require(msg.sender == address(connext), "!connext");
+    require(_externalId != bytes32(0), "!id");
+    // NOTE: set recipient as bytes32(0) to avoid storing a mapping of domain => connext
+    // addresses. instead, each router should store a reference to their local connext and
+    // assign that as the recipient on `handle`
+    _send(_token, _amount, _destination, bytes32(0), _externalId);
   }
 
   // ======== External: Custom Tokens =========
@@ -205,6 +209,46 @@ contract BridgeRouter is Version0, Router {
     IBridgeToken(_currentRepr).mint(msg.sender, _bal);
   }
 
+  // ============ Internal: Send ============
+
+  function _send(
+    address _token,
+    uint256 _amount,
+    uint32 _destination,
+    bytes32 _recipient,
+    bytes32 _externalId
+  ) internal {
+    require(_amount > 0, "!amnt");
+    // NOTE: in xsend _externalId != bytes32(0)
+    // get remote BridgeRouter address; revert if not found
+    bytes32 _remote = _mustHaveRemote(_destination);
+    // Setup vars used in both if branches
+    IBridgeToken _t = IBridgeToken(_token);
+    bytes32 _detailsHash;
+    // remove tokens from circulation on this chain
+    if (tokenRegistry.isLocalOrigin(_token)) {
+      // if the token originates on this chain,
+      // hold the tokens in escrow in the Router
+      IERC20(_token).safeTransferFrom(msg.sender, address(this), _amount);
+      // query token contract for details and calculate detailsHash
+      _detailsHash = BridgeMessage.getDetailsHash(_t.name(), _t.symbol(), _t.decimals());
+    } else {
+      // if the token originates on a remote chain,
+      // burn the representation tokens on this chain
+      _t.burn(msg.sender, _amount);
+      _detailsHash = _t.detailsHash();
+    }
+    // format Transfer Tokens action
+    bytes29 _action = BridgeMessage.formatTransfer(_recipient, _amount, _detailsHash, _externalId);
+    // get the tokenID
+    (uint32 _domain, bytes32 _id) = tokenRegistry.getTokenId(_token);
+    bytes29 _tokenId = BridgeMessage.formatTokenId(_domain, _id);
+    // send message to remote chain via Nomad
+    Home(xAppConnectionManager.home()).dispatch(_destination, _remote, BridgeMessage.formatMessage(_tokenId, _action));
+    // emit Send event to record token sender
+    emit Send(_token, msg.sender, _destination, _recipient, _amount, false);
+  }
+
   // ============ Internal: Handle ============
 
   /**
@@ -218,21 +262,26 @@ contract BridgeRouter is Version0, Router {
    * @param _tokenId The token ID
    * @param _action The action
    * @param _fastEnabled True if fast liquidity was enabled, False otherwise
+   * @param _isConnext True if is connext transfer, False otherwise
    */
   function _handleTransfer(
     uint32 _origin,
     uint32 _nonce,
     bytes29 _tokenId,
     bytes29 _action,
-    bool _fastEnabled
+    bool _fastEnabled,
+    bool _isConnext
   ) internal {
     // get the token contract for the given tokenId on this chain;
     // (if the token is of remote origin and there is
     // no existing representation token contract, the TokenRegistry will
     // deploy a new one)
-    address _token = tokenRegistry.ensureLocalToken(_tokenId.domain(), _tokenId.id());
+    bytes32 _canonicalId = _tokenId.id();
+    uint32 _canonicalDomain = _tokenId.domain();
+    address _token = tokenRegistry.ensureLocalToken(_canonicalDomain, _canonicalId);
     // load the original recipient of the tokens
     address _recipient = _action.evmRecipient();
+    bytes32 _externalId;
     if (_fastEnabled) {
       // If an LP has prefilled this token transfer,
       // send the tokens to the LP instead of the recipient
@@ -242,6 +291,9 @@ contract BridgeRouter is Version0, Router {
         _recipient = _lp;
         delete liquidityProvider[_id];
       }
+    } else if (_isConnext) {
+      _recipient = address(connext);
+      _externalId = _action.externalId();
     }
     // load amount once
     uint256 _amount = _action.amnt();
@@ -260,7 +312,11 @@ contract BridgeRouter is Version0, Router {
       IBridgeToken(_token).setDetailsHash(_action.detailsHash());
     }
     // dust the recipient if appropriate
-    _dust(_recipient);
+    if (_isConnext) {
+      connext.reconcile(_externalId, _amount, _canonicalId, _canonicalDomain, _token);
+    } else {
+      _dust(_recipient);
+    }
     // emit Receive event
     emit Receive(_originAndNonce(_origin, _nonce), _token, _recipient, address(0), _amount);
   }
