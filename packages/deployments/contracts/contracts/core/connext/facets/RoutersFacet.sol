@@ -320,8 +320,8 @@ contract RoutersFacet is BaseConnextFacet {
     }
 
     // Clear any proposed ownership changes
-    s.routerPermissionInfo.proposedRouterOwners[router] = address(0);
-    s.routerPermissionInfo.proposedRouterTimestamp[router] = 0;
+    delete s.routerPermissionInfo.proposedRouterOwners[router];
+    delete s.routerPermissionInfo.proposedRouterTimestamp[router];
   }
 
   /**
@@ -377,7 +377,7 @@ contract RoutersFacet is BaseConnextFacet {
     if (!s.routerPermissionInfo.approvedForPortalRouters[_router])
       revert RoutersFacet__unapproveRouterForPortal_notApproved();
 
-    s.routerPermissionInfo.approvedForPortalRouters[_router] = false;
+    delete s.routerPermissionInfo.approvedForPortalRouters[_router];
 
     emit RouterUnapprovedForPortal(_router, msg.sender);
   }
@@ -443,9 +443,9 @@ contract RoutersFacet is BaseConnextFacet {
 
     // Reset proposal + timestamp
     if (_proposed != address(0)) {
-      s.routerPermissionInfo.proposedRouterOwners[router] = address(0);
+      delete s.routerPermissionInfo.proposedRouterOwners[router];
     }
-    s.routerPermissionInfo.proposedRouterTimestamp[router] = 0;
+    delete s.routerPermissionInfo.proposedRouterTimestamp[router];
 
     // Emit event
     emit RouterOwnerAccepted(router, owner, _proposed);

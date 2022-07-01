@@ -264,29 +264,29 @@ contract ProposedOwnableFacet is BaseConnextFacet, IProposedOwnable {
 
   function _setRouterOwnershipTimestamp() private {
     s._routerOwnershipTimestamp = block.timestamp;
-    emit RouterOwnershipRenunciationProposed(s._routerOwnershipTimestamp);
+    emit RouterOwnershipRenunciationProposed(block.timestamp);
   }
 
   function _setRouterOwnership(bool value) private {
     s._routerOwnershipRenounced = value;
-    s._routerOwnershipTimestamp = 0;
+    delete s._routerOwnershipTimestamp;
     emit RouterOwnershipRenounced(value);
   }
 
   function _setAssetOwnershipTimestamp() private {
     s._assetOwnershipTimestamp = block.timestamp;
-    emit AssetOwnershipRenunciationProposed(s._assetOwnershipTimestamp);
+    emit AssetOwnershipRenunciationProposed(block.timestamp);
   }
 
   function _setAssetOwnership(bool value) private {
     s._assetOwnershipRenounced = value;
-    s._assetOwnershipTimestamp = 0;
+    delete s._assetOwnershipTimestamp;
     emit AssetOwnershipRenounced(value);
   }
 
   function _setOwner(address newOwner) private {
-    s._proposedOwnershipTimestamp = 0;
-    s._proposed = address(0);
+    delete s._proposedOwnershipTimestamp;
+    delete s._proposed;
     LibDiamond.setContractOwner(newOwner);
   }
 

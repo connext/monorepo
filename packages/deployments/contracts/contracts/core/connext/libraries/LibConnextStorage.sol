@@ -42,11 +42,11 @@ struct CallParams {
   uint32 destinationDomain;
   address agent;
   address recovery;
+  bool forceSlow;
+  bool receiveLocal;
   address callback;
   uint256 callbackFee;
   uint256 relayerFee;
-  bool forceSlow;
-  bool receiveLocal;
   uint256 slippageTol;
 }
 

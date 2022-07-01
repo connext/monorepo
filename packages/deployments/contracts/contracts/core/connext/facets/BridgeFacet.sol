@@ -310,7 +310,7 @@ contract BridgeFacet is BaseConnextFacet {
 
       // Calculate the transfer id
       transferId = _getTransferId(_args, canonical, bridgedAmt);
-      s.nonce += 1;
+      uint256 _sNonce = s.nonce++;
 
       // Store the relayer fee
       // NOTE: this has to be done *after* transferring in + swapping assets because
@@ -335,7 +335,7 @@ contract BridgeFacet is BaseConnextFacet {
     }
 
     // emit event
-    emit XCalled(transferId, _args, eventArgs, s.nonce - 1, message, msg.sender);
+    emit XCalled(transferId, _args, eventArgs, _sNonce, message, msg.sender);
 
     return transferId;
   }

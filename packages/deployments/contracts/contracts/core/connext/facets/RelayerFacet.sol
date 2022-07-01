@@ -165,7 +165,7 @@ contract RelayerFacet is BaseConnextFacet {
     uint256 total;
     for (uint256 i; i < numTransfers; ) {
       total += s.relayerFees[_transferIds[i]];
-      s.relayerFees[_transferIds[i]] = 0;
+      delete s.relayerFees[_transferIds[i]];
       unchecked {
         ++i;
       }
