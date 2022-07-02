@@ -147,28 +147,28 @@ describe("Helpers:Auctions", () => {
       expect(Object.keys(bidsByRound)).to.be.deep.eq(["1", "2"]);
       expect(bidsByRound["1"]).to.be.deep.eq([
         {
+          routerVersion: "0.0.0",
           transferId: transferId,
           origin: "1111",
           router: router1,
-          fee: "0",
           signatures: {
             "1": mkSig("0xrouter1_1"),
           },
         },
         {
+          routerVersion: "0.0.0",
           transferId: transferId,
           origin: "1111",
           router: router2,
-          fee: "0",
           signatures: {
             "1": mkSig("0xrouter2_1"),
           },
         },
         {
+          routerVersion: "0.0.0",
           transferId: transferId,
           origin: "1111",
           router: router3,
-          fee: "0",
           signatures: {
             "1": mkSig("0xrouter3_1"),
           },
@@ -176,28 +176,28 @@ describe("Helpers:Auctions", () => {
       ]);
       expect(bidsByRound["2"]).to.be.deep.eq([
         {
+          routerVersion: "0.0.0",
           transferId: transferId,
           origin: "1111",
           router: router2,
-          fee: "0",
           signatures: {
             "2": mkSig("0xrouter2_2"),
           },
         },
         {
+          routerVersion: "0.0.0",
           transferId: transferId,
           origin: "1111",
           router: router3,
-          fee: "0",
           signatures: {
             "2": mkSig("0xrouter3_2"),
           },
         },
         {
+          routerVersion: "0.0.0",
           transferId: transferId,
           origin: "1111",
           router: router4,
-          fee: "0",
           signatures: {
             "2": mkSig("0xrouter4_2"),
           },
