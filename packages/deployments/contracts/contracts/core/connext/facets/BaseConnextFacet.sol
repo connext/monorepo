@@ -135,7 +135,7 @@ contract BaseConnextFacet {
   }
 
   /**
-   * @notice Determine whether _potentialReplcia is an enrolled Replica from the xAppConnectionManager
+   * @notice Determine whether _potentialReplica is an enrolled Replica from the xAppConnectionManager
    * @return True if _potentialReplica is an enrolled Replica
    */
   function _isReplica(address _potentialReplica) internal view returns (bool) {

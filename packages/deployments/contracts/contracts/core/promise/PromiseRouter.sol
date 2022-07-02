@@ -304,7 +304,7 @@ contract PromiseRouter is Version, Router, ReentrancyGuardUpgradeable {
    * @dev Both origin and nonce should be less than 2^32 - 1
    * @param _origin Domain of chain where the transfer originated
    * @param _nonce The unique identifier for the message from origin to destination
-   * @return Returns (`_origin` << 32) & `_nonce`
+   * @return uint64 (`_origin` << 32) | `_nonce`
    */
   function _originAndNonce(uint32 _origin, uint32 _nonce) internal pure returns (uint64) {
     return (uint64(_origin) << 32) | _nonce;

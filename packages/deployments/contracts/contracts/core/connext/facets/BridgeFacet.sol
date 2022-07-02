@@ -226,7 +226,7 @@ contract BridgeFacet is BaseConnextFacet {
    * network.
    *
    * @dev For ERC20 transfers, this contract must have approval to transfer the input (transacting) assets. The adopted
-   * assets will be swapped for their local nomad asset counterparts (i.e. bridgable tokens) via the configured AMM if
+   * assets will be swapped for their local nomad asset counterparts (i.e. bridgeable tokens) via the configured AMM if
    * necessary. In the event that the adopted assets *are* local nomad assets, no swap is needed. The local tokens will
    * then be sent via the bridge router. If the local assets are representational for an asset on another chain, we will
    * burn the tokens here. If the local assets are canonical (meaning that the adopted<>local asset pairing is native
@@ -240,7 +240,7 @@ contract BridgeFacet is BaseConnextFacet {
    * @param _args - The XCallArgs arguments.
    * @return bytes32 - The transfer ID of the newly created crosschain transfer.
    */
-  function xcall(XCallArgs calldata _args) external payable whenNotPaused nonReentrant returns (bytes32) {
+  function xcall(XCallArgs calldata _args) external payable nonReentrant whenNotPaused returns (bytes32) {
     // Sanity checks.
     {
       // Correct origin domain.
@@ -266,6 +266,7 @@ contract BridgeFacet is BaseConnextFacet {
 
     bytes32 transferId;
     bytes memory message;
+    uint256 _sNonce;
     XCalledEventArgs memory eventArgs;
     {
       // Get the remote BridgeRouter address; revert if not found.
@@ -310,7 +311,7 @@ contract BridgeFacet is BaseConnextFacet {
 
       // Calculate the transfer id
       transferId = _getTransferId(_args, canonical, bridgedAmt);
-      uint256 _sNonce = s.nonce++;
+      _sNonce = s.nonce++;
 
       // Store the relayer fee
       // NOTE: this has to be done *after* transferring in + swapping assets because
@@ -353,7 +354,7 @@ contract BridgeFacet is BaseConnextFacet {
    * @return bytes32 - The transfer ID of the crosschain transfer. Should match the xcall's transfer ID in order for
    * reconciliation to occur.
    */
-  function execute(ExecuteArgs calldata _args) external whenNotPaused nonReentrant returns (bytes32) {
+  function execute(ExecuteArgs calldata _args) external nonReentrant whenNotPaused returns (bytes32) {
     // Retrieve canonical domain and ID for the transacting asset.
     (uint32 canonicalDomain, bytes32 canonicalId) = s.tokenRegistry.getTokenId(_args.local);
 
@@ -395,8 +396,8 @@ contract BridgeFacet is BaseConnextFacet {
    * @param _params - The call params for the transaction
    * @param _amount - The amount of transferring asset the tx called xcall with
    * @param _nonce - The nonce for the transfer
-   * @param _canonicalId - The identifier of the canonical asseted associated with the transfer
-   * @param _canonicalDomain - The domain of the canonical asseted associated with the transfer
+   * @param _canonicalId - The identifier of the canonical asset associated with the transfer
+   * @param _canonicalDomain - The domain of the canonical asset associated with the transfer
    * @param _originSender - The msg.sender of the origin call
    */
   function forceReceiveLocal(
@@ -439,8 +440,6 @@ contract BridgeFacet is BaseConnextFacet {
 
     bytes32 detailsHash;
     if (s.tokenRegistry.isLocalOrigin(_asset)) {
-      // TODO: do we want to store a mapping of custodied token balances here?
-
       // Token is local for this domain. We should custody the token here.
       // Query token contract for details and calculate detailsHash.
       detailsHash = ConnextMessage.formatDetailsHash(token.name(), token.symbol(), token.decimals());
@@ -637,7 +636,7 @@ contract BridgeFacet is BaseConnextFacet {
       // Calculate amount that routers will provide with the fast-liquidity fee deducted.
       toSwap = _getFastTransferAmount(_args.amount, s.LIQUIDITY_FEE_NUMERATOR, s.LIQUIDITY_FEE_DENOMINATOR);
 
-      // Save the addressess of all routers providing liquidity for this transfer.
+      // Save the addresses of all routers providing liquidity for this transfer.
       s.routedTransfers[_transferId] = _args.routers;
 
       if (pathLen == 1) {
@@ -653,7 +652,7 @@ contract BridgeFacet is BaseConnextFacet {
             revert BridgeFacet__execute_notApprovedForPortals();
 
           // Portal provides the adopted asset so we early return here
-          return _executePortalTransfer(_transferId, _canonicalId, toSwap, _args.local, _args.routers[0]);
+          return _executePortalTransfer(_transferId, _canonicalId, toSwap, _args.routers[0]);
         } else {
           // Decrement the router's liquidity.
           s.routerBalances[_args.routers[0]][_args.local] -= toSwap;
@@ -772,7 +771,6 @@ contract BridgeFacet is BaseConnextFacet {
     bytes32 _transferId,
     bytes32 _canonicalId,
     uint256 _fastTransferAmount,
-    address _local,
     address _router
   ) internal returns (uint256, address) {
     // Calculate local to adopted swap output if needed
