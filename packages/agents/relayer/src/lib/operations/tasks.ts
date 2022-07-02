@@ -70,7 +70,6 @@ export const createTask = async (
       amount: decoded.amount.toString(),
       nonce: (decoded.nonce as BigNumber).toNumber(),
       originSender: decoded.originSender,
-      relayerFee: decoded.relayerFee,
     };
     logger.debug("Parsed execute arguments", requestContext, methodContext, { args });
   } catch (error: unknown) {
