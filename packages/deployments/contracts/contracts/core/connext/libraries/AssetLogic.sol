@@ -3,9 +3,7 @@ pragma solidity 0.8.15;
 
 import {SafeERC20, IERC20, Address} from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 
-import {IWrapped} from "../interfaces/IWrapped.sol";
 import {IStableSwap} from "../interfaces/IStableSwap.sol";
-import {ITokenRegistry} from "../interfaces/ITokenRegistry.sol";
 
 import {ConnextMessage} from "./ConnextMessage.sol";
 import {LibConnextStorage, AppStorage} from "./LibConnextStorage.sol";

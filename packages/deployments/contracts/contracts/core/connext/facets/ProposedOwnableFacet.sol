@@ -231,7 +231,7 @@ contract ProposedOwnableFacet is BaseConnextFacet, IProposedOwnable {
 
   /**
    * @notice Transfers ownership of the contract to a new account (`newOwner`).
-   * Can only be called by the current owner.
+   * Can only be called by the proposed owner.
    */
   function acceptProposedOwner() public onlyProposed {
     // Contract as source of truth
