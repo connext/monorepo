@@ -98,7 +98,7 @@ export const destinationTransfer = (entity: any): DestinationTransfer => {
   if (!entity) {
     throw new NxtpError("Subgraph `DestinationTransfer` entity parser: Transfer entity is `undefined`.");
   }
-  if (entity.transactionHash || entity.relayerFee) {
+  if (entity.transactionHash) {
     // Wrong transfer type. This is an origin transfer entity!
     throw new NxtpError("Subgraph `DestinationTransfer` entity parser: Transfer entity is an origin transfer entity.");
   }

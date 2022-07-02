@@ -58,6 +58,9 @@ describe("Helpers:parse", () => {
           recovery: "0x1000000000000000000000000000000000000000",
           forceSlow: false,
           receiveLocal: false,
+          agent: "foo",
+          relayerFee: "1",
+          slippageTol: "0",
         },
         origin: {
           chain: 4,
@@ -97,6 +100,9 @@ describe("Helpers:parse", () => {
           recovery: "0x1000000000000000000000000000000000000000",
           forceSlow: false,
           receiveLocal: false,
+          agent: "foo",
+          relayerFee: "1",
+          slippageTol: "0",
         },
         origin: {
           chain: 4,
@@ -130,14 +136,8 @@ describe("Helpers:parse", () => {
       const entity1 = {
         transactionHash: mkBytes32(),
       };
-      const entity2 = {
-        relayerFee: "1",
-      };
       expect(() => {
         destinationTransfer(entity1);
-      }).to.throw("Subgraph `DestinationTransfer` entity parser: Transfer entity is an origin transfer entity.");
-      expect(() => {
-        destinationTransfer(entity2);
       }).to.throw("Subgraph `DestinationTransfer` entity parser: Transfer entity is an origin transfer entity.");
     });
 
@@ -205,6 +205,9 @@ describe("Helpers:parse", () => {
           receiveLocal: false,
           recovery: "0x1000000000000000000000000000000000000000",
           to: "0x1000000000000000000000000000000000000000",
+          agent: "foo",
+          relayerFee: "1",
+          slippageTol: "0",
         },
       });
     });

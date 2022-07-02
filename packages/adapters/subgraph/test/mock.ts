@@ -42,6 +42,9 @@ const mockCallData = {
   forceSlow: false,
   recovery: mkAddress("0x1"),
   receiveLocal: false,
+  slippageTol: "0",
+  agent: "foo",
+  relayerFee: "1",
 };
 
 export const mockOriginTransferEntity = {
@@ -52,7 +55,6 @@ export const mockOriginTransferEntity = {
   transactingAmount: "100",
   bridgedAsset: mkAddress("0x12"),
   bridgedAmount: "100",
-  relayerFee: "1",
   caller: mkAddress("0x2"),
   transactionHash: mkBytes32("0xbbb"),
   timestamp: "11111111",
