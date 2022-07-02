@@ -48,7 +48,6 @@ export const pollCartographer = async () => {
           amount: xTransfer.destination!.assets.local.amount.toString(),
           nonce: xTransfer.nonce!,
           originSender: xTransfer.origin!.xcall.caller,
-          relayerFee: xTransfer.origin!.xcall.relayerFee,
         };
 
         const transferId = xTransfer.transferId;
