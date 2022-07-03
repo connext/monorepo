@@ -8,7 +8,7 @@ import {BaseConnextFacet} from "./BaseConnextFacet.sol";
 import {IAavePool} from "../interfaces/IAavePool.sol";
 
 import {AssetLogic} from "../libraries/AssetLogic.sol";
-import {ConnextMessage} from "../libraries/ConnextMessage.sol";
+import {TokenId} from "../libraries/LibConnextStorage.sol";
 
 contract PortalFacet is BaseConnextFacet {
   // ========== Custom Errors ===========
@@ -129,7 +129,7 @@ contract PortalFacet is BaseConnextFacet {
   ) external payable {
     address adopted = _adopted == address(0) ? address(s.wrapper) : _adopted;
     // Ensure the asset is whitelisted
-    ConnextMessage.TokenId memory canonical = s.adoptedToCanonical[adopted];
+    TokenId memory canonical = s.adoptedToCanonical[adopted];
     if (canonical.id == bytes32(0)) {
       revert PortalFacet__repayAavePortalFor_notSupportedAsset();
     }

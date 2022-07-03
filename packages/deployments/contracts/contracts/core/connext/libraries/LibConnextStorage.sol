@@ -12,10 +12,14 @@ import {IExecutor} from "../interfaces/IExecutor.sol";
 import {IStableSwap} from "../interfaces/IStableSwap.sol";
 import {ISponsorVault} from "../interfaces/ISponsorVault.sol";
 
-import {ConnextMessage} from "./ConnextMessage.sol";
 import {SwapUtils} from "./SwapUtils.sol";
 
 // ============= Structs =============
+
+struct TokenId {
+  uint32 domain;
+  bytes32 id;
+}
 
 /**
  * @notice These are the call parameters that will remain constant between the
@@ -170,7 +174,7 @@ struct AppStorage {
   // * be the wrapped asset address
   // */
   // 12
-  mapping(address => ConnextMessage.TokenId) adoptedToCanonical;
+  mapping(address => TokenId) adoptedToCanonical;
   // /**
   // * @notice Mapping of adopted to canonical on this domain
   // * @dev If the adopted asset is the native asset, the stored address will be the

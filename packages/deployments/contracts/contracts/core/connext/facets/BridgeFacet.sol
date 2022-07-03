@@ -10,9 +10,8 @@ import {TypeCasts} from "../../../nomad-core/contracts/XAppConnectionManager.sol
 
 import {BaseConnextFacet} from "./BaseConnextFacet.sol";
 
-import {ConnextMessage} from "../libraries/ConnextMessage.sol";
 import {AssetLogic} from "../libraries/AssetLogic.sol";
-import {XCallArgs, ExecuteArgs, CallParams} from "../libraries/LibConnextStorage.sol";
+import {XCallArgs, ExecuteArgs, CallParams, TokenId} from "../libraries/LibConnextStorage.sol";
 import {LibCrossDomainProperty} from "../libraries/LibCrossDomainProperty.sol";
 
 import {PromiseRouter} from "../../promise/PromiseRouter.sol";
@@ -27,7 +26,6 @@ contract BridgeFacet is BaseConnextFacet {
   // ============ Libraries ============
   using TypedMemView for bytes;
   using TypedMemView for bytes29;
-  using ConnextMessage for bytes29;
 
   // ========== Structs ===========
 
@@ -73,10 +71,9 @@ contract BridgeFacet is BaseConnextFacet {
    */
   event XCalled(
     bytes32 indexed transferId,
+    uint256 indexed nonce,
     XCallArgs xcallArgs,
     XCalledEventArgs args,
-    uint256 nonce,
-    bytes message,
     address caller
   );
 
@@ -273,7 +270,7 @@ contract BridgeFacet is BaseConnextFacet {
         : _args.transactingAssetId;
 
       // Check that the asset is supported -- can be either adopted or local.
-      ConnextMessage.TokenId memory canonical = s.adoptedToCanonical[transactingAssetId];
+      TokenId memory canonical = s.adoptedToCanonical[transactingAssetId];
       if (canonical.id == bytes32(0)) {
         // Here, the asset is *not* the adopted asset. The only other valid option
         // is for this asset to be the local asset (i.e. transferring madEth on optimism)
@@ -285,7 +282,7 @@ contract BridgeFacet is BaseConnextFacet {
         }
 
         (uint32 canonicalDomain, bytes32 canonicalId) = s.tokenRegistry.getTokenId(transactingAssetId);
-        canonical = ConnextMessage.TokenId(canonicalDomain, canonicalId);
+        canonical = TokenId(canonicalDomain, canonicalId);
       }
 
       // Transfer funds of transacting asset to the contract from the user.
@@ -334,7 +331,7 @@ contract BridgeFacet is BaseConnextFacet {
     }
 
     // emit event
-    emit XCalled(transferId, _args, eventArgs, s.nonce - 1, message, msg.sender);
+    emit XCalled(transferId, s.nonce - 1, _args, eventArgs, msg.sender);
 
     return transferId;
   }
@@ -517,7 +514,7 @@ contract BridgeFacet is BaseConnextFacet {
    */
   function _getTransferId(
     XCallArgs calldata _args,
-    ConnextMessage.TokenId memory _canonical,
+    TokenId memory _canonical,
     uint256 bridgedAmt
   ) private view returns (bytes32) {
     return _calculateTransferId(_args.params, bridgedAmt, s.nonce, _canonical.id, _canonical.domain, msg.sender);

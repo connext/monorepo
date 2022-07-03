@@ -8,8 +8,7 @@ import {IStableSwap} from "../interfaces/IStableSwap.sol";
 import {IWeth} from "../interfaces/IWeth.sol";
 import {ITokenRegistry} from "../interfaces/ITokenRegistry.sol";
 
-import {ConnextMessage} from "./ConnextMessage.sol";
-import {LibConnextStorage, AppStorage} from "./LibConnextStorage.sol";
+import {LibConnextStorage, AppStorage, TokenId} from "./LibConnextStorage.sol";
 import {SwapUtils} from "./SwapUtils.sol";
 
 library AssetLogic {
@@ -162,7 +161,7 @@ library AssetLogic {
    * @return The address of asset received post-swap
    */
   function swapToLocalAssetIfNeeded(
-    ConnextMessage.TokenId memory _canonical,
+    TokenId memory _canonical,
     address _asset,
     uint256 _amount,
     uint256 _slippageTol

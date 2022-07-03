@@ -4,7 +4,7 @@ pragma solidity 0.8.15;
 import {Address} from "@openzeppelin/contracts/utils/Address.sol";
 
 import {BaseConnextFacet} from "./BaseConnextFacet.sol";
-import {ConnextMessage} from "../libraries/ConnextMessage.sol";
+import {TokenId} from "../libraries/LibConnextStorage.sol";
 import {IStableSwap} from "../interfaces/IStableSwap.sol";
 import {IWeth} from "../interfaces/IWeth.sol";
 import {ITokenRegistry} from "../interfaces/ITokenRegistry.sol";
@@ -68,11 +68,8 @@ contract AssetFacet is BaseConnextFacet {
     return s.canonicalToAdopted[_canonicalId];
   }
 
-  function adoptedToCanonical(address _adopted) public view returns (ConnextMessage.TokenId memory) {
-    ConnextMessage.TokenId memory canonical = ConnextMessage.TokenId(
-      s.adoptedToCanonical[_adopted].domain,
-      s.adoptedToCanonical[_adopted].id
-    );
+  function adoptedToCanonical(address _adopted) public view returns (TokenId memory) {
+    TokenId memory canonical = TokenId(s.adoptedToCanonical[_adopted].domain, s.adoptedToCanonical[_adopted].id);
     return canonical;
   }
 
@@ -138,7 +135,7 @@ contract AssetFacet is BaseConnextFacet {
    * @param _stableSwapPool - The address of the local stableswap pool, if it exists.
    */
   function setupAsset(
-    ConnextMessage.TokenId calldata _canonical,
+    TokenId calldata _canonical,
     address _adoptedAssetId,
     address _stableSwapPool
   ) external onlyOwner {
@@ -171,7 +168,7 @@ contract AssetFacet is BaseConnextFacet {
   /**
    * @notice Adds a stable swap pool for the local <> adopted asset.
    */
-  function addStableSwapPool(ConnextMessage.TokenId calldata _canonical, address _stableSwapPool) external onlyOwner {
+  function addStableSwapPool(TokenId calldata _canonical, address _stableSwapPool) external onlyOwner {
     _addStableSwapPool(_canonical, _stableSwapPool);
   }
 
@@ -207,7 +204,7 @@ contract AssetFacet is BaseConnextFacet {
    * @param _canonical - The canonical TokenId to add (domain and id)
    * @param _stableSwap - The address of the amm to add
    */
-  function _addStableSwapPool(ConnextMessage.TokenId calldata _canonical, address _stableSwap) internal {
+  function _addStableSwapPool(TokenId calldata _canonical, address _stableSwap) internal {
     // Update the pool mapping
     s.adoptedToLocalPools[_canonical.id] = IStableSwap(_stableSwap);
 
