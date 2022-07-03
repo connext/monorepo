@@ -7,8 +7,7 @@ import {XAppConnectionManager} from "../../../nomad-core/contracts/XAppConnectio
 import {RelayerFeeRouter} from "../../relayer-fee/RelayerFeeRouter.sol";
 import {PromiseRouter} from "../../promise/PromiseRouter.sol";
 
-import {ConnextMessage} from "../libraries/ConnextMessage.sol";
-import {XCallArgs, ExecuteArgs, CallParams} from "../libraries/LibConnextStorage.sol";
+import {XCallArgs, ExecuteArgs, CallParams, TokenId} from "../libraries/LibConnextStorage.sol";
 import {SwapUtils} from "../libraries/SwapUtils.sol";
 
 import {IStableSwap} from "./IStableSwap.sol";
@@ -16,24 +15,25 @@ import {IExecutor} from "./IExecutor.sol";
 import {ISponsorVault} from "./ISponsorVault.sol";
 import {IWeth} from "./IWeth.sol";
 import {ITokenRegistry} from "./ITokenRegistry.sol";
+import {IBridgeRouter} from "./IBridgeRouter.sol";
 
 interface IConnextHandler {
   // AssetFacet
   function canonicalToAdopted(bytes32 _canonicalId) external view returns (address);
 
-  function adoptedToCanonical(address _adopted) external view returns (ConnextMessage.TokenId memory);
+  function adoptedToCanonical(address _adopted) external view returns (TokenId memory);
 
   function approvedAssets(bytes32 _asset) external view returns (bool);
 
   function adoptedToLocalPools(bytes32 _adopted) external view returns (IStableSwap);
 
   function setupAsset(
-    ConnextMessage.TokenId calldata _canonical,
+    TokenId calldata _canonical,
     address _adoptedAssetId,
     address _stableSwapPool
   ) external;
 
-  function addStableSwapPool(ConnextMessage.TokenId calldata _canonical, address _stableSwapPool) external;
+  function addStableSwapPool(TokenId calldata _canonical, address _stableSwapPool) external;
 
   function removeAssetId(bytes32 _canonicalId, address _adoptedAssetId) external;
 
@@ -77,11 +77,7 @@ interface IConnextHandler {
 
   function setSponsorVault(address _sponsorVault) external;
 
-  function setBridgeRouter(address _bridge) external;
-
   function xcall(XCallArgs calldata _args) external payable returns (bytes32);
-
-  function reconcile(uint32 _origin, bytes memory _message) external;
 
   function execute(ExecuteArgs calldata _args) external returns (bytes32 transferId);
 
@@ -97,13 +93,17 @@ interface IConnextHandler {
   ) external payable;
 
   // NomadFacet
-  function xAppConnectionManager() external view returns (XAppConnectionManager);
+  function bridgeRouter() external view returns (IBridgeRouter);
 
-  function remotes(uint32 _domain) external view returns (bytes32);
+  function setBridgeRouter(address _bridge) external;
 
-  function setXAppConnectionManager(address _xAppConnectionManager) external;
-
-  function enrollRemoteRouter(uint32 _domain, bytes32 _router) external;
+  function reconcile(
+    bytes32 transferId,
+    uint256 amount,
+    bytes32 canonicalId,
+    uint32 canonicalDomain,
+    address localToken
+  ) external;
 
   // ProposedOwnableFacet
   function routerOwnershipRenounced() external view returns (bool);

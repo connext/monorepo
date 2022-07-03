@@ -7,7 +7,6 @@ import {TypedMemView} from "../../../nomad-core/libs/TypedMemView.sol";
 
 import {XAppConnectionManager} from "../../../nomad-core/contracts/XAppConnectionManager.sol";
 
-import {ConnextMessage} from "../libraries/ConnextMessage.sol";
 import {AssetLogic} from "../libraries/AssetLogic.sol";
 
 import {IAavePool} from "../interfaces/IAavePool.sol";
@@ -26,7 +25,6 @@ contract NomadFacet is BaseConnextFacet {
   // ============ Libraries ============
   using TypedMemView for bytes;
   using TypedMemView for bytes29;
-  using ConnextMessage for bytes29;
 
   // ========== Custom Errors ===========
   error NomadFacet__reconcile_invalidAction();
@@ -72,6 +70,30 @@ contract NomadFacet is BaseConnextFacet {
    */
   event BridgeRouterUpdated(address oldBridgeRouter, address newBridgeRouter, address caller);
 
+  // ============ Getters ============
+
+  /**
+   * @notice Returns the stored bridge router reference
+   */
+  function bridgeRouter() external view returns (IBridgeRouter) {
+    return s.bridgeRouter;
+  }
+
+  // ============ Admin functions ============
+
+  /**
+   * @notice Updates the bridge router
+   * @param _bridgeRouter The new bridge router address
+   */
+  function setBridgeRouter(address _bridgeRouter) external onlyOwner {
+    address old = address(s.bridgeRouter);
+    if (old == _bridgeRouter) {
+      revert NomadFacet__setBridgeRouter_invalidBridge();
+    }
+    s.bridgeRouter = IBridgeRouter(_bridgeRouter);
+    emit BridgeRouterUpdated(old, _bridgeRouter, msg.sender);
+  }
+
   // ============ External functions ============
 
   /**
@@ -115,7 +137,7 @@ contract NomadFacet is BaseConnextFacet {
     address[] memory routers = s.routedTransfers[transferId];
 
     // If fast transfer was made using portal liquidity, we need to repay
-    // FIXME: routers can repay any-amount out-of-band using the `repayAavePortal` method
+    // NOTE: routers can repay any-amount out-of-band using the `repayAavePortal` method
     // or by interacting with the aave contracts directly
     uint256 portalTransferAmount = s.portalDebt[transferId] + s.portalFeeDebt[transferId];
 
@@ -140,19 +162,6 @@ contract NomadFacet is BaseConnextFacet {
     }
 
     emit Reconciled(transferId, routers, localToken, amount, msg.sender);
-  }
-
-  /**
-   * @notice Updates the bridge router
-   * @param _bridgeRouter The new bridge router address
-   */
-  function setBridgeRouter(address _bridgeRouter) external onlyOwner {
-    address old = address(s.bridgeRouter);
-    if (old == _bridgeRouter) {
-      revert NomadFacet__setBridgeRouter_invalidBridge();
-    }
-    s.bridgeRouter = IBridgeRouter(_bridgeRouter);
-    emit BridgeRouterUpdated(old, _bridgeRouter, msg.sender);
   }
 
   // ============ Internal functions ============
