@@ -35,7 +35,6 @@ contract DiamondInit is BaseConnextFacet {
   // data to set your own state variables
   function init(
     uint32 _domain,
-    address _xAppConnectionManager,
     address _tokenRegistry, // Nomad token registry
     address _wrappedNative,
     address _relayerFeeRouter,
@@ -60,8 +59,6 @@ contract DiamondInit is BaseConnextFacet {
       LibDiamond.enforceIsContractOwner();
 
       s.initialized = true;
-
-      // __ProposedOwnable_init
 
       // __ReentrancyGuard_init_unchained
       s._status = _NOT_ENTERED;
