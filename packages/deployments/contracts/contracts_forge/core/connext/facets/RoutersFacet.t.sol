@@ -6,8 +6,7 @@ import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import {LibDiamond} from "../../../../contracts/core/connext/libraries/LibDiamond.sol";
 import {IStableSwap} from "../../../../contracts/core/connext/interfaces/IStableSwap.sol";
 import {ITokenRegistry} from "../../../../contracts/core/connext/interfaces/ITokenRegistry.sol";
-import {IWrapped} from "../../../../contracts/core/connext/interfaces/IWrapped.sol";
-import {ConnextMessage} from "../../../../contracts/core/connext/libraries/ConnextMessage.sol";
+import {IWeth} from "../../../../contracts/core/connext/interfaces/IWeth.sol";
 import {RoutersFacet, BaseConnextFacet} from "../../../../contracts/core/connext/facets/RoutersFacet.sol";
 import {TestERC20} from "../../../../contracts/test/TestERC20.sol";
 

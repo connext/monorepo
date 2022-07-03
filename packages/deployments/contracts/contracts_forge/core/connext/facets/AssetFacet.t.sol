@@ -4,10 +4,11 @@ pragma solidity 0.8.15;
 import {LibDiamond} from "../../../../contracts/core/connext/libraries/LibDiamond.sol";
 import {IStableSwap} from "../../../../contracts/core/connext/interfaces/IStableSwap.sol";
 import {ITokenRegistry} from "../../../../contracts/core/connext/interfaces/ITokenRegistry.sol";
-import {IWrapped} from "../../../../contracts/core/connext/interfaces/IWrapped.sol";
-import {ConnextMessage} from "../../../../contracts/core/connext/libraries/ConnextMessage.sol";
+import {IWeth} from "../../../../contracts/core/connext/interfaces/IWeth.sol";
 import {AssetFacet} from "../../../../contracts/core/connext/facets/AssetFacet.sol";
 import {TestERC20} from "../../../../contracts/test/TestERC20.sol";
+
+import {TokenId} from "../../../../contracts/core/connext/libraries/LibConnextStorage.sol";
 
 import {MockWrapper, MockTokenRegistry} from "../../../utils/Mock.sol";
 import "../../../utils/FacetHelper.sol";
@@ -38,7 +39,7 @@ contract AssetFacetTest is AssetFacet, FacetHelper {
   // Calls setupAsset and asserts state changes/events
   function setupAssetAndAssert(address asset, address pool) public {
     address key = asset == address(0) ? _wrapper : asset;
-    ConnextMessage.TokenId memory canonical = ConnextMessage.TokenId(_domain, _canonicalId);
+    TokenId memory canonical = TokenId(_domain, _canonicalId);
 
     vm.expectEmit(true, true, false, true);
     emit AssetAdded(_canonicalId, _domain, asset, key, _owner);
@@ -84,13 +85,13 @@ contract AssetFacetTest is AssetFacet, FacetHelper {
   function test_AssetFacet__adoptedToCanonical_success() public {
     s.adoptedToCanonical[_local].domain = _domain;
     s.adoptedToCanonical[_local].id = _canonicalId;
-    ConnextMessage.TokenId memory canonical = this.adoptedToCanonical(_local);
+    TokenId memory canonical = this.adoptedToCanonical(_local);
     assertEq(canonical.domain, _domain);
     assertEq(canonical.id, _canonicalId);
   }
 
   function test_AssetFacet__adoptedToCanonical_notFound() public {
-    ConnextMessage.TokenId memory canonical = this.adoptedToCanonical(_local);
+    TokenId memory canonical = this.adoptedToCanonical(_local);
     assertTrue(canonical.domain == 0);
     assertTrue(canonical.id == bytes32(0));
   }
@@ -119,12 +120,12 @@ contract AssetFacetTest is AssetFacet, FacetHelper {
   // wrapper
   function test_AssetFacet__wrapper_success() public {
     address wrapper = address(42);
-    s.wrapper = IWrapped(wrapper);
+    s.wrapper = IWeth(wrapper);
     assertEq(address(this.wrapper()), wrapper);
   }
 
   function test_AssetFacet__wrapper_notSet() public {
-    s.wrapper = IWrapped(address(0));
+    s.wrapper = IWeth(address(0));
     assertEq(address(this.wrapper()), address(0));
   }
 
@@ -146,7 +147,7 @@ contract AssetFacetTest is AssetFacet, FacetHelper {
   // test_setWrapper__shouldUpdateWrapper
   function test_AssetFacet__setWrapper_success() public {
     address old = address(new MockWrapper());
-    s.wrapper = IWrapped(old);
+    s.wrapper = IWeth(old);
     address wrapper = address(new MockWrapper());
 
     vm.expectEmit(true, true, false, true);
@@ -159,7 +160,7 @@ contract AssetFacetTest is AssetFacet, FacetHelper {
 
   function test_AssetFacet__setWrapper_failIfRedundant() public {
     address old = address(new MockWrapper());
-    s.wrapper = IWrapped(old);
+    s.wrapper = IWeth(old);
 
     vm.prank(_owner);
     vm.expectRevert(AssetFacet.AssetFacet__setWrapper_invalidWrapper.selector);
@@ -223,7 +224,7 @@ contract AssetFacetTest is AssetFacet, FacetHelper {
   }
 
   function test_AssetFacet__setupAsset_failIfRedundant() public {
-    ConnextMessage.TokenId memory canonical = ConnextMessage.TokenId(_domain, _canonicalId);
+    TokenId memory canonical = TokenId(_domain, _canonicalId);
     address asset = address(new TestERC20());
     s.approvedAssets[_canonicalId] = true;
 
@@ -239,7 +240,7 @@ contract AssetFacetTest is AssetFacet, FacetHelper {
     vm.expectEmit(true, true, false, true);
     emit StableSwapAdded(_canonicalId, _domain, stableSwap, _owner);
 
-    ConnextMessage.TokenId memory canonical = ConnextMessage.TokenId(_domain, _canonicalId);
+    TokenId memory canonical = TokenId(_domain, _canonicalId);
 
     vm.prank(_owner);
     this.addStableSwapPool(canonical, stableSwap);
@@ -254,7 +255,7 @@ contract AssetFacetTest is AssetFacet, FacetHelper {
     vm.expectEmit(true, true, false, true);
     emit StableSwapAdded(_canonicalId, _domain, empty, _owner);
 
-    ConnextMessage.TokenId memory canonical = ConnextMessage.TokenId(_domain, _canonicalId);
+    TokenId memory canonical = TokenId(_domain, _canonicalId);
 
     vm.prank(_owner);
     this.addStableSwapPool(canonical, empty);

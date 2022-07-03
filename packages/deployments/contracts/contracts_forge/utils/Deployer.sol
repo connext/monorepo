@@ -14,7 +14,6 @@ import {StableSwapFacet} from "../../contracts/core/connext/facets/StableSwapFac
 import {SwapAdminFacet} from "../../contracts/core/connext/facets/SwapAdminFacet.sol";
 import {PortalFacet} from "../../contracts/core/connext/facets/PortalFacet.sol";
 import {VersionFacet} from "../../contracts/core/connext/facets/VersionFacet.sol";
-import {ConnextMessage} from "../../contracts/core/connext/libraries/ConnextMessage.sol";
 import {XCallArgs, CallParams} from "../../contracts/core/connext/libraries/LibConnextStorage.sol";
 import {IDiamondCut} from "../../contracts/core/connext/interfaces/IDiamondCut.sol";
 
@@ -39,8 +38,10 @@ contract Deployer {
   TestSetterFacet testSetterFacet;
 
   function getDiamondCutFacetCut(address _diamondCutFacet) internal pure returns (IDiamondCut.FacetCut memory) {
-    bytes4[] memory diamondCutFacetSelectors = new bytes4[](1);
+    bytes4[] memory diamondCutFacetSelectors = new bytes4[](3);
     diamondCutFacetSelectors[0] = DiamondCutFacet.diamondCut.selector;
+    diamondCutFacetSelectors[1] = DiamondCutFacet.proposeDiamondCut.selector;
+    diamondCutFacetSelectors[2] = DiamondCutFacet.rescindDiamondCut.selector;
     return
       IDiamondCut.FacetCut({
         facetAddress: _diamondCutFacet,
@@ -113,12 +114,10 @@ contract Deployer {
   }
 
   function getNomadFacetCut(address _nomadFacet) internal pure returns (IDiamondCut.FacetCut memory) {
-    bytes4[] memory nomadFacetSelectors = new bytes4[](5);
-    nomadFacetSelectors[0] = NomadFacet.xAppConnectionManager.selector;
-    nomadFacetSelectors[1] = NomadFacet.remotes.selector;
-    nomadFacetSelectors[2] = NomadFacet.setXAppConnectionManager.selector;
-    nomadFacetSelectors[3] = NomadFacet.enrollRemoteRouter.selector;
-    nomadFacetSelectors[4] = NomadFacet.handle.selector;
+    bytes4[] memory nomadFacetSelectors = new bytes4[](3);
+    nomadFacetSelectors[0] = NomadFacet.bridgeRouter.selector;
+    nomadFacetSelectors[1] = NomadFacet.setBridgeRouter.selector;
+    nomadFacetSelectors[2] = NomadFacet.reconcile.selector;
     return
       IDiamondCut.FacetCut({
         facetAddress: _nomadFacet,
@@ -352,7 +351,6 @@ contract Deployer {
     bytes memory initCallData = abi.encodeWithSelector(
       DiamondInit.init.selector,
       domain,
-      xAppConnectionManager,
       tokenRegistry,
       wrapper,
       relayerFeeRouter,

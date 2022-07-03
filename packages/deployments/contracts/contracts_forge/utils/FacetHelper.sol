@@ -1,15 +1,11 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity 0.8.15;
 
-import {IBridgeToken} from "../../contracts/core/connext/interfaces/IBridgeToken.sol";
 import {ITokenRegistry} from "../../contracts/core/connext/interfaces/ITokenRegistry.sol";
 import {IStableSwap} from "../../contracts/core/connext/interfaces/IStableSwap.sol";
-import {IWrapped} from "../../contracts/core/connext/interfaces/IWrapped.sol";
+import {IWeth} from "../../contracts/core/connext/interfaces/IWeth.sol";
 
-import {ConnextMessage} from "../../contracts/core/connext/libraries/ConnextMessage.sol";
-import {LibConnextStorage, AppStorage} from "../../contracts/core/connext/libraries/LibConnextStorage.sol";
-import {TestERC20} from "../../contracts/test/TestERC20.sol";
-import {ConnextMessage} from "../../contracts/core/connext/libraries/ConnextMessage.sol";
+import {LibConnextStorage, AppStorage, TokenId} from "../../contracts/core/connext/libraries/LibConnextStorage.sol";
 import {IStableSwap} from "../../contracts/core/connext/interfaces/IStableSwap.sol";
 
 import {TestERC20} from "../../contracts/test/TestERC20.sol";
@@ -61,13 +57,6 @@ contract FacetHelper is ForgeHelper {
     s.aavePortalFeeNumerator = _portalFeeNumerator;
   }
 
-  // Sets remote router context
-  function utils_setRemote(bool onOrigin) public {
-    AppStorage storage s = LibConnextStorage.connextStorage();
-    s.domain = onOrigin ? _originDomain : _destinationDomain;
-    s.remotes[onOrigin ? _destinationDomain : _originDomain] = _remote;
-  }
-
   // Deploys the wrapper, local, adopted, and canonical tokens. Also sets the
   // canonical id, token registry, wrapper
   function utils_deployAssetContracts() public {
@@ -80,11 +69,11 @@ contract FacetHelper is ForgeHelper {
     _canonical = address(new TestERC20());
     _canonicalId = bytes32(abi.encodePacked(_canonical));
     // Deploy wrapper for native asset.
-    s.wrapper = IWrapped(new MockWrapper());
+    s.wrapper = IWeth(new MockWrapper());
     _wrapper = address(s.wrapper);
-    vm.mockCall(_wrapper, abi.encodeWithSelector(IBridgeToken.name.selector), abi.encode("TestERC20"));
-    vm.mockCall(_wrapper, abi.encodeWithSelector(IBridgeToken.symbol.selector), abi.encode("TEST"));
-    vm.mockCall(_wrapper, abi.encodeWithSelector(IBridgeToken.decimals.selector), abi.encode(18));
+    vm.mockCall(_wrapper, abi.encodeWithSelector(TestERC20.name.selector), abi.encode("TestERC20"));
+    vm.mockCall(_wrapper, abi.encodeWithSelector(TestERC20.symbol.selector), abi.encode("TEST"));
+    vm.mockCall(_wrapper, abi.encodeWithSelector(TestERC20.decimals.selector), abi.encode(18));
     // Set token registry
     s.tokenRegistry = ITokenRegistry(_tokenRegistry);
   }
@@ -137,7 +126,7 @@ contract FacetHelper is ForgeHelper {
     vm.mockCall(_tokenRegistry, abi.encodeWithSelector(ITokenRegistry.getLocalAddress.selector), abi.encode(_local));
 
     // Setup the storage variables
-    s.adoptedToCanonical[_adopted] = ConnextMessage.TokenId(_canonicalDomain, _canonicalId);
+    s.adoptedToCanonical[_adopted] = TokenId(_canonicalDomain, _canonicalId);
     s.adoptedToLocalPools[_canonicalId] = IStableSwap(_stableSwap);
     s.canonicalToAdopted[_canonicalId] = _adopted;
 

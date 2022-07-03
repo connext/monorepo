@@ -2,7 +2,6 @@
 pragma solidity 0.8.15;
 
 import {ERC20} from "@openzeppelin/contracts/token/ERC20/ERC20.sol";
-import {ConnextMessage} from "../core/connext/libraries/ConnextMessage.sol";
 
 /**
  * @notice This token is ONLY useful for testing

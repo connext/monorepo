@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: UNLICENSED
-pragma solidity 0.8.14;
+pragma solidity 0.8.15;
 
 import "../../../utils/ForgeHelper.sol";
 import {Deployer, DiamondInit, VersionFacet} from "../../../utils/Deployer.sol";
@@ -7,6 +7,8 @@ import {Deployer, DiamondInit, VersionFacet} from "../../../utils/Deployer.sol";
 import "../../../../contracts/core/connext/libraries/LibDiamond.sol";
 import {IConnextHandler} from "../../../../contracts/core/connext/interfaces/IConnextHandler.sol";
 import {IDiamondCut} from "../../../../contracts/core/connext/interfaces/IDiamondCut.sol";
+
+import "forge-std/console.sol";
 
 contract LibDiamondTest is ForgeHelper, Deployer {
   // ============ Libraries ============
@@ -74,6 +76,17 @@ contract LibDiamondTest is ForgeHelper, Deployer {
       action: IDiamondCut.FacetCutAction.Remove,
       functionSelectors: versionFacetSelectors
     });
+
+    IDiamondCut(address(connextDiamondProxy)).proposeDiamondCut(facetCuts, address(diamondInit), initCallData);
+    console.log("proposed");
+
+    vm.warp(block.timestamp + 7 days + 1);
+
+    LibDiamond.DiamondStorage storage ds = LibDiamond.diamondStorage();
+    bytes32 key = keccak256(abi.encode(facetCuts, address(diamondInit), initCallData));
+    console.log("key");
+    console.logBytes32(key);
+    ds.acceptanceTimes[key] = 1;
 
     IDiamondCut(address(connextDiamondProxy)).diamondCut(facetCuts, address(diamondInit), initCallData);
 

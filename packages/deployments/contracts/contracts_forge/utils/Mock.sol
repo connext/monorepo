@@ -2,7 +2,9 @@
 pragma solidity 0.8.15;
 
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import {ERC20} from "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import {Address} from "@openzeppelin/contracts/utils/Address.sol";
+import {SafeERC20} from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 
 import {TypedMemView, PromiseMessage, PromiseRouter} from "../../contracts/core/promise/PromiseRouter.sol";
 import {ICallback} from "../../contracts/core/promise/interfaces/ICallback.sol";
@@ -10,8 +12,8 @@ import {BaseConnextFacet} from "../../contracts/core/connext/facets/BaseConnextF
 import {IAavePool} from "../../contracts/core/connext/interfaces/IAavePool.sol";
 import {ISponsorVault} from "../../contracts/core/connext/interfaces/ISponsorVault.sol";
 import {ITokenRegistry} from "../../contracts/core/connext/interfaces/ITokenRegistry.sol";
-import {IWrapped} from "../../contracts/core/connext/interfaces/IWrapped.sol";
-import {ERC20} from "../../contracts/core/connext/helpers/OZERC20.sol";
+import {IBridgeRouter} from "../../contracts/core/connext/interfaces/IBridgeRouter.sol";
+import {IWeth} from "../../contracts/core/connext/interfaces/IWeth.sol";
 import {TestERC20} from "../../contracts/test/TestERC20.sol";
 import {IExecutor} from "../../contracts/core/connext/interfaces/IExecutor.sol";
 
@@ -222,7 +224,9 @@ contract TestSetterFacet is BaseConnextFacet {
   }
 }
 
-contract MockWrapper is IWrapped, ERC20 {
+contract MockWrapper is IWeth, ERC20 {
+  constructor() ERC20("Mock Weth", "WETH") {}
+
   function deposit() external payable {
     _mint(msg.sender, msg.value);
   }
@@ -230,6 +234,50 @@ contract MockWrapper is IWrapped, ERC20 {
   function withdraw(uint256 amount) external {
     _burn(msg.sender, amount);
     msg.sender.call{value: amount}("");
+  }
+}
+
+contract MockBridgeRouter is IBridgeRouter {
+  mapping(bytes32 => address) public tokenInputs;
+  mapping(bytes32 => uint256) public amountInputs;
+  mapping(bytes32 => uint32) public destinationInputs;
+
+  event XSendCalled(address _token, uint256 _amount, uint32 _destination, bytes32 _externalId);
+
+  function send(
+    address _token,
+    uint256 _amount,
+    uint32 _destination,
+    bytes32 _recipient,
+    bool _enableFast /* _enableFast deprecated field, left argument for backwards compatibility */
+  ) external {
+    require(false, "shouldnt use send");
+  }
+
+  function xsend(
+    address _token,
+    uint256 _amount,
+    uint32 _destination,
+    bytes32 _externalId
+  ) external {
+    tokenInputs[_externalId] = _token;
+    amountInputs[_externalId] = _amount;
+    destinationInputs[_externalId] = _destination;
+    // transfer amount here
+    SafeERC20.safeTransferFrom(IERC20(_token), msg.sender, address(this), _amount);
+    emit XSendCalled(_token, _amount, _destination, _externalId);
+  }
+
+  function getToken(bytes32 transferId) external returns (address) {
+    return tokenInputs[transferId];
+  }
+
+  function getAmount(bytes32 transferId) external returns (uint256) {
+    return amountInputs[transferId];
+  }
+
+  function getDestination(bytes32 transferId) external returns (uint32) {
+    return destinationInputs[transferId];
   }
 }
 
@@ -342,7 +390,7 @@ contract MockCalldata {
 contract FeeERC20 is ERC20 {
   uint256 public fee = 1;
 
-  constructor() ERC20() {
+  constructor() ERC20("Fee Test Token", "FEE") {
     _mint(msg.sender, 1000000 ether);
   }
 

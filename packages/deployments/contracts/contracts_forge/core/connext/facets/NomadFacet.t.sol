@@ -4,6 +4,8 @@ pragma solidity 0.8.15;
 import {XAppConnectionManager, TypeCasts} from "../../../../contracts/nomad-core/contracts/XAppConnectionManager.sol";
 import {TypedMemView} from "../../../../contracts/nomad-core/libs/TypedMemView.sol";
 
+import {IBridgeRouter} from "../../../../contracts/core/connext/interfaces/IBridgeRouter.sol";
+
 import {LibDiamond} from "../../../../contracts/core/connext/libraries/LibDiamond.sol";
 
 import {NomadFacet} from "../../../../contracts/core/connext/facets/NomadFacet.sol";
@@ -49,6 +51,9 @@ contract NomadFacetTest is NomadFacet, FacetHelper {
   // default nonce on xcall
   uint256 _nonce = 1;
 
+  // bridge router
+  address _bridge = address(565656565);
+
   // default recovery address
   address constant _recovery = address(121212);
 
@@ -78,6 +83,7 @@ contract NomadFacetTest is NomadFacet, FacetHelper {
     vm.prank(address(this));
     LibDiamond.DiamondStorage storage ds = LibDiamond.diamondStorage();
     ds.contractOwner = _ds_owner;
+    s.bridgeRouter = IBridgeRouter(_bridge);
   }
 
   // ============ Utils ============
@@ -125,11 +131,6 @@ contract NomadFacetTest is NomadFacet, FacetHelper {
     return (transferId, args);
   }
 
-  // Wraps reconcile in order to enable externalizing the call.
-  function utils_wrappedReconcile(uint32 origin, bytes memory message) external {
-    _reconcile(origin, message);
-  }
-
   function utils_setPortals(
     bytes32 _id,
     uint256 _amount,
@@ -142,29 +143,6 @@ contract NomadFacetTest is NomadFacet, FacetHelper {
 
   function utils_setPortals(bytes32 _id, uint256 _amount) public returns (PortalInfo memory) {
     return utils_setPortals(_id, _amount, (_amount * _portalFeeNumerator) / _liquidityFeeDenominator);
-  }
-
-  // Mimics the xcall message formatting. Reduced functionality : won't burn any tokens, for example.
-  function utils_formatMessage(
-    address _to,
-    address _asset,
-    bytes32 _transferId,
-    uint256 _amount
-  ) public returns (bytes memory) {
-    IBridgeToken token = IBridgeToken(_asset);
-
-    bytes32 detailsHash;
-    if (s.tokenRegistry.isLocalOrigin(_asset)) {
-      detailsHash = ConnextMessage.formatDetailsHash(token.name(), token.symbol(), token.decimals());
-    } else {
-      detailsHash = token.detailsHash();
-    }
-
-    bytes29 action = ConnextMessage.formatTransfer(TypeCasts.addressToBytes32(_to), _amount, detailsHash, _transferId);
-    (uint32 canonicalDomain, bytes32 canonicalId) = s.tokenRegistry.getTokenId(_asset);
-    bytes29 tokenId = ConnextMessage.formatTokenId(canonicalDomain, canonicalId);
-
-    return ConnextMessage.formatMessage(tokenId, action);
   }
 
   // ============ Helpers ===============
@@ -244,9 +222,6 @@ contract NomadFacetTest is NomadFacet, FacetHelper {
     bool isNative = args.transactingAssetId == address(0);
     bool shouldSucceed = keccak256(abi.encode(expectedError)) == keccak256(abi.encode(bytes4("")));
 
-    // Derive message from xcall arguments.
-    bytes memory message = utils_formatMessage(_params.to, _local, transferId, args.amount);
-
     uint256[] memory routerBalances = new uint256[](s.routedTransfers[transferId].length);
     for (uint256 i = 0; i < s.routedTransfers[transferId].length; i++) {
       // Warming up the slot in order to make gas estimates more accurate to appropriate conditions.
@@ -286,20 +261,17 @@ contract NomadFacetTest is NomadFacet, FacetHelper {
     }
 
     if (shouldSucceed) {
-      // check that the mint is called properly
-      if (_local != _canonical) {
-        vm.expectCall(_local, abi.encodeWithSelector(TestERC20.mint.selector, address(this), args.amount));
-      }
-
       helpers_setupReconcilePortalAssertions(transferId, args, init, repayment, swap.input, swap.output);
 
       vm.expectEmit(true, true, true, true);
-      emit Reconciled(transferId, _originDomain, s.routedTransfers[transferId], _local, args.amount, address(this));
+      emit Reconciled(transferId, s.routedTransfers[transferId], _local, args.amount, _bridge);
     } else {
       vm.expectRevert(expectedError);
     }
 
-    this.utils_wrappedReconcile(_originDomain, message);
+    (uint32 canonicalDomain, bytes32 canonicalId) = s.tokenRegistry.getTokenId(_local);
+    vm.prank(_bridge);
+    this.reconcile(transferId, args.amount, canonicalId, canonicalDomain, _local);
 
     if (shouldSucceed) {
       assertEq(s.reconciledTransfers[transferId], true);
@@ -352,99 +324,62 @@ contract NomadFacetTest is NomadFacet, FacetHelper {
     helpers_reconcileAndAssert(bytes4(""));
   }
 
-  // ============ xAppConnectionManager ============
+  // ============ bridgeRouter ============
   // NOTE: tested via assertions below
 
-  // ============ remotes ============
-  // NOTE: tested via assertions below
+  // ============ setBridgeRouter ============
 
-  // ============ setXAppConnectionManager ============
-
-  function test_NomadFacet__setXAppConnectionManager_works() public {
-    assertEq(address(this.xAppConnectionManager()), address(0));
+  function test_NomadFacet__setBridgeRouter_works() public {
+    s.bridgeRouter = IBridgeRouter(address(0));
+    assertEq(address(this.bridgeRouter()), address(0));
     address value = address(1234);
 
     vm.prank(LibDiamond.contractOwner());
-    this.setXAppConnectionManager(value);
-    assertEq(address(this.xAppConnectionManager()), value);
+    this.setBridgeRouter(value);
+    assertEq(address(this.bridgeRouter()), value);
   }
 
-  function test_NomadFacet__setXAppConnectionManager_failsIfNotOwner() public {
-    assertEq(address(this.xAppConnectionManager()), address(0));
+  function test_NomadFacet__setBridgeRouter_failsIfNotOwner() public {
+    s.bridgeRouter = IBridgeRouter(address(0));
+    assertEq(address(this.bridgeRouter()), address(0));
     address value = address(1234);
     vm.prank(address(2345));
     vm.expectRevert(abi.encodeWithSelector(BaseConnextFacet.BaseConnextFacet__onlyOwner_notOwner.selector));
-    this.setXAppConnectionManager(value);
+    this.setBridgeRouter(value);
   }
 
-  // ============ enrollRemoteRouter ============
-  function test_NomadFacet__enrollRemoteRouter_works() public {
-    assertEq(this.remotes(_originDomain), bytes32(0));
-
-    vm.prank(LibDiamond.contractOwner());
-    this.enrollRemoteRouter(_originDomain, _remote);
-    assertEq(this.remotes(_originDomain), _remote);
-  }
-
-  function test_NomadFacet__enrollRemoteRouter_failsIfNotOwner() public {
-    assertEq(this.remotes(_originDomain), bytes32(0));
-    vm.prank(address(2345));
-    vm.expectRevert(abi.encodeWithSelector(BaseConnextFacet.BaseConnextFacet__onlyOwner_notOwner.selector));
-    this.enrollRemoteRouter(_originDomain, _remote);
-  }
-
-  // =========== handle / reconcile ==========
-  // NOTE: modifier tests happen in BaseConnext.t.sol. Below are the reconcile (internal fn)
-  // unit tests
+  // =========== reconcile ==========
 
   // ============ reconcile fail cases
-
-  // should not process invalid messages
-  function test_NomadFacet__reconcile_invalidMessage() public {
-    bytes memory _message = bytes("");
-    vm.expectRevert(bytes("Validity assertion failed"));
-    _reconcile(_originDomain, _message);
-  }
-
-  // fails if action is not transfer
-  function test_NomadFacet__reconcile_invalidTransfer() public {
-    bytes29 tokenId = ConnextMessage.formatTokenId(_canonicalDomain, _canonicalId);
-    bytes29 action = abi
-      .encodePacked(ConnextMessage.Types.Message, bytes32("recip"), uint256(100), bytes32("details"), bytes32("id"))
-      .ref(0)
-      .castTo(uint40(ConnextMessage.Types.Message));
-    bytes29[] memory _views = new bytes29[](2);
-    _views[0] = tokenId;
-    _views[1] = action;
-    bytes memory _message = TypedMemView.join(_views);
-    vm.expectRevert(NomadFacet.NomadFacet__reconcile_invalidAction.selector);
-    _reconcile(_originDomain, _message);
-  }
 
   // fails if already reconciled (s.reconciledTransfers[transferId] = true)
   function test_NomadFacet__reconcile_failIfAlreadyReconciled() public {
     utils_setupAsset(true, false);
     (bytes32 transferId, XCallArgs memory args) = utils_makeXCallArgs();
+    (uint32 canonicalDomain, bytes32 canonicalId) = s.tokenRegistry.getTokenId(_local);
     s.reconciledTransfers[transferId] = true;
-    helpers_reconcileAndAssert(transferId, args, NomadFacet.NomadFacet__reconcile_alreadyReconciled.selector);
+
+    vm.expectRevert(NomadFacet.NomadFacet__reconcile_alreadyReconciled.selector);
+
+    vm.prank(_bridge);
+    this.reconcile(transferId, args.amount, canonicalId, canonicalDomain, _local);
   }
 
   // fails if portal record, but used in slow mode
   function test_NomadFacet__reconcile_failsIfPortalAndNoRouter() public {
     utils_setupAsset(true, false);
     (bytes32 transferId, XCallArgs memory args) = utils_makeXCallArgs();
+    (uint32 canonicalDomain, bytes32 canonicalId) = s.tokenRegistry.getTokenId(_local);
     delete s.routedTransfers[transferId];
 
     // set portal fee debt
     s.portalDebt[transferId] = 15;
     s.portalFeeDebt[transferId] = 10;
 
-    helpers_reconcileAndAssert(
-      transferId,
-      args,
-      NomadFacet.NomadFacet__reconcile_noPortalRouter.selector,
-      PortalInfo(10, 15, 25, true)
-    );
+    vm.expectRevert(NomadFacet.NomadFacet__reconcile_noPortalRouter.selector);
+
+    vm.prank(_bridge);
+    this.reconcile(transferId, args.amount, canonicalId, canonicalDomain, _local);
   }
 
   // ============ reconcile success cases

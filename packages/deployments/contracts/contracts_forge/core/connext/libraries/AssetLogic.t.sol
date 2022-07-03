@@ -3,10 +3,9 @@ pragma solidity 0.8.15;
 
 import "../../../../contracts/core/connext/libraries/AssetLogic.sol";
 import "../../../../contracts/core/connext/libraries/SwapUtils.sol";
-import {IWrapped} from "../../../../contracts/core/connext/interfaces/IWrapped.sol";
+import {IWeth} from "../../../../contracts/core/connext/interfaces/IWeth.sol";
 import {BaseConnextFacet} from "../../../../contracts/core/connext/facets/BaseConnextFacet.sol";
-import {ConnextMessage} from "../../../../contracts/core/connext/libraries/ConnextMessage.sol";
-import {LibConnextStorage, AppStorage} from "../../../../contracts/core/connext/libraries/LibConnextStorage.sol";
+import {LibConnextStorage, AppStorage, TokenId} from "../../../../contracts/core/connext/libraries/LibConnextStorage.sol";
 import {ITokenRegistry} from "../../../../contracts/core/connext/interfaces/ITokenRegistry.sol";
 
 import "../../../utils/FacetHelper.sol";
@@ -17,7 +16,7 @@ import "../../../utils/Mock.sol";
 contract LibCaller {
   constructor(address _wrapper) {
     AppStorage storage s = LibConnextStorage.connextStorage();
-    s.wrapper = IWrapped(_wrapper);
+    s.wrapper = IWeth(_wrapper);
   }
 
   function handleIncomingAsset(
@@ -28,7 +27,7 @@ contract LibCaller {
     AssetLogic.handleIncomingAsset(_assetId, _assetAmount, _fee);
   }
 
-  function deposit(IWrapped wrapper) public payable {
+  function deposit(IWeth wrapper) public payable {
     wrapper.deposit{ value: msg.value }();
   }
 
@@ -127,7 +126,7 @@ contract AssetLogicTest is BaseConnextFacet, FacetHelper {
     bool isNative = assetId == _wrapper;
     // fund caller
     if (isNative) {
-      IWrapped(_wrapper).deposit{ value: 10 ether}();
+      IWeth(_wrapper).deposit{ value: 10 ether}();
     } else {
       TestERC20(assetId).mint(address(this), 10 ether);
     }
@@ -136,7 +135,7 @@ contract AssetLogicTest is BaseConnextFacet, FacetHelper {
     if (amount > 0) {
       if (isNative) {
         // Should withdraw
-        vm.expectCall(_wrapper, abi.encodeWithSelector(IWrapped.withdraw.selector, amount));
+        vm.expectCall(_wrapper, abi.encodeWithSelector(IWeth.withdraw.selector, amount));
       } else {
         // Should transfer funds to user
         vm.expectCall(assetId, abi.encodeWithSelector(IERC20.transfer.selector, to, amount));
@@ -190,7 +189,7 @@ contract AssetLogicTest is BaseConnextFacet, FacetHelper {
       vm.expectCall(_stableSwap, abi.encodeWithSelector(IStableSwap.swapExact.selector, amount, _adopted, _local));
     }
 
-    (uint256 received, address out) = AssetLogic.swapToLocalAssetIfNeeded(ConnextMessage.TokenId(_canonicalDomain, _canonicalId), asset, amount, _liquidityFeeDenominator);
+    (uint256 received, address out) = AssetLogic.swapToLocalAssetIfNeeded(TokenId(_canonicalDomain, _canonicalId), asset, amount, _liquidityFeeDenominator);
     // assert return amount
     assertEq(received, willSwap ? swapOut : amount);
     // assert return asset
