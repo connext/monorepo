@@ -54,19 +54,11 @@ contract ConnextPriceOracle is PriceOracle {
   /// @notice Chainlink Aggregators
   mapping(address => AggregatorV3Interface) public aggregators;
 
-  struct PriceInfo {
-    address token; // Address of token contract, TOKEN
-    address baseToken; // Address of base token contract, BASETOKEN
-    address lpToken; // Address of TOKEN-BASETOKEN pair contract
-    bool active; // Active status of price record 0
-  }
-
   struct Price {
     uint256 updatedAt;
     uint256 price;
   }
 
-  mapping(address => PriceInfo) public priceRecords;
   mapping(address => Price) public assetPrices;
 
   event NewAdmin(address oldAdmin, address newAdmin);
@@ -97,41 +89,10 @@ contract ConnextPriceOracle is PriceOracle {
     if (tokenPrice == 0) {
       tokenPrice = getPriceFromOracle(tokenAddress);
     }
-    if (tokenPrice == 0) {
-      tokenPrice = getPriceFromDex(tokenAddress);
-    }
     if (tokenPrice == 0 && v1PriceOracle != address(0)) {
       tokenPrice = IPriceOracle(v1PriceOracle).getTokenPrice(tokenAddress);
     }
     return tokenPrice;
-  }
-
-  function getPriceFromDex(address _tokenAddress) public view returns (uint256) {
-    PriceInfo storage priceInfo = priceRecords[_tokenAddress];
-    if (priceInfo.active) {
-      uint256 rawTokenAmount = IERC20Extended(priceInfo.token).balanceOf(priceInfo.lpToken);
-      uint256 tokenDecimals = uint256(IERC20Extended(priceInfo.token).decimals());
-      uint256 tokenAmount = 0;
-      if (tokenDecimals > 18) {
-        tokenAmount = rawTokenAmount.div(10**(tokenDecimals - 18));
-      } else {
-        tokenAmount = rawTokenAmount.div(10**(18 - tokenDecimals));
-      }
-      uint256 rawBaseTokenAmount = IERC20Extended(priceInfo.baseToken).balanceOf(priceInfo.lpToken);
-      uint256 baseTokenDecimals = uint256(IERC20Extended(priceInfo.baseToken).decimals());
-      uint256 baseTokenAmount = 0;
-      if (baseTokenDecimals > 18) {
-        baseTokenAmount = rawBaseTokenAmount.div(10**(baseTokenDecimals - 18));
-      } else {
-        baseTokenAmount = rawBaseTokenAmount.mul(10**(18 - baseTokenDecimals));
-      }
-      uint256 baseTokenPrice = getTokenPrice(priceInfo.baseToken);
-      uint256 tokenPrice = baseTokenPrice.mul(baseTokenAmount).div(tokenAmount);
-
-      return tokenPrice;
-    } else {
-      return 0;
-    }
   }
 
   function getPriceFromOracle(address _tokenAddress) public view returns (uint256) {
@@ -174,22 +135,6 @@ contract ConnextPriceOracle is PriceOracle {
     }
 
     return 0;
-  }
-
-  function setDexPriceInfo(
-    address _token,
-    address _baseToken,
-    address _lpToken,
-    bool _active
-  ) external onlyAdmin {
-    PriceInfo storage priceInfo = priceRecords[_token];
-    uint256 baseTokenPrice = getTokenPrice(_baseToken);
-    require(baseTokenPrice > 0, "invalid base token");
-    priceInfo.token = _token;
-    priceInfo.baseToken = _baseToken;
-    priceInfo.lpToken = _lpToken;
-    priceInfo.active = _active;
-    emit PriceRecordUpdated(_token, _baseToken, _lpToken, _active);
   }
 
   function setDirectPrice(
