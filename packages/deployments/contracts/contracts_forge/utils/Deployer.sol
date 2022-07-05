@@ -39,8 +39,10 @@ contract Deployer {
   TestSetterFacet testSetterFacet;
 
   function getDiamondCutFacetCut(address _diamondCutFacet) internal pure returns (IDiamondCut.FacetCut memory) {
-    bytes4[] memory diamondCutFacetSelectors = new bytes4[](1);
+    bytes4[] memory diamondCutFacetSelectors = new bytes4[](3);
     diamondCutFacetSelectors[0] = DiamondCutFacet.diamondCut.selector;
+    diamondCutFacetSelectors[1] = DiamondCutFacet.proposeDiamondCut.selector;
+    diamondCutFacetSelectors[2] = DiamondCutFacet.rescindDiamondCut.selector;
     return
       IDiamondCut.FacetCut({
         facetAddress: _diamondCutFacet,
