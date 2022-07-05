@@ -282,13 +282,11 @@ export const SEQUENCER_CONFIG: Promise<SequencerConfig> = (async (): Promise<Seq
     chains: {
       [ORIGIN.domain]: {
         providers: ORIGIN.config.providers,
-        subgraph: ORIGIN.config.subgraph,
         confirmations: ORIGIN.config.confirmations,
         deployments: ORIGIN.config.deployments,
       },
       [DESTINATION.domain]: {
         providers: DESTINATION.config.providers,
-        subgraph: DESTINATION.config.subgraph,
         confirmations: DESTINATION.config.confirmations,
         deployments: DESTINATION.config.deployments,
       },
