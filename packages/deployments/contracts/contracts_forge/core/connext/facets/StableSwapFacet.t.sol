@@ -194,7 +194,7 @@ contract StableSwapFacetTest is FacetHelper, StableSwapFacet, SwapAdminFacet {
   function test_StableSwapFacet__calculateSwap_shouldWork() public {
     uint256 dx = 100;
 
-    vm.expectRevert("Token index out of range");
+    vm.expectRevert("index out of range");
     this.calculateSwap(bytes32(0), 0, 1, dx);
 
     assertEq(
@@ -212,7 +212,7 @@ contract StableSwapFacetTest is FacetHelper, StableSwapFacet, SwapAdminFacet {
     this.calculateSwapTokenAmount(bytes32(0), _amounts, true);
 
     _amounts[0] = this.getSwapTokenBalance(_canonicalId, 0) + 1;
-    vm.expectRevert("Cannot withdraw more than available");
+    vm.expectRevert("withdraw >available");
     this.calculateSwapTokenAmount(_canonicalId, _amounts, false);
   }
 
@@ -251,7 +251,7 @@ contract StableSwapFacetTest is FacetHelper, StableSwapFacet, SwapAdminFacet {
   function test_StableSwapFacet__swap_failIfMoreThanBalance() public {
     uint256 fromTokenBalance = this.getSwapToken(_canonicalId, 0).balanceOf(_user1);
     vm.startPrank(_user1);
-    vm.expectRevert("Cannot swap more than you own");
+    vm.expectRevert("swap more than you own");
     this.swap(_canonicalId, 0, 1, fromTokenBalance + 10, 0, blockTimestamp + 10);
     vm.stopPrank();
   }
@@ -282,7 +282,7 @@ contract StableSwapFacetTest is FacetHelper, StableSwapFacet, SwapAdminFacet {
     vm.stopPrank();
 
     vm.startPrank(_user1);
-    vm.expectRevert("Swap didn't result in min tokens");
+    vm.expectRevert("dy < minDy");
     this.swap(_canonicalId, 0, 1, amount, calculatedSwapReturn, blockTimestamp + 10);
     vm.stopPrank();
   }
@@ -299,7 +299,7 @@ contract StableSwapFacetTest is FacetHelper, StableSwapFacet, SwapAdminFacet {
   function test_StableSwapFacet__swapExact_failIfMoreThanBalance() public {
     uint256 fromTokenBalance = this.getSwapToken(_canonicalId, 0).balanceOf(_user1);
     vm.startPrank(_user1);
-    vm.expectRevert("Cannot swap more than you own");
+    vm.expectRevert("swap more than you own");
     this.swapExact(_canonicalId, fromTokenBalance + 10, _local, _adopted, 0, blockTimestamp + 10);
     vm.stopPrank();
   }
@@ -330,7 +330,7 @@ contract StableSwapFacetTest is FacetHelper, StableSwapFacet, SwapAdminFacet {
     vm.stopPrank();
 
     vm.startPrank(_user1);
-    vm.expectRevert("Swap didn't result in min tokens");
+    vm.expectRevert("dy < minDy");
     this.swapExact(_canonicalId, amount, _local, _adopted, calculatedSwapReturn, blockTimestamp + 10);
     vm.stopPrank();
   }
@@ -353,7 +353,7 @@ contract StableSwapFacetTest is FacetHelper, StableSwapFacet, SwapAdminFacet {
     amounts[0] = 1 ether;
 
     vm.prank(_user1);
-    vm.expectRevert("Amounts must match pooled tokens");
+    vm.expectRevert("mismatch pooled tokens");
     this.addSwapLiquidity(_canonicalId, amounts, 0, blockTimestamp + 1);
   }
 
@@ -393,7 +393,7 @@ contract StableSwapFacetTest is FacetHelper, StableSwapFacet, SwapAdminFacet {
     minAmounts[0] = 0;
 
     vm.prank(_owner);
-    vm.expectRevert("minAmounts must match poolTokens");
+    vm.expectRevert("mismatch poolTokens");
     this.removeSwapLiquidity(_canonicalId, 1 ether, minAmounts, blockTimestamp + 1);
   }
 
@@ -577,7 +577,7 @@ contract StableSwapFacetTest is FacetHelper, StableSwapFacet, SwapAdminFacet {
     uint256[] memory removeAmounts = new uint256[](1);
     removeAmounts[0] = 1 ether;
 
-    vm.expectRevert("Amounts should match pool tokens");
+    vm.expectRevert("mismatch pool tokens");
     this.removeSwapLiquidityImbalance(_canonicalId, removeAmounts, 100 ether, blockTimestamp + 1);
 
     vm.stopPrank();
