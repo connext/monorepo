@@ -105,11 +105,43 @@ export class NxtpSdkPool {
       to: tokenRegistryContractAddress,
       data: encoded,
     });
-    const [canonicalDomain, canonicalTokenId] = this.tokenRegistry.decodeFunctionResult("getTokenId", result);
-    return [canonicalDomain, canonicalTokenId];
+    const [canonicalDomain, canonicalId] = this.tokenRegistry.decodeFunctionResult("getTokenId", result);
+    return [canonicalDomain, canonicalId];
   }
 
-  async getTokenIndex(domainId: string, canonicalId: string, tokenAddress: string): Promise<number> {
+  async getLPTokenAddress(domainId: string, canonicalId: string): Promise<string> {
+    const connextContract = this.config.chains[domainId].deployments?.connext;
+    if (!connextContract) {
+      throw new ContractAddressMissing();
+    }
+    const chainId = await getChainIdFromDomain(domainId, this.chainData);
+
+    const encoded = this.connext.encodeFunctionData("getSwapLPToken", [canonicalId]);
+    const result = await this.chainReader.readTx({
+      chainId: chainId,
+      to: connextContract,
+      data: encoded,
+    });
+    const [tokenAddress] = this.connext.decodeFunctionResult("getSwapLPToken", result);
+
+    return tokenAddress;
+  }
+
+  async getLPTokenBalance(domainId: string, lpTokenAddress: string, userAddress: string): Promise<number> {
+    const chainId = await getChainIdFromDomain(domainId, this.chainData);
+    
+    const encoded = this.erc20.encodeFunctionData("balanceOf", [userAddress]);
+    const result = await this.chainReader.readTx({
+      chainId: chainId,
+      to: lpTokenAddress,
+      data: encoded,
+    });
+    const [balance] = this.erc20.decodeFunctionResult("balanceOf", result);
+
+    return balance;
+  }
+
+  async getPoolTokenIndex(domainId: string, canonicalId: string, tokenAddress: string): Promise<number> {
     const connextContract = this.config.chains[domainId].deployments!.connext;
     if (!connextContract) {
       throw new ContractAddressMissing();
@@ -127,14 +159,14 @@ export class NxtpSdkPool {
     return index;
   }
 
-  async getTokenBalance(domainId: string, canonicalId: string, tokenAddress: string) {
+  async getPoolTokenBalance(domainId: string, canonicalId: string, tokenAddress: string) {
     const connextContract = this.config.chains[domainId].deployments?.connext;
     if (!connextContract) {
       throw new ContractAddressMissing();
     }
     const chainId = await getChainIdFromDomain(domainId, this.chainData);
 
-    const index = await this.getTokenIndex(domainId, canonicalId, tokenAddress);
+    const index = await this.getPoolTokenIndex(domainId, canonicalId, tokenAddress);
 
     const encoded = this.connext.encodeFunctionData("getSwapTokenBalance", [canonicalId, index]);
     const result = await this.chainReader.readTx({
@@ -147,7 +179,7 @@ export class NxtpSdkPool {
     return balance;
   }
 
-  async getTokenAddress(domainId: string, canonicalId: string, index: number) {
+  async getPoolTokenAddress(domainId: string, canonicalId: string, index: number) {
     const connextContract = this.config.chains[domainId].deployments?.connext;
     if (!connextContract) {
       throw new ContractAddressMissing();
@@ -364,8 +396,8 @@ export class NxtpSdkPool {
       estimateGas,
     });
 
-    const tokenIndexFrom = await this.getTokenIndex(domainId, canonicalId, from);
-    const tokenIndexTo = await this.getTokenIndex(domainId, canonicalId, to);
+    const tokenIndexFrom = await this.getPoolTokenIndex(domainId, canonicalId, from);
+    const tokenIndexTo = await this.getPoolTokenIndex(domainId, canonicalId, to);
     const minDy = await this.calculateSwap(domainId, canonicalId, tokenIndexFrom, tokenIndexTo, amount);
 
     const data = this.connext.encodeFunctionData("swap", [
@@ -467,5 +499,20 @@ export class NxtpSdkPool {
     }
 
     return;
+  }
+
+  async getUserPools(domainId: string, userAddress: string): Promise<Pool[]> {
+    const pools: Pool[] = [];
+
+    Object.values(this.config.chains[domainId].assets).forEach(async asset => {
+      const pool = await this.getPool(domainId, asset.address);
+      const lpToken = pool?.lpTokenAddress;
+
+      if (lpToken && await this.getLPTokenBalance(domainId, lpToken, userAddress)) {
+        pools.push(pool);
+      }
+    });
+
+    return pools;
   }
 }

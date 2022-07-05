@@ -9,7 +9,6 @@ export interface IPoolStats {
 }
 
 export interface IPoolData {
-  chainId: number;
   domainId: string;
   name: string;
   symbol: string;

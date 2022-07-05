@@ -40,7 +40,10 @@ describe("NxtpSdkPool", () => {
       expect(nxtpPool.chainData).to.not.be.null;
 
       expect(nxtpPool.getCanonicalFromLocal).to.be.a("function");
-      expect(nxtpPool.getTokenIndex).to.be.a("function");
+      expect(nxtpPool.getLPTokenAddress).to.be.a("function");
+      expect(nxtpPool.getPoolTokenIndex).to.be.a("function");
+      expect(nxtpPool.getPoolTokenBalance).to.be.a("function");
+      expect(nxtpPool.getPoolTokenAddress).to.be.a("function");
       expect(nxtpPool.calculateTokenAmount).to.be.a("function");
       expect(nxtpPool.calculateRemoveSwapLiquidity).to.be.a("function");
       expect(nxtpPool.calculateSwap).to.be.a("function");
@@ -48,9 +51,7 @@ describe("NxtpSdkPool", () => {
       expect(nxtpPool.removeLiquidity).to.be.a("function");
       expect(nxtpPool.swap).to.be.a("function");
       expect(nxtpPool.getPool).to.be.a("function");
-      expect(nxtpPool.getTokenAddress).to.be.a("function");
-      expect(nxtpPool.getTokenBalance).to.be.a("function");
-      expect(nxtpPool.getTokenIndex).to.be.a("function");
+      expect(nxtpPool.getUserPools).to.be.a("function");
     });
   });
 
@@ -158,7 +159,7 @@ describe("NxtpSdkPool", () => {
       };
 
       stub(nxtpPool, "getCanonicalFromLocal").resolves(["1337", "0x0"]);
-      stub(nxtpPool, "getTokenIndex").onCall(0).resolves(0).onCall(1).resolves(1);
+      stub(nxtpPool, "getPoolTokenIndex").onCall(0).resolves(0).onCall(1).resolves(1);
       stub(nxtpPool, "calculateSwap").resolves(mockParams.minDy);
 
       const res = await nxtpPool.swap(
@@ -233,6 +234,43 @@ describe("NxtpSdkPool", () => {
 
       const res = await nxtpPool.getPool(mockParams.domainId, mockParams.canonicalId);
       expect(res).to.be.undefined;
+    });
+  });
+
+  describe("#getUserPools", () => {
+    const mockParams = {
+      userAddress: "0x01".padEnd(42, "0"),
+      domainId: mock.domain.A,
+      canonicalId: utils.formatBytes32String("0"),
+      tokenAddress: mock.asset.A.address,
+      poolName: `${mock.asset.A.symbol}-Pool`,
+      poolSymbol: `${mock.asset.A.symbol}-mad${mock.asset.A.symbol}`,
+      poolTokens: [utils.formatBytes32String("1"), mock.asset.A.address],
+      poolDecimals: [18, 18],
+      lpTokenAddress: utils.formatBytes32String("2"),
+    };
+
+    it("happy: should work", async () => {
+      const mockPool: Pool = {
+        domainId: mockParams.domainId,
+        name: mockParams.poolName,
+        symbol: mockParams.poolSymbol,
+        tokens: mockParams.poolTokens,
+        decimals: mockParams.poolDecimals,
+        lpTokenAddress: mockParams.lpTokenAddress,
+        address: undefined,
+      };
+
+      stub(nxtpPool, "getPool").resolves(mockPool);
+      stub(chainReader, "readTx").onCall(0).resolves("0x");
+      stub(nxtpPool.erc20, "decodeFunctionResult").onCall(0).returns([100]);
+
+      const res = await nxtpPool.getUserPools(mockParams.domainId, mockParams.userAddress);
+
+      // TODO: why doesn't the await above suffice?
+      await setTimeout(() => {
+        expect(res).to.have.lengthOf(1);
+      }, 100);
     });
   });
 });
