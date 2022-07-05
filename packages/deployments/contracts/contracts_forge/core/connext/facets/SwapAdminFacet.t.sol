@@ -477,7 +477,7 @@ contract SwapAdminFacetTest is SwapAdminFacet, StableSwapFacet, FacetHelper {
     this.setSwapAdminFee(_canonicalId, SwapUtils.MAX_ADMIN_FEE);
     assertEq(this.getSwapStorage(_canonicalId).adminFee, SwapUtils.MAX_ADMIN_FEE);
 
-    vm.expectRevert("Fee is too high");
+    vm.expectRevert("too high");
     this.setSwapAdminFee(_canonicalId, SwapUtils.MAX_ADMIN_FEE + 1);
     vm.stopPrank();
   }
@@ -507,7 +507,7 @@ contract SwapAdminFacetTest is SwapAdminFacet, StableSwapFacet, FacetHelper {
     this.setSwapFee(_canonicalId, SwapUtils.MAX_SWAP_FEE);
     assertEq(this.getSwapStorage(_canonicalId).swapFee, SwapUtils.MAX_SWAP_FEE);
 
-    vm.expectRevert("Fee is too high");
+    vm.expectRevert("too high");
     this.setSwapFee(_canonicalId, SwapUtils.MAX_SWAP_FEE + 1);
     vm.stopPrank();
   }
