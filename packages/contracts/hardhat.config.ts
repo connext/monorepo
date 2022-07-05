@@ -174,7 +174,7 @@ const config: HardhatUserConfig = {
     xdai: {
       accounts,
       chainId: 100,
-      url: urlOverride || process.env.XDAI_PROVIDER_URL || "https://xdai.poanetwork.dev/",
+      url: urlOverride || process.env.XDAI_PROVIDER_URL || "https://rpc.ankr.com/gnosis",
     },
     fuse: {
       accounts,
