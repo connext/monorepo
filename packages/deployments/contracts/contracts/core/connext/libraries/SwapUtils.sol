@@ -437,6 +437,9 @@ library SwapUtils {
       } else if (i != tokenIndexTo) {
         _x = xp[i];
       } else {
+        unchecked {
+          ++i;
+        }
         continue;
       }
       s = s.add(_x);
