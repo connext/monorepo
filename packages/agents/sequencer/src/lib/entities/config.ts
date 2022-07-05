@@ -48,6 +48,7 @@ export const SequencerConfigSchema = Type.Object({
   subgraphPrefix: Type.Optional(Type.String()),
   auctionRoundDepth: Type.Number(),
   environment: Type.Union([Type.Literal("staging"), Type.Literal("production")]),
+  messageQueueUrl: Type.String({ format: "uri" }),
 });
 
 export type SequencerConfig = Static<typeof SequencerConfigSchema>;

@@ -2,6 +2,7 @@ import { ChainData, Logger } from "@connext/nxtp-utils";
 import { StoreManager } from "@connext/nxtp-adapters-cache";
 import { SubgraphReader } from "@connext/nxtp-adapters-subgraph";
 import { ChainReader, ConnextContractInterfaces } from "@connext/nxtp-txservice";
+import { AMQPClient } from "@cloudamqp/amqp-client";
 
 import { Relayer } from "../../adapters";
 
@@ -19,4 +20,5 @@ export type AppContext = {
   };
   config: SequencerConfig;
   chainData: Map<string, ChainData>;
+  mqClient: AMQPClient;
 };

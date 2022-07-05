@@ -24,6 +24,7 @@ export const storeBid = async (bid: Bid, _requestContext: RequestContext): Promi
     logger,
     config,
     adapters: { cache, subgraph },
+    mqClient,
   } = getContext();
   const { requestContext, methodContext } = createLoggingContext(storeBid.name, _requestContext);
   logger.debug(`Method start: ${storeBid.name}`, requestContext, methodContext, { bid });
@@ -75,6 +76,13 @@ export const storeBid = async (bid: Bid, _requestContext: RequestContext): Promi
     // Store the transfer locally. We will use this as a reference later when we execute this transfer
     // in the auction cycle, for both encoding data and passing relayer fee to the relayer.
     await cache.transfers.storeTransfers([transfer]);
+
+    // Enqueue the transfer request to sequencer job queue
+    // Wraps transfer with state keeping data structure to ensure:
+    //  1. Will have a 1-1 mapping with job handler
+    //  2. Will have retries till expiry
+
+    // await enqueue(transfer, mqClient)
   }
 
   if (transfer.destination?.execute || transfer.destination?.reconcile) {

@@ -10,6 +10,7 @@ import {
 import { SubgraphReader } from "@connext/nxtp-adapters-subgraph";
 import { StoreManager } from "@connext/nxtp-adapters-cache";
 import { ChainReader, getContractInterfaces, contractDeployments } from "@connext/nxtp-txservice";
+import { AMQPClient } from "@cloudamqp/amqp-client";
 
 import { SequencerConfig } from "./lib/entities";
 import { getConfig } from "./config";
@@ -47,6 +48,7 @@ export const makeSequencer = async (_configOverride?: SequencerConfig) => {
       context.logger.child({ module: "ChainReader", level: context.config.logLevel }),
       context.config.chains,
     );
+    context.mqClient = await setupMQ(requestContext);
     context.adapters.contracts = getContractInterfaces();
     context.adapters.relayer = await setupRelayer();
 
@@ -145,4 +147,15 @@ export const setupSubgraphReader = async (requestContext: RequestContext): Promi
     }
   }
   return subgraphReader;
+};
+
+export const setupMQ = async (requestContext: RequestContext): Promise<AMQPClient> => {
+  const { logger, config } = context;
+  const methodContext = createMethodContext(setupMQ.name);
+
+  logger.info("MQ connection setup in progress...", requestContext, methodContext, {});
+  const amqp = new AMQPClient(config.messageQueueUrl);
+  await amqp.connect();
+  logger.info("MQ connection setup is done!", requestContext, methodContext, {});
+  return amqp;
 };
