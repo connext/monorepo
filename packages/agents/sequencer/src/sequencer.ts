@@ -30,7 +30,14 @@ export const makeSequencer = async (_configOverride?: SequencerConfig) => {
     // Get ChainData and parse out configuration.
     context.chainData = await getChainData();
     context.config = _configOverride ?? (await getConfig(context.chainData, contractDeployments));
-    context.logger = new Logger({ level: context.config.logLevel });
+    context.logger = new Logger({
+      level: context.config.logLevel,
+      formatters: {
+        level: (label) => {
+          return { level: label.toUpperCase() };
+        },
+      },
+    });
     context.logger.info("Sequencer config generated.", requestContext, methodContext, { config: context.config });
 
     /// MARK - Adapters

@@ -184,7 +184,8 @@ export const getEnvConfig = (
       DEFAULT_AUCTION_ROUND_DEPTH,
     subgraphPrefix: process.env.NXTP_SUBGRAPH_PREFIX || configJson.subgraphPrefix || configFile.subgraphPrefix,
     environment: process.env.NXTP_ENVIRONMENT || configJson.environment || configFile.environment || "production",
-    nomadEnvironment: process.env.NXTP_NOMAD_ENVIRONMENT || configJson.nomadEnvironment || configFile.nomadEnvironment || "staging",
+    nomadEnvironment:
+      process.env.NXTP_NOMAD_ENVIRONMENT || configJson.nomadEnvironment || configFile.nomadEnvironment || "staging",
   };
 
   if (!nxtpConfig.mnemonic && !nxtpConfig.web3SignerUrl) {

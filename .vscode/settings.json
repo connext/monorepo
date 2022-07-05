@@ -8,7 +8,7 @@
     "editor.defaultFormatter": "esbenp.prettier-vscode"
   },
   "[terraform]": {
-    "editor.defaultFormatter": "hashicorp.terraform"
+    "editor.defaultFormatter": "hashicorp.terraform-preview"
   },
   "[sql]": {
     "editor.defaultFormatter": "mtxr.sqltools"

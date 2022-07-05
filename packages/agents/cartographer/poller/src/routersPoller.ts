@@ -1,7 +1,7 @@
 import { SubgraphReader } from "@connext/nxtp-adapters-subgraph";
 import { createMethodContext, createRequestContext, getChainData, Logger } from "@connext/nxtp-utils";
 
-import { getDatabase } from "./adapters/database";
+import { closeDatabase, getDatabase } from "./adapters/database";
 import { bindRouters } from "./bindings";
 import { CartographerConfig, getConfig } from "./config";
 import { context } from "./shared";
@@ -18,7 +18,12 @@ export const makeRoutersPoller = async (_configOverride?: CartographerConfig) =>
   context.config = _configOverride ?? (await getConfig());
   context.logger = new Logger({
     level: context.config.logLevel,
-    name: "Cartographer",
+    name: "cartographer-routers",
+    formatters: {
+      level: (label) => {
+        return { level: label.toUpperCase() };
+      },
+    },
   });
   context.logger.info("Config generated", requestContext, methodContext, { config: context.config });
 
@@ -48,4 +53,5 @@ _|         _|    _|   _|    _|_|   _|    _|_|   _|           _|  _|         _|
 `);
 
   await bindRouters();
+  await closeDatabase();
 };

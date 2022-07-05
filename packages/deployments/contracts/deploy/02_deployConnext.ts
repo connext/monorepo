@@ -1,12 +1,14 @@
 import { HardhatRuntimeEnvironment } from "hardhat/types";
 import { DeployFunction } from "hardhat-deploy/types";
-import { constants, Contract, utils, Wallet } from "ethers";
+import { constants, Contract, Wallet } from "ethers";
 import { ethers } from "hardhat";
-import { keccak256 } from "ethers/lib/utils";
 
 import { SKIP_SETUP, WRAPPED_ETH_MAP } from "../src/constants";
 import { getDeploymentName } from "../src/utils";
 import { getDomainInfoFromChainId } from "../src/nomad";
+import { deployConfigs } from "../deployConfig";
+
+import { deployNomadBeaconProxy } from "./01_deployNomad";
 
 /**
  * Hardhat task defining the contract deployments for nxtp
@@ -22,62 +24,59 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment): Promise<voi
     [_deployer] = await hre.ethers.getUnnamedSigners();
   }
   const deployer = _deployer as Wallet;
-  console.log("\n============================= Deploying Connext Diamond ===============================");
+  console.log("\n============================= Deploying Connext Contracts ===============================");
   console.log("deployer: ", deployer.address);
 
   const network = await hre.ethers.provider.getNetwork();
+  console.log("network: ", network);
   const domainConfig = getDomainInfoFromChainId(network.chainId);
+  console.log("domainConfig: ", domainConfig);
+  const price = await hre.ethers.provider.getGasPrice();
+  console.log("price: ", price.toString());
 
-  console.log("Fetching relayer fee router...");
-  // Get RelayerFeeRouter and TokenRegistry deployments.
-  const relayerFeeRouterName = getDeploymentName("RelayerFeeRouterUpgradeBeaconProxy");
-  const relayerFeeRouterDeployment = await hre.deployments.getOrNull(relayerFeeRouterName);
-  const relayerFeeRouterImplementationName = getDeploymentName("RelayerFeeRouter");
-  const relayerFeeRouterImplementationDeployment = await hre.deployments.getOrNull(relayerFeeRouterImplementationName);
-
-  if (!relayerFeeRouterDeployment || !relayerFeeRouterImplementationDeployment) {
-    throw new Error(
-      `RelayerFeeRouterUpgradeBeaconProxy not deployed. ` +
-        `Upgrade Beacon: ${!!relayerFeeRouterDeployment}; Implementation: ${!!relayerFeeRouterImplementationDeployment}`,
-    );
-  }
-
-  const relayerFeeRouter = new hre.ethers.Contract(
-    relayerFeeRouterDeployment.address,
-    relayerFeeRouterImplementationDeployment.abi,
-  ).connect(deployer);
-
-  console.log("Fetching promise router...");
-  const promiseRouterDeployment = await hre.deployments.getOrNull(getDeploymentName("PromiseRouterUpgradeBeaconProxy"));
-  const promiseRouterImplementationDeployment = await hre.deployments.getOrNull(getDeploymentName("PromiseRouter"));
-
-  if (!promiseRouterDeployment || !promiseRouterImplementationDeployment) {
-    throw new Error(
-      `PromiseRouterUpgradeBeaconProxy not deployed. ` +
-        `Upgrade Beacon: ${!!promiseRouterDeployment}; Implementation: ${!!promiseRouterImplementationDeployment}`,
-    );
-  }
-
-  const promiseRouter = new hre.ethers.Contract(
-    promiseRouterDeployment.address,
-    promiseRouterImplementationDeployment.abi,
-  ).connect(deployer);
+  const balance = await hre.ethers.provider.getBalance(deployer.address);
+  console.log("balance: ", balance.toString());
 
   // Get xapp connection manager
-  const xappConnectionManagerDeployment = await hre.deployments.getOrNull(getDeploymentName("XAppConnectionManager"));
-  if (!xappConnectionManagerDeployment) {
-    throw new Error(`XappConnectionManager not deployed`);
+  const deployConfig = deployConfigs[chainId];
+  let xappConnectionManagerAddress = deployConfig?.XAppConnectionManager;
+  if (!xappConnectionManagerAddress) {
+    const xappConnectionManagerDeployment = await hre.deployments.getOrNull(getDeploymentName("XAppConnectionManager"));
+    if (!xappConnectionManagerDeployment) {
+      throw new Error(`XappConnectionManager not deployed`);
+    }
+    xappConnectionManagerAddress = xappConnectionManagerDeployment.address;
   }
 
   console.log("Fetching token registry...");
-  const tokenRegistryDeployment = await hre.deployments.getOrNull(getDeploymentName("TokenRegistryUpgradeBeaconProxy"));
-  if (!tokenRegistryDeployment) {
-    throw new Error(`TokenRegistry not deployed`);
+  let tokenRegistryAddress = deployConfig?.TokenRegistry;
+  if (!tokenRegistryAddress) {
+    const tokenRegistryDeployment = await hre.deployments.getOrNull(
+      getDeploymentName("TokenRegistryUpgradeBeaconProxy"),
+    );
+    if (!tokenRegistryDeployment) {
+      throw new Error(`TokenRegistry not deployed`);
+    }
+    tokenRegistryAddress = tokenRegistryDeployment.address;
   }
-  const tokenRegistry = new hre.ethers.Contract(
-    tokenRegistryDeployment.address,
-    (await hre.deployments.getOrNull(getDeploymentName("TokenRegistry")))!.abi,
+
+  // Deploy relayer fee router
+  console.log("Deploying relayer fee router...");
+  const relayerFeeRouter = (
+    await deployNomadBeaconProxy("RelayerFeeRouter", [xappConnectionManagerAddress], deployer, hre)
   ).connect(deployer);
+  console.log("relayer fee router address:", relayerFeeRouter.address);
+  console.log("relayer fee router owner:", await relayerFeeRouter.owner());
+
+  // Deploy promise router
+  console.log("Deploying promise router...");
+  const promiseRouter = (
+    await deployNomadBeaconProxy("PromiseRouter", [xappConnectionManagerAddress], deployer, hre)
+  ).connect(deployer);
+  console.log("promise router address:", promiseRouter.address);
+  console.log("promise router owner:", await promiseRouter.owner());
+
+  const tokenRegistry = await hre.ethers.getContractAt("TokenRegistry", tokenRegistryAddress, deployer);
 
   const lpTokenDeployment = await hre.deployments.deploy("LPToken", {
     from: deployer.address,
@@ -97,6 +96,7 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment): Promise<voi
 
   // Deploy connext diamond contract
   console.log("Deploying connext diamond...");
+  const isDiamondUpgrade = !!(await hre.deployments.getOrNull(getDeploymentName("ConnextHandler")));
   const connext = await hre.deployments.diamond.deploy(getDeploymentName("ConnextHandler"), {
     from: deployer.address,
     owner: deployer.address,
@@ -115,18 +115,20 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment): Promise<voi
     ],
     defaultOwnershipFacet: false,
     defaultCutFacet: false,
-    execute: {
-      contract: "DiamondInit",
-      methodName: "init",
-      args: [
-        domainConfig.domain,
-        xappConnectionManagerDeployment.address,
-        tokenRegistry.address,
-        WRAPPED_ETH_MAP.get(+chainId) ?? constants.AddressZero,
-        relayerFeeRouter.address,
-        promiseRouter.address,
-      ],
-    },
+    execute: isDiamondUpgrade
+      ? undefined
+      : {
+          contract: "DiamondInit",
+          methodName: "init",
+          args: [
+            domainConfig.domain,
+            xappConnectionManagerAddress,
+            tokenRegistry.address,
+            WRAPPED_ETH_MAP.get(+chainId) ?? constants.AddressZero,
+            relayerFeeRouter.address,
+            promiseRouter.address,
+          ],
+        },
     // deterministicSalt: keccak256(utils.toUtf8Bytes("connextDiamondProxyV1")),
   });
   const connextAddress = connext.address;
@@ -158,35 +160,6 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment): Promise<voi
     console.log("promise router connext set");
   }
 
-  if (WRAPPED_ETH_MAP.has(+chainId)) {
-    console.log("Deploying ConnextPriceOracle to configured chain");
-
-    let deployedPriceOracleAddress;
-    const priceOracleDeploymentName = getDeploymentName("ConnextPriceOracle");
-    try {
-      deployedPriceOracleAddress = (await hre.deployments.get(priceOracleDeploymentName)).address;
-    } catch (e: unknown) {
-      console.log("ConnextPriceOracle not deployed yet:", (e as Error).message);
-    }
-    await hre.deployments.deploy(priceOracleDeploymentName, {
-      from: deployer.address,
-      args: [WRAPPED_ETH_MAP.get(+chainId)],
-      log: true,
-      skipIfAlreadyDeployed: true,
-      contract: "ConnextPriceOracle",
-    });
-
-    const priceOracleDeployment = await hre.deployments.get(priceOracleDeploymentName);
-    const newPriceOracleAddress = priceOracleDeployment.address;
-    if (deployedPriceOracleAddress && deployedPriceOracleAddress != newPriceOracleAddress) {
-      console.log("Setting v1PriceOracle, v1PriceOracle: ", deployedPriceOracleAddress);
-      const priceOracleContract = await hre.ethers.getContractAt(priceOracleDeploymentName, newPriceOracleAddress);
-      const tx = await priceOracleContract.setV1PriceOracle(deployedPriceOracleAddress, { from: deployer });
-      console.log("setV1PriceOracle tx: ", tx);
-      await tx.wait();
-    }
-  }
-
   console.log("Deploying multicall...");
   const multicallName = getDeploymentName("Multicall");
   let deployment = await hre.deployments.deploy(multicallName, {
@@ -213,5 +186,4 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment): Promise<voi
 
 export default func;
 
-func.tags = ["Connext"];
-func.dependencies = ["Nomad"];
+func.tags = ["Connext", "mainnet"];
