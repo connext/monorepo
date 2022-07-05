@@ -32555,7 +32555,7 @@ const connextTestGoerliHandler = new GraphqlHandler({
             });
 const connextLocal1337Handler = new GraphqlHandler({
               name: "Connext_Local1337",
-              config: {"endpoint":"http://localhost:8010/subgraphs/name/connext/nxtp","retry":5,"timeout":30000},
+              config: {"endpoint":"http://graph-node-1337:8000/subgraphs/name/connext/nxtp","retry":5,"timeout":30000},
               baseDir,
               cache,
               pubsub,
@@ -32565,7 +32565,7 @@ const connextLocal1337Handler = new GraphqlHandler({
             });
 const connextLocal1338Handler = new GraphqlHandler({
               name: "Connext_Local1338",
-              config: {"endpoint":"http://localhost:9010/subgraphs/name/connext/nxtp","retry":5,"timeout":30000},
+              config: {"endpoint":"http://graph-node-1338:8000/subgraphs/name/connext/nxtp","retry":5,"timeout":30000},
               baseDir,
               cache,
               pubsub,
