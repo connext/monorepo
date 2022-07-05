@@ -61,11 +61,11 @@ contract NomadFacetTest is NomadFacet, FacetHelper {
       _destinationDomain, // destination domain
       address(112233332211), // agent
       _recovery, // recovery address
+      false, // forceSlow
+      false, // receiveLocal
       address(0), // callback
       0, // callbackFee
       _relayerFee, // relayer fee
-      false, // forceSlow
-      false, // receiveLocal
       9900 // slippage tol
     );
 
@@ -200,7 +200,7 @@ contract NomadFacetTest is NomadFacet, FacetHelper {
       } // otherwise slippage is too high and it should not try to repay the rest of the loan
     }
 
-    if (amountIn > 0) {
+    if (amountIn != 0) {
       // approval of pool for sum
       vm.expectCall(_adopted, abi.encodeWithSelector(IERC20.approve.selector, _aavePool, repayment.total));
 
@@ -263,7 +263,7 @@ contract NomadFacetTest is NomadFacet, FacetHelper {
     }
 
     // Mock calls for swap if needed
-    if (_local != _adopted && init.total > 0) {
+    if (_local != _adopted && init.total != 0) {
       // mock calculate equivalent of bridged amount in adopted
       vm.mockCall(
         _stableSwap,
@@ -304,9 +304,9 @@ contract NomadFacetTest is NomadFacet, FacetHelper {
     if (shouldSucceed) {
       assertEq(s.reconciledTransfers[transferId], true);
       address[] memory routers = s.routedTransfers[transferId];
-      if (routers.length > 0) {
+      if (routers.length != 0) {
         uint256 routerAmt;
-        if (init.total > 0 && repayment.aaveReturns) {
+        if (init.total != 0 && repayment.aaveReturns) {
           routerAmt = swap.input > args.amount ? args.amount : args.amount - swap.input;
         } else {
           routerAmt = args.amount / s.routedTransfers[transferId].length;
@@ -317,7 +317,7 @@ contract NomadFacetTest is NomadFacet, FacetHelper {
         }
       }
 
-      if (init.total > 0) {
+      if (init.total != 0) {
         // assert repayment
         assertEq(s.portalDebt[transferId], init.debt - repayment.debt);
         assertEq(s.portalFeeDebt[transferId], init.fee - repayment.fee);

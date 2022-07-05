@@ -3,9 +3,7 @@ pragma solidity 0.8.15;
 
 import {SafeERC20, IERC20, Address} from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 
-import {IWrapped} from "../interfaces/IWrapped.sol";
 import {IStableSwap} from "../interfaces/IStableSwap.sol";
-import {ITokenRegistry} from "../interfaces/ITokenRegistry.sol";
 
 import {ConnextMessage} from "./ConnextMessage.sol";
 import {LibConnextStorage, AppStorage} from "./LibConnextStorage.sol";
@@ -256,6 +254,7 @@ library AssetLogic {
    * @param _assetIn - The address of the from asset
    * @param _assetOut - The address of the to asset
    * @param _amount - The amount of the local asset to swap
+   * @param _slippageTol - Max bps of original due to slippage (i.e. would be 9995 to tolerate .05% slippage)
    * @return The amount of assetOut
    * @return The address of assetOut
    */
@@ -300,6 +299,7 @@ library AssetLogic {
    * @param _assetIn - The address of the from asset
    * @param _assetOut - The address of the to asset
    * @param _amountOut - The amount of the _assetOut to swap
+   * @return Success value
    * @return The amount of assetIn
    * @return The address of assetOut
    */
@@ -350,7 +350,7 @@ library AssetLogic {
         // Later, if we try to increase the allowance it will fail. USDT demands if allowance is not 0, it has to be set to 0 first.
         // Example: https://github.com/aave/aave-v3-periphery/blob/ca184e5278bcbc10d28c3dbbc604041d7cfac50b/contracts/adapters/paraswap/ParaSwapRepayAdapter.sol#L138-L140
         SafeERC20.safeApprove(IERC20(_assetIn), address(pool), 0);
-        SafeERC20.safeApprove(IERC20(_assetIn), address(pool), _amountIn);
+        SafeERC20.safeIncreaseAllowance(IERC20(_assetIn), address(pool), _amountIn);
         amountIn = pool.swapExactOut(_amountOut, _assetIn, _assetOut, _maxIn);
       }
       // slippage is too high to perform swap: success = false, amountIn = 0

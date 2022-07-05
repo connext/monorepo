@@ -169,7 +169,7 @@ abstract contract ProposedOwnable is IProposedOwnable {
   function _setProposed(address newlyProposed) private {
     _proposedOwnershipTimestamp = block.timestamp;
     _proposed = newlyProposed;
-    emit OwnershipProposed(_proposed);
+    emit OwnershipProposed(newlyProposed);
   }
 }
 

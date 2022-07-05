@@ -23,6 +23,7 @@ contract BaseConnextFacet {
   error BaseConnextFacet__onlyOwner_notOwner();
   error BaseConnextFacet__onlyProposed_notProposedOwner();
   error BaseConnextFacet__whenNotPaused_paused();
+  error BaseConnextFacet__nonReentrant_reentrantCall();
 
   // ============ Modifiers ============
 
@@ -35,7 +36,7 @@ contract BaseConnextFacet {
    */
   modifier nonReentrant() {
     // On the first call to nonReentrant, _notEntered will be true
-    require(s._status != _ENTERED, "ReentrancyGuard: reentrant call");
+    if (s._status == _ENTERED) revert BaseConnextFacet__nonReentrant_reentrantCall();
 
     // Any calls to nonReentrant after this point will fail
     s._status = _ENTERED;
@@ -134,7 +135,7 @@ contract BaseConnextFacet {
   }
 
   /**
-   * @notice Determine whether _potentialReplcia is an enrolled Replica from the xAppConnectionManager
+   * @notice Determine whether _potentialReplica is an enrolled Replica from the xAppConnectionManager
    * @return True if _potentialReplica is an enrolled Replica
    */
   function _isReplica(address _potentialReplica) internal view returns (bool) {

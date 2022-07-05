@@ -91,7 +91,7 @@ contract ConnextPriceOracle is PriceOracle {
       tokenAddress = wrapped;
     }
     uint256 tokenPrice = assetPrices[tokenAddress].price;
-    if (tokenPrice > 0 && ((block.timestamp - assetPrices[tokenAddress].updatedAt) <= VALID_PERIOD)) {
+    if (tokenPrice != 0 && ((block.timestamp - assetPrices[tokenAddress].updatedAt) <= VALID_PERIOD)) {
       return tokenPrice;
     }
     if (tokenPrice == 0) {
@@ -111,7 +111,7 @@ contract ConnextPriceOracle is PriceOracle {
     if (priceInfo.active) {
       uint256 rawTokenAmount = IERC20Extended(priceInfo.token).balanceOf(priceInfo.lpToken);
       uint256 tokenDecimals = uint256(IERC20Extended(priceInfo.token).decimals());
-      uint256 tokenAmount = 0;
+      uint256 tokenAmount;
       if (tokenDecimals > 18) {
         tokenAmount = rawTokenAmount.div(10**(tokenDecimals - 18));
       } else {
@@ -119,7 +119,7 @@ contract ConnextPriceOracle is PriceOracle {
       }
       uint256 rawBaseTokenAmount = IERC20Extended(priceInfo.baseToken).balanceOf(priceInfo.lpToken);
       uint256 baseTokenDecimals = uint256(IERC20Extended(priceInfo.baseToken).decimals());
-      uint256 baseTokenAmount = 0;
+      uint256 baseTokenAmount;
       if (baseTokenDecimals > 18) {
         baseTokenAmount = rawBaseTokenAmount.div(10**(baseTokenDecimals - 18));
       } else {
@@ -157,7 +157,7 @@ contract ConnextPriceOracle is PriceOracle {
         }
 
         uint256 retVal = uint256(answer);
-        uint256 price = 0;
+        uint256 price;
         // Make the decimals to 1e18.
         uint256 aggregatorDecimals = uint256(aggregator.decimals());
         if (aggregatorDecimals > 18) {
@@ -184,7 +184,7 @@ contract ConnextPriceOracle is PriceOracle {
   ) external onlyAdmin {
     PriceInfo storage priceInfo = priceRecords[_token];
     uint256 baseTokenPrice = getTokenPrice(_baseToken);
-    require(baseTokenPrice > 0, "invalid base token");
+    require(baseTokenPrice != 0, "invalid base token");
     priceInfo.token = _token;
     priceInfo.baseToken = _baseToken;
     priceInfo.lpToken = _lpToken;
@@ -197,7 +197,7 @@ contract ConnextPriceOracle is PriceOracle {
     uint256 _price,
     uint256 _timestamp
   ) external onlyAdmin {
-    require(_price > 0, "bad price");
+    require(_price != 0, "bad price");
 
     if (block.timestamp > _timestamp) {
       // reject stale price
@@ -226,9 +226,14 @@ contract ConnextPriceOracle is PriceOracle {
   }
 
   function setAggregators(address[] calldata tokenAddresses, address[] calldata sources) external onlyAdmin {
-    for (uint256 i = 0; i < tokenAddresses.length; i++) {
+    uint256 numTokens = tokenAddresses.length;
+    for (uint256 i; i < numTokens; ) {
       aggregators[tokenAddresses[i]] = AggregatorV3Interface(sources[i]);
       emit AggregatorUpdated(tokenAddresses[i], sources[i]);
+
+      unchecked {
+        ++i;
+      }
     }
   }
 }

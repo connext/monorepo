@@ -115,7 +115,7 @@ contract ProposedOwnableFacet is BaseConnextFacet, IProposedOwnable {
   /**
    * @notice Returns the delay period before a new owner can be accepted.
    */
-  function delay() public view returns (uint256) {
+  function delay() public pure returns (uint256) {
     return _delay;
   }
 
@@ -140,7 +140,7 @@ contract ProposedOwnableFacet is BaseConnextFacet, IProposedOwnable {
    * been renounced
    */
   function renounceRouterOwnership() public onlyOwner {
-    // Contract as sournce of truth
+    // Contract as sounce of truth
     // Will fail if all ownership is renounced by modifier
     if (s._routerOwnershipRenounced) revert ProposedOwnableFacet__renounceRouterOwnership_noOwnershipChange();
 
@@ -160,7 +160,7 @@ contract ProposedOwnableFacet is BaseConnextFacet, IProposedOwnable {
    * been renounced
    */
   function proposeAssetOwnershipRenunciation() public onlyOwner {
-    // Contract as sournce of truth
+    // Contract as source of truth
     // Will fail if all ownership is renounced by modifier
     if (s._assetOwnershipRenounced) revert ProposedOwnableFacet__proposeAssetOwnershipRenunciation_noOwnershipChange();
 
@@ -173,7 +173,7 @@ contract ProposedOwnableFacet is BaseConnextFacet, IProposedOwnable {
    * been renounced
    */
   function renounceAssetOwnership() public onlyOwner {
-    // Contract as sournce of truth
+    // Contract as source of truth
     // Will fail if all ownership is renounced by modifier
     if (s._assetOwnershipRenounced) revert ProposedOwnableFacet__renounceAssetOwnership_noOwnershipChange();
 
@@ -231,7 +231,7 @@ contract ProposedOwnableFacet is BaseConnextFacet, IProposedOwnable {
 
   /**
    * @notice Transfers ownership of the contract to a new account (`newOwner`).
-   * Can only be called by the current owner.
+   * Can only be called by the proposed owner.
    */
   function acceptProposedOwner() public onlyProposed {
     // Contract as source of truth
@@ -264,35 +264,35 @@ contract ProposedOwnableFacet is BaseConnextFacet, IProposedOwnable {
 
   function _setRouterOwnershipTimestamp() private {
     s._routerOwnershipTimestamp = block.timestamp;
-    emit RouterOwnershipRenunciationProposed(s._routerOwnershipTimestamp);
+    emit RouterOwnershipRenunciationProposed(block.timestamp);
   }
 
   function _setRouterOwnership(bool value) private {
     s._routerOwnershipRenounced = value;
-    s._routerOwnershipTimestamp = 0;
+    delete s._routerOwnershipTimestamp;
     emit RouterOwnershipRenounced(value);
   }
 
   function _setAssetOwnershipTimestamp() private {
     s._assetOwnershipTimestamp = block.timestamp;
-    emit AssetOwnershipRenunciationProposed(s._assetOwnershipTimestamp);
+    emit AssetOwnershipRenunciationProposed(block.timestamp);
   }
 
   function _setAssetOwnership(bool value) private {
     s._assetOwnershipRenounced = value;
-    s._assetOwnershipTimestamp = 0;
+    delete s._assetOwnershipTimestamp;
     emit AssetOwnershipRenounced(value);
   }
 
   function _setOwner(address newOwner) private {
-    s._proposedOwnershipTimestamp = 0;
-    s._proposed = address(0);
+    delete s._proposedOwnershipTimestamp;
+    delete s._proposed;
     LibDiamond.setContractOwner(newOwner);
   }
 
   function _setProposed(address newlyProposed) private {
     s._proposedOwnershipTimestamp = block.timestamp;
     s._proposed = newlyProposed;
-    emit OwnershipProposed(s._proposed);
+    emit OwnershipProposed(newlyProposed);
   }
 }
