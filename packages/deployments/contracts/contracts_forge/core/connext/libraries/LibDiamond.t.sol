@@ -78,14 +78,11 @@ contract LibDiamondTest is ForgeHelper, Deployer {
     });
 
     IDiamondCut(address(connextDiamondProxy)).proposeDiamondCut(facetCuts, address(diamondInit), initCallData);
-    console.log("proposed");
 
     vm.warp(block.timestamp + 7 days + 1);
 
     LibDiamond.DiamondStorage storage ds = LibDiamond.diamondStorage();
     bytes32 key = keccak256(abi.encode(facetCuts, address(diamondInit), initCallData));
-    console.log("key");
-    console.logBytes32(key);
     ds.acceptanceTimes[key] = 1;
 
     IDiamondCut(address(connextDiamondProxy)).diamondCut(facetCuts, address(diamondInit), initCallData);

@@ -40,7 +40,6 @@ export const encodeExecuteFromBids = (round: number, bids: Bid[], transfer: Orig
     amount: transfer.origin.assets.bridged.amount,
     nonce: transfer.nonce,
     originSender: transfer.origin.xcall.caller,
-    relayerFee: transfer.origin.xcall.relayerFee,
   };
   return contracts.connext.encodeFunctionData("execute", [args]);
 };

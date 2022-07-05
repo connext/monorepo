@@ -85,11 +85,11 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
       _destinationDomain, // destination domain
       _agent, // agent
       _recovery, // recovery address
+      false, // forceSlow
+      false, // receiveLocal
       address(0), // callback
       0, // callbackFee
       _relayerFee, // relayer fee
-      false, // forceSlow
-      false, // receiveLocal
       9900 // slippageTol
     );
 
@@ -225,7 +225,7 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
     // generate transfer id
     bytes32 transferId = utils_getTransferIdFromExecuteArgs(args);
     // generate router signatures if applicable
-    if (routers.length > 0) {
+    if (routers.length != 0) {
       args.routerSignatures = utils_makeRouterSignatures(transferId, routers, keys);
     }
     return (transferId, args);
@@ -276,7 +276,7 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
     emit XCalled(transferId, s.nonce, args, eventArgs, _originSender);
 
     // assert swap if expected
-    if (shouldSwap && bridgedAmt > 0) {
+    if (shouldSwap && bridgedAmt != 0) {
       // Transacting asset shouldve been approved for amount in
       vm.expectCall(
         eventArgs.transactingAssetId,
@@ -297,7 +297,7 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
       );
     }
 
-    if (args.params.callbackFee > 0) {
+    if (args.params.callbackFee != 0) {
       // Assert that CallbackFee would be paid by the user.
       vm.expectCall(
         _promiseRouter,
@@ -408,7 +408,7 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
       // Should have updated relayer fees mapping.
       assertEq(this.relayerFees(transferId), args.params.relayerFee);
 
-      if (args.params.callbackFee > 0) {
+      if (args.params.callbackFee != 0) {
         // TODO: For some reason, balance isn't changing. Perhaps the vm.mockCall prevents this?
         // CallbackFee should be delivered to the PromiseRouter.
         // assertEq(_promiseRouter.balance, _params.callbackFee);
@@ -556,7 +556,7 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
     }
 
     // expected transfer out of contract
-    if (_args.amount > 0) {
+    if (_args.amount != 0) {
       if (_inputs.token == address(s.wrapper)) {
         // wrapper withdrawal
         vm.expectCall(_inputs.token, abi.encodeWithSelector(IWeth.withdraw.selector, _inputs.expectedAmt));
@@ -675,7 +675,7 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
 
     // check local balance
     {
-      if (pathLen > 0) {
+      if (pathLen != 0) {
         // should decrement router balance unless using aave
         for (uint256 i; i < pathLen; i++) {
           assertEq(
@@ -803,7 +803,7 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
   // - calling on non-canonical domain
   function helpers_executeAndAssert(bytes32 transferId, ExecuteArgs memory _args) public {
     uint256 expected = _args.amount;
-    if (_args.routers.length > 0) {
+    if (_args.routers.length != 0) {
       expected = utils_getFastTransferAmount(_args.amount);
     }
     helpers_executeAndAssert(transferId, _args, expected, false, false, false, false, false);
@@ -828,7 +828,7 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
     bool useAgent
   ) public {
     uint256 expected = _args.amount;
-    if (_args.routers.length > 0) {
+    if (_args.routers.length != 0) {
       expected = utils_getFastTransferAmount(_args.amount);
     }
     helpers_executeAndAssert(transferId, _args, expected, false, false, false, false, useAgent);

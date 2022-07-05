@@ -83,7 +83,7 @@ library AmplificationUtils {
   ) internal {
     require(block.timestamp >= self.initialATime.add(1 days), "Wait 1 day before starting ramp");
     require(futureTime_ >= block.timestamp.add(MIN_RAMP_TIME), "Insufficient ramp time");
-    require(futureA_ > 0 && futureA_ < MAX_A, "futureA_ must be > 0 and < MAX_A");
+    require(futureA_ != 0 && futureA_ < MAX_A, "futureA_ must be > 0 and < MAX_A");
 
     uint256 initialAPrecise = _getAPrecise(self);
     uint256 futureAPrecise = futureA_.mul(A_PRECISION);

@@ -46,11 +46,11 @@ struct CallParams {
   uint32 destinationDomain;
   address agent;
   address recovery;
+  bool forceSlow;
+  bool receiveLocal;
   address callback;
   uint256 callbackFee;
   uint256 relayerFee;
-  bool forceSlow;
-  bool receiveLocal;
   uint256 slippageTol;
 }
 
@@ -276,7 +276,7 @@ struct AppStorage {
   // 32
   mapping(bytes32 => mapping(address => uint8)) tokenIndexes;
   /**
-   * @notice Stores whether or not briding, AMMs, have been paused
+   * @notice Stores whether or not bribing, AMMs, have been paused
    */
   // 33
   bool _paused;

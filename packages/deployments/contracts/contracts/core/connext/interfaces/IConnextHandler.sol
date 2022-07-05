@@ -17,6 +17,8 @@ import {IWeth} from "./IWeth.sol";
 import {ITokenRegistry} from "./ITokenRegistry.sol";
 import {IBridgeRouter} from "./IBridgeRouter.sol";
 
+import {IDiamondCut} from "./IDiamondCut.sol";
+
 interface IConnextHandler {
   // AssetFacet
   function canonicalToAdopted(bytes32 _canonicalId) external view returns (address);
@@ -375,4 +377,23 @@ interface IConnextHandler {
   ) external;
 
   function stopRampA(bytes32 canonicalId) external;
+
+  // DiamondCutFacet
+  function diamondCut(
+    IDiamondCut.FacetCut[] calldata _diamondCut,
+    address _init,
+    bytes calldata _calldata
+  ) external;
+
+  function proposeDiamondCut(
+    IDiamondCut.FacetCut[] calldata _diamondCut,
+    address _init,
+    bytes calldata _calldata
+  ) external;
+
+  function rescindDiamondCut(
+    IDiamondCut.FacetCut[] calldata _diamondCut,
+    address _init,
+    bytes calldata _calldata
+  ) external;
 }

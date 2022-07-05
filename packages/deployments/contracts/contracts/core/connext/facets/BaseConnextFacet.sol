@@ -22,6 +22,7 @@ contract BaseConnextFacet {
   error BaseConnextFacet__onlyOwner_notOwner();
   error BaseConnextFacet__onlyProposed_notProposedOwner();
   error BaseConnextFacet__whenNotPaused_paused();
+  error BaseConnextFacet__nonReentrant_reentrantCall();
 
   // ============ Modifiers ============
 
@@ -34,7 +35,7 @@ contract BaseConnextFacet {
    */
   modifier nonReentrant() {
     // On the first call to nonReentrant, _notEntered will be true
-    require(s._status != _ENTERED, "ReentrancyGuard: reentrant call");
+    if (s._status == _ENTERED) revert BaseConnextFacet__nonReentrant_reentrantCall();
 
     // Any calls to nonReentrant after this point will fail
     s._status = _ENTERED;

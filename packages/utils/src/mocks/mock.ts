@@ -79,7 +79,7 @@ export const mock: any = {
       destinationDomain: mock.domain.B,
       callback: mkAddress("0xbbbb"),
       callbackFee: "0",
-      relayerFee: "0",
+      relayerFee: "123",
       forceSlow: false,
       receiveLocal: false,
       agent: mkAddress(),
@@ -91,7 +91,6 @@ export const mock: any = {
       params: mock.entity.callParams(),
       transactingAssetId: mock.asset.A.address,
       amount: utils.parseEther("1").toString(),
-      relayerFee: "123",
       ...overrides,
     }),
     executeArgs: (overrides: Partial<ExecuteArgs> = {}): ExecuteArgs => ({
@@ -102,7 +101,6 @@ export const mock: any = {
       amount: utils.parseEther("1").toString(),
       nonce: 0,
       originSender: mkAddress(),
-      relayerFee: "12345",
       ...overrides,
     }),
     auction: (overrides: Partial<Auction>): Auction => ({
