@@ -165,6 +165,7 @@ describe("e2e", () => {
   });
 
   it.only("sends a simple transfer with fast path", async () => {
+    logger.info("Sending xcall...");
     const tx = await sdk.xcall({
       amount: "1000",
       params: {
@@ -186,6 +187,8 @@ describe("e2e", () => {
       { to: tx.to!, value: tx.value ?? 0, data: utils.hexlify(tx.data!), chainId: 1337 },
       requestContext,
     );
+
+    logger.info("xcall sent", { receipt });
 
     receipt.logs.forEach((log, index) => {
       try {
