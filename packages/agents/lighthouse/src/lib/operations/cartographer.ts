@@ -38,9 +38,9 @@ export const pollCartographer = async () => {
             receiveLocal: xTransfer.xparams!.receiveLocal,
             forceSlow: xTransfer.xparams!.forceSlow,
             recovery: xTransfer.xparams!.recovery,
+            slippageTol: xTransfer.xparams!.slippageTol,
             agent: xTransfer.xparams!.agent,
             relayerFee: xTransfer.xparams!.relayerFee,
-            slippageTol: xTransfer.xparams!.slippageTol,
           },
           local: xTransfer.destination!.assets.local.asset,
           routers: [],
@@ -48,7 +48,6 @@ export const pollCartographer = async () => {
           amount: xTransfer.destination!.assets.local.amount.toString(),
           nonce: xTransfer.nonce!,
           originSender: xTransfer.origin!.xcall.caller,
-          relayerFee: xTransfer.origin!.xcall.relayerFee,
         };
 
         const transferId = xTransfer.transferId;

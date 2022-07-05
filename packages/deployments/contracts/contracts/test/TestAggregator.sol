@@ -11,7 +11,13 @@ contract TestAggregator {
 
   uint256 public version = 1;
 
-  int256 public mockAnswer = 1;
+  uint80 _mockRoundId = 1;
+
+  int256 _mockAnswer = 1;
+
+  uint256 _mockUpdateAt;
+
+  uint80 _mockAnsweredInRound = 1;
 
   bool stopped;
   // This error is used for only testing
@@ -19,6 +25,7 @@ contract TestAggregator {
 
   constructor(uint8 _decimals) {
     decimals = _decimals;
+    _mockUpdateAt = block.timestamp;
   }
 
   // getRoundData and latestRoundData should both raise "No data present"
@@ -38,7 +45,7 @@ contract TestAggregator {
     if (stopped) {
       revert TestAggregator_Stopped();
     }
-    return (_roundId, mockAnswer * int256(10**decimals), 0, block.timestamp, 1e18);
+    return (_roundId, _mockAnswer * int256(10**decimals), 0, _mockUpdateAt, _mockAnsweredInRound);
   }
 
   function latestRoundData()
@@ -55,11 +62,23 @@ contract TestAggregator {
     if (stopped) {
       revert TestAggregator_Stopped();
     }
-    return (1, mockAnswer * int256(10**decimals), 0, block.timestamp, 1e18);
+    return (_mockRoundId, _mockAnswer * int256(10**decimals), 0, _mockUpdateAt, _mockAnsweredInRound);
   }
 
   function updateMockAnswer(int256 _answer) external {
-    mockAnswer = _answer;
+    _mockAnswer = _answer;
+  }
+
+  function updateMockData(
+    uint80 _roundId,
+    int256 _answer,
+    uint256 _updateAt,
+    uint80 _answeredInRound
+  ) external {
+    _mockRoundId = _roundId;
+    _mockAnswer = _answer;
+    _mockUpdateAt = _updateAt;
+    _mockAnsweredInRound = _answeredInRound;
   }
 
   function stop() external {

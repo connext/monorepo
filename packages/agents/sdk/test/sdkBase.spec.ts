@@ -111,7 +111,7 @@ describe("SdkBase", () => {
         to: mockConnextAddresss,
         data,
         from: mock.config().signerAddress,
-        value: BigNumber.from(mockXcallArgs.relayerFee),
+        value: BigNumber.from(mockXcallArgs.params.relayerFee),
         chainId,
       };
 
@@ -127,7 +127,7 @@ describe("SdkBase", () => {
         to: mockConnextAddresss,
         data,
         from: mock.config().signerAddress,
-        value: BigNumber.from(mockXcallArgs.amount).add(BigNumber.from(mockXcallArgs.relayerFee)),
+        value: BigNumber.from(mockXcallArgs.amount).add(BigNumber.from(mockXcallArgs.params.relayerFee)),
         chainId,
       };
 

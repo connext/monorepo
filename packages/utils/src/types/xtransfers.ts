@@ -172,7 +172,6 @@ export const XCallArgsSchema = Type.Object({
   params: CallParamsSchema,
   transactingAssetId: Type.String(),
   amount: TIntegerString,
-  relayerFee: TIntegerString,
 });
 
 export type XCallArgs = Static<typeof XCallArgsSchema>;
@@ -185,7 +184,6 @@ export const ExecuteArgsSchema = Type.Object({
   amount: TIntegerString,
   nonce: Type.Integer(),
   originSender: TAddress,
-  relayerFee: TIntegerString,
 });
 
 export type ExecuteArgs = Static<typeof ExecuteArgsSchema>;
