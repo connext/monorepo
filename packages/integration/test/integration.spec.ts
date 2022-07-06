@@ -182,9 +182,9 @@ describe("Integration:E2E", () => {
         `\nTRANSFER:\n\tRoute:    \t${domainInfo.ORIGIN.name} (${domainInfo.ORIGIN.domain}) => ` +
         `${domainInfo.DESTINATION.name} (${domainInfo.DESTINATION.domain})` +
         `\n\tAmount:    \t${utils.formatEther(TRANSFER_TOKEN_AMOUNT)} TEST` +
-        `\nAGENTS\n\tRouter:   \t${agents.router?.address ?? "N/A"}\n\tRelayer:   \t${relayerAddress}\n\tUser:    \t${
-          agents.user.address
-        }` +
+        `\nAGENTS\n\tDeployer:   \t${agents.deployer?.address ?? "N/A"}\n\tRouter:   \t${
+          agents.router?.address ?? "N/A"
+        }\n\tRelayer:   \t${relayerAddress}\n\tUser:    \t${agents.user.address}` +
         `\nCONNEXT\n\tOrigin:   \t${originConnextAddress}\n\tEtherscan:   \t${formatEtherscanLink({
           network: domainInfo.ORIGIN.network,
           address: originConnextAddress,
@@ -700,10 +700,10 @@ describe("Integration:E2E", () => {
               receiveLocal: false,
               callback: constants.AddressZero,
               callbackFee: "0",
+              relayerFee: "0",
               recovery: agents.user.address,
               agent: agents.user.address,
-              relayerFee: "0",
-              slippageTol: "0",
+              slippageTol: "3",
             },
             transactingAssetId: originAsset.address,
             amount: TRANSFER_TOKEN_AMOUNT.toString(),
