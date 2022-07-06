@@ -1,7 +1,7 @@
 import { expect, delay } from "@connext/nxtp-utils";
 import { stub, SinonStub } from "sinon";
 
-import { ctxMock, getOperationsStub, getHelpersStub } from "../../globalTestHook";
+import { ctxMock, getOperationsStub } from "../../globalTestHook";
 import { bindAuctions } from "../../../src/bindings";
 
 describe("Bindings:Auctions", () => {
