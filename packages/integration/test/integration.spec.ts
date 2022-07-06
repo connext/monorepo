@@ -701,10 +701,12 @@ describe("Integration:E2E", () => {
               callback: constants.AddressZero,
               callbackFee: "0",
               recovery: agents.user.address,
+              agent: agents.user.address,
+              relayerFee: "0",
+              slippageTol: "0",
             },
             transactingAssetId: originAsset.address,
             amount: TRANSFER_TOKEN_AMOUNT.toString(),
-            relayerFee: "0",
           };
           const encoded = connext.encodeFunctionData("xcall", [args]);
           const tx = await agents.user.origin.sendTransaction({
