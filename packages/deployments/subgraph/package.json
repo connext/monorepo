@@ -27,7 +27,7 @@
     "generated"
   ],
   "dependencies": {
-    "ethers": "5.6.8",
+    "ethers": "5.6.9",
     "js-yaml": "4.1.0",
     "mustache": "4.2.0",
     "ts-node": "10.8.0",
