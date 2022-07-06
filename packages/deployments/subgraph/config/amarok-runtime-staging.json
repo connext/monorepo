@@ -12,7 +12,7 @@
     "startBlock": 7061631
   },
   {
-    "subgraphName": "connext/nxtp-amarok-runtime-staging-goerli",
+    "subgraphName": "connext/nxtp-amarok-runtime-staging-evmos-testnet",
     "network": "evmos-testnet",
     "address": "0xc79f8361e8cAC168a66411242C20c239225E78D4",
     "startBlock": 7176689
