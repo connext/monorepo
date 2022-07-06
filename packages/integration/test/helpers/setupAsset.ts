@@ -12,8 +12,13 @@ export const setupAsset = async (
   const canonicalId = utils.hexlify(canonizeId(canonical.tokenAddress));
   for (const domain of domains) {
     const readData = ConnextHandlerInterface.encodeFunctionData("canonicalToAdopted", [canonicalId]);
-    const adopted = await txService.readTx({ chainId: +domain.domain, data: readData, to: domain.ConnextHandler });
+    const encoded = await txService.readTx({ chainId: +domain.domain, data: readData, to: domain.ConnextHandler });
+    const [adopted] = ConnextHandlerInterface.decodeFunctionResult("canonicalToAdopted", encoded);
+    console.log("adopted: ", domain.adopted);
+    console.log("onchain adopted: ", adopted);
+
     if (adopted !== domain.adopted) {
+      console.log("sending a setupAsset tx...");
       // @ts-ignore
       const data = ConnextHandlerInterface.encodeFunctionData("setupAsset", [
         [domain.domain, canonicalId],

@@ -12,24 +12,34 @@ export const setupRouter = async (
   for (const domain of domains) {
     console.log("domain: ", domain);
     let readData = ConnextHandlerInterface.encodeFunctionData("getRouterApproval", [routerAddress]);
-    const approved = await txService.readTx({
+    let encodedRes = await txService.readTx({
       chainId: +domain.domain,
       data: readData,
       to: domain.ConnextHandler,
     });
+    const [approved] = ConnextHandlerInterface.decodeFunctionResult("getRouterApproval", encodedRes);
+    console.log("approved: ", approved);
     readData = ConnextHandlerInterface.encodeFunctionData("getRouterOwner", [routerAddress]);
-    const owner = await txService.readTx({
+    encodedRes = await txService.readTx({
       chainId: +domain.domain,
       data: readData,
       to: domain.ConnextHandler,
     });
+
+    const [owner] = ConnextHandlerInterface.decodeFunctionResult("getRouterOwner", encodedRes);
+
+    console.log("owner: ", owner);
     readData = ConnextHandlerInterface.encodeFunctionData("getRouterRecipient", [routerAddress]);
-    const recipient = await txService.readTx({
+    encodedRes = await txService.readTx({
       chainId: +domain.domain,
       data: readData,
       to: domain.ConnextHandler,
     });
+    const [recipient] = ConnextHandlerInterface.decodeFunctionResult("getRouterRecipient", encodedRes);
+    console.log("recipient: ", recipient);
+    console.log("routerAddress: ", routerAddress);
     if (!approved || owner !== routerAddress || recipient !== routerAddress) {
+      console.log("sending setupRouter tx...");
       await txService.sendTx({ to: domain.ConnextHandler, data, value: 0, chainId: +domain.domain }, requestContext);
     }
   }
