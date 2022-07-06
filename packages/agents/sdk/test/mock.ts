@@ -58,6 +58,10 @@ export const mock = {
       stableSwap.encodeFunctionData.returns(encodedDataMock);
       stableSwap.decodeFunctionResult.returns([BigNumber.from(1000)]);
 
+      const stableSwapFacet = createStubInstance(utils.Interface);
+      stableSwapFacet.encodeFunctionData.returns(encodedDataMock);
+      stableSwapFacet.decodeFunctionResult.returns([BigNumber.from(1000)]);
+
       const erc20 = createStubInstance(utils.Interface);
       erc20.encodeFunctionData.returns(encodedDataMock);
       erc20.decodeFunctionResult.returns([BigNumber.from(1000)]);
@@ -78,6 +82,7 @@ export const mock = {
         }),
         priceOracle: (_: number) => ({ address: mkAddress("0xbaddad"), abi: {} }),
         tokenRegistry: (_: number) => ({ address: mkAddress("0xbbbddd"), abi: {} }),
+        stableSwap: (_: number) => ({ address: mkAddress("0xbbbdcc"), abi: {} }),
       };
     },
   },
