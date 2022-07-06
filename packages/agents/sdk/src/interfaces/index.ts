@@ -1,10 +1,12 @@
 export interface IPoolStats {
-  liquidity: number;
-  volume: number;
-  fees: number;
+  liquidity: string;
+  volume: string;
+  fees: string;
   apy: {
-    year: number;
-    total: number;
+    week: string;
+    month: string;
+    year: string;
+    total: string;
   };
 }
 

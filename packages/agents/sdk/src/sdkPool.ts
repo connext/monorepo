@@ -34,6 +34,31 @@ export class Pool implements IPoolData {
     this.lpTokenAddress = lpTokenAddress;
     this.address = address;
   }
+
+  async getLiquidity(): Promise<string> {
+    // TODO: get this from cartographer
+    return "100";
+  }
+
+  async getVolume(): Promise<string> {
+    // TODO: get this from cartographer
+    return "100";
+  }
+
+  async getFees(): Promise<string> {
+    // TODO: get this from cartographer
+    return "100";
+  }
+
+  async getApy(): Promise<{week: string, month: string, year: string, total: string}> {
+    // TODO: get this from cartographer
+    return {
+      week: "100",
+      month: "100",
+      year: "100",
+      total: "100",
+    };
+  }
 }
 
 /**
@@ -106,6 +131,7 @@ export class NxtpSdkPool {
       data: encoded,
     });
     const [canonicalDomain, canonicalId] = this.tokenRegistry.decodeFunctionResult("getTokenId", result);
+    
     return [canonicalDomain, canonicalId];
   }
 
@@ -355,8 +381,6 @@ export class NxtpSdkPool {
     return txRequest;
   }
 
-  // ------------------- Swap Operations ------------------- //
-
   async swap(
     domainId: string,
     canonicalId: string,
@@ -514,5 +538,18 @@ export class NxtpSdkPool {
     });
 
     return pools;
+  }
+
+  async getPoolStats(domainId: string, tokenAddress: string): Promise<IPoolStats> {
+    const pool = await this.getPool(domainId, tokenAddress);
+
+    const stats: IPoolStats = {
+      liquidity: await pool!.getLiquidity(),
+      volume: await pool!.getVolume(),
+      fees: await pool!.getFees(),
+      apy: await pool!.getApy(),
+    };
+
+    return stats;
   }
 }
