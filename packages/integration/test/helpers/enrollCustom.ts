@@ -16,7 +16,8 @@ export const enrollCustom = async (
         +canonicalToken.domain,
         canonicalId,
       ]);
-      const registered = await txService.readTx({ chainId: +token.domain, data: readData, to: token.TokenRegistry });
+      const encoded = await txService.readTx({ chainId: +token.domain, data: readData, to: token.TokenRegistry });
+      const [registered] = TokenRegistryInterface.decodeFunctionResult("getLocalAddress(uint32,bytes32)", encoded);
       if (registered !== token.tokenAddress) {
         const data = TokenRegistryInterface.encodeFunctionData("enrollCustom", [
           canonicalToken.domain,
