@@ -30,10 +30,12 @@ export const mock: any = {
   asset: {
     A: {
       name: "TEST-A",
+      symbol: "TSTA",
       address: mkAddress("0xbeefbeefbeef"),
     },
     B: {
       name: "TEST-B",
+      symbol: "TSTB",
       address: mkAddress("0x2faced"),
     },
   },
