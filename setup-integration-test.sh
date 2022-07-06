@@ -7,6 +7,7 @@ DEFAULT_MNEMONIC="candy maple cake sugar pudding cream honey rich smooth crumble
 ROUTER_IMAGE=router:latest
 SEQUENCER_IMAGE=sequencer:latest
 WEB3_SIGNER_PRIVATE_KEY="0xc87509a1c067bbde78beb793e6fa76530b6382a4c0241e5e4a9ec0a0f44dc0d3"
+GRAPH_GOERLI_HANDLER_ENDPOINT="https://api.thegraph.com/subgraphs/name/connext/nxtp-amarok-runtime-test-goerli"
 
 # AUCTION_ROUND_DEPTH
 # NXTP_SUBGRAPH_POLL_INTERVAL
@@ -36,6 +37,8 @@ ROUTER_IMAGE=${ROUTER_IMAGE}
 SEQUENCER_IMAGE=${SEQUENCER_IMAGE}
 " > .env
 
+
+# Subgraph Variables
 echo "Starting 1337 and 1338 local chains..."
 docker compose -f docker-compose.chains.yaml -f docker-compose.services.yaml up -d --force-recreate
 sleep 10
@@ -52,6 +55,9 @@ echo "Deployed contracts to 1338"
 
 ##### Subgraph
 echo "Building subgraph..."
+GRAPH_1337_ENDPOINT=${GRAPH_GOERLI_HANDLER_ENDPOINT}
+GRAPH_1388_ENDPOINT=${GRAPH_GOERLI_HANDLER_ENDPOINT}
+
 yarn workspace @connext/nxtp-subgraph prepare:v0
 yarn workspace @connext/nxtp-subgraph codegen
 echo "Built subgraph"

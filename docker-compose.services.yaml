@@ -17,6 +17,9 @@ services:
     volumes:
       - ${PWD}/docker/router/:/home/node/agents/sequencer/
       - ${PWD}/docker/router/config.local.json:/home/node/packages/agents/router/config.json
+    environment:
+      GRAPH_1338_ENDPOINT: "http://graph-node-1338:8000/subgraphs/name/connext/nxtp"
+      GRAPH_1337_ENDPOINT: "http://graph-node-1337:8000/subgraphs/name/connext/nxtp"
 
   router-cache:
     container_name: router-cache
