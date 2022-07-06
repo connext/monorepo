@@ -90,9 +90,9 @@ describe("e2e", () => {
       ],
       txService,
     );
-    logger.info("Enrolled handlers...");
+    logger.info("Enrolled handlers.");
 
-    logger.info("Enrolling custom...");
+    logger.info("Enrolling custom asset with TokenRegistry...");
     await enrollCustom(
       {
         domain: PARAMETERS.A.DOMAIN,
@@ -107,7 +107,7 @@ describe("e2e", () => {
       ],
       txService,
     );
-    logger.info("Enrolled custom");
+    logger.info("Enrolled custom asset.");
 
     logger.info("Setting up router...");
     await setupRouter(
@@ -118,7 +118,7 @@ describe("e2e", () => {
       ],
       txService,
     );
-    logger.info("Set up router");
+    logger.info("Set up router.");
 
     logger.info("Setting up assets...");
     await setupAsset(
@@ -188,7 +188,7 @@ describe("e2e", () => {
       requestContext,
     );
 
-    logger.info("xcall sent", { receipt });
+    logger.info("xcall sent", undefined, undefined, { receipt });
 
     receipt.logs.forEach((log, index) => {
       try {

@@ -2,6 +2,8 @@
 
 A test script to validate the end-to-end cross-chain transfer process.
 
+# E2E Live Environment (Testnet)
+
 ## Setup
 
 1. ENVIRONMENT
@@ -73,8 +75,9 @@ NOTE: Do **NOT** run the router or sequencer separately, both will be initialize
 
 Why? If you need to run the test locally against local changes, you can build the images yourself.
 
-- `docker build --tag sequencer:latest --file ./docker/sequencer/Dockerfile .`
-- `docker build --tag router:latest --file ./docker/router/Dockerfile .`
+```sh
+docker build --tag sequencer:latest --file ./docker/sequencer/Dockerfile . && docker build --tag router:latest --file ./docker/router/Dockerfile .
+```
 
 ## Edit Config If Needed
 
@@ -82,7 +85,7 @@ In `setup-integration-test.sh` there is a section that creates a `.env` file. An
 
 ## Steps
 
-1. Run `bash setup-integration-test.sh`
+1. Run `./setup-integration-test.sh`
 2. Run `yarn workspace @connext/nxtp-integration run test`
 
 ## Logs from Deployment
