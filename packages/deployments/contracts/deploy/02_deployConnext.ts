@@ -39,7 +39,7 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment): Promise<voi
 
   // Get xapp connection manager
   const deployConfig = deployConfigs[chainId];
-  let xappConnectionManagerAddress = deployConfig.XAppConnectionManager;
+  let xappConnectionManagerAddress = deployConfig?.XAppConnectionManager;
   if (!xappConnectionManagerAddress) {
     const xappConnectionManagerDeployment = await hre.deployments.getOrNull(getDeploymentName("XAppConnectionManager"));
     if (!xappConnectionManagerDeployment) {
@@ -49,7 +49,7 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment): Promise<voi
   }
 
   console.log("Fetching token registry...");
-  let tokenRegistryAddress = deployConfig.TokenRegistry;
+  let tokenRegistryAddress = deployConfig?.TokenRegistry;
   if (!tokenRegistryAddress) {
     const tokenRegistryDeployment = await hre.deployments.getOrNull(
       getDeploymentName("TokenRegistryUpgradeBeaconProxy"),
@@ -96,6 +96,7 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment): Promise<voi
 
   // Deploy connext diamond contract
   console.log("Deploying connext diamond...");
+  const isDiamondUpgrade = !!(await hre.deployments.getOrNull(getDeploymentName("ConnextHandler")));
   const connext = await hre.deployments.diamond.deploy(getDeploymentName("ConnextHandler"), {
     from: deployer.address,
     owner: deployer.address,
@@ -114,18 +115,20 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment): Promise<voi
     ],
     defaultOwnershipFacet: false,
     defaultCutFacet: false,
-    execute: {
-      contract: "DiamondInit",
-      methodName: "init",
-      args: [
-        domainConfig.domain,
-        xappConnectionManagerAddress,
-        tokenRegistry.address,
-        WRAPPED_ETH_MAP.get(+chainId) ?? constants.AddressZero,
-        relayerFeeRouter.address,
-        promiseRouter.address,
-      ],
-    },
+    execute: isDiamondUpgrade
+      ? undefined
+      : {
+          contract: "DiamondInit",
+          methodName: "init",
+          args: [
+            domainConfig.domain,
+            xappConnectionManagerAddress,
+            tokenRegistry.address,
+            WRAPPED_ETH_MAP.get(+chainId) ?? constants.AddressZero,
+            relayerFeeRouter.address,
+            promiseRouter.address,
+          ],
+        },
     // deterministicSalt: keccak256(utils.toUtf8Bytes("connextDiamondProxyV1")),
   });
   const connextAddress = connext.address;

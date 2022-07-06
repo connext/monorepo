@@ -83,7 +83,7 @@ export const mock = {
     },
     auctionRoundDepth: 4,
     environment: "staging",
-    nomadEnvironment: "staging"
+    nomadEnvironment: "staging",
   }),
   adapters: {
     wallet: (): SinonStubbedInstance<Wallet> => {

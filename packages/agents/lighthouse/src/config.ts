@@ -65,11 +65,11 @@ export const getEnvConfig = (
   }
   try {
     let json: string;
-
     const {
       shared: { existsSync, readFileSync },
     } = getHelpers();
     const path = process.env.NXTP_CONFIG_FILE ?? "config.json";
+
     if (existsSync(path)) {
       json = readFileSync(path, { encoding: "utf-8" });
       configFile = JSON.parse(json);
@@ -78,7 +78,6 @@ export const getEnvConfig = (
     console.error("Error reading config file!");
     process.exit(1);
   }
-  // return configFile;
 
   const nxtpConfig: NxtpLighthouseConfig = {
     chains: process.env.NXTP_CHAIN_CONFIG
