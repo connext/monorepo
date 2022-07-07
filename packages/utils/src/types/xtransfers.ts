@@ -131,7 +131,7 @@ export const DestinationTransferSchema = Type.Intersect([
   Type.Object({
     transferId: Type.String(),
     nonce: Type.Optional(Type.Integer()),
-    xparams: Type.Optional(CallParamsSchema),
+    xparams: CallParamsSchema,
   }),
   Type.Object({
     origin: Type.Optional(XTransferOriginSchema),
