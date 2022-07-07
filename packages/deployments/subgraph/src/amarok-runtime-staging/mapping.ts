@@ -166,7 +166,7 @@ export function handleAssetAdded(event: AssetAdded): void {
  * @param event - The contract event to update the subgraph record with
  */
 export function handleRouterLiquidityAdded(event: RouterLiquidityAdded): void {
-  const assetBalance = getOrCreateAssetBalance(event.params.local as Address, event.params.router as Address);
+  const assetBalance = getOrCreateAssetBalance(event.params.local, event.params.router);
 
   // add new amount
   assetBalance.amount = assetBalance.amount.plus(event.params.amount);
@@ -182,7 +182,7 @@ export function handleRouterLiquidityAdded(event: RouterLiquidityAdded): void {
  */
 export function handleRouterLiquidityRemoved(event: RouterLiquidityRemoved): void {
   // ID is of the format ROUTER_ADDRESS-ASSET_ID
-  const assetBalance = getOrCreateAssetBalance(event.params.local as Address, event.params.router as Address);
+  const assetBalance = getOrCreateAssetBalance(event.params.local, event.params.router);
 
   // update amount
   assetBalance.amount = assetBalance.amount.minus(event.params.amount);
@@ -289,13 +289,10 @@ export function handleExecuted(event: Executed): void {
         router.save();
       }
 
-      routers.push(router.id as string);
+      routers.push(router.id);
 
       // Update router's liquidity
-      const assetBalance = getOrCreateAssetBalance(
-        event.params.args.local as Address,
-        event.params.args.routers[i] as Address,
-      );
+      const assetBalance = getOrCreateAssetBalance(event.params.args.local, event.params.args.routers[i]);
       assetBalance.amount = assetBalance.amount.minus(routerAmount);
       assetBalance.save();
     }
@@ -371,7 +368,7 @@ export function handleReconciled(event: Reconciled): void {
       routers.push(router);
 
       // Update router's liquidity
-      const assetBalance = getOrCreateAssetBalance(event.params.asset as Address, Address.fromString(router));
+      const assetBalance = getOrCreateAssetBalance(event.params.asset, Address.fromString(router));
       assetBalance.amount = assetBalance.amount.plus(amount.div(BigInt.fromI32(n)));
       assetBalance.save();
     }

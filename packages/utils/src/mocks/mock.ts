@@ -163,8 +163,6 @@ export const mock: any = {
         // Meta
         transferId,
         nonce: !isReconciledOnly ? nonce : undefined,
-        destinationDomain,
-        originDomain,
 
         // Call Params
         xparams: !isReconciledOnly
@@ -173,12 +171,14 @@ export const mock: any = {
               callData: "0x",
               callback: mkAddress("0x"),
               callbackFee: "0",
-              relayerFee: "0",
+              relayerFee,
               recovery: mkAddress("0x"),
               agent: mkAddress("0x"),
               forceSlow: false,
               receiveLocal: false,
               slippageTol: "0",
+              destinationDomain,
+              originDomain,
             }
           : undefined,
 
@@ -201,7 +201,6 @@ export const mock: any = {
               // XCalled
               xcall: {
                 // Event Data
-                relayerFee,
                 caller: user,
                 transactionHash: getRandomBytes32(),
                 timestamp: Math.floor(Date.now() / 1000 - 60),
@@ -247,7 +246,7 @@ export const mock: any = {
                       gasPrice: utils.parseUnits("5", "gwei").toString(),
                       gasLimit: "80000",
                       blockNumber: 5651345,
-                      relayerFee: "12345",
+                      relayerFee,
                     }
                   : undefined,
 

@@ -29,8 +29,8 @@ export const pollCartographer = async () => {
 
         const executeParams: ExecuteArgs = {
           params: {
-            originDomain: xTransfer.originDomain,
-            destinationDomain: xTransfer.destinationDomain!,
+            originDomain: xTransfer.xparams?.originDomain ?? "",
+            destinationDomain: xTransfer.xparams?.destinationDomain ?? "",
             to: xTransfer.xparams!.to,
             callData: xTransfer.xparams!.callData,
             callback: xTransfer.xparams!.callback,
