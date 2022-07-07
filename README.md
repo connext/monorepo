@@ -67,7 +67,7 @@
 
 Connext is a bridging protocol which allows for safe transfer of tokens and data between EVM compatible blockchains.
 
-It's architecture can be seen as a layered system, as follows:
+The Connext architecture can be seen as a layered system, as follows:
 
 | Layer                   | Protocol/Stakeholders             |
 | ----------------------- | --------------------------------- |
@@ -94,11 +94,13 @@ Call the Nomad contracts with a hash of the tx details to initiate the 30-60m me
 Routers observing the origin chain with funds on the destination chain will:
 Simulate the transaction (if this fails, the assumption is that this is a more "expressive" crosschain message that requires permissioning and so must go through the slow Nomad process only).
 
+**Routers (Active Liquidity Providers) will:**
+
 -Prepare a signed transaction object using funds on the receiving chain.
 Post this object (a "bid") to the auctioneer.
-Note: if the router does not have enough funds for the transfer, they may also provide only part of the transfer's value.
+Note: if the router does not have enough funds for the transfer, they may also provide only part of the transfer's value, which gets split across multiple routers in the network.
 
--The auctioneer will be observing all of the underlying chains. Every X blocks, the auctioneer will collect bids for transactions. The auctioneer will be responsible for selecting the correct router (or routers!) for a given tx (can be random). The auctioneer will post batches of these bids to a relayer network to submit them to chain.
+-The sequencer collects bids from routers and allows routers 30 seconds per transfer to send bids. After this time, sequencer will select a bid randomly (selection process TBD) and submit the payload which contains the router's signature to the relayer network to be submitted to chain.
 
 -When a given bid is submitted to chain, the contracts will do the following:
 Check that there are enough funds available for the transaction.
@@ -124,7 +126,7 @@ Note 2: Routers will take a 30-60 minute lockup on their funds when relaying tra
 
 ### Structure of this repo
 
-This repo is set up as a yarn workspace monorepo
+This repo is set up as a [Yarn workspace](https://yarnpkg.com/features/workspaces) monorepo:
 
 All main level scripts are defined in the main package.json at the root of the repo
 
