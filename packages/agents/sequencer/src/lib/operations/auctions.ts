@@ -88,8 +88,8 @@ export const storeBid = async (bid: Bid, _requestContext: RequestContext): Promi
   // Update and/or create the auction instance in the cache if necessary.
   const res = await cache.auctions.upsertAuction({
     transferId,
-    origin: transfer.originDomain,
-    destination: transfer.destinationDomain!,
+    origin: transfer.xparams!.originDomain,
+    destination: transfer.xparams!.destinationDomain!,
     bid,
   });
   logger.info("Updated auction", requestContext, methodContext, {

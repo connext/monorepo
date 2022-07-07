@@ -76,8 +76,6 @@ export const originTransfer = (entity: any): OriginTransfer => {
 
       // XCall
       xcall: {
-        // Event Data
-        relayerFee: entity.relayerFee,
         // Transaction Data
         caller: entity.caller,
         transactionHash: entity.transactionHash,
