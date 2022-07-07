@@ -1,5 +1,6 @@
 [
   "error AssetLogic__getTokenIndexFromStableSwapPool_notExist()",
+  "error BaseConnextFacet__nonReentrant_reentrantCall()",
   "error BaseConnextFacet__onlyOwner_notOwner()",
   "error BaseConnextFacet__onlyProposed_notProposedOwner()",
   "error BaseConnextFacet__onlyRemoteRouter_notRemoteRouter()",

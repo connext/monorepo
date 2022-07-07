@@ -1,6 +1,5 @@
 import { task } from "hardhat/config";
 import { NomadContext, NomadStatus, MessageStatus, AnnotatedLifecycleEvent, NomadMessage } from "@nomad-xyz/sdk";
-import { BridgeContext } from "@nomad-xyz/sdk-bridge";
 import { BigNumber, providers, Wallet, utils } from "ethers";
 import { config as dotEnvConfig } from "dotenv";
 import { BytesLike, LogDescription } from "ethers/lib/utils";
@@ -78,7 +77,7 @@ export default task("trace-message", "See the status of a nomad message")
     const nomadConfig = getNomadConfig(network.chainId);
     const { domain: originDomain, name: originName } = await getDomainInfoFromChainId(network.chainId, hre);
 
-    const context = BridgeContext.fromNomadContext(new NomadContext(nomadConfig));
+    const context = new NomadContext(nomadConfig);
     const destinationChainId = context.mustGetDomain(destination).specs.chainId;
 
     const s3Url = "https://nomadxyz-staging-proofs.s3.us-west-2.amazonaws.com/";

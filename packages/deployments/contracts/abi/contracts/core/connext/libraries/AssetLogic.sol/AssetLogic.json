@@ -4,5 +4,6 @@
   "error AssetLogic__handleIncomingAsset_notAmount()",
   "error AssetLogic__swapFromLocalAssetIfNeeded_swapPaused()",
   "error AssetLogic__swapToLocalAssetIfNeeded_swapPaused()",
-  "error AssetLogic__transferAssetFromContract_notNative()"
+  "error AssetLogic__transferAssetFromContract_notNative()",
+  "error AssetLogic__transferAssetToContract_feeOnTransferNotSupported()"
 ]

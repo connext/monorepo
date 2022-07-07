@@ -45,8 +45,6 @@ describe("Helpers:parse", () => {
       expect(originTransfer(mockOriginTransferEntity)).to.be.deep.eq({
         transferId: "0xaaa0000000000000000000000000000000000000000000000000000000000000",
         nonce: 0,
-        destinationDomain: "2221",
-        originDomain: "1111",
         relayerFee: "1",
         xparams: {
           destinationDomain: "2221",
@@ -58,6 +56,9 @@ describe("Helpers:parse", () => {
           recovery: "0x1000000000000000000000000000000000000000",
           forceSlow: false,
           receiveLocal: false,
+          agent: "foo",
+          relayerFee: "1",
+          slippageTol: "0",
         },
         origin: {
           chain: 4,
@@ -66,7 +67,6 @@ describe("Helpers:parse", () => {
             bridged: { asset: mkAddress("0x12"), amount: "100" },
           },
           xcall: {
-            relayerFee: "1",
             caller: "0x2000000000000000000000000000000000000000",
             transactionHash: "0xbbb0000000000000000000000000000000000000000000000000000000000000",
             timestamp: 11111111,
@@ -84,8 +84,6 @@ describe("Helpers:parse", () => {
       ).to.be.deep.eq({
         transferId: "0xaaa0000000000000000000000000000000000000000000000000000000000000",
         nonce: 0,
-        destinationDomain: "2221",
-        originDomain: "1111",
         relayerFee: "1",
         xparams: {
           destinationDomain: "2221",
@@ -97,6 +95,9 @@ describe("Helpers:parse", () => {
           recovery: "0x1000000000000000000000000000000000000000",
           forceSlow: false,
           receiveLocal: false,
+          agent: "foo",
+          relayerFee: "1",
+          slippageTol: "0",
         },
         origin: {
           chain: 4,
@@ -105,7 +106,6 @@ describe("Helpers:parse", () => {
             bridged: { asset: mkAddress("0x12"), amount: "100" },
           },
           xcall: {
-            relayerFee: "1",
             caller: "0x2000000000000000000000000000000000000000",
             transactionHash: "0xbbb0000000000000000000000000000000000000000000000000000000000000",
             timestamp: 0,
@@ -130,14 +130,8 @@ describe("Helpers:parse", () => {
       const entity1 = {
         transactionHash: mkBytes32(),
       };
-      const entity2 = {
-        relayerFee: "1",
-      };
       expect(() => {
         destinationTransfer(entity1);
-      }).to.throw("Subgraph `DestinationTransfer` entity parser: Transfer entity is an origin transfer entity.");
-      expect(() => {
-        destinationTransfer(entity2);
       }).to.throw("Subgraph `DestinationTransfer` entity parser: Transfer entity is an origin transfer entity.");
     });
 
@@ -193,8 +187,6 @@ describe("Helpers:parse", () => {
         nonce: 0,
         origin: undefined,
         transferId: "0xaaa0000000000000000000000000000000000000000000000000000000000000",
-        destinationDomain: "2221",
-        originDomain: "1111",
         xparams: {
           destinationDomain: "2221",
           originDomain: "1111",
@@ -205,6 +197,9 @@ describe("Helpers:parse", () => {
           receiveLocal: false,
           recovery: "0x1000000000000000000000000000000000000000",
           to: "0x1000000000000000000000000000000000000000",
+          agent: "foo",
+          relayerFee: "1",
+          slippageTol: "0",
         },
       });
     });
@@ -251,13 +246,24 @@ describe("Helpers:parse", () => {
           routers: ["0x1110000000000000000000000000000000000000", "0x1120000000000000000000000000000000000000"],
           status: "Executed",
         },
-        destinationDomain: "2221",
 
         nonce: 0,
         origin: undefined,
-        originDomain: "1111",
         transferId: "0xaaa0000000000000000000000000000000000000000000000000000000000000",
-        xparams: undefined,
+        xparams: {
+          agent: "foo",
+          callData: "0x",
+          callback: "0xaaa0000000000000000000000000000000000000",
+          callbackFee: "0",
+          destinationDomain: "2221",
+          forceSlow: false,
+          originDomain: "1111",
+          receiveLocal: false,
+          recovery: "0x1000000000000000000000000000000000000000",
+          relayerFee: "1",
+          slippageTol: "0",
+          to: undefined,
+        },
       });
     });
   });

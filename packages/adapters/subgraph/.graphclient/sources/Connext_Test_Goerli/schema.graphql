@@ -179,11 +179,14 @@ type testgoerli_DestinationTransfer {
   callData: testgoerli_Bytes
   originDomain: BigInt
   destinationDomain: BigInt
+  agent: testgoerli_Bytes
   recovery: testgoerli_Bytes
-  callback: testgoerli_Bytes
-  callbackFee: BigInt
   forceSlow: Boolean
   receiveLocal: Boolean
+  callback: testgoerli_Bytes
+  callbackFee: BigInt
+  relayerFee: BigInt
+  slippageTol: BigInt
   status: testgoerli_TransferStatus
   routers(skip: Int = 0, first: Int = 100, orderBy: testgoerli_Router_orderBy, orderDirection: testgoerli_OrderDirection, where: testgoerli_Router_filter): [testgoerli_Router!]
   originSender: testgoerli_Bytes
@@ -265,12 +268,26 @@ input testgoerli_DestinationTransfer_filter {
   destinationDomain_lte: BigInt
   destinationDomain_in: [BigInt!]
   destinationDomain_not_in: [BigInt!]
+  agent: testgoerli_Bytes
+  agent_not: testgoerli_Bytes
+  agent_in: [testgoerli_Bytes!]
+  agent_not_in: [testgoerli_Bytes!]
+  agent_contains: testgoerli_Bytes
+  agent_not_contains: testgoerli_Bytes
   recovery: testgoerli_Bytes
   recovery_not: testgoerli_Bytes
   recovery_in: [testgoerli_Bytes!]
   recovery_not_in: [testgoerli_Bytes!]
   recovery_contains: testgoerli_Bytes
   recovery_not_contains: testgoerli_Bytes
+  forceSlow: Boolean
+  forceSlow_not: Boolean
+  forceSlow_in: [Boolean!]
+  forceSlow_not_in: [Boolean!]
+  receiveLocal: Boolean
+  receiveLocal_not: Boolean
+  receiveLocal_in: [Boolean!]
+  receiveLocal_not_in: [Boolean!]
   callback: testgoerli_Bytes
   callback_not: testgoerli_Bytes
   callback_in: [testgoerli_Bytes!]
@@ -285,14 +302,22 @@ input testgoerli_DestinationTransfer_filter {
   callbackFee_lte: BigInt
   callbackFee_in: [BigInt!]
   callbackFee_not_in: [BigInt!]
-  forceSlow: Boolean
-  forceSlow_not: Boolean
-  forceSlow_in: [Boolean!]
-  forceSlow_not_in: [Boolean!]
-  receiveLocal: Boolean
-  receiveLocal_not: Boolean
-  receiveLocal_in: [Boolean!]
-  receiveLocal_not_in: [Boolean!]
+  relayerFee: BigInt
+  relayerFee_not: BigInt
+  relayerFee_gt: BigInt
+  relayerFee_lt: BigInt
+  relayerFee_gte: BigInt
+  relayerFee_lte: BigInt
+  relayerFee_in: [BigInt!]
+  relayerFee_not_in: [BigInt!]
+  slippageTol: BigInt
+  slippageTol_not: BigInt
+  slippageTol_gt: BigInt
+  slippageTol_lt: BigInt
+  slippageTol_gte: BigInt
+  slippageTol_lte: BigInt
+  slippageTol_in: [BigInt!]
+  slippageTol_not_in: [BigInt!]
   status: testgoerli_TransferStatus
   status_not: testgoerli_TransferStatus
   status_in: [testgoerli_TransferStatus!]
@@ -447,11 +472,14 @@ enum testgoerli_DestinationTransfer_orderBy {
   callData
   originDomain
   destinationDomain
+  agent
   recovery
-  callback
-  callbackFee
   forceSlow
   receiveLocal
+  callback
+  callbackFee
+  relayerFee
+  slippageTol
   status
   routers
   originSender
@@ -489,13 +517,15 @@ type testgoerli_OriginTransfer {
   callData: testgoerli_Bytes
   originDomain: BigInt
   destinationDomain: BigInt
+  agent: testgoerli_Bytes
   recovery: testgoerli_Bytes
-  callback: testgoerli_Bytes
-  callbackFee: BigInt
   forceSlow: Boolean
   receiveLocal: Boolean
-  status: testgoerli_TransferStatus
+  callback: testgoerli_Bytes
+  callbackFee: BigInt
   relayerFee: BigInt
+  slippageTol: BigInt
+  status: testgoerli_TransferStatus
   message: testgoerli_Bytes
   transactingAsset: testgoerli_Bytes
   transactingAmount: BigInt
@@ -568,12 +598,26 @@ input testgoerli_OriginTransfer_filter {
   destinationDomain_lte: BigInt
   destinationDomain_in: [BigInt!]
   destinationDomain_not_in: [BigInt!]
+  agent: testgoerli_Bytes
+  agent_not: testgoerli_Bytes
+  agent_in: [testgoerli_Bytes!]
+  agent_not_in: [testgoerli_Bytes!]
+  agent_contains: testgoerli_Bytes
+  agent_not_contains: testgoerli_Bytes
   recovery: testgoerli_Bytes
   recovery_not: testgoerli_Bytes
   recovery_in: [testgoerli_Bytes!]
   recovery_not_in: [testgoerli_Bytes!]
   recovery_contains: testgoerli_Bytes
   recovery_not_contains: testgoerli_Bytes
+  forceSlow: Boolean
+  forceSlow_not: Boolean
+  forceSlow_in: [Boolean!]
+  forceSlow_not_in: [Boolean!]
+  receiveLocal: Boolean
+  receiveLocal_not: Boolean
+  receiveLocal_in: [Boolean!]
+  receiveLocal_not_in: [Boolean!]
   callback: testgoerli_Bytes
   callback_not: testgoerli_Bytes
   callback_in: [testgoerli_Bytes!]
@@ -588,18 +632,6 @@ input testgoerli_OriginTransfer_filter {
   callbackFee_lte: BigInt
   callbackFee_in: [BigInt!]
   callbackFee_not_in: [BigInt!]
-  forceSlow: Boolean
-  forceSlow_not: Boolean
-  forceSlow_in: [Boolean!]
-  forceSlow_not_in: [Boolean!]
-  receiveLocal: Boolean
-  receiveLocal_not: Boolean
-  receiveLocal_in: [Boolean!]
-  receiveLocal_not_in: [Boolean!]
-  status: testgoerli_TransferStatus
-  status_not: testgoerli_TransferStatus
-  status_in: [testgoerli_TransferStatus!]
-  status_not_in: [testgoerli_TransferStatus!]
   relayerFee: BigInt
   relayerFee_not: BigInt
   relayerFee_gt: BigInt
@@ -608,6 +640,18 @@ input testgoerli_OriginTransfer_filter {
   relayerFee_lte: BigInt
   relayerFee_in: [BigInt!]
   relayerFee_not_in: [BigInt!]
+  slippageTol: BigInt
+  slippageTol_not: BigInt
+  slippageTol_gt: BigInt
+  slippageTol_lt: BigInt
+  slippageTol_gte: BigInt
+  slippageTol_lte: BigInt
+  slippageTol_in: [BigInt!]
+  slippageTol_not_in: [BigInt!]
+  status: testgoerli_TransferStatus
+  status_not: testgoerli_TransferStatus
+  status_in: [testgoerli_TransferStatus!]
+  status_not_in: [testgoerli_TransferStatus!]
   message: testgoerli_Bytes
   message_not: testgoerli_Bytes
   message_in: [testgoerli_Bytes!]
@@ -699,13 +743,15 @@ enum testgoerli_OriginTransfer_orderBy {
   callData
   originDomain
   destinationDomain
+  agent
   recovery
-  callback
-  callbackFee
   forceSlow
   receiveLocal
-  status
+  callback
+  callbackFee
   relayerFee
+  slippageTol
+  status
   message
   transactingAsset
   transactingAmount

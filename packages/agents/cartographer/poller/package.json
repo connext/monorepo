@@ -1,6 +1,6 @@
 {
   "name": "@connext/cartographer-poller",
-  "version": "0.2.0-alpha.0",
+  "version": "0.2.0-beta.11",
   "description": "",
   "types": "dist/index.d.ts",
   "files": [
@@ -33,7 +33,7 @@
     "@sinclair/typebox": "0.23.5",
     "dd-trace": "^2.9.1",
     "dotenv": "16.0.1",
-    "ethers": "5.6.8",
+    "ethers": "5.6.9",
     "interval-promise": "1.4.0",
     "pg": "8.7.3",
     "pm2": "^5.2.0",

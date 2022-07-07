@@ -103,6 +103,7 @@ export default task("preflight", "Ensure correct setup for e2e demo with a speci
         console.log("canonicalDomain: ", canonicalDomain);
         console.log("canonicalTokenId: ", canonicalTokenId);
         localAsset = await tokenRegistry.getRepresentationAddress(canonicalDomain, canonicalTokenId);
+        console.log("localAsset", localAsset);
         if (localAsset === constants.AddressZero) {
           throw new Error(
             "Corresponding local asset not found for canonical asset!" +

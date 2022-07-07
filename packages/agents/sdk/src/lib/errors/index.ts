@@ -6,6 +6,12 @@ export class SignerAddressMissing extends NxtpError {
   }
 }
 
+export class ContractAddressMissing extends NxtpError {
+  constructor(context: any = {}) {
+    super("Contract Address Missing", context, ContractAddressMissing.name);
+  }
+}
+
 export class ChainDataUndefined extends NxtpError {
   constructor(context: any = {}) {
     super("Chain Data Undefined", context, ChainDataUndefined.name);

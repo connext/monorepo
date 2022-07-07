@@ -139,7 +139,10 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment): Promise<voi
   if ((await contract.tokenRegistry()).toLowerCase() !== tokenRegistry.address.toLowerCase()) {
     console.log("expected token registry:", tokenRegistry.address);
     console.log("init-d token registry:", await contract.tokenRegistry());
-    throw new Error(`Improperly init-d token registry`);
+    console.log(`Improperly init-d token registry, setting TokenRegistry...`);
+    const setTm = await contract.connect(deployer).setTokenRegistry(tokenRegistry.address);
+    await setTm.wait();
+    console.log(`New TokenRegistry address set!`);
   }
 
   // Add connext to relayer fee router

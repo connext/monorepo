@@ -1,4 +1,5 @@
 [
+  "error BaseConnextFacet__nonReentrant_reentrantCall()",
   "error BaseConnextFacet__onlyOwner_notOwner()",
   "error BaseConnextFacet__onlyProposed_notProposedOwner()",
   "error BaseConnextFacet__onlyRemoteRouter_notRemoteRouter()",
@@ -30,7 +31,7 @@
   "function acceptProposedOwner()",
   "function assetOwnershipRenounced() view returns (bool)",
   "function assetOwnershipTimestamp() view returns (uint256)",
-  "function delay() view returns (uint256)",
+  "function delay() pure returns (uint256)",
   "function owner() view returns (address)",
   "function pause()",
   "function proposeAssetOwnershipRenunciation()",

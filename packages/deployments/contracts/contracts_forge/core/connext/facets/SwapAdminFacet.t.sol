@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: UNLICENSED
-pragma solidity 0.8.14;
+pragma solidity 0.8.15;
 
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
@@ -477,7 +477,7 @@ contract SwapAdminFacetTest is SwapAdminFacet, StableSwapFacet, FacetHelper {
     this.setSwapAdminFee(_canonicalId, SwapUtils.MAX_ADMIN_FEE);
     assertEq(this.getSwapStorage(_canonicalId).adminFee, SwapUtils.MAX_ADMIN_FEE);
 
-    vm.expectRevert("Fee is too high");
+    vm.expectRevert("too high");
     this.setSwapAdminFee(_canonicalId, SwapUtils.MAX_ADMIN_FEE + 1);
     vm.stopPrank();
   }
@@ -507,7 +507,7 @@ contract SwapAdminFacetTest is SwapAdminFacet, StableSwapFacet, FacetHelper {
     this.setSwapFee(_canonicalId, SwapUtils.MAX_SWAP_FEE);
     assertEq(this.getSwapStorage(_canonicalId).swapFee, SwapUtils.MAX_SWAP_FEE);
 
-    vm.expectRevert("Fee is too high");
+    vm.expectRevert("too high");
     this.setSwapFee(_canonicalId, SwapUtils.MAX_SWAP_FEE + 1);
     vm.stopPrank();
   }
@@ -548,19 +548,19 @@ contract SwapAdminFacetTest is SwapAdminFacet, StableSwapFacet, FacetHelper {
     // +0 seconds since ramp A
     assertEq(this.getSwapA(_canonicalId), INITIAL_A_VALUE);
     assertEq(this.getSwapAPrecise(_canonicalId), INITIAL_A_VALUE * AmplificationUtils.A_PRECISION);
-    assertEq(this.getSwapVirtualPrice(_canonicalId), 1000167146429977312);
+    assertEq(this.getSwapVirtualPrice(_canonicalId), 1000167146429976812);
 
     // set timestamp to +100000 seconds
     vm.warp(blockTimestamp + 100000);
     assertEq(this.getSwapA(_canonicalId), 54);
     assertEq(this.getSwapAPrecise(_canonicalId), 5413);
-    assertEq(this.getSwapVirtualPrice(_canonicalId), 1000258443200231295);
+    assertEq(this.getSwapVirtualPrice(_canonicalId), 1000258443200230795);
 
     // set timestamp to the end of ramp period
     vm.warp(endTimestamp);
     assertEq(this.getSwapA(_canonicalId), 100);
     assertEq(this.getSwapAPrecise(_canonicalId), 10000);
-    assertEq(this.getSwapVirtualPrice(_canonicalId), 1000771363829405068);
+    assertEq(this.getSwapVirtualPrice(_canonicalId), 1000771363829404568);
 
     vm.stopPrank();
   }
@@ -580,19 +580,19 @@ contract SwapAdminFacetTest is SwapAdminFacet, StableSwapFacet, FacetHelper {
     // +0 seconds since ramp A
     assertEq(this.getSwapA(_canonicalId), INITIAL_A_VALUE);
     assertEq(this.getSwapAPrecise(_canonicalId), INITIAL_A_VALUE * AmplificationUtils.A_PRECISION);
-    assertEq(this.getSwapVirtualPrice(_canonicalId), 1000167146429977312);
+    assertEq(this.getSwapVirtualPrice(_canonicalId), 1000167146429976812);
 
     // set timestamp to +100000 seconds
     vm.warp(blockTimestamp + 100000);
     assertEq(this.getSwapA(_canonicalId), 47);
     assertEq(this.getSwapAPrecise(_canonicalId), 4794);
-    assertEq(this.getSwapVirtualPrice(_canonicalId), 1000115870150391894);
+    assertEq(this.getSwapVirtualPrice(_canonicalId), 1000115870150391394);
 
     // set timestamp to the end of ramp period
     vm.warp(endTimestamp);
     assertEq(this.getSwapA(_canonicalId), 25);
     assertEq(this.getSwapAPrecise(_canonicalId), 2500);
-    assertEq(this.getSwapVirtualPrice(_canonicalId), 998999574522335473);
+    assertEq(this.getSwapVirtualPrice(_canonicalId), 998999574522334973);
 
     vm.stopPrank();
   }

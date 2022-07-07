@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT OR Apache-2.0
-pragma solidity 0.8.14;
+pragma solidity 0.8.15;
 
 import {Home} from "../../nomad-core/contracts/Home.sol";
 import {TypedMemView} from "../../nomad-core/libs/TypedMemView.sol";
@@ -128,9 +128,6 @@ contract PromiseRouter is Version, Router, ReentrancyGuardUpgradeable {
    */
   event SetConnext(address indexed connext);
 
-  // ======== Receive =======
-  receive() external payable {}
-
   // ============ Modifiers ============
 
   /**
@@ -256,7 +253,7 @@ contract PromiseRouter is Version, Router, ReentrancyGuardUpgradeable {
     emit CallbackExecuted(transferId, msg.sender);
 
     // Should transfer the stored relayer fee to the msg.sender
-    if (callbackFee > 0) {
+    if (callbackFee != 0) {
       AddressUpgradeable.sendValue(payable(msg.sender), callbackFee);
     }
   }
@@ -307,7 +304,7 @@ contract PromiseRouter is Version, Router, ReentrancyGuardUpgradeable {
    * @dev Both origin and nonce should be less than 2^32 - 1
    * @param _origin Domain of chain where the transfer originated
    * @param _nonce The unique identifier for the message from origin to destination
-   * @return Returns (`_origin` << 32) & `_nonce`
+   * @return uint64 (`_origin` << 32) | `_nonce`
    */
   function _originAndNonce(uint32 _origin, uint32 _nonce) internal pure returns (uint64) {
     return (uint64(_origin) << 32) | _nonce;

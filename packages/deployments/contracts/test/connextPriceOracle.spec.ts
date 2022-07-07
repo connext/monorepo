@@ -30,7 +30,7 @@ describe("ConnextPriceOracle.sol", () => {
     tokenA = await deployContract<TestERC20>("TestERC20");
     tokenB = await deployContract<TestERC20>("TestERC20");
     tokenC = await deployContract<TestERC20>("TestERC20");
-    aggregatorMock = await deployContract<TestAggregator>("TestAggregator");
+    aggregatorMock = await deployContract<TestAggregator>("TestAggregator", 18);
     return { connextPriceOracle, v1PriceOracle, stableToken, tokenA, tokenB, tokenC, aggregatorMock };
   };
 
@@ -170,7 +170,7 @@ describe("ConnextPriceOracle.sol", () => {
 
     it("should return 0 if aggregator answers with 0", async () => {
       const tokenAddress = mkAddress("0xaaa");
-      let tx = await aggregatorMock.connect(wallet).updateMockAnswer(parseEther("0"));
+      let tx = await aggregatorMock.connect(wallet).updateMockData(1, 0, "100", 1);
       await tx.wait();
       tx = await connextPriceOracle.connect(wallet).setAggregators([tokenAddress], [aggregatorMock.address]);
       await tx.wait();
@@ -181,13 +181,24 @@ describe("ConnextPriceOracle.sol", () => {
 
     it("should return if aggregator is configured", async () => {
       const tokenAddress = mkAddress("0xaaa");
-      let tx = await aggregatorMock.connect(wallet).updateMockAnswer(parseEther("1"));
+      let tx = await aggregatorMock.connect(wallet).updateMockData(1, 1, "100", 1);
       await tx.wait();
       tx = await connextPriceOracle.connect(wallet).setAggregators([tokenAddress], [aggregatorMock.address]);
       await tx.wait();
 
       const tokenPrice = await connextPriceOracle.getPriceFromChainlink(tokenAddress);
       expect(tokenPrice.toString()).to.be.eq(parseEther("1").toString());
+    });
+
+    it("should return 0 if the aggregator is stopped", async () => {
+      const tokenAddress = mkAddress("0xaaa");
+      let tx = await connextPriceOracle.connect(wallet).setAggregators([tokenAddress], [aggregatorMock.address]);
+      await tx.wait();
+      tx = await aggregatorMock.connect(wallet).stop();
+      await tx.wait();
+
+      const tokenPrice = await connextPriceOracle.getPriceFromChainlink(tokenAddress);
+      expect(tokenPrice.toString()).to.be.eq("0");
     });
   });
 

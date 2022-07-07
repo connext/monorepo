@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: UNLICENSED
-pragma solidity 0.8.14;
+pragma solidity 0.8.15;
 
 /*
  * This aggregator is ONLY useful for testing
@@ -11,7 +11,22 @@ contract TestAggregator {
 
   uint256 public version = 1;
 
-  int256 public mockAnswer = 1e18;
+  uint80 _mockRoundId = 1;
+
+  int256 _mockAnswer = 1;
+
+  uint256 _mockUpdateAt;
+
+  uint80 _mockAnsweredInRound = 1;
+
+  bool stopped;
+  // This error is used for only testing
+  error TestAggregator_Stopped();
+
+  constructor(uint8 _decimals) {
+    decimals = _decimals;
+    _mockUpdateAt = block.timestamp;
+  }
 
   // getRoundData and latestRoundData should both raise "No data present"
   // if they do not have data to report, instead of returning unset values
@@ -27,7 +42,10 @@ contract TestAggregator {
       uint80 answeredInRound
     )
   {
-    return (_roundId, mockAnswer, 0, block.timestamp, 1e18);
+    if (stopped) {
+      revert TestAggregator_Stopped();
+    }
+    return (_roundId, _mockAnswer * int256(10**decimals), 0, _mockUpdateAt, _mockAnsweredInRound);
   }
 
   function latestRoundData()
@@ -41,10 +59,29 @@ contract TestAggregator {
       uint80 answeredInRound
     )
   {
-    return (1, mockAnswer, 0, block.timestamp, 1e18);
+    if (stopped) {
+      revert TestAggregator_Stopped();
+    }
+    return (_mockRoundId, _mockAnswer * int256(10**decimals), 0, _mockUpdateAt, _mockAnsweredInRound);
   }
 
-  function updateMockAnswer(int256 _answer) public {
-    mockAnswer = _answer;
+  function updateMockAnswer(int256 _answer) external {
+    _mockAnswer = _answer;
+  }
+
+  function updateMockData(
+    uint80 _roundId,
+    int256 _answer,
+    uint256 _updateAt,
+    uint80 _answeredInRound
+  ) external {
+    _mockRoundId = _roundId;
+    _mockAnswer = _answer;
+    _mockUpdateAt = _updateAt;
+    _mockAnsweredInRound = _answeredInRound;
+  }
+
+  function stop() external {
+    stopped = true;
   }
 }

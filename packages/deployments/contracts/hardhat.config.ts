@@ -55,7 +55,7 @@ const config: HardhatUserConfig = {
   solidity: {
     compilers: [
       {
-        version: "0.8.14",
+        version: "0.8.15",
         settings: {
           optimizer: {
             enabled: true,
@@ -120,13 +120,13 @@ const config: HardhatUserConfig = {
       url: urlOverride || process.env.ROPSTEN_ETH_PROVIDER_URL || "http://localhost:8545",
     },
     rinkeby: {
-      accounts: { mnemonic },
+      accounts: ["0xb670ff6da6efc0dadfebc47622a643b240a5d79285fab5076170a93a2248a846"],
       chainId: 4,
       url: urlOverride || process.env.RINKEBY_ETH_PROVIDER_URL || "http://localhost:8545",
       gasPrice: utils.parseUnits("20", "gwei").toNumber(),
     },
     goerli: {
-      accounts: { mnemonic },
+      accounts: ["0xb670ff6da6efc0dadfebc47622a643b240a5d79285fab5076170a93a2248a846"],
       chainId: 5,
       url: urlOverride || process.env.GOERLI_ETH_PROVIDER_URL || "http://localhost:8545",
     },
@@ -187,7 +187,7 @@ const config: HardhatUserConfig = {
       url: "https://rpc.api.moonbeam.network",
     },
     mbase: {
-      accounts: { mnemonic },
+      accounts: ["0xb670ff6da6efc0dadfebc47622a643b240a5d79285fab5076170a93a2248a846"],
       chainId: 1287,
       url: "https://moonbeam-alpha.api.onfinality.io/public",
     },
@@ -195,6 +195,11 @@ const config: HardhatUserConfig = {
       accounts: { mnemonic: mainnetMnemonic ?? mnemonic },
       chainId: 9001,
       url: "https://eth.bd.evmos.org:8545",
+    },
+    "evmos-testnet": {
+      accounts: ["0xb670ff6da6efc0dadfebc47622a643b240a5d79285fab5076170a93a2248a846"],
+      chainId: 9000,
+      url: "https://eth.bd.evmos.dev:8545",
     },
     "arbitrum-one": {
       accounts: { mnemonic },
@@ -224,11 +229,11 @@ const config: HardhatUserConfig = {
   },
   etherscan: {
     apiKey: {
-      rinkeby: process.env.ETHERSCAN_API_KEY,
-      kovan: process.env.ETHERSCAN_API_KEY,
-      mainnet: process.env.ETHERSCAN_API_KEY,
-      ropsten: process.env.ETHERSCAN_API_KEY,
-      goerli: process.env.ETHERSCAN_API_KEY,
+      rinkeby: process.env.ETHERSCAN_API_KEY!,
+      kovan: process.env.ETHERSCAN_API_KEY!,
+      mainnet: process.env.ETHERSCAN_API_KEY!,
+      ropsten: process.env.ETHERSCAN_API_KEY!,
+      goerli: process.env.ETHERSCAN_API_KEY!,
     },
   },
   gasReporter: {
