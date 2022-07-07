@@ -185,7 +185,7 @@ describe("e2e", () => {
     });
 
     const receipt = await txService.sendTx(
-      { to: PARAMETERS.AGENTS.USER.address, value: tx.value ?? 0, data: utils.hexlify(tx.data!), chainId: 1337 },
+      { to: tx.to!, value: tx.value ?? 0, data: utils.hexlify(tx.data!), chainId: 1337 },
       requestContext,
     );
 

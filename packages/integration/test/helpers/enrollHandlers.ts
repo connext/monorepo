@@ -30,14 +30,8 @@ export const enrollHandlers = async (
         });
 
         const [remote] = ConnextHandlerInterface.decodeFunctionResult("remotes", encoded);
-        console.log("> local domain: ", handler.domain);
-        console.log("> remote domain: ", otherHandler.domain);
-        console.log("> canonized: ", canonized);
-        console.log("> remote: ", remote);
-        console.log("> to: ", (handler as any)[handlerName]);
         // check if already registered
         if (remote !== canonized) {
-          console.log("> sending a enrollRemoteRouter tx...");
           const data = ConnextHandlerInterface.encodeFunctionData("enrollRemoteRouter", [
             otherHandler.domain,
             canonized,
