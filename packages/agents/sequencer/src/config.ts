@@ -75,6 +75,7 @@ export const getEnvConfig = (
       configFile.auctionRoundDepth ||
       DEFAULT_AUCTION_ROUND_DEPTH,
     environment: process.env.SEQ_ENVIRONMENT || configJson.environment || configFile.environment || "production",
+    relayerUrl: process.env.SEQ_RELAYER_URL || configJson.relayerUrl || configFile.relayerUrl,
   };
 
   const defaultConfirmations = chainData && (chainData.get("1")?.confirmations ?? 1 + 3);
