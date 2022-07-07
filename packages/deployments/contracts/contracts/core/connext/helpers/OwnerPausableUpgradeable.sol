@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: UNLICENSED
-pragma solidity 0.8.14;
+pragma solidity 0.8.15;
 
 import {OwnableUpgradeable} from "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
 import {PausableUpgradeable} from "@openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol";
@@ -11,11 +11,19 @@ import {PausableUpgradeable} from "@openzeppelin/contracts-upgradeable/security/
  * @dev Only methods using the provided modifiers will be paused.
  */
 abstract contract OwnerPausableUpgradeable is OwnableUpgradeable, PausableUpgradeable {
+  // ============ Upgrade Gap ============
+
+  uint256[49] private __GAP; // gap for upgrade safety
+
+  // ============ Initializer ============
+
   function __OwnerPausable_init() internal onlyInitializing {
     __Context_init_unchained();
     __Ownable_init_unchained();
     __Pausable_init_unchained();
   }
+
+  // ============ External functions ============
 
   /**
    * @notice Pause the contract. Revert if already paused.

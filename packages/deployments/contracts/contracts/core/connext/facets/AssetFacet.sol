@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity 0.8.14;
+pragma solidity 0.8.15;
 
 import {Address} from "@openzeppelin/contracts/utils/Address.sol";
 
@@ -15,6 +15,7 @@ contract AssetFacet is BaseConnextFacet {
   error AssetFacet__setTokenRegistry_invalidTokenRegistry();
   error AssetFacet__addAssetId_alreadyAdded();
   error AssetFacet__removeAssetId_notAdded();
+  error AssetFacet__addAssetId_noWrapperExists();
 
   // ============ Events ============
 
@@ -120,14 +121,21 @@ contract AssetFacet is BaseConnextFacet {
 
   /**
    * @notice Used to add supported assets. This is an admin only function
+   *
    * @dev When whitelisting the canonical asset, all representational assets would be
    * whitelisted as well. In the event you have a different adopted asset (i.e. PoS USDC
    * on polygon), you should *not* whitelist the adopted asset. The stable swap pool
-   * address used should allow you to swap between the local <> adopted asset
+   * address used should allow you to swap between the local <> adopted asset.
+   *
+   * Additionally, if this function is called to setup the native asset, always specify
+   * `address(0)` for the `_adoptedAssetId` even if the native token is located at another
+   * address (e.g. MATIC on Polygon).
+   *
    * @param _canonical - The canonical asset to add by id and domain. All representations
    * will be whitelisted as well
-   * @param _adoptedAssetId - The used asset id for this domain (i.e. PoS USDC for
+   * @param _adoptedAssetId - The used asset id for this domain (e.g. PoS USDC for
    * polygon)
+   * @param _stableSwapPool - The address of the local stableswap pool, if it exists.
    */
   function setupAsset(
     ConnextMessage.TokenId calldata _canonical,
@@ -141,6 +149,10 @@ contract AssetFacet is BaseConnextFacet {
     s.approvedAssets[_canonical.id] = true;
 
     address supported = _adoptedAssetId == address(0) ? address(s.wrapper) : _adoptedAssetId;
+
+    // If the adopted asset was a native token and the wrapper has not been set,
+    // the supported address could have evaluated to `address(0)` above.
+    if (supported == address(0)) revert AssetFacet__addAssetId_noWrapperExists();
 
     // Update the adopted mapping
     s.adoptedToCanonical[supported].domain = _canonical.domain;

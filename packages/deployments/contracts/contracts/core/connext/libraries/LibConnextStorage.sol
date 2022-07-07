@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: UNLICENSED
-pragma solidity 0.8.14;
+pragma solidity 0.8.15;
 
 import {XAppConnectionManager} from "../../../nomad-core/contracts/XAppConnectionManager.sol";
 
@@ -26,22 +26,28 @@ import {SwapUtils} from "./SwapUtils.sol";
  * @param callData - The data to execute on the receiving chain. If no crosschain call is needed, then leave empty.
  * @param originDomain - The originating domain (i.e. where `xcall` is called). Must match nomad domain schema
  * @param destinationDomain - The final domain (i.e. where `execute` / `reconcile` are called). Must match nomad domain schema
+ * @param agent - An address who can execute txs on behalf of `to`, in addition to allowing relayers
  * @param recovery - The address to send funds to if your `Executor.execute call` fails
  * @param callback - The address on the origin domain of the callback contract
  * @param callbackFee - The relayer fee to execute the callback
  * @param forceSlow - If true, will take slow liquidity path even if it is not a permissioned call
  * @param receiveLocal - If true, will use the local nomad asset on the destination instead of adopted.
+ * @param relayerFee - The amount of relayer fee the tx called xcall with
+ * @param slippageTol - Max bps of original due to slippage (i.e. would be 9995 to tolerate .05% slippage)
  */
 struct CallParams {
   address to;
   bytes callData;
   uint32 originDomain;
   uint32 destinationDomain;
+  address agent;
   address recovery;
-  address callback;
-  uint256 callbackFee;
   bool forceSlow;
   bool receiveLocal;
+  address callback;
+  uint256 callbackFee;
+  uint256 relayerFee;
+  uint256 slippageTol;
 }
 
 /**
@@ -50,13 +56,11 @@ struct CallParams {
  * @param transactingAssetId - The asset the caller sent with the transfer. Can be the adopted, canonical,
  * or the representational asset
  * @param amount - The amount of transferring asset the tx called xcall with
- * @param relayerFee - The amount of relayer fee the tx called xcall with
  */
 struct XCallArgs {
   CallParams params;
   address transactingAssetId; // Could be adopted, local, or wrapped
   uint256 amount;
-  uint256 relayerFee;
 }
 
 /**
@@ -67,7 +71,6 @@ struct XCallArgs {
  * @param routers - The routers who you are sending the funds on behalf of
  * @param amount - The amount of liquidity the router provided or the bridge forwarded, depending on
  * if fast liquidity was used
- * @param relayerFee - The relayer fee amount
  * @param nonce - The nonce used to generate transfer id
  * @param originSender - The msg.sender of the xcall on origin domain
  */
@@ -76,7 +79,6 @@ struct ExecuteArgs {
   address local; // local representation of canonical token
   address[] routers;
   bytes[] routerSignatures;
-  uint256 relayerFee;
   uint256 amount;
   uint256 nonce;
   address originSender;
@@ -141,7 +143,7 @@ struct AppStorage {
   // * @dev Must match the nomad domain, which is distinct from the "chainId"
   // */
   // 7
-  uint256 domain;
+  uint32 domain;
   // /**
   // * @notice The local nomad token registry
   // */
@@ -273,7 +275,7 @@ struct AppStorage {
   // 32
   mapping(bytes32 => mapping(address => uint8)) tokenIndexes;
   /**
-   * @notice Stores whether or not briding, AMMs, have been paused
+   * @notice Stores whether or not bribing, AMMs, have been paused
    */
   // 33
   bool _paused;
@@ -297,6 +299,14 @@ struct AppStorage {
    * @notice Mapping to store the transfer liquidity amount provided by Aave Portals
    */
   mapping(bytes32 => uint256) portalFeeDebt;
+  //
+  // BridgeFacet (cont.) TODO: can we move this
+  //
+  /**
+   * @notice Stores whether a transfer has had `receiveLocal` overrides forced
+   */
+  // 34
+  mapping(bytes32 => bool) receiveLocalOverrides;
 }
 
 library LibConnextStorage {

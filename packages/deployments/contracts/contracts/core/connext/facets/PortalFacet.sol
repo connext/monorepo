@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: UNLICENSED
-pragma solidity 0.8.14;
+pragma solidity 0.8.15;
 
 import {SafeERC20Upgradeable, IERC20Upgradeable} from "@openzeppelin/contracts-upgradeable/token/ERC20/utils/SafeERC20Upgradeable.sol";
 
@@ -36,7 +36,7 @@ contract PortalFacet is BaseConnextFacet {
   }
 
   function getAavePortalFeeDebt(bytes32 _transferId) external view returns (uint256) {
-    return s.portalDebt[_transferId];
+    return s.portalFeeDebt[_transferId];
   }
 
   function aavePool() external view returns (address) {
@@ -95,7 +95,9 @@ contract PortalFacet is BaseConnextFacet {
     // is the adopted asset
 
     // Swap for exact `totalRepayAmount` of adopted asset to repay aave
+    (, bytes32 id) = s.tokenRegistry.getTokenId(_local);
     (bool success, uint256 amountIn, address adopted) = AssetLogic.swapFromLocalAssetIfNeededForExactOut(
+      id,
       _local,
       totalAmount,
       _maxIn
@@ -104,26 +106,22 @@ contract PortalFacet is BaseConnextFacet {
     if (!success) revert PortalFacet__repayAavePortal_swapFailed();
 
     // decrement router balances
-    unchecked {
-      s.routerBalances[msg.sender][_local] -= amountIn;
-    }
+    s.routerBalances[msg.sender][_local] -= amountIn;
 
     // back loan
-    _backLoan(_local, _backingAmount, _feeAmount, _transferId);
+    _backLoan(adopted, _backingAmount, _feeAmount, _transferId);
   }
 
   /**
    * @notice This allows anyone to repay the portal in the adopted asset for a given router
    * and transfer
    * @dev Should always be paying in the backing asset for the aave loan
-   * @param _router Router who took out the credit
    * @param _adopted Address of the adopted asset (asset backing the loan)
    * @param _backingAmount Amount of principle to repay
    * @param _feeAmount Amount of fees to repay
    * @param _transferId Corresponding transfer id for the fees
    */
   function repayAavePortalFor(
-    address _router,
     address _adopted,
     uint256 _backingAmount,
     uint256 _feeAmount,
@@ -144,13 +142,20 @@ contract PortalFacet is BaseConnextFacet {
 
     // If this was a fee on transfer token, reduce the total
     if (amount < total) {
-      uint256 missing = total - amount;
+      uint256 missing;
+      unchecked {
+        missing = total - amount;
+      }
       if (missing < _feeAmount) {
         // Debit fee amount
-        _feeAmount -= missing;
+        unchecked {
+          _feeAmount -= missing;
+        }
       } else {
         // Debit backing amount
-        missing -= _feeAmount;
+        unchecked {
+          missing -= _feeAmount;
+        }
         _feeAmount = 0;
         _backingAmount -= missing;
       }

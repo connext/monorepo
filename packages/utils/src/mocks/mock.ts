@@ -81,16 +81,18 @@ export const mock: any = {
       destinationDomain: mock.domain.B,
       callback: mkAddress("0xbbbb"),
       callbackFee: "0",
+      relayerFee: "123",
       forceSlow: false,
       receiveLocal: false,
+      agent: mkAddress(),
       recovery: mkAddress("0xcccc"),
+      slippageTol: "0",
       ...overrides,
     }),
     xcallArgs: (overrides: Partial<XCallArgs> = {}): XCallArgs => ({
       params: mock.entity.callParams(),
       transactingAssetId: mock.asset.A.address,
       amount: utils.parseEther("1").toString(),
-      relayerFee: "123",
       ...overrides,
     }),
     executeArgs: (overrides: Partial<ExecuteArgs> = {}): ExecuteArgs => ({
@@ -101,7 +103,6 @@ export const mock: any = {
       amount: utils.parseEther("1").toString(),
       nonce: 0,
       originSender: mkAddress(),
-      relayerFee: "12345",
       ...overrides,
     }),
     auction: (overrides: Partial<Auction>): Auction => ({
@@ -162,21 +163,22 @@ export const mock: any = {
         // Meta
         transferId,
         nonce: !isReconciledOnly ? nonce : undefined,
-        destinationDomain,
-        originDomain,
 
         // Call Params
-        xparams: !isReconciledOnly
-          ? {
-              to: user,
-              callData: "0x",
-              callback: mkAddress("0x"),
-              callbackFee: "0",
-              recovery: mkAddress("0x"),
-              forceSlow: false,
-              receiveLocal: false,
-            }
-          : undefined,
+        xparams: {
+          to: user,
+          callData: "0x",
+          callback: mkAddress("0x"),
+          callbackFee: "0",
+          relayerFee,
+          recovery: mkAddress("0x"),
+          agent: mkAddress("0x"),
+          forceSlow: false,
+          receiveLocal: false,
+          slippageTol: "0",
+          destinationDomain,
+          originDomain,
+        },
 
         origin: shouldHaveOriginDefined
           ? {
@@ -197,7 +199,6 @@ export const mock: any = {
               // XCalled
               xcall: {
                 // Event Data
-                relayerFee,
                 caller: user,
                 transactionHash: getRandomBytes32(),
                 timestamp: Math.floor(Date.now() / 1000 - 60),
@@ -243,7 +244,7 @@ export const mock: any = {
                       gasPrice: utils.parseUnits("5", "gwei").toString(),
                       gasLimit: "80000",
                       blockNumber: 5651345,
-                      relayerFee: "12345",
+                      relayerFee,
                     }
                   : undefined,
 
