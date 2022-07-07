@@ -57,8 +57,7 @@ RUN yarn build
 
 FROM node as runtime
 
-ENV NODE_ENV=production \
-    PORT=8081
+ENV NODE_ENV=production 
 
 ARG COMMIT_HASH
 ENV COMMIT_HASH ${COMMIT_HASH:-unknown}
@@ -71,6 +70,6 @@ USER node
 
 WORKDIR /home/node/packages/agents/relayer
 
-EXPOSE 8082
+EXPOSE 8080
 
 CMD ["node", "--trace-warnings", "dist/index.js"]

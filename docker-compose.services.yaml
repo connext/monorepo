@@ -43,13 +43,16 @@ services:
     environment:
       GRAPH_1337_ENDPOINT: "http://graph-node-1337:8000/subgraphs/name/connext/nxtp"
       GRAPH_1338_ENDPOINT: "http://graph-node-1338:8000/subgraphs/name/connext/nxtp"
-
+      SEQ_RELAYER_URL: "http://relayer:8082"
+      
   relayer:
     container_name: relayer
+    depends_on:
+      - sequencer
     image: ${RELAYER_IMAGE}
     restart: always
     ports:
-      - "8082:8082"
+      - "8082:8080"
     logging:
       driver: json-file
       options:

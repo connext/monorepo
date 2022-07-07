@@ -22,5 +22,6 @@
     "cleanup": false
   },
   "auctionWaitTime": 30000,
-  "environment": "production"
+  "environment": "production",
+  "relayerUrl": "http://relayer:8082"
 }
