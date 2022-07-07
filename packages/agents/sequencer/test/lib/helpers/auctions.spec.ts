@@ -38,8 +38,8 @@ describe("Helpers:Auctions", () => {
       const bids: Bid[] = [{ ...mock.entity.bid(), signatures }];
       const expectedArgs: ExecuteArgs = {
         params: {
-          originDomain: transfer.originDomain,
-          destinationDomain: transfer.destinationDomain,
+          originDomain: transfer.xparams.originDomain,
+          destinationDomain: transfer.xparams.destinationDomain,
           to: transfer.xparams.to,
           callData: transfer.xparams.callData,
           callback: constants.AddressZero,

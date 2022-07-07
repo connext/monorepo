@@ -104,7 +104,7 @@ export const XTransferSchema = Type.Intersect([
 
     // Call Params
     // NOTE: CallParams is emitted by XCalled and Executed events, but not Reconciled event.
-    xparams: Type.Optional(CallParamsSchema),
+    xparams: CallParamsSchema,
   }),
   Type.Object({
     origin: Type.Optional(XTransferOriginSchema),

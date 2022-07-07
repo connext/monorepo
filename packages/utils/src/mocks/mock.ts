@@ -165,22 +165,20 @@ export const mock: any = {
         nonce: !isReconciledOnly ? nonce : undefined,
 
         // Call Params
-        xparams: !isReconciledOnly
-          ? {
-              to: user,
-              callData: "0x",
-              callback: mkAddress("0x"),
-              callbackFee: "0",
-              relayerFee,
-              recovery: mkAddress("0x"),
-              agent: mkAddress("0x"),
-              forceSlow: false,
-              receiveLocal: false,
-              slippageTol: "0",
-              destinationDomain,
-              originDomain,
-            }
-          : undefined,
+        xparams: {
+          to: user,
+          callData: "0x",
+          callback: mkAddress("0x"),
+          callbackFee: "0",
+          relayerFee,
+          recovery: mkAddress("0x"),
+          agent: mkAddress("0x"),
+          forceSlow: false,
+          receiveLocal: false,
+          slippageTol: "0",
+          destinationDomain,
+          originDomain,
+        },
 
         origin: shouldHaveOriginDefined
           ? {
