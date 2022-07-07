@@ -40,6 +40,9 @@ services:
     volumes:
       - ${PWD}/docker/sequencer/:/home/node/agents/sequencer/
       - ${PWD}/docker/sequencer/config.local.json:/home/node/packages/agents/sequencer/config.json
+    environment:
+      GRAPH_1337_ENDPOINT: "http://graph-node-1337:8000/subgraphs/name/connext/nxtp"
+      GRAPH_1338_ENDPOINT: "http://graph-node-1338:8000/subgraphs/name/connext/nxtp"
 
   sequencer-cache:
     container_name: sequencer-cache
