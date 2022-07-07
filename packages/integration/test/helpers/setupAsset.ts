@@ -14,8 +14,9 @@ export const setupAsset = async (
     const readData = ConnextHandlerInterface.encodeFunctionData("canonicalToAdopted", [canonicalId]);
     const encoded = await txService.readTx({ chainId: +domain.domain, data: readData, to: domain.ConnextHandler });
     const [adopted] = ConnextHandlerInterface.decodeFunctionResult("canonicalToAdopted", encoded);
-    console.log("adopted: ", domain.adopted);
-    console.log("onchain adopted: ", adopted);
+    console.log("> domain: ", domain);
+    console.log("> adopted: ", domain.adopted);
+    console.log("> onchain adopted: ", adopted);
 
     if (adopted !== domain.adopted) {
       console.log("sending a setupAsset tx...");

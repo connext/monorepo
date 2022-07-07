@@ -1,6 +1,6 @@
 import { createRequestContext, Logger } from "@connext/nxtp-utils";
 import { ConnextHandlerAbi } from "@connext/nxtp-contracts";
-import { TransactionService } from "@connext/nxtp-txservice";
+import { TransactionService, getErc20Interface } from "@connext/nxtp-txservice";
 import { NxtpSdkBase } from "@connext/nxtp-sdk";
 import { constants, utils, Wallet } from "ethers";
 
@@ -8,6 +8,7 @@ import { enrollHandlers } from "./helpers/enrollHandlers";
 import { enrollCustom } from "./helpers/enrollCustom";
 import { setupRouter } from "./helpers/setupRouter";
 import { setupAsset } from "./helpers/setupAsset";
+import { addLiquidity } from "./helpers/addLiquidity";
 
 // TODO: Move to a sep. constants file (current constants file is for live integration tests).
 
@@ -77,7 +78,7 @@ const requestContext = createRequestContext("e2e");
 describe("e2e", () => {
   let sdk: NxtpSdkBase;
   before(async () => {
-    logger.info("Enrolling handlers...");
+    console.log("Enrolling handlers...");
     await enrollHandlers(
       [
         {
@@ -91,9 +92,9 @@ describe("e2e", () => {
       ],
       txService,
     );
-    logger.info("Enrolled handlers.");
+    console.log("Enrolled handlers.");
 
-    logger.info("Enrolling custom asset with TokenRegistry...");
+    console.log("Enrolling custom asset with TokenRegistry...");
     await enrollCustom(
       {
         domain: PARAMETERS.A.DOMAIN,
@@ -108,9 +109,9 @@ describe("e2e", () => {
       ],
       txService,
     );
-    logger.info("Enrolled custom asset.");
+    console.log("Enrolled custom asset.");
 
-    logger.info("Setting up router...");
+    console.log("Setting up router...");
     await setupRouter(
       PARAMETERS.AGENTS.ROUTER.address,
       [
@@ -119,12 +120,18 @@ describe("e2e", () => {
       ],
       txService,
     );
-    logger.info("Set up router.");
+    console.log("Set up router.");
 
-    logger.info("Setting up assets...");
+    console.log("Setting up assets...");
     await setupAsset(
       { domain: PARAMETERS.A.DOMAIN, tokenAddress: PARAMETERS.ASSET.address },
       [
+        {
+          domain: PARAMETERS.A.DOMAIN,
+          ConnextHandler: PARAMETERS.A.DEPLOYMENTS.ConnextHandler,
+          // NOTE: Same as local; this means we won't be doing any swaps.
+          adopted: PARAMETERS.ASSET.address,
+        },
         {
           domain: PARAMETERS.B.DOMAIN,
           ConnextHandler: PARAMETERS.B.DEPLOYMENTS.ConnextHandler,
@@ -134,7 +141,30 @@ describe("e2e", () => {
       ],
       txService,
     );
-    logger.info("Set up assets");
+    console.log("Set up assets.");
+
+    console.log(`Adding liquidity for router: ${PARAMETERS.AGENTS.ROUTER.address}...`);
+    await addLiquidity(
+      [
+        {
+          domain: PARAMETERS.A.DOMAIN,
+          amount: utils.parseEther("100").toString(),
+          router: PARAMETERS.AGENTS.ROUTER.address,
+          asset: PARAMETERS.ASSET.address,
+          ConnextHandler: PARAMETERS.A.DEPLOYMENTS.ConnextHandler,
+        },
+        {
+          domain: PARAMETERS.B.DOMAIN,
+          amount: utils.parseEther("100").toString(),
+          router: PARAMETERS.AGENTS.ROUTER.address,
+          asset: PARAMETERS.ASSET.address,
+          ConnextHandler: PARAMETERS.B.DEPLOYMENTS.ConnextHandler,
+        },
+      ],
+      txService,
+    );
+
+    console.log("Added liquidity.");
 
     sdk = await NxtpSdkBase.create({
       chains: {
@@ -166,6 +196,14 @@ describe("e2e", () => {
   });
 
   it.only("sends a simple transfer with fast path", async () => {
+    const balanceOfData = getErc20Interface().encodeFunctionData("balanceOf", [PARAMETERS.AGENTS.USER.address]);
+    const encoded = await txService.readTx({
+      chainId: +PARAMETERS.A.DOMAIN,
+      data: balanceOfData,
+      to: PARAMETERS.ASSET.address,
+    });
+    const [tokenBalance] = getErc20Interface().decodeFunctionResult("balanceOf", encoded);
+    console.log("> sender token balance: ", tokenBalance.toString());
     console.log("Sending xcall...");
     const tx = await sdk.xcall({
       amount: "1000",
