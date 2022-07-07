@@ -6,6 +6,7 @@ ROUTER_PORT="8080"
 DEFAULT_MNEMONIC="candy maple cake sugar pudding cream honey rich smooth crumble sweet treat"
 ROUTER_IMAGE=router:latest
 SEQUENCER_IMAGE=sequencer:latest
+RELAYER_IMAGE=relayer:latest
 WEB3_SIGNER_PRIVATE_KEY="0xc87509a1c067bbde78beb793e6fa76530b6382a4c0241e5e4a9ec0a0f44dc0d3"
 GRAPH_GOERLI_HANDLER_ENDPOINT="https://api.thegraph.com/subgraphs/name/connext/nxtp-amarok-runtime-test-goerli"
 
@@ -35,6 +36,7 @@ WEB3_SIGNER_PRIVATE_KEY=${WEB3_SIGNER_PRIVATE_KEY}
 
 ROUTER_IMAGE=${ROUTER_IMAGE}
 SEQUENCER_IMAGE=${SEQUENCER_IMAGE}
+RELAYER_IMAGE=${RELAYER_IMAGE}
 " > .env
 
 

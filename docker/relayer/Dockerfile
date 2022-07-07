@@ -71,6 +71,6 @@ USER node
 
 WORKDIR /home/node/packages/agents/relayer
 
-EXPOSE 8081
+EXPOSE 8082
 
 CMD ["node", "--trace-warnings", "dist/index.js"]

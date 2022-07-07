@@ -44,6 +44,20 @@ services:
       GRAPH_1337_ENDPOINT: "http://graph-node-1337:8000/subgraphs/name/connext/nxtp"
       GRAPH_1338_ENDPOINT: "http://graph-node-1338:8000/subgraphs/name/connext/nxtp"
 
+  relayer:
+    container_name: relayer
+    image: ${RELAYER_IMAGE}
+    restart: always
+    ports:
+      - "8082:8082"
+    logging:
+      driver: json-file
+      options:
+        max-size: 10m
+    volumes:
+      - ${PWD}/docker/relayer/:/home/node/agents/relayer/
+      - ${PWD}/docker/relayer/config.local.json:/home/node/packages/agents/relayer/config.json
+
   sequencer-cache:
     container_name: sequencer-cache
     image: redis:latest
