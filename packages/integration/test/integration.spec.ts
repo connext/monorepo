@@ -794,6 +794,8 @@ describe("Integration:E2E", () => {
             to: originConnextAddress,
             data: encoded,
             // value: RELAYER_FEE_AMOUNT,
+            // 1m gas hardcoded, in case you need to just send it:
+            // gasLimit: BigNumber.from("1000000"),
           });
           const receipt = await tx.wait(1);
           log.info("XCall sent.", {
