@@ -46,8 +46,7 @@ export function handleRelayerAdded(event: RelayerAdded): void {
 
 export function handleStableSwapAdded(event: StableSwapAdded): void {
   // StableSwapAdded: bytes32 canonicalId, uint32 domain, address swapPool, address caller
-  let stableSwapId =
-    event.params.canonicalId.toHex() + "-" + event.params.domain.toHex() + "-" + event.params.swapPool.toHex();
+  let stableSwapId = `${event.params.canonicalId.toHex()}-${event.params.domain.toHex()}-${event.params.swapPool.toHex()}`;
   let stableSwap = StableSwap.load(stableSwapId);
 
   if (stableSwap == null) {
@@ -167,7 +166,7 @@ export function handleAssetAdded(event: AssetAdded): void {
  * @param event - The contract event to update the subgraph record with
  */
 export function handleRouterLiquidityAdded(event: RouterLiquidityAdded): void {
-  const assetBalance = getOrCreateAssetBalance(event.params.local, event.params.router);
+  const assetBalance = getOrCreateAssetBalance(event.params.local as Address, event.params.router as Address);
 
   // add new amount
   assetBalance.amount = assetBalance.amount.plus(event.params.amount);
@@ -183,7 +182,7 @@ export function handleRouterLiquidityAdded(event: RouterLiquidityAdded): void {
  */
 export function handleRouterLiquidityRemoved(event: RouterLiquidityRemoved): void {
   // ID is of the format ROUTER_ADDRESS-ASSET_ID
-  const assetBalance = getOrCreateAssetBalance(event.params.local, event.params.router);
+  const assetBalance = getOrCreateAssetBalance(event.params.local as Address, event.params.router as Address);
 
   // update amount
   assetBalance.amount = assetBalance.amount.minus(event.params.amount);
@@ -231,11 +230,14 @@ export function handleXCalled(event: XCalled): void {
   transfer.callData = event.params.xcallArgs.params.callData;
   transfer.originDomain = event.params.xcallArgs.params.originDomain;
   transfer.destinationDomain = event.params.xcallArgs.params.destinationDomain;
+  transfer.recovery = event.params.xcallArgs.params.recovery;
+  transfer.agent = event.params.xcallArgs.params.agent;
   transfer.forceSlow = event.params.xcallArgs.params.forceSlow;
   transfer.receiveLocal = event.params.xcallArgs.params.receiveLocal;
-  transfer.recovery = event.params.xcallArgs.params.recovery;
   transfer.callback = event.params.xcallArgs.params.callback;
   transfer.callbackFee = event.params.xcallArgs.params.callbackFee;
+  transfer.relayerFee = event.params.xcallArgs.params.relayerFee;
+  transfer.slippageTol = event.params.xcallArgs.params.slippageTol;
 
   // Assets
   transfer.transactingAsset = event.params.args.transactingAssetId;
@@ -244,7 +246,6 @@ export function handleXCalled(event: XCalled): void {
   transfer.bridgedAmount = event.params.args.bridgedAmt;
 
   // Event Data
-  transfer.relayerFee = event.params.xcallArgs.params.relayerFee;
   transfer.message = event.params.message;
 
   // XCall Transaction
@@ -288,10 +289,13 @@ export function handleExecuted(event: Executed): void {
         router.save();
       }
 
-      routers.push(router.id);
+      routers.push(router.id as string);
 
       // Update router's liquidity
-      const assetBalance = getOrCreateAssetBalance(event.params.args.local, event.params.args.routers[i]);
+      const assetBalance = getOrCreateAssetBalance(
+        event.params.args.local as Address,
+        event.params.args.routers[i] as Address,
+      );
       assetBalance.amount = assetBalance.amount.minus(routerAmount);
       assetBalance.save();
     }
@@ -310,8 +314,11 @@ export function handleExecuted(event: Executed): void {
   transfer.forceSlow = event.params.args.params.forceSlow;
   transfer.receiveLocal = event.params.args.params.receiveLocal;
   transfer.recovery = event.params.args.params.recovery;
+  transfer.agent = event.params.args.params.agent;
   transfer.callback = event.params.args.params.callback;
   transfer.callbackFee = event.params.args.params.callbackFee;
+  transfer.relayerFee = event.params.args.params.relayerFee;
+  transfer.slippageTol = event.params.args.params.slippageTol;
 
   // Assets
   transfer.transactingAmount = event.params.transactingAmount;
@@ -364,7 +371,7 @@ export function handleReconciled(event: Reconciled): void {
       routers.push(router);
 
       // Update router's liquidity
-      const assetBalance = getOrCreateAssetBalance(event.params.asset, Address.fromString(router));
+      const assetBalance = getOrCreateAssetBalance(event.params.asset as Address, Address.fromString(router));
       assetBalance.amount = assetBalance.amount.plus(amount.div(BigInt.fromI32(n)));
       assetBalance.save();
     }
@@ -445,7 +452,7 @@ function getChainId(): BigInt {
   return chainId;
 }
 
-function getOrCreateAssetBalance(local: Bytes, routerAddress: Address): AssetBalance {
+function getOrCreateAssetBalance(local: Address, routerAddress: Address): AssetBalance {
   let assetBalanceId = local.toHex() + "-" + routerAddress.toHex();
   let assetBalance = AssetBalance.load(assetBalanceId);
 
