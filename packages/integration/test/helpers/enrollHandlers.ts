@@ -23,15 +23,25 @@ export const enrollHandlers = async (
       for (const otherHandler of otherHandlers) {
         const canonized = utils.hexlify(canonizeId((otherHandler as any)[handlerName] as BytesLike));
         const registeredData = ConnextHandlerInterface.encodeFunctionData("remotes", [otherHandler.domain]);
-        const remote = await txService.readTx({
+        const encoded = await txService.readTx({
           chainId: +handler.domain,
           data: registeredData,
           to: (handler as any)[handlerName],
         });
 
+        const [remote] = ConnextHandlerInterface.decodeFunctionResult("remotes", encoded);
+        console.log("> local domain: ", handler.domain);
+        console.log("> remote domain: ", otherHandler.domain);
+        console.log("> canonized: ", canonized);
+        console.log("> remote: ", remote);
+        console.log("> to: ", (handler as any)[handlerName]);
         // check if already registered
         if (remote !== canonized) {
-          const data = ConnextHandlerInterface.encodeFunctionData("enrollRemoteRouter", [handler.domain, canonized]);
+          console.log("> sending a enrollRemoteRouter tx...");
+          const data = ConnextHandlerInterface.encodeFunctionData("enrollRemoteRouter", [
+            otherHandler.domain,
+            canonized,
+          ]);
           await txService.sendTx(
             { chainId: +handler.domain, to: (handler as any)[handlerName], data, value: 0 },
             requestContext,
