@@ -1,6 +1,6 @@
 import { hexlify } from "ethers/lib/utils";
 import { task } from "hardhat/config";
-import { Contract} from "ethers";
+import { Contract } from "ethers";
 
 import { canonizeId, getDomainInfoFromChainId } from "../src/nomad";
 import { Env, getDeploymentName, mustGetEnv } from "../src/utils";
