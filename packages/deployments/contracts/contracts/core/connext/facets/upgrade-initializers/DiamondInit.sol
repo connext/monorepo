@@ -67,7 +67,6 @@ contract DiamondInit is BaseConnextFacet {
 
       // ConnextHandler
       s.domain = _domain;
-      s.nonce = 0;
       s.relayerFeeRouter = RelayerFeeRouter(_relayerFeeRouter);
       s.promiseRouter = PromiseRouter(_promiseRouter);
       s.executor = new Executor(address(this));

@@ -145,23 +145,23 @@ describe("Operations:Execute", () => {
       ).to.be.rejectedWith(MissingXCall);
     });
 
-    it("should throw on blacklisted origin", async () => {
-      getBlacklistStub.resolves({ originBlacklisted: true, destinationBlacklisted: false });
+    // it("should throw on blacklisted origin", async () => {
+    //   getBlacklistStub.resolves({ originBlacklisted: true, destinationBlacklisted: false });
 
-      await expect(execute(mockXTransfer)).to.be.rejectedWith(NomadHomeBlacklisted);
-    });
+    //   await expect(execute(mockXTransfer)).to.be.rejectedWith(NomadHomeBlacklisted);
+    // });
 
-    it("should throw on blacklisted destination", async () => {
-      getBlacklistStub.resolves({ originBlacklisted: false, destinationBlacklisted: true });
+    // it("should throw on blacklisted destination", async () => {
+    //   getBlacklistStub.resolves({ originBlacklisted: false, destinationBlacklisted: true });
 
-      await expect(execute(mockXTransfer)).to.be.rejectedWith(NomadHomeBlacklisted);
-    });
+    //   await expect(execute(mockXTransfer)).to.be.rejectedWith(NomadHomeBlacklisted);
+    // });
 
-    it("should throw on both destination and origin blacklisted", async () => {
-      getBlacklistStub.resolves({ originBlacklisted: true, destinationBlacklisted: true });
+    // it("should throw on both destination and origin blacklisted", async () => {
+    //   getBlacklistStub.resolves({ originBlacklisted: true, destinationBlacklisted: true });
 
-      await expect(execute(mockXTransfer)).to.be.rejectedWith(NomadHomeBlacklisted);
-    });
+    //   await expect(execute(mockXTransfer)).to.be.rejectedWith(NomadHomeBlacklisted);
+    // });
 
     it.skip("should error if slippage invalid", async () => {
       mockContext.config.maxSlippage = "0";
