@@ -163,7 +163,7 @@ export const setupSubgraphReader = async (requestContext: RequestContext): Promi
       allowedChainData.set(allowedDomain, chainData.get(allowedDomain)!);
     }
   }
-  logger.info("Subgraph reader setup in progress...", requestContext, methodContext, { allowedChainData });
+  logger.info("Subgraph reader setup in progress...", requestContext, methodContext, { config, allowedChainData });
   const subgraphReader = await SubgraphReader.create(allowedChainData, config.environment, config.subgraphPrefix);
 
   // Pull support for domains that don't have a subgraph.

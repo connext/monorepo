@@ -112,7 +112,10 @@ export const setupSubgraphReader = async (requestContext: RequestContext): Promi
     }
   }
 
-  logger.info("Subgraph reader setup in progress...", requestContext, methodContext, { allowedChainData });
+  logger.info("Subgraph reader setup in progress...", requestContext, methodContext, {
+    config,
+    allowedChainData,
+  });
   const subgraphReader = await SubgraphReader.create(
     allowedChainData,
     context.config.environment,

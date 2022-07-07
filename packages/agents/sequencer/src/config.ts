@@ -97,7 +97,7 @@ export const getEnvConfig = (
         (() => {
           const res =
             domainId === "1337" || domainId === "1338"
-              ? { address: "0x8273e4B8ED6c78e252a9fCa5563Adfcc75C91b2A" } // hardcoded for testing
+              ? { address: "0xF08dF3eFDD854FEDE77Ed3b2E515090EEe765154" } // hardcoded for testing
               : chainDataForChain
               ? deployments.connext(chainDataForChain.chainId, contractPostfix)
               : undefined;
