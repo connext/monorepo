@@ -21,8 +21,8 @@ export const encodeExecuteFromBids = (round: number, bids: Bid[], transfer: Orig
   // Format arguments from XTransfer.
   const args: ExecuteArgs = {
     params: {
-      originDomain: transfer.originDomain,
-      destinationDomain: transfer.destinationDomain,
+      originDomain: transfer.xparams.originDomain,
+      destinationDomain: transfer.xparams.destinationDomain,
       to: transfer.xparams.to,
       callData: transfer.xparams.callData,
       callback: transfer.xparams.callback ?? constants.AddressZero,

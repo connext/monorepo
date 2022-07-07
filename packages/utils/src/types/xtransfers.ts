@@ -115,8 +115,6 @@ export type XTransfer = Static<typeof XTransferSchema>;
 
 export const OriginTransferSchema = Type.Intersect([
   Type.Object({
-    originDomain: Type.String(),
-    destinationDomain: Type.String(),
     transferId: Type.String(),
     nonce: Type.Integer(),
     xparams: CallParamsSchema,
@@ -131,9 +129,6 @@ export type OriginTransfer = Static<typeof OriginTransferSchema>;
 
 export const DestinationTransferSchema = Type.Intersect([
   Type.Object({
-    originDomain: Type.String(),
-    // NOTE: Destination domain is not emitted by Reconciled event.
-    destinationDomain: Type.Optional(Type.String()),
     transferId: Type.String(),
     nonce: Type.Optional(Type.Integer()),
     xparams: Type.Optional(CallParamsSchema),

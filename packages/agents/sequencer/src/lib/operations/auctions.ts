@@ -192,7 +192,7 @@ export const executeAuctions = async (_requestContext: RequestContext) => {
             return;
           }
 
-          const destTx = await subgraph.getDestinationTransferById(transfer.destinationDomain!, transferId);
+          const destTx = await subgraph.getDestinationTransferById(transfer.xparams.destinationDomain, transferId);
           if (destTx) {
             logger.error("Transfer already executed", requestContext, methodContext, undefined, {
               transferId,
@@ -230,7 +230,7 @@ export const executeAuctions = async (_requestContext: RequestContext) => {
             // Try every combinations until we find one that works.
             for (const randomCombination of combinedBidsForRound) {
               const asset = await getDestinationLocalAsset(
-                transfer.originDomain,
+                transfer.xparams.originDomain,
                 transfer.origin.assets.bridged.asset,
                 destination,
               );

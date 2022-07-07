@@ -62,11 +62,9 @@ export const execute = async (params: OriginTransfer): Promise<void> => {
   }
 
   const {
-    originDomain,
-    destinationDomain,
     origin,
     transferId,
-    xparams: { callData, to, forceSlow },
+    xparams: { callData, to, forceSlow, originDomain, destinationDomain },
   } = params;
 
   if (forceSlow) {
