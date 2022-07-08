@@ -24,7 +24,6 @@ locals {
     logLevel = "debug"
     chains = {
       "1111" = {}
-      "2221" = {}
       "3331" = {}
     }
     environment = var.stage
