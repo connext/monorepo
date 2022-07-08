@@ -1,5 +1,5 @@
 {
-  "address": "0xEC3A723DE47a644b901DC269829bf8718F175EBF",
+  "address": "0x6c9a905Ab3f4495E2b47f5cA131ab71281E0546e",
   "abi": [
     {
       "inputs": [
@@ -66,6 +66,11 @@
     },
     {
       "inputs": [],
+      "name": "AssetFacet__addAssetId_noWrapperExists",
+      "type": "error"
+    },
+    {
+      "inputs": [],
       "name": "AssetFacet__removeAssetId_notAdded",
       "type": "error"
     },
@@ -77,6 +82,11 @@
     {
       "inputs": [],
       "name": "AssetFacet__setWrapper_invalidWrapper",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "BaseConnextFacet__nonReentrant_reentrantCall",
       "type": "error"
     },
     {
@@ -97,6 +107,11 @@
     {
       "inputs": [],
       "name": "BaseConnextFacet__onlyReplica_notReplica",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "BaseConnextFacet__whenNotPaused_paused",
       "type": "error"
     },
     {
@@ -481,12 +496,27 @@
     },
     {
       "inputs": [],
+      "name": "AssetLogic__transferAssetToContract_feeOnTransferNotSupported",
+      "type": "error"
+    },
+    {
+      "inputs": [],
       "name": "BridgeFacet__bumpTransfer_valueIsZero",
       "type": "error"
     },
     {
       "inputs": [],
+      "name": "BridgeFacet__executePortalTransfer_insufficientAmountWithdrawn",
+      "type": "error"
+    },
+    {
+      "inputs": [],
       "name": "BridgeFacet__execute_alreadyExecuted",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "BridgeFacet__execute_alreadyReconciled",
       "type": "error"
     },
     {
@@ -501,6 +531,11 @@
     },
     {
       "inputs": [],
+      "name": "BridgeFacet__execute_notApprovedForPortals",
+      "type": "error"
+    },
+    {
+      "inputs": [],
       "name": "BridgeFacet__execute_notReconciled",
       "type": "error"
     },
@@ -511,22 +546,22 @@
     },
     {
       "inputs": [],
-      "name": "BridgeFacet__execute_unapprovedRelayer",
+      "name": "BridgeFacet__execute_unapprovedSender",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "BridgeFacet__execute_wrongDomain",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "BridgeFacet__forceReceiveLocal_invalidSender",
       "type": "error"
     },
     {
       "inputs": [],
       "name": "BridgeFacet__handleExecuteTransaction_invalidSponsoredAmount",
-      "type": "error"
-    },
-    {
-      "inputs": [],
-      "name": "BridgeFacet__reconcile_alreadyReconciled",
-      "type": "error"
-    },
-    {
-      "inputs": [],
-      "name": "BridgeFacet__reconcile_invalidAction",
       "type": "error"
     },
     {
@@ -581,6 +616,37 @@
         {
           "indexed": true,
           "internalType": "address",
+          "name": "router",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "internalType": "address",
+          "name": "asset",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "amount",
+          "type": "uint256"
+        }
+      ],
+      "name": "AavePortalMintUnbacked",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "bytes32",
+          "name": "transferId",
+          "type": "bytes32"
+        },
+        {
+          "indexed": true,
+          "internalType": "address",
           "name": "to",
           "type": "address"
         },
@@ -610,8 +676,23 @@
                 },
                 {
                   "internalType": "address",
+                  "name": "agent",
+                  "type": "address"
+                },
+                {
+                  "internalType": "address",
                   "name": "recovery",
                   "type": "address"
+                },
+                {
+                  "internalType": "bool",
+                  "name": "forceSlow",
+                  "type": "bool"
+                },
+                {
+                  "internalType": "bool",
+                  "name": "receiveLocal",
+                  "type": "bool"
                 },
                 {
                   "internalType": "address",
@@ -624,14 +705,14 @@
                   "type": "uint256"
                 },
                 {
-                  "internalType": "bool",
-                  "name": "forceSlow",
-                  "type": "bool"
+                  "internalType": "uint256",
+                  "name": "relayerFee",
+                  "type": "uint256"
                 },
                 {
-                  "internalType": "bool",
-                  "name": "receiveLocal",
-                  "type": "bool"
+                  "internalType": "uint256",
+                  "name": "slippageTol",
+                  "type": "uint256"
                 }
               ],
               "internalType": "struct CallParams",
@@ -652,11 +733,6 @@
               "internalType": "bytes[]",
               "name": "routerSignatures",
               "type": "bytes[]"
-            },
-            {
-              "internalType": "uint256",
-              "name": "relayerFee",
-              "type": "uint256"
             },
             {
               "internalType": "uint256",
@@ -730,6 +806,37 @@
       "anonymous": false,
       "inputs": [
         {
+          "indexed": true,
+          "internalType": "bytes32",
+          "name": "transferId",
+          "type": "bytes32"
+        },
+        {
+          "indexed": true,
+          "internalType": "bytes32",
+          "name": "canonicalId",
+          "type": "bytes32"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint32",
+          "name": "canonicalDomain",
+          "type": "uint32"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "amount",
+          "type": "uint256"
+        }
+      ],
+      "name": "ForcedReceiveLocal",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
           "indexed": false,
           "internalType": "address",
           "name": "oldRouter",
@@ -749,49 +856,6 @@
         }
       ],
       "name": "PromiseRouterUpdated",
-      "type": "event"
-    },
-    {
-      "anonymous": false,
-      "inputs": [
-        {
-          "indexed": true,
-          "internalType": "bytes32",
-          "name": "transferId",
-          "type": "bytes32"
-        },
-        {
-          "indexed": true,
-          "internalType": "uint32",
-          "name": "origin",
-          "type": "uint32"
-        },
-        {
-          "indexed": false,
-          "internalType": "address[]",
-          "name": "routers",
-          "type": "address[]"
-        },
-        {
-          "indexed": false,
-          "internalType": "address",
-          "name": "asset",
-          "type": "address"
-        },
-        {
-          "indexed": false,
-          "internalType": "uint256",
-          "name": "amount",
-          "type": "uint256"
-        },
-        {
-          "indexed": false,
-          "internalType": "address",
-          "name": "caller",
-          "type": "address"
-        }
-      ],
-      "name": "Reconciled",
       "type": "event"
     },
     {
@@ -879,8 +943,23 @@
                 },
                 {
                   "internalType": "address",
+                  "name": "agent",
+                  "type": "address"
+                },
+                {
+                  "internalType": "address",
                   "name": "recovery",
                   "type": "address"
+                },
+                {
+                  "internalType": "bool",
+                  "name": "forceSlow",
+                  "type": "bool"
+                },
+                {
+                  "internalType": "bool",
+                  "name": "receiveLocal",
+                  "type": "bool"
                 },
                 {
                   "internalType": "address",
@@ -893,14 +972,14 @@
                   "type": "uint256"
                 },
                 {
-                  "internalType": "bool",
-                  "name": "forceSlow",
-                  "type": "bool"
+                  "internalType": "uint256",
+                  "name": "relayerFee",
+                  "type": "uint256"
                 },
                 {
-                  "internalType": "bool",
-                  "name": "receiveLocal",
-                  "type": "bool"
+                  "internalType": "uint256",
+                  "name": "slippageTol",
+                  "type": "uint256"
                 }
               ],
               "internalType": "struct CallParams",
@@ -915,11 +994,6 @@
             {
               "internalType": "uint256",
               "name": "amount",
-              "type": "uint256"
-            },
-            {
-              "internalType": "uint256",
-              "name": "relayerFee",
               "type": "uint256"
             }
           ],
@@ -979,6 +1053,19 @@
       "type": "event"
     },
     {
+      "inputs": [],
+      "name": "AAVE_REFERRAL_CODE",
+      "outputs": [
+        {
+          "internalType": "uint16",
+          "name": "",
+          "type": "uint16"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
       "inputs": [
         {
           "internalType": "bytes32",
@@ -996,9 +1083,9 @@
       "name": "domain",
       "outputs": [
         {
-          "internalType": "uint256",
+          "internalType": "uint32",
           "name": "",
-          "type": "uint256"
+          "type": "uint32"
         }
       ],
       "stateMutability": "view",
@@ -1032,8 +1119,23 @@
                 },
                 {
                   "internalType": "address",
+                  "name": "agent",
+                  "type": "address"
+                },
+                {
+                  "internalType": "address",
                   "name": "recovery",
                   "type": "address"
+                },
+                {
+                  "internalType": "bool",
+                  "name": "forceSlow",
+                  "type": "bool"
+                },
+                {
+                  "internalType": "bool",
+                  "name": "receiveLocal",
+                  "type": "bool"
                 },
                 {
                   "internalType": "address",
@@ -1046,14 +1148,14 @@
                   "type": "uint256"
                 },
                 {
-                  "internalType": "bool",
-                  "name": "forceSlow",
-                  "type": "bool"
+                  "internalType": "uint256",
+                  "name": "relayerFee",
+                  "type": "uint256"
                 },
                 {
-                  "internalType": "bool",
-                  "name": "receiveLocal",
-                  "type": "bool"
+                  "internalType": "uint256",
+                  "name": "slippageTol",
+                  "type": "uint256"
                 }
               ],
               "internalType": "struct CallParams",
@@ -1074,11 +1176,6 @@
               "internalType": "bytes[]",
               "name": "routerSignatures",
               "type": "bytes[]"
-            },
-            {
-              "internalType": "uint256",
-              "name": "relayerFee",
-              "type": "uint256"
             },
             {
               "internalType": "uint256",
@@ -1128,27 +1225,99 @@
     {
       "inputs": [
         {
-          "internalType": "uint32",
-          "name": "_origin",
-          "type": "uint32"
+          "components": [
+            {
+              "internalType": "address",
+              "name": "to",
+              "type": "address"
+            },
+            {
+              "internalType": "bytes",
+              "name": "callData",
+              "type": "bytes"
+            },
+            {
+              "internalType": "uint32",
+              "name": "originDomain",
+              "type": "uint32"
+            },
+            {
+              "internalType": "uint32",
+              "name": "destinationDomain",
+              "type": "uint32"
+            },
+            {
+              "internalType": "address",
+              "name": "agent",
+              "type": "address"
+            },
+            {
+              "internalType": "address",
+              "name": "recovery",
+              "type": "address"
+            },
+            {
+              "internalType": "bool",
+              "name": "forceSlow",
+              "type": "bool"
+            },
+            {
+              "internalType": "bool",
+              "name": "receiveLocal",
+              "type": "bool"
+            },
+            {
+              "internalType": "address",
+              "name": "callback",
+              "type": "address"
+            },
+            {
+              "internalType": "uint256",
+              "name": "callbackFee",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "relayerFee",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "slippageTol",
+              "type": "uint256"
+            }
+          ],
+          "internalType": "struct CallParams",
+          "name": "_params",
+          "type": "tuple"
         },
         {
-          "internalType": "uint32",
+          "internalType": "uint256",
+          "name": "_amount",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
           "name": "_nonce",
-          "type": "uint32"
+          "type": "uint256"
         },
         {
           "internalType": "bytes32",
-          "name": "_sender",
+          "name": "_canonicalId",
           "type": "bytes32"
         },
         {
-          "internalType": "bytes",
-          "name": "_message",
-          "type": "bytes"
+          "internalType": "uint32",
+          "name": "_canonicalDomain",
+          "type": "uint32"
+        },
+        {
+          "internalType": "address",
+          "name": "_originSender",
+          "type": "address"
         }
       ],
-      "name": "handle",
+      "name": "forceReceiveLocal",
       "outputs": [],
       "stateMutability": "nonpayable",
       "type": "function"
@@ -1316,8 +1485,23 @@
                 },
                 {
                   "internalType": "address",
+                  "name": "agent",
+                  "type": "address"
+                },
+                {
+                  "internalType": "address",
                   "name": "recovery",
                   "type": "address"
+                },
+                {
+                  "internalType": "bool",
+                  "name": "forceSlow",
+                  "type": "bool"
+                },
+                {
+                  "internalType": "bool",
+                  "name": "receiveLocal",
+                  "type": "bool"
                 },
                 {
                   "internalType": "address",
@@ -1330,14 +1514,14 @@
                   "type": "uint256"
                 },
                 {
-                  "internalType": "bool",
-                  "name": "forceSlow",
-                  "type": "bool"
+                  "internalType": "uint256",
+                  "name": "relayerFee",
+                  "type": "uint256"
                 },
                 {
-                  "internalType": "bool",
-                  "name": "receiveLocal",
-                  "type": "bool"
+                  "internalType": "uint256",
+                  "name": "slippageTol",
+                  "type": "uint256"
                 }
               ],
               "internalType": "struct CallParams",
@@ -1352,11 +1536,6 @@
             {
               "internalType": "uint256",
               "name": "amount",
-              "type": "uint256"
-            },
-            {
-              "internalType": "uint256",
-              "name": "relayerFee",
               "type": "uint256"
             }
           ],
@@ -1377,6 +1556,126 @@
       "type": "function"
     },
     {
+      "inputs": [],
+      "name": "NomadFacet__reconcile_alreadyReconciled",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "NomadFacet__reconcile_invalidAction",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "NomadFacet__reconcile_noPortalRouter",
+      "type": "error"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "bytes32",
+          "name": "transferId",
+          "type": "bytes32"
+        },
+        {
+          "indexed": false,
+          "internalType": "address",
+          "name": "asset",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "amount",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "fee",
+          "type": "uint256"
+        }
+      ],
+      "name": "AavePortalRepayment",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "bytes32",
+          "name": "transferId",
+          "type": "bytes32"
+        },
+        {
+          "indexed": false,
+          "internalType": "address",
+          "name": "asset",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "amount",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "fee",
+          "type": "uint256"
+        }
+      ],
+      "name": "AavePortalRepaymentDebt",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "bytes32",
+          "name": "transferId",
+          "type": "bytes32"
+        },
+        {
+          "indexed": true,
+          "internalType": "uint32",
+          "name": "origin",
+          "type": "uint32"
+        },
+        {
+          "indexed": false,
+          "internalType": "address[]",
+          "name": "routers",
+          "type": "address[]"
+        },
+        {
+          "indexed": false,
+          "internalType": "address",
+          "name": "asset",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "amount",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "internalType": "address",
+          "name": "caller",
+          "type": "address"
+        }
+      ],
+      "name": "Reconciled",
+      "type": "event"
+    },
+    {
       "inputs": [
         {
           "internalType": "uint32",
@@ -1390,6 +1689,34 @@
         }
       ],
       "name": "enrollRemoteRouter",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint32",
+          "name": "_origin",
+          "type": "uint32"
+        },
+        {
+          "internalType": "uint32",
+          "name": "_nonce",
+          "type": "uint32"
+        },
+        {
+          "internalType": "bytes32",
+          "name": "_sender",
+          "type": "bytes32"
+        },
+        {
+          "internalType": "bytes",
+          "name": "_message",
+          "type": "bytes"
+        }
+      ],
+      "name": "handle",
       "outputs": [],
       "stateMutability": "nonpayable",
       "type": "function"
@@ -1574,6 +1901,12 @@
     },
     {
       "anonymous": false,
+      "inputs": [],
+      "name": "Paused",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
       "inputs": [
         {
           "indexed": false,
@@ -1599,10 +1932,29 @@
       "type": "event"
     },
     {
+      "anonymous": false,
+      "inputs": [],
+      "name": "Unpaused",
+      "type": "event"
+    },
+    {
       "inputs": [],
       "name": "acceptProposedOwner",
       "outputs": [],
       "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "assetOwnershipRenounced",
+      "outputs": [
+        {
+          "internalType": "bool",
+          "name": "",
+          "type": "bool"
+        }
+      ],
+      "stateMutability": "view",
       "type": "function"
     },
     {
@@ -1628,7 +1980,7 @@
           "type": "uint256"
         }
       ],
-      "stateMutability": "view",
+      "stateMutability": "pure",
       "type": "function"
     },
     {
@@ -1642,6 +1994,13 @@
         }
       ],
       "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "pause",
+      "outputs": [],
+      "stateMutability": "nonpayable",
       "type": "function"
     },
     {
@@ -1733,6 +2092,19 @@
     },
     {
       "inputs": [],
+      "name": "routerOwnershipRenounced",
+      "outputs": [
+        {
+          "internalType": "bool",
+          "name": "",
+          "type": "bool"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
       "name": "routerOwnershipTimestamp",
       "outputs": [
         {
@@ -1746,7 +2118,19 @@
     },
     {
       "inputs": [],
+      "name": "unpause",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [],
       "name": "RelayerFacet__addRelayer_alreadyApproved",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "RelayerFacet__initiateClaim_emptyClaim",
       "type": "error"
     },
     {
@@ -2052,6 +2436,16 @@
     },
     {
       "inputs": [],
+      "name": "RoutersFacet__approveRouterForPortal_alreadyApproved",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "RoutersFacet__approveRouterForPortal_notAdded",
+      "type": "error"
+    },
+    {
+      "inputs": [],
       "name": "RoutersFacet__onlyProposedRouterOwner_notProposedRouterOwner",
       "type": "error"
     },
@@ -2073,6 +2467,11 @@
     {
       "inputs": [],
       "name": "RoutersFacet__proposeRouterOwner_notNewOwner",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "RoutersFacet__removeRouterLiquidityFor_notOwner",
       "type": "error"
     },
     {
@@ -2102,6 +2501,11 @@
     },
     {
       "inputs": [],
+      "name": "RoutersFacet__setLiquidityFeeNumerator_tooLarge",
+      "type": "error"
+    },
+    {
+      "inputs": [],
       "name": "RoutersFacet__setLiquidityFeeNumerator_tooSmall",
       "type": "error"
     },
@@ -2123,6 +2527,11 @@
     {
       "inputs": [],
       "name": "RoutersFacet__setupRouter_routerEmpty",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "RoutersFacet__unapproveRouterForPortal_notApproved",
       "type": "error"
     },
     {
@@ -2180,6 +2589,25 @@
         }
       ],
       "name": "RouterAdded",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": false,
+          "internalType": "address",
+          "name": "router",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "internalType": "address",
+          "name": "caller",
+          "type": "address"
+        }
+      ],
+      "name": "RouterApprovedForPortal",
       "type": "event"
     },
     {
@@ -2351,6 +2779,25 @@
       "type": "event"
     },
     {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": false,
+          "internalType": "address",
+          "name": "router",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "internalType": "address",
+          "name": "caller",
+          "type": "address"
+        }
+      ],
+      "name": "RouterUnapprovedForPortal",
+      "type": "event"
+    },
+    {
       "inputs": [],
       "name": "LIQUIDITY_FEE_DENOMINATOR",
       "outputs": [
@@ -2438,6 +2885,19 @@
           "type": "address"
         }
       ],
+      "name": "approveRouterForPortal",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "_router",
+          "type": "address"
+        }
+      ],
       "name": "getProposedRouterOwner",
       "outputs": [
         {
@@ -2477,6 +2937,25 @@
         }
       ],
       "name": "getRouterApproval",
+      "outputs": [
+        {
+          "internalType": "bool",
+          "name": "",
+          "type": "bool"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "_router",
+          "type": "address"
+        }
+      ],
+      "name": "getRouterApprovalForPortal",
       "outputs": [
         {
           "internalType": "bool",
@@ -2595,6 +3074,34 @@
     {
       "inputs": [
         {
+          "internalType": "uint256",
+          "name": "_amount",
+          "type": "uint256"
+        },
+        {
+          "internalType": "address",
+          "name": "_local",
+          "type": "address"
+        },
+        {
+          "internalType": "address payable",
+          "name": "_to",
+          "type": "address"
+        },
+        {
+          "internalType": "address",
+          "name": "_router",
+          "type": "address"
+        }
+      ],
+      "name": "removeRouterLiquidityFor",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
           "internalType": "address",
           "name": "_router",
           "type": "address"
@@ -2684,6 +3191,19 @@
       "type": "function"
     },
     {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "_router",
+          "type": "address"
+        }
+      ],
+      "name": "unapproveRouterForPortal",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
       "inputs": [],
       "name": "StableSwapFacet__deadlineCheck_deadlineNotMet",
       "type": "error"
@@ -2701,56 +3221,6 @@
     {
       "inputs": [],
       "name": "StableSwapFacet__getSwapToken_outOfRange",
-      "type": "error"
-    },
-    {
-      "inputs": [],
-      "name": "StableSwapFacet__initializeSwap_aExceedMax",
-      "type": "error"
-    },
-    {
-      "inputs": [],
-      "name": "StableSwapFacet__initializeSwap_adminFeeExceedMax",
-      "type": "error"
-    },
-    {
-      "inputs": [],
-      "name": "StableSwapFacet__initializeSwap_alreadyInitialized",
-      "type": "error"
-    },
-    {
-      "inputs": [],
-      "name": "StableSwapFacet__initializeSwap_decimalsMismatch",
-      "type": "error"
-    },
-    {
-      "inputs": [],
-      "name": "StableSwapFacet__initializeSwap_duplicateTokens",
-      "type": "error"
-    },
-    {
-      "inputs": [],
-      "name": "StableSwapFacet__initializeSwap_failedInitLpTokenClone",
-      "type": "error"
-    },
-    {
-      "inputs": [],
-      "name": "StableSwapFacet__initializeSwap_feeExceedMax",
-      "type": "error"
-    },
-    {
-      "inputs": [],
-      "name": "StableSwapFacet__initializeSwap_invalidPooledTokens",
-      "type": "error"
-    },
-    {
-      "inputs": [],
-      "name": "StableSwapFacet__initializeSwap_tokenDecimalsExceedMax",
-      "type": "error"
-    },
-    {
-      "inputs": [],
-      "name": "StableSwapFacet__initializeSwap_zeroTokenAddress",
       "type": "error"
     },
     {
@@ -3045,6 +3515,11 @@
               "internalType": "uint256[]",
               "name": "balances",
               "type": "uint256[]"
+            },
+            {
+              "internalType": "uint256[]",
+              "name": "adminFees",
+              "type": "uint256[]"
             }
           ],
           "internalType": "struct SwapUtils.Swap",
@@ -3144,82 +3619,6 @@
         }
       ],
       "stateMutability": "view",
-      "type": "function"
-    },
-    {
-      "inputs": [
-        {
-          "internalType": "bytes32",
-          "name": "_canonicalId",
-          "type": "bytes32"
-        },
-        {
-          "internalType": "contract IERC20[]",
-          "name": "_pooledTokens",
-          "type": "address[]"
-        },
-        {
-          "internalType": "uint8[]",
-          "name": "decimals",
-          "type": "uint8[]"
-        },
-        {
-          "internalType": "string",
-          "name": "lpTokenName",
-          "type": "string"
-        },
-        {
-          "internalType": "string",
-          "name": "lpTokenSymbol",
-          "type": "string"
-        },
-        {
-          "internalType": "uint256",
-          "name": "_a",
-          "type": "uint256"
-        },
-        {
-          "internalType": "uint256",
-          "name": "_fee",
-          "type": "uint256"
-        },
-        {
-          "internalType": "uint256",
-          "name": "_adminFee",
-          "type": "uint256"
-        },
-        {
-          "internalType": "address",
-          "name": "lpTokenTargetAddress",
-          "type": "address"
-        }
-      ],
-      "name": "initializeSwap",
-      "outputs": [],
-      "stateMutability": "nonpayable",
-      "type": "function"
-    },
-    {
-      "inputs": [
-        {
-          "internalType": "bytes32",
-          "name": "canonicalId",
-          "type": "bytes32"
-        },
-        {
-          "internalType": "uint256",
-          "name": "futureA",
-          "type": "uint256"
-        },
-        {
-          "internalType": "uint256",
-          "name": "futureTime",
-          "type": "uint256"
-        }
-      ],
-      "name": "rampA",
-      "outputs": [],
-      "stateMutability": "nonpayable",
       "type": "function"
     },
     {
@@ -3337,55 +3736,6 @@
           "type": "bytes32"
         },
         {
-          "internalType": "uint256",
-          "name": "newAdminFee",
-          "type": "uint256"
-        }
-      ],
-      "name": "setSwapAdminFee",
-      "outputs": [],
-      "stateMutability": "nonpayable",
-      "type": "function"
-    },
-    {
-      "inputs": [
-        {
-          "internalType": "bytes32",
-          "name": "canonicalId",
-          "type": "bytes32"
-        },
-        {
-          "internalType": "uint256",
-          "name": "newSwapFee",
-          "type": "uint256"
-        }
-      ],
-      "name": "setSwapFee",
-      "outputs": [],
-      "stateMutability": "nonpayable",
-      "type": "function"
-    },
-    {
-      "inputs": [
-        {
-          "internalType": "bytes32",
-          "name": "canonicalId",
-          "type": "bytes32"
-        }
-      ],
-      "name": "stopRampA",
-      "outputs": [],
-      "stateMutability": "nonpayable",
-      "type": "function"
-    },
-    {
-      "inputs": [
-        {
-          "internalType": "bytes32",
-          "name": "canonicalId",
-          "type": "bytes32"
-        },
-        {
           "internalType": "uint8",
           "name": "tokenIndexFrom",
           "type": "uint8"
@@ -3472,11 +3822,444 @@
           "internalType": "bytes32",
           "name": "canonicalId",
           "type": "bytes32"
+        },
+        {
+          "internalType": "uint256",
+          "name": "amountOut",
+          "type": "uint256"
+        },
+        {
+          "internalType": "address",
+          "name": "assetIn",
+          "type": "address"
+        },
+        {
+          "internalType": "address",
+          "name": "assetOut",
+          "type": "address"
+        },
+        {
+          "internalType": "uint256",
+          "name": "maxAmountIn",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "deadline",
+          "type": "uint256"
+        }
+      ],
+      "name": "swapExactOut",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "payable",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "SwapAdminFacet__initializeSwap_aExceedMax",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "SwapAdminFacet__initializeSwap_adminFeeExceedMax",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "SwapAdminFacet__initializeSwap_alreadyInitialized",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "SwapAdminFacet__initializeSwap_decimalsMismatch",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "SwapAdminFacet__initializeSwap_duplicateTokens",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "SwapAdminFacet__initializeSwap_failedInitLpTokenClone",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "SwapAdminFacet__initializeSwap_feeExceedMax",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "SwapAdminFacet__initializeSwap_invalidPooledTokens",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "SwapAdminFacet__initializeSwap_tokenDecimalsExceedMax",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "SwapAdminFacet__initializeSwap_zeroTokenAddress",
+      "type": "error"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "bytes32",
+          "name": "canonicalId",
+          "type": "bytes32"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "newAdminFee",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "internalType": "address",
+          "name": "caller",
+          "type": "address"
+        }
+      ],
+      "name": "AdminFeesSet",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "bytes32",
+          "name": "canonicalId",
+          "type": "bytes32"
+        },
+        {
+          "indexed": false,
+          "internalType": "address",
+          "name": "caller",
+          "type": "address"
+        }
+      ],
+      "name": "AdminFeesWithdrawn",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "bytes32",
+          "name": "canonicalId",
+          "type": "bytes32"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "futureA",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "futureTime",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "internalType": "address",
+          "name": "caller",
+          "type": "address"
+        }
+      ],
+      "name": "RampAStarted",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "bytes32",
+          "name": "canonicalId",
+          "type": "bytes32"
+        },
+        {
+          "indexed": false,
+          "internalType": "address",
+          "name": "caller",
+          "type": "address"
+        }
+      ],
+      "name": "RampAStopped",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "bytes32",
+          "name": "canonicalId",
+          "type": "bytes32"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "newSwapFee",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "internalType": "address",
+          "name": "caller",
+          "type": "address"
+        }
+      ],
+      "name": "SwapFeesSet",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "bytes32",
+          "name": "canonicalId",
+          "type": "bytes32"
+        },
+        {
+          "components": [
+            {
+              "internalType": "uint256",
+              "name": "initialA",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "futureA",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "initialATime",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "futureATime",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "swapFee",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "adminFee",
+              "type": "uint256"
+            },
+            {
+              "internalType": "contract LPToken",
+              "name": "lpToken",
+              "type": "address"
+            },
+            {
+              "internalType": "contract IERC20[]",
+              "name": "pooledTokens",
+              "type": "address[]"
+            },
+            {
+              "internalType": "uint256[]",
+              "name": "tokenPrecisionMultipliers",
+              "type": "uint256[]"
+            },
+            {
+              "internalType": "uint256[]",
+              "name": "balances",
+              "type": "uint256[]"
+            },
+            {
+              "internalType": "uint256[]",
+              "name": "adminFees",
+              "type": "uint256[]"
+            }
+          ],
+          "indexed": false,
+          "internalType": "struct SwapUtils.Swap",
+          "name": "swap",
+          "type": "tuple"
+        },
+        {
+          "indexed": false,
+          "internalType": "address",
+          "name": "caller",
+          "type": "address"
+        }
+      ],
+      "name": "SwapInitialized",
+      "type": "event"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "bytes32",
+          "name": "_canonicalId",
+          "type": "bytes32"
+        },
+        {
+          "internalType": "contract IERC20[]",
+          "name": "_pooledTokens",
+          "type": "address[]"
+        },
+        {
+          "internalType": "uint8[]",
+          "name": "decimals",
+          "type": "uint8[]"
+        },
+        {
+          "internalType": "string",
+          "name": "lpTokenName",
+          "type": "string"
+        },
+        {
+          "internalType": "string",
+          "name": "lpTokenSymbol",
+          "type": "string"
+        },
+        {
+          "internalType": "uint256",
+          "name": "_a",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "_fee",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "_adminFee",
+          "type": "uint256"
+        },
+        {
+          "internalType": "address",
+          "name": "lpTokenTargetAddress",
+          "type": "address"
+        }
+      ],
+      "name": "initializeSwap",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "bytes32",
+          "name": "canonicalId",
+          "type": "bytes32"
+        },
+        {
+          "internalType": "uint256",
+          "name": "futureA",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "futureTime",
+          "type": "uint256"
+        }
+      ],
+      "name": "rampA",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "bytes32",
+          "name": "canonicalId",
+          "type": "bytes32"
+        },
+        {
+          "internalType": "uint256",
+          "name": "newAdminFee",
+          "type": "uint256"
+        }
+      ],
+      "name": "setSwapAdminFee",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "bytes32",
+          "name": "canonicalId",
+          "type": "bytes32"
+        },
+        {
+          "internalType": "uint256",
+          "name": "newSwapFee",
+          "type": "uint256"
+        }
+      ],
+      "name": "setSwapFee",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "bytes32",
+          "name": "canonicalId",
+          "type": "bytes32"
+        }
+      ],
+      "name": "stopRampA",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "bytes32",
+          "name": "canonicalId",
+          "type": "bytes32"
         }
       ],
       "name": "withdrawSwapAdminFees",
       "outputs": [],
       "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "VERSION",
+      "outputs": [
+        {
+          "internalType": "uint8",
+          "name": "",
+          "type": "uint8"
+        }
+      ],
+      "stateMutability": "pure",
       "type": "function"
     },
     {
@@ -3564,6 +4347,86 @@
     {
       "inputs": [
         {
+          "components": [
+            {
+              "internalType": "address",
+              "name": "facetAddress",
+              "type": "address"
+            },
+            {
+              "internalType": "enum IDiamondCut.FacetCutAction",
+              "name": "action",
+              "type": "uint8"
+            },
+            {
+              "internalType": "bytes4[]",
+              "name": "functionSelectors",
+              "type": "bytes4[]"
+            }
+          ],
+          "internalType": "struct IDiamondCut.FacetCut[]",
+          "name": "_diamondCut",
+          "type": "tuple[]"
+        },
+        {
+          "internalType": "address",
+          "name": "_init",
+          "type": "address"
+        },
+        {
+          "internalType": "bytes",
+          "name": "_calldata",
+          "type": "bytes"
+        }
+      ],
+      "name": "proposeDiamondCut",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "components": [
+            {
+              "internalType": "address",
+              "name": "facetAddress",
+              "type": "address"
+            },
+            {
+              "internalType": "enum IDiamondCut.FacetCutAction",
+              "name": "action",
+              "type": "uint8"
+            },
+            {
+              "internalType": "bytes4[]",
+              "name": "functionSelectors",
+              "type": "bytes4[]"
+            }
+          ],
+          "internalType": "struct IDiamondCut.FacetCut[]",
+          "name": "_diamondCut",
+          "type": "tuple[]"
+        },
+        {
+          "internalType": "address",
+          "name": "_init",
+          "type": "address"
+        },
+        {
+          "internalType": "bytes",
+          "name": "_calldata",
+          "type": "bytes"
+        }
+      ],
+      "name": "rescindDiamondCut",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
           "internalType": "bytes4",
           "name": "_functionSelector",
           "type": "bytes4"
@@ -3638,46 +4501,46 @@
       "type": "function"
     }
   ],
-  "transactionHash": "0x90bd7a765792b59ee056343b03fa4d8c1d19733bf65cf784d6ec4561ff056dfe",
+  "transactionHash": "0x20b8a6504af6e35aeb064ba8923b4c54e2153cc8936996814532bb66ad741e81",
   "receipt": {
     "to": null,
     "from": "0x54BAA998771639628ffC0206c3b916c466b79c89",
-    "contractAddress": "0xEC3A723DE47a644b901DC269829bf8718F175EBF",
-    "transactionIndex": 16,
-    "gasUsed": "6641363",
-    "logsBloom": "0x00000000000000000000000000000000000010000000000000800000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000401000001000000000800000000000000000000020000000000000000000800000000000008000010000000000000400020000000000000000000000000000000000000000000000000000000000000000020000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000080000000020000000000000000000000000000000000000000000000000000000000000000000",
-    "blockHash": "0xf61de1d11199051d1134af6572e3508d2409412c88e304b1295d410c422aee0d",
-    "transactionHash": "0x90bd7a765792b59ee056343b03fa4d8c1d19733bf65cf784d6ec4561ff056dfe",
+    "contractAddress": "0x6c9a905Ab3f4495E2b47f5cA131ab71281E0546e",
+    "transactionIndex": 3,
+    "gasUsed": "7342280",
+    "logsBloom": "0x00000000000000000000000000000000000010000000000000800000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000401000001000000000800000000000000000000020000000000000000000800000000000000000000000000000000400020000000000000000000000000000000000000000000000000000000000000000000000000100000000000000000000000000000000000000000000000000000000000000000000000000000000000000040000000000000080000000020000000000000004000000000000000000000000000000000000000000000000000",
+    "blockHash": "0x4c3dea233f11c8e2dce24036ee3bac15a5987f9e54bf3e888d97c00312c8dc85",
+    "transactionHash": "0x20b8a6504af6e35aeb064ba8923b4c54e2153cc8936996814532bb66ad741e81",
     "logs": [
       {
-        "transactionIndex": 16,
-        "blockNumber": 6939503,
-        "transactionHash": "0x90bd7a765792b59ee056343b03fa4d8c1d19733bf65cf784d6ec4561ff056dfe",
-        "address": "0xEC3A723DE47a644b901DC269829bf8718F175EBF",
+        "transactionIndex": 3,
+        "blockNumber": 7192755,
+        "transactionHash": "0x20b8a6504af6e35aeb064ba8923b4c54e2153cc8936996814532bb66ad741e81",
+        "address": "0x6c9a905Ab3f4495E2b47f5cA131ab71281E0546e",
         "topics": [
           "0x8be0079c531659141344cd1fd0a4f28419497f9722a3daafe3b4186f6b6457e0",
           "0x0000000000000000000000000000000000000000000000000000000000000000",
           "0x00000000000000000000000054baa998771639628ffc0206c3b916c466b79c89"
         ],
         "data": "0x",
-        "logIndex": 9,
-        "blockHash": "0xf61de1d11199051d1134af6572e3508d2409412c88e304b1295d410c422aee0d"
+        "logIndex": 2,
+        "blockHash": "0x4c3dea233f11c8e2dce24036ee3bac15a5987f9e54bf3e888d97c00312c8dc85"
       },
       {
-        "transactionIndex": 16,
-        "blockNumber": 6939503,
-        "transactionHash": "0x90bd7a765792b59ee056343b03fa4d8c1d19733bf65cf784d6ec4561ff056dfe",
-        "address": "0xEC3A723DE47a644b901DC269829bf8718F175EBF",
+        "transactionIndex": 3,
+        "blockNumber": 7192755,
+        "transactionHash": "0x20b8a6504af6e35aeb064ba8923b4c54e2153cc8936996814532bb66ad741e81",
+        "address": "0x6c9a905Ab3f4495E2b47f5cA131ab71281E0546e",
         "topics": [
           "0x8faa70878671ccd212d20771b795c50af8fd3ff6cf27f4bde57e5d4de0aeb673"
         ],
-        "data": "0x0000000000000000000000000000000000000000000000000000000000000060000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000012c00000000000000000000000000000000000000000000000000000000000000009000000000000000000000000000000000000000000000000000000000000012000000000000000000000000000000000000000000000000000000000000003000000000000000000000000000000000000000000000000000000000000000560000000000000000000000000000000000000000000000000000000000000066000000000000000000000000000000000000000000000000000000000000008a00000000000000000000000000000000000000000000000000000000000000a200000000000000000000000000000000000000000000000000000000000000d0000000000000000000000000000000000000000000000000000000000000010a00000000000000000000000000000000000000000000000000000000000001140000000000000000000000000fa6f8438ed938390b99860a2af995db3faf1f41a00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000060000000000000000000000000000000000000000000000000000000000000000b1506e463000000000000000000000000000000000000000000000000000000006006209100000000000000000000000000000000000000000000000000000000bd7e1e2e0000000000000000000000000000000000000000000000000000000057bd0a32000000000000000000000000000000000000000000000000000000002c1999d000000000000000000000000000000000000000000000000000000000ea7a904d0000000000000000000000000000000000000000000000000000000035a5af9200000000000000000000000000000000000000000000000000000000c2167d9300000000000000000000000000000000000000000000000000000000569d29e4000000000000000000000000000000000000000000000000000000009d23c4c700000000000000000000000000000000000000000000000000000000ac210cc7000000000000000000000000000000000000000000000000000000000000000000000000000000006fcdbba79f9d2c36cc5929f353a11159528edaa600000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000060000000000000000000000000000000000000000000000000000000000000000f2424401f00000000000000000000000000000000000000000000000000000000c2fb26a600000000000000000000000000000000000000000000000000000000f0d6a92400000000000000000000000000000000000000000000000000000000c34c08e500000000000000000000000000000000000000000000000000000000ab2dc3f500000000000000000000000000000000000000000000000000000000affed0e00000000000000000000000000000000000000000000000000000000072dbadfc00000000000000000000000000000000000000000000000000000000c26c9c0a000000000000000000000000000000000000000000000000000000009b098908000000000000000000000000000000000000000000000000000000001a8bc0e1000000000000000000000000000000000000000000000000000000001c3c0ea800000000000000000000000000000000000000000000000000000000a142d649000000000000000000000000000000000000000000000000000000001aebfe1800000000000000000000000000000000000000000000000000000000bb280400000000000000000000000000000000000000000000000000000000004156a8830000000000000000000000000000000000000000000000000000000000000000000000000000000046df6d05cc6777c9ba082b84f5c1ea501401de83000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000600000000000000000000000000000000000000000000000000000000000000004b49c53a70000000000000000000000000000000000000000000000000000000083bbb8060000000000000000000000000000000000000000000000000000000041bdc8b5000000000000000000000000000000000000000000000000000000003339df9600000000000000000000000000000000000000000000000000000000000000000000000000000000cbda54f90dded46e42c49c938e98a197bef814e000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000060000000000000000000000000000000000000000000000000000000000000000ec5b350df000000000000000000000000000000000000000000000000000000006a41633a000000000000000000000000000000000000000000000000000000006a42b8f8000000000000000000000000000000000000000000000000000000008da5cb5b000000000000000000000000000000000000000000000000000000008741eac500000000000000000000000000000000000000000000000000000000b1f8100d00000000000000000000000000000000000000000000000000000000e47602f700000000000000000000000000000000000000000000000000000000d1851c92000000000000000000000000000000000000000000000000000000003cf52ffb000000000000000000000000000000000000000000000000000000003855b46700000000000000000000000000000000000000000000000000000000715018a600000000000000000000000000000000000000000000000000000000c0c17baf00000000000000000000000000000000000000000000000000000000d232c22000000000000000000000000000000000000000000000000000000000c1a0495900000000000000000000000000000000000000000000000000000000000000000000000000000000dae764ba34db7a352f22bff8cc0e856724abde36000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000600000000000000000000000000000000000000000000000000000000000000008dd39f00d000000000000000000000000000000000000000000000000000000008cba8b6a00000000000000000000000000000000000000000000000000000000d7aada8100000000000000000000000000000000000000000000000000000000468f666800000000000000000000000000000000000000000000000000000000cf9737690000000000000000000000000000000000000000000000000000000060f0a5ac0000000000000000000000000000000000000000000000000000000024fc7a3100000000000000000000000000000000000000000000000000000000f40fec5200000000000000000000000000000000000000000000000000000000000000000000000000000000a07c1f0b9607dd2f1d5f48793b18b3fcbbd10c720000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000006000000000000000000000000000000000000000000000000000000000000000134b72c5da000000000000000000000000000000000000000000000000000000000951d6d80000000000000000000000000000000000000000000000000000000009935b8f0000000000000000000000000000000000000000000000000000000054064594000000000000000000000000000000000000000000000000000000002d3f9ef6000000000000000000000000000000000000000000000000000000003b688da60000000000000000000000000000000000000000000000000000000012d57170000000000000000000000000000000000000000000000000000000001407093b00000000000000000000000000000000000000000000000000000000e9160f3e00000000000000000000000000000000000000000000000000000000c6bf691d000000000000000000000000000000000000000000000000000000009bf6d8750000000000000000000000000000000000000000000000000000000022a3c007000000000000000000000000000000000000000000000000000000006ae0b15400000000000000000000000000000000000000000000000000000000899962a10000000000000000000000000000000000000000000000000000000041258b5c00000000000000000000000000000000000000000000000000000000582c78d2000000000000000000000000000000000000000000000000000000008290471600000000000000000000000000000000000000000000000000000000ffaf3f1a00000000000000000000000000000000000000000000000000000000eb492f44000000000000000000000000000000000000000000000000000000000000000000000000000000006dac844b4ab2284bc6b12bee5c06258a00a8f9b50000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000006000000000000000000000000000000000000000000000000000000000000000198d36545700000000000000000000000000000000000000000000000000000000a02288f40000000000000000000000000000000000000000000000000000000029d99b10000000000000000000000000000000000000000000000000000000008f11d27f0000000000000000000000000000000000000000000000000000000076ca2e5200000000000000000000000000000000000000000000000000000000d251dc35000000000000000000000000000000000000000000000000000000007652f59d000000000000000000000000000000000000000000000000000000001301caa2000000000000000000000000000000000000000000000000000000008b480b12000000000000000000000000000000000000000000000000000000002d91a51500000000000000000000000000000000000000000000000000000000b3a4eab400000000000000000000000000000000000000000000000000000000bb0577eb00000000000000000000000000000000000000000000000000000000ad94911b00000000000000000000000000000000000000000000000000000000f495e8070000000000000000000000000000000000000000000000000000000047555ef6000000000000000000000000000000000000000000000000000000001963e426000000000000000000000000000000000000000000000000000000004bbcba8e00000000000000000000000000000000000000000000000000000000241ca57a00000000000000000000000000000000000000000000000000000000b6618dff000000000000000000000000000000000000000000000000000000009c8eab970000000000000000000000000000000000000000000000000000000043be5eaf0000000000000000000000000000000000000000000000000000000072a30e0800000000000000000000000000000000000000000000000000000000ff126de90000000000000000000000000000000000000000000000000000000080b297e800000000000000000000000000000000000000000000000000000000a1a23c2900000000000000000000000000000000000000000000000000000000000000000000000000000000429dbde7913c0ed51e4b21163760b92ee66ff5f50000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000006000000000000000000000000000000000000000000000000000000000000000011f931c1c0000000000000000000000000000000000000000000000000000000000000000000000000000000051d21e284392bb7f652a47a6feff514071673b3e000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000600000000000000000000000000000000000000000000000000000000000000004cdffacc60000000000000000000000000000000000000000000000000000000052ef6b2c00000000000000000000000000000000000000000000000000000000adfca15e000000000000000000000000000000000000000000000000000000007a0ed627000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
-        "logIndex": 10,
-        "blockHash": "0xf61de1d11199051d1134af6572e3508d2409412c88e304b1295d410c422aee0d"
+        "data": "0x0000000000000000000000000000000000000000000000000000000000000060000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000015c0000000000000000000000000000000000000000000000000000000000000000b0000000000000000000000000000000000000000000000000000000000000160000000000000000000000000000000000000000000000000000000000000034000000000000000000000000000000000000000000000000000000000000005c000000000000000000000000000000000000000000000000000000000000006e000000000000000000000000000000000000000000000000000000000000009a00000000000000000000000000000000000000000000000000000000000000b200000000000000000000000000000000000000000000000000000000000000e80000000000000000000000000000000000000000000000000000000000000118000000000000000000000000000000000000000000000000000000000000012c0000000000000000000000000000000000000000000000000000000000000136000000000000000000000000000000000000000000000000000000000000014400000000000000000000000006f50aa1afa53071e62f0456cae6190a71a79c51400000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000060000000000000000000000000000000000000000000000000000000000000000b1506e463000000000000000000000000000000000000000000000000000000006006209100000000000000000000000000000000000000000000000000000000bd7e1e2e0000000000000000000000000000000000000000000000000000000057bd0a32000000000000000000000000000000000000000000000000000000002c1999d000000000000000000000000000000000000000000000000000000000ea7a904d0000000000000000000000000000000000000000000000000000000035a5af9200000000000000000000000000000000000000000000000000000000c2167d9300000000000000000000000000000000000000000000000000000000569d29e4000000000000000000000000000000000000000000000000000000009d23c4c700000000000000000000000000000000000000000000000000000000ac210cc700000000000000000000000000000000000000000000000000000000000000000000000000000000b8e6c0a67f970b2870e6b504c214b8b33b10680c00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000060000000000000000000000000000000000000000000000000000000000000001005a363de000000000000000000000000000000000000000000000000000000002424401f00000000000000000000000000000000000000000000000000000000c2fb26a600000000000000000000000000000000000000000000000000000000c3ecd72800000000000000000000000000000000000000000000000000000000c34c08e500000000000000000000000000000000000000000000000000000000c230f94700000000000000000000000000000000000000000000000000000000affed0e00000000000000000000000000000000000000000000000000000000072dbadfc00000000000000000000000000000000000000000000000000000000c26c9c0a000000000000000000000000000000000000000000000000000000009b098908000000000000000000000000000000000000000000000000000000001a8bc0e1000000000000000000000000000000000000000000000000000000001c3c0ea800000000000000000000000000000000000000000000000000000000a142d649000000000000000000000000000000000000000000000000000000001aebfe1800000000000000000000000000000000000000000000000000000000bb280400000000000000000000000000000000000000000000000000000000006c0636a100000000000000000000000000000000000000000000000000000000000000000000000000000000d791a298e4fa4882bdcf31f03af1f8147de331f8000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000600000000000000000000000000000000000000000000000000000000000000005b49c53a700000000000000000000000000000000000000000000000000000000ab2dc3f50000000000000000000000000000000000000000000000000000000083bbb8060000000000000000000000000000000000000000000000000000000041bdc8b5000000000000000000000000000000000000000000000000000000003339df9600000000000000000000000000000000000000000000000000000000000000000000000000000000c4bb68c358465306bf1ce539aa8c7fbe116b6f6e000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000600000000000000000000000000000000000000000000000000000000000000012c5b350df00000000000000000000000000000000000000000000000000000000384ce933000000000000000000000000000000000000000000000000000000006a41633a000000000000000000000000000000000000000000000000000000006a42b8f8000000000000000000000000000000000000000000000000000000008da5cb5b000000000000000000000000000000000000000000000000000000008456cb59000000000000000000000000000000000000000000000000000000008741eac500000000000000000000000000000000000000000000000000000000b1f8100d00000000000000000000000000000000000000000000000000000000e47602f700000000000000000000000000000000000000000000000000000000d1851c92000000000000000000000000000000000000000000000000000000003cf52ffb000000000000000000000000000000000000000000000000000000003855b46700000000000000000000000000000000000000000000000000000000715018a600000000000000000000000000000000000000000000000000000000c0c17baf00000000000000000000000000000000000000000000000000000000d232c22000000000000000000000000000000000000000000000000000000000c958c9ba00000000000000000000000000000000000000000000000000000000c1a04959000000000000000000000000000000000000000000000000000000003f4ba83a00000000000000000000000000000000000000000000000000000000000000000000000000000000d5b54774480646e6921220a3bf8caa361337e1d4000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000600000000000000000000000000000000000000000000000000000000000000008dd39f00d000000000000000000000000000000000000000000000000000000008cba8b6a00000000000000000000000000000000000000000000000000000000d7aada8100000000000000000000000000000000000000000000000000000000468f666800000000000000000000000000000000000000000000000000000000cf9737690000000000000000000000000000000000000000000000000000000060f0a5ac0000000000000000000000000000000000000000000000000000000024fc7a3100000000000000000000000000000000000000000000000000000000f40fec520000000000000000000000000000000000000000000000000000000000000000000000000000000046dfbde872c67975544286bc8a9a3ba012eb9d860000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000006000000000000000000000000000000000000000000000000000000000000000174b72c5da000000000000000000000000000000000000000000000000000000000951d6d80000000000000000000000000000000000000000000000000000000009935b8f0000000000000000000000000000000000000000000000000000000054064594000000000000000000000000000000000000000000000000000000002d3f9ef600000000000000000000000000000000000000000000000000000000da3a892f000000000000000000000000000000000000000000000000000000003b688da60000000000000000000000000000000000000000000000000000000012d57170000000000000000000000000000000000000000000000000000000001407093b000000000000000000000000000000000000000000000000000000008770e68200000000000000000000000000000000000000000000000000000000e9160f3e00000000000000000000000000000000000000000000000000000000c6bf691d000000000000000000000000000000000000000000000000000000009bf6d8750000000000000000000000000000000000000000000000000000000022a3c007000000000000000000000000000000000000000000000000000000006ae0b15400000000000000000000000000000000000000000000000000000000899962a100000000000000000000000000000000000000000000000000000000197c139d0000000000000000000000000000000000000000000000000000000041258b5c00000000000000000000000000000000000000000000000000000000582c78d2000000000000000000000000000000000000000000000000000000008290471600000000000000000000000000000000000000000000000000000000ffaf3f1a00000000000000000000000000000000000000000000000000000000eb492f440000000000000000000000000000000000000000000000000000000004376ff4000000000000000000000000000000000000000000000000000000000000000000000000000000009291fcd5cb87085e57b561db688d4451e2d592830000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000006000000000000000000000000000000000000000000000000000000000000000148d36545700000000000000000000000000000000000000000000000000000000a02288f40000000000000000000000000000000000000000000000000000000029d99b10000000000000000000000000000000000000000000000000000000008f11d27f0000000000000000000000000000000000000000000000000000000076ca2e5200000000000000000000000000000000000000000000000000000000d251dc35000000000000000000000000000000000000000000000000000000007652f59d000000000000000000000000000000000000000000000000000000001301caa2000000000000000000000000000000000000000000000000000000008b480b12000000000000000000000000000000000000000000000000000000002d91a51500000000000000000000000000000000000000000000000000000000b3a4eab400000000000000000000000000000000000000000000000000000000bb0577eb00000000000000000000000000000000000000000000000000000000ad94911b00000000000000000000000000000000000000000000000000000000f495e807000000000000000000000000000000000000000000000000000000004bbcba8e00000000000000000000000000000000000000000000000000000000241ca57a00000000000000000000000000000000000000000000000000000000b6618dff00000000000000000000000000000000000000000000000000000000ff126de90000000000000000000000000000000000000000000000000000000080b297e80000000000000000000000000000000000000000000000000000000074c6b89b00000000000000000000000000000000000000000000000000000000000000000000000000000000cadd2c41060eb2c0ee13ada08fbacdf7de0374c300000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000060000000000000000000000000000000000000000000000000000000000000000647555ef6000000000000000000000000000000000000000000000000000000001963e426000000000000000000000000000000000000000000000000000000009c8eab970000000000000000000000000000000000000000000000000000000043be5eaf0000000000000000000000000000000000000000000000000000000072a30e0800000000000000000000000000000000000000000000000000000000a1a23c29000000000000000000000000000000000000000000000000000000000000000000000000000000004b5fe85db1dfbca9ec2634b8e45905f86cf0ca07000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000600000000000000000000000000000000000000000000000000000000000000001ffa1ad740000000000000000000000000000000000000000000000000000000000000000000000000000000088ce1a6aa076947e1b039bd581e2498c0fbd746f0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000006000000000000000000000000000000000000000000000000000000000000000031f931c1c00000000000000000000000000000000000000000000000000000000bbf2358e000000000000000000000000000000000000000000000000000000002c67849c0000000000000000000000000000000000000000000000000000000000000000000000000000000051d21e284392bb7f652a47a6feff514071673b3e000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000600000000000000000000000000000000000000000000000000000000000000004cdffacc60000000000000000000000000000000000000000000000000000000052ef6b2c00000000000000000000000000000000000000000000000000000000adfca15e000000000000000000000000000000000000000000000000000000007a0ed627000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+        "logIndex": 3,
+        "blockHash": "0x4c3dea233f11c8e2dce24036ee3bac15a5987f9e54bf3e888d97c00312c8dc85"
       }
     ],
-    "blockNumber": 6939503,
-    "cumulativeGasUsed": "8857699",
+    "blockNumber": 7192755,
+    "cumulativeGasUsed": "7610968",
     "status": 1,
     "byzantium": true
   },
@@ -3685,7 +4548,7 @@
     "0x54BAA998771639628ffC0206c3b916c466b79c89",
     [
       {
-        "facetAddress": "0xFA6F8438Ed938390b99860A2AF995DB3faF1F41A",
+        "facetAddress": "0x6f50aa1aFA53071e62F0456CAE6190a71A79C514",
         "functionSelectors": [
           "0x1506e463",
           "0x60062091",
@@ -3702,13 +4565,14 @@
         "action": 0
       },
       {
-        "facetAddress": "0x6fCDBBA79F9D2c36CC5929F353a11159528EdAa6",
+        "facetAddress": "0xb8e6C0a67f970b2870E6b504c214b8B33b10680C",
         "functionSelectors": [
+          "0x05a363de",
           "0x2424401f",
           "0xc2fb26a6",
-          "0xf0d6a924",
+          "0xc3ecd728",
           "0xc34c08e5",
-          "0xab2dc3f5",
+          "0xc230f947",
           "0xaffed0e0",
           "0x72dbadfc",
           "0xc26c9c0a",
@@ -3718,14 +4582,15 @@
           "0xa142d649",
           "0x1aebfe18",
           "0xbb280400",
-          "0x4156a883"
+          "0x6c0636a1"
         ],
         "action": 0
       },
       {
-        "facetAddress": "0x46dF6D05Cc6777C9bA082B84f5C1Ea501401De83",
+        "facetAddress": "0xD791a298e4FA4882BDcF31f03Af1f8147de331f8",
         "functionSelectors": [
           "0xb49c53a7",
+          "0xab2dc3f5",
           "0x83bbb806",
           "0x41bdc8b5",
           "0x3339df96"
@@ -3733,12 +4598,14 @@
         "action": 0
       },
       {
-        "facetAddress": "0xCbDa54F90dDED46E42c49C938E98A197bEf814E0",
+        "facetAddress": "0xC4Bb68C358465306bF1Ce539Aa8C7fBE116b6f6e",
         "functionSelectors": [
           "0xc5b350df",
+          "0x384ce933",
           "0x6a41633a",
           "0x6a42b8f8",
           "0x8da5cb5b",
+          "0x8456cb59",
           "0x8741eac5",
           "0xb1f8100d",
           "0xe47602f7",
@@ -3748,12 +4615,14 @@
           "0x715018a6",
           "0xc0c17baf",
           "0xd232c220",
-          "0xc1a04959"
+          "0xc958c9ba",
+          "0xc1a04959",
+          "0x3f4ba83a"
         ],
         "action": 0
       },
       {
-        "facetAddress": "0xDAe764Ba34Db7A352F22bFF8cC0E856724aBDE36",
+        "facetAddress": "0xd5b54774480646E6921220a3Bf8CaA361337E1D4",
         "functionSelectors": [
           "0xdd39f00d",
           "0x8cba8b6a",
@@ -3767,32 +4636,36 @@
         "action": 0
       },
       {
-        "facetAddress": "0xa07c1f0b9607dd2f1d5f48793b18B3fcbBD10c72",
+        "facetAddress": "0x46dfBDE872c67975544286BC8a9a3ba012Eb9d86",
         "functionSelectors": [
           "0x4b72c5da",
           "0x0951d6d8",
           "0x09935b8f",
           "0x54064594",
           "0x2d3f9ef6",
+          "0xda3a892f",
           "0x3b688da6",
           "0x12d57170",
           "0x1407093b",
+          "0x8770e682",
           "0xe9160f3e",
           "0xc6bf691d",
           "0x9bf6d875",
           "0x22a3c007",
           "0x6ae0b154",
           "0x899962a1",
+          "0x197c139d",
           "0x41258b5c",
           "0x582c78d2",
           "0x82904716",
           "0xffaf3f1a",
-          "0xeb492f44"
+          "0xeb492f44",
+          "0x04376ff4"
         ],
         "action": 0
       },
       {
-        "facetAddress": "0x6DAC844B4ab2284bC6b12bEE5c06258A00a8f9B5",
+        "facetAddress": "0x9291fcD5cB87085E57b561DB688D4451E2d59283",
         "functionSelectors": [
           "0x8d365457",
           "0xa02288f4",
@@ -3808,24 +4681,40 @@
           "0xbb0577eb",
           "0xad94911b",
           "0xf495e807",
-          "0x47555ef6",
-          "0x1963e426",
           "0x4bbcba8e",
           "0x241ca57a",
           "0xb6618dff",
+          "0xff126de9",
+          "0x80b297e8",
+          "0x74c6b89b"
+        ],
+        "action": 0
+      },
+      {
+        "facetAddress": "0xCADd2C41060EB2C0EE13AdA08fbaCdF7De0374c3",
+        "functionSelectors": [
+          "0x47555ef6",
+          "0x1963e426",
           "0x9c8eab97",
           "0x43be5eaf",
           "0x72a30e08",
-          "0xff126de9",
-          "0x80b297e8",
           "0xa1a23c29"
         ],
         "action": 0
       },
       {
-        "facetAddress": "0x429dbdE7913c0Ed51E4B21163760B92eE66Ff5f5",
+        "facetAddress": "0x4B5Fe85DB1DfBCa9ec2634B8E45905f86cf0Ca07",
         "functionSelectors": [
-          "0x1f931c1c"
+          "0xffa1ad74"
+        ],
+        "action": 0
+      },
+      {
+        "facetAddress": "0x88ce1a6Aa076947e1b039bD581e2498c0fbD746f",
+        "functionSelectors": [
+          "0x1f931c1c",
+          "0xbbf2358e",
+          "0x2c67849c"
         ],
         "action": 0
       },
@@ -3846,8 +4735,8 @@
         "initData": "0x2a84809100000000000000000000000000000000000000000000000000000000000000400000000000000000000000000000000000000000000000000000000000000080000000000000000000000000000000000000000000000000000000000000000148e2b093000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"
       },
       {
-        "initContract": "0x75a95b457B3045173C1CBd5f36925Ef1d9AAd2Ac",
-        "initData": "0x023eb14e0000000000000000000000000000000000000000000000000000000000000d030000000000000000000000009f1759a1d4665d5681fd6f031eea0e913c61411a000000000000000000000000cf56e6d3b44c4c40ccbdb82c83ccfa78fa09a2a80000000000000000000000000000000000000000000000000000000000000000000000000000000000000000d717990c061c83ded6820946bddeda5c4b6bba9200000000000000000000000084bbbac6b8fd5fa8ab03890e4e7484a5faa5c9fa"
+        "initContract": "0x82C25106EFD66A76D4857B59bd6487c593d74c09",
+        "initData": "0x356c4bc00000000000000000000000000000000000000000000000000000000000000d030000000000000000000000000aa1befd6cf0b0868a2c032ee291357e71579c8f00000000000000000000000051192fd98635fd32c2bfc0a2f4e362d864a4b8b10000000000000000000000000000000000000000000000000000000000000000000000000000000000000000ef4609fd1adeadeb57400ffaa00e84c94937844a000000000000000000000000c0ad479dac96842a33be4b901f947607d0a20f85"
       }
     ]
   ],
