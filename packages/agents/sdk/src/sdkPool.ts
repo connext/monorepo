@@ -4,7 +4,6 @@ import { getContractInterfaces, contractDeployments, ChainReader } from "@connex
 import { ConnextHandler as TConnext, TokenRegistry as TTokenRegistry, IERC20Extended } from "@connext/nxtp-contracts/typechain-types";
 
 import { NxtpSdkConfig, getConfig } from "./config";
-import { getChainIdFromDomain } from "./lib/helpers";
 import { SignerAddressMissing, ContractAddressMissing, ChainDataUndefined } from "./lib/errors";
 import { IPoolStats, IPoolData } from "./interfaces";
 
