@@ -34,7 +34,7 @@ contract DiamondInit is BaseConnextFacet {
   // You can add parameters to this function in order to pass in
   // data to set your own state variables
   function init(
-    uint256 _domain,
+    uint32 _domain,
     address _xAppConnectionManager,
     address _tokenRegistry, // Nomad token registry
     address _wrappedNative,
@@ -56,6 +56,9 @@ contract DiamondInit is BaseConnextFacet {
     // More info here: https://eips.ethereum.org/EIPS/eip-2535#diamond-interface
 
     if (!s.initialized) {
+      // ensure this is the owner
+      LibDiamond.enforceIsContractOwner();
+
       s.initialized = true;
       // __XAppConnectionClient_initialize
       s.xAppConnectionManager = XAppConnectionManager(_xAppConnectionManager);

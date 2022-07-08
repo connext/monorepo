@@ -10,8 +10,8 @@ import {
 } from "@connext/nxtp-contracts/typechain-types";
 import PriceOracleArtifact from "@connext/nxtp-contracts/artifacts/contracts/core/connext/helpers/ConnextPriceOracle.sol/ConnextPriceOracle.json";
 import ERC20Artifact from "@connext/nxtp-contracts/artifacts/contracts/core/connext/helpers/OZERC20.sol/ERC20.json";
+import ConnextArtifact from "@connext/nxtp-contracts/artifacts/hardhat-diamond-abi/HardhatDiamondABI.sol/ConnextHandler.json";
 import ERC20ExtendedArtifact from "@connext/nxtp-contracts/artifacts/contracts/core/connext/interfaces/IERC20Extended.sol/IERC20Extended.json";
-import ConnextArtifact from "@connext/nxtp-contracts/artifacts/hardhat-diamond-abi/ConnextHandler.sol/ConnextHandler.json";
 import StableSwapArtifact from "@connext/nxtp-contracts/artifacts/contracts/core/connext/helpers/StableSwap.sol/StableSwap.json";
 import TokenRegistryArtifact from "@connext/nxtp-contracts/artifacts/contracts/core/connext/helpers/TokenRegistry.sol/TokenRegistry.json";
 

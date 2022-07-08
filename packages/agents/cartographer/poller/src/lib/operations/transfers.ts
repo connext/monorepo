@@ -102,7 +102,7 @@ export const updateTransfers = async () => {
 
     await Promise.all(
       domains.map(async (domain) => {
-        const domainTransfers = transfers.filter((transfer) => transfer.originDomain === domain);
+        const domainTransfers = transfers.filter((transfer) => transfer.xparams!.originDomain === domain);
         const max = getMaxNonce(domainTransfers);
         const latest = subgraphOriginQueryMetaParams.get(domain)?.latestNonce ?? 0;
         if (domainTransfers.length > 0 && max > latest) {
@@ -123,7 +123,7 @@ export const updateTransfers = async () => {
 
     await Promise.all(
       domains.map(async (domain) => {
-        const domainTransfers = transfers.filter((transfer) => transfer.destinationDomain === domain);
+        const domainTransfers = transfers.filter((transfer) => transfer.xparams!.destinationDomain === domain);
         const max = getMaxNonce(domainTransfers);
         const latest = subgraphDestinationQueryMetaParams.get(domain)?.latestNonce ?? 0;
         if (domainTransfers.length > 0 && max > latest) {

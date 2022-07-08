@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: UNLICENSED
-pragma solidity 0.8.14;
+pragma solidity 0.8.15;
 
 import {Address} from "@openzeppelin/contracts/utils/Address.sol";
 
@@ -32,7 +32,7 @@ contract RelayerFacet is BaseConnextFacet {
   event RelayerAdded(address relayer, address caller);
 
   /**
-   * @notice Emitted when a rlayer is added or removed from whitelists
+   * @notice Emitted when a relayer is added or removed from whitelists
    * @param relayer - The relayer address to be added or removed
    * @param caller - The account that called the function
    */
@@ -134,14 +134,15 @@ contract RelayerFacet is BaseConnextFacet {
   ) external whenNotPaused {
     // Make sure the transferIds length is greater than 0.
     // This is to make sure a valid relayer is calling this function.
-    if (_transferIds.length == 0) revert RelayerFacet__initiateClaim_emptyClaim();
+    uint256 numTransfers = _transferIds.length;
+    if (numTransfers == 0) revert RelayerFacet__initiateClaim_emptyClaim();
 
     // Ensure the relayer can claim all transfers specified.
-    for (uint256 i; i < _transferIds.length; ) {
+    for (uint256 i; i < numTransfers; ) {
       if (s.transferRelayer[_transferIds[i]] != msg.sender)
         revert RelayerFacet__initiateClaim_notRelayer(_transferIds[i]);
       unchecked {
-        i++;
+        ++i;
       }
     }
 
@@ -159,13 +160,14 @@ contract RelayerFacet is BaseConnextFacet {
    * @param _transferIds - transferIds to claim
    */
   function claim(address _recipient, bytes32[] calldata _transferIds) external onlyRelayerFeeRouter {
+    uint256 numTransfers = _transferIds.length;
     // Tally amounts owed
     uint256 total;
-    for (uint256 i; i < _transferIds.length; ) {
+    for (uint256 i; i < numTransfers; ) {
       total += s.relayerFees[_transferIds[i]];
-      s.relayerFees[_transferIds[i]] = 0;
+      delete s.relayerFees[_transferIds[i]];
       unchecked {
-        i++;
+        ++i;
       }
     }
 

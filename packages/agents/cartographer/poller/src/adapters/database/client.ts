@@ -9,21 +9,24 @@ import { pool } from "./index";
 
 const convertToDbTransfer = (transfer: XTransfer): s.transfers.Insertable => {
   return {
-    destination_domain: transfer.destinationDomain,
-    origin_domain: transfer.originDomain,
-
+    transfer_id: transfer.transferId,
     nonce: transfer.nonce,
 
     to: transfer.xparams?.to,
     call_data: transfer.xparams?.callData,
+    origin_domain: transfer.xparams!.originDomain,
+    destination_domain: transfer.xparams!.destinationDomain,
+    agent: transfer.xparams?.agent,
+    recovery: transfer.xparams?.recovery,
     callback: transfer.xparams?.callback,
     callback_fee: transfer.xparams?.callbackFee as any,
-    recovery: transfer.xparams?.recovery,
+    // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
+    relayer_fee: transfer.xparams?.relayerFee as any,
+    // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
+    slippage_tol: transfer.xparams?.slippageTol as any,
 
     force_slow: transfer.xparams?.forceSlow,
     receive_local: transfer.xparams?.receiveLocal,
-
-    transfer_id: transfer.transferId,
 
     origin_chain: transfer.origin?.chain,
     origin_transacting_asset: transfer.origin?.assets.transacting.asset,
@@ -35,7 +38,6 @@ const convertToDbTransfer = (transfer: XTransfer): s.transfers.Insertable => {
     xcall_timestamp: transfer.origin?.xcall?.timestamp,
     xcall_gas_price: transfer.origin?.xcall?.gasPrice as any,
     xcall_gas_limit: transfer.origin?.xcall?.gasLimit as any,
-    xcall_relayer_fee: transfer.origin?.xcall?.relayerFee as any,
     xcall_block_number: transfer.origin?.xcall?.blockNumber,
 
     destination_chain: transfer.destination?.chain,
@@ -53,8 +55,6 @@ const convertToDbTransfer = (transfer: XTransfer): s.transfers.Insertable => {
     execute_gas_limit: transfer.destination?.execute?.gasLimit as any,
     execute_block_number: transfer.destination?.execute?.blockNumber,
     execute_origin_sender: transfer.destination?.execute?.originSender,
-    // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
-    execute_relayer_fee: transfer.destination?.execute?.relayerFee as any,
 
     reconcile_caller: transfer.destination?.reconcile?.caller,
     reconcile_transaction_hash: transfer.destination?.reconcile?.transactionHash,

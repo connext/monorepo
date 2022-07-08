@@ -139,9 +139,9 @@ export class NxtpSdkBase {
     // }
 
     /// create a bid
-    const { params, amount, transactingAssetId, relayerFee } = xcallParams;
+    const { params, amount, transactingAssetId } = xcallParams;
 
-    const { originDomain } = params;
+    const { originDomain, relayerFee } = params;
 
     const xParams: CallParams = {
       ...params,
@@ -151,6 +151,7 @@ export class NxtpSdkBase {
       recovery: params.recovery || params.to,
       forceSlow: params.forceSlow || false,
       receiveLocal: params.receiveLocal || false,
+      relayerFee: params.relayerFee || "0",
     };
     const ConnextContractAddress = this.config.chains[originDomain].deployments!.connext;
 
@@ -166,7 +167,6 @@ export class NxtpSdkBase {
       params: xParams,
       amount,
       transactingAssetId,
-      relayerFee,
     };
     const data = this.contracts.connext.encodeFunctionData("xcall", [xcallArgs]);
 

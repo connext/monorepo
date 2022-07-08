@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: UNLICENSED
-pragma solidity 0.8.14;
+pragma solidity 0.8.15;
 
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import {XAppConnectionManager} from "../../../nomad-core/contracts/XAppConnectionManager.sol";
@@ -8,7 +8,7 @@ import {RelayerFeeRouter} from "../../relayer-fee/RelayerFeeRouter.sol";
 import {PromiseRouter} from "../../promise/PromiseRouter.sol";
 
 import {ConnextMessage} from "../libraries/ConnextMessage.sol";
-import {XCallArgs, ExecuteArgs} from "../libraries/LibConnextStorage.sol";
+import {XCallArgs, ExecuteArgs, CallParams} from "../libraries/LibConnextStorage.sol";
 import {SwapUtils} from "../libraries/SwapUtils.sol";
 
 import {IStableSwap} from "./IStableSwap.sol";
@@ -16,6 +16,8 @@ import {ITokenRegistry} from "./ITokenRegistry.sol";
 import {IWrapped} from "./IWrapped.sol";
 import {IExecutor} from "./IExecutor.sol";
 import {ISponsorVault} from "./ISponsorVault.sol";
+
+import {IDiamondCut} from "./IDiamondCut.sol";
 
 interface IConnextHandler {
   // AssetFacet
@@ -91,6 +93,15 @@ interface IConnextHandler {
   function execute(ExecuteArgs calldata _args) external returns (bytes32 transferId);
 
   function bumpTransfer(bytes32 _transferId) external payable;
+
+  function forceReceiveLocal(
+    CallParams calldata _params,
+    uint256 _amount,
+    uint256 _nonce,
+    bytes32 _canonicalId,
+    uint32 _canonicalDomain,
+    address _originSender
+  ) external payable;
 
   // NomadFacet
   function xAppConnectionManager() external view returns (XAppConnectionManager);
@@ -371,4 +382,23 @@ interface IConnextHandler {
   ) external;
 
   function stopRampA(bytes32 canonicalId) external;
+
+  // DiamondCutFacet
+  function diamondCut(
+    IDiamondCut.FacetCut[] calldata _diamondCut,
+    address _init,
+    bytes calldata _calldata
+  ) external;
+
+  function proposeDiamondCut(
+    IDiamondCut.FacetCut[] calldata _diamondCut,
+    address _init,
+    bytes calldata _calldata
+  ) external;
+
+  function rescindDiamondCut(
+    IDiamondCut.FacetCut[] calldata _diamondCut,
+    address _init,
+    bytes calldata _calldata
+  ) external;
 }

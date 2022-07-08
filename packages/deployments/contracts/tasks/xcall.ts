@@ -179,10 +179,13 @@ export default task("xcall", "Prepare a cross-chain tx")
         originDomain: `${originDomain}`,
         destinationDomain: `${destinationDomain}`,
         recovery,
+        agent: constants.AddressZero,
         callback,
         callbackFee,
+        relayerFee: "0",
         forceSlow,
         receiveLocal,
+        slippageTol: "0",
       };
 
       const args = {

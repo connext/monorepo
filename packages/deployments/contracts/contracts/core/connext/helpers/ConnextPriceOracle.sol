@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity 0.8.14;
+pragma solidity 0.8.15;
 
 import {SafeMath} from "@openzeppelin/contracts/utils/math/SafeMath.sol";
 import {SafeERC20} from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
@@ -49,6 +49,8 @@ contract ConnextPriceOracle is PriceOracle {
   address public wrapped;
   address public v1PriceOracle;
 
+  uint256 public constant VALID_PERIOD = 1 minutes;
+
   /// @notice Chainlink Aggregators
   mapping(address => AggregatorV3Interface) public aggregators;
 
@@ -59,8 +61,13 @@ contract ConnextPriceOracle is PriceOracle {
     bool active; // Active status of price record 0
   }
 
+  struct Price {
+    uint256 updatedAt;
+    uint256 price;
+  }
+
   mapping(address => PriceInfo) public priceRecords;
-  mapping(address => uint256) public assetPrices;
+  mapping(address => Price) public assetPrices;
 
   event NewAdmin(address oldAdmin, address newAdmin);
   event PriceRecordUpdated(address token, address baseToken, address lpToken, bool _active);
@@ -83,7 +90,10 @@ contract ConnextPriceOracle is PriceOracle {
     if (_tokenAddress == address(0)) {
       tokenAddress = wrapped;
     }
-    uint256 tokenPrice = assetPrices[tokenAddress];
+    uint256 tokenPrice = assetPrices[tokenAddress].price;
+    if (tokenPrice != 0 && ((block.timestamp - assetPrices[tokenAddress].updatedAt) <= VALID_PERIOD)) {
+      return tokenPrice;
+    }
     if (tokenPrice == 0) {
       tokenPrice = getPriceFromOracle(tokenAddress);
     }
@@ -101,7 +111,7 @@ contract ConnextPriceOracle is PriceOracle {
     if (priceInfo.active) {
       uint256 rawTokenAmount = IERC20Extended(priceInfo.token).balanceOf(priceInfo.lpToken);
       uint256 tokenDecimals = uint256(IERC20Extended(priceInfo.token).decimals());
-      uint256 tokenAmount = 0;
+      uint256 tokenAmount;
       if (tokenDecimals > 18) {
         tokenAmount = rawTokenAmount.div(10**(tokenDecimals - 18));
       } else {
@@ -109,7 +119,7 @@ contract ConnextPriceOracle is PriceOracle {
       }
       uint256 rawBaseTokenAmount = IERC20Extended(priceInfo.baseToken).balanceOf(priceInfo.lpToken);
       uint256 baseTokenDecimals = uint256(IERC20Extended(priceInfo.baseToken).decimals());
-      uint256 baseTokenAmount = 0;
+      uint256 baseTokenAmount;
       if (baseTokenDecimals > 18) {
         baseTokenAmount = rawBaseTokenAmount.div(10**(baseTokenDecimals - 18));
       } else {
@@ -147,7 +157,7 @@ contract ConnextPriceOracle is PriceOracle {
         }
 
         uint256 retVal = uint256(answer);
-        uint256 price = 0;
+        uint256 price;
         // Make the decimals to 1e18.
         uint256 aggregatorDecimals = uint256(aggregator.decimals());
         if (aggregatorDecimals > 18) {
@@ -174,7 +184,7 @@ contract ConnextPriceOracle is PriceOracle {
   ) external onlyAdmin {
     PriceInfo storage priceInfo = priceRecords[_token];
     uint256 baseTokenPrice = getTokenPrice(_baseToken);
-    require(baseTokenPrice > 0, "invalid base token");
+    require(baseTokenPrice != 0, "invalid base token");
     priceInfo.token = _token;
     priceInfo.baseToken = _baseToken;
     priceInfo.lpToken = _lpToken;
@@ -182,9 +192,25 @@ contract ConnextPriceOracle is PriceOracle {
     emit PriceRecordUpdated(_token, _baseToken, _lpToken, _active);
   }
 
-  function setDirectPrice(address _token, uint256 _price) external onlyAdmin {
-    emit DirectPriceUpdated(_token, assetPrices[_token], _price);
-    assetPrices[_token] = _price;
+  function setDirectPrice(
+    address _token,
+    uint256 _price,
+    uint256 _timestamp
+  ) external onlyAdmin {
+    require(_price != 0, "bad price");
+
+    if (block.timestamp > _timestamp) {
+      // reject stale price
+      require(block.timestamp - _timestamp < VALID_PERIOD, "bad timestamp");
+    } else {
+      // reject future timestamp (<3s is allowed)
+      require(_timestamp - block.timestamp < 3, "in future");
+      _timestamp = block.timestamp;
+    }
+    emit DirectPriceUpdated(_token, assetPrices[_token].price, _price);
+
+    assetPrices[_token].price = _price;
+    assetPrices[_token].updatedAt = _timestamp;
   }
 
   function setV1PriceOracle(address _v1PriceOracle) external onlyAdmin {
@@ -200,9 +226,14 @@ contract ConnextPriceOracle is PriceOracle {
   }
 
   function setAggregators(address[] calldata tokenAddresses, address[] calldata sources) external onlyAdmin {
-    for (uint256 i = 0; i < tokenAddresses.length; i++) {
+    uint256 numTokens = tokenAddresses.length;
+    for (uint256 i; i < numTokens; ) {
       aggregators[tokenAddresses[i]] = AggregatorV3Interface(sources[i]);
       emit AggregatorUpdated(tokenAddresses[i], sources[i]);
+
+      unchecked {
+        ++i;
+      }
     }
   }
 }

@@ -21,15 +21,18 @@ export const encodeExecuteFromBids = (round: number, bids: Bid[], transfer: Orig
   // Format arguments from XTransfer.
   const args: ExecuteArgs = {
     params: {
-      originDomain: transfer.originDomain,
-      destinationDomain: transfer.destinationDomain,
+      originDomain: transfer.xparams.originDomain,
+      destinationDomain: transfer.xparams.destinationDomain,
       to: transfer.xparams.to,
       callData: transfer.xparams.callData,
       callback: transfer.xparams.callback ?? constants.AddressZero,
       callbackFee: transfer.xparams.callbackFee ?? "0",
+      relayerFee: transfer.xparams.relayerFee ?? "0",
       forceSlow: transfer.xparams.forceSlow,
       receiveLocal: transfer.xparams.receiveLocal,
       recovery: transfer.xparams.recovery,
+      agent: transfer.xparams.agent,
+      slippageTol: transfer.xparams.slippageTol,
     },
     local,
     routers: bids.map((b) => b.router),
@@ -37,7 +40,6 @@ export const encodeExecuteFromBids = (round: number, bids: Bid[], transfer: Orig
     amount: transfer.origin.assets.bridged.amount,
     nonce: transfer.nonce,
     originSender: transfer.origin.xcall.caller,
-    relayerFee: transfer.origin.xcall.relayerFee,
   };
   return contracts.connext.encodeFunctionData("execute", [args]);
 };

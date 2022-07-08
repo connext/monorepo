@@ -51,7 +51,7 @@ export const pollCache = async () => {
             // Retrieve the transfer data.
             // TODO: get the transfers from the cache in a single call
             const transfer: XTransfer | undefined = await cache.transfers.getTransfer(transferId);
-            if (transfer && transfer.destinationDomain && transfer.origin) {
+            if (transfer && transfer.xparams?.destinationDomain && transfer.origin) {
               return transfer as OriginTransfer;
             }
             return undefined;

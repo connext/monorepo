@@ -94,7 +94,7 @@ export default task("add-liquidity", "Add liquidity for a router")
         throw new Error("Asset not approved");
       }
 
-      console.log("args:", amount, asset, router);
+      console.log("args:", amount.toString(), asset, router);
       const tx = await connext.addRouterLiquidityFor(amount, asset, router, {
         value: asset === ethers.constants.AddressZero ? amount : 0,
       });

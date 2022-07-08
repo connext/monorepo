@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: UNLICENSED
-pragma solidity 0.8.14;
+pragma solidity 0.8.15;
 
 import "../../../../contracts/core/connext/libraries/AssetLogic.sol";
 import "../../../../contracts/core/connext/libraries/SwapUtils.sol";
@@ -10,7 +10,7 @@ import {LibConnextStorage, AppStorage} from "../../../../contracts/core/connext/
 import {ITokenRegistry} from "../../../../contracts/core/connext/interfaces/ITokenRegistry.sol";
 
 import "../../../utils/FacetHelper.sol";
-
+import "../../../utils/Mock.sol";
 
 
 // Helper to call library with native value functions
@@ -44,6 +44,7 @@ contract AssetLogicTest is BaseConnextFacet, FacetHelper {
   // ============ Setup ============
   function setUp() public {
     // set defaults
+    utils_setFees();
     utils_deployAssetContracts();
     // set up assets (including remote swap)
     utils_setupAsset(false, false);
@@ -132,7 +133,7 @@ contract AssetLogicTest is BaseConnextFacet, FacetHelper {
     }
 
     // set expects
-    if (amount > 0) {
+    if (amount != 0) {
       if (isNative) {
         // Should withdraw
         vm.expectCall(_wrapper, abi.encodeWithSelector(IWrapped.withdraw.selector, amount));
@@ -160,7 +161,7 @@ contract AssetLogicTest is BaseConnextFacet, FacetHelper {
     // set mock
     vm.mockCall(_stableSwap, abi.encodeWithSelector(IStableSwap.swapExact.selector), abi.encode(swapOut));
 
-    bool willSwap = asset == _local && amount > 0;
+    bool willSwap = asset == _local && amount != 0;
     if (willSwap) {
       // expect pool approval
       vm.expectCall(_local, abi.encodeWithSelector(IERC20.approve.selector, _stableSwap, amount));
@@ -168,7 +169,8 @@ contract AssetLogicTest is BaseConnextFacet, FacetHelper {
       vm.expectCall(_stableSwap, abi.encodeWithSelector(IStableSwap.swapExact.selector, amount, _local, _adopted));
     }
 
-    (uint256 received, address out) = AssetLogic.swapFromLocalAssetIfNeeded(asset, amount);
+    (, bytes32 canonicalId) = s.tokenRegistry.getTokenId(asset);
+    (uint256 received, address out) = AssetLogic.swapFromLocalAssetIfNeeded(canonicalId, asset, amount, _liquidityFeeDenominator);
     // assert return amount
     assertEq(received, willSwap ? swapOut : amount);
     // assert return asset
@@ -180,7 +182,7 @@ contract AssetLogicTest is BaseConnextFacet, FacetHelper {
     // set mock
     vm.mockCall(_stableSwap, abi.encodeWithSelector(IStableSwap.swapExact.selector), abi.encode(swapOut));
 
-    bool willSwap = asset == _adopted && amount > 0;
+    bool willSwap = asset == _adopted && amount != 0;
     if (willSwap) {
       // expect pool approval
       vm.expectCall(_adopted, abi.encodeWithSelector(IERC20.approve.selector, _stableSwap, amount));
@@ -188,7 +190,7 @@ contract AssetLogicTest is BaseConnextFacet, FacetHelper {
       vm.expectCall(_stableSwap, abi.encodeWithSelector(IStableSwap.swapExact.selector, amount, _adopted, _local));
     }
 
-    (uint256 received, address out) = AssetLogic.swapToLocalAssetIfNeeded(ConnextMessage.TokenId(_canonicalDomain, _canonicalId), asset, amount);
+    (uint256 received, address out) = AssetLogic.swapToLocalAssetIfNeeded(ConnextMessage.TokenId(_canonicalDomain, _canonicalId), asset, amount, _liquidityFeeDenominator);
     // assert return amount
     assertEq(received, willSwap ? swapOut : amount);
     // assert return asset
@@ -253,9 +255,6 @@ contract AssetLogicTest is BaseConnextFacet, FacetHelper {
     utils_handleIncomingAssetAndAssert(assetId, amount, fee);
   }
 
-  // FIXME: special token
-  function test_AssetLogic__handleIncomingAsset_worksWithFeeOnTransfer() public {}
-
   // ============ wrapNativeAsset ============
   function test_AssetLogic__wrapNativeAsset_works() public {
     uint256 initEth = address(this).balance;
@@ -275,8 +274,11 @@ contract AssetLogicTest is BaseConnextFacet, FacetHelper {
     assertEq(IERC20(_local).balanceOf(address(caller)), initDest + 100);
   }
 
-  // FIXME: special token
-  function test_AssetLogic__transferAssetToContract_worksWithFeeOnTransfer() public {}
+  function test_AssetLogic__transferAssetToContract_failsWithFeeOnTransfer() public {
+    FeeERC20 fee = new FeeERC20();
+    vm.expectRevert(AssetLogic.AssetLogic__transferAssetToContract_feeOnTransferNotSupported.selector);
+    caller.transferAssetToContract(address(fee), 100);
+  }
 
   // ============ transferAssetFromContract ============
   function test_AssetLogic__transferAssetFromContract_failsIfNoAsset() public {

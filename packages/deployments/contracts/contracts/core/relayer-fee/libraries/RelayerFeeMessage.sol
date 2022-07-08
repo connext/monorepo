@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT OR Apache-2.0
-pragma solidity 0.8.14;
+pragma solidity 0.8.15;
 
 // ============ External Imports ============
 import {TypedMemView} from "../../../nomad-core/libs/TypedMemView.sol";
@@ -78,11 +78,11 @@ library RelayerFeeMessage {
     uint256 length = _view.indexUint(LENGTH_ID_START, LENGTH_ID_LEN);
 
     bytes32[] memory ids = new bytes32[](length);
-    for (uint256 i = 0; i < length; ) {
+    for (uint256 i; i < length; ) {
       ids[i] = _view.index(TRANSFER_IDS_START + i * TRANSFER_ID_LEN, TRANSFER_ID_LEN);
 
       unchecked {
-        i++;
+        ++i;
       }
     }
     return ids;

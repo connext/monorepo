@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: UNLICENSED
-pragma solidity 0.8.14;
+pragma solidity 0.8.15;
 
 import {XAppConnectionManager, TypeCasts} from "../../../../contracts/nomad-core/contracts/XAppConnectionManager.sol";
 import {TypedMemView} from "../../../../contracts/nomad-core/libs/TypedMemView.sol";
@@ -59,11 +59,14 @@ contract NomadFacetTest is NomadFacet, FacetHelper {
       bytes(""), // callData
       _originDomain, // origin domain
       _destinationDomain, // destination domain
+      address(112233332211), // agent
       _recovery, // recovery address
+      false, // forceSlow
+      false, // receiveLocal
       address(0), // callback
       0, // callbackFee
-      false, // forceSlow
-      false // receiveLocal
+      _relayerFee, // relayer fee
+      9900 // slippage tol
     );
 
   // ============ Test set up ============
@@ -101,8 +104,7 @@ contract NomadFacetTest is NomadFacet, FacetHelper {
     XCallArgs memory args = XCallArgs(
       _params,
       _adopted == address(s.wrapper) ? address(0) : _adopted, // transactingAssetId : could be adopted, local, or wrapped.
-      _amount,
-      _relayerFee
+      _amount
     );
     // generate transfer id
     bytes32 transferId = utils_getTransferIdFromXCallArgs(args, _originSender, _canonicalId, _canonicalDomain);
@@ -115,8 +117,7 @@ contract NomadFacetTest is NomadFacet, FacetHelper {
     XCallArgs memory args = XCallArgs(
       _params,
       transactingAssetId, // transactingAssetId : could be adopted, local, or wrapped.
-      _amount,
-      _relayerFee
+      _amount
     );
     // generate transfer id
     bytes32 transferId = utils_getTransferIdFromXCallArgs(args, _originSender, _canonicalId, _canonicalDomain);
@@ -199,7 +200,7 @@ contract NomadFacetTest is NomadFacet, FacetHelper {
       } // otherwise slippage is too high and it should not try to repay the rest of the loan
     }
 
-    if (amountIn > 0) {
+    if (amountIn != 0) {
       // approval of pool for sum
       vm.expectCall(_adopted, abi.encodeWithSelector(IERC20.approve.selector, _aavePool, repayment.total));
 
@@ -262,7 +263,7 @@ contract NomadFacetTest is NomadFacet, FacetHelper {
     }
 
     // Mock calls for swap if needed
-    if (_local != _adopted && init.total > 0) {
+    if (_local != _adopted && init.total != 0) {
       // mock calculate equivalent of bridged amount in adopted
       vm.mockCall(
         _stableSwap,
@@ -303,9 +304,9 @@ contract NomadFacetTest is NomadFacet, FacetHelper {
     if (shouldSucceed) {
       assertEq(s.reconciledTransfers[transferId], true);
       address[] memory routers = s.routedTransfers[transferId];
-      if (routers.length > 0) {
+      if (routers.length != 0) {
         uint256 routerAmt;
-        if (init.total > 0 && repayment.aaveReturns) {
+        if (init.total != 0 && repayment.aaveReturns) {
           routerAmt = swap.input > args.amount ? args.amount : args.amount - swap.input;
         } else {
           routerAmt = args.amount / s.routedTransfers[transferId].length;
@@ -316,7 +317,7 @@ contract NomadFacetTest is NomadFacet, FacetHelper {
         }
       }
 
-      if (init.total > 0) {
+      if (init.total != 0) {
         // assert repayment
         assertEq(s.portalDebt[transferId], init.debt - repayment.debt);
         assertEq(s.portalFeeDebt[transferId], init.fee - repayment.fee);
