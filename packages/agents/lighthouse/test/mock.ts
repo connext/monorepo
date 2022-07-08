@@ -1,6 +1,11 @@
 import { utils, BigNumber, Wallet, constants } from "ethers";
 import { createStubInstance, SinonStub, SinonStubbedInstance, stub } from "sinon";
-import { ConnextContractDeployments, ConnextContractInterfaces, ChainReader } from "@connext/nxtp-txservice";
+import {
+  ConnextContractDeployments,
+  ConnextContractInterfaces,
+  ChainReader,
+  getErc20ExtendedInterface,
+} from "@connext/nxtp-txservice";
 import { mkAddress, Logger, mock as _mock, mkBytes32, createLoggingContext } from "@connext/nxtp-utils";
 
 import { NxtpLighthouseConfig } from "../src/config";
@@ -135,8 +140,13 @@ export const mock = {
       erc20.encodeFunctionData.returns(encodedDataMock);
       erc20.decodeFunctionResult.returns([BigNumber.from(1000)]);
 
+      const erc20Extended = createStubInstance(utils.Interface);
+      erc20.encodeFunctionData.returns(encodedDataMock);
+      erc20.decodeFunctionResult.returns([BigNumber.from(1000)]);
+
       return {
-        erc20: erc20 as any,
+        erc20: erc20 as unknown as ConnextContractInterfaces["erc20"],
+        erc20Extended: erc20Extended as unknown as ConnextContractInterfaces["erc20Extended"],
         connext: connext as unknown as ConnextContractInterfaces["connext"],
         priceOracle: priceOracle as unknown as ConnextContractInterfaces["priceOracle"],
         tokenRegistry: tokenRegistry as unknown as ConnextContractInterfaces["tokenRegistry"],
@@ -151,6 +161,7 @@ export const mock = {
         }),
         priceOracle: (_: number) => ({ address: mkAddress("0xbaddad"), abi: {} }),
         tokenRegistry: (_: number) => ({ address: mkAddress("0xbbbddd"), abi: {} }),
+        stableSwap: (_: number) => ({ address: mkAddress("0xbbbccc"), abi: {} }),
       };
     },
   },
