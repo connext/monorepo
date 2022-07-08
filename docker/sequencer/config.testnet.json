@@ -9,12 +9,22 @@
   },
   "chains": {
     "1111": {
-      "assets": [{ "address": "0xB7b1d3cC52E658922b2aF00c5729001ceA98142C", "name": "TEST" }],
-      "providers": ["https://rpc.ankr.com/eth_rinkeby"]
+      "providers": ["https://rpc.ankr.com/eth_rinkeby"],
+      "assets": [
+        {
+          "name": "TEST",
+          "address": "0x3FFc03F05D1869f493c7dbf913E636C6280e0ff9"
+        }
+      ]
     },
-    "2221": {
-      "assets": [{ "address": "0xB5AabB55385bfBe31D627E2A717a7B189ddA4F8F", "name": "TEST" }],
-      "providers": ["https://kovan.infura.io/v3/19b854cad0bc4089bffd0c93f23ece9f"]
+    "3331": {
+      "providers": ["https://rpc.ankr.com/eth_goerli"],
+      "assets": [
+        {
+          "name": "TEST",
+          "address": "0x26FE8a8f86511d678d031a022E48FfF41c6a3e3b"
+        }
+      ]
     }
   },
   "logLevel": "debug",

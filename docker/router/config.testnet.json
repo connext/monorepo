@@ -15,16 +15,16 @@
       "assets": [
         {
           "name": "TEST",
-          "address": "0xB7b1d3cC52E658922b2aF00c5729001ceA98142C"
+          "address": "0x3FFc03F05D1869f493c7dbf913E636C6280e0ff9"
         }
       ]
     },
-    "2221": {
-      "providers": ["https://kovan.infura.io/v3/38f8f85747014e87b48035d84398a97c"],
+    "3331": {
+      "providers": ["https://rpc.ankr.com/eth_goerli"],
       "assets": [
         {
           "name": "TEST",
-          "address": "0xB5AabB55385bfBe31D627E2A717a7B189ddA4F8F"
+          "address": "0x26FE8a8f86511d678d031a022E48FfF41c6a3e3b"
         }
       ]
     }
@@ -32,5 +32,3 @@
   "web3SignerUrl": "http://signer:9000",
   "environment": "staging"
 }
-
-

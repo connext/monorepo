@@ -4,7 +4,7 @@ import { SinonStub, stub } from "sinon";
 
 import { SequencerResponseInvalid } from "../../../src/lib/errors";
 import { sendBid } from "../../../src/lib/helpers/auctions";
-import { mock, stubContext, stubHelpers } from "../../mock";
+import { mock, stubContext } from "../../mock";
 
 const { requestContext } = mock.loggingContext("BID-TEST");
 

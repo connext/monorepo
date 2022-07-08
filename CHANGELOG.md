@@ -2,6 +2,10 @@
 
 ## Next Release
 
+## Amarok 0.2.0-beta.11
+
+- [sdk] Stableswap pool functions
+
 ## Amarok 0.2.0-beta.10
 
 - [router] Parallelize sending bids to sequencer

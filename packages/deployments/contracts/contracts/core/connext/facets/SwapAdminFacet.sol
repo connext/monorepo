@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: UNLICENSED
-pragma solidity 0.8.14;
+pragma solidity 0.8.15;
 
 import {BaseConnextFacet} from "./BaseConnextFacet.sol";
 import {AmplificationUtils, SwapUtils} from "../libraries/AmplificationUtils.sol";
@@ -122,12 +122,14 @@ contract SwapAdminFacet is BaseConnextFacet {
     if (_pooledTokens.length <= 1 || _pooledTokens.length > 32)
       revert SwapAdminFacet__initializeSwap_invalidPooledTokens();
 
-    if (_pooledTokens.length != decimals.length) revert SwapAdminFacet__initializeSwap_decimalsMismatch();
+    uint8 numPooledTokens = uint8(_pooledTokens.length);
+
+    if (numPooledTokens != decimals.length) revert SwapAdminFacet__initializeSwap_decimalsMismatch();
 
     uint256[] memory precisionMultipliers = new uint256[](decimals.length);
 
-    for (uint8 i = 0; i < _pooledTokens.length; i++) {
-      if (i > 0) {
+    for (uint8 i; i < numPooledTokens; ) {
+      if (i != 0) {
         // Check if index is already used. Check if 0th element is a duplicate.
         if (s.tokenIndexes[_canonicalId][address(_pooledTokens[i])] != 0 || _pooledTokens[0] == _pooledTokens[i])
           revert SwapAdminFacet__initializeSwap_duplicateTokens();
@@ -139,6 +141,10 @@ contract SwapAdminFacet is BaseConnextFacet {
 
       precisionMultipliers[i] = 10**uint256(SwapUtils.POOL_PRECISION_DECIMALS - decimals[i]);
       s.tokenIndexes[_canonicalId][address(_pooledTokens[i])] = i;
+
+      unchecked {
+        ++i;
+      }
     }
 
     // Check _a, _fee, _adminFee, _withdrawFee parameters

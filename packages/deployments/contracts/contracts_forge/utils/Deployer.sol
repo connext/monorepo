@@ -1,7 +1,5 @@
 // SPDX-License-Identifier: UNLICENSED
-pragma solidity 0.8.14;
-
-import {Connext} from "../../contracts/test/Connext.sol";
+pragma solidity 0.8.15;
 
 import {DiamondCutFacet} from "../../contracts/core/connext/facets/DiamondCutFacet.sol";
 import {DiamondLoupeFacet} from "../../contracts/core/connext/facets/DiamondLoupeFacet.sol";
@@ -20,6 +18,7 @@ import {ConnextMessage} from "../../contracts/core/connext/libraries/ConnextMess
 import {XCallArgs, CallParams} from "../../contracts/core/connext/libraries/LibConnextStorage.sol";
 import {IDiamondCut} from "../../contracts/core/connext/interfaces/IDiamondCut.sol";
 
+import {Connext} from "./Connext.sol";
 import {TestSetterFacet} from "./Mock.sol";
 
 contract Deployer {
@@ -40,8 +39,10 @@ contract Deployer {
   TestSetterFacet testSetterFacet;
 
   function getDiamondCutFacetCut(address _diamondCutFacet) internal pure returns (IDiamondCut.FacetCut memory) {
-    bytes4[] memory diamondCutFacetSelectors = new bytes4[](1);
+    bytes4[] memory diamondCutFacetSelectors = new bytes4[](3);
     diamondCutFacetSelectors[0] = DiamondCutFacet.diamondCut.selector;
+    diamondCutFacetSelectors[1] = DiamondCutFacet.proposeDiamondCut.selector;
+    diamondCutFacetSelectors[2] = DiamondCutFacet.rescindDiamondCut.selector;
     return
       IDiamondCut.FacetCut({
         facetAddress: _diamondCutFacet,
@@ -349,7 +350,7 @@ contract Deployer {
     address wrapper,
     address relayerFeeRouter,
     address payable promiseRouter
-  ) internal {
+  ) internal returns (address) {
     bytes memory initCallData = abi.encodeWithSelector(
       DiamondInit.init.selector,
       domain,
@@ -363,5 +364,6 @@ contract Deployer {
     deployFacets();
 
     connextDiamondProxy = new Connext(address(this), address(diamondInit), initCallData, getFacetCuts());
+    return address(connextDiamondProxy);
   }
 }
