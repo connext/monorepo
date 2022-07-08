@@ -1,7 +1,7 @@
 import { providers } from "ethers";
 import { getChainData, Logger, createLoggingContext, ChainData } from "@connext/nxtp-utils";
 import { getContractInterfaces, contractDeployments, ChainReader } from "@connext/nxtp-txservice";
-import { ConnextHandler as TConnext, TokenRegistry as TTokenRegistry, IERC20Extended } from "@connext/nxtp-contracts/typechain-types";
+import { ConnextHandler as TConnext, TokenRegistry as TTokenRegistry, IERC20Extended } from "@connext/nxtp-contracts";
 
 import { NxtpSdkConfig, getConfig } from "./config";
 import { getChainIdFromDomain } from "./lib/helpers";
