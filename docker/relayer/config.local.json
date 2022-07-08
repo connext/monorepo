@@ -1,6 +1,5 @@
 {
   "logLevel": "debug",
-  "sequencerUrl": "http://sequencer:8081",
   "redis": {
     "host": "relayer-cache",
     "port": 6379
@@ -36,6 +35,5 @@
     }
   },
   "web3SignerUrl": "http://signer:9000",
-  "environment": "production",
-  "nomadEnvironment": "none"
+  "environment": "production"
 }
