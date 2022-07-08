@@ -14,6 +14,7 @@ export const ORIGIN_TRANSFER_ENTITY = `
       chainId
       transferId
       nonce
+
       # call params
       to
       callData
@@ -22,16 +23,21 @@ export const ORIGIN_TRANSFER_ENTITY = `
       forceSlow
       receiveLocal
       recovery
+      agent
       callback
       callbackFee
+      relayerFee
+      slippageTol
+
       # Asset Data
       transactingAsset
       transactingAmount
       bridgedAsset
       bridgedAmount
+
       # Event Data
-      relayerFee
       message
+
       # XCalled Transaction
       caller
       transactionHash
@@ -43,10 +49,12 @@ export const ORIGIN_TRANSFER_ENTITY = `
 
 export const DESTINATION_TRANSFER_ENTITY = `
       id
+
       # Meta Data
       chainId
       transferId
-      nonce
+
+      # call params
       to
       callData
       originDomain
@@ -54,20 +62,26 @@ export const DESTINATION_TRANSFER_ENTITY = `
       forceSlow
       receiveLocal
       recovery
+      agent
       callback
       callbackFee
+      relayerFee
+      slippageTol
+
       # Asset Data
       localAsset
       localAmount
       transactingAsset
       transactingAmount
       sponsorVaultRelayerFee
+
       # Executed event Data
       status
       routers {
         id
       }
       originSender
+
       # Executed Transaction
       executedCaller
       executedTransactionHash
@@ -75,6 +89,7 @@ export const DESTINATION_TRANSFER_ENTITY = `
       executedGasPrice
       executedGasLimit
       executedBlockNumber
+
       # Reconciled Transaction
       reconciledCaller
       reconciledTransactionHash

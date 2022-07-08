@@ -1,10 +1,8 @@
 // SPDX-License-Identifier: UNLICENSED
-pragma solidity 0.8.14;
+pragma solidity 0.8.15;
 
 import {Address} from "@openzeppelin/contracts/utils/Address.sol";
 import {SafeERC20, IERC20} from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
-// import {ExcessivelySafeCall} from "@nomad-xyz/excessively-safe-call/src/ExcessivelySafeCall.sol";
-// TODO: see note in below file re: npm
 import {ExcessivelySafeCall} from "../../../nomad-core/libs/ExcessivelySafeCall.sol";
 
 import {IExecutor} from "../interfaces/IExecutor.sol";
@@ -14,7 +12,7 @@ import {LibCrossDomainProperty, TypedMemView} from "../libraries/LibCrossDomainP
 /**
  * @title Executor
  * @author Connext <support@connext.network>
- * @notice This library contains an `execute` function that is callabale by
+ * @notice This library contains an `execute` function that is callable by
  * an associated Connext contract. This is used to execute
  * arbitrary calldata on a receiving chain.
  * @dev In the event this external call fails, funds will be sent to a provided
@@ -190,7 +188,7 @@ contract Executor is IExecutor {
     // simply require an approval, and it is unclear if they can handle
     // funds transferred directly to them (i.e. Uniswap)
 
-    bool hasValue = _args.amount > 0;
+    bool hasValue = _args.amount != 0;
 
     if (!isNative && hasValue) {
       SafeERC20.safeIncreaseAllowance(IERC20(_args.assetId), _args.to, _args.amount);

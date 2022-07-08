@@ -244,7 +244,7 @@ export function handleXCalled(event: XCalled): void {
   transfer.bridgedAmount = event.params.args.bridgedAmt;
 
   // Event Data
-  transfer.relayerFee = event.params.xcallArgs.relayerFee;
+  transfer.relayerFee = event.params.xcallArgs.params.relayerFee;
   transfer.message = event.params.message;
 
   // XCall Transaction
@@ -319,7 +319,7 @@ export function handleExecuted(event: Executed): void {
   transfer.localAsset = event.params.args.local;
   transfer.localAmount = event.params.args.amount;
 
-  transfer.sponsorVaultRelayerFee = event.params.args.relayerFee;
+  transfer.sponsorVaultRelayerFee = event.params.args.params.relayerFee;
 
   // Event Data
   if (transfer.status == "Reconciled") {

@@ -11,10 +11,10 @@ export const mockChainData = chainDataToMap([
     network: "rinkeby",
   },
   {
-    name: "Kovan Testnet",
-    chainId: 42,
-    domainId: "2221",
-    network: "kovan",
+    name: "Goerli Testnet",
+    chainId: 5,
+    domainId: "3331",
+    network: "goerli",
   },
   {
     name: "Local Testnet",
@@ -31,7 +31,7 @@ const mockMetaData = {
   transferId: mkBytes32("0xaaa"),
   nonce: "0",
   originDomain: "1111",
-  destinationDomain: "2221",
+  destinationDomain: "3331",
 };
 
 const mockCallData = {
@@ -42,6 +42,9 @@ const mockCallData = {
   forceSlow: false,
   recovery: mkAddress("0x1"),
   receiveLocal: false,
+  slippageTol: "0",
+  agent: "foo",
+  relayerFee: "1",
 };
 
 export const mockOriginTransferEntity = {
@@ -52,7 +55,6 @@ export const mockOriginTransferEntity = {
   transactingAmount: "100",
   bridgedAsset: mkAddress("0x12"),
   bridgedAmount: "100",
-  relayerFee: "1",
   caller: mkAddress("0x2"),
   transactionHash: mkBytes32("0xbbb"),
   timestamp: "11111111",
@@ -90,9 +92,9 @@ const defaultContext: { config: SubgraphMap } = {
   config: {
     sources: {
       "1111": { domain: "1111", prefix: "rinkeby" },
-      "2221": { domain: "2221", prefix: "kovan" },
+      "3331": { domain: "3331", prefix: "goerli" },
     },
-    supported: { "1111": true, "2221": true, "5555555555555": false },
+    supported: { "1111": true, "3331": true, "5555555555555": false },
   },
 };
 export let mockContext: any;

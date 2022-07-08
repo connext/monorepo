@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT OR Apache-2.0
-pragma solidity 0.8.14;
+pragma solidity 0.8.15;
 
 // ============ External Imports ============
 import {TypedMemView} from "../../../nomad-core/libs/TypedMemView.sol";
@@ -138,8 +138,8 @@ library PromiseMessage {
     }
     uint256 _length = lengthOfReturnData(_view);
     // before = 1 byte identifier + 32 bytes transferId + 20 bytes callback address + 1 byte success + 32 bytes length + x bytes data
-    // nonzero return data
-    return _length > 0 && (RETURNDATA_START + _length) == _len;
+    // allow zero-length return data
+    return _length >= 0 && (RETURNDATA_START + _length) == _len;
   }
 
   /**

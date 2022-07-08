@@ -60,6 +60,9 @@ export const createTask = async (
         forceSlow: decoded.params.forceSlow,
         receiveLocal: decoded.params.receiveLocal,
         recovery: decoded.params.recovery,
+        agent: decoded.params.agent,
+        relayerFee: decoded.params.relayerFee,
+        slippageTol: decoded.params.slippageTol,
       },
       local: decoded.local,
       routers: decoded.routers,
@@ -67,7 +70,6 @@ export const createTask = async (
       amount: decoded.amount.toString(),
       nonce: (decoded.nonce as BigNumber).toNumber(),
       originSender: decoded.originSender,
-      relayerFee: decoded.relayerFee,
     };
     logger.debug("Parsed execute arguments", requestContext, methodContext, { args });
   } catch (error: unknown) {

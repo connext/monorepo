@@ -28,7 +28,7 @@
     "ajv": "8.11.0",
     "ajv-formats": "2.1.1",
     "axios": "0.27.2",
-    "ethers": "5.6.8",
+    "ethers": "5.6.9",
     "evt": "1.10.2",
     "interval-promise": "1.4.0",
     "p-queue": "6.6.2"

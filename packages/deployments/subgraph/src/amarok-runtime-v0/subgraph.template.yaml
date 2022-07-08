@@ -37,9 +37,9 @@ dataSources:
           handler: handleRouterLiquidityAdded
         - event: RouterLiquidityRemoved(indexed address,address,address,uint256,address)
           handler: handleRouterLiquidityRemoved
-        - event: XCalled(indexed bytes32,((address,bytes,uint32,uint32,address,address,uint256,bool,bool),address,uint256,uint256),(address,uint256,uint256,address),uint256,bytes,address)
+        - event: XCalled(indexed bytes32,((address,bytes,uint32,uint32,address,address,bool,bool,address,uint256,uint256,uint256),address,uint256),(address,uint256,uint256,address),uint256,bytes,address)
           handler: handleXCalled
-        - event: Executed(indexed bytes32,indexed address,((address,bytes,uint32,uint32,address,address,uint256,bool,bool),address,address[],bytes[],uint256,uint256,uint256,address),address,uint256,address)
+        - event: Executed(indexed bytes32,indexed address,((address,bytes,uint32,uint32,address,address,bool,bool,address,uint256,uint256,uint256),address,address[],bytes[],uint256,uint256,address),address,uint256,address)
           handler: handleExecuted
           # Reconciled: transferId, origin, routers, asset, amount, caller
         - event: Reconciled(indexed bytes32,indexed uint32,address[],address,uint256,address)

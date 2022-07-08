@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT OR Apache-2.0
-pragma solidity 0.8.14;
+pragma solidity 0.8.15;
 
 library Encoding {
   // ============ Constants ============
@@ -19,7 +19,7 @@ library Encoding {
     uint80 ASCII_0 = 0x30;
     // all over/underflows are impossible
     // this will ALWAYS produce 10 decimal characters
-    for (uint8 i = 0; i < 10; i += 1) {
+    for (uint8 i; i < 10; i += 1) {
       _encoded |= ((_num % 10) + ASCII_0) << (i * 8);
       _num = _num / 10;
     }

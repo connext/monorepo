@@ -1,12 +1,15 @@
 // SPDX-License-Identifier: UNLICENSED
-pragma solidity 0.8.14;
+pragma solidity 0.8.15;
 
-import {ProposedOwnable} from "../../../contracts/core/shared/ProposedOwnable.sol";
+import {ERC1967Proxy} from "@openzeppelin/contracts/proxy/ERC1967/ERC1967Proxy.sol";
+import {Initializable} from "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
+
+import {ProposedOwnable, ProposedOwnableUpgradeable} from "../../../contracts/core/shared/ProposedOwnable.sol";
 
 import "../../utils/ForgeHelper.sol";
 import "../../utils/Mock.sol";
 
-contract ProposedOwnableFacetTest is ProposedOwnable, ForgeHelper {
+contract ProposedOwnableTest is ProposedOwnable, ForgeHelper {
   // ============ Storage ============
   address _default = address(123123);
 
@@ -172,5 +175,47 @@ contract ProposedOwnableFacetTest is ProposedOwnable, ForgeHelper {
 
   function test_ProposedOwnable__acceptProposedOwner_works() public {
     utils_transferOwnership(address(12));
+  }
+}
+
+contract OwnableHelper is Initializable, ProposedOwnableUpgradeable {
+  function initialize() public initializer {
+    __ProposedOwnable_init();
+  }
+}
+
+contract Proxy is ERC1967Proxy {
+  constructor(address _logic, bytes memory _data) ERC1967Proxy(_logic, _data) {}
+
+  function upgradeTo(address newImpl) public {
+    _upgradeTo(newImpl);
+  }
+
+  function implementation() public returns (address) {
+    return _implementation();
+  }
+}
+
+contract ProposedOwnableUpgradeableTest is ForgeHelper {
+  OwnableHelper upgradeable;
+  Proxy proxy;
+
+  function setUp() public {
+    OwnableHelper impl = new OwnableHelper();
+
+    proxy = new Proxy(address(impl), abi.encodeWithSelector(OwnableHelper.initialize.selector, bytes("")));
+
+    upgradeable = OwnableHelper(payable(address(proxy)));
+  }
+
+  function test_ProposedOwnableUpgradeable__initialize_works() public {
+    assertEq(upgradeable.owner(), address(this));
+  }
+
+  function test_ProposedOwnableUpgradeable__upgrade_works() public {
+    OwnableHelper impl = new OwnableHelper();
+    proxy.upgradeTo(address(impl));
+    assertEq(proxy.implementation(), address(impl));
+    assertEq(upgradeable.owner(), address(this));
   }
 }

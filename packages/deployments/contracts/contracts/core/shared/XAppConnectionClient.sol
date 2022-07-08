@@ -11,6 +11,9 @@ abstract contract XAppConnectionClient is ProposedOwnableUpgradeable {
   // ============ Mutable Storage ============
 
   XAppConnectionManager public xAppConnectionManager;
+
+  // ============ Upgrade Gap ============
+
   uint256[49] private __GAP; // gap for upgrade safety
 
   // ============ Modifiers ============
@@ -51,7 +54,7 @@ abstract contract XAppConnectionClient is ProposedOwnableUpgradeable {
   }
 
   /**
-   * @notice Determine whether _potentialReplcia is an enrolled Replica from the xAppConnectionManager
+   * @notice Determine whether _potentialReplica is an enrolled Replica from the xAppConnectionManager
    * @return True if _potentialReplica is an enrolled Replica
    */
   function _isReplica(address _potentialReplica) internal view returns (bool) {
