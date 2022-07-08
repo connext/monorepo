@@ -114,11 +114,8 @@ locals {
       "1111" = {
         providers = ["https://eth-rinkeby.alchemyapi.io/v2/${var.rinkeby_alchemy_key_1}"]
       }
-      "2221" = {
-        providers = ["https://eth-kovan.alchemyapi.io/v2/${var.kovan_alchemy_key_1}"]
-      }
       "3331" = {
-        providers = ["https://eth-goerli.alchemyapi.io/v2/${var.kovan_alchemy_key_1}"]
+        providers = ["https://eth-goerli.alchemyapi.io/v2/${var.goerli_alchemy_key_1}"]
       }
     }
     environment = var.stage

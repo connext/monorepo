@@ -179,11 +179,14 @@ type local1337_DestinationTransfer {
   callData: local1337_Bytes
   originDomain: BigInt
   destinationDomain: BigInt
+  agent: local1337_Bytes
   recovery: local1337_Bytes
-  callback: local1337_Bytes
-  callbackFee: BigInt
   forceSlow: Boolean
   receiveLocal: Boolean
+  callback: local1337_Bytes
+  callbackFee: BigInt
+  relayerFee: BigInt
+  slippageTol: BigInt
   status: local1337_TransferStatus
   routers(skip: Int = 0, first: Int = 100, orderBy: local1337_Router_orderBy, orderDirection: local1337_OrderDirection, where: local1337_Router_filter): [local1337_Router!]
   originSender: local1337_Bytes
@@ -265,12 +268,26 @@ input local1337_DestinationTransfer_filter {
   destinationDomain_lte: BigInt
   destinationDomain_in: [BigInt!]
   destinationDomain_not_in: [BigInt!]
+  agent: local1337_Bytes
+  agent_not: local1337_Bytes
+  agent_in: [local1337_Bytes!]
+  agent_not_in: [local1337_Bytes!]
+  agent_contains: local1337_Bytes
+  agent_not_contains: local1337_Bytes
   recovery: local1337_Bytes
   recovery_not: local1337_Bytes
   recovery_in: [local1337_Bytes!]
   recovery_not_in: [local1337_Bytes!]
   recovery_contains: local1337_Bytes
   recovery_not_contains: local1337_Bytes
+  forceSlow: Boolean
+  forceSlow_not: Boolean
+  forceSlow_in: [Boolean!]
+  forceSlow_not_in: [Boolean!]
+  receiveLocal: Boolean
+  receiveLocal_not: Boolean
+  receiveLocal_in: [Boolean!]
+  receiveLocal_not_in: [Boolean!]
   callback: local1337_Bytes
   callback_not: local1337_Bytes
   callback_in: [local1337_Bytes!]
@@ -285,14 +302,22 @@ input local1337_DestinationTransfer_filter {
   callbackFee_lte: BigInt
   callbackFee_in: [BigInt!]
   callbackFee_not_in: [BigInt!]
-  forceSlow: Boolean
-  forceSlow_not: Boolean
-  forceSlow_in: [Boolean!]
-  forceSlow_not_in: [Boolean!]
-  receiveLocal: Boolean
-  receiveLocal_not: Boolean
-  receiveLocal_in: [Boolean!]
-  receiveLocal_not_in: [Boolean!]
+  relayerFee: BigInt
+  relayerFee_not: BigInt
+  relayerFee_gt: BigInt
+  relayerFee_lt: BigInt
+  relayerFee_gte: BigInt
+  relayerFee_lte: BigInt
+  relayerFee_in: [BigInt!]
+  relayerFee_not_in: [BigInt!]
+  slippageTol: BigInt
+  slippageTol_not: BigInt
+  slippageTol_gt: BigInt
+  slippageTol_lt: BigInt
+  slippageTol_gte: BigInt
+  slippageTol_lte: BigInt
+  slippageTol_in: [BigInt!]
+  slippageTol_not_in: [BigInt!]
   status: local1337_TransferStatus
   status_not: local1337_TransferStatus
   status_in: [local1337_TransferStatus!]
@@ -447,11 +472,14 @@ enum local1337_DestinationTransfer_orderBy {
   callData
   originDomain
   destinationDomain
+  agent
   recovery
-  callback
-  callbackFee
   forceSlow
   receiveLocal
+  callback
+  callbackFee
+  relayerFee
+  slippageTol
   status
   routers
   originSender
@@ -489,13 +517,15 @@ type local1337_OriginTransfer {
   callData: local1337_Bytes
   originDomain: BigInt
   destinationDomain: BigInt
+  agent: local1337_Bytes
   recovery: local1337_Bytes
-  callback: local1337_Bytes
-  callbackFee: BigInt
   forceSlow: Boolean
   receiveLocal: Boolean
-  status: local1337_TransferStatus
+  callback: local1337_Bytes
+  callbackFee: BigInt
   relayerFee: BigInt
+  slippageTol: BigInt
+  status: local1337_TransferStatus
   message: local1337_Bytes
   transactingAsset: local1337_Bytes
   transactingAmount: BigInt
@@ -568,12 +598,26 @@ input local1337_OriginTransfer_filter {
   destinationDomain_lte: BigInt
   destinationDomain_in: [BigInt!]
   destinationDomain_not_in: [BigInt!]
+  agent: local1337_Bytes
+  agent_not: local1337_Bytes
+  agent_in: [local1337_Bytes!]
+  agent_not_in: [local1337_Bytes!]
+  agent_contains: local1337_Bytes
+  agent_not_contains: local1337_Bytes
   recovery: local1337_Bytes
   recovery_not: local1337_Bytes
   recovery_in: [local1337_Bytes!]
   recovery_not_in: [local1337_Bytes!]
   recovery_contains: local1337_Bytes
   recovery_not_contains: local1337_Bytes
+  forceSlow: Boolean
+  forceSlow_not: Boolean
+  forceSlow_in: [Boolean!]
+  forceSlow_not_in: [Boolean!]
+  receiveLocal: Boolean
+  receiveLocal_not: Boolean
+  receiveLocal_in: [Boolean!]
+  receiveLocal_not_in: [Boolean!]
   callback: local1337_Bytes
   callback_not: local1337_Bytes
   callback_in: [local1337_Bytes!]
@@ -588,18 +632,6 @@ input local1337_OriginTransfer_filter {
   callbackFee_lte: BigInt
   callbackFee_in: [BigInt!]
   callbackFee_not_in: [BigInt!]
-  forceSlow: Boolean
-  forceSlow_not: Boolean
-  forceSlow_in: [Boolean!]
-  forceSlow_not_in: [Boolean!]
-  receiveLocal: Boolean
-  receiveLocal_not: Boolean
-  receiveLocal_in: [Boolean!]
-  receiveLocal_not_in: [Boolean!]
-  status: local1337_TransferStatus
-  status_not: local1337_TransferStatus
-  status_in: [local1337_TransferStatus!]
-  status_not_in: [local1337_TransferStatus!]
   relayerFee: BigInt
   relayerFee_not: BigInt
   relayerFee_gt: BigInt
@@ -608,6 +640,18 @@ input local1337_OriginTransfer_filter {
   relayerFee_lte: BigInt
   relayerFee_in: [BigInt!]
   relayerFee_not_in: [BigInt!]
+  slippageTol: BigInt
+  slippageTol_not: BigInt
+  slippageTol_gt: BigInt
+  slippageTol_lt: BigInt
+  slippageTol_gte: BigInt
+  slippageTol_lte: BigInt
+  slippageTol_in: [BigInt!]
+  slippageTol_not_in: [BigInt!]
+  status: local1337_TransferStatus
+  status_not: local1337_TransferStatus
+  status_in: [local1337_TransferStatus!]
+  status_not_in: [local1337_TransferStatus!]
   message: local1337_Bytes
   message_not: local1337_Bytes
   message_in: [local1337_Bytes!]
@@ -699,13 +743,15 @@ enum local1337_OriginTransfer_orderBy {
   callData
   originDomain
   destinationDomain
+  agent
   recovery
-  callback
-  callbackFee
   forceSlow
   receiveLocal
-  status
+  callback
+  callbackFee
   relayerFee
+  slippageTol
+  status
   message
   transactingAsset
   transactingAmount

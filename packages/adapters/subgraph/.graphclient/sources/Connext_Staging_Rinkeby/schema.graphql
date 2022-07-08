@@ -179,11 +179,14 @@ type stagingrinkeby_DestinationTransfer {
   callData: stagingrinkeby_Bytes
   originDomain: BigInt
   destinationDomain: BigInt
+  agent: stagingrinkeby_Bytes
   recovery: stagingrinkeby_Bytes
-  callback: stagingrinkeby_Bytes
-  callbackFee: BigInt
   forceSlow: Boolean
   receiveLocal: Boolean
+  callback: stagingrinkeby_Bytes
+  callbackFee: BigInt
+  relayerFee: BigInt
+  slippageTol: BigInt
   status: stagingrinkeby_TransferStatus
   routers(skip: Int = 0, first: Int = 100, orderBy: stagingrinkeby_Router_orderBy, orderDirection: stagingrinkeby_OrderDirection, where: stagingrinkeby_Router_filter): [stagingrinkeby_Router!]
   originSender: stagingrinkeby_Bytes
@@ -265,12 +268,26 @@ input stagingrinkeby_DestinationTransfer_filter {
   destinationDomain_lte: BigInt
   destinationDomain_in: [BigInt!]
   destinationDomain_not_in: [BigInt!]
+  agent: stagingrinkeby_Bytes
+  agent_not: stagingrinkeby_Bytes
+  agent_in: [stagingrinkeby_Bytes!]
+  agent_not_in: [stagingrinkeby_Bytes!]
+  agent_contains: stagingrinkeby_Bytes
+  agent_not_contains: stagingrinkeby_Bytes
   recovery: stagingrinkeby_Bytes
   recovery_not: stagingrinkeby_Bytes
   recovery_in: [stagingrinkeby_Bytes!]
   recovery_not_in: [stagingrinkeby_Bytes!]
   recovery_contains: stagingrinkeby_Bytes
   recovery_not_contains: stagingrinkeby_Bytes
+  forceSlow: Boolean
+  forceSlow_not: Boolean
+  forceSlow_in: [Boolean!]
+  forceSlow_not_in: [Boolean!]
+  receiveLocal: Boolean
+  receiveLocal_not: Boolean
+  receiveLocal_in: [Boolean!]
+  receiveLocal_not_in: [Boolean!]
   callback: stagingrinkeby_Bytes
   callback_not: stagingrinkeby_Bytes
   callback_in: [stagingrinkeby_Bytes!]
@@ -285,14 +302,22 @@ input stagingrinkeby_DestinationTransfer_filter {
   callbackFee_lte: BigInt
   callbackFee_in: [BigInt!]
   callbackFee_not_in: [BigInt!]
-  forceSlow: Boolean
-  forceSlow_not: Boolean
-  forceSlow_in: [Boolean!]
-  forceSlow_not_in: [Boolean!]
-  receiveLocal: Boolean
-  receiveLocal_not: Boolean
-  receiveLocal_in: [Boolean!]
-  receiveLocal_not_in: [Boolean!]
+  relayerFee: BigInt
+  relayerFee_not: BigInt
+  relayerFee_gt: BigInt
+  relayerFee_lt: BigInt
+  relayerFee_gte: BigInt
+  relayerFee_lte: BigInt
+  relayerFee_in: [BigInt!]
+  relayerFee_not_in: [BigInt!]
+  slippageTol: BigInt
+  slippageTol_not: BigInt
+  slippageTol_gt: BigInt
+  slippageTol_lt: BigInt
+  slippageTol_gte: BigInt
+  slippageTol_lte: BigInt
+  slippageTol_in: [BigInt!]
+  slippageTol_not_in: [BigInt!]
   status: stagingrinkeby_TransferStatus
   status_not: stagingrinkeby_TransferStatus
   status_in: [stagingrinkeby_TransferStatus!]
@@ -447,11 +472,14 @@ enum stagingrinkeby_DestinationTransfer_orderBy {
   callData
   originDomain
   destinationDomain
+  agent
   recovery
-  callback
-  callbackFee
   forceSlow
   receiveLocal
+  callback
+  callbackFee
+  relayerFee
+  slippageTol
   status
   routers
   originSender
@@ -489,13 +517,15 @@ type stagingrinkeby_OriginTransfer {
   callData: stagingrinkeby_Bytes
   originDomain: BigInt
   destinationDomain: BigInt
+  agent: stagingrinkeby_Bytes
   recovery: stagingrinkeby_Bytes
-  callback: stagingrinkeby_Bytes
-  callbackFee: BigInt
   forceSlow: Boolean
   receiveLocal: Boolean
-  status: stagingrinkeby_TransferStatus
+  callback: stagingrinkeby_Bytes
+  callbackFee: BigInt
   relayerFee: BigInt
+  slippageTol: BigInt
+  status: stagingrinkeby_TransferStatus
   message: stagingrinkeby_Bytes
   transactingAsset: stagingrinkeby_Bytes
   transactingAmount: BigInt
@@ -568,12 +598,26 @@ input stagingrinkeby_OriginTransfer_filter {
   destinationDomain_lte: BigInt
   destinationDomain_in: [BigInt!]
   destinationDomain_not_in: [BigInt!]
+  agent: stagingrinkeby_Bytes
+  agent_not: stagingrinkeby_Bytes
+  agent_in: [stagingrinkeby_Bytes!]
+  agent_not_in: [stagingrinkeby_Bytes!]
+  agent_contains: stagingrinkeby_Bytes
+  agent_not_contains: stagingrinkeby_Bytes
   recovery: stagingrinkeby_Bytes
   recovery_not: stagingrinkeby_Bytes
   recovery_in: [stagingrinkeby_Bytes!]
   recovery_not_in: [stagingrinkeby_Bytes!]
   recovery_contains: stagingrinkeby_Bytes
   recovery_not_contains: stagingrinkeby_Bytes
+  forceSlow: Boolean
+  forceSlow_not: Boolean
+  forceSlow_in: [Boolean!]
+  forceSlow_not_in: [Boolean!]
+  receiveLocal: Boolean
+  receiveLocal_not: Boolean
+  receiveLocal_in: [Boolean!]
+  receiveLocal_not_in: [Boolean!]
   callback: stagingrinkeby_Bytes
   callback_not: stagingrinkeby_Bytes
   callback_in: [stagingrinkeby_Bytes!]
@@ -588,18 +632,6 @@ input stagingrinkeby_OriginTransfer_filter {
   callbackFee_lte: BigInt
   callbackFee_in: [BigInt!]
   callbackFee_not_in: [BigInt!]
-  forceSlow: Boolean
-  forceSlow_not: Boolean
-  forceSlow_in: [Boolean!]
-  forceSlow_not_in: [Boolean!]
-  receiveLocal: Boolean
-  receiveLocal_not: Boolean
-  receiveLocal_in: [Boolean!]
-  receiveLocal_not_in: [Boolean!]
-  status: stagingrinkeby_TransferStatus
-  status_not: stagingrinkeby_TransferStatus
-  status_in: [stagingrinkeby_TransferStatus!]
-  status_not_in: [stagingrinkeby_TransferStatus!]
   relayerFee: BigInt
   relayerFee_not: BigInt
   relayerFee_gt: BigInt
@@ -608,6 +640,18 @@ input stagingrinkeby_OriginTransfer_filter {
   relayerFee_lte: BigInt
   relayerFee_in: [BigInt!]
   relayerFee_not_in: [BigInt!]
+  slippageTol: BigInt
+  slippageTol_not: BigInt
+  slippageTol_gt: BigInt
+  slippageTol_lt: BigInt
+  slippageTol_gte: BigInt
+  slippageTol_lte: BigInt
+  slippageTol_in: [BigInt!]
+  slippageTol_not_in: [BigInt!]
+  status: stagingrinkeby_TransferStatus
+  status_not: stagingrinkeby_TransferStatus
+  status_in: [stagingrinkeby_TransferStatus!]
+  status_not_in: [stagingrinkeby_TransferStatus!]
   message: stagingrinkeby_Bytes
   message_not: stagingrinkeby_Bytes
   message_in: [stagingrinkeby_Bytes!]
@@ -699,13 +743,15 @@ enum stagingrinkeby_OriginTransfer_orderBy {
   callData
   originDomain
   destinationDomain
+  agent
   recovery
-  callback
-  callbackFee
   forceSlow
   receiveLocal
-  status
+  callback
+  callbackFee
   relayerFee
+  slippageTol
+  status
   message
   transactingAsset
   transactingAmount
