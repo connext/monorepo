@@ -43,8 +43,13 @@ services:
     environment:
       GRAPH_1337_ENDPOINT: "http://graph-node-1337:8000/subgraphs/name/connext/nxtp"
       GRAPH_1338_ENDPOINT: "http://graph-node-1338:8000/subgraphs/name/connext/nxtp"
-      SEQ_RELAYER_URL: "http://relayer:8082"
-      
+
+  sequencer-cache:
+    container_name: sequencer-cache
+    image: redis:latest
+    ports:
+      - "6380:6379"
+
   relayer:
     container_name: relayer
     depends_on:
@@ -61,11 +66,11 @@ services:
       - ${PWD}/docker/relayer/:/home/node/agents/relayer/
       - ${PWD}/docker/relayer/config.local.json:/home/node/packages/agents/relayer/config.json
 
-  sequencer-cache:
-    container_name: sequencer-cache
+  relayer-cache:
+    container_name: relayer-cache
     image: redis:latest
     ports:
-      - "6380:6379"
+      - "6381:6379"
 
   signer:
     container_name: signer
