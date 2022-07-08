@@ -31,7 +31,7 @@ describe("Helpers:parse", () => {
       const entity = {
         transferId: mkBytes32(),
         originDomain: "1111",
-        destinationDomain: "2221",
+        destinationDomain: "3331",
         nonce: 0,
         to: mkAddress(),
       };
@@ -47,7 +47,7 @@ describe("Helpers:parse", () => {
         nonce: 0,
         relayerFee: "1",
         xparams: {
-          destinationDomain: "2221",
+          destinationDomain: "3331",
           originDomain: "1111",
           to: "0x1000000000000000000000000000000000000000",
           callData: "0x",
@@ -86,7 +86,7 @@ describe("Helpers:parse", () => {
         nonce: 0,
         relayerFee: "1",
         xparams: {
-          destinationDomain: "2221",
+          destinationDomain: "3331",
           originDomain: "1111",
           to: "0x1000000000000000000000000000000000000000",
           callData: "0x",
@@ -188,7 +188,7 @@ describe("Helpers:parse", () => {
         origin: undefined,
         transferId: "0xaaa0000000000000000000000000000000000000000000000000000000000000",
         xparams: {
-          destinationDomain: "2221",
+          destinationDomain: "3331",
           originDomain: "1111",
           callData: "0x",
           callback: "0xaaa0000000000000000000000000000000000000",
@@ -255,7 +255,7 @@ describe("Helpers:parse", () => {
           callData: "0x",
           callback: "0xaaa0000000000000000000000000000000000000",
           callbackFee: "0",
-          destinationDomain: "2221",
+          destinationDomain: "3331",
           forceSlow: false,
           originDomain: "1111",
           receiveLocal: false,
@@ -330,7 +330,7 @@ describe("Helpers:parse", () => {
         ],
       ]);
 
-      expect(xqeuryRes.get("2221")).to.be.deep.eq([
+      expect(xqeuryRes.get("3331")).to.be.deep.eq([
         [
           {
             id: "0x1120000000000000000000000000000000000000000000000000000000000000",

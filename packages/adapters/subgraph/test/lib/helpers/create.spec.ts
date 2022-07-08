@@ -7,7 +7,7 @@ import { mockChainData } from "../../mock";
 describe("Helpers:create", () => {
   describe("#getNetwork", () => {
     it("should return the valid value in case of staging", () => {
-      expect(getNetwork("Connext_Staging_Rinkeby", "staging")[1]).to.be.eq("Rinkeby");
+      expect(getNetwork("Connext_Staging_Rinkeby", "staging")![1]).to.be.eq("Rinkeby");
     });
     it("should return null in case of staging", () => {
       expect(getNetwork("Connext_Rinkeby", "staging")).to.be.eq(null);
@@ -17,7 +17,7 @@ describe("Helpers:create", () => {
       expect(getNetwork("Connext_Staging_Rinkeby", "production")).to.be.eq(null);
     });
     it("should return null in case of staging", () => {
-      expect(getNetwork("Connext_Rinkeby", "production")[1]).to.be.eq("Rinkeby");
+      expect(getNetwork("Connext_Rinkeby", "production")![1]).to.be.eq("Rinkeby");
     });
   });
   describe("#create", () => {
@@ -36,9 +36,9 @@ describe("Helpers:create", () => {
       const response = {
         sources: {
           "1111": { domain: "1111", prefix: "stagingrinkeby" },
-          "2221": { domain: "2221", prefix: "stagingkovan" },
+          "3331": { domain: "3331", prefix: "stagingkovan" },
         },
-        supported: { "1111": true, "2221": true, "5555555555555": false },
+        supported: { "1111": true, "3331": true, "5555555555555": false },
       };
       expect(subgraphMap).to.be.deep.eq(response);
     });
@@ -49,9 +49,9 @@ describe("Helpers:create", () => {
       const response = {
         sources: {
           "1111": { domain: "1111", prefix: "rinkeby" },
-          "2221": { domain: "2221", prefix: "kovan" },
+          "3331": { domain: "3331", prefix: "kovan" },
         },
-        supported: { "1111": true, "2221": true, "5555555555555": false },
+        supported: { "1111": true, "3331": true, "5555555555555": false },
       };
       expect(subgraphMap).to.be.deep.eq(response);
     });
@@ -62,9 +62,9 @@ describe("Helpers:create", () => {
       const response = {
         sources: {
           "1111": { domain: "1111", prefix: "rinkeby" },
-          "2221": { domain: "2221", prefix: "kovan" },
+          "3331": { domain: "3331", prefix: "kovan" },
         },
-        supported: { "1111": true, "2221": true, "5555555555555": false },
+        supported: { "1111": true, "3331": true, "5555555555555": false },
       };
       expect(subgraphMap).to.be.deep.eq(response);
     });
