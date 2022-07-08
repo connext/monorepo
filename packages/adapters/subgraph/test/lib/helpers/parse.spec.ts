@@ -297,14 +297,14 @@ describe("Helpers:parse", () => {
               amount: "1000000000000000",
             },
           ],
-          kovan_assets: [
+          goerli_assets: [
             {
               id: mkBytes32("0x112"),
               local: mkAddress("0x21"),
               adoptedAsset: mkAddress("0x22"),
             },
           ],
-          kovan_assetBalances: [
+          goerli_assetBalances: [
             {
               id: `${mkAddress("0x22")}-${mkAddress("0x23")}`,
               amount: "1000000000000000",

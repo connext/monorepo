@@ -31,12 +31,12 @@ describe("Helpers:create", () => {
     });
 
     it("happy: create the staging subgraphMap by parsing chainData", async () => {
-      getSubgraphNamesStub.resolves(["Connext_Staging_Rinkeby", "Connext_Staging_Kovan"]);
+      getSubgraphNamesStub.resolves(["Connext_Staging_Rinkeby", "Connext_Staging_Goerli"]);
       const subgraphMap = await create(mockChainData, "staging");
       const response = {
         sources: {
           "1111": { domain: "1111", prefix: "stagingrinkeby" },
-          "3331": { domain: "3331", prefix: "stagingkovan" },
+          "3331": { domain: "3331", prefix: "staginggoerli" },
         },
         supported: { "1111": true, "3331": true, "5555555555555": false },
       };
@@ -44,12 +44,12 @@ describe("Helpers:create", () => {
     });
 
     it("happy: create the production subgraphMap by parsing chainData", async () => {
-      getSubgraphNamesStub.resolves(["Connext_Rinkeby", "Connext_Kovan"]);
+      getSubgraphNamesStub.resolves(["Connext_Rinkeby", "Connext_Goerli"]);
       const subgraphMap = await create(mockChainData, "production");
       const response = {
         sources: {
           "1111": { domain: "1111", prefix: "rinkeby" },
-          "3331": { domain: "3331", prefix: "kovan" },
+          "3331": { domain: "3331", prefix: "goerli" },
         },
         supported: { "1111": true, "3331": true, "5555555555555": false },
       };
@@ -57,12 +57,12 @@ describe("Helpers:create", () => {
     });
 
     it("happy: create the production subgraphMap by default", async () => {
-      getSubgraphNamesStub.resolves(["Connext_Rinkeby", "Connext_Kovan"]);
+      getSubgraphNamesStub.resolves(["Connext_Rinkeby", "Connext_Goerli"]);
       const subgraphMap = await create(mockChainData);
       const response = {
         sources: {
           "1111": { domain: "1111", prefix: "rinkeby" },
-          "3331": { domain: "3331", prefix: "kovan" },
+          "3331": { domain: "3331", prefix: "goerli" },
         },
         supported: { "1111": true, "3331": true, "5555555555555": false },
       };
@@ -70,7 +70,7 @@ describe("Helpers:create", () => {
     });
 
     it("happy: should support all the domains", async () => {
-      getSubgraphNamesStub.resolves(["Connext_Rinkeby", "Connext_Kovan"]);
+      getSubgraphNamesStub.resolves(["Connext_Rinkeby", "Connext_Goerli"]);
       const _chainData = chainDataToMap([
         {
           name: "Rinkeby Testnet",
