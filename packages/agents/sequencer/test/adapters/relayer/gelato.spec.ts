@@ -78,7 +78,7 @@ describe("Adapters: Gelato", () => {
       expect(
         send(
           mock.chain.A,
-          ctxMock.config.chains[mock.domain.A].deployments.connext,
+          ctxMock.config.chains[mock.chain.A].deployments.connext,
           "0xbeed",
           loggingContext.requestContext,
         ),
@@ -88,7 +88,7 @@ describe("Adapters: Gelato", () => {
     it("should send the bid to the relayer", async () => {
       const taskId = await send(
         mock.chain.A,
-        ctxMock.config.chains[mock.domain.A].deployments.connext,
+        ctxMock.config.chains[mock.chain.A].deployments.connext,
         "0xbeed",
         loggingContext.requestContext,
       );

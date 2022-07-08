@@ -33,14 +33,14 @@ describe("Adapters: Gelato", () => {
     it("should error if gelato returns error", async () => {
       gelatoSendStub.resolves(mockAxiosErrorResponse);
       expect(
-        send(mock.chain.A, ctxMock.config.chains[mock.domain.A].deployments.connext, "0xbeed", requestContext),
+        send(mock.chain.A, ctxMock.config.chains[mock.chain.A].deployments.connext, "0xbeed", requestContext),
       ).to.eventually.be.rejectedWith(RelayerSendFailed);
     });
 
     it("should send the bid to the relayer", async () => {
       const taskId = await send(
         mock.chain.A,
-        ctxMock.config.chains[mock.domain.A].deployments.connext,
+        ctxMock.config.chains[mock.chain.A].deployments.connext,
         "0xbeed",
         requestContext,
       );
@@ -51,7 +51,7 @@ describe("Adapters: Gelato", () => {
     it("should throw if the chain isn't supported by gelato", async () => {
       isChainSupportedByGelatoStub.resolves(false);
       expect(
-        send(mock.chain.A, ctxMock.config.chains[mock.domain.A].deployments.connext, "0xbeed", requestContext),
+        send(mock.chain.A, ctxMock.config.chains[mock.chain.A].deployments.connext, "0xbeed", requestContext),
       ).to.eventually.be.rejectedWith(new Error("Chain not supported by gelato."));
     });
   });
