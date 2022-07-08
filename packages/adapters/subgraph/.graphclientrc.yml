@@ -137,7 +137,7 @@ sources:
   - name: Connext_Local1337
     handler:
       graphql:
-        endpoint: "${GRAPH_1337_ENDPOINT}"
+        endpoint: "{env.GRAPH_1337_ENDPOINT}"
         retry: 5
         timeout: 30000 # 30 seconds
     transforms:
@@ -152,7 +152,7 @@ sources:
   - name: Connext_Local1338
     handler:
       graphql:
-        endpoint: "${GRAPH_1338_ENDPOINT}"
+        endpoint: "{env.GRAPH_1338_ENDPOINT}"
         retry: 5
         timeout: 30000 # 30 seconds
     transforms:
