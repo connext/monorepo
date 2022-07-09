@@ -911,9 +911,9 @@ __metadata:
     "@types/mocha": 9.1.1
     "@types/sinon": 10.0.12
     axios: 0.27.2
-    compare-versions: ^4.1.3
+    compare-versions: 4.1.3
     concurrently: 7.2.2
-    dd-trace: ^2.10.0
+    dd-trace: 2.10.0
     dotenv: 16.0.1
     eslint: 8.19.0
     ethers: 5.6.9
@@ -7616,7 +7616,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"compare-versions@npm:^4.0.0, compare-versions@npm:^4.1.3":
+"compare-versions@npm:4.1.3, compare-versions@npm:^4.0.0":
   version: 4.1.3
   resolution: "compare-versions@npm:4.1.3"
   checksum: 54460756ab2d62f8a9d672db249b248fec7ca41c3e8ed242925e2f2257793ad3e83cecb2cdfd60b46a3aabc962a3a4cbf37a4b928c8f30517822d2bde937a3d1
@@ -8098,7 +8098,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"dd-trace@npm:^2.10.0":
+"dd-trace@npm:2.10.0, dd-trace@npm:^2.10.0":
   version: 2.10.0
   resolution: "dd-trace@npm:2.10.0"
   dependencies:
