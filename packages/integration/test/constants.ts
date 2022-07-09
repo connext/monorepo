@@ -266,6 +266,7 @@ export const ROUTER_CONFIG: Promise<RouterConfig> = (async (): Promise<RouterCon
     auctionRoundDepth: 3,
     environment,
     nomadEnvironment: NOMAD_ENVIRONMENT,
+    messageQueueUrl: "",
   };
 })();
 

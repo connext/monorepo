@@ -35,6 +35,14 @@ export class TransfersCache extends Cache {
     return -1;
   }
 
+  public async setLatestNonce(domain: string, nonce: number): Promise<number> {
+    const res = await this.data.hset(`${this.prefix}:nonce`, domain, nonce);
+    if (res) {
+      return res;
+    }
+    return -1;
+  }
+
   /// MARK - Transfer Data
   /**
    * Gets transfer data by transfer ID.

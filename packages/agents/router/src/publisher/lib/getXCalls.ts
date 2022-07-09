@@ -1,13 +1,14 @@
 import { createLoggingContext, jsonifyError, NxtpError, SubgraphQueryMetaParams, XTransfer } from "@connext/nxtp-utils";
 
 import { DEFAULT_SAFE_CONFIRMATIONS } from "../bindings/subgraph";
-import { getContext } from "../publisher";
+import { getContext, MQ_EXCHANGE } from "../publisher";
 
 export const getXCalls = async () => {
   const {
     adapters: { cache, subgraph },
     logger,
     config,
+    mqClient,
   } = getContext();
   const { requestContext, methodContext } = createLoggingContext("pollSubgraph");
   try {
@@ -34,6 +35,7 @@ export const getXCalls = async () => {
         maxBlockNumber: latestBlockNumber - safeConfirmations,
         latestNonce: latestNonce + 1, // queries at >= latest nonce, so use 1 larger than whats in the cache
         destinationDomains,
+        orderDirection: "asc",
       });
     }
 
@@ -44,7 +46,19 @@ export const getXCalls = async () => {
           subgraphQueryMetaParams: [...subgraphQueryMetaParams.entries()],
         });
       } else {
-        await cache.transfers.storeTransfers(transfers);
+        await Promise.all(
+          transfers.map(async (transfer) => {
+            try {
+              await mqClient.publish(MQ_EXCHANGE, { body: transfer });
+              logger.debug("Published transfer to mq", requestContext, methodContext, { transfer });
+
+              // TODO: once per transfer instead
+              await cache.transfers.setLatestNonce(transfer.xparams.originDomain, transfer.nonce!);
+            } catch (e) {
+              logger.error("Error publishing to mq", requestContext, methodContext, jsonifyError(e as Error));
+            }
+          }),
+        );
       }
     }
   } catch (err: unknown) {

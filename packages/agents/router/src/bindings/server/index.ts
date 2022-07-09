@@ -14,7 +14,7 @@ import {
 import fastify, { FastifyInstance, FastifyReply } from "fastify";
 import { register } from "prom-client";
 
-import { getContext } from "../../router";
+import { getContext } from "../../subscriber/subscriber";
 
 export const bindServer = () =>
   new Promise<FastifyInstance>((res) => {

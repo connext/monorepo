@@ -1,4 +1,3 @@
-import { Wallet } from "ethers";
 import {
   createMethodContext,
   createRequestContext,
@@ -9,24 +8,26 @@ import {
   ChainData,
 } from "@connext/nxtp-utils";
 import { SubgraphReader } from "@connext/nxtp-adapters-subgraph";
-import { Web3Signer } from "@connext/nxtp-adapters-web3signer";
-import { getContractInterfaces, contractDeployments } from "@connext/nxtp-txservice";
+import { contractDeployments } from "@connext/nxtp-txservice";
 import axios from "axios";
 import rabbit from "foo-foo-mq";
 
 import { getConfig, NxtpRouterConfig } from "../config";
-import { bindMetrics, bindPrices, bindSubgraph, bindServer, bindCache } from "../bindings";
+import { bindMetrics, bindCache } from "../bindings";
 import { getHelpers } from "../lib/helpers";
 
 import { AppContext } from "./context";
+
+export const XCALL_QUEUE = "xcalls";
+export const MQ_EXCHANGE = "router";
 
 // AppContext instance used for interacting with adapters, config, etc.
 const context: AppContext = {} as any;
 export const getContext = () => context;
 
-export const makeSubgraphPoller = async (_configOverride?: NxtpRouterConfig) => {
-  const requestContext = createRequestContext("Subgraph Poller Init");
-  const methodContext = createMethodContext(makeSubgraphPoller.name);
+export const makePublisher = async (_configOverride?: NxtpRouterConfig) => {
+  const requestContext = createRequestContext("Publisher Init");
+  const methodContext = createMethodContext(makePublisher.name);
 
   try {
     context.adapters = {} as any;
@@ -35,13 +36,6 @@ export const makeSubgraphPoller = async (_configOverride?: NxtpRouterConfig) => 
     // Get ChainData and parse out configuration.
     context.chainData = await getChainData();
     context.config = _configOverride ?? (await getConfig(context.chainData, contractDeployments));
-
-    /// MARK - Signer
-    context.adapters.wallet = context.config.mnemonic
-      ? Wallet.fromMnemonic(context.config.mnemonic)
-      : new Web3Signer(context.config.web3SignerUrl!);
-
-    context.routerAddress = await context.adapters.wallet.getAddress();
 
     /// MARK - Logger
     context.logger = new Logger({
@@ -59,7 +53,6 @@ export const makeSubgraphPoller = async (_configOverride?: NxtpRouterConfig) => 
 
     /// MARK - Adapters
     context.adapters.subgraph = await setupSubgraphReader(requestContext);
-    context.adapters.contracts = getContractInterfaces();
 
     /// MARK - Validation for auctionRoundDepth
 
@@ -86,15 +79,7 @@ export const makeSubgraphPoller = async (_configOverride?: NxtpRouterConfig) => 
     // - make sure a relayer is configured for supported chains.
 
     /// MARK - Bindings
-    // TODO: New diagnostic mode / cleanup mode?
-    if (context.config.mode.priceCaching) {
-      await bindPrices();
-    } else {
-      context.logger.warn("Running router without price caching.", requestContext, methodContext);
-    }
-    await bindServer();
     await bindMetrics();
-    await bindSubgraph();
     await bindCache();
 
     context.logger.info("Bindings initialized.", requestContext, methodContext);
@@ -169,7 +154,9 @@ export const setupMq = async (): Promise<typeof rabbit> => {
   const { config } = context;
   await rabbit.configure({
     connection: { host: config.messageQueueUrl.split(":")[0], port: Number(config.messageQueueUrl.split(":")[1]) },
-    queues: [{ name: "xcall" }],
+    queues: [{ name: XCALL_QUEUE }],
+    exchanges: [{ name: MQ_EXCHANGE, type: "direct" }],
+    bindings: [{ exchange: MQ_EXCHANGE, target: XCALL_QUEUE }],
   });
   return rabbit;
 };

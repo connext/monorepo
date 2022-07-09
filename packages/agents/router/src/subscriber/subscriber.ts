@@ -17,7 +17,7 @@ import rabbit from "foo-foo-mq";
 import { BridgeContext } from "@nomad-xyz/sdk-bridge";
 
 import { getConfig, NxtpRouterConfig } from "../config";
-import { bindMetrics, bindPrices, bindSubgraph, bindServer, bindCache } from "../bindings";
+import { bindMetrics, bindPrices, bindServer, bindCache } from "../bindings";
 import { AppContext } from "../lib/entities";
 import { getHelpers } from "../lib/helpers";
 
@@ -104,7 +104,6 @@ export const makeSubgraphPoller = async (_configOverride?: NxtpRouterConfig) => 
     }
     await bindServer();
     await bindMetrics();
-    await bindSubgraph();
     await bindCache();
 
     context.logger.info("Bindings initialized.", requestContext, methodContext);

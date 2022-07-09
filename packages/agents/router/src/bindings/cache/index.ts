@@ -3,7 +3,7 @@ import interval from "interval-promise";
 
 import { AuctionExpired } from "../../lib/errors";
 import { getOperations } from "../../lib/operations";
-import { getContext } from "../../router";
+import { getContext } from "../../subscriber/subscriber";
 
 // Ought to be configured properly for each network; we consult the chain config below.
 export const DEFAULT_SAFE_CONFIRMATIONS = 5;

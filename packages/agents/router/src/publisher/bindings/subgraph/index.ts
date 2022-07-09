@@ -1,7 +1,7 @@
-import { createLoggingContext, jsonifyError, NxtpError, SubgraphQueryMetaParams, XTransfer } from "@connext/nxtp-utils";
+import { createLoggingContext, jsonifyError } from "@connext/nxtp-utils";
 import interval from "interval-promise";
-import { getXCalls } from "../../lib/getXCalls";
 
+import { getXCalls } from "../../lib/getXCalls";
 import { getContext } from "../../publisher";
 
 // Ought to be configured properly for each network; we consult the chain config below.

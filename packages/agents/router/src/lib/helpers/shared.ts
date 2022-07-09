@@ -7,8 +7,7 @@ import {
   recoverRouterPathPayload as _recoverRouterPathPayload,
 } from "@connext/nxtp-utils";
 import { utils } from "ethers";
-
-import { getContext } from "../../router";
+import { getContext } from "../../subscriber/subscriber";
 
 /**
  * Returns local asset address on destination domain corresponding to local asset on origin domain
@@ -30,7 +29,7 @@ export const getDestinationLocalAsset = async (
   // get canonical asset from orgin domain.
   const sendingDomainAsset = await subgraph.getAssetByLocal(_originDomain, _originLocalAsset);
 
-  const canonicalId = sendingDomainAsset!.canonicalId ;
+  const canonicalId = sendingDomainAsset!.canonicalId;
 
   const destinationDomainAsset = await subgraph.getAssetByCanonicalId(_destinationDomain, canonicalId);
 
