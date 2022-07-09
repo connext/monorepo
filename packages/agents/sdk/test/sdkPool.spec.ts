@@ -41,6 +41,7 @@ describe("NxtpSdkPool", () => {
 
       expect(nxtpPool.getCanonicalFromLocal).to.be.a("function");
       expect(nxtpPool.getLPTokenAddress).to.be.a("function");
+      expect(nxtpPool.getLPTokenBalance).to.be.a("function");
       expect(nxtpPool.getPoolTokenIndex).to.be.a("function");
       expect(nxtpPool.getPoolTokenBalance).to.be.a("function");
       expect(nxtpPool.getPoolTokenAddress).to.be.a("function");
@@ -52,6 +53,7 @@ describe("NxtpSdkPool", () => {
       expect(nxtpPool.swap).to.be.a("function");
       expect(nxtpPool.getPool).to.be.a("function");
       expect(nxtpPool.getUserPools).to.be.a("function");
+      expect(nxtpPool.getPoolStats).to.be.a("function");
     });
   });
 

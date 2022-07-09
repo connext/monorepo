@@ -118,13 +118,18 @@ CREATE TABLE public.schema_migrations (
 --
 
 CREATE TABLE public.transfers (
-    origin_domain character varying(255) NOT NULL,
-    destination_domain character varying(255),
+    transfer_id character(66) NOT NULL,
     nonce bigint,
     "to" character(42),
     call_data text,
-    idx bigint,
-    transfer_id character(66) NOT NULL,
+    origin_domain character varying(255) NOT NULL,
+    destination_domain character varying(255),
+    recovery character(42),
+    force_slow boolean,
+    receive_local boolean,
+    callback character(42),
+    callback_fee numeric,
+    relayer_fee numeric,
     origin_chain character varying(255),
     origin_transacting_asset character(42),
     origin_transacting_amount numeric,
@@ -136,7 +141,6 @@ CREATE TABLE public.transfers (
     xcall_gas_price numeric,
     xcall_gas_limit numeric,
     xcall_block_number integer,
-    xcall_relayer_fee numeric,
     destination_chain character varying(255),
     status public.transfer_status DEFAULT 'XCalled'::public.transfer_status NOT NULL,
     routers character(42)[],
@@ -157,13 +161,9 @@ CREATE TABLE public.transfers (
     reconcile_gas_price numeric,
     reconcile_gas_limit numeric,
     reconcile_block_number integer,
-    force_slow boolean,
-    receive_local boolean,
-    callback character(42),
-    recovery character(42),
-    callback_fee numeric,
-    execute_relayer_fee numeric,
-    update_time timestamp without time zone DEFAULT CURRENT_TIMESTAMP NOT NULL
+    update_time timestamp without time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    agent character(42),
+    slippage_tol numeric
 );
 
 
@@ -251,4 +251,5 @@ INSERT INTO public.schema_migrations (version) VALUES
     ('20220520150644'),
     ('20220524141906'),
     ('20220617215641'),
-    ('20220618065158');
+    ('20220618065158'),
+    ('20220707182823');

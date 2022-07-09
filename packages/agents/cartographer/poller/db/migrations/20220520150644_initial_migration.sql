@@ -50,13 +50,20 @@ FROM (
     )
   );
 CREATE TABLE transfers (
-  origin_domain character varying(255) NOT NULL,
-  destination_domain character varying(255),
+  transfer_id character(66) NOT NULL,
   nonce bigint,
   "to" character(42),
   call_data text,
+  origin_domain character varying(255) NOT NULL,
+  destination_domain character varying(255),
+  recovery character(42),
+  force_slow boolean,
+  receive_local boolean,
+  callback character(42),
+  callback_fee numeric,
+  execute_relayer_fee numeric,
   idx bigint,
-  transfer_id character(66) NOT NULL,
+  xcall_relayer_fee numeric,
   origin_chain character varying(255),
   origin_transacting_asset character(42),
   origin_transacting_amount numeric,
@@ -68,7 +75,6 @@ CREATE TABLE transfers (
   xcall_gas_price numeric,
   xcall_gas_limit numeric,
   xcall_block_number integer,
-  xcall_relayer_fee numeric,
   destination_chain character varying(255),
   status transfer_status DEFAULT 'XCalled'::transfer_status NOT NULL,
   routers character(42) [],
@@ -88,13 +94,7 @@ CREATE TABLE transfers (
   reconcile_timestamp integer,
   reconcile_gas_price numeric,
   reconcile_gas_limit numeric,
-  reconcile_block_number integer,
-  force_slow boolean,
-  receive_local boolean,
-  callback character(42),
-  recovery character(42),
-  callback_fee numeric,
-  execute_relayer_fee numeric
+  reconcile_block_number integer
 );
 --
 -- Name: asset_balances asset_balances_pkey; Type: CONSTRAINT; Schema: public; Owner: -

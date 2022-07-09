@@ -1,6 +1,6 @@
 {
   "name": "@connext/nxtp-relayer",
-  "version": "0.2.0-beta.10",
+  "version": "0.2.0-beta.13",
   "description": "Generic relayer agent for Amarok",
   "author": "Connext",
   "license": "MIT",
@@ -46,7 +46,7 @@
     "@connext/nxtp-utils": "workspace:*",
     "@sinclair/typebox": "0.23.5",
     "axios": "0.27.2",
-    "ethers": "5.6.8",
+    "ethers": "5.6.9",
     "fastify": "3.29.0",
     "interval-promise": "1.4.0",
     "pino": "7.11.0",

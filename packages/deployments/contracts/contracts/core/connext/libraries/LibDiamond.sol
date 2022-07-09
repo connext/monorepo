@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity 0.8.14;
+pragma solidity 0.8.15;
 
 /******************************************************************************\
 * Author: Nick Mudge <nick@perfectabstractions.com> (https://twitter.com/mudgen)
@@ -63,7 +63,7 @@ library LibDiamond {
   }
 
   function enforceIsContractOwner() internal view {
-    require(msg.sender == diamondStorage().contractOwner, "LibDiamond: Must be contract owner");
+    require(msg.sender == diamondStorage().contractOwner, "LibDiamond: !contract owner");
   }
 
   event DiamondCutProposed(IDiamondCut.FacetCut[] _diamondCut, address _init, bytes _calldata, uint256 deadline);
@@ -74,7 +74,7 @@ library LibDiamond {
     bytes memory _calldata
   ) internal {
     uint256 acceptance = block.timestamp + _delay;
-    diamondStorage().acceptanceTimes[keccak256(abi.encode(_diamondCut))] = acceptance;
+    diamondStorage().acceptanceTimes[keccak256(abi.encode(_diamondCut, _init, _calldata))] = acceptance;
     emit DiamondCutProposed(_diamondCut, _init, _calldata, acceptance);
   }
 
@@ -85,7 +85,7 @@ library LibDiamond {
     address _init,
     bytes memory _calldata
   ) internal {
-    diamondStorage().acceptanceTimes[keccak256(abi.encode(_diamondCut))] = 0;
+    diamondStorage().acceptanceTimes[keccak256(abi.encode(_diamondCut, _init, _calldata))] = 0;
     emit DiamondCutRescinded(_diamondCut, _init, _calldata);
   }
 
@@ -97,10 +97,11 @@ library LibDiamond {
     address _init,
     bytes memory _calldata
   ) internal {
-    require(
-      diamondStorage().acceptanceTimes[keccak256(abi.encode(_diamondCut))] < block.timestamp,
-      "LibDiamond: delay not elapsed"
-    );
+    DiamondStorage storage ds = diamondStorage();
+    if (ds.facetAddresses.length != 0) {
+      uint256 time = ds.acceptanceTimes[keccak256(abi.encode(_diamondCut, _init, _calldata))];
+      require(time != 0 && time < block.timestamp, "LibDiamond: delay not elapsed");
+    } // Otherwise, this is the first instance of deployment and it can be set automatically
     for (uint256 facetIndex; facetIndex < _diamondCut.length; facetIndex++) {
       IDiamondCut.FacetCutAction action = _diamondCut[facetIndex].action;
       if (action == IDiamondCut.FacetCutAction.Add) {
@@ -118,7 +119,7 @@ library LibDiamond {
   }
 
   function addFunctions(address _facetAddress, bytes4[] memory _functionSelectors) internal {
-    require(_functionSelectors.length > 0, "LibDiamondCut: No selectors in facet to cut");
+    require(_functionSelectors.length != 0, "LibDiamondCut: No selectors in facet to cut");
     DiamondStorage storage ds = diamondStorage();
     require(_facetAddress != address(0), "LibDiamondCut: Add facet can't be address(0)");
     uint96 selectorPosition = uint96(ds.facetFunctionSelectors[_facetAddress].functionSelectors.length);
@@ -136,7 +137,7 @@ library LibDiamond {
   }
 
   function replaceFunctions(address _facetAddress, bytes4[] memory _functionSelectors) internal {
-    require(_functionSelectors.length > 0, "LibDiamondCut: No selectors in facet to cut");
+    require(_functionSelectors.length != 0, "LibDiamondCut: No selectors in facet to cut");
     DiamondStorage storage ds = diamondStorage();
     require(_facetAddress != address(0), "LibDiamondCut: Add facet can't be address(0)");
     uint96 selectorPosition = uint96(ds.facetFunctionSelectors[_facetAddress].functionSelectors.length);
@@ -155,7 +156,7 @@ library LibDiamond {
   }
 
   function removeFunctions(address _facetAddress, bytes4[] memory _functionSelectors) internal {
-    require(_functionSelectors.length > 0, "LibDiamondCut: No selectors in facet to cut");
+    require(_functionSelectors.length != 0, "LibDiamondCut: No selectors in facet to cut");
     DiamondStorage storage ds = diamondStorage();
     // if function does not exist then do nothing and return
     require(_facetAddress == address(0), "LibDiamondCut: Remove facet address must be address(0)");
@@ -223,13 +224,13 @@ library LibDiamond {
     if (_init == address(0)) {
       require(_calldata.length == 0, "LibDiamondCut: _init is address(0) but_calldata is not empty");
     } else {
-      require(_calldata.length > 0, "LibDiamondCut: _calldata is empty but _init is not address(0)");
+      require(_calldata.length != 0, "LibDiamondCut: _calldata is empty but _init is not address(0)");
       if (_init != address(this)) {
         enforceHasContractCode(_init, "LibDiamondCut: _init address has no code");
       }
       (bool success, bytes memory error) = _init.delegatecall(_calldata);
       if (!success) {
-        if (error.length > 0) {
+        if (error.length != 0) {
           // bubble up the error
           revert(string(error));
         } else {
@@ -244,6 +245,6 @@ library LibDiamond {
     assembly {
       contractSize := extcodesize(_contract)
     }
-    require(contractSize > 0, _errorMessage);
+    require(contractSize != 0, _errorMessage);
   }
 }

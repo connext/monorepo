@@ -38,8 +38,8 @@ describe("Helpers:Auctions", () => {
       const bids: Bid[] = [{ ...mock.entity.bid(), signatures }];
       const expectedArgs: ExecuteArgs = {
         params: {
-          originDomain: transfer.originDomain,
-          destinationDomain: transfer.destinationDomain,
+          originDomain: transfer.xparams.originDomain,
+          destinationDomain: transfer.xparams.destinationDomain,
           to: transfer.xparams.to,
           callData: transfer.xparams.callData,
           callback: constants.AddressZero,
@@ -47,12 +47,14 @@ describe("Helpers:Auctions", () => {
           recovery: transfer.xparams.recovery,
           forceSlow: transfer.xparams.forceSlow,
           receiveLocal: transfer.xparams.receiveLocal,
+          agent: transfer.xparams.agent,
+          relayerFee: transfer.xparams.relayerFee,
+          slippageTol: transfer.xparams.slippageTol,
         },
         local: mockLocalAsset,
         routers: bids.map((b) => b.router),
         routerSignatures: bids.map((b) => b.signatures[round.toString()]),
         amount: transfer.origin.assets.bridged.amount,
-        relayerFee: transfer.origin.xcall.relayerFee,
         nonce: transfer.nonce,
         originSender: transfer.origin.xcall.caller,
       };
@@ -65,7 +67,7 @@ describe("Helpers:Auctions", () => {
 
     it("should throw if no xcall", () => {
       const transfer: OriginTransfer = mock.entity.xtransfer();
-      transfer.origin = undefined;
+      transfer.origin = undefined as any;
       const bids: Bid[] = [mock.entity.bid()];
 
       expect(() => encodeExecuteFromBids(1, bids, transfer, mockLocalAsset)).to.throw();
@@ -98,19 +100,19 @@ describe("Helpers:Auctions", () => {
       const router4 = mkAddress("0x114");
       const bids: Record<string, Bid> = {};
       bids[router1] = {
+        routerVersion: "0.0.0",
         transferId: transferId,
         origin: "1111",
         router: router1,
-        fee: "0",
         signatures: {
           "1": mkSig("0xrouter1_1"),
         },
       };
       bids[router2] = {
+        routerVersion: "0.0.0",
         transferId: transferId,
         origin: "1111",
         router: router2,
-        fee: "0",
         signatures: {
           "1": mkSig("0xrouter2_1"),
           "2": mkSig("0xrouter2_2"),
@@ -118,10 +120,10 @@ describe("Helpers:Auctions", () => {
         },
       };
       bids[router3] = {
+        routerVersion: "0.0.0",
         transferId: transferId,
         origin: "1111",
         router: router3,
-        fee: "0",
         signatures: {
           "1": mkSig("0xrouter3_1"),
           "2": mkSig("0xrouter3_2"),
@@ -129,10 +131,10 @@ describe("Helpers:Auctions", () => {
         },
       };
       bids[router4] = {
+        routerVersion: "0.0.0",
         transferId: transferId,
         origin: "1111",
         router: router4,
-        fee: "0",
         signatures: {
           "2": mkSig("0xrouter4_2"),
           "3": mkSig("0xrouter4_3"),
@@ -145,28 +147,28 @@ describe("Helpers:Auctions", () => {
       expect(Object.keys(bidsByRound)).to.be.deep.eq(["1", "2"]);
       expect(bidsByRound["1"]).to.be.deep.eq([
         {
+          routerVersion: "0.0.0",
           transferId: transferId,
           origin: "1111",
           router: router1,
-          fee: "0",
           signatures: {
             "1": mkSig("0xrouter1_1"),
           },
         },
         {
+          routerVersion: "0.0.0",
           transferId: transferId,
           origin: "1111",
           router: router2,
-          fee: "0",
           signatures: {
             "1": mkSig("0xrouter2_1"),
           },
         },
         {
+          routerVersion: "0.0.0",
           transferId: transferId,
           origin: "1111",
           router: router3,
-          fee: "0",
           signatures: {
             "1": mkSig("0xrouter3_1"),
           },
@@ -174,28 +176,28 @@ describe("Helpers:Auctions", () => {
       ]);
       expect(bidsByRound["2"]).to.be.deep.eq([
         {
+          routerVersion: "0.0.0",
           transferId: transferId,
           origin: "1111",
           router: router2,
-          fee: "0",
           signatures: {
             "2": mkSig("0xrouter2_2"),
           },
         },
         {
+          routerVersion: "0.0.0",
           transferId: transferId,
           origin: "1111",
           router: router3,
-          fee: "0",
           signatures: {
             "2": mkSig("0xrouter3_2"),
           },
         },
         {
+          routerVersion: "0.0.0",
           transferId: transferId,
           origin: "1111",
           router: router4,
-          fee: "0",
           signatures: {
             "2": mkSig("0xrouter4_2"),
           },
