@@ -13,13 +13,13 @@ import { StoreManager } from "@connext/nxtp-adapters-cache";
 import { Web3Signer } from "@connext/nxtp-adapters-web3signer";
 import { getContractInterfaces, TransactionService, contractDeployments } from "@connext/nxtp-txservice";
 import axios from "axios";
-import { AMQPClient } from "@cloudamqp/amqp-client";
+import rabbit from "foo-foo-mq";
 import { BridgeContext } from "@nomad-xyz/sdk-bridge";
 
-import { getConfig, NxtpRouterConfig } from "./config";
-import { bindMetrics, bindPrices, bindSubgraph, bindServer, bindCache } from "./bindings";
-import { AppContext } from "./lib/entities";
-import { getHelpers } from "./lib/helpers";
+import { getConfig, NxtpRouterConfig } from "../config";
+import { bindMetrics, bindPrices, bindSubgraph, bindServer, bindCache } from "../bindings";
+import { AppContext } from "../lib/entities";
+import { getHelpers } from "../lib/helpers";
 
 // AppContext instance used for interacting with adapters, config, etc.
 const context: AppContext = {} as any;
@@ -196,11 +196,13 @@ export const setupSubgraphReader = async (requestContext: RequestContext): Promi
   return subgraphReader;
 };
 
-export const setupMq = async (): Promise<AMQPClient> => {
+export const setupMq = async (): Promise<typeof rabbit> => {
   const { config } = context;
-  const amqp = new AMQPClient(config.messageQueueUrl);
-  await amqp.connect();
-  return amqp;
+  await rabbit.configure({
+    connection: { host: config.messageQueueUrl.split(":")[0], port: Number(config.messageQueueUrl.split(":")[1]) },
+    queues: [{ name: "xcall" }],
+  });
+  return rabbit;
 };
 
 export const setupBridgeContext = (requestContext: RequestContext): BridgeContext => {

@@ -1,7 +1,7 @@
 import { createLoggingContext, jsonifyError, NxtpError, SubgraphQueryMetaParams, XTransfer } from "@connext/nxtp-utils";
 import interval from "interval-promise";
 
-import { getContext } from "../../router";
+import { getContext } from "../../publisher";
 
 // Ought to be configured properly for each network; we consult the chain config below.
 export const DEFAULT_SAFE_CONFIRMATIONS = 5;
