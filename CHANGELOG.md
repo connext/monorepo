@@ -2,6 +2,10 @@
 
 ## Next Release
 
+## Amarok 0.2.0-beta.14
+
+- [sdk] Fix SDK deployments bug.
+
 ## Amarok 0.2.0-beta.13
 
 - [subgraph] Fix client.

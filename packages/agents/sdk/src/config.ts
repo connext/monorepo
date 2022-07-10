@@ -119,21 +119,10 @@ export const getEnvConfig = (
         chainConfig.deployments?.tokenRegistry ??
         (() => {
           const res = chainDataForChain
-            ? deployments.tokenRegistry(chainDataForChain.chainId, contractPostfix)
+            ? deployments.tokenRegistry(chainDataForChain.chainId, contractPostfix, true)
             : undefined;
           if (!res) {
             throw new Error(`No TokenRegistry contract address for domain ${domainId}`);
-          }
-          return res.address;
-        })(),
-      stableSwap:
-        chainConfig.deployments?.stableSwap ??
-        (() => {
-          const res = chainDataForChain
-            ? deployments.stableSwap(chainDataForChain.chainId, contractPostfix)
-            : undefined;
-          if (!res) {
-            throw new Error(`No StableSwap contract address for domain ${domainId}`);
           }
           return res.address;
         })(),
