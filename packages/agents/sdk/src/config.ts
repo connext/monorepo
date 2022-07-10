@@ -119,7 +119,7 @@ export const getEnvConfig = (
         chainConfig.deployments?.tokenRegistry ??
         (() => {
           const res = chainDataForChain
-            ? deployments.tokenRegistry(chainDataForChain.chainId, contractPostfix)
+            ? deployments.tokenRegistry(chainDataForChain.chainId, contractPostfix, true)
             : undefined;
           if (!res) {
             throw new Error(`No TokenRegistry contract address for domain ${domainId}`);
