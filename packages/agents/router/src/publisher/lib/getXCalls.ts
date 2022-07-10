@@ -5,10 +5,9 @@ import { getContext, MQ_EXCHANGE } from "../publisher";
 
 export const getXCalls = async () => {
   const {
-    adapters: { cache, subgraph },
+    adapters: { cache, subgraph, mqClient },
     logger,
     config,
-    mqClient,
   } = getContext();
   const { requestContext, methodContext } = createLoggingContext("pollSubgraph");
   try {

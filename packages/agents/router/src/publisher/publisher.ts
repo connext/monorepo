@@ -8,15 +8,16 @@ import {
   ChainData,
 } from "@connext/nxtp-utils";
 import { SubgraphReader } from "@connext/nxtp-adapters-subgraph";
+import { StoreManager } from "@connext/nxtp-adapters-cache";
 import { contractDeployments } from "@connext/nxtp-txservice";
 import axios from "axios";
 import rabbit from "foo-foo-mq";
 
 import { getConfig, NxtpRouterConfig } from "../config";
-import { bindMetrics, bindCache } from "../bindings";
-import { getHelpers } from "../lib/helpers";
+import { bindMetrics } from "../bindings";
 
 import { AppContext } from "./context";
+import { bindSubgraph } from "./bindings/subgraph";
 
 export const XCALL_QUEUE = "xcalls";
 export const MQ_EXCHANGE = "router";
@@ -53,6 +54,8 @@ export const makePublisher = async (_configOverride?: NxtpRouterConfig) => {
 
     /// MARK - Adapters
     context.adapters.subgraph = await setupSubgraphReader(requestContext);
+    context.adapters.cache = await setupCache(requestContext);
+    context.adapters.mqClient = await setupMq(requestContext);
 
     /// MARK - Validation for auctionRoundDepth
 
@@ -80,7 +83,7 @@ export const makePublisher = async (_configOverride?: NxtpRouterConfig) => {
 
     /// MARK - Bindings
     await bindMetrics();
-    await bindCache();
+    await bindSubgraph();
 
     context.logger.info("Bindings initialized.", requestContext, methodContext);
     context.logger.info("Router boot complete!", requestContext, methodContext, {
@@ -106,9 +109,6 @@ export const makePublisher = async (_configOverride?: NxtpRouterConfig) => {
 
 export const setupSubgraphReader = async (requestContext: RequestContext): Promise<SubgraphReader> => {
   const { logger, chainData, config } = context;
-  const {
-    auctions: { getMinimumBidsCountForRound },
-  } = getHelpers();
   const methodContext = createMethodContext(setupSubgraphReader.name);
 
   const allowedDomains = [...Object.keys(config.chains)];
@@ -132,31 +132,43 @@ export const setupSubgraphReader = async (requestContext: RequestContext): Promi
 
   logger.info("Subgraph reader setup is done!", requestContext, methodContext, {});
 
-  logger.info("Validating the auction round depth for each domain...");
-  const maxRoutersPerTransfer = await subgraphReader.getMaxRoutersPerTransfer(Object.keys(supported));
-  for (const domain of maxRoutersPerTransfer.keys()) {
-    const configuredMaxRouters = getMinimumBidsCountForRound(config.auctionRoundDepth);
-    if (maxRoutersPerTransfer.has(domain) && configuredMaxRouters > maxRoutersPerTransfer.get(domain)!) {
-      logger.info("Validation error, Invalid auctionRoundDepth configured!", requestContext, methodContext, {
-        domain,
-        auctionRoundDepth: config.auctionRoundDepth,
-        configured: configuredMaxRouters,
-        onchain: maxRoutersPerTransfer.get(domain),
-      });
-      process.exit(1);
-    }
-  }
-
   return subgraphReader;
 };
 
-export const setupMq = async (): Promise<typeof rabbit> => {
-  const { config } = context;
+export const setupCache = async (requestContext: RequestContext): Promise<StoreManager> => {
+  const {
+    config: { redis },
+    logger,
+  } = context;
+
+  const methodContext = createMethodContext("setupCache");
+  logger.info("Cache instance setup in progress...", requestContext, methodContext, {});
+  const cacheInstance = StoreManager.getInstance({
+    redis: { host: redis.host, port: redis.port, instance: undefined },
+    mock: !redis.host || !redis.port,
+    logger: logger.child({ module: "StoreManager" }),
+  });
+
+  logger.info("Cache instance setup is done!", requestContext, methodContext, {
+    host: redis.host,
+    port: redis.port,
+  });
+  return cacheInstance;
+};
+
+export const setupMq = async (requestContext: RequestContext): Promise<typeof rabbit> => {
+  const { config, logger } = context;
+  const methodContext = createMethodContext("setupMq");
+  const host = config.messageQueueUrl;
+  logger.info("Message queue setup in progress...", requestContext, methodContext, { host });
   await rabbit.configure({
-    connection: { host: config.messageQueueUrl.split(":")[0], port: Number(config.messageQueueUrl.split(":")[1]) },
+    connection: { host: "localhost", port: 5672 },
     queues: [{ name: XCALL_QUEUE }],
     exchanges: [{ name: MQ_EXCHANGE, type: "direct" }],
     bindings: [{ exchange: MQ_EXCHANGE, target: XCALL_QUEUE }],
+  });
+  logger.info("Message queue setup is done!", requestContext, methodContext, {
+    host,
   });
   return rabbit;
 };

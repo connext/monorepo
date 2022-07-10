@@ -11,9 +11,9 @@ export type AppContext = {
     // Stateful interfaces for peripherals.
     cache: StoreManager; // Used to cache important data locally.
     subgraph: SubgraphReader; // Aggregates subgraphs in a FallbackSubgraph for each chain.
+    mqClient: typeof Rabbit;
   };
   config: NxtpRouterConfig;
   chainData: Map<string, ChainData>;
   routerAddress: string;
-  mqClient: typeof Rabbit;
 };
