@@ -126,17 +126,6 @@ export const getEnvConfig = (
           }
           return res.address;
         })(),
-      stableSwap:
-        chainConfig.deployments?.stableSwap ??
-        (() => {
-          const res = chainDataForChain
-            ? deployments.stableSwap(chainDataForChain.chainId, contractPostfix)
-            : undefined;
-          if (!res) {
-            throw new Error(`No StableSwap contract address for domain ${domainId}`);
-          }
-          return res.address;
-        })(),
     };
 
     nxtpConfig.chains[domainId].confirmations = chainConfig.confirmations ?? chainRecommendedConfirmations;
