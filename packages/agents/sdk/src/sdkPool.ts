@@ -116,7 +116,7 @@ export class NxtpSdkPool {
 
   // ------------------- Read Operations ------------------- //
 
-  async getCanonicalFromLocal(domainId: string, tokenAddress: string): Promise<[string, string]> {
+  async getCanonicalFromLocal(domainId: string, tokenAddress: string): Promise<[number, string]> {
     const tokenRegistryContractAddress = this.config.chains[domainId].deployments!.tokenRegistry;
     if (!tokenRegistryContractAddress) {
       throw new ContractAddressMissing();
@@ -449,7 +449,7 @@ export class NxtpSdkPool {
     }
 
     // If the canonical domain is the same as the local domain, then there is no pool
-    if (canonicalDomain !== domainId) {
+    if (canonicalDomain !== Number(domainId)) {
       let encoded = this.connext.encodeFunctionData("canonicalToAdopted", [canonicalId]);
       let result = await this.chainReader.readTx({
         chainId: Number(domainId),
