@@ -1,6 +1,5 @@
 import { spawn } from "child_process";
 
-import Broker from "foo-foo-mq";
 import { AuctionStatus, createLoggingContext, jsonifyError } from "@connext/nxtp-utils";
 
 import { getContext } from "../../sequencer";
@@ -10,6 +9,7 @@ export const bindSubscriber = async (domain: string) => {
   const {
     logger,
     adapters: { cache },
+    mqClient,
   } = getContext();
   const { requestContext, methodContext } = createLoggingContext(bindSubscriber.name);
   logger.info("Binding subscriber for domain", requestContext, methodContext, { domain: domain });
@@ -19,7 +19,7 @@ export const bindSubscriber = async (domain: string) => {
     // Spawn job handler
     // Fork node process
     // Configure per domain concurrency
-    Broker.handle(sqConfig.queue.prefix + domain, async function (msg) {
+    mqClient.handle(sqConfig.queue.prefix + domain, async function (msg) {
       try {
         const termSignals: NodeJS.Signals[] = ["SIGTERM", "SIGINT"];
         const message: Message = msg.body as Message;
@@ -102,6 +102,6 @@ export const bindSubscriber = async (domain: string) => {
     });
   } catch (e: unknown) {
     logger.error("Error while binding subscriber", requestContext, methodContext, jsonifyError(e as Error));
-    Broker.close();
+    mqClient.close();
   }
 };

@@ -1,6 +1,7 @@
 import Broker from "foo-foo-mq";
 
 import { Static, Type } from "@sinclair/typebox";
+import { SequencerConfig } from "../entities";
 
 // TODO: Schemafiy this
 export const sqConfig = {
@@ -36,6 +37,12 @@ const mqConfig: Broker.ConfigurationOptions = {
 };
 
 //TODO: Input full generated config
-export const setupMQ = async (_configOverride?: Broker.ConfigurationOptions) => {
+export const setupMQ = async (_config: SequencerConfig) => {
+  const mqConfig: Broker.ConfigurationOptions = {
+    connection: _config.messageQueue.connection,
+    exchanges: _config.messageQueue.exchanges,
+    queues: _config.messageQueue.queues,
+    bindings: _config.messageQueue.bindings,
+  };
   await Broker.configure(mqConfig);
 };

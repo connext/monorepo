@@ -1,4 +1,7 @@
 import { Type, Static } from "@sinclair/typebox";
+import Broker from "foo-foo-mq";
+import rabbit from "foo-foo-mq";
+import ConfigurationOptions from "foo-foo-mq";
 import { TAddress, SubgraphReaderChainConfigSchema } from "@connext/nxtp-utils";
 
 export const TChainConfig = Type.Object({
@@ -10,7 +13,60 @@ export const TChainConfig = Type.Object({
   }),
 });
 
+export const TMQConnectionConfig = Type.Object({
+  uri: Type.String(),
+  name: Type.String(),
+  host: Type.String(),
+  user: Type.String(),
+  pass: Type.String(),
+  server: Type.Union([Type.String(), Type.Array(Type.String())]),
+  port: Type.Integer({ minimum: 1, maximum: 65535 }),
+  timeout: Type.Integer(),
+  heartbeat: Type.Integer(),
+  vhost: Type.String(),
+  publishTimeout: Type.Integer(),
+  replyTimeout: Type.Integer(),
+  failAfter: Type.Integer(),
+  retryLimit: Type.Integer(),
+  waitMin: Type.Integer(),
+  waitIncrement: Type.Integer(),
+  keyPath: Type.String(),
+  passphrase: Type.String(),
+  replyQueue: Type.Union([Type.Boolean(), Type.String()]),
+});
+
+export const TMQExchangeConfig = Type.Object({
+  name: Type.String(),
+  type: Type.Union([Type.Literal("fanout"), Type.Literal("topic"), Type.Literal("direct")]),
+  publishTimeout: Type.Integer(),
+  persistent: Type.Boolean(),
+  durable: Type.Boolean(),
+});
+
+export const TMQQueueConfig = Type.Object({
+  name: Type.String(),
+  prefetch: Type.Integer(),
+  queueLimit: Type.Integer(),
+  deadLetter: Type.String(),
+  subscribe: Type.Boolean(),
+});
+
+export const TMQBindingConfig = Type.Object({
+  exchange: Type.String(),
+  target: Type.String(),
+  keys: Type.Union([Type.String(), Type.Array(Type.String())]),
+});
+
+export const TMessageQueueConfig = Type.Object({
+  connection: TMQConnectionConfig,
+  exchanges: Type.Array(TMQExchangeConfig),
+  queues: Type.Array(TMQQueueConfig),
+  bindings: Type.Array(TMQBindingConfig),
+  executerTimeout: Type.Integer(),
+});
+
 export type ChainConfig = Static<typeof TChainConfig>;
+export type ExchangeType = "fanout" | "topic" | "direct";
 
 export const TServerConfig = Type.Object({
   port: Type.Integer({ minimum: 1, maximum: 65535 }),
@@ -48,7 +104,7 @@ export const SequencerConfigSchema = Type.Object({
   subgraphPrefix: Type.Optional(Type.String()),
   auctionRoundDepth: Type.Number(),
   environment: Type.Union([Type.Literal("staging"), Type.Literal("production")]),
-  messageQueueUrl: Type.String({ format: "uri" }),
+  messageQueue: TMessageQueueConfig,
 });
 
 export type SequencerConfig = Static<typeof SequencerConfigSchema>;

@@ -198,7 +198,7 @@ export const setupSubgraphReader = async (requestContext: RequestContext): Promi
 };
 
 export const setupPublisher = async (requestContext: RequestContext): Promise<void> => {
-  const { logger } = context;
+  const { logger, config } = context;
   const methodContext = createMethodContext(setupPublisher.name);
   const {
     mq: { setupMQ },
@@ -208,21 +208,13 @@ export const setupPublisher = async (requestContext: RequestContext): Promise<vo
 
   // TODO: Setup race buster handshake
 
-  await setupMQ();
+  await setupMQ(config);
 
   logger.info("MQ publisher setup is done!", requestContext, methodContext, {});
 };
 
-export const mockPublish = async (transfer: Message): Promise<void> => {
-  await Broker.publish(sqConfig.exchange.name, {
-    type: sqConfig.queue.prefix + transfer.originDomain,
-    body: transfer,
-    routingKey: transfer.originDomain,
-  });
-};
-
 export const setupSubscriber = async (requestContext: RequestContext): Promise<void> => {
-  const { logger } = context;
+  const { logger, config } = context;
   const methodContext = createMethodContext(setupSubscriber.name);
   const {
     mq: { setupMQ },
@@ -230,7 +222,7 @@ export const setupSubscriber = async (requestContext: RequestContext): Promise<v
 
   logger.info("MQ subscriber setup in progress...", requestContext, methodContext, {});
 
-  await setupMQ();
+  await setupMQ(config);
 
   logger.info("MQ subscriber setup is done!", requestContext, methodContext, {});
 };
