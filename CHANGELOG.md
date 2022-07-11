@@ -2,6 +2,18 @@
 
 ## Next Release
 
+## Amarok 0.2.0-beta.14
+
+- [sdk] Fix SDK deployments bug.
+
+## Amarok 0.2.0-beta.13
+
+- [subgraph] Fix client.
+
+## Amarok 0.2.0-beta.12
+
+- [contracts] New contracts.
+
 ## Amarok 0.2.0-beta.11
 
 - [sdk] Stableswap pool functions

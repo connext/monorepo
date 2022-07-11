@@ -26,7 +26,6 @@ export const TChainConfig = Type.Object({
       connext: TAddress,
       tokenRegistry: Type.Optional(TAddress),
       stableSwap: Type.Optional(TAddress),
-      stableSwapFacet: Type.Optional(TAddress),
     }),
   ),
 });
@@ -54,7 +53,6 @@ export const TValidationChainConfig = Type.Object({
     connext: TAddress,
     tokenRegistry: Type.Optional(TAddress),
     stableSwap: Type.Optional(TAddress),
-    stableSwapFacet: Type.Optional(TAddress),
   }),
 });
 
@@ -120,27 +118,11 @@ export const getEnvConfig = (
       tokenRegistry:
         chainConfig.deployments?.tokenRegistry ??
         (() => {
-          const res = chainDataForChain ? deployments.connext(chainDataForChain.chainId, contractPostfix) : undefined;
+          const res = chainDataForChain
+            ? deployments.tokenRegistry(chainDataForChain.chainId, contractPostfix, true)
+            : undefined;
           if (!res) {
             throw new Error(`No TokenRegistry contract address for domain ${domainId}`);
-          }
-          return res.address;
-        })(),
-      stableSwap:
-        chainConfig.deployments?.stableSwap ??
-        (() => {
-          const res = chainDataForChain ? deployments.connext(chainDataForChain.chainId, contractPostfix) : undefined;
-          if (!res) {
-            throw new Error(`No StableSwap contract address for domain ${domainId}`);
-          }
-          return res.address;
-        })(),
-      stableSwapFacet:
-        chainConfig.deployments?.stableSwapFacet ??
-        (() => {
-          const res = chainDataForChain ? deployments.connext(chainDataForChain.chainId, contractPostfix) : undefined;
-          if (!res) {
-            throw new Error(`No StableSwapFacet contract address for domain ${domainId}`);
           }
           return res.address;
         })(),

@@ -76,6 +76,11 @@ export const execute = async (params: OriginTransfer): Promise<void> => {
     throw new MissingXCall({ requestContext, methodContext });
   }
 
+  logger.debug("Getting local asset", requestContext, methodContext, {
+    originDomain,
+    asset: origin.assets.bridged.asset,
+    destinationDomain,
+  });
   const executeLocalAsset = await getDestinationLocalAsset(
     originDomain,
     origin.assets.bridged.asset,
