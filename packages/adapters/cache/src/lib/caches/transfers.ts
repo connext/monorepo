@@ -54,7 +54,7 @@ export class TransfersCache extends Cache {
   public async pruneTransfers(domain: number): Promise<boolean> {
     //is there pending transactions?
     const pending = await this.getPending(domain.toString());
-    
+
     //dont delete pending
     if (pending) {
       return true;
@@ -72,8 +72,9 @@ export class TransfersCache extends Cache {
           const shouldBeDeleted = transfer.nonce < latestCompleted;
           if (shouldBeDeleted) {
             const deleted = await this.data.hdel(`${this.prefix}:transfers`, transferId);
-            if (deleted !== 1) { return false; }
-          
+            if (deleted !== 1) {
+              return false;
+            }
           }
         }
       }
@@ -124,7 +125,8 @@ export class TransfersCache extends Cache {
                 : undefined,
           }
         : transfer;
-      const { transferId, nonce: _nonce, originDomain, origin, destination } = transfer;
+      const { transferId, nonce: _nonce, xparams, origin, destination } = transfer;
+      const { originDomain } = xparams!;
       const nonce = Number(_nonce);
       const stringified = JSON.stringify(transfer);
 

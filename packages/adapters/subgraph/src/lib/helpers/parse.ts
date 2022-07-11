@@ -38,8 +38,6 @@ export const originTransfer = (entity: any): OriginTransfer => {
 
     transferId: entity.transferId,
     nonce: BigNumber.from(entity.nonce).toNumber(),
-    originDomain: entity.originDomain,
-    destinationDomain: entity.destinationDomain,
     relayerFee: entity.relayerFee,
 
     // Call Params
@@ -76,8 +74,6 @@ export const originTransfer = (entity: any): OriginTransfer => {
 
       // XCall
       xcall: {
-        // Event Data
-        relayerFee: entity.relayerFee,
         // Transaction Data
         caller: entity.caller,
         transactionHash: entity.transactionHash,
@@ -124,27 +120,22 @@ export const destinationTransfer = (entity: any): DestinationTransfer => {
 
     transferId: entity.transferId,
     nonce: entity.nonce ? BigNumber.from(entity.nonce).toNumber() : undefined,
-    originDomain: entity.originDomain,
-    destinationDomain: entity.destinationDomain,
 
     // Call Params
-    xparams:
-      entity.to && entity.callData
-        ? {
-            to: entity.to,
-            callData: entity.callData,
-            callback: entity.callback,
-            callbackFee: entity.callbackFee,
-            relayerFee: entity.relayerFee,
-            forceSlow: entity.forceSlow,
-            receiveLocal: entity.receiveLocal,
-            destinationDomain: entity.destinationDomain,
-            originDomain: entity.originDomain,
-            recovery: entity.recovery,
-            agent: entity.agent,
-            slippageTol: entity.slippageTol,
-          }
-        : undefined,
+    xparams: {
+      to: entity.to,
+      callData: entity.callData,
+      callback: entity.callback,
+      callbackFee: entity.callbackFee,
+      relayerFee: entity.relayerFee,
+      forceSlow: entity.forceSlow,
+      receiveLocal: entity.receiveLocal,
+      destinationDomain: entity.destinationDomain,
+      originDomain: entity.originDomain,
+      recovery: entity.recovery,
+      agent: entity.agent,
+      slippageTol: entity.slippageTol,
+    },
 
     // Origin Info
     origin: undefined,

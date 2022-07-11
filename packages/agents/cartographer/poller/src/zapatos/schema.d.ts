@@ -744,17 +744,11 @@ declare module 'zapatos/schema' {
     export type Table = 'transfers';
     export interface Selectable {
       /**
-      * **transfers.origin_domain**
-      * - `varchar` in database
+      * **transfers.transfer_id**
+      * - `bpchar` in database
       * - `NOT NULL`, no default
       */
-    origin_domain: string;
-      /**
-      * **transfers.destination_domain**
-      * - `varchar` in database
-      * - Nullable, no default
-      */
-    destination_domain: string | null;
+    transfer_id: string;
       /**
       * **transfers.nonce**
       * - `int8` in database
@@ -774,17 +768,53 @@ declare module 'zapatos/schema' {
       */
     call_data: string | null;
       /**
-      * **transfers.idx**
-      * - `int8` in database
-      * - Nullable, no default
-      */
-    idx: db.Int8String | null;
-      /**
-      * **transfers.transfer_id**
-      * - `bpchar` in database
+      * **transfers.origin_domain**
+      * - `varchar` in database
       * - `NOT NULL`, no default
       */
-    transfer_id: string;
+    origin_domain: string;
+      /**
+      * **transfers.destination_domain**
+      * - `varchar` in database
+      * - Nullable, no default
+      */
+    destination_domain: string | null;
+      /**
+      * **transfers.recovery**
+      * - `bpchar` in database
+      * - Nullable, no default
+      */
+    recovery: string | null;
+      /**
+      * **transfers.force_slow**
+      * - `bool` in database
+      * - Nullable, no default
+      */
+    force_slow: boolean | null;
+      /**
+      * **transfers.receive_local**
+      * - `bool` in database
+      * - Nullable, no default
+      */
+    receive_local: boolean | null;
+      /**
+      * **transfers.callback**
+      * - `bpchar` in database
+      * - Nullable, no default
+      */
+    callback: string | null;
+      /**
+      * **transfers.callback_fee**
+      * - `numeric` in database
+      * - Nullable, no default
+      */
+    callback_fee: number | null;
+      /**
+      * **transfers.relayer_fee**
+      * - `numeric` in database
+      * - Nullable, no default
+      */
+    relayer_fee: number | null;
       /**
       * **transfers.origin_chain**
       * - `varchar` in database
@@ -851,12 +881,6 @@ declare module 'zapatos/schema' {
       * - Nullable, no default
       */
     xcall_block_number: number | null;
-      /**
-      * **transfers.xcall_relayer_fee**
-      * - `numeric` in database
-      * - Nullable, no default
-      */
-    xcall_relayer_fee: number | null;
       /**
       * **transfers.destination_chain**
       * - `varchar` in database
@@ -978,61 +1002,31 @@ declare module 'zapatos/schema' {
       */
     reconcile_block_number: number | null;
       /**
-      * **transfers.force_slow**
-      * - `bool` in database
-      * - Nullable, no default
-      */
-    force_slow: boolean | null;
-      /**
-      * **transfers.receive_local**
-      * - `bool` in database
-      * - Nullable, no default
-      */
-    receive_local: boolean | null;
-      /**
-      * **transfers.callback**
-      * - `bpchar` in database
-      * - Nullable, no default
-      */
-    callback: string | null;
-      /**
-      * **transfers.recovery**
-      * - `bpchar` in database
-      * - Nullable, no default
-      */
-    recovery: string | null;
-      /**
-      * **transfers.callback_fee**
-      * - `numeric` in database
-      * - Nullable, no default
-      */
-    callback_fee: number | null;
-      /**
-      * **transfers.execute_relayer_fee**
-      * - `numeric` in database
-      * - Nullable, no default
-      */
-    execute_relayer_fee: number | null;
-      /**
       * **transfers.update_time**
       * - `timestamp` in database
       * - `NOT NULL`, default: `CURRENT_TIMESTAMP`
       */
     update_time: Date;
+      /**
+      * **transfers.agent**
+      * - `bpchar` in database
+      * - Nullable, no default
+      */
+    agent: string | null;
+      /**
+      * **transfers.slippage_tol**
+      * - `numeric` in database
+      * - Nullable, no default
+      */
+    slippage_tol: number | null;
     }
     export interface JSONSelectable {
       /**
-      * **transfers.origin_domain**
-      * - `varchar` in database
+      * **transfers.transfer_id**
+      * - `bpchar` in database
       * - `NOT NULL`, no default
       */
-    origin_domain: string;
-      /**
-      * **transfers.destination_domain**
-      * - `varchar` in database
-      * - Nullable, no default
-      */
-    destination_domain: string | null;
+    transfer_id: string;
       /**
       * **transfers.nonce**
       * - `int8` in database
@@ -1052,17 +1046,53 @@ declare module 'zapatos/schema' {
       */
     call_data: string | null;
       /**
-      * **transfers.idx**
-      * - `int8` in database
-      * - Nullable, no default
-      */
-    idx: number | null;
-      /**
-      * **transfers.transfer_id**
-      * - `bpchar` in database
+      * **transfers.origin_domain**
+      * - `varchar` in database
       * - `NOT NULL`, no default
       */
-    transfer_id: string;
+    origin_domain: string;
+      /**
+      * **transfers.destination_domain**
+      * - `varchar` in database
+      * - Nullable, no default
+      */
+    destination_domain: string | null;
+      /**
+      * **transfers.recovery**
+      * - `bpchar` in database
+      * - Nullable, no default
+      */
+    recovery: string | null;
+      /**
+      * **transfers.force_slow**
+      * - `bool` in database
+      * - Nullable, no default
+      */
+    force_slow: boolean | null;
+      /**
+      * **transfers.receive_local**
+      * - `bool` in database
+      * - Nullable, no default
+      */
+    receive_local: boolean | null;
+      /**
+      * **transfers.callback**
+      * - `bpchar` in database
+      * - Nullable, no default
+      */
+    callback: string | null;
+      /**
+      * **transfers.callback_fee**
+      * - `numeric` in database
+      * - Nullable, no default
+      */
+    callback_fee: number | null;
+      /**
+      * **transfers.relayer_fee**
+      * - `numeric` in database
+      * - Nullable, no default
+      */
+    relayer_fee: number | null;
       /**
       * **transfers.origin_chain**
       * - `varchar` in database
@@ -1129,12 +1159,6 @@ declare module 'zapatos/schema' {
       * - Nullable, no default
       */
     xcall_block_number: number | null;
-      /**
-      * **transfers.xcall_relayer_fee**
-      * - `numeric` in database
-      * - Nullable, no default
-      */
-    xcall_relayer_fee: number | null;
       /**
       * **transfers.destination_chain**
       * - `varchar` in database
@@ -1256,61 +1280,31 @@ declare module 'zapatos/schema' {
       */
     reconcile_block_number: number | null;
       /**
-      * **transfers.force_slow**
-      * - `bool` in database
-      * - Nullable, no default
-      */
-    force_slow: boolean | null;
-      /**
-      * **transfers.receive_local**
-      * - `bool` in database
-      * - Nullable, no default
-      */
-    receive_local: boolean | null;
-      /**
-      * **transfers.callback**
-      * - `bpchar` in database
-      * - Nullable, no default
-      */
-    callback: string | null;
-      /**
-      * **transfers.recovery**
-      * - `bpchar` in database
-      * - Nullable, no default
-      */
-    recovery: string | null;
-      /**
-      * **transfers.callback_fee**
-      * - `numeric` in database
-      * - Nullable, no default
-      */
-    callback_fee: number | null;
-      /**
-      * **transfers.execute_relayer_fee**
-      * - `numeric` in database
-      * - Nullable, no default
-      */
-    execute_relayer_fee: number | null;
-      /**
       * **transfers.update_time**
       * - `timestamp` in database
       * - `NOT NULL`, default: `CURRENT_TIMESTAMP`
       */
     update_time: db.TimestampString;
+      /**
+      * **transfers.agent**
+      * - `bpchar` in database
+      * - Nullable, no default
+      */
+    agent: string | null;
+      /**
+      * **transfers.slippage_tol**
+      * - `numeric` in database
+      * - Nullable, no default
+      */
+    slippage_tol: number | null;
     }
     export interface Whereable {
       /**
-      * **transfers.origin_domain**
-      * - `varchar` in database
+      * **transfers.transfer_id**
+      * - `bpchar` in database
       * - `NOT NULL`, no default
       */
-    origin_domain?: string | db.Parameter<string> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
-      /**
-      * **transfers.destination_domain**
-      * - `varchar` in database
-      * - Nullable, no default
-      */
-    destination_domain?: string | db.Parameter<string> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
+    transfer_id?: string | db.Parameter<string> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
       /**
       * **transfers.nonce**
       * - `int8` in database
@@ -1330,17 +1324,53 @@ declare module 'zapatos/schema' {
       */
     call_data?: string | db.Parameter<string> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
       /**
-      * **transfers.idx**
-      * - `int8` in database
-      * - Nullable, no default
-      */
-    idx?: (number | db.Int8String) | db.Parameter<(number | db.Int8String)> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, (number | db.Int8String) | db.Parameter<(number | db.Int8String)> | db.SQLFragment | db.ParentColumn>;
-      /**
-      * **transfers.transfer_id**
-      * - `bpchar` in database
+      * **transfers.origin_domain**
+      * - `varchar` in database
       * - `NOT NULL`, no default
       */
-    transfer_id?: string | db.Parameter<string> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
+    origin_domain?: string | db.Parameter<string> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
+      /**
+      * **transfers.destination_domain**
+      * - `varchar` in database
+      * - Nullable, no default
+      */
+    destination_domain?: string | db.Parameter<string> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
+      /**
+      * **transfers.recovery**
+      * - `bpchar` in database
+      * - Nullable, no default
+      */
+    recovery?: string | db.Parameter<string> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
+      /**
+      * **transfers.force_slow**
+      * - `bool` in database
+      * - Nullable, no default
+      */
+    force_slow?: boolean | db.Parameter<boolean> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, boolean | db.Parameter<boolean> | db.SQLFragment | db.ParentColumn>;
+      /**
+      * **transfers.receive_local**
+      * - `bool` in database
+      * - Nullable, no default
+      */
+    receive_local?: boolean | db.Parameter<boolean> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, boolean | db.Parameter<boolean> | db.SQLFragment | db.ParentColumn>;
+      /**
+      * **transfers.callback**
+      * - `bpchar` in database
+      * - Nullable, no default
+      */
+    callback?: string | db.Parameter<string> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
+      /**
+      * **transfers.callback_fee**
+      * - `numeric` in database
+      * - Nullable, no default
+      */
+    callback_fee?: number | db.Parameter<number> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, number | db.Parameter<number> | db.SQLFragment | db.ParentColumn>;
+      /**
+      * **transfers.relayer_fee**
+      * - `numeric` in database
+      * - Nullable, no default
+      */
+    relayer_fee?: number | db.Parameter<number> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, number | db.Parameter<number> | db.SQLFragment | db.ParentColumn>;
       /**
       * **transfers.origin_chain**
       * - `varchar` in database
@@ -1407,12 +1437,6 @@ declare module 'zapatos/schema' {
       * - Nullable, no default
       */
     xcall_block_number?: number | db.Parameter<number> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, number | db.Parameter<number> | db.SQLFragment | db.ParentColumn>;
-      /**
-      * **transfers.xcall_relayer_fee**
-      * - `numeric` in database
-      * - Nullable, no default
-      */
-    xcall_relayer_fee?: number | db.Parameter<number> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, number | db.Parameter<number> | db.SQLFragment | db.ParentColumn>;
       /**
       * **transfers.destination_chain**
       * - `varchar` in database
@@ -1534,61 +1558,31 @@ declare module 'zapatos/schema' {
       */
     reconcile_block_number?: number | db.Parameter<number> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, number | db.Parameter<number> | db.SQLFragment | db.ParentColumn>;
       /**
-      * **transfers.force_slow**
-      * - `bool` in database
-      * - Nullable, no default
-      */
-    force_slow?: boolean | db.Parameter<boolean> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, boolean | db.Parameter<boolean> | db.SQLFragment | db.ParentColumn>;
-      /**
-      * **transfers.receive_local**
-      * - `bool` in database
-      * - Nullable, no default
-      */
-    receive_local?: boolean | db.Parameter<boolean> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, boolean | db.Parameter<boolean> | db.SQLFragment | db.ParentColumn>;
-      /**
-      * **transfers.callback**
-      * - `bpchar` in database
-      * - Nullable, no default
-      */
-    callback?: string | db.Parameter<string> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
-      /**
-      * **transfers.recovery**
-      * - `bpchar` in database
-      * - Nullable, no default
-      */
-    recovery?: string | db.Parameter<string> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
-      /**
-      * **transfers.callback_fee**
-      * - `numeric` in database
-      * - Nullable, no default
-      */
-    callback_fee?: number | db.Parameter<number> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, number | db.Parameter<number> | db.SQLFragment | db.ParentColumn>;
-      /**
-      * **transfers.execute_relayer_fee**
-      * - `numeric` in database
-      * - Nullable, no default
-      */
-    execute_relayer_fee?: number | db.Parameter<number> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, number | db.Parameter<number> | db.SQLFragment | db.ParentColumn>;
-      /**
       * **transfers.update_time**
       * - `timestamp` in database
       * - `NOT NULL`, default: `CURRENT_TIMESTAMP`
       */
     update_time?: (db.TimestampString | Date) | db.Parameter<(db.TimestampString | Date)> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, (db.TimestampString | Date) | db.Parameter<(db.TimestampString | Date)> | db.SQLFragment | db.ParentColumn>;
+      /**
+      * **transfers.agent**
+      * - `bpchar` in database
+      * - Nullable, no default
+      */
+    agent?: string | db.Parameter<string> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
+      /**
+      * **transfers.slippage_tol**
+      * - `numeric` in database
+      * - Nullable, no default
+      */
+    slippage_tol?: number | db.Parameter<number> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, number | db.Parameter<number> | db.SQLFragment | db.ParentColumn>;
     }
     export interface Insertable {
       /**
-      * **transfers.origin_domain**
-      * - `varchar` in database
+      * **transfers.transfer_id**
+      * - `bpchar` in database
       * - `NOT NULL`, no default
       */
-    origin_domain: string | db.Parameter<string> | db.SQLFragment;
-      /**
-      * **transfers.destination_domain**
-      * - `varchar` in database
-      * - Nullable, no default
-      */
-    destination_domain?: string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment;
+    transfer_id: string | db.Parameter<string> | db.SQLFragment;
       /**
       * **transfers.nonce**
       * - `int8` in database
@@ -1608,17 +1602,53 @@ declare module 'zapatos/schema' {
       */
     call_data?: string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment;
       /**
-      * **transfers.idx**
-      * - `int8` in database
-      * - Nullable, no default
-      */
-    idx?: (number | db.Int8String) | db.Parameter<(number | db.Int8String)> | null | db.DefaultType | db.SQLFragment;
-      /**
-      * **transfers.transfer_id**
-      * - `bpchar` in database
+      * **transfers.origin_domain**
+      * - `varchar` in database
       * - `NOT NULL`, no default
       */
-    transfer_id: string | db.Parameter<string> | db.SQLFragment;
+    origin_domain: string | db.Parameter<string> | db.SQLFragment;
+      /**
+      * **transfers.destination_domain**
+      * - `varchar` in database
+      * - Nullable, no default
+      */
+    destination_domain?: string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment;
+      /**
+      * **transfers.recovery**
+      * - `bpchar` in database
+      * - Nullable, no default
+      */
+    recovery?: string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment;
+      /**
+      * **transfers.force_slow**
+      * - `bool` in database
+      * - Nullable, no default
+      */
+    force_slow?: boolean | db.Parameter<boolean> | null | db.DefaultType | db.SQLFragment;
+      /**
+      * **transfers.receive_local**
+      * - `bool` in database
+      * - Nullable, no default
+      */
+    receive_local?: boolean | db.Parameter<boolean> | null | db.DefaultType | db.SQLFragment;
+      /**
+      * **transfers.callback**
+      * - `bpchar` in database
+      * - Nullable, no default
+      */
+    callback?: string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment;
+      /**
+      * **transfers.callback_fee**
+      * - `numeric` in database
+      * - Nullable, no default
+      */
+    callback_fee?: number | db.Parameter<number> | null | db.DefaultType | db.SQLFragment;
+      /**
+      * **transfers.relayer_fee**
+      * - `numeric` in database
+      * - Nullable, no default
+      */
+    relayer_fee?: number | db.Parameter<number> | null | db.DefaultType | db.SQLFragment;
       /**
       * **transfers.origin_chain**
       * - `varchar` in database
@@ -1685,12 +1715,6 @@ declare module 'zapatos/schema' {
       * - Nullable, no default
       */
     xcall_block_number?: number | db.Parameter<number> | null | db.DefaultType | db.SQLFragment;
-      /**
-      * **transfers.xcall_relayer_fee**
-      * - `numeric` in database
-      * - Nullable, no default
-      */
-    xcall_relayer_fee?: number | db.Parameter<number> | null | db.DefaultType | db.SQLFragment;
       /**
       * **transfers.destination_chain**
       * - `varchar` in database
@@ -1812,61 +1836,31 @@ declare module 'zapatos/schema' {
       */
     reconcile_block_number?: number | db.Parameter<number> | null | db.DefaultType | db.SQLFragment;
       /**
-      * **transfers.force_slow**
-      * - `bool` in database
-      * - Nullable, no default
-      */
-    force_slow?: boolean | db.Parameter<boolean> | null | db.DefaultType | db.SQLFragment;
-      /**
-      * **transfers.receive_local**
-      * - `bool` in database
-      * - Nullable, no default
-      */
-    receive_local?: boolean | db.Parameter<boolean> | null | db.DefaultType | db.SQLFragment;
-      /**
-      * **transfers.callback**
-      * - `bpchar` in database
-      * - Nullable, no default
-      */
-    callback?: string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment;
-      /**
-      * **transfers.recovery**
-      * - `bpchar` in database
-      * - Nullable, no default
-      */
-    recovery?: string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment;
-      /**
-      * **transfers.callback_fee**
-      * - `numeric` in database
-      * - Nullable, no default
-      */
-    callback_fee?: number | db.Parameter<number> | null | db.DefaultType | db.SQLFragment;
-      /**
-      * **transfers.execute_relayer_fee**
-      * - `numeric` in database
-      * - Nullable, no default
-      */
-    execute_relayer_fee?: number | db.Parameter<number> | null | db.DefaultType | db.SQLFragment;
-      /**
       * **transfers.update_time**
       * - `timestamp` in database
       * - `NOT NULL`, default: `CURRENT_TIMESTAMP`
       */
     update_time?: (db.TimestampString | Date) | db.Parameter<(db.TimestampString | Date)> | db.DefaultType | db.SQLFragment;
+      /**
+      * **transfers.agent**
+      * - `bpchar` in database
+      * - Nullable, no default
+      */
+    agent?: string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment;
+      /**
+      * **transfers.slippage_tol**
+      * - `numeric` in database
+      * - Nullable, no default
+      */
+    slippage_tol?: number | db.Parameter<number> | null | db.DefaultType | db.SQLFragment;
     }
     export interface Updatable {
       /**
-      * **transfers.origin_domain**
-      * - `varchar` in database
+      * **transfers.transfer_id**
+      * - `bpchar` in database
       * - `NOT NULL`, no default
       */
-    origin_domain?: string | db.Parameter<string> | db.SQLFragment | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment>;
-      /**
-      * **transfers.destination_domain**
-      * - `varchar` in database
-      * - Nullable, no default
-      */
-    destination_domain?: string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment | db.SQLFragment<any, string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment>;
+    transfer_id?: string | db.Parameter<string> | db.SQLFragment | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment>;
       /**
       * **transfers.nonce**
       * - `int8` in database
@@ -1886,17 +1880,53 @@ declare module 'zapatos/schema' {
       */
     call_data?: string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment | db.SQLFragment<any, string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment>;
       /**
-      * **transfers.idx**
-      * - `int8` in database
-      * - Nullable, no default
-      */
-    idx?: (number | db.Int8String) | db.Parameter<(number | db.Int8String)> | null | db.DefaultType | db.SQLFragment | db.SQLFragment<any, (number | db.Int8String) | db.Parameter<(number | db.Int8String)> | null | db.DefaultType | db.SQLFragment>;
-      /**
-      * **transfers.transfer_id**
-      * - `bpchar` in database
+      * **transfers.origin_domain**
+      * - `varchar` in database
       * - `NOT NULL`, no default
       */
-    transfer_id?: string | db.Parameter<string> | db.SQLFragment | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment>;
+    origin_domain?: string | db.Parameter<string> | db.SQLFragment | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment>;
+      /**
+      * **transfers.destination_domain**
+      * - `varchar` in database
+      * - Nullable, no default
+      */
+    destination_domain?: string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment | db.SQLFragment<any, string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment>;
+      /**
+      * **transfers.recovery**
+      * - `bpchar` in database
+      * - Nullable, no default
+      */
+    recovery?: string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment | db.SQLFragment<any, string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment>;
+      /**
+      * **transfers.force_slow**
+      * - `bool` in database
+      * - Nullable, no default
+      */
+    force_slow?: boolean | db.Parameter<boolean> | null | db.DefaultType | db.SQLFragment | db.SQLFragment<any, boolean | db.Parameter<boolean> | null | db.DefaultType | db.SQLFragment>;
+      /**
+      * **transfers.receive_local**
+      * - `bool` in database
+      * - Nullable, no default
+      */
+    receive_local?: boolean | db.Parameter<boolean> | null | db.DefaultType | db.SQLFragment | db.SQLFragment<any, boolean | db.Parameter<boolean> | null | db.DefaultType | db.SQLFragment>;
+      /**
+      * **transfers.callback**
+      * - `bpchar` in database
+      * - Nullable, no default
+      */
+    callback?: string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment | db.SQLFragment<any, string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment>;
+      /**
+      * **transfers.callback_fee**
+      * - `numeric` in database
+      * - Nullable, no default
+      */
+    callback_fee?: number | db.Parameter<number> | null | db.DefaultType | db.SQLFragment | db.SQLFragment<any, number | db.Parameter<number> | null | db.DefaultType | db.SQLFragment>;
+      /**
+      * **transfers.relayer_fee**
+      * - `numeric` in database
+      * - Nullable, no default
+      */
+    relayer_fee?: number | db.Parameter<number> | null | db.DefaultType | db.SQLFragment | db.SQLFragment<any, number | db.Parameter<number> | null | db.DefaultType | db.SQLFragment>;
       /**
       * **transfers.origin_chain**
       * - `varchar` in database
@@ -1963,12 +1993,6 @@ declare module 'zapatos/schema' {
       * - Nullable, no default
       */
     xcall_block_number?: number | db.Parameter<number> | null | db.DefaultType | db.SQLFragment | db.SQLFragment<any, number | db.Parameter<number> | null | db.DefaultType | db.SQLFragment>;
-      /**
-      * **transfers.xcall_relayer_fee**
-      * - `numeric` in database
-      * - Nullable, no default
-      */
-    xcall_relayer_fee?: number | db.Parameter<number> | null | db.DefaultType | db.SQLFragment | db.SQLFragment<any, number | db.Parameter<number> | null | db.DefaultType | db.SQLFragment>;
       /**
       * **transfers.destination_chain**
       * - `varchar` in database
@@ -2090,47 +2114,23 @@ declare module 'zapatos/schema' {
       */
     reconcile_block_number?: number | db.Parameter<number> | null | db.DefaultType | db.SQLFragment | db.SQLFragment<any, number | db.Parameter<number> | null | db.DefaultType | db.SQLFragment>;
       /**
-      * **transfers.force_slow**
-      * - `bool` in database
-      * - Nullable, no default
-      */
-    force_slow?: boolean | db.Parameter<boolean> | null | db.DefaultType | db.SQLFragment | db.SQLFragment<any, boolean | db.Parameter<boolean> | null | db.DefaultType | db.SQLFragment>;
-      /**
-      * **transfers.receive_local**
-      * - `bool` in database
-      * - Nullable, no default
-      */
-    receive_local?: boolean | db.Parameter<boolean> | null | db.DefaultType | db.SQLFragment | db.SQLFragment<any, boolean | db.Parameter<boolean> | null | db.DefaultType | db.SQLFragment>;
-      /**
-      * **transfers.callback**
-      * - `bpchar` in database
-      * - Nullable, no default
-      */
-    callback?: string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment | db.SQLFragment<any, string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment>;
-      /**
-      * **transfers.recovery**
-      * - `bpchar` in database
-      * - Nullable, no default
-      */
-    recovery?: string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment | db.SQLFragment<any, string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment>;
-      /**
-      * **transfers.callback_fee**
-      * - `numeric` in database
-      * - Nullable, no default
-      */
-    callback_fee?: number | db.Parameter<number> | null | db.DefaultType | db.SQLFragment | db.SQLFragment<any, number | db.Parameter<number> | null | db.DefaultType | db.SQLFragment>;
-      /**
-      * **transfers.execute_relayer_fee**
-      * - `numeric` in database
-      * - Nullable, no default
-      */
-    execute_relayer_fee?: number | db.Parameter<number> | null | db.DefaultType | db.SQLFragment | db.SQLFragment<any, number | db.Parameter<number> | null | db.DefaultType | db.SQLFragment>;
-      /**
       * **transfers.update_time**
       * - `timestamp` in database
       * - `NOT NULL`, default: `CURRENT_TIMESTAMP`
       */
     update_time?: (db.TimestampString | Date) | db.Parameter<(db.TimestampString | Date)> | db.DefaultType | db.SQLFragment | db.SQLFragment<any, (db.TimestampString | Date) | db.Parameter<(db.TimestampString | Date)> | db.DefaultType | db.SQLFragment>;
+      /**
+      * **transfers.agent**
+      * - `bpchar` in database
+      * - Nullable, no default
+      */
+    agent?: string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment | db.SQLFragment<any, string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment>;
+      /**
+      * **transfers.slippage_tol**
+      * - `numeric` in database
+      * - Nullable, no default
+      */
+    slippage_tol?: number | db.Parameter<number> | null | db.DefaultType | db.SQLFragment | db.SQLFragment<any, number | db.Parameter<number> | null | db.DefaultType | db.SQLFragment>;
     }
     export type UniqueIndex = 'transfers_pkey';
     export type Column = keyof Selectable;

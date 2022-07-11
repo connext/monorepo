@@ -31,7 +31,7 @@ describe("Helpers:parse", () => {
       const entity = {
         transferId: mkBytes32(),
         originDomain: "1111",
-        destinationDomain: "2221",
+        destinationDomain: "3331",
         nonce: 0,
         to: mkAddress(),
       };
@@ -45,11 +45,9 @@ describe("Helpers:parse", () => {
       expect(originTransfer(mockOriginTransferEntity)).to.be.deep.eq({
         transferId: "0xaaa0000000000000000000000000000000000000000000000000000000000000",
         nonce: 0,
-        destinationDomain: "2221",
-        originDomain: "1111",
         relayerFee: "1",
         xparams: {
-          destinationDomain: "2221",
+          destinationDomain: "3331",
           originDomain: "1111",
           to: "0x1000000000000000000000000000000000000000",
           callData: "0x",
@@ -69,7 +67,6 @@ describe("Helpers:parse", () => {
             bridged: { asset: mkAddress("0x12"), amount: "100" },
           },
           xcall: {
-            relayerFee: "1",
             caller: "0x2000000000000000000000000000000000000000",
             transactionHash: "0xbbb0000000000000000000000000000000000000000000000000000000000000",
             timestamp: 11111111,
@@ -87,11 +84,9 @@ describe("Helpers:parse", () => {
       ).to.be.deep.eq({
         transferId: "0xaaa0000000000000000000000000000000000000000000000000000000000000",
         nonce: 0,
-        destinationDomain: "2221",
-        originDomain: "1111",
         relayerFee: "1",
         xparams: {
-          destinationDomain: "2221",
+          destinationDomain: "3331",
           originDomain: "1111",
           to: "0x1000000000000000000000000000000000000000",
           callData: "0x",
@@ -111,7 +106,6 @@ describe("Helpers:parse", () => {
             bridged: { asset: mkAddress("0x12"), amount: "100" },
           },
           xcall: {
-            relayerFee: "1",
             caller: "0x2000000000000000000000000000000000000000",
             transactionHash: "0xbbb0000000000000000000000000000000000000000000000000000000000000",
             timestamp: 0,
@@ -193,10 +187,8 @@ describe("Helpers:parse", () => {
         nonce: 0,
         origin: undefined,
         transferId: "0xaaa0000000000000000000000000000000000000000000000000000000000000",
-        destinationDomain: "2221",
-        originDomain: "1111",
         xparams: {
-          destinationDomain: "2221",
+          destinationDomain: "3331",
           originDomain: "1111",
           callData: "0x",
           callback: "0xaaa0000000000000000000000000000000000000",
@@ -254,13 +246,24 @@ describe("Helpers:parse", () => {
           routers: ["0x1110000000000000000000000000000000000000", "0x1120000000000000000000000000000000000000"],
           status: "Executed",
         },
-        destinationDomain: "2221",
 
         nonce: 0,
         origin: undefined,
-        originDomain: "1111",
         transferId: "0xaaa0000000000000000000000000000000000000000000000000000000000000",
-        xparams: undefined,
+        xparams: {
+          agent: "foo",
+          callData: "0x",
+          callback: "0xaaa0000000000000000000000000000000000000",
+          callbackFee: "0",
+          destinationDomain: "3331",
+          forceSlow: false,
+          originDomain: "1111",
+          receiveLocal: false,
+          recovery: "0x1000000000000000000000000000000000000000",
+          relayerFee: "1",
+          slippageTol: "0",
+          to: undefined,
+        },
       });
     });
   });
@@ -294,14 +297,14 @@ describe("Helpers:parse", () => {
               amount: "1000000000000000",
             },
           ],
-          kovan_assets: [
+          goerli_assets: [
             {
               id: mkBytes32("0x112"),
               local: mkAddress("0x21"),
               adoptedAsset: mkAddress("0x22"),
             },
           ],
-          kovan_assetBalances: [
+          goerli_assetBalances: [
             {
               id: `${mkAddress("0x22")}-${mkAddress("0x23")}`,
               amount: "1000000000000000",
@@ -327,7 +330,7 @@ describe("Helpers:parse", () => {
         ],
       ]);
 
-      expect(xqeuryRes.get("2221")).to.be.deep.eq([
+      expect(xqeuryRes.get("3331")).to.be.deep.eq([
         [
           {
             id: "0x1120000000000000000000000000000000000000000000000000000000000000",

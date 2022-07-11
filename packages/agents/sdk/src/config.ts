@@ -10,6 +10,7 @@ const DEFAULT_ALLOWED_TOLERANCE = 10; // in percent
 export const TAssetDescription = Type.Object({
   name: Type.String(),
   address: TAddress,
+  symbol: Type.String(),
   mainnetEquivalent: Type.Optional(TAddress),
 });
 
@@ -23,6 +24,7 @@ export const TChainConfig = Type.Object({
   deployments: Type.Optional(
     Type.Object({
       connext: TAddress,
+      tokenRegistry: Type.Optional(TAddress),
       stableSwap: Type.Optional(TAddress),
     }),
   ),
@@ -49,6 +51,7 @@ export const TValidationChainConfig = Type.Object({
   confirmations: Type.Integer({ minimum: 1 }), // What we consider the "safe confirmations" number for this chain.
   deployments: Type.Object({
     connext: TAddress,
+    tokenRegistry: Type.Optional(TAddress),
     stableSwap: Type.Optional(TAddress),
   }),
 });
@@ -109,6 +112,17 @@ export const getEnvConfig = (
           const res = chainDataForChain ? deployments.connext(chainDataForChain.chainId, contractPostfix) : undefined;
           if (!res) {
             throw new Error(`No Connext contract address for domain ${domainId}`);
+          }
+          return res.address;
+        })(),
+      tokenRegistry:
+        chainConfig.deployments?.tokenRegistry ??
+        (() => {
+          const res = chainDataForChain
+            ? deployments.tokenRegistry(chainDataForChain.chainId, contractPostfix, true)
+            : undefined;
+          if (!res) {
+            throw new Error(`No TokenRegistry contract address for domain ${domainId}`);
           }
           return res.address;
         })(),

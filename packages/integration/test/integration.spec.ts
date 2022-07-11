@@ -182,9 +182,9 @@ describe("Integration:E2E", () => {
         `\nTRANSFER:\n\tRoute:    \t${domainInfo.ORIGIN.name} (${domainInfo.ORIGIN.domain}) => ` +
         `${domainInfo.DESTINATION.name} (${domainInfo.DESTINATION.domain})` +
         `\n\tAmount:    \t${utils.formatEther(TRANSFER_TOKEN_AMOUNT)} TEST` +
-        `\nAGENTS\n\tRouter:   \t${agents.router?.address ?? "N/A"}\n\tRelayer:   \t${relayerAddress}\n\tUser:    \t${
-          agents.user.address
-        }` +
+        `\nAGENTS\n\tDeployer:   \t${agents.deployer?.address ?? "N/A"}\n\tRouter:   \t${
+          agents.router?.address ?? "N/A"
+        }\n\tRelayer:   \t${relayerAddress}\n\tUser:    \t${agents.user.address}` +
         `\nCONNEXT\n\tOrigin:   \t${originConnextAddress}\n\tEtherscan:   \t${formatEtherscanLink({
           network: domainInfo.ORIGIN.network,
           address: originConnextAddress,
@@ -344,10 +344,12 @@ describe("Integration:E2E", () => {
       log.next("FUND USER AGENT");
       // Fund user with ETH and TEST on origin. Router signer will be funder for ETH.
       {
-        if (agents.router) {
+        // TODO: Make a separate "funder" agent role that gets delegated to deployer if not defined, and
+        // then router if no deployer is defined.
+        if (agents.deployer) {
           // Make sure funder is funded themselves.
-          const funderEth = await chainreader.getBalance(domainInfo.ORIGIN.chain, agents.router.address);
-          log.info(`Retrieved Router ETH.`, {
+          const funderEth = await chainreader.getBalance(domainInfo.ORIGIN.chain, agents.deployer.address);
+          log.info(`Retrieved Deployer ETH.`, {
             domain: domainInfo.ORIGIN,
             etc: {
               balance: `${utils.formatEther(funderEth)} ETH.`,
@@ -355,7 +357,7 @@ describe("Integration:E2E", () => {
           });
 
           if (funderEth.lt(MIN_FUNDER_ETH)) {
-            log.fail(`Router needs at least ${utils.formatEther(MIN_FUNDER_ETH)} ETH for funding user agent.`, {
+            log.fail(`Deployer needs at least ${utils.formatEther(MIN_FUNDER_ETH)} ETH for funding user agent.`, {
               domain: domainInfo.ORIGIN,
             });
           }
@@ -385,13 +387,13 @@ describe("Integration:E2E", () => {
         if (userEth.lt(MIN_USER_ETH)) {
           log.info("Funding user with some ETH...", { domain: domainInfo.ORIGIN });
 
-          if (!agents.router) {
+          if (!agents.deployer) {
             throw new Error(
-              "Router signer not configured: cannot fund User agent! Please fund the User some ETH offline.",
+              "Deployer signer not configured: cannot fund User agent! Please fund the User some ETH offline.",
             );
           }
 
-          const tx = await agents.router.origin.sendTransaction({
+          const tx = await agents.deployer.origin.sendTransaction({
             to: agents.user.address,
             value: MIN_USER_ETH,
           });
@@ -469,8 +471,34 @@ describe("Integration:E2E", () => {
           });
         }
 
-        // Router needs to approve TEST token spend for connext contract on origin chain.
-        if (agents.router) {
+        // If Deployer is configured, it will need to approve TEST token spend for connext on destination chain (to add liquidity).
+        // Otherwise, fallback to using router directly.
+        if (agents.router && agents.deployer) {
+          const deployerAllowance: BigNumber = await getAllowance(context, {
+            domain: domainInfo.DESTINATION,
+            owner: agents.deployer.address,
+            spender: destinationConnextAddress,
+            asset: destinationAsset.address,
+          });
+          if (deployerAllowance.lt(TRANSFER_TOKEN_AMOUNT)) {
+            log.info("Approving TEST spending for Deployer...", { domain: domainInfo.DESTINATION });
+            const encoded = testERC20.encodeFunctionData("approve", [destinationConnextAddress, infiniteApproval]);
+            const tx = await agents.deployer.destination.sendTransaction({
+              to: destinationAsset.address,
+              data: encoded,
+              value: BigNumber.from("0"),
+            });
+            const receipt = await tx.wait(1);
+            log.info(`Approved TEST spending for Deployer.`, {
+              domain: domainInfo.ORIGIN,
+              hash: receipt.transactionHash,
+              etc: {
+                // TODO: Should read and double-check new allowance.
+                prevAllowance: `${utils.formatEther(deployerAllowance)} TEST.`,
+              },
+            });
+          }
+        } else if (agents.router) {
           const routerAllowance: BigNumber = await getAllowance(context, {
             domain: domainInfo.DESTINATION,
             owner: agents.router.address,
@@ -490,7 +518,8 @@ describe("Integration:E2E", () => {
               domain: domainInfo.ORIGIN,
               hash: receipt.transactionHash,
               etc: {
-                allowance: `${utils.formatEther(routerAllowance)} TEST.`,
+                // TODO: Should read and double-check new allowance.
+                prevAllowance: `${utils.formatEther(routerAllowance)} TEST.`,
               },
             });
           }
@@ -523,8 +552,45 @@ describe("Integration:E2E", () => {
         if (routerBalance.lt(TRANSFER_TOKEN_AMOUNT)) {
           // Router liquidity balance is insufficient.
 
-          // Ensure router has enough TEST tokens to add liquidity.
-          {
+          // Ensure router (or deployer, if configured) has enough TEST tokens to add liquidity.
+          if (agents.deployer) {
+            let deployerTokens = await chainreader.getBalance(
+              domainInfo.DESTINATION.chain,
+              agents.deployer.address,
+              destinationAsset.address,
+            );
+            log.info("Retrieved Deployer TEST.", {
+              domain: domainInfo.DESTINATION,
+              etc: {
+                balance: `${utils.formatEther(deployerTokens)} TEST.`,
+              },
+            });
+
+            if (deployerTokens.lt(ROUTER_DESIRED_LIQUIDITY)) {
+              // Mint TEST tokens.
+              log.info("Minting TEST tokens for Deployer (for Router liquidity)...", {
+                domain: domainInfo.DESTINATION,
+              });
+              const amount = ROUTER_DESIRED_LIQUIDITY.mul(10);
+              const encoded = testERC20.encodeFunctionData("mint", [agents.deployer.address, amount]);
+              const tx = await agents.deployer.destination.sendTransaction({
+                to: destinationAsset.address,
+                data: encoded,
+                value: BigNumber.from("0"),
+              });
+              const receipt = await tx.wait(1);
+
+              deployerTokens = await chainreader.getBalance(
+                domainInfo.DESTINATION.chain,
+                agents.router.address,
+                destinationAsset.address,
+              );
+              log.info(`Minted TEST tokens for Deployer. Deployer now has ${utils.formatEther(deployerTokens)} TEST.`, {
+                domain: domainInfo.DESTINATION,
+                hash: receipt.transactionHash,
+              });
+            }
+          } else {
             let routerTokens = await chainreader.getBalance(
               domainInfo.DESTINATION.chain,
               agents.router.address,
@@ -568,12 +634,27 @@ describe("Integration:E2E", () => {
             etc: { amount: amount.toString(), asset: destinationAsset.address },
           });
           {
-            const encoded = connext.encodeFunctionData("addRouterLiquidity", [amount, destinationAsset.address]);
-            const tx = await agents.router.destination.sendTransaction({
-              to: destinationConnextAddress,
-              data: encoded,
-            });
-            const receipt = await tx.wait(1);
+            // Try adding liquidity using deployer. Fallback to attempting to add liquidity using the router.
+            let receipt: providers.TransactionReceipt;
+            if (agents.deployer) {
+              const encoded = connext.encodeFunctionData("addRouterLiquidityFor", [
+                amount,
+                destinationAsset.address,
+                agents.router.address,
+              ]);
+              const tx = await agents.deployer.destination.sendTransaction({
+                to: destinationConnextAddress,
+                data: encoded,
+              });
+              receipt = await tx.wait(1);
+            } else {
+              const encoded = connext.encodeFunctionData("addRouterLiquidity", [amount, destinationAsset.address]);
+              const tx = await agents.router.destination.sendTransaction({
+                to: destinationConnextAddress,
+                data: encoded,
+              });
+              receipt = await tx.wait(1);
+            }
 
             // Check router liquidity on-chain to confirm.
             {
@@ -700,17 +781,21 @@ describe("Integration:E2E", () => {
               receiveLocal: false,
               callback: constants.AddressZero,
               callbackFee: "0",
+              relayerFee: "0",
               recovery: agents.user.address,
+              agent: agents.user.address,
+              slippageTol: "3",
             },
             transactingAssetId: originAsset.address,
             amount: TRANSFER_TOKEN_AMOUNT.toString(),
-            relayerFee: "0",
           };
           const encoded = connext.encodeFunctionData("xcall", [args]);
           const tx = await agents.user.origin.sendTransaction({
             to: originConnextAddress,
             data: encoded,
             // value: RELAYER_FEE_AMOUNT,
+            // 1m gas hardcoded, in case you need to just send it:
+            // gasLimit: BigNumber.from("1000000"),
           });
           const receipt = await tx.wait(1);
           log.info("XCall sent.", {

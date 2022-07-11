@@ -11,10 +11,10 @@ export const mockChainData = chainDataToMap([
     network: "rinkeby",
   },
   {
-    name: "Kovan Testnet",
-    chainId: 42,
-    domainId: "2221",
-    network: "kovan",
+    name: "Goerli Testnet",
+    chainId: 5,
+    domainId: "3331",
+    network: "goerli",
   },
   {
     name: "Local Testnet",
@@ -31,7 +31,7 @@ const mockMetaData = {
   transferId: mkBytes32("0xaaa"),
   nonce: "0",
   originDomain: "1111",
-  destinationDomain: "2221",
+  destinationDomain: "3331",
 };
 
 const mockCallData = {
@@ -92,9 +92,9 @@ const defaultContext: { config: SubgraphMap } = {
   config: {
     sources: {
       "1111": { domain: "1111", prefix: "rinkeby" },
-      "2221": { domain: "2221", prefix: "kovan" },
+      "3331": { domain: "3331", prefix: "goerli" },
     },
-    supported: { "1111": true, "2221": true, "5555555555555": false },
+    supported: { "1111": true, "3331": true, "5555555555555": false },
   },
 };
 export let mockContext: any;

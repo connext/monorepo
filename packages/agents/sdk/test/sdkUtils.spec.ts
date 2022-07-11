@@ -81,38 +81,11 @@ describe("SdkUtils", () => {
               transactionIndex: 32,
               blockNumber: 10771144,
               transactionHash: "0xa6006c58f3ac55c04afc9eb4fe8338525ce71bf35399e7bf8ec1cf034ff76554",
-              address: "0x3FFc03F05D1869f493c7dbf913E636C6280e0ff9",
-              topics: [],
-              data: "0x00000000000000000000000000000000000000000000001b1ae4d6e2ef500000",
-              logIndex: 59,
-              blockHash: "0x964a3c385444cc0fd0b258d67ccb37d249d431914fe767e86f40fba4d0ecc0e7",
-            },
-            {
-              transactionIndex: 32,
-              blockNumber: 10771144,
-              transactionHash: "0xa6006c58f3ac55c04afc9eb4fe8338525ce71bf35399e7bf8ec1cf034ff76554",
-              address: "0x3FFc03F05D1869f493c7dbf913E636C6280e0ff9",
-              topics: [],
-              data: "0x00000000000000000000000000000000000000000000001b1ae4d6e2ef500000",
-              logIndex: 60,
-              blockHash: "0x964a3c385444cc0fd0b258d67ccb37d249d431914fe767e86f40fba4d0ecc0e7",
-            },
-            {
-              transactionIndex: 32,
-              blockNumber: 10771144,
-              transactionHash: "0xa6006c58f3ac55c04afc9eb4fe8338525ce71bf35399e7bf8ec1cf034ff76554",
-              address: "0xBA64e033FaFD08E1b14E034FCd31d10E9534BA8e",
-              topics: [],
-              data: "0x633e19b9592a118773d5d77300acefb0f9368a44a1455b7e9035c792b278ff84000000000000000000000000000000000000000000000000000000000000004000000000000000000000000000000000000000000000000000000000000000f1000004570000000000000000000000002307ed9f152fa9b3dcdfe2385d279d8c2a9df2b0000077ae00000d03000000000000000000000000ec3a723de47a644b901dc269829bf8718f175ebf000008ad0000000000000000000000003ffc03f05d1869f493c7dbf913e636c6280e0ff903000000000000000000000000d9aa57f44857cd3e6b0406d8b530ef4f98e2ec2900000000000000000000000000000000000000000000001b1ae4d6e2ef50000020b4b2eeb4ea213a5e7d1e1d2a3a1a437fbe7c8b3490898b0474b0fe66dda70a0b7a810f9ac0f240337bce82fe42f3c9d31147aa1477fb8cad52618e5ca514d7000000000000000000000000000000",
-              logIndex: 61,
-              blockHash: "0x964a3c385444cc0fd0b258d67ccb37d249d431914fe767e86f40fba4d0ecc0e7",
-            },
-            {
-              transactionIndex: 32,
-              blockNumber: 10771144,
-              transactionHash: "0xa6006c58f3ac55c04afc9eb4fe8338525ce71bf35399e7bf8ec1cf034ff76554",
               address: "0x2307Ed9f152FA9b3DcDfe2385d279D8C2A9DF2b0",
-              topics: [],
+              topics: [
+                "0x7f9a44468cd4a3c9115f4484cc70939547e8d807c832f32b8c049302f9813001",
+                "0x0b7a810f9ac0f240337bce82fe42f3c9d31147aa1477fb8cad52618e5ca514d7",
+              ],
               data: "0x00000000000000000000000000000000000000000000000000000000000001000000000000000000000000003ffc03f05d1869f493c7dbf913e636c6280e0ff900000000000000000000000000000000000000000000001b1ae4d6e2ef50000000000000000000000000000000000000000000000000001b1ae4d6e2ef5000000000000000000000000000003ffc03f05d1869f493c7dbf913e636c6280e0ff90000000000000000000000000000000000000000000000000000000000006c6100000000000000000000000000000000000000000000000000000000000002c0000000000000000000000000d9aa57f44857cd3e6b0406d8b530ef4f98e2ec2900000000000000000000000000000000000000000000000000000000000000800000000000000000000000003ffc03f05d1869f493c7dbf913e636c6280e0ff900000000000000000000000000000000000000000000001b1ae4d6e2ef5000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000d9aa57f44857cd3e6b0406d8b530ef4f98e2ec29000000000000000000000000000000000000000000000000000000000000012000000000000000000000000000000000000000000000000000000000000004570000000000000000000000000000000000000000000000000000000000000d03000000000000000000000000d9aa57f44857cd3e6b0406d8b530ef4f98e2ec290000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000a5000008ad0000000000000000000000003ffc03f05d1869f493c7dbf913e636c6280e0ff903000000000000000000000000d9aa57f44857cd3e6b0406d8b530ef4f98e2ec2900000000000000000000000000000000000000000000001b1ae4d6e2ef50000020b4b2eeb4ea213a5e7d1e1d2a3a1a437fbe7c8b3490898b0474b0fe66dda70a0b7a810f9ac0f240337bce82fe42f3c9d31147aa1477fb8cad52618e5ca514d7000000000000000000000000000000000000000000000000000000",
               logIndex: 62,
               blockHash: "0x964a3c385444cc0fd0b258d67ccb37d249d431914fe767e86f40fba4d0ecc0e7",
@@ -128,7 +101,7 @@ describe("SdkUtils", () => {
 
   describe("#getRoutersData", () => {
     it("should error if validateUri fails", async () => {
-      (nxtpUtils as any).config.backendUrl = "invalidUrl";
+      (nxtpUtils as any).config.cartographerUrl = "invalidUrl";
 
       await expect(nxtpUtils.getRoutersData()).to.be.rejectedWith(UriInvalid);
     });
@@ -142,7 +115,7 @@ describe("SdkUtils", () => {
 
   describe("#getTransfersByUser", () => {
     it("should error if validateUri fails", async () => {
-      (nxtpUtils as any).config.backendUrl = "invalidUrl";
+      (nxtpUtils as any).config.cartographerUrl = "invalidUrl";
 
       await expect(nxtpUtils.getTransfersByUser({ userAddress: mockConfig.signerAddress })).to.be.rejectedWith(
         UriInvalid,
@@ -165,7 +138,7 @@ describe("SdkUtils", () => {
 
   describe("#getTransfers", () => {
     it("should error if validateUri fails", async () => {
-      (nxtpUtils as any).config.backendUrl = "invalidUrl";
+      (nxtpUtils as any).config.cartographerUrl = "invalidUrl";
 
       await expect(nxtpUtils.getTransfers({})).to.be.rejectedWith(UriInvalid);
     });
@@ -184,7 +157,7 @@ describe("SdkUtils", () => {
 
   describe("#getTransfersByStatus", () => {
     it("should error if validateUri fails", async () => {
-      (nxtpUtils as any).config.backendUrl = "invalidUrl";
+      (nxtpUtils as any).config.cartographerUrl = "invalidUrl";
 
       await expect(nxtpUtils.getTransfersByStatus({ status: XTransferStatus.Reconciled })).to.be.rejectedWith(
         UriInvalid,
@@ -206,7 +179,7 @@ describe("SdkUtils", () => {
 
   describe("#getTransfersByRouter", () => {
     it("should error if validateUri fails", async () => {
-      (nxtpUtils as any).config.backendUrl = "invalidUrl";
+      (nxtpUtils as any).config.cartographerUrl = "invalidUrl";
 
       await expect(nxtpUtils.getTransfersByRouter({ routerAddress: mock.address.router })).to.be.rejectedWith(
         UriInvalid,
@@ -229,7 +202,7 @@ describe("SdkUtils", () => {
 
   describe("#getTransferById", () => {
     it("should error if validateUri fails", async () => {
-      (nxtpUtils as any).config.backendUrl = "invalidUrl";
+      (nxtpUtils as any).config.cartographerUrl = "invalidUrl";
 
       await expect(nxtpUtils.getTransferById(getRandomBytes32())).to.be.rejectedWith(UriInvalid);
     });
@@ -243,7 +216,7 @@ describe("SdkUtils", () => {
 
   describe("#getTransferByTransactionHash", () => {
     it("should error if validateUri fails", async () => {
-      (nxtpUtils as any).config.backendUrl = "invalidUrl";
+      (nxtpUtils as any).config.cartographerUrl = "invalidUrl";
 
       await expect(nxtpUtils.getTransferByTransactionHash(getRandomBytes32())).to.be.rejectedWith(UriInvalid);
     });

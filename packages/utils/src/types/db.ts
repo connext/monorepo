@@ -7,7 +7,7 @@ import { AssetBalance, RouterBalance, XTransfer, XTransferStatus } from "./xtran
  * All BigNumbers are selected as text into JS.
  */
 export const transfersCastForUrl =
-  "select=origin_domain,destination_domain,nonce,to,call_data,idx,transfer_id,origin_chain,origin_transacting_asset,origin_transacting_amount::text,origin_bridged_asset,origin_bridged_amount::text,xcall_caller,xcall_transaction_hash,xcall_timestamp,xcall_gas_price::text,xcall_gas_limit::text,xcall_block_number,xcall_relayer_fee::text,destination_chain,status,routers,destination_transacting_asset,destination_transacting_amount::text,destination_local_asset,destination_local_amount::text,execute_caller,execute_transaction_hash,execute_timestamp,execute_gas_price::text,execute_gas_limit::text,execute_block_number,execute_origin_sender,reconcile_caller,reconcile_transaction_hash,reconcile_timestamp,reconcile_gas_price::text,reconcile_gas_limit::text,reconcile_block_number,force_slow,receive_local,callback,recovery,callback_fee,execute_relayer_fee::text";
+  "select=transfer_id,nonce,to,call_data,origin_domain,destination_domain,agent,recovery,force_slow,receive_local,callback,callback_fee,relayer_fee,slippage_tol,origin_chain,origin_transacting_asset,origin_transacting_amount::text,origin_bridged_asset,origin_bridged_amount::text,xcall_caller,xcall_transaction_hash,xcall_timestamp,xcall_gas_price::text,xcall_gas_limit::text,xcall_block_number,xcall_relayer_fee::text,destination_chain,status,routers,destination_transacting_asset,destination_transacting_amount::text,destination_local_asset,destination_local_amount::text,execute_caller,execute_transaction_hash,execute_timestamp,execute_gas_price::text,execute_gas_limit::text,execute_block_number,execute_origin_sender,reconcile_caller,reconcile_transaction_hash,reconcile_timestamp,reconcile_gas_price::text,reconcile_gas_limit::text,reconcile_block_number";
 
 /**
  * Converts a transfer from the cartographer db through either DB queries or Postgrest into the XTransfer type
@@ -16,20 +16,20 @@ export const transfersCastForUrl =
  */
 export const convertFromDbTransfer = (transfer: any): XTransfer => {
   return {
-    originDomain: transfer.origin_domain,
-    destinationDomain: transfer.destination_domain || undefined,
     nonce: BigNumber.from(transfer.nonce).toNumber(),
     xparams: {
       to: transfer.to || constants.AddressZero,
       callData: transfer.call_data || "0x",
-      callback: transfer.callback || constants.AddressZero,
-      callbackFee: transfer.callback_fee || "0",
-      relayerFee: transfer.relayer_fee || "0",
+      originDomain: transfer.origin_domain,
+      destinationDomain: transfer.destination_domain,
       recovery: transfer.recovery || constants.AddressZero,
       agent: transfer.agent || constants.AddressZero,
+      callback: transfer.callback || constants.AddressZero,
+      callbackFee: transfer.callback_fee || "0",
+      relayerFee: BigNumber.from(BigInt((transfer.xcall_relayer_fee as string) ?? "0")).toString(),
       forceSlow: transfer.force_slow || false,
       receiveLocal: transfer.receive_local || false,
-      slippageTol: transfer.slippage_tol || "0",
+      slippageTol: BigNumber.from(BigInt((transfer.slippage_tol as string) ?? "0")).toString(),
     },
     transferId: transfer.transfer_id,
 
@@ -53,7 +53,6 @@ export const convertFromDbTransfer = (transfer: any): XTransfer => {
             gasPrice: BigNumber.from(BigInt((transfer.xcall_gas_price as string) ?? "0")).toString(),
             timestamp: transfer.xcall_timestamp!,
             transactionHash: transfer.xcall_transaction_hash!,
-            relayerFee: BigNumber.from(BigInt((transfer.xcall_relayer_fee as string) ?? "0")).toString(),
           },
         }
       : undefined,

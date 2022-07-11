@@ -64,6 +64,11 @@
   },
   {
     "inputs": [],
+    "name": "AssetFacet__addAssetId_noWrapperExists",
+    "type": "error"
+  },
+  {
+    "inputs": [],
     "name": "AssetFacet__removeAssetId_notAdded",
     "type": "error"
   },
@@ -75,6 +80,11 @@
   {
     "inputs": [],
     "name": "AssetFacet__setWrapper_invalidWrapper",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "BaseConnextFacet__nonReentrant_reentrantCall",
     "type": "error"
   },
   {
@@ -95,6 +105,11 @@
   {
     "inputs": [],
     "name": "BaseConnextFacet__onlyReplica_notReplica",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "BaseConnextFacet__whenNotPaused_paused",
     "type": "error"
   },
   {
@@ -479,12 +494,27 @@
   },
   {
     "inputs": [],
+    "name": "AssetLogic__transferAssetToContract_feeOnTransferNotSupported",
+    "type": "error"
+  },
+  {
+    "inputs": [],
     "name": "BridgeFacet__bumpTransfer_valueIsZero",
     "type": "error"
   },
   {
     "inputs": [],
+    "name": "BridgeFacet__executePortalTransfer_insufficientAmountWithdrawn",
+    "type": "error"
+  },
+  {
+    "inputs": [],
     "name": "BridgeFacet__execute_alreadyExecuted",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "BridgeFacet__execute_alreadyReconciled",
     "type": "error"
   },
   {
@@ -499,6 +529,11 @@
   },
   {
     "inputs": [],
+    "name": "BridgeFacet__execute_notApprovedForPortals",
+    "type": "error"
+  },
+  {
+    "inputs": [],
     "name": "BridgeFacet__execute_notReconciled",
     "type": "error"
   },
@@ -509,22 +544,22 @@
   },
   {
     "inputs": [],
-    "name": "BridgeFacet__execute_unapprovedRelayer",
+    "name": "BridgeFacet__execute_unapprovedSender",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "BridgeFacet__execute_wrongDomain",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "BridgeFacet__forceReceiveLocal_invalidSender",
     "type": "error"
   },
   {
     "inputs": [],
     "name": "BridgeFacet__handleExecuteTransaction_invalidSponsoredAmount",
-    "type": "error"
-  },
-  {
-    "inputs": [],
-    "name": "BridgeFacet__reconcile_alreadyReconciled",
-    "type": "error"
-  },
-  {
-    "inputs": [],
-    "name": "BridgeFacet__reconcile_invalidAction",
     "type": "error"
   },
   {
@@ -579,6 +614,37 @@
       {
         "indexed": true,
         "internalType": "address",
+        "name": "router",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "address",
+        "name": "asset",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "amount",
+        "type": "uint256"
+      }
+    ],
+    "name": "AavePortalMintUnbacked",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "bytes32",
+        "name": "transferId",
+        "type": "bytes32"
+      },
+      {
+        "indexed": true,
+        "internalType": "address",
         "name": "to",
         "type": "address"
       },
@@ -608,8 +674,23 @@
               },
               {
                 "internalType": "address",
+                "name": "agent",
+                "type": "address"
+              },
+              {
+                "internalType": "address",
                 "name": "recovery",
                 "type": "address"
+              },
+              {
+                "internalType": "bool",
+                "name": "forceSlow",
+                "type": "bool"
+              },
+              {
+                "internalType": "bool",
+                "name": "receiveLocal",
+                "type": "bool"
               },
               {
                 "internalType": "address",
@@ -622,14 +703,14 @@
                 "type": "uint256"
               },
               {
-                "internalType": "bool",
-                "name": "forceSlow",
-                "type": "bool"
+                "internalType": "uint256",
+                "name": "relayerFee",
+                "type": "uint256"
               },
               {
-                "internalType": "bool",
-                "name": "receiveLocal",
-                "type": "bool"
+                "internalType": "uint256",
+                "name": "slippageTol",
+                "type": "uint256"
               }
             ],
             "internalType": "struct CallParams",
@@ -650,11 +731,6 @@
             "internalType": "bytes[]",
             "name": "routerSignatures",
             "type": "bytes[]"
-          },
-          {
-            "internalType": "uint256",
-            "name": "relayerFee",
-            "type": "uint256"
           },
           {
             "internalType": "uint256",
@@ -728,6 +804,37 @@
     "anonymous": false,
     "inputs": [
       {
+        "indexed": true,
+        "internalType": "bytes32",
+        "name": "transferId",
+        "type": "bytes32"
+      },
+      {
+        "indexed": true,
+        "internalType": "bytes32",
+        "name": "canonicalId",
+        "type": "bytes32"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint32",
+        "name": "canonicalDomain",
+        "type": "uint32"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "amount",
+        "type": "uint256"
+      }
+    ],
+    "name": "ForcedReceiveLocal",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
         "indexed": false,
         "internalType": "address",
         "name": "oldRouter",
@@ -747,49 +854,6 @@
       }
     ],
     "name": "PromiseRouterUpdated",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": true,
-        "internalType": "bytes32",
-        "name": "transferId",
-        "type": "bytes32"
-      },
-      {
-        "indexed": true,
-        "internalType": "uint32",
-        "name": "origin",
-        "type": "uint32"
-      },
-      {
-        "indexed": false,
-        "internalType": "address[]",
-        "name": "routers",
-        "type": "address[]"
-      },
-      {
-        "indexed": false,
-        "internalType": "address",
-        "name": "asset",
-        "type": "address"
-      },
-      {
-        "indexed": false,
-        "internalType": "uint256",
-        "name": "amount",
-        "type": "uint256"
-      },
-      {
-        "indexed": false,
-        "internalType": "address",
-        "name": "caller",
-        "type": "address"
-      }
-    ],
-    "name": "Reconciled",
     "type": "event"
   },
   {
@@ -877,8 +941,23 @@
               },
               {
                 "internalType": "address",
+                "name": "agent",
+                "type": "address"
+              },
+              {
+                "internalType": "address",
                 "name": "recovery",
                 "type": "address"
+              },
+              {
+                "internalType": "bool",
+                "name": "forceSlow",
+                "type": "bool"
+              },
+              {
+                "internalType": "bool",
+                "name": "receiveLocal",
+                "type": "bool"
               },
               {
                 "internalType": "address",
@@ -891,14 +970,14 @@
                 "type": "uint256"
               },
               {
-                "internalType": "bool",
-                "name": "forceSlow",
-                "type": "bool"
+                "internalType": "uint256",
+                "name": "relayerFee",
+                "type": "uint256"
               },
               {
-                "internalType": "bool",
-                "name": "receiveLocal",
-                "type": "bool"
+                "internalType": "uint256",
+                "name": "slippageTol",
+                "type": "uint256"
               }
             ],
             "internalType": "struct CallParams",
@@ -913,11 +992,6 @@
           {
             "internalType": "uint256",
             "name": "amount",
-            "type": "uint256"
-          },
-          {
-            "internalType": "uint256",
-            "name": "relayerFee",
             "type": "uint256"
           }
         ],
@@ -977,6 +1051,19 @@
     "type": "event"
   },
   {
+    "inputs": [],
+    "name": "AAVE_REFERRAL_CODE",
+    "outputs": [
+      {
+        "internalType": "uint16",
+        "name": "",
+        "type": "uint16"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
     "inputs": [
       {
         "internalType": "bytes32",
@@ -994,9 +1081,9 @@
     "name": "domain",
     "outputs": [
       {
-        "internalType": "uint256",
+        "internalType": "uint32",
         "name": "",
-        "type": "uint256"
+        "type": "uint32"
       }
     ],
     "stateMutability": "view",
@@ -1030,8 +1117,23 @@
               },
               {
                 "internalType": "address",
+                "name": "agent",
+                "type": "address"
+              },
+              {
+                "internalType": "address",
                 "name": "recovery",
                 "type": "address"
+              },
+              {
+                "internalType": "bool",
+                "name": "forceSlow",
+                "type": "bool"
+              },
+              {
+                "internalType": "bool",
+                "name": "receiveLocal",
+                "type": "bool"
               },
               {
                 "internalType": "address",
@@ -1044,14 +1146,14 @@
                 "type": "uint256"
               },
               {
-                "internalType": "bool",
-                "name": "forceSlow",
-                "type": "bool"
+                "internalType": "uint256",
+                "name": "relayerFee",
+                "type": "uint256"
               },
               {
-                "internalType": "bool",
-                "name": "receiveLocal",
-                "type": "bool"
+                "internalType": "uint256",
+                "name": "slippageTol",
+                "type": "uint256"
               }
             ],
             "internalType": "struct CallParams",
@@ -1072,11 +1174,6 @@
             "internalType": "bytes[]",
             "name": "routerSignatures",
             "type": "bytes[]"
-          },
-          {
-            "internalType": "uint256",
-            "name": "relayerFee",
-            "type": "uint256"
           },
           {
             "internalType": "uint256",
@@ -1126,27 +1223,99 @@
   {
     "inputs": [
       {
-        "internalType": "uint32",
-        "name": "_origin",
-        "type": "uint32"
+        "components": [
+          {
+            "internalType": "address",
+            "name": "to",
+            "type": "address"
+          },
+          {
+            "internalType": "bytes",
+            "name": "callData",
+            "type": "bytes"
+          },
+          {
+            "internalType": "uint32",
+            "name": "originDomain",
+            "type": "uint32"
+          },
+          {
+            "internalType": "uint32",
+            "name": "destinationDomain",
+            "type": "uint32"
+          },
+          {
+            "internalType": "address",
+            "name": "agent",
+            "type": "address"
+          },
+          {
+            "internalType": "address",
+            "name": "recovery",
+            "type": "address"
+          },
+          {
+            "internalType": "bool",
+            "name": "forceSlow",
+            "type": "bool"
+          },
+          {
+            "internalType": "bool",
+            "name": "receiveLocal",
+            "type": "bool"
+          },
+          {
+            "internalType": "address",
+            "name": "callback",
+            "type": "address"
+          },
+          {
+            "internalType": "uint256",
+            "name": "callbackFee",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "relayerFee",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "slippageTol",
+            "type": "uint256"
+          }
+        ],
+        "internalType": "struct CallParams",
+        "name": "_params",
+        "type": "tuple"
       },
       {
-        "internalType": "uint32",
+        "internalType": "uint256",
+        "name": "_amount",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
         "name": "_nonce",
-        "type": "uint32"
+        "type": "uint256"
       },
       {
         "internalType": "bytes32",
-        "name": "_sender",
+        "name": "_canonicalId",
         "type": "bytes32"
       },
       {
-        "internalType": "bytes",
-        "name": "_message",
-        "type": "bytes"
+        "internalType": "uint32",
+        "name": "_canonicalDomain",
+        "type": "uint32"
+      },
+      {
+        "internalType": "address",
+        "name": "_originSender",
+        "type": "address"
       }
     ],
-    "name": "handle",
+    "name": "forceReceiveLocal",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
@@ -1314,8 +1483,23 @@
               },
               {
                 "internalType": "address",
+                "name": "agent",
+                "type": "address"
+              },
+              {
+                "internalType": "address",
                 "name": "recovery",
                 "type": "address"
+              },
+              {
+                "internalType": "bool",
+                "name": "forceSlow",
+                "type": "bool"
+              },
+              {
+                "internalType": "bool",
+                "name": "receiveLocal",
+                "type": "bool"
               },
               {
                 "internalType": "address",
@@ -1328,14 +1512,14 @@
                 "type": "uint256"
               },
               {
-                "internalType": "bool",
-                "name": "forceSlow",
-                "type": "bool"
+                "internalType": "uint256",
+                "name": "relayerFee",
+                "type": "uint256"
               },
               {
-                "internalType": "bool",
-                "name": "receiveLocal",
-                "type": "bool"
+                "internalType": "uint256",
+                "name": "slippageTol",
+                "type": "uint256"
               }
             ],
             "internalType": "struct CallParams",
@@ -1350,11 +1534,6 @@
           {
             "internalType": "uint256",
             "name": "amount",
-            "type": "uint256"
-          },
-          {
-            "internalType": "uint256",
-            "name": "relayerFee",
             "type": "uint256"
           }
         ],
@@ -1375,6 +1554,126 @@
     "type": "function"
   },
   {
+    "inputs": [],
+    "name": "NomadFacet__reconcile_alreadyReconciled",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "NomadFacet__reconcile_invalidAction",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "NomadFacet__reconcile_noPortalRouter",
+    "type": "error"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "bytes32",
+        "name": "transferId",
+        "type": "bytes32"
+      },
+      {
+        "indexed": false,
+        "internalType": "address",
+        "name": "asset",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "amount",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "fee",
+        "type": "uint256"
+      }
+    ],
+    "name": "AavePortalRepayment",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "bytes32",
+        "name": "transferId",
+        "type": "bytes32"
+      },
+      {
+        "indexed": false,
+        "internalType": "address",
+        "name": "asset",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "amount",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "fee",
+        "type": "uint256"
+      }
+    ],
+    "name": "AavePortalRepaymentDebt",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "bytes32",
+        "name": "transferId",
+        "type": "bytes32"
+      },
+      {
+        "indexed": true,
+        "internalType": "uint32",
+        "name": "origin",
+        "type": "uint32"
+      },
+      {
+        "indexed": false,
+        "internalType": "address[]",
+        "name": "routers",
+        "type": "address[]"
+      },
+      {
+        "indexed": false,
+        "internalType": "address",
+        "name": "asset",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "amount",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "address",
+        "name": "caller",
+        "type": "address"
+      }
+    ],
+    "name": "Reconciled",
+    "type": "event"
+  },
+  {
     "inputs": [
       {
         "internalType": "uint32",
@@ -1388,6 +1687,34 @@
       }
     ],
     "name": "enrollRemoteRouter",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint32",
+        "name": "_origin",
+        "type": "uint32"
+      },
+      {
+        "internalType": "uint32",
+        "name": "_nonce",
+        "type": "uint32"
+      },
+      {
+        "internalType": "bytes32",
+        "name": "_sender",
+        "type": "bytes32"
+      },
+      {
+        "internalType": "bytes",
+        "name": "_message",
+        "type": "bytes"
+      }
+    ],
+    "name": "handle",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
@@ -1572,6 +1899,12 @@
   },
   {
     "anonymous": false,
+    "inputs": [],
+    "name": "Paused",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
     "inputs": [
       {
         "indexed": false,
@@ -1597,10 +1930,29 @@
     "type": "event"
   },
   {
+    "anonymous": false,
+    "inputs": [],
+    "name": "Unpaused",
+    "type": "event"
+  },
+  {
     "inputs": [],
     "name": "acceptProposedOwner",
     "outputs": [],
     "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "assetOwnershipRenounced",
+    "outputs": [
+      {
+        "internalType": "bool",
+        "name": "",
+        "type": "bool"
+      }
+    ],
+    "stateMutability": "view",
     "type": "function"
   },
   {
@@ -1626,7 +1978,7 @@
         "type": "uint256"
       }
     ],
-    "stateMutability": "view",
+    "stateMutability": "pure",
     "type": "function"
   },
   {
@@ -1640,6 +1992,13 @@
       }
     ],
     "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "pause",
+    "outputs": [],
+    "stateMutability": "nonpayable",
     "type": "function"
   },
   {
@@ -1731,6 +2090,19 @@
   },
   {
     "inputs": [],
+    "name": "routerOwnershipRenounced",
+    "outputs": [
+      {
+        "internalType": "bool",
+        "name": "",
+        "type": "bool"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
     "name": "routerOwnershipTimestamp",
     "outputs": [
       {
@@ -1744,7 +2116,19 @@
   },
   {
     "inputs": [],
+    "name": "unpause",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [],
     "name": "RelayerFacet__addRelayer_alreadyApproved",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "RelayerFacet__initiateClaim_emptyClaim",
     "type": "error"
   },
   {
@@ -2050,6 +2434,16 @@
   },
   {
     "inputs": [],
+    "name": "RoutersFacet__approveRouterForPortal_alreadyApproved",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "RoutersFacet__approveRouterForPortal_notAdded",
+    "type": "error"
+  },
+  {
+    "inputs": [],
     "name": "RoutersFacet__onlyProposedRouterOwner_notProposedRouterOwner",
     "type": "error"
   },
@@ -2071,6 +2465,11 @@
   {
     "inputs": [],
     "name": "RoutersFacet__proposeRouterOwner_notNewOwner",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "RoutersFacet__removeRouterLiquidityFor_notOwner",
     "type": "error"
   },
   {
@@ -2100,6 +2499,11 @@
   },
   {
     "inputs": [],
+    "name": "RoutersFacet__setLiquidityFeeNumerator_tooLarge",
+    "type": "error"
+  },
+  {
+    "inputs": [],
     "name": "RoutersFacet__setLiquidityFeeNumerator_tooSmall",
     "type": "error"
   },
@@ -2121,6 +2525,11 @@
   {
     "inputs": [],
     "name": "RoutersFacet__setupRouter_routerEmpty",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "RoutersFacet__unapproveRouterForPortal_notApproved",
     "type": "error"
   },
   {
@@ -2178,6 +2587,25 @@
       }
     ],
     "name": "RouterAdded",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
+        "internalType": "address",
+        "name": "router",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "address",
+        "name": "caller",
+        "type": "address"
+      }
+    ],
+    "name": "RouterApprovedForPortal",
     "type": "event"
   },
   {
@@ -2349,6 +2777,25 @@
     "type": "event"
   },
   {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
+        "internalType": "address",
+        "name": "router",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "address",
+        "name": "caller",
+        "type": "address"
+      }
+    ],
+    "name": "RouterUnapprovedForPortal",
+    "type": "event"
+  },
+  {
     "inputs": [],
     "name": "LIQUIDITY_FEE_DENOMINATOR",
     "outputs": [
@@ -2436,6 +2883,19 @@
         "type": "address"
       }
     ],
+    "name": "approveRouterForPortal",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "_router",
+        "type": "address"
+      }
+    ],
     "name": "getProposedRouterOwner",
     "outputs": [
       {
@@ -2475,6 +2935,25 @@
       }
     ],
     "name": "getRouterApproval",
+    "outputs": [
+      {
+        "internalType": "bool",
+        "name": "",
+        "type": "bool"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "_router",
+        "type": "address"
+      }
+    ],
+    "name": "getRouterApprovalForPortal",
     "outputs": [
       {
         "internalType": "bool",
@@ -2593,6 +3072,34 @@
   {
     "inputs": [
       {
+        "internalType": "uint256",
+        "name": "_amount",
+        "type": "uint256"
+      },
+      {
+        "internalType": "address",
+        "name": "_local",
+        "type": "address"
+      },
+      {
+        "internalType": "address payable",
+        "name": "_to",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "_router",
+        "type": "address"
+      }
+    ],
+    "name": "removeRouterLiquidityFor",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
         "internalType": "address",
         "name": "_router",
         "type": "address"
@@ -2682,6 +3189,19 @@
     "type": "function"
   },
   {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "_router",
+        "type": "address"
+      }
+    ],
+    "name": "unapproveRouterForPortal",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
     "inputs": [],
     "name": "StableSwapFacet__deadlineCheck_deadlineNotMet",
     "type": "error"
@@ -2699,56 +3219,6 @@
   {
     "inputs": [],
     "name": "StableSwapFacet__getSwapToken_outOfRange",
-    "type": "error"
-  },
-  {
-    "inputs": [],
-    "name": "StableSwapFacet__initializeSwap_aExceedMax",
-    "type": "error"
-  },
-  {
-    "inputs": [],
-    "name": "StableSwapFacet__initializeSwap_adminFeeExceedMax",
-    "type": "error"
-  },
-  {
-    "inputs": [],
-    "name": "StableSwapFacet__initializeSwap_alreadyInitialized",
-    "type": "error"
-  },
-  {
-    "inputs": [],
-    "name": "StableSwapFacet__initializeSwap_decimalsMismatch",
-    "type": "error"
-  },
-  {
-    "inputs": [],
-    "name": "StableSwapFacet__initializeSwap_duplicateTokens",
-    "type": "error"
-  },
-  {
-    "inputs": [],
-    "name": "StableSwapFacet__initializeSwap_failedInitLpTokenClone",
-    "type": "error"
-  },
-  {
-    "inputs": [],
-    "name": "StableSwapFacet__initializeSwap_feeExceedMax",
-    "type": "error"
-  },
-  {
-    "inputs": [],
-    "name": "StableSwapFacet__initializeSwap_invalidPooledTokens",
-    "type": "error"
-  },
-  {
-    "inputs": [],
-    "name": "StableSwapFacet__initializeSwap_tokenDecimalsExceedMax",
-    "type": "error"
-  },
-  {
-    "inputs": [],
-    "name": "StableSwapFacet__initializeSwap_zeroTokenAddress",
     "type": "error"
   },
   {
@@ -3043,6 +3513,11 @@
             "internalType": "uint256[]",
             "name": "balances",
             "type": "uint256[]"
+          },
+          {
+            "internalType": "uint256[]",
+            "name": "adminFees",
+            "type": "uint256[]"
           }
         ],
         "internalType": "struct SwapUtils.Swap",
@@ -3142,82 +3617,6 @@
       }
     ],
     "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "bytes32",
-        "name": "_canonicalId",
-        "type": "bytes32"
-      },
-      {
-        "internalType": "contract IERC20[]",
-        "name": "_pooledTokens",
-        "type": "address[]"
-      },
-      {
-        "internalType": "uint8[]",
-        "name": "decimals",
-        "type": "uint8[]"
-      },
-      {
-        "internalType": "string",
-        "name": "lpTokenName",
-        "type": "string"
-      },
-      {
-        "internalType": "string",
-        "name": "lpTokenSymbol",
-        "type": "string"
-      },
-      {
-        "internalType": "uint256",
-        "name": "_a",
-        "type": "uint256"
-      },
-      {
-        "internalType": "uint256",
-        "name": "_fee",
-        "type": "uint256"
-      },
-      {
-        "internalType": "uint256",
-        "name": "_adminFee",
-        "type": "uint256"
-      },
-      {
-        "internalType": "address",
-        "name": "lpTokenTargetAddress",
-        "type": "address"
-      }
-    ],
-    "name": "initializeSwap",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "bytes32",
-        "name": "canonicalId",
-        "type": "bytes32"
-      },
-      {
-        "internalType": "uint256",
-        "name": "futureA",
-        "type": "uint256"
-      },
-      {
-        "internalType": "uint256",
-        "name": "futureTime",
-        "type": "uint256"
-      }
-    ],
-    "name": "rampA",
-    "outputs": [],
-    "stateMutability": "nonpayable",
     "type": "function"
   },
   {
@@ -3335,55 +3734,6 @@
         "type": "bytes32"
       },
       {
-        "internalType": "uint256",
-        "name": "newAdminFee",
-        "type": "uint256"
-      }
-    ],
-    "name": "setSwapAdminFee",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "bytes32",
-        "name": "canonicalId",
-        "type": "bytes32"
-      },
-      {
-        "internalType": "uint256",
-        "name": "newSwapFee",
-        "type": "uint256"
-      }
-    ],
-    "name": "setSwapFee",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "bytes32",
-        "name": "canonicalId",
-        "type": "bytes32"
-      }
-    ],
-    "name": "stopRampA",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "bytes32",
-        "name": "canonicalId",
-        "type": "bytes32"
-      },
-      {
         "internalType": "uint8",
         "name": "tokenIndexFrom",
         "type": "uint8"
@@ -3470,11 +3820,444 @@
         "internalType": "bytes32",
         "name": "canonicalId",
         "type": "bytes32"
+      },
+      {
+        "internalType": "uint256",
+        "name": "amountOut",
+        "type": "uint256"
+      },
+      {
+        "internalType": "address",
+        "name": "assetIn",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "assetOut",
+        "type": "address"
+      },
+      {
+        "internalType": "uint256",
+        "name": "maxAmountIn",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "deadline",
+        "type": "uint256"
+      }
+    ],
+    "name": "swapExactOut",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "payable",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "SwapAdminFacet__initializeSwap_aExceedMax",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "SwapAdminFacet__initializeSwap_adminFeeExceedMax",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "SwapAdminFacet__initializeSwap_alreadyInitialized",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "SwapAdminFacet__initializeSwap_decimalsMismatch",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "SwapAdminFacet__initializeSwap_duplicateTokens",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "SwapAdminFacet__initializeSwap_failedInitLpTokenClone",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "SwapAdminFacet__initializeSwap_feeExceedMax",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "SwapAdminFacet__initializeSwap_invalidPooledTokens",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "SwapAdminFacet__initializeSwap_tokenDecimalsExceedMax",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "SwapAdminFacet__initializeSwap_zeroTokenAddress",
+    "type": "error"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "bytes32",
+        "name": "canonicalId",
+        "type": "bytes32"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "newAdminFee",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "address",
+        "name": "caller",
+        "type": "address"
+      }
+    ],
+    "name": "AdminFeesSet",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "bytes32",
+        "name": "canonicalId",
+        "type": "bytes32"
+      },
+      {
+        "indexed": false,
+        "internalType": "address",
+        "name": "caller",
+        "type": "address"
+      }
+    ],
+    "name": "AdminFeesWithdrawn",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "bytes32",
+        "name": "canonicalId",
+        "type": "bytes32"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "futureA",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "futureTime",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "address",
+        "name": "caller",
+        "type": "address"
+      }
+    ],
+    "name": "RampAStarted",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "bytes32",
+        "name": "canonicalId",
+        "type": "bytes32"
+      },
+      {
+        "indexed": false,
+        "internalType": "address",
+        "name": "caller",
+        "type": "address"
+      }
+    ],
+    "name": "RampAStopped",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "bytes32",
+        "name": "canonicalId",
+        "type": "bytes32"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "newSwapFee",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "address",
+        "name": "caller",
+        "type": "address"
+      }
+    ],
+    "name": "SwapFeesSet",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "bytes32",
+        "name": "canonicalId",
+        "type": "bytes32"
+      },
+      {
+        "components": [
+          {
+            "internalType": "uint256",
+            "name": "initialA",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "futureA",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "initialATime",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "futureATime",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "swapFee",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "adminFee",
+            "type": "uint256"
+          },
+          {
+            "internalType": "contract LPToken",
+            "name": "lpToken",
+            "type": "address"
+          },
+          {
+            "internalType": "contract IERC20[]",
+            "name": "pooledTokens",
+            "type": "address[]"
+          },
+          {
+            "internalType": "uint256[]",
+            "name": "tokenPrecisionMultipliers",
+            "type": "uint256[]"
+          },
+          {
+            "internalType": "uint256[]",
+            "name": "balances",
+            "type": "uint256[]"
+          },
+          {
+            "internalType": "uint256[]",
+            "name": "adminFees",
+            "type": "uint256[]"
+          }
+        ],
+        "indexed": false,
+        "internalType": "struct SwapUtils.Swap",
+        "name": "swap",
+        "type": "tuple"
+      },
+      {
+        "indexed": false,
+        "internalType": "address",
+        "name": "caller",
+        "type": "address"
+      }
+    ],
+    "name": "SwapInitialized",
+    "type": "event"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "bytes32",
+        "name": "_canonicalId",
+        "type": "bytes32"
+      },
+      {
+        "internalType": "contract IERC20[]",
+        "name": "_pooledTokens",
+        "type": "address[]"
+      },
+      {
+        "internalType": "uint8[]",
+        "name": "decimals",
+        "type": "uint8[]"
+      },
+      {
+        "internalType": "string",
+        "name": "lpTokenName",
+        "type": "string"
+      },
+      {
+        "internalType": "string",
+        "name": "lpTokenSymbol",
+        "type": "string"
+      },
+      {
+        "internalType": "uint256",
+        "name": "_a",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "_fee",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "_adminFee",
+        "type": "uint256"
+      },
+      {
+        "internalType": "address",
+        "name": "lpTokenTargetAddress",
+        "type": "address"
+      }
+    ],
+    "name": "initializeSwap",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "bytes32",
+        "name": "canonicalId",
+        "type": "bytes32"
+      },
+      {
+        "internalType": "uint256",
+        "name": "futureA",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "futureTime",
+        "type": "uint256"
+      }
+    ],
+    "name": "rampA",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "bytes32",
+        "name": "canonicalId",
+        "type": "bytes32"
+      },
+      {
+        "internalType": "uint256",
+        "name": "newAdminFee",
+        "type": "uint256"
+      }
+    ],
+    "name": "setSwapAdminFee",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "bytes32",
+        "name": "canonicalId",
+        "type": "bytes32"
+      },
+      {
+        "internalType": "uint256",
+        "name": "newSwapFee",
+        "type": "uint256"
+      }
+    ],
+    "name": "setSwapFee",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "bytes32",
+        "name": "canonicalId",
+        "type": "bytes32"
+      }
+    ],
+    "name": "stopRampA",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "bytes32",
+        "name": "canonicalId",
+        "type": "bytes32"
       }
     ],
     "name": "withdrawSwapAdminFees",
     "outputs": [],
     "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "VERSION",
+    "outputs": [
+      {
+        "internalType": "uint8",
+        "name": "",
+        "type": "uint8"
+      }
+    ],
+    "stateMutability": "pure",
     "type": "function"
   },
   {
@@ -3555,6 +4338,86 @@
       }
     ],
     "name": "diamondCut",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "components": [
+          {
+            "internalType": "address",
+            "name": "facetAddress",
+            "type": "address"
+          },
+          {
+            "internalType": "enum IDiamondCut.FacetCutAction",
+            "name": "action",
+            "type": "uint8"
+          },
+          {
+            "internalType": "bytes4[]",
+            "name": "functionSelectors",
+            "type": "bytes4[]"
+          }
+        ],
+        "internalType": "struct IDiamondCut.FacetCut[]",
+        "name": "_diamondCut",
+        "type": "tuple[]"
+      },
+      {
+        "internalType": "address",
+        "name": "_init",
+        "type": "address"
+      },
+      {
+        "internalType": "bytes",
+        "name": "_calldata",
+        "type": "bytes"
+      }
+    ],
+    "name": "proposeDiamondCut",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "components": [
+          {
+            "internalType": "address",
+            "name": "facetAddress",
+            "type": "address"
+          },
+          {
+            "internalType": "enum IDiamondCut.FacetCutAction",
+            "name": "action",
+            "type": "uint8"
+          },
+          {
+            "internalType": "bytes4[]",
+            "name": "functionSelectors",
+            "type": "bytes4[]"
+          }
+        ],
+        "internalType": "struct IDiamondCut.FacetCut[]",
+        "name": "_diamondCut",
+        "type": "tuple[]"
+      },
+      {
+        "internalType": "address",
+        "name": "_init",
+        "type": "address"
+      },
+      {
+        "internalType": "bytes",
+        "name": "_calldata",
+        "type": "bytes"
+      }
+    ],
+    "name": "rescindDiamondCut",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"

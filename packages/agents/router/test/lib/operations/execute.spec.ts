@@ -20,7 +20,7 @@ const { execute } = ExecuteFns;
 describe("Operations:Execute", () => {
   let mockContext: any;
   let getBlacklistStub: SinonStub<
-    [originDomain: string, destinationDomain: string, nomadEnvironment: string],
+    [originDomain: string, destinationDomain: string],
     Promise<{ originBlacklisted: boolean; destinationBlacklisted: boolean }>
   >;
 
@@ -58,7 +58,7 @@ describe("Operations:Execute", () => {
       const expectedBid: Bid = {
         routerVersion: version,
         transferId: mockXTransfer.transferId,
-        origin: mockXTransfer.originDomain,
+        origin: mockXTransfer.xparams.originDomain,
         router: mockRouter,
         signatures: {
           "1": mock.signature,
@@ -76,9 +76,9 @@ describe("Operations:Execute", () => {
         mockFulfillLocalAsset,
       );
       expect(mock.helpers.shared.getDestinationLocalAsset).to.be.calledOnceWithExactly(
-        mockXTransfer.originDomain,
+        mockXTransfer.xparams.originDomain,
         mockXTransfer.origin.assets.bridged.asset,
-        mockXTransfer.destinationDomain,
+        mockXTransfer.xparams.destinationDomain,
       );
       expect(mock.helpers.shared.signRouterPathPayload).to.be.callCount(4);
       expect(mock.helpers.auctions.sendBid.getCall(0).args.slice(0, 1)).to.deep.equal([expectedBid]);
@@ -90,7 +90,7 @@ describe("Operations:Execute", () => {
       });
       const _expectedBid: Bid = {
         transferId: _mockXTransfer.transferId,
-        origin: _mockXTransfer.originDomain,
+        origin: _mockXTransfer.xparams.originDomain,
         router: mockRouter,
         routerVersion: version,
         signatures: {
@@ -140,7 +140,7 @@ describe("Operations:Execute", () => {
       await expect(
         execute({
           ...mockXTransfer,
-          origin: undefined,
+          origin: undefined as any,
         }),
       ).to.be.rejectedWith(MissingXCall);
     });
