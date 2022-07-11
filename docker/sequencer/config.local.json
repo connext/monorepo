@@ -23,5 +23,5 @@
   },
   "auctionWaitTime": 30000,
   "environment": "production",
-  "relayerUrl": "http://relayer:8082"
+  "relayerUrl": "http://relayer:8080"
 }
