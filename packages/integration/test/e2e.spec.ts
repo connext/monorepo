@@ -32,6 +32,7 @@ const PARAMETERS = {
   ASSET: {
     address: "0x1411CB266FCEd1587b0AA29E9d5a9Ef3Db64A9C5",
     name: "TEST",
+    symbol: "TEST",
   },
   A: {
     DOMAIN: "1337",
@@ -169,15 +170,25 @@ describe("e2e", () => {
     sdk = await NxtpSdkBase.create({
       chains: {
         [PARAMETERS.A.DOMAIN]: {
-          assets: [{ address: PARAMETERS.ASSET.address, name: PARAMETERS.ASSET.name }],
+          assets: [{ address: PARAMETERS.ASSET.address, name: PARAMETERS.ASSET.name, symbol: PARAMETERS.ASSET.symbol }],
           providers: PARAMETERS.A.RPC,
-          deployments: { connext: PARAMETERS.A.DEPLOYMENTS.ConnextHandler },
+          deployments: {
+            connext: PARAMETERS.A.DEPLOYMENTS.ConnextHandler,
+            tokenRegistry: PARAMETERS.A.DEPLOYMENTS.TokenRegistry,
+            stableSwap: constants.AddressZero,
+            stableSwapFacet: constants.AddressZero,
+          },
           chainId: PARAMETERS.A.CHAIN,
         },
         [PARAMETERS.B.DOMAIN]: {
-          assets: [{ address: PARAMETERS.ASSET.address, name: PARAMETERS.ASSET.name }],
+          assets: [{ address: PARAMETERS.ASSET.address, name: PARAMETERS.ASSET.name, symbol: PARAMETERS.ASSET.symbol }],
           providers: PARAMETERS.B.RPC,
-          deployments: { connext: PARAMETERS.B.DEPLOYMENTS.ConnextHandler },
+          deployments: {
+            connext: PARAMETERS.B.DEPLOYMENTS.ConnextHandler,
+            tokenRegistry: PARAMETERS.B.DEPLOYMENTS.TokenRegistry,
+            stableSwap: constants.AddressZero,
+            stableSwapFacet: constants.AddressZero,
+          },
           chainId: PARAMETERS.B.CHAIN,
         },
       },
@@ -217,8 +228,10 @@ describe("e2e", () => {
         forceSlow: false,
         receiveLocal: false,
         recovery: PARAMETERS.AGENTS.USER.address,
+        relayerFee: "0",
+        slippageTol: "0",
+        agent: constants.AddressZero,
       },
-      relayerFee: "0",
       transactingAssetId: PARAMETERS.ASSET.address,
     });
 
