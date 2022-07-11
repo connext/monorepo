@@ -5,7 +5,6 @@ locals {
     "arn:aws:iam::679752396206:user/rahul",
     "arn:aws:iam::679752396206:user/jake",
     "arn:aws:iam::679752396206:user/layne",
-    "arn:aws:iam::679752396206:user/marcus",
     "arn:aws:iam::679752396206:user/sanchay",
     "arn:aws:iam::679752396206:user/arjun",
   ]
@@ -53,24 +52,24 @@ locals {
     staging = {
       description             = "Key for staging env using SOPS"
       deletion_window_in_days = 7
-      policy                  = templatefile("${path.module}/policies/key-policy.tpl", {
+      policy = templatefile("${path.module}/policies/key-policy.tpl", {
         key_users  = local.developers,
         key_admins = local.key_admins
       })
       enable_key_rotation = true
-      tags                = {
+      tags = {
         environment = "staging"
       }
     }
     testnet = {
       description             = "Key for testnet env using SOPS"
       deletion_window_in_days = 7
-      policy                  = templatefile("${path.module}/policies/key-policy.tpl", {
+      policy = templatefile("${path.module}/policies/key-policy.tpl", {
         key_users  = local.developers,
         key_admins = local.key_admins
       })
       enable_key_rotation = true
-      tags                = {
+      tags = {
         use         = "example"
         environment = "testnet"
       }

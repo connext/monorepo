@@ -66,8 +66,13 @@ export const mock = {
       erc20.encodeFunctionData.returns(encodedDataMock);
       erc20.decodeFunctionResult.returns([BigNumber.from(1000)]);
 
+      const erc20Extended = createStubInstance(utils.Interface);
+      erc20.encodeFunctionData.returns(encodedDataMock);
+      erc20.decodeFunctionResult.returns([BigNumber.from(1000)]);
+
       return {
         erc20: erc20 as unknown as ConnextContractInterfaces["erc20"],
+        erc20Extended: erc20Extended as unknown as ConnextContractInterfaces["erc20Extended"],
         connext: connext as unknown as ConnextContractInterfaces["connext"],
         priceOracle: priceOracle as unknown as ConnextContractInterfaces["priceOracle"],
         tokenRegistry: tokenRegistry as unknown as ConnextContractInterfaces["tokenRegistry"],

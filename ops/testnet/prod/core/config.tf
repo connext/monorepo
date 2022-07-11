@@ -46,19 +46,12 @@ locals {
           address = "0x3FFc03F05D1869f493c7dbf913E636C6280e0ff9"
         }]
       }
-      "2221" = {
-        providers = ["https://eth-kovan.alchemyapi.io/v2/${var.kovan_alchemy_key_0}"]
-        assets = [{
-          name    = "TEST"
-          address = "0x3FFc03F05D1869f493c7dbf913E636C6280e0ff9"
-        }]
-      }
       "3331" = {
         providers = ["https://eth-goerli.alchemyapi.io/v2/${var.goerli_alchemy_key_0}", "https://rpc.ankr.com/eth_goerli"]
         assets = [
           {
             name    = "TEST"
-            address = "0x3FFc03F05D1869f493c7dbf913E636C6280e0ff9"
+            address = "0x26FE8a8f86511d678d031a022E48FfF41c6a3e3b"
           }
         ]
       }
@@ -91,21 +84,12 @@ locals {
           }
         ]
       }
-      "2221" = {
-        providers = ["https://eth-kovan.alchemyapi.io/v2/${var.kovan_alchemy_key_1}"]
-        assets = [
-          {
-            name    = "TEST"
-            address = "0x3FFc03F05D1869f493c7dbf913E636C6280e0ff9"
-          }
-        ]
-      }
       "3331" = {
         providers = ["https://eth-goerli.alchemyapi.io/v2/${var.goerli_alchemy_key_1}", "https://rpc.ankr.com/eth_goerli"]
         assets = [
           {
             name    = "TEST"
-            address = "0x3FFc03F05D1869f493c7dbf913E636C6280e0ff9"
+            address = "0x26FE8a8f86511d678d031a022E48FfF41c6a3e3b"
           }
         ]
       }
@@ -123,9 +107,6 @@ locals {
     chains = {
       "1111" = {
         providers = ["https://eth-rinkeby.alchemyapi.io/v2/${var.rinkeby_alchemy_key_1}", "https://rpc.ankr.com/eth_rinkeby"]
-      }
-      "2221" = {
-        providers = ["https://eth-kovan.alchemyapi.io/v2/${var.kovan_alchemy_key_1}"]
       }
       "3331" = {
         providers = ["https://eth-goerli.alchemyapi.io/v2/${var.goerli_alchemy_key_1}", "https://rpc.ankr.com/eth_goerli"]

@@ -118,6 +118,7 @@ export const getDeployedStableSwapContract = (
 export type ConnextContractDeploymentGetter = (
   chainId: number,
   postfix?: ContractPostfix,
+  proxy?: boolean,
 ) => { address: string; abi: any } | undefined;
 
 export type ConnextContractDeployments = {
