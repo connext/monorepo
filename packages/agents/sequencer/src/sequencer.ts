@@ -1,3 +1,5 @@
+import { spawn } from "child_process";
+
 import { logger as ethersLogger } from "ethers";
 import {
   Logger,
@@ -10,20 +12,81 @@ import {
 import { SubgraphReader } from "@connext/nxtp-adapters-subgraph";
 import { StoreManager } from "@connext/nxtp-adapters-cache";
 import { ChainReader, getContractInterfaces, contractDeployments } from "@connext/nxtp-txservice";
-import { AMQPClient } from "@cloudamqp/amqp-client";
+import Broker from "foo-foo-mq";
 
 import { SequencerConfig } from "./lib/entities";
 import { getConfig } from "./config";
 import { AppContext } from "./lib/entities/context";
-import { bindServer, bindAuctions } from "./bindings";
+import { bindServer, bindSubscriber } from "./bindings";
 import { setupRelayer } from "./adapters";
 import { getHelpers } from "./lib/helpers";
+import { getOperations } from "./lib/operations";
+import { Message, sqConfig } from "./lib/operations/mq";
 
 const context: AppContext = {} as any;
 export const getContext = () => context;
+export const msgContentType = "application/json";
 
-export const makeSequencer = async (_configOverride?: SequencerConfig) => {
-  const { requestContext, methodContext } = createLoggingContext(makeSequencer.name);
+export const makePublisher = async (_configOverride?: SequencerConfig) => {
+  const { requestContext, methodContext } = createLoggingContext(makePublisher.name);
+  try {
+    context.adapters = {} as any;
+
+    /// MARK - Config.
+    // Get ChainData and parse out configuration.
+    context.chainData = await getChainData();
+    context.config = _configOverride ?? (await getConfig(context.chainData, contractDeployments));
+    context.logger = new Logger({
+      level: context.config.logLevel,
+      formatters: {
+        level: (label) => {
+          return { level: label.toUpperCase() };
+        },
+      },
+    });
+    context.logger.info("Publisher config generated.", requestContext, methodContext, { config: context.config });
+
+    /// MARK - Adapters
+    context.adapters.cache = await setupCache(context.config.redis, context.logger, requestContext);
+    context.adapters.subgraph = await setupSubgraphReader(requestContext);
+    context.adapters.chainreader = new ChainReader(
+      context.logger.child({ module: "ChainReader", level: context.config.logLevel }),
+      context.config.chains,
+    );
+    context.adapters.contracts = getContractInterfaces();
+    context.adapters.relayer = await setupRelayer();
+
+    /// MARK - Bindings
+    // Create server, set up routes, and start listening.
+    await setupPublisher(requestContext);
+    await bindServer();
+
+    context.logger.info("Sequencer boot complete!", requestContext, methodContext, {
+      port: context.config.server.port,
+      chains: [...Object.keys(context.config.chains)],
+    });
+    ethersLogger.info(
+      `
+
+          _|_|_|     _|_|     _|      _|   _|      _|   _|_|_|_|   _|      _|   _|_|_|_|_|
+        _|         _|    _|   _|_|    _|   _|_|    _|   _|           _|  _|         _|
+        _|         _|    _|   _|  _|  _|   _|  _|  _|   _|_|_|         _|           _|
+        _|         _|    _|   _|    _|_|   _|    _|_|   _|           _|  _|         _|
+          _|_|_|     _|_|     _|      _|   _|      _|   _|_|_|_|   _|      _|       _|
+
+        `,
+    );
+  } catch (error: any) {
+    console.error("Error starting publisher :'(", error);
+    process.exit(1);
+  }
+};
+
+export const execute = async (_configOverride?: SequencerConfig) => {
+  const { requestContext, methodContext } = createLoggingContext(execute.name);
+  const {
+    auctions: { executeAuction },
+  } = getOperations();
   try {
     context.adapters = {} as any;
 
@@ -41,41 +104,26 @@ export const makeSequencer = async (_configOverride?: SequencerConfig) => {
     });
     context.logger.info("Sequencer config generated.", requestContext, methodContext, { config: context.config });
 
-    /// MARK - Adapters
+    // Transfer ID is a CLI argument. Always provided by the parent
+    const transferId = process.argv[2];
+
+    // TODO: Which of these are not needed ?
     context.adapters.cache = await setupCache(context.config.redis, context.logger, requestContext);
     context.adapters.subgraph = await setupSubgraphReader(requestContext);
     context.adapters.chainreader = new ChainReader(
       context.logger.child({ module: "ChainReader", level: context.config.logLevel }),
       context.config.chains,
     );
-    context.mqClient = await setupMQ(requestContext);
     context.adapters.contracts = getContractInterfaces();
     context.adapters.relayer = await setupRelayer();
 
-    /// MARK - Bindings
-    // Create server, set up routes, and start listening.
-    await bindServer();
-    await bindAuctions();
-
-    context.logger.info("Sequencer boot complete!", requestContext, methodContext, {
-      port: context.config.server.port,
-      chains: [...Object.keys(context.config.chains)],
-    });
-    ethersLogger.info(
-      `
-
-        _|_|_|     _|_|     _|      _|   _|      _|   _|_|_|_|   _|      _|   _|_|_|_|_|
-      _|         _|    _|   _|_|    _|   _|_|    _|   _|           _|  _|         _|
-      _|         _|    _|   _|  _|  _|   _|  _|  _|   _|_|_|         _|           _|
-      _|         _|    _|   _|    _|_|   _|    _|_|   _|           _|  _|         _|
-        _|_|_|     _|_|     _|      _|   _|      _|   _|_|_|_|   _|      _|       _|
-
-      `,
-    );
+    await executeAuction(transferId, requestContext);
+    context.logger.info("Executed", requestContext, methodContext, { transferId: transferId });
   } catch (error: any) {
-    console.error("Error starting sequencer :'(", error);
-    process.exit();
+    console.error("Error executing:'(", error);
+    process.exit(1);
   }
+  process.exit();
 };
 
 export const setupCache = async (
@@ -149,13 +197,70 @@ export const setupSubgraphReader = async (requestContext: RequestContext): Promi
   return subgraphReader;
 };
 
-export const setupMQ = async (requestContext: RequestContext): Promise<AMQPClient> => {
-  const { logger, config } = context;
-  const methodContext = createMethodContext(setupMQ.name);
+export const setupPublisher = async (requestContext: RequestContext): Promise<void> => {
+  const { logger } = context;
+  const methodContext = createMethodContext(setupPublisher.name);
+  const {
+    mq: { setupMQ },
+  } = getOperations();
 
-  logger.info("MQ connection setup in progress...", requestContext, methodContext, {});
-  const amqp = new AMQPClient(config.messageQueueUrl);
-  await amqp.connect();
-  logger.info("MQ connection setup is done!", requestContext, methodContext, {});
-  return amqp;
+  logger.info("MQ publisher setup in progress...", requestContext, methodContext, {});
+
+  // TODO: Setup race buster handshake
+
+  await setupMQ();
+
+  logger.info("MQ publisher setup is done!", requestContext, methodContext, {});
+};
+
+export const mockPublish = async (transfer: Message): Promise<void> => {
+  await Broker.publish(sqConfig.exchange.name, {
+    type: sqConfig.queue.prefix + transfer.originDomain,
+    body: transfer,
+    routingKey: transfer.originDomain,
+  });
+};
+
+export const setupSubscriber = async (requestContext: RequestContext): Promise<void> => {
+  const { logger } = context;
+  const methodContext = createMethodContext(setupSubscriber.name);
+  const {
+    mq: { setupMQ },
+  } = getOperations();
+
+  logger.info("MQ subscriber setup in progress...", requestContext, methodContext, {});
+
+  await setupMQ();
+
+  logger.info("MQ subscriber setup is done!", requestContext, methodContext, {});
+};
+
+export const makeSubscriber = async (_configOverride?: SequencerConfig) => {
+  const { requestContext, methodContext } = createLoggingContext(makePublisher.name);
+  try {
+    context.adapters = {} as any;
+
+    /// MARK - Config.
+    // Get ChainData and parse out configuration.
+    context.chainData = await getChainData();
+    context.config = _configOverride ?? (await getConfig(context.chainData, contractDeployments));
+    context.logger = new Logger({
+      level: context.config.logLevel,
+      formatters: {
+        level: (label) => {
+          return { level: label.toUpperCase() };
+        },
+      },
+    });
+    context.logger.info("Subscriber config generated.", requestContext, methodContext, { config: context.config });
+    // TODO: derive this from config
+    const domain = "1111";
+
+    await setupSubscriber(requestContext);
+    bindSubscriber(domain);
+  } catch (error: any) {
+    console.error("Error starting subscriber :'(", error);
+    Broker.close();
+    process.exit(1);
+  }
 };

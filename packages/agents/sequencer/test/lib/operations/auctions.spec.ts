@@ -15,7 +15,7 @@ import { constants, BigNumber } from "ethers";
 import { ctxMock, getOperationsStub, getHelpersStub } from "../../globalTestHook";
 import { mock } from "../../mock";
 import { AuctionExpired, BidVersionInvalid, MissingXCall, ParamsInvalid } from "../../../src/lib/errors";
-import { executeAuctions, storeBid } from "../../../src/lib/operations/auctions";
+import { executeAuction, storeBid } from "../../../src/lib/operations/auctions";
 import { getAllSubsets, getBidsRoundMap, getMinimumBidsCountForRound } from "../../../src/lib/helpers/auctions";
 
 const { requestContext } = mock.loggingContext("BID-TEST");
@@ -182,7 +182,7 @@ describe("Operations:Auctions", () => {
     });
   });
 
-  describe("#executeAuctions", () => {
+  describe("#executeAuction", () => {
     beforeEach(() => {});
     afterEach(() => {
       restore();
@@ -243,7 +243,7 @@ describe("Operations:Auctions", () => {
 
       const transfer = mock.entity.xtransfer({ transferId });
       getTransferStub.resolves(transfer);
-      await executeAuctions(requestContext);
+      await executeAuction(requestContext);
       expect(sendToRelayerStub.callCount).to.be.eq(1);
       expect(sendToRelayerStub.getCall(0).args[0]).to.be.eq(1);
       expect(sendToRelayerStub.getCall(0).args[1]).to.be.deep.eq([
@@ -309,7 +309,7 @@ describe("Operations:Auctions", () => {
 
       const transfer = mock.entity.xtransfer({ transferId });
       getTransferStub.resolves(transfer);
-      await executeAuctions(requestContext);
+      await executeAuction(requestContext);
       expect(sendToRelayerStub.callCount).to.be.eq(1);
 
       // round-2 needs to be selected
@@ -393,7 +393,7 @@ describe("Operations:Auctions", () => {
 
       const transfer = mock.entity.xtransfer({ transferId });
       getTransferStub.resolves(transfer);
-      await executeAuctions(requestContext);
+      await executeAuction(requestContext);
       expect(sendToRelayerStub.callCount).to.be.eq(1);
 
       // round-2 needs to be selected
@@ -439,7 +439,7 @@ describe("Operations:Auctions", () => {
       });
       getAuctionStub.resolves(auction);
 
-      await executeAuctions(requestContext);
+      await executeAuction(requestContext);
 
       expect(getAuctionStub.callCount).to.be.eq(1);
       expect(getTransferStub.callCount).to.be.eq(0);
@@ -457,7 +457,7 @@ describe("Operations:Auctions", () => {
       getAuctionStub.resolves(auction);
       getTransferStub.resolves(undefined);
 
-      await executeAuctions(requestContext);
+      await executeAuction(requestContext);
 
       expect(getAuctionStub.callCount).to.be.eq(1);
       expect(getTransferStub.callCount).to.be.eq(1);
@@ -473,7 +473,7 @@ describe("Operations:Auctions", () => {
       const auction = mockAuctionDataBatch(1)[0];
       getAuctionStub.resolves(auction);
 
-      await executeAuctions(requestContext);
+      await executeAuction(requestContext);
 
       expect(getAuctionStub.callCount).to.be.eq(1);
       expect(getTransferStub.callCount).to.be.eq(1);
@@ -495,7 +495,7 @@ describe("Operations:Auctions", () => {
         origin: undefined,
       });
 
-      await executeAuctions(requestContext);
+      await executeAuction(requestContext);
 
       expect(getAuctionStub.callCount).to.be.eq(1);
       expect(getTransferStub.callCount).to.be.eq(1);
@@ -522,7 +522,7 @@ describe("Operations:Auctions", () => {
       });
       getAuctionStub.resolves(auction);
 
-      await executeAuctions(requestContext);
+      await executeAuction(requestContext);
 
       expect(getAuctionStub.callCount).to.be.eq(1);
       expect(getTransferStub.callCount).to.be.eq(1);
@@ -542,7 +542,7 @@ describe("Operations:Auctions", () => {
       getLiquidityStub.resolves(undefined);
       (ctxMock.adapters.subgraph as any).getAssetBalance.resolves(constants.Zero);
 
-      await executeAuctions(requestContext);
+      await executeAuction(requestContext);
 
       expect(getAuctionStub.callCount).to.be.eq(1);
       expect(getTransferStub.callCount).to.be.eq(1);
@@ -581,7 +581,7 @@ describe("Operations:Auctions", () => {
       getLiquidityStub.resolves(undefined);
       (ctxMock.adapters.subgraph as any).getAssetBalance.resolves(routerFunds);
 
-      await executeAuctions(requestContext);
+      await executeAuction(requestContext);
 
       expect(getAuctionStub.callCount).to.be.eq(1);
       expect(getTransferStub.callCount).to.be.eq(1);
@@ -623,7 +623,7 @@ describe("Operations:Auctions", () => {
 
       (ctxMock.adapters.subgraph as any).getAssetBalance.resolves(BigNumber.from("1"));
 
-      await executeAuctions(requestContext);
+      await executeAuction(requestContext);
 
       expect(getAuctionStub.callCount).to.be.eq(1);
       expect(getTransferStub.callCount).to.be.eq(1);
@@ -632,7 +632,7 @@ describe("Operations:Auctions", () => {
 
     it("does nothing if none queued", async () => {
       getQueuedTransfersStub.resolves([]);
-      await executeAuctions(requestContext);
+      await executeAuction(requestContext);
     });
   });
 });

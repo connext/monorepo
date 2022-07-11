@@ -157,7 +157,7 @@ export const mock = {
   operations: {
     auctions: {
       storeBid: stub(),
-      executeAuctions: stub(),
+      executeAuction: stub(),
     },
     relayer: {
       sendToRelayer: stub(),
