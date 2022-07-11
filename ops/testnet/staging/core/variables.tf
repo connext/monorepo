@@ -33,20 +33,20 @@ variable "nomad_environment" {
 variable "full_image_name_router" {
   type        = string
   description = "router image name"
-  default     = "ghcr.io/connext/router:sha-698acef"
+  default     = "ghcr.io/connext/router:sha-4ad10ad"
 }
 
 
 variable "full_image_name_sequencer" {
   type        = string
   description = "sequencer image name"
-  default     = "ghcr.io/connext/sequencer:sha-698acef"
+  default     = "ghcr.io/connext/sequencer:sha-4ad10ad"
 }
 
 variable "full_image_name_lighthouse" {
   type        = string
   description = "router image name"
-  default     = "ghcr.io/connext/lighthouse:sha-698acef"
+  default     = "ghcr.io/connext/lighthouse:sha-4ad10ad"
 }
 
 variable "mnemonic" {
