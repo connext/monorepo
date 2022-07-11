@@ -1,8 +1,8 @@
 import { utils, Wallet } from "ethers";
-import { getChainData, mkBytes32, ChainData } from "@connext/nxtp-utils";
+import { getChainData, mkBytes32, ChainData, ChainConfig } from "@connext/nxtp-utils";
 import { getDeployedConnextContract, _getContractDeployments } from "@connext/nxtp-txservice";
 import { SequencerConfig } from "@connext/nxtp-sequencer/src/lib/entities/config";
-import { NxtpRouterConfig as RouterConfig, ChainConfig as RouterChainConfig } from "@connext/nxtp-router/src/config";
+import { NxtpRouterConfig as RouterConfig } from "@connext/nxtp-router/src/config";
 import { version as routerPackageVersion } from "@connext/nxtp-router/package.json";
 import { RelayerConfig } from "@connext/nxtp-relayer/src/lib/entities/config";
 import { CartographerConfig } from "@connext/cartographer-poller/src/config";
@@ -69,7 +69,7 @@ export type DomainInfo = {
   network: string;
   domain: string;
   chain: number;
-  config: RouterChainConfig;
+  config: ChainConfig;
 };
 
 export type Agent = {
@@ -149,26 +149,6 @@ export const DOMAINS: Promise<{ ORIGIN: DomainInfo; DESTINATION: DomainInfo }> =
     );
   }
 
-  /// MARK - Subgraph config.
-  const originRuntimeSubgraph = originChainData.subgraphs.runtime[0]
-    ? {
-        query:
-          ENVIRONMENT == Environment.Staging
-            ? originChainData.subgraphs.runtime[0].query.replace("v0", "staging")
-            : originChainData.subgraphs.runtime[0].query,
-        health: "https://api.thegraph.com/index-node/graphql",
-      }
-    : undefined;
-  const destinationRuntimeSubgraph = destinationChainData.subgraphs.runtime[0]
-    ? {
-        query:
-          ENVIRONMENT == Environment.Staging
-            ? destinationChainData.subgraphs.runtime[0].query.replace("v0", "staging")
-            : destinationChainData.subgraphs.runtime[0].query,
-        health: "https://api.thegraph.com/index-node/graphql",
-      }
-    : undefined;
-
   /// MARK - Assert ConnextHandler contract is deployed helper.
   const getConnextContract = (chainId: number): string => {
     const contract = getDeployedConnextContract(chainId, ENVIRONMENT === Environment.Staging ? "Staging" : "");
@@ -191,11 +171,6 @@ export const DOMAINS: Promise<{ ORIGIN: DomainInfo; DESTINATION: DomainInfo }> =
             address: originChainAsset,
           },
         ],
-        subgraph: {
-          analytics: originChainData.subgraphs.analytics ? originChainData.subgraphs.analytics : [],
-          runtime: originRuntimeSubgraph ? [originRuntimeSubgraph] : [],
-          maxLag: 25,
-        },
         gasStations: [],
         confirmations: originChainData.confirmations ?? 1,
         deployments: {
@@ -216,11 +191,6 @@ export const DOMAINS: Promise<{ ORIGIN: DomainInfo; DESTINATION: DomainInfo }> =
             address: destinationChainAsset,
           },
         ],
-        subgraph: {
-          analytics: destinationChainData.subgraphs.analytics ? destinationChainData.subgraphs.analytics : [],
-          runtime: destinationRuntimeSubgraph ? [destinationRuntimeSubgraph] : [],
-          maxLag: 25,
-        },
         gasStations: [],
         confirmations: destinationChainData.confirmations ?? 1,
         deployments: {
@@ -266,7 +236,9 @@ export const ROUTER_CONFIG: Promise<RouterConfig> = (async (): Promise<RouterCon
     auctionRoundDepth: 3,
     environment,
     nomadEnvironment: NOMAD_ENVIRONMENT,
-    messageQueueUrl: "",
+    messageQueue: {
+      host: LOCALHOST,
+    },
   };
 })();
 
@@ -283,13 +255,11 @@ export const SEQUENCER_CONFIG: Promise<SequencerConfig> = (async (): Promise<Seq
     chains: {
       [ORIGIN.domain]: {
         providers: ORIGIN.config.providers,
-        subgraph: ORIGIN.config.subgraph,
         confirmations: ORIGIN.config.confirmations,
         deployments: ORIGIN.config.deployments,
       },
       [DESTINATION.domain]: {
         providers: DESTINATION.config.providers,
-        subgraph: DESTINATION.config.subgraph,
         confirmations: DESTINATION.config.confirmations,
         deployments: DESTINATION.config.deployments,
       },

@@ -1,12 +1,40 @@
 import { Bid, createLoggingContext, ajv, XTransferSchema, OriginTransfer } from "@connext/nxtp-utils";
 import { BigNumber } from "ethers";
 
-import { CallDataForNonContract, MissingXCall, NotEnoughAmount, ParamsInvalid } from "../errors";
-import { getHelpers } from "../helpers";
-import { getAuctionAmount } from "../helpers/auctions";
+import { CallDataForNonContract, MissingXCall, NotEnoughAmount, ParamsInvalid } from "../../errors";
+import { getAuctionAmount, sendBid } from "../helpers/auctions";
 // @ts-ignore
 import { version } from "../../../package.json";
-import { getContext } from "../../subscriber/subscriber";
+import { getContext } from "../subscriber";
+import { signRouterPathPayload } from "../../helpers";
+
+/**
+ * Returns local asset address on destination domain corresponding to local asset on origin domain
+ *
+ * @param _originDomain
+ * @param _originLocalAsset The asset sent over the bridge
+ * @param _destinationDomain
+ * @returns
+ */
+export const getDestinationLocalAsset = async (
+  _originDomain: string,
+  _originLocalAsset: string,
+  _destinationDomain: string,
+): Promise<string> => {
+  const {
+    adapters: { subgraph },
+  } = getContext();
+
+  // get canonical asset from orgin domain.
+  const sendingDomainAsset = await subgraph.getAssetByLocal(_originDomain, _originLocalAsset);
+
+  const canonicalId = sendingDomainAsset!.canonicalId;
+
+  const destinationDomainAsset = await subgraph.getAssetByCanonicalId(_destinationDomain, canonicalId);
+
+  const localAddress = destinationDomainAsset!.local;
+  return localAddress;
+};
 
 // fee percentage paid to relayer. need to be updated later
 export const RELAYER_FEE_PERCENTAGE = "1"; //  1%
@@ -43,10 +71,6 @@ export const execute = async (params: OriginTransfer): Promise<void> => {
     adapters: { wallet, subgraph, txservice },
     routerAddress,
   } = getContext();
-  const {
-    auctions: { sendBid },
-    shared: { getDestinationLocalAsset, signRouterPathPayload },
-  } = getHelpers();
 
   logger.debug("Method start", requestContext, methodContext, { params });
 

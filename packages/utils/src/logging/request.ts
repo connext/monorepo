@@ -39,11 +39,11 @@ export type MethodContext = {
  */
 export function createRequestContext<T extends string | undefined = undefined>(
   origin: string,
-  transactionId?: T,
+  transferId?: T,
 ): RequestContext<T> {
   const id = getUuid();
-  if (transactionId) {
-    return { id, origin, transactionId } as RequestContext<string>;
+  if (transferId) {
+    return { id, origin, transactionId: transferId } as RequestContext<string>;
   }
   // FIXME: why will it not play nicely
   // eslint-disable-next-line @typescript-eslint/ban-ts-comment
@@ -56,23 +56,23 @@ export function createRequestContext<T extends string | undefined = undefined>(
  * @param name The method name
  * @returns {MethodContext}
  */
-export const createMethodContext = (name: string) => {
+export const createMethodContext = (name: string): MethodContext => {
   return { id: getUuid(), name };
 };
 
 export const createLoggingContext = <T extends string | undefined = undefined>(
   methodName: string,
   inherited?: RequestContext<T>,
-  transactionId?: T,
+  transferId?: T,
 ) => {
-  if (transactionId && inherited) {
+  if (transferId && inherited) {
     inherited = {
-      transactionId,
+      transactionId: transferId,
       ...inherited,
     };
   }
   return {
     methodContext: createMethodContext(methodName),
-    requestContext: inherited ?? createRequestContext<T>(methodName, transactionId),
+    requestContext: inherited ?? createRequestContext<T>(methodName, transferId),
   };
 };

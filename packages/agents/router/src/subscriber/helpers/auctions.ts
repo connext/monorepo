@@ -11,8 +11,8 @@ import {
 } from "@connext/nxtp-utils";
 import { BigNumber } from "ethers";
 
-import { AuctionExpired, InvalidAuctionRound, SequencerResponseInvalid } from "../errors";
-import { getContext } from "../../subscriber/subscriber";
+import { AuctionExpired, InvalidAuctionRound, SequencerResponseInvalid } from "../../errors";
+import { getContext } from "../subscriber";
 
 export const sendBid = async (bid: Bid, _requestContext: RequestContext): Promise<any> => {
   const { config, logger } = getContext();

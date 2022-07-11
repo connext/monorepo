@@ -6,20 +6,18 @@ import {
   jsonifyError,
   Logger,
   RequestContext,
-  ChainData,
 } from "@connext/nxtp-utils";
-import { SubgraphReader } from "@connext/nxtp-adapters-subgraph";
-import { StoreManager } from "@connext/nxtp-adapters-cache";
 import { Web3Signer } from "@connext/nxtp-adapters-web3signer";
 import { getContractInterfaces, TransactionService, contractDeployments } from "@connext/nxtp-txservice";
 import axios from "axios";
-import rabbit from "foo-foo-mq";
 import { BridgeContext } from "@nomad-xyz/sdk-bridge";
 
 import { getConfig, NxtpRouterConfig } from "../config";
-import { bindMetrics, bindPrices, bindServer, bindCache } from "../bindings";
-import { AppContext } from "../lib/entities";
-import { getHelpers } from "../lib/helpers";
+import { bindMetrics } from "../bindings";
+import { setupSubgraphReader } from "../helpers";
+
+import { AppContext } from "./context";
+import { bindServer } from "./bindings";
 
 // AppContext instance used for interacting with adapters, config, etc.
 const context: AppContext = {} as any;
@@ -62,12 +60,18 @@ export const makeSubgraphPoller = async (_configOverride?: NxtpRouterConfig) => 
     context.bridgeContext = setupBridgeContext(requestContext);
 
     /// MARK - Adapters
-    context.adapters.cache = await setupCache(requestContext);
-    context.adapters.subgraph = await setupSubgraphReader(requestContext);
+    context.adapters.subgraph = await setupSubgraphReader(
+      context.logger,
+      context.chainData,
+      Object.keys(context.config.chains),
+      context.config.environment,
+      context.config.subgraphPrefix,
+      requestContext,
+    );
     context.adapters.txservice = new TransactionService(
       context.logger.child({ module: "TransactionService", level: context.config.logLevel }),
       context.config.chains,
-      context.adapters.wallet,
+      context.adapters.wallet as Wallet,
     );
     context.adapters.contracts = getContractInterfaces();
 
@@ -97,17 +101,11 @@ export const makeSubgraphPoller = async (_configOverride?: NxtpRouterConfig) => 
 
     /// MARK - Bindings
     // TODO: New diagnostic mode / cleanup mode?
-    if (context.config.mode.priceCaching) {
-      await bindPrices();
-    } else {
-      context.logger.warn("Running router without price caching.", requestContext, methodContext);
-    }
     await bindServer();
     await bindMetrics();
-    await bindCache();
 
     context.logger.info("Bindings initialized.", requestContext, methodContext);
-    context.logger.info("Router boot complete!", requestContext, methodContext, {
+    context.logger.info("Router subscriber boot complete!", requestContext, methodContext, {
       port: context.config.server.port,
       chains: [...Object.keys(context.config.chains)],
     });
@@ -123,85 +121,9 @@ export const makeSubgraphPoller = async (_configOverride?: NxtpRouterConfig) => 
       `,
     );
   } catch (e: unknown) {
-    console.error("Error starting router. Sad! :(", e);
+    console.error("Error starting router subscriber. Sad! :(", e);
     process.exit();
   }
-};
-
-export const setupCache = async (requestContext: RequestContext): Promise<StoreManager> => {
-  const {
-    config: { redis },
-    logger,
-  } = context;
-
-  const methodContext = createMethodContext("setupCache");
-  logger.info("Cache instance setup in progress...", requestContext, methodContext, {});
-  const cacheInstance = StoreManager.getInstance({
-    redis: { host: redis.host, port: redis.port, instance: undefined },
-    mock: !redis.host || !redis.port,
-    logger: logger.child({ module: "StoreManager" }),
-  });
-
-  logger.info("Cache instance setup is done!", requestContext, methodContext, {
-    host: redis.host,
-    port: redis.port,
-  });
-  return cacheInstance;
-};
-
-export const setupSubgraphReader = async (requestContext: RequestContext): Promise<SubgraphReader> => {
-  const { logger, chainData, config } = context;
-  const {
-    auctions: { getMinimumBidsCountForRound },
-  } = getHelpers();
-  const methodContext = createMethodContext(setupSubgraphReader.name);
-
-  const allowedDomains = [...Object.keys(config.chains)];
-  const allowedChainData: Map<string, ChainData> = new Map();
-  for (const allowedDomain of allowedDomains) {
-    if (chainData.has(allowedDomain)) {
-      allowedChainData.set(allowedDomain, chainData.get(allowedDomain)!);
-    }
-  }
-  logger.info("Subgraph reader setup in progress...", requestContext, methodContext, { allowedChainData });
-  const subgraphReader = await SubgraphReader.create(allowedChainData, config.environment, config.subgraphPrefix);
-
-  // Pull support for domains that don't have a subgraph.
-  const supported: Record<string, boolean> = subgraphReader.supported;
-  for (const domain of Object.keys(supported)) {
-    // If the domain is set to false, it indicates the SubgraphReader did not find active subgraphs for that domain.
-    if (!supported[domain]) {
-      delete context.config.chains[domain];
-    }
-  }
-
-  logger.info("Subgraph reader setup is done!", requestContext, methodContext, {});
-
-  logger.info("Validating the auction round depth for each domain...");
-  const maxRoutersPerTransfer = await subgraphReader.getMaxRoutersPerTransfer(Object.keys(supported));
-  for (const domain of maxRoutersPerTransfer.keys()) {
-    const configuredMaxRouters = getMinimumBidsCountForRound(config.auctionRoundDepth);
-    if (maxRoutersPerTransfer.has(domain) && configuredMaxRouters > maxRoutersPerTransfer.get(domain)!) {
-      logger.info("Validation error, Invalid auctionRoundDepth configured!", requestContext, methodContext, {
-        domain,
-        auctionRoundDepth: config.auctionRoundDepth,
-        configured: configuredMaxRouters,
-        onchain: maxRoutersPerTransfer.get(domain),
-      });
-      process.exit(1);
-    }
-  }
-
-  return subgraphReader;
-};
-
-export const setupMq = async (): Promise<typeof rabbit> => {
-  const { config } = context;
-  await rabbit.configure({
-    connection: { host: config.messageQueueUrl.split(":")[0], port: Number(config.messageQueueUrl.split(":")[1]) },
-    queues: [{ name: "xcall" }],
-  });
-  return rabbit;
 };
 
 export const setupBridgeContext = (requestContext: RequestContext): BridgeContext => {
@@ -214,7 +136,7 @@ export const setupBridgeContext = (requestContext: RequestContext): BridgeContex
   for (const allowedDomain of allowedDomains) {
     const chainData = config.chains[allowedDomain];
     chainData.providers.map((provider) => {
-      bridgeContext.registerRpcProvider(Number(allowedDomain), provider);
+      bridgeContext.registerRpcProvider(Number(allowedDomain), provider as string);
     });
   }
   logger.info("BridgeContext setup done!", requestContext, methodContext, {});

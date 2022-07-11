@@ -8,7 +8,6 @@ import { version } from "../package.json";
 
 import { SequencerConfig, SequencerConfigSchema } from "./lib/entities";
 
-const MIN_SUBGRAPH_SYNC_BUFFER = 25;
 const DEFAULT_AUCTION_WAIT_TIME = 30_000;
 const DEFAULT_AUCTION_ROUND_DEPTH = 3;
 
@@ -104,27 +103,9 @@ export const getEnvConfig = (
         })(),
     };
 
-    if (!chainConfig.subgraph) {
-      chainConfig.subgraph = {} as any;
-      _sequencerConfig.chains[domainId].subgraph = chainConfig.subgraph;
-    }
-
-    if (!chainConfig.subgraph.runtime) {
-      _sequencerConfig.chains[domainId].subgraph.runtime = chainDataForChain?.subgraphs.runtime ?? [];
-    }
-
-    if (!chainConfig.subgraph.analytics) {
-      _sequencerConfig.chains[domainId].subgraph.analytics = chainDataForChain?.subgraphs.analytics ?? [];
-    }
-
     if (!chainConfig.confirmations) {
       _sequencerConfig.chains[domainId].confirmations = chainRecommendedConfirmations;
     }
-
-    const maxLag = chainConfig.subgraph.maxLag ?? MIN_SUBGRAPH_SYNC_BUFFER;
-    // 25 blocks minimum.
-    _sequencerConfig.chains[domainId].subgraph.maxLag =
-      maxLag < MIN_SUBGRAPH_SYNC_BUFFER ? MIN_SUBGRAPH_SYNC_BUFFER : maxLag;
   });
 
   const validate = ajv.compile(SequencerConfigSchema);
