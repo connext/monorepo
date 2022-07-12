@@ -14,25 +14,25 @@ export const TChainConfig = Type.Object({
 });
 
 export const TMQConnectionConfig = Type.Object({
-  uri: Type.String(),
-  name: Type.String(),
-  host: Type.String(),
+  uri: Type.Optional(Type.String()),
+  name: Type.Optional(Type.String()),
+  host: Type.Optional(Type.String()),
   user: Type.String(),
   pass: Type.String(),
   server: Type.Union([Type.String(), Type.Array(Type.String())]),
   port: Type.Integer({ minimum: 1, maximum: 65535 }),
   timeout: Type.Integer(),
-  heartbeat: Type.Integer(),
-  vhost: Type.String(),
+  heartbeat: Type.Optional(Type.Integer()),
+  vhost: Type.Optional(Type.String()),
   publishTimeout: Type.Integer(),
-  replyTimeout: Type.Integer(),
-  failAfter: Type.Integer(),
-  retryLimit: Type.Integer(),
-  waitMin: Type.Integer(),
-  waitIncrement: Type.Integer(),
-  keyPath: Type.String(),
-  passphrase: Type.String(),
-  replyQueue: Type.Union([Type.Boolean(), Type.String()]),
+  replyTimeout: Type.Optional(Type.Integer()),
+  failAfter: Type.Optional(Type.Integer()),
+  retryLimit: Type.Optional(Type.Integer()),
+  waitMin: Type.Optional(Type.Integer()),
+  waitIncrement: Type.Optional(Type.Integer()),
+  keyPath: Type.Optional(Type.String()),
+  passphrase: Type.Optional(Type.String()),
+  replyQueue: Type.Optional(Type.Union([Type.Boolean(), Type.String()])),
 });
 
 export const TMQExchangeConfig = Type.Object({
@@ -47,7 +47,7 @@ export const TMQQueueConfig = Type.Object({
   name: Type.String(),
   prefetch: Type.Integer(),
   queueLimit: Type.Integer(),
-  deadLetter: Type.String(),
+  deadLetter: Type.Optional(Type.String()),
   subscribe: Type.Boolean(),
 });
 

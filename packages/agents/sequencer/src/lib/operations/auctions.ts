@@ -12,6 +12,7 @@ import {
   OriginTransfer,
 } from "@connext/nxtp-utils";
 import { compare } from "compare-versions";
+import Broker from "foo-foo-mq";
 
 import { AuctionExpired, MissingXCall, ParamsInvalid, BidVersionInvalid } from "../errors";
 import { getContext } from "../../sequencer";
@@ -26,7 +27,6 @@ export const storeBid = async (bid: Bid, _requestContext: RequestContext): Promi
     logger,
     config,
     adapters: { cache, subgraph },
-    mqClient,
   } = getContext();
   const { requestContext, methodContext } = createLoggingContext(storeBid.name, _requestContext);
   logger.debug(`Method start: ${storeBid.name}`, requestContext, methodContext, { bid });
@@ -104,7 +104,7 @@ export const storeBid = async (bid: Bid, _requestContext: RequestContext): Promi
   // Enqueue only once to dedup, when the first bid for the transfer is stored.
   if (status === AuctionStatus.None) {
     const message: Message = { transferId: transfer.transferId, originDomain: transfer.originDomain };
-    await mqClient.publish(sqConfig.exchange.name, {
+    await Broker.publish(sqConfig.exchange.name, {
       type: sqConfig.queue.prefix + transfer.originDomain,
       body: message,
       routingKey: transfer.originDomain,
@@ -112,6 +112,11 @@ export const storeBid = async (bid: Bid, _requestContext: RequestContext): Promi
     });
     logger.info("Enqueued transfer", requestContext, methodContext, {
       message: message,
+    });
+  } else {
+    logger.info("No need to queue transfer", requestContext, methodContext, {
+      transferId: transferId,
+      status: status,
     });
   }
 

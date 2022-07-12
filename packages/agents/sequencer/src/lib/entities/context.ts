@@ -20,5 +20,4 @@ export type AppContext = {
   };
   config: SequencerConfig;
   chainData: Map<string, ChainData>;
-  mqClient: typeof Broker;
 };
