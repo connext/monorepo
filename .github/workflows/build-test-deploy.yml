@@ -351,7 +351,7 @@ jobs:
 
       - name: run smoke tests
         run: |
-          docker-compose -f docker-compose.services.yaml -f docker-compose.chain.yaml up -d
+          docker-compose -f docker-compose.services.yaml -f docker-compose.chains.yaml up -d
           bash docker/bin/wait-for-services.sh router
           bash docker/bin/wait-for-services.sh sequencer
 
