@@ -17,15 +17,15 @@ import { bindMetrics } from "../bindings";
 import { setupSubgraphReader } from "../helpers";
 
 import { AppContext } from "./context";
-import { bindServer } from "./bindings";
+import { bindMessageQueue, bindServer } from "./bindings";
 
 // AppContext instance used for interacting with adapters, config, etc.
 const context: AppContext = {} as any;
 export const getContext = () => context;
 
-export const makeSubgraphPoller = async (_configOverride?: NxtpRouterConfig) => {
-  const requestContext = createRequestContext("Subgraph Poller Init");
-  const methodContext = createMethodContext(makeSubgraphPoller.name);
+export const makeSubscriber = async (_configOverride?: NxtpRouterConfig) => {
+  const requestContext = createRequestContext("Router subscriber Init");
+  const methodContext = createMethodContext(makeSubscriber.name);
 
   try {
     context.adapters = {} as any;
@@ -103,6 +103,7 @@ export const makeSubgraphPoller = async (_configOverride?: NxtpRouterConfig) => 
     // TODO: New diagnostic mode / cleanup mode?
     await bindServer();
     await bindMetrics();
+    await bindMessageQueue();
 
     context.logger.info("Bindings initialized.", requestContext, methodContext);
     context.logger.info("Router subscriber boot complete!", requestContext, methodContext, {
@@ -136,7 +137,7 @@ export const setupBridgeContext = (requestContext: RequestContext): BridgeContex
   for (const allowedDomain of allowedDomains) {
     const chainData = config.chains[allowedDomain];
     chainData.providers.map((provider) => {
-      bridgeContext.registerRpcProvider(Number(allowedDomain), provider as string);
+      bridgeContext.registerRpcProvider(Number(allowedDomain), provider);
     });
   }
   logger.info("BridgeContext setup done!", requestContext, methodContext, {});

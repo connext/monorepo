@@ -1,4 +1,4 @@
-import { Bid, createLoggingContext, ajv, XTransferSchema, OriginTransfer } from "@connext/nxtp-utils";
+import { Bid, createLoggingContext, ajv, XTransferSchema, OriginTransfer, RequestContext } from "@connext/nxtp-utils";
 import { BigNumber } from "ethers";
 
 import { CallDataForNonContract, MissingXCall, NotEnoughAmount, ParamsInvalid } from "../../errors";
@@ -62,8 +62,8 @@ export const getBlacklist = async (
  *
  * @param params - The crosschain xcall params.
  */
-export const execute = async (params: OriginTransfer): Promise<void> => {
-  const { requestContext, methodContext } = createLoggingContext(execute.name);
+export const execute = async (params: OriginTransfer, _requestContext: RequestContext): Promise<void> => {
+  const { requestContext, methodContext } = createLoggingContext(execute.name, _requestContext);
 
   const {
     config,

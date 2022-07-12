@@ -33,7 +33,7 @@ export const bindMessageQueue = async (_pollInterval?: number) => {
 
     try {
       // Call execute to process the transfer.
-      await execute(transfer);
+      await execute(transfer, requestContext);
       message.ack();
       logger.info("Executed transfer", requestContext, methodContext, { message });
     } catch (error: unknown) {
@@ -43,17 +43,17 @@ export const bindMessageQueue = async (_pollInterval?: number) => {
       if (isAuctionExpired) {
         logger.debug("Auction for transfer has expired", requestContext, methodContext, {
           domain: transfer.xparams.originDomain,
-          transferId: transfer.transferId,
         });
         message.ack();
       } else {
         logger.error("Error executing transfer", requestContext, methodContext, jsonifyError(error as Error), {
           domain: transfer.xparams.originDomain,
-          transferId: transfer.transferId,
           xcall: transfer.origin.xcall,
         });
         message.nack();
       }
     }
   });
+
+  mqClient.startSubscription(XCALL_QUEUE);
 };

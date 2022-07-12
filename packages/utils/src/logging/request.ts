@@ -17,7 +17,7 @@ export type BaseRequestContext = {
 };
 
 export type RequestContextWithTransactionId = BaseRequestContext & {
-  transactionId: string;
+  transferId: string;
 };
 
 export type RequestContext<T extends string | undefined = undefined> = T extends undefined
@@ -43,7 +43,7 @@ export function createRequestContext<T extends string | undefined = undefined>(
 ): RequestContext<T> {
   const id = getUuid();
   if (transferId) {
-    return { id, origin, transactionId: transferId } as RequestContext<string>;
+    return { id, origin, transferId } as RequestContext<string>;
   }
   // FIXME: why will it not play nicely
   // eslint-disable-next-line @typescript-eslint/ban-ts-comment
@@ -67,7 +67,7 @@ export const createLoggingContext = <T extends string | undefined = undefined>(
 ) => {
   if (transferId && inherited) {
     inherited = {
-      transactionId: transferId,
+      transferId,
       ...inherited,
     };
   }
