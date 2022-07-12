@@ -46,7 +46,7 @@ import {
   LOCAL_CARTOGRAPHER_ENABLED,
   CARTOGRAPHER_CONFIG,
   ENVIRONMENT,
-} from "./constants";
+} from "./constants/testnet/constants";
 import {
   checkOnchainLocalAsset,
   convertToCanonicalAsset,

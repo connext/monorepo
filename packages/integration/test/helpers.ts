@@ -7,7 +7,7 @@ import {
 } from "@connext/nxtp-txservice";
 import { delay, ERC20Abi } from "@connext/nxtp-utils";
 
-import { DomainInfo, TestAgents, Environment, ENVIRONMENT } from "./constants";
+import { DomainInfo, TestAgents, Environment, ENVIRONMENT } from "./constants/testnet/constants";
 
 /// MARK - Utilities
 export const canonizeTokenId = (data?: utils.BytesLike): Uint8Array => {

@@ -3,7 +3,7 @@ import * as fs from "fs";
 
 import { getNtpTimeSeconds } from "@connext/nxtp-utils";
 
-import { DomainInfo, LOGFILE_PATH } from "./constants";
+import { DomainInfo, LOGFILE_PATH } from "./constants/testnet/constants";
 import { formatEtherscanLink } from "./helpers";
 
 // Helper for logging steps in the integration test.

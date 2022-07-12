@@ -1,14 +1,26 @@
-import { createRequestContext, Logger } from "@connext/nxtp-utils";
-import { ConnextHandlerAbi } from "@connext/nxtp-contracts";
+import axios, { AxiosResponse } from "axios";
+import {
+  createLoggingContext,
+  getChainData,
+  Logger,
+  OriginTransfer,
+  DestinationTransfer,
+  ChainData,
+  AuctionsApiGetAuctionStatusResponse,
+  AuctionsApiErrorResponse,
+} from "@connext/nxtp-utils";
 import { TransactionService, getErc20Interface } from "@connext/nxtp-txservice";
 import { NxtpSdkBase } from "@connext/nxtp-sdk";
 import { constants, utils, Wallet } from "ethers";
+import { SubgraphReader } from "@connext/nxtp-adapters-subgraph";
 
 import { enrollHandlers } from "./helpers/enrollHandlers";
 import { enrollCustom } from "./helpers/enrollCustom";
 import { setupRouter } from "./helpers/setupRouter";
 import { setupAsset } from "./helpers/setupAsset";
 import { addLiquidity } from "./helpers/addLiquidity";
+import { pollSomething } from "./helpers";
+import { SUBG_POLL_PARITY } from "./constants/testnet/constants";
 
 // TODO: Move to a sep. constants file (current constants file is for live integration tests).
 
@@ -75,11 +87,12 @@ const txService = new TransactionService(
   wallet,
 );
 
-const requestContext = createRequestContext("e2e");
-describe("e2e", () => {
+const { requestContext, methodContext } = createLoggingContext("e2e");
+describe("local-e2e", () => {
   let sdk: NxtpSdkBase;
+  let subgraphReader: SubgraphReader;
   before(async () => {
-    console.log("Enrolling handlers...");
+    logger.info("Enrolling handlers...");
     await enrollHandlers(
       [
         {
@@ -93,9 +106,9 @@ describe("e2e", () => {
       ],
       txService,
     );
-    console.log("Enrolled handlers.");
+    logger.info("Enrolled handlers.");
 
-    console.log("Enrolling custom asset with TokenRegistry...");
+    logger.info("Enrolling custom asset with TokenRegistry...");
     await enrollCustom(
       {
         domain: PARAMETERS.A.DOMAIN,
@@ -110,9 +123,9 @@ describe("e2e", () => {
       ],
       txService,
     );
-    console.log("Enrolled custom asset.");
+    logger.info("Enrolled custom asset.");
 
-    console.log("Setting up router...");
+    logger.info("Setting up router...");
     await setupRouter(
       PARAMETERS.AGENTS.ROUTER.address,
       [
@@ -121,9 +134,9 @@ describe("e2e", () => {
       ],
       txService,
     );
-    console.log("Set up router.");
+    logger.info("Set up router.");
 
-    console.log("Setting up assets...");
+    logger.info("Setting up assets...");
     await setupAsset(
       { domain: PARAMETERS.A.DOMAIN, tokenAddress: PARAMETERS.ASSET.address },
       [
@@ -142,9 +155,9 @@ describe("e2e", () => {
       ],
       txService,
     );
-    console.log("Set up assets.");
+    logger.info("Set up assets.");
 
-    console.log(`Adding liquidity for router: ${PARAMETERS.AGENTS.ROUTER.address}...`);
+    logger.info(`Adding liquidity for router: ${PARAMETERS.AGENTS.ROUTER.address}...`);
     await addLiquidity(
       [
         {
@@ -165,8 +178,9 @@ describe("e2e", () => {
       txService,
     );
 
-    console.log("Added liquidity.");
+    logger.info("Added liquidity.");
 
+    logger.info("Setting up sdk...");
     sdk = await NxtpSdkBase.create({
       chains: {
         [PARAMETERS.A.DOMAIN]: {
@@ -176,7 +190,6 @@ describe("e2e", () => {
             connext: PARAMETERS.A.DEPLOYMENTS.ConnextHandler,
             tokenRegistry: PARAMETERS.A.DEPLOYMENTS.TokenRegistry,
             stableSwap: constants.AddressZero,
-            stableSwapFacet: constants.AddressZero,
           },
           chainId: PARAMETERS.A.CHAIN,
         },
@@ -187,7 +200,6 @@ describe("e2e", () => {
             connext: PARAMETERS.B.DEPLOYMENTS.ConnextHandler,
             tokenRegistry: PARAMETERS.B.DEPLOYMENTS.TokenRegistry,
             stableSwap: constants.AddressZero,
-            stableSwapFacet: constants.AddressZero,
           },
           chainId: PARAMETERS.B.CHAIN,
         },
@@ -197,13 +209,19 @@ describe("e2e", () => {
       signerAddress: PARAMETERS.AGENTS.USER.address,
     });
 
-    let tx = await sdk.approveIfNeeded(PARAMETERS.A.DOMAIN, PARAMETERS.ASSET.address, "1", true);
-    if (tx) {
-      await txService.sendTx({ chainId: 1337, to: tx.to!, value: 0, data: utils.hexlify(tx.data!) }, requestContext);
+    logger.info("Setup sdk.");
+
+    logger.info("Setting up subgraph reader...");
+    const chainData = await getChainData();
+    const allowedDomains = ["1337", "1338"];
+    const allowedChainData: Map<string, ChainData> = new Map();
+    for (const allowedDomain of allowedDomains) {
+      if (chainData.has(allowedDomain)) {
+        allowedChainData.set(allowedDomain, chainData.get(allowedDomain)!);
+      }
     }
-    if (tx) {
-      tx = await sdk.approveIfNeeded(PARAMETERS.B.DOMAIN, PARAMETERS.ASSET.address, "1", true);
-    }
+    subgraphReader = await SubgraphReader.create(allowedChainData, "production");
+    logger.info("Setup subgraph reader.");
   });
 
   it.only("sends a simple transfer with fast path", async () => {
@@ -214,9 +232,9 @@ describe("e2e", () => {
       to: PARAMETERS.ASSET.address,
     });
     const [tokenBalance] = getErc20Interface().decodeFunctionResult("balanceOf", encoded);
-    console.log("> sender token balance: ", tokenBalance.toString());
-    console.log("Sending xcall...");
-    const tx = await sdk.xcall({
+    logger.info(`> sender token balance: ${tokenBalance.toString()}`);
+    logger.info("Sending xcall...");
+    const xcallData = {
       amount: "1000",
       params: {
         originDomain: PARAMETERS.A.DOMAIN,
@@ -233,21 +251,159 @@ describe("e2e", () => {
         agent: PARAMETERS.AGENTS.USER.address,
       },
       transactingAssetId: PARAMETERS.ASSET.address,
-    });
+    };
+    const tx = await sdk.xcall(xcallData);
 
     const receipt = await txService.sendTx(
       { to: tx.to!, value: tx.value ?? 0, data: utils.hexlify(tx.data!), chainId: 1337 },
       requestContext,
     );
 
-    console.log("xcall sent!");
-    console.log("receipt: ", receipt);
+    logger.info("xcall sent!");
+    logger.info(`Polling origin subgraph for added transfer...`, requestContext, methodContext, {
+      domain: xcallData.params.originDomain,
+      txHash: receipt.transactionHash,
+    });
+    let startTime = Date.now();
+    const originTransfer: OriginTransfer | undefined = await pollSomething({
+      // Attempts will be made for 1 minute.
+      attempts: Math.floor(60_000 / SUBG_POLL_PARITY),
+      parity: SUBG_POLL_PARITY,
+      method: async () => {
+        try {
+          const transfer = await subgraphReader.getOriginTransferByHash(
+            xcallData.params.originDomain,
+            receipt.transactionHash,
+          );
+          if (transfer?.origin.xcall?.transactionHash) {
+            return transfer;
+          }
+        } catch (e: unknown) {
+          console.log("Waiting for next loop...");
+        }
+        return undefined;
+      },
+    });
+    let endTime = Date.now();
 
-    receipt.logs.forEach((log, index) => {
-      try {
-        const iface = new utils.Interface(ConnextHandlerAbi).parseLog(log);
-        console.log(`log at index ${index}: `, iface);
-      } catch (e: unknown) {}
+    if (!originTransfer) {
+      logger.info("Failed to retrieve xcalled transfer from the origin subgraph.", requestContext, methodContext, {
+        domain: xcallData.params.originDomain,
+        etc: {
+          polled: `${(endTime - startTime) / 1_000}s.`,
+        },
+      });
+      return;
+    }
+
+    logger.info("XCall retrieved.", requestContext, methodContext, {
+      domain: xcallData.params.originDomain,
+      etc: {
+        took: `${endTime - startTime}ms.`,
+        transferID: originTransfer?.transferId,
+        originTransfer,
+      },
+    });
+
+    logger.info("Waiting for execution on the destination domain", requestContext, methodContext, {
+      domain: xcallData.params.destinationDomain,
+      transferId: originTransfer?.transferId,
+    });
+
+    const sequencerUrl = process.env.SEQUENCER_URL;
+    if (sequencerUrl) {
+      logger.info("Polling sequencer for autction status...");
+      let error: any | undefined;
+      const status: AxiosResponse<AuctionsApiGetAuctionStatusResponse> | undefined = await pollSomething({
+        attempts: Math.floor(60_000 / SUBG_POLL_PARITY),
+        parity: SUBG_POLL_PARITY,
+        method: async () => {
+          return await axios
+            .request<AuctionsApiGetAuctionStatusResponse>({
+              method: "get",
+              baseURL: sequencerUrl,
+              url: `/auctions/${originTransfer?.transferId}`,
+            })
+            .catch((e: AxiosResponse<AuctionsApiErrorResponse>) => {
+              error = e.data ? (e.data.error ? e.data.error.message : e.data) : e;
+              return undefined;
+            });
+        },
+      });
+      if (!status) {
+        logger.info("Unable to retrieve auction status from Sequencer.", requestContext, methodContext, {
+          etc: {
+            error,
+          },
+        });
+      } else {
+        logger.info(`Retrieved auction status from Sequencer.`, requestContext, methodContext, {
+          originDomain: xcallData.params.originDomain,
+          destinationDomain: xcallData.params.destinationDomain,
+          etc: { status: status.data },
+        });
+      }
+    }
+
+    logger.info("Polling destination subgraph for execute tx...", requestContext, methodContext, {
+      domain: xcallData.params.destinationDomain,
+      transferId: originTransfer?.transferId,
+    });
+
+    startTime = Date.now();
+
+    const destinationTransfer: DestinationTransfer | undefined = await pollSomething({
+      // Attempts will be made for 3 minutes.
+      attempts: Math.floor(180_000 / SUBG_POLL_PARITY),
+      parity: SUBG_POLL_PARITY,
+      method: async () => {
+        const transfer = await subgraphReader.getDestinationTransferById(
+          xcallData.params.destinationDomain,
+          originTransfer.transferId,
+        );
+        if (transfer?.destination.reconcile?.transactionHash) {
+          logger.info("Transfer was reconciled.", requestContext, methodContext, {
+            domain: xcallData.params.destinationDomain,
+            hash: transfer.destination.reconcile.transactionHash,
+          });
+        }
+
+        if (transfer?.destination.execute?.transactionHash) {
+          return transfer;
+        }
+        return undefined;
+      },
+    });
+
+    endTime = Date.now();
+
+    if (!destinationTransfer) {
+      logger.info("Failed to retrieve execute transfer from the destination subgraph.", requestContext, methodContext, {
+        domain: xcallData.params.destinationDomain,
+        etc: {
+          polled: `${(endTime - startTime) / 1_000}s`,
+        },
+      });
+      return;
+    }
+
+    logger.info("Execute transaction found.", requestContext, methodContext, {
+      domain: xcallData.params.destinationDomain,
+      hash: destinationTransfer.destination.execute?.transactionHash,
+      etc: {
+        took: `${(endTime - startTime) / 1_000}s`,
+      },
+    });
+
+    logger.info("Transfer completed successfully!", requestContext, methodContext, {
+      originDomain: xcallData.params.originDomain,
+      destinationDomain: xcallData.params.destinationDomain,
+      etc: {
+        transfer: {
+          ...originTransfer,
+          destination: destinationTransfer.destination,
+        },
+      },
     });
   });
 });
