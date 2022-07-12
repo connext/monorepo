@@ -230,7 +230,7 @@ describe("e2e", () => {
         recovery: PARAMETERS.AGENTS.USER.address,
         relayerFee: "0",
         slippageTol: "0",
-        agent: constants.AddressZero,
+        agent: PARAMETERS.AGENTS.USER.address,
       },
       transactingAssetId: PARAMETERS.ASSET.address,
     });
