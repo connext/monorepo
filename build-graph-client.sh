@@ -1,8 +1,9 @@
+#!/bin/bash
 # Set this to 0 if you want to build using a locally hosted graph node:
 BUILD_USING_LIVE_VERSION=1
 
 if [ $BUILD_USING_LIVE_VERSION -eq 1 ]; then
-  GRAPH_GOERLI_HANDLER_ENDPOINT="https://api.thegraph.com/subgraphs/name/connext/nxtp-amarok-runtime-v0-rinkeby"
+  GRAPH_GOERLI_HANDLER_ENDPOINT="https://api.thegraph.com/subgraphs/name/connext/nxtp-amarok-runtime-v0-goerli"
   export GRAPH_1337_ENDPOINT=${GRAPH_GOERLI_HANDLER_ENDPOINT}
   export GRAPH_1338_ENDPOINT=${GRAPH_GOERLI_HANDLER_ENDPOINT}
 else
