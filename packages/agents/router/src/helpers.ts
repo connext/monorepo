@@ -50,7 +50,7 @@ export const setupMq = async (
     connection: { host, port },
     queues: [{ name: XCALL_QUEUE }],
     exchanges: [{ name: MQ_EXCHANGE, type: "direct" }],
-    bindings: [{ exchange: MQ_EXCHANGE, target: XCALL_QUEUE }],
+    bindings: [{ exchange: MQ_EXCHANGE, target: XCALL_QUEUE, keys: [XCALL_QUEUE] }],
   });
   logger.info("Message queue setup is done!", requestContext, methodContext, {
     host,
