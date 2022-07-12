@@ -137,7 +137,6 @@ describe("LOCAL:E2E", () => {
             tokenRegistry: PARAMETERS.A.DEPLOYMENTS.TokenRegistry,
             stableSwap: constants.AddressZero,
           },
-          chainId: PARAMETERS.A.CHAIN,
         },
         [PARAMETERS.B.DOMAIN]: {
           assets: [{ address: PARAMETERS.ASSET.address, name: PARAMETERS.ASSET.name, symbol: PARAMETERS.ASSET.symbol }],
@@ -147,7 +146,6 @@ describe("LOCAL:E2E", () => {
             tokenRegistry: PARAMETERS.B.DEPLOYMENTS.TokenRegistry,
             stableSwap: constants.AddressZero,
           },
-          chainId: PARAMETERS.B.CHAIN,
         },
       },
       cartographerUrl: PARAMETERS.AGENTS.CARTOGRAPHER.url,

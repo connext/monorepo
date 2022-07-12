@@ -76,7 +76,7 @@ const USER_MNEMONIC = process.env.USER_MNEMONIC || Wallet.createRandom()._mnemon
  * Because of this, we can't expect the transfer to be executed by the router, but we can get a
  * glimpse of how both are functioning/reacting to the xcall on-chain.
  */
-describe.skip("TESTNET:E2E", () => {
+describe("TESTNET:E2E", () => {
   // Configuration.
   let chainData: Map<string, ChainData>;
   let domainInfo: { ORIGIN: DomainInfo; DESTINATION: DomainInfo };
