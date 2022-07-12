@@ -533,8 +533,19 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v2
 
-      - name: run smoke tests
-        run: echo "to be implemented..."
+      - name: Setup Node
+        uses: actions/setup-node@v2
+        with:
+          node-version: "16"
+
+      - name: Yarn install
+        run: yarn install
+
+      - name: Yarn build
+        run: yarn build
+
+      - name: Integration Tests
+        run: yarn test:integration
 
     outputs:
       router-tags: ${{ needs.terraform-services-core-staging-testnet.outputs.router-tags }}
