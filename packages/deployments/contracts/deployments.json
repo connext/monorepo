@@ -1961,7 +1961,7 @@
           ]
         },
         "BridgeFacetStaging": {
-          "address": "0xbE77B338094f1469A4efE9308301D0483E3dbd1E",
+          "address": "0x0bbD2Ed396B74Fe1dEE764cD40bD0D3ba17C9463",
           "abi": [
             {
               "inputs": [],
@@ -2579,19 +2579,6 @@
                   "internalType": "uint16",
                   "name": "",
                   "type": "uint16"
-                }
-              ],
-              "stateMutability": "view",
-              "type": "function"
-            },
-            {
-              "inputs": [],
-              "name": "NEVER_USED",
-              "outputs": [
-                {
-                  "internalType": "uint256",
-                  "name": "",
-                  "type": "uint256"
                 }
               ],
               "stateMutability": "view",
@@ -8655,19 +8642,6 @@
                   "internalType": "uint16",
                   "name": "",
                   "type": "uint16"
-                }
-              ],
-              "stateMutability": "view",
-              "type": "function"
-            },
-            {
-              "inputs": [],
-              "name": "NEVER_USED",
-              "outputs": [
-                {
-                  "internalType": "uint256",
-                  "name": "",
-                  "type": "uint256"
                 }
               ],
               "stateMutability": "view",

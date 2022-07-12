@@ -29,9 +29,6 @@ contract BridgeFacet is BaseConnextFacet {
   using TypedMemView for bytes29;
   using ConnextMessage for bytes29;
 
-  // TODO: REMOVE, used in debugging upgrades.
-  uint256 public constant NEVER_USED = 123;
-
   // ========== Structs ===========
 
   struct XCalledEventArgs {
