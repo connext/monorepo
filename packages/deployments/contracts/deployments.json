@@ -425,7 +425,7 @@
           ]
         },
         "AssetFacetStaging": {
-          "address": "0xE2EAd6A45CC793Ea6dA4800c5ABE4fF2805c7f4c",
+          "address": "0x7516a42000Cd1995e8fA16a28651dc06D13AeE7E",
           "abi": [
             {
               "inputs": [],
@@ -814,6 +814,13 @@
               "name": "setupAsset",
               "outputs": [],
               "stateMutability": "nonpayable",
+              "type": "function"
+            },
+            {
+              "inputs": [],
+              "name": "testWeth",
+              "outputs": [],
+              "stateMutability": "payable",
               "type": "function"
             },
             {
@@ -8028,6 +8035,13 @@
               "name": "setupAsset",
               "outputs": [],
               "stateMutability": "nonpayable",
+              "type": "function"
+            },
+            {
+              "inputs": [],
+              "name": "testWeth",
+              "outputs": [],
+              "stateMutability": "payable",
               "type": "function"
             },
             {
