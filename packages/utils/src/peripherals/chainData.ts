@@ -63,6 +63,7 @@ export type ChainData = {
     standard: string;
   }[];
   gasEstimates: {
+    execute: string;
     prepare: string;
     fulfill: string;
     cancel: string;
