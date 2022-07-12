@@ -4,6 +4,7 @@ import {
   jsonifyError,
   getChainData as _getChainData,
   getChainIdFromDomain as _getChainIdFromDomain,
+  ChainData,
 } from "@connext/nxtp-utils";
 import axios from "axios";
 
@@ -30,5 +31,24 @@ export const axiosGetRequest = async (uri: string): Promise<any> => {
     return response.data;
   } catch (err: any) {
     throw new ApiRequestFailed({ error: jsonifyError(err as Error) });
+  }
+};
+
+export const getExecuteGasAmountForDomain = async (
+  domain: string,
+  _chainData?: Map<string, ChainData>,
+): Promise<string> => {
+  const chainData = _chainData ?? (await getChainData());
+
+  if (chainData.has(domain)) {
+    const gasEstimates = chainData.get(domain)!.gasEstimates;
+
+    if (gasEstimates.execute) {
+      return gasEstimates.execute;
+    } else {
+      throw new Error(`GasEstiamte doesn't have a record of execute, for domain: ${domain}`);
+    }
+  } else {
+    throw new Error(`ChainData doesn't have a record for domain: ${domain}`);
   }
 };
