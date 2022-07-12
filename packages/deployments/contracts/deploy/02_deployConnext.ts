@@ -112,6 +112,7 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment): Promise<voi
       { name: getDeploymentName("SwapAdminFacet"), contract: "SwapAdminFacet", args: [] },
       { name: getDeploymentName("VersionFacet"), contract: "VersionFacet", args: [] },
       { name: getDeploymentName("DiamondCutFacet"), contract: "DiamondCutFacet", args: [] },
+      { name: getDeploymentName("TestFacet"), contract: "TestFacet", args: [] },
     ],
     defaultOwnershipFacet: false,
     defaultCutFacet: false,

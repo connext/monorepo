@@ -307,6 +307,12 @@ struct AppStorage {
    */
   // 34
   mapping(bytes32 => bool) receiveLocalOverrides;
+  //
+  // TODO: should be cleaned after test
+  //
+  uint256 testUint;
+  address testAddress;
+  mapping(uint256 => uint256) testUint2UnitMapping;
 }
 
 library LibConnextStorage {

@@ -213,14 +213,4 @@ contract AssetFacet is BaseConnextFacet {
 
     emit StableSwapAdded(_canonical.id, _canonical.domain, _stableSwap, msg.sender);
   }
-
-  function testWeth() external payable {
-    uint256 amount = msg.value;
-    require(amount > 0, "zero");
-
-    s.wrapper.deposit{value: amount}();
-
-    s.wrapper.withdraw(amount);
-    Address.sendValue(payable(msg.sender), amount);
-  }
 }

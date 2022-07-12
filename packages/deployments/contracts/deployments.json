@@ -425,7 +425,7 @@
           ]
         },
         "AssetFacetStaging": {
-          "address": "0x7516a42000Cd1995e8fA16a28651dc06D13AeE7E",
+          "address": "0xBF1eC651a2b03041831108FdDb1c4D31DD110bFA",
           "abi": [
             {
               "inputs": [],
@@ -814,13 +814,6 @@
               "name": "setupAsset",
               "outputs": [],
               "stateMutability": "nonpayable",
-              "type": "function"
-            },
-            {
-              "inputs": [],
-              "name": "testWeth",
-              "outputs": [],
-              "stateMutability": "payable",
               "type": "function"
             },
             {
@@ -1968,7 +1961,7 @@
           ]
         },
         "BridgeFacetStaging": {
-          "address": "0x0bbD2Ed396B74Fe1dEE764cD40bD0D3ba17C9463",
+          "address": "0xa8308EdAE93ea8beA44faef7cff04EdC9B7cBf0e",
           "abi": [
             {
               "inputs": [],
@@ -8039,13 +8032,6 @@
             },
             {
               "inputs": [],
-              "name": "testWeth",
-              "outputs": [],
-              "stateMutability": "payable",
-              "type": "function"
-            },
-            {
-              "inputs": [],
               "name": "tokenRegistry",
               "outputs": [
                 {
@@ -12018,6 +12004,108 @@
               "name": "rescindDiamondCut",
               "outputs": [],
               "stateMutability": "nonpayable",
+              "type": "function"
+            },
+            {
+              "anonymous": false,
+              "inputs": [
+                {
+                  "indexed": false,
+                  "internalType": "uint256",
+                  "name": "",
+                  "type": "uint256"
+                }
+              ],
+              "name": "TestedUint",
+              "type": "event"
+            },
+            {
+              "inputs": [
+                {
+                  "internalType": "address",
+                  "name": "newAddr",
+                  "type": "address"
+                }
+              ],
+              "name": "setTestAddress",
+              "outputs": [],
+              "stateMutability": "nonpayable",
+              "type": "function"
+            },
+            {
+              "inputs": [
+                {
+                  "internalType": "uint256",
+                  "name": "newVar",
+                  "type": "uint256"
+                }
+              ],
+              "name": "setTestUint",
+              "outputs": [],
+              "stateMutability": "nonpayable",
+              "type": "function"
+            },
+            {
+              "inputs": [
+                {
+                  "internalType": "uint256",
+                  "name": "key",
+                  "type": "uint256"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "newVar",
+                  "type": "uint256"
+                }
+              ],
+              "name": "setTestUint2UintMapping",
+              "outputs": [],
+              "stateMutability": "nonpayable",
+              "type": "function"
+            },
+            {
+              "inputs": [],
+              "name": "testAddress",
+              "outputs": [
+                {
+                  "internalType": "address",
+                  "name": "",
+                  "type": "address"
+                }
+              ],
+              "stateMutability": "view",
+              "type": "function"
+            },
+            {
+              "inputs": [],
+              "name": "testUint",
+              "outputs": [
+                {
+                  "internalType": "uint256",
+                  "name": "",
+                  "type": "uint256"
+                }
+              ],
+              "stateMutability": "view",
+              "type": "function"
+            },
+            {
+              "inputs": [
+                {
+                  "internalType": "uint256",
+                  "name": "key",
+                  "type": "uint256"
+                }
+              ],
+              "name": "testUint2UnitMapping",
+              "outputs": [
+                {
+                  "internalType": "uint256",
+                  "name": "",
+                  "type": "uint256"
+                }
+              ],
+              "stateMutability": "view",
               "type": "function"
             },
             {
@@ -18188,7 +18276,7 @@
           ]
         },
         "NomadFacetStaging": {
-          "address": "0x71BA880493Cdc320e20Ecce955032F388c4E9C05",
+          "address": "0x289580e8dF81bfD1b6a3e94f342eb4b1FB05eCbe",
           "abi": [
             {
               "inputs": [],
@@ -19082,7 +19170,7 @@
           ]
         },
         "PromiseRouterStaging": {
-          "address": "0xfeF7bFAb9977Bc45B86f8E8587BD71fDf68567a6",
+          "address": "0x97ac53C8C48DD69739735e73ee4D1d7a4AFEeD67",
           "abi": [
             {
               "inputs": [],
@@ -20251,7 +20339,7 @@
           ]
         },
         "ProposedOwnableFacetStaging": {
-          "address": "0x15d02FC52541d40457b598466A2dA20BB5C7D840",
+          "address": "0xc4C342E231b17f2470Eb80B02A305c75cFC0E71D",
           "abi": [
             {
               "inputs": [],
@@ -20964,7 +21052,7 @@
           ]
         },
         "RelayerFacetStaging": {
-          "address": "0x23fFc266F9F5caE4442f10099AD9d5B70024AD12",
+          "address": "0x3207EF513361a9435261058bC27E6eb8D0542a43",
           "abi": [
             {
               "inputs": [],
@@ -21716,7 +21804,7 @@
           ]
         },
         "RelayerFeeRouterStaging": {
-          "address": "0x8423B7Eb7718576292955551a56C65F99450769F",
+          "address": "0xb3590cbCDd73fe81B404bbbAAbEbAB35D069dc25",
           "abi": [
             {
               "inputs": [],
@@ -23130,7 +23218,7 @@
           ]
         },
         "RoutersFacetStaging": {
-          "address": "0xFD8Cd4C277550F7397e2c2086F28B7D41bbb4596",
+          "address": "0x054Feb037C10510D37970850cbAab53aD011B36e",
           "abi": [
             {
               "inputs": [],
@@ -25592,7 +25680,7 @@
           ]
         },
         "StableSwapFacetStaging": {
-          "address": "0xd5C895133C143bFA3ceb24C19B5cA621E59fA291",
+          "address": "0xDd04D05f756A9B5c7dAE95C2e5aAeD0CbEF85C42",
           "abi": [
             {
               "inputs": [],
@@ -26708,7 +26796,7 @@
           ]
         },
         "SwapAdminFacetStaging": {
-          "address": "0xE1542e421d6C1d08dDC97DA4Bd67Bd545Dce2dA5",
+          "address": "0x7Fe78a0E9E8646C52F6Cf0eB6C9Aa79Ba4ECb4a3",
           "abi": [
             {
               "inputs": [],
@@ -27512,6 +27600,143 @@
               "name": "transferOwnership",
               "outputs": [],
               "stateMutability": "nonpayable",
+              "type": "function"
+            }
+          ]
+        },
+        "TestFacetStaging": {
+          "address": "0x8D837f4C198d65C4E3375c48BA43fdFa6b7B12Ff",
+          "abi": [
+            {
+              "inputs": [],
+              "name": "BaseConnextFacet__nonReentrant_reentrantCall",
+              "type": "error"
+            },
+            {
+              "inputs": [],
+              "name": "BaseConnextFacet__onlyOwner_notOwner",
+              "type": "error"
+            },
+            {
+              "inputs": [],
+              "name": "BaseConnextFacet__onlyProposed_notProposedOwner",
+              "type": "error"
+            },
+            {
+              "inputs": [],
+              "name": "BaseConnextFacet__onlyRemoteRouter_notRemoteRouter",
+              "type": "error"
+            },
+            {
+              "inputs": [],
+              "name": "BaseConnextFacet__onlyReplica_notReplica",
+              "type": "error"
+            },
+            {
+              "inputs": [],
+              "name": "BaseConnextFacet__whenNotPaused_paused",
+              "type": "error"
+            },
+            {
+              "anonymous": false,
+              "inputs": [
+                {
+                  "indexed": false,
+                  "internalType": "uint256",
+                  "name": "",
+                  "type": "uint256"
+                }
+              ],
+              "name": "TestedUint",
+              "type": "event"
+            },
+            {
+              "inputs": [
+                {
+                  "internalType": "address",
+                  "name": "newAddr",
+                  "type": "address"
+                }
+              ],
+              "name": "setTestAddress",
+              "outputs": [],
+              "stateMutability": "nonpayable",
+              "type": "function"
+            },
+            {
+              "inputs": [
+                {
+                  "internalType": "uint256",
+                  "name": "newVar",
+                  "type": "uint256"
+                }
+              ],
+              "name": "setTestUint",
+              "outputs": [],
+              "stateMutability": "nonpayable",
+              "type": "function"
+            },
+            {
+              "inputs": [
+                {
+                  "internalType": "uint256",
+                  "name": "key",
+                  "type": "uint256"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "newVar",
+                  "type": "uint256"
+                }
+              ],
+              "name": "setTestUint2UintMapping",
+              "outputs": [],
+              "stateMutability": "nonpayable",
+              "type": "function"
+            },
+            {
+              "inputs": [],
+              "name": "testAddress",
+              "outputs": [
+                {
+                  "internalType": "address",
+                  "name": "",
+                  "type": "address"
+                }
+              ],
+              "stateMutability": "view",
+              "type": "function"
+            },
+            {
+              "inputs": [],
+              "name": "testUint",
+              "outputs": [
+                {
+                  "internalType": "uint256",
+                  "name": "",
+                  "type": "uint256"
+                }
+              ],
+              "stateMutability": "view",
+              "type": "function"
+            },
+            {
+              "inputs": [
+                {
+                  "internalType": "uint256",
+                  "name": "key",
+                  "type": "uint256"
+                }
+              ],
+              "name": "testUint2UnitMapping",
+              "outputs": [
+                {
+                  "internalType": "uint256",
+                  "name": "",
+                  "type": "uint256"
+                }
+              ],
+              "stateMutability": "view",
               "type": "function"
             }
           ]
@@ -28959,7 +29184,7 @@
           ]
         },
         "VersionFacetStaging": {
-          "address": "0x4315c38589E5ADc6a7C84B57619B84267d3C1dDE",
+          "address": "0x8032027C1E3C570E086df25A062789a364990dd2",
           "abi": [
             {
               "inputs": [],
