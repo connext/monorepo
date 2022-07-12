@@ -48,8 +48,6 @@ const mnemonic =
   "candy maple cake sugar pudding cream honey rich smooth crumble sweet treat";
 
 const mainnetMnemonic = process.env.MAINNET_MNEMONIC;
-console.log("mainnetMnemonic: ", mainnetMnemonic);
-console.log("mnemonic: ", mnemonic);
 
 const config: HardhatUserConfig = {
   solidity: {
