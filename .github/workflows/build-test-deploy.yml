@@ -270,10 +270,10 @@ jobs:
     outputs:
       json: ${{ steps.meta.outputs.json }}
 
-  build-and-push-web3signer:
+  build-and-push-relayer-image:
     env:
       REGISTRY: ghcr.io
-      IMAGE_NAME: connext/web3signer
+      IMAGE_NAME: connext/relayer
     runs-on: ubuntu-latest
     needs: build-and-test
     permissions:
@@ -291,42 +291,26 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Build and push Docker image
-        uses: docker/build-push-action@ad44023a93711e3deb337508980b4b5e9bcdc5dc
+      - name: Extract metadata (tags, labels) for Docker
+        id: meta
+        uses: docker/metadata-action@98669ae865ea3cffbcbaa878cf57c20bbf1c6c38
         with:
-          context: docker/web3signer
-          push: true
-          tags: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest
-          file: docker/web3signer/Dockerfile
-
-  build-and-push-chain:
-    env:
-      REGISTRY: ghcr.io
-      IMAGE_NAME: connext/chain
-    runs-on: ubuntu-latest
-    needs: build-and-test
-    permissions:
-      contents: read
-      packages: write
-
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v2
-
-      - name: Log in to the Container registry
-        uses: docker/login-action@f054a8b539a109f9f41c372932f1ae047eff08c9
-        with:
-          registry: ${{ env.REGISTRY }}
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+          tags: |
+            type=sha,format=short
+            type=semver,pattern={{raw}}
 
       - name: Build and push Docker image
         uses: docker/build-push-action@ad44023a93711e3deb337508980b4b5e9bcdc5dc
         with:
           context: .
           push: true
-          tags: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest
-          file: docker/chain/Dockerfile
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          file: docker/relayer/Dockerfile
+
+    outputs:
+      json: ${{ steps.meta.outputs.json }}
 
   smoke-tests:
     runs-on: ubuntu-latest
@@ -334,15 +318,15 @@ jobs:
       [
         build-and-push-router-image,
         build-and-push-sequencer-image,
-        build-and-push-web3signer,
         build-and-push-cartographer-routers-image,
         build-and-push-cartographer-transfers-image,
         build-and-push-lighthouse-image,
-        build-and-push-chain,
+        build-and-push-relayer-image,
       ]
     env:
       ROUTER_IMAGE: ${{ fromJSON(needs.build-and-push-router-image.outputs.json).tags[0] }}
       SEQUENCER_IMAGE: ${{ fromJSON(needs.build-and-push-sequencer-image.outputs.json).tags[0] }}
+      RELAYER_IMAGE: ${{ fromJSON(needs.build-and-push-relayer-image.outputs.json).tags[0] }}
       WEB3_SIGNER_PRIVATE_KEY: ${{ secrets.WEB3_SIGNER_TESTNET_PRIVATE_KEY }}
       MNEMONIC: "candy maple cake sugar pudding cream honey rich smooth crumble sweet treat"
     steps:
