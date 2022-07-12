@@ -90,7 +90,9 @@ export const createTask = async (
     });
   }
 
-  const connextAddress = getDeployedConnextContract(chain, config.environment === "staging" ? "Staging" : "")?.address;
+  const connextAddress =
+    config.chains[chain].deployments.connext ??
+    getDeployedConnextContract(chain, config.environment === "staging" ? "Staging" : "")?.address;
   if (!connextAddress) {
     throw new ContractDeploymentMissing(ContractDeploymentMissing.contracts.connext, chain);
   } else if (to.toLowerCase() !== connextAddress.toLowerCase()) {
