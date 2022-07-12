@@ -5,9 +5,9 @@ import {
   getDeployedTokenRegistryContract,
   getTokenRegistryInterface,
 } from "@connext/nxtp-txservice";
-import { delay, ERC20Abi } from "@connext/nxtp-utils";
+import { ERC20Abi } from "@connext/nxtp-utils";
 
-import { DomainInfo, TestAgents, Environment, ENVIRONMENT } from "./constants/testnet/constants";
+import { DomainInfo, TestAgents, Environment, ENVIRONMENT } from "../../constants/testnet";
 
 /// MARK - Utilities
 export const canonizeTokenId = (data?: utils.BytesLike): Uint8Array => {
@@ -41,17 +41,6 @@ export const formatEtherscanLink = (input: { network: string; hash?: string; add
     return `https://${url}/address/${address}`;
   }
   return "";
-};
-
-export const pollSomething = async (input: { attempts: number; parity: number; method: () => Promise<any> }) => {
-  const { attempts, parity, method } = input;
-  for (let i = 0; i < attempts; i++) {
-    const result = await method();
-    if (result) {
-      return result;
-    }
-    await delay(parity);
-  }
 };
 
 /// MARK - On-chain Operations

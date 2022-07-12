@@ -3,8 +3,9 @@ import * as fs from "fs";
 
 import { getNtpTimeSeconds } from "@connext/nxtp-utils";
 
-import { DomainInfo, LOGFILE_PATH } from "./constants/testnet/constants";
-import { formatEtherscanLink } from "./helpers";
+import { DomainInfo, LOGFILE_PATH } from "../../constants/testnet";
+
+import { formatEtherscanLink } from "./utils";
 
 // Helper for logging steps in the integration test.
 const logdir = path.join(path.dirname(__dirname), LOGFILE_PATH);

@@ -46,7 +46,7 @@ import {
   LOCAL_CARTOGRAPHER_ENABLED,
   CARTOGRAPHER_CONFIG,
   ENVIRONMENT,
-} from "./constants/testnet/constants";
+} from "./constants/testnet";
 import {
   checkOnchainLocalAsset,
   convertToCanonicalAsset,
@@ -55,11 +55,11 @@ import {
   getAssetApproval,
   getRouterApproval,
   OperationContext,
-  pollSomething,
   removeAsset,
   setupAsset,
-} from "./helpers";
-import { log } from "./log";
+  log,
+} from "./helpers/testnet";
+import { pollSomething } from "./helpers/shared";
 
 const ROUTER_MNEMONIC = process.env.ROUTER_MNEMONIC;
 const RELAYER_MNEMONIC = process.env.RELAYER_MNEMONIC;
@@ -76,7 +76,7 @@ const USER_MNEMONIC = process.env.USER_MNEMONIC || Wallet.createRandom()._mnemon
  * Because of this, we can't expect the transfer to be executed by the router, but we can get a
  * glimpse of how both are functioning/reacting to the xcall on-chain.
  */
-describe.skip("Integration:E2E", () => {
+describe.skip("TESTNET:E2E", () => {
   // Configuration.
   let chainData: Map<string, ChainData>;
   let domainInfo: { ORIGIN: DomainInfo; DESTINATION: DomainInfo };

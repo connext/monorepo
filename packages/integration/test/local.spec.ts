@@ -11,68 +11,14 @@ import {
 } from "@connext/nxtp-utils";
 import { TransactionService, getErc20Interface } from "@connext/nxtp-txservice";
 import { NxtpSdkBase } from "@connext/nxtp-sdk";
-import { constants, utils, Wallet } from "ethers";
+import { constants, utils } from "ethers";
 import { SubgraphReader } from "@connext/nxtp-adapters-subgraph";
 
-import { enrollHandlers } from "./helpers/enrollHandlers";
-import { enrollCustom } from "./helpers/enrollCustom";
-import { setupRouter } from "./helpers/setupRouter";
-import { setupAsset } from "./helpers/setupAsset";
-import { addLiquidity } from "./helpers/addLiquidity";
-import { pollSomething } from "./helpers";
-import { SUBG_POLL_PARITY } from "./constants/testnet/constants";
-
-// TODO: Move to a sep. constants file (current constants file is for live integration tests).
-
-const defaultWallet = Wallet.fromMnemonic("candy maple cake sugar pudding cream honey rich smooth crumble sweet treat");
-const PARAMETERS = {
-  ENVIRONMENT: "production",
-  AGENTS: {
-    ROUTER: {
-      address: "0x627306090abaB3A6e1400e9345bC60c78a8BEf57",
-    },
-    CARTOGRAPHER: {
-      url: "http://localhost:3000",
-    },
-    USER: {
-      address: defaultWallet.address,
-      signer: defaultWallet,
-    },
-  },
-  // NOTE: Current test parameters / setup here assumes the token used is local on both chains.
-  // i.e. there's no swap from adopted -> local on origin or local -> adopted on destination
-  ASSET: {
-    address: "0x1411CB266FCEd1587b0AA29E9d5a9Ef3Db64A9C5",
-    name: "TEST",
-    symbol: "TEST",
-  },
-  A: {
-    DOMAIN: "1337",
-    CHAIN: 1337,
-    RPC: ["http://localhost:8547"],
-    DEPLOYMENTS: {
-      ConnextHandler: "0xF08dF3eFDD854FEDE77Ed3b2E515090EEe765154",
-      PromiseRouterUpgradeBeaconProxy: "0xbaAA2a3237035A2c7fA2A33c76B44a8C6Fe18e87",
-      RelayerFeeRouterUpgradeBeaconProxy: "0xEcFcaB0A285d3380E488A39B4BB21e777f8A4EaC",
-      TokenRegistry: "0x75c35C980C0d37ef46DF04d31A140b65503c0eEd",
-    },
-  },
-  B: {
-    DOMAIN: "1338",
-    CHAIN: 1338,
-    RPC: ["http://localhost:8546"],
-    DEPLOYMENTS: {
-      ConnextHandler: "0xF08dF3eFDD854FEDE77Ed3b2E515090EEe765154",
-      PromiseRouterUpgradeBeaconProxy: "0xbaAA2a3237035A2c7fA2A33c76B44a8C6Fe18e87",
-      RelayerFeeRouterUpgradeBeaconProxy: "0xEcFcaB0A285d3380E488A39B4BB21e777f8A4EaC",
-      TokenRegistry: "0x75c35C980C0d37ef46DF04d31A140b65503c0eEd",
-    },
-  },
-};
+import { pollSomething } from "./helpers/shared";
+import { enrollHandlers, enrollCustom, setupRouter, setupAsset, addLiquidity } from "./helpers/local";
+import { WALLET, PARAMETERS, SUBG_POLL_PARITY } from "./constants/local";
 
 const logger = new Logger({ name: "e2e" });
-
-const wallet = Wallet.fromMnemonic("candy maple cake sugar pudding cream honey rich smooth crumble sweet treat");
 
 const txService = new TransactionService(
   logger,
@@ -84,11 +30,11 @@ const txService = new TransactionService(
       providers: PARAMETERS.B.RPC,
     },
   },
-  wallet,
+  WALLET,
 );
 
 const { requestContext, methodContext } = createLoggingContext("e2e");
-describe("local-e2e", () => {
+describe("LOCAL:E2E", () => {
   let sdk: NxtpSdkBase;
   let subgraphReader: SubgraphReader;
   before(async () => {

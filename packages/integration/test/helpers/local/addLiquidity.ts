@@ -10,16 +10,8 @@ export const addLiquidity = async (
   const requestContext = createRequestContext(addLiquidity.name);
   for (const domain of domains) {
     const allowanceData = getErc20Interface().encodeFunctionData("allowance", [domain.router, domain.ConnextHandler]);
-    let encoded = await txService.readTx({ chainId: +domain.domain, data: allowanceData, to: domain.asset });
+    const encoded = await txService.readTx({ chainId: +domain.domain, data: allowanceData, to: domain.asset });
     const [allowance] = getErc20Interface().decodeFunctionResult("allowance", encoded);
-
-    const balanceData = getErc20Interface().encodeFunctionData("balanceOf", [domain.router]);
-    encoded = await txService.readTx({ chainId: +domain.domain, data: balanceData, to: domain.asset });
-    const [balance] = getErc20Interface().decodeFunctionResult("balanceOf", encoded);
-
-    console.log("> domain: ", domain);
-    console.log("> router balance: ", balance.toString());
-    console.log("> allowance: ", allowance.toString());
 
     if (BigNumber.from(allowance.toString()).lt(domain.amount)) {
       const approveData = getErc20Interface().encodeFunctionData("approve", [domain.ConnextHandler, domain.amount]);
