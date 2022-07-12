@@ -27,23 +27,16 @@ variable "stage" {
   description = "stage of deployment"
 }
 
-variable "container_env_vars" {
-  description = "env vars for running container"
-}
+variable "ecs_cluster_sg" {}
+
+variable "allow_all_sg" {}
+
 
 variable "docker_image" {}
 variable "container_family" {}
 
 variable "instance_count" {
   default = 1
-}
-
-variable "container_port" {
-  default = 8080
-}
-
-variable "loadbalancer_port" {
-  default = 80
 }
 
 variable "cpu" {
@@ -55,19 +48,9 @@ variable "memory" {
 }
 
 
-variable "min_tasks" {
-  description = "Number of tasks to run"
-  default     = 1
-}
-
-variable "max_tasks" {
-  description = "Number of tasks to run"
-  default     = 2
-}
-
 variable "desired_tasks" {
   description = "Desired tasks"
-  default     = 1
+  default     = 2
 }
 
 variable "registry_url" {

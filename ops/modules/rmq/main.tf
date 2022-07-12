@@ -93,7 +93,7 @@ resource "aws_ecs_task_definition" "rmq" {
 
 resource "aws_ecs_service" "service" {
   cluster                 = var.cluster_id
-  desired_count           = 1
+  desired_count           = var.desired_tasks
   launch_type             = "FARGATE"
   name                    = var.container_name
   task_definition         = aws_ecs_task_definition.rmq.arn
@@ -175,6 +175,23 @@ resource "aws_lb_listener" "management" {
   }
 }
 
+
+resource "aws_lb_listener" "https" {
+  load_balancer_arn = aws_alb.lb.arn
+  port              = "443"
+  protocol          = "HTTPS"
+  ssl_policy        = "ELBSecurityPolicy-2016-08"
+  certificate_arn   = var.cert_arn
+
+  default_action {
+    type             = "forward"
+    target_group_arn = aws_alb_target_group.management.arn
+  }
+  tags = {
+    Family = "${var.environment}-${var.stage}-${var.container_family}"
+    Domain = var.domain
+  }
+}
 resource "aws_lb_listener_rule" "http" {
   listener_arn = aws_lb_listener.management.arn
   action {
@@ -188,7 +205,7 @@ resource "aws_lb_listener_rule" "http" {
   }
 }
 resource "aws_lb_listener_rule" "https" {
-  listener_arn = data.aws_lb_listener.selected443.arn
+  listener_arn = aws_lb_listener.https.arn
 
   action {
     type             = "forward"

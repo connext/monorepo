@@ -22,6 +22,7 @@ variable "container_port" {
 }
 
 variable "loadbalancer_port" {
+  container_env_vars       = local.sequencer_env_vars
   default = 80
 }
 
