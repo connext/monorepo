@@ -4,10 +4,10 @@ BUILD_USING_LIVE_VERSION=1
 if [ $BUILD_USING_LIVE_VERSION -eq 1 ]; then
   GRAPH_GOERLI_HANDLER_ENDPOINT="https://api.thegraph.com/subgraphs/name/connext/nxtp-amarok-runtime-v0-rinkeby"
   export GRAPH_1337_ENDPOINT=${GRAPH_GOERLI_HANDLER_ENDPOINT}
-  export GRAPH_1388_ENDPOINT=${GRAPH_GOERLI_HANDLER_ENDPOINT}
+  export GRAPH_1338_ENDPOINT=${GRAPH_GOERLI_HANDLER_ENDPOINT}
 else
   GRAPH_1337_ENDPOINT="http://localhost:8010"
-  GRAPH_1388_ENDPOINT="http://localhost:9010"
+  GRAPH_1338_ENDPOINT="http://localhost:9010"
 
   # bring up chains/graph node/ipfs
   docker compose -f docker-compose.chains.yaml up -d
