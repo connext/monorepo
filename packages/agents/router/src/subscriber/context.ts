@@ -17,9 +17,9 @@ export type AppContext = {
     subgraph: SubgraphReader; // Aggregates subgraphs in a FallbackSubgraph for each chain.
     txservice: TransactionService; // For reading and executing txs on blockchain using RPC providers.
     contracts: ConnextContractInterfaces; // Used to read and write to smart contracts.
+    mqClient: typeof Rabbit;
   };
   config: NxtpRouterConfig;
   chainData: Map<string, ChainData>;
   routerAddress: string;
-  mqClient: typeof Rabbit;
 };

@@ -14,7 +14,7 @@ import { BridgeContext } from "@nomad-xyz/sdk-bridge";
 
 import { getConfig, NxtpRouterConfig } from "../config";
 import { bindMetrics } from "../bindings";
-import { setupSubgraphReader } from "../helpers";
+import { setupMq, setupSubgraphReader } from "../helpers";
 
 import { AppContext } from "./context";
 import { bindMessageQueue, bindServer } from "./bindings";
@@ -74,6 +74,12 @@ export const makeSubscriber = async (_configOverride?: NxtpRouterConfig) => {
       context.adapters.wallet as Wallet,
     );
     context.adapters.contracts = getContractInterfaces();
+    context.adapters.mqClient = await setupMq(
+      context.config.messageQueue.host as string,
+      context.config.messageQueue.port as number,
+      context.logger,
+      requestContext,
+    );
 
     /// MARK - Validation for auctionRoundDepth
 

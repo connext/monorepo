@@ -11,8 +11,7 @@ export const DEFAULT_SAFE_CONFIRMATIONS = 5;
 export const bindMessageQueue = async (_pollInterval?: number) => {
   const {
     logger,
-    mqClient,
-    adapters: { subgraph },
+    adapters: { subgraph, mqClient },
   } = getContext();
 
   mqClient.handle<OriginTransfer>({ queue: XCALL_QUEUE, type: XCALL_MESSAGE_TYPE }, async (message) => {
