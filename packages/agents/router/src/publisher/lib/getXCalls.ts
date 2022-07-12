@@ -5,10 +5,10 @@ import {
   OriginTransfer,
   SubgraphQueryMetaParams,
 } from "@connext/nxtp-utils";
-import { XCALL_MESSAGE_TYPE } from "../../helpers";
+import { XCALL_MESSAGE_TYPE, MQ_EXCHANGE, XCALL_QUEUE } from "../../helpers";
 
 import { DEFAULT_SAFE_CONFIRMATIONS } from "../bindings/subgraph";
-import { getContext, MQ_EXCHANGE } from "../publisher";
+import { getContext } from "../publisher";
 
 export const getXCalls = async () => {
   const {
@@ -58,6 +58,7 @@ export const getXCalls = async () => {
               await mqClient.publish<OriginTransfer>(MQ_EXCHANGE, {
                 body: transfer as OriginTransfer,
                 type: XCALL_MESSAGE_TYPE,
+                routingKey: XCALL_QUEUE,
               });
               logger.debug("Published transfer to mq", requestContext, methodContext, { transfer });
 

@@ -8,9 +8,6 @@ import { setupCache, setupMq, setupSubgraphReader } from "../helpers";
 import { AppContext } from "./context";
 import { bindSubgraph } from "./bindings/subgraph";
 
-export const XCALL_QUEUE = "xcalls";
-export const MQ_EXCHANGE = "router";
-
 // AppContext instance used for interacting with adapters, config, etc.
 const context: AppContext = {} as any;
 export const getContext = () => context;
@@ -51,14 +48,14 @@ export const makePublisher = async (_configOverride?: NxtpRouterConfig) => {
       requestContext,
     );
     context.adapters.cache = await setupCache(
-      context.config.redis.host as string,
-      context.config.redis.port as number,
+      context.config.redis.host,
+      context.config.redis.port,
       context.logger,
       requestContext,
     );
     context.adapters.mqClient = await setupMq(
-      context.config.messageQueue.host as string,
-      context.config.messageQueue.port as number,
+      context.config.messageQueue.host!,
+      context.config.messageQueue.port!,
       context.logger,
       requestContext,
     );
