@@ -6,7 +6,7 @@ A test script to validate the end-to-end cross-chain transfer process.
 
 ## Environment Variables
 
-You should create `.env` file and set the following env variables which will be used in local e2e on runtime environment.
+You should create a `.env` file in the `packages/integration` directory and set the following env variables which will be used in local e2e on runtime environment.
 
 ```sh
 GRAPH_1337_ENDPOINT=http://localhost:8010/subgraphs/name/connext/nxtp
