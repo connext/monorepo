@@ -10,6 +10,8 @@ import axios from "axios";
 
 import { UriInvalid, ApiRequestFailed } from "../errors/index";
 
+export const relayerBufferPercentage = 20; // 20% bump on total estimated relayer fee
+
 export const getChainData = _getChainData;
 export const getChainIdFromDomain = _getChainIdFromDomain;
 
