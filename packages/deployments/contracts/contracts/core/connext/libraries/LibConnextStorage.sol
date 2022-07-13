@@ -310,6 +310,7 @@ struct AppStorage {
   //
   // TODO: should be cleaned after test
   //
+  uint256 testUintForCrash;
   uint256 testUint;
   address testAddress;
   mapping(uint256 => uint256) testUint2UnitMapping;

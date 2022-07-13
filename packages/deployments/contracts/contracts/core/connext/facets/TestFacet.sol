@@ -29,6 +29,10 @@ contract TestFacet is BaseConnextFacet {
     return s.testUint2UnitMapping[key];
   }
 
+  function testUintForCrash() public view returns (uint256) {
+    return s.testUintForCrash;
+  }
+
   // ============ External ============
 
   function setTestUint(uint256 newVar) public {
@@ -43,5 +47,9 @@ contract TestFacet is BaseConnextFacet {
 
   function setTestUint2UintMapping(uint256 key, uint256 newVar) public {
     s.testUint2UnitMapping[key] = newVar;
+  }
+
+  function setTestUintForCrash(uint256 newVar) public {
+    s.testUintForCrash = newVar;
   }
 }

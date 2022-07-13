@@ -425,7 +425,7 @@
           ]
         },
         "AssetFacetStaging": {
-          "address": "0xBF1eC651a2b03041831108FdDb1c4D31DD110bFA",
+          "address": "0x28961B16d93518e7DE323fcA1d812Ba0dfD807Aa",
           "abi": [
             {
               "inputs": [],
@@ -1961,7 +1961,7 @@
           ]
         },
         "BridgeFacetStaging": {
-          "address": "0xa8308EdAE93ea8beA44faef7cff04EdC9B7cBf0e",
+          "address": "0xdC4Fb3C02e033b43b26CBAc06f15eE1dD5f0beD2",
           "abi": [
             {
               "inputs": [],
@@ -12064,6 +12064,19 @@
               "type": "function"
             },
             {
+              "inputs": [
+                {
+                  "internalType": "uint256",
+                  "name": "newVar",
+                  "type": "uint256"
+                }
+              ],
+              "name": "setTestUintForCrash",
+              "outputs": [],
+              "stateMutability": "nonpayable",
+              "type": "function"
+            },
+            {
               "inputs": [],
               "name": "testAddress",
               "outputs": [
@@ -12098,6 +12111,19 @@
                 }
               ],
               "name": "testUint2UnitMapping",
+              "outputs": [
+                {
+                  "internalType": "uint256",
+                  "name": "",
+                  "type": "uint256"
+                }
+              ],
+              "stateMutability": "view",
+              "type": "function"
+            },
+            {
+              "inputs": [],
+              "name": "testUintForCrash",
               "outputs": [
                 {
                   "internalType": "uint256",
@@ -18276,7 +18302,7 @@
           ]
         },
         "NomadFacetStaging": {
-          "address": "0x289580e8dF81bfD1b6a3e94f342eb4b1FB05eCbe",
+          "address": "0x5A179F8b08B5Ec308c9bC8a490052902953b1CBD",
           "abi": [
             {
               "inputs": [],
@@ -19170,7 +19196,7 @@
           ]
         },
         "PromiseRouterStaging": {
-          "address": "0x97ac53C8C48DD69739735e73ee4D1d7a4AFEeD67",
+          "address": "0xa7CFaAC41B08671bFbc78c38dAbd2bc3714fB4dA",
           "abi": [
             {
               "inputs": [],
@@ -20339,7 +20365,7 @@
           ]
         },
         "ProposedOwnableFacetStaging": {
-          "address": "0xc4C342E231b17f2470Eb80B02A305c75cFC0E71D",
+          "address": "0x89182D1faA5C9c821B7e1D5B2A1aB4E706a723de",
           "abi": [
             {
               "inputs": [],
@@ -21052,7 +21078,7 @@
           ]
         },
         "RelayerFacetStaging": {
-          "address": "0x3207EF513361a9435261058bC27E6eb8D0542a43",
+          "address": "0xF1Cd3A71c6B5FF7e852a27600Fb88c2Bc26a1a5A",
           "abi": [
             {
               "inputs": [],
@@ -21804,7 +21830,7 @@
           ]
         },
         "RelayerFeeRouterStaging": {
-          "address": "0xb3590cbCDd73fe81B404bbbAAbEbAB35D069dc25",
+          "address": "0x7EED534e1e995069cf9AcAA4c187EAddB6bb1f2c",
           "abi": [
             {
               "inputs": [],
@@ -23218,7 +23244,7 @@
           ]
         },
         "RoutersFacetStaging": {
-          "address": "0x054Feb037C10510D37970850cbAab53aD011B36e",
+          "address": "0x61000703401302CE887E24862B1BB7864Fe2Bc2b",
           "abi": [
             {
               "inputs": [],
@@ -25680,7 +25706,7 @@
           ]
         },
         "StableSwapFacetStaging": {
-          "address": "0xDd04D05f756A9B5c7dAE95C2e5aAeD0CbEF85C42",
+          "address": "0x66f80B8861a5150E0F3177CcA9984818E984ceF9",
           "abi": [
             {
               "inputs": [],
@@ -26796,7 +26822,7 @@
           ]
         },
         "SwapAdminFacetStaging": {
-          "address": "0x7Fe78a0E9E8646C52F6Cf0eB6C9Aa79Ba4ECb4a3",
+          "address": "0xb0508E9d09078c9f7Bf1161355CBC28067CD7217",
           "abi": [
             {
               "inputs": [],
@@ -27605,7 +27631,7 @@
           ]
         },
         "TestFacetStaging": {
-          "address": "0x8D837f4C198d65C4E3375c48BA43fdFa6b7B12Ff",
+          "address": "0xA5A8599eb1Db6D242Ac2b6A203C16B5C1Df8fd48",
           "abi": [
             {
               "inputs": [],
@@ -27695,6 +27721,19 @@
               "type": "function"
             },
             {
+              "inputs": [
+                {
+                  "internalType": "uint256",
+                  "name": "newVar",
+                  "type": "uint256"
+                }
+              ],
+              "name": "setTestUintForCrash",
+              "outputs": [],
+              "stateMutability": "nonpayable",
+              "type": "function"
+            },
+            {
               "inputs": [],
               "name": "testAddress",
               "outputs": [
@@ -27729,6 +27768,19 @@
                 }
               ],
               "name": "testUint2UnitMapping",
+              "outputs": [
+                {
+                  "internalType": "uint256",
+                  "name": "",
+                  "type": "uint256"
+                }
+              ],
+              "stateMutability": "view",
+              "type": "function"
+            },
+            {
+              "inputs": [],
+              "name": "testUintForCrash",
               "outputs": [
                 {
                   "internalType": "uint256",
@@ -29184,7 +29236,7 @@
           ]
         },
         "VersionFacetStaging": {
-          "address": "0x8032027C1E3C570E086df25A062789a364990dd2",
+          "address": "0xc1DB31Fc957B11a66cFe89682f8ae353C0316fa2",
           "abi": [
             {
               "inputs": [],
