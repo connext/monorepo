@@ -363,6 +363,8 @@ jobs:
       RELAYER_IMAGE: ${{ fromJSON(needs.build-and-push-relayer-image.outputs.json).tags[0] }}
       WEB3_SIGNER_PRIVATE_KEY: ${{ secrets.WEB3_SIGNER_TESTNET_PRIVATE_KEY }}
       MNEMONIC: "candy maple cake sugar pudding cream honey rich smooth crumble sweet treat"
+      GRAPH_1337_ENDPOINT: "http://localhost:8010/subgraphs/name/connext/nxtp"
+      GRAPH_1338_ENDPOINT: "http://localhost:9010/subgraphs/name/connext/nxtp"
 
     steps:
       - name: Checkout repository
