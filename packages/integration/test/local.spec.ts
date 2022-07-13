@@ -245,7 +245,7 @@ describe("LOCAL:E2E", () => {
           polled: `${(endTime - startTime) / 1_000}s.`,
         },
       });
-      return;
+      throw new Error("Failed to retrieve xcalled transfer from the origin subgraph.");
     }
 
     logger.info("XCall retrieved.", requestContext, methodContext, {
@@ -336,7 +336,7 @@ describe("LOCAL:E2E", () => {
           polled: `${(endTime - startTime) / 1_000}s`,
         },
       });
-      return;
+      throw new Error("Failed to retrieve execute transfer from the destination subgraph.");
     }
 
     logger.info("Execute transaction found.", requestContext, methodContext, {
