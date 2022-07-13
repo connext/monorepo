@@ -781,6 +781,7 @@ __metadata:
     ethereum-waffle: 3.4.4
     ethers: 5.6.9
     hardhat: 2.9.9
+    hardhat-abi-exporter: ^2.9.0
     hardhat-contract-sizer: 2.6.1
     hardhat-deploy: 0.11.11
     hardhat-diamond-abi: 3.0.1
@@ -810,6 +811,7 @@ __metadata:
     "@connext/nxtp-contracts": "workspace:*"
     "@connext/nxtp-relayer": "workspace:*"
     "@connext/nxtp-router": "workspace:*"
+    "@connext/nxtp-sdk": "workspace:*"
     "@connext/nxtp-sequencer": "workspace:*"
     "@connext/nxtp-txservice": "workspace:*"
     "@connext/nxtp-utils": "workspace:*"
@@ -5081,7 +5083,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"ansi-colors@npm:^4.1.1":
+"ansi-colors@npm:^4.1.0, ansi-colors@npm:^4.1.1":
   version: 4.1.3
   resolution: "ansi-colors@npm:4.1.3"
   checksum: a9c2ec842038a1fabc7db9ece7d3177e2fe1c5dc6f0c51ecfbf5f39911427b89c00b5dc6b8bd95f82a26e9b16aaae2e83d45f060e98070ce4d1333038edceb0e
@@ -8626,6 +8628,20 @@ __metadata:
   languageName: node
   linkType: hard
 
+"delete-empty@npm:^3.0.0":
+  version: 3.0.0
+  resolution: "delete-empty@npm:3.0.0"
+  dependencies:
+    ansi-colors: ^4.1.0
+    minimist: ^1.2.0
+    path-starts-with: ^2.0.0
+    rimraf: ^2.6.2
+  bin:
+    delete-empty: bin/cli.js
+  checksum: 1e2b030346683f49b12460b91d7e1793fc61e9aa0be152a1b31317363632e92426be270f8d635b89d3915ae7da753dcfa6e3bd200f62edf21eaa876ef4443fd2
+  languageName: node
+  linkType: hard
+
 "delimit-stream@npm:0.1.0":
   version: 0.1.0
   resolution: "delimit-stream@npm:0.1.0"
@@ -9963,7 +9979,7 @@ __metadata:
   dependencies:
     bn.js: ^4.11.8
     ethereumjs-util: ^6.0.0
-  checksum: 03127d09960e5f8a44167463faf25b2894db2f746376dbb8195b789ed11762f93db9c574eaa7c498c400063508e9dfc1c80de2edf5f0e1406b25c87d860ff2f1
+  checksum: ae074be0bb012857ab5d3ae644d1163b908a48dd724b7d2567cfde309dc72222d460438f2411936a70dc949dc604ce1ef7118f7273bd525815579143c907e336
   languageName: node
   linkType: hard
 
@@ -11936,7 +11952,7 @@ __metadata:
     yargs-parser: ^16.1.0
   bin:
     gluegun: bin/gluegun
-  checksum: 71abe7f31555f169a47510675596f79193c8f55e4beeb4e6efa06c22d41988fa9c747d5e398af7f8401cca22c08ffb7a6d57b03d764c14858513c9eba23b53b8
+  checksum: 39134821c7233bae61fa0d85bcc5ab4ccd2cbe00173c53cc3cab74c4f29d54de939809832fc4e9bedb896a0795313d28f854bc7d5abe7b154bf7d77c319398bd
   languageName: node
   linkType: hard
 
@@ -12164,6 +12180,18 @@ __metadata:
     ajv: ^6.12.3
     har-schema: ^2.0.0
   checksum: b998a7269ca560d7f219eedc53e2c664cd87d487e428ae854a6af4573fc94f182fe9d2e3b92ab968249baec7ebaf9ead69cf975c931dc2ab282ec182ee988280
+  languageName: node
+  linkType: hard
+
+"hardhat-abi-exporter@npm:^2.9.0":
+  version: 2.10.0
+  resolution: "hardhat-abi-exporter@npm:2.10.0"
+  dependencies:
+    "@ethersproject/abi": ^5.5.0
+    delete-empty: ^3.0.0
+  peerDependencies:
+    hardhat: ^2.0.0
+  checksum: 9f32e097b256ea8308d9e738594c88895db387f17b6f92924bad7de2f3209ca26754a8519940578622f9e8df7e19bd1e4e47058c0cef8d100d4ad2977650f5e7
   languageName: node
   linkType: hard
 
@@ -17843,6 +17871,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"path-starts-with@npm:^2.0.0":
+  version: 2.0.0
+  resolution: "path-starts-with@npm:2.0.0"
+  checksum: c780e5feb53f37a0cc78c446181aac2d1e4554e5693bbc4ad03c99157b9411ade26a3503dcd5b3b8f0fd56d36daa60ce5a8c24d66b54a400c812fe11eb5bcab9
+  languageName: node
+  linkType: hard
+
 "path-to-regexp@npm:0.1.7, path-to-regexp@npm:^0.1.2":
   version: 0.1.7
   resolution: "path-to-regexp@npm:0.1.7"
@@ -19775,7 +19810,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"rimraf@npm:^2.2.8, rimraf@npm:^2.6.3":
+"rimraf@npm:^2.2.8, rimraf@npm:^2.6.2, rimraf@npm:^2.6.3":
   version: 2.7.1
   resolution: "rimraf@npm:2.7.1"
   dependencies:

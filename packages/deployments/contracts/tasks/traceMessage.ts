@@ -1,9 +1,8 @@
 import { task } from "hardhat/config";
 import { NomadContext, NomadStatus, MessageStatus, AnnotatedLifecycleEvent, NomadMessage } from "@nomad-xyz/sdk";
-import { BigNumber, providers, Wallet } from "ethers";
+import { BigNumber, providers, Wallet, utils } from "ethers";
 import { config as dotEnvConfig } from "dotenv";
 import { BytesLike, LogDescription } from "ethers/lib/utils";
-import { fetchJson } from "@connext/nxtp-utils";
 
 import config from "../hardhat.config";
 import { getDomainInfoFromChainId, getNomadConfig } from "../src/nomad";
@@ -64,7 +63,7 @@ export default task("trace-message", "See the status of a nomad message")
   .addParam("destination", "The destination domain id")
   .addOptionalParam("process", "Whether or not to attempt to process")
   .addOptionalParam("env", "Environment of contracts")
-  .setAction(async ({ transaction, destination: _destination, process: _process, env: _env }: TaskArgs, { ethers }) => {
+  .setAction(async ({ transaction, destination: _destination, process: _process, env: _env }: TaskArgs, hre) => {
     const env = mustGetEnv(_env);
     console.log("env:", env);
     const destination = +_destination;
@@ -74,9 +73,9 @@ export default task("trace-message", "See the status of a nomad message")
     console.log("shouldProcess", shouldProcess);
 
     // Get the domain + context
-    const network = await ethers.provider.getNetwork();
+    const network = await hre.ethers.provider.getNetwork();
     const nomadConfig = getNomadConfig(network.chainId);
-    const { domain: originDomain, name: originName } = getDomainInfoFromChainId(network.chainId);
+    const { domain: originDomain, name: originName } = await getDomainInfoFromChainId(network.chainId, hre);
 
     const context = new NomadContext(nomadConfig);
     const destinationChainId = context.mustGetDomain(destination).specs.chainId;
@@ -84,7 +83,7 @@ export default task("trace-message", "See the status of a nomad message")
     const s3Url = "https://nomadxyz-staging-proofs.s3.us-west-2.amazonaws.com/";
 
     // Register origin provider
-    context.registerProvider(originDomain, ethers.provider);
+    context.registerProvider(originDomain, hre.ethers.provider);
 
     // Register destination provider
     const [, destHardhatConfig] =
@@ -98,7 +97,7 @@ export default task("trace-message", "See the status of a nomad message")
     context.registerProvider(destination, destinationProvider);
 
     // Get the receipt
-    const receipt = await ethers.provider.getTransactionReceipt(transaction);
+    const receipt = await hre.ethers.provider.getTransactionReceipt(transaction);
     if (!receipt) {
       throw new Error(`Could not find receipt for ${transaction}`);
     }
@@ -132,16 +131,16 @@ export default task("trace-message", "See the status of a nomad message")
       const url = `${s3Url}${originName}_${dispatchEvent.args.leafIndex.toString()}`;
       console.log("processing on replica", status, replica.address, url);
       let processTx;
-      if (parseInt(String(status)) === 0) {
+      if (status === "0") {
         // Must prove and process
-        const data = await fetchJson(url);
+        const data = await utils.fetchJson(url);
         processTx = await replica.proveAndProcess(
           data.message as BytesLike,
           // @ts-ignore
           data.proof.path as unknown,
           BigNumber.from(data.proof.index),
         );
-      } else if (parseInt(String(status)) === 1) {
+      } else if (status === "1") {
         // Must simply process
         processTx = await replica.process(dispatchEvent.args.message as string);
       } else {

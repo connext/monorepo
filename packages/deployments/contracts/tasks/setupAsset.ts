@@ -38,11 +38,13 @@ export default task("setup-asset", "Configures an asset")
       console.log("canonical: ", canonical);
       console.log("domain: ", domain);
       console.log("deployer: ", deployer.address);
-
-      const connextName = getDeploymentName("ConnextHandler", env);
-      const connextDeployment = await deployments.get(connextName);
-      const connextAddress = _connextAddress ?? connextDeployment.address;
-      const connext = new Contract(connextAddress, connextDeployment.abi, deployer);
+      let connextAddress = _connextAddress;
+      if (!connextAddress) {
+        const connextName = getDeploymentName("ConnextHandler", env);
+        const connextDeployment = await deployments.get(connextName);
+        connextAddress = connextDeployment.address;
+      }
+      const connext = await ethers.getContractAt("ConnextHandler", connextAddress);
       console.log("connextAddress: ", connextAddress);
 
       const canonicalTokenId = {
@@ -50,7 +52,9 @@ export default task("setup-asset", "Configures an asset")
         domain: +domain,
       };
 
-      const approved = await connext.approvedAssets(canonicalTokenId.id);
+      console.log("canonicalTokenId.id: ", canonicalTokenId.id);
+      // const approved = await connext.approvedAssets(canonicalTokenId.id);
+      const approved = false;
       if (approved) {
         // check that the correct domain is set
         // check that the correct adopted asset is set
