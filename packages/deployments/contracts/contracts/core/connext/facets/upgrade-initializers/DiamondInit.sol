@@ -78,10 +78,6 @@ contract DiamondInit is BaseConnextFacet {
       s.LIQUIDITY_FEE_NUMERATOR = 9995;
       s.LIQUIDITY_FEE_DENOMINATOR = 10000;
       s.maxRoutersPerTransfer = 5;
-
-      // TODO: should be cleaned after test
-      s.testUint = 100;
-      s.testAddress = address(1);
     }
   }
 }
