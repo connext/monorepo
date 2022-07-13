@@ -1,0 +1,11 @@
+[
+  "constructor(address,address,bytes) payable",
+  "event AdminChanged(address,address)",
+  "event BeaconUpgraded(address indexed)",
+  "event Upgraded(address indexed)",
+  "function admin() returns (address)",
+  "function changeAdmin(address)",
+  "function implementation() returns (address)",
+  "function upgradeTo(address)",
+  "function upgradeToAndCall(address,bytes) payable"
+]

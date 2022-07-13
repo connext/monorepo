@@ -57,7 +57,7 @@ export const makeSubscriber = async (_configOverride?: NxtpRouterConfig) => {
     });
 
     /// MARK - BridgeContext
-    context.bridgeContext = setupBridgeContext(requestContext);
+    context.bridgeContext = context.config.nomadEnvironment !== "none" ? setupBridgeContext(requestContext) : undefined;
 
     /// MARK - Adapters
     context.adapters.subgraph = await setupSubgraphReader(

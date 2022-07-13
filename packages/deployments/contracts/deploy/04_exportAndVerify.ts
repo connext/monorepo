@@ -18,5 +18,5 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment): Promise<voi
 };
 
 export default func;
-func.tags = ["ExportAndVerify"];
+func.tags = ["ExportAndVerify", "prod"];
 func.dependencies = ["Connext"];
