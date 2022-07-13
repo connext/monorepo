@@ -6,12 +6,13 @@ import axios from "axios";
 import * as ExecuteFns from "../../../src/subscriber/operations/execute";
 import * as Mockable from "../../../src/mockable";
 import {
-  SlippageInvalid,
   ParamsInvalid,
   NotEnoughAmount,
   MissingXCall,
   CallDataForNonContract,
   SequencerResponseInvalid,
+  AuctionExpired,
+  InvalidAuctionRound,
 } from "../../../src/errors";
 import { mock } from "../../mock";
 import { version } from "../../../package.json";
@@ -19,7 +20,7 @@ import { mockSubContext } from "../../globalTestHook";
 
 const { requestContext } = mock.loggingContext("Operations:Execute");
 
-const { execute, getBlacklist, getDestinationLocalAsset, sendBid } = ExecuteFns;
+const { execute, getBlacklist, getDestinationLocalAsset, sendBid, getMinimumBidsCountForRound } = ExecuteFns;
 
 describe("Operations:Execute", () => {
   describe("#getBlacklist", () => {
@@ -67,6 +68,11 @@ describe("Operations:Execute", () => {
       expect(result).to.equal("ok");
     });
 
+    it("throws AuctionExpired", async () => {
+      axiosPostStub.rejects({ response: { data: { message: "AuctionExpired" } } });
+      await expect(sendBid(mockBid, requestContext)).to.be.rejectedWith(AuctionExpired);
+    });
+
     it("throws SequencerResponseInvalid if no response", async () => {
       axiosPostStub.resolves();
       await expect(sendBid(mockBid, requestContext)).to.be.rejectedWith(SequencerResponseInvalid);
@@ -75,6 +81,16 @@ describe("Operations:Execute", () => {
     it("throws SequencerResponseInvalid if no response.data", async () => {
       axiosPostStub.resolves({ data: undefined });
       await expect(sendBid(mockBid, requestContext)).to.be.rejectedWith(SequencerResponseInvalid);
+    });
+  });
+
+  describe("#getMinimumBidsCountForRound", () => {
+    it("should return the minimum bids count for the round", async () => {
+      expect(getMinimumBidsCountForRound(3)).to.eq(4);
+    });
+
+    it("should throw if greater than config", async () => {
+      expect(() => getMinimumBidsCountForRound(10)).to.throw(InvalidAuctionRound);
     });
   });
 
@@ -220,6 +236,7 @@ describe("Operations:Execute", () => {
       ).to.be.rejectedWith(MissingXCall);
     });
 
+    // TODO: reenable when blacklist working again
     // it("should throw on blacklisted origin", async () => {
     //   getBlacklistStub.resolves({ originBlacklisted: true, destinationBlacklisted: false });
 
@@ -238,13 +255,13 @@ describe("Operations:Execute", () => {
     //   await expect(execute(mockXTransfer)).to.be.rejectedWith(NomadHomeBlacklisted);
     // });
 
-    it.skip("should error if slippage invalid", async () => {
-      mockSubContext.config.maxSlippage = 0;
-      await expect(execute(mockXTransfer, requestContext)).to.be.rejectedWith(SlippageInvalid);
+    it("should return early if slow path", async () => {
+      await execute({ ...mockXTransfer, xparams: { ...mockXTransfer.xparams, forceSlow: true } }, requestContext);
+      expect(mockSubContext.adapters.subgraph.getAssetBalance).to.not.be.called;
+      expect(mockSendBid).to.not.be.called;
     });
 
-    // reenable when subgraph check works
-    it.skip("should not sendBid if no liquidity", async () => {
+    it("should not sendBid if no liquidity", async () => {
       (mockSubContext.adapters.subgraph.getAssetBalance as SinonStub).resolves(constants.Zero);
 
       await expect(execute(mockXTransfer, requestContext)).to.be.rejectedWith(NotEnoughAmount);

@@ -260,23 +260,6 @@ export const execute = async (params: OriginTransfer, _requestContext: RequestCo
     signatures,
   };
 
-  try {
-    await sendBid(bid, requestContext);
-    logger.info("Executed transfer", requestContext, methodContext, { params });
-  } catch (error: unknown) {
-    const type = (error as NxtpError).type;
-    const isAuctionExpired = type === AuctionExpired.name;
-    // Save the error to the cache for this transfer. If the error was not previously recorded, log it.
-    if (isAuctionExpired) {
-      logger.debug("Auction for transfer has expired", requestContext, methodContext, {
-        domain: params.xparams.originDomain,
-      });
-    } else {
-      logger.error("Error executing transfer", requestContext, methodContext, jsonifyError(error as Error), {
-        domain: params.xparams.originDomain,
-        xcall: params.origin.xcall,
-      });
-      throw error;
-    }
-  }
+  await sendBid(bid, requestContext);
+  logger.info("Executed transfer", requestContext, methodContext, { params });
 };
