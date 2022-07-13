@@ -295,7 +295,7 @@ export class NxtpSdkBase {
     // TODO: Convert the estimatedRelayerFee to the originNativeToken
     // fetch gasPrice for origin domain using oracle
 
-    this.logger.info("Method end", requestContext, methodContext, {});
+    this.logger.info("Method end", requestContext, methodContext, { finalEstimatedRelayerFee });
 
     return finalEstimatedRelayerFee;
   }
