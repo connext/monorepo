@@ -1,5 +1,5 @@
 import { constants, providers, BigNumber } from "ethers";
-import { Logger, createLoggingContext, ChainData, XCallArgs, CallParams } from "@connext/nxtp-utils";
+import { Logger, createLoggingContext, ChainData, XCallArgs, CallParams, getEstimatedFee } from "@connext/nxtp-utils";
 import {
   getContractInterfaces,
   ConnextContractInterfaces,
@@ -7,7 +7,12 @@ import {
   ChainReader,
 } from "@connext/nxtp-txservice";
 
-import { getChainData, getChainIdFromDomain } from "./lib/helpers";
+import {
+  getChainData,
+  getChainIdFromDomain,
+  getExecuteGasAmountForDomain,
+  relayerBufferPercentage,
+} from "./lib/helpers";
 import { SignerAddressMissing, ChainDataUndefined } from "./lib/errors";
 import { NxtpSdkConfig, getConfig } from "./config";
 
@@ -217,6 +222,71 @@ export class NxtpSdkBase {
     this.logger.info(`${this.bumpTransfer.name} transaction created`, requestContext, methodContext, txRequest);
 
     return txRequest;
+  }
+
+  async estimateRelayerFee(params: {
+    originDomain: string;
+    destinationDomain: string;
+    originNativeToken?: string;
+    destinationNativeToken?: string;
+    callDataGasAmount?: number;
+    isHighPriority?: boolean;
+  }): Promise<BigNumber> {
+    const { requestContext, methodContext } = createLoggingContext(this.estimateRelayerFee.name);
+    this.logger.info("Method start", requestContext, methodContext, { params });
+
+    const {
+      originDomain,
+      destinationDomain,
+      callDataGasAmount,
+      originNativeToken: _originNativeToken,
+      destinationNativeToken: _destinationNativeToken,
+      isHighPriority: _isHighPriority,
+    } = params;
+
+    const originNativeToken = _originNativeToken ?? constants.AddressZero;
+    const destinationNativeToken = _destinationNativeToken ?? constants.AddressZero;
+    const isHighPriority = _isHighPriority ?? false;
+
+    const originChainId = await getChainIdFromDomain(originDomain, this.chainData);
+    const destinationChainId = await getChainIdFromDomain(originDomain, this.chainData);
+
+    // fetch executeGasAmount from chainData
+    const executeGasAmount = await getExecuteGasAmountForDomain(destinationDomain, this.chainData);
+
+    // fetch estimate relayer fee in destination native token
+    let estimatedExecuteFee = BigNumber.from(0);
+    let estiamteCallDataFee = BigNumber.from(0);
+
+    estimatedExecuteFee = await getEstimatedFee(
+      destinationChainId,
+      destinationNativeToken,
+      Number(executeGasAmount),
+      isHighPriority,
+    );
+
+    if (callDataGasAmount) {
+      estiamteCallDataFee = await getEstimatedFee(
+        destinationChainId,
+        destinationNativeToken,
+        Number(callDataGasAmount),
+        isHighPriority,
+      );
+    }
+
+    const estimatedRelayerFee = estimatedExecuteFee.add(estiamteCallDataFee);
+
+    // add relayerFee bump to estimatedRelayerFee
+    const finalEstimatedRelayerFee = estimatedRelayerFee.add(
+      estimatedRelayerFee.mul(BigNumber.from(relayerBufferPercentage).div(100)),
+    );
+
+    // TODO: Convert the estimatedRelayerFee to the originNativeToken
+    // fetch gasPrice for origin domain using oracle
+
+    this.logger.info("Method end", requestContext, methodContext, {});
+
+    return finalEstimatedRelayerFee;
   }
 
   async changeSignerAddress(signerAddress: string) {
