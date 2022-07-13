@@ -1,17 +1,7 @@
-import * as fs from "fs";
-
 import { StoreManager } from "@connext/nxtp-adapters-cache";
 import { SubgraphReader } from "@connext/nxtp-adapters-subgraph";
-import {
-  ChainData,
-  createMethodContext,
-  Logger,
-  RequestContext,
-  signRouterPathPayload as _signRouterPathPayload,
-  recoverRouterPathPayload as _recoverRouterPathPayload,
-} from "@connext/nxtp-utils";
+import { ChainData, createMethodContext, Logger, RequestContext } from "@connext/nxtp-utils";
 import rabbit from "foo-foo-mq";
-import { utils } from "ethers";
 
 export const XCALL_QUEUE = "xcalls";
 export const MQ_EXCHANGE = "router";
@@ -91,14 +81,3 @@ export const setupSubgraphReader = async (
 
   return subgraphReader;
 };
-
-export const getTransactionId = (nonce: string, domain: string): string => {
-  return utils.keccak256(utils.hexlify(utils.concat([utils.toUtf8Bytes(nonce), utils.toUtf8Bytes(domain)])));
-};
-
-export const signRouterPathPayload = _signRouterPathPayload;
-export const recoverRouterPathPayload = _recoverRouterPathPayload;
-
-export const existsSync = fs.existsSync;
-
-export const readFileSync = fs.readFileSync;

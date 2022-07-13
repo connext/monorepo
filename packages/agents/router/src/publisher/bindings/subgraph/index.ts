@@ -1,11 +1,8 @@
 import { createLoggingContext, jsonifyError } from "@connext/nxtp-utils";
 import interval from "interval-promise";
 
-import { getXCalls } from "../../lib/getXCalls";
+import { getXCalls } from "../../operations/getXCalls";
 import { getContext } from "../../publisher";
-
-// Ought to be configured properly for each network; we consult the chain config below.
-export const DEFAULT_SAFE_CONFIRMATIONS = 5;
 
 export const bindSubgraph = async (_pollInterval?: number) => {
   const { config, logger } = getContext();
@@ -18,7 +15,12 @@ export const bindSubgraph = async (_pollInterval?: number) => {
       try {
         await getXCalls();
       } catch (e: unknown) {
-        logger.error("Error binding cache", requestContext, methodContext, jsonifyError(e as Error));
+        logger.error(
+          "Error getting xcalls, waiting for next loop",
+          requestContext,
+          methodContext,
+          jsonifyError(e as Error),
+        );
       }
     }
   }, pollInterval);

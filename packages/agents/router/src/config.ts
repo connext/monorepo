@@ -11,7 +11,7 @@ import {
 } from "@connext/nxtp-utils";
 import { ConnextContractDeployments, ContractPostfix } from "@connext/nxtp-txservice";
 
-import { existsSync, readFileSync } from "./helpers";
+import { existsSync, readFileSync } from "./mockable";
 
 const DEFAULT_ALLOWED_TOLERANCE = 10; // in percent
 

@@ -14,7 +14,7 @@ import { BridgeContext } from "@nomad-xyz/sdk-bridge";
 
 import { getConfig, NxtpRouterConfig } from "../config";
 import { bindMetrics } from "../bindings";
-import { setupMq, setupSubgraphReader } from "../helpers";
+import { setupMq, setupSubgraphReader } from "../setup";
 
 import { AppContext } from "./context";
 import { bindMessageQueue, bindServer } from "./bindings";
@@ -108,7 +108,7 @@ export const makeSubscriber = async (_configOverride?: NxtpRouterConfig) => {
     /// MARK - Bindings
     // TODO: New diagnostic mode / cleanup mode?
     await bindServer();
-    await bindMetrics();
+    await bindMetrics("subscriber");
     await bindMessageQueue();
 
     context.logger.info("Bindings initialized.", requestContext, methodContext);

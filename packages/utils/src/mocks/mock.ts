@@ -18,7 +18,7 @@ import { mkAddress, mkBytes32, mkSig } from ".";
 /**
  * General mock toolset used for testing globally.
  */
-export const mock: any = {
+export const mock = {
   chain: {
     A: "1337",
     B: "1338",
@@ -43,7 +43,7 @@ export const mock: any = {
     chainDataToMap([
       {
         name: "Unit Test Chain 1",
-        chainId: parseInt(mock.chain.A as string),
+        chainId: parseInt(mock.chain.A),
         domainId: mock.domain.A,
         confirmations: 1,
         assetId: {},
@@ -55,7 +55,7 @@ export const mock: any = {
       },
       {
         name: "Unit Test Chain 2",
-        chainId: parseInt(mock.chain.B as string),
+        chainId: parseInt(mock.chain.B),
         domainId: mock.domain.B,
         confirmations: 1,
         assetId: {},

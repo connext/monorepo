@@ -3,7 +3,7 @@ import { contractDeployments } from "@connext/nxtp-txservice";
 
 import { getConfig, NxtpRouterConfig } from "../config";
 import { bindMetrics } from "../bindings";
-import { setupCache, setupMq, setupSubgraphReader } from "../helpers";
+import { setupCache, setupMq, setupSubgraphReader } from "../setup";
 
 import { AppContext } from "./context";
 import { bindSubgraph } from "./bindings/subgraph";
@@ -61,7 +61,7 @@ export const makePublisher = async (_configOverride?: NxtpRouterConfig) => {
     );
 
     /// MARK - Bindings
-    await bindMetrics();
+    await bindMetrics("publisher");
     await bindSubgraph();
 
     context.logger.info("Bindings initialized.", requestContext, methodContext);

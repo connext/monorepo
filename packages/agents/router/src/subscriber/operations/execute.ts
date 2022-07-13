@@ -1,12 +1,52 @@
-import { Bid, createLoggingContext, ajv, XTransferSchema, OriginTransfer, RequestContext } from "@connext/nxtp-utils";
+import {
+  Bid,
+  createLoggingContext,
+  ajv,
+  XTransferSchema,
+  OriginTransfer,
+  RequestContext,
+  NxtpError,
+  jsonifyError,
+  formatUrl,
+  AuctionsApiPostBidReq,
+  getMinimumBidsCountForRound as _getMinimumBidsCountForRound,
+} from "@connext/nxtp-utils";
 import { BigNumber } from "ethers";
+import axios, { AxiosResponse } from "axios";
 
-import { CallDataForNonContract, MissingXCall, NotEnoughAmount, ParamsInvalid } from "../../errors";
-import { getAuctionAmount, sendBid } from "../helpers/auctions";
+import {
+  AuctionExpired,
+  CallDataForNonContract,
+  InvalidAuctionRound,
+  MissingXCall,
+  NotEnoughAmount,
+  ParamsInvalid,
+  SequencerResponseInvalid,
+} from "../../errors";
 // @ts-ignore
 import { version } from "../../../package.json";
 import { getContext } from "../subscriber";
-import { signRouterPathPayload } from "../../helpers";
+import { signRouterPathPayload } from "../../mockable";
+
+//helper function to match our config environments with nomads
+export const getBlacklist = async (
+  originDomain: string,
+  destinationDomain: string,
+): Promise<{ originBlacklisted: boolean; destinationBlacklisted: boolean }> => {
+  const { bridgeContext: context } = getContext();
+  //todo: look for higher level import of this class
+  //push them to blacklist if not there already
+  await context.checkHomes([Number(originDomain), Number(destinationDomain)]);
+
+  //get blacklist
+  const blacklist = context.blacklist();
+
+  //determine if origin or destintion aren't connected to nomad
+  const originBlacklisted = blacklist.has(Number(originDomain));
+  const destinationBlacklisted = blacklist.has(Number(destinationDomain));
+
+  return { originBlacklisted, destinationBlacklisted };
+};
 
 /**
  * Returns local asset address on destination domain corresponding to local asset on origin domain
@@ -36,27 +76,65 @@ export const getDestinationLocalAsset = async (
   return localAddress;
 };
 
-// fee percentage paid to relayer. need to be updated later
-export const RELAYER_FEE_PERCENTAGE = "1"; //  1%
-//helper function to match our config environments with nomads
-export const getBlacklist = async (
-  originDomain: string,
-  destinationDomain: string,
-): Promise<{ originBlacklisted: boolean; destinationBlacklisted: boolean }> => {
-  const { bridgeContext: context } = getContext();
-  //todo: look for higher level import of this class
-  //push them to blacklist if not there already
-  await context.checkHomes([Number(originDomain), Number(destinationDomain)]);
+export const sendBid = async (bid: Bid, _requestContext: RequestContext): Promise<any> => {
+  const { config, logger } = getContext();
+  const { sequencerUrl } = config;
+  const { requestContext, methodContext } = createLoggingContext(sendBid.name);
 
-  //get blacklist
-  const blacklist = context.blacklist();
+  const { transferId } = bid;
 
-  //determine if origin or destintion aren't connected to nomad
-  const originBlacklisted = blacklist.has(Number(originDomain));
-  const destinationBlacklisted = blacklist.has(Number(destinationDomain));
+  logger.debug("Sending bid to sequencer", requestContext, methodContext, {
+    transferId,
+    // Remove actual signatures (sensitive data) from logs, but list participating rounds.
+    bid: { ...bid, signatures: Object.keys(bid.signatures).join(",") },
+  });
 
-  return { originBlacklisted, destinationBlacklisted };
+  const url = formatUrl(sequencerUrl, "auctions");
+  try {
+    const response = await axios.post<any, AxiosResponse<any, any>, AuctionsApiPostBidReq>(url, bid);
+    // Make sure response.data is valid.
+    if (!response || !response.data) {
+      throw new SequencerResponseInvalid({ response });
+    }
+    logger.info("Sent bid to sequencer", requestContext, methodContext, { data: response.data });
+    return response.data;
+  } catch (error: any) {
+    if (error.response?.data?.message === "AuctionExpired") {
+      // TODO: Should we mark this transfer as expired? Technically speaking, it *could* become unexpired
+      // if the sequencer decides relayer execution has timed out.
+      throw new AuctionExpired({ transferId });
+    } else {
+      logger.error(`Bid Post Error`, requestContext, methodContext, jsonifyError(error as Error), { transferId });
+      throw error;
+    }
+  }
 };
+
+/**
+ * Calculates the auction amount for `roundId`. Router needs to decide which rounds it needs to bid on.
+ * @param roundId - The round number you're going to get the auction amount.
+ * @param receivingAmount - The total amount
+ */
+export const getAuctionAmount = (roundId: number, receivingAmount: BigNumber): BigNumber => {
+  return receivingAmount.div(getMinimumBidsCountForRound(roundId));
+};
+
+/**
+ * Calculates the number of routers needed for a specific round
+ * @param roundId - The round number
+ */
+export const getMinimumBidsCountForRound = (roundId: number): number => {
+  const { config } = getContext();
+  if (roundId > config.auctionRoundDepth || roundId < 1 || roundId != Math.trunc(roundId)) {
+    throw new InvalidAuctionRound({
+      roundId,
+      startRound: 1,
+      maxRoundDepth: config.auctionRoundDepth,
+    });
+  }
+  return _getMinimumBidsCountForRound(roundId);
+};
+
 /**
  * Router creates a new bid and sends it to auctioneer.
  *
@@ -182,5 +260,23 @@ export const execute = async (params: OriginTransfer, _requestContext: RequestCo
     signatures,
   };
 
-  await sendBid(bid, requestContext);
+  try {
+    await sendBid(bid, requestContext);
+    logger.info("Executed transfer", requestContext, methodContext, { params });
+  } catch (error: unknown) {
+    const type = (error as NxtpError).type;
+    const isAuctionExpired = type === AuctionExpired.name;
+    // Save the error to the cache for this transfer. If the error was not previously recorded, log it.
+    if (isAuctionExpired) {
+      logger.debug("Auction for transfer has expired", requestContext, methodContext, {
+        domain: params.xparams.originDomain,
+      });
+    } else {
+      logger.error("Error executing transfer", requestContext, methodContext, jsonifyError(error as Error), {
+        domain: params.xparams.originDomain,
+        xcall: params.origin.xcall,
+      });
+      throw error;
+    }
+  }
 };
