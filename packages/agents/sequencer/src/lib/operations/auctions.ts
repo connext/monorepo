@@ -20,7 +20,7 @@ import { getHelpers } from "../helpers";
 
 import { getOperations } from ".";
 import { SequencerConfig } from "../entities";
-import { sqConfig, Message } from "./mq";
+import { Message } from "./mq";
 
 export const storeBid = async (bid: Bid, _requestContext: RequestContext): Promise<void> => {
   const {
@@ -104,8 +104,8 @@ export const storeBid = async (bid: Bid, _requestContext: RequestContext): Promi
   // Enqueue only once to dedup, when the first bid for the transfer is stored.
   if (status === AuctionStatus.None) {
     const message: Message = { transferId: transfer.transferId, originDomain: transfer.originDomain };
-    await Broker.publish(sqConfig.exchange.name, {
-      type: sqConfig.queue.prefix + transfer.originDomain,
+    await Broker.publish(config.messageQueue.publisher, {
+      type: transfer.originDomain,
       body: message,
       routingKey: transfer.originDomain,
       persistent: true,
@@ -114,7 +114,7 @@ export const storeBid = async (bid: Bid, _requestContext: RequestContext): Promi
       message: message,
     });
   } else {
-    logger.info("No need to queue transfer", requestContext, methodContext, {
+    logger.debug("No need to enqueue transfer", requestContext, methodContext, {
       transferId: transferId,
       status: status,
     });

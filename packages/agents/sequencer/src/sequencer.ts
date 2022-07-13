@@ -21,7 +21,6 @@ import { bindServer, bindSubscriber } from "./bindings";
 import { setupRelayer } from "./adapters";
 import { getHelpers } from "./lib/helpers";
 import { getOperations } from "./lib/operations";
-import { Message, sqConfig } from "./lib/operations/mq";
 
 const context: AppContext = {} as any;
 export const getContext = () => context;
@@ -44,6 +43,9 @@ export const makePublisher = async (_configOverride?: SequencerConfig) => {
         },
       },
     });
+
+    if (!context.config.messageQueue.publisher) return;
+
     context.logger.info("Publisher config generated.", requestContext, methodContext, { config: context.config });
 
     /// MARK - Adapters
@@ -206,8 +208,6 @@ export const setupPublisher = async (requestContext: RequestContext): Promise<vo
 
   logger.info("MQ publisher setup in progress...", requestContext, methodContext, {});
 
-  // TODO: Setup race buster handshake
-
   await setupMQ(config);
 
   logger.info("MQ publisher setup is done!", requestContext, methodContext, {});
@@ -244,12 +244,23 @@ export const makeSubscriber = async (_configOverride?: SequencerConfig) => {
         },
       },
     });
+
+    if (!context.config.messageQueue.subscriber) return;
+
     context.logger.info("Subscriber config generated.", requestContext, methodContext, { config: context.config });
-    // TODO: derive this from config
-    const domain = "1111";
 
     await setupSubscriber(requestContext);
-    bindSubscriber(domain);
+
+    if (context.config.messageQueue.subscriber) {
+      bindSubscriber(context.config.messageQueue.subscriber as string);
+    } else {
+      // By default subscribe to all configured queues concurrently
+      await Promise.all(
+        context.config.messageQueue.queues.map(async (queueConfig) => {
+          if (queueConfig?.name) bindSubscriber(queueConfig.name as string);
+        }),
+      );
+    }
   } catch (error: any) {
     console.error("Error starting subscriber :'(", error);
     Broker.close();
