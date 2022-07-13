@@ -166,6 +166,14 @@ describe("LOCAL:E2E", () => {
     }
     subgraphReader = await SubgraphReader.create(allowedChainData, "production");
     logger.info("Setup subgraph reader.");
+
+    let tx = await sdk.approveIfNeeded(PARAMETERS.A.DOMAIN, PARAMETERS.ASSET.address, "1", true);
+    if (tx) {
+      await txService.sendTx({ chainId: 1337, to: tx.to!, value: 0, data: utils.hexlify(tx.data!) }, requestContext);
+    }
+    if (tx) {
+      tx = await sdk.approveIfNeeded(PARAMETERS.B.DOMAIN, PARAMETERS.ASSET.address, "1", true);
+    }
   });
 
   it.only("sends a simple transfer with fast path", async () => {
