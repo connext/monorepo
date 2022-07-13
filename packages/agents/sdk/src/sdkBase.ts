@@ -274,6 +274,17 @@ export class NxtpSdkBase {
       );
     }
 
+    this.logger.info("Gas Price estimates", requestContext, methodContext, {
+      originNativeToken,
+      originChainId,
+      destinationNativeToken,
+      destinationChainId,
+      executeGasAmount,
+      estimatedExecuteFee,
+      callDataGasAmount,
+      estiamteCallDataFee,
+    });
+
     const estimatedRelayerFee = estimatedExecuteFee.add(estiamteCallDataFee);
 
     // add relayerFee bump to estimatedRelayerFee
