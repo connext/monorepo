@@ -10,6 +10,7 @@ export const deployNomadBeaconProxy = async <T extends Contract = Contract>(
   args: any[],
   deployer: Signer & { address: string },
   hre: HardhatRuntimeEnvironment,
+  implementationArgs: any[] = [],
 ): Promise<T> => {
   // get names
   const implementationName = getDeploymentName(name);
@@ -52,7 +53,7 @@ export const deployNomadBeaconProxy = async <T extends Contract = Contract>(
       // Must upgrade the proxy
       // First, deploy new implementation
       const upgradeDeployment = await hre.deployments.deploy(implementationName, {
-        args: [],
+        args: implementationArgs,
         from: deployer.address,
         skipIfAlreadyDeployed: false,
         log: true,
@@ -75,7 +76,7 @@ export const deployNomadBeaconProxy = async <T extends Contract = Contract>(
 
     // 1. Deploy implementation
     const implementationDeployment = await hre.deployments.deploy(implementationName, {
-      args: [],
+      args: implementationArgs,
       from: deployer.address,
       skipIfAlreadyDeployed: true,
       log: true,
@@ -130,7 +131,7 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment): Promise<voi
   // ========== Start: Nomad BridgeRouter Deployment ==========
   const network = await hre.ethers.provider.getNetwork();
   const nomadConfig = getNomadConfig(network.chainId);
-  const domainConfig = getDomainInfoFromChainId(network.chainId);
+  const domainConfig = await getDomainInfoFromChainId(network.chainId, hre);
 
   // Deploy xapp connection manager
   console.log("Deploying xapp connection manager...");
@@ -200,4 +201,4 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment): Promise<voi
 };
 
 export default func;
-func.tags = ["Nomad"];
+func.tags = ["Nomad", "prod", "local"];

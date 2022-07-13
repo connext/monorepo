@@ -5,7 +5,7 @@ use(solidity);
 
 import { constants, Wallet } from "ethers";
 import { deployContract } from "./utils";
-import { ConnextPriceOracle, TestERC20, TestAggregator } from "../typechain-types";
+import { ConnextPriceOracle, TestERC20, TestAggregator } from "../src/typechain-types";
 import { mkAddress } from "@connext/nxtp-utils";
 import { parseEther } from "ethers/lib/utils";
 

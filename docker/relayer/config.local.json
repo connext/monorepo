@@ -1,0 +1,39 @@
+{
+  "logLevel": "debug",
+  "redis": {
+    "host": "relayer-cache",
+    "port": 6379
+  },
+  "server": {
+    "adminToken": "a",
+    "port": 8080
+  },
+  "chains": {
+    "1337": {
+      "providers": ["http://chain-1337:8545"],
+      "deployments": {
+        "connext": "0xF08dF3eFDD854FEDE77Ed3b2E515090EEe765154"
+      },
+      "assets": [
+        {
+          "name": "TEST",
+          "address": "0x1411CB266FCEd1587b0AA29E9d5a9Ef3Db64A9C5"
+        }
+      ]
+    },
+    "1338": {
+      "providers": ["http://chain-1338:8545"],
+      "deployments": {
+        "connext": "0xF08dF3eFDD854FEDE77Ed3b2E515090EEe765154"
+      },
+      "assets": [
+        {
+          "name": "TEST",
+          "address": "0x1411CB266FCEd1587b0AA29E9d5a9Ef3Db64A9C5"
+        }
+      ]
+    }
+  },
+  "web3SignerUrl": "http://signer:9000",
+  "environment": "production"
+}
