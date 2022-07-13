@@ -57,12 +57,6 @@ docker compose -f docker-compose.chains.yaml up -d --force-recreate
 sleep 5
 #####
 
-##### Off-Chain Agents
-echo "Starting services and off-chain agents..."
-docker compose -f docker-compose.services.yaml up -d --force-recreate
-sleep 5
-#####
-
 ##### Contract Deployments
 echo "Deploying contracts to 1337..."
 MNEMONIC=${DEFAULT_MNEMONIC} ENV=production CHAIN_ID=1337 ETH_PROVIDER_URL=http://${LOCALHOST}:8547 yarn workspace @connext/nxtp-contracts hardhat deploy --network localhost --tags local
@@ -88,4 +82,10 @@ echo "Deploying subgraph to 1338..."
 yarn workspace @connext/nxtp-subgraph create-local-1338
 yarn workspace @connext/nxtp-subgraph deploy-local-1338 -l v0.0.1
 echo "Deployed subgraph to 1338"
+#####
+
+##### Off-Chain Agents
+echo "Starting services and off-chain agents..."
+docker compose -f docker-compose.services.yaml up -d --force-recreate
+sleep 5
 #####
