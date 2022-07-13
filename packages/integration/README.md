@@ -6,17 +6,16 @@ A test script to validate the end-to-end cross-chain transfer process.
 
 ## Environment Variables
 
-You should create a `.env` file in the `packages/integration` directory and set the following env variables which will be used in local e2e on runtime environment.
+In your local environment, run the following commands to export env variables which will be used in the local e2e runtime environment:
 
 ```sh
-GRAPH_1337_ENDPOINT=http://localhost:8010/subgraphs/name/connext/nxtp
-GRAPH_1338_ENDPOINT=http://localhost:9010/subgraphs/name/connext/nxtp
-SEQUENCER_URL=http://localhost:8081
+export GRAPH_1337_ENDPOINT="http://localhost:8010/subgraphs/name/connext/nxtp"
+export GRAPH_1338_ENDPOINT="http://localhost:9010/subgraphs/name/connext/nxtp"
 ```
 
 ## Build Local Images
 
-Why? If you need to run the test locally against local changes, you can build the images yourself.
+If you need to run the test locally against local changes, you can build the images yourself.
 
 ```sh
 docker build --tag sequencer:latest --file ./docker/sequencer/Dockerfile .
