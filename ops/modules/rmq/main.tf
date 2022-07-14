@@ -32,7 +32,7 @@ resource "aws_ecs_task_definition" "rmq" {
       logConfiguration = {
         logDriver = "awslogs"
         options = {
-          awslogs-group         = "rabbit-mq-${var.environment}-${var.stage}"
+          awslogs-group         = aws_cloudwatch_log_group.container.name
           awslogs-region        = var.region
           awslogs-stream-prefix = var.container_family
         }
@@ -49,15 +49,6 @@ resource "aws_ecs_task_definition" "rmq" {
           protocol      = "tcp"
         }
       ],
-      healthCheck = {
-        command = [
-          "CMD-SHELL",
-          "curl localhost:15692/metrics || exit 1"
-        ],
-        interval = 30
-        retries  = 3
-        timeout  = 5
-      }
     }
   ])
 }
@@ -65,16 +56,12 @@ resource "aws_ecs_task_definition" "rmq" {
 resource "aws_ecs_service" "service" {
   name          = "${var.environment}-${var.stage}-${var.container_family}"
   cluster       = var.cluster_id
-  desired_count = var.desired_tasks
+  desired_count = var.instance_count
 
   launch_type = "FARGATE"
   depends_on  = [aws_alb_target_group.management, aws_alb.lb]
 
   task_definition = "${aws_ecs_task_definition.rmq.family}:${max("${aws_ecs_task_definition.rmq.revision}", "${aws_ecs_task_definition.rmq.revision}")}"
-
-  lifecycle {
-    ignore_changes = [desired_count]
-  }
 
   load_balancer {
     target_group_arn = aws_lb_target_group.amqp.arn
