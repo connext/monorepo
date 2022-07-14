@@ -12,10 +12,10 @@ type TaskArgs = {
 export default task("set-local-domain", "Set the local domain of the token registry")
   .addOptionalParam("tokenRegistry", "Override local token registry address")
   .addOptionalParam("env", "Environment of contracts")
-  .setAction(async ({ tokenRegistry: _tokenRegistry, env: _env }: TaskArgs, { deployments, ethers }) => {
-    let { deployer } = await ethers.getNamedSigners();
+  .setAction(async ({ tokenRegistry: _tokenRegistry, env: _env }: TaskArgs, hre) => {
+    let { deployer } = await hre.ethers.getNamedSigners();
     if (!deployer) {
-      [deployer] = await ethers.getUnnamedSigners();
+      [deployer] = await hre.ethers.getUnnamedSigners();
     }
 
     const env = mustGetEnv(_env);
@@ -23,18 +23,18 @@ export default task("set-local-domain", "Set the local domain of the token regis
     console.log("deployer: ", deployer.address);
 
     const tokenRegistryName = getDeploymentName("TokenRegistryUpgradeBeaconProxy", env);
-    const tokenRegistryDeployment = await deployments.get(tokenRegistryName);
+    const tokenRegistryDeployment = await hre.deployments.get(tokenRegistryName);
     const tokenRegistryAddress = _tokenRegistry ?? tokenRegistryDeployment.address;
     const registry = new Contract(
       tokenRegistryAddress,
-      (await deployments.get(getDeploymentName("TokenRegistry"))).abi,
+      (await hre.deployments.get(getDeploymentName("TokenRegistry"))).abi,
       deployer,
     );
     console.log("tokenRegistryAddress: ", tokenRegistryAddress);
 
-    const { chainId } = await ethers.provider.getNetwork();
+    const { chainId } = await hre.ethers.provider.getNetwork();
 
-    const { domain } = getDomainInfoFromChainId(+chainId);
+    const { domain } = await getDomainInfoFromChainId(+chainId, hre);
 
     const setLocalTx = await registry.setLocalDomain(domain);
     console.log("set local domain tx:", setLocalTx);

@@ -1,0 +1,6 @@
+[
+  "constructor(address,bytes) payable",
+  "event AdminChanged(address,address)",
+  "event BeaconUpgraded(address indexed)",
+  "event Upgraded(address indexed)"
+]
