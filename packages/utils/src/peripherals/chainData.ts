@@ -63,19 +63,8 @@ export type ChainData = {
     standard: string;
   }[];
   gasEstimates: {
+    xcall: string;
     execute: string;
-    prepare: string;
-    fulfill: string;
-    cancel: string;
-    removeLiquidity: string;
-    prepareRouterContract: string;
-    fulfillRouterContract: string;
-    cancelRouterContract: string;
-    removeLiquidityRouterContract: string;
-    prepareL1?: string;
-    fulfillL1?: string;
-    cancelL1?: string;
-    removeLiquidityL1?: string;
     gasPriceFactor?: string;
   };
 };
