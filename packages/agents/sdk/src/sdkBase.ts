@@ -71,7 +71,10 @@ export class NxtpSdkBase {
       throw new SignerAddressMissing();
     }
 
-    const chainId = await getChainIdFromDomain(domain, this.chainData);
+    let chainId = this.config.chains[domain].chainId;
+    if (!chainId) {
+      chainId = await getChainIdFromDomain(domain, this.chainData);
+    }
 
     if (assetId !== constants.AddressZero) {
       const ConnextContractAddress = this.config.chains[domain].deployments!.connext;
@@ -139,9 +142,9 @@ export class NxtpSdkBase {
     // }
 
     /// create a bid
-    const { params, amount, transactingAssetId, relayerFee } = xcallParams;
+    const { params, amount, transactingAssetId } = xcallParams;
 
-    const { originDomain } = params;
+    const { originDomain, relayerFee } = params;
 
     const xParams: CallParams = {
       ...params,
@@ -151,10 +154,14 @@ export class NxtpSdkBase {
       recovery: params.recovery || params.to,
       forceSlow: params.forceSlow || false,
       receiveLocal: params.receiveLocal || false,
+      relayerFee: params.relayerFee || "0",
     };
     const ConnextContractAddress = this.config.chains[originDomain].deployments!.connext;
 
-    const chainId = await getChainIdFromDomain(originDomain, this.chainData);
+    let chainId = this.config.chains[originDomain].chainId;
+    if (!chainId) {
+      chainId = await getChainIdFromDomain(originDomain, this.chainData);
+    }
 
     // if transactingAssetId is AddressZero then we are adding relayerFee to amount for value
 
@@ -166,7 +173,6 @@ export class NxtpSdkBase {
       params: xParams,
       amount,
       transactingAssetId,
-      relayerFee,
     };
     const data = this.contracts.connext.encodeFunctionData("xcall", [xcallArgs]);
 
@@ -198,7 +204,10 @@ export class NxtpSdkBase {
 
     const { domain, transferId, relayerFee } = params;
 
-    const chainId = await getChainIdFromDomain(domain, this.chainData);
+    let chainId = this.config.chains[domain].chainId;
+    if (!chainId) {
+      chainId = await getChainIdFromDomain(domain, this.chainData);
+    }
     const ConnextContractAddress = this.config.chains[domain].deployments!.connext;
 
     // if transactingAssetId is AddressZero then we are adding relayerFee to amount for value

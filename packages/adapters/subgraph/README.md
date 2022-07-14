@@ -53,10 +53,14 @@ query something($t: String) { # you can even pass the same GraphQL variable, int
 
 To add a new subgraph, you need to determine source name, endpoint and prefix first. After that, you can add a new source to .graphclientrc.yml and need to regenerate typescript types for schemas to be updated.
 
-
 ### How to generate typescript types.
 
-Whenever you add a new source in .graphclientrc.yml or there is an update in subgraph schema, you need to rebuild graphclient.
+Whenever you add a new source in .graphclientrc.yml or there is an update in subgraph schema, you need to rebuild graphclient. Before building a graphclient, you must create `.env` file and set the following variables properly. To generate schemas for local subgraphs without running the graph nodes locally, we can use live endpoints like the following.
+
+```sh
+GRAPH_1337_ENDPOINT=https://api.thegraph.com/subgraphs/name/connext/nxtp-amarok-runtime-v0-rinkeby
+GRAPH_1338_ENDPOINT=https://api.thegraph.com/subgraphs/name/connext/nxtp-amarok-runtime-v0-rinkeby
+```
 
 ```sh
 yarn workspace @connext/nxtp-adapters-subgraph build-client

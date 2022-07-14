@@ -1,0 +1,6 @@
+[
+  "event RampA(uint256,uint256,uint256,uint256)",
+  "event StopRampA(uint256,uint256)",
+  "function A_PRECISION() view returns (uint256)",
+  "function MAX_A() view returns (uint256)"
+]

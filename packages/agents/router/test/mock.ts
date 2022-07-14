@@ -117,9 +117,6 @@ export const mock = {
 
       txservice.getDecimalsForAsset.resolves(18);
       txservice.getBlockTime.resolves(Math.floor(Date.now() / 1000));
-      txservice.calculateGasFee.resolves(BigNumber.from(100));
-      txservice.calculateGasFeeInReceivingToken.resolves(BigNumber.from(100));
-      txservice.calculateGasFeeInReceivingTokenForFulfill.resolves(BigNumber.from(120));
       txservice.getTokenPrice.resolves(BigNumber.from(1));
       txservice.getGasEstimate.resolves(BigNumber.from(24001));
       txservice.getCode.resolves("0x");

@@ -46,8 +46,7 @@ export function handleRelayerAdded(event: RelayerAdded): void {
 
 export function handleStableSwapAdded(event: StableSwapAdded): void {
   // StableSwapAdded: bytes32 canonicalId, uint32 domain, address swapPool, address caller
-  let stableSwapId =
-    event.params.canonicalId.toHex() + "-" + event.params.domain.toHex() + "-" + event.params.swapPool.toHex();
+  let stableSwapId = `${event.params.canonicalId.toHex()}-${event.params.domain.toHex()}-${event.params.swapPool.toHex()}`;
   let stableSwap = StableSwap.load(stableSwapId);
 
   if (stableSwap == null) {
@@ -231,11 +230,14 @@ export function handleXCalled(event: XCalled): void {
   transfer.callData = event.params.xcallArgs.params.callData;
   transfer.originDomain = event.params.xcallArgs.params.originDomain;
   transfer.destinationDomain = event.params.xcallArgs.params.destinationDomain;
+  transfer.recovery = event.params.xcallArgs.params.recovery;
+  transfer.agent = event.params.xcallArgs.params.agent;
   transfer.forceSlow = event.params.xcallArgs.params.forceSlow;
   transfer.receiveLocal = event.params.xcallArgs.params.receiveLocal;
-  transfer.recovery = event.params.xcallArgs.params.recovery;
   transfer.callback = event.params.xcallArgs.params.callback;
   transfer.callbackFee = event.params.xcallArgs.params.callbackFee;
+  transfer.relayerFee = event.params.xcallArgs.params.relayerFee;
+  transfer.slippageTol = event.params.xcallArgs.params.slippageTol;
 
   // Assets
   transfer.transactingAsset = event.params.args.transactingAssetId;
@@ -244,7 +246,6 @@ export function handleXCalled(event: XCalled): void {
   transfer.bridgedAmount = event.params.args.bridgedAmt;
 
   // Event Data
-  transfer.relayerFee = event.params.xcallArgs.relayerFee;
   transfer.message = event.params.message;
 
   // XCall Transaction
@@ -310,8 +311,11 @@ export function handleExecuted(event: Executed): void {
   transfer.forceSlow = event.params.args.params.forceSlow;
   transfer.receiveLocal = event.params.args.params.receiveLocal;
   transfer.recovery = event.params.args.params.recovery;
+  transfer.agent = event.params.args.params.agent;
   transfer.callback = event.params.args.params.callback;
   transfer.callbackFee = event.params.args.params.callbackFee;
+  transfer.relayerFee = event.params.args.params.relayerFee;
+  transfer.slippageTol = event.params.args.params.slippageTol;
 
   // Assets
   transfer.transactingAmount = event.params.transactingAmount;
@@ -319,7 +323,7 @@ export function handleExecuted(event: Executed): void {
   transfer.localAsset = event.params.args.local;
   transfer.localAmount = event.params.args.amount;
 
-  transfer.sponsorVaultRelayerFee = event.params.args.relayerFee;
+  transfer.sponsorVaultRelayerFee = event.params.args.params.relayerFee;
 
   // Event Data
   if (transfer.status == "Reconciled") {
@@ -445,7 +449,7 @@ function getChainId(): BigInt {
   return chainId;
 }
 
-function getOrCreateAssetBalance(local: Bytes, routerAddress: Address): AssetBalance {
+function getOrCreateAssetBalance(local: Address, routerAddress: Address): AssetBalance {
   let assetBalanceId = local.toHex() + "-" + routerAddress.toHex();
   let assetBalance = AssetBalance.load(assetBalanceId);
 

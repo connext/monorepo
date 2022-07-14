@@ -102,8 +102,8 @@ describe("Operations:Auctions", () => {
 
       expect(upsertAuctionStub).to.have.been.calledOnceWithExactly({
         transferId,
-        origin: transfer.originDomain,
-        destination: transfer.destinationDomain,
+        origin: transfer.xparams.originDomain,
+        destination: transfer.xparams.destinationDomain,
         bid,
       });
       expect(getTransferStub).to.have.been.calledOnceWithExactly(transferId);
@@ -211,7 +211,11 @@ describe("Operations:Auctions", () => {
       const router3 = mkAddress("0x113");
       const bids: Record<string, Bid> = {};
       bids[router1] = {
+<<<<<<< HEAD
         routerVersion: "0.0.1",
+=======
+        routerVersion: "0.0.0",
+>>>>>>> main
         transferId: transferId,
         origin: "1111",
         router: router1,
@@ -220,7 +224,11 @@ describe("Operations:Auctions", () => {
         },
       };
       bids[router2] = {
+<<<<<<< HEAD
         routerVersion: "0.0.1",
+=======
+        routerVersion: "0.0.0",
+>>>>>>> main
         transferId: transferId,
         origin: "1111",
         router: router2,
@@ -231,7 +239,11 @@ describe("Operations:Auctions", () => {
         },
       };
       bids[router3] = {
+<<<<<<< HEAD
         routerVersion: "0.0.1",
+=======
+        routerVersion: "0.0.0",
+>>>>>>> main
         transferId: transferId,
         origin: "1111",
         router: router3,
@@ -255,7 +267,11 @@ describe("Operations:Auctions", () => {
       expect(sendToRelayerStub.getCall(0).args[0]).to.be.eq(1);
       expect(sendToRelayerStub.getCall(0).args[1]).to.be.deep.eq([
         {
+<<<<<<< HEAD
           routerVersion: "0.0.1",
+=======
+          routerVersion: "0.0.0",
+>>>>>>> main
           transferId: transferId,
           origin: "1111",
           router: router1,
@@ -280,7 +296,11 @@ describe("Operations:Auctions", () => {
       const router3 = mkAddress("0x113");
       const bids: Record<string, Bid> = {};
       bids[router1] = {
+<<<<<<< HEAD
         routerVersion: "0.0.1",
+=======
+        routerVersion: "0.0.0",
+>>>>>>> main
         transferId: transferId,
         origin: "1111",
         router: router1,
@@ -291,7 +311,11 @@ describe("Operations:Auctions", () => {
         },
       };
       bids[router2] = {
+<<<<<<< HEAD
         routerVersion: "0.0.1",
+=======
+        routerVersion: "0.0.0",
+>>>>>>> main
         transferId: transferId,
         origin: "1111",
         router: router2,
@@ -302,7 +326,11 @@ describe("Operations:Auctions", () => {
       };
 
       bids[router3] = {
+<<<<<<< HEAD
         routerVersion: "0.0.1",
+=======
+        routerVersion: "0.0.0",
+>>>>>>> main
         transferId: transferId,
         origin: "1111",
         router: router3,
@@ -327,7 +355,11 @@ describe("Operations:Auctions", () => {
       expect(sendToRelayerStub.getCall(0).args[0]).to.be.eq(2);
       expect(sendToRelayerStub.getCall(0).args[1]).to.be.deep.eq([
         {
+<<<<<<< HEAD
           routerVersion: "0.0.1",
+=======
+          routerVersion: "0.0.0",
+>>>>>>> main
           transferId: transferId,
           origin: "1111",
           router: router1,
@@ -336,7 +368,11 @@ describe("Operations:Auctions", () => {
           },
         },
         {
+<<<<<<< HEAD
           routerVersion: "0.0.1",
+=======
+          routerVersion: "0.0.0",
+>>>>>>> main
           transferId: transferId,
           origin: "1111",
           router: router2,
@@ -360,7 +396,11 @@ describe("Operations:Auctions", () => {
       const router3 = mkAddress("0x113");
       const bids: Record<string, Bid> = {};
       bids[router1] = {
+<<<<<<< HEAD
         routerVersion: "0.0.1",
+=======
+        routerVersion: "0.0.0",
+>>>>>>> main
         transferId: transferId,
         origin: "1111",
         router: router1,
@@ -371,7 +411,11 @@ describe("Operations:Auctions", () => {
         },
       };
       bids[router2] = {
+<<<<<<< HEAD
         routerVersion: "0.0.1",
+=======
+        routerVersion: "0.0.0",
+>>>>>>> main
         transferId: transferId,
         origin: "1111",
         router: router2,
@@ -382,7 +426,11 @@ describe("Operations:Auctions", () => {
       };
 
       bids[router3] = {
+<<<<<<< HEAD
         routerVersion: "0.0.1",
+=======
+        routerVersion: "0.0.0",
+>>>>>>> main
         transferId: transferId,
         origin: "1111",
         router: router3,
@@ -416,7 +464,11 @@ describe("Operations:Auctions", () => {
       expect(sendToRelayerStub.getCall(0).args[0]).to.be.eq(2);
       expect(sendToRelayerStub.getCall(0).args[1]).to.be.deep.eq([
         {
+<<<<<<< HEAD
           routerVersion: "0.0.1",
+=======
+          routerVersion: "0.0.0",
+>>>>>>> main
           transferId: transferId,
           origin: "1111",
           router: router1,
@@ -425,7 +477,11 @@ describe("Operations:Auctions", () => {
           },
         },
         {
+<<<<<<< HEAD
           routerVersion: "0.0.1",
+=======
+          routerVersion: "0.0.0",
+>>>>>>> main
           transferId: transferId,
           origin: "1111",
           router: router2,
@@ -604,15 +660,15 @@ describe("Operations:Auctions", () => {
       // Should update beforehand since the getLiquidity cache stub returned undefined.
       expect(setLiquidityStub.getCall(0).args).to.be.deep.eq([
         router,
-        transfer.destinationDomain,
-        transfer.origin.assets.bridged.asset,
+        transfer.xparams.destinationDomain,
+        transfer.origin!.assets.bridged.asset,
         routerFunds,
       ]);
       // Should update to reflect new "theoretical amount".
       expect(setLiquidityStub.getCall(1).args).to.be.deep.eq([
         router,
-        transfer.destinationDomain,
-        transfer.origin.assets.bridged.asset,
+        transfer.xparams.destinationDomain,
+        transfer.origin!.assets.bridged.asset,
         expectedRouterFunds,
       ]);
 

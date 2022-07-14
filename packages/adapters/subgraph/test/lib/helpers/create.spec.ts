@@ -7,7 +7,7 @@ import { mockChainData } from "../../mock";
 describe("Helpers:create", () => {
   describe("#getNetwork", () => {
     it("should return the valid value in case of staging", () => {
-      expect(getNetwork("Connext_Staging_Rinkeby", "staging")[1]).to.be.eq("Rinkeby");
+      expect(getNetwork("Connext_Staging_Rinkeby", "staging")![1]).to.be.eq("Rinkeby");
     });
     it("should return null in case of staging", () => {
       expect(getNetwork("Connext_Rinkeby", "staging")).to.be.eq(null);
@@ -17,7 +17,7 @@ describe("Helpers:create", () => {
       expect(getNetwork("Connext_Staging_Rinkeby", "production")).to.be.eq(null);
     });
     it("should return null in case of staging", () => {
-      expect(getNetwork("Connext_Rinkeby", "production")[1]).to.be.eq("Rinkeby");
+      expect(getNetwork("Connext_Rinkeby", "production")![1]).to.be.eq("Rinkeby");
     });
   });
   describe("#create", () => {
@@ -31,46 +31,46 @@ describe("Helpers:create", () => {
     });
 
     it("happy: create the staging subgraphMap by parsing chainData", async () => {
-      getSubgraphNamesStub.resolves(["Connext_Staging_Rinkeby", "Connext_Staging_Kovan"]);
+      getSubgraphNamesStub.resolves(["Connext_Staging_Rinkeby", "Connext_Staging_Goerli"]);
       const subgraphMap = await create(mockChainData, "staging");
       const response = {
         sources: {
           "1111": { domain: "1111", prefix: "stagingrinkeby" },
-          "2221": { domain: "2221", prefix: "stagingkovan" },
+          "3331": { domain: "3331", prefix: "staginggoerli" },
         },
-        supported: { "1111": true, "2221": true, "5555555555555": false },
+        supported: { "1111": true, "3331": true, "5555555555555": false },
       };
       expect(subgraphMap).to.be.deep.eq(response);
     });
 
     it("happy: create the production subgraphMap by parsing chainData", async () => {
-      getSubgraphNamesStub.resolves(["Connext_Rinkeby", "Connext_Kovan"]);
+      getSubgraphNamesStub.resolves(["Connext_Rinkeby", "Connext_Goerli"]);
       const subgraphMap = await create(mockChainData, "production");
       const response = {
         sources: {
           "1111": { domain: "1111", prefix: "rinkeby" },
-          "2221": { domain: "2221", prefix: "kovan" },
+          "3331": { domain: "3331", prefix: "goerli" },
         },
-        supported: { "1111": true, "2221": true, "5555555555555": false },
+        supported: { "1111": true, "3331": true, "5555555555555": false },
       };
       expect(subgraphMap).to.be.deep.eq(response);
     });
 
     it("happy: create the production subgraphMap by default", async () => {
-      getSubgraphNamesStub.resolves(["Connext_Rinkeby", "Connext_Kovan"]);
+      getSubgraphNamesStub.resolves(["Connext_Rinkeby", "Connext_Goerli"]);
       const subgraphMap = await create(mockChainData);
       const response = {
         sources: {
           "1111": { domain: "1111", prefix: "rinkeby" },
-          "2221": { domain: "2221", prefix: "kovan" },
+          "3331": { domain: "3331", prefix: "goerli" },
         },
-        supported: { "1111": true, "2221": true, "5555555555555": false },
+        supported: { "1111": true, "3331": true, "5555555555555": false },
       };
       expect(subgraphMap).to.be.deep.eq(response);
     });
 
     it("happy: should support all the domains", async () => {
-      getSubgraphNamesStub.resolves(["Connext_Rinkeby", "Connext_Kovan"]);
+      getSubgraphNamesStub.resolves(["Connext_Rinkeby", "Connext_Goerli"]);
       const _chainData = chainDataToMap([
         {
           name: "Rinkeby Testnet",

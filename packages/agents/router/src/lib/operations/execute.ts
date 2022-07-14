@@ -16,6 +16,9 @@ export const getBlacklist = async (
   destinationDomain: string,
 ): Promise<{ originBlacklisted: boolean; destinationBlacklisted: boolean }> => {
   const { bridgeContext: context } = getContext();
+  if (!context) {
+    return { originBlacklisted: false, destinationBlacklisted: false };
+  }
   //todo: look for higher level import of this class
   //push them to blacklist if not there already
   await context.checkHomes([Number(originDomain), Number(destinationDomain)]);
@@ -62,11 +65,9 @@ export const execute = async (params: OriginTransfer): Promise<void> => {
   }
 
   const {
-    originDomain,
-    destinationDomain,
     origin,
     transferId,
-    xparams: { callData, to, forceSlow },
+    xparams: { callData, to, forceSlow, originDomain, destinationDomain },
   } = params;
 
   if (forceSlow) {
@@ -78,6 +79,11 @@ export const execute = async (params: OriginTransfer): Promise<void> => {
     throw new MissingXCall({ requestContext, methodContext });
   }
 
+  logger.debug("Getting local asset", requestContext, methodContext, {
+    originDomain,
+    asset: origin.assets.bridged.asset,
+    destinationDomain,
+  });
   const executeLocalAsset = await getDestinationLocalAsset(
     originDomain,
     origin.assets.bridged.asset,

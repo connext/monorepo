@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: UNLICENSED
-pragma solidity 0.8.14;
+pragma solidity 0.8.15;
 
 import {XAppConnectionManager} from "../../../contracts/nomad-core/contracts/XAppConnectionManager.sol";
 import {Home} from "../../../contracts/nomad-core/contracts/Home.sol";
@@ -105,7 +105,7 @@ contract PromiseRouterTest is ForgeHelper, PromiseRouter {
   // ============ send ============
   // Fail if not called by connext
   function test_PromiseRouter__send_failsIfNotConnext(bool returnSuccess, bytes calldata returnData) public {
-    vm.assume(returnData.length > 0);
+    vm.assume(returnData.length != 0);
     vm.prank(address(0));
     vm.expectRevert(abi.encodeWithSelector(PromiseRouter.PromiseRouter__onlyConnext_notConnext.selector));
 
@@ -123,7 +123,7 @@ contract PromiseRouterTest is ForgeHelper, PromiseRouter {
 
   // Fail if callback address is not contract
   function test_PromiseRouter__send_failsIfEmptyCallback(bool returnSuccess, bytes calldata returnData) public {
-    vm.assume(returnData.length > 0);
+    vm.assume(returnData.length != 0);
     vm.prank(_connext);
     vm.expectRevert(abi.encodeWithSelector(PromiseRouter.PromiseRouter__send_callbackEmpty.selector));
 
@@ -132,7 +132,7 @@ contract PromiseRouterTest is ForgeHelper, PromiseRouter {
 
   // fails if no remote
   function test_PromiseRouter__send_failsIfNoRemote(bool returnSuccess, bytes calldata returnData) public {
-    vm.assume(returnData.length > 0);
+    vm.assume(returnData.length != 0);
 
     // enroll router
     vm.prank(promiseRouter.owner());
@@ -147,7 +147,7 @@ contract PromiseRouterTest is ForgeHelper, PromiseRouter {
   // Should work
   function test_PromiseRouter__send_shouldWork(bool returnSuccess, bytes calldata returnData) public {
     vm.prank(_connext);
-    vm.assume(returnData.length > 0);
+    vm.assume(returnData.length != 0);
 
     bytes memory message = PromiseMessage.formatPromiseCallback(_transferId, _callback, returnSuccess, returnData);
 
@@ -163,7 +163,7 @@ contract PromiseRouterTest is ForgeHelper, PromiseRouter {
 
   // should fail if the message is not a promise callback
   function test_PromiseRouter__handle_failsIfMalformedMessage(bytes calldata returnData, uint32 nonce) public {
-    vm.assume(returnData.length > 0);
+    vm.assume(returnData.length != 0);
 
     uint64 originAndNonce = _originAndNonce(_domain, nonce);
 
@@ -186,7 +186,7 @@ contract PromiseRouterTest is ForgeHelper, PromiseRouter {
     uint32 nonce,
     bool success
   ) public {
-    vm.assume(returnData.length > 0);
+    vm.assume(returnData.length != 0);
 
     uint64 originAndNonce = _originAndNonce(_domain, nonce);
 

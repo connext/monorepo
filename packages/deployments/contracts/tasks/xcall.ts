@@ -52,18 +52,18 @@ export default task("xcall", "Prepare a cross-chain tx")
         receiveLocal: _receiveLocal,
         recovery: _recovery,
       }: TaskArgs,
-      { deployments, ethers },
+      hre,
     ) => {
       let tx: providers.TransactionResponse;
-      const [sender] = await ethers.getSigners();
+      const [sender] = await hre.ethers.getSigners();
 
       const env = mustGetEnv(_env);
       console.log("env:", env);
       console.log("sender: ", sender.address);
 
       // Get the origin and destination domains.
-      const network = await ethers.provider.getNetwork();
-      const originDomain = getDomainInfoFromChainId(network.chainId).domain;
+      const network = await hre.ethers.provider.getNetwork();
+      const originDomain = (await getDomainInfoFromChainId(network.chainId, hre)).domain;
       const destinationDomain = +(_destinationDomain ?? process.env.TRANSFER_DESTINATION_DOMAIN ?? "0");
       if (!destinationDomain) {
         throw new Error("Destination domain must be specified as params or from env (TRANSFER_DESTINATION_DOMAIN)");
@@ -105,10 +105,10 @@ export default task("xcall", "Prepare a cross-chain tx")
           transactingAssetId = canonicalAsset;
         } else {
           // Current network's domain is not canonical domain, so we need to get the local asset representation.
-          const tokenDeployment = await deployments.get(getDeploymentName("TokenRegistryUpgradeBeaconProxy", env));
+          const tokenDeployment = await hre.deployments.get(getDeploymentName("TokenRegistryUpgradeBeaconProxy", env));
           const tokenRegistry = new Contract(
             tokenDeployment.address,
-            (await deployments.get(getDeploymentName("TokenRegistry"))).abi,
+            (await hre.deployments.get(getDeploymentName("TokenRegistry"))).abi,
             sender,
           );
           transactingAssetId = await tokenRegistry.getRepresentationAddress(canonicalDomain, canonicalTokenId);
@@ -142,7 +142,7 @@ export default task("xcall", "Prepare a cross-chain tx")
       console.log("recovery: ", recovery);
 
       const connextName = getDeploymentName("ConnextHandler", env);
-      const connextDeployment = await deployments.get(connextName);
+      const connextDeployment = await hre.deployments.get(connextName);
       const connextAddress = _connextAddress ?? connextDeployment.address;
       const connext = new Contract(connextAddress, connextDeployment.abi, sender);
       console.log("connextAddress: ", connextAddress);
@@ -156,9 +156,9 @@ export default task("xcall", "Prepare a cross-chain tx")
 
       let balance: BigNumber;
       if (transactingAssetId === constants.AddressZero) {
-        balance = await ethers.provider.getBalance(sender.address);
+        balance = await hre.ethers.provider.getBalance(sender.address);
       } else {
-        const erc20 = await ethers.getContractAt("IERC20", transactingAssetId, sender);
+        const erc20 = await hre.ethers.getContractAt("IERC20", transactingAssetId, sender);
         const allowance = await erc20.allowance(sender.address, connextAddress);
         if (allowance.lt(amount)) {
           console.log("Approving tokens");
@@ -179,10 +179,13 @@ export default task("xcall", "Prepare a cross-chain tx")
         originDomain: `${originDomain}`,
         destinationDomain: `${destinationDomain}`,
         recovery,
+        agent: constants.AddressZero,
         callback,
         callbackFee,
+        relayerFee: "0",
         forceSlow,
         receiveLocal,
+        slippageTol: "0",
       };
 
       const args = {

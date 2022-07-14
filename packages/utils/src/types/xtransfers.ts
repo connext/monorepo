@@ -37,13 +37,7 @@ export const XTransferOriginSchema = Type.Object({
   }),
 
   // XCall Transaction
-  xcall: Type.Intersect([
-    XTransferMethodCallSchema,
-    Type.Object({
-      // XCalled Event Data
-      relayerFee: TIntegerString,
-    }),
-  ]),
+  xcall: Type.Intersect([XTransferMethodCallSchema]),
 });
 
 export const XTransferDestinationSchema = Type.Object({
@@ -86,10 +80,23 @@ export const XTransferDestinationSchema = Type.Object({
   reconcile: Type.Optional(XTransferMethodCallSchema),
 });
 
+export const CallParamsSchema = Type.Object({
+  to: TAddress,
+  callData: Type.String(),
+  originDomain: Type.String(),
+  destinationDomain: Type.String(),
+  callback: TAddress,
+  callbackFee: TIntegerString,
+  relayerFee: TIntegerString,
+  agent: TAddress,
+  recovery: TAddress,
+  forceSlow: Type.Boolean(),
+  receiveLocal: Type.Boolean(),
+  slippageTol: TIntegerString,
+});
+
 export const XTransferSchema = Type.Intersect([
   Type.Object({
-    originDomain: Type.String(),
-    destinationDomain: Type.Optional(Type.String()),
     transferId: Type.String(),
 
     // NOTE: Nonce is delivered by XCalled and Executed events, but not Reconciled event.
@@ -97,17 +104,7 @@ export const XTransferSchema = Type.Intersect([
 
     // Call Params
     // NOTE: CallParams is emitted by XCalled and Executed events, but not Reconciled event.
-    xparams: Type.Optional(
-      Type.Object({
-        to: TAddress,
-        callData: Type.String(),
-        callback: TAddress,
-        recovery: TAddress,
-        callbackFee: TIntegerString,
-        forceSlow: Type.Boolean(),
-        receiveLocal: Type.Boolean(),
-      }),
-    ),
+    xparams: CallParamsSchema,
   }),
   Type.Object({
     origin: Type.Optional(XTransferOriginSchema),
@@ -116,22 +113,8 @@ export const XTransferSchema = Type.Intersect([
 ]);
 export type XTransfer = Static<typeof XTransferSchema>;
 
-export const CallParamsSchema = Type.Object({
-  to: TAddress,
-  callData: Type.String(),
-  originDomain: Type.String(),
-  destinationDomain: Type.String(),
-  callback: TAddress,
-  callbackFee: TIntegerString,
-  recovery: TAddress,
-  forceSlow: Type.Boolean(),
-  receiveLocal: Type.Boolean(),
-});
-
 export const OriginTransferSchema = Type.Intersect([
   Type.Object({
-    originDomain: Type.String(),
-    destinationDomain: Type.String(),
     transferId: Type.String(),
     nonce: Type.Integer(),
     xparams: CallParamsSchema,
@@ -146,12 +129,9 @@ export type OriginTransfer = Static<typeof OriginTransferSchema>;
 
 export const DestinationTransferSchema = Type.Intersect([
   Type.Object({
-    originDomain: Type.String(),
-    // NOTE: Destination domain is not emitted by Reconciled event.
-    destinationDomain: Type.Optional(Type.String()),
     transferId: Type.String(),
     nonce: Type.Optional(Type.Integer()),
-    xparams: Type.Optional(CallParamsSchema),
+    xparams: CallParamsSchema,
   }),
   Type.Object({
     origin: Type.Optional(XTransferOriginSchema),
@@ -166,7 +146,6 @@ export const XCallArgsSchema = Type.Object({
   params: CallParamsSchema,
   transactingAssetId: Type.String(),
   amount: TIntegerString,
-  relayerFee: TIntegerString,
 });
 
 export type XCallArgs = Static<typeof XCallArgsSchema>;
@@ -179,7 +158,6 @@ export const ExecuteArgsSchema = Type.Object({
   amount: TIntegerString,
   nonce: Type.Integer(),
   originSender: TAddress,
-  relayerFee: TIntegerString,
 });
 
 export type ExecuteArgs = Static<typeof ExecuteArgsSchema>;

@@ -1,49 +1,4 @@
 sources:
-  - name: Connext_Kovan
-    handler:
-      graphql:
-        endpoint: https://api.thegraph.com/subgraphs/name/connext/nxtp-amarok-runtime-v0-kovan
-        retry: 5
-        timeout: 30000 # 30 seconds
-    transforms:
-      - prefix:
-          value: kovan_
-          includeRootOperations: true
-          ignore:
-            - _SubgraphErrorPolicy_
-      - autoPagination:
-          validateSchema: true
-          limitOfRecords: 250
-  - name: Connext_Staging_Kovan
-    handler:
-      graphql:
-        endpoint: https://api.thegraph.com/subgraphs/name/connext/nxtp-amarok-runtime-staging-kovan
-        retry: 5
-        timeout: 30000 # 30 seconds
-    transforms:
-      - prefix:
-          value: stagingkovan_
-          includeRootOperations: true
-          ignore:
-            - _SubgraphErrorPolicy_
-      - autoPagination:
-          validateSchema: true
-          limitOfRecords: 250
-  - name: Connext_Test_Kovan
-    handler:
-      graphql:
-        endpoint: https://api.thegraph.com/subgraphs/name/connext/nxtp-amarok-runtime-test-kovan
-        retry: 5
-        timeout: 30000 # 30 seconds
-    transforms:
-      - prefix:
-          value: testkovan_
-          includeRootOperations: true
-          ignore:
-            - _SubgraphErrorPolicy_
-      - autoPagination:
-          validateSchema: true
-          limitOfRecords: 250
   - name: Connext_Rinkeby
     handler:
       graphql:
@@ -128,6 +83,36 @@ sources:
     transforms:
       - prefix:
           value: testgoerli_
+          includeRootOperations: true
+          ignore:
+            - _SubgraphErrorPolicy_
+      - autoPagination:
+          validateSchema: true
+          limitOfRecords: 250
+  - name: Connext_Local1337
+    handler:
+      graphql:
+        endpoint: "{env.GRAPH_1337_ENDPOINT}"
+        retry: 5
+        timeout: 30000 # 30 seconds
+    transforms:
+      - prefix:
+          value: local1337_
+          includeRootOperations: true
+          ignore:
+            - _SubgraphErrorPolicy_
+      - autoPagination:
+          validateSchema: true
+          limitOfRecords: 250
+  - name: Connext_Local1338
+    handler:
+      graphql:
+        endpoint: "{env.GRAPH_1338_ENDPOINT}"
+        retry: 5
+        timeout: 30000 # 30 seconds
+    transforms:
+      - prefix:
+          value: local1338_
           includeRootOperations: true
           ignore:
             - _SubgraphErrorPolicy_

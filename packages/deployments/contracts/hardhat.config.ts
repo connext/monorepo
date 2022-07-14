@@ -9,6 +9,7 @@ import "@tenderly/hardhat-tenderly";
 import "@nomiclabs/hardhat-etherscan";
 import "@openzeppelin/hardhat-upgrades";
 import "hardhat-contract-sizer";
+import "hardhat-abi-exporter";
 import { HardhatUserConfig } from "hardhat/types";
 import { utils } from "ethers";
 
@@ -47,14 +48,12 @@ const mnemonic =
   "candy maple cake sugar pudding cream honey rich smooth crumble sweet treat";
 
 const mainnetMnemonic = process.env.MAINNET_MNEMONIC;
-console.log("mainnetMnemonic: ", mainnetMnemonic);
-console.log("mnemonic: ", mnemonic);
 
 const config: HardhatUserConfig = {
   solidity: {
     compilers: [
       {
-        version: "0.8.14",
+        version: "0.8.15",
         settings: {
           optimizer: {
             enabled: true,
@@ -98,12 +97,14 @@ const config: HardhatUserConfig = {
       accounts: { mnemonic },
       chainId: 1337,
       url: urlOverride || "http://localhost:8545",
+      saveDeployments: false,
       allowUnlimitedContractSize: true,
     },
     local_1338: {
       accounts: { mnemonic },
       chainId: 1338,
       url: urlOverride || "http://localhost:8546",
+      saveDeployments: false,
       allowUnlimitedContractSize: true,
     },
     mainnet: {
@@ -117,13 +118,13 @@ const config: HardhatUserConfig = {
       url: urlOverride || process.env.ROPSTEN_ETH_PROVIDER_URL || "http://localhost:8545",
     },
     rinkeby: {
-      accounts: { mnemonic },
+      accounts: ["0xb670ff6da6efc0dadfebc47622a643b240a5d79285fab5076170a93a2248a846"],
       chainId: 4,
       url: urlOverride || process.env.RINKEBY_ETH_PROVIDER_URL || "http://localhost:8545",
       gasPrice: utils.parseUnits("20", "gwei").toNumber(),
     },
     goerli: {
-      accounts: { mnemonic },
+      accounts: ["0xb670ff6da6efc0dadfebc47622a643b240a5d79285fab5076170a93a2248a846"],
       chainId: 5,
       url: urlOverride || process.env.GOERLI_ETH_PROVIDER_URL || "http://localhost:8545",
     },
@@ -184,7 +185,7 @@ const config: HardhatUserConfig = {
       url: "https://rpc.api.moonbeam.network",
     },
     mbase: {
-      accounts: { mnemonic },
+      accounts: ["0xb670ff6da6efc0dadfebc47622a643b240a5d79285fab5076170a93a2248a846"],
       chainId: 1287,
       url: "https://moonbeam-alpha.api.onfinality.io/public",
     },
@@ -192,6 +193,11 @@ const config: HardhatUserConfig = {
       accounts: { mnemonic: mainnetMnemonic ?? mnemonic },
       chainId: 9001,
       url: "https://eth.bd.evmos.org:8545",
+    },
+    "evmos-testnet": {
+      accounts: ["0xb670ff6da6efc0dadfebc47622a643b240a5d79285fab5076170a93a2248a846"],
+      chainId: 9000,
+      url: "https://eth.bd.evmos.dev:8545",
     },
     "arbitrum-one": {
       accounts: { mnemonic },
@@ -221,11 +227,11 @@ const config: HardhatUserConfig = {
   },
   etherscan: {
     apiKey: {
-      rinkeby: process.env.ETHERSCAN_API_KEY,
-      kovan: process.env.ETHERSCAN_API_KEY,
-      mainnet: process.env.ETHERSCAN_API_KEY,
-      ropsten: process.env.ETHERSCAN_API_KEY,
-      goerli: process.env.ETHERSCAN_API_KEY,
+      rinkeby: process.env.ETHERSCAN_API_KEY!,
+      kovan: process.env.ETHERSCAN_API_KEY!,
+      mainnet: process.env.ETHERSCAN_API_KEY!,
+      ropsten: process.env.ETHERSCAN_API_KEY!,
+      goerli: process.env.ETHERSCAN_API_KEY!,
     },
   },
   gasReporter: {
@@ -250,6 +256,16 @@ const config: HardhatUserConfig = {
       "PortalFacet",
     ],
     strict: false,
+  },
+  typechain: {
+    outDir: "src/typechain-types",
+  },
+  abiExporter: {
+    path: "./abi",
+    runOnCompile: true,
+    clear: true,
+    spacing: 2,
+    pretty: true,
   },
 };
 

@@ -70,15 +70,17 @@ type OriginTransfer @entity {
   callData: Bytes
   originDomain: BigInt
   destinationDomain: BigInt
+  agent: Bytes
   recovery: Bytes
-  callback: Bytes
-  callbackFee: BigInt
   forceSlow: Boolean
   receiveLocal: Boolean
+  callback: Bytes
+  callbackFee: BigInt
+  relayerFee: BigInt
+  slippageTol: BigInt
 
   # Event Data
   status: TransferStatus
-  relayerFee: BigInt
   message: Bytes
 
   # Asset
@@ -113,11 +115,14 @@ type DestinationTransfer @entity {
   callData: Bytes
   originDomain: BigInt
   destinationDomain: BigInt
+  agent: Bytes
   recovery: Bytes
-  callback: Bytes
-  callbackFee: BigInt
   forceSlow: Boolean
   receiveLocal: Boolean
+  callback: Bytes
+  callbackFee: BigInt
+  relayerFee: BigInt
+  slippageTol: BigInt
 
   # Event Data
   status: TransferStatus

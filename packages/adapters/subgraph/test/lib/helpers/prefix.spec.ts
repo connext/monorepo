@@ -13,7 +13,7 @@ describe("Helpers:prefix", () => {
   });
   describe("#getPrefixForDomain", () => {
     it("happy: get the prefix for the domain", () => {
-      expect(getPrefixForDomain("2221")).to.be.eq("kovan");
+      expect(getPrefixForDomain("3331")).to.be.eq("goerli");
     });
     it("should throw the `DomainInvalid` error", async () => {
       expect(() => {
@@ -24,7 +24,7 @@ describe("Helpers:prefix", () => {
   describe("#getDomainFromPrefix", () => {
     it("happy: get the doamin from the prefix", () => {
       expect(getDomainFromPrefix("rinkeby")).to.be.eq("1111");
-      expect(getDomainFromPrefix("kovan")).to.be.eq("2221");
+      expect(getDomainFromPrefix("goerli")).to.be.eq("3331");
     });
     it("should return undefined if the prefix isn't included", () => {
       expect(getDomainFromPrefix("localtest")).to.be.undefined;

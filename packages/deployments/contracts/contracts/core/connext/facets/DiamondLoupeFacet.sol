@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity 0.8.14;
+pragma solidity 0.8.15;
 /******************************************************************************\
 * Author: Nick Mudge <nick@perfectabstractions.com> (https://twitter.com/mudgen)
 * EIP-2535 Diamonds: https://eips.ethereum.org/EIPS/eip-2535
@@ -28,10 +28,14 @@ contract DiamondLoupeFacet is IDiamondLoupe, IERC165 {
     LibDiamond.DiamondStorage storage ds = LibDiamond.diamondStorage();
     uint256 numFacets = ds.facetAddresses.length;
     facets_ = new Facet[](numFacets);
-    for (uint256 i; i < numFacets; i++) {
+    for (uint256 i; i < numFacets; ) {
       address facetAddress_ = ds.facetAddresses[i];
       facets_[i].facetAddress = facetAddress_;
       facets_[i].functionSelectors = ds.facetFunctionSelectors[facetAddress_].functionSelectors;
+
+      unchecked {
+        ++i;
+      }
     }
   }
 

@@ -115,9 +115,6 @@ export const mock = {
 
       chainreader.getDecimalsForAsset.resolves(18);
       chainreader.getBlockTime.resolves(Math.floor(Date.now() / 1000));
-      chainreader.calculateGasFee.resolves(BigNumber.from(100));
-      chainreader.calculateGasFeeInReceivingToken.resolves(BigNumber.from(100));
-      chainreader.calculateGasFeeInReceivingTokenForFulfill.resolves(BigNumber.from(120));
       chainreader.getTokenPrice.resolves(BigNumber.from(1));
       chainreader.getGasEstimate.resolves(BigNumber.from(24001));
 

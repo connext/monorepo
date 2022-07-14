@@ -29,7 +29,7 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment): Promise<voi
 
   const network = await hre.ethers.provider.getNetwork();
   console.log("network: ", network);
-  const domainConfig = getDomainInfoFromChainId(network.chainId);
+  const domainConfig = await getDomainInfoFromChainId(network.chainId, hre);
   console.log("domainConfig: ", domainConfig);
   const price = await hre.ethers.provider.getGasPrice();
   console.log("price: ", price.toString());
@@ -139,7 +139,10 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment): Promise<voi
   if ((await contract.tokenRegistry()).toLowerCase() !== tokenRegistry.address.toLowerCase()) {
     console.log("expected token registry:", tokenRegistry.address);
     console.log("init-d token registry:", await contract.tokenRegistry());
-    throw new Error(`Improperly init-d token registry`);
+    console.log(`Improperly init-d token registry, setting TokenRegistry...`);
+    const setTm = await contract.connect(deployer).setTokenRegistry(tokenRegistry.address);
+    await setTm.wait();
+    console.log(`New TokenRegistry address set!`);
   }
 
   // Add connext to relayer fee router
@@ -186,4 +189,5 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment): Promise<voi
 
 export default func;
 
-func.tags = ["Connext", "mainnet"];
+func.tags = ["Connext", "prod", "local", "mainnet"];
+func.dependencies = ["Nomad"];

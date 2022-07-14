@@ -97,7 +97,7 @@ export const chainDataToMap = (data: any): Map<string, ChainData> => {
     console.warn(
       `No domainId was found for the following chains: ${noDomainIdFound.join(
         ", ",
-      )};\n Continuing without indexing these chains.`,
+      )};\nContinuing without indexing these chains.`,
     );
   }
   return chainData;

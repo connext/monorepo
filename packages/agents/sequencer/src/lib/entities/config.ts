@@ -1,8 +1,7 @@
 import { Type, Static } from "@sinclair/typebox";
-import { TAddress, SubgraphReaderChainConfigSchema } from "@connext/nxtp-utils";
+import { TAddress } from "@connext/nxtp-utils";
 
 export const TChainConfig = Type.Object({
-  subgraph: SubgraphReaderChainConfigSchema, // Subgraph configuration for this chain.
   providers: Type.Array(Type.String()),
   confirmations: Type.Integer({ minimum: 1 }), // What we consider the "safe confirmations" number for this chain.
   deployments: Type.Object({
