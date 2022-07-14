@@ -58,6 +58,8 @@ services:
 
   sequencer-publisher:
     container_name: sequencer-publisher
+    depends_on:
+      - sequencer-message-queue
     image: ${SEQUENCER_PUBLISHER_IMAGE}
     restart: always
     ports:
@@ -75,6 +77,8 @@ services:
 
   sequencer-subscriber:
     container_name: sequencer-subscriber
+    depends_on:
+      - sequencer-message-queue
     image: ${SEQUENCER_SUBSCRIBER_IMAGE}
     restart: always
     ports:
