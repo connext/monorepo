@@ -31,5 +31,9 @@
   },
   "web3SignerUrl": "http://signer:9000",
   "environment": "production",
-  "nomadEnvironment": "none"
+  "nomadEnvironment": "none",
+  "messageQueue": {
+    "host": "router-message-queue",
+    "port": 5672
+  }
 }
