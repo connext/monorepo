@@ -4,8 +4,6 @@ import {
   getTransactionId,
   signRouterPathPayload,
   recoverRouterPathPayload,
-  getSubgraphHealth,
-  getSubgraphName,
   existsSync,
   readFileSync,
 } from "./shared";
@@ -22,8 +20,6 @@ export const getHelpers = () => {
       getTransactionId,
       signRouterPathPayload,
       recoverRouterPathPayload,
-      getSubgraphHealth,
-      getSubgraphName,
       existsSync,
       readFileSync,
     },

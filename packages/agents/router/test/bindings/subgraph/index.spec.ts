@@ -3,16 +3,12 @@ import { expect, delay } from "@connext/nxtp-utils";
 
 import * as bindSubgraphFns from "../../../src/bindings/subgraph/index";
 import { mock, stubContext } from "../../mock";
-import * as SharedFns from "../../../src/lib/helpers/shared";
 
 describe("Bindings:Subgraph", () => {
   let mockContext: any;
-  let getSubgraphHealthStub: SinonStub;
 
   beforeEach(() => {
     mockContext = stubContext();
-    stub(SharedFns, "getSubgraphName").returns("mockSubgraph");
-    getSubgraphHealthStub = stub(SharedFns, "getSubgraphHealth");
   });
 
   afterEach(() => {
@@ -117,17 +113,6 @@ describe("Bindings:Subgraph", () => {
     });
 
     it("should not retrieve xcalls from the subgraph if health check fails", async () => {
-      getSubgraphHealthStub.resolves({
-        chainHeadBlock: 0,
-        latestBlock: 0,
-        lastHealthyBlock: 0,
-        network: "mocknet",
-        fatalError: undefined,
-        health: "healthy",
-        synced: true,
-        url: "https://example.com",
-      });
-
       const mockInfo = {
         [mock.chain.A]: {
           latestBlockNumber: 0,
@@ -155,17 +140,6 @@ describe("Bindings:Subgraph", () => {
     });
 
     it("should throw an error", async () => {
-      getSubgraphHealthStub.resolves({
-        chainHeadBlock: 1234567,
-        latestBlock: 1234567,
-        lastHealthyBlock: 100,
-        network: "mocknet",
-        fatalError: undefined,
-        health: "healthy",
-        synced: true,
-        url: "https://example.com",
-      });
-
       const mockInfo = {
         [mock.chain.A]: {
           latestBlockNumber: 1234567,

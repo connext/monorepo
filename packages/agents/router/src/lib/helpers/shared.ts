@@ -2,8 +2,6 @@ import * as fs from "fs";
 
 import {
   signRouterPathPayload as _signRouterPathPayload,
-  getSubgraphHealth as _getSubgraphHealth,
-  getSubgraphName as _getSubgraphName,
   recoverRouterPathPayload as _recoverRouterPathPayload,
 } from "@connext/nxtp-utils";
 import { utils } from "ethers";
@@ -30,7 +28,7 @@ export const getDestinationLocalAsset = async (
   // get canonical asset from orgin domain.
   const sendingDomainAsset = await subgraph.getAssetByLocal(_originDomain, _originLocalAsset);
 
-  const canonicalId = sendingDomainAsset!.canonicalId ;
+  const canonicalId = sendingDomainAsset!.canonicalId;
 
   const destinationDomainAsset = await subgraph.getAssetByCanonicalId(_destinationDomain, canonicalId);
 
@@ -44,10 +42,6 @@ export const getTransactionId = (nonce: string, domain: string): string => {
 
 export const signRouterPathPayload = _signRouterPathPayload;
 export const recoverRouterPathPayload = _recoverRouterPathPayload;
-
-export const getSubgraphHealth = _getSubgraphHealth;
-
-export const getSubgraphName = _getSubgraphName;
 
 export const existsSync = fs.existsSync;
 

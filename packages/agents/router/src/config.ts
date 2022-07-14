@@ -1,7 +1,7 @@
 ///NXTP Config Generator based on vector/modules/router/src/config.ts
 import { Type, Static } from "@sinclair/typebox";
 import { config as dotenvConfig } from "dotenv";
-import { ajv, ChainData, TAddress, SubgraphReaderChainConfigSchema } from "@connext/nxtp-utils";
+import { ajv, ChainData, TAddress } from "@connext/nxtp-utils";
 import { ConnextContractDeployments, ContractPostfix } from "@connext/nxtp-txservice";
 
 import { getHelpers } from "./lib/helpers";
@@ -29,7 +29,6 @@ export type AssetDescription = Static<typeof TAssetDescription>;
 
 export const TChainConfig = Type.Object({
   assets: Type.Array(TAssetDescription), // Assets for which the router provides liquidity on this chain.
-  subgraph: SubgraphReaderChainConfigSchema, // Subgraph configuration for this chain.
   providers: Type.Array(Type.String()),
   gasStations: Type.Array(Type.String()),
   confirmations: Type.Integer({ minimum: 1 }), // What we consider the "safe confirmations" number for this chain.
