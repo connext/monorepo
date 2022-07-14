@@ -1,12 +1,12 @@
 {
   "name": "@connext/nxtp-contracts",
-  "version": "0.2.0-beta.14",
+  "version": "0.2.0-beta.15",
   "description": "",
   "scripts": {
     "test": "yarn forge test --gas-report",
     "forge": "forge",
     "forge:install": "forge install",
-    "build": "hardhat compile",
+    "build": "hardhat compile && tsc --build ./tsconfig.build.json",
     "coverage": "hardhat coverage --solcoverjs ./.solcover.js",
     "whitelist": "ts-node ./src/whitelist.ts",
     "create-router": "ts-node ./src/createRouter.ts",
@@ -22,16 +22,13 @@
     "hardhat": "hardhat",
     "size": "hardhat size-contracts"
   },
-  "main": "dist/index.js",
-  "types": "typechain/index.ts",
+  "main": "dist/src/index.js",
+  "types": "dist/src/index.d.ts",
   "files": [
     "dist/**/*",
-    "src/**/*",
-    "typechain-types",
-    "artifacts",
     "deployments.json",
     "contracts",
-    "deploy"
+    "abi"
   ],
   "author": "Connext",
   "license": "ISC",
@@ -54,6 +51,7 @@
     "ethereum-waffle": "3.4.4",
     "ethers": "5.6.9",
     "hardhat": "2.9.9",
+    "hardhat-abi-exporter": "^2.9.0",
     "hardhat-contract-sizer": "2.6.1",
     "prettier": "2.6.2",
     "prettier-plugin-solidity": "1.0.0-dev.21",
