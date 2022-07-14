@@ -67,7 +67,9 @@ resource "aws_ecs_service" "service" {
   cluster       = var.cluster_id
   desired_count = var.desired_tasks
 
-  launch_type     = "FARGATE"
+  launch_type = "FARGATE"
+  depends_on  = [aws_alb_target_group.management, aws_alb.lb]
+
   task_definition = "${aws_ecs_task_definition.rmq.family}:${max("${aws_ecs_task_definition.rmq.revision}", "${aws_ecs_task_definition.rmq.revision}")}"
 
   lifecycle {
@@ -75,21 +77,19 @@ resource "aws_ecs_service" "service" {
   }
 
   load_balancer {
-    target_group_arn = aws_alb_target_group.management.arn
-    container_name   = "${var.environment}-${var.stage}-${var.container_family}"
-    container_port   = 15672
-  }
-
-  load_balancer {
-    target_group_arn = aws_lb_target_group.rabbit.arn
+    target_group_arn = aws_lb_target_group.amqp.arn
     container_name   = "${var.environment}-${var.stage}-${var.container_family}"
     container_port   = 5672
   }
 
+  load_balancer {
+    target_group_arn = aws_alb_target_group.management.arn
+    container_name   = "${var.environment}-${var.stage}-${var.container_family}"
+    container_port   = 15672
+  }
   network_configuration {
-    assign_public_ip = false
-    security_groups  = flatten([var.service_security_groups])
-    subnets          = var.private_subnets
+    security_groups = flatten([var.service_security_groups, aws_security_group.lb.id])
+    subnets         = var.private_subnets
   }
 
   tags = {
@@ -99,13 +99,56 @@ resource "aws_ecs_service" "service" {
     Domain      = var.domain
   }
 
-  depends_on = [aws_alb_target_group.management, aws_lb_target_group.rabbit]
 }
 
-# Rabbit Management
+resource "aws_alb" "lb" {
+  security_groups            = var.service_security_groups
+  subnets                    = var.lb_subnets
+  enable_deletion_protection = false
+  idle_timeout               = var.timeout
+  tags = {
+    Family = "${var.environment}-${var.stage}-${var.container_family}"
+    Domain = var.domain
+  }
+}
+
+resource "aws_lb" "amqp" {
+  name               = "${var.environment}-${var.stage}-amqp-lb"
+  internal           = true
+  load_balancer_type = "network"
+  subnets            = var.private_subnets
+
+  enable_deletion_protection = false
+
+  tags = {
+    Family = "${var.environment}-${var.stage}-${var.container_family}"
+    Domain = var.domain
+  }
+}
+
+resource "aws_lb_target_group" "amqp" {
+  name        = "${var.environment}-${var.stage}-amqp-lb-tg"
+  port        = 5672
+  protocol    = "TCP"
+  vpc_id      = var.vpc_id
+  target_type = "ip"
+
+  lifecycle {
+    create_before_destroy = true
+  }
+  tags = {
+    Environment = var.environment
+    Stage       = var.stage
+    Family      = var.container_family
+    Domain      = var.domain
+  }
+
+  depends_on = [aws_lb.amqp]
+}
+
 resource "aws_alb_target_group" "management" {
-  name        = "${var.environment}-${var.stage}-lb-tg"
-  port        = 15672
+  name        = "${var.environment}-${var.stage}-mgt-lb-tg"
+  port        = 80
   protocol    = "HTTP"
   vpc_id      = var.vpc_id
   target_type = "ip"
@@ -117,7 +160,7 @@ resource "aws_alb_target_group" "management" {
   health_check {
     matcher  = "200"
     path     = "/"
-    port     = 15672
+    port     = 80
     timeout  = 30
     interval = 40
   }
@@ -132,20 +175,9 @@ resource "aws_alb_target_group" "management" {
   depends_on = [aws_alb.lb]
 }
 
-resource "aws_lb_listener" "management" {
-  load_balancer_arn = aws_alb.lb.arn
-  port              = 15672
-  protocol          = "HTTP"
-  default_action {
-    type             = "forward"
-    target_group_arn = aws_alb_target_group.management.arn
-  }
-}
-
-
 resource "aws_lb_listener" "https" {
   load_balancer_arn = aws_alb.lb.arn
-  port              = "443"
+  port              = 443
   protocol          = "HTTPS"
   ssl_policy        = "ELBSecurityPolicy-2016-08"
   certificate_arn   = var.cert_arn
@@ -159,63 +191,58 @@ resource "aws_lb_listener" "https" {
     Domain = var.domain
   }
 }
-resource "aws_lb_listener_rule" "http" {
-  listener_arn = aws_lb_listener.management.arn
-  action {
+
+resource "aws_lb_listener" "http" {
+  load_balancer_arn = aws_lb.amqp.arn
+  port              = 5672
+  protocol          = "TCP"
+
+  default_action {
     type             = "forward"
-    target_group_arn = aws_alb_target_group.management.arn
+    target_group_arn = aws_lb_target_group.amqp.arn
   }
-  condition {
-    host_header {
-      values = ["${var.container_family}.${local.dns_name}"]
-    }
+  tags = {
+    Family = "${var.environment}-${var.stage}-${var.container_family}"
+    Domain = var.domain
   }
 }
-resource "aws_lb_listener_rule" "https" {
-  listener_arn = aws_lb_listener.https.arn
+resource "aws_security_group" "lb" {
+  description = "controls access to the ALB"
+  vpc_id      = var.vpc_id
 
-  action {
-    type             = "forward"
-    target_group_arn = aws_alb_target_group.management.arn
+  ingress {
+    protocol    = "tcp"
+    from_port   = 80
+    to_port     = 15672
+    cidr_blocks = var.ingress_cdir_blocks
   }
 
-  condition {
-    host_header {
-      values = ["${var.container_family}.${local.dns_name}"]
-    }
+  egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = var.allow_all_cdir_blocks
+  }
+  tags = {
+    Family = "${var.environment}-${var.stage}-${var.container_family}"
+    Domain = var.domain
   }
 }
 
-
-# Management
-resource "aws_route53_record" "management" {
+resource "aws_route53_record" "www" {
   zone_id = var.zone_id
   name    = "${var.container_family}.${local.dns_name}"
-  type    = "A"
-  alias {
-    name                   = aws_alb.lb.dns_name
-    zone_id                = aws_alb.lb.zone_id
-    evaluate_target_health = true
-  }
+  type    = "CNAME"
+  ttl     = "300"
+  records = [aws_alb.lb.dns_name]
 }
-# AMQP
+
 resource "aws_route53_record" "amqp" {
   zone_id = var.zone_id
   name    = "${var.container_family}.amqp.${local.dns_name}"
-  type    = "A"
-  alias {
-    name                   = aws_lb.network.dns_name
-    zone_id                = aws_lb.network.zone_id
-    evaluate_target_health = true
-  }
+  type    = "CNAME"
+  ttl     = "300"
+  records = [aws_lb.amqp.dns_name]
 }
 
-
-# resource "aws_route53_record" "www" {
-#   zone_id = var.zone_id
-#   name    = var.stage != "production" ? "${var.container_family}.${var.environment}.${var.stage}.${var.base_domain}" : "${var.container_family}.${var.environment}.${var.base_domain}"
-#   type    = "CNAME"
-#   ttl     = "300"
-#   records = [aws_alb.lb.dns_name]
-# }
 

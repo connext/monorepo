@@ -44,7 +44,7 @@ resource "aws_security_group_rule" "allow-ecs-tasks-to-web3signer" {
 }
 
 
-resource "aws_security_group" "rabbitq" {
+resource "aws_security_group" "rabbitmq" {
   name   = "rabbitmq-${var.environment}-${var.stage}"
   vpc_id = var.vpc_id
 
@@ -75,15 +75,16 @@ resource "aws_security_group_rule" "allow-ecs-tasks-to-rabbitmq" {
   protocol                 = "tcp"
   type                     = "ingress"
   source_security_group_id = var.ecs_task_sg_id
-  security_group_id        = aws_security_group.rabbitq.id
+  security_group_id        = aws_security_group.rabbitmq.id
 }
 
 # Allow access from the load balancer
 resource "aws_security_group_rule" "management" {
+  cidr_blocks       = ["0.0.0.0/0"]
   description       = "management"
   from_port         = 15672
   to_port           = 15672
   protocol          = "tcp"
   type              = "ingress"
-  security_group_id = aws_security_group.rabbitq.id
+  security_group_id = aws_security_group.rabbitmq.id
 }

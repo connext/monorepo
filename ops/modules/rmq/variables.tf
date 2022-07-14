@@ -20,6 +20,13 @@ variable "instance_count" {
   default = 1
 }
 
+variable "ingress_cdir_blocks" {
+  type = list(string)
+}
+variable "allow_all_cdir_blocks" {
+  default = ["0.0.0.0/0"]
+}
+
 variable "service_security_groups" {
   type = list(string)
 }

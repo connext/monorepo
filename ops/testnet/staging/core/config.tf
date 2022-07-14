@@ -103,7 +103,7 @@ locals {
     environment      = var.stage
     nomadEnvironment = var.nomad_environment
     messageQueue = {
-      host = module.router_message_queue.amqp_endpoint
+      host = module.router_message_queue.dns_name
       port = 5672
     }
 

@@ -31,6 +31,6 @@ output "lighthouse-service-name" {
 }
 
 output "rmq-router-management-endpoint" {
-  value = module.router_message_queue.rmq_managemenr_endpoint
+  value = module.router_message_queue.rmq_management_endpoint
 }
 

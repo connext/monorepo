@@ -95,12 +95,13 @@ module "router_message_queue" {
   vpc_id                  = module.network.vpc_id
   private_subnets         = module.network.private_subnets
   lb_subnets              = module.network.public_subnets
-  docker_image            = "rabbitmq:3.10-management"
+  docker_image            = "public.ecr.aws/docker/library/rabbitmq:3.10-management"
   container_family        = "router-message-queue"
+  ingress_cdir_blocks     = [module.network.vpc_cdir_block]
   cpu                     = 512
   memory                  = 1024
   instance_count          = 1
-  service_security_groups = flatten([module.network.allow_all_sg, module.network.ecs_task_sg])
+  service_security_groups = flatten([module.sgs.rabbitmq_sg, module.network.allow_all_sg, module.network.ecs_task_sg])
   cert_arn                = var.certificate_arn_testnet
 }
 

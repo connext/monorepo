@@ -1,12 +1,12 @@
 output "dns_name" {
-  value = aws_alb.lb.dns_name
+  value = aws_lb.amqp.dns_name
 }
 
-output "rmq_managemenr_endpoint" {
-  value = aws_route53_record.management.name
+output "rmq_management_endpoint" {
+  value = aws_route53_record.www.name
 }
 
-output "amqp_endpoint" {
+output "rmq_ampq_endpoint" {
   value = aws_route53_record.amqp.name
 }
 
