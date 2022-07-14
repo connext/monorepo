@@ -39,7 +39,7 @@
     "purge:all": "yarn workspaces foreach run purge && rimraf './node_modules'",
     "tsp:root": "tsp",
     "tsp": "tsp",
-    "test:integration": "bash setup-integration-test.sh && sleep 10 && echo 'router logs' && docker container logs --tail 250 router && echo 'integration test start' && yarn workspace @connext/nxtp-integration test:local && yarn docker:stop:all",
+    "test:integration": "bash setup-integration-test.sh && sleep 10 && echo 'router logs' && echo 'integration test start' && yarn workspace @connext/nxtp-integration test:local && yarn docker:stop:all",
     "docker:stop:all": "docker-compose -f docker-compose.chains.yaml -f docker-compose.services.yaml down"
   },
   "resolutions": {
