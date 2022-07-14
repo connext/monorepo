@@ -35,7 +35,13 @@ export const mochaHooks = {
     ]);
 
     // setup cache
-    const cacheParams = { host: "mock", port: 1234, mock: true, logger: mock.context().logger, redis: undefined };
+    const cacheParams = {
+      host: "mock",
+      port: 1234,
+      mock: true,
+      logger: mock.context().logger,
+      redis: undefined as any,
+    };
     const cacheInstance = StoreManager.getInstance(cacheParams);
 
     getOperationsStub = stub(operations, "getOperations");
@@ -62,6 +68,7 @@ export const mochaHooks = {
     };
     stub(SequencerFns, "getContext").returns(ctxMock);
   },
+
   afterEach() {
     restore();
     reset();
