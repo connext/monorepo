@@ -10,7 +10,7 @@ import { NxtpRouterConfig } from "../../config";
 
 export type AppContext = {
   logger: Logger;
-  bridgeContext: BridgeContext;
+  bridgeContext?: BridgeContext;
   adapters: {
     // Stateful interfaces for peripherals.
     wallet: Wallet | Web3Signer; // Used for signing metatxs for bids.

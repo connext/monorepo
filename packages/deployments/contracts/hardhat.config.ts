@@ -9,6 +9,7 @@ import "@tenderly/hardhat-tenderly";
 import "@nomiclabs/hardhat-etherscan";
 import "@openzeppelin/hardhat-upgrades";
 import "hardhat-contract-sizer";
+import "hardhat-abi-exporter";
 import { HardhatUserConfig } from "hardhat/types";
 import { utils } from "ethers";
 
@@ -96,12 +97,14 @@ const config: HardhatUserConfig = {
       accounts: { mnemonic },
       chainId: 1337,
       url: urlOverride || "http://localhost:8545",
+      saveDeployments: false,
       allowUnlimitedContractSize: true,
     },
     local_1338: {
       accounts: { mnemonic },
       chainId: 1338,
       url: urlOverride || "http://localhost:8546",
+      saveDeployments: false,
       allowUnlimitedContractSize: true,
     },
     mainnet: {
@@ -253,6 +256,16 @@ const config: HardhatUserConfig = {
       "PortalFacet",
     ],
     strict: false,
+  },
+  typechain: {
+    outDir: "src/typechain-types",
+  },
+  abiExporter: {
+    path: "./abi",
+    runOnCompile: true,
+    clear: true,
+    spacing: 2,
+    pretty: true,
   },
 };
 

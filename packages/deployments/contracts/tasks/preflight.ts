@@ -43,18 +43,18 @@ export default task("preflight", "Ensure correct setup for e2e demo with a speci
         env: _env,
         adopted: _adopted,
       }: TaskArgs,
-      { deployments, ethers, run },
+      hre,
     ) => {
       const env = mustGetEnv(_env);
       console.log("env:", env);
 
-      let { deployer } = await ethers.getNamedSigners();
+      let { deployer } = await hre.ethers.getNamedSigners();
       if (!deployer) {
-        [deployer] = await ethers.getUnnamedSigners();
+        [deployer] = await hre.ethers.getUnnamedSigners();
       }
 
       const connextName = getDeploymentName("ConnextHandler", env);
-      const connextDeployment = await deployments.get(connextName);
+      const connextDeployment = await hre.deployments.get(connextName);
       const connextAddress = _connextAddress ?? connextDeployment.address;
       const connext = new Contract(connextAddress, connextDeployment.abi, deployer);
       console.log("connextAddress: ", connextAddress);
@@ -70,8 +70,8 @@ export default task("preflight", "Ensure correct setup for e2e demo with a speci
         throw new Error("Domain must be specified as param or from env (CANONICAL_DOMAIN)");
       }
       // Get the domain of the current network (this could be the canonical network, so same as above).
-      const network = await ethers.provider.getNetwork();
-      const domainInfo = getDomainInfoFromChainId(network.chainId);
+      const network = await hre.ethers.provider.getNetwork();
+      const domainInfo = await getDomainInfoFromChainId(network.chainId, hre);
       if (!domainInfo) {
         throw new Error("Unsupported network");
       }
@@ -93,10 +93,10 @@ export default task("preflight", "Ensure correct setup for e2e demo with a speci
         localAsset = canonicalAsset;
       } else {
         // Current network's domain is not canonical domain, so we need to get the local asset representation.
-        const tokenDeployment = await deployments.get(getDeploymentName("TokenRegistryUpgradeBeaconProxy", env));
+        const tokenDeployment = await hre.deployments.get(getDeploymentName("TokenRegistryUpgradeBeaconProxy", env));
         const tokenRegistry = new Contract(
           tokenDeployment.address,
-          (await deployments.get(getDeploymentName("TokenRegistry"))).abi,
+          (await hre.deployments.get(getDeploymentName("TokenRegistry"))).abi,
           deployer,
         );
         console.log("tokenRegistry: ", tokenRegistry.address);
@@ -119,7 +119,7 @@ export default task("preflight", "Ensure correct setup for e2e demo with a speci
       console.log("\nRouter: ", router, " is approved: ", isRouterApproved);
       if (!isRouterApproved) {
         console.log("*** Approving router!");
-        await run("setup-router", { router, connextAddress });
+        await hre.run("setup-router", { router, connextAddress });
       }
       console.log("*** Router approved!");
 
@@ -132,7 +132,7 @@ export default task("preflight", "Ensure correct setup for e2e demo with a speci
       console.log("Canonical asset: ", canonicalAsset);
       if (!isAssetApproved) {
         console.log("*** Approving canonical asset!");
-        await run("setup-asset", {
+        await hre.run("setup-asset", {
           canonical: canonicalTokenId,
           adopted,
           domain: canonicalDomain,
@@ -152,7 +152,7 @@ export default task("preflight", "Ensure correct setup for e2e demo with a speci
         console.log("\nStableSwap Pool Initialized: ", swapPool.pooledTokens.length > 1);
         if (swapPool.pooledTokens.length == 0) {
           console.log("*** Initializing Swap Pool!");
-          await run("initialize-stableswap", {
+          await hre.run("initialize-stableswap", {
             canonical: canonicalAsset,
             domain: canonicalDomain,
             adopted,
@@ -170,7 +170,7 @@ export default task("preflight", "Ensure correct setup for e2e demo with a speci
       // contract in the block explorer and reading the routerBalances mapping, putting in the
       // router signer address and Rinkeby asset ID.
 
-      const erc20Deployment = await deployments.get(getDeploymentName("TestERC20", env));
+      const erc20Deployment = await hre.deployments.get(getDeploymentName("TestERC20", env));
       const erc20 = new Contract(erc20Deployment.address, erc20Deployment.abi, deployer);
       // The amount to mint / add liquidity for. Convert units, coerce to number to remove
       // decimal point, then back to string.
@@ -178,12 +178,12 @@ export default task("preflight", "Ensure correct setup for e2e demo with a speci
       const targetLiquidity = utils.parseUnits(amount, (await erc20.decimals()) as BigNumber);
       const liquidity = await connext.routerBalances(router, localAsset);
       if (liquidity.lt(targetLiquidity)) {
-        if (localAsset !== ethers.constants.AddressZero) {
+        if (localAsset !== hre.ethers.constants.AddressZero) {
           const balance = await erc20.balanceOf(deployer.address);
           console.log("\nDeployer Balance: ", balance.toString());
           if (balance.lt(targetLiquidity)) {
             console.log("*** Minting tokens!");
-            await run("mint", {
+            await hre.run("mint", {
               amount,
               asset: localAsset,
               receiver: deployer.address,
@@ -196,7 +196,7 @@ export default task("preflight", "Ensure correct setup for e2e demo with a speci
         }
         console.log("\nLiquidity: ", liquidity.toString());
         console.log("*** Adding liquidity!");
-        await run("add-liquidity", { router, asset: localAsset, amount, connextAddress, env });
+        await hre.run("add-liquidity", { router, asset: localAsset, amount, connextAddress, env });
         console.log("*** Sufficient liquidity added!");
       } else {
         console.log("\nLiquidity: ", liquidity.toString());
