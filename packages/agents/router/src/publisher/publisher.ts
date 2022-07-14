@@ -6,7 +6,7 @@ import { bindMetrics } from "../bindings";
 import { setupCache, setupMq, setupSubgraphReader } from "../setup";
 
 import { AppContext } from "./context";
-import { bindSubgraph } from "./bindings/subgraph";
+import { bindSubgraph, bindServer } from "./bindings";
 
 // AppContext instance used for interacting with adapters, config, etc.
 const context: AppContext = {} as any;
@@ -63,6 +63,7 @@ export const makePublisher = async (_configOverride?: NxtpRouterConfig) => {
     /// MARK - Bindings
     await bindMetrics("publisher");
     await bindSubgraph();
+    await bindServer();
 
     context.logger.info("Bindings initialized.", requestContext, methodContext);
     context.logger.info("Router publisher boot complete!", requestContext, methodContext, {
