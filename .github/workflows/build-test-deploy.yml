@@ -396,6 +396,7 @@ jobs:
       [
         build-and-push-router-publisher-image,
         build-and-push-router-subscriber-image,
+        build-and-push-sequencer-image,
         build-and-push-cartographer-routers-image,
         build-and-push-cartographer-transfers-image,
         build-and-push-lighthouse-image,
