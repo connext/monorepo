@@ -1,4 +1,4 @@
-FROM node:16.3.0-alpine as node
+FROM node:16-alpine as node
 
 # ----------------------------------------
 # Builds Docker container for nxtp-poller package.

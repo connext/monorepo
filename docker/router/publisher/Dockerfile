@@ -1,8 +1,7 @@
-FROM node:16.3.0-alpine as node
+FROM node:16-alpine as node
 
 # ----------------------------------------
-# Builds Docker container for nxtp-router package.
-# @dev configuraion located ./config.json (relative to this file)
+# Builds Docker container for router-publisher package.
 
 
 # ----------------------------------------
@@ -20,8 +19,6 @@ ARG TEMP_DEPS_DIR
 
 # ----- Copy only the files that affect yarn install -----
 # Allows docker to use cache and skip install if dependencies are unchanged.
-# Assumes that ./packages/*/package.json files have been copied to TEMP_DEPS_DIR
-# with that same directory structure. build.sh does this.
 COPY .yarn /tmp/build/.yarn/
 COPY .yarnrc.yml /tmp/build/
 COPY package.json /tmp/build/
@@ -75,4 +72,4 @@ WORKDIR /home/node/packages/agents/router
 
 EXPOSE 8080
 
-CMD ["node", "--trace-warnings", "dist/index.js"]
+CMD ["node", "--trace-warnings", "dist/publisher/index.js"]
