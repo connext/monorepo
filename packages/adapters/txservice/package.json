@@ -23,13 +23,13 @@
   "dependencies": {
     "@connext/nxtp-contracts": "workspace:*",
     "@connext/nxtp-utils": "workspace:*",
-    "@sinclair/typebox": "0.23.5",
-    "@typescript-eslint/eslint-plugin": "5.26.0",
+    "@sinclair/typebox": "0.24.12",
+    "@typescript-eslint/eslint-plugin": "5.30.5",
     "ajv": "8.11.0",
     "ajv-formats": "2.1.1",
     "axios": "0.27.2",
     "ethers": "5.6.9",
-    "evt": "1.10.2",
+    "evt": "1.11.2",
     "interval-promise": "1.4.0",
     "p-queue": "6.6.2"
   },
@@ -38,18 +38,18 @@
     "@types/chai-as-promised": "7.1.5",
     "@types/chai-subset": "1.3.3",
     "@types/mocha": "9.1.1",
-    "@types/sinon": "10.0.11",
+    "@types/sinon": "10.0.12",
     "chai": "4.3.6",
     "chai-as-promised": "7.1.1",
     "chai-subset": "1.6.0",
-    "eslint": "8.16.0",
+    "eslint": "8.19.0",
     "mocha": "10.0.0",
     "nyc": "15.1.0",
     "rimraf": "3.0.2",
     "sinon": "14.0.0",
     "ts-mocha": "10.0.0",
     "tslib": "2.4.0",
-    "typescript": "4.7.2"
+    "typescript": "4.7.4"
   },
   "publishConfig": {
     "registry": "https://registry.npmjs.org",
