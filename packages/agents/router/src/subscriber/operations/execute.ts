@@ -5,7 +5,6 @@ import {
   XTransferSchema,
   OriginTransfer,
   RequestContext,
-  NxtpError,
   jsonifyError,
   formatUrl,
   AuctionsApiPostBidReq,
