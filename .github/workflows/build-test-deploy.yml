@@ -367,7 +367,8 @@ jobs:
         build-and-push-relayer-image,
       ]
     env:
-      ROUTER_IMAGE: ${{ fromJSON(needs.build-and-push-router-publisher-image.outputs.json).tags[0] }}
+      ROUTER_PUBLISHER_IMAGE: ${{ fromJSON(needs.build-and-push-router-publisher-image.outputs.json).tags[0] }}
+      ROUTER_SUBSCRIBER_IMAGE: ${{ fromJSON(needs.build-and-push-router-subscriber-image.outputs.json).tags[0] }}
       SEQUENCER_IMAGE: ${{ fromJSON(needs.build-and-push-sequencer-image.outputs.json).tags[0] }}
       RELAYER_IMAGE: ${{ fromJSON(needs.build-and-push-relayer-image.outputs.json).tags[0] }}
       WEB3_SIGNER_PRIVATE_KEY: ${{ secrets.WEB3_SIGNER_TESTNET_PRIVATE_KEY }}
@@ -401,7 +402,8 @@ jobs:
         build-and-push-relayer-image,
       ]
     env:
-      ROUTER_IMAGE: ${{ fromJSON(needs.build-and-push-router-publisher-image.outputs.json).tags[0] }}
+      ROUTER_PUBLISHER_IMAGE: ${{ fromJSON(needs.build-and-push-router-publisher-image.outputs.json).tags[0] }}
+      ROUTER_SUBSCRIBER_IMAGE: ${{ fromJSON(needs.build-and-push-router-subscriber-image.outputs.json).tags[0] }}
       SEQUENCER_IMAGE: ${{ fromJSON(needs.build-and-push-sequencer-image.outputs.json).tags[0] }}
       RELAYER_IMAGE: ${{ fromJSON(needs.build-and-push-relayer-image.outputs.json).tags[0] }}
       WEB3_SIGNER_PRIVATE_KEY: ${{ secrets.WEB3_SIGNER_TESTNET_PRIVATE_KEY }}
