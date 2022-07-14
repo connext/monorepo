@@ -653,13 +653,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@cloudamqp/amqp-client@npm:^2.0.3":
-  version: 2.0.3
-  resolution: "@cloudamqp/amqp-client@npm:2.0.3"
-  checksum: 8f25a795ebdc5a378013f2826f0145c5cf0cc63cc00396a8dc6308f2c60628e0d259a059f4128b8fc7232cd7522d4a5c458748feba137fec7bbb90c35641ed37
-  languageName: node
-  linkType: hard
-
 "@colors/colors@npm:1.5.0":
   version: 1.5.0
   resolution: "@colors/colors@npm:1.5.0"
@@ -978,7 +971,6 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@connext/nxtp-sequencer@workspace:packages/agents/sequencer"
   dependencies:
-    "@cloudamqp/amqp-client": ^2.0.3
     "@connext/nxtp-adapters-cache": "workspace:*"
     "@connext/nxtp-adapters-subgraph": "workspace:*"
     "@connext/nxtp-txservice": "workspace:*"
