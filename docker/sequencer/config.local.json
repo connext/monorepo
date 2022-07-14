@@ -23,5 +23,25 @@
   },
   "auctionWaitTime": 30000,
   "environment": "production",
-  "relayerUrl": "http://relayer:8080"
+  "relayerUrl": "http://relayer:8080",
+  "messageQueue": {
+    "connection": {
+      "user": "guest",
+      "pass": "guest",
+      "server": "sequencer-message-queue",
+      "port": 5672,
+      "timeout": 2000,
+      "publishTimeout": 100,
+      "failAfter": 10,
+      "retryLimit": 100
+    },
+    "exchanges": [
+      { "name": "sequencerX", "type": "direct", "publishTimeout": 1000, "persistent": true, "durable": true }
+    ],
+    "queues": [{ "name": "1111", "prefetch": 100, "queueLimit": 10000, "subscribe": true }],
+    "bindings": [{ "exchange": "sequencerX", "target": "1111", "keys": ["1111"] }],
+    "executerTimeout": 300000,
+    "publisher": "sequencerX",
+    "subscriber": "1111"
+  }
 }

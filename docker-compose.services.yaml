@@ -56,9 +56,9 @@ services:
     ports:
       - "6379:6379"
 
-  sequencer:
-    container_name: sequencer
-    image: ${SEQUENCER_IMAGE}
+  sequencer-publisher:
+    container_name: sequencer-publisher
+    image: ${SEQUENCER_PUBLISHER_IMAGE}
     restart: always
     ports:
       - "8081:8081"
@@ -72,6 +72,30 @@ services:
     environment:
       GRAPH_1337_ENDPOINT: "http://graph-node-1337:8000/subgraphs/name/connext/nxtp"
       GRAPH_1338_ENDPOINT: "http://graph-node-1338:8000/subgraphs/name/connext/nxtp"
+
+  sequencer-subscriber:
+    container_name: sequencer-subscriber
+    image: ${SEQUENCER_SUBSCRIBER_IMAGE}
+    restart: always
+    ports:
+      - "8091:8081"
+    logging:
+      driver: json-file
+      options:
+        max-size: 10m
+    volumes:
+      - ${PWD}/docker/sequencer/:/home/node/agents/sequencer/
+      - ${PWD}/docker/sequencer/config.local.json:/home/node/packages/agents/sequencer/config.json
+    environment:
+      GRAPH_1337_ENDPOINT: "http://graph-node-1337:8000/subgraphs/name/connext/nxtp"
+      GRAPH_1338_ENDPOINT: "http://graph-node-1338:8000/subgraphs/name/connext/nxtp"
+
+  sequencer-message-queue:
+    container_name: sequencer-message-queue
+    image: rabbitmq:3.10-management
+    ports:
+      - "5673:5672"
+      - "15673:15672"
 
   sequencer-cache:
     container_name: sequencer-cache
