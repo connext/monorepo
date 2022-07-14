@@ -271,13 +271,14 @@ export function handleExecuted(event: Executed): void {
     transfer = new DestinationTransfer(event.params.transferId.toHexString());
   }
 
-  const num = event.params.args.routers.length;
-  const amount = event.params.args.amount;
-  // TODO: Move from using hardcoded fee calc to using configured liquidity fee numerator.
-  const feesTaken = amount.times(BigInt.fromI32(5)).div(BigInt.fromI32(10000));
-  const routerAmount = amount.minus(feesTaken).div(BigInt.fromI32(num));
   const routers: string[] = [];
   if (transfer.status != "Reconciled") {
+    // Handle router asset balances if this is fast liquidity path.
+    const num = event.params.args.routers.length;
+    const amount = event.params.args.amount;
+    // TODO: Move from using hardcoded fee calc to using configured liquidity fee numerator.
+    const feesTaken = amount.times(BigInt.fromI32(5)).div(BigInt.fromI32(10000));
+    const routerAmount = amount.minus(feesTaken).div(BigInt.fromI32(num));
     for (let i = 0; i < num; i++) {
       const param = event.params.args.routers[i].toHex();
       let router = Router.load(param);
