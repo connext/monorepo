@@ -256,12 +256,12 @@ export const makeSubscriber = async (_configOverride?: SequencerConfig) => {
     context.adapters.mqClient = await setupSubscriber(requestContext);
 
     if (context.config.messageQueue.subscriber) {
-      bindSubscriber(context.config.messageQueue.subscriber as string);
+      bindSubscriber(context.config.messageQueue.subscriber);
     } else {
       // By default subscribe to all configured queues concurrently
       await Promise.all(
         context.config.messageQueue.queues.map(async (queueConfig) => {
-          if (queueConfig?.name) bindSubscriber(queueConfig.name as string);
+          if (queueConfig?.name) bindSubscriber(queueConfig.name);
         }),
       );
     }

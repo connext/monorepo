@@ -7,7 +7,6 @@ import {
   ajv,
   AuctionStatus,
   getNtpTimeSeconds,
-  Auction,
   jsonifyError,
   OriginTransfer,
 } from "@connext/nxtp-utils";
@@ -16,9 +15,9 @@ import { compare } from "compare-versions";
 import { AuctionExpired, MissingXCall, ParamsInvalid, BidVersionInvalid } from "../errors";
 import { getContext } from "../../sequencer";
 import { getHelpers } from "../helpers";
+import { Message } from "../entities";
 
 import { getOperations } from ".";
-import { Message } from "../entities";
 
 export const storeBid = async (bid: Bid, _requestContext: RequestContext): Promise<void> => {
   const {
