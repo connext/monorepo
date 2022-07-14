@@ -65,6 +65,8 @@ export type ChainData = {
   gasEstimates: {
     xcall: string;
     execute: string;
+    xcallL1: string;
+    executeL1: string;
     gasPriceFactor?: string;
   };
 };
