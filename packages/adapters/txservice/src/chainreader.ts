@@ -1,13 +1,5 @@
 import { Signer, providers, BigNumber, constants } from "ethers";
-import {
-  createLoggingContext,
-  Logger,
-  RequestContext,
-  getNtpTimeSeconds,
-  ChainData,
-  getMainnetEquivalent,
-  getHardcodedGasLimits,
-} from "@connext/nxtp-utils";
+import { createLoggingContext, Logger, RequestContext, getNtpTimeSeconds } from "@connext/nxtp-utils";
 
 import { TransactionServiceConfig, validateTransactionServiceConfig, ChainConfig } from "./config";
 import {
@@ -15,7 +7,6 @@ import {
   ChainNotSupported,
   ConfigurationError,
   ProviderNotConfigured,
-  CHAINS_WITH_PRICE_ORACLES,
   getDeployedPriceOracleContract,
   getPriceOracleInterface,
   WriteTransaction,
