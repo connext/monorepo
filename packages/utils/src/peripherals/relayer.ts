@@ -60,7 +60,7 @@ export const getGelatoRelayChains = async (logger?: Logger): Promise<string[]> =
   return result;
 };
 
-export const getEstimatedFee = async (
+export const getGelatoEstimatedFee = async (
   chainId: number,
   paymentToken: string,
   gasLimit: number,
@@ -74,7 +74,7 @@ export const getEstimatedFee = async (
     const res = await axios.get(`${GELATO_SERVER}/oracles/${chainId}/estimate`, { params });
     result = BigNumber.from(res.data.estimatedFee);
   } catch (error: unknown) {
-    if (logger) logger.error("Error in getEstimatedFee", undefined, undefined, jsonifyError(error as Error));
+    if (logger) logger.error("Error in getGelatoEstimatedFee", undefined, undefined, jsonifyError(error as Error));
   }
   return result;
 };

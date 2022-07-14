@@ -6,7 +6,7 @@ import {
   gelatoSend,
   getGelatoRelayChains,
   isChainSupportedByGelato,
-  getEstimatedFee,
+  getGelatoEstimatedFee,
   isOracleActive,
   getGelatoOracles,
   mkAddress,
@@ -110,7 +110,7 @@ describe("Peripherals:Gelato", () => {
     });
   });
 
-  describe("#getEstimatedFee", () => {
+  describe("#getGelatoEstimatedFee", () => {
     afterEach(() => {
       restore();
       reset();
@@ -123,12 +123,12 @@ describe("Peripherals:Gelato", () => {
         },
       });
 
-      expect(await getEstimatedFee(1337, "0x", 100, true)).to.be.deep.eq(BigNumber.from("100"));
+      expect(await getGelatoEstimatedFee(1337, "0x", 100, true)).to.be.deep.eq(BigNumber.from("100"));
     });
 
     it("should return zero value if the request fails", async () => {
       axiosGetStub.throws(new Error("Request failed!"));
-      expect(await getEstimatedFee(1337, "0x", 100, true)).to.be.deep.eq(BigNumber.from("0"));
+      expect(await getGelatoEstimatedFee(1337, "0x", 100, true)).to.be.deep.eq(BigNumber.from("0"));
     });
   });
   describe("#isOracleActive", () => {

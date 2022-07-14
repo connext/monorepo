@@ -4,9 +4,9 @@ import {
   jsonifyError,
   getChainData as _getChainData,
   getChainIdFromDomain as _getChainIdFromDomain,
-  ChainData,
 } from "@connext/nxtp-utils";
 import axios from "axios";
+import { utils, BigNumber } from "ethers";
 
 import { UriInvalid, ApiRequestFailed } from "../errors/index";
 
@@ -36,21 +36,16 @@ export const axiosGetRequest = async (uri: string): Promise<any> => {
   }
 };
 
-export const getExecuteGasAmountForDomain = async (
-  domain: string,
-  _chainData?: Map<string, ChainData>,
-): Promise<string> => {
-  const chainData = _chainData ?? (await getChainData());
+/**
+ * Gets the token price from the external services
+ * @param chainId - The chain identifier. i.e. mainnet -> 1, optimism -> 10
+ * @param tokenAddress - The token address on the target chain
+ * @returns - The token price with 18 decimals in usd. i.e. 1 ether = 1 usd
+ */
+export const getTokenPrice = async (chainId: number, tokenAddress: string): Promise<BigNumber> => {
+  // TODO. Not implemented yet
+  // It basically gets the token price from the external service like coingecko, coinmarketcap, price caching server, etc.
+  // We MUST clean up this function once it gets confirmed.
 
-  if (chainData.has(domain)) {
-    const gasEstimates = chainData.get(domain)!.gasEstimates;
-
-    if (gasEstimates.execute) {
-      return gasEstimates.execute;
-    } else {
-      throw new Error(`GasEstiamte doesn't have a record of execute, for domain: ${domain}`);
-    }
-  } else {
-    throw new Error(`ChainData doesn't have a record for domain: ${domain}`);
-  }
+  return utils.parseEther("1");
 };

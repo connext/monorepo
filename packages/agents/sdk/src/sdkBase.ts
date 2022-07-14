@@ -1,5 +1,14 @@
 import { constants, providers, BigNumber } from "ethers";
-import { Logger, createLoggingContext, ChainData, XCallArgs, CallParams, getEstimatedFee } from "@connext/nxtp-utils";
+import {
+  Logger,
+  createLoggingContext,
+  ChainData,
+  XCallArgs,
+  CallParams,
+  getGelatoEstimatedFee,
+  getHardcodedGasLimits,
+  getDecimalsForAsset,
+} from "@connext/nxtp-utils";
 import {
   getContractInterfaces,
   ConnextContractInterfaces,
@@ -7,18 +16,12 @@ import {
   ChainReader,
 } from "@connext/nxtp-txservice";
 
-import {
-  getChainData,
-  getChainIdFromDomain,
-  getExecuteGasAmountForDomain,
-  relayerBufferPercentage,
-} from "./lib/helpers";
+import { getChainData, getChainIdFromDomain, getTokenPrice, relayerBufferPercentage } from "./lib/helpers";
 import { SignerAddressMissing, ChainDataUndefined } from "./lib/errors";
 import { NxtpSdkConfig, getConfig } from "./config";
 
 /**
  * @classdesc Lightweight class to facilitate interaction with the Connext contract on configured chains.
- *
  */
 export class NxtpSdkBase {
   public readonly config: NxtpSdkConfig;
@@ -246,7 +249,6 @@ export class NxtpSdkBase {
 
     const {
       originDomain,
-      destinationDomain,
       callDataGasAmount,
       originNativeToken: _originNativeToken,
       destinationNativeToken: _destinationNativeToken,
@@ -261,13 +263,22 @@ export class NxtpSdkBase {
     const destinationChainId = await getChainIdFromDomain(originDomain, this.chainData);
 
     // fetch executeGasAmount from chainData
-    const executeGasAmount = await getExecuteGasAmountForDomain(destinationDomain, this.chainData);
+    const {
+      execute: executeGasAmount,
+      executeL1: executeL1GasAmount,
+      gasPriceFactor,
+    } = await getHardcodedGasLimits(originChainId, this.chainData);
+    this.logger.debug("Hardcoded gasLimits", requestContext, methodContext, {
+      execute: executeGasAmount,
+      executeL1: executeL1GasAmount,
+      gasPriceFactor,
+    });
 
     // fetch estimate relayer fee in destination native token
     let estimatedExecuteFee = BigNumber.from(0);
     let estiamteCallDataFee = BigNumber.from(0);
 
-    estimatedExecuteFee = await getEstimatedFee(
+    estimatedExecuteFee = await getGelatoEstimatedFee(
       destinationChainId,
       destinationNativeToken,
       Number(executeGasAmount),
@@ -275,7 +286,7 @@ export class NxtpSdkBase {
     );
 
     if (callDataGasAmount) {
-      estiamteCallDataFee = await getEstimatedFee(
+      estiamteCallDataFee = await getGelatoEstimatedFee(
         destinationChainId,
         destinationNativeToken,
         Number(callDataGasAmount),
@@ -303,10 +314,19 @@ export class NxtpSdkBase {
 
     // TODO: Convert the estimatedRelayerFee to the originNativeToken
     // fetch gasPrice for origin domain using oracle
+    const originGasPrice = await getTokenPrice(originChainId, originNativeToken);
+    const nativeTokenDecimals = await getDecimalsForAsset(originNativeToken, originChainId, undefined, this.chainData);
+    const relayerFeeInOrginNativeAsset = finalEstimatedRelayerFee
+      .mul(BigNumber.from(10).pow(nativeTokenDecimals))
+      .div(originGasPrice);
 
-    this.logger.info("Method end", requestContext, methodContext, { finalEstimatedRelayerFee });
+    this.logger.info("Method end", requestContext, methodContext, {
+      finalEstimatedRelayerFee,
+      originGasPrice,
+      relayerFeeInOrginNativeAsset,
+    });
 
-    return finalEstimatedRelayerFee;
+    return relayerFeeInOrginNativeAsset;
   }
 
   async changeSignerAddress(signerAddress: string) {

@@ -11,6 +11,8 @@ export const DEFAULT_GAS_ESTIMATES = {
 export type GasEstimates = {
   xcall: string;
   execute: string;
+  xcallL1: string;
+  executeL1: string;
   gasPriceFactor: string;
 };
 
