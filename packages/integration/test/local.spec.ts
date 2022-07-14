@@ -8,10 +8,12 @@ import {
   ChainData,
   AuctionsApiGetAuctionStatusResponse,
   AuctionsApiErrorResponse,
+  XCallArgs,
+  CallParams,
 } from "@connext/nxtp-utils";
 import { TransactionService, getErc20Interface } from "@connext/nxtp-txservice";
 import { NxtpSdkBase } from "@connext/nxtp-sdk";
-import { constants, utils } from "ethers";
+import { constants, providers, utils } from "ethers";
 import { SubgraphReader } from "@connext/nxtp-adapters-subgraph";
 
 import { pollSomething } from "./helpers/shared";
@@ -32,6 +34,146 @@ const txService = new TransactionService(
   },
   WALLET,
 );
+
+const sendXCall = async (
+  sdk: NxtpSdkBase,
+  xparams: Partial<CallParams> = {},
+): Promise<{
+  receipt: providers.TransactionReceipt;
+  xcallData: XCallArgs;
+}> => {
+  logger.info("Formatting XCall.");
+  const xcallData = {
+    amount: "1000",
+    params: {
+      to: PARAMETERS.AGENTS.USER.address,
+      originDomain: PARAMETERS.A.DOMAIN,
+      destinationDomain: PARAMETERS.B.DOMAIN,
+      agent: constants.AddressZero,
+      callback: constants.AddressZero,
+      callbackFee: "0",
+      callData: "0x",
+      forceSlow: false,
+      receiveLocal: false,
+      recovery: PARAMETERS.AGENTS.USER.address,
+      relayerFee: "0",
+      slippageTol: "0",
+      ...xparams,
+    },
+    transactingAssetId: PARAMETERS.ASSET.address,
+  };
+  const tx = await sdk.xcall(xcallData);
+
+  logger.info("Sending XCall...");
+  const receipt = await txService.sendTx(
+    { to: tx.to!, value: tx.value ?? 0, data: utils.hexlify(tx.data!), chainId: 1337 },
+    requestContext,
+  );
+  logger.info("XCall sent!");
+  return { receipt, xcallData };
+};
+
+const getOriginTransfer = async (
+  subgraphReader: SubgraphReader,
+  domain: string,
+  transactionHash: string,
+): Promise<OriginTransfer> => {
+  logger.info(`Polling origin subgraph for added transfer...`, requestContext, methodContext, {
+    domain,
+    txHash: transactionHash,
+  });
+
+  const startTime = Date.now();
+  const originTransfer: OriginTransfer | undefined = await pollSomething({
+    // Attempts will be made for 1 minute.
+    attempts: Math.floor(60_000 / SUBG_POLL_PARITY),
+    parity: SUBG_POLL_PARITY,
+    method: async () => {
+      try {
+        const transfer = await subgraphReader.getOriginTransferByHash(domain, transactionHash);
+        if (transfer?.origin.xcall?.transactionHash) {
+          return transfer;
+        }
+      } catch (e: unknown) {
+        console.log("Waiting for next loop...");
+      }
+      return undefined;
+    },
+  });
+  const endTime = Date.now();
+
+  if (!originTransfer) {
+    logger.info("Failed to retrieve xcalled transfer from the origin subgraph.", requestContext, methodContext, {
+      domain: domain,
+      etc: {
+        polled: `${(endTime - startTime) / 1_000}s.`,
+      },
+    });
+    throw new Error("Failed to retrieve xcalled transfer from the origin subgraph.");
+  }
+
+  logger.info("XCall retrieved.", requestContext, methodContext, {
+    domain,
+    etc: {
+      took: `${endTime - startTime}ms.`,
+      transferID: originTransfer?.transferId,
+      originTransfer,
+    },
+  });
+  return originTransfer;
+};
+
+const getDestinationTransfer = async (
+  subgraphReader: SubgraphReader,
+  domain: string,
+  transferId: string,
+): Promise<DestinationTransfer> => {
+  logger.info("Polling destination subgraph for execute tx...", requestContext, methodContext, {
+    domain,
+    transferId,
+  });
+
+  const startTime = Date.now();
+  const destinationTransfer: DestinationTransfer | undefined = await pollSomething({
+    // Attempts will be made for 3 minutes.
+    attempts: Math.floor(180_000 / SUBG_POLL_PARITY),
+    parity: SUBG_POLL_PARITY,
+    method: async () => {
+      const transfer = await subgraphReader.getDestinationTransferById(domain, transferId);
+      if (transfer?.destination.reconcile?.transactionHash) {
+        logger.info("Transfer was reconciled.", requestContext, methodContext, {
+          domain,
+          hash: transfer.destination.reconcile.transactionHash,
+        });
+      }
+
+      if (transfer?.destination.execute?.transactionHash) {
+        return transfer;
+      }
+      return undefined;
+    },
+  });
+  const endTime = Date.now();
+
+  if (!destinationTransfer) {
+    logger.info("Failed to retrieve execute transfer from the destination subgraph.", requestContext, methodContext, {
+      domain,
+      etc: {
+        polled: `${(endTime - startTime) / 1_000}s`,
+      },
+    });
+    throw new Error("Failed to retrieve execute transfer from the destination subgraph.");
+  }
+
+  logger.info("Execute transaction found.", requestContext, methodContext, {
+    domain,
+    hash: destinationTransfer.destination.execute?.transactionHash,
+    etc: {
+      took: `${(endTime - startTime) / 1_000}s`,
+    },
+  });
+  return destinationTransfer;
+};
 
 const { requestContext, methodContext } = createLoggingContext("e2e");
 describe("LOCAL:E2E", () => {
@@ -176,7 +318,7 @@ describe("LOCAL:E2E", () => {
     }
   });
 
-  it.only("sends a simple transfer with fast path", async () => {
+  it.only("handles fast liquidity transfer", async () => {
     const balanceOfData = getErc20Interface().encodeFunctionData("balanceOf", [PARAMETERS.AGENTS.USER.address]);
     const encoded = await txService.readTx({
       chainId: +PARAMETERS.A.DOMAIN,
@@ -185,86 +327,20 @@ describe("LOCAL:E2E", () => {
     });
     const [tokenBalance] = getErc20Interface().decodeFunctionResult("balanceOf", encoded);
     logger.info(`> sender token balance: ${tokenBalance.toString()}`);
-    logger.info("Sending xcall...");
-    const xcallData = {
-      amount: "1000",
-      params: {
-        originDomain: PARAMETERS.A.DOMAIN,
-        destinationDomain: PARAMETERS.B.DOMAIN,
-        to: PARAMETERS.AGENTS.USER.address,
-        callback: constants.AddressZero,
-        callbackFee: "0",
-        callData: "0x",
-        forceSlow: false,
-        receiveLocal: false,
-        recovery: PARAMETERS.AGENTS.USER.address,
-        relayerFee: "0",
-        slippageTol: "0",
-        agent: PARAMETERS.AGENTS.USER.address,
-      },
-      transactingAssetId: PARAMETERS.ASSET.address,
-    };
-    const tx = await sdk.xcall(xcallData);
 
-    const receipt = await txService.sendTx(
-      { to: tx.to!, value: tx.value ?? 0, data: utils.hexlify(tx.data!), chainId: 1337 },
-      requestContext,
-    );
+    const { receipt, xcallData } = await sendXCall(sdk);
+    const originTransfer = await getOriginTransfer(subgraphReader, PARAMETERS.A.DOMAIN, receipt.transactionHash);
 
-    logger.info("xcall sent!");
-    logger.info(`Polling origin subgraph for added transfer...`, requestContext, methodContext, {
-      domain: xcallData.params.originDomain,
-      txHash: receipt.transactionHash,
-    });
-    let startTime = Date.now();
-    const originTransfer: OriginTransfer | undefined = await pollSomething({
-      // Attempts will be made for 1 minute.
-      attempts: Math.floor(60_000 / SUBG_POLL_PARITY),
-      parity: SUBG_POLL_PARITY,
-      method: async () => {
-        try {
-          const transfer = await subgraphReader.getOriginTransferByHash(
-            xcallData.params.originDomain,
-            receipt.transactionHash,
-          );
-          if (transfer?.origin.xcall?.transactionHash) {
-            return transfer;
-          }
-        } catch (e: unknown) {
-          console.log("Waiting for next loop...");
-        }
-        return undefined;
-      },
-    });
-    let endTime = Date.now();
+    // TODO: Check user funds, assert tokens were deducted.
 
-    if (!originTransfer) {
-      logger.info("Failed to retrieve xcalled transfer from the origin subgraph.", requestContext, methodContext, {
-        domain: xcallData.params.originDomain,
-        etc: {
-          polled: `${(endTime - startTime) / 1_000}s.`,
-        },
-      });
-      throw new Error("Failed to retrieve xcalled transfer from the origin subgraph.");
-    }
-
-    logger.info("XCall retrieved.", requestContext, methodContext, {
-      domain: xcallData.params.originDomain,
-      etc: {
-        took: `${endTime - startTime}ms.`,
-        transferID: originTransfer?.transferId,
-        originTransfer,
-      },
-    });
-
-    logger.info("Waiting for execution on the destination domain", requestContext, methodContext, {
+    logger.info("Waiting for execution on the destination domain.", requestContext, methodContext, {
       domain: xcallData.params.destinationDomain,
       transferId: originTransfer?.transferId,
     });
 
     const sequencerUrl = process.env.SEQUENCER_URL;
     if (sequencerUrl) {
-      logger.info("Polling sequencer for autction status...");
+      logger.info("Polling sequencer for auction status...");
       let error: any | undefined;
       const status: AxiosResponse<AuctionsApiGetAuctionStatusResponse> | undefined = await pollSomething({
         attempts: Math.floor(60_000 / SUBG_POLL_PARITY),
@@ -274,7 +350,7 @@ describe("LOCAL:E2E", () => {
             .request<AuctionsApiGetAuctionStatusResponse>({
               method: "get",
               baseURL: sequencerUrl,
-              url: `/auctions/${originTransfer?.transferId}`,
+              url: `/auctions/${originTransfer.transferId}`,
             })
             .catch((e: AxiosResponse<AuctionsApiErrorResponse>) => {
               error = e.data ? (e.data.error ? e.data.error.message : e.data) : e;
@@ -297,55 +373,13 @@ describe("LOCAL:E2E", () => {
       }
     }
 
-    logger.info("Polling destination subgraph for execute tx...", requestContext, methodContext, {
-      domain: xcallData.params.destinationDomain,
-      transferId: originTransfer?.transferId,
-    });
+    const destinationTransfer = await getDestinationTransfer(
+      subgraphReader,
+      PARAMETERS.B.DOMAIN,
+      originTransfer.transferId,
+    );
 
-    startTime = Date.now();
-
-    const destinationTransfer: DestinationTransfer | undefined = await pollSomething({
-      // Attempts will be made for 3 minutes.
-      attempts: Math.floor(180_000 / SUBG_POLL_PARITY),
-      parity: SUBG_POLL_PARITY,
-      method: async () => {
-        const transfer = await subgraphReader.getDestinationTransferById(
-          xcallData.params.destinationDomain,
-          originTransfer.transferId,
-        );
-        if (transfer?.destination.reconcile?.transactionHash) {
-          logger.info("Transfer was reconciled.", requestContext, methodContext, {
-            domain: xcallData.params.destinationDomain,
-            hash: transfer.destination.reconcile.transactionHash,
-          });
-        }
-
-        if (transfer?.destination.execute?.transactionHash) {
-          return transfer;
-        }
-        return undefined;
-      },
-    });
-
-    endTime = Date.now();
-
-    if (!destinationTransfer) {
-      logger.info("Failed to retrieve execute transfer from the destination subgraph.", requestContext, methodContext, {
-        domain: xcallData.params.destinationDomain,
-        etc: {
-          polled: `${(endTime - startTime) / 1_000}s`,
-        },
-      });
-      throw new Error("Failed to retrieve execute transfer from the destination subgraph.");
-    }
-
-    logger.info("Execute transaction found.", requestContext, methodContext, {
-      domain: xcallData.params.destinationDomain,
-      hash: destinationTransfer.destination.execute?.transactionHash,
-      etc: {
-        took: `${(endTime - startTime) / 1_000}s`,
-      },
-    });
+    // TODO: Check router liquidity on-chain, assert funds were deducted.
 
     logger.info("Transfer completed successfully!", requestContext, methodContext, {
       originDomain: xcallData.params.originDomain,
@@ -357,5 +391,9 @@ describe("LOCAL:E2E", () => {
         },
       },
     });
+  });
+
+  it.skip("handles slow liquidity transfer", async () => {
+    // const { receipt, xcallData } = await sendXCall(sdk, { forceSlow: true });
   });
 });
