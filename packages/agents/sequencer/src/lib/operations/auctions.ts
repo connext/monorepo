@@ -177,7 +177,6 @@ export const executeAuction = async (transferId: string, _requestContext: Reques
     transferId,
   });
 
-<<<<<<< HEAD
   // NOTE: Should be an OriginTransfer, but we will sanity check below.
   const transfer = (await cache.transfers.getTransfer(transferId)) as OriginTransfer | undefined;
   if (!transfer) {
@@ -200,18 +199,6 @@ export const executeAuction = async (transferId: string, _requestContext: Reques
     });
     return;
   }
-=======
-          const destTx = await subgraph.getDestinationTransferById(transfer.xparams.destinationDomain, transferId);
-          if (destTx) {
-            logger.error("Transfer already executed", requestContext, methodContext, undefined, {
-              transferId,
-              transfer,
-              bids,
-            });
-            await cache.auctions.setStatus(transferId, AuctionStatus.Executed);
-            return;
-          }
->>>>>>> main
 
   const destTx = await subgraph.getDestinationTransferById(transfer.destinationDomain!, transferId);
   if (destTx) {
@@ -235,7 +222,6 @@ export const executeAuction = async (transferId: string, _requestContext: Reques
     return;
   }
 
-<<<<<<< HEAD
   for (const roundIdx of availableRoundIds) {
     const roundIdInNum = Number(roundIdx);
     const totalBids = bidsRoundMap[roundIdInNum];
@@ -278,13 +264,6 @@ export const executeAuction = async (transferId: string, _requestContext: Reques
               transfer: {
                 transferId,
                 asset,
-=======
-            // Try every combinations until we find one that works.
-            for (const randomCombination of combinedBidsForRound) {
-              const asset = await getDestinationLocalAsset(
-                transfer.xparams.originDomain,
-                transfer.origin.assets.bridged.asset,
->>>>>>> main
                 destination,
                 amount: amount.toString(),
               },
