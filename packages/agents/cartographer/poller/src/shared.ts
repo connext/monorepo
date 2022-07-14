@@ -1,10 +1,9 @@
-import { ChainData, getSubgraphHealth as _getSubgraphHealth, Logger } from "@connext/nxtp-utils";
+import { ChainData, Logger } from "@connext/nxtp-utils";
 import { SubgraphReader as _SubgraphReader } from "@connext/nxtp-adapters-subgraph";
 
 import { CartographerConfig } from "./config";
 import { Database } from "./adapters/database";
 
-export const getSubgraphHealth = _getSubgraphHealth;
 export const SubgraphReader = _SubgraphReader;
 
 export type AppContext = {
