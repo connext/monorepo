@@ -101,11 +101,11 @@ export const storeBid = async (bid: Bid, _requestContext: RequestContext): Promi
 
   // Enqueue only once to dedup, when the first bid for the transfer is stored.
   if (status === AuctionStatus.None) {
-    const message: Message = { transferId: transfer.transferId, originDomain: transfer.originDomain };
+    const message: Message = { transferId: transfer.transferId, originDomain: transfer.xparams!.originDomain };
     await mqClient.publish(config.messageQueue.publisher, {
-      type: transfer.originDomain,
+      type: transfer.xparams!.originDomain,
       body: message,
-      routingKey: transfer.originDomain,
+      routingKey: transfer.xparams!.originDomain,
       persistent: true,
     });
     logger.info("Enqueued transfer", requestContext, methodContext, {
@@ -200,7 +200,7 @@ export const executeAuction = async (transferId: string, _requestContext: Reques
     return;
   }
 
-  const destTx = await subgraph.getDestinationTransferById(transfer.destinationDomain!, transferId);
+  const destTx = await subgraph.getDestinationTransferById(transfer.xparams!.destinationDomain!, transferId);
   if (destTx) {
     logger.error("Transfer already executed", requestContext, methodContext, undefined, {
       transferId,
@@ -238,7 +238,7 @@ export const executeAuction = async (transferId: string, _requestContext: Reques
     // Try every combinations until we find one that works.
     for (const randomCombination of combinedBidsForRound) {
       const asset = await getDestinationLocalAsset(
-        transfer.originDomain,
+        transfer.xparams!.originDomain,
         transfer.origin.assets.bridged.asset,
         destination,
       );
