@@ -7,7 +7,6 @@ import { ConnextContractDeployments, ContractPostfix } from "@connext/nxtp-txser
 import { getHelpers } from "./lib/helpers";
 
 const DEFAULT_ALLOWED_TOLERANCE = 10; // in percent
-const MIN_SUBGRAPH_SYNC_BUFFER = 25;
 
 // Polling mins and defaults.
 const MIN_SUBGRAPH_POLL_INTERVAL = 2_000;
