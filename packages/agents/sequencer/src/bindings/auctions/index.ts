@@ -1,26 +1,21 @@
 import { spawn } from "child_process";
 
-import Broker from "foo-foo-mq";
 import { AuctionStatus, createLoggingContext, jsonifyError } from "@connext/nxtp-utils";
 
 import { getContext } from "../../sequencer";
-import { Message } from "../../lib/operations/mq";
+import { Message } from "../../lib/entities";
 
 export const bindSubscriber = async (queueName: string) => {
   const {
     logger,
     config,
-    adapters: { cache },
+    adapters: { cache, mqClient },
   } = getContext();
   const { requestContext, methodContext } = createLoggingContext(bindSubscriber.name);
   logger.info("Binding subscriber for queue", requestContext, methodContext, { queue: queueName });
   try {
-    // Dequeue
-    // Subscriber per domain
     // Spawn job handler
-    // Fork node process
-    // Configure per domain concurrency
-    Broker.handle(queueName, async function (msg) {
+    mqClient.handle(queueName, async function (msg) {
       try {
         const termSignals: NodeJS.Signals[] = ["SIGTERM", "SIGINT"];
         const message: Message = msg.body as Message;
@@ -89,6 +84,6 @@ export const bindSubscriber = async (queueName: string) => {
     });
   } catch (e: unknown) {
     logger.error("Error while binding subscriber", requestContext, methodContext, jsonifyError(e as Error));
-    Broker.close();
+    mqClient.close();
   }
 };

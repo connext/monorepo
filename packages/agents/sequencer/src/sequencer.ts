@@ -1,5 +1,3 @@
-import { spawn } from "child_process";
-
 import { logger as ethersLogger } from "ethers";
 import {
   Logger,
@@ -9,10 +7,10 @@ import {
   createMethodContext,
   ChainData,
 } from "@connext/nxtp-utils";
+import Broker from "foo-foo-mq";
 import { SubgraphReader } from "@connext/nxtp-adapters-subgraph";
 import { StoreManager } from "@connext/nxtp-adapters-cache";
 import { ChainReader, getContractInterfaces, contractDeployments } from "@connext/nxtp-txservice";
-import Broker from "foo-foo-mq";
 
 import { SequencerConfig } from "./lib/entities";
 import { getConfig } from "./config";
@@ -57,10 +55,10 @@ export const makePublisher = async (_configOverride?: SequencerConfig) => {
     );
     context.adapters.contracts = getContractInterfaces();
     context.adapters.relayer = await setupRelayer();
+    context.adapters.mqClient = await setupPublisher(requestContext);
 
     /// MARK - Bindings
     // Create server, set up routes, and start listening.
-    await setupPublisher(requestContext);
     await bindServer();
 
     context.logger.info("Sequencer boot complete!", requestContext, methodContext, {
@@ -199,32 +197,37 @@ export const setupSubgraphReader = async (requestContext: RequestContext): Promi
   return subgraphReader;
 };
 
-export const setupPublisher = async (requestContext: RequestContext): Promise<void> => {
+export const setupPublisher = async (requestContext: RequestContext): Promise<typeof Broker> => {
   const { logger, config } = context;
   const methodContext = createMethodContext(setupPublisher.name);
-  const {
-    mq: { setupMQ },
-  } = getOperations();
 
   logger.info("MQ publisher setup in progress...", requestContext, methodContext, {});
-
-  await setupMQ(config);
-
+  const client = await setupMQ(config);
   logger.info("MQ publisher setup is done!", requestContext, methodContext, {});
+
+  return client;
 };
 
-export const setupSubscriber = async (requestContext: RequestContext): Promise<void> => {
+export const setupSubscriber = async (requestContext: RequestContext): Promise<typeof Broker> => {
   const { logger, config } = context;
   const methodContext = createMethodContext(setupSubscriber.name);
-  const {
-    mq: { setupMQ },
-  } = getOperations();
 
   logger.info("MQ subscriber setup in progress...", requestContext, methodContext, {});
-
-  await setupMQ(config);
-
+  const client = await setupMQ(config);
   logger.info("MQ subscriber setup is done!", requestContext, methodContext, {});
+
+  return client;
+};
+
+export const setupMQ = async (_config: SequencerConfig): Promise<typeof Broker> => {
+  const mqConfig: Broker.ConfigurationOptions = {
+    connection: _config.messageQueue.connection,
+    exchanges: _config.messageQueue.exchanges,
+    queues: _config.messageQueue.queues,
+    bindings: _config.messageQueue.bindings,
+  };
+  await Broker.configure(mqConfig);
+  return Broker;
 };
 
 export const makeSubscriber = async (_configOverride?: SequencerConfig) => {
@@ -232,8 +235,6 @@ export const makeSubscriber = async (_configOverride?: SequencerConfig) => {
   try {
     context.adapters = {} as any;
 
-    /// MARK - Config.
-    // Get ChainData and parse out configuration.
     context.chainData = await getChainData();
     context.config = _configOverride ?? (await getConfig(context.chainData, contractDeployments));
     context.logger = new Logger({
@@ -249,7 +250,7 @@ export const makeSubscriber = async (_configOverride?: SequencerConfig) => {
 
     context.logger.info("Subscriber config generated.", requestContext, methodContext, { config: context.config });
 
-    await setupSubscriber(requestContext);
+    context.adapters.mqClient = await setupSubscriber(requestContext);
 
     if (context.config.messageQueue.subscriber) {
       bindSubscriber(context.config.messageQueue.subscriber as string);
@@ -263,7 +264,7 @@ export const makeSubscriber = async (_configOverride?: SequencerConfig) => {
     }
   } catch (error: any) {
     console.error("Error starting subscriber :'(", error);
-    Broker.close();
+    context.adapters.mqClient.close();
     process.exit(1);
   }
 };

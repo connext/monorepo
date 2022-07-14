@@ -11,6 +11,7 @@ import {
 } from "@connext/nxtp-utils";
 import { stub, restore, reset, SinonStub } from "sinon";
 import { constants, BigNumber } from "ethers";
+import Broker from "foo-foo-mq";
 
 import { ctxMock, getOperationsStub, getHelpersStub } from "../../globalTestHook";
 import { mock } from "../../mock";
@@ -32,6 +33,7 @@ describe("Operations:Auctions", () => {
   let storeTransfersStub: SinonStub;
   let setLiquidityStub: SinonStub;
   let getLiquidityStub: SinonStub;
+  let publishStub: SinonStub;
 
   // operations
   let sendToRelayerStub: SinonStub;
@@ -76,6 +78,8 @@ describe("Operations:Auctions", () => {
         getMinimumBidsCountForRound,
       },
     });
+
+    publishStub = stub(Broker, "publish").resolves();
   });
 
   afterEach(() => {
@@ -207,6 +211,7 @@ describe("Operations:Auctions", () => {
       const router3 = mkAddress("0x113");
       const bids: Record<string, Bid> = {};
       bids[router1] = {
+        routerVersion: "0.0.1",
         transferId: transferId,
         origin: "1111",
         router: router1,
@@ -215,6 +220,7 @@ describe("Operations:Auctions", () => {
         },
       };
       bids[router2] = {
+        routerVersion: "0.0.1",
         transferId: transferId,
         origin: "1111",
         router: router2,
@@ -225,6 +231,7 @@ describe("Operations:Auctions", () => {
         },
       };
       bids[router3] = {
+        routerVersion: "0.0.1",
         transferId: transferId,
         origin: "1111",
         router: router3,
@@ -243,11 +250,12 @@ describe("Operations:Auctions", () => {
 
       const transfer = mock.entity.xtransfer({ transferId });
       getTransferStub.resolves(transfer);
-      await executeAuction(requestContext);
+      await executeAuction(transferId, requestContext);
       expect(sendToRelayerStub.callCount).to.be.eq(1);
       expect(sendToRelayerStub.getCall(0).args[0]).to.be.eq(1);
       expect(sendToRelayerStub.getCall(0).args[1]).to.be.deep.eq([
         {
+          routerVersion: "0.0.1",
           transferId: transferId,
           origin: "1111",
           router: router1,
@@ -272,6 +280,7 @@ describe("Operations:Auctions", () => {
       const router3 = mkAddress("0x113");
       const bids: Record<string, Bid> = {};
       bids[router1] = {
+        routerVersion: "0.0.1",
         transferId: transferId,
         origin: "1111",
         router: router1,
@@ -282,6 +291,7 @@ describe("Operations:Auctions", () => {
         },
       };
       bids[router2] = {
+        routerVersion: "0.0.1",
         transferId: transferId,
         origin: "1111",
         router: router2,
@@ -292,6 +302,7 @@ describe("Operations:Auctions", () => {
       };
 
       bids[router3] = {
+        routerVersion: "0.0.1",
         transferId: transferId,
         origin: "1111",
         router: router3,
@@ -309,13 +320,14 @@ describe("Operations:Auctions", () => {
 
       const transfer = mock.entity.xtransfer({ transferId });
       getTransferStub.resolves(transfer);
-      await executeAuction(requestContext);
+      await executeAuction(transferId, requestContext);
       expect(sendToRelayerStub.callCount).to.be.eq(1);
 
       // round-2 needs to be selected
       expect(sendToRelayerStub.getCall(0).args[0]).to.be.eq(2);
       expect(sendToRelayerStub.getCall(0).args[1]).to.be.deep.eq([
         {
+          routerVersion: "0.0.1",
           transferId: transferId,
           origin: "1111",
           router: router1,
@@ -324,6 +336,7 @@ describe("Operations:Auctions", () => {
           },
         },
         {
+          routerVersion: "0.0.1",
           transferId: transferId,
           origin: "1111",
           router: router2,
@@ -347,6 +360,7 @@ describe("Operations:Auctions", () => {
       const router3 = mkAddress("0x113");
       const bids: Record<string, Bid> = {};
       bids[router1] = {
+        routerVersion: "0.0.1",
         transferId: transferId,
         origin: "1111",
         router: router1,
@@ -357,6 +371,7 @@ describe("Operations:Auctions", () => {
         },
       };
       bids[router2] = {
+        routerVersion: "0.0.1",
         transferId: transferId,
         origin: "1111",
         router: router2,
@@ -367,6 +382,7 @@ describe("Operations:Auctions", () => {
       };
 
       bids[router3] = {
+        routerVersion: "0.0.1",
         transferId: transferId,
         origin: "1111",
         router: router3,
@@ -393,13 +409,14 @@ describe("Operations:Auctions", () => {
 
       const transfer = mock.entity.xtransfer({ transferId });
       getTransferStub.resolves(transfer);
-      await executeAuction(requestContext);
+      await executeAuction(transferId, requestContext);
       expect(sendToRelayerStub.callCount).to.be.eq(1);
 
       // round-2 needs to be selected
       expect(sendToRelayerStub.getCall(0).args[0]).to.be.eq(2);
       expect(sendToRelayerStub.getCall(0).args[1]).to.be.deep.eq([
         {
+          routerVersion: "0.0.1",
           transferId: transferId,
           origin: "1111",
           router: router1,
@@ -408,6 +425,7 @@ describe("Operations:Auctions", () => {
           },
         },
         {
+          routerVersion: "0.0.1",
           transferId: transferId,
           origin: "1111",
           router: router2,
@@ -420,7 +438,7 @@ describe("Operations:Auctions", () => {
       expect(upsertTaskStub.getCall(0).args).to.be.deep.eq([{ transferId, taskId }]);
     });
 
-    it("should ignore if time elapsed is insufficient", async () => {
+    it("should wait then proceed if time elapsed is insufficient", async () => {
       getLiquidityStub.resolves(BigNumber.from("10000000000000000000"));
       const taskId = getRandomBytes32();
       sendToRelayerStub.resolves(taskId);
@@ -439,11 +457,9 @@ describe("Operations:Auctions", () => {
       });
       getAuctionStub.resolves(auction);
 
-      await executeAuction(requestContext);
+      await executeAuction(transferId, requestContext);
 
-      expect(getAuctionStub.callCount).to.be.eq(1);
-      expect(getTransferStub.callCount).to.be.eq(0);
-      expect(sendToRelayerStub.callCount).to.be.eq(0);
+      expect(getTransferStub.callCount).to.be.eq(1);
     });
 
     it("should ignore if transfer is undefined", async () => {

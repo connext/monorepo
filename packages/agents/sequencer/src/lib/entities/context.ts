@@ -17,6 +17,7 @@ export type AppContext = {
     chainreader: ChainReader; // For reading blockchain using RPC providers.
     contracts: ConnextContractInterfaces; // Used to encode/decode fn data for smart contracts.
     relayer: Relayer; // Relayer for sending transactions to the blockchain.
+    mqClient: typeof Broker; // Broker for interacting with the message queue
   };
   config: SequencerConfig;
   chainData: Map<string, ChainData>;

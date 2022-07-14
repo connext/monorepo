@@ -12,21 +12,19 @@ import {
   OriginTransfer,
 } from "@connext/nxtp-utils";
 import { compare } from "compare-versions";
-import Broker from "foo-foo-mq";
 
 import { AuctionExpired, MissingXCall, ParamsInvalid, BidVersionInvalid } from "../errors";
 import { getContext } from "../../sequencer";
 import { getHelpers } from "../helpers";
 
 import { getOperations } from ".";
-import { SequencerConfig } from "../entities";
-import { Message } from "./mq";
+import { Message } from "../entities";
 
 export const storeBid = async (bid: Bid, _requestContext: RequestContext): Promise<void> => {
   const {
     logger,
     config,
-    adapters: { cache, subgraph },
+    adapters: { cache, subgraph, mqClient },
   } = getContext();
   const { requestContext, methodContext } = createLoggingContext(storeBid.name, _requestContext);
   logger.debug(`Method start: ${storeBid.name}`, requestContext, methodContext, { bid });
@@ -104,7 +102,7 @@ export const storeBid = async (bid: Bid, _requestContext: RequestContext): Promi
   // Enqueue only once to dedup, when the first bid for the transfer is stored.
   if (status === AuctionStatus.None) {
     const message: Message = { transferId: transfer.transferId, originDomain: transfer.originDomain };
-    await Broker.publish(config.messageQueue.publisher, {
+    await mqClient.publish(config.messageQueue.publisher, {
       type: transfer.originDomain,
       body: message,
       routingKey: transfer.originDomain,

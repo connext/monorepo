@@ -1,7 +1,4 @@
 import { Type, Static } from "@sinclair/typebox";
-import Broker from "foo-foo-mq";
-import rabbit from "foo-foo-mq";
-import ConfigurationOptions from "foo-foo-mq";
 import { TAddress, SubgraphReaderChainConfigSchema } from "@connext/nxtp-utils";
 
 export const TChainConfig = Type.Object({
@@ -110,3 +107,9 @@ export const SequencerConfigSchema = Type.Object({
 });
 
 export type SequencerConfig = Static<typeof SequencerConfigSchema>;
+
+export const messageSchema = Type.Object({
+  transferId: Type.String(),
+  originDomain: Type.String(),
+});
+export type Message = Static<typeof messageSchema>;
