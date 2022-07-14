@@ -2,12 +2,12 @@ output "dns_name" {
   value = aws_alb.lb.dns_name
 }
 
-output "rmq_managemenr_endpoint" {
-  value = aws_route53_record.management.name
+output "service_endpoint" {
+  value = aws_route53_record.www.name
 }
 
-output "amqp_endpoint" {
-  value = aws_route53_record.amqp.name
+output "amqp_url" {
+  value = aws_route53_record.amqp[0].name
 }
 
 output "log_group_name" {

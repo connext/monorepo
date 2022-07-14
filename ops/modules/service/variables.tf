@@ -22,7 +22,6 @@ variable "container_port" {
 }
 
 variable "loadbalancer_port" {
-  container_env_vars       = local.sequencer_env_vars
   default = 80
 }
 
@@ -49,10 +48,6 @@ variable "matcher_ports" {
 variable "timeout" {
   default = 60
 }
-
-variable "ecs_cluster_sg" {}
-
-variable "allow_all_sg" {}
 
 variable "region" {}
 

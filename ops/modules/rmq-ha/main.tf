@@ -1,8 +1,3 @@
-locals {
-  dns_name = var.stage != "production" ? "${var.environment}.${var.stage}.${var.base_domain}" : "${var.environment}.${var.base_domain}"
-}
-
-
 resource "aws_cloudwatch_log_group" "container" {
   name = "${var.environment}-${var.stage}-${var.container_family}"
   tags = {
@@ -10,6 +5,25 @@ resource "aws_cloudwatch_log_group" "container" {
     Domain = var.domain
   }
 }
+
+resource "aws_service_discovery_private_dns_namespace" "this" {
+  name        = "discovery.rabbitmq"
+  description = "Rabbitmq dns"
+  vpc         = var.vpc_id
+}
+
+resource "aws_service_discovery_service" "rmq_sds" {
+  name = "nodes"
+  dns_config {
+    namespace_id = aws_service_discovery_private_dns_namespace.this.id
+    dns_records {
+      ttl  = 10
+      type = "A"
+    }
+    routing_policy = "MULTIVALUE"
+  }
+}
+
 
 resource "aws_ecs_task_definition" "rmq" {
   family                   = "${var.environment}-${var.stage}-${var.container_family}"
@@ -39,6 +53,11 @@ resource "aws_ecs_task_definition" "rmq" {
       },
       portMappings = [
         {
+          containerPort = 4369
+          hostPort      = 4369
+          protocol      = "tcp"
+        },
+        {
           containerPort = 5672
           hostPort      = 5672
           protocol      = "tcp"
@@ -46,6 +65,16 @@ resource "aws_ecs_task_definition" "rmq" {
         {
           containerPort = 15672
           hostPort      = 15672
+          protocol      = "tcp"
+        },
+        {
+          containerPort = 15692
+          hostPort      = 15692
+          protocol      = "tcp"
+        },
+        {
+          containerPort = 25672
+          hostPort      = 25672
           protocol      = "tcp"
         }
       ],
@@ -63,19 +92,19 @@ resource "aws_ecs_task_definition" "rmq" {
 }
 
 resource "aws_ecs_service" "service" {
-  name          = "${var.environment}-${var.stage}-${var.container_family}"
-  cluster       = var.cluster_id
-  desired_count = var.desired_tasks
-
-  launch_type     = "FARGATE"
-  task_definition = "${aws_ecs_task_definition.rmq.family}:${max("${aws_ecs_task_definition.rmq.revision}", "${aws_ecs_task_definition.rmq.revision}")}"
+  cluster                 = var.cluster_id
+  desired_count           = var.desired_tasks
+  launch_type             = "FARGATE"
+  name                    = var.container_name
+  task_definition         = aws_ecs_task_definition.rmq.arn
+  enable_ecs_managed_tags = true
 
   lifecycle {
     ignore_changes = [desired_count]
   }
 
   load_balancer {
-    target_group_arn = aws_alb_target_group.management.arn
+    target_group_arn = aws_lb_target_group.management.arn
     container_name   = "${var.environment}-${var.stage}-${var.container_family}"
     container_port   = 15672
   }
@@ -86,9 +115,13 @@ resource "aws_ecs_service" "service" {
     container_port   = 5672
   }
 
+  service_registries {
+    registry_arn = aws_service_discovery_service.rmq_sds.arn
+  }
+
   network_configuration {
     assign_public_ip = false
-    security_groups  = flatten([var.service_security_groups])
+    security_groups  = flatten([var.service_security_groups, aws_security_group.lb.id])
     subnets          = var.private_subnets
   }
 
@@ -99,12 +132,12 @@ resource "aws_ecs_service" "service" {
     Domain      = var.domain
   }
 
-  depends_on = [aws_alb_target_group.management, aws_lb_target_group.rabbit]
+  depends_on = [aws_lb_target_group.management, aws_lb_target_group.rabbit]
 }
 
 # Rabbit Management
-resource "aws_alb_target_group" "management" {
-  name        = "${var.environment}-${var.stage}-lb-tg"
+resource "aws_lb_target_group" "management" {
+  name        = "${var.environment}-${var.stage}-${var.container_family}-rabbitmq-mg-lb-tg"
   port        = 15672
   protocol    = "HTTP"
   vpc_id      = var.vpc_id
@@ -129,16 +162,16 @@ resource "aws_alb_target_group" "management" {
     Domain      = var.domain
   }
 
-  depends_on = [aws_alb.lb]
+  depends_on = [aws_lb.lb]
 }
 
 resource "aws_lb_listener" "management" {
-  load_balancer_arn = aws_alb.lb.arn
+  load_balancer_arn = aws_lb.lb.arn
   port              = 15672
   protocol          = "HTTP"
   default_action {
     type             = "forward"
-    target_group_arn = aws_alb_target_group.management.arn
+    target_group_arn = aws_lb_target_group.management.arn
   }
 }
 
@@ -163,11 +196,11 @@ resource "aws_lb_listener_rule" "http" {
   listener_arn = aws_lb_listener.management.arn
   action {
     type             = "forward"
-    target_group_arn = aws_alb_target_group.management.arn
+    target_group_arn = aws_lb_target_group.management.arn
   }
   condition {
     host_header {
-      values = ["${var.container_family}.${local.dns_name}"]
+      values = ["${var.container_family}.${var.dns_name}"]
     }
   }
 }
@@ -176,32 +209,32 @@ resource "aws_lb_listener_rule" "https" {
 
   action {
     type             = "forward"
-    target_group_arn = aws_alb_target_group.management.arn
+    target_group_arn = aws_lb_target_group.management.arn
   }
 
   condition {
     host_header {
-      values = ["${var.container_family}.${local.dns_name}"]
+      values = ["${var.container_family}.${var.dns_name}"]
     }
   }
 }
 
 
 # Management
-resource "aws_route53_record" "management" {
+resource "aws_route53_record" "this" {
   zone_id = var.zone_id
-  name    = "${var.container_family}.${local.dns_name}"
+  name    = "${var.container_family}.${var.dns_name}"
   type    = "A"
   alias {
-    name                   = aws_alb.lb.dns_name
-    zone_id                = aws_alb.lb.zone_id
+    name                   = aws_lb.lb.dns_name
+    zone_id                = aws_lb.lb.zone_id
     evaluate_target_health = true
   }
 }
 # AMQP
 resource "aws_route53_record" "amqp" {
   zone_id = var.zone_id
-  name    = "${var.container_family}.amqp.${local.dns_name}"
+  name    = "${var.container_family}.amqp.${var.dns_name}"
   type    = "A"
   alias {
     name                   = aws_lb.network.dns_name

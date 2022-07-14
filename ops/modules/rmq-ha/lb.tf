@@ -12,21 +12,20 @@ resource "aws_alb" "lb" {
 
 
 resource "aws_lb" "network" {
-  name               = "${var.environment}-${var.stage}-network-lb"
+  name               = "${var.app_name}-network-lb"
   internal           = true
   load_balancer_type = "network"
-  subnets            = var.private_subnets
+  subnets            = tolist(data.aws_subnet_ids.private.ids)
 
   enable_deletion_protection = false
 
   tags = {
-    Family = "${var.environment}-${var.stage}-${var.container_family}"
-    Domain = var.domain
+    Product = var.app_name
   }
 }
 
 resource "aws_lb_target_group" "rabbit" {
-  name        = "${var.environment}-${var.stage}-rmq-lb-tg"
+  name        = "${var.app_name}-rabbitmq-lb-tg"
   port        = 5672
   protocol    = "TCP"
   vpc_id      = var.vpc_id
