@@ -1,0 +1,4 @@
+[
+  "constructor(address,address) payable",
+  "event Upgrade(address indexed)"
+]

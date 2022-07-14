@@ -24,6 +24,7 @@ type Router @entity {
   proposedTimestamp: BigInt
   assetBalances: [AssetBalance!]! @derivedFrom(field: "router")
 }
+
 type Setting @entity {
   id: ID!
   maxRoutersPerTransfer: BigInt!
@@ -69,15 +70,17 @@ type OriginTransfer @entity {
   callData: Bytes
   originDomain: BigInt
   destinationDomain: BigInt
+  agent: Bytes
   recovery: Bytes
-  callback: Bytes
-  callbackFee: BigInt
   forceSlow: Boolean
   receiveLocal: Boolean
+  callback: Bytes
+  callbackFee: BigInt
+  relayerFee: BigInt
+  slippageTol: BigInt
 
   # Event Data
   status: TransferStatus
-  relayerFee: BigInt
   message: Bytes
 
   # Asset
@@ -112,11 +115,14 @@ type DestinationTransfer @entity {
   callData: Bytes
   originDomain: BigInt
   destinationDomain: BigInt
+  agent: Bytes
   recovery: Bytes
-  callback: Bytes
-  callbackFee: BigInt
   forceSlow: Boolean
   receiveLocal: Boolean
+  callback: Bytes
+  callbackFee: BigInt
+  relayerFee: BigInt
+  slippageTol: BigInt
 
   # Event Data
   status: TransferStatus

@@ -1,0 +1,9 @@
+[
+  "function enrollCustom(uint32,bytes32,address)",
+  "function ensureLocalToken(uint32,bytes32) returns (address)",
+  "function getLocalAddress(uint32,bytes32) view returns (address)",
+  "function getTokenId(address) view returns (uint32, bytes32)",
+  "function isLocalOrigin(address) view returns (bool)",
+  "function mustHaveLocalToken(uint32,bytes32) view returns (address)",
+  "function oldReprToCurrentRepr(address) view returns (address)"
+]

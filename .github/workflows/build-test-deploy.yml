@@ -270,10 +270,10 @@ jobs:
     outputs:
       json: ${{ steps.meta.outputs.json }}
 
-  build-and-push-web3signer:
+  build-and-push-relayer-image:
     env:
       REGISTRY: ghcr.io
-      IMAGE_NAME: connext/web3signer
+      IMAGE_NAME: connext/relayer
     runs-on: ubuntu-latest
     needs: build-and-test
     permissions:
@@ -291,13 +291,26 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: Extract metadata (tags, labels) for Docker
+        id: meta
+        uses: docker/metadata-action@98669ae865ea3cffbcbaa878cf57c20bbf1c6c38
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+          tags: |
+            type=sha,format=short
+            type=semver,pattern={{raw}}
+
       - name: Build and push Docker image
         uses: docker/build-push-action@ad44023a93711e3deb337508980b4b5e9bcdc5dc
         with:
-          context: docker/web3signer
+          context: .
           push: true
-          tags: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest
-          file: docker/web3signer/Dockerfile
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          file: docker/relayer/Dockerfile
+
+    outputs:
+      json: ${{ steps.meta.outputs.json }}
 
   smoke-tests:
     runs-on: ubuntu-latest
@@ -305,24 +318,71 @@ jobs:
       [
         build-and-push-router-image,
         build-and-push-sequencer-image,
-        build-and-push-web3signer,
         build-and-push-cartographer-routers-image,
         build-and-push-cartographer-transfers-image,
         build-and-push-lighthouse-image,
+        build-and-push-relayer-image,
       ]
     env:
       ROUTER_IMAGE: ${{ fromJSON(needs.build-and-push-router-image.outputs.json).tags[0] }}
       SEQUENCER_IMAGE: ${{ fromJSON(needs.build-and-push-sequencer-image.outputs.json).tags[0] }}
+      RELAYER_IMAGE: ${{ fromJSON(needs.build-and-push-relayer-image.outputs.json).tags[0] }}
       WEB3_SIGNER_PRIVATE_KEY: ${{ secrets.WEB3_SIGNER_TESTNET_PRIVATE_KEY }}
+      MNEMONIC: "candy maple cake sugar pudding cream honey rich smooth crumble sweet treat"
     steps:
       - name: Checkout repository
         uses: actions/checkout@v2
 
       - name: run smoke tests
         run: |
-          docker-compose up -d
+          docker-compose -f docker-compose.services.yaml -f docker-compose.chains.yaml up -d
           bash docker/bin/wait-for-services.sh router
           bash docker/bin/wait-for-services.sh sequencer
+
+    outputs:
+      router-tags: ${{ needs.build-and-push-router-image.outputs.json }}
+      sequencer-tags: ${{ needs.build-and-push-sequencer-image.outputs.json }}
+      cartographer-routers-tags: ${{ needs.build-and-push-cartographer-routers-image.outputs.json }}
+      cartographer-transfers-tags: ${{ needs.build-and-push-cartographer-transfers-image.outputs.json }}
+      lighthouse-tags: ${{ needs.build-and-push-lighthouse-image.outputs.json }}
+
+  e2e-tests:
+    runs-on: ubuntu-latest
+    needs:
+      [
+        build-and-push-router-image,
+        build-and-push-sequencer-image,
+        build-and-push-cartographer-routers-image,
+        build-and-push-cartographer-transfers-image,
+        build-and-push-lighthouse-image,
+        build-and-push-relayer-image,
+      ]
+    env:
+      ROUTER_IMAGE: ${{ fromJSON(needs.build-and-push-router-image.outputs.json).tags[0] }}
+      SEQUENCER_IMAGE: ${{ fromJSON(needs.build-and-push-sequencer-image.outputs.json).tags[0] }}
+      RELAYER_IMAGE: ${{ fromJSON(needs.build-and-push-relayer-image.outputs.json).tags[0] }}
+      WEB3_SIGNER_PRIVATE_KEY: ${{ secrets.WEB3_SIGNER_TESTNET_PRIVATE_KEY }}
+      MNEMONIC: "candy maple cake sugar pudding cream honey rich smooth crumble sweet treat"
+      GRAPH_1337_ENDPOINT: "http://localhost:8010/subgraphs/name/connext/nxtp"
+      GRAPH_1338_ENDPOINT: "http://localhost:9010/subgraphs/name/connext/nxtp"
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Setup Node
+        uses: actions/setup-node@v2
+        with:
+          node-version: "16"
+
+      - name: Yarn install
+        run: yarn install
+
+      - name: Yarn build
+        run: yarn build
+
+      - name: Integration Tests
+        run: yarn test:integration
 
     outputs:
       router-tags: ${{ needs.build-and-push-router-image.outputs.json }}
@@ -490,27 +550,6 @@ jobs:
       sequencer-tags: ${{ needs.smoke-tests.outputs.sequencer-tags }}
       router-tags: ${{ needs.smoke-tests.outputs.router-tags }}
       lighthouse-tags: ${{ needs.smoke-tests.outputs.lighthouse-tags }}
-
-  e2e-tests:
-    runs-on: ubuntu-latest
-    needs: [terraform-services-core-staging-testnet, terraform-services-backend-staging-testnet]
-    env:
-      ROUTER_IMAGE: ${{ fromJSON(needs.terraform-services-core-staging-testnet.outputs.router-tags).tags[0] }}
-      SEQUENCER_IMAGE: ${{ fromJSON(needs.terraform-services-core-staging-testnet.outputs.sequencer-tags).tags[0] }}
-
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v2
-
-      - name: run smoke tests
-        run: echo "to be implemented..."
-
-    outputs:
-      router-tags: ${{ needs.terraform-services-core-staging-testnet.outputs.router-tags }}
-      sequencer-tags: ${{ needs.terraform-services-core-staging-testnet.outputs.sequencer-tags }}
-      lighthouse-tags: ${{ needs.terraform-services-core-staging-testnet.outputs.lighthouse-tags }}
-      cartographer-routers-tags: ${{ needs.terraform-services-backend-staging-testnet.outputs.cartographer-routers-tags }}
-      cartographer-transfers-tags: ${{ needs.terraform-services-backend-staging-testnet.outputs.cartographer-transfers-tags }}
 
   terraform-services-core-prod-testnet:
     if: github.ref == 'refs/heads/prod'

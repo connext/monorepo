@@ -56,13 +56,13 @@ export const createTask = async (
         to: decoded.params.to,
         callData: decoded.params.callData,
         callback: decoded.params.callback,
-        callbackFee: decoded.params.callbackFee,
+        callbackFee: decoded.params.callbackFee.toString(),
         forceSlow: decoded.params.forceSlow,
         receiveLocal: decoded.params.receiveLocal,
         recovery: decoded.params.recovery,
         agent: decoded.params.agent,
-        relayerFee: decoded.params.relayerFee,
-        slippageTol: decoded.params.slippageTol,
+        relayerFee: decoded.params.relayerFee.toString(),
+        slippageTol: decoded.params.slippageTol.toString(),
       },
       local: decoded.local,
       routers: decoded.routers,
@@ -90,7 +90,9 @@ export const createTask = async (
     });
   }
 
-  const connextAddress = getDeployedConnextContract(chain, config.environment === "staging" ? "Staging" : "")?.address;
+  const connextAddress =
+    config.chains[chain].deployments.connext ??
+    getDeployedConnextContract(chain, config.environment === "staging" ? "Staging" : "")?.address;
   if (!connextAddress) {
     throw new ContractDeploymentMissing(ContractDeploymentMissing.contracts.connext, chain);
   } else if (to.toLowerCase() !== connextAddress.toLowerCase()) {

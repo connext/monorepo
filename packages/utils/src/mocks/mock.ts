@@ -24,8 +24,8 @@ export const mock: any = {
     B: "13338",
   },
   domain: {
-    A: "1337",
-    B: "1338",
+    A: "137",
+    B: "138",
   },
   asset: {
     A: {
@@ -286,7 +286,7 @@ export const mock: any = {
       xcall_gas_price: 5,
       xcall_timestamp: 1e8,
       xcall_transaction_hash: mkBytes32("0xccc"),
-      xcall_relayer_fee: 0,
+      relayer_fee: 0,
       destination_chain: mock.chain.B,
       destination_transacting_amount: 100,
       destination_transacting_asset: mkAddress("0x22"),
