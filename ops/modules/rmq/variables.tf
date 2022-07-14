@@ -70,5 +70,5 @@ variable "environment" {}
 
 variable "desired_tasks" {
   description = "Desired tasks"
-  default     = 2
+  default     = 1
 }
