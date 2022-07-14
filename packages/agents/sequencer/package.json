@@ -53,8 +53,8 @@
     "axios": "0.27.2",
     "dd-trace": "2.10.0",
     "ethers": "5.6.9",
-    "foo-foo-mq": "7.1.0",
     "fastify": "4.2.0",
+    "foo-foo-mq": "7.1.0",
     "interval-promise": "1.4.0",
     "pino": "8.1.0",
     "tsc": "2.0.4"
