@@ -184,6 +184,7 @@ module "sequencer_message_queue" {
   instance_count          = 1
   service_security_groups = flatten([module.sgs.rabbitmq_sg, module.network.allow_all_sg, module.network.ecs_task_sg])
   cert_arn                = var.certificate_arn_testnet
+  container_env_vars      = local.rmq_env_vars
 }
 
 module "web3signer" {
