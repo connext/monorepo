@@ -67,3 +67,7 @@ variable "timeout" {
 variable "region" {}
 
 variable "environment" {}
+
+variable "container_env_vars" {
+  description = "env vars for running container"
+}
