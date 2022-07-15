@@ -27,6 +27,10 @@ locals {
     { name = "WEB3_SIGNER_PRIVATE_KEY", value = var.web3_signer_private_key },
     { name = "WEB3SIGNER_HTTP_HOST_ALLOWLIST", value = "*" }
   ]
+  rmq_env_vars = [
+    { name = "RABBITMQ_DEFAULT_USER", value = var.rmq_mgt_user },
+    { name = "RABBITMQ_DEFAULT_PASS", value = var.rmq_mgt_password }
+  ]
 }
 
 locals {

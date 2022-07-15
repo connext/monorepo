@@ -26,9 +26,10 @@ resource "aws_ecs_task_definition" "rmq" {
   }
   container_definitions = jsonencode([
     {
-      name      = "${var.environment}-${var.stage}-${var.container_family}"
-      image     = var.docker_image
-      essential = true
+      name        = "${var.environment}-${var.stage}-${var.container_family}"
+      image       = var.docker_image
+      essential   = true
+      environment = var.container_env_vars
       logConfiguration = {
         logDriver = "awslogs"
         options = {
