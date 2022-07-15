@@ -145,11 +145,10 @@ resource "aws_alb_target_group" "management" {
   }
 
   health_check {
-    matcher  = "200"
+    enabled  = true
     path     = "/"
-    port     = 80
-    timeout  = 30
-    interval = 40
+    matcher  = "200,302"
+    interval = var.timeout + 10
   }
 
   tags = {
