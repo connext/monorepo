@@ -59,8 +59,8 @@ export const TMessageQueueConfig = Type.Object({
   queues: Type.Array(TMQQueueConfig),
   bindings: Type.Array(TMQBindingConfig),
   executerTimeout: Type.Integer(),
-  publisher: Type.String(),
-  subscriber: Type.String(),
+  publisher: Type.Optional(Type.String()),
+  subscriber: Type.Optional(Type.String()),
 });
 
 export type ChainConfig = Static<typeof TChainConfig>;
