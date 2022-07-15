@@ -506,10 +506,6 @@ describe("LOCAL:E2E", () => {
     await enrollReplica(deployer);
 
     const originProvider = new providers.JsonRpcProvider(PARAMETERS.A.RPC[0]);
-    // // TODO: Use retrieved abi.
-    // const abi = [
-    //   "event XCalled(bytes32 indexed transferId, XCallArgs xcallArgs, XCalledEventArgs args, uint256 nonce, bytes message, address caller)",
-    // ];
     const { receipt, xcallData } = await sendXCall(
       sdk,
       { forceSlow: true },
