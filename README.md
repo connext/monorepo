@@ -1,16 +1,20 @@
-[![Test Sops][sops-shield]][sops-url] [![Deploy Testnet][deploy-testnet-shield]][deploy-testnet-url] [![Build Test Deploy][build-test-deploy-shield]][build-test-deploy-url] [![Build Test Deploy Testnet][build-test-deploy-testnet-shield]][build-test-deploy-testnet-url]
-
-[![Discord][discord-shield]][discord-url] [![Twitter][twitter-shield]][twitter-url]
-
-<!-- PROJECT LOGO -->
-<br />
 <div align="center">
+  <!-- PROJECT LOGO -->
   <a href="https://github.com/connext/nxtp">
     <img src="https://images.squarespace-cdn.com/content/v1/619f86b8de2c6f4f7fa201c0/8eaeca35-ccf3-495f-9e9a-19fbec796187/connext__Logo+%2B+WhiteText+MultiColor.png?format=1500w" alt="Logo" width="320" height="80">
   </a>
 
-<h3 align="center">NXTP</h3>
-<h4 align="center"><b>N</b>oncustodial <b>X</b>domain <b>T</b>ransfer <b>P</b>rotocol.</h4>
+[![Test Sops][sops-shield]][sops-url] [![Deploy Testnet][deploy-testnet-shield]][deploy-testnet-url] [![Build Test Deploy][build-test-deploy-shield]][build-test-deploy-url]
+
+[![Discord][discord-shield]][discord-url] [![Twitter][twitter-shield]][twitter-url]
+
+  <br />
+
+  <h3 align="center">About Connext</h3>
+  <h4 align="center">Connext is a bridging protocol which allows for safe transfer of tokens and data between EVM compatible blockchains.</h4>
+
+  <h3 align="center">NXTP</h3>
+  <h4 align="center"><b>N</b>oncustodial <b>X</b>domain <b>T</b>ransfer <b>P</b>rotocol.</h4>
 
   <p align="center">
     Useful Links
@@ -63,9 +67,7 @@
 
 <!-- ABOUT THE PROJECT -->
 
-## About Connext
-
-Connext is a bridging protocol which allows for safe transfer of tokens and data between EVM compatible blockchains.
+## Connext Architecture
 
 The Connext architecture can be seen as a layered system, as follows:
 
@@ -76,47 +78,6 @@ The Connext architecture can be seen as a layered system, as follows:
 | `Gateway/Routing Layer` | `Interchain Gateway Protocol`     |
 | `Messaging Layer`       | `Nomad`                           |
 | `Transport Layer`       | `Connext Routers`                 |
-
-## Core Flow of a transaction through Connext
-
-A transaction flowing through Connext will now have the following lifecycle:
-
-**A User will:**
-
-Initiate the transaction by calling a `xcall` function on our contracts, passing in funds, gas details, arbitrary data, and a target address object (includes chain info). Note that `xcall` is meant to mimic solidity's lower level `call` as best as possible.
-
-**Our contracts will:**
-
--If needed, swap the passed in token to the Nomad version of the same asset.
-Call the Nomad contracts with a hash of the tx details to initiate the 30-60m message across chains.
-
--Emit an event with the tx details.
-Routers observing the origin chain with funds on the destination chain will:
-Simulate the transaction (if this fails, the assumption is that this is a more "expressive" crosschain message that requires permissioning and so must go through the slow Nomad process only).
-
-**Routers (Active Liquidity Providers) will:**
-
--Prepare a signed transaction object using funds on the receiving chain.
-Post this object (a "bid") to the auctioneer.
-Note: if the router does not have enough funds for the transfer, they may also provide only part of the transfer's value, which gets split across multiple routers in the network.
-
--The sequencer collects bids from routers and allows routers 30 seconds per transfer to send bids. After this time, sequencer will select a bid randomly (selection process TBD) and submit the payload which contains the router's signature to the relayer network to be submitted to chain.
-
--When a given bid is submitted to chain, the contracts will do the following:
-Check that there are enough funds available for the transaction.
-
--Swap the router's Nomad-flavored funds for the canonical asset of the chain if needed.
-Send the swapped funds to the correct target (if it is a contract, this will also execute calldata against the target).
-
--Hash the router's params and store a mapping of this hash to the router's address in the contract.
-
---> At this point, the user's tx has already been completed!
-
-Later, when the Nomad message arrives, a heavily batched tx can be submitted to take all pending hashes received over Nomad and look up whether they have corresponding router addresses in the hash -> router address mapping. If they do, then Nomad assets are minted and given to the router.
-
-Note: if the router gives the incorrect amount of funds to a user or if they execute the wrong calldata, then the router's param hash will not match the hash coming over Nomad and the router will not get reimbursed. This is the core security mechanism that ensures that routers behave correctly.
-
-Note 2: Routers will take a 30-60 minute lockup on their funds when relaying transactions. While this theoretically reduces capital efficiency compared to the existing system, in practice the lack of need to rebalance will mean that routers have more capital available more often regardless.
 
 ## About NXTP
 
@@ -141,6 +102,47 @@ These are **important** and everyone must adhere to them:
 2. Every file and function should be unit tested. The scope of this codebase is very small, so it shouldn't be difficult to do this.
 
 3. Build for future hires and contributors. Every function should have a top-level comment that describes what it does, and internal comments breaking down each step. Files should have comments delineating their reponsibilities. Remember: Good code is **never surprising**.
+
+## Core Flow of a transaction through Connext
+
+A transaction flowing through Connext will now have the following lifecycle:
+
+**A User will:**
+
+Initiate the transaction by calling a `xcall` function on our contracts, passing in funds, gas details, arbitrary data, and a target address object (includes chain info). Note that `xcall` is meant to mimic solidity's lower level `call` as best as possible.
+
+**Our contracts will:**
+
+-If needed, swap the passed in token to the Nomad version of the same asset.
+Call the Nomad contracts with a hash of the tx details to initiate the 30-60m message across chains.
+
+-Emit an event with the tx details.
+Routers observing the origin chain with funds on the destination chain will:
+Simulate the transaction (if this fails, the assumption is that this is a more "expressive" crosschain message that requires authentication of the call and verification of the data, and so it must go through the slow Nomad process only).
+
+**Routers (Active Liquidity Providers) will:**
+
+-Prepare a signed transaction object using funds on the receiving chain.
+Post this object (a "bid") to the auctioneer.
+Note: if the router does not have enough funds for the transfer, they may also provide only part of the transfer's value, which gets split across multiple routers in the network.
+
+-The sequencer collects bids from routers and allows routers 30 seconds per transfer to send bids. After this time, sequencer will select a bid randomly (selection process TBD) and submit the payload which contains the router's signature to the relayer network to be submitted to chain.
+
+-When a given bid is submitted to chain, the contracts will do the following:
+Check that there are enough funds available for the transaction.
+
+-Swap the router's Nomad-flavored funds for the canonical asset of the chain if needed.
+Send the swapped funds to the correct target (if it is a contract, this will also execute calldata against the target).
+
+-Hash the router's params and store a mapping of this hash to the router's address in the contract.
+
+--> At this point, the user's tx has already been completed!
+
+Later, when the Nomad message arrives, a heavily batched tx can be submitted to take all pending hashes received over Nomad and look up whether they have corresponding router addresses in the hash -> router address mapping. If they do, then Nomad assets are minted and given to the router.
+
+Note: if the router gives the incorrect amount of funds to a user or if they execute the wrong calldata, then the router's param hash will not match the hash coming over Nomad and the router will not get reimbursed. This is the core security mechanism that ensures that routers behave correctly.
+
+Note 2: Routers will take a 30-60 minute lockup on their funds when relaying transactions. While this theoretically reduces capital efficiency compared to the existing system, in practice the lack of need to rebalance will mean that routers have more capital available more often regardless.
 
 ### Architecture
 
@@ -390,13 +392,13 @@ After the DestinationTransfer shows up on the Rinkeby side, the freshly transfer
 
 ---
 
-### Cross-Chain Mint (unpermissioned)
+### Cross-Chain Mint (unauthenticated)
 
 We can also send arbitrary `calldata`, along with the `xcall`, to be executed on the destination domain.
 
 In this example, we're going to construct some `calldata` targeting an existing contract function to avoid having to deploy a new contract. We'll aim for the `mint` function of the [Test ERC20 Token (TEST) contract](https://rinkeby.etherscan.io/address/0xB7b1d3cC52E658922b2aF00c5729001ceA98142C#writeContract) to demonstrate this.
 
-> Minting usually requires permissioning but the Test Token has a public `mint` function (callable by anyone!) that we can leverage for this example. Hence, this is an "unpermissioned" `xcall` with calldata - nothing extra needs to be done on the destination side.
+> Minting usually requires verification of the data but the Test Token has a public `mint` function (callable by anyone!) that we can leverage for this example. Hence, this is an "unauthenticated" `xcall` with unverified calldata - nothing extra needs to be done on the destination side.
 
 #### 7. Encode the `calldata`
 
@@ -733,8 +735,6 @@ When you are done, you can run `yarn docker:stop:all` to halt all running servic
 [deploy-testnet-url]: https://github.com/connext/nxtp/actions/workflows/deploy-testnet.yaml
 [build-test-deploy-shield]: https://github.com/connext/nxtp/actions/workflows/build-test-deploy.yml/badge.svg
 [build-test-deploy-url]: https://github.com/connext/nxtp/actions/workflows/build-test-deploy.yml
-[build-test-deploy-testnet-shield]: https://github.com/connext/nxtp/actions/workflows/build-test-deploy-testnet.yml/badge.svg
-[build-test-deploy-testnet-url]: https://github.com/connext/nxtp/actions/workflows/build-test-deploy-testnet.yml
 [discord-shield]: https://img.shields.io/discord/454734546869551114?&logo=discord
 [discord-url]: https://discord.gg/m93Sqf4
 [twitter-shield]: https://img.shields.io/twitter/follow/ConnextNetwork?style=social
