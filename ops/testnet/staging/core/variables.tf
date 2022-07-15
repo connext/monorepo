@@ -73,9 +73,9 @@ variable "rmq_mgt_password" {
 
 variable "rmq_mgt_user" {
   type        = string
-  description = "connext"
+  default     = "connext"
+  description = "RabbitMQ management user"
 }
-
 
 
 variable "certificate_arn_testnet" {
