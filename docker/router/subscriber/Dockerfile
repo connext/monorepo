@@ -1,7 +1,7 @@
 FROM node:16-alpine as node
 
 # ----------------------------------------
-# Builds Docker container for router-publisher package.
+# Builds Docker container for router-subscriber package.
 
 
 # ----------------------------------------

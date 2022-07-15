@@ -42,11 +42,16 @@ variable "full_image_name_router_subscriber" {
   default     = "ghcr.io/connext/router-subscriber:sha-29c8aa1"
 }
 
-
-variable "full_image_name_sequencer" {
+variable "full_image_name_sequencer_publisher" {
   type        = string
   description = "sequencer image name"
-  default     = "ghcr.io/connext/sequencer:sha-29c8aa1"
+  default     = "ghcr.io/connext/sequencer-publisher:sha-29c8aa1"
+}
+
+variable "full_image_name_sequencer_subscriber" {
+  type        = string
+  description = "sequencer image name"
+  default     = "ghcr.io/connext/sequencer-subscriber:sha-29c8aa1"
 }
 
 variable "full_image_name_lighthouse" {
