@@ -18,7 +18,8 @@ export GRAPH_1338_ENDPOINT="http://localhost:9010/subgraphs/name/connext/nxtp"
 If you need to run the test locally against local changes, you can build the images yourself.
 
 ```sh
-docker build --tag sequencer:latest --file ./docker/sequencer/Dockerfile .
+docker build --tag sequencer-publisher:latest --file ./docker/sequencer/publisher/Dockerfile .
+docker build --tag sequencer-subscriber:latest --file ./docker/sequencer/subscriber/Dockerfile .
 docker build --tag router-publisher:latest --file ./docker/router/publisher/Dockerfile .
 docker build --tag router-subscriber:latest --file ./docker/router/subscriber/Dockerfile .
 docker build --tag relayer:latest --file ./docker/relayer/Dockerfile .
