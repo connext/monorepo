@@ -38,10 +38,15 @@
     "exchanges": [
       { "name": "sequencerX", "type": "direct", "publishTimeout": 1000, "persistent": true, "durable": true }
     ],
-    "queues": [{ "name": "1111", "prefetch": 100, "queueLimit": 10000, "subscribe": true }],
-    "bindings": [{ "exchange": "sequencerX", "target": "1111", "keys": ["1111"] }],
+    "queues": [
+      { "name": "1337", "prefetch": 100, "queueLimit": 10000, "subscribe": true },
+      { "name": "1338", "prefetch": 100, "queueLimit": 10000, "subscribe": true }
+    ],
+    "bindings": [
+      { "exchange": "sequencerX", "target": "1337", "keys": ["1337"] },
+      { "exchange": "sequencerX", "target": "1338", "keys": ["1338"] }
+    ],
     "executerTimeout": 300000,
-    "publisher": "sequencerX",
-    "subscriber": "1111"
+    "publisher": "sequencerX"
   }
 }
