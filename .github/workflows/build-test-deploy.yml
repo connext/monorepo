@@ -385,7 +385,8 @@ jobs:
           bash docker/bin/wait-for-services.sh sequencer
 
     outputs:
-      router-tags: ${{ needs.build-and-push-router-publisher-image.outputs.json }}
+      router-publisher-tags: ${{ needs.build-and-push-router-publisher-image.outputs.json }}
+      router-subscriber-tags: ${{ needs.build-and-push-router-subscriber-image.outputs.json }}
       sequencer-tags: ${{ needs.build-and-push-sequencer-image.outputs.json }}
       cartographer-routers-tags: ${{ needs.build-and-push-cartographer-routers-image.outputs.json }}
       cartographer-transfers-tags: ${{ needs.build-and-push-cartographer-transfers-image.outputs.json }}
@@ -432,7 +433,8 @@ jobs:
         run: yarn test:integration
 
     outputs:
-      router-tags: ${{ needs.build-and-push-router-image.outputs.json }}
+      router-publisher-tags: ${{ needs.build-and-push-router-publisher-image.outputs.json }}
+      router-subscriber-tags: ${{ needs.build-and-push-router-subscriber-image.outputs.json }}
       sequencer-tags: ${{ needs.build-and-push-sequencer-image.outputs.json }}
       cartographer-routers-tags: ${{ needs.build-and-push-cartographer-routers-image.outputs.json }}
       cartographer-transfers-tags: ${{ needs.build-and-push-cartographer-transfers-image.outputs.json }}
@@ -540,7 +542,8 @@ jobs:
     needs: [smoke-tests, terraform-infra]
     env:
       AWS_PROFILE: aws-deployer-connext
-      TF_VAR_full_image_name_router: ${{ fromJSON(needs.smoke-tests.outputs.router-tags).tags[0] }}
+      TF_VAR_full_image_name_router_publisher: ${{ fromJSON(needs.smoke-tests.outputs.router-publisher-tags).tags[0] }}
+      TF_VAR_full_image_name_router_subscriber: ${{ fromJSON(needs.smoke-tests.outputs.router-subscriber-tags).tags[0] }}
       TF_VAR_full_image_name_sequencer: ${{ fromJSON(needs.smoke-tests.outputs.sequencer-tags).tags[0] }}
       TF_VAR_full_image_name_lighthouse: ${{ fromJSON(needs.smoke-tests.outputs.lighthouse-tags).tags[0] }}
 
@@ -595,7 +598,7 @@ jobs:
 
     outputs:
       sequencer-tags: ${{ needs.smoke-tests.outputs.sequencer-tags }}
-      router-tags: ${{ needs.smoke-tests.outputs.router-tags }}
+      router-publisher-tags: ${{ needs.smoke-tests.outputs.router-publisher-tags }}
       lighthouse-tags: ${{ needs.smoke-tests.outputs.lighthouse-tags }}
 
   terraform-services-core-prod-testnet:
@@ -603,7 +606,8 @@ jobs:
     needs: [e2e-tests]
     env:
       AWS_PROFILE: aws-deployer-connext
-      TF_VAR_full_image_name_router: ${{ fromJSON(needs.e2e-tests.outputs.router-tags).tags[0] }}
+      TF_VAR_full_image_name_router_publisher: ${{ fromJSON(needs.e2e-tests.outputs.router-publisher-tags).tags[0] }}
+      TF_VAR_full_image_name_router_subscriber: ${{ fromJSON(needs.e2e-tests.outputs.router-subscriber-tags).tags[0] }}
       TF_VAR_full_image_name_sequencer: ${{ fromJSON(needs.e2e-tests.outputs.sequencer-tags).tags[0] }}
       TF_VAR_full_image_name_lighthouse: ${{ fromJSON(needs.e2e-tests.outputs.lighthouse-tags).tags[0] }}
 
@@ -656,7 +660,8 @@ jobs:
           terraform apply -var-file=tfvars.json -auto-approve
 
     outputs:
-      router-tags: ${{ needs.e2e-tests.outputs.router-tags }}
+      router-publisher-tags: ${{ needs.e2e-tests.outputs.router-publisher-tags }}
+      router-subscriber-tags: ${{ needs.e2e-tests.outputs.router-subscriber-tags }}
       sequencer-tags: ${{ needs.e2e-tests.outputs.sequencer-tags }}
       lighthouse-tags: ${{ needs.e2e-tests.outputs.lighthouse-tags }}
 
@@ -718,7 +723,8 @@ jobs:
           terraform apply -var-file=tfvars.json -auto-approve
 
     outputs:
-      router-tags: ${{ needs.e2e-tests.outputs.router-tags }}
+      router-publisher-tags: ${{ needs.e2e-tests.outputs.router-publisher-tags }}
+      router-subscriber-tags: ${{ needs.e2e-tests.outputs.router-subscriber-tags }}
       sequencer-tags: ${{ needs.e2e-tests.outputs.sequencer-tags }}
       lighthouse-tags: ${{ needs.e2e-tests.outputs.lighthouse-tags }}
       cartographer-routers-tags: ${{ needs.e2e-tests.outputs.cartographer-routers-tags }}
@@ -786,7 +792,8 @@ jobs:
     needs: [terraform-services-core-prod-testnet, terraform-services-backend-prod-testnet]
     env:
       AWS_PROFILE: aws-deployer-connext
-      TF_VAR_full_image_name_router: ${{ fromJSON(needs.terraform-services-backend-prod-testnet.outputs.router-tags).tags[0] }}
+      TF_VAR_full_image_name_router_publisher: ${{ fromJSON(needs.terraform-services-backend-prod-testnet.outputs.router-publisher-tags).tags[0] }}
+      TF_VAR_full_image_name_router_subscriber: ${{ fromJSON(needs.terraform-services-backend-prod-testnet.outputs.router-subscriber-tags).tags[0] }}
       TF_VAR_full_image_name_sequencer: ${{ fromJSON(needs.terraform-services-backend-prod-testnet.outputs.sequencer-tags).tags[0] }}
       TF_VAR_full_image_name_lighthouse: ${{ fromJSON(needs.terraform-services-backend-prod-testnet.outputs.lighthouse-tags).tags[0] }}
 
