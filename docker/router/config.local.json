@@ -35,5 +35,7 @@
   "messageQueue": {
     "host": "router-message-queue",
     "port": 5672
+    "user": "guest",
+    "pass": "guest" 
   }
 }
