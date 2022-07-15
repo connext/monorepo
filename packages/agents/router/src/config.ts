@@ -165,6 +165,16 @@ export const getEnvConfig = (
         "localhost",
       port:
         process.env.NXTP_MESSAGE_QUEUE_PORT || configJson.messageQueue?.port || configFile.messageQueue?.port || 5672,
+      user:
+        process.env.NXTP_MESSAGE_QUEUE_USER ||
+        configJson.messageQueue?.user ||
+        configFile.messageQueue?.user ||
+        "guest",
+      pass:
+        process.env.NXTP_MESSAGE_QUEUE_PASS ||
+        configJson.messageQueue?.pass ||
+        configFile.messageQueue?.pass ||
+        "guest",
     },
   };
 
