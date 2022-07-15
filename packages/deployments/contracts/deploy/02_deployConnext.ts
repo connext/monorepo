@@ -29,7 +29,7 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment): Promise<voi
 
   const network = await hre.ethers.provider.getNetwork();
   console.log("network: ", network);
-  const domainConfig = getDomainInfoFromChainId(network.chainId);
+  const domainConfig = await getDomainInfoFromChainId(network.chainId, hre);
   console.log("domainConfig: ", domainConfig);
   const price = await hre.ethers.provider.getGasPrice();
   console.log("price: ", price.toString());
@@ -189,4 +189,5 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment): Promise<voi
 
 export default func;
 
-func.tags = ["Connext", "mainnet"];
+func.tags = ["Connext", "prod", "local", "mainnet"];
+func.dependencies = ["Nomad"];

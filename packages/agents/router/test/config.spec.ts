@@ -1,8 +1,8 @@
 import { chainDataToMap, expect } from "@connext/nxtp-utils";
-import { stub, restore, reset } from "sinon";
+import { stub } from "sinon";
 
 import { getEnvConfig, getConfig } from "../src/config";
-import * as SharedFns from "../src/lib/helpers/shared";
+import * as Mockable from "../src/mockable";
 import { mock } from "./mock";
 
 const mockConfig = mock.config();
@@ -11,11 +11,6 @@ const mockDeployments = mock.contracts.deployments();
 
 describe("Config", () => {
   const testChainId = mock.chain.A;
-
-  afterEach(() => {
-    restore();
-    reset();
-  });
 
   describe("#getEnvConfig", () => {
     it("happy: should parse out configuration", () => {
@@ -123,7 +118,7 @@ describe("Config", () => {
 
       const expectedDeployment = mockDeployments.connext(alteredMockChain);
       const config = getEnvConfig(mockChainData, mockDeployments);
-      expect(config.chains[alteredMockChain].deployments.connext).to.be.eq(expectedDeployment.address);
+      expect(config.chains[alteredMockChain].deployments.connext).to.be.eq(expectedDeployment!.address);
     });
 
     it("should error if validation fails", () => {
@@ -174,8 +169,8 @@ describe("Config", () => {
     });
 
     it("should read config from default filepath", () => {
-      stub(SharedFns, "existsSync").returns(true);
-      stub(SharedFns, "readFileSync").returns(JSON.stringify(mockConfig));
+      stub(Mockable, "existsSync").returns(true);
+      stub(Mockable, "readFileSync").returns(JSON.stringify(mockConfig));
       stub(process, "env").value({
         ...process.env,
         NXTP_CONFIG_FILE: "buggypath",

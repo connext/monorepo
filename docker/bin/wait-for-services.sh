@@ -4,12 +4,16 @@ set -e
 
 SERVICE="$SERVICE$1"
 SEQUENCER="sequencer"
-ROUTER="router"
+ROUTER_PUBLISHER="router-publisher"
+ROUTER_SUBSCRIBER="router-subscriber"
 
 
-if [[ "${SERVICE}" == "${ROUTER}" ]]
+if [[ "${SERVICE}" == "${ROUTER_PUBLISHER}" ]]
 then
   PORT=8080
+elif [[ "${SERVICE}" == "${ROUTER_SUBSCRIBER}" ]]
+then
+  PORT=8090
 elif [[ "${SERVICE}" == "${SEQUENCER}" ]]
 then
   PORT=8081

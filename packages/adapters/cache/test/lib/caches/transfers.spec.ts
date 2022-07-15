@@ -45,6 +45,14 @@ describe("TransfersCache", () => {
     });
   });
 
+  describe("#setLatestNonce", () => {
+    it("should get default nonce if none exists", async () => {
+      await transfersCache.setLatestNonce("3000", 5);
+      const latestNonce = await transfersCache.getLatestNonce("3000");
+      expect(latestNonce).to.be.equal(5);
+    });
+  });
+
   describe("#storeTransfers", () => {
     it("happy: should store transaction data", async () => {
       const mockXTransfer = mock.entity.xtransfer({
@@ -263,7 +271,7 @@ describe("TransfersCache", () => {
       expect(endPrune).to.be.lte(startPrune + maxPruneTimeMs);
     });
 
-    it('should use real db to test pruning', async() => {
+    it("should use real db to test pruning", async () => {
       if (testOnRealDb) {
         const realTransferCache = new TransfersCache({ host: "localhost", port: 6379, mock: false, logger });
         const startPrune = Date.now();
@@ -273,12 +281,11 @@ describe("TransfersCache", () => {
 
         const endPrune = Date.now();
 
-        console.log('endPrune', endPrune);
+        console.log("endPrune", endPrune);
         //always false
-        expect(endPrune).to.be.lte(startPrune + (maxPruneTimeMs * 1000));
-
+        expect(endPrune).to.be.lte(startPrune + maxPruneTimeMs * 1000);
       }
-    })
+    });
   });
 
   describe("#getErrors", () => {

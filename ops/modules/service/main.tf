@@ -1,12 +1,3 @@
-resource "aws_cloudwatch_log_group" "container" {
-  name = "${var.environment}-${var.stage}-${var.container_family}"
-  tags = {
-    Family = "${var.environment}-${var.stage}-${var.container_family}"
-    Domain = var.domain
-  }
-}
-
-
 resource "aws_ecs_task_definition" "service" {
   family                   = "${var.environment}-${var.stage}-${var.container_family}"
   requires_compatibilities = ["FARGATE"]

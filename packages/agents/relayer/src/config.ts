@@ -13,14 +13,14 @@ export const getEnvConfig = (
   let configFile: any = {};
 
   try {
-    configJson = JSON.parse(process.env.SEQ_CONFIG || "");
+    configJson = JSON.parse(process.env.RELAYER_CONFIG || process.env.SEQ_CONFIG || "");
   } catch (e: unknown) {
-    console.info("No SEQ_CONFIG exists; using config file and individual env vars.");
+    console.info("No RELAYER_CONFIG or SEQ_CONFIG exists; using config file and individual env vars.");
   }
   try {
     let json: string;
 
-    const path = process.env.SEQ_CONFIG_FILE ?? "config.json";
+    const path = process.env.RELAYER_CONFIG_FILE ?? process.env.SEQ_CONFIG_FILE ?? "config.json";
     if (fs.existsSync(path)) {
       json = fs.readFileSync(path, { encoding: "utf-8" });
       configFile = JSON.parse(json);
@@ -32,24 +32,63 @@ export const getEnvConfig = (
 
   const _relayerConfig: RelayerConfig = {
     redis: {
-      host: process.env.SEQ_REDIS_HOST || configJson.redis?.host || configFile.redis?.host,
-      port: process.env.SEQ_REDIS_PORT || configJson.redis?.port || configFile.redis?.port || 6379,
+      host:
+        process.env.RELAYER_REDIS_HOST ||
+        process.env.SEQ_REDIS_HOST ||
+        configJson.redis?.host ||
+        configFile.redis?.host,
+      port:
+        process.env.RELAYER_REDIS_PORT ||
+        process.env.SEQ_REDIS_PORT ||
+        configJson.redis?.port ||
+        configFile.redis?.port ||
+        6379,
     },
-    chains: process.env.SEQ_CHAIN_CONFIG
+    chains: process.env.RELAYER_CHAIN_CONFIG
+      ? JSON.parse(process.env.RELAYER_CHAIN_CONFIG)
+      : process.env.SEQ_CHAIN_CONFIG
       ? JSON.parse(process.env.SEQ_CHAIN_CONFIG)
       : configJson.chains
       ? configJson.chains
       : configFile.chains,
     logLevel:
-      process.env.SEQ_LOG_LEVEL || configJson.logLevel || configFile.logLevel || process.env.NXTP_LOG_LEVEL || "info",
+      process.env.RELAYER_LOG_LEVEL ||
+      process.env.SEQ_LOG_LEVEL ||
+      configJson.logLevel ||
+      configFile.logLevel ||
+      process.env.NXTP_LOG_LEVEL ||
+      "info",
     network:
-      process.env.SEQ_NETWORK || configJson.network || configFile.network || process.env.NXTP_NETWORK || "mainnet",
-    mnemonic: process.env.NXTP_MNEMONIC || configJson.mnemonic || configFile.mnemonic,
-    web3SignerUrl: process.env.NXTP_WEB3_SIGNER_URL || configJson.web3SignerUrl || configFile.web3SignerUrl,
+      process.env.RELAYER_NETWORK ||
+      process.env.SEQ_NETWORK ||
+      configJson.network ||
+      configFile.network ||
+      process.env.NXTP_NETWORK ||
+      "mainnet",
+    mnemonic: process.env.RELAYER_MNEMONIC || process.env.NXTP_MNEMONIC || configJson.mnemonic || configFile.mnemonic,
+    web3SignerUrl:
+      process.env.RELAYER_WEB3_SIGNER_URL ||
+      process.env.NXTP_WEB3_SIGNER_URL ||
+      configJson.web3SignerUrl ||
+      configFile.web3SignerUrl,
     server: {
-      port: process.env.SEQ_SERVER_PORT || configJson.server?.port || configFile.server?.port || 8081,
-      host: process.env.SEQ_SERVER_HOST || configJson.server?.host || configFile.server?.host || "0.0.0.0",
-      adminToken: process.env.SEQ_SERVER_ADMIN_TOKEN || configJson.server?.adminToken || configFile.server?.adminToken,
+      port:
+        process.env.RELAYER_SERVER_PORT ||
+        process.env.SEQ_SERVER_PORT ||
+        configJson.server?.port ||
+        configFile.server?.port ||
+        8081,
+      host:
+        process.env.RELAYER_SERVER_HOST ||
+        process.env.SEQ_SERVER_HOST ||
+        configJson.server?.host ||
+        configFile.server?.host ||
+        "0.0.0.0",
+      adminToken:
+        process.env.RELAYER_SERVER_ADMIN_TOKEN ||
+        process.env.SEQ_SERVER_ADMIN_TOKEN ||
+        configJson.server?.adminToken ||
+        configFile.server?.adminToken,
     },
     mode: {
       cleanup: process.env.NXTP_CLEAN_UP_MODE || configJson.mode?.cleanup || configFile.mode?.cleanup || false,

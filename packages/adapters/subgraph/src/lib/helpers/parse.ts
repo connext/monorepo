@@ -38,7 +38,6 @@ export const originTransfer = (entity: any): OriginTransfer => {
 
     transferId: entity.transferId,
     nonce: BigNumber.from(entity.nonce).toNumber(),
-    relayerFee: entity.relayerFee,
 
     // Call Params
     xparams: {
@@ -175,7 +174,6 @@ export const destinationTransfer = (entity: any): DestinationTransfer => {
             gasPrice: entity.executedGasPrice,
             gasLimit: entity.executedGasLimit,
             blockNumber: BigNumber.from(entity.executedBlockNumber ?? "0").toNumber(),
-            relayerFee: entity.relayerFee ?? "1",
           }
         : undefined,
 

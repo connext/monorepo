@@ -1,0 +1,11 @@
+[
+  "event OwnershipTransferred(address indexed,address indexed)",
+  "event Paused(address)",
+  "event Unpaused(address)",
+  "function owner() view returns (address)",
+  "function pause()",
+  "function paused() view returns (bool)",
+  "function renounceOwnership()",
+  "function transferOwnership(address)",
+  "function unpause()"
+]
