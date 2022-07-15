@@ -26,9 +26,10 @@ resource "aws_ecs_task_definition" "rmq" {
   }
   container_definitions = jsonencode([
     {
-      name      = "${var.environment}-${var.stage}-${var.container_family}"
-      image     = var.docker_image
-      essential = true
+      name        = "${var.environment}-${var.stage}-${var.container_family}"
+      image       = var.docker_image
+      essential   = true
+      environment = var.container_env_vars
       logConfiguration = {
         logDriver = "awslogs"
         options = {
@@ -145,11 +146,10 @@ resource "aws_alb_target_group" "management" {
   }
 
   health_check {
-    matcher  = "200"
+    enabled  = true
     path     = "/"
-    port     = 80
-    timeout  = 30
-    interval = 40
+    matcher  = "200,302"
+    interval = var.timeout + 10
   }
 
   tags = {
