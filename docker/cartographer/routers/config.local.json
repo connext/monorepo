@@ -1,0 +1,8 @@
+{
+  "logLevel": "debug",
+  "chains": {
+    "1111": { "providers": ["http://chain-1337:8545"] },
+    "3331": { "providers": ["http://chain-1338:8545"] }
+  },
+  "environment": "production"
+}

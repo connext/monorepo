@@ -19,8 +19,12 @@ If you need to run the test locally against local changes, you can build the ima
 
 ```sh
 docker build --tag sequencer:latest --file ./docker/sequencer/Dockerfile .
-docker build --tag router:latest --file ./docker/router/Dockerfile .
+docker build --tag router-publisher:latest --file ./docker/router/publisher/Dockerfile .
+docker build --tag router-subscriber:latest --file ./docker/router/subscriber/Dockerfile .
 docker build --tag relayer:latest --file ./docker/relayer/Dockerfile .
+docker build --tag cartographer-transfers:latest --file ./docker/cartographer/transfers/Dockerfile .
+docker build --tag cartographer-routers:latest --file ./docker/cartographer/routers/Dockerfile .
+docker build --tag lighthouse:latest --file ./docker/lighthouse/Dockerfile .
 ```
 
 ## Edit Config If Needed

@@ -143,3 +143,59 @@ services:
       options:
         max-size: 10m
         tag: "{{.ImageName}}|{{.Name}}|{{.ImageFullID}}|{{.FullID}}"
+
+  cartographer-transfers:
+    container_name: cartographer-transfers
+    depends_on:
+      - router-message-queue
+      - sequencer-publisher
+    image: ${CARTOGRAPHER_TRANSFERS_IMAGE}
+    restart: always
+    ports:
+      - "8080:8080"
+    logging:
+      driver: json-file
+      options:
+        max-size: 10m
+    volumes:
+      - ${PWD}/docker/cartographer/transfers/:/home/node/agents/cartographer/
+      - ${PWD}/docker/cartographer/transfers/config.local.json:/home/node/packages/agents/cartographer/routers/config.json
+    environment:
+      GRAPH_1337_ENDPOINT: "http://graph-node-1337:8000/subgraphs/name/connext/nxtp"
+      GRAPH_1338_ENDPOINT: "http://graph-node-1338:8000/subgraphs/name/connext/nxtp"
+
+  cartographer-routers:
+    container_name: cartographer-routers
+    depends_on:
+      - router-message-queue
+      - sequencer-publisher
+    image: ${CARTOGRAPHER_TRANSFERS_IMAGE}
+    restart: always
+    ports:
+      - "8080:8080"
+    logging:
+      driver: json-file
+      options:
+        max-size: 10m
+    volumes:
+      - ${PWD}/docker/cartographer/routers/:/home/node/agents/cartographer/
+      - ${PWD}/docker/cartographer/routers/config.local.json:/home/node/packages/agents/cartographer/routers/config.json
+    environment:
+      GRAPH_1337_ENDPOINT: "http://graph-node-1337:8000/subgraphs/name/connext/nxtp"
+      GRAPH_1338_ENDPOINT: "http://graph-node-1338:8000/subgraphs/name/connext/nxtp"
+
+  lighthouse:
+    container_name: lighthouse
+    depends_on:
+      - cartographer
+    image: ${LIGHTHOUSE_IMAGE}
+    restart: always
+    ports:
+      - "8080:8080"
+    logging:
+      driver: json-file
+      options:
+        max-size: 10m
+    volumes:
+      - ${PWD}/docker/lighthouse/:/home/node/agents/lighthouse/
+      - ${PWD}/docker/lighthouse/config.local.json:/home/node/packages/agents/lighthouse/config.json
