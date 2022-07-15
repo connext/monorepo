@@ -109,6 +109,8 @@ locals {
     messageQueue = {
       host = module.router_message_queue.dns_name
       port = 5672
+      user = var.rmq_mgt_user
+      pass = var.rmq_mgt_password
     }
 
   })
