@@ -19,7 +19,6 @@ import {BaseConnextFacet} from "./BaseConnextFacet.sol";
  * @notice This is the facet that holds all the functionality needed for nomad to reconcile
  * the transfer
  *
- * TODO: maybe move into bridge facet again?
  */
 contract NomadFacet is BaseConnextFacet {
   // ============ Libraries ============
@@ -108,20 +107,24 @@ contract NomadFacet is BaseConnextFacet {
    * (tokens which were previously deposited into this bridge via outgoing `xcall`s). If the target adopted token
    * is also the local nomad asset (which would be minted here), then no swap is necessary.
    *
-   * @param transferId - The unique identifier for the transfer
-   * @param amount - The amount bridged
-   * @param canonicalId - The canonical identifier of the token
-   * @param canonicalDomain - The canonical domain of the token
-   * @param localToken - The address of the token representation on this domain, or the canonical
+   * @dev Should be interface compatible with interface defined here:
+   * https://github.com/nomad-xyz/monorepo/blob/main/packages/contracts-bridge/contracts/interfaces/IBridgeHook.sol
+   *
+   * @param _tokenAddress - The canonical identifier of the token
+   * @param _localToken - The address of the token representation on this domain, or the canonical
    * address if you are on the canonical domain
+   * @param _amount - The amount bridged
+   * @param _extraData - The extra data passed with the transfer on `sendToHook` (in this case transferId)
    */
-  function reconcile(
-    bytes32 transferId,
-    uint256 amount,
-    bytes32 canonicalId,
-    uint32 canonicalDomain,
-    address localToken
+  function onReceive(
+    uint32, // _origin, not used
+    uint32, // _tokenDomain, not used
+    bytes32 _tokenAddress, // of canonical token?
+    address _localToken,
+    uint256 _amount,
+    bytes memory _extraData
   ) external onlyBridgeRouter {
+    bytes32 transferId = bytes32(_extraData);
     // Ensure the transaction has not already been handled (i.e. previously reconciled).
     if (s.reconciledTransfers[transferId]) {
       revert NomadFacet__reconcile_alreadyReconciled();
@@ -141,12 +144,12 @@ contract NomadFacet is BaseConnextFacet {
     // or by interacting with the aave contracts directly
     uint256 portalTransferAmount = s.portalDebt[transferId] + s.portalFeeDebt[transferId];
 
-    uint256 toDistribute = amount;
+    uint256 toDistribute = _amount;
     uint256 pathLen = routers.length;
     if (portalTransferAmount != 0) {
       // ensure a router took on credit risk
       if (pathLen != 1) revert NomadFacet__reconcile_noPortalRouter();
-      toDistribute = _reconcileProcessPortal(canonicalId, amount, localToken, transferId);
+      toDistribute = _reconcileProcessPortal(_tokenAddress, _amount, _localToken, transferId);
     }
 
     if (pathLen != 0) {
@@ -154,14 +157,14 @@ contract NomadFacet is BaseConnextFacet {
       // Credit each router that provided liquidity their due 'share' of the asset.
       uint256 routerAmt = toDistribute / pathLen;
       for (uint256 i; i < pathLen; ) {
-        s.routerBalances[routers[i]][localToken] += routerAmt;
+        s.routerBalances[routers[i]][_localToken] += routerAmt;
         unchecked {
           ++i;
         }
       }
     }
 
-    emit Reconciled(transferId, routers, localToken, amount, msg.sender);
+    emit Reconciled(transferId, routers, _localToken, _amount, msg.sender);
   }
 
   // ============ Internal functions ============

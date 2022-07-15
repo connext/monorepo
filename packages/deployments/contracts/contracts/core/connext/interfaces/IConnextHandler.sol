@@ -53,6 +53,8 @@ interface IConnextHandler {
 
   function reconciledTransfers(bytes32 _transferId) external view returns (bool);
 
+  function connextion(uint32 _domain) external view returns (address);
+
   function tokenRegistry() external view returns (ITokenRegistry);
 
   function domain() external view returns (uint256);
@@ -79,6 +81,8 @@ interface IConnextHandler {
 
   function setSponsorVault(address _sponsorVault) external;
 
+  function addConnextion(uint32 _domain, address _connext) external;
+
   function xcall(XCallArgs calldata _args) external payable returns (bytes32);
 
   function execute(ExecuteArgs calldata _args) external returns (bytes32 transferId);
@@ -99,12 +103,13 @@ interface IConnextHandler {
 
   function setBridgeRouter(address _bridge) external;
 
-  function reconcile(
-    bytes32 transferId,
-    uint256 amount,
-    bytes32 canonicalId,
-    uint32 canonicalDomain,
-    address localToken
+  function onReceive(
+    uint32 _origin,
+    uint32 _tokenDomain,
+    bytes32 _tokenAddress, // of canonical token?
+    address _localToken,
+    uint256 _amount,
+    bytes memory _extraData
   ) external;
 
   // ProposedOwnableFacet

@@ -42,6 +42,7 @@ contract BridgeFacet is BaseConnextFacet {
   error BridgeFacet__setExecutor_invalidExecutor();
   error BridgeFacet__setSponsorVault_invalidSponsorVault();
   error BridgeFacet__xcall_wrongDomain();
+  error BridgeFacet__xcall_destinationNotSupported();
   error BridgeFacet__xcall_emptyTo();
   error BridgeFacet__xcall_notSupportedAsset();
   error BridgeFacet__xcall_nonZeroCallbackFeeForCallback();
@@ -154,6 +155,14 @@ contract BridgeFacet is BaseConnextFacet {
    */
   event ExecutorUpdated(address oldExecutor, address newExecutor, address caller);
 
+  /**
+   * @notice Emitted when a new connext instance is added
+   * @param domain - The domain the connext instance is on
+   * @param connext - The address of the connext instance
+   * @param caller - The account that called the function
+   */
+  event ConnextionAdded(uint32 domain, address connext, address caller);
+
   // ============ Getters ============
 
   function relayerFees(bytes32 _transferId) public view returns (uint256) {
@@ -166,6 +175,10 @@ contract BridgeFacet is BaseConnextFacet {
 
   function reconciledTransfers(bytes32 _transferId) public view returns (bool) {
     return s.reconciledTransfers[_transferId];
+  }
+
+  function connextion(uint32 _domain) public view returns (address) {
+    return TypeCasts.bytes32ToAddress(s.connextions[_domain]);
   }
 
   function domain() public view returns (uint32) {
@@ -216,6 +229,11 @@ contract BridgeFacet is BaseConnextFacet {
     emit SponsorVaultUpdated(old, _sponsorVault, msg.sender);
   }
 
+  function addConnextion(uint32 _domain, address _connext) external onlyOwner {
+    s.connextions[_domain] = TypeCasts.addressToBytes32(_connext);
+    emit ConnextionAdded(_domain, _connext, msg.sender);
+  }
+
   // ============ Public methods ==============
 
   /**
@@ -239,10 +257,17 @@ contract BridgeFacet is BaseConnextFacet {
    */
   function xcall(XCallArgs calldata _args) external payable nonReentrant whenNotPaused returns (bytes32) {
     // Sanity checks.
+    bytes32 remoteInstance;
     {
       // Correct origin domain.
       if (_args.params.originDomain != s.domain) {
         revert BridgeFacet__xcall_wrongDomain();
+      }
+
+      // Destination domain is supported
+      remoteInstance = s.connextions[_args.params.destinationDomain];
+      if (remoteInstance == bytes32(0)) {
+        revert BridgeFacet__xcall_destinationNotSupported();
       }
 
       // Recipient is defined.
@@ -262,7 +287,6 @@ contract BridgeFacet is BaseConnextFacet {
     }
 
     bytes32 transferId;
-    bytes memory message;
     uint256 _sNonce;
     XCalledEventArgs memory eventArgs;
     {
@@ -321,7 +345,13 @@ contract BridgeFacet is BaseConnextFacet {
       SafeERC20.safeIncreaseAllowance(IERC20(bridged), address(s.bridgeRouter), bridgedAmt);
 
       // Send message
-      s.bridgeRouter.xsend(bridged, bridgedAmt, _args.params.destinationDomain, transferId);
+      s.bridgeRouter.sendToHook(
+        bridged,
+        bridgedAmt,
+        _args.params.destinationDomain,
+        remoteInstance,
+        abi.encodePacked(transferId)
+      );
 
       // Format arguments for XCalled event that will be emitted below.
       eventArgs = XCalledEventArgs({
