@@ -27,7 +27,7 @@ report.*.json
 ops/data
 **/*/.nyc_output/*
 **/*/*.config.json
-**/*/config.*.json
+**/*/config.testnet.json
 **/*/config.json
 
 packages/integration/logs.json

@@ -1,8 +1,8 @@
 import { utils, Wallet } from "ethers";
-import { getChainData, mkBytes32, ChainData } from "@connext/nxtp-utils";
+import { getChainData, mkBytes32, ChainData, ChainConfig } from "@connext/nxtp-utils";
 import { getDeployedConnextContract, _getContractDeployments } from "@connext/nxtp-txservice";
 import { SequencerConfig } from "@connext/nxtp-sequencer/src/lib/entities/config";
-import { NxtpRouterConfig as RouterConfig, ChainConfig as RouterChainConfig } from "@connext/nxtp-router/src/config";
+import { NxtpRouterConfig as RouterConfig } from "@connext/nxtp-router/src/config";
 import { version as routerPackageVersion } from "@connext/nxtp-router/package.json";
 import { RelayerConfig } from "@connext/nxtp-relayer/src/lib/entities/config";
 import { CartographerConfig } from "@connext/cartographer-poller/src/config";
@@ -69,7 +69,7 @@ export type DomainInfo = {
   network: string;
   domain: string;
   chain: number;
-  config: RouterChainConfig;
+  config: ChainConfig;
 };
 
 export type Agent = {
@@ -236,6 +236,9 @@ export const ROUTER_CONFIG: Promise<RouterConfig> = (async (): Promise<RouterCon
     auctionRoundDepth: 3,
     environment,
     nomadEnvironment: NOMAD_ENVIRONMENT,
+    messageQueue: {
+      host: LOCALHOST,
+    },
   };
 })();
 
