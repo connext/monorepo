@@ -3,7 +3,11 @@
 set -e
 
 SERVICE="$SERVICE$1"
+<<<<<<< HEAD
 SEQUENCER_PUBLISHER="sequencer-publisher"
+=======
+SEQUENCER="sequencer"
+>>>>>>> feat/rmq-fargate-deployment
 ROUTER_PUBLISHER="router-publisher"
 ROUTER_SUBSCRIBER="router-subscriber"
 
@@ -14,7 +18,11 @@ then
 elif [[ "${SERVICE}" == "${ROUTER_SUBSCRIBER}" ]]
 then
   PORT=8090
+<<<<<<< HEAD
 elif [[ "${SERVICE}" == "${SEQUENCER_PUBLISHER}" ]]
+=======
+elif [[ "${SERVICE}" == "${SEQUENCER}" ]]
+>>>>>>> feat/rmq-fargate-deployment
 then
   PORT=8081
 else
