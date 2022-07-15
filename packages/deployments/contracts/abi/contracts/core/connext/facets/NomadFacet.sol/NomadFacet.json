@@ -14,6 +14,6 @@
   "event BridgeRouterUpdated(address,address,address)",
   "event Reconciled(bytes32 indexed,address[],address,uint256,address)",
   "function bridgeRouter() view returns (address)",
-  "function reconcile(bytes32,uint256,bytes32,uint32,address)",
+  "function onReceive(uint32,uint32,bytes32,address,uint256,bytes)",
   "function setBridgeRouter(address)"
 ]
