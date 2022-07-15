@@ -75,6 +75,11 @@ export const getEnvConfig = (
       configFile.auctionRoundDepth ||
       DEFAULT_AUCTION_ROUND_DEPTH,
     environment: process.env.SEQ_ENVIRONMENT || configJson.environment || configFile.environment || "production",
+    messageQueue: process.env.SEQ_MESSAGE_QUEUE_CONFIG
+      ? JSON.parse(process.env.SEQ_MESSAGE_QUEUE_CONFIG)
+      : configJson.messageQueue
+      ? configJson.messageQueue
+      : configFile.messageQueue,
     relayerUrl: process.env.SEQ_RELAYER_URL || configJson.relayerUrl || configFile.relayerUrl,
   };
 
