@@ -533,11 +533,7 @@ describe("LOCAL:E2E", () => {
     }
 
     const poll = getOriginTransfer(subgraphReader, PARAMETERS.A.DOMAIN, receipt.transactionHash);
-
-    // const remote = await connext.callStatic.remotes(PARAMETERS.B.DOMAIN);
-    // // const [remote] = ConnextHandlerInterface.decodeFunctionResult("remotes", encoded);
-    // console.log(remote);
-    // logger.info("Retrieved remote router info.", requestContext, methodContext, { remote });
+    // TODO: Read remote from contract directly?
     const remote = "0x000000000000000000000000f08df3efdd854fede77ed3b2e515090eee765154";
     const res = await connext.handle(PARAMETERS.A.DOMAIN, 0, remote, message);
     console.log(res);
