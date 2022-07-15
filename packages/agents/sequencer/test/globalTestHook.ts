@@ -60,6 +60,7 @@ export const mochaHooks = {
         chainreader: chainReaderMock,
         contracts: mock.context().adapters.contracts,
         relayer: mock.context().adapters.relayer,
+        mqClient: mock.context().adapters.mqClient,
       },
       config: mock.config(),
       chainData: mock.context().chainData,

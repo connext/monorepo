@@ -73,4 +73,4 @@ WORKDIR /home/node/packages/agents/sequencer
 
 EXPOSE 8081
 
-CMD ["node", "--trace-warnings", "dist/index.js"]
+CMD ["node", "--trace-warnings", "dist/subscriber.js"]
