@@ -559,6 +559,7 @@ library SwapUtils {
     uint256 dy,
     uint256[] memory balances
   ) internal view returns (uint256 dx, uint256 dxFee) {
+    require(tokenIndexFrom != tokenIndexTo, "compare token to itself");
     uint256[] memory multipliers = self.tokenPrecisionMultipliers;
     uint256[] memory xp = _xp(balances, multipliers);
     require(tokenIndexFrom < xp.length && tokenIndexTo < xp.length, "index out of range");
