@@ -10,19 +10,35 @@ import {
   AuctionsApiErrorResponse,
   XCallArgs,
   CallParams,
+  ERC20Abi,
 } from "@connext/nxtp-utils";
 import { TransactionService, getErc20Interface, getConnextInterface } from "@connext/nxtp-txservice";
 import { NxtpSdkBase } from "@connext/nxtp-sdk";
-import { constants, Contract, providers, utils } from "ethers";
+import { BigNumber, constants, Contract, providers, utils, Wallet } from "ethers";
 import { SubgraphReader } from "@connext/nxtp-adapters-subgraph";
 
 import { pollSomething } from "./helpers/shared";
 import { enrollHandlers, enrollCustom, setupRouter, setupAsset, addLiquidity } from "./helpers/local";
-import { USER_WALLET, PARAMETERS, SUBG_POLL_PARITY } from "./constants/local";
+import { DEPLOYER_WALLET, PARAMETERS, SUBG_POLL_PARITY, USER_WALLET } from "./constants/local";
 
 const logger = new Logger({ name: "e2e" });
 
-const txService = new TransactionService(
+const deployerTxService = new TransactionService(
+  logger,
+  {
+    [PARAMETERS.A.DOMAIN]: {
+      providers: PARAMETERS.A.RPC,
+      confirmations: 1,
+    },
+    [PARAMETERS.B.DOMAIN]: {
+      providers: PARAMETERS.B.RPC,
+      confirmations: 1,
+    },
+  },
+  DEPLOYER_WALLET,
+  true,
+);
+const userTxService = new TransactionService(
   logger,
   {
     [PARAMETERS.A.DOMAIN]: {
@@ -33,11 +49,13 @@ const txService = new TransactionService(
     },
   },
   USER_WALLET,
+  true,
 );
 
 const sendXCall = async (
   sdk: NxtpSdkBase,
   xparams: Partial<CallParams> = {},
+  signer?: Wallet,
 ): Promise<{
   receipt: providers.TransactionReceipt;
   xcallData: XCallArgs;
@@ -65,10 +83,21 @@ const sendXCall = async (
   const tx = await sdk.xcall(xcallData);
 
   logger.info("Sending XCall...");
-  const receipt = await txService.sendTx(
-    { to: tx.to!, value: tx.value ?? 0, data: utils.hexlify(tx.data!), chainId: 1337 },
-    requestContext,
-  );
+  let receipt: providers.TransactionReceipt;
+  if (signer) {
+    const res = await signer.sendTransaction({
+      to: tx.to!,
+      value: tx.value ?? 0,
+      data: utils.hexlify(tx.data!),
+      chainId: 1337,
+    });
+    receipt = await res.wait(1);
+  } else {
+    receipt = await userTxService.sendTx(
+      { to: tx.to!, value: tx.value ?? 0, data: utils.hexlify(tx.data!), chainId: 1337 },
+      requestContext,
+    );
+  }
   logger.info("XCall sent!");
   return { receipt, xcallData };
 };
@@ -175,11 +204,48 @@ const getDestinationTransfer = async (
   return destinationTransfer;
 };
 
+const enrollReplica = async (singer: Wallet) => {
+  const xAppConnectionManager = new utils.Interface([
+    {
+      inputs: [
+        {
+          internalType: "address",
+          name: "_replica",
+          type: "address",
+        },
+        {
+          internalType: "uint32",
+          name: "_domain",
+          type: "uint32",
+        },
+      ],
+      name: "ownerEnrollReplica",
+      outputs: [],
+      stateMutability: "nonpayable",
+      type: "function",
+    },
+  ]);
+  const encoded = xAppConnectionManager.encodeFunctionData("ownerEnrollReplica", [singer.address, PARAMETERS.B.DOMAIN]);
+
+  const tx = await singer.sendTransaction({
+    to: PARAMETERS.B.DEPLOYMENTS.XAppConnectionManager,
+    data: encoded,
+    chainId: PARAMETERS.B.CHAIN,
+  });
+
+  const receipt = await tx.wait(1);
+  logger.info("Enrolled deployer as replica.", requestContext, methodContext, {
+    deployer: singer.address,
+    receipt,
+  });
+};
+
 const { requestContext, methodContext } = createLoggingContext("e2e");
 describe("LOCAL:E2E", () => {
   let sdk: NxtpSdkBase;
   let subgraphReader: SubgraphReader;
-  before(async () => {
+
+  const onchainSetup = async () => {
     logger.info("Enrolling handlers...");
     await enrollHandlers(
       [
@@ -192,7 +258,7 @@ describe("LOCAL:E2E", () => {
           ...PARAMETERS.B.DEPLOYMENTS,
         },
       ],
-      txService,
+      deployerTxService,
     );
     logger.info("Enrolled handlers.");
 
@@ -209,7 +275,7 @@ describe("LOCAL:E2E", () => {
           TokenRegistry: PARAMETERS.B.DEPLOYMENTS.TokenRegistry,
         },
       ],
-      txService,
+      deployerTxService,
     );
     logger.info("Enrolled custom asset.");
 
@@ -220,7 +286,7 @@ describe("LOCAL:E2E", () => {
         { ConnextHandler: PARAMETERS.A.DEPLOYMENTS.ConnextHandler, domain: PARAMETERS.A.DOMAIN },
         { ConnextHandler: PARAMETERS.B.DEPLOYMENTS.ConnextHandler, domain: PARAMETERS.B.DOMAIN },
       ],
-      txService,
+      deployerTxService,
     );
     logger.info("Set up router.");
 
@@ -241,7 +307,7 @@ describe("LOCAL:E2E", () => {
           adopted: PARAMETERS.ASSET.address,
         },
       ],
-      txService,
+      deployerTxService,
     );
     logger.info("Set up assets.");
 
@@ -263,11 +329,62 @@ describe("LOCAL:E2E", () => {
           ConnextHandler: PARAMETERS.B.DEPLOYMENTS.ConnextHandler,
         },
       ],
-      txService,
+      deployerTxService,
     );
-
     logger.info("Added liquidity.");
 
+    logger.info("Minting tokens for user agent...");
+    {
+      const erc20 = new utils.Interface(ERC20Abi);
+      const amount = BigNumber.from("1000000000000000");
+      const encoded = erc20.encodeFunctionData("mint", [PARAMETERS.AGENTS.USER.address, amount]);
+      const receipt = await deployerTxService.sendTx(
+        {
+          chainId: 1337,
+          to: PARAMETERS.ASSET.address,
+          data: encoded,
+          value: BigNumber.from("0"),
+        },
+        requestContext,
+      );
+      logger.info("Minted tokens.", requestContext, methodContext, {
+        amount: amount.toString(),
+        asset: PARAMETERS.ASSET.address,
+        txHash: receipt.transactionHash,
+      });
+
+      const balanceOfData = erc20.encodeFunctionData("balanceOf", [PARAMETERS.AGENTS.USER.address]);
+      const res = await deployerTxService.readTx({
+        chainId: PARAMETERS.A.CHAIN,
+        data: balanceOfData,
+        to: PARAMETERS.ASSET.address,
+      });
+      const [tokenBalance] = erc20.decodeFunctionResult("balanceOf", res);
+      logger.info(`New user token balance: ${tokenBalance.toString()}`);
+    }
+
+    let tx = await sdk.approveIfNeeded(PARAMETERS.A.DOMAIN, PARAMETERS.ASSET.address, "1", true);
+    if (tx) {
+      await userTxService.sendTx(
+        { chainId: 1337, to: tx.to!, value: 0, data: utils.hexlify(tx.data!) },
+        requestContext,
+      );
+    }
+    if (tx) {
+      tx = await sdk.approveIfNeeded(PARAMETERS.B.DOMAIN, PARAMETERS.ASSET.address, "1", true);
+    }
+  };
+
+  before(async () => {
+    // Ensure automine is off. Additionally, fund the user agent address some ETH.
+    const originProvider = new providers.JsonRpcProvider(PARAMETERS.A.RPC[0]);
+    await originProvider.send("evm_setAutomine", [false]);
+    await originProvider.send("hardhat_setBalance", [PARAMETERS.AGENTS.USER.address, "0x84595161401484A000000"]);
+    const destinationProvider = new providers.JsonRpcProvider(PARAMETERS.B.RPC[0]);
+    await destinationProvider.send("evm_setAutomine", [false]);
+    await destinationProvider.send("hardhat_setBalance", [PARAMETERS.AGENTS.USER.address, "0x84595161401484A000000"]);
+
+    // Peripherals.
     logger.info("Setting up sdk...");
     sdk = await NxtpSdkBase.create({
       chains: {
@@ -294,8 +411,7 @@ describe("LOCAL:E2E", () => {
       environment: PARAMETERS.ENVIRONMENT as "production" | "staging",
       signerAddress: PARAMETERS.AGENTS.USER.address,
     });
-
-    logger.info("Setup sdk.");
+    logger.info("Set up sdk.");
 
     logger.info("Setting up subgraph reader...");
     const chainData = await getChainData();
@@ -307,27 +423,13 @@ describe("LOCAL:E2E", () => {
       }
     }
     subgraphReader = await SubgraphReader.create(allowedChainData, "production");
-    logger.info("Setup subgraph reader.");
+    logger.info("Set up subgraph reader.");
 
-    let tx = await sdk.approveIfNeeded(PARAMETERS.A.DOMAIN, PARAMETERS.ASSET.address, "1", true);
-    if (tx) {
-      await txService.sendTx({ chainId: 1337, to: tx.to!, value: 0, data: utils.hexlify(tx.data!) }, requestContext);
-    }
-    if (tx) {
-      tx = await sdk.approveIfNeeded(PARAMETERS.B.DOMAIN, PARAMETERS.ASSET.address, "1", true);
-    }
+    // On-chain / contracts configuration, approvals, etc.
+    // await onchainSetup();
   });
 
-  it.only("handles fast liquidity transfer", async () => {
-    const balanceOfData = getErc20Interface().encodeFunctionData("balanceOf", [PARAMETERS.AGENTS.USER.address]);
-    const encoded = await txService.readTx({
-      chainId: +PARAMETERS.A.DOMAIN,
-      data: balanceOfData,
-      to: PARAMETERS.ASSET.address,
-    });
-    const [tokenBalance] = getErc20Interface().decodeFunctionResult("balanceOf", encoded);
-    logger.info(`> sender token balance: ${tokenBalance.toString()}`);
-
+  it("handles fast liquidity transfer", async () => {
     const { receipt, xcallData } = await sendXCall(sdk);
     const originTransfer = await getOriginTransfer(subgraphReader, PARAMETERS.A.DOMAIN, receipt.transactionHash);
 
@@ -393,45 +495,50 @@ describe("LOCAL:E2E", () => {
     });
   });
 
-  it.skip("handles slow liquidity transfer", async () => {
+  it.only("handles slow liquidity transfer", async () => {
     // Get the remote router ID for the `handle` call.
-    const deployer = PARAMETERS.AGENTS.DEPLOYER.signer.connect(new providers.JsonRpcProvider(PARAMETERS.B.RPC[0]));
-    const connext = new Contract(PARAMETERS.B.DEPLOYMENTS.ConnextHandler, getConnextInterface(), deployer);
-    const remote = await connext.callStatic.remotes(PARAMETERS.B.DOMAIN);
-    console.log(remote);
-    logger.info("Retrieved remote router info.", requestContext, methodContext, { remote });
+    const destinationProvider = new providers.JsonRpcProvider(PARAMETERS.B.RPC[0]);
+    const deployer = PARAMETERS.AGENTS.DEPLOYER.signer.connect(destinationProvider);
 
     // Enroll an EOA (the deployer) as the replica address for this domain.
     // NOTE: In a production environment the replica address will always be a contract. We're using an EOA here in order
     // to circumvent the nomad message lifecycle / nomad ecosystem.
-    const xAppConnectionManager = new Contract(
-      PARAMETERS.B.DEPLOYMENTS.XAppConnectionManager,
-      [
-        {
-          inputs: [
-            {
-              internalType: "address",
-              name: "_replica",
-              type: "address",
-            },
-            {
-              internalType: "uint32",
-              name: "_domain",
-              type: "uint32",
-            },
-          ],
-          name: "ownerEnrollReplica",
-          outputs: [],
-          stateMutability: "nonpayable",
-          type: "function",
-        },
-      ],
-      deployer,
-    );
-    const res = await xAppConnectionManager.ownerEnrollReplica(deployer, remote);
-    console.log(res);
-    logger.info("Enrolled deployer as replica.", requestContext, methodContext, { deployer: deployer.address });
+    await enrollReplica(deployer);
 
-    // const { receipt, xcallData } = await sendXCall(sdk, { forceSlow: true });
+    const originProvider = new providers.JsonRpcProvider(PARAMETERS.A.RPC[0]);
+    // // TODO: Use retrieved abi.
+    // const abi = [
+    //   "event XCalled(bytes32 indexed transferId, XCallArgs xcallArgs, XCalledEventArgs args, uint256 nonce, bytes message, address caller)",
+    // ];
+    const { receipt, xcallData } = await sendXCall(
+      sdk,
+      { forceSlow: true },
+      PARAMETERS.AGENTS.USER.signer.connect(originProvider),
+    );
+
+    const iface = getConnextInterface();
+    const connext = new Contract(PARAMETERS.B.DEPLOYMENTS.ConnextHandler, iface, deployer);
+
+    // Extract the xchain nomad message bytes from the XCalled event logged.
+    const xcalledEvent = connext.filters.XCalled(null).address;
+    let message: string | undefined = undefined;
+    for (const log of receipt.logs) {
+      if (log.address == xcalledEvent) {
+        const event = iface.decodeEventLog("XCalled", log.data);
+        message = event.message;
+        console.log(event.message);
+      }
+    }
+    if (!message) {
+      throw new Error("Did not find XCalled event (or event was missing `message` argument.");
+    }
+
+    // const remote = await connext.callStatic.remotes(PARAMETERS.B.DOMAIN);
+    // // const [remote] = ConnextHandlerInterface.decodeFunctionResult("remotes", encoded);
+    // console.log(remote);
+    // logger.info("Retrieved remote router info.", requestContext, methodContext, { remote });
+    const remote = "0x000000000000000000000000f08df3efdd854fede77ed3b2e515090eee765154";
+    const res = await connext.handle(PARAMETERS.A.DOMAIN, 0, remote, message);
+    console.log(res);
   });
 });
