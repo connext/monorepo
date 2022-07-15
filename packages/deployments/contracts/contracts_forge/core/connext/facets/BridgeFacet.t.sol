@@ -114,6 +114,10 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
     s._routerOwnershipRenounced = true;
     s.bridgeRouter = IBridgeRouter(_bridgeRouter);
 
+    s.connextions[_destinationDomain] = TypeCasts.addressToBytes32(address(this));
+    s.connextions[_originDomain] = TypeCasts.addressToBytes32(address(this));
+    s.connextions[_canonicalDomain] = TypeCasts.addressToBytes32(address(this));
+
     vm.prank(address(this));
     LibDiamond.DiamondStorage storage ds = LibDiamond.diamondStorage();
     ds.contractOwner = _ds_owner;
@@ -313,11 +317,12 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
       _bridgeRouter,
       0,
       abi.encodeWithSelector(
-        IBridgeRouter.xsend.selector,
+        IBridgeRouter.sendToHook.selector,
         eventArgs.bridged,
         eventArgs.bridgedAmt,
         args.params.destinationDomain,
-        transferId
+        s.connextions[args.params.destinationDomain], // always use this as remote connext
+        abi.encodePacked(transferId)
       )
     );
   }
@@ -1054,6 +1059,11 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
   function test_BridgeFacet__xcall_failIfDomainIncorrect() public {
     _params.originDomain = 999999;
     helpers_xcallAndAssert(BridgeFacet.BridgeFacet__xcall_wrongDomain.selector);
+  }
+
+  function test_BridgeFacet__xcall_failIfDestinationNotSupported() public {
+    _params.destinationDomain = 999999;
+    helpers_xcallAndAssert(BridgeFacet.BridgeFacet__xcall_destinationNotSupported.selector);
   }
 
   // TODO: fails if destination domain does not have an xapp router registered

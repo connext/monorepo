@@ -284,6 +284,10 @@ contract ConnextTest is ForgeHelper, Deployer {
     _originPromise.setConnext(address(_originConnext));
     _destinationRelayerFee.setConnext(address(_destinationConnext));
     _destinationPromise.setConnext(address(_destinationConnext));
+
+    // enroll instances
+    _originConnext.addConnextion(_destination, address(_destinationConnext));
+    _destinationConnext.addConnextion(_origin, address(_originConnext));
   }
 
   function utils_setupAssets(uint32 canonicalDomain, bool localIsAdopted) public {
@@ -771,12 +775,13 @@ contract ConnextTest is ForgeHelper, Deployer {
     emit Reconciled(transferId, routers, _destinationLocal, bridgedAmt, _destinationBridgeRouter);
 
     vm.prank(_destinationBridgeRouter);
-    _destinationConnext.reconcile(
-      transferId,
-      bridgedAmt,
-      TypeCasts.addressToBytes32(_canonical),
+    _destinationConnext.onReceive(
+      _origin, // origin, not used
       _canonicalDomain,
-      _destinationLocal
+      TypeCasts.addressToBytes32(_canonical),
+      _destinationLocal,
+      bridgedAmt,
+      abi.encodePacked(transferId)
     );
 
     ReconcileBalances memory end = utils_getReconcileBalances(transferId, routers);

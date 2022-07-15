@@ -87,24 +87,26 @@ contract Deployer {
   }
 
   function getBridgeFacetCut(address _bridgeFacet) internal pure returns (IDiamondCut.FacetCut memory) {
-    bytes4[] memory bridgeFacetSelectors = new bytes4[](14);
+    bytes4[] memory bridgeFacetSelectors = new bytes4[](16);
     // getters
     bridgeFacetSelectors[0] = BridgeFacet.relayerFees.selector;
     bridgeFacetSelectors[1] = BridgeFacet.routedTransfers.selector;
     bridgeFacetSelectors[2] = BridgeFacet.reconciledTransfers.selector;
-    bridgeFacetSelectors[3] = BridgeFacet.domain.selector;
-    bridgeFacetSelectors[4] = BridgeFacet.executor.selector;
-    bridgeFacetSelectors[5] = BridgeFacet.nonce.selector;
-    bridgeFacetSelectors[6] = BridgeFacet.sponsorVault.selector;
-    bridgeFacetSelectors[7] = BridgeFacet.promiseRouter.selector;
+    bridgeFacetSelectors[3] = BridgeFacet.connextion.selector;
+    bridgeFacetSelectors[4] = BridgeFacet.domain.selector;
+    bridgeFacetSelectors[5] = BridgeFacet.executor.selector;
+    bridgeFacetSelectors[6] = BridgeFacet.nonce.selector;
+    bridgeFacetSelectors[7] = BridgeFacet.sponsorVault.selector;
+    bridgeFacetSelectors[8] = BridgeFacet.promiseRouter.selector;
     // admin
-    bridgeFacetSelectors[8] = BridgeFacet.setPromiseRouter.selector;
-    bridgeFacetSelectors[9] = BridgeFacet.setExecutor.selector;
-    bridgeFacetSelectors[10] = BridgeFacet.setSponsorVault.selector;
+    bridgeFacetSelectors[9] = BridgeFacet.setPromiseRouter.selector;
+    bridgeFacetSelectors[10] = BridgeFacet.setExecutor.selector;
+    bridgeFacetSelectors[11] = BridgeFacet.setSponsorVault.selector;
+    bridgeFacetSelectors[12] = BridgeFacet.addConnextion.selector;
     // public
-    bridgeFacetSelectors[11] = BridgeFacet.xcall.selector;
-    bridgeFacetSelectors[12] = BridgeFacet.execute.selector;
-    bridgeFacetSelectors[13] = BridgeFacet.bumpTransfer.selector;
+    bridgeFacetSelectors[13] = BridgeFacet.xcall.selector;
+    bridgeFacetSelectors[14] = BridgeFacet.execute.selector;
+    bridgeFacetSelectors[15] = BridgeFacet.bumpTransfer.selector;
     return
       IDiamondCut.FacetCut({
         facetAddress: _bridgeFacet,
@@ -117,7 +119,7 @@ contract Deployer {
     bytes4[] memory nomadFacetSelectors = new bytes4[](3);
     nomadFacetSelectors[0] = NomadFacet.bridgeRouter.selector;
     nomadFacetSelectors[1] = NomadFacet.setBridgeRouter.selector;
-    nomadFacetSelectors[2] = NomadFacet.reconcile.selector;
+    nomadFacetSelectors[2] = NomadFacet.onReceive.selector;
     return
       IDiamondCut.FacetCut({
         facetAddress: _nomadFacet,

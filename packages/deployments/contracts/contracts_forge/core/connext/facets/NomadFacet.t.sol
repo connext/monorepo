@@ -205,6 +205,16 @@ contract NomadFacetTest is NomadFacet, FacetHelper {
     }
   }
 
+  function helpers_reconcileCaller(
+    address _local,
+    uint256 _amount,
+    bytes32 _transferId
+  ) public {
+    (uint32 canonicalDomain, bytes32 canonicalId) = s.tokenRegistry.getTokenId(_local);
+    vm.prank(_bridge);
+    this.onReceive(_originDomain, canonicalDomain, canonicalId, _local, _amount, abi.encodePacked(_transferId));
+  }
+
   // Helper for calling `reconcile` and asserting expected behavior.
   function helpers_reconcileAndAssert(
     bytes32 transferId,
@@ -269,9 +279,7 @@ contract NomadFacetTest is NomadFacet, FacetHelper {
       vm.expectRevert(expectedError);
     }
 
-    (uint32 canonicalDomain, bytes32 canonicalId) = s.tokenRegistry.getTokenId(_local);
-    vm.prank(_bridge);
-    this.reconcile(transferId, args.amount, canonicalId, canonicalDomain, _local);
+    helpers_reconcileCaller(_local, args.amount, transferId);
 
     if (shouldSucceed) {
       assertEq(s.reconciledTransfers[transferId], true);
@@ -362,7 +370,7 @@ contract NomadFacetTest is NomadFacet, FacetHelper {
     vm.expectRevert(NomadFacet.NomadFacet__reconcile_alreadyReconciled.selector);
 
     vm.prank(_bridge);
-    this.reconcile(transferId, args.amount, canonicalId, canonicalDomain, _local);
+    this.onReceive(_originDomain, canonicalDomain, canonicalId, _local, args.amount, abi.encodePacked(transferId));
   }
 
   // fails if portal record, but used in slow mode
@@ -379,7 +387,7 @@ contract NomadFacetTest is NomadFacet, FacetHelper {
     vm.expectRevert(NomadFacet.NomadFacet__reconcile_noPortalRouter.selector);
 
     vm.prank(_bridge);
-    this.reconcile(transferId, args.amount, canonicalId, canonicalDomain, _local);
+    this.onReceive(_originDomain, canonicalDomain, canonicalId, _local, args.amount, abi.encodePacked(transferId));
   }
 
   // ============ reconcile success cases
