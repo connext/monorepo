@@ -12,7 +12,7 @@ import {
   CallParams,
   ERC20Abi,
 } from "@connext/nxtp-utils";
-import { TransactionService, getErc20Interface, getConnextInterface } from "@connext/nxtp-txservice";
+import { TransactionService, getConnextInterface } from "@connext/nxtp-txservice";
 import { NxtpSdkBase } from "@connext/nxtp-sdk";
 import { BigNumber, constants, Contract, providers, utils, Wallet } from "ethers";
 import { SubgraphReader } from "@connext/nxtp-adapters-subgraph";
@@ -426,7 +426,7 @@ describe("LOCAL:E2E", () => {
     logger.info("Set up subgraph reader.");
 
     // On-chain / contracts configuration, approvals, etc.
-    // await onchainSetup();
+    await onchainSetup();
   });
 
   it("handles fast liquidity transfer", async () => {
@@ -526,12 +526,13 @@ describe("LOCAL:E2E", () => {
       if (log.address == xcalledEvent) {
         const event = iface.decodeEventLog("XCalled", log.data);
         message = event.message;
-        console.log(event.message);
       }
     }
     if (!message) {
-      throw new Error("Did not find XCalled event (or event was missing `message` argument.");
+      throw new Error("Did not find XCalled event (or event was missing `message` arguments)!");
     }
+
+    const poll = getOriginTransfer(subgraphReader, PARAMETERS.A.DOMAIN, receipt.transactionHash);
 
     // const remote = await connext.callStatic.remotes(PARAMETERS.B.DOMAIN);
     // // const [remote] = ConnextHandlerInterface.decodeFunctionResult("remotes", encoded);
@@ -540,5 +541,13 @@ describe("LOCAL:E2E", () => {
     const remote = "0x000000000000000000000000f08df3efdd854fede77ed3b2e515090eee765154";
     const res = await connext.handle(PARAMETERS.A.DOMAIN, 0, remote, message);
     console.log(res);
+
+    const originTransfer = await poll;
+    const destinationTransfer = await getDestinationTransfer(
+      subgraphReader,
+      PARAMETERS.B.DOMAIN,
+      originTransfer.transferId,
+    );
+    console.log(destinationTransfer);
   });
 });
