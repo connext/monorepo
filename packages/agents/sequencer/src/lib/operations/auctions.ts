@@ -101,7 +101,7 @@ export const storeBid = async (bid: Bid, _requestContext: RequestContext): Promi
   // Enqueue only once to dedup, when the first bid for the transfer is stored.
   if (status === AuctionStatus.None) {
     const message: Message = { transferId: transfer.transferId, originDomain: transfer.xparams!.originDomain };
-    await mqClient.publish(config.messageQueue.publisher, {
+    await mqClient.publish(config.messageQueue.publisher!, {
       type: transfer.xparams!.originDomain,
       body: message,
       routingKey: transfer.xparams!.originDomain,
