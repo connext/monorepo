@@ -536,8 +536,11 @@ describe("LOCAL:E2E", () => {
     // TODO: Read remote from contract directly?
     const remote = "0x000000000000000000000000f08df3efdd854fede77ed3b2e515090eee765154";
     const res = await connext.handle(PARAMETERS.A.DOMAIN, 0, remote, message);
-    console.log(res);
+    logger.info("Sent `handle` (i.e. `reconcile`) transaction.", requestContext, methodContext, {
+      txHash: res.transactionHash,
+    });
 
+    // Lighthouse should pick up the xcall once it's been reconciled.
     const originTransfer = await poll;
     const destinationTransfer = await getDestinationTransfer(
       subgraphReader,
