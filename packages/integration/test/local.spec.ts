@@ -11,14 +11,14 @@ import {
   XCallArgs,
   CallParams,
 } from "@connext/nxtp-utils";
-import { TransactionService, getErc20Interface } from "@connext/nxtp-txservice";
+import { TransactionService, getErc20Interface, getConnextInterface } from "@connext/nxtp-txservice";
 import { NxtpSdkBase } from "@connext/nxtp-sdk";
-import { constants, providers, utils } from "ethers";
+import { constants, Contract, providers, utils } from "ethers";
 import { SubgraphReader } from "@connext/nxtp-adapters-subgraph";
 
 import { pollSomething } from "./helpers/shared";
 import { enrollHandlers, enrollCustom, setupRouter, setupAsset, addLiquidity } from "./helpers/local";
-import { WALLET, PARAMETERS, SUBG_POLL_PARITY } from "./constants/local";
+import { USER_WALLET, PARAMETERS, SUBG_POLL_PARITY } from "./constants/local";
 
 const logger = new Logger({ name: "e2e" });
 
@@ -32,7 +32,7 @@ const txService = new TransactionService(
       providers: PARAMETERS.B.RPC,
     },
   },
-  WALLET,
+  USER_WALLET,
 );
 
 const sendXCall = async (
@@ -394,6 +394,44 @@ describe("LOCAL:E2E", () => {
   });
 
   it.skip("handles slow liquidity transfer", async () => {
+    // Get the remote router ID for the `handle` call.
+    const deployer = PARAMETERS.AGENTS.DEPLOYER.signer.connect(new providers.JsonRpcProvider(PARAMETERS.B.RPC[0]));
+    const connext = new Contract(PARAMETERS.B.DEPLOYMENTS.ConnextHandler, getConnextInterface(), deployer);
+    const remote = await connext.callStatic.remotes(PARAMETERS.B.DOMAIN);
+    console.log(remote);
+    logger.info("Retrieved remote router info.", requestContext, methodContext, { remote });
+
+    // Enroll an EOA (the deployer) as the replica address for this domain.
+    // NOTE: In a production environment the replica address will always be a contract. We're using an EOA here in order
+    // to circumvent the nomad message lifecycle / nomad ecosystem.
+    const xAppConnectionManager = new Contract(
+      PARAMETERS.B.DEPLOYMENTS.XAppConnectionManager,
+      [
+        {
+          inputs: [
+            {
+              internalType: "address",
+              name: "_replica",
+              type: "address",
+            },
+            {
+              internalType: "uint32",
+              name: "_domain",
+              type: "uint32",
+            },
+          ],
+          name: "ownerEnrollReplica",
+          outputs: [],
+          stateMutability: "nonpayable",
+          type: "function",
+        },
+      ],
+      deployer,
+    );
+    const res = await xAppConnectionManager.ownerEnrollReplica(deployer, remote);
+    console.log(res);
+    logger.info("Enrolled deployer as replica.", requestContext, methodContext, { deployer: deployer.address });
+
     // const { receipt, xcallData } = await sendXCall(sdk, { forceSlow: true });
   });
 });
