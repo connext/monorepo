@@ -745,18 +745,14 @@ describe("TESTNET:E2E", () => {
 
       if (agents.router) {
         log.next("SEQUENCER START");
-        const publisherConfig = sequencerConfig;
-        delete publisherConfig.messageQueue.subscriber;
         await makePublisher({
-          ...publisherConfig,
+          ...sequencerConfig,
           relayerUrl: agents.relayer ? sequencerConfig.relayerUrl : undefined,
         });
         await delay(1_000);
 
-        const subscriberConfig = sequencerConfig;
-        delete subscriberConfig.messageQueue.publisher;
         await makeSubscriber({
-          ...subscriberConfig,
+          ...sequencerConfig,
           relayerUrl: agents.relayer ? sequencerConfig.relayerUrl : undefined,
         });
         await delay(1_000);

@@ -42,7 +42,7 @@ export const makePublisher = async (_configOverride?: SequencerConfig) => {
       },
     });
 
-    if (!context.config.messageQueue.publisher) return;
+    if (!context.config.messageQueue.publisher) throw new Error(`No publisher found in config`);
 
     context.logger.info("Publisher config generated.", requestContext, methodContext, { config: context.config });
 
@@ -249,7 +249,7 @@ export const makeSubscriber = async (_configOverride?: SequencerConfig) => {
       },
     });
 
-    if (!context.config.messageQueue.subscriber) return;
+    if (context.config.messageQueue.queues.length === 0) throw new Error(`No queues found in config`);
 
     context.logger.info("Subscriber config generated.", requestContext, methodContext, { config: context.config });
 
