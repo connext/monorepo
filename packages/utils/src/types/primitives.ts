@@ -1,4 +1,4 @@
-import { Type } from "@sinclair/typebox";
+import { Static, Type } from "@sinclair/typebox";
 
 // strings aliases: these function more as documentation for devs than checked types
 export type Address = string; // aka HexString of length 42
@@ -27,3 +27,40 @@ export const TLogLevel = Type.Union([
   Type.Literal("trace"),
   Type.Literal("silent"),
 ]);
+
+export const TAssetDescription = Type.Object({
+  name: Type.String(),
+  address: TAddress,
+  mainnetEquivalent: Type.Optional(TAddress),
+});
+
+export type AssetDescription = Static<typeof TAssetDescription>;
+
+export const TChainConfig = Type.Object({
+  assets: Type.Array(TAssetDescription), // Assets for which the router provides liquidity on this chain.
+  providers: Type.Array(Type.String()),
+  gasStations: Type.Array(Type.String()),
+  confirmations: Type.Integer({ minimum: 1 }), // What we consider the "safe confirmations" number for this chain.
+  deployments: Type.Object({
+    connext: TAddress,
+  }),
+});
+
+export type ChainConfig = Static<typeof TChainConfig>;
+
+export const TServerConfig = Type.Object({
+  port: Type.Integer({ minimum: 1, maximum: 65535 }),
+  host: Type.String({ format: "ipv4" }),
+  requestLimit: Type.Integer(),
+  adminToken: Type.String(),
+});
+
+export const TOptionalPeripheralConfig = Type.Object({
+  port: Type.Optional(Type.Integer({ minimum: 1, maximum: 65535 })),
+  host: Type.Optional(Type.String()),
+});
+
+export const TRequiredPeripheralConfig = Type.Object({
+  port: Type.Optional(Type.Integer({ minimum: 1, maximum: 65535 })),
+  host: Type.Optional(Type.String()),
+});

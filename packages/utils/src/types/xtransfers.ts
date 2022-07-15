@@ -71,7 +71,6 @@ export const XTransferDestinationSchema = Type.Object({
       Type.Object({
         // Executed Event Data
         originSender: Type.Optional(TAddress),
-        relayerFee: TIntegerString,
       }),
     ]),
   ),
@@ -118,7 +117,6 @@ export const OriginTransferSchema = Type.Intersect([
     transferId: Type.String(),
     nonce: Type.Integer(),
     xparams: CallParamsSchema,
-    relayerFee: TIntegerString,
   }),
   Type.Object({
     origin: XTransferOriginSchema,

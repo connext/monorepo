@@ -27,6 +27,10 @@ locals {
     { name = "WEB3_SIGNER_PRIVATE_KEY", value = var.web3_signer_private_key },
     { name = "WEB3SIGNER_HTTP_HOST_ALLOWLIST", value = "*" }
   ]
+  rmq_env_vars = [
+    { name = "RABBITMQ_DEFAULT_USER", value = var.rmq_mgt_user },
+    { name = "RABBITMQ_DEFAULT_PASS", value = var.rmq_mgt_password }
+  ]
 }
 
 locals {
@@ -102,6 +106,11 @@ locals {
     web3SignerUrl    = "https://${module.web3signer.service_endpoint}"
     environment      = var.stage
     nomadEnvironment = var.nomad_environment
+    messageQueue = {
+      host = module.router_message_queue.dns_name
+      port = 5672
+    }
+
   })
 }
 
