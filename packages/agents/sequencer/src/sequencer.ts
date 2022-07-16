@@ -44,7 +44,7 @@ export const makePublisher = async (_configOverride?: SequencerConfig) => {
 
     if (!context.config.messageQueue.publisher) throw new Error(`No publisher found in config`);
 
-    context.logger.info("Publisher config generated.", requestContext, methodContext, { config: context.config });
+    context.logger.info("Publisher config generated.", requestContext, methodContext);
 
     /// MARK - Adapters
     context.adapters.cache = await setupCache(context.config.redis, context.logger, requestContext);
@@ -251,7 +251,7 @@ export const makeSubscriber = async (_configOverride?: SequencerConfig) => {
 
     if (context.config.messageQueue.queues.length === 0) throw new Error(`No queues found in config`);
 
-    context.logger.info("Subscriber config generated.", requestContext, methodContext, { config: context.config });
+    context.logger.info("Subscriber config generated.", requestContext, methodContext);
 
     context.adapters.mqClient = await setupSubscriber(requestContext);
 
