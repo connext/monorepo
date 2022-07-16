@@ -267,7 +267,7 @@ export const makeSubscriber = async (_configOverride?: SequencerConfig) => {
     }
   } catch (error: any) {
     console.error("Error starting subscriber :'(", error);
-    context.adapters.mqClient.close();
+    Broker.close();
     process.exit(1);
   }
 };
