@@ -34,8 +34,8 @@
   "nomadEnvironment": "none",
   "messageQueue": {
     "host": "router-message-queue",
-    "port": 5672
+    "port": 5672,
     "user": "guest",
-    "pass": "guest" 
+    "pass": "guest"
   }
 }
