@@ -1,28 +1,29 @@
-import { expect, delay } from "@connext/nxtp-utils";
+import { expect } from "@connext/nxtp-utils";
 import { stub, SinonStub } from "sinon";
 
-import { ctxMock, getOperationsStub } from "../../globalTestHook";
-import { bindAuctions } from "../../../src/bindings";
+import { bindSubscriber } from "../../../src/bindings";
+import { ctxMock } from "../../../test/globalTestHook";
 
 describe("Bindings:Auctions", () => {
-  describe("#bidSelection", () => {
-    let executeAuctionsStub: SinonStub;
-    beforeEach(() => {
-      executeAuctionsStub = stub().resolves();
-      getOperationsStub.returns({
-        auctions: {
-          executeAuctions: executeAuctionsStub,
-        },
-      });
-    });
+  let spawnStub: SinonStub;
+  beforeEach(() => {
+    spawnStub = stub().resolves();
+  });
 
-    it("happy: should start an interval loop that calls polling fn", async () => {
-      // Override the poll interval to 10ms so we can test the interval loop
-      await bindAuctions(10);
-      // TODO: slight race here?
-      await delay(20);
-      ctxMock.config.mode.cleanup = true;
-      expect(executeAuctionsStub.callCount).to.be.gte(1);
-    });
+  it("should handle undefined handler", async () => {
+    await bindSubscriber("1111");
+    expect(ctxMock.adapters.mqClient.handle).to.be.calledOnceWith("1111");
+  });
+  it("should handle valid message", async () => {
+    const message = { body: { transferId: "transfer_1", originDomain: "1111" } };
+    ctxMock.adapters.mqClient.handle = stub().yields(message);
+    await bindSubscriber("1111");
+    expect(ctxMock.adapters.mqClient.handle).to.be.calledOnceWith("1111");
+  });
+  it("should handle missing transferId", async () => {
+    const message = { body: { originDomain: "1111" } };
+    ctxMock.adapters.mqClient.handle = stub().yields(message);
+    await bindSubscriber("1111");
+    expect(ctxMock.adapters.mqClient.handle).to.be.calledOnceWith("1111");
   });
 });

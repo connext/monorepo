@@ -77,6 +77,8 @@ export const makeSubscriber = async (_configOverride?: NxtpRouterConfig) => {
     context.adapters.mqClient = await setupMq(
       context.config.messageQueue.host as string,
       context.config.messageQueue.port as number,
+      context.config.messageQueue.user as string,
+      context.config.messageQueue.pass as string,
       context.logger,
       requestContext,
     );

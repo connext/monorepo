@@ -981,10 +981,11 @@ __metadata:
     "@sinclair/typebox": 0.24.12
     axios: 0.27.2
     concurrently: 7.2.2
-    dd-trace: ^2.10.0
+    dd-trace: 2.10.0
     eslint: 8.19.0
     ethers: 5.6.9
     fastify: 4.2.0
+    foo-foo-mq: 7.1.0
     interval-promise: 1.4.0
     mocha: 10.0.0
     nodemon: 2.0.19

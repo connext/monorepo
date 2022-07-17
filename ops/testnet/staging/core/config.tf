@@ -67,6 +67,55 @@ locals {
     }
 
     environment = var.stage
+    messageQueue = {
+      connection = {
+        server = module.router_message_queue.dns_name
+        port = 5672
+        user = var.rmq_mgt_user
+        pass = var.rmq_mgt_password
+        timeout = 2000,
+        publishTimeout = 100,
+        failAfter = 10,
+        retryLimit = 100
+      }
+      exchanges = [
+        {
+          name = "sequencerX"
+          type = "direct"
+          publishTimeout = 1000
+          persistent = true
+          durable = true
+        }
+      ]
+      queues = [
+        {
+           name = "1337"
+           prefetch = 100
+           queueLimit = 10000
+           subscribe = true
+        },
+        {
+           name = "1338"
+           prefetch = 100
+           queueLimit = 10000
+           subscribe = true
+        }
+      ]
+      bindings = [
+        {
+         exchange = "sequencerX"
+         target = "1337"
+         keys = ["1337"]
+        },
+        {
+         exchange = "sequencerX"
+         target = "1338"
+         keys = ["1338"]
+        }
+      ]
+      executerTimeout = 300000
+      publisher = "sequencerX"
+    }
   })
 }
 
@@ -78,7 +127,7 @@ locals {
       port = module.router_cache.redis_instance_port
     },
     logLevel     = "debug"
-    sequencerUrl = "https://${module.sequencer.service_endpoint}"
+    sequencerUrl = "https://${module.sequencer_publisher.service_endpoint}"
     server = {
       adminToken = var.admin_token_router
       port       = 8080
@@ -109,8 +158,9 @@ locals {
     messageQueue = {
       host = module.router_message_queue.dns_name
       port = 5672
+      user = var.rmq_mgt_user
+      pass = var.rmq_mgt_password
     }
-
   })
 }
 

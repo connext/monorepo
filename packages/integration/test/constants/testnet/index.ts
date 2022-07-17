@@ -63,6 +63,10 @@ export const DEBUG_XCALL_TXHASH = process.env.XCALL_TXHASH || process.env.XCALL_
 /// MARK - Utility Constants
 export const EMPTY_BYTES = mkBytes32("0x0");
 
+// Message Queue settings
+export const EXCHANGE_NAME = "sequencerX";
+export const QUEUE_NAME = "1111";
+
 /// MARK - General
 export type DomainInfo = {
   name: string;
@@ -274,6 +278,24 @@ export const SEQUENCER_CONFIG: Promise<SequencerConfig> = (async (): Promise<Seq
     supportedBidVersion: routerPackageVersion,
     environment: ENVIRONMENT.toString() as "staging" | "production",
     relayerUrl: LOCAL_RELAYER_ENABLED ? `http://${LOCALHOST}:8082` : undefined,
+    messageQueue: {
+      connection: {
+        user: "guest",
+        pass: "guest",
+        server: "127.0.0.1",
+        port: 5672,
+        timeout: 2000,
+        publishTimeout: 100,
+        failAfter: 10,
+        retryLimit: 100,
+      },
+      exchanges: [{ name: EXCHANGE_NAME, type: "direct", publishTimeout: 1000, persistent: true, durable: true }],
+      queues: [{ name: QUEUE_NAME, prefetch: 100, queueLimit: 10000, subscribe: true }],
+      bindings: [{ exchange: EXCHANGE_NAME, target: QUEUE_NAME, keys: [QUEUE_NAME] }],
+      executerTimeout: 300000,
+      publisher: EXCHANGE_NAME,
+      subscriber: QUEUE_NAME,
+    },
   };
 })();
 
