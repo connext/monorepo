@@ -2,9 +2,9 @@ import { SinonStub, stub, restore, reset } from "sinon";
 import { AuctionsApiPostBidReq, AuctionStatus, expect, getRandomBytes32 } from "@connext/nxtp-utils";
 import { FastifyInstance } from "fastify";
 
-import * as BindingFns from "../../../src/bindings/server";
-import { mock } from "../../mock";
-import { ctxMock, getOperationsStub } from "../../globalTestHook";
+import * as BindingFns from "../../../../src/bindings/publisher";
+import { mock } from "../../../mock";
+import { ctxMock, getOperationsStub } from "../../../globalTestHook";
 
 let fastifyApp: FastifyInstance;
 describe("Bindings:Server", () => {
@@ -41,6 +41,7 @@ describe("Bindings:Server", () => {
     });
 
     after(() => {
+      fastifyApp.close();
       restore();
       reset();
     });

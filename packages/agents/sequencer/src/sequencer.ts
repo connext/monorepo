@@ -15,7 +15,8 @@ import { ChainReader, getContractInterfaces, contractDeployments } from "@connex
 import { SequencerConfig } from "./lib/entities";
 import { getConfig } from "./config";
 import { AppContext } from "./lib/entities/context";
-import { bindServer, bindSubscriber } from "./bindings";
+import { bindHealthServer, bindSubscriber } from "./bindings/subscriber";
+import { bindServer } from "./bindings/publisher";
 import { setupRelayer } from "./adapters";
 import { getHelpers } from "./lib/helpers";
 import { getOperations } from "./lib/operations";
@@ -265,6 +266,9 @@ export const makeSubscriber = async (_configOverride?: SequencerConfig) => {
         }),
       );
     }
+
+    // Create health server, set up routes, and start listening.
+    await bindHealthServer();
   } catch (error: any) {
     console.error("Error starting subscriber :'(", error);
     Broker.close();

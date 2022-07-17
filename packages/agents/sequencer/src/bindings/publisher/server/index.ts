@@ -20,9 +20,9 @@ import {
   NxtpError,
 } from "@connext/nxtp-utils";
 
-import { getContext } from "../../sequencer";
-import { getOperations } from "../../lib/operations";
-import { AuctionExpired } from "../../lib/errors";
+import { getContext } from "../../../sequencer";
+import { getOperations } from "../../../lib/operations";
+import { AuctionExpired } from "../../../lib/errors";
 
 export const bindServer = () =>
   new Promise<FastifyInstance>((res) => {

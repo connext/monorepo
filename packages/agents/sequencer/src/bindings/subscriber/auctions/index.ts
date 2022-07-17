@@ -2,8 +2,8 @@ import { spawn } from "child_process";
 
 import { AuctionStatus, createLoggingContext, jsonifyError } from "@connext/nxtp-utils";
 
-import { getContext } from "../../sequencer";
-import { Message } from "../../lib/entities";
+import { getContext } from "../../../sequencer";
+import { Message } from "../../../lib/entities";
 
 export const bindSubscriber = async (queueName: string) => {
   const {

@@ -1,0 +1,1 @@
+export { bindServer } from "./server";

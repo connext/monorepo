@@ -1,8 +1,8 @@
 import { expect } from "@connext/nxtp-utils";
 import { stub, SinonStub } from "sinon";
 
-import { bindSubscriber } from "../../../src/bindings";
-import { ctxMock } from "../../../test/globalTestHook";
+import { bindSubscriber } from "../../../../src/bindings/subscriber";
+import { ctxMock } from "../../../globalTestHook";
 
 describe("Bindings:Auctions", () => {
   let spawnStub: SinonStub;
