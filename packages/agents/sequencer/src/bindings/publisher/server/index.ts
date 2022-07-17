@@ -96,12 +96,17 @@ export const bindServer = () =>
         },
       },
       async (request, response) => {
-        const { requestContext, methodContext } = createLoggingContext("POST /auctions/:transferId endpoint");
         const {
           auctions: { storeBid },
         } = getOperations();
+        const { requestContext, methodContext } = createLoggingContext("POST /auctions/:transferId endpoint");
         try {
           const bid = request.body;
+          const { requestContext } = createLoggingContext(
+            "POST /auctions/:transferId endpoint",
+            undefined,
+            bid.transferId,
+          );
           await storeBid(bid, requestContext);
           return response.status(200).send({ message: "Bid received", transferId: bid.transferId, router: bid.router });
         } catch (error: unknown) {

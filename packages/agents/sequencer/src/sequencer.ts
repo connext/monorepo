@@ -6,6 +6,7 @@ import {
   createLoggingContext,
   createMethodContext,
   ChainData,
+  jsonifyError,
 } from "@connext/nxtp-utils";
 import Broker from "foo-foo-mq";
 import { SubgraphReader } from "@connext/nxtp-adapters-subgraph";
@@ -89,6 +90,10 @@ export const execute = async (_configOverride?: SequencerConfig) => {
     auctions: { executeAuction },
   } = getOperations();
   try {
+    // Transfer ID is a CLI argument. Always provided by the parent
+    const transferId = process.argv[2];
+    const { requestContext, methodContext } = createLoggingContext(execute.name, undefined, transferId);
+
     context.adapters = {} as any;
 
     /// MARK - Config.
@@ -105,9 +110,6 @@ export const execute = async (_configOverride?: SequencerConfig) => {
     });
     context.logger.info("Sequencer config generated.", requestContext, methodContext, { config: context.config });
 
-    // Transfer ID is a CLI argument. Always provided by the parent
-    const transferId = process.argv[2];
-
     // TODO: Which of these are not needed ?
     context.adapters.cache = await setupCache(context.config.redis, context.logger, requestContext);
     context.adapters.subgraph = await setupSubgraphReader(requestContext);
@@ -121,7 +123,7 @@ export const execute = async (_configOverride?: SequencerConfig) => {
     await executeAuction(transferId, requestContext);
     context.logger.info("Executed", requestContext, methodContext, { transferId: transferId });
   } catch (error: any) {
-    console.error("Error executing:'(", error);
+    context.logger.error("Error executing:", requestContext, methodContext, jsonifyError(error as Error));
     process.exit(1);
   }
   process.exit();
