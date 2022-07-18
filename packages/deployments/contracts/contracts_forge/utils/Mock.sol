@@ -241,8 +241,9 @@ contract MockBridgeRouter is IBridgeRouter {
   mapping(bytes32 => address) public tokenInputs;
   mapping(bytes32 => uint256) public amountInputs;
   mapping(bytes32 => uint32) public destinationInputs;
+  mapping(bytes32 => bytes32) public hookInputs;
 
-  event XSendCalled(address _token, uint256 _amount, uint32 _destination, bytes32 _externalId);
+  event XSendCalled(address _token, uint256 _amount, uint32 _destination, bytes32 hook, bytes extra);
 
   function send(
     address _token,
@@ -254,18 +255,21 @@ contract MockBridgeRouter is IBridgeRouter {
     require(false, "shouldnt use send");
   }
 
-  function xsend(
+  function sendToHook(
     address _token,
     uint256 _amount,
     uint32 _destination,
-    bytes32 _externalId
+    bytes32 _remoteHook,
+    bytes calldata _external
   ) external {
-    tokenInputs[_externalId] = _token;
-    amountInputs[_externalId] = _amount;
-    destinationInputs[_externalId] = _destination;
+    bytes32 id = bytes32(_external);
+    tokenInputs[id] = _token;
+    amountInputs[id] = _amount;
+    destinationInputs[id] = _destination;
+    hookInputs[id] = _remoteHook;
     // transfer amount here
     SafeERC20.safeTransferFrom(IERC20(_token), msg.sender, address(this), _amount);
-    emit XSendCalled(_token, _amount, _destination, _externalId);
+    emit XSendCalled(_token, _amount, _destination, _remoteHook, _external);
   }
 
   function getToken(bytes32 transferId) external returns (address) {
