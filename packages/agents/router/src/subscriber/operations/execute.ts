@@ -21,6 +21,7 @@ import {
   NotEnoughAmount,
   ParamsInvalid,
   SequencerResponseInvalid,
+  UnableToGetAsset,
 } from "../../errors";
 // @ts-ignore
 import { version } from "../../../package.json";
@@ -172,8 +173,13 @@ export const execute = async (params: OriginTransfer, _requestContext: RequestCo
   } = params;
 
   if (forceSlow) {
-    logger.debug("Opt for slow path", requestContext, methodContext, { transferId });
+    logger.debug("Opt for slow path", requestContext, methodContext, {});
     return;
+  }
+
+  const dest = await subgraph.getDestinationTransferById(destinationDomain, transferId);
+  if (dest) {
+    logger.info("Destination transfer already exists", requestContext, methodContext, {});
   }
 
   if (!origin) {
@@ -185,11 +191,12 @@ export const execute = async (params: OriginTransfer, _requestContext: RequestCo
     asset: origin.assets.bridged.asset,
     destinationDomain,
   });
-  const executeLocalAsset = await getDestinationLocalAsset(
-    originDomain,
-    origin.assets.bridged.asset,
-    destinationDomain,
-  );
+  let executeLocalAsset;
+  try {
+    executeLocalAsset = await getDestinationLocalAsset(originDomain, origin.assets.bridged.asset, destinationDomain);
+  } catch (err: unknown) {
+    throw new UnableToGetAsset({ requestContext, methodContext });
+  }
   logger.debug("Got local asset", requestContext, methodContext, { executeLocalAsset });
 
   const receivingAmount = origin.assets.bridged.amount;
