@@ -1,14 +1,5 @@
 import { constants, providers, BigNumber } from "ethers";
-import {
-  Logger,
-  createLoggingContext,
-  ChainData,
-  XCallArgs,
-  CallParams,
-  getGelatoEstimatedFee,
-  getHardcodedGasLimits,
-  getDecimalsForAsset,
-} from "@connext/nxtp-utils";
+import { Logger, createLoggingContext, ChainData, XCallArgs, CallParams } from "@connext/nxtp-utils";
 import {
   getContractInterfaces,
   ConnextContractInterfaces,
@@ -16,7 +7,15 @@ import {
   ChainReader,
 } from "@connext/nxtp-txservice";
 
-import { getChainData, getChainIdFromDomain, getConversionRate, relayerBufferPercentage } from "./lib/helpers";
+import {
+  getChainData,
+  getChainIdFromDomain,
+  getConversionRate,
+  relayerBufferPercentage,
+  getGelatoEstimatedFee,
+  getHardcodedGasLimits,
+  getDecimalsForAsset,
+} from "./lib/helpers";
 import { SignerAddressMissing, ChainDataUndefined } from "./lib/errors";
 import { NxtpSdkConfig, getConfig } from "./config";
 
@@ -319,6 +318,10 @@ export class NxtpSdkBase {
       getDecimalsForAsset(originNativeToken, originChainId, undefined, this.chainData),
       getDecimalsForAsset(destinationNativeToken, destinationChainId, undefined, this.chainData),
     ]);
+
+    if (originTokenPrice == 0 || destinationTokenPrice == 0) {
+      return BigNumber.from(0);
+    }
 
     // converstion rate is float-point number. we multiply by 1000 to be more precise
     const impactedOriginTokenPrice = Math.floor(originTokenPrice * 1000);

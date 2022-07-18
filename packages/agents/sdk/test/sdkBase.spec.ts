@@ -1,4 +1,4 @@
-import { createStubInstance, reset, restore, SinonStub, SinonStubbedInstance, stub } from "sinon";
+import { createStubInstance, reset, restore, SinonStubbedInstance, stub } from "sinon";
 import { expect, mkAddress } from "@connext/nxtp-utils";
 import { ChainReader, getErc20Interface, getConnextInterface } from "@connext/nxtp-txservice";
 import { constants, providers, BigNumber } from "ethers";
@@ -166,6 +166,8 @@ describe("SdkBase", () => {
       expect(res).to.be.deep.eq(mockBumpTransferTxRequest);
     });
   });
+
+  describe("estimateRelayerFee", () => {});
 
   describe("#changeSignerAddress", () => {
     it("happy: should work", async () => {
