@@ -11,6 +11,8 @@ import {
 } from "../types";
 
 /// MARK - Gelato Relay API
+/// Docs: https://relay.gelato.digital/api-docs/
+
 const GELATO_SERVER = "https://relay.gelato.digital";
 
 export const gelatoSend = async (
@@ -116,7 +118,29 @@ export const getPaymentTokens = async (chainId: number, logger?: Logger): Promis
   return result;
 };
 
-/// MARK - Connext Relayer
+/**
+ * Get the conversion rate from the native token to the requested token
+ * @param chainId - The Id of chain where the conversion rate is estimated
+ * @param to - The token address in which the conversion rate is estimated from the native token of the selected chain.
+ *    If a value is not provided, it will default to the USDC address on the selected chain
+ * @param logger - The logger instance
+ * @returns The conversion rate in number
+ */
+export const getConversionRate = async (chainId: number, to?: string, logger?: Logger): Promise<number> => {
+  let result = 0;
+  try {
+    let apiEndpoint = `${GELATO_SERVER}/oracles/${chainId}/converstionRate`;
+    if (to) {
+      apiEndpoint = apiEndpoint.concat(`/to=${to}`);
+    }
+    const res = await axios.get(apiEndpoint);
+    result = res.data.conversionRate as number;
+  } catch (error: unknown) {
+    if (logger) logger.error("Error in getConversionRate", undefined, undefined, jsonifyError(error as Error));
+  }
+  return result;
+};
+
 export const connextRelayerSend = async (
   url: string,
   chainId: number,

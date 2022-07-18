@@ -16,7 +16,7 @@ import {
   ChainReader,
 } from "@connext/nxtp-txservice";
 
-import { getChainData, getChainIdFromDomain, getTokenPrice, relayerBufferPercentage } from "./lib/helpers";
+import { getChainData, getChainIdFromDomain, getConversionRate, relayerBufferPercentage } from "./lib/helpers";
 import { SignerAddressMissing, ChainDataUndefined } from "./lib/errors";
 import { NxtpSdkConfig, getConfig } from "./config";
 
@@ -314,20 +314,25 @@ export class NxtpSdkBase {
 
     // TODO: Convert the estimatedRelayerFee to the originNativeToken
     const [originTokenPrice, destinationTokenPrice, originTokenDecimals, destinationTokenDecimals] = await Promise.all([
-      getTokenPrice(originChainId, originNativeToken),
-      getTokenPrice(destinationChainId, destinationNativeToken),
+      getConversionRate(originChainId, undefined, this.logger),
+      getConversionRate(destinationChainId, undefined, this.logger),
       getDecimalsForAsset(originNativeToken, originChainId, undefined, this.chainData),
       getDecimalsForAsset(destinationNativeToken, destinationChainId, undefined, this.chainData),
     ]);
+
+    // converstion rate is float-point number. we multiply by 1000 to be more precise
+    const impactedOriginTokenPrice = Math.floor(originTokenPrice * 1000);
+    const impactedDestinationTokenPrice = Math.floor(destinationTokenPrice * 1000);
+
     const relayerFeeInOrginNativeAsset =
       originTokenDecimals > destinationTokenDecimals
         ? bumpedFee
-            .mul(destinationTokenPrice)
-            .div(originTokenPrice)
+            .mul(impactedDestinationTokenPrice)
+            .div(impactedOriginTokenPrice)
             .mul(originTokenDecimals - destinationTokenDecimals)
         : bumpedFee
-            .mul(destinationTokenPrice)
-            .div(originTokenPrice)
+            .mul(impactedDestinationTokenPrice)
+            .div(impactedOriginTokenPrice)
             .div(destinationTokenDecimals - originTokenDecimals);
 
     this.logger.info("Method end", requestContext, methodContext, {
