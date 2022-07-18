@@ -15,6 +15,14 @@ import {
 
 const GELATO_SERVER = "https://relay.gelato.digital";
 
+/// MARK - This is used for testnets which aren't being supported by gelato
+const EquivalentChainsForGelato: Record<number, number> = {
+  4: 1,
+  5: 1,
+  1337: 1,
+  1338: 1,
+};
+
 export const gelatoSend = async (
   chainId: number,
   params: GelatoApiTaskRequestParams,
@@ -63,7 +71,7 @@ export const getGelatoRelayChains = async (logger?: Logger): Promise<string[]> =
 };
 
 export const getGelatoEstimatedFee = async (
-  chainId: number,
+  _chainId: number,
   paymentToken: string,
   gasLimit: number,
   isHighPriority: boolean,
@@ -71,7 +79,7 @@ export const getGelatoEstimatedFee = async (
 ): Promise<BigNumber> => {
   let result = BigNumber.from("0");
   const params = { paymentToken, gasLimit, isHighPriority };
-
+  const chainId = EquivalentChainsForGelato[_chainId] ?? _chainId;
   try {
     const res = await axios.get(`${GELATO_SERVER}/oracles/${chainId}/estimate`, { params });
     result = BigNumber.from(res.data.estimatedFee);
@@ -126,8 +134,9 @@ export const getPaymentTokens = async (chainId: number, logger?: Logger): Promis
  * @param logger - The logger instance
  * @returns The conversion rate in number
  */
-export const getConversionRate = async (chainId: number, to?: string, logger?: Logger): Promise<number> => {
+export const getConversionRate = async (_chainId: number, to?: string, logger?: Logger): Promise<number> => {
   let result = 0;
+  const chainId = EquivalentChainsForGelato[_chainId] ?? _chainId;
   try {
     let apiEndpoint = `${GELATO_SERVER}/oracles/${chainId}/converstionRate`;
     if (to) {
