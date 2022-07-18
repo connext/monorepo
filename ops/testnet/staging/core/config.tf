@@ -27,6 +27,10 @@ locals {
     { name = "WEB3_SIGNER_PRIVATE_KEY", value = var.web3_signer_private_key },
     { name = "WEB3SIGNER_HTTP_HOST_ALLOWLIST", value = "*" }
   ]
+  rmq_env_vars = [
+    { name = "RABBITMQ_DEFAULT_USER", value = var.rmq_mgt_user },
+    { name = "RABBITMQ_DEFAULT_PASS", value = var.rmq_mgt_password }
+  ]
 }
 
 locals {
@@ -47,7 +51,7 @@ locals {
         assets = [
           {
             name    = "TEST"
-            address = "0x3FFc03F05D1869f493c7dbf913E636C6280e0ff9"
+            address = "0xbC2c1103ecAA26c102BBc4550aCe95F4b0D35070"
           }
         ]
       }
@@ -63,6 +67,55 @@ locals {
     }
 
     environment = var.stage
+    messageQueue = {
+      connection = {
+        server         = module.router_message_queue.dns_name
+        port           = 5672
+        user           = var.rmq_mgt_user
+        pass           = var.rmq_mgt_password
+        timeout        = 2000,
+        publishTimeout = 100,
+        failAfter      = 10,
+        retryLimit     = 100
+      }
+      exchanges = [
+        {
+          name           = "sequencerX"
+          type           = "direct"
+          publishTimeout = 1000
+          persistent     = true
+          durable        = true
+        }
+      ]
+      queues = [
+        {
+          name       = "1337"
+          prefetch   = 100
+          queueLimit = 10000
+          subscribe  = true
+        },
+        {
+          name       = "1338"
+          prefetch   = 100
+          queueLimit = 10000
+          subscribe  = true
+        }
+      ]
+      bindings = [
+        {
+          exchange = "sequencerX"
+          target   = "1337"
+          keys     = ["1337"]
+        },
+        {
+          exchange = "sequencerX"
+          target   = "1338"
+          keys     = ["1338"]
+        }
+      ]
+      executerTimeout = 300000
+      publisher       = "sequencerX"
+    }
   })
 }
 
@@ -74,7 +127,7 @@ locals {
       port = module.router_cache.redis_instance_port
     },
     logLevel     = "debug"
-    sequencerUrl = "https://${module.sequencer.service_endpoint}"
+    sequencerUrl = "https://${module.sequencer_publisher.service_endpoint}"
     server = {
       adminToken = var.admin_token_router
       port       = 8080
@@ -85,7 +138,7 @@ locals {
         assets = [
           {
             name    = "TEST"
-            address = "0x3FFc03F05D1869f493c7dbf913E636C6280e0ff9"
+            address = "0xbC2c1103ecAA26c102BBc4550aCe95F4b0D35070"
           }
         ]
       }
@@ -102,6 +155,12 @@ locals {
     web3SignerUrl    = "https://${module.web3signer.service_endpoint}"
     environment      = var.stage
     nomadEnvironment = var.nomad_environment
+    messageQueue = {
+      host = module.router_message_queue.dns_name
+      port = 5672
+      user = var.rmq_mgt_user
+      pass = var.rmq_mgt_password
+    }
   })
 }
 

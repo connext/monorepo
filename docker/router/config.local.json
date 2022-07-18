@@ -1,6 +1,6 @@
 {
   "logLevel": "debug",
-  "sequencerUrl": "http://sequencer:8081",
+  "sequencerUrl": "http://sequencer-publisher:8081",
   "redis": {
     "host": "router-cache",
     "port": 6379
@@ -31,5 +31,11 @@
   },
   "web3SignerUrl": "http://signer:9000",
   "environment": "production",
-  "nomadEnvironment": "none"
+  "nomadEnvironment": "none",
+  "messageQueue": {
+    "host": "router-message-queue",
+    "port": 5672,
+    "user": "guest",
+    "pass": "guest"
+  }
 }

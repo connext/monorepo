@@ -25,6 +25,7 @@ export const mock = {
         chainreader: mock.adapters.chainreader(),
         contracts: mock.adapters.contracts(),
         relayer: mock.adapters.relayer(),
+        mqClient: mock.adapters.mqClient(),
       },
       config: mock.config(),
       chainData: mock.chainData(),
@@ -73,6 +74,24 @@ export const mock = {
     },
     supportedBidVersion: "0.0.1",
     environment: "staging",
+    messageQueue: {
+      connection: {
+        user: "guest",
+        pass: "guest",
+        server: "0.0.0.0",
+        port: 5672,
+        timeout: 2000,
+        publishTimeout: 100,
+        failAfter: 10,
+        retryLimit: 100,
+      },
+      exchanges: [{ name: "sequencerX", type: "direct", publishTimeout: 1000, persistent: true, durable: true }],
+      queues: [{ name: mock.chain.A, prefetch: 100, queueLimit: 10000, subscribe: true }],
+      bindings: [{ exchange: "sequencerX", target: mock.chain.A, keys: [mock.chain.A] }],
+      executerTimeout: 300000,
+      publisher: "sequencerX",
+      subscriber: mock.chain.A,
+    },
   }),
   adapters: {
     cache: (): SinonStubbedInstance<StoreManager> => {
@@ -96,9 +115,6 @@ export const mock = {
 
       chainreader.getDecimalsForAsset.resolves(18);
       chainreader.getBlockTime.resolves(Math.floor(Date.now() / 1000));
-      chainreader.calculateGasFee.resolves(BigNumber.from(100));
-      chainreader.calculateGasFeeInReceivingToken.resolves(BigNumber.from(100));
-      chainreader.calculateGasFeeInReceivingTokenForFulfill.resolves(BigNumber.from(120));
       chainreader.getTokenPrice.resolves(BigNumber.from(1));
       chainreader.getGasEstimate.resolves(BigNumber.from(24001));
 
@@ -143,6 +159,13 @@ export const mock = {
         send: stub().resolves(mockTaskId),
       };
     },
+    mqClient: () => {
+      return {
+        publish: stub(),
+        handle: stub() as any,
+        close: stub() as any,
+      };
+    },
   },
   helpers: {
     relayer: {
@@ -157,7 +180,7 @@ export const mock = {
   operations: {
     auctions: {
       storeBid: stub(),
-      executeAuctions: stub(),
+      executeAuction: stub(),
     },
     relayer: {
       sendToRelayer: stub(),
