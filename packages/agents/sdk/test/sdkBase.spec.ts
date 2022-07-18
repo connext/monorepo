@@ -167,7 +167,11 @@ describe("SdkBase", () => {
     });
   });
 
-  describe("estimateRelayerFee", () => {});
+  describe("estimateRelayerFee", () => {
+    it("should return 0 if origin/destination native asset price is 0", async () => {});
+    it("should add callData gasAmount", async () => {});
+    it("should properly handle the difference in decimals", async () => {});
+  });
 
   describe("#changeSignerAddress", () => {
     it("happy: should work", async () => {
