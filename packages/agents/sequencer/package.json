@@ -59,7 +59,6 @@
     "foo-foo-mq": "7.1.0",
     "interval-promise": "1.4.0",
     "pino": "8.1.0",
-    "prom-client": "14.0.1",
     "tsc": "2.0.4"
   },
   "devDependencies": {
