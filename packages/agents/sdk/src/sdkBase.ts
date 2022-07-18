@@ -308,21 +308,32 @@ export class NxtpSdkBase {
     const estimatedRelayerFee = estimatedExecuteFee.add(estiamteCallDataFee);
 
     // add relayerFee bump to estimatedRelayerFee
-    const finalEstimatedRelayerFee = estimatedRelayerFee.add(
+    const bumpedFee = estimatedRelayerFee.add(
       estimatedRelayerFee.mul(BigNumber.from(relayerBufferPercentage).div(100)),
     );
 
     // TODO: Convert the estimatedRelayerFee to the originNativeToken
-    // fetch gasPrice for origin domain using oracle
-    const originGasPrice = await getTokenPrice(originChainId, originNativeToken);
-    const nativeTokenDecimals = await getDecimalsForAsset(originNativeToken, originChainId, undefined, this.chainData);
-    const relayerFeeInOrginNativeAsset = finalEstimatedRelayerFee
-      .mul(BigNumber.from(10).pow(nativeTokenDecimals))
-      .div(originGasPrice);
+    const [originTokenPrice, destinationTokenPrice, originTokenDecimals, destinationTokenDecimals] = await Promise.all([
+      getTokenPrice(originChainId, originNativeToken),
+      getTokenPrice(destinationChainId, destinationNativeToken),
+      getDecimalsForAsset(originNativeToken, originChainId, undefined, this.chainData),
+      getDecimalsForAsset(destinationNativeToken, destinationChainId, undefined, this.chainData),
+    ]);
+    const relayerFeeInOrginNativeAsset =
+      originTokenDecimals > destinationTokenDecimals
+        ? bumpedFee
+            .mul(destinationTokenPrice)
+            .div(originTokenPrice)
+            .mul(originTokenDecimals - destinationTokenDecimals)
+        : bumpedFee
+            .mul(destinationTokenPrice)
+            .div(originTokenPrice)
+            .div(destinationTokenDecimals - originTokenDecimals);
 
     this.logger.info("Method end", requestContext, methodContext, {
-      finalEstimatedRelayerFee,
-      originGasPrice,
+      bumpedFee,
+      originTokenPrice,
+      destinationTokenPrice,
       relayerFeeInOrginNativeAsset,
     });
 
