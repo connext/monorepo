@@ -51,7 +51,7 @@ locals {
         assets = [
           {
             name    = "TEST"
-            address = "0xbC2c1103ecAA26c102BBc4550aCe95F4b0D35070"
+            address = "0x3ffc03f05d1869f493c7dbf913e636c6280e0ff9"
           }
         ]
       }
@@ -138,7 +138,7 @@ locals {
         assets = [
           {
             name    = "TEST"
-            address = "0xbC2c1103ecAA26c102BBc4550aCe95F4b0D35070"
+            address = "0x3ffc03f05d1869f493c7dbf913e636c6280e0ff9"
           }
         ]
       }
