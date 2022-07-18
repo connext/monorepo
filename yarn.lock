@@ -992,6 +992,7 @@ __metadata:
     nyc: 15.1.0
     pino: 8.1.0
     pino-pretty: 8.1.0
+    prom-client: 14.0.1
     rimraf: 3.0.2
     sinon: 14.0.0
     ts-mocha: 10.0.0
