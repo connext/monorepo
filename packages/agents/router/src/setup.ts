@@ -37,7 +37,7 @@ export const setupMq = async (
   requestContext: RequestContext,
 ): Promise<typeof rabbit> => {
   const methodContext = createMethodContext("setupMq");
-  logger.info("Message queue setup in progress...", requestContext, methodContext, { host, port });
+  logger.info("Message queue setup in progress...", requestContext, methodContext, { uri, port });
   await rabbit.configure({
     connection: { uri, port, user, pass },
     queues: [{ name: XCALL_QUEUE }],
