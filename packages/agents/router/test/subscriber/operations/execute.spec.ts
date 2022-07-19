@@ -13,6 +13,7 @@ import {
   SequencerResponseInvalid,
   AuctionExpired,
   InvalidAuctionRound,
+  UnableToGetAsset,
 } from "../../../src/errors";
 import { mock } from "../../mock";
 import { version } from "../../../package.json";
@@ -31,7 +32,7 @@ describe("Operations:Execute", () => {
     });
 
     it("should return blacklist", async () => {
-      (mockSubContext.bridgeContext.blacklist as SinonStub).returns(new Set([1337, 1338]));
+      (mockSubContext.bridgeContext!.blacklist as SinonStub).returns(new Set([1337, 1338]));
       const { destinationBlacklisted, originBlacklisted } = await getBlacklist("1337", "1338");
       expect(destinationBlacklisted).to.be.true;
       expect(originBlacklisted).to.be.true;
@@ -214,6 +215,16 @@ describe("Operations:Execute", () => {
       await expect(execute(invalidParams as any, requestContext)).to.be.rejectedWith(ParamsInvalid);
     });
 
+    it("should throw UnableToGetAsset if getAsset errors", async () => {
+      mockGetDestinationLocalAsset.rejects("foo");
+      await expect(execute(mockXTransfer, requestContext)).to.be.rejectedWith(UnableToGetAsset);
+    });
+
+    it("should throw UnableToGetAsset if getAsset returns undefined", async () => {
+      mockGetDestinationLocalAsset.resolves(undefined);
+      await expect(execute(mockXTransfer, requestContext)).to.be.rejectedWith(UnableToGetAsset);
+    });
+
     it("should throw NotEnoughAmount if router doesn't have enough tokens", async () => {
       (mockSubContext.adapters.subgraph.getAssetBalance as SinonStub).resolves(BigNumber.from("0"));
       await expect(execute(mockXTransfer, requestContext)).to.be.rejectedWith(NotEnoughAmount);
@@ -254,6 +265,13 @@ describe("Operations:Execute", () => {
 
     //   await expect(execute(mockXTransfer)).to.be.rejectedWith(NomadHomeBlacklisted);
     // });
+
+    it("should return early if transfer exists", async () => {
+      (mockSubContext.adapters.subgraph.getDestinationTransferById as SinonStub).resolves({ hello: "world" });
+      await execute(mockXTransfer, requestContext);
+      expect(mockSubContext.adapters.subgraph.getAssetBalance).to.not.be.called;
+      expect(mockSendBid).to.not.be.called;
+    });
 
     it("should return early if slow path", async () => {
       await execute({ ...mockXTransfer, xparams: { ...mockXTransfer.xparams, forceSlow: true } }, requestContext);

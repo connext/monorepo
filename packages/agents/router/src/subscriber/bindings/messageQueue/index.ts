@@ -1,5 +1,6 @@
 import { createLoggingContext, jsonifyError, OriginTransfer } from "@connext/nxtp-utils";
 
+import { ExecuteError } from "../../../errors";
 import { XCALL_MESSAGE_TYPE, XCALL_QUEUE } from "../../../setup";
 import { execute } from "../../operations";
 import { getContext } from "../../subscriber";
@@ -25,8 +26,18 @@ export const bindMessageQueue = async (): Promise<void> => {
       await execute(message.body, requestContext);
       message.ack();
     } catch (err: unknown) {
-      logger.error("Error handling message", requestContext, methodContext, jsonifyError(err as Error));
-      message.nack();
+      if ((err as ExecuteError).retryable) {
+        logger.error("Error handling message, retryable", requestContext, methodContext, jsonifyError(err as Error));
+        message.nack();
+      } else {
+        logger.error(
+          "Error handling message, not retryable",
+          requestContext,
+          methodContext,
+          jsonifyError(err as Error),
+        );
+        message.reject();
+      }
     }
   });
 
