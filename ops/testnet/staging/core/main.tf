@@ -90,6 +90,8 @@ module "centralised_message_queue" {
   sg_id               = module.network.ecs_task_sg
   vpc_id              = module.network.vpc_id
   publicly_accessible = true
+  host_instance_type  = "mq.t3.micro"
+  deployment_mode     = "SINGLE_INSTANCE"
   subnet_ids          = module.network.public_subnets
   rmq_mgt_user        = var.rmq_mgt_user
   rmq_mgt_password    = var.rmq_mgt_password

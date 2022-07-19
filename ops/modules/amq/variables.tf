@@ -19,7 +19,7 @@ variable "rmq_mgt_user" {
 variable "host_instance_type" {
   type        = string
   description = "The broker's instance type. e.g. mq.t2.micro or mq.m4.large"
-  default     = "mq.t3.micro"
+  default     = "mq.m5.large"
 }
 
 variable "publicly_accessible" {
@@ -41,5 +41,11 @@ variable "subnet_ids" {
 variable "sg_id" {
   type        = string
   description = "security group id of worker node sg"
+}
+
+variable "deployment_mode" {
+  type        = string
+  description = "Deployment mode of cluster"
+  default     = "CLUSTER_MULTI_AZ"
 }
 

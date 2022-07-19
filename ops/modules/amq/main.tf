@@ -1,18 +1,18 @@
 resource "aws_mq_broker" "default" {
   broker_name         = "rmq-cluster-${var.environment}-${var.stage}"
-  deployment_mode     = "ACTIVE_STANDBY_MULTI_AZ"
+  deployment_mode     = var.deployment_mode 
   engine_type         = "RabbitMQ"
   engine_version      = "3.9.13"
   host_instance_type  = var.host_instance_type
   publicly_accessible = var.publicly_accessible
-  subnet_ids          = var.subnet_ids
+  subnet_ids          = var.publicly_accessible ? [] : var.subnet_ids
 
   tags = {
     Environment = var.environment
     Stage       = var.stage
   }
 
-  security_groups = [aws_security_group.rabbitmq.id, var.sg_id]
+  security_groups = var.publicly_accessible ? [] : [aws_security_group.rabbitmq.id, var.sg_id]
 
   logs {
     general = true
