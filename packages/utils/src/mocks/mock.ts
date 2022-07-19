@@ -19,13 +19,13 @@ import { mkAddress, mkBytes32, mkSig } from ".";
  * General mock toolset used for testing globally.
  */
 export const mock = {
-  chain: {
-    A: "1337",
-    B: "1338",
-  },
   domain: {
     A: "13337",
     B: "13338",
+  },
+  chain: {
+    A: "23337",
+    B: "23338",
   },
   asset: {
     A: {

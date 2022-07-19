@@ -34,26 +34,16 @@ export const mock = {
   },
   config: (): SequencerConfig => ({
     chains: {
-      [mock.chain.A]: {
+      [mock.domain.A]: {
         confirmations: 1,
         providers: ["http://example.com"],
-        subgraph: {
-          runtime: [{ query: "http://example.com", health: "http://example.com" }],
-          analytics: [{ query: "http://example.com", health: "http://example.com" }],
-          maxLag: 10,
-        },
         deployments: {
           connext: mkAddress("0xabcdef123"),
         },
       },
-      [mock.chain.B]: {
+      [mock.domain.B]: {
         confirmations: 1,
         providers: ["http://example.com"],
-        subgraph: {
-          runtime: [{ query: "http://example.com", health: "http://example.com" }],
-          analytics: [{ query: "http://example.com", health: "http://example.com" }],
-          maxLag: 10,
-        },
         deployments: {
           connext: mkAddress("0xabcdef123"),
         },
