@@ -1,13 +1,8 @@
 import { Logger, ChainData, formatUrl, XTransferStatus, transfersCastForUrl } from "@connext/nxtp-utils";
-import {
-  getContractInterfaces,
-  ConnextContractInterfaces,
-  contractDeployments,
-  ChainReader,
-} from "@connext/nxtp-txservice";
+import { contractDeployments } from "@connext/nxtp-txservice";
 import { providers } from "ethers";
 
-import { getChainData, validateUri, axiosGetRequest } from "./lib/helpers";
+import { getChainData, validateUri, axiosGetRequest, parseConnextLog } from "./lib/helpers";
 import { ChainDataUndefined } from "./lib/errors";
 import { NxtpSdkConfig, getConfig } from "./config";
 
@@ -18,19 +13,12 @@ import { NxtpSdkConfig, getConfig } from "./config";
 export class NxtpSdkUtils {
   public readonly config: NxtpSdkConfig;
   private readonly logger: Logger;
-  private readonly contracts: ConnextContractInterfaces; // Used to read and write to smart contracts.
-  private chainReader: ChainReader;
   public readonly chainData: Map<string, ChainData>;
 
   constructor(config: NxtpSdkConfig, logger: Logger, chainData: Map<string, ChainData>) {
     this.config = config;
     this.logger = logger;
     this.chainData = chainData;
-    this.contracts = getContractInterfaces();
-    this.chainReader = new ChainReader(
-      this.logger.child({ module: "ChainReader" }, this.config.logLevel),
-      this.config.chains,
-    );
   }
 
   static async create(
@@ -54,8 +42,7 @@ export class NxtpSdkUtils {
   public parseConnextTransactionReceipt(transactionReceipt: providers.TransactionReceipt): any {
     const parsedlogs: any = [];
     transactionReceipt.logs.forEach((log) => {
-      const l = this.contracts.connext.parseLog(log);
-      parsedlogs.push(l);
+      parsedlogs.push(parseConnextLog(log));
     });
 
     return parsedlogs;

@@ -42,7 +42,7 @@ export const mock = {
   },
   config: (): NxtpRouterConfig => ({
     chains: {
-      [mock.chain.A]: {
+      [mock.domain.A]: {
         assets: [mock.asset.A],
         confirmations: 1,
         providers: ["http://example.com"],
@@ -51,7 +51,7 @@ export const mock = {
         },
         gasStations: [],
       },
-      [mock.chain.B]: {
+      [mock.domain.B]: {
         assets: [mock.asset.A],
         confirmations: 1,
         providers: ["http://example.com"],

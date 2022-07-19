@@ -31,14 +31,14 @@ export const mock = {
   },
   config: (): NxtpLighthouseConfig => ({
     chains: {
-      [mock.chain.A]: {
+      [mock.domain.A]: {
         confirmations: 1,
         providers: ["http://example.com"],
         deployments: {
           connext: mkAddress("0xabcdef123"),
         },
       },
-      [mock.chain.B]: {
+      [mock.domain.B]: {
         confirmations: 1,
         providers: ["http://example.com"],
         deployments: {

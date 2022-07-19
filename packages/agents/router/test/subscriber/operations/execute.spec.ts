@@ -160,7 +160,7 @@ describe("Operations:Execute", () => {
       await execute(mockXTransfer, requestContext);
 
       expect(mockSubContext.adapters.subgraph.getAssetBalance).to.be.calledOnceWithExactly(
-        mock.chain.B,
+        mock.domain.B,
         mockSubContext.routerAddress,
         mockFulfillLocalAsset,
       );

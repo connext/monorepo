@@ -134,7 +134,7 @@ export class TransfersCache extends Cache {
           }
         : transfer;
       const { transferId, nonce: _nonce, xparams, origin, destination } = transfer;
-      const { originDomain } = xparams!;
+      const { originDomain } = xparams;
       const nonce = Number(_nonce);
       const stringified = JSON.stringify(transfer);
 

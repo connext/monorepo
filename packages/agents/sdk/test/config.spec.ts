@@ -62,7 +62,7 @@ describe("Config", () => {
     });
 
     it("should substitute contract deployments with deployments argument if none exist in config", () => {
-      const alteredMockChain = parseInt(mock.chain.A);
+      const alteredMockChain = parseInt(mock.domain.A);
       const expectedDeployment = mockDeployments.connext(alteredMockChain);
       const config = getEnvConfig(
         {
@@ -93,8 +93,8 @@ describe("Config", () => {
           {
             ...mockConfig,
             chains: {
-              1337: {},
-              1338: {},
+              13337: {},
+              13338: {},
             },
           },
           mockChainData,
