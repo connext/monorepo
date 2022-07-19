@@ -41,12 +41,14 @@ contract BridgeFacet is BaseConnextFacet {
   error BridgeFacet__setPromiseRouter_invalidPromiseRouter();
   error BridgeFacet__setExecutor_invalidExecutor();
   error BridgeFacet__setSponsorVault_invalidSponsorVault();
+  error BridgeFacet__addConnextion_invalidDomain();
   error BridgeFacet__xcall_wrongDomain();
   error BridgeFacet__xcall_destinationNotSupported();
   error BridgeFacet__xcall_emptyTo();
   error BridgeFacet__xcall_notSupportedAsset();
   error BridgeFacet__xcall_nonZeroCallbackFeeForCallback();
   error BridgeFacet__xcall_callbackNotAContract();
+  error BridgeFacet__xcall_missingAgent();
   error BridgeFacet__execute_unapprovedSender();
   error BridgeFacet__execute_wrongDomain();
   error BridgeFacet__execute_maxRoutersExceeded();
@@ -230,6 +232,11 @@ contract BridgeFacet is BaseConnextFacet {
   }
 
   function addConnextion(uint32 _domain, address _connext) external onlyOwner {
+    // Make sure we aren't setting the current domain as the connextion.
+    if (_domain == s.domain) {
+      revert BridgeFacet__addConnextion_invalidDomain();
+    }
+
     s.connextions[_domain] = TypeCasts.addressToBytes32(_connext);
     emit ConnextionAdded(_domain, _connext, msg.sender);
   }
@@ -264,25 +271,33 @@ contract BridgeFacet is BaseConnextFacet {
         revert BridgeFacet__xcall_wrongDomain();
       }
 
-      // Destination domain is supported
+      // Destination domain is supported.
+      // NOTE: This check implicitly also checks that `_args.params.destinationDomain != s.domain`, because the index
+      // `s.domain` of `s.connextions` should always be `bytes32(0)`.
       remoteInstance = s.connextions[_args.params.destinationDomain];
       if (remoteInstance == bytes32(0)) {
         revert BridgeFacet__xcall_destinationNotSupported();
       }
 
-      // Recipient is defined.
-      if (_args.params.to == address(0)) {
+      // Recipient and recovery addresses are both defined.
+      if (_args.params.to == address(0) || _args.params.recovery == address(0)) {
         revert BridgeFacet__xcall_emptyTo();
       }
 
-      // If callback address is not set, callback fee should be 0.
-      if (_args.params.callback == address(0) && _args.params.callbackFee != 0) {
-        revert BridgeFacet__xcall_nonZeroCallbackFeeForCallback();
+      // If the user might be receiving adopted assets on the destination chain, they ought to have a defined agent
+      // so that they can call `forceReceiveLocal` if need be.
+      if (_args.params.agent == address(0) && !_args.params.receiveLocal) {
+        revert BridgeFacet__xcall_missingAgent();
       }
 
-      // Callback is contract if supplied.
-      if (_args.params.callback != address(0) && !Address.isContract(_args.params.callback)) {
-        revert BridgeFacet__xcall_callbackNotAContract();
+      if (_args.params.callback != address(0)) {
+        // Callback address must be a contract if it is supplied.
+        if (!Address.isContract(_args.params.callback)) {
+          revert BridgeFacet__xcall_callbackNotAContract();
+        }
+      } else if (_args.params.callbackFee != 0) {
+        // Othewrise, if callback address is not set, callback fee should be 0.
+        revert BridgeFacet__xcall_nonZeroCallbackFeeForCallback();
       }
     }
 
