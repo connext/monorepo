@@ -248,6 +248,7 @@ export class NxtpSdkBase {
 
     const {
       originDomain,
+      destinationDomain,
       callDataGasAmount,
       originNativeToken: _originNativeToken,
       destinationNativeToken: _destinationNativeToken,
@@ -259,7 +260,7 @@ export class NxtpSdkBase {
     const isHighPriority = _isHighPriority ?? false;
 
     const originChainId = await getChainIdFromDomain(originDomain, this.chainData);
-    const destinationChainId = await getChainIdFromDomain(originDomain, this.chainData);
+    const destinationChainId = await getChainIdFromDomain(destinationDomain, this.chainData);
 
     // fetch executeGasAmount from chainData
     const {
@@ -273,25 +274,15 @@ export class NxtpSdkBase {
       gasPriceFactor,
     });
 
-    // fetch estimate relayer fee in destination native token
-    let estimatedExecuteFee = BigNumber.from(0);
-    let estiamteCallDataFee = BigNumber.from(0);
-
-    estimatedExecuteFee = await getGelatoEstimatedFee(
+    const totalGasAmount = callDataGasAmount
+      ? Number(executeGasAmount) + Number(callDataGasAmount)
+      : Number(executeGasAmount);
+    const estimatedRelayerFee = await getGelatoEstimatedFee(
       destinationChainId,
       destinationNativeToken,
-      Number(executeGasAmount),
+      Number(totalGasAmount),
       isHighPriority,
     );
-
-    if (callDataGasAmount) {
-      estiamteCallDataFee = await getGelatoEstimatedFee(
-        destinationChainId,
-        destinationNativeToken,
-        Number(callDataGasAmount),
-        isHighPriority,
-      );
-    }
 
     this.logger.info("Gas Price estimates", requestContext, methodContext, {
       originNativeToken,
@@ -299,16 +290,12 @@ export class NxtpSdkBase {
       destinationNativeToken,
       destinationChainId,
       executeGasAmount,
-      estimatedExecuteFee,
       callDataGasAmount,
-      estiamteCallDataFee,
     });
-
-    const estimatedRelayerFee = estimatedExecuteFee.add(estiamteCallDataFee);
 
     // add relayerFee bump to estimatedRelayerFee
     const bumpedFee = estimatedRelayerFee.add(
-      estimatedRelayerFee.mul(BigNumber.from(relayerBufferPercentage).div(100)),
+      estimatedRelayerFee.mul(BigNumber.from(relayerBufferPercentage)).div(100),
     );
 
     // TODO: Convert the estimatedRelayerFee to the originNativeToken
@@ -328,15 +315,15 @@ export class NxtpSdkBase {
     const impactedDestinationTokenPrice = Math.floor(destinationTokenPrice * 1000);
 
     const relayerFeeInOrginNativeAsset =
-      originTokenDecimals > destinationTokenDecimals
+      originTokenDecimals >= destinationTokenDecimals
         ? bumpedFee
             .mul(impactedDestinationTokenPrice)
             .div(impactedOriginTokenPrice)
-            .mul(originTokenDecimals - destinationTokenDecimals)
+            .mul(BigNumber.from(10).pow(originTokenDecimals - destinationTokenDecimals))
         : bumpedFee
             .mul(impactedDestinationTokenPrice)
             .div(impactedOriginTokenPrice)
-            .div(destinationTokenDecimals - originTokenDecimals);
+            .div(BigNumber.from(10).pow(destinationTokenDecimals - originTokenDecimals));
 
     this.logger.info("Method end", requestContext, methodContext, {
       bumpedFee,
