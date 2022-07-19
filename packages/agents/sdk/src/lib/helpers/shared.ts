@@ -1,3 +1,4 @@
+import { getContractInterfaces } from "@connext/nxtp-txservice";
 import {
   ajv,
   TUrl,
@@ -10,8 +11,9 @@ import {
   getHardcodedGasLimits as _getHardcodedGasLimits,
 } from "@connext/nxtp-utils";
 import axios from "axios";
+import { providers } from "ethers";
 
-import { UriInvalid, ApiRequestFailed } from "../errors/index";
+import { UriInvalid, ApiRequestFailed, ParseConnextLogFailed } from "../errors/index";
 
 export const relayerBufferPercentage = 20; // 20% bump on total estimated relayer fee
 
@@ -40,5 +42,14 @@ export const axiosGetRequest = async (uri: string): Promise<any> => {
     return response.data;
   } catch (err: any) {
     throw new ApiRequestFailed({ error: jsonifyError(err as Error) });
+  }
+};
+
+export const parseConnextLog = (log: providers.Log): any => {
+  const contracts = getContractInterfaces();
+  try {
+    return contracts.connext.parseLog(log);
+  } catch (error: any) {
+    throw new ParseConnextLogFailed({ log });
   }
 };
