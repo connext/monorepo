@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity 0.8.15;
 
-import {SafeERC20, IERC20} from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
+import {IERC20} from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import {Clones} from "@openzeppelin/contracts/proxy/Clones.sol";
 import {ReentrancyGuardUpgradeable} from "@openzeppelin/contracts-upgradeable/security/ReentrancyGuardUpgradeable.sol";
 
@@ -29,7 +29,6 @@ import {LPToken} from "./LPToken.sol";
  * deployment size.
  */
 contract StableSwap is IStableSwap, OwnerPausableUpgradeable, ReentrancyGuardUpgradeable {
-  using SafeERC20 for IERC20;
   using SwapUtils for SwapUtils.Swap;
   using AmplificationUtils for SwapUtils.Swap;
 
@@ -213,22 +212,6 @@ contract StableSwap is IStableSwap, OwnerPausableUpgradeable, ReentrancyGuardUpg
 
   /**
    * @notice Calculate amount of tokens you receive on swap
-   * @param tokenIndexFrom the token the user wants to sell
-   * @param tokenIndexTo the token the user wants to buy
-   * @param dx the amount of tokens the user wants to sell. If the token charges
-   * a fee on transfers, use the amount that gets transferred after the fee.
-   * @return amount of tokens the user will receive
-   */
-  function calculateSwap(
-    uint8 tokenIndexFrom,
-    uint8 tokenIndexTo,
-    uint256 dx
-  ) external view override returns (uint256) {
-    return swapStorage.calculateSwap(tokenIndexFrom, tokenIndexTo, dx);
-  }
-
-  /**
-   * @notice Calculate amount of tokens you receive on swap
    * @param assetIn the token the user wants to swap from
    * @param assetOut the token the user wants to swap to
    * @param amountOut the amount of tokens the user wants to swap to
@@ -242,21 +225,6 @@ contract StableSwap is IStableSwap, OwnerPausableUpgradeable, ReentrancyGuardUpg
     uint8 tokenIndexFrom = getTokenIndex(assetIn);
     uint8 tokenIndexTo = getTokenIndex(assetOut);
     return swapStorage.calculateSwapInv(tokenIndexFrom, tokenIndexTo, amountOut);
-  }
-
-  /**
-   * @notice Calculate amount of tokens you receive on swap
-   * @param tokenIndexFrom the token the user wants to sell
-   * @param tokenIndexTo the token the user wants to buy
-   * @param dy the amount of tokens the user wants to buy
-   * @return amount of tokens the user have to transfer
-   */
-  function calculateSwapOut(
-    uint8 tokenIndexFrom,
-    uint8 tokenIndexTo,
-    uint256 dy
-  ) external view override returns (uint256) {
-    return swapStorage.calculateSwapInv(tokenIndexFrom, tokenIndexTo, dy);
   }
 
   /**
@@ -315,24 +283,6 @@ contract StableSwap is IStableSwap, OwnerPausableUpgradeable, ReentrancyGuardUpg
   }
 
   // ============ External functions ============
-
-  /**
-   * @notice Swap two tokens using this pool
-   * @param tokenIndexFrom the token the user wants to swap from
-   * @param tokenIndexTo the token the user wants to swap to
-   * @param dx the amount of tokens the user wants to swap from
-   * @param minDy the min amount the user would like to receive, or revert.
-   * @param deadline latest timestamp to accept this transaction
-   */
-  function swap(
-    uint8 tokenIndexFrom,
-    uint8 tokenIndexTo,
-    uint256 dx,
-    uint256 minDy,
-    uint256 deadline
-  ) external override nonReentrant whenNotPaused deadlineCheck(deadline) returns (uint256) {
-    return swapStorage.swap(tokenIndexFrom, tokenIndexTo, dx, minDy);
-  }
 
   /**
    * @notice Swap two tokens using this pool

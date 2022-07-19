@@ -61,19 +61,6 @@ interface IStableSwap {
 
   function getVirtualPrice() external view returns (uint256);
 
-  // min return calculation functions
-  function calculateSwap(
-    uint8 tokenIndexFrom,
-    uint8 tokenIndexTo,
-    uint256 dx
-  ) external view returns (uint256);
-
-  function calculateSwapOut(
-    uint8 tokenIndexFrom,
-    uint8 tokenIndexTo,
-    uint256 dy
-  ) external view returns (uint256);
-
   function calculateSwapFromAddress(
     address assetIn,
     address assetOut,
@@ -106,14 +93,6 @@ interface IStableSwap {
     uint256 adminFee,
     address lpTokenTargetAddress
   ) external;
-
-  function swap(
-    uint8 tokenIndexFrom,
-    uint8 tokenIndexTo,
-    uint256 dx,
-    uint256 minDy,
-    uint256 deadline
-  ) external returns (uint256);
 
   function addLiquidity(
     uint256[] calldata amounts,
