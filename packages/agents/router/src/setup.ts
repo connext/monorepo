@@ -29,7 +29,7 @@ export const setupCache = async (
 };
 
 export const setupMq = async (
-  host: string,
+  uri: string,
   port: number,
   user: string,
   pass: string,
@@ -39,13 +39,13 @@ export const setupMq = async (
   const methodContext = createMethodContext("setupMq");
   logger.info("Message queue setup in progress...", requestContext, methodContext, { host, port });
   await rabbit.configure({
-    connection: { host, port, user, pass },
+    connection: { uri, port, user, pass },
     queues: [{ name: XCALL_QUEUE }],
     exchanges: [{ name: MQ_EXCHANGE, type: "direct" }],
     bindings: [{ exchange: MQ_EXCHANGE, target: XCALL_QUEUE, keys: [XCALL_QUEUE] }],
   });
   logger.info("Message queue setup is done!", requestContext, methodContext, {
-    host,
+    uri,
     port,
   });
   return rabbit;
