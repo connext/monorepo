@@ -141,8 +141,8 @@ contract SwapAdminFacetTest is SwapAdminFacet, StableSwapFacet, FacetHelper {
   // =========== Admin Functions ============
   function test_SwapAdminFacet__initializeSwap_failIfNotOwner() public {
     IERC20[] memory _pooledTokens = new IERC20[](2);
-    _pooledTokens[0] = IERC20(new TestERC20());
-    _pooledTokens[1] = IERC20(new TestERC20());
+    _pooledTokens[0] = IERC20(new TestERC20("Test Token", "TEST"));
+    _pooledTokens[1] = IERC20(new TestERC20("Test Token", "TEST"));
 
     uint8[] memory _decimals = new uint8[](2);
     _decimals[0] = 18;
@@ -169,7 +169,7 @@ contract SwapAdminFacetTest is SwapAdminFacet, StableSwapFacet, FacetHelper {
 
   function test_SwapAdminFacet__initializeSwap_failIfDuplicatedTokens() public {
     IERC20[] memory _pooledTokens = new IERC20[](2);
-    _pooledTokens[0] = IERC20(new TestERC20());
+    _pooledTokens[0] = IERC20(new TestERC20("Test Token", "TEST"));
     _pooledTokens[1] = _pooledTokens[0];
 
     uint8[] memory _decimals = new uint8[](2);
@@ -196,8 +196,8 @@ contract SwapAdminFacetTest is SwapAdminFacet, StableSwapFacet, FacetHelper {
 
   function test_SwapAdminFacet__initializeSwap_failIfAlreadyInitialized() public {
     IERC20[] memory _pooledTokens = new IERC20[](2);
-    _pooledTokens[0] = IERC20(new TestERC20());
-    _pooledTokens[1] = IERC20(new TestERC20());
+    _pooledTokens[0] = IERC20(new TestERC20("Test Token", "TEST"));
+    _pooledTokens[1] = IERC20(new TestERC20("Test Token", "TEST"));
 
     uint8[] memory _decimals = new uint8[](2);
     _decimals[0] = 18;
@@ -221,8 +221,8 @@ contract SwapAdminFacetTest is SwapAdminFacet, StableSwapFacet, FacetHelper {
 
   function test_SwapAdminFacet__initializeSwap_failIfDecimalsMismatch() public {
     IERC20[] memory _pooledTokens = new IERC20[](2);
-    _pooledTokens[0] = IERC20(new TestERC20());
-    _pooledTokens[1] = IERC20(new TestERC20());
+    _pooledTokens[0] = IERC20(new TestERC20("Test Token", "TEST"));
+    _pooledTokens[1] = IERC20(new TestERC20("Test Token", "TEST"));
 
     uint8[] memory _decimals = new uint8[](1);
     _decimals[0] = 18;
@@ -247,7 +247,7 @@ contract SwapAdminFacetTest is SwapAdminFacet, StableSwapFacet, FacetHelper {
 
   function test_SwapAdminFacet__initializeSwap_failIfZeroTokenAddress() public {
     IERC20[] memory _pooledTokens = new IERC20[](2);
-    _pooledTokens[0] = IERC20(new TestERC20());
+    _pooledTokens[0] = IERC20(new TestERC20("Test Token", "TEST"));
     _pooledTokens[1] = IERC20(address(0));
 
     uint8[] memory _decimals = new uint8[](2);
@@ -274,8 +274,8 @@ contract SwapAdminFacetTest is SwapAdminFacet, StableSwapFacet, FacetHelper {
 
   function test_SwapAdminFacet__initializeSwap_failIfAExceedMax() public {
     IERC20[] memory _pooledTokens = new IERC20[](2);
-    _pooledTokens[0] = IERC20(new TestERC20());
-    _pooledTokens[1] = IERC20(new TestERC20());
+    _pooledTokens[0] = IERC20(new TestERC20("Test Token", "TEST"));
+    _pooledTokens[1] = IERC20(new TestERC20("Test Token", "TEST"));
 
     uint8[] memory _decimals = new uint8[](2);
     _decimals[0] = 18;
@@ -301,8 +301,8 @@ contract SwapAdminFacetTest is SwapAdminFacet, StableSwapFacet, FacetHelper {
 
   function test_SwapAdminFacet__initializeSwap_failIfFeeExceedMax() public {
     IERC20[] memory _pooledTokens = new IERC20[](2);
-    _pooledTokens[0] = IERC20(new TestERC20());
-    _pooledTokens[1] = IERC20(new TestERC20());
+    _pooledTokens[0] = IERC20(new TestERC20("Test Token", "TEST"));
+    _pooledTokens[1] = IERC20(new TestERC20("Test Token", "TEST"));
 
     uint8[] memory _decimals = new uint8[](2);
     _decimals[0] = 18;
@@ -328,8 +328,8 @@ contract SwapAdminFacetTest is SwapAdminFacet, StableSwapFacet, FacetHelper {
 
   function test_SwapAdminFacet__initializeSwap_failIfAdminFeeExceedMax() public {
     IERC20[] memory _pooledTokens = new IERC20[](2);
-    _pooledTokens[0] = IERC20(new TestERC20());
-    _pooledTokens[1] = IERC20(new TestERC20());
+    _pooledTokens[0] = IERC20(new TestERC20("Test Token", "TEST"));
+    _pooledTokens[1] = IERC20(new TestERC20("Test Token", "TEST"));
 
     uint8[] memory _decimals = new uint8[](2);
     _decimals[0] = 18;
@@ -355,8 +355,8 @@ contract SwapAdminFacetTest is SwapAdminFacet, StableSwapFacet, FacetHelper {
 
   function test_SwapAdminFacet__initializeSwap_shouldWork() public {
     IERC20[] memory _pooledTokens = new IERC20[](2);
-    _pooledTokens[0] = IERC20(new TestERC20());
-    _pooledTokens[1] = IERC20(new TestERC20());
+    _pooledTokens[0] = IERC20(new TestERC20("Test Token", "TEST"));
+    _pooledTokens[1] = IERC20(new TestERC20("Test Token", "TEST"));
 
     uint8[] memory _decimals = new uint8[](2);
     _decimals[0] = 18;
