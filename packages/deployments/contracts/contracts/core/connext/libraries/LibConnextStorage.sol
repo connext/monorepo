@@ -60,11 +60,13 @@ struct CallParams {
  * @param transactingAssetId - The asset the caller sent with the transfer. Can be the adopted, canonical,
  * or the representational asset
  * @param amount - The amount of transferring asset the tx called xcall with
+ * @param originSlippageTol - Slippage tolerance used for the origin AMM swap, if applicable.
  */
 struct XCallArgs {
   CallParams params;
   address transactingAssetId; // Could be adopted, local, or wrapped
   uint256 amount;
+  uint256 originSlippageTol;
 }
 
 /**

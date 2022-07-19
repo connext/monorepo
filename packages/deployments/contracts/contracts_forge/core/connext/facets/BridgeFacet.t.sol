@@ -175,7 +175,8 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
     XCallArgs memory args = XCallArgs(
       _params,
       _adopted == address(s.wrapper) ? address(0) : _adopted, // transactingAssetId : could be adopted, local, or wrapped.
-      _amount
+      _amount,
+      995 // Slippage tolerance of 0.5% on origin chain.
     );
     // generate transfer id
     bytes32 transferId = utils_getTransferIdFromXCallArgs(args, _originSender, _canonicalId, _canonicalDomain, bridged);

@@ -324,7 +324,7 @@ contract BridgeFacet is BaseConnextFacet {
         canonical,
         transactingAssetId,
         amount,
-        _args.params.slippageTol
+        _args.originSlippageTol
       );
 
       // Calculate the transfer id

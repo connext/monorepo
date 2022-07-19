@@ -824,7 +824,7 @@ contract ConnextTest is ForgeHelper, Deployer {
     utils_setupAssets(_origin, true);
 
     // 1. `xcall` on the origin
-    XCallArgs memory xcall = XCallArgs(utils_createCallParams(_destination), _originLocal, 1 ether);
+    XCallArgs memory xcall = XCallArgs(utils_createCallParams(_destination), _originLocal, 1 ether, 995);
     XCalledEventArgs memory eventArgs = XCalledEventArgs(
       _originLocal, // transacting
       xcall.amount, // amount in
@@ -847,7 +847,7 @@ contract ConnextTest is ForgeHelper, Deployer {
     utils_setupAssets(_other, false);
 
     // 1. `xcall` on the origin
-    XCallArgs memory args = XCallArgs(utils_createCallParams(_destination), _originAdopted, 1 ether);
+    XCallArgs memory args = XCallArgs(utils_createCallParams(_destination), _originAdopted, 1 ether, 995);
     uint256 expected = _originConnext.calculateSwap(
       TypeCasts.addressToBytes32(_canonical),
       0, // local idx always 0
@@ -882,7 +882,7 @@ contract ConnextTest is ForgeHelper, Deployer {
     utils_setupNative(_origin);
 
     // 1. `xcall` on the origin
-    XCallArgs memory args = XCallArgs(utils_createCallParams(_destination), address(0), 1 ether);
+    XCallArgs memory args = XCallArgs(utils_createCallParams(_destination), address(0), 1 ether, 995);
     XCalledEventArgs memory eventArgs = XCalledEventArgs(
       address(_originWrapper), // transacting
       args.amount, // amount in
@@ -912,7 +912,7 @@ contract ConnextTest is ForgeHelper, Deployer {
     utils_setupAssets(_other, false);
 
     // 1. `xcall` on the origin
-    XCallArgs memory args = XCallArgs(utils_createCallParams(_destination), _originLocal, 1 ether);
+    XCallArgs memory args = XCallArgs(utils_createCallParams(_destination), _originLocal, 1 ether, 995);
     XCalledEventArgs memory eventArgs = XCalledEventArgs(
       _originLocal, // transacting
       args.amount, // amount in
@@ -941,7 +941,7 @@ contract ConnextTest is ForgeHelper, Deployer {
     utils_setupAssets(_other, true); // local is adopted
 
     // 1. `xcall` on the origin
-    XCallArgs memory args = XCallArgs(utils_createCallParams(_destination), _originLocal, 1 ether);
+    XCallArgs memory args = XCallArgs(utils_createCallParams(_destination), _originLocal, 1 ether, 995);
     XCalledEventArgs memory eventArgs = XCalledEventArgs(
       _originLocal, // transacting
       args.amount, // amount in
