@@ -140,7 +140,7 @@ describe("SdkBase", () => {
     const mockXTransfer = mock.entity.xtransfer();
 
     const mockBumpTransferParams = {
-      domain: mockXTransfer.originDomain,
+      domain: mockXTransfer.xparams.originDomain,
       transferId: mockXTransfer.transferId,
       relayerFee: "1",
     };
@@ -168,7 +168,16 @@ describe("SdkBase", () => {
   });
 
   describe("estimateRelayerFee", () => {
-    it("should return 0 if origin/destination native asset price is 0", async () => {});
+    it("should return 0 if origin/destination native asset price is 0", async () => {
+      stub(SharedFns, "getConversionRate").resolves(0);
+      const mockOrigin = "13337";
+      const mockDestination = "13338";
+      const relayerFee = await nxtpSdkBase.estimateRelayerFee({
+        originDomain: mockOrigin,
+        destinationDomain: mockDestination,
+      });
+      expect(relayerFee.toString()).to.be.eq("0");
+    });
     it("should add callData gasAmount", async () => {});
     it("should properly handle the difference in decimals", async () => {});
   });

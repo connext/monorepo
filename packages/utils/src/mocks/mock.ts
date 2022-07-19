@@ -20,12 +20,12 @@ import { mkAddress, mkBytes32, mkSig } from ".";
  */
 export const mock = {
   chain: {
-    A: "137",
-    B: "138",
+    A: "1337",
+    B: "1338",
   },
   domain: {
-    A: "137",
-    B: "138",
+    A: "13337",
+    B: "13338",
   },
   asset: {
     A: {

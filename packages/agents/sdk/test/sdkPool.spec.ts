@@ -64,7 +64,7 @@ describe("NxtpSdkPool", () => {
       amounts: ["100", "100"],
       deadline: 1700000000,
       minToMint: "100",
-      connextAddress: mockConfig.chains[mock.chain.A].deployments.connext,
+      connextAddress: mockConfig.chains[mock.domain.A].deployments.connext,
     };
 
     it("happy: should work", async () => {
@@ -101,7 +101,7 @@ describe("NxtpSdkPool", () => {
       amount: "100",
       deadline: 1700000000,
       minAmounts: ["100", "100"],
-      connextAddress: mockConfig.chains[mock.chain.A].deployments.connext,
+      connextAddress: mockConfig.chains[mock.domain.A].deployments.connext,
     };
 
     it("happy: should work", async () => {
@@ -140,7 +140,7 @@ describe("NxtpSdkPool", () => {
       amount: "100",
       minDy: 100,
       deadline: 170000000,
-      connextAddress: mockConfig.chains[mock.chain.A].deployments.connext,
+      connextAddress: mockConfig.chains[mock.domain.A].deployments.connext,
     };
 
     it("happy: should work", async () => {
