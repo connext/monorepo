@@ -1,0 +1,3 @@
+[
+  "function aggregate(tuple(address,bytes)[]) returns (uint256, bytes[])"
+]

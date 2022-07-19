@@ -1,0 +1,8 @@
+[
+  "event OwnershipProposed(address indexed)",
+  "event OwnershipTransferred(address indexed,address indexed)",
+  "function acceptProposedOwner()",
+  "function owner() view returns (address)",
+  "function proposeNewOwner(address)",
+  "function proposed() view returns (address)"
+]

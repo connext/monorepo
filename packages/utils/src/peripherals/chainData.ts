@@ -63,18 +63,10 @@ export type ChainData = {
     standard: string;
   }[];
   gasEstimates: {
-    prepare: string;
-    fulfill: string;
-    cancel: string;
-    removeLiquidity: string;
-    prepareRouterContract: string;
-    fulfillRouterContract: string;
-    cancelRouterContract: string;
-    removeLiquidityRouterContract: string;
-    prepareL1?: string;
-    fulfillL1?: string;
-    cancelL1?: string;
-    removeLiquidityL1?: string;
+    xcall: string;
+    execute: string;
+    xcallL1: string;
+    executeL1: string;
     gasPriceFactor?: string;
   };
 };
@@ -97,7 +89,7 @@ export const chainDataToMap = (data: any): Map<string, ChainData> => {
     console.warn(
       `No domainId was found for the following chains: ${noDomainIdFound.join(
         ", ",
-      )};\n Continuing without indexing these chains.`,
+      )};\nContinuing without indexing these chains.`,
     );
   }
   return chainData;

@@ -1,6 +1,6 @@
 {
   "name": "@connext/nxtp-lighthouse",
-  "version": "0.2.0-beta.11",
+  "version": "0.2.0-beta.15",
   "description": "",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -38,29 +38,29 @@
   "dependencies": {
     "@connext/nxtp-txservice": "workspace:*",
     "@connext/nxtp-utils": "workspace:*",
-    "@sinclair/typebox": "0.23.5",
+    "@sinclair/typebox": "0.24.12",
     "axios": "0.27.2",
     "dotenv": "16.0.1",
     "ethers": "5.6.9",
-    "fastify": "3.29.0",
+    "fastify": "4.2.0",
     "graphql": "16.5.0",
     "prom-client": "14.0.1"
   },
   "devDependencies": {
-    "@graphql-codegen/cli": "2.6.2",
+    "@graphql-codegen/cli": "2.8.0",
     "@types/mocha": "9.1.1",
-    "@types/sinon": "10.0.11",
-    "concurrently": "7.2.1",
-    "eslint": "8.16.0",
+    "@types/sinon": "10.0.12",
+    "concurrently": "7.2.2",
+    "eslint": "8.19.0",
     "interval-promise": "1.4.0",
     "mocha": "10.0.0",
-    "nodemon": "2.0.16",
+    "nodemon": "2.0.19",
     "nyc": "15.1.0",
-    "pino-pretty": "7.6.1",
+    "pino-pretty": "8.1.0",
     "rimraf": "3.0.2",
     "sinon": "14.0.0",
     "ts-mocha": "10.0.0",
-    "typescript": "4.7.2"
+    "typescript": "4.7.4"
   },
   "gitHead": "937a7cde93e6ac1e151c6374f48adf83d3fa4ec6",
   "stableVersion": "0.1.25"

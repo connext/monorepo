@@ -1,10 +1,9 @@
 import { providers } from "ethers";
 import { getChainData, Logger, createLoggingContext, ChainData } from "@connext/nxtp-utils";
 import { getContractInterfaces, contractDeployments, ChainReader } from "@connext/nxtp-txservice";
-import { ConnextHandler as TConnext, TokenRegistry as TTokenRegistry, IERC20Extended } from "@connext/nxtp-contracts/typechain-types";
+import { ConnextHandler as TConnext, TokenRegistry as TTokenRegistry, IERC20Extended } from "@connext/nxtp-contracts";
 
 import { NxtpSdkConfig, getConfig } from "./config";
-import { getChainIdFromDomain } from "./lib/helpers";
 import { SignerAddressMissing, ContractAddressMissing, ChainDataUndefined } from "./lib/errors";
 import { IPoolStats, IPoolData } from "./interfaces";
 
@@ -117,20 +116,19 @@ export class NxtpSdkPool {
 
   // ------------------- Read Operations ------------------- //
 
-  async getCanonicalFromLocal(domainId: string, tokenAddress: string): Promise<[string, string]> {
+  async getCanonicalFromLocal(domainId: string, tokenAddress: string): Promise<[number, string]> {
     const tokenRegistryContractAddress = this.config.chains[domainId].deployments!.tokenRegistry;
     if (!tokenRegistryContractAddress) {
       throw new ContractAddressMissing();
     }
-    const chainId = await getChainIdFromDomain(domainId, this.chainData);
 
     const encoded = this.tokenRegistry.encodeFunctionData("getTokenId", [tokenAddress]);
     const result = await this.chainReader.readTx({
-      chainId: chainId,
+      chainId: Number(domainId),
       to: tokenRegistryContractAddress,
       data: encoded,
     });
-    const [canonicalDomain, canonicalId] = this.tokenRegistry.decodeFunctionResult("getTokenId", result);
+    const [canonicalDomain, canonicalId] = this.tokenRegistry.decodeFunctionResult("getTokenId", result );
     
     return [canonicalDomain, canonicalId];
   }
@@ -140,29 +138,27 @@ export class NxtpSdkPool {
     if (!connextContract) {
       throw new ContractAddressMissing();
     }
-    const chainId = await getChainIdFromDomain(domainId, this.chainData);
 
     const encoded = this.connext.encodeFunctionData("getSwapLPToken", [canonicalId]);
     const result = await this.chainReader.readTx({
-      chainId: chainId,
+      chainId: Number(domainId),
       to: connextContract,
       data: encoded,
     });
-    const [tokenAddress] = this.connext.decodeFunctionResult("getSwapLPToken", result);
+    const [tokenAddress] = this.connext.decodeFunctionResult("getSwapLPToken", result );
 
     return tokenAddress;
   }
 
   async getLPTokenBalance(domainId: string, lpTokenAddress: string, userAddress: string): Promise<number> {
-    const chainId = await getChainIdFromDomain(domainId, this.chainData);
     
     const encoded = this.erc20.encodeFunctionData("balanceOf", [userAddress]);
     const result = await this.chainReader.readTx({
-      chainId: chainId,
+      chainId: Number(domainId),
       to: lpTokenAddress,
       data: encoded,
     });
-    const [balance] = this.erc20.decodeFunctionResult("balanceOf", result);
+    const [balance] = this.erc20.decodeFunctionResult("balanceOf", result );
 
     return balance;
   }
@@ -172,15 +168,14 @@ export class NxtpSdkPool {
     if (!connextContract) {
       throw new ContractAddressMissing();
     }
-    const chainId = await getChainIdFromDomain(domainId, this.chainData);
 
     const encoded = this.connext.encodeFunctionData("getSwapTokenIndex", [canonicalId, tokenAddress]);
     const result = await this.chainReader.readTx({
-      chainId: chainId,
+      chainId: Number(domainId),
       to: connextContract,
       data: encoded,
     });
-    const [index] = this.connext.decodeFunctionResult("getSwapTokenIndex", result);
+    const [index] = this.connext.decodeFunctionResult("getSwapTokenIndex", result );
 
     return index;
   }
@@ -190,17 +185,16 @@ export class NxtpSdkPool {
     if (!connextContract) {
       throw new ContractAddressMissing();
     }
-    const chainId = await getChainIdFromDomain(domainId, this.chainData);
 
     const index = await this.getPoolTokenIndex(domainId, canonicalId, tokenAddress);
 
     const encoded = this.connext.encodeFunctionData("getSwapTokenBalance", [canonicalId, index]);
     const result = await this.chainReader.readTx({
-      chainId: chainId,
+      chainId: Number(domainId),
       to: connextContract,
       data: encoded,
     });
-    const [balance] = this.connext.decodeFunctionResult("getSwapTokenBalance", result);
+    const [balance] = this.connext.decodeFunctionResult("getSwapTokenBalance", result );
 
     return balance;
   }
@@ -210,15 +204,14 @@ export class NxtpSdkPool {
     if (!connextContract) {
       throw new ContractAddressMissing();
     }
-    const chainId = await getChainIdFromDomain(domainId, this.chainData);
 
     const encoded = this.connext.encodeFunctionData("getSwapToken", [canonicalId, index]);
     const result = await this.chainReader.readTx({
-      chainId: chainId,
+      chainId: Number(domainId),
       to: connextContract,
       data: encoded,
     });
-    const [tokenAddress] = this.connext.decodeFunctionResult("getSwapToken", result);
+    const [tokenAddress] = this.connext.decodeFunctionResult("getSwapToken", result );
 
     return tokenAddress;
   }
@@ -233,15 +226,14 @@ export class NxtpSdkPool {
     if (!connextContract) {
       throw new ContractAddressMissing();
     }
-    const chainId = await getChainIdFromDomain(domainId, this.chainData);
 
     const data = this.connext.encodeFunctionData("calculateSwapTokenAmount", [canonicalId, amounts, isDeposit]);
     const encoded = await this.chainReader.readTx({
       to: connextContract,
       data: data,
-      chainId: chainId,
+      chainId: Number(domainId),
     });
-    const [amount] = this.connext.decodeFunctionResult("calculateSwapTokenAmount", encoded);
+    const [amount] = this.connext.decodeFunctionResult("calculateSwapTokenAmount", encoded );
 
     return amount;
   }
@@ -251,15 +243,14 @@ export class NxtpSdkPool {
     if (!connextContract) {
       throw new ContractAddressMissing();
     }
-    const chainId = await getChainIdFromDomain(domainId, this.chainData);
 
     const data = this.connext.encodeFunctionData("calculateRemoveSwapLiquidity", [canonicalId, amount]);
     const encoded = await this.chainReader.readTx({
       to: connextContract,
       data: data,
-      chainId: chainId,
+      chainId: Number(domainId),
     });
-    const [amounts] = this.connext.decodeFunctionResult("calculateRemoveSwapLiquidity", encoded);
+    const [amounts] = this.connext.decodeFunctionResult("calculateRemoveSwapLiquidity", encoded );
 
     return amounts;
   }
@@ -275,7 +266,6 @@ export class NxtpSdkPool {
     if (!connextContract) {
       throw new ContractAddressMissing();
     }
-    const chainId = await getChainIdFromDomain(domainId, this.chainData);
 
     const encoded = this.connext.encodeFunctionData("calculateSwap", [
       canonicalId,
@@ -284,11 +274,11 @@ export class NxtpSdkPool {
       amount,
     ]);
     const result = await this.chainReader.readTx({
-      chainId: chainId,
+      chainId: Number(domainId),
       to: connextContract,
       data: encoded,
     });
-    const [minAmount] = this.connext.decodeFunctionResult("calculateSwap", result);
+    const [minAmount] = this.connext.decodeFunctionResult("calculateSwap", result );
 
     return minAmount;
   }
@@ -317,9 +307,8 @@ export class NxtpSdkPool {
     if (!signerAddress) {
       throw new SignerAddressMissing();
     }
-    const chainId = await getChainIdFromDomain(domainId, this.chainData);
 
-    const connextContract = this.config.chains[chainId]?.deployments?.connext;
+    const connextContract = this.config.chains[domainId]?.deployments?.connext;
     if (!connextContract) {
       throw new ContractAddressMissing();
     }
@@ -360,9 +349,8 @@ export class NxtpSdkPool {
     if (!signerAddress) {
       throw new SignerAddressMissing();
     }
-    const chainId = await getChainIdFromDomain(domainId, this.chainData);
 
-    const connextContract = this.config.chains[chainId]?.deployments?.connext;
+    const connextContract = this.config.chains[domainId]?.deployments?.connext;
     if (!connextContract) {
       throw new ContractAddressMissing();
     }
@@ -403,8 +391,7 @@ export class NxtpSdkPool {
       throw new SignerAddressMissing();
     }
 
-    const chainId = await getChainIdFromDomain(domainId, this.chainData);
-    const connextContract = this.config.chains[chainId].deployments?.connext;
+    const connextContract = this.config.chains[domainId].deployments?.connext;
     if (!connextContract) {
       throw new ContractAddressMissing();
     }
@@ -452,62 +439,57 @@ export class NxtpSdkPool {
       return pool;
     }
 
-    const chainId = await getChainIdFromDomain(domainId, this.chainData);
-    const chainConfig = this.config.chains[chainId];
-
-    const connextContract = chainConfig?.deployments?.connext;
+    const connextContract = this.config.chains[domainId]?.deployments?.connext;
     if (!connextContract) {
       throw new ContractAddressMissing();
     }
-    const tokenRegistryContract = chainConfig.deployments?.tokenRegistry;
+    const tokenRegistryContract = this.config.chains[domainId].deployments?.tokenRegistry;
     if (!tokenRegistryContract) {
       throw new ContractAddressMissing();
     }
 
-    const canonicalChainId = await getChainIdFromDomain(canonicalDomain, this.chainData);
-
     // If the canonical domain is the same as the local domain, then there is no pool
-    if (canonicalChainId !== chainId) {
+    if (canonicalDomain !== Number(domainId)) {
       let encoded = this.connext.encodeFunctionData("canonicalToAdopted", [canonicalId]);
       let result = await this.chainReader.readTx({
-        chainId: chainId,
+        chainId: Number(domainId),
         to: connextContract,
         data: encoded,
       });
-      const adopted = this.connext.decodeFunctionResult("canonicalToAdopted", result)[0] as string;
+      const adopted = this.connext.decodeFunctionResult("canonicalToAdopted", result )[0] as string;
 
       // If the adopted token is the same as the local token, then there is no pool
       if (adopted != tokenAddress) {
         encoded = this.connext.encodeFunctionData("getSwapLPToken", [canonicalId]);
         result = await this.chainReader.readTx({
-          chainId: chainId,
+          chainId: Number(domainId),
           to: connextContract,
           data: encoded,
         });
-        const lpTokenAddress = this.connext.decodeFunctionResult("getSwapLPToken", result)[0] as string;
+        const lpTokenAddress = this.connext.decodeFunctionResult("getSwapLPToken", result )[0] as string;
 
         encoded = this.erc20.encodeFunctionData("decimals");
         result = await this.chainReader.readTx({
-          chainId: chainId,
+          chainId: Number(domainId),
           to: tokenAddress,
           data: encoded,
         });
-        const localDecimals = this.erc20.decodeFunctionResult("decimals", result)[0] as number;
+        const localDecimals = this.erc20.decodeFunctionResult("decimals", result )[0] as number;
 
         result = await this.chainReader.readTx({
-          chainId: chainId,
+          chainId: Number(domainId),
           to: adopted,
           data: encoded,
         });
-        const adoptedDecimals = this.erc20.decodeFunctionResult("decimals", result)[0] as number;
+        const adoptedDecimals = this.erc20.decodeFunctionResult("decimals", result )[0] as number;
 
         encoded = this.erc20.encodeFunctionData("symbol");
         result = await this.chainReader.readTx({
-          chainId: chainId,
+          chainId: Number(domainId),
           to: adopted,
           data: encoded,
         });
-        const tokenSymbol = this.erc20.decodeFunctionResult("symbol", result)[0] as string;
+        const tokenSymbol = this.erc20.decodeFunctionResult("symbol", result )[0] as string;
 
         const pool = new Pool(
           domainId,

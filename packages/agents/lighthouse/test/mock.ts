@@ -31,14 +31,14 @@ export const mock = {
   },
   config: (): NxtpLighthouseConfig => ({
     chains: {
-      [mock.chain.A]: {
+      [mock.domain.A]: {
         confirmations: 1,
         providers: ["http://example.com"],
         deployments: {
           connext: mkAddress("0xabcdef123"),
         },
       },
-      [mock.chain.B]: {
+      [mock.domain.B]: {
         confirmations: 1,
         providers: ["http://example.com"],
         deployments: {
@@ -66,9 +66,6 @@ export const mock = {
 
       chainreader.getDecimalsForAsset.resolves(18);
       chainreader.getBlockTime.resolves(Math.floor(Date.now() / 1000));
-      chainreader.calculateGasFee.resolves(BigNumber.from(100));
-      chainreader.calculateGasFeeInReceivingToken.resolves(BigNumber.from(100));
-      chainreader.calculateGasFeeInReceivingTokenForFulfill.resolves(BigNumber.from(120));
       chainreader.getTokenPrice.resolves(BigNumber.from(1));
       chainreader.getGasEstimate.resolves(BigNumber.from(24001));
       chainreader.getGasEstimateWithRevertCode.resolves(BigNumber.from(1));

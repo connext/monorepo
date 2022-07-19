@@ -7,7 +7,7 @@ import {
   ConnextPriceOracle as TConnextPriceOracle,
   TokenRegistry as TTokenRegistry,
   StableSwap as TStableSwap,
-} from "@connext/nxtp-contracts/typechain-types";
+} from "@connext/nxtp-contracts";
 import PriceOracleArtifact from "@connext/nxtp-contracts/artifacts/contracts/core/connext/helpers/ConnextPriceOracle.sol/ConnextPriceOracle.json";
 import ERC20Artifact from "@connext/nxtp-contracts/artifacts/contracts/core/connext/helpers/OZERC20.sol/ERC20.json";
 import ConnextArtifact from "@connext/nxtp-contracts/artifacts/hardhat-diamond-abi/HardhatDiamondABI.sol/ConnextHandler.json";
@@ -118,6 +118,7 @@ export const getDeployedStableSwapContract = (
 export type ConnextContractDeploymentGetter = (
   chainId: number,
   postfix?: ContractPostfix,
+  proxy?: boolean,
 ) => { address: string; abi: any } | undefined;
 
 export type ConnextContractDeployments = {

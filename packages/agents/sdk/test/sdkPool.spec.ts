@@ -41,6 +41,7 @@ describe("NxtpSdkPool", () => {
 
       expect(nxtpPool.getCanonicalFromLocal).to.be.a("function");
       expect(nxtpPool.getLPTokenAddress).to.be.a("function");
+      expect(nxtpPool.getLPTokenBalance).to.be.a("function");
       expect(nxtpPool.getPoolTokenIndex).to.be.a("function");
       expect(nxtpPool.getPoolTokenBalance).to.be.a("function");
       expect(nxtpPool.getPoolTokenAddress).to.be.a("function");
@@ -52,6 +53,7 @@ describe("NxtpSdkPool", () => {
       expect(nxtpPool.swap).to.be.a("function");
       expect(nxtpPool.getPool).to.be.a("function");
       expect(nxtpPool.getUserPools).to.be.a("function");
+      expect(nxtpPool.getPoolStats).to.be.a("function");
     });
   });
 
@@ -62,7 +64,7 @@ describe("NxtpSdkPool", () => {
       amounts: ["100", "100"],
       deadline: 1700000000,
       minToMint: "100",
-      connextAddress: mockConfig.chains[mock.chain.A].deployments.connext,
+      connextAddress: mockConfig.chains[mock.domain.A].deployments.connext,
     };
 
     it("happy: should work", async () => {
@@ -99,7 +101,7 @@ describe("NxtpSdkPool", () => {
       amount: "100",
       deadline: 1700000000,
       minAmounts: ["100", "100"],
-      connextAddress: mockConfig.chains[mock.chain.A].deployments.connext,
+      connextAddress: mockConfig.chains[mock.domain.A].deployments.connext,
     };
 
     it("happy: should work", async () => {
@@ -138,7 +140,7 @@ describe("NxtpSdkPool", () => {
       amount: "100",
       minDy: 100,
       deadline: 170000000,
-      connextAddress: mockConfig.chains[mock.chain.A].deployments.connext,
+      connextAddress: mockConfig.chains[mock.domain.A].deployments.connext,
     };
 
     it("happy: should work", async () => {
@@ -215,14 +217,14 @@ describe("NxtpSdkPool", () => {
     });
 
     it("happy: should return undefined if local domain is canonical", async () => {
-      stub(nxtpPool, "getCanonicalFromLocal").resolves([mockParams.domainId, mockParams.canonicalId]);
+      stub(nxtpPool, "getCanonicalFromLocal").resolves([Number(mockParams.domainId), mockParams.canonicalId]);
 
       const res = await nxtpPool.getPool(mockParams.domainId, mockParams.tokenAddress);
       expect(res).to.be.undefined;
     });
 
     it("happy: should return undefined if local token is adopted", async () => {
-      stub(nxtpPool, "getCanonicalFromLocal").resolves([mock.domain.B, mockParams.canonicalId]);
+      stub(nxtpPool, "getCanonicalFromLocal").resolves([Number(mock.domain.B), mockParams.canonicalId]);
       stub(chainReader, "readTx").onCall(0).resolves("0x");
 
       // stub call to canonicalToAdopted()

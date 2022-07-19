@@ -45,7 +45,6 @@ describe("Helpers:parse", () => {
       expect(originTransfer(mockOriginTransferEntity)).to.be.deep.eq({
         transferId: "0xaaa0000000000000000000000000000000000000000000000000000000000000",
         nonce: 0,
-        relayerFee: "1",
         xparams: {
           destinationDomain: "3331",
           originDomain: "1111",
@@ -84,7 +83,6 @@ describe("Helpers:parse", () => {
       ).to.be.deep.eq({
         transferId: "0xaaa0000000000000000000000000000000000000000000000000000000000000",
         nonce: 0,
-        relayerFee: "1",
         xparams: {
           destinationDomain: "3331",
           originDomain: "1111",
@@ -168,7 +166,6 @@ describe("Helpers:parse", () => {
             caller: "0x1400000000000000000000000000000000000000",
             gasLimit: "1000000",
             gasPrice: "10000000000",
-            relayerFee: "1",
             originSender: "0x1300000000000000000000000000000000000000",
             timestamp: 1000000,
             transactionHash: "0xaaa0000000000000000000000000000000000000000000000000000000000000",
@@ -231,7 +228,6 @@ describe("Helpers:parse", () => {
             gasLimit: "1000000",
             gasPrice: "10000000000",
             originSender: "0x1300000000000000000000000000000000000000",
-            relayerFee: "1",
             timestamp: 0,
             transactionHash: "0xaaa0000000000000000000000000000000000000000000000000000000000000",
           },

@@ -1,0 +1,91 @@
+version: "3.3"
+
+services:
+  chain-1337:
+    environment:
+      - MNEMONIC=$MNEMONIC
+      - CHAIN_ID=1337
+    container_name: chain-1337-test
+    image: ghcr.io/connext/chain:latest
+    ports:
+      - "8547:8545"
+  chain-1338:
+    environment:
+      - MNEMONIC=$MNEMONIC
+      - CHAIN_ID=1338
+    container_name: chain-1338-test
+    image: ghcr.io/connext/chain:latest
+    ports:
+      - "8546:8545"
+
+  graph-node-1337:
+    container_name: graph-node-1337-test
+    image: graphprotocol/graph-node:992121b
+    ports:
+      - "8010:8000"
+      - "8001:8001"
+      - "8020:8020"
+      - "8030:8030"
+      - "8040:8040"
+    depends_on:
+      - ipfs
+      - postgres-1337
+      - chain-1337
+    environment:
+      postgres_host: postgres-1337
+      postgres_user: graph-node
+      postgres_pass: let-me-in
+      postgres_db: graph-node
+      ipfs: "ipfs:5001"
+      ethereum: "mainnet:http://chain-1337:8545"
+      GRAPH_LOG: info
+
+  postgres-1337:
+    container_name: postgres-1337-test
+    image: postgres
+    ports:
+      - "5432:5432"
+    command: ["postgres", "-cshared_preload_libraries=pg_stat_statements"]
+    environment:
+      POSTGRES_USER: graph-node
+      POSTGRES_PASSWORD: let-me-in
+      POSTGRES_DB: graph-node
+
+  graph-node-1338:
+    container_name: graph-node-1338-test
+    image: graphprotocol/graph-node:992121b
+    ports:
+      - "9010:8000"
+      - "9001:8001"
+      - "9020:8020"
+      - "9030:8030"
+      - "9040:8040"
+    depends_on:
+      - ipfs
+      - postgres-1338
+      - chain-1338
+    environment:
+      postgres_host: postgres-1338
+      postgres_user: graph-node
+      postgres_pass: let-me-in
+      postgres_db: graph-node
+      ipfs: "ipfs:5001"
+      ethereum: "mainnet:http://chain-1338:8545"
+      GRAPH_LOG: info
+
+  postgres-1338:
+    container_name: postgres-1338-test
+    image: postgres
+    ports:
+      - "5433:5432"
+    command: ["postgres", "-cshared_preload_libraries=pg_stat_statements"]
+    environment:
+      POSTGRES_USER: graph-node
+      POSTGRES_PASSWORD: let-me-in
+      POSTGRES_DB: graph-node
+
+  ipfs:
+    container_name: ipfs-test
+    image: ipfs/go-ipfs:v0.4.23
+    ports:
+      - "5001:5001"

@@ -7,8 +7,8 @@ import { ctxMock, getHelpersStub } from "../../globalTestHook";
 
 const mockTransfers: OriginTransfer[] = [
   mock.entity.xtransfer({
-    originDomain: "1337",
-    destinationDomain: "1338",
+    originDomain: "13337",
+    destinationDomain: "13338",
     asset: mkAddress("0xdedddddddddddddd"),
     relayerFee: "0.1",
     amount: "10",
@@ -16,8 +16,8 @@ const mockTransfers: OriginTransfer[] = [
     originSender: mkAddress("0xsenderorigin"),
   }),
   mock.entity.xtransfer({
-    originDomain: "1337",
-    destinationDomain: "1338",
+    originDomain: "13337",
+    destinationDomain: "13338",
     asset: mkAddress("0xdedddddddddddddd"),
     relayerFee: "0.1",
     amount: "10",
@@ -26,8 +26,8 @@ const mockTransfers: OriginTransfer[] = [
   }),
   {
     ...mock.entity.xtransfer(),
-    originDomain: "1337",
-    destinationDomain: "1338",
+    originDomain: "13337",
+    destinationDomain: "13338",
     xparams: {
       to: mkAddress("0xbeefdead"),
       callData: "0x0",

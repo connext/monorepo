@@ -27,7 +27,7 @@ report.*.json
 ops/data
 **/*/.nyc_output/*
 **/*/*.config.json
-**/*/config.*.json
+**/*/config.testnet.json
 **/*/config.json
 
 packages/integration/logs.json
@@ -38,3 +38,5 @@ packages/integration/ops/config/router/*.yaml
 **/.terraform.lock.hcl
 ops/**/tfvars.json
 .idea
+packages/agents/router/config.*.json
+packages/agents/sequencer/config.*.json

@@ -1,0 +1,52 @@
+{
+  "redis": {
+    "host": "sequencer-cache",
+    "port": 6379
+  },
+  "server": {
+    "adminToken": "b",
+    "port": 8081
+  },
+  "chains": {
+    "1337": {
+      "providers": ["http://chain-1337:8545"],
+      "assets": [{ "address": "0x1411CB266FCEd1587b0AA29E9d5a9Ef3Db64A9C5", "name": "TEST" }]
+    },
+    "1338": {
+      "providers": ["http://chain-1337:8545"],
+      "assets": [{ "address": "0x1411CB266FCEd1587b0AA29E9d5a9Ef3Db64A9C5", "name": "TEST" }]
+    }
+  },
+  "logLevel": "debug",
+  "mode": {
+    "cleanup": false
+  },
+  "auctionWaitTime": 30000,
+  "environment": "production",
+  "relayerUrl": "http://relayer:8080",
+  "messageQueue": {
+    "connection": {
+      "user": "guest",
+      "pass": "guest",
+      "server": "sequencer-message-queue",
+      "port": 5672,
+      "timeout": 2000,
+      "publishTimeout": 100,
+      "failAfter": 10,
+      "retryLimit": 100
+    },
+    "exchanges": [
+      { "name": "sequencerX", "type": "direct", "publishTimeout": 1000, "persistent": true, "durable": true }
+    ],
+    "queues": [
+      { "name": "1337", "prefetch": 100, "queueLimit": 10000, "subscribe": true },
+      { "name": "1338", "prefetch": 100, "queueLimit": 10000, "subscribe": true }
+    ],
+    "bindings": [
+      { "exchange": "sequencerX", "target": "1337", "keys": ["1337"] },
+      { "exchange": "sequencerX", "target": "1338", "keys": ["1338"] }
+    ],
+    "executerTimeout": 300000,
+    "publisher": "sequencerX"
+  }
+}
