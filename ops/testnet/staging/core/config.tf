@@ -65,14 +65,10 @@ locals {
     environment = var.stage
     messageQueue = {
       connection = {
-        server         = module.centralised_message_queue.aws_mq_amqp_endpoint
+        uri            = module.centralised_message_queue.aws_mq_amqp_endpoint
         port           = 5671
         user           = var.rmq_mgt_user
         pass           = var.rmq_mgt_password
-        timeout        = 2000,
-        publishTimeout = 100,
-        failAfter      = 10,
-        retryLimit     = 100
       }
       exchanges = [
         {
@@ -152,7 +148,7 @@ locals {
     environment      = var.stage
     nomadEnvironment = var.nomad_environment
     messageQueue = {
-      host = module.centralised_message_queue.aws_mq_amqp_endpoint
+      uri = module.centralised_message_queue.aws_mq_amqp_endpoint
       port = 5671
       user = var.rmq_mgt_user
       pass = var.rmq_mgt_password
