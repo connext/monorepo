@@ -26,6 +26,7 @@
   "types": "dist/src/index.d.ts",
   "files": [
     "dist/**/*",
+    "artifacts",
     "deployments.json",
     "contracts",
     "abi"
