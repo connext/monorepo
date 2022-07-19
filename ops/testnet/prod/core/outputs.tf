@@ -41,6 +41,6 @@ output "rmq-management-endpoint" {
   value = module.centralised_message_queue.aws_mq_broker_console
 }
 
-output "rmq-router-amqps-endpoint" {
+output "rmq-amqps-endpoint" {
   value = module.centralised_message_queue.aws_mq_amqp_endpoint
 }
