@@ -3,5 +3,5 @@ output "aws_mq_broker_console" {
 }
 
 output "aws_mq_amqp_endpoint" {
-  value = aws_mq_broker.default.instances[0].endpoints[1]
+  value = aws_mq_broker.default.instances[0].endpoints[0]
 }
