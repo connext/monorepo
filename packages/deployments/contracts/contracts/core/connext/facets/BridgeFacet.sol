@@ -723,8 +723,12 @@ contract BridgeFacet is BaseConnextFacet {
       AssetLogic.transferAssetFromContract(_asset, _args.params.to, _amount);
     } else {
       // execute calldata w/funds
-      AssetLogic.transferAssetFromContract(_asset, address(s.executor), _amount);
-      (bool success, bytes memory returnData) = s.executor.execute(
+      bool isNative = _asset == address(s.wrapper);
+      if (!isNative) {
+        AssetLogic.transferAssetFromContract(_asset, address(s.executor), _amount);
+      }
+
+      (bool success, bytes memory returnData) = s.executor.execute{value: isNative ? _amount : 0}(
         IExecutor.ExecutorArgs(
           _transferId,
           _amount,
