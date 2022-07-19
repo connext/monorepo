@@ -1,5 +1,5 @@
 import { Logger, ChainData, formatUrl, XTransferStatus, transfersCastForUrl } from "@connext/nxtp-utils";
-import { contractDeployments, ChainReader } from "@connext/nxtp-txservice";
+import { contractDeployments } from "@connext/nxtp-txservice";
 import { providers } from "ethers";
 
 import { getChainData, validateUri, axiosGetRequest, parseConnextLog } from "./lib/helpers";
