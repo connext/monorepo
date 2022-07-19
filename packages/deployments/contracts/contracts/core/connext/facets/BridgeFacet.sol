@@ -49,6 +49,7 @@ contract BridgeFacet is BaseConnextFacet {
   error BridgeFacet__xcall_nonZeroCallbackFeeForCallback();
   error BridgeFacet__xcall_callbackNotAContract();
   error BridgeFacet__xcall_missingAgent();
+  error BridgeFacet__xcall_invalidSlippageTol();
   error BridgeFacet__execute_unapprovedSender();
   error BridgeFacet__execute_wrongDomain();
   error BridgeFacet__execute_maxRoutersExceeded();
@@ -298,6 +299,13 @@ contract BridgeFacet is BaseConnextFacet {
       } else if (_args.params.callbackFee != 0) {
         // Othewrise, if callback address is not set, callback fee should be 0.
         revert BridgeFacet__xcall_nonZeroCallbackFeeForCallback();
+      }
+
+      // Slippage tolerance must be less than the LIQUIDITY_FEE_DENOMINATOR, otherwise the min amount received would
+      // be greater than the target amount received, meaning the `execute` could only revert and funds would get stuck
+      // at the destination.
+      if (_args.params.slippageTol > s.LIQUIDITY_FEE_DENOMINATOR) {
+        revert BridgeFacet__xcall_invalidSlippageTol();
       }
     }
 
