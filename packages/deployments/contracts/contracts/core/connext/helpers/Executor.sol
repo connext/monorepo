@@ -203,14 +203,14 @@ contract Executor is IExecutor {
     // Set the amount as well
     amnt = _args.amount;
 
-    // Ensure there is enough gas to handle failures
-    uint256 gas = gasleft() - FAILURE_GAS;
+    // Asset balance of this contract before call
+    uint256 beforeBalance = _assetBalance(_args.assetId);
 
     // Try to execute the callData
     // the low level call will return `false` if its execution reverts
     (success, returnData) = ExcessivelySafeCall.excessivelySafeCall(
       _args.to,
-      gas,
+      gasleft() - FAILURE_GAS,
       isNative ? _args.amount : 0,
       MAX_COPY,
       _args.callData
@@ -227,6 +227,19 @@ contract Executor is IExecutor {
       _sendToRecovery(isNative, hasValue, _args.assetId, payable(_args.to), payable(_args.recovery), _args.amount);
     }
 
+    // If there is unclaimed tokens, send them to the recovery address
+    if (hasValue) {
+      uint256 unclaimed = _args.amount - (beforeBalance - _assetBalance(_args.assetId));
+      if (unclaimed > 0) {
+        _sendToRecovery(isNative, hasValue, _args.assetId, payable(_args.to), payable(_args.recovery), unclaimed);
+      }
+    }
+
+    // Reset allowance to 0!
+    if (!isNative && hasValue) {
+      SafeERC20.safeApprove(IERC20(_args.assetId), _args.to, 0);
+    }
+
     // Emit event
     emit Executed(
       _args.transferId,
@@ -240,6 +253,14 @@ contract Executor is IExecutor {
       success
     );
     return (success, returnData);
+  }
+
+  /**
+   * @notice Get current balance of this contract
+   * @param _assetId - Asset associated with call
+   */
+  function _assetBalance(address _assetId) internal view returns (uint256) {
+    return _assetId == address(0) ? address(this).balance : IERC20(_assetId).balanceOf(address(this));
   }
 
   /**
