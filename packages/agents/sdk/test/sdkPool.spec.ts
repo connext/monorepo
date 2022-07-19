@@ -217,14 +217,14 @@ describe("NxtpSdkPool", () => {
     });
 
     it("happy: should return undefined if local domain is canonical", async () => {
-      stub(nxtpPool, "getCanonicalFromLocal").resolves([mockParams.domainId, mockParams.canonicalId]);
+      stub(nxtpPool, "getCanonicalFromLocal").resolves([Number(mockParams.domainId), mockParams.canonicalId]);
 
       const res = await nxtpPool.getPool(mockParams.domainId, mockParams.tokenAddress);
       expect(res).to.be.undefined;
     });
 
     it("happy: should return undefined if local token is adopted", async () => {
-      stub(nxtpPool, "getCanonicalFromLocal").resolves([mock.domain.B, mockParams.canonicalId]);
+      stub(nxtpPool, "getCanonicalFromLocal").resolves([Number(mock.domain.B), mockParams.canonicalId]);
       stub(chainReader, "readTx").onCall(0).resolves("0x");
 
       // stub call to canonicalToAdopted()
