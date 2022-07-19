@@ -12,7 +12,7 @@ resource "aws_mq_broker" "default" {
     Stage       = var.stage
   }
 
-  security_groups = aws_security_group.rabbitmq.ids
+  security_groups = [aws_security_group.rabbitmq.id, var.sg_id]
 
   logs {
     general = true

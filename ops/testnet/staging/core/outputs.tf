@@ -38,5 +38,5 @@ output "lighthouse-service-name" {
 }
 
 output "rmq-router-management-endpoint" {
-  value = module.router_message_queue.rmq_management_endpoint
+  value = module.centralised_message_queue.aws_mq_broker_console
 }
