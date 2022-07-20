@@ -89,6 +89,7 @@ module "centralised_message_queue" {
   environment         = var.environment
   sg_id               = module.network.ecs_task_sg
   vpc_id              = module.network.vpc_id
+  zone_id             = data.aws_route53_zone.primary.zone_id
   publicly_accessible = true
   host_instance_type  = "mq.t3.micro"
   deployment_mode     = "SINGLE_INSTANCE"

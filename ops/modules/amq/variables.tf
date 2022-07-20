@@ -33,6 +33,15 @@ variable "vpc_id" {
   description = "The ID of the VPC to create the broker in"
 }
 
+variable "zone_id" {
+  description = "hosted zone id"
+}
+
+variable "base_domain" {
+  description = "base domain of the application"
+  default     = "connext.ninja"
+}
+
 variable "subnet_ids" {
   type        = list(string)
   description = "List of VPC subnet IDs"
