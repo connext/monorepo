@@ -1,6 +1,6 @@
 resource "aws_mq_broker" "default" {
   broker_name         = "rmq-cluster-${var.environment}-${var.stage}"
-  deployment_mode     = var.deployment_mode 
+  deployment_mode     = var.deployment_mode
   engine_type         = "RabbitMQ"
   engine_version      = "3.9.13"
   host_instance_type  = var.host_instance_type
@@ -29,3 +29,12 @@ resource "aws_mq_broker" "default" {
     password = var.rmq_mgt_password
   }
 }
+
+resource "aws_route53_record" "www" {
+  zone_id = var.zone_id
+  name    = var.stage != "production" ? "rmq-management.${var.environment}.${var.stage}.${var.base_domain}" : "rmq-management.${var.environment}.${var.base_domain}"
+  type    = "CNAME"
+  ttl     = "300"
+  records = [aws_mq_broker.default.instances[0].console_url]
+}
+
