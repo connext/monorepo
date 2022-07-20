@@ -19,6 +19,8 @@
     "src/subscriber/subscriber.ts",
     "src/subscriber/bindings/server/index.ts",
     "src/subscriber/bindings/index.ts",
+    "src/subscriber/bindings/exceptions/index.ts",
+    "src/subscriber/bindings/messageQueue/index.ts",
     "src/subscriber/operations/index.ts",
     "test/**/*.ts"
   ]
