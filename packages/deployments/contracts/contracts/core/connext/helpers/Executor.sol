@@ -235,11 +235,6 @@ contract Executor is IExecutor {
       }
     }
 
-    // Reset allowance to 0!
-    if (!isNative && hasValue) {
-      SafeERC20.safeApprove(IERC20(_args.assetId), _args.to, 0);
-    }
-
     // Emit event
     emit Executed(
       _args.transferId,
