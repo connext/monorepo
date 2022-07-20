@@ -18,6 +18,7 @@ import { setupMq, setupSubgraphReader } from "../setup";
 
 import { AppContext } from "./context";
 import { bindMessageQueue, bindServer } from "./bindings";
+import { bindUnhandledErrors } from "./bindings/exceptions";
 
 // AppContext instance used for interacting with adapters, config, etc.
 const context: AppContext = {} as any;
@@ -112,6 +113,7 @@ export const makeSubscriber = async (_configOverride?: NxtpRouterConfig) => {
     await bindServer();
     await bindMetrics("subscriber");
     await bindMessageQueue();
+    await bindUnhandledErrors();
 
     context.logger.info("Bindings initialized.", requestContext, methodContext);
     context.logger.info("Router subscriber boot complete!", requestContext, methodContext, {
