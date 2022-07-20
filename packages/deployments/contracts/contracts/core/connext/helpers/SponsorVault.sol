@@ -208,16 +208,16 @@ contract SponsorVault is ISponsorVault, ReentrancyGuard, Ownable {
       uint256 amountIn = tokenExchange.getInGivenExpectedOut(_token, _liquidityFee);
       amountIn = currentBalance >= amountIn ? amountIn : currentBalance;
 
-      // sponsored fee may end being less than _liquidityFee due to slippage
+      // sponsored fee may end being less than _liquidityFee due to slippage. This will swap and transfer to msg.sender
       sponsoredFee = tokenExchange.swapExactIn{value: amountIn}(_token, msg.sender);
     } else {
       uint256 balance = IERC20(_token).balanceOf(address(this));
       sponsoredFee = balance <= _liquidityFee ? balance : _liquidityFee;
-    }
 
-    // only transfer if it is more than 0
-    if (sponsoredFee != 0) {
-      IERC20(_token).safeTransfer(msg.sender, sponsoredFee);
+      // only transfer if it is more than 0
+      if (sponsoredFee != 0) {
+        IERC20(_token).safeTransfer(msg.sender, sponsoredFee);
+      }
     }
 
     emit ReimburseLiquidityFees(_token, sponsoredFee, _receiver);
