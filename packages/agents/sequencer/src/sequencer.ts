@@ -255,6 +255,7 @@ export const makeSubscriber = async (_configOverride?: SequencerConfig) => {
     if (context.config.messageQueue.queues.length === 0) throw new Error(`No queues found in config`);
 
     context.logger.info("Subscriber config generated.", requestContext, methodContext);
+    context.adapters.cache = await setupCache(context.config.redis, context.logger, requestContext);
 
     context.adapters.mqClient = await setupSubscriber(requestContext);
 
