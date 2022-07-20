@@ -543,7 +543,7 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
           abi.encodeWithSelector(
             ISponsorVault.reimburseLiquidityFees.selector,
             _inputs.token,
-            _args.amount,
+            (_args.amount * (s.LIQUIDITY_FEE_DENOMINATOR - s.LIQUIDITY_FEE_NUMERATOR)) / s.LIQUIDITY_FEE_DENOMINATOR,
             _args.params.to
           )
         );
