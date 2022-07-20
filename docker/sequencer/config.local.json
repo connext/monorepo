@@ -26,10 +26,7 @@
   "relayerUrl": "http://relayer:8080",
   "messageQueue": {
     "connection": {
-      "uri": "amqp://sequencer-message-queue",
-      "user": "guest",
-      "pass": "guest",
-      "port": 5672
+      "uri": "amqp://guest:guest@sequencer-message-queue:5672"
     },
     "exchanges": [
       { "name": "sequencerX", "type": "direct", "publishTimeout": 1000, "persistent": true, "durable": true }

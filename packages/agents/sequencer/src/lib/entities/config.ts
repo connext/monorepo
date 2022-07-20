@@ -10,11 +10,11 @@ export const TChainConfig = Type.Object({
 });
 
 export const TMQConnectionConfig = Type.Object({
-  uri: Type.Optional(Type.String()),
+  uri: Type.String(),
   name: Type.Optional(Type.String()),
   host: Type.Optional(Type.String()),
-  user: Type.String(),
-  pass: Type.String(),
+  user: Type.Optional(Type.String()),
+  pass: Type.Optional(Type.String()),
   server: Type.Optional(Type.Union([Type.String(), Type.Array(Type.String())])),
   port: Type.Optional(Type.Integer({ minimum: 1, maximum: 65535 })),
   timeout: Type.Optional(Type.Integer()),
