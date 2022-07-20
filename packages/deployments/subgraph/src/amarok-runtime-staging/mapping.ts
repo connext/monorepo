@@ -2,21 +2,84 @@
 import { Address, BigInt, Bytes, dataSource } from "@graphprotocol/graph-ts";
 
 import {
-  LiquidityAdded,
-  LiquidityRemoved,
+  RouterLiquidityAdded,
+  RouterLiquidityRemoved,
+  RelayerAdded,
+  RelayerRemoved,
+  StableSwapAdded,
+  SponsorVaultUpdated,
   XCalled,
   Executed,
   Reconciled,
   AssetAdded,
-} from "../../generated/Connext/ConnextLogic";
-import {
   RouterRemoved,
   RouterAdded,
   RouterOwnerAccepted,
   RouterOwnerProposed,
   RouterRecipientSet,
-} from "../../generated/RouterPermissionsManagerLogic/RouterPermissionsManagerLogic";
-import { Asset, AssetBalance, Router, OriginTransfer, DestinationTransfer } from "../../generated/schema";
+  MaxRoutersPerTransferUpdated,
+} from "../../generated/Connext/ConnextHandler";
+import {
+  Asset,
+  AssetBalance,
+  Router,
+  Relayer,
+  StableSwap,
+  SponsorVault,
+  OriginTransfer,
+  DestinationTransfer,
+  Setting,
+} from "../../generated/schema";
+
+const DEFAULT_MAX_ROUTERS_PER_TRANSFER = 5;
+export function handleRelayerAdded(event: RelayerAdded): void {
+  let relayerId = event.params.relayer.toHex();
+  let relayer = Relayer.load(relayerId);
+
+  if (relayer == null) {
+    relayer = new Relayer(relayerId);
+    relayer.isActive = true;
+    relayer.relayer = event.params.relayer;
+    relayer.save();
+  }
+}
+
+export function handleStableSwapAdded(event: StableSwapAdded): void {
+  // StableSwapAdded: bytes32 canonicalId, uint32 domain, address swapPool, address caller
+  let stableSwapId = `${event.params.canonicalId.toHex()}-${event.params.domain.toHex()}-${event.params.swapPool.toHex()}`;
+  let stableSwap = StableSwap.load(stableSwapId);
+
+  if (stableSwap == null) {
+    stableSwap = new StableSwap(stableSwapId);
+    stableSwap.canonicalId = event.params.canonicalId;
+    stableSwap.domain = event.params.domain;
+    stableSwap.swapPool = event.params.swapPool;
+    stableSwap.save();
+  }
+}
+
+export function handleSponsorVaultUpdated(event: SponsorVaultUpdated): void {
+  // SponsorVaultUpdated: address oldSponsorVault, address newSponsorVault, address caller
+  let sponsorVaultId = event.params.newSponsorVault.toHex();
+  let sponsorVault = SponsorVault.load(sponsorVaultId);
+
+  if (sponsorVault == null) {
+    sponsorVault = new SponsorVault(sponsorVaultId);
+    sponsorVault.sponsorVault = event.params.newSponsorVault;
+    sponsorVault.save();
+  }
+}
+
+export function handleRelayerRemoved(event: RelayerRemoved): void {
+  let relayerId = event.params.relayer.toHex();
+  let relayer = Relayer.load(relayerId);
+
+  if (relayer == null) {
+    relayer = new Relayer(event.params.relayer.toHex());
+    relayer.isActive = false;
+    relayer.save();
+  }
+}
 
 export function handleRouterAdded(event: RouterAdded): void {
   let routerId = event.params.router.toHex();
@@ -27,13 +90,21 @@ export function handleRouterAdded(event: RouterAdded): void {
     router.isActive = true;
     router.save();
   }
+
+  let settingEntity = Setting.load("1");
+  if (settingEntity == null) {
+    settingEntity = new Setting("1");
+    settingEntity.maxRoutersPerTransfer = BigInt.fromI32(DEFAULT_MAX_ROUTERS_PER_TRANSFER);
+    settingEntity.caller = Address.zero();
+    settingEntity.save();
+  }
 }
 
 export function handleRouterRemoved(event: RouterRemoved): void {
   let routerId = event.params.router.toHex();
   let router = Router.load(routerId);
   if (!router) {
-    throw new Error(`No router found when trying to remove`);
+    router = new Router(routerId);
   }
   router.isActive = false;
   router.save();
@@ -43,7 +114,8 @@ export function handleRouterRecipientSet(event: RouterRecipientSet): void {
   let routerId = event.params.router.toHex();
   let router = Router.load(routerId);
   if (!router) {
-    throw new Error(`No router found when trying to update recipient`);
+    router = new Router(routerId);
+    router.isActive = true;
   }
   router.recipient = event.params.newRecipient;
   router.save();
@@ -53,7 +125,8 @@ export function handleRouterOwnerProposed(event: RouterOwnerProposed): void {
   let routerId = event.params.router.toHex();
   let router = Router.load(routerId);
   if (!router) {
-    throw new Error(`No router found when trying to propose owner`);
+    router = new Router(routerId);
+    router.isActive = true;
   }
   router.proposedOwner = event.params.newProposed;
   router.proposedTimestamp = event.block.timestamp;
@@ -64,7 +137,8 @@ export function handleRouterOwnerAccepted(event: RouterOwnerAccepted): void {
   let routerId = event.params.router.toHex();
   let router = Router.load(routerId);
   if (!router) {
-    throw new Error(`No router found when trying to accept owner`);
+    router = new Router(routerId);
+    router.isActive = true;
   }
   router.owner = event.params.newOwner;
   router.proposedOwner = null;
@@ -91,7 +165,7 @@ export function handleAssetAdded(event: AssetAdded): void {
  *
  * @param event - The contract event to update the subgraph record with
  */
-export function handleLiquidityAdded(event: LiquidityAdded): void {
+export function handleRouterLiquidityAdded(event: RouterLiquidityAdded): void {
   const assetBalance = getOrCreateAssetBalance(event.params.local, event.params.router);
 
   // add new amount
@@ -106,7 +180,7 @@ export function handleLiquidityAdded(event: LiquidityAdded): void {
  *
  * @param event - The contract event to update the subgraph record with
  */
-export function handleLiquidityRemoved(event: LiquidityRemoved): void {
+export function handleRouterLiquidityRemoved(event: RouterLiquidityRemoved): void {
   // ID is of the format ROUTER_ADDRESS-ASSET_ID
   const assetBalance = getOrCreateAssetBalance(event.params.local, event.params.router);
 
@@ -118,6 +192,20 @@ export function handleLiquidityRemoved(event: LiquidityRemoved): void {
 }
 
 /**
+ * Updates the max amounts of routers the token can be routed through
+ */
+export function handleMaxRoutersPerTransferUpdated(event: MaxRoutersPerTransferUpdated): void {
+  let settingEntity = Setting.load("1");
+  if (settingEntity == null) {
+    settingEntity = new Setting("1");
+  }
+
+  settingEntity.maxRoutersPerTransfer = event.params.maxRoutersPerTransfer;
+  settingEntity.caller = event.params.caller;
+  settingEntity.save();
+}
+
+/**
  * Creates subgraph records when TransactionPrepared events are emitted.
  *
  * @param event - The contract event used to create the subgraph record
@@ -125,7 +213,7 @@ export function handleLiquidityRemoved(event: LiquidityRemoved): void {
 export function handleXCalled(event: XCalled): void {
   // contract checks ensure that this cannot exist at this point, so we can safely create new
   // NOTE: the above case is not always true since malicious users can reuse IDs to try to break the
-  // subgraph. we can protect against this by overwriting if we are able to load a Transactioln
+  // subgraph. we can protect against this by overwriting if we are able to load a Transaction
   let transfer = OriginTransfer.load(event.params.transferId.toHexString());
   if (transfer == null) {
     transfer = new OriginTransfer(event.params.transferId.toHexString());
@@ -142,8 +230,14 @@ export function handleXCalled(event: XCalled): void {
   transfer.callData = event.params.xcallArgs.params.callData;
   transfer.originDomain = event.params.xcallArgs.params.originDomain;
   transfer.destinationDomain = event.params.xcallArgs.params.destinationDomain;
+  transfer.recovery = event.params.xcallArgs.params.recovery;
+  transfer.agent = event.params.xcallArgs.params.agent;
   transfer.forceSlow = event.params.xcallArgs.params.forceSlow;
   transfer.receiveLocal = event.params.xcallArgs.params.receiveLocal;
+  transfer.callback = event.params.xcallArgs.params.callback;
+  transfer.callbackFee = event.params.xcallArgs.params.callbackFee;
+  transfer.relayerFee = event.params.xcallArgs.params.relayerFee;
+  transfer.slippageTol = event.params.xcallArgs.params.slippageTol;
 
   // Assets
   transfer.transactingAsset = event.params.args.transactingAssetId;
@@ -152,7 +246,6 @@ export function handleXCalled(event: XCalled): void {
   transfer.bridgedAmount = event.params.args.bridgedAmt;
 
   // Event Data
-  transfer.relayerFee = event.params.xcallArgs.relayerFee;
   transfer.message = event.params.message;
 
   // XCall Transaction
@@ -172,38 +265,58 @@ export function handleXCalled(event: XCalled): void {
  * @param event - The contract event used to update the subgraph
  */
 export function handleExecuted(event: Executed): void {
-  const num = event.params.args.routers.length;
-  const routers: string[] = [];
-  for (let i = 0; i < num; i++) {
-    const param = event.params.args.routers[i].toHex();
-    let router = Router.load(param);
-    if (router == null) {
-      // TODO: Shouldn't we be throwing an error here? How did a transfer get made with a non-existent
-      // router?
-      router = new Router(param);
-      router.isActive = true;
-      router.save();
-    }
-    routers.push(router.id);
-  }
-
+  // Load transfer details
   let transfer = DestinationTransfer.load(event.params.transferId.toHexString());
   if (transfer == null) {
     transfer = new DestinationTransfer(event.params.transferId.toHexString());
   }
+
+  const routers: string[] = [];
+  if (transfer.status != "Reconciled") {
+    // Handle router asset balances if this is fast liquidity path.
+    const num = event.params.args.routers.length;
+    const amount = event.params.args.amount;
+    // TODO: Move from using hardcoded fee calc to using configured liquidity fee numerator.
+    const feesTaken = amount.times(BigInt.fromI32(5)).div(BigInt.fromI32(10000));
+    const routerAmount = amount.minus(feesTaken).div(BigInt.fromI32(num));
+    for (let i = 0; i < num; i++) {
+      const param = event.params.args.routers[i].toHex();
+      let router = Router.load(param);
+      if (router == null) {
+        // TODO: Shouldn't we be throwing an error here? How did a transfer get made with a non-existent
+        // router?
+        router = new Router(param);
+        router.isActive = true;
+        router.save();
+      }
+
+      routers.push(router.id);
+
+      // Update router's liquidity
+      const assetBalance = getOrCreateAssetBalance(event.params.args.local, event.params.args.routers[i]);
+      assetBalance.amount = assetBalance.amount.minus(routerAmount);
+      assetBalance.save();
+    }
+  } // otherwise no routers used
 
   // Meta
   transfer.chainId = getChainId();
   transfer.transferId = event.params.transferId;
   transfer.nonce = event.params.args.nonce;
 
-  // Call Data
+  // Call params
   transfer.to = event.params.args.params.to;
   transfer.callData = event.params.args.params.callData;
   transfer.originDomain = event.params.args.params.originDomain;
   transfer.destinationDomain = event.params.args.params.destinationDomain;
   transfer.forceSlow = event.params.args.params.forceSlow;
   transfer.receiveLocal = event.params.args.params.receiveLocal;
+  transfer.recovery = event.params.args.params.recovery;
+  transfer.agent = event.params.args.params.agent;
+  transfer.callback = event.params.args.params.callback;
+  transfer.callbackFee = event.params.args.params.callbackFee;
+  transfer.relayerFee = event.params.args.params.relayerFee;
+  transfer.slippageTol = event.params.args.params.slippageTol;
 
   // Assets
   transfer.transactingAmount = event.params.transactingAmount;
@@ -211,9 +324,11 @@ export function handleExecuted(event: Executed): void {
   transfer.localAsset = event.params.args.local;
   transfer.localAmount = event.params.args.amount;
 
+  transfer.sponsorVaultRelayerFee = event.params.args.params.relayerFee;
+
   // Event Data
   if (transfer.status == "Reconciled") {
-    transfer.status = "Completed";
+    transfer.status = "CompletedSlow";
   } else {
     transfer.status = "Executed";
   }
@@ -242,6 +357,7 @@ export function handleReconciled(event: Reconciled): void {
     transfer = new DestinationTransfer(event.params.transferId.toHexString());
   }
 
+  const amount = event.params.amount;
   // If the routers have already been set by an execute event, don't overwrite them.
   const routers: string[] = [];
   if (transfer.routers !== null) {
@@ -251,6 +367,11 @@ export function handleReconciled(event: Reconciled): void {
     for (let i = 0; i < n; i++) {
       const router: string = r[i];
       routers.push(router);
+
+      // Update router's liquidity
+      const assetBalance = getOrCreateAssetBalance(event.params.asset, Address.fromString(router));
+      assetBalance.amount = assetBalance.amount.plus(amount.div(BigInt.fromI32(n)));
+      assetBalance.save();
     }
   }
 
@@ -267,7 +388,7 @@ export function handleReconciled(event: Reconciled): void {
 
   // Event Data
   if (transfer.status == "Executed") {
-    transfer.status = "Completed";
+    transfer.status = "CompletedFast";
   } else {
     transfer.status = "Reconciled";
   }
@@ -284,9 +405,11 @@ export function handleReconciled(event: Reconciled): void {
   transfer.save();
 }
 
+// eslint-disable-next-line @typescript-eslint/ban-types
 function getChainId(): BigInt {
   // try to get chainId from the mapping
   let network = dataSource.network();
+  // eslint-disable-next-line @typescript-eslint/ban-types
   let chainId: BigInt;
   if (network == "mainnet") {
     chainId = BigInt.fromI32(1);
@@ -327,7 +450,7 @@ function getChainId(): BigInt {
   return chainId;
 }
 
-function getOrCreateAssetBalance(local: Bytes, routerAddress: Address): AssetBalance {
+function getOrCreateAssetBalance(local: Address, routerAddress: Address): AssetBalance {
   let assetBalanceId = local.toHex() + "-" + routerAddress.toHex();
   let assetBalance = AssetBalance.load(assetBalanceId);
 

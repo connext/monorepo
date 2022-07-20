@@ -1,0 +1,33 @@
+@postgrestUrl = http://localhost:3000
+@postgrestUrl = https://postgrest.testnet.connext.ninja
+@postgrestUrl = https://postgrest.testnet.staging.connext.ninja
+
+# just a few examples, more examples here: https://postgrest.org/en/stable/api.html#horizontal-filtering-rows
+
+### GET ALL TRANSFERS
+GET {{postgrestUrl}}/transfers
+
+### GET ALL TRANSFERS FOR SPECIFIC DOMAINS
+GET {{postgrestUrl}}/transfers?and=(origin_domain.in.("1111","2221"),destination_domain.in.("1111","2221"))
+
+### GET TRANSFER BY ID
+GET {{postgrestUrl}}/transfers?transfer_id=eq.0x48a01ae23d9f8e40635493ccd35dab80c8a48bea2767c6e8294bf7e010c19437
+
+### GET TRANSFERS BY STATUS
+GET {{postgrestUrl}}/transfers?status=eq.XCalled&limit=1&order=xcall_timestamp.desc
+Prefer: count=planned
+
+### GET TRANSFER BY TX HASH
+GET {{postgrestUrl}}/transfers?xcall_transaction_hash=eq.0x0c9d0643dfd1a5490c2d728693c3484daf9b1337100e270ea76a69e4a605eefb
+
+### GET TRANSFERS BY USER
+GET {{postgrestUrl}}/transfers?xcall_caller=eq.0x75e4dd0587663fce5b2d9af7fbed3ac54342d3db
+
+### GET XCALLED TRANSFERS BY USER
+GET {{postgrestUrl}}/transfers?status=eq.XCalled&xcall_caller=eq.0x30c9e1d6b14283c645f6bb15abb590345b63ab6e
+
+### GET ROUTERS
+GET {{postgrestUrl}}/routers_with_balances?address=eq.0xc4eac3bfae3f3c951225c16848ddcab3d6a5abbf
+
+### GET TRANSFER BY ROUTER
+GET {{postgrestUrl}}/transfers?routers=cs.{0x41da7e2e59e021d45e29b9adb682715299e01973}

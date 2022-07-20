@@ -1,20 +1,24 @@
 import { createLoggingContext, jsonifyError, NxtpError, SubgraphQueryMetaParams, XTransfer } from "@connext/nxtp-utils";
 import interval from "interval-promise";
 
-import { getHelpers } from "../../lib/helpers";
 import { getContext } from "../../router";
 
 // Ought to be configured properly for each network; we consult the chain config below.
 export const DEFAULT_SAFE_CONFIRMATIONS = 5;
 
 export const bindSubgraph = async (_pollInterval?: number) => {
-  const { config } = getContext();
+  const { config, logger } = getContext();
+  const { requestContext, methodContext } = createLoggingContext(bindSubgraph.name);
   const pollInterval = _pollInterval ?? config.polling.subgraph;
   interval(async (_, stop) => {
     if (config.mode.cleanup) {
       stop();
     } else {
-      await pollSubgraph();
+      try {
+        await pollSubgraph();
+      } catch (e: unknown) {
+        logger.error("Error binding cache", requestContext, methodContext, jsonifyError(e as Error));
+      }
     }
   }, pollInterval);
 };
@@ -26,33 +30,20 @@ export const pollSubgraph = async () => {
     config,
   } = getContext();
   const { requestContext, methodContext } = createLoggingContext("pollSubgraph");
-  const {
-    shared: { getSubgraphHealth, getSubgraphName },
-  } = getHelpers();
   try {
     const destinationDomains: string[] = Object.entries(config.chains)
       .filter(([, config]) => config.assets.length > 0)
       .map(([chain]) => chain);
     const subgraphQueryMetaParams: Map<string, SubgraphQueryMetaParams> = new Map();
-    for (const domain of Object.keys(config.chains)) {
-      // TODO: Needs to implement the selection algorithm
-      const healthUrls = config.chains[domain].subgraph.runtime.map((url) => {
-        return { name: getSubgraphName(url.query), url: url.health };
-      });
+    const allowedDomains = Object.keys(config.chains);
+    const latestBlockNumbers = await subgraph.getLatestBlockNumber(allowedDomains);
+    for (const domain of allowedDomains) {
       let latestBlockNumber = 0;
-      for (const healthEp of healthUrls) {
-        const subgraphHealth = await getSubgraphHealth(healthEp.name, healthEp.url);
-        if (subgraphHealth && subgraphHealth.synced && subgraphHealth.latestBlock > latestBlockNumber)
-          latestBlockNumber = subgraphHealth.latestBlock;
+      if (latestBlockNumbers.has(domain)) {
+        latestBlockNumber = latestBlockNumbers.get(domain)!;
       }
-
       if (latestBlockNumber === 0) {
-        logger.error(
-          `Error getting the latestBlockNumber, domain: ${domain}, healthUrls: ${healthUrls.flat()}`,
-          requestContext,
-          methodContext,
-        );
-
+        logger.error(`Error getting the latestBlockNumber, domain: ${domain}}`, requestContext, methodContext);
         continue;
       }
 

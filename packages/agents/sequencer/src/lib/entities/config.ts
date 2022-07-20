@@ -1,8 +1,7 @@
 import { Type, Static } from "@sinclair/typebox";
-import { TAddress, SubgraphReaderChainConfigSchema } from "@connext/nxtp-utils";
+import { TAddress } from "@connext/nxtp-utils";
 
 export const TChainConfig = Type.Object({
-  subgraph: SubgraphReaderChainConfigSchema, // Subgraph configuration for this chain.
   providers: Type.Array(Type.String()),
   confirmations: Type.Integer({ minimum: 1 }), // What we consider the "safe confirmations" number for this chain.
   deployments: Type.Object({
@@ -43,8 +42,11 @@ export const SequencerConfigSchema = Type.Object({
   server: TServerConfig,
   mode: TModeConfig,
   auctionWaitTime: Type.Number({ minimum: 1000, maximum: 500_000 }),
-  environment: Type.Union([Type.Literal("staging"), Type.Literal("production")]),
+  supportedBidVersion: Type.Optional(Type.String()),
   relayerUrl: Type.Optional(Type.String()),
+  subgraphPrefix: Type.Optional(Type.String()),
+  auctionRoundDepth: Type.Number(),
+  environment: Type.Union([Type.Literal("staging"), Type.Literal("production")]),
 });
 
 export type SequencerConfig = Static<typeof SequencerConfigSchema>;

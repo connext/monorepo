@@ -35,18 +35,25 @@ export const originTransfer = (entity: any): OriginTransfer => {
 
   return {
     // Meta Data
-    idx: entity.idx ? entity.idx : undefined,
+
     transferId: entity.transferId,
     nonce: BigNumber.from(entity.nonce).toNumber(),
-    originDomain: entity.originDomain,
-    destinationDomain: entity.destinationDomain,
+    relayerFee: entity.relayerFee,
 
     // Call Params
     xparams: {
       to: entity.to,
       callData: entity.callData,
+      callback: entity.callback,
+      callbackFee: entity.callbackFee,
+      relayerFee: entity.relayerFee,
       forceSlow: entity.forceSlow,
       receiveLocal: entity.receiveLocal,
+      originDomain: entity.originDomain,
+      destinationDomain: entity.destinationDomain,
+      recovery: entity.recovery,
+      agent: entity.agent,
+      slippageTol: entity.slippageTol,
     },
 
     // Origin Info
@@ -67,8 +74,6 @@ export const originTransfer = (entity: any): OriginTransfer => {
 
       // XCall
       xcall: {
-        // Event Data
-        relayerFee: entity.relayerFee,
         // Transaction Data
         caller: entity.caller,
         transactionHash: entity.transactionHash,
@@ -89,7 +94,7 @@ export const destinationTransfer = (entity: any): DestinationTransfer => {
   if (!entity) {
     throw new NxtpError("Subgraph `DestinationTransfer` entity parser: Transfer entity is `undefined`.");
   }
-  if (entity.transactionHash || entity.relayerFee) {
+  if (entity.transactionHash) {
     // Wrong transfer type. This is an origin transfer entity!
     throw new NxtpError("Subgraph `DestinationTransfer` entity parser: Transfer entity is an origin transfer entity.");
   }
@@ -112,22 +117,25 @@ export const destinationTransfer = (entity: any): DestinationTransfer => {
 
   return {
     // Meta Data
-    idx: entity.idx ? entity.idx : undefined,
+
     transferId: entity.transferId,
     nonce: entity.nonce ? BigNumber.from(entity.nonce).toNumber() : undefined,
-    originDomain: entity.originDomain,
-    destinationDomain: entity.destinationDomain,
 
     // Call Params
-    xparams:
-      entity.to && entity.callData
-        ? {
-            to: entity.to,
-            callData: entity.callData,
-            forceSlow: entity.forceSlow,
-            receiveLocal: entity.receiveLocal,
-          }
-        : undefined,
+    xparams: {
+      to: entity.to,
+      callData: entity.callData,
+      callback: entity.callback,
+      callbackFee: entity.callbackFee,
+      relayerFee: entity.relayerFee,
+      forceSlow: entity.forceSlow,
+      receiveLocal: entity.receiveLocal,
+      destinationDomain: entity.destinationDomain,
+      originDomain: entity.originDomain,
+      recovery: entity.recovery,
+      agent: entity.agent,
+      slippageTol: entity.slippageTol,
+    },
 
     // Origin Info
     origin: undefined,
@@ -167,6 +175,7 @@ export const destinationTransfer = (entity: any): DestinationTransfer => {
             gasPrice: entity.executedGasPrice,
             gasLimit: entity.executedGasLimit,
             blockNumber: BigNumber.from(entity.executedBlockNumber ?? "0").toNumber(),
+            relayerFee: entity.relayerFee ?? "1",
           }
         : undefined,
 

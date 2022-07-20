@@ -12,5 +12,6 @@
   },
   "[sql]": {
     "editor.defaultFormatter": "mtxr.sqltools"
-  }
+  },
+  "solidity.compileUsingRemoteVersion": "latest"
 }

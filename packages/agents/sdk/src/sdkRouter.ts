@@ -1,5 +1,5 @@
 import { constants, providers, BigNumber } from "ethers";
-import { getChainData, Logger, createLoggingContext, ChainData, getChainIdFromDomain } from "@connext/nxtp-utils";
+import { Logger, createLoggingContext, ChainData } from "@connext/nxtp-utils";
 import {
   getContractInterfaces,
   ConnextContractInterfaces,
@@ -7,7 +7,8 @@ import {
   ChainReader,
 } from "@connext/nxtp-txservice";
 
-import { SignerAddressMissing } from "./lib/errors";
+import { getChainData, getChainIdFromDomain } from "./lib/helpers";
+import { SignerAddressMissing, ChainDataUndefined } from "./lib/errors";
 import { NxtpSdkConfig, getConfig } from "./config";
 
 /**
@@ -39,10 +40,10 @@ export class NxtpSdkRouter {
   ): Promise<NxtpSdkRouter> {
     const chainData = _chainData ?? (await getChainData());
     if (!chainData) {
-      throw new Error("Could not get chain data");
+      throw new ChainDataUndefined();
     }
 
-    const nxtpConfig = await getConfig(_config, chainData, contractDeployments);
+    const nxtpConfig = await getConfig(_config, contractDeployments, chainData);
     const logger = _logger
       ? _logger.child({ name: "NxtpSdkRouter" })
       : new Logger({ name: "NxtpSdkRouter", level: nxtpConfig.logLevel });
@@ -68,8 +69,8 @@ export class NxtpSdkRouter {
     const chainId = await getChainIdFromDomain(domain, this.chainData);
     const ConnextContractAddress = this.config.chains[domain].deployments!.connext;
 
-    const value = assetId === constants.AddressZero ? BigNumber.from(amount) : constants.Zero;
-    const data = this.contracts.connext.encodeFunctionData("addLiquidityFor", [amount, assetId, router]);
+    const value = assetId === constants.AddressZero ? BigNumber.from(amount) : 0;
+    const data = this.contracts.connext.encodeFunctionData("addRouterLiquidityFor", [amount, assetId, router]);
 
     const txRequest = {
       to: ConnextContractAddress,

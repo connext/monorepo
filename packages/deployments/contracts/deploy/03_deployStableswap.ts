@@ -2,8 +2,6 @@ import { HardhatRuntimeEnvironment } from "hardhat/types";
 import { DeployFunction } from "hardhat-deploy/types";
 import { Wallet } from "ethers";
 
-import { getDeploymentName } from "../src/utils";
-
 const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   const { deployments } = hre;
 
@@ -42,40 +40,36 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   /////////////////////////////////////////////////////////////////////////////////
   ////  AmplificationUtils
   /////////////////////////////////////////////////////////////////////////////////
-  const amplificationUtilsName = getDeploymentName("AmplificationUtils");
-  const amplificationUtilsDeployment = await deployments.deploy(amplificationUtilsName, {
-    from: deployer.address,
-    log: true,
-    skipIfAlreadyDeployed: true,
-    contract: "AmplificationUtils",
-  });
+  // const amplificationUtilsName = getDeploymentName("AmplificationUtils");
+  // const amplificationUtilsDeployment = await deployments.deploy(amplificationUtilsName, {
+  //   from: deployer.address,
+  //   log: true,
+  //   skipIfAlreadyDeployed: true,
+  //   contract: "AmplificationUtils",
+  // });
 
   /////////////////////////////////////////////////////////////////////////////////
   ////  SwapUtils
   /////////////////////////////////////////////////////////////////////////////////
-  const swapUtilsName = getDeploymentName("SwapUtils");
-  const swapUtilsDeployment = await deployments.deploy(swapUtilsName, {
-    from: deployer.address,
-    log: true,
-    skipIfAlreadyDeployed: true,
-    contract: "SwapUtils",
-  });
+  // const swapUtilsName = getDeploymentName("SwapUtils");
+  // const swapUtilsDeployment = await deployments.deploy(swapUtilsName, {
+  //   from: deployer.address,
+  //   log: true,
+  //   skipIfAlreadyDeployed: true,
+  //   contract: "SwapUtils",
+  // });
 
-  /////////////////////////////////////////////////////////////////////////////////
-  ////  StableSwap
-  /////////////////////////////////////////////////////////////////////////////////
-  const stableSwapName = getDeploymentName("StableSwap");
-  await deployments.deploy(stableSwapName, {
-    from: deployer.address,
-    log: true,
-    libraries: {
-      SwapUtils: swapUtilsDeployment.address,
-      AmplificationUtils: amplificationUtilsDeployment.address,
-    },
-    skipIfAlreadyDeployed: true,
-    contract: "StableSwap",
-  });
+  // /////////////////////////////////////////////////////////////////////////////////
+  // ////  StableSwap
+  // /////////////////////////////////////////////////////////////////////////////////
+  // const stableSwapName = getDeploymentName("StableSwap");
+  // await deployments.deploy(stableSwapName, {
+  //   from: deployer.address,
+  //   log: true,
+  //   skipIfAlreadyDeployed: true,
+  //   contract: "StableSwap",
+  // });
 };
 
 export default func;
-func.tags = ["StableSwap"];
+func.tags = ["StableSwap", "prod", "local", "mainnet"];

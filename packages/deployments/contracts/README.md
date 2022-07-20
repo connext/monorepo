@@ -96,12 +96,12 @@ Contracts are deployed via the [hardhat deploy](https://hardhat.org/plugins/hard
 
 Congratulations! You have deployed a new set of amarok contracts. Now, we have to configure them.
 
-1. You must enroll the remote handlers using the `enroll-handler` task. This is done so the handlers know to accept messages from each other across domains, and must be done on each `ConnextHandler` (i.e. if I have deployed contracts to kovan, rinkeby, and goerli I must run this task to enroll the kovan and rinkeby handler on goerli, the rinkeby and goerli handler on kovan, and the kovan and goerli handler on rinkeby):
+1. You must enroll the remote handlers using the `enroll-handlers` task. This is done so the handlers know to accept messages from each other across domains, and must be done on each nomad router. You can specify a `type` as the remote handlers you want to enroll (may be `all`, `promise`, `relayer`), and the `chains` you want to enroll the remotes for
 
    ```bash
-   $ yarn workspace @connext/nxtp-contracts hardhat enroll-handler --handler \<REMOTE_HANDLER_ADDR\> --chain \<REMOTE_CHAIN_ID\> --network \<NETWORK_NAME\>
-   # e.g. for registering a rinkeby handler on kovan:
-   # ywc hardhat enroll-handler --handler <RINKEBY_BRIDGE_ROUTER_ADDR> --chain 4 --network kovan
+   $ yarn workspace @connext/nxtp-contracts hardhat enroll-handler --type \<HANDLER_TYPE\> --chains \<REMOTE_CHAIN_IDS\> --network \<NETWORK_NAME\>
+   # e.g. for registering all rinkeby, goerli handlers on kovan:
+   # ywc hardhat enroll-handlers --type all --chains "4,5" --network kovan
    ```
 
 2. You must ensure there is a local `mad*` asset on the destination domain (this is the asset routers supply liquidity in). The best way to do this on testnets is to use the `enroll-custom` task. This task must be performed by the owner of the `TokenRegistry` and will list the specified token (defaults to the `TestERC20` on the network) as the `mad*` asset. It’s best to enroll the `TestERC20` as the local token so anyone can mint the asset for testing purposes. This task should be run on all domains _except_ the canonical domain of the token (i.e. for our testnet setup, kovan is the canonical domain, so the task is run on all networks except kovan).
@@ -113,6 +113,7 @@ Congratulations! You have deployed a new set of amarok contracts. Now, we have t
    ```
 
    When you set the asset up using `ensure-local`, the only person that can `mint` the token
+   is the deployer.
 
 3. Once you have enrolled the handlers and set up the local assets, you should run the `preflight` task. The preflight task will do the following in an idempotent way:
 

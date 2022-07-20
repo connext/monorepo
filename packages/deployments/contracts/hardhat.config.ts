@@ -1,3 +1,4 @@
+import "hardhat-diamond-abi";
 import "@typechain/hardhat";
 import "@nomiclabs/hardhat-ethers";
 import "@nomiclabs/hardhat-waffle";
@@ -8,34 +9,35 @@ import "@tenderly/hardhat-tenderly";
 import "@nomiclabs/hardhat-etherscan";
 import "@openzeppelin/hardhat-upgrades";
 import "hardhat-contract-sizer";
-
-import { config as dotEnvConfig } from "dotenv";
+import "hardhat-abi-exporter";
 import { HardhatUserConfig } from "hardhat/types";
-
-import "./src/tasks/setupRouter";
-import "./src/tasks/setupAsset";
-import "./src/tasks/addLiquidity";
-import "./src/tasks/mintTestToken";
-import "./src/tasks/setupTestRouter";
-import "./src/tasks/renounceOwnership";
-import "./src/tasks/proposeTransferOwnership";
-import "./src/tasks/setAggregator";
-import "./src/tasks/setDexPrice";
-import "./src/tasks/setDirectPrice";
-import "./src/tasks/decodeInputData";
-import "./src/tasks/removeRouter";
-import "./src/tasks/enrollHandler";
-import "./src/tasks/enrollCustom";
-import "./src/tasks/xcall";
-import "./src/tasks/setLocalDomain";
-import "./src/tasks/traceMessage";
-import "./src/tasks/preflight";
-import "./src/tasks/addRelayer";
-import "./src/tasks/executeEstimateGas";
-import "./src/tasks/exportAbi";
 import { utils } from "ethers";
 
-dotEnvConfig();
+import "./tasks/setupRouter";
+import "./tasks/setupAsset";
+import "./tasks/addLiquidity";
+import "./tasks/mintTestToken";
+import "./tasks/setupTestRouter";
+import "./tasks/renounceOwnership";
+import "./tasks/proposeTransferOwnership";
+import "./tasks/setAggregator";
+import "./tasks/setDexPrice";
+import "./tasks/setDirectPrice";
+import "./tasks/decodeInputData";
+import "./tasks/removeRouter";
+import "./tasks/enrollHandlers";
+import "./tasks/enrollCustom";
+import "./tasks/xcall";
+import "./tasks/setLocalDomain";
+import "./tasks/traceMessage";
+import "./tasks/preflight";
+import "./tasks/addRelayer";
+import "./tasks/executeEstimateGas";
+import "./tasks/exportAbi";
+import "./tasks/stableswap/initializeSwap";
+import "./tasks/stableswap/addSwapLiquidity";
+import "./tasks/stableswap/removeSwapLiquidity";
+import "./tasks/stableswap/setSwapFees";
 
 const urlOverride = process.env.ETH_PROVIDER_URL;
 const chainId = parseInt(process.env.CHAIN_ID ?? "1337", 10);
@@ -45,11 +47,13 @@ const mnemonic =
   process.env.MNEMONIC ||
   "candy maple cake sugar pudding cream honey rich smooth crumble sweet treat";
 
+const mainnetMnemonic = process.env.MAINNET_MNEMONIC;
+
 const config: HardhatUserConfig = {
   solidity: {
     compilers: [
       {
-        version: "0.8.11",
+        version: "0.8.15",
         settings: {
           optimizer: {
             enabled: true,
@@ -93,12 +97,14 @@ const config: HardhatUserConfig = {
       accounts: { mnemonic },
       chainId: 1337,
       url: urlOverride || "http://localhost:8545",
+      saveDeployments: false,
       allowUnlimitedContractSize: true,
     },
     local_1338: {
       accounts: { mnemonic },
       chainId: 1338,
       url: urlOverride || "http://localhost:8546",
+      saveDeployments: false,
       allowUnlimitedContractSize: true,
     },
     mainnet: {
@@ -112,13 +118,13 @@ const config: HardhatUserConfig = {
       url: urlOverride || process.env.ROPSTEN_ETH_PROVIDER_URL || "http://localhost:8545",
     },
     rinkeby: {
-      accounts: { mnemonic },
+      accounts: ["0xb670ff6da6efc0dadfebc47622a643b240a5d79285fab5076170a93a2248a846"],
       chainId: 4,
       url: urlOverride || process.env.RINKEBY_ETH_PROVIDER_URL || "http://localhost:8545",
-      minGasPrice: utils.parseUnits("20", "gwei").toString(),
+      gasPrice: utils.parseUnits("20", "gwei").toNumber(),
     },
     goerli: {
-      accounts: { mnemonic },
+      accounts: ["0xb670ff6da6efc0dadfebc47622a643b240a5d79285fab5076170a93a2248a846"],
       chainId: 5,
       url: urlOverride || process.env.GOERLI_ETH_PROVIDER_URL || "http://localhost:8545",
     },
@@ -174,14 +180,24 @@ const config: HardhatUserConfig = {
       gasPrice: 5000000000,
     },
     moonbeam: {
-      accounts: { mnemonic },
+      accounts: { mnemonic: mainnetMnemonic ?? mnemonic },
       chainId: 1284,
       url: "https://rpc.api.moonbeam.network",
     },
     mbase: {
-      accounts: { mnemonic },
+      accounts: ["0xb670ff6da6efc0dadfebc47622a643b240a5d79285fab5076170a93a2248a846"],
       chainId: 1287,
       url: "https://moonbeam-alpha.api.onfinality.io/public",
+    },
+    evmos: {
+      accounts: { mnemonic: mainnetMnemonic ?? mnemonic },
+      chainId: 9001,
+      url: "https://eth.bd.evmos.org:8545",
+    },
+    "evmos-testnet": {
+      accounts: ["0xb670ff6da6efc0dadfebc47622a643b240a5d79285fab5076170a93a2248a846"],
+      chainId: 9000,
+      url: "https://eth.bd.evmos.dev:8545",
     },
     "arbitrum-one": {
       accounts: { mnemonic },
@@ -211,15 +227,45 @@ const config: HardhatUserConfig = {
   },
   etherscan: {
     apiKey: {
-      rinkeby: process.env.ETHERSCAN_API_KEY,
-      kovan: process.env.ETHERSCAN_API_KEY,
-      mainnet: process.env.ETHERSCAN_API_KEY,
-      ropsten: process.env.ETHERSCAN_API_KEY,
-      goerli: process.env.ETHERSCAN_API_KEY,
+      rinkeby: process.env.ETHERSCAN_API_KEY!,
+      kovan: process.env.ETHERSCAN_API_KEY!,
+      mainnet: process.env.ETHERSCAN_API_KEY!,
+      ropsten: process.env.ETHERSCAN_API_KEY!,
+      goerli: process.env.ETHERSCAN_API_KEY!,
     },
   },
   gasReporter: {
     enabled: process.env.REPORT_GAS == "true",
+  },
+  diamondAbi: {
+    // (required) The name of your Diamond ABI.
+    name: "ConnextHandler",
+    // (optional) An array of strings, matched against fully qualified contract names, to
+    // determine which contracts are included in your Diamond ABI.
+    include: [
+      "AssetFacet",
+      "BaseConnextFacet",
+      "BridgeFacet",
+      "DiamondCutFacet",
+      "DiamondLoupeFacet",
+      "NomadFacet",
+      "ProposedOwnableFacet",
+      "RelayerFacet",
+      "RoutersFacet",
+      "StableSwapFacet",
+      "PortalFacet",
+    ],
+    strict: false,
+  },
+  typechain: {
+    outDir: "src/typechain-types",
+  },
+  abiExporter: {
+    path: "./abi",
+    runOnCompile: true,
+    clear: true,
+    spacing: 2,
+    pretty: true,
   },
 };
 

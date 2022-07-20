@@ -6,6 +6,12 @@ export class ParamsInvalid extends NxtpError {
   }
 }
 
+export class BidVersionInvalid extends NxtpError {
+  constructor(context: any = {}) {
+    super(`Router version is not supported by this sequencer`, context, BidVersionInvalid.name);
+  }
+}
+
 export class AuctionExpired extends NxtpError {
   constructor(status: AuctionStatus, context: any = {}) {
     super("This auction has already expired.", { status, ...context }, AuctionExpired.name);
@@ -19,5 +25,11 @@ export class MissingXCall extends NxtpError {
       { domain, transferId, ...context },
       MissingXCall.name,
     );
+  }
+}
+
+export class RoundInvalid extends NxtpError {
+  constructor(context: any = {}) {
+    super(`Rounds invalid`, context, RoundInvalid.name);
   }
 }

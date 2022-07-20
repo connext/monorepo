@@ -3,10 +3,13 @@ import * as fs from "fs";
 import { ajv, ChainData } from "@connext/nxtp-utils";
 import { ConnextContractDeployments, ContractPostfix } from "@connext/nxtp-txservice";
 
+// @ts-ignore
+import { version } from "../package.json";
+
 import { SequencerConfig, SequencerConfigSchema } from "./lib/entities";
 
-const MIN_SUBGRAPH_SYNC_BUFFER = 25;
 const DEFAULT_AUCTION_WAIT_TIME = 30_000;
+const DEFAULT_AUCTION_ROUND_DEPTH = 3;
 
 export const getEnvConfig = (
   chainData: Map<string, ChainData>,
@@ -60,7 +63,19 @@ export const getEnvConfig = (
     mode: {
       cleanup: process.env.SEQ_CLEANUP_MODE || configJson.mode?.cleanup || configFile.mode?.cleanup || false,
     },
-    environment: process.env.NXTP_ENVIRONMENT || configJson.environment || configFile.environment || "production",
+    supportedBidVersion:
+      process.env.SEQ_SUPPORTED_BID_VERSION ||
+      configJson.supportedBidVersion ||
+      configFile.supportedBidVersion ||
+      version,
+    subgraphPrefix: process.env.SEQ_SUBGRAPH_PREFIX || configJson.subgraphPrefix || configFile.subgraphPrefix,
+    auctionRoundDepth:
+      process.env.AUCTION_ROUND_DEPTH ||
+      configJson.auctionRoundDepth ||
+      configFile.auctionRoundDepth ||
+      DEFAULT_AUCTION_ROUND_DEPTH,
+    environment: process.env.SEQ_ENVIRONMENT || configJson.environment || configFile.environment || "production",
+    relayerUrl: process.env.SEQ_RELAYER_URL || configJson.relayerUrl || configFile.relayerUrl,
   };
 
   const defaultConfirmations = chainData && (chainData.get("1")?.confirmations ?? 1 + 3);
@@ -81,7 +96,13 @@ export const getEnvConfig = (
       connext:
         chainConfig.deployments?.connext ??
         (() => {
-          const res = chainDataForChain ? deployments.connext(chainDataForChain.chainId, contractPostfix) : undefined;
+          const res =
+            domainId === "1337" || domainId === "1338"
+              ? { address: "0xF08dF3eFDD854FEDE77Ed3b2E515090EEe765154" } // hardcoded for testing
+              : chainDataForChain
+              ? deployments.connext(chainDataForChain.chainId, contractPostfix)
+              : undefined;
+
           if (!res) {
             throw new Error(`No Connext contract address for domain ${domainId}`);
           }
@@ -89,27 +110,9 @@ export const getEnvConfig = (
         })(),
     };
 
-    if (!chainConfig.subgraph) {
-      chainConfig.subgraph = {} as any;
-      _sequencerConfig.chains[domainId].subgraph = chainConfig.subgraph;
-    }
-
-    if (!chainConfig.subgraph.runtime) {
-      _sequencerConfig.chains[domainId].subgraph.runtime = chainDataForChain?.subgraphs.runtime ?? [];
-    }
-
-    if (!chainConfig.subgraph.analytics) {
-      _sequencerConfig.chains[domainId].subgraph.analytics = chainDataForChain?.subgraphs.analytics ?? [];
-    }
-
     if (!chainConfig.confirmations) {
       _sequencerConfig.chains[domainId].confirmations = chainRecommendedConfirmations;
     }
-
-    const maxLag = chainConfig.subgraph.maxLag ?? MIN_SUBGRAPH_SYNC_BUFFER;
-    // 25 blocks minimum.
-    _sequencerConfig.chains[domainId].subgraph.maxLag =
-      maxLag < MIN_SUBGRAPH_SYNC_BUFFER ? MIN_SUBGRAPH_SYNC_BUFFER : maxLag;
   });
 
   const validate = ajv.compile(SequencerConfigSchema);

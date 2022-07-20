@@ -9,8 +9,8 @@ import { getHelpers } from "./lib/helpers";
 
 // Polling mins and defaults.
 const DEFAULT_CONFIRMATIONS = 3;
-const MIN_BACKEND_POLL_INTERVAL = 30_000;
-const DEFAULT_BACKEND_POLL_INTERVAL = 60_000;
+const MIN_CARTOGRAPHER_POLL_INTERVAL = 30_000;
+const DEFAULT_CARTOGRAPHER_POLL_INTERVAL = 60_000;
 
 dotenvConfig();
 
@@ -30,14 +30,14 @@ export const TModeConfig = Type.Object({
 });
 
 export const TPollingConfig = Type.Object({
-  backend: Type.Integer({ minimum: MIN_BACKEND_POLL_INTERVAL }),
+  cartographer: Type.Integer({ minimum: MIN_CARTOGRAPHER_POLL_INTERVAL }),
 });
 
 export const NxtpLighthouseConfigSchema = Type.Object({
   chains: Type.Record(Type.String(), TChainConfig),
   logLevel: TLogLevel,
   network: Type.Union([Type.Literal("testnet"), Type.Literal("mainnet"), Type.Literal("local")]),
-  backendUrl: Type.String(),
+  cartographerUrl: Type.String(),
   mode: TModeConfig,
   polling: TPollingConfig,
   environment: Type.Union([Type.Literal("staging"), Type.Literal("production")]),
@@ -65,11 +65,11 @@ export const getEnvConfig = (
   }
   try {
     let json: string;
-
     const {
       shared: { existsSync, readFileSync },
     } = getHelpers();
     const path = process.env.NXTP_CONFIG_FILE ?? "config.json";
+
     if (existsSync(path)) {
       json = readFileSync(path, { encoding: "utf-8" });
       configFile = JSON.parse(json);
@@ -78,7 +78,6 @@ export const getEnvConfig = (
     console.error("Error reading config file!");
     process.exit(1);
   }
-  // return configFile;
 
   const nxtpConfig: NxtpLighthouseConfig = {
     chains: process.env.NXTP_CHAIN_CONFIG
@@ -94,24 +93,21 @@ export const getEnvConfig = (
         process.env.NXTP_DIAGNOSTIC_MODE || configJson.mode?.diagnostic || configFile.mode?.diagnostic || false,
     },
     polling: {
-      backend:
-        process.env.NXTP_BACKEND_POLL_INTERVAL ||
+      cartographer:
+        process.env.NXTP_CARTOGRAPHER_POLL_INTERVAL ||
         configJson.polling?.cache ||
         configFile.polling?.cach ||
-        DEFAULT_BACKEND_POLL_INTERVAL,
+        DEFAULT_CARTOGRAPHER_POLL_INTERVAL,
     },
     environment: process.env.NXTP_ENVIRONMENT || configJson.environment || configFile.environment || "production",
-    backendUrl:
-      process.env.NXTP_BACKEND_URL ||
-      configJson.backendUrl ||
-      configFile.backendUrl ||
-      "https://postgrest.testnet.connext.ninja",
+    cartographerUrl: process.env.NXTP_CARTOGRAPHER_URL || configJson.cartographerUrl || configFile.cartographerUrl,
   };
 
-  nxtpConfig.backendUrl =
-    nxtpConfig.environment === "production"
+  nxtpConfig.cartographerUrl =
+    nxtpConfig.cartographerUrl ??
+    (nxtpConfig.environment === "production"
       ? "https://postgrest.testnet.connext.ninja"
-      : "https://postgrest.testnet.staging.connext.ninja";
+      : "https://postgrest.testnet.staging.connext.ninja");
 
   const contractPostfix: ContractPostfix =
     nxtpConfig.environment === "production"
@@ -130,7 +126,12 @@ export const getEnvConfig = (
       connext:
         chainConfig.deployments?.connext ??
         (() => {
-          const res = chainDataForChain ? deployments.connext(chainDataForChain.chainId, contractPostfix) : undefined;
+          const res =
+            domainId === "1337" || domainId === "1338"
+              ? { address: "0x8273e4B8ED6c78e252a9fCa5563Adfcc75C91b2A" } // hardcoded for testing
+              : chainDataForChain
+              ? deployments.connext(chainDataForChain.chainId, contractPostfix)
+              : undefined;
           if (!res) {
             throw new Error(`No Connext contract address for domain ${domainId}`);
           }

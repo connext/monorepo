@@ -7,8 +7,8 @@ import { ctxMock, getHelpersStub } from "../../globalTestHook";
 
 const mockTransfers: OriginTransfer[] = [
   mock.entity.xtransfer({
-    originDomain: "1337",
-    destinationDomain: "1338",
+    originDomain: "137",
+    destinationDomain: "138",
     asset: mkAddress("0xdedddddddddddddd"),
     relayerFee: "0.1",
     amount: "10",
@@ -16,8 +16,8 @@ const mockTransfers: OriginTransfer[] = [
     originSender: mkAddress("0xsenderorigin"),
   }),
   mock.entity.xtransfer({
-    originDomain: "1337",
-    destinationDomain: "1338",
+    originDomain: "137",
+    destinationDomain: "138",
     asset: mkAddress("0xdedddddddddddddd"),
     relayerFee: "0.1",
     amount: "10",
@@ -26,8 +26,8 @@ const mockTransfers: OriginTransfer[] = [
   }),
   {
     ...mock.entity.xtransfer(),
-    originDomain: "1337",
-    destinationDomain: "1338",
+    originDomain: "137",
+    destinationDomain: "138",
     xparams: {
       to: mkAddress("0xbeefdead"),
       callData: "0x0",
@@ -64,7 +64,7 @@ describe("#relayer", () => {
     });
 
     it("should send the bid to the relayer", async () => {
-      await sendToRelayer(mockBids.slice(0, 1), mockTransfers[0], mockLocalAsset, loggingContext.requestContext);
+      await sendToRelayer(1, mockBids.slice(0, 1), mockTransfers[0], mockLocalAsset, loggingContext.requestContext);
       expect(ctxMock.adapters.chainreader.getGasEstimateWithRevertCode).to.be.calledOnceWith(Number(mock.domain.B));
       expect((ctxMock.adapters.chainreader.getGasEstimateWithRevertCode as SinonStub).getCall(0).args[1]).to.deep.eq({
         chainId: Number(mock.chain.B),

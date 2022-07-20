@@ -16,6 +16,7 @@ import { getConfig } from "./config";
 import { AppContext } from "./lib/entities/context";
 import { bindServer, bindAuctions } from "./bindings";
 import { setupRelayer } from "./adapters";
+import { getHelpers } from "./lib/helpers";
 
 const context: AppContext = {} as any;
 export const getContext = () => context;
@@ -29,12 +30,19 @@ export const makeSequencer = async (_configOverride?: SequencerConfig) => {
     // Get ChainData and parse out configuration.
     context.chainData = await getChainData();
     context.config = _configOverride ?? (await getConfig(context.chainData, contractDeployments));
-    context.logger = new Logger({ level: context.config.logLevel });
+    context.logger = new Logger({
+      level: context.config.logLevel,
+      formatters: {
+        level: (label) => {
+          return { level: label.toUpperCase() };
+        },
+      },
+    });
     context.logger.info("Sequencer config generated.", requestContext, methodContext, { config: context.config });
 
     /// MARK - Adapters
     context.adapters.cache = await setupCache(context.config.redis, context.logger, requestContext);
-    context.adapters.subgraph = await setupSubgraphReader(context.chainData, context.logger, requestContext);
+    context.adapters.subgraph = await setupSubgraphReader(requestContext);
     context.adapters.chainreader = new ChainReader(
       context.logger.child({ module: "ChainReader", level: context.config.logLevel }),
       context.config.chains,
@@ -89,15 +97,30 @@ export const setupCache = async (
   return cacheInstance;
 };
 
-export const setupSubgraphReader = async (
-  chainData: Map<string, ChainData>,
-  logger: Logger,
-  requestContext: RequestContext,
-): Promise<SubgraphReader> => {
+export const setupSubgraphReader = async (requestContext: RequestContext): Promise<SubgraphReader> => {
+  const { chainData, logger, config } = getContext();
+  const {
+    auctions: { getMinimumBidsCountForRound },
+  } = getHelpers();
   const methodContext = createMethodContext(setupSubgraphReader.name);
 
-  logger.info("Subgraph reader setup in progress...", requestContext, methodContext, {});
-  const subgraphReader = await SubgraphReader.create(chainData, context.config.environment);
+  const allowedDomains = [...Object.keys(config.chains)];
+  const allowedChainData: Map<string, ChainData> = new Map();
+  for (const allowedDomain of allowedDomains) {
+    if (chainData.has(allowedDomain)) {
+      allowedChainData.set(allowedDomain, chainData.get(allowedDomain)!);
+    }
+  }
+
+  logger.info("Subgraph reader setup in progress...", requestContext, methodContext, {
+    allowedDomains,
+  });
+
+  const subgraphReader = await SubgraphReader.create(
+    allowedChainData,
+    context.config.environment,
+    context.config.subgraphPrefix,
+  );
 
   // Pull support for domains that don't have a subgraph.
   const supported: Record<string, boolean> = subgraphReader.supported;
@@ -109,5 +132,20 @@ export const setupSubgraphReader = async (
   }
 
   logger.info("Subgraph reader setup is done!", requestContext, methodContext, {});
+
+  logger.info("Validating the auction round depth for each domain...");
+  const maxRoutersPerTransfer = await subgraphReader.getMaxRoutersPerTransfer(Object.keys(supported));
+  for (const domain of maxRoutersPerTransfer.keys()) {
+    const configuredMaxRouters = getMinimumBidsCountForRound(config.auctionRoundDepth);
+    if (maxRoutersPerTransfer.has(domain) && configuredMaxRouters > maxRoutersPerTransfer.get(domain)!) {
+      logger.info("Validation error, Invalid auctionRoundDepth configured!", requestContext, methodContext, {
+        domain,
+        auctionRoundDepth: config.auctionRoundDepth,
+        configured: configuredMaxRouters,
+        onchain: maxRoutersPerTransfer.get(domain),
+      });
+      process.exit(1);
+    }
+  }
   return subgraphReader;
 };

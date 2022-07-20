@@ -1,12 +1,5 @@
 import { constants, providers, BigNumber } from "ethers";
-import {
-  getChainData,
-  Logger,
-  createLoggingContext,
-  getChainIdFromDomain,
-  ChainData,
-  XCallArgs,
-} from "@connext/nxtp-utils";
+import { Logger, createLoggingContext, ChainData, XCallArgs, CallParams } from "@connext/nxtp-utils";
 import {
   getContractInterfaces,
   ConnextContractInterfaces,
@@ -14,7 +7,8 @@ import {
   ChainReader,
 } from "@connext/nxtp-txservice";
 
-import { SignerAddressMissing } from "./lib/errors";
+import { getChainData, getChainIdFromDomain } from "./lib/helpers";
+import { SignerAddressMissing, ChainDataUndefined } from "./lib/errors";
 import { NxtpSdkConfig, getConfig } from "./config";
 
 /**
@@ -24,7 +18,7 @@ import { NxtpSdkConfig, getConfig } from "./config";
 export class NxtpSdkBase {
   public readonly config: NxtpSdkConfig;
   private readonly logger: Logger;
-  private readonly contracts: ConnextContractInterfaces; // Used to read and write to smart contracts.
+  private contracts: ConnextContractInterfaces; // Used to read and write to smart contracts.
   private chainReader: ChainReader;
   public readonly chainData: Map<string, ChainData>;
 
@@ -46,11 +40,13 @@ export class NxtpSdkBase {
   ): Promise<NxtpSdkBase> {
     const chainData = _chainData ?? (await getChainData());
     if (!chainData) {
-      throw new Error("Could not get chain data");
+      throw new ChainDataUndefined();
     }
 
-    const nxtpConfig = await getConfig(_config, chainData, contractDeployments);
-    const logger = _logger || new Logger({ name: "NxtpSdkBase", level: nxtpConfig.logLevel });
+    const nxtpConfig = await getConfig(_config, contractDeployments, chainData);
+    const logger = _logger
+      ? _logger.child({ name: "NxtpSdkBase" })
+      : new Logger({ name: "NxtpSdkBase", level: nxtpConfig.logLevel });
 
     return new NxtpSdkBase(nxtpConfig, logger, chainData);
   }
@@ -59,7 +55,7 @@ export class NxtpSdkBase {
     domain: string,
     assetId: string,
     amount: string,
-    infiniteApprove = false,
+    infiniteApprove = true,
   ): Promise<providers.TransactionRequest | undefined> {
     const { requestContext, methodContext } = createLoggingContext(this.approveIfNeeded.name);
 
@@ -75,7 +71,11 @@ export class NxtpSdkBase {
       throw new SignerAddressMissing();
     }
 
-    const chainId = await getChainIdFromDomain(domain, this.chainData);
+    let chainId = this.config.chains[domain].chainId;
+    if (!chainId) {
+      chainId = await getChainIdFromDomain(domain, this.chainData);
+    }
+
     if (assetId !== constants.AddressZero) {
       const ConnextContractAddress = this.config.chains[domain].deployments!.connext;
 
@@ -83,12 +83,16 @@ export class NxtpSdkBase {
         signerAddress,
         ConnextContractAddress,
       ]);
+      this.logger.debug("Got approved data", requestContext, methodContext, { approvedData });
       const approvedEncoded = await this.chainReader.readTx({
         to: assetId,
         data: approvedData,
         chainId: Number(domain),
       });
+      this.logger.debug("Got approved data", requestContext, methodContext, { approvedEncoded });
       const [approved] = this.contracts.erc20.decodeFunctionResult("allowance", approvedEncoded);
+      this.logger.debug("Got approved data", requestContext, methodContext, { approved });
+
       this.logger.info("Got approved tokens", requestContext, methodContext, { approved: approved.toString() });
       if (BigNumber.from(approved).lt(amount)) {
         const data = this.contracts.erc20.encodeFunctionData("approve", [
@@ -116,7 +120,7 @@ export class NxtpSdkBase {
   }
 
   public async xcall(
-    xcallParams: Omit<XCallArgs, "callData" | "forceSlow" | "receiveLocal">,
+    xcallParams: Omit<XCallArgs, "callData" | "forceSlow" | "receiveLocal" | "callback" | "callbackFee" | "recovery">,
   ): Promise<providers.TransactionRequest> {
     const { requestContext, methodContext } = createLoggingContext(this.xcall.name);
     this.logger.info("Method start", requestContext, methodContext, { xcallParams });
@@ -138,33 +142,39 @@ export class NxtpSdkBase {
     // }
 
     /// create a bid
-    const { params, amount, transactingAssetId, relayerFee } = xcallParams;
+    const { params, amount, transactingAssetId } = xcallParams;
 
-    const { originDomain } = params;
+    const { originDomain, relayerFee } = params;
 
-    const xParams = {
+    const xParams: CallParams = {
       ...params,
-      calldata: params.callData || "0x",
+      callData: params.callData || "0x",
+      callback: params.callback || constants.AddressZero,
+      callbackFee: params.callbackFee || "0",
+      recovery: params.recovery || params.to,
       forceSlow: params.forceSlow || false,
       receiveLocal: params.receiveLocal || false,
+      relayerFee: params.relayerFee || "0",
     };
     const ConnextContractAddress = this.config.chains[originDomain].deployments!.connext;
 
-    const chainId = await getChainIdFromDomain(originDomain, this.chainData);
-    // if transactingAssetId is AddressZero then we are adding relayerFee to amount for value
-    const value =
-      transactingAssetId === constants.AddressZero
-        ? BigNumber.from(amount).add(BigNumber.from(relayerFee))
-        : BigNumber.from(relayerFee);
+    let chainId = this.config.chains[originDomain].chainId;
+    if (!chainId) {
+      chainId = await getChainIdFromDomain(originDomain, this.chainData);
+    }
 
-    const data = this.contracts.connext.encodeFunctionData("xcall", [
-      {
-        params: xParams,
-        amount,
-        transactingAssetId,
-        relayerFee,
-      },
-    ]);
+    // if transactingAssetId is AddressZero then we are adding relayerFee to amount for value
+
+    const totalFee = BigNumber.from(relayerFee).add(BigNumber.from(xParams.callbackFee));
+
+    const value = transactingAssetId === constants.AddressZero ? BigNumber.from(amount).add(totalFee) : totalFee;
+
+    const xcallArgs: XCallArgs = {
+      params: xParams,
+      amount,
+      transactingAssetId,
+    };
+    const data = this.contracts.connext.encodeFunctionData("xcall", [xcallArgs]);
 
     const txRequest = {
       to: ConnextContractAddress,
@@ -194,7 +204,10 @@ export class NxtpSdkBase {
 
     const { domain, transferId, relayerFee } = params;
 
-    const chainId = await getChainIdFromDomain(domain, this.chainData);
+    let chainId = this.config.chains[domain].chainId;
+    if (!chainId) {
+      chainId = await getChainIdFromDomain(domain, this.chainData);
+    }
     const ConnextContractAddress = this.config.chains[domain].deployments!.connext;
 
     // if transactingAssetId is AddressZero then we are adding relayerFee to amount for value

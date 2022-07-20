@@ -2,6 +2,68 @@
 
 ## Next Release
 
+## Amarok 0.2.0-beta.15
+
+- [cartographer] Fix relayer_fee type name.
+
+## Amarok 0.2.0-beta.14
+
+- [sdk] Fix SDK deployments bug.
+
+## Amarok 0.2.0-beta.13
+
+- [subgraph] Fix client.
+
+## Amarok 0.2.0-beta.12
+
+- [contracts] New contracts.
+
+## Amarok 0.2.0-beta.11
+
+- [sdk] Stableswap pool functions
+
+## Amarok 0.2.0-beta.10
+
+- [router] Parallelize sending bids to sequencer
+
+## Amarok 0.2.0-beta.8
+
+- [router] Paginate the router queries
+
+## Amarok 0.2.0-beta.7
+
+- [lighthouse][sdk] Fix URL generation for BigNumber
+
+## Amarok 0.2.0-beta.6
+
+- [sdk] Fix URL
+
+## Amarok 0.2.0-beta.5
+
+- [sdk] Fix limits
+
+## Amarok 0.2.0-beta.4
+
+- [sdk] Fix limits
+
+## Amarok 0.2.0-beta.3
+
+- [sdk] fix api uri
+
+## Amarok 0.2.0-beta.2
+
+- [sdk] fix api uri
+
+## Amarok 0.2.0-beta.1
+
+- [sdk] multiple sdk updates
+- [sdk] unit test
+- [poller] backend pagination
+
+## Amarok 0.2.0-beta.0
+
+- [all] Update contract architecture
+
 ## Amarok 0.2.0-alpha.16
 
 - [all] Support Goerli

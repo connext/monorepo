@@ -42,22 +42,13 @@ describe("Bindings:Cache", () => {
         execute: executeStub,
       });
     });
+
     it("happy: should retrieve pending transfers from the cache", async () => {
       const mockCachedTransfers: { [transferId: string]: XTransfer } = {};
       const mockPendingTransfers: string[] = [];
       for (let i = 0; i < 10; i++) {
         const mockTransfer: XTransfer = mock.entity.xtransfer();
-        const rand_num = i % 3;
-        if (rand_num === 0) {
-          mockCachedTransfers[mockTransfer.transferId] = mockTransfer;
-        } else if (rand_num === 1) {
-          mockCachedTransfers[mockTransfer.transferId] = { ...mockTransfer, xcall: undefined };
-        } else {
-          mockCachedTransfers[mockTransfer.transferId] = {
-            ...mockTransfer,
-            execute: { ...mockTransfer.execute, transactionHash: getRandomBytes32() },
-          };
-        }
+        mockCachedTransfers[mockTransfer.transferId] = mockTransfer;
 
         mockPendingTransfers.push(mockTransfer.transferId);
       }
@@ -97,6 +88,40 @@ describe("Bindings:Cache", () => {
       for (const transferId of mockPendingTransfers) {
         expect(mockContext.adapters.cache.transfers.getTransfer).to.have.been.calledWithExactly(transferId);
       }
+    });
+
+    it("happy: should retrieve pending transfers from the cache with multiple pages", async () => {
+      const mockCachedTransfers: { [transferId: string]: XTransfer } = {};
+      const mockPendingTransfers: string[] = [];
+      for (let i = 0; i < 401; i++) {
+        const mockTransfer: XTransfer = mock.entity.xtransfer();
+        mockCachedTransfers[mockTransfer.transferId] = mockTransfer;
+
+        mockPendingTransfers.push(mockTransfer.transferId);
+      }
+      const domainWithPending = "1234";
+
+      // Add a fake pending transfer to the cache. This should be ignored by the method, since it won't have data in the cache.
+      mockPendingTransfers.push(getRandomBytes32());
+
+      mockContext.adapters.cache.transfers.getPending.callsFake((domain: string) =>
+        domain === domainWithPending ? mockPendingTransfers : [],
+      );
+
+      mockContext.adapters.cache.transfers.getTransfer.callsFake(
+        (transferId: string) => mockCachedTransfers[transferId],
+      );
+
+      mockContext.adapters.subgraph.getDestinationTransfers.resolves([]);
+
+      mockContext.config.chains = {
+        [domainWithPending]: mockContext.config.chains[mock.chain.A],
+      };
+
+      await bindCacheFns.pollCache();
+
+      // Should have been called once per the chain with assets configured.
+      expect(mockContext.adapters.subgraph.getDestinationTransfers).callCount(5);
     });
 
     it("should save error if transfer fails", async () => {

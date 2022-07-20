@@ -1,5 +1,5 @@
 import { constants } from "ethers";
-import { RequestContext, createLoggingContext, connextRelayerSend, ExecuteArgs } from "@connext/nxtp-utils";
+import { RequestContext, createLoggingContext, ExecuteArgs, jsonifyError, NxtpError } from "@connext/nxtp-utils";
 
 import { getContext } from "../../lighthouse";
 import { getHelpers } from "../helpers";
@@ -9,16 +9,11 @@ export const sendToRelayer = async (
   encodedData: string,
   transferId: string,
   _requestContext: RequestContext,
-): Promise<string> => {
-  const {
-    logger,
-    chainData,
-    config,
-    adapters: { chainreader, relayer },
-  } = getContext();
+): Promise<void> => {
+  const { logger, chainData, config } = getContext();
 
   const {
-    relayer: { getGelatoRelayerAddress },
+    relayer: { getGelatoRelayerAddress, connextRelayerSend, externalRelayerSend, getGasEstimateWithRevertCode },
   } = getHelpers();
 
   const { requestContext, methodContext } = createLoggingContext(sendToRelayer.name, _requestContext);
@@ -56,7 +51,7 @@ export const sendToRelayer = async (
         taskId,
         transferId: transferId,
       });
-      return taskId;
+      return;
     } catch (error: unknown) {
       logger.warn("Failed to send meta transaction to Connext relayer", requestContext, methodContext, {
         transferId: transferId,
@@ -68,27 +63,44 @@ export const sendToRelayer = async (
   // Validate the bid's fulfill call will succeed on chain.
   const relayerAddress = await getGelatoRelayerAddress(destinationChainId);
 
-  logger.debug("Getting gas estimate", requestContext, methodContext, {
-    chainId: destinationChainId,
-    to: destinationConnextAddress,
-    data: encodedData,
-    from: relayerAddress,
-  });
+  try {
+    logger.debug("Getting gas estimate", requestContext, methodContext, {
+      chainId: destinationChainId,
+      to: destinationConnextAddress,
+      data: encodedData,
+      from: relayerAddress,
+    });
+    await getGasEstimateWithRevertCode(Number(args.params.destinationDomain), {
+      chainId: destinationChainId,
+      to: destinationConnextAddress,
+      data: encodedData,
+      from: relayerAddress,
+    });
+  } catch (error: any) {
+    logger.error("Error Gas Estimation Failed", requestContext, methodContext, jsonifyError(error as NxtpError), {
+      args,
+      transferId: transferId,
+      chainId: destinationChainId,
+      to: destinationConnextAddress,
+      data: encodedData,
+      from: relayerAddress,
+    });
+    return;
+  }
 
-  const gas = await chainreader.getGasEstimateWithRevertCode(Number(args.params.destinationDomain), {
-    chainId: destinationChainId,
-    to: destinationConnextAddress,
-    data: encodedData,
-    from: relayerAddress,
-  });
-  logger.info("Sending meta tx to relayer", requestContext, methodContext, {
+  logger.info("Sending meta tx to the external relayer", requestContext, methodContext, {
     relayer: relayerAddress,
     connext: destinationConnextAddress,
     domain: args.params.destinationDomain,
-    gas: gas.toString(),
     relayerFee,
   });
 
-  const taskId = await relayer.send(destinationChainId, destinationConnextAddress, encodedData, _requestContext);
-  return taskId;
+  const result = await externalRelayerSend(destinationChainId, destinationConnextAddress, encodedData, _requestContext);
+  logger.info(`Sent meta tx to the external relayer`, requestContext, methodContext, {
+    relayer: relayerAddress,
+    connext: destinationConnextAddress,
+    domain: args.params.destinationDomain,
+    relayerFee,
+    result,
+  });
 };

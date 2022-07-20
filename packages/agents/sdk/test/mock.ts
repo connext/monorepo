@@ -11,7 +11,7 @@ export const mock = {
   ..._mock,
   config: (): NxtpSdkConfig => ({
     signerAddress: mkAddress("0xabcdef123"),
-    logLevel: "info",
+    logLevel: "debug",
     network: "testnet",
     maxSlippage: 0,
     environment: "staging",
@@ -58,12 +58,21 @@ export const mock = {
       stableSwap.encodeFunctionData.returns(encodedDataMock);
       stableSwap.decodeFunctionResult.returns([BigNumber.from(1000)]);
 
+      const stableSwapFacet = createStubInstance(utils.Interface);
+      stableSwapFacet.encodeFunctionData.returns(encodedDataMock);
+      stableSwapFacet.decodeFunctionResult.returns([BigNumber.from(1000)]);
+
       const erc20 = createStubInstance(utils.Interface);
       erc20.encodeFunctionData.returns(encodedDataMock);
       erc20.decodeFunctionResult.returns([BigNumber.from(1000)]);
 
+      const erc20Extended = createStubInstance(utils.Interface);
+      erc20.encodeFunctionData.returns(encodedDataMock);
+      erc20.decodeFunctionResult.returns([BigNumber.from(1000)]);
+
       return {
-        erc20: erc20 as any,
+        erc20: erc20 as unknown as ConnextContractInterfaces["erc20"],
+        erc20Extended: erc20Extended as unknown as ConnextContractInterfaces["erc20Extended"],
         connext: connext as unknown as ConnextContractInterfaces["connext"],
         priceOracle: priceOracle as unknown as ConnextContractInterfaces["priceOracle"],
         tokenRegistry: tokenRegistry as unknown as ConnextContractInterfaces["tokenRegistry"],
@@ -78,6 +87,7 @@ export const mock = {
         }),
         priceOracle: (_: number) => ({ address: mkAddress("0xbaddad"), abi: {} }),
         tokenRegistry: (_: number) => ({ address: mkAddress("0xbbbddd"), abi: {} }),
+        stableSwap: (_: number) => ({ address: mkAddress("0xbbbdcc"), abi: {} }),
       };
     },
   },

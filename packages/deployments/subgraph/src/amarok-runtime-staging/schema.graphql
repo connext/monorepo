@@ -25,11 +25,36 @@ type Router @entity {
   assetBalances: [AssetBalance!]! @derivedFrom(field: "router")
 }
 
+type Setting @entity {
+  id: ID!
+  maxRoutersPerTransfer: BigInt!
+  caller: Bytes!
+}
+
+type Relayer @entity {
+  id: ID!
+  isActive: Boolean!
+  relayer: Bytes
+}
+
+type StableSwap @entity {
+  id: ID!
+  canonicalId: Bytes!
+  domain: BigInt
+  swapPool: Bytes!
+}
+
+type SponsorVault @entity {
+  id: ID!
+  sponsorVault: Bytes!
+}
+
 enum TransferStatus {
   XCalled
   Executed
   Reconciled
-  Completed
+  CompletedSlow
+  CompletedFast
 }
 
 type OriginTransfer @entity {
@@ -45,12 +70,17 @@ type OriginTransfer @entity {
   callData: Bytes
   originDomain: BigInt
   destinationDomain: BigInt
+  agent: Bytes
+  recovery: Bytes
   forceSlow: Boolean
   receiveLocal: Boolean
+  callback: Bytes
+  callbackFee: BigInt
+  relayerFee: BigInt
+  slippageTol: BigInt
 
   # Event Data
   status: TransferStatus
-  relayerFee: BigInt
   message: Bytes
 
   # Asset
@@ -85,8 +115,14 @@ type DestinationTransfer @entity {
   callData: Bytes
   originDomain: BigInt
   destinationDomain: BigInt
+  agent: Bytes
+  recovery: Bytes
   forceSlow: Boolean
   receiveLocal: Boolean
+  callback: Bytes
+  callbackFee: BigInt
+  relayerFee: BigInt
+  slippageTol: BigInt
 
   # Event Data
   status: TransferStatus
@@ -102,6 +138,8 @@ type DestinationTransfer @entity {
   localAsset: Bytes
   # The amount of the local asset.
   localAmount: BigInt
+
+  sponsorVaultRelayerFee: BigInt
 
   # Executed Transaction
   executedCaller: Bytes

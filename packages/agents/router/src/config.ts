@@ -15,6 +15,7 @@ const DEFAULT_SUBGRAPH_POLL_INTERVAL = 15_000;
 const DEFAULT_CONFIRMATIONS = 3;
 const MIN_CACHE_POLL_INTERVAL = 2_000;
 const DEFAULT_CACHE_POLL_INTERVAL = 20_000;
+const DEFAULT_AUCTION_ROUND_DEPTH = 3;
 
 dotenvConfig();
 
@@ -82,7 +83,10 @@ export const NxtpRouterConfigSchema = Type.Object({
   mode: TModeConfig,
   network: Type.Union([Type.Literal("testnet"), Type.Literal("mainnet"), Type.Literal("local")]),
   polling: TPollingConfig,
+  auctionRoundDepth: Type.Number(),
+  subgraphPrefix: Type.Optional(Type.String()),
   environment: Type.Union([Type.Literal("staging"), Type.Literal("production")]),
+  nomadEnvironment: Type.Union([Type.Literal("staging"), Type.Literal("production"), Type.Literal("none")]),
 });
 
 export type NxtpRouterConfig = Static<typeof NxtpRouterConfigSchema>;
@@ -173,7 +177,15 @@ export const getEnvConfig = (
         configFile.polling?.cach ||
         DEFAULT_CACHE_POLL_INTERVAL,
     },
+    auctionRoundDepth:
+      process.env.AUCTION_ROUND_DEPTH ||
+      configJson.auctionRoundDepth ||
+      configFile.auctionRoundDepth ||
+      DEFAULT_AUCTION_ROUND_DEPTH,
+    subgraphPrefix: process.env.NXTP_SUBGRAPH_PREFIX || configJson.subgraphPrefix || configFile.subgraphPrefix,
     environment: process.env.NXTP_ENVIRONMENT || configJson.environment || configFile.environment || "production",
+    nomadEnvironment:
+      process.env.NXTP_NOMAD_ENVIRONMENT || configJson.nomadEnvironment || configFile.nomadEnvironment || "staging",
   };
 
   if (!nxtpConfig.mnemonic && !nxtpConfig.web3SignerUrl) {
@@ -198,7 +210,12 @@ export const getEnvConfig = (
       connext:
         chainConfig.deployments?.connext ??
         (() => {
-          const res = chainDataForChain ? deployments.connext(chainDataForChain.chainId, contractPostfix) : undefined;
+          const res =
+            domainId === "1337" || domainId === "1338"
+              ? { address: "0xF08dF3eFDD854FEDE77Ed3b2E515090EEe765154" } // hardcoded for testing
+              : chainDataForChain
+              ? deployments.connext(chainDataForChain.chainId, contractPostfix)
+              : undefined;
           if (!res) {
             throw new Error(`No Connext contract address for domain ${domainId}`);
           }
