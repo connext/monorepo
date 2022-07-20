@@ -27,10 +27,6 @@ locals {
     { name = "WEB3_SIGNER_PRIVATE_KEY", value = var.web3_signer_private_key },
     { name = "WEB3SIGNER_HTTP_HOST_ALLOWLIST", value = "*" }
   ]
-  rmq_env_vars = [
-    { name = "RABBITMQ_DEFAULT_USER", value = var.rmq_mgt_user },
-    { name = "RABBITMQ_DEFAULT_PASS", value = var.rmq_mgt_password }
-  ]
 }
 
 locals {
@@ -51,7 +47,7 @@ locals {
         assets = [
           {
             name    = "TEST"
-            address = "0x3FFc03F05D1869f493c7dbf913E636C6280e0ff9"
+            address = "0x3ffc03f05d1869f493c7dbf913e636c6280e0ff9"
           }
         ]
       }
@@ -69,52 +65,48 @@ locals {
     environment = var.stage
     messageQueue = {
       connection = {
-        server = module.router_message_queue.dns_name
-        port = 5672
-        user = var.rmq_mgt_user
-        pass = var.rmq_mgt_password
-        timeout = 2000,
-        publishTimeout = 100,
-        failAfter = 10,
-        retryLimit = 100
+        uri            = module.centralised_message_queue.aws_mq_amqp_endpoint
+        port           = 5671
+        user           = var.rmq_mgt_user
+        pass           = var.rmq_mgt_password
       }
       exchanges = [
         {
-          name = "sequencerX"
-          type = "direct"
+          name           = "sequencerX"
+          type           = "direct"
           publishTimeout = 1000
-          persistent = true
-          durable = true
+          persistent     = true
+          durable        = true
         }
       ]
       queues = [
         {
-           name = "1337"
-           prefetch = 100
-           queueLimit = 10000
-           subscribe = true
+          name       = "1337"
+          prefetch   = 100
+          queueLimit = 10000
+          subscribe  = true
         },
         {
-           name = "1338"
-           prefetch = 100
-           queueLimit = 10000
-           subscribe = true
+          name       = "1338"
+          prefetch   = 100
+          queueLimit = 10000
+          subscribe  = true
         }
       ]
       bindings = [
         {
-         exchange = "sequencerX"
-         target = "1337"
-         keys = ["1337"]
+          exchange = "sequencerX"
+          target   = "1337"
+          keys     = ["1337"]
         },
         {
-         exchange = "sequencerX"
-         target = "1338"
-         keys = ["1338"]
+          exchange = "sequencerX"
+          target   = "1338"
+          keys     = ["1338"]
         }
       ]
       executerTimeout = 300000
-      publisher = "sequencerX"
+      publisher       = "sequencerX"
     }
   })
 }
@@ -138,7 +130,7 @@ locals {
         assets = [
           {
             name    = "TEST"
-            address = "0x3FFc03F05D1869f493c7dbf913E636C6280e0ff9"
+            address = "0x3ffc03f05d1869f493c7dbf913e636c6280e0ff9"
           }
         ]
       }
@@ -156,8 +148,8 @@ locals {
     environment      = var.stage
     nomadEnvironment = var.nomad_environment
     messageQueue = {
-      host = module.router_message_queue.dns_name
-      port = 5672
+      uri = module.centralised_message_queue.aws_mq_amqp_endpoint
+      port = 5671
       user = var.rmq_mgt_user
       pass = var.rmq_mgt_password
     }

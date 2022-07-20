@@ -158,13 +158,13 @@ contract ConnextTest is ForgeHelper, Deployer {
 
   function utils_deployAssets() public {
     // deploy wrappers
-    _canonical = address(new TestERC20());
+    _canonical = address(new TestERC20("Test Token", "TEST"));
     _originWrapper = address(new WETH());
-    _originLocal = address(new TestERC20());
-    _originAdopted = address(new TestERC20());
+    _originLocal = address(new TestERC20("Test Token", "TEST"));
+    _originAdopted = address(new TestERC20("Test Token", "TEST"));
     _destinationWrapper = address(new WETH());
-    _destinationLocal = address(new TestERC20());
-    _destinationAdopted = address(new TestERC20());
+    _destinationLocal = address(new TestERC20("Test Token", "TEST"));
+    _destinationAdopted = address(new TestERC20("Test Token", "TEST"));
 
     // fund weth wrappers for convenience
     vm.deal(_originWrapper, 100 ether);
@@ -183,7 +183,7 @@ contract ConnextTest is ForgeHelper, Deployer {
     _destinationManager.setHome(address(home));
 
     // Deploy token beacon
-    address beacon = address(new TestERC20());
+    address beacon = address(new TestERC20("Test Token", "TEST"));
 
     // Deploy TokenRegistry implementation
     TokenRegistry registryImp = new TokenRegistry();
