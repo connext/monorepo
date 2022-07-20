@@ -480,6 +480,7 @@ jobs:
         continue-on-error: true
 
       - name: Terraform Docker Image onto AWS
+        if: github.ref == 'refs/heads/main'
         id: apply
         working-directory: ./ops/testnet/staging/backend
         run: |
@@ -541,6 +542,7 @@ jobs:
         continue-on-error: true
 
       - name: Terraform Docker Image onto AWS
+        if: github.ref == 'refs/heads/main'
         id: apply
         working-directory: ./ops/testnet/staging/core
         run: |
