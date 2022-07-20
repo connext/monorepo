@@ -222,16 +222,17 @@ contract Executor is IExecutor {
     // Unset amount
     amnt = 0;
 
-    // Handle failure cases
-    if (!success) {
-      _sendToRecovery(isNative, hasValue, _args.assetId, payable(_args.to), payable(_args.recovery), _args.amount);
-    }
-
-    // If there is unclaimed tokens, send them to the recovery address
     if (hasValue) {
-      uint256 unclaimed = _args.amount - (beforeBalance - _assetBalance(_args.assetId));
-      if (unclaimed > 0) {
-        _sendToRecovery(isNative, hasValue, _args.assetId, payable(_args.to), payable(_args.recovery), unclaimed);
+      if (success) {
+        // If there is unclaimed tokens, send them to the recovery address
+        uint256 afterBalance = _assetBalance(_args.assetId);
+        if (beforeBalance >= afterBalance && _args.amount + afterBalance > beforeBalance) {
+          uint256 unclaimed = _args.amount - (beforeBalance - afterBalance);
+          _sendToRecovery(isNative, hasValue, _args.assetId, payable(_args.to), payable(_args.recovery), unclaimed);
+        }
+      } else {
+        // Handle failure cases
+        _sendToRecovery(isNative, hasValue, _args.assetId, payable(_args.to), payable(_args.recovery), _args.amount);
       }
     }
 
