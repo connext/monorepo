@@ -35,6 +35,6 @@ resource "aws_route53_record" "www" {
   name    = var.stage != "production" ? "rmq-management.${var.environment}.${var.stage}.${var.base_domain}" : "rmq-management.${var.environment}.${var.base_domain}"
   type    = "CNAME"
   ttl     = "300"
-  records = [aws_mq_broker.default.instances[0].console_url]
+  records = [trimprefix(aws_mq_broker.default.instances[0].console_url, "https://")]
 }
 
