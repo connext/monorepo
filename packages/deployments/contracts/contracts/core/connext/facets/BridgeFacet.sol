@@ -724,7 +724,9 @@ contract BridgeFacet is BaseConnextFacet {
     } else {
       // execute calldata w/funds
       bool isNative = _asset == address(s.wrapper);
-      if (!isNative) {
+      if (isNative) {
+        s.wrapper.withdraw(_amount);
+      } else {
         AssetLogic.transferAssetFromContract(_asset, address(s.executor), _amount);
       }
 
