@@ -27,10 +27,6 @@ locals {
     { name = "WEB3_SIGNER_PRIVATE_KEY", value = var.web3_signer_private_key },
     { name = "WEB3SIGNER_HTTP_HOST_ALLOWLIST", value = "*" }
   ]
-  rmq_env_vars = [
-    { name = "RABBITMQ_DEFAULT_USER", value = var.rmq_mgt_user },
-    { name = "RABBITMQ_DEFAULT_PASS", value = var.rmq_mgt_password }
-  ]
 }
 
 locals {
@@ -69,14 +65,10 @@ locals {
     environment = var.stage
     messageQueue = {
       connection = {
-        server         = module.router_message_queue.dns_name
-        port           = 5672
+        uri            = module.centralised_message_queue.aws_mq_amqp_endpoint
+        port           = 5671
         user           = var.rmq_mgt_user
         pass           = var.rmq_mgt_password
-        timeout        = 2000,
-        publishTimeout = 100,
-        failAfter      = 10,
-        retryLimit     = 100
       }
       exchanges = [
         {
@@ -156,8 +148,8 @@ locals {
     environment      = var.stage
     nomadEnvironment = var.nomad_environment
     messageQueue = {
-      host = module.router_message_queue.dns_name
-      port = 5672
+      uri = module.centralised_message_queue.aws_mq_amqp_endpoint
+      port = 5671
       user = var.rmq_mgt_user
       pass = var.rmq_mgt_password
     }

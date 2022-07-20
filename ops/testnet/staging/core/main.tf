@@ -83,27 +83,18 @@ module "router_publisher" {
   container_env_vars       = local.router_env_vars
 }
 
-module "router_message_queue" {
-  source                  = "../../../modules/rmq"
-  stage                   = var.stage
-  environment             = var.environment
-  domain                  = var.domain
-  region                  = var.region
-  zone_id                 = data.aws_route53_zone.primary.zone_id
-  execution_role_arn      = data.aws_iam_role.ecr_admin_role.arn
-  cluster_id              = module.ecs.ecs_cluster_id
-  vpc_id                  = module.network.vpc_id
-  private_subnets         = module.network.private_subnets
-  lb_subnets              = module.network.public_subnets
-  docker_image            = "public.ecr.aws/docker/library/rabbitmq:3.10-management"
-  container_family        = "router-message-queue"
-  ingress_cdir_blocks     = [module.network.vpc_cdir_block]
-  cpu                     = 512
-  memory                  = 1024
-  instance_count          = 1
-  service_security_groups = flatten([module.sgs.rabbitmq_sg, module.network.allow_all_sg, module.network.ecs_task_sg])
-  cert_arn                = var.certificate_arn_testnet
-  container_env_vars      = local.rmq_env_vars
+module "centralised_message_queue" {
+  source              = "../../../modules/amq"
+  stage               = var.stage
+  environment         = var.environment
+  sg_id               = module.network.ecs_task_sg
+  vpc_id              = module.network.vpc_id
+  publicly_accessible = true
+  host_instance_type  = "mq.t3.micro"
+  deployment_mode     = "SINGLE_INSTANCE"
+  subnet_ids          = module.network.public_subnets
+  rmq_mgt_user        = var.rmq_mgt_user
+  rmq_mgt_password    = var.rmq_mgt_password
 }
 
 module "sequencer_publisher" {

@@ -33,7 +33,7 @@
   "environment": "production",
   "nomadEnvironment": "none",
   "messageQueue": {
-    "host": "router-message-queue",
+    "uri": "amqp://router-message-queue",
     "port": 5672,
     "user": "guest",
     "pass": "guest"
