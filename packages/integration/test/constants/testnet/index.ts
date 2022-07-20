@@ -280,14 +280,7 @@ export const SEQUENCER_CONFIG: Promise<SequencerConfig> = (async (): Promise<Seq
     relayerUrl: LOCAL_RELAYER_ENABLED ? `http://${LOCALHOST}:8082` : undefined,
     messageQueue: {
       connection: {
-        user: "guest",
-        pass: "guest",
-        server: "127.0.0.1",
-        port: 5672,
-        timeout: 2000,
-        publishTimeout: 100,
-        failAfter: 10,
-        retryLimit: 100,
+        uri: "amqp://guest:guest@localhost:5672",
       },
       exchanges: [{ name: EXCHANGE_NAME, type: "direct", publishTimeout: 1000, persistent: true, durable: true }],
       queues: [{ name: QUEUE_NAME, prefetch: 100, queueLimit: 10000, subscribe: true }],
