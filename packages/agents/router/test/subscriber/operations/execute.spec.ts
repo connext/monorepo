@@ -14,6 +14,7 @@ import {
   AuctionExpired,
   InvalidAuctionRound,
   UnableToGetAsset,
+  NomadHomeBlacklisted,
 } from "../../../src/errors";
 import { mock } from "../../mock";
 import { version } from "../../../package.json";
@@ -100,6 +101,7 @@ describe("Operations:Execute", () => {
     let mockTransactingAmount: BigNumber;
     let mockXTransfer: OriginTransfer;
     let mockRouter: string;
+    let getBlacklistStub: SinonStub;
     let mockGetDestinationLocalAsset: SinonStub<
       [_originDomain: string, _originLocalAsset: string, _destinationDomain: string],
       Promise<string>
@@ -132,6 +134,7 @@ describe("Operations:Execute", () => {
       mockSignRouterPathPayload = stub(Mockable, "signRouterPathPayload").resolves(mock.signature);
 
       mockGetDestinationLocalAsset = stub(ExecuteFns, "getDestinationLocalAsset").resolves(mockFulfillLocalAsset);
+      getBlacklistStub = stub(ExecuteFns, "getBlacklist");
       mockSendBid = stub(ExecuteFns, "sendBid").resolves();
 
       (mockSubContext.adapters.subgraph.isRouterApproved as SinonStub).resolves(true);
@@ -144,6 +147,7 @@ describe("Operations:Execute", () => {
     });
 
     it("happy", async () => {
+      getBlacklistStub.resolves({ originBlacklisted: false, destinationBlacklisted: false });
       const expectedBid: Bid = {
         routerVersion: version,
         transferId: mockXTransfer.transferId,
@@ -174,6 +178,7 @@ describe("Operations:Execute", () => {
     });
 
     it("should choose rounds properly", async () => {
+      getBlacklistStub.resolves({ originBlacklisted: false, destinationBlacklisted: false });
       const _mockXTransfer = mock.entity.xtransfer({
         amount: "200",
       });
@@ -196,6 +201,7 @@ describe("Operations:Execute", () => {
     });
 
     it("happy with calldata", async () => {
+      getBlacklistStub.resolves({ originBlacklisted: false, destinationBlacklisted: false });
       mockXTransfer.xparams.callData = "0xbeef";
       (mockSubContext.adapters.txservice.getCode as SinonStub).resolves("0xbeef");
 
@@ -231,6 +237,7 @@ describe("Operations:Execute", () => {
     });
 
     it("should throw CallDataForNonContract if calldata is passed but no code exists", async () => {
+      getBlacklistStub.resolves({ originBlacklisted: false, destinationBlacklisted: false });
       mockXTransfer.xparams.callData = "0xbeef";
       await expect(execute(mockXTransfer, requestContext)).to.be.rejectedWith(CallDataForNonContract);
     });
@@ -247,24 +254,23 @@ describe("Operations:Execute", () => {
       ).to.be.rejectedWith(MissingXCall);
     });
 
-    // TODO: reenable when blacklist working again
-    // it("should throw on blacklisted origin", async () => {
-    //   getBlacklistStub.resolves({ originBlacklisted: true, destinationBlacklisted: false });
+    it("should throw on blacklisted origin", async () => {
+      getBlacklistStub.resolves({ originBlacklisted: true, destinationBlacklisted: false });
 
-    //   await expect(execute(mockXTransfer)).to.be.rejectedWith(NomadHomeBlacklisted);
-    // });
+      await expect(execute(mockXTransfer, requestContext)).to.be.rejectedWith(NomadHomeBlacklisted);
+    });
 
-    // it("should throw on blacklisted destination", async () => {
-    //   getBlacklistStub.resolves({ originBlacklisted: false, destinationBlacklisted: true });
+    it("should throw on blacklisted destination", async () => {
+      getBlacklistStub.resolves({ originBlacklisted: false, destinationBlacklisted: true });
 
-    //   await expect(execute(mockXTransfer)).to.be.rejectedWith(NomadHomeBlacklisted);
-    // });
+      await expect(execute(mockXTransfer, requestContext)).to.be.rejectedWith(NomadHomeBlacklisted);
+    });
 
-    // it("should throw on both destination and origin blacklisted", async () => {
-    //   getBlacklistStub.resolves({ originBlacklisted: true, destinationBlacklisted: true });
+    it("should throw on both destination and origin blacklisted", async () => {
+      getBlacklistStub.resolves({ originBlacklisted: true, destinationBlacklisted: true });
 
-    //   await expect(execute(mockXTransfer)).to.be.rejectedWith(NomadHomeBlacklisted);
-    // });
+      await expect(execute(mockXTransfer, requestContext)).to.be.rejectedWith(NomadHomeBlacklisted);
+    });
 
     it("should return early if transfer exists", async () => {
       (mockSubContext.adapters.subgraph.getDestinationTransferById as SinonStub).resolves({ hello: "world" });
