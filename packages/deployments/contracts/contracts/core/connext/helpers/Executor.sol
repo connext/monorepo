@@ -191,6 +191,7 @@ contract Executor is IExecutor {
     bool hasValue = _args.amount != 0;
 
     if (!isNative && hasValue) {
+      SafeERC20.safeApprove(IERC20(_args.assetId), _args.to, 0);
       SafeERC20.safeIncreaseAllowance(IERC20(_args.assetId), _args.to, _args.amount);
     }
 

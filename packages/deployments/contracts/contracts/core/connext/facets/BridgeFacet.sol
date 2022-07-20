@@ -342,6 +342,7 @@ contract BridgeFacet is BaseConnextFacet {
       }
 
       // Approve bridge router
+      SafeERC20.safeApprove(IERC20(bridged), address(s.bridgeRouter), 0);
       SafeERC20.safeIncreaseAllowance(IERC20(bridged), address(s.bridgeRouter), bridgedAmt);
 
       // Send message
