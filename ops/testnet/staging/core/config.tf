@@ -65,10 +65,7 @@ locals {
     environment = var.stage
     messageQueue = {
       connection = {
-        uri            = module.centralised_message_queue.aws_mq_amqp_endpoint
-        port           = 5671
-        user           = var.rmq_mgt_user
-        pass           = var.rmq_mgt_password
+        uri = "amqps://${var.rmq_mgt_user}:${var.rmq_mgt_password}@${module.centralised_message_queue.aws_mq_amqp_endpoint}"
       }
       exchanges = [
         {
@@ -148,10 +145,7 @@ locals {
     environment      = var.stage
     nomadEnvironment = var.nomad_environment
     messageQueue = {
-      uri = module.centralised_message_queue.aws_mq_amqp_endpoint
-      port = 5671
-      user = var.rmq_mgt_user
-      pass = var.rmq_mgt_password
+      uri = "amqps://${var.rmq_mgt_user}:${var.rmq_mgt_password}@${module.centralised_message_queue.aws_mq_amqp_endpoint}"
     }
   })
 }
