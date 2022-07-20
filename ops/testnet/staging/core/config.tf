@@ -78,13 +78,13 @@ locals {
       ]
       queues = [
         {
-          name       = "1337"
+          name       = "1111"
           prefetch   = 100
           queueLimit = 10000
           subscribe  = true
         },
         {
-          name       = "1338"
+          name       = "3331"
           prefetch   = 100
           queueLimit = 10000
           subscribe  = true
@@ -93,13 +93,13 @@ locals {
       bindings = [
         {
           exchange = "sequencerX"
-          target   = "1337"
-          keys     = ["1337"]
+          target   = "1111"
+          keys     = ["1111"]
         },
         {
           exchange = "sequencerX"
-          target   = "1338"
-          keys     = ["1338"]
+          target   = "3331"
+          keys     = ["3331"]
         }
       ]
       executerTimeout = 300000
