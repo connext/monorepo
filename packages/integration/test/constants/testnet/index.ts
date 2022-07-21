@@ -218,8 +218,14 @@ export const ROUTER_CONFIG: Promise<RouterConfig> = (async (): Promise<RouterCon
     redis: {},
     server: {
       adminToken: "a",
-      port: 8080,
-      host: LOCALHOST,
+      pub: {
+        port: 8081,
+        host: LOCALHOST,
+      },
+      sub: {
+        port: 8080,
+        host: LOCALHOST,
+      },
       requestLimit: 10,
     },
     chains: {
