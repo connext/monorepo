@@ -549,13 +549,13 @@ contract RoutersFacet is BaseConnextFacet {
       revert RoutersFacet__addLiquidityForRouter_badAsset();
 
     // Transfer funds to contract.
-    (address asset, uint256 received) = AssetLogic.handleIncomingAsset(_local, _amount, 0);
+    address asset = AssetLogic.handleIncomingAsset(_local, _amount, 0);
 
     // Update the router balances. Happens after pulling funds to account for
     // the fee on transfer tokens.
-    s.routerBalances[_router][asset] += received;
+    s.routerBalances[_router][asset] += _amount;
 
-    emit RouterLiquidityAdded(_router, asset, canonicalId, received, msg.sender);
+    emit RouterLiquidityAdded(_router, asset, canonicalId, _amount, msg.sender);
   }
 
   /**
@@ -597,7 +597,7 @@ contract RoutersFacet is BaseConnextFacet {
     }
 
     // Transfer from contract to specified `to` address.
-    AssetLogic.transferAssetFromContract(key, recipient, _amount);
+    AssetLogic.handleOutgoingAsset(key, recipient, _amount);
 
     emit RouterLiquidityRemoved(_router, recipient, _local, _amount, msg.sender);
   }
