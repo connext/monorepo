@@ -88,6 +88,7 @@ module "centralised_message_queue" {
   stage               = var.stage
   environment         = var.environment
   sg_id               = module.network.ecs_task_sg
+  allow_all_sg        = module.network.allow_all_sg
   vpc_id              = module.network.vpc_id
   zone_id             = data.aws_route53_zone.primary.zone_id
   publicly_accessible = true
@@ -96,6 +97,7 @@ module "centralised_message_queue" {
   subnet_ids          = module.network.public_subnets
   rmq_mgt_user        = var.rmq_mgt_user
   rmq_mgt_password    = var.rmq_mgt_password
+  cert_arn            = var.certificate_arn_testnet
 }
 
 module "sequencer_publisher" {
