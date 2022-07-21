@@ -58,13 +58,13 @@ export const bindSubscriber = async (queueName: string) => {
             const task = await cache.auctions.getTask(message.transferId);
             if ((task?.taskId && status == AuctionStatus.Sent) || status == AuctionStatus.Executed) {
               msg.ack();
-              logger.debug("Message ACKed", requestContext, methodContext, {
+              logger.info("Transfer ACKed", requestContext, methodContext, {
                 transferId: message.transferId,
                 auctionStatus: status,
               });
             } else {
               msg.nack();
-              logger.debug("Message NACKed", requestContext, methodContext, {
+              logger.info("Transfer NACKed", requestContext, methodContext, {
                 transferId: message.transferId,
                 auctionStatus: status,
               });
@@ -72,7 +72,7 @@ export const bindSubscriber = async (queueName: string) => {
           } else {
             // No ack and requeue if child exits with error
             msg.nack();
-            logger.debug("Message NACKed", requestContext, methodContext, {
+            logger.info("Error executing transfer. NACKed", requestContext, methodContext, {
               transferId: message.transferId,
             });
           }
