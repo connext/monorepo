@@ -148,7 +148,7 @@ export const bindServer = () =>
       async (req, res) => api.auth.admin(req.body, res, api.post.clearCache),
     );
 
-    server.listen(config.server.port, config.server.host, (err, address) => {
+    server.listen(config.server.pub.port, config.server.pub.host, (err, address) => {
       if (err) {
         console.error(err);
         process.exit(1);

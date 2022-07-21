@@ -64,7 +64,10 @@ export const makePublisher = async (_configOverride?: SequencerConfig) => {
     await bindServer();
 
     context.logger.info("Sequencer boot complete!", requestContext, methodContext, {
-      port: context.config.server.port,
+      port: {
+        pub: context.config.server.pub.port,
+        sub: context.config.server.sub.port,
+      },
       chains: [...Object.keys(context.config.chains)],
     });
     ethersLogger.info(
