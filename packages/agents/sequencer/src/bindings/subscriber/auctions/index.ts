@@ -11,7 +11,7 @@ export const bindSubscriber = async (queueName: string) => {
     config,
     adapters: { cache, mqClient },
   } = getContext();
-  const { requestContext, methodContext } = createLoggingContext(bindSubscriber.name);
+  const { requestContext, methodContext } = createLoggingContext(bindSubscriber.name, undefined, "");
   logger.info("Binding subscriber for queue", requestContext, methodContext, { queue: queueName });
   try {
     // Spawn job handler
@@ -29,18 +29,20 @@ export const bindSubscriber = async (queueName: string) => {
           return;
         }
 
-        logger.debug("Spawning executer for message", requestContext, methodContext, msg.body);
+        requestContext.transferId = message.transferId;
+
+        logger.debug("Spawning executer for transfer", requestContext, methodContext, msg.body);
 
         const child = spawn(process.argv[0], ["dist/executer.js", message.transferId], {
           timeout: config.messageQueue.executerTimeout,
         });
 
         child.stdout.on("data", (data) => {
-          logger.debug(`${data}`);
+          console.log(`${data}`);
         });
 
         child.stderr.on("data", (data) => {
-          logger.debug(`${data}`);
+          console.log(`${data}`);
         });
 
         child.on("exit", async (code, signal) => {
