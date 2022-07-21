@@ -62,5 +62,8 @@ export const TOptionalPeripheralConfig = Type.Object({
 
 export const TRequiredPeripheralConfig = Type.Object({
   port: Type.Optional(Type.Integer({ minimum: 1, maximum: 65535 })),
+  uri: Type.Optional(Type.String()),
   host: Type.Optional(Type.String()),
+  user: Type.Optional(Type.String()),
+  pass: Type.Optional(Type.String()),
 });

@@ -34,26 +34,16 @@ export const mock = {
   },
   config: (): SequencerConfig => ({
     chains: {
-      [mock.chain.A]: {
+      [mock.domain.A]: {
         confirmations: 1,
         providers: ["http://example.com"],
-        subgraph: {
-          runtime: [{ query: "http://example.com", health: "http://example.com" }],
-          analytics: [{ query: "http://example.com", health: "http://example.com" }],
-          maxLag: 10,
-        },
         deployments: {
           connext: mkAddress("0xabcdef123"),
         },
       },
-      [mock.chain.B]: {
+      [mock.domain.B]: {
         confirmations: 1,
         providers: ["http://example.com"],
-        subgraph: {
-          runtime: [{ query: "http://example.com", health: "http://example.com" }],
-          analytics: [{ query: "http://example.com", health: "http://example.com" }],
-          maxLag: 10,
-        },
         deployments: {
           connext: mkAddress("0xabcdef123"),
         },
@@ -76,14 +66,7 @@ export const mock = {
     environment: "staging",
     messageQueue: {
       connection: {
-        user: "guest",
-        pass: "guest",
-        server: "0.0.0.0",
-        port: 5672,
-        timeout: 2000,
-        publishTimeout: 100,
-        failAfter: 10,
-        retryLimit: 100,
+        uri: "amqp://guest:guest@localhost:5672",
       },
       exchanges: [{ name: "sequencerX", type: "direct", publishTimeout: 1000, persistent: true, durable: true }],
       queues: [{ name: mock.chain.A, prefetch: 100, queueLimit: 10000, subscribe: true }],

@@ -1,6 +1,6 @@
 {
   "name": "@connext/nxtp-sequencer",
-  "version": "0.2.0-beta.15",
+  "version": "0.2.0-beta.16",
   "description": "Sequencer for Amarok, previously auctioneer",
   "author": "Connext",
   "license": "MIT",
@@ -8,6 +8,8 @@
     "dev": "concurrently -i -k -n 'app,tsc' -c 'green,cyan' 'nodemon'",
     "docker:redis:up": "docker-compose -f ops/start-redis.docker-compose.yml up -d",
     "start": "node dist/index.js",
+    "start-publisher": "node --enable-source-maps dist/publisher.js",
+    "start-subscriber": "node --enable-source-maps dist/subscriber.js",
     "lint": "eslint ./src --ext .ts --env node",
     "test": "nyc ts-mocha --require test/globalTestHook.ts --check-leaks --exit --timeout 120000 'test/**/*.spec.ts'",
     "clean": "rimraf ./dist ./tsconfig.tsBuildInfo",
@@ -57,6 +59,7 @@
     "foo-foo-mq": "7.1.0",
     "interval-promise": "1.4.0",
     "pino": "8.1.0",
+    "prom-client": "14.0.1",
     "tsc": "2.0.4"
   },
   "devDependencies": {

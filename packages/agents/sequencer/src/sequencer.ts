@@ -6,6 +6,7 @@ import {
   createLoggingContext,
   createMethodContext,
   ChainData,
+  jsonifyError,
 } from "@connext/nxtp-utils";
 import Broker from "foo-foo-mq";
 import { SubgraphReader } from "@connext/nxtp-adapters-subgraph";
@@ -15,7 +16,8 @@ import { ChainReader, getContractInterfaces, contractDeployments } from "@connex
 import { SequencerConfig } from "./lib/entities";
 import { getConfig } from "./config";
 import { AppContext } from "./lib/entities/context";
-import { bindServer, bindSubscriber } from "./bindings";
+import { bindHealthServer, bindSubscriber } from "./bindings/subscriber";
+import { bindServer } from "./bindings/publisher";
 import { setupRelayer } from "./adapters";
 import { getHelpers } from "./lib/helpers";
 import { getOperations } from "./lib/operations";
@@ -44,7 +46,7 @@ export const makePublisher = async (_configOverride?: SequencerConfig) => {
 
     if (!context.config.messageQueue.publisher) throw new Error(`No publisher found in config`);
 
-    context.logger.info("Publisher config generated.", requestContext, methodContext, { config: context.config });
+    context.logger.info("Publisher config generated.", requestContext, methodContext);
 
     /// MARK - Adapters
     context.adapters.cache = await setupCache(context.config.redis, context.logger, requestContext);
@@ -88,6 +90,10 @@ export const execute = async (_configOverride?: SequencerConfig) => {
     auctions: { executeAuction },
   } = getOperations();
   try {
+    // Transfer ID is a CLI argument. Always provided by the parent
+    const transferId = process.argv[2];
+    const { requestContext, methodContext } = createLoggingContext(execute.name, undefined, transferId);
+
     context.adapters = {} as any;
 
     /// MARK - Config.
@@ -104,9 +110,6 @@ export const execute = async (_configOverride?: SequencerConfig) => {
     });
     context.logger.info("Sequencer config generated.", requestContext, methodContext, { config: context.config });
 
-    // Transfer ID is a CLI argument. Always provided by the parent
-    const transferId = process.argv[2];
-
     // TODO: Which of these are not needed ?
     context.adapters.cache = await setupCache(context.config.redis, context.logger, requestContext);
     context.adapters.subgraph = await setupSubgraphReader(requestContext);
@@ -120,7 +123,7 @@ export const execute = async (_configOverride?: SequencerConfig) => {
     await executeAuction(transferId, requestContext);
     context.logger.info("Executed", requestContext, methodContext, { transferId: transferId });
   } catch (error: any) {
-    console.error("Error executing:'(", error);
+    context.logger.error("Error executing:", requestContext, methodContext, jsonifyError(error as Error));
     process.exit(1);
   }
   process.exit();
@@ -251,7 +254,8 @@ export const makeSubscriber = async (_configOverride?: SequencerConfig) => {
 
     if (context.config.messageQueue.queues.length === 0) throw new Error(`No queues found in config`);
 
-    context.logger.info("Subscriber config generated.", requestContext, methodContext, { config: context.config });
+    context.logger.info("Subscriber config generated.", requestContext, methodContext);
+    context.adapters.cache = await setupCache(context.config.redis, context.logger, requestContext);
 
     context.adapters.mqClient = await setupSubscriber(requestContext);
 
@@ -265,9 +269,12 @@ export const makeSubscriber = async (_configOverride?: SequencerConfig) => {
         }),
       );
     }
+
+    // Create health server, set up routes, and start listening.
+    await bindHealthServer();
   } catch (error: any) {
     console.error("Error starting subscriber :'(", error);
-    context.adapters.mqClient.close();
+    Broker.close();
     process.exit(1);
   }
 };

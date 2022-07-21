@@ -37,11 +37,10 @@ output "lighthouse-service-name" {
   value = module.lighthouse.daemon_service_name
 }
 
-output "rmq-router-management-endpoint" {
-  value = module.router_message_queue.rmq_management_endpoint
+output "rmq-management-endpoint" {
+  value = module.centralised_message_queue.aws_mq_broker_console
 }
 
-output "rmq-sequencer-management-endpoint" {
-  value = module.sequencer_message_queue.rmq_management_endpoint
+output "rmq-amqps-endpoint" {
+  value = module.centralised_message_queue.aws_mq_amqp_endpoint
 }
-

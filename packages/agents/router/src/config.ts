@@ -158,13 +158,11 @@ export const getEnvConfig = (
     nomadEnvironment:
       process.env.NXTP_NOMAD_ENVIRONMENT || configJson.nomadEnvironment || configFile.nomadEnvironment || "staging",
     messageQueue: {
-      host:
-        process.env.NXTP_MESSAGE_QUEUE_HOST ||
-        configJson.messageQueue?.host ||
-        configFile.messageQueue?.host ||
-        "localhost",
-      port:
-        process.env.NXTP_MESSAGE_QUEUE_PORT || configJson.messageQueue?.port || configFile.messageQueue?.port || 5672,
+      uri:
+        process.env.NXTP_MESSAGE_QUEUE_URI ||
+        configJson.messageQueue?.uri ||
+        configFile.messageQueue?.uri ||
+        "amqp://guest@guestlocalhost:5672",
     },
   };
 

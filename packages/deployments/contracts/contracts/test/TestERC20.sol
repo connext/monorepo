@@ -11,7 +11,7 @@ import {ConnextMessage} from "../core/connext/libraries/ConnextMessage.sol";
  * @dev Anybody can burn anyone else's tokens
  */
 contract TestERC20 is IBridgeToken, ERC20 {
-  constructor() ERC20("Test Token", "TEST") {
+  constructor(string memory _name, string memory _symbol) ERC20(_name, _symbol) {
     _mint(msg.sender, 1000000 ether);
   }
 

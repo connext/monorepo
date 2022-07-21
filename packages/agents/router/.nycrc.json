@@ -1,6 +1,7 @@
 {
   "extends": "../../../.nycrc.json",
   "exclude": [
+    "src/config.ts",
     "src/helpers.ts",
     "src/setup.ts",
     "src/bindings/metrics/index.ts",
