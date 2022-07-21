@@ -99,7 +99,6 @@ export const bindServer = () =>
         const {
           auctions: { storeBid },
         } = getOperations();
-        const { requestContext, methodContext } = createLoggingContext("POST /auctions/:transferId endpoint");
         try {
           const bid = request.body;
           const { requestContext } = createLoggingContext(
@@ -110,6 +109,7 @@ export const bindServer = () =>
           await storeBid(bid, requestContext);
           return response.status(200).send({ message: "Bid received", transferId: bid.transferId, router: bid.router });
         } catch (error: unknown) {
+          const { requestContext, methodContext } = createLoggingContext("POST /auctions/:transferId endpoint");
           const type = (error as NxtpError).type;
           if (type !== AuctionExpired.name) {
             // If this is a routine AuctionExpired error, let's avoid logging it.

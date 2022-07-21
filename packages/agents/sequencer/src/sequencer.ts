@@ -85,7 +85,6 @@ export const makePublisher = async (_configOverride?: SequencerConfig) => {
 };
 
 export const execute = async (_configOverride?: SequencerConfig) => {
-  const { requestContext, methodContext } = createLoggingContext(execute.name);
   const {
     auctions: { executeAuction },
   } = getOperations();
@@ -123,6 +122,7 @@ export const execute = async (_configOverride?: SequencerConfig) => {
     await executeAuction(transferId, requestContext);
     context.logger.info("Executed", requestContext, methodContext, { transferId: transferId });
   } catch (error: any) {
+    const { requestContext, methodContext } = createLoggingContext(execute.name);
     context.logger.error("Error executing:", requestContext, methodContext, jsonifyError(error as Error));
     process.exit(1);
   }
