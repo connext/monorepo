@@ -90,7 +90,7 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
       address(0), // callback
       0, // callbackFee
       _relayerFee, // relayer fee
-      9900 // slippageTol
+      1 ether // slippageBoundary
     );
 
   // ============ Test set up ============
@@ -288,7 +288,6 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
       );
 
       // swapExact on pool should have been called
-      uint256 minReceived = (args.amount * args.params.slippageTol) / s.LIQUIDITY_FEE_DENOMINATOR;
       vm.expectCall(
         _stableSwap,
         abi.encodeWithSelector(
@@ -296,7 +295,7 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
           args.amount,
           eventArgs.transactingAssetId,
           _local,
-          minReceived
+          args.params.slippageBoundary
         )
       );
     }
@@ -527,10 +526,15 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
       // register expected approval
       vm.expectCall(_local, abi.encodeWithSelector(IERC20.approve.selector, _stableSwap, _inputs.routerAmt));
       // register expected swap amount
-      uint256 minReceived = (_inputs.routerAmt * _args.params.slippageTol) / s.LIQUIDITY_FEE_DENOMINATOR;
       vm.expectCall(
         _stableSwap,
-        abi.encodeWithSelector(IStableSwap.swapExact.selector, _inputs.routerAmt, _local, _adopted, minReceived)
+        abi.encodeWithSelector(
+          IStableSwap.swapExact.selector,
+          _inputs.routerAmt,
+          _local,
+          _adopted,
+          _args.params.slippageBoundary
+        )
       );
     }
 
