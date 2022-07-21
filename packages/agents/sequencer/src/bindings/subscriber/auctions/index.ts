@@ -11,7 +11,7 @@ export const bindSubscriber = async (queueName: string) => {
     config,
     adapters: { cache, mqClient },
   } = getContext();
-  const { requestContext, methodContext } = createLoggingContext(bindSubscriber.name);
+  const { requestContext, methodContext } = createLoggingContext(bindSubscriber.name, undefined, "");
   logger.info("Binding subscriber for queue", requestContext, methodContext, { queue: queueName });
   try {
     // Spawn job handler
@@ -29,18 +29,20 @@ export const bindSubscriber = async (queueName: string) => {
           return;
         }
 
-        logger.debug("Spawning executer for message", requestContext, methodContext, msg.body);
+        requestContext.transferId = message.transferId;
+
+        logger.debug("Spawning executer for transfer", requestContext, methodContext, msg.body);
 
         const child = spawn(process.argv[0], ["dist/executer.js", message.transferId], {
           timeout: config.messageQueue.executerTimeout,
         });
 
         child.stdout.on("data", (data) => {
-          logger.debug(`${data}`);
+          console.log(`${data}`);
         });
 
         child.stderr.on("data", (data) => {
-          logger.debug(`${data}`);
+          console.log(`${data}`);
         });
 
         child.on("exit", async (code, signal) => {
@@ -56,13 +58,13 @@ export const bindSubscriber = async (queueName: string) => {
             const task = await cache.auctions.getTask(message.transferId);
             if ((task?.taskId && status == AuctionStatus.Sent) || status == AuctionStatus.Executed) {
               msg.ack();
-              logger.debug("Message ACKed", requestContext, methodContext, {
+              logger.info("Transfer ACKed", requestContext, methodContext, {
                 transferId: message.transferId,
                 auctionStatus: status,
               });
             } else {
               msg.nack();
-              logger.debug("Message NACKed", requestContext, methodContext, {
+              logger.info("Transfer NACKed", requestContext, methodContext, {
                 transferId: message.transferId,
                 auctionStatus: status,
               });
@@ -70,7 +72,7 @@ export const bindSubscriber = async (queueName: string) => {
           } else {
             // No ack and requeue if child exits with error
             msg.nack();
-            logger.debug("Message NACKed", requestContext, methodContext, {
+            logger.info("Error executing transfer. NACKed", requestContext, methodContext, {
               transferId: message.transferId,
             });
           }
