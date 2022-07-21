@@ -43,7 +43,7 @@ contract BridgeFacet is BaseConnextFacet {
   error BridgeFacet__setSponsorVault_invalidSponsorVault();
   error BridgeFacet__xcall_wrongDomain();
   error BridgeFacet__xcall_destinationNotSupported();
-  error BridgeFacet__xcall_emptyTo();
+  error BridgeFacet__xcall_emptyToOrRecovery();
   error BridgeFacet__xcall_notSupportedAsset();
   error BridgeFacet__xcall_nonZeroCallbackFeeForCallback();
   error BridgeFacet__xcall_callbackNotAContract();
@@ -272,7 +272,7 @@ contract BridgeFacet is BaseConnextFacet {
 
       // Recipient is defined.
       if (_args.params.to == address(0)) {
-        revert BridgeFacet__xcall_emptyTo();
+        revert BridgeFacet__xcall_emptyToOrRecovery();
       }
 
       // If callback address is not set, callback fee should be 0.
@@ -569,15 +569,15 @@ contract BridgeFacet is BaseConnextFacet {
   /**
    * @notice Calculates fast transfer amount.
    * @param _amount Transfer amount
-   * @param _liquidityFeeNum Liquidity fee numerator
-   * @param _liquidityFeeDen Liquidity fee denominator
+   * @param _numerator Numerator
+   * @param _denominator Denominator
    */
-  function _getFastTransferAmount(
+  function _muldiv(
     uint256 _amount,
-    uint256 _liquidityFeeNum,
-    uint256 _liquidityFeeDen
+    uint256 _numerator,
+    uint256 _denominator
   ) private pure returns (uint256) {
-    return (_amount * _liquidityFeeNum) / _liquidityFeeDen;
+    return (_amount * _numerator) / _denominator;
   }
 
   /**
@@ -603,7 +603,7 @@ contract BridgeFacet is BaseConnextFacet {
       uint256 pathLen = _args.routers.length;
 
       // Calculate amount that routers will provide with the fast-liquidity fee deducted.
-      toSwap = _getFastTransferAmount(_args.amount, s.LIQUIDITY_FEE_NUMERATOR, s.LIQUIDITY_FEE_DENOMINATOR);
+      toSwap = _muldiv(_args.amount, s.LIQUIDITY_FEE_NUMERATOR, s.LIQUIDITY_FEE_DENOMINATOR);
 
       // Save the addresses of all routers providing liquidity for this transfer.
       s.routedTransfers[_transferId] = _args.routers;
@@ -674,8 +674,11 @@ contract BridgeFacet is BaseConnextFacet {
         // balance read about it
 
         uint256 starting = IERC20(_asset).balanceOf(address(this));
+        uint256 denom = s.LIQUIDITY_FEE_DENOMINATOR;
+        uint256 liquidityFee = _muldiv(_args.amount, (denom - s.LIQUIDITY_FEE_NUMERATOR), denom);
+
         (bool success, bytes memory data) = address(s.sponsorVault).call(
-          abi.encodeWithSelector(s.sponsorVault.reimburseLiquidityFees.selector, _asset, _args.amount, _args.params.to)
+          abi.encodeWithSelector(s.sponsorVault.reimburseLiquidityFees.selector, _asset, liquidityFee, _args.params.to)
         );
 
         if (success) {
