@@ -8,7 +8,7 @@ import {BaseConnextFacet} from "./BaseConnextFacet.sol";
 import {IAavePool} from "../interfaces/IAavePool.sol";
 
 import {AssetLogic} from "../libraries/AssetLogic.sol";
-import {TokenId} from "../libraries/LibConnextStorage.sol";
+import {TokenId, CallParams} from "../libraries/LibConnextStorage.sol";
 
 contract PortalFacet is BaseConnextFacet {
   // ========== Custom Errors ===========
@@ -78,54 +78,71 @@ contract PortalFacet is BaseConnextFacet {
    * @param _maxIn The max value of the local asset to swap for the _backingAmount of adopted asset
    */
   function repayAavePortal(
+    CallParams calldata _params,
     address _local,
+    address _originSender,
+    uint256 _bridgedAmt,
+    uint256 _nonce,
     uint256 _backingAmount,
     uint256 _feeAmount,
-    uint256 _maxIn,
-    bytes32 _transferId
+    uint256 _maxIn
   ) external {
-    uint256 totalAmount = _backingAmount + _feeAmount; // in adopted
-    uint256 routerBalance = s.routerBalances[msg.sender][_local]; // in local
-
     // Sanity check: has that much to spend
-    if (routerBalance < _maxIn) revert PortalFacet__repayAavePortal_insufficientFunds();
+    if (s.routerBalances[msg.sender][_local] < _maxIn) revert PortalFacet__repayAavePortal_insufficientFunds();
+
+    // Here, generate the transfer id. This allows us to ensure the `_local` asset
+    // is the correct one associated with the transfer. Otherwise, anyone could pay back
+    // the loan with the incorrect asset and remove the ability to transfer here. If the
+    // `_local` asset is incorrectly supplied, the generated transferId will also be
+    // incorrect, and the _backLoan call (which manipulates the debt stored) will fail.
+    // Another option is to store the asset associated with the transfer on `execute`, but
+    // this would make an already expensive call even more so.
+    (uint32 domain, bytes32 id) = s.tokenRegistry.getTokenId(_local);
+    bytes32 transferId = _calculateTransferId(_params, _bridgedAmt, _nonce, id, domain, _originSender);
 
     // Need to swap into adopted asset or asset that was backing the loan
     // The router will always be holding collateral in the local asset while the loaned asset
     // is the adopted asset
 
     // Swap for exact `totalRepayAmount` of adopted asset to repay aave
-    (, bytes32 id) = s.tokenRegistry.getTokenId(_local);
-    (bool success, uint256 amountIn, address adopted) = AssetLogic.swapFromLocalAssetIfNeededForExactOut(
+    (bool success, uint256 amountDebited, address assetLoaned) = AssetLogic.swapFromLocalAssetIfNeededForExactOut(
       id,
       _local,
-      totalAmount,
+      _backingAmount + _feeAmount,
       _maxIn
     );
 
     if (!success) revert PortalFacet__repayAavePortal_swapFailed();
 
     // decrement router balances
-    s.routerBalances[msg.sender][_local] -= amountIn;
+    s.routerBalances[msg.sender][_local] -= amountDebited;
 
     // back loan
-    _backLoan(adopted, _backingAmount, _feeAmount, _transferId);
+    _backLoan(assetLoaned, _backingAmount, _feeAmount, transferId);
   }
 
   /**
    * @notice This allows anyone to repay the portal in the adopted asset for a given router
    * and transfer
+   *
    * @dev Should always be paying in the backing asset for the aave loan
+   *
+   * @param _params CallParams associated with the transfer
    * @param _adopted Address of the adopted asset (asset backing the loan)
+   * @param _originSender Original msg.sender of xcall on origin chain
+   * @param _bridgedAmt Amount bridged during transfer
+   * @param _nonce The nonce for the transfer
    * @param _backingAmount Amount of principle to repay
    * @param _feeAmount Amount of fees to repay
-   * @param _transferId Corresponding transfer id for the fees
    */
   function repayAavePortalFor(
+    CallParams calldata _params,
     address _adopted,
+    address _originSender,
+    uint256 _bridgedAmt,
+    uint256 _nonce,
     uint256 _backingAmount,
-    uint256 _feeAmount,
-    bytes32 _transferId
+    uint256 _feeAmount
   ) external payable {
     address adopted = _adopted == address(0) ? address(s.wrapper) : _adopted;
     // Ensure the asset is whitelisted
@@ -133,6 +150,22 @@ contract PortalFacet is BaseConnextFacet {
     if (canonical.id == bytes32(0)) {
       revert PortalFacet__repayAavePortalFor_notSupportedAsset();
     }
+
+    // Here, generate the transfer id. This allows us to ensure the `_adopted` asset
+    // is the correct one associated with the transfer. Otherwise, anyone could pay back
+    // the loan with the incorrect asset and remove the ability to transfer here. If the
+    // `_adopted` asset is incorrectly supplied, the generated transferId will also be
+    // incorrect, and the _backLoan call (which manipulates the debt stored) will fail.
+    // Another option is to store the asset associated with the transfer on `execute`, but
+    // this would make an already expensive call even more so.
+    bytes32 transferId = _calculateTransferId(
+      _params,
+      _bridgedAmt,
+      _nonce,
+      canonical.id,
+      canonical.domain,
+      _originSender
+    );
 
     // Transfer funds to the contract
     uint256 total = _backingAmount + _feeAmount;
@@ -142,7 +175,7 @@ contract PortalFacet is BaseConnextFacet {
 
     // No need to swap because this is the adopted asset. Simply
     // repay the loan
-    _backLoan(adopted, _backingAmount, _feeAmount, _transferId);
+    _backLoan(adopted, _backingAmount, _feeAmount, transferId);
   }
 
   // ============ Internal functions ============
