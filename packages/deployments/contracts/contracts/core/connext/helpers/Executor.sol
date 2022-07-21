@@ -243,14 +243,6 @@ contract Executor is IExecutor {
   }
 
   /**
-   * @notice Get current balance of this contract
-   * @param _assetId - Asset associated with call
-   */
-  function _assetBalance(address _assetId) internal view returns (uint256) {
-    return _assetId == address(0) ? address(this).balance : IERC20(_assetId).balanceOf(address(this));
-  }
-
-  /**
    * @notice Sends funds to the specified recovery address
    * @dev Called if the external call data fails, it's not a contract, or the amount in native
    * asset is incorrect.
