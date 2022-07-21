@@ -44,7 +44,7 @@ module "router_subscriber" {
   loadbalancer_port        = 80
   cpu                      = 512
   memory                   = 1024
-  instance_count           = 1
+  instance_count           = 3
   timeout                  = 180
   ingress_cdir_blocks      = ["0.0.0.0/0"]
   ingress_ipv6_cdir_blocks = []
@@ -148,7 +148,7 @@ module "sequencer_subscriber" {
   loadbalancer_port        = 80
   cpu                      = 512
   memory                   = 1024
-  instance_count           = 1
+  instance_count           = 3
   timeout                  = 180
   ingress_cdir_blocks      = ["0.0.0.0/0"]
   ingress_ipv6_cdir_blocks = []
