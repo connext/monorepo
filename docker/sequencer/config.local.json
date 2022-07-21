@@ -5,7 +5,12 @@
   },
   "server": {
     "adminToken": "b",
-    "port": 8081
+    "pub": {
+      "port": 8081
+    },
+    "sub": {
+      "port": 8081
+    }
   },
   "chains": {
     "1337": {

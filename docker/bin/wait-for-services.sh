@@ -10,7 +10,7 @@ ROUTER_SUBSCRIBER="router-subscriber"
 
 if [[ "${SERVICE}" == "${ROUTER_PUBLISHER}" ]]
 then
-  PORT=8080
+  PORT=8091
 elif [[ "${SERVICE}" == "${ROUTER_SUBSCRIBER}" ]]
 then
   PORT=8090

@@ -53,8 +53,14 @@ export const mock = {
     redis: { host: "localhost", port: 6379 },
     server: {
       adminToken: "foo",
-      port: 3000,
-      host: "0.0.0.0",
+      pub: {
+        port: 3001,
+        host: "0.0.0.0",
+      },
+      sub: {
+        port: 3000,
+        host: "0.0.0.0",
+      },
     },
     network: "testnet",
     auctionWaitTime: 1_000,

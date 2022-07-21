@@ -51,8 +51,16 @@ export const getEnvConfig = (
     network:
       process.env.SEQ_NETWORK || configJson.network || configFile.network || process.env.NXTP_NETWORK || "mainnet",
     server: {
-      port: process.env.SEQ_SERVER_PORT || configJson.server?.port || configFile.server?.port || 8081,
-      host: process.env.SEQ_SERVER_HOST || configJson.server?.host || configFile.server?.host || "0.0.0.0",
+      sub: {
+        port: process.env.SEQ_SUB_SERVER_PORT || configJson.server?.sub?.port || configFile.server?.sub?.port || 8080,
+        host:
+          process.env.SEQ_SUB_SERVER_HOST || configJson.server?.sub?.host || configFile.server?.sub?.host || "0.0.0.0",
+      },
+      pub: {
+        port: process.env.SEQ_PUB_SERVER_PORT || configJson.server?.pub?.port || configFile.server?.pub?.port || 8081,
+        host:
+          process.env.SEQ_PUB_SERVER_HOST || configJson.server?.pub?.host || configFile.server?.pub?.host || "0.0.0.0",
+      },
       adminToken: process.env.SEQ_SERVER_ADMIN_TOKEN || configJson.server?.adminToken || configFile.server?.adminToken,
     },
     auctionWaitTime:
