@@ -253,8 +253,14 @@ export const SEQUENCER_CONFIG: Promise<SequencerConfig> = (async (): Promise<Seq
     redis: {},
     server: {
       adminToken: "b",
-      port: 8081,
-      host: LOCALHOST,
+      pub: {
+        port: 8081,
+        host: LOCALHOST,
+      },
+      sub: {
+        port: 8080,
+        host: LOCALHOST,
+      },
     },
     chains: {
       [ORIGIN.domain]: {
