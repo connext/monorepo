@@ -1,13 +1,19 @@
 ///NXTP Config Generator based on vector/modules/router/src/config.ts
 import { Type, Static } from "@sinclair/typebox";
 import { config as dotenvConfig } from "dotenv";
-import { ajv, ChainData, TAddress, SubgraphReaderChainConfigSchema } from "@connext/nxtp-utils";
+import {
+  ajv,
+  ChainData,
+  TChainConfig,
+  TOptionalPeripheralConfig,
+  TRequiredPeripheralConfig,
+  TServerConfig,
+} from "@connext/nxtp-utils";
 import { ConnextContractDeployments, ContractPostfix } from "@connext/nxtp-txservice";
 
-import { getHelpers } from "./lib/helpers";
+import { existsSync, readFileSync } from "./mockable";
 
 const DEFAULT_ALLOWED_TOLERANCE = 10; // in percent
-const MIN_SUBGRAPH_SYNC_BUFFER = 25;
 
 // Polling mins and defaults.
 const MIN_SUBGRAPH_POLL_INTERVAL = 2_000;
@@ -18,39 +24,6 @@ const DEFAULT_CACHE_POLL_INTERVAL = 20_000;
 const DEFAULT_AUCTION_ROUND_DEPTH = 3;
 
 dotenvConfig();
-
-export const TAssetDescription = Type.Object({
-  name: Type.String(),
-  address: TAddress,
-  mainnetEquivalent: Type.Optional(TAddress),
-});
-
-export type AssetDescription = Static<typeof TAssetDescription>;
-
-export const TChainConfig = Type.Object({
-  assets: Type.Array(TAssetDescription), // Assets for which the router provides liquidity on this chain.
-  subgraph: SubgraphReaderChainConfigSchema, // Subgraph configuration for this chain.
-  providers: Type.Array(Type.String()),
-  gasStations: Type.Array(Type.String()),
-  confirmations: Type.Integer({ minimum: 1 }), // What we consider the "safe confirmations" number for this chain.
-  deployments: Type.Object({
-    connext: TAddress,
-  }),
-});
-
-export type ChainConfig = Static<typeof TChainConfig>;
-
-export const TServerConfig = Type.Object({
-  port: Type.Integer({ minimum: 1, maximum: 65535 }),
-  host: Type.String({ format: "ipv4" }),
-  requestLimit: Type.Integer(),
-  adminToken: Type.String(),
-});
-
-export const TRedisConfig = Type.Object({
-  port: Type.Optional(Type.Integer({ minimum: 1, maximum: 65535 })),
-  host: Type.Optional(Type.String()),
-});
 
 export const TModeConfig = Type.Object({
   diagnostic: Type.Boolean(),
@@ -76,17 +49,18 @@ export const NxtpRouterConfigSchema = Type.Object({
   ]),
   mnemonic: Type.Optional(Type.String()),
   web3SignerUrl: Type.Optional(Type.String()),
-  redis: TRedisConfig,
+  redis: TOptionalPeripheralConfig,
   sequencerUrl: Type.String({ format: "uri" }),
   server: TServerConfig,
-  maxSlippage: Type.Number({ minimum: 0, maximum: 100 }),
+  maxSlippage: Type.Integer({ minimum: 0, maximum: 100 }),
   mode: TModeConfig,
   network: Type.Union([Type.Literal("testnet"), Type.Literal("mainnet"), Type.Literal("local")]),
   polling: TPollingConfig,
-  auctionRoundDepth: Type.Number(),
+  auctionRoundDepth: Type.Integer(),
   subgraphPrefix: Type.Optional(Type.String()),
   environment: Type.Union([Type.Literal("staging"), Type.Literal("production")]),
   nomadEnvironment: Type.Union([Type.Literal("staging"), Type.Literal("production"), Type.Literal("none")]),
+  messageQueue: TRequiredPeripheralConfig,
 });
 
 export type NxtpRouterConfig = Static<typeof NxtpRouterConfigSchema>;
@@ -111,9 +85,6 @@ export const getEnvConfig = (
   try {
     let json: string;
 
-    const {
-      shared: { existsSync, readFileSync },
-    } = getHelpers();
     const path = process.env.NXTP_CONFIG_FILE ?? "config.json";
     if (existsSync(path)) {
       json = readFileSync(path, { encoding: "utf-8" });
@@ -140,8 +111,16 @@ export const getEnvConfig = (
     logLevel: process.env.NXTP_LOG_LEVEL || configJson.logLevel || configFile.logLevel || "info",
     network: process.env.NXTP_NETWORK || configJson.network || configFile.network || "mainnet",
     server: {
-      port: process.env.NXTP_SERVER_PORT || configJson.server?.port || configFile.server?.port || 8080,
-      host: process.env.NXTP_SERVER_HOST || configJson.server?.host || configFile.server?.host || "0.0.0.0",
+      pub: {
+        port: process.env.NXTP_SERVER_PUB_PORT || configJson.server?.pub?.port || configFile.server?.pub?.port || 8091,
+        host:
+          process.env.NXTP_SERVER_PUB_HOST || configJson.server?.pub?.host || configFile.server?.pub?.host || "0.0.0.0",
+      },
+      sub: {
+        port: process.env.NXTP_SERVER_SUB_PORT || configJson.server?.sub?.port || configFile.server?.sub?.port || 8090,
+        host:
+          process.env.NXTP_SERVER_SUB_HOST || configJson.server?.sub?.host || configFile.server?.sub?.host || "0.0.0.0",
+      },
       requestLimit:
         process.env.NXTP_SERVER_REQUEST_LIMIT ||
         configJson.server?.requestLimit ||
@@ -186,6 +165,13 @@ export const getEnvConfig = (
     environment: process.env.NXTP_ENVIRONMENT || configJson.environment || configFile.environment || "production",
     nomadEnvironment:
       process.env.NXTP_NOMAD_ENVIRONMENT || configJson.nomadEnvironment || configFile.nomadEnvironment || "staging",
+    messageQueue: {
+      uri:
+        process.env.NXTP_MESSAGE_QUEUE_URI ||
+        configJson.messageQueue?.uri ||
+        configFile.messageQueue?.uri ||
+        "amqp://guest@guestlocalhost:5672",
+    },
   };
 
   if (!nxtpConfig.mnemonic && !nxtpConfig.web3SignerUrl) {
@@ -221,14 +207,6 @@ export const getEnvConfig = (
           }
           return res.address;
         })(),
-    };
-
-    const maxLag = chainConfig.subgraph?.maxLag ?? MIN_SUBGRAPH_SYNC_BUFFER;
-    nxtpConfig.chains[domainId].subgraph = {
-      runtime: chainConfig.subgraph?.runtime ?? chainDataForChain?.subgraphs?.runtime ?? [],
-      analytics: chainConfig.subgraph?.analytics ?? chainDataForChain?.subgraphs?.analytics ?? [],
-      // 25 blocks minimum.
-      maxLag: maxLag < MIN_SUBGRAPH_SYNC_BUFFER ? MIN_SUBGRAPH_SYNC_BUFFER : maxLag,
     };
 
     nxtpConfig.chains[domainId].confirmations = chainConfig.confirmations ?? chainRecommendedConfirmations;

@@ -30,23 +30,34 @@ variable "nomad_environment" {
   default     = "staging"
 }
 
-variable "full_image_name_router" {
+variable "full_image_name_router_publisher" {
   type        = string
   description = "router image name"
-  default     = "ghcr.io/connext/router:sha-698acef"
+  default     = "ghcr.io/connext/router-publisher:sha-229b6dd"
 }
 
+variable "full_image_name_router_subscriber" {
+  type        = string
+  description = "router image name"
+  default     = "ghcr.io/connext/router-subscriber:sha-229b6dd"
+}
 
-variable "full_image_name_sequencer" {
+variable "full_image_name_sequencer_publisher" {
   type        = string
   description = "sequencer image name"
-  default     = "ghcr.io/connext/sequencer:sha-698acef"
+  default     = "ghcr.io/connext/sequencer-publisher:sha-229b6dd"
+}
+
+variable "full_image_name_sequencer_subscriber" {
+  type        = string
+  description = "sequencer image name"
+  default     = "ghcr.io/connext/sequencer-subscriber:sha-229b6dd"
 }
 
 variable "full_image_name_lighthouse" {
   type        = string
   description = "router image name"
-  default     = "ghcr.io/connext/lighthouse:sha-698acef"
+  default     = "ghcr.io/connext/lighthouse:sha-229b6dd"
 }
 
 variable "mnemonic" {
@@ -58,6 +69,17 @@ variable "mnemonic" {
 variable "admin_token_router" {
   type        = string
   description = "admin token"
+}
+
+variable "rmq_mgt_password" {
+  type        = string
+  description = "RabbitMQ management password"
+}
+
+variable "rmq_mgt_user" {
+  type        = string
+  default     = "connext"
+  description = "RabbitMQ management user"
 }
 
 

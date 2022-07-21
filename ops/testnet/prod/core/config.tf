@@ -57,7 +57,49 @@ locals {
       }
     }
 
-    environment = "production"
+    environment = var.stage
+    messageQueue = {
+      connection = {
+        uri = "amqps://${var.rmq_mgt_user}:${var.rmq_mgt_password}@${module.centralised_message_queue.aws_mq_amqp_endpoint}"
+      }
+      exchanges = [
+        {
+          name           = "sequencerX"
+          type           = "direct"
+          publishTimeout = 1000
+          persistent     = true
+          durable        = true
+        }
+      ]
+      queues = [
+        {
+          name       = "1111"
+          prefetch   = 100
+          queueLimit = 10000
+          subscribe  = true
+        },
+        {
+          name       = "3331"
+          prefetch   = 100
+          queueLimit = 10000
+          subscribe  = true
+        }
+      ]
+      bindings = [
+        {
+          exchange = "sequencerX"
+          target   = "1111"
+          keys     = ["1111"]
+        },
+        {
+          exchange = "sequencerX"
+          target   = "3331"
+          keys     = ["3331"]
+        }
+      ]
+      executerTimeout = 300000
+      publisher       = "sequencerX"
+    }
   })
 }
 
@@ -69,7 +111,7 @@ locals {
       port = module.router_cache.redis_instance_port
     }
     logLevel     = "debug"
-    sequencerUrl = "https://${module.sequencer.service_endpoint}"
+    sequencerUrl = "https://${module.sequencer_publisher.service_endpoint}"
     server = {
       adminToken = var.admin_token_router
       port       = 8080
@@ -95,9 +137,11 @@ locals {
       }
     }
     web3SignerUrl    = "https://${module.web3signer.service_endpoint}"
-    environment      = "production"
+    environment      = var.stage
     nomadEnvironment = var.nomad_environment
-
+    messageQueue = {
+      uri = "amqps://${var.rmq_mgt_user}:${var.rmq_mgt_password}@${module.centralised_message_queue.aws_mq_amqp_endpoint}"
+    }
   })
 }
 
@@ -112,6 +156,6 @@ locals {
         providers = ["https://eth-goerli.alchemyapi.io/v2/${var.goerli_alchemy_key_1}", "https://rpc.ankr.com/eth_goerli"]
       }
     }
-    environment = "production"
+    environment = var.stage
   })
 }

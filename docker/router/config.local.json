@@ -1,13 +1,18 @@
 {
   "logLevel": "debug",
-  "sequencerUrl": "http://sequencer:8081",
+  "sequencerUrl": "http://sequencer-publisher:8081",
   "redis": {
     "host": "router-cache",
     "port": 6379
   },
   "server": {
     "adminToken": "a",
-    "port": 8080
+    "pub": {
+      "port": 8080
+    },
+    "sub": {
+      "port": 8080
+    }
   },
   "chains": {
     "1337": {
@@ -31,5 +36,8 @@
   },
   "web3SignerUrl": "http://signer:9000",
   "environment": "production",
-  "nomadEnvironment": "none"
+  "nomadEnvironment": "none",
+  "messageQueue": {
+    "uri": "amqp://guest:guest@router-message-queue:5672"
+  }
 }

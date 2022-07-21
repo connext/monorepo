@@ -98,7 +98,7 @@ contract ExecutorTest is ForgeHelper {
   function setUp() public {
     executor = new Executor(connext);
     query = new PropertyQuery();
-    asset = new TestERC20();
+    asset = new TestERC20("Test Token", "TEST");
     mockStaking = new MockStaking();
 
     // fund executor

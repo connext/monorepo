@@ -178,8 +178,17 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment): Promise<voi
     deployment = await hre.deployments.deploy("TestERC20", {
       from: deployer.address,
       log: true,
-      //deterministicDeployment: keccak256(utils.toUtf8Bytes("connextTestERC20")),
       skipIfAlreadyDeployed: true,
+      args: ["Test Token", "TEST"],
+    });
+    console.log("TestERC20: ", deployment.address);
+
+    deployment = await hre.deployments.deploy("TestWETH", {
+      contract: "TestERC20",
+      from: deployer.address,
+      log: true,
+      skipIfAlreadyDeployed: true,
+      args: ["Test Wrapped Ether", "TWETH"],
     });
     console.log("TestERC20: ", deployment.address);
   } else {

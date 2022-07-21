@@ -1,27 +1,22 @@
 import { utils, BigNumber, Wallet, constants } from "ethers";
-import { createStubInstance, SinonStub, SinonStubbedInstance, stub } from "sinon";
+import { createStubInstance, SinonStubbedInstance, stub } from "sinon";
 import { AuctionsCache, TransfersCache } from "@connext/nxtp-adapters-cache";
 import { SubgraphReader } from "@connext/nxtp-adapters-subgraph";
 import { ConnextContractDeployments, ConnextContractInterfaces, TransactionService } from "@connext/nxtp-txservice";
 import { mkAddress, Logger, mock as _mock } from "@connext/nxtp-utils";
 
+import { AppContext as PublisherAppContext } from "../src/publisher/context";
+import { AppContext as SubscriberAppContext } from "../src/subscriber/context";
 import { NxtpRouterConfig } from "../src/config";
-import { AppContext } from "../src/lib/entities/context";
-// Used for stubbing functions at the bottom of this file:
-import * as router from "../src/router";
-import * as helpers from "../src/lib/helpers";
-import * as operations from "../src/lib/operations";
 
 export const mock = {
   ..._mock,
-  context: (): AppContext => {
+  publisherContext: (): PublisherAppContext => {
     return {
       adapters: {
-        wallet: mock.adapters.wallet(),
         subgraph: mock.adapters.subgraph(),
         cache: mock.adapters.cache(),
-        txservice: mock.adapters.txservice(),
-        contracts: mock.contracts.interfaces(),
+        mqClient: mock.adapters.mqClient() as any,
       },
       config: mock.config(),
       chainData: mock.chainData(),
@@ -29,31 +24,37 @@ export const mock = {
       logger: new Logger({ name: "mock", level: process.env.LOG_LEVEL || "silent" }),
     };
   },
+  subscriberContext: (): SubscriberAppContext => {
+    return {
+      adapters: {
+        wallet: mock.adapters.wallet(),
+        subgraph: mock.adapters.subgraph(),
+        txservice: mock.adapters.txservice(),
+        contracts: mock.contracts.interfaces(),
+        mqClient: mock.adapters.mqClient() as any,
+      },
+      config: mock.config(),
+      chainData: mock.chainData(),
+      routerAddress: mock.address.router,
+      logger: new Logger({ name: "mock", level: process.env.LOG_LEVEL || "silent" }),
+      bridgeContext: mock.bridgeContext(),
+    };
+  },
   config: (): NxtpRouterConfig => ({
     chains: {
-      [mock.chain.A]: {
+      [mock.domain.A]: {
         assets: [mock.asset.A],
         confirmations: 1,
         providers: ["http://example.com"],
-        subgraph: {
-          runtime: [{ query: "http://example.com", health: "http://example.com" }],
-          analytics: [{ query: "http://example.com", health: "http://example.com" }],
-          maxLag: 10,
-        },
         deployments: {
           connext: mkAddress("0xabcdef123"),
         },
         gasStations: [],
       },
-      [mock.chain.B]: {
+      [mock.domain.B]: {
         assets: [mock.asset.A],
         confirmations: 1,
         providers: ["http://example.com"],
-        subgraph: {
-          runtime: [{ query: "http://example.com", health: "http://example.com" }],
-          analytics: [{ query: "http://example.com", health: "http://example.com" }],
-          maxLag: 10,
-        },
         deployments: {
           connext: mkAddress("0xabcdef123"),
         },
@@ -65,8 +66,14 @@ export const mock = {
     redis: { port: 6379, host: "localhost" },
     sequencerUrl: "http://localhost:8081",
     server: {
-      host: "0.0.0.0",
-      port: 3000,
+      pub: {
+        host: "0.0.0.0",
+        port: 3001,
+      },
+      sub: {
+        host: "0.0.0.0",
+        port: 3000,
+      },
       requestLimit: 2000,
       adminToken: "blahblahblah",
     },
@@ -84,7 +91,14 @@ export const mock = {
     auctionRoundDepth: 4,
     environment: "staging",
     nomadEnvironment: "staging",
+    messageQueue: {},
   }),
+  bridgeContext: (): any => {
+    return {
+      checkHomes: stub().resolves(),
+      blacklist: stub().returns(new Set()),
+    };
+  },
   adapters: {
     wallet: (): SinonStubbedInstance<Wallet> => {
       const wallet = createStubInstance(Wallet);
@@ -126,6 +140,14 @@ export const mock = {
       txservice.getTransactionReceipt.resolves(mockReceipt);
       return txservice;
     },
+    mqClient: () => {
+      return {
+        publish: stub(),
+        startSubscription: stub(),
+        stopSubscription: stub(),
+        handle: stub() as any,
+      };
+    },
   },
   contracts: {
     interfaces: (): SinonStubbedInstance<ConnextContractInterfaces> => {
@@ -157,6 +179,7 @@ export const mock = {
         priceOracle: priceOracle as unknown as ConnextContractInterfaces["priceOracle"],
         tokenRegistry: tokenRegistry as unknown as ConnextContractInterfaces["tokenRegistry"],
         stableSwap: stableSwap as unknown as ConnextContractInterfaces["stableSwap"],
+        erc20Extended: erc20 as unknown as ConnextContractInterfaces["erc20Extended"],
       };
     },
     deployments: (): ConnextContractDeployments => {
@@ -167,62 +190,8 @@ export const mock = {
         }),
         priceOracle: (_: number) => ({ address: mkAddress("0xbaddad"), abi: {} }),
         tokenRegistry: (_: number) => ({ address: mkAddress("0xbbbddd"), abi: {} }),
+        stableSwap: (_: number) => ({ address: mkAddress("0xbbbddd"), abi: {} }),
       };
     },
   },
-  helpers: {
-    auctions: {
-      getAuctionStatus: stub(),
-      sendBid: stub(),
-    },
-    execute: {
-      sanityCheck: stub(),
-    },
-    shared: {
-      getDestinationLocalAsset: stub(),
-      getTransactionId: stub(),
-      signRouterPathPayload: stub(),
-    },
-  },
-  operations: {
-    execute: stub(),
-  },
-};
-
-export let mockContext: any;
-export let getContextStub: SinonStub;
-// Stub getContext to return the mock context above.
-export const stubContext = (_context?: AppContext) => {
-  mockContext = _context ?? mock.context();
-  try {
-    getContextStub.restore();
-  } catch (e) {}
-  try {
-    getContextStub = stub(router, "getContext").callsFake(() => {
-      return mockContext;
-    });
-  } catch (e) {}
-  return mockContext;
-};
-
-let getHelpersStub: SinonStub;
-export const stubHelpers = () => {
-  try {
-    getHelpersStub.restore();
-  } catch (e) {}
-  try {
-    getHelpersStub = stub(helpers, "getHelpers").returns(mock.helpers);
-  } catch (e) {}
-  return getHelpersStub;
-};
-
-let getOperationsStub: SinonStub;
-export const stubOperations = () => {
-  try {
-    getOperationsStub.restore();
-  } catch (e) {}
-  try {
-    getOperationsStub = stub(operations, "getOperations").returns(mock.operations);
-  } catch (e) {}
-  return getOperationsStub;
 };

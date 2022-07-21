@@ -11,7 +11,17 @@ import {
 } from "../types";
 
 /// MARK - Gelato Relay API
+/// Docs: https://relay.gelato.digital/api-docs/
+
 const GELATO_SERVER = "https://relay.gelato.digital";
+
+/// MARK - This is used for testnets which aren't being supported by gelato
+const EquivalentChainsForGelato: Record<number, number> = {
+  4: 1,
+  5: 1,
+  1337: 1,
+  1338: 1,
+};
 
 export const gelatoSend = async (
   chainId: number,
@@ -60,8 +70,8 @@ export const getGelatoRelayChains = async (logger?: Logger): Promise<string[]> =
   return result;
 };
 
-export const getEstimatedFee = async (
-  chainId: number,
+export const getGelatoEstimatedFee = async (
+  _chainId: number,
   paymentToken: string,
   gasLimit: number,
   isHighPriority: boolean,
@@ -69,12 +79,12 @@ export const getEstimatedFee = async (
 ): Promise<BigNumber> => {
   let result = BigNumber.from("0");
   const params = { paymentToken, gasLimit, isHighPriority };
-
+  const chainId = EquivalentChainsForGelato[_chainId] ?? _chainId;
   try {
     const res = await axios.get(`${GELATO_SERVER}/oracles/${chainId}/estimate`, { params });
     result = BigNumber.from(res.data.estimatedFee);
   } catch (error: unknown) {
-    if (logger) logger.error("Error in getEstimatedFee", undefined, undefined, jsonifyError(error as Error));
+    if (logger) logger.error("Error in getGelatoEstimatedFee", undefined, undefined, jsonifyError(error as Error));
   }
   return result;
 };
@@ -116,7 +126,31 @@ export const getPaymentTokens = async (chainId: number, logger?: Logger): Promis
   return result;
 };
 
-/// MARK - Connext Relayer
+/**
+ * Get the conversion rate from the native token to the requested token
+ * @param chainId - The Id of chain where the conversion rate is estimated
+ * @param to - The token address in which the conversion rate is estimated from the native token of the selected chain.
+ *    If a value is not provided, it will default to the USDC address on the selected chain
+ * @param logger - The logger instance
+ * @returns The conversion rate in number
+ */
+export const getConversionRate = async (_chainId: number, to?: string, logger?: Logger): Promise<number> => {
+  let result = 0;
+  const chainId = EquivalentChainsForGelato[_chainId] ?? _chainId;
+  try {
+    let apiEndpoint = `${GELATO_SERVER}/oracles/${chainId}/conversionRate`;
+    if (to) {
+      apiEndpoint = apiEndpoint.concat(`/to=${to}`);
+    }
+
+    const res = await axios.get(apiEndpoint);
+    result = res.data.conversionRate as number;
+  } catch (error: unknown) {
+    if (logger) logger.error("Error in getConversionRate", undefined, undefined, jsonifyError(error as Error));
+  }
+  return result;
+};
+
 export const connextRelayerSend = async (
   url: string,
   chainId: number,
