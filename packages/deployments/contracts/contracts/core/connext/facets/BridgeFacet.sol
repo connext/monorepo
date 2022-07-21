@@ -300,13 +300,6 @@ contract BridgeFacet is BaseConnextFacet {
         // Othewrise, if callback address is not set, callback fee should be 0.
         revert BridgeFacet__xcall_nonZeroCallbackFeeForCallback();
       }
-
-      // Slippage tolerance must be less than the LIQUIDITY_FEE_DENOMINATOR, otherwise the min amount received would
-      // be greater than the target amount received, meaning the `execute` could only revert and funds would get stuck
-      // at the destination.
-      if (_args.params.slippageTol > s.LIQUIDITY_FEE_DENOMINATOR) {
-        revert BridgeFacet__xcall_invalidSlippageTol();
-      }
     }
 
     bytes32 transferId;
@@ -347,7 +340,7 @@ contract BridgeFacet is BaseConnextFacet {
         canonical,
         transactingAssetId,
         _args.amount,
-        _args.params.slippageTol
+        _args.params.slippageBoundary
       );
 
       // Calculate the transfer id
@@ -673,7 +666,7 @@ contract BridgeFacet is BaseConnextFacet {
     }
 
     // swap out of mad* asset into adopted asset if needed
-    return AssetLogic.swapFromLocalAssetIfNeeded(_canonicalId, _args.local, toSwap, _args.params.slippageTol);
+    return AssetLogic.swapFromLocalAssetIfNeeded(_canonicalId, _args.local, toSwap, _args.params.slippageBoundary);
   }
 
   /**
