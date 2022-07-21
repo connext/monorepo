@@ -246,19 +246,24 @@ interface IConnextHandler {
   function setAavePortalFee(uint256 _aavePortalFeeNumerator) external;
 
   function repayAavePortal(
-    address _asset,
+    CallParams calldata _params,
+    address _local,
+    address _originSender,
+    uint256 _bridgedAmt,
+    uint256 _nonce,
     uint256 _backingAmount,
     uint256 _feeAmount,
-    uint256 _maxIn,
-    bytes32 _transferId
+    uint256 _maxIn
   ) external;
 
   function repayAavePortalFor(
-    address _router,
+    CallParams calldata _params,
     address _adopted,
+    address _originSender,
+    uint256 _bridgedAmt,
+    uint256 _nonce,
     uint256 _backingAmount,
-    uint256 _feeAmount,
-    bytes32 _transferId
+    uint256 _feeAmount
   ) external;
 
   // StableSwapFacet
