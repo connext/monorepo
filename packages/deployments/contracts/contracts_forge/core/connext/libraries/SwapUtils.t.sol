@@ -269,4 +269,16 @@ contract SwapUtilsTest is ForgeHelper {
     assertEq(res[0], 4999999999999997);
     assertEq(res[1], 4999999999999997);
   }
+
+  // ============ calculateSwapInv ============
+
+  // Should work
+  function test_SwapUtils__calculateSwapInv_failIfToIndexIsSameFrom() public {
+    uint256 dy;
+    uint256 dyFee;
+    uint256 amount = 0.01 ether;
+
+    vm.expectRevert("compare token to itself");
+    (dy, dyFee) = SwapUtils._calculateSwapInv(swapStorage, 0, 0, amount, swapStorage.balances);
+  }
 }
