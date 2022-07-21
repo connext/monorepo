@@ -123,6 +123,7 @@ library AssetLogic {
    * @param _assetId - The address to transfer
    * @param _to - The account that will receive the withdrawn funds
    * @param _amount - The amount to withdraw from contract
+   * @return The address of the asset that sent from contract. If wrapped asset, will unwrap!
    */
   function transferAssetFromContract(
     address _assetId,
