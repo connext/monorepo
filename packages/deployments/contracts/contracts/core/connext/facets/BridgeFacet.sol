@@ -583,15 +583,15 @@ contract BridgeFacet is BaseConnextFacet {
   /**
    * @notice Calculates fast transfer amount.
    * @param _amount Transfer amount
-   * @param _liquidityFeeNum Liquidity fee numerator
-   * @param _liquidityFeeDen Liquidity fee denominator
+   * @param _numerator Numerator
+   * @param _denominator Denominator
    */
-  function _getFastTransferAmount(
+  function _muldiv(
     uint256 _amount,
-    uint256 _liquidityFeeNum,
-    uint256 _liquidityFeeDen
+    uint256 _numerator,
+    uint256 _denominator
   ) private pure returns (uint256) {
-    return (_amount * _liquidityFeeNum) / _liquidityFeeDen;
+    return (_amount * _numerator) / _denominator;
   }
 
   /**
@@ -617,7 +617,7 @@ contract BridgeFacet is BaseConnextFacet {
       uint256 pathLen = _args.routers.length;
 
       // Calculate amount that routers will provide with the fast-liquidity fee deducted.
-      toSwap = _getFastTransferAmount(_args.amount, s.LIQUIDITY_FEE_NUMERATOR, s.LIQUIDITY_FEE_DENOMINATOR);
+      toSwap = _muldiv(_args.amount, s.LIQUIDITY_FEE_NUMERATOR, s.LIQUIDITY_FEE_DENOMINATOR);
 
       // Save the addresses of all routers providing liquidity for this transfer.
       s.routedTransfers[_transferId] = _args.routers;
@@ -688,7 +688,7 @@ contract BridgeFacet is BaseConnextFacet {
         // balance read about it
 
         uint256 starting = IERC20(_asset).balanceOf(address(this));
-        uint256 liquidityFee = _getFastTransferAmount(
+        uint256 liquidityFee = _muldiv(
           _args.amount,
           (s.LIQUIDITY_FEE_DENOMINATOR - s.LIQUIDITY_FEE_NUMERATOR),
           s.LIQUIDITY_FEE_DENOMINATOR
