@@ -3,7 +3,7 @@ pragma solidity 0.8.15;
 
 import {Home} from "../../../nomad-core/contracts/Home.sol";
 
-import {AppStorage} from "../libraries/LibConnextStorage.sol";
+import {CallParams, AppStorage} from "../libraries/LibConnextStorage.sol";
 import {LibDiamond} from "../libraries/LibDiamond.sol";
 
 contract BaseConnextFacet {
@@ -94,5 +94,20 @@ contract BaseConnextFacet {
    */
   function _isAssetOwnershipRenounced() internal view returns (bool) {
     return LibDiamond.contractOwner() == address(0) || s._assetOwnershipRenounced;
+  }
+
+  /**
+   * @notice Calculates a transferId based on `xcall` arguments
+   * @dev Need this to prevent stack too deep
+   */
+  function _calculateTransferId(
+    CallParams calldata _params,
+    uint256 _amount,
+    uint256 _nonce,
+    bytes32 _canonicalId,
+    uint32 _canonicalDomain,
+    address _originSender
+  ) internal pure returns (bytes32) {
+    return keccak256(abi.encode(_nonce, _params, _originSender, _canonicalId, _canonicalDomain, _amount));
   }
 }

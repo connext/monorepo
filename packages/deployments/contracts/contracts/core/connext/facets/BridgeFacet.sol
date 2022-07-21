@@ -566,21 +566,6 @@ contract BridgeFacet is BaseConnextFacet {
   }
 
   /**
-   * @notice Calculates a transferId based on `xcall` arguments
-   * @dev Need this to prevent stack too deep
-   */
-  function _calculateTransferId(
-    CallParams calldata _params,
-    uint256 _amount,
-    uint256 _nonce,
-    bytes32 _canonicalId,
-    uint32 _canonicalDomain,
-    address _originSender
-  ) private pure returns (bytes32) {
-    return keccak256(abi.encode(_nonce, _params, _originSender, _canonicalId, _canonicalDomain, _amount));
-  }
-
-  /**
    * @notice Calculates fast transfer amount.
    * @param _amount Transfer amount
    * @param _liquidityFeeNum Liquidity fee numerator
