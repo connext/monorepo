@@ -66,8 +66,14 @@ export const mock = {
     redis: { port: 6379, host: "localhost" },
     sequencerUrl: "http://localhost:8081",
     server: {
-      host: "0.0.0.0",
-      port: 3000,
+      pub: {
+        host: "0.0.0.0",
+        port: 3001,
+      },
+      sub: {
+        host: "0.0.0.0",
+        port: 3000,
+      },
       requestLimit: 2000,
       adminToken: "blahblahblah",
     },

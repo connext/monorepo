@@ -112,7 +112,7 @@ export const makeSubscriber = async (_configOverride?: NxtpRouterConfig) => {
 
     context.logger.info("Bindings initialized.", requestContext, methodContext);
     context.logger.info("Router subscriber boot complete!", requestContext, methodContext, {
-      port: context.config.server.port,
+      port: context.config.server.sub.port,
       chains: [...Object.keys(context.config.chains)],
     });
     context.logger.info(

@@ -64,7 +64,10 @@ export const makePublisher = async (_configOverride?: SequencerConfig) => {
     await bindServer();
 
     context.logger.info("Sequencer boot complete!", requestContext, methodContext, {
-      port: context.config.server.port,
+      port: {
+        pub: context.config.server.pub.port,
+        sub: context.config.server.sub.port,
+      },
       chains: [...Object.keys(context.config.chains)],
     });
     ethersLogger.info(
@@ -85,7 +88,6 @@ export const makePublisher = async (_configOverride?: SequencerConfig) => {
 };
 
 export const execute = async (_configOverride?: SequencerConfig) => {
-  const { requestContext, methodContext } = createLoggingContext(execute.name);
   const {
     auctions: { executeAuction },
   } = getOperations();
@@ -123,6 +125,7 @@ export const execute = async (_configOverride?: SequencerConfig) => {
     await executeAuction(transferId, requestContext);
     context.logger.info("Executed", requestContext, methodContext, { transferId: transferId });
   } catch (error: any) {
+    const { requestContext, methodContext } = createLoggingContext(execute.name);
     context.logger.error("Error executing:", requestContext, methodContext, jsonifyError(error as Error));
     process.exit(1);
   }
@@ -255,6 +258,7 @@ export const makeSubscriber = async (_configOverride?: SequencerConfig) => {
     if (context.config.messageQueue.queues.length === 0) throw new Error(`No queues found in config`);
 
     context.logger.info("Subscriber config generated.", requestContext, methodContext);
+    context.adapters.cache = await setupCache(context.config.redis, context.logger, requestContext);
 
     context.adapters.mqClient = await setupSubscriber(requestContext);
 

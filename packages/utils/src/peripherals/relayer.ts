@@ -138,10 +138,11 @@ export const getConversionRate = async (_chainId: number, to?: string, logger?: 
   let result = 0;
   const chainId = EquivalentChainsForGelato[_chainId] ?? _chainId;
   try {
-    let apiEndpoint = `${GELATO_SERVER}/oracles/${chainId}/converstionRate`;
+    let apiEndpoint = `${GELATO_SERVER}/oracles/${chainId}/conversionRate`;
     if (to) {
       apiEndpoint = apiEndpoint.concat(`/to=${to}`);
     }
+
     const res = await axios.get(apiEndpoint);
     result = res.data.conversionRate as number;
   } catch (error: unknown) {

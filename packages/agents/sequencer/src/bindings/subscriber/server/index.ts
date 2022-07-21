@@ -13,7 +13,7 @@ export const bindHealthServer = async (): Promise<FastifyInstance> => {
 
   server.get("/metrics", (_, res) => api.get.metrics(res));
 
-  const address = await server.listen({ port: config.server.port, host: config.server.host });
+  const address = await server.listen({ port: config.server.sub.port, host: config.server.sub.host });
   logger.info(`Server listening at ${address}`);
   return server;
 };

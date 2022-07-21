@@ -53,8 +53,14 @@ export const mock = {
     redis: { host: "localhost", port: 6379 },
     server: {
       adminToken: "foo",
-      port: 3000,
-      host: "0.0.0.0",
+      pub: {
+        port: 3001,
+        host: "0.0.0.0",
+      },
+      sub: {
+        port: 3000,
+        host: "0.0.0.0",
+      },
     },
     network: "testnet",
     auctionWaitTime: 1_000,
@@ -66,14 +72,7 @@ export const mock = {
     environment: "staging",
     messageQueue: {
       connection: {
-        user: "guest",
-        pass: "guest",
-        server: "0.0.0.0",
-        port: 5672,
-        timeout: 2000,
-        publishTimeout: 100,
-        failAfter: 10,
-        retryLimit: 100,
+        uri: "amqp://guest:guest@localhost:5672",
       },
       exchanges: [{ name: "sequencerX", type: "direct", publishTimeout: 1000, persistent: true, durable: true }],
       queues: [{ name: mock.chain.A, prefetch: 100, queueLimit: 10000, subscribe: true }],

@@ -99,14 +99,14 @@ export const bindServer = () =>
         const {
           auctions: { storeBid },
         } = getOperations();
-        const { requestContext, methodContext } = createLoggingContext("POST /auctions/:transferId endpoint");
+        const { requestContext, methodContext } = createLoggingContext(
+          "POST /auctions/:transferId endpoint",
+          undefined,
+          "",
+        );
         try {
           const bid = request.body;
-          const { requestContext } = createLoggingContext(
-            "POST /auctions/:transferId endpoint",
-            undefined,
-            bid.transferId,
-          );
+          requestContext.transferId = bid.transferId;
           await storeBid(bid, requestContext);
           return response.status(200).send({ message: "Bid received", transferId: bid.transferId, router: bid.router });
         } catch (error: unknown) {
@@ -148,7 +148,7 @@ export const bindServer = () =>
       async (req, res) => api.auth.admin(req.body, res, api.post.clearCache),
     );
 
-    server.listen(config.server.port, config.server.host, (err, address) => {
+    server.listen(config.server.pub.port, config.server.pub.host, (err, address) => {
       if (err) {
         console.error(err);
         process.exit(1);
