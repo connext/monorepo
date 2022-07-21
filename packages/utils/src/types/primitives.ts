@@ -49,8 +49,14 @@ export const TChainConfig = Type.Object({
 export type ChainConfig = Static<typeof TChainConfig>;
 
 export const TServerConfig = Type.Object({
-  port: Type.Integer({ minimum: 1, maximum: 65535 }),
-  host: Type.String({ format: "ipv4" }),
+  pub: Type.Object({
+    port: Type.Integer({ minimum: 1, maximum: 65535 }),
+    host: Type.String({ format: "ipv4" }),
+  }),
+  sub: Type.Object({
+    port: Type.Integer({ minimum: 1, maximum: 65535 }),
+    host: Type.String({ format: "ipv4" }),
+  }),
   requestLimit: Type.Integer(),
   adminToken: Type.String(),
 });
