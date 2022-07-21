@@ -128,10 +128,10 @@ library AssetLogic {
     address _assetId,
     address _to,
     uint256 _amount
-  ) internal {
+  ) internal returns (address) {
     // If amount is 0 do nothing
     if (_amount == 0) {
-      return;
+      return _assetId;
     }
 
     AppStorage storage s = LibConnextStorage.connextStorage();
@@ -143,10 +143,12 @@ library AssetLogic {
       // If dealing with wrapped assets, make sure they are properly unwrapped
       // before sending from contract
       s.wrapper.withdraw(_amount);
-      Address.sendValue(payable(_to), _amount);
+      if (_to != address(this)) Address.sendValue(payable(_to), _amount);
+      return address(0);
     } else {
       // Transfer ERC20 asset
       SafeERC20.safeTransfer(IERC20(_assetId), _to, _amount);
+      return _assetId;
     }
   }
 
