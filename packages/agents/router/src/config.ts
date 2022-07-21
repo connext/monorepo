@@ -112,12 +112,12 @@ export const getEnvConfig = (
     network: process.env.NXTP_NETWORK || configJson.network || configFile.network || "mainnet",
     server: {
       pub: {
-        port: process.env.NXTP_SERVER_PUB_PORT || configJson.server?.pub?.port || configFile.server?.pub?.port || 8081,
+        port: process.env.NXTP_SERVER_PUB_PORT || configJson.server?.pub?.port || configFile.server?.pub?.port || 8091,
         host:
           process.env.NXTP_SERVER_PUB_HOST || configJson.server?.pub?.host || configFile.server?.pub?.host || "0.0.0.0",
       },
       sub: {
-        port: process.env.NXTP_SERVER_SUB_PORT || configJson.server?.sub?.port || configFile.server?.sub?.port || 8080,
+        port: process.env.NXTP_SERVER_SUB_PORT || configJson.server?.sub?.port || configFile.server?.sub?.port || 8090,
         host:
           process.env.NXTP_SERVER_SUB_HOST || configJson.server?.sub?.host || configFile.server?.sub?.host || "0.0.0.0",
       },

@@ -7,7 +7,12 @@
   },
   "server": {
     "adminToken": "a",
-    "port": 8080
+    "pub": {
+      "port": 8091
+    },
+    "sub": {
+      "port": 8090
+    }
   },
   "chains": {
     "1337": {
