@@ -43,7 +43,7 @@ contract BridgeFacet is BaseConnextFacet {
   error BridgeFacet__setSponsorVault_invalidSponsorVault();
   error BridgeFacet__xcall_wrongDomain();
   error BridgeFacet__xcall_destinationNotSupported();
-  error BridgeFacet__xcall_emptyTo();
+  error BridgeFacet__xcall_emptyToOrRecovery();
   error BridgeFacet__xcall_notSupportedAsset();
   error BridgeFacet__xcall_nonZeroCallbackFeeForCallback();
   error BridgeFacet__xcall_callbackNotAContract();
@@ -272,7 +272,7 @@ contract BridgeFacet is BaseConnextFacet {
 
       // Recipient is defined.
       if (_args.params.to == address(0)) {
-        revert BridgeFacet__xcall_emptyTo();
+        revert BridgeFacet__xcall_emptyToOrRecovery();
       }
 
       // If callback address is not set, callback fee should be 0.
