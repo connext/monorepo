@@ -1073,7 +1073,7 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
   // fails if recipient `to` not a valid address (i.e. != address(0))
   function test_BridgeFacet__xcall_failIfNoRecipient() public {
     _params.to = address(0);
-    helpers_xcallAndAssert(BridgeFacet.BridgeFacet__xcall_emptyTo.selector);
+    helpers_xcallAndAssert(BridgeFacet.BridgeFacet__xcall_emptyToOrRecovery.selector);
   }
 
   // fails if callback fee > 0 but callback address is not defined
