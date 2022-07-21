@@ -313,7 +313,7 @@ contract BridgeFacet is BaseConnextFacet {
 
       // Transfer funds of transacting asset to the contract from the user.
       // NOTE: Will wrap any native asset transferred to wrapped-native automatically.
-      (, uint256 amount) = AssetLogic.handleIncomingAsset(
+      AssetLogic.handleIncomingAsset(
         _args.transactingAssetId,
         _args.amount,
         _args.params.relayerFee + _args.params.callbackFee
@@ -323,7 +323,7 @@ contract BridgeFacet is BaseConnextFacet {
       (uint256 bridgedAmt, address bridged) = AssetLogic.swapToLocalAssetIfNeeded(
         canonical,
         transactingAssetId,
-        amount,
+        _args.amount,
         _args.params.slippageTol
       );
 
@@ -342,6 +342,7 @@ contract BridgeFacet is BaseConnextFacet {
       }
 
       // Approve bridge router
+      SafeERC20.safeApprove(IERC20(bridged), address(s.bridgeRouter), 0);
       SafeERC20.safeIncreaseAllowance(IERC20(bridged), address(s.bridgeRouter), bridgedAmt);
 
       // Send message
@@ -356,7 +357,7 @@ contract BridgeFacet is BaseConnextFacet {
       // Format arguments for XCalled event that will be emitted below.
       eventArgs = XCalledEventArgs({
         transactingAssetId: transactingAssetId,
-        amount: amount,
+        amount: _args.amount,
         bridgedAmt: bridgedAmt,
         bridged: bridged
       });
@@ -720,17 +721,18 @@ contract BridgeFacet is BaseConnextFacet {
     // execute the the transaction
     if (keccak256(_args.params.callData) == EMPTY) {
       // no call data, send funds to the user
-      AssetLogic.transferAssetFromContract(_asset, _args.params.to, _amount);
+      AssetLogic.handleOutgoingAsset(_asset, _args.params.to, _amount);
     } else {
       // execute calldata w/funds
-      AssetLogic.transferAssetFromContract(_asset, address(s.executor), _amount);
-      (bool success, bytes memory returnData) = s.executor.execute(
+      address transferred = AssetLogic.handleOutgoingAsset(_asset, address(s.executor), _amount);
+
+      (bool success, bytes memory returnData) = s.executor.execute{value: transferred == address(0) ? _amount : 0}(
         IExecutor.ExecutorArgs(
           _transferId,
           _amount,
           _args.params.to,
           _args.params.recovery,
-          _asset,
+          transferred,
           _reconciled
             ? LibCrossDomainProperty.formatDomainAndSenderBytes(_args.params.originDomain, _args.originSender)
             : LibCrossDomainProperty.EMPTY_BYTES,
