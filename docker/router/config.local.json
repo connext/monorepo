@@ -8,10 +8,10 @@
   "server": {
     "adminToken": "a",
     "pub": {
-      "port": 8091
+      "port": 8080
     },
     "sub": {
-      "port": 8090
+      "port": 8080
     }
   },
   "chains": {
