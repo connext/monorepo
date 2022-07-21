@@ -223,7 +223,8 @@ contract Executor is IExecutor {
     // Unset amount
     amnt = 0;
 
-    if (!success && hasValue) {
+    // Handle success cases
+    if (!success) {
       _sendToRecovery(isNative, hasValue, _args.assetId, payable(_args.to), payable(_args.recovery), _args.amount);
     }
 
