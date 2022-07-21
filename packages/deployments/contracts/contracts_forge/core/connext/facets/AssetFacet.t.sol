@@ -207,7 +207,7 @@ contract AssetFacetTest is AssetFacet, FacetHelper {
 
   // setupAsset
   function test_AssetFacet__setupAsset_successErc20Token() public {
-    address asset = address(new TestERC20());
+    address asset = address(new TestERC20("Test Token", "TEST"));
     address stableSwap = address(5678);
 
     vm.prank(_owner);
@@ -224,7 +224,7 @@ contract AssetFacetTest is AssetFacet, FacetHelper {
 
   function test_AssetFacet__setupAsset_failIfRedundant() public {
     ConnextMessage.TokenId memory canonical = ConnextMessage.TokenId(_domain, _canonicalId);
-    address asset = address(new TestERC20());
+    address asset = address(new TestERC20("Test Token", "TEST"));
     s.approvedAssets[_canonicalId] = true;
 
     vm.prank(_owner);

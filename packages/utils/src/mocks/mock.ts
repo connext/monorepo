@@ -18,14 +18,14 @@ import { mkAddress, mkBytes32, mkSig } from ".";
 /**
  * General mock toolset used for testing globally.
  */
-export const mock: any = {
-  chain: {
-    A: "137",
-    B: "138",
-  },
+export const mock = {
   domain: {
-    A: "137",
-    B: "138",
+    A: "13337",
+    B: "13338",
+  },
+  chain: {
+    A: "23337",
+    B: "23338",
   },
   asset: {
     A: {
@@ -43,7 +43,7 @@ export const mock: any = {
     chainDataToMap([
       {
         name: "Unit Test Chain 1",
-        chainId: parseInt(mock.chain.A as string),
+        chainId: parseInt(mock.chain.A),
         domainId: mock.domain.A,
         confirmations: 1,
         assetId: {},
@@ -55,7 +55,7 @@ export const mock: any = {
       },
       {
         name: "Unit Test Chain 2",
-        chainId: parseInt(mock.chain.B as string),
+        chainId: parseInt(mock.chain.B),
         domainId: mock.domain.B,
         confirmations: 1,
         assetId: {},
@@ -244,7 +244,6 @@ export const mock: any = {
                       gasPrice: utils.parseUnits("5", "gwei").toString(),
                       gasLimit: "80000",
                       blockNumber: 5651345,
-                      relayerFee,
                     }
                   : undefined,
 

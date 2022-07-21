@@ -11,7 +11,7 @@ import {
 } from "@connext/nxtp-utils";
 import { TransactionService, getErc20Interface } from "@connext/nxtp-txservice";
 import { NxtpSdkBase } from "@connext/nxtp-sdk";
-import { constants, utils } from "ethers";
+import { constants, providers, utils } from "ethers";
 import { SubgraphReader } from "@connext/nxtp-adapters-subgraph";
 
 import { pollSomething } from "./helpers/shared";
@@ -38,6 +38,12 @@ describe("LOCAL:E2E", () => {
   let sdk: NxtpSdkBase;
   let subgraphReader: SubgraphReader;
   before(async () => {
+    // Ensure automine is off.
+    const originProvider = new providers.JsonRpcProvider(PARAMETERS.A.RPC[0]);
+    await originProvider.send("evm_setAutomine", [false]);
+    const destinationProvider = new providers.JsonRpcProvider(PARAMETERS.B.RPC[0]);
+    await destinationProvider.send("evm_setAutomine", [false]);
+
     logger.info("Enrolling handlers...");
     await enrollHandlers(
       [

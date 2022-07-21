@@ -38,10 +38,7 @@ resource "aws_security_group_rule" "allow-ecs-tasks-to-web3signer" {
   from_port                = 443
   protocol                 = "tcp"
   security_group_id        = aws_security_group.web3signer.id
-  #  source_security_group_id = aws_security_group.ecs_tasks.id
   source_security_group_id = var.ecs_task_sg_id
   to_port                  = 443
   type                     = "ingress"
 }
-
-
