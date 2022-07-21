@@ -688,11 +688,8 @@ contract BridgeFacet is BaseConnextFacet {
         // balance read about it
 
         uint256 starting = IERC20(_asset).balanceOf(address(this));
-        uint256 liquidityFee = _muldiv(
-          _args.amount,
-          (s.LIQUIDITY_FEE_DENOMINATOR - s.LIQUIDITY_FEE_NUMERATOR),
-          s.LIQUIDITY_FEE_DENOMINATOR
-        );
+        uint256 denom = s.LIQUIDITY_FEE_DENOMINATOR;
+        uint256 liquidityFee = _muldiv(_args.amount, (denom - s.LIQUIDITY_FEE_NUMERATOR), denom);
 
         (bool success, bytes memory data) = address(s.sponsorVault).call(
           abi.encodeWithSelector(s.sponsorVault.reimburseLiquidityFees.selector, _asset, liquidityFee, _args.params.to)
