@@ -204,14 +204,14 @@ contract Executor is IExecutor {
     // Set the amount as well
     amnt = _args.amount;
 
-    // Asset balance of this contract before call
-    uint256 beforeBalance = _assetBalance(_args.assetId);
+    // Ensure there is enough gas to handle failures
+    uint256 gas = gasleft() - FAILURE_GAS;
 
     // Try to execute the callData
     // the low level call will return `false` if its execution reverts
     (success, returnData) = ExcessivelySafeCall.excessivelySafeCall(
       _args.to,
-      gasleft() - FAILURE_GAS,
+      gas,
       isNative ? _args.amount : 0,
       MAX_COPY,
       _args.callData
@@ -223,18 +223,8 @@ contract Executor is IExecutor {
     // Unset amount
     amnt = 0;
 
-    if (hasValue) {
-      if (success) {
-        // If there is unclaimed tokens, send them to the recovery address
-        uint256 afterBalance = _assetBalance(_args.assetId);
-        if (beforeBalance >= afterBalance && _args.amount + afterBalance > beforeBalance) {
-          uint256 unclaimed = _args.amount - (beforeBalance - afterBalance);
-          _sendToRecovery(isNative, hasValue, _args.assetId, payable(_args.to), payable(_args.recovery), unclaimed);
-        }
-      } else {
-        // Handle failure cases
-        _sendToRecovery(isNative, hasValue, _args.assetId, payable(_args.to), payable(_args.recovery), _args.amount);
-      }
+    if (!success && hasValue) {
+      _sendToRecovery(isNative, hasValue, _args.assetId, payable(_args.to), payable(_args.recovery), _args.amount);
     }
 
     // Emit event
