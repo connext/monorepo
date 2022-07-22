@@ -538,15 +538,17 @@ contract RoutersFacet is BaseConnextFacet {
     if (_amount == 0) revert RoutersFacet__addLiquidityForRouter_amountIsZero();
 
     // Get the canonical asset ID from the representation.
-    (, bytes32 canonicalId) = s.tokenRegistry.getTokenId(_local == address(0) ? address(s.wrapper) : _local);
+    (uint32 domain, bytes32 canonicalId) = s.tokenRegistry.getTokenId(
+      _local == address(0) ? address(s.wrapper) : _local
+    );
+    bytes32 key = _calculateCanonicalHash(canonicalId, domain);
 
     // Sanity check: router is approved.
     if (!_isRouterOwnershipRenounced() && !getRouterApproval(_router))
       revert RoutersFacet__addLiquidityForRouter_badRouter();
 
     // Sanity check: asset is approved.
-    if (!_isAssetOwnershipRenounced() && !s.approvedAssets[canonicalId])
-      revert RoutersFacet__addLiquidityForRouter_badAsset();
+    if (!_isAssetOwnershipRenounced() && !s.approvedAssets[key]) revert RoutersFacet__addLiquidityForRouter_badAsset();
 
     // Transfer funds to contract.
     address asset = AssetLogic.handleIncomingAsset(_local, _amount, 0);
@@ -555,6 +557,7 @@ contract RoutersFacet is BaseConnextFacet {
     // the fee on transfer tokens.
     s.routerBalances[_router][asset] += _amount;
 
+    // TODO: events emit key or canonical id or canonical id + domain ?
     emit RouterLiquidityAdded(_router, asset, canonicalId, _amount, msg.sender);
   }
 

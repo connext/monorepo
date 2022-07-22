@@ -37,15 +37,23 @@ contract AssetFacet is BaseConnextFacet {
 
   /**
    * @notice Emitted when a new stable-swap AMM is added for the local <> adopted token
+   * @param key - The key in the mapping (hash of canonical id and domain)
    * @param canonicalId - The canonical identifier of the token the local <> adopted AMM is for
    * @param domain - The domain of the canonical token for the local <> adopted amm
    * @param swapPool - The address of the AMM
    * @param caller - The account that called the function
    */
-  event StableSwapAdded(bytes32 canonicalId, uint32 domain, address swapPool, address caller);
+  event StableSwapAdded(
+    bytes32 indexed key,
+    bytes32 indexed canonicalId,
+    uint32 indexed domain,
+    address swapPool,
+    address caller
+  );
 
   /**
    * @notice Emitted when a new asset is added
+   * @param key - The key in the mapping (hash of canonical id and domain)
    * @param canonicalId - The canonical identifier of the token the local <> adopted AMM is for
    * @param domain - The domain of the canonical token for the local <> adopted amm
    * @param adoptedAsset - The address of the adopted (user-expected) asset
@@ -53,19 +61,30 @@ contract AssetFacet is BaseConnextFacet {
    * the address of the wrapped version will be stored
    * @param caller - The account that called the function
    */
-  event AssetAdded(bytes32 canonicalId, uint32 domain, address adoptedAsset, address supportedAsset, address caller);
+  event AssetAdded(
+    bytes32 indexed key,
+    bytes32 indexed canonicalId,
+    uint32 indexed domain,
+    address adoptedAsset,
+    address supportedAsset,
+    address caller
+  );
 
   /**
    * @notice Emitted when an asset is removed from whitelists
-   * @param canonicalId - The canonical identifier of the token removed
+   * @param key - The hash of the canonical identifier and domain of the token removed
    * @param caller - The account that called the function
    */
-  event AssetRemoved(bytes32 canonicalId, address caller);
+  event AssetRemoved(bytes32 indexed key, address caller);
 
   // ============ Getters ============
 
-  function canonicalToAdopted(bytes32 _canonicalId) public view returns (address) {
-    return s.canonicalToAdopted[_canonicalId];
+  function canonicalToAdopted(bytes32 _key) public view returns (address) {
+    return s.canonicalToAdopted[_key];
+  }
+
+  function canonicalToAdopted(TokenId calldata _canonical) public view returns (address) {
+    return canonicalToAdopted(_calculateCanonicalHash(_canonical));
   }
 
   function adoptedToCanonical(address _adopted) public view returns (TokenId memory) {
@@ -73,12 +92,20 @@ contract AssetFacet is BaseConnextFacet {
     return canonical;
   }
 
-  function approvedAssets(bytes32 _asset) public view returns (bool) {
-    return s.approvedAssets[_asset];
+  function approvedAssets(bytes32 _key) public view returns (bool) {
+    return s.approvedAssets[_key];
   }
 
-  function adoptedToLocalPools(bytes32 _adopted) public view returns (IStableSwap) {
-    return s.adoptedToLocalPools[_adopted];
+  function approvedAssets(TokenId calldata _canonical) public view returns (bool) {
+    return approvedAssets(_calculateCanonicalHash(_canonical));
+  }
+
+  function adoptedToLocalPools(bytes32 _key) public view returns (IStableSwap) {
+    return s.adoptedToLocalPools[_key];
+  }
+
+  function adoptedToLocalPools(TokenId calldata _canonical) public view returns (IStableSwap) {
+    return adoptedToLocalPools(_calculateCanonicalHash(_canonical));
   }
 
   function wrapper() public view returns (IWeth) {
@@ -139,11 +166,14 @@ contract AssetFacet is BaseConnextFacet {
     address _adoptedAssetId,
     address _stableSwapPool
   ) external onlyOwner {
+    // Get the key
+    bytes32 key = _calculateCanonicalHash(_canonical);
+
     // Sanity check: needs approval
-    if (s.approvedAssets[_canonical.id]) revert AssetFacet__addAssetId_alreadyAdded();
+    if (s.approvedAssets[key]) revert AssetFacet__addAssetId_alreadyAdded();
 
     // Update approved assets mapping
-    s.approvedAssets[_canonical.id] = true;
+    s.approvedAssets[key] = true;
 
     address supported = _adoptedAssetId == address(0) ? address(s.wrapper) : _adoptedAssetId;
 
@@ -156,45 +186,41 @@ contract AssetFacet is BaseConnextFacet {
     s.adoptedToCanonical[supported].id = _canonical.id;
 
     // Update the canonical mapping
-    s.canonicalToAdopted[_canonical.id] = supported;
+    s.canonicalToAdopted[key] = supported;
 
     // Emit event
-    emit AssetAdded(_canonical.id, _canonical.domain, _adoptedAssetId, supported, msg.sender);
+    emit AssetAdded(key, _canonical.id, _canonical.domain, _adoptedAssetId, supported, msg.sender);
 
     // Add the swap pool
-    _addStableSwapPool(_canonical, _stableSwapPool);
+    _addStableSwapPool(_canonical, _stableSwapPool, key);
   }
 
   /**
    * @notice Adds a stable swap pool for the local <> adopted asset.
+   * @dev Must pass in the _canonical information so it can be emitted in event
    */
   function addStableSwapPool(TokenId calldata _canonical, address _stableSwapPool) external onlyOwner {
-    _addStableSwapPool(_canonical, _stableSwapPool);
+    bytes32 key = _calculateCanonicalHash(_canonical);
+    _addStableSwapPool(_canonical, _stableSwapPool, key);
   }
 
   /**
    * @notice Used to remove assets from the whitelist
-   * @param _canonicalId - Token id to remove
+   * @param _key - The hash of the canonical id and domain to remove (mapping key)
    * @param _adoptedAssetId - Corresponding adopted asset to remove
    */
-  function removeAssetId(bytes32 _canonicalId, address _adoptedAssetId) external onlyOwner {
-    // Sanity check: already approval
-    if (!s.approvedAssets[_canonicalId]) revert AssetFacet__removeAssetId_notAdded();
+  function removeAssetId(bytes32 _key, address _adoptedAssetId) external onlyOwner {
+    _removeAssetId(_key, _adoptedAssetId);
+  }
 
-    // Delete from approved assets mapping
-    delete s.approvedAssets[_canonicalId];
-
-    // Delete from pools
-    delete s.adoptedToLocalPools[_canonicalId];
-
-    // Delete from adopted mapping
-    delete s.adoptedToCanonical[_adoptedAssetId == address(0) ? address(s.wrapper) : _adoptedAssetId];
-
-    // Delete from canonical mapping
-    delete s.canonicalToAdopted[_canonicalId];
-
-    // Emit event
-    emit AssetRemoved(_canonicalId, msg.sender);
+  /**
+   * @notice Used to remove assets from the whitelist
+   * @param _canonical - The canonical id and domain to remove
+   * @param _adoptedAssetId - Corresponding adopted asset to remove
+   */
+  function removeAssetId(TokenId calldata _canonical, address _adoptedAssetId) external onlyOwner {
+    bytes32 key = _calculateCanonicalHash(_canonical);
+    _removeAssetId(key, _adoptedAssetId);
   }
 
   // ============ Private Functions ============
@@ -203,11 +229,41 @@ contract AssetFacet is BaseConnextFacet {
    * @notice Used to add an AMM for adopted <> local assets
    * @param _canonical - The canonical TokenId to add (domain and id)
    * @param _stableSwap - The address of the amm to add
+   * @param _key - The hash of the canonical id and domain
    */
-  function _addStableSwapPool(TokenId calldata _canonical, address _stableSwap) internal {
+  function _addStableSwapPool(
+    TokenId calldata _canonical,
+    address _stableSwap,
+    bytes32 _key
+  ) internal {
     // Update the pool mapping
-    s.adoptedToLocalPools[_canonical.id] = IStableSwap(_stableSwap);
+    s.adoptedToLocalPools[_key] = IStableSwap(_stableSwap);
 
-    emit StableSwapAdded(_canonical.id, _canonical.domain, _stableSwap, msg.sender);
+    emit StableSwapAdded(_key, _canonical.id, _canonical.domain, _stableSwap, msg.sender);
+  }
+
+  /**
+   * @notice Used to remove assets from the whitelist
+   * @param _key - The hash of the canonical id and domain to remove (mapping key)
+   * @param _adoptedAssetId - Corresponding adopted asset to remove
+   */
+  function _removeAssetId(bytes32 _key, address _adoptedAssetId) internal {
+    // Sanity check: already approval
+    if (!s.approvedAssets[_key]) revert AssetFacet__removeAssetId_notAdded();
+
+    // Delete from approved assets mapping
+    delete s.approvedAssets[_key];
+
+    // Delete from pools
+    delete s.adoptedToLocalPools[_key];
+
+    // Delete from adopted mapping
+    delete s.adoptedToCanonical[_adoptedAssetId == address(0) ? address(s.wrapper) : _adoptedAssetId];
+
+    // Delete from canonical mapping
+    delete s.canonicalToAdopted[_key];
+
+    // Emit event
+    emit AssetRemoved(_key, msg.sender);
   }
 }

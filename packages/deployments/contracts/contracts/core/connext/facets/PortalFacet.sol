@@ -106,7 +106,7 @@ contract PortalFacet is BaseConnextFacet {
 
     // Swap for exact `totalRepayAmount` of adopted asset to repay aave
     (bool success, uint256 amountDebited, address assetLoaned) = AssetLogic.swapFromLocalAssetIfNeededForExactOut(
-      id,
+      _calculateCanonicalHash(id, domain),
       _local,
       _backingAmount + _feeAmount,
       _maxIn
