@@ -111,6 +111,10 @@ library LibDiamond {
           validityPeriodStart + _governancePeriod > block.timestamp,
         "LibDiamond: outside of validity window"
       );
+
+      // Now, 0-out the acceptance time to ensure the update cannot be re-executed without another
+      // proposal
+      rescindDiamondCut(_diamondCut, _init, _calldata);
     } // Otherwise, this is the first instance of deployment and it can be set automatically
     for (uint256 facetIndex; facetIndex < _diamondCut.length; facetIndex++) {
       IDiamondCut.FacetCutAction action = _diamondCut[facetIndex].action;
