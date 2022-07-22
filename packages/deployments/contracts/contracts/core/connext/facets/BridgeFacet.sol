@@ -340,7 +340,7 @@ contract BridgeFacet is BaseConnextFacet {
         canonical,
         transactingAssetId,
         _args.amount,
-        _args.params.slippageBoundary
+        _args.originMinOut
       );
 
       // Calculate the transfer id
@@ -666,7 +666,7 @@ contract BridgeFacet is BaseConnextFacet {
     }
 
     // swap out of mad* asset into adopted asset if needed
-    return AssetLogic.swapFromLocalAssetIfNeeded(_canonicalId, _args.local, toSwap, _args.params.slippageBoundary);
+    return AssetLogic.swapFromLocalAssetIfNeeded(_canonicalId, _args.local, toSwap, _args.params.destinationMinOut);
   }
 
   /**

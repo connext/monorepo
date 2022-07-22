@@ -38,7 +38,7 @@ struct TokenId {
  * @param forceSlow - If true, will take slow liquidity path even if it is not a permissioned call
  * @param receiveLocal - If true, will use the local nomad asset on the destination instead of adopted.
  * @param relayerFee - The amount of relayer fee the tx called xcall with
- * @param slippageBoundary - Minimum amount received / maximum amount taken on swaps.
+ * @param destinationMinOut - Minimum amount received on swaps for local <> adopted on destination chain.
  */
 struct CallParams {
   address to;
@@ -52,7 +52,7 @@ struct CallParams {
   address callback;
   uint256 callbackFee;
   uint256 relayerFee;
-  uint256 slippageBoundary;
+  uint256 destinationMinOut;
 }
 
 /**
@@ -61,11 +61,13 @@ struct CallParams {
  * @param transactingAssetId - The asset the caller sent with the transfer. Can be the adopted, canonical,
  * or the representational asset
  * @param amount - The amount of transferring asset the tx called xcall with
+ * @param originMinOut - Minimum amount received on swaps for adopted <> local on origin chain
  */
 struct XCallArgs {
   CallParams params;
   address transactingAssetId; // Could be adopted, local, or wrapped
   uint256 amount;
+  uint256 originMinOut;
 }
 
 /**
