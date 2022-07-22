@@ -27,6 +27,7 @@ import "./tasks/decodeInputData";
 import "./tasks/removeRouter";
 import "./tasks/enrollHandlers";
 import "./tasks/enrollCustom";
+import "./tasks/selfDust";
 import "./tasks/xcall";
 import "./tasks/setLocalDomain";
 import "./tasks/traceMessage";
