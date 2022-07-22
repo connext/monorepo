@@ -57,4 +57,3 @@ variable "deployment_mode" {
   description = "Deployment mode of cluster"
   default     = "CLUSTER_MULTI_AZ"
 }
-
