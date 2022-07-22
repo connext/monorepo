@@ -13,7 +13,10 @@ import {IDiamondCut} from "../interfaces/IDiamondCut.sol";
 library LibDiamond {
   bytes32 constant DIAMOND_STORAGE_POSITION = keccak256("diamond.standard.diamond.storage");
 
-  uint256 private constant _delay = 7 days;
+  /**
+   * @dev This is used as both the *delay* and the *validity period* for a given update
+   */
+  uint256 private constant _governancePeriod = 7 days;
 
   struct FacetAddressAndPosition {
     address facetAddress;
@@ -73,7 +76,7 @@ library LibDiamond {
     address _init,
     bytes memory _calldata
   ) internal {
-    uint256 acceptance = block.timestamp + _delay;
+    uint256 acceptance = block.timestamp + _governancePeriod;
     diamondStorage().acceptanceTimes[keccak256(abi.encode(_diamondCut, _init, _calldata))] = acceptance;
     emit DiamondCutProposed(_diamondCut, _init, _calldata, acceptance);
   }
