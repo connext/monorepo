@@ -170,7 +170,6 @@ contract PromiseRouter is Version, Router, ReentrancyGuardUpgradeable {
     bool _returnSuccess,
     bytes calldata _returnData
   ) external onlyConnext {
-    if (_returnData.length == 0) revert PromiseRouter__send_returndataEmpty();
     if (_callbackAddress == address(0)) revert PromiseRouter__send_callbackEmpty();
 
     // get remote PromiseRouter address; revert if not found
