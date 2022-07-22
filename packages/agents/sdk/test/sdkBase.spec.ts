@@ -97,6 +97,21 @@ describe("SdkBase", () => {
   });
 
   describe("#xCall", () => {
+    let getGelatoEstimatedFeeStub: SinonStub;
+    let getConversionRateStub: SinonStub;
+    let getDecimalsForAssetStub: SinonStub;
+    let getHardcodedGasLimitsStub: SinonStub;
+    beforeEach(() => {
+      getGelatoEstimatedFeeStub = stub(SharedFns, "getGelatoEstimatedFee");
+      getConversionRateStub = stub(SharedFns, "getConversionRate");
+      getDecimalsForAssetStub = stub(SharedFns, "getDecimalsForAsset");
+      getHardcodedGasLimitsStub = stub(SharedFns, "getHardcodedGasLimits");
+    });
+    afterEach(() => {
+      restore();
+      reset();
+    });
+
     it("should error if signerAddress is undefined", async () => {
       (nxtpSdkBase as any).config.signerAddress = undefined;
 
@@ -107,7 +122,7 @@ describe("SdkBase", () => {
       const mockXcallArgs = mock.entity.xcallArgs();
       const data = getConnextInterface().encodeFunctionData("xcall", [mockXcallArgs]);
 
-      const mockApproveTxRequest: providers.TransactionRequest = {
+      const mockXCallRequest: providers.TransactionRequest = {
         to: mockConnextAddresss,
         data,
         from: mock.config().signerAddress,
@@ -116,14 +131,14 @@ describe("SdkBase", () => {
       };
 
       const res = await nxtpSdkBase.xcall(mockXcallArgs);
-      expect(res).to.be.deep.eq(mockApproveTxRequest);
+      expect(res).to.be.deep.eq(mockXCallRequest);
     });
 
     it("happy: should work if Native", async () => {
       const mockXcallArgs = mock.entity.xcallArgs({ transactingAssetId: constants.AddressZero });
       const data = getConnextInterface().encodeFunctionData("xcall", [mockXcallArgs]);
 
-      const mockApproveTxRequest: providers.TransactionRequest = {
+      const mockXCallRequest: providers.TransactionRequest = {
         to: mockConnextAddresss,
         data,
         from: mock.config().signerAddress,
@@ -132,7 +147,45 @@ describe("SdkBase", () => {
       };
 
       const res = await nxtpSdkBase.xcall(mockXcallArgs);
-      expect(res).to.be.deep.eq(mockApproveTxRequest);
+      expect(res).to.be.deep.eq(mockXCallRequest);
+    });
+
+    it("happy: should calculate the relayerFee if args.relayerFee is zero", async () => {
+      getConversionRateStub.resolves(1);
+      getDecimalsForAssetStub.resolves(18);
+      getHardcodedGasLimitsStub.resolves({
+        xcall: "10000",
+        xcallL1: "10000",
+        execute: "20000",
+        executeL1: "20000",
+        gasPriceFactor: "10000",
+      });
+
+      // estimatedFee = gelatoEstimate * 120 / 100
+      getGelatoEstimatedFeeStub.resolves(BigNumber.from("50000"));
+
+      const mockXcallArgs = mock.entity.xcallArgs({
+        transactingAssetId: constants.AddressZero,
+        params: { ...mock.entity.callParams(), relayerFee: "0" },
+      });
+
+      const callArgForEncoded = mock.entity.xcallArgs({
+        transactingAssetId: constants.AddressZero,
+        params: { ...mock.entity.callParams(), relayerFee: "60000" },
+      });
+
+      const data = getConnextInterface().encodeFunctionData("xcall", [callArgForEncoded]);
+
+      const mockXCallRequest: providers.TransactionRequest = {
+        to: mockConnextAddresss,
+        data,
+        from: mock.config().signerAddress,
+        value: BigNumber.from(mockXcallArgs.amount).add(BigNumber.from("60000")),
+        chainId,
+      };
+
+      const res = await nxtpSdkBase.xcall(mockXcallArgs);
+      expect(res).to.be.deep.eq(mockXCallRequest);
     });
   });
 
