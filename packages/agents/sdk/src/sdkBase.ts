@@ -142,21 +142,21 @@ export class NxtpSdkBase {
       throw new SignerAddressMissing();
     }
 
-    // Validate Input schema
-    // const validateInput = ajv.compile(XTransferSchema);
-    // const validInput = validateInput(params);
-    // if (!validInput) {
-    //   const msg = validateInput.errors?.map((err: any) => `${err.instancePath} - ${err.message}`).join(",");
-    //   throw new ParamsInvalid({
-    //     paramsError: msg,
-    //     params,
-    //   });
-    // }
-
     /// create a bid
     const { params, amount, transactingAssetId } = xcallParams;
 
-    const { originDomain, relayerFee } = params;
+    const { originDomain, destinationDomain, relayerFee: _relayerFee } = params;
+
+    let relayerFee = _relayerFee;
+    if (!_relayerFee || _relayerFee == "0") {
+      // need to calculate relayerFee and include it to callparams.
+      relayerFee = (
+        await this.estimateRelayerFee({
+          originDomain: originDomain,
+          destinationDomain: destinationDomain,
+        })
+      ).toString();
+    }
 
     const xParams: CallParams = {
       ...params,
@@ -166,7 +166,7 @@ export class NxtpSdkBase {
       recovery: params.recovery || params.to,
       forceSlow: params.forceSlow || false,
       receiveLocal: params.receiveLocal || false,
-      relayerFee: params.relayerFee || "0",
+      relayerFee: relayerFee!,
       agent: params.agent || constants.AddressZero,
     };
     const ConnextContractAddress = this.config.chains[originDomain].deployments!.connext;
