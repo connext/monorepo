@@ -122,7 +122,7 @@ contract AssetLogicTest is BaseConnextFacet, FacetHelper {
   }
 
   // transfers specified asset from contract
-  function utils_transferFromContractAndAssert(address assetId, address to, uint256 amount) public {
+  function utils_handleOutgoingAssetAndAssert(address assetId, address to, uint256 amount) public {
     bool isNative = assetId == _wrapper;
     // fund caller
     if (isNative) {
@@ -147,12 +147,13 @@ contract AssetLogicTest is BaseConnextFacet, FacetHelper {
     uint256 initTarget = isNative ? to.balance : IERC20(assetId).balanceOf(to);
 
     // call
-    AssetLogic.transferAssetFromContract(assetId, to, amount);
+    address transferred = AssetLogic.handleOutgoingAsset(assetId, to, amount);
 
     // assert balance changes on contract + target
     uint256 finalTarget = isNative ? to.balance : IERC20(assetId).balanceOf(to);
     assertEq(IERC20(assetId).balanceOf(address(this)), initContract - amount);
     assertEq(finalTarget, initTarget + amount);
+    assertEq(transferred, isNative ? address(0) : assetId);
   }
 
   // Sets up env to swap from local -> adopted using external pools only
@@ -279,40 +280,40 @@ contract AssetLogicTest is BaseConnextFacet, FacetHelper {
     caller.transferAssetToContract(address(fee), 100);
   }
 
-  // ============ transferAssetFromContract ============
-  function test_AssetLogic__transferAssetFromContract_failsIfNoAsset() public {
+  // ============ handleOutgoingAsset ============
+  function test_AssetLogic__handleOutgoingAsset_failsIfNoAsset() public {
     // set constants
     address assetId = address(0);
     address to = address(12345);
     uint256 amount = 12345678;
-    vm.expectRevert(AssetLogic.AssetLogic__transferAssetFromContract_notNative.selector);
-    AssetLogic.transferAssetFromContract(assetId, to, amount);
+    vm.expectRevert(AssetLogic.AssetLogic__handleOutgoingAsset_notNative.selector);
+    AssetLogic.handleOutgoingAsset(assetId, to, amount);
   }
 
-  function test_AssetLogic__transferAssetFromContract_works() public {
+  function test_AssetLogic__handleOutgoingAsset_works() public {
     // set constants
     address assetId = _local;
     address to = address(12345);
     uint256 amount = 12345678;
-    utils_transferFromContractAndAssert(assetId, to, amount);
+    utils_handleOutgoingAssetAndAssert(assetId, to, amount);
   }
 
-  function test_AssetLogic__transferAssetFromContract_worksIfZero() public {
+  function test_AssetLogic__handleOutgoingAsset_worksIfZero() public {
     // set constants
     address assetId = _local;
     address to = address(12345);
     uint256 amount = 0;
-    utils_transferFromContractAndAssert(assetId, to, amount);
+    utils_handleOutgoingAssetAndAssert(assetId, to, amount);
   }
 
-  function test_AssetLogic__transferAssetFromContract_worksForNative() public {
+  function test_AssetLogic__handleOutgoingAsset_worksForNative() public {
     // setup asset
     utils_setupNative(false, false);
     // set constants
     address assetId = _wrapper; // native asset will be wrapper
     address to = address(12345);
     uint256 amount = 12345678;
-    utils_transferFromContractAndAssert(assetId, to, amount);
+    utils_handleOutgoingAssetAndAssert(assetId, to, amount);
   }
 
   // ============ swapToLocalAssetIfNeeded ============

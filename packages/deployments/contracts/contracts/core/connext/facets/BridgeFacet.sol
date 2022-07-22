@@ -41,12 +41,15 @@ contract BridgeFacet is BaseConnextFacet {
   error BridgeFacet__setPromiseRouter_invalidPromiseRouter();
   error BridgeFacet__setExecutor_invalidExecutor();
   error BridgeFacet__setSponsorVault_invalidSponsorVault();
+  error BridgeFacet__addConnextion_invalidDomain();
   error BridgeFacet__xcall_wrongDomain();
   error BridgeFacet__xcall_destinationNotSupported();
-  error BridgeFacet__xcall_emptyTo();
+  error BridgeFacet__xcall_emptyToOrRecovery();
   error BridgeFacet__xcall_notSupportedAsset();
   error BridgeFacet__xcall_nonZeroCallbackFeeForCallback();
   error BridgeFacet__xcall_callbackNotAContract();
+  error BridgeFacet__xcall_missingAgent();
+  error BridgeFacet__xcall_invalidSlippageTol();
   error BridgeFacet__execute_unapprovedSender();
   error BridgeFacet__execute_wrongDomain();
   error BridgeFacet__execute_maxRoutersExceeded();
@@ -230,6 +233,11 @@ contract BridgeFacet is BaseConnextFacet {
   }
 
   function addConnextion(uint32 _domain, address _connext) external onlyOwner {
+    // Make sure we aren't setting the current domain as the connextion.
+    if (_domain == s.domain) {
+      revert BridgeFacet__addConnextion_invalidDomain();
+    }
+
     s.connextions[_domain] = TypeCasts.addressToBytes32(_connext);
     emit ConnextionAdded(_domain, _connext, msg.sender);
   }
@@ -264,25 +272,40 @@ contract BridgeFacet is BaseConnextFacet {
         revert BridgeFacet__xcall_wrongDomain();
       }
 
-      // Destination domain is supported
+      // Destination domain is supported.
+      // NOTE: This check implicitly also checks that `_args.params.destinationDomain != s.domain`, because the index
+      // `s.domain` of `s.connextions` should always be `bytes32(0)`.
       remoteInstance = s.connextions[_args.params.destinationDomain];
       if (remoteInstance == bytes32(0)) {
         revert BridgeFacet__xcall_destinationNotSupported();
       }
 
-      // Recipient is defined.
-      if (_args.params.to == address(0)) {
-        revert BridgeFacet__xcall_emptyTo();
+      // Recipient and recovery defined.
+      if (_args.params.to == address(0) || _args.params.recovery == address(0)) {
+        revert BridgeFacet__xcall_emptyToOrRecovery();
       }
 
-      // If callback address is not set, callback fee should be 0.
-      if (_args.params.callback == address(0) && _args.params.callbackFee != 0) {
+      // If the user might be receiving adopted assets on the destination chain, they ought to have a defined agent
+      // so that they can call `forceReceiveLocal` if need be.
+      if (_args.params.agent == address(0) && !_args.params.receiveLocal) {
+        revert BridgeFacet__xcall_missingAgent();
+      }
+
+      if (_args.params.callback != address(0)) {
+        // Callback address must be a contract if it is supplied.
+        if (!Address.isContract(_args.params.callback)) {
+          revert BridgeFacet__xcall_callbackNotAContract();
+        }
+      } else if (_args.params.callbackFee != 0) {
+        // Othewrise, if callback address is not set, callback fee should be 0.
         revert BridgeFacet__xcall_nonZeroCallbackFeeForCallback();
       }
 
-      // Callback is contract if supplied.
-      if (_args.params.callback != address(0) && !Address.isContract(_args.params.callback)) {
-        revert BridgeFacet__xcall_callbackNotAContract();
+      // Slippage tolerance must be less than the LIQUIDITY_FEE_DENOMINATOR, otherwise the min amount received would
+      // be greater than the target amount received, meaning the `execute` could only revert and funds would get stuck
+      // at the destination.
+      if (_args.params.slippageTol > s.LIQUIDITY_FEE_DENOMINATOR) {
+        revert BridgeFacet__xcall_invalidSlippageTol();
       }
     }
 
@@ -313,7 +336,7 @@ contract BridgeFacet is BaseConnextFacet {
 
       // Transfer funds of transacting asset to the contract from the user.
       // NOTE: Will wrap any native asset transferred to wrapped-native automatically.
-      (, uint256 amount) = AssetLogic.handleIncomingAsset(
+      AssetLogic.handleIncomingAsset(
         _args.transactingAssetId,
         _args.amount,
         _args.params.relayerFee + _args.params.callbackFee
@@ -323,7 +346,7 @@ contract BridgeFacet is BaseConnextFacet {
       (uint256 bridgedAmt, address bridged) = AssetLogic.swapToLocalAssetIfNeeded(
         canonical,
         transactingAssetId,
-        amount,
+        _args.amount,
         _args.params.slippageTol
       );
 
@@ -342,6 +365,7 @@ contract BridgeFacet is BaseConnextFacet {
       }
 
       // Approve bridge router
+      SafeERC20.safeApprove(IERC20(bridged), address(s.bridgeRouter), 0);
       SafeERC20.safeIncreaseAllowance(IERC20(bridged), address(s.bridgeRouter), bridgedAmt);
 
       // Send message
@@ -356,7 +380,7 @@ contract BridgeFacet is BaseConnextFacet {
       // Format arguments for XCalled event that will be emitted below.
       eventArgs = XCalledEventArgs({
         transactingAssetId: transactingAssetId,
-        amount: amount,
+        amount: _args.amount,
         bridgedAmt: bridgedAmt,
         bridged: bridged
       });
@@ -566,32 +590,17 @@ contract BridgeFacet is BaseConnextFacet {
   }
 
   /**
-   * @notice Calculates a transferId based on `xcall` arguments
-   * @dev Need this to prevent stack too deep
-   */
-  function _calculateTransferId(
-    CallParams calldata _params,
-    uint256 _amount,
-    uint256 _nonce,
-    bytes32 _canonicalId,
-    uint32 _canonicalDomain,
-    address _originSender
-  ) private pure returns (bytes32) {
-    return keccak256(abi.encode(_nonce, _params, _originSender, _canonicalId, _canonicalDomain, _amount));
-  }
-
-  /**
    * @notice Calculates fast transfer amount.
    * @param _amount Transfer amount
-   * @param _liquidityFeeNum Liquidity fee numerator
-   * @param _liquidityFeeDen Liquidity fee denominator
+   * @param _numerator Numerator
+   * @param _denominator Denominator
    */
-  function _getFastTransferAmount(
+  function _muldiv(
     uint256 _amount,
-    uint256 _liquidityFeeNum,
-    uint256 _liquidityFeeDen
+    uint256 _numerator,
+    uint256 _denominator
   ) private pure returns (uint256) {
-    return (_amount * _liquidityFeeNum) / _liquidityFeeDen;
+    return (_amount * _numerator) / _denominator;
   }
 
   /**
@@ -617,7 +626,7 @@ contract BridgeFacet is BaseConnextFacet {
       uint256 pathLen = _args.routers.length;
 
       // Calculate amount that routers will provide with the fast-liquidity fee deducted.
-      toSwap = _getFastTransferAmount(_args.amount, s.LIQUIDITY_FEE_NUMERATOR, s.LIQUIDITY_FEE_DENOMINATOR);
+      toSwap = _muldiv(_args.amount, s.LIQUIDITY_FEE_NUMERATOR, s.LIQUIDITY_FEE_DENOMINATOR);
 
       // Save the addresses of all routers providing liquidity for this transfer.
       s.routedTransfers[_transferId] = _args.routers;
@@ -688,8 +697,11 @@ contract BridgeFacet is BaseConnextFacet {
         // balance read about it
 
         uint256 starting = IERC20(_asset).balanceOf(address(this));
+        uint256 denom = s.LIQUIDITY_FEE_DENOMINATOR;
+        uint256 liquidityFee = _muldiv(_args.amount, (denom - s.LIQUIDITY_FEE_NUMERATOR), denom);
+
         (bool success, bytes memory data) = address(s.sponsorVault).call(
-          abi.encodeWithSelector(s.sponsorVault.reimburseLiquidityFees.selector, _asset, _args.amount, _args.params.to)
+          abi.encodeWithSelector(s.sponsorVault.reimburseLiquidityFees.selector, _asset, liquidityFee, _args.params.to)
         );
 
         if (success) {
@@ -720,17 +732,18 @@ contract BridgeFacet is BaseConnextFacet {
     // execute the the transaction
     if (keccak256(_args.params.callData) == EMPTY) {
       // no call data, send funds to the user
-      AssetLogic.transferAssetFromContract(_asset, _args.params.to, _amount);
+      AssetLogic.handleOutgoingAsset(_asset, _args.params.to, _amount);
     } else {
       // execute calldata w/funds
-      AssetLogic.transferAssetFromContract(_asset, address(s.executor), _amount);
-      (bool success, bytes memory returnData) = s.executor.execute(
+      address transferred = AssetLogic.handleOutgoingAsset(_asset, address(s.executor), _amount);
+
+      (bool success, bytes memory returnData) = s.executor.execute{value: transferred == address(0) ? _amount : 0}(
         IExecutor.ExecutorArgs(
           _transferId,
           _amount,
           _args.params.to,
           _args.params.recovery,
-          _asset,
+          transferred,
           _reconciled
             ? LibCrossDomainProperty.formatDomainAndSenderBytes(_args.params.originDomain, _args.originSender)
             : LibCrossDomainProperty.EMPTY_BYTES,
