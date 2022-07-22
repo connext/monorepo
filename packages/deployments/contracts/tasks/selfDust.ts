@@ -1,3 +1,4 @@
+import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/dist/src/signers";
 import { BigNumber } from "ethers";
 import { task } from "hardhat/config";
 
@@ -22,17 +23,19 @@ export default task("self-dust", "Dust other accounts on a given wallet")
       throw new Error(`Sender balance ${balance} is less than total needed`);
     }
 
+    const sendTxn = async (recipient: SignerWithAddress) => {
+      const tx = await sender.sendTransaction({
+        to: recipient.address,
+        value: amount,
+        gasLimit: 1_000_000,
+      });
+      const receipt = await tx.wait();
+      return receipt.transactionHash;
+    };
+
     // Send amount to each recipient
-    const receipts = Promise.all(
-      recipients.map(async (recipient) => {
-        const tx = await sender.sendTransaction({
-          to: recipient.address,
-          value: amount,
-          gasLimit: 1_000_000,
-        });
-        console.log(`Sent ${amount} to ${recipient.address}`);
-        return tx.wait();
-      }),
-    );
-    await receipts;
+    for (let i = 0; i < recipients.length; i++) {
+      await sendTxn(recipients[i]);
+      console.log(`Sent ${amount} to ${recipients[i].address}`);
+    }
   });

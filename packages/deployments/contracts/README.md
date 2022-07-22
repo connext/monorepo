@@ -229,8 +229,10 @@ $ yarn workspace @connext/nxtp-contracts hardhat trace-message --transaction \<T
 `xcall` allows you to create a crosschain transaction via CLI (example using real values):
 
 ```bash
-$ yarn workspace @connext/nxtp-contracts hardhat xcall --transacting-asset-id 0xB5AabB55385bfBe31D627E2A717a7B189ddA4F8F --amount 100000000000000000 --to 0x5A9e792143bf2708b4765C144451dCa54f559a19 --origin-domain 2221 --destination-domain 1111  --network kovan
+$ yarn workspace @connext/nxtp-contracts hardhat xcall --transacting-asset-id 0x3FFc03F05D1869f493c7dbf913E636C6280e0ff9 --amount 100000000000000000 --network rinkeby --destination-domain 3331
 ```
+
+This task can be used to run load tests by specifying the number of `--runs`. It can also be configured to run stress tests with multiple signers in parallel. The max number of signers pulled is specified in `hardhat.config.ts` under each chain's `accounts: { mnemonic, count: 100 }` (default 20 if unspecified). The `--accounts` flag determines how many of these accounts to use for this task.
 
 ### renounce-ownership
 
