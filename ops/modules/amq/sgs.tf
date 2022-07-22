@@ -31,14 +31,3 @@ resource "aws_security_group_rule" "allow-ecs-tasks-to-rabbitmq" {
   security_group_id        = aws_security_group.rabbitmq.id
 }
 
-# Allow access from the load balancer
-resource "aws_security_group_rule" "management" {
-  cidr_blocks       = ["0.0.0.0/0"]
-  description       = "management"
-  from_port         = 15671
-  to_port           = 15671
-  protocol          = "tcp"
-  type              = "ingress"
-  security_group_id = aws_security_group.rabbitmq.id
-}
-
