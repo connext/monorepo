@@ -281,10 +281,12 @@ const originTransferQueryString = (
   fromNonce: number,
   destinationDomains: string[],
   maxBlockNumber?: number,
+  forceSlow: boolean = false,
   orderDirection: "asc" | "desc" = "desc",
 ) => {
   return `${prefix}_originTransfers(
     where: {
+      forceSlow: ${forceSlow},
       originDomain: ${originDomain},
       nonce_gte: ${fromNonce},
       destinationDomain_in: [${destinationDomains}]
@@ -309,6 +311,7 @@ export const getOriginTransfersQuery = (agents: Map<string, SubgraphQueryMetaPar
         agents.get(domain)!.latestNonce,
         domains,
         agents.get(domain)!.maxBlockNumber,
+        agents.get(domain)!.forceSlow,
         agents.get(domain)!.orderDirection,
       );
     } else {
