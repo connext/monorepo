@@ -52,18 +52,8 @@ variable "sg_id" {
   description = "security group id of worker node sg"
 }
 
-variable "allow_all_sg" {
-  type        = string
-  description = "security group for internet facing"
-}
-
 variable "deployment_mode" {
   type        = string
   description = "Deployment mode of cluster"
   default     = "CLUSTER_MULTI_AZ"
 }
-
-variable "cert_arn" {
-  description = "ACM certificate"
-}
-
