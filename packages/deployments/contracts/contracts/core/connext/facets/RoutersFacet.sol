@@ -127,16 +127,11 @@ contract RoutersFacet is BaseConnextFacet {
    * @notice Emitted when a router adds liquidity to the contract
    * @param router - The address of the router the funds were credited to
    * @param local - The address of the token added (all liquidity held in local asset)
+   * @param key - The hash of the canonical id and domain
    * @param amount - The amount of liquidity added
    * @param caller - The account that called the function
    */
-  event RouterLiquidityAdded(
-    address indexed router,
-    address local,
-    bytes32 canonicalId,
-    uint256 amount,
-    address caller
-  );
+  event RouterLiquidityAdded(address indexed router, address local, bytes32 key, uint256 amount, address caller);
 
   /**
    * @notice Emitted when a router withdraws liquidity from the contract
@@ -557,8 +552,7 @@ contract RoutersFacet is BaseConnextFacet {
     // the fee on transfer tokens.
     s.routerBalances[_router][asset] += _amount;
 
-    // TODO: events emit key or canonical id or canonical id + domain ?
-    emit RouterLiquidityAdded(_router, asset, canonicalId, _amount, msg.sender);
+    emit RouterLiquidityAdded(_router, asset, key, _amount, msg.sender);
   }
 
   /**
