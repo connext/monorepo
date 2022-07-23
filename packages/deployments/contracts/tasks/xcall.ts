@@ -163,7 +163,7 @@ export default task("xcall", "Prepare a cross-chain tx")
         callData,
         originDomain: `${originDomain}`,
         destinationDomain: `${destinationDomain}`,
-        recovery: recovery ?? "0x",
+        recovery,
         agent: constants.AddressZero,
         callback,
         callbackFee,
