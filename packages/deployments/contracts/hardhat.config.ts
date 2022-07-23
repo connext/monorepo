@@ -28,7 +28,7 @@ import "./tasks/removeRouter";
 import "./tasks/enrollHandlers";
 import "./tasks/enrollCustom";
 import "./tasks/selfDust";
-import "./tasks/mint";
+import "./tasks/selfMintTestToken";
 import "./tasks/xcall";
 import "./tasks/setLocalDomain";
 import "./tasks/traceMessage";
