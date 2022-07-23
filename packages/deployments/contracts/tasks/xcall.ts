@@ -22,6 +22,7 @@ type TaskArgs = {
   slippageTol?: string;
   runs?: number;
   accounts?: number;
+  showArgs?: string;
 };
 
 export default task("xcall", "Prepare a cross-chain tx")
@@ -41,6 +42,7 @@ export default task("xcall", "Prepare a cross-chain tx")
   .addOptionalParam("env", "Environment of contracts")
   .addOptionalParam("runs", "Number of times to fire the xcall")
   .addOptionalParam("accounts", "Number of accounts to fire xcalls in parallel")
+  .addOptionalParam("showArgs", "Verbose logs")
   .setAction(
     async (
       {
@@ -60,10 +62,13 @@ export default task("xcall", "Prepare a cross-chain tx")
         slippageTol: _slippageTol,
         runs: _runs,
         accounts: _accounts,
+        showArgs: _showArgs,
       }: TaskArgs,
       hre,
     ) => {
       let tx: providers.TransactionResponse;
+
+      const showArgs = _showArgs === "true" ? true : false;
 
       const env = mustGetEnv(_env);
       console.log("env:", env);
@@ -202,24 +207,26 @@ export default task("xcall", "Prepare a cross-chain tx")
             console.log(`Transaction from sender: ${sender.address}`);
             const tx = await connext
               .connect(sender)
-              .functions.xcall(args, { from: sender.address, gasLimit: 2_000_000 });
+              .functions.xcall(args, { from: sender.address, gasLimit: 2_500_000 });
             console.log("  txHash: ", tx.hash);
-            console.log("  originDomain: ", originDomain);
-            console.log("  destinationDomain: ", destinationDomain);
-            console.log("  transactingAsset: ", transactingAssetId);
-            console.log("  amount: ", amount);
-            console.log("  callData: ", callData);
-            console.log("  callback: ", callback);
-            console.log("  callbackFee: ", callbackFee);
-            console.log("  forceSlow: ", forceSlow);
-            console.log("  receiveLocal: ", receiveLocal);
-            console.log("  recovery: ", recovery);
-            console.log("  slippageTol:", slippageTol);
 
-            console.log("xcall args", JSON.stringify(args));
-            const encoded = connext.interface.encodeFunctionData("xcall", [args]);
-            console.log("encoded: ", encoded);
-            console.log("to: ", connext.address);
+            if (showArgs) {
+              console.log("  originDomain: ", originDomain);
+              console.log("  destinationDomain: ", destinationDomain);
+              console.log("  transactingAsset: ", transactingAssetId);
+              console.log("  amount: ", amount);
+              console.log("  callData: ", callData);
+              console.log("  callback: ", callback);
+              console.log("  callbackFee: ", callbackFee);
+              console.log("  forceSlow: ", forceSlow);
+              console.log("  receiveLocal: ", receiveLocal);
+              console.log("  recovery: ", recovery);
+              console.log("  slippageTol:", slippageTol);
+              console.log("xcall args", JSON.stringify(args));
+              const encoded = connext.interface.encodeFunctionData("xcall", [args]);
+              console.log("encoded: ", encoded);
+              console.log("to: ", connext.address);
+            }
 
             return tx.wait();
           }),
