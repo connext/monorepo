@@ -1,4 +1,3 @@
-import { logger as ethersLogger } from "ethers";
 import { SubgraphReader } from "@connext/nxtp-adapters-subgraph";
 import { createMethodContext, createRequestContext, getChainData, Logger } from "@connext/nxtp-utils";
 
@@ -45,7 +44,7 @@ export const makeTransfersPoller = async (_configOverride?: CartographerConfig) 
   context.logger.info("Transfers Poller initialized!", requestContext, methodContext, {
     domains: context.domains,
   });
-  ethersLogger.info(
+  context.logger.info(
     `
 
       _|_|_|     _|_|     _|      _|   _|      _|   _|_|_|_|   _|      _|   _|_|_|_|_|
