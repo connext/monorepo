@@ -19,9 +19,6 @@
     "zapatos": "zapatos",
     "dbmate": "dbmate"
   },
-  "eslintIgnore": [
-    "graphqlsdk.ts"
-  ],
   "author": "Connext",
   "license": "ISC",
   "dependencies": {
