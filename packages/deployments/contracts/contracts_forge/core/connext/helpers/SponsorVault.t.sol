@@ -3,7 +3,7 @@ pragma solidity 0.8.15;
 
 import "../../../utils/ForgeHelper.sol";
 
-import {SponsorVault, ITokenExchange, IGasTokenOracle} from "../../../../contracts/core/connext/helpers/SponsorVault.sol";
+import {SponsorVault, ITokenExchange, IGasTokenOracle, IPriceOracle} from "../../../../contracts/core/connext/helpers/SponsorVault.sol";
 
 import {TestERC20} from "../../../../contracts/test/TestERC20.sol";
 
@@ -55,6 +55,7 @@ contract SponsorVaultTest is ForgeHelper {
   address gasTokenOracle = address(1);
   MockTokenExchange tokenExchange;
   address gasPriceOracle = address(2);
+  address priceOracle = address(3);
   uint32 originDomain = 1;
   TestERC20 localToken;
   TestERC20 localToken2;
@@ -225,6 +226,26 @@ contract SponsorVaultTest is ForgeHelper {
     vault.setTokenExchange(_token, _tokenExchange);
 
     assertEq(address(vault.tokenExchanges(_token)), _tokenExchange);
+  }
+
+  // ============ setPriceOracle ============
+
+  function test_SponsorVault__setPriceOracle_failsIfNotOwner() public {
+    vm.prank(address(0));
+    vm.expectRevert("Ownable: caller is not the owner");
+
+    vault.setPriceOracle(address(3));
+  }
+
+  function test_SponsorVault__setPriceOracle_works(address _priceOracle) public {
+    address currOracle = address(vault.priceOracle());
+
+    vm.expectEmit(true, true, true, true);
+    emit PriceOracleUpdated(currOracle, _priceOracle, address(this));
+
+    vault.setPriceOracle(_priceOracle);
+
+    assertEq(address(vault.priceOracle()), _priceOracle);
   }
 
   // ============ deposit ============
