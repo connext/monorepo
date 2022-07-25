@@ -894,13 +894,14 @@ library SwapUtils {
     for (uint256 i; i < numTokens; ) {
       require(v.totalSupply != 0 || amounts[i] != 0, "!supply all tokens");
 
+      IERC20 token = self.pooledTokens[i];
       // Transfer tokens first to see if a fee was charged on transfer
       if (amounts[i] != 0) {
-        uint256 beforeBalance = self.pooledTokens[i].balanceOf(address(this));
-        self.pooledTokens[i].safeTransferFrom(msg.sender, address(this), amounts[i]);
+        uint256 beforeBalance = token.balanceOf(address(this));
+        token.safeTransferFrom(msg.sender, address(this), amounts[i]);
 
         // Update the amounts[] with actual transfer amount
-        amounts[i] = self.pooledTokens[i].balanceOf(address(this)).sub(beforeBalance);
+        amounts[i] = token.balanceOf(address(this)).sub(beforeBalance);
       }
 
       newBalances[i] = v.balances[i].add(amounts[i]);
