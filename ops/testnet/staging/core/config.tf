@@ -79,13 +79,13 @@ locals {
       queues = [
         {
           name       = "1111"
-          prefetch   = 3
+          prefetch   = 1
           queueLimit = 10000
           subscribe  = true
         },
         {
           name       = "3331"
-          prefetch   = 3
+          prefetch   = 1
           queueLimit = 10000
           subscribe  = true
         }
