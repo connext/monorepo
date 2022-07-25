@@ -64,7 +64,7 @@ locals {
       queues = [
         {
           name       = "1"
-          prefetch   = 3
+          limit   = 3
           queueLimit = 10000
           subscribe  = true
         }
