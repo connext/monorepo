@@ -158,7 +158,7 @@ struct AppStorage {
   /**
    * @notice Mapping holding the AMMs for swapping in and out of local assets
    * @dev Swaps for an adopted asset <> nomad local asset (i.e. POS USDC <> madUSDC on polygon).
-   * This mapping is keyed on
+   * This mapping is keyed on the hash of the canonical id + domain for local asset
    */
   // 10
   mapping(bytes32 => IStableSwap) adoptedToLocalPools;
