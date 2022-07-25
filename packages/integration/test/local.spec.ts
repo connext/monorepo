@@ -18,7 +18,7 @@ import { BigNumber, constants, Contract, providers, utils, Wallet } from "ethers
 import { SubgraphReader } from "@connext/nxtp-adapters-subgraph";
 
 import { pollSomething } from "./helpers/shared";
-import { enrollHandlers, enrollCustom, setupRouter, setupAsset, addLiquidity } from "./helpers/local";
+import { enrollHandlers, enrollCustom, setupRouter, setupAsset, addLiquidity, addRelayer } from "./helpers/local";
 import { DEPLOYER_WALLET, PARAMETERS, SUBG_POLL_PARITY, USER_WALLET } from "./constants/local";
 
 const logger = new Logger({ name: "e2e" });
@@ -333,6 +333,22 @@ describe("LOCAL:E2E", () => {
     );
     logger.info("Added liquidity.");
 
+    logger.info(`Adding a relayer: ${PARAMETERS.AGENTS.RELAYER.address}`);
+    await addRelayer(
+      [
+        {
+          domain: PARAMETERS.A.DOMAIN,
+          relayer: PARAMETERS.AGENTS.RELAYER.address,
+          ConnextHandler: PARAMETERS.A.DEPLOYMENTS.ConnextHandler,
+        },
+        {
+          domain: PARAMETERS.B.DOMAIN,
+          relayer: PARAMETERS.AGENTS.RELAYER.address,
+          ConnextHandler: PARAMETERS.A.DEPLOYMENTS.ConnextHandler,
+        },
+      ],
+      deployerTxService,
+    );
     logger.info("Minting tokens for user agent...");
     {
       const erc20 = new utils.Interface(ERC20Abi);
@@ -430,7 +446,12 @@ describe("LOCAL:E2E", () => {
   });
 
   it("handles fast liquidity transfer", async () => {
-    const { receipt, xcallData } = await sendXCall(sdk);
+    const originProvider = new providers.JsonRpcProvider(PARAMETERS.A.RPC[0]);
+    const { receipt, xcallData } = await sendXCall(
+      sdk,
+      { forceSlow: false },
+      PARAMETERS.AGENTS.USER.signer.connect(originProvider),
+    );
     const originTransfer = await getOriginTransfer(subgraphReader, PARAMETERS.A.DOMAIN, receipt.transactionHash);
 
     // TODO: Check user funds, assert tokens were deducted.
@@ -483,7 +504,7 @@ describe("LOCAL:E2E", () => {
 
     // TODO: Check router liquidity on-chain, assert funds were deducted.
 
-    logger.info("Transfer completed successfully!", requestContext, methodContext, {
+    logger.info("Fast transfer completed successfully!", requestContext, methodContext, {
       originDomain: xcallData.params.originDomain,
       destinationDomain: xcallData.params.destinationDomain,
       etc: {
@@ -495,7 +516,7 @@ describe("LOCAL:E2E", () => {
     });
   });
 
-  it.only("handles slow liquidity transfer", async () => {
+  it("handles slow liquidity transfer", async () => {
     // Get the remote router ID for the `handle` call.
     const destinationProvider = new providers.JsonRpcProvider(PARAMETERS.B.RPC[0]);
     const deployer = PARAMETERS.AGENTS.DEPLOYER.signer.connect(destinationProvider);
@@ -544,5 +565,16 @@ describe("LOCAL:E2E", () => {
       originTransfer.transferId,
     );
     console.log(destinationTransfer);
+
+    logger.info("Slow transfer completed successfully!", requestContext, methodContext, {
+      originDomain: xcallData.params.originDomain,
+      destinationDomain: xcallData.params.destinationDomain,
+      etc: {
+        transfer: {
+          ...originTransfer,
+          destination: destinationTransfer.destination,
+        },
+      },
+    });
   });
 });

@@ -16,6 +16,7 @@ export const PARAMETERS = {
     ROUTER: {
       address: "0x627306090abaB3A6e1400e9345bC60c78a8BEf57",
     },
+    RELAYER: { address: "0x627306090abaB3A6e1400e9345bC60c78a8BEf57" },
     CARTOGRAPHER: {
       url: "http://localhost:3000",
     },
