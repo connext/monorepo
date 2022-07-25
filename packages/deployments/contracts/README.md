@@ -206,6 +206,15 @@ Whitelist command for a single router across multiple networks
 yarn workspace @connext/nxtp-contracts whitelist <router-address>
 ```
 
+### read-balances
+
+Check the current balances of a wallet's accounts. Omit `asset` to check native token.
+
+```bash
+# Check ETH balance
+yarn workspace @connext/nxtp-contracts hardhat read-balances --network \<NETWORK\> --asset \<TOKEN_ADDR\>
+```
+
 ### dust
 
 `dust` allows you to dust (native gas token) all the accounts of a wallet with a specified amount. It will dust from a single account (signers[0]) so the user should make sure they have enough founds. The task will warn you otherwise.
@@ -226,7 +235,7 @@ $ yarn workspace @connext/nxtp-contracts hardhat mint --amount \<AMT_IN_REAL_UNI
 # amount should be in ETH-like units (i.e. 1 = 1 ETH)
 ```
 
-This task can be used to mint tokens to all accounts of a wallet by omitting the `--recipient` param. The max number of accounts pulled is specified in `hardhat.config.ts` under each chain's `accounts: { mnemonic, count: 100 }` (default 20 if unspecified)
+This task can be used to mint tokens to all accounts of a wallet by omitting the `--recipient` param. The max number of accounts used is specified in `hardhat.config.ts` under each chain's `accounts: { mnemonic, count: 100 }` (default 20 if unspecified)
 
 ### xcall
 
@@ -242,7 +251,9 @@ Example using real values:
 $ yarn workspace @connext/nxtp-contracts hardhat xcall --transacting-asset-id 0x3FFc03F05D1869f493c7dbf913E636C6280e0ff9 --amount 100000000000000000 --network rinkeby --destination-domain 3331
 ```
 
-This task can be used to run load tests by specifying the number of `--runs`. It can also be configured to run stress tests with multiple accounts in parallel. The max number of accounts pulled is specified in `hardhat.config.ts` under each chain's `accounts: { mnemonic, count: 100 }` (default 20 if unspecified). The `--accounts` flag determines the first N of these accounts to use for this task.
+This task can be used to run load tests by specifying the number of `--runs`. It can also be configured to run stress tests with multiple accounts in parallel, simulating "bursty" requests to the network.
+
+The max number of accounts used is specified in `hardhat.config.ts` under each chain's `accounts: { mnemonic, count: 100 }` (default 20 if unspecified). The `--accounts` flag determines the first N of these accounts to use for this task.
 
 ### trace
 
@@ -292,9 +303,21 @@ _Funding_
 
 Each account needs to have enough gas to run the desired number of xcalls (`--runs`) and a balance of TEST tokens to use for the load test.
 
+To check current balances:
+
+```bash
+# Check ETH balances
+yarn workspace @connext/nxtp-contracts hardhat read-balances --network rinkeby
+```
+
+```bash
+# Check TEST balances
+yarn workspace @connext/nxtp-contracts hardhat read-balances --network rinkeby --asset 0x3FFc03F05D1869f493c7dbf913E636C6280e0ff9
+```
+
 _Dust_
 
-Run the `dust` task to distribute funds to the accounts that will be used in the load test. It will throw if there aren't have enough funds in the first account to cover the complete distribution. There should also be some extra gas buffer for the transactions themselves which are not accounted for.
+Run the `dust` task to distribute funds to the accounts that will be used in the load test. It will throw if there aren't enough funds in the first account (`getSigners[0]`) to cover the complete distribution. There should also be some extra gas buffer on top of the minimum needed to account for transaction fees.
 
 ```bash
 # Send 0.5 ETH to each account

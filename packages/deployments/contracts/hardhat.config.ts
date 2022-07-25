@@ -29,6 +29,7 @@ import "./tasks/enrollHandlers";
 import "./tasks/enrollCustom";
 import "./tasks/dustSelfAccounts";
 import "./tasks/xcall";
+import "./tasks/readBalances";
 import "./tasks/setLocalDomain";
 import "./tasks/traceMessage";
 import "./tasks/preflight";
