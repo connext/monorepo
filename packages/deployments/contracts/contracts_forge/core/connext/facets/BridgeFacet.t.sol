@@ -90,7 +90,7 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
       address(0), // callback
       0, // callbackFee
       _relayerFee, // relayer fee
-      9900 // slippageTol
+      1 ether // destinationMinOut
     );
 
   // ============ Test set up ============
@@ -175,7 +175,8 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
     XCallArgs memory args = XCallArgs(
       _params,
       _adopted == address(s.wrapper) ? address(0) : _adopted, // transactingAssetId : could be adopted, local, or wrapped.
-      _amount
+      _amount,
+      (_amount * 9990) / 10000
     );
     // generate transfer id
     bytes32 transferId = utils_getTransferIdFromXCallArgs(args, _originSender, _canonicalId, _canonicalDomain, bridged);
@@ -189,7 +190,8 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
     XCallArgs memory args = XCallArgs(
       _params,
       transactingAssetId, // transactingAssetId : could be adopted, local, or wrapped.
-      _amount
+      _amount,
+      (_amount * 9990) / 10000
     );
     // generate transfer id
     bytes32 transferId = utils_getTransferIdFromXCallArgs(args, _originSender, _canonicalId, _canonicalDomain, bridged);
@@ -288,7 +290,6 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
       );
 
       // swapExact on pool should have been called
-      uint256 minReceived = (args.amount * args.params.slippageTol) / s.LIQUIDITY_FEE_DENOMINATOR;
       vm.expectCall(
         _stableSwap,
         abi.encodeWithSelector(
@@ -296,7 +297,7 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
           args.amount,
           eventArgs.transactingAssetId,
           _local,
-          minReceived
+          args.originMinOut
         )
       );
     }
@@ -527,10 +528,15 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
       // register expected approval
       vm.expectCall(_local, abi.encodeWithSelector(IERC20.approve.selector, _stableSwap, _inputs.routerAmt));
       // register expected swap amount
-      uint256 minReceived = (_inputs.routerAmt * _args.params.slippageTol) / s.LIQUIDITY_FEE_DENOMINATOR;
       vm.expectCall(
         _stableSwap,
-        abi.encodeWithSelector(IStableSwap.swapExact.selector, _inputs.routerAmt, _local, _adopted, minReceived)
+        abi.encodeWithSelector(
+          IStableSwap.swapExact.selector,
+          _inputs.routerAmt,
+          _local,
+          _adopted,
+          _args.params.destinationMinOut
+        )
       );
     }
 
