@@ -4,5 +4,6 @@
     "3331": { "providers": ["http://chain-1338:8545"] }
   },
   "environment": "production",
-  "logLevel": "debug"
+  "logLevel": "debug",
+  "relayerUrl": "http://relayer:8080"
 }
