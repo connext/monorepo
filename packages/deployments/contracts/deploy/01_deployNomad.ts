@@ -130,7 +130,7 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment): Promise<voi
 
   // ========== Start: Nomad BridgeRouter Deployment ==========
   const network = await hre.ethers.provider.getNetwork();
-  const nomadConfig = getNomadConfig(network.chainId);
+  const nomadConfig = await getNomadConfig(network.chainId);
   const domainConfig = await getDomainInfoFromChainId(network.chainId, hre);
 
   // Deploy xapp connection manager

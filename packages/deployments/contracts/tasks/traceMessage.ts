@@ -74,7 +74,7 @@ export default task("trace-message", "See the status of a nomad message")
 
     // Get the domain + context
     const network = await hre.ethers.provider.getNetwork();
-    const nomadConfig = getNomadConfig(network.chainId);
+    const nomadConfig = await getNomadConfig(network.chainId);
     const { domain: originDomain, name: originName } = await getDomainInfoFromChainId(network.chainId, hre);
 
     const context = new NomadContext(nomadConfig);
