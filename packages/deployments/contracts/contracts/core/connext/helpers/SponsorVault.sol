@@ -9,6 +9,7 @@ import {ReentrancyGuard} from "@openzeppelin/contracts/security/ReentrancyGuard.
 import {ISponsorVault} from "../interfaces/ISponsorVault.sol";
 import {ITokenExchange} from "../interfaces/ITokenExchange.sol";
 import {IGasTokenOracle} from "../interfaces/IGasTokenOracle.sol";
+import {IPriceOracle} from "../interfaces/IPriceOracle.sol";
 
 /**
  * @title SponsorVault
@@ -52,6 +53,12 @@ contract SponsorVault is ISponsorVault, ReentrancyGuard, Ownable {
   IGasTokenOracle public gasTokenOracle;
 
   /**
+   * @notice The ChainLink Oracle
+   * @dev Used to check if the dex spot price is valid to prevent manipulate
+   */
+  IPriceOracle public priceOracle;
+
+  /**
    * @notice The this domain native token to token exchange
    * @dev Used to exchange this domain native token to the token used to pay liquidity fees
    */
@@ -92,6 +99,11 @@ contract SponsorVault is ISponsorVault, ReentrancyGuard, Ownable {
    * @notice Emitted when a new token exchange is set
    */
   event TokenExchangeUpdated(address token, address oldTokenExchange, address newTokenExchange, address caller);
+
+  /**
+   * @notice Emitted when a new price oracle is set
+   */
+  event PriceOracleUpdated(address oldOracle, address newOracle, address caller);
 
   /**
    * @notice Emitted when a liquidity fee is reimbursed
@@ -183,6 +195,15 @@ contract SponsorVault is ISponsorVault, ReentrancyGuard, Ownable {
     tokenExchanges[_token] = ITokenExchange(_tokenExchange);
   }
 
+  /**
+   * @notice Sets of an oracle that provides native token - liquidity fee token price
+   * @param _priceOracle The oracle address
+   */
+  function setPriceOracle(address _priceOracle) external onlyOwner {
+    emit PriceOracleUpdated(address(priceOracle), _priceOracle, msg.sender);
+    priceOracle = IPriceOracle(_priceOracle);
+  }
+
   // ============ External functions ============
 
   /**
@@ -206,6 +227,12 @@ contract SponsorVault is ISponsorVault, ReentrancyGuard, Ownable {
       ITokenExchange tokenExchange = tokenExchanges[_token];
 
       uint256 amountIn = tokenExchange.getInGivenExpectedOut(_token, _liquidityFee);
+
+      // compare with spot price and ChainLink oracle price to prevent manipulate
+      if (!_checkDexSpotPrice(_token, amountIn, _liquidityFee)) {
+        return 0;
+      }
+
       amountIn = currentBalance >= amountIn ? amountIn : currentBalance;
 
       // sponsored fee may end being less than _liquidityFee due to slippage. This will swap and transfer to msg.sender
@@ -315,5 +342,36 @@ contract SponsorVault is ISponsorVault, ReentrancyGuard, Ownable {
     emit ConnextUpdated(connext, _connext, msg.sender);
 
     connext = _connext;
+  }
+
+  /**
+   * @notice Compare dex spot price and ChainLink oracle price to prevent manipulate
+   * @dev First fetch the price of the Native token and liquidity fee token from chainlink oracle.
+   *      If the aggregator of them not exist, return `false`
+   *      Compare (native_price_oracle / token_price_oracle) ~ (token_amount / eth_amount) = (native_price_dex / token_price_dex)
+   * @param _token The ERC20 token address of liquidity fee
+   * @param _ethAmount The amount of native token which got from `getInGivenExpectedOut`
+   * @param _tokenAmount The amount of liquidity fee to reimburse
+   */
+  function _checkDexSpotPrice(
+    address _token,
+    uint256 _ethAmount,
+    uint256 _tokenAmount
+  ) internal view returns (bool) {
+    uint256 ethPrice = priceOracle.getPriceFromChainlink(address(0));
+    if (ethPrice == 0) {
+      return false;
+    }
+
+    uint256 tokenPrice = priceOracle.getPriceFromChainlink(_token);
+    if (tokenPrice == 0) {
+      return false;
+    }
+
+    uint256 allowPercent = 10;
+    if ((((ethPrice * 1e18) / tokenPrice) * (100 + allowPercent)) / 100 < ((_tokenAmount * 1e18) / _ethAmount)) {
+      return false;
+    }
+    return true;
   }
 }
