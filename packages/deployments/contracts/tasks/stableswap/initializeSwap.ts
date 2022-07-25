@@ -88,7 +88,6 @@ export default task("initialize-stableswap", "Initializes stable swap")
         (await deployments.get(getDeploymentName("TokenRegistry"))).abi,
         deployer,
       );
-      console.log("tokenRegistry: ", tokenRegistry);
       const canonicalId = utils.hexlify(canonizeId(canonical));
       console.log("tokenRegistryAddress:", tokenRegistry.address);
       console.log("domain: ", domain);

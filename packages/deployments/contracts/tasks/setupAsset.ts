@@ -1,4 +1,4 @@
-import { constants, Contract } from "ethers";
+import { constants } from "ethers";
 import { hexlify } from "ethers/lib/utils";
 import { task } from "hardhat/config";
 
