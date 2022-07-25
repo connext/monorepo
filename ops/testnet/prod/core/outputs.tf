@@ -32,7 +32,6 @@ output "router-subscriber-service-endpoint" {
   value = module.router_subscriber.service_endpoint
 }
 
-
 output "lighthouse-service-name" {
   value = module.lighthouse.daemon_service_name
 }
