@@ -49,7 +49,7 @@ module "router_subscriber" {
   ingress_cdir_blocks      = ["0.0.0.0/0"]
   ingress_ipv6_cdir_blocks = []
   service_security_groups  = flatten([module.network.allow_all_sg, module.network.ecs_task_sg])
-  cert_arn                 = var.certificate_arn_testnet
+  cert_arn                 = var.certificate_arn
   container_env_vars       = local.router_env_vars
 }
 
@@ -79,7 +79,7 @@ module "router_publisher" {
   ingress_cdir_blocks      = ["0.0.0.0/0"]
   ingress_ipv6_cdir_blocks = []
   service_security_groups  = flatten([module.network.allow_all_sg, module.network.ecs_task_sg])
-  cert_arn                 = var.certificate_arn_testnet
+  cert_arn                 = var.certificate_arn
   container_env_vars       = local.router_env_vars
 }
 
@@ -121,7 +121,7 @@ module "sequencer_publisher" {
   ingress_cdir_blocks      = ["0.0.0.0/0"]
   ingress_ipv6_cdir_blocks = []
   service_security_groups  = flatten([module.network.allow_all_sg, module.network.ecs_task_sg])
-  cert_arn                 = var.certificate_arn_testnet
+  cert_arn                 = var.certificate_arn
   container_env_vars       = local.sequencer_env_vars
 }
 
@@ -151,7 +151,7 @@ module "sequencer_subscriber" {
   ingress_cdir_blocks      = ["0.0.0.0/0"]
   ingress_ipv6_cdir_blocks = []
   service_security_groups  = flatten([module.network.allow_all_sg, module.network.ecs_task_sg])
-  cert_arn                 = var.certificate_arn_testnet
+  cert_arn                 = var.certificate_arn
   container_env_vars       = local.sequencer_env_vars
 }
 
