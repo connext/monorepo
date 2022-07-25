@@ -90,7 +90,7 @@ module "centralised_message_queue" {
   sg_id               = module.network.ecs_task_sg
   vpc_id              = module.network.vpc_id
   zone_id             = data.aws_route53_zone.primary.zone_id
-  publicly_accessible = false
+  publicly_accessible = true
   subnet_ids          = module.network.public_subnets
   rmq_mgt_user        = var.rmq_mgt_user
   rmq_mgt_password    = var.rmq_mgt_password
@@ -147,7 +147,7 @@ module "sequencer_subscriber" {
   container_port           = 8081
   loadbalancer_port        = 80
   cpu                      = 512
-  memory                   = 1024
+  memory                   = 2048
   instance_count           = 3
   timeout                  = 180
   ingress_cdir_blocks      = ["0.0.0.0/0"]

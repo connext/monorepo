@@ -30,11 +30,5 @@ resource "aws_mq_broker" "default" {
   }
 }
 
-resource "aws_route53_record" "www" {
-  zone_id = var.zone_id
-  name    = var.stage != "production" ? "rmq-management.${var.environment}.${var.stage}.${var.base_domain}" : "rmq-management.${var.environment}.${var.base_domain}"
-  type    = "CNAME"
-  ttl     = "300"
-  records = [trimprefix(aws_mq_broker.default.instances[0].console_url, "https://")]
-}
+
 
