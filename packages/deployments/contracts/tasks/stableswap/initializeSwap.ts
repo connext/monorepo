@@ -88,6 +88,7 @@ export default task("initialize-stableswap", "Initializes stable swap")
         (await deployments.get(getDeploymentName("TokenRegistry"))).abi,
         deployer,
       );
+      console.log("tokenRegistry: ", tokenRegistry);
       const canonicalId = utils.hexlify(canonizeId(canonical));
       console.log("tokenRegistryAddress:", tokenRegistry.address);
       console.log("domain: ", domain);
@@ -98,7 +99,7 @@ export default task("initialize-stableswap", "Initializes stable swap")
       if (!approvedAsset) {
         throw new Error("Asset not approved");
       }
-      const local = (await tokenRegistry.getLocalAddress(domain, canonicalId)) as string;
+      const local: string = await tokenRegistry["getLocalAddress(uint32,bytes32)"](domain, canonicalId);
       console.log("local:", local);
 
       const lpTokenDeployment = await deployments.get(getDeploymentName("LPToken", env));
@@ -109,6 +110,7 @@ export default task("initialize-stableswap", "Initializes stable swap")
         (await ethers.getContractAt("TestERC20", local)).decimals(),
         (await ethers.getContractAt("TestERC20", adopted)).decimals(),
       ]);
+      console.log("decimals: ", decimals);
 
       const tx = await connext.initializeSwap(
         canonicalId,
