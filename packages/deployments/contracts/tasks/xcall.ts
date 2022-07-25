@@ -74,10 +74,10 @@ export default task("xcall", "Prepare a cross-chain tx")
       console.log("env:", env);
 
       const runs = _runs ?? 1;
-      console.log("runs: ", runs);
+      console.log("runs:", runs);
 
       const accounts = _accounts ?? 1;
-      console.log("accounts: ", accounts);
+      console.log("accounts:", accounts);
 
       const senders = await hre.ethers.getSigners();
       senders.splice(accounts);
@@ -180,23 +180,28 @@ export default task("xcall", "Prepare a cross-chain tx")
       };
 
       // Check balances and allowances
-      senders.forEach(async (sender) => {
+      for (let i = 0; i < senders.length; i++) {
         let balance: BigNumber;
         if (transactingAssetId === constants.AddressZero) {
-          balance = await hre.ethers.provider.getBalance(sender.address);
+          balance = await hre.ethers.provider.getBalance(senders[i].address);
         } else {
-          const erc20 = await hre.ethers.getContractAt("IERC20", transactingAssetId!, sender);
-          const allowance = await erc20.connect(sender).allowance(sender.address, connextAddress);
+          const erc20 = await hre.ethers.getContractAt("IERC20", transactingAssetId, senders[i]);
+          const allowance = await erc20.connect(senders[i]).allowance(senders[i].address, connextAddress);
           if (allowance.lt(BigNumber.from(amount).mul(runs))) {
             tx = await erc20.approve(connextAddress, constants.MaxUint256);
             await tx.wait();
           }
-          balance = await erc20.balanceOf(sender.address);
+          balance = await erc20.balanceOf(senders[i].address);
         }
-        if (balance.lt(BigNumber.from(amount).mul(runs))) {
-          throw new Error(`Balance ${balance.toString()} is less than amount ${amount}`);
+        const balanceNeeded = BigNumber.from(amount).mul(runs);
+        if (balance.lt(balanceNeeded)) {
+          throw new Error(
+            `Account (${
+              senders[i].address
+            }) has balance (${balance.toString()}), which is less than total needed (${balanceNeeded})`,
+          );
         }
-      });
+      }
 
       // Run as many times as specified
       for (let i = 0; i < runs; i++) {
@@ -207,7 +212,7 @@ export default task("xcall", "Prepare a cross-chain tx")
             console.log(`Transaction from sender: ${sender.address}`);
             const tx = await connext
               .connect(sender)
-              .functions.xcall(args, { from: sender.address, gasLimit: 2_500_000 });
+              .functions.xcall(args, { from: sender.address, gasLimit: 2_900_000 });
             console.log("  txHash: ", tx.hash);
 
             if (showArgs) {
