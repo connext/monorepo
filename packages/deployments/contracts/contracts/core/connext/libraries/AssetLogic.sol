@@ -288,7 +288,7 @@ library AssetLogic {
       SafeERC20.safeApprove(IERC20(_assetIn), address(pool), 0);
       SafeERC20.safeIncreaseAllowance(IERC20(_assetIn), address(pool), _amount);
 
-      return (pool.swapExact(_amount, _assetIn, _assetOut, _minOut), _assetOut);
+      return (pool.swapExact(_amount, _assetIn, _assetOut, _minOut, block.timestamp + 3600), _assetOut);
     }
   }
 
@@ -351,7 +351,7 @@ library AssetLogic {
         // Example: https://github.com/aave/aave-v3-periphery/blob/ca184e5278bcbc10d28c3dbbc604041d7cfac50b/contracts/adapters/paraswap/ParaSwapRepayAdapter.sol#L138-L140
         SafeERC20.safeApprove(IERC20(_assetIn), address(pool), 0);
         SafeERC20.safeIncreaseAllowance(IERC20(_assetIn), address(pool), _amountIn);
-        amountIn = pool.swapExactOut(_amountOut, _assetIn, _assetOut, _maxIn);
+        amountIn = pool.swapExactOut(_amountOut, _assetIn, _assetOut, _maxIn, block.timestamp + 3600);
       }
       // slippage is too high to perform swap: success = false, amountIn = 0
     }
