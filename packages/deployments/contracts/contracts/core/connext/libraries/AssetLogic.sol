@@ -288,7 +288,7 @@ library AssetLogic {
       SafeERC20.safeApprove(IERC20(_assetIn), address(pool), 0);
       SafeERC20.safeIncreaseAllowance(IERC20(_assetIn), address(pool), _amount);
 
-      return (pool.swapExact(_amount, _assetIn, _assetOut, minReceived, block.timestamp + 3600), _assetOut);
+      return (pool.swapExact(_amount, _assetIn, _assetOut, _minOut, block.timestamp + 3600), _assetOut);
     }
   }
 
