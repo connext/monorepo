@@ -156,7 +156,7 @@ library AssetLogic {
    * @param _canonical - The canonical token
    * @param _asset - The address of the adopted asset to swap into the local asset
    * @param _amount - The amount of the adopted asset to swap
-   * @param _slippageTol - Max bps of original due to slippage (i.e. would be 9995 to tolerate .05% slippage)
+   * @param _minOut - The minimum amount of `_assetOut` the user will accept
    * @return The amount of local asset received from swap
    * @return The address of asset received post-swap
    */
@@ -164,7 +164,7 @@ library AssetLogic {
     TokenId memory _canonical,
     address _asset,
     uint256 _amount,
-    uint256 _slippageTol
+    uint256 _minOut
   ) internal returns (uint256, address) {
     AppStorage storage s = LibConnextStorage.connextStorage();
 
@@ -182,7 +182,7 @@ library AssetLogic {
     }
 
     // Swap the asset to the proper local asset.
-    return _swapAsset(_canonical.id, _asset, local, _amount, _slippageTol);
+    return _swapAsset(_canonical.id, _asset, local, _amount, _minOut);
   }
 
   /**
@@ -190,7 +190,7 @@ library AssetLogic {
    * @dev Will not swap if the asset passed in is the adopted asset
    * @param _asset - The address of the local asset to swap into the adopted asset
    * @param _amount - The amount of the local asset to swap
-   * @param _slippageTol - Max bps of original due to slippage (i.e. would be 9995 to tolerate .05% slippage)
+   * @param _minOut - The minimum amount of `_assetOut` the user will accept
    * @return The amount of adopted asset received from swap
    * @return The address of asset received post-swap
    */
@@ -198,7 +198,7 @@ library AssetLogic {
     bytes32 _canonicalId,
     address _asset,
     uint256 _amount,
-    uint256 _slippageTol
+    uint256 _minOut
   ) internal returns (uint256, address) {
     AppStorage storage s = LibConnextStorage.connextStorage();
 
@@ -214,7 +214,7 @@ library AssetLogic {
     }
 
     // Swap the asset to the proper local asset
-    return _swapAsset(_canonicalId, _asset, adopted, _amount, _slippageTol);
+    return _swapAsset(_canonicalId, _asset, adopted, _amount, _minOut);
   }
 
   /**
@@ -256,7 +256,7 @@ library AssetLogic {
    * @param _assetIn - The address of the from asset
    * @param _assetOut - The address of the to asset
    * @param _amount - The amount of the local asset to swap
-   * @param _slippageTol - Max bps of original due to slippage (i.e. would be 9995 to tolerate .05% slippage)
+   * @param _minOut - The minimum amount of `_assetOut` the user will accept
    * @return The amount of assetOut
    * @return The address of assetOut
    */
@@ -265,12 +265,9 @@ library AssetLogic {
     address _assetIn,
     address _assetOut,
     uint256 _amount,
-    uint256 _slippageTol
+    uint256 _minOut
   ) internal returns (uint256, address) {
     AppStorage storage s = LibConnextStorage.connextStorage();
-
-    // Swap the asset to the proper local asset
-    uint256 minReceived = (_amount * _slippageTol) / s.LIQUIDITY_FEE_DENOMINATOR;
 
     if (stableSwapPoolExist(_canonicalId)) {
       // if internal swap pool exists
@@ -279,7 +276,7 @@ library AssetLogic {
           getTokenIndexFromStableSwapPool(_canonicalId, _assetIn),
           getTokenIndexFromStableSwapPool(_canonicalId, _assetOut),
           _amount,
-          minReceived
+          _minOut
         ),
         _assetOut
       );
@@ -291,7 +288,7 @@ library AssetLogic {
       SafeERC20.safeApprove(IERC20(_assetIn), address(pool), 0);
       SafeERC20.safeIncreaseAllowance(IERC20(_assetIn), address(pool), _amount);
 
-      return (pool.swapExact(_amount, _assetIn, _assetOut, minReceived), _assetOut);
+      return (pool.swapExact(_amount, _assetIn, _assetOut, _minOut), _assetOut);
     }
   }
 
