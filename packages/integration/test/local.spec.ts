@@ -503,8 +503,7 @@ describe("LOCAL:E2E", () => {
     );
 
     // TODO: Check router liquidity on-chain, assert funds were deducted.
-
-    logger.info("Fast transfer completed successfully!", requestContext, methodContext, {
+    logger.info("Fast-liquidity transfer completed successfully!", requestContext, methodContext, {
       originDomain: xcallData.params.originDomain,
       destinationDomain: xcallData.params.destinationDomain,
       etc: {
@@ -564,9 +563,8 @@ describe("LOCAL:E2E", () => {
       PARAMETERS.B.DOMAIN,
       originTransfer.transferId,
     );
-    console.log(destinationTransfer);
 
-    logger.info("Slow transfer completed successfully!", requestContext, methodContext, {
+    logger.info("Slow-liquidity transfer completed successfully!", requestContext, methodContext, {
       originDomain: xcallData.params.originDomain,
       destinationDomain: xcallData.params.destinationDomain,
       etc: {
