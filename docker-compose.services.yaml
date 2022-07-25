@@ -159,7 +159,7 @@ services:
         max-size: 10m
     volumes:
       - ${PWD}/docker/cartographer/transfers/:/home/node/agents/cartographer/
-      - ${PWD}/docker/cartographer/config.local.json:/home/node/packages/agents/cartographer/config.json
+      - ${PWD}/docker/cartographer/config.local.json:/home/node/packages/agents/cartographer/poller/config.json
     environment:
       GRAPH_1337_ENDPOINT: "http://graph-node-1337:8000/subgraphs/name/connext/nxtp"
       GRAPH_1338_ENDPOINT: "http://graph-node-1338:8000/subgraphs/name/connext/nxtp"
@@ -180,7 +180,7 @@ services:
         max-size: 10m
     volumes:
       - ${PWD}/docker/cartographer/routers/:/home/node/agents/cartographer/
-      - ${PWD}/docker/cartographer/config.local.json:/home/node/packages/agents/cartographer/config.json
+      - ${PWD}/docker/cartographer/config.local.json:/home/node/packages/agents/cartographer/poller/config.json
     environment:
       GRAPH_1337_ENDPOINT: "http://graph-node-1337:8000/subgraphs/name/connext/nxtp"
       GRAPH_1338_ENDPOINT: "http://graph-node-1338:8000/subgraphs/name/connext/nxtp"
