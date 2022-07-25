@@ -42,7 +42,7 @@ export default task("xcall", "Prepare a cross-chain tx")
   .addOptionalParam("env", "Environment of contracts")
   .addOptionalParam("runs", "Number of times to fire the xcall")
   .addOptionalParam("accounts", "Number of accounts to fire xcalls in parallel")
-  .addOptionalParam("showArgs", "Verbose logs")
+  .addOptionalParam("showArgs", "Verbose logs of xcall args")
   .setAction(
     async (
       {
@@ -204,15 +204,15 @@ export default task("xcall", "Prepare a cross-chain tx")
       }
 
       // Run as many times as specified
-      for (let i = 0; i < runs; i++) {
+      for (let i = 1; i <= runs; i++) {
         const receipts = Promise.all(
           senders.map(async (sender) => {
             args.params.to = sender.address;
 
-            console.log(`Transaction from sender: ${sender.address}`);
             const tx = await connext
               .connect(sender)
-              .functions.xcall(args, { from: sender.address, gasLimit: 2_900_000 });
+              .functions.xcall(args, { from: sender.address, gasLimit: 2_000_000 });
+            console.log(`Transaction from sender: ${sender.address}`);
             console.log("  txHash: ", tx.hash);
 
             if (showArgs) {
@@ -237,7 +237,7 @@ export default task("xcall", "Prepare a cross-chain tx")
           }),
         );
         await receipts;
-        console.log(`Transactions mined for run #${i}`);
+        console.log(`--> Transactions mined for run #${i}`);
       }
     },
   );
