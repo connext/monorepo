@@ -85,27 +85,7 @@ variable "certificate_arn" {
   default = "arn:aws:acm:us-east-2:679752396206:certificate/369a9591-204c-4d73-aaf0-4a38e7484326"
 }
 
-variable "rinkeby_alchemy_key_0" {
-  type = string
-}
-
-variable "kovan_alchemy_key_0" {
-  type = string
-}
-
-variable "goerli_alchemy_key_0" {
-  type = string
-}
-
-variable "rinkeby_alchemy_key_1" {
-  type = string
-}
-
-variable "kovan_alchemy_key_1" {
-  type = string
-}
-
-variable "goerli_alchemy_key_1" {
+variable "mainnet_alchemy_key_0" {
   type = string
 }
 
