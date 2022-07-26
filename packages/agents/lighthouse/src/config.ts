@@ -96,7 +96,7 @@ export const getEnvConfig = (
       cartographer:
         process.env.NXTP_CARTOGRAPHER_POLL_INTERVAL ||
         configJson.polling?.cache ||
-        configFile.polling?.cach ||
+        configFile.polling?.cache ||
         DEFAULT_CARTOGRAPHER_POLL_INTERVAL,
     },
     environment: process.env.NXTP_ENVIRONMENT || configJson.environment || configFile.environment || "production",

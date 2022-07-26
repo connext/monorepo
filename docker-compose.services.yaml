@@ -213,8 +213,6 @@ services:
       - cartographer-api
     image: ${LIGHTHOUSE_IMAGE}
     restart: always
-    ports:
-      - "8084:8080"
     logging:
       driver: json-file
       options:
