@@ -9,6 +9,7 @@ import {
   ERC20Abi,
   convertFromDbTransfer,
   XTransfer,
+  XTransferStatus,
 } from "@connext/nxtp-utils";
 import { TransactionService, getConnextInterface } from "@connext/nxtp-txservice";
 import { NxtpSdkBase, NxtpSdkUtils } from "@connext/nxtp-sdk";
@@ -483,6 +484,7 @@ describe("LOCAL:E2E", () => {
     }
 
     const destinationTransfer = await getTransferById(sdkUtils, PARAMETERS.B.DOMAIN, originTransfer.transferId);
+    expect(destinationTransfer.destination?.status).to.be.eq(XTransferStatus.Executed);
 
     // TODO: Check router liquidity on-chain, assert funds were deducted.
     logger.info("Fast-liquidity transfer completed successfully!", requestContext, methodContext, {
@@ -541,6 +543,8 @@ describe("LOCAL:E2E", () => {
     // Lighthouse should pick up the xcall once it's been reconciled.
     const originTransfer = await poll;
     const destinationTransfer = await getTransferById(sdkUtils, PARAMETERS.B.DOMAIN, originTransfer.transferId);
+
+    expect(destinationTransfer.destination?.status).to.be.eq(XTransferStatus.CompletedSlow);
 
     logger.info("Slow-liquidity transfer completed successfully!", requestContext, methodContext, {
       originDomain: xcallData.params.originDomain,
