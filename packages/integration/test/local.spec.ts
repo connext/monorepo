@@ -1,11 +1,9 @@
 import axios, { AxiosResponse } from "axios";
 import {
   createLoggingContext,
-  getChainData,
   Logger,
   OriginTransfer,
   DestinationTransfer,
-  ChainData,
   AuctionsApiGetAuctionStatusResponse,
   AuctionsApiErrorResponse,
   XCallArgs,
@@ -15,7 +13,6 @@ import {
 import { TransactionService, getConnextInterface } from "@connext/nxtp-txservice";
 import { NxtpSdkBase, NxtpSdkUtils } from "@connext/nxtp-sdk";
 import { BigNumber, constants, Contract, providers, utils, Wallet } from "ethers";
-import { SubgraphReader } from "@connext/nxtp-adapters-subgraph";
 
 import { pollSomething } from "./helpers/shared";
 import { enrollHandlers, enrollCustom, setupRouter, setupAsset, addLiquidity, addRelayer } from "./helpers/local";
@@ -244,7 +241,6 @@ const { requestContext, methodContext } = createLoggingContext("e2e");
 describe("LOCAL:E2E", () => {
   let sdkBase: NxtpSdkBase;
   let sdkUtils: NxtpSdkUtils;
-  let subgraphReader: SubgraphReader;
 
   const onchainSetup = async () => {
     logger.info("Enrolling handlers...");
@@ -431,18 +427,6 @@ describe("LOCAL:E2E", () => {
     sdkBase = await NxtpSdkBase.create(sdkConfig);
     sdkUtils = await NxtpSdkUtils.create(sdkConfig);
     logger.info("Set up sdk.");
-
-    logger.info("Setting up subgraph reader...");
-    const chainData = await getChainData();
-    const allowedDomains = ["1337", "1338"];
-    const allowedChainData: Map<string, ChainData> = new Map();
-    for (const allowedDomain of allowedDomains) {
-      if (chainData.has(allowedDomain)) {
-        allowedChainData.set(allowedDomain, chainData.get(allowedDomain)!);
-      }
-    }
-    subgraphReader = await SubgraphReader.create(allowedChainData, "production");
-    logger.info("Set up subgraph reader.");
 
     // On-chain / contracts configuration, approvals, etc.
     await onchainSetup();
