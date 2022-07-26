@@ -723,7 +723,7 @@ contract BridgeFacet is BaseConnextFacet {
     }
 
     // execute the the transaction
-    if (keccak256(_args.params.callData) == EMPTY) {
+    if (keccak256(_args.params.callData) == EMPTY_HASH) {
       // no call data, send funds to the user
       AssetLogic.handleOutgoingAsset(_asset, _args.params.to, _amount);
     } else {
