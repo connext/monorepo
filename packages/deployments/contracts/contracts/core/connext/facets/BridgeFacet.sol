@@ -424,7 +424,7 @@ contract BridgeFacet is BaseConnextFacet {
    * @notice Anyone can call this function on the origin domain to increase the relayer fee for a transfer.
    * @param _transferId - The unique identifier of the crosschain transaction
    */
-  function bumpTransfer(bytes32 _transferId) external payable whenNotPaused {
+  function bumpTransfer(bytes32 _transferId) external payable nonReentrant whenNotPaused {
     if (msg.value == 0) revert BridgeFacet__bumpTransfer_valueIsZero();
 
     s.relayerFees[_transferId] += msg.value;
@@ -451,7 +451,7 @@ contract BridgeFacet is BaseConnextFacet {
     bytes32 _canonicalId,
     uint32 _canonicalDomain,
     address _originSender
-  ) external {
+  ) external nonReentrant {
     // Enforce caller
     if (msg.sender != _params.agent) revert BridgeFacet__forceReceiveLocal_invalidSender();
 

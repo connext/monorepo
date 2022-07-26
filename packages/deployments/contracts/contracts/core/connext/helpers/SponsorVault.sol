@@ -278,7 +278,7 @@ contract SponsorVault is ISponsorVault, ReentrancyGuard, Ownable {
    * @param _token The ERC20 token address or address zero for native token
    * @param _amount The amount of ERC20 to deposit or zero for native token since the amount is sent in msg.value
    */
-  function deposit(address _token, uint256 _amount) external payable {
+  function deposit(address _token, uint256 _amount) external payable nonReentrant {
     if (_token != address(0)) {
       IERC20(_token).safeTransferFrom(msg.sender, address(this), _amount);
       emit Deposit(_token, _amount, msg.sender);

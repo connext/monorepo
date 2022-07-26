@@ -86,7 +86,7 @@ contract PortalFacet is BaseConnextFacet {
     uint256 _backingAmount,
     uint256 _feeAmount,
     uint256 _maxIn
-  ) external {
+  ) external nonReentrant {
     // Sanity check: has that much to spend
     if (s.routerBalances[msg.sender][_local] < _maxIn) revert PortalFacet__repayAavePortal_insufficientFunds();
 
@@ -143,7 +143,7 @@ contract PortalFacet is BaseConnextFacet {
     uint256 _nonce,
     uint256 _backingAmount,
     uint256 _feeAmount
-  ) external payable {
+  ) external payable nonReentrant {
     address adopted = _adopted == address(0) ? address(s.wrapper) : _adopted;
     // Ensure the asset is whitelisted
     TokenId memory canonical = s.adoptedToCanonical[adopted];
