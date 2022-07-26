@@ -54,7 +54,7 @@ export default task("dust", "Dust other accounts on a wallet")
         gasLimit: 1_000_000,
       });
       const receipt = await tx.wait();
-      console.log(`Sent ${amt} to ${recipient}`);
+      console.log(`Sent ${utils.formatEther(amt)} to ${recipient}`);
       console.log(`  Tx: ${receipt.transactionHash}`);
       const balance = utils.formatEther(await hre.ethers.provider.getBalance(recipient));
       console.log("  New balance: ", balance);
@@ -62,8 +62,10 @@ export default task("dust", "Dust other accounts on a wallet")
     };
 
     for (let i = 0; i < accounts.length; i++) {
-      if (minimumOnly && toSend.has(accounts[i].address)) {
-        await sendTxn(accounts[i].address, toSend.get(accounts[i].address)!);
+      if (minimumOnly) {
+        if (toSend.has(accounts[i].address)) {
+          await sendTxn(accounts[i].address, toSend.get(accounts[i].address)!);
+        }
       } else {
         await sendTxn(accounts[i].address, amountBase);
       }
