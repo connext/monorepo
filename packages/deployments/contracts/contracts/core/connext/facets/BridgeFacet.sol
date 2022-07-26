@@ -42,6 +42,8 @@ contract BridgeFacet is BaseConnextFacet {
   error BridgeFacet__setExecutor_invalidExecutor();
   error BridgeFacet__setSponsorVault_invalidSponsorVault();
   error BridgeFacet__addConnextion_invalidDomain();
+  error BridgeFacet__addSequencer_alreadyApproved();
+  error BridgeFacet__removeSequencer_notApproved();
   error BridgeFacet__xcall_wrongDomain();
   error BridgeFacet__xcall_destinationNotSupported();
   error BridgeFacet__xcall_emptyToOrRecovery();
@@ -168,6 +170,20 @@ contract BridgeFacet is BaseConnextFacet {
    */
   event ConnextionAdded(uint32 domain, address connext, address caller);
 
+  /**
+   * @notice Emitted when a sequencer is added or removed from whitelists
+   * @param sequencer - The sequencer address to be added or removed
+   * @param caller - The account that called the function
+   */
+  event SequencerAdded(address sequencer, address caller);
+
+  /**
+   * @notice Emitted when a sequencer is added or removed from whitelists
+   * @param sequencer - The sequencer address to be added or removed
+   * @param caller - The account that called the function
+   */
+  event SequencerRemoved(address sequencer, address caller);
+
   // ============ Getters ============
 
   function relayerFees(bytes32 _transferId) public view returns (uint256) {
@@ -242,6 +258,28 @@ contract BridgeFacet is BaseConnextFacet {
 
     s.connextions[_domain] = TypeCasts.addressToBytes32(_connext);
     emit ConnextionAdded(_domain, _connext, msg.sender);
+  }
+
+  /**
+   * @notice Used to add an approved sequencer to the whitelist.
+   * @param _sequencer - The sequencer address to add.
+   */
+  function addSequencer(address _sequencer) external onlyOwner {
+    if (s.approvedSequencers[_sequencer]) revert BridgeFacet__addSequencer_alreadyApproved();
+    s.approvedSequencers[_sequencer] = true;
+
+    emit SequencerAdded(_sequencer, msg.sender);
+  }
+
+  /**
+   * @notice Used to remove an approved sequencer from the whitelist.
+   * @param _sequencer - The sequencer address to remove.
+   */
+  function removeSequencer(address _sequencer) external onlyOwner {
+    if (!s.approvedSequencers[_sequencer]) revert BridgeFacet__removeSequencer_notApproved();
+    delete s.approvedSequencers[_sequencer];
+
+    emit SequencerRemoved(_sequencer, msg.sender);
   }
 
   // ============ Public methods ==============
