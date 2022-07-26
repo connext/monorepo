@@ -13,7 +13,7 @@ import {
   ERC20Abi,
 } from "@connext/nxtp-utils";
 import { TransactionService, getConnextInterface } from "@connext/nxtp-txservice";
-import { NxtpSdkBase } from "@connext/nxtp-sdk";
+import { NxtpSdkBase, NxtpSdkUtils } from "@connext/nxtp-sdk";
 import { BigNumber, constants, Contract, providers, utils, Wallet } from "ethers";
 import { SubgraphReader } from "@connext/nxtp-adapters-subgraph";
 
@@ -53,7 +53,7 @@ const userTxService = new TransactionService(
 );
 
 const sendXCall = async (
-  sdk: NxtpSdkBase,
+  sdkBase: NxtpSdkBase,
   xparams: Partial<CallParams> = {},
   signer?: Wallet,
 ): Promise<{
@@ -80,7 +80,7 @@ const sendXCall = async (
     },
     transactingAssetId: PARAMETERS.ASSET.address,
   };
-  const tx = await sdk.xcall(xcallData);
+  const tx = await sdkBase.xcall(xcallData);
 
   logger.info("Sending XCall...");
   let receipt: providers.TransactionReceipt;
@@ -242,7 +242,8 @@ const enrollReplica = async (singer: Wallet) => {
 
 const { requestContext, methodContext } = createLoggingContext("e2e");
 describe("LOCAL:E2E", () => {
-  let sdk: NxtpSdkBase;
+  let sdkBase: NxtpSdkBase;
+  let sdkUtils: NxtpSdkUtils;
   let subgraphReader: SubgraphReader;
 
   const onchainSetup = async () => {
@@ -379,7 +380,7 @@ describe("LOCAL:E2E", () => {
       logger.info(`New user token balance: ${tokenBalance.toString()}`);
     }
 
-    let tx = await sdk.approveIfNeeded(PARAMETERS.A.DOMAIN, PARAMETERS.ASSET.address, "1", true);
+    let tx = await sdkBase.approveIfNeeded(PARAMETERS.A.DOMAIN, PARAMETERS.ASSET.address, "1", true);
     if (tx) {
       await userTxService.sendTx(
         { chainId: 1337, to: tx.to!, value: 0, data: utils.hexlify(tx.data!) },
@@ -387,7 +388,7 @@ describe("LOCAL:E2E", () => {
       );
     }
     if (tx) {
-      tx = await sdk.approveIfNeeded(PARAMETERS.B.DOMAIN, PARAMETERS.ASSET.address, "1", true);
+      tx = await sdkBase.approveIfNeeded(PARAMETERS.B.DOMAIN, PARAMETERS.ASSET.address, "1", true);
     }
   };
 
@@ -402,7 +403,7 @@ describe("LOCAL:E2E", () => {
 
     // Peripherals.
     logger.info("Setting up sdk...");
-    sdk = await NxtpSdkBase.create({
+    const sdkConfig = {
       chains: {
         [PARAMETERS.A.DOMAIN]: {
           assets: [{ address: PARAMETERS.ASSET.address, name: PARAMETERS.ASSET.name, symbol: PARAMETERS.ASSET.symbol }],
@@ -426,7 +427,9 @@ describe("LOCAL:E2E", () => {
       cartographerUrl: PARAMETERS.AGENTS.CARTOGRAPHER.url,
       environment: PARAMETERS.ENVIRONMENT as "production" | "staging",
       signerAddress: PARAMETERS.AGENTS.USER.address,
-    });
+    };
+    sdkBase = await NxtpSdkBase.create(sdkConfig);
+    sdkUtils = await NxtpSdkUtils.create(sdkConfig);
     logger.info("Set up sdk.");
 
     logger.info("Setting up subgraph reader...");
@@ -448,7 +451,7 @@ describe("LOCAL:E2E", () => {
   it("handles fast liquidity transfer", async () => {
     const originProvider = new providers.JsonRpcProvider(PARAMETERS.A.RPC[0]);
     const { receipt, xcallData } = await sendXCall(
-      sdk,
+      sdkBase,
       { forceSlow: false },
       PARAMETERS.AGENTS.USER.signer.connect(originProvider),
     );
@@ -527,7 +530,7 @@ describe("LOCAL:E2E", () => {
 
     const originProvider = new providers.JsonRpcProvider(PARAMETERS.A.RPC[0]);
     const { receipt, xcallData } = await sendXCall(
-      sdk,
+      sdkBase,
       { forceSlow: true },
       PARAMETERS.AGENTS.USER.signer.connect(originProvider),
     );
