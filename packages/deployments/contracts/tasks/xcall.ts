@@ -213,7 +213,7 @@ export default task("xcall", "Prepare a cross-chain tx")
               .connect(sender)
               .functions.xcall(args, { from: sender.address, gasLimit: 2_000_000 });
             console.log(`Transaction from sender: ${sender.address}`);
-            console.log("  txHash: ", tx.hash);
+            console.log("  Tx: ", tx.hash);
 
             if (showArgs) {
               console.log("  originDomain: ", originDomain);

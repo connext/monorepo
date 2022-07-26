@@ -27,9 +27,8 @@ export default task("read-balances", "Read balances of accounts")
         console.log(`  Balance of ${accounts[i].address}: ${utils.formatEther(balance)}`);
       } else {
         const erc20 = await hre.ethers.getContractAt("IERC20", asset, accounts[i]);
-        const decimals: BigNumber = await erc20.decimals();
         balance = await erc20.balanceOf(accounts[i].address);
-        console.log(`  Balance of ${accounts[i].address}: ${utils.formatUnits(balance, decimals.toNumber())}`);
+        console.log(`  Balance of ${accounts[i].address}: ${utils.formatUnits(balance)}`);
       }
       balances.set(accounts[i].address, balance);
     }

@@ -319,14 +319,18 @@ _Dust_
 
 Run the `dust` task to distribute funds to the accounts that will be used in the load test. It will throw if there aren't enough funds in the first account (`getSigners[0]`) to cover the complete distribution. There should also be some extra gas buffer on top of the minimum needed to account for transaction fees.
 
+Using `--minimum-only true` will cause the task to dust accounts _up to_ the `amount` and ignore accounts that already have sufficient funds.
+
 ```bash
-# Send 0.5 ETH to each account
-$ yarn workspace @connext/nxtp-contracts hardhat dust --amount 0.5 --network rinkeby
+# Top up each account with <0.5 ETH to exactly 0.5 ETH.
+$ yarn workspace @connext/nxtp-contracts hardhat dust --amount 0.5 --network rinkeby --minimum-only true
 ```
 
 _Mint_
 
 Run the `mint` task to mint an appropriate number of TestERC20 tokens to each account.
+
+Using `--minimum-only true` will cause the task to mint accounts _up to_ the `amount` and ignore accounts that already have sufficient funds.
 
 Tip: Just mint a ton of TEST to each account once so this task doesn't have to be run again.
 
