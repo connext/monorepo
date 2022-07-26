@@ -172,7 +172,7 @@ contract PortalFacetTest is PortalFacet, FacetHelper {
     vm.expectCall(_local, abi.encodeWithSelector(IERC20.approve.selector, aavePool, backing + fee));
     vm.expectCall(aavePool, abi.encodeWithSelector(IAavePool.backUnbacked.selector, _local, backing, fee));
     vm.expectEmit(true, true, true, true);
-    emit AavePortalRouterRepayment(router, _local, backing, fee);
+    emit AavePortalRepayment(transferId, _local, backing, fee, router);
     vm.prank(router);
     utils_repayPortal(params, backing, fee, backing);
 
@@ -307,7 +307,7 @@ contract PortalFacetTest is PortalFacet, FacetHelper {
     vm.expectCall(_adopted, abi.encodeWithSelector(IERC20.approve.selector, aavePool, backing + fee));
     vm.expectCall(aavePool, abi.encodeWithSelector(IAavePool.backUnbacked.selector, _adopted, backing, fee));
     vm.expectEmit(true, true, true, true);
-    emit AavePortalRouterRepayment(router, _adopted, backing, fee);
+    emit AavePortalRepayment(transferId, _adopted, backing, fee, router);
     vm.prank(router);
     utils_repayPortal(params, backing, fee, maxIn);
 
@@ -359,8 +359,6 @@ contract PortalFacetTest is PortalFacet, FacetHelper {
 
     s.portalDebt[transferId] = backing;
     s.portalFeeDebt[transferId] = fee;
-    console.log("repaying transfer id...");
-    console.logBytes32(transferId);
 
     // mint initial balance to sender and approve
     address sender = address(111);
@@ -372,7 +370,7 @@ contract PortalFacetTest is PortalFacet, FacetHelper {
     vm.expectCall(_adopted, abi.encodeWithSelector(IERC20.approve.selector, aavePool, total));
     vm.expectCall(aavePool, abi.encodeWithSelector(IAavePool.backUnbacked.selector, _adopted, backing, fee));
     vm.expectEmit(true, true, true, true);
-    emit AavePortalRouterRepayment(sender, _adopted, backing, fee);
+    emit AavePortalRepayment(transferId, _adopted, backing, fee, sender);
     vm.prank(sender);
     utils_repayPortalFor(params, _adopted, backing, fee);
     console.log("repaid");
