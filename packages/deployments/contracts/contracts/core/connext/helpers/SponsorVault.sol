@@ -279,9 +279,12 @@ contract SponsorVault is ISponsorVault, ReentrancyGuard, Ownable {
   function deposit(address _token, uint256 _amount) external payable {
     if (_token != address(0)) {
       IERC20(_token).safeTransferFrom(msg.sender, address(this), _amount);
+      emit Deposit(_token, _amount, msg.sender);
     }
 
-    emit Deposit(_token, _token != address(0) ? _amount : msg.value, msg.sender);
+    if (msg.value > 0) {
+      emit Deposit(address(0), msg.value, msg.sender);
+    }
   }
 
   /**
