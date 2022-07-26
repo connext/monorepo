@@ -616,6 +616,7 @@ contract BridgeFacet is BaseConnextFacet {
     }
 
     uint256 toSwap = _args.amount;
+    uint256 toBorrow;
     // If this is a fast liquidity path, we should handle deducting from applicable routers' liquidity.
     // If this is a slow liquidity path, the transfer must have been reconciled (if we've reached this point),
     // and the funds would have been custodied in this contract. The exact custodied amount is untracked in state
@@ -641,8 +642,20 @@ contract BridgeFacet is BaseConnextFacet {
           if (!s.routerPermissionInfo.approvedForPortalRouters[_args.routers[0]])
             revert BridgeFacet__execute_notApprovedForPortals();
 
-          // Portal provides the adopted asset so we early return here
-          return _executePortalTransfer(_transferId, _key, toSwap, _args.routers[0]);
+          // Borrow only what is needed to cover the swap, and use all available liquidity
+          uint256 available = s.routerBalances[_args.routers[0]][_args.local];
+
+          // Set router balance to 0
+          s.routerBalances[_args.routers[0]][_args.local] = 0;
+
+          // Calculate the amount to borrow
+          toBorrow = toSwap - available;
+
+          // Update the toSwap amount (portals provide us with the adopted asset)
+          toSwap = available;
+
+          // Borrow adopted asset from aave portal
+          _executePortalTransfer(_transferId, _key, toBorrow, _args.routers[0]);
         } else {
           // Decrement the router's liquidity.
           s.routerBalances[_args.routers[0]][_args.local] -= toSwap;
@@ -671,7 +684,13 @@ contract BridgeFacet is BaseConnextFacet {
     }
 
     // swap out of mad* asset into adopted asset if needed
-    return AssetLogic.swapFromLocalAssetIfNeeded(_key, _args.local, toSwap, _args.params.destinationMinOut);
+    (uint256 adoptedAmt, address adopted) = AssetLogic.swapFromLocalAssetIfNeeded(
+      _key,
+      _args.local,
+      toSwap,
+      _args.params.destinationMinOut
+    );
+    return (adoptedAmt + toBorrow, adopted);
   }
 
   /**
@@ -764,27 +783,27 @@ contract BridgeFacet is BaseConnextFacet {
   function _executePortalTransfer(
     bytes32 _transferId,
     bytes32 _key,
-    uint256 _fastTransferAmount,
+    uint256 _toBorrow,
     address _router
   ) internal returns (uint256, address) {
     // Calculate local to adopted swap output if needed
     address adopted = s.canonicalToAdopted[_key];
 
-    IAavePool(s.aavePool).mintUnbacked(adopted, _fastTransferAmount, address(this), AAVE_REFERRAL_CODE);
+    IAavePool(s.aavePool).mintUnbacked(adopted, _toBorrow, address(this), AAVE_REFERRAL_CODE);
 
     // Improvement: Instead of withdrawing to address(this), withdraw directly to the user or executor to save 1 transfer
-    uint256 amountWithdrawn = IAavePool(s.aavePool).withdraw(adopted, _fastTransferAmount, address(this));
+    uint256 amountWithdrawn = IAavePool(s.aavePool).withdraw(adopted, _toBorrow, address(this));
 
-    if (amountWithdrawn < _fastTransferAmount) revert BridgeFacet__executePortalTransfer_insufficientAmountWithdrawn();
+    if (amountWithdrawn < _toBorrow) revert BridgeFacet__executePortalTransfer_insufficientAmountWithdrawn();
 
     // Store principle debt
-    s.portalDebt[_transferId] = _fastTransferAmount;
+    s.portalDebt[_transferId] = _toBorrow;
 
     // Store fee debt
-    s.portalFeeDebt[_transferId] = (s.aavePortalFeeNumerator * _fastTransferAmount) / s.LIQUIDITY_FEE_DENOMINATOR;
+    s.portalFeeDebt[_transferId] = (s.aavePortalFeeNumerator * _toBorrow) / s.LIQUIDITY_FEE_DENOMINATOR;
 
-    emit AavePortalMintUnbacked(_transferId, _router, adopted, _fastTransferAmount);
+    emit AavePortalMintUnbacked(_transferId, _router, adopted, _toBorrow);
 
-    return (_fastTransferAmount, adopted);
+    return (_toBorrow, adopted);
   }
 }
