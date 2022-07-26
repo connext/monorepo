@@ -109,11 +109,13 @@ contract Deployer {
     bridgeFacetSelectors[10] = BridgeFacet.setExecutor.selector;
     bridgeFacetSelectors[11] = BridgeFacet.setSponsorVault.selector;
     bridgeFacetSelectors[12] = BridgeFacet.addConnextion.selector;
+    bridgeFacetSelectors[13] = BridgeFacet.addSequencer.selector;
+    bridgeFacetSelectors[14] = BridgeFacet.removeSequencer.selector;
     // public
-    bridgeFacetSelectors[13] = BridgeFacet.xcall.selector;
-    bridgeFacetSelectors[14] = BridgeFacet.execute.selector;
-    bridgeFacetSelectors[15] = BridgeFacet.bumpTransfer.selector;
-    bridgeFacetSelectors[16] = BridgeFacet.forceReceiveLocal.selector;
+    bridgeFacetSelectors[15] = BridgeFacet.xcall.selector;
+    bridgeFacetSelectors[16] = BridgeFacet.execute.selector;
+    bridgeFacetSelectors[17] = BridgeFacet.bumpTransfer.selector;
+    bridgeFacetSelectors[18] = BridgeFacet.forceReceiveLocal.selector;
     return
       IDiamondCut.FacetCut({
         facetAddress: _bridgeFacet,

@@ -58,6 +58,10 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
   // agents
   address _agent = address(123456654321);
 
+  // sequencer
+  uint256 _sequencerPKey = 0xA11CE;
+  address _sequencer = vm.addr(_sequencerPKey);
+
   // default origin sender
   address _originSender = address(4);
 
@@ -110,6 +114,7 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
 
     // Other context setup: configuration, storage, etc.
     s.approvedRelayers[address(this)] = true;
+    s.approvedSequencers[_sequencer] = true;
     s.maxRoutersPerTransfer = 5;
     s._routerOwnershipRenounced = true;
     s.bridgeRouter = IBridgeRouter(_bridgeRouter);
@@ -199,6 +204,18 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
     return (transferId, args);
   }
 
+  function utils_makeSequencerSignature(
+    bytes32 transferId,
+    address[] memory routers,
+    address sequencer,
+    uint256 key
+  ) public returns (bytes memory) {
+    bytes32 preImage = keccak256(abi.encode(transferId, routers));
+    bytes32 toSign = ECDSA.toEthSignedMessageHash(preImage);
+    (uint8 v, bytes32 r, bytes32 _s) = vm.sign(key, toSign);
+    return abi.encodePacked(r, _s, v);
+  }
+
   // Makes some mock router signatures.
   function utils_makeRouterSignatures(
     bytes32 _transferId,
@@ -227,12 +244,24 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
     s.domain = _destinationDomain;
     // get args
     bytes[] memory empty = new bytes[](0);
-    ExecuteArgs memory args = ExecuteArgs(_params, _local, routers, empty, _amount, _nonce, _originSender);
+    ExecuteArgs memory args = ExecuteArgs(
+      _params,
+      _local,
+      routers,
+      empty,
+      address(0),
+      bytes(""),
+      _amount,
+      _nonce,
+      _originSender
+    );
     // generate transfer id
     bytes32 transferId = utils_getTransferIdFromExecuteArgs(args);
     // generate router signatures if applicable
     if (routers.length != 0) {
       args.routerSignatures = utils_makeRouterSignatures(transferId, routers, keys);
+      args.sequencer = _sequencer;
+      args.sequencerSignature = utils_makeSequencerSignature(transferId, routers, _sequencer, _sequencerPKey);
     }
     return (transferId, args);
   }
