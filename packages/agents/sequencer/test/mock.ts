@@ -75,7 +75,7 @@ export const mock = {
         uri: "amqp://guest:guest@localhost:5672",
       },
       exchanges: [{ name: "sequencerX", type: "direct", publishTimeout: 1000, persistent: true, durable: true }],
-      queues: [{ name: mock.chain.A, prefetch: 100, queueLimit: 10000, subscribe: true }],
+      queues: [{ name: mock.chain.A, limit: 5, queueLimit: 10000, subscribe: true }],
       bindings: [{ exchange: "sequencerX", target: mock.chain.A, keys: [mock.chain.A] }],
       executerTimeout: 300000,
       publisher: "sequencerX",
