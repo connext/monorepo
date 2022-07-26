@@ -594,6 +594,7 @@ contract ConnextTest is ForgeHelper, Deployer {
     uint256 key = 0xA11CE;
     address sequencer = vm.addr(key);
     _originConnext.addSequencer(sequencer);
+    _destinationConnext.addSequencer(sequencer);
 
     bytes32 preImage = keccak256(abi.encode(transferId, routers));
     bytes32 toSign = ECDSA.toEthSignedMessageHash(preImage);
