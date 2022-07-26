@@ -112,15 +112,6 @@ contract PromiseRouterTest is ForgeHelper, PromiseRouter {
     promiseRouter.send(_domain, _transferId, _callback, returnSuccess, returnData);
   }
 
-  // Fail if return data is empty
-  function test_PromiseRouter__send_failsIfEmptyReturnData(bool returnSuccess, bytes calldata returnData) public {
-    vm.assume(returnData.length == 0);
-    vm.prank(_connext);
-    vm.expectRevert(abi.encodeWithSelector(PromiseRouter.PromiseRouter__send_returndataEmpty.selector));
-
-    promiseRouter.send(_domain, _transferId, _callback, returnSuccess, returnData);
-  }
-
   // Fail if callback address is not contract
   function test_PromiseRouter__send_failsIfEmptyCallback(bool returnSuccess, bytes calldata returnData) public {
     vm.assume(returnData.length != 0);
@@ -151,6 +142,19 @@ contract PromiseRouterTest is ForgeHelper, PromiseRouter {
 
     bytes memory message = PromiseMessage.formatPromiseCallback(_transferId, _callback, returnSuccess, returnData);
 
+    vm.expectCall(_xAppHome, abi.encodeWithSelector(MockHome.dispatch.selector, _domain, _remote, message));
+    vm.expectEmit(true, true, true, true);
+    emit Send(_domain, _remote, _transferId, _callback, returnSuccess, returnData, message);
+
+    promiseRouter.send(_domain, _transferId, _callback, returnSuccess, returnData);
+  }
+
+  // Should work if empty return data
+  function test_PromiseRouter__send_shouldWorkIfEmptyReturnData(bool returnSuccess, bytes calldata returnData) public {
+    vm.assume(returnData.length == 0);
+    vm.prank(_connext);
+
+    bytes memory message = PromiseMessage.formatPromiseCallback(_transferId, _callback, returnSuccess, returnData);
     vm.expectCall(_xAppHome, abi.encodeWithSelector(MockHome.dispatch.selector, _domain, _remote, message));
     vm.expectEmit(true, true, true, true);
     emit Send(_domain, _remote, _transferId, _callback, returnSuccess, returnData, message);
