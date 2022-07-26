@@ -3,7 +3,12 @@ import { Wallet } from "ethers";
 // Used in polling loops.
 export const SUBG_POLL_PARITY = 5_000;
 
-export const WALLET = Wallet.fromMnemonic("candy maple cake sugar pudding cream honey rich smooth crumble sweet treat");
+export const DEPLOYER_WALLET = Wallet.fromMnemonic(
+  "candy maple cake sugar pudding cream honey rich smooth crumble sweet treat",
+);
+export const USER_WALLET = Wallet.fromMnemonic(
+  "define various win open delay annual edge wait embark fire brain novel",
+);
 
 export const PARAMETERS = {
   ENVIRONMENT: "production",
@@ -11,12 +16,17 @@ export const PARAMETERS = {
     ROUTER: {
       address: "0x627306090abaB3A6e1400e9345bC60c78a8BEf57",
     },
+    RELAYER: { address: "0x627306090abaB3A6e1400e9345bC60c78a8BEf57" },
     CARTOGRAPHER: {
       url: "http://localhost:3000",
     },
     USER: {
-      address: WALLET.address,
-      signer: WALLET,
+      address: USER_WALLET.address,
+      signer: USER_WALLET,
+    },
+    DEPLOYER: {
+      address: DEPLOYER_WALLET.address,
+      signer: DEPLOYER_WALLET,
     },
   },
   ASSET: {
@@ -33,6 +43,7 @@ export const PARAMETERS = {
       PromiseRouterUpgradeBeaconProxy: "0xbaAA2a3237035A2c7fA2A33c76B44a8C6Fe18e87",
       RelayerFeeRouterUpgradeBeaconProxy: "0xEcFcaB0A285d3380E488A39B4BB21e777f8A4EaC",
       TokenRegistry: "0x75c35C980C0d37ef46DF04d31A140b65503c0eEd",
+      XAppConnectionManager: "0xFB88dE099e13c3ED21F80a7a1E49f8CAEcF10df6",
     },
   },
   B: {
@@ -44,6 +55,7 @@ export const PARAMETERS = {
       PromiseRouterUpgradeBeaconProxy: "0xbaAA2a3237035A2c7fA2A33c76B44a8C6Fe18e87",
       RelayerFeeRouterUpgradeBeaconProxy: "0xEcFcaB0A285d3380E488A39B4BB21e777f8A4EaC",
       TokenRegistry: "0x75c35C980C0d37ef46DF04d31A140b65503c0eEd",
+      XAppConnectionManager: "0xFB88dE099e13c3ED21F80a7a1E49f8CAEcF10df6",
     },
   },
 };

@@ -143,3 +143,80 @@ services:
       options:
         max-size: 10m
         tag: "{{.ImageName}}|{{.Name}}|{{.ImageFullID}}|{{.FullID}}"
+
+  cartographer-transfers:
+    container_name: cartographer-transfers
+    depends_on:
+      - cartographer-database
+      - cartographer-api
+    image: ${CARTOGRAPHER_TRANSFERS_IMAGE}
+    restart: always
+    ports:
+      - "8083:8080"
+    logging:
+      driver: json-file
+      options:
+        max-size: 10m
+    volumes:
+      - ${PWD}/docker/cartographer/transfers/:/home/node/agents/cartographer/
+      - ${PWD}/docker/cartographer/config.local.json:/home/node/packages/agents/cartographer/poller/config.json
+    environment:
+      GRAPH_1337_ENDPOINT: "http://graph-node-1337:8000/subgraphs/name/connext/nxtp"
+      GRAPH_1338_ENDPOINT: "http://graph-node-1338:8000/subgraphs/name/connext/nxtp"
+      DATABASE_URL: "postgres://postgres:qwerty@cartographer-database:5432/connext?sslmode=disable"
+
+  cartographer-routers:
+    container_name: cartographer-routers
+    depends_on:
+      - cartographer-database
+      - cartographer-api
+    image: ${CARTOGRAPHER_ROUTERS_IMAGE}
+    restart: always
+    ports:
+      - "8093:8080"
+    logging:
+      driver: json-file
+      options:
+        max-size: 10m
+    volumes:
+      - ${PWD}/docker/cartographer/routers/:/home/node/agents/cartographer/
+      - ${PWD}/docker/cartographer/config.local.json:/home/node/packages/agents/cartographer/poller/config.json
+    environment:
+      GRAPH_1337_ENDPOINT: "http://graph-node-1337:8000/subgraphs/name/connext/nxtp"
+      GRAPH_1338_ENDPOINT: "http://graph-node-1338:8000/subgraphs/name/connext/nxtp"
+      DATABASE_URL: "postgres://postgres:qwerty@cartographer-database:5432/connext?sslmode=disable"
+
+  cartographer-database:
+    container_name: cartographer-database
+    image: postgres
+    ports:
+      - "5434:5432"
+    command: ["postgres"]
+    environment:
+      POSTGRES_PASSWORD: qwerty
+
+  cartographer-api:
+    container_name: cartographer-api
+    depends_on:
+      - cartographer-database
+    image: postgrest/postgrest:v9.0.0.20220107
+    ports:
+      - "3000:3000"
+    environment:
+      PGRST_DB_URI: postgres://reader:3eadooor@cartographer-database:5432/connext
+      PGRST_DB_SCHEMA: public
+      PGRST_DB_ANON_ROLE: query
+
+  lighthouse:
+    container_name: lighthouse
+    depends_on:
+      - cartographer-api
+    image: ${LIGHTHOUSE_IMAGE}
+    restart: always
+    logging:
+      driver: json-file
+      options:
+        max-size: 10m
+    volumes:
+      - ${PWD}/docker/lighthouse/:/home/node/agents/lighthouse/
+      - ${PWD}/docker/lighthouse/config.local.json:/home/node/packages/agents/lighthouse/config.json
