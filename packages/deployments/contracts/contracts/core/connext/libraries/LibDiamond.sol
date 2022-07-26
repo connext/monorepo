@@ -43,6 +43,8 @@ library LibDiamond {
     address contractOwner;
     // hash of proposed facets => acceptance time
     mapping(bytes32 => uint256) acceptanceTimes;
+    // stores whether there has been an initial cut
+    bool initialCut;
   }
 
   function diamondStorage() internal pure returns (DiamondStorage storage ds) {
@@ -103,7 +105,7 @@ library LibDiamond {
     bytes memory _calldata
   ) internal {
     DiamondStorage storage ds = diamondStorage();
-    if (ds.facetAddresses.length != 0) {
+    if (ds.initialCut) {
       uint256 validityPeriodStart = ds.acceptanceTimes[keccak256(abi.encode(_diamondCut, _init, _calldata))];
       require(
         validityPeriodStart != 0 &&
@@ -115,7 +117,11 @@ library LibDiamond {
       // Now, 0-out the acceptance time to ensure the update cannot be re-executed without another
       // proposal
       rescindDiamondCut(_diamondCut, _init, _calldata);
-    } // Otherwise, this is the first instance of deployment and it can be set automatically
+    } else {
+      // This is the first instance of using `diamondCut` and setting the facets.
+      // Update the flag so future iterations go through the proposal process
+      ds.initialCut = true;
+    }
     for (uint256 facetIndex; facetIndex < _diamondCut.length; facetIndex++) {
       IDiamondCut.FacetCutAction action = _diamondCut[facetIndex].action;
       if (action == IDiamondCut.FacetCutAction.Add) {
