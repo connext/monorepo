@@ -1,25 +1,24 @@
 import axios, { AxiosResponse } from "axios";
 import {
   createLoggingContext,
-  getChainData,
   Logger,
-  OriginTransfer,
-  DestinationTransfer,
-  ChainData,
   AuctionsApiGetAuctionStatusResponse,
   AuctionsApiErrorResponse,
   XCallArgs,
   CallParams,
   ERC20Abi,
+  convertFromDbTransfer,
+  XTransfer,
+  XTransferStatus,
 } from "@connext/nxtp-utils";
 import { TransactionService, getConnextInterface } from "@connext/nxtp-txservice";
-import { NxtpSdkBase } from "@connext/nxtp-sdk";
+import { NxtpSdkBase, NxtpSdkUtils } from "@connext/nxtp-sdk";
 import { BigNumber, constants, Contract, providers, utils, Wallet } from "ethers";
-import { SubgraphReader } from "@connext/nxtp-adapters-subgraph";
 
 import { pollSomething } from "./helpers/shared";
 import { enrollHandlers, enrollCustom, setupRouter, setupAsset, addLiquidity, addRelayer } from "./helpers/local";
 import { DEPLOYER_WALLET, PARAMETERS, SUBG_POLL_PARITY, USER_WALLET } from "./constants/local";
+import { expect } from "chai";
 
 const logger = new Logger({ name: "e2e" });
 
@@ -53,7 +52,7 @@ const userTxService = new TransactionService(
 );
 
 const sendXCall = async (
-  sdk: NxtpSdkBase,
+  sdkBase: NxtpSdkBase,
   xparams: Partial<CallParams> = {},
   signer?: Wallet,
 ): Promise<{
@@ -80,7 +79,7 @@ const sendXCall = async (
     },
     transactingAssetId: PARAMETERS.ASSET.address,
   };
-  const tx = await sdk.xcall(xcallData);
+  const tx = await sdkBase.xcall(xcallData);
 
   logger.info("Sending XCall...");
   let receipt: providers.TransactionReceipt;
@@ -102,25 +101,26 @@ const sendXCall = async (
   return { receipt, xcallData };
 };
 
-const getOriginTransfer = async (
-  subgraphReader: SubgraphReader,
+const getTransferByTransactionHash = async (
+  sdkUtils: NxtpSdkUtils,
   domain: string,
   transactionHash: string,
-): Promise<OriginTransfer> => {
-  logger.info(`Polling origin subgraph for added transfer...`, requestContext, methodContext, {
+): Promise<XTransfer> => {
+  logger.info(`Fetching the origin transfer using sdk...`, requestContext, methodContext, {
     domain,
     txHash: transactionHash,
   });
 
   const startTime = Date.now();
-  const originTransfer: OriginTransfer | undefined = await pollSomething({
-    // Attempts will be made for 1 minute.
-    attempts: Math.floor(60_000 / SUBG_POLL_PARITY),
+  const xTransfer: XTransfer | undefined = await pollSomething({
+    // Attempts will be made for 2 minute.
+    attempts: Math.floor(120_000 / SUBG_POLL_PARITY),
     parity: SUBG_POLL_PARITY,
     method: async () => {
       try {
-        const transfer = await subgraphReader.getOriginTransferByHash(domain, transactionHash);
-        if (transfer?.origin.xcall?.transactionHash) {
+        const dbTransfer = await sdkUtils.getTransferByTransactionHash(transactionHash);
+        const transfer = convertFromDbTransfer(dbTransfer[0]);
+        if (transfer.origin!.xcall!.transactionHash) {
           return transfer;
         }
       } catch (e: unknown) {
@@ -131,52 +131,49 @@ const getOriginTransfer = async (
   });
   const endTime = Date.now();
 
-  if (!originTransfer) {
-    logger.info("Failed to retrieve xcalled transfer from the origin subgraph.", requestContext, methodContext, {
+  if (!xTransfer) {
+    logger.info("Failed to retrieve xcalled transfer from the cartographer-api.", requestContext, methodContext, {
       domain: domain,
       etc: {
         polled: `${(endTime - startTime) / 1_000}s.`,
       },
     });
-    throw new Error("Failed to retrieve xcalled transfer from the origin subgraph.");
+    throw new Error("Failed to retrieve xcalled transfer from the cartographer-api.");
   }
 
   logger.info("XCall retrieved.", requestContext, methodContext, {
     domain,
     etc: {
       took: `${endTime - startTime}ms.`,
-      transferID: originTransfer?.transferId,
-      originTransfer,
+      transferID: xTransfer?.transferId,
+      xTransfer,
     },
   });
-  return originTransfer;
+  return xTransfer;
 };
 
-const getDestinationTransfer = async (
-  subgraphReader: SubgraphReader,
-  domain: string,
-  transferId: string,
-): Promise<DestinationTransfer> => {
-  logger.info("Polling destination subgraph for execute tx...", requestContext, methodContext, {
+const getTransferById = async (sdkUtils: NxtpSdkUtils, domain: string, transferId: string): Promise<XTransfer> => {
+  logger.info("Fetching the destination transfer using sdk...", requestContext, methodContext, {
     domain,
     transferId,
   });
 
   const startTime = Date.now();
-  const destinationTransfer: DestinationTransfer | undefined = await pollSomething({
+  const xTransfer: XTransfer | undefined = await pollSomething({
     // Attempts will be made for 3 minutes.
     attempts: Math.floor(180_000 / SUBG_POLL_PARITY),
     parity: SUBG_POLL_PARITY,
     method: async () => {
-      const transfer = await subgraphReader.getDestinationTransferById(domain, transferId);
-      if (transfer?.destination.reconcile?.transactionHash) {
+      const dbTransfer = await sdkUtils.getTransferById(transferId);
+      const transfer = convertFromDbTransfer(dbTransfer[0]);
+      if (transfer.destination?.reconcile?.transactionHash) {
         logger.info("Transfer was reconciled.", requestContext, methodContext, {
           domain,
-          hash: transfer.destination.reconcile.transactionHash,
+          hash: transfer.destination!.reconcile!.transactionHash,
         });
       }
 
-      if (transfer?.destination.execute?.transactionHash) {
+      if (transfer.destination?.execute?.transactionHash) {
         return transfer;
       }
       return undefined;
@@ -184,24 +181,24 @@ const getDestinationTransfer = async (
   });
   const endTime = Date.now();
 
-  if (!destinationTransfer) {
-    logger.info("Failed to retrieve execute transfer from the destination subgraph.", requestContext, methodContext, {
+  if (!xTransfer) {
+    logger.info("Failed to retrieve execute transfer from the cartographer-api.", requestContext, methodContext, {
       domain,
       etc: {
         polled: `${(endTime - startTime) / 1_000}s`,
       },
     });
-    throw new Error("Failed to retrieve execute transfer from the destination subgraph.");
+    throw new Error("Failed to retrieve execute transfer from the cartographer-api.");
   }
 
   logger.info("Execute transaction found.", requestContext, methodContext, {
     domain,
-    hash: destinationTransfer.destination.execute?.transactionHash,
+    hash: xTransfer.destination?.execute?.transactionHash,
     etc: {
       took: `${(endTime - startTime) / 1_000}s`,
     },
   });
-  return destinationTransfer;
+  return xTransfer;
 };
 
 const enrollReplica = async (singer: Wallet) => {
@@ -242,8 +239,8 @@ const enrollReplica = async (singer: Wallet) => {
 
 const { requestContext, methodContext } = createLoggingContext("e2e");
 describe("LOCAL:E2E", () => {
-  let sdk: NxtpSdkBase;
-  let subgraphReader: SubgraphReader;
+  let sdkBase: NxtpSdkBase;
+  let sdkUtils: NxtpSdkUtils;
 
   const onchainSetup = async () => {
     logger.info("Enrolling handlers...");
@@ -379,7 +376,7 @@ describe("LOCAL:E2E", () => {
       logger.info(`New user token balance: ${tokenBalance.toString()}`);
     }
 
-    let tx = await sdk.approveIfNeeded(PARAMETERS.A.DOMAIN, PARAMETERS.ASSET.address, "1", true);
+    let tx = await sdkBase.approveIfNeeded(PARAMETERS.A.DOMAIN, PARAMETERS.ASSET.address, "1", true);
     if (tx) {
       await userTxService.sendTx(
         { chainId: 1337, to: tx.to!, value: 0, data: utils.hexlify(tx.data!) },
@@ -387,7 +384,7 @@ describe("LOCAL:E2E", () => {
       );
     }
     if (tx) {
-      tx = await sdk.approveIfNeeded(PARAMETERS.B.DOMAIN, PARAMETERS.ASSET.address, "1", true);
+      tx = await sdkBase.approveIfNeeded(PARAMETERS.B.DOMAIN, PARAMETERS.ASSET.address, "1", true);
     }
   };
 
@@ -402,7 +399,7 @@ describe("LOCAL:E2E", () => {
 
     // Peripherals.
     logger.info("Setting up sdk...");
-    sdk = await NxtpSdkBase.create({
+    const sdkConfig = {
       chains: {
         [PARAMETERS.A.DOMAIN]: {
           assets: [{ address: PARAMETERS.ASSET.address, name: PARAMETERS.ASSET.name, symbol: PARAMETERS.ASSET.symbol }],
@@ -426,20 +423,10 @@ describe("LOCAL:E2E", () => {
       cartographerUrl: PARAMETERS.AGENTS.CARTOGRAPHER.url,
       environment: PARAMETERS.ENVIRONMENT as "production" | "staging",
       signerAddress: PARAMETERS.AGENTS.USER.address,
-    });
+    };
+    sdkBase = await NxtpSdkBase.create(sdkConfig);
+    sdkUtils = await NxtpSdkUtils.create(sdkConfig);
     logger.info("Set up sdk.");
-
-    logger.info("Setting up subgraph reader...");
-    const chainData = await getChainData();
-    const allowedDomains = ["1337", "1338"];
-    const allowedChainData: Map<string, ChainData> = new Map();
-    for (const allowedDomain of allowedDomains) {
-      if (chainData.has(allowedDomain)) {
-        allowedChainData.set(allowedDomain, chainData.get(allowedDomain)!);
-      }
-    }
-    subgraphReader = await SubgraphReader.create(allowedChainData, "production");
-    logger.info("Set up subgraph reader.");
 
     // On-chain / contracts configuration, approvals, etc.
     await onchainSetup();
@@ -448,11 +435,11 @@ describe("LOCAL:E2E", () => {
   it("handles fast liquidity transfer", async () => {
     const originProvider = new providers.JsonRpcProvider(PARAMETERS.A.RPC[0]);
     const { receipt, xcallData } = await sendXCall(
-      sdk,
+      sdkBase,
       { forceSlow: false },
       PARAMETERS.AGENTS.USER.signer.connect(originProvider),
     );
-    const originTransfer = await getOriginTransfer(subgraphReader, PARAMETERS.A.DOMAIN, receipt.transactionHash);
+    const originTransfer = await getTransferByTransactionHash(sdkUtils, PARAMETERS.A.DOMAIN, receipt.transactionHash);
 
     // TODO: Check user funds, assert tokens were deducted.
 
@@ -496,11 +483,8 @@ describe("LOCAL:E2E", () => {
       }
     }
 
-    const destinationTransfer = await getDestinationTransfer(
-      subgraphReader,
-      PARAMETERS.B.DOMAIN,
-      originTransfer.transferId,
-    );
+    const destinationTransfer = await getTransferById(sdkUtils, PARAMETERS.B.DOMAIN, originTransfer.transferId);
+    expect(destinationTransfer.destination?.status).to.be.eq(XTransferStatus.Executed);
 
     // TODO: Check router liquidity on-chain, assert funds were deducted.
     logger.info("Fast-liquidity transfer completed successfully!", requestContext, methodContext, {
@@ -527,7 +511,7 @@ describe("LOCAL:E2E", () => {
 
     const originProvider = new providers.JsonRpcProvider(PARAMETERS.A.RPC[0]);
     const { receipt, xcallData } = await sendXCall(
-      sdk,
+      sdkBase,
       { forceSlow: true },
       PARAMETERS.AGENTS.USER.signer.connect(originProvider),
     );
@@ -548,7 +532,7 @@ describe("LOCAL:E2E", () => {
       throw new Error("Did not find XCalled event (or event was missing `message` arguments)!");
     }
 
-    const poll = getOriginTransfer(subgraphReader, PARAMETERS.A.DOMAIN, receipt.transactionHash);
+    const poll = getTransferByTransactionHash(sdkUtils, PARAMETERS.A.DOMAIN, receipt.transactionHash);
     // TODO: Read remote from contract directly?
     const remote = "0x000000000000000000000000f08df3efdd854fede77ed3b2e515090eee765154";
     const res = await connext.handle(PARAMETERS.A.DOMAIN, 0, remote, message);
@@ -558,11 +542,9 @@ describe("LOCAL:E2E", () => {
 
     // Lighthouse should pick up the xcall once it's been reconciled.
     const originTransfer = await poll;
-    const destinationTransfer = await getDestinationTransfer(
-      subgraphReader,
-      PARAMETERS.B.DOMAIN,
-      originTransfer.transferId,
-    );
+    const destinationTransfer = await getTransferById(sdkUtils, PARAMETERS.B.DOMAIN, originTransfer.transferId);
+
+    expect(destinationTransfer.destination?.status).to.be.eq(XTransferStatus.CompletedSlow);
 
     logger.info("Slow-liquidity transfer completed successfully!", requestContext, methodContext, {
       originDomain: xcallData.params.originDomain,
