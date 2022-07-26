@@ -64,12 +64,18 @@ contract SponsorVault is ISponsorVault, ReentrancyGuard, Ownable {
    */
   mapping(address => ITokenExchange) public tokenExchanges;
 
+  /**
+   * @notice The maximum percentage which dex spot price is allowed to be higher than the oracle price
+   */
+  uint256 public maxPriceDiffPercent;
+
   // ============ Errors ============
 
   error SponsorVault__setConnext_invalidConnext();
   error SponsorVault__setRate_invalidOriginDomain();
   error SponsorVault__setGasTokenOracle_invalidOriginDomain();
   error SponsorVault__setTokenExchange_invalidAdopted();
+  error SponsorVault__setMaxPriceDiffPercent_tooLarge();
   error SponsorVault__onlyConnext();
   error SponsorVault__withdraw_invalidAmount();
 
@@ -106,6 +112,11 @@ contract SponsorVault is ISponsorVault, ReentrancyGuard, Ownable {
   event PriceOracleUpdated(address oldOracle, address newOracle, address caller);
 
   /**
+   * @notice Emitted when a new maxPriceDiffPercent is set
+   */
+  event MaxPriceDiffPercentUpdated(uint256 oldMaxPriceDiffPercent, uint256 newMaxPriceDiffPercent, address caller);
+
+  /**
    * @notice Emitted when a liquidity fee is reimbursed
    */
   event ReimburseLiquidityFees(address token, uint256 amount, address receiver);
@@ -139,6 +150,8 @@ contract SponsorVault is ISponsorVault, ReentrancyGuard, Ownable {
 
   constructor(address _connext) Ownable() {
     _setConnext(_connext);
+
+    maxPriceDiffPercent = 5; // default 5%
   }
 
   // ============ Owner Functions ============
@@ -202,6 +215,16 @@ contract SponsorVault is ISponsorVault, ReentrancyGuard, Ownable {
   function setPriceOracle(address _priceOracle) external onlyOwner {
     emit PriceOracleUpdated(address(priceOracle), _priceOracle, msg.sender);
     priceOracle = IPriceOracle(_priceOracle);
+  }
+
+  /**
+   * @notice Sets the maximum price difference percentage
+   * @param _maxPriceDiffPercent The new maxPriceDiffPercent
+   */
+  function setMaxPriceDiffPercent(uint256 _maxPriceDiffPercent) external onlyOwner {
+    if (_maxPriceDiffPercent >= 30) revert SponsorVault__setMaxPriceDiffPercent_tooLarge();
+    emit MaxPriceDiffPercentUpdated(maxPriceDiffPercent, _maxPriceDiffPercent, msg.sender);
+    maxPriceDiffPercent = _maxPriceDiffPercent;
   }
 
   // ============ External functions ============
@@ -368,8 +391,7 @@ contract SponsorVault is ISponsorVault, ReentrancyGuard, Ownable {
       return false;
     }
 
-    uint256 allowPercent = 10;
-    if ((((ethPrice * 1e18) / tokenPrice) * (100 + allowPercent)) / 100 < ((_tokenAmount * 1e18) / _ethAmount)) {
+    if ((((ethPrice * 1e18) / tokenPrice) * (100 + maxPriceDiffPercent)) / 100 < ((_tokenAmount * 1e18) / _ethAmount)) {
       return false;
     }
     return true;
