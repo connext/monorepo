@@ -52,6 +52,8 @@ contract BridgeFacet is BaseConnextFacet {
   error BridgeFacet__xcall_invalidSlippageTol();
   error BridgeFacet__execute_unapprovedSender();
   error BridgeFacet__execute_wrongDomain();
+  error BridgeFacet__execute_notSupportedSequencer();
+  error BridgeFacet__execute_sequencerSignatureInvalid();
   error BridgeFacet__execute_maxRoutersExceeded();
   error BridgeFacet__execute_notSupportedRouter();
   error BridgeFacet__execute_invalidRouterSignature();
@@ -523,17 +525,31 @@ contract BridgeFacet is BaseConnextFacet {
     // they are splitting liquidity provision.
     bytes32 routerHash = keccak256(abi.encode(transferId, pathLength));
 
-    // check the reconciled status is correct
-    // (i.e. if there are routers provided, the transfer must *not* be reconciled)
-    if (pathLength != 0) // make sure routers are all approved if needed
-    {
+    if (pathLength != 0) {
+      // Check to make sure the transfer has not been reconciled (no need for routers if the transfer is
+      // already reconciled; i.e. if there are routers provided, the transfer must *not* be reconciled).
       if (reconciled) revert BridgeFacet__execute_alreadyReconciled();
 
+      // NOTE: The sequencer address may be empty and no signature needs to be provided in the case of the
+      // slow liquidity route (i.e. no routers involved). Additionally, the sequencer does not need to be the
+      // msg.sender.
+      // Check to make sure the sequencer address provided is approved
+      if (!s.approvedSequencers[_args.sequencer]) {
+        revert BridgeFacet__execute_notSupportedSequencer();
+      }
+      // Check to make sure the sequencer provided did sign the transfer ID and router path provided.
+      if (
+        _args.sequencer != _recoverSignature(keccak256(abi.encode(transferId, _args.routers)), _args.sequencerSignature)
+      ) {
+        revert BridgeFacet__execute_sequencerSignatureInvalid();
+      }
+
+      bool ownershipRenounced = _isRouterOwnershipRenounced();
       for (uint256 i; i < pathLength; ) {
         // Make sure the router is approved, if applicable.
         // If router ownership is renounced (_RouterOwnershipRenounced() is true), then the router whitelist
         // no longer applies and we can skip this approval step.
-        if (!_isRouterOwnershipRenounced() && !s.routerPermissionInfo.approvedRouters[_args.routers[i]]) {
+        if (!ownershipRenounced && !s.routerPermissionInfo.approvedRouters[_args.routers[i]]) {
           revert BridgeFacet__execute_notSupportedRouter();
         }
 

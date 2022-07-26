@@ -72,20 +72,27 @@ struct XCallArgs {
 
 /**
  * @notice
- * @param params - The CallParams. These are consistent across sending and receiving chains
+ * @param params - The CallParams. These are consistent across sending and receiving chains.
  * @param local - The local asset for the transfer, will be swapped to the adopted asset if
- * appropriate
- * @param routers - The routers who you are sending the funds on behalf of
+ * appropriate.
+ * @param routers - The routers who you are sending the funds on behalf of.
+ * @param routerSignatures - Signatures belonging to the routers indicating permission to use funds
+ * for the signed transfer ID.
+ * @param sequencer - The sequencer who assigned the router path to this transfer.
+ * @param sequencerSignature - Signature produced by the sequencer for path assignment accountability
+ * for the path that was signed.
  * @param amount - The amount of liquidity the router provided or the bridge forwarded, depending on
- * if fast liquidity was used
- * @param nonce - The nonce used to generate transfer id
- * @param originSender - The msg.sender of the xcall on origin domain
+ * whether fast liquidity was used.
+ * @param nonce - The nonce used to generate transfer ID.
+ * @param originSender - The msg.sender of the xcall on origin domain.
  */
 struct ExecuteArgs {
   CallParams params;
   address local; // local representation of canonical token
   address[] routers;
   bytes[] routerSignatures;
+  address sequencer;
+  bytes sequencerSignature;
   uint256 amount;
   uint256 nonce;
   address originSender;
@@ -319,6 +326,13 @@ struct AppStorage {
    */
   // 39
   mapping(bytes32 => uint256) portalFeeDebt;
+  /**
+   * @notice Mapping of approved sequencers
+   * @dev Sequencer address provided must belong to an approved sequencer in order to call `execute`
+   * for the fast liquidity route.
+   */
+  // 40
+  mapping(address => bool) approvedSequencers;
 }
 
 library LibConnextStorage {
