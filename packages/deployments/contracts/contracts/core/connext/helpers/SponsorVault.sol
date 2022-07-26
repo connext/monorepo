@@ -229,7 +229,7 @@ contract SponsorVault is ISponsorVault, ReentrancyGuard, Ownable {
       uint256 amountIn = tokenExchange.getInGivenExpectedOut(_token, _liquidityFee);
 
       // compare with spot price and ChainLink oracle price to prevent manipulate
-      if (!_checkDexSpotPrice(_token, amountIn, _liquidityFee)) {
+      if (amountIn == 0 || !_checkDexSpotPrice(_token, amountIn, _liquidityFee)) {
         return 0;
       }
 
