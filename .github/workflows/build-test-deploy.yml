@@ -414,6 +414,9 @@ jobs:
       ROUTER_SUBSCRIBER_IMAGE: ${{ fromJSON(needs.build-and-push-router-subscriber-image.outputs.json).tags[0] }}
       SEQUENCER_PUBLISHER_IMAGE: ${{ fromJSON(needs.build-and-push-sequencer-publisher-image.outputs.json).tags[0] }}
       SEQUENCER_SUBSCRIBER_IMAGE: ${{ fromJSON(needs.build-and-push-sequencer-subscriber-image.outputs.json).tags[0] }}
+      CARTOGRAPHER_TRANSFERS_IMAGE: ${{fromJSON(needs.build-and-push-cartographer-transfers-image.outputs.json).tags[0]}}
+      CARTOGRAPHER_ROUTERS_IMAGE: ${{fromJSON(needs.build-and-push-cartographer-routers-image.outputs.json).tags[0]}}
+      LIGHTHOUSE_IMAGE: ${{fromJSON(needs.build-and-push-lighthouse-image.outputs.json).tags[0]}}
       RELAYER_IMAGE: ${{ fromJSON(needs.build-and-push-relayer-image.outputs.json).tags[0] }}
       WEB3_SIGNER_PRIVATE_KEY: ${{ secrets.WEB3_SIGNER_TESTNET_PRIVATE_KEY }}
       MNEMONIC: "candy maple cake sugar pudding cream honey rich smooth crumble sweet treat"
@@ -433,7 +436,6 @@ jobs:
       router-subscriber-tags: ${{ needs.build-and-push-router-subscriber-image.outputs.json }}
       sequencer-publisher-tags: ${{ needs.build-and-push-sequencer-publisher-image.outputs.json }}
       sequencer-subscriber-tags: ${{ needs.build-and-push-sequencer-subscriber-image.outputs.json }}
-
       cartographer-routers-tags: ${{ needs.build-and-push-cartographer-routers-image.outputs.json }}
       cartographer-transfers-tags: ${{ needs.build-and-push-cartographer-transfers-image.outputs.json }}
       lighthouse-tags: ${{ needs.build-and-push-lighthouse-image.outputs.json }}
@@ -456,6 +458,9 @@ jobs:
       ROUTER_SUBSCRIBER_IMAGE: ${{ fromJSON(needs.build-and-push-router-subscriber-image.outputs.json).tags[0] }}
       SEQUENCER_PUBLISHER_IMAGE: ${{ fromJSON(needs.build-and-push-sequencer-publisher-image.outputs.json).tags[0] }}
       SEQUENCER_SUBSCRIBER_IMAGE: ${{ fromJSON(needs.build-and-push-sequencer-subscriber-image.outputs.json).tags[0] }}
+      CARTOGRAPHER_TRANSFERS_IMAGE: ${{fromJSON(needs.build-and-push-cartographer-transfers-image.outputs.json).tags[0]}}
+      CARTOGRAPHER_ROUTERS_IMAGE: ${{fromJSON(needs.build-and-push-cartographer-routers-image.outputs.json).tags[0]}}
+      LIGHTHOUSE_IMAGE: ${{fromJSON(needs.build-and-push-lighthouse-image.outputs.json).tags[0]}}
       RELAYER_IMAGE: ${{ fromJSON(needs.build-and-push-relayer-image.outputs.json).tags[0] }}
       WEB3_SIGNER_PRIVATE_KEY: ${{ secrets.WEB3_SIGNER_TESTNET_PRIVATE_KEY }}
       MNEMONIC: "candy maple cake sugar pudding cream honey rich smooth crumble sweet treat"

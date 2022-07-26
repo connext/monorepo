@@ -111,7 +111,7 @@ module "sequencer_publisher" {
   private_subnets          = module.network.private_subnets
   lb_subnets               = module.network.public_subnets
   docker_image             = var.full_image_name_sequencer_publisher
-  container_family         = "sequencer-publisher"
+  container_family         = "sequencer"
   health_check_path        = "/ping"
   container_port           = 8081
   loadbalancer_port        = 80
@@ -146,8 +146,8 @@ module "sequencer_subscriber" {
   health_check_path        = "/ping"
   container_port           = 8081
   loadbalancer_port        = 80
-  cpu                      = 512
-  memory                   = 1024
+  cpu                      = 1024
+  memory                   = 2048
   instance_count           = 3
   timeout                  = 180
   ingress_cdir_blocks      = ["0.0.0.0/0"]

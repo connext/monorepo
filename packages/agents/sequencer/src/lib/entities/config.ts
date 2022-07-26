@@ -41,7 +41,7 @@ export const TMQExchangeConfig = Type.Object({
 
 export const TMQQueueConfig = Type.Object({
   name: Type.String(),
-  prefetch: Type.Integer(),
+  limit: Type.Integer(),
   queueLimit: Type.Integer(),
   deadLetter: Type.Optional(Type.String()),
   subscribe: Type.Boolean(),

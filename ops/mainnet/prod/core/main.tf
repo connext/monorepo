@@ -23,7 +23,7 @@ data "aws_route53_zone" "primary" {
 }
 
 
-module "router" {
+module "router_subscriber" {
   source                   = "../../../modules/service"
   stage                    = var.stage
   environment              = var.environment
@@ -31,21 +31,49 @@ module "router" {
   region                   = var.region
   dd_api_key               = var.dd_api_key
   zone_id                  = data.aws_route53_zone.primary.zone_id
-  ecs_cluster_sg           = module.network.ecs_task_sg
-  allow_all_sg             = module.network.allow_all_sg
   execution_role_arn       = data.aws_iam_role.ecr_admin_role.arn
   cluster_id               = module.ecs.ecs_cluster_id
   vpc_id                   = module.network.vpc_id
   private_subnets          = module.network.private_subnets
   lb_subnets               = module.network.public_subnets
   internal_lb              = false
-  docker_image             = var.full_image_name_router
-  container_family         = "router"
+  docker_image             = var.full_image_name_router_subscriber
+  container_family         = "router-subscriber"
+  health_check_path        = "/ping"
+  container_port           = 8090
+  loadbalancer_port        = 80
+  cpu                      = 512
+  memory                   = 1024
+  instance_count           = 3
+  timeout                  = 180
+  ingress_cdir_blocks      = ["0.0.0.0/0"]
+  ingress_ipv6_cdir_blocks = []
+  service_security_groups  = flatten([module.network.allow_all_sg, module.network.ecs_task_sg])
+  cert_arn                 = var.certificate_arn
+  container_env_vars       = local.router_env_vars
+}
+
+module "router_publisher" {
+  source                   = "../../../modules/service"
+  stage                    = var.stage
+  environment              = var.environment
+  domain                   = var.domain
+  region                   = var.region
+  dd_api_key               = var.dd_api_key
+  zone_id                  = data.aws_route53_zone.primary.zone_id
+  execution_role_arn       = data.aws_iam_role.ecr_admin_role.arn
+  cluster_id               = module.ecs.ecs_cluster_id
+  vpc_id                   = module.network.vpc_id
+  private_subnets          = module.network.private_subnets
+  lb_subnets               = module.network.public_subnets
+  internal_lb              = false
+  docker_image             = var.full_image_name_router_publisher
+  container_family         = "router-publisher"
   health_check_path        = "/ping"
   container_port           = 8080
   loadbalancer_port        = 80
-  cpu                      = 1024
-  memory                   = 2048
+  cpu                      = 512
+  memory                   = 1024
   instance_count           = 1
   timeout                  = 180
   ingress_cdir_blocks      = ["0.0.0.0/0"]
@@ -55,8 +83,20 @@ module "router" {
   container_env_vars       = local.router_env_vars
 }
 
+module "centralised_message_queue" {
+  source              = "../../../modules/amq"
+  stage               = var.stage
+  environment         = var.environment
+  sg_id               = module.network.ecs_task_sg
+  vpc_id              = module.network.vpc_id
+  zone_id             = data.aws_route53_zone.primary.zone_id
+  publicly_accessible = true
+  subnet_ids          = module.network.public_subnets
+  rmq_mgt_user        = var.rmq_mgt_user
+  rmq_mgt_password    = var.rmq_mgt_password
+}
 
-module "sequencer" {
+module "sequencer_publisher" {
   source                   = "../../../modules/service"
   stage                    = var.stage
   environment              = var.environment
@@ -64,20 +104,18 @@ module "sequencer" {
   region                   = var.region
   dd_api_key               = var.dd_api_key
   zone_id                  = data.aws_route53_zone.primary.zone_id
-  ecs_cluster_sg           = module.network.ecs_task_sg
-  allow_all_sg             = module.network.allow_all_sg
   execution_role_arn       = data.aws_iam_role.ecr_admin_role.arn
   cluster_id               = module.ecs.ecs_cluster_id
   vpc_id                   = module.network.vpc_id
   private_subnets          = module.network.private_subnets
   lb_subnets               = module.network.public_subnets
-  docker_image             = var.full_image_name_sequencer
+  docker_image             = var.full_image_name_sequencer_publisher
   container_family         = "sequencer"
   health_check_path        = "/ping"
   container_port           = 8081
   loadbalancer_port        = 80
-  cpu                      = 512
-  memory                   = 2048
+  cpu                      = 256
+  memory                   = 512
   instance_count           = 1
   timeout                  = 180
   ingress_cdir_blocks      = ["0.0.0.0/0"]
@@ -87,6 +125,37 @@ module "sequencer" {
   container_env_vars       = local.sequencer_env_vars
 }
 
+module "sequencer_subscriber" {
+  source                   = "../../../modules/service"
+  stage                    = var.stage
+  environment              = var.environment
+  domain                   = var.domain
+  region                   = var.region
+  dd_api_key               = var.dd_api_key
+  zone_id                  = data.aws_route53_zone.primary.zone_id
+  execution_role_arn       = data.aws_iam_role.ecr_admin_role.arn
+  cluster_id               = module.ecs.ecs_cluster_id
+  vpc_id                   = module.network.vpc_id
+  private_subnets          = module.network.private_subnets
+  lb_subnets               = module.network.public_subnets
+  internal_lb              = false
+  docker_image             = var.full_image_name_sequencer_subscriber
+  container_family         = "sequencer-subscriber"
+  health_check_path        = "/ping"
+  container_port           = 8081
+  loadbalancer_port        = 80
+  cpu                      = 512
+  memory                   = 2048
+  instance_count           = 3
+  timeout                  = 180
+  ingress_cdir_blocks      = ["0.0.0.0/0"]
+  ingress_ipv6_cdir_blocks = []
+  service_security_groups  = flatten([module.network.allow_all_sg, module.network.ecs_task_sg])
+  cert_arn                 = var.certificate_arn
+  container_env_vars       = local.sequencer_env_vars
+}
+
+
 module "web3signer" {
   source                   = "../../../modules/service"
   stage                    = var.stage
@@ -95,8 +164,6 @@ module "web3signer" {
   region                   = var.region
   dd_api_key               = var.dd_api_key
   zone_id                  = data.aws_route53_zone.primary.zone_id
-  ecs_cluster_sg           = module.network.ecs_task_sg
-  allow_all_sg             = module.network.allow_all_sg
   execution_role_arn       = data.aws_iam_role.ecr_admin_role.arn
   cluster_id               = module.ecs.ecs_cluster_id
   vpc_id                   = module.network.vpc_id

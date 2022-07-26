@@ -47,7 +47,38 @@ locals {
         }]
       }
     }
-    environment = "production"
+    environment = var.stage
+    messageQueue = {
+      connection = {
+        uri = "amqps://${var.rmq_mgt_user}:${var.rmq_mgt_password}@${module.centralised_message_queue.aws_mq_amqp_endpoint}"
+      }
+      exchanges = [
+        {
+          name           = "sequencerX"
+          type           = "direct"
+          publishTimeout = 1000
+          persistent     = true
+          durable        = true
+        }
+      ]
+      queues = [
+        {
+          name       = "1"
+          limit   = 3
+          queueLimit = 10000
+          subscribe  = true
+        }
+      ]
+      bindings = [
+        {
+          exchange = "sequencerX"
+          target   = "1"
+          keys     = ["1"]
+        }
+      ]
+      executerTimeout = 300000
+      publisher       = "sequencerX"
+    }
   })
 }
 
@@ -59,7 +90,7 @@ locals {
       port = module.router_cache.redis_instance_port
     }
     logLevel     = "debug"
-    sequencerUrl = "https://${module.sequencer.service_endpoint}"
+    sequencerUrl = "https://${module.sequencer_publisher.service_endpoint}"
     server = {
       adminToken = var.admin_token_router
       port       = 8080
@@ -74,9 +105,11 @@ locals {
       }
     }
     web3SignerUrl    = "https://${module.web3signer.service_endpoint}"
-    environment      = "production"
+    environment      = var.stage
     nomadEnvironment = var.nomad_environment
-
+    messageQueue = {
+      uri = "amqps://${var.rmq_mgt_user}:${var.rmq_mgt_password}@${module.centralised_message_queue.aws_mq_amqp_endpoint}"
+    }
   })
 }
 
@@ -88,6 +121,6 @@ locals {
         providers = ["https://eth-mainnet.alchemyapi.io/v2/${var.mainnet_alchemy_key_0}", "https://rpc.ankr.com/eth_mainnet"]
       }
     }
-    environment = "production"
+    environment = var.stage
   })
 }

@@ -1,4 +1,4 @@
-import { constants, Contract } from "ethers";
+import { constants } from "ethers";
 import { hexlify } from "ethers/lib/utils";
 import { task } from "hardhat/config";
 
@@ -53,14 +53,15 @@ export default task("setup-asset", "Configures an asset")
       };
 
       console.log("canonicalTokenId.id: ", canonicalTokenId.id);
-      // const approved = await connext.approvedAssets(canonicalTokenId.id);
-      const approved = false;
+      const approved = await connext.approvedAssets(canonicalTokenId.id);
+      console.log("approved: ", approved);
       if (approved) {
         // check that the correct domain is set
         // check that the correct adopted asset is set
 
         // get the current adopted asset
         const currentAdopted = await connext.canonicalToAdopted(canonicalTokenId.id);
+        console.log("currentAdopted: ", currentAdopted);
 
         // check that the correct domain is set
         const currentCanonical = await connext.adoptedToCanonical(currentAdopted);

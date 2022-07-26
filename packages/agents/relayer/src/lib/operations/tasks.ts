@@ -98,7 +98,7 @@ export const createTask = async (
   } else if (to.toLowerCase() !== connextAddress.toLowerCase()) {
     throw new ParamsInvalid({
       paramsError: "to must be designated connext contract address",
-      to: args.params.to,
+      to,
       connextAddress,
     });
   }
