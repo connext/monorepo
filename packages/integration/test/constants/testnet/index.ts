@@ -295,7 +295,7 @@ export const SEQUENCER_CONFIG: Promise<SequencerConfig> = (async (): Promise<Seq
         uri: "amqp://guest:guest@localhost:5672",
       },
       exchanges: [{ name: EXCHANGE_NAME, type: "direct", publishTimeout: 1000, persistent: true, durable: true }],
-      queues: [{ name: QUEUE_NAME, prefetch: 100, queueLimit: 10000, subscribe: true }],
+      queues: [{ name: QUEUE_NAME, limit: 5, queueLimit: 10000, subscribe: true }],
       bindings: [{ exchange: EXCHANGE_NAME, target: QUEUE_NAME, keys: [QUEUE_NAME] }],
       executerTimeout: 300000,
       publisher: EXCHANGE_NAME,

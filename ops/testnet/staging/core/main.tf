@@ -147,8 +147,8 @@ module "sequencer_subscriber" {
   health_check_path        = "/ping"
   container_port           = 8081
   loadbalancer_port        = 80
-  cpu                      = 512
-  memory                   = 2048
+  cpu                      = 1024
+  memory                   = 1024
   instance_count           = 3
   timeout                  = 180
   ingress_cdir_blocks      = ["0.0.0.0/0"]
