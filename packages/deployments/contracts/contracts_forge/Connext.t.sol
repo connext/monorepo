@@ -479,7 +479,7 @@ contract ConnextTest is ForgeHelper, Deployer {
         address(0), // callback
         0, // callbackFee
         0, // relayerFee
-        9900 // slippage tol
+        0.9 ether // slippage tol
       );
   }
 
@@ -801,7 +801,7 @@ contract ConnextTest is ForgeHelper, Deployer {
     utils_setupAssets(_origin, true);
 
     // 1. `xcall` on the origin
-    XCallArgs memory xcall = XCallArgs(utils_createCallParams(_destination), _originLocal, 1 ether);
+    XCallArgs memory xcall = XCallArgs(utils_createCallParams(_destination), _originLocal, 1 ether, 0.95 ether);
     XCalledEventArgs memory eventArgs = XCalledEventArgs(
       _originLocal, // transacting
       xcall.amount, // amount in
@@ -824,7 +824,7 @@ contract ConnextTest is ForgeHelper, Deployer {
     utils_setupAssets(_other, false);
 
     // 1. `xcall` on the origin
-    XCallArgs memory args = XCallArgs(utils_createCallParams(_destination), _originAdopted, 1 ether);
+    XCallArgs memory args = XCallArgs(utils_createCallParams(_destination), _originAdopted, 1 ether, 0.95 ether);
     uint256 expected = _originConnext.calculateSwap(
       _canonicalKey,
       0, // local idx always 0
@@ -840,7 +840,7 @@ contract ConnextTest is ForgeHelper, Deployer {
     bytes32 transferId = utils_xcallAndAssert(args, eventArgs);
 
     // 2. call `execute` on the destination
-    ExecuteArgs memory execute = utils_createExecuteArgs(args.params, 2, transferId, eventArgs.bridgedAmt);
+    ExecuteArgs memory execute = utils_createExecuteArgs(args.params, 1, transferId, eventArgs.bridgedAmt);
     uint256 swapped = _destinationConnext.calculateSwap(
       _canonicalKey,
       1, // adopted idx always 1
@@ -859,7 +859,7 @@ contract ConnextTest is ForgeHelper, Deployer {
     utils_setupNative(_origin);
 
     // 1. `xcall` on the origin
-    XCallArgs memory args = XCallArgs(utils_createCallParams(_destination), address(0), 1 ether);
+    XCallArgs memory args = XCallArgs(utils_createCallParams(_destination), address(0), 1 ether, 0.95 ether);
     XCalledEventArgs memory eventArgs = XCalledEventArgs(
       address(_originWrapper), // transacting
       args.amount, // amount in
@@ -889,7 +889,7 @@ contract ConnextTest is ForgeHelper, Deployer {
     utils_setupAssets(_other, false);
 
     // 1. `xcall` on the origin
-    XCallArgs memory args = XCallArgs(utils_createCallParams(_destination), _originLocal, 1 ether);
+    XCallArgs memory args = XCallArgs(utils_createCallParams(_destination), _originLocal, 1 ether, 0.95 ether);
     XCalledEventArgs memory eventArgs = XCalledEventArgs(
       _originLocal, // transacting
       args.amount, // amount in
@@ -918,7 +918,7 @@ contract ConnextTest is ForgeHelper, Deployer {
     utils_setupAssets(_other, true); // local is adopted
 
     // 1. `xcall` on the origin
-    XCallArgs memory args = XCallArgs(utils_createCallParams(_destination), _originLocal, 1 ether);
+    XCallArgs memory args = XCallArgs(utils_createCallParams(_destination), _originLocal, 1 ether, 0.95 ether);
     XCalledEventArgs memory eventArgs = XCalledEventArgs(
       _originLocal, // transacting
       args.amount, // amount in
@@ -945,7 +945,7 @@ contract ConnextTest is ForgeHelper, Deployer {
     bytes memory callData = abi.encodeWithSelector(MockCalldata.unpermissionedCall.selector, _destinationAdopted);
 
     // 1. xcall
-    XCallArgs memory xcall = XCallArgs(utils_createCallParams(_destination), _originLocal, 1 ether);
+    XCallArgs memory xcall = XCallArgs(utils_createCallParams(_destination), _originLocal, 1 ether, 0.95 ether);
     xcall.params.to = address(callTo);
     xcall.params.callData = callData;
     XCalledEventArgs memory eventArgs = XCalledEventArgs(
@@ -970,7 +970,7 @@ contract ConnextTest is ForgeHelper, Deployer {
     bytes memory callData = abi.encodeWithSelector(MockCalldata.permissionedCall.selector, _destinationAdopted);
 
     // 1. xcall
-    XCallArgs memory xcall = XCallArgs(utils_createCallParams(_destination), _originLocal, 1 ether);
+    XCallArgs memory xcall = XCallArgs(utils_createCallParams(_destination), _originLocal, 1 ether, 0.95 ether);
     xcall.params.to = address(callTo);
     xcall.params.callData = callData;
     XCalledEventArgs memory eventArgs = XCalledEventArgs(
@@ -1003,7 +1003,7 @@ contract ConnextTest is ForgeHelper, Deployer {
     (, bytes memory sample) = address(callTo).call(callData);
 
     // 1. xcall
-    XCallArgs memory xcall = XCallArgs(utils_createCallParams(_destination), _originLocal, 1 ether);
+    XCallArgs memory xcall = XCallArgs(utils_createCallParams(_destination), _originLocal, 1 ether, 0.95 ether);
     xcall.params.to = address(callTo);
     xcall.params.callData = callData;
     xcall.params.callback = address(callback);
@@ -1057,7 +1057,7 @@ contract ConnextTest is ForgeHelper, Deployer {
     _destinationConnext.setSponsorVault(address(vault));
 
     // 1. xcall
-    XCallArgs memory xcall = XCallArgs(utils_createCallParams(_destination), _originLocal, 1 ether);
+    XCallArgs memory xcall = XCallArgs(utils_createCallParams(_destination), _originLocal, 1 ether, 0.95 ether);
     XCalledEventArgs memory eventArgs = XCalledEventArgs(
       _originLocal, // transacting
       xcall.amount, // amount in
@@ -1094,7 +1094,7 @@ contract ConnextTest is ForgeHelper, Deployer {
     _destinationConnext.setAavePortalFee(5);
 
     // 1. `xcall` on the origin
-    XCallArgs memory args = XCallArgs(utils_createCallParams(_destination), _originAdopted, 1 ether);
+    XCallArgs memory args = XCallArgs(utils_createCallParams(_destination), _originAdopted, 1 ether, 0.95 ether);
     XCalledEventArgs memory eventArgs = XCalledEventArgs(
       _originAdopted, // transacting
       args.amount, // amount in
@@ -1134,7 +1134,7 @@ contract ConnextTest is ForgeHelper, Deployer {
     utils_setupAssets(_origin, true);
 
     // 1. `xcall` on the origin
-    XCallArgs memory xcall = XCallArgs(utils_createCallParams(_destination), _originLocal, 1 ether);
+    XCallArgs memory xcall = XCallArgs(utils_createCallParams(_destination), _originLocal, 1 ether, 0.95 ether);
     XCalledEventArgs memory eventArgs = XCalledEventArgs(
       _originLocal, // transacting
       xcall.amount, // amount in

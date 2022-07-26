@@ -103,7 +103,8 @@ contract NomadFacetTest is NomadFacet, FacetHelper {
     XCallArgs memory args = XCallArgs(
       _params,
       _adopted == address(s.wrapper) ? address(0) : _adopted, // transactingAssetId : could be adopted, local, or wrapped.
-      _amount
+      _amount,
+      (_amount * 9990) / 10000
     );
     // generate transfer id
     bytes32 transferId = utils_getTransferIdFromXCallArgs(args, _originSender, _canonicalId, _canonicalDomain);
@@ -116,7 +117,8 @@ contract NomadFacetTest is NomadFacet, FacetHelper {
     XCallArgs memory args = XCallArgs(
       _params,
       transactingAssetId, // transactingAssetId : could be adopted, local, or wrapped.
-      _amount
+      _amount,
+      (_amount * 9990) / 10000
     );
     // generate transfer id
     bytes32 transferId = utils_getTransferIdFromXCallArgs(args, _originSender, _canonicalId, _canonicalDomain);

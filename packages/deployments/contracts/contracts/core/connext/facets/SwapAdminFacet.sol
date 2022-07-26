@@ -177,7 +177,7 @@ contract SwapAdminFacet is BaseConnextFacet {
    * @notice Withdraw all admin fees to the contract owner
    * @param key Hash of the canonical domain and id
    */
-  function withdrawSwapAdminFees(bytes32 key) external onlyOwner {
+  function withdrawSwapAdminFees(bytes32 key) external onlyOwner nonReentrant {
     s.swapStorages[key].withdrawAdminFees(msg.sender);
     emit AdminFeesWithdrawn(key, msg.sender);
   }

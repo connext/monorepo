@@ -65,7 +65,7 @@ contract PortalFacetTest is PortalFacet, FacetHelper {
       address(0), // callback
       0, // callbackFee
       0, // relayer fee
-      9900 // slippageTol
+      1 ether // destinationMinOut
     );
 
     // set default transfer id

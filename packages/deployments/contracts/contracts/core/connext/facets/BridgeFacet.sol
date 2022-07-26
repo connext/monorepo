@@ -300,13 +300,6 @@ contract BridgeFacet is BaseConnextFacet {
         // Othewrise, if callback address is not set, callback fee should be 0.
         revert BridgeFacet__xcall_nonZeroCallbackFeeForCallback();
       }
-
-      // Slippage tolerance must be less than the LIQUIDITY_FEE_DENOMINATOR, otherwise the min amount received would
-      // be greater than the target amount received, meaning the `execute` could only revert and funds would get stuck
-      // at the destination.
-      if (_args.params.slippageTol > s.LIQUIDITY_FEE_DENOMINATOR) {
-        revert BridgeFacet__xcall_invalidSlippageTol();
-      }
     }
 
     bytes32 transferId;
@@ -347,7 +340,7 @@ contract BridgeFacet is BaseConnextFacet {
         canonical,
         transactingAssetId,
         _args.amount,
-        _args.params.slippageTol
+        _args.originMinOut
       );
 
       // Calculate the transfer id
@@ -436,7 +429,7 @@ contract BridgeFacet is BaseConnextFacet {
    * @notice Anyone can call this function on the origin domain to increase the relayer fee for a transfer.
    * @param _transferId - The unique identifier of the crosschain transaction
    */
-  function bumpTransfer(bytes32 _transferId) external payable whenNotPaused {
+  function bumpTransfer(bytes32 _transferId) external payable nonReentrant whenNotPaused {
     if (msg.value == 0) revert BridgeFacet__bumpTransfer_valueIsZero();
 
     s.relayerFees[_transferId] += msg.value;
@@ -463,7 +456,7 @@ contract BridgeFacet is BaseConnextFacet {
     bytes32 _canonicalId,
     uint32 _canonicalDomain,
     address _originSender
-  ) external {
+  ) external nonReentrant {
     // Enforce caller
     if (msg.sender != _params.agent) revert BridgeFacet__forceReceiveLocal_invalidSender();
 
@@ -678,7 +671,7 @@ contract BridgeFacet is BaseConnextFacet {
     }
 
     // swap out of mad* asset into adopted asset if needed
-    return AssetLogic.swapFromLocalAssetIfNeeded(_key, _args.local, toSwap, _args.params.slippageTol);
+    return AssetLogic.swapFromLocalAssetIfNeeded(_key, _args.local, toSwap, _args.params.destinationMinOut);
   }
 
   /**
@@ -735,7 +728,7 @@ contract BridgeFacet is BaseConnextFacet {
     }
 
     // execute the the transaction
-    if (keccak256(_args.params.callData) == EMPTY) {
+    if (keccak256(_args.params.callData) == EMPTY_HASH) {
       // no call data, send funds to the user
       AssetLogic.handleOutgoingAsset(_asset, _args.params.to, _amount);
     } else {

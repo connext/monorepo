@@ -317,6 +317,9 @@ contract RoutersFacet is BaseConnextFacet {
     // Clear any proposed ownership changes
     delete s.routerPermissionInfo.proposedRouterOwners[router];
     delete s.routerPermissionInfo.proposedRouterTimestamp[router];
+
+    // Clear approvedForPortal status.
+    delete s.routerPermissionInfo.approvedForPortalRouters[router];
   }
 
   /**

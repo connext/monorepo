@@ -240,6 +240,7 @@ contract RoutersFacetTest is RoutersFacet, FacetHelper {
     assertEq(s.routerPermissionInfo.routerRecipients[_routerAgent0], address(0));
     assertEq(s.routerPermissionInfo.proposedRouterOwners[_routerAgent0], address(0));
     assertEq(s.routerPermissionInfo.proposedRouterTimestamp[_routerAgent0], 0);
+    assertEq(s.routerPermissionInfo.approvedForPortalRouters[_routerAgent0], false);
   }
 
   function test_RoutersFacet__removeRouter_failsIfNotOwner() public {

@@ -26,6 +26,7 @@ struct TokenId {
  * two chains. They are supplied on `xcall` and should be asserted on `execute`
  * @property to - The account that receives funds, in the event of a crosschain call,
  * will receive funds if the call fails.
+ *
  * @param to - The address you are sending funds (and potentially data) to
  * @param callData - The data to execute on the receiving chain. If no crosschain call is needed, then leave empty.
  * @param originDomain - The originating domain (i.e. where `xcall` is called). Must match nomad domain schema
@@ -37,7 +38,7 @@ struct TokenId {
  * @param forceSlow - If true, will take slow liquidity path even if it is not a permissioned call
  * @param receiveLocal - If true, will use the local nomad asset on the destination instead of adopted.
  * @param relayerFee - The amount of relayer fee the tx called xcall with
- * @param slippageTol - Max bps of original due to slippage (i.e. would be 9995 to tolerate .05% slippage)
+ * @param destinationMinOut - Minimum amount received on swaps for local <> adopted on destination chain.
  */
 struct CallParams {
   address to;
@@ -51,7 +52,7 @@ struct CallParams {
   address callback;
   uint256 callbackFee;
   uint256 relayerFee;
-  uint256 slippageTol;
+  uint256 destinationMinOut;
 }
 
 /**
@@ -60,11 +61,13 @@ struct CallParams {
  * @param transactingAssetId - The asset the caller sent with the transfer. Can be the adopted, canonical,
  * or the representational asset
  * @param amount - The amount of transferring asset the tx called xcall with
+ * @param originMinOut - Minimum amount received on swaps for adopted <> local on origin chain
  */
 struct XCallArgs {
   CallParams params;
   address transactingAssetId; // Could be adopted, local, or wrapped
   uint256 amount;
+  uint256 originMinOut;
 }
 
 /**
