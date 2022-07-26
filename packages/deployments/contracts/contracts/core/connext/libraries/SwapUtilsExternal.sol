@@ -566,8 +566,8 @@ library SwapUtilsExternal {
    * @param tokenIndexTo the token to buy
    * @param dx the number of tokens to sell. If the token charges a fee on transfers,
    * use the amount that gets transferred after the fee.
-   * @return dy the number of tokens the user will get
-   * @return dyFee the associated fee
+   * @return dy the number of tokens the user will get in the token's precision. ex WBTC -> 8
+   * @return dyFee the associated fee in multiplied precision (POOL_PRECISION_DECIMALS)
    */
   function _calculateSwap(
     Swap storage self,
@@ -597,8 +597,8 @@ library SwapUtilsExternal {
    * @param tokenIndexTo the token to buy
    * @param dy the number of tokens to buy. If the token charges a fee on transfers,
    * use the amount that gets transferred after the fee.
-   * @return dx the number of tokens the user have to deposit
-   * @return dxFee the associated fee
+   * @return dx the number of tokens the user have to deposit in the token's precision. ex WBTC -> 8
+   * @return dxFee the associated fee in multiplied precision (POOL_PRECISION_DECIMALS)
    */
   function _calculateSwapInv(
     Swap storage self,
