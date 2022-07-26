@@ -156,12 +156,15 @@ contract NomadFacet is BaseConnextFacet {
       // fast liquidity path
       // Credit each router that provided liquidity their due 'share' of the asset.
       uint256 routerAmt = toDistribute / pathLen;
-      for (uint256 i; i < pathLen; ) {
+      for (uint256 i; i < pathLen - 1; ) {
         s.routerBalances[routers[i]][_localToken] += routerAmt;
         unchecked {
           ++i;
         }
       }
+      // The last router in the multipath will sweep the remaining balance to account for remainder dust.
+      uint256 toSweep = routerAmt + (toDistribute % pathLen);
+      s.routerBalances[routers[pathLen - 1]][_localToken] -= toSweep;
     }
 
     emit Reconciled(transferId, routers, _localToken, _amount, msg.sender);
