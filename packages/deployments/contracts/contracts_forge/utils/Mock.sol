@@ -130,11 +130,20 @@ contract MockCallback is ICallback {
   mapping(bytes32 => bool) public transferSuccess;
   mapping(bytes32 => bytes32) public transferData;
 
+  bool public fails;
+
+  function shouldFail(bool fail) external {
+    fails = fail;
+  }
+
   function callback(
     bytes32 transferId,
     bool success,
     bytes memory data
   ) external {
+    if (fails) {
+      require(false, "fails");
+    }
     transferSuccess[transferId] = success;
     transferData[transferId] = keccak256(data);
   }
