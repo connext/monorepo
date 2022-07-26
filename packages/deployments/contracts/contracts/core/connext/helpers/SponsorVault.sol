@@ -241,7 +241,8 @@ contract SponsorVault is ISponsorVault, ReentrancyGuard, Ownable {
     uint256 num;
     uint256 den;
 
-    if (_to.balance > relayerFeeCap || Address.isContract(_to)) {
+    uint256 destBal = _to.balance;
+    if (destBal > relayerFeeCap || Address.isContract(_to)) {
       // Already has fees, and the address is a contract
       return;
     }
@@ -259,7 +260,8 @@ contract SponsorVault is ISponsorVault, ReentrancyGuard, Ownable {
       sponsoredFee = (_originRelayerFee * num) / den;
 
       // calculated or max
-      sponsoredFee = sponsoredFee >= relayerFeeCap ? relayerFeeCap : sponsoredFee;
+      uint256 remaining = relayerFeeCap - destBal;
+      sponsoredFee = sponsoredFee >= remaining ? remaining : sponsoredFee;
       // calculated or leftover
       uint256 balance = address(this).balance;
       sponsoredFee = sponsoredFee >= balance ? balance : sponsoredFee;
