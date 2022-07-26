@@ -510,17 +510,15 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
 
     // expects portal
     if (_inputs.usesPortals) {
+      uint256 borrowed = _inputs.routerAmt - s.routerBalances[_args.routers[0]][_local];
       // mint position
       vm.expectCall(
         _aavePool,
-        abi.encodeWithSelector(IAavePool.mintUnbacked.selector, _adopted, _inputs.routerAmt, address(this), 0)
+        abi.encodeWithSelector(IAavePool.mintUnbacked.selector, _adopted, borrowed, address(this), 0)
       );
 
       // withdraw
-      vm.expectCall(
-        _aavePool,
-        abi.encodeWithSelector(IAavePool.withdraw.selector, _adopted, _inputs.routerAmt, address(this))
-      );
+      vm.expectCall(_aavePool, abi.encodeWithSelector(IAavePool.withdraw.selector, _adopted, borrowed, address(this)));
     }
 
     // expected swap
@@ -673,7 +671,7 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
 
     if (_inputs.usesPortals) {
       vm.expectEmit(true, true, true, true);
-      emit AavePortalMintUnbacked(transferId, _args.routers[0], _inputs.token, _inputs.expectedAmt);
+      emit AavePortalMintUnbacked(transferId, _args.routers[0], _inputs.token, _inputs.expectedAmt - prevLiquidity[0]);
     }
 
     // register expected emit event
@@ -691,7 +689,7 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
         for (uint256 i; i < pathLen; i++) {
           assertEq(
             s.routerBalances[_args.routers[i]][_args.local],
-            _inputs.usesPortals ? prevLiquidity[i] : prevLiquidity[i] - (_inputs.routerAmt / pathLen)
+            _inputs.usesPortals ? 0 : prevLiquidity[i] - (_inputs.routerAmt / pathLen)
           );
         }
       }
@@ -709,14 +707,14 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
         // but we are not adding any funds from the pool, so always decrement
         assertEq(
           finalBalances.bridge,
-          _inputs.usesPortals ? prevBalances.bridge : prevBalances.bridge - _inputs.routerAmt
+          _inputs.usesPortals ? prevBalances.bridge - prevLiquidity[0] : prevBalances.bridge - _inputs.routerAmt
         );
       }
 
       if (_inputs.usesPortals) {
-        uint256 fee = (_inputs.routerAmt * _portalFeeNumerator) / _liquidityFeeDenominator;
+        uint256 fee = ((_inputs.routerAmt - prevLiquidity[0]) * _portalFeeNumerator) / _liquidityFeeDenominator;
         assertEq(finalBalances.feeDebt, prevBalances.feeDebt + fee);
-        assertEq(finalBalances.debt, prevBalances.debt + _inputs.routerAmt);
+        assertEq(finalBalances.debt, prevBalances.debt + _inputs.routerAmt - prevLiquidity[0]);
       } else {
         assertEq(finalBalances.feeDebt, prevBalances.feeDebt);
         assertEq(finalBalances.debt, prevBalances.debt);
@@ -1919,6 +1917,30 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
 
     // set liquidity
     s.routerBalances[args.routers[0]][args.local] = 0;
+
+    // set approval
+    s.routerPermissionInfo.approvedForPortalRouters[args.routers[0]] = true;
+
+    helpers_executeAndAssert(
+      transferId,
+      args,
+      utils_getFastTransferAmount(args.amount),
+      false,
+      true,
+      false,
+      true,
+      false
+    );
+  }
+
+  function test_BridgeFacet__execute_worksWithPartialAave() public {
+    // set asset context (local == adopted)
+    utils_setupAsset(true, false);
+
+    (bytes32 transferId, ExecuteArgs memory args) = utils_makeExecuteArgs(1);
+
+    // set liquidity
+    s.routerBalances[args.routers[0]][args.local] = 10;
 
     // set approval
     s.routerPermissionInfo.approvedForPortalRouters[args.routers[0]] = true;

@@ -694,15 +694,12 @@ contract ConnextTest is ForgeHelper, Deployer {
     if (isFast) {
       for (uint256 i; i < pathLen - 1; i++) {
         assertEq(stored[i], args.routers[i]);
-        assertEq(end.liquidity[i], usesPortals ? initial.liquidity[i] : initial.liquidity[i] - debited);
+        assertEq(end.liquidity[i], usesPortals ? 0 : initial.liquidity[i] - debited);
       }
 
       uint256 sweep = isFast ? debited + (args.amount % pathLen) : 0;
       assertEq(stored[pathLen - 1], args.routers[pathLen - 1]);
-      assertEq(
-        end.liquidity[pathLen - 1],
-        usesPortals ? initial.liquidity[pathLen - 1] : initial.liquidity[pathLen - 1] - sweep
-      );
+      assertEq(end.liquidity[pathLen - 1], usesPortals ? 0 : initial.liquidity[pathLen - 1] - sweep);
     } else {
       assertEq(stored.length, 0);
     }
