@@ -20,13 +20,6 @@ contract NomadFacetTest is NomadFacet, FacetHelper {
   using TypedMemView for bytes29;
   using TypedMemView for bytes;
 
-  struct PortalInfo {
-    uint256 fee;
-    uint256 debt;
-    uint256 total;
-    bool aaveReturns;
-  }
-
   struct SwapInfo {
     uint256 input;
     uint256 output; // the equivalent amount of `out` token for given `in`
@@ -133,79 +126,7 @@ contract NomadFacetTest is NomadFacet, FacetHelper {
     return (transferId, args);
   }
 
-  function utils_setPortals(
-    bytes32 _id,
-    uint256 _amount,
-    uint256 _fee
-  ) public returns (PortalInfo memory) {
-    s.portalFeeDebt[_id] = _fee;
-    s.portalDebt[_id] = _amount;
-    return PortalInfo(_fee, _amount, _fee + _amount, true);
-  }
-
-  function utils_setPortals(bytes32 _id, uint256 _amount) public returns (PortalInfo memory) {
-    return utils_setPortals(_id, _amount, (_amount * _portalFeeNumerator) / _liquidityFeeDenominator);
-  }
-
   // ============ Helpers ===============
-  function helpers_setupReconcilePortalAssertions(
-    bytes32 transferId,
-    XCallArgs memory args,
-    PortalInfo memory init,
-    PortalInfo memory repayment,
-    uint256 amountIn,
-    uint256 amountOut
-  ) public {
-    if (repayment.total == 0) {
-      // noting to assert
-      return;
-    }
-    // if local != adopted, need to swap into adopted
-    if (_local != _adopted) {
-      // should call calculate always
-      vm.expectCall(
-        _stableSwap,
-        abi.encodeWithSelector(IStableSwap.calculateSwapFromAddress.selector, _local, _adopted, args.amount)
-      );
-
-      // will swap and repay IFF within slippage
-      if (amountIn <= args.amount) {
-        // slippage ok, call approve
-        vm.expectCall(_local, abi.encodeWithSelector(IERC20.approve.selector, _stableSwap, amountIn));
-        // should call swap
-        vm.expectCall(
-          _stableSwap,
-          abi.encodeWithSelector(IStableSwap.swapExactOut.selector, repayment.total, _local, _adopted, args.amount)
-        );
-      } // otherwise slippage is too high and it should not try to repay the rest of the loan
-    }
-
-    if (amountIn != 0) {
-      // approval of pool for sum
-      vm.expectCall(_adopted, abi.encodeWithSelector(IERC20.approve.selector, _aavePool, repayment.total));
-
-      // approval of payback
-      vm.expectCall(
-        _aavePool,
-        abi.encodeWithSelector(IAavePool.backUnbacked.selector, _adopted, repayment.debt, repayment.fee)
-      );
-
-      vm.expectEmit(true, true, true, true);
-      emit AavePortalRepayment(transferId, _adopted, repayment.debt, repayment.fee);
-
-      // check if there will be a debt event
-      if (repayment.total < init.total) {
-        // // FIXME: logs are the same in the corresponding event (when insufficient fees)
-        // // but `expectEmit` call is not working
-        // vm.expectEmit(true, false, false, true);
-        // emit AavePortalRepaymentDebt(transferId, _adopted, init.debt - repayment.debt, init.fee - repayment.fee);
-      }
-    } else {
-      // slippage maximums hit, emit full debt in event
-      vm.expectEmit(true, true, true, true);
-      emit AavePortalRepaymentDebt(transferId, _adopted, init.debt, init.fee);
-    }
-  }
 
   function helpers_reconcileCaller(
     address _local,
@@ -221,16 +142,8 @@ contract NomadFacetTest is NomadFacet, FacetHelper {
   function helpers_reconcileAndAssert(
     bytes32 transferId,
     XCallArgs memory args,
-    bytes4 expectedError,
-    PortalInfo memory repayment,
-    SwapInfo memory swap
+    bytes4 expectedError
   ) public {
-    PortalInfo memory init = PortalInfo(
-      s.portalFeeDebt[transferId],
-      s.portalDebt[transferId],
-      s.portalDebt[transferId] + s.portalFeeDebt[transferId],
-      true
-    );
     bool isNative = args.transactingAssetId == address(0);
     bool shouldSucceed = keccak256(abi.encode(expectedError)) == keccak256(abi.encode(bytes4("")));
 
@@ -249,32 +162,7 @@ contract NomadFacetTest is NomadFacet, FacetHelper {
       prevBalance = IERC20(_local).balanceOf(address(this));
     }
 
-    // Mock calls for swap if needed
-    if (_local != _adopted && init.total != 0) {
-      // mock calculate equivalent of bridged amount in adopted
-      vm.mockCall(
-        _stableSwap,
-        abi.encodeWithSelector(IStableSwap.calculateSwapFromAddress.selector),
-        abi.encode(swap.output)
-      );
-      vm.mockCall(
-        _stableSwap,
-        abi.encodeWithSelector(IStableSwap.calculateSwapOutFromAddress.selector),
-        abi.encode(swap.input)
-      );
-      // mock swap
-      vm.mockCall(_stableSwap, abi.encodeWithSelector(IStableSwap.swapExactOut.selector), abi.encode(swap.input));
-    }
-
-    if (!repayment.aaveReturns) {
-      // Force failure on call
-      _aavePool = address(new MockPool(true));
-      s.aavePool = _aavePool;
-    }
-
     if (shouldSucceed) {
-      helpers_setupReconcilePortalAssertions(transferId, args, init, repayment, swap.input, swap.output);
-
       vm.expectEmit(true, true, true, true);
       emit Reconciled(transferId, s.routedTransfers[transferId], _local, args.amount, _bridge);
     } else {
@@ -287,41 +175,14 @@ contract NomadFacetTest is NomadFacet, FacetHelper {
       assertEq(s.reconciledTransfers[transferId], true);
       address[] memory routers = s.routedTransfers[transferId];
       if (routers.length != 0) {
-        uint256 routerAmt;
-        if (init.total != 0 && repayment.aaveReturns) {
-          routerAmt = swap.input > args.amount ? args.amount : args.amount - swap.input;
-        } else {
-          routerAmt = args.amount / s.routedTransfers[transferId].length;
-        }
+        uint256 routerAmt = args.amount / s.routedTransfers[transferId].length;
+
         // Fast liquidity route. Should have reimbursed routers.
         for (uint256 i = 0; i < routers.length; i++) {
           assertEq(s.routerBalances[routers[i]][_local], routerBalances[i] + routerAmt);
         }
       }
-
-      if (init.total != 0) {
-        // assert repayment
-        assertEq(s.portalDebt[transferId], init.debt - repayment.debt);
-        assertEq(s.portalFeeDebt[transferId], init.fee - repayment.fee);
-      }
     }
-  }
-
-  function helpers_reconcileAndAssert(
-    bytes32 transferId,
-    XCallArgs memory args,
-    bytes4 expectedError,
-    PortalInfo memory repayment
-  ) public {
-    helpers_reconcileAndAssert(transferId, args, expectedError, repayment, SwapInfo(repayment.total, args.amount));
-  }
-
-  function helpers_reconcileAndAssert(
-    bytes32 transferId,
-    XCallArgs memory args,
-    bytes4 expectedError
-  ) public {
-    helpers_reconcileAndAssert(transferId, args, expectedError, PortalInfo(0, 0, 0, true));
   }
 
   function helpers_reconcileAndAssert(bytes4 expectedError) public {
@@ -427,190 +288,5 @@ contract NomadFacetTest is NomadFacet, FacetHelper {
     (bytes32 transferId, XCallArgs memory args) = utils_makeXCallArgs();
     s.routedTransfers[transferId] = [address(42), address(43), address(44), address(45)];
     helpers_reconcileAndAssert(transferId, args, bytes4(""));
-  }
-
-  // should work with portals without swap
-  function test_NomadFacet__reconcile_canUsePortalsWithoutSwap() public {
-    utils_setupAsset(true, false);
-    // get args
-    (bytes32 transferId, XCallArgs memory args) = utils_makeXCallArgs();
-
-    // set router
-    address router = address(456545654);
-    s.routedTransfers[transferId] = [router];
-
-    // get the total debt (no repayment)
-    uint256 portaled = (args.amount * _liquidityFeeNumerator) / _liquidityFeeDenominator;
-    PortalInfo memory portals = utils_setPortals(transferId, portaled);
-
-    // assume full repayment
-    helpers_reconcileAndAssert(transferId, args, bytes4(""), portals);
-  }
-
-  // should work with portals with swap
-  function test_NomadFacet__reconcile_canUsePortalsWithSwap() public {
-    utils_setupAsset(false, false);
-    // get args
-    (bytes32 transferId, XCallArgs memory args) = utils_makeXCallArgs();
-
-    // set router
-    address router = address(456545654);
-    s.routedTransfers[transferId] = [router];
-
-    // get the total debt (no repayment)
-    uint256 portaled = (args.amount * _liquidityFeeNumerator) / _liquidityFeeDenominator;
-    PortalInfo memory portals = utils_setPortals(transferId, portaled);
-
-    // assume full repayment
-    helpers_reconcileAndAssert(transferId, args, bytes4(""), portals, SwapInfo(args.amount - 10000, args.amount));
-  }
-
-  function test_NomadFacet__reconcile_handlesPortalSwapFailures() public {
-    utils_setupAsset(false, false);
-    // get args
-    (bytes32 transferId, XCallArgs memory args) = utils_makeXCallArgs();
-
-    // set router
-    address router = address(456545654);
-    s.routedTransfers[transferId] = [router];
-
-    // get the total debt (no repayment)
-    uint256 portaled = (args.amount * _liquidityFeeNumerator) / _liquidityFeeDenominator;
-    PortalInfo memory init = utils_setPortals(transferId, portaled);
-
-    // assume ratio of 10:1 (i.e. you put in 10x, the amount out from args.amount is 1/10 val)
-    helpers_reconcileAndAssert(
-      transferId,
-      args,
-      bytes4(""),
-      PortalInfo(0, 0, 0, true),
-      SwapInfo(args.amount * 10, args.amount * 10)
-    );
-  }
-
-  // should credit router leftovers from portal repayment from positive slippage of amm
-  // or previous
-  function test_NomadFacet__reconcile_handlesPortalDebtSurplusViaSwap() public {
-    utils_setupAsset(false, false);
-    // get args
-    (bytes32 transferId, XCallArgs memory args) = utils_makeXCallArgs();
-
-    // set router
-    address router = address(456545654);
-    s.routedTransfers[transferId] = [router];
-
-    // get the total debt (no repayment)
-    uint256 portaled = (args.amount * _liquidityFeeNumerator) / _liquidityFeeDenominator;
-    PortalInfo memory portals = utils_setPortals(transferId, portaled);
-
-    // assume full repayment
-    helpers_reconcileAndAssert(
-      transferId,
-      args,
-      bytes4(""),
-      portals,
-      SwapInfo(args.amount - 0.01 ether, args.amount + 0.2 ether)
-    );
-  }
-
-  // at some point some of the fee is repaid, remainder goes to router liq
-  function test_NomadFacet__reconcile_handlesPortalDebtSurplusViaFeeRepayment() public {
-    utils_setupAsset(true, false);
-    // get args
-    (bytes32 transferId, XCallArgs memory args) = utils_makeXCallArgs();
-
-    // set router
-    address router = address(456545654);
-    s.routedTransfers[transferId] = [router];
-
-    // get the total debt (no repayment)
-    uint256 portaled = (args.amount * _liquidityFeeNumerator) / _liquidityFeeDenominator;
-    uint256 fullFee = (args.amount * _portalFeeNumerator) / _liquidityFeeDenominator;
-    uint256 paid = fullFee / 2;
-    PortalInfo memory portals = utils_setPortals(transferId, portaled, fullFee - paid);
-
-    // assume full repayment
-    helpers_reconcileAndAssert(transferId, args, bytes4(""), portals);
-  }
-
-  // at some point some of the principle is repaid, remainder goes to router liq
-  function test_NomadFacet__reconcile_handlesPortalDebtSurplusViaPrincipleRepayment() public {
-    utils_setupAsset(true, false);
-    // get args
-    (bytes32 transferId, XCallArgs memory args) = utils_makeXCallArgs();
-
-    // set router
-    address router = address(456545654);
-    s.routedTransfers[transferId] = [router];
-
-    // get the total debt (no repayment)
-    uint256 portaled = (args.amount * _liquidityFeeNumerator) / _liquidityFeeDenominator;
-    uint256 fee = (args.amount * _portalFeeNumerator) / _liquidityFeeDenominator;
-    uint256 paid = portaled / 2;
-    PortalInfo memory portals = utils_setPortals(transferId, portaled - paid, fee);
-
-    // assume full repayment
-    helpers_reconcileAndAssert(transferId, args, bytes4(""), portals);
-  }
-
-  // should prioritize debt as: as much principle as possible then as much fee as possible
-  function test_NomadFacet__reconcile_handlesPortalDeficitPartialPrinciple() public {
-    // in this case, the swap only gives enough out to handle *some* of the amount portaled.
-    // specifically, it can only handle amount < principle
-    utils_setupAsset(false, false);
-    // get args
-    (bytes32 transferId, XCallArgs memory args) = utils_makeXCallArgs();
-
-    // set router
-    address router = address(456545654);
-    s.routedTransfers[transferId] = [router];
-
-    // set the total debt
-    uint256 portaled = (args.amount * _liquidityFeeNumerator) / _liquidityFeeDenominator;
-    PortalInfo memory init = utils_setPortals(transferId, portaled);
-
-    // decrement portal repayment
-    uint256 debtRepaid = (init.debt * 9997) / 10000; // 3bps debt remaining
-    PortalInfo memory repayment = PortalInfo(0, debtRepaid, debtRepaid, true);
-    helpers_reconcileAndAssert(transferId, args, bytes4(""), repayment, SwapInfo(init.total, debtRepaid));
-  }
-
-  function test_NomadFacet__reconcile_handlesPortalDeficitPartialFee() public {
-    // in this case, the swap only gives enough out to handle *some* of the amount portaled.
-    // specifically, it can only handle principle < amount < total
-    utils_setupAsset(false, false);
-    // get args
-    (bytes32 transferId, XCallArgs memory args) = utils_makeXCallArgs();
-
-    // set router
-    address router = address(456545654);
-    s.routedTransfers[transferId] = [router];
-
-    // set the total debt
-    uint256 portaled = (args.amount * _liquidityFeeNumerator) / _liquidityFeeDenominator;
-    PortalInfo memory init = utils_setPortals(transferId, portaled);
-
-    uint256 debtRepaid = (init.total * 9997) / 10000; // 3bps debt remaining
-    PortalInfo memory repayment = PortalInfo(debtRepaid - init.debt, init.debt, debtRepaid, true);
-
-    // assume full repayment
-    helpers_reconcileAndAssert(transferId, args, bytes4(""), repayment, SwapInfo(init.total, debtRepaid));
-  }
-
-  function test_NomadFacet__reconcile_handlesPortalFailureToRepayFromAave() public {
-    utils_setupAsset(true, false);
-    // get args
-    (bytes32 transferId, XCallArgs memory args) = utils_makeXCallArgs();
-
-    // set router
-    address router = address(456545654);
-    s.routedTransfers[transferId] = [router];
-
-    // get the total debt (no repayment)
-    uint256 portaled = (args.amount * _liquidityFeeNumerator) / _liquidityFeeDenominator;
-    PortalInfo memory init = utils_setPortals(transferId, portaled);
-
-    // assume no repayment (aave will not be mocked)
-    helpers_reconcileAndAssert(transferId, args, bytes4(""), PortalInfo(0, 0, 0, false));
   }
 }

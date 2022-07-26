@@ -21,13 +21,13 @@ contract PortalFacet is BaseConnextFacet {
   // ============ Events ============
 
   /**
-   * @notice Emitted when a router executed a manual repayment to Aave Portal
-   * @param router - The router that execute the repayment
+   * @notice Emitted when a repayment on an Aave portal loan is made
+   * @param transferId - The transfer debt that was repaid
    * @param asset - The asset that was repaid
    * @param amount - The amount that was repaid
    * @param fee - The fee amount that was repaid
    */
-  event AavePortalRouterRepayment(address indexed router, address asset, uint256 amount, uint256 fee);
+  event AavePortalRepayment(bytes32 indexed transferId, address asset, uint256 amount, uint256 fee, address caller);
 
   // ============ Getters methods ==============
 
@@ -206,6 +206,6 @@ contract PortalFacet is BaseConnextFacet {
     IAavePool(s.aavePool).backUnbacked(_asset, _backing, _fee);
 
     // emit event
-    emit AavePortalRouterRepayment(msg.sender, _asset, _backing, _fee);
+    emit AavePortalRepayment(_transferId, _asset, _backing, _fee, msg.sender);
   }
 }

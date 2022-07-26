@@ -749,18 +749,9 @@ contract ConnextTest is ForgeHelper, Deployer {
     bytes32 transferId,
     uint256 bridgedAmt,
     address to,
-    address[] memory routers,
-    bool usesPortals
+    address[] memory routers
   ) public {
     uint256 repayAmount = bridgedAmt;
-    if (usesPortals) {
-      repayAmount = _destinationConnext.calculateSwap(
-        TypeCasts.addressToBytes32(_canonical),
-        0, // local idx always 0
-        1, // adopted idx always 1
-        bridgedAmt
-      );
-    }
 
     // NOTE: the bridge router handles the minting and custodying of assets. as far
     // as connext is concerned, the funds will *always* be transferred to the contract
@@ -787,34 +778,17 @@ contract ConnextTest is ForgeHelper, Deployer {
     ReconcileBalances memory end = utils_getReconcileBalances(transferId, routers);
 
     // assert router liquidity balance
-    if (!usesPortals) {
-      uint256 credited = routers.length != 0 ? bridgedAmt / routers.length : 0;
-      for (uint256 i; i < routers.length; i++) {
-        assertEq(end.liquidity[i], initial.liquidity[i] + credited);
-      }
-      assertEq(end.portalDebt, 0);
-      assertEq(end.portalFeeDebt, 0);
-    } else {
-      uint256 debtPaid = repayAmount > initial.portalDebt ? initial.portalDebt : repayAmount;
-      repayAmount -= debtPaid;
-      uint256 feePaid = repayAmount > initial.portalFeeDebt ? initial.portalFeeDebt : repayAmount;
-      repayAmount -= feePaid;
-      assertEq(end.liquidity[0], initial.liquidity[0] + repayAmount);
-      assertEq(end.portalDebt, initial.portalDebt - debtPaid);
-      assertEq(end.portalFeeDebt, initial.portalFeeDebt - feePaid);
+    uint256 credited = routers.length != 0 ? bridgedAmt / routers.length : 0;
+    for (uint256 i; i < routers.length; i++) {
+      assertEq(end.liquidity[i], initial.liquidity[i] + credited);
     }
+
+    // assert portal balance didnt change during reconcile call
+    assertEq(end.portalDebt, initial.portalDebt);
+    assertEq(end.portalFeeDebt, initial.portalFeeDebt);
 
     // assert transfer marked as reconciled
     assertTrue(_destinationConnext.reconciledTransfers(transferId));
-  }
-
-  function utils_reconcileAndAssert(
-    bytes32 transferId,
-    uint256 bridgedAmt,
-    address to,
-    address[] memory routers
-  ) public {
-    utils_reconcileAndAssert(transferId, bridgedAmt, to, routers, false);
   }
 
   // ============ Testing scenarios ============
@@ -863,7 +837,7 @@ contract ConnextTest is ForgeHelper, Deployer {
     bytes32 transferId = utils_xcallAndAssert(args, eventArgs);
 
     // 2. call `execute` on the destination
-    ExecuteArgs memory execute = utils_createExecuteArgs(args.params, 2, transferId, eventArgs.bridgedAmt);
+    ExecuteArgs memory execute = utils_createExecuteArgs(args.params, 1, transferId, eventArgs.bridgedAmt);
     uint256 swapped = _destinationConnext.calculateSwap(
       TypeCasts.addressToBytes32(_canonical),
       1, // adopted idx always 1
@@ -1134,7 +1108,21 @@ contract ConnextTest is ForgeHelper, Deployer {
     utils_executeAndAssert(execute, transferId, utils_getFastTransferAmount(eventArgs.bridgedAmt), 0, true);
 
     // 3. call `handle` on the destination
-    utils_reconcileAndAssert(transferId, eventArgs.bridgedAmt, args.params.to, execute.routers, true);
+    utils_reconcileAndAssert(transferId, eventArgs.bridgedAmt, args.params.to, execute.routers);
+
+    // 4. repay portal out of band
+    IERC20(_destinationAdopted).approve(address(_destinationConnext), 100 ether);
+    _destinationConnext.repayAavePortalFor(
+      args.params,
+      _destinationAdopted,
+      address(this),
+      eventArgs.bridgedAmt,
+      0,
+      _destinationConnext.getAavePortalDebt(transferId),
+      _destinationConnext.getAavePortalFeeDebt(transferId)
+    );
+    assertEq(_destinationConnext.getAavePortalFeeDebt(transferId), 0);
+    assertEq(_destinationConnext.getAavePortalDebt(transferId), 0);
   }
 
   // you should be able to bump + claim relayer fees
