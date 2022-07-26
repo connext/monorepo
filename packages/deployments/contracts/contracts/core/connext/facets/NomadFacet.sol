@@ -142,7 +142,7 @@ contract NomadFacet is BaseConnextFacet {
       }
       // The last router in the multipath will sweep the remaining balance to account for remainder dust.
       uint256 toSweep = routerAmt + (_amount % pathLen);
-      s.routerBalances[routers[pathLen - 1]][_localToken] -= toSweep;
+      s.routerBalances[routers[pathLen - 1]][_localToken] += toSweep;
     }
 
     emit Reconciled(transferId, routers, _localToken, _amount, msg.sender);
