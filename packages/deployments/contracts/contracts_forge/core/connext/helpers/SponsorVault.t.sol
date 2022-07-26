@@ -230,6 +230,7 @@ contract SponsorVaultTest is ForgeHelper {
   // ============ deposit ============
   function test_SponsorVault__deposit_works_adding_native_token(uint256 _amount) public {
     vm.assume(address(this).balance >= _amount);
+    vm.assume(_amount > 0);
 
     uint256 balanceBefore = address(vault).balance;
 
