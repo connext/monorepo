@@ -44,6 +44,7 @@ contract SponsorVaultTest is ForgeHelper {
   event GasTokenOracleUpdated(address oldOracle, address newOracle, address caller);
   event TokenExchangeUpdated(address token, address oldTokenExchange, address newTokenExchange, address caller);
   event PriceOracleUpdated(address oldOracle, address newOracle, address caller);
+  event MaxPriceDiffPercentUpdated(uint256 oldRelayerFeeCap, uint256 newRelayerFeeCap, address caller);
   event Deposit(address token, uint256 amount, address caller);
   event Withdraw(address token, address receiver, uint256 amount, address caller);
   event ReimburseLiquidityFees(address token, uint256 amount, address receiver);
@@ -253,6 +254,33 @@ contract SponsorVaultTest is ForgeHelper {
     assertEq(address(vault.priceOracle()), _priceOracle);
   }
 
+  // ============ setMaxPriceDiffPercent ============
+
+  function test_SponsorVault__setMaxPriceDiffPercent_failsIfNotOwner() public {
+    vm.prank(address(0));
+    vm.expectRevert("Ownable: caller is not the owner");
+
+    vault.setMaxPriceDiffPercent(1);
+  }
+
+  function test_SponsorVault__setMaxPriceDiffPercent_failsIfTooLarge() public {
+    vm.expectRevert(abi.encodeWithSelector(SponsorVault.SponsorVault__setMaxPriceDiffPercent_tooLarge.selector));
+
+    vault.setMaxPriceDiffPercent(50);
+  }
+
+  function test_SponsorVault__setMaxPriceDiffPercent_works(uint256 _maxPriceDiffPercent) public {
+    vm.assume(_maxPriceDiffPercent < 30);
+    uint256 currMaxPriceDiffPercent = vault.maxPriceDiffPercent();
+
+    vm.expectEmit(true, true, true, true);
+    emit MaxPriceDiffPercentUpdated(currMaxPriceDiffPercent, _maxPriceDiffPercent, address(this));
+
+    vault.setMaxPriceDiffPercent(_maxPriceDiffPercent);
+
+    assertEq(vault.maxPriceDiffPercent(), _maxPriceDiffPercent);
+  }
+
   // ============ deposit ============
   function test_SponsorVault__deposit_works_adding_native_token(uint256 _amount) public {
     vm.assume(address(this).balance >= _amount);
@@ -408,7 +436,7 @@ contract SponsorVaultTest is ForgeHelper {
     vm.mockCall(
       address(priceOracle),
       abi.encodeWithSelector(IPriceOracle.getPriceFromChainlink.selector, address(0)),
-      abi.encode(95)
+      abi.encode(98)
     );
     vm.mockCall(
       address(priceOracle),
@@ -444,7 +472,7 @@ contract SponsorVaultTest is ForgeHelper {
     vm.mockCall(
       address(priceOracle),
       abi.encodeWithSelector(IPriceOracle.getPriceFromChainlink.selector, address(0)),
-      abi.encode(95)
+      abi.encode(98)
     );
     vm.mockCall(
       address(priceOracle),
