@@ -939,6 +939,7 @@ __metadata:
   resolution: "@connext/nxtp-sdk-server@workspace:packages/examples/sdk-server"
   dependencies:
     "@connext/nxtp-sdk": "workspace:*"
+    "@connext/nxtp-txservice": "workspace:*"
     "@connext/nxtp-utils": "workspace:*"
     "@types/node": 16.11.45
     "@types/pino": 7.0.5

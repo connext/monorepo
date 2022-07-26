@@ -1,15 +1,24 @@
 import * as fs from "fs";
 
 import fastify, { FastifyInstance, FastifyReply } from "fastify";
-import { RemoveLiquidityResponseSchema, XCallArgsSchema, XCallArgs } from "@connext/nxtp-utils";
-import { ethers, providers } from "ethers";
-import { NxtpSdkConfig, NxtpSdkBase, create } from "@connext/nxtp-sdk";
+import {
+  XCallArgsSchema,
+  XCallArgs,
+  getCanonicalFromLocalRequestBodySchema,
+  getCanonicalFromLocalRequestBody,
+  getPoolRequestBodySchema,
+  getPoolRequestBody,
+} from "@connext/nxtp-utils";
+import { ethers, Signer, providers } from "ethers";
+import { NxtpSdkConfig, NxtpSdkBase, NxtpSdkPool, create } from "@connext/nxtp-sdk";
 
-let sdkInstance: NxtpSdkBase;
+let sdkBaseInstance: NxtpSdkBase;
+let sdkPoolInstance: NxtpSdkPool;
 
 export const sdkServer = () =>
   new Promise<FastifyInstance>(() => {
     const server = fastify();
+    let signer: Signer;
 
     server.listen(8080, (err, address) => {
       if (err) {
@@ -39,11 +48,9 @@ export const sdkServer = () =>
         console.error("Error reading config file!");
         process.exit(1);
       }
-      // return configFile;
 
       const privateKey: string = configJson.privateKey;
-      const signer = privateKey ? new ethers.Wallet(privateKey) : ethers.Wallet.createRandom();
-
+      signer = privateKey ? new ethers.Wallet(privateKey) : ethers.Wallet.createRandom();
       const signerAddress = await signer.getAddress();
 
       const nxtpConfig: NxtpSdkConfig = {
@@ -52,18 +59,27 @@ export const sdkServer = () =>
         signerAddress: signerAddress,
       };
 
-      const { nxtpSdkBase } = await create(nxtpConfig);
-      sdkInstance = nxtpSdkBase;
+      const { nxtpSdkBase, nxtpSdkPool } = await create(nxtpConfig);
+      sdkBaseInstance = nxtpSdkBase;
+      sdkPoolInstance = nxtpSdkPool;
     });
+
+    // Routes
 
     server.get("/ping", (_, res) => api.get.ping(res));
 
     server.post<{ Body: XCallArgs }>(
       "/xcall",
-      { schema: { body: XCallArgsSchema, response: { "2xx": RemoveLiquidityResponseSchema } } },
+      {
+        schema: {
+          body: XCallArgsSchema,
+        },
+      },
       async (req) => api.post.xcall(req.body),
     );
   });
+
+// Handlers
 
 export const api = {
   get: {
@@ -72,11 +88,8 @@ export const api = {
     },
   },
   post: {
-    xcall: async (req: XCallArgs): Promise<providers.TransactionResponse> => {
-      console.log(req);
-      // return re.status(500).send("Not implemented");
-      await sdkInstance.xcall(req);
-      return {} as providers.TransactionResponse;
+    xcall: async (req: XCallArgs): Promise<providers.TransactionRequest> => {
+      return await sdkBaseInstance.xcall(req);
     },
   },
 };

@@ -19,6 +19,7 @@
   "keywords": [],
   "dependencies": {
     "@connext/nxtp-sdk": "workspace:*",
+    "@connext/nxtp-txservice": "workspace:*",
     "@connext/nxtp-utils": "workspace:*",
     "ethers": "5.6.9",
     "fastify": "4.3.0",
