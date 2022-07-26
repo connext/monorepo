@@ -1079,6 +1079,82 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
     assertEq(address(this.sponsorVault()), updated);
   }
 
+  // addSequencer
+  function test_BridgeFacet__addSequencer_failIfNotOwner() public {
+    // constants
+    address sequencer = address(123);
+
+    // test revert
+    vm.prank(_originSender);
+    vm.expectRevert(BaseConnextFacet.BaseConnextFacet__onlyOwner_notOwner.selector);
+    this.addSequencer(sequencer);
+  }
+
+  function test_BridgeFacet__addSequencer_failIfAlreadyApproved() public {
+    // constants
+    address sequencer = address(123);
+
+    // set storage
+    s.approvedSequencers[sequencer] = true;
+
+    // test revert
+    vm.prank(LibDiamond.contractOwner());
+    vm.expectRevert(BridgeFacet.BridgeFacet__addSequencer_alreadyApproved.selector);
+    this.addSequencer(sequencer);
+  }
+
+  function test_BridgeFacet__addSequencer_works() public {
+    // constants
+    address sequencer = address(123);
+
+    // set storage
+    s.approvedSequencers[sequencer] = false;
+
+    // test revert
+    vm.prank(LibDiamond.contractOwner());
+    this.addSequencer(sequencer);
+
+    assertEq(s.approvedSequencers[sequencer], true);
+  }
+
+  // removeSequencer
+  function test_BridgeFacet__removeSequencer_failIfNotOwner() public {
+    // constants
+    address sequencer = address(123);
+
+    // test revert
+    vm.prank(_originSender);
+    vm.expectRevert(BaseConnextFacet.BaseConnextFacet__onlyOwner_notOwner.selector);
+    this.removeSequencer(sequencer);
+  }
+
+  function test_BridgeFacet__removeSequencer_failIfAlreadyApproved() public {
+    // constants
+    address sequencer = address(123);
+
+    // set storage
+    s.approvedSequencers[sequencer] = false;
+
+    // test revert
+    vm.prank(LibDiamond.contractOwner());
+    vm.expectRevert(BridgeFacet.BridgeFacet__removeSequencer_notApproved.selector);
+    this.removeSequencer(sequencer);
+  }
+
+  function test_BridgeFacet__removeSequencer_works() public {
+    // constants
+    address sequencer = address(123);
+
+    // set storage
+    s.approvedSequencers[sequencer] = true;
+
+    // test revert
+    vm.prank(LibDiamond.contractOwner());
+    this.removeSequencer(sequencer);
+
+    assertEq(s.approvedSequencers[sequencer], false);
+  }
+
   // ============ Public methods ==============
 
   // ============ xcall ============
@@ -1443,6 +1519,72 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
     args.routerSignatures[0] = invalidArgs.routerSignatures[0];
 
     vm.expectRevert(BridgeFacet.BridgeFacet__execute_invalidRouterSignature.selector);
+    this.execute(args);
+  }
+
+  // should fail if the sequencer is not approved
+  function test_BridgeFacet__execute_failIfSequencerNotApproved() public {
+    (, ExecuteArgs memory args) = utils_makeExecuteArgs(1);
+    s.approvedSequencers[args.sequencer] = false;
+
+    vm.expectRevert(BridgeFacet.BridgeFacet__execute_notSupportedSequencer.selector);
+    this.execute(args);
+  }
+
+  // should fail if the sequencer signature is invalid
+  function test_BridgeFacet__execute_failIfSequencerSignatureInvalid() public {
+    (bytes32 transferId, ExecuteArgs memory args) = utils_makeExecuteArgs(1);
+
+    s.routerBalances[args.routers[0]][args.local] += 10 ether;
+
+    // Make invalid args based on (slightly) altered params (this will make
+    // the transfer ID different).
+    _params.originDomain = 1001;
+    (, ExecuteArgs memory invalidArgs) = utils_makeExecuteArgs(4);
+    // The signature of the sequencer will be invalid, as it signed a different transfer ID.
+    args.sequencerSignature = invalidArgs.sequencerSignature;
+
+    vm.expectRevert(BridgeFacet.BridgeFacet__execute_invalidSequencerSignature.selector);
+    this.execute(args);
+  }
+
+  // should fail if the sequencer signature is invalid; for this test, we'll be attempting to replay
+  // one of the routers in the array repeatedly.
+  function test_BridgeFacet__execute_failIfSequencerSignatureAndRoutersMismatch() public {
+    (bytes32 transferId, ExecuteArgs memory args) = utils_makeExecuteArgs(4);
+
+    s.routerBalances[args.routers[0]][args.local] += 100 ether;
+    s.routerBalances[args.routers[1]][args.local] += 100 ether;
+    s.routerBalances[args.routers[2]][args.local] += 100 ether;
+    s.routerBalances[args.routers[3]][args.local] += 100 ether;
+
+    // Imagine a malicious relayer calling `execute` colludes with the first router in the array
+    // to replay their address and signature for the other slots in the path.
+    args.routers[1] = args.routers[0];
+    args.routers[2] = args.routers[0];
+    args.routers[3] = args.routers[0];
+    args.routerSignatures[1] = args.routerSignatures[0];
+    args.routerSignatures[2] = args.routerSignatures[0];
+    args.routerSignatures[3] = args.routerSignatures[0];
+
+    // The signature of the sequencer will be invalid, as it signed a different router array.
+    vm.expectRevert(BridgeFacet.BridgeFacet__execute_invalidSequencerSignature.selector);
+    this.execute(args);
+  }
+
+  function test_BridgeFacet__execute_failIfSequencerSignatureAndSequencerAddressMismatch() public {
+    (bytes32 transferId, ExecuteArgs memory args) = utils_makeExecuteArgs(1);
+
+    s.routerBalances[args.routers[0]][args.local] += 10 ether;
+
+    address otherSequencer = address(789456123);
+    s.approvedSequencers[otherSequencer] = true;
+
+    // The signature of the sequencer will be invalid, because the sig recovery will result in a
+    // different address.
+    args.sequencer = otherSequencer;
+
+    vm.expectRevert(BridgeFacet.BridgeFacet__execute_invalidSequencerSignature.selector);
     this.execute(args);
   }
 

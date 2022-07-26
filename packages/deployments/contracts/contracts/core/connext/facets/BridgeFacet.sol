@@ -55,7 +55,7 @@ contract BridgeFacet is BaseConnextFacet {
   error BridgeFacet__execute_unapprovedSender();
   error BridgeFacet__execute_wrongDomain();
   error BridgeFacet__execute_notSupportedSequencer();
-  error BridgeFacet__execute_sequencerSignatureInvalid();
+  error BridgeFacet__execute_invalidSequencerSignature();
   error BridgeFacet__execute_maxRoutersExceeded();
   error BridgeFacet__execute_notSupportedRouter();
   error BridgeFacet__execute_invalidRouterSignature();
@@ -579,7 +579,7 @@ contract BridgeFacet is BaseConnextFacet {
       if (
         _args.sequencer != _recoverSignature(keccak256(abi.encode(transferId, _args.routers)), _args.sequencerSignature)
       ) {
-        revert BridgeFacet__execute_sequencerSignatureInvalid();
+        revert BridgeFacet__execute_invalidSequencerSignature();
       }
 
       bool ownershipRenounced = _isRouterOwnershipRenounced();
