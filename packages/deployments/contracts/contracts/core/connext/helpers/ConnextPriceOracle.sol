@@ -1,7 +1,6 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.15;
 
-import {SafeMath} from "@openzeppelin/contracts/utils/math/SafeMath.sol";
 import {SafeERC20} from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import {IERC20Extended} from "../interfaces/IERC20Extended.sol";
 
@@ -42,7 +41,6 @@ interface AggregatorV3Interface {
 }
 
 contract ConnextPriceOracle is PriceOracle {
-  using SafeMath for uint256;
   using SafeERC20 for IERC20Extended;
 
   address public admin;
@@ -113,20 +111,20 @@ contract ConnextPriceOracle is PriceOracle {
       uint256 tokenDecimals = uint256(IERC20Extended(priceInfo.token).decimals());
       uint256 tokenAmount;
       if (tokenDecimals > 18) {
-        tokenAmount = rawTokenAmount.div(10**(tokenDecimals - 18));
+        tokenAmount = rawTokenAmount / (10**(tokenDecimals - 18));
       } else {
-        tokenAmount = rawTokenAmount.div(10**(18 - tokenDecimals));
+        tokenAmount = rawTokenAmount / (10**(18 - tokenDecimals));
       }
       uint256 rawBaseTokenAmount = IERC20Extended(priceInfo.baseToken).balanceOf(priceInfo.lpToken);
       uint256 baseTokenDecimals = uint256(IERC20Extended(priceInfo.baseToken).decimals());
       uint256 baseTokenAmount;
       if (baseTokenDecimals > 18) {
-        baseTokenAmount = rawBaseTokenAmount.div(10**(baseTokenDecimals - 18));
+        baseTokenAmount = rawBaseTokenAmount / (10**(baseTokenDecimals - 18));
       } else {
-        baseTokenAmount = rawBaseTokenAmount.mul(10**(18 - baseTokenDecimals));
+        baseTokenAmount = rawBaseTokenAmount * (10**(18 - baseTokenDecimals));
       }
       uint256 baseTokenPrice = getTokenPrice(priceInfo.baseToken);
-      uint256 tokenPrice = baseTokenPrice.mul(baseTokenAmount).div(tokenAmount);
+      uint256 tokenPrice = (baseTokenPrice * (baseTokenAmount)) / tokenAmount;
 
       return tokenPrice;
     } else {
@@ -161,9 +159,9 @@ contract ConnextPriceOracle is PriceOracle {
         // Make the decimals to 1e18.
         uint256 aggregatorDecimals = uint256(aggregator.decimals());
         if (aggregatorDecimals > 18) {
-          price = retVal.div(10**(aggregatorDecimals - 18));
+          price = retVal / (10**(aggregatorDecimals - 18));
         } else {
-          price = retVal.mul(10**(18 - aggregatorDecimals));
+          price = retVal * (10**(18 - aggregatorDecimals));
         }
 
         return price;
