@@ -712,7 +712,7 @@ contract RoutersFacetTest is RoutersFacet, FacetHelper {
 
   function test_RoutersFacet__addLiquidityForRouter_worksForToken() public {
     s.routerPermissionInfo.approvedRouters[_routerAgent0] = true;
-    s.approvedAssets[_canonicalId] = true;
+    s.approvedAssets[_canonicalKey] = true;
     address caller = address(1233422312);
     TestERC20(_local).mint(caller, 10 ether);
 
@@ -725,7 +725,7 @@ contract RoutersFacetTest is RoutersFacet, FacetHelper {
     IERC20(_local).approve(address(this), amount);
 
     vm.expectEmit(true, true, true, true);
-    emit RouterLiquidityAdded(_routerAgent0, _local, _canonicalId, amount, caller);
+    emit RouterLiquidityAdded(_routerAgent0, _local, _canonicalKey, amount, caller);
     vm.prank(caller);
     this.addRouterLiquidityFor(amount, _local, _routerAgent0);
 
@@ -736,7 +736,7 @@ contract RoutersFacetTest is RoutersFacet, FacetHelper {
   function test_RoutersFacet__addLiquidityForRouter_worksForNative() public {
     utils_setupNative(true, true);
     s.routerPermissionInfo.approvedRouters[_routerAgent0] = true;
-    s.approvedAssets[_canonicalId] = true;
+    s.approvedAssets[_canonicalKey] = true;
 
     uint256 amount = 10000;
 
@@ -744,7 +744,7 @@ contract RoutersFacetTest is RoutersFacet, FacetHelper {
     uint256 initLiquidity = this.routerBalances(_routerAgent0, _wrapper);
 
     vm.expectEmit(true, true, true, true);
-    emit RouterLiquidityAdded(_routerAgent0, _wrapper, _canonicalId, amount, address(this));
+    emit RouterLiquidityAdded(_routerAgent0, _wrapper, _canonicalKey, amount, address(this));
     this.addRouterLiquidityFor{value: amount}(amount, address(0), _routerAgent0);
 
     assertEq(address(this).balance, initCaller - amount);
@@ -754,7 +754,7 @@ contract RoutersFacetTest is RoutersFacet, FacetHelper {
   // addLiquidity
   function test_RoutersFacet__addLiquidity_routerIsSender() public {
     s.routerPermissionInfo.approvedRouters[_routerAgent0] = true;
-    s.approvedAssets[_canonicalId] = true;
+    s.approvedAssets[_canonicalKey] = true;
     TestERC20(_local).mint(_routerAgent0, 10 ether);
 
     uint256 amount = 10000;
@@ -766,7 +766,7 @@ contract RoutersFacetTest is RoutersFacet, FacetHelper {
     IERC20(_local).approve(address(this), amount);
 
     vm.expectEmit(true, true, true, true);
-    emit RouterLiquidityAdded(_routerAgent0, address(_local), _canonicalId, amount, _routerAgent0);
+    emit RouterLiquidityAdded(_routerAgent0, address(_local), _canonicalKey, amount, _routerAgent0);
     vm.prank(_routerAgent0);
     this.addRouterLiquidity(amount, _local);
 

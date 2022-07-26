@@ -29,24 +29,24 @@ library AssetLogic {
 
   /**
    * @notice Check if the stabelswap pool exists or not
-   * @param canonicalId the canonical token id
+   * @param key the hash of the canonical id and domain
    */
-  function stableSwapPoolExist(bytes32 canonicalId) internal view returns (bool) {
+  function stableSwapPoolExist(bytes32 key) internal view returns (bool) {
     AppStorage storage s = LibConnextStorage.connextStorage();
-    return s.swapStorages[canonicalId].pooledTokens.length != 0;
+    return s.swapStorages[key].pooledTokens.length != 0;
   }
 
   /**
    * @notice Return the index of the given token address. Reverts if no matching
    * token is found.
-   * @param canonicalId the canonical token id
+   * @param key the hash of the canonical id and domain
    * @param tokenAddress address of the token
    * @return the index of the given token address
    */
-  function getTokenIndexFromStableSwapPool(bytes32 canonicalId, address tokenAddress) internal view returns (uint8) {
+  function getTokenIndexFromStableSwapPool(bytes32 key, address tokenAddress) internal view returns (uint8) {
     AppStorage storage s = LibConnextStorage.connextStorage();
-    uint8 index = s.tokenIndexes[canonicalId][tokenAddress];
-    if (address(s.swapStorages[canonicalId].pooledTokens[index]) != tokenAddress)
+    uint8 index = s.tokenIndexes[key][tokenAddress];
+    if (address(s.swapStorages[key].pooledTokens[index]) != tokenAddress)
       revert AssetLogic__getTokenIndexFromStableSwapPool_notExist();
     return index;
   }
@@ -182,12 +182,14 @@ library AssetLogic {
     }
 
     // Swap the asset to the proper local asset.
-    return _swapAsset(_canonical.id, _asset, local, _amount, _minOut);
+    bytes32 key = keccak256(abi.encode(_canonical.id, _canonical.domain));
+    return _swapAsset(key, _asset, local, _amount, _minOut);
   }
 
   /**
    * @notice Swaps a local nomad asset for the adopted asset using the stored stable swap
    * @dev Will not swap if the asset passed in is the adopted asset
+   * @param _key the hash of the canonical id and domain
    * @param _asset - The address of the local asset to swap into the adopted asset
    * @param _amount - The amount of the local asset to swap
    * @param _minOut - The minimum amount of `_assetOut` the user will accept
@@ -195,7 +197,7 @@ library AssetLogic {
    * @return The address of asset received post-swap
    */
   function swapFromLocalAssetIfNeeded(
-    bytes32 _canonicalId,
+    bytes32 _key,
     address _asset,
     uint256 _amount,
     uint256 _minOut
@@ -203,7 +205,7 @@ library AssetLogic {
     AppStorage storage s = LibConnextStorage.connextStorage();
 
     // If the adopted asset is the local asset, no need to swap
-    address adopted = s.canonicalToAdopted[_canonicalId];
+    address adopted = s.canonicalToAdopted[_key];
     if (adopted == _asset) {
       return (_amount, _asset);
     }
@@ -214,19 +216,21 @@ library AssetLogic {
     }
 
     // Swap the asset to the proper local asset
-    return _swapAsset(_canonicalId, _asset, adopted, _amount, _minOut);
+    return _swapAsset(_key, _asset, adopted, _amount, _minOut);
   }
 
   /**
    * @notice Swaps a local nomad asset for the adopted asset using the stored stable swap
    * @dev Will not swap if the asset passed in is the adopted asset
+   * @param _key the hash of the canonical id and domain
    * @param _asset - The address of the local asset to swap into the adopted asset
    * @param _amount - The exact amount to receive out of the swap
+   * @param _maxIn - The most you will supply to the swap
    * @return The amount of local asset put into  swap
    * @return The address of asset received post-swap
    */
   function swapFromLocalAssetIfNeededForExactOut(
-    bytes32 _canonicalId,
+    bytes32 _key,
     address _asset,
     uint256 _amount,
     uint256 _maxIn
@@ -241,18 +245,18 @@ library AssetLogic {
     AppStorage storage s = LibConnextStorage.connextStorage();
 
     // If the adopted asset is the local asset, no need to swap
-    address adopted = s.canonicalToAdopted[_canonicalId];
+    address adopted = s.canonicalToAdopted[_key];
     if (adopted == _asset) {
       return (true, _amount, _asset);
     }
 
-    return _swapAssetOut(_canonicalId, _asset, adopted, _amount, _maxIn);
+    return _swapAssetOut(_key, _asset, adopted, _amount, _maxIn);
   }
 
   /**
    * @notice Swaps assetIn t assetOut using the stored stable swap or internal swap pool
    * @dev Will not swap if the asset passed in is the adopted asset
-   * @param _canonicalId - The canonical token id
+   * @param _key - The canonical token id
    * @param _assetIn - The address of the from asset
    * @param _assetOut - The address of the to asset
    * @param _amount - The amount of the local asset to swap
@@ -261,7 +265,7 @@ library AssetLogic {
    * @return The address of assetOut
    */
   function _swapAsset(
-    bytes32 _canonicalId,
+    bytes32 _key,
     address _assetIn,
     address _assetOut,
     uint256 _amount,
@@ -269,12 +273,12 @@ library AssetLogic {
   ) internal returns (uint256, address) {
     AppStorage storage s = LibConnextStorage.connextStorage();
 
-    if (stableSwapPoolExist(_canonicalId)) {
+    if (stableSwapPoolExist(_key)) {
       // if internal swap pool exists
       return (
-        s.swapStorages[_canonicalId].swapInternal(
-          getTokenIndexFromStableSwapPool(_canonicalId, _assetIn),
-          getTokenIndexFromStableSwapPool(_canonicalId, _assetOut),
+        s.swapStorages[_key].swapInternal(
+          getTokenIndexFromStableSwapPool(_key, _assetIn),
+          getTokenIndexFromStableSwapPool(_key, _assetOut),
           _amount,
           _minOut
         ),
@@ -282,7 +286,7 @@ library AssetLogic {
       );
     } else {
       // Otherwise, swap via stable swap pool
-      IStableSwap pool = s.adoptedToLocalPools[_canonicalId];
+      IStableSwap pool = s.adoptedToLocalPools[_key];
 
       SafeERC20.safeApprove(IERC20(_assetIn), address(pool), 0);
       SafeERC20.safeIncreaseAllowance(IERC20(_assetIn), address(pool), _amount);
@@ -295,16 +299,17 @@ library AssetLogic {
   /**
    * @notice Swaps assetIn t assetOut using the stored stable swap or internal swap pool
    * @dev Will not swap if the asset passed in is the adopted asset
-   * @param _canonicalId - The canonical token id
+   * @param _key - The hash of the canonical id and domain
    * @param _assetIn - The address of the from asset
    * @param _assetOut - The address of the to asset
    * @param _amountOut - The amount of the _assetOut to swap
+   * @param _maxIn - The most you will supply to the swap
    * @return Success value
    * @return The amount of assetIn
    * @return The address of assetOut
    */
   function _swapAssetOut(
-    bytes32 _canonicalId,
+    bytes32 _key,
     address _assetIn,
     address _assetOut,
     uint256 _amountOut,
@@ -323,12 +328,12 @@ library AssetLogic {
     uint256 amountIn;
 
     // Swap the asset to the proper local asset
-    if (stableSwapPoolExist(_canonicalId)) {
+    if (stableSwapPoolExist(_key)) {
       // get internal swap pool
-      SwapUtils.Swap storage ipool = s.swapStorages[_canonicalId];
+      SwapUtils.Swap storage ipool = s.swapStorages[_key];
       // if internal swap pool exists
-      uint8 tokenIndexIn = getTokenIndexFromStableSwapPool(_canonicalId, _assetIn);
-      uint8 tokenIndexOut = getTokenIndexFromStableSwapPool(_canonicalId, _assetOut);
+      uint8 tokenIndexIn = getTokenIndexFromStableSwapPool(_key, _assetIn);
+      uint8 tokenIndexOut = getTokenIndexFromStableSwapPool(_key, _assetOut);
       // calculate slippage before performing swap
       // NOTE: this is less efficient then relying on the `swapInternalOut` revert, but makes it easier
       // to handle slippage failures (this can be called during reconcile, so must not fail)
@@ -339,7 +344,7 @@ library AssetLogic {
       // slippage is too high to perform swap: success = false, amountIn = 0
     } else {
       // Otherwise, swap via stable swap pool
-      IStableSwap pool = s.adoptedToLocalPools[_canonicalId];
+      IStableSwap pool = s.adoptedToLocalPools[_key];
       uint256 _amountIn = pool.calculateSwapOutFromAddress(_assetIn, _assetOut, _amountOut);
       if (_amountIn <= _maxIn) {
         // set the success
@@ -363,32 +368,33 @@ library AssetLogic {
    * @notice Calculate amount of tokens you receive on a local nomad asset for the adopted asset
    * using the stored stable swap
    * @dev Will not use the stored stable swap if the asset passed in is the local asset
+   * @param _key - The hash of the canonical id and domain
    * @param _asset - The address of the local asset to swap into the local asset
    * @param _amount - The amount of the local asset to swap
    * @return The amount of local asset received from swap
    * @return The address of asset received post-swap
    */
   function calculateSwapFromLocalAssetIfNeeded(
-    bytes32 _canonicalId,
+    bytes32 _key,
     address _asset,
     uint256 _amount
   ) internal view returns (uint256, address) {
     AppStorage storage s = LibConnextStorage.connextStorage();
 
     // If the adopted asset is the local asset, no need to swap
-    address adopted = s.canonicalToAdopted[_canonicalId];
+    address adopted = s.canonicalToAdopted[_key];
     if (adopted == _asset) {
       return (_amount, _asset);
     }
 
     // Otherwise, calculate swap the asset to the proper local asset
-    if (stableSwapPoolExist(_canonicalId)) {
+    if (stableSwapPoolExist(_key)) {
       // if internal swap pool exists
-      uint8 tokenIndexIn = getTokenIndexFromStableSwapPool(_canonicalId, _asset);
-      uint8 tokenIndexOut = getTokenIndexFromStableSwapPool(_canonicalId, adopted);
-      return (s.swapStorages[_canonicalId].calculateSwap(tokenIndexIn, tokenIndexOut, _amount), adopted);
+      uint8 tokenIndexIn = getTokenIndexFromStableSwapPool(_key, _asset);
+      uint8 tokenIndexOut = getTokenIndexFromStableSwapPool(_key, adopted);
+      return (s.swapStorages[_key].calculateSwap(tokenIndexIn, tokenIndexOut, _amount), adopted);
     } else {
-      IStableSwap pool = s.adoptedToLocalPools[_canonicalId];
+      IStableSwap pool = s.adoptedToLocalPools[_key];
 
       return (pool.calculateSwapFromAddress(_asset, adopted, _amount), adopted);
     }
@@ -414,15 +420,16 @@ library AssetLogic {
     if (_asset == local) {
       return (_amount, _asset);
     }
+    bytes32 key = keccak256(abi.encode(id, domain));
 
     // Otherwise, calculate swap the asset to the proper local asset
-    if (stableSwapPoolExist(id)) {
+    if (stableSwapPoolExist(key)) {
       // if internal swap pool exists
-      uint8 tokenIndexIn = getTokenIndexFromStableSwapPool(id, _asset);
-      uint8 tokenIndexOut = getTokenIndexFromStableSwapPool(id, local);
-      return (s.swapStorages[id].calculateSwap(tokenIndexIn, tokenIndexOut, _amount), local);
+      uint8 tokenIndexIn = getTokenIndexFromStableSwapPool(key, _asset);
+      uint8 tokenIndexOut = getTokenIndexFromStableSwapPool(key, local);
+      return (s.swapStorages[key].calculateSwap(tokenIndexIn, tokenIndexOut, _amount), local);
     } else {
-      IStableSwap pool = s.adoptedToLocalPools[id];
+      IStableSwap pool = s.adoptedToLocalPools[key];
 
       return (pool.calculateSwapFromAddress(_asset, local, _amount), local);
     }

@@ -160,26 +160,27 @@ struct AppStorage {
   ITokenRegistry tokenRegistry;
   /**
    * @notice Mapping holding the AMMs for swapping in and out of local assets
-   * @dev Swaps for an adopted asset <> nomad local asset (i.e. POS USDC <> madUSDC on polygon)
+   * @dev Swaps for an adopted asset <> nomad local asset (i.e. POS USDC <> madUSDC on polygon).
+   * This mapping is keyed on the hash of the canonical id + domain for local asset
    */
   // 10
   mapping(bytes32 => IStableSwap) adoptedToLocalPools;
   /**
    * @notice Mapping of whitelisted assets on same domain as contract
-   * @dev Mapping is keyed on the canonical token identifier matching what is stored in the token
-   * registry
+   * @dev Mapping is keyed on the hash of the canonical id and domain taken from the
+   * token registry
    */
   // 11
   mapping(bytes32 => bool) approvedAssets;
   /**
-   * @notice Mapping of canonical to adopted assets on this domain
+   * @notice Mapping of adopted to canonical asset information
    * @dev If the adopted asset is the native asset, the keyed address will
    * be the wrapped asset address
    */
   // 12
   mapping(address => TokenId) adoptedToCanonical;
   /**
-   * @notice Mapping of adopted to canonical on this domain
+   * @notice Mapping of hash(canonicalId, canonicalDomain) to adopted asset on this domain
    * @dev If the adopted asset is the native asset, the stored address will be the
    * wrapped asset address
    */

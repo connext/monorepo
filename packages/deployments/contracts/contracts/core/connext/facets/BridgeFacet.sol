@@ -409,7 +409,12 @@ contract BridgeFacet is BaseConnextFacet {
 
     // execute router liquidity when this is a fast transfer
     // asset will be adopted unless specified to be local in params
-    (uint256 amount, address asset) = _handleExecuteLiquidity(transferId, canonicalId, !reconciled, _args);
+    (uint256 amount, address asset) = _handleExecuteLiquidity(
+      transferId,
+      _calculateCanonicalHash(canonicalId, canonicalDomain),
+      !reconciled,
+      _args
+    );
 
     // execute the transaction
     uint256 amountWithSponsors = _handleExecuteTransaction(_args, amount, asset, transferId, reconciled);
@@ -602,7 +607,7 @@ contract BridgeFacet is BaseConnextFacet {
    */
   function _handleExecuteLiquidity(
     bytes32 _transferId,
-    bytes32 _canonicalId,
+    bytes32 _key,
     bool _isFast,
     ExecuteArgs calldata _args
   ) private returns (uint256, address) {
@@ -637,7 +642,7 @@ contract BridgeFacet is BaseConnextFacet {
             revert BridgeFacet__execute_notApprovedForPortals();
 
           // Portal provides the adopted asset so we early return here
-          return _executePortalTransfer(_transferId, _canonicalId, toSwap, _args.routers[0]);
+          return _executePortalTransfer(_transferId, _key, toSwap, _args.routers[0]);
         } else {
           // Decrement the router's liquidity.
           s.routerBalances[_args.routers[0]][_args.local] -= toSwap;
@@ -666,7 +671,7 @@ contract BridgeFacet is BaseConnextFacet {
     }
 
     // swap out of mad* asset into adopted asset if needed
-    return AssetLogic.swapFromLocalAssetIfNeeded(_canonicalId, _args.local, toSwap, _args.params.destinationMinOut);
+    return AssetLogic.swapFromLocalAssetIfNeeded(_key, _args.local, toSwap, _args.params.destinationMinOut);
   }
 
   /**
@@ -758,12 +763,12 @@ contract BridgeFacet is BaseConnextFacet {
    */
   function _executePortalTransfer(
     bytes32 _transferId,
-    bytes32 _canonicalId,
+    bytes32 _key,
     uint256 _fastTransferAmount,
     address _router
   ) internal returns (uint256, address) {
     // Calculate local to adopted swap output if needed
-    address adopted = s.canonicalToAdopted[_canonicalId];
+    address adopted = s.canonicalToAdopted[_key];
 
     IAavePool(s.aavePool).mintUnbacked(adopted, _fastTransferAmount, address(this), AAVE_REFERRAL_CODE);
 

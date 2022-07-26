@@ -127,16 +127,11 @@ contract RoutersFacet is BaseConnextFacet {
    * @notice Emitted when a router adds liquidity to the contract
    * @param router - The address of the router the funds were credited to
    * @param local - The address of the token added (all liquidity held in local asset)
+   * @param key - The hash of the canonical id and domain
    * @param amount - The amount of liquidity added
    * @param caller - The account that called the function
    */
-  event RouterLiquidityAdded(
-    address indexed router,
-    address local,
-    bytes32 canonicalId,
-    uint256 amount,
-    address caller
-  );
+  event RouterLiquidityAdded(address indexed router, address local, bytes32 key, uint256 amount, address caller);
 
   /**
    * @notice Emitted when a router withdraws liquidity from the contract
@@ -541,15 +536,17 @@ contract RoutersFacet is BaseConnextFacet {
     if (_amount == 0) revert RoutersFacet__addLiquidityForRouter_amountIsZero();
 
     // Get the canonical asset ID from the representation.
-    (, bytes32 canonicalId) = s.tokenRegistry.getTokenId(_local == address(0) ? address(s.wrapper) : _local);
+    (uint32 domain, bytes32 canonicalId) = s.tokenRegistry.getTokenId(
+      _local == address(0) ? address(s.wrapper) : _local
+    );
+    bytes32 key = _calculateCanonicalHash(canonicalId, domain);
 
     // Sanity check: router is approved.
     if (!_isRouterOwnershipRenounced() && !getRouterApproval(_router))
       revert RoutersFacet__addLiquidityForRouter_badRouter();
 
     // Sanity check: asset is approved.
-    if (!_isAssetOwnershipRenounced() && !s.approvedAssets[canonicalId])
-      revert RoutersFacet__addLiquidityForRouter_badAsset();
+    if (!_isAssetOwnershipRenounced() && !s.approvedAssets[key]) revert RoutersFacet__addLiquidityForRouter_badAsset();
 
     // Transfer funds to contract.
     address asset = AssetLogic.handleIncomingAsset(_local, _amount, 0);
@@ -558,7 +555,7 @@ contract RoutersFacet is BaseConnextFacet {
     // the fee on transfer tokens.
     s.routerBalances[_router][asset] += _amount;
 
-    emit RouterLiquidityAdded(_router, asset, canonicalId, _amount, msg.sender);
+    emit RouterLiquidityAdded(_router, asset, key, _amount, msg.sender);
   }
 
   /**

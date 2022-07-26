@@ -38,36 +38,36 @@ contract AssetFacetTest is AssetFacet, FacetHelper {
 
   // Calls setupAsset and asserts state changes/events
   function setupAssetAndAssert(address asset, address pool) public {
-    address key = asset == address(0) ? _wrapper : asset;
+    address adoptedKey = asset == address(0) ? _wrapper : asset;
     TokenId memory canonical = TokenId(_domain, _canonicalId);
 
     vm.expectEmit(true, true, false, true);
-    emit AssetAdded(_canonicalId, _domain, asset, key, _owner);
+    emit AssetAdded(_canonicalKey, _canonicalId, _domain, asset, adoptedKey, _owner);
 
     vm.expectEmit(true, true, false, true);
-    emit StableSwapAdded(_canonicalId, _domain, pool, _owner);
+    emit StableSwapAdded(_canonicalKey, _canonicalId, _domain, pool, _owner);
 
     this.setupAsset(canonical, asset, pool);
-    assertTrue(s.approvedAssets[_canonicalId]);
-    assertEq(s.adoptedToCanonical[key].domain, _domain);
-    assertEq(s.adoptedToCanonical[key].id, _canonicalId);
-    assertEq(s.canonicalToAdopted[_canonicalId], key);
-    assertEq(address(s.adoptedToLocalPools[_canonicalId]), pool);
+    assertTrue(s.approvedAssets[_canonicalKey]);
+    assertEq(s.adoptedToCanonical[adoptedKey].domain, _domain);
+    assertEq(s.adoptedToCanonical[adoptedKey].id, _canonicalId);
+    assertEq(s.canonicalToAdopted[_canonicalKey], adoptedKey);
+    assertEq(address(s.adoptedToLocalPools[_canonicalKey]), pool);
   }
 
   // Calls removeAsset and asserts state changes/events
   function removeAssetAndAssert(address adopted) public {
-    address key = adopted == address(0) ? _wrapper : adopted;
+    address adoptedKey = adopted == address(0) ? _wrapper : adopted;
 
     vm.expectEmit(true, true, false, true);
-    emit AssetRemoved(_canonicalId, _owner);
+    emit AssetRemoved(_canonicalKey, _owner);
 
-    this.removeAssetId(_canonicalId, adopted);
-    assertEq(s.approvedAssets[_canonicalId], false);
-    assertEq(s.adoptedToCanonical[key].domain, 0);
-    assertEq(s.adoptedToCanonical[key].id, bytes32(0));
-    assertEq(s.canonicalToAdopted[_canonicalId], address(0));
-    assertEq(address(s.adoptedToLocalPools[_canonicalId]), address(0));
+    this.removeAssetId(_canonicalKey, adopted);
+    assertEq(s.approvedAssets[_canonicalKey], false);
+    assertEq(s.adoptedToCanonical[adoptedKey].domain, 0);
+    assertEq(s.adoptedToCanonical[adoptedKey].id, bytes32(0));
+    assertEq(s.canonicalToAdopted[_canonicalKey], address(0));
+    assertEq(address(s.adoptedToLocalPools[_canonicalKey]), address(0));
   }
 
   // ============ Getters ============
@@ -226,7 +226,7 @@ contract AssetFacetTest is AssetFacet, FacetHelper {
   function test_AssetFacet__setupAsset_failIfRedundant() public {
     TokenId memory canonical = TokenId(_domain, _canonicalId);
     address asset = address(new TestERC20());
-    s.approvedAssets[_canonicalId] = true;
+    s.approvedAssets[_canonicalKey] = true;
 
     vm.prank(_owner);
     vm.expectRevert(AssetFacet.AssetFacet__addAssetId_alreadyAdded.selector);
@@ -238,13 +238,13 @@ contract AssetFacetTest is AssetFacet, FacetHelper {
     address stableSwap = address(65);
 
     vm.expectEmit(true, true, false, true);
-    emit StableSwapAdded(_canonicalId, _domain, stableSwap, _owner);
+    emit StableSwapAdded(_canonicalKey, _canonicalId, _domain, stableSwap, _owner);
 
     TokenId memory canonical = TokenId(_domain, _canonicalId);
 
     vm.prank(_owner);
     this.addStableSwapPool(canonical, stableSwap);
-    assertEq(address(s.adoptedToLocalPools[_canonicalId]), stableSwap);
+    assertEq(address(s.adoptedToLocalPools[_canonicalKey]), stableSwap);
   }
 
   function test_AssetFacet__addStableSwapPool_canDelete() public {
@@ -253,13 +253,13 @@ contract AssetFacetTest is AssetFacet, FacetHelper {
     address empty = address(0);
 
     vm.expectEmit(true, true, false, true);
-    emit StableSwapAdded(_canonicalId, _domain, empty, _owner);
+    emit StableSwapAdded(_canonicalKey, _canonicalId, _domain, empty, _owner);
 
     TokenId memory canonical = TokenId(_domain, _canonicalId);
 
     vm.prank(_owner);
     this.addStableSwapPool(canonical, empty);
-    assertEq(address(s.adoptedToLocalPools[_canonicalId]), empty);
+    assertEq(address(s.adoptedToLocalPools[_canonicalKey]), empty);
   }
 
   // removeAssetId

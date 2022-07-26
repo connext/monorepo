@@ -102,6 +102,7 @@ contract ConnextTest is ForgeHelper, Deployer {
   // ============ Assets
   address _canonical;
   uint32 _canonicalDomain;
+  bytes32 _canonicalKey;
 
   address _originWrapper;
   address _originLocal;
@@ -293,6 +294,7 @@ contract ConnextTest is ForgeHelper, Deployer {
   function utils_setupAssets(uint32 canonicalDomain, bool localIsAdopted) public {
     bytes32 canonicalId = TypeCasts.addressToBytes32(_canonical);
     _canonicalDomain = canonicalDomain;
+    _canonicalKey = keccak256(abi.encode(canonicalId, _canonicalDomain));
 
     if (_origin == canonicalDomain) {
       // The canonical domain is the origin, meaning any local
@@ -332,11 +334,11 @@ contract ConnextTest is ForgeHelper, Deployer {
 
     // setup + fund the pools if needed
     if (_originLocal != _originAdopted) {
-      utils_setupPool(_origin, canonicalId, 100 ether);
+      utils_setupPool(_origin, _canonicalKey, 100 ether);
     }
 
     if (_destinationLocal != _destinationAdopted) {
-      utils_setupPool(_destination, canonicalId, 100 ether);
+      utils_setupPool(_destination, _canonicalKey, 100 ether);
     }
   }
 
@@ -363,6 +365,7 @@ contract ConnextTest is ForgeHelper, Deployer {
     // Get canonical information
     bytes32 canonicalId = TypeCasts.addressToBytes32(_canonical);
     _canonicalDomain = canonicalDomain;
+    _canonicalKey = keccak256(abi.encode(canonicalId, _canonicalDomain));
 
     // Handle origin
     if (_origin != canonicalDomain) {
@@ -390,17 +393,17 @@ contract ConnextTest is ForgeHelper, Deployer {
 
     // setup + fund the pools if needed
     if (_originLocal != _originAdopted) {
-      utils_setupPool(_origin, canonicalId, 100 ether);
+      utils_setupPool(_origin, _canonicalKey, 100 ether);
     }
 
     if (_destinationLocal != _destinationAdopted) {
-      utils_setupPool(_destination, canonicalId, 100 ether);
+      utils_setupPool(_destination, _canonicalKey, 100 ether);
     }
   }
 
   function utils_setupPool(
     uint32 domain,
-    bytes32 canonicalId,
+    bytes32 canonicalKey,
     uint256 amount
   ) public {
     bool isOrigin = domain == _origin;
@@ -433,7 +436,7 @@ contract ConnextTest is ForgeHelper, Deployer {
     {
       // initialize pool
       connext.initializeSwap(
-        canonicalId, // canonical
+        canonicalKey, // canonicalkey
         pooledTokens, // pooled
         decimals, // decimals
         LP_TOKEN_NAME, // lp token name
@@ -456,8 +459,8 @@ contract ConnextTest is ForgeHelper, Deployer {
       pooledTokens[0].approve(address(connext), amount);
       pooledTokens[1].approve(address(connext), amount);
 
-      connext.addSwapLiquidity(canonicalId, amounts, 0, block.timestamp + 60);
-      assertTrue(connext.getSwapVirtualPrice(canonicalId) != 0);
+      connext.addSwapLiquidity(canonicalKey, amounts, 0, block.timestamp + 60);
+      assertTrue(connext.getSwapVirtualPrice(canonicalKey) != 0);
     }
   }
 
@@ -823,7 +826,7 @@ contract ConnextTest is ForgeHelper, Deployer {
     // 1. `xcall` on the origin
     XCallArgs memory args = XCallArgs(utils_createCallParams(_destination), _originAdopted, 1 ether, 0.95 ether);
     uint256 expected = _originConnext.calculateSwap(
-      TypeCasts.addressToBytes32(_canonical),
+      _canonicalKey,
       0, // local idx always 0
       1, // adopted idx always 1
       args.amount // no min
@@ -839,7 +842,7 @@ contract ConnextTest is ForgeHelper, Deployer {
     // 2. call `execute` on the destination
     ExecuteArgs memory execute = utils_createExecuteArgs(args.params, 1, transferId, eventArgs.bridgedAmt);
     uint256 swapped = _destinationConnext.calculateSwap(
-      TypeCasts.addressToBytes32(_canonical),
+      _canonicalKey,
       1, // adopted idx always 1
       0, // local idx always 0
       utils_getFastTransferAmount(execute.amount)
@@ -869,7 +872,7 @@ contract ConnextTest is ForgeHelper, Deployer {
     ExecuteArgs memory execute = utils_createExecuteArgs(args.params, 2, transferId, eventArgs.bridgedAmt);
     // NOTE: you swap the madETH for WETH on the destination (because origin is canonical)
     uint256 swapped = _destinationConnext.calculateSwap(
-      TypeCasts.addressToBytes32(_canonical),
+      _canonicalKey,
       1, // adopted idx always 1
       0, // local idx always 0
       utils_getFastTransferAmount(execute.amount)
@@ -898,7 +901,7 @@ contract ConnextTest is ForgeHelper, Deployer {
     // 2. call `execute` on the destination
     ExecuteArgs memory execute = utils_createExecuteArgs(args.params, 2, transferId, eventArgs.bridgedAmt);
     uint256 swapped = _destinationConnext.calculateSwap(
-      TypeCasts.addressToBytes32(_canonical),
+      _canonicalKey,
       1, // adopted idx always 1
       0, // local idx always 0
       utils_getFastTransferAmount(execute.amount)

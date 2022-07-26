@@ -3,7 +3,7 @@ pragma solidity 0.8.15;
 
 import {Home} from "../../../nomad-core/contracts/Home.sol";
 
-import {CallParams, AppStorage} from "../libraries/LibConnextStorage.sol";
+import {CallParams, AppStorage, TokenId} from "../libraries/LibConnextStorage.sol";
 import {LibDiamond} from "../libraries/LibDiamond.sol";
 
 contract BaseConnextFacet {
@@ -97,8 +97,7 @@ contract BaseConnextFacet {
   }
 
   /**
-   * @notice Calculates a transferId based on `xcall` arguments
-   * @dev Need this to prevent stack too deep
+   * @notice Calculates a transferId
    */
   function _calculateTransferId(
     CallParams calldata _params,
@@ -109,5 +108,21 @@ contract BaseConnextFacet {
     address _originSender
   ) internal pure returns (bytes32) {
     return keccak256(abi.encode(_nonce, _params, _originSender, _canonicalId, _canonicalDomain, _amount));
+  }
+
+  /**
+   * @notice Calculates the hash of canonical id and domain
+   * @dev This hash is used as the key for many asset-related mappings
+   */
+  function _calculateCanonicalHash(bytes32 _id, uint32 _domain) internal pure returns (bytes32) {
+    return keccak256(abi.encode(_id, _domain));
+  }
+
+  /**
+   * @notice Calculates the hash of canonical id and domain
+   * @dev This is an alias to allow usage of `TokenId` struct directly
+   */
+  function _calculateCanonicalHash(TokenId calldata _canonical) internal pure returns (bytes32) {
+    return _calculateCanonicalHash(_canonical.id, _canonical.domain);
   }
 }
