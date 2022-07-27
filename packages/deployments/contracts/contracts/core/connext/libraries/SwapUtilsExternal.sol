@@ -843,8 +843,7 @@ library SwapUtilsExternal {
     uint256[] memory amounts,
     uint256 minToMint
   ) external returns (uint256) {
-    IERC20[] memory pooledTokens = self.pooledTokens;
-    uint256 numTokens = pooledTokens.length;
+    uint256 numTokens = self.pooledTokens.length;
     require(amounts.length == numTokens, "mismatch pooled tokens");
 
     // current state
@@ -870,11 +869,12 @@ library SwapUtilsExternal {
 
       // Transfer tokens first to see if a fee was charged on transfer
       if (amounts[i] != 0) {
-        uint256 beforeBalance = pooledTokens[i].balanceOf(address(this));
-        pooledTokens[i].safeTransferFrom(msg.sender, address(this), amounts[i]);
+        IERC20 token = self.pooledTokens[i];
+        uint256 beforeBalance = token.balanceOf(address(this));
+        token.safeTransferFrom(msg.sender, address(this), amounts[i]);
 
         // Update the amounts[] with actual transfer amount
-        amounts[i] = pooledTokens[i].balanceOf(address(this)).sub(beforeBalance);
+        amounts[i] = token.balanceOf(address(this)).sub(beforeBalance);
       }
 
       newBalances[i] = v.balances[i].add(amounts[i]);
@@ -944,9 +944,8 @@ library SwapUtilsExternal {
     uint256[] calldata minAmounts
   ) external returns (uint256[] memory) {
     LPToken lpToken = self.lpToken;
-    IERC20[] memory pooledTokens = self.pooledTokens;
     require(amount <= lpToken.balanceOf(msg.sender), ">LP.balanceOf");
-    uint256 numTokens = pooledTokens.length;
+    uint256 numTokens = self.pooledTokens.length;
     require(minAmounts.length == numTokens, "mismatch poolTokens");
 
     uint256[] memory balances = self.balances;
@@ -958,7 +957,7 @@ library SwapUtilsExternal {
     for (uint256 i; i < numAmounts; ) {
       require(amounts[i] >= minAmounts[i], "amounts[i] < minAmounts[i]");
       self.balances[i] = balances[i].sub(amounts[i]);
-      pooledTokens[i].safeTransfer(msg.sender, amounts[i]);
+      self.pooledTokens[i].safeTransfer(msg.sender, amounts[i]);
 
       unchecked {
         ++i;
@@ -1039,9 +1038,7 @@ library SwapUtilsExternal {
     );
     v.totalSupply = v.lpToken.totalSupply();
 
-    IERC20[] memory pooledTokens = self.pooledTokens;
-
-    uint256 numTokens = pooledTokens.length;
+    uint256 numTokens = self.pooledTokens.length;
     uint256 numAmounts = amounts.length;
     require(numAmounts == numTokens, "mismatch pool tokens");
 
@@ -1088,7 +1085,7 @@ library SwapUtilsExternal {
     v.lpToken.burnFrom(msg.sender, tokenAmount);
 
     for (uint256 i; i < numTokens; ) {
-      pooledTokens[i].safeTransfer(msg.sender, amounts[i]);
+      self.pooledTokens[i].safeTransfer(msg.sender, amounts[i]);
 
       unchecked {
         ++i;
@@ -1106,9 +1103,9 @@ library SwapUtilsExternal {
    * @param to Address to send the fees to
    */
   function withdrawAdminFees(Swap storage self, address to) external {
-    IERC20[] memory pooledTokens = self.pooledTokens;
-    for (uint256 i; i < pooledTokens.length; ) {
-      IERC20 token = pooledTokens[i];
+    uint256 numTokens = self.pooledTokens.length;
+    for (uint256 i; i < numTokens; ) {
+      IERC20 token = self.pooledTokens[i];
       uint256 balance = self.adminFees[i];
       if (balance != 0) {
         self.adminFees[i] = 0;
