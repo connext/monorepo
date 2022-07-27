@@ -448,6 +448,27 @@ contract SponsorVaultTest is ForgeHelper {
     assertEq(localToken.balanceOf(address(vault)), 0);
   }
 
+  function test_SponsorVault__reimburseLiquidityFees_onlyReimbursesToMax() public {
+    uint256 balanceLocalBefore = localToken.balanceOf(address(vault));
+    uint256 liquidityFee = balanceLocalBefore + 10;
+    uint256 liquidityCap = 2;
+    vault.setLiquidityFeeCap(address(localToken), liquidityCap);
+
+    assertEq(address(vault.tokenExchanges(address(1))), address(0));
+
+    uint256 balanceBefore = address(vault).balance;
+
+    vm.expectEmit(true, true, true, true);
+    emit ReimburseLiquidityFees(address(localToken), liquidityCap, address(1));
+
+    uint256 sponsored = vault.reimburseLiquidityFees(address(localToken), liquidityFee, address(1));
+
+    assertEq(sponsored, liquidityCap);
+    assertEq(address(vault).balance, balanceBefore);
+    assertEq(localToken.balanceOf(address(vault)), balanceLocalBefore - liquidityCap);
+    assertEq(vault.reimbursedLiquidityFees(address(1), address(localToken)), liquidityCap);
+  }
+
   // ============ reimburseRelayerFees ============
 
   function test_SponsorVault__reimburseRelayerFees_failsIfNotConnext() public {
