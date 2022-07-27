@@ -66,7 +66,7 @@ contract Deployer {
   }
 
   function getAssetFacetCut(address _assetFacet) internal view returns (IDiamondCut.FacetCut memory) {
-    bytes4[] memory assetFacetSelectors = new bytes4[](15);
+    bytes4[] memory assetFacetSelectors = new bytes4[](13);
     // NOTE: because you cannot differentiate between overloaded function selectors, you must calculate
     // them manually here.
     assetFacetSelectors[0] = getSelector("canonicalToAdopted(bytes32)");
@@ -76,14 +76,12 @@ contract Deployer {
     assetFacetSelectors[4] = getSelector("approvedAssets(tuple(uint32,bytes32))");
     assetFacetSelectors[5] = getSelector("adoptedToLocalPools(bytes32)");
     assetFacetSelectors[6] = getSelector("adoptedToLocalPools(tuple(uint32,bytes32))");
-    assetFacetSelectors[7] = AssetFacet.wrapper.selector;
-    assetFacetSelectors[8] = AssetFacet.tokenRegistry.selector;
-    assetFacetSelectors[9] = AssetFacet.setWrapper.selector;
-    assetFacetSelectors[10] = AssetFacet.setTokenRegistry.selector;
-    assetFacetSelectors[11] = AssetFacet.setupAsset.selector;
-    assetFacetSelectors[12] = AssetFacet.addStableSwapPool.selector;
-    assetFacetSelectors[13] = getSelector("removeAssetId(bytes32,address)");
-    assetFacetSelectors[14] = getSelector("removeAssetId(tuple(uint32,bytes32),address)");
+    assetFacetSelectors[7] = AssetFacet.tokenRegistry.selector;
+    assetFacetSelectors[8] = AssetFacet.setTokenRegistry.selector;
+    assetFacetSelectors[9] = AssetFacet.setupAsset.selector;
+    assetFacetSelectors[10] = AssetFacet.addStableSwapPool.selector;
+    assetFacetSelectors[11] = getSelector("removeAssetId(bytes32,address)");
+    assetFacetSelectors[12] = getSelector("removeAssetId(tuple(uint32,bytes32),address)");
     return
       IDiamondCut.FacetCut({
         facetAddress: _assetFacet,

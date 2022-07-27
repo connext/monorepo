@@ -53,7 +53,6 @@ contract LibDiamondTest is ForgeHelper, Deployer {
   function test_LibDiamond__initializeDiamondCut_ignoreDuplicateInit() public {
     uint32 newDomain = 2;
     address newXAppConnectionManager = address(11);
-    address newWrapper = address(12);
     address newRelayerFeeRouter = address(13);
     address newPromiseRouter = address(14);
     address newTokenRegistry = address(15);
@@ -63,7 +62,6 @@ contract LibDiamondTest is ForgeHelper, Deployer {
       newDomain,
       newXAppConnectionManager,
       newTokenRegistry,
-      newWrapper,
       newRelayerFeeRouter,
       newPromiseRouter
     );
@@ -92,10 +90,6 @@ contract LibDiamondTest is ForgeHelper, Deployer {
 
     // executor not updated
     assertTrue(address(connextHandler.executor()) == executor);
-
-    // wrapper not updated
-    assertTrue(address(connextHandler.wrapper()) != newWrapper);
-    assertTrue(address(connextHandler.wrapper()) == wrapper);
 
     // promise router not updated
     assertTrue(address(connextHandler.promiseRouter()) != newPromiseRouter);

@@ -177,12 +177,7 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
   function utils_makeXCallArgs(uint256 bridged) public returns (bytes32, XCallArgs memory) {
     s.domain = _originDomain;
     // get args
-    XCallArgs memory args = XCallArgs(
-      _params,
-      _adopted == address(s.wrapper) ? address(0) : _adopted, // transactingAssetId : could be adopted, local, or wrapped.
-      _amount,
-      (_amount * 9990) / 10000
-    );
+    XCallArgs memory args = XCallArgs(_params, _adopted, _amount, (_amount * 9990) / 10000);
     // generate transfer id
     bytes32 transferId = utils_getTransferIdFromXCallArgs(args, _originSender, _canonicalId, _canonicalDomain, bridged);
 
@@ -302,8 +297,6 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
     // bridged is either local or canonical, depending on domain xcall originates on
     address bridged = _canonicalDomain == args.params.originDomain ? _canonical : _local;
     BridgeFacet.XCalledEventArgs memory eventArgs = BridgeFacet.XCalledEventArgs({
-      transactingAssetId: isNative ? address(s.wrapper) : args.transactingAssetId,
-      amount: args.amount,
       bridgedAmt: bridgedAmt,
       bridged: bridged
     });
@@ -313,10 +306,7 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
     // assert swap if expected
     if (shouldSwap && bridgedAmt != 0) {
       // Transacting asset shouldve been approved for amount in
-      vm.expectCall(
-        eventArgs.transactingAssetId,
-        abi.encodeWithSelector(IERC20.approve.selector, _stableSwap, args.amount)
-      );
+      vm.expectCall(args.transactingAssetId, abi.encodeWithSelector(IERC20.approve.selector, _stableSwap, args.amount));
 
       // swapExact on pool should have been called
       vm.expectCall(
@@ -324,7 +314,7 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
         abi.encodeWithSelector(
           IStableSwap.swapExact.selector,
           args.amount,
-          eventArgs.transactingAssetId,
+          args.transactingAssetId,
           _local,
           args.originMinOut
         )
@@ -525,8 +515,8 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
     uint256 debt = s.portalDebt[transferId];
     uint256 fee = s.portalFeeDebt[transferId];
     uint256 bridge = IERC20(_local).balanceOf(address(this));
-    uint256 to = address(asset) == address(s.wrapper) ? payable(_to).balance : asset.balanceOf(_to);
-    uint256 executor = address(asset) == address(s.wrapper) ? payable(_executor).balance : asset.balanceOf(_executor);
+    uint256 to = asset.balanceOf(_to);
+    uint256 executor = asset.balanceOf(_executor);
     return ExecuteBalances(bridge, to, executor, debt, fee);
   }
 
@@ -597,20 +587,15 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
 
     // expected transfer out of contract
     if (_args.amount != 0) {
-      if (_inputs.token == address(s.wrapper)) {
-        // wrapper withdrawal
-        vm.expectCall(_inputs.token, abi.encodeWithSelector(IWeth.withdraw.selector, _inputs.expectedAmt));
-      } else {
-        // token transfer
-        vm.expectCall(
-          _inputs.token,
-          abi.encodeWithSelector(
-            IERC20.transfer.selector,
-            _inputs.callsExternal ? _executor : _args.params.to,
-            _inputs.expectedAmt
-          )
-        );
-      }
+      // token transfer
+      vm.expectCall(
+        _inputs.token,
+        abi.encodeWithSelector(
+          IERC20.transfer.selector,
+          _inputs.callsExternal ? _executor : _args.params.to,
+          _inputs.expectedAmt
+        )
+      );
     }
 
     // expected executor call
@@ -686,10 +671,6 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
       );
     }
 
-    if (_inputs.token == address(s.wrapper)) {
-      vm.mockCall(_inputs.token, abi.encodeWithSelector(IWeth.withdraw.selector), abi.encode(true));
-    }
-
     // setup execute mock
     vm.mockCall(
       _executor,
@@ -733,7 +714,7 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
       // NOTE: the balance of the bridge *should* always decrement in local, however that depends on
       // the token executing the `swap` / `withdraw` call when a swap is needed (which we have as mocked).
       // Instead, assert the swap functions on the pool were called correctly
-      if (!_inputs.shouldSwap && _inputs.token != address(s.wrapper)) {
+      if (!_inputs.shouldSwap) {
         // NOTE: when using aave would normally send you funds for the position minted,
         // but we are not adding any funds from the pool, so always decrement
         assertEq(
@@ -1217,26 +1198,10 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
     helpers_xcallAndAssert(BridgeFacet.BridgeFacet__xcall_notSupportedAsset.selector);
   }
 
-  // fails if native asset wrapper is not supported (i.e. s.adoptedToCanonical[transactingAssetId].id == bytes32(0))
-  function test_BridgeFacet__xcall_failIfNativeAssetWrapperNotSupported() public {
-    utils_setupNative(true, true);
-    s.adoptedToCanonical[address(s.wrapper)] = TokenId(0, bytes32(0));
-    helpers_xcallAndAssert(BridgeFacet.BridgeFacet__xcall_notSupportedAsset.selector);
-  }
-
-  // fails if native token transfer and amount of native tokens sent is < amount + relayerFee + callbackFee
-  function test_BridgeFacet__xcall_failNativeAssetCallbackFeeInsufficient() public {
-    vm.deal(_originSender, 100 ether);
-    utils_setupNative(true, true);
-    _params.callback = _callback;
-    _params.callbackFee = 0.01 ether;
-
-    (, XCallArgs memory args) = utils_makeXCallArgs(_amount);
-
-    vm.expectRevert(AssetLogic.AssetLogic__handleIncomingAsset_notAmount.selector);
-    vm.prank(_originSender);
-    // Sending only the amount + relayer fee; callbackFee is not covered!
-    this.xcall{value: args.params.relayerFee + args.amount}(args);
+  // fails if native asset is used (i.e. s.adoptedToCanonical[transactingAssetId].id == bytes32(0))
+  function test_BridgeFacet__xcall_failIfNativeAsset() public {
+    _adopted = address(0);
+    helpers_xcallAndAssert(BridgeFacet.BridgeFacet__xcall_nativeAssetNotSupported.selector);
   }
 
   // fails if erc20 transfer and eth sent < relayerFee + callbackFee
@@ -1344,32 +1309,6 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
   function test_BridgeFacet__xcall_localTokenTransferWorksWithoutAdopted() public {
     utils_setupAsset(true, false);
     helpers_xcallAndAssert(_amount, false);
-  }
-
-  // native asset transfer on canonical domain
-  function test_BridgeFacet__xcall_nativeTransferWorksOnCanonical() public {
-    utils_setupNative(true, true);
-    helpers_xcallAndAssert(_amount, false);
-  }
-
-  // native asset transfer on non-canonical domain with local == adopted
-  // i.e. get ETH on arbitrum from cronos
-  // adopted = address(madETH cronos)
-  // local = address(madETH on cronos)
-  // canonical = address(mainnet wrapper)
-  function test_BridgeFacet__xcall_nativeTransferWorksOnRemote() public {
-    utils_setupNative(true, false);
-    helpers_xcallAndAssert(_amount, _local, false);
-  }
-
-  // native asset transfer on non-canonical domain with local != adopted
-  // i.e. native arbitrum eth transfer to matic weth
-  // adopted = address(arbitrum wrapper)
-  // canonical = address(eth wrapper)
-  // local = address(madETH on arbitrum)
-  function test_BridgeFacet__xcall_nativeTransferWorksOnRemoteWithAdopted() public {
-    utils_setupNative(false, false);
-    helpers_xcallAndAssert(_amount, address(0), true);
   }
 
   // adopted asset transfer
@@ -1777,34 +1716,6 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
     s.routerPermissionInfo.approvedRouters[args.routers[0]] = true;
 
     helpers_executeAndAssert(transferId, args);
-  }
-
-  // should work when adopted asset is native asset and on canonical
-  // (adopted == wrapper)
-  function test_BridgeFacet__execute_worksWithNativeOnCanonical() public {
-    // set asset context (local == adopted)
-    utils_setupNative(true, true);
-
-    (bytes32 transferId, ExecuteArgs memory args) = utils_makeExecuteArgs(1);
-
-    s.routerBalances[args.routers[0]][args.local] += 10 ether;
-    s.routerPermissionInfo.approvedRouters[args.routers[0]] = true;
-
-    helpers_executeAndAssert(transferId, args);
-  }
-
-  // should work when adopted asset is native asset and on remote
-  // (adopted == wrapper)
-  function test_BridgeFacet__execute_worksWithNativeOnRemote() public {
-    // set asset context (local != adopted)
-    utils_setupNative(false, false);
-
-    (bytes32 transferId, ExecuteArgs memory args) = utils_makeExecuteArgs(1);
-
-    s.routerBalances[args.routers[0]][args.local] += 10 ether;
-    s.routerPermissionInfo.approvedRouters[args.routers[0]] = true;
-
-    helpers_executeAndAssert(transferId, args, utils_getFastTransferAmount(args.amount), true);
   }
 
   // should work with unapproved router if router ownership is renounced

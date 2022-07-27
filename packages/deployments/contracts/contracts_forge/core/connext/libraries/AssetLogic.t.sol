@@ -14,9 +14,8 @@ import "../../../utils/Mock.sol";
 
 // Helper to call library with native value functions
 contract LibCaller {
-  constructor(address _wrapper) {
+  constructor() {
     AppStorage storage s = LibConnextStorage.connextStorage();
-    s.wrapper = IWeth(_wrapper);
   }
 
   function handleIncomingAsset(
@@ -49,7 +48,7 @@ contract AssetLogicTest is BaseConnextFacet, FacetHelper {
     utils_setupAsset(false, false);
     // // set stable swap
     // utils_setMockStableSwap();
-    caller = new LibCaller(_wrapper);
+    caller = new LibCaller();
   }
 
   // ============ utils ============
@@ -92,68 +91,47 @@ contract AssetLogicTest is BaseConnextFacet, FacetHelper {
 
   // transfers specified asset to contract
   function utils_handleIncomingAssetAndAssert(address assetId, uint256 amount, uint256 fee) public {
-    bool isNative = assetId == address(0);
-
     // get initial balances
-    uint256 initDestAssetBalance = IERC20(isNative ? _wrapper : assetId).balanceOf(address(caller));
+    uint256 initDestAssetBalance = IERC20(assetId).balanceOf(address(caller));
     uint256 initDestFeeBalance = address(caller).balance;
 
-    uint256 initSrcAssetBalance = isNative ? address(this).balance : IERC20(assetId).balanceOf(address(this));
+    uint256 initSrcAssetBalance = IERC20(assetId).balanceOf(address(this));
     uint256 initSrcFeeBalance = address(this).balance;
 
     // approve
-    if (!isNative) {
-      IERC20(assetId).approve(address(caller), amount);
-    }
+    IERC20(assetId).approve(address(caller), amount);
 
-    caller.handleIncomingAsset{ value: isNative ? amount + fee : fee }(assetId, amount, fee);
+    caller.handleIncomingAsset{ value: fee }(assetId, amount, fee);
 
     // caller balance always goes up in token (wrapper if native)
-    assertEq(IERC20(isNative ? _wrapper : assetId).balanceOf(address(caller)), initDestAssetBalance + amount);
+    assertEq(IERC20(assetId).balanceOf(address(caller)), initDestAssetBalance + amount);
     // fees on caller
     assertEq(address(caller).balance, initDestFeeBalance + fee);
-    if (isNative) {
-      // balance deducted from source in native for both
-      assertEq(address(this).balance, initSrcAssetBalance - fee - amount);
-    } else {
-      assertEq(IERC20(assetId).balanceOf(address(this)), initSrcAssetBalance - amount);
-      assertEq(address(this).balance, initSrcFeeBalance - fee);
-    }
+    assertEq(IERC20(assetId).balanceOf(address(this)), initSrcAssetBalance - amount);
+    assertEq(address(this).balance, initSrcFeeBalance - fee);
   }
 
   // transfers specified asset from contract
   function utils_handleOutgoingAssetAndAssert(address assetId, address to, uint256 amount) public {
-    bool isNative = assetId == _wrapper;
-    // fund caller
-    if (isNative) {
-      IWeth(_wrapper).deposit{ value: 10 ether}();
-    } else {
-      TestERC20(assetId).mint(address(this), 10 ether);
-    }
+    TestERC20(assetId).mint(address(this), 10 ether);
 
     // set expects
     if (amount != 0) {
-      if (isNative) {
-        // Should withdraw
-        vm.expectCall(_wrapper, abi.encodeWithSelector(IWeth.withdraw.selector, amount));
-      } else {
-        // Should transfer funds to user
-        vm.expectCall(assetId, abi.encodeWithSelector(IERC20.transfer.selector, to, amount));
-      }
+      // Should transfer funds to user
+      vm.expectCall(assetId, abi.encodeWithSelector(IERC20.transfer.selector, to, amount));
     } // otherwise, no calls should be made
 
     // get initial balances
     uint256 initContract = IERC20(assetId).balanceOf(address(this));
-    uint256 initTarget = isNative ? to.balance : IERC20(assetId).balanceOf(to);
+    uint256 initTarget = IERC20(assetId).balanceOf(to);
 
     // call
-    address transferred = AssetLogic.handleOutgoingAsset(assetId, to, amount);
+    AssetLogic.handleOutgoingAsset(assetId, to, amount);
 
     // assert balance changes on contract + target
-    uint256 finalTarget = isNative ? to.balance : IERC20(assetId).balanceOf(to);
+    uint256 finalTarget = IERC20(assetId).balanceOf(to);
     assertEq(IERC20(assetId).balanceOf(address(this)), initContract - amount);
     assertEq(finalTarget, initTarget + amount);
-    assertEq(transferred, isNative ? address(0) : assetId);
   }
 
   // Sets up env to swap from local -> adopted using external pools only
@@ -219,14 +197,6 @@ contract AssetLogicTest is BaseConnextFacet, FacetHelper {
   }
 
   // ============ handleIncomingAsset ============
-  function test_AssetLogic__handleIncomingAsset_failsIfValueBadWhenNative() public {
-    address assetId = address(0);
-    uint256 amount = 10;
-    uint256 fee = 1;
-    vm.expectRevert(AssetLogic.AssetLogic__handleIncomingAsset_notAmount.selector);
-    caller.handleIncomingAsset(assetId, amount, fee);
-  }
-
   function test_AssetLogic__handleIncomingAsset_failsIfValueBad() public {
     address assetId = address(1);
     uint256 amount = 10;
@@ -240,29 +210,6 @@ contract AssetLogicTest is BaseConnextFacet, FacetHelper {
     uint256 amount = 10;
     uint256 fee = 1;
     utils_handleIncomingAssetAndAssert(assetId, amount, fee);
-  }
-
-  function test_AssetLogic__handleIncomingAsset_worksWithNative() public {
-    address assetId = address(0);
-    uint256 amount = 10;
-    uint256 fee = 0;
-    utils_handleIncomingAssetAndAssert(assetId, amount, fee);
-  }
-
-  function test_AssetLogic__handleIncomingAsset_worksWithNativeAndFee() public {
-    address assetId = address(0);
-    uint256 amount = 10;
-    uint256 fee = 3;
-    utils_handleIncomingAssetAndAssert(assetId, amount, fee);
-  }
-
-  // ============ wrapNativeAsset ============
-  function test_AssetLogic__wrapNativeAsset_works() public {
-    uint256 initEth = address(this).balance;
-    uint256 initWeth = IERC20(_wrapper).balanceOf(address(this));
-    AssetLogic.wrapNativeAsset(100);
-    assertEq(address(this).balance, initEth - 100);
-    assertEq(IERC20(_wrapper).balanceOf(address(this)), initWeth + 100);
   }
 
   // ============ transferAssetToContract ============
@@ -304,16 +251,6 @@ contract AssetLogicTest is BaseConnextFacet, FacetHelper {
     address assetId = _local;
     address to = address(12345);
     uint256 amount = 0;
-    utils_handleOutgoingAssetAndAssert(assetId, to, amount);
-  }
-
-  function test_AssetLogic__handleOutgoingAsset_worksForNative() public {
-    // setup asset
-    utils_setupNative(false, false);
-    // set constants
-    address assetId = _wrapper; // native asset will be wrapper
-    address to = address(12345);
-    uint256 amount = 12345678;
     utils_handleOutgoingAssetAndAssert(assetId, to, amount);
   }
 

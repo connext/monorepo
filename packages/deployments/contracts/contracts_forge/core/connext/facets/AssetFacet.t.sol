@@ -38,34 +38,31 @@ contract AssetFacetTest is AssetFacet, FacetHelper {
 
   // Calls setupAsset and asserts state changes/events
   function setupAssetAndAssert(address asset, address pool) public {
-    address adoptedKey = asset == address(0) ? _wrapper : asset;
     TokenId memory canonical = TokenId(_domain, _canonicalId);
 
     vm.expectEmit(true, true, false, true);
-    emit AssetAdded(_canonicalKey, _canonicalId, _domain, asset, adoptedKey, _owner);
+    emit AssetAdded(_canonicalKey, _canonicalId, _domain, asset, _owner);
 
     vm.expectEmit(true, true, false, true);
     emit StableSwapAdded(_canonicalKey, _canonicalId, _domain, pool, _owner);
 
     this.setupAsset(canonical, asset, pool);
     assertTrue(s.approvedAssets[_canonicalKey]);
-    assertEq(s.adoptedToCanonical[adoptedKey].domain, _domain);
-    assertEq(s.adoptedToCanonical[adoptedKey].id, _canonicalId);
-    assertEq(s.canonicalToAdopted[_canonicalKey], adoptedKey);
+    assertEq(s.adoptedToCanonical[asset].domain, _domain);
+    assertEq(s.adoptedToCanonical[asset].id, _canonicalId);
+    assertEq(s.canonicalToAdopted[_canonicalKey], asset);
     assertEq(address(s.adoptedToLocalPools[_canonicalKey]), pool);
   }
 
   // Calls removeAsset and asserts state changes/events
   function removeAssetAndAssert(address adopted) public {
-    address adoptedKey = adopted == address(0) ? _wrapper : adopted;
-
     vm.expectEmit(true, true, false, true);
     emit AssetRemoved(_canonicalKey, _owner);
 
     this.removeAssetId(_canonicalKey, adopted);
     assertEq(s.approvedAssets[_canonicalKey], false);
-    assertEq(s.adoptedToCanonical[adoptedKey].domain, 0);
-    assertEq(s.adoptedToCanonical[adoptedKey].id, bytes32(0));
+    assertEq(s.adoptedToCanonical[adopted].domain, 0);
+    assertEq(s.adoptedToCanonical[adopted].id, bytes32(0));
     assertEq(s.canonicalToAdopted[_canonicalKey], address(0));
     assertEq(address(s.adoptedToLocalPools[_canonicalKey]), address(0));
   }
@@ -117,18 +114,6 @@ contract AssetFacetTest is AssetFacet, FacetHelper {
     assertEq(address(this.adoptedToLocalPools(_canonicalId)), address(0));
   }
 
-  // wrapper
-  function test_AssetFacet__wrapper_success() public {
-    address wrapper = address(42);
-    s.wrapper = IWeth(wrapper);
-    assertEq(address(this.wrapper()), wrapper);
-  }
-
-  function test_AssetFacet__wrapper_notSet() public {
-    s.wrapper = IWeth(address(0));
-    assertEq(address(this.wrapper()), address(0));
-  }
-
   // tokenRegistry
   function test_AssetFacet__tokenRegistry_success(address tokenRegistry) public {
     s.tokenRegistry = ITokenRegistry(tokenRegistry);
@@ -143,37 +128,6 @@ contract AssetFacetTest is AssetFacet, FacetHelper {
   // ============ Admin functions ============
 
   // TODO: test_adminFunctions__onlyOwner ??
-
-  // test_setWrapper__shouldUpdateWrapper
-  function test_AssetFacet__setWrapper_success() public {
-    address old = address(new MockWrapper());
-    s.wrapper = IWeth(old);
-    address wrapper = address(new MockWrapper());
-
-    vm.expectEmit(true, true, false, true);
-    emit WrapperUpdated(old, wrapper, _owner);
-
-    vm.prank(_owner);
-    this.setWrapper(wrapper);
-    assertEq(address(s.wrapper), wrapper);
-  }
-
-  function test_AssetFacet__setWrapper_failIfRedundant() public {
-    address old = address(new MockWrapper());
-    s.wrapper = IWeth(old);
-
-    vm.prank(_owner);
-    vm.expectRevert(AssetFacet.AssetFacet__setWrapper_invalidWrapper.selector);
-    this.setWrapper(old);
-  }
-
-  function test_AssetFacet__setWrapper_failIfNotContract() public {
-    address wrapper = address(42);
-
-    vm.prank(_owner);
-    vm.expectRevert(AssetFacet.AssetFacet__setWrapper_invalidWrapper.selector);
-    this.setWrapper(wrapper);
-  }
 
   // setTokenRegistry
   function test_AssetFacet__setTokenRegistry_success() public {
@@ -215,12 +169,13 @@ contract AssetFacetTest is AssetFacet, FacetHelper {
     setupAssetAndAssert(asset, stableSwap);
   }
 
-  function test_AssetFacet__setupAsset_successNativeAsset() public {
+  function test_AssetFacet__setupAsset_failNativeAsset() public {
     address asset = address(0);
     address stableSwap = address(0);
 
     vm.prank(_owner);
-    setupAssetAndAssert(asset, stableSwap);
+    vm.expectRevert(AssetFacet.AssetFacet__addAssetId_nativeAsset.selector);
+    this.setupAsset(TokenId(_domain, _canonicalId), asset, stableSwap);
   }
 
   function test_AssetFacet__setupAsset_failIfRedundant() public {
@@ -269,16 +224,6 @@ contract AssetFacetTest is AssetFacet, FacetHelper {
 
     vm.prank(_owner);
     removeAssetAndAssert(_local);
-  }
-
-  function test_AssetFacet__removeAssetId_successNativeAsset() public {
-    address local = address(0);
-
-    vm.prank(_owner);
-    setupAssetAndAssert(local, address(0));
-
-    vm.prank(_owner);
-    removeAssetAndAssert(local);
   }
 
   function test_AssetFacet__removeAssetId_failIfNotAlreadyApproved() public {
