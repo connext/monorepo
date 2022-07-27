@@ -357,7 +357,7 @@ contract RoutersFacet is BaseConnextFacet {
    * @param _router - The router address to approve
    */
   function approveRouterForPortal(address _router) external onlyOwner {
-    if (!s.routerPermissionInfo.approvedRouters[_router] && !_isRouterOwnershipRenounced())
+    if (!s.routerPermissionInfo.approvedRouters[_router] && !_isRouterWhitelistRemoved())
       revert RoutersFacet__approveRouterForPortal_notAdded();
     if (s.routerPermissionInfo.approvedForPortalRouters[_router])
       revert RoutersFacet__approveRouterForPortal_alreadyApproved();
@@ -542,11 +542,11 @@ contract RoutersFacet is BaseConnextFacet {
     bytes32 key = _calculateCanonicalHash(canonicalId, domain);
 
     // Sanity check: router is approved.
-    if (!_isRouterOwnershipRenounced() && !getRouterApproval(_router))
+    if (!_isRouterWhitelistRemoved() && !getRouterApproval(_router))
       revert RoutersFacet__addLiquidityForRouter_badRouter();
 
     // Sanity check: asset is approved.
-    if (!_isAssetOwnershipRenounced() && !s.approvedAssets[key]) revert RoutersFacet__addLiquidityForRouter_badAsset();
+    if (!_isAssetWhitelistRemoved() && !s.approvedAssets[key]) revert RoutersFacet__addLiquidityForRouter_badAsset();
 
     // Transfer funds to contract.
     address asset = AssetLogic.handleIncomingAsset(_local, _amount, 0);

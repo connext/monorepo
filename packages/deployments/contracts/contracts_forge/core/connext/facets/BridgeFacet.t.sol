@@ -111,7 +111,7 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
     // Other context setup: configuration, storage, etc.
     s.approvedRelayers[address(this)] = true;
     s.maxRoutersPerTransfer = 5;
-    s._routerOwnershipRenounced = true;
+    s._routerWhitelistRemoved = true;
     s.bridgeRouter = IBridgeRouter(_bridgeRouter);
 
     s.connextions[_destinationDomain] = TypeCasts.addressToBytes32(address(this));
@@ -1392,7 +1392,7 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
 
   // should fail if the router is not approved and ownership is not renounced
   function test_BridgeFacet__execute_failIfRouterNotApproved() public {
-    s._routerOwnershipRenounced = false;
+    s._routerWhitelistRemoved = false;
 
     (, ExecuteArgs memory args) = utils_makeExecuteArgs(1);
     s.routerPermissionInfo.approvedRouters[args.routers[0]] = false;
@@ -1638,7 +1638,7 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
 
   // should work with unapproved router if router ownership is renounced
   function test_BridgeFacet__execute_worksWithUnapprovedIfNoWhitelist() public {
-    s._routerOwnershipRenounced = true;
+    s._routerWhitelistRemoved = true;
 
     (bytes32 transferId, ExecuteArgs memory args) = utils_makeExecuteArgs(1);
 

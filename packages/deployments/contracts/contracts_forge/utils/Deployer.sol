@@ -142,17 +142,17 @@ contract Deployer {
   {
     bytes4[] memory proposedOwnableFacetSelectors = new bytes4[](18);
     proposedOwnableFacetSelectors[0] = ProposedOwnableFacet.owner.selector;
-    proposedOwnableFacetSelectors[1] = ProposedOwnableFacet.routerOwnershipRenounced.selector;
-    proposedOwnableFacetSelectors[2] = ProposedOwnableFacet.assetOwnershipRenounced.selector;
+    proposedOwnableFacetSelectors[1] = ProposedOwnableFacet.routerWhitelistRemoved.selector;
+    proposedOwnableFacetSelectors[2] = ProposedOwnableFacet.assetWhitelistRemoved.selector;
     proposedOwnableFacetSelectors[3] = ProposedOwnableFacet.proposed.selector;
     proposedOwnableFacetSelectors[4] = ProposedOwnableFacet.proposedTimestamp.selector;
-    proposedOwnableFacetSelectors[5] = ProposedOwnableFacet.routerOwnershipTimestamp.selector;
-    proposedOwnableFacetSelectors[6] = ProposedOwnableFacet.assetOwnershipTimestamp.selector;
+    proposedOwnableFacetSelectors[5] = ProposedOwnableFacet.routerWhitelistTimestamp.selector;
+    proposedOwnableFacetSelectors[6] = ProposedOwnableFacet.assetWhitelistTimestamp.selector;
     proposedOwnableFacetSelectors[7] = ProposedOwnableFacet.delay.selector;
-    proposedOwnableFacetSelectors[8] = ProposedOwnableFacet.proposeRouterOwnershipRenunciation.selector;
-    proposedOwnableFacetSelectors[9] = ProposedOwnableFacet.renounceRouterOwnership.selector;
-    proposedOwnableFacetSelectors[10] = ProposedOwnableFacet.proposeAssetOwnershipRenunciation.selector;
-    proposedOwnableFacetSelectors[11] = ProposedOwnableFacet.renounceAssetOwnership.selector;
+    proposedOwnableFacetSelectors[8] = ProposedOwnableFacet.proposeRouterWhitelistRemoval.selector;
+    proposedOwnableFacetSelectors[9] = ProposedOwnableFacet.removeRouterWhitelist.selector;
+    proposedOwnableFacetSelectors[10] = ProposedOwnableFacet.proposeAssetWhitelistRemoval.selector;
+    proposedOwnableFacetSelectors[11] = ProposedOwnableFacet.removeAssetWhitelist.selector;
     proposedOwnableFacetSelectors[12] = ProposedOwnableFacet.renounced.selector;
     proposedOwnableFacetSelectors[13] = ProposedOwnableFacet.proposeNewOwner.selector;
     proposedOwnableFacetSelectors[14] = ProposedOwnableFacet.renounceOwnership.selector;
