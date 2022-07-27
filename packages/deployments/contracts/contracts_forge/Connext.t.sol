@@ -509,12 +509,15 @@ contract ConnextTest is ForgeHelper, Deployer {
     // Get initial balances
     XCallBalances memory initial = utils_getXCallBalances(_args.transactingAssetId, address(_originConnext));
 
-    // Expect an event
+    // Register transfer id on bridge
     uint256 nonce = 0;
     bytes32 canonicalId = TypeCasts.addressToBytes32(_canonical);
     bytes32 transferId = keccak256(
       abi.encode(nonce, _args.params, address(this), canonicalId, _canonicalDomain, _event.bridgedAmt)
     );
+    MockBridgeRouter(_originBridgeRouter).registerTransferId(transferId);
+
+    // Expect an event
     vm.expectEmit(true, true, true, true);
     emit XCalled(transferId, nonce, _args, _event, address(this));
 
@@ -752,7 +755,10 @@ contract ConnextTest is ForgeHelper, Deployer {
     bytes32 transferId,
     uint256 bridgedAmt,
     address to,
-    address[] memory routers
+    address[] memory routers,
+    CallParams memory params,
+    uint256 nonce,
+    address originSender
   ) public {
     uint256 repayAmount = bridgedAmt;
 
@@ -775,7 +781,7 @@ contract ConnextTest is ForgeHelper, Deployer {
       TypeCasts.addressToBytes32(_canonical),
       _destinationLocal,
       bridgedAmt,
-      abi.encodePacked(transferId)
+      abi.encode(TransferIdInformation(params, nonce, originSender))
     );
 
     ReconcileBalances memory end = utils_getReconcileBalances(transferId, routers);
@@ -815,7 +821,15 @@ contract ConnextTest is ForgeHelper, Deployer {
     utils_executeAndAssert(execute, transferId, utils_getFastTransferAmount(execute.amount));
 
     // 3. call `handle` on the destination
-    utils_reconcileAndAssert(transferId, eventArgs.bridgedAmt, xcall.params.to, execute.routers);
+    utils_reconcileAndAssert(
+      transferId,
+      eventArgs.bridgedAmt,
+      xcall.params.to,
+      execute.routers,
+      xcall.params,
+      0,
+      address(this)
+    );
   }
 
   // you should be able to bridge tokens (local != adopted)
@@ -850,7 +864,15 @@ contract ConnextTest is ForgeHelper, Deployer {
     utils_executeAndAssert(execute, transferId, swapped);
 
     // 3. call `handle` on the destination
-    utils_reconcileAndAssert(transferId, eventArgs.bridgedAmt, args.params.to, execute.routers);
+    utils_reconcileAndAssert(
+      transferId,
+      eventArgs.bridgedAmt,
+      args.params.to,
+      execute.routers,
+      args.params,
+      0,
+      address(this)
+    );
   }
 
   // you should be able to bridge eth
@@ -880,7 +902,15 @@ contract ConnextTest is ForgeHelper, Deployer {
     utils_executeAndAssert(execute, transferId, swapped);
 
     // 3. call `handle` on the destination
-    utils_reconcileAndAssert(transferId, eventArgs.bridgedAmt, args.params.to, execute.routers);
+    utils_reconcileAndAssert(
+      transferId,
+      eventArgs.bridgedAmt,
+      args.params.to,
+      execute.routers,
+      args.params,
+      0,
+      address(this)
+    );
   }
 
   // you should be able to bridge local asset (local != adopted)
@@ -909,7 +939,15 @@ contract ConnextTest is ForgeHelper, Deployer {
     utils_executeAndAssert(execute, transferId, swapped);
 
     // 3. call `handle` on the destination
-    utils_reconcileAndAssert(transferId, eventArgs.bridgedAmt, args.params.to, execute.routers);
+    utils_reconcileAndAssert(
+      transferId,
+      eventArgs.bridgedAmt,
+      args.params.to,
+      execute.routers,
+      args.params,
+      0,
+      address(this)
+    );
   }
 
   // you should be able to use the slow path
@@ -931,7 +969,15 @@ contract ConnextTest is ForgeHelper, Deployer {
     ExecuteArgs memory execute = utils_createExecuteArgs(args.params, 0, transferId, eventArgs.bridgedAmt);
 
     // 2. call `handle` on the destination
-    utils_reconcileAndAssert(transferId, eventArgs.bridgedAmt, args.params.to, execute.routers);
+    utils_reconcileAndAssert(
+      transferId,
+      eventArgs.bridgedAmt,
+      args.params.to,
+      execute.routers,
+      args.params,
+      0,
+      address(this)
+    );
 
     // 3. call `execute` on the destination
     utils_executeAndAssert(execute, transferId, eventArgs.bridgedAmt);
@@ -985,7 +1031,15 @@ contract ConnextTest is ForgeHelper, Deployer {
     ExecuteArgs memory execute = utils_createExecuteArgs(xcall.params, 0, transferId, eventArgs.bridgedAmt);
 
     // 2. call `handle` on the destination
-    utils_reconcileAndAssert(transferId, eventArgs.bridgedAmt, xcall.params.to, execute.routers);
+    utils_reconcileAndAssert(
+      transferId,
+      eventArgs.bridgedAmt,
+      xcall.params.to,
+      execute.routers,
+      xcall.params,
+      0,
+      address(this)
+    );
 
     // 3. call `execute` on the destination
     utils_executeAndAssert(execute, transferId, execute.amount);
@@ -1111,7 +1165,15 @@ contract ConnextTest is ForgeHelper, Deployer {
     utils_executeAndAssert(execute, transferId, utils_getFastTransferAmount(eventArgs.bridgedAmt), 0, true);
 
     // 3. call `handle` on the destination
-    utils_reconcileAndAssert(transferId, eventArgs.bridgedAmt, args.params.to, execute.routers);
+    utils_reconcileAndAssert(
+      transferId,
+      eventArgs.bridgedAmt,
+      args.params.to,
+      execute.routers,
+      args.params,
+      0,
+      address(this)
+    );
 
     // 4. repay portal out of band
     IERC20(_destinationAdopted).approve(address(_destinationConnext), 100 ether);

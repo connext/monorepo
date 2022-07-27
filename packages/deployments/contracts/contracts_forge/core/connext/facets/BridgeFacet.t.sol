@@ -20,7 +20,7 @@ import {Executor} from "../../../../contracts/core/connext/helpers/Executor.sol"
 import {RelayerFeeMessage} from "../../../../contracts/core/relayer-fee/libraries/RelayerFeeMessage.sol";
 import {AssetLogic} from "../../../../contracts/core/connext/libraries/AssetLogic.sol";
 import {LibCrossDomainProperty} from "../../../../contracts/core/connext/libraries/LibCrossDomainProperty.sol";
-import {CallParams, ExecuteArgs, XCallArgs, TokenId} from "../../../../contracts/core/connext/libraries/LibConnextStorage.sol";
+import {CallParams, ExecuteArgs, XCallArgs, TokenId, TransferIdInformation} from "../../../../contracts/core/connext/libraries/LibConnextStorage.sol";
 import {LibDiamond} from "../../../../contracts/core/connext/libraries/LibDiamond.sol";
 import {BridgeFacet} from "../../../../contracts/core/connext/facets/BridgeFacet.sol";
 import {BaseConnextFacet} from "../../../../contracts/core/connext/facets/BaseConnextFacet.sol";
@@ -316,14 +316,13 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
     // Assert bridge router call
     vm.expectCall(
       _bridgeRouter,
-      0,
       abi.encodeWithSelector(
         IBridgeRouter.sendToHook.selector,
         eventArgs.bridged,
         eventArgs.bridgedAmt,
         args.params.destinationDomain,
         s.connextions[args.params.destinationDomain], // always use this as remote connext
-        abi.encodePacked(transferId)
+        abi.encode(TransferIdInformation(args.params, s.nonce, _originSender))
       )
     );
   }
