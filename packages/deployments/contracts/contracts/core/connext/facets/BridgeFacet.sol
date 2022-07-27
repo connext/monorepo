@@ -307,23 +307,21 @@ contract BridgeFacet is BaseConnextFacet {
     XCalledEventArgs memory eventArgs;
     {
       // Get the true transacting asset ID (using wrapper instead of native, if applicable).
-      address transactingAssetId = _args.transactingAssetId == address(0)
-        ? address(s.wrapper)
-        : _args.transactingAssetId;
+      address assetIn = _args.transactingAssetId == address(0) ? address(s.wrapper) : _args.transactingAssetId;
 
       // Check that the asset is supported -- can be either adopted or local.
-      TokenId memory canonical = s.adoptedToCanonical[transactingAssetId];
+      TokenId memory canonical = s.adoptedToCanonical[assetIn];
       if (canonical.id == bytes32(0)) {
         // Here, the asset is *not* the adopted asset. The only other valid option
         // is for this asset to be the local asset (i.e. transferring madEth on optimism)
         // NOTE: it *cannot* be the canonical asset. the canonical asset is only used on
         // the canonical domain, where it is *also* the adopted asset.
-        if (s.tokenRegistry.isLocalOrigin(transactingAssetId)) {
+        if (s.tokenRegistry.isLocalOrigin(assetIn)) {
           // revert, using a token of local origin that is not registered as adopted
           revert BridgeFacet__xcall_notSupportedAsset();
         }
 
-        (uint32 canonicalDomain, bytes32 canonicalId) = s.tokenRegistry.getTokenId(transactingAssetId);
+        (uint32 canonicalDomain, bytes32 canonicalId) = s.tokenRegistry.getTokenId(assetIn);
         canonical = TokenId(canonicalDomain, canonicalId);
       }
 
@@ -338,7 +336,7 @@ contract BridgeFacet is BaseConnextFacet {
       // Swap to the local asset from adopted if applicable.
       (uint256 bridgedAmt, address bridged) = AssetLogic.swapToLocalAssetIfNeeded(
         canonical,
-        transactingAssetId,
+        assetIn,
         _args.amount,
         _args.originMinOut
       );
@@ -372,7 +370,7 @@ contract BridgeFacet is BaseConnextFacet {
 
       // Format arguments for XCalled event that will be emitted below.
       eventArgs = XCalledEventArgs({
-        transactingAssetId: transactingAssetId,
+        transactingAssetId: assetIn,
         amount: _args.amount,
         bridgedAmt: bridgedAmt,
         bridged: bridged
