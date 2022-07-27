@@ -1,4 +1,4 @@
-import { ajv, createLoggingContext, ExecuteArgs, ExecuteArgsSchema, RequestContext } from "@connext/nxtp-utils";
+import { ajv, createLoggingContext, ExecuteArgs, ExecuteArgsSchema } from "@connext/nxtp-utils";
 
 import { DomainNotSupported } from "../errors";
 import { getOperations } from "../operations";
