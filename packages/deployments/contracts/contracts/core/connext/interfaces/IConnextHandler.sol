@@ -119,27 +119,27 @@ interface IConnextHandler is IDiamondLoupe, IDiamondCut {
 
   function owner() external view returns (address);
 
-  function routerOwnershipRenounced() external view returns (bool);
+  function routerWhitelistRemoved() external view returns (bool);
 
-  function assetOwnershipRenounced() external view returns (bool);
+  function assetWhitelistRemoved() external view returns (bool);
 
   function proposed() external view returns (address);
 
   function proposedTimestamp() external view returns (uint256);
 
-  function routerOwnershipTimestamp() external view returns (uint256);
+  function routerWhitelistTimestamp() external view returns (uint256);
 
-  function assetOwnershipTimestamp() external view returns (uint256);
+  function assetWhitelistTimestamp() external view returns (uint256);
 
   function delay() external view returns (uint256);
 
-  function proposeRouterOwnershipRenunciation() external;
+  function proposeRouterWhitelistRemoval() external;
 
-  function renounceRouterOwnership() external;
+  function removeRouterWhitelist() external;
 
-  function proposeAssetOwnershipRenunciation() external;
+  function proposeAssetWhitelistRemoval() external;
 
-  function renounceAssetOwnership() external;
+  function removeAssetWhitelist() external;
 
   function renounced() external view returns (bool);
 

@@ -306,24 +306,22 @@ contract BridgeFacet is BaseConnextFacet {
     uint256 _sNonce;
     XCalledEventArgs memory eventArgs;
     {
-      // Get the true transacting asset ID (using wrapper instead of native, if applicable).
-      address transactingAssetId = _args.transactingAssetId == address(0)
-        ? address(s.wrapper)
-        : _args.transactingAssetId;
+      // Get the true asset credited to the contract (using wrapper instead of native, if applicable).
+      address assetIn = _args.transactingAssetId == address(0) ? address(s.wrapper) : _args.transactingAssetId;
 
       // Check that the asset is supported -- can be either adopted or local.
-      TokenId memory canonical = s.adoptedToCanonical[transactingAssetId];
+      TokenId memory canonical = s.adoptedToCanonical[assetIn];
       if (canonical.id == bytes32(0)) {
         // Here, the asset is *not* the adopted asset. The only other valid option
         // is for this asset to be the local asset (i.e. transferring madEth on optimism)
         // NOTE: it *cannot* be the canonical asset. the canonical asset is only used on
         // the canonical domain, where it is *also* the adopted asset.
-        if (s.tokenRegistry.isLocalOrigin(transactingAssetId)) {
+        if (s.tokenRegistry.isLocalOrigin(assetIn)) {
           // revert, using a token of local origin that is not registered as adopted
           revert BridgeFacet__xcall_notSupportedAsset();
         }
 
-        (uint32 canonicalDomain, bytes32 canonicalId) = s.tokenRegistry.getTokenId(transactingAssetId);
+        (uint32 canonicalDomain, bytes32 canonicalId) = s.tokenRegistry.getTokenId(assetIn);
         canonical = TokenId(canonicalDomain, canonicalId);
       }
 
@@ -338,7 +336,7 @@ contract BridgeFacet is BaseConnextFacet {
       // Swap to the local asset from adopted if applicable.
       (uint256 bridgedAmt, address bridged) = AssetLogic.swapToLocalAssetIfNeeded(
         canonical,
-        transactingAssetId,
+        assetIn,
         _args.amount,
         _args.originMinOut
       );
@@ -372,7 +370,7 @@ contract BridgeFacet is BaseConnextFacet {
 
       // Format arguments for XCalled event that will be emitted below.
       eventArgs = XCalledEventArgs({
-        transactingAssetId: transactingAssetId,
+        transactingAssetId: assetIn,
         amount: _args.amount,
         bridgedAmt: bridgedAmt,
         bridged: bridged
@@ -409,7 +407,7 @@ contract BridgeFacet is BaseConnextFacet {
 
     // execute router liquidity when this is a fast transfer
     // asset will be adopted unless specified to be local in params
-    (uint256 amount, address asset) = _handleExecuteLiquidity(
+    (uint256 amountOut, address asset) = _handleExecuteLiquidity(
       transferId,
       _calculateCanonicalHash(canonicalId, canonicalDomain),
       !reconciled,
@@ -417,7 +415,7 @@ contract BridgeFacet is BaseConnextFacet {
     );
 
     // execute the transaction
-    uint256 amountWithSponsors = _handleExecuteTransaction(_args, amount, asset, transferId, reconciled);
+    uint256 amountWithSponsors = _handleExecuteTransaction(_args, amountOut, asset, transferId, reconciled);
 
     // emit event
     emit Executed(transferId, _args.params.to, _args, asset, amountWithSponsors, msg.sender);
@@ -533,7 +531,7 @@ contract BridgeFacet is BaseConnextFacet {
         // Make sure the router is approved, if applicable.
         // If router ownership is renounced (_RouterOwnershipRenounced() is true), then the router whitelist
         // no longer applies and we can skip this approval step.
-        if (!_isRouterOwnershipRenounced() && !s.routerPermissionInfo.approvedRouters[_args.routers[i]]) {
+        if (!_isRouterWhitelistRemoved() && !s.routerPermissionInfo.approvedRouters[_args.routers[i]]) {
           revert BridgeFacet__execute_notSupportedRouter();
         }
 
@@ -680,7 +678,7 @@ contract BridgeFacet is BaseConnextFacet {
    */
   function _handleExecuteTransaction(
     ExecuteArgs calldata _args,
-    uint256 _amount,
+    uint256 _amountOut,
     address _asset, // adopted (or local if specified)
     bytes32 _transferId,
     bool _reconciled
@@ -696,6 +694,8 @@ contract BridgeFacet is BaseConnextFacet {
 
         uint256 starting = IERC20(_asset).balanceOf(address(this));
         uint256 denom = s.LIQUIDITY_FEE_DENOMINATOR;
+        // NOTE: using the amount that was transferred to calculate the liquidity fee, not the _amountOut
+        // which already has fees debited and was swapped
         uint256 liquidityFee = _muldiv(_args.amount, (denom - s.LIQUIDITY_FEE_NUMERATOR), denom);
 
         (bool success, bytes memory data) = address(s.sponsorVault).call(
@@ -710,7 +710,7 @@ contract BridgeFacet is BaseConnextFacet {
             revert BridgeFacet__handleExecuteTransaction_invalidSponsoredAmount();
           }
 
-          _amount = _amount + sponsored;
+          _amountOut += sponsored;
         }
       }
 
@@ -730,15 +730,15 @@ contract BridgeFacet is BaseConnextFacet {
     // execute the the transaction
     if (keccak256(_args.params.callData) == EMPTY_HASH) {
       // no call data, send funds to the user
-      AssetLogic.handleOutgoingAsset(_asset, _args.params.to, _amount);
+      AssetLogic.handleOutgoingAsset(_asset, _args.params.to, _amountOut);
     } else {
       // execute calldata w/funds
-      address transferred = AssetLogic.handleOutgoingAsset(_asset, address(s.executor), _amount);
+      address transferred = AssetLogic.handleOutgoingAsset(_asset, address(s.executor), _amountOut);
 
-      (bool success, bytes memory returnData) = s.executor.execute{value: transferred == address(0) ? _amount : 0}(
+      (bool success, bytes memory returnData) = s.executor.execute{value: transferred == address(0) ? _amountOut : 0}(
         IExecutor.ExecutorArgs(
           _transferId,
-          _amount,
+          _amountOut,
           _args.params.to,
           _args.params.recovery,
           transferred,
@@ -755,7 +755,7 @@ contract BridgeFacet is BaseConnextFacet {
       }
     }
 
-    return _amount;
+    return _amountOut;
   }
 
   /**
