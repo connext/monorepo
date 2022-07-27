@@ -100,7 +100,7 @@ contract BaseConnextFacet {
    * @notice Calculates a transferId
    */
   function _calculateTransferId(
-    CallParams calldata _params,
+    CallParams memory _params,
     uint256 _amount,
     uint256 _nonce,
     bytes32 _canonicalId,

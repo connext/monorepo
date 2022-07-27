@@ -22,6 +22,17 @@ struct TokenId {
 }
 
 /**
+ * @notice Contains all information needed to calculate transfer id within the
+ * `onReceive` hook from nomad.
+ * @dev This excludes information that is included within that interface
+ */
+struct TransferIdInformation {
+  CallParams params;
+  uint256 nonce;
+  address originSender;
+}
+
+/**
  * @notice These are the call parameters that will remain constant between the
  * two chains. They are supplied on `xcall` and should be asserted on `execute`
  * @property to - The account that receives funds, in the event of a crosschain call,

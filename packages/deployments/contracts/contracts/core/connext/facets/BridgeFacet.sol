@@ -11,7 +11,7 @@ import {TypeCasts} from "../../../nomad-core/contracts/XAppConnectionManager.sol
 import {BaseConnextFacet} from "./BaseConnextFacet.sol";
 
 import {AssetLogic} from "../libraries/AssetLogic.sol";
-import {XCallArgs, ExecuteArgs, CallParams, TokenId} from "../libraries/LibConnextStorage.sol";
+import {XCallArgs, ExecuteArgs, CallParams, TokenId, TransferIdInformation} from "../libraries/LibConnextStorage.sol";
 import {LibCrossDomainProperty} from "../libraries/LibCrossDomainProperty.sol";
 
 import {PromiseRouter} from "../../promise/PromiseRouter.sol";
@@ -357,18 +357,7 @@ contract BridgeFacet is BaseConnextFacet {
         s.promiseRouter.initCallbackFee{value: _args.params.callbackFee}(transferId);
       }
 
-      // Approve bridge router
-      SafeERC20.safeApprove(IERC20(bridged), address(s.bridgeRouter), 0);
-      SafeERC20.safeIncreaseAllowance(IERC20(bridged), address(s.bridgeRouter), bridgedAmt);
-
-      // Send message
-      s.bridgeRouter.sendToHook(
-        bridged,
-        bridgedAmt,
-        _args.params.destinationDomain,
-        remoteInstance,
-        abi.encodePacked(transferId)
-      );
+      _sendToBridgeRouter(_args.params, bridged, bridgedAmt, _sNonce, remoteInstance);
 
       // Format arguments for XCalled event that will be emitted below.
       eventArgs = XCalledEventArgs({
@@ -599,6 +588,30 @@ contract BridgeFacet is BaseConnextFacet {
     uint256 _denominator
   ) private pure returns (uint256) {
     return (_amount * _numerator) / _denominator;
+  }
+
+  /**
+   * @notice Sends funds to the bridge router and calls `sendToHook`
+   */
+  function _sendToBridgeRouter(
+    CallParams calldata _params,
+    address _asset,
+    uint256 _amount,
+    uint256 _nonce,
+    bytes32 _remoteInstance
+  ) internal {
+    // Approve bridge router
+    SafeERC20.safeApprove(IERC20(_asset), address(s.bridgeRouter), 0);
+    SafeERC20.safeIncreaseAllowance(IERC20(_asset), address(s.bridgeRouter), _amount);
+
+    // Send message
+    s.bridgeRouter.sendToHook(
+      _asset,
+      _amount,
+      _params.destinationDomain,
+      _remoteInstance,
+      abi.encode(TransferIdInformation(_params, _nonce, msg.sender))
+    );
   }
 
   /**
