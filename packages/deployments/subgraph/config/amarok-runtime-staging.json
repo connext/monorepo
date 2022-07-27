@@ -16,5 +16,11 @@
     "network": "evmos-testnet",
     "address": "0x2C4564e73C5A32cBbb8D84eeEaEf8683c18E5595",
     "startBlock": 2477646
+  },
+  {
+    "subgraphName": "connext/nxtp-amarok-runtime-staging-mumbai",
+    "network": "mumbai",
+    "address": "0xf21Ad79d25d3E2eCAEe99e09c237EfDD83fdAfEB",
+    "startBlock": 27329359
   }
 ]
