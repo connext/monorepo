@@ -127,7 +127,12 @@ export class NxtpSdkBase {
   }
 
   public async xcall(
-    xcallParams: Omit<XCallArgs, "callData" | "forceSlow" | "receiveLocal" | "callback" | "callbackFee" | "recovery">,
+    // NOTE: Only `to`, `originDomain`, `destinationDomain`, and `slippageTol` are required to be defined, the
+    // rest of `params` are optional with default values.
+    xcallParams: Omit<XCallArgs, "params"> & {
+      params: Omit<Partial<CallParams>, "to" | "originDomain" | "destinationDomain" | "slippageTol"> &
+        Pick<CallParams, "to" | "originDomain" | "destinationDomain" | "slippageTol">;
+    },
   ): Promise<providers.TransactionRequest> {
     const { requestContext, methodContext } = createLoggingContext(this.xcall.name);
     this.logger.info("Method start", requestContext, methodContext, { xcallParams });
@@ -161,7 +166,8 @@ export class NxtpSdkBase {
       recovery: params.recovery || params.to,
       forceSlow: params.forceSlow || false,
       receiveLocal: params.receiveLocal || false,
-      relayerFee: relayerFee,
+      relayerFee: relayerFee!,
+      agent: params.agent || constants.AddressZero,
     };
     const ConnextContractAddress = this.config.chains[originDomain].deployments!.connext;
 
