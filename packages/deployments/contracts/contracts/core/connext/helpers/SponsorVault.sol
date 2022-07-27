@@ -262,6 +262,8 @@ contract SponsorVault is ISponsorVault, ReentrancyGuard, Ownable {
       }
     }
 
+    reimbursedLiquidityFees[_receiver][_token] += sponsoredFee;
+
     emit ReimburseLiquidityFees(_token, sponsoredFee, _receiver);
 
     return sponsoredFee;
