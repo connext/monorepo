@@ -400,7 +400,7 @@ export class NxtpSdkPool {
     from: string,
     to: string,
     amount: string,
-    minDy = "0",
+    minDy = 0,
     deadline?: number,
     estimateGas = false,
   ): Promise<providers.TransactionRequest> {
