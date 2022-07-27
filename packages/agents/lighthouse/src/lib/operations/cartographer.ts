@@ -8,6 +8,7 @@ import {
   transfersCastForUrl,
 } from "@connext/nxtp-utils";
 import axios from "axios";
+import { constants } from "ethers";
 
 import { getOperations } from "../../lib/operations";
 import { getContext } from "../../lighthouse";
@@ -45,6 +46,8 @@ export const pollCartographer = async () => {
           local: xTransfer.destination!.assets.local.asset,
           routers: [],
           routerSignatures: [],
+          sequencer: constants.AddressZero,
+          sequencerSignature: "",
           amount: xTransfer.destination!.assets.local.amount.toString(),
           nonce: xTransfer.nonce!,
           originSender: xTransfer.origin!.xcall.caller,

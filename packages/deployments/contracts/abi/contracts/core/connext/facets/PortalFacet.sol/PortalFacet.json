@@ -13,7 +13,7 @@
   "error PortalFacet__repayAavePortal_insufficientFunds()",
   "error PortalFacet__repayAavePortal_swapFailed()",
   "error PortalFacet__setAavePortalFee_invalidFee()",
-  "event AavePortalRouterRepayment(address indexed,address,uint256,uint256)",
+  "event AavePortalRepayment(bytes32 indexed,address,uint256,uint256,address)",
   "function aavePool() view returns (address)",
   "function aavePortalFee() view returns (uint256)",
   "function getAavePortalDebt(bytes32) view returns (uint256)",

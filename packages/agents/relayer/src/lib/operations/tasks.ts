@@ -67,6 +67,8 @@ export const createTask = async (
       local: decoded.local,
       routers: decoded.routers,
       routerSignatures: decoded.routerSignatures,
+      sequencer: decoded.sequencer,
+      sequencerSignature: decoded.sequencerSignature,
       amount: decoded.amount.toString(),
       nonce: (decoded.nonce as BigNumber).toNumber(),
       originSender: decoded.originSender,
