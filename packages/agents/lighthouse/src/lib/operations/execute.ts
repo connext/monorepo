@@ -1,4 +1,4 @@
-import { ajv, createLoggingContext, ExecuteArgs, ExecuteArgsSchema, RequestContext } from "@connext/nxtp-utils";
+import { ajv, createLoggingContext, ExecuteArgs, ExecuteArgsSchema } from "@connext/nxtp-utils";
 
 import { DomainNotSupported } from "../errors";
 import { getOperations } from "../operations";
@@ -12,12 +12,8 @@ export const RELAYER_FEE_PERCENTAGE = "1"; //  1%
  *
  * @param args - The crosschain xcall params.
  */
-export const execute = async (
-  args: ExecuteArgs,
-  transferId: string,
-  _requestContext: RequestContext,
-): Promise<void> => {
-  const { requestContext, methodContext } = createLoggingContext(execute.name);
+export const execute = async (args: ExecuteArgs, transferId: string): Promise<void> => {
+  const { requestContext, methodContext } = createLoggingContext(execute.name, undefined, transferId);
   const {
     logger,
     adapters: { contracts },

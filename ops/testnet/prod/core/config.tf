@@ -74,13 +74,13 @@ locals {
       queues = [
         {
           name       = "1111"
-          limit   = 3
+          limit      = 3
           queueLimit = 10000
           subscribe  = true
         },
         {
           name       = "3331"
-          limit   = 3
+          limit      = 3
           queueLimit = 10000
           subscribe  = true
         }
@@ -132,6 +132,19 @@ locals {
           {
             name    = "TEST"
             address = "0x26FE8a8f86511d678d031a022E48FfF41c6a3e3b"
+          }
+        ]
+      }
+      "9991" = {
+        providers = ["https://polygon-testnet.blastapi.io/${var.mumbai_blast_key_0}", "https://rpc.ankr.com/polygon_mumbai"]
+        assets = [
+          {
+            name    = "TEST"
+            address = "0x21c5a4dAeAf9625c781Aa996E9229eA95EE4Ff77"
+          },
+          {
+            name    = "WETH"
+            address = "0x4E2FCcA06dA37869047d84b82364d1831E5aa7E1"
           }
         ]
       }
