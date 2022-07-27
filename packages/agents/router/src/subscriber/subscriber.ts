@@ -11,6 +11,14 @@ import { Web3Signer } from "@connext/nxtp-adapters-web3signer";
 import { getContractInterfaces, TransactionService, contractDeployments } from "@connext/nxtp-txservice";
 import axios from "axios";
 import { BridgeContext } from "@nomad-xyz/sdk-bridge";
+import fetch, { Headers, Request, Response } from "node-fetch";
+
+if (!(globalThis as any).fetch) {
+  (globalThis as any).fetch = fetch;
+  (globalThis as any).Headers = Headers;
+  (globalThis as any).Request = Request;
+  (globalThis as any).Response = Response;
+}
 
 import { getConfig, NxtpRouterConfig } from "../config";
 import { bindMetrics } from "../bindings";
@@ -57,7 +65,8 @@ export const makeSubscriber = async (_configOverride?: NxtpRouterConfig) => {
     });
 
     /// MARK - BridgeContext
-    context.bridgeContext = context.config.nomadEnvironment !== "none" ? setupBridgeContext(requestContext) : undefined;
+    context.bridgeContext =
+      context.config.nomadEnvironment !== "none" ? await setupBridgeContext(requestContext) : undefined;
 
     /// MARK - Adapters
     context.adapters.subgraph = await setupSubgraphReader(
@@ -132,11 +141,12 @@ export const makeSubscriber = async (_configOverride?: NxtpRouterConfig) => {
   }
 };
 
-export const setupBridgeContext = (requestContext: RequestContext): BridgeContext => {
+export const setupBridgeContext = async (requestContext: RequestContext): Promise<BridgeContext> => {
   const { config, logger } = context;
   const methodContext = createMethodContext(setupBridgeContext.name);
   logger.info("BridgeContext setup in progress...", requestContext, methodContext, {});
-  const bridgeContext = new BridgeContext(config.nomadEnvironment);
+
+  const bridgeContext = await BridgeContext.fetch(config.nomadEnvironment);
 
   const allowedDomains = [...Object.keys(config.chains)];
   for (const allowedDomain of allowedDomains) {
