@@ -21,6 +21,7 @@
     "@connext/nxtp-sdk": "workspace:*",
     "@connext/nxtp-txservice": "workspace:*",
     "@connext/nxtp-utils": "workspace:*",
+    "@fastify/type-provider-typebox": "^2.1.0",
     "ethers": "5.6.9",
     "fastify": "4.3.0",
     "pino": "8.3.0"
