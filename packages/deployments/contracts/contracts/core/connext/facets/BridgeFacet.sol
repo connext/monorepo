@@ -407,7 +407,7 @@ contract BridgeFacet is BaseConnextFacet {
 
     // execute router liquidity when this is a fast transfer
     // asset will be adopted unless specified to be local in params
-    (uint256 amount, address asset) = _handleExecuteLiquidity(
+    (uint256 amountOut, address asset) = _handleExecuteLiquidity(
       transferId,
       _calculateCanonicalHash(canonicalId, canonicalDomain),
       !reconciled,
@@ -415,7 +415,7 @@ contract BridgeFacet is BaseConnextFacet {
     );
 
     // execute the transaction
-    uint256 amountWithSponsors = _handleExecuteTransaction(_args, amount, asset, transferId, reconciled);
+    uint256 amountWithSponsors = _handleExecuteTransaction(_args, amountOut, asset, transferId, reconciled);
 
     // emit event
     emit Executed(transferId, _args.params.to, _args, asset, amountWithSponsors, msg.sender);
@@ -678,7 +678,7 @@ contract BridgeFacet is BaseConnextFacet {
    */
   function _handleExecuteTransaction(
     ExecuteArgs calldata _args,
-    uint256 _amount,
+    uint256 _amountOut,
     address _asset, // adopted (or local if specified)
     bytes32 _transferId,
     bool _reconciled
@@ -694,6 +694,8 @@ contract BridgeFacet is BaseConnextFacet {
 
         uint256 starting = IERC20(_asset).balanceOf(address(this));
         uint256 denom = s.LIQUIDITY_FEE_DENOMINATOR;
+        // NOTE: using the amount that was transferred to calculate the liquidity fee, not the _amountOut
+        // which already has fees debited and was swapped
         uint256 liquidityFee = _muldiv(_args.amount, (denom - s.LIQUIDITY_FEE_NUMERATOR), denom);
 
         (bool success, bytes memory data) = address(s.sponsorVault).call(
@@ -708,7 +710,7 @@ contract BridgeFacet is BaseConnextFacet {
             revert BridgeFacet__handleExecuteTransaction_invalidSponsoredAmount();
           }
 
-          _amount = _amount + sponsored;
+          _amountOut += sponsored;
         }
       }
 
@@ -728,15 +730,15 @@ contract BridgeFacet is BaseConnextFacet {
     // execute the the transaction
     if (keccak256(_args.params.callData) == EMPTY_HASH) {
       // no call data, send funds to the user
-      AssetLogic.handleOutgoingAsset(_asset, _args.params.to, _amount);
+      AssetLogic.handleOutgoingAsset(_asset, _args.params.to, _amountOut);
     } else {
       // execute calldata w/funds
-      address transferred = AssetLogic.handleOutgoingAsset(_asset, address(s.executor), _amount);
+      address transferred = AssetLogic.handleOutgoingAsset(_asset, address(s.executor), _amountOut);
 
-      (bool success, bytes memory returnData) = s.executor.execute{value: transferred == address(0) ? _amount : 0}(
+      (bool success, bytes memory returnData) = s.executor.execute{value: transferred == address(0) ? _amountOut : 0}(
         IExecutor.ExecutorArgs(
           _transferId,
-          _amount,
+          _amountOut,
           _args.params.to,
           _args.params.recovery,
           transferred,
@@ -753,7 +755,7 @@ contract BridgeFacet is BaseConnextFacet {
       }
     }
 
-    return _amount;
+    return _amountOut;
   }
 
   /**
