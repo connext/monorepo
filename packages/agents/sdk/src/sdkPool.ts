@@ -283,10 +283,20 @@ export class NxtpSdkPool {
 
   // ------------------- Pool Operations ------------------- //
 
+  /**
+   * Returns the transaction request for adding liquidity to a pool.
+   * @param domainId The domain id of the pool.
+   * @param canonicalId The canonical ID of the asset to swap.
+   * @param amounts The amounts of the tokens to swap.
+   * @param minToMint The minimum acceptable amount of LP tokens to mint.
+   * @param deadline The deadline for the swap.
+   * @param estimateGas Whether to estimate the gas needed for the transaction.
+   */
   async addLiquidity(
     domainId: string,
     canonicalId: string,
     amounts: string[], // [0] for adopted asset, [1] for local asset
+    minToMint = "0",
     deadline?: number,
     estimateGas = false,
   ): Promise<providers.TransactionRequest> {
@@ -311,8 +321,6 @@ export class NxtpSdkPool {
       throw new ContractAddressMissing();
     }
 
-    const minToMint = await this.calculateTokenAmount(domainId, canonicalId, amounts);
-
     const data = this.connext.encodeFunctionData("addSwapLiquidity", [canonicalId, amounts, minToMint, deadline]);
     const txRequest = {
       to: connextContract,
@@ -325,10 +333,20 @@ export class NxtpSdkPool {
     return txRequest;
   }
 
+  /**
+   * Returns the transaction request for removing liquidity from a pool.
+   * @param domainId The domain id of the pool.
+   * @param canonicalId The canonical ID of the asset to swap.
+   * @param amount The amount of the token to swap.
+   * @param minAmounts The minimum acceptable amounts of each token to burn.
+   * @param deadline The deadline for the swap.
+   * @param estimateGas Whether to estimate the gas needed for the transaction.
+   */
   async removeLiquidity(
     domainId: string,
     canonicalId: string,
     amount: string,
+    minAmounts = ["0", "0"],
     deadline?: number,
     estimateGas = false,
   ): Promise<providers.TransactionRequest> {
@@ -353,8 +371,6 @@ export class NxtpSdkPool {
       throw new ContractAddressMissing();
     }
 
-    const minAmounts = await this.calculateRemoveSwapLiquidity(domainId, amount, canonicalId);
-
     const data = this.connext.encodeFunctionData("removeSwapLiquidity", [canonicalId, amount, minAmounts, deadline]);
     const txRequest = {
       to: connextContract,
@@ -367,12 +383,24 @@ export class NxtpSdkPool {
     return txRequest;
   }
 
+  /**
+   * Returns the transaction request for performing a swap in a pool.
+   * @param domainId The domain id of the pool.
+   * @param canonicalId The canonical ID of the asset to swap.
+   * @param from The address of the token to sell.
+   * @param to The address of the token to buy.
+   * @param amount The amount of the selling token to swap.
+   * @param minDy The minimum amount of the buying token to receive.
+   * @param deadline The deadline for the swap.
+   * @param estimateGas Whether to estimate the gas needed for the transaction.
+   */
   async swap(
     domainId: string,
     canonicalId: string,
     from: string,
     to: string,
     amount: string,
+    minDy = "0",
     deadline?: number,
     estimateGas = false,
   ): Promise<providers.TransactionRequest> {
@@ -407,7 +435,6 @@ export class NxtpSdkPool {
 
     const tokenIndexFrom = await this.getPoolTokenIndex(domainId, canonicalId, from);
     const tokenIndexTo = await this.getPoolTokenIndex(domainId, canonicalId, to);
-    const minDy = await this.calculateSwap(domainId, canonicalId, tokenIndexFrom, tokenIndexTo, amount);
 
     const data = this.connext.encodeFunctionData("swap", [
       canonicalId,
@@ -430,6 +457,11 @@ export class NxtpSdkPool {
 
   // ------------------- Pool Data ------------------- //
 
+  /**
+   * Returns the Pools for a given local asset.
+   * @param domainId The domain id of the pool.
+   * @param tokenAddress The address of the local token to get the pool for.
+   */
   async getPool(domainId: string, tokenAddress: string): Promise<Pool | undefined> {
     const [canonicalDomain, canonicalId] = await this.getCanonicalFromLocal(domainId, tokenAddress);
     const pool = this.pools.get(domainId)?.get(canonicalId);
@@ -505,6 +537,11 @@ export class NxtpSdkPool {
     return;
   }
 
+  /**
+   * Returns the Pools that a user has LP tokens for.
+   * @param domainId The domain id of the pool.
+   * @param userAddress The address of the user to get the pools for.
+   */
   async getUserPools(domainId: string, userAddress: string): Promise<Pool[]> {
     const pools: Pool[] = [];
 
