@@ -306,7 +306,7 @@ contract BridgeFacet is BaseConnextFacet {
     uint256 _sNonce;
     XCalledEventArgs memory eventArgs;
     {
-      // Get the true transacting asset ID (using wrapper instead of native, if applicable).
+      // Get the true asset credited to the contract (using wrapper instead of native, if applicable).
       address assetIn = _args.transactingAssetId == address(0) ? address(s.wrapper) : _args.transactingAssetId;
 
       // Check that the asset is supported -- can be either adopted or local.
