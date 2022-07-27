@@ -17,7 +17,7 @@ library AssetLogic {
 
   // ============ Errors ============
 
-  error AssetLogic__handleIncomingAsset_notAmount();
+  error AssetLogic__handleIncomingAsset_nativeAssetNotSupported();
   error AssetLogic__handleIncomingAsset_ethWithErcTransfer();
   error AssetLogic__handleOutgoingAsset_notNative();
   error AssetLogic__transferAssetToContract_feeOnTransferNotSupported();
@@ -53,36 +53,28 @@ library AssetLogic {
 
   /**
    * @notice Handles transferring funds from msg.sender to the Connext contract.
-   * @dev If using the native asset, will automatically wrap
+   * @dev Only allows native asset to be usef for fee
    * @param _assetId - The address to transfer
    * @param _assetAmount - The specified amount to transfer. May not be the
    * actual amount transferred (i.e. fee on transfer tokens)
    * @param _fee - The fee amount in native asset included as part of the transaction that
    * should not be considered for the transfer amount.
-   * @return The assetId of the transferred asset
    */
   function handleIncomingAsset(
     address _assetId,
     uint256 _assetAmount,
     uint256 _fee
-  ) internal returns (address) {
+  ) internal {
     AppStorage storage s = LibConnextStorage.connextStorage();
 
     if (_assetId == address(0)) {
-      if (msg.value != _assetAmount + _fee) revert AssetLogic__handleIncomingAsset_notAmount();
-
-      // When transferring native asset to the contract, always make sure that the
-      // asset is properly wrapped
-      wrapNativeAsset(_assetAmount);
-      _assetId = address(s.wrapper);
-    } else {
-      if (msg.value != _fee) revert AssetLogic__handleIncomingAsset_ethWithErcTransfer();
-
-      // Transfer asset to contract
-      transferAssetToContract(_assetId, _assetAmount);
+      revert AssetLogic__handleIncomingAsset_nativeAssetNotSupported();
     }
 
-    return _assetId;
+    if (msg.value != _fee) revert AssetLogic__handleIncomingAsset_ethWithErcTransfer();
+
+    // Transfer asset to contract
+    transferAssetToContract(_assetId, _assetAmount);
   }
 
   /**
@@ -96,42 +88,19 @@ library AssetLogic {
     address _assetId,
     address _to,
     uint256 _amount
-  ) internal returns (address) {
+  ) internal {
     AppStorage storage s = LibConnextStorage.connextStorage();
 
     // No native assets should ever be stored on this contract
     if (_assetId == address(0)) revert AssetLogic__handleOutgoingAsset_notNative();
 
-    bool isNative = _assetId == address(s.wrapper);
-    if (isNative) {
-      _assetId = address(0);
-    }
-
     // If amount is 0 do nothing
     if (_amount == 0) {
-      return _assetId;
+      return;
     }
 
-    if (isNative) {
-      // If dealing with wrapped assets, make sure they are properly unwrapped
-      // before sending from contract
-      s.wrapper.withdraw(_amount);
-      Address.sendValue(payable(_to), _amount);
-    } else {
-      // Transfer ERC20 asset
-      SafeERC20.safeTransfer(IERC20(_assetId), _to, _amount);
-    }
-    return _assetId;
-  }
-
-  /**
-   * @notice Wrap the native asset
-   * @param _amount - The specified amount to wrap
-   */
-  function wrapNativeAsset(uint256 _amount) internal {
-    AppStorage storage s = LibConnextStorage.connextStorage();
-
-    s.wrapper.deposit{value: _amount}();
+    // Transfer ERC20 asset
+    SafeERC20.safeTransfer(IERC20(_assetId), _to, _amount);
   }
 
   /**

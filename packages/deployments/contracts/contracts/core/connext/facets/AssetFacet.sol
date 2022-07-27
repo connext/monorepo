@@ -13,9 +13,9 @@ contract AssetFacet is BaseConnextFacet {
   // ========== Custom Errors ===========
   error AssetFacet__setWrapper_invalidWrapper();
   error AssetFacet__setTokenRegistry_invalidTokenRegistry();
+  error AssetFacet__addAssetId_nativeAsset();
   error AssetFacet__addAssetId_alreadyAdded();
   error AssetFacet__removeAssetId_notAdded();
-  error AssetFacet__addAssetId_noWrapperExists();
 
   // ============ Events ============
 
@@ -57,8 +57,6 @@ contract AssetFacet is BaseConnextFacet {
    * @param canonicalId - The canonical identifier of the token the local <> adopted AMM is for
    * @param domain - The domain of the canonical token for the local <> adopted amm
    * @param adoptedAsset - The address of the adopted (user-expected) asset
-   * @param supportedAsset - The address of the whitelisted asset. If the native asset is to be whitelisted,
-   * the address of the wrapped version will be stored
    * @param caller - The account that called the function
    */
   event AssetAdded(
@@ -66,7 +64,6 @@ contract AssetFacet is BaseConnextFacet {
     bytes32 indexed canonicalId,
     uint32 indexed domain,
     address adoptedAsset,
-    address supportedAsset,
     address caller
   );
 
@@ -108,27 +105,11 @@ contract AssetFacet is BaseConnextFacet {
     return adoptedToLocalPools(_calculateCanonicalHash(_canonical));
   }
 
-  function wrapper() public view returns (IWeth) {
-    return s.wrapper;
-  }
-
   function tokenRegistry() public view returns (ITokenRegistry) {
     return s.tokenRegistry;
   }
 
   // ============ Admin functions ============
-
-  /**
-   * @notice Updates the native-asset wrapper interface
-   * @param _wrapper The address of the new wrapper
-   */
-  function setWrapper(address _wrapper) external onlyOwner {
-    address old = address(s.wrapper);
-    if (old == _wrapper || !Address.isContract(_wrapper)) revert AssetFacet__setWrapper_invalidWrapper();
-
-    s.wrapper = IWeth(_wrapper);
-    emit WrapperUpdated(old, _wrapper, msg.sender);
-  }
 
   /**
    * @notice Updates the token registry
@@ -166,6 +147,9 @@ contract AssetFacet is BaseConnextFacet {
     address _adoptedAssetId,
     address _stableSwapPool
   ) external onlyOwner {
+    // Native asset support does not exist in this contract
+    if (_adoptedAssetId == address(0)) revert AssetFacet__addAssetId_nativeAsset();
+
     // Get the key
     bytes32 key = _calculateCanonicalHash(_canonical);
 
@@ -175,21 +159,15 @@ contract AssetFacet is BaseConnextFacet {
     // Update approved assets mapping
     s.approvedAssets[key] = true;
 
-    address supported = _adoptedAssetId == address(0) ? address(s.wrapper) : _adoptedAssetId;
-
-    // If the adopted asset was a native token and the wrapper has not been set,
-    // the supported address could have evaluated to `address(0)` above.
-    if (supported == address(0)) revert AssetFacet__addAssetId_noWrapperExists();
-
     // Update the adopted mapping
-    s.adoptedToCanonical[supported].domain = _canonical.domain;
-    s.adoptedToCanonical[supported].id = _canonical.id;
+    s.adoptedToCanonical[_adoptedAssetId].domain = _canonical.domain;
+    s.adoptedToCanonical[_adoptedAssetId].id = _canonical.id;
 
     // Update the canonical mapping
-    s.canonicalToAdopted[key] = supported;
+    s.canonicalToAdopted[key] = _adoptedAssetId;
 
     // Emit event
-    emit AssetAdded(key, _canonical.id, _canonical.domain, _adoptedAssetId, supported, msg.sender);
+    emit AssetAdded(key, _canonical.id, _canonical.domain, _adoptedAssetId, msg.sender);
 
     // Add the swap pool
     _addStableSwapPool(_canonical, _stableSwapPool, key);
@@ -258,7 +236,7 @@ contract AssetFacet is BaseConnextFacet {
     delete s.adoptedToLocalPools[_key];
 
     // Delete from adopted mapping
-    delete s.adoptedToCanonical[_adoptedAssetId == address(0) ? address(s.wrapper) : _adoptedAssetId];
+    delete s.adoptedToCanonical[_adoptedAssetId];
 
     // Delete from canonical mapping
     delete s.canonicalToAdopted[_key];

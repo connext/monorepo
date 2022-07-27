@@ -30,8 +30,6 @@ contract BridgeFacet is BaseConnextFacet {
   // ========== Structs ===========
 
   struct XCalledEventArgs {
-    address transactingAssetId;
-    uint256 amount;
     uint256 bridgedAmt;
     address bridged;
   }
@@ -44,6 +42,7 @@ contract BridgeFacet is BaseConnextFacet {
   error BridgeFacet__addConnextion_invalidDomain();
   error BridgeFacet__addSequencer_alreadyApproved();
   error BridgeFacet__removeSequencer_notApproved();
+  error BridgeFacet__xcall_nativeAssetNotSupported();
   error BridgeFacet__xcall_wrongDomain();
   error BridgeFacet__xcall_destinationNotSupported();
   error BridgeFacet__xcall_emptyToOrRecovery();
@@ -307,6 +306,11 @@ contract BridgeFacet is BaseConnextFacet {
     // Sanity checks.
     bytes32 remoteInstance;
     {
+      // Not native asset
+      if (_args.transactingAssetId == address(0)) {
+        revert BridgeFacet__xcall_nativeAssetNotSupported();
+      }
+
       // Correct origin domain.
       if (_args.params.originDomain != s.domain) {
         revert BridgeFacet__xcall_wrongDomain();
@@ -346,22 +350,19 @@ contract BridgeFacet is BaseConnextFacet {
     uint256 _sNonce;
     XCalledEventArgs memory eventArgs;
     {
-      // Get the true asset credited to the contract (using wrapper instead of native, if applicable).
-      address assetIn = _args.transactingAssetId == address(0) ? address(s.wrapper) : _args.transactingAssetId;
-
       // Check that the asset is supported -- can be either adopted or local.
-      TokenId memory canonical = s.adoptedToCanonical[assetIn];
+      TokenId memory canonical = s.adoptedToCanonical[_args.transactingAssetId];
       if (canonical.id == bytes32(0)) {
         // Here, the asset is *not* the adopted asset. The only other valid option
         // is for this asset to be the local asset (i.e. transferring madEth on optimism)
         // NOTE: it *cannot* be the canonical asset. the canonical asset is only used on
         // the canonical domain, where it is *also* the adopted asset.
-        if (s.tokenRegistry.isLocalOrigin(assetIn)) {
+        if (s.tokenRegistry.isLocalOrigin(_args.transactingAssetId)) {
           // revert, using a token of local origin that is not registered as adopted
           revert BridgeFacet__xcall_notSupportedAsset();
         }
 
-        (uint32 canonicalDomain, bytes32 canonicalId) = s.tokenRegistry.getTokenId(assetIn);
+        (uint32 canonicalDomain, bytes32 canonicalId) = s.tokenRegistry.getTokenId(_args.transactingAssetId);
         canonical = TokenId(canonicalDomain, canonicalId);
       }
 
@@ -376,7 +377,7 @@ contract BridgeFacet is BaseConnextFacet {
       // Swap to the local asset from adopted if applicable.
       (uint256 bridgedAmt, address bridged) = AssetLogic.swapToLocalAssetIfNeeded(
         canonical,
-        assetIn,
+        _args.transactingAssetId,
         _args.amount,
         _args.originMinOut
       );
@@ -409,12 +410,8 @@ contract BridgeFacet is BaseConnextFacet {
       );
 
       // Format arguments for XCalled event that will be emitted below.
-      eventArgs = XCalledEventArgs({
-        transactingAssetId: assetIn,
-        amount: _args.amount,
-        bridgedAmt: bridgedAmt,
-        bridged: bridged
-      });
+      // TODO: remove eventArgs type completely?
+      eventArgs = XCalledEventArgs({bridgedAmt: bridgedAmt, bridged: bridged});
     }
 
     // emit event
@@ -786,15 +783,15 @@ contract BridgeFacet is BaseConnextFacet {
       AssetLogic.handleOutgoingAsset(_asset, _args.params.to, _amountOut);
     } else {
       // execute calldata w/funds
-      address transferred = AssetLogic.handleOutgoingAsset(_asset, address(s.executor), _amountOut);
+      AssetLogic.handleOutgoingAsset(_asset, address(s.executor), _amountOut);
 
-      (bool success, bytes memory returnData) = s.executor.execute{value: transferred == address(0) ? _amountOut : 0}(
+      (bool success, bytes memory returnData) = s.executor.execute{value: 0}(
         IExecutor.ExecutorArgs(
           _transferId,
           _amountOut,
           _args.params.to,
           _args.params.recovery,
-          transferred,
+          _asset,
           _reconciled
             ? LibCrossDomainProperty.formatDomainAndSenderBytes(_args.params.originDomain, _args.originSender)
             : LibCrossDomainProperty.EMPTY_BYTES,

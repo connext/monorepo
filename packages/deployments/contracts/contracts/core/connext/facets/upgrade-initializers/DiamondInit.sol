@@ -69,7 +69,6 @@ contract DiamondInit is BaseConnextFacet {
       s.promiseRouter = PromiseRouter(_promiseRouter);
       s.executor = new Executor(address(this));
       s.tokenRegistry = ITokenRegistry(_tokenRegistry);
-      s.wrapper = IWeth(_wrappedNative);
       s.LIQUIDITY_FEE_NUMERATOR = 9995;
       s.LIQUIDITY_FEE_DENOMINATOR = 10000;
       s.maxRoutersPerTransfer = 5;
