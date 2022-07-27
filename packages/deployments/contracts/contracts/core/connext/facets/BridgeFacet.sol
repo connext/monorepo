@@ -42,6 +42,8 @@ contract BridgeFacet is BaseConnextFacet {
   error BridgeFacet__setExecutor_invalidExecutor();
   error BridgeFacet__setSponsorVault_invalidSponsorVault();
   error BridgeFacet__addConnextion_invalidDomain();
+  error BridgeFacet__addSequencer_alreadyApproved();
+  error BridgeFacet__removeSequencer_notApproved();
   error BridgeFacet__xcall_wrongDomain();
   error BridgeFacet__xcall_destinationNotSupported();
   error BridgeFacet__xcall_emptyToOrRecovery();
@@ -52,6 +54,8 @@ contract BridgeFacet is BaseConnextFacet {
   error BridgeFacet__xcall_invalidSlippageTol();
   error BridgeFacet__execute_unapprovedSender();
   error BridgeFacet__execute_wrongDomain();
+  error BridgeFacet__execute_notSupportedSequencer();
+  error BridgeFacet__execute_invalidSequencerSignature();
   error BridgeFacet__execute_maxRoutersExceeded();
   error BridgeFacet__execute_notSupportedRouter();
   error BridgeFacet__execute_invalidRouterSignature();
@@ -166,6 +170,20 @@ contract BridgeFacet is BaseConnextFacet {
    */
   event ConnextionAdded(uint32 domain, address connext, address caller);
 
+  /**
+   * @notice Emitted when a sequencer is added or removed from whitelists
+   * @param sequencer - The sequencer address to be added or removed
+   * @param caller - The account that called the function
+   */
+  event SequencerAdded(address sequencer, address caller);
+
+  /**
+   * @notice Emitted when a sequencer is added or removed from whitelists
+   * @param sequencer - The sequencer address to be added or removed
+   * @param caller - The account that called the function
+   */
+  event SequencerRemoved(address sequencer, address caller);
+
   // ============ Getters ============
 
   function relayerFees(bytes32 _transferId) public view returns (uint256) {
@@ -240,6 +258,28 @@ contract BridgeFacet is BaseConnextFacet {
 
     s.connextions[_domain] = TypeCasts.addressToBytes32(_connext);
     emit ConnextionAdded(_domain, _connext, msg.sender);
+  }
+
+  /**
+   * @notice Used to add an approved sequencer to the whitelist.
+   * @param _sequencer - The sequencer address to add.
+   */
+  function addSequencer(address _sequencer) external onlyOwner {
+    if (s.approvedSequencers[_sequencer]) revert BridgeFacet__addSequencer_alreadyApproved();
+    s.approvedSequencers[_sequencer] = true;
+
+    emit SequencerAdded(_sequencer, msg.sender);
+  }
+
+  /**
+   * @notice Used to remove an approved sequencer from the whitelist.
+   * @param _sequencer - The sequencer address to remove.
+   */
+  function removeSequencer(address _sequencer) external onlyOwner {
+    if (!s.approvedSequencers[_sequencer]) revert BridgeFacet__removeSequencer_notApproved();
+    delete s.approvedSequencers[_sequencer];
+
+    emit SequencerRemoved(_sequencer, msg.sender);
   }
 
   // ============ Public methods ==============
@@ -521,11 +561,24 @@ contract BridgeFacet is BaseConnextFacet {
     // they are splitting liquidity provision.
     bytes32 routerHash = keccak256(abi.encode(transferId, pathLength));
 
-    // check the reconciled status is correct
-    // (i.e. if there are routers provided, the transfer must *not* be reconciled)
-    if (pathLength != 0) // make sure routers are all approved if needed
-    {
+    if (pathLength != 0) {
+      // Check to make sure the transfer has not been reconciled (no need for routers if the transfer is
+      // already reconciled; i.e. if there are routers provided, the transfer must *not* be reconciled).
       if (reconciled) revert BridgeFacet__execute_alreadyReconciled();
+
+      // NOTE: The sequencer address may be empty and no signature needs to be provided in the case of the
+      // slow liquidity route (i.e. no routers involved). Additionally, the sequencer does not need to be the
+      // msg.sender.
+      // Check to make sure the sequencer address provided is approved
+      if (!s.approvedSequencers[_args.sequencer]) {
+        revert BridgeFacet__execute_notSupportedSequencer();
+      }
+      // Check to make sure the sequencer provided did sign the transfer ID and router path provided.
+      if (
+        _args.sequencer != _recoverSignature(keccak256(abi.encode(transferId, _args.routers)), _args.sequencerSignature)
+      ) {
+        revert BridgeFacet__execute_invalidSequencerSignature();
+      }
 
       for (uint256 i; i < pathLength; ) {
         // Make sure the router is approved, if applicable.

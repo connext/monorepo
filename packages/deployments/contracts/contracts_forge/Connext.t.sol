@@ -590,6 +590,18 @@ contract ConnextTest is ForgeHelper, Deployer {
     return (routers, signatures);
   }
 
+  function utils_createSequencer(bytes32 transferId, address[] memory routers) public returns (address, bytes memory) {
+    uint256 key = 0xA11CE;
+    address sequencer = vm.addr(key);
+    _originConnext.addSequencer(sequencer);
+    _destinationConnext.addSequencer(sequencer);
+
+    bytes32 preImage = keccak256(abi.encode(transferId, routers));
+    bytes32 toSign = ECDSA.toEthSignedMessageHash(preImage);
+    (uint8 v, bytes32 r, bytes32 _s) = vm.sign(key, toSign);
+    return (sequencer, abi.encodePacked(r, _s, v));
+  }
+
   function utils_createExecuteArgs(
     CallParams memory params,
     uint256 pathLen,
@@ -598,12 +610,15 @@ contract ConnextTest is ForgeHelper, Deployer {
     uint256 liquidity
   ) public returns (ExecuteArgs memory) {
     (address[] memory routers, bytes[] memory routerSignatures) = utils_createRouters(pathLen, transferId, liquidity);
+    (address sequencer, bytes memory sequencerSignature) = utils_createSequencer(transferId, routers);
     return
       ExecuteArgs(
         params, // CallParams
         _destinationLocal, // local asset
         routers, // routers
         routerSignatures, // router signatures
+        sequencer, // sequencer
+        sequencerSignature, // sequencer signatures
         bridgedAmt, // amount
         0, // nonce
         address(this) // originSender

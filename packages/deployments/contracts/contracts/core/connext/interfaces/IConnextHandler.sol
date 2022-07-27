@@ -86,6 +86,10 @@ interface IConnextHandler is IDiamondLoupe, IDiamondCut {
 
   function addConnextion(uint32 _domain, address _connext) external;
 
+  function addSequencer(address _sequencer) external;
+
+  function removeSequencer(address _sequencer) external;
+
   function xcall(XCallArgs calldata _args) external payable returns (bytes32);
 
   function execute(ExecuteArgs calldata _args) external returns (bytes32 transferId);
