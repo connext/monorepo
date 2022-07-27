@@ -263,13 +263,13 @@ struct AppStorage {
   // 26
   uint256 _proposedOwnershipTimestamp;
   // 27
-  bool _routerOwnershipRenounced;
+  bool _routerWhitelistRemoved;
   // 28
-  uint256 _routerOwnershipTimestamp;
+  uint256 _routerWhitelistTimestamp;
   // 29
-  bool _assetOwnershipRenounced;
+  bool _assetWhitelistRemoved;
   // 30
-  uint256 _assetOwnershipTimestamp;
+  uint256 _assetWhitelistTimestamp;
   //
   // RouterFacet
   //
