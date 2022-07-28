@@ -77,24 +77,32 @@ contract ConnextPriceOracleTest is ForgeHelper {
   // ============ getTokenPrice ============
   function test_ConnextPriceOracle__getTokenPrice_worksIfExistsInAssetPrices() public {
     priceOracle.setDirectPrice(_tokenA, 1e18, block.timestamp);
-    assertEq(priceOracle.getTokenPrice(_tokenA), 1e18);
+    (uint256 price, uint256 source) = priceOracle.getTokenPrice(_tokenA);
+    assertEq(price, 1e18);
+    assertEq(source, 1);
   }
 
   function test_ConnextPriceOracle__getTokenPrice_worksIfAggregatorExists() public {
-    assertEq(priceOracle.getTokenPrice(_wrapped), 1e18);
+    (uint256 price, ) = priceOracle.getTokenPrice(_wrapped);
+    assertEq(price, 1e18);
   }
 
   // should work for the native asset
   function test_ConnextPriceOracle__getTokenPrice_worksForNative() public {
-    assertEq(priceOracle.getTokenPrice(address(0)), 1e18);
+    (uint256 price, ) = priceOracle.getTokenPrice(address(0));
+    assertEq(price, 1e18);
   }
 
   function test_ConnextPriceOracle__getTokenPrice_worksIfv1Exists() public {
-    assertEq(priceOracle.getTokenPrice(_tokenV1), 1e18);
+    (uint256 price, uint256 source) = priceOracle.getTokenPrice(_tokenV1);
+    assertEq(price, 1e18);
+    assertEq(source, 4);
   }
 
   function test_ConnextPriceOracle__getTokenPrice_fails() public {
-    assertEq(priceOracle.getTokenPrice(address(12345)), 0);
+    (uint256 price, uint256 source) = priceOracle.getTokenPrice(address(12345));
+    assertEq(price, 0);
+    assertEq(source, 4);
   }
 
   // ============ getPriceFromOracle ============
