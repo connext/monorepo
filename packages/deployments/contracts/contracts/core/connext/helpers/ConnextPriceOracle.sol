@@ -140,8 +140,14 @@ contract ConnextPriceOracle is PriceOracle, ProposedOwnable {
     uint256 _timestamp
   ) external onlyOwner {
     require(_price != 0, "bad price");
-    require(_timestamp <= block.timestamp, "!future");
-    require(block.timestamp - _timestamp < VALID_PERIOD, "bad timestamp");
+    if (block.timestamp > _timestamp) {
+      // reject stale price
+      require(block.timestamp - _timestamp < VALID_PERIOD, "bad timestamp");
+    } else {
+      // reject future timestamp (<3s is allowed)
+      require(_timestamp - block.timestamp < 3, "in future");
+      _timestamp = block.timestamp;
+    }
 
     emit DirectPriceUpdated(_token, assetPrices[_token].price, _price);
 
