@@ -542,19 +542,22 @@ export class NxtpSdkPool {
    * @param domainId The domain id of the pool.
    * @param userAddress The address of the user to get the pools for.
    */
-  async getUserPools(domainId: string, userAddress: string): Promise<Pool[]> {
-    const pools: Pool[] = [];
+  async getUserPools(domainId: string, userAddress: string): Promise<{ info: Pool; lpTokenBalance: number }[]> {
+    const result: { info: Pool; lpTokenBalance: number }[] = [];
 
-    Object.values(this.config.chains[domainId].assets).forEach(async (asset) => {
-      const pool = await this.getPool(domainId, asset.address);
-      const lpToken = pool?.lpTokenAddress;
+    await Promise.all(
+      Object.values(this.config.chains[domainId].assets).map(async (asset) => {
+        const pool = await this.getPool(domainId, asset.address);
+        const lpToken = pool?.lpTokenAddress;
 
-      if (lpToken && (await this.getLPTokenBalance(domainId, lpToken, userAddress))) {
-        pools.push(pool);
-      }
-    });
+        if (lpToken) {
+          const amount = await this.getLPTokenBalance(domainId, lpToken, userAddress);
+          result.push({ info: pool, lpTokenBalance: amount });
+        }
+      }),
+    );
 
-    return pools;
+    return result;
   }
 
   async getPoolStats(domainId: string, tokenAddress: string): Promise<IPoolStats> {
