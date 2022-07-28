@@ -10,7 +10,7 @@ import {LibDiamond} from "../../../../contracts/core/connext/libraries/LibDiamon
 
 import {NomadFacet} from "../../../../contracts/core/connext/facets/NomadFacet.sol";
 import {BaseConnextFacet} from "../../../../contracts/core/connext/facets/BaseConnextFacet.sol";
-import {CallParams, ExecuteArgs, XCallArgs} from "../../../../contracts/core/connext/libraries/LibConnextStorage.sol";
+import {CallParams, ExecuteArgs, XCallArgs, TransferIdInformation} from "../../../../contracts/core/connext/libraries/LibConnextStorage.sol";
 
 import "../../../utils/Mock.sol";
 import "../../../utils/FacetHelper.sol";
@@ -121,11 +121,12 @@ contract NomadFacetTest is NomadFacet, FacetHelper {
   function helpers_reconcileCaller(
     address _local,
     uint256 _amount,
-    bytes32 _transferId
+    CallParams memory params
   ) public {
     (uint32 canonicalDomain, bytes32 canonicalId) = s.tokenRegistry.getTokenId(_local);
+    bytes memory data = abi.encode(TransferIdInformation(params, s.nonce, _originSender));
     vm.prank(_bridge);
-    this.onReceive(_originDomain, canonicalDomain, canonicalId, _local, _amount, abi.encodePacked(_transferId));
+    this.onReceive(_originDomain, canonicalDomain, canonicalId, _local, _amount, data);
   }
 
   // Helper for calling `reconcile` and asserting expected behavior.
@@ -153,7 +154,7 @@ contract NomadFacetTest is NomadFacet, FacetHelper {
       vm.expectRevert(expectedError);
     }
 
-    helpers_reconcileCaller(_local, args.transactingAmount, transferId);
+    helpers_reconcileCaller(_local, args.transactingAmount, args.params);
 
     if (shouldSucceed) {
       assertEq(s.reconciledTransfers[transferId], true);
@@ -223,7 +224,7 @@ contract NomadFacetTest is NomadFacet, FacetHelper {
       canonicalId,
       _local,
       args.transactingAmount,
-      abi.encodePacked(transferId)
+      abi.encode(TransferIdInformation(args.params, s.nonce, _originSender))
     );
   }
 
@@ -247,7 +248,7 @@ contract NomadFacetTest is NomadFacet, FacetHelper {
       canonicalId,
       _local,
       args.transactingAmount,
-      abi.encodePacked(transferId)
+      abi.encode(TransferIdInformation(args.params, s.nonce, _originSender))
     );
   }
 

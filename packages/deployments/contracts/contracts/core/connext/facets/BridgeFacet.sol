@@ -11,7 +11,7 @@ import {TypeCasts} from "../../../nomad-core/contracts/XAppConnectionManager.sol
 import {BaseConnextFacet} from "./BaseConnextFacet.sol";
 
 import {AssetLogic} from "../libraries/AssetLogic.sol";
-import {XCallArgs, ExecuteArgs, CallParams, TokenId} from "../libraries/LibConnextStorage.sol";
+import {XCallArgs, ExecuteArgs, CallParams, TokenId, TransferIdInformation} from "../libraries/LibConnextStorage.sol";
 import {LibCrossDomainProperty} from "../libraries/LibCrossDomainProperty.sol";
 
 import {PromiseRouter} from "../../promise/PromiseRouter.sol";
@@ -407,7 +407,7 @@ contract BridgeFacet is BaseConnextFacet {
         bridgedAmount,
         _args.params.destinationDomain,
         remoteInstance,
-        abi.encodePacked(transferId)
+        abi.encode(TransferIdInformation(_args.params, _sNonce, msg.sender))
       );
     }
 

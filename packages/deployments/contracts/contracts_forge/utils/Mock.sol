@@ -230,6 +230,8 @@ contract MockBridgeRouter is IBridgeRouter {
   mapping(bytes32 => uint32) public destinationInputs;
   mapping(bytes32 => bytes32) public hookInputs;
 
+  bytes32 public id;
+
   event XSendCalled(address _token, uint256 _amount, uint32 _destination, bytes32 hook, bytes extra);
 
   function send(
@@ -242,6 +244,10 @@ contract MockBridgeRouter is IBridgeRouter {
     require(false, "shouldnt use send");
   }
 
+  function registerTransferId(bytes32 _id) public {
+    id = _id;
+  }
+
   function sendToHook(
     address _token,
     uint256 _amount,
@@ -249,7 +255,6 @@ contract MockBridgeRouter is IBridgeRouter {
     bytes32 _remoteHook,
     bytes calldata _external
   ) external {
-    bytes32 id = bytes32(_external);
     tokenInputs[id] = _token;
     amountInputs[id] = _amount;
     destinationInputs[id] = _destination;
