@@ -243,7 +243,7 @@ contract PromiseRouter is Version, Router, ReentrancyGuardUpgradeable {
     delete messageHashes[transferId];
 
     // remove callback fees
-    callbackFees[transferId] = 0;
+    delete callbackFees[transferId];
 
     // execute callback
     ICallback(callbackAddress).callback(transferId, _msg.returnSuccess(), _msg.returnData());
