@@ -445,7 +445,7 @@ contract StableSwap is IStableSwap, OwnerPausableUpgradeable, ReentrancyGuardUpg
   /**
    * @notice Withdraw all admin fees to the contract owner
    */
-  function withdrawAdminFees() external onlyOwner {
+  function withdrawAdminFees() external nonReentrant onlyOwner {
     swapStorage.withdrawAdminFees(owner());
   }
 

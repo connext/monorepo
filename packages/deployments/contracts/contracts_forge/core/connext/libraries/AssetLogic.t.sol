@@ -85,8 +85,8 @@ contract AssetLogicTest is BaseConnextFacet, FacetHelper {
         adminFees:  new uint256[](2)
     });
 
-    s.swapStorages[_canonicalId] = swap;
-    s.tokenIndexes[_canonicalId][_adopted] = 0;
+    s.swapStorages[_canonicalKey] = swap;
+    s.tokenIndexes[_canonicalKey][_adopted] = 0;
     
   }
 
@@ -169,8 +169,9 @@ contract AssetLogicTest is BaseConnextFacet, FacetHelper {
       vm.expectCall(_stableSwap, abi.encodeWithSelector(IStableSwap.swapExact.selector, amount, _local, _adopted));
     }
 
-    (, bytes32 canonicalId) = s.tokenRegistry.getTokenId(asset);
-    (uint256 received, address out) = AssetLogic.swapFromLocalAssetIfNeeded(canonicalId, asset, amount, _liquidityFeeDenominator);
+    (uint32 domain, bytes32 canonicalId) = s.tokenRegistry.getTokenId(asset);
+    bytes32 key = keccak256(abi.encode(canonicalId, domain));
+    (uint256 received, address out) = AssetLogic.swapFromLocalAssetIfNeeded(key, asset, amount, _liquidityFeeDenominator);
     // assert return amount
     assertEq(received, willSwap ? swapOut : amount);
     // assert return asset
@@ -200,7 +201,7 @@ contract AssetLogicTest is BaseConnextFacet, FacetHelper {
   // ============ stableSwapPoolExist ============
   function test_AssetLogic__stableSwapPoolExist_works() public {
     utils_setMockStableSwap();
-    assertEq(AssetLogic.stableSwapPoolExist(_canonicalId), true);
+    assertEq(AssetLogic.stableSwapPoolExist(_canonicalKey), true);
     assertEq(AssetLogic.stableSwapPoolExist(bytes32(abi.encodePacked(address(5)))), false);
   }
 
@@ -209,12 +210,12 @@ contract AssetLogicTest is BaseConnextFacet, FacetHelper {
     utils_setMockStableSwap();
     address arbitrary = address(555555555555);
     vm.expectRevert(AssetLogic.AssetLogic__getTokenIndexFromStableSwapPool_notExist.selector);
-    AssetLogic.getTokenIndexFromStableSwapPool(_canonicalId, arbitrary);
+    AssetLogic.getTokenIndexFromStableSwapPool(_canonicalKey, arbitrary);
   }
 
   function test_AssetLogic__getTokenIndexFromStableSwapPool_works() public {
     utils_setMockStableSwap();
-    assertEq(AssetLogic.getTokenIndexFromStableSwapPool(_canonicalId, _adopted), 0);
+    assertEq(AssetLogic.getTokenIndexFromStableSwapPool(_canonicalKey, _adopted), 0);
   }
 
   // ============ handleIncomingAsset ============

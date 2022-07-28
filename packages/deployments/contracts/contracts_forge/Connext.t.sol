@@ -102,6 +102,7 @@ contract ConnextTest is ForgeHelper, Deployer {
   // ============ Assets
   address _canonical;
   uint32 _canonicalDomain;
+  bytes32 _canonicalKey;
 
   address _originWrapper;
   address _originLocal;
@@ -293,6 +294,7 @@ contract ConnextTest is ForgeHelper, Deployer {
   function utils_setupAssets(uint32 canonicalDomain, bool localIsAdopted) public {
     bytes32 canonicalId = TypeCasts.addressToBytes32(_canonical);
     _canonicalDomain = canonicalDomain;
+    _canonicalKey = keccak256(abi.encode(canonicalId, _canonicalDomain));
 
     if (_origin == canonicalDomain) {
       // The canonical domain is the origin, meaning any local
@@ -332,11 +334,11 @@ contract ConnextTest is ForgeHelper, Deployer {
 
     // setup + fund the pools if needed
     if (_originLocal != _originAdopted) {
-      utils_setupPool(_origin, canonicalId, 100 ether);
+      utils_setupPool(_origin, _canonicalKey, 100 ether);
     }
 
     if (_destinationLocal != _destinationAdopted) {
-      utils_setupPool(_destination, canonicalId, 100 ether);
+      utils_setupPool(_destination, _canonicalKey, 100 ether);
     }
   }
 
@@ -363,6 +365,7 @@ contract ConnextTest is ForgeHelper, Deployer {
     // Get canonical information
     bytes32 canonicalId = TypeCasts.addressToBytes32(_canonical);
     _canonicalDomain = canonicalDomain;
+    _canonicalKey = keccak256(abi.encode(canonicalId, _canonicalDomain));
 
     // Handle origin
     if (_origin != canonicalDomain) {
@@ -390,17 +393,17 @@ contract ConnextTest is ForgeHelper, Deployer {
 
     // setup + fund the pools if needed
     if (_originLocal != _originAdopted) {
-      utils_setupPool(_origin, canonicalId, 100 ether);
+      utils_setupPool(_origin, _canonicalKey, 100 ether);
     }
 
     if (_destinationLocal != _destinationAdopted) {
-      utils_setupPool(_destination, canonicalId, 100 ether);
+      utils_setupPool(_destination, _canonicalKey, 100 ether);
     }
   }
 
   function utils_setupPool(
     uint32 domain,
-    bytes32 canonicalId,
+    bytes32 canonicalKey,
     uint256 amount
   ) public {
     bool isOrigin = domain == _origin;
@@ -433,7 +436,7 @@ contract ConnextTest is ForgeHelper, Deployer {
     {
       // initialize pool
       connext.initializeSwap(
-        canonicalId, // canonical
+        canonicalKey, // canonicalkey
         pooledTokens, // pooled
         decimals, // decimals
         LP_TOKEN_NAME, // lp token name
@@ -456,8 +459,8 @@ contract ConnextTest is ForgeHelper, Deployer {
       pooledTokens[0].approve(address(connext), amount);
       pooledTokens[1].approve(address(connext), amount);
 
-      connext.addSwapLiquidity(canonicalId, amounts, 0, block.timestamp + 60);
-      assertTrue(connext.getSwapVirtualPrice(canonicalId) != 0);
+      connext.addSwapLiquidity(canonicalKey, amounts, 0, block.timestamp + 60);
+      assertTrue(connext.getSwapVirtualPrice(canonicalKey) != 0);
     }
   }
 
@@ -587,6 +590,18 @@ contract ConnextTest is ForgeHelper, Deployer {
     return (routers, signatures);
   }
 
+  function utils_createSequencer(bytes32 transferId, address[] memory routers) public returns (address, bytes memory) {
+    uint256 key = 0xA11CE;
+    address sequencer = vm.addr(key);
+    _originConnext.addSequencer(sequencer);
+    _destinationConnext.addSequencer(sequencer);
+
+    bytes32 preImage = keccak256(abi.encode(transferId, routers));
+    bytes32 toSign = ECDSA.toEthSignedMessageHash(preImage);
+    (uint8 v, bytes32 r, bytes32 _s) = vm.sign(key, toSign);
+    return (sequencer, abi.encodePacked(r, _s, v));
+  }
+
   function utils_createExecuteArgs(
     CallParams memory params,
     uint256 pathLen,
@@ -595,12 +610,15 @@ contract ConnextTest is ForgeHelper, Deployer {
     uint256 liquidity
   ) public returns (ExecuteArgs memory) {
     (address[] memory routers, bytes[] memory routerSignatures) = utils_createRouters(pathLen, transferId, liquidity);
+    (address sequencer, bytes memory sequencerSignature) = utils_createSequencer(transferId, routers);
     return
       ExecuteArgs(
         params, // CallParams
         _destinationLocal, // local asset
         routers, // routers
         routerSignatures, // router signatures
+        sequencer, // sequencer
+        sequencerSignature, // sequencer signatures
         bridgedAmt, // amount
         0, // nonce
         address(this) // originSender
@@ -749,18 +767,9 @@ contract ConnextTest is ForgeHelper, Deployer {
     bytes32 transferId,
     uint256 bridgedAmt,
     address to,
-    address[] memory routers,
-    bool usesPortals
+    address[] memory routers
   ) public {
     uint256 repayAmount = bridgedAmt;
-    if (usesPortals) {
-      repayAmount = _destinationConnext.calculateSwap(
-        TypeCasts.addressToBytes32(_canonical),
-        0, // local idx always 0
-        1, // adopted idx always 1
-        bridgedAmt
-      );
-    }
 
     // NOTE: the bridge router handles the minting and custodying of assets. as far
     // as connext is concerned, the funds will *always* be transferred to the contract
@@ -787,34 +796,17 @@ contract ConnextTest is ForgeHelper, Deployer {
     ReconcileBalances memory end = utils_getReconcileBalances(transferId, routers);
 
     // assert router liquidity balance
-    if (!usesPortals) {
-      uint256 credited = routers.length != 0 ? bridgedAmt / routers.length : 0;
-      for (uint256 i; i < routers.length; i++) {
-        assertEq(end.liquidity[i], initial.liquidity[i] + credited);
-      }
-      assertEq(end.portalDebt, 0);
-      assertEq(end.portalFeeDebt, 0);
-    } else {
-      uint256 debtPaid = repayAmount > initial.portalDebt ? initial.portalDebt : repayAmount;
-      repayAmount -= debtPaid;
-      uint256 feePaid = repayAmount > initial.portalFeeDebt ? initial.portalFeeDebt : repayAmount;
-      repayAmount -= feePaid;
-      assertEq(end.liquidity[0], initial.liquidity[0] + repayAmount);
-      assertEq(end.portalDebt, initial.portalDebt - debtPaid);
-      assertEq(end.portalFeeDebt, initial.portalFeeDebt - feePaid);
+    uint256 credited = routers.length != 0 ? bridgedAmt / routers.length : 0;
+    for (uint256 i; i < routers.length; i++) {
+      assertEq(end.liquidity[i], initial.liquidity[i] + credited);
     }
+
+    // assert portal balance didnt change during reconcile call
+    assertEq(end.portalDebt, initial.portalDebt);
+    assertEq(end.portalFeeDebt, initial.portalFeeDebt);
 
     // assert transfer marked as reconciled
     assertTrue(_destinationConnext.reconciledTransfers(transferId));
-  }
-
-  function utils_reconcileAndAssert(
-    bytes32 transferId,
-    uint256 bridgedAmt,
-    address to,
-    address[] memory routers
-  ) public {
-    utils_reconcileAndAssert(transferId, bridgedAmt, to, routers, false);
   }
 
   // ============ Testing scenarios ============
@@ -849,7 +841,7 @@ contract ConnextTest is ForgeHelper, Deployer {
     // 1. `xcall` on the origin
     XCallArgs memory args = XCallArgs(utils_createCallParams(_destination), _originAdopted, 1 ether, 0.95 ether);
     uint256 expected = _originConnext.calculateSwap(
-      TypeCasts.addressToBytes32(_canonical),
+      _canonicalKey,
       0, // local idx always 0
       1, // adopted idx always 1
       args.amount // no min
@@ -863,9 +855,9 @@ contract ConnextTest is ForgeHelper, Deployer {
     bytes32 transferId = utils_xcallAndAssert(args, eventArgs);
 
     // 2. call `execute` on the destination
-    ExecuteArgs memory execute = utils_createExecuteArgs(args.params, 2, transferId, eventArgs.bridgedAmt);
+    ExecuteArgs memory execute = utils_createExecuteArgs(args.params, 1, transferId, eventArgs.bridgedAmt);
     uint256 swapped = _destinationConnext.calculateSwap(
-      TypeCasts.addressToBytes32(_canonical),
+      _canonicalKey,
       1, // adopted idx always 1
       0, // local idx always 0
       utils_getFastTransferAmount(execute.amount)
@@ -895,7 +887,7 @@ contract ConnextTest is ForgeHelper, Deployer {
     ExecuteArgs memory execute = utils_createExecuteArgs(args.params, 2, transferId, eventArgs.bridgedAmt);
     // NOTE: you swap the madETH for WETH on the destination (because origin is canonical)
     uint256 swapped = _destinationConnext.calculateSwap(
-      TypeCasts.addressToBytes32(_canonical),
+      _canonicalKey,
       1, // adopted idx always 1
       0, // local idx always 0
       utils_getFastTransferAmount(execute.amount)
@@ -924,7 +916,7 @@ contract ConnextTest is ForgeHelper, Deployer {
     // 2. call `execute` on the destination
     ExecuteArgs memory execute = utils_createExecuteArgs(args.params, 2, transferId, eventArgs.bridgedAmt);
     uint256 swapped = _destinationConnext.calculateSwap(
-      TypeCasts.addressToBytes32(_canonical),
+      _canonicalKey,
       1, // adopted idx always 1
       0, // local idx always 0
       utils_getFastTransferAmount(execute.amount)
@@ -1134,7 +1126,21 @@ contract ConnextTest is ForgeHelper, Deployer {
     utils_executeAndAssert(execute, transferId, utils_getFastTransferAmount(eventArgs.bridgedAmt), 0, true);
 
     // 3. call `handle` on the destination
-    utils_reconcileAndAssert(transferId, eventArgs.bridgedAmt, args.params.to, execute.routers, true);
+    utils_reconcileAndAssert(transferId, eventArgs.bridgedAmt, args.params.to, execute.routers);
+
+    // 4. repay portal out of band
+    IERC20(_destinationAdopted).approve(address(_destinationConnext), 100 ether);
+    _destinationConnext.repayAavePortalFor(
+      args.params,
+      _destinationAdopted,
+      address(this),
+      eventArgs.bridgedAmt,
+      0,
+      _destinationConnext.getAavePortalDebt(transferId),
+      _destinationConnext.getAavePortalFeeDebt(transferId)
+    );
+    assertEq(_destinationConnext.getAavePortalFeeDebt(transferId), 0);
+    assertEq(_destinationConnext.getAavePortalDebt(transferId), 0);
   }
 
   // you should be able to bump + claim relayer fees

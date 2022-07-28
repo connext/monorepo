@@ -2,10 +2,12 @@
 pragma solidity 0.8.15;
 
 import {SafeERC20} from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
-import {IERC20Extended} from "../interfaces/IERC20Extended.sol";
 
-import {PriceOracle} from "./PriceOracle.sol";
+import {IERC20Extended} from "../interfaces/IERC20Extended.sol";
 import {IPriceOracle} from "../interfaces/IPriceOracle.sol";
+
+import {ProposedOwnable} from "../../shared/ProposedOwnable.sol";
+import {PriceOracle} from "./PriceOracle.sol";
 
 interface AggregatorV3Interface {
   function decimals() external view returns (uint8);
@@ -40,10 +42,9 @@ interface AggregatorV3Interface {
     );
 }
 
-contract ConnextPriceOracle is PriceOracle {
+contract ConnextPriceOracle is PriceOracle, ProposedOwnable {
   using SafeERC20 for IERC20Extended;
 
-  address public admin;
   address public wrapped;
   address public v1PriceOracle;
 
@@ -73,14 +74,9 @@ contract ConnextPriceOracle is PriceOracle {
   event AggregatorUpdated(address tokenAddress, address source);
   event V1PriceOracleUpdated(address oldAddress, address newAddress);
 
-  modifier onlyAdmin() {
-    require(msg.sender == admin, "caller is not the admin");
-    _;
-  }
-
   constructor(address _wrapped) {
     wrapped = _wrapped;
-    admin = msg.sender;
+    _setOwner(msg.sender);
   }
 
   function getTokenPrice(address _tokenAddress) public view override returns (uint256) {
@@ -179,7 +175,7 @@ contract ConnextPriceOracle is PriceOracle {
     address _baseToken,
     address _lpToken,
     bool _active
-  ) external onlyAdmin {
+  ) external onlyOwner {
     PriceInfo storage priceInfo = priceRecords[_token];
     uint256 baseTokenPrice = getTokenPrice(_baseToken);
     require(baseTokenPrice != 0, "invalid base token");
@@ -194,7 +190,7 @@ contract ConnextPriceOracle is PriceOracle {
     address _token,
     uint256 _price,
     uint256 _timestamp
-  ) external onlyAdmin {
+  ) external onlyOwner {
     require(_price != 0, "bad price");
 
     if (block.timestamp > _timestamp) {
@@ -211,19 +207,12 @@ contract ConnextPriceOracle is PriceOracle {
     assetPrices[_token].updatedAt = _timestamp;
   }
 
-  function setV1PriceOracle(address _v1PriceOracle) external onlyAdmin {
+  function setV1PriceOracle(address _v1PriceOracle) external onlyOwner {
     emit V1PriceOracleUpdated(v1PriceOracle, _v1PriceOracle);
     v1PriceOracle = _v1PriceOracle;
   }
 
-  function setAdmin(address newAdmin) external onlyAdmin {
-    address oldAdmin = admin;
-    admin = newAdmin;
-
-    emit NewAdmin(oldAdmin, newAdmin);
-  }
-
-  function setAggregators(address[] calldata tokenAddresses, address[] calldata sources) external onlyAdmin {
+  function setAggregators(address[] calldata tokenAddresses, address[] calldata sources) external onlyOwner {
     uint256 numTokens = tokenAddresses.length;
     for (uint256 i; i < numTokens; ) {
       aggregators[tokenAddresses[i]] = AggregatorV3Interface(sources[i]);

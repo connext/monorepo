@@ -260,7 +260,7 @@ contract PromiseRouter is Version, Router, ReentrancyGuardUpgradeable {
    * @notice This function will be called on the origin domain to init the callback fee while xcall
    * @param _transferId - The unique identifier of the crosschain transaction
    */
-  function initCallbackFee(bytes32 _transferId) external payable onlyConnext {
+  function initCallbackFee(bytes32 _transferId) external payable onlyConnext nonReentrant {
     if (msg.value == 0) revert PromiseRouter__initCallbackFee_valueIsZero();
 
     callbackFees[_transferId] += msg.value;
@@ -272,7 +272,7 @@ contract PromiseRouter is Version, Router, ReentrancyGuardUpgradeable {
    * @notice This function will be called on the origin domain to increase the callback fee
    * @param _transferId - The unique identifier of the crosschain transaction
    */
-  function bumpCallbackFee(bytes32 _transferId) external payable {
+  function bumpCallbackFee(bytes32 _transferId) external payable nonReentrant {
     if (msg.value == 0) revert PromiseRouter__bumpCallbackFee_valueIsZero();
 
     // use the presence of the message to evaluate if the fee should be bumped.

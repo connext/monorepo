@@ -3,7 +3,7 @@ pragma solidity 0.8.15;
 
 import {Home} from "../../../nomad-core/contracts/Home.sol";
 
-import {CallParams, AppStorage} from "../libraries/LibConnextStorage.sol";
+import {CallParams, AppStorage, TokenId} from "../libraries/LibConnextStorage.sol";
 import {LibDiamond} from "../libraries/LibDiamond.sol";
 
 contract BaseConnextFacet {
@@ -14,7 +14,7 @@ contract BaseConnextFacet {
   uint256 internal constant _ENTERED = 2;
 
   // Contains hash of empty bytes
-  bytes32 internal constant EMPTY = hex"c5d2460186f7233c927e7db2dcc703c0e500b653ca82273b7bfad8045d85a470";
+  bytes32 internal constant EMPTY_HASH = hex"c5d2460186f7233c927e7db2dcc703c0e500b653ca82273b7bfad8045d85a470";
 
   // ========== Custom Errors ===========
 
@@ -81,24 +81,21 @@ contract BaseConnextFacet {
 
   // ============ Internal functions ============
   /**
-   * @notice Indicates if the ownership of the router whitelist has
-   * been renounced
+   * @notice Indicates if the router whitelist has been removed
    */
-  function _isRouterOwnershipRenounced() internal view returns (bool) {
-    return LibDiamond.contractOwner() == address(0) || s._routerOwnershipRenounced;
+  function _isRouterWhitelistRemoved() internal view returns (bool) {
+    return LibDiamond.contractOwner() == address(0) || s._routerWhitelistRemoved;
   }
 
   /**
-   * @notice Indicates if the ownership of the asset whitelist has
-   * been renounced
+   * @notice Indicates if the asset whitelist has been removed
    */
-  function _isAssetOwnershipRenounced() internal view returns (bool) {
-    return LibDiamond.contractOwner() == address(0) || s._assetOwnershipRenounced;
+  function _isAssetWhitelistRemoved() internal view returns (bool) {
+    return LibDiamond.contractOwner() == address(0) || s._assetWhitelistRemoved;
   }
 
   /**
-   * @notice Calculates a transferId based on `xcall` arguments
-   * @dev Need this to prevent stack too deep
+   * @notice Calculates a transferId
    */
   function _calculateTransferId(
     CallParams calldata _params,
@@ -109,5 +106,21 @@ contract BaseConnextFacet {
     address _originSender
   ) internal pure returns (bytes32) {
     return keccak256(abi.encode(_nonce, _params, _originSender, _canonicalId, _canonicalDomain, _amount));
+  }
+
+  /**
+   * @notice Calculates the hash of canonical id and domain
+   * @dev This hash is used as the key for many asset-related mappings
+   */
+  function _calculateCanonicalHash(bytes32 _id, uint32 _domain) internal pure returns (bytes32) {
+    return keccak256(abi.encode(_id, _domain));
+  }
+
+  /**
+   * @notice Calculates the hash of canonical id and domain
+   * @dev This is an alias to allow usage of `TokenId` struct directly
+   */
+  function _calculateCanonicalHash(TokenId calldata _canonical) internal pure returns (bytes32) {
+    return _calculateCanonicalHash(_canonical.id, _canonical.domain);
   }
 }
