@@ -19,7 +19,6 @@ contract LibDiamondTest is ForgeHelper, Deployer {
   IConnextHandler connextHandler;
   uint32 domain = 1;
   address internal xAppConnectionManager = address(1);
-  address wrapper = address(2);
   address relayerFeeRouter = address(3);
   address promiseRouter = address(4);
   address tokenRegistry = address(5);
@@ -32,7 +31,6 @@ contract LibDiamondTest is ForgeHelper, Deployer {
       uint256(domain),
       xAppConnectionManager,
       tokenRegistry,
-      address(wrapper),
       address(relayerFeeRouter),
       payable(promiseRouter)
     );

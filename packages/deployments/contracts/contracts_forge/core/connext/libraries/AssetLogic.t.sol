@@ -103,7 +103,7 @@ contract AssetLogicTest is BaseConnextFacet, FacetHelper {
 
     caller.handleIncomingAsset{ value: fee }(assetId, amount, fee);
 
-    // caller balance always goes up in token (wrapper if native)
+    // caller balance always goes up in token
     assertEq(IERC20(assetId).balanceOf(address(caller)), initDestAssetBalance + amount);
     // fees on caller
     assertEq(address(caller).balance, initDestFeeBalance + fee);

@@ -355,7 +355,6 @@ contract Deployer {
     uint256 domain,
     address xAppConnectionManager,
     address tokenRegistry,
-    address wrapper,
     address relayerFeeRouter,
     address payable promiseRouter
   ) internal returns (address) {
@@ -363,7 +362,6 @@ contract Deployer {
       DiamondInit.init.selector,
       domain,
       tokenRegistry,
-      wrapper,
       relayerFeeRouter,
       promiseRouter
     );

@@ -224,19 +224,6 @@ contract TestSetterFacet is BaseConnextFacet {
   }
 }
 
-contract MockWrapper is IWeth, ERC20 {
-  constructor() ERC20("Mock Weth", "WETH") {}
-
-  function deposit() external payable {
-    _mint(msg.sender, msg.value);
-  }
-
-  function withdraw(uint256 amount) external {
-    _burn(msg.sender, amount);
-    msg.sender.call{value: amount}("");
-  }
-}
-
 contract MockBridgeRouter is IBridgeRouter {
   mapping(bytes32 => address) public tokenInputs;
   mapping(bytes32 => uint256) public amountInputs;

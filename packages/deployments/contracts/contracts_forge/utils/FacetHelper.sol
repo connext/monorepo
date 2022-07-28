@@ -10,7 +10,6 @@ import {IStableSwap} from "../../contracts/core/connext/interfaces/IStableSwap.s
 
 import {TestERC20} from "../../contracts/test/TestERC20.sol";
 
-import {MockWrapper} from "./Mock.sol";
 import "./ForgeHelper.sol";
 
 contract FacetHelper is ForgeHelper {
@@ -56,8 +55,8 @@ contract FacetHelper is ForgeHelper {
     s.aavePortalFeeNumerator = _portalFeeNumerator;
   }
 
-  // Deploys the wrapper, local, adopted, and canonical tokens. Also sets the
-  // canonical id, token registry, wrapper
+  // Deploys the local, adopted, and canonical tokens. Also sets the
+  // canonical id, token registry
   function utils_deployAssetContracts() public {
     AppStorage storage s = LibConnextStorage.connextStorage();
     // Deploy the adopted token.

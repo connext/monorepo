@@ -37,11 +37,7 @@ interface IConnextHandler is IDiamondLoupe, IDiamondCut {
 
   function adoptedToLocalPools(TokenId calldata _canonical) external view returns (IStableSwap);
 
-  function wrapper() external view returns (IWeth);
-
   function tokenRegistry() external view returns (ITokenRegistry);
-
-  function setWrapper(address _wrapper) external;
 
   function setTokenRegistry(address _tokenRegistry) external;
 

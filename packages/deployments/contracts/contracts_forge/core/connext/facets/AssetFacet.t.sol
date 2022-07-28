@@ -10,7 +10,7 @@ import {TestERC20} from "../../../../contracts/test/TestERC20.sol";
 
 import {TokenId} from "../../../../contracts/core/connext/libraries/LibConnextStorage.sol";
 
-import {MockWrapper, MockTokenRegistry} from "../../../utils/Mock.sol";
+import {MockTokenRegistry} from "../../../utils/Mock.sol";
 import "../../../utils/FacetHelper.sol";
 
 contract AssetFacetTest is AssetFacet, FacetHelper {

@@ -11,21 +11,12 @@ import {ITokenRegistry} from "../interfaces/ITokenRegistry.sol";
 
 contract AssetFacet is BaseConnextFacet {
   // ========== Custom Errors ===========
-  error AssetFacet__setWrapper_invalidWrapper();
   error AssetFacet__setTokenRegistry_invalidTokenRegistry();
   error AssetFacet__addAssetId_nativeAsset();
   error AssetFacet__addAssetId_alreadyAdded();
   error AssetFacet__removeAssetId_notAdded();
 
   // ============ Events ============
-
-  /**
-   * @notice Emitted when the wrapper variable is updated
-   * @param oldWrapper - The wrapper old value
-   * @param newWrapper - The wrapper new value
-   * @param caller - The account that called the function
-   */
-  event WrapperUpdated(address oldWrapper, address newWrapper, address caller);
 
   /**
    * @notice Emitted when the tokenRegistry variable is updated

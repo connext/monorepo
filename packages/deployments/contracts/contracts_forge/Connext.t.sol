@@ -98,12 +98,10 @@ contract ConnextTest is ForgeHelper, Deployer {
   uint32 _canonicalDomain;
   bytes32 _canonicalKey;
 
-  address _originWrapper;
   address _originLocal;
   address _originAdopted;
   address _originLp; // deployed IFF pool init-d
 
-  address _destinationWrapper;
   address _destinationLocal;
   address _destinationAdopted;
   address _destinationLp; // deployed IFF pool init-d
@@ -142,18 +140,12 @@ contract ConnextTest is ForgeHelper, Deployer {
   // ============ Utils ============
 
   function utils_deployAssets() public {
-    // deploy wrappers
+    // deploy tokens
     _canonical = address(new TestERC20());
-    _originWrapper = address(new WETH());
     _originLocal = address(new TestERC20());
     _originAdopted = address(new TestERC20());
-    _destinationWrapper = address(new WETH());
     _destinationLocal = address(new TestERC20());
     _destinationAdopted = address(new TestERC20());
-
-    // fund weth wrappers for convenience
-    vm.deal(_originWrapper, 100 ether);
-    vm.deal(_destinationWrapper, 100 ether);
   }
 
   function utils_deployNomad() public {
@@ -250,7 +242,6 @@ contract ConnextTest is ForgeHelper, Deployer {
       _origin,
       address(_originManager),
       address(_originRegistry),
-      _originWrapper,
       address(_originRelayerFee),
       payable(address(_originPromise))
     );
@@ -260,7 +251,6 @@ contract ConnextTest is ForgeHelper, Deployer {
       _destination,
       address(_destinationManager),
       address(_destinationRegistry),
-      _destinationWrapper,
       address(_destinationRelayerFee),
       payable(address(_destinationPromise))
     );
@@ -421,17 +411,13 @@ contract ConnextTest is ForgeHelper, Deployer {
   // ============ XCall helpers
   function utils_getXCallBalances(address transacting, address bridge) public returns (XCallBalances memory) {
     bool isDestination = bridge == address(_destinationConnext);
-    address parkedAsset = transacting != address(0) ? transacting : isDestination
-      ? _destinationWrapper
-      : _originWrapper;
+    address parkedAsset = transacting;
     return
       XCallBalances(
         IERC20(parkedAsset).balanceOf(bridge), // bridge transacting balance (what will sit there)
         IERC20(isDestination ? _destinationLocal : _originLocal).balanceOf(bridge), // bridge local balance
         bridge.balance, // bridge native balance
-        transacting == address(0) || transacting == _originWrapper || transacting == _destinationWrapper
-          ? address(this).balance
-          : IERC20(transacting).balanceOf(address(this)), // caller transacting balance
+        IERC20(transacting).balanceOf(address(this)), // caller transacting balance
         address(this).balance
       );
   }
@@ -458,10 +444,7 @@ contract ConnextTest is ForgeHelper, Deployer {
     emit XCalled(transferId, nonce, _bridgedAmt, _args, _bridged, address(this));
 
     // Make call
-    uint256 transactingNative = _args.transactingAsset == address(0) ? _args.transactingAmount : 0;
-    bytes32 ret = _originConnext.xcall{value: _args.params.relayerFee + _args.params.callbackFee + transactingNative}(
-      _args
-    );
+    bytes32 ret = _originConnext.xcall{value: _args.params.relayerFee + _args.params.callbackFee}(_args);
     assertEq(ret, transferId);
 
     // Check balances
@@ -480,10 +463,7 @@ contract ConnextTest is ForgeHelper, Deployer {
     );
     assertEq(end.bridgeNative, initial.bridgeNative + _args.params.relayerFee);
     assertEq(end.callerTransacting, initial.callerTransacting - _args.transactingAmount);
-    assertEq(
-      end.callerNative,
-      initial.callerNative - _args.params.relayerFee - _args.params.callbackFee - transactingNative
-    );
+    assertEq(end.callerNative, initial.callerNative - _args.params.relayerFee - _args.params.callbackFee);
 
     // Check call to bridge router
     assertEq(MockBridgeRouter(_originBridgeRouter).getToken(transferId), _bridged);
@@ -592,10 +572,8 @@ contract ConnextTest is ForgeHelper, Deployer {
       ExecuteBalances(
         IERC20(local).balanceOf(bridge), // bridge local
         IERC20(receiving).balanceOf(bridge), // bridge receiving
-        // NOTE: if native, you still want to check the wrapper balance on the bridge as that
-        // will be what changes (not the case for the recipient)
         routerBalances, // router liquidity
-        receiving == _destinationWrapper ? recipient.balance : IERC20(receiving).balanceOf(recipient) // to receivec
+        IERC20(receiving).balanceOf(recipient) // to receive
       );
   }
 

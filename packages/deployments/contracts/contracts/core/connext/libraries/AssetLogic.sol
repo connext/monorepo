@@ -65,8 +65,6 @@ library AssetLogic {
     uint256 _assetAmount,
     uint256 _fee
   ) internal {
-    AppStorage storage s = LibConnextStorage.connextStorage();
-
     if (_assetId == address(0)) {
       revert AssetLogic__handleIncomingAsset_nativeAssetNotSupported();
     }
@@ -89,8 +87,6 @@ library AssetLogic {
     address _to,
     uint256 _amount
   ) internal {
-    AppStorage storage s = LibConnextStorage.connextStorage();
-
     // No native assets should ever be stored on this contract
     if (_assetId == address(0)) revert AssetLogic__handleOutgoingAsset_notNative();
 

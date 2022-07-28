@@ -298,11 +298,6 @@ contract BridgeFacet is BaseConnextFacet {
    * burn the tokens here. If the local assets are canonical (meaning that the adopted<>local asset pairing is native
    * to this chain), we will custody the tokens here.
    *
-   * For native transfers, the native asset will be wrapped by depositing them to the configured Wrapper contract. Next,
-   * the wrapper tokens (e.g. WETH) are swapped for their local nomad asset counterparts via the configured AMM.
-   * Those local tokens will then be sent via the bridge router. Since the local assets would always be canonical in this
-   * case, custody of the local assets will be kept here.
-   *
    * @param _args - The XCallArgs arguments.
    * @return bytes32 - The transfer ID of the newly created crosschain transfer.
    */
