@@ -114,6 +114,6 @@ export class InvalidAuctionRound extends ExecuteError {
 
 export class UnableToGetAsset extends ExecuteError {
   constructor(context: any = {}) {
-    super("Invalid to get asset", context, UnableToGetAsset.name, undefined, false);
+    super("Unable to get asset", context, UnableToGetAsset.name, undefined, false);
   }
 }
