@@ -1,6 +1,6 @@
 import { createStubInstance, reset, restore, stub, spy } from "sinon";
 import { expect } from "@connext/nxtp-utils";
-import { ChainReader, getConnextInterface } from "@connext/nxtp-txservice";
+import { ChainReader, getConnextInterface, getTokenRegistryInterface } from "@connext/nxtp-txservice";
 import { providers, utils } from "ethers";
 import { mock } from "./mock";
 import { NxtpSdkPool, Pool } from "../src/sdkPool";
@@ -62,9 +62,9 @@ describe("NxtpSdkPool", () => {
       domainId: mock.domain.A,
       canonicalId: utils.formatBytes32String("0"),
       amounts: ["100", "100"],
-      deadline: 1700000000,
       minToMint: "100",
-      connextAddress: mockConfig.chains[mock.domain.A].deployments.connext,
+      deadline: 1700000000,
+      connextAddress: mockConfig.chains[mock.domain.A].deployments!.connext,
     };
 
     it("happy: should work", async () => {
@@ -88,6 +88,7 @@ describe("NxtpSdkPool", () => {
         mockParams.domainId,
         mockParams.canonicalId,
         mockParams.amounts,
+        mockParams.minToMint,
         mockParams.deadline,
       );
       expect(res).to.be.deep.eq(mockRequest);
@@ -99,9 +100,9 @@ describe("NxtpSdkPool", () => {
       domainId: mock.domain.A,
       canonicalId: utils.formatBytes32String("0"),
       amount: "100",
-      deadline: 1700000000,
       minAmounts: ["100", "100"],
-      connextAddress: mockConfig.chains[mock.domain.A].deployments.connext,
+      deadline: 1700000000,
+      connextAddress: mockConfig.chains[mock.domain.A].deployments!.connext,
     };
 
     it("happy: should work", async () => {
@@ -125,6 +126,7 @@ describe("NxtpSdkPool", () => {
         mockParams.domainId,
         mockParams.canonicalId,
         mockParams.amount,
+        mockParams.minAmounts,
         mockParams.deadline,
       );
       expect(res).to.be.deep.eq(mockRequest);
@@ -140,7 +142,7 @@ describe("NxtpSdkPool", () => {
       amount: "100",
       minDy: 100,
       deadline: 170000000,
-      connextAddress: mockConfig.chains[mock.domain.A].deployments.connext,
+      connextAddress: mockConfig.chains[mock.domain.A].deployments!.connext,
     };
 
     it("happy: should work", async () => {
@@ -160,7 +162,7 @@ describe("NxtpSdkPool", () => {
         value: 0,
       };
 
-      stub(nxtpPool, "getCanonicalFromLocal").resolves(["1337", "0x0"]);
+      stub(nxtpPool, "getCanonicalFromLocal").resolves([1337, "0x0"]);
       stub(nxtpPool, "getPoolTokenIndex").onCall(0).resolves(0).onCall(1).resolves(1);
       stub(nxtpPool, "calculateSwap").resolves(mockParams.minDy);
 
@@ -170,6 +172,7 @@ describe("NxtpSdkPool", () => {
         mockParams.from,
         mockParams.to,
         mockParams.amount,
+        mockParams.minDy,
         mockParams.deadline,
       );
       expect(res).to.be.deep.eq(mockRequest);
@@ -189,7 +192,7 @@ describe("NxtpSdkPool", () => {
     };
 
     it("happy: should work", async () => {
-      stub(nxtpPool, "getCanonicalFromLocal").resolves([mock.domain.B, mockParams.canonicalId]);
+      stub(nxtpPool, "getCanonicalFromLocal").resolves([parseInt(mock.domain.B), mockParams.canonicalId]);
       stub(chainReader, "readTx").onCall(0).resolves("0x");
 
       stub(nxtpPool.connext, "decodeFunctionResult")
