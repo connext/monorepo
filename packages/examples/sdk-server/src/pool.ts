@@ -1,5 +1,6 @@
 import { NxtpSdkPool } from "@connext/nxtp-sdk";
 import { FastifyInstance } from "fastify";
+import { TypeBoxTypeProvider } from "@fastify/type-provider-typebox";
 
 import {
   getLPTokenAddressSchema,
@@ -10,8 +11,6 @@ import {
   removeLiquiditySchema,
   swapSchema,
 } from "./types/api";
-
-import { TypeBoxTypeProvider } from "@fastify/type-provider-typebox";
 
 export const poolRoutes = async (server: FastifyInstance, sdkPoolInstance: NxtpSdkPool): Promise<any> => {
   const s = server.withTypeProvider<TypeBoxTypeProvider>();
