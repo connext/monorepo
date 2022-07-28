@@ -30,11 +30,6 @@ import "./utils/ForgeHelper.sol";
 import "./utils/Mock.sol";
 import "./utils/Deployer.sol";
 
-struct XCalledEventArgs {
-  uint256 bridgedAmt;
-  address bridged;
-}
-
 // Holds all balances that are impacted by an xcall
 struct XCallBalances {
   uint256 bridgeTransacting;
@@ -64,8 +59,9 @@ contract ConnextTest is ForgeHelper, Deployer {
   event XCalled(
     bytes32 indexed transferId,
     uint256 indexed nonce,
+    uint256 bridgedAmt,
     XCallArgs xcallArgs,
-    XCalledEventArgs args,
+    address bridged,
     address caller
   );
 
@@ -440,7 +436,11 @@ contract ConnextTest is ForgeHelper, Deployer {
       );
   }
 
-  function utils_xcallAndAssert(XCallArgs memory _args, XCalledEventArgs memory _event) public returns (bytes32) {
+  function utils_xcallAndAssert(
+    XCallArgs memory _args,
+    address _bridged,
+    uint256 _bridgedAmt
+  ) public returns (bytes32) {
     // Approve the bridge
     if (_args.transactingAssetId != address(0)) {
       IERC20(_args.transactingAssetId).approve(address(_originConnext), _args.amount);
@@ -452,10 +452,10 @@ contract ConnextTest is ForgeHelper, Deployer {
     uint256 nonce = 0;
     bytes32 canonicalId = TypeCasts.addressToBytes32(_canonical);
     bytes32 transferId = keccak256(
-      abi.encode(nonce, _args.params, address(this), canonicalId, _canonicalDomain, _event.bridgedAmt)
+      abi.encode(nonce, _args.params, address(this), canonicalId, _canonicalDomain, _bridgedAmt)
     );
     vm.expectEmit(true, true, true, true);
-    emit XCalled(transferId, nonce, _args, _event, address(this));
+    emit XCalled(transferId, nonce, _bridgedAmt, _args, _bridged, address(this));
 
     // Make call
     uint256 transactingNative = _args.transactingAssetId == address(0) ? _args.amount : 0;
@@ -476,7 +476,7 @@ contract ConnextTest is ForgeHelper, Deployer {
       end.bridgeLocal,
       // on xcall, local will be (1) transferred (or swapped) in, (2) sent to the bridge router
       // meaning the balance should only change by the amount swapped
-      _args.transactingAssetId == _event.bridged ? initial.bridgeLocal : initial.bridgeLocal - _event.bridgedAmt
+      _args.transactingAssetId == _bridged ? initial.bridgeLocal : initial.bridgeLocal - _bridgedAmt
     );
     assertEq(end.bridgeNative, initial.bridgeNative + _args.params.relayerFee);
     assertEq(end.callerTransacting, initial.callerTransacting - _args.amount);
@@ -486,8 +486,8 @@ contract ConnextTest is ForgeHelper, Deployer {
     );
 
     // Check call to bridge router
-    assertEq(MockBridgeRouter(_originBridgeRouter).getToken(transferId), _event.bridged);
-    assertEq(MockBridgeRouter(_originBridgeRouter).getAmount(transferId), _event.bridgedAmt);
+    assertEq(MockBridgeRouter(_originBridgeRouter).getToken(transferId), _bridged);
+    assertEq(MockBridgeRouter(_originBridgeRouter).getAmount(transferId), _bridgedAmt);
     assertEq(MockBridgeRouter(_originBridgeRouter).getDestination(transferId), _args.params.destinationDomain);
     return ret;
   }
@@ -756,18 +756,14 @@ contract ConnextTest is ForgeHelper, Deployer {
 
     // 1. `xcall` on the origin
     XCallArgs memory xcall = XCallArgs(utils_createCallParams(_destination), _originLocal, 1 ether, 0.95 ether);
-    XCalledEventArgs memory eventArgs = XCalledEventArgs(
-      xcall.amount, // amount bridged
-      _originLocal // asset bridged
-    );
-    bytes32 transferId = utils_xcallAndAssert(xcall, eventArgs);
+    bytes32 transferId = utils_xcallAndAssert(xcall, _originLocal, xcall.amount);
 
     // 2. call `execute` on the destination
-    ExecuteArgs memory execute = utils_createExecuteArgs(xcall.params, 2, transferId, eventArgs.bridgedAmt);
+    ExecuteArgs memory execute = utils_createExecuteArgs(xcall.params, 2, transferId, xcall.amount);
     utils_executeAndAssert(execute, transferId, utils_getFastTransferAmount(execute.amount));
 
     // 3. call `handle` on the destination
-    utils_reconcileAndAssert(transferId, eventArgs.bridgedAmt, xcall.params.to, execute.routers);
+    utils_reconcileAndAssert(transferId, xcall.amount, xcall.params.to, execute.routers);
   }
 
   // you should be able to bridge tokens (local != adopted)
@@ -783,14 +779,10 @@ contract ConnextTest is ForgeHelper, Deployer {
       1, // adopted idx always 1
       args.amount // no min
     );
-    XCalledEventArgs memory eventArgs = XCalledEventArgs(
-      expected, // amount bridged
-      _originLocal // asset bridged
-    );
-    bytes32 transferId = utils_xcallAndAssert(args, eventArgs);
+    bytes32 transferId = utils_xcallAndAssert(args, _originLocal, expected);
 
     // 2. call `execute` on the destination
-    ExecuteArgs memory execute = utils_createExecuteArgs(args.params, 1, transferId, eventArgs.bridgedAmt);
+    ExecuteArgs memory execute = utils_createExecuteArgs(args.params, 1, transferId, expected);
     uint256 swapped = _destinationConnext.calculateSwap(
       _canonicalKey,
       1, // adopted idx always 1
@@ -800,7 +792,7 @@ contract ConnextTest is ForgeHelper, Deployer {
     utils_executeAndAssert(execute, transferId, swapped);
 
     // 3. call `handle` on the destination
-    utils_reconcileAndAssert(transferId, eventArgs.bridgedAmt, args.params.to, execute.routers);
+    utils_reconcileAndAssert(transferId, expected, args.params.to, execute.routers);
   }
 
   // you should be able to bridge local asset (local != adopted)
@@ -810,14 +802,10 @@ contract ConnextTest is ForgeHelper, Deployer {
 
     // 1. `xcall` on the origin
     XCallArgs memory args = XCallArgs(utils_createCallParams(_destination), _originLocal, 1 ether, 0.95 ether);
-    XCalledEventArgs memory eventArgs = XCalledEventArgs(
-      args.amount, // amount bridged
-      _originLocal // asset bridged
-    );
-    bytes32 transferId = utils_xcallAndAssert(args, eventArgs);
+    bytes32 transferId = utils_xcallAndAssert(args, _originLocal, args.amount);
 
     // 2. call `execute` on the destination
-    ExecuteArgs memory execute = utils_createExecuteArgs(args.params, 2, transferId, eventArgs.bridgedAmt);
+    ExecuteArgs memory execute = utils_createExecuteArgs(args.params, 2, transferId, args.amount);
     uint256 swapped = _destinationConnext.calculateSwap(
       _canonicalKey,
       1, // adopted idx always 1
@@ -827,7 +815,7 @@ contract ConnextTest is ForgeHelper, Deployer {
     utils_executeAndAssert(execute, transferId, swapped);
 
     // 3. call `handle` on the destination
-    utils_reconcileAndAssert(transferId, eventArgs.bridgedAmt, args.params.to, execute.routers);
+    utils_reconcileAndAssert(transferId, args.amount, args.params.to, execute.routers);
   }
 
   // you should be able to use the slow path
@@ -837,20 +825,16 @@ contract ConnextTest is ForgeHelper, Deployer {
 
     // 1. `xcall` on the origin
     XCallArgs memory args = XCallArgs(utils_createCallParams(_destination), _originLocal, 1 ether, 0.95 ether);
-    XCalledEventArgs memory eventArgs = XCalledEventArgs(
-      args.amount, // amount bridged
-      _originLocal // asset bridged
-    );
-    bytes32 transferId = utils_xcallAndAssert(args, eventArgs);
+    bytes32 transferId = utils_xcallAndAssert(args, _originLocal, args.amount);
 
     // create execute args
-    ExecuteArgs memory execute = utils_createExecuteArgs(args.params, 0, transferId, eventArgs.bridgedAmt);
+    ExecuteArgs memory execute = utils_createExecuteArgs(args.params, 0, transferId, args.amount);
 
     // 2. call `handle` on the destination
-    utils_reconcileAndAssert(transferId, eventArgs.bridgedAmt, args.params.to, execute.routers);
+    utils_reconcileAndAssert(transferId, args.amount, args.params.to, execute.routers);
 
     // 3. call `execute` on the destination
-    utils_executeAndAssert(execute, transferId, eventArgs.bridgedAmt);
+    utils_executeAndAssert(execute, transferId, args.amount);
   }
 
   // you should be able to execute unpermissioned external call data
@@ -864,14 +848,10 @@ contract ConnextTest is ForgeHelper, Deployer {
     XCallArgs memory xcall = XCallArgs(utils_createCallParams(_destination), _originLocal, 1 ether, 0.95 ether);
     xcall.params.to = address(callTo);
     xcall.params.callData = callData;
-    XCalledEventArgs memory eventArgs = XCalledEventArgs(
-      xcall.amount, // amount bridged
-      _originLocal // asset bridged
-    );
-    bytes32 transferId = utils_xcallAndAssert(xcall, eventArgs);
+    bytes32 transferId = utils_xcallAndAssert(xcall, _originLocal, xcall.amount);
 
     // 2. call `execute` on the destination
-    ExecuteArgs memory execute = utils_createExecuteArgs(xcall.params, 2, transferId, eventArgs.bridgedAmt);
+    ExecuteArgs memory execute = utils_createExecuteArgs(xcall.params, 2, transferId, xcall.amount);
     utils_executeAndAssert(execute, transferId, utils_getFastTransferAmount(execute.amount));
     // NOTE: execute only passes if external call passes because of balance assertions on `to`
   }
@@ -887,17 +867,13 @@ contract ConnextTest is ForgeHelper, Deployer {
     XCallArgs memory xcall = XCallArgs(utils_createCallParams(_destination), _originLocal, 1 ether, 0.95 ether);
     xcall.params.to = address(callTo);
     xcall.params.callData = callData;
-    XCalledEventArgs memory eventArgs = XCalledEventArgs(
-      xcall.amount, // amount bridged
-      _originLocal // asset bridged
-    );
-    bytes32 transferId = utils_xcallAndAssert(xcall, eventArgs);
+    bytes32 transferId = utils_xcallAndAssert(xcall, _originLocal, xcall.amount);
 
     // create execute args
-    ExecuteArgs memory execute = utils_createExecuteArgs(xcall.params, 0, transferId, eventArgs.bridgedAmt);
+    ExecuteArgs memory execute = utils_createExecuteArgs(xcall.params, 0, transferId, xcall.amount);
 
     // 2. call `handle` on the destination
-    utils_reconcileAndAssert(transferId, eventArgs.bridgedAmt, xcall.params.to, execute.routers);
+    utils_reconcileAndAssert(transferId, xcall.amount, xcall.params.to, execute.routers);
 
     // 3. call `execute` on the destination
     utils_executeAndAssert(execute, transferId, execute.amount);
@@ -919,14 +895,10 @@ contract ConnextTest is ForgeHelper, Deployer {
     xcall.params.to = address(callTo);
     xcall.params.callData = callData;
     xcall.params.callback = address(callback);
-    XCalledEventArgs memory eventArgs = XCalledEventArgs(
-      xcall.amount, // amount bridged
-      _originLocal // asset bridged
-    );
-    bytes32 transferId = utils_xcallAndAssert(xcall, eventArgs);
+    bytes32 transferId = utils_xcallAndAssert(xcall, _originLocal, xcall.amount);
 
     // 2. call `execute` on the destination
-    ExecuteArgs memory execute = utils_createExecuteArgs(xcall.params, 2, transferId, eventArgs.bridgedAmt);
+    ExecuteArgs memory execute = utils_createExecuteArgs(xcall.params, 2, transferId, xcall.amount);
     utils_executeAndAssert(execute, transferId, utils_getFastTransferAmount(execute.amount));
     // NOTE: execute only passes if external call passes because of balance assertions on `to`
 
@@ -968,16 +940,12 @@ contract ConnextTest is ForgeHelper, Deployer {
 
     // 1. xcall
     XCallArgs memory xcall = XCallArgs(utils_createCallParams(_destination), _originLocal, 1 ether, 0.95 ether);
-    XCalledEventArgs memory eventArgs = XCalledEventArgs(
-      xcall.amount, // amount bridged
-      _originLocal // asset bridged
-    );
-    bytes32 transferId = utils_xcallAndAssert(xcall, eventArgs);
+    bytes32 transferId = utils_xcallAndAssert(xcall, _originLocal, xcall.amount);
 
     // 2. call `execute` on the destination
     uint256 initLiquidity = IERC20(_destinationLocal).balanceOf(xcall.params.to);
     uint256 initReceiver = xcall.params.to.balance;
-    ExecuteArgs memory execute = utils_createExecuteArgs(xcall.params, 2, transferId, eventArgs.bridgedAmt);
+    ExecuteArgs memory execute = utils_createExecuteArgs(xcall.params, 2, transferId, xcall.amount);
     utils_executeAndAssert(
       execute,
       transferId,
@@ -1003,21 +971,17 @@ contract ConnextTest is ForgeHelper, Deployer {
 
     // 1. `xcall` on the origin
     XCallArgs memory args = XCallArgs(utils_createCallParams(_destination), _originAdopted, 1 ether, 0.95 ether);
-    XCalledEventArgs memory eventArgs = XCalledEventArgs(
-      args.amount, // amount bridged
-      _originLocal // asset bridged
-    );
-    bytes32 transferId = utils_xcallAndAssert(args, eventArgs);
+    bytes32 transferId = utils_xcallAndAssert(args, _originLocal, args.amount);
 
     // 2. call `execute` on the destination
-    ExecuteArgs memory execute = utils_createExecuteArgs(args.params, 1, transferId, eventArgs.bridgedAmt, 0);
+    ExecuteArgs memory execute = utils_createExecuteArgs(args.params, 1, transferId, args.amount, 0);
     // whitelist routers for portal
     _destinationConnext.approveRouterForPortal(execute.routers[0]);
     assertTrue(_destinationConnext.getRouterApprovalForPortal(execute.routers[0]));
-    utils_executeAndAssert(execute, transferId, utils_getFastTransferAmount(eventArgs.bridgedAmt), 0, true);
+    utils_executeAndAssert(execute, transferId, utils_getFastTransferAmount(args.amount), 0, true);
 
     // 3. call `handle` on the destination
-    utils_reconcileAndAssert(transferId, eventArgs.bridgedAmt, args.params.to, execute.routers);
+    utils_reconcileAndAssert(transferId, args.amount, args.params.to, execute.routers);
 
     // 4. repay portal out of band
     IERC20(_destinationAdopted).approve(address(_destinationConnext), 100 ether);
@@ -1025,7 +989,7 @@ contract ConnextTest is ForgeHelper, Deployer {
       args.params,
       _destinationAdopted,
       address(this),
-      eventArgs.bridgedAmt,
+      args.amount,
       0,
       _destinationConnext.getAavePortalDebt(transferId),
       _destinationConnext.getAavePortalFeeDebt(transferId)
@@ -1041,11 +1005,7 @@ contract ConnextTest is ForgeHelper, Deployer {
 
     // 1. `xcall` on the origin
     XCallArgs memory xcall = XCallArgs(utils_createCallParams(_destination), _originLocal, 1 ether, 0.95 ether);
-    XCalledEventArgs memory eventArgs = XCalledEventArgs(
-      xcall.amount, // amount bridged
-      _originLocal // asset bridged
-    );
-    bytes32 transferId = utils_xcallAndAssert(xcall, eventArgs);
+    bytes32 transferId = utils_xcallAndAssert(xcall, _originLocal, xcall.amount);
 
     // 2. bump transfer id
     uint256 bump = 0.01 ether;
@@ -1057,7 +1017,7 @@ contract ConnextTest is ForgeHelper, Deployer {
     assertEq(address(_originConnext).balance, bump + init);
 
     // 3. call `execute` on the destination
-    ExecuteArgs memory execute = utils_createExecuteArgs(xcall.params, 2, transferId, eventArgs.bridgedAmt);
+    ExecuteArgs memory execute = utils_createExecuteArgs(xcall.params, 2, transferId, xcall.amount);
     utils_executeAndAssert(execute, transferId, utils_getFastTransferAmount(execute.amount));
 
     // 4. initiate claim

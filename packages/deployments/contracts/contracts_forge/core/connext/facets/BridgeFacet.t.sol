@@ -296,12 +296,8 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
   ) public {
     // bridged is either local or canonical, depending on domain xcall originates on
     address bridged = _canonicalDomain == args.params.originDomain ? _canonical : _local;
-    BridgeFacet.XCalledEventArgs memory eventArgs = BridgeFacet.XCalledEventArgs({
-      bridgedAmt: bridgedAmt,
-      bridged: bridged
-    });
     vm.expectEmit(true, true, true, true);
-    emit XCalled(transferId, s.nonce, args, eventArgs, _originSender);
+    emit XCalled(transferId, s.nonce, bridgedAmt, args, bridged, _originSender);
 
     // assert swap if expected
     if (shouldSwap && bridgedAmt != 0) {
@@ -338,8 +334,8 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
       0,
       abi.encodeWithSelector(
         IBridgeRouter.sendToHook.selector,
-        eventArgs.bridged,
-        eventArgs.bridgedAmt,
+        bridged,
+        bridgedAmt,
         args.params.destinationDomain,
         s.connextions[args.params.destinationDomain], // always use this as remote connext
         abi.encodePacked(transferId)

@@ -29,11 +29,6 @@ contract BridgeFacet is BaseConnextFacet {
 
   // ========== Structs ===========
 
-  struct XCalledEventArgs {
-    uint256 bridgedAmt;
-    address bridged;
-  }
-
   // ========== Custom Errors ===========
 
   error BridgeFacet__setPromiseRouter_invalidPromiseRouter();
@@ -79,8 +74,9 @@ contract BridgeFacet is BaseConnextFacet {
   event XCalled(
     bytes32 indexed transferId,
     uint256 indexed nonce,
+    uint256 bridgedAmt,
     XCallArgs xcallArgs,
-    XCalledEventArgs args,
+    address bridged,
     address caller
   );
 
@@ -348,7 +344,8 @@ contract BridgeFacet is BaseConnextFacet {
 
     bytes32 transferId;
     uint256 _sNonce;
-    XCalledEventArgs memory eventArgs;
+    uint256 bridgedAmt;
+    address bridged;
     {
       // Check that the asset is supported -- can be either adopted or local.
       TokenId memory canonical = s.adoptedToCanonical[_args.transactingAssetId];
@@ -375,7 +372,7 @@ contract BridgeFacet is BaseConnextFacet {
       );
 
       // Swap to the local asset from adopted if applicable.
-      (uint256 bridgedAmt, address bridged) = AssetLogic.swapToLocalAssetIfNeeded(
+      (bridgedAmt, bridged) = AssetLogic.swapToLocalAssetIfNeeded(
         canonical,
         _args.transactingAssetId,
         _args.amount,
@@ -408,14 +405,10 @@ contract BridgeFacet is BaseConnextFacet {
         remoteInstance,
         abi.encodePacked(transferId)
       );
-
-      // Format arguments for XCalled event that will be emitted below.
-      // TODO: remove eventArgs type completely?
-      eventArgs = XCalledEventArgs({bridgedAmt: bridgedAmt, bridged: bridged});
     }
 
     // emit event
-    emit XCalled(transferId, _sNonce, _args, eventArgs, msg.sender);
+    emit XCalled(transferId, _sNonce, bridgedAmt, _args, bridged, msg.sender);
 
     return transferId;
   }
