@@ -655,6 +655,36 @@ contract SponsorVaultTest is ForgeHelper {
     assertEq(to.balance, balanceBefore + expectedFee);
   }
 
+  function test_SponsorVault__reimburseRelayerFees_shouldHandleBadGasOracle() public {
+    uint256 relayerFeeCap = 1000;
+    uint256 relayerFee = 500;
+    address to = address(10);
+
+    vault.setRelayerFeeCap(relayerFeeCap);
+    vault.setGasTokenOracle(gasTokenOracle);
+
+    uint256 balanceBefore = to.balance;
+
+    SponsorVault.Rate memory gasTokenOracleRate = SponsorVault.Rate({num: 1, den: 0});
+
+    vm.mockCall(
+      address(gasTokenOracle),
+      abi.encodeWithSelector(IGasTokenOracle.getRate.selector),
+      abi.encode(gasTokenOracleRate)
+    );
+
+    vm.expectCall(address(gasTokenOracle), abi.encodeWithSelector(IGasTokenOracle.getRate.selector, originDomain));
+
+    uint256 expectedFee = 0;
+
+    vm.expectEmit(true, true, true, true);
+    emit ReimburseRelayerFees(expectedFee, to);
+
+    vault.reimburseRelayerFees(originDomain, payable(to), relayerFee);
+
+    assertEq(to.balance, balanceBefore + expectedFee);
+  }
+
   function test_SponsorVault__reimburseRelayerFees_should_use_gasTokenOracle_rate_but_return_relayerFeeCap_when_fee_is_to_high()
     public
   {

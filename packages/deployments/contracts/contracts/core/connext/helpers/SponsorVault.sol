@@ -301,7 +301,7 @@ contract SponsorVault is ISponsorVault, ReentrancyGuard, Ownable {
     if (address(gasTokenOracle) != address(0)) {
       (num, den) = gasTokenOracle.getRate(_originDomain);
 
-      sponsoredFee = (_originRelayerFee * num) / den;
+      sponsoredFee = den == 0 ? 0 : (_originRelayerFee * num) / den;
     } else {
       num = rates[_originDomain].num;
       den = rates[_originDomain].den;
