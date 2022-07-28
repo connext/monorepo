@@ -397,8 +397,6 @@ contract BridgeFacet is BaseConnextFacet {
         s.promiseRouter.initCallbackFee{value: _args.params.callbackFee}(transferId);
       }
 
-      // _sendToBridgeRouter(_args.params, bridged, bridgedAmt, _sNonce, remoteInstance);
-
       // Approve bridge router
       SafeERC20.safeApprove(IERC20(bridgedAsset), address(s.bridgeRouter), 0);
       SafeERC20.safeIncreaseAllowance(IERC20(bridgedAsset), address(s.bridgeRouter), bridgedAmount);
@@ -409,7 +407,7 @@ contract BridgeFacet is BaseConnextFacet {
         bridgedAmount,
         _args.params.destinationDomain,
         remoteInstance,
-        abi.encode(TransferIdInformation(_params, _nonce, msg.sender))
+        abi.encode(TransferIdInformation(_args.params, _sNonce, msg.sender))
       );
     }
 
@@ -646,30 +644,6 @@ contract BridgeFacet is BaseConnextFacet {
     uint256 _denominator
   ) private pure returns (uint256) {
     return (_amount * _numerator) / _denominator;
-  }
-
-  /**
-   * @notice Sends funds to the bridge router and calls `sendToHook`
-   */
-  function _sendToBridgeRouter(
-    CallParams calldata _params,
-    address _asset,
-    uint256 _amount,
-    uint256 _nonce,
-    bytes32 _remoteInstance
-  ) internal {
-    // Approve bridge router
-    SafeERC20.safeApprove(IERC20(_asset), address(s.bridgeRouter), 0);
-    SafeERC20.safeIncreaseAllowance(IERC20(_asset), address(s.bridgeRouter), _amount);
-
-    // Send message
-    s.bridgeRouter.sendToHook(
-      _asset,
-      _amount,
-      _params.destinationDomain,
-      _remoteInstance,
-      abi.encode(TransferIdInformation(_params, _nonce, msg.sender))
-    );
   }
 
   /**
