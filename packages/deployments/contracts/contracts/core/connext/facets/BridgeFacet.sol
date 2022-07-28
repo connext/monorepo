@@ -390,7 +390,7 @@ contract BridgeFacet is BaseConnextFacet {
       // Store the relayer fee
       // NOTE: this has to be done *after* transferring in + swapping assets because
       // the transfer id uses the amount that is bridged (i.e. amount in local asset)
-      s.relayerFees[transferId] = _args.params.relayerFee;
+      s.relayerFees[transferId] += _args.params.relayerFee;
 
       // Transfer callback fee to PromiseRouter if set
       if (_args.params.callbackFee != 0) {
@@ -660,6 +660,8 @@ contract BridgeFacet is BaseConnextFacet {
       return (0, _args.local);
     }
 
+    bool localRequested = _args.params.receiveLocal || s.receiveLocalOverrides[_transferId];
+
     uint256 toSwap = _args.amount;
     // If this is a fast liquidity path, we should handle deducting from applicable routers' liquidity.
     // If this is a slow liquidity path, the transfer must have been reconciled (if we've reached this point),
@@ -678,11 +680,7 @@ contract BridgeFacet is BaseConnextFacet {
         // If router does not have enough liquidity, try to use Aave Portals.
         // only one router should be responsible for taking on this credit risk, and it should only
         // deal with transfers expecting adopted assets (to avoid introducing runtime slippage).
-        if (
-          !_args.params.receiveLocal &&
-          s.routerBalances[_args.routers[0]][_args.local] < toSwap &&
-          s.aavePool != address(0)
-        ) {
+        if (!localRequested && s.routerBalances[_args.routers[0]][_args.local] < toSwap && s.aavePool != address(0)) {
           if (!s.routerPermissionInfo.approvedForPortalRouters[_args.routers[0]])
             revert BridgeFacet__execute_notApprovedForPortals();
 
@@ -711,7 +709,7 @@ contract BridgeFacet is BaseConnextFacet {
 
     // if the local asset is specified, or the adopted asset was overridden (i.e. when
     // user facing slippage conditions outside of their boundaries), exit
-    if (_args.params.receiveLocal || s.receiveLocalOverrides[_transferId]) {
+    if (localRequested) {
       return (toSwap, _args.local);
     }
 

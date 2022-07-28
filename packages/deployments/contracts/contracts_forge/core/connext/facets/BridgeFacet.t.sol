@@ -382,7 +382,7 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
       vm.mockCall(_stableSwap, abi.encodeWithSelector(IStableSwap.swapExact.selector), abi.encode(bridgedAmt, _local));
     }
 
-    assertEq(s.relayerFees[transferId], 0);
+    uint256 initialRelayerFees = s.relayerFees[transferId];
 
     if (shouldSucceed) {
       helpers_setupSuccessfulXcallCallAssertions(transferId, args, bridgedAmt, shouldSwap);
@@ -420,7 +420,7 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
       }
 
       // Should have updated relayer fees mapping.
-      assertEq(this.relayerFees(transferId), args.params.relayerFee);
+      assertEq(this.relayerFees(transferId), args.params.relayerFee + initialRelayerFees);
 
       if (args.params.callbackFee != 0) {
         // TODO: For some reason, balance isn't changing. Perhaps the vm.mockCall prevents this?
@@ -429,7 +429,7 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
       }
     } else {
       // Should have reverted.
-      assertEq(this.relayerFees(transferId), 0);
+      assertEq(this.relayerFees(transferId), initialRelayerFees);
     }
   }
 
@@ -794,15 +794,6 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
       false,
       false
     );
-  }
-
-  function buildMessage(bytes32 _id) private returns (bytes memory) {
-    bytes32 detailsHash = keccak256("test");
-
-    bytes29 action = BridgeMessage.formatConnextTransfer(_id, _amount, detailsHash);
-    bytes29 tokenId = BridgeMessage.formatTokenId(_canonicalDomain, _canonicalId);
-
-    return BridgeMessage.formatMessage(tokenId, action);
   }
 
   // ============ execute ============
@@ -1306,6 +1297,16 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
     );
     args.transactingAsset = _local;
     helpers_xcallAndAssert(transferId, args, args.transactingAmount, args.transactingAmount, bytes4(""), false);
+  }
+
+  function test_BridgeFacet__xcall_worksIfPreexistingRelayerFee() public {
+    // local is not adopted, not on canonical domain, sending in local
+    utils_setupAsset(true, false);
+    _params.relayerFee = 0.1 ether;
+    (bytes32 transferId, XCallArgs memory args) = utils_makeXCallArgs(_amount);
+    s.relayerFees[transferId] = 2 ether;
+    helpers_xcallAndAssert(transferId, args, args.amount, args.amount, bytes4(""), false);
+    assertEq(s.relayerFees[transferId], 2.1 ether);
   }
 
   // local token transfer on non-canonical domain (local == adopted)

@@ -209,7 +209,7 @@ library AssetLogic {
   }
 
   /**
-   * @notice Swaps assetIn t assetOut using the stored stable swap or internal swap pool
+   * @notice Swaps assetIn to assetOut using the stored stable swap or internal swap pool
    * @dev Will not swap if the asset passed in is the adopted asset
    * @param _key - The canonical token id
    * @param _assetIn - The address of the from asset
@@ -252,7 +252,7 @@ library AssetLogic {
   }
 
   /**
-   * @notice Swaps assetIn t assetOut using the stored stable swap or internal swap pool
+   * @notice Swaps assetIn to assetOut using the stored stable swap or internal swap pool
    * @dev Will not swap if the asset passed in is the adopted asset
    * @param _key - The hash of the canonical id and domain
    * @param _assetIn - The address of the from asset
