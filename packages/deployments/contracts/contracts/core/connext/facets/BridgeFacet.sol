@@ -70,27 +70,35 @@ contract BridgeFacet is BaseConnextFacet {
 
   /**
    * @notice Emitted when `xcall` is called on the origin domain
+   * @param transferId - The unique identifier of the crosschain transfer.
+   * @param nonce - The bridge nonce of the transfer on the origin domain.
+   * @param xcallArgs - The `XCallArgs` provided to the function.
+   * @param bridgedAsset - The local (mad) asset being bridged. Could be the same as the transactingAsset (adopted
+   * asset), or may be different (indicating the transactingAsset was swapped for this bridgedAsset).
+   * @param bridgedAmount - The amount of the bridgedAsset being sent, after AMM swap from adopted asset if it was
+   * necessary.
+   * @param caller - The account that called the function.
    */
   event XCalled(
     bytes32 indexed transferId,
     uint256 indexed nonce,
-    uint256 bridgedAmt,
     XCallArgs xcallArgs,
-    address bridged,
+    address bridgedAsset,
+    uint256 bridgedAmount,
     address caller
   );
 
   /**
    * @notice Emitted when `execute` is called on the destination chain
    * @dev `execute` may be called when providing fast liquidity *or* when processing a reconciled transfer
-   * @param transferId - The unique identifier of the crosschain transfer
-   * @param to - The CallParams.to provided, created as indexed parameter
-   * @param args - The ExecuteArgs provided to the function
+   * @param transferId - The unique identifier of the crosschain transfer.
+   * @param to - The recipient `CallParams.to` provided, created as indexed parameter.
+   * @param args - The `ExecuteArgs` provided to the function.
    * @param transactingAsset - The asset the to gets or the external call is executed with. Should be the
    * adopted asset on that chain.
    * @param transactingAmount - The amount of transferring asset the to address receives or the external call is
-   * executed with
-   * @param caller - The account that called the function
+   * executed with.
+   * @param caller - The account that called the function.
    */
   event Executed(
     bytes32 indexed transferId,
@@ -344,8 +352,8 @@ contract BridgeFacet is BaseConnextFacet {
 
     bytes32 transferId;
     uint256 _sNonce;
-    uint256 bridgedAmt;
-    address bridged;
+    address bridgedAsset;
+    uint256 bridgedAmount;
     {
       // Check that the asset is supported -- can be either adopted or local.
       TokenId memory canonical = s.adoptedToCanonical[_args.transactingAssetId];
@@ -372,7 +380,7 @@ contract BridgeFacet is BaseConnextFacet {
       );
 
       // Swap to the local asset from adopted if applicable.
-      (bridgedAmt, bridged) = AssetLogic.swapToLocalAssetIfNeeded(
+      (bridgedAmount, bridgedAsset) = AssetLogic.swapToLocalAssetIfNeeded(
         canonical,
         _args.transactingAssetId,
         _args.amount,
@@ -380,7 +388,7 @@ contract BridgeFacet is BaseConnextFacet {
       );
 
       // Calculate the transfer id
-      transferId = _getTransferId(_args, canonical, bridgedAmt);
+      transferId = _getTransferId(_args, canonical, bridgedAmount);
       _sNonce = s.nonce++;
 
       // Store the relayer fee
@@ -394,13 +402,13 @@ contract BridgeFacet is BaseConnextFacet {
       }
 
       // Approve bridge router
-      SafeERC20.safeApprove(IERC20(bridged), address(s.bridgeRouter), 0);
-      SafeERC20.safeIncreaseAllowance(IERC20(bridged), address(s.bridgeRouter), bridgedAmt);
+      SafeERC20.safeApprove(IERC20(bridgedAsset), address(s.bridgeRouter), 0);
+      SafeERC20.safeIncreaseAllowance(IERC20(bridgedAsset), address(s.bridgeRouter), bridgedAmount);
 
       // Send message
       s.bridgeRouter.sendToHook(
-        bridged,
-        bridgedAmt,
+        bridgedAsset,
+        bridgedAmount,
         _args.params.destinationDomain,
         remoteInstance,
         abi.encodePacked(transferId)
@@ -408,7 +416,7 @@ contract BridgeFacet is BaseConnextFacet {
     }
 
     // emit event
-    emit XCalled(transferId, _sNonce, bridgedAmt, _args, bridged, msg.sender);
+    emit XCalled(transferId, _sNonce, _args, bridgedAsset, bridgedAmount, msg.sender);
 
     return transferId;
   }

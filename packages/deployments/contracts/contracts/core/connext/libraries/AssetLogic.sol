@@ -53,7 +53,7 @@ library AssetLogic {
 
   /**
    * @notice Handles transferring funds from msg.sender to the Connext contract.
-   * @dev Only allows native asset to be usef for fee
+   * @dev Only allows native asset to be used for fee
    * @param _assetId - The address to transfer
    * @param _assetAmount - The specified amount to transfer. May not be the
    * actual amount transferred (i.e. fee on transfer tokens)
