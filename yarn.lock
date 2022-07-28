@@ -941,7 +941,9 @@ __metadata:
   resolution: "@connext/nxtp-sdk-server@workspace:packages/examples/sdk-server"
   dependencies:
     "@connext/nxtp-sdk": "workspace:*"
+    "@connext/nxtp-txservice": "workspace:*"
     "@connext/nxtp-utils": "workspace:*"
+    "@fastify/type-provider-typebox": ^2.1.0
     "@types/node": 16.11.45
     "@types/pino": 7.0.5
     ethers: 5.6.9
@@ -1884,6 +1886,16 @@ __metadata:
   dependencies:
     fast-json-stringify: ^5.0.0
   checksum: 5cfeebcd9fb7ae5d912836503a7934ed4b9db83c30cae15e393341b52c059cd83531b375226406f8056b09f472c11560c730999c7ae4647c2fb9771d372db60a
+  languageName: node
+  linkType: hard
+
+"@fastify/type-provider-typebox@npm:^2.1.0":
+  version: 2.1.0
+  resolution: "@fastify/type-provider-typebox@npm:2.1.0"
+  peerDependencies:
+    "@sinclair/typebox": ^0.24.1
+    fastify: ^4.0.0
+  checksum: d98bd347f34948af4bc900c7e08ffd17aa64847150cf53a63ca74c2b0826c0e5b992d2fbbb10f22c284b986151a624a36928e8268317240eb83a227407eb1390
   languageName: node
   linkType: hard
 

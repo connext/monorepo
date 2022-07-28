@@ -1,6 +1,7 @@
 
    
 @baseUrl = http://127.0.0.1:8080
+@yourAddress = 0x6d2A06543D23Cc6523AE5046adD8bb60817E0a94
 
 ##############
 ### ẂELCOME
@@ -16,15 +17,86 @@ GET {{baseUrl}}/ping
 POST {{baseUrl}}/xcall
 Content-Type: application/json
 
- {
-    "params": {
-      "to": "0x5A9e792143bf2708b4765C144451dCa54f559a19",
-      "callData": "0x",
-      "originDomain": "2221",
-      "destinationDomain": "1111"
-    },
-    "transactingAssetId": "0xB5AabB55385bfBe31D627E2A717a7B189ddA4F8F",
-    "amount": "100000000000000",
-    "relayerFee": "0"
-  }
+{
+  "params": {
+    "to": "{{yourAddress}}",
+    "callData": "0x",
+    "originDomain": "1111",
+    "destinationDomain": "3331",
+    "agent": "{{yourAddress}}",
+    "recovery": "{{yourAddress}}",
+    "forceSlow": false,
+    "receiveLocal": false,
+    "callback": "0x0000000000000000000000000000000000000000",
+    "callbackFee": 0,
+    "relayerFee": "0",
+    "slippageTol": "9995"
+  },
+  "transactingAssetId": "0x3FFc03F05D1869f493c7dbf913E636C6280e0ff9",
+  "amount": "10000000000000000"
+}
 
+##############
+### GET getLPTokenAdress
+GET {{baseUrl}}/getLPTokenAddress/1111/0x000000000000000000000000b4fbf271143f4fbf7b91a5ded31805e42b2208d6
+
+##############
+### GET getCanonicalFromLocal
+GET {{baseUrl}}/getCanonicalFromLocal/1111/0xF25927315D101aC04C631878570152658defa7Db
+
+##############
+### POST calculateTokenAmount
+POST {{baseUrl}}/calculateTokenAmount
+Content-Type: application/json
+
+{
+  "domainId": "1111",
+  "canonicalId": "0x000000000000000000000000b4fbf271143f4fbf7b91a5ded31805e42b2208d6",
+  "amounts": ["10", "10"]
+}
+
+
+##############
+### POST getPool
+POST {{baseUrl}}/getPool
+Content-Type: application/json
+
+{
+  "domainId": "1111",
+  "tokenAddress": "0xF25927315D101aC04C631878570152658defa7Db"
+}
+
+##############
+### POST addLiquidity
+POST {{baseUrl}}/addLiquidity
+Content-Type: application/json
+
+{
+  "domainId": "1111",
+  "canonicalId": "0x000000000000000000000000b4fbf271143f4fbf7b91a5ded31805e42b2208d6",
+  "amounts": ["10", "10"]
+}
+
+##############
+### POST removeLiquidity
+POST {{baseUrl}}/removeLiquidity
+Content-Type: application/json
+
+{
+  "domainId": "1111",
+  "canonicalId": "0x000000000000000000000000b4fbf271143f4fbf7b91a5ded31805e42b2208d6",
+  "amount": "10"
+}
+
+##############
+### POST swap 
+POST {{baseUrl}}/swap
+Content-Type: application/json
+
+{
+  "domainId": "1111",
+  "canonicalId": "0x000000000000000000000000b4fbf271143f4fbf7b91a5ded31805e42b2208d6",
+  "from": "0xc778417E063141139Fce010982780140Aa0cD5Ab",
+  "to": "0xF25927315D101aC04C631878570152658defa7Db",
+  "amount": "10"
+}
