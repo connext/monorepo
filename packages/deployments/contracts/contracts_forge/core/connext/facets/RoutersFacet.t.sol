@@ -411,7 +411,7 @@ contract RoutersFacetTest is RoutersFacet, FacetHelper {
 
   // fails if already approved for portals
   function test_RoutersFacet__approveRouterForPortal_failsIfAlreadyApproved() public {
-    s._routerOwnershipRenounced = true;
+    s._routerWhitelistRemoved = true;
     s.routerPermissionInfo.approvedForPortalRouters[_routerAgent0] = true;
     vm.expectRevert(RoutersFacet.RoutersFacet__approveRouterForPortal_alreadyApproved.selector);
     vm.prank(_owner);
@@ -420,7 +420,7 @@ contract RoutersFacetTest is RoutersFacet, FacetHelper {
 
   // works
   function test_RoutersFacet__approveRouterForPortal_success() public {
-    s._routerOwnershipRenounced = true;
+    s._routerWhitelistRemoved = true;
     vm.expectEmit(true, true, true, true);
     emit RouterApprovedForPortal(_routerAgent0, _owner);
 
@@ -433,7 +433,7 @@ contract RoutersFacetTest is RoutersFacet, FacetHelper {
   function test_RoutersFacet__approveRouterForPortal_successWhenWhitelistRemoved() public {
     // ensure router ownership renounced and not whitelited
     s.routerPermissionInfo.approvedForPortalRouters[_routerAgent0] = false;
-    s._routerOwnershipRenounced = true;
+    s._routerWhitelistRemoved = true;
 
     vm.expectEmit(true, true, true, true);
     emit RouterApprovedForPortal(_routerAgent0, _owner);
