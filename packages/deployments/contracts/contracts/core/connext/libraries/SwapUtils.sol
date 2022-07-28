@@ -208,8 +208,8 @@ library SwapUtils {
       // xpReduced[i] -= dxExpected * fee / FEE_DENOMINATOR
       xpReduced[i] =
         xpi -
-        ((((i == tokenIndex) ? ((xpi * v.d1) / v.d0) - v.newY : xpi - ((xpi * v.d1) / v.d0)) * (v.feePerToken)) /
-          (FEE_DENOMINATOR));
+        ((((i == tokenIndex) ? ((xpi * v.d1) / v.d0 - v.newY) : (xpi - (xpi * v.d1) / v.d0)) * v.feePerToken) /
+          FEE_DENOMINATOR);
 
       unchecked {
         ++i;
