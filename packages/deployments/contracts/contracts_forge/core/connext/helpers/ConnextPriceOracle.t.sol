@@ -77,33 +77,32 @@ contract ConnextPriceOracleTest is ForgeHelper {
   // ============ getTokenPrice ============
   function test_ConnextPriceOracle__getTokenPrice_worksIfExistsInAssetPrices() public {
     priceOracle.setDirectPrice(_tokenA, 1e18, block.timestamp);
-    assertEq(priceOracle.getTokenPrice(_tokenA), 1e18);
+    (uint256 price, uint256 source) = priceOracle.getTokenPrice(_tokenA);
+    assertEq(price, 1e18);
+    assertEq(source, 1);
   }
 
   function test_ConnextPriceOracle__getTokenPrice_worksIfAggregatorExists() public {
-    assertEq(priceOracle.getTokenPrice(_wrapped), 1e18);
-  }
-
-  function test_ConnextPriceOracle__getTokenPrice_worksIfDexRecordExists() public {
-    address mockLpAddress = address(11111);
-    MockERC20(_tokenA).mint(mockLpAddress, 100 * 1e18);
-    MockERC20(_tokenB).mint(mockLpAddress, 200 * 1e36);
-    priceOracle.setDirectPrice(_tokenA, 1e18, block.timestamp);
-    priceOracle.setDexPriceInfo(_tokenB, _tokenA, mockLpAddress, true);
-    assertEq(priceOracle.getTokenPrice(_tokenB), 5e17);
+    (uint256 price, ) = priceOracle.getTokenPrice(_wrapped);
+    assertEq(price, 1e18);
   }
 
   // should work for the native asset
   function test_ConnextPriceOracle__getTokenPrice_worksForNative() public {
-    assertEq(priceOracle.getTokenPrice(address(0)), 1e18);
+    (uint256 price, ) = priceOracle.getTokenPrice(address(0));
+    assertEq(price, 1e18);
   }
 
   function test_ConnextPriceOracle__getTokenPrice_worksIfv1Exists() public {
-    assertEq(priceOracle.getTokenPrice(_tokenV1), 1e18);
+    (uint256 price, uint256 source) = priceOracle.getTokenPrice(_tokenV1);
+    assertEq(price, 1e18);
+    assertEq(source, 4);
   }
 
   function test_ConnextPriceOracle__getTokenPrice_fails() public {
-    assertEq(priceOracle.getTokenPrice(address(12345)), 0);
+    (uint256 price, uint256 source) = priceOracle.getTokenPrice(address(12345));
+    assertEq(price, 0);
+    assertEq(source, 4);
   }
 
   // ============ getPriceFromOracle ============
@@ -114,20 +113,6 @@ contract ConnextPriceOracleTest is ForgeHelper {
   // should work if the token is not configured
   function test_ConnextPriceOracle__getPriceFromOracle_returnZeroIfNotConfigured() public {
     assertEq(priceOracle.getPriceFromOracle(address(123123123123)), 0);
-  }
-
-  // ============ getPriceFromDex ============
-  function test_ConnextPriceOracle__getPriceFromDex_works() public {
-    address mockLpAddress = address(11111);
-    MockERC20(_tokenA).mint(mockLpAddress, 100 * 1e18);
-    MockERC20(_tokenB).mint(mockLpAddress, 200 * 1e36);
-    priceOracle.setDirectPrice(_tokenA, 1e18, block.timestamp);
-    priceOracle.setDexPriceInfo(_tokenB, _tokenA, mockLpAddress, true);
-    assertEq(priceOracle.getPriceFromDex(_tokenB), 5e17);
-  }
-
-  function test_ConnextPriceOracle__getPriceFromDex_fails() public {
-    assertEq(priceOracle.getPriceFromDex(address(12345)), 0);
   }
 
   // ============ getPriceFromChainlink ============
@@ -221,31 +206,6 @@ contract ConnextPriceOracleTest is ForgeHelper {
     assertEq(priceOracle.getPriceFromChainlink(_tokenAddr), 1e18);
     TestAggregator(_aggregator).updateMockData(2, 1, 0, 2);
     assertEq(priceOracle.getPriceFromChainlink(_tokenAddr), 0);
-  }
-
-  // ============ setDexPriceInfo ============
-  function test_ConnextPriceOracle__setDexPriceInfo_failsIfNotOwner() public {
-    address mockLpAddress = address(11111);
-    vm.expectRevert(ProposedOwnable__onlyOwner_notOwner.selector);
-    vm.prank(address(12345));
-    priceOracle.setDexPriceInfo(_tokenB, address(12345), mockLpAddress, true);
-  }
-
-  function test_ConnextPriceOracle__setDexPriceInfo_failsIfInvalidBaseToken() public {
-    address mockLpAddress = address(11111);
-    vm.expectRevert(bytes("invalid base token"));
-    priceOracle.setDexPriceInfo(_tokenB, address(12345), mockLpAddress, true);
-  }
-
-  function test_ConnextPriceOracle__setDexPriceInfo_worksIfOnlyAdmin() public {
-    address mockLpAddress = address(11111);
-    MockERC20(_tokenA).mint(mockLpAddress, 100 * 1e18);
-    MockERC20(_tokenB).mint(mockLpAddress, 200 * 1e36);
-    priceOracle.setDirectPrice(_tokenA, 1e18, block.timestamp);
-    vm.expectEmit(true, true, true, true);
-    emit PriceRecordUpdated(_tokenB, _tokenA, mockLpAddress, true);
-    priceOracle.setDexPriceInfo(_tokenB, _tokenA, mockLpAddress, true);
-    assertEq(priceOracle.getPriceFromDex(_tokenB), 5e17);
   }
 
   // ============ setDirectPrice ============
