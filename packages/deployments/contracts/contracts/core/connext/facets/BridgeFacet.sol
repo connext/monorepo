@@ -782,7 +782,7 @@ contract BridgeFacet is BaseConnextFacet {
       // execute calldata w/funds
       AssetLogic.handleOutgoingAsset(_asset, address(s.executor), _amountOut);
 
-      (bool success, bytes memory returnData) = s.executor.execute{value: 0}(
+      (bool success, bytes memory returnData) = s.executor.execute(
         IExecutor.ExecutorArgs(
           _transferId,
           _amountOut,

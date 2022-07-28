@@ -138,7 +138,7 @@ contract Executor is IExecutor {
    *
    * @param _args ExecutorArgs to function.
    */
-  function execute(ExecutorArgs memory _args) external payable override onlyConnext returns (bool, bytes memory) {
+  function execute(ExecutorArgs memory _args) external override onlyConnext returns (bool, bytes memory) {
     // Check if the `to` target is a contract.
     bool success;
     bytes memory returnData;

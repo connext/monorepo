@@ -346,8 +346,8 @@ contract ExecutorTest is ForgeHelper {
     vm.expectEmit(true, true, true, true);
     emit Executed(transferId, to, recovery, address(asset), amount, property, data, abi.encodePacked(amount), true);
 
-    (bool success, ) = executor.execute{value: 100}(
-      IExecutor.ExecutorArgs(transferId, amount, to, payable(recovery), address(asset), property, data)
+    (bool success, ) = executor.execute(
+      IExecutor.ExecutorArgs(transferId, amount, to, recovery, address(asset), property, data)
     );
 
     assertTrue(success);
