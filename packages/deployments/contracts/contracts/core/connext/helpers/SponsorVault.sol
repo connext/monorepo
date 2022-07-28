@@ -10,6 +10,7 @@ import {ISponsorVault} from "../interfaces/ISponsorVault.sol";
 import {ITokenExchange} from "../interfaces/ITokenExchange.sol";
 import {IGasTokenOracle} from "../interfaces/IGasTokenOracle.sol";
 import {IPriceOracle} from "../interfaces/IPriceOracle.sol";
+import {IERC20Extended} from "../interfaces/IERC20Extended.sol";
 
 /**
  * @title SponsorVault
@@ -396,7 +397,11 @@ contract SponsorVault is ISponsorVault, ReentrancyGuard, Ownable {
       return false;
     }
 
-    if ((((ethPrice * 1e18) / tokenPrice) * (100 + maxPriceDiffPercent)) / 100 < ((_tokenAmount * 1e18) / _ethAmount)) {
+    uint256 decimals = IERC20Extended(_token).decimals();
+    if (
+      (((ethPrice * 1e18) / tokenPrice) * (100 + maxPriceDiffPercent)) / 100 <
+      ((_tokenAmount * (10**(36 - decimals))) / _ethAmount)
+    ) {
       return false;
     }
     return true;
