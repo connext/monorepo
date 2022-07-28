@@ -1305,7 +1305,7 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
     _params.relayerFee = 0.1 ether;
     (bytes32 transferId, XCallArgs memory args) = utils_makeXCallArgs(_amount);
     s.relayerFees[transferId] = 2 ether;
-    helpers_xcallAndAssert(transferId, args, args.amount, args.amount, bytes4(""), false);
+    helpers_xcallAndAssert(transferId, args, args.transactingAmount, args.transactingAmount, bytes4(""), false);
     assertEq(s.relayerFees[transferId], 2.1 ether);
   }
 
