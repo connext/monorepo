@@ -81,19 +81,17 @@ contract BaseConnextFacet {
 
   // ============ Internal functions ============
   /**
-   * @notice Indicates if the ownership of the router whitelist has
-   * been renounced
+   * @notice Indicates if the router whitelist has been removed
    */
-  function _isRouterOwnershipRenounced() internal view returns (bool) {
-    return LibDiamond.contractOwner() == address(0) || s._routerOwnershipRenounced;
+  function _isRouterWhitelistRemoved() internal view returns (bool) {
+    return LibDiamond.contractOwner() == address(0) || s._routerWhitelistRemoved;
   }
 
   /**
-   * @notice Indicates if the ownership of the asset whitelist has
-   * been renounced
+   * @notice Indicates if the asset whitelist has been removed
    */
-  function _isAssetOwnershipRenounced() internal view returns (bool) {
-    return LibDiamond.contractOwner() == address(0) || s._assetOwnershipRenounced;
+  function _isAssetWhitelistRemoved() internal view returns (bool) {
+    return LibDiamond.contractOwner() == address(0) || s._assetWhitelistRemoved;
   }
 
   /**

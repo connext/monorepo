@@ -66,7 +66,7 @@ contract Deployer {
   }
 
   function getAssetFacetCut(address _assetFacet) internal view returns (IDiamondCut.FacetCut memory) {
-    bytes4[] memory assetFacetSelectors = new bytes4[](15);
+    bytes4[] memory assetFacetSelectors = new bytes4[](13);
     // NOTE: because you cannot differentiate between overloaded function selectors, you must calculate
     // them manually here.
     assetFacetSelectors[0] = getSelector("canonicalToAdopted(bytes32)");
@@ -76,14 +76,12 @@ contract Deployer {
     assetFacetSelectors[4] = getSelector("approvedAssets(tuple(uint32,bytes32))");
     assetFacetSelectors[5] = getSelector("adoptedToLocalPools(bytes32)");
     assetFacetSelectors[6] = getSelector("adoptedToLocalPools(tuple(uint32,bytes32))");
-    assetFacetSelectors[7] = AssetFacet.wrapper.selector;
-    assetFacetSelectors[8] = AssetFacet.tokenRegistry.selector;
-    assetFacetSelectors[9] = AssetFacet.setWrapper.selector;
-    assetFacetSelectors[10] = AssetFacet.setTokenRegistry.selector;
-    assetFacetSelectors[11] = AssetFacet.setupAsset.selector;
-    assetFacetSelectors[12] = AssetFacet.addStableSwapPool.selector;
-    assetFacetSelectors[13] = getSelector("removeAssetId(bytes32,address)");
-    assetFacetSelectors[14] = getSelector("removeAssetId(tuple(uint32,bytes32),address)");
+    assetFacetSelectors[7] = AssetFacet.tokenRegistry.selector;
+    assetFacetSelectors[8] = AssetFacet.setTokenRegistry.selector;
+    assetFacetSelectors[9] = AssetFacet.setupAsset.selector;
+    assetFacetSelectors[10] = AssetFacet.addStableSwapPool.selector;
+    assetFacetSelectors[11] = getSelector("removeAssetId(bytes32,address)");
+    assetFacetSelectors[12] = getSelector("removeAssetId(tuple(uint32,bytes32),address)");
     return
       IDiamondCut.FacetCut({
         facetAddress: _assetFacet,
@@ -93,7 +91,7 @@ contract Deployer {
   }
 
   function getBridgeFacetCut(address _bridgeFacet) internal pure returns (IDiamondCut.FacetCut memory) {
-    bytes4[] memory bridgeFacetSelectors = new bytes4[](17);
+    bytes4[] memory bridgeFacetSelectors = new bytes4[](19);
     // getters
     bridgeFacetSelectors[0] = BridgeFacet.relayerFees.selector;
     bridgeFacetSelectors[1] = BridgeFacet.routedTransfers.selector;
@@ -109,11 +107,13 @@ contract Deployer {
     bridgeFacetSelectors[10] = BridgeFacet.setExecutor.selector;
     bridgeFacetSelectors[11] = BridgeFacet.setSponsorVault.selector;
     bridgeFacetSelectors[12] = BridgeFacet.addConnextion.selector;
+    bridgeFacetSelectors[13] = BridgeFacet.addSequencer.selector;
+    bridgeFacetSelectors[14] = BridgeFacet.removeSequencer.selector;
     // public
-    bridgeFacetSelectors[13] = BridgeFacet.xcall.selector;
-    bridgeFacetSelectors[14] = BridgeFacet.execute.selector;
-    bridgeFacetSelectors[15] = BridgeFacet.bumpTransfer.selector;
-    bridgeFacetSelectors[16] = BridgeFacet.forceReceiveLocal.selector;
+    bridgeFacetSelectors[15] = BridgeFacet.xcall.selector;
+    bridgeFacetSelectors[16] = BridgeFacet.execute.selector;
+    bridgeFacetSelectors[17] = BridgeFacet.bumpTransfer.selector;
+    bridgeFacetSelectors[18] = BridgeFacet.forceReceiveLocal.selector;
     return
       IDiamondCut.FacetCut({
         facetAddress: _bridgeFacet,
@@ -142,17 +142,17 @@ contract Deployer {
   {
     bytes4[] memory proposedOwnableFacetSelectors = new bytes4[](18);
     proposedOwnableFacetSelectors[0] = ProposedOwnableFacet.owner.selector;
-    proposedOwnableFacetSelectors[1] = ProposedOwnableFacet.routerOwnershipRenounced.selector;
-    proposedOwnableFacetSelectors[2] = ProposedOwnableFacet.assetOwnershipRenounced.selector;
+    proposedOwnableFacetSelectors[1] = ProposedOwnableFacet.routerWhitelistRemoved.selector;
+    proposedOwnableFacetSelectors[2] = ProposedOwnableFacet.assetWhitelistRemoved.selector;
     proposedOwnableFacetSelectors[3] = ProposedOwnableFacet.proposed.selector;
     proposedOwnableFacetSelectors[4] = ProposedOwnableFacet.proposedTimestamp.selector;
-    proposedOwnableFacetSelectors[5] = ProposedOwnableFacet.routerOwnershipTimestamp.selector;
-    proposedOwnableFacetSelectors[6] = ProposedOwnableFacet.assetOwnershipTimestamp.selector;
+    proposedOwnableFacetSelectors[5] = ProposedOwnableFacet.routerWhitelistTimestamp.selector;
+    proposedOwnableFacetSelectors[6] = ProposedOwnableFacet.assetWhitelistTimestamp.selector;
     proposedOwnableFacetSelectors[7] = ProposedOwnableFacet.delay.selector;
-    proposedOwnableFacetSelectors[8] = ProposedOwnableFacet.proposeRouterOwnershipRenunciation.selector;
-    proposedOwnableFacetSelectors[9] = ProposedOwnableFacet.renounceRouterOwnership.selector;
-    proposedOwnableFacetSelectors[10] = ProposedOwnableFacet.proposeAssetOwnershipRenunciation.selector;
-    proposedOwnableFacetSelectors[11] = ProposedOwnableFacet.renounceAssetOwnership.selector;
+    proposedOwnableFacetSelectors[8] = ProposedOwnableFacet.proposeRouterWhitelistRemoval.selector;
+    proposedOwnableFacetSelectors[9] = ProposedOwnableFacet.removeRouterWhitelist.selector;
+    proposedOwnableFacetSelectors[10] = ProposedOwnableFacet.proposeAssetWhitelistRemoval.selector;
+    proposedOwnableFacetSelectors[11] = ProposedOwnableFacet.removeAssetWhitelist.selector;
     proposedOwnableFacetSelectors[12] = ProposedOwnableFacet.renounced.selector;
     proposedOwnableFacetSelectors[13] = ProposedOwnableFacet.proposeNewOwner.selector;
     proposedOwnableFacetSelectors[14] = ProposedOwnableFacet.renounceOwnership.selector;
@@ -355,7 +355,6 @@ contract Deployer {
     uint256 domain,
     address xAppConnectionManager,
     address tokenRegistry,
-    address wrapper,
     address relayerFeeRouter,
     address payable promiseRouter
   ) internal returns (address) {
@@ -363,7 +362,6 @@ contract Deployer {
       DiamondInit.init.selector,
       domain,
       tokenRegistry,
-      wrapper,
       relayerFeeRouter,
       promiseRouter
     );

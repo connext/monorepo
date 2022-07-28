@@ -144,9 +144,8 @@ contract PortalFacet is BaseConnextFacet {
     uint256 _backingAmount,
     uint256 _feeAmount
   ) external payable nonReentrant {
-    address adopted = _adopted == address(0) ? address(s.wrapper) : _adopted;
     // Ensure the asset is whitelisted
-    TokenId memory canonical = s.adoptedToCanonical[adopted];
+    TokenId memory canonical = s.adoptedToCanonical[_adopted];
     if (canonical.id == bytes32(0)) {
       revert PortalFacet__repayAavePortalFor_notSupportedAsset();
     }
@@ -171,11 +170,11 @@ contract PortalFacet is BaseConnextFacet {
     uint256 total = _backingAmount + _feeAmount;
     if (total == 0) revert PortalFacet__repayAavePortalFor_zeroAmount();
 
-    AssetLogic.handleIncomingAsset(_adopted, total, 0);
+    AssetLogic.handleIncomingAsset(_adopted, total);
 
     // No need to swap because this is the adopted asset. Simply
     // repay the loan
-    _backLoan(adopted, _backingAmount, _feeAmount, transferId);
+    _backLoan(_adopted, _backingAmount, _feeAmount, transferId);
   }
 
   // ============ Internal functions ============
