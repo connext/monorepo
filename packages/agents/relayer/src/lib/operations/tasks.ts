@@ -62,7 +62,7 @@ export const createTask = async (
         recovery: decoded.params.recovery,
         agent: decoded.params.agent,
         relayerFee: decoded.params.relayerFee.toString(),
-        slippageTol: decoded.params.slippageTol.toString(),
+        destinationMinOut: decoded.params.destinationMinOut.toString(),
       },
       local: decoded.local,
       routers: decoded.routers,

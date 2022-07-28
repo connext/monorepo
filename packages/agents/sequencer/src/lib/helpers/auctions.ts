@@ -39,7 +39,7 @@ export const encodeExecuteFromBids = async (
       receiveLocal: transfer.xparams.receiveLocal,
       recovery: transfer.xparams.recovery,
       agent: transfer.xparams.agent,
-      slippageTol: transfer.xparams.slippageTol,
+      destinationMinOut: transfer.xparams.destinationMinOut,
     },
     local,
     routers,
