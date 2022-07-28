@@ -50,6 +50,15 @@ contract ConnextPriceOracle is PriceOracle, ProposedOwnable {
 
   uint256 public constant VALID_PERIOD = 1 minutes;
 
+  /// @notice Price sources
+  enum PriceSource {
+    NA,
+    DIRECT,
+    CHAINLINK,
+    DEX,
+    V1_ORACLE
+  }
+
   /// @notice Chainlink Aggregators
   mapping(address => AggregatorV3Interface) public aggregators;
 
@@ -71,25 +80,30 @@ contract ConnextPriceOracle is PriceOracle, ProposedOwnable {
     _setOwner(msg.sender);
   }
 
-  function getTokenPrice(address _tokenAddress) public view override returns (uint256) {
+  function getTokenPrice(address _tokenAddress) public view override returns (uint256, uint256) {
     address tokenAddress = _tokenAddress;
+    PriceSource source = PriceSource.NA;
+
     if (_tokenAddress == address(0)) {
       tokenAddress = wrapped;
     }
     uint256 tokenPrice = assetPrices[tokenAddress].price;
     if (tokenPrice != 0 && ((block.timestamp - assetPrices[tokenAddress].updatedAt) <= VALID_PERIOD)) {
-      return tokenPrice;
+      return (tokenPrice, uint256(PriceSource.DIRECT));
     } else {
       tokenPrice = 0;
     }
 
     if (tokenPrice == 0) {
       tokenPrice = getPriceFromOracle(tokenAddress);
+      source = PriceSource.CHAINLINK;
     }
     if (tokenPrice == 0 && v1PriceOracle != address(0)) {
       tokenPrice = IPriceOracle(v1PriceOracle).getTokenPrice(tokenAddress);
+      source = PriceSource.V1_ORACLE;
     }
-    return tokenPrice;
+
+    return (tokenPrice, uint256(source));
   }
 
   function getPriceFromOracle(address _tokenAddress) public view returns (uint256) {
