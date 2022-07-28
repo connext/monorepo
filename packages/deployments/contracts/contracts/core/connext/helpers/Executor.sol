@@ -144,7 +144,7 @@ contract Executor is IExecutor {
     bytes memory returnData;
 
     if (!Address.isContract(_args.to)) {
-      _sendToRecovery(false, _args.assetId, payable(_args.to), payable(_args.recovery), _args.amount);
+      _sendToRecovery(false, _args.assetId, _args.to, _args.recovery, _args.amount);
       // Emit event
       emit Executed(
         _args.transferId,
@@ -195,7 +195,7 @@ contract Executor is IExecutor {
 
     // Handle failure cases
     if (!success) {
-      _sendToRecovery(hasValue, _args.assetId, payable(_args.to), payable(_args.recovery), _args.amount);
+      _sendToRecovery(hasValue, _args.assetId, _args.to, _args.recovery, _args.amount);
     }
 
     // Emit event
@@ -225,8 +225,8 @@ contract Executor is IExecutor {
   function _sendToRecovery(
     bool _hasIncreased,
     address _assetId,
-    address payable _to,
-    address payable _recovery,
+    address _to,
+    address _recovery,
     uint256 _amount
   ) private {
     if (_amount == 0) {
