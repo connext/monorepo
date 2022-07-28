@@ -1,6 +1,5 @@
 [
   "error AssetLogic__getTokenIndexFromStableSwapPool_notExist()",
-  "error AssetLogic__handleIncomingAsset_ethWithErcTransfer()",
   "error AssetLogic__handleIncomingAsset_nativeAssetNotSupported()",
   "error AssetLogic__handleOutgoingAsset_notNative()",
   "error AssetLogic__swapFromLocalAssetIfNeeded_swapPaused()",
