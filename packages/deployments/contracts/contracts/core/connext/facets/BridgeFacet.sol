@@ -388,7 +388,7 @@ contract BridgeFacet is BaseConnextFacet {
       // Store the relayer fee
       // NOTE: this has to be done *after* transferring in + swapping assets because
       // the transfer id uses the amount that is bridged (i.e. amount in local asset)
-      s.relayerFees[transferId] = _args.params.relayerFee;
+      s.relayerFees[transferId] += _args.params.relayerFee;
 
       // Transfer callback fee to PromiseRouter if set
       if (_args.params.callbackFee != 0) {
