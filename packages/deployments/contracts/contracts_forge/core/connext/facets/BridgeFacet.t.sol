@@ -1186,10 +1186,25 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
     helpers_xcallAndAssert(BridgeFacet.BridgeFacet__xcall_notSupportedAsset.selector);
   }
 
-  // fails if native asset is used (i.e. s.adoptedToCanonical[transactingAssetId].id == bytes32(0))
+  // fails if native asset is used
   function test_BridgeFacet__xcall_failIfNativeAsset() public {
-    _adopted = address(0);
-    helpers_xcallAndAssert(BridgeFacet.BridgeFacet__xcall_nativeAssetNotSupported.selector);
+    _amount = 1 ether;
+    TestERC20 localToken = TestERC20(_local);
+    localToken.mint(_originSender, 1 ether);
+    vm.prank(_originSender);
+    localToken.approve(address(this), 1 ether);
+
+    vm.deal(_originSender, 100 ether);
+
+    (, XCallArgs memory args) = utils_makeXCallArgs(_amount);
+
+    // Set transacting asset to address 0, indicating the user wants to send native token, which
+    // isn't supported.
+    args.transactingAsset = address(0);
+
+    vm.expectRevert(BridgeFacet.BridgeFacet__xcall_nativeAssetNotSupported.selector);
+    vm.prank(_originSender);
+    this.xcall{value: args.params.relayerFee}(args);
   }
 
   // fails if erc20 transfer and eth sent < relayerFee + callbackFee

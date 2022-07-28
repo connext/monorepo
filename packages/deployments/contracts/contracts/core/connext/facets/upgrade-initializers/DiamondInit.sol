@@ -36,7 +36,6 @@ contract DiamondInit is BaseConnextFacet {
   function init(
     uint32 _domain,
     address _tokenRegistry, // Nomad token registry
-    address _wrappedNative,
     address _relayerFeeRouter,
     address payable _promiseRouter
   ) external {

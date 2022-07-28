@@ -59,9 +59,9 @@ contract ConnextTest is ForgeHelper, Deployer {
   event XCalled(
     bytes32 indexed transferId,
     uint256 indexed nonce,
-    uint256 bridgedAmt,
     XCallArgs xcallArgs,
-    address bridged,
+    address bridgedAsset,
+    uint256 bridgedAmount,
     address caller
   );
 
@@ -441,7 +441,7 @@ contract ConnextTest is ForgeHelper, Deployer {
       abi.encode(nonce, _args.params, address(this), canonicalId, _canonicalDomain, _bridgedAmt)
     );
     vm.expectEmit(true, true, true, true);
-    emit XCalled(transferId, nonce, _bridgedAmt, _args, _bridged, address(this));
+    emit XCalled(transferId, nonce, _args, _bridged, _bridgedAmt, address(this));
 
     // Make call
     bytes32 ret = _originConnext.xcall{value: _args.params.relayerFee + _args.params.callbackFee}(_args);
