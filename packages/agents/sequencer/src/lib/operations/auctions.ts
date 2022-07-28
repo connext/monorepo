@@ -149,14 +149,13 @@ export const executeAuction = async (transferId: string, _requestContext: Reques
     if (elapsed > config.auctionWaitTime) {
       logger.info("Auction merits execution", requestContext, methodContext, { transferId: transferId });
     } else {
-      logger.info("Waiting for auction timeout. Requeue.", requestContext, methodContext, {
+      logger.info("Waiting for auction timeout", requestContext, methodContext, {
         elapsed,
         waitTime: config.auctionWaitTime,
       });
-      return;
-      // const remainingTime = config.auctionWaitTime - elapsed;
-      // // if (remainingTime > 0) setTimeout(() => {}, remainingTime);
-      // if (remainingTime > 0) await new Promise((f) => setTimeout(f, remainingTime));
+      const remainingTime = config.auctionWaitTime - elapsed;
+      // if (remainingTime > 0) setTimeout(() => {}, remainingTime);
+      if (remainingTime > 0) await new Promise((f) => setTimeout(f, remainingTime));
     }
   } else {
     logger.error("Auction data not found for transfer!", requestContext, methodContext, undefined, {
