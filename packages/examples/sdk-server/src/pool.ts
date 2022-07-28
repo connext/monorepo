@@ -7,6 +7,7 @@ import {
   calculateTokenAmountSchema,
   getCanonicalFromLocalSchema,
   getPoolSchema,
+  getUserPoolsSchema,
   addLiquiditySchema,
   removeLiquiditySchema,
   swapSchema,
@@ -67,6 +68,20 @@ export const poolRoutes = async (server: FastifyInstance, sdkPoolInstance: NxtpS
     async (request, reply) => {
       const { domainId, tokenAddress } = request.body;
       const res = await sdkPoolInstance.getPool(domainId, tokenAddress);
+      reply.status(200).send(res);
+    },
+  );
+
+  s.post(
+    "/getUserPools",
+    {
+      schema: {
+        body: getUserPoolsSchema,
+      },
+    },
+    async (request, reply) => {
+      const { domainId, userAddress } = request.body;
+      const res = await sdkPoolInstance.getUserPools(domainId, userAddress);
       reply.status(200).send(res);
     },
   );

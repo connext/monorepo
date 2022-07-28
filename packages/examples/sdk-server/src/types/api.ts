@@ -22,6 +22,11 @@ export const getPoolSchema = Type.Object({
   tokenAddress: Type.String(),
 });
 
+export const getUserPoolsSchema = Type.Object({
+  domainId: Type.String(),
+  userAddress: Type.String(),
+});
+
 export const addLiquiditySchema = Type.Object({
   domainId: Type.String(),
   canonicalId: Type.String(),
