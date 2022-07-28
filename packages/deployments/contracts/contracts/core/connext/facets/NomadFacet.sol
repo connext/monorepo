@@ -7,6 +7,7 @@ import {TypedMemView} from "../../../nomad-core/libs/TypedMemView.sol";
 
 import {XAppConnectionManager} from "../../../nomad-core/contracts/XAppConnectionManager.sol";
 
+import {TransferIdInformation} from "../libraries/LibConnextStorage.sol";
 import {AssetLogic} from "../libraries/AssetLogic.sol";
 
 import {IAavePool} from "../interfaces/IAavePool.sol";
@@ -98,13 +99,26 @@ contract NomadFacet is BaseConnextFacet {
    */
   function onReceive(
     uint32, // _origin, not used
-    uint32, // _tokenDomain, not used
-    bytes32, // _tokenAddress, of canonical token, not used
+    uint32 _tokenDomain, // of canonical token not used
+    bytes32 _tokenAddress, // of canonical token
     address _localToken,
     uint256 _amount,
     bytes memory _extraData
   ) external onlyBridgeRouter {
-    bytes32 transferId = bytes32(_extraData);
+    // Calculate the transfer id
+    // NOTE: anyone can use nomad to send to this hook. that means instead of sending through the
+    // transferId directly, it should be reconstructed here with the information included in nomad.
+    // meaning all xcall, execute, and reconcile data must match
+    TransferIdInformation memory info = abi.decode(_extraData, (TransferIdInformation));
+    bytes32 transferId = _calculateTransferId(
+      info.params,
+      _amount,
+      info.nonce,
+      _tokenAddress,
+      _tokenDomain,
+      info.originSender
+    );
+
     // Ensure the transaction has not already been handled (i.e. previously reconciled).
     if (s.reconciledTransfers[transferId]) {
       revert NomadFacet__reconcile_alreadyReconciled();
