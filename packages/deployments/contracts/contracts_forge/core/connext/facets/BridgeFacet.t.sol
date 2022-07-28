@@ -408,7 +408,7 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
 
     uint256 fees = args.params.relayerFee + args.params.callbackFee;
     vm.prank(_originSender);
-    this.xcall{value: fees}(args);
+    this.xcall{value: isNative ? args.amount + fees : fees}(args);
 
     if (shouldSucceed) {
       if (isNative) {
