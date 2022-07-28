@@ -827,15 +827,6 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
     );
   }
 
-  function buildMessage(bytes32 _id) private returns (bytes memory) {
-    bytes32 detailsHash = keccak256("test");
-
-    bytes29 action = BridgeMessage.formatConnextTransfer(_id, _amount, detailsHash);
-    bytes29 tokenId = BridgeMessage.formatTokenId(_canonicalDomain, _canonicalId);
-
-    return BridgeMessage.formatMessage(tokenId, action);
-  }
-
   // ============ execute ============
   // Shortcut for above method:
   // - local == adopted
