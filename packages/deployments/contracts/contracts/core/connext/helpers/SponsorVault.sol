@@ -246,9 +246,9 @@ contract SponsorVault is ISponsorVault, ReentrancyGuard, Ownable {
   ) external override onlyConnext returns (uint256) {
     uint256 sponsoredFee;
 
-    if (address(tokenExchanges[_token]) != address(0)) {
+    ITokenExchange tokenExchange = tokenExchanges[_token];
+    if (address(tokenExchange) != address(0)) {
       uint256 currentBalance = address(this).balance;
-      ITokenExchange tokenExchange = tokenExchanges[_token];
 
       uint256 amountIn = tokenExchange.getInGivenExpectedOut(_token, _liquidityFee);
 
