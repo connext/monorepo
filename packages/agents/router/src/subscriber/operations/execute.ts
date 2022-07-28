@@ -112,7 +112,24 @@ export const sendBid = async (bid: Bid, _requestContext: RequestContext): Promis
       // if the sequencer decides relayer execution has timed out.
       throw new AuctionExpired({ transferId });
     } else {
-      logger.error(`Bid Post Error`, requestContext, methodContext, jsonifyError(error as Error), { transferId });
+      const errorObj: any = {};
+      if (error.response) {
+        // The request was made and the server responded with a status code
+        // that falls out of the range of 2xx
+        errorObj.data = error.response.data;
+        errorObj.status = error.response.status;
+        errorObj.headers = error.response.headers;
+      } else if (error.request) {
+        errorObj.request = error.request;
+      } else {
+        // Something happened in setting up the request that triggered an Error
+        errorObj.message = error.message;
+      }
+      errorObj.config = error.config;
+      logger.error(`Bid Post Error`, requestContext, methodContext, jsonifyError(error as Error), {
+        transferId,
+        errorObj,
+      });
       throw error;
     }
   }
