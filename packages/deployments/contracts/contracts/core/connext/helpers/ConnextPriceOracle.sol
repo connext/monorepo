@@ -89,7 +89,10 @@ contract ConnextPriceOracle is PriceOracle, ProposedOwnable {
     uint256 tokenPrice = assetPrices[tokenAddress].price;
     if (tokenPrice != 0 && ((block.timestamp - assetPrices[tokenAddress].updatedAt) <= VALID_PERIOD)) {
       return tokenPrice;
+    } else {
+      tokenPrice = 0;
     }
+
     if (tokenPrice == 0) {
       tokenPrice = getPriceFromOracle(tokenAddress);
     }
