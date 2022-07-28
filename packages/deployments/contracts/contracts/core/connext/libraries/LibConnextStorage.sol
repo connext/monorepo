@@ -26,6 +26,7 @@ struct TokenId {
  * two chains. They are supplied on `xcall` and should be asserted on `execute`
  * @property to - The account that receives funds, in the event of a crosschain call,
  * will receive funds if the call fails.
+ *
  * @param to - The address you are sending funds (and potentially data) to
  * @param callData - The data to execute on the receiving chain. If no crosschain call is needed, then leave empty.
  * @param originDomain - The originating domain (i.e. where `xcall` is called). Must match nomad domain schema
@@ -37,7 +38,7 @@ struct TokenId {
  * @param forceSlow - If true, will take slow liquidity path even if it is not a permissioned call
  * @param receiveLocal - If true, will use the local nomad asset on the destination instead of adopted.
  * @param relayerFee - The amount of relayer fee the tx called xcall with
- * @param slippageTol - Max bps of original due to slippage (i.e. would be 9995 to tolerate .05% slippage)
+ * @param destinationMinOut - Minimum amount received on swaps for local <> adopted on destination chain.
  */
 struct CallParams {
   address to;
@@ -51,7 +52,7 @@ struct CallParams {
   address callback;
   uint256 callbackFee;
   uint256 relayerFee;
-  uint256 slippageTol;
+  uint256 destinationMinOut;
 }
 
 /**
@@ -60,29 +61,38 @@ struct CallParams {
  * @param transactingAssetId - The asset the caller sent with the transfer. Can be the adopted, canonical,
  * or the representational asset
  * @param amount - The amount of transferring asset the tx called xcall with
+ * @param originMinOut - Minimum amount received on swaps for adopted <> local on origin chain
  */
 struct XCallArgs {
   CallParams params;
   address transactingAssetId; // Could be adopted, local, or wrapped
   uint256 amount;
+  uint256 originMinOut;
 }
 
 /**
  * @notice
- * @param params - The CallParams. These are consistent across sending and receiving chains
+ * @param params - The CallParams. These are consistent across sending and receiving chains.
  * @param local - The local asset for the transfer, will be swapped to the adopted asset if
- * appropriate
- * @param routers - The routers who you are sending the funds on behalf of
+ * appropriate.
+ * @param routers - The routers who you are sending the funds on behalf of.
+ * @param routerSignatures - Signatures belonging to the routers indicating permission to use funds
+ * for the signed transfer ID.
+ * @param sequencer - The sequencer who assigned the router path to this transfer.
+ * @param sequencerSignature - Signature produced by the sequencer for path assignment accountability
+ * for the path that was signed.
  * @param amount - The amount of liquidity the router provided or the bridge forwarded, depending on
- * if fast liquidity was used
- * @param nonce - The nonce used to generate transfer id
- * @param originSender - The msg.sender of the xcall on origin domain
+ * whether fast liquidity was used.
+ * @param nonce - The nonce used to generate transfer ID.
+ * @param originSender - The msg.sender of the xcall on origin domain.
  */
 struct ExecuteArgs {
   CallParams params;
   address local; // local representation of canonical token
   address[] routers;
   bytes[] routerSignatures;
+  address sequencer;
+  bytes sequencerSignature;
   uint256 amount;
   uint256 nonce;
   address originSender;
@@ -157,26 +167,27 @@ struct AppStorage {
   ITokenRegistry tokenRegistry;
   /**
    * @notice Mapping holding the AMMs for swapping in and out of local assets
-   * @dev Swaps for an adopted asset <> nomad local asset (i.e. POS USDC <> madUSDC on polygon)
+   * @dev Swaps for an adopted asset <> nomad local asset (i.e. POS USDC <> madUSDC on polygon).
+   * This mapping is keyed on the hash of the canonical id + domain for local asset
    */
   // 10
   mapping(bytes32 => IStableSwap) adoptedToLocalPools;
   /**
    * @notice Mapping of whitelisted assets on same domain as contract
-   * @dev Mapping is keyed on the canonical token identifier matching what is stored in the token
-   * registry
+   * @dev Mapping is keyed on the hash of the canonical id and domain taken from the
+   * token registry
    */
   // 11
   mapping(bytes32 => bool) approvedAssets;
   /**
-   * @notice Mapping of canonical to adopted assets on this domain
+   * @notice Mapping of adopted to canonical asset information
    * @dev If the adopted asset is the native asset, the keyed address will
    * be the wrapped asset address
    */
   // 12
   mapping(address => TokenId) adoptedToCanonical;
   /**
-   * @notice Mapping of adopted to canonical on this domain
+   * @notice Mapping of hash(canonicalId, canonicalDomain) to adopted asset on this domain
    * @dev If the adopted asset is the native asset, the stored address will be the
    * wrapped asset address
    */
@@ -252,13 +263,13 @@ struct AppStorage {
   // 26
   uint256 _proposedOwnershipTimestamp;
   // 27
-  bool _routerOwnershipRenounced;
+  bool _routerWhitelistRemoved;
   // 28
-  uint256 _routerOwnershipTimestamp;
+  uint256 _routerWhitelistTimestamp;
   // 29
-  bool _assetOwnershipRenounced;
+  bool _assetWhitelistRemoved;
   // 30
-  uint256 _assetOwnershipTimestamp;
+  uint256 _assetWhitelistTimestamp;
   //
   // RouterFacet
   //
@@ -315,6 +326,13 @@ struct AppStorage {
    */
   // 39
   mapping(bytes32 => uint256) portalFeeDebt;
+  /**
+   * @notice Mapping of approved sequencers
+   * @dev Sequencer address provided must belong to an approved sequencer in order to call `execute`
+   * for the fast liquidity route.
+   */
+  // 40
+  mapping(address => bool) approvedSequencers;
 }
 
 library LibConnextStorage {

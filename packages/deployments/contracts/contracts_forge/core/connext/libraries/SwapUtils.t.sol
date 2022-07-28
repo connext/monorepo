@@ -3,7 +3,7 @@ pragma solidity 0.8.15;
 
 import "../../../utils/ForgeHelper.sol";
 
-import {SwapUtils, LPToken, AmplificationUtils, MathUtils, SafeERC20, SafeMath, IERC20} from "../../../../contracts/core/connext/libraries/SwapUtils.sol";
+import {SwapUtilsExternal as SwapUtils, LPToken, MathUtils, SafeERC20, SafeMath, IERC20} from "../../../../contracts/core/connext/libraries/SwapUtilsExternal.sol";
 import "../../../../contracts/core/connext/helpers/StableSwap.sol";
 import {TestERC20} from "../../../../contracts/test/TestERC20.sol";
 
@@ -17,7 +17,6 @@ contract LibCaller is StableSwap {
 contract SwapUtilsTest is ForgeHelper {
   // ============ Libraries ============
   using SwapUtils for SwapUtils.Swap;
-  using AmplificationUtils for SwapUtils.Swap;
   using SafeERC20 for IERC20;
   using SafeMath for uint256;
   using MathUtils for uint256;

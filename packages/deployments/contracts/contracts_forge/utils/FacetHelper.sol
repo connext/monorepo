@@ -27,6 +27,7 @@ contract FacetHelper is ForgeHelper {
   address _canonical;
   bytes32 _canonicalId;
   uint32 _canonicalDomain = _originDomain;
+  bytes32 _canonicalKey;
 
   // adopted asset for this domain
   address _adopted;
@@ -68,6 +69,7 @@ contract FacetHelper is ForgeHelper {
     // Deploy the canonical token.
     _canonical = address(new TestERC20());
     _canonicalId = bytes32(abi.encodePacked(_canonical));
+    _canonicalKey = keccak256(abi.encode(_canonicalId, _canonicalDomain));
     // Deploy wrapper for native asset.
     s.wrapper = IWeth(new MockWrapper());
     _wrapper = address(s.wrapper);
@@ -126,9 +128,10 @@ contract FacetHelper is ForgeHelper {
     vm.mockCall(_tokenRegistry, abi.encodeWithSelector(ITokenRegistry.getLocalAddress.selector), abi.encode(_local));
 
     // Setup the storage variables
+    _canonicalKey = keccak256(abi.encode(_canonicalId, _canonicalDomain));
     s.adoptedToCanonical[_adopted] = TokenId(_canonicalDomain, _canonicalId);
-    s.adoptedToLocalPools[_canonicalId] = IStableSwap(_stableSwap);
-    s.canonicalToAdopted[_canonicalId] = _adopted;
+    s.adoptedToLocalPools[_canonicalKey] = IStableSwap(_stableSwap);
+    s.canonicalToAdopted[_canonicalKey] = _adopted;
 
     // // Log stored vars
     // console.log("setup asset:");

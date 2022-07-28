@@ -291,7 +291,8 @@ contract SponsorVault is ISponsorVault, ReentrancyGuard, Ownable {
     uint256 num;
     uint256 den;
 
-    if (_to.balance > relayerFeeCap || Address.isContract(_to)) {
+    uint256 destBal = _to.balance;
+    if (destBal > relayerFeeCap || Address.isContract(_to)) {
       // Already has fees, and the address is a contract
       return;
     }
@@ -309,7 +310,8 @@ contract SponsorVault is ISponsorVault, ReentrancyGuard, Ownable {
       sponsoredFee = (_originRelayerFee * num) / den;
 
       // calculated or max
-      sponsoredFee = sponsoredFee >= relayerFeeCap ? relayerFeeCap : sponsoredFee;
+      uint256 remaining = relayerFeeCap - destBal;
+      sponsoredFee = sponsoredFee >= remaining ? remaining : sponsoredFee;
       // calculated or leftover
       uint256 balance = address(this).balance;
       sponsoredFee = sponsoredFee >= balance ? balance : sponsoredFee;
@@ -326,12 +328,15 @@ contract SponsorVault is ISponsorVault, ReentrancyGuard, Ownable {
    * @param _token The ERC20 token address or address zero for native token
    * @param _amount The amount of ERC20 to deposit or zero for native token since the amount is sent in msg.value
    */
-  function deposit(address _token, uint256 _amount) external payable {
+  function deposit(address _token, uint256 _amount) external payable nonReentrant {
     if (_token != address(0)) {
       IERC20(_token).safeTransferFrom(msg.sender, address(this), _amount);
+      emit Deposit(_token, _amount, msg.sender);
     }
 
-    emit Deposit(_token, _token != address(0) ? _amount : msg.value, msg.sender);
+    if (msg.value > 0) {
+      emit Deposit(address(0), msg.value, msg.sender);
+    }
   }
 
   /**

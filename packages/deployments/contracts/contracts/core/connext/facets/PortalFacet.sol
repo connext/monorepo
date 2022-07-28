@@ -21,13 +21,13 @@ contract PortalFacet is BaseConnextFacet {
   // ============ Events ============
 
   /**
-   * @notice Emitted when a router executed a manual repayment to Aave Portal
-   * @param router - The router that execute the repayment
+   * @notice Emitted when a repayment on an Aave portal loan is made
+   * @param transferId - The transfer debt that was repaid
    * @param asset - The asset that was repaid
    * @param amount - The amount that was repaid
    * @param fee - The fee amount that was repaid
    */
-  event AavePortalRouterRepayment(address indexed router, address asset, uint256 amount, uint256 fee);
+  event AavePortalRepayment(bytes32 indexed transferId, address asset, uint256 amount, uint256 fee, address caller);
 
   // ============ Getters methods ==============
 
@@ -86,7 +86,7 @@ contract PortalFacet is BaseConnextFacet {
     uint256 _backingAmount,
     uint256 _feeAmount,
     uint256 _maxIn
-  ) external {
+  ) external nonReentrant {
     // Sanity check: has that much to spend
     if (s.routerBalances[msg.sender][_local] < _maxIn) revert PortalFacet__repayAavePortal_insufficientFunds();
 
@@ -106,7 +106,7 @@ contract PortalFacet is BaseConnextFacet {
 
     // Swap for exact `totalRepayAmount` of adopted asset to repay aave
     (bool success, uint256 amountDebited, address assetLoaned) = AssetLogic.swapFromLocalAssetIfNeededForExactOut(
-      id,
+      _calculateCanonicalHash(id, domain),
       _local,
       _backingAmount + _feeAmount,
       _maxIn
@@ -143,7 +143,7 @@ contract PortalFacet is BaseConnextFacet {
     uint256 _nonce,
     uint256 _backingAmount,
     uint256 _feeAmount
-  ) external payable {
+  ) external payable nonReentrant {
     address adopted = _adopted == address(0) ? address(s.wrapper) : _adopted;
     // Ensure the asset is whitelisted
     TokenId memory canonical = s.adoptedToCanonical[adopted];
@@ -206,6 +206,6 @@ contract PortalFacet is BaseConnextFacet {
     IAavePool(s.aavePool).backUnbacked(_asset, _backing, _fee);
 
     // emit event
-    emit AavePortalRouterRepayment(msg.sender, _asset, _backing, _fee);
+    emit AavePortalRepayment(_transferId, _asset, _backing, _fee, msg.sender);
   }
 }
