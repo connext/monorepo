@@ -123,10 +123,6 @@ contract AssetFacet is BaseConnextFacet {
    * on polygon), you should *not* whitelist the adopted asset. The stable swap pool
    * address used should allow you to swap between the local <> adopted asset.
    *
-   * Additionally, if this function is called to setup the native asset, always specify
-   * `address(0)` for the `_adoptedAssetId` even if the native token is located at another
-   * address (e.g. MATIC on Polygon).
-   *
    * @param _canonical - The canonical asset to add by id and domain. All representations
    * will be whitelisted as well
    * @param _adoptedAssetId - The used asset id for this domain (e.g. PoS USDC for
