@@ -43,9 +43,21 @@ contract SponsorVault is ISponsorVault, ReentrancyGuard, Ownable {
   mapping(uint32 => Rate) public rates;
 
   /**
+   * @notice Tracks the total liquidity fees reimbursed to this address for the asset
+   * @dev Used to prevent the same address from repeatedly claiming up to the cap
+   */
+  mapping(address => mapping(address => uint256)) public reimbursedLiquidityFees;
+
+  /**
    * @notice The maximum amount this domain native token to be sponsored for relayer fee
    */
   uint256 public relayerFeeCap;
+
+  /**
+   * @notice The maximum amount to be sponsored for liquidity fee of a given asset
+   * @dev Caps should be set by asset
+   */
+  mapping(address => uint256) public liquidityFeeCaps;
 
   /**
    * @notice The origin domain to this domain native token oracle
@@ -96,6 +108,16 @@ contract SponsorVault is ISponsorVault, ReentrancyGuard, Ownable {
    * @notice Emitted when a new relayerFeeCap is set
    */
   event RelayerFeeCapUpdated(uint256 oldRelayerFeeCap, uint256 newRelayerFeeCap, address caller);
+
+  /**
+   * @notice Emitted when a new liquidityFeeCap is set
+   */
+  event LiquidityFeeCapUpdated(
+    address indexed asset,
+    uint256 oldLiquidityFeeCap,
+    uint256 newLiquidityFeeCap,
+    address caller
+  );
 
   /**
    * @notice Emitted when a new native token oracle is set
@@ -189,6 +211,15 @@ contract SponsorVault is ISponsorVault, ReentrancyGuard, Ownable {
   }
 
   /**
+   * @notice Sets the maximum sponsored liquidity fee amount.
+   * @param _liquidityFeeCap The new liquidityFeeCap
+   */
+  function setLiquidityFeeCap(address _asset, uint256 _liquidityFeeCap) external onlyOwner {
+    emit LiquidityFeeCapUpdated(_asset, liquidityFeeCaps[_asset], _liquidityFeeCap, msg.sender);
+    liquidityFeeCaps[_asset] = _liquidityFeeCap;
+  }
+
+  /**
    * @notice Sets of an oracle that provides origin domain native token to this domain native token rates.
    * @param _gasTokenOracle The oracle address
    */
@@ -243,17 +274,28 @@ contract SponsorVault is ISponsorVault, ReentrancyGuard, Ownable {
     address _token,
     uint256 _liquidityFee,
     address _receiver
-  ) external override onlyConnext returns (uint256) {
+  ) external override onlyConnext nonReentrant returns (uint256) {
     uint256 sponsoredFee;
+
+    // Don't reimburse past the cap for this asset
+    uint256 maxReimbursement = liquidityFeeCaps[_token];
+    uint256 cumulative = reimbursedLiquidityFees[_receiver][_token];
+    if (cumulative >= maxReimbursement) {
+      emit ReimburseLiquidityFees(_token, 0, _receiver);
+      return 0;
+    }
+
+    uint256 available = maxReimbursement - cumulative;
+    uint256 toReimburse = available > _liquidityFee ? _liquidityFee : available;
 
     ITokenExchange tokenExchange = tokenExchanges[_token];
     if (address(tokenExchange) != address(0)) {
       uint256 currentBalance = address(this).balance;
 
-      uint256 amountIn = tokenExchange.getInGivenExpectedOut(_token, _liquidityFee);
+      uint256 amountIn = tokenExchange.getInGivenExpectedOut(_token, toReimburse);
 
       // compare with spot price and ChainLink oracle price to prevent manipulate
-      if (amountIn == 0 || !_checkDexSpotPrice(_token, amountIn, _liquidityFee)) {
+      if (amountIn == 0 || !_checkDexSpotPrice(_token, amountIn, toReimburse)) {
         return 0;
       }
 
@@ -263,13 +305,15 @@ contract SponsorVault is ISponsorVault, ReentrancyGuard, Ownable {
       sponsoredFee = tokenExchange.swapExactIn{value: amountIn}(_token, msg.sender);
     } else {
       uint256 balance = IERC20(_token).balanceOf(address(this));
-      sponsoredFee = balance <= _liquidityFee ? balance : _liquidityFee;
+      sponsoredFee = balance <= toReimburse ? balance : toReimburse;
 
       // only transfer if it is more than 0
       if (sponsoredFee != 0) {
         IERC20(_token).safeTransfer(msg.sender, sponsoredFee);
       }
     }
+
+    reimbursedLiquidityFees[_receiver][_token] += sponsoredFee;
 
     emit ReimburseLiquidityFees(_token, sponsoredFee, _receiver);
 

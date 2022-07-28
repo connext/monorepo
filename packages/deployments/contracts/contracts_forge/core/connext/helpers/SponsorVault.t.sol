@@ -391,6 +391,7 @@ contract SponsorVaultTest is ForgeHelper {
   {
     tokenExchange.setSwapResult(1);
     vault.setTokenExchange(address(localToken), payable(address(tokenExchange)));
+    vault.setLiquidityFeeCap(address(localToken), 1 ether);
 
     uint256 balanceBefore = address(vault).balance;
 
@@ -424,6 +425,7 @@ contract SponsorVaultTest is ForgeHelper {
   {
     uint256 liquidityFee = 500;
     tokenExchange.setSwapResult(500);
+    vault.setLiquidityFeeCap(address(localToken), 1 ether);
     uint256 amountIn = tokenExchange.getInGivenExpectedOut(address(localToken), liquidityFee);
 
     vault.setTokenExchange(address(localToken), payable(address(tokenExchange)));
@@ -459,6 +461,7 @@ contract SponsorVaultTest is ForgeHelper {
   {
     uint256 liquidityFee = 500;
     tokenExchange.setSwapResult(500 - 5);
+    vault.setLiquidityFeeCap(address(localToken), 1 ether);
     uint256 amountIn = tokenExchange.getInGivenExpectedOut(address(localToken), liquidityFee);
 
     vault.setTokenExchange(address(localToken), payable(address(tokenExchange)));
@@ -492,6 +495,7 @@ contract SponsorVaultTest is ForgeHelper {
 
   function test_SponsorVault__reimburseLiquidityFees_should_work_with_no_tokenExchange_but_token_balance() public {
     uint256 liquidityFee = 500;
+    vault.setLiquidityFeeCap(address(localToken), 1 ether);
 
     assertEq(address(vault.tokenExchanges(address(1))), address(0));
 
@@ -513,6 +517,7 @@ contract SponsorVaultTest is ForgeHelper {
   {
     uint256 balanceLocalBefore = localToken.balanceOf(address(vault));
     uint256 liquidityFee = balanceLocalBefore + 10;
+    vault.setLiquidityFeeCap(address(localToken), 100 ether);
 
     assertEq(address(vault.tokenExchanges(address(1))), address(0));
 
@@ -526,6 +531,27 @@ contract SponsorVaultTest is ForgeHelper {
     assertEq(sponsored, balanceLocalBefore);
     assertEq(address(vault).balance, balanceBefore);
     assertEq(localToken.balanceOf(address(vault)), 0);
+  }
+
+  function test_SponsorVault__reimburseLiquidityFees_onlyReimbursesToMax() public {
+    uint256 balanceLocalBefore = localToken.balanceOf(address(vault));
+    uint256 liquidityFee = balanceLocalBefore + 10;
+    uint256 liquidityCap = 2;
+    vault.setLiquidityFeeCap(address(localToken), liquidityCap);
+
+    assertEq(address(vault.tokenExchanges(address(1))), address(0));
+
+    uint256 balanceBefore = address(vault).balance;
+
+    vm.expectEmit(true, true, true, true);
+    emit ReimburseLiquidityFees(address(localToken), liquidityCap, address(1));
+
+    uint256 sponsored = vault.reimburseLiquidityFees(address(localToken), liquidityFee, address(1));
+
+    assertEq(sponsored, liquidityCap);
+    assertEq(address(vault).balance, balanceBefore);
+    assertEq(localToken.balanceOf(address(vault)), balanceLocalBefore - liquidityCap);
+    assertEq(vault.reimbursedLiquidityFees(address(1), address(localToken)), liquidityCap);
   }
 
   // ============ reimburseRelayerFees ============
