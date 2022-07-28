@@ -1215,7 +1215,7 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
 
     (, XCallArgs memory args) = utils_makeXCallArgs(_amount);
 
-    vm.expectRevert(AssetLogic.AssetLogic__handleIncomingAsset_ethWithErcTransfer.selector);
+    vm.expectRevert(BridgeFacet.BridgeFacet__xcall_ethValueMismatchedFees.selector);
     vm.prank(_originSender);
     // Sending insufficent eth to cover relayer fee.
     this.xcall{value: 0.08 ether}(args);
@@ -1228,7 +1228,7 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
 
     (, XCallArgs memory args) = utils_makeXCallArgs(_amount);
 
-    vm.expectRevert(AssetLogic.AssetLogic__handleIncomingAsset_ethWithErcTransfer.selector);
+    vm.expectRevert(BridgeFacet.BridgeFacet__xcall_ethValueMismatchedFees.selector);
     vm.prank(_originSender);
     // Sending too much eth.
     this.xcall{value: 1 ether}(args);

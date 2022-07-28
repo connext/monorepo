@@ -46,6 +46,7 @@ contract BridgeFacet is BaseConnextFacet {
   error BridgeFacet__xcall_callbackNotAContract();
   error BridgeFacet__xcall_missingAgent();
   error BridgeFacet__xcall_invalidSlippageTol();
+  error BridgeFacet__xcall_ethValueMismatchedFees();
   error BridgeFacet__execute_unapprovedSender();
   error BridgeFacet__execute_wrongDomain();
   error BridgeFacet__execute_notSupportedSequencer();
@@ -343,6 +344,11 @@ contract BridgeFacet is BaseConnextFacet {
         // Othewrise, if callback address is not set, callback fee should be 0.
         revert BridgeFacet__xcall_nonZeroCallbackFeeForCallback();
       }
+
+      // Check to make sure fee amount in argument is equal to msg.value.
+      if (msg.value != _args.params.relayerFee + _args.params.callbackFee) {
+        revert BridgeFacet__xcall_ethValueMismatchedFees();
+      }
     }
 
     bytes32 transferId;
@@ -367,11 +373,7 @@ contract BridgeFacet is BaseConnextFacet {
       }
 
       // Transfer funds of transacting asset to the contract from the user.
-      AssetLogic.handleIncomingAsset(
-        _args.transactingAsset,
-        _args.transactingAmount,
-        _args.params.relayerFee + _args.params.callbackFee
-      );
+      AssetLogic.transferAssetToContract(_args.transactingAsset, _args.transactingAmount);
 
       // Swap to the local asset from adopted if applicable.
       (bridgedAmount, bridgedAsset) = AssetLogic.swapToLocalAssetIfNeeded(

@@ -115,7 +115,6 @@
   "function setSwapAdminFee(bytes32,uint256)",
   "function setSwapFee(bytes32,uint256)",
   "function setTokenRegistry(address)",
-  "function setWrapper(address)",
   "function setupAsset(tuple(uint32,bytes32),address,address)",
   "function setupRouter(address,address,address)",
   "function sponsorVault() view returns (address)",
@@ -128,6 +127,5 @@
   "function unapproveRouterForPortal(address)",
   "function unpause()",
   "function withdrawSwapAdminFees(bytes32)",
-  "function wrapper() view returns (address)",
   "function xcall(tuple(tuple(address,bytes,uint32,uint32,address,address,bool,bool,address,uint256,uint256,uint256),address,uint256,uint256)) payable returns (bytes32)"
 ]

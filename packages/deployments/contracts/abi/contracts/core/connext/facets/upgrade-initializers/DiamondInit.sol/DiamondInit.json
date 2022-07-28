@@ -4,5 +4,5 @@
   "error BaseConnextFacet__onlyOwner_notOwner()",
   "error BaseConnextFacet__onlyProposed_notProposedOwner()",
   "error BaseConnextFacet__whenNotPaused_paused()",
-  "function init(uint32,address,address,address,address)"
+  "function init(uint32,address,address,address)"
 ]

@@ -170,7 +170,7 @@ contract PortalFacet is BaseConnextFacet {
     uint256 total = _backingAmount + _feeAmount;
     if (total == 0) revert PortalFacet__repayAavePortalFor_zeroAmount();
 
-    AssetLogic.handleIncomingAsset(_adopted, total, 0);
+    AssetLogic.handleIncomingAsset(_adopted, total);
 
     // No need to swap because this is the adopted asset. Simply
     // repay the loan

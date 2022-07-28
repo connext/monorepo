@@ -20,10 +20,9 @@ contract LibCaller {
 
   function handleIncomingAsset(
     address _assetId,
-    uint256 _assetAmount,
-    uint256 _fee
+    uint256 _assetAmount
   ) public payable {
-    AssetLogic.handleIncomingAsset(_assetId, _assetAmount, _fee);
+    AssetLogic.handleIncomingAsset(_assetId, _assetAmount);
   }
 
   function deposit(IWeth wrapper) public payable {
@@ -101,7 +100,7 @@ contract AssetLogicTest is BaseConnextFacet, FacetHelper {
     // approve
     IERC20(assetId).approve(address(caller), amount);
 
-    caller.handleIncomingAsset{ value: fee }(assetId, amount, fee);
+    caller.handleIncomingAsset{ value: fee }(assetId, amount);
 
     // caller balance always goes up in token
     assertEq(IERC20(assetId).balanceOf(address(caller)), initDestAssetBalance + amount);
@@ -197,14 +196,6 @@ contract AssetLogicTest is BaseConnextFacet, FacetHelper {
   }
 
   // ============ handleIncomingAsset ============
-  function test_AssetLogic__handleIncomingAsset_failsIfValueBad() public {
-    address assetId = address(1);
-    uint256 amount = 10;
-    uint256 fee = 1;
-    vm.expectRevert(AssetLogic.AssetLogic__handleIncomingAsset_ethWithErcTransfer.selector);
-    caller.handleIncomingAsset(assetId, amount, fee);
-  }
-
   function test_AssetLogic__handleIncomingAsset_worksWithToken() public {
     address assetId = _local;
     uint256 amount = 10;

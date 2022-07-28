@@ -18,7 +18,6 @@ library AssetLogic {
   // ============ Errors ============
 
   error AssetLogic__handleIncomingAsset_nativeAssetNotSupported();
-  error AssetLogic__handleIncomingAsset_ethWithErcTransfer();
   error AssetLogic__handleOutgoingAsset_notNative();
   error AssetLogic__transferAssetToContract_feeOnTransferNotSupported();
   error AssetLogic__swapToLocalAssetIfNeeded_swapPaused();
@@ -57,19 +56,11 @@ library AssetLogic {
    * @param _assetId - The address to transfer
    * @param _assetAmount - The specified amount to transfer. May not be the
    * actual amount transferred (i.e. fee on transfer tokens)
-   * @param _fee - The fee amount in native asset included as part of the transaction that
-   * should not be considered for the transfer amount.
    */
-  function handleIncomingAsset(
-    address _assetId,
-    uint256 _assetAmount,
-    uint256 _fee
-  ) internal {
+  function handleIncomingAsset(address _assetId, uint256 _assetAmount) internal {
     if (_assetId == address(0)) {
       revert AssetLogic__handleIncomingAsset_nativeAssetNotSupported();
     }
-
-    if (msg.value != _fee) revert AssetLogic__handleIncomingAsset_ethWithErcTransfer();
 
     // Transfer asset to contract
     transferAssetToContract(_assetId, _assetAmount);
@@ -77,7 +68,6 @@ library AssetLogic {
 
   /**
    * @notice Handles transferring funds from msg.sender to the Connext contract.
-   * @dev If using the native asset, will automatically unwrap
    * @param _assetId - The address to transfer
    * @param _to - The account that will receive the withdrawn funds
    * @param _amount - The amount to withdraw from contract

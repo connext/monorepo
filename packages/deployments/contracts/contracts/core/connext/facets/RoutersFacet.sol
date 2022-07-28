@@ -547,7 +547,7 @@ contract RoutersFacet is BaseConnextFacet {
     if (!_isAssetWhitelistRemoved() && !s.approvedAssets[key]) revert RoutersFacet__addLiquidityForRouter_badAsset();
 
     // Transfer funds to contract.
-    AssetLogic.handleIncomingAsset(_local, _amount, 0);
+    AssetLogic.handleIncomingAsset(_local, _amount);
 
     // Update the router balances. Happens after pulling funds to account for
     // the fee on transfer tokens.
