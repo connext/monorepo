@@ -47,3 +47,10 @@ export const swapSchema = Type.Object({
   deadline: Type.Optional(Type.Number()),
   estimateGas: Type.Optional(Type.Boolean()),
 });
+
+export const approveIfNeededSchema = Type.Object({
+  domainId: Type.String(),
+  assetId: Type.String(),
+  amount: Type.String(),
+  infiniteApprove: Type.Optional(Type.Boolean()),
+});
