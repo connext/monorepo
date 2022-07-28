@@ -114,7 +114,12 @@ locals {
     sequencerUrl = "https://${module.sequencer_publisher.service_endpoint}"
     server = {
       adminToken = var.admin_token_router
-      port       = 8080
+      pub = {
+        port = 8080
+      }
+      sub = {
+        port = 8080
+      }
     }
     chains = {
       "1111" = {
