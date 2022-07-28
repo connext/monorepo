@@ -795,9 +795,8 @@ contract BridgeFacet is BaseConnextFacet {
           _args.params.to,
           _args.params.recovery,
           transferred,
-          _reconciled
-            ? LibCrossDomainProperty.formatDomainAndSenderBytes(_args.params.originDomain, _args.originSender)
-            : LibCrossDomainProperty.EMPTY_BYTES,
+          _reconciled ? _args.originSender : address(0),
+          _reconciled ? _args.params.originDomain : uint32(0),
           _args.params.callData
         )
       );
