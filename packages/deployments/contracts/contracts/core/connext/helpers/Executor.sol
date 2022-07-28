@@ -215,8 +215,7 @@ contract Executor is IExecutor {
 
   /**
    * @notice Sends funds to the specified recovery address
-   * @dev Called if the external call data fails, it's not a contract, or the amount in native
-   * asset is incorrect.
+   * @dev Called if the external call data fails or if the recipient was not a contract.
    * @param _hasIncreased - Whether the allowance was increased
    * @param _assetId - Asset associated with call
    * @param _to - Where call was attempted
