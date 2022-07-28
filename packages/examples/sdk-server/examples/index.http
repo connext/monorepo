@@ -67,6 +67,16 @@ Content-Type: application/json
 }
 
 ##############
+### POST getUserPools
+POST {{baseUrl}}/getUserPools
+Content-Type: application/json
+
+{
+  "domainId": "1111",
+  "userAddress": "0x5A9e792143bf2708b4765C144451dCa54f559a19"
+}
+
+##############
 ### POST addLiquidity
 POST {{baseUrl}}/addLiquidity
 Content-Type: application/json
