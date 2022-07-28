@@ -94,7 +94,7 @@ contract NomadFacetTest is NomadFacet, FacetHelper {
     bytes32 canonicalId,
     uint32 canonicalDomain
   ) public view returns (bytes32) {
-    return keccak256(abi.encode(s.nonce, _args.params, sender, canonicalId, canonicalDomain, _args.amount));
+    return keccak256(abi.encode(s.nonce, _args.params, sender, canonicalId, canonicalDomain, _args.transactingAmount));
   }
 
   // Makes some mock xcall arguments using params set in storage.
@@ -134,7 +134,6 @@ contract NomadFacetTest is NomadFacet, FacetHelper {
     XCallArgs memory args,
     bytes4 expectedError
   ) public {
-    bool isNative = args.transactingAssetId == address(0);
     bool shouldSucceed = keccak256(abi.encode(expectedError)) == keccak256(abi.encode(bytes4("")));
 
     uint256[] memory routerBalances = new uint256[](s.routedTransfers[transferId].length);
@@ -145,27 +144,22 @@ contract NomadFacetTest is NomadFacet, FacetHelper {
     }
 
     // Get pre-reconcile balances.
-    uint256 prevBalance;
-    if (isNative) {
-      prevBalance = payable(address(this)).balance;
-    } else {
-      prevBalance = IERC20(_local).balanceOf(address(this));
-    }
+    uint256 prevBalance = IERC20(_local).balanceOf(address(this));
 
     if (shouldSucceed) {
       vm.expectEmit(true, true, true, true);
-      emit Reconciled(transferId, s.routedTransfers[transferId], _local, args.amount, _bridge);
+      emit Reconciled(transferId, s.routedTransfers[transferId], _local, args.transactingAmount, _bridge);
     } else {
       vm.expectRevert(expectedError);
     }
 
-    helpers_reconcileCaller(_local, args.amount, transferId);
+    helpers_reconcileCaller(_local, args.transactingAmount, transferId);
 
     if (shouldSucceed) {
       assertEq(s.reconciledTransfers[transferId], true);
       address[] memory routers = s.routedTransfers[transferId];
       if (routers.length != 0) {
-        uint256 routerAmt = args.amount / s.routedTransfers[transferId].length;
+        uint256 routerAmt = args.transactingAmount / s.routedTransfers[transferId].length;
 
         // Fast liquidity route. Should have reimbursed routers.
         for (uint256 i = 0; i < routers.length; i++) {
@@ -223,7 +217,14 @@ contract NomadFacetTest is NomadFacet, FacetHelper {
     vm.expectRevert(NomadFacet.NomadFacet__reconcile_alreadyReconciled.selector);
 
     vm.prank(_bridge);
-    this.onReceive(_originDomain, canonicalDomain, canonicalId, _local, args.amount, abi.encodePacked(transferId));
+    this.onReceive(
+      _originDomain,
+      canonicalDomain,
+      canonicalId,
+      _local,
+      args.transactingAmount,
+      abi.encodePacked(transferId)
+    );
   }
 
   // fails if portal record, but used in slow mode
@@ -240,7 +241,14 @@ contract NomadFacetTest is NomadFacet, FacetHelper {
     vm.expectRevert(NomadFacet.NomadFacet__reconcile_noPortalRouter.selector);
 
     vm.prank(_bridge);
-    this.onReceive(_originDomain, canonicalDomain, canonicalId, _local, args.amount, abi.encodePacked(transferId));
+    this.onReceive(
+      _originDomain,
+      canonicalDomain,
+      canonicalId,
+      _local,
+      args.transactingAmount,
+      abi.encodePacked(transferId)
+    );
   }
 
   // ============ reconcile success cases

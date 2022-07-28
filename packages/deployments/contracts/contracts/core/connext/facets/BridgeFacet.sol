@@ -311,7 +311,7 @@ contract BridgeFacet is BaseConnextFacet {
     bytes32 remoteInstance;
     {
       // Not native asset
-      if (_args.transactingAssetId == address(0)) {
+      if (_args.transactingAsset == address(0)) {
         revert BridgeFacet__xcall_nativeAssetNotSupported();
       }
 
@@ -356,34 +356,33 @@ contract BridgeFacet is BaseConnextFacet {
     uint256 bridgedAmount;
     {
       // Check that the asset is supported -- can be either adopted or local.
-      TokenId memory canonical = s.adoptedToCanonical[_args.transactingAssetId];
+      TokenId memory canonical = s.adoptedToCanonical[_args.transactingAsset];
       if (canonical.id == bytes32(0)) {
         // Here, the asset is *not* the adopted asset. The only other valid option
         // is for this asset to be the local asset (i.e. transferring madEth on optimism)
         // NOTE: it *cannot* be the canonical asset. the canonical asset is only used on
         // the canonical domain, where it is *also* the adopted asset.
-        if (s.tokenRegistry.isLocalOrigin(_args.transactingAssetId)) {
+        if (s.tokenRegistry.isLocalOrigin(_args.transactingAsset)) {
           // revert, using a token of local origin that is not registered as adopted
           revert BridgeFacet__xcall_notSupportedAsset();
         }
 
-        (uint32 canonicalDomain, bytes32 canonicalId) = s.tokenRegistry.getTokenId(_args.transactingAssetId);
+        (uint32 canonicalDomain, bytes32 canonicalId) = s.tokenRegistry.getTokenId(_args.transactingAsset);
         canonical = TokenId(canonicalDomain, canonicalId);
       }
 
       // Transfer funds of transacting asset to the contract from the user.
-      // NOTE: Will wrap any native asset transferred to wrapped-native automatically.
       AssetLogic.handleIncomingAsset(
-        _args.transactingAssetId,
-        _args.amount,
+        _args.transactingAsset,
+        _args.transactingAmount,
         _args.params.relayerFee + _args.params.callbackFee
       );
 
       // Swap to the local asset from adopted if applicable.
       (bridgedAmount, bridgedAsset) = AssetLogic.swapToLocalAssetIfNeeded(
         canonical,
-        _args.transactingAssetId,
-        _args.amount,
+        _args.transactingAsset,
+        _args.transactingAmount,
         _args.originMinOut
       );
 
@@ -618,9 +617,9 @@ contract BridgeFacet is BaseConnextFacet {
   function _getTransferId(
     XCallArgs calldata _args,
     TokenId memory _canonical,
-    uint256 bridgedAmt
+    uint256 bridgedAmount
   ) private view returns (bytes32) {
-    return _calculateTransferId(_args.params, bridgedAmt, s.nonce, _canonical.id, _canonical.domain, msg.sender);
+    return _calculateTransferId(_args.params, bridgedAmount, s.nonce, _canonical.id, _canonical.domain, msg.sender);
   }
 
   /**

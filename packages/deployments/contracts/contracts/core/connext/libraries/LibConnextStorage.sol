@@ -58,15 +58,15 @@ struct CallParams {
 /**
  * @notice The arguments you supply to the `xcall` function called by user on origin domain
  * @param params - The CallParams. These are consistent across sending and receiving chains
- * @param transactingAssetId - The asset the caller sent with the transfer. Can be the adopted, canonical,
- * or the representational asset
- * @param amount - The amount of transferring asset the tx called xcall with
+ * @param transactingAsset - The asset the caller sent with the transfer. Can be the adopted, canonical,
+ * or the representational asset.
+ * @param transactingAmount - The amount of transferring asset supplied by the user in the `xcall`.
  * @param originMinOut - Minimum amount received on swaps for adopted <> local on origin chain
  */
 struct XCallArgs {
   CallParams params;
-  address transactingAssetId; // Could be adopted, local, or wrapped
-  uint256 amount;
+  address transactingAsset; // Could be adopted, local, or canonical.
+  uint256 transactingAmount;
   uint256 originMinOut;
 }
 

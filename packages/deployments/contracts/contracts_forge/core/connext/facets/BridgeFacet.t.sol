@@ -291,26 +291,28 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
     bytes32 transferId,
     XCallArgs memory args,
     uint256 bridgedAmt,
-    bool isNative,
     bool shouldSwap
   ) public {
     // bridged is either local or canonical, depending on domain xcall originates on
     address bridged = _canonicalDomain == args.params.originDomain ? _canonical : _local;
     vm.expectEmit(true, true, true, true);
-    emit XCalled(transferId, s.nonce, bridgedAmt, args, bridged, _originSender);
+    emit XCalled(transferId, s.nonce, args, bridged, bridgedAmt, _originSender);
 
     // assert swap if expected
     if (shouldSwap && bridgedAmt != 0) {
       // Transacting asset shouldve been approved for amount in
-      vm.expectCall(args.transactingAssetId, abi.encodeWithSelector(IERC20.approve.selector, _stableSwap, args.amount));
+      vm.expectCall(
+        args.transactingAsset,
+        abi.encodeWithSelector(IERC20.approve.selector, _stableSwap, args.transactingAmount)
+      );
 
       // swapExact on pool should have been called
       vm.expectCall(
         _stableSwap,
         abi.encodeWithSelector(
           IStableSwap.swapExact.selector,
-          args.amount,
-          args.transactingAssetId,
+          args.transactingAmount,
+          args.transactingAsset,
           _local,
           args.originMinOut
         )
@@ -352,7 +354,6 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
     bytes4 expectedError,
     bool shouldSwap
   ) public {
-    bool isNative = args.transactingAssetId == address(0);
     bool shouldSucceed = keccak256(abi.encode(expectedError)) == keccak256(abi.encode(bytes4("")));
     bool isCanonical = _canonicalDomain == args.params.originDomain;
 
@@ -361,11 +362,8 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
 
     uint256 initialUserBalance;
     uint256 initialContractBalance;
-    if (isNative) {
-      initialUserBalance = payable(_originSender).balance;
-      initialContractBalance = payable(address(this)).balance;
-    } else {
-      TestERC20 tokenIn = TestERC20(args.transactingAssetId);
+    {
+      TestERC20 tokenIn = TestERC20(args.transactingAsset);
       TestERC20 localToken = TestERC20(_local);
 
       // Mint the specified amount of tokens for the user.
@@ -387,45 +385,40 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
     assertEq(s.relayerFees[transferId], 0);
 
     if (shouldSucceed) {
-      helpers_setupSuccessfulXcallCallAssertions(transferId, args, bridgedAmt, isNative, shouldSwap);
+      helpers_setupSuccessfulXcallCallAssertions(transferId, args, bridgedAmt, shouldSwap);
     } else {
       vm.expectRevert(expectedError);
     }
 
     uint256 fees = args.params.relayerFee + args.params.callbackFee;
     vm.prank(_originSender);
-    this.xcall{value: isNative ? fees + args.amount : fees}(args);
+    this.xcall{value: fees}(args);
 
     if (shouldSucceed) {
-      if (isNative) {
-        // Should have custodied the relayer fee, sent any callback fee to the promise router, and deposited the
-        // amount into the wrapper contract.
-        assertEq(payable(address(this)).balance, initialContractBalance + args.params.relayerFee);
+      // User should have been debited fees... but also tx cost?
+      // assertEq(payable(_originSender).balance, initialUserBalance - fees);
+
+      // Check that the user has been debited the correct amount of tokens.
+      assertEq(TestERC20(args.transactingAsset).balanceOf(_originSender), initialUserBalance - args.transactingAmount);
+
+      // Check that the contract has been credited the correct amount of tokens.
+      // NOTE: Because the tokens are a representational local asset, they are burnt. The contract
+      // should NOT be holding any additional tokens after xcall completes.
+      if (isCanonical) {
+        // This should be a canonical asset transfer
+        assertEq(TestERC20(_canonical).balanceOf(address(this)), initialContractBalance);
       } else {
-        // User should have been debited fees... but also tx cost?
-        // assertEq(payable(_originSender).balance, initialUserBalance - fees);
-
-        // Check that the user has been debited the correct amount of tokens.
-        assertEq(TestERC20(args.transactingAssetId).balanceOf(_originSender), initialUserBalance - args.amount);
-
-        // Check that the contract has been credited the correct amount of tokens.
-        // NOTE: Because the tokens are a representational local asset, they are burnt. The contract
-        // should NOT be holding any additional tokens after xcall completes.
-        if (isCanonical) {
-          // This should be a canonical asset transfer
-          assertEq(TestERC20(_canonical).balanceOf(address(this)), initialContractBalance);
-        } else {
-          // NOTE: Normally the adopted asset would be swapped into the local asset and then
-          // the local asset would be burned. Because the swap increases the contracts balance
-          // the prod difference in balance is net 0. However, because the swap here is mocked,
-          // when a swap occurrs no balance increase of local happens (i.e. if swap needed, the
-          // balance will decrease by bridgedAmt / what is burned)
-          uint256 expected = args.transactingAssetId == _local
-            ? initialContractBalance
-            : initialContractBalance - bridgedAmt;
-          assertEq(TestERC20(_local).balanceOf(address(this)), expected);
-        }
+        // NOTE: Normally the adopted asset would be swapped into the local asset and then
+        // the local asset would be burned. Because the swap increases the contracts balance
+        // the prod difference in balance is net 0. However, because the swap here is mocked,
+        // when a swap occurrs no balance increase of local happens (i.e. if swap needed, the
+        // balance will decrease by bridgedAmt / what is burned)
+        uint256 expected = args.transactingAsset == _local
+          ? initialContractBalance
+          : initialContractBalance - bridgedAmt;
+        assertEq(TestERC20(_local).balanceOf(address(this)), expected);
       }
+
       // Should have updated relayer fees mapping.
       assertEq(this.relayerFees(transferId), args.params.relayerFee);
 
@@ -447,13 +440,13 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
     bool swaps
   ) public {
     (bytes32 transferId, XCallArgs memory args) = utils_makeXCallArgs(bridged);
-    uint256 dealTokens = (args.transactingAssetId == address(0)) ? 0 : args.amount;
+    uint256 dealTokens = (args.transactingAsset == address(0)) ? 0 : args.transactingAmount;
     helpers_xcallAndAssert(transferId, args, dealTokens, bridged, expectedError, swaps);
   }
 
   function helpers_xcallAndAssert(bytes4 expectedError) public {
     (bytes32 transferId, XCallArgs memory args) = utils_makeXCallArgs(_amount);
-    uint256 dealTokens = (args.transactingAssetId == address(0)) ? 0 : args.amount;
+    uint256 dealTokens = (args.transactingAsset == address(0)) ? 0 : args.transactingAmount;
     helpers_xcallAndAssert(transferId, args, dealTokens, 0, expectedError, false);
   }
 
@@ -469,8 +462,7 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
     bool swaps
   ) public {
     (bytes32 transferId, XCallArgs memory args) = utils_makeXCallArgs(transacting, bridged);
-    uint256 dealTokens = transacting == address(0) ? 0 : args.amount;
-    helpers_xcallAndAssert(transferId, args, dealTokens, bridged, bytes4(""), swaps);
+    helpers_xcallAndAssert(transferId, args, args.transactingAmount, bridged, bytes4(""), swaps);
   }
 
   // Shortcut for the main fn.
@@ -1297,8 +1289,8 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
       abi.encodeWithSelector(ITokenRegistry.isLocalOrigin.selector, _local),
       abi.encode(false)
     );
-    args.transactingAssetId = _local;
-    helpers_xcallAndAssert(transferId, args, args.amount, args.amount, bytes4(""), false);
+    args.transactingAsset = _local;
+    helpers_xcallAndAssert(transferId, args, args.transactingAmount, args.transactingAmount, bytes4(""), false);
   }
 
   // local token transfer on non-canonical domain (local == adopted)
