@@ -2480,7 +2480,7 @@ const schemaAST = {
           "kind": "FieldDefinition",
           "name": {
             "kind": "Name",
-            "value": "destinationMinOut"
+            "value": "slippageTol"
           },
           "arguments": [],
           "type": {
@@ -4597,7 +4597,7 @@ const schemaAST = {
           "kind": "InputValueDefinition",
           "name": {
             "kind": "Name",
-            "value": "destinationMinOut"
+            "value": "slippageTol"
           },
           "type": {
             "kind": "NamedType",
@@ -4612,7 +4612,7 @@ const schemaAST = {
           "kind": "InputValueDefinition",
           "name": {
             "kind": "Name",
-            "value": "destinationMinOut_not"
+            "value": "slippageTol_not"
           },
           "type": {
             "kind": "NamedType",
@@ -4627,7 +4627,7 @@ const schemaAST = {
           "kind": "InputValueDefinition",
           "name": {
             "kind": "Name",
-            "value": "destinationMinOut_gt"
+            "value": "slippageTol_gt"
           },
           "type": {
             "kind": "NamedType",
@@ -4642,7 +4642,7 @@ const schemaAST = {
           "kind": "InputValueDefinition",
           "name": {
             "kind": "Name",
-            "value": "destinationMinOut_lt"
+            "value": "slippageTol_lt"
           },
           "type": {
             "kind": "NamedType",
@@ -4657,7 +4657,7 @@ const schemaAST = {
           "kind": "InputValueDefinition",
           "name": {
             "kind": "Name",
-            "value": "destinationMinOut_gte"
+            "value": "slippageTol_gte"
           },
           "type": {
             "kind": "NamedType",
@@ -4672,7 +4672,7 @@ const schemaAST = {
           "kind": "InputValueDefinition",
           "name": {
             "kind": "Name",
-            "value": "destinationMinOut_lte"
+            "value": "slippageTol_lte"
           },
           "type": {
             "kind": "NamedType",
@@ -4687,7 +4687,7 @@ const schemaAST = {
           "kind": "InputValueDefinition",
           "name": {
             "kind": "Name",
-            "value": "destinationMinOut_in"
+            "value": "slippageTol_in"
           },
           "type": {
             "kind": "ListType",
@@ -4708,7 +4708,7 @@ const schemaAST = {
           "kind": "InputValueDefinition",
           "name": {
             "kind": "Name",
-            "value": "destinationMinOut_not_in"
+            "value": "slippageTol_not_in"
           },
           "type": {
             "kind": "ListType",
@@ -7258,7 +7258,7 @@ const schemaAST = {
           "kind": "EnumValueDefinition",
           "name": {
             "kind": "Name",
-            "value": "destinationMinOut"
+            "value": "slippageTol"
           },
           "directives": []
         },
@@ -7710,7 +7710,7 @@ const schemaAST = {
           "kind": "FieldDefinition",
           "name": {
             "kind": "Name",
-            "value": "destinationMinOut"
+            "value": "slippageTol"
           },
           "arguments": [],
           "type": {
@@ -7742,14 +7742,14 @@ const schemaAST = {
           "kind": "FieldDefinition",
           "name": {
             "kind": "Name",
-            "value": "originMinOut"
+            "value": "message"
           },
           "arguments": [],
           "type": {
             "kind": "NamedType",
             "name": {
               "kind": "Name",
-              "value": "BigInt"
+              "value": "Bytes"
             }
           },
           "directives": []
@@ -9609,7 +9609,7 @@ const schemaAST = {
           "kind": "InputValueDefinition",
           "name": {
             "kind": "Name",
-            "value": "destinationMinOut"
+            "value": "slippageTol"
           },
           "type": {
             "kind": "NamedType",
@@ -9624,7 +9624,7 @@ const schemaAST = {
           "kind": "InputValueDefinition",
           "name": {
             "kind": "Name",
-            "value": "destinationMinOut_not"
+            "value": "slippageTol_not"
           },
           "type": {
             "kind": "NamedType",
@@ -9639,7 +9639,7 @@ const schemaAST = {
           "kind": "InputValueDefinition",
           "name": {
             "kind": "Name",
-            "value": "destinationMinOut_gt"
+            "value": "slippageTol_gt"
           },
           "type": {
             "kind": "NamedType",
@@ -9654,7 +9654,7 @@ const schemaAST = {
           "kind": "InputValueDefinition",
           "name": {
             "kind": "Name",
-            "value": "destinationMinOut_lt"
+            "value": "slippageTol_lt"
           },
           "type": {
             "kind": "NamedType",
@@ -9669,7 +9669,7 @@ const schemaAST = {
           "kind": "InputValueDefinition",
           "name": {
             "kind": "Name",
-            "value": "destinationMinOut_gte"
+            "value": "slippageTol_gte"
           },
           "type": {
             "kind": "NamedType",
@@ -9684,7 +9684,7 @@ const schemaAST = {
           "kind": "InputValueDefinition",
           "name": {
             "kind": "Name",
-            "value": "destinationMinOut_lte"
+            "value": "slippageTol_lte"
           },
           "type": {
             "kind": "NamedType",
@@ -9699,7 +9699,7 @@ const schemaAST = {
           "kind": "InputValueDefinition",
           "name": {
             "kind": "Name",
-            "value": "destinationMinOut_in"
+            "value": "slippageTol_in"
           },
           "type": {
             "kind": "ListType",
@@ -9720,7 +9720,7 @@ const schemaAST = {
           "kind": "InputValueDefinition",
           "name": {
             "kind": "Name",
-            "value": "destinationMinOut_not_in"
+            "value": "slippageTol_not_in"
           },
           "type": {
             "kind": "ListType",
@@ -9813,13 +9813,13 @@ const schemaAST = {
           "kind": "InputValueDefinition",
           "name": {
             "kind": "Name",
-            "value": "originMinOut"
+            "value": "message"
           },
           "type": {
             "kind": "NamedType",
             "name": {
               "kind": "Name",
-              "value": "BigInt"
+              "value": "Bytes"
             }
           },
           "directives": []
@@ -9828,13 +9828,13 @@ const schemaAST = {
           "kind": "InputValueDefinition",
           "name": {
             "kind": "Name",
-            "value": "originMinOut_not"
+            "value": "message_not"
           },
           "type": {
             "kind": "NamedType",
             "name": {
               "kind": "Name",
-              "value": "BigInt"
+              "value": "Bytes"
             }
           },
           "directives": []
@@ -9843,67 +9843,7 @@ const schemaAST = {
           "kind": "InputValueDefinition",
           "name": {
             "kind": "Name",
-            "value": "originMinOut_gt"
-          },
-          "type": {
-            "kind": "NamedType",
-            "name": {
-              "kind": "Name",
-              "value": "BigInt"
-            }
-          },
-          "directives": []
-        },
-        {
-          "kind": "InputValueDefinition",
-          "name": {
-            "kind": "Name",
-            "value": "originMinOut_lt"
-          },
-          "type": {
-            "kind": "NamedType",
-            "name": {
-              "kind": "Name",
-              "value": "BigInt"
-            }
-          },
-          "directives": []
-        },
-        {
-          "kind": "InputValueDefinition",
-          "name": {
-            "kind": "Name",
-            "value": "originMinOut_gte"
-          },
-          "type": {
-            "kind": "NamedType",
-            "name": {
-              "kind": "Name",
-              "value": "BigInt"
-            }
-          },
-          "directives": []
-        },
-        {
-          "kind": "InputValueDefinition",
-          "name": {
-            "kind": "Name",
-            "value": "originMinOut_lte"
-          },
-          "type": {
-            "kind": "NamedType",
-            "name": {
-              "kind": "Name",
-              "value": "BigInt"
-            }
-          },
-          "directives": []
-        },
-        {
-          "kind": "InputValueDefinition",
-          "name": {
-            "kind": "Name",
-            "value": "originMinOut_in"
+            "value": "message_in"
           },
           "type": {
             "kind": "ListType",
@@ -9913,7 +9853,7 @@ const schemaAST = {
                 "kind": "NamedType",
                 "name": {
                   "kind": "Name",
-                  "value": "BigInt"
+                  "value": "Bytes"
                 }
               }
             }
@@ -9924,7 +9864,7 @@ const schemaAST = {
           "kind": "InputValueDefinition",
           "name": {
             "kind": "Name",
-            "value": "originMinOut_not_in"
+            "value": "message_not_in"
           },
           "type": {
             "kind": "ListType",
@@ -9934,9 +9874,39 @@ const schemaAST = {
                 "kind": "NamedType",
                 "name": {
                   "kind": "Name",
-                  "value": "BigInt"
+                  "value": "Bytes"
                 }
               }
+            }
+          },
+          "directives": []
+        },
+        {
+          "kind": "InputValueDefinition",
+          "name": {
+            "kind": "Name",
+            "value": "message_contains"
+          },
+          "type": {
+            "kind": "NamedType",
+            "name": {
+              "kind": "Name",
+              "value": "Bytes"
+            }
+          },
+          "directives": []
+        },
+        {
+          "kind": "InputValueDefinition",
+          "name": {
+            "kind": "Name",
+            "value": "message_not_contains"
+          },
+          "type": {
+            "kind": "NamedType",
+            "name": {
+              "kind": "Name",
+              "value": "Bytes"
             }
           },
           "directives": []
@@ -11295,7 +11265,7 @@ const schemaAST = {
           "kind": "EnumValueDefinition",
           "name": {
             "kind": "Name",
-            "value": "destinationMinOut"
+            "value": "slippageTol"
           },
           "directives": []
         },
@@ -11311,7 +11281,7 @@ const schemaAST = {
           "kind": "EnumValueDefinition",
           "name": {
             "kind": "Name",
-            "value": "originMinOut"
+            "value": "message"
           },
           "directives": []
         },
