@@ -149,7 +149,7 @@ module "sequencer_subscriber" {
   loadbalancer_port        = 80
   cpu                      = 1024
   memory                   = 2048
-  instance_count           = 1
+  instance_count           = 10
   timeout                  = 180
   ingress_cdir_blocks      = ["0.0.0.0/0"]
   ingress_ipv6_cdir_blocks = []
