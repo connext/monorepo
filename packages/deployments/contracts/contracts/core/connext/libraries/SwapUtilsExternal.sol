@@ -321,7 +321,7 @@ library SwapUtilsExternal {
     uint256 y = d;
     for (uint256 i; i < MAX_LOOP_LIMIT; ) {
       yPrev = y;
-      y = (y * y + c) / (y * 2 + b - d);
+      y = ((y * y) + c) / ((y * 2) + b - d);
       if (y.within1(yPrev)) {
         return y;
       }
