@@ -62,4 +62,19 @@ dataSources:
           handler: handleRouterOwnerAccepted
         - event: MaxRoutersPerTransferUpdated(uint256,address)
           handler: handleMaxRoutersPerTransferUpdated
+          # Swap utils events:
+        - event: TokenSwap(indexed bytes32,indexed address,uint256,uint256,uint128,uint128)
+          handler: handleAmmTokenSwap
+        - event: AddLiquidity(indexed bytes32,indexed address,uint256[],uint256[],uint256,uint256)
+          handler: handleAmmAddLiquidity
+        - event: RemoveLiquidity(indexed bytes32,indexed address,uint256[],uint256)
+          handler: handleAmmRemoveLiquidity
+        - event: RemoveLiquidityOne(indexed bytes32,indexed address,uint256,uint256,uint256,uint256)
+          handler: handleAmmRemoveLiquidityOne
+        - event: RemoveLiquidityImbalance(indexed bytes32,indexed address,uint256[],uint256[],uint256,uint256)
+          handler: handleAmmRemoveLiquidityImbalance
+        - event: NewAdminFee(indexed bytes32,uint256)
+          handler: handleAmmNewAdminFee
+        - event: NewSwapFee(indexed bytes32,uint256)
+          handler: handleAmmNewSwapFee
       file: ./src/amarok-runtime-staging/mapping.ts
