@@ -20,8 +20,8 @@ import {PromiseMessage} from "./libraries/PromiseMessage.sol";
 /**
  * @title PromiseRouter
  * @notice This contract processes data returned from the `Executor`.
- * **IMPORTANT NOTE** which is capped at 256 bytes. THIS MEANS THE DATA RETURNED FROM
- * THE DESTINATION DOMAIN COULD BE SHORTENED!
+ * **IMPORTANT NOTE** which is capped at 256 bytes. This means the data returned is
+ * capped by the executor!
  */
 contract PromiseRouter is Version, Router, ReentrancyGuardUpgradeable {
   // ============ Libraries ============
