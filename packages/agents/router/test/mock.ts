@@ -3,7 +3,7 @@ import { createStubInstance, SinonStubbedInstance, stub } from "sinon";
 import { AuctionsCache, TransfersCache } from "@connext/nxtp-adapters-cache";
 import { SubgraphReader } from "@connext/nxtp-adapters-subgraph";
 import { ConnextContractDeployments, ConnextContractInterfaces, TransactionService } from "@connext/nxtp-txservice";
-import { mkAddress, Logger, mock as _mock } from "@connext/nxtp-utils";
+import { mkAddress, Logger, mock as _mock, OriginTransfer, DestinationTransfer } from "@connext/nxtp-utils";
 
 import { AppContext as PublisherAppContext } from "../src/publisher/context";
 import { AppContext as SubscriberAppContext } from "../src/subscriber/context";
@@ -120,6 +120,7 @@ export const mock = {
     subgraph: (): SinonStubbedInstance<SubgraphReader> => {
       const subgraph = createStubInstance(SubgraphReader);
       subgraph.getXCalls.resolves([]);
+      subgraph.getOriginTransferById.resolves(mock.entity.xtransfer() as OriginTransfer);
       subgraph.getDestinationTransfers.resolves([]);
       subgraph.isRouterApproved.resolves(true);
       subgraph.getAssetBalance.resolves(constants.MaxUint256);
