@@ -1,17 +1,491 @@
 [
   {
     "inputs": [],
+    "name": "AssetFacet__addAssetId_alreadyAdded",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "AssetFacet__addAssetId_nativeAsset",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "AssetFacet__removeAssetId_notAdded",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "AssetFacet__setTokenRegistry_invalidTokenRegistry",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "BaseConnextFacet__nonReentrant_reentrantCall",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "BaseConnextFacet__onlyBridgeRouter_notBridgeRouter",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "BaseConnextFacet__onlyOwner_notOwner",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "BaseConnextFacet__onlyProposed_notProposedOwner",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "BaseConnextFacet__whenNotPaused_paused",
+    "type": "error"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "bytes32",
+        "name": "key",
+        "type": "bytes32"
+      },
+      {
+        "indexed": true,
+        "internalType": "bytes32",
+        "name": "canonicalId",
+        "type": "bytes32"
+      },
+      {
+        "indexed": true,
+        "internalType": "uint32",
+        "name": "domain",
+        "type": "uint32"
+      },
+      {
+        "indexed": false,
+        "internalType": "address",
+        "name": "adoptedAsset",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "address",
+        "name": "caller",
+        "type": "address"
+      }
+    ],
+    "name": "AssetAdded",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "bytes32",
+        "name": "key",
+        "type": "bytes32"
+      },
+      {
+        "indexed": false,
+        "internalType": "address",
+        "name": "caller",
+        "type": "address"
+      }
+    ],
+    "name": "AssetRemoved",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "bytes32",
+        "name": "key",
+        "type": "bytes32"
+      },
+      {
+        "indexed": true,
+        "internalType": "bytes32",
+        "name": "canonicalId",
+        "type": "bytes32"
+      },
+      {
+        "indexed": true,
+        "internalType": "uint32",
+        "name": "domain",
+        "type": "uint32"
+      },
+      {
+        "indexed": false,
+        "internalType": "address",
+        "name": "swapPool",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "address",
+        "name": "caller",
+        "type": "address"
+      }
+    ],
+    "name": "StableSwapAdded",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
+        "internalType": "address",
+        "name": "oldTokenRegistry",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "address",
+        "name": "newTokenRegistry",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "address",
+        "name": "caller",
+        "type": "address"
+      }
+    ],
+    "name": "TokenRegistryUpdated",
+    "type": "event"
+  },
+  {
+    "inputs": [
+      {
+        "components": [
+          {
+            "internalType": "uint32",
+            "name": "domain",
+            "type": "uint32"
+          },
+          {
+            "internalType": "bytes32",
+            "name": "id",
+            "type": "bytes32"
+          }
+        ],
+        "internalType": "struct TokenId",
+        "name": "_canonical",
+        "type": "tuple"
+      },
+      {
+        "internalType": "address",
+        "name": "_stableSwapPool",
+        "type": "address"
+      }
+    ],
+    "name": "addStableSwapPool",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "_adopted",
+        "type": "address"
+      }
+    ],
+    "name": "adoptedToCanonical",
+    "outputs": [
+      {
+        "components": [
+          {
+            "internalType": "uint32",
+            "name": "domain",
+            "type": "uint32"
+          },
+          {
+            "internalType": "bytes32",
+            "name": "id",
+            "type": "bytes32"
+          }
+        ],
+        "internalType": "struct TokenId",
+        "name": "",
+        "type": "tuple"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "bytes32",
+        "name": "_key",
+        "type": "bytes32"
+      }
+    ],
+    "name": "adoptedToLocalPools",
+    "outputs": [
+      {
+        "internalType": "contract IStableSwap",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "components": [
+          {
+            "internalType": "uint32",
+            "name": "domain",
+            "type": "uint32"
+          },
+          {
+            "internalType": "bytes32",
+            "name": "id",
+            "type": "bytes32"
+          }
+        ],
+        "internalType": "struct TokenId",
+        "name": "_canonical",
+        "type": "tuple"
+      }
+    ],
+    "name": "adoptedToLocalPools",
+    "outputs": [
+      {
+        "internalType": "contract IStableSwap",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "bytes32",
+        "name": "_key",
+        "type": "bytes32"
+      }
+    ],
+    "name": "approvedAssets",
+    "outputs": [
+      {
+        "internalType": "bool",
+        "name": "",
+        "type": "bool"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "components": [
+          {
+            "internalType": "uint32",
+            "name": "domain",
+            "type": "uint32"
+          },
+          {
+            "internalType": "bytes32",
+            "name": "id",
+            "type": "bytes32"
+          }
+        ],
+        "internalType": "struct TokenId",
+        "name": "_canonical",
+        "type": "tuple"
+      }
+    ],
+    "name": "approvedAssets",
+    "outputs": [
+      {
+        "internalType": "bool",
+        "name": "",
+        "type": "bool"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "bytes32",
+        "name": "_key",
+        "type": "bytes32"
+      }
+    ],
+    "name": "canonicalToAdopted",
+    "outputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "components": [
+          {
+            "internalType": "uint32",
+            "name": "domain",
+            "type": "uint32"
+          },
+          {
+            "internalType": "bytes32",
+            "name": "id",
+            "type": "bytes32"
+          }
+        ],
+        "internalType": "struct TokenId",
+        "name": "_canonical",
+        "type": "tuple"
+      }
+    ],
+    "name": "canonicalToAdopted",
+    "outputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "components": [
+          {
+            "internalType": "uint32",
+            "name": "domain",
+            "type": "uint32"
+          },
+          {
+            "internalType": "bytes32",
+            "name": "id",
+            "type": "bytes32"
+          }
+        ],
+        "internalType": "struct TokenId",
+        "name": "_canonical",
+        "type": "tuple"
+      },
+      {
+        "internalType": "address",
+        "name": "_adoptedAssetId",
+        "type": "address"
+      }
+    ],
+    "name": "removeAssetId",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "bytes32",
+        "name": "_key",
+        "type": "bytes32"
+      },
+      {
+        "internalType": "address",
+        "name": "_adoptedAssetId",
+        "type": "address"
+      }
+    ],
+    "name": "removeAssetId",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "_tokenRegistry",
+        "type": "address"
+      }
+    ],
+    "name": "setTokenRegistry",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "components": [
+          {
+            "internalType": "uint32",
+            "name": "domain",
+            "type": "uint32"
+          },
+          {
+            "internalType": "bytes32",
+            "name": "id",
+            "type": "bytes32"
+          }
+        ],
+        "internalType": "struct TokenId",
+        "name": "_canonical",
+        "type": "tuple"
+      },
+      {
+        "internalType": "address",
+        "name": "_adoptedAssetId",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "_stableSwapPool",
+        "type": "address"
+      }
+    ],
+    "name": "setupAsset",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "tokenRegistry",
+    "outputs": [
+      {
+        "internalType": "contract ITokenRegistry",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+
+  {
+    "inputs": [],
     "name": "AssetLogic__getTokenIndexFromStableSwapPool_notExist",
-    "type": "error"
-  },
-  {
-    "inputs": [],
-    "name": "AssetLogic__handleIncomingAsset_ethWithErcTransfer",
-    "type": "error"
-  },
-  {
-    "inputs": [],
-    "name": "AssetLogic__handleIncomingAsset_notAmount",
     "type": "error"
   },
   {
@@ -171,12 +645,22 @@
   },
   {
     "inputs": [],
+    "name": "BridgeFacet__xcall_ethValueMismatchedFees",
+    "type": "error"
+  },
+  {
+    "inputs": [],
     "name": "BridgeFacet__xcall_invalidSlippageTol",
     "type": "error"
   },
   {
     "inputs": [],
     "name": "BridgeFacet__xcall_missingAgent",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "BridgeFacet__xcall_nativeAssetNotSupported",
     "type": "error"
   },
   {
@@ -657,12 +1141,12 @@
           },
           {
             "internalType": "address",
-            "name": "transactingAssetId",
+            "name": "transactingAsset",
             "type": "address"
           },
           {
             "internalType": "uint256",
-            "name": "amount",
+            "name": "transactingAmount",
             "type": "uint256"
           },
           {
@@ -677,32 +1161,16 @@
         "type": "tuple"
       },
       {
-        "components": [
-          {
-            "internalType": "address",
-            "name": "transactingAssetId",
-            "type": "address"
-          },
-          {
-            "internalType": "uint256",
-            "name": "amount",
-            "type": "uint256"
-          },
-          {
-            "internalType": "uint256",
-            "name": "bridgedAmt",
-            "type": "uint256"
-          },
-          {
-            "internalType": "address",
-            "name": "bridged",
-            "type": "address"
-          }
-        ],
         "indexed": false,
-        "internalType": "struct BridgeFacet.XCalledEventArgs",
-        "name": "args",
-        "type": "tuple"
+        "internalType": "address",
+        "name": "bridgedAsset",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "bridgedAmount",
+        "type": "uint256"
       },
       {
         "indexed": false,
@@ -1265,12 +1733,12 @@
           },
           {
             "internalType": "address",
-            "name": "transactingAssetId",
+            "name": "transactingAsset",
             "type": "address"
           },
           {
             "internalType": "uint256",
-            "name": "amount",
+            "name": "transactingAmount",
             "type": "uint256"
           },
           {
@@ -1295,14 +1763,177 @@
     "stateMutability": "payable",
     "type": "function"
   },
+
   {
     "inputs": [],
-    "name": "AssetLogic__handleIncomingAsset_ethWithErcTransfer",
+    "name": "BaseConnextFacet__nonReentrant_reentrantCall",
     "type": "error"
   },
   {
     "inputs": [],
-    "name": "AssetLogic__handleIncomingAsset_notAmount",
+    "name": "BaseConnextFacet__onlyBridgeRouter_notBridgeRouter",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "BaseConnextFacet__onlyOwner_notOwner",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "BaseConnextFacet__onlyProposed_notProposedOwner",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "BaseConnextFacet__whenNotPaused_paused",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "NomadFacet__reconcile_alreadyReconciled",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "NomadFacet__reconcile_noPortalRouter",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "NomadFacet__setBridgeRouter_invalidBridge",
+    "type": "error"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
+        "internalType": "address",
+        "name": "oldBridgeRouter",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "address",
+        "name": "newBridgeRouter",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "address",
+        "name": "caller",
+        "type": "address"
+      }
+    ],
+    "name": "BridgeRouterUpdated",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "bytes32",
+        "name": "transferId",
+        "type": "bytes32"
+      },
+      {
+        "indexed": false,
+        "internalType": "address[]",
+        "name": "routers",
+        "type": "address[]"
+      },
+      {
+        "indexed": false,
+        "internalType": "address",
+        "name": "asset",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "amount",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "address",
+        "name": "caller",
+        "type": "address"
+      }
+    ],
+    "name": "Reconciled",
+    "type": "event"
+  },
+  {
+    "inputs": [],
+    "name": "bridgeRouter",
+    "outputs": [
+      {
+        "internalType": "contract IBridgeRouter",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint32",
+        "name": "",
+        "type": "uint32"
+      },
+      {
+        "internalType": "uint32",
+        "name": "_tokenDomain",
+        "type": "uint32"
+      },
+      {
+        "internalType": "bytes32",
+        "name": "_tokenAddress",
+        "type": "bytes32"
+      },
+      {
+        "internalType": "address",
+        "name": "_localToken",
+        "type": "address"
+      },
+      {
+        "internalType": "uint256",
+        "name": "_amount",
+        "type": "uint256"
+      },
+      {
+        "internalType": "bytes",
+        "name": "_extraData",
+        "type": "bytes"
+      }
+    ],
+    "name": "onReceive",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "_bridgeRouter",
+        "type": "address"
+      }
+    ],
+    "name": "setBridgeRouter",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+
+  {
+    "inputs": [],
+    "name": "AssetLogic__handleIncomingAsset_nativeAssetNotSupported",
     "type": "error"
   },
   {
@@ -2137,548 +2768,33 @@
 
   {
     "inputs": [],
-    "name": "AssetFacet__addAssetId_alreadyAdded",
+    "name": "AssetLogic__getTokenIndexFromStableSwapPool_notExist",
     "type": "error"
   },
   {
     "inputs": [],
-    "name": "AssetFacet__addAssetId_noWrapperExists",
+    "name": "AssetLogic__handleIncomingAsset_nativeAssetNotSupported",
     "type": "error"
   },
   {
     "inputs": [],
-    "name": "AssetFacet__removeAssetId_notAdded",
+    "name": "AssetLogic__handleOutgoingAsset_notNative",
     "type": "error"
   },
   {
     "inputs": [],
-    "name": "AssetFacet__setTokenRegistry_invalidTokenRegistry",
+    "name": "AssetLogic__swapFromLocalAssetIfNeeded_swapPaused",
     "type": "error"
   },
   {
     "inputs": [],
-    "name": "AssetFacet__setWrapper_invalidWrapper",
+    "name": "AssetLogic__swapToLocalAssetIfNeeded_swapPaused",
     "type": "error"
   },
   {
     "inputs": [],
-    "name": "BaseConnextFacet__nonReentrant_reentrantCall",
+    "name": "AssetLogic__transferAssetToContract_feeOnTransferNotSupported",
     "type": "error"
-  },
-  {
-    "inputs": [],
-    "name": "BaseConnextFacet__onlyBridgeRouter_notBridgeRouter",
-    "type": "error"
-  },
-  {
-    "inputs": [],
-    "name": "BaseConnextFacet__onlyOwner_notOwner",
-    "type": "error"
-  },
-  {
-    "inputs": [],
-    "name": "BaseConnextFacet__onlyProposed_notProposedOwner",
-    "type": "error"
-  },
-  {
-    "inputs": [],
-    "name": "BaseConnextFacet__whenNotPaused_paused",
-    "type": "error"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": true,
-        "internalType": "bytes32",
-        "name": "key",
-        "type": "bytes32"
-      },
-      {
-        "indexed": true,
-        "internalType": "bytes32",
-        "name": "canonicalId",
-        "type": "bytes32"
-      },
-      {
-        "indexed": true,
-        "internalType": "uint32",
-        "name": "domain",
-        "type": "uint32"
-      },
-      {
-        "indexed": false,
-        "internalType": "address",
-        "name": "adoptedAsset",
-        "type": "address"
-      },
-      {
-        "indexed": false,
-        "internalType": "address",
-        "name": "supportedAsset",
-        "type": "address"
-      },
-      {
-        "indexed": false,
-        "internalType": "address",
-        "name": "caller",
-        "type": "address"
-      }
-    ],
-    "name": "AssetAdded",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": true,
-        "internalType": "bytes32",
-        "name": "key",
-        "type": "bytes32"
-      },
-      {
-        "indexed": false,
-        "internalType": "address",
-        "name": "caller",
-        "type": "address"
-      }
-    ],
-    "name": "AssetRemoved",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": true,
-        "internalType": "bytes32",
-        "name": "key",
-        "type": "bytes32"
-      },
-      {
-        "indexed": true,
-        "internalType": "bytes32",
-        "name": "canonicalId",
-        "type": "bytes32"
-      },
-      {
-        "indexed": true,
-        "internalType": "uint32",
-        "name": "domain",
-        "type": "uint32"
-      },
-      {
-        "indexed": false,
-        "internalType": "address",
-        "name": "swapPool",
-        "type": "address"
-      },
-      {
-        "indexed": false,
-        "internalType": "address",
-        "name": "caller",
-        "type": "address"
-      }
-    ],
-    "name": "StableSwapAdded",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": false,
-        "internalType": "address",
-        "name": "oldTokenRegistry",
-        "type": "address"
-      },
-      {
-        "indexed": false,
-        "internalType": "address",
-        "name": "newTokenRegistry",
-        "type": "address"
-      },
-      {
-        "indexed": false,
-        "internalType": "address",
-        "name": "caller",
-        "type": "address"
-      }
-    ],
-    "name": "TokenRegistryUpdated",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": false,
-        "internalType": "address",
-        "name": "oldWrapper",
-        "type": "address"
-      },
-      {
-        "indexed": false,
-        "internalType": "address",
-        "name": "newWrapper",
-        "type": "address"
-      },
-      {
-        "indexed": false,
-        "internalType": "address",
-        "name": "caller",
-        "type": "address"
-      }
-    ],
-    "name": "WrapperUpdated",
-    "type": "event"
-  },
-  {
-    "inputs": [
-      {
-        "components": [
-          {
-            "internalType": "uint32",
-            "name": "domain",
-            "type": "uint32"
-          },
-          {
-            "internalType": "bytes32",
-            "name": "id",
-            "type": "bytes32"
-          }
-        ],
-        "internalType": "struct TokenId",
-        "name": "_canonical",
-        "type": "tuple"
-      },
-      {
-        "internalType": "address",
-        "name": "_stableSwapPool",
-        "type": "address"
-      }
-    ],
-    "name": "addStableSwapPool",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "_adopted",
-        "type": "address"
-      }
-    ],
-    "name": "adoptedToCanonical",
-    "outputs": [
-      {
-        "components": [
-          {
-            "internalType": "uint32",
-            "name": "domain",
-            "type": "uint32"
-          },
-          {
-            "internalType": "bytes32",
-            "name": "id",
-            "type": "bytes32"
-          }
-        ],
-        "internalType": "struct TokenId",
-        "name": "",
-        "type": "tuple"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "bytes32",
-        "name": "_key",
-        "type": "bytes32"
-      }
-    ],
-    "name": "adoptedToLocalPools",
-    "outputs": [
-      {
-        "internalType": "contract IStableSwap",
-        "name": "",
-        "type": "address"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "components": [
-          {
-            "internalType": "uint32",
-            "name": "domain",
-            "type": "uint32"
-          },
-          {
-            "internalType": "bytes32",
-            "name": "id",
-            "type": "bytes32"
-          }
-        ],
-        "internalType": "struct TokenId",
-        "name": "_canonical",
-        "type": "tuple"
-      }
-    ],
-    "name": "adoptedToLocalPools",
-    "outputs": [
-      {
-        "internalType": "contract IStableSwap",
-        "name": "",
-        "type": "address"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "bytes32",
-        "name": "_key",
-        "type": "bytes32"
-      }
-    ],
-    "name": "approvedAssets",
-    "outputs": [
-      {
-        "internalType": "bool",
-        "name": "",
-        "type": "bool"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "components": [
-          {
-            "internalType": "uint32",
-            "name": "domain",
-            "type": "uint32"
-          },
-          {
-            "internalType": "bytes32",
-            "name": "id",
-            "type": "bytes32"
-          }
-        ],
-        "internalType": "struct TokenId",
-        "name": "_canonical",
-        "type": "tuple"
-      }
-    ],
-    "name": "approvedAssets",
-    "outputs": [
-      {
-        "internalType": "bool",
-        "name": "",
-        "type": "bool"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "bytes32",
-        "name": "_key",
-        "type": "bytes32"
-      }
-    ],
-    "name": "canonicalToAdopted",
-    "outputs": [
-      {
-        "internalType": "address",
-        "name": "",
-        "type": "address"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "components": [
-          {
-            "internalType": "uint32",
-            "name": "domain",
-            "type": "uint32"
-          },
-          {
-            "internalType": "bytes32",
-            "name": "id",
-            "type": "bytes32"
-          }
-        ],
-        "internalType": "struct TokenId",
-        "name": "_canonical",
-        "type": "tuple"
-      }
-    ],
-    "name": "canonicalToAdopted",
-    "outputs": [
-      {
-        "internalType": "address",
-        "name": "",
-        "type": "address"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "components": [
-          {
-            "internalType": "uint32",
-            "name": "domain",
-            "type": "uint32"
-          },
-          {
-            "internalType": "bytes32",
-            "name": "id",
-            "type": "bytes32"
-          }
-        ],
-        "internalType": "struct TokenId",
-        "name": "_canonical",
-        "type": "tuple"
-      },
-      {
-        "internalType": "address",
-        "name": "_adoptedAssetId",
-        "type": "address"
-      }
-    ],
-    "name": "removeAssetId",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "bytes32",
-        "name": "_key",
-        "type": "bytes32"
-      },
-      {
-        "internalType": "address",
-        "name": "_adoptedAssetId",
-        "type": "address"
-      }
-    ],
-    "name": "removeAssetId",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "_tokenRegistry",
-        "type": "address"
-      }
-    ],
-    "name": "setTokenRegistry",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "_wrapper",
-        "type": "address"
-      }
-    ],
-    "name": "setWrapper",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "components": [
-          {
-            "internalType": "uint32",
-            "name": "domain",
-            "type": "uint32"
-          },
-          {
-            "internalType": "bytes32",
-            "name": "id",
-            "type": "bytes32"
-          }
-        ],
-        "internalType": "struct TokenId",
-        "name": "_canonical",
-        "type": "tuple"
-      },
-      {
-        "internalType": "address",
-        "name": "_adoptedAssetId",
-        "type": "address"
-      },
-      {
-        "internalType": "address",
-        "name": "_stableSwapPool",
-        "type": "address"
-      }
-    ],
-    "name": "setupAsset",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "tokenRegistry",
-    "outputs": [
-      {
-        "internalType": "contract ITokenRegistry",
-        "name": "",
-        "type": "address"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "wrapper",
-    "outputs": [
-      {
-        "internalType": "contract IWeth",
-        "name": "",
-        "type": "address"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
   },
 
   {
@@ -2708,87 +2824,248 @@
   },
   {
     "inputs": [],
-    "name": "NomadFacet__reconcile_alreadyReconciled",
+    "name": "StableSwapFacet__deadlineCheck_deadlineNotMet",
     "type": "error"
   },
   {
     "inputs": [],
-    "name": "NomadFacet__reconcile_noPortalRouter",
+    "name": "StableSwapFacet__getSwapTokenBalance_indexOutOfRange",
     "type": "error"
   },
   {
     "inputs": [],
-    "name": "NomadFacet__setBridgeRouter_invalidBridge",
+    "name": "StableSwapFacet__getSwapTokenIndex_notExist",
     "type": "error"
   },
   {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": false,
-        "internalType": "address",
-        "name": "oldBridgeRouter",
-        "type": "address"
-      },
-      {
-        "indexed": false,
-        "internalType": "address",
-        "name": "newBridgeRouter",
-        "type": "address"
-      },
-      {
-        "indexed": false,
-        "internalType": "address",
-        "name": "caller",
-        "type": "address"
-      }
-    ],
-    "name": "BridgeRouterUpdated",
-    "type": "event"
+    "inputs": [],
+    "name": "StableSwapFacet__getSwapToken_outOfRange",
+    "type": "error"
   },
   {
-    "anonymous": false,
     "inputs": [
       {
-        "indexed": true,
         "internalType": "bytes32",
-        "name": "transferId",
+        "name": "key",
         "type": "bytes32"
       },
       {
-        "indexed": false,
-        "internalType": "address[]",
-        "name": "routers",
-        "type": "address[]"
+        "internalType": "uint256[]",
+        "name": "amounts",
+        "type": "uint256[]"
       },
       {
-        "indexed": false,
-        "internalType": "address",
-        "name": "asset",
-        "type": "address"
-      },
-      {
-        "indexed": false,
         "internalType": "uint256",
-        "name": "amount",
+        "name": "minToMint",
         "type": "uint256"
       },
       {
-        "indexed": false,
-        "internalType": "address",
-        "name": "caller",
-        "type": "address"
+        "internalType": "uint256",
+        "name": "deadline",
+        "type": "uint256"
       }
     ],
-    "name": "Reconciled",
-    "type": "event"
-  },
-  {
-    "inputs": [],
-    "name": "bridgeRouter",
+    "name": "addSwapLiquidity",
     "outputs": [
       {
-        "internalType": "contract IBridgeRouter",
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "bytes32",
+        "name": "key",
+        "type": "bytes32"
+      },
+      {
+        "internalType": "uint256",
+        "name": "amount",
+        "type": "uint256"
+      }
+    ],
+    "name": "calculateRemoveSwapLiquidity",
+    "outputs": [
+      {
+        "internalType": "uint256[]",
+        "name": "",
+        "type": "uint256[]"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "bytes32",
+        "name": "key",
+        "type": "bytes32"
+      },
+      {
+        "internalType": "uint256",
+        "name": "tokenAmount",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint8",
+        "name": "tokenIndex",
+        "type": "uint8"
+      }
+    ],
+    "name": "calculateRemoveSwapLiquidityOneToken",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "availableTokenAmount",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "bytes32",
+        "name": "key",
+        "type": "bytes32"
+      },
+      {
+        "internalType": "uint8",
+        "name": "tokenIndexFrom",
+        "type": "uint8"
+      },
+      {
+        "internalType": "uint8",
+        "name": "tokenIndexTo",
+        "type": "uint8"
+      },
+      {
+        "internalType": "uint256",
+        "name": "dx",
+        "type": "uint256"
+      }
+    ],
+    "name": "calculateSwap",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "bytes32",
+        "name": "key",
+        "type": "bytes32"
+      },
+      {
+        "internalType": "uint256[]",
+        "name": "amounts",
+        "type": "uint256[]"
+      },
+      {
+        "internalType": "bool",
+        "name": "deposit",
+        "type": "bool"
+      }
+    ],
+    "name": "calculateSwapTokenAmount",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "bytes32",
+        "name": "key",
+        "type": "bytes32"
+      }
+    ],
+    "name": "getSwapA",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "bytes32",
+        "name": "key",
+        "type": "bytes32"
+      }
+    ],
+    "name": "getSwapAPrecise",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "bytes32",
+        "name": "key",
+        "type": "bytes32"
+      },
+      {
+        "internalType": "uint256",
+        "name": "index",
+        "type": "uint256"
+      }
+    ],
+    "name": "getSwapAdminBalance",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "bytes32",
+        "name": "key",
+        "type": "bytes32"
+      }
+    ],
+    "name": "getSwapLPToken",
+    "outputs": [
+      {
+        "internalType": "address",
         "name": "",
         "type": "address"
       }
@@ -2799,51 +3076,406 @@
   {
     "inputs": [
       {
-        "internalType": "uint32",
-        "name": "",
-        "type": "uint32"
-      },
+        "internalType": "bytes32",
+        "name": "key",
+        "type": "bytes32"
+      }
+    ],
+    "name": "getSwapStorage",
+    "outputs": [
       {
-        "internalType": "uint32",
+        "components": [
+          {
+            "internalType": "uint256",
+            "name": "initialA",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "futureA",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "initialATime",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "futureATime",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "swapFee",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "adminFee",
+            "type": "uint256"
+          },
+          {
+            "internalType": "contract LPToken",
+            "name": "lpToken",
+            "type": "address"
+          },
+          {
+            "internalType": "contract IERC20[]",
+            "name": "pooledTokens",
+            "type": "address[]"
+          },
+          {
+            "internalType": "uint256[]",
+            "name": "tokenPrecisionMultipliers",
+            "type": "uint256[]"
+          },
+          {
+            "internalType": "uint256[]",
+            "name": "balances",
+            "type": "uint256[]"
+          },
+          {
+            "internalType": "uint256[]",
+            "name": "adminFees",
+            "type": "uint256[]"
+          }
+        ],
+        "internalType": "struct SwapUtils.Swap",
         "name": "",
-        "type": "uint32"
-      },
+        "type": "tuple"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
       {
         "internalType": "bytes32",
+        "name": "key",
+        "type": "bytes32"
+      },
+      {
+        "internalType": "uint8",
+        "name": "index",
+        "type": "uint8"
+      }
+    ],
+    "name": "getSwapToken",
+    "outputs": [
+      {
+        "internalType": "contract IERC20",
         "name": "",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "bytes32",
+        "name": "key",
+        "type": "bytes32"
+      },
+      {
+        "internalType": "uint8",
+        "name": "index",
+        "type": "uint8"
+      }
+    ],
+    "name": "getSwapTokenBalance",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "bytes32",
+        "name": "key",
         "type": "bytes32"
       },
       {
         "internalType": "address",
-        "name": "_localToken",
+        "name": "tokenAddress",
         "type": "address"
+      }
+    ],
+    "name": "getSwapTokenIndex",
+    "outputs": [
+      {
+        "internalType": "uint8",
+        "name": "",
+        "type": "uint8"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "bytes32",
+        "name": "key",
+        "type": "bytes32"
+      }
+    ],
+    "name": "getSwapVirtualPrice",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "bytes32",
+        "name": "key",
+        "type": "bytes32"
       },
       {
         "internalType": "uint256",
-        "name": "_amount",
+        "name": "amount",
         "type": "uint256"
       },
       {
-        "internalType": "bytes",
-        "name": "_extraData",
-        "type": "bytes"
+        "internalType": "uint256[]",
+        "name": "minAmounts",
+        "type": "uint256[]"
+      },
+      {
+        "internalType": "uint256",
+        "name": "deadline",
+        "type": "uint256"
       }
     ],
-    "name": "onReceive",
-    "outputs": [],
+    "name": "removeSwapLiquidity",
+    "outputs": [
+      {
+        "internalType": "uint256[]",
+        "name": "",
+        "type": "uint256[]"
+      }
+    ],
     "stateMutability": "nonpayable",
     "type": "function"
   },
   {
     "inputs": [
       {
-        "internalType": "address",
-        "name": "_bridgeRouter",
-        "type": "address"
+        "internalType": "bytes32",
+        "name": "key",
+        "type": "bytes32"
+      },
+      {
+        "internalType": "uint256[]",
+        "name": "amounts",
+        "type": "uint256[]"
+      },
+      {
+        "internalType": "uint256",
+        "name": "maxBurnAmount",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "deadline",
+        "type": "uint256"
       }
     ],
-    "name": "setBridgeRouter",
-    "outputs": [],
+    "name": "removeSwapLiquidityImbalance",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "bytes32",
+        "name": "key",
+        "type": "bytes32"
+      },
+      {
+        "internalType": "uint256",
+        "name": "tokenAmount",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint8",
+        "name": "tokenIndex",
+        "type": "uint8"
+      },
+      {
+        "internalType": "uint256",
+        "name": "minAmount",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "deadline",
+        "type": "uint256"
+      }
+    ],
+    "name": "removeSwapLiquidityOneToken",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "bytes32",
+        "name": "key",
+        "type": "bytes32"
+      },
+      {
+        "internalType": "uint8",
+        "name": "tokenIndexFrom",
+        "type": "uint8"
+      },
+      {
+        "internalType": "uint8",
+        "name": "tokenIndexTo",
+        "type": "uint8"
+      },
+      {
+        "internalType": "uint256",
+        "name": "dx",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "minDy",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "deadline",
+        "type": "uint256"
+      }
+    ],
+    "name": "swap",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "bytes32",
+        "name": "key",
+        "type": "bytes32"
+      },
+      {
+        "internalType": "uint256",
+        "name": "amountIn",
+        "type": "uint256"
+      },
+      {
+        "internalType": "address",
+        "name": "assetIn",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "assetOut",
+        "type": "address"
+      },
+      {
+        "internalType": "uint256",
+        "name": "minAmountOut",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "deadline",
+        "type": "uint256"
+      }
+    ],
+    "name": "swapExact",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "bytes32",
+        "name": "key",
+        "type": "bytes32"
+      },
+      {
+        "internalType": "uint256",
+        "name": "amountOut",
+        "type": "uint256"
+      },
+      {
+        "internalType": "address",
+        "name": "assetIn",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "assetOut",
+        "type": "address"
+      },
+      {
+        "internalType": "uint256",
+        "name": "maxAmountIn",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "deadline",
+        "type": "uint256"
+      }
+    ],
+    "name": "swapExactOut",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
     "stateMutability": "nonpayable",
     "type": "function"
   },

@@ -25,7 +25,7 @@ dataSources:
           file: ./src/amarok-runtime-v0/abis/ConnextHandler.json
       eventHandlers:
         # AssetAdded: canonicalId, domain, adoptedAsset, supportedAsset, caller
-        - event: AssetAdded(indexed bytes32,indexed bytes32,indexed uint32,address,address,address)
+        - event: AssetAdded(indexed bytes32,indexed bytes32,indexed uint32,address,address)
           handler: handleAssetAdded
         # RelayerAdded: relayer, caller
         - event: RelayerAdded(address,address)
@@ -37,7 +37,7 @@ dataSources:
           handler: handleRouterLiquidityAdded
         - event: RouterLiquidityRemoved(indexed address,address,address,uint256,address)
           handler: handleRouterLiquidityRemoved
-        - event: XCalled(indexed bytes32,indexed uint256,((address,bytes,uint32,uint32,address,address,bool,bool,address,uint256,uint256,uint256),address,uint256,uint256),(address,uint256,uint256,address),address)
+        - event: XCalled(indexed bytes32,indexed uint256,((address,bytes,uint32,uint32,address,address,bool,bool,address,uint256,uint256,uint256),address,uint256,uint256),address,uint256,address)
           handler: handleXCalled
         - event: Executed(indexed bytes32,indexed address,((address,bytes,uint32,uint32,address,address,bool,bool,address,uint256,uint256,uint256),address,address[],bytes[],address,bytes,uint256,uint256,address),address,uint256,address)
           handler: handleExecuted

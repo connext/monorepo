@@ -81,7 +81,6 @@ type OriginTransfer @entity {
 
   # Event Data
   status: TransferStatus
-  message: Bytes
   originMinOut: BigInt
 
   # Asset
