@@ -10,7 +10,6 @@ import {IStableSwap} from "../../contracts/core/connext/interfaces/IStableSwap.s
 
 import {TestERC20} from "../../contracts/test/TestERC20.sol";
 
-import {MockWrapper} from "./Mock.sol";
 import "./ForgeHelper.sol";
 
 contract FacetHelper is ForgeHelper {
@@ -33,8 +32,6 @@ contract FacetHelper is ForgeHelper {
   address _adopted;
   // local asset for this domain
   address _local;
-  // native asset wrapper
-  address _wrapper;
 
   // token registry
   address _tokenRegistry = address(6);
@@ -54,12 +51,11 @@ contract FacetHelper is ForgeHelper {
   function utils_setFees() public {
     AppStorage storage s = LibConnextStorage.connextStorage();
     s.LIQUIDITY_FEE_NUMERATOR = _liquidityFeeNumerator;
-    s.LIQUIDITY_FEE_DENOMINATOR = _liquidityFeeDenominator;
     s.aavePortalFeeNumerator = _portalFeeNumerator;
   }
 
-  // Deploys the wrapper, local, adopted, and canonical tokens. Also sets the
-  // canonical id, token registry, wrapper
+  // Deploys the local, adopted, and canonical tokens. Also sets the
+  // canonical id, token registry
   function utils_deployAssetContracts() public {
     AppStorage storage s = LibConnextStorage.connextStorage();
     // Deploy the adopted token.
@@ -70,12 +66,6 @@ contract FacetHelper is ForgeHelper {
     _canonical = address(new TestERC20());
     _canonicalId = bytes32(abi.encodePacked(_canonical));
     _canonicalKey = keccak256(abi.encode(_canonicalId, _canonicalDomain));
-    // Deploy wrapper for native asset.
-    s.wrapper = IWeth(new MockWrapper());
-    _wrapper = address(s.wrapper);
-    vm.mockCall(_wrapper, abi.encodeWithSelector(TestERC20.name.selector), abi.encode("TestERC20"));
-    vm.mockCall(_wrapper, abi.encodeWithSelector(TestERC20.symbol.selector), abi.encode("TEST"));
-    vm.mockCall(_wrapper, abi.encodeWithSelector(TestERC20.decimals.selector), abi.encode(18));
     // Set token registry
     s.tokenRegistry = ITokenRegistry(_tokenRegistry);
   }
@@ -139,34 +129,6 @@ contract FacetHelper is ForgeHelper {
     // console.log("- local:", _local);
     // console.log("- canonical:", _canonical);
     // console.log("- stableSwap:", _stableSwap);
-    // console.log("- wrapper:", address(s.wrapper));
     // console.log("- isLocalOrigin", onCanonical);
-  }
-
-  function utils_setupNative(bool localIsAdopted, bool onCanonical) public {
-    AppStorage storage s = LibConnextStorage.connextStorage();
-    // When you are using the native asset:
-    // - canonical asset will always be the wrapper
-    // - adopted asset will always be the wrapper
-    // - the local asset may or may not be the wrapper
-    if (onCanonical) {
-      // The wrapper is canonical when on the canonical domain
-      // only
-      _canonical = address(s.wrapper);
-      _canonicalId = bytes32(abi.encodePacked(_canonical));
-    } else {
-      // If localIsAdopted, then the local asset is the wrapper
-      if (localIsAdopted) {
-        // this is like if madETH is adopted on cronos. in this case,
-        // the wrapper must also have the `detailsHash()` functionality
-        // this is handled in the other utility function (see `utils_formatMessage`)
-        _local = address(new TestERC20());
-        _adopted = _local;
-      } else {
-        // The adopted asset is the wrapper, local is bridge token
-        _adopted = address(s.wrapper);
-      }
-    }
-    utils_setupAsset(localIsAdopted, onCanonical);
   }
 }

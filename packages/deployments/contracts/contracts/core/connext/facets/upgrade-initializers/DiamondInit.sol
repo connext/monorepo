@@ -36,7 +36,6 @@ contract DiamondInit is BaseConnextFacet {
   function init(
     uint32 _domain,
     address _tokenRegistry, // Nomad token registry
-    address _wrappedNative,
     address _relayerFeeRouter,
     address payable _promiseRouter
   ) external {
@@ -69,9 +68,7 @@ contract DiamondInit is BaseConnextFacet {
       s.promiseRouter = PromiseRouter(_promiseRouter);
       s.executor = new Executor(address(this));
       s.tokenRegistry = ITokenRegistry(_tokenRegistry);
-      s.wrapper = IWeth(_wrappedNative);
       s.LIQUIDITY_FEE_NUMERATOR = 9995;
-      s.LIQUIDITY_FEE_DENOMINATOR = 10000;
       s.maxRoutersPerTransfer = 5;
     }
   }

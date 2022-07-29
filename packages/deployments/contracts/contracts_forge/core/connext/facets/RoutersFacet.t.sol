@@ -10,7 +10,7 @@ import {IWeth} from "../../../../contracts/core/connext/interfaces/IWeth.sol";
 import {RoutersFacet, BaseConnextFacet} from "../../../../contracts/core/connext/facets/RoutersFacet.sol";
 import {TestERC20} from "../../../../contracts/test/TestERC20.sol";
 
-import {MockWrapper, MockTokenRegistry} from "../../../utils/Mock.sol";
+import {MockTokenRegistry} from "../../../utils/Mock.sol";
 import "../../../utils/FacetHelper.sol";
 
 contract RoutersFacetTest is RoutersFacet, FacetHelper {
@@ -57,8 +57,7 @@ contract RoutersFacetTest is RoutersFacet, FacetHelper {
   // ============ Getters ==============
 
   function test_RoutersFacet__LIQUIDITY_FEE_NUMERATOR_success() public {
-    s.LIQUIDITY_FEE_NUMERATOR = 54321;
-    assertEq(this.LIQUIDITY_FEE_NUMERATOR(), 54321);
+    assertEq(this.LIQUIDITY_FEE_NUMERATOR(), s.LIQUIDITY_FEE_NUMERATOR);
   }
 
   function test_RoutersFacet__LIQUIDITY_FEE_NUMERATOR_notFound() public {
@@ -66,12 +65,7 @@ contract RoutersFacetTest is RoutersFacet, FacetHelper {
   }
 
   function test_RoutersFacet__LIQUIDITY_FEE_DENOMINATOR_success() public {
-    s.LIQUIDITY_FEE_DENOMINATOR = 12345;
-    assertEq(this.LIQUIDITY_FEE_DENOMINATOR(), 12345);
-  }
-
-  function test_RoutersFacet__LIQUIDITY_FEE_DENOMINATOR_notFound() public {
-    assertEq(this.LIQUIDITY_FEE_DENOMINATOR(), 0);
+    assertEq(this.LIQUIDITY_FEE_DENOMINATOR(), 10_000);
   }
 
   function test_RoutersFacet__getRouterApproval_success() public {
@@ -362,7 +356,6 @@ contract RoutersFacetTest is RoutersFacet, FacetHelper {
 
   // setLiquidityFeeNumerator
   function test_RoutersFacet__setLiquidityFeeNumerator_success() public {
-    s.LIQUIDITY_FEE_DENOMINATOR = 10000;
     s.LIQUIDITY_FEE_NUMERATOR = 9995; // Fee is currently 5 basis points.
 
     vm.expectEmit(true, true, false, true);
@@ -380,7 +373,6 @@ contract RoutersFacetTest is RoutersFacet, FacetHelper {
   }
 
   function test_RoutersFacet__setLiquidityFeeNumerator_failsIfTooSmall() public {
-    s.LIQUIDITY_FEE_DENOMINATOR = 10000;
     s.LIQUIDITY_FEE_NUMERATOR = 9995; // Fee is currently 5 basis points.
 
     vm.expectRevert(RoutersFacet.RoutersFacet__setLiquidityFeeNumerator_tooSmall.selector);
@@ -391,7 +383,6 @@ contract RoutersFacetTest is RoutersFacet, FacetHelper {
   }
 
   function test_RoutersFacet__setLiquidityFeeNumerator_failsIfTooLarge() public {
-    s.LIQUIDITY_FEE_DENOMINATOR = 10000;
     s.LIQUIDITY_FEE_NUMERATOR = 9995; // Fee is currently 5 basis points.
 
     vm.expectRevert(RoutersFacet.RoutersFacet__setLiquidityFeeNumerator_tooLarge.selector);
@@ -733,24 +724,6 @@ contract RoutersFacetTest is RoutersFacet, FacetHelper {
     assertEq(this.routerBalances(_routerAgent0, _local), initLiquidity + amount);
   }
 
-  function test_RoutersFacet__addLiquidityForRouter_worksForNative() public {
-    utils_setupNative(true, true);
-    s.routerPermissionInfo.approvedRouters[_routerAgent0] = true;
-    s.approvedAssets[_canonicalKey] = true;
-
-    uint256 amount = 10000;
-
-    uint256 initCaller = address(this).balance;
-    uint256 initLiquidity = this.routerBalances(_routerAgent0, _wrapper);
-
-    vm.expectEmit(true, true, true, true);
-    emit RouterLiquidityAdded(_routerAgent0, _wrapper, _canonicalKey, amount, address(this));
-    this.addRouterLiquidityFor{value: amount}(amount, address(0), _routerAgent0);
-
-    assertEq(address(this).balance, initCaller - amount);
-    assertEq(this.routerBalances(_routerAgent0, _wrapper), initLiquidity + amount);
-  }
-
   // addLiquidity
   function test_RoutersFacet__addLiquidity_routerIsSender() public {
     s.routerPermissionInfo.approvedRouters[_routerAgent0] = true;
@@ -876,27 +849,5 @@ contract RoutersFacetTest is RoutersFacet, FacetHelper {
 
     assertEq(this.routerBalances(_routerAgent0, _local), initLiquidity - amount);
     assertEq(IERC20(_local).balanceOf(to), initBalance + amount);
-  }
-
-  function test_RoutersFacet__removeRouterLiquidity_worksWithNative() public {
-    utils_setupNative(true, true);
-    s.routerPermissionInfo.routerRecipients[_routerAgent0] = address(0);
-    s.routerPermissionInfo.routerOwners[_routerAgent0] = address(0);
-    s.routerBalances[_routerAgent0][_wrapper] = 10 ether;
-    MockWrapper(_wrapper).deposit{value: 1 ether}();
-
-    address to = address(1234);
-    uint256 amount = 100;
-
-    uint256 initLiquidity = this.routerBalances(_routerAgent0, _wrapper);
-    uint256 initBalance = to.balance;
-
-    vm.expectEmit(true, true, true, true);
-    emit RouterLiquidityRemoved(_routerAgent0, to, address(0), amount, _routerAgent0);
-    vm.prank(_routerAgent0);
-    this.removeRouterLiquidity(amount, address(0), payable(to));
-
-    assertEq(this.routerBalances(_routerAgent0, _wrapper), initLiquidity - amount);
-    assertEq(to.balance, initBalance + amount);
   }
 }

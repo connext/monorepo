@@ -177,8 +177,8 @@ contract RoutersFacet is BaseConnextFacet {
     return s.LIQUIDITY_FEE_NUMERATOR;
   }
 
-  function LIQUIDITY_FEE_DENOMINATOR() public view returns (uint256) {
-    return s.LIQUIDITY_FEE_DENOMINATOR;
+  function LIQUIDITY_FEE_DENOMINATOR() public pure returns (uint256) {
+    return BPS_FEE_DENOMINATOR;
   }
 
   /**
@@ -343,7 +343,7 @@ contract RoutersFacet is BaseConnextFacet {
   function setLiquidityFeeNumerator(uint256 _numerator) external onlyOwner {
     // Slightly misleading: the liquidity fee numerator is not the amount charged,
     // but the amount received after fees are deducted (e.g. 9995/10000 would be .005%).
-    uint256 denominator = s.LIQUIDITY_FEE_DENOMINATOR;
+    uint256 denominator = BPS_FEE_DENOMINATOR;
     if (_numerator < (denominator * 95) / 100) revert RoutersFacet__setLiquidityFeeNumerator_tooSmall();
 
     if (_numerator > denominator) revert RoutersFacet__setLiquidityFeeNumerator_tooLarge();
@@ -536,9 +536,7 @@ contract RoutersFacet is BaseConnextFacet {
     if (_amount == 0) revert RoutersFacet__addLiquidityForRouter_amountIsZero();
 
     // Get the canonical asset ID from the representation.
-    (uint32 domain, bytes32 canonicalId) = s.tokenRegistry.getTokenId(
-      _local == address(0) ? address(s.wrapper) : _local
-    );
+    (uint32 domain, bytes32 canonicalId) = s.tokenRegistry.getTokenId(_local);
     bytes32 key = _calculateCanonicalHash(canonicalId, domain);
 
     // Sanity check: router is approved.
@@ -549,13 +547,13 @@ contract RoutersFacet is BaseConnextFacet {
     if (!_isAssetWhitelistRemoved() && !s.approvedAssets[key]) revert RoutersFacet__addLiquidityForRouter_badAsset();
 
     // Transfer funds to contract.
-    address asset = AssetLogic.handleIncomingAsset(_local, _amount, 0);
+    AssetLogic.handleIncomingAsset(_local, _amount);
 
     // Update the router balances. Happens after pulling funds to account for
     // the fee on transfer tokens.
-    s.routerBalances[_router][asset] += _amount;
+    s.routerBalances[_router][_local] += _amount;
 
-    emit RouterLiquidityAdded(_router, asset, key, _amount, msg.sender);
+    emit RouterLiquidityAdded(_router, _local, key, _amount, msg.sender);
   }
 
   /**
@@ -582,22 +580,19 @@ contract RoutersFacet is BaseConnextFacet {
     // Sanity check: nonzero amounts.
     if (_amount == 0) revert RoutersFacet__removeRouterLiquidity_amountIsZero();
 
-    // Get the local key.
-    address key = _local == address(0) ? address(s.wrapper) : _local;
-
     // Get existing router balance.
-    uint256 routerBalance = s.routerBalances[_router][key];
+    uint256 routerBalance = s.routerBalances[_router][_local];
 
     // Sanity check: amount can be deducted for the router.
     if (routerBalance < _amount) revert RoutersFacet__removeRouterLiquidity_insufficientFunds();
 
     // Update router balances.
     unchecked {
-      s.routerBalances[_router][key] = routerBalance - _amount;
+      s.routerBalances[_router][_local] = routerBalance - _amount;
     }
 
     // Transfer from contract to specified `to` address.
-    AssetLogic.handleOutgoingAsset(key, recipient, _amount);
+    AssetLogic.handleOutgoingAsset(_local, recipient, _amount);
 
     emit RouterLiquidityRemoved(_router, recipient, _local, _amount, msg.sender);
   }

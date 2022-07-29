@@ -131,11 +131,20 @@ contract MockCallback is ICallback {
   mapping(bytes32 => bool) public transferSuccess;
   mapping(bytes32 => bytes32) public transferData;
 
+  bool public fails;
+
+  function shouldFail(bool fail) external {
+    fails = fail;
+  }
+
   function callback(
     bytes32 transferId,
     bool success,
     bytes memory data
   ) external {
+    if (fails) {
+      require(false, "fails");
+    }
     transferSuccess[transferId] = success;
     transferData[transferId] = keccak256(data);
   }
@@ -225,24 +234,13 @@ contract TestSetterFacet is BaseConnextFacet {
   }
 }
 
-contract MockWrapper is IWeth, ERC20 {
-  constructor() ERC20("Mock Weth", "WETH") {}
-
-  function deposit() external payable {
-    _mint(msg.sender, msg.value);
-  }
-
-  function withdraw(uint256 amount) external {
-    _burn(msg.sender, amount);
-    msg.sender.call{value: amount}("");
-  }
-}
-
 contract MockBridgeRouter is IBridgeRouter {
   mapping(bytes32 => address) public tokenInputs;
   mapping(bytes32 => uint256) public amountInputs;
   mapping(bytes32 => uint32) public destinationInputs;
   mapping(bytes32 => bytes32) public hookInputs;
+
+  bytes32 public id;
 
   event XSendCalled(address _token, uint256 _amount, uint32 _destination, bytes32 hook, bytes extra);
 
@@ -256,6 +254,10 @@ contract MockBridgeRouter is IBridgeRouter {
     require(false, "shouldnt use send");
   }
 
+  function registerTransferId(bytes32 _id) public {
+    id = _id;
+  }
+
   function sendToHook(
     address _token,
     uint256 _amount,
@@ -263,7 +265,6 @@ contract MockBridgeRouter is IBridgeRouter {
     bytes32 _remoteHook,
     bytes calldata _external
   ) external {
-    bytes32 id = bytes32(_external);
     tokenInputs[id] = _token;
     amountInputs[id] = _amount;
     destinationInputs[id] = _destination;

@@ -38,5 +38,5 @@ interface IExecutor {
 
   function getConnext() external returns (address);
 
-  function execute(ExecutorArgs calldata _args) external payable returns (bool success, bytes memory returnData);
+  function execute(ExecutorArgs calldata _args) external returns (bool success, bytes memory returnData);
 }

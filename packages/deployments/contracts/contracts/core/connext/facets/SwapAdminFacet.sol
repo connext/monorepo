@@ -157,6 +157,7 @@ contract SwapAdminFacet is BaseConnextFacet {
 
     // Initialize swapStorage struct
     SwapUtils.Swap memory entry = SwapUtils.Swap({
+      key: _key,
       initialA: _a * AmplificationUtils.A_PRECISION,
       futureA: _a * AmplificationUtils.A_PRECISION,
       swapFee: _fee,

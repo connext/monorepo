@@ -17,8 +17,7 @@ library AssetLogic {
 
   // ============ Errors ============
 
-  error AssetLogic__handleIncomingAsset_notAmount();
-  error AssetLogic__handleIncomingAsset_ethWithErcTransfer();
+  error AssetLogic__handleIncomingAsset_nativeAssetNotSupported();
   error AssetLogic__handleOutgoingAsset_notNative();
   error AssetLogic__transferAssetToContract_feeOnTransferNotSupported();
   error AssetLogic__swapToLocalAssetIfNeeded_swapPaused();
@@ -53,41 +52,22 @@ library AssetLogic {
 
   /**
    * @notice Handles transferring funds from msg.sender to the Connext contract.
-   * @dev If using the native asset, will automatically wrap
+   * @dev Only allows native asset to be used for fee
    * @param _assetId - The address to transfer
    * @param _assetAmount - The specified amount to transfer. May not be the
    * actual amount transferred (i.e. fee on transfer tokens)
-   * @param _fee - The fee amount in native asset included as part of the transaction that
-   * should not be considered for the transfer amount.
-   * @return The assetId of the transferred asset
    */
-  function handleIncomingAsset(
-    address _assetId,
-    uint256 _assetAmount,
-    uint256 _fee
-  ) internal returns (address) {
-    AppStorage storage s = LibConnextStorage.connextStorage();
-
+  function handleIncomingAsset(address _assetId, uint256 _assetAmount) internal {
     if (_assetId == address(0)) {
-      if (msg.value != _assetAmount + _fee) revert AssetLogic__handleIncomingAsset_notAmount();
-
-      // When transferring native asset to the contract, always make sure that the
-      // asset is properly wrapped
-      wrapNativeAsset(_assetAmount);
-      _assetId = address(s.wrapper);
-    } else {
-      if (msg.value != _fee) revert AssetLogic__handleIncomingAsset_ethWithErcTransfer();
-
-      // Transfer asset to contract
-      transferAssetToContract(_assetId, _assetAmount);
+      revert AssetLogic__handleIncomingAsset_nativeAssetNotSupported();
     }
 
-    return _assetId;
+    // Transfer asset to contract
+    transferAssetToContract(_assetId, _assetAmount);
   }
 
   /**
    * @notice Handles transferring funds from msg.sender to the Connext contract.
-   * @dev If using the native asset, will automatically unwrap
    * @param _assetId - The address to transfer
    * @param _to - The account that will receive the withdrawn funds
    * @param _amount - The amount to withdraw from contract
@@ -96,42 +76,17 @@ library AssetLogic {
     address _assetId,
     address _to,
     uint256 _amount
-  ) internal returns (address) {
-    AppStorage storage s = LibConnextStorage.connextStorage();
-
+  ) internal {
     // No native assets should ever be stored on this contract
     if (_assetId == address(0)) revert AssetLogic__handleOutgoingAsset_notNative();
 
-    bool isNative = _assetId == address(s.wrapper);
-    if (isNative) {
-      _assetId = address(0);
-    }
-
     // If amount is 0 do nothing
     if (_amount == 0) {
-      return _assetId;
+      return;
     }
 
-    if (isNative) {
-      // If dealing with wrapped assets, make sure they are properly unwrapped
-      // before sending from contract
-      s.wrapper.withdraw(_amount);
-      Address.sendValue(payable(_to), _amount);
-    } else {
-      // Transfer ERC20 asset
-      SafeERC20.safeTransfer(IERC20(_assetId), _to, _amount);
-    }
-    return _assetId;
-  }
-
-  /**
-   * @notice Wrap the native asset
-   * @param _amount - The specified amount to wrap
-   */
-  function wrapNativeAsset(uint256 _amount) internal {
-    AppStorage storage s = LibConnextStorage.connextStorage();
-
-    s.wrapper.deposit{value: _amount}();
+    // Transfer ERC20 asset
+    SafeERC20.safeTransfer(IERC20(_assetId), _to, _amount);
   }
 
   /**
@@ -254,7 +209,7 @@ library AssetLogic {
   }
 
   /**
-   * @notice Swaps assetIn t assetOut using the stored stable swap or internal swap pool
+   * @notice Swaps assetIn to assetOut using the stored stable swap or internal swap pool
    * @dev Will not swap if the asset passed in is the adopted asset
    * @param _key - The canonical token id
    * @param _assetIn - The address of the from asset
@@ -297,7 +252,7 @@ library AssetLogic {
   }
 
   /**
-   * @notice Swaps assetIn t assetOut using the stored stable swap or internal swap pool
+   * @notice Swaps assetIn to assetOut using the stored stable swap or internal swap pool
    * @dev Will not swap if the asset passed in is the adopted asset
    * @param _key - The hash of the canonical id and domain
    * @param _assetIn - The address of the from asset

@@ -78,36 +78,13 @@ contract Executor is IExecutor {
    * some provided fallback address
    * @param _args ExecutorArgs to function.
    */
-  function execute(ExecutorArgs memory _args) external payable override onlyConnext returns (bool, bytes memory) {
-    // Check if the callTo is a contract
+  function execute(ExecutorArgs memory _args) external override onlyConnext returns (bool, bytes memory) {
+    // Check if the `to` target is a contract.
     bool success;
     bytes memory returnData;
 
-    bool isNative = _args.assetId == address(0);
-
-    // If the amount is not the same as the value, send what exists to the recovery address
-    // and emit the executed event. This allows callers to process the failure and
-    // ensures funds sent to contract always redirected to recovery
-    if (isNative && msg.value != _args.amount) {
-      _sendToRecovery(isNative, false, _args.assetId, payable(_args.to), payable(_args.recovery), msg.value);
-      // Emit event
-      emit Executed(
-        _args.transferId,
-        _args.to,
-        _args.recovery,
-        _args.assetId,
-        msg.value,
-        _args.originSender,
-        _args.originDomain,
-        _args.callData,
-        returnData,
-        success
-      );
-      return (success, returnData);
-    }
-
     if (!Address.isContract(_args.to)) {
-      _sendToRecovery(isNative, false, _args.assetId, payable(_args.to), payable(_args.recovery), _args.amount);
+      _sendToRecovery(false, _args.assetId, _args.to, _args.recovery, _args.amount);
       // Emit event
       emit Executed(
         _args.transferId,
@@ -124,14 +101,13 @@ contract Executor is IExecutor {
       return (success, returnData);
     }
 
-    // If it is not ether, approve the callTo
-    // We approve here rather than transfer since many external contracts
-    // simply require an approval, and it is unclear if they can handle
-    // funds transferred directly to them (i.e. Uniswap)
+    // Approve the `to` address for spending tokens.
+    // We approve here rather than transfer since many external contracts simply require an approval, and
+    // it is unclear if they can handle funds transferred directly to them (i.e. Uniswap).
 
     bool hasValue = _args.amount != 0;
 
-    if (!isNative && hasValue) {
+    if (hasValue) {
       SafeERC20.safeApprove(IERC20(_args.assetId), _args.to, 0);
       SafeERC20.safeIncreaseAllowance(IERC20(_args.assetId), _args.to, _args.amount);
     }
@@ -140,8 +116,8 @@ contract Executor is IExecutor {
     // the low level call will return `false` if its execution reverts
     (success, returnData) = ExcessivelySafeCall.excessivelySafeCall(
       _args.to,
-      gasleft() - FAILURE_GAS,
-      isNative ? _args.amount : 0,
+      gas,
+      0,
       MAX_COPY,
       LibCrossDomainProperty.formatCalldataWithProperties(
         _args.amount,
@@ -153,7 +129,7 @@ contract Executor is IExecutor {
 
     // Handle failure cases
     if (!success) {
-      _sendToRecovery(isNative, hasValue, _args.assetId, payable(_args.to), payable(_args.recovery), _args.amount);
+      _sendToRecovery(hasValue, _args.assetId, _args.to, _args.recovery, _args.amount);
     }
 
     // Emit event
@@ -174,9 +150,7 @@ contract Executor is IExecutor {
 
   /**
    * @notice Sends funds to the specified recovery address
-   * @dev Called if the external call data fails, it's not a contract, or the amount in native
-   * asset is incorrect.
-   * @param _isNative - Whether the asset is native or not
+   * @dev Called if the external call data fails or if the recipient was not a contract.
    * @param _hasIncreased - Whether the allowance was increased
    * @param _assetId - Asset associated with call
    * @param _to - Where call was attempted
@@ -184,27 +158,22 @@ contract Executor is IExecutor {
    * @param _amount - Amount to send
    */
   function _sendToRecovery(
-    bool _isNative,
     bool _hasIncreased,
     address _assetId,
-    address payable _to,
-    address payable _recovery,
+    address _to,
+    address _recovery,
     uint256 _amount
   ) internal {
     if (_amount == 0) {
       // Nothing to do, exit early
       return;
     }
-    if (!_isNative) {
-      // Decrease allowance
-      if (_hasIncreased) {
-        SafeERC20.safeDecreaseAllowance(IERC20(_assetId), _to, _amount);
-      }
-      // Transfer funds
-      SafeERC20.safeTransfer(IERC20(_assetId), _recovery, _amount);
-    } else {
-      // Transfer funds
-      Address.sendValue(_recovery, _amount);
+
+    // Decrease allowance
+    if (_hasIncreased) {
+      SafeERC20.safeDecreaseAllowance(IERC20(_assetId), _to, _amount);
     }
+    // Transfer funds
+    SafeERC20.safeTransfer(IERC20(_assetId), _recovery, _amount);
   }
 }
