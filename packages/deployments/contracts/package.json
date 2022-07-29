@@ -1,6 +1,6 @@
 {
   "name": "@connext/nxtp-contracts",
-  "version": "0.2.0-beta.19",
+  "version": "0.2.0-beta.20",
   "description": "",
   "scripts": {
     "test": "yarn forge test --gas-report",
