@@ -227,7 +227,7 @@ library SwapUtils {
       }
     }
 
-    uint256 dy = xpReduced[tokenIndex] - (getYD(v.preciseA, tokenIndex, xpReduced, v.d1));
+    uint256 dy = xpReduced[tokenIndex] - getYD(v.preciseA, tokenIndex, xpReduced, v.d1);
     dy = (dy - 1) / (self.tokenPrecisionMultipliers[tokenIndex]);
 
     return (dy, v.newY, xp[tokenIndex]);
