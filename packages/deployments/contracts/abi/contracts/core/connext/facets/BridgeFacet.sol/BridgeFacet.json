@@ -1,7 +1,5 @@
 [
   "error AssetLogic__getTokenIndexFromStableSwapPool_notExist()",
-  "error AssetLogic__handleIncomingAsset_ethWithErcTransfer()",
-  "error AssetLogic__handleIncomingAsset_notAmount()",
   "error AssetLogic__handleOutgoingAsset_notNative()",
   "error AssetLogic__transferAssetToContract_feeOnTransferNotSupported()",
   "error BaseConnextFacet__nonReentrant_reentrantCall()",
@@ -33,8 +31,10 @@
   "error BridgeFacet__xcall_callbackNotAContract()",
   "error BridgeFacet__xcall_destinationNotSupported()",
   "error BridgeFacet__xcall_emptyToOrRecovery()",
+  "error BridgeFacet__xcall_ethValueMismatchedFees()",
   "error BridgeFacet__xcall_invalidSlippageTol()",
   "error BridgeFacet__xcall_missingAgent()",
+  "error BridgeFacet__xcall_nativeAssetNotSupported()",
   "error BridgeFacet__xcall_nonZeroCallbackFeeForCallback()",
   "error BridgeFacet__xcall_notSupportedAsset()",
   "error BridgeFacet__xcall_wrongDomain()",
