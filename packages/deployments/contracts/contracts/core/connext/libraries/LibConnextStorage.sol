@@ -140,150 +140,148 @@ struct AppStorage {
   //
   // 1
   uint256 LIQUIDITY_FEE_NUMERATOR;
-  // 2
-  uint256 LIQUIDITY_FEE_DENOMINATOR;
   // The local nomad relayer fee router
-  // 3
+  // 2
   RelayerFeeRouter relayerFeeRouter;
   // The local nomad promise callback router
-  // 4
+  // 3
   PromiseRouter promiseRouter;
   /**
    * @notice Nonce for the contract, used to keep unique transfer ids.
    * @dev Assigned at first interaction (xcall on origin domain);
    */
-  // 5
+  // 4
   uint256 nonce;
   /**
    * @notice The external contract that will execute crosschain calldata
    */
-  // 6
+  // 5
   IExecutor executor;
   /**
    * @notice The domain this contract exists on
    * @dev Must match the nomad domain, which is distinct from the "chainId"
    */
-  // 7
+  // 6
   uint32 domain;
   /**
    * @notice The local nomad token registry
    */
-  // 8
+  // 7
   ITokenRegistry tokenRegistry;
   /**
    * @notice Mapping holding the AMMs for swapping in and out of local assets
    * @dev Swaps for an adopted asset <> nomad local asset (i.e. POS USDC <> madUSDC on polygon).
    * This mapping is keyed on the hash of the canonical id + domain for local asset
    */
-  // 9
+  // 8
   mapping(bytes32 => IStableSwap) adoptedToLocalPools;
   /**
    * @notice Mapping of whitelisted assets on same domain as contract
    * @dev Mapping is keyed on the hash of the canonical id and domain taken from the
    * token registry
    */
-  // 10
+  // 9
   mapping(bytes32 => bool) approvedAssets;
   /**
    * @notice Mapping of adopted to canonical asset information
    * @dev If the adopted asset is the native asset, the keyed address will
    * be the wrapped asset address
    */
-  // 11
+  // 10
   mapping(address => TokenId) adoptedToCanonical;
   /**
    * @notice Mapping of hash(canonicalId, canonicalDomain) to adopted asset on this domain
    * @dev If the adopted asset is the native asset, the stored address will be the
    * wrapped asset address
    */
-  // 12
+  // 11
   mapping(bytes32 => address) canonicalToAdopted;
   /**
    * @notice Mapping to determine if transfer is reconciled
    */
-  // 13
+  // 12
   mapping(bytes32 => bool) reconciledTransfers;
   /**
    * @notice Mapping holding router address that provided fast liquidity
    */
-  // 14
+  // 13
   mapping(bytes32 => address[]) routedTransfers;
   /**
    * @notice Mapping of router to available balance of an asset
    * @dev Routers should always store liquidity that they can expect to receive via the bridge on
    * this domain (the nomad local asset)
    */
-  // 15
+  // 14
   mapping(address => mapping(address => uint256)) routerBalances;
   /**
    * @notice Mapping of approved relayers
    * @dev Send relayer fee if msg.sender is approvedRelayer. otherwise revert()
    */
-  // 16
+  // 15
   mapping(address => bool) approvedRelayers;
   /**
    * @notice Stores the relayer fee for a transfer. Updated on origin domain when a user calls xcall or bump
    * @dev This will track all of the relayer fees assigned to a transfer by id, including any bumps made by the relayer
    */
-  // 17
+  // 16
   mapping(bytes32 => uint256) relayerFees;
   /**
    * @notice Stores the relayer of a transfer. Updated on the destination domain when a relayer calls execute
    * for transfer
    * @dev When relayer claims, must check that the msg.sender has forwarded transfer
    */
-  // 18
+  // 17
   mapping(bytes32 => address) transferRelayer;
   /**
    * @notice The max amount of routers a payment can be routed through
    */
-  // 19
+  // 18
   uint256 maxRoutersPerTransfer;
   /**
    * @notice The Vault used for sponsoring fees
    */
-  // 20
+  // 19
   ISponsorVault sponsorVault;
   /**
    * @notice The address of the nomad bridge router for this chain
    */
-  // 21
+  // 20
   IBridgeRouter bridgeRouter;
   /**
    * @notice Stores whether a transfer has had `receiveLocal` overrides forced
    */
-  // 22
+  // 21
   mapping(bytes32 => bool) receiveLocalOverrides;
   /**
    * @notice Stores a mapping of connext addresses keyed on domains
    * @dev Addresses are cast to bytes32
    */
-  // 23
+  // 22
   mapping(uint32 => bytes32) connextions;
   //
   // ProposedOwnable
   //
-  // 24
+  // 23
   address _proposed;
-  // 25
+  // 24
   uint256 _proposedOwnershipTimestamp;
-  // 26
+  // 25
   bool _routerWhitelistRemoved;
-  // 27
+  // 26
   uint256 _routerWhitelistTimestamp;
-  // 28
+  // 27
   bool _assetWhitelistRemoved;
-  // 29
+  // 28
   uint256 _assetWhitelistTimestamp;
   //
   // RouterFacet
   //
-  // 30
+  // 29
   RouterPermissionsManagerInfo routerPermissionInfo;
   //
   // ReentrancyGuard
   //
-  // 31
+  // 30
   uint256 _status;
   //
   // StableSwap
@@ -294,18 +292,18 @@ struct AppStorage {
    * Struct storing data responsible for automatic market maker functionalities. In order to
    * access this data, this contract uses SwapUtils library. For more details, see SwapUtils.sol
    */
-  // 32
+  // 31
   mapping(bytes32 => SwapUtils.Swap) swapStorages;
   /**
    * @notice Maps token address to an index in the pool. Used to prevent duplicate tokens in the pool.
    * @dev getTokenIndex function also relies on this mapping to retrieve token index.
    */
-  // 33
+  // 32
   mapping(bytes32 => mapping(address => uint8)) tokenIndexes;
   /**
    * @notice Stores whether or not bribing, AMMs, have been paused
    */
-  // 34
+  // 33
   bool _paused;
   //
   // AavePortals
@@ -313,30 +311,30 @@ struct AppStorage {
   /**
    * @notice Address of Aave Pool contract
    */
-  // 35
+  // 34
   address aavePool;
   /**
    * @notice Fee percentage numerator for using Portal liquidity
    * @dev Assumes the same basis points as the liquidity fee
    */
-  // 36
+  // 35
   uint256 aavePortalFeeNumerator;
   /**
    * @notice Mapping to store the transfer liquidity amount provided by Aave Portals
    */
-  // 37
+  // 36
   mapping(bytes32 => uint256) portalDebt;
   /**
    * @notice Mapping to store the transfer liquidity amount provided by Aave Portals
    */
-  // 38
+  // 37
   mapping(bytes32 => uint256) portalFeeDebt;
   /**
    * @notice Mapping of approved sequencers
    * @dev Sequencer address provided must belong to an approved sequencer in order to call `execute`
    * for the fast liquidity route.
    */
-  // 39
+  // 38
   mapping(address => bool) approvedSequencers;
 }
 

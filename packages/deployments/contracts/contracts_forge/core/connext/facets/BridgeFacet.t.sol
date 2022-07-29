@@ -282,7 +282,7 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
   function utils_getFastTransferAmount(uint256 _amount) public returns (uint256) {
     // This is the method used internally to get the amount of tokens to transfer after liquidity
     // fees are taken.
-    return (_amount * s.LIQUIDITY_FEE_NUMERATOR) / s.LIQUIDITY_FEE_DENOMINATOR;
+    return (_amount * s.LIQUIDITY_FEE_NUMERATOR) / BPS_FEE_DENOMINATOR;
   }
 
   // ============== Helpers ==================
@@ -555,7 +555,7 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
           abi.encodeWithSelector(
             ISponsorVault.reimburseLiquidityFees.selector,
             _inputs.token,
-            (_args.amount * (s.LIQUIDITY_FEE_DENOMINATOR - s.LIQUIDITY_FEE_NUMERATOR)) / s.LIQUIDITY_FEE_DENOMINATOR,
+            (_args.amount * (BPS_FEE_DENOMINATOR - s.LIQUIDITY_FEE_NUMERATOR)) / BPS_FEE_DENOMINATOR,
             _args.params.to
           )
         );

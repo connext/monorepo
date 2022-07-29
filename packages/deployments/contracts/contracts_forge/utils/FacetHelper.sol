@@ -51,7 +51,6 @@ contract FacetHelper is ForgeHelper {
   function utils_setFees() public {
     AppStorage storage s = LibConnextStorage.connextStorage();
     s.LIQUIDITY_FEE_NUMERATOR = _liquidityFeeNumerator;
-    s.LIQUIDITY_FEE_DENOMINATOR = _liquidityFeeDenominator;
     s.aavePortalFeeNumerator = _portalFeeNumerator;
   }
 
