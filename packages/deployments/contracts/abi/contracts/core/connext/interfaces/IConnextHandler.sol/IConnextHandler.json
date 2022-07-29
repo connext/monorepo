@@ -88,6 +88,7 @@
   "function removeRouter(address)",
   "function removeRouterLiquidity(uint256,address,address)",
   "function removeRouterLiquidityFor(uint256,address,address,address)",
+  "function removeRouterWhitelist()",
   "function removeSequencer(address)",
   "function removeSwapLiquidity(bytes32,uint256,uint256[],uint256) returns (uint256[])",
   "function removeSwapLiquidityImbalance(bytes32,uint256[],uint256,uint256) returns (uint256)",
@@ -126,6 +127,5 @@
   "function unapproveRouterForPortal(address)",
   "function unpause()",
   "function withdrawSwapAdminFees(bytes32)",
-  "function wrapper() view returns (address)",
   "function xcall(tuple(tuple(address,bytes,uint32,uint32,address,address,bool,bool,address,uint256,uint256,uint256),address,uint256,uint256)) payable returns (bytes32)"
 ]

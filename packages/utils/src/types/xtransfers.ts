@@ -24,7 +24,7 @@ export const XTransferMethodCallSchema = Type.Object({
 export const XTransferOriginSchema = Type.Object({
   chain: TIntegerString,
 
-  // XCall Arguments
+  // Event Data
   originMinOut: TIntegerString,
 
   // Assets
@@ -46,7 +46,7 @@ export const XTransferOriginSchema = Type.Object({
 export const XTransferDestinationSchema = Type.Object({
   chain: TIntegerString,
 
-  // Destination Event Data.
+  // Event Data
   status: Type.Enum(XTransferStatus),
   // Both Executed and Reconciled events emit `routers`.
   routers: Type.Array(TAddress),
@@ -145,8 +145,8 @@ export type CallParams = Static<typeof CallParamsSchema>;
 
 export const XCallArgsSchema = Type.Object({
   params: CallParamsSchema,
-  transactingAssetId: Type.String(),
-  amount: TIntegerString,
+  transactingAsset: Type.String(),
+  transactingAmount: TIntegerString,
   originMinOut: TIntegerString,
 });
 

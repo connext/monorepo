@@ -25,7 +25,6 @@
   "function getTokenPrice(address) view returns (uint256, uint256)",
   "function isPriceOracle() view returns (bool)",
   "function owner() view returns (address)",
-  "function priceRecords(address) view returns (address, address, address, bool)",
   "function proposeNewOwner(address)",
   "function proposed() view returns (address)",
   "function proposedTimestamp() view returns (uint256)",

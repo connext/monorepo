@@ -185,13 +185,13 @@ export default task("xcall", "Prepare a cross-chain tx")
         relayerFee: "0",
         forceSlow,
         receiveLocal,
-        slippageTol: "0",
+        destinationMinOut: "0",
       };
 
       const args = {
         params,
-        transactingAssetId,
-        amount,
+        transactingAsset: transactingAssetId,
+        transactingAmount: amount,
         relayerFee,
       };
       console.log("xcall args", JSON.stringify(args));
