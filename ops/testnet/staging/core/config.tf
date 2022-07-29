@@ -98,6 +98,12 @@ locals {
           limit      = 3
           queueLimit = 10000
           subscribe  = true
+        },
+        {
+          name       = "9991"
+          limit      = 3
+          queueLimit = 10000
+          subscribe  = true
         }
       ]
       bindings = [
@@ -110,6 +116,11 @@ locals {
           exchange = "sequencerX"
           target   = "3331"
           keys     = ["3331"]
+        },
+        {
+          exchange = "sequencerX"
+          target   = "9991"
+          keys     = ["9991"]
         }
       ]
       executerTimeout = 300000
