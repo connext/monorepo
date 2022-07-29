@@ -703,7 +703,7 @@ library SwapUtils {
       tokenFrom.safeTransferFrom(msg.sender, address(this), dx);
 
       // Use the actual transferred amount for AMM math
-      dx = tokenFrom.balanceOf(address(this)).sub(beforeBalance);
+      require(dx == tokenFrom.balanceOf(address(this)).sub(beforeBalance), "no fee token support");
     }
 
     uint256 dy;
