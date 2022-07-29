@@ -1,13 +1,56 @@
 import { Type } from "@sinclair/typebox";
 
+export const getCanonicalFromLocalSchema = Type.Object({
+  domainId: Type.String(),
+  tokenAddress: Type.String(),
+});
+
 export const getLPTokenAddressSchema = Type.Object({
   domainId: Type.String(),
   canonicalId: Type.String(),
 });
 
-export const getCanonicalFromLocalSchema = Type.Object({
+export const getLPTokenUserBalanceSchema = Type.Object({
+  domainId: Type.String(),
+  lpTokenAddress: Type.String(),
+  userAddress: Type.String(),
+});
+
+export const getPoolTokenIndexSchema = Type.Object({
+  domainId: Type.String(),
+  canonicalId: Type.String(),
+  tokenAddress: Type.String(),
+});
+
+export const getPoolTokenBalanceSchema = Type.Object({
+  domainId: Type.String(),
+  canonicalId: Type.String(),
+  tokenAddress: Type.String(),
+});
+
+export const getPoolTokenUserBalanceSchema = Type.Object({
   domainId: Type.String(),
   tokenAddress: Type.String(),
+  userAddress: Type.String(),
+});
+
+export const getPoolTokenAddressSchema = Type.Object({
+  domainId: Type.String(),
+  canonicalId: Type.String(),
+  index: Type.Number(),
+});
+
+export const getVirtualPriceSchema = Type.Object({
+  domainId: Type.String(),
+  canonicalId: Type.String(),
+});
+
+export const calculateSwapSchema = Type.Object({
+  domainId: Type.String(),
+  canonicalId: Type.String(),
+  tokenIndexFrom: Type.Number(),
+  tokenIndexTo: Type.Number(),
+  amount: Type.String(),
 });
 
 export const calculateTokenAmountSchema = Type.Object({
@@ -15,6 +58,12 @@ export const calculateTokenAmountSchema = Type.Object({
   canonicalId: Type.String(),
   amounts: Type.Array(Type.String()),
   isDeposit: Type.Optional(Type.Boolean()),
+});
+
+export const calculateRemoveSwapLiquiditySchema = Type.Object({
+  domainId: Type.String(),
+  canonicalId: Type.String(),
+  amount: Type.String(),
 });
 
 export const getPoolSchema = Type.Object({
