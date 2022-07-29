@@ -22,16 +22,25 @@ library SwapUtils {
 
   /*** EVENTS ***/
 
-  event TokenSwap(address indexed buyer, uint256 tokensSold, uint256 tokensBought, uint128 soldId, uint128 boughtId);
+  event TokenSwap(
+    bytes32 key,
+    address indexed buyer,
+    uint256 tokensSold,
+    uint256 tokensBought,
+    uint128 soldId,
+    uint128 boughtId
+  );
   event AddLiquidity(
+    bytes32 key,
     address indexed provider,
     uint256[] tokenAmounts,
     uint256[] fees,
     uint256 invariant,
     uint256 lpTokenSupply
   );
-  event RemoveLiquidity(address indexed provider, uint256[] tokenAmounts, uint256 lpTokenSupply);
+  event RemoveLiquidity(bytes32 key, address indexed provider, uint256[] tokenAmounts, uint256 lpTokenSupply);
   event RemoveLiquidityOne(
+    bytes32 key,
     address indexed provider,
     uint256 lpTokenAmount,
     uint256 lpTokenSupply,
@@ -39,19 +48,21 @@ library SwapUtils {
     uint256 tokensBought
   );
   event RemoveLiquidityImbalance(
+    bytes32 key,
     address indexed provider,
     uint256[] tokenAmounts,
     uint256[] fees,
     uint256 invariant,
     uint256 lpTokenSupply
   );
-  event NewAdminFee(uint256 newAdminFee);
-  event NewSwapFee(uint256 newSwapFee);
+  event NewAdminFee(bytes32 key, uint256 newAdminFee);
+  event NewSwapFee(bytes32 key, uint256 newSwapFee);
 
   struct Swap {
     // variables around the ramp management of A,
     // the amplification coefficient * n * (n - 1)
     // see https://www.curve.fi/stableswap-paper.pdf for details
+    bytes32 key;
     uint256 initialA;
     uint256 futureA;
     uint256 initialATime;
@@ -724,7 +735,7 @@ library SwapUtils {
 
     self.pooledTokens[tokenIndexTo].safeTransfer(msg.sender, dy);
 
-    emit TokenSwap(msg.sender, dx, dy, tokenIndexFrom, tokenIndexTo);
+    emit TokenSwap(self.key, msg.sender, dx, dy, tokenIndexFrom, tokenIndexTo);
 
     return dy;
   }
@@ -776,7 +787,7 @@ library SwapUtils {
 
     self.pooledTokens[tokenIndexTo].safeTransfer(msg.sender, dy);
 
-    emit TokenSwap(msg.sender, dx, dy, tokenIndexFrom, tokenIndexTo);
+    emit TokenSwap(self.key, msg.sender, dx, dy, tokenIndexFrom, tokenIndexTo);
 
     return dx;
   }
@@ -817,7 +828,7 @@ library SwapUtils {
       self.adminFees[tokenIndexTo] = self.adminFees[tokenIndexTo].add(dyAdminFee);
     }
 
-    emit TokenSwap(msg.sender, dx, dy, tokenIndexFrom, tokenIndexTo);
+    emit TokenSwap(self.key, msg.sender, dx, dy, tokenIndexFrom, tokenIndexTo);
 
     return dy;
   }
@@ -851,7 +862,7 @@ library SwapUtils {
       self.adminFees[tokenIndexFrom] = self.adminFees[tokenIndexFrom].add(dxAdminFee);
     }
 
-    emit TokenSwap(msg.sender, dx, dy, tokenIndexFrom, tokenIndexTo);
+    emit TokenSwap(self.key, msg.sender, dx, dy, tokenIndexFrom, tokenIndexTo);
 
     return dx;
   }
@@ -951,7 +962,7 @@ library SwapUtils {
     // mint the user's LP tokens
     v.lpToken.mint(msg.sender, toMint);
 
-    emit AddLiquidity(msg.sender, amounts, fees, v.d1, v.totalSupply.add(toMint));
+    emit AddLiquidity(self.key, msg.sender, amounts, fees, v.d1, v.totalSupply.add(toMint));
 
     return toMint;
   }
@@ -993,7 +1004,7 @@ library SwapUtils {
 
     lpToken.burnFrom(msg.sender, amount);
 
-    emit RemoveLiquidity(msg.sender, amounts, totalSupply.sub(amount));
+    emit RemoveLiquidity(self.key, msg.sender, amounts, totalSupply.sub(amount));
 
     return amounts;
   }
@@ -1032,7 +1043,7 @@ library SwapUtils {
     lpToken.burnFrom(msg.sender, tokenAmount);
     self.pooledTokens[tokenIndex].safeTransfer(msg.sender, dy);
 
-    emit RemoveLiquidityOne(msg.sender, tokenAmount, totalSupply, tokenIndex, dy);
+    emit RemoveLiquidityOne(self.key, msg.sender, tokenAmount, totalSupply, tokenIndex, dy);
 
     return dy;
   }
@@ -1118,7 +1129,7 @@ library SwapUtils {
       }
     }
 
-    emit RemoveLiquidityImbalance(msg.sender, amounts, fees, v.d1, v.totalSupply.sub(tokenAmount));
+    emit RemoveLiquidityImbalance(self.key, msg.sender, amounts, fees, v.d1, v.totalSupply.sub(tokenAmount));
 
     return tokenAmount;
   }
@@ -1154,7 +1165,7 @@ library SwapUtils {
     require(newAdminFee <= MAX_ADMIN_FEE, "too high");
     self.adminFee = newAdminFee;
 
-    emit NewAdminFee(newAdminFee);
+    emit NewAdminFee(self.key, newAdminFee);
   }
 
   /**
@@ -1167,6 +1178,6 @@ library SwapUtils {
     require(newSwapFee <= MAX_SWAP_FEE, "too high");
     self.swapFee = newSwapFee;
 
-    emit NewSwapFee(newSwapFee);
+    emit NewSwapFee(self.key, newSwapFee);
   }
 }
