@@ -13,7 +13,7 @@ export class Pool implements IPoolData {
   symbol: string; // in the form of <TKN>-mad<TKN>
   tokens: string[]; // [0] is adopted, [1] is representation
   decimals: number[];
-  amounts: BigNumber[];
+  balances: BigNumber[];
   lpTokenAddress: string;
   address?: string; // no address if internal pool
 
@@ -23,7 +23,7 @@ export class Pool implements IPoolData {
     symbol: string,
     tokens: string[],
     decimals: number[],
-    amounts: BigNumber[],
+    balances: BigNumber[],
     lpTokenAddress: string,
     address?: string,
   ) {
@@ -32,7 +32,7 @@ export class Pool implements IPoolData {
     this.symbol = symbol;
     this.tokens = tokens;
     this.decimals = decimals;
-    this.amounts = amounts;
+    this.balances = balances;
     this.lpTokenAddress = lpTokenAddress;
     this.address = address;
   }
@@ -553,8 +553,8 @@ export class NxtpSdkPool {
         });
         const tokenSymbol = this.erc20.decodeFunctionResult("symbol", result)[0] as string;
 
-        const localBalance = await this.getPoolTokenBalance(domainId, canonicalId, tokenAddress);
         const adoptedBalance = await this.getPoolTokenBalance(domainId, canonicalId, adopted);
+        const localBalance = await this.getPoolTokenBalance(domainId, canonicalId, tokenAddress);
 
         const pool = new Pool(
           domainId,
