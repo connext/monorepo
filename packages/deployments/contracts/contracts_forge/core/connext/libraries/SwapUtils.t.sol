@@ -3,7 +3,7 @@ pragma solidity 0.8.15;
 
 import "../../../utils/ForgeHelper.sol";
 
-import {SwapUtilsExternal as SwapUtils, LPToken, MathUtils, SafeERC20, SafeMath, IERC20} from "../../../../contracts/core/connext/libraries/SwapUtilsExternal.sol";
+import {SwapUtilsExternal as SwapUtils, LPToken, MathUtils, SafeERC20, IERC20} from "../../../../contracts/core/connext/libraries/SwapUtilsExternal.sol";
 import "../../../../contracts/core/connext/helpers/StableSwap.sol";
 import {TestERC20} from "../../../../contracts/test/TestERC20.sol";
 
@@ -18,7 +18,6 @@ contract SwapUtilsTest is ForgeHelper {
   // ============ Libraries ============
   using SwapUtils for SwapUtils.Swap;
   using SafeERC20 for IERC20;
-  using SafeMath for uint256;
   using MathUtils for uint256;
 
   // ============ Events ============
@@ -177,7 +176,7 @@ contract SwapUtilsTest is ForgeHelper {
     uint256[] memory xp = SwapUtils._xp(swapStorage);
 
     uint256 d0 = SwapUtils.getD(xp, swapStorage.getAPrecise());
-    uint256 d1 = d0.sub(amount.mul(d0).div(lpTokenSupply));
+    uint256 d1 = d0 - ((amount * d0) / lpTokenSupply);
 
     uint256 newY = SwapUtils.getYD(swapStorage.getAPrecise(), 0, xp, d1);
 
@@ -202,7 +201,7 @@ contract SwapUtilsTest is ForgeHelper {
 
     uint256 numTokens = swapStorage.balances.length;
     for (uint256 i = 0; i < numTokens; i++) {
-      assertEq(xp[0], swapStorage.balances[0].mul(swapStorage.tokenPrecisionMultipliers[0]));
+      assertEq(xp[0], swapStorage.balances[0] * (swapStorage.tokenPrecisionMultipliers[0]));
     }
   }
 
@@ -216,7 +215,7 @@ contract SwapUtilsTest is ForgeHelper {
     uint256[] memory xp = SwapUtils._xp(swapStorage);
     uint256 d = SwapUtils.getD(xp, swapStorage.getAPrecise());
 
-    uint256 verify = d.mul(10**uint256(SwapUtils.POOL_PRECISION_DECIMALS)).div(lpTokenSupply);
+    uint256 verify = (d * (10**uint256(SwapUtils.POOL_PRECISION_DECIMALS))) / lpTokenSupply;
 
     assertEq(virtualPrice, uint256(verify));
   }
@@ -227,7 +226,7 @@ contract SwapUtilsTest is ForgeHelper {
   function test_SwapUtils__getY_works() public {
     uint256[] memory xp = SwapUtils._xp(swapStorage);
     uint256 dx = 0.1 ether;
-    uint256 x = dx.mul(swapStorage.tokenPrecisionMultipliers[0]).add(xp[0]);
+    uint256 x = dx * swapStorage.tokenPrecisionMultipliers[0] + xp[0];
     uint256 y = SwapUtils.getY(swapStorage.getAPrecise(), 0, 1, x, xp);
 
     assertEq(y, uint256(900197586023458169));
