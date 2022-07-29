@@ -177,8 +177,8 @@ contract RoutersFacet is BaseConnextFacet {
     return s.LIQUIDITY_FEE_NUMERATOR;
   }
 
-  function LIQUIDITY_FEE_DENOMINATOR() public view returns (uint256) {
-    return s.LIQUIDITY_FEE_DENOMINATOR;
+  function LIQUIDITY_FEE_DENOMINATOR() public pure returns (uint256) {
+    return BPS_FEE_DENOMINATOR;
   }
 
   /**
@@ -343,7 +343,7 @@ contract RoutersFacet is BaseConnextFacet {
   function setLiquidityFeeNumerator(uint256 _numerator) external onlyOwner {
     // Slightly misleading: the liquidity fee numerator is not the amount charged,
     // but the amount received after fees are deducted (e.g. 9995/10000 would be .005%).
-    uint256 denominator = s.LIQUIDITY_FEE_DENOMINATOR;
+    uint256 denominator = BPS_FEE_DENOMINATOR;
     if (_numerator < (denominator * 95) / 100) revert RoutersFacet__setLiquidityFeeNumerator_tooSmall();
 
     if (_numerator > denominator) revert RoutersFacet__setLiquidityFeeNumerator_tooLarge();

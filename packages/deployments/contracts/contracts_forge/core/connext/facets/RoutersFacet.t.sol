@@ -57,8 +57,7 @@ contract RoutersFacetTest is RoutersFacet, FacetHelper {
   // ============ Getters ==============
 
   function test_RoutersFacet__LIQUIDITY_FEE_NUMERATOR_success() public {
-    s.LIQUIDITY_FEE_NUMERATOR = 54321;
-    assertEq(this.LIQUIDITY_FEE_NUMERATOR(), 54321);
+    assertEq(this.LIQUIDITY_FEE_NUMERATOR(), s.LIQUIDITY_FEE_NUMERATOR);
   }
 
   function test_RoutersFacet__LIQUIDITY_FEE_NUMERATOR_notFound() public {
@@ -66,12 +65,7 @@ contract RoutersFacetTest is RoutersFacet, FacetHelper {
   }
 
   function test_RoutersFacet__LIQUIDITY_FEE_DENOMINATOR_success() public {
-    s.LIQUIDITY_FEE_DENOMINATOR = 12345;
-    assertEq(this.LIQUIDITY_FEE_DENOMINATOR(), 12345);
-  }
-
-  function test_RoutersFacet__LIQUIDITY_FEE_DENOMINATOR_notFound() public {
-    assertEq(this.LIQUIDITY_FEE_DENOMINATOR(), 0);
+    assertEq(this.LIQUIDITY_FEE_DENOMINATOR(), 10_000);
   }
 
   function test_RoutersFacet__getRouterApproval_success() public {
@@ -362,7 +356,6 @@ contract RoutersFacetTest is RoutersFacet, FacetHelper {
 
   // setLiquidityFeeNumerator
   function test_RoutersFacet__setLiquidityFeeNumerator_success() public {
-    s.LIQUIDITY_FEE_DENOMINATOR = 10000;
     s.LIQUIDITY_FEE_NUMERATOR = 9995; // Fee is currently 5 basis points.
 
     vm.expectEmit(true, true, false, true);
@@ -380,7 +373,6 @@ contract RoutersFacetTest is RoutersFacet, FacetHelper {
   }
 
   function test_RoutersFacet__setLiquidityFeeNumerator_failsIfTooSmall() public {
-    s.LIQUIDITY_FEE_DENOMINATOR = 10000;
     s.LIQUIDITY_FEE_NUMERATOR = 9995; // Fee is currently 5 basis points.
 
     vm.expectRevert(RoutersFacet.RoutersFacet__setLiquidityFeeNumerator_tooSmall.selector);
@@ -391,7 +383,6 @@ contract RoutersFacetTest is RoutersFacet, FacetHelper {
   }
 
   function test_RoutersFacet__setLiquidityFeeNumerator_failsIfTooLarge() public {
-    s.LIQUIDITY_FEE_DENOMINATOR = 10000;
     s.LIQUIDITY_FEE_NUMERATOR = 9995; // Fee is currently 5 basis points.
 
     vm.expectRevert(RoutersFacet.RoutersFacet__setLiquidityFeeNumerator_tooLarge.selector);
