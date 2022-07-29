@@ -117,3 +117,15 @@ export class UnableToGetAsset extends ExecuteError {
     super("Unable to get asset", context, UnableToGetAsset.name, undefined, false);
   }
 }
+
+export class RetryableBidPostError extends ExecuteError {
+  constructor(context: any = {}) {
+    super("Could not send bid, retryable", context, RetryableBidPostError.name, undefined, true);
+  }
+}
+
+export class NonRetryableBidPostError extends ExecuteError {
+  constructor(context: any = {}) {
+    super("Could not send bid, nonretryable", context, NonRetryableBidPostError.name, undefined, false);
+  }
+}
