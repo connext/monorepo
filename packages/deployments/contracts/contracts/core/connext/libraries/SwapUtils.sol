@@ -266,7 +266,7 @@ library SwapUtils {
 
     for (uint256 i; i < numTokens; ) {
       if (i != tokenIndex) {
-        s = s + xp[i];
+        s += xp[i];
         c = (c * d) / (xp[i] * numTokens);
         // If we were to protect the division loss we would have to keep the denominator separate
         // and divide at the end. However this leads to overflow with large numTokens or/and D.
@@ -284,7 +284,7 @@ library SwapUtils {
     uint256 y = d;
     for (uint256 i; i < MAX_LOOP_LIMIT; ) {
       yPrev = y;
-      y = (y * y + c) / (y * 2 + b - d);
+      y = ((y * y) + c) / ((y * 2) + b - d);
       if (y.within1(yPrev)) {
         return y;
       }
@@ -308,7 +308,7 @@ library SwapUtils {
     uint256 numTokens = xp.length;
     uint256 s;
     for (uint256 i; i < numTokens; ) {
-      s = s + xp[i];
+      s += xp[i];
 
       unchecked {
         ++i;
@@ -450,7 +450,7 @@ library SwapUtils {
         }
         continue;
       }
-      s = s + _x;
+      s += _x;
       c = (c * d) / (_x * numTokens);
       // If we were to protect the division loss we would have to keep the denominator separate
       // and divide at the end. However this leads to overflow with large numTokens or/and D.
@@ -460,7 +460,7 @@ library SwapUtils {
         ++i;
       }
     }
-    c = (c * d * (AmplificationUtils.A_PRECISION)) / (nA * numTokens);
+    c = (c * d * AmplificationUtils.A_PRECISION) / (nA * numTokens);
     uint256 b = s + ((d * AmplificationUtils.A_PRECISION) / nA);
     uint256 yPrev;
     uint256 y = d;
@@ -894,9 +894,9 @@ library SwapUtils {
     for (uint256 i; i < numTokens; ) {
       require(v.totalSupply != 0 || amounts[i] != 0, "!supply all tokens");
 
-      IERC20 token = self.pooledTokens[i];
       // Transfer tokens first to see if a fee was charged on transfer
       if (amounts[i] != 0) {
+        IERC20 token = self.pooledTokens[i];
         uint256 beforeBalance = token.balanceOf(address(this));
         token.safeTransferFrom(msg.sender, address(this), amounts[i]);
 
