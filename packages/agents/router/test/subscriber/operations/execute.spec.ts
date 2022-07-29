@@ -14,6 +14,7 @@ import {
   AuctionExpired,
   InvalidAuctionRound,
   UnableToGetAsset,
+  NonRetryableBidPostError,
 } from "../../../src/errors";
 import { mock } from "../../mock";
 import { version } from "../../../package.json";
@@ -76,12 +77,12 @@ describe("Operations:Execute", () => {
 
     it("throws SequencerResponseInvalid if no response", async () => {
       axiosPostStub.resolves();
-      await expect(sendBid(mockBid, requestContext)).to.be.rejectedWith(SequencerResponseInvalid);
+      await expect(sendBid(mockBid, requestContext)).to.be.rejectedWith(NonRetryableBidPostError);
     });
 
     it("throws SequencerResponseInvalid if no response.data", async () => {
       axiosPostStub.resolves({ data: undefined });
-      await expect(sendBid(mockBid, requestContext)).to.be.rejectedWith(SequencerResponseInvalid);
+      await expect(sendBid(mockBid, requestContext)).to.be.rejectedWith(NonRetryableBidPostError);
     });
   });
 
@@ -102,7 +103,7 @@ describe("Operations:Execute", () => {
     let mockRouter: string;
     let mockGetDestinationLocalAsset: SinonStub<
       [_originDomain: string, _originLocalAsset: string, _destinationDomain: string],
-      Promise<string>
+      Promise<string | undefined>
     >;
     let mockSignRouterPathPayload: SinonStub<
       [transferId: string, pathLength: string, signer: Wallet | Signer],
@@ -235,16 +236,9 @@ describe("Operations:Execute", () => {
       await expect(execute(mockXTransfer, requestContext)).to.be.rejectedWith(CallDataForNonContract);
     });
 
-    it("should throw MissingXCall if the transfer is missing origin params", async () => {
-      await expect(
-        execute(
-          {
-            ...mockXTransfer,
-            origin: undefined as any,
-          },
-          requestContext,
-        ),
-      ).to.be.rejectedWith(MissingXCall);
+    it("should throw MissingXCall if the transfer is missing in origin subg", async () => {
+      (mockSubContext.adapters.subgraph.getOriginTransferById as SinonStub).resolves(undefined);
+      await expect(execute(mockXTransfer, requestContext)).to.be.rejectedWith(MissingXCall);
     });
 
     // TODO: reenable when blacklist working again
