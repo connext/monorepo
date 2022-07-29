@@ -63,7 +63,7 @@ contract PortalFacet is BaseConnextFacet {
    * @param _aavePortalFeeNumerator The new value for the Aave Portal fee numerator
    */
   function setAavePortalFee(uint256 _aavePortalFeeNumerator) external onlyOwner {
-    if (_aavePortalFeeNumerator > s.LIQUIDITY_FEE_DENOMINATOR) revert PortalFacet__setAavePortalFee_invalidFee();
+    if (_aavePortalFeeNumerator > BPS_FEE_DENOMINATOR) revert PortalFacet__setAavePortalFee_invalidFee();
 
     s.aavePortalFeeNumerator = _aavePortalFeeNumerator;
   }

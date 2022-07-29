@@ -12,6 +12,7 @@ contract BaseConnextFacet {
   // ========== Properties ===========
   uint256 internal constant _NOT_ENTERED = 1;
   uint256 internal constant _ENTERED = 2;
+  uint256 internal constant BPS_FEE_DENOMINATOR = 10_000;
 
   // Contains hash of empty bytes
   bytes32 internal constant EMPTY_HASH = hex"c5d2460186f7233c927e7db2dcc703c0e500b653ca82273b7bfad8045d85a470";
