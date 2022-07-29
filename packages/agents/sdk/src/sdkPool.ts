@@ -587,10 +587,9 @@ export class NxtpSdkPool {
     await Promise.all(
       Object.values(this.config.chains[domainId].assets).map(async (asset) => {
         const pool = await this.getPool(domainId, asset.address);
-        const lpToken = pool?.lpTokenAddress;
 
-        if (lpToken) {
-          const lpTokenUserBalance = await this.getLPTokenUserBalance(domainId, lpToken, userAddress);
+        if (pool) {
+          const lpTokenUserBalance = await this.getLPTokenUserBalance(domainId, pool.lpTokenAddress, userAddress);
           const adoptedTokenUserBalance = await this.getPoolTokenUserBalance(domainId, pool.tokens[0], userAddress);
           const localTokenUserBalance = await this.getPoolTokenUserBalance(domainId, pool.tokens[1], userAddress);
           result.push({
