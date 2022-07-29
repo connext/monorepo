@@ -6,8 +6,6 @@ locals {
     { name = "DD_PROFILING_ENABLED", value = "true" },
     { name = "DD_ENV", value = var.stage },
     { name = "DD_SERVICE", value = "sequencer-${var.environment}" }
-
-
   ]
   router_env_vars = [
     { name = "NXTP_CONFIG", value = local.local_router_config },
@@ -21,7 +19,6 @@ locals {
     { name = "NXTP_CONFIG", value = local.local_lighthouse_config },
     { name = "ENVIRONMENT", value = var.environment },
     { name = "STAGE", value = var.stage }
-
   ]
   web3signer_env_vars = [
     { name = "WEB3_SIGNER_PRIVATE_KEY", value = var.web3_signer_private_key },
@@ -34,7 +31,7 @@ locals {
     redis = {
       host = module.sequencer_cache.redis_instance_address,
       port = module.sequencer_cache.redis_instance_port
-    },
+    }
 
     server = {
       adminToken = var.admin_token_router
@@ -57,6 +54,19 @@ locals {
           {
             name    = "TEST"
             address = "0x26FE8a8f86511d678d031a022E48FfF41c6a3e3b"
+          }
+        ]
+      }
+      "9991" = {
+        providers = ["https://polygon-testnet.blastapi.io/${var.mumbai_blast_key_0}", "https://rpc.ankr.com/polygon_mumbai"]
+        assets = [
+          {
+            name    = "TEST"
+            address = "0x21c5a4dAeAf9625c781Aa996E9229eA95EE4Ff77"
+          },
+          {
+            name    = "WETH"
+            address = "0x4E2FCcA06dA37869047d84b82364d1831E5aa7E1"
           }
         ]
       }
@@ -168,8 +178,6 @@ locals {
   })
 }
 
-
-
 locals {
   local_lighthouse_config = jsonencode({
     logLevel = "debug"
@@ -179,6 +187,9 @@ locals {
       }
       "3331" = {
         providers = ["https://eth-goerli.alchemyapi.io/v2/${var.goerli_alchemy_key_1}"]
+      }
+      "9991" = {
+        providers = ["https://polygon-testnet.blastapi.io/${var.mumbai_blast_key_0}", "https://rpc.ankr.com/polygon_mumbai"]
       }
     }
     environment = var.stage
