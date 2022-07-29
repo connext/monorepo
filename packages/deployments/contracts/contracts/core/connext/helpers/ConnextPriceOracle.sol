@@ -122,9 +122,10 @@ contract ConnextPriceOracle is PriceOracle, ProposedOwnable {
         uint80 answeredInRound
       ) {
         // It's fine for price to be 0. We have more price feeds.
-        if (answer == 0 || answeredInRound < roundId || updateAt == 0) {
+        if (answer == 0 || answeredInRound < roundId || updateAt == 0 || block.timestamp > updateAt + VALID_PERIOD) {
           // answeredInRound > roundId ===> ChainLink Error: Stale price
           // updatedAt = 0 ===> ChainLink Error: Round not complete
+          // block.timestamp - updateAt > VALID_PERIOD ===> too old data
           return 0;
         }
 
