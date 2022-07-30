@@ -119,18 +119,49 @@ export class NxtpSdkBase {
     return undefined;
   }
 
+  /**
+   * Check, sanitize, and format the XCall and encode calldata. Returns an ethers TransactionRequest object, ready
+   * to be sent to an RPC provider.
+   *
+   * @param args - XCall arguments. Some fields in args.params are optional and have default values provided.
+   * @returns providers.TransactionRequest object.
+   */
   public async xcall(
-    xcallParams: Omit<XCallArgs, "callData" | "forceSlow" | "receiveLocal" | "callback" | "callbackFee" | "recovery">,
+    // All XCallArgs must be specified except for params.
+    args: Omit<XCallArgs, "params"> & {
+      // In params, all fields are optional (because of Partial) except for the ones listed by string literals here:
+      params: Omit<Partial<CallParams>, "to" | "originDomain" | "destinationDomain" | "agent" | "destinationMinOut"> &
+        // This Pick is used to make these fields required to be specified. For the rest, default values exist.
+        Pick<CallParams, "to" | "originDomain" | "destinationDomain" | "agent" | "destinationMinOut">;
+    },
   ): Promise<providers.TransactionRequest> {
     const { requestContext, methodContext } = createLoggingContext(this.xcall.name);
-    this.logger.info("Method start", requestContext, methodContext, { xcallParams });
+    this.logger.info("Method start", requestContext, methodContext, { args });
 
     const signerAddress = this.config.signerAddress;
     if (!signerAddress) {
       throw new SignerAddressMissing();
     }
 
-    // Validate Input schema
+    // Substitute default values.
+    const { params, transactingAmount, transactingAsset, originMinOut } = args;
+    const formattedXParams: CallParams = {
+      ...params,
+      callData: params.callData || "0x",
+      callback: params.callback || constants.AddressZero,
+      callbackFee: params.callbackFee || "0",
+      recovery: params.recovery || params.to,
+      forceSlow: params.forceSlow || false,
+      receiveLocal: params.receiveLocal || false,
+      relayerFee: params.relayerFee || "0",
+    };
+
+    // Validate XCall arguments.
+    if (transactingAsset === constants.AddressZero) {
+      // TODO: Custom error.
+      throw new Error("Transacting asset specified was address zero; native assets are not supported!");
+    }
+    // TODO: Use ajv validator:
     // const validateInput = ajv.compile(XTransferSchema);
     // const validInput = validateInput(params);
     // if (!validInput) {
@@ -141,50 +172,36 @@ export class NxtpSdkBase {
     //   });
     // }
 
-    /// create a bid
-    const { params, amount, transactingAssetId } = xcallParams;
-
-    const { originDomain, relayerFee } = params;
-
-    const xParams: CallParams = {
-      ...params,
-      callData: params.callData || "0x",
-      callback: params.callback || constants.AddressZero,
-      callbackFee: params.callbackFee || "0",
-      recovery: params.recovery || params.to,
-      forceSlow: params.forceSlow || false,
-      receiveLocal: params.receiveLocal || false,
-      relayerFee: params.relayerFee || "0",
-    };
+    const { originDomain } = params;
     const ConnextContractAddress = this.config.chains[originDomain].deployments!.connext;
 
+    // Get the current chain ID.
     let chainId = this.config.chains[originDomain].chainId;
     if (!chainId) {
       chainId = await getChainIdFromDomain(originDomain, this.chainData);
     }
 
-    // if transactingAssetId is AddressZero then we are adding relayerFee to amount for value
+    // Add callback and relayer fee together to get the total ETH value that should be sent.
+    const value = BigNumber.from(formattedXParams.relayerFee).add(BigNumber.from(formattedXParams.callbackFee));
 
-    const totalFee = BigNumber.from(relayerFee).add(BigNumber.from(xParams.callbackFee));
-
-    const value = transactingAssetId === constants.AddressZero ? BigNumber.from(amount).add(totalFee) : totalFee;
-
-    const xcallArgs: XCallArgs = {
-      params: xParams,
-      amount,
-      transactingAssetId,
+    // Take the finalized xcall arguments and encode calldata.
+    const formattedXCallArgs: XCallArgs = {
+      params: formattedXParams,
+      transactingAsset,
+      transactingAmount,
+      originMinOut,
     };
-    const data = this.contracts.connext.encodeFunctionData("xcall", [xcallArgs]);
+    const data = this.contracts.connext.encodeFunctionData("xcall", [formattedXCallArgs]);
 
-    const txRequest = {
+    // Make an ethers TransactionRequest object.
+    const txRequest: providers.TransactionRequest = {
       to: ConnextContractAddress,
       value,
       data,
       from: signerAddress,
       chainId,
     };
-
-    this.logger.info("xCall transaction created", requestContext, methodContext, txRequest);
+    this.logger.info("XCall transaction formatted.", requestContext, methodContext, txRequest);
 
     return txRequest;
   }
@@ -210,7 +227,7 @@ export class NxtpSdkBase {
     }
     const ConnextContractAddress = this.config.chains[domain].deployments!.connext;
 
-    // if transactingAssetId is AddressZero then we are adding relayerFee to amount for value
+    // if transactingAsset is AddressZero then we are adding relayerFee to amount for value
     const value = BigNumber.from(relayerFee);
 
     const data = this.contracts.connext.encodeFunctionData("bumpTransfer", [transferId]);
