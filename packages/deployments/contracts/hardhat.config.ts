@@ -219,7 +219,7 @@ const config: HardhatUserConfig = {
     mumbai: {
       accounts: { mnemonic },
       chainId: 80001,
-      url: "https://matic-testnet-archive-rpc.bwarelabs.com",
+      url: "https://rpc.ankr.com/polygon_mumbai",
     },
     "arbitrum-rinkeby": {
       accounts: { mnemonic },

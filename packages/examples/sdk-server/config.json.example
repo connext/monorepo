@@ -1,0 +1,33 @@
+{
+  "chains": {
+    "1111": {
+      "assets": [
+        {
+          "name": "TEST",
+          "symbol": "TEST",
+          "address": "0x3FFc03F05D1869f493c7dbf913E636C6280e0ff9"
+        },
+        {
+          "name": "madWETH",
+          "symbol": "TWETH",
+          "address": "0xF25927315D101aC04C631878570152658defa7Db"
+        }
+      ],
+      "providers": ["https://rinkeby.infura.io/v3/d2560cac8f5645fba802260cf1f8c777", "https://rpc.ankr.com/eth_rinkeby"]
+    },
+    "3331": {
+      "assets": [
+        {
+          "name": "TEST",
+          "symbol": "TEST",
+          "address": "0x26FE8a8f86511d678d031a022E48FfF41c6a3e3b"
+        }
+      ],
+      "providers": ["https://goerli.infura.io/v3/d2560cac8f5645fba802260cf1f8c777"]
+    }
+  },
+  "logLevel": "debug",
+  "mnemonic": "<your_mnemonic",
+  "environment": "production",
+  "network": "testnet"
+}

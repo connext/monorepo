@@ -2,6 +2,11 @@
 
 ## Next Release
 
+## Amarok 0.2.0-beta.20
+
+- [sdk] Function updates.
+- [ops] Config changes.
+
 ## Amarok 0.2.0-beta.19
 
 - [contracts] Deploy to Polygon Mumbai.

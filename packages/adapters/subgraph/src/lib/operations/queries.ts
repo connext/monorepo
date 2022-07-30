@@ -53,6 +53,7 @@ export const DESTINATION_TRANSFER_ENTITY = `
       # Meta Data
       chainId
       transferId
+      nonce
 
       # call params
       to

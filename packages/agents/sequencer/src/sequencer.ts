@@ -46,7 +46,7 @@ export const makePublisher = async (_configOverride?: SequencerConfig) => {
 
     if (!context.config.messageQueue.publisher) throw new Error(`No publisher found in config`);
 
-    context.logger.info("Publisher config generated.", requestContext, methodContext);
+    context.logger.info("Publisher config generated.", requestContext, methodContext, { config: context.config });
 
     /// MARK - Adapters
     context.adapters.cache = await setupCache(context.config.redis, context.logger, requestContext);

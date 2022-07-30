@@ -13,6 +13,19 @@ GET {{baseUrl}}
 GET {{baseUrl}}/ping
 
 ##############
+### POST sendTransaction 
+POST {{baseUrl}}/sendTransaction/1111
+Content-Type: application/json
+
+{
+  "to": "0xc778417E063141139Fce010982780140Aa0cD5Ab",
+  "data": "0x095ea7b30000000000000000000000004caa6358a3d9d1906b5dabde60a626aafd80186fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+  "from": "0x6d2A06543D23Cc6523AE5046adD8bb60817E0a94",
+  "value": 0,
+  "chainId": 4
+}
+
+##############
 ### POST XCall
 POST {{baseUrl}}/xcall
 Content-Type: application/json
@@ -37,12 +50,49 @@ Content-Type: application/json
 }
 
 ##############
-### GET getLPTokenAdress
+### GET getCanonicalFromLocal
+GET {{baseUrl}}/getCanonicalFromLocal/1111/0xF25927315D101aC04C631878570152658defa7Db
+
+##############
+### GET getLPTokenAddress
 GET {{baseUrl}}/getLPTokenAddress/1111/0x000000000000000000000000b4fbf271143f4fbf7b91a5ded31805e42b2208d6
 
 ##############
-### GET getCanonicalFromLocal
-GET {{baseUrl}}/getCanonicalFromLocal/1111/0xF25927315D101aC04C631878570152658defa7Db
+### GET getLPTokenBalance
+GET {{baseUrl}}/getLPTokenBalance/1111/0x529dC4e5969F399e36E41CC29d35dB055721259b/{{yourAddress}}
+
+##############
+### GET getPoolTokenIndex
+GET {{baseUrl}}/getPoolTokenIndex/1111/0x000000000000000000000000b4fbf271143f4fbf7b91a5ded31805e42b2208d6/0xF25927315D101aC04C631878570152658defa7Db
+
+##############
+### GET getPoolTokenBalance
+GET {{baseUrl}}/getPoolTokenBalance/1111/0x000000000000000000000000b4fbf271143f4fbf7b91a5ded31805e42b2208d6/0xF25927315D101aC04C631878570152658defa7Db
+
+##############
+### GET getPoolTokenUserBalance
+GET {{baseUrl}}/getPoolTokenUserBalance/1111/0xF25927315D101aC04C631878570152658defa7Db/{{yourAddress}}
+
+##############
+### GET getPoolTokenAddress
+GET {{baseUrl}}/getPoolTokenAddress/1111/0x000000000000000000000000b4fbf271143f4fbf7b91a5ded31805e42b2208d6/0
+
+##############
+### GET getVirtualPrice
+GET {{baseUrl}}/getVirtualPrice/1111/0x000000000000000000000000b4fbf271143f4fbf7b91a5ded31805e42b2208d6
+
+##############
+### POST calculateSwap
+POST {{baseUrl}}/calculateSwap
+Content-Type: application/json
+
+{
+  "domainId": "1111",
+  "canonicalId": "0x000000000000000000000000b4fbf271143f4fbf7b91a5ded31805e42b2208d6",
+  "tokenIndexFrom": "1",
+  "tokenIndexTo": "0",
+  "amount": "100"
+}
 
 ##############
 ### POST calculateTokenAmount
@@ -55,6 +105,16 @@ Content-Type: application/json
   "amounts": ["10", "10"]
 }
 
+##############
+### POST calculateRemoveSwapLiquidity
+POST {{baseUrl}}/calculateRemoveSwapLiquidity
+Content-Type: application/json
+
+{
+  "domainId": "1111",
+  "canonicalId": "0x000000000000000000000000b4fbf271143f4fbf7b91a5ded31805e42b2208d6",
+  "amount": "10" 
+}
 
 ##############
 ### POST getPool
@@ -67,6 +127,16 @@ Content-Type: application/json
 }
 
 ##############
+### POST getUserPools
+POST {{baseUrl}}/getUserPools
+Content-Type: application/json
+
+{
+  "domainId": "1111",
+  "userAddress": "0x6d2A06543D23Cc6523AE5046adD8bb60817E0a94"
+}
+
+##############
 ### POST addLiquidity
 POST {{baseUrl}}/addLiquidity
 Content-Type: application/json
@@ -74,7 +144,7 @@ Content-Type: application/json
 {
   "domainId": "1111",
   "canonicalId": "0x000000000000000000000000b4fbf271143f4fbf7b91a5ded31805e42b2208d6",
-  "amounts": ["10", "10"]
+  "amounts": ["100", "50"]
 }
 
 ##############
@@ -99,4 +169,15 @@ Content-Type: application/json
   "from": "0xc778417E063141139Fce010982780140Aa0cD5Ab",
   "to": "0xF25927315D101aC04C631878570152658defa7Db",
   "amount": "10"
+}
+
+##############
+### POST approveIfNeeded 
+POST {{baseUrl}}/approveIfNeeded
+Content-Type: application/json
+
+{
+  "domainId": "1111",
+  "assetId": "0xc778417E063141139Fce010982780140Aa0cD5Ab",
+  "amount": "10000000000000000"
 }
