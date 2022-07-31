@@ -9,8 +9,8 @@ if [ $BUILD_USING_LIVE_VERSION -eq 1 ]; then
     export GRAPH_1337_ENDPOINT=${GRAPH_GOERLI_HANDLER_ENDPOINT}
     export GRAPH_1338_ENDPOINT=${GRAPH_GOERLI_HANDLER_ENDPOINT}
 else
-    export GRAPH_1337_ENDPOINT="http://localhost:8010"
-    export GRAPH_1338_ENDPOINT="http://localhost:9010"
+    export GRAPH_1337_ENDPOINT="http://localhost:8010/subgraphs/name/connext/nxtp"
+    export GRAPH_1338_ENDPOINT="http://localhost:9010/subgraphs/name/connext/nxtp"
 
     # bring up chains/graph node/ipfs
     docker compose -f docker-compose.chains.yaml up -d
