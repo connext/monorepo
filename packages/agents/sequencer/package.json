@@ -30,8 +30,9 @@
     "watch": [
       ".env",
       "./dist",
-      "../@connext/nxtp-adapters-cache",
-      "../@connext/nxtp-adapters-subgraph",
+      "../@connext/nxtp-adapters-cache/dist",
+      "../@connext/nxtp-adapters-subgraph/dist",
+      "../@connext/nxtp-adapters-web3signer/dist",
       "../@connext/nxtp-txservice/dist",
       "../@connext/nxtp-utils/dist"
     ]
