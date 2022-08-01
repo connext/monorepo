@@ -18,9 +18,7 @@
     "build": "tsc --build ./tsconfig.build.json",
     "verify": "yarn test && yarn clean && yarn build && yarn lint --max-warnings 0",
     "purge": "yarn clean && rimraf ./coverage ./node_modules",
-    "tsp": "yarn run tsp:root \"$@\" --cwd $(pwd)",
-    "codegen:runtime": "graphql-codegen --config ./runtime.yml",
-    "codegen:analytics": "graphql-codegen --config ./analytics.yml"
+    "tsp": "yarn run tsp:root \"$@\" --cwd $(pwd)"
   },
   "eslintIgnore": [
     "graphqlsdk.ts"
