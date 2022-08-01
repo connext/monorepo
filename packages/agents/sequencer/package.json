@@ -24,9 +24,6 @@
     "dist/**/*",
     "src/**/*"
   ],
-  "eslintIgnore": [
-    "graphqlsdk.ts"
-  ],
   "publishConfig": {
     "registry": "https://registry.npmjs.org",
     "access": "public"
