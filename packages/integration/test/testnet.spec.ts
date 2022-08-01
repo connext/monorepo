@@ -1,6 +1,6 @@
 import axios, { AxiosResponse } from "axios";
 import { Wallet, utils, BigNumber, providers, constants } from "ethers";
-import { makeSequencer } from "@connext/nxtp-sequencer/src/sequencer";
+import { makePublisher, makeSubscriber } from "@connext/nxtp-sequencer/src/sequencer";
 import { makeRouter } from "@connext/nxtp-router/src/router";
 import { makeRelayer } from "@connext/nxtp-relayer/src/relayer";
 import { makeRoutersPoller } from "@connext/cartographer-poller/src/routersPoller";
@@ -745,7 +745,13 @@ describe("TESTNET:E2E", () => {
 
       if (agents.router) {
         log.next("SEQUENCER START");
-        await makeSequencer({
+        await makePublisher({
+          ...sequencerConfig,
+          relayerUrl: agents.relayer ? sequencerConfig.relayerUrl : undefined,
+        });
+        await delay(1_000);
+
+        await makeSubscriber({
           ...sequencerConfig,
           relayerUrl: agents.relayer ? sequencerConfig.relayerUrl : undefined,
         });

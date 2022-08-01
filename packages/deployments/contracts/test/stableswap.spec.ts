@@ -65,9 +65,9 @@ describe("StableSwap", async () => {
     // Deploy dummy tokens
     const erc20Factory = await ethers.getContractFactory("TestERC20");
 
-    firstToken = (await erc20Factory.deploy()) as TestERC20;
+    firstToken = (await erc20Factory.deploy("Test Token", "TEST")) as TestERC20;
 
-    secondToken = (await erc20Factory.deploy()) as TestERC20;
+    secondToken = (await erc20Factory.deploy("Test Token", "TEST")) as TestERC20;
 
     const lpTokenFactory = await ethers.getContractFactory("contracts/core/connext/helpers/LPToken.sol:LPToken");
     swapToken = (await lpTokenFactory.deploy()) as LPToken;

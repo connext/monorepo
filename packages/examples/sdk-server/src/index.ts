@@ -1,84 +1,93 @@
 import * as fs from "fs";
 
-import fastify, { FastifyInstance, FastifyReply } from "fastify";
-import { RemoveLiquidityResponseSchema, XCallArgsSchema, XCallArgs } from "@connext/nxtp-utils";
+import fastify, { FastifyInstance } from "fastify";
 import { ethers, providers } from "ethers";
-import { NxtpSdkConfig, NxtpSdkBase, create } from "@connext/nxtp-sdk";
+import { NxtpSdkConfig, NxtpSdkBase, NxtpSdkPool, create } from "@connext/nxtp-sdk";
 
-let sdkInstance: NxtpSdkBase;
+import { poolRoutes } from "./pool";
+import { baseRoutes } from "./base";
 
-export const sdkServer = () =>
-  new Promise<FastifyInstance>(() => {
-    const server = fastify();
+let sdkBaseInstance: NxtpSdkBase;
+let sdkPoolInstance: NxtpSdkPool;
 
-    server.listen(8080, (err, address) => {
-      if (err) {
-        console.error(err);
-        process.exit(1);
-      }
-      console.log(`Server listening at ${address}`);
-    });
+export const sdkServer = async (): Promise<FastifyInstance> => {
+  const server = fastify();
 
-    server.addHook("onReady", async () => {
-      let configJson: Record<string, any> = {};
-      let configFile: any = {};
+  // Initialize SDK
 
-      try {
-        configJson = JSON.parse(process.env.NXTP_CONFIG || "");
-      } catch (e: unknown) {
-        console.info("No NXTP_CONFIG exists, using config file and individual env vars");
-      }
-      try {
-        let json: string;
-        const path = process.env.NXTP_CONFIG_FILE ?? "config.json";
-        if (fs.existsSync(path)) {
-          json = fs.readFileSync(path, { encoding: "utf-8" });
-          configFile = JSON.parse(json);
-        }
-      } catch (e: unknown) {
-        console.error("Error reading config file!");
-        process.exit(1);
-      }
-      // return configFile;
+  let configJson: Record<string, any> = {};
 
-      const privateKey: string = configJson.privateKey;
-      const signer = privateKey ? new ethers.Wallet(privateKey) : ethers.Wallet.createRandom();
+  try {
+    configJson = JSON.parse(process.env.NXTP_CONFIG || "");
+  } catch (e: unknown) {
+    console.info("No NXTP_CONFIG exists, using config file and individual env vars");
+  }
+  try {
+    let json: string;
+    const path = process.env.NXTP_CONFIG_FILE ?? "config.json";
+    if (fs.existsSync(path)) {
+      json = fs.readFileSync(path, { encoding: "utf-8" });
+      configJson = JSON.parse(json);
+    }
+  } catch (e: unknown) {
+    console.error("Error reading config file!");
+    process.exit(1);
+  }
 
-      const signerAddress = await signer.getAddress();
+  const privateKey: string = configJson.privateKey;
+  const mnemonic: string = configJson.mnemonic;
+  const signer = privateKey
+    ? new ethers.Wallet(privateKey)
+    : ethers.Wallet.fromMnemonic(mnemonic) ?? ethers.Wallet.createRandom();
+  const signerAddress = await signer.getAddress();
 
-      const nxtpConfig: NxtpSdkConfig = {
-        chains: configJson.chains ? configJson.chains : configFile.chains,
-        logLevel: configJson.logLevel || configFile.logLevel || "info",
-        signerAddress: signerAddress,
-      };
+  const configuredProviders: Record<string, providers.JsonRpcProvider> = {};
+  const chains = configJson.chains;
+  for (const key in chains) {
+    const chain = chains[key];
+    const url: string = chain.providers[0];
+    const provider = new ethers.providers.JsonRpcProvider(url);
+    configuredProviders[key] = provider;
+  }
 
-      const { nxtpSdkBase } = await create(nxtpConfig);
-      sdkInstance = nxtpSdkBase;
-    });
+  const nxtpConfig: NxtpSdkConfig = {
+    chains: chains,
+    logLevel: configJson.logLevel || "info",
+    signerAddress: signerAddress,
+  };
 
-    server.get("/ping", (_, res) => api.get.ping(res));
+  const { nxtpSdkBase, nxtpSdkPool } = await create(nxtpConfig);
+  sdkBaseInstance = nxtpSdkBase;
+  sdkPoolInstance = nxtpSdkPool;
+  console.log(`Initialized SDK with config ${nxtpConfig}`);
 
-    server.post<{ Body: XCallArgs }>(
-      "/xcall",
-      { schema: { body: XCallArgsSchema, response: { "2xx": RemoveLiquidityResponseSchema } } },
-      async (req) => api.post.xcall(req.body),
-    );
+  // Register routes
+
+  server.get("/ping", async (_, reply) => {
+    return reply.status(200).send("pong\n");
   });
 
-export const api = {
-  get: {
-    ping: async (res: FastifyReply) => {
-      return res.status(200).send("pong\n");
-    },
-  },
-  post: {
-    xcall: async (req: XCallArgs): Promise<providers.TransactionResponse> => {
-      console.log(req);
-      // return re.status(500).send("Not implemented");
-      await sdkInstance.xcall(req);
-      return {} as providers.TransactionResponse;
-    },
-  },
+  server.post<{
+    Params: { domainId: string };
+    Body: providers.TransactionRequest;
+  }>("/sendTransaction/:domainId", async (request, reply) => {
+    request.body.gasLimit = ethers.BigNumber.from("2000000");
+    const txRes = await signer.connect(configuredProviders[request.params.domainId]).sendTransaction(request.body);
+    const txRec = await txRes.wait();
+    reply.status(200).send(txRec);
+  });
+
+  server.register(baseRoutes, sdkBaseInstance);
+  server.register(poolRoutes, sdkPoolInstance);
+
+  server.listen(8080, (err, address) => {
+    if (err) {
+      console.error(err);
+      process.exit(1);
+    }
+    console.log(`Server listening at ${address}`);
+  });
+  return server;
 };
 
 sdkServer();

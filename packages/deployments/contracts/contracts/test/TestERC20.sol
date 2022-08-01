@@ -9,7 +9,7 @@ import {ERC20} from "@openzeppelin/contracts/token/ERC20/ERC20.sol";
  * @dev Anybody can burn anyone else's tokens
  */
 contract TestERC20 is ERC20 {
-  constructor() ERC20("Test Token", "TEST") {
+  constructor(string memory _name, string memory _symbol) ERC20(_name, _symbol) {
     _mint(msg.sender, 1000000 ether);
   }
 

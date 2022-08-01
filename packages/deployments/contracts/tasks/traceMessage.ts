@@ -1,8 +1,8 @@
 import { task } from "hardhat/config";
-import { NomadContext, NomadStatus, MessageStatus, AnnotatedLifecycleEvent, NomadMessage } from "@nomad-xyz/sdk";
-import { BigNumber, providers, Wallet, utils } from "ethers";
+import { NomadContext, MessageStatus, NomadMessage } from "@nomad-xyz/sdk";
+import { providers, Wallet } from "ethers";
 import { config as dotEnvConfig } from "dotenv";
-import { BytesLike, LogDescription } from "ethers/lib/utils";
+import { LogDescription } from "ethers/lib/utils";
 
 import config from "../hardhat.config";
 import { getDomainInfoFromChainId, getNomadConfig } from "../src/nomad";
@@ -18,32 +18,23 @@ const mnemonic =
 // in-repo implementation of:
 // https://github.com/nomad-xyz/monorepo/blob/main/packages/monitor/src/trace.ts
 
-const STATUS_TO_STRING = {
-  [MessageStatus.Dispatched]: "Dispatched on Home",
-  [MessageStatus.Included]: "Included in Home Update",
-  [MessageStatus.Relayed]: "Relayed to Replica",
-  [MessageStatus.Processed]: "Processed",
+const STATUS_TO_STRING: Record<number, string> = {
+  [MessageStatus.dispatched]: "Dispatched on Home",
+  [MessageStatus.included]: "Included in Home Update",
+  [MessageStatus.relayed]: "Relayed to Replica",
+  [MessageStatus.received]: "Received",
+  [MessageStatus.processed]: "Processed",
 };
 
-function quietEvent(context: NomadContext, lifecyleEvent: AnnotatedLifecycleEvent) {
-  const { domain, receipt } = lifecyleEvent;
-  const domainName = context.resolveDomainName(domain);
-  if (!domainName) {
-    throw new Error("I have no name");
-  }
-  return {
-    event: lifecyleEvent.eventName!,
-    domainName,
-    blockNumber: receipt.blockNumber,
-    transactionHash: receipt.transactionHash,
-  };
-}
-
-function printStatus(context: NomadContext, nomadStatus: NomadStatus) {
-  const { status, events } = nomadStatus;
+function printStatus(message: NomadMessage<NomadContext>, nomadStatus: MessageStatus) {
+  // const { status, events } = nomadStatus;
   const printable = {
-    status: STATUS_TO_STRING[status],
-    events: events.map((event) => quietEvent(context, event)),
+    status: STATUS_TO_STRING[nomadStatus],
+    txData: {
+      domainName: message.originName,
+      blockNumber: message.receipt.blockNumber,
+      transactionHash: message.transactionHash,
+    },
   };
   console.log(JSON.stringify(printable, null, 2));
 }
@@ -74,7 +65,7 @@ export default task("trace-message", "See the status of a nomad message")
 
     // Get the domain + context
     const network = await hre.ethers.provider.getNetwork();
-    const nomadConfig = getNomadConfig(network.chainId);
+    const nomadConfig = await getNomadConfig(network.chainId);
     const { domain: originDomain, name: originName } = await getDomainInfoFromChainId(network.chainId, hre);
 
     const context = new NomadContext(nomadConfig);
@@ -114,43 +105,43 @@ export default task("trace-message", "See the status of a nomad message")
       .filter((x) => !!x) as LogDescription[];
 
     // Trace the message
-    const [message] = NomadMessage.baseFromReceipt(context, originDomain, receipt);
+    const message = await NomadMessage.baseSingleFromReceipt(context, receipt);
 
-    const status = await message.events();
-    printStatus(context, status);
-    if (status.status === MessageStatus.Relayed && shouldProcess) {
+    // check if message has been processed
+    const msgHash = dispatchEvent.args.messageHash as string;
+    const replica = context.mustGetReplicaFor(originDomain, destination);
+    const replicaStatus = await replica.messages(msgHash);
+    if (replicaStatus === "2") {
+      console.log("message already processed");
+      return;
+    }
+
+    const status = await message.status();
+    if (!status) throw Error("unable to fetch status");
+    const confirmAt = await message.confirmAt();
+    if (!status || !confirmAt) {
+      console.log("error fetching status");
+      // try to process?
+      return;
+    }
+    if (confirmAt === 0) {
+      console.log("not ready to process");
+      return;
+    }
+    printStatus(message, status);
+    const now = Date.now() / 1000; // timestamp in seconds
+    const readyToProcess = now > confirmAt;
+    if (status === MessageStatus.relayed && shouldProcess && readyToProcess) {
       console.log("============== attempting to process ===========");
-      const signer = Wallet.fromMnemonic(mnemonic).connect(destinationProvider);
-      const replica = context.mustGetReplicaFor(originDomain, destination).connect(signer);
-      if (!(await replica.acceptableRoot(dispatchEvent.args.committedRoot as string))) {
-        console.log("cant process on replica, not an acceptable root");
-        return;
+      // register signer
+      const signer = Wallet.fromMnemonic(mnemonic);
+      context.registerSigner(destination, signer);
+
+      try {
+        const processed = await message.process();
+        console.log("processed", processed);
+      } catch (e) {
+        console.error("error processing transaction", e);
       }
-      const msgHash = dispatchEvent.args.messageHash as string;
-      const status = await replica.messages(msgHash);
-      const url = `${s3Url}${originName}_${dispatchEvent.args.leafIndex.toString()}`;
-      console.log("processing on replica", status, replica.address, url);
-      let processTx;
-      if (status === "0") {
-        // Must prove and process
-        const data = await utils.fetchJson(url);
-        processTx = await replica.proveAndProcess(
-          data.message as BytesLike,
-          // @ts-ignore
-          data.proof.path as unknown,
-          BigNumber.from(data.proof.index),
-        );
-      } else if (status === "1") {
-        // Must simply process
-        processTx = await replica.process(dispatchEvent.args.message as string);
-      } else {
-        // Message already processed
-        console.log("already processed");
-        return;
-      }
-      console.log("process submitted:", processTx.hash);
-      const rProcess = await processTx.wait();
-      console.log("process mined:", rProcess.transactionHash);
-      console.log("processed?", await replica.messages(msgHash));
     }
   });

@@ -1,4 +1,3 @@
-import { logger } from "ethers";
 import { createMethodContext, createRequestContext, getChainData, Logger } from "@connext/nxtp-utils";
 import { getContractInterfaces, ChainReader, contractDeployments } from "@connext/nxtp-txservice";
 
@@ -48,9 +47,23 @@ export const makeLighthouse = async () => {
     context.adapters.relayer = await setupRelayer();
 
     // Set up bindings.
+    context.logger.info("Bindings initialized.", requestContext, methodContext);
     await bindCartographer(context.config.polling.cartographer);
 
-    logger.info("Lighthouse ready!");
+    context.logger.info("Lighthouse boot complete!", requestContext, methodContext, {
+      chains: [...Object.keys(context.config.chains)],
+    });
+    context.logger.info(
+      `
+
+        _|_|_|     _|_|     _|      _|   _|      _|   _|_|_|_|   _|      _|   _|_|_|_|_|
+      _|         _|    _|   _|_|    _|   _|_|    _|   _|           _|  _|         _|
+      _|         _|    _|   _|  _|  _|   _|  _|  _|   _|_|_|         _|           _|
+      _|         _|    _|   _|    _|_|   _|    _|_|   _|           _|  _|         _|
+        _|_|_|     _|_|     _|      _|   _|      _|   _|_|_|_|   _|      _|       _|
+
+      `,
+    );
   } catch (e: unknown) {
     console.error("Error starting router. Sad! :(", e);
     process.exit();

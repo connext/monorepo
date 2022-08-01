@@ -80,8 +80,8 @@ contract SwapUtilsTest is ForgeHelper {
 
   // ============ Utils ============
   function utils_initializeSwap() public {
-    token0 = new TestERC20();
-    token1 = new TestERC20();
+    token0 = new TestERC20("Test Token", "TEST");
+    token1 = new TestERC20("Test Token", "TEST");
 
     IERC20[] memory _pooledTokens = new IERC20[](2);
     _pooledTokens[0] = IERC20(token0);

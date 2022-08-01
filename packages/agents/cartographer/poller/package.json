@@ -1,6 +1,6 @@
 {
   "name": "@connext/cartographer-poller",
-  "version": "0.2.0-beta.15",
+  "version": "0.2.0-beta.20",
   "description": "",
   "types": "dist/index.d.ts",
   "files": [
@@ -8,10 +8,7 @@
     "src/**/*"
   ],
   "scripts": {
-    "dev": "concurrently -i -k -n 'app,tsc' -c 'green,cyan' 'pm2-runtime --watch cartographer.config.js'",
-    "start": "pm2-runtime cartographer.config.js",
-    "monitor": "pm2 monit",
-    "logs": "pm2 logs --json",
+    "dev": "concurrently -i -k -n 'app,tsc' -c 'green,cyan' 'node dist/entryTransfers.js' 'node dist/entryRouters.js'",
     "lint": "eslint ./src --ext .ts --env node",
     "test": "nyc ts-mocha --check-leaks --exit --timeout 60000 'test/**/*.spec.ts'",
     "clean": "rimraf ./dist ./tsconfig.tsBuildInfo",
@@ -22,36 +19,32 @@
     "zapatos": "zapatos",
     "dbmate": "dbmate"
   },
-  "eslintIgnore": [
-    "graphqlsdk.ts"
-  ],
   "author": "Connext",
   "license": "ISC",
   "dependencies": {
     "@connext/nxtp-adapters-subgraph": "workspace:*",
     "@connext/nxtp-utils": "workspace:*",
-    "@sinclair/typebox": "0.24.12",
-    "dd-trace": "^2.10.0",
+    "@sinclair/typebox": "0.24.20",
+    "dd-trace": "2.11.0",
     "dotenv": "16.0.1",
     "ethers": "5.6.9",
     "interval-promise": "1.4.0",
     "pg": "8.7.3",
-    "pm2": "^5.2.0",
     "zapatos": "6.0.1"
   },
   "devDependencies": {
     "@types/pg": "8.6.5",
-    "concurrently": "7.2.2",
-    "eslint": "8.19.0",
+    "concurrently": "7.3.0",
+    "eslint": "8.20.0",
     "nodemon": "2.0.19",
     "nyc": "15.1.0",
-    "pg-mem": "2.6.2",
+    "pg-mem": "2.6.3",
     "pino-pretty": "8.1.0",
     "rimraf": "3.0.2",
     "sinclair": "0.2.0",
     "sinon": "14.0.0",
     "ts-mocha": "10.0.0",
-    "ts-node": "10.8.2",
+    "ts-node": "10.9.1",
     "tslib": "2.4.0",
     "typescript": "4.7.4"
   },

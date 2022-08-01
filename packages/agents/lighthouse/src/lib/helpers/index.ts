@@ -1,6 +1,5 @@
 import { existsSync, readFileSync, gelatoSend, isChainSupportedByGelato, getGelatoRelayerAddress } from "./shared";
-
-import { connextRelayerSend, externalRelayerSend, getGasEstimateWithRevertCode } from "./relayer";
+import { connextRelayerSend } from "./relayer";
 export const getHelpers = () => {
   return {
     relayer: {
@@ -8,8 +7,6 @@ export const getHelpers = () => {
       isChainSupportedByGelato,
       getGelatoRelayerAddress,
       connextRelayerSend,
-      externalRelayerSend,
-      getGasEstimateWithRevertCode,
     },
     shared: {
       existsSync,

@@ -11,7 +11,7 @@ import {TestERC20} from "../../contracts/test/TestERC20.sol";
  * Anybody can burn anyone else's tokens
  */
 contract WETH is TestERC20 {
-  constructor() TestERC20() {}
+  constructor() TestERC20("Wrapped Ether", "WETH") {}
 
   receive() external payable {}
 

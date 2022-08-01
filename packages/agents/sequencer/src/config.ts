@@ -51,8 +51,16 @@ export const getEnvConfig = (
     network:
       process.env.SEQ_NETWORK || configJson.network || configFile.network || process.env.NXTP_NETWORK || "mainnet",
     server: {
-      port: process.env.SEQ_SERVER_PORT || configJson.server?.port || configFile.server?.port || 8081,
-      host: process.env.SEQ_SERVER_HOST || configJson.server?.host || configFile.server?.host || "0.0.0.0",
+      sub: {
+        port: process.env.SEQ_SUB_SERVER_PORT || configJson.server?.sub?.port || configFile.server?.sub?.port || 8082,
+        host:
+          process.env.SEQ_SUB_SERVER_HOST || configJson.server?.sub?.host || configFile.server?.sub?.host || "0.0.0.0",
+      },
+      pub: {
+        port: process.env.SEQ_PUB_SERVER_PORT || configJson.server?.pub?.port || configFile.server?.pub?.port || 8081,
+        host:
+          process.env.SEQ_PUB_SERVER_HOST || configJson.server?.pub?.host || configFile.server?.pub?.host || "0.0.0.0",
+      },
       adminToken: process.env.SEQ_SERVER_ADMIN_TOKEN || configJson.server?.adminToken || configFile.server?.adminToken,
     },
     auctionWaitTime:
@@ -75,6 +83,11 @@ export const getEnvConfig = (
       configFile.auctionRoundDepth ||
       DEFAULT_AUCTION_ROUND_DEPTH,
     environment: process.env.SEQ_ENVIRONMENT || configJson.environment || configFile.environment || "production",
+    messageQueue: process.env.SEQ_MESSAGE_QUEUE_CONFIG
+      ? JSON.parse(process.env.SEQ_MESSAGE_QUEUE_CONFIG)
+      : configJson.messageQueue
+      ? configJson.messageQueue
+      : configFile.messageQueue,
     relayerUrl: process.env.SEQ_RELAYER_URL || configJson.relayerUrl || configFile.relayerUrl,
   };
 

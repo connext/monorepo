@@ -3,7 +3,7 @@ import { createStubInstance, SinonStubbedInstance, stub } from "sinon";
 import { AuctionsCache, TransfersCache } from "@connext/nxtp-adapters-cache";
 import { SubgraphReader } from "@connext/nxtp-adapters-subgraph";
 import { ConnextContractDeployments, ConnextContractInterfaces, TransactionService } from "@connext/nxtp-txservice";
-import { mkAddress, Logger, mock as _mock } from "@connext/nxtp-utils";
+import { mkAddress, Logger, mock as _mock, OriginTransfer, DestinationTransfer } from "@connext/nxtp-utils";
 
 import { AppContext as PublisherAppContext } from "../src/publisher/context";
 import { AppContext as SubscriberAppContext } from "../src/subscriber/context";
@@ -42,7 +42,7 @@ export const mock = {
   },
   config: (): NxtpRouterConfig => ({
     chains: {
-      [mock.chain.A]: {
+      [mock.domain.A]: {
         assets: [mock.asset.A],
         confirmations: 1,
         providers: ["http://example.com"],
@@ -51,7 +51,7 @@ export const mock = {
         },
         gasStations: [],
       },
-      [mock.chain.B]: {
+      [mock.domain.B]: {
         assets: [mock.asset.A],
         confirmations: 1,
         providers: ["http://example.com"],
@@ -66,8 +66,14 @@ export const mock = {
     redis: { port: 6379, host: "localhost" },
     sequencerUrl: "http://localhost:8081",
     server: {
-      host: "0.0.0.0",
-      port: 3000,
+      pub: {
+        host: "0.0.0.0",
+        port: 3001,
+      },
+      sub: {
+        host: "0.0.0.0",
+        port: 3000,
+      },
       requestLimit: 2000,
       adminToken: "blahblahblah",
     },
@@ -114,6 +120,7 @@ export const mock = {
     subgraph: (): SinonStubbedInstance<SubgraphReader> => {
       const subgraph = createStubInstance(SubgraphReader);
       subgraph.getXCalls.resolves([]);
+      subgraph.getOriginTransferById.resolves(mock.entity.xtransfer() as OriginTransfer);
       subgraph.getDestinationTransfers.resolves([]);
       subgraph.isRouterApproved.resolves(true);
       subgraph.getAssetBalance.resolves(constants.MaxUint256);

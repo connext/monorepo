@@ -96,7 +96,7 @@ describe("Config", () => {
         SEQ_CONFIG: JSON.stringify({
           ...mock.config(),
           chains: {
-            [mock.chain.A]: {
+            [mock.domain.A]: {
               confirmations: 1,
               providers: ["http://example.com"],
               deployments: {},
@@ -106,7 +106,7 @@ describe("Config", () => {
                 maxLag: 10,
               },
             },
-            [mock.chain.B]: {
+            [mock.domain.B]: {
               confirmations: 1,
               providers: ["http://example.com"],
               deployments: {},
@@ -131,7 +131,7 @@ describe("Config", () => {
         SEQ_CONFIG: JSON.stringify({
           ...mock.config(),
           chains: {
-            [mock.chain.A]: {
+            [mock.domain.A]: {
               confirmations: 1,
               providers: ["http://example.com"],
               deployments: {},
@@ -140,7 +140,7 @@ describe("Config", () => {
                 maxLag: 10,
               },
             },
-            [mock.chain.B]: {
+            [mock.domain.B]: {
               confirmations: 1,
               providers: ["http://example.com"],
               deployments: {},
@@ -164,7 +164,7 @@ describe("Config", () => {
         SEQ_CONFIG: JSON.stringify({
           ...mock.config(),
           chains: {
-            [mock.chain.A]: {
+            [mock.domain.A]: {
               confirmations: 1,
               providers: ["http://example.com"],
               deployments: {},
@@ -173,7 +173,7 @@ describe("Config", () => {
                 maxLag: 10,
               },
             },
-            [mock.chain.B]: {
+            [mock.domain.B]: {
               confirmations: 1,
               providers: ["http://example.com"],
               deployments: {},
@@ -197,7 +197,7 @@ describe("Config", () => {
         SEQ_CONFIG: JSON.stringify({
           ...mock.config(),
           chains: {
-            [mock.chain.A]: {
+            [mock.domain.A]: {
               providers: ["http://example.com"],
               deployments: {},
               subgraph: {
@@ -206,7 +206,7 @@ describe("Config", () => {
                 maxLag: 10,
               },
             },
-            [mock.chain.B]: {
+            [mock.domain.B]: {
               providers: ["http://example.com"],
               deployments: {},
               subgraph: {

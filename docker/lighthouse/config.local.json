@@ -1,0 +1,10 @@
+{
+  "chains": {
+    "1337": { "providers": ["http://chain-1337:8545"] },
+    "1338": { "providers": ["http://chain-1338:8545"] }
+  },
+  "environment": "production",
+  "logLevel": "debug",
+  "relayerUrl": "http://relayer:8080",
+  "cartographerUrl": "http://cartographer-api:3000"
+}

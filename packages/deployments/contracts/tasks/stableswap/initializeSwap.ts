@@ -29,7 +29,6 @@ type TaskArgs = {
 export default task("initialize-stableswap", "Initializes stable swap")
   .addParam("canonical", "Canonical token address")
   .addParam("domain", "Canonical token domain")
-  .addParam("adopted", "Adopted token address")
   .addParam("lpTokenName", "LP token name")
   .addParam("lpTokenSymbol", "Lp token symbol")
   .addOptionalParam("a", "Override connext address")
@@ -44,7 +43,6 @@ export default task("initialize-stableswap", "Initializes stable swap")
       {
         canonical,
         domain: _domain,
-        adopted,
         lpTokenName,
         lpTokenSymbol,
         a: _a,
@@ -67,7 +65,6 @@ export default task("initialize-stableswap", "Initializes stable swap")
       console.log("env:", env);
       console.log("canonical: ", canonical);
       console.log("domain:", domain);
-      console.log("adopted: ", adopted);
       console.log("lpTokenName: ", lpTokenName);
       console.log("lpTokenSymbol: ", lpTokenSymbol);
 
@@ -105,8 +102,15 @@ export default task("initialize-stableswap", "Initializes stable swap")
       if (!approvedAsset) {
         throw new Error("Asset not approved");
       }
-      const local = (await tokenRegistry.getLocalAddress(domain, canonicalId)) as string;
+      const adopted: string = await connext.canonicalToAdopted(canonicalId);
+      console.log("adopted asset ", adopted);
+
+      const local: string = await tokenRegistry["getLocalAddress(uint32,bytes32)"](domain, canonicalId);
       console.log("local:", local);
+
+      if (adopted.toLowerCase() === local.toLowerCase()) {
+        throw new Error("Adopted and Local asset is same address!");
+      }
 
       const lpTokenDeployment = await deployments.get(getDeploymentName("LPToken", env));
       const lpTokenTargetAddress = _lpTokenTargetAddress ?? lpTokenDeployment.address;
@@ -116,6 +120,7 @@ export default task("initialize-stableswap", "Initializes stable swap")
         (await ethers.getContractAt("TestERC20", local)).decimals(),
         (await ethers.getContractAt("TestERC20", adopted)).decimals(),
       ]);
+      console.log("decimals: ", decimals);
 
       const tx = await connext.initializeSwap(
         canonicalId,

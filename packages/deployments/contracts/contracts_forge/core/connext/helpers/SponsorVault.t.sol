@@ -68,8 +68,8 @@ contract SponsorVaultTest is ForgeHelper {
   receive() external payable {}
 
   function setUp() public {
-    localToken = new TestERC20();
-    localToken2 = new TestERC20();
+    localToken = new TestERC20("Test Token", "TEST");
+    localToken2 = new TestERC20("Test Token", "TEST");
 
     tokenExchange = new MockTokenExchange();
 
@@ -297,7 +297,7 @@ contract SponsorVaultTest is ForgeHelper {
   }
 
   function test_SponsorVault__deposit_works_adding_ERC20_token(uint256 _amount) public {
-    TestERC20 someToken = new TestERC20();
+    TestERC20 someToken = new TestERC20("Test Token", "TEST");
     vm.assume(someToken.balanceOf(address(this)) >= _amount);
 
     uint256 balanceBefore = someToken.balanceOf(address(vault));
@@ -345,7 +345,7 @@ contract SponsorVaultTest is ForgeHelper {
   }
 
   function test_SponsorVault__withdraw_works_removing_ERC20_token(uint256 _amount) public {
-    TestERC20 someToken = new TestERC20();
+    TestERC20 someToken = new TestERC20("Test Token", "TEST");
     someToken.approve(address(vault), someToken.balanceOf(address(this)));
     vault.deposit(address(someToken), someToken.balanceOf(address(this)));
 

@@ -5,12 +5,12 @@ import { mockPubContext } from "../../globalTestHook";
 import { getXCalls } from "../../../src/publisher/operations/getXCalls";
 import { SinonStub } from "sinon";
 const mockInfo = {
-  [mock.chain.A]: {
+  [mock.domain.A]: {
     latestBlockNumber: 1234567,
     latestNonce: 232323,
     safeConfirmations: 19,
   },
-  [mock.chain.B]: {
+  [mock.domain.B]: {
     latestBlockNumber: 1234567,
     latestNonce: 454545,
     safeConfirmations: 28,
@@ -23,8 +23,8 @@ describe("Operations:GetXCalls", () => {
 
   describe("#getXCalls", () => {
     beforeEach(() => {
-      mockBlockNumber.set(mock.chain.A, 1234567);
-      mockBlockNumber.set(mock.chain.B, 1234567);
+      mockBlockNumber.set(mock.domain.A, 1234567);
+      mockBlockNumber.set(mock.domain.B, 1234567);
 
       (mockPubContext.adapters.cache.transfers.getLatestNonce as SinonStub).callsFake(
         (domain: string) => mockInfo[domain].latestNonce,
@@ -70,8 +70,8 @@ describe("Operations:GetXCalls", () => {
     });
 
     it("should work with block number error", async () => {
-      mockBlockNumber.set(mock.chain.A, 0);
-      mockBlockNumber.set(mock.chain.B, 0);
+      mockBlockNumber.set(mock.domain.A, 0);
+      mockBlockNumber.set(mock.domain.B, 0);
 
       await expect(getXCalls()).to.be.fulfilled;
 

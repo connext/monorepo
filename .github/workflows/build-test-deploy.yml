@@ -144,10 +144,10 @@ jobs:
     outputs:
       json: ${{ steps.meta.outputs.json }}
 
-  build-and-push-sequencer-image:
+  build-and-push-sequencer-publisher-image:
     env:
       REGISTRY: ghcr.io
-      IMAGE_NAME: connext/sequencer
+      IMAGE_NAME: connext/sequencer-publisher
     runs-on: ubuntu-latest
     needs: build-and-test
     permissions:
@@ -181,7 +181,49 @@ jobs:
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
-          file: docker/sequencer/Dockerfile
+          file: docker/sequencer/publisher/Dockerfile
+
+    outputs:
+      json: ${{ steps.meta.outputs.json }}
+
+  build-and-push-sequencer-subscriber-image:
+    env:
+      REGISTRY: ghcr.io
+      IMAGE_NAME: connext/sequencer-subscriber
+    runs-on: ubuntu-latest
+    needs: build-and-test
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Log in to the Container registry
+        uses: docker/login-action@f054a8b539a109f9f41c372932f1ae047eff08c9
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Extract metadata (tags, labels) for Docker
+        id: meta
+        uses: docker/metadata-action@98669ae865ea3cffbcbaa878cf57c20bbf1c6c38
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+          tags: |
+            type=sha,format=short
+            type=semver,pattern={{raw}}
+
+      - name: Build and push Docker image
+        uses: docker/build-push-action@ad44023a93711e3deb337508980b4b5e9bcdc5dc
+        with:
+          context: .
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          file: docker/sequencer/subscriber/Dockerfile
 
     outputs:
       json: ${{ steps.meta.outputs.json }}
@@ -360,7 +402,8 @@ jobs:
       [
         build-and-push-router-publisher-image,
         build-and-push-router-subscriber-image,
-        build-and-push-sequencer-image,
+        build-and-push-sequencer-publisher-image,
+        build-and-push-sequencer-subscriber-image,
         build-and-push-cartographer-routers-image,
         build-and-push-cartographer-transfers-image,
         build-and-push-lighthouse-image,
@@ -369,7 +412,11 @@ jobs:
     env:
       ROUTER_PUBLISHER_IMAGE: ${{ fromJSON(needs.build-and-push-router-publisher-image.outputs.json).tags[0] }}
       ROUTER_SUBSCRIBER_IMAGE: ${{ fromJSON(needs.build-and-push-router-subscriber-image.outputs.json).tags[0] }}
-      SEQUENCER_IMAGE: ${{ fromJSON(needs.build-and-push-sequencer-image.outputs.json).tags[0] }}
+      SEQUENCER_PUBLISHER_IMAGE: ${{ fromJSON(needs.build-and-push-sequencer-publisher-image.outputs.json).tags[0] }}
+      SEQUENCER_SUBSCRIBER_IMAGE: ${{ fromJSON(needs.build-and-push-sequencer-subscriber-image.outputs.json).tags[0] }}
+      CARTOGRAPHER_TRANSFERS_IMAGE: ${{fromJSON(needs.build-and-push-cartographer-transfers-image.outputs.json).tags[0]}}
+      CARTOGRAPHER_ROUTERS_IMAGE: ${{fromJSON(needs.build-and-push-cartographer-routers-image.outputs.json).tags[0]}}
+      LIGHTHOUSE_IMAGE: ${{fromJSON(needs.build-and-push-lighthouse-image.outputs.json).tags[0]}}
       RELAYER_IMAGE: ${{ fromJSON(needs.build-and-push-relayer-image.outputs.json).tags[0] }}
       WEB3_SIGNER_PRIVATE_KEY: ${{ secrets.WEB3_SIGNER_TESTNET_PRIVATE_KEY }}
       MNEMONIC: "candy maple cake sugar pudding cream honey rich smooth crumble sweet treat"
@@ -382,12 +429,13 @@ jobs:
           docker-compose -f docker-compose.services.yaml -f docker-compose.chains.yaml up -d
           bash docker/bin/wait-for-services.sh router-publisher
           bash docker/bin/wait-for-services.sh router-subscriber
-          bash docker/bin/wait-for-services.sh sequencer
+          bash docker/bin/wait-for-services.sh sequencer-publisher
 
     outputs:
       router-publisher-tags: ${{ needs.build-and-push-router-publisher-image.outputs.json }}
       router-subscriber-tags: ${{ needs.build-and-push-router-subscriber-image.outputs.json }}
-      sequencer-tags: ${{ needs.build-and-push-sequencer-image.outputs.json }}
+      sequencer-publisher-tags: ${{ needs.build-and-push-sequencer-publisher-image.outputs.json }}
+      sequencer-subscriber-tags: ${{ needs.build-and-push-sequencer-subscriber-image.outputs.json }}
       cartographer-routers-tags: ${{ needs.build-and-push-cartographer-routers-image.outputs.json }}
       cartographer-transfers-tags: ${{ needs.build-and-push-cartographer-transfers-image.outputs.json }}
       lighthouse-tags: ${{ needs.build-and-push-lighthouse-image.outputs.json }}
@@ -398,7 +446,8 @@ jobs:
       [
         build-and-push-router-publisher-image,
         build-and-push-router-subscriber-image,
-        build-and-push-sequencer-image,
+        build-and-push-sequencer-publisher-image,
+        build-and-push-sequencer-subscriber-image,
         build-and-push-cartographer-routers-image,
         build-and-push-cartographer-transfers-image,
         build-and-push-lighthouse-image,
@@ -407,7 +456,11 @@ jobs:
     env:
       ROUTER_PUBLISHER_IMAGE: ${{ fromJSON(needs.build-and-push-router-publisher-image.outputs.json).tags[0] }}
       ROUTER_SUBSCRIBER_IMAGE: ${{ fromJSON(needs.build-and-push-router-subscriber-image.outputs.json).tags[0] }}
-      SEQUENCER_IMAGE: ${{ fromJSON(needs.build-and-push-sequencer-image.outputs.json).tags[0] }}
+      SEQUENCER_PUBLISHER_IMAGE: ${{ fromJSON(needs.build-and-push-sequencer-publisher-image.outputs.json).tags[0] }}
+      SEQUENCER_SUBSCRIBER_IMAGE: ${{ fromJSON(needs.build-and-push-sequencer-subscriber-image.outputs.json).tags[0] }}
+      CARTOGRAPHER_TRANSFERS_IMAGE: ${{fromJSON(needs.build-and-push-cartographer-transfers-image.outputs.json).tags[0]}}
+      CARTOGRAPHER_ROUTERS_IMAGE: ${{fromJSON(needs.build-and-push-cartographer-routers-image.outputs.json).tags[0]}}
+      LIGHTHOUSE_IMAGE: ${{fromJSON(needs.build-and-push-lighthouse-image.outputs.json).tags[0]}}
       RELAYER_IMAGE: ${{ fromJSON(needs.build-and-push-relayer-image.outputs.json).tags[0] }}
       WEB3_SIGNER_PRIVATE_KEY: ${{ secrets.WEB3_SIGNER_TESTNET_PRIVATE_KEY }}
       MNEMONIC: "candy maple cake sugar pudding cream honey rich smooth crumble sweet treat"
@@ -435,7 +488,9 @@ jobs:
     outputs:
       router-publisher-tags: ${{ needs.build-and-push-router-publisher-image.outputs.json }}
       router-subscriber-tags: ${{ needs.build-and-push-router-subscriber-image.outputs.json }}
-      sequencer-tags: ${{ needs.build-and-push-sequencer-image.outputs.json }}
+      sequencer-publisher-tags: ${{ needs.build-and-push-sequencer-publisher-image.outputs.json }}
+      sequencer-subscriber-tags: ${{ needs.build-and-push-sequencer-subscriber-image.outputs.json }}
+
       cartographer-routers-tags: ${{ needs.build-and-push-cartographer-routers-image.outputs.json }}
       cartographer-transfers-tags: ${{ needs.build-and-push-cartographer-transfers-image.outputs.json }}
       lighthouse-tags: ${{ needs.build-and-push-lighthouse-image.outputs.json }}
@@ -529,6 +584,7 @@ jobs:
         continue-on-error: true
 
       - name: Terraform Docker Image onto AWS
+        if: github.ref == 'refs/heads/main'
         id: apply
         working-directory: ./ops/testnet/staging/backend
         run: |
@@ -544,7 +600,9 @@ jobs:
       AWS_PROFILE: aws-deployer-connext
       TF_VAR_full_image_name_router_publisher: ${{ fromJSON(needs.smoke-tests.outputs.router-publisher-tags).tags[0] }}
       TF_VAR_full_image_name_router_subscriber: ${{ fromJSON(needs.smoke-tests.outputs.router-subscriber-tags).tags[0] }}
-      TF_VAR_full_image_name_sequencer: ${{ fromJSON(needs.smoke-tests.outputs.sequencer-tags).tags[0] }}
+      TF_VAR_full_image_name_sequencer_publisher: ${{ fromJSON(needs.smoke-tests.outputs.sequencer-publisher-tags).tags[0] }}
+      TF_VAR_full_image_name_sequencer_subscriber: ${{ fromJSON(needs.smoke-tests.outputs.sequencer-subscriber-tags).tags[0] }}
+
       TF_VAR_full_image_name_lighthouse: ${{ fromJSON(needs.smoke-tests.outputs.lighthouse-tags).tags[0] }}
 
     runs-on: ubuntu-latest
@@ -591,14 +649,18 @@ jobs:
         continue-on-error: true
 
       - name: Terraform Docker Image onto AWS
+        if: github.ref == 'refs/heads/main'
         id: apply
         working-directory: ./ops/testnet/staging/core
         run: |
           terraform apply -var-file=tfvars.json -auto-approve
 
     outputs:
-      sequencer-tags: ${{ needs.smoke-tests.outputs.sequencer-tags }}
+      sequencer-publisher-tags: ${{ needs.smoke-tests.outputs.sequencer-publisher-tags }}
+      sequencer-subscriber-tags: ${{ needs.smoke-tests.outputs.sequencer-subscriber-tags }}
       router-publisher-tags: ${{ needs.smoke-tests.outputs.router-publisher-tags }}
+      router-subscriber-tags: ${{ needs.smoke-tests.outputs.router-subscriber-tags }}
+
       lighthouse-tags: ${{ needs.smoke-tests.outputs.lighthouse-tags }}
 
   terraform-services-core-prod-testnet:
@@ -608,7 +670,9 @@ jobs:
       AWS_PROFILE: aws-deployer-connext
       TF_VAR_full_image_name_router_publisher: ${{ fromJSON(needs.e2e-tests.outputs.router-publisher-tags).tags[0] }}
       TF_VAR_full_image_name_router_subscriber: ${{ fromJSON(needs.e2e-tests.outputs.router-subscriber-tags).tags[0] }}
-      TF_VAR_full_image_name_sequencer: ${{ fromJSON(needs.e2e-tests.outputs.sequencer-tags).tags[0] }}
+      TF_VAR_full_image_name_sequencer_publisher: ${{ fromJSON(needs.e2e-tests.outputs.sequencer-publisher-tags).tags[0] }}
+      TF_VAR_full_image_name_sequencer_subscriber: ${{ fromJSON(needs.e2e-tests.outputs.sequencer-subscriber-tags).tags[0] }}
+
       TF_VAR_full_image_name_lighthouse: ${{ fromJSON(needs.e2e-tests.outputs.lighthouse-tags).tags[0] }}
 
     runs-on: ubuntu-latest
@@ -660,9 +724,11 @@ jobs:
           terraform apply -var-file=tfvars.json -auto-approve
 
     outputs:
+      sequencer-publisher-tags: ${{ needs.e2e-tests.outputs.sequencer-publisher-tags }}
+      sequencer-subscriber-tags: ${{ needs.e2e-tests.outputs.sequencer-subscriber-tags }}
       router-publisher-tags: ${{ needs.e2e-tests.outputs.router-publisher-tags }}
       router-subscriber-tags: ${{ needs.e2e-tests.outputs.router-subscriber-tags }}
-      sequencer-tags: ${{ needs.e2e-tests.outputs.sequencer-tags }}
+
       lighthouse-tags: ${{ needs.e2e-tests.outputs.lighthouse-tags }}
 
   terraform-services-backend-prod-testnet:
@@ -723,9 +789,11 @@ jobs:
           terraform apply -var-file=tfvars.json -auto-approve
 
     outputs:
+      sequencer-publisher-tags: ${{ needs.e2e-tests.outputs.sequencer-publisher-tags }}
+      sequencer-subscriber-tags: ${{ needs.e2e-tests.outputs.sequencer-subscriber-tags }}
       router-publisher-tags: ${{ needs.e2e-tests.outputs.router-publisher-tags }}
       router-subscriber-tags: ${{ needs.e2e-tests.outputs.router-subscriber-tags }}
-      sequencer-tags: ${{ needs.e2e-tests.outputs.sequencer-tags }}
+
       lighthouse-tags: ${{ needs.e2e-tests.outputs.lighthouse-tags }}
       cartographer-routers-tags: ${{ needs.e2e-tests.outputs.cartographer-routers-tags }}
       cartographer-transfers-tags: ${{ needs.e2e-tests.outputs.cartographer-transfers-tags }}
@@ -794,7 +862,8 @@ jobs:
       AWS_PROFILE: aws-deployer-connext
       TF_VAR_full_image_name_router_publisher: ${{ fromJSON(needs.terraform-services-backend-prod-testnet.outputs.router-publisher-tags).tags[0] }}
       TF_VAR_full_image_name_router_subscriber: ${{ fromJSON(needs.terraform-services-backend-prod-testnet.outputs.router-subscriber-tags).tags[0] }}
-      TF_VAR_full_image_name_sequencer: ${{ fromJSON(needs.terraform-services-backend-prod-testnet.outputs.sequencer-tags).tags[0] }}
+      TF_VAR_full_image_name_sequencer_publisher: ${{ fromJSON(needs.terraform-services-backend-prod-testnet.outputs.sequencer-publisher-tags).tags[0] }}
+      TF_VAR_full_image_name_sequencer_subscriber: ${{ fromJSON(needs.terraform-services-backend-prod-testnet.outputs.sequencer-subscriber-tags).tags[0] }}
       TF_VAR_full_image_name_lighthouse: ${{ fromJSON(needs.terraform-services-backend-prod-testnet.outputs.lighthouse-tags).tags[0] }}
 
     runs-on: ubuntu-latest

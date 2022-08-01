@@ -33,26 +33,31 @@ variable "nomad_environment" {
 variable "full_image_name_router_publisher" {
   type        = string
   description = "router image name"
-  default     = "ghcr.io/connext/router-publisher:sha-b3b967a"
+  default     = "ghcr.io/connext/router-publisher:sha-229b6dd"
 }
 
 variable "full_image_name_router_subscriber" {
   type        = string
   description = "router image name"
-  default     = "ghcr.io/connext/router-subscriber:sha-b3b967a"
+  default     = "ghcr.io/connext/router-subscriber:sha-229b6dd"
 }
 
-
-variable "full_image_name_sequencer" {
+variable "full_image_name_sequencer_publisher" {
   type        = string
   description = "sequencer image name"
-  default     = "ghcr.io/connext/sequencer:sha-b3b967a"
+  default     = "ghcr.io/connext/sequencer-publisher:sha-229b6dd"
+}
+
+variable "full_image_name_sequencer_subscriber" {
+  type        = string
+  description = "sequencer image name"
+  default     = "ghcr.io/connext/sequencer-subscriber:sha-229b6dd"
 }
 
 variable "full_image_name_lighthouse" {
   type        = string
   description = "router image name"
-  default     = "ghcr.io/connext/lighthouse:sha-b3b967a"
+  default     = "ghcr.io/connext/lighthouse:sha-229b6dd"
 }
 
 variable "mnemonic" {
@@ -103,6 +108,10 @@ variable "kovan_alchemy_key_1" {
 }
 
 variable "goerli_alchemy_key_1" {
+  type = string
+}
+
+variable "mumbai_blast_key_0" {
   type = string
 }
 

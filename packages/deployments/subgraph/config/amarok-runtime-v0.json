@@ -16,5 +16,11 @@
     "network": "evmos-testnet",
     "address": "0xd14d61FE8E1369957711C99a427d38A0d8Cc141C",
     "startBlock": 2611901
+  },
+  {
+    "subgraphName": "connext/nxtp-amarok-runtime-v0-mumbai",
+    "network": "mumbai",
+    "address": "0x765cbd312ad84A791908000DF58d879e4eaf768b",
+    "startBlock": 27329112
   }
 ]

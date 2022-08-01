@@ -7,8 +7,12 @@ ROUTER_PORT="8080"
 DEFAULT_MNEMONIC="candy maple cake sugar pudding cream honey rich smooth crumble sweet treat"
 router_publisher_image="${ROUTER_PUBLISHER_IMAGE:-'router-publisher:latest'}"
 router_subscriber_image="${ROUTER_SUBSCRIBER_IMAGE:-'router-subscriber:latest'}"
-sequencer_image="${SEQUENCER_IMAGE:-'sequencer:latest'}"
+sequencer_publisher_image="${SEQUENCER_PUBLISHER_IMAGE:-'sequencer-publisher:latest'}"
+sequencer_subscriber_image="${SEQUENCER_SUBSCRIBER_IMAGE:-'sequencer-subscriber:latest'}"
 relayer_image="${RELAYER_IMAGE:-'relayer:latest'}"
+cartographer_transfers_image="${CARTOGRAPHER_TRANSFERS_IMAGE:-'cartographer-transfers:latest'}"
+cartographer_routers_image="${CARTOGRAPHER_ROUTERS_IMAGE:-'cartographer-routers:latest'}"
+lighthouse_image="${LIGHTHOUSE_IMAGE:-'lighthouse:latest'}"
 WEB3_SIGNER_PRIVATE_KEY="0xc87509a1c067bbde78beb793e6fa76530b6382a4c0241e5e4a9ec0a0f44dc0d3"
 RELAYER_URL="http://relayer:8082"
 #####
@@ -43,8 +47,12 @@ WEB3_SIGNER_PRIVATE_KEY=${WEB3_SIGNER_PRIVATE_KEY}
 # Images used for building docker containers
 ROUTER_PUBLISHER_IMAGE=${router_publisher_image}
 ROUTER_SUBSCRIBER_IMAGE=${router_subscriber_image}
-SEQUENCER_IMAGE=${sequencer_image}
+SEQUENCER_PUBLISHER_IMAGE=${sequencer_publisher_image}
+SEQUENCER_SUBSCRIBER_IMAGE=${sequencer_subscriber_image}
 RELAYER_IMAGE=${relayer_image}
+CARTOGRAPHER_TRANSFERS_IMAGE=${cartographer_transfers_image}
+CARTOGRAPHER_ROUTERS_IMAGE=${cartographer_routers_image}
+LIGHTHOUSE_IMAGE=${lighthouse_image}
 
 # Optional:
 # AUCTION_ROUND_DEPTH

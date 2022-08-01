@@ -54,8 +54,7 @@ export const makePublisher = async (_configOverride?: NxtpRouterConfig) => {
       requestContext,
     );
     context.adapters.mqClient = await setupMq(
-      context.config.messageQueue.host!,
-      context.config.messageQueue.port!,
+      context.config.messageQueue.uri as string,
       context.logger,
       requestContext,
     );
@@ -67,7 +66,7 @@ export const makePublisher = async (_configOverride?: NxtpRouterConfig) => {
 
     context.logger.info("Bindings initialized.", requestContext, methodContext);
     context.logger.info("Router publisher boot complete!", requestContext, methodContext, {
-      port: context.config.server.port,
+      port: context.config.server.pub.port,
       chains: [...Object.keys(context.config.chains)],
     });
     context.logger.info(
@@ -82,7 +81,7 @@ export const makePublisher = async (_configOverride?: NxtpRouterConfig) => {
       `,
     );
   } catch (e: unknown) {
-    console.error("Error starting router TChainConfig. Sad! :(", e);
+    console.error("Error starting router publisher. Sad! :(", e);
     process.exit();
   }
 };

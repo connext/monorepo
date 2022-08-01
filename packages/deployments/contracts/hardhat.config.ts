@@ -27,7 +27,9 @@ import "./tasks/decodeInputData";
 import "./tasks/removeRouter";
 import "./tasks/enrollHandlers";
 import "./tasks/enrollCustom";
+import "./tasks/dustSelfAccounts";
 import "./tasks/xcall";
+import "./tasks/readBalances";
 import "./tasks/setLocalDomain";
 import "./tasks/traceMessage";
 import "./tasks/preflight";
@@ -118,13 +120,13 @@ const config: HardhatUserConfig = {
       url: urlOverride || process.env.ROPSTEN_ETH_PROVIDER_URL || "http://localhost:8545",
     },
     rinkeby: {
-      accounts: ["0xb670ff6da6efc0dadfebc47622a643b240a5d79285fab5076170a93a2248a846"],
+      accounts: { mnemonic },
       chainId: 4,
       url: urlOverride || process.env.RINKEBY_ETH_PROVIDER_URL || "http://localhost:8545",
       gasPrice: utils.parseUnits("20", "gwei").toNumber(),
     },
     goerli: {
-      accounts: ["0xb670ff6da6efc0dadfebc47622a643b240a5d79285fab5076170a93a2248a846"],
+      accounts: { mnemonic },
       chainId: 5,
       url: urlOverride || process.env.GOERLI_ETH_PROVIDER_URL || "http://localhost:8545",
     },
@@ -185,7 +187,7 @@ const config: HardhatUserConfig = {
       url: "https://rpc.api.moonbeam.network",
     },
     mbase: {
-      accounts: ["0xb670ff6da6efc0dadfebc47622a643b240a5d79285fab5076170a93a2248a846"],
+      accounts: { mnemonic },
       chainId: 1287,
       url: "https://moonbeam-alpha.api.onfinality.io/public",
     },
@@ -195,7 +197,7 @@ const config: HardhatUserConfig = {
       url: "https://eth.bd.evmos.org:8545",
     },
     "evmos-testnet": {
-      accounts: ["0xb670ff6da6efc0dadfebc47622a643b240a5d79285fab5076170a93a2248a846"],
+      accounts: { mnemonic },
       chainId: 9000,
       url: "https://eth.bd.evmos.dev:8545",
     },
@@ -217,7 +219,7 @@ const config: HardhatUserConfig = {
     mumbai: {
       accounts: { mnemonic },
       chainId: 80001,
-      url: "https://matic-testnet-archive-rpc.bwarelabs.com",
+      url: "https://rpc.ankr.com/polygon_mumbai",
     },
     "arbitrum-rinkeby": {
       accounts: { mnemonic },

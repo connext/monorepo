@@ -206,15 +206,54 @@ Whitelist command for a single router across multiple networks
 yarn workspace @connext/nxtp-contracts whitelist <router-address>
 ```
 
+### read-balances
+
+Check the current balances of a wallet's accounts. Omit `asset` to check native token.
+
+```bash
+# Check ETH balance
+yarn workspace @connext/nxtp-contracts hardhat read-balances --network \<NETWORK\> --asset \<TOKEN_ADDR\>
+```
+
+### dust
+
+`dust` allows you to dust (native gas token) all the accounts of a wallet with a specified amount. It will dust from a single account (signers[0]) so the user should make sure they have enough founds. The task will warn you otherwise.
+
+```bash
+$ yarn workspace @connext/nxtp-contracts hardhat dust --amount \<AMT_IN_REAL_UNITS\> --network \<NETWORK\>
+```
+
+In tandem with the `mint` task, this task is useful for preparing for stress testing multiple accounts in parallel using the `xcall` task.
+
 ### mint
 
 `mint` allows you to mint any token to a specified account:
 
 ```bash
-$ yarn workspace @connext/nxtp-contracts hardhat mint --amount \<AMT_IN_REAL_UNITS\> --receiver \<RECIPIENT\> --asset \<TOKEN_ADDR\> --network \<NETWORK\>
+$ yarn workspace @connext/nxtp-contracts hardhat mint --amount \<AMT_IN_REAL_UNITS\> --recipient \<RECIPIENT\> --asset \<TOKEN_ADDR\> --network \<NETWORK\>
 # assetid and to are optional (will default to TestERC20 and mnemonic account[0], respectively)
 # amount should be in ETH-like units (i.e. 1 = 1 ETH)
 ```
+
+This task can be used to mint tokens to all accounts of a wallet by omitting the `--recipient` param. The max number of accounts used is specified in `hardhat.config.ts` under each chain's `accounts: { mnemonic, count: 100 }` (default 20 if unspecified)
+
+### xcall
+
+`xcall` allows you to create a crosschain transaction via CLI:
+
+```bash
+$ yarn workspace @connext/nxtp-contracts hardhat xcall --transacting-asset-id \<TOKEN_ADDR\> --amount \<AMT_IN_REAL_UNITS\> --network \<NETWORK\> --destination-domain \<DOMAIN_ID\>
+```
+
+Example using real values:
+
+```bash
+$ yarn workspace @connext/nxtp-contracts hardhat xcall --transacting-asset-id 0x3FFc03F05D1869f493c7dbf913E636C6280e0ff9 --amount 100000000000000000 --network rinkeby --destination-domain 3331
+```
+
+This task can be used to run load tests by specifying the number of `--runs`. It can also be configured to run stress tests with multiple accounts in parallel, simulating "bursty" requests to the network.
+
+The max number of accounts used is specified in `hardhat.config.ts` under each chain's `accounts: { mnemonic, count: 100 }` (default 20 if unspecified). The `--accounts` flag determines the first N of these accounts to use for this task.
 
 ### trace
 
@@ -222,14 +261,6 @@ $ yarn workspace @connext/nxtp-contracts hardhat mint --amount \<AMT_IN_REAL_UNI
 
 ```bash
 $ yarn workspace @connext/nxtp-contracts hardhat trace-message --transaction \<TRANSACTION_HASH\> --destination \<DESTINATION_DOMAIN\> --network \<ORIGIN_NETWORK_NAME\>
-```
-
-### xcall
-
-`xcall` allows you to create a crosschain transaction via CLI (example using real values):
-
-```bash
-$ yarn workspace @connext/nxtp-contracts hardhat xcall --transacting-asset-id 0xB5AabB55385bfBe31D627E2A717a7B189ddA4F8F --amount 100000000000000000 --to 0x5A9e792143bf2708b4765C144451dCa54f559a19 --origin-domain 2221 --destination-domain 1111  --network kovan
 ```
 
 ### renounce-ownership
@@ -249,4 +280,72 @@ $ yarn workspace @connext/nxtp-contracts hardhat renounce-ownership --type \<TYP
 $ yarn workspace @connext/nxtp-contracts hardhat add-liquidity --router \<ROUTER\> --asset-id \<TOKEN\> --amount \<AMOUNT\> --network \<NETWORK\>
 # amount is in ETH units (i.e. 1 = 1 ETH)
 # the router should be supplying liquidity in the local (mad*) asset
+```
+
+## Load Testing
+
+Using `dust`, `mint`, and `xcall`, we can run load tests purely through hardhat tasks.
+
+_Config_
+
+- Ensure `.env` is filled out with the correct
+  - `ENV` to use which environment's contracts (staging or production).
+  - `ETH_PROVIDER_URL` that matches the `--network` to target (rinkeby in the examples below).
+- in `hardhat.config.ts`, specify the number of accounts that should be involved
+  ```
+  rinkeby: {
+     accounts: { mnemonic, count: 10 },
+     ...
+  }
+  ```
+
+_Funding_
+
+Each account needs to have enough gas to run the desired number of xcalls (`--runs`) and a balance of TEST tokens to use for the load test.
+
+To check current balances:
+
+```bash
+# Check ETH balances
+yarn workspace @connext/nxtp-contracts hardhat read-balances --network rinkeby
+```
+
+```bash
+# Check TEST balances
+yarn workspace @connext/nxtp-contracts hardhat read-balances --network rinkeby --asset 0x3FFc03F05D1869f493c7dbf913E636C6280e0ff9
+```
+
+_Dust_
+
+Run the `dust` task to distribute funds to the accounts that will be used in the load test. It will throw if there aren't enough funds in the first account (`getSigners[0]`) to cover the complete distribution. There should also be some extra gas buffer on top of the minimum needed to account for transaction fees.
+
+Using `--minimum-only true` will cause the task to dust accounts _up to_ the `amount` and ignore accounts that already have sufficient funds.
+
+```bash
+# Top up each account with <0.5 ETH to exactly 0.5 ETH.
+$ yarn workspace @connext/nxtp-contracts hardhat dust --amount 0.5 --network rinkeby --minimum-only true
+```
+
+_Mint_
+
+Run the `mint` task to mint an appropriate number of TestERC20 tokens to each account.
+
+Using `--minimum-only true` will cause the task to mint accounts _up to_ the `amount` and ignore accounts that already have sufficient funds.
+
+Tip: Just mint a ton of TEST to each account once so this task doesn't have to be run again.
+
+```bash
+# Mint 100_000_000 TEST to each account
+$ yarn workspace @connext/nxtp-contracts hardhat mint --amount 100000000 --network rinkeby
+```
+
+_XCall_
+
+Run the `xcall` task with desired concurrency and iterations.
+
+Note: `xcall` takes `--amount` in the token's base units.
+
+```bash
+# Run xcall 10 times with 20 concurrent accounts, sending 1 TEST each time
+$ yarn workspace @connext/nxtp-contracts hardhat xcall --transacting-asset-id 0x3FFc03F05D1869f493c7dbf913E636C6280e0ff9 --amount 1000000000000000000 --network rinkeby --destination-domain 3331 --runs 10 --accounts 20
 ```

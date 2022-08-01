@@ -111,8 +111,16 @@ export const getEnvConfig = (
     logLevel: process.env.NXTP_LOG_LEVEL || configJson.logLevel || configFile.logLevel || "info",
     network: process.env.NXTP_NETWORK || configJson.network || configFile.network || "mainnet",
     server: {
-      port: process.env.NXTP_SERVER_PORT || configJson.server?.port || configFile.server?.port || 8080,
-      host: process.env.NXTP_SERVER_HOST || configJson.server?.host || configFile.server?.host || "0.0.0.0",
+      pub: {
+        port: process.env.NXTP_SERVER_PUB_PORT || configJson.server?.pub?.port || configFile.server?.pub?.port || 8091,
+        host:
+          process.env.NXTP_SERVER_PUB_HOST || configJson.server?.pub?.host || configFile.server?.pub?.host || "0.0.0.0",
+      },
+      sub: {
+        port: process.env.NXTP_SERVER_SUB_PORT || configJson.server?.sub?.port || configFile.server?.sub?.port || 8090,
+        host:
+          process.env.NXTP_SERVER_SUB_HOST || configJson.server?.sub?.host || configFile.server?.sub?.host || "0.0.0.0",
+      },
       requestLimit:
         process.env.NXTP_SERVER_REQUEST_LIMIT ||
         configJson.server?.requestLimit ||
@@ -158,13 +166,11 @@ export const getEnvConfig = (
     nomadEnvironment:
       process.env.NXTP_NOMAD_ENVIRONMENT || configJson.nomadEnvironment || configFile.nomadEnvironment || "staging",
     messageQueue: {
-      host:
-        process.env.NXTP_MESSAGE_QUEUE_HOST ||
-        configJson.messageQueue?.host ||
-        configFile.messageQueue?.host ||
-        "localhost",
-      port:
-        process.env.NXTP_MESSAGE_QUEUE_PORT || configJson.messageQueue?.port || configFile.messageQueue?.port || 5672,
+      uri:
+        process.env.NXTP_MESSAGE_QUEUE_URI ||
+        configJson.messageQueue?.uri ||
+        configFile.messageQueue?.uri ||
+        "amqp://guest@guestlocalhost:5672",
     },
   };
 
