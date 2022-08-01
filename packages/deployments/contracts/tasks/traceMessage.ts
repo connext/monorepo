@@ -19,10 +19,10 @@ const mnemonic =
 // https://github.com/nomad-xyz/monorepo/blob/main/packages/monitor/src/trace.ts
 
 const STATUS_TO_STRING = {
-  [MessageStatus.dispatched]: "Dispatched on Home",
-  [MessageStatus.included]: "Included in Home Update",
-  [MessageStatus.relayed]: "Relayed to Replica",
-  [MessageStatus.processed]: "Processed",
+  [MessageStatus.Dispatched]: "Dispatched on Home",
+  [MessageStatus.Included]: "Included in Home Update",
+  [MessageStatus.Relayed]: "Relayed to Replica",
+  [MessageStatus.Processed]: "Processed",
 };
 
 function quietEvent(context: NomadContext, lifecyleEvent: AnnotatedLifecycleEvent) {
@@ -114,7 +114,7 @@ export default task("trace-message", "See the status of a nomad message")
       .filter((x) => !!x) as LogDescription[];
 
     // Trace the message
-    const [message] = await NomadMessage.baseFromReceipt(context, originDomain, receipt);
+    const [message] = NomadMessage.baseFromReceipt(context, originDomain, receipt);
 
     const status = await message.events();
     printStatus(context, status);
