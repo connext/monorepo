@@ -114,7 +114,7 @@ export default task("trace-message", "See the status of a nomad message")
       .filter((x) => !!x) as LogDescription[];
 
     // Trace the message
-    const [message] = NomadMessage.baseFromReceipt(context, originDomain, receipt);
+    const [message] = await NomadMessage.baseFromReceipt(context, originDomain, receipt);
 
     const status = await message.events();
     printStatus(context, status);
