@@ -31,7 +31,7 @@ import "./tasks/dustSelfAccounts";
 import "./tasks/xcall";
 import "./tasks/readBalances";
 import "./tasks/setLocalDomain";
-import "./tasks/traceMessage";
+// import "./tasks/traceMessage";
 import "./tasks/preflight";
 import "./tasks/addRelayer";
 import "./tasks/executeEstimateGas";

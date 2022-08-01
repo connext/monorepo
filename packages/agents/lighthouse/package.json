@@ -30,9 +30,6 @@
       "../@connext/nxtp-utils/dist"
     ]
   },
-  "eslintIgnore": [
-    "graphqlsdk.ts"
-  ],
   "author": "Connext",
   "license": "ISC",
   "dependencies": {
