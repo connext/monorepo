@@ -756,8 +756,8 @@ __metadata:
   dependencies:
     "@connext/nxtp-utils": "workspace:*"
     "@nomad-xyz/configuration": 0.1.0-rc.25
-    "@nomad-xyz/sdk": 2.1.0-rc.0
-    "@nomad-xyz/sdk-bridge": 1.1.0-rc.0
+    "@nomad-xyz/sdk": 2.1.0
+    "@nomad-xyz/sdk-bridge": 1.1.0
     "@nomiclabs/hardhat-ethers": 2.1.0
     "@nomiclabs/hardhat-etherscan": 3.1.0
     "@nomiclabs/hardhat-waffle": 2.0.3
@@ -785,6 +785,7 @@ __metadata:
     hardhat-deploy: 0.11.12
     hardhat-diamond-abi: 3.0.1
     hardhat-gas-reporter: 1.0.8
+    node-fetch: 2
     prettier: 2.7.1
     prettier-plugin-solidity: 1.0.0-dev.23
     rimraf: 3.0.2
@@ -906,8 +907,8 @@ __metadata:
     "@connext/nxtp-utils": "workspace:*"
     "@graphql-codegen/cli": 2.9.1
     "@nomad-xyz/configuration": 0.1.0-rc.25
-    "@nomad-xyz/sdk": 2.1.0-rc.0
-    "@nomad-xyz/sdk-bridge": 1.1.0-rc.0
+    "@nomad-xyz/sdk": 2.1.0
+    "@nomad-xyz/sdk-bridge": 1.1.0
     "@sinclair/typebox": 0.24.20
     "@types/mocha": 9.1.1
     "@types/sinon": 10.0.13
@@ -923,6 +924,7 @@ __metadata:
     graphql: 16.5.0
     interval-promise: 1.4.0
     mocha: 10.0.0
+    node-fetch: 2
     nodemon: 2.0.19
     nyc: 15.1.0
     pino-pretty: 8.1.0
@@ -939,7 +941,9 @@ __metadata:
   resolution: "@connext/nxtp-sdk-server@workspace:packages/examples/sdk-server"
   dependencies:
     "@connext/nxtp-sdk": "workspace:*"
+    "@connext/nxtp-txservice": "workspace:*"
     "@connext/nxtp-utils": "workspace:*"
+    "@fastify/type-provider-typebox": ^2.1.0
     "@types/node": 16.11.45
     "@types/pino": 7.0.5
     ethers: 5.6.9
@@ -1882,6 +1886,16 @@ __metadata:
   dependencies:
     fast-json-stringify: ^5.0.0
   checksum: 5cfeebcd9fb7ae5d912836503a7934ed4b9db83c30cae15e393341b52c059cd83531b375226406f8056b09f472c11560c730999c7ae4647c2fb9771d372db60a
+  languageName: node
+  linkType: hard
+
+"@fastify/type-provider-typebox@npm:^2.1.0":
+  version: 2.1.0
+  resolution: "@fastify/type-provider-typebox@npm:2.1.0"
+  peerDependencies:
+    "@sinclair/typebox": ^0.24.1
+    fastify: ^4.0.0
+  checksum: d98bd347f34948af4bc900c7e08ffd17aa64847150cf53a63ca74c2b0826c0e5b992d2fbbb10f22c284b986151a624a36928e8268317240eb83a227407eb1390
   languageName: node
   linkType: hard
 
@@ -3325,75 +3339,77 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@nomad-xyz/contracts-bridge@npm:^1.1.0-rc.0":
-  version: 1.1.0-rc.0
-  resolution: "@nomad-xyz/contracts-bridge@npm:1.1.0-rc.0"
+"@nomad-xyz/contracts-bridge@npm:^1.1.0":
+  version: 1.1.0
+  resolution: "@nomad-xyz/contracts-bridge@npm:1.1.0"
   dependencies:
-    "@nomad-xyz/contracts-core": ^1.1.0-rc.0
-    "@nomad-xyz/contracts-router": ^1.1.0-rc.0
+    "@nomad-xyz/contracts-core": ^1.1.0
+    "@nomad-xyz/contracts-router": ^1.1.0
     "@openzeppelin/contracts": ~3.4.2
     "@openzeppelin/contracts-upgradeable": ~3.4.2
     "@summa-tx/memview-sol": ^2.0.0
-  checksum: f6e861acad3859fd9db0e5721b3dbf8081601d104a9b681f59d6d1129c0205a4ac56a579c12a5d5bf2963d0f94f7855247affb52b16d51b4994ec20c4f64d239
+  checksum: c5e9c9af0d0633487ab4872d46073daa08f83f40ba6ca28ce69556d3e78adae23ac6a75e66a872dcff002ad08329f546a4a6cd0034a947baa535e9f8f370e708
   languageName: node
   linkType: hard
 
-"@nomad-xyz/contracts-core@npm:^1.1.0-rc.0":
-  version: 1.1.0-rc.0
-  resolution: "@nomad-xyz/contracts-core@npm:1.1.0-rc.0"
+"@nomad-xyz/contracts-core@npm:^1.1.0":
+  version: 1.1.0
+  resolution: "@nomad-xyz/contracts-core@npm:1.1.0"
   dependencies:
     "@openzeppelin/contracts": ^3.4.2
     "@openzeppelin/contracts-upgradeable": ~3.4.2
     "@summa-tx/memview-sol": ^2.0.0
-  checksum: 9a54726b91ff88503b0fbbcf1a1e4bc03b059a2d96e52e478ed32e30988a568d13e2fe5f4d04cd3877a8fd365e30d17ae71d1c1f487a1cba11de565b37df6803
+  checksum: ab558d2fe2cdab3bec338be05922eacb6757ccff569652ad3f176d278f61d9a893b8434174242990c473876b0ef7f06ca4414240c63daa25bbf7f6a70dab75b8
   languageName: node
   linkType: hard
 
-"@nomad-xyz/contracts-router@npm:^1.1.0-rc.0":
-  version: 1.1.0-rc.0
-  resolution: "@nomad-xyz/contracts-router@npm:1.1.0-rc.0"
+"@nomad-xyz/contracts-router@npm:^1.1.0":
+  version: 1.1.0
+  resolution: "@nomad-xyz/contracts-router@npm:1.1.0"
   dependencies:
-    "@nomad-xyz/contracts-core": ^1.1.0-rc.0
+    "@nomad-xyz/contracts-core": ^1.1.0
     "@openzeppelin/contracts": ~3.4.2
     "@openzeppelin/contracts-upgradeable": ~3.4.2
     "@summa-tx/memview-sol": ^2.0.0
-  checksum: 8e18a5eb29a4514a4961c5ae63a6f24a66ac52145a386341f6b0c31638bab1807435ed0e6491dcc4527780dfaf24c52b5ef2fccf6daca69a80daeb8594ceb950
+  checksum: 1e68d32bbb5c125c9922acaa3be6c6a03ef40cf459e36d91a7a77a29e434a9fc9d95513a7adb970e73f8e55ea87d41900d63c0277efd71f339d2e12def53d6a3
   languageName: node
   linkType: hard
 
-"@nomad-xyz/multi-provider@npm:^1.0.0-rc.5":
-  version: 1.0.0-rc.5
-  resolution: "@nomad-xyz/multi-provider@npm:1.0.0-rc.5"
+"@nomad-xyz/multi-provider@npm:^1.1.0":
+  version: 1.1.0
+  resolution: "@nomad-xyz/multi-provider@npm:1.1.0"
   dependencies:
     ethers: ^5.4.6
     web3: ^1.6.1
-  checksum: d1993e56d9d419db2344f2c468d11537d933d184b09e72a19a9cc48c49980b6ed638617d45d1d9d51e1072bbedc3384250624fec0c46eda81ff632646dfa7d79
+  checksum: b9e6d010ff7649df9e4c2e94a44c4babb0d0992b7f77a4707957bd321fbb606c5921d6aa3ba8e55f198324548fe2495d6a7a8b0eac87dfca73edfb4ad9654919
   languageName: node
   linkType: hard
 
-"@nomad-xyz/sdk-bridge@npm:1.1.0-rc.0":
-  version: 1.1.0-rc.0
-  resolution: "@nomad-xyz/sdk-bridge@npm:1.1.0-rc.0"
+"@nomad-xyz/sdk-bridge@npm:1.1.0":
+  version: 1.1.0
+  resolution: "@nomad-xyz/sdk-bridge@npm:1.1.0"
   dependencies:
     "@nomad-xyz/configuration": ^0.1.0-rc.23
-    "@nomad-xyz/contracts-bridge": ^1.1.0-rc.0
-    "@nomad-xyz/sdk": ^2.1.0-rc.0
+    "@nomad-xyz/contracts-bridge": ^1.1.0
+    "@nomad-xyz/sdk": ^2.1.0
     ethers: ^5.0.0
     web3: ^1.6.1
-  checksum: 718feea7e10ffc37aa52003163f187973c656804eeb35d2341fb9e6fa9fffccb5fb51202839aa4c6176d42c59f9d3821396d67a2fc5e53d56ec7745cc48842b2
+  checksum: d438dbfd9948f9e2437690cf89e9e04b0fc37064d22ec1b512722a2282c430202f18cc13fca0cf0e7aa605d5224d5754ad9ab84a452271ab0ca1de6289ae642f
   languageName: node
   linkType: hard
 
-"@nomad-xyz/sdk@npm:2.1.0-rc.0, @nomad-xyz/sdk@npm:^2.1.0-rc.0":
-  version: 2.1.0-rc.0
-  resolution: "@nomad-xyz/sdk@npm:2.1.0-rc.0"
+"@nomad-xyz/sdk@npm:2.1.0, @nomad-xyz/sdk@npm:^2.1.0":
+  version: 2.1.0
+  resolution: "@nomad-xyz/sdk@npm:2.1.0"
   dependencies:
     "@nomad-xyz/configuration": ^0.1.0-rc.23
-    "@nomad-xyz/contracts-core": ^1.1.0-rc.0
-    "@nomad-xyz/multi-provider": ^1.0.0-rc.5
-    axios: ^0.27.2
+    "@nomad-xyz/contracts-core": ^1.1.0
+    "@nomad-xyz/multi-provider": ^1.1.0
+    cross-fetch: ^3.1.5
     ethers: ^5.0.0
-  checksum: da04899edc112482ce6f9657132e25cd0896a3d079bc07182d12c149f3d689d163df75d6242b90a2b69d245ca60c0c7ba0f55214e3f2a8dcf5d93c8e2ca09dd4
+    graphql: ^16.5.0
+    graphql-request: ^4.3.0
+  checksum: b54038e07ceafa1de69a9343cb31ba50afff4074b5aee2d817f9b4b4765fcc44e25651ebc4b5f73b3ed6f164f732712fc05b917e154eb0fb761e1fde9a2ac0c2
   languageName: node
   linkType: hard
 
@@ -5383,7 +5399,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"axios@npm:0.27.2, axios@npm:^0.27.2":
+"axios@npm:0.27.2":
   version: 0.27.2
   resolution: "axios@npm:0.27.2"
   dependencies:
@@ -11499,7 +11515,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"graphql-request@npm:4.3.0, graphql-request@npm:^4.0.0":
+"graphql-request@npm:4.3.0, graphql-request@npm:^4.0.0, graphql-request@npm:^4.3.0":
   version: 4.3.0
   resolution: "graphql-request@npm:4.3.0"
   dependencies:
@@ -11550,7 +11566,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"graphql@npm:16.5.0":
+"graphql@npm:16.5.0, graphql@npm:^16.5.0":
   version: 16.5.0
   resolution: "graphql@npm:16.5.0"
   checksum: a82a926d085818934d04fdf303a269af170e79de943678bd2726370a96194f9454ade9d6d76c2de69afbd7b9f0b4f8061619baecbbddbe82125860e675ac219e
@@ -15901,14 +15917,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"node-fetch@npm:2.6.0":
-  version: 2.6.0
-  resolution: "node-fetch@npm:2.6.0"
-  checksum: 2b741e9315c1c07df4a291d0b304892fa7e8d623fe789fedd53f9bcb8d09102b07591b4b93e552a65dfc457eee9d5d879d0440aefdb64f2d78e7cb78cbad28e9
-  languageName: node
-  linkType: hard
-
-"node-fetch@npm:2.6.7, node-fetch@npm:^2.3.0, node-fetch@npm:^2.6.1, node-fetch@npm:^2.6.7":
+"node-fetch@npm:2, node-fetch@npm:2.6.7, node-fetch@npm:^2.3.0, node-fetch@npm:^2.6.1, node-fetch@npm:^2.6.7":
   version: 2.6.7
   resolution: "node-fetch@npm:2.6.7"
   dependencies:
@@ -15919,6 +15928,13 @@ __metadata:
     encoding:
       optional: true
   checksum: 8d816ffd1ee22cab8301c7756ef04f3437f18dace86a1dae22cf81db8ef29c0bf6655f3215cb0cdb22b420b6fe141e64b26905e7f33f9377a7fa59135ea3e10b
+  languageName: node
+  linkType: hard
+
+"node-fetch@npm:2.6.0":
+  version: 2.6.0
+  resolution: "node-fetch@npm:2.6.0"
+  checksum: 2b741e9315c1c07df4a291d0b304892fa7e8d623fe789fedd53f9bcb8d09102b07591b4b93e552a65dfc457eee9d5d879d0440aefdb64f2d78e7cb78cbad28e9
   languageName: node
   linkType: hard
 

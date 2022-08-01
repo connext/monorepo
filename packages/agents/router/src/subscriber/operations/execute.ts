@@ -5,7 +5,6 @@ import {
   XTransferSchema,
   OriginTransfer,
   RequestContext,
-  jsonifyError,
   formatUrl,
   AuctionsApiPostBidReq,
   getMinimumBidsCountForRound as _getMinimumBidsCountForRound,
@@ -18,10 +17,13 @@ import {
   CallDataForNonContract,
   InvalidAuctionRound,
   MissingXCall,
+  NonRetryableBidPostError,
   NotEnoughAmount,
   ParamsInvalid,
+  RetryableBidPostError,
   SequencerResponseInvalid,
   UnableToGetAsset,
+  NomadHomeBlacklisted,
 } from "../../errors";
 // @ts-ignore
 import { version } from "../../../package.json";
@@ -87,7 +89,7 @@ export const getDestinationLocalAsset = async (
 export const sendBid = async (bid: Bid, _requestContext: RequestContext): Promise<any> => {
   const { config, logger } = getContext();
   const { sequencerUrl } = config;
-  const { requestContext, methodContext } = createLoggingContext(sendBid.name);
+  const { requestContext, methodContext } = createLoggingContext(sendBid.name, _requestContext);
 
   const { transferId } = bid;
 
@@ -111,9 +113,32 @@ export const sendBid = async (bid: Bid, _requestContext: RequestContext): Promis
       // TODO: Should we mark this transfer as expired? Technically speaking, it *could* become unexpired
       // if the sequencer decides relayer execution has timed out.
       throw new AuctionExpired({ transferId });
+    }
+    if (error.response?.data?.message === "MissingXCall") {
+      // TODO: Should we mark this transfer as expired? Technically speaking, it *could* become unexpired
+      // if the sequencer decides relayer execution has timed out.
+      throw new RetryableBidPostError({ transferId, requestContext, methodContext });
     } else {
-      logger.error(`Bid Post Error`, requestContext, methodContext, jsonifyError(error as Error), { transferId });
-      throw error;
+      const errorObj: any = {};
+      if (error.response) {
+        // The request was made and the server responded with a status code
+        // that falls out of the range of 2xx
+        errorObj.data = error.response.data;
+        errorObj.status = error.response.status;
+        errorObj.headers = error.response.headers;
+      } else if (error.request) {
+        errorObj.request = error.request;
+      } else {
+        // Something happened in setting up the request that triggered an Error
+        errorObj.message = error.message;
+      }
+      errorObj.config = error.config;
+      throw new NonRetryableBidPostError({
+        transferId,
+        requestContext,
+        methodContext,
+        error: errorObj,
+      });
     }
   }
 };
@@ -188,7 +213,8 @@ export const execute = async (params: OriginTransfer, _requestContext: RequestCo
     return;
   }
 
-  if (!origin) {
+  const _origin = await subgraph.getOriginTransferById(originDomain, transferId);
+  if (!_origin) {
     throw new MissingXCall({ requestContext, methodContext });
   }
 
@@ -267,13 +293,13 @@ export const execute = async (params: OriginTransfer, _requestContext: RequestCo
   // Need to make sure if nomad-sdk handles an error in case of bad rpc before integrating.
   // Test code base: https://codesandbox.io/s/nomad-integration-testing-h8q00t?file=/index.js
 
-  // const { originBlacklisted, destinationBlacklisted } = await getBlacklist(originDomain, destinationDomain);
-  // if (originBlacklisted || destinationBlacklisted) {
-  //   throw new NomadHomeBlacklisted({
-  //     originDomainBlacklisted: originBlacklisted,
-  //     destinationBlacklisted: destinationBlacklisted,
-  //   });
-  // }
+  const { originBlacklisted, destinationBlacklisted } = await getBlacklist(originDomain, destinationDomain);
+  if (originBlacklisted || destinationBlacklisted) {
+    throw new NomadHomeBlacklisted({
+      originDomainBlacklisted: originBlacklisted,
+      destinationBlacklisted: destinationBlacklisted,
+    });
+  }
 
   if (callData !== "0x") {
     const code = await txservice.getCode(+destinationDomain, to);

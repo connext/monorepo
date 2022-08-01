@@ -52,7 +52,7 @@ export const getEnvConfig = (
       process.env.SEQ_NETWORK || configJson.network || configFile.network || process.env.NXTP_NETWORK || "mainnet",
     server: {
       sub: {
-        port: process.env.SEQ_SUB_SERVER_PORT || configJson.server?.sub?.port || configFile.server?.sub?.port || 8081,
+        port: process.env.SEQ_SUB_SERVER_PORT || configJson.server?.sub?.port || configFile.server?.sub?.port || 8082,
         host:
           process.env.SEQ_SUB_SERVER_HOST || configJson.server?.sub?.host || configFile.server?.sub?.host || "0.0.0.0",
       },

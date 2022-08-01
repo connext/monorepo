@@ -1,13 +1,6 @@
 {
   "extends": "@istanbuljs/nyc-config-typescript",
-  "exclude": [
-    "src/index.ts",
-    "src/sdkPool.ts",
-    "src/sdkStableSwap.ts",
-    "src/lib/errors/*.ts",
-    "src/lib/helpers/*.ts",
-    "test/**/*.ts"
-  ],
+  "exclude": ["src/index.ts", "src/sdkStableSwap.ts", "src/lib/errors/*.ts", "src/lib/helpers/*.ts", "test/**/*.ts"],
   "all": true,
   "check-coverage": true,
   "branches": 65,

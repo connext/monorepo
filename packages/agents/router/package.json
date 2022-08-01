@@ -1,6 +1,6 @@
 {
   "name": "@connext/nxtp-router",
-  "version": "0.2.0-beta.18",
+  "version": "0.2.0-beta.20",
   "description": "",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -18,13 +18,8 @@
     "build": "tsc --build ./tsconfig.build.json",
     "verify": "yarn test && yarn clean && yarn build && yarn lint --max-warnings 0",
     "purge": "yarn clean && rimraf ./coverage ./node_modules",
-    "tsp": "yarn run tsp:root \"$@\" --cwd $(pwd)",
-    "codegen:runtime": "graphql-codegen --config ./runtime.yml",
-    "codegen:analytics": "graphql-codegen --config ./analytics.yml"
+    "tsp": "yarn run tsp:root \"$@\" --cwd $(pwd)"
   },
-  "eslintIgnore": [
-    "graphqlsdk.ts"
-  ],
   "author": "Connext",
   "license": "ISC",
   "dependencies": {
@@ -34,8 +29,8 @@
     "@connext/nxtp-txservice": "workspace:*",
     "@connext/nxtp-utils": "workspace:*",
     "@nomad-xyz/configuration": "0.1.0-rc.25",
-    "@nomad-xyz/sdk": "2.1.0-rc.0",
-    "@nomad-xyz/sdk-bridge": "1.1.0-rc.0",
+    "@nomad-xyz/sdk": "2.1.0",
+    "@nomad-xyz/sdk-bridge": "1.1.0",
     "@sinclair/typebox": "0.24.20",
     "axios": "0.27.2",
     "compare-versions": "4.1.3",
@@ -45,6 +40,7 @@
     "fastify": "4.3.0",
     "foo-foo-mq": "7.1.0",
     "graphql": "16.5.0",
+    "node-fetch": "2",
     "prom-client": "14.0.1"
   },
   "devDependencies": {

@@ -27,11 +27,11 @@ import "./tasks/decodeInputData";
 import "./tasks/removeRouter";
 import "./tasks/enrollHandlers";
 import "./tasks/enrollCustom";
-import "./tasks/selfDust";
-import "./tasks/selfMintTestToken";
+import "./tasks/dustSelfAccounts";
 import "./tasks/xcall";
+import "./tasks/readBalances";
 import "./tasks/setLocalDomain";
-import "./tasks/traceMessage";
+// import "./tasks/traceMessage";
 import "./tasks/preflight";
 import "./tasks/addRelayer";
 import "./tasks/executeEstimateGas";
@@ -219,7 +219,7 @@ const config: HardhatUserConfig = {
     mumbai: {
       accounts: { mnemonic },
       chainId: 80001,
-      url: "https://matic-testnet-archive-rpc.bwarelabs.com",
+      url: "https://rpc.ankr.com/polygon_mumbai",
     },
     "arbitrum-rinkeby": {
       accounts: { mnemonic },

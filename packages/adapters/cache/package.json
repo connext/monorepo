@@ -1,6 +1,6 @@
 {
   "name": "@connext/nxtp-adapters-cache",
-  "version": "0.2.0-beta.18",
+  "version": "0.2.0-beta.20",
   "description": "adapter for handling communication with Redis cache for nxtp protocol",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -18,8 +18,6 @@
     "verify": "yarn test && yarn clean && yarn build && yarn lint --max-warnings 0",
     "purge": "yarn clean && rimraf ./coverage ./node_modules",
     "tsp": "yarn run tsp:root \"$@\" --cwd $(pwd)",
-    "codegen:runtime": "graphql-codegen --config ./runtime.yml",
-    "codegen:analytics": "graphql-codegen --config ./analytics.yml",
     "docker:redis:up": "docker-compose -f ./ops/start-redis.docker-compose.yml up -d"
   },
   "nodemonConfig": {

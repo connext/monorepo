@@ -1,6 +1,15 @@
 import { utils } from "ethers";
-import * as configuration from "@nomad-xyz/configuration";
+import { BridgeContracts, CoreContracts, NomadConfig } from "@nomad-xyz/configuration";
+import { NomadContext } from "@nomad-xyz/sdk";
 import { HardhatRuntimeEnvironment } from "hardhat/types";
+import fetch, { Headers, Request, Response } from "node-fetch";
+
+if (!(globalThis as any).fetch) {
+  (globalThis as any).fetch = fetch;
+  (globalThis as any).Headers = Headers;
+  (globalThis as any).Request = Request;
+  (globalThis as any).Response = Response;
+}
 
 import { getDeploymentName } from "../src/utils";
 
@@ -107,14 +116,14 @@ export type NomadDomainInfo = {
   name: string;
   domain: number;
   contracts: {
-    bridge: configuration.BridgeContracts;
-    core: configuration.CoreContracts;
+    bridge: BridgeContracts;
+    core: CoreContracts;
   };
 };
 
-export const getNomadConfig = (chainId: number): configuration.NomadConfig => {
+export const getNomadConfig = async (chainId: number): Promise<NomadConfig> => {
   const env = MAINNET_CHAINS.includes(chainId) ? "production" : "staging";
-  const nomadConfig: configuration.NomadConfig = configuration.getBuiltin(env);
+  const nomadConfig = await NomadContext.fetchConfig(env);
   if (!nomadConfig) {
     throw new Error(`No nomad config found for ${env}`);
   }
@@ -140,7 +149,7 @@ export const getDomainInfoFromChainId = async (
       },
     } as any;
   }
-  const nomadConfig = getNomadConfig(chainId);
+  const nomadConfig = await getNomadConfig(chainId);
   const [name, domainConfig] =
     Object.entries(nomadConfig.protocol.networks).find(([_, info]) => {
       return info.specs.chainId === chainId;

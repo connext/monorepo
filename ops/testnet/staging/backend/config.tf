@@ -25,6 +25,7 @@ locals {
     chains = {
       "1111" = {}
       "3331" = {}
+      "9991" = {}
     }
     environment = var.stage
   })

@@ -1,45 +1,28 @@
 {
   "name": "@connext/nxtp-sequencer",
-  "version": "0.2.0-beta.18",
+  "version": "0.2.0-beta.20",
   "description": "Sequencer for Amarok, previously auctioneer",
   "author": "Connext",
   "license": "MIT",
   "scripts": {
-    "dev": "concurrently -i -k -n 'app,tsc' -c 'green,cyan' 'nodemon'",
+    "start:all": "concurrently -i -k -c 'green,cyan' npm:start:publisher npm:start:subscriber",
     "docker:redis:up": "docker-compose -f ops/start-redis.docker-compose.yml up -d",
     "start": "node dist/index.js",
-    "start-publisher": "node --enable-source-maps dist/publisher.js",
-    "start-subscriber": "node --enable-source-maps dist/subscriber.js",
+    "start:publisher": "node --enable-source-maps dist/publisher.js",
+    "start:subscriber": "node --enable-source-maps dist/subscriber.js",
     "lint": "eslint ./src --ext .ts --env node",
     "test": "nyc ts-mocha --require test/globalTestHook.ts --check-leaks --exit --timeout 120000 'test/**/*.spec.ts'",
     "clean": "rimraf ./dist ./tsconfig.tsBuildInfo",
     "build": "tsc --build ./tsconfig.build.json",
     "verify": "yarn test && yarn clean && yarn build && yarn lint --max-warnings 0",
     "purge": "yarn clean && rimraf ./node_modules",
-    "tsp": "yarn run tsp:root \"$@\" --cwd $(pwd)",
-    "codegen": "graphql-codegen"
+    "tsp": "yarn run tsp:root \"$@\" --cwd $(pwd)"
   },
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "files": [
     "dist/**/*",
     "src/**/*"
-  ],
-  "nodemonConfig": {
-    "exec": "node --enable-source-maps ./dist/index.js | pino-pretty",
-    "delay": "500",
-    "ext": "js,json",
-    "watch": [
-      ".env",
-      "./dist",
-      "../@connext/nxtp-adapters-cache",
-      "../@connext/nxtp-adapters-subgraph",
-      "../@connext/nxtp-txservice/dist",
-      "../@connext/nxtp-utils/dist"
-    ]
-  },
-  "eslintIgnore": [
-    "graphqlsdk.ts"
   ],
   "publishConfig": {
     "registry": "https://registry.npmjs.org",
