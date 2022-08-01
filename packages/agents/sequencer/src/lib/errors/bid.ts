@@ -8,7 +8,7 @@ export class ParamsInvalid extends NxtpError {
 
 export class BidVersionInvalid extends NxtpError {
   constructor(context: any = {}) {
-    super(`Router version is not supported by this sequencer`, context, BidVersionInvalid.name);
+    super(`Router version is not supported by the sequencer`, context, BidVersionInvalid.name);
   }
 }
 
