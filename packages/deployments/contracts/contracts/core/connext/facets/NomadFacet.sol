@@ -94,14 +94,17 @@ contract NomadFacet is BaseConnextFacet, IBridgeHook {
    * @dev Should be interface compatible with interface defined here:
    * https://github.com/nomad-xyz/monorepo/blob/main/packages/contracts-bridge/contracts/interfaces/IBridgeHook.sol
    *
+   * @param _origin - The origin domain
    * @param _sender - The msg.sender of the original bridge call on origin domain
+   * @param _tokenDomain - The canonical domain of the token
+   * @param _tokenAddress - The canonical identifier of the token
    * @param _localToken - The address of the token representation on this domain, or the canonical
    * address if you are on the canonical domain
    * @param _amount - The amount bridged
    * @param _extraData - The extra data passed with the transfer on `sendToHook` (in this case transferId)
    */
   function onReceive(
-    uint32 _origin, // _origin, not used
+    uint32 _origin,
     bytes32 _sender,
     uint32 _tokenDomain, // of canonical token not used
     bytes32 _tokenAddress, // of canonical token
