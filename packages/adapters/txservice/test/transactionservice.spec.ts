@@ -1,6 +1,6 @@
 import { BigNumber, utils, Wallet } from "ethers";
 import Sinon, { restore, reset, createStubInstance, SinonStubbedInstance } from "sinon";
-import { EvtError } from "evt";
+import { TimeoutEvtError } from "evt";
 import { getRandomBytes32, RequestContext, expect, Logger, NxtpError } from "@connext/nxtp-utils";
 
 import { TransactionService } from "../src/transactionservice";
@@ -239,7 +239,7 @@ describe("TransactionService", () => {
     it("should expire after timeout", async () => {
       chainService.attach(NxtpTxServiceEvents.TransactionSubmitted, () => {});
       await expect(chainService.waitFor(NxtpTxServiceEvents.TransactionSubmitted, 10)).to.be.rejectedWith(
-        EvtError.Timeout,
+        TimeoutEvtError,
       );
     });
   });

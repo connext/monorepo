@@ -11,7 +11,7 @@ const mockChainData = mock.chainData();
 const mockDeployments = mock.contracts.deployments();
 
 describe("Config", () => {
-  const testChainId = mock.chain.A;
+  const testDomainId = mock.domain.A;
   let existsSyncStub: SinonStub;
   let readFileSyncStub: SinonStub;
   beforeEach(() => {
@@ -66,14 +66,14 @@ describe("Config", () => {
     });
 
     it("should error if the connext address is missing", () => {
-      mockChainData[testChainId] = undefined;
+      mockChainData[testDomainId] = undefined;
       stub(process, "env").value({
         ...process.env,
         NXTP_NETWORK: "local",
         NXTP_CONFIG: JSON.stringify({
           ...mockConfig,
           chains: {
-            [testChainId]: {
+            [testDomainId]: {
               assets: [],
               providers: [],
             },
@@ -100,12 +100,12 @@ describe("Config", () => {
       ]);
 
       expect(() => getEnvConfig(_chainData, mockDeployments)).throw(
-        `No Connext contract address for domain ${testChainId}`,
+        `No Connext contract address for domain ${testDomainId}`,
       );
     });
 
     it("should substitute contract deployments with deployments argument if none exist in config", () => {
-      const alteredMockChain = parseInt(mock.chain.A);
+      const alteredMockChain = mock.domain.A;
       stub(process, "env").value({
         ...process.env,
         NXTP_NETWORK: "local",

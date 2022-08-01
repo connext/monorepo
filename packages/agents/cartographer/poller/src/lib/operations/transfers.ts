@@ -94,9 +94,13 @@ export const updateTransfers = async () => {
   if (subgraphOriginQueryMetaParams.size > 0) {
     // Get origin transfers for all domains in the mapping.
     const transfers = await subgraph.getOriginTransfersByNonce(subgraphOriginQueryMetaParams);
-    logger.info("Retrieved origin transfers by nonce", requestContext, methodContext, {
-      transfers: transfers,
-      count: transfers.length,
+    transfers.forEach((transfer) => {
+      const { requestContext: _requestContext, methodContext: _methodContext } = createLoggingContext(
+        "updateTransfers",
+        undefined,
+        transfer.transferId,
+      );
+      logger.info("Retrieved origin transfer", _requestContext, _methodContext, { transfer });
     });
     await database.saveTransfers(transfers);
 

@@ -60,6 +60,10 @@ export const DEBUG_XCALL_TXHASH = process.env.XCALL_TXHASH || process.env.XCALL_
 /// MARK - Utility Constants
 export const EMPTY_BYTES = mkBytes32("0x0");
 
+// Message Queue settings
+export const EXCHANGE_NAME = "sequencerX";
+export const QUEUE_NAME = "1111";
+
 /// MARK - General
 export type DomainInfo = {
   name: string;
@@ -211,8 +215,14 @@ export const ROUTER_CONFIG: Promise<RouterConfig> = (async (): Promise<RouterCon
     redis: {},
     server: {
       adminToken: "a",
-      port: 8080,
-      host: LOCALHOST,
+      pub: {
+        port: 8081,
+        host: LOCALHOST,
+      },
+      sub: {
+        port: 8080,
+        host: LOCALHOST,
+      },
       requestLimit: 10,
     },
     chains: {
@@ -246,8 +256,14 @@ export const SEQUENCER_CONFIG: Promise<SequencerConfig> = (async (): Promise<Seq
     redis: {},
     server: {
       adminToken: "b",
-      port: 8081,
-      host: LOCALHOST,
+      pub: {
+        port: 8081,
+        host: LOCALHOST,
+      },
+      sub: {
+        port: 8080,
+        host: LOCALHOST,
+      },
     },
     chains: {
       [ORIGIN.domain]: {
@@ -271,6 +287,17 @@ export const SEQUENCER_CONFIG: Promise<SequencerConfig> = (async (): Promise<Seq
     supportedBidVersion: routerPackageVersion,
     environment: ENVIRONMENT.toString() as "staging" | "production",
     relayerUrl: LOCAL_RELAYER_ENABLED ? `http://${LOCALHOST}:8082` : undefined,
+    messageQueue: {
+      connection: {
+        uri: "amqp://guest:guest@localhost:5672",
+      },
+      exchanges: [{ name: EXCHANGE_NAME, type: "direct", publishTimeout: 1000, persistent: true, durable: true }],
+      queues: [{ name: QUEUE_NAME, limit: 5, queueLimit: 10000, subscribe: true }],
+      bindings: [{ exchange: EXCHANGE_NAME, target: QUEUE_NAME, keys: [QUEUE_NAME] }],
+      executerTimeout: 300000,
+      publisher: EXCHANGE_NAME,
+      subscriber: QUEUE_NAME,
+    },
   };
 })();
 

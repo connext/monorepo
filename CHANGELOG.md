@@ -2,6 +2,24 @@
 
 ## Next Release
 
+## Amarok 0.2.0-beta.20
+
+- [sdk] Function updates.
+- [ops] Config changes.
+
+## Amarok 0.2.0-beta.19
+
+- [contracts] Deploy to Polygon Mumbai.
+- [lighthouse] Logging updates.
+
+## Amarok 0.2.0-beta.17
+
+- [router] [sequencer] messaging refactor
+
+## Amarok 0.2.0-beta.16
+
+- fix release
+
 ## Amarok 0.2.0-beta.15
 
 - [cartographer] Fix relayer_fee type name.

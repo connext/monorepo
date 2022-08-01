@@ -13,7 +13,7 @@ export const mustGetEnv = (_env?: string) => {
 };
 
 // These contracts do not have a `Staging` deployment
-const NON_STAGING_CONTRACTS = ["TestERC20", "LPToken"];
+const NON_STAGING_CONTRACTS = ["TestERC20", "TestWETH", "LPToken"];
 
 export const getDeploymentName = (contractName: string, _env?: string) => {
   const env = mustGetEnv(_env);

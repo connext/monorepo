@@ -3,8 +3,9 @@ yarn
 yarn build:all
 echo "Build done."
 
-echo "Docker: building sequencer image..."
-docker build --tag sequencer:latest --file ./docker/sequencer/Dockerfile .
+echo "Docker: building sequencer-publisher and sequencer-subscriber images..."
+docker build --tag sequencer-publisher:latest --file ./docker/sequencer/publisher/Dockerfile .
+docker build --tag sequencer-subscriber:latest --file ./docker/sequencer/subscriber/Dockerfile .
 
 echo "Docker: building router-publisher and router-subscriber images..."
 docker build --tag router-publisher:latest --file ./docker/router/publisher/Dockerfile .

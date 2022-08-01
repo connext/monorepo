@@ -59,11 +59,11 @@ contract FacetHelper is ForgeHelper {
   function utils_deployAssetContracts() public {
     AppStorage storage s = LibConnextStorage.connextStorage();
     // Deploy the adopted token.
-    _adopted = address(new TestERC20());
+    _adopted = address(new TestERC20("Test Token", "TEST"));
     // Deploy the local token.
-    _local = address(new TestERC20());
+    _local = address(new TestERC20("Test Token", "TEST"));
     // Deploy the canonical token.
-    _canonical = address(new TestERC20());
+    _canonical = address(new TestERC20("Test Token", "TEST"));
     _canonicalId = bytes32(abi.encodePacked(_canonical));
     _canonicalKey = keccak256(abi.encode(_canonicalId, _canonicalDomain));
     // Set token registry
@@ -80,7 +80,7 @@ contract FacetHelper is ForgeHelper {
       // If the local is already set to the canonical (i.e. from some defaults)
       // redeploy
       if (_local == _canonical) {
-        _local = address(new TestERC20());
+        _local = address(new TestERC20("Test Token", "TEST"));
       }
       _canonicalDomain = _destinationDomain;
     }
@@ -90,7 +90,7 @@ contract FacetHelper is ForgeHelper {
     } else {
       // If the adopted is already set as the local, redeploy
       if (_adopted == _local) {
-        _adopted = address(new TestERC20());
+        _adopted = address(new TestERC20("Test Token", "TEST"));
       }
       if (_stableSwap == address(0)) {
         _stableSwap = address(5555555555555555555);

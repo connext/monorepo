@@ -31,6 +31,12 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment): Promise<voi
   console.log("\n============================= Deploying Nomad Core ===============================");
   console.log("deployer: ", deployer.address);
 
+  console.log("Turning on automine for the local EVM...");
+  await hre.network.provider.request({
+    method: "evm_setAutomine",
+    params: [true],
+  });
+
   const bridgeToken = await deployNomadBeaconProxy("BridgeToken", [], deployer, hre);
   const bridgeTokenBeacon = await hre.deployments.get(getDeploymentName(`BridgeTokenUpgradeBeacon`));
   console.log("bridgeTokenBeacon address: ", bridgeTokenBeacon.address);

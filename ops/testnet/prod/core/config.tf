@@ -31,7 +31,7 @@ locals {
     redis = {
       host = module.sequencer_cache.redis_instance_address,
       port = module.sequencer_cache.redis_instance_port
-    }
+    },
 
     server = {
       adminToken = var.admin_token_router
@@ -41,10 +41,12 @@ locals {
     chains = {
       "1111" = {
         providers = ["https://eth-rinkeby.alchemyapi.io/v2/${var.rinkeby_alchemy_key_0}", "https://rpc.ankr.com/eth_rinkeby"]
-        assets = [{
-          name    = "TEST"
-          address = "0x3FFc03F05D1869f493c7dbf913E636C6280e0ff9"
-        }]
+        assets = [
+          {
+            name    = "TEST"
+            address = "0x3ffc03f05d1869f493c7dbf913e636c6280e0ff9"
+          }
+        ]
       }
       "3331" = {
         providers = ["https://eth-goerli.alchemyapi.io/v2/${var.goerli_alchemy_key_0}", "https://rpc.ankr.com/eth_goerli"]
@@ -55,9 +57,75 @@ locals {
           }
         ]
       }
+      "9991" = {
+        providers = ["https://polygon-testnet.blastapi.io/${var.mumbai_blast_key_0}", "https://rpc.ankr.com/polygon_mumbai"]
+        assets = [
+          {
+            name    = "TEST"
+            address = "0x21c5a4dAeAf9625c781Aa996E9229eA95EE4Ff77"
+          },
+          {
+            name    = "WETH"
+            address = "0x4E2FCcA06dA37869047d84b82364d1831E5aa7E1"
+          }
+        ]
+      }
     }
 
-    environment = "production"
+    environment = var.stage
+    messageQueue = {
+      connection = {
+        uri = "amqps://${var.rmq_mgt_user}:${var.rmq_mgt_password}@${module.centralised_message_queue.aws_mq_amqp_endpoint}"
+      }
+      exchanges = [
+        {
+          name           = "sequencerX"
+          type           = "direct"
+          publishTimeout = 1000
+          persistent     = true
+          durable        = true
+        }
+      ]
+      queues = [
+        {
+          name       = "1111"
+          limit      = 3
+          queueLimit = 10000
+          subscribe  = true
+        },
+        {
+          name       = "3331"
+          limit      = 3
+          queueLimit = 10000
+          subscribe  = true
+        },
+        {
+          name       = "9991"
+          limit      = 3
+          queueLimit = 10000
+          subscribe  = true
+        }
+      ]
+      bindings = [
+        {
+          exchange = "sequencerX"
+          target   = "1111"
+          keys     = ["1111"]
+        },
+        {
+          exchange = "sequencerX"
+          target   = "3331"
+          keys     = ["3331"]
+        },
+        {
+          exchange = "sequencerX"
+          target   = "9991"
+          keys     = ["9991"]
+        }
+      ]
+      executerTimeout = 300000
+      publisher       = "sequencerX"
+    }
   })
 }
 
@@ -69,23 +137,28 @@ locals {
       port = module.router_cache.redis_instance_port
     }
     logLevel     = "debug"
-    sequencerUrl = "https://${module.sequencer.service_endpoint}"
+    sequencerUrl = "https://${module.sequencer_publisher.service_endpoint}"
     server = {
       adminToken = var.admin_token_router
-      port       = 8080
+      pub = {
+        port = 8080
+      }
+      sub = {
+        port = 8080
+      }
     }
     chains = {
       "1111" = {
-        providers = ["https://eth-rinkeby.alchemyapi.io/v2/${var.rinkeby_alchemy_key_1}", "https://rpc.ankr.com/eth_rinkeby"]
+        providers = ["https://eth-rinkeby.alchemyapi.io/v2/${var.rinkeby_alchemy_key_0}", "https://rpc.ankr.com/eth_rinkeby"]
         assets = [
           {
             name    = "TEST"
-            address = "0x3FFc03F05D1869f493c7dbf913E636C6280e0ff9"
+            address = "0x3ffc03f05d1869f493c7dbf913e636c6280e0ff9"
           }
         ]
       }
       "3331" = {
-        providers = ["https://eth-goerli.alchemyapi.io/v2/${var.goerli_alchemy_key_1}", "https://rpc.ankr.com/eth_goerli"]
+        providers = ["https://eth-goerli.alchemyapi.io/v2/${var.goerli_alchemy_key_0}", "https://rpc.ankr.com/eth_goerli"]
         assets = [
           {
             name    = "TEST"
@@ -93,11 +166,26 @@ locals {
           }
         ]
       }
+      "9991" = {
+        providers = ["https://polygon-testnet.blastapi.io/${var.mumbai_blast_key_0}", "https://rpc.ankr.com/polygon_mumbai"]
+        assets = [
+          {
+            name    = "TEST"
+            address = "0x21c5a4dAeAf9625c781Aa996E9229eA95EE4Ff77"
+          },
+          {
+            name    = "WETH"
+            address = "0x4E2FCcA06dA37869047d84b82364d1831E5aa7E1"
+          }
+        ]
+      }
     }
     web3SignerUrl    = "https://${module.web3signer.service_endpoint}"
-    environment      = "production"
+    environment      = var.stage
     nomadEnvironment = var.nomad_environment
-
+    messageQueue = {
+      uri = "amqps://${var.rmq_mgt_user}:${var.rmq_mgt_password}@${module.centralised_message_queue.aws_mq_amqp_endpoint}"
+    }
   })
 }
 
@@ -106,12 +194,15 @@ locals {
     logLevel = "debug"
     chains = {
       "1111" = {
-        providers = ["https://eth-rinkeby.alchemyapi.io/v2/${var.rinkeby_alchemy_key_1}", "https://rpc.ankr.com/eth_rinkeby"]
+        providers = ["https://eth-rinkeby.alchemyapi.io/v2/${var.rinkeby_alchemy_key_1}"]
       }
       "3331" = {
-        providers = ["https://eth-goerli.alchemyapi.io/v2/${var.goerli_alchemy_key_1}", "https://rpc.ankr.com/eth_goerli"]
+        providers = ["https://eth-goerli.alchemyapi.io/v2/${var.goerli_alchemy_key_1}"]
+      }
+      "9991" = {
+        providers = ["https://polygon-testnet.blastapi.io/${var.mumbai_blast_key_0}", "https://rpc.ankr.com/polygon_mumbai"]
       }
     }
-    environment = "production"
+    environment = var.stage
   })
 }

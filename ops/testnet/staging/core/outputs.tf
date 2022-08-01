@@ -1,5 +1,8 @@
-output "sequencer-dns" {
-  value = module.sequencer.dns_name
+output "sequencer-subscriber-dns" {
+  value = module.sequencer_subscriber.dns_name
+}
+output "sequencer-publisher-dns" {
+  value = module.sequencer_publisher.dns_name
 }
 
 output "router-subscriber-dns" {
@@ -13,8 +16,12 @@ output "lighthouse-dns" {
   value = module.lighthouse.daemon_service_name
 }
 
-output "sequencer-service-endpoint" {
-  value = module.sequencer.service_endpoint
+output "sequencer-publisher-service-endpoint" {
+  value = module.sequencer_publisher.service_endpoint
+}
+
+output "sequencer-subscriber-service-endpoint" {
+  value = module.sequencer_subscriber.service_endpoint
 }
 
 output "router-publisher-service-endpoint" {
@@ -30,7 +37,10 @@ output "lighthouse-service-name" {
   value = module.lighthouse.daemon_service_name
 }
 
-output "rmq-router-management-endpoint" {
-  value = module.router_message_queue.rmq_management_endpoint
+output "rmq-management-endpoint" {
+  value = module.centralised_message_queue.aws_mq_broker_console
 }
 
+output "rmq-amqps-endpoint" {
+  value = module.centralised_message_queue.aws_mq_amqp_endpoint
+}

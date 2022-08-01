@@ -35,3 +35,9 @@ export class ApiRequestFailed extends NxtpError {
     super("Api Request failed", context, ApiRequestFailed.name);
   }
 }
+
+export class ParseConnextLogFailed extends NxtpError {
+  constructor(context: any = {}) {
+    super("Parsing logs failed", context, ParseConnextLogFailed.name);
+  }
+}

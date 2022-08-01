@@ -4,6 +4,7 @@ import { StoreManager } from "@connext/nxtp-adapters-cache";
 import { SubgraphReader } from "@connext/nxtp-adapters-subgraph";
 import { Web3Signer } from "@connext/nxtp-adapters-web3signer";
 import { ChainReader, ConnextContractInterfaces } from "@connext/nxtp-txservice";
+import Broker from "foo-foo-mq";
 
 import { Relayer } from "../../adapters";
 
@@ -20,6 +21,7 @@ export type AppContext = {
     relayer: Relayer; // Relayer for sending transactions to the blockchain.
     // Should be signer for sequencer's whitelisted EOA. Used for signing permits.
     wallet: Wallet | Web3Signer;
+    mqClient: typeof Broker; // Broker for interacting with the message queue
   };
   config: SequencerConfig;
   chainData: Map<string, ChainData>;

@@ -19,7 +19,7 @@ export const bindServer = async (): Promise<FastifyInstance> => {
     async (req, res) => api.auth.admin(req.body, res, api.post.clearCache),
   );
 
-  const address = await server.listen({ port: config.server.port, host: config.server.host });
+  const address = await server.listen({ port: config.server.pub.port, host: config.server.pub.host });
   logger.info(`Server listening at ${address}`);
   return server;
 };

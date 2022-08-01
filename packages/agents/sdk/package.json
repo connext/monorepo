@@ -1,6 +1,6 @@
 {
   "name": "@connext/nxtp-sdk",
-  "version": "0.2.0-beta.15",
+  "version": "0.2.0-beta.20",
   "description": "Client-side package for interacting with the NXTP protocol for crosschain packages",
   "author": "Connext",
   "license": "MIT",
@@ -8,6 +8,7 @@
     "dev": "yarn build --watch --preserveWatchOutput",
     "lint": "eslint ./src --ext .ts --env node",
     "test": "nyc ts-mocha --check-leaks --exit --timeout 120000 'test/**/*.spec.ts'",
+    "test-sdkbase": "nyc ts-mocha --check-leaks --exit --timeout 120000 'test/sdkBase.spec.ts'",
     "clean": "rimraf ./dist ./tsconfig.tsBuildInfo",
     "build": "tsc --build ./tsconfig.build.json",
     "verify": "yarn test && yarn clean && yarn build && yarn lint --max-warnings 0",
@@ -34,12 +35,12 @@
   "dependencies": {
     "@connext/nxtp-txservice": "workspace:*",
     "@connext/nxtp-utils": "workspace:*",
-    "@sinclair/typebox": "0.24.12",
+    "@sinclair/typebox": "0.24.20",
     "axios": "0.27.2",
     "ethers": "5.6.9"
   },
   "devDependencies": {
-    "eslint": "8.19.0",
+    "eslint": "8.20.0",
     "mocha": "10.0.0",
     "nyc": "15.1.0",
     "rimraf": "3.0.2",

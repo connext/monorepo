@@ -1,6 +1,6 @@
 import { BigNumber, constants, Contract, providers, utils } from "ethers";
 import { task } from "hardhat/config";
-import { CallParams } from "@connext/nxtp-utils";
+import { CallParams, XCallArgs } from "@connext/nxtp-utils";
 
 import { Env, getDeploymentName, mustGetEnv } from "../src/utils";
 import { canonizeId, getDomainInfoFromChainId } from "../src/nomad";
@@ -19,6 +19,11 @@ type TaskArgs = {
   forceSlow?: string;
   receiveLocal?: string;
   recovery?: string;
+  originMinOut?: string;
+  destinationMinOut?: string;
+  runs?: number;
+  accounts?: number;
+  showArgs?: string;
 };
 
 export default task("xcall", "Prepare a cross-chain tx")
@@ -34,7 +39,12 @@ export default task("xcall", "Prepare a cross-chain tx")
   .addOptionalParam("forceSlow", "Override for forcing slow path")
   .addOptionalParam("receiveLocal", "Override for receiving local")
   .addOptionalParam("recovery", "Override for recovery address")
+  .addOptionalParam("originMinOut", "Override for origin domain tokens out (slippage tolerance)")
+  .addOptionalParam("destinationMinOut", "Override for destination domain tokens out (slippage tolerance)")
   .addOptionalParam("env", "Environment of contracts")
+  .addOptionalParam("runs", "Number of times to fire the xcall")
+  .addOptionalParam("accounts", "Number of accounts to fire xcalls in parallel")
+  .addOptionalParam("showArgs", "Verbose logs of xcall args")
   .setAction(
     async (
       {
@@ -51,15 +61,29 @@ export default task("xcall", "Prepare a cross-chain tx")
         forceSlow: _forceSlow,
         receiveLocal: _receiveLocal,
         recovery: _recovery,
+        originMinOut: _originMinOut,
+        destinationMinOut: _destinationMinOut,
+        runs: _runs,
+        accounts: _accounts,
+        showArgs: _showArgs,
       }: TaskArgs,
       hre,
     ) => {
       let tx: providers.TransactionResponse;
-      const [sender] = await hre.ethers.getSigners();
+
+      const showArgs = _showArgs === "true" ? true : false;
 
       const env = mustGetEnv(_env);
       console.log("env:", env);
-      console.log("sender: ", sender.address);
+
+      const runs = _runs ?? 1;
+      console.log("runs:", runs);
+
+      const accounts = _accounts ?? 1;
+      console.log("accounts:", accounts);
+
+      const senders = await hre.ethers.getSigners();
+      senders.splice(accounts);
 
       // Get the origin and destination domains.
       const network = await hre.ethers.provider.getNetwork();
@@ -69,20 +93,14 @@ export default task("xcall", "Prepare a cross-chain tx")
         throw new Error("Destination domain must be specified as params or from env (TRANSFER_DESTINATION_DOMAIN)");
       }
 
-      // Get the "to" address.
-      const to = _to ?? process.env.TRANSFER_TO;
-      if (!to) {
-        throw new Error("To address must be specified as param or from env (TRANSFER_TO)");
-      }
+      // Get the "to" address (defaults to sender address)
+      const to = _to ?? process.env.TRANSFER_TO ?? senders[0].address;
 
       // Get the call data, if applicable.
       const callData = _callData ?? process.env.TRANSFER_CALL_DATA ?? "0x";
 
-      // Get the amount.
-      const amount = _amount ?? process.env.TRANSFER_AMOUNT;
-      if (!amount) {
-        throw new Error("Amount must be specified as param or from env (TRANSFER_AMOUNT)");
-      }
+      // Get the amount (defaults to 1 TEST)
+      const amount = _amount ?? process.env.TRANSFER_AMOUNT ?? "1000000000000000000";
 
       // Get the relayer fee (defaults to 0)
       const relayerFee = _relayerFee ?? process.env.RELAYER_FEE ?? "0";
@@ -109,7 +127,6 @@ export default task("xcall", "Prepare a cross-chain tx")
           const tokenRegistry = new Contract(
             tokenDeployment.address,
             (await hre.deployments.get(getDeploymentName("TokenRegistry"))).abi,
-            sender,
           );
           transactingAssetId = await tokenRegistry.getRepresentationAddress(canonicalDomain, canonicalTokenId);
           if (transactingAssetId === constants.AddressZero) {
@@ -128,53 +145,25 @@ export default task("xcall", "Prepare a cross-chain tx")
       const forceSlow = _forceSlow === "true" ? true : false;
       const receiveLocal = _receiveLocal === "true" ? true : false;
       const recovery = _recovery ?? to;
+      const destinationMinOut = _destinationMinOut ?? "0";
+      const originMinOut = _originMinOut ?? "0";
 
-      console.log("originDomain: ", originDomain);
-      console.log("destinationDomain: ", destinationDomain);
-      console.log("transactingAsset: ", transactingAssetId);
-      console.log("amount: ", amount);
-      console.log("Transfer to: ", to);
-      console.log("callData: ", callData);
-      console.log("callback: ", callback);
-      console.log("callbackFee: ", callbackFee);
-      console.log("forceSlow: ", forceSlow);
-      console.log("receiveLocal: ", receiveLocal);
-      console.log("recovery: ", recovery);
-
+      // Load contracts
       const connextName = getDeploymentName("ConnextHandler", env);
       const connextDeployment = await hre.deployments.get(connextName);
       const connextAddress = _connextAddress ?? connextDeployment.address;
-      const connext = new Contract(connextAddress, connextDeployment.abi, sender);
+      const connext = new Contract(connextAddress, connextDeployment.abi);
       console.log("connextAddress: ", connextAddress);
 
-      // test
-      const tokenRegistry = await connext.tokenRegistry();
+      const tokenRegistry = await connext.connect(senders[0]).tokenRegistry();
       if (tokenRegistry === constants.AddressZero) {
         throw new Error(`TokenRegistry not set on connext`);
       }
       console.log("tokenRegistry:", tokenRegistry);
 
-      let balance: BigNumber;
-      if (transactingAssetId === constants.AddressZero) {
-        balance = await hre.ethers.provider.getBalance(sender.address);
-      } else {
-        const erc20 = await hre.ethers.getContractAt("IERC20", transactingAssetId, sender);
-        const allowance = await erc20.allowance(sender.address, connextAddress);
-        if (allowance.lt(amount)) {
-          console.log("Approving tokens");
-          tx = await erc20.approve(connextAddress, constants.MaxUint256);
-          console.log("approval tx sent: ", tx.hash);
-          await tx.wait();
-          console.log("approval tx mined", tx.hash);
-        }
-        balance = await erc20.balanceOf(sender.address);
-      }
-      if (balance.lt(amount)) {
-        throw new Error(`Balance ${balance.toString()} is less than amount ${amount}`);
-      }
-
+      // Construct xcall args
       const params: CallParams = {
-        to,
+        to: to,
         callData,
         originDomain: `${originDomain}`,
         destinationDomain: `${destinationDomain}`,
@@ -182,32 +171,79 @@ export default task("xcall", "Prepare a cross-chain tx")
         agent: constants.AddressZero,
         callback,
         callbackFee,
-        relayerFee: "0",
+        relayerFee,
         forceSlow,
         receiveLocal,
-        destinationMinOut: "0",
+        destinationMinOut,
       };
 
-      const args = {
+      const args: XCallArgs = {
         params,
         transactingAsset: transactingAssetId,
         transactingAmount: amount,
-        relayerFee,
+        originMinOut,
       };
-      console.log("xcall args", JSON.stringify(args));
-      const encoded = connext.interface.encodeFunctionData("xcall", [args]);
-      console.log("encoded: ", encoded);
-      console.log("to: ", connext.address);
-      console.log("from: ", sender.address);
-      tx = await connext.functions.xcall(args, { from: sender.address, gasLimit: 1_000_000 });
-      console.log("tx sent! ", tx.hash);
-      const rec = await tx.wait();
-      rec.logs.forEach((log, index) => {
-        try {
-          const l = connext.interface.parseLog(log);
-          console.log(`log at index ${index}: `, l);
-        } catch (e: unknown) {}
-      });
-      console.log("tx mined! ", rec.transactionHash);
+
+      // Check balances and allowances
+      for (let i = 0; i < senders.length; i++) {
+        let balance: BigNumber;
+        if (transactingAssetId === constants.AddressZero) {
+          balance = await hre.ethers.provider.getBalance(senders[i].address);
+        } else {
+          const erc20 = await hre.ethers.getContractAt("IERC20", transactingAssetId, senders[i]);
+          const allowance = await erc20.connect(senders[i]).allowance(senders[i].address, connextAddress);
+          if (allowance.lt(BigNumber.from(amount).mul(runs))) {
+            tx = await erc20.approve(connextAddress, constants.MaxUint256);
+            await tx.wait();
+          }
+          balance = await erc20.balanceOf(senders[i].address);
+        }
+        const balanceNeeded = BigNumber.from(amount).mul(runs);
+        if (balance.lt(balanceNeeded)) {
+          throw new Error(
+            `Account (${
+              senders[i].address
+            }) has balance (${balance.toString()}), which is less than total needed (${balanceNeeded})`,
+          );
+        }
+      }
+
+      // Run as many times as specified
+      for (let i = 1; i <= runs; i++) {
+        const receipts = Promise.all(
+          senders.map(async (sender) => {
+            args.params.to = sender.address;
+
+            const tx = await connext
+              .connect(sender)
+              .functions.xcall(args, { from: sender.address, gasLimit: 2_000_000 });
+            console.log(`Transaction from sender: ${sender.address}`);
+            console.log("  Tx: ", tx.hash);
+
+            if (showArgs) {
+              console.log("  originDomain: ", originDomain);
+              console.log("  destinationDomain: ", destinationDomain);
+              console.log("  transactingAsset: ", transactingAssetId);
+              console.log("  amount: ", amount);
+              console.log("  callData: ", callData);
+              console.log("  callback: ", callback);
+              console.log("  callbackFee: ", callbackFee);
+              console.log("  forceSlow: ", forceSlow);
+              console.log("  receiveLocal: ", receiveLocal);
+              console.log("  recovery: ", recovery);
+              console.log("  originMinOut:", originMinOut);
+              console.log("  destinationMinOut:", destinationMinOut);
+              console.log("xcall args", JSON.stringify(args));
+              const encoded = connext.interface.encodeFunctionData("xcall", [args]);
+              console.log("encoded: ", encoded);
+              console.log("to: ", connext.address);
+            }
+
+            return tx.wait();
+          }),
+        );
+        await receipts;
+        console.log(`--> Transactions mined for run #${i}`);
+      }
     },
   );

@@ -133,8 +133,8 @@ deploying "_DefaultDiamondCutFacet" (tx: 0xe9fb7583bb7ffd2089825f802e596fdb2051c
 deploying "_DefaultDiamondLoupeFacet" (tx: 0x5ce9866cd3e5ebe25986f817ec64245c5fe259b5a99ef3d167e8abe8e9781bab)...: deployed at 0x51d21E284392bb7f652a47A6fEFf514071673B3e with 481329 gas
 deploying "DiamondInit" (tx: 0xda71b3f081e60e290e39c540ee9b6d4eb46e6c6c0f9788116f8f76803effa119)...: deployed at 0x2DBDa7b9B956ee981e520fD1cd2EA8B612497eBe with 1664174 gas
 deploying "_DefaultDiamondERC165Init" (tx: 0x5f8e4f9d4aaa673fcdc42138950fd58d45849d1bfea4a12964c1454a740d98b9)...: deployed at 0xe68d85348f227d2ebEE814C38918F8A2D7d9B603 with 279490 gas
-deploying "ConnextHandler_DiamondProxy" (tx: 0xb60e26f0c86763385f219f8ac2cc081e4d8c3353ebfd9f92bc1cee435d200644)...: deployed at 0x8273e4B8ED6c78e252a9fCa5563Adfcc75C91b2A with 7197940 gas
-connextAddress:  0x8273e4B8ED6c78e252a9fCa5563Adfcc75C91b2A
+deploying "ConnextHandler_DiamondProxy" (tx: 0xb60e26f0c86763385f219f8ac2cc081e4d8c3353ebfd9f92bc1cee435d200644)...: deployed at 0xF08dF3eFDD854FEDE77Ed3b2E515090EEe765154 with 7197940 gas
+connextAddress:  0xF08dF3eFDD854FEDE77Ed3b2E515090EEe765154
 setting connext on relayer fee router
 setting connext on promiseRouter router
 Deploying multicall...

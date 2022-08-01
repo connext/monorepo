@@ -19,13 +19,15 @@
   "keywords": [],
   "dependencies": {
     "@connext/nxtp-sdk": "workspace:*",
+    "@connext/nxtp-txservice": "workspace:*",
     "@connext/nxtp-utils": "workspace:*",
+    "@fastify/type-provider-typebox": "^2.1.0",
     "ethers": "5.6.9",
-    "fastify": "4.2.0",
-    "pino": "8.1.0"
+    "fastify": "4.3.0",
+    "pino": "8.3.0"
   },
   "devDependencies": {
-    "@types/node": "16.11.43",
+    "@types/node": "16.11.45",
     "@types/pino": "7.0.5",
     "pino-pretty": "8.1.0",
     "rimraf": "3.0.2",

@@ -1,6 +1,6 @@
 {
   "name": "@connext/nxtp-lighthouse",
-  "version": "0.2.0-beta.15",
+  "version": "0.2.0-beta.20",
   "description": "",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -30,28 +30,25 @@
       "../@connext/nxtp-utils/dist"
     ]
   },
-  "eslintIgnore": [
-    "graphqlsdk.ts"
-  ],
   "author": "Connext",
   "license": "ISC",
   "dependencies": {
     "@connext/nxtp-txservice": "workspace:*",
     "@connext/nxtp-utils": "workspace:*",
-    "@sinclair/typebox": "0.24.12",
+    "@sinclair/typebox": "0.24.20",
     "axios": "0.27.2",
     "dotenv": "16.0.1",
     "ethers": "5.6.9",
-    "fastify": "4.2.0",
+    "fastify": "4.3.0",
     "graphql": "16.5.0",
     "prom-client": "14.0.1"
   },
   "devDependencies": {
-    "@graphql-codegen/cli": "2.8.0",
+    "@graphql-codegen/cli": "2.9.1",
     "@types/mocha": "9.1.1",
-    "@types/sinon": "10.0.12",
-    "concurrently": "7.2.2",
-    "eslint": "8.19.0",
+    "@types/sinon": "10.0.13",
+    "concurrently": "7.3.0",
+    "eslint": "8.20.0",
     "interval-promise": "1.4.0",
     "mocha": "10.0.0",
     "nodemon": "2.0.19",

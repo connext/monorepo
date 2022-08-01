@@ -43,7 +43,6 @@ export const getEnvConfig = (): CartographerConfig => {
   let configJson: Record<string, any> = {};
   let configFile: any = {};
 
-  console.log("process.env.CARTOGRAPHER_CONFIG: ", process.env.CARTOGRAPHER_CONFIG);
   try {
     configJson = JSON.parse(process.env.CARTOGRAPHER_CONFIG || "{}");
   } catch (e: unknown) {

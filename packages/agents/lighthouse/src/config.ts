@@ -96,11 +96,12 @@ export const getEnvConfig = (
       cartographer:
         process.env.NXTP_CARTOGRAPHER_POLL_INTERVAL ||
         configJson.polling?.cache ||
-        configFile.polling?.cach ||
+        configFile.polling?.cache ||
         DEFAULT_CARTOGRAPHER_POLL_INTERVAL,
     },
     environment: process.env.NXTP_ENVIRONMENT || configJson.environment || configFile.environment || "production",
     cartographerUrl: process.env.NXTP_CARTOGRAPHER_URL || configJson.cartographerUrl || configFile.cartographerUrl,
+    relayerUrl: process.env.NXTP_RELAYER_URL || configJson.relayerUrl || configFile.relayerUrl,
   };
 
   nxtpConfig.cartographerUrl =
@@ -128,7 +129,7 @@ export const getEnvConfig = (
         (() => {
           const res =
             domainId === "1337" || domainId === "1338"
-              ? { address: "0x8273e4B8ED6c78e252a9fCa5563Adfcc75C91b2A" } // hardcoded for testing
+              ? { address: "0xF08dF3eFDD854FEDE77Ed3b2E515090EEe765154" } // hardcoded for testing
               : chainDataForChain
               ? deployments.connext(chainDataForChain.chainId, contractPostfix)
               : undefined;

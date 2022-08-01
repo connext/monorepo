@@ -1,6 +1,6 @@
 {
   "name": "@connext/nxtp-router",
-  "version": "0.2.0-beta.15",
+  "version": "0.2.0-beta.20",
   "description": "",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -9,36 +9,17 @@
     "src/**/*"
   ],
   "scripts": {
-    "dev": "concurrently -i -k -n 'app,tsc' -c 'green,cyan' 'nodemon'",
-    "start-publisher": "node --enable-source-maps dist/publisher/index.js",
-    "start-subscriber": "node --enable-source-maps dist/subscriber/index.js",
+    "start:all": "concurrently -i -k -c 'green,cyan' npm:start:publisher npm:start:subscriber",
+    "start:publisher": "node --enable-source-maps dist/publisher/index.js",
+    "start:subscriber": "node --enable-source-maps dist/subscriber/index.js",
     "lint": "eslint ./src --ext .ts --env node",
     "test": "nyc ts-mocha --require test/globalTestHook.ts --check-leaks --exit --timeout 60000 'test/**/*.spec.ts'",
     "clean": "rimraf ./dist ./tsconfig.tsBuildInfo",
     "build": "tsc --build ./tsconfig.build.json",
     "verify": "yarn test && yarn clean && yarn build && yarn lint --max-warnings 0",
     "purge": "yarn clean && rimraf ./coverage ./node_modules",
-    "tsp": "yarn run tsp:root \"$@\" --cwd $(pwd)",
-    "codegen:runtime": "graphql-codegen --config ./runtime.yml",
-    "codegen:analytics": "graphql-codegen --config ./analytics.yml"
+    "tsp": "yarn run tsp:root \"$@\" --cwd $(pwd)"
   },
-  "nodemonConfig": {
-    "exec": "node --enable-source-maps ./dist/index.js | pino-pretty",
-    "delay": "500",
-    "ext": "js,json",
-    "watch": [
-      ".env",
-      "./dist",
-      "../@connext/nxtp-adapters-cache/dist",
-      "../@connext/nxtp-adapters-subgraph/dist",
-      "../@connext/nxtp-adapters-web3signer/dist",
-      "../@connext/nxtp-txservice/dist",
-      "../@connext/nxtp-utils/dist"
-    ]
-  },
-  "eslintIgnore": [
-    "graphqlsdk.ts"
-  ],
   "author": "Connext",
   "license": "ISC",
   "dependencies": {
@@ -48,25 +29,26 @@
     "@connext/nxtp-txservice": "workspace:*",
     "@connext/nxtp-utils": "workspace:*",
     "@nomad-xyz/configuration": "0.1.0-rc.25",
-    "@nomad-xyz/sdk": "2.1.0-rc.0",
-    "@nomad-xyz/sdk-bridge": "1.1.0-rc.0",
-    "@sinclair/typebox": "0.24.12",
+    "@nomad-xyz/sdk": "2.1.0",
+    "@nomad-xyz/sdk-bridge": "1.1.0",
+    "@sinclair/typebox": "0.24.20",
     "axios": "0.27.2",
     "compare-versions": "4.1.3",
-    "dd-trace": "2.10.0",
+    "dd-trace": "2.11.0",
     "dotenv": "16.0.1",
     "ethers": "5.6.9",
-    "fastify": "4.2.0",
+    "fastify": "4.3.0",
     "foo-foo-mq": "7.1.0",
     "graphql": "16.5.0",
+    "node-fetch": "2",
     "prom-client": "14.0.1"
   },
   "devDependencies": {
-    "@graphql-codegen/cli": "2.8.0",
+    "@graphql-codegen/cli": "2.9.1",
     "@types/mocha": "9.1.1",
-    "@types/sinon": "10.0.12",
-    "concurrently": "7.2.2",
-    "eslint": "8.19.0",
+    "@types/sinon": "10.0.13",
+    "concurrently": "7.3.0",
+    "eslint": "8.20.0",
     "interval-promise": "1.4.0",
     "mocha": "10.0.0",
     "nodemon": "2.0.19",

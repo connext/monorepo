@@ -44,13 +44,17 @@ export const makeRoutersPoller = async (_configOverride?: CartographerConfig) =>
   context.logger.info("Routers Poller initialized!", requestContext, methodContext, {
     domains: context.domains,
   });
-  context.logger.info(`
-  _|_|_|     _|_|     _|      _|   _|      _|   _|_|_|_|   _|      _|   _|_|_|_|_|
-_|         _|    _|   _|_|    _|   _|_|    _|   _|           _|  _|         _|
-_|         _|    _|   _|  _|  _|   _|  _|  _|   _|_|_|         _|           _|
-_|         _|    _|   _|    _|_|   _|    _|_|   _|           _|  _|         _|
-  _|_|_|     _|_|     _|      _|   _|      _|   _|_|_|_|   _|      _|       _|
-`);
+  context.logger.info(
+    `
+
+      _|_|_|     _|_|     _|      _|   _|      _|   _|_|_|_|   _|      _|   _|_|_|_|_|
+    _|         _|    _|   _|_|    _|   _|_|    _|   _|           _|  _|         _|
+    _|         _|    _|   _|  _|  _|   _|  _|  _|   _|_|_|         _|           _|
+    _|         _|    _|   _|    _|_|   _|    _|_|   _|           _|  _|         _|
+      _|_|_|     _|_|     _|      _|   _|      _|   _|_|_|_|   _|      _|       _|
+
+    `,
+  );
 
   await bindRouters();
   await closeDatabase();

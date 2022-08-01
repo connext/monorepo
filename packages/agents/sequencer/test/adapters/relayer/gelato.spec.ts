@@ -77,7 +77,7 @@ describe("Adapters: Gelato", () => {
       gelatoSendStub.resolves(mockAxiosErrorResponse);
       expect(
         send(
-          mock.chain.A,
+          Number(mock.chain.A),
           ctxMock.config.chains[mock.domain.A].deployments.connext,
           "0xbeed",
           loggingContext.requestContext,
@@ -87,7 +87,7 @@ describe("Adapters: Gelato", () => {
 
     it("should send the bid to the relayer", async () => {
       const taskId = await send(
-        mock.chain.A,
+        Number(mock.chain.A),
         ctxMock.config.chains[mock.domain.A].deployments.connext,
         "0xbeed",
         loggingContext.requestContext,

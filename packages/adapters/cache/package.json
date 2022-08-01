@@ -1,6 +1,6 @@
 {
   "name": "@connext/nxtp-adapters-cache",
-  "version": "0.2.0-beta.15",
+  "version": "0.2.0-beta.20",
   "description": "adapter for handling communication with Redis cache for nxtp protocol",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -18,8 +18,6 @@
     "verify": "yarn test && yarn clean && yarn build && yarn lint --max-warnings 0",
     "purge": "yarn clean && rimraf ./coverage ./node_modules",
     "tsp": "yarn run tsp:root \"$@\" --cwd $(pwd)",
-    "codegen:runtime": "graphql-codegen --config ./runtime.yml",
-    "codegen:analytics": "graphql-codegen --config ./analytics.yml",
     "docker:redis:up": "docker-compose -f ./ops/start-redis.docker-compose.yml up -d"
   },
   "nodemonConfig": {
@@ -37,19 +35,19 @@
   "license": "ISC",
   "dependencies": {
     "@connext/nxtp-utils": "workspace:*",
-    "@typescript-eslint/eslint-plugin": "5.30.5",
+    "@typescript-eslint/eslint-plugin": "5.30.7",
     "ethers": "5.6.9",
-    "ioredis": "5.1.0",
+    "ioredis": "5.2.2",
     "ioredis-mock": "8.2.2"
   },
   "devDependencies": {
     "@types/ioredis": "4.28.10",
     "@types/mocha": "9.1.1",
-    "eslint": "8.19.0",
+    "eslint": "8.20.0",
     "mocha": "10.0.0",
     "nyc": "15.1.0",
     "ts-mocha": "10.0.0",
-    "ts-node": "10.8.2",
+    "ts-node": "10.9.1",
     "tslib": "2.4.0",
     "typescript": "4.7.4"
   },
