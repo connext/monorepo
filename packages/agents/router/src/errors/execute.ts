@@ -23,9 +23,9 @@ export class MissingXCall extends ExecuteError {
     super("Transfer is missing XCall information", context, MissingXCall.name);
   }
 }
-export class BidVersionInvalid extends NxtpError {
+export class RouterVersionInvalid extends NxtpError {
   constructor(context: any = {}) {
-    super(`Router version is not supported by the sequencer`, context, BidVersionInvalid.name);
+    super(`Router version is not supported by the sequencer`, context, RouterVersionInvalid.name);
   }
 }
 

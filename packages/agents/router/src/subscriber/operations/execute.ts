@@ -24,7 +24,7 @@ import {
   SequencerResponseInvalid,
   UnableToGetAsset,
   NomadHomeBlacklisted,
-  BidVersionInvalid,
+  RouterVersionInvalid,
 } from "../../errors";
 // @ts-ignore
 import { version } from "../../../package.json";
@@ -118,10 +118,10 @@ export const sendBid = async (bid: Bid, _requestContext: RequestContext): Promis
       // TODO: Should we mark this transfer as expired? Technically speaking, it *could* become unexpired
       // if the sequencer decides relayer execution has timed out.
       throw new RetryableBidPostError({ transferId, requestContext, methodContext, data: error.response.data });
-    } else if (error.response?.data?.message === "BidVersionInvalid") {
+    } else if (error.response?.data?.message === "RouterVersionInvalid") {
       // TODO: Should we mark this transfer as expired? Technically speaking, it *could* become unexpired
       // if the sequencer decides relayer execution has timed out.
-      throw new BidVersionInvalid({ transferId, requestContext, methodContext, data: error.response.data });
+      throw new RouterVersionInvalid({ transferId, requestContext, methodContext, data: error.response.data });
     } else {
       const errorObj: any = {};
       if (error.response) {
