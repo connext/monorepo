@@ -14,16 +14,17 @@ GET {{baseUrl}}/ping
 
 ##############
 ### POST sendTransaction 
-POST {{baseUrl}}/sendTransaction/1111
+POST {{baseUrl}}/sendTransaction/9991
 Content-Type: application/json
 
 {
-  "to": "0x4cAA6358a3d9d1906B5DABDE60A626AAfD80186F",
+  "to": "0x765cbd312ad84A791908000DF58d879e4eaf768b",
   "value": 0,
-  "data": "0x2d3f9ef6000000000000000000000000000000000000000000000000002386f26fc100000000000000000000000000003ffc03f05d1869f493c7dbf913e636c6280e0ff90000000000000000000000009ada6aa06ef36977569dc5b38237809c7df5082a",
+  "data": "0x2d3f9ef6000000000000000000000000000000000000000000000000000000000000006400000000000000000000000021c5a4daeaf9625c781aa996e9229ea95ee4ff770000000000000000000000009ada6aa06ef36977569dc5b38237809c7df5082a",
   "from": "0x6d2A06543D23Cc6523AE5046adD8bb60817E0a94",
-  "chainId": 4
+  "chainId": 80001
 }
+
 
 ##############
 ### POST XCall
@@ -188,8 +189,8 @@ POST {{baseUrl}}/addLiquidityForRouter
 Content-Type: application/json
 
 {
-  "domain": "1111",
-  "amount": "10000000000000000",
-  "assetId": "0x3FFc03F05D1869f493c7dbf913E636C6280e0ff9",
+  "domain": "9991",
+  "amount": "100",
+  "assetId": "0x21c5a4dAeAf9625c781Aa996E9229eA95EE4Ff77",
   "router": "0x9ADA6aa06eF36977569Dc5b38237809c7DF5082a"
 }

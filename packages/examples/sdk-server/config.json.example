@@ -24,6 +24,16 @@
         }
       ],
       "providers": ["https://goerli.infura.io/v3/<your_infura_key>"]
+    },
+    "9991": {
+      "assets": [
+        {
+          "name": "TEST",
+          "symbol": "TEST",
+          "address": "0x21c5a4dAeAf9625c781Aa996E9229eA95EE4Ff77"
+        }
+      ],
+      "providers": ["https://goerli.infura.io/v3/<your_infura_key>"]
     }
   },
   "logLevel": "debug",
