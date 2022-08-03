@@ -1,5 +1,16 @@
 import { Type } from "@sinclair/typebox";
 
+// Base
+
+export const approveIfNeededSchema = Type.Object({
+  domainId: Type.String(),
+  assetId: Type.String(),
+  amount: Type.String(),
+  infiniteApprove: Type.Optional(Type.Boolean()),
+});
+
+// Pool
+
 export const getCanonicalFromLocalSchema = Type.Object({
   domainId: Type.String(),
   tokenAddress: Type.String(),
@@ -102,9 +113,11 @@ export const swapSchema = Type.Object({
   estimateGas: Type.Optional(Type.Boolean()),
 });
 
-export const approveIfNeededSchema = Type.Object({
-  domainId: Type.String(),
-  assetId: Type.String(),
+// Router
+
+export const addLiquidityForRouterSchema = Type.Object({
+  domain: Type.String(),
   amount: Type.String(),
-  infiniteApprove: Type.Optional(Type.Boolean()),
+  assetId: Type.String(),
+  router: Type.String(),
 });

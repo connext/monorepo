@@ -18,10 +18,10 @@ POST {{baseUrl}}/sendTransaction/1111
 Content-Type: application/json
 
 {
-  "to": "0xc778417E063141139Fce010982780140Aa0cD5Ab",
-  "data": "0x095ea7b30000000000000000000000004caa6358a3d9d1906b5dabde60a626aafd80186fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
-  "from": "0x6d2A06543D23Cc6523AE5046adD8bb60817E0a94",
+  "to": "0x4cAA6358a3d9d1906B5DABDE60A626AAfD80186F",
   "value": 0,
+  "data": "0x2d3f9ef6000000000000000000000000000000000000000000000000002386f26fc100000000000000000000000000003ffc03f05d1869f493c7dbf913e636c6280e0ff90000000000000000000000009ada6aa06ef36977569dc5b38237809c7df5082a",
+  "from": "0x6d2A06543D23Cc6523AE5046adD8bb60817E0a94",
   "chainId": 4
 }
 
@@ -180,4 +180,16 @@ Content-Type: application/json
   "domainId": "1111",
   "assetId": "0xc778417E063141139Fce010982780140Aa0cD5Ab",
   "amount": "10000000000000000"
+}
+
+##############
+### POST addLiquidityForRouter 
+POST {{baseUrl}}/addLiquidityForRouter
+Content-Type: application/json
+
+{
+  "domain": "1111",
+  "amount": "10000000000000000",
+  "assetId": "0x3FFc03F05D1869f493c7dbf913E636C6280e0ff9",
+  "router": "0x9ADA6aa06eF36977569Dc5b38237809c7DF5082a"
 }
