@@ -206,14 +206,11 @@ contract SwapAdminFacetTest is SwapAdminFacet, StableSwapFacet, FacetHelper {
     _decimals[0] = 18;
     _decimals[1] = 18;
 
-    bytes32 canonicalId = bytes32(abi.encodePacked(address(_pooledTokens[0])));
-    bytes32 key = keccak256(abi.encode(canonicalId, _canonicalDomain));
-
     vm.prank(_owner);
     vm.expectRevert(SwapAdminFacet.SwapAdminFacet__initializeSwap_alreadyInitialized.selector);
 
     this.initializeSwap(
-      key,
+      _canonicalKey,
       _pooledTokens,
       _decimals,
       LP_TOKEN_NAME,
