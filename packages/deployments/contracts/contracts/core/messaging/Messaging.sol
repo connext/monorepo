@@ -8,7 +8,7 @@ import {MerkleTreeManager} from "../../nomad-core/contracts/Merkle.sol";
 import {Message} from "../../nomad-core/libs/Message.sol";
 import {NomadBase} from "../../nomad-core/contracts/NomadBase.sol";
 
-// TODO This is an extremely rough contract designed to be an early PoC. Check every line before prod!
+// FIXME: This is an extremely rough contract designed to be an early PoC. Check every line before prod!
 
 contract Messaging is MerkleTreeManager, NomadBase {
   using MerkleLib for MerkleLib.Tree;
@@ -16,7 +16,20 @@ contract Messaging is MerkleTreeManager, NomadBase {
   IBridgeRouter bridgeRouter;
   address AMBaddress;
   uint32 localDomain;
-  bytes32 currentRoot;
+
+  /**
+   * @notice This tracks the root of the tree containing outbound roots from all other supported
+   * domains
+   * @dev This root is the root of the tree that is aggregated on mainnet (composed of all the roots
+   * of previous trees)
+   */
+  bytes32 public inboundRoot;
+
+  /**
+   * @notice This tracks the root of all transfers with the origin domain as this domain (i.e.
+   * all outbound transfers)
+   */
+  bytes32 public outboundRoot;
 
   // Status of Message:
   //   0 - None - message has not been proven or processed
