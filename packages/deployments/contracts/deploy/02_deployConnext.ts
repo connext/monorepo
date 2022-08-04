@@ -1,9 +1,9 @@
 import { HardhatRuntimeEnvironment } from "hardhat/types";
 import { DeployFunction } from "hardhat-deploy/types";
-import { constants, Contract, Wallet } from "ethers";
+import { Contract, Wallet } from "ethers";
 import { ethers } from "hardhat";
 
-import { SKIP_SETUP, WRAPPED_ETH_MAP } from "../src/constants";
+import { SKIP_SETUP } from "../src/constants";
 import { getDeploymentName } from "../src/utils";
 import { getDomainInfoFromChainId } from "../src/nomad";
 import { deployConfigs } from "../deployConfig";

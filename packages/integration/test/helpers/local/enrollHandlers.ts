@@ -23,6 +23,7 @@ export const enrollHandlers = async (
     for (const handler of handlers) {
       const otherHandlers = handlers.filter((h) => h.domain !== handler.domain);
       for (const otherHandler of otherHandlers) {
+        console.log(otherHandler, handlerName);
         const canonized = utils.hexlify(canonizeId((otherHandler as any)[handlerName] as BytesLike));
         const registeredData = RouterInterface.encodeFunctionData("remotes", [otherHandler.domain]);
         const encoded = await txService.readTx({

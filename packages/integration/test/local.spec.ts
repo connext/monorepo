@@ -14,11 +14,11 @@ import {
 import { TransactionService, getConnextInterface } from "@connext/nxtp-txservice";
 import { NxtpSdkBase, NxtpSdkUtils } from "@connext/nxtp-sdk";
 import { BigNumber, constants, Contract, providers, utils, Wallet } from "ethers";
+import { expect } from "chai";
 
 import { pollSomething } from "./helpers/shared";
 import { enrollHandlers, enrollCustom, setupRouter, setupAsset, addLiquidity, addRelayer } from "./helpers/local";
 import { DEPLOYER_WALLET, PARAMETERS, SUBG_POLL_PARITY, USER_WALLET } from "./constants/local";
-import { expect } from "chai";
 
 const logger = new Logger({ name: "e2e" });
 
@@ -60,8 +60,7 @@ const sendXCall = async (
   xcallData: XCallArgs;
 }> => {
   logger.info("Formatting XCall.");
-  const xcallData = {
-    amount: "1000",
+  const xcallData: XCallArgs = {
     params: {
       to: PARAMETERS.AGENTS.USER.address,
       originDomain: PARAMETERS.A.DOMAIN,
@@ -74,10 +73,12 @@ const sendXCall = async (
       receiveLocal: false,
       recovery: PARAMETERS.AGENTS.USER.address,
       relayerFee: "0",
-      slippageTol: "0",
+      destinationMinOut: "0",
       ...xparams,
     },
-    transactingAssetId: PARAMETERS.ASSET.address,
+    transactingAsset: PARAMETERS.ASSET.address,
+    transactingAmount: "1000",
+    originMinOut: "0",
   };
   const tx = await sdkBase.xcall(xcallData);
 
