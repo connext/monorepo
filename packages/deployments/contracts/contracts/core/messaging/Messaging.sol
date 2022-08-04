@@ -14,6 +14,8 @@ contract Messaging is MerkleTreeManager, NomadBase {
   using MerkleLib for MerkleLib.Tree;
 
   IBridgeRouter bridgeRouter;
+  IConnector connector;
+  // TODO for Eth L1, we should write an AMB aggregator/router contract
   address AMBaddress;
   uint32 localDomain;
 
