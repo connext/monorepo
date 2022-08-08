@@ -27,12 +27,14 @@ If you need to run the test locally against local changes, you can build the ima
 
 ## Edit Config If Needed
 
-In `setup-integration-test.sh` there is a section that creates a `.env` file. Anything here such as image tags can be changed to reflect the test design. For example, if you want to run the test against a different image, you can change the tag in the bash file variables for `ROUTER_IMAGE` and `SEQUENCER_IMAGE`.
+In `setup.sh` there is a section that creates a `.env` file. Anything here such as image tags can be changed to reflect the test design. For example, if you want to run the test against a different image, you can change the tag in the bash file variables for `ROUTER_IMAGE` and `SEQUENCER_IMAGE`.
 
 ## Steps
 
-1. Run `./packages/integration/setup-integration-test.sh`
-2. Run `yarn workspace @connext/nxtp-integration run test`
+```sh
+yarn workspace @connext/nxtp-integration run setup
+yarn workspace @connext/nxtp-integration run test
+```
 
 ## Logs from Deployment
 
@@ -61,17 +63,24 @@ home address:  0x30753E4A8aad7F8597332E813735Def5dD395028
 ============================= Deploying Nomad ===============================
 deployer:  0x627306090abaB3A6e1400e9345bC60c78a8BEf57
 Deploying xapp connection manager...
-deploying "XAppConnectionManager" (tx: 0xb9a28003d8b1ec910b31806c45e47f8205f26bc2fb9f46c312ae98db1a519ad1)...: deployed at 0xFB88dE099e13c3ED21F80a7a1E49f8CAEcF10df6 with 934450 gas
-deploy tx: 0xb9a28003d8b1ec910b31806c45e47f8205f26bc2fb9f46c312ae98db1a519ad1
+deploying "XAppConnectionManager" (tx: 0xdb86636c681727289d54c02fb5eb6930783e255e58b79d6ca1b82e677ca9fa30)...: deployed at 0xFB88dE099e13c3ED21F80a7a1E49f8CAEcF10df6 with 934450 gas
+deploy tx: 0xdb86636c681727289d54c02fb5eb6930783e255e58b79d6ca1b82e677ca9fa30
 xappConnectionManagerAddress: 0xFB88dE099e13c3ED21F80a7a1E49f8CAEcF10df6
 Deploying token registry...
 Deploying TokenRegistry with nomad upgradeable scheme
-deploying "TokenRegistry" (tx: 0xdfef1d568c561f1cc7b096f41708c1c02835e91e8fa7182005eece7291823ec1)...: deployed at 0xAa588d3737B611baFD7bD713445b314BD453a5C8 with 1580743 gas
+deploying "TokenRegistry" (tx: 0x608cb1bb1cadb9ada7435d9c3ef55167d38b4cb0481eb0abf993281d306540cb)...: deployed at 0xAa588d3737B611baFD7bD713445b314BD453a5C8 with 1574316 gas
 deployed implementation: 0xAa588d3737B611baFD7bD713445b314BD453a5C8
-deploying "TokenRegistryUpgradeBeacon" (tx: 0x9a245ec29e3b46766571f23423e4f5e69e76fb04e2225504dccec63f34ab4d09)...: deployed at 0xf204a4Ef082f5c04bB89F7D5E6568B796096735a with 168923 gas
-deploying "TokenRegistryUpgradeBeaconProxy" (tx: 0xc634910c249a0f19ded6a41df4880cd1fe4cd1cf969f376db2f86aac97f63b44)...: deployed at 0x75c35C980C0d37ef46DF04d31A140b65503c0eEd with 257835 gas
-Setting local domain of token registry as 1337...
-setDomain tx: 0xd47445205ccb219bed5b1c565142a3107bfd980a29b9ee9c6f47437a825d13bc
+deploying "TokenRegistryUpgradeBeacon" (tx: 0x5c6d62a8eacdbc7c8b7df10e770a4c064eba86dbb3a65f78f6ac814817672bce)...: deployed at 0xf204a4Ef082f5c04bB89F7D5E6568B796096735a with 168935 gas
+deploying "TokenRegistryUpgradeBeaconProxy" (tx: 0xeac41b4b7f299111f43d25e83486accf0e17dcbd3002a093557d3caf13461cfb)...: deployed at 0x75c35C980C0d37ef46DF04d31A140b65503c0eEd with 257835 gas
+Deploying bridge router...
+Deploying BridgeRouter with nomad upgradeable scheme
+deploying "BridgeRouter" (tx: 0x5ebe4ca026102ba13b3e1ca07dfc28cdf6e34ff176f469ed561fe4acc33729a6)...: deployed at 0x82D50AD3C1091866E258Fd0f1a7cC9674609D254 with 2824942 gas
+deployed implementation: 0x82D50AD3C1091866E258Fd0f1a7cC9674609D254
+deploying "BridgeRouterUpgradeBeacon" (tx: 0x89efa2833fc636da0ffdbaa3b7ec5802ae899dc8902fca4eac4201d32dd0e12a)...: deployed at 0xdDA6327139485221633A1FcD65f4aC932E60A2e1 with 168935 gas
+deploying "BridgeRouterUpgradeBeaconProxy" (tx: 0xdae55288f7092501910b1d7689d36fffa9dc266867818791c4f49a6be34eb4bd)...: deployed at 0xeec918d74c746167564401103096D45BbD494B74 with 257844 gas
+BridgeRouterUpgradeBeaconProxy deployed to 0xeec918d74c746167564401103096D45BbD494B74
+Setting local domain of token registry as 1338...
+setDomain tx: 0x6e4cabd184a1ecc13d1da5d2626e634d23023b44d2c49c3abb6c4c1620bbdd86
 setDomain tx mined: {
   to: '0x75c35C980C0d37ef46DF04d31A140b65503c0eEd',
   from: '0x627306090abaB3A6e1400e9345bC60c78a8BEf57',
@@ -79,69 +88,82 @@ setDomain tx mined: {
   transactionIndex: 0,
   gasUsed: BigNumber { _hex: '0x86cf', _isBigNumber: true },
   logsBloom: '0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000',
-  blockHash: '0x2619153ce23a814774b2523cd8f5d2370214771809c32604a273b980302c31f5',
-  transactionHash: '0xd47445205ccb219bed5b1c565142a3107bfd980a29b9ee9c6f47437a825d13bc',
+  blockHash: '0x9d5d04fdcbce623e40b5a55393c47e565a3b0ce238e41dd526d955bc9a93fcf3',
+  transactionHash: '0x6e4cabd184a1ecc13d1da5d2626e634d23023b44d2c49c3abb6c4c1620bbdd86',
   logs: [],
-  blockNumber: 67,
-  confirmations: 4,
+  blockNumber: 56,
+  confirmations: 1,
   cumulativeGasUsed: BigNumber { _hex: '0x86cf', _isBigNumber: true },
-  effectiveGasPrice: BigNumber { _hex: '0x022425', _isBigNumber: true },
+  effectiveGasPrice: BigNumber { _hex: '0x099795', _isBigNumber: true },
   status: 1,
   type: 2,
   byzantium: true,
   events: []
 }
 xapp owner 0x627306090abaB3A6e1400e9345bC60c78a8BEf57
-setting home as 0x30753e4a8aad7f8597332e813735def5dd395028 on local1337....
-setHome: 0x6c4024da3ab525bbae827e5e6f515a85ef9b475a985466bc396976889988e235
+setting home as 0x30753e4a8aad7f8597332e813735def5dd395028 on local1338....
+setHome: 0x7bb3817d24ee52969a448e173d5eb5359719fe0e9e5bc4e18a12beef09f913c8
+
+
+============================= Deploying Connext Contracts ===============================
+deployer:  0x627306090abaB3A6e1400e9345bC60c78a8BEf57
+network:  { chainId: 1338, name: 'unknown' }
+domainConfig:  {
+  name: 'local1338',
+  domain: 1338,
+  contracts: {
+    bridge: { bridgeToken: [Object] },
+    core: { replicas: [], home: [Object] }
+  }
+}
+price:  1000550473
+balance:  9999999971155483966150
+Fetching token registry...
 Deploying relayer fee router...
 Deploying RelayerFeeRouter with nomad upgradeable scheme
-deploying "RelayerFeeRouter" (tx: 0xb8409d638c907377449c9ffbdbca697a16e5405d1d1b6911bbad1b7298cd9687)...: deployed at 0xeec918d74c746167564401103096D45BbD494B74 with 1522613 gas
-deployed implementation: 0xeec918d74c746167564401103096D45BbD494B74
-deploying "RelayerFeeRouterUpgradeBeacon" (tx: 0x3f596e4873198fc5fa66bb5734338075f0f05df84e9f1d496a5139132e9094a9)...: deployed at 0x0d8cc4b8d15D4c3eF1d70af0071376fb26B5669b with 168923 gas
-deploying "RelayerFeeRouterUpgradeBeaconProxy" (tx: 0x721ac3b93ac269164eb90e90b1113088a00d468d229f812a252c7b6995110501)...: deployed at 0xEcFcaB0A285d3380E488A39B4BB21e777f8A4EaC with 235028 gas
-relayer fee router address: 0xEcFcaB0A285d3380E488A39B4BB21e777f8A4EaC
+deploying "RelayerFeeRouter" (tx: 0x2550ee2cd93effcfac0153876d6f4e40d010ab74693fed7633f010ce957bb6b1)...: deployed at 0x38cF23C52Bb4B13F051Aec09580a2dE845a7FA35 with 1528032 gas
+deployed implementation: 0x38cF23C52Bb4B13F051Aec09580a2dE845a7FA35
+deploying "RelayerFeeRouterUpgradeBeacon" (tx: 0xfafd0c657f51fc4489955a21844bda4ccb91279d418d7aee65dff6e84bdd9335)...: deployed at 0x4E72770760c011647D4873f60A3CF6cDeA896CD8 with 168935 gas
+deploying "RelayerFeeRouterUpgradeBeaconProxy" (tx: 0x34846ac70bf09e79edc4e5e00e2f56909ae700fdfe900ed336d9e5c76b4eaeaf)...: deployed at 0xbaAA2a3237035A2c7fA2A33c76B44a8C6Fe18e87 with 235028 gas
+relayer fee router address: 0xbaAA2a3237035A2c7fA2A33c76B44a8C6Fe18e87
 relayer fee router owner: 0x627306090abaB3A6e1400e9345bC60c78a8BEf57
 Deploying promise router...
 Deploying PromiseRouter with nomad upgradeable scheme
-deploying "PromiseRouter" (tx: 0xba031e7073a975cd8a85149c1c3e3cf9ed599a1b2e0e0bc5bbba367c87402edb)...: deployed at 0x38cF23C52Bb4B13F051Aec09580a2dE845a7FA35 with 2034905 gas
-deployed implementation: 0x38cF23C52Bb4B13F051Aec09580a2dE845a7FA35
-deploying "PromiseRouterUpgradeBeacon" (tx: 0x607f50d6756cfdf79ed8c4fb5eea99ca634cfbc89a1f5b4daccdda0551ca44f9)...: deployed at 0x4E72770760c011647D4873f60A3CF6cDeA896CD8 with 168923 gas
-deploying "PromiseRouterUpgradeBeaconProxy" (tx: 0x4bb45895b9f4e2d4c2c78631e4b95a7885009c6bf24297c3a1e5ca1344b653e1)...: deployed at 0xbaAA2a3237035A2c7fA2A33c76B44a8C6Fe18e87 with 235072 gas
-promise router address: 0xbaAA2a3237035A2c7fA2A33c76B44a8C6Fe18e87
+deploying "PromiseRouter" (tx: 0xac1473abc5c9b59642480d6fd5fb1e9041041f12538f17c00445ac9141b62a92)...: deployed at 0x13274Fe19C0178208bCbee397af8167A7be27f6f with 2156978 gas
+deployed implementation: 0x13274Fe19C0178208bCbee397af8167A7be27f6f
+deploying "PromiseRouterUpgradeBeacon" (tx: 0xae2a4dbbc26a71cd8f4ab904ac081986d73dab08156cedee56597937ead01653)...: deployed at 0xA4392264a2d8c998901D10C154C91725b1BF0158 with 168935 gas
+deploying "PromiseRouterUpgradeBeaconProxy" (tx: 0x20c400c90db3b1f356575950a49430f3d5a734f8d195475e92602b9aebe3e5e1)...: deployed at 0xB529f14AA8096f943177c09Ca294Ad66d2E08b1f with 279324 gas
+promise router address: 0xB529f14AA8096f943177c09Ca294Ad66d2E08b1f
 promise router owner: 0x627306090abaB3A6e1400e9345bC60c78a8BEf57
-
-============================= Deploying Connext Diamond ===============================
-deployer:  0x627306090abaB3A6e1400e9345bC60c78a8BEf57
-Fetching relayer fee router...
-Fetching promise router...
-Fetching token registry...
-deploying "LPToken" (tx: 0xaba94bca2af99947d67da0d710d50c21775497fbfa8ec998cda8dbe7edbbccfa)...: deployed at 0x13274Fe19C0178208bCbee397af8167A7be27f6f with 1048571 gas
-executing LPToken.initialize (tx: 0x55319254dc848b859be5592c431e716ad4eaf31ad291d67e74c716cd006a2642) ...: performed with 115486 gas
+deploying "LPToken" (tx: 0xa2d0657b1c471a922d95607e1ed8e5ec401e7cd1e1ff434308144317d33f3bb9)...: deployed at 0x3d49d1eF2adE060a33c6E6Aa213513A7EE9a6241 with 1090094 gas
+executing LPToken.initialize (tx: 0x465c51670037756c1237c8f94cc03875a77ffacb88cf1c7e6b0ee2156ab45c34) ...: performed with 115426 gas
 Deploying connext diamond...
-sending eth to create2 contract deployer address (0x3fab184622dc19b6109349b94811493bf2a45362) (tx: 0x5123716cd17cea55bd29e19616ff19a64196e0484f9ff46652b157c60b7415fa)...
+sending eth to create2 contract deployer address (0x3fab184622dc19b6109349b94811493bf2a45362) (tx: 0xd64445c327ad90faf05a6b64fdb9390f1ad99c68075276c5537365141979118a)...
 deploying create2 deployer contract (at 0x4e59b44847b379578588920ca78fbf26c0b4956c) using deterministic deployment (https://github.com/Arachnid/deterministic-deployment-proxy) (tx: 0xeddf9e61fb9d8f5111840daef55e5fde0041f5702856532cdbb5a02998033d26)...
-deploying "AssetFacet" (tx: 0x94ff6aea4ee6246d790f7520c2c23cb5d3a20d7a46c0d2c9401d4a9b41de4ae4)...: deployed at 0xbE7fF776173bB96815Cf5d0922BDf876333B341f with 557678 gas
-deploying "BridgeFacet" (tx: 0x93382c33cbb42d28446c67a3700c6e03cb8fe5379c3a4f90726de7b1ea52e0c0)...: deployed at 0xE6697ac8d837Dd54b96E83B3aA1Dfe2fdA58d8e2 with 6089665 gas
-deploying "NomadFacet" (tx: 0x8896d7634200b5a9b56675319f1753d5012d4423520fdac410633f43b6268976)...: deployed at 0x8f27980BD219be49A8E17Da107fb7C2C281b93F0 with 191520 gas
-deploying "ProposedOwnableFacet" (tx: 0x57994b2e46b6c7544d22ebe0d6b2a72a2c55a383879322c96d9493620146dcfb)...: deployed at 0x771fD2A2943f03De99943E00Ee0765a857E36E94 with 596310 gas
-deploying "RelayerFacet" (tx: 0x923c79e7222ccee10fd8314fe57345757ff277890873ad5910b79adf65705f27)...: deployed at 0x030f2cf04F4F97c4e3ce0a5879d549Fe4D570c90 with 622904 gas
-deploying "RoutersFacet" (tx: 0xbeb1963784682b9cf307e3a47aa517a1db03acda34976735ef7428d5eead8c5a)...: deployed at 0xC7041266D9990F8C7b7ED01d3CB5c9B1b01C7B4E with 1793301 gas
-deploying "StableSwapFacet" (tx: 0x93ca74e880db39ea6a06f6ffd28bad35d89cc69ea5954517382b9d8018044af7)...: deployed at 0x24Bb73B9d54C0F66192C9995e3f290CDF9985c74 with 5402095 gas
-deploying "VersionFacet" (tx: 0x8225e46072c7d041dba7f5611d369baad11c57c95e1abf2c7fe5de329dfe3372)...: deployed at 0xc4DBE9fEe1A97544ae010D1fB58ef6F60adF52e5 with 86869 gas
-deploying "_DefaultDiamondCutFacet" (tx: 0xe9fb7583bb7ffd2089825f802e596fdb2051c66e67d97d21f0612385126c4b9c)...: deployed at 0x429dbdE7913c0Ed51E4B21163760B92eE66Ff5f5 with 1648898 gas
-deploying "_DefaultDiamondLoupeFacet" (tx: 0x5ce9866cd3e5ebe25986f817ec64245c5fe259b5a99ef3d167e8abe8e9781bab)...: deployed at 0x51d21E284392bb7f652a47A6fEFf514071673B3e with 481329 gas
-deploying "DiamondInit" (tx: 0xda71b3f081e60e290e39c540ee9b6d4eb46e6c6c0f9788116f8f76803effa119)...: deployed at 0x2DBDa7b9B956ee981e520fD1cd2EA8B612497eBe with 1664174 gas
-deploying "_DefaultDiamondERC165Init" (tx: 0x5f8e4f9d4aaa673fcdc42138950fd58d45849d1bfea4a12964c1454a740d98b9)...: deployed at 0xe68d85348f227d2ebEE814C38918F8A2D7d9B603 with 279490 gas
-deploying "ConnextHandler_DiamondProxy" (tx: 0xb60e26f0c86763385f219f8ac2cc081e4d8c3353ebfd9f92bc1cee435d200644)...: deployed at 0xF08dF3eFDD854FEDE77Ed3b2E515090EEe765154 with 7197940 gas
-connextAddress:  0xF08dF3eFDD854FEDE77Ed3b2E515090EEe765154
+deploying "AssetFacet" (tx: 0xb134ede8861b0432d68b7d7ebca81b096ba600feda05b57c7b88cc19a8b29985)...: deployed at 0x038916872Ecc9Bb5A2fe9989820e7091dB9DB421 with 578830 gas
+deploying "BridgeFacet" (tx: 0x4bcfbff8ef372b3f6df06aa96d083668529c73b48a9f0a311d0ddd30d77907d3)...: deployed at 0xa00828c4076EA017aE9B3905f6493e630Fb01F95 with 4382084 gas
+deploying "NomadFacet" (tx: 0x158f999f3cb21e0d3462d49e7fdaa1cdbe7c942043cc78ebf4242d6a8c802bbf)...: deployed at 0xD1399Dbb69bDF154cC02493A24Cb446c57D3ecB7 with 671203 gas
+deploying "ProposedOwnableFacet" (tx: 0x3c8f03bf8711aacf61b04fe87c398c63431f46fb8cbe60a1656251e950fcd4da)...: deployed at 0x0D2d954B09E28c946171DEa08F08d004E63E216d with 599754 gas
+deploying "RelayerFacet" (tx: 0x8f2bd16364572e69d23cebacec056222d0b3d7b3e9a966acb83959468138947c)...: deployed at 0x924526A0fcb68Dc1d3d4089222fc9Ca0B97fe366 with 643900 gas
+deploying "RoutersFacet" (tx: 0x04fd7c58baa5827480629175e59a2b9cd06495a38103e6dce9649f68a6d2a38e)...: deployed at 0x9fcCA3280889d41eBf378D4d8F96ebdB46eE6eBf with 1680773 gas
+deploying "StableSwapFacet" (tx: 0x19d398292fdbc85da026d1c02c30acf0a27646f76ce906aeebd78837aaced873)...: deployed at 0xcc08cCa9E2E90d960EF867FE5C04887936e6BC88 with 4406489 gas
+deploying "SwapAdminFacet" (tx: 0xfa09838dc80d15695a507eb4326b31c518954484f8bf8a950616374b2bb2fedf)...: deployed at 0x6273A16522d7b56B0D491260ceb0939429682A6F with 1545758 gas
+deploying "VersionFacet" (tx: 0xe8f793aaf1a5710c4a6909795a1c6d69d34ce34493f3e2c0430da9104a9049a8)...: deployed at 0x61eE97D100213dc10ACf98f9E3037b0025E08481 with 86869 gas
+deploying "DiamondCutFacet" (tx: 0x313ccc7fe152ca5e91dab47c1e85e33afec333411e2291af922a02dde8d6806d)...: deployed at 0x6A673aec7c6b82aD0A72726d4CA7e48d19cAA5df with 1398167 gas
+deploying "_DefaultDiamondLoupeFacet" (tx: 0xa2578c00fbf713f9de4d81df6aafd459835a3d142e32ef04cdafd31d2bea4294)...: deployed at 0x3Bcf4185443A339517aD4e580067f178d1B68E1D with 511079 gas
+deploying "DiamondInit" (tx: 0x3fc074f50d94a9a2c25706ecb0ce7125b780be118e8ad7ec3574034e697ca4e0)...: deployed at 0xc1Cd5773B9a758b45De4e16284a0E3EE4E9FE74E with 1685437 gas
+deploying "_DefaultDiamondERC165Init" (tx: 0xbbb4700c9948d64044036e8dd08c11c9a2c7b06d658ec07251fef824305ab847)...: deployed at 0xe68d85348f227d2ebEE814C38918F8A2D7d9B603 with 279490 gas
+deploying "ConnextHandler_DiamondProxy" (tx: 0x69622d564135fff17c493b50023330252d99dea1582dd4a4e691f5cb80ce306b)...: deployed at 0x8e4C131B37383E431B9cd0635D3cF9f3F628EDae with 7388210 gas
+connextAddress:  0x8e4C131B37383E431B9cd0635D3cF9f3F628EDae
 setting connext on relayer fee router
 setting connext on promiseRouter router
 Deploying multicall...
-deploying "Multicall" (tx: 0x62a95ba5dee3777da86dfcf820f19db4e4b75655a7140a6f7cfb68c11fe735fb)...: deployed at 0x98d9f9e8DEbd4A632682ba207670d2a5ACD3c489 with 314025 gas
+deploying "Multicall" (tx: 0x188a855c10f1024030e60f4298a150ea417df9e559d0fcd7f85223dec9eafcf5)...: deployed at 0x855d1c79Ad3fb086D516554Dc7187E3Fdfc1C79a with 313581 gas
 Deploying test token on non-mainnet chain...
-deploying "TestERC20" (tx: 0x1e8563ea78ec99d864f3829aefb3773e3597e961ae6c629f489bef75a292ec8e)...: deployed at 0x8e4C131B37383E431B9cd0635D3cF9f3F628EDae with 915139 gas
-TestERC20:  0x8e4C131B37383E431B9cd0635D3cF9f3F628EDae
+deploying "TestERC20" (tx: 0xe7a39afa29cdbdac06e739b62ddfdab6ed19df9f727ebfe1e3f803b350c43079)...: deployed at 0x913bbCFea2f347a24cfCA441d483E7CBAc8De3Db with 801969 gas
+TestERC20:  0x913bbCFea2f347a24cfCA441d483E7CBAc8De3Db
+deploying "TestWETH" (tx: 0x61dc99ba816b4f625a67b79a73142f0ad1d717b499537d5616f50dbe0ca6336d)...: deployed at 0x8065F4c7b8c2bf53561af92D9DA2Ea022A0b28Ca with 802077 gas
+TestERC20:  0x8065F4c7b8c2bf53561af92D9DA2Ea022A0b28Ca
 
 ============================= Deploying StableSwap ===============================
 deployer:  0x627306090abaB3A6e1400e9345bC60c78a8BEf57
