@@ -7,4 +7,11 @@ interface IRootManager {
    * @dev This must read information for the root from the registered AMBs
    */
   function propagate() external;
+
+  /**
+   * @notice Called by the connectors for various domains on L1 to update the
+   * latest outbound root
+   * @dev This must read information for the root from the registered AMBs
+   */
+  function setOutboundRoot(uint32 _domain, bytes32 _outbound) external;
 }
