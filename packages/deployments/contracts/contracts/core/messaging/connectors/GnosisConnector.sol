@@ -5,6 +5,7 @@ import {Connector} from "./Connector.sol";
 import {IMessaging} from "../interfaces/IMessaging.sol";
 import {IRootManager} from "../interfaces/IRootManager.sol";
 
+// Taken from: https://github.com/omni/tokenbridge-contracts/blob/master/contracts/interfaces/IAMB.sol
 interface GnosisBridge {
   function messageSender() external view returns (address);
 
@@ -129,7 +130,7 @@ contract GnosisL2Connector is BaseGnosisConnector {
     // ensure it is headed to this domain
     require(GnosisBridge(ambAddress).destinationChainId() == block.chainid, "!destinationChain");
     // ensure it came from mainnet
-    require(GnosisBridge(ambAddress).sourceChainId() == 1, "!mainnet");
+    require(GnosisBridge(ambAddress).sourceChainId() == 1, "!sourceChainId");
     // update the aggregate root on the domain
     IMessaging(messaging).update(bytes32(_data));
   }
