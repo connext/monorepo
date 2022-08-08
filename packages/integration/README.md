@@ -112,7 +112,7 @@ domainConfig:  {
   name: 'local1338',
   domain: 1338,
   contracts: {
-    bridge: { bridgeToken: [Object] },
+    bridge: { bridgeToke  n: [Object] },
     core: { replicas: [], home: [Object] }
   }
 }
