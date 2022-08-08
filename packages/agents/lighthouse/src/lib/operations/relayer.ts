@@ -90,7 +90,7 @@ export const sendToRelayer = async (
       relayerFee,
       transferId: transferId,
     });
-  } catch (err) {
+  } catch (err: unknown) {
     logger.error("Failed to estimate gas,", requestContext, methodContext, jsonifyError(err as NxtpError), {
       relayer: relayerAddress,
       connext: destinationConnextAddress,
