@@ -21,7 +21,7 @@ export const execute = async (args: ExecuteArgs, transferId: string): Promise<vo
   } = getContext();
   const { sendToRelayer } = getOperations();
 
-  logger.info("Method start", requestContext, methodContext, { args });
+  logger.info(`Method start: ${execute.name}`, requestContext, methodContext, { args });
 
   // Ensure we support the target domain (i.e. it's been configured).
   if (!config.chains[args.params.destinationDomain]) {
