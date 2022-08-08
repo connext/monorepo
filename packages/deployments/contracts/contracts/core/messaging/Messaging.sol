@@ -1,37 +1,32 @@
 // SPDX-License-Identifier: MIT OR Apache-2.0
 pragma solidity 0.8.15;
 
-import {IMessaging} from "./interfaces/IMessaging.sol";
-import {IBridgeRouter} from "../connext/interfaces/IBridgeRouter.sol";
 import {MerkleLib} from "../../nomad-core/libs/Merkle.sol";
 import {MerkleTreeManager} from "../../nomad-core/contracts/Merkle.sol";
 import {Message} from "../../nomad-core/libs/Message.sol";
-import {NomadBase} from "../../nomad-core/contracts/NomadBase.sol";
+import {TypedMemView} from "../../nomad-core/libs/TypedMemView.sol";
+
+import {IBridgeRouter} from "../connext/interfaces/IBridgeRouter.sol";
+
+import {IMessaging} from "./interfaces/IMessaging.sol";
+import {IConnector} from "./interfaces/IConnector.sol";
 
 // FIXME: This is an extremely rough contract designed to be an early PoC. Check every line before prod!
+// TODO for Eth L1, we should write an AMB aggregator/router contract
 
-contract Messaging is MerkleTreeManager, NomadBase {
-  using MerkleLib for MerkleLib.Tree;
+/**
+ * @notice This contract holds all the logic for managing outbound roots and aggregate roots.
+ * It will handle all outbound messages by adding the transfer to the `outboundRoot`, and store
+ * the aggregate root for proving.
+ * @dev Optimization: combine with the connector contract
+ */
+contract Messaging is MerkleTreeManager, IMessaging {
+  // ============ Events ============
 
-  IBridgeRouter bridgeRouter;
-  IConnector connector;
-  // TODO for Eth L1, we should write an AMB aggregator/router contract
-  address AMBaddress;
-  uint32 localDomain;
+  event Dispatch(bytes32 leaf, uint256 index, bytes32 root, bytes message);
+  event Process(bytes32 leaf, bool success, bytes returnData);
 
-  /**
-   * @notice This tracks the root of the tree containing outbound roots from all other supported
-   * domains
-   * @dev This root is the root of the tree that is aggregated on mainnet (composed of all the roots
-   * of previous trees)
-   */
-  bytes32 public inboundRoot;
-
-  /**
-   * @notice This tracks the root of all transfers with the origin domain as this domain (i.e.
-   * all outbound transfers)
-   */
-  bytes32 public outboundRoot;
+  // ============ Structs ============
 
   // Status of Message:
   //   0 - None - message has not been proven or processed
@@ -42,6 +37,51 @@ contract Messaging is MerkleTreeManager, NomadBase {
     Proven,
     Processed
   }
+
+  // ============ Libraries ============
+  using MerkleLib for MerkleLib.Tree;
+  using TypedMemView for bytes;
+  using TypedMemView for bytes29;
+  using Message for bytes29;
+
+  // ============ Public storage ============
+
+  /**
+   * @dev TODO: does this need to exist here?
+   */
+  uint32 public immutable domain;
+
+  /**
+   * @dev See the above optimization note on combining connectors and messaging
+   */
+  address public connector;
+
+  /**
+   * @dev This is used for the `onlyBridgeRouter` modifier, which gates who
+   * can send messages using `dispatch`
+   */
+  address public bridgeRouter;
+
+  /**
+   * @notice This tracks the root of the tree containing outbound roots from all other supported
+   * domains
+   * @dev This root is the root of the tree that is aggregated on mainnet (composed of all the roots
+   * of previous trees)
+   */
+  bytes32 public aggregateRoot;
+
+  /**
+   * @notice This tracks the root of all transfers with the origin domain as this domain (i.e.
+   * all outbound transfers)
+   */
+  bytes32 public outboundRoot;
+
+  /**
+   * @notice This tracks whether the root has been proven to exist within the given aggregate root
+   * @dev Tracking this is an optimization so you dont have to prove inclusion of the same constituent
+   * root many times
+   */
+  mapping(bytes32 => bool) public provenRoots;
 
   // Minimum gas for message processing
   uint256 public immutable PROCESS_GAS;
@@ -55,32 +95,54 @@ contract Messaging is MerkleTreeManager, NomadBase {
   // Mapping of message leaves to MessageStatus
   mapping(bytes32 => MessageStatus) public messages;
 
+  // ============ Modifiers ============
+
   modifier onlyBridgeRouter() {
-    require(msg.sender == address(bridgeRouter), "!bridgeRouter");
+    require(msg.sender == bridgeRouter, "!bridgeRouter");
     _;
   }
 
-  modifier onlyAMB() {
-    require(msg.sender == AMBaddress, "!AMBaddress");
+  modifier onlyConnector() {
+    require(msg.sender == connector, "!connector");
     _;
   }
+
+  // ============ Constructor ============
+
+  constructor(
+    uint32 _domain,
+    address _connector,
+    address _bridgeRouter,
+    uint256 _processGas,
+    uint256 _reserveGas
+  ) {
+    require(_processGas >= 850_000, "!process gas");
+    require(_reserveGas >= 15_000, "!reserve gas");
+    PROCESS_GAS = _processGas;
+    RESERVE_GAS = _reserveGas;
+    domain = _domain;
+    connector = _connector;
+    bridgeRouter = _bridgeRouter;
+  }
+
+  // ============ Public functionss ============
 
   /**
-   * @notice This function should send a message through the AMB by adding it to the merkle root
-   * stored on that chain.
+   * @notice This function adds transfers to the outbound transfer merkle tree.
+   * @dev The root of this tree will eventually be dispatched to mainnet via `send`,
+   * and combined into a single aggregate root.
    */
   function dispatch(
     uint32 _destinationDomain,
     bytes32 _recipientAddress,
     bytes memory _messageBody
   ) external onlyBridgeRouter {
-    // require(_messageBody.length <= MAX_MESSAGE_BODY_BYTES, "msg too long");
     // get the next nonce for the destination domain, then increment it
-    uint32 _nonce = nonces[_destinationDomain]; // TODO how do we want to handle nonces?
+    uint32 _nonce = nonces[_destinationDomain];
     nonces[_destinationDomain] = _nonce + 1;
     // format the message into packed bytes
     bytes memory _message = Message.formatMessage(
-      localDomain,
+      domain,
       bytes32(uint256(uint160(msg.sender))), // TODO necessary?
       _nonce,
       _destinationDomain,
@@ -91,10 +153,10 @@ contract Messaging is MerkleTreeManager, NomadBase {
     bytes32 _messageHash = keccak256(_message);
     tree.insert(_messageHash);
     // enqueue the new Merkle root after inserting the message
-    currentRoot = root();
+    outboundRoot = root();
     // Emit Dispatch event with message information
     // note: leafIndex is count() - 1 since new leaf has already been inserted
-    // emit Dispatch(_messageHash, count() - 1, _destinationAndNonce(_destinationDomain, _nonce), committedRoot, _message);
+    emit Dispatch(_messageHash, count() - 1, outboundRoot, _message);
   }
 
   /**
@@ -106,7 +168,11 @@ contract Messaging is MerkleTreeManager, NomadBase {
     bytes32[32] calldata _proof,
     uint256 _index
   ) external {
+    // 1. must prove existence of the given outbound root from destination domain
+    // 2. must prove the existence of the given message in the destination
+    // domain outbound root
     require(prove(keccak256(_message), _proof, _index), "!prove");
+    // FIXME: implement proofs above before processing the message
     process(_message);
   }
 
@@ -115,13 +181,17 @@ contract Messaging is MerkleTreeManager, NomadBase {
    * @dev Must check the msg.sender on the origin chain to ensure only the root manager is passing
    * these roots
    */
-  function update(bytes32 _newRoot) external onlyAMB {}
+  function update(bytes32 _newRoot) external onlyConnector {
+    aggregateRoot = _newRoot;
+  }
 
   /**
    * @notice This is called by relayers to trigger passing of current root to mainnet root manager
    * @dev This is called at specific time intervals
    */
-  function send() external {}
+  function send() external {
+    IConnector(connector).sendMessage(abi.encodePacked(outboundRoot));
+  }
 
   /**
    * @notice Attempts to prove the validity of message given its leaf, the
@@ -140,10 +210,9 @@ contract Messaging is MerkleTreeManager, NomadBase {
     bytes32[32] calldata _proof,
     uint256 _index
   ) internal returns (bool) {
-    // TODO actually implement this later
-    return true;
+    // FIXME: actually implement this later
     // ensure that message has not been proven or processed
-    // require(messages[_leaf] == MessageStatus.None, "!MessageStatus.None");
+    require(messages[_leaf] == MessageStatus.None, "!MessageStatus.None");
     // // calculate the expected root based on the proof
     // bytes32 _calculatedRoot = MerkleLib.branchRoot(_leaf, _proof, _index);
     // // if the root is valid, change status to Proven
@@ -152,6 +221,9 @@ contract Messaging is MerkleTreeManager, NomadBase {
     //   return true;
     // }
     // return false;
+
+    messages[_leaf] = MessageStatus.Proven;
+    return true;
   }
 
   /**
@@ -168,7 +240,7 @@ contract Messaging is MerkleTreeManager, NomadBase {
   function process(bytes memory _message) internal returns (bool _success) {
     bytes29 _m = _message.ref(0);
     // ensure message was meant for this domain
-    require(_m.destination() == localDomain, "!destination");
+    require(_m.destination() == domain, "!destination");
     // ensure message has been proven
     bytes32 _messageHash = _m.keccak();
     require(messages[_messageHash] == MessageStatus.Proven, "!proven");
@@ -225,8 +297,12 @@ contract Messaging is MerkleTreeManager, NomadBase {
       returndatacopy(add(_returnData, 0x20), 0, _toCopy)
     }
     // emit process results
-    // emit Process(_messageHash, _success, _returnData);
+    emit Process(_messageHash, _success, _returnData);
     // reset re-entrancy guard
     // entered = 1;
   }
+
+  // ============ Admin functions ============
+
+  // TODO: setConnector, setBridgeRouter
 }
