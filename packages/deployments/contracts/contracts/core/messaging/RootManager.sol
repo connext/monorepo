@@ -100,15 +100,6 @@ contract RootManager is ProposedOwnable, IRootManager {
   function removeConnector(uint32 _domain) external onlyWatcher {
     address connector = connectors[_domain];
     delete connectors[_domain];
-    // uint32 last = domains[domains.length - 1];
-    // for (uint8 i; i < domains.length; i++) {
-    //   if (connectors[domains[i]] == connector) {
-    //     // this is the index
-    //     connectors[domains[i]] = last;
-    //     break;
-    //   }
-    // }
-    // connectors.pop();
     emit ConnectorRemoved(_domain, connector);
   }
 }
