@@ -5,6 +5,8 @@ import {Connector} from "./Connector.sol";
 import {IMessaging} from "../interfaces/IMessaging.sol";
 import {IRootManager} from "../interfaces/IRootManager.sol";
 
+// TODO: how to handle message passing failures?
+
 // Taken from: https://github.com/omni/tokenbridge-contracts/blob/master/contracts/interfaces/IAMB.sol
 interface GnosisBridge {
   function messageSender() external view returns (address);
@@ -74,6 +76,7 @@ abstract contract BaseGnosisConnector is Connector {
    * @dev Asserts the sender of a cross domain message
    */
   function _verifySender(address _expected) internal view override returns (bool) {
+    require(msg.sender == ambAddress, "!bridge");
     return GnosisBridge(ambAddress).messageSender() == _expected;
   }
 }
@@ -126,7 +129,7 @@ contract GnosisL2Connector is BaseGnosisConnector {
     bytes memory _data
   ) internal override {
     // ensure the l1 connector sent the message
-    require(_verifySender(rootManager), "!rootManager");
+    require(_verifySender(mirrorConnector), "!l1Connector");
     // ensure it is headed to this domain
     require(GnosisBridge(ambAddress).destinationChainId() == block.chainid, "!destinationChain");
     // ensure it came from mainnet
