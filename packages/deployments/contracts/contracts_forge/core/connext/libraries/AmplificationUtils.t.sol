@@ -26,7 +26,10 @@ contract AmplificationUtilsTest is FacetHelper {
     _balances[0] = 100;
     _balances[1] = 100;
 
+    bytes32 _key = keccak256(abi.encode(_canonicalId, _canonicalDomain));
+
     swap = SwapUtils.Swap({
+      key: _key,
       initialA: 1000,
       futureA: 10000,
       initialATime: 100,
