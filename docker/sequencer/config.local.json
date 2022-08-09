@@ -37,8 +37,8 @@
       { "name": "sequencerX", "type": "direct", "publishTimeout": 1000, "persistent": true, "durable": true }
     ],
     "queues": [
-      { "name": "1337", "limit": 5, "queueLimit": 10000, "subscribe": true },
-      { "name": "1338", "limit": 5, "queueLimit": 10000, "subscribe": true }
+      { "name": "1337", "limit": 5, "queueLimit": 10000, "subscribe": true, "prefetch": 250 },
+      { "name": "1338", "limit": 5, "queueLimit": 10000, "subscribe": true, "prefetch": 250 }
     ],
     "bindings": [
       { "exchange": "sequencerX", "target": "1337", "keys": ["1337"] },

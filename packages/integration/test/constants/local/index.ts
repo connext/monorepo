@@ -40,8 +40,9 @@ export const PARAMETERS = {
     RPC: ["http://localhost:8547"],
     DEPLOYMENTS: {
       ConnextHandler: "0xF08dF3eFDD854FEDE77Ed3b2E515090EEe765154",
-      PromiseRouterUpgradeBeaconProxy: "0xbaAA2a3237035A2c7fA2A33c76B44a8C6Fe18e87",
-      RelayerFeeRouterUpgradeBeaconProxy: "0xEcFcaB0A285d3380E488A39B4BB21e777f8A4EaC",
+      PromiseRouterUpgradeBeaconProxy: "0xB529f14AA8096f943177c09Ca294Ad66d2E08b1f",
+      RelayerFeeRouterUpgradeBeaconProxy: "0xbaAA2a3237035A2c7fA2A33c76B44a8C6Fe18e87",
+      BridgeRouterUpgradeBeaconProxy: "0xeec918d74c746167564401103096D45BbD494B74",
       TokenRegistry: "0x75c35C980C0d37ef46DF04d31A140b65503c0eEd",
       XAppConnectionManager: "0xFB88dE099e13c3ED21F80a7a1E49f8CAEcF10df6",
     },
@@ -52,8 +53,9 @@ export const PARAMETERS = {
     RPC: ["http://localhost:8546"],
     DEPLOYMENTS: {
       ConnextHandler: "0xF08dF3eFDD854FEDE77Ed3b2E515090EEe765154",
-      PromiseRouterUpgradeBeaconProxy: "0xbaAA2a3237035A2c7fA2A33c76B44a8C6Fe18e87",
-      RelayerFeeRouterUpgradeBeaconProxy: "0xEcFcaB0A285d3380E488A39B4BB21e777f8A4EaC",
+      PromiseRouterUpgradeBeaconProxy: "0xB529f14AA8096f943177c09Ca294Ad66d2E08b1f",
+      RelayerFeeRouterUpgradeBeaconProxy: "0xbaAA2a3237035A2c7fA2A33c76B44a8C6Fe18e87",
+      BridgeRouterUpgradeBeaconProxy: "0xeec918d74c746167564401103096D45BbD494B74",
       TokenRegistry: "0x75c35C980C0d37ef46DF04d31A140b65503c0eEd",
       XAppConnectionManager: "0xFB88dE099e13c3ED21F80a7a1E49f8CAEcF10df6",
     },

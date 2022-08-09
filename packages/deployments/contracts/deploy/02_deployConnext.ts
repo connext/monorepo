@@ -1,9 +1,9 @@
 import { HardhatRuntimeEnvironment } from "hardhat/types";
 import { DeployFunction } from "hardhat-deploy/types";
-import { constants, Contract, Wallet } from "ethers";
+import { Contract, Wallet } from "ethers";
 import { ethers } from "hardhat";
 
-import { SKIP_SETUP, WRAPPED_ETH_MAP } from "../src/constants";
+import { SKIP_SETUP } from "../src/constants";
 import { getDeploymentName } from "../src/utils";
 import { getDomainInfoFromChainId } from "../src/nomad";
 import { deployConfigs } from "../deployConfig";
@@ -120,14 +120,7 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment): Promise<voi
       : {
           contract: "DiamondInit",
           methodName: "init",
-          args: [
-            domainConfig.domain,
-            xappConnectionManagerAddress,
-            tokenRegistry.address,
-            WRAPPED_ETH_MAP.get(+chainId) ?? constants.AddressZero,
-            relayerFeeRouter.address,
-            promiseRouter.address,
-          ],
+          args: [domainConfig.domain, tokenRegistry.address, relayerFeeRouter.address, promiseRouter.address],
         },
     // deterministicSalt: keccak256(utils.toUtf8Bytes("connextDiamondProxyV1")),
   });

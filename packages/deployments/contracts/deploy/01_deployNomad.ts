@@ -159,6 +159,15 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment): Promise<voi
     hre,
   );
 
+  console.log("Deploying bridge router...");
+  const bridgeRouter = await deployNomadBeaconProxy(
+    "BridgeRouter",
+    [tokenRegistry.address, xappConnectionManagerAddress],
+    deployer,
+    hre,
+  );
+  console.log(`BridgeRouterUpgradeBeaconProxy deployed to ${bridgeRouter.address}`);
+
   // Set token registry local domain
   console.log(`Setting local domain of token registry as ${domainConfig.domain}...`);
   const setDomain = await tokenRegistry.setLocalDomain(domainConfig.domain);
