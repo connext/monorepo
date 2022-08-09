@@ -62,7 +62,9 @@ contract AssetLogicTest is BaseConnextFacet, FacetHelper {
     uint256[] memory  _balances = new uint256[](2);
     _balances[0] = 100;
     _balances[1] = 100;
+    
     SwapUtils.Swap memory swap = SwapUtils.Swap({
+        key: _canonicalKey,
         initialA : 0,
         futureA : 0,
         initialATime: 0,
