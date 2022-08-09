@@ -52,25 +52,24 @@ abstract contract BaseGnosisConnector is Connector {
   // ============ Properties ============
 
   // ============ Constructor ============
-
   constructor(
-    address _ambAddress,
     uint32 _domain,
-    address _mirrorConnector,
-    uint32 _mirrorDomain,
-    address _messaging,
+    address _amb,
+    address _rootManager,
+    address _bridgeRouter,
     uint256 _processGas,
-    address _rootManager
-  ) Connector(_ambAddress, _domain, _mirrorConnector, _mirrorDomain, _messaging, _processGas, _rootManager) {}
+    uint256 _reserveGas,
+    uint32 _mirrorDomain,
+    address _mirrorConnector
+  ) Connector(_domain, _amb, _rootManager, _bridgeRouter, _processGas, _reserveGas, _mirrorDomain, _mirrorConnector) {}
 
   // ============ Private fns ============
-
   /**
    * @dev Asserts the sender of a cross domain message
    */
   function _verifySender(address _expected) internal view override returns (bool) {
-    require(msg.sender == ambAddress, "!bridge");
-    return GnosisBridge(ambAddress).messageSender() == _expected;
+    require(msg.sender == AMB, "!bridge");
+    return GnosisBridge(AMB).messageSender() == _expected;
   }
 }
 
@@ -86,32 +85,40 @@ contract GnosisL2Connector is BaseGnosisConnector {
   // ============ Properties ============
 
   // ============ Constructor ============
-
   constructor(
-    address _ambAddress,
     uint32 _domain,
-    address _mirrorConnector,
-    uint32 _mirrorDomain,
-    address _messaging,
+    address _amb,
+    address _rootManager,
+    address _bridgeRouter,
     uint256 _processGas,
-    address _rootManager
-  ) BaseGnosisConnector(_ambAddress, _domain, _mirrorConnector, _mirrorDomain, _messaging, _processGas, _rootManager) {}
+    uint256 _reserveGas,
+    uint32 _mirrorDomain,
+    address _mirrorConnector
+  )
+    BaseGnosisConnector(
+      _domain,
+      _amb,
+      _rootManager,
+      _bridgeRouter,
+      _processGas,
+      _reserveGas,
+      _mirrorDomain,
+      _mirrorConnector
+    )
+  {}
 
   // ============ Public fns ============
 
   // ============ Private fns ============
-
   /**
    * @dev Messaging uses this function to send data to mainnet via amb
    */
   function _sendMessage(bytes memory _data) internal override {
-    // ensure the messaging from this chain is sending the message
-    require(msg.sender == messaging, "!messaging");
     // send the message to the l1 connector by calling `processMessage`
-    GnosisBridge(ambAddress).requireToPassMessage(
+    GnosisBridge(AMB).requireToPassMessage(
       mirrorConnector,
       abi.encodeWithSelector(Connector.processMessage.selector, address(this), _data),
-      processGas
+      PROCESS_GAS
     );
   }
 
@@ -125,11 +132,11 @@ contract GnosisL2Connector is BaseGnosisConnector {
     // ensure the l1 connector sent the message
     require(_verifySender(mirrorConnector), "!l1Connector");
     // ensure it is headed to this domain
-    require(GnosisBridge(ambAddress).destinationChainId() == block.chainid, "!destinationChain");
+    require(GnosisBridge(AMB).destinationChainId() == block.chainid, "!destinationChain");
     // ensure it came from mainnet
-    require(GnosisBridge(ambAddress).sourceChainId() == 1, "!sourceChainId");
+    require(GnosisBridge(AMB).sourceChainId() == 1, "!sourceChainId");
     // update the aggregate root on the domain
-    IMessaging(messaging).update(bytes32(_data));
+    this.update(bytes32(_data));
   }
 }
 
@@ -143,30 +150,38 @@ contract GnosisL1Connector is BaseGnosisConnector {
   // ============ Properties ============
 
   // ============ Constructor ============
-
   constructor(
-    address _ambAddress,
     uint32 _domain,
-    address _mirrorConnector,
-    uint32 _mirrorDomain,
-    address _messaging,
+    address _amb,
+    address _rootManager,
+    address _bridgeRouter,
     uint256 _processGas,
-    address _rootManager
-  ) BaseGnosisConnector(_ambAddress, _domain, _mirrorConnector, _mirrorDomain, _messaging, _processGas, _rootManager) {}
+    uint256 _reserveGas,
+    uint32 _mirrorDomain,
+    address _mirrorConnector
+  )
+    BaseGnosisConnector(
+      _domain,
+      _amb,
+      _rootManager,
+      _bridgeRouter,
+      _processGas,
+      _reserveGas,
+      _mirrorDomain,
+      _mirrorConnector
+    )
+  {}
 
   // ============ Private fns ============
-
   /**
    * @dev Messaging uses this function to send data to l2 via amb
    */
-  function _sendMessage(bytes memory _data) internal override {
-    // only root manager can dispatch message to l2 via connector
-    require(msg.sender == rootManager, "!rootManager");
+  function _sendMessage(bytes memory _data) internal override onlyRootManager {
     // send message via AMB, should call "processMessage" which will update aggregate root
-    GnosisBridge(ambAddress).requireToPassMessage(
+    GnosisBridge(AMB).requireToPassMessage(
       mirrorConnector,
       abi.encodeWithSelector(Connector.processMessage.selector, address(this), _data),
-      processGas
+      PROCESS_GAS
     );
   }
 
@@ -180,12 +195,12 @@ contract GnosisL1Connector is BaseGnosisConnector {
     // ensure the l1 connector sent the message
     require(_verifySender(mirrorConnector), "!l2Connector");
     // ensure it is headed to this domain
-    require(GnosisBridge(ambAddress).destinationChainId() == block.chainid, "!destinationChain");
+    require(GnosisBridge(AMB).destinationChainId() == block.chainid, "!destinationChain");
     // ensure it came from mainnet
-    require(GnosisBridge(ambAddress).sourceChainId() == 100, "!sourceChainId");
+    require(GnosisBridge(AMB).sourceChainId() == 100, "!sourceChainId");
     // get the data (should be the outbound root)
     require(_data.length == 32, "!length");
     // update the root on the root manager
-    IRootManager(rootManager).setOutboundRoot(mirrorDomain, bytes32(_data));
+    IRootManager(ROOT_MANAGER).setOutboundRoot(mirrorDomain, bytes32(_data));
   }
 }
