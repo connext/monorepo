@@ -1,3 +1,4 @@
+-- migrate:up
 -- 
 -- Overall Transfer count
 -- 
@@ -106,7 +107,7 @@ CREATE  OR REPLACE VIEW public.agg_volume_transfer_by_period AS (
             rt.origin_domain AS domain,
             COUNT(rt.transfer_id) AS transfer_count,
             SUM(rt.amount) AS volume,
-            min(rt.transfer_timestamp) || '-' || max(rt.transfer_timestamp)  AS date
+            min(rt.transfer_timestamp) || ' : ' || max(rt.transfer_timestamp)  AS date
         
         FROM raw_transfers rt
         GROUP BY 1,2,3
@@ -120,7 +121,7 @@ CREATE  OR REPLACE VIEW public.agg_volume_transfer_by_period AS (
             rt.origin_domain AS domain,
             COUNT(rt.transfer_id) AS transfer_count,
             SUM(rt.amount) AS volume,
-            min(rt.transfer_timestamp) || '-' || max(rt.transfer_timestamp)  AS date
+            min(rt.transfer_timestamp) || ' : ' || max(rt.transfer_timestamp)  AS date
         FROM raw_transfers rt
         WHERE rt.transfer_timestamp > current_date - interval '7 days'
         GROUP BY 1,2,3
@@ -134,7 +135,7 @@ CREATE  OR REPLACE VIEW public.agg_volume_transfer_by_period AS (
             rt.origin_domain AS domain,
             COUNT(rt.transfer_id) AS transfer_count,
             SUM(rt.amount) AS volume,
-            min(rt.transfer_timestamp) || '-' || max(rt.transfer_timestamp)  AS date
+            min(rt.transfer_timestamp) || ' : ' || max(rt.transfer_timestamp)  AS date
         FROM raw_transfers rt
         WHERE rt.transfer_timestamp > current_date - interval '30 days'
         GROUP BY 1,2,3
@@ -148,7 +149,7 @@ CREATE  OR REPLACE VIEW public.agg_volume_transfer_by_period AS (
             rt.origin_domain AS domain,
             COUNT(rt.transfer_id) AS transfer_count,
             SUM(rt.amount) AS volume,
-            min(rt.transfer_timestamp) || '-' || max(rt.transfer_timestamp)  AS date
+            min(rt.transfer_timestamp) || ' : ' || max(rt.transfer_timestamp)  AS date
         FROM raw_transfers rt
         WHERE rt.transfer_timestamp > current_date - interval '90 days'
         GROUP BY 1,2,3
@@ -157,8 +158,10 @@ CREATE  OR REPLACE VIEW public.agg_volume_transfer_by_period AS (
 );
 
 
-grant select on public.routers_with_balances to query;
 grant select on public.transfers_count to query;
-grant select on public.daily_average_ttv_ttr_in_secs to query;
 grant select on public.average_ttv_ttr_in_secs to query;
+grant select on public.daily_average_ttv_ttr_in_secs to query;
 grant select on public.agg_volume_transfer_by_period to query;
+
+-- migrate:down
+
