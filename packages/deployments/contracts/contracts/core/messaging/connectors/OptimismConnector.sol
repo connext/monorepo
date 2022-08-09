@@ -37,38 +37,46 @@ abstract contract BaseOptimismConnector is Connector {
   // ============ Properties ============
 
   // ============ Constructor ============
-
   constructor(
-    address _ambAddress,
     uint32 _domain,
-    address _mirrorConnector,
-    uint32 _mirrorDomain,
-    address _messaging,
+    address _amb,
+    address _rootManager,
+    address _bridgeRouter,
     uint256 _processGas,
-    address _rootManager
-  ) Connector(_ambAddress, _domain, _mirrorConnector, _mirrorDomain, _messaging, _processGas, _rootManager) {}
+    uint256 _reserveGas,
+    uint32 _mirrorDomain,
+    address _mirrorConnector
+  ) Connector(_domain, _amb, _rootManager, _bridgeRouter, _processGas, _reserveGas, _mirrorDomain, _mirrorConnector) {}
 
   // ============ Public Fns ============
-
   function _verifySender(address _expected) internal override returns (bool) {
-    require(msg.sender == ambAddress, "!bridge");
-    return OptimismBridge(ambAddress).xDomainMessageSender() == _expected;
+    require(msg.sender == AMB, "!bridge");
+    return OptimismBridge(AMB).xDomainMessageSender() == _expected;
   }
 }
 
 contract OptimismL2Connector is BaseOptimismConnector {
   // ============ Constructor ============
-
   constructor(
-    address _ambAddress,
     uint32 _domain,
-    address _mirrorConnector,
-    uint32 _mirrorDomain,
-    address _messaging,
+    address _amb,
+    address _rootManager,
+    address _bridgeRouter,
     uint256 _processGas,
-    address _rootManager
+    uint256 _reserveGas,
+    uint32 _mirrorDomain,
+    address _mirrorConnector
   )
-    BaseOptimismConnector(_ambAddress, _domain, _mirrorConnector, _mirrorDomain, _messaging, _processGas, _rootManager)
+    BaseOptimismConnector(
+      _domain,
+      _amb,
+      _rootManager,
+      _bridgeRouter,
+      _processGas,
+      _reserveGas,
+      _mirrorDomain,
+      _mirrorConnector
+    )
   {}
 
   // ============ Private fns ============
@@ -77,8 +85,7 @@ contract OptimismL2Connector is BaseOptimismConnector {
    * @dev Sends `outboundRoot` to root manager on l1
    */
   function _sendMessage(bytes memory _data) internal override {
-    require(msg.sender == messaging, "!messaging");
-    OptimismBridge(ambAddress).sendMessage(mirrorConnector, _data, uint32(processGas));
+    OptimismBridge(AMB).sendMessage(mirrorConnector, _data, uint32(PROCESS_GAS));
   }
 
   /**
@@ -94,7 +101,7 @@ contract OptimismL2Connector is BaseOptimismConnector {
     // get the data (should be the aggregate root)
     require(_data.length == 32, "!length");
     // set the outbound root for optimism
-    IMessaging(messaging).update(bytes32(_data));
+    this.update(bytes32(_data));
     // get the state commitment root
     // if state commitment root is <
   }
@@ -104,29 +111,37 @@ contract OptimismL1Connector is BaseOptimismConnector {
   // ============ Properties ============
 
   // ============ Constructor ============
-
   constructor(
-    address _ambAddress,
     uint32 _domain,
-    address _mirrorConnector,
-    uint32 _mirrorDomain,
-    address _messaging,
+    address _amb,
+    address _rootManager,
+    address _bridgeRouter,
     uint256 _processGas,
-    address _rootManager
+    uint256 _reserveGas,
+    uint32 _mirrorDomain,
+    address _mirrorConnector
   )
-    BaseOptimismConnector(_ambAddress, _domain, _mirrorConnector, _mirrorDomain, _messaging, _processGas, _rootManager)
+    BaseOptimismConnector(
+      _domain,
+      _amb,
+      _rootManager,
+      _bridgeRouter,
+      _processGas,
+      _reserveGas,
+      _mirrorDomain,
+      _mirrorConnector
+    )
   {}
 
   // ============ Public fns ============
 
   // ============ Private fns ============
-
   /**
    * @dev Sends `aggregateRoot` to messaging on l2
    */
   function _sendMessage(bytes memory _data) internal override {
-    require(msg.sender == rootManager, "!rootManager");
-    OptimismBridge(ambAddress).sendMessage(mirrorConnector, _data, uint32(processGas));
+    require(msg.sender == ROOT_MANAGER, "!rootManager");
+    OptimismBridge(AMB).sendMessage(mirrorConnector, _data, uint32(PROCESS_GAS));
   }
 
   /**
@@ -144,7 +159,7 @@ contract OptimismL1Connector is BaseOptimismConnector {
     // get the data (should be the outbound root)
     require(_data.length == 32, "!length");
     // set the outbound root for optimism
-    IRootManager(rootManager).setOutboundRoot(mirrorDomain, bytes32(_data));
+    IRootManager(ROOT_MANAGER).setOutboundRoot(mirrorDomain, bytes32(_data));
     // get the state commitment root
     // if state commitment root is <
   }

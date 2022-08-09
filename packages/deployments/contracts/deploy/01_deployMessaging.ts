@@ -1,41 +1,61 @@
 import { HardhatRuntimeEnvironment } from "hardhat/types";
 import { DeployFunction } from "hardhat-deploy/types";
-import { constants, Contract, Wallet } from "ethers";
+import { BigNumber, constants, Contract, Wallet } from "ethers";
 import { ethers } from "hardhat";
 
-import { SKIP_SETUP, WRAPPED_ETH_MAP } from "../src/constants";
-import { getDeploymentName } from "../src/utils";
-import { deployConfigs } from "../deployConfig";
+import { chainIdToDomain } from "../src";
 
 // TODO: Should be made a step in the deployment process.
 // Should replace the nomad steps.
 
+// The chain ID of the hub. For production environment, should be Ethereum Mainet.
+const HUB_CHAIN_ID = 1;
 // Contract prefixes for Connector contracts.
 const HUB_PREFIX = "L1";
 const SPOKE_PREFIX = "L2";
-// Map of chain ID => contract name prefix for all spoke chains.
-const CHAIN_TO_NAME: { [chain: number]: string } = {
+// Map of chain ID => config for all spoke chains.
+const CHAIN_TO_CONFIG: {
+  [chain: number]: {
+    prefix: string; // The chain's name and the Connector name prefix.
+    amb: string; // Official AMB contract address.
+    processGas: BigNumber; // The
+  };
+} = {
   // NOTE: Eth mainnet (chain ID = 1) intentionally not included here.
-  10: "Optimism",
-  100: "Gnosis",
+  10: {
+    prefix: "Optimism",
+    amb: "",
+    processGas: BigNumber.from("200_000"),
+  },
+  100: {
+    prefix: "Gnosis",
+    amb: "",
+    processGas: BigNumber.from("2_000_000"),
+  },
 };
 
-// address _ambAddress,
-// address _mirrorConnector,
-// uint32 _domain,
-// uint32 _mirrorDomain,
-// address _rootManager,
-// address _messaging,
-// uint256 _processGas
+const formatConnectorArgs = (chainId: number, mirrorChainId: number, rootManager?: string): any[] => {
+  const config = CHAIN_TO_CONFIG[chainId];
 
-type ConnectorArgs = {
-  ambAddress: string;
-  mirrorConnector: string;
-  domain: string;
-  mirrorDomain: string;
-  rootManager: string;
-  messaging: string;
-  processGas: string;
+  // RootManager should be 0x for spoke connectors, and defined for hub connectors.
+  if (chainId === 1) {
+    if (!rootManager) {
+      throw new Error("RootManager must be defined for Eth Mainnet.");
+    }
+  } else if (rootManager) {
+    throw new Error("RootManager must be empty for spoke chains.");
+  }
+
+  return [
+    config.amb,
+    BigNumber.from(chainIdToDomain(chainId).toString()),
+    // Mirror contract address should be configured separately, after deployment.
+    constants.AddressZero,
+    // Mirror domain should be known.
+    BigNumber.from(chainIdToDomain(mirrorChainId).toString()),
+    rootManager ?? constants.AddressZero,
+    config.processGas,
+  ];
 };
 
 // Deploy messaging contracts unique to Eth mainnet, including hub connectors.
@@ -50,25 +70,37 @@ const handleDeployMainnet = async (hre: HardhatRuntimeEnvironment, deployer: Wal
     log: true,
   });
   console.log(`RootManager deployed to ${rootManager.address}`);
-  // Deploy EthMainnetConnector.
+  // TODO: Deploy EthMainnetConnector.
+
   // Loop through every HubConnector and deploy.
-  for (const chain of Object.keys(CHAIN_TO_NAME)) {
-    const prefix = CHAIN_TO_NAME[+chain] + HUB_PREFIX;
+  for (const mirrorChain of Object.keys(CHAIN_TO_CONFIG)) {
+    const mirrorChainId = +mirrorChain;
+    const prefix = CHAIN_TO_CONFIG[mirrorChainId].prefix + HUB_PREFIX;
     const contract = `${prefix}Connector`;
-    // const deployment = ;
+    console.log(`Deploying ${contract}...`);
+    const deployment = await hre.deployments.deploy(contract, {
+      contract,
+      from: deployer.address,
+      args: formatConnectorArgs(HUB_CHAIN_ID, mirrorChainId, rootManager.address),
+      skipIfAlreadyDeployed: true,
+      log: true,
+    });
+    console.log(`${contract} deployed to ${deployment.address}`);
   }
 };
 
 const handleDeploySpoke = async (hre: HardhatRuntimeEnvironment, deployer: Wallet, chainId: number): Promise<void> => {
-  const prefix = CHAIN_TO_NAME[chainId] + SPOKE_PREFIX;
+  const prefix = CHAIN_TO_CONFIG[chainId].prefix + SPOKE_PREFIX;
   const contract = `${prefix}Connector`;
+  console.log(`Deploying ${contract}...`);
   const deployment = await hre.deployments.deploy(contract, {
     contract,
     from: deployer.address,
-    args: [],
+    args: formatConnectorArgs(chainId, HUB_CHAIN_ID),
     skipIfAlreadyDeployed: true,
     log: true,
   });
+  console.log(`${contract} deployed to ${deployment.address}`);
 };
 
 /**
@@ -77,7 +109,7 @@ const handleDeploySpoke = async (hre: HardhatRuntimeEnvironment, deployer: Walle
  * @param hre Hardhat environment to deploy to
  */
 const func: DeployFunction = async (hre: HardhatRuntimeEnvironment): Promise<void> => {
-  const chainId = await hre.getChainId();
+  const chain = await hre.getChainId();
 
   let _deployer: any;
   ({ deployer: _deployer } = await hre.ethers.getNamedSigners());
@@ -88,13 +120,13 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment): Promise<voi
   console.log("\n============================= Deploying Messaging Contracts ===============================");
   console.log("deployer: ", deployer.address);
 
-  if (chainId === "1") {
+  if (chain === HUB_CHAIN_ID.toString()) {
     await handleDeployMainnet(hre, deployer);
   } else {
-    if (!Object.keys(CHAIN_TO_NAME).includes(chainId)) {
+    if (!Object.keys(CHAIN_TO_CONFIG).includes(chain)) {
       throw new Error("Invalid chain for deployment!");
     }
-    await handleDeploySpoke(hre, deployer, +chainId);
+    await handleDeploySpoke(hre, deployer, +chain);
   }
 };
 

@@ -3,11 +3,12 @@ pragma solidity 0.8.15;
 
 import {ProposedOwnable} from "../../shared/ProposedOwnable.sol";
 import {IConnector} from "../interfaces/IConnector.sol";
+import {Messaging} from "../Messaging.sol";
 
 /**
  * @notice Holds shared logic for interfacing with AMB
  */
-abstract contract Connector is ProposedOwnable, IConnector {
+abstract contract Connector is Messaging, ProposedOwnable, IConnector {
   // ============ Events ============
   event MirrorConnectorUpdated(address previous, address current);
 
@@ -16,18 +17,6 @@ abstract contract Connector is ProposedOwnable, IConnector {
   event MessageProcessed(address _from, bytes data);
 
   // ============ Properties ============
-  uint32 constant ETH_MAINNET_DOMAIN = 6648936;
-
-  /**
-   * @notice Address of the AMB on this domain.
-   */
-  address public immutable ambAddress;
-
-  /**
-   * @notice The domain of this Connector.
-   */
-  uint32 public immutable domain;
-
   /**
    * @notice Connector on L2 for L1 connectors, and vice versa.
    */
@@ -35,46 +24,23 @@ abstract contract Connector is ProposedOwnable, IConnector {
 
   /**
    * @notice Domain of mirror connector.
+   * @dev Immutable, as the domain should be known at deployment time.
    */
   uint32 public immutable mirrorDomain;
 
-  address public immutable rootManager;
-
-  address public messaging;
-
-  /**
-   * @notice Gas used on the mirror domain.
-   */
-  uint256 public processGas;
-
   // ============ Constructor ============
-
   constructor(
-    address _ambAddress,
     uint32 _domain,
-    address _mirrorConnector,
-    uint32 _mirrorDomain,
-    address _messaging,
+    address _amb,
+    address _rootManager,
+    address _bridgeRouter,
     uint256 _processGas,
-    address _rootManager
-  ) ProposedOwnable() {
-    ambAddress = _ambAddress;
-    domain = _domain;
-
-    mirrorConnector = _mirrorConnector;
+    uint256 _reserveGas,
+    uint32 _mirrorDomain,
+    address _mirrorConnector
+  ) Messaging(_domain, _amb, _rootManager, _bridgeRouter, _processGas, _reserveGas) ProposedOwnable() {
     mirrorDomain = _mirrorDomain;
-
-    messaging = _messaging;
-    processGas = _processGas;
-
-    // NOTE: The address for the RootManager contract should be 0x for Connectors on their respective
-    // domain, and should be defined for connectors on Eth Mainnet.
-    if (_domain == ETH_MAINNET_DOMAIN) {
-      require(_rootManager != address(0), "RootManager addr must be defined");
-    } else {
-      require(_rootManager == address(0), "RootManager should be zero");
-    }
-    rootManager = _rootManager;
+    mirrorConnector = _mirrorConnector;
     _setOwner(msg.sender);
   }
 
@@ -92,7 +58,6 @@ abstract contract Connector is ProposedOwnable, IConnector {
   }
 
   // ============ Admin fns ============
-
   /**
    * @notice Sets the address of the l2Connector for this domain
    */
@@ -103,19 +68,14 @@ abstract contract Connector is ProposedOwnable, IConnector {
 
   // ============ Private fns ============
   /**
-   * @notice This function is used by the Connext contract on the l2 domain to send a message to the
-   * l1 domain (i.e. called by Connext on optimism to send a message to mainnet with roots)
-   */
-  function _sendMessage(bytes memory _data) internal virtual;
-
-  /**
    * @notice This function is used by the AMBs to handle incoming messages. Should store the latest
-   * root generated on the l2 domain
+   * root generated on the l2 domain.
    */
   function _processMessage(address _sender, bytes memory _data) internal virtual;
 
   /**
-   * @notice Function is used to check the sender of the message on the other domain
+   * @notice Function is used to check the sender of the message on the other domain.
+   * @dev Should be overridden by the implementing Connector contract.
    */
   function _verifySender(address _expected) internal virtual returns (bool);
 }

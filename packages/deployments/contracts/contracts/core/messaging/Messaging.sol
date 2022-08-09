@@ -20,14 +20,12 @@ import {IConnector} from "./interfaces/IConnector.sol";
  * the aggregate root for proving.
  * @dev Optimization: combine with the connector contract
  */
-contract Messaging is MerkleTreeManager, IMessaging {
+abstract contract Messaging is MerkleTreeManager, IMessaging {
   // ============ Events ============
-
   event Dispatch(bytes32 leaf, uint256 index, bytes32 root, bytes message);
   event Process(bytes32 leaf, bool success, bytes returnData);
 
   // ============ Structs ============
-
   // Status of Message:
   //   0 - None - message has not been proven or processed
   //   1 - Proven - message inclusion proof has been validated
@@ -45,22 +43,26 @@ contract Messaging is MerkleTreeManager, IMessaging {
   using Message for bytes29;
 
   // ============ Public storage ============
+  /**
+   * @notice The domain of this Messaging (i.e. Connector) contract.
+   */
+  uint32 public immutable DOMAIN;
 
   /**
-   * @dev TODO: does this need to exist here?
+   * @notice Address of the AMB on this domain.
    */
-  uint32 public immutable domain;
+  address public immutable AMB;
 
   /**
-   * @dev See the above optimization note on combining connectors and messaging
+   * @notice RootManager contract address.
    */
-  address public connector;
+  address public immutable ROOT_MANAGER;
 
   /**
    * @dev This is used for the `onlyBridgeRouter` modifier, which gates who
    * can send messages using `dispatch`
    */
-  address public bridgeRouter;
+  address public immutable BRIDGE_ROUTER;
 
   /**
    * @notice This tracks the root of the tree containing outbound roots from all other supported
@@ -96,37 +98,55 @@ contract Messaging is MerkleTreeManager, IMessaging {
   mapping(bytes32 => MessageStatus) public messages;
 
   // ============ Modifiers ============
-
-  modifier onlyBridgeRouter() {
-    require(msg.sender == bridgeRouter, "!bridgeRouter");
+  modifier onlyAMB() {
+    require(msg.sender == AMB, "!AMB");
     _;
   }
 
-  modifier onlyConnector() {
-    require(msg.sender == connector, "!connector");
+  modifier onlyRootManager() {
+    // NOTE: RootManager will be zero address for spoke connectors.
+    // Only root manager can dispatch a message to spokes/L2s via the hub connector.
+    require(msg.sender == ROOT_MANAGER, "!rootManager");
+    _;
+  }
+
+  modifier onlyBridgeRouter() {
+    require(msg.sender == BRIDGE_ROUTER, "!bridgeRouter");
     _;
   }
 
   // ============ Constructor ============
-
   constructor(
     uint32 _domain,
-    address _connector,
+    address _amb,
+    address _rootManager,
     address _bridgeRouter,
     uint256 _processGas,
     uint256 _reserveGas
   ) {
+    // Sanity checks.
+    require(_domain > 0, "!domain");
+    require(_amb != address(0), "!amb");
+    require(_rootManager != address(0), "!rootManager");
+    require(_bridgeRouter != address(0), "!bridgeRouter");
+
+    DOMAIN = _domain;
+    AMB = _amb;
+    ROOT_MANAGER = _rootManager;
+    BRIDGE_ROUTER = _bridgeRouter;
+
+    // TODO: constants for these min values
     require(_processGas >= 850_000, "!process gas");
     require(_reserveGas >= 15_000, "!reserve gas");
     PROCESS_GAS = _processGas;
     RESERVE_GAS = _reserveGas;
-    domain = _domain;
-    connector = _connector;
-    bridgeRouter = _bridgeRouter;
   }
 
-  // ============ Public functionss ============
+  // ============ Admin functions ============
 
+  // TODO: setConnector, setBridgeRouter
+
+  // ============ Public fns ============
   /**
    * @notice This function adds transfers to the outbound transfer merkle tree.
    * @dev The root of this tree will eventually be dispatched to mainnet via `send`,
@@ -142,7 +162,7 @@ contract Messaging is MerkleTreeManager, IMessaging {
     nonces[_destinationDomain] = _nonce + 1;
     // format the message into packed bytes
     bytes memory _message = Message.formatMessage(
-      domain,
+      DOMAIN,
       bytes32(uint256(uint160(msg.sender))), // TODO necessary?
       _nonce,
       _destinationDomain,
@@ -181,16 +201,17 @@ contract Messaging is MerkleTreeManager, IMessaging {
    * @dev Must check the msg.sender on the origin chain to ensure only the root manager is passing
    * these roots
    */
-  function update(bytes32 _newRoot) external onlyConnector {
+  function update(bytes32 _newRoot) external onlyAMB {
     aggregateRoot = _newRoot;
   }
 
   /**
    * @notice This is called by relayers to trigger passing of current root to mainnet root manager
-   * @dev This is called at specific time intervals
+   * @dev This method should be overriden by implementing Connector contract. At runtime, should be called at
+   * specific time intervals.
    */
   function send() external {
-    IConnector(connector).sendMessage(abi.encodePacked(outboundRoot));
+    _sendMessage(abi.encodePacked(outboundRoot));
   }
 
   /**
@@ -240,7 +261,7 @@ contract Messaging is MerkleTreeManager, IMessaging {
   function process(bytes memory _message) internal returns (bool _success) {
     bytes29 _m = _message.ref(0);
     // ensure message was meant for this domain
-    require(_m.destination() == domain, "!destination");
+    require(_m.destination() == DOMAIN, "!destination");
     // ensure message has been proven
     bytes32 _messageHash = _m.keccak();
     require(messages[_messageHash] == MessageStatus.Proven, "!proven");
@@ -302,7 +323,10 @@ contract Messaging is MerkleTreeManager, IMessaging {
     // entered = 1;
   }
 
-  // ============ Admin functions ============
-
-  // TODO: setConnector, setBridgeRouter
+  // ============ Private fns ============
+  /**
+   * @notice This function is used by the Connext contract on the l2 domain to send a message to the
+   * l1 domain (i.e. called by Connext on optimism to send a message to mainnet with roots)
+   */
+  function _sendMessage(bytes memory _outboundRoot) internal virtual {}
 }
