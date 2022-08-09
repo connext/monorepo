@@ -4,11 +4,8 @@ import { DomainNotSupported } from "../errors";
 import { getOperations } from "../operations";
 import { getContext } from "../../lighthouse";
 
-// fee percentage paid to relayer. need to be updated later
-export const RELAYER_FEE_PERCENTAGE = "1"; //  1%
-
 /**
- * Router creates a new bid and sends it to auctioneer.
+ * Lighthouse creates a new bid and sends it to sequencer.
  *
  * @param args - The crosschain xcall params.
  */
