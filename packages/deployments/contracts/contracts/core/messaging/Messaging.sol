@@ -60,10 +60,22 @@ abstract contract Messaging is MerkleTreeManager, IMessaging {
   address public immutable ROOT_MANAGER;
 
   /**
-   * @dev This is used for the `onlyBridgeRouter` modifier, which gates who
-   * can send messages using `dispatch`
+   * @dev This is used for the `onlyRouters` modifier, which gates who
+   * can send messages using `dispatch`.
    */
   address public immutable BRIDGE_ROUTER;
+
+  /**
+   * @dev This is used for the `onlyRouters` modifier, which gates who
+   * can send messages using `dispatch`.
+   */
+  address public immutable PROMISE_ROUTER;
+
+  /**
+   * @dev This is used for the `onlyRouters` modifier, which gates who
+   * can send messages using `dispatch`.
+   */
+  address public immutable RELAYER_FEE_ROUTER;
 
   /**
    * @notice This tracks the root of the tree containing outbound roots from all other supported
@@ -112,7 +124,7 @@ abstract contract Messaging is MerkleTreeManager, IMessaging {
   }
 
   modifier onlyBridgeRouter() {
-    require(msg.sender == BRIDGE_ROUTER, "!bridgeRouter");
+    require(msg.sender == BRIDGE_ROUTER || msg.sender == PROMISE_ROUTER || msg.sender == RELAYER_FEE_ROUTER, "!router");
     _;
   }
 
@@ -130,11 +142,17 @@ abstract contract Messaging is MerkleTreeManager, IMessaging {
     require(_amb != address(0), "!amb");
     require(_rootManager != address(0), "!rootManager");
     require(_bridgeRouter != address(0), "!bridgeRouter");
+    // require(_promiseRouter != address(0), "!promiseRouter");
+    // require(_relayerFeeRouter != address(0), "!relayerFeeRouter");
 
     DOMAIN = _domain;
     AMB = _amb;
     ROOT_MANAGER = _rootManager;
     BRIDGE_ROUTER = _bridgeRouter;
+
+    // TODO:
+    PROMISE_ROUTER = address(0);
+    RELAYER_FEE_ROUTER = address(0);
 
     // TODO: constants for these min values
     require(_processGas >= 850_000, "!process gas");
