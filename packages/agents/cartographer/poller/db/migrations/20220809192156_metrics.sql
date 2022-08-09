@@ -1,7 +1,7 @@
 -- migrate:up
--- 
+
+
 -- Overall Transfer count
--- 
 CREATE  OR REPLACE VIEW public.transfers_count AS (
 	SELECT 
 		COUNT(DISTINCT transfer_id) AS number_of_transfers
@@ -9,6 +9,8 @@ CREATE  OR REPLACE VIEW public.transfers_count AS (
 	);
 
 
+
+-- Get Overall AVG. TTV & TTR metrics for the Domain and status
 CREATE  OR REPLACE VIEW public.average_ttv_ttr_in_secs AS (
     WITH raw_transfers AS (
         SELECT 
@@ -43,6 +45,7 @@ CREATE  OR REPLACE VIEW public.average_ttv_ttr_in_secs AS (
 );
 
 
+-- Get Daily AVG. TTV & TTR metrics for the Domain and status
 CREATE  OR REPLACE VIEW public.daily_average_ttv_ttr_in_secs AS (
     WITH raw_transfers AS (
         SELECT 
@@ -76,7 +79,7 @@ CREATE  OR REPLACE VIEW public.daily_average_ttv_ttr_in_secs AS (
     ORDER BY 1
 );
 
-
+-- Get overall volume & transfer count by time period
 CREATE  OR REPLACE VIEW public.agg_volume_transfer_by_period AS (
     WITH raw_transfers AS (
         SELECT 
@@ -162,6 +165,7 @@ grant select on public.transfers_count to query;
 grant select on public.average_ttv_ttr_in_secs to query;
 grant select on public.daily_average_ttv_ttr_in_secs to query;
 grant select on public.agg_volume_transfer_by_period to query;
+
 
 -- migrate:down
 
