@@ -112,6 +112,9 @@ contract Executor is IExecutor {
       SafeERC20.safeIncreaseAllowance(IERC20(_args.assetId), _args.to, _args.amount);
     }
 
+    // Ensure there is enough gas to handle failures
+    uint256 gas = gasleft() - FAILURE_GAS;
+
     // Try to execute the callData
     // the low level call will return `false` if its execution reverts
     (success, returnData) = ExcessivelySafeCall.excessivelySafeCall(
