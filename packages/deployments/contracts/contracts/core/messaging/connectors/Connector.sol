@@ -16,25 +16,36 @@ abstract contract Connector is ProposedOwnable, IConnector {
   event MessageProcessed(address _from, bytes data);
 
   // ============ Properties ============
+  uint32 constant ETH_MAINNET_DOMAIN = 6648936;
+
   /**
-   * @notice Address of the AMB on this domain
+   * @notice Address of the AMB on this domain.
    */
   address public immutable ambAddress;
 
   /**
-   * @notice The domain of this Connector
+   * @notice The domain of this Connector.
    */
   uint32 public immutable domain;
 
   /**
-   * @notice Connector on L2 for L1 connectors, and vice versa
+   * @notice Connector on L2 for L1 connectors, and vice versa.
    */
   address public mirrorConnector;
 
   /**
-   * @notice Domain of mirror connector
+   * @notice Domain of mirror connector.
    */
-  uint32 public mirrorDomain;
+  uint32 public immutable mirrorDomain;
+
+  address public immutable rootManager;
+
+  address public messaging;
+
+  /**
+   * @notice Gas used on the mirror domain.
+   */
+  uint256 public processGas;
 
   // ============ Constructor ============
 
@@ -42,12 +53,24 @@ abstract contract Connector is ProposedOwnable, IConnector {
     address _ambAddress,
     address _mirrorConnector,
     uint32 _domain,
-    uint32 _mirrorDomain
+    uint32 _mirrorDomain,
+    address _messaging,
+    uint256 _processGas,
+    address _rootManager
   ) ProposedOwnable() {
     ambAddress = _ambAddress;
     mirrorConnector = _mirrorConnector;
     domain = _domain;
     mirrorDomain = _mirrorDomain;
+    messaging = _messaging;
+    processGas = _processGas;
+
+    // NOTE: The address for the RootManager contract should be 0x for Connectors on their respective
+    // domain, and should be defined for connectors on Eth Mainnet.
+    if (_domain == ETH_MAINNET_DOMAIN) {
+      require(_rootManager != address(0), "RootManager addr must be defined");
+    }
+    rootManager = _rootManager;
     _setOwner(msg.sender);
   }
 

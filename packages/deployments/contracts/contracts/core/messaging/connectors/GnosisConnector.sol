@@ -51,13 +51,8 @@ abstract contract BaseGnosisConnector is Connector {
 
   // ============ Properties ============
 
-  address public rootManager;
-
-  address public messaging;
-
-  uint256 public processGas;
-
   // ============ Constructor ============
+
   constructor(
     address _ambAddress,
     address _mirrorConnector,
@@ -66,11 +61,9 @@ abstract contract BaseGnosisConnector is Connector {
     address _rootManager,
     address _messaging,
     uint256 _processGas
-  ) Connector(_ambAddress, _mirrorConnector, _domain, _mirrorDomain) {
-    rootManager = _rootManager;
-    messaging = _messaging;
-    processGas = _processGas; // _processGas used on mirror connector
-  }
+  ) Connector(_ambAddress, _mirrorConnector, _domain, _mirrorDomain, _rootManager, _messaging, _processGas) {}
+
+  // ============ Private fns ============
 
   /**
    * @dev Asserts the sender of a cross domain message
