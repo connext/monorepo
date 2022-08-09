@@ -51,17 +51,19 @@ abstract contract Connector is ProposedOwnable, IConnector {
 
   constructor(
     address _ambAddress,
-    address _mirrorConnector,
     uint32 _domain,
+    address _mirrorConnector,
     uint32 _mirrorDomain,
     address _messaging,
     uint256 _processGas,
     address _rootManager
   ) ProposedOwnable() {
     ambAddress = _ambAddress;
-    mirrorConnector = _mirrorConnector;
     domain = _domain;
+
+    mirrorConnector = _mirrorConnector;
     mirrorDomain = _mirrorDomain;
+
     messaging = _messaging;
     processGas = _processGas;
 

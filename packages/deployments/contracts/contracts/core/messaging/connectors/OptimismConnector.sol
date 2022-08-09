@@ -40,13 +40,13 @@ abstract contract BaseOptimismConnector is Connector {
 
   constructor(
     address _ambAddress,
-    address _mirrorConnector,
     uint32 _domain,
+    address _mirrorConnector,
     uint32 _mirrorDomain,
     address _messaging,
     uint256 _processGas,
     address _rootManager
-  ) Connector(_ambAddress, _mirrorConnector, _domain, _mirrorDomain, _messaging, _processGas, _rootManager) {}
+  ) Connector(_ambAddress, _domain, _mirrorConnector, _mirrorDomain, _messaging, _processGas, _rootManager) {}
 
   // ============ Public Fns ============
 
@@ -61,14 +61,14 @@ contract OptimismL2Connector is BaseOptimismConnector {
 
   constructor(
     address _ambAddress,
-    address _mirrorConnector,
     uint32 _domain,
+    address _mirrorConnector,
     uint32 _mirrorDomain,
     address _messaging,
     uint256 _processGas,
     address _rootManager
   )
-    BaseOptimismConnector(_ambAddress, _mirrorConnector, _domain, _mirrorDomain, _messaging, _processGas, _rootManager)
+    BaseOptimismConnector(_ambAddress, _domain, _mirrorConnector, _mirrorDomain, _messaging, _processGas, _rootManager)
   {}
 
   // ============ Private fns ============
@@ -107,14 +107,14 @@ contract OptimismL1Connector is BaseOptimismConnector {
 
   constructor(
     address _ambAddress,
-    address _mirrorConnector,
     uint32 _domain,
+    address _mirrorConnector,
     uint32 _mirrorDomain,
     address _messaging,
     uint256 _processGas,
     address _rootManager
   )
-    BaseOptimismConnector(_ambAddress, _mirrorConnector, _domain, _mirrorDomain, _messaging, _processGas, _rootManager)
+    BaseOptimismConnector(_ambAddress, _domain, _mirrorConnector, _mirrorDomain, _messaging, _processGas, _rootManager)
   {}
 
   // ============ Public fns ============
