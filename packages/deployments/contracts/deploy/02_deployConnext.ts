@@ -199,4 +199,5 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment): Promise<voi
 export default func;
 
 func.tags = ["Connext", "prod", "local", "mainnet"];
-func.dependencies = ["Nomad"];
+// func.dependencies = ["Nomad"];
+func.dependencies = ["Messaging"];
