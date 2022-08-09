@@ -63,7 +63,7 @@ LIGHTHOUSE_IMAGE=${lighthouse_image}
 
 ##### Local chains, graph nodes, and IPFS.
 echo "Starting 1337 and 1338 local chains..."
-docker compose -f docker-compose.chains.yaml up -d --force-recreate
+docker compose -f ../../docker-compose.chains.yaml up -d --force-recreate
 sleep 5
 #####
 
@@ -96,6 +96,6 @@ echo "Deployed subgraph to 1338"
 
 ##### Off-Chain Agents
 echo "Starting services and off-chain agents..."
-docker compose -f docker-compose.services.yaml up -d --force-recreate
+docker compose -f ../../docker-compose.services.yaml up -d --force-recreate
 sleep 5
 #####
