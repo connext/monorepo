@@ -69,6 +69,8 @@ abstract contract Connector is ProposedOwnable, IConnector {
     // domain, and should be defined for connectors on Eth Mainnet.
     if (_domain == ETH_MAINNET_DOMAIN) {
       require(_rootManager != address(0), "RootManager addr must be defined");
+    } else {
+      require(_rootManager == address(0), "RootManager should be zero");
     }
     rootManager = _rootManager;
     _setOwner(msg.sender);
