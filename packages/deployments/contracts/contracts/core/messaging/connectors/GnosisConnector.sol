@@ -58,10 +58,10 @@ abstract contract BaseGnosisConnector is Connector {
     address _mirrorConnector,
     uint32 _domain,
     uint32 _mirrorDomain,
-    address _rootManager,
     address _messaging,
-    uint256 _processGas
-  ) Connector(_ambAddress, _mirrorConnector, _domain, _mirrorDomain, _rootManager, _messaging, _processGas) {}
+    uint256 _processGas,
+    address _rootManager
+  ) Connector(_ambAddress, _mirrorConnector, _domain, _mirrorDomain, _messaging, _processGas, _rootManager) {}
 
   // ============ Private fns ============
 
@@ -86,15 +86,16 @@ contract GnosisL2Connector is BaseGnosisConnector {
   // ============ Properties ============
 
   // ============ Constructor ============
+
   constructor(
     address _ambAddress,
     address _mirrorConnector,
     uint32 _domain,
     uint32 _mirrorDomain,
-    address _rootManager,
     address _messaging,
-    uint256 _processGas
-  ) BaseGnosisConnector(_ambAddress, _mirrorConnector, _domain, _mirrorDomain, _rootManager, _messaging, _processGas) {}
+    uint256 _processGas,
+    address _rootManager
+  ) BaseGnosisConnector(_ambAddress, _mirrorConnector, _domain, _mirrorDomain, _messaging, _processGas, _rootManager) {}
 
   // ============ Public fns ============
 
@@ -142,15 +143,16 @@ contract GnosisL1Connector is BaseGnosisConnector {
   // ============ Properties ============
 
   // ============ Constructor ============
+
   constructor(
     address _ambAddress,
     address _mirrorConnector,
     uint32 _domain,
     uint32 _mirrorDomain,
-    address _rootManager,
     address _messaging,
-    uint256 _processGas
-  ) BaseGnosisConnector(_ambAddress, _mirrorConnector, _domain, _mirrorDomain, _rootManager, _messaging, _processGas) {}
+    uint256 _processGas,
+    address _rootManager
+  ) BaseGnosisConnector(_ambAddress, _mirrorConnector, _domain, _mirrorDomain, _messaging, _processGas, _rootManager) {}
 
   // ============ Private fns ============
 
