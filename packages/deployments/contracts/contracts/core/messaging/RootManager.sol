@@ -2,6 +2,7 @@
 pragma solidity 0.8.15;
 
 import {IRootManager} from "./interfaces/IRootManager.sol";
+import {IConnector} from "./interfaces/IConnector.sol";
 import {ProposedOwnable} from "../shared/ProposedOwnable.sol";
 
 /**
@@ -24,7 +25,7 @@ contract RootManager is ProposedOwnable, IRootManager {
   // ============ Properties ============
   mapping(uint32 => address) connectors;
 
-  mapping(uint32 => address) outboundRoots;
+  mapping(uint32 => bytes32) outboundRoots;
 
   uint32[] domains;
 
@@ -70,7 +71,7 @@ contract RootManager is ProposedOwnable, IRootManager {
    * @dev Owner can add a new connector
    * NOTE: owner can add address(0) to effectively remove a connector
    */
-  function addConnector(uint32 _domain, address _connector) onlyOwner {
+  function addConnector(uint32 _domain, address _connector) external onlyOwner {
     connectors[_domain] = _connector;
     domains.push(_domain);
     emit ConnectorAdded(_domain, _connector);
@@ -79,7 +80,7 @@ contract RootManager is ProposedOwnable, IRootManager {
   /**
    * @dev Owner can enroll a watcher (who has ability to disconnect connector)
    */
-  function addWatcher(address _watcher) onlyOwner {
+  function addWatcher(address _watcher) external onlyOwner {
     watchers[_watcher] = true;
     emit WatcherAdded(_watcher);
   }
@@ -87,7 +88,7 @@ contract RootManager is ProposedOwnable, IRootManager {
   /**
    * @dev Owner can unenroll a watcher (who has ability to disconnect connector)
    */
-  function removeWatcher(address _watcher) onlyOwner {
+  function removeWatcher(address _watcher) external onlyOwner {
     watchers[_watcher] = false;
     emit WatcherRemoved(_watcher);
   }
@@ -96,17 +97,18 @@ contract RootManager is ProposedOwnable, IRootManager {
    * @dev Watcher can remove a connector
    * NOTE: could add removeConnectorWithSig if we want to use gelato
    */
-  function removeConnector(uint32 _domain) onlyWatcher {
+  function removeConnector(uint32 _domain) external onlyWatcher {
     address connector = connectors[_domain];
-    uint32 last = domains[domains.length - 1];
-    for (uint8 i; i < domains.length; i++) {
-      if (connectors[domains[i]] == connector) {
-        // this is the index
-        connectors[domains[i]] = last;
-        break;
-      }
-    }
-    connectors.pop();
-    emit ConnectorRemoved(_domain, _connector);
+    delete connectors[_domain];
+    // uint32 last = domains[domains.length - 1];
+    // for (uint8 i; i < domains.length; i++) {
+    //   if (connectors[domains[i]] == connector) {
+    //     // this is the index
+    //     connectors[domains[i]] = last;
+    //     break;
+    //   }
+    // }
+    // connectors.pop();
+    emit ConnectorRemoved(_domain, connector);
   }
 }
