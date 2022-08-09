@@ -32,10 +32,6 @@ interface OptimismBridge {
 }
 
 abstract contract BaseOptimismConnector is Connector {
-  // ============ Events ============
-
-  // ============ Properties ============
-
   // ============ Constructor ============
   constructor(
     uint32 _domain,
@@ -80,7 +76,6 @@ contract OptimismL2Connector is BaseOptimismConnector {
   {}
 
   // ============ Private fns ============
-
   /**
    * @dev Sends `outboundRoot` to root manager on l1
    */
@@ -108,8 +103,6 @@ contract OptimismL2Connector is BaseOptimismConnector {
 }
 
 contract OptimismL1Connector is BaseOptimismConnector {
-  // ============ Properties ============
-
   // ============ Constructor ============
   constructor(
     uint32 _domain,
@@ -132,8 +125,6 @@ contract OptimismL1Connector is BaseOptimismConnector {
       _mirrorConnector
     )
   {}
-
-  // ============ Public fns ============
 
   // ============ Private fns ============
   /**

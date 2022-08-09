@@ -154,7 +154,16 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment): Promise<voi
   console.log("\n============================= Deploying Messaging Contracts ===============================");
   console.log("deployer: ", deployer.address);
 
-  // TODO: Deploy BridgeRouter.
+  // Deploy BridgeRouter.
+  console.log("Deploying BridgeRouter...");
+  const bridgeRouter = await hre.deployments.deploy("BridgeRouter", {
+    contract: "BridgeRouter",
+    from: deployer.address,
+    args: [],
+    skipIfAlreadyDeployed: true,
+    log: true,
+  });
+  console.log(`BridgeRouter deployed to ${bridgeRouter.address}`);
 
   // Handle deployment for RootManager and Connector(s).
   if (chain === HUB_CHAIN_ID.toString()) {

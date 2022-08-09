@@ -47,10 +47,6 @@ interface GnosisBridge {
 }
 
 abstract contract BaseGnosisConnector is Connector {
-  // ============ Events ============
-
-  // ============ Properties ============
-
   // ============ Constructor ============
   constructor(
     uint32 _domain,
@@ -80,10 +76,6 @@ abstract contract BaseGnosisConnector is Connector {
  * - outboundRoot is sent via Messaging on L2 using `_sendMessage` call
  */
 contract GnosisL2Connector is BaseGnosisConnector {
-  // ============ Events ============
-
-  // ============ Properties ============
-
   // ============ Constructor ============
   constructor(
     uint32 _domain,
@@ -106,8 +98,6 @@ contract GnosisL2Connector is BaseGnosisConnector {
       _mirrorConnector
     )
   {}
-
-  // ============ Public fns ============
 
   // ============ Private fns ============
   /**
@@ -147,8 +137,6 @@ contract GnosisL2Connector is BaseGnosisConnector {
  * - aggregateRoot is sent via RootManager on L1 using `_sendMessage` call via `RootManager.propagate`
  */
 contract GnosisL1Connector is BaseGnosisConnector {
-  // ============ Properties ============
-
   // ============ Constructor ============
   constructor(
     uint32 _domain,

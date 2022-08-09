@@ -44,6 +44,15 @@ abstract contract Connector is Messaging, ProposedOwnable, IConnector {
     _setOwner(msg.sender);
   }
 
+  // ============ Admin fns ============
+  /**
+   * @notice Sets the address of the l2Connector for this domain
+   */
+  function setMirrorConnector(address _mirrorConnector) public onlyOwner {
+    emit MirrorConnectorUpdated(mirrorConnector, _mirrorConnector);
+    mirrorConnector = _mirrorConnector;
+  }
+
   // ============ Public fns ============
   function sendMessage(bytes memory _data) external {
     _sendMessage(_data);
@@ -55,15 +64,6 @@ abstract contract Connector is Messaging, ProposedOwnable, IConnector {
 
   function verifySender(address _expected) external returns (bool) {
     return _verifySender(_expected);
-  }
-
-  // ============ Admin fns ============
-  /**
-   * @notice Sets the address of the l2Connector for this domain
-   */
-  function setMirrorConnector(address _mirrorConnector) public onlyOwner {
-    emit MirrorConnectorUpdated(mirrorConnector, _mirrorConnector);
-    mirrorConnector = _mirrorConnector;
   }
 
   // ============ Private fns ============

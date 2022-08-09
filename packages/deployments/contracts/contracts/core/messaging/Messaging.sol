@@ -23,6 +23,7 @@ import {IConnector} from "./interfaces/IConnector.sol";
 abstract contract Messaging is MerkleTreeManager, IMessaging {
   // ============ Events ============
   event Dispatch(bytes32 leaf, uint256 index, bytes32 root, bytes message);
+
   event Process(bytes32 leaf, bool success, bytes returnData);
 
   // ============ Structs ============
