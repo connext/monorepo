@@ -114,7 +114,7 @@ describe("Operations:Execute", () => {
         bid: {
           transferId: string;
           origin: string;
-          routerVersion: string;
+          packageVersion: string;
           router: string;
           signatures: Record<string, string>;
         },
@@ -146,7 +146,7 @@ describe("Operations:Execute", () => {
 
     it("happy", async () => {
       const expectedBid: Bid = {
-        routerVersion: version,
+        packageVersion: version,
         transferId: mockXTransfer.transferId,
         origin: mockXTransfer.xparams.originDomain,
         router: mockRouter,
@@ -182,7 +182,7 @@ describe("Operations:Execute", () => {
         transferId: _mockXTransfer.transferId,
         origin: _mockXTransfer.xparams.originDomain,
         router: mockRouter,
-        routerVersion: version,
+        packageVersion: version,
         signatures: {
           "2": mock.signature,
           "3": mock.signature,

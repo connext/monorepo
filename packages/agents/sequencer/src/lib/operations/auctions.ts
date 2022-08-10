@@ -42,7 +42,7 @@ export const storeBid = async (bid: Bid, _requestContext: RequestContext): Promi
   }
 
   // check if bid router version is compatible with hosted sequencer
-  const checkVersion = compare(bid.routerVersion, config.supportedBidVersion!, "<");
+  const checkVersion = compare(bid.packageVersion, config.supportedBidVersion!, "<");
   if (checkVersion) {
     throw new BidVersionInvalid({
       supportedBidVersion: config.supportedBidVersion,

@@ -132,7 +132,7 @@ describe("Operations:Auctions", () => {
     it("should error if bidVersion is lower than supported version", async () => {
       const invalidBid1: any = {
         ...mock.entity.bid(),
-        routerVersion: "0.0",
+        packageVersion: "0.0",
       };
       await expect(storeBid(invalidBid1, requestContext)).to.be.rejectedWith(BidVersionInvalid);
     });
@@ -211,7 +211,7 @@ describe("Operations:Auctions", () => {
       const router3 = mkAddress("0x113");
       const bids: Record<string, Bid> = {};
       bids[router1] = {
-        routerVersion: "0.0.0",
+        packageVersion: "0.0.0",
         transferId: transferId,
         origin: "1111",
         router: router1,
@@ -220,7 +220,7 @@ describe("Operations:Auctions", () => {
         },
       };
       bids[router2] = {
-        routerVersion: "0.0.0",
+        packageVersion: "0.0.0",
         transferId: transferId,
         origin: "1111",
         router: router2,
@@ -231,7 +231,7 @@ describe("Operations:Auctions", () => {
         },
       };
       bids[router3] = {
-        routerVersion: "0.0.0",
+        packageVersion: "0.0.0",
         transferId: transferId,
         origin: "1111",
         router: router3,
@@ -255,7 +255,7 @@ describe("Operations:Auctions", () => {
       expect(sendToRelayerStub.getCall(0).args[0]).to.be.eq(1);
       expect(sendToRelayerStub.getCall(0).args[1]).to.be.deep.eq([
         {
-          routerVersion: "0.0.0",
+          packageVersion: "0.0.0",
           transferId: transferId,
           origin: "1111",
           router: router1,
@@ -280,7 +280,7 @@ describe("Operations:Auctions", () => {
       const router3 = mkAddress("0x113");
       const bids: Record<string, Bid> = {};
       bids[router1] = {
-        routerVersion: "0.0.0",
+        packageVersion: "0.0.0",
         transferId: transferId,
         origin: "1111",
         router: router1,
@@ -291,7 +291,7 @@ describe("Operations:Auctions", () => {
         },
       };
       bids[router2] = {
-        routerVersion: "0.0.0",
+        packageVersion: "0.0.0",
         transferId: transferId,
         origin: "1111",
         router: router2,
@@ -302,7 +302,7 @@ describe("Operations:Auctions", () => {
       };
 
       bids[router3] = {
-        routerVersion: "0.0.0",
+        packageVersion: "0.0.0",
         transferId: transferId,
         origin: "1111",
         router: router3,
@@ -327,7 +327,7 @@ describe("Operations:Auctions", () => {
       expect(sendToRelayerStub.getCall(0).args[0]).to.be.eq(2);
       expect(sendToRelayerStub.getCall(0).args[1]).to.be.deep.eq([
         {
-          routerVersion: "0.0.0",
+          packageVersion: "0.0.0",
           transferId: transferId,
           origin: "1111",
           router: router1,
@@ -336,7 +336,7 @@ describe("Operations:Auctions", () => {
           },
         },
         {
-          routerVersion: "0.0.0",
+          packageVersion: "0.0.0",
           transferId: transferId,
           origin: "1111",
           router: router2,
@@ -360,7 +360,7 @@ describe("Operations:Auctions", () => {
       const router3 = mkAddress("0x113");
       const bids: Record<string, Bid> = {};
       bids[router1] = {
-        routerVersion: "0.0.0",
+        packageVersion: "0.0.0",
         transferId: transferId,
         origin: "1111",
         router: router1,
@@ -371,7 +371,7 @@ describe("Operations:Auctions", () => {
         },
       };
       bids[router2] = {
-        routerVersion: "0.0.0",
+        packageVersion: "0.0.0",
         transferId: transferId,
         origin: "1111",
         router: router2,
@@ -382,7 +382,7 @@ describe("Operations:Auctions", () => {
       };
 
       bids[router3] = {
-        routerVersion: "0.0.0",
+        packageVersion: "0.0.0",
         transferId: transferId,
         origin: "1111",
         router: router3,
@@ -416,7 +416,7 @@ describe("Operations:Auctions", () => {
       expect(sendToRelayerStub.getCall(0).args[0]).to.be.eq(2);
       expect(sendToRelayerStub.getCall(0).args[1]).to.be.deep.eq([
         {
-          routerVersion: "0.0.0",
+          packageVersion: "0.0.0",
           transferId: transferId,
           origin: "1111",
           router: router1,
@@ -425,7 +425,7 @@ describe("Operations:Auctions", () => {
           },
         },
         {
-          routerVersion: "0.0.0",
+          packageVersion: "0.0.0",
           transferId: transferId,
           origin: "1111",
           router: router2,

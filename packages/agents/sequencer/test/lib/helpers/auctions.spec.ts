@@ -100,7 +100,7 @@ describe("Helpers:Auctions", () => {
       const router4 = mkAddress("0x114");
       const bids: Record<string, Bid> = {};
       bids[router1] = {
-        routerVersion: "0.0.0",
+        packageVersion: "0.0.0",
         transferId: transferId,
         origin: "1111",
         router: router1,
@@ -109,7 +109,7 @@ describe("Helpers:Auctions", () => {
         },
       };
       bids[router2] = {
-        routerVersion: "0.0.0",
+        packageVersion: "0.0.0",
         transferId: transferId,
         origin: "1111",
         router: router2,
@@ -120,7 +120,7 @@ describe("Helpers:Auctions", () => {
         },
       };
       bids[router3] = {
-        routerVersion: "0.0.0",
+        packageVersion: "0.0.0",
         transferId: transferId,
         origin: "1111",
         router: router3,
@@ -131,7 +131,7 @@ describe("Helpers:Auctions", () => {
         },
       };
       bids[router4] = {
-        routerVersion: "0.0.0",
+        packageVersion: "0.0.0",
         transferId: transferId,
         origin: "1111",
         router: router4,
@@ -147,7 +147,7 @@ describe("Helpers:Auctions", () => {
       expect(Object.keys(bidsByRound)).to.be.deep.eq(["1", "2"]);
       expect(bidsByRound["1"]).to.be.deep.eq([
         {
-          routerVersion: "0.0.0",
+          packageVersion: "0.0.0",
           transferId: transferId,
           origin: "1111",
           router: router1,
@@ -156,7 +156,7 @@ describe("Helpers:Auctions", () => {
           },
         },
         {
-          routerVersion: "0.0.0",
+          packageVersion: "0.0.0",
           transferId: transferId,
           origin: "1111",
           router: router2,
@@ -165,7 +165,7 @@ describe("Helpers:Auctions", () => {
           },
         },
         {
-          routerVersion: "0.0.0",
+          packageVersion: "0.0.0",
           transferId: transferId,
           origin: "1111",
           router: router3,
@@ -176,7 +176,7 @@ describe("Helpers:Auctions", () => {
       ]);
       expect(bidsByRound["2"]).to.be.deep.eq([
         {
-          routerVersion: "0.0.0",
+          packageVersion: "0.0.0",
           transferId: transferId,
           origin: "1111",
           router: router2,
@@ -185,7 +185,7 @@ describe("Helpers:Auctions", () => {
           },
         },
         {
-          routerVersion: "0.0.0",
+          packageVersion: "0.0.0",
           transferId: transferId,
           origin: "1111",
           router: router3,
@@ -194,7 +194,7 @@ describe("Helpers:Auctions", () => {
           },
         },
         {
-          routerVersion: "0.0.0",
+          packageVersion: "0.0.0",
           transferId: transferId,
           origin: "1111",
           router: router4,

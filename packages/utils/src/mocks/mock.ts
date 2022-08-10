@@ -115,7 +115,7 @@ export const mock = {
       ...overrides,
     }),
     bid: (overrides: Partial<Bid> = {}): Bid => ({
-      routerVersion: "0.0.1",
+      packageVersion: "0.0.1",
       transferId: getRandomBytes32(),
       origin: mock.domain.A,
       router: mock.address.router,
