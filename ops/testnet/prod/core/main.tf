@@ -40,7 +40,7 @@ module "router_subscriber" {
   docker_image             = var.full_image_name_router_subscriber
   container_family         = "router-subscriber"
   health_check_path        = "/ping"
-  container_port           = 8090
+  container_port           = 8080
   loadbalancer_port        = 80
   cpu                      = 512
   memory                   = 1024
