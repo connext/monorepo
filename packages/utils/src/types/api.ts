@@ -1,5 +1,4 @@
 import { Type, Static } from "@sinclair/typebox";
-import { Type, Type } from "typescript";
 
 import { BidSchema } from "./auctions";
 import { NxtpErrorJsonSchema } from "./error";
