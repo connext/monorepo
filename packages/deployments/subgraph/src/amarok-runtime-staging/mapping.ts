@@ -152,7 +152,7 @@ export function handleAssetAdded(event: AssetAdded): void {
   if (asset == null) {
     asset = new Asset(assetId);
   }
-  asset.local = event.params.supportedAsset;
+  asset.local = event.params.localAsset;
   asset.adoptedAsset = event.params.adoptedAsset;
   asset.canonicalId = event.params.canonicalId;
   asset.canonicalDomain = event.params.domain;
