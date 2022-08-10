@@ -1,6 +1,6 @@
-import { HardhatRuntimeEnvironment } from "hardhat/types";
+import { HardhatRuntimeEnvironment, HttpNetworkConfig } from "hardhat/types";
 import { DeployFunction } from "hardhat-deploy/types";
-import { BigNumber, constants, Wallet } from "ethers";
+import { BigNumber, constants, providers, Wallet } from "ethers";
 
 import { chainIdToDomain, mustGetEnv } from "../src";
 
@@ -202,19 +202,9 @@ const handleDeploySpoke = async (
   deployer: Wallet,
   protocol: ProtocolConfig,
   deploymentChainId: number,
+  rootManager: string,
   routers: RouterAddresses,
 ): Promise<void> => {
-  // Deploy RootManager.
-  console.log("Deploying RootManager...");
-  const rootManager = await hre.deployments.deploy("RootManager", {
-    contract: "RootManager",
-    from: deployer.address,
-    args: [],
-    skipIfAlreadyDeployed: true,
-    log: true,
-  });
-  console.log(`RootManager deployed to ${rootManager.address}`);
-
   // Deploy the Connector contract for this Spoke chain.
   const { configs } = protocol;
   const prefix = configs[deploymentChainId].prefix + SPOKE_PREFIX;
@@ -226,7 +216,7 @@ const handleDeploySpoke = async (
     args: formatConnectorArgs(protocol, {
       deploymentChainId,
       mirrorChainId: protocol.hub,
-      rootManager: rootManager.address,
+      rootManager,
       routers,
     }),
     skipIfAlreadyDeployed: true,
@@ -273,8 +263,25 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment): Promise<voi
   });
   console.log(`BridgeRouter deployed to ${bridgeRouter.address}`);
 
-  // Handle deployment for RootManager and Connector(s).
-  if (chain === protocol.toString()) {
+  const isHub = chain === protocol.hub.toString();
+
+  // TODO: Get the hub RootManager address.
+  // Get a deployer wallet connected to the hub chain.
+  // We need to get the current RootManager address on the hub in order to deploy the spokes.
+  // const hubDeployer = isHub
+  //   ? deployer
+  //   : deployer.connect(
+  //       new providers.JsonRpcProvider(
+  //         network === "mainnet"
+  //           ? (hre.config.networks.mainnet as HttpNetworkConfig).url
+  //           : network === "testnet"
+  //           ? (hre.config.networks.goerli as HttpNetworkConfig).url
+  //           : hre.config.networks.localhost.url,
+  //       ),
+  //     );
+
+  // Handle deployment for Connector(s) and RootManager, if applicable.
+  if (isHub) {
     await handleDeployMainnet(hre, deployer, protocol, {
       bridgeRouter: bridgeRouter.address,
     });
@@ -282,7 +289,7 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment): Promise<voi
     if (!Object.keys(protocol.configs).includes(chain)) {
       throw new Error(`Invalid chain (${chain}) for deployment!`);
     }
-    await handleDeploySpoke(hre, deployer, protocol, +chain, {
+    await handleDeploySpoke(hre, deployer, protocol, +chain, rootManager, {
       bridgeRouter: bridgeRouter.address,
     });
   }
