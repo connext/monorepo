@@ -232,6 +232,11 @@ const config: HardhatUserConfig = {
       chainId: 42161,
       url: "https://arb1.arbitrum.io/rpc",
     },
+    "arbitrum-nova": {
+      accounts,
+      chainId: 42170,
+      url: "https://nova.arbitrum.io/rpc",
+    },
     fuji: {
       accounts,
       chainId: 43113,
