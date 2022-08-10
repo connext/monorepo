@@ -40,10 +40,10 @@ contract AssetFacetTest is AssetFacet, FacetHelper {
     address key = asset == address(0) ? _wrapper : asset;
     ConnextMessage.TokenId memory canonical = ConnextMessage.TokenId(_domain, _canonicalId);
 
-    address local = s.tokenRegistry.getLocalAddress(canonical.domain, canonical.id);
+    vm.mockCall(_tokenRegistry, abi.encodeWithSelector(ITokenRegistry.getLocalAddress.selector), abi.encode(_local));
 
     vm.expectEmit(true, true, false, true);
-    emit AssetAdded(_canonicalId, _domain, asset, key, local, _owner);
+    emit AssetAdded(_canonicalId, _domain, asset, key, _local, _owner);
 
     vm.expectEmit(true, true, false, true);
     emit StableSwapAdded(_canonicalId, _domain, pool, _owner);
