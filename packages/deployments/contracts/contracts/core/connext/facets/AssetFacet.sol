@@ -51,9 +51,17 @@ contract AssetFacet is BaseConnextFacet {
    * @param adoptedAsset - The address of the adopted (user-expected) asset
    * @param supportedAsset - The address of the whitelisted asset. If the native asset is to be whitelisted,
    * the address of the wrapped version will be stored
+   * @param localAsset - The address of the local asset
    * @param caller - The account that called the function
    */
-  event AssetAdded(bytes32 canonicalId, uint32 domain, address adoptedAsset, address supportedAsset, address caller);
+  event AssetAdded(
+    bytes32 canonicalId,
+    uint32 domain,
+    address adoptedAsset,
+    address supportedAsset,
+    address localAsset,
+    address caller
+  );
 
   /**
    * @notice Emitted when an asset is removed from whitelists
@@ -161,8 +169,10 @@ contract AssetFacet is BaseConnextFacet {
     // Update the canonical mapping
     s.canonicalToAdopted[_canonical.id] = supported;
 
+    address local = s.tokenRegistry.getLocalAddress(_canonical.domain, _canonical.id);
+
     // Emit event
-    emit AssetAdded(_canonical.id, _canonical.domain, _adoptedAssetId, supported, msg.sender);
+    emit AssetAdded(_canonical.id, _canonical.domain, _adoptedAssetId, supported, local, msg.sender);
 
     // Add the swap pool
     _addStableSwapPool(_canonical, _stableSwapPool);
