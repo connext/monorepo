@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: MIT OR Apache-2.0
 pragma solidity 0.8.15;
 
-import {Connector} from "./Connector.sol";
-import {IMessaging} from "../interfaces/IMessaging.sol";
 import {IRootManager} from "../interfaces/IRootManager.sol";
+
+import {Connector} from "./Connector.sol";
 
 /**
  * @dev The optimism bridge shares both of these functions, but it is important
@@ -83,7 +83,7 @@ contract OptimismL2Connector is BaseOptimismConnector {
     // get the data (should be the aggregate root)
     require(_data.length == 32, "!length");
     // set the outbound root for optimism
-    this.update(bytes32(_data));
+    update(bytes32(_data));
     // get the state commitment root
     // if state commitment root is <
   }

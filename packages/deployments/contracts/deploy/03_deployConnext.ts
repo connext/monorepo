@@ -8,8 +8,6 @@ import { getDeploymentName } from "../src/utils";
 import { getDomainInfoFromChainId } from "../src/nomad";
 import { deployConfigs } from "../deployConfig";
 
-import { deployNomadBeaconProxy } from "./01_deployNomad";
-
 /**
  * Hardhat task defining the contract deployments for nxtp
  *
@@ -37,16 +35,37 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment): Promise<voi
   const balance = await hre.ethers.provider.getBalance(deployer.address);
   console.log("balance: ", balance.toString());
 
-  // Get xapp connection manager
-  const deployConfig = deployConfigs[chainId];
-  let xappConnectionManagerAddress = deployConfig?.XAppConnectionManager;
-  if (!xappConnectionManagerAddress) {
-    const xappConnectionManagerDeployment = await hre.deployments.getOrNull(getDeploymentName("XAppConnectionManager"));
-    if (!xappConnectionManagerDeployment) {
-      throw new Error(`XappConnectionManager not deployed`);
-    }
-    xappConnectionManagerAddress = xappConnectionManagerDeployment.address;
+  // Retrieve Router deployments, format into ethers.Contract objects:
+  const promiseRouterDeployment = await hre.deployments.getOrNull("PromiseRouterUpgradeBeaconProxy");
+  if (!promiseRouterDeployment) {
+    throw new Error("PromiseRouterUpgradeBeaconProxy deployment not found!");
   }
+  const promiseRouter = await hre.ethers.getContractAt(
+    "PromiseRouterUpgradeBeaconProxy",
+    promiseRouterDeployment.address,
+    deployer,
+  );
+
+  const relayerFeeRouterDeployment = await hre.deployments.getOrNull("RelayerFeeRouterUpgradeBeaconProxy");
+  if (!relayerFeeRouterDeployment) {
+    throw new Error("RelayerFeeRouterUpgradeBeaconProxy deployment not found!");
+  }
+  const relayerFeeRouter = await hre.ethers.getContractAt(
+    "RelayerFeeRouterUpgradeBeaconProxy",
+    relayerFeeRouterDeployment.address,
+    deployer,
+  );
+
+  const deployConfig = deployConfigs[chainId];
+  // Get xapp connection manager
+  // let xappConnectionManagerAddress = deployConfig?.XAppConnectionManager;
+  // if (!xappConnectionManagerAddress) {
+  //   const xappConnectionManagerDeployment = await hre.deployments.getOrNull(getDeploymentName("XAppConnectionManager"));
+  //   if (!xappConnectionManagerDeployment) {
+  //     throw new Error(`XappConnectionManager not deployed`);
+  //   }
+  //   xappConnectionManagerAddress = xappConnectionManagerDeployment.address;
+  // }
 
   console.log("Fetching token registry...");
   let tokenRegistryAddress = deployConfig?.TokenRegistry;
@@ -59,23 +78,6 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment): Promise<voi
     }
     tokenRegistryAddress = tokenRegistryDeployment.address;
   }
-
-  // Deploy relayer fee router
-  console.log("Deploying relayer fee router...");
-  const relayerFeeRouter = (
-    await deployNomadBeaconProxy("RelayerFeeRouter", [xappConnectionManagerAddress], deployer, hre)
-  ).connect(deployer);
-  console.log("relayer fee router address:", relayerFeeRouter.address);
-  console.log("relayer fee router owner:", await relayerFeeRouter.owner());
-
-  // Deploy promise router
-  console.log("Deploying promise router...");
-  const promiseRouter = (
-    await deployNomadBeaconProxy("PromiseRouter", [xappConnectionManagerAddress], deployer, hre)
-  ).connect(deployer);
-  console.log("promise router address:", promiseRouter.address);
-  console.log("promise router owner:", await promiseRouter.owner());
-
   const tokenRegistry = await hre.ethers.getContractAt("TokenRegistry", tokenRegistryAddress, deployer);
 
   const lpTokenDeployment = await hre.deployments.deploy("LPToken", {
