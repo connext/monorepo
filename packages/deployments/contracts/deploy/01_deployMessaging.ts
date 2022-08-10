@@ -70,8 +70,11 @@ const PROTOCOL_CONFIGS: {
       10: {
         prefix: "Optimism",
         ambs: {
-          hub: "",
-          spoke: "",
+          // https://github.com/ethereum-optimism/optimism/blob/develop/packages/contracts/deployments/mainnet/Proxy__OVM_L1CrossDomainMessenger.json#L2
+          hub: "0x25ace71c97B33Cc4729CF772ae268934F7ab5fA1",
+          // L2CrossDomainMessenger
+          // see: https://github.com/ethereum-optimism/optimism-tutorial/tree/main/cross-dom-comm
+          spoke: "0x4200000000000000000000000000000000000007",
         },
         // TODO: 2mil gas for opti (going L1 => L2)? Is that correct?
         processGas: BigNumber.from("2000000"),
@@ -80,7 +83,9 @@ const PROTOCOL_CONFIGS: {
       100: {
         prefix: "Gnosis",
         ambs: {
+          // https://etherscan.io/address/0x4C36d2919e407f0Cc2Ee3c993ccF8ac26d9CE64e
           hub: "0x4C36d2919e407f0Cc2Ee3c993ccF8ac26d9CE64e",
+          // https://blockscout.com/xdai/mainnet/address/0x75Df5AF045d91108662D8080fD1FEFAd6aA0bb59/transactions#address-tabs
           spoke: "0x75Df5AF045d91108662D8080fD1FEFAd6aA0bb59",
         },
         processGas: DEFAULT_PROCESS_GAS,
