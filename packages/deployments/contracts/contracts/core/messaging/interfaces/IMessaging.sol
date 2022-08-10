@@ -59,15 +59,6 @@ interface IMessaging {
   ) external;
 
   /**
-   * @notice This is called by the AMB when roots are passed up from mainnet
-   * @dev Must check the msg.sender on the origin chain to ensure only the root manager is passing
-   * these roots
-   * FIXME: is this viable or will we have to go through the connector? viable iff the call can be
-   * executed prior to rollup dispute window
-   */
-  function update(bytes32 _newRoot) external;
-
-  /**
    * @notice This is called by relayers to trigger passing of current root to mainnet root manager
    * @dev This is called at specific time intervals
    */

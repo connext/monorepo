@@ -215,11 +215,12 @@ abstract contract Messaging is MerkleTreeManager, IMessaging {
   }
 
   /**
-   * @notice This is called by the AMB when roots are passed up from mainnet
+   * @notice This is called by the Connector (AKA `this`) on the spoke (L2) chain after retrieving latest
+   * `aggregateRoot` from the AMB (sourced from mainnet).
    * @dev Must check the msg.sender on the origin chain to ensure only the root manager is passing
-   * these roots
+   * these roots.
    */
-  function update(bytes32 _newRoot) external onlyAMB {
+  function update(bytes32 _newRoot) internal {
     aggregateRoot = _newRoot;
   }
 

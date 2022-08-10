@@ -126,7 +126,7 @@ contract GnosisL2Connector is BaseGnosisConnector {
     // ensure it came from mainnet
     require(GnosisBridge(AMB).sourceChainId() == 1, "!sourceChainId");
     // update the aggregate root on the domain
-    this.update(bytes32(_data));
+    update(bytes32(_data));
   }
 }
 
