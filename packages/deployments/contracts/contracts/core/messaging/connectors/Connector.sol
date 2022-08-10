@@ -9,6 +9,8 @@ import {TypedMemView} from "../../../nomad-core/libs/TypedMemView.sol";
 import {ProposedOwnable} from "../../shared/ProposedOwnable.sol";
 import {IBridgeRouter} from "../../connext/interfaces/IBridgeRouter.sol";
 
+import {ConnectorManager} from "./ConnectorManager.sol";
+
 import {IConnector} from "../interfaces/IConnector.sol";
 
 // FIXME: This is an extremely rough contract designed to be an early PoC. Check every line before prod!
@@ -22,7 +24,7 @@ import {IConnector} from "../interfaces/IConnector.sol";
  * override virtual methods in this abstract contract to interface with a domain-specific AMB.
  * @dev Optimization: combine with the connector contract
  */
-abstract contract Connector is ProposedOwnable, MerkleTreeManager, IConnector {
+abstract contract Connector is ProposedOwnable, MerkleTreeManager, ConnectorManager, IConnector {
   // ============ Libraries ============
   using MerkleLib for MerkleLib.Tree;
   using TypedMemView for bytes;
@@ -169,7 +171,7 @@ abstract contract Connector is ProposedOwnable, MerkleTreeManager, IConnector {
     uint256 _mirrorProcessGas,
     uint256 _processGas,
     uint256 _reserveGas
-  ) ProposedOwnable() {
+  ) ProposedOwnable() ConnectorManager(_domain) {
     // Sanity checks.
     require(_domain > 0, "!domain");
     require(_amb != address(0), "!amb");
