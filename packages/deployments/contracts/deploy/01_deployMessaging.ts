@@ -50,9 +50,32 @@ const PROTOCOL_CONFIGS: {
     },
   },
   testnet: {
-    hub: 4,
+    hub: 5, // Goerli hub.
     configs: {
-      // TODO: Configs for rinkeby, goerli, ropsten, etc.
+      // TODO: Configs for rinkeby, ropsten, etc.
+      // Optimism Kovan:
+      69: {
+        prefix: "Optimism",
+        ambs: {
+          // L1CrossDomainMessenger
+          // https://goerli.etherscan.io/address/0x2eb424e0930e93cf250e488f6117a929714bb928#code
+          hub: "0x2eB424e0930E93Cf250e488f6117a929714Bb928",
+          spoke: "0x4200000000000000000000000000000000000007",
+        },
+        processGas: DEFAULT_PROCESS_GAS,
+        reserveGas: DEFAULT_RESERVE_GAS,
+      },
+      // Sokol testnet (for Gnosis):
+      // 77: {
+      //   prefix: "Gnosis",
+      //   ambs: {
+      //     hub: "",
+      //     // https://blockscout.com/poa/sokol/address/0xFe446bEF1DbF7AFE24E81e05BC8B271C1BA9a560/contracts
+      //     spoke: "0xFe446bEF1DbF7AFE24E81e05BC8B271C1BA9a560",
+      //   },
+      //   processGas: DEFAULT_PROCESS_GAS,
+      //   reserveGas: DEFAULT_RESERVE_GAS,
+      // },
     },
   },
   mainnet: {
@@ -70,6 +93,7 @@ const PROTOCOL_CONFIGS: {
       10: {
         prefix: "Optimism",
         ambs: {
+          // L1CrossDomainMessenger
           // https://github.com/ethereum-optimism/optimism/blob/develop/packages/contracts/deployments/mainnet/Proxy__OVM_L1CrossDomainMessenger.json#L2
           hub: "0x25ace71c97B33Cc4729CF772ae268934F7ab5fA1",
           // L2CrossDomainMessenger
@@ -85,7 +109,7 @@ const PROTOCOL_CONFIGS: {
         ambs: {
           // https://etherscan.io/address/0x4C36d2919e407f0Cc2Ee3c993ccF8ac26d9CE64e
           hub: "0x4C36d2919e407f0Cc2Ee3c993ccF8ac26d9CE64e",
-          // https://blockscout.com/xdai/mainnet/address/0x75Df5AF045d91108662D8080fD1FEFAd6aA0bb59/transactions#address-tabs
+          // https://blockscout.com/xdai/mainnet/address/0x75Df5AF045d91108662D8080fD1FEFAd6aA0bb59
           spoke: "0x75Df5AF045d91108662D8080fD1FEFAd6aA0bb59",
         },
         processGas: DEFAULT_PROCESS_GAS,
