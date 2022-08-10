@@ -1,6 +1,6 @@
-import { HardhatRuntimeEnvironment, HttpNetworkConfig } from "hardhat/types";
+import { HardhatRuntimeEnvironment } from "hardhat/types";
 import { DeployFunction } from "hardhat-deploy/types";
-import { BigNumber, constants, providers, Wallet } from "ethers";
+import { BigNumber, constants, Wallet } from "ethers";
 
 import { chainIdToDomain, mustGetEnv } from "../src";
 
