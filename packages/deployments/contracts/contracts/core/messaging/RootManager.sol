@@ -23,16 +23,18 @@ contract RootManager is ProposedOwnable, IRootManager {
   event WatcherRemoved(address watcher);
 
   // ============ Properties ============
-  mapping(uint32 => address) connectors;
+  mapping(uint32 => address) public connectors;
 
-  mapping(uint32 => bytes32) outboundRoots;
+  mapping(uint32 => bytes32) public outboundRoots;
 
-  uint32[] domains;
+  uint32[] public domains;
 
-  mapping(address => bool) watchers;
+  mapping(address => bool) public watchers;
 
   // ============ Constructor ============
-  constructor() ProposedOwnable() {}
+  constructor() ProposedOwnable() {
+    _setOwner(msg.sender);
+  }
 
   // ============ Modifiers ============
   modifier onlyWatcher() {
@@ -54,7 +56,7 @@ contract RootManager is ProposedOwnable, IRootManager {
    * FIXME proper merkle tree implementation
    */
   function propagate() external override {
-    bytes memory aggregate = abi.encodePacked(outboundRoots[0]);
+    bytes memory aggregate = abi.encodePacked(outboundRoots[domains[0]]);
     for (uint8 i; i < domains.length; i++) {
       IConnector(connectors[domains[i]]).sendMessage(aggregate);
     }
