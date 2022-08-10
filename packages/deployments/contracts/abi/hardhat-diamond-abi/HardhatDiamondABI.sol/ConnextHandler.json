@@ -8,7 +8,7 @@
   "error BaseConnextFacet__onlyOwner_notOwner()",
   "error BaseConnextFacet__onlyProposed_notProposedOwner()",
   "error BaseConnextFacet__whenNotPaused_paused()",
-  "event AssetAdded(bytes32 indexed,bytes32 indexed,uint32 indexed,address,address)",
+  "event AssetAdded(bytes32 indexed,bytes32 indexed,uint32 indexed,address,address,address)",
   "event AssetRemoved(bytes32 indexed,address)",
   "event StableSwapAdded(bytes32 indexed,bytes32 indexed,uint32 indexed,address,address)",
   "event TokenRegistryUpdated(address,address,address)",
