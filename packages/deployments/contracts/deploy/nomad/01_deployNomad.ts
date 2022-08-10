@@ -2,8 +2,8 @@ import { HardhatRuntimeEnvironment } from "hardhat/types";
 import { DeployFunction } from "hardhat-deploy/types";
 import { Contract, Signer, BigNumber, Wallet } from "ethers";
 
-import { getDeploymentName } from "../src/utils";
-import { getDomainInfoFromChainId, getNomadConfig } from "../src/nomad";
+import { getDeploymentName } from "../../src/utils";
+import { getDomainInfoFromChainId, getNomadConfig } from "../../src/nomad";
 
 export const deployNomadBeaconProxy = async <T extends Contract = Contract>(
   name: string,

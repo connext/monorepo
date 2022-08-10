@@ -1,6 +1,0 @@
-[
-  "function dispatch(uint32,bytes32,bytes)",
-  "function proveAndProcess(bytes,bytes32[32],uint256)",
-  "function send()",
-  "function update(bytes32)"
-]

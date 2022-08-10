@@ -14,12 +14,6 @@ const DEFAULT_RESERVE_GAS = BigNumber.from("100000");
 const HUB_PREFIX = "L1";
 const SPOKE_PREFIX = "L2";
 
-type RouterAddresses = {
-  bridgeRouter: string;
-  // promiseRouter: string;
-  // relayerFeeRouter: string;
-};
-
 type ProtocolConfig = {
   // The chain ID of the hub. For production environment, should be Ethereum Mainnet (1).
   hub: number;
@@ -126,10 +120,9 @@ const formatConnectorArgs = (
     deploymentChainId: number;
     mirrorChainId: number;
     rootManager: string;
-    routers: RouterAddresses;
   },
 ): any[] => {
-  const { deploymentChainId, mirrorChainId, rootManager, routers } = args;
+  const { deploymentChainId, mirrorChainId, rootManager } = args;
   const config = protocol.configs[deploymentChainId];
 
   const isHub = deploymentChainId === protocol.hub;
@@ -140,13 +133,12 @@ const formatConnectorArgs = (
     deploymentDomain,
     isHub ? config.ambs.hub : config.ambs.spoke,
     rootManager,
-    routers.bridgeRouter,
-    config.processGas,
-    config.reserveGas,
     // Mirror domain should be known.
     mirrorDomain,
     // Mirror contract address should be configured separately, after deployment.
     constants.AddressZero,
+    config.processGas,
+    config.reserveGas,
   ];
 };
 
@@ -155,7 +147,6 @@ const handleDeployMainnet = async (
   hre: HardhatRuntimeEnvironment,
   deployer: Wallet,
   protocol: ProtocolConfig,
-  routers: RouterAddresses,
 ): Promise<void> => {
   // Deploy RootManager.
   console.log("Deploying RootManager...");
@@ -188,7 +179,6 @@ const handleDeployMainnet = async (
         deploymentChainId: protocol.hub,
         mirrorChainId,
         rootManager: rootManager.address,
-        routers,
       }),
       skipIfAlreadyDeployed: true,
       log: true,
@@ -203,7 +193,6 @@ const handleDeploySpoke = async (
   protocol: ProtocolConfig,
   deploymentChainId: number,
   rootManager: string,
-  routers: RouterAddresses,
 ): Promise<void> => {
   // Deploy the Connector contract for this Spoke chain.
   const { configs } = protocol;
@@ -217,7 +206,6 @@ const handleDeploySpoke = async (
       deploymentChainId,
       mirrorChainId: protocol.hub,
       rootManager,
-      routers,
     }),
     skipIfAlreadyDeployed: true,
     log: true,
@@ -265,34 +253,30 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment): Promise<voi
 
   const isHub = chain === protocol.hub.toString();
 
-  // TODO: Get the hub RootManager address.
-  // Get a deployer wallet connected to the hub chain.
-  // We need to get the current RootManager address on the hub in order to deploy the spokes.
-  // const hubDeployer = isHub
-  //   ? deployer
-  //   : deployer.connect(
-  //       new providers.JsonRpcProvider(
-  //         network === "mainnet"
-  //           ? (hre.config.networks.mainnet as HttpNetworkConfig).url
-  //           : network === "testnet"
-  //           ? (hre.config.networks.goerli as HttpNetworkConfig).url
-  //           : hre.config.networks.localhost.url,
-  //       ),
-  //     );
-
   // Handle deployment for Connector(s) and RootManager, if applicable.
   if (isHub) {
-    await handleDeployMainnet(hre, deployer, protocol, {
-      bridgeRouter: bridgeRouter.address,
-    });
+    await handleDeployMainnet(hre, deployer, protocol);
   } else {
     if (!Object.keys(protocol.configs).includes(chain)) {
       throw new Error(`Invalid chain (${chain}) for deployment!`);
     }
-    await handleDeploySpoke(hre, deployer, protocol, +chain, rootManager, {
-      bridgeRouter: bridgeRouter.address,
-    });
+    // TODO: Get the hub RootManager address.
+    // Get a deployer wallet connected to the hub chain.
+    // We need to get the current RootManager address on the hub in order to deploy the spokes.
+    // const hubDeployer = deployer.connect(
+    //       new providers.JsonRpcProvider(
+    //         network === "mainnet"
+    //           ? (hre.config.networks.mainnet as HttpNetworkConfig).url
+    //           : network === "testnet"
+    //           ? (hre.config.networks.goerli as HttpNetworkConfig).url
+    //           : hre.config.networks.localhost.url,
+    //       ),
+    //     );
+    const rootManager = "";
+    await handleDeploySpoke(hre, deployer, protocol, +chain, rootManager);
   }
+
+  // TODO: Whitelist routers as valid senders.
 };
 
 export default func;

@@ -18,7 +18,10 @@
   "function acceptProposedOwner()",
   "function addConnector(uint32,address)",
   "function addWatcher(address)",
+  "function connectors(uint32) view returns (address)",
   "function delay() view returns (uint256)",
+  "function domains(uint256) view returns (uint32)",
+  "function outboundRoots(uint32) view returns (bytes32)",
   "function owner() view returns (address)",
   "function propagate()",
   "function proposeNewOwner(address)",
@@ -28,5 +31,6 @@
   "function removeWatcher(address)",
   "function renounceOwnership()",
   "function renounced() view returns (bool)",
-  "function setOutboundRoot(uint32,bytes32)"
+  "function setOutboundRoot(uint32,bytes32)",
+  "function watchers(address) view returns (bool)"
 ]

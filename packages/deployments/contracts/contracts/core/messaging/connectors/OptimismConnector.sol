@@ -37,11 +37,11 @@ abstract contract BaseOptimismConnector is Connector {
     uint32 _domain,
     address _amb,
     address _rootManager,
-    uint256 _processGas,
-    uint256 _reserveGas,
     uint32 _mirrorDomain,
-    address _mirrorConnector
-  ) Connector(_domain, _amb, _rootManager, _processGas, _reserveGas, _mirrorDomain, _mirrorConnector) {}
+    address _mirrorConnector,
+    uint256 _processGas,
+    uint256 _reserveGas
+  ) Connector(_domain, _amb, _rootManager, _mirrorDomain, _mirrorConnector, _processGas, _reserveGas) {}
 
   // ============ Public Fns ============
   function _verifySender(address _expected) internal override returns (bool) {
@@ -56,11 +56,11 @@ contract OptimismL2Connector is BaseOptimismConnector {
     uint32 _domain,
     address _amb,
     address _rootManager,
-    uint256 _processGas,
-    uint256 _reserveGas,
     uint32 _mirrorDomain,
-    address _mirrorConnector
-  ) BaseOptimismConnector(_domain, _amb, _rootManager, _processGas, _reserveGas, _mirrorDomain, _mirrorConnector) {}
+    address _mirrorConnector,
+    uint256 _processGas,
+    uint256 _reserveGas
+  ) BaseOptimismConnector(_domain, _amb, _rootManager, _mirrorDomain, _mirrorConnector, _processGas, _reserveGas) {}
 
   // ============ Private fns ============
   /**
@@ -95,11 +95,11 @@ contract OptimismL1Connector is BaseOptimismConnector {
     uint32 _domain,
     address _amb,
     address _rootManager,
-    uint256 _processGas,
-    uint256 _reserveGas,
     uint32 _mirrorDomain,
-    address _mirrorConnector
-  ) BaseOptimismConnector(_domain, _amb, _rootManager, _processGas, _reserveGas, _mirrorDomain, _mirrorConnector) {}
+    address _mirrorConnector,
+    uint256 _processGas,
+    uint256 _reserveGas
+  ) BaseOptimismConnector(_domain, _amb, _rootManager, _mirrorDomain, _mirrorConnector, _processGas, _reserveGas) {}
 
   // ============ Private fns ============
   /**
