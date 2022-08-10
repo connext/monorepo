@@ -3,7 +3,7 @@ import { DeployFunction } from "hardhat-deploy/types";
 import { Wallet } from "ethers";
 import { config } from "dotenv";
 
-import { getDeploymentName } from "../src/utils";
+import { getDeploymentName } from "../../src/utils";
 
 import { deployNomadBeaconProxy } from "./01_deployNomad";
 

@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: MIT OR Apache-2.0
 pragma solidity 0.8.15;
 
-import {Connector} from "./Connector.sol";
-import {IMessaging} from "../interfaces/IMessaging.sol";
 import {IRootManager} from "../interfaces/IRootManager.sol";
+
+import {Connector} from "./Connector.sol";
 
 // TODO: how to handle message passing failures?
 
@@ -113,7 +113,7 @@ contract GnosisL2Connector is BaseGnosisConnector {
     // ensure it came from mainnet
     require(GnosisBridge(AMB).sourceChainId() == 1, "!sourceChainId");
     // update the aggregate root on the domain
-    this.update(bytes32(_data));
+    update(bytes32(_data));
   }
 }
 
