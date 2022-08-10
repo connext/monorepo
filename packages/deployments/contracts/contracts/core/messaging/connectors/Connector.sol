@@ -233,8 +233,9 @@ abstract contract Connector is ProposedOwnable, MerkleTreeManager, IConnector {
 
   /**
    * @notice This function adds transfers to the outbound transfer merkle tree.
-   * @dev The root of this tree will eventually be dispatched to mainnet via `send`,
-   * and combined into a single aggregate root.
+   * @dev The root of this tree will eventually be dispatched to mainnet via `send`. On mainnet (the "hub"),
+   * it will be combined into a single aggregate root by RootManager (along with outbound roots from other
+   * chains). This aggregate root will be redistributed to all destination chains.
    */
   function dispatch(
     uint32 _destinationDomain,
