@@ -8,8 +8,8 @@ import {
   AuctionsApiBidResponse,
   AuctionsApiPostBidReqSchema,
   AuctionsApiBidResponseSchema,
-  AuctionsApiErrorResponseSchema,
-  AuctionsApiErrorResponse,
+  SequencerApiErrorResponseSchema,
+  SequencerApiErrorResponse,
   AuctionsApiGetAuctionStatusResponse,
   AuctionsApiGetAuctionsStatusResponseSchema,
   AuctionsApiGetQueuedResponseSchema,
@@ -38,14 +38,14 @@ export const bindServer = async (): Promise<FastifyInstance> => {
 
   server.get<{
     Params: { transferId: string };
-    Reply: AuctionsApiGetAuctionStatusResponse | AuctionsApiErrorResponse;
+    Reply: AuctionsApiGetAuctionStatusResponse | SequencerApiErrorResponse;
   }>(
     "/auctions/:transferId",
     {
       schema: {
         response: {
           200: AuctionsApiGetAuctionsStatusResponseSchema,
-          500: AuctionsApiErrorResponseSchema,
+          500: SequencerApiErrorResponseSchema,
         },
       },
     },
@@ -83,14 +83,14 @@ export const bindServer = async (): Promise<FastifyInstance> => {
     },
   );
 
-  server.post<{ Body: AuctionsApiPostBidReq; Reply: AuctionsApiBidResponse | AuctionsApiErrorResponse }>(
+  server.post<{ Body: AuctionsApiPostBidReq; Reply: AuctionsApiBidResponse | SequencerApiErrorResponse }>(
     "/auctions",
     {
       schema: {
         body: AuctionsApiPostBidReqSchema,
         response: {
           200: AuctionsApiBidResponseSchema,
-          500: AuctionsApiErrorResponseSchema,
+          500: SequencerApiErrorResponseSchema,
         },
       },
     },
@@ -119,13 +119,13 @@ export const bindServer = async (): Promise<FastifyInstance> => {
     },
   );
 
-  server.get<{ Reply: AuctionsApiGetQueuedResponse | AuctionsApiErrorResponse }>(
+  server.get<{ Reply: AuctionsApiGetQueuedResponse | SequencerApiErrorResponse }>(
     "/queued",
     {
       schema: {
         response: {
           200: AuctionsApiGetQueuedResponseSchema,
-          500: AuctionsApiErrorResponseSchema,
+          500: SequencerApiErrorResponseSchema,
         },
       },
     },

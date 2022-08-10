@@ -15,6 +15,13 @@ export const ClearCacheRequestSchema = AdminSchema;
 export type ClearCacheRequest = Static<typeof ClearCacheRequestSchema>;
 
 /// MARK - Sequencer API ----------------------------------------------------------------------------
+
+export const SequencerApiErrorResponseSchema = Type.Object({
+  message: Type.String(),
+  error: Type.Optional(NxtpErrorJsonSchema),
+});
+export type SequencerApiErrorResponse = Static<typeof SequencerApiErrorResponseSchema>;
+
 export const AuctionsApiPostBidReqSchema = BidSchema;
 
 export type AuctionsApiPostBidReq = Static<typeof AuctionsApiPostBidReqSchema>;
@@ -44,12 +51,6 @@ export const AuctionsApiGetQueuedResponseSchema = Type.Object({
   queued: Type.Array(Type.String()),
 });
 export type AuctionsApiGetQueuedResponse = Static<typeof AuctionsApiGetQueuedResponseSchema>;
-
-export const AuctionsApiErrorResponseSchema = Type.Object({
-  message: Type.String(),
-  error: Type.Optional(NxtpErrorJsonSchema),
-});
-export type AuctionsApiErrorResponse = Static<typeof AuctionsApiErrorResponseSchema>;
 
 export enum LightHouseTxStatus {
   None = "None",

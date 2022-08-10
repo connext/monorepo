@@ -10,7 +10,7 @@ import { NxtpRouterConfig as RouterConfig } from "@connext/nxtp-router/src/confi
 import { RelayerConfig } from "@connext/nxtp-relayer/src/lib/entities/config";
 import { CartographerConfig } from "@connext/cartographer-poller/src/config";
 import {
-  AuctionsApiErrorResponse,
+  SequencerApiErrorResponse,
   AuctionsApiGetAuctionStatusResponse,
   delay,
   OriginTransfer,
@@ -868,7 +868,7 @@ describe("TESTNET:E2E", () => {
                   baseURL: `http://${sequencerConfig.server.host}:${sequencerConfig.server.port}`,
                   url: `/auctions/0xf8b72dd5eb4b330a736b8f336ae13f95a26f92774e2fe95e7b5236fda75f27ed`,
                 })
-                .catch((e: AxiosResponse<AuctionsApiErrorResponse>) => {
+                .catch((e: AxiosResponse<SequencerApiErrorResponse>) => {
                   error = e.data ? (e.data.error ? e.data.error.message : e.data) : e;
                   return undefined;
                 });

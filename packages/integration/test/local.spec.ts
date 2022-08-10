@@ -3,7 +3,7 @@ import {
   createLoggingContext,
   Logger,
   AuctionsApiGetAuctionStatusResponse,
-  AuctionsApiErrorResponse,
+  SequencerApiErrorResponse,
   XCallArgs,
   CallParams,
   ERC20Abi,
@@ -462,7 +462,7 @@ describe("LOCAL:E2E", () => {
               baseURL: sequencerUrl,
               url: `/auctions/${originTransfer.transferId}`,
             })
-            .catch((e: AxiosResponse<AuctionsApiErrorResponse>) => {
+            .catch((e: AxiosResponse<SequencerApiErrorResponse>) => {
               error = e.data ? (e.data.error ? e.data.error.message : e.data) : e;
               return undefined;
             });
