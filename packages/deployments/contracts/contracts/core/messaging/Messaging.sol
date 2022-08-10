@@ -214,6 +214,16 @@ abstract contract Messaging is MerkleTreeManager, IMessaging {
     process(_message);
   }
 
+  // ============ Private fns ============
+  /**
+   * @notice This is called by relayers to trigger passing of current root to mainnet root manager
+   * @dev This method should be overriden by implementing Connector contract. At runtime, should be called at
+   * specific time intervals.
+   */
+  function send() external {
+    _sendMessage(abi.encodePacked(outboundRoot));
+  }
+
   /**
    * @notice This is called by the Connector (AKA `this`) on the spoke (L2) chain after retrieving latest
    * `aggregateRoot` from the AMB (sourced from mainnet).
@@ -222,15 +232,6 @@ abstract contract Messaging is MerkleTreeManager, IMessaging {
    */
   function update(bytes32 _newRoot) internal {
     aggregateRoot = _newRoot;
-  }
-
-  /**
-   * @notice This is called by relayers to trigger passing of current root to mainnet root manager
-   * @dev This method should be overriden by implementing Connector contract. At runtime, should be called at
-   * specific time intervals.
-   */
-  function send() external {
-    _sendMessage(abi.encodePacked(outboundRoot));
   }
 
   /**
@@ -342,7 +343,6 @@ abstract contract Messaging is MerkleTreeManager, IMessaging {
     // entered = 1;
   }
 
-  // ============ Private fns ============
   /**
    * @notice This function is used by the Connext contract on the l2 domain to send a message to the
    * l1 domain (i.e. called by Connext on optimism to send a message to mainnet with roots)
