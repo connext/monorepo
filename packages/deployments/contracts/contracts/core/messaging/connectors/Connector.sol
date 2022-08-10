@@ -34,9 +34,9 @@ abstract contract Connector is ProposedOwnable, MerkleTreeManager, IConnector {
 
   event Process(bytes32 leaf, bool success, bytes returnData);
 
-  event MessageSent(bytes data);
+  event MessageSent(bytes data, address caller);
 
-  event MessageProcessed(address _from, bytes data);
+  event MessageProcessed(address from, bytes data, address caller);
 
   event MirrorConnectorUpdated(address previous, address current);
 
@@ -66,24 +66,6 @@ abstract contract Connector is ProposedOwnable, MerkleTreeManager, IConnector {
    * @notice RootManager contract address.
    */
   address public immutable ROOT_MANAGER;
-
-  /**
-   * @dev This is used for the `onlyRouters` modifier, which gates who
-   * can send messages using `dispatch`.
-   */
-  address public immutable BRIDGE_ROUTER;
-
-  /**
-   * @dev This is used for the `onlyRouters` modifier, which gates who
-   * can send messages using `dispatch`.
-   */
-  address public immutable PROMISE_ROUTER;
-
-  /**
-   * @dev This is used for the `onlyRouters` modifier, which gates who
-   * can send messages using `dispatch`.
-   */
-  address public immutable RELAYER_FEE_ROUTER;
 
   /**
    * @notice Connector on L2 for L1 connectors, and vice versa.
@@ -117,6 +99,12 @@ abstract contract Connector is ProposedOwnable, MerkleTreeManager, IConnector {
    */
   mapping(bytes32 => bool) public provenRoots;
 
+  /**
+   * @dev This is used for the `onlyWhitelistedSender` modifier, which gates who
+   * can send messages using `dispatch`
+   */
+  mapping(address => bool) whitelistedSenders;
+
   // Minimum gas for message processing
   uint256 public immutable PROCESS_GAS;
 
@@ -142,8 +130,8 @@ abstract contract Connector is ProposedOwnable, MerkleTreeManager, IConnector {
     _;
   }
 
-  modifier onlyRouters() {
-    require(msg.sender == BRIDGE_ROUTER || msg.sender == PROMISE_ROUTER || msg.sender == RELAYER_FEE_ROUTER, "!router");
+  modifier onlyWhitelistedSender() {
+    require(whitelistedSenders[msg.sender], "!whitelisted");
     _;
   }
 
@@ -152,28 +140,19 @@ abstract contract Connector is ProposedOwnable, MerkleTreeManager, IConnector {
     uint32 _domain,
     address _amb,
     address _rootManager,
-    address _bridgeRouter,
     uint32 _mirrorDomain,
     address _mirrorConnector,
     uint256 _processGas,
     uint256 _reserveGas
-  ) {
+  ) ProposedOwnable() {
     // Sanity checks.
     require(_domain > 0, "!domain");
     require(_amb != address(0), "!amb");
     require(_rootManager != address(0), "!rootManager");
-    require(_bridgeRouter != address(0), "!bridgeRouter");
-    // require(_promiseRouter != address(0), "!promiseRouter");
-    // require(_relayerFeeRouter != address(0), "!relayerFeeRouter");
 
     DOMAIN = _domain;
     AMB = _amb;
     ROOT_MANAGER = _rootManager;
-    BRIDGE_ROUTER = _bridgeRouter;
-
-    // TODO:
-    PROMISE_ROUTER = address(0);
-    RELAYER_FEE_ROUTER = address(0);
 
     mirrorDomain = _mirrorDomain;
     mirrorConnector = _mirrorConnector;
@@ -201,6 +180,7 @@ abstract contract Connector is ProposedOwnable, MerkleTreeManager, IConnector {
 
   function processMessage(address _sender, bytes memory _data) external {
     _processMessage(_sender, _data);
+    emit MessageProcessed(_sender, _data, msg.sender);
   }
 
   function verifySender(address _expected) external returns (bool) {
@@ -216,7 +196,7 @@ abstract contract Connector is ProposedOwnable, MerkleTreeManager, IConnector {
     uint32 _destinationDomain,
     bytes32 _recipientAddress,
     bytes memory _messageBody
-  ) external onlyRouters {
+  ) external onlyWhitelistedSender {
     // get the next nonce for the destination domain, then increment it
     uint32 _nonce = nonces[_destinationDomain];
     nonces[_destinationDomain] = _nonce + 1;
@@ -262,7 +242,7 @@ abstract contract Connector is ProposedOwnable, MerkleTreeManager, IConnector {
    * @notice This function is used by the Connext contract on the l2 domain to send a message to the
    * l1 domain (i.e. called by Connext on optimism to send a message to mainnet with roots)
    */
-  function _sendMessage(bytes memory _outboundRoot) internal virtual;
+  function _sendMessage(bytes memory _data) internal virtual;
 
   /**
    * @notice This function is used by the AMBs to handle incoming messages. Should store the latest
