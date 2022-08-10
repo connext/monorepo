@@ -58,7 +58,10 @@ contract RootManager is ProposedOwnable, IRootManager {
   function propagate() external override {
     bytes memory aggregate = abi.encodePacked(outboundRoots[domains[0]]);
     for (uint8 i; i < domains.length; i++) {
-      IConnector(connectors[domains[i]]).sendMessage(aggregate);
+      address connector = connectors[domains[i]];
+      if (connector != address(0)) {
+        IConnector(connector).sendMessage(aggregate);
+      }
     }
   }
 
@@ -101,7 +104,18 @@ contract RootManager is ProposedOwnable, IRootManager {
    */
   function removeConnector(uint32 _domain) external onlyWatcher {
     address connector = connectors[_domain];
+    // remove connector from mapping
     delete connectors[_domain];
+
+    // remove domain from array
+    uint32 last = domains[domains.length - 1];
+    for (uint8 i; i < domains.length; i++) {
+      if (domains[i] == _domain) {
+        domains[i] = last;
+        break;
+      }
+    }
+    domains.pop();
     emit ConnectorRemoved(_domain, connector);
   }
 }
