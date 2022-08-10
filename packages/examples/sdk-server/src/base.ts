@@ -3,7 +3,7 @@ import { FastifyInstance } from "fastify";
 import { XCallArgsSchema, XCallArgs } from "@connext/nxtp-utils";
 import { TypeBoxTypeProvider } from "@fastify/type-provider-typebox";
 
-import { approveIfNeededSchema } from "../types/api";
+import { approveIfNeededSchema } from "./types/api";
 
 export const baseRoutes = async (server: FastifyInstance, sdkBaseInstance: NxtpSdkBase): Promise<any> => {
   const s = server.withTypeProvider<TypeBoxTypeProvider>();

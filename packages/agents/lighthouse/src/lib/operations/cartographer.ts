@@ -19,7 +19,7 @@ export const pollCartographer = async () => {
   const { logger } = getContext();
   const { execute } = getOperations();
 
-  logger.debug(`Method start: ${pollCartographer.name}`, requestContext, methodContext, {});
+  logger.debug("Polling cartographer", requestContext, methodContext, {});
   const reconciledTransactions = await getReconciledTransactions();
   logger.debug("Get reconciled transactions", requestContext, methodContext, { reconciledTransactions });
 
