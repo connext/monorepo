@@ -309,7 +309,6 @@ abstract contract Connector is ProposedOwnable, MerkleTreeManager, IConnector {
    */
   function send() external {
     _sendMessage(abi.encodePacked(outboundRoot));
-    delete outboundRoot;
   }
 
   /**
