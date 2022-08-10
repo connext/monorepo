@@ -221,6 +221,8 @@ abstract contract Messaging is ProposedOwnable, MerkleTreeManager, IMessaging {
    * these roots.
    */
   function update(bytes32 _newRoot) external onlyAMB {
+    // TODO: need to verify crosschain sender here -- means some stuff with the
+    // connectors needs to be rearranged
     aggregateRoot = _newRoot;
   }
 
