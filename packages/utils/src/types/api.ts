@@ -52,23 +52,23 @@ export const AuctionsApiGetQueuedResponseSchema = Type.Object({
 });
 export type AuctionsApiGetQueuedResponse = Static<typeof AuctionsApiGetQueuedResponseSchema>;
 
-export enum LightHouseTxStatus {
+export enum LightHouseDataStatus {
   None = "None",
   Pending = "Pending",
   Completed = "Completed",
   Cancelled = "Cancelled",
 }
 
-export const LightHouseApiStatusRequestSchema = Type.Object({ transferId: Type.String() });
-export type LightHouseApiStatusRequest = Static<typeof LightHouseApiStatusRequestSchema>;
+export const LightHouseDataStatusRequestSchema = Type.Object({ transferId: Type.String() });
+export type LightHouseDataStatusRequest = Static<typeof LightHouseDataStatusRequestSchema>;
 
-export const LightHouseApiStatusResponseSchema = Type.Object({
+export const LightHouseDataStatusResponseSchema = Type.Object({
   transferId: Type.String(),
-  status: Type.Enum(LightHouseTxStatus),
+  status: Type.Enum(LightHouseDataStatus),
 });
-export type LightHouseApiStatusResponse = Static<typeof LightHouseApiStatusResponseSchema>;
+export type LightHouseDataStatusResponse = Static<typeof LightHouseDataStatusResponseSchema>;
 
-export const LightHouseTxRequestSchema = Type.Object({
+export const LightHousePostDataRequestSchema = Type.Object({
   transferId: Type.String(),
   encodedData: Type.String(),
   relayerFee: Type.Object({
@@ -77,7 +77,15 @@ export const LightHouseTxRequestSchema = Type.Object({
   }),
 });
 
-export type LightHouseTxRequest = Static<typeof LightHouseTxRequestSchema>;
+export type LightHousePostDataRequest = Static<typeof LightHousePostDataRequestSchema>;
+
+export const LightHousePostDataResponseSchema = Type.Object({
+  message: Type.String(),
+  transferId: Type.String(),
+  error: Type.Optional(NxtpErrorJsonSchema),
+});
+
+export type LightHousePostDataResponse = Static<typeof LightHousePostDataResponseSchema>;
 
 /// MARK - Router API -------------------------------------------------------------------------------
 export const AddLiquidityForRequestSchema = Type.Intersect([

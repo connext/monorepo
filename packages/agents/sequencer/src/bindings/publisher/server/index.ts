@@ -18,6 +18,14 @@ import {
   ClearCacheRequestSchema,
   AdminRequest,
   NxtpError,
+  LightHousePostDataRequestSchema,
+  LightHousePostDataRequest,
+  LightHousePostDataResponseSchema,
+  LightHousePostDataResponse,
+  LightHouseDataStatusRequest,
+  LightHouseDataStatusResponse,
+  LightHouseDataStatusRequestSchema,
+  LightHouseDataStatusResponseSchema,
 } from "@connext/nxtp-utils";
 
 import { getContext } from "../../../sequencer";
@@ -139,6 +147,34 @@ export const bindServer = async (): Promise<FastifyInstance> => {
         return response.code(500).send({ message: `Pending Bid Get Error`, error: jsonifyError(error as Error) });
       }
     },
+  );
+
+  server.post<{ Body: LightHousePostDataRequest; Reply: LightHousePostDataResponse | SequencerApiErrorResponse }>(
+    "/lighthouses",
+    {
+      schema: {
+        body: LightHousePostDataRequestSchema,
+        response: {
+          200: LightHousePostDataResponseSchema,
+          500: SequencerApiErrorResponseSchema,
+        },
+      },
+    },
+    async (request, response) => {},
+  );
+
+  server.get<{ Body: LightHouseDataStatusRequest; Reply: LightHouseDataStatusResponse }>(
+    "/lighthouses/:transferId",
+    {
+      schema: {
+        body: LightHouseDataStatusRequestSchema,
+        response: {
+          200: LightHouseDataStatusResponseSchema,
+          500: SequencerApiErrorResponseSchema,
+        },
+      },
+    },
+    async (request, response) => {},
   );
 
   server.post<{ Body: ClearCacheRequest }>(

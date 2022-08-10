@@ -1,4 +1,4 @@
-import { LightHouseTxStatus } from "@connext/nxtp-utils";
+import { LightHouseDataStatus } from "@connext/nxtp-utils";
 
 import { Cache } from "./cache";
 
@@ -17,7 +17,7 @@ export type LightHouseData = {
  *   key: data:$transferId | value: LightHouseData;
  *
  * Lighthouse tx Status:
- *   key: status:$transferId | value: LightHouseTxStatus;
+ *   key: status:$transferId | value: LightHouseDataStatus;
  */
 export class LightHouseCache extends Cache {
   private readonly prefix = "lighthouse";
@@ -52,7 +52,7 @@ export class LightHouseCache extends Cache {
    * @param status - The status to set
    * @returns 1 if added, 0 if updated.
    */
-  public async setLightHouseTxStatus(tranferId: string, status: LightHouseTxStatus): Promise<number> {
+  public async setLightHouseDataStatus(tranferId: string, status: LightHouseDataStatus): Promise<number> {
     const key = `${this.prefix}:status`;
     return await this.data.hset(key, tranferId, status.toString());
   }
@@ -62,11 +62,11 @@ export class LightHouseCache extends Cache {
    * @param transferId - Tranfer Id to get
    * @returns The lighthouse tx status.
    */
-  public async getLightHouseTxStatus(transferId: string): Promise<LightHouseTxStatus> {
+  public async getLightHouseDataStatus(transferId: string): Promise<LightHouseDataStatus> {
     const key = `${this.prefix}:status`;
     const res = await this.data.hget(key, transferId);
-    return res && Object.values(LightHouseTxStatus).includes(res as LightHouseTxStatus)
-      ? LightHouseTxStatus[res as LightHouseTxStatus]
-      : LightHouseTxStatus.None;
+    return res && Object.values(LightHouseDataStatus).includes(res as LightHouseDataStatus)
+      ? LightHouseDataStatus[res as LightHouseDataStatus]
+      : LightHouseDataStatus.None;
   }
 }
