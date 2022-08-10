@@ -52,12 +52,11 @@ abstract contract BaseGnosisConnector is Connector {
     uint32 _domain,
     address _amb,
     address _rootManager,
-    address _bridgeRouter,
     uint256 _processGas,
     uint256 _reserveGas,
     uint32 _mirrorDomain,
     address _mirrorConnector
-  ) Connector(_domain, _amb, _rootManager, _bridgeRouter, _processGas, _reserveGas, _mirrorDomain, _mirrorConnector) {}
+  ) Connector(_domain, _amb, _rootManager, _processGas, _reserveGas, _mirrorDomain, _mirrorConnector) {}
 
   // ============ Private fns ============
   /**
@@ -81,23 +80,11 @@ contract GnosisL2Connector is BaseGnosisConnector {
     uint32 _domain,
     address _amb,
     address _rootManager,
-    address _bridgeRouter,
     uint256 _processGas,
     uint256 _reserveGas,
     uint32 _mirrorDomain,
     address _mirrorConnector
-  )
-    BaseGnosisConnector(
-      _domain,
-      _amb,
-      _rootManager,
-      _bridgeRouter,
-      _processGas,
-      _reserveGas,
-      _mirrorDomain,
-      _mirrorConnector
-    )
-  {}
+  ) BaseGnosisConnector(_domain, _amb, _rootManager, _processGas, _reserveGas, _mirrorDomain, _mirrorConnector) {}
 
   // ============ Private fns ============
   /**
@@ -142,23 +129,11 @@ contract GnosisL1Connector is BaseGnosisConnector {
     uint32 _domain,
     address _amb,
     address _rootManager,
-    address _bridgeRouter,
     uint256 _processGas,
     uint256 _reserveGas,
     uint32 _mirrorDomain,
     address _mirrorConnector
-  )
-    BaseGnosisConnector(
-      _domain,
-      _amb,
-      _rootManager,
-      _bridgeRouter,
-      _processGas,
-      _reserveGas,
-      _mirrorDomain,
-      _mirrorConnector
-    )
-  {}
+  ) BaseGnosisConnector(_domain, _amb, _rootManager, _processGas, _reserveGas, _mirrorDomain, _mirrorConnector) {}
 
   // ============ Private fns ============
   /**
@@ -171,15 +146,13 @@ contract GnosisL1Connector is BaseGnosisConnector {
       abi.encodeWithSelector(Connector.processMessage.selector, address(this), _data),
       PROCESS_GAS
     );
+    emit MessageSent(_data, msg.sender);
   }
 
   /**
    * @dev L2 connector calls this function to pass down latest outbound root
    */
-  function _processMessage(
-    address, // _sender -- not used
-    bytes memory _data
-  ) internal override {
+  function _processMessage(address _sender, bytes memory _data) internal override {
     // ensure the l1 connector sent the message
     require(_verifySender(mirrorConnector), "!l2Connector");
     // ensure it is headed to this domain
@@ -190,5 +163,6 @@ contract GnosisL1Connector is BaseGnosisConnector {
     require(_data.length == 32, "!length");
     // update the root on the root manager
     IRootManager(ROOT_MANAGER).setOutboundRoot(mirrorDomain, bytes32(_data));
+    emit MessageProcessed(_sender, _data, msg.sender);
   }
 }

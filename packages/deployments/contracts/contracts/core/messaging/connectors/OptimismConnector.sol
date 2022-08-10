@@ -37,12 +37,11 @@ abstract contract BaseOptimismConnector is Connector {
     uint32 _domain,
     address _amb,
     address _rootManager,
-    address _bridgeRouter,
     uint256 _processGas,
     uint256 _reserveGas,
     uint32 _mirrorDomain,
     address _mirrorConnector
-  ) Connector(_domain, _amb, _rootManager, _bridgeRouter, _processGas, _reserveGas, _mirrorDomain, _mirrorConnector) {}
+  ) Connector(_domain, _amb, _rootManager, _processGas, _reserveGas, _mirrorDomain, _mirrorConnector) {}
 
   // ============ Public Fns ============
   function _verifySender(address _expected) internal override returns (bool) {
@@ -57,23 +56,11 @@ contract OptimismL2Connector is BaseOptimismConnector {
     uint32 _domain,
     address _amb,
     address _rootManager,
-    address _bridgeRouter,
     uint256 _processGas,
     uint256 _reserveGas,
     uint32 _mirrorDomain,
     address _mirrorConnector
-  )
-    BaseOptimismConnector(
-      _domain,
-      _amb,
-      _rootManager,
-      _bridgeRouter,
-      _processGas,
-      _reserveGas,
-      _mirrorDomain,
-      _mirrorConnector
-    )
-  {}
+  ) BaseOptimismConnector(_domain, _amb, _rootManager, _processGas, _reserveGas, _mirrorDomain, _mirrorConnector) {}
 
   // ============ Private fns ============
   /**
@@ -108,23 +95,11 @@ contract OptimismL1Connector is BaseOptimismConnector {
     uint32 _domain,
     address _amb,
     address _rootManager,
-    address _bridgeRouter,
     uint256 _processGas,
     uint256 _reserveGas,
     uint32 _mirrorDomain,
     address _mirrorConnector
-  )
-    BaseOptimismConnector(
-      _domain,
-      _amb,
-      _rootManager,
-      _bridgeRouter,
-      _processGas,
-      _reserveGas,
-      _mirrorDomain,
-      _mirrorConnector
-    )
-  {}
+  ) BaseOptimismConnector(_domain, _amb, _rootManager, _processGas, _reserveGas, _mirrorDomain, _mirrorConnector) {}
 
   // ============ Private fns ============
   /**
@@ -133,6 +108,7 @@ contract OptimismL1Connector is BaseOptimismConnector {
   function _sendMessage(bytes memory _data) internal override {
     require(msg.sender == ROOT_MANAGER, "!rootManager");
     OptimismBridge(AMB).sendMessage(mirrorConnector, _data, uint32(PROCESS_GAS));
+    emit MessageSent(_data, msg.sender);
   }
 
   /**
@@ -141,10 +117,7 @@ contract OptimismL1Connector is BaseOptimismConnector {
    * which requires waiting out the full delay. Need to figure out the right
    * flow to shortcut this
    */
-  function _processMessage(
-    address, // _sender -- not used
-    bytes memory _data
-  ) internal override {
+  function _processMessage(address _sender, bytes memory _data) internal override {
     // enforce this came from connector on l2
     require(_verifySender(mirrorConnector), "!l2Connector");
     // get the data (should be the outbound root)
@@ -153,5 +126,6 @@ contract OptimismL1Connector is BaseOptimismConnector {
     IRootManager(ROOT_MANAGER).setOutboundRoot(mirrorDomain, bytes32(_data));
     // get the state commitment root
     // if state commitment root is <
+    emit MessageProcessed(_sender, _data, msg.sender);
   }
 }

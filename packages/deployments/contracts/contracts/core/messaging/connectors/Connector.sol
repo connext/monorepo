@@ -8,13 +8,13 @@ import {Messaging} from "../Messaging.sol";
 /**
  * @notice Holds shared logic for interfacing with AMB
  */
-abstract contract Connector is Messaging, ProposedOwnable, IConnector {
+abstract contract Connector is ProposedOwnable, Messaging, IConnector {
   // ============ Events ============
   event MirrorConnectorUpdated(address previous, address current);
 
-  event MessageSent(bytes data);
+  event MessageSent(bytes data, address caller);
 
-  event MessageProcessed(address _from, bytes data);
+  event MessageProcessed(address from, bytes data, address caller);
 
   // ============ Properties ============
   /**
@@ -33,12 +33,11 @@ abstract contract Connector is Messaging, ProposedOwnable, IConnector {
     uint32 _domain,
     address _amb,
     address _rootManager,
-    address _bridgeRouter,
     uint256 _processGas,
     uint256 _reserveGas,
     uint32 _mirrorDomain,
     address _mirrorConnector
-  ) Messaging(_domain, _amb, _rootManager, _bridgeRouter, _processGas, _reserveGas) ProposedOwnable() {
+  ) Messaging(_domain, _amb, _rootManager, _processGas, _reserveGas) ProposedOwnable() {
     mirrorDomain = _mirrorDomain;
     mirrorConnector = _mirrorConnector;
     _setOwner(msg.sender);
@@ -60,6 +59,7 @@ abstract contract Connector is Messaging, ProposedOwnable, IConnector {
 
   function processMessage(address _sender, bytes memory _data) external {
     _processMessage(_sender, _data);
+    emit MessageProcessed(_sender, _data, msg.sender);
   }
 
   function verifySender(address _expected) external returns (bool) {
