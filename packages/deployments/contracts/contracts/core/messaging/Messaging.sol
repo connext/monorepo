@@ -9,7 +9,6 @@ import {TypedMemView} from "../../nomad-core/libs/TypedMemView.sol";
 import {IBridgeRouter} from "../connext/interfaces/IBridgeRouter.sol";
 
 import {IMessaging} from "./interfaces/IMessaging.sol";
-import {IConnector} from "./interfaces/IConnector.sol";
 
 // FIXME: This is an extremely rough contract designed to be an early PoC. Check every line before prod!
 // TODO for Eth L1, we should write an AMB aggregator/router contract

@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: MIT OR Apache-2.0
 pragma solidity 0.8.15;
 
-import {Connector} from "./Connector.sol";
-import {IMessaging} from "../interfaces/IMessaging.sol";
 import {IRootManager} from "../interfaces/IRootManager.sol";
+
+import {Connector} from "./Connector.sol";
 
 /**
  * @dev The optimism bridge shares both of these functions, but it is important
