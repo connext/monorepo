@@ -11,7 +11,6 @@ import {ProposedOwnable} from "../shared/ProposedOwnable.sol";
 import {IBridgeRouter} from "../connext/interfaces/IBridgeRouter.sol";
 
 import {IMessaging} from "./interfaces/IMessaging.sol";
-import {IConnector} from "./interfaces/IConnector.sol";
 
 // FIXME: This is an extremely rough contract designed to be an early PoC. Check every line before prod!
 // TODO for Eth L1, we should write an AMB aggregator/router contract
@@ -113,8 +112,8 @@ abstract contract Messaging is ProposedOwnable, MerkleTreeManager, IMessaging {
     _;
   }
 
-  modifier onlyWhitelistedSender() {
-    require(whitelistedSenders[msg.sender], "!whitelisted");
+  modifier onlyBridgeRouter() {
+    require(msg.sender == BRIDGE_ROUTER, "!bridgeRouter");
     _;
   }
 
@@ -233,6 +232,16 @@ abstract contract Messaging is ProposedOwnable, MerkleTreeManager, IMessaging {
   }
 
   /**
+   * @notice This is called by the Connector (AKA `this`) on the spoke (L2) chain after retrieving latest
+   * `aggregateRoot` from the AMB (sourced from mainnet).
+   * @dev Must check the msg.sender on the origin chain to ensure only the root manager is passing
+   * these roots.
+   */
+  function update(bytes32 _newRoot) internal {
+    aggregateRoot = _newRoot;
+  }
+
+  /**
    * @notice Attempts to prove the validity of message given its leaf, the
    * merkle proof of inclusion for the leaf, and the index of the leaf.
    * @dev Reverts if message's MessageStatus != None (i.e. if message was
@@ -341,7 +350,6 @@ abstract contract Messaging is ProposedOwnable, MerkleTreeManager, IMessaging {
     // entered = 1;
   }
 
-  // ============ Private fns ============
   /**
    * @notice This function is used by the Connext contract on the l2 domain to send a message to the
    * l1 domain (i.e. called by Connext on optimism to send a message to mainnet with roots)
