@@ -236,7 +236,7 @@ const handleDeploySpoke = async (
 };
 
 /**
- * Hardhat task for deploying the AMB Messaging contracts.
+ * Hardhat task for deploying the AMB Messaging Layer contracts.
  *
  * @param hre Hardhat environment to deploy to
  */
@@ -289,4 +289,4 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment): Promise<voi
 export default func;
 
 func.tags = ["Messaging", "prod", "local", "mainnet"];
-func.dependencies = [];
+func.dependencies = ["Routers"];
