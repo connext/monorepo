@@ -1,4 +1,5 @@
 import { Type, Static } from "@sinclair/typebox";
+import { Type, Type } from "typescript";
 
 import { BidSchema } from "./auctions";
 import { NxtpErrorJsonSchema } from "./error";
@@ -50,6 +51,33 @@ export const AuctionsApiErrorResponseSchema = Type.Object({
   error: Type.Optional(NxtpErrorJsonSchema),
 });
 export type AuctionsApiErrorResponse = Static<typeof AuctionsApiErrorResponseSchema>;
+
+export enum LightHouseTxStatus {
+  None = "None",
+  Pending = "Pending",
+  Completed = "Completed",
+  Cancelled = "Cancelled",
+}
+
+export const LightHouseApiStatusRequestSchema = Type.Object({ transferId: Type.String() });
+export type LightHouseApiStatusRequest = Static<typeof LightHouseApiStatusRequestSchema>;
+
+export const LightHouseApiStatusResponseSchema = Type.Object({
+  transferId: Type.String(),
+  status: Type.Enum(LightHouseTxStatus),
+});
+export type LightHouseApiStatusResponse = Static<typeof LightHouseApiStatusResponseSchema>;
+
+export const LightHouseTxRequestSchema = Type.Object({
+  transferId: Type.String(),
+  encodedData: Type.String(),
+  relayerFee: Type.Object({
+    amount: Type.String(),
+    asset: Type.String(),
+  }),
+});
+
+export type LightHouseTxRequest = Static<typeof LightHouseTxRequestSchema>;
 
 /// MARK - Router API -------------------------------------------------------------------------------
 export const AddLiquidityForRequestSchema = Type.Intersect([
