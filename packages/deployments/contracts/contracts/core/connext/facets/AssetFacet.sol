@@ -48,6 +48,7 @@ contract AssetFacet is BaseConnextFacet {
    * @param canonicalId - The canonical identifier of the token the local <> adopted AMM is for
    * @param domain - The domain of the canonical token for the local <> adopted amm
    * @param adoptedAsset - The address of the adopted (user-expected) asset
+   * @param localAsset - The address of the local asset
    * @param caller - The account that called the function
    */
   event AssetAdded(
@@ -55,6 +56,7 @@ contract AssetFacet is BaseConnextFacet {
     bytes32 indexed canonicalId,
     uint32 indexed domain,
     address adoptedAsset,
+    address localAsset,
     address caller
   );
 
@@ -153,8 +155,10 @@ contract AssetFacet is BaseConnextFacet {
     // Update the canonical mapping
     s.canonicalToAdopted[key] = _adoptedAssetId;
 
+    address local = s.tokenRegistry.getLocalAddress(_canonical.domain, _canonical.id);
+
     // Emit event
-    emit AssetAdded(key, _canonical.id, _canonical.domain, _adoptedAssetId, msg.sender);
+    emit AssetAdded(key, _canonical.id, _canonical.domain, _adoptedAssetId, local, msg.sender);
 
     // Add the swap pool
     _addStableSwapPool(_canonical, _stableSwapPool, key);
