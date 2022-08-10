@@ -5,7 +5,7 @@ import {TypeCasts} from "../../../contracts/nomad-core/libs/TypeCasts.sol";
 import {Message} from "../../../contracts/nomad-core/libs/Message.sol";
 
 import {RootManager} from "../../../contracts/core/messaging/RootManager.sol";
-import {Messaging} from "../../../contracts/core/messaging/Messaging.sol";
+import {Connector} from "../../../contracts/core/messaging/connectors/Connector.sol";
 
 import "../../utils/ForgeHelper.sol";
 import "../../utils/Mock.sol";
@@ -65,48 +65,52 @@ contract PingPong is ForgeHelper {
     _originConnectorL2 = address(
       new MockConnector(
         _originDomain, // uint32 _domain,
+        _mainnetDomain, // uint32 _mirrorDomain
         _originAMB, // address _amb,
         _rootManager, // address _rootManager,
+        address(0), // address _mirrorConnector
+        PROCESS_GAS, // uint256 _mirrorProcessGas
         PROCESS_GAS, // uint256 _processGas,
-        RESERVE_GAS, // uint256 _reserveGas
-        _mainnetDomain,
-        address(0)
+        RESERVE_GAS // uint256 _reserveGas
       )
     );
     // Mock sourceconnector on l1
     _originConnectorL1 = address(
       new MockConnector(
         _mainnetDomain, // uint32 _domain,
+        _originDomain, // uint32 _mirrorDomain,
         _originMainnetAMB, // address _amb,
         _rootManager, // address _rootManager,
+        _originConnectorL2, // address _mirrorConnector,
+        PROCESS_GAS, // uint256 _mirrorProcessGas
         PROCESS_GAS, // uint256 _processGas,
-        RESERVE_GAS, // uint256 _reserveGas
-        _originDomain, // uint32 _mirrorDomain,
-        _originConnectorL2 // address _mirrorConnector
+        RESERVE_GAS // uint256 _reserveGas
       )
     );
     // Mock dest connector on l2
     _destinationConnectorL2 = address(
       new MockConnector(
         _destinationDomain, // uint32 _domain,
+        _mainnetDomain, // uint32 _mirrorDomain,
         _destinationAMB, // address _amb,
         _rootManager, // address _rootManager,
+        address(0), // address _mirrorConnector,
+        PROCESS_GAS, // uint256 _mirrorProcessGas
         PROCESS_GAS, // uint256 _processGas,
-        RESERVE_GAS, // uint256 _reserveGas
-        _mainnetDomain,
-        address(0)
+        RESERVE_GAS // uint256 _reserveGas
       )
     );
     // Mock dest connector on l1
     _destinationConnectorL1 = address(
       new MockConnector(
-        _destinationDomain, // uint32 _domain,
+        _mainnetDomain, // uint32 _domain,
+        _destinationDomain, // uint32 _mirrorDomain,
         _destinationMainnetAMB, // address _amb,
         _rootManager, // address _rootManager,
+        _destinationConnectorL2, // address _mirrorConnector,
+        PROCESS_GAS, // uint256 _mirrorProcessGas
         PROCESS_GAS, // uint256 _processGas,
-        RESERVE_GAS, // uint256 _reserveGas
-        _destinationDomain,
-        _destinationConnectorL2
+        RESERVE_GAS // uint256 _reserveGas
       )
     );
     _destinationRouter = TypeCasts.addressToBytes32(address(new MockRelayerFeeRouter()));
@@ -114,7 +118,7 @@ contract PingPong is ForgeHelper {
 
   function utils_configureContracts() public {
     // enroll this as approved sender for messaging
-    Messaging(_originConnectorL2).addSender(address(this));
+    Connector(_originConnectorL2).addSender(address(this));
     Connector(_originConnectorL2).setMirrorConnector(_originConnectorL1);
     Connector(_destinationConnectorL2).setMirrorConnector(_destinationConnectorL1);
     // check setup
@@ -139,21 +143,21 @@ contract PingPong is ForgeHelper {
   function test_messageFlowsWork() public {
     // 1. Send message through Messaging contract
     bytes memory body = abi.encode(_destinationDomain * _originDomain);
-    assertEq(Messaging(_originConnectorL2).outboundRoot(), bytes32(0));
-    Messaging(_originConnectorL2).dispatch(_destinationDomain, _destinationRouter, body);
+    assertEq(Connector(_originConnectorL2).outboundRoot(), bytes32(0));
+    Connector(_originConnectorL2).dispatch(_destinationDomain, _destinationRouter, body);
     // assert added to outboundRoot
-    assertEq(Messaging(_originConnectorL2).count(), 1);
+    assertEq(Connector(_originConnectorL2).count(), 1);
     // TODO: actually assert this is the correct root outside of using hardcoded values
     assertEq(
-      Messaging(_originConnectorL2).outboundRoot(),
+      Connector(_originConnectorL2).outboundRoot(),
       bytes32(0x86fa2992f68fd0ba27a6303c3704838c670c809d4f602481f9bcdefc5687aa23)
     );
 
     // 2. Send outboundRoot through Connector to mainnet
-    bytes32 outboundRoot = Messaging(_originConnectorL2).outboundRoot();
+    bytes32 outboundRoot = Connector(_originConnectorL2).outboundRoot();
     vm.expectEmit(true, true, true, true);
     emit MessageSent(abi.encode(outboundRoot), address(this));
-    Messaging(_originConnectorL2).send();
+    Connector(_originConnectorL2).send();
     assertEq(keccak256(abi.encode(outboundRoot)), MockConnector(_originConnectorL2).lastOutbound());
 
     // 3. Process outboundRoot on mainnet
@@ -178,7 +182,7 @@ contract PingPong is ForgeHelper {
     emit MessageProcessed(address(this), expectedAggregate, _destinationAMB);
     vm.prank(_destinationAMB);
     MockConnector(_destinationConnectorL2).processMessage(address(this), expectedAggregate);
-    assertEq(Messaging(_destinationConnectorL2).aggregateRoot(), outboundRoot);
+    assertEq(Connector(_destinationConnectorL2).aggregateRoot(), outboundRoot);
 
     // 6. Process original message
     bytes memory message = Message.formatMessage(
@@ -192,8 +196,8 @@ contract PingPong is ForgeHelper {
     // TODO: fix proof
     bytes32[32] memory proof;
     // TODO: fix index
-    Messaging(_destinationConnectorL2).proveAndProcess(message, proof, 0);
-    assertEq(uint256(Messaging(_destinationConnectorL2).messages(keccak256(message))), 2);
+    Connector(_destinationConnectorL2).proveAndProcess(message, proof, 0);
+    assertEq(uint256(Connector(_destinationConnectorL2).messages(keccak256(message))), 2);
     assertEq(MockRelayerFeeRouter(TypeCasts.bytes32ToAddress(_destinationRouter)).handledOrigin(), _originDomain);
     assertEq(MockRelayerFeeRouter(TypeCasts.bytes32ToAddress(_destinationRouter)).handledNonce(), 0);
     assertEq(

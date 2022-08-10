@@ -50,13 +50,16 @@ abstract contract BaseGnosisConnector is Connector {
   // ============ Constructor ============
   constructor(
     uint32 _domain,
+    uint32 _mirrorDomain,
     address _amb,
     address _rootManager,
-    uint32 _mirrorDomain,
     address _mirrorConnector,
+    uint256 _mirrorProcessGas,
     uint256 _processGas,
     uint256 _reserveGas
-  ) Connector(_domain, _amb, _rootManager, _mirrorDomain, _mirrorConnector, _processGas, _reserveGas) {}
+  )
+    Connector(_domain, _mirrorDomain, _amb, _rootManager, _mirrorConnector, _mirrorProcessGas, _processGas, _reserveGas)
+  {}
 
   // ============ Private fns ============
   /**
@@ -78,13 +81,25 @@ contract GnosisL2Connector is BaseGnosisConnector {
   // ============ Constructor ============
   constructor(
     uint32 _domain,
+    uint32 _mirrorDomain,
     address _amb,
     address _rootManager,
-    uint32 _mirrorDomain,
     address _mirrorConnector,
+    uint256 _mirrorProcessGas,
     uint256 _processGas,
     uint256 _reserveGas
-  ) BaseGnosisConnector(_domain, _amb, _rootManager, _mirrorDomain, _mirrorConnector, _processGas, _reserveGas) {}
+  )
+    BaseGnosisConnector(
+      _domain,
+      _mirrorDomain,
+      _amb,
+      _rootManager,
+      _mirrorConnector,
+      _mirrorProcessGas,
+      _processGas,
+      _reserveGas
+    )
+  {}
 
   // ============ Private fns ============
   /**
@@ -95,7 +110,7 @@ contract GnosisL2Connector is BaseGnosisConnector {
     GnosisBridge(AMB).requireToPassMessage(
       mirrorConnector,
       abi.encodeWithSelector(Connector.processMessage.selector, address(this), _data),
-      PROCESS_GAS
+      mirrorProcessGas
     );
   }
 
@@ -127,13 +142,25 @@ contract GnosisL1Connector is BaseGnosisConnector {
   // ============ Constructor ============
   constructor(
     uint32 _domain,
+    uint32 _mirrorDomain,
     address _amb,
     address _rootManager,
-    uint32 _mirrorDomain,
     address _mirrorConnector,
+    uint256 _mirrorProcessGas,
     uint256 _processGas,
     uint256 _reserveGas
-  ) BaseGnosisConnector(_domain, _amb, _rootManager, _mirrorDomain, _mirrorConnector, _processGas, _reserveGas) {}
+  )
+    BaseGnosisConnector(
+      _domain,
+      _mirrorDomain,
+      _amb,
+      _rootManager,
+      _mirrorConnector,
+      _mirrorProcessGas,
+      _processGas,
+      _reserveGas
+    )
+  {}
 
   // ============ Private fns ============
   /**
@@ -144,7 +171,7 @@ contract GnosisL1Connector is BaseGnosisConnector {
     GnosisBridge(AMB).requireToPassMessage(
       mirrorConnector,
       abi.encodeWithSelector(Connector.processMessage.selector, address(this), _data),
-      PROCESS_GAS
+      mirrorProcessGas
     );
     emit MessageSent(_data, msg.sender);
   }

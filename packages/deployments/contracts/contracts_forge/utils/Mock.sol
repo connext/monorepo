@@ -8,7 +8,6 @@ import {SafeERC20} from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol
 
 import {IRootManager} from "../../contracts/core/messaging/interfaces/IRootManager.sol";
 import {IConnector} from "../../contracts/core/messaging/interfaces/IConnector.sol";
-import {Messaging} from "../../contracts/core/messaging/Messaging.sol";
 import {Connector} from "../../contracts/core/messaging/connectors/Connector.sol";
 import {RootManager} from "../../contracts/core/messaging/RootManager.sol";
 
@@ -472,15 +471,16 @@ contract MockConnector is Connector {
 
   constructor(
     uint32 _domain,
+    uint32 _mirrorDomain,
     address _amb,
     address _rootManager,
+    address _mirrorConnector,
+    uint256 _mirrorProcessGas,
     uint256 _processGas,
-    uint256 _reserveGas,
-    uint32 _mirrorDomain,
-    address _mirrorConnector
+    uint256 _reserveGas
   )
     ProposedOwnable()
-    Connector(_domain, _amb, _rootManager, _processGas, _reserveGas, _mirrorDomain, _mirrorConnector)
+    Connector(_domain, _mirrorDomain, _amb, _rootManager, _mirrorConnector, _mirrorProcessGas, _processGas, _reserveGas)
   {
     _setOwner(msg.sender);
     verified = true;

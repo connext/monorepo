@@ -35,13 +35,16 @@ abstract contract BaseOptimismConnector is Connector {
   // ============ Constructor ============
   constructor(
     uint32 _domain,
+    uint32 _mirrorDomain,
     address _amb,
     address _rootManager,
-    uint32 _mirrorDomain,
     address _mirrorConnector,
+    uint256 _mirrorProcessGas,
     uint256 _processGas,
     uint256 _reserveGas
-  ) Connector(_domain, _amb, _rootManager, _mirrorDomain, _mirrorConnector, _processGas, _reserveGas) {}
+  )
+    Connector(_domain, _mirrorDomain, _amb, _rootManager, _mirrorConnector, _mirrorProcessGas, _processGas, _reserveGas)
+  {}
 
   // ============ Public Fns ============
   function _verifySender(address _expected) internal override returns (bool) {
@@ -54,20 +57,32 @@ contract OptimismL2Connector is BaseOptimismConnector {
   // ============ Constructor ============
   constructor(
     uint32 _domain,
+    uint32 _mirrorDomain,
     address _amb,
     address _rootManager,
-    uint32 _mirrorDomain,
     address _mirrorConnector,
+    uint256 _mirrorProcessGas,
     uint256 _processGas,
     uint256 _reserveGas
-  ) BaseOptimismConnector(_domain, _amb, _rootManager, _mirrorDomain, _mirrorConnector, _processGas, _reserveGas) {}
+  )
+    BaseOptimismConnector(
+      _domain,
+      _mirrorDomain,
+      _amb,
+      _rootManager,
+      _mirrorConnector,
+      _mirrorProcessGas,
+      _processGas,
+      _reserveGas
+    )
+  {}
 
   // ============ Private fns ============
   /**
    * @dev Sends `outboundRoot` to root manager on l1
    */
   function _sendMessage(bytes memory _data) internal override {
-    OptimismBridge(AMB).sendMessage(mirrorConnector, _data, uint32(PROCESS_GAS));
+    OptimismBridge(AMB).sendMessage(mirrorConnector, _data, uint32(mirrorProcessGas));
   }
 
   /**
@@ -93,13 +108,25 @@ contract OptimismL1Connector is BaseOptimismConnector {
   // ============ Constructor ============
   constructor(
     uint32 _domain,
+    uint32 _mirrorDomain,
     address _amb,
     address _rootManager,
-    uint32 _mirrorDomain,
     address _mirrorConnector,
+    uint256 _mirrorProcessGas,
     uint256 _processGas,
     uint256 _reserveGas
-  ) BaseOptimismConnector(_domain, _amb, _rootManager, _mirrorDomain, _mirrorConnector, _processGas, _reserveGas) {}
+  )
+    BaseOptimismConnector(
+      _domain,
+      _mirrorDomain,
+      _amb,
+      _rootManager,
+      _mirrorConnector,
+      _mirrorProcessGas,
+      _processGas,
+      _reserveGas
+    )
+  {}
 
   // ============ Private fns ============
   /**
@@ -107,7 +134,7 @@ contract OptimismL1Connector is BaseOptimismConnector {
    */
   function _sendMessage(bytes memory _data) internal override {
     require(msg.sender == ROOT_MANAGER, "!rootManager");
-    OptimismBridge(AMB).sendMessage(mirrorConnector, _data, uint32(PROCESS_GAS));
+    OptimismBridge(AMB).sendMessage(mirrorConnector, _data, uint32(mirrorProcessGas));
     emit MessageSent(_data, msg.sender);
   }
 

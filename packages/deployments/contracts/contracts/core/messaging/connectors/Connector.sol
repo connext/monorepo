@@ -30,6 +30,10 @@ abstract contract Connector is ProposedOwnable, MerkleTreeManager, IConnector {
   using Message for bytes29;
 
   // ============ Events ============
+  event SenderAdded(address sender);
+
+  event SenderRemoved(address sender);
+
   event Dispatch(bytes32 leaf, uint256 index, bytes32 root, bytes message);
 
   event Process(bytes32 leaf, bool success, bytes returnData);
@@ -79,6 +83,11 @@ abstract contract Connector is ProposedOwnable, MerkleTreeManager, IConnector {
   uint32 public immutable mirrorDomain;
 
   /**
+   * @notice Gas costs forwarded to the `processMessage` call on the mirror domain
+   */
+  uint256 public mirrorProcessGas;
+
+  /**
    * @notice This tracks the root of the tree containing outbound roots from all other supported
    * domains
    * @dev This root is the root of the tree that is aggregated on mainnet (composed of all the roots
@@ -126,7 +135,7 @@ abstract contract Connector is ProposedOwnable, MerkleTreeManager, IConnector {
   modifier onlyRootManager() {
     // NOTE: RootManager will be zero address for spoke connectors.
     // Only root manager can dispatch a message to spokes/L2s via the hub connector.
-    require(msg.sender == ROOT_MANAGER, "!rootManager");
+    require(msg.sender == ROOT_MANAGER, "!rootManagcer");
     _;
   }
 
@@ -136,12 +145,28 @@ abstract contract Connector is ProposedOwnable, MerkleTreeManager, IConnector {
   }
 
   // ============ Constructor ============
+
+  /**
+   * @notice Creates a new Connector instance
+   * @dev The connectors are deployed such that there is one on each side of an AMB (i.e.
+   * for optimism, there is one connector on optimism and one connector on mainnet)
+   * @param _domain The domain this connector lives on
+   * @param _mirrorDomain The domain the corresponding connector lives on
+   * @param _amb The address of the amb on the domain this connector lives on
+   * @param _rootManager The address of the RootManager on mainnet
+   * @param _mirrorConnector The address of the corresponding connector on the mirror domain
+   * @param _mirrorProcessGas The gas costs to call `.processMessage` on the mirror connector
+   * @param _processGas The gas costs used in `handle` to ensure meaningful state changes can occur (minimum gas needed
+   * to handle transaction)
+   * @param _reserveGas The gas costs reserved when `handle` is called to ensure failures are handled
+   */
   constructor(
     uint32 _domain,
+    uint32 _mirrorDomain,
     address _amb,
     address _rootManager,
-    uint32 _mirrorDomain,
     address _mirrorConnector,
+    uint256 _mirrorProcessGas,
     uint256 _processGas,
     uint256 _reserveGas
   ) ProposedOwnable() {
@@ -156,6 +181,7 @@ abstract contract Connector is ProposedOwnable, MerkleTreeManager, IConnector {
 
     mirrorDomain = _mirrorDomain;
     mirrorConnector = _mirrorConnector;
+    mirrorProcessGas = _mirrorProcessGas;
 
     // TODO: constants for these min values
     require(_processGas >= 850_000, "!process gas");
@@ -171,6 +197,24 @@ abstract contract Connector is ProposedOwnable, MerkleTreeManager, IConnector {
   function setMirrorConnector(address _mirrorConnector) public onlyOwner {
     emit MirrorConnectorUpdated(mirrorConnector, _mirrorConnector);
     mirrorConnector = _mirrorConnector;
+  }
+
+  /**
+   * @notice Adds a sender to the whitelist
+   * @dev Only whitelisted routers can call `dispatch`
+   */
+  function addSender(address _sender) public onlyOwner {
+    whitelistedSenders[_sender] = true;
+    emit SenderAdded(_sender);
+  }
+
+  /**
+   * @notice Removes a sender from the whitelist
+   * @dev Only whitelisted routers can call `dispatch`
+   */
+  function removeSender(address _sender) public onlyOwner {
+    whitelistedSenders[_sender] = false;
+    emit SenderRemoved(_sender);
   }
 
   // ============ Public fns ============
