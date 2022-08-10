@@ -260,6 +260,8 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment): Promise<voi
     throw new Error(`Network ${network} is not supported!`);
   }
 
+  // TODO: Should technically be in the deploy routers step, but if we're going to combine this
+  // with Connext deployments, this will be removed.
   // Deploy BridgeRouter.
   console.log("Deploying BridgeRouter...");
   const bridgeRouter = await hre.deployments.deploy("BridgeRouter", {
