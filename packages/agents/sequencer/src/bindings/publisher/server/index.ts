@@ -31,6 +31,7 @@ import {
 import { getContext } from "../../../sequencer";
 import { getOperations } from "../../../lib/operations";
 import { AuctionExpired } from "../../../lib/errors";
+import { storeLightHouseData } from "../../../lib/operations/lighthouse";
 
 export const bindServer = async (): Promise<FastifyInstance> => {
   const {
@@ -160,10 +161,22 @@ export const bindServer = async (): Promise<FastifyInstance> => {
         },
       },
     },
-    async (request, response) => {},
+    async (request, response) => {
+      const { requestContext } = createLoggingContext("POST /lighthouses endpoint");
+      try {
+        const lighthouseData = request.body;
+        await storeLightHouseData(lighthouseData, requestContext);
+        return response
+          .status(200)
+          .send({ message: "lighthouse data received", transferId: lighthouseData.transferId });
+      } catch (error: unknown) {
+        const type = (error as NxtpError).type;
+        return response.code(500).send({ message: type, error: jsonifyError(error as Error) });
+      }
+    },
   );
 
-  server.get<{ Body: LightHouseDataStatusRequest; Reply: LightHouseDataStatusResponse }>(
+  server.get<{ Body: LightHouseDataStatusRequest; Reply: LightHouseDataStatusResponse | SequencerApiErrorResponse }>(
     "/lighthouses/:transferId",
     {
       schema: {
@@ -174,7 +187,16 @@ export const bindServer = async (): Promise<FastifyInstance> => {
         },
       },
     },
-    async (request, response) => {},
+    async (request, response) => {
+      try {
+        const transferId = request.body.transferId;
+        const status = await cache.lighthousetxs.getLightHouseDataStatus(transferId);
+        return response.status(200).send({ transferId, status });
+      } catch (error: unknown) {
+        const type = (error as NxtpError).type;
+        return response.code(500).send({ message: type, error: jsonifyError(error as Error) });
+      }
+    },
   );
 
   server.post<{ Body: ClearCacheRequest }>(

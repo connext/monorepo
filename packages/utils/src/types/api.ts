@@ -1,6 +1,7 @@
 import { Type, Static } from "@sinclair/typebox";
 
 import { BidSchema } from "./auctions";
+import { LightHouseDataStatus } from "./lighthouse";
 import { NxtpErrorJsonSchema } from "./error";
 // import { ExecuteArgsSchema, CallParamsSchema } from "./xtransfers";
 import { TAddress, TChainId, TDecimalString } from "./primitives";
@@ -51,13 +52,6 @@ export const AuctionsApiGetQueuedResponseSchema = Type.Object({
   queued: Type.Array(Type.String()),
 });
 export type AuctionsApiGetQueuedResponse = Static<typeof AuctionsApiGetQueuedResponseSchema>;
-
-export enum LightHouseDataStatus {
-  None = "None",
-  Pending = "Pending",
-  Completed = "Completed",
-  Cancelled = "Cancelled",
-}
 
 export const LightHouseDataStatusRequestSchema = Type.Object({ transferId: Type.String() });
 export type LightHouseDataStatusRequest = Static<typeof LightHouseDataStatusRequestSchema>;

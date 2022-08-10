@@ -1,15 +1,6 @@
-import { LightHouseDataStatus } from "@connext/nxtp-utils";
+import { LightHouseDataStatus, LightHouseData } from "@connext/nxtp-utils";
 
 import { Cache } from "./cache";
-
-export type LightHouseData = {
-  transferId: string;
-  relayerFee: {
-    amount: string;
-    asset: string;
-  };
-  encodedData: string;
-};
 
 /**
  * Redis Store Details:
