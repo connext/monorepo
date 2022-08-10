@@ -6,6 +6,8 @@ import {MerkleTreeManager} from "../../nomad-core/contracts/Merkle.sol";
 import {Message} from "../../nomad-core/libs/Message.sol";
 import {TypedMemView} from "../../nomad-core/libs/TypedMemView.sol";
 
+import {ProposedOwnable} from "../shared/ProposedOwnable.sol";
+
 import {IBridgeRouter} from "../connext/interfaces/IBridgeRouter.sol";
 
 import {IMessaging} from "./interfaces/IMessaging.sol";
@@ -20,7 +22,7 @@ import {IConnector} from "./interfaces/IConnector.sol";
  * the aggregate root for proving.
  * @dev Optimization: combine with the connector contract
  */
-abstract contract Messaging is MerkleTreeManager, IMessaging {
+abstract contract Messaging is ProposedOwnable, MerkleTreeManager, IMessaging {
   // ============ Events ============
   event Dispatch(bytes32 leaf, uint256 index, bytes32 root, bytes message);
 
@@ -60,10 +62,10 @@ abstract contract Messaging is MerkleTreeManager, IMessaging {
   address public immutable ROOT_MANAGER;
 
   /**
-   * @dev This is used for the `onlyBridgeRouter` modifier, which gates who
+   * @dev This is used for the `onlyWhitelistedSender` modifier, which gates who
    * can send messages using `dispatch`
    */
-  address public immutable BRIDGE_ROUTER;
+  mapping(address => bool) whitelistedSenders;
 
   /**
    * @notice This tracks the root of the tree containing outbound roots from all other supported
@@ -111,8 +113,8 @@ abstract contract Messaging is MerkleTreeManager, IMessaging {
     _;
   }
 
-  modifier onlyBridgeRouter() {
-    require(msg.sender == BRIDGE_ROUTER, "!bridgeRouter");
+  modifier onlyWhitelistedSender() {
+    require(whitelistedSenders[msg.sender], "!whitelisted");
     _;
   }
 
@@ -121,20 +123,19 @@ abstract contract Messaging is MerkleTreeManager, IMessaging {
     uint32 _domain,
     address _amb,
     address _rootManager,
-    address _bridgeRouter,
     uint256 _processGas,
     uint256 _reserveGas
-  ) {
+  ) ProposedOwnable() {
     // Sanity checks.
     require(_domain > 0, "!domain");
     require(_amb != address(0), "!amb");
     require(_rootManager != address(0), "!rootManager");
-    require(_bridgeRouter != address(0), "!bridgeRouter");
+
+    _setOwner(msg.sender);
 
     DOMAIN = _domain;
     AMB = _amb;
     ROOT_MANAGER = _rootManager;
-    BRIDGE_ROUTER = _bridgeRouter;
 
     // TODO: constants for these min values
     require(_processGas >= 850_000, "!process gas");
@@ -145,7 +146,23 @@ abstract contract Messaging is MerkleTreeManager, IMessaging {
 
   // ============ Admin functions ============
 
-  // TODO: setConnector, setBridgeRouter
+  // TODO: setConnector
+
+  /**
+   * @notice Adds a sender to the whitelist
+   * @dev Only whitelisted routers can call `dispatch`
+   */
+  function addSender(address _sender) public onlyOwner {
+    whitelistedSenders[_sender] = true;
+  }
+
+  /**
+   * @notice Removes a sender from the whitelist
+   * @dev Only whitelisted routers can call `dispatch`
+   */
+  function removeSender(address _sender) public onlyOwner {
+    whitelistedSenders[_sender] = false;
+  }
 
   // ============ Public fns ============
   /**
@@ -157,7 +174,7 @@ abstract contract Messaging is MerkleTreeManager, IMessaging {
     uint32 _destinationDomain,
     bytes32 _recipientAddress,
     bytes memory _messageBody
-  ) external onlyBridgeRouter {
+  ) external onlyWhitelistedSender {
     // get the next nonce for the destination domain, then increment it
     uint32 _nonce = nonces[_destinationDomain];
     nonces[_destinationDomain] = _nonce + 1;
@@ -329,5 +346,5 @@ abstract contract Messaging is MerkleTreeManager, IMessaging {
    * @notice This function is used by the Connext contract on the l2 domain to send a message to the
    * l1 domain (i.e. called by Connext on optimism to send a message to mainnet with roots)
    */
-  function _sendMessage(bytes memory _outboundRoot) internal virtual {}
+  function _sendMessage(bytes memory _data) internal virtual {}
 }
