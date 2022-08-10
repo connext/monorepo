@@ -145,10 +145,15 @@ const handleDeployMainnet = async (
   console.log(`RootManager deployed to ${rootManager.address}`);
   // TODO: Deploy EthMainnetConnector.
 
-  // Loop through every HubConnector and deploy.
+  // Loop through every HubConnector configuration (except for the actual hub's) and deploy.
   const { configs } = protocol;
   for (const mirrorChain of Object.keys(configs)) {
     const mirrorChainId = +mirrorChain;
+    if (mirrorChainId === protocol.hub) {
+      // Skip; we're just deploying the spokes' hub-side connectors.
+      continue;
+    }
+
     const prefix = configs[mirrorChainId].prefix + HUB_PREFIX;
     const contract = `${prefix}Connector`;
     console.log(`Deploying ${contract}...`);
