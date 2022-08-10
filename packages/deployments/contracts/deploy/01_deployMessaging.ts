@@ -27,7 +27,11 @@ type ProtocolConfig = {
     // Map of chain ID => configs.
     [chain: number]: {
       prefix: string; // The chain's name and the Connector name prefix.
-      amb: string; // Official AMB contract address.
+      // Official AMB contract addresses.
+      ambs: {
+        hub: string;
+        spoke: string;
+      };
       processGas: BigNumber;
       reserveGas: BigNumber;
     };
@@ -56,20 +60,29 @@ const PROTOCOL_CONFIGS: {
     configs: {
       1: {
         prefix: "Eth",
-        amb: "",
+        ambs: {
+          hub: "",
+          spoke: "",
+        },
         processGas: DEFAULT_PROCESS_GAS,
         reserveGas: DEFAULT_RESERVE_GAS,
       },
       10: {
         prefix: "Optimism",
-        amb: "",
+        ambs: {
+          hub: "",
+          spoke: "",
+        },
         // TODO: 2mil gas for opti (going L1 => L2)? Is that correct?
         processGas: BigNumber.from("2000000"),
         reserveGas: DEFAULT_RESERVE_GAS,
       },
       100: {
         prefix: "Gnosis",
-        amb: "",
+        ambs: {
+          hub: "0x4C36d2919e407f0Cc2Ee3c993ccF8ac26d9CE64e",
+          spoke: "0x75Df5AF045d91108662D8080fD1FEFAd6aA0bb59",
+        },
         processGas: DEFAULT_PROCESS_GAS,
         reserveGas: DEFAULT_RESERVE_GAS,
       },
@@ -90,11 +103,13 @@ const formatConnectorArgs = (
   const { deploymentChainId, mirrorChainId, rootManager, routers } = args;
   const config = protocol.configs[deploymentChainId];
 
+  const isHub = deploymentChainId === protocol.hub;
+
   const deploymentDomain = BigNumber.from(chainIdToDomain(deploymentChainId).toString());
   const mirrorDomain = BigNumber.from(chainIdToDomain(mirrorChainId).toString());
   return [
     deploymentDomain,
-    config.amb,
+    isHub ? config.ambs.hub : config.ambs.spoke,
     rootManager,
     routers.bridgeRouter,
     config.processGas,
