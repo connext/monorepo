@@ -2,6 +2,10 @@
 
 ## Next Release
 
+## 0.1.39
+
+- [contracts] deploy arbitrum nova
+
 ## 0.1.38
 
 - [utils] more fixes on arbitrum fees
