@@ -15,7 +15,7 @@ import { compare } from "compare-versions";
 import { AuctionExpired, MissingXCall, ParamsInvalid, BidVersionInvalid } from "../errors";
 import { getContext } from "../../sequencer";
 import { getHelpers } from "../helpers";
-import { Message } from "../entities";
+import { Message, MessageType } from "../entities";
 
 import { getOperations } from ".";
 
@@ -100,7 +100,12 @@ export const storeBid = async (bid: Bid, _requestContext: RequestContext): Promi
 
   // Enqueue only once to dedup, when the first bid for the transfer is stored.
   if (status === AuctionStatus.None) {
-    const message: Message = { transferId: transfer.transferId, originDomain: transfer.xparams!.originDomain };
+    const message: Message = {
+      transferId: transfer.transferId,
+      originDomain: transfer.xparams!.originDomain,
+      type: MessageType.Auction,
+    };
+
     await mqClient.publish(config.messageQueue.publisher!, {
       type: transfer.xparams!.originDomain,
       body: message,

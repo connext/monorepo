@@ -18,7 +18,7 @@ import {
   ClearCacheRequestSchema,
   AdminRequest,
   NxtpError,
-  LightHousePostDataRequestSchema,
+  LightHouseDataSchema,
   LightHousePostDataRequest,
   LightHousePostDataResponseSchema,
   LightHousePostDataResponse,
@@ -154,7 +154,7 @@ export const bindServer = async (): Promise<FastifyInstance> => {
     "/lighthouses",
     {
       schema: {
-        body: LightHousePostDataRequestSchema,
+        body: LightHouseDataSchema,
         response: {
           200: LightHousePostDataResponseSchema,
           500: SequencerApiErrorResponseSchema,

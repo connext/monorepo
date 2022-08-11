@@ -113,8 +113,14 @@ export const SequencerConfigSchema = Type.Object({
 
 export type SequencerConfig = Static<typeof SequencerConfigSchema>;
 
+export enum MessageType {
+  Auction = "Auction",
+  LightHouse = "LightHouse",
+}
+
 export const messageSchema = Type.Object({
   transferId: Type.String(),
+  type: Type.Enum(MessageType),
   originDomain: Type.String(),
 });
 export type Message = Static<typeof messageSchema>;

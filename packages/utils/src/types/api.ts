@@ -1,7 +1,7 @@
 import { Type, Static } from "@sinclair/typebox";
 
 import { BidSchema } from "./auctions";
-import { LightHouseDataStatus } from "./lighthouse";
+import { LightHouseDataSchema, LightHouseDataStatus } from "./lighthouse";
 import { NxtpErrorJsonSchema } from "./error";
 // import { ExecuteArgsSchema, CallParamsSchema } from "./xtransfers";
 import { TAddress, TChainId, TDecimalString } from "./primitives";
@@ -62,16 +62,7 @@ export const LightHouseDataStatusResponseSchema = Type.Object({
 });
 export type LightHouseDataStatusResponse = Static<typeof LightHouseDataStatusResponseSchema>;
 
-export const LightHousePostDataRequestSchema = Type.Object({
-  transferId: Type.String(),
-  encodedData: Type.String(),
-  relayerFee: Type.Object({
-    amount: Type.String(),
-    asset: Type.String(),
-  }),
-});
-
-export type LightHousePostDataRequest = Static<typeof LightHousePostDataRequestSchema>;
+export type LightHousePostDataRequest = Static<typeof LightHouseDataSchema>;
 
 export const LightHousePostDataResponseSchema = Type.Object({
   message: Type.String(),
