@@ -418,7 +418,8 @@ jobs:
       CARTOGRAPHER_ROUTERS_IMAGE: ${{fromJSON(needs.build-and-push-cartographer-routers-image.outputs.json).tags[0]}}
       LIGHTHOUSE_IMAGE: ${{fromJSON(needs.build-and-push-lighthouse-image.outputs.json).tags[0]}}
       RELAYER_IMAGE: ${{ fromJSON(needs.build-and-push-relayer-image.outputs.json).tags[0] }}
-      WEB3_SIGNER_PRIVATE_KEY: ${{ secrets.WEB3_SIGNER_TESTNET_PRIVATE_KEY }}
+      WEB3_SIGNER_PRIVATE_KEY_ROUTER: 0xc87509a1c067bbde78beb793e6fa76530b6382a4c0241e5e4a9ec0a0f44dc0d3
+      WEB3_SIGNER_PRIVATE_KEY_SEQUENCER: 0xae6ae8e5ccbfb04590405997ee2d52d2b330726137b875053c36d94e974d162f
       MNEMONIC: "candy maple cake sugar pudding cream honey rich smooth crumble sweet treat"
     steps:
       - name: Checkout repository
@@ -463,7 +464,8 @@ jobs:
       CARTOGRAPHER_ROUTERS_IMAGE: ${{fromJSON(needs.build-and-push-cartographer-routers-image.outputs.json).tags[0]}}
       LIGHTHOUSE_IMAGE: ${{fromJSON(needs.build-and-push-lighthouse-image.outputs.json).tags[0]}}
       RELAYER_IMAGE: ${{ fromJSON(needs.build-and-push-relayer-image.outputs.json).tags[0] }}
-      WEB3_SIGNER_PRIVATE_KEY: ${{ secrets.WEB3_SIGNER_TESTNET_PRIVATE_KEY }}
+      WEB3_SIGNER_PRIVATE_KEY_ROUTER: 0xc87509a1c067bbde78beb793e6fa76530b6382a4c0241e5e4a9ec0a0f44dc0d3
+      WEB3_SIGNER_PRIVATE_KEY_SEQUENCER: 0xae6ae8e5ccbfb04590405997ee2d52d2b330726137b875053c36d94e974d162f
       MNEMONIC: "candy maple cake sugar pudding cream honey rich smooth crumble sweet treat"
       GRAPH_1337_ENDPOINT: "http://localhost:8010/subgraphs/name/connext/nxtp"
       GRAPH_1338_ENDPOINT: "http://localhost:9010/subgraphs/name/connext/nxtp"
