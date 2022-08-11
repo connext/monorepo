@@ -3,7 +3,7 @@ import { Type, Static } from "@sinclair/typebox";
 import { TAddress, TIntegerString } from "./primitives";
 
 export const BidSchema = Type.Object({
-  packageVersion: Type.String(),
+  routerVersion: Type.String(),
   transferId: Type.String(), // The Transfer ID.
   origin: Type.String(), // Origin domain of the transfer. Needed for sequencer to confirm transfer is valid.
   router: TAddress, // The address of the router sending this bid.

@@ -8,6 +8,7 @@ export enum LightHouseDataStatus {
 }
 
 export const LightHouseDataSchema = Type.Object({
+  lighthouseVersion: Type.String(),
   transferId: Type.String(),
   relayerFee: Type.Object({
     amount: Type.String(),

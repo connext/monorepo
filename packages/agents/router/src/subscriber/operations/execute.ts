@@ -308,7 +308,7 @@ export const execute = async (params: OriginTransfer, _requestContext: RequestCo
   logger.debug("Sanity checks passed", requestContext, methodContext, { liquidity: balance.toString() });
 
   const bid: Bid = {
-    packageVersion: version,
+    routerVersion: version,
     transferId,
     origin: originDomain,
     router: routerAddress.toLowerCase(),
