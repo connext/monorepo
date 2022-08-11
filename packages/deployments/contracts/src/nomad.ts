@@ -21,6 +21,10 @@ export type Address = string;
 const chainIdToDomainMapping: Map<number, number> = new Map([
   [1, 0x657468], // Ethereum ('eth interpreted as int)
   [1284, 0x6265616d], // Moonbeam ('beam interpreted as int)
+  [42, 0x6b6f7661], // Kovan (kovan interpreted as int)
+  [5, 0x676f6572], // Goerli (goerli interpreted as int)
+  [420, 0x676f7074], // optimism-goerli (gopti interpreted as int)
+  [69, 0x6b6f7074], // optimism-kovan (kopti interpreted as int)
 ]);
 
 /**

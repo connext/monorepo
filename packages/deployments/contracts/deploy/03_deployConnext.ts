@@ -4,9 +4,10 @@ import { Contract, Wallet } from "ethers";
 import { ethers } from "hardhat";
 
 import { SKIP_SETUP } from "../src/constants";
-import { getDeploymentName } from "../src/utils";
+import { getDeploymentName, mustGetEnv } from "../src/utils";
 import { getDomainInfoFromChainId } from "../src/nomad";
 import { deployConfigs } from "../deployConfig";
+import { MESSAGING_PROTOCOL_CONFIGS, HUB_PREFIX, SPOKE_PREFIX } from "../deployConfig/shared";
 
 /**
  * Hardhat task defining the contract deployments for nxtp
@@ -36,36 +37,41 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment): Promise<voi
   console.log("balance: ", balance.toString());
 
   // Retrieve Router deployments, format into ethers.Contract objects:
-  const promiseRouterDeployment = await hre.deployments.getOrNull("PromiseRouterUpgradeBeaconProxy");
+  const promiseRouterDeployment = await hre.deployments.getOrNull(getDeploymentName("PromiseRouterUpgradeBeaconProxy"));
   if (!promiseRouterDeployment) {
     throw new Error("PromiseRouterUpgradeBeaconProxy deployment not found!");
   }
-  const promiseRouter = await hre.ethers.getContractAt(
-    "PromiseRouterUpgradeBeaconProxy",
-    promiseRouterDeployment.address,
-    deployer,
-  );
+  const promiseRouter = await hre.ethers.getContractAt("PromiseRouter", promiseRouterDeployment.address, deployer);
 
-  const relayerFeeRouterDeployment = await hre.deployments.getOrNull("RelayerFeeRouterUpgradeBeaconProxy");
+  const relayerFeeRouterDeployment = await hre.deployments.getOrNull(
+    getDeploymentName("RelayerFeeRouterUpgradeBeaconProxy"),
+  );
   if (!relayerFeeRouterDeployment) {
     throw new Error("RelayerFeeRouterUpgradeBeaconProxy deployment not found!");
   }
   const relayerFeeRouter = await hre.ethers.getContractAt(
-    "RelayerFeeRouterUpgradeBeaconProxy",
+    "RelayerFeeRouter",
     relayerFeeRouterDeployment.address,
     deployer,
   );
 
   const deployConfig = deployConfigs[chainId];
-  // Get xapp connection manager
-  // let xappConnectionManagerAddress = deployConfig?.XAppConnectionManager;
-  // if (!xappConnectionManagerAddress) {
-  //   const xappConnectionManagerDeployment = await hre.deployments.getOrNull(getDeploymentName("XAppConnectionManager"));
-  //   if (!xappConnectionManagerDeployment) {
-  //     throw new Error(`XappConnectionManager not deployed`);
-  //   }
-  //   xappConnectionManagerAddress = xappConnectionManagerDeployment.address;
-  // }
+  // Get connector manager
+  const env = mustGetEnv();
+  const messagingNetwork = env === "production" ? "mainnet" : env === "staging" ? "testnet" : "local";
+  const protocol = MESSAGING_PROTOCOL_CONFIGS[messagingNetwork];
+
+  if (!protocol.configs[protocol.hub]) {
+    throw new Error(`Network ${network} is not supported! (no messaging config)`);
+  }
+
+  const connectorName = `${protocol.configs[network.chainId].prefix}${
+    protocol.hub === network.chainId ? HUB_PREFIX : SPOKE_PREFIX
+  }Connector`;
+  const connectorManagerDeployment = await hre.deployments.getOrNull(getDeploymentName(connectorName));
+  if (!connectorManagerDeployment) {
+    throw new Error(`${connectorName} not deployed`);
+  }
 
   console.log("Fetching token registry...");
   let tokenRegistryAddress = deployConfig?.TokenRegistry;
