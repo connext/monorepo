@@ -12,6 +12,8 @@ import {IBridgeRouter} from "../../connext/interfaces/IBridgeRouter.sol";
 import {IRootManager} from "../interfaces/IRootManager.sol";
 import {IConnector} from "../interfaces/IConnector.sol";
 
+import {ConnectorManager} from "./ConnectorManager.sol";
+
 // FIXME: This is an extremely rough contract designed to be an early PoC. Check every line before prod!
 // TODO for Eth L1, we should write an AMB aggregator/router contract
 
@@ -23,7 +25,7 @@ import {IConnector} from "../interfaces/IConnector.sol";
  * override virtual methods in this abstract contract to interface with a domain-specific AMB.
  * @dev Optimization: combine with the connector contract
  */
-abstract contract Connector is ProposedOwnable, MerkleTreeManager, IConnector {
+abstract contract Connector is ProposedOwnable, MerkleTreeManager, ConnectorManager, IConnector {
   // ============ Libraries ============
   using MerkleLib for MerkleLib.Tree;
   using TypedMemView for bytes;
@@ -180,7 +182,7 @@ abstract contract Connector is ProposedOwnable, MerkleTreeManager, IConnector {
     uint256 _receiveGas,
     uint256 _processGas,
     uint256 _reserveGas
-  ) ProposedOwnable() {
+  ) ProposedOwnable() ConnectorManager(_domain) {
     IS_HUB = _isHub;
 
     // Sanity checks.
