@@ -40,11 +40,23 @@ import {IProposedOwnable} from "../../shared/interfaces/IProposedOwnable.sol";
  * - bsc (use multichain for messaging)
  */
 interface IConnector is IProposedOwnable {
-  function sendMessage(bytes memory _data) external;
+  /**
+   * @notice This should be called by RootManager to propagate an updated aggregate root on the Hub/L1
+   * chain out to the spoke/L2 chains.
+   */
+  function propagateRoot(bytes memory _data) external;
 
-  function processMessage(address _sender, bytes memory _data) external;
+  /**
+   * @notice This is called by relayers to trigger passing of current root to mainnet root manager
+   * @dev This is called at specific time intervals
+   */
+  function sendRoot() external;
 
-  function verifySender(address _expected) external returns (bool);
+  /**
+   * @notice The target endpoint for the AMB to call. Data should be parsed by specific implementation
+   * Connectors to get the updated aggregate root.
+   */
+  function receiveRoot(address _sender, bytes memory _data) external;
 
   /**
    * @notice This function should send a message through the AMB by adding it to the merkle root
@@ -65,10 +77,4 @@ interface IConnector is IProposedOwnable {
     bytes32[32] calldata _proof,
     uint256 _index
   ) external;
-
-  /**
-   * @notice This is called by relayers to trigger passing of current root to mainnet root manager
-   * @dev This is called at specific time intervals
-   */
-  function send() external;
 }

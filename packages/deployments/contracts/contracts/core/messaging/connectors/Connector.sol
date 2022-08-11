@@ -9,6 +9,7 @@ import {TypedMemView} from "../../../nomad-core/libs/TypedMemView.sol";
 import {ProposedOwnable} from "../../shared/ProposedOwnable.sol";
 import {IBridgeRouter} from "../../connext/interfaces/IBridgeRouter.sol";
 
+import {IRootManager} from "../interfaces/IRootManager.sol";
 import {IConnector} from "../interfaces/IConnector.sol";
 
 // FIXME: This is an extremely rough contract designed to be an early PoC. Check every line before prod!
@@ -38,9 +39,9 @@ abstract contract Connector is ProposedOwnable, MerkleTreeManager, IConnector {
 
   event Process(bytes32 leaf, bool success, bytes returnData);
 
-  event MessageSent(bytes data, address caller);
+  event RootUpdateSent(bytes data, address caller);
 
-  event MessageProcessed(address from, bytes data, address caller);
+  event RootUpdateReceived(address from, bytes data, address caller);
 
   event MirrorConnectorUpdated(address previous, address current);
 
@@ -83,11 +84,6 @@ abstract contract Connector is ProposedOwnable, MerkleTreeManager, IConnector {
   uint32 public immutable mirrorDomain;
 
   /**
-   * @notice Gas costs forwarded to the `processMessage` call on the mirror domain
-   */
-  uint256 public mirrorProcessGas;
-
-  /**
    * @notice This tracks the root of the tree containing outbound roots from all other supported
    * domains
    * @dev This root is the root of the tree that is aggregated on mainnet (composed of all the roots
@@ -108,23 +104,32 @@ abstract contract Connector is ProposedOwnable, MerkleTreeManager, IConnector {
    */
   mapping(bytes32 => bool) public provenRoots;
 
+  // domain => next available nonce for the domain
+  mapping(uint32 => uint32) public nonces;
+
+  // Mapping of message leaves to MessageStatus
+  mapping(bytes32 => MessageStatus) public messages;
+
   /**
    * @dev This is used for the `onlyWhitelistedSender` modifier, which gates who
    * can send messages using `dispatch`
    */
   mapping(address => bool) whitelistedSenders;
 
-  // Minimum gas for message processing
+  /**
+   * @notice Gas costs forwarded to the `receiveRoot` call on the mirror domain.
+   * @dev Mutable in case the `process`
+   */
+  uint256 public receiveGas;
+
+  // Minimum gas for message processing with `process` > `handle` on the destination domain.
   uint256 public immutable PROCESS_GAS;
 
   // Reserved gas (to ensure tx completes in case message processing runs out)
   uint256 public immutable RESERVE_GAS;
 
-  // domain => next available nonce for the domain
-  mapping(uint32 => uint32) public nonces;
-
-  // Mapping of message leaves to MessageStatus
-  mapping(bytes32 => MessageStatus) public messages;
+  // Whether this contract is deployed on the Hub L1 chain (i.e. Eth Mainnet).
+  bool public immutable IS_HUB;
 
   // ============ Modifiers ============
   modifier onlyAMB() {
@@ -144,6 +149,11 @@ abstract contract Connector is ProposedOwnable, MerkleTreeManager, IConnector {
     _;
   }
 
+  modifier onlyHub() {
+    require(IS_HUB, "!hub");
+    _;
+  }
+
   // ============ Constructor ============
 
   /**
@@ -155,21 +165,24 @@ abstract contract Connector is ProposedOwnable, MerkleTreeManager, IConnector {
    * @param _amb The address of the amb on the domain this connector lives on
    * @param _rootManager The address of the RootManager on mainnet
    * @param _mirrorConnector The address of the corresponding connector on the mirror domain
-   * @param _mirrorProcessGas The gas costs to call `.processMessage` on the mirror connector
+   * @param _receiveGas The gas costs to call `.receiveRoot` on the mirror connector
    * @param _processGas The gas costs used in `handle` to ensure meaningful state changes can occur (minimum gas needed
    * to handle transaction)
    * @param _reserveGas The gas costs reserved when `handle` is called to ensure failures are handled
    */
   constructor(
+    bool _isHub,
     uint32 _domain,
     uint32 _mirrorDomain,
     address _amb,
     address _rootManager,
     address _mirrorConnector,
-    uint256 _mirrorProcessGas,
+    uint256 _receiveGas,
     uint256 _processGas,
     uint256 _reserveGas
   ) ProposedOwnable() {
+    IS_HUB = _isHub;
+
     // Sanity checks.
     require(_domain > 0, "!domain");
     require(_amb != address(0), "!amb");
@@ -181,11 +194,12 @@ abstract contract Connector is ProposedOwnable, MerkleTreeManager, IConnector {
 
     mirrorDomain = _mirrorDomain;
     mirrorConnector = _mirrorConnector;
-    mirrorProcessGas = _mirrorProcessGas;
 
     // TODO: constants for these min values
+    require(_receiveGas >= 200_000, "!receive gas");
     require(_processGas >= 850_000, "!process gas");
     require(_reserveGas >= 15_000, "!reserve gas");
+    receiveGas = _receiveGas;
     PROCESS_GAS = _processGas;
     RESERVE_GAS = _reserveGas;
   }
@@ -218,21 +232,51 @@ abstract contract Connector is ProposedOwnable, MerkleTreeManager, IConnector {
   }
 
   // ============ Public fns ============
-  function sendMessage(bytes memory _data) external {
-    _sendMessage(_data);
-  }
+  /**
+   * @notice This should be called by RootManager to propagate an updated aggregate root on the Hub/L1
+   * chain out to the spoke/L2 chains.
+   */
+  function propagateRoot(bytes memory _data) external onlyRootManager onlyHub {
+    // RootManager has aggregated roots from all other Connectors on this hub chain.
+    // TODO: Should we update our current aggregateRoot to reflect the new one.
+    // aggregateRoot = bytes32(_data);
 
-  function processMessage(address _sender, bytes memory _data) external {
-    _processMessage(_sender, _data);
-    emit MessageProcessed(_sender, _data, msg.sender);
-  }
-
-  function verifySender(address _expected) external returns (bool) {
-    return _verifySender(_expected);
+    // TODO: This code block is partially redundant with the `sendRoot` method. Should we just make `sendRoot` public?
+    // Send out the updated root to our mirror.
+    _sendRoot(_data);
+    emit RootUpdateSent(_data, msg.sender);
   }
 
   /**
-   * @notice This function adds transfers to the outbound transfer merkle tree.
+   * @notice This is called by relayers to trigger passing of current root to mainnet root manager.
+   * @dev At runtime, this method should be called at specific time intervals.
+   */
+  function sendRoot() external {
+    // TODO: Permissions: onlyRelayer.
+    bytes memory _data = abi.encodePacked(outboundRoot);
+    _sendRoot(_data);
+    emit RootUpdateSent(_data, msg.sender);
+  }
+
+  /**
+   * @notice This method is the target of the AMB call. The implementation Connector will handle the
+   * details of parsing the delivered AMB message into a root update for Connext.
+   */
+  function receiveRoot(address _sender, bytes memory _data) external {
+    // NOTE: _verifySender should be implemented to check that the msg.sender is the configured AMB.
+    // Additionally, _verifySender should check the msg.sender on the origin chain to ensure that only
+    // the RootManager is passing these roots.
+    require(_verifySender(mirrorConnector), "!mirror");
+    aggregateRoot = _receiveRoot(_sender, _data);
+    if (IS_HUB) {
+      // Update the root on the root manager.
+      IRootManager(ROOT_MANAGER).setOutboundRoot(mirrorDomain, aggregateRoot);
+    }
+    emit RootUpdateReceived(_sender, _data, msg.sender);
+  }
+
+  /**
+   * @notice Update the current root. This function adds transfers to the outbound transfer merkle tree.
    * @dev The root of this tree will eventually be dispatched to mainnet via `send`. On mainnet (the "hub"),
    * it will be combined into a single aggregate root by RootManager (along with outbound roots from other
    * chains). This aggregate root will be redistributed to all destination chains.
@@ -287,13 +331,13 @@ abstract contract Connector is ProposedOwnable, MerkleTreeManager, IConnector {
    * @notice This function is used by the Connext contract on the l2 domain to send a message to the
    * l1 domain (i.e. called by Connext on optimism to send a message to mainnet with roots)
    */
-  function _sendMessage(bytes memory _data) internal virtual;
+  function _sendRoot(bytes memory _data) internal virtual;
 
   /**
    * @notice This function is used by the AMBs to handle incoming messages. Should store the latest
    * root generated on the l2 domain.
    */
-  function _processMessage(address _sender, bytes memory _data) internal virtual;
+  function _receiveRoot(address _sender, bytes memory _data) internal virtual returns (bytes32);
 
   /**
    * @notice Verify that the msg.sender is the correct AMB contract, and that the message's origin sender
@@ -303,25 +347,6 @@ abstract contract Connector is ProposedOwnable, MerkleTreeManager, IConnector {
   function _verifySender(address _expected) internal virtual returns (bool);
 
   // ============ Private fns ============
-  /**
-   * @notice This is called by relayers to trigger passing of current root to mainnet root manager.
-   * @dev At runtime, this method should be called at specific time intervals.
-   */
-  function send() external {
-    _sendMessage(abi.encodePacked(outboundRoot));
-  }
-
-  /**
-   * @notice This is either called by the Connector (AKA `this`) on the spoke (L2) chain after retrieving
-   * latest `aggregateRoot` from the AMB (sourced from mainnet) OR called by the AMB directly.
-   * @dev Must check the msg.sender on the origin chain to ensure only the root manager is passing
-   * these roots.
-   */
-  function update(bytes32 _newRoot) internal {
-    require(_verifySender(mirrorConnector), "!sender");
-    aggregateRoot = _newRoot;
-  }
-
   /**
    * @notice Attempts to prove the validity of message given its leaf, the
    * merkle proof of inclusion for the leaf, and the index of the leaf.

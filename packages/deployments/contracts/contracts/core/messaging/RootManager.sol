@@ -60,7 +60,7 @@ contract RootManager is ProposedOwnable, IRootManager {
     for (uint8 i; i < domains.length; i++) {
       address connector = connectors[domains[i]];
       if (connector != address(0)) {
-        IConnector(connector).sendMessage(aggregate);
+        IConnector(connector).propagateRoot(aggregate);
       }
     }
   }

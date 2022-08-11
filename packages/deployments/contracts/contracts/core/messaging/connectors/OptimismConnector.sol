@@ -34,16 +34,27 @@ interface OptimismBridge {
 abstract contract BaseOptimismConnector is Connector {
   // ============ Constructor ============
   constructor(
+    bool _isHub,
     uint32 _domain,
     uint32 _mirrorDomain,
     address _amb,
     address _rootManager,
     address _mirrorConnector,
-    uint256 _mirrorProcessGas,
+    uint256 _receiveGas,
     uint256 _processGas,
     uint256 _reserveGas
   )
-    Connector(_domain, _mirrorDomain, _amb, _rootManager, _mirrorConnector, _mirrorProcessGas, _processGas, _reserveGas)
+    Connector(
+      _isHub,
+      _domain,
+      _mirrorDomain,
+      _amb,
+      _rootManager,
+      _mirrorConnector,
+      _receiveGas,
+      _processGas,
+      _reserveGas
+    )
   {}
 
   // ============ Public Fns ============
@@ -56,22 +67,24 @@ abstract contract BaseOptimismConnector is Connector {
 contract OptimismL2Connector is BaseOptimismConnector {
   // ============ Constructor ============
   constructor(
+    bool _isHub,
     uint32 _domain,
     uint32 _mirrorDomain,
     address _amb,
     address _rootManager,
     address _mirrorConnector,
-    uint256 _mirrorProcessGas,
+    uint256 _receiveGas,
     uint256 _processGas,
     uint256 _reserveGas
   )
     BaseOptimismConnector(
+      _isHub,
       _domain,
       _mirrorDomain,
       _amb,
       _rootManager,
       _mirrorConnector,
-      _mirrorProcessGas,
+      _receiveGas,
       _processGas,
       _reserveGas
     )
@@ -81,48 +94,46 @@ contract OptimismL2Connector is BaseOptimismConnector {
   /**
    * @dev Sends `outboundRoot` to root manager on l1
    */
-  function _sendMessage(bytes memory _data) internal override {
-    OptimismBridge(AMB).sendMessage(mirrorConnector, _data, uint32(mirrorProcessGas));
+  function _sendRoot(bytes memory _data) internal override {
+    OptimismBridge(AMB).sendMessage(mirrorConnector, _data, uint32(receiveGas));
   }
 
   /**
    * @dev Handles an incoming `aggregateRoot`
    * NOTE: Could store latest root sent and prove aggregate root
    */
-  function _processMessage(
+  function _receiveRoot(
     address, // _sender -- not used
     bytes memory _data
-  ) internal override {
-    // enforce this came from connector on l2
-    require(_verifySender(mirrorConnector), "!l1Connector");
+  ) internal override returns (bytes32) {
     // get the data (should be the aggregate root)
     require(_data.length == 32, "!length");
-    // set the outbound root for optimism
-    update(bytes32(_data));
-    // get the state commitment root
-    // if state commitment root is <
+    // Return the outbound root for optimism.
+    return bytes32(_data);
   }
 }
 
 contract OptimismL1Connector is BaseOptimismConnector {
   // ============ Constructor ============
   constructor(
+    bool _isHub,
     uint32 _domain,
     uint32 _mirrorDomain,
     address _amb,
     address _rootManager,
     address _mirrorConnector,
-    uint256 _mirrorProcessGas,
+    uint256 _receiveGas,
     uint256 _processGas,
     uint256 _reserveGas
   )
     BaseOptimismConnector(
+      _isHub,
       _domain,
       _mirrorDomain,
       _amb,
       _rootManager,
       _mirrorConnector,
-      _mirrorProcessGas,
+      _receiveGas,
       _processGas,
       _reserveGas
     )
@@ -132,27 +143,21 @@ contract OptimismL1Connector is BaseOptimismConnector {
   /**
    * @dev Sends `aggregateRoot` to messaging on l2
    */
-  function _sendMessage(bytes memory _data) internal override {
+  function _sendRoot(bytes memory _data) internal override {
     require(msg.sender == ROOT_MANAGER, "!rootManager");
-    OptimismBridge(AMB).sendMessage(mirrorConnector, _data, uint32(mirrorProcessGas));
-    emit MessageSent(_data, msg.sender);
+    OptimismBridge(AMB).sendMessage(mirrorConnector, _data, uint32(receiveGas));
   }
 
   /**
    * @dev Handles an incoming `outboundRoot`
-   * FIXME: This currently assumes the connector will call `processMessage`
+   * FIXME: This currently assumes the connector will call `receiveRoot`
    * which requires waiting out the full delay. Need to figure out the right
    * flow to shortcut this
    */
-  function _processMessage(address _sender, bytes memory _data) internal override {
-    // enforce this came from connector on l2
-    require(_verifySender(mirrorConnector), "!l2Connector");
+  function _receiveRoot(address _sender, bytes memory _data) internal override returns (bytes32) {
     // get the data (should be the outbound root)
     require(_data.length == 32, "!length");
-    // set the outbound root for optimism
-    IRootManager(ROOT_MANAGER).setOutboundRoot(mirrorDomain, bytes32(_data));
-    // get the state commitment root
-    // if state commitment root is <
-    emit MessageProcessed(_sender, _data, msg.sender);
+    // Return the outbound root.
+    return bytes32(_data);
   }
 }
