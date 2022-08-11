@@ -10,7 +10,7 @@ services:
     image: ${ROUTER_PUBLISHER_IMAGE}
     restart: always
     ports:
-      - "8091:8080"
+      - "8880:8080"
     logging:
       driver: json-file
       options:
@@ -31,7 +31,7 @@ services:
     image: ${ROUTER_SUBSCRIBER_IMAGE}
     restart: always
     ports:
-      - "8090:8080"
+      - "8881:8080"
     logging:
       driver: json-file
       options:
@@ -69,7 +69,7 @@ services:
     image: ${SEQUENCER_PUBLISHER_IMAGE}
     restart: always
     ports:
-      - "8081:8081"
+      - "8882:8081"
     logging:
       driver: json-file
       options:
@@ -88,7 +88,7 @@ services:
     image: ${SEQUENCER_SUBSCRIBER_IMAGE}
     restart: always
     ports:
-      - "8080:8081"
+      - "8883:8081"
     logging:
       driver: json-file
       options:

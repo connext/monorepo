@@ -430,6 +430,7 @@ jobs:
           bash docker/bin/wait-for-services.sh router-publisher
           bash docker/bin/wait-for-services.sh router-subscriber
           bash docker/bin/wait-for-services.sh sequencer-publisher
+          bash docker/bin/wait-for-services.sh sequencer-subscriber
 
     outputs:
       router-publisher-tags: ${{ needs.build-and-push-router-publisher-image.outputs.json }}

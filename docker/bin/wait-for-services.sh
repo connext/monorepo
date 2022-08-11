@@ -3,20 +3,24 @@
 set -e
 
 SERVICE="$SERVICE$1"
-SEQUENCER_PUBLISHER="sequencer-publisher"
 ROUTER_PUBLISHER="router-publisher"
 ROUTER_SUBSCRIBER="router-subscriber"
+SEQUENCER_PUBLISHER="sequencer-publisher"
+SEQUENCER_SUBSCRIBER="sequencer-subscriber"
 
 
 if [[ "${SERVICE}" == "${ROUTER_PUBLISHER}" ]]
 then
-  PORT=8091
+  PORT=8880
 elif [[ "${SERVICE}" == "${ROUTER_SUBSCRIBER}" ]]
 then
-  PORT=8090
+  PORT=8881
 elif [[ "${SERVICE}" == "${SEQUENCER_PUBLISHER}" ]]
 then
-  PORT=8081
+  PORT=8882
+elif [[ "${SERVICE}" == "${SEQUENCER_SUBSCRIBER}" ]]
+then
+  PORT=8883
 else
   echo "Wrong service name"
   exit 1
