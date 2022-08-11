@@ -165,8 +165,8 @@ module "sequencer_subscriber_auto_scaling" {
   domain           = var.domain
   ecs_service_name = module.sequencer_subscriber.service_name
   ecs_cluster_name = module.ecs.ecs_cluster_name
-
 }
+
 module "web3signer" {
   source                   = "../../../modules/service"
   stage                    = var.stage
