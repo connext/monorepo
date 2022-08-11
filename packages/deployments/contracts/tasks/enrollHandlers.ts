@@ -2,7 +2,7 @@ import { hexlify } from "ethers/lib/utils";
 import { task } from "hardhat/config";
 import { Contract } from "ethers";
 
-import { canonizeId, getDomainInfoFromChainId } from "../src/nomad";
+import { canonizeId, chainIdToDomain } from "../src/nomad";
 import { Env, getDeploymentName, mustGetEnv } from "../src/utils";
 import deploymentRecords from "../deployments.json";
 
@@ -61,7 +61,7 @@ export default task("enroll-handlers", "Add a remote router")
 
     for (const { chain, remotes } of handlers) {
       console.log(`enrolling ${remotes.length} remote handlers for ${chain}`);
-      const { domain } = await getDomainInfoFromChainId(chain, hre);
+      const domain = chainIdToDomain(chain);
       for (const { address, name } of remotes) {
         const localRouterDeployment = await hre.deployments.get(name);
         const { abi: localRouterAbi } = await hre.deployments.get(

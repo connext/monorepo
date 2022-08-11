@@ -5,7 +5,7 @@ import { ethers } from "hardhat";
 
 import { SKIP_SETUP } from "../src/constants";
 import { getDeploymentName, mustGetEnv } from "../src/utils";
-import { getDomainInfoFromChainId } from "../src/nomad";
+import { chainIdToDomain } from "../src/nomad";
 import { deployConfigs } from "../deployConfig";
 import { MESSAGING_PROTOCOL_CONFIGS, HUB_PREFIX, SPOKE_PREFIX } from "../deployConfig/shared";
 
@@ -28,8 +28,8 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment): Promise<voi
 
   const network = await hre.ethers.provider.getNetwork();
   console.log("network: ", network);
-  const domainConfig = await getDomainInfoFromChainId(network.chainId, hre);
-  console.log("domainConfig: ", domainConfig);
+  const domain = chainIdToDomain(network.chainId);
+  console.log("domain: ", domain);
   const price = await hre.ethers.provider.getGasPrice();
   console.log("price: ", price.toString());
 
@@ -62,7 +62,7 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment): Promise<voi
   const protocol = MESSAGING_PROTOCOL_CONFIGS[messagingNetwork];
 
   if (!protocol.configs[protocol.hub]) {
-    throw new Error(`Network ${network} is not supported! (no messaging config)`);
+    throw new Error(`Network ${messagingNetwork} is not supported! (no messaging config)`);
   }
 
   const connectorName = `${protocol.configs[network.chainId].prefix}${
@@ -128,7 +128,7 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment): Promise<voi
       : {
           contract: "DiamondInit",
           methodName: "init",
-          args: [domainConfig.domain, tokenRegistry.address, relayerFeeRouter.address, promiseRouter.address],
+          args: [domain, tokenRegistry.address, relayerFeeRouter.address, promiseRouter.address],
         },
     // deterministicSalt: keccak256(utils.toUtf8Bytes("connextDiamondProxyV1")),
   });

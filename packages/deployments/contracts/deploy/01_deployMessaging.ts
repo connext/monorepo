@@ -122,8 +122,16 @@ const handleDeploySpoke = async (
   deployer: Wallet,
   protocol: MessagingProtocolConfig,
   deploymentChainId: number,
-  rootManager: string,
 ): Promise<DeployResult> => {
+  // Get hub root manager from deployments. if it does not exist, error (should always
+  // deploy hub chain first in series of chain deployments)
+  const rootManagerDeployment = await hre.companionNetworks["hub"].deployments.getOrNull(
+    getDeploymentName("RootManager"),
+  );
+  if (!rootManagerDeployment) {
+    throw new Error(`RootManager (hub) not deployed`);
+  }
+
   // Deploy the Connector contract for this Spoke chain.
   const { configs } = protocol;
   const prefix = configs[deploymentChainId].prefix + SPOKE_PREFIX;
@@ -136,7 +144,7 @@ const handleDeploySpoke = async (
       connectorChainId: deploymentChainId,
       deploymentChainId,
       mirrorChainId: protocol.hub,
-      rootManager,
+      rootManager: rootManagerDeployment.address,
     }),
     skipIfAlreadyDeployed: true,
     log: true,
@@ -182,14 +190,7 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment): Promise<voi
       throw new Error(`Invalid chain (${chain}) for deployment!`);
     }
 
-    // get the root manager from deployments. if it does not exist, error (should always
-    // deploy hub chain first in series of chain deployments)
-    const rootManagerDeployment = await hre.deployments.getOrNull(getDeploymentName("RootManager"));
-    if (!rootManagerDeployment) {
-      throw new Error(`RootManager (hub) not deployed`);
-    }
-
-    await handleDeploySpoke(hre, deployer, protocol, +chain, rootManagerDeployment.address);
+    await handleDeploySpoke(hre, deployer, protocol, +chain);
   }
 };
 

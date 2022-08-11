@@ -3,7 +3,7 @@ import { task } from "hardhat/config";
 import { CallParams, XCallArgs } from "@connext/nxtp-utils";
 
 import { Env, getDeploymentName, mustGetEnv } from "../src/utils";
-import { canonizeId, getDomainInfoFromChainId } from "../src/nomad";
+import { canonizeId, chainIdToDomain } from "../src/nomad";
 
 type TaskArgs = {
   transactingAssetId?: string;
@@ -87,7 +87,7 @@ export default task("xcall", "Prepare a cross-chain tx")
 
       // Get the origin and destination domains.
       const network = await hre.ethers.provider.getNetwork();
-      const originDomain = (await getDomainInfoFromChainId(network.chainId, hre)).domain;
+      const originDomain = chainIdToDomain(network.chainId);
       const destinationDomain = +(_destinationDomain ?? process.env.TRANSFER_DESTINATION_DOMAIN ?? "0");
       if (!destinationDomain) {
         throw new Error("Destination domain must be specified as params or from env (TRANSFER_DESTINATION_DOMAIN)");
