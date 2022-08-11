@@ -29,9 +29,10 @@
   "auctionWaitTime": 30000,
   "environment": "production",
   "relayerUrl": "http://relayer:8080",
+  "web3SignerUrl": "http://signer-sequencer:9000",
   "messageQueue": {
     "connection": {
-      "uri": "amqp://guest:guest@sequencer-message-queue:5672"
+      "uri": "amqp://guest:guest@message-queue:5672"
     },
     "exchanges": [
       { "name": "sequencerX", "type": "direct", "publishTimeout": 1000, "persistent": true, "durable": true }
