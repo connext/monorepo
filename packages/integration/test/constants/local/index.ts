@@ -30,7 +30,7 @@ export const PARAMETERS = {
     },
   },
   ASSET: {
-    address: "0x1411CB266FCEd1587b0AA29E9d5a9Ef3Db64A9C5",
+    address: "0x913bbCFea2f347a24cfCA441d483E7CBAc8De3Db",
     name: "TEST",
     symbol: "TEST",
   },
