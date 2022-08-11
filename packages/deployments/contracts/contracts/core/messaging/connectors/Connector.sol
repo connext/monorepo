@@ -174,8 +174,10 @@ abstract contract Connector is ProposedOwnable, MerkleTreeManager, ConnectorMana
   ) ProposedOwnable() ConnectorManager(_domain) {
     // Sanity checks.
     require(_domain > 0, "!domain");
-    require(_amb != address(0), "!amb");
+    // require(_amb != address(0), "!amb"); // May be address(0) if on mainnet
     require(_rootManager != address(0), "!rootManager");
+
+    _setOwner(msg.sender);
 
     DOMAIN = _domain;
     AMB = _amb;
