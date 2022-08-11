@@ -1,5 +1,5 @@
 import { constants } from "ethers";
-import { RequestContext, createLoggingContext, ExecuteArgs } from "@connext/nxtp-utils";
+import { RequestContext, createLoggingContext, ExecuteArgs, jsonifyError, NxtpError } from "@connext/nxtp-utils";
 
 import { getContext } from "../../lighthouse";
 import { getHelpers } from "../helpers";
@@ -73,21 +73,32 @@ export const sendToRelayer = async (
     from: relayerAddress,
     transferId: transferId,
   });
-  const gas = await chainreader.getGasEstimateWithRevertCode(Number(args.params.destinationDomain), {
-    chainId: destinationChainId,
-    to: destinationConnextAddress,
-    data: encodedData,
-    from: relayerAddress,
-  });
 
-  logger.info("Sending meta tx to relayer", requestContext, methodContext, {
-    relayer: relayerAddress,
-    connext: destinationConnextAddress,
-    domain: args.params.destinationDomain,
-    gas: gas.toString(),
-    relayerFee,
-    transferId: transferId,
-  });
+  try {
+    const gas = await chainreader.getGasEstimateWithRevertCode(Number(args.params.destinationDomain), {
+      chainId: destinationChainId,
+      to: destinationConnextAddress,
+      data: encodedData,
+      from: relayerAddress,
+    });
+
+    logger.info("Sending meta tx to relayer", requestContext, methodContext, {
+      relayer: relayerAddress,
+      connext: destinationConnextAddress,
+      domain: args.params.destinationDomain,
+      gas: gas.toString(),
+      relayerFee,
+      transferId: transferId,
+    });
+  } catch (err: unknown) {
+    logger.error("Failed to estimate gas,", requestContext, methodContext, jsonifyError(err as NxtpError), {
+      relayer: relayerAddress,
+      connext: destinationConnextAddress,
+      domain: args.params.destinationDomain,
+      relayerFee,
+      transferId: transferId,
+    });
+  }
 
   const result = await relayer.send(destinationChainId, destinationConnextAddress, encodedData, _requestContext);
   logger.info(`Sent meta tx to the external relayer`, requestContext, methodContext, {

@@ -19,7 +19,7 @@ import {
   addLiquiditySchema,
   removeLiquiditySchema,
   swapSchema,
-} from "./types/api";
+} from "../types/api";
 
 export const poolRoutes = async (server: FastifyInstance, sdkPoolInstance: NxtpSdkPool): Promise<any> => {
   const s = server.withTypeProvider<TypeBoxTypeProvider>();
