@@ -12,7 +12,7 @@
     "1337": {
       "providers": ["http://chain-1337:8545"],
       "deployments": {
-        "connext": "0xF08dF3eFDD854FEDE77Ed3b2E515090EEe765154"
+        "connext": "0x8e4C131B37383E431B9cd0635D3cF9f3F628EDae"
       },
       "assets": [
         {
@@ -24,7 +24,7 @@
     "1338": {
       "providers": ["http://chain-1338:8545"],
       "deployments": {
-        "connext": "0xF08dF3eFDD854FEDE77Ed3b2E515090EEe765154"
+        "connext": "0x8e4C131B37383E431B9cd0635D3cF9f3F628EDae"
       },
       "assets": [
         {
