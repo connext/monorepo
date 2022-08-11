@@ -114,7 +114,7 @@ abstract contract Connector is ProposedOwnable, MerkleTreeManager, ConnectorMana
    * @dev This is used for the `onlyWhitelistedSender` modifier, which gates who
    * can send messages using `dispatch`
    */
-  mapping(address => bool) whitelistedSenders;
+  mapping(address => bool) public whitelistedSenders;
 
   // Minimum gas for message processing
   uint256 public immutable PROCESS_GAS;
