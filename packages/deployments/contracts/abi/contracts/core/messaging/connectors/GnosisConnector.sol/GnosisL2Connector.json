@@ -29,6 +29,7 @@
   "function count() view returns (uint256)",
   "function delay() view returns (uint256)",
   "function dispatch(uint32,bytes32,bytes)",
+  "function domain() view returns (uint32)",
   "function messages(bytes32) view returns (uint8)",
   "function mirrorConnector() view returns (address)",
   "function mirrorDomain() view returns (uint32)",
