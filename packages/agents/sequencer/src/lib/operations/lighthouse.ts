@@ -125,7 +125,7 @@ export const storeLightHouseData = async (
   const message: Message = {
     transferId: transfer.transferId,
     originDomain: transfer.xparams!.originDomain,
-    type: MessageType.LightHouse,
+    type: MessageType.SlowPath,
   };
 
   await mqClient.publish(config.messageQueue.publisher!, {
@@ -138,3 +138,14 @@ export const storeLightHouseData = async (
     message: message,
   });
 };
+
+/**
+ * Send any arbitrary data from the lighthouse to the relayer directly once sanity checks passes
+ * @param transferId - The transfer id you're gonna send
+ * @param _requestContext - The parant request context instance
+ */
+export const executeLightHouseData = async (
+  transferId: string,
+  type: string,
+  _requestContext: RequestContext,
+): Promise<void> => {};

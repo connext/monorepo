@@ -13,7 +13,7 @@ import { SubgraphReader } from "@connext/nxtp-adapters-subgraph";
 import { StoreManager } from "@connext/nxtp-adapters-cache";
 import { ChainReader, getContractInterfaces, contractDeployments } from "@connext/nxtp-txservice";
 
-import { SequencerConfig } from "./lib/entities";
+import { MessageType, SequencerConfig } from "./lib/entities";
 import { getConfig } from "./config";
 import { AppContext } from "./lib/entities/context";
 import { bindHealthServer, bindSubscriber } from "./bindings/subscriber";
@@ -94,6 +94,7 @@ export const execute = async (_configOverride?: SequencerConfig) => {
   try {
     // Transfer ID is a CLI argument. Always provided by the parent
     const transferId = process.argv[2];
+    const messageType = process.argv[3];
     const { requestContext, methodContext } = createLoggingContext(execute.name, undefined, transferId);
 
     context.adapters = {} as any;
@@ -122,7 +123,11 @@ export const execute = async (_configOverride?: SequencerConfig) => {
     context.adapters.contracts = getContractInterfaces();
     context.adapters.relayer = await setupRelayer();
 
-    await executeAuction(transferId, requestContext);
+    if (messageType == MessageType.Auction) {
+      await executeAuction(transferId, requestContext);
+    } else if (messageType == MessageType.SlowPath) {
+    }
+
     context.logger.info("Executed", requestContext, methodContext, { transferId: transferId });
   } catch (error: any) {
     const { requestContext, methodContext } = createLoggingContext(execute.name);
