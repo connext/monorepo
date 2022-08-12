@@ -21,7 +21,7 @@ import {Connector} from "./Connector.sol";
  * L2 messenger: https://github.com/ethereum-optimism/optimism/blob/develop/packages/contracts/contracts/L2/messaging/L2CrossDomainMessenger.sol
  * L1 messenger: https://github.com/ethereum-optimism/optimism/blob/develop/packages/contracts/contracts/L1/messaging/L1CrossDomainMessenger.sol
  */
-interface OptimismBridge {
+interface OptimismAMB {
   function sendMessage(
     address _target,
     bytes memory _message,
@@ -49,7 +49,7 @@ abstract contract BaseOptimismConnector is Connector {
   // ============ Public Fns ============
   function _verifySender(address _expected) internal override returns (bool) {
     require(msg.sender == AMB, "!bridge");
-    return OptimismBridge(AMB).xDomainMessageSender() == _expected;
+    return OptimismAMB(AMB).xDomainMessageSender() == _expected;
   }
 }
 
@@ -82,7 +82,7 @@ contract OptimismL2Connector is BaseOptimismConnector {
    * @dev Sends `outboundRoot` to root manager on l1
    */
   function _sendMessage(bytes memory _data) internal override {
-    OptimismBridge(AMB).sendMessage(mirrorConnector, _data, uint32(mirrorProcessGas));
+    OptimismAMB(AMB).sendMessage(mirrorConnector, _data, uint32(mirrorProcessGas));
   }
 
   /**
@@ -134,7 +134,7 @@ contract OptimismL1Connector is BaseOptimismConnector {
    */
   function _sendMessage(bytes memory _data) internal override {
     require(msg.sender == ROOT_MANAGER, "!rootManager");
-    OptimismBridge(AMB).sendMessage(mirrorConnector, _data, uint32(mirrorProcessGas));
+    OptimismAMB(AMB).sendMessage(mirrorConnector, _data, uint32(mirrorProcessGas));
     emit MessageSent(_data, msg.sender);
   }
 
