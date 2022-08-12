@@ -1,5 +1,5 @@
 import { constants } from "ethers";
-import { hexlify, solidityKeccak256 } from "ethers/lib/utils";
+import { defaultAbiCoder, hexlify, solidityKeccak256 } from "ethers/lib/utils";
 import { task } from "hardhat/config";
 
 import { canonizeId } from "../src/nomad";
@@ -51,14 +51,20 @@ export default task("setup-asset", "Configures an asset")
         id: hexlify(canonizeId(canonical)),
         domain: +domain,
       };
-      const key = solidityKeccak256(["bytes32", "uint32"], [canonicalTokenId.id, canonicalTokenId.domain]);
+      const key = solidityKeccak256(
+        ["bytes"],
+        [defaultAbiCoder.encode(["bytes32", "uint32"], [canonicalTokenId.id, canonicalTokenId.domain])],
+      );
 
       console.log("key: ", key);
-      const approved = await deployer.sendTransaction({
-        to: connext.address,
-        value: constants.Zero,
-        data: connext.interface.encodeFunctionData("approvedAssets(bytes32)", [key]),
-      });
+      const [approved] = connext.interface.decodeFunctionResult(
+        "approvedAssets(bytes32)",
+        await deployer.call({
+          to: connext.address,
+          value: constants.Zero,
+          data: connext.interface.encodeFunctionData("approvedAssets(bytes32)", [key]),
+        }),
+      );
       console.log("approved: ", approved);
       if (approved) {
         // check that the correct domain is set
@@ -95,11 +101,15 @@ export default task("setup-asset", "Configures an asset")
       const receipt = await tx.wait(1);
       console.log("setupAsset tx mined: ", receipt.transactionHash);
 
-      const isAssetApproved = await deployer.sendTransaction({
-        to: connext.address,
-        value: constants.Zero,
-        data: connext.interface.encodeFunctionData("approvedAssets(bytes32)", [key]),
-      });
+      const [isAssetApproved] = connext.interface.decodeFunctionResult(
+        "approvedAssets(bytes32)",
+        await deployer.call({
+          to: connext.address,
+          value: constants.Zero,
+          data: connext.interface.encodeFunctionData("approvedAssets(bytes32)", [key]),
+        }),
+      );
+
       console.log("isAssetApproved: ", isAssetApproved);
     },
   );

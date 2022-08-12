@@ -1,5 +1,5 @@
 import { BigNumber, constants, Contract, utils } from "ethers";
-import { isAddress, solidityKeccak256 } from "ethers/lib/utils";
+import { isAddress } from "ethers/lib/utils";
 import { task } from "hardhat/config";
 
 import { Env, getDeploymentName, mustGetEnv } from "../src/utils";
@@ -123,19 +123,22 @@ export default task("preflight", "Ensure correct setup for e2e demo with a speci
       }
       console.log("*** Router approved!");
 
+      const functionSelectors = await connext.facets();
+      console.log("facets", functionSelectors);
+
       // Make sure the asset is approved.
       // The stable swap pool address, if applicable; if mad asset is what's being used,
       // should be set to address(0).
-      const key = solidityKeccak256(["bytes32", "uint32"], [canonicalTokenId, canonicalDomain]);
+
       const pool = _pool ?? constants.AddressZero;
-      const isAssetApproved = connext.interface.decodeFunctionData(
-        "approvedAssets(bytes32)",
-        await deployer.provider!.call({
-          to: connext.address,
-          value: constants.Zero,
-          data: connext.interface.encodeFunctionData("approvedAssets(bytes32)", [key]),
-        }),
-      );
+      const ret = await deployer.call({
+        to: connext.address,
+        value: constants.Zero,
+        data: connext.interface.encodeFunctionData("approvedAssets((uint32,bytes32))", [
+          [canonicalDomain, canonicalTokenId],
+        ]),
+      });
+      const [isAssetApproved] = connext.interface.decodeFunctionResult("approvedAssets((uint32,bytes32))", ret);
       console.log("isAssetApproved", isAssetApproved);
       console.log("\nLocal asset: ", localAsset);
       console.log("Canonical asset: ", canonicalAsset);
