@@ -11,3 +11,15 @@ export class LightHouseDataExpired extends NxtpError {
     super("This lighthouse data has already expired.", { status, ...context }, LightHouseDataExpired.name);
   }
 }
+
+export class InvalidSlowLiqTransfer extends NxtpError {
+  constructor(context: any = {}) {
+    super("This slow liquidity transfer is no longer valid.", context, InvalidSlowLiqTransfer.name);
+  }
+}
+
+export class GasEstimationFailed extends NxtpError {
+  constructor(context: any = {}) {
+    super("Gas estimation failed", context, GasEstimationFailed.name);
+  }
+}

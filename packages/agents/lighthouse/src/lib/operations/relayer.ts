@@ -1,5 +1,12 @@
 import { constants } from "ethers";
-import { RequestContext, createLoggingContext, ExecuteArgs, jsonifyError, NxtpError } from "@connext/nxtp-utils";
+import {
+  RequestContext,
+  createLoggingContext,
+  ExecuteArgs,
+  jsonifyError,
+  NxtpError,
+  getChainIdFromDomain,
+} from "@connext/nxtp-utils";
 
 import { getContext } from "../../lighthouse";
 import { getHelpers } from "../helpers";
@@ -24,8 +31,8 @@ export const sendToRelayer = async (
   const { requestContext, methodContext } = createLoggingContext(sendToRelayer.name, _requestContext);
   logger.debug(`Method start: ${sendToRelayer.name}`, requestContext, methodContext, { args });
 
-  const originChainId = chainData.get(args.params.originDomain)!.chainId;
-  const destinationChainId = chainData.get(args.params.destinationDomain)!.chainId;
+  const originChainId = await getChainIdFromDomain(args.params.originDomain, chainData);
+  const destinationChainId = await getChainIdFromDomain(args.params.destinationDomain, chainData);
 
   const destinationConnextAddress = config.chains[args.params.destinationDomain].deployments.connext;
 
