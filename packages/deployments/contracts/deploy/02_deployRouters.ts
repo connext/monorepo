@@ -3,7 +3,6 @@ import { DeployFunction } from "hardhat-deploy/types";
 import { Contract, Wallet } from "ethers";
 
 import { getDeploymentName, mustGetEnv } from "../src/utils";
-import { Connector } from "../src";
 import { HUB_PREFIX, MESSAGING_PROTOCOL_CONFIGS, SPOKE_PREFIX } from "../deployConfig/shared";
 import { deployConfigs } from "../deployConfig";
 
@@ -44,9 +43,7 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment): Promise<voi
 
   // Find the connector that exists on this domain / chain
   // and use it as the connectorManager address
-  const connector = (await hre.ethers.getContractOrNull(getDeploymentName(connectorName), deployer)) as
-    | Connector
-    | undefined;
+  const connector = await hre.ethers.getContractOrNull(getDeploymentName(connectorName), deployer);
   if (!connector) {
     throw new Error(`No connector manager deployed to this chain (looking for: ${connectorName})`);
   }
