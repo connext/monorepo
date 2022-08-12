@@ -287,7 +287,7 @@ export const SEQUENCER_CONFIG: Promise<SequencerConfig> = (async (): Promise<Seq
     auctionWaitTime: 5_000,
     auctionRoundDepth: 3,
     network: "testnet",
-    supportedBidVersion: routerPackageVersion,
+    supportedVersion: routerPackageVersion,
     environment: ENVIRONMENT.toString() as "staging" | "production",
     relayerUrl: LOCAL_RELAYER_ENABLED ? `http://${LOCALHOST}:8082` : undefined,
     messageQueue: {

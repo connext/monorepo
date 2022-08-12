@@ -103,7 +103,7 @@ export const SequencerConfigSchema = Type.Object({
   server: TServerConfig,
   mode: TModeConfig,
   auctionWaitTime: Type.Number({ minimum: 1000, maximum: 500_000 }),
-  supportedBidVersion: Type.Optional(Type.String()),
+  supportedVersion: Type.Optional(Type.String()),
   relayerUrl: Type.Optional(Type.String()),
   subgraphPrefix: Type.Optional(Type.String()),
   auctionRoundDepth: Type.Number(),

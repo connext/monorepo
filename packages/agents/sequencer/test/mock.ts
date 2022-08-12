@@ -68,7 +68,7 @@ export const mock = {
     mode: {
       cleanup: false,
     },
-    supportedBidVersion: "0.0.1",
+    supportedVersion: "0.0.1",
     environment: "staging",
     messageQueue: {
       connection: {
