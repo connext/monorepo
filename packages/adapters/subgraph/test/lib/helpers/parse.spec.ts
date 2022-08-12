@@ -46,6 +46,7 @@ describe("Helpers:parse", () => {
         transferId: "0xaaa0000000000000000000000000000000000000000000000000000000000000",
         nonce: 0,
         xparams: {
+          destinationMinOut: "456",
           destinationDomain: "3331",
           originDomain: "1111",
           to: "0x1000000000000000000000000000000000000000",
@@ -57,10 +58,10 @@ describe("Helpers:parse", () => {
           receiveLocal: false,
           agent: "foo",
           relayerFee: "1",
-          slippageTol: "0",
         },
         origin: {
           chain: 4,
+          originMinOut: "123",
           assets: {
             transacting: { asset: mkAddress("0x11"), amount: "100" },
             bridged: { asset: mkAddress("0x12"), amount: "100" },
@@ -95,10 +96,11 @@ describe("Helpers:parse", () => {
           receiveLocal: false,
           agent: "foo",
           relayerFee: "1",
-          slippageTol: "0",
+          destinationMinOut: "456",
         },
         origin: {
           chain: 4,
+          originMinOut: "123",
           assets: {
             transacting: { asset: mkAddress("0x11"), amount: "100" },
             bridged: { asset: mkAddress("0x12"), amount: "100" },
@@ -196,7 +198,7 @@ describe("Helpers:parse", () => {
           to: "0x1000000000000000000000000000000000000000",
           agent: "foo",
           relayerFee: "1",
-          slippageTol: "0",
+          destinationMinOut: "456",
         },
       });
     });
@@ -257,8 +259,8 @@ describe("Helpers:parse", () => {
           receiveLocal: false,
           recovery: "0x1000000000000000000000000000000000000000",
           relayerFee: "1",
-          slippageTol: "0",
           to: undefined,
+          destinationMinOut: "456",
         },
       });
     });

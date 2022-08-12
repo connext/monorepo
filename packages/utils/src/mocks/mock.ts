@@ -15,6 +15,8 @@ import { getNtpTimeSeconds } from "../helpers";
 
 import { mkAddress, mkBytes32, mkSig } from ".";
 
+export const mockSequencer = mkAddress("0x333");
+
 /**
  * General mock toolset used for testing globally.
  */
@@ -101,7 +103,7 @@ export const mock = {
       local: mock.asset.A.address,
       routers: [mkAddress("0x222")],
       routerSignatures: [mock.signature],
-      sequencer: mkAddress("0x333"),
+      sequencer: mockSequencer,
       sequencerSignature: mock.signature,
       amount: utils.parseEther("1").toString(),
       nonce: 0,

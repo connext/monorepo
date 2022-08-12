@@ -32,18 +32,15 @@ export const enrollHandlers = async (
           to: (handler as any)[handlerName],
         });
 
-        console.log("test2");
         const [remote] = RouterInterface.decodeFunctionResult("remotes", encoded);
         // check if already registered
         if (remote !== canonized) {
           const data = RouterInterface.encodeFunctionData("enrollRemoteRouter", [otherHandler.domain, canonized]);
-          console.log("test2");
 
           await txService.sendTx(
             { chainId: +handler.domain, to: (handler as any)[handlerName], data, value: 0 },
             requestContext,
           );
-          console.log("test2");
         }
       }
     }

@@ -1,7 +1,8 @@
 import axios, { AxiosResponse } from "axios";
 import { Wallet, utils, BigNumber, providers, constants } from "ethers";
 import { makePublisher, makeSubscriber } from "@connext/nxtp-sequencer/src/sequencer";
-import { makeRouter } from "@connext/nxtp-router/src/router";
+import { makePublisher as makeRouterPublisher } from "@connext/nxtp-router/src/publisher/publisher";
+import { makeSubscriber as makeRouterSubscriber } from "@connext/nxtp-router/src/subscriber/subscriber";
 import { makeRelayer } from "@connext/nxtp-relayer/src/relayer";
 import { makeRoutersPoller } from "@connext/cartographer-poller/src/routersPoller";
 import { makeTransfersPoller } from "@connext/cartographer-poller/src/transfersPoller";
@@ -764,7 +765,12 @@ describe("TESTNET:E2E", () => {
         await delay(1_000);
 
         log.next("ROUTER START");
-        await makeRouter({
+        await makeRouterPublisher({
+          ...routerConfig,
+          mnemonic: ROUTER_MNEMONIC,
+        });
+
+        await makeRouterSubscriber({
           ...routerConfig,
           mnemonic: ROUTER_MNEMONIC,
         });
@@ -872,7 +878,7 @@ describe("TESTNET:E2E", () => {
               return await axios
                 .request<AuctionsApiGetAuctionStatusResponse>({
                   method: "get",
-                  baseURL: `http://${sequencerConfig.server.host}:${sequencerConfig.server.port}`,
+                  baseURL: `http://${sequencerConfig.server.pub.host}:${sequencerConfig.server.pub.port}`,
                   url: `/auctions/0xf8b72dd5eb4b330a736b8f336ae13f95a26f92774e2fe95e7b5236fda75f27ed`,
                 })
                 .catch((e: AxiosResponse<AuctionsApiErrorResponse>) => {

@@ -14,7 +14,7 @@ export const setupAsset = async (
     ["tuple(bytes32 canonicalId,uint32 canonicalDomain)"],
     [{ canonicalId, canonicalDomain: canonical.domain }],
   );
-  const key = utils.solidityKeccak256(["bytes32"], [payload]);
+  const key = utils.solidityKeccak256(["bytes"], [payload]);
   for (const domain of domains) {
     const readData = ConnextHandlerInterface.encodeFunctionData("canonicalToAdopted(bytes32)", [key]);
     const encoded = await txService.readTx({ chainId: +domain.domain, data: readData, to: domain.ConnextHandler });
