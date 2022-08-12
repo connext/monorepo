@@ -1,0 +1,4 @@
+[
+  "constructor(uint32)",
+  "function domain() view returns (uint32)"
+]
