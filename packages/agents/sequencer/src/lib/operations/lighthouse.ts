@@ -16,9 +16,12 @@ import {
   MissingXCall,
   InvalidSlowLiqTransfer,
   GasEstimationFailed,
+  MissingTransfer,
+  MissingLightHouseData,
 } from "../errors";
 import { getHelpers } from "../helpers";
 import { Message, MessageType } from "../entities";
+import { getOperations } from ".";
 
 export const storeLightHouseData = async (
   lighthouseData: LightHouseData,
@@ -58,7 +61,7 @@ export const storeLightHouseData = async (
     });
   }
 
-  // Ensure that the auction for this transfer hasn't expired.
+  // Ensure that the lighthouse data for this transfer hasn't expired.
   const status = await cache.lighthousetxs.getLightHouseDataStatus(transferId);
   if (status !== LightHouseDataStatus.None && status !== LightHouseDataStatus.Cancelled) {
     throw new LightHouseDataExpired(status, {
@@ -78,7 +81,7 @@ export const storeLightHouseData = async (
       });
     }
     // Store the transfer locally. We will use this as a reference later when we execute this transfer
-    // in the auction cycle, for both encoding data and passing relayer fee to the relayer.
+    // in the cycle, for both encoding data and passing relayer fee to the relayer.
     await cache.transfers.storeTransfers([transfer]);
   }
 
@@ -140,12 +143,56 @@ export const storeLightHouseData = async (
 };
 
 /**
- * Send any arbitrary data from the lighthouse to the relayer directly once sanity checks passes
+ * Send any slow-path data from the lighthouse to the relayer directly once sanity checks passes
  * @param transferId - The transfer id you're gonna send
  * @param _requestContext - The parant request context instance
  */
-export const executeLightHouseData = async (
+export const executeSlowPathData = async (
   transferId: string,
   type: string,
   _requestContext: RequestContext,
-): Promise<void> => {};
+): Promise<void> => {
+  const {
+    logger,
+    adapters: { cache },
+  } = getContext();
+
+  const {
+    relayer: { sendLightHouseDataToRelayer },
+  } = getOperations();
+
+  const { requestContext, methodContext } = createLoggingContext(storeLightHouseData.name, _requestContext);
+  logger.debug(`Method start: ${executeSlowPathData.name}`, requestContext, methodContext, { transferId, type });
+
+  let transfer = await cache.transfers.getTransfer(transferId);
+  if (!transfer) {
+    throw new MissingTransfer({ transferId });
+  }
+
+  if (!transfer.destination?.reconcile || transfer.destination?.execute) {
+    // This transfer has already been Executed or not Reconciled yet, so slow liquidity is no longer valid.
+    throw new InvalidSlowLiqTransfer({
+      transfer,
+    });
+  }
+
+  let lighthouseData = await cache.lighthousetxs.getLightHouseData(transferId);
+  if (!lighthouseData) {
+    throw new MissingLightHouseData({ transfer });
+  }
+
+  // Ensure that the lighthouse data for this transfer hasn't expired.
+  const status = await cache.lighthousetxs.getLightHouseDataStatus(transferId);
+  if (status !== LightHouseDataStatus.None && status !== LightHouseDataStatus.Cancelled) {
+    throw new LightHouseDataExpired(status, {
+      transferId,
+      lighthouseData,
+    });
+  }
+
+  const taskId = await sendLightHouseDataToRelayer(lighthouseData, requestContext);
+  if (!taskId) {
+    await cache.lighthousetxs.setLightHouseDataStatus(transferId, LightHouseDataStatus.Pending);
+    await cache.lighthousetxs.upsertTask({ transferId, taskId });
+  }
+};

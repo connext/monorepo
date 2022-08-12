@@ -16,7 +16,7 @@ export const execute = async (args: ExecuteArgs, transferId: string): Promise<vo
     adapters: { contracts },
     config,
   } = getContext();
-  const { sendToRelayer } = getOperations();
+  const { sendBidsToRelayer } = getOperations();
 
   logger.info(`Method start: ${execute.name}`, requestContext, methodContext, { args });
 
@@ -35,5 +35,5 @@ export const execute = async (args: ExecuteArgs, transferId: string): Promise<vo
   }
 
   const encodedData = contracts.connext.encodeFunctionData("execute", [args]);
-  await sendToRelayer(args, encodedData, transferId, requestContext);
+  await sendBidsToRelayer(args, encodedData, transferId, requestContext);
 };

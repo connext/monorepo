@@ -133,7 +133,7 @@ export const executeAuction = async (transferId: string, _requestContext: Reques
   } = getContext();
   // TODO: Bit of an antipattern here.
   const {
-    relayer: { sendToRelayer },
+    relayer: { sendBidsToRelayer },
   } = getOperations();
   const {
     auctions: { getDestinationLocalAsset, getBidsRoundMap, getAllSubsets, getMinimumBidsCountForRound },
@@ -311,7 +311,7 @@ export const executeAuction = async (transferId: string, _requestContext: Reques
           },
         });
         // Send the relayer request based on chosen bids.
-        taskId = await sendToRelayer(roundIdInNum, randomCombination, transfer, asset, requestContext);
+        taskId = await sendBidsToRelayer(roundIdInNum, randomCombination, transfer, asset, requestContext);
         logger.info("Sent bid to relayer", requestContext, methodContext, {
           transferId,
           taskId,

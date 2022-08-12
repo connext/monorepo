@@ -1,7 +1,7 @@
 import { expect, mkAddress, mkBytes32 } from "@connext/nxtp-utils";
 import { stub, restore, reset, SinonStub } from "sinon";
 
-import { sendToRelayer } from "../../../src/lib/operations/relayer";
+import { sendBidsToRelayer } from "../../../src/lib/operations/relayer";
 import { ctxMock, getHelpersStub } from "../../globalTestHook";
 import { mock, stubContext, encodedDataMock, requestContext } from "../../mock";
 
@@ -24,14 +24,14 @@ describe("Operations:Relayer", () => {
     restore();
     reset();
   });
-  describe("#sendToRelayer", () => {
+  describe("#sendBidsToRelayer", () => {
     it("should not try to send the payload to the connext relayer if relayerUrl is undefined", async () => {
       ctxMock.config.relayerUrl = undefined;
 
       connextRelayerSendStub.resolves();
       const executeArgs = mock.entity.executeArgs();
       const transferId = mkBytes32();
-      await sendToRelayer(executeArgs, encodedDataMock, transferId, requestContext);
+      await sendBidsToRelayer(executeArgs, encodedDataMock, transferId, requestContext);
       expect(connextRelayerSendStub.callCount).to.be.eq(0);
       expect(getGelatoRelayerAddressStub.callCount).to.be.eq(1);
       expect(ctxMock.adapters.chainreader.getGasEstimateWithRevertCode).to.be.calledOnceWith(
@@ -47,7 +47,7 @@ describe("Operations:Relayer", () => {
     it("should not send the payload if gas estimation fails", async () => {
       const executeArgs = mock.entity.executeArgs();
       const transferId = mkBytes32();
-      await sendToRelayer(executeArgs, encodedDataMock, transferId, requestContext);
+      await sendBidsToRelayer(executeArgs, encodedDataMock, transferId, requestContext);
       expect(connextRelayerSendStub.callCount).to.be.eq(1);
       expect(ctxMock.adapters.chainreader.getGasEstimateWithRevertCode).to.be.calledOnceWith(
         Number(executeArgs.params.destinationDomain),
@@ -57,7 +57,7 @@ describe("Operations:Relayer", () => {
       connextRelayerSendStub.resolves({ taskId: mkBytes32("0x12345") });
       const executeArgs = mock.entity.executeArgs();
       const transferId = mkBytes32();
-      await sendToRelayer(executeArgs, encodedDataMock, transferId, requestContext);
+      await sendBidsToRelayer(executeArgs, encodedDataMock, transferId, requestContext);
       expect(connextRelayerSendStub.callCount).to.be.eq(1);
       expect(getGelatoRelayerAddressStub.callCount).to.be.eq(0);
     });
@@ -65,7 +65,7 @@ describe("Operations:Relayer", () => {
       connextRelayerSendStub.throws();
       const executeArgs = mock.entity.executeArgs();
       const transferId = mkBytes32();
-      await sendToRelayer(executeArgs, encodedDataMock, transferId, requestContext);
+      await sendBidsToRelayer(executeArgs, encodedDataMock, transferId, requestContext);
       expect(connextRelayerSendStub.callCount).to.be.eq(1);
       expect(getGelatoRelayerAddressStub.callCount).to.be.eq(1);
       expect(ctxMock.adapters.chainreader.getGasEstimateWithRevertCode).to.be.calledOnceWith(

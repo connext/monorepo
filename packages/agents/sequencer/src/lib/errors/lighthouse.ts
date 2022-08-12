@@ -23,3 +23,15 @@ export class GasEstimationFailed extends NxtpError {
     super("Gas estimation failed", context, GasEstimationFailed.name);
   }
 }
+
+export class MissingTransfer extends NxtpError {
+  constructor(context: any = {}) {
+    super("No transfer found in the cache", context, MissingTransfer.name);
+  }
+}
+
+export class MissingLightHouseData extends NxtpError {
+  constructor(context: any = {}) {
+    super("No lighthouse data found in the cache", context, MissingLightHouseData.name);
+  }
+}

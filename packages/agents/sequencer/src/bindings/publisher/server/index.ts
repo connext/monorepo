@@ -31,7 +31,6 @@ import {
 import { getContext } from "../../../sequencer";
 import { getOperations } from "../../../lib/operations";
 import { AuctionExpired } from "../../../lib/errors";
-import { storeLightHouseData } from "../../../lib/operations/lighthouse";
 
 export const bindServer = async (): Promise<FastifyInstance> => {
   const {
@@ -163,6 +162,9 @@ export const bindServer = async (): Promise<FastifyInstance> => {
     },
     async (request, response) => {
       const { requestContext } = createLoggingContext("POST /lighthouses endpoint");
+      const {
+        lighthouse: { storeLightHouseData },
+      } = getOperations();
       try {
         const lighthouseData = request.body;
         await storeLightHouseData(lighthouseData, requestContext);

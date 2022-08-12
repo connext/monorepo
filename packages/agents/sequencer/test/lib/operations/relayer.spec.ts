@@ -2,7 +2,7 @@ import { stub, restore, reset, SinonStub } from "sinon";
 import { mkAddress, expect, OriginTransfer } from "@connext/nxtp-utils";
 
 import { mock, mockRelayerAddress } from "../../mock";
-import { sendToRelayer } from "../../../src/lib/operations/relayer";
+import { sendBidsToRelayer } from "../../../src/lib/operations/relayer";
 import { ctxMock, getHelpersStub } from "../../globalTestHook";
 
 const mockTransfers: OriginTransfer[] = [
@@ -48,7 +48,7 @@ const mockBids = [mock.entity.bid(mockTransfers[0]), mock.entity.bid(mockTransfe
 
 const loggingContext = mock.loggingContext("RELAYER-TEST");
 describe("#relayer", () => {
-  describe("#sendToRelayer", () => {
+  describe("#sendBidsToRelayer", () => {
     let encodeExecuteFromBidsStub: SinonStub;
     beforeEach(() => {
       encodeExecuteFromBidsStub = stub();
@@ -64,7 +64,7 @@ describe("#relayer", () => {
     });
 
     it("should send the bid to the relayer", async () => {
-      await sendToRelayer(1, mockBids.slice(0, 1), mockTransfers[0], mockLocalAsset, loggingContext.requestContext);
+      await sendBidsToRelayer(1, mockBids.slice(0, 1), mockTransfers[0], mockLocalAsset, loggingContext.requestContext);
       expect(ctxMock.adapters.chainreader.getGasEstimateWithRevertCode).to.be.calledOnceWith(Number(mock.domain.B));
       expect((ctxMock.adapters.chainreader.getGasEstimateWithRevertCode as SinonStub).getCall(0).args[1]).to.deep.eq({
         chainId: Number(mock.chain.B),

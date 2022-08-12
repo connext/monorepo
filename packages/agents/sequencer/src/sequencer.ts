@@ -90,6 +90,7 @@ export const makePublisher = async (_configOverride?: SequencerConfig) => {
 export const execute = async (_configOverride?: SequencerConfig) => {
   const {
     auctions: { executeAuction },
+    lighthouse: { executeSlowPathData },
   } = getOperations();
   try {
     // Transfer ID is a CLI argument. Always provided by the parent
@@ -126,6 +127,7 @@ export const execute = async (_configOverride?: SequencerConfig) => {
     if (messageType == MessageType.Auction) {
       await executeAuction(transferId, requestContext);
     } else if (messageType == MessageType.SlowPath) {
+      await executeSlowPathData(transferId, messageType, requestContext);
     }
 
     context.logger.info("Executed", requestContext, methodContext, { transferId: transferId });

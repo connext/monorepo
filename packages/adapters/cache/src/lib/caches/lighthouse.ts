@@ -1,4 +1,4 @@
-import { LightHouseDataStatus, LightHouseData } from "@connext/nxtp-utils";
+import { LightHouseDataStatus, LightHouseData, MetaTxTask, getNtpTimeSeconds } from "@connext/nxtp-utils";
 
 import { Cache } from "./cache";
 
@@ -59,5 +59,36 @@ export class LightHouseCache extends Cache {
     return res && Object.values(LightHouseDataStatus).includes(res as LightHouseDataStatus)
       ? LightHouseDataStatus[res as LightHouseDataStatus]
       : LightHouseDataStatus.None;
+  }
+
+  /// MARK - Meta TX Tasks
+  /**
+   * Gets the auction meta tx information for the given transfer ID.
+   * @param transferId - The ID of the transfer we are auctioning.
+   * @returns AuctionTask if exists, undefined otherwise.
+   */
+  public async getTask(transferId: string): Promise<MetaTxTask | undefined> {
+    const res = await this.data.hget(`${this.prefix}:task`, transferId);
+    return res ? (JSON.parse(res) as MetaTxTask) : undefined;
+  }
+
+  /**
+   * Creates or updates the meta tx information for the given transfer ID.
+   *
+   * @param data.transferId - The ID of transfer we are auctioning.
+   * @param data.taskId - Auction task ID from relayer.
+   *
+   * @returns 0 if updated, 1 if created
+   */
+  public async upsertTask({ transferId, taskId }: { transferId: string; taskId: string }): Promise<number> {
+    const existing = await this.getTask(transferId);
+    const task: MetaTxTask = {
+      // We update the timestamp each time here; it is intended to reflect when the *last* meta tx was sent.
+      timestamp: getNtpTimeSeconds().toString(),
+      taskId,
+      attempts: existing ? existing.attempts + 1 : 1,
+    };
+    const res = await this.data.hset(`${this.prefix}:task`, transferId, JSON.stringify(task));
+    return Number(res >= 1);
   }
 }
