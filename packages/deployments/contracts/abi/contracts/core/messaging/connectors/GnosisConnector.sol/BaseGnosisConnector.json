@@ -29,6 +29,9 @@
   "function delay() view returns (uint256)",
   "function dispatch(uint32,bytes32,bytes)",
   "function domain() view returns (uint32)",
+  "function home() view returns (address)",
+  "function isReplica(address) view returns (bool)",
+  "function localDomain() view returns (uint32)",
   "function messages(bytes32) view returns (uint8)",
   "function mirrorConnector() view returns (address)",
   "function mirrorDomain() view returns (uint32)",
@@ -49,5 +52,6 @@
   "function root() view returns (bytes32)",
   "function sendRoot()",
   "function setMirrorConnector(address)",
-  "function tree() view returns (uint256)"
+  "function tree() view returns (uint256)",
+  "function whitelistedSenders(address) view returns (bool)"
 ]

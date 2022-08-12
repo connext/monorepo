@@ -3,12 +3,14 @@ import {
   ExecuteArgs,
   OriginTransfer,
   getMinimumBidsCountForRound as _getMinimumBidsCountForRound,
-  signSequencerPermitPayload,
+  signSequencerPermitPayload as _signSequencerPermitPayload,
 } from "@connext/nxtp-utils";
 import { constants } from "ethers";
 
 import { getContext } from "../../sequencer";
 import { RoundInvalid } from "../errors";
+
+export const signSequencerPermitPayload = _signSequencerPermitPayload;
 
 export const encodeExecuteFromBids = async (
   round: number,

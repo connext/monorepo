@@ -21,39 +21,40 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment): Promise<voi
   if (![1337, 1338, 31337].includes(network.chainId)) {
     console.error("Do not run nomad core deployment on non-local networks");
     return;
+  } else {
+    let _deployer: any;
+    ({ deployer: _deployer } = await hre.ethers.getNamedSigners());
+    if (!_deployer) {
+      [_deployer] = await hre.ethers.getUnnamedSigners();
+    }
+    const deployer = _deployer as Wallet;
+    console.log("\n============================= Deploying Nomad Core ===============================");
+    console.log("deployer: ", deployer.address);
+
+    console.log("Turning on automine for the local EVM...");
+    await hre.network.provider.request({
+      method: "evm_setAutomine",
+      params: [true],
+    });
+
+    const bridgeToken = await deployNomadBeaconProxy("BridgeToken", [], deployer, hre);
+    const bridgeTokenBeacon = await hre.deployments.get(getDeploymentName(`BridgeTokenUpgradeBeacon`));
+    console.log("bridgeTokenBeacon address: ", bridgeTokenBeacon.address);
+    console.log("bridgeToken proxy address:", bridgeToken.address);
+
+    const updaterManagerName = getDeploymentName(`UpdaterManager`);
+    const updaterManager = await hre.deployments.deploy(updaterManagerName, {
+      contract: "UpdaterManager",
+      from: deployer.address,
+      args: [deployer.address],
+      skipIfAlreadyDeployed: true,
+      log: true,
+    });
+    console.log("updaterManager address: ", updaterManager.address);
+
+    const home = await deployNomadBeaconProxy("Home", [updaterManager.address], deployer, hre, [network.chainId]);
+    console.log("home address: ", home.address);
   }
-  let _deployer: any;
-  ({ deployer: _deployer } = await hre.ethers.getNamedSigners());
-  if (!_deployer) {
-    [_deployer] = await hre.ethers.getUnnamedSigners();
-  }
-  const deployer = _deployer as Wallet;
-  console.log("\n============================= Deploying Nomad Core ===============================");
-  console.log("deployer: ", deployer.address);
-
-  console.log("Turning on automine for the local EVM...");
-  await hre.network.provider.request({
-    method: "evm_setAutomine",
-    params: [true],
-  });
-
-  const bridgeToken = await deployNomadBeaconProxy("BridgeToken", [], deployer, hre);
-  const bridgeTokenBeacon = await hre.deployments.get(getDeploymentName(`BridgeTokenUpgradeBeacon`));
-  console.log("bridgeTokenBeacon address: ", bridgeTokenBeacon.address);
-  console.log("bridgeToken proxy address:", bridgeToken.address);
-
-  const updaterManagerName = getDeploymentName(`UpdaterManager`);
-  const updaterManager = await hre.deployments.deploy(updaterManagerName, {
-    contract: "UpdaterManager",
-    from: deployer.address,
-    args: [deployer.address],
-    skipIfAlreadyDeployed: true,
-    log: true,
-  });
-  console.log("updaterManager address: ", updaterManager.address);
-
-  const home = await deployNomadBeaconProxy("Home", [updaterManager.address], deployer, hre, [network.chainId]);
-  console.log("home address: ", home.address);
 };
 
 export default func;

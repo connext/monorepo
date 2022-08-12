@@ -46,12 +46,22 @@ contract MockXAppConnectionManager {
 }
 
 contract MockHome {
+  uint32 private domain;
+
+  constructor(uint32 _domain) {
+    domain = _domain;
+  }
+
   function dispatch(
     uint32 _destinationDomain,
     bytes32 _recipientAddress,
     bytes memory _messageBody
   ) external {
     1 == 1;
+  }
+
+  function localDomain() external returns (uint32) {
+    return domain;
   }
 }
 

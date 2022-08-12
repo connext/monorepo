@@ -40,6 +40,7 @@ import "./tasks/stableswap/initializeSwap";
 import "./tasks/stableswap/addSwapLiquidity";
 import "./tasks/stableswap/removeSwapLiquidity";
 import "./tasks/stableswap/setSwapFees";
+import "./tasks/setMirrorConnectors";
 
 const urlOverride = process.env.ETH_PROVIDER_URL;
 const chainId = parseInt(process.env.CHAIN_ID ?? "1337", 10);
@@ -144,6 +145,17 @@ const config: HardhatUserConfig = {
       accounts: { mnemonic },
       chainId: 69,
       url: "https://kovan.optimism.io",
+      companionNetworks: {
+        hub: "kovan",
+      },
+    },
+    "optimism-goerli": {
+      accounts: { mnemonic },
+      chainId: 420,
+      url: "https://optimism-goerli.infura.io/v3/7672e2bf7cbe427e8cd25b0f1dde65cf",
+      companionNetworks: {
+        hub: "goerli",
+      },
     },
     bsc: {
       accounts: { mnemonic },

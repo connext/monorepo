@@ -73,7 +73,7 @@ contract RootManager is ProposedOwnable, IRootManager {
   // ============ Admin fns ============
 
   /**
-   * @dev Owner can add a new connector
+   * @dev Owner can add a new connector. Address should be the connector on l1
    * NOTE: owner can add address(0) to effectively remove a connector
    */
   function addConnector(uint32 _domain, address _connector) external onlyOwner {

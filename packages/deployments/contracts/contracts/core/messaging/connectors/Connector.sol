@@ -116,7 +116,7 @@ abstract contract Connector is ProposedOwnable, MerkleTreeManager, ConnectorMana
    * @dev This is used for the `onlyWhitelistedSender` modifier, which gates who
    * can send messages using `dispatch`
    */
-  mapping(address => bool) whitelistedSenders;
+  mapping(address => bool) public whitelistedSenders;
 
   /**
    * @notice Gas costs forwarded to the `receiveRoot` call on the mirror domain.
@@ -187,8 +187,10 @@ abstract contract Connector is ProposedOwnable, MerkleTreeManager, ConnectorMana
 
     // Sanity checks.
     require(_domain > 0, "!domain");
-    require(_amb != address(0), "!amb");
+    // require(_amb != address(0), "!amb"); // May be address(0) if on mainnet
     require(_rootManager != address(0), "!rootManager");
+
+    _setOwner(msg.sender);
 
     DOMAIN = _domain;
     AMB = _amb;

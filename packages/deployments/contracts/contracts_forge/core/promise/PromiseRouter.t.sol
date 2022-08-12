@@ -43,7 +43,7 @@ contract PromiseRouterTest is ForgeHelper, PromiseRouter {
     PromiseRouter promiseRouterImpl = new PromiseRouter();
 
     // Deploy a mock home.
-    _xAppHome = address(new MockHome());
+    _xAppHome = address(new MockHome(_domain));
     // Deploy a mock xapp connection manager.
     _xAppConnectionManager = address(new MockXAppConnectionManager(MockHome(_xAppHome)));
 

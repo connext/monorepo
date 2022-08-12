@@ -30,7 +30,7 @@ export const PARAMETERS = {
     },
   },
   ASSET: {
-    address: "0x1411CB266FCEd1587b0AA29E9d5a9Ef3Db64A9C5",
+    address: "0x913bbCFea2f347a24cfCA441d483E7CBAc8De3Db",
     name: "TEST",
     symbol: "TEST",
   },
@@ -39,7 +39,7 @@ export const PARAMETERS = {
     CHAIN: 1337,
     RPC: ["http://localhost:8547"],
     DEPLOYMENTS: {
-      ConnextHandler: "0xF08dF3eFDD854FEDE77Ed3b2E515090EEe765154",
+      ConnextHandler: "0x8e4C131B37383E431B9cd0635D3cF9f3F628EDae",
       PromiseRouterUpgradeBeaconProxy: "0xB529f14AA8096f943177c09Ca294Ad66d2E08b1f",
       RelayerFeeRouterUpgradeBeaconProxy: "0xbaAA2a3237035A2c7fA2A33c76B44a8C6Fe18e87",
       BridgeRouterUpgradeBeaconProxy: "0xeec918d74c746167564401103096D45BbD494B74",
@@ -52,7 +52,7 @@ export const PARAMETERS = {
     CHAIN: 1338,
     RPC: ["http://localhost:8546"],
     DEPLOYMENTS: {
-      ConnextHandler: "0xF08dF3eFDD854FEDE77Ed3b2E515090EEe765154",
+      ConnextHandler: "0x8e4C131B37383E431B9cd0635D3cF9f3F628EDae",
       PromiseRouterUpgradeBeaconProxy: "0xB529f14AA8096f943177c09Ca294Ad66d2E08b1f",
       RelayerFeeRouterUpgradeBeaconProxy: "0xbaAA2a3237035A2c7fA2A33c76B44a8C6Fe18e87",
       BridgeRouterUpgradeBeaconProxy: "0xeec918d74c746167564401103096D45BbD494B74",

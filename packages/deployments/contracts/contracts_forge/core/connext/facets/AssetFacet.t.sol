@@ -40,8 +40,10 @@ contract AssetFacetTest is AssetFacet, FacetHelper {
   function setupAssetAndAssert(address asset, address pool) public {
     TokenId memory canonical = TokenId(_domain, _canonicalId);
 
+    vm.mockCall(_tokenRegistry, abi.encodeWithSelector(ITokenRegistry.getLocalAddress.selector), abi.encode(_local));
+
     vm.expectEmit(true, true, false, true);
-    emit AssetAdded(_canonicalKey, _canonicalId, _domain, asset, _owner);
+    emit AssetAdded(_canonicalKey, _canonicalId, _domain, asset, _local, _owner);
 
     vm.expectEmit(true, true, false, true);
     emit StableSwapAdded(_canonicalKey, _canonicalId, _domain, pool, _owner);

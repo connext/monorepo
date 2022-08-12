@@ -31,7 +31,6 @@
   "function renounceOwnership()",
   "function renounced() view returns (bool)",
   "function representationToCanonical(address) view returns (uint32, bytes32)",
-  "function setLocalDomain(uint32)",
   "function setXAppConnectionManager(address)",
   "function tokenBeacon() view returns (address)",
   "function xAppConnectionManager() view returns (address)"

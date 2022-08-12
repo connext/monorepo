@@ -624,11 +624,13 @@ export class NxtpSdkPool {
   }
 
   private calculateCanonicalHash(canonicalDomain: number, _canonicalId: string): string {
+    console.log("_canonicalId: ", _canonicalId);
+    console.log("canonicalDomain: ", canonicalDomain);
     const canonicalId = utils.hexlify(canonizeId(_canonicalId));
     const payload = utils.defaultAbiCoder.encode(
       ["tuple(bytes32 canonicalId,uint32 canonicalDomain)"],
       [{ canonicalId, canonicalDomain }],
     );
-    return utils.solidityKeccak256(["bytes32"], [payload]);
+    return utils.solidityKeccak256(["bytes"], [payload]);
   }
 }

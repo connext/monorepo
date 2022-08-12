@@ -103,8 +103,8 @@ describe("contracts", () => {
 
     it("should be same as test", async () => {
       let oracleContract = ContractFns.getDeployedPriceOracleContract(testChainId1);
-      expect(oracleContract.address).to.be.equal(testAddress);
-      expect(oracleContract.abi[0]).to.be.equal("fakeAbi()");
+      expect(oracleContract!.address).to.be.equal(testAddress);
+      expect(oracleContract!.abi[0]).to.be.equal("fakeAbi()");
     });
   });
 
@@ -124,7 +124,7 @@ describe("contracts", () => {
     beforeEach(() => {});
 
     it("happy", async () => {
-      expect(interfaceInstance.encodeFunctionData("admin")).to.be.equal("0xf851a440");
+      expect(interfaceInstance.encodeFunctionData("owner")).to.be.equal("0x8da5cb5b");
     });
   });
 

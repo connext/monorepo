@@ -47,10 +47,9 @@ contract RelayerFeeRouterTest is ForgeHelper {
 
   function setUp() public {
     connext = new MockConnext();
-    home = address(new MockHome());
+    home = address(new MockHome(localDomain));
     vm.mockCall(xAppConnectionManager, abi.encodeWithSignature("home()"), abi.encode(home));
     vm.mockCall(xAppConnectionManager, abi.encodeWithSignature("isReplica(address)"), abi.encode(bool(true)));
-    vm.mockCall(home, abi.encodeWithSignature("localDomain()"), abi.encode(localDomain));
 
     relayerFeeRouterImplementation = new RelayerFeeRouter();
 

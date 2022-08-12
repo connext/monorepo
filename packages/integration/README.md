@@ -168,7 +168,7 @@ TestERC20:  0x8065F4c7b8c2bf53561af92D9DA2Ea022A0b28Ca
 ============================= Deploying StableSwap ===============================
 deployer:  0x627306090abaB3A6e1400e9345bC60c78a8BEf57
 reusing "LPToken" at 0x13274Fe19C0178208bCbee397af8167A7be27f6f
-deploying "StableSwap" (tx: 0x1467c50c5ba73f3eb41567cf8c20b5c91c7280d390374df15b7926bbc386ada2)...: deployed at 0x1411CB266FCEd1587b0AA29E9d5a9Ef3Db64A9C5 with 5556729 gas
+deploying "StableSwap" (tx: 0x1467c50c5ba73f3eb41567cf8c20b5c91c7280d390374df15b7926bbc386ada2)...: deployed at 0x913bbCFea2f347a24cfCA441d483E7CBAc8De3Db with 5556729 gas
 Deployed contracts to 1337
 ```
 

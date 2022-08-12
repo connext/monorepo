@@ -150,14 +150,15 @@ contract ConnextTest is ForgeHelper, Deployer {
 
   function utils_deployNomad() public {
     // Deploy mock home
-    MockHome home = new MockHome();
+    MockHome originHome = new MockHome(_origin);
+    MockHome destinationHome = new MockHome(_destination);
     // Deploy origin XAppConnectionManager
     _originManager = new XAppConnectionManager();
     // Deploy destination XAppConnectionManager
     _destinationManager = new XAppConnectionManager();
     // set homes
-    _originManager.setHome(address(home));
-    _destinationManager.setHome(address(home));
+    _originManager.setHome(address(originHome));
+    _destinationManager.setHome(address(destinationHome));
 
     // Deploy token beacon
     address beacon = address(new TestERC20("Test Token", "TEST"));
@@ -176,9 +177,6 @@ contract ConnextTest is ForgeHelper, Deployer {
       abi.encodeWithSelector(TokenRegistry.initialize.selector, beacon, address(_destinationManager))
     );
     _destinationRegistry = TokenRegistry(address(destinationProxy));
-    // set local domains
-    _originRegistry.setLocalDomain(_origin);
-    _destinationRegistry.setLocalDomain(_destination);
 
     // deploy bridge routers
     _destinationBridgeRouter = address(new MockBridgeRouter());
