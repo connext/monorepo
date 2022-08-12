@@ -20,15 +20,15 @@ contract ConnectorManager {
     domain = _domain;
   }
 
-  function home() internal view returns (Connector) {
+  function home() public view returns (Connector) {
     return Connector(address(this));
   }
 
-  function isReplica(address _potentialReplica) internal view returns (bool) {
+  function isReplica(address _potentialReplica) public view returns (bool) {
     return _potentialReplica == address(this);
   }
 
-  function localDomain() internal view returns (uint32) {
+  function localDomain() public view returns (uint32) {
     return domain;
   }
 }
