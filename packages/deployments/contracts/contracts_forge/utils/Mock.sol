@@ -6,17 +6,26 @@ import {ERC20} from "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import {Address} from "@openzeppelin/contracts/utils/Address.sol";
 import {SafeERC20} from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 
+import {IRootManager} from "../../contracts/core/messaging/interfaces/IRootManager.sol";
+import {IConnector} from "../../contracts/core/messaging/interfaces/IConnector.sol";
+import {Connector} from "../../contracts/core/messaging/connectors/Connector.sol";
+import {RootManager} from "../../contracts/core/messaging/RootManager.sol";
+
 import {TypedMemView, PromiseMessage, PromiseRouter} from "../../contracts/core/promise/PromiseRouter.sol";
 import {ICallback} from "../../contracts/core/promise/interfaces/ICallback.sol";
+
 import {BaseConnextFacet} from "../../contracts/core/connext/facets/BaseConnextFacet.sol";
 import {IAavePool} from "../../contracts/core/connext/interfaces/IAavePool.sol";
 import {ISponsorVault} from "../../contracts/core/connext/interfaces/ISponsorVault.sol";
 import {ITokenRegistry} from "../../contracts/core/connext/interfaces/ITokenRegistry.sol";
 import {IBridgeRouter} from "../../contracts/core/connext/interfaces/IBridgeRouter.sol";
 import {IWeth} from "../../contracts/core/connext/interfaces/IWeth.sol";
-import {TestERC20} from "../../contracts/test/TestERC20.sol";
 import {IExecutor} from "../../contracts/core/connext/interfaces/IExecutor.sol";
 import {LibCrossDomainProperty} from "../../contracts/core/connext/libraries/LibCrossDomainProperty.sol";
+
+import {ProposedOwnable} from "../../contracts/core/shared/ProposedOwnable.sol";
+
+import {TestERC20} from "../../contracts/test/TestERC20.sol";
 
 import "forge-std/console.sol";
 
@@ -99,12 +108,29 @@ contract MockXApp {
 }
 
 contract MockRelayerFeeRouter {
+  uint32 public handledOrigin;
+  uint32 public handledNonce;
+  bytes32 public handledSender;
+  bytes public handledBody;
+
   function send(
     uint32 _domain,
     address _recipient,
     bytes32[] calldata _transactionIds
   ) external {
     1 == 1;
+  }
+
+  function handle(
+    uint32 origin,
+    uint32 nonce,
+    bytes32 sender,
+    bytes memory body
+  ) public {
+    handledOrigin = origin;
+    handledNonce = nonce;
+    handledSender = sender;
+    handledBody = body;
   }
 }
 
@@ -427,5 +453,64 @@ contract FeeERC20 is ERC20 {
     _burn(sender, fee);
     _transfer(sender, recipient, toTransfer);
     return true;
+  }
+}
+
+// ============ Messaging Mocks ============
+
+/**
+ * @notice This class mocks the connector functionality.
+ */
+contract MockConnector is Connector {
+  bytes32 public lastOutbound;
+  bytes32 public lastReceived;
+
+  bool public verified;
+
+  bool updatesAggregate;
+
+  constructor(
+    uint32 _domain,
+    uint32 _mirrorDomain,
+    address _amb,
+    address _rootManager,
+    address _mirrorConnector,
+    uint256 _mirrorProcessGas,
+    uint256 _processGas,
+    uint256 _reserveGas
+  )
+    ProposedOwnable()
+    Connector(_domain, _mirrorDomain, _amb, _rootManager, _mirrorConnector, _mirrorProcessGas, _processGas, _reserveGas)
+  {
+    _setOwner(msg.sender);
+    verified = true;
+  }
+
+  function setSenderVerified(bool _verified) public {
+    verified = _verified;
+  }
+
+  function setUpdatesAggregate(bool _updatesAggregate) public {
+    updatesAggregate = _updatesAggregate;
+  }
+
+  function _sendMessage(bytes memory _data) internal override {
+    lastOutbound = keccak256(_data);
+    emit MessageSent(_data, msg.sender);
+  }
+
+  function _processMessage(address _sender, bytes memory _data) internal override {
+    lastReceived = keccak256(abi.encode(_sender, _data));
+    if (updatesAggregate) {
+      // FIXME: when using this.update it sets caller to address(this) not AMB
+      aggregateRoot = bytes32(_data);
+    } else {
+      RootManager(ROOT_MANAGER).setOutboundRoot(mirrorDomain, bytes32(_data));
+    }
+    emit MessageProcessed(_sender, _data, msg.sender);
+  }
+
+  function _verifySender(address _expected) internal override returns (bool) {
+    return verified;
   }
 }

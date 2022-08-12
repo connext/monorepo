@@ -40,8 +40,6 @@ contract TokenRegistry is Initializable, XAppConnectionClient, ITokenRegistry {
   using TypedMemView for bytes29;
 
   // ============ Public Storage ============
-  uint32 private _local;
-
   // UpgradeBeacon from which new token proxies will get their implementation
   address public tokenBeacon;
   // local representation token address => token ID
@@ -66,10 +64,6 @@ contract TokenRegistry is Initializable, XAppConnectionClient, ITokenRegistry {
   event TokenDeployed(uint32 indexed domain, bytes32 indexed id, address indexed representation);
 
   // ======== Initializer =========
-  function setLocalDomain(uint32 domain) public {
-    _local = domain;
-  }
-
   function initialize(address _tokenBeacon, address _xAppConnectionManager) public initializer {
     tokenBeacon = _tokenBeacon;
     __XAppConnectionClient_initialize(_xAppConnectionManager);
@@ -342,7 +336,6 @@ contract TokenRegistry is Initializable, XAppConnectionClient, ITokenRegistry {
    * @return domain of chain on which the contract is deployed
    */
   function _localDomain() internal view override(XAppConnectionClient) returns (uint32) {
-    // return XAppConnectionClient._localDomain();
-    return _local;
+    return XAppConnectionClient._localDomain();
   }
 }
