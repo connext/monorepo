@@ -6,7 +6,6 @@ import hardhatConfig from "../hardhat.config";
 import { Env, getDeploymentName, mustGetEnv } from "../src/utils";
 import deploymentRecords from "../deployments.json";
 import { HUB_PREFIX, MESSAGING_PROTOCOL_CONFIGS, SPOKE_PREFIX } from "../deployConfig/shared";
-import { Connector } from "../src";
 
 type TaskArgs = {
   env?: Env;
@@ -95,7 +94,7 @@ export default task("set-mirror-connectors", "Add a remote router")
       const provider = new JsonRpcProvider(url as string, chain);
 
       // Create the connector contract
-      const connector = new Contract(address, abi, deployer.connect(provider)) as Connector;
+      const connector = new Contract(address, abi, deployer.connect(provider));
 
       // Check if mirror is set
       const set = await connector.mirrorConnector();
