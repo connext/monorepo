@@ -1,5 +1,5 @@
 import { constants } from "ethers";
-import { hexlify } from "ethers/lib/utils";
+import { hexlify, solidityKeccak256 } from "ethers/lib/utils";
 import { task } from "hardhat/config";
 
 import { canonizeId } from "../src/nomad";
@@ -51,16 +51,21 @@ export default task("setup-asset", "Configures an asset")
         id: hexlify(canonizeId(canonical)),
         domain: +domain,
       };
+      const key = solidityKeccak256(["bytes32", "uint32"], [canonicalTokenId.id, canonicalTokenId.domain]);
 
-      console.log("canonicalTokenId.id: ", canonicalTokenId.id);
-      const approved = await connext.approvedAssets(canonicalTokenId.id);
+      console.log("key: ", key);
+      const approved = await deployer.sendTransaction({
+        to: connext.address,
+        value: constants.Zero,
+        data: connext.interface.encodeFunctionData("approvedAssets(bytes32)", [key]),
+      });
       console.log("approved: ", approved);
       if (approved) {
         // check that the correct domain is set
         // check that the correct adopted asset is set
 
         // get the current adopted asset
-        const currentAdopted = await connext.canonicalToAdopted(canonicalTokenId.id);
+        const currentAdopted = await connext.canonicalToAdopted(key);
         console.log("currentAdopted: ", currentAdopted);
 
         // check that the correct domain is set
@@ -79,7 +84,7 @@ export default task("setup-asset", "Configures an asset")
         console.log(" - current adopted  :", currentAdopted);
         console.log(" - current canonical:", currentCanonical.id, "on", currentCanonical.domain.toString());
         console.log("removing asset and readding");
-        const remove = await connext.removeAssetId(canonicalTokenId.id, currentAdopted);
+        const remove = await connext.removeAssetId(key, currentAdopted);
         console.log("remove tx:", remove.hash);
         const receipt = await remove.wait();
         console.log("remove tx mined:", receipt.transactionHash);
@@ -90,7 +95,11 @@ export default task("setup-asset", "Configures an asset")
       const receipt = await tx.wait(1);
       console.log("setupAsset tx mined: ", receipt.transactionHash);
 
-      const isAssetApproved = await connext.approvedAssets(canonicalTokenId.id);
+      const isAssetApproved = await deployer.sendTransaction({
+        to: connext.address,
+        value: constants.Zero,
+        data: connext.interface.encodeFunctionData("approvedAssets(bytes32)", [key]),
+      });
       console.log("isAssetApproved: ", isAssetApproved);
     },
   );

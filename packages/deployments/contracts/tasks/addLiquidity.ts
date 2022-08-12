@@ -1,4 +1,5 @@
-import { BigNumberish, Contract, utils } from "ethers";
+import { BigNumberish, constants, Contract, utils } from "ethers";
+import { solidityKeccak256 } from "ethers/lib/utils";
 import { task } from "hardhat/config";
 
 import { Env, getDeploymentName, mustGetEnv } from "../src/utils";
@@ -87,8 +88,13 @@ export default task("add-liquidity", "Add liquidity for a router")
       const [domain, canonical] = await tokenRegistry.getTokenId(asset);
       console.log("domain: ", domain);
       console.log("canonical: ", canonical);
+      const key = solidityKeccak256(["bytes32", "uint32"], [canonical, domain]);
 
-      const approvedAsset = await connext.approvedAssets(canonical);
+      const approvedAsset = await deployer.sendTransaction({
+        to: connext.address,
+        value: constants.Zero,
+        data: connext.interface.encodeFunctionData("approvedAssets(bytes32)", [key]),
+      });
       console.log("approvedAsset: ", approvedAsset);
       if (!approvedAsset) {
         throw new Error("Asset not approved");

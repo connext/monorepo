@@ -7,7 +7,7 @@ import { Env, getDeploymentName, mustGetEnv } from "../src/utils";
 import deploymentRecords from "../deployments.json";
 
 type TaskArgs = {
-  type: "all" | "connext" | "promise" | "relayer";
+  type: "all" | "bridge" | "promise" | "relayer";
   chains: string; // 1,2,3..
   env?: Env;
 };
@@ -34,7 +34,11 @@ export default task("enroll-handlers", "Add a remote router")
     console.log("chains:", chains);
     console.log("deployer: ", deployer.address);
 
-    const names = ["ConnextHandler", "PromiseRouterUpgradeBeaconProxy", "RelayerFeeRouterUpgradeBeaconProxy"]
+    const names = [
+      "BridgeRouterUpgradeBeaconProxy",
+      "PromiseRouterUpgradeBeaconProxy",
+      "RelayerFeeRouterUpgradeBeaconProxy",
+    ]
       .filter((name) => {
         if (type === "all") {
           return true;
