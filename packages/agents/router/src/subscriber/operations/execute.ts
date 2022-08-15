@@ -6,7 +6,7 @@ import {
   OriginTransfer,
   RequestContext,
   formatUrl,
-  AuctionsApiPostBidReq,
+  ExecuteFastApiPostBidReq,
   getMinimumBidsCountForRound as _getMinimumBidsCountForRound,
 } from "@connext/nxtp-utils";
 import { BigNumber } from "ethers";
@@ -99,9 +99,9 @@ export const sendBid = async (bid: Bid, _requestContext: RequestContext): Promis
     bid: { ...bid, signatures: Object.keys(bid.signatures).join(",") },
   });
 
-  const url = formatUrl(sequencerUrl, "auctions");
+  const url = formatUrl(sequencerUrl, "execute-fast");
   try {
-    const response = await axios.post<any, AxiosResponse<any, any>, AuctionsApiPostBidReq>(url, bid);
+    const response = await axios.post<any, AxiosResponse<any, any>, ExecuteFastApiPostBidReq>(url, bid);
     // Make sure response.data is valid.
     if (!response || !response.data) {
       throw new SequencerResponseInvalid({ response });

@@ -23,19 +23,19 @@ export const SequencerApiErrorResponseSchema = Type.Object({
 });
 export type SequencerApiErrorResponse = Static<typeof SequencerApiErrorResponseSchema>;
 
-export const AuctionsApiPostBidReqSchema = BidSchema;
+export const ExecuteFastApiPostBidReqSchema = BidSchema;
 
-export type AuctionsApiPostBidReq = Static<typeof AuctionsApiPostBidReqSchema>;
+export type ExecuteFastApiPostBidReq = Static<typeof ExecuteFastApiPostBidReqSchema>;
 
-export const AuctionsApiBidResponseSchema = Type.Object({
+export const ExecuteFastApiBidResponseSchema = Type.Object({
   message: Type.String(),
   transferId: Type.String(),
   router: Type.String(),
   error: Type.Optional(NxtpErrorJsonSchema),
 });
-export type AuctionsApiBidResponse = Static<typeof AuctionsApiBidResponseSchema>;
+export type ExecuteFastApiBidResponse = Static<typeof ExecuteFastApiBidResponseSchema>;
 
-export const AuctionsApiGetAuctionsStatusResponseSchema = Type.Object({
+export const ExecuteFastApiGetAuctionsStatusResponseSchema = Type.Object({
   bids: Type.Record(Type.String(), BidSchema),
   status: Type.String(),
   attempts: Type.Optional(Type.Number()),
@@ -46,12 +46,12 @@ export const AuctionsApiGetAuctionsStatusResponseSchema = Type.Object({
   }),
 });
 
-export type AuctionsApiGetAuctionStatusResponse = Static<typeof AuctionsApiGetAuctionsStatusResponseSchema>;
+export type ExecuteFastApiGetAuctionStatusResponse = Static<typeof ExecuteFastApiGetAuctionsStatusResponseSchema>;
 
-export const AuctionsApiGetQueuedResponseSchema = Type.Object({
+export const ExecuteFastApiGetQueuedResponseSchema = Type.Object({
   queued: Type.Array(Type.String()),
 });
-export type AuctionsApiGetQueuedResponse = Static<typeof AuctionsApiGetQueuedResponseSchema>;
+export type ExecuteFastApiGetQueuedResponse = Static<typeof ExecuteFastApiGetQueuedResponseSchema>;
 
 export const LightHouseDataStatusRequestSchema = Type.Object({ transferId: Type.String() });
 export type LightHouseDataStatusRequest = Static<typeof LightHouseDataStatusRequestSchema>;

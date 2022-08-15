@@ -4,16 +4,16 @@ import {
   AuctionStatus,
   createLoggingContext,
   jsonifyError,
-  AuctionsApiPostBidReq,
-  AuctionsApiBidResponse,
-  AuctionsApiPostBidReqSchema,
-  AuctionsApiBidResponseSchema,
+  ExecuteFastApiPostBidReq,
+  ExecuteFastApiBidResponse,
+  ExecuteFastApiPostBidReqSchema,
+  ExecuteFastApiBidResponseSchema,
   SequencerApiErrorResponseSchema,
   SequencerApiErrorResponse,
-  AuctionsApiGetAuctionStatusResponse,
-  AuctionsApiGetAuctionsStatusResponseSchema,
-  AuctionsApiGetQueuedResponseSchema,
-  AuctionsApiGetQueuedResponse,
+  ExecuteFastApiGetAuctionStatusResponse,
+  ExecuteFastApiGetAuctionsStatusResponseSchema,
+  ExecuteFastApiGetQueuedResponseSchema,
+  ExecuteFastApiGetQueuedResponse,
   ClearCacheRequest,
   ClearCacheRequestSchema,
   AdminRequest,
@@ -46,13 +46,13 @@ export const bindServer = async (): Promise<FastifyInstance> => {
 
   server.get<{
     Params: { transferId: string };
-    Reply: AuctionsApiGetAuctionStatusResponse | SequencerApiErrorResponse;
+    Reply: ExecuteFastApiGetAuctionStatusResponse | SequencerApiErrorResponse;
   }>(
     "/execute-fast/:transferId",
     {
       schema: {
         response: {
-          200: AuctionsApiGetAuctionsStatusResponseSchema,
+          200: ExecuteFastApiGetAuctionsStatusResponseSchema,
           500: SequencerApiErrorResponseSchema,
         },
       },
@@ -91,13 +91,13 @@ export const bindServer = async (): Promise<FastifyInstance> => {
     },
   );
 
-  server.post<{ Body: AuctionsApiPostBidReq; Reply: AuctionsApiBidResponse | SequencerApiErrorResponse }>(
+  server.post<{ Body: ExecuteFastApiPostBidReq; Reply: ExecuteFastApiBidResponse | SequencerApiErrorResponse }>(
     "/execute-fast",
     {
       schema: {
-        body: AuctionsApiPostBidReqSchema,
+        body: ExecuteFastApiPostBidReqSchema,
         response: {
-          200: AuctionsApiBidResponseSchema,
+          200: ExecuteFastApiBidResponseSchema,
           500: SequencerApiErrorResponseSchema,
         },
       },
@@ -127,12 +127,12 @@ export const bindServer = async (): Promise<FastifyInstance> => {
     },
   );
 
-  server.get<{ Reply: AuctionsApiGetQueuedResponse | SequencerApiErrorResponse }>(
+  server.get<{ Reply: ExecuteFastApiGetQueuedResponse | SequencerApiErrorResponse }>(
     "/queued",
     {
       schema: {
         response: {
-          200: AuctionsApiGetQueuedResponseSchema,
+          200: ExecuteFastApiGetQueuedResponseSchema,
           500: SequencerApiErrorResponseSchema,
         },
       },

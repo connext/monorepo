@@ -1,5 +1,5 @@
 import { SinonStub, stub, restore, reset } from "sinon";
-import { AuctionsApiPostBidReq, AuctionStatus, expect, getRandomBytes32 } from "@connext/nxtp-utils";
+import { ExecuteFastApiPostBidReq, AuctionStatus, expect, getRandomBytes32 } from "@connext/nxtp-utils";
 import { FastifyInstance } from "fastify";
 
 import * as BindingFns from "../../../../src/bindings/publisher";
@@ -59,7 +59,7 @@ describe("Bindings:Server", () => {
     it("happy: should succeed to post a bid", async () => {
       storeBidStub.resolves();
       const bid = mock.entity.bid();
-      const data: AuctionsApiPostBidReq = bid;
+      const data: ExecuteFastApiPostBidReq = bid;
 
       const response = await fastifyApp.inject({
         method: "POST",
@@ -98,7 +98,7 @@ describe("Bindings:Server", () => {
     it("happy: should receive 500 error if handling the bid fails", async () => {
       storeBidStub.throws(new Error("Handling the bid failed!"));
       const bid = mock.entity.bid();
-      const data: AuctionsApiPostBidReq = bid;
+      const data: ExecuteFastApiPostBidReq = bid;
 
       const response = await fastifyApp.inject({
         method: "POST",

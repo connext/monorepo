@@ -11,7 +11,7 @@ import { RelayerConfig } from "@connext/nxtp-relayer/src/lib/entities/config";
 import { CartographerConfig } from "@connext/cartographer-poller/src/config";
 import {
   SequencerApiErrorResponse,
-  AuctionsApiGetAuctionStatusResponse,
+  ExecuteFastApiGetAuctionStatusResponse,
   delay,
   OriginTransfer,
   DestinationTransfer,
@@ -858,12 +858,12 @@ describe("TESTNET:E2E", () => {
           // Poll the sequencer a few times to see if we can get the auction status.
           // NOTE: This may be unsuccessful, but is good information to have for debugging if available.
           let error: any | undefined;
-          const status: AxiosResponse<AuctionsApiGetAuctionStatusResponse> | undefined = await pollSomething({
+          const status: AxiosResponse<ExecuteFastApiGetAuctionStatusResponse> | undefined = await pollSomething({
             attempts: Math.floor(60_000 / SUBG_POLL_PARITY),
             parity: SUBG_POLL_PARITY,
             method: async () => {
               return await axios
-                .request<AuctionsApiGetAuctionStatusResponse>({
+                .request<ExecuteFastApiGetAuctionStatusResponse>({
                   method: "get",
                   baseURL: `http://${sequencerConfig.server.host}:${sequencerConfig.server.port}`,
                   url: `/auctions/0xf8b72dd5eb4b330a736b8f336ae13f95a26f92774e2fe95e7b5236fda75f27ed`,

@@ -1,5 +1,5 @@
 import { SinonStub, stub, restore, reset } from "sinon";
-import { AuctionsApiPostBidReq, AuctionStatus, expect, getRandomBytes32 } from "@connext/nxtp-utils";
+import { ExecuteFastApiPostBidReq, AuctionStatus, expect, getRandomBytes32 } from "@connext/nxtp-utils";
 import { FastifyInstance } from "fastify";
 
 import * as BindingFns from "../../../../src/bindings/subscriber";
