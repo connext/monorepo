@@ -251,6 +251,8 @@ function getChainId(transactionManagerAddress: Address): BigInt {
     chainId = BigInt.fromI32(9001);
   } else if (network == "arbitrum-one") {
     chainId = BigInt.fromI32(42161);
+  } else if (network == "arbitrum-nova") {
+    chainId = BigInt.fromI32(42170);
   } else if (network == "fuji") {
     chainId = BigInt.fromI32(43113);
   } else if (network == "avalanche") {
