@@ -5,9 +5,6 @@ import { BigNumber, constants, Wallet } from "ethers";
 import { chainIdToDomain, getDeploymentName, mustGetEnv } from "../src";
 import { HUB_PREFIX, MessagingProtocolConfig, MESSAGING_PROTOCOL_CONFIGS, SPOKE_PREFIX } from "../deployConfig/shared";
 
-// TODO: Should be made a step in the deployment process.
-// Should replace the nomad steps.
-
 // Format the arguments for Connector contract constructor.
 const formatConnectorArgs = (
   protocol: MessagingProtocolConfig,
