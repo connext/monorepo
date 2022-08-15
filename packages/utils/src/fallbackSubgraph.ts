@@ -301,7 +301,7 @@ export class FallbackSubgraph<T> {
         Array.from(this.subgraphs.values()).every((subgraph) => !!(subgraph.client as any).GetBlockNumber);
 
       if (healthEndpointSupported) {
-        const chainHeadBlock = Math.max(...response!.data.map((item) => item.data.chainHeadBlock));
+        const chainHeadBlock = Math.max(...response!.data.map((item) => item.data?.chainHeadBlock ?? 0));
         // Parse the response, handle each subgraph in the response.
         response!.data.forEach((item: any) => {
           const info = item.data;
