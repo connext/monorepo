@@ -144,6 +144,8 @@ export const MESSAGING_PROTOCOL_CONFIGS: {
 /**
  * AMB information contained below is used for setting up the testbed environment in deployment step
  * 00_testDeployFork.ts in lieu of forking chains.
+ *
+ * NOTE: Information was gathered at block number 15348540 on Ethereum mainnet.
  */
 
 export type AMBContractInfo = {

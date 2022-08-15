@@ -8,7 +8,7 @@ const HUB_CHAIN = 1337;
 const ACCEPTABLE_TEST_CHAINS = [1337, 1338];
 
 /**
- * Hardhat task for deploying the AMB Messaging Layer contracts.
+ * Hardhat task for 'forking' existing AMB contracts using copied code and storage values.
  *
  * @param hre Hardhat environment to deploy to
  */
@@ -21,7 +21,6 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment): Promise<voi
 
   console.log("\n============================= Mainnet Fork: Testbed Setup ===============================");
 
-  // const infoFile = fs.readFileSync("../deployConfig/fork/OptimismAMB.json", "utf-8").toString();
   const contract: AMBContractInfo = +chain === HUB_CHAIN ? OPTIMISM_AMB.hub : OPTIMISM_AMB.spoke;
   console.log("Retrieved AMB info.");
 
