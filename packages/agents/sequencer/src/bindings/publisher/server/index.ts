@@ -48,7 +48,7 @@ export const bindServer = async (): Promise<FastifyInstance> => {
     Params: { transferId: string };
     Reply: AuctionsApiGetAuctionStatusResponse | SequencerApiErrorResponse;
   }>(
-    "/auctions/:transferId",
+    "/execute-fast/:transferId",
     {
       schema: {
         response: {
@@ -58,7 +58,7 @@ export const bindServer = async (): Promise<FastifyInstance> => {
       },
     },
     async (request, response) => {
-      const { requestContext, methodContext } = createLoggingContext("GET /auctions/:transferId endpoint");
+      const { requestContext, methodContext } = createLoggingContext("GET /execute-fast/:transferId endpoint");
       try {
         const { transferId } = request.params;
         const status = await cache.auctions.getStatus(transferId);
@@ -92,7 +92,7 @@ export const bindServer = async (): Promise<FastifyInstance> => {
   );
 
   server.post<{ Body: AuctionsApiPostBidReq; Reply: AuctionsApiBidResponse | SequencerApiErrorResponse }>(
-    "/auctions",
+    "/execute-fast",
     {
       schema: {
         body: AuctionsApiPostBidReqSchema,
@@ -107,7 +107,7 @@ export const bindServer = async (): Promise<FastifyInstance> => {
         auctions: { storeBid },
       } = getOperations();
       const { requestContext, methodContext } = createLoggingContext(
-        "POST /auctions/:transferId endpoint",
+        "POST /execute-fast/:transferId endpoint",
         undefined,
         "",
       );
@@ -150,7 +150,7 @@ export const bindServer = async (): Promise<FastifyInstance> => {
   );
 
   server.post<{ Body: LightHousePostDataRequest; Reply: LightHousePostDataResponse | SequencerApiErrorResponse }>(
-    "/lighthouses",
+    "/execute-slow",
     {
       schema: {
         body: LightHouseDataSchema,
@@ -161,7 +161,7 @@ export const bindServer = async (): Promise<FastifyInstance> => {
       },
     },
     async (request, response) => {
-      const { requestContext } = createLoggingContext("POST /lighthouses endpoint");
+      const { requestContext } = createLoggingContext("POST /execute-slow endpoint");
       const {
         lighthouse: { storeLightHouseData },
       } = getOperations();
@@ -179,7 +179,7 @@ export const bindServer = async (): Promise<FastifyInstance> => {
   );
 
   server.get<{ Body: LightHouseDataStatusRequest; Reply: LightHouseDataStatusResponse | SequencerApiErrorResponse }>(
-    "/lighthouses/:transferId",
+    "/execute-slow/:transferId",
     {
       schema: {
         body: LightHouseDataStatusRequestSchema,
