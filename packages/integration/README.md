@@ -31,8 +31,10 @@ In `setup.sh` there is a section that creates a `.env` file. Anything here such 
 
 ## Steps
 
+NOTE: As of the time of writing this, `yarn workspace @connext/nxtp-integration run setup` does not start the local chains properly. Please call the `setup.sh` directly, as shown here:
+
 ```sh
-yarn workspace @connext/nxtp-integration run setup
+./packages/integration/setup.sh
 yarn workspace @connext/nxtp-integration run test
 ```
 

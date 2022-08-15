@@ -63,7 +63,7 @@ LIGHTHOUSE_IMAGE=${lighthouse_image}
 
 ##### Local chains, graph nodes, and IPFS.
 echo "Starting 1337 and 1338 local chains..."
-docker compose -f ../../docker-compose.chains.yaml up -d --force-recreate
+docker compose -f ./docker-compose.chains.yaml up -d --force-recreate
 sleep 5
 #####
 
@@ -71,6 +71,8 @@ sleep 5
 echo "Deploying contracts to 1337..."
 MNEMONIC=${DEFAULT_MNEMONIC} ENV=production CHAIN_ID=1337 ETH_PROVIDER_URL=http://${LOCALHOST}:8547 yarn workspace @connext/nxtp-contracts hardhat deploy --network localhost --tags local
 echo "Deployed contracts to 1337"
+
+MNEMONIC="candy maple cake sugar pudding cream honey rich smooth crumble sweet treat" ENV=production CHAIN_ID=1337 ETH_PROVIDER_URL=http://localhost:8547 yarn workspace @connext/nxtp-contracts hardhat deploy --network localhost --tags local
 
 echo "Deploying contracts to 1338..."
 MNEMONIC=${DEFAULT_MNEMONIC} ENV=production CHAIN_ID=1338 ETH_PROVIDER_URL=http://${LOCALHOST}:8546 yarn workspace @connext/nxtp-contracts hardhat deploy --network localhost --tags local
@@ -96,6 +98,6 @@ echo "Deployed subgraph to 1338"
 
 ##### Off-Chain Agents
 echo "Starting services and off-chain agents..."
-docker compose -f ../../docker-compose.services.yaml up -d --force-recreate
+docker compose -f ./docker-compose.services.yaml up -d --force-recreate
 sleep 5
 #####
