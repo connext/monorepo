@@ -158,7 +158,7 @@ export const executeSlowPathData = async (
   } = getContext();
 
   const {
-    relayer: { sendLightHouseDataToRelayer },
+    relayer: { sendExecuteSlowToRelayer },
   } = getOperations();
 
   const { requestContext, methodContext } = createLoggingContext(storeLightHouseData.name, _requestContext);
@@ -190,7 +190,7 @@ export const executeSlowPathData = async (
     });
   }
 
-  const taskId = await sendLightHouseDataToRelayer(lighthouseData, requestContext);
+  const taskId = await sendExecuteSlowToRelayer(lighthouseData, requestContext);
   if (!taskId) {
     await cache.lighthousetxs.setLightHouseDataStatus(transferId, LightHouseDataStatus.Pending);
     await cache.lighthousetxs.upsertTask({ transferId, taskId });

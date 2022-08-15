@@ -172,7 +172,7 @@ export const mock = {
       executeAuction: stub(),
     },
     relayer: {
-      sendBidsToRelayer: stub(),
+      sendExecuteFastToRelayer: stub(),
     },
   },
 };

@@ -1,6 +1,6 @@
 import { storeBid, executeAuction } from "./auctions";
 import { executeSlowPathData, storeLightHouseData } from "./lighthouse";
-import { sendBidsToRelayer, sendLightHouseDataToRelayer } from "./relayer";
+import { sendExecuteFastToRelayer, sendExecuteSlowToRelayer } from "./relayer";
 
 export const getOperations = () => {
   return {
@@ -9,8 +9,8 @@ export const getOperations = () => {
       executeAuction,
     },
     relayer: {
-      sendBidsToRelayer,
-      sendLightHouseDataToRelayer,
+      sendExecuteFastToRelayer,
+      sendExecuteSlowToRelayer,
     },
     lighthouse: {
       storeLightHouseData,

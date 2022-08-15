@@ -6,12 +6,12 @@ import { getOperationsStub } from "../../globalTestHook";
 import { mock, stubContext, encodedDataMock, requestContext } from "../../mock";
 
 describe("Operations:Execute", () => {
-  let sendBidsToRelayerStub: SinonStub;
+  let sendExecuteFastToRelayerStub: SinonStub;
   let mockContext: any;
   beforeEach(() => {
-    sendBidsToRelayerStub = stub().resolves();
+    sendExecuteFastToRelayerStub = stub().resolves();
     getOperationsStub.returns({
-      sendBidsToRelayer: sendBidsToRelayerStub,
+      sendExecuteFastToRelayer: sendExecuteFastToRelayerStub,
     });
 
     mockContext = stubContext();
@@ -25,16 +25,16 @@ describe("Operations:Execute", () => {
       const executeArgs = { ...mock.entity.executeArgs(), local: 1 };
       const transferId = mkBytes32();
       await expect(execute(executeArgs, transferId, requestContext)).to.be.rejectedWith(Error);
-      expect(sendBidsToRelayerStub.callCount).to.be.eq(0);
+      expect(sendExecuteFastToRelayerStub.callCount).to.be.eq(0);
     });
     it("should send the payload to the relayer successfully!", async () => {
       const executeArgs = mock.entity.executeArgs();
       const transferId = mkBytes32();
       await execute(executeArgs, transferId, requestContext);
-      expect(sendBidsToRelayerStub.getCall(0).args[0]).to.be.deep.eq(executeArgs);
-      expect(sendBidsToRelayerStub.getCall(0).args[1]).to.be.deep.eq(encodedDataMock);
-      expect(sendBidsToRelayerStub.getCall(0).args[2]).to.be.deep.eq(transferId);
-      expect(sendBidsToRelayerStub.callCount).to.be.eq(1);
+      expect(sendExecuteFastToRelayerStub.getCall(0).args[0]).to.be.deep.eq(executeArgs);
+      expect(sendExecuteFastToRelayerStub.getCall(0).args[1]).to.be.deep.eq(encodedDataMock);
+      expect(sendExecuteFastToRelayerStub.getCall(0).args[2]).to.be.deep.eq(transferId);
+      expect(sendExecuteFastToRelayerStub.callCount).to.be.eq(1);
     });
   });
 });

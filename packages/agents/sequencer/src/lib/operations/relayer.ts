@@ -13,7 +13,7 @@ import { getContext } from "../../sequencer";
 import { getHelpers } from "../helpers";
 import { MissingTransfer } from "../errors";
 
-export const sendBidsToRelayer = async (
+export const sendExecuteFastToRelayer = async (
   round: number,
   bids: Bid[],
   transfer: OriginTransfer,
@@ -30,8 +30,8 @@ export const sendBidsToRelayer = async (
     auctions: { encodeExecuteFromBids },
   } = getHelpers();
 
-  const { requestContext, methodContext } = createLoggingContext(sendBidsToRelayer.name, _requestContext);
-  logger.debug(`Method start: ${sendBidsToRelayer.name}`, requestContext, methodContext, { transfer });
+  const { requestContext, methodContext } = createLoggingContext(sendExecuteFastToRelayer.name, _requestContext);
+  logger.debug(`Method start: ${sendExecuteFastToRelayer.name}`, requestContext, methodContext, { transfer });
 
   const originChainId = chainData.get(transfer.xparams.originDomain)!.chainId;
   const destinationChainId = chainData.get(transfer.xparams.destinationDomain)!.chainId;
@@ -106,7 +106,7 @@ export const sendBidsToRelayer = async (
   return taskId;
 };
 
-export const sendLightHouseDataToRelayer = async (
+export const sendExecuteSlowToRelayer = async (
   lighthouseData: LightHouseData,
   _requestContext: RequestContext,
 ): Promise<string> => {
@@ -117,7 +117,7 @@ export const sendLightHouseDataToRelayer = async (
     adapters: { chainreader, relayer, cache },
   } = getContext();
 
-  const { requestContext, methodContext } = createLoggingContext(sendLightHouseDataToRelayer.name, _requestContext);
+  const { requestContext, methodContext } = createLoggingContext(sendExecuteSlowToRelayer.name, _requestContext);
 
   const { transferId, relayerFee, encodedData } = lighthouseData;
   let transfer = await cache.transfers.getTransfer(transferId);
