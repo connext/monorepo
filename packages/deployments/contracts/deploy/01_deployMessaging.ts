@@ -168,22 +168,36 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment): Promise<voi
   console.log("deployer: ", deployer.address);
 
   const env = mustGetEnv();
-  console.log("env: ", env);
-  const network = env === "production" ? "mainnet" : env === "staging" ? "testnet" : "local";
+  const network =
+    // If chain 1337 or 1338, use local network.
+    chain === "1337" || chain === "1338"
+      ? "local"
+      : // 'production' env => eth mainnet
+      env === "production"
+      ? "mainnet"
+      : // 'staging' env => testnet
+      env === "staging"
+      ? "testnet"
+      : // Default to local otherwise.
+        "local";
+  console.log("Network: ", network, chain);
   const protocol = MESSAGING_PROTOCOL_CONFIGS[network];
 
   if (!protocol.configs[+chain] && +chain !== protocol.hub) {
-    throw new Error(`Network ${network} is not supported! (${chain})`);
+    throw new Error(`Network ${network} is not supported for chain ${chain}!`);
   }
 
   const isHub = chain === protocol.hub.toString();
 
   // Handle deployment for Connector(s) and RootManager, if applicable.
   if (isHub) {
-    console.log(`doing hub deployment`);
+    console.log("Deploying hub messaging contracts...");
     await handleDeployHub(hre, deployer, protocol);
   } else {
-    console.log(`doing spoke deployment`);
+    if (!hre.companionNetworks["hub"]) {
+      throw new Error(`Cannot handle deployments for Spoke chain ${chain}; hub deployments not found!`);
+    }
+    console.log("Deploying spoke messaging contracts...");
     if (!Object.keys(protocol.configs).includes(chain)) {
       throw new Error(`Invalid chain (${chain}) for deployment!`);
     }

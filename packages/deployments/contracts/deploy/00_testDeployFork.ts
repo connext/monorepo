@@ -2,6 +2,7 @@ import { HardhatRuntimeEnvironment } from "hardhat/types";
 import { DeployFunction } from "hardhat-deploy/types";
 
 const MAINNET_FORK_BLOCK = 15340000;
+const ACCEPTABLE_TEST_CHAINS = [1337, 1338];
 
 /**
  * Hardhat task for deploying the AMB Messaging Layer contracts.
@@ -10,10 +11,9 @@ const MAINNET_FORK_BLOCK = 15340000;
  */
 const func: DeployFunction = async (hre: HardhatRuntimeEnvironment): Promise<void> => {
   const chain = await hre.getChainId();
-  if (chain !== "1337" && chain !== "1338") {
-    throw new Error(
-      "Mainnet fork deployment step is only intended for local test environment!" + ` Invalid chain: ${chain}`,
-    );
+  if (!ACCEPTABLE_TEST_CHAINS.includes(+chain)) {
+    console.log(`Skipping mainnet fork deployment step for chain ${chain}: only intended for local test environment.`);
+    return;
   }
 
   console.log("\n============================= Mainnet Fork: Testbed Setup ===============================");
