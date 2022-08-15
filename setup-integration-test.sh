@@ -39,7 +39,7 @@ NXTP_CONFIG=config.local.json
 SEQ_CONFIG=config.local.json
 RELAYER_CONFIG=config.local.json
 
-NXTP_ENVIRONMENT=production
+NXTP_ENVIRONMENT=local
 NXTP_NOMAD_ENVIRONMENT=staging
 
 MNEMONIC=${DEFAULT_MNEMONIC}
@@ -71,11 +71,11 @@ sleep 5
 
 ##### Contract Deployments
 echo "Deploying contracts to 1337..."
-MNEMONIC=${DEFAULT_MNEMONIC} ENV=local CHAIN_ID=1337 ETH_PROVIDER_URL=http://${LOCALHOST}:8547 yarn workspace @connext/nxtp-contracts hardhat deploy --network localhost --tags local
+MNEMONIC=${DEFAULT_MNEMONIC} ENV=${NXTP_ENVIRONMENT} yarn workspace @connext/nxtp-contracts hardhat deploy --network localhost_1337 --reset --tags local
 echo "Deployed contracts to 1337"
 
 echo "Deploying contracts to 1338..."
-MNEMONIC=${DEFAULT_MNEMONIC} ENV=local CHAIN_ID=1338 ETH_PROVIDER_URL=http://${LOCALHOST}:8546 yarn workspace @connext/nxtp-contracts hardhat deploy --network localhost --tags local
+MNEMONIC=${DEFAULT_MNEMONIC} ENV=${NXTP_ENVIRONMENT} yarn workspace @connext/nxtp-contracts hardhat deploy --network localhost_1338 --reset --tags local
 echo "Deployed contracts to 1338"
 #####
 
