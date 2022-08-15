@@ -2,6 +2,10 @@
 
 ## Next Release
 
+## 0.1.40
+
+- [contracts] fix deployment
+
 ## 0.1.39
 
 - [contracts] deploy arbitrum nova
