@@ -45,7 +45,7 @@ export default task("setup-test-router", "Add router and test assets")
       const isAssetApproved = await txManager.approvedAssets(assetId);
       console.log("isAssetApproved: ", isAssetApproved);
       if (!isAssetApproved) {
-        await run("add-asset", { assetId, txManagerAddress });
+        await run("add-asset", { asset: assetId, txManagerAddress });
       }
       console.log("Asset approved");
 
