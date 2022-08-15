@@ -293,7 +293,11 @@ export class FallbackSubgraph<T> {
       // need to resort to getting the subgraph's synced block number directly and comparing it to
       // the chain's block number instead.
       const healthEndpointSupported =
-        response && response.data && response.data.length > 0 && !response.data.toString().includes("No subgraph for");
+        response &&
+        response.data &&
+        response.data.length > 0 &&
+        response?.data[0] !== null &&
+        !response.data.toString().includes("No subgraph for");
       // Check to make sure that the subgraphs do indeed have a GetBlockNumber method, if we need to
       // fall back to that.
       const getBlockNumberSupported =
@@ -301,7 +305,7 @@ export class FallbackSubgraph<T> {
         Array.from(this.subgraphs.values()).every((subgraph) => !!(subgraph.client as any).GetBlockNumber);
 
       if (healthEndpointSupported) {
-        const chainHeadBlock = Math.max(...response!.data.map((item) => item.data?.chainHeadBlock ?? 0));
+        const chainHeadBlock = Math.max(...response!.data.map((item) => item?.data?.chainHeadBlock ?? 0));
         // Parse the response, handle each subgraph in the response.
         response!.data.forEach((item: any) => {
           const info = item.data;
