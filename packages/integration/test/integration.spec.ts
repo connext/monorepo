@@ -220,7 +220,7 @@ describe("Integration", () => {
         receivingChainId: RECEIVING_CHAIN,
       });
     } catch (err) {
-      logger.error({ err: jsonifyError(err) }, "Error getting transfer quote");
+      logger.error({ err: jsonifyError(err as Error) }, "Error getting transfer quote");
       throw err;
     }
 
