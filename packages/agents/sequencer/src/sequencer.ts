@@ -124,9 +124,9 @@ export const execute = async (_configOverride?: SequencerConfig) => {
     context.adapters.contracts = getContractInterfaces();
     context.adapters.relayer = await setupRelayer();
 
-    if (messageType == MessageType.Auction) {
+    if (messageType == MessageType.ExecuteFast) {
       await executeAuction(transferId, requestContext);
-    } else if (messageType == MessageType.SlowPath) {
+    } else if (messageType == MessageType.ExecuteSlow) {
       await executeSlowPathData(transferId, messageType, requestContext);
     }
 

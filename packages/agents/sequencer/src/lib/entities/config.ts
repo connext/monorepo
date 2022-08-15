@@ -114,8 +114,8 @@ export const SequencerConfigSchema = Type.Object({
 export type SequencerConfig = Static<typeof SequencerConfigSchema>;
 
 export enum MessageType {
-  Auction = "Auction",
-  SlowPath = "SlowPath",
+  ExecuteFast = "ExecuteFast",
+  ExecuteSlow = "ExecuteSlow",
 }
 
 export const messageSchema = Type.Object({

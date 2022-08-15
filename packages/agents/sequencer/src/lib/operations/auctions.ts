@@ -103,7 +103,7 @@ export const storeBid = async (bid: Bid, _requestContext: RequestContext): Promi
     const message: Message = {
       transferId: transfer.transferId,
       originDomain: transfer.xparams!.originDomain,
-      type: MessageType.Auction,
+      type: MessageType.ExecuteFast,
     };
 
     await mqClient.publish(config.messageQueue.publisher!, {

@@ -128,7 +128,7 @@ export const storeLightHouseData = async (
   const message: Message = {
     transferId: transfer.transferId,
     originDomain: transfer.xparams!.originDomain,
-    type: MessageType.SlowPath,
+    type: MessageType.ExecuteSlow,
   };
 
   await mqClient.publish(config.messageQueue.publisher!, {
