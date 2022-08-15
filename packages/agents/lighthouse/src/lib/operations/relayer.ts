@@ -11,7 +11,7 @@ import {
 import { getContext } from "../../lighthouse";
 import { getHelpers } from "../helpers";
 
-export const sendExecuteFastToRelayer = async (
+export const sendExecuteFastToSequencer = async (
   args: ExecuteArgs,
   encodedData: string,
   transferId: string,
@@ -28,8 +28,8 @@ export const sendExecuteFastToRelayer = async (
     relayer: { getGelatoRelayerAddress, connextRelayerSend },
   } = getHelpers();
 
-  const { requestContext, methodContext } = createLoggingContext(sendExecuteFastToRelayer.name, _requestContext);
-  logger.debug(`Method start: ${sendExecuteFastToRelayer.name}`, requestContext, methodContext, { args });
+  const { requestContext, methodContext } = createLoggingContext(sendExecuteFastToSequencer.name, _requestContext);
+  logger.debug(`Method start: ${sendExecuteFastToSequencer.name}`, requestContext, methodContext, { args });
 
   const originChainId = await getChainIdFromDomain(args.params.originDomain, chainData);
   const destinationChainId = await getChainIdFromDomain(args.params.destinationDomain, chainData);
