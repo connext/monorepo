@@ -64,7 +64,7 @@ const networks: string[] = [
   // "moonbeam",
   // "optimism",
   // "bsc",
-  "xdai",
+  // "xdai",
   // "fuse",
   // "matic",
   // "ftm",
@@ -77,10 +77,11 @@ const networks: string[] = [
   // "boba",
   // "cronos",
   // "evmos",
+  "arbitrum-nova",
 ];
 
-const routers = ["0x95829C9ACFeCaeC0EE594a377311b0937C4A2882"];
-// const routers = allRouters;
+// const routers = ["0x95829C9ACFeCaeC0EE594a377311b0937C4A2882"];
+const routers = allRouters;
 
 const run = async () => {
   if (routers.length === 0) {

@@ -17,7 +17,7 @@ const decimals: Record<string, number> = {};
 
 const TESTNET_CHAINS = [421611, 97, 43113, 5, 42, 80001, 4, 3, 1287, 2221];
 
-const MAINNET_CHAINS = [1, 10, 56, 100, 137, 250, 288, 1284, 1285, 2001, 42161, 43114, 192837465, 1666600000];
+const MAINNET_CHAINS = [1, 10, 56, 100, 137, 250, 288, 1284, 1285, 2001, 42161, 42170, 43114, 192837465, 1666600000];
 
 /**
  * Gets hosted subgraph for applicable chains
@@ -97,6 +97,8 @@ const getDeployedSubgraphUri = (chainId: number, chainData?: Map<string, ChainDa
         "https://connext.bwarelabs.com/subgraphs/name/connext/nxtp-arbitrum-one-v1-runtime",
         "https://api.thegraph.com/subgraphs/name/connext/nxtp-arbitrum-one-v1-runtime",
       ];
+    case 42170:
+      return ["https://connext.bwarelabs.com/subgraphs/name/connext/nxtp-arbitrum-nova-v1-runtime"];
     case 43114:
       return [
         "https://connext.bwarelabs.com/subgraphs/name/connext/nxtp-avalanche-v1-runtime",
