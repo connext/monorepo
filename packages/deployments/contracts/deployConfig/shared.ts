@@ -48,7 +48,7 @@ export const MESSAGING_PROTOCOL_CONFIGS: {
         reserveGas: DEFAULT_RESERVE_GAS,
       },
       1338: {
-        prefix: "Mainnet",
+        prefix: "Optimism",
         ambs: {
           hub: constants.AddressZero,
           spoke: constants.AddressZero,
