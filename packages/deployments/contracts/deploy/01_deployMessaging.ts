@@ -171,6 +171,7 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment): Promise<voi
   console.log("deployer: ", deployer.address);
 
   const env = mustGetEnv();
+  console.log("env: ", env);
   const network = env === "production" ? "mainnet" : env === "staging" ? "testnet" : "local";
   const protocol = MESSAGING_PROTOCOL_CONFIGS[network];
 

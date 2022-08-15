@@ -38,7 +38,24 @@ export const MESSAGING_PROTOCOL_CONFIGS: {
   local: {
     hub: 1337,
     configs: {
-      // TODO: Configs for 1337, 1338
+      1337: {
+        prefix: "Mainnet",
+        ambs: {
+          hub: constants.AddressZero,
+          spoke: constants.AddressZero,
+        },
+        processGas: DEFAULT_PROCESS_GAS,
+        reserveGas: DEFAULT_RESERVE_GAS,
+      },
+      1338: {
+        prefix: "Mainnet",
+        ambs: {
+          hub: constants.AddressZero,
+          spoke: constants.AddressZero,
+        },
+        processGas: DEFAULT_PROCESS_GAS,
+        reserveGas: DEFAULT_RESERVE_GAS,
+      },
     },
   },
   testnet: {

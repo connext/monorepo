@@ -2,11 +2,11 @@ import { config } from "dotenv";
 import { HardhatRuntimeEnvironment } from "hardhat/types";
 config();
 
-export type Env = "staging" | "production";
+export type Env = "staging" | "production" | "local";
 
 export const mustGetEnv = (_env?: string) => {
   const env = _env ?? process.env.ENV ?? "staging";
-  if (env !== "staging" && env !== "production") {
+  if (env !== "staging" && env !== "production" && env !== "local") {
     throw new Error(`Unrecognized env: ${env}`);
   }
   return env;
