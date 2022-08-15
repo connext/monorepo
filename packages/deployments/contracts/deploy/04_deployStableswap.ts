@@ -1,6 +1,7 @@
 import { HardhatRuntimeEnvironment } from "hardhat/types";
 import { DeployFunction } from "hardhat-deploy/types";
 import { Wallet } from "ethers";
+
 import { getDeploymentName } from "../src";
 
 const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
