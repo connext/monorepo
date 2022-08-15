@@ -43,8 +43,8 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment): Promise<voi
     }
     // Index has to be in hex string.
     let index = BigNumber.from(i).toHexString();
-    // For some reason 0 index has to be '0x0'...
-    index = index === "0x00" ? "0x0" : index;
+    // For some reason 1-digit index has to be '0x0', '0x1',...
+    index = index.length === 4 && index.startsWith("0x0") ? "0x" + index[3] : index;
     const success = await hre.network.provider.request({
       method: "hardhat_setStorageAt",
       params: [contract.address, index, value],
