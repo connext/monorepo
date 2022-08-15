@@ -2,7 +2,7 @@ import { HardhatRuntimeEnvironment } from "hardhat/types";
 import { DeployFunction, DeployResult } from "hardhat-deploy/types";
 import { BigNumber, constants, Wallet } from "ethers";
 
-import { chainIdToDomain, getDeploymentName, mustGetEnv } from "../src";
+import { chainIdToDomain, getDeploymentName, getProtocolNetwork } from "../src";
 import { HUB_PREFIX, MessagingProtocolConfig, MESSAGING_PROTOCOL_CONFIGS, SPOKE_PREFIX } from "../deployConfig/shared";
 
 // Format the arguments for Connector contract constructor.
@@ -167,19 +167,7 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment): Promise<voi
   console.log("\n============================= Deploying Messaging Contracts ===============================");
   console.log("deployer: ", deployer.address);
 
-  const env = mustGetEnv();
-  const network =
-    // If chain 1337 or 1338, use local network.
-    chain === "1337" || chain === "1338"
-      ? "local"
-      : // 'production' env => eth mainnet
-      env === "production"
-      ? "mainnet"
-      : // 'staging' env => testnet
-      env === "staging"
-      ? "testnet"
-      : // Default to local otherwise.
-        "local";
+  const network = getProtocolNetwork(chain);
   console.log("Network: ", network, chain);
   const protocol = MESSAGING_PROTOCOL_CONFIGS[network];
 

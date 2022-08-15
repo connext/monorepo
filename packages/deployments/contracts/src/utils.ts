@@ -12,6 +12,22 @@ export const mustGetEnv = (_env?: string) => {
   return env;
 };
 
+export const getProtocolNetwork = (_chain: string | number, _env?: string): "mainnet" | "testnet" | "local" => {
+  const chain = _chain.toString();
+  const env = _env ?? mustGetEnv();
+  // If chain 1337 or 1338, use local network.
+  return chain === "1337" || chain === "1338"
+    ? "local"
+    : // 'production' env => eth mainnet
+    env === "production"
+    ? "mainnet"
+    : // 'staging' env => testnet
+    env === "staging"
+    ? "testnet"
+    : // Default to local otherwise.
+      "local";
+};
+
 // These contracts do not have a `Staging` deployment
 const NON_STAGING_CONTRACTS = ["TestERC20", "TestWETH", "LPToken"];
 

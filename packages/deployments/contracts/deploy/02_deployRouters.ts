@@ -2,7 +2,7 @@ import { HardhatRuntimeEnvironment } from "hardhat/types";
 import { DeployFunction } from "hardhat-deploy/types";
 import { BigNumber, Contract, Signer, Wallet } from "ethers";
 
-import { getDeploymentName, mustGetEnv } from "../src/utils";
+import { getDeploymentName, getProtocolNetwork } from "../src/utils";
 import { HUB_PREFIX, MESSAGING_PROTOCOL_CONFIGS, SPOKE_PREFIX } from "../deployConfig/shared";
 import { deployConfigs } from "../deployConfig";
 
@@ -134,8 +134,7 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment): Promise<voi
 
   const chainId = +(await hre.getChainId());
 
-  const env = mustGetEnv();
-  const network = env === "production" ? "mainnet" : env === "staging" ? "testnet" : "local";
+  const network = getProtocolNetwork(chainId);
   const protocol = MESSAGING_PROTOCOL_CONFIGS[network];
 
   if (!protocol.configs[protocol.hub]) {
