@@ -8,6 +8,7 @@ export const addRelayer = async (
 ) => {
   const requestContext = createRequestContext(addRelayer.name);
   for (const domain of domains) {
+    console.log("domain: ", domain);
     const relayerApprovedData = ConnextHandlerInterface.encodeFunctionData("approvedRelayers", [domain.relayer]);
     const encoded = await txService.readTx({
       chainId: +domain.domain,

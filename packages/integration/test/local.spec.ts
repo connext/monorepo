@@ -20,7 +20,7 @@ import { pollSomething } from "./helpers/shared";
 import { enrollHandlers, enrollCustom, setupRouter, setupAsset, addLiquidity, addRelayer } from "./helpers/local";
 import { DEPLOYER_WALLET, PARAMETERS, SUBG_POLL_PARITY, USER_WALLET } from "./constants/local";
 
-const logger = new Logger({ name: "e2e" });
+export const logger = new Logger({ name: "e2e" });
 
 const deployerTxService = new TransactionService(
   logger,
@@ -303,7 +303,7 @@ const onchainSetup = async (sdkBase: NxtpSdkBase) => {
       {
         domain: PARAMETERS.B.DOMAIN,
         relayer: PARAMETERS.AGENTS.RELAYER.address,
-        ConnextHandler: PARAMETERS.A.DEPLOYMENTS.ConnextHandler,
+        ConnextHandler: PARAMETERS.B.DEPLOYMENTS.ConnextHandler,
       },
     ],
     deployerTxService,

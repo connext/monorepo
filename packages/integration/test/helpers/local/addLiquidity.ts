@@ -1,21 +1,22 @@
-import { createRequestContext } from "@connext/nxtp-utils";
+import { createLoggingContext } from "@connext/nxtp-utils";
 import { ConnextHandlerInterface } from "@connext/nxtp-contracts";
 import { getErc20Interface, TransactionService } from "@connext/nxtp-txservice";
 import { BigNumber } from "ethers";
+
+import { logger } from "../../local.spec";
 
 export const addLiquidity = async (
   domains: { domain: string; router: string; asset: string; amount: string; ConnextHandler: string }[],
   txService: TransactionService,
 ) => {
-  const requestContext = createRequestContext(addLiquidity.name);
+  const { requestContext, methodContext } = createLoggingContext(addLiquidity.name);
   for (const domain of domains) {
+    logger.info("addLiquidity", requestContext, methodContext, { domain });
     const allowanceData = getErc20Interface().encodeFunctionData("allowance", [domain.router, domain.ConnextHandler]);
     const encoded = await txService.readTx({ chainId: +domain.domain, data: allowanceData, to: domain.asset });
     const [allowance] = getErc20Interface().decodeFunctionResult("allowance", encoded);
 
     if (BigNumber.from(allowance.toString()).lt(domain.amount)) {
-      console.log("approval tx");
-
       const approveData = getErc20Interface().encodeFunctionData("approve", [domain.ConnextHandler, domain.amount]);
       await txService.sendTx(
         { chainId: +domain.domain, to: domain.asset, data: approveData, value: 0 },
@@ -28,7 +29,7 @@ export const addLiquidity = async (
       domain.asset,
       domain.router,
     ]);
-    console.log("addLiquidity", addLiquidityData);
+
     await txService.sendTx(
       {
         chainId: +domain.domain,
