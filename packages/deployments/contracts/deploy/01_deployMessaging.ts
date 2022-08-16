@@ -2,11 +2,8 @@ import { HardhatRuntimeEnvironment } from "hardhat/types";
 import { DeployFunction, DeployResult } from "hardhat-deploy/types";
 import { BigNumber, constants, Wallet } from "ethers";
 
-import { chainIdToDomain, getDeploymentName, mustGetEnv } from "../src";
+import { chainIdToDomain, getDeploymentName, getProtocolNetwork } from "../src";
 import { HUB_PREFIX, MessagingProtocolConfig, MESSAGING_PROTOCOL_CONFIGS, SPOKE_PREFIX } from "../deployConfig/shared";
-
-// TODO: Should be made a step in the deployment process.
-// Should replace the nomad steps.
 
 // Format the arguments for Connector contract constructor.
 const formatConnectorArgs = (
@@ -170,22 +167,25 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment): Promise<voi
   console.log("\n============================= Deploying Messaging Contracts ===============================");
   console.log("deployer: ", deployer.address);
 
-  const env = mustGetEnv();
-  const network = env === "production" ? "mainnet" : env === "staging" ? "testnet" : "local";
+  const network = getProtocolNetwork(chain);
+  console.log("Network: ", network, chain);
   const protocol = MESSAGING_PROTOCOL_CONFIGS[network];
 
   if (!protocol.configs[+chain] && +chain !== protocol.hub) {
-    throw new Error(`Network ${network} is not supported! (${chain})`);
+    throw new Error(`Network ${network} is not supported for chain ${chain}!`);
   }
 
   const isHub = chain === protocol.hub.toString();
 
   // Handle deployment for Connector(s) and RootManager, if applicable.
   if (isHub) {
-    console.log(`doing hub deployment`);
+    console.log("Deploying hub messaging contracts...");
     await handleDeployHub(hre, deployer, protocol);
   } else {
-    console.log(`doing spoke deployment`);
+    if (!hre.companionNetworks["hub"]) {
+      throw new Error(`Cannot handle deployments for Spoke chain ${chain}; hub deployments not found!`);
+    }
+    console.log("Deploying spoke messaging contracts...");
     if (!Object.keys(protocol.configs).includes(chain)) {
       throw new Error(`Invalid chain (${chain}) for deployment!`);
     }

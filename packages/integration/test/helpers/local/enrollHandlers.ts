@@ -6,6 +6,7 @@ import Router from "@connext/nxtp-contracts/artifacts/contracts/core/shared/Rout
 
 export const enrollHandlers = async (
   handlers: {
+    chain: number;
     domain: string;
     BridgeRouterUpgradeBeaconProxy: string;
     PromiseRouterUpgradeBeaconProxy: string;
@@ -27,18 +28,18 @@ export const enrollHandlers = async (
         const registeredData = RouterInterface.encodeFunctionData("remotes", [otherHandler.domain]);
         console.log("Reading remotes for", handlerName, handler.domain, ">", otherHandler.domain);
         const encoded = await txService.readTx({
-          chainId: +handler.domain,
+          chainId: handler.chain,
           data: registeredData,
           to: (handler as any)[handlerName],
         });
-
         const [remote] = RouterInterface.decodeFunctionResult("remotes", encoded);
+
         // check if already registered
         if (remote !== canonized) {
           const data = RouterInterface.encodeFunctionData("enrollRemoteRouter", [otherHandler.domain, canonized]);
 
           await txService.sendTx(
-            { chainId: +handler.domain, to: (handler as any)[handlerName], data, value: 0 },
+            { chainId: handler.chain, to: (handler as any)[handlerName], data, value: 0 },
             requestContext,
           );
         }

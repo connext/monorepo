@@ -23,6 +23,7 @@ import "./tasks/proposeTransferOwnership";
 import "./tasks/setAggregator";
 import "./tasks/setDexPrice";
 import "./tasks/setDirectPrice";
+import "./tasks/debugCustomError";
 import "./tasks/decodeInputData";
 import "./tasks/removeRouter";
 import "./tasks/enrollHandlers";
@@ -99,16 +100,19 @@ const config: HardhatUserConfig = {
     local_1337: {
       accounts: { mnemonic },
       chainId: 1337,
-      url: urlOverride || "http://localhost:8545",
-      saveDeployments: false,
+      url: "http://localhost:8547",
+      saveDeployments: true,
       allowUnlimitedContractSize: true,
     },
     local_1338: {
       accounts: { mnemonic },
       chainId: 1338,
-      url: urlOverride || "http://localhost:8546",
-      saveDeployments: false,
+      url: "http://localhost:8546",
+      saveDeployments: true,
       allowUnlimitedContractSize: true,
+      companionNetworks: {
+        hub: "local_1337",
+      },
     },
     mainnet: {
       accounts: { mnemonic },

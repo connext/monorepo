@@ -4,7 +4,7 @@ import { Contract, Wallet } from "ethers";
 import { ethers } from "hardhat";
 
 import { SKIP_SETUP } from "../src/constants";
-import { getDeploymentName, mustGetEnv } from "../src/utils";
+import { getDeploymentName, getProtocolNetwork } from "../src/utils";
 import { chainIdToDomain } from "../src/nomad";
 import { deployConfigs } from "../deployConfig";
 import { MESSAGING_PROTOCOL_CONFIGS, HUB_PREFIX, SPOKE_PREFIX } from "../deployConfig/shared";
@@ -57,8 +57,7 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment): Promise<voi
 
   const deployConfig = deployConfigs[chainId];
   // Get connector manager
-  const env = mustGetEnv();
-  const messagingNetwork = env === "production" ? "mainnet" : env === "staging" ? "testnet" : "local";
+  const messagingNetwork = getProtocolNetwork(chainId);
   const protocol = MESSAGING_PROTOCOL_CONFIGS[messagingNetwork];
 
   if (!protocol.configs[protocol.hub]) {

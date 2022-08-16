@@ -61,7 +61,7 @@ export default task("set-mirror-connectors", "Add a remote router")
     console.log(`names of connectors to setup mirrors for:`, connectors);
 
     const getAddressAndAbi = (name: string, chain: number): { address: string; abi: ContractInterface } => {
-      const [record] = (deploymentRecords as any)[chain];
+      const [record] = (deploymentRecords as any)[chain.toString()] ?? [undefined];
       if (!record) {
         throw new Error(`Deployment records not found for ${chain}`);
       }
