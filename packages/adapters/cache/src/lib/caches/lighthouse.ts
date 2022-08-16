@@ -39,16 +39,33 @@ export class LightHouseCache extends Cache {
   /**
    * Stores lighthouse data to the backup store.
    * @param params - The lighthouse data you're gonna store
-   * @returns 1 if added, 0 if updated.
+   * @returns 2 if skipped, 1 if added, 0 if updated.
    */
-  public async storeBackupData(params: LightHouseData): Promise<number> {}
+  public async storeBackupData(params: LightHouseData): Promise<number> {
+    const rawData = JSON.stringify(params);
+    const currentPending = await this.getBackupData(params.transferId);
+    const convertedPendings = currentPending.map((pending) => JSON.stringify(pending));
+
+    if (convertedPendings.indexOf(rawData) === -1) {
+      return await this.data.hset(
+        `${this.prefix}:backup`,
+        params.transferId,
+        JSON.stringify([...currentPending, params]),
+      );
+    } else {
+      // We don't need to store the exact lighthouse data in the backup cache
+      return 2;
+    }
+  }
 
   /**
    * Gets all the lighthouse data from the backup store for a given transfer id
    * @param transferId - The transfer id
    * @returns The array of lighthouse data.
    */
-  public async getBackupData(transferId: string): Promise<LightHouseData[] | undefined> {}
+  public async getBackupData(transferId: string): Promise<LightHouseData[]> {
+    return JSON.parse((await this.data.hget(`${this.prefix}:backup`, transferId)) ?? "[]");
+  }
 
   /// MARK - LightHouse Tx Status
   /**
