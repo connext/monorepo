@@ -1,14 +1,15 @@
-import { createRequestContext } from "@connext/nxtp-utils";
+import { createLoggingContext, Logger } from "@connext/nxtp-utils";
 import { ConnextHandlerInterface } from "@connext/nxtp-contracts";
 import { TransactionService } from "@connext/nxtp-txservice";
 
 export const addRelayer = async (
   domains: { domain: string; relayer: string; ConnextHandler: string }[],
   txService: TransactionService,
+  logger: Logger,
 ) => {
-  const requestContext = createRequestContext(addRelayer.name);
+  const { requestContext, methodContext } = createLoggingContext(addRelayer.name);
   for (const domain of domains) {
-    console.log("domain: ", domain);
+    logger.info("addRelayer ", requestContext, methodContext, { domain });
     const relayerApprovedData = ConnextHandlerInterface.encodeFunctionData("approvedRelayers", [domain.relayer]);
     const encoded = await txService.readTx({
       chainId: +domain.domain,
@@ -16,9 +17,9 @@ export const addRelayer = async (
       to: domain.ConnextHandler,
     });
     const [isApproved] = ConnextHandlerInterface.decodeFunctionResult("approvedRelayers", encoded);
-    console.log({ isApproved });
+    logger.info("Check approved", requestContext, methodContext, { isApproved });
     if (!isApproved) {
-      console.log(`Adding a relayer: ${domain.relayer}`);
+      logger.info(`Adding a relayer`, requestContext, methodContext, { relayer: domain.relayer });
       const approveRelayerData = ConnextHandlerInterface.encodeFunctionData("addRelayer", [domain.relayer]);
       await txService.sendTx(
         {
@@ -30,7 +31,7 @@ export const addRelayer = async (
         requestContext,
       );
     } else {
-      console.log("Already added. Skipping");
+      logger.info("Already added. Skipping", requestContext, methodContext);
     }
   }
 };
