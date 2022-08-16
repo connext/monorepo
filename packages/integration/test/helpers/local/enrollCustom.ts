@@ -12,7 +12,7 @@ export const enrollCustom = async (
   const canonicalId = utils.hexlify(canonizeId(canonicalToken.tokenAddress));
   await Promise.all(
     otherTokens.map(async (token) => {
-      console.log(canonicalToken.domain, canonicalId);
+      console.log("enrollCustom: ", canonicalToken.domain, canonicalId);
       const readData = TokenRegistryInterface.encodeFunctionData("getLocalAddress", [
         +canonicalToken.domain,
         canonicalId,
