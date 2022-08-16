@@ -1,13 +1,12 @@
-import { createLoggingContext } from "@connext/nxtp-utils";
+import { createLoggingContext, Logger } from "@connext/nxtp-utils";
 import { ConnextHandlerInterface } from "@connext/nxtp-contracts";
 import { getErc20Interface, TransactionService } from "@connext/nxtp-txservice";
 import { BigNumber } from "ethers";
 
-import { logger } from "../../local.spec";
-
 export const addLiquidity = async (
   domains: { domain: string; router: string; asset: string; amount: string; ConnextHandler: string }[],
   txService: TransactionService,
+  logger: Logger,
 ) => {
   const { requestContext, methodContext } = createLoggingContext(addLiquidity.name);
   for (const domain of domains) {

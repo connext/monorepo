@@ -267,6 +267,7 @@ const onchainSetup = async (sdkBase: NxtpSdkBase) => {
       },
     ],
     deployerTxService,
+    logger,
   );
   logger.info("Set up assets.");
 
@@ -289,6 +290,7 @@ const onchainSetup = async (sdkBase: NxtpSdkBase) => {
       },
     ],
     deployerTxService,
+    logger,
   );
   logger.info("Added liquidity.");
 
@@ -307,6 +309,7 @@ const onchainSetup = async (sdkBase: NxtpSdkBase) => {
       },
     ],
     deployerTxService,
+    logger,
   );
 
   logger.info("Minting tokens for user agent...");

@@ -1,14 +1,13 @@
-import { createLoggingContext } from "@connext/nxtp-utils";
+import { createLoggingContext, Logger } from "@connext/nxtp-utils";
 import { canonizeId, ConnextHandlerInterface } from "@connext/nxtp-contracts";
 import { BigNumber, constants, utils } from "ethers";
 import { TransactionService } from "@connext/nxtp-txservice";
-
-import { logger } from "../../local.spec";
 
 export const setupAsset = async (
   canonical: { tokenAddress: string; domain: string },
   domains: { domain: string; ConnextHandler: string; adopted: string; pool?: string }[],
   txService: TransactionService,
+  logger: Logger,
 ) => {
   const { requestContext, methodContext } = createLoggingContext(setupAsset.name);
   const canonicalId = utils.hexlify(canonizeId(canonical.tokenAddress));
