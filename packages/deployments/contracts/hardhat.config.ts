@@ -23,7 +23,7 @@ import "./tasks/proposeTransferOwnership";
 import "./tasks/setAggregator";
 import "./tasks/setDexPrice";
 import "./tasks/setDirectPrice";
-import "./tasks/debugRevert";
+import "./tasks/debugCustomError";
 import "./tasks/decodeInputData";
 import "./tasks/removeRouter";
 import "./tasks/enrollHandlers";

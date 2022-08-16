@@ -10,7 +10,7 @@ type TaskArgs = {
   env?: Env;
 };
 
-export default task("debug-revert", "Debug revert data from connext contract")
+export default task("debug-custom-error", "Debug revert data from connext contract")
   .addParam("message", "The data from the revert log")
   .addOptionalParam("connextAddress", "Override connext address")
   .addOptionalParam("env", "The environment for the contract")
@@ -21,7 +21,7 @@ export default task("debug-revert", "Debug revert data from connext contract")
 
     const connextDeployment = await deployments.getArtifact("ConnextHandler");
 
-    //"data":{"message":"Error: Transaction reverted without a reason string","data":"0x991634c4"}}
+    //"error":{"reason":"processing response error","code":"SERVER_ERROR","body":"{\"jsonrpc\":\"2.0\",\"id\":49,\"error\":{\"code\":-32603,\"message\":\"Error: Transaction reverted without a reason string\",\"data\":{\"message\":\"Error: Transaction reverted without a reason string\",\"data\":\"0x991634c4\"}}}","error":{"code":-32603,"data":{"message":"Error: Transaction reverted without a reason string","data":"0x991634c4"}},
     const iErrors = new Interface(connextDeployment.abi);
     let parsed = "";
     if (!message) {
