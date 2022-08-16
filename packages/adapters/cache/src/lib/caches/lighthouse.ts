@@ -21,7 +21,7 @@ export class LightHouseCache extends Cache {
    * @param params - LightHouse data to store
    * @returns 1 if added, 0 if updated.
    */
-  public async storeLightHouseData(params: LightHouseData): Promise<number> {
+  public async storeExecuteSlow(params: LightHouseData): Promise<number> {
     const key = `${this.prefix}:data`;
     return await this.data.hset(key, params.transferId, JSON.stringify(params));
   }

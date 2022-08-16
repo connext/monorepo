@@ -10,8 +10,4 @@ export const existsSync = fs.existsSync;
 
 export const readFileSync = fs.readFileSync;
 
-export const gelatoSend = _gelatoSend;
-
-export const isChainSupportedByGelato = _isChainSupportedByGelato;
-
 export const getGelatoRelayerAddress = _getGelatoRelayerAddress;

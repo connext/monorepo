@@ -41,7 +41,7 @@ export const NxtpLighthouseConfigSchema = Type.Object({
   mode: TModeConfig,
   polling: TPollingConfig,
   environment: Type.Union([Type.Literal("staging"), Type.Literal("production")]),
-  sequencerUrl: Type.Optional(Type.String()),
+  sequencerUrl: Type.String(),
 });
 
 export type NxtpLighthouseConfig = Static<typeof NxtpLighthouseConfigSchema>;

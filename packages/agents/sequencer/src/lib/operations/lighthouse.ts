@@ -23,7 +23,7 @@ import { getHelpers } from "../helpers";
 import { Message, MessageType } from "../entities";
 import { getOperations } from ".";
 
-export const storeLightHouseData = async (
+export const storeExecuteSlow = async (
   lighthouseData: LightHouseData,
   _requestContext: RequestContext,
 ): Promise<void> => {
@@ -36,8 +36,8 @@ export const storeLightHouseData = async (
   const {
     relayer: { getGelatoRelayerAddress },
   } = getHelpers();
-  const { requestContext, methodContext } = createLoggingContext(storeLightHouseData.name, _requestContext);
-  logger.debug(`Method start: ${storeLightHouseData.name}`, requestContext, methodContext, { lighthouseData });
+  const { requestContext, methodContext } = createLoggingContext(storeExecuteSlow.name, _requestContext);
+  logger.debug(`Method start: ${storeExecuteSlow.name}`, requestContext, methodContext, { lighthouseData });
 
   const { transferId, relayerFee, encodedData, lighthouseVersion, origin } = lighthouseData;
 
@@ -122,7 +122,7 @@ export const storeLightHouseData = async (
 
   // Create the lighthouse tx in the cache if necessary.
   await cache.lighthousetxs.setLightHouseDataStatus(transferId, LightHouseDataStatus.Pending);
-  await cache.lighthousetxs.storeLightHouseData(lighthouseData);
+  await cache.lighthousetxs.storeExecuteSlow(lighthouseData);
   logger.info("Created a lighthouse tx", requestContext, methodContext, { transferId, lighthouseData });
 
   const message: Message = {
@@ -161,7 +161,7 @@ export const executeSlowPathData = async (
     relayer: { sendExecuteSlowToRelayer },
   } = getOperations();
 
-  const { requestContext, methodContext } = createLoggingContext(storeLightHouseData.name, _requestContext);
+  const { requestContext, methodContext } = createLoggingContext(storeExecuteSlow.name, _requestContext);
   logger.debug(`Method start: ${executeSlowPathData.name}`, requestContext, methodContext, { transferId, type });
 
   let transfer = await cache.transfers.getTransfer(transferId);

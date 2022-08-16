@@ -1,11 +1,11 @@
 import { execute } from "./execute";
-import { sendExecuteFastToSequencer } from "./relayer";
+import { sendExecuteSlowToSequencer } from "./sequencer";
 import { pollCartographer } from "./cartographer";
 
 export const getOperations = () => {
   return {
     execute,
-    sendExecuteFastToSequencer,
+    sendExecuteSlowToSequencer,
     pollCartographer,
   };
 };

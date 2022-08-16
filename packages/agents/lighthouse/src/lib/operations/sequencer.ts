@@ -7,11 +7,10 @@ import {
   NxtpError,
   getChainIdFromDomain,
 } from "@connext/nxtp-utils";
-
 import { getContext } from "../../lighthouse";
 import { getHelpers } from "../helpers";
 
-export const sendExecuteFastToSequencer = async (
+export const sendExecuteSlowToSequencer = async (
   args: ExecuteArgs,
   encodedData: string,
   transferId: string,
@@ -21,19 +20,17 @@ export const sendExecuteFastToSequencer = async (
     logger,
     chainData,
     config,
-    adapters: { chainreader, relayer },
+    adapters: { chainreader, sequencer },
   } = getContext();
 
   const {
-    relayer: { getGelatoRelayerAddress, connextRelayerSend },
+    relayer: { getGelatoRelayerAddress },
   } = getHelpers();
 
-  const { requestContext, methodContext } = createLoggingContext(sendExecuteFastToSequencer.name, _requestContext);
-  logger.debug(`Method start: ${sendExecuteFastToSequencer.name}`, requestContext, methodContext, { args });
+  const { requestContext, methodContext } = createLoggingContext(sendExecuteSlowToSequencer.name, _requestContext);
+  logger.debug(`Method start: ${sendExecuteSlowToSequencer.name}`, requestContext, methodContext, { args });
 
-  const originChainId = await getChainIdFromDomain(args.params.originDomain, chainData);
   const destinationChainId = await getChainIdFromDomain(args.params.destinationDomain, chainData);
-
   const destinationConnextAddress = config.chains[args.params.destinationDomain].deployments.connext;
 
   const relayerFee = {
@@ -41,34 +38,6 @@ export const sendExecuteFastToSequencer = async (
     // TODO: should handle relayer fee paid in alternative assets once that is implemented.
     asset: constants.AddressZero,
   };
-
-  // TODO: Might want to move this logic inside the `relayer.send` method below.
-  // Try sending the tx to the custom configured relayer, if applicable.
-  // If this fails, we'll resort to using the default relayer network.
-  if (config.relayerUrl) {
-    try {
-      const result = await connextRelayerSend(config.relayerUrl, destinationChainId, {
-        fee: {
-          chain: originChainId,
-          amount: relayerFee.amount,
-          token: relayerFee.asset,
-        },
-        to: destinationConnextAddress,
-        data: encodedData,
-      });
-      const { taskId } = result;
-      logger.info("Sent meta transaction to Connext relayer", requestContext, methodContext, {
-        transferId: transferId,
-        taskId,
-      });
-      return;
-    } catch (error: unknown) {
-      logger.warn("Failed to send meta transaction to Connext relayer", requestContext, methodContext, {
-        transferId: transferId,
-        error,
-      });
-    }
-  }
 
   // Validate the bid's fulfill call will succeed on chain.
   const relayerAddress = await getGelatoRelayerAddress(destinationChainId);
@@ -89,7 +58,7 @@ export const sendExecuteFastToSequencer = async (
       from: relayerAddress,
     });
 
-    logger.info("Sending meta tx to relayer", requestContext, methodContext, {
+    logger.info("Sending meta tx to sequencer", requestContext, methodContext, {
       relayer: relayerAddress,
       connext: destinationConnextAddress,
       domain: args.params.destinationDomain,
@@ -107,8 +76,8 @@ export const sendExecuteFastToSequencer = async (
     });
   }
 
-  const result = await relayer.send(destinationChainId, destinationConnextAddress, encodedData, _requestContext);
-  logger.info(`Sent meta tx to the external relayer`, requestContext, methodContext, {
+  const result = await sequencer.send(transferId, args.params.originDomain, relayerFee, encodedData, _requestContext);
+  logger.info(`Sent meta tx to the sequencer`, requestContext, methodContext, {
     relayer: relayerAddress,
     connext: destinationConnextAddress,
     domain: args.params.destinationDomain,
