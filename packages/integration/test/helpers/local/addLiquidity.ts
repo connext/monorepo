@@ -3,15 +3,13 @@ import { ConnextHandlerInterface } from "@connext/nxtp-contracts";
 import { getErc20Interface, TransactionService } from "@connext/nxtp-txservice";
 import { BigNumber } from "ethers";
 
-import { logger } from "../../local.spec";
-
 export const addLiquidity = async (
   domains: { domain: string; router: string; asset: string; amount: string; ConnextHandler: string }[],
   txService: TransactionService,
 ) => {
   const { requestContext, methodContext } = createLoggingContext(addLiquidity.name);
   for (const domain of domains) {
-    logger.info("addLiquidity", requestContext, methodContext, { domain });
+    console.log("addLiquidity", requestContext, methodContext, { domain });
     const allowanceData = getErc20Interface().encodeFunctionData("allowance", [domain.router, domain.ConnextHandler]);
     const encoded = await txService.readTx({ chainId: +domain.domain, data: allowanceData, to: domain.asset });
     const [allowance] = getErc20Interface().decodeFunctionResult("allowance", encoded);
