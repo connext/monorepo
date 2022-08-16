@@ -21,7 +21,7 @@ export class LightHouseCache extends Cache {
    * @param params - LightHouse data to store
    * @returns 1 if added, 0 if updated.
    */
-  public async storeExecuteSlow(params: LightHouseData): Promise<number> {
+  public async storeLightHouseData(params: LightHouseData): Promise<number> {
     const key = `${this.prefix}:data`;
     return await this.data.hset(key, params.transferId, JSON.stringify(params));
   }
@@ -35,6 +35,20 @@ export class LightHouseCache extends Cache {
     const res = await this.data.hget(key, transferId);
     return res ? (JSON.parse(res) as LightHouseData) : undefined;
   }
+
+  /**
+   * Stores lighthouse data to the backup store.
+   * @param params - The lighthouse data you're gonna store
+   * @returns 1 if added, 0 if updated.
+   */
+  public async storeBackupData(params: LightHouseData): Promise<number> {}
+
+  /**
+   * Gets all the lighthouse data from the backup store for a given transfer id
+   * @param transferId - The transfer id
+   * @returns The array of lighthouse data.
+   */
+  public async getBackupData(transferId: string): Promise<LightHouseData[] | undefined> {}
 
   /// MARK - LightHouse Tx Status
   /**

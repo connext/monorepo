@@ -163,11 +163,11 @@ export const bindServer = async (): Promise<FastifyInstance> => {
     async (request, response) => {
       const { requestContext } = createLoggingContext("POST /execute-slow endpoint");
       const {
-        lighthouse: { storeExecuteSlow },
+        lighthouse: { storeLightHouseData },
       } = getOperations();
       try {
         const lighthouseData = request.body;
-        await storeExecuteSlow(lighthouseData, requestContext);
+        await storeLightHouseData(lighthouseData, requestContext);
         return response
           .status(200)
           .send({ message: "lighthouse data received", transferId: lighthouseData.transferId });

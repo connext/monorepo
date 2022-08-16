@@ -35,3 +35,9 @@ export class MissingLightHouseData extends NxtpError {
     super("No lighthouse data found in the cache", context, MissingLightHouseData.name);
   }
 }
+
+export class ExecuteSlowCompleted extends NxtpError {
+  constructor(context: any = {}) {
+    super("Slow transfer got already completed", context, ExecuteSlowCompleted.name);
+  }
+}

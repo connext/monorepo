@@ -1,5 +1,5 @@
 import { storeBid, executeAuction } from "./auctions";
-import { executeSlowPathData, storeExecuteSlow } from "./lighthouse";
+import { executeSlowPathData, storeLightHouseData } from "./lighthouse";
 import { sendExecuteFastToRelayer, sendExecuteSlowToRelayer } from "./relayer";
 
 export const getOperations = () => {
@@ -13,7 +13,7 @@ export const getOperations = () => {
       sendExecuteSlowToRelayer,
     },
     lighthouse: {
-      storeExecuteSlow,
+      storeLightHouseData,
       executeSlowPathData,
     },
   };

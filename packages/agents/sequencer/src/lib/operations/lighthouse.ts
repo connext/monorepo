@@ -18,12 +18,13 @@ import {
   GasEstimationFailed,
   MissingTransfer,
   MissingLightHouseData,
+  ExecuteSlowCompleted,
 } from "../errors";
 import { getHelpers } from "../helpers";
 import { Message, MessageType } from "../entities";
 import { getOperations } from ".";
 
-export const storeExecuteSlow = async (
+export const storeLightHouseData = async (
   lighthouseData: LightHouseData,
   _requestContext: RequestContext,
 ): Promise<void> => {
@@ -36,8 +37,8 @@ export const storeExecuteSlow = async (
   const {
     relayer: { getGelatoRelayerAddress },
   } = getHelpers();
-  const { requestContext, methodContext } = createLoggingContext(storeExecuteSlow.name, _requestContext);
-  logger.debug(`Method start: ${storeExecuteSlow.name}`, requestContext, methodContext, { lighthouseData });
+  const { requestContext, methodContext } = createLoggingContext(storeLightHouseData.name, _requestContext);
+  logger.debug(`Method start: ${storeLightHouseData.name}`, requestContext, methodContext, { lighthouseData });
 
   const { transferId, relayerFee, encodedData, lighthouseVersion, origin } = lighthouseData;
 
@@ -61,15 +62,6 @@ export const storeExecuteSlow = async (
     });
   }
 
-  // Ensure that the lighthouse data for this transfer hasn't expired.
-  const status = await cache.lighthousetxs.getLightHouseDataStatus(transferId);
-  if (status !== LightHouseDataStatus.None && status !== LightHouseDataStatus.Cancelled) {
-    throw new LightHouseDataExpired(status, {
-      transferId,
-      lighthouseData,
-    });
-  }
-
   // Check to see if we have the XCall data saved locally for this.
   let transfer = await cache.transfers.getTransfer(transferId);
   if (!transfer || !transfer.origin) {
@@ -83,14 +75,6 @@ export const storeExecuteSlow = async (
     // Store the transfer locally. We will use this as a reference later when we execute this transfer
     // in the cycle, for both encoding data and passing relayer fee to the relayer.
     await cache.transfers.storeTransfers([transfer]);
-  }
-
-  if (!transfer.destination?.reconcile || transfer.destination?.execute) {
-    // This transfer has already been Executed or not Reconciled yet, so slow liquidity is no longer valid.
-    throw new InvalidSlowLiqTransfer({
-      transferId,
-      lighthouseData,
-    });
   }
 
   // Lighthouse data needs to be transferred to relayer directly
@@ -120,26 +104,43 @@ export const storeExecuteSlow = async (
     throw new GasEstimationFailed({ transferId, lighthouseData });
   }
 
+  // Ensure that the lighthouse data for this transfer hasn't expired.
+  const status = await cache.lighthousetxs.getLightHouseDataStatus(transferId);
+  if (status === LightHouseDataStatus.Completed) {
+    throw new ExecuteSlowCompleted({ transferId });
+  } else if (status === LightHouseDataStatus.None) {
+    await cache.lighthousetxs.setLightHouseDataStatus(transferId, LightHouseDataStatus.Pending);
+    await cache.lighthousetxs.storeLightHouseData(lighthouseData);
+    logger.info("Created a lighthouse tx", requestContext, methodContext, { transferId, lighthouseData });
+
+    const message: Message = {
+      transferId: transfer.transferId,
+      originDomain: transfer.xparams!.originDomain,
+      type: MessageType.ExecuteSlow,
+    };
+
+    await mqClient.publish(config.messageQueue.publisher!, {
+      type: transfer.xparams!.originDomain,
+      body: message,
+      routingKey: transfer.xparams!.originDomain,
+      persistent: true,
+    });
+    logger.info("Enqueued transfer", requestContext, methodContext, {
+      message: message,
+    });
+  } else {
+    // The lighthouse data status here is Pending/Cancelled.
+    // If Cancelled, fallback processor would work so lets just keep it storing
+    // If Pending, the data needs to be stored in the cache as a backup item
+  }
+  if (status !== LightHouseDataStatus.None && status !== LightHouseDataStatus.Cancelled) {
+    throw new LightHouseDataExpired(status, {
+      transferId,
+      lighthouseData,
+    });
+  }
+
   // Create the lighthouse tx in the cache if necessary.
-  await cache.lighthousetxs.setLightHouseDataStatus(transferId, LightHouseDataStatus.Pending);
-  await cache.lighthousetxs.storeExecuteSlow(lighthouseData);
-  logger.info("Created a lighthouse tx", requestContext, methodContext, { transferId, lighthouseData });
-
-  const message: Message = {
-    transferId: transfer.transferId,
-    originDomain: transfer.xparams!.originDomain,
-    type: MessageType.ExecuteSlow,
-  };
-
-  await mqClient.publish(config.messageQueue.publisher!, {
-    type: transfer.xparams!.originDomain,
-    body: message,
-    routingKey: transfer.xparams!.originDomain,
-    persistent: true,
-  });
-  logger.info("Enqueued transfer", requestContext, methodContext, {
-    message: message,
-  });
 };
 
 /**
@@ -161,7 +162,7 @@ export const executeSlowPathData = async (
     relayer: { sendExecuteSlowToRelayer },
   } = getOperations();
 
-  const { requestContext, methodContext } = createLoggingContext(storeExecuteSlow.name, _requestContext);
+  const { requestContext, methodContext } = createLoggingContext(storeLightHouseData.name, _requestContext);
   logger.debug(`Method start: ${executeSlowPathData.name}`, requestContext, methodContext, { transferId, type });
 
   let transfer = await cache.transfers.getTransfer(transferId);
