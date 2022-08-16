@@ -349,6 +349,7 @@ describe("LOCAL:E2E", () => {
       ],
       deployerTxService,
     );
+
     logger.info("Minting tokens for user agent...");
     {
       const erc20 = new utils.Interface(ERC20Abi);

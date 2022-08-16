@@ -32,18 +32,11 @@ export const enrollHandlers = async (
           data: registeredData,
           to: (handler as any)[handlerName],
         });
-        console.log("3", encoded);
         const [remote] = RouterInterface.decodeFunctionResult("remotes", encoded);
-        console.log("4", remote, canonized);
-        console.log((otherHandler as any)[handlerName]);
-        console.log((handler as any)[handlerName]);
 
         // check if already registered
         if (remote !== canonized) {
           const data = RouterInterface.encodeFunctionData("enrollRemoteRouter", [otherHandler.domain, canonized]);
-          // const wallet = Wallet.fromMnemonic(
-          //   "candy maple cake sugar pudding cream honey rich smooth crumble sweet treat",
-          // ).connect(new providers.JsonRpcProvider())
 
           await txService.sendTx(
             { chainId: handler.chain, to: (handler as any)[handlerName], data, value: 0 },
