@@ -292,7 +292,7 @@ describe("LOCAL:E2E", () => {
 
     logger.info("Setting up assets...");
     await setupAsset(
-      { domain: PARAMETERS.A.DOMAIN, tokenAddress: PARAMETERS.ASSET.address },
+      { domain: PARAMETERS.ASSET.domain, tokenAddress: PARAMETERS.ASSET.address },
       [
         {
           domain: PARAMETERS.A.DOMAIN,

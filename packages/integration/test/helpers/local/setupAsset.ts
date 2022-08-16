@@ -1,6 +1,6 @@
 import { createRequestContext } from "@connext/nxtp-utils";
 import { canonizeId, ConnextHandlerInterface } from "@connext/nxtp-contracts";
-import { constants, utils } from "ethers";
+import { BigNumber, constants, utils } from "ethers";
 import { TransactionService } from "@connext/nxtp-txservice";
 
 export const setupAsset = async (
@@ -23,12 +23,15 @@ export const setupAsset = async (
     if (adopted !== domain.adopted) {
       // @ts-ignore
       const data = ConnextHandlerInterface.encodeFunctionData("setupAsset", [
-        [domain.domain, canonicalId],
+        [canonical.domain, canonicalId],
         domain.adopted,
         domain.pool ?? constants.AddressZero,
       ]);
 
-      await txService.sendTx({ to: domain.ConnextHandler, data, value: 0, chainId: +domain.domain }, requestContext);
+      await txService.sendTx(
+        { to: domain.ConnextHandler, data, value: BigNumber.from("0"), chainId: +domain.domain },
+        requestContext,
+      );
     }
   }
 };

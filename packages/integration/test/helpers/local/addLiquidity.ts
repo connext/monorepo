@@ -14,6 +14,8 @@ export const addLiquidity = async (
     const [allowance] = getErc20Interface().decodeFunctionResult("allowance", encoded);
 
     if (BigNumber.from(allowance.toString()).lt(domain.amount)) {
+      console.log("approval tx");
+
       const approveData = getErc20Interface().encodeFunctionData("approve", [domain.ConnextHandler, domain.amount]);
       await txService.sendTx(
         { chainId: +domain.domain, to: domain.asset, data: approveData, value: 0 },
@@ -26,6 +28,7 @@ export const addLiquidity = async (
       domain.asset,
       domain.router,
     ]);
+    console.log("addLiquidity", addLiquidityData);
     await txService.sendTx(
       {
         chainId: +domain.domain,
