@@ -1,9 +1,9 @@
-import { createLoggingContext } from "@connext/nxtp-utils";
+import { createLoggingContext, Logger } from "@connext/nxtp-utils";
 import { canonizeId, ConnextHandlerInterface } from "@connext/nxtp-contracts";
 import { BigNumber, constants, utils } from "ethers";
 import { TransactionService } from "@connext/nxtp-txservice";
 
-import { logger } from "../../local.spec";
+const logger = new Logger({ name: "e2e" });
 
 export const setupAsset = async (
   canonical: { tokenAddress: string; domain: string },
