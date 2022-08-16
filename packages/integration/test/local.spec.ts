@@ -19,6 +19,7 @@ import { expect } from "chai";
 import { pollSomething } from "./helpers/shared";
 import { enrollHandlers, enrollCustom, setupRouter, setupAsset, addLiquidity, addRelayer } from "./helpers/local";
 import { DEPLOYER_WALLET, PARAMETERS, SUBG_POLL_PARITY, USER_WALLET } from "./constants/local";
+import { addConnextions } from "./helpers/local/addConnextions";
 
 export const logger = new Logger({ name: "e2e" });
 
@@ -203,6 +204,25 @@ const getTransferById = async (sdkUtils: NxtpSdkUtils, domain: string, transferI
 };
 
 const onchainSetup = async (sdkBase: NxtpSdkBase) => {
+  logger.info("Adding connextions...");
+  await addConnextions(
+    [
+      {
+        chain: PARAMETERS.A.CHAIN,
+        domain: PARAMETERS.A.DOMAIN,
+        ConnextHandler: PARAMETERS.A.DEPLOYMENTS.TestERC20,
+      },
+      {
+        chain: PARAMETERS.B.CHAIN,
+        domain: PARAMETERS.B.DOMAIN,
+        ConnextHandler: PARAMETERS.B.DEPLOYMENTS.TestERC20,
+      },
+    ],
+    deployerTxService,
+    logger,
+  );
+  logger.info("Added connextions.");
+
   logger.info("Enrolling handlers...");
   await enrollHandlers(
     [
