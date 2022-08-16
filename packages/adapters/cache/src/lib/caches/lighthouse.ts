@@ -67,6 +67,19 @@ export class LightHouseCache extends Cache {
     return JSON.parse((await this.data.hget(`${this.prefix}:backup`, transferId)) ?? "[]");
   }
 
+  /**
+   * Removes all the lighthouse data including backup items for a given transferId.
+   * @param tranferId - The transferId you're gonna remove for
+   */
+  public async pruneLighthouseData(tranferId: string): Promise<void> {
+    const dataKey = `${this.prefix}:data`;
+    const backupKey = `${this.prefix}:backup`;
+    await this.data.hdel(dataKey, tranferId);
+    await this.data.hdel(backupKey, tranferId);
+
+    await this.setLightHouseDataStatus(tranferId, LightHouseDataStatus.None);
+  }
+
   /// MARK - LightHouse Tx Status
   /**
    * Set the status for a given tranfer id

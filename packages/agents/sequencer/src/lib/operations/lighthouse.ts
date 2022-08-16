@@ -188,9 +188,26 @@ export const executeSlowPathData = async (
     });
   }
 
-  const taskId = await sendExecuteSlowToRelayer(lighthouseData, requestContext);
+  let taskId;
+  try {
+    taskId = await sendExecuteSlowToRelayer(lighthouseData, requestContext);
+  } catch (error: unknown) {
+    // TODO: If the first slow-liq transfer fails, we'll try to send backup data one by one
+    // If any of backup data succeeds, we'll make the data status `sent`.
+    // If all of them also fail, we'll reset all the data for a given transferId
+    const backupSlowTxs = await cache.lighthousetxs.getBackupData(transferId);
+    logger.debug("Running a fallback mechanism", requestContext, methodContext, { transferId, backupSlowTxs });
+    for (const backupSlowTx of backupSlowTxs) {
+      taskId = await sendExecuteSlowToRelayer(backupSlowTx, requestContext);
+      if (taskId) break;
+    }
+  }
+
   if (taskId) {
     await cache.lighthousetxs.setLightHouseDataStatus(transferId, LightHouseDataStatus.Sent);
     await cache.lighthousetxs.upsertTask({ transferId, taskId });
+  } else {
+    // Prunes all the lighthouse data for a given transferId
+    await cache.lighthousetxs.pruneLighthouseData(transferId);
   }
 };
