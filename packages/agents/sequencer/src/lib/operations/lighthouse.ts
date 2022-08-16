@@ -190,7 +190,7 @@ export const executeSlowPathData = async (
 
   const taskId = await sendExecuteSlowToRelayer(lighthouseData, requestContext);
   if (taskId) {
-    await cache.lighthousetxs.setLightHouseDataStatus(transferId, LightHouseDataStatus.Pending);
+    await cache.lighthousetxs.setLightHouseDataStatus(transferId, LightHouseDataStatus.Sent);
     await cache.lighthousetxs.upsertTask({ transferId, taskId });
   }
 };

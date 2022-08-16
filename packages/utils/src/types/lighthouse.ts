@@ -3,6 +3,7 @@ import { Type, Static } from "@sinclair/typebox";
 export enum LightHouseDataStatus {
   None = "None",
   Pending = "Pending",
+  Sent = "Sent",
   Completed = "Completed",
   Cancelled = "Cancelled",
 }
