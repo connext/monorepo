@@ -241,6 +241,10 @@ const onchainSetup = async (sdkBase: NxtpSdkBase) => {
   );
   logger.info("Enrolled handlers.");
 
+  // TODO: addConnextion calls
+  // TODO: Mirror connectors set up for messaging
+  // TODO: Whitelisted routers?
+
   logger.info("Enrolling custom asset with TokenRegistry...");
   await enrollCustom(
     {
