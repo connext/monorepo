@@ -132,15 +132,12 @@ export const storeLightHouseData = async (
     // The lighthouse data status here is Pending/Cancelled.
     // If Cancelled, fallback processor would work so lets just keep it storing
     // If Pending, the data needs to be stored in the cache as a backup item
-  }
-  if (status !== LightHouseDataStatus.None && status !== LightHouseDataStatus.Cancelled) {
-    throw new LightHouseDataExpired(status, {
-      transferId,
+    const res = await cache.lighthousetxs.storeBackupData(lighthouseData);
+    logger.info("Stored a lighthouse data in the backup cache", requestContext, methodContext, {
       lighthouseData,
+      result: res == 2 ? "Skipped" : "Saved",
     });
   }
-
-  // Create the lighthouse tx in the cache if necessary.
 };
 
 /**
@@ -192,7 +189,7 @@ export const executeSlowPathData = async (
   }
 
   const taskId = await sendExecuteSlowToRelayer(lighthouseData, requestContext);
-  if (!taskId) {
+  if (taskId) {
     await cache.lighthousetxs.setLightHouseDataStatus(transferId, LightHouseDataStatus.Pending);
     await cache.lighthousetxs.upsertTask({ transferId, taskId });
   }
