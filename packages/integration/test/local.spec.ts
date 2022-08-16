@@ -248,10 +248,12 @@ describe("LOCAL:E2E", () => {
     await enrollHandlers(
       [
         {
+          chain: PARAMETERS.A.CHAIN,
           domain: PARAMETERS.A.DOMAIN,
           ...PARAMETERS.A.DEPLOYMENTS,
         },
         {
+          chain: PARAMETERS.B.CHAIN,
           domain: PARAMETERS.B.DOMAIN,
           ...PARAMETERS.B.DEPLOYMENTS,
         },
