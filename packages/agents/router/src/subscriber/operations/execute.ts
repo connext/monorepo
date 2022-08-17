@@ -290,9 +290,6 @@ export const execute = async (params: OriginTransfer, _requestContext: RequestCo
     sigs: Object.values(signatures).map((s) => s.slice(0, 6) + ".."),
   });
 
-  // Need to make sure if nomad-sdk handles an error in case of bad rpc before integrating.
-  // Test code base: https://codesandbox.io/s/nomad-integration-testing-h8q00t?file=/index.js
-
   const { originBlacklisted, destinationBlacklisted } = await getBlacklist(originDomain, destinationDomain);
   if (originBlacklisted || destinationBlacklisted) {
     throw new NomadHomeBlacklisted({

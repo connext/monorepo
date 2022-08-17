@@ -33,31 +33,31 @@ variable "nomad_environment" {
 variable "full_image_name_router_publisher" {
   type        = string
   description = "router image name"
-  default     = "ghcr.io/connext/router-publisher:sha-229b6dd"
+  default     = "ghcr.io/connext/router-publisher:sha-64dc7c9"
 }
 
 variable "full_image_name_router_subscriber" {
   type        = string
   description = "router image name"
-  default     = "ghcr.io/connext/router-subscriber:sha-229b6dd"
+  default     = "ghcr.io/connext/router-subscriber:sha-64dc7c9"
 }
 
 variable "full_image_name_sequencer_publisher" {
   type        = string
   description = "sequencer image name"
-  default     = "ghcr.io/connext/sequencer-publisher:sha-229b6dd"
+  default     = "ghcr.io/connext/sequencer-publisher:sha-64dc7c9"
 }
 
 variable "full_image_name_sequencer_subscriber" {
   type        = string
   description = "sequencer image name"
-  default     = "ghcr.io/connext/sequencer-subscriber:sha-229b6dd"
+  default     = "ghcr.io/connext/sequencer-subscriber:sha-64dc7c9"
 }
 
 variable "full_image_name_lighthouse" {
   type        = string
   description = "router image name"
-  default     = "ghcr.io/connext/lighthouse:sha-229b6dd"
+  default     = "ghcr.io/connext/lighthouse:sha-64dc7c9"
 }
 
 variable "mnemonic" {
