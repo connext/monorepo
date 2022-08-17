@@ -24,8 +24,8 @@ dataSources:
         - name: ConnextHandler
           file: ./src/amarok-runtime-v0/abis/ConnextHandler.json
       eventHandlers:
-        # AssetAdded: canonicalId, domain, adoptedAsset, supportedAsset, caller
-        - event: AssetAdded(bytes32,uint32,address,address,address)
+        # AssetAdded: canonicalId, domain, adoptedAsset, supportedAsset, localAsset, caller
+        - event: AssetAdded(bytes32,uint32,address,address,address,address)
           handler: handleAssetAdded
         # RelayerAdded: relayer, caller
         - event: RelayerAdded(address,address)
