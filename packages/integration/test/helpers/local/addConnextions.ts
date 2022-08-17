@@ -17,16 +17,28 @@ export const addConnextions = async (
   await Promise.all(
     connextions.map(async (source) => {
       for (const target of connextions.filter((_c) => _c.domain !== source.domain)) {
-        logger.info("Adding connextion", requestContext, methodContext, { source, target });
-        const data = ConnextHandlerInterface.encodeFunctionData("addConnextion", [
-          target.domain,
-          target.ConnextHandler,
-        ]);
+        const data = ConnextHandlerInterface.encodeFunctionData("connextion", [target.domain]);
+        const result = await txService.readTx({
+          chainId: source.chain,
+          to: source.ConnextHandler,
+          data,
+        });
+        const connextion: string = ConnextHandlerInterface.decodeFunctionResult("connextion", result)[0];
 
-        await txService.sendTx(
-          { chainId: source.chain, to: source.ConnextHandler, data, value: BigNumber.from("0") },
-          requestContext,
-        );
+        if (connextion !== target.ConnextHandler) {
+          logger.info("Adding connextion.", requestContext, methodContext, { source, target });
+          const data = ConnextHandlerInterface.encodeFunctionData("addConnextion", [
+            target.domain,
+            target.ConnextHandler,
+          ]);
+
+          await txService.sendTx(
+            { chainId: source.chain, to: source.ConnextHandler, data, value: BigNumber.from("0") },
+            requestContext,
+          );
+        } else {
+          logger.info("Connextion already configured!", requestContext, methodContext, { source, target, connextion });
+        }
       }
     }),
   );

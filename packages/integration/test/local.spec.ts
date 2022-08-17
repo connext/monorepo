@@ -144,12 +144,13 @@ const sendXCall = async (
       to: PARAMETERS.AGENTS.USER.address,
       originDomain: PARAMETERS.A.DOMAIN,
       destinationDomain: PARAMETERS.B.DOMAIN,
-      agent: constants.AddressZero,
       callback: constants.AddressZero,
+      agent: PARAMETERS.AGENTS.USER.address,
       callbackFee: "0",
       callData: "0x",
       forceSlow: false,
-      receiveLocal: false,
+      // TODO: Will need option to override `receiveLocal` when we do AMM-related tests.
+      receiveLocal: true,
       recovery: PARAMETERS.AGENTS.USER.address,
       relayerFee: "0",
       destinationMinOut: "0",
@@ -282,6 +283,9 @@ const getTransferById = async (sdkUtils: NxtpSdkUtils, domain: string, transferI
 };
 
 const onchainSetup = async (sdkBase: NxtpSdkBase) => {
+  // TODO: Mirror connectors set up for messaging
+  // TODO: Whitelisted routers?
+
   logger.info("Adding connextions...");
   await addConnextions(
     [
@@ -318,10 +322,6 @@ const onchainSetup = async (sdkBase: NxtpSdkBase) => {
     deployerTxService,
   );
   logger.info("Enrolled handlers.");
-
-  // TODO: addConnextion calls
-  // TODO: Mirror connectors set up for messaging
-  // TODO: Whitelisted routers?
 
   logger.info("Enrolling custom asset with TokenRegistry...");
   await enrollCustom(
@@ -474,7 +474,8 @@ describe("LOCAL:E2E", () => {
     await destinationProvider.send("evm_setAutomine", [false]);
     await destinationProvider.send("hardhat_setBalance", [PARAMETERS.AGENTS.USER.address, "0x84595161401484A000000"]);
 
-    // Sanity checks: make sure addresses configured are correct.
+    // Sanity checks: make sure addresses configured are correct by checking to make sure contracts are deployed
+    // at those addresses (using `getCode`).
     for (const key of ["A", "B"]) {
       const config = PARAMETERS[key as "A" | "B"];
       const { CHAIN: chain, DEPLOYMENTS: deployments } = config;
@@ -594,7 +595,7 @@ describe("LOCAL:E2E", () => {
     });
   });
 
-  it("handles slow liquidity transfer", async () => {
+  it.skip("handles slow liquidity transfer", async () => {
     // Get the remote router ID for the `handle` call.
     const destinationProvider = new providers.JsonRpcProvider(PARAMETERS.B.RPC[0]);
     const deployer = PARAMETERS.AGENTS.DEPLOYER.signer.connect(destinationProvider);
