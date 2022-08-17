@@ -1,7 +1,5 @@
 import { Wallet } from "ethers";
 
-import { getDeployments } from "../../helpers/local/getDeployments";
-
 // Used in polling loops.
 export const SUBG_POLL_PARITY = 5_000;
 
@@ -35,12 +33,12 @@ export const PARAMETERS = {
     DOMAIN: "1337",
     CHAIN: 1337,
     RPC: ["http://localhost:8547"],
-    DEPLOYMENTS: getDeployments("1337"),
+    DEPLOYMENTS: null, // Must be set at runtime!
   },
   B: {
     DOMAIN: "1338",
     CHAIN: 1338,
     RPC: ["http://localhost:8546"],
-    DEPLOYMENTS: getDeployments("1338"),
+    DEPLOYMENTS: null, // Must be set at runtime!
   },
 };

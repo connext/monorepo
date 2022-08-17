@@ -15,13 +15,88 @@ import { TransactionService, getConnextInterface } from "@connext/nxtp-txservice
 import { NxtpSdkBase, NxtpSdkUtils } from "@connext/nxtp-sdk";
 import { BigNumber, constants, Contract, providers, utils, Wallet } from "ethers";
 import { expect } from "chai";
+/**
+ * NOTE: These deployment imports must be kept here (or any .ts file that won't be transpiled/compiled) due to local_1337 and local_1338
+ * deployment step being a dependency for running these tests. If these imports are moved to a .ts file, `integrations` module will likely
+ * be unable to build as local_1337 and local_1338 deployment files are not kept in the repository.
+ *
+ * If it's showing errors below, run `setup_integration_test.sh` script (in root) to generate the deployments.
+ *
+ * We use these imports to retrieve the deployment addresses dynamically at runtime, so the PARAMETERS config does not need to be hardcoded.
+ */
+// Local 1338 deployment imports:
+import ConnextHandler_DiamondProxy_1338 from "@connext/nxtp-contracts/deployments/local_1338/ConnextHandler_DiamondProxy.json";
+import PromiseRouterUpgradeBeaconProxy_1338 from "@connext/nxtp-contracts/deployments/local_1338/PromiseRouterUpgradeBeaconProxy.json";
+import RelayerFeeRouterUpgradeBeaconProxy_1338 from "@connext/nxtp-contracts/deployments/local_1338/RelayerFeeRouterUpgradeBeaconProxy.json";
+import BridgeRouterUpgradeBeaconProxy_1338 from "@connext/nxtp-contracts/deployments/local_1338/BridgeRouterUpgradeBeaconProxy.json";
+import TokenRegistryUpgradeBeaconProxy_1338 from "@connext/nxtp-contracts/deployments/local_1338/TokenRegistryUpgradeBeaconProxy.json";
+import TestERC20_1338 from "@connext/nxtp-contracts/deployments/local_1338/TestERC20.json";
+// Local 1337 deployment imports:
+import ConnextHandler_DiamondProxy_1337 from "@connext/nxtp-contracts/deployments/local_1337/ConnextHandler_DiamondProxy.json";
+import PromiseRouterUpgradeBeaconProxy_1337 from "@connext/nxtp-contracts/deployments/local_1337/PromiseRouterUpgradeBeaconProxy.json";
+import RelayerFeeRouterUpgradeBeaconProxy_1337 from "@connext/nxtp-contracts/deployments/local_1337/RelayerFeeRouterUpgradeBeaconProxy.json";
+import BridgeRouterUpgradeBeaconProxy_1337 from "@connext/nxtp-contracts/deployments/local_1337/BridgeRouterUpgradeBeaconProxy.json";
+import TokenRegistryUpgradeBeaconProxy_1337 from "@connext/nxtp-contracts/deployments/local_1337/TokenRegistryUpgradeBeaconProxy.json";
+import TestERC20_1337 from "@connext/nxtp-contracts/deployments/local_1337/TestERC20.json";
 
 import { pollSomething } from "./helpers/shared";
 import { enrollHandlers, enrollCustom, setupRouter, setupAsset, addLiquidity, addRelayer } from "./helpers/local";
-import { DEPLOYER_WALLET, PARAMETERS, SUBG_POLL_PARITY, USER_WALLET } from "./constants/local";
+import { DEPLOYER_WALLET, PARAMETERS as _PARAMETERS, SUBG_POLL_PARITY, USER_WALLET } from "./constants/local";
 import { addConnextions } from "./helpers/local/addConnextions";
 
 export const logger = new Logger({ name: "e2e" });
+
+type Deployments = {
+  ConnextHandler: string;
+  PromiseRouterUpgradeBeaconProxy: string;
+  RelayerFeeRouterUpgradeBeaconProxy: string;
+  BridgeRouterUpgradeBeaconProxy: string;
+  TokenRegistryUpgradeBeaconProxy: string;
+  TestERC20: string;
+};
+
+/**
+ * Get deployments needed for E2E test for the specified chain.
+ * @param _chain - Local chain for which we are getting deployment addresses.
+ * @returns Deployments object.
+ */
+export const getDeployments = (_chain: string | number): Deployments => {
+  const chain = _chain.toString();
+  if (chain === "1337") {
+    return {
+      ConnextHandler: ConnextHandler_DiamondProxy_1338.address,
+      PromiseRouterUpgradeBeaconProxy: PromiseRouterUpgradeBeaconProxy_1338.address,
+      RelayerFeeRouterUpgradeBeaconProxy: RelayerFeeRouterUpgradeBeaconProxy_1338.address,
+      BridgeRouterUpgradeBeaconProxy: BridgeRouterUpgradeBeaconProxy_1338.address,
+      TokenRegistryUpgradeBeaconProxy: TokenRegistryUpgradeBeaconProxy_1338.address,
+      TestERC20: TestERC20_1338.address,
+    };
+  } else if (chain === "1338") {
+    return {
+      ConnextHandler: ConnextHandler_DiamondProxy_1337.address,
+      PromiseRouterUpgradeBeaconProxy: PromiseRouterUpgradeBeaconProxy_1337.address,
+      RelayerFeeRouterUpgradeBeaconProxy: RelayerFeeRouterUpgradeBeaconProxy_1337.address,
+      BridgeRouterUpgradeBeaconProxy: BridgeRouterUpgradeBeaconProxy_1337.address,
+      TokenRegistryUpgradeBeaconProxy: TokenRegistryUpgradeBeaconProxy_1337.address,
+      TestERC20: TestERC20_1337.address,
+    };
+  } else {
+    throw new Error(`Chain ${chain} not supported! Cannot retrieve contract deployment addresses for that chain.`);
+  }
+};
+
+// Add deployment addresses to the config PARAMETERS constant.
+const PARAMETERS = {
+  ..._PARAMETERS,
+  A: {
+    ..._PARAMETERS.A,
+    DEPLOYMENTS: getDeployments(_PARAMETERS.A.CHAIN),
+  },
+  B: {
+    ..._PARAMETERS.B,
+    DEPLOYMENTS: getDeployments(_PARAMETERS.B.CHAIN),
+  },
+} as const;
 
 const deployerTxService = new TransactionService(
   logger,

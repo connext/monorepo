@@ -63,6 +63,11 @@ LIGHTHOUSE_IMAGE=${lighthouse_image}
 " > .env
 #####
 
+##### Delete previous local_1337 and local_1338 chain deployment records if they exist.
+rm -rf -- packages/deployments/contracts/deployments/local_1337
+rm -rf -- packages/deployments/contracts/deployments/local_1338
+#####
+
 ##### Local chains, graph nodes, and IPFS.
 echo "Starting 1337 and 1338 local chains..."
 docker compose -f docker-compose.chains.yaml up -d --force-recreate
