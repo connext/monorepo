@@ -93,7 +93,7 @@ const run = async () => {
     console.error(`stderr: ${err}`);
 
     /// deploy
-    if (configFile !== "local") {
+    if (!configFile.includes("local")) {
       console.log("Running Deployment command for " + n.network);
       const { stdout, stderr } = await exec(
         `graph deploy --node https://api.thegraph.com/deploy/ --ipfs https://api.thegraph.com/ipfs/ ${n.subgraphName} --access-token ${accessToken}`,
