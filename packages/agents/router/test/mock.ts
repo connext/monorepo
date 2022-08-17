@@ -3,10 +3,10 @@ import { createStubInstance, SinonStubbedInstance, stub } from "sinon";
 import { AuctionsCache, TransfersCache } from "@connext/nxtp-adapters-cache";
 import { SubgraphReader } from "@connext/nxtp-adapters-subgraph";
 import { ConnextContractDeployments, ConnextContractInterfaces, TransactionService } from "@connext/nxtp-txservice";
-import { mkAddress, Logger, mock as _mock, OriginTransfer, DestinationTransfer } from "@connext/nxtp-utils";
+import { mkAddress, Logger, mock as _mock, OriginTransfer } from "@connext/nxtp-utils";
 
-import { AppContext as PublisherAppContext } from "../src/publisher/context";
-import { AppContext as SubscriberAppContext } from "../src/subscriber/context";
+import { AppContext as PublisherAppContext } from "../src/tasks/publisher/context";
+import { AppContext as SubscriberAppContext } from "../src/tasks/subscriber/context";
 import { NxtpRouterConfig } from "../src/config";
 
 export const mock = {

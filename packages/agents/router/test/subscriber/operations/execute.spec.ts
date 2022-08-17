@@ -3,7 +3,7 @@ import { reset, restore, SinonStub, stub } from "sinon";
 import { BaseRequestContext, Bid, expect, formatUrl, OriginTransfer } from "@connext/nxtp-utils";
 import axios from "axios";
 
-import * as ExecuteFns from "../../../src/subscriber/operations/execute";
+import * as ExecuteFns from "../../../src/tasks/subscriber/operations/execute";
 import * as Mockable from "../../../src/mockable";
 import {
   ParamsInvalid,
