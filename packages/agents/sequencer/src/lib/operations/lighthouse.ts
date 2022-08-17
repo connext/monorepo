@@ -1,31 +1,31 @@
 import { compare } from "compare-versions";
 import {
-  LightHouseData,
+  ExecutorData,
   RequestContext,
   createLoggingContext,
   ajv,
-  LightHouseDataSchema,
-  LightHouseDataStatus,
+  ExecutorDataSchema,
+  ExecutorDataStatus,
   getChainIdFromDomain,
 } from "@connext/nxtp-utils";
 import { getContext } from "../../sequencer";
 import {
   ParamsInvalid,
   LightHouseVersionInvalid,
-  LightHouseDataExpired,
+  ExecutorDataExpired,
   MissingXCall,
   InvalidSlowLiqTransfer,
   GasEstimationFailed,
   MissingTransfer,
-  MissingLightHouseData,
+  MissingExecutorData,
   ExecuteSlowCompleted,
 } from "../errors";
 import { getHelpers } from "../helpers";
 import { Message, MessageType } from "../entities";
 import { getOperations } from ".";
 
-export const storeLightHouseData = async (
-  lighthouseData: LightHouseData,
+export const storeExecutorData = async (
+  lighthouseData: ExecutorData,
   _requestContext: RequestContext,
 ): Promise<void> => {
   const {
@@ -37,13 +37,13 @@ export const storeLightHouseData = async (
   const {
     relayer: { getGelatoRelayerAddress },
   } = getHelpers();
-  const { requestContext, methodContext } = createLoggingContext(storeLightHouseData.name, _requestContext);
-  logger.debug(`Method start: ${storeLightHouseData.name}`, requestContext, methodContext, { lighthouseData });
+  const { requestContext, methodContext } = createLoggingContext(storeExecutorData.name, _requestContext);
+  logger.debug(`Method start: ${storeExecutorData.name}`, requestContext, methodContext, { lighthouseData });
 
-  const { transferId, relayerFee, encodedData, lighthouseVersion, origin } = lighthouseData;
+  const { transferId, relayerFee, encodedData, executorVersion, origin } = lighthouseData;
 
   // Validate Input schema
-  const validateInput = ajv.compile(LightHouseDataSchema);
+  const validateInput = ajv.compile(ExecutorDataSchema);
   const validInput = validateInput(lighthouseData);
   if (!validInput) {
     const msg = validateInput.errors?.map((err: any) => `${err.instancePath} - ${err.message}`).join(",");
@@ -54,7 +54,7 @@ export const storeLightHouseData = async (
   }
 
   // check if bid router version is compatible with hosted sequencer
-  const checkVersion = compare(lighthouseVersion, config.supportedVersion!, "<");
+  const checkVersion = compare(executorVersion, config.supportedVersion!, "<");
   if (checkVersion) {
     throw new LightHouseVersionInvalid({
       supportedVersion: config.supportedVersion,
@@ -105,12 +105,12 @@ export const storeLightHouseData = async (
   }
 
   // Ensure that the lighthouse data for this transfer hasn't expired.
-  const status = await cache.lighthousetxs.getLightHouseDataStatus(transferId);
-  if (status === LightHouseDataStatus.Completed) {
+  const status = await cache.executors.getExecutorDataStatus(transferId);
+  if (status === ExecutorDataStatus.Completed) {
     throw new ExecuteSlowCompleted({ transferId });
-  } else if (status === LightHouseDataStatus.None) {
-    await cache.lighthousetxs.setLightHouseDataStatus(transferId, LightHouseDataStatus.Pending);
-    await cache.lighthousetxs.storeLightHouseData(lighthouseData);
+  } else if (status === ExecutorDataStatus.None) {
+    await cache.executors.setExecutorDataStatus(transferId, ExecutorDataStatus.Pending);
+    await cache.executors.storeExecutorData(lighthouseData);
     logger.info("Created a lighthouse tx", requestContext, methodContext, { transferId, lighthouseData });
 
     const message: Message = {
@@ -132,7 +132,7 @@ export const storeLightHouseData = async (
     // The lighthouse data status here is Pending/Cancelled.
     // If Cancelled, fallback processor would work so lets just keep it storing
     // If Pending, the data needs to be stored in the cache as a backup item
-    const res = await cache.lighthousetxs.storeBackupData(lighthouseData);
+    const res = await cache.executors.storeBackupData(lighthouseData);
     logger.info("Stored a lighthouse data in the backup cache", requestContext, methodContext, {
       lighthouseData,
       result: res == 2 ? "Skipped" : "Saved",
@@ -159,7 +159,7 @@ export const executeSlowPathData = async (
     relayer: { sendExecuteSlowToRelayer },
   } = getOperations();
 
-  const { requestContext, methodContext } = createLoggingContext(storeLightHouseData.name, _requestContext);
+  const { requestContext, methodContext } = createLoggingContext(storeExecutorData.name, _requestContext);
   logger.debug(`Method start: ${executeSlowPathData.name}`, requestContext, methodContext, { transferId, type });
 
   let transfer = await cache.transfers.getTransfer(transferId);
@@ -174,15 +174,15 @@ export const executeSlowPathData = async (
     });
   }
 
-  let lighthouseData = await cache.lighthousetxs.getLightHouseData(transferId);
+  let lighthouseData = await cache.executors.getExecutorData(transferId);
   if (!lighthouseData) {
-    throw new MissingLightHouseData({ transfer });
+    throw new MissingExecutorData({ transfer });
   }
 
   // Ensure that the lighthouse data for this transfer hasn't expired.
-  const status = await cache.lighthousetxs.getLightHouseDataStatus(transferId);
-  if (status !== LightHouseDataStatus.None && status !== LightHouseDataStatus.Cancelled) {
-    throw new LightHouseDataExpired(status, {
+  const status = await cache.executors.getExecutorDataStatus(transferId);
+  if (status !== ExecutorDataStatus.None && status !== ExecutorDataStatus.Cancelled) {
+    throw new ExecutorDataExpired(status, {
       transferId,
       lighthouseData,
     });
@@ -195,7 +195,7 @@ export const executeSlowPathData = async (
     // TODO: If the first slow-liq transfer fails, we'll try to send backup data one by one
     // If any of backup data succeeds, we'll make the data status `sent`.
     // If all of them also fail, we'll reset all the data for a given transferId
-    const backupSlowTxs = await cache.lighthousetxs.getBackupData(transferId);
+    const backupSlowTxs = await cache.executors.getBackupData(transferId);
     logger.debug("Running a fallback mechanism", requestContext, methodContext, { transferId, backupSlowTxs });
     for (const backupSlowTx of backupSlowTxs) {
       taskId = await sendExecuteSlowToRelayer(backupSlowTx, requestContext);
@@ -204,10 +204,10 @@ export const executeSlowPathData = async (
   }
 
   if (taskId) {
-    await cache.lighthousetxs.setLightHouseDataStatus(transferId, LightHouseDataStatus.Sent);
-    await cache.lighthousetxs.upsertTask({ transferId, taskId });
+    await cache.executors.setExecutorDataStatus(transferId, ExecutorDataStatus.Sent);
+    await cache.executors.upsertTask({ transferId, taskId });
   } else {
     // Prunes all the lighthouse data for a given transferId
-    await cache.lighthousetxs.pruneLighthouseData(transferId);
+    await cache.executors.pruneLighthouseData(transferId);
   }
 };

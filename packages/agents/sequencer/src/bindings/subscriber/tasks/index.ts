@@ -1,4 +1,4 @@
-import { createLoggingContext, getGelatoTaskStatus, jsonifyError, LightHouseDataStatus } from "@connext/nxtp-utils";
+import { createLoggingContext, getGelatoTaskStatus, jsonifyError, ExecutorDataStatus } from "@connext/nxtp-utils";
 import { GelatoTaskState } from "@connext/nxtp-utils/dist/types/relayer";
 import interval from "interval-promise";
 
@@ -34,16 +34,16 @@ export const updateTasks = async () => {
   } = getContext();
   const { requestContext, methodContext } = createLoggingContext(updateTasks.name);
   logger.info("Method start", requestContext, methodContext);
-  const pendingExecuteSlowTxs = await cache.lighthousetxs.getSentTransfers();
+  const pendingExecuteSlowTxs = await cache.executors.getSentTransfers();
   await Promise.all(
     pendingExecuteSlowTxs.map(async (transferId: string) => {
-      const metaTxTask = await cache.lighthousetxs.getTask(transferId);
+      const metaTxTask = await cache.executors.getTask(transferId);
       const taskId = metaTxTask?.taskId;
       if (taskId) {
         const taskStatus = await getGelatoTaskStatus(taskId);
         if (taskStatus === GelatoTaskState.ExecSuccess) {
-          await cache.lighthousetxs.setLightHouseDataStatus(transferId, LightHouseDataStatus.Completed);
-          await cache.lighthousetxs.pruneLighthouseData(transferId);
+          await cache.executors.setExecutorDataStatus(transferId, ExecutorDataStatus.Completed);
+          await cache.executors.pruneLighthouseData(transferId);
         }
       }
     }),

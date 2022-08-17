@@ -6,7 +6,7 @@ import { Wallet } from "ethers";
 import { Web3Signer } from "@connext/nxtp-adapters-web3signer";
 import { ConnextContractInterfaces, TransactionService } from "@connext/nxtp-txservice";
 
-import { NxtpRouterConfig } from "../config";
+import { NxtpRouterConfig } from "../../config";
 
 export type AppContext = {
   logger: Logger;

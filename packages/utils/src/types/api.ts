@@ -1,7 +1,7 @@
 import { Type, Static } from "@sinclair/typebox";
 
 import { BidSchema } from "./auctions";
-import { LightHouseDataSchema, LightHouseDataStatus } from "./lighthouse";
+import { ExecutorDataSchema, ExecutorDataStatus } from "./lighthouse";
 import { NxtpErrorJsonSchema } from "./error";
 // import { ExecuteArgsSchema, CallParamsSchema } from "./xtransfers";
 import { TAddress, TChainId, TDecimalString } from "./primitives";
@@ -53,16 +53,16 @@ export const ExecuteFastApiGetQueuedResponseSchema = Type.Object({
 });
 export type ExecuteFastApiGetQueuedResponse = Static<typeof ExecuteFastApiGetQueuedResponseSchema>;
 
-export const LightHouseDataStatusRequestSchema = Type.Object({ transferId: Type.String() });
-export type LightHouseDataStatusRequest = Static<typeof LightHouseDataStatusRequestSchema>;
+export const ExecutorDataStatusRequestSchema = Type.Object({ transferId: Type.String() });
+export type ExecutorDataStatusRequest = Static<typeof ExecutorDataStatusRequestSchema>;
 
-export const LightHouseDataStatusResponseSchema = Type.Object({
+export const ExecutorDataStatusResponseSchema = Type.Object({
   transferId: Type.String(),
-  status: Type.Enum(LightHouseDataStatus),
+  status: Type.Enum(ExecutorDataStatus),
 });
-export type LightHouseDataStatusResponse = Static<typeof LightHouseDataStatusResponseSchema>;
+export type ExecutorDataStatusResponse = Static<typeof ExecutorDataStatusResponseSchema>;
 
-export type LightHousePostDataRequest = Static<typeof LightHouseDataSchema>;
+export type LightHousePostDataRequest = Static<typeof ExecutorDataSchema>;
 
 export const LightHousePostDataResponseSchema = Type.Object({
   message: Type.String(),

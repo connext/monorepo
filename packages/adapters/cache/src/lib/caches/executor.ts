@@ -1,47 +1,47 @@
-import { LightHouseDataStatus, LightHouseData, MetaTxTask, getNtpTimeSeconds } from "@connext/nxtp-utils";
+import { ExecutorDataStatus, ExecutorData, MetaTxTask, getNtpTimeSeconds } from "@connext/nxtp-utils";
 
 import { Cache } from "./cache";
 
 /**
  * Redis Store Details:
- * Lighthouse Data:
- *   key: data:$transferId | value: LightHouseData;
+ * Executor Data:
+ *   key: data:$transferId | value: ExecutorData;
  *
- * Lighthouse tx Status:
- *   key: status:$transferId | value: LightHouseDataStatus;
+ * Executor tx Status:
+ *   key: status:$transferId | value: ExecutorDataStatus;
  */
-export class LightHouseCache extends Cache {
-  private readonly prefix = "lighthouse";
+export class ExecutorCache extends Cache {
+  private readonly prefix = "executor";
 
-  /// MARK - LightHouse Data
+  /// MARK - Executor Data
   /**
-   * Stores lighthouse data in the cache. All lighthouse data will be stored (JSON stringfied)
+   * Stores executor data in the cache. All executor data will be stored (JSON stringfied)
    * and they're indexed by transferId
    *
-   * @param params - LightHouse data to store
+   * @param params - Executor data to store
    * @returns 1 if added, 0 if updated.
    */
-  public async storeLightHouseData(params: LightHouseData): Promise<number> {
+  public async storeExecutorData(params: ExecutorData): Promise<number> {
     const key = `${this.prefix}:data`;
     return await this.data.hset(key, params.transferId, JSON.stringify(params));
   }
 
   /**
-   * Get lighthouse data for a given transferId
+   * Get executor data for a given transferId
    * @param transferId - Transfer Id
    */
-  public async getLightHouseData(transferId: string): Promise<LightHouseData | undefined> {
+  public async getExecutorData(transferId: string): Promise<ExecutorData | undefined> {
     const key = `${this.prefix}:data`;
     const res = await this.data.hget(key, transferId);
-    return res ? (JSON.parse(res) as LightHouseData) : undefined;
+    return res ? (JSON.parse(res) as ExecutorData) : undefined;
   }
 
   /**
-   * Stores lighthouse data to the backup store.
-   * @param params - The lighthouse data you're gonna store
+   * Stores executor data to the backup store.
+   * @param params - The executor data you're gonna store
    * @returns 2 if skipped, 1 if added, 0 if updated.
    */
-  public async storeBackupData(params: LightHouseData): Promise<number> {
+  public async storeBackupData(params: ExecutorData): Promise<number> {
     const rawData = JSON.stringify(params);
     const currentPending = await this.getBackupData(params.transferId);
     const convertedPendings = currentPending.map((pending) => JSON.stringify(pending));
@@ -53,22 +53,22 @@ export class LightHouseCache extends Cache {
         JSON.stringify([...currentPending, params]),
       );
     } else {
-      // We don't need to store the exact lighthouse data in the backup cache
+      // We don't need to store the exact executor data in the backup cache
       return 2;
     }
   }
 
   /**
-   * Gets all the lighthouse data from the backup store for a given transfer id
+   * Gets all the executor data from the backup store for a given transfer id
    * @param transferId - The transfer id
-   * @returns The array of lighthouse data.
+   * @returns The array of executor data.
    */
-  public async getBackupData(transferId: string): Promise<LightHouseData[]> {
+  public async getBackupData(transferId: string): Promise<ExecutorData[]> {
     return JSON.parse((await this.data.hget(`${this.prefix}:backup`, transferId)) ?? "[]");
   }
 
   /**
-   * Removes all the lighthouse data including backup items for a given transferId.
+   * Removes all the executor data including backup items for a given transferId.
    * @param tranferId - The transferId you're gonna remove for
    */
   public async pruneLighthouseData(tranferId: string): Promise<void> {
@@ -77,17 +77,17 @@ export class LightHouseCache extends Cache {
     await this.data.hdel(dataKey, tranferId);
     await this.data.hdel(backupKey, tranferId);
 
-    await this.setLightHouseDataStatus(tranferId, LightHouseDataStatus.None);
+    await this.setExecutorDataStatus(tranferId, ExecutorDataStatus.None);
   }
 
-  /// MARK - LightHouse Tx Status
+  /// MARK - Executor Tx Status
   /**
    * Set the status for a given tranfer id
    * @param tranferId - Transfer Id
    * @param status - The status to set
    * @returns 1 if added, 0 if updated.
    */
-  public async setLightHouseDataStatus(tranferId: string, status: LightHouseDataStatus): Promise<number> {
+  public async setExecutorDataStatus(tranferId: string, status: ExecutorDataStatus): Promise<number> {
     const key = `${this.prefix}:status`;
     return await this.data.hset(key, tranferId, status.toString());
   }
@@ -95,14 +95,14 @@ export class LightHouseCache extends Cache {
   /**
    * Get the status for a given transfer id
    * @param transferId - Tranfer Id to get
-   * @returns The lighthouse tx status.
+   * @returns The executor tx status.
    */
-  public async getLightHouseDataStatus(transferId: string): Promise<LightHouseDataStatus> {
+  public async getExecutorDataStatus(transferId: string): Promise<ExecutorDataStatus> {
     const key = `${this.prefix}:status`;
     const res = await this.data.hget(key, transferId);
-    return res && Object.values(LightHouseDataStatus).includes(res as LightHouseDataStatus)
-      ? LightHouseDataStatus[res as LightHouseDataStatus]
-      : LightHouseDataStatus.None;
+    return res && Object.values(ExecutorDataStatus).includes(res as ExecutorDataStatus)
+      ? ExecutorDataStatus[res as ExecutorDataStatus]
+      : ExecutorDataStatus.None;
   }
 
   /// MARK - Meta TX Tasks

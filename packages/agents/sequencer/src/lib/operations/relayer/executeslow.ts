@@ -2,7 +2,7 @@ import {
   RequestContext,
   createLoggingContext,
   connextRelayerSend,
-  LightHouseData,
+  ExecutorData,
   getChainIdFromDomain,
 } from "@connext/nxtp-utils";
 
@@ -10,7 +10,7 @@ import { getContext } from "../../../sequencer";
 import { MissingTransfer } from "../../errors";
 
 export const sendExecuteSlowToRelayer = async (
-  lighthouseData: LightHouseData,
+  lighthouseData: ExecutorData,
   _requestContext: RequestContext,
 ): Promise<string> => {
   const {

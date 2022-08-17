@@ -30,7 +30,7 @@ export const send = async (
   const url = formatUrl(config.sequencerUrl, "execute-slow");
   try {
     const response = await axios.post<any, AxiosResponse<any, any>, LightHousePostDataRequest>(url, {
-      lighthouseVersion: version,
+      executorVersion: version,
       transferId,
       origin,
       relayerFee,

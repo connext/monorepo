@@ -1,6 +1,6 @@
 import { createLoggingContext, jsonifyError, OriginTransfer, SubgraphQueryMetaParams } from "@connext/nxtp-utils";
 
-import { XCALL_MESSAGE_TYPE, MQ_EXCHANGE, XCALL_QUEUE } from "../../setup";
+import { XCALL_MESSAGE_TYPE, MQ_EXCHANGE, XCALL_QUEUE } from "../../../setup";
 import { getContext } from "../publisher";
 
 // Ought to be configured properly for each network; we consult the chain config below.

@@ -1,9 +1,9 @@
 import { createMethodContext, createRequestContext, getChainData, Logger } from "@connext/nxtp-utils";
 import { contractDeployments } from "@connext/nxtp-txservice";
 
-import { getConfig, NxtpRouterConfig } from "../config";
-import { bindMetrics } from "../bindings";
-import { setupCache, setupMq, setupSubgraphReader } from "../setup";
+import { getConfig, NxtpRouterConfig } from "../../config";
+import { bindMetrics } from "../../bindings";
+import { setupCache, setupMq, setupSubgraphReader } from "../../setup";
 
 import { AppContext } from "./context";
 import { bindSubgraph, bindServer } from "./bindings";

@@ -4,4 +4,4 @@ export { AuctionsCache } from "./auctions";
 export { ConsumersCache } from "./consumers";
 export { RoutersCache } from "./routers";
 export { TasksCache } from "./tasks";
-export { LightHouseCache } from "./lighthouse";
+export { ExecutorCache } from "./executor";

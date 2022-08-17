@@ -24,11 +24,11 @@ import {
   SequencerResponseInvalid,
   UnableToGetAsset,
   NomadHomeBlacklisted,
-} from "../../errors";
+} from "../../../errors";
 // @ts-ignore
-import { version } from "../../../package.json";
+import { version } from "../../../../package.json";
 import { getContext } from "../subscriber";
-import { signRouterPathPayload } from "../../mockable";
+import { signRouterPathPayload } from "../../../mockable";
 
 //helper function to match our config environments with nomads
 export const getBlacklist = async (

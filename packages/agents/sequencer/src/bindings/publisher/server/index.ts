@@ -18,14 +18,14 @@ import {
   ClearCacheRequestSchema,
   AdminRequest,
   NxtpError,
-  LightHouseDataSchema,
+  ExecutorDataSchema,
   LightHousePostDataRequest,
   LightHousePostDataResponseSchema,
   LightHousePostDataResponse,
-  LightHouseDataStatusRequest,
-  LightHouseDataStatusResponse,
-  LightHouseDataStatusRequestSchema,
-  LightHouseDataStatusResponseSchema,
+  ExecutorDataStatusRequest,
+  ExecutorDataStatusResponse,
+  ExecutorDataStatusRequestSchema,
+  ExecutorDataStatusResponseSchema,
 } from "@connext/nxtp-utils";
 
 import { getContext } from "../../../sequencer";
@@ -153,7 +153,7 @@ export const bindServer = async (): Promise<FastifyInstance> => {
     "/execute-slow",
     {
       schema: {
-        body: LightHouseDataSchema,
+        body: ExecutorDataSchema,
         response: {
           200: LightHousePostDataResponseSchema,
           500: SequencerApiErrorResponseSchema,
@@ -163,11 +163,11 @@ export const bindServer = async (): Promise<FastifyInstance> => {
     async (request, response) => {
       const { requestContext } = createLoggingContext("POST /execute-slow endpoint");
       const {
-        lighthouse: { storeLightHouseData },
+        lighthouse: { storeExecutorData },
       } = getOperations();
       try {
         const lighthouseData = request.body;
-        await storeLightHouseData(lighthouseData, requestContext);
+        await storeExecutorData(lighthouseData, requestContext);
         return response
           .status(200)
           .send({ message: "lighthouse data received", transferId: lighthouseData.transferId });
@@ -178,13 +178,13 @@ export const bindServer = async (): Promise<FastifyInstance> => {
     },
   );
 
-  server.get<{ Body: LightHouseDataStatusRequest; Reply: LightHouseDataStatusResponse | SequencerApiErrorResponse }>(
+  server.get<{ Body: ExecutorDataStatusRequest; Reply: ExecutorDataStatusResponse | SequencerApiErrorResponse }>(
     "/execute-slow/:transferId",
     {
       schema: {
-        body: LightHouseDataStatusRequestSchema,
+        body: ExecutorDataStatusRequestSchema,
         response: {
-          200: LightHouseDataStatusResponseSchema,
+          200: ExecutorDataStatusResponseSchema,
           500: SequencerApiErrorResponseSchema,
         },
       },
@@ -192,7 +192,7 @@ export const bindServer = async (): Promise<FastifyInstance> => {
     async (request, response) => {
       try {
         const transferId = request.body.transferId;
-        const status = await cache.lighthousetxs.getLightHouseDataStatus(transferId);
+        const status = await cache.executors.getExecutorDataStatus(transferId);
         return response.status(200).send({ transferId, status });
       } catch (error: unknown) {
         const type = (error as NxtpError).type;

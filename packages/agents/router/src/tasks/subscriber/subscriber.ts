@@ -20,9 +20,9 @@ if (!(globalThis as any).fetch) {
   (globalThis as any).Response = Response;
 }
 
-import { getConfig, NxtpRouterConfig } from "../config";
-import { bindMetrics } from "../bindings";
-import { setupMq, setupSubgraphReader } from "../setup";
+import { getConfig, NxtpRouterConfig } from "../../config";
+import { bindMetrics } from "../../bindings";
+import { setupMq, setupSubgraphReader } from "../../setup";
 
 import { AppContext } from "./context";
 import { bindMessageQueue, bindServer } from "./bindings";

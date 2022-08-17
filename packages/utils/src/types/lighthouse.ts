@@ -1,6 +1,6 @@
 import { Type, Static } from "@sinclair/typebox";
 
-export enum LightHouseDataStatus {
+export enum ExecutorDataStatus {
   None = "None",
   Pending = "Pending",
   Sent = "Sent",
@@ -8,8 +8,8 @@ export enum LightHouseDataStatus {
   Cancelled = "Cancelled",
 }
 
-export const LightHouseDataSchema = Type.Object({
-  lighthouseVersion: Type.String(),
+export const ExecutorDataSchema = Type.Object({
+  executorVersion: Type.String(),
   transferId: Type.String(),
   origin: Type.String(),
   relayerFee: Type.Object({
@@ -19,7 +19,7 @@ export const LightHouseDataSchema = Type.Object({
   encodedData: Type.String(),
 });
 
-export type LightHouseData = Static<typeof LightHouseDataSchema>;
+export type ExecutorData = Static<typeof ExecutorDataSchema>;
 
 // Record of important data for any meta tx.
 export type MetaTxTask = {

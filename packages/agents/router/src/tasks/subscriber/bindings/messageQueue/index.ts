@@ -1,7 +1,7 @@
 import { createLoggingContext, jsonifyError, OriginTransfer } from "@connext/nxtp-utils";
 
-import { ExecuteError } from "../../../errors";
-import { XCALL_MESSAGE_TYPE, XCALL_QUEUE } from "../../../setup";
+import { ExecuteError } from "../../../../errors";
+import { XCALL_MESSAGE_TYPE, XCALL_QUEUE } from "../../../../setup";
 import { execute } from "../../operations";
 import { getContext } from "../../subscriber";
 
