@@ -117,10 +117,7 @@ contract GnosisL2Connector is BaseGnosisConnector {
   /**
    * @dev AMB calls this function to store aggregate root that is sent up by the root manager
    */
-  function _processMessage(
-    address, // _sender -- not used
-    bytes memory _data
-  ) internal override {
+  function _processMessage(bytes memory _data) internal override {
     // ensure the l1 connector sent the message
     require(_verifySender(mirrorConnector), "!l1Connector");
     // ensure it is headed to this domain
@@ -173,13 +170,12 @@ contract GnosisL1Connector is BaseGnosisConnector {
       abi.encodeWithSelector(Connector.processMessage.selector, address(this), _data),
       mirrorProcessGas
     );
-    emit MessageSent(_data, msg.sender);
   }
 
   /**
    * @dev L2 connector calls this function to pass down latest outbound root
    */
-  function _processMessage(address _sender, bytes memory _data) internal override {
+  function _processMessage(bytes memory _data) internal override {
     // ensure the l1 connector sent the message
     require(_verifySender(mirrorConnector), "!l2Connector");
     // ensure it is headed to this domain
@@ -190,6 +186,5 @@ contract GnosisL1Connector is BaseGnosisConnector {
     require(_data.length == 32, "!length");
     // update the root on the root manager
     IRootManager(ROOT_MANAGER).setOutboundRoot(mirrorDomain, bytes32(_data));
-    emit MessageProcessed(_sender, _data, msg.sender);
   }
 }

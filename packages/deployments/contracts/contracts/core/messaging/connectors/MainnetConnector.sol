@@ -43,10 +43,7 @@ contract MainnetL1Connector is Connector {
    * @dev Called by the root manager to update the aggregateRoot. On mainnet, update the
    * aggregateRoot directly
    */
-  function _processMessage(
-    address, // _sender -- not used
-    bytes memory _data
-  ) internal override {
+  function _processMessage(bytes memory _data) internal override {
     // ensure the l1 connector sent the message
     require(_verifySender(ROOT_MANAGER), "!sender");
     // should be the aggregate root

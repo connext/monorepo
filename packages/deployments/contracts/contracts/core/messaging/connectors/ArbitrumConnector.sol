@@ -46,17 +46,15 @@ contract ArbitrumL2Connector is Connector {
 
   function _sendMessage(bytes memory _data) internal override {
     ArbitrumL2AMB(AMB).sendTxToL1(mirrorConnector, _data);
-    emit MessageSent(_data, msg.sender);
   }
 
-  function _processMessage(address _sender, bytes memory _data) internal override {
+  function _processMessage(bytes memory _data) internal override {
     // only callable by mirror connector
     require(_verifySender(mirrorConnector), "!mirrorConnector");
     // get the data (should be the aggregate root)
     require(_data.length == 32, "!length");
     // update the aggregate root on the domain
     update(bytes32(_data));
-    emit MessageProcessed(_sender, _data, msg.sender);
   }
 }
 
@@ -97,17 +95,15 @@ contract ArbitrumL1Connector is Connector {
   }
 
   function _sendMessage(bytes memory _data) internal override {
-    // ArbitrumL1AMB(AMB).sendContractTransaction(mirrorProcessGas, defaultGasPrice, mirrorConnector, 0, _data);
-    emit MessageSent(_data, msg.sender);
+    ArbitrumL1AMB(AMB).sendContractTransaction(mirrorProcessGas, defaultGasPrice, mirrorConnector, 0, _data);
   }
 
-  function _processMessage(address _sender, bytes memory _data) internal override {
+  function _processMessage(bytes memory _data) internal override {
     // only callable by mirror connector
     require(_verifySender(mirrorConnector), "!mirrorConnector");
     // get the data (should be the aggregate root)
     require(_data.length == 32, "!length");
     // update the root on the root manager
     IRootManager(ROOT_MANAGER).setOutboundRoot(mirrorDomain, bytes32(_data));
-    emit MessageProcessed(_sender, _data, msg.sender);
   }
 }
