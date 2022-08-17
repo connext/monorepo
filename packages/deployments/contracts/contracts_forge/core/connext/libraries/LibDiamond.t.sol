@@ -179,8 +179,6 @@ contract LibDiamondTest is ForgeHelper, Deployer {
 
     vm.warp(100);
     connextHandler.proposeDiamondCut(facetCuts, address(diamondInit), initCallData);
-
-    vm.warp(100 + 1);
     connextHandler.diamondCut(facetCuts, address(diamondInit), initCallData);
 
     assertTrue(connextDiamondProxy.isInitialized());
