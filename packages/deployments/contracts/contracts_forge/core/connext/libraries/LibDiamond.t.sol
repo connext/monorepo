@@ -16,6 +16,7 @@ contract LibDiamondTest is ForgeHelper, Deployer {
   // ============ Storage ============
   IConnextHandler connextHandler;
   uint32 domain = 1;
+  uint256 acceptanceDelay = 7 days;
   address internal xAppConnectionManager = address(1);
   address wrapper = address(2);
   address relayerFeeRouter = address(3);
@@ -32,7 +33,8 @@ contract LibDiamondTest is ForgeHelper, Deployer {
       tokenRegistry,
       address(wrapper),
       address(relayerFeeRouter),
-      payable(promiseRouter)
+      payable(promiseRouter),
+      acceptanceDelay
     );
 
     connextHandler = IConnextHandler(address(connextDiamondProxy));
@@ -63,7 +65,8 @@ contract LibDiamondTest is ForgeHelper, Deployer {
       newTokenRegistry,
       newWrapper,
       newRelayerFeeRouter,
-      newPromiseRouter
+      newPromiseRouter,
+      acceptanceDelay
     );
 
     IDiamondCut.FacetCut[] memory facetCuts = new IDiamondCut.FacetCut[](1);

@@ -13,8 +13,6 @@ import {IDiamondCut} from "../interfaces/IDiamondCut.sol";
 library LibDiamond {
   bytes32 constant DIAMOND_STORAGE_POSITION = keccak256("diamond.standard.diamond.storage");
 
-  uint256 private constant _delay = 7 days;
-
   struct FacetAddressAndPosition {
     address facetAddress;
     uint96 functionSelectorPosition; // position in facetFunctionSelectors.functionSelectors array
@@ -40,6 +38,8 @@ library LibDiamond {
     address contractOwner;
     // hash of proposed facets => acceptance time
     mapping(bytes32 => uint256) acceptanceTimes;
+    // acceptance delay for upgrading facets
+    uint256 acceptanceDelay;
   }
 
   function diamondStorage() internal pure returns (DiamondStorage storage ds) {
@@ -73,7 +73,7 @@ library LibDiamond {
     address _init,
     bytes memory _calldata
   ) internal {
-    uint256 acceptance = block.timestamp + _delay;
+    uint256 acceptance = block.timestamp + diamondStorage().acceptanceDelay;
     diamondStorage().acceptanceTimes[keccak256(abi.encode(_diamondCut, _init, _calldata))] = acceptance;
     emit DiamondCutProposed(_diamondCut, _init, _calldata, acceptance);
   }
