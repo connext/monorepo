@@ -107,9 +107,9 @@ export class LightHouseCache extends Cache {
 
   /// MARK - Meta TX Tasks
   /**
-   * Gets the auction meta tx information for the given transfer ID.
-   * @param transferId - The ID of the transfer we are auctioning.
-   * @returns AuctionTask if exists, undefined otherwise.
+   * Gets the meta tx information for the given transfer ID.
+   * @param transferId - The ID of the transfer we are relaying.
+   * @returns MetaTxTask if exists, undefined otherwise.
    */
   public async getTask(transferId: string): Promise<MetaTxTask | undefined> {
     const res = await this.data.hget(`${this.prefix}:task`, transferId);
@@ -119,8 +119,8 @@ export class LightHouseCache extends Cache {
   /**
    * Creates or updates the meta tx information for the given transfer ID.
    *
-   * @param data.transferId - The ID of transfer we are auctioning.
-   * @param data.taskId - Auction task ID from relayer.
+   * @param data.transferId - The ID of transfer we are relaying.
+   * @param data.taskId - MetaTx task ID from relayer.
    *
    * @returns 0 if updated, 1 if created
    */
@@ -134,5 +134,26 @@ export class LightHouseCache extends Cache {
     };
     const res = await this.data.hset(`${this.prefix}:task`, transferId, JSON.stringify(task));
     return Number(res >= 1);
+  }
+
+  /**
+   * Gets all the transferIds which are already transferred to the exernal relayer
+   */
+  public async getSentTransfers(): Promise<string[]> {
+    const stream = this.data.hscanStream(`${this.prefix}:task`);
+    const keys: string[] = [];
+    await new Promise((res) => {
+      stream.on("data", (resultKeys: string[] = []) => {
+        // Note that resultKeys will sometimes contain duplicates due to SCAN's implementation in Redis
+        // link : https://redis.io/commands/scan/#scan-guarantees
+        for (const resultKey of resultKeys) {
+          if (!keys.includes(resultKey)) keys.push(resultKey);
+        }
+      });
+      stream.on("end", async () => {
+        res(undefined);
+      });
+    });
+    return keys;
   }
 }
