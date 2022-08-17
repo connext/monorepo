@@ -170,12 +170,12 @@ const sendXCall = async (
       to: tx.to!,
       value: tx.value ?? 0,
       data: utils.hexlify(tx.data!),
-      chainId: 1337,
+      chainId: PARAMETERS.A.CHAIN,
     });
     receipt = await res.wait(1);
   } else {
     receipt = await userTxService.sendTx(
-      { to: tx.to!, value: tx.value ?? 0, data: utils.hexlify(tx.data!), chainId: 1337 },
+      { to: tx.to!, value: tx.value ?? 0, data: utils.hexlify(tx.data!), chainId: PARAMETERS.A.CHAIN },
       requestContext,
     );
   }
@@ -183,6 +183,7 @@ const sendXCall = async (
   logger.info("XCall sent!", undefined, undefined, {
     hash: receipt.transactionHash,
     confirmations: receipt.confirmations,
+    blockNumber: receipt.blockNumber,
     logs: receipt.logs
       .map((event) => {
         try {
@@ -221,17 +222,17 @@ const getTransferByTransactionHash = async (
       try {
         const dbTransfer = await sdkUtils.getTransferByTransactionHash(transactionHash);
         if (dbTransfer.length === 0) {
-          console.log("No results! Waiting for next loop...");
+          logger.info("No results! Waiting for next loop...");
           return undefined;
         }
         const transfer = convertFromDbTransfer(dbTransfer[0]);
-        console.log(transfer);
+        logger.info("Transfer found!", undefined, undefined, { transfer });
         if (transfer.origin!.xcall!.transactionHash) {
           return transfer;
         }
       } catch (e: unknown) {
         console.warn(e);
-        console.log("Waiting for next loop...");
+        logger.info("Waiting for next loop...");
       }
       return undefined;
     },
