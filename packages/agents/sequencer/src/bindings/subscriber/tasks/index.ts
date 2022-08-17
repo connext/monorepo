@@ -1,4 +1,5 @@
-import { createLoggingContext, jsonifyError } from "@connext/nxtp-utils";
+import { createLoggingContext, getGelatoTaskStatus, jsonifyError, LightHouseDataStatus } from "@connext/nxtp-utils";
+import { GelatoTaskState } from "@connext/nxtp-utils/dist/types/relayer";
 import interval from "interval-promise";
 
 import { getContext } from "../../../sequencer";
@@ -39,6 +40,11 @@ export const updateTasks = async () => {
       const metaTxTask = await cache.lighthousetxs.getTask(transferId);
       const taskId = metaTxTask?.taskId;
       if (taskId) {
+        const taskStatus = await getGelatoTaskStatus(taskId);
+        if (taskStatus === GelatoTaskState.ExecSuccess) {
+          await cache.lighthousetxs.setLightHouseDataStatus(transferId, LightHouseDataStatus.Completed);
+          await cache.lighthousetxs.pruneLighthouseData(transferId);
+        }
       }
     }),
   );
