@@ -194,17 +194,22 @@ const getTransferByTransactionHash = async (
 
   const startTime = Date.now();
   const xTransfer: XTransfer | undefined = await pollSomething({
-    // Attempts will be made for 2 minute.
+    // Attempts will be made for 2 minutes.
     attempts: Math.floor(120_000 / SUBG_POLL_PARITY),
     parity: SUBG_POLL_PARITY,
     method: async () => {
       try {
         const dbTransfer = await sdkUtils.getTransferByTransactionHash(transactionHash);
+        if (dbTransfer.length === 0) {
+          return undefined;
+        }
         const transfer = convertFromDbTransfer(dbTransfer[0]);
+        console.log(transfer);
         if (transfer.origin!.xcall!.transactionHash) {
           return transfer;
         }
       } catch (e: unknown) {
+        console.warn(e);
         console.log("Waiting for next loop...");
       }
       return undefined;
