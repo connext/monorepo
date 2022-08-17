@@ -1,5 +1,5 @@
 import axios from "axios";
-import { BigNumber } from "ethers";
+import { BigNumber, constants } from "ethers";
 
 import { Logger } from "../logging";
 import {
@@ -47,7 +47,7 @@ export const isChainSupportedByGelato = async (chainId: number): Promise<boolean
 };
 
 export const getGelatoRelayerAddress = async (chainId: number, logger?: Logger): Promise<string> => {
-  let result = [];
+  let result = constants.AddressZero;
   try {
     const res = await axios.get(`${GELATO_SERVER}/relays/${chainId}/address`);
     result = res.data.address;
@@ -159,7 +159,7 @@ export const getConversionRate = async (_chainId: number, to?: string, logger?: 
  * @returns - GelatoTaskState
  */
 export const getGelatoTaskStatus = async (taskId: string, logger?: Logger): Promise<GelatoTaskState> => {
-  let result = GelatoTaskState.CheckPending;
+  let result = GelatoTaskState.NotFound;
   try {
     const apiEndpoint = `${GELATO_SERVER}/tasks/${taskId}`;
     const res = await axios.get(apiEndpoint);
