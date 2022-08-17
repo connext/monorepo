@@ -98,4 +98,40 @@ contract LibDiamondTest is ForgeHelper, Deployer {
     assertTrue(address(connextHandler.promiseRouter()) != newPromiseRouter);
     assertTrue(address(connextHandler.promiseRouter()) == promiseRouter);
   }
+
+  // Diamond cut prior to elapsed delay should revert.
+  function testFail_LibDiamond__initializeDiamondCut_beforeAcceptanceDelay_reverts() public {
+    uint32 newDomain = 2;
+    address newXAppConnectionManager = address(11);
+    address newWrapper = address(12);
+    address newRelayerFeeRouter = address(13);
+    address newPromiseRouter = address(14);
+    address newTokenRegistry = address(15);
+
+    bytes memory initCallData = abi.encodeWithSelector(
+      DiamondInit.init.selector,
+      newDomain,
+      newXAppConnectionManager,
+      newTokenRegistry,
+      newWrapper,
+      newRelayerFeeRouter,
+      newPromiseRouter,
+      acceptanceDelay
+    );
+
+    IDiamondCut.FacetCut[] memory facetCuts = new IDiamondCut.FacetCut[](1);
+    bytes4[] memory versionFacetSelectors = new bytes4[](1);
+    versionFacetSelectors[0] = VersionFacet.VERSION.selector;
+    facetCuts[0] = IDiamondCut.FacetCut({
+      facetAddress: address(0),
+      action: IDiamondCut.FacetCutAction.Remove,
+      functionSelectors: versionFacetSelectors
+    });
+
+    vm.warp(100);
+    connextHandler.proposeDiamondCut(facetCuts, address(diamondInit), initCallData);
+
+    vm.warp(100);
+    connextHandler.diamondCut(facetCuts, address(diamondInit), initCallData);
+  }
 }
