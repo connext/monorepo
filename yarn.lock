@@ -770,8 +770,8 @@ __metadata:
     "@nomiclabs/hardhat-ethers": 2.1.0
     "@nomiclabs/hardhat-etherscan": 3.1.0
     "@nomiclabs/hardhat-waffle": 2.0.3
-    "@openzeppelin/contracts": 4.5.0
-    "@openzeppelin/contracts-upgradeable": 4.5.2
+    "@openzeppelin/contracts": 4.7.3
+    "@openzeppelin/contracts-upgradeable": 4.7.3
     "@openzeppelin/hardhat-upgrades": 1.17.0
     "@sinclair/typebox": 0.24.20
     "@tenderly/hardhat-tenderly": 1.1.4
@@ -3659,10 +3659,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@openzeppelin/contracts-upgradeable@npm:4.5.2":
-  version: 4.5.2
-  resolution: "@openzeppelin/contracts-upgradeable@npm:4.5.2"
-  checksum: bd6a12eb83d8e3194e0847ffb248a1063668e2bf723afd21066316090de9b02e95af6057086a95fa21b0d09a2ef0ea057459bb5f5645dfff298e59e8c3267692
+"@openzeppelin/contracts-upgradeable@npm:4.7.3":
+  version: 4.7.3
+  resolution: "@openzeppelin/contracts-upgradeable@npm:4.7.3"
+  checksum: c9ffb40cb847a975d440204fc6a811f43af960050242f707332b984d29bd16dc242ffa0935de61867aeb9e0357fadedb16b09b276deda5e9775582face831021
   languageName: node
   linkType: hard
 
@@ -3673,10 +3673,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@openzeppelin/contracts@npm:4.5.0":
-  version: 4.5.0
-  resolution: "@openzeppelin/contracts@npm:4.5.0"
-  checksum: 1c9c5dff041905771d2a83ac29c64dbf0b48603de43f74a34fb1358813d7c7bf259efe2f64e2112b410c5cca7a0b41aaedd882368be5f01a6d50a3ee0740f962
+"@openzeppelin/contracts@npm:4.7.3":
+  version: 4.7.3
+  resolution: "@openzeppelin/contracts@npm:4.7.3"
+  checksum: 18382fcacf7cfd652f5dd0e70c08f08ea74eaa8ff11e9f9850639ada70198ae01a3f9493d89a52d724f2db394e9616bf6258017804612ba273167cf657fbb073
   languageName: node
   linkType: hard
 
@@ -9855,7 +9855,7 @@ __metadata:
   dependencies:
     bn.js: ^4.11.8
     ethereumjs-util: ^6.0.0
-  checksum: 03127d09960e5f8a44167463faf25b2894db2f746376dbb8195b789ed11762f93db9c574eaa7c498c400063508e9dfc1c80de2edf5f0e1406b25c87d860ff2f1
+  checksum: ae074be0bb012857ab5d3ae644d1163b908a48dd724b7d2567cfde309dc72222d460438f2411936a70dc949dc604ce1ef7118f7273bd525815579143c907e336
   languageName: node
   linkType: hard
 
@@ -11771,7 +11771,7 @@ __metadata:
     yargs-parser: ^16.1.0
   bin:
     gluegun: bin/gluegun
-  checksum: 71abe7f31555f169a47510675596f79193c8f55e4beeb4e6efa06c22d41988fa9c747d5e398af7f8401cca22c08ffb7a6d57b03d764c14858513c9eba23b53b8
+  checksum: 39134821c7233bae61fa0d85bcc5ab4ccd2cbe00173c53cc3cab74c4f29d54de939809832fc4e9bedb896a0795313d28f854bc7d5abe7b154bf7d77c319398bd
   languageName: node
   linkType: hard
 

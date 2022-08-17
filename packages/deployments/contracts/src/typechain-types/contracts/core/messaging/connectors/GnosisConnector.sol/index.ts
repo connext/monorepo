@@ -2,6 +2,7 @@
 /* tslint:disable */
 /* eslint-disable */
 export type { BaseGnosisConnector } from "./BaseGnosisConnector";
+export type { GnosisAMB } from "./GnosisAMB";
 export type { GnosisBridge } from "./GnosisBridge";
 export type { GnosisL1Connector } from "./GnosisL1Connector";
 export type { GnosisL2Connector } from "./GnosisL2Connector";

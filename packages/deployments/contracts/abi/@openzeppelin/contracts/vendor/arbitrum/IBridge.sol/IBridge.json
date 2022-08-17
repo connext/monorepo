@@ -1,0 +1,15 @@
+[
+  "event BridgeCallTriggered(address indexed,address indexed,uint256,bytes)",
+  "event InboxToggle(address indexed,bool)",
+  "event MessageDelivered(uint256 indexed,bytes32 indexed,address,uint8,address,bytes32)",
+  "event OutboxToggle(address indexed,bool)",
+  "function activeOutbox() view returns (address)",
+  "function allowedInboxes(address) view returns (bool)",
+  "function allowedOutboxes(address) view returns (bool)",
+  "function deliverMessageToInbox(uint8,address,bytes32) payable returns (uint256)",
+  "function executeCall(address,uint256,bytes) returns (bool, bytes)",
+  "function inboxAccs(uint256) view returns (bytes32)",
+  "function messageCount() view returns (uint256)",
+  "function setInbox(address,bool)",
+  "function setOutbox(address,bool)"
+]

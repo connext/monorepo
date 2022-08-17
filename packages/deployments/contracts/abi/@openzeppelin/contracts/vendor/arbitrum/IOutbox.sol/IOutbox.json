@@ -1,0 +1,12 @@
+[
+  "event OutBoxTransactionExecuted(address indexed,address indexed,uint256 indexed,uint256)",
+  "event OutboxEntryCreated(uint256 indexed,uint256,bytes32,uint256)",
+  "function l2ToL1BatchNum() view returns (uint256)",
+  "function l2ToL1Block() view returns (uint256)",
+  "function l2ToL1EthBlock() view returns (uint256)",
+  "function l2ToL1OutputId() view returns (bytes32)",
+  "function l2ToL1Sender() view returns (address)",
+  "function l2ToL1Timestamp() view returns (uint256)",
+  "function outboxEntryExists(uint256) view returns (bool)",
+  "function processOutgoingMessages(bytes,uint256[])"
+]

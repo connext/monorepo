@@ -1,4 +1,5 @@
 [
+  "event Initialized(uint8)",
   "event OwnershipTransferred(address indexed,address indexed)",
   "function owner() view returns (address)",
   "function renounceOwnership()",

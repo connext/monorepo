@@ -231,17 +231,26 @@ export interface BridgeRouterInterface extends utils.Interface {
   ): Result;
 
   events: {
+    "Initialized(uint8)": EventFragment;
     "OwnershipProposed(address)": EventFragment;
     "OwnershipTransferred(address,address)": EventFragment;
     "Receive(uint64,address,address,address,uint256)": EventFragment;
     "Send(address,address,uint32,bytes32,uint256,bool)": EventFragment;
   };
 
+  getEvent(nameOrSignatureOrTopic: "Initialized"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "OwnershipProposed"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "OwnershipTransferred"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "Receive"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "Send"): EventFragment;
 }
+
+export interface InitializedEventObject {
+  version: number;
+}
+export type InitializedEvent = TypedEvent<[number], InitializedEventObject>;
+
+export type InitializedEventFilter = TypedEventFilter<InitializedEvent>;
 
 export interface OwnershipProposedEventObject {
   proposedOwner: string;
@@ -610,6 +619,9 @@ export interface BridgeRouter extends BaseContract {
   };
 
   filters: {
+    "Initialized(uint8)"(version?: null): InitializedEventFilter;
+    Initialized(version?: null): InitializedEventFilter;
+
     "OwnershipProposed(address)"(
       proposedOwner?: PromiseOrValue<string> | null
     ): OwnershipProposedEventFilter;
