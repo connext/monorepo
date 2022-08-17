@@ -201,6 +201,7 @@ const getTransferByTransactionHash = async (
       try {
         const dbTransfer = await sdkUtils.getTransferByTransactionHash(transactionHash);
         if (dbTransfer.length === 0) {
+          console.log("No results! Waiting for next loop...");
           return undefined;
         }
         const transfer = convertFromDbTransfer(dbTransfer[0]);
