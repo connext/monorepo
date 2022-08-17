@@ -48,7 +48,7 @@ contract MainnetL1Connector is Connector {
     bytes memory _data
   ) internal override {
     // ensure the l1 connector sent the message
-    require(msg.sender == ROOT_MANAGER, "!sender");
+    require(_verifySender(ROOT_MANAGER), "!sender");
     // should be the aggregate root
     require(_data.length == 32, "!length");
     // update the aggregate root on the domain
