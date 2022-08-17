@@ -170,7 +170,7 @@ describe("ExecutorCache", () => {
       await cache.upsertTask({ transferId: mockTransferId3, taskId: mkBytes32("0x333") });
 
       const transferIds = await cache.getSentTransfers();
-      expect(transferIds).to.be.deep.eq([mockTransferId]);
+      expect(transferIds).to.be.deep.eq([mockTransferId1, mockTransferId2, mockTransferId3]);
     });
   });
 });
