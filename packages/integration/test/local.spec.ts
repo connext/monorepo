@@ -396,6 +396,18 @@ describe("LOCAL:E2E", () => {
     await destinationProvider.send("evm_setAutomine", [false]);
     await destinationProvider.send("hardhat_setBalance", [PARAMETERS.AGENTS.USER.address, "0x84595161401484A000000"]);
 
+    // Sanity checks: make sure addresses configured are correct.
+    for (const key of ["A", "B"]) {
+      const config = PARAMETERS[key as "A" | "B"];
+      const { CHAIN: chain, DEPLOYMENTS: deployments } = config;
+      for (const [deployment, address] of Object.entries(deployments)) {
+        const code = await deployerTxService.getCode(chain, address);
+        if (code === "0x") {
+          throw new Error(`No contract found at given ${deployment} address: ${address} on chain ${chain}!`);
+        }
+      }
+    }
+
     // Peripherals.
     logger.info("Setting up sdk...");
     const sdkConfig = {

@@ -1,6 +1,7 @@
 import { TransactionService } from "@connext/nxtp-txservice";
 import { createLoggingContext, Logger } from "@connext/nxtp-utils";
 import { ConnextHandlerInterface } from "@connext/nxtp-contracts";
+import { BigNumber } from "ethers";
 
 export const addConnextions = async (
   connextions: {
@@ -21,7 +22,11 @@ export const addConnextions = async (
           target.domain,
           target.ConnextHandler,
         ]);
-        await txService.sendTx({ chainId: source.chain, to: source.ConnextHandler, data, value: 0 }, requestContext);
+
+        await txService.sendTx(
+          { chainId: source.chain, to: source.ConnextHandler, data, value: BigNumber.from("0") },
+          requestContext,
+        );
       }
     }),
   );

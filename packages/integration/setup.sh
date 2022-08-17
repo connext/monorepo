@@ -13,7 +13,8 @@ relayer_image="${RELAYER_IMAGE:-'relayer:latest'}"
 cartographer_transfers_image="${CARTOGRAPHER_TRANSFERS_IMAGE:-'cartographer-transfers:latest'}"
 cartographer_routers_image="${CARTOGRAPHER_ROUTERS_IMAGE:-'cartographer-routers:latest'}"
 lighthouse_image="${LIGHTHOUSE_IMAGE:-'lighthouse:latest'}"
-WEB3_SIGNER_PRIVATE_KEY="0xc87509a1c067bbde78beb793e6fa76530b6382a4c0241e5e4a9ec0a0f44dc0d3"
+WEB3_SIGNER_PRIVATE_KEY_ROUTER="0xc87509a1c067bbde78beb793e6fa76530b6382a4c0241e5e4a9ec0a0f44dc0d3" # 0x627306090abaB3A6e1400e9345bC60c78a8BEf57
+WEB3_SIGNER_PRIVATE_KEY_SEQUENCER="0xae6ae8e5ccbfb04590405997ee2d52d2b330726137b875053c36d94e974d162f" # 0xf17f52151EbEF6C7334FAD080c5704D77216b732
 RELAYER_URL="http://relayer:8082"
 #####
 
@@ -38,11 +39,12 @@ NXTP_CONFIG=config.local.json
 SEQ_CONFIG=config.local.json
 RELAYER_CONFIG=config.local.json
 
-NXTP_ENVIRONMENT=production
+NXTP_ENVIRONMENT=local
 NXTP_NOMAD_ENVIRONMENT=staging
 
 MNEMONIC=${DEFAULT_MNEMONIC}
-WEB3_SIGNER_PRIVATE_KEY=${WEB3_SIGNER_PRIVATE_KEY}
+WEB3_SIGNER_PRIVATE_KEY_ROUTER=${WEB3_SIGNER_PRIVATE_KEY_ROUTER}
+WEB3_SIGNER_PRIVATE_KEY_SEQUENCER=${WEB3_SIGNER_PRIVATE_KEY_SEQUENCER}
 
 # Images used for building docker containers
 ROUTER_PUBLISHER_IMAGE=${router_publisher_image}
@@ -63,7 +65,7 @@ LIGHTHOUSE_IMAGE=${lighthouse_image}
 
 ##### Local chains, graph nodes, and IPFS.
 echo "Starting 1337 and 1338 local chains..."
-docker compose -f ./docker-compose.chains.yaml up -d --force-recreate
+docker compose -f docker-compose.chains.yaml up -d --force-recreate
 sleep 5
 #####
 
@@ -98,6 +100,6 @@ echo "Deployed subgraph to 1338"
 
 ##### Off-Chain Agents
 echo "Starting services and off-chain agents..."
-docker compose -f ./docker-compose.services.yaml up -d --force-recreate
+docker compose -f docker-compose.services.yaml up -d --force-recreate
 sleep 5
 #####
