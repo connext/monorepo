@@ -62,17 +62,9 @@ type Deployments = {
  */
 export const getDeployments = (_chain: string | number): Deployments => {
   const chain = _chain.toString();
+  let result: Deployments;
   if (chain === "1337") {
-    return {
-      ConnextHandler: ConnextHandler_DiamondProxy_1338.address,
-      PromiseRouterUpgradeBeaconProxy: PromiseRouterUpgradeBeaconProxy_1338.address,
-      RelayerFeeRouterUpgradeBeaconProxy: RelayerFeeRouterUpgradeBeaconProxy_1338.address,
-      BridgeRouterUpgradeBeaconProxy: BridgeRouterUpgradeBeaconProxy_1338.address,
-      TokenRegistryUpgradeBeaconProxy: TokenRegistryUpgradeBeaconProxy_1338.address,
-      TestERC20: TestERC20_1338.address,
-    };
-  } else if (chain === "1338") {
-    return {
+    result = {
       ConnextHandler: ConnextHandler_DiamondProxy_1337.address,
       PromiseRouterUpgradeBeaconProxy: PromiseRouterUpgradeBeaconProxy_1337.address,
       RelayerFeeRouterUpgradeBeaconProxy: RelayerFeeRouterUpgradeBeaconProxy_1337.address,
@@ -80,9 +72,20 @@ export const getDeployments = (_chain: string | number): Deployments => {
       TokenRegistryUpgradeBeaconProxy: TokenRegistryUpgradeBeaconProxy_1337.address,
       TestERC20: TestERC20_1337.address,
     };
+  } else if (chain === "1338") {
+    result = {
+      ConnextHandler: ConnextHandler_DiamondProxy_1338.address,
+      PromiseRouterUpgradeBeaconProxy: PromiseRouterUpgradeBeaconProxy_1338.address,
+      RelayerFeeRouterUpgradeBeaconProxy: RelayerFeeRouterUpgradeBeaconProxy_1338.address,
+      BridgeRouterUpgradeBeaconProxy: BridgeRouterUpgradeBeaconProxy_1338.address,
+      TokenRegistryUpgradeBeaconProxy: TokenRegistryUpgradeBeaconProxy_1338.address,
+      TestERC20: TestERC20_1338.address,
+    };
   } else {
     throw new Error(`Chain ${chain} not supported! Cannot retrieve contract deployment addresses for that chain.`);
   }
+  console.log(`Retrieved deployments for chain ${chain}:`, result);
+  return result;
 };
 
 // Add deployment addresses to the config PARAMETERS constant.
@@ -285,12 +288,12 @@ const onchainSetup = async (sdkBase: NxtpSdkBase) => {
       {
         chain: PARAMETERS.A.CHAIN,
         domain: PARAMETERS.A.DOMAIN,
-        ConnextHandler: PARAMETERS.A.DEPLOYMENTS.TestERC20,
+        ConnextHandler: PARAMETERS.A.DEPLOYMENTS.ConnextHandler,
       },
       {
         chain: PARAMETERS.B.CHAIN,
         domain: PARAMETERS.B.DOMAIN,
-        ConnextHandler: PARAMETERS.B.DEPLOYMENTS.TestERC20,
+        ConnextHandler: PARAMETERS.B.DEPLOYMENTS.ConnextHandler,
       },
     ],
     deployerTxService,
