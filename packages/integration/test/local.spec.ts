@@ -38,6 +38,7 @@ import RelayerFeeRouterUpgradeBeaconProxy_1337 from "@connext/nxtp-contracts/dep
 import BridgeRouterUpgradeBeaconProxy_1337 from "@connext/nxtp-contracts/deployments/local_1337/BridgeRouterUpgradeBeaconProxy.json";
 import TokenRegistryUpgradeBeaconProxy_1337 from "@connext/nxtp-contracts/deployments/local_1337/TokenRegistryUpgradeBeaconProxy.json";
 import TestERC20_1337 from "@connext/nxtp-contracts/deployments/local_1337/TestERC20.json";
+import { ConnextHandlerInterface } from "@connext/nxtp-contracts";
 
 import { pollSomething } from "./helpers/shared";
 import { enrollHandlers, enrollCustom, setupRouter, setupAsset, addLiquidity, addRelayer } from "./helpers/local";
@@ -178,7 +179,27 @@ const sendXCall = async (
       requestContext,
     );
   }
-  logger.info("XCall sent!");
+
+  logger.info("XCall sent!", undefined, undefined, {
+    hash: receipt.transactionHash,
+    confirmations: receipt.confirmations,
+    logs: receipt.logs
+      .map((event) => {
+        try {
+          const result = ConnextHandlerInterface.parseLog(event);
+          return {
+            name: result.eventFragment.name,
+            signature: result.signature,
+            topic: result.topic,
+            args: result.args,
+          };
+        } catch (e: unknown) {
+          console.log(e);
+          return undefined;
+        }
+      })
+      .filter((event) => !!event),
+  });
   return { receipt, xcallData };
 };
 
