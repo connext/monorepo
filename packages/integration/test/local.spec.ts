@@ -194,7 +194,6 @@ const sendXCall = async (
             args: result.args,
           };
         } catch (e: unknown) {
-          console.log(e);
           return undefined;
         }
       })
