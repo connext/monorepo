@@ -1,7 +1,7 @@
 import { Type, Static } from "@sinclair/typebox";
 
 import { BidSchema } from "./auctions";
-import { ExecutorDataSchema, ExecutorDataStatus } from "./lighthouse";
+import { ExecutorDataSchema, ExecutorDataStatus } from "./executor";
 import { NxtpErrorJsonSchema } from "./error";
 // import { ExecuteArgsSchema, CallParamsSchema } from "./xtransfers";
 import { TAddress, TChainId, TDecimalString } from "./primitives";
@@ -62,15 +62,15 @@ export const ExecutorDataStatusResponseSchema = Type.Object({
 });
 export type ExecutorDataStatusResponse = Static<typeof ExecutorDataStatusResponseSchema>;
 
-export type LightHousePostDataRequest = Static<typeof ExecutorDataSchema>;
+export type ExecutorPostDataRequest = Static<typeof ExecutorDataSchema>;
 
-export const LightHousePostDataResponseSchema = Type.Object({
+export const ExecutorPostDataResponseSchema = Type.Object({
   message: Type.String(),
   transferId: Type.String(),
   error: Type.Optional(NxtpErrorJsonSchema),
 });
 
-export type LightHousePostDataResponse = Static<typeof LightHousePostDataResponseSchema>;
+export type ExecutorPostDataResponse = Static<typeof ExecutorPostDataResponseSchema>;
 
 /// MARK - Router API -------------------------------------------------------------------------------
 export const AddLiquidityForRequestSchema = Type.Intersect([

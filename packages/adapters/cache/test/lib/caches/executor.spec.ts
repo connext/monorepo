@@ -128,8 +128,8 @@ describe("ExecutorCache", () => {
       await cache.setExecutorDataStatus(mockTransferId, ExecutorDataStatus.Pending);
       await cache.pruneLighthouseData(mockTransferId);
 
-      const lighthouseData = await cache.getExecutorData(mockTransferId);
-      expect(lighthouseData).to.be.undefined;
+      const executorData = await cache.getExecutorData(mockTransferId);
+      expect(executorData).to.be.undefined;
 
       const backupData = await cache.getBackupData(mockTransferId);
       expect(backupData).to.be.deep.eq([]);

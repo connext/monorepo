@@ -24,10 +24,7 @@ import { getHelpers } from "../helpers";
 import { Message, MessageType } from "../entities";
 import { getOperations } from ".";
 
-export const storeExecutorData = async (
-  lighthouseData: ExecutorData,
-  _requestContext: RequestContext,
-): Promise<void> => {
+export const storeExecutorData = async (executorData: ExecutorData, _requestContext: RequestContext): Promise<void> => {
   const {
     logger,
     config,
@@ -38,18 +35,18 @@ export const storeExecutorData = async (
     relayer: { getGelatoRelayerAddress },
   } = getHelpers();
   const { requestContext, methodContext } = createLoggingContext(storeExecutorData.name, _requestContext);
-  logger.debug(`Method start: ${storeExecutorData.name}`, requestContext, methodContext, { lighthouseData });
+  logger.debug(`Method start: ${storeExecutorData.name}`, requestContext, methodContext, { executorData });
 
-  const { transferId, relayerFee, encodedData, executorVersion, origin } = lighthouseData;
+  const { transferId, relayerFee, encodedData, executorVersion, origin } = executorData;
 
   // Validate Input schema
   const validateInput = ajv.compile(ExecutorDataSchema);
-  const validInput = validateInput(lighthouseData);
+  const validInput = validateInput(executorData);
   if (!validInput) {
     const msg = validateInput.errors?.map((err: any) => `${err.instancePath} - ${err.message}`).join(",");
     throw new ParamsInvalid({
       paramsError: msg,
-      lighthouseData,
+      executorData,
     });
   }
 
@@ -58,7 +55,7 @@ export const storeExecutorData = async (
   if (checkVersion) {
     throw new LightHouseVersionInvalid({
       supportedVersion: config.supportedVersion,
-      lighthouseData,
+      executorData,
     });
   }
 
@@ -69,7 +66,7 @@ export const storeExecutorData = async (
     transfer = await subgraph.getOriginTransferById(origin, transferId);
     if (!transfer || !transfer.origin) {
       throw new MissingXCall(origin, transferId, {
-        lighthouseData,
+        executorData,
       });
     }
     // Store the transfer locally. We will use this as a reference later when we execute this transfer
@@ -101,7 +98,7 @@ export const storeExecutorData = async (
       transferId: transferId,
     });
   } catch (error: unknown) {
-    throw new GasEstimationFailed({ transferId, lighthouseData });
+    throw new GasEstimationFailed({ transferId, executorData });
   }
 
   // Ensure that the lighthouse data for this transfer hasn't expired.
@@ -110,8 +107,8 @@ export const storeExecutorData = async (
     throw new ExecuteSlowCompleted({ transferId });
   } else if (status === ExecutorDataStatus.None) {
     await cache.executors.setExecutorDataStatus(transferId, ExecutorDataStatus.Pending);
-    await cache.executors.storeExecutorData(lighthouseData);
-    logger.info("Created a lighthouse tx", requestContext, methodContext, { transferId, lighthouseData });
+    await cache.executors.storeExecutorData(executorData);
+    logger.info("Created a lighthouse tx", requestContext, methodContext, { transferId, executorData });
 
     const message: Message = {
       transferId: transfer.transferId,
@@ -132,9 +129,9 @@ export const storeExecutorData = async (
     // The lighthouse data status here is Pending/Cancelled.
     // If Cancelled, fallback processor would work so lets just keep it storing
     // If Pending, the data needs to be stored in the cache as a backup item
-    const res = await cache.executors.storeBackupData(lighthouseData);
+    const res = await cache.executors.storeBackupData(executorData);
     logger.info("Stored a lighthouse data in the backup cache", requestContext, methodContext, {
-      lighthouseData,
+      executorData,
       result: res == 2 ? "Skipped" : "Saved",
     });
   }
@@ -174,8 +171,8 @@ export const executeSlowPathData = async (
     });
   }
 
-  let lighthouseData = await cache.executors.getExecutorData(transferId);
-  if (!lighthouseData) {
+  let executorData = await cache.executors.getExecutorData(transferId);
+  if (!executorData) {
     throw new MissingExecutorData({ transfer });
   }
 
@@ -184,13 +181,13 @@ export const executeSlowPathData = async (
   if (status !== ExecutorDataStatus.None && status !== ExecutorDataStatus.Cancelled) {
     throw new ExecutorDataExpired(status, {
       transferId,
-      lighthouseData,
+      executorData,
     });
   }
 
   let taskId;
   try {
-    taskId = await sendExecuteSlowToRelayer(lighthouseData, requestContext);
+    taskId = await sendExecuteSlowToRelayer(executorData, requestContext);
   } catch (error: unknown) {
     // TODO: If the first slow-liq transfer fails, we'll try to send backup data one by one
     // If any of backup data succeeds, we'll make the data status `sent`.

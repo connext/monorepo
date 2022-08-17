@@ -1,4 +1,4 @@
-import { createLoggingContext, formatUrl, LightHousePostDataRequest, RequestContext } from "@connext/nxtp-utils";
+import { createLoggingContext, formatUrl, ExecutorPostDataRequest, RequestContext } from "@connext/nxtp-utils";
 import axios, { AxiosResponse } from "axios";
 
 import { SequencerPostFailed, SequencerResponseInvalid } from "../../lib/errors";
@@ -29,7 +29,7 @@ export const send = async (
 
   const url = formatUrl(config.sequencerUrl, "execute-slow");
   try {
-    const response = await axios.post<any, AxiosResponse<any, any>, LightHousePostDataRequest>(url, {
+    const response = await axios.post<any, AxiosResponse<any, any>, ExecutorPostDataRequest>(url, {
       executorVersion: version,
       transferId,
       origin,

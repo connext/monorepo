@@ -129,3 +129,25 @@ export class NonRetryableBidPostError extends ExecuteError {
     super("Could not send bid, nonretryable", context, NonRetryableBidPostError.name, undefined, false);
   }
 }
+
+export class CartoApiRequestFailed extends ExecuteError {
+  constructor(context: any = {}) {
+    super("Cartographer api request failed, waiting for next loop", context, CartoApiRequestFailed.name);
+  }
+}
+
+export class DomainNotSupported extends ExecuteError {
+  constructor(domain: string, transferId: string, context: any = {}) {
+    super(
+      "Destination domain for this transfer is not supported",
+      { ...context, domain, transferId },
+      DomainNotSupported.name,
+    );
+  }
+}
+
+export class SequencerPostFailed extends ExecuteError {
+  constructor(context: any = {}) {
+    super("Sequencer POST request failed", context, SequencerPostFailed.name);
+  }
+}

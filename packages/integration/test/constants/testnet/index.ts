@@ -215,6 +215,7 @@ export const ROUTER_CONFIG: Promise<RouterConfig> = (async (): Promise<RouterCon
   return {
     logLevel: "info",
     sequencerUrl: `http://${LOCALHOST}:8081`,
+    cartographerUrl: `http://${LOCALHOST}:3000`,
     redis: {},
     server: {
       adminToken: "a",
@@ -242,6 +243,7 @@ export const ROUTER_CONFIG: Promise<RouterConfig> = (async (): Promise<RouterCon
     polling: {
       subgraph: 5_000,
       cache: 5_000,
+      cartographer: 5_000,
     },
     auctionRoundDepth: 3,
     environment,

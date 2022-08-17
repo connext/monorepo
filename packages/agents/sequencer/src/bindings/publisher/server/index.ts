@@ -19,9 +19,9 @@ import {
   AdminRequest,
   NxtpError,
   ExecutorDataSchema,
-  LightHousePostDataRequest,
-  LightHousePostDataResponseSchema,
-  LightHousePostDataResponse,
+  ExecutorPostDataRequest,
+  ExecutorPostDataResponseSchema,
+  ExecutorPostDataResponse,
   ExecutorDataStatusRequest,
   ExecutorDataStatusResponse,
   ExecutorDataStatusRequestSchema,
@@ -149,13 +149,13 @@ export const bindServer = async (): Promise<FastifyInstance> => {
     },
   );
 
-  server.post<{ Body: LightHousePostDataRequest; Reply: LightHousePostDataResponse | SequencerApiErrorResponse }>(
+  server.post<{ Body: ExecutorPostDataRequest; Reply: ExecutorPostDataResponse | SequencerApiErrorResponse }>(
     "/execute-slow",
     {
       schema: {
         body: ExecutorDataSchema,
         response: {
-          200: LightHousePostDataResponseSchema,
+          200: ExecutorPostDataResponseSchema,
           500: SequencerApiErrorResponseSchema,
         },
       },
@@ -166,11 +166,9 @@ export const bindServer = async (): Promise<FastifyInstance> => {
         lighthouse: { storeExecutorData },
       } = getOperations();
       try {
-        const lighthouseData = request.body;
-        await storeExecutorData(lighthouseData, requestContext);
-        return response
-          .status(200)
-          .send({ message: "lighthouse data received", transferId: lighthouseData.transferId });
+        const executorData = request.body;
+        await storeExecutorData(executorData, requestContext);
+        return response.status(200).send({ message: "lighthouse data received", transferId: executorData.transferId });
       } catch (error: unknown) {
         const type = (error as NxtpError).type;
         return response.code(500).send({ message: type, error: jsonifyError(error as Error) });

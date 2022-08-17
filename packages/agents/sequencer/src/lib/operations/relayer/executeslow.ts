@@ -10,7 +10,7 @@ import { getContext } from "../../../sequencer";
 import { MissingTransfer } from "../../errors";
 
 export const sendExecuteSlowToRelayer = async (
-  lighthouseData: ExecutorData,
+  executorData: ExecutorData,
   _requestContext: RequestContext,
 ): Promise<string> => {
   const {
@@ -22,7 +22,7 @@ export const sendExecuteSlowToRelayer = async (
 
   const { requestContext, methodContext } = createLoggingContext(sendExecuteSlowToRelayer.name, _requestContext);
 
-  const { transferId, relayerFee, encodedData } = lighthouseData;
+  const { transferId, relayerFee, encodedData } = executorData;
   let transfer = await cache.transfers.getTransfer(transferId);
   if (!transfer) {
     throw new MissingTransfer({ transferId });
