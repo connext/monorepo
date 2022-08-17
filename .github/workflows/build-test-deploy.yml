@@ -282,7 +282,7 @@ jobs:
       REGISTRY: ghcr.io
       IMAGE_NAME: connext/cartographer-transfers
     runs-on: ubuntu-latest
-    needs: build-and-test
+    # needs: build-and-test
     permissions:
       contents: read
       packages: write
@@ -312,6 +312,7 @@ jobs:
         with:
           context: .
           push: true
+          platforms: linux/amd64,linux/arm64
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
           file: docker/cartographer/transfers/Dockerfile
