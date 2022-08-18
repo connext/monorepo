@@ -2,18 +2,30 @@
 pragma solidity 0.8.15;
 
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import {ERC20} from "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import {Address} from "@openzeppelin/contracts/utils/Address.sol";
+import {SafeERC20} from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
+
+import {IRootManager} from "../../contracts/core/messaging/interfaces/IRootManager.sol";
+import {IConnector} from "../../contracts/core/messaging/interfaces/IConnector.sol";
+import {Connector} from "../../contracts/core/messaging/connectors/Connector.sol";
+import {RootManager} from "../../contracts/core/messaging/RootManager.sol";
 
 import {TypedMemView, PromiseMessage, PromiseRouter} from "../../contracts/core/promise/PromiseRouter.sol";
 import {ICallback} from "../../contracts/core/promise/interfaces/ICallback.sol";
+
 import {BaseConnextFacet} from "../../contracts/core/connext/facets/BaseConnextFacet.sol";
 import {IAavePool} from "../../contracts/core/connext/interfaces/IAavePool.sol";
 import {ISponsorVault} from "../../contracts/core/connext/interfaces/ISponsorVault.sol";
 import {ITokenRegistry} from "../../contracts/core/connext/interfaces/ITokenRegistry.sol";
-import {IWrapped} from "../../contracts/core/connext/interfaces/IWrapped.sol";
-import {ERC20} from "../../contracts/core/connext/helpers/OZERC20.sol";
-import {TestERC20} from "../../contracts/test/TestERC20.sol";
+import {IBridgeRouter} from "../../contracts/core/connext/interfaces/IBridgeRouter.sol";
+import {IWeth} from "../../contracts/core/connext/interfaces/IWeth.sol";
 import {IExecutor} from "../../contracts/core/connext/interfaces/IExecutor.sol";
+import {LibCrossDomainProperty} from "../../contracts/core/connext/libraries/LibCrossDomainProperty.sol";
+
+import {ProposedOwnable} from "../../contracts/core/shared/ProposedOwnable.sol";
+
+import {TestERC20} from "../../contracts/test/TestERC20.sol";
 
 import "forge-std/console.sol";
 
@@ -34,12 +46,22 @@ contract MockXAppConnectionManager {
 }
 
 contract MockHome {
+  uint32 private domain;
+
+  constructor(uint32 _domain) {
+    domain = _domain;
+  }
+
   function dispatch(
     uint32 _destinationDomain,
     bytes32 _recipientAddress,
     bytes memory _messageBody
   ) external {
     1 == 1;
+  }
+
+  function localDomain() external returns (uint32) {
+    return domain;
   }
 }
 
@@ -63,9 +85,9 @@ contract MockXApp {
   function fulfill(address asset, bytes32 message) external checkMockMessage(message) returns (bytes32) {
     IExecutor executor = IExecutor(address(msg.sender));
 
-    emit MockXAppEvent(msg.sender, asset, message, executor.amount());
+    emit MockXAppEvent(msg.sender, asset, message, LibCrossDomainProperty.amount(msg.data));
 
-    IERC20(asset).transferFrom(address(executor), address(this), executor.amount());
+    IERC20(asset).transferFrom(address(executor), address(this), LibCrossDomainProperty.amount(msg.data));
 
     return (bytes32("good"));
   }
@@ -79,12 +101,12 @@ contract MockXApp {
   ) external checkMockMessage(message) returns (bytes32) {
     IExecutor executor = IExecutor(address(msg.sender));
 
-    emit MockXAppEvent(msg.sender, asset, message, executor.amount());
+    emit MockXAppEvent(msg.sender, asset, message, LibCrossDomainProperty.amount(msg.data));
 
-    IERC20(asset).transferFrom(address(executor), address(this), executor.amount());
+    IERC20(asset).transferFrom(address(executor), address(this), LibCrossDomainProperty.amount(msg.data));
 
-    require(expectedOriginDomain == executor.origin(), "Origin domain incorrect");
-    require(expectedOriginSender == executor.originSender(), "Origin sender incorrect");
+    require(expectedOriginDomain == LibCrossDomainProperty.origin(msg.data), "Origin domain incorrect");
+    require(expectedOriginSender == LibCrossDomainProperty.originSender(msg.data), "Origin sender incorrect");
 
     return (bytes32("good"));
   }
@@ -96,12 +118,29 @@ contract MockXApp {
 }
 
 contract MockRelayerFeeRouter {
+  uint32 public handledOrigin;
+  uint32 public handledNonce;
+  bytes32 public handledSender;
+  bytes public handledBody;
+
   function send(
     uint32 _domain,
     address _recipient,
     bytes32[] calldata _transactionIds
   ) external {
     1 == 1;
+  }
+
+  function handle(
+    uint32 origin,
+    uint32 nonce,
+    bytes32 sender,
+    bytes memory body
+  ) public {
+    handledOrigin = origin;
+    handledNonce = nonce;
+    handledSender = sender;
+    handledBody = body;
   }
 }
 
@@ -128,11 +167,20 @@ contract MockCallback is ICallback {
   mapping(bytes32 => bool) public transferSuccess;
   mapping(bytes32 => bytes32) public transferData;
 
+  bool public fails;
+
+  function shouldFail(bool fail) external {
+    fails = fail;
+  }
+
   function callback(
     bytes32 transferId,
     bool success,
     bytes memory data
   ) external {
+    if (fails) {
+      require(false, "fails");
+    }
     transferSuccess[transferId] = success;
     transferData[transferId] = keccak256(data);
   }
@@ -222,14 +270,56 @@ contract TestSetterFacet is BaseConnextFacet {
   }
 }
 
-contract MockWrapper is IWrapped, ERC20 {
-  function deposit() external payable {
-    _mint(msg.sender, msg.value);
+contract MockBridgeRouter is IBridgeRouter {
+  mapping(bytes32 => address) public tokenInputs;
+  mapping(bytes32 => uint256) public amountInputs;
+  mapping(bytes32 => uint32) public destinationInputs;
+  mapping(bytes32 => bytes32) public hookInputs;
+
+  bytes32 public id;
+
+  event XSendCalled(address _token, uint256 _amount, uint32 _destination, bytes32 hook, bytes extra);
+
+  function send(
+    address _token,
+    uint256 _amount,
+    uint32 _destination,
+    bytes32 _recipient,
+    bool _enableFast /* _enableFast deprecated field, left argument for backwards compatibility */
+  ) external {
+    require(false, "shouldnt use send");
   }
 
-  function withdraw(uint256 amount) external {
-    _burn(msg.sender, amount);
-    msg.sender.call{value: amount}("");
+  function registerTransferId(bytes32 _id) public {
+    id = _id;
+  }
+
+  function sendToHook(
+    address _token,
+    uint256 _amount,
+    uint32 _destination,
+    bytes32 _remoteHook,
+    bytes calldata _external
+  ) external {
+    tokenInputs[id] = _token;
+    amountInputs[id] = _amount;
+    destinationInputs[id] = _destination;
+    hookInputs[id] = _remoteHook;
+    // transfer amount here
+    SafeERC20.safeTransferFrom(IERC20(_token), msg.sender, address(this), _amount);
+    emit XSendCalled(_token, _amount, _destination, _remoteHook, _external);
+  }
+
+  function getToken(bytes32 transferId) external returns (address) {
+    return tokenInputs[transferId];
+  }
+
+  function getAmount(bytes32 transferId) external returns (uint256) {
+    return amountInputs[transferId];
+  }
+
+  function getDestination(bytes32 transferId) external returns (uint32) {
+    return destinationInputs[transferId];
   }
 }
 
@@ -323,17 +413,17 @@ contract MockCalldata {
   }
 
   function permissionedCall(address asset) public returns (bool) {
-    require(IExecutor(msg.sender).originSender() == originSender);
-    require(IExecutor(msg.sender).origin() == originDomain);
+    require(LibCrossDomainProperty.originSender(msg.data) == originSender);
+    require(LibCrossDomainProperty.origin(msg.data) == originDomain);
     // transfer funds from sender
-    IERC20(asset).transferFrom(msg.sender, address(this), IExecutor(msg.sender).amount());
+    IERC20(asset).transferFrom(msg.sender, address(this), LibCrossDomainProperty.amount(msg.data));
     called = true;
     return called;
   }
 
   function unpermissionedCall(address asset) public returns (bool) {
     // transfer funds from sender
-    IERC20(asset).transferFrom(msg.sender, address(this), IExecutor(msg.sender).amount());
+    IERC20(asset).transferFrom(msg.sender, address(this), LibCrossDomainProperty.amount(msg.data));
     called = true;
     return called;
   }
@@ -342,7 +432,7 @@ contract MockCalldata {
 contract FeeERC20 is ERC20 {
   uint256 public fee = 1;
 
-  constructor() ERC20() {
+  constructor() ERC20("Fee Test Token", "FEE") {
     _mint(msg.sender, 1000000 ether);
   }
 
@@ -373,5 +463,64 @@ contract FeeERC20 is ERC20 {
     _burn(sender, fee);
     _transfer(sender, recipient, toTransfer);
     return true;
+  }
+}
+
+// ============ Messaging Mocks ============
+
+/**
+ * @notice This class mocks the connector functionality.
+ */
+contract MockConnector is Connector {
+  bytes32 public lastOutbound;
+  bytes32 public lastReceived;
+
+  bool public verified;
+
+  bool updatesAggregate;
+
+  constructor(
+    uint32 _domain,
+    uint32 _mirrorDomain,
+    address _amb,
+    address _rootManager,
+    address _mirrorConnector,
+    uint256 _mirrorProcessGas,
+    uint256 _processGas,
+    uint256 _reserveGas
+  )
+    ProposedOwnable()
+    Connector(_domain, _mirrorDomain, _amb, _rootManager, _mirrorConnector, _mirrorProcessGas, _processGas, _reserveGas)
+  {
+    _setOwner(msg.sender);
+    verified = true;
+  }
+
+  function setSenderVerified(bool _verified) public {
+    verified = _verified;
+  }
+
+  function setUpdatesAggregate(bool _updatesAggregate) public {
+    updatesAggregate = _updatesAggregate;
+  }
+
+  function _sendMessage(bytes memory _data) internal override {
+    lastOutbound = keccak256(_data);
+    emit MessageSent(_data, msg.sender);
+  }
+
+  function _processMessage(address _sender, bytes memory _data) internal override {
+    lastReceived = keccak256(abi.encode(_sender, _data));
+    if (updatesAggregate) {
+      // FIXME: when using this.update it sets caller to address(this) not AMB
+      aggregateRoot = bytes32(_data);
+    } else {
+      RootManager(ROOT_MANAGER).setOutboundRoot(mirrorDomain, bytes32(_data));
+    }
+    emit MessageProcessed(_sender, _data, msg.sender);
+  }
+
+  function _verifySender(address _expected) internal override returns (bool) {
+    return verified;
   }
 }

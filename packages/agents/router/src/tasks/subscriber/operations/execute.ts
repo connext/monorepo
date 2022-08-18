@@ -2,12 +2,12 @@ import {
   Bid,
   createLoggingContext,
   ajv,
-  XTransferSchema,
   OriginTransfer,
   RequestContext,
   formatUrl,
   ExecuteFastApiPostBidReq,
   getMinimumBidsCountForRound as _getMinimumBidsCountForRound,
+  OriginTransferSchema,
 } from "@connext/nxtp-utils";
 import { BigNumber } from "ethers";
 import axios, { AxiosResponse } from "axios";
@@ -186,7 +186,7 @@ export const execute = async (params: OriginTransfer, _requestContext: RequestCo
   logger.debug("Method start", requestContext, methodContext, { params });
 
   // Validate Input schema
-  const validateInput = ajv.compile(XTransferSchema);
+  const validateInput = ajv.compile(OriginTransferSchema);
   const validInput = validateInput(params);
   if (!validInput) {
     const msg = validateInput.errors?.map((err: any) => `${err.instancePath} - ${err.message}`).join(",");
@@ -289,6 +289,9 @@ export const execute = async (params: OriginTransfer, _requestContext: RequestCo
     // Sanitized with ellipsis.
     sigs: Object.values(signatures).map((s) => s.slice(0, 6) + ".."),
   });
+
+  // Need to make sure if nomad-sdk handles an error in case of bad rpc before integrating.
+  // Test code base: https://codesandbox.io/s/nomad-integration-testing-h8q00t?file=/index.js
 
   const { originBlacklisted, destinationBlacklisted } = await getBlacklist(originDomain, destinationDomain);
   if (originBlacklisted || destinationBlacklisted) {

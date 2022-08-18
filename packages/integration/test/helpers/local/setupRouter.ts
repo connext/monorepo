@@ -24,7 +24,6 @@ export const setupRouter = async (
       data: readData,
       to: domain.ConnextHandler,
     });
-
     const [owner] = ConnextHandlerInterface.decodeFunctionResult("getRouterOwner", encodedRes);
 
     readData = ConnextHandlerInterface.encodeFunctionData("getRouterRecipient", [routerAddress]);

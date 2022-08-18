@@ -40,7 +40,7 @@ module "router_subscriber" {
   docker_image             = var.full_image_name_router_subscriber
   container_family         = "router-subscriber"
   health_check_path        = "/ping"
-  container_port           = 8080
+  container_port           = 8090
   loadbalancer_port        = 80
   cpu                      = 512
   memory                   = 1024
@@ -156,6 +156,16 @@ module "sequencer_subscriber" {
   cert_arn                 = var.certificate_arn_testnet
   container_env_vars       = local.sequencer_env_vars
 }
+
+module "sequencer_subscriber_auto_scaling" {
+  source           = "../../../modules/auto-scaling"
+  stage            = var.stage
+  environment      = var.environment
+  domain           = var.domain
+  ecs_service_name = module.sequencer_subscriber.service_name
+  ecs_cluster_name = module.ecs.ecs_cluster_name
+}
+
 
 module "web3signer" {
   source                   = "../../../modules/service"

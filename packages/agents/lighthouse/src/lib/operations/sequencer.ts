@@ -1,4 +1,5 @@
 import { constants } from "ethers";
+
 import {
   RequestContext,
   createLoggingContext,
@@ -7,6 +8,7 @@ import {
   NxtpError,
   getChainIdFromDomain,
 } from "@connext/nxtp-utils";
+
 import { getContext } from "../../lighthouse";
 import { getHelpers } from "../helpers";
 

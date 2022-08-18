@@ -15,11 +15,11 @@
   "chains": {
     "1337": {
       "providers": ["http://chain-1337:8545"],
-      "assets": [{ "address": "0x1411CB266FCEd1587b0AA29E9d5a9Ef3Db64A9C5", "name": "TEST" }]
+      "assets": [{ "address": "0x913bbCFea2f347a24cfCA441d483E7CBAc8De3Db", "name": "TEST" }]
     },
     "1338": {
       "providers": ["http://chain-1337:8545"],
-      "assets": [{ "address": "0x1411CB266FCEd1587b0AA29E9d5a9Ef3Db64A9C5", "name": "TEST" }]
+      "assets": [{ "address": "0x913bbCFea2f347a24cfCA441d483E7CBAc8De3Db", "name": "TEST" }]
     }
   },
   "logLevel": "debug",
@@ -29,16 +29,17 @@
   "auctionWaitTime": 30000,
   "environment": "production",
   "relayerUrl": "http://relayer:8080",
+  "web3SignerUrl": "http://signer-sequencer:9000",
   "messageQueue": {
     "connection": {
-      "uri": "amqp://guest:guest@sequencer-message-queue:5672"
+      "uri": "amqp://guest:guest@message-queue:5672"
     },
     "exchanges": [
       { "name": "sequencerX", "type": "direct", "publishTimeout": 1000, "persistent": true, "durable": true }
     ],
     "queues": [
-      { "name": "1337", "limit": 5, "queueLimit": 10000, "subscribe": true },
-      { "name": "1338", "limit": 5, "queueLimit": 10000, "subscribe": true }
+      { "name": "1337", "limit": 5, "queueLimit": 10000, "subscribe": true, "prefetch": 250 },
+      { "name": "1338", "limit": 5, "queueLimit": 10000, "subscribe": true, "prefetch": 250 }
     ],
     "bindings": [
       { "exchange": "sequencerX", "target": "1337", "keys": ["1337"] },

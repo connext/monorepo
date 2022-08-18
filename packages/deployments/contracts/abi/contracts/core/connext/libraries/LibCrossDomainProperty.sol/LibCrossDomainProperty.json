@@ -1,4 +1,0 @@
-[
-  "function EMPTY() view returns (bytes29)",
-  "function EMPTY_BYTES() view returns (bytes)"
-]
