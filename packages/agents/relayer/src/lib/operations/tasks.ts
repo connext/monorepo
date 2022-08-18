@@ -107,7 +107,7 @@ export const createTask = async (
 
   const taskId: string = await cache.tasks.createTask({
     chain,
-    to,
+    to: connextAddress,
     data,
     fee,
   });
