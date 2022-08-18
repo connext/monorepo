@@ -35,7 +35,7 @@ export const createTask = async (
   } = getContext();
   const { requestContext, methodContext } = createLoggingContext(createTask.name, _requestContext);
 
-  const { to, data, fee } = params;
+  const { data, fee } = params;
 
   // TODO: Allow alternative shitcoins.
   if (fee.token !== constants.AddressZero) {
