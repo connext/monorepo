@@ -263,7 +263,8 @@ contract ConnextTest is ForgeHelper, Deployer {
       address(_originRegistry),
       _originWrapper,
       address(_originRelayerFee),
-      payable(address(_originPromise))
+      payable(address(_originPromise)),
+      7 days
     );
     _originConnext = IConnextHandler(originConnext);
 
@@ -273,7 +274,8 @@ contract ConnextTest is ForgeHelper, Deployer {
       address(_destinationRegistry),
       _destinationWrapper,
       address(_destinationRelayerFee),
-      payable(address(_destinationPromise))
+      payable(address(_destinationPromise)),
+      7 days
     );
     _destinationConnext = IConnextHandler(destinationConnext);
 

@@ -5,5 +5,5 @@
   "error BaseConnextFacet__onlyRemoteRouter_notRemoteRouter()",
   "error BaseConnextFacet__onlyReplica_notReplica()",
   "error BaseConnextFacet__whenNotPaused_paused()",
-  "function init(uint32,address,address,address,address,address)"
+  "function init(uint32,address,address,address,address,address,uint256)"
 ]

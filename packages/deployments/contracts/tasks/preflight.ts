@@ -186,7 +186,7 @@ export default task("preflight", "Ensure correct setup for e2e demo with a speci
             await hre.run("mint", {
               amount,
               asset: localAsset,
-              receiver: deployer.address,
+              recipient: deployer.address,
               env,
             });
           }

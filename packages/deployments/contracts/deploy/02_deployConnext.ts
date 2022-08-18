@@ -18,6 +18,8 @@ import { deployNomadBeaconProxy } from "./01_deployNomad";
 const func: DeployFunction = async (hre: HardhatRuntimeEnvironment): Promise<void> => {
   const chainId = await hre.getChainId();
 
+  const acceptanceDelay = 0; // 604800 = 7 days
+
   let _deployer: any;
   ({ deployer: _deployer } = await hre.ethers.getNamedSigners());
   if (!_deployer) {
@@ -127,6 +129,7 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment): Promise<voi
             WRAPPED_ETH_MAP.get(+chainId) ?? constants.AddressZero,
             relayerFeeRouter.address,
             promiseRouter.address,
+            acceptanceDelay,
           ],
         },
     // deterministicSalt: keccak256(utils.toUtf8Bytes("connextDiamondProxyV1")),
