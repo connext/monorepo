@@ -129,15 +129,7 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment): Promise<voi
       : {
           contract: "DiamondInit",
           methodName: "init",
-          args: [
-            domainConfig.domain,
-            xappConnectionManagerAddress,
-            tokenRegistry.address,
-            WRAPPED_ETH_MAP.get(+chainId) ?? constants.AddressZero,
-            relayerFeeRouter.address,
-            promiseRouter.address,
-            acceptanceDelay,
-          ],
+          args: [domain, tokenRegistry.address, relayerFeeRouter.address, promiseRouter.address, acceptanceDelay],
         },
     // deterministicSalt: keccak256(utils.toUtf8Bytes("connextDiamondProxyV1")),
   });
