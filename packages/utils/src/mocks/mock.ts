@@ -10,7 +10,7 @@ import {
   ExecuteArgs,
   createLoggingContext,
 } from "..";
-import { Auction, XCallArgs } from "../types";
+import { Auction, ExecutorData, XCallArgs } from "../types";
 import { getNtpTimeSeconds } from "../helpers";
 
 import { mkAddress, mkBytes32, mkSig } from ".";
@@ -129,6 +129,17 @@ export const mock = {
         "2": getRandomBytes32(),
         "3": getRandomBytes32(),
       },
+      ...overrides,
+    }),
+    executorData: (overrides: Partial<ExecutorData> = {}): ExecutorData => ({
+      transferId: getRandomBytes32(),
+      origin: mock.domain.A,
+      executorVersion: "0.0.1",
+      relayerFee: {
+        amount: "0",
+        asset: constants.AddressZero,
+      },
+      encodedData: "0xabcde",
       ...overrides,
     }),
     xtransfer: (
