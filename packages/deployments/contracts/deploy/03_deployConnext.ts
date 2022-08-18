@@ -17,6 +17,8 @@ import { MESSAGING_PROTOCOL_CONFIGS, HUB_PREFIX, SPOKE_PREFIX } from "../deployC
 const func: DeployFunction = async (hre: HardhatRuntimeEnvironment): Promise<void> => {
   const chainId = await hre.getChainId();
 
+  const acceptanceDelay = 0; // 604800 = 7 days
+
   let _deployer: any;
   ({ deployer: _deployer } = await hre.ethers.getNamedSigners());
   if (!_deployer) {
@@ -127,7 +129,7 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment): Promise<voi
       : {
           contract: "DiamondInit",
           methodName: "init",
-          args: [domain, tokenRegistry.address, relayerFeeRouter.address, promiseRouter.address],
+          args: [domain, tokenRegistry.address, relayerFeeRouter.address, promiseRouter.address, acceptanceDelay],
         },
     // deterministicSalt: keccak256(utils.toUtf8Bytes("connextDiamondProxyV1")),
   });
