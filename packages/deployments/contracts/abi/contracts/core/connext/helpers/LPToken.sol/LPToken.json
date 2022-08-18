@@ -6,7 +6,6 @@
   "function allowance(address,address) view returns (uint256)",
   "function approve(address,uint256) returns (bool)",
   "function balanceOf(address) view returns (uint256)",
-  "function burn(uint256)",
   "function burnFrom(address,uint256)",
   "function decimals() view returns (uint8)",
   "function decreaseAllowance(address,uint256) returns (bool)",

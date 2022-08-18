@@ -1,4 +1,13 @@
-import { Bid, ExecuteArgs, expect, mkAddress, mkBytes32, mkSig, OriginTransfer } from "@connext/nxtp-utils";
+import {
+  Bid,
+  ExecuteArgs,
+  expect,
+  mkAddress,
+  mkBytes32,
+  mkSig,
+  OriginTransfer,
+  mockSequencer,
+} from "@connext/nxtp-utils";
 import { constants } from "ethers";
 import { stub, restore, reset, SinonStub } from "sinon";
 
@@ -9,6 +18,7 @@ import {
   getDestinationLocalAsset,
   getMinimumBidsCountForRound,
 } from "../../../src/lib/helpers/auctions";
+import * as AuctionHelpers from "../../../src/lib/helpers/auctions";
 import { ctxMock } from "../../globalTestHook";
 import { mock } from "../../mock";
 
@@ -23,6 +33,7 @@ describe("Helpers:Auctions", () => {
       encodeFunctionDataStub = stub();
       (ctxMock.adapters.contracts.connext as any).encodeFunctionData = encodeFunctionDataStub;
       encodeFunctionDataStub.returns(mockEncoded);
+      stub(AuctionHelpers, "signSequencerPermitPayload").resolves(mock.signature);
     });
 
     afterEach(() => {
@@ -30,8 +41,8 @@ describe("Helpers:Auctions", () => {
       reset();
     });
 
-    it("happy", () => {
-      const transfer: OriginTransfer = mock.entity.xtransfer();
+    it("happy", async () => {
+      const transfer = mock.entity.xtransfer() as OriginTransfer;
       const round = 1;
       const signatures: Record<string, string> = {};
       signatures["1"] = mkSig();
@@ -49,7 +60,7 @@ describe("Helpers:Auctions", () => {
           receiveLocal: transfer.xparams.receiveLocal,
           agent: transfer.xparams.agent,
           relayerFee: transfer.xparams.relayerFee,
-          slippageTol: transfer.xparams.slippageTol,
+          destinationMinOut: transfer.xparams.destinationMinOut,
         },
         local: mockLocalAsset,
         routers: bids.map((b) => b.router),
@@ -57,20 +68,22 @@ describe("Helpers:Auctions", () => {
         amount: transfer.origin.assets.bridged.amount,
         nonce: transfer.nonce,
         originSender: transfer.origin.xcall.caller,
+        sequencer: mockSequencer,
+        sequencerSignature: mock.signature,
       };
 
-      const encoded = encodeExecuteFromBids(1, bids, transfer, mockLocalAsset);
+      const encoded = await encodeExecuteFromBids(1, bids, transfer, mockLocalAsset);
       expect(encoded).to.be.eq(mockEncoded);
 
       expect(encodeFunctionDataStub.calledWith("execute", [expectedArgs])).to.be.true;
     });
 
-    it("should throw if no xcall", () => {
-      const transfer: OriginTransfer = mock.entity.xtransfer();
+    it("should throw if no xcall", async () => {
+      const transfer = mock.entity.xtransfer() as OriginTransfer;
       transfer.origin = undefined as any;
       const bids: Bid[] = [mock.entity.bid()];
 
-      expect(() => encodeExecuteFromBids(1, bids, transfer, mockLocalAsset)).to.throw();
+      await expect(encodeExecuteFromBids(1, bids, transfer, mockLocalAsset)).to.be.rejected;
     });
   });
 

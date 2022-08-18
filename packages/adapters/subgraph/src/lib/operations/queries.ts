@@ -28,10 +28,12 @@ export const ORIGIN_TRANSFER_ENTITY = `
       callbackFee
       relayerFee
       slippageTol
-
+      destinationMinOut
+      
       # Asset Data
       transactingAsset
       transactingAmount
+      originMinOut
       bridgedAsset
       bridgedAmount
 
@@ -68,10 +70,12 @@ export const DESTINATION_TRANSFER_ENTITY = `
       callbackFee
       relayerFee
       slippageTol
+      destinationMinOut
 
       # Asset Data
       localAsset
       localAmount
+      originMinOut
       transactingAsset
       transactingAmount
       sponsorVaultRelayerFee

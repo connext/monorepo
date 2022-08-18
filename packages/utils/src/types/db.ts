@@ -7,7 +7,7 @@ import { AssetBalance, RouterBalance, XTransfer, XTransferStatus } from "./xtran
  * All BigNumbers are selected as text into JS.
  */
 export const transfersCastForUrl =
-  "select=transfer_id,nonce,to,call_data,origin_domain,destination_domain,agent,recovery,force_slow,receive_local,callback,callback_fee,relayer_fee,slippage_tol,origin_chain,origin_transacting_asset,origin_transacting_amount::text,origin_bridged_asset,origin_bridged_amount::text,xcall_caller,xcall_transaction_hash,xcall_timestamp,xcall_gas_price::text,xcall_gas_limit::text,xcall_block_number,destination_chain,status,routers,destination_transacting_asset,destination_transacting_amount::text,destination_local_asset,destination_local_amount::text,execute_caller,execute_transaction_hash,execute_timestamp,execute_gas_price::text,execute_gas_limit::text,execute_block_number,execute_origin_sender,reconcile_caller,reconcile_transaction_hash,reconcile_timestamp,reconcile_gas_price::text,reconcile_gas_limit::text,reconcile_block_number";
+  "select=transfer_id,nonce,to,call_data,origin_domain,destination_domain,agent,recovery,force_slow,receive_local,callback,callback_fee,relayer_fee,destination_min_out,origin_chain,origin_transacting_asset,origin_transacting_amount::text,origin_bridged_asset,origin_bridged_amount::text,xcall_caller,xcall_transaction_hash,xcall_timestamp,xcall_gas_price::text,xcall_gas_limit::text,xcall_block_number,destination_chain,status,routers,destination_transacting_asset,destination_transacting_amount::text,destination_local_asset,destination_local_amount::text,execute_caller,execute_transaction_hash,execute_timestamp,execute_gas_price::text,execute_gas_limit::text,execute_block_number,execute_origin_sender,reconcile_caller,reconcile_transaction_hash,reconcile_timestamp,reconcile_gas_price::text,reconcile_gas_limit::text,reconcile_block_number";
 
 /**
  * Converts a transfer from the cartographer db through either DB queries or Postgrest into the XTransfer type
@@ -29,13 +29,14 @@ export const convertFromDbTransfer = (transfer: any): XTransfer => {
       relayerFee: BigNumber.from(BigInt((transfer.relayer_fee as string) ?? "0")).toString(),
       forceSlow: transfer.force_slow || false,
       receiveLocal: transfer.receive_local || false,
-      slippageTol: BigNumber.from(BigInt((transfer.slippage_tol as string) ?? "0")).toString(),
+      destinationMinOut: BigNumber.from(BigInt((transfer.destination_min_out as string) ?? "0")).toString(),
     },
     transferId: transfer.transfer_id,
 
     origin: transfer.origin_chain
       ? {
           chain: transfer.origin_chain,
+          originMinOut: BigNumber.from(BigInt((transfer.origin_min_out as string) ?? "0")).toString(),
           assets: {
             transacting: {
               amount: BigNumber.from(BigInt((transfer.origin_transacting_amount as string) ?? "0")).toString(),

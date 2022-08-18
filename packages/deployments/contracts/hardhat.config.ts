@@ -23,6 +23,7 @@ import "./tasks/proposeTransferOwnership";
 import "./tasks/setAggregator";
 import "./tasks/setDexPrice";
 import "./tasks/setDirectPrice";
+import "./tasks/debugCustomError";
 import "./tasks/decodeInputData";
 import "./tasks/removeRouter";
 import "./tasks/enrollHandlers";
@@ -40,6 +41,7 @@ import "./tasks/stableswap/initializeSwap";
 import "./tasks/stableswap/addSwapLiquidity";
 import "./tasks/stableswap/removeSwapLiquidity";
 import "./tasks/stableswap/setSwapFees";
+import "./tasks/setMirrorConnectors";
 
 const urlOverride = process.env.ETH_PROVIDER_URL;
 const chainId = parseInt(process.env.CHAIN_ID ?? "1337", 10);
@@ -98,16 +100,19 @@ const config: HardhatUserConfig = {
     local_1337: {
       accounts: { mnemonic },
       chainId: 1337,
-      url: urlOverride || "http://localhost:8545",
-      saveDeployments: false,
+      url: "http://localhost:8547",
+      saveDeployments: true,
       allowUnlimitedContractSize: true,
     },
     local_1338: {
       accounts: { mnemonic },
       chainId: 1338,
-      url: urlOverride || "http://localhost:8546",
-      saveDeployments: false,
+      url: "http://localhost:8546",
+      saveDeployments: true,
       allowUnlimitedContractSize: true,
+      companionNetworks: {
+        hub: "local_1337",
+      },
     },
     mainnet: {
       accounts: { mnemonic },
@@ -144,6 +149,17 @@ const config: HardhatUserConfig = {
       accounts: { mnemonic },
       chainId: 69,
       url: "https://kovan.optimism.io",
+      companionNetworks: {
+        hub: "kovan",
+      },
+    },
+    "optimism-goerli": {
+      accounts: { mnemonic },
+      chainId: 420,
+      url: "https://optimism-goerli.infura.io/v3/7672e2bf7cbe427e8cd25b0f1dde65cf",
+      companionNetworks: {
+        hub: "goerli",
+      },
     },
     bsc: {
       accounts: { mnemonic },

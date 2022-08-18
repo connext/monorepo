@@ -14,7 +14,7 @@ const mockConfig = mock.config();
 const mockChainData = mock.chainData();
 const mockDeployments = mock.contracts.deployments();
 
-const mockConnextAddresss = mockConfig.chains[mock.domain.A].deployments.connext;
+const mockConnextAddresss = mockConfig.chains[mock.domain.A].deployments!.connext;
 const mockAssetId = mock.asset.A.address;
 
 const chainId = 1337;
@@ -97,12 +97,10 @@ describe("SdkBase", () => {
   });
 
   describe("#xCall", () => {
-    let getGelatoEstimatedFeeStub: SinonStub;
     let getConversionRateStub: SinonStub;
     let getDecimalsForAssetStub: SinonStub;
     let getHardcodedGasLimitsStub: SinonStub;
     beforeEach(() => {
-      getGelatoEstimatedFeeStub = stub(SharedFns, "getGelatoEstimatedFee");
       getConversionRateStub = stub(SharedFns, "getConversionRate");
       getDecimalsForAssetStub = stub(SharedFns, "getDecimalsForAsset");
       getHardcodedGasLimitsStub = stub(SharedFns, "getHardcodedGasLimits");
@@ -134,22 +132,6 @@ describe("SdkBase", () => {
       expect(res).to.be.deep.eq(mockXCallRequest);
     });
 
-    it("happy: should work if Native", async () => {
-      const mockXcallArgs = mock.entity.xcallArgs({ transactingAssetId: constants.AddressZero });
-      const data = getConnextInterface().encodeFunctionData("xcall", [mockXcallArgs]);
-
-      const mockXCallRequest: providers.TransactionRequest = {
-        to: mockConnextAddresss,
-        data,
-        from: mock.config().signerAddress,
-        value: BigNumber.from(mockXcallArgs.amount).add(BigNumber.from(mockXcallArgs.params.relayerFee)),
-        chainId,
-      };
-
-      const res = await nxtpSdkBase.xcall(mockXcallArgs);
-      expect(res).to.be.deep.eq(mockXCallRequest);
-    });
-
     it("happy: should calculate the relayerFee if args.relayerFee is zero", async () => {
       getConversionRateStub.resolves(1);
       getDecimalsForAssetStub.resolves(18);
@@ -161,17 +143,14 @@ describe("SdkBase", () => {
         gasPriceFactor: "10000",
       });
 
-      // estimatedFee = gelatoEstimate * 120 / 100
-      getGelatoEstimatedFeeStub.resolves(BigNumber.from("50000"));
+      stub(nxtpSdkBase, "estimateRelayerFee").resolves(BigNumber.from("50000"));
 
       const mockXcallArgs = mock.entity.xcallArgs({
-        transactingAssetId: constants.AddressZero,
         params: { ...mock.entity.callParams(), relayerFee: "0" },
       });
 
       const callArgForEncoded = mock.entity.xcallArgs({
-        transactingAssetId: constants.AddressZero,
-        params: { ...mock.entity.callParams(), relayerFee: "60000" },
+        params: { ...mock.entity.callParams(), relayerFee: "50000" },
       });
 
       const data = getConnextInterface().encodeFunctionData("xcall", [callArgForEncoded]);
@@ -180,7 +159,7 @@ describe("SdkBase", () => {
         to: mockConnextAddresss,
         data,
         from: mock.config().signerAddress,
-        value: BigNumber.from(mockXcallArgs.amount).add(BigNumber.from("60000")),
+        value: BigNumber.from("50000"),
         chainId,
       };
 

@@ -4,13 +4,13 @@ services:
   router-publisher:
     container_name: router-publisher
     depends_on:
-      - router-message-queue
+      - message-queue
       - sequencer-publisher
-      - signer
+      - signer-router
     image: ${ROUTER_PUBLISHER_IMAGE}
     restart: always
     ports:
-      - "8091:8080"
+      - "8880:8080"
     logging:
       driver: json-file
       options:
@@ -25,13 +25,13 @@ services:
   router-subscriber:
     container_name: router-subscriber
     depends_on:
-      - router-message-queue
+      - message-queue
       - sequencer-publisher
-      - signer
+      - signer-router
     image: ${ROUTER_SUBSCRIBER_IMAGE}
     restart: always
     ports:
-      - "8090:8080"
+      - "8881:8080"
     logging:
       driver: json-file
       options:
@@ -43,12 +43,18 @@ services:
       GRAPH_1337_ENDPOINT: "http://graph-node-1337:8000/subgraphs/name/connext/nxtp"
       GRAPH_1338_ENDPOINT: "http://graph-node-1338:8000/subgraphs/name/connext/nxtp"
 
-  router-message-queue:
-    container_name: router-message-queue
-    image: rabbitmq:3.10-management
-    ports:
-      - "5672:5672"
-      - "15672:15672"
+  signer-router:
+    container_name: signer-router
+    image: "ghcr.io/connext/web3signer:latest"
+    restart: always
+    environment:
+      - WEB3_SIGNER_PRIVATE_KEY=$WEB3_SIGNER_PRIVATE_KEY_ROUTER
+      - WEB3SIGNER_HTTP_HOST_ALLOWLIST=*
+    logging:
+      driver: json-file
+      options:
+        max-size: 10m
+        tag: "{{.ImageName}}|{{.Name}}|{{.ImageFullID}}|{{.FullID}}"
 
   router-cache:
     container_name: router-cache
@@ -59,11 +65,11 @@ services:
   sequencer-publisher:
     container_name: sequencer-publisher
     depends_on:
-      - sequencer-message-queue
+      - message-queue
     image: ${SEQUENCER_PUBLISHER_IMAGE}
     restart: always
     ports:
-      - "8081:8081"
+      - "8882:8081"
     logging:
       driver: json-file
       options:
@@ -78,11 +84,11 @@ services:
   sequencer-subscriber:
     container_name: sequencer-subscriber
     depends_on:
-      - sequencer-message-queue
+      - message-queue
     image: ${SEQUENCER_SUBSCRIBER_IMAGE}
     restart: always
     ports:
-      - "8080:8081"
+      - "8883:8081"
     logging:
       driver: json-file
       options:
@@ -94,12 +100,25 @@ services:
       GRAPH_1337_ENDPOINT: "http://graph-node-1337:8000/subgraphs/name/connext/nxtp"
       GRAPH_1338_ENDPOINT: "http://graph-node-1338:8000/subgraphs/name/connext/nxtp"
 
-  sequencer-message-queue:
-    container_name: sequencer-message-queue
+  signer-sequencer:
+    container_name: signer-sequencer
+    image: "ghcr.io/connext/web3signer:latest"
+    restart: always
+    environment:
+      - WEB3_SIGNER_PRIVATE_KEY=$WEB3_SIGNER_PRIVATE_KEY_SEQUENCER
+      - WEB3SIGNER_HTTP_HOST_ALLOWLIST=*
+    logging:
+      driver: json-file
+      options:
+        max-size: 10m
+        tag: "{{.ImageName}}|{{.Name}}|{{.ImageFullID}}|{{.FullID}}"
+
+  message-queue:
+    container_name: message-queue
     image: rabbitmq:3.10-management
     ports:
-      - "5673:5672"
-      - "15673:15672"
+      - "5672:5672"
+      - "15672:15672"
 
   sequencer-cache:
     container_name: sequencer-cache
@@ -123,26 +142,24 @@ services:
       - ${PWD}/docker/relayer/:/home/node/agents/relayer/
       - ${PWD}/docker/relayer/config.local.json:/home/node/packages/agents/relayer/config.json
 
-  relayer-cache:
-    container_name: relayer-cache
-    image: redis:latest
-    ports:
-      - "6381:6379"
-
-  signer:
-    container_name: signer
+  signer-relayer:
+    container_name: signer-relayer
     image: "ghcr.io/connext/web3signer:latest"
     restart: always
-    ports:
-      - "9000:9000"
     environment:
-      - WEB3_SIGNER_PRIVATE_KEY=$WEB3_SIGNER_PRIVATE_KEY
+      - WEB3_SIGNER_PRIVATE_KEY=$WEB3_SIGNER_PRIVATE_KEY_RELAYER
       - WEB3SIGNER_HTTP_HOST_ALLOWLIST=*
     logging:
       driver: json-file
       options:
         max-size: 10m
         tag: "{{.ImageName}}|{{.Name}}|{{.ImageFullID}}|{{.FullID}}"
+
+  relayer-cache:
+    container_name: relayer-cache
+    image: redis:latest
+    ports:
+      - "6381:6379"
 
   cartographer-transfers:
     container_name: cartographer-transfers

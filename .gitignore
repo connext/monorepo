@@ -40,3 +40,5 @@ ops/**/tfvars.json
 .idea
 packages/agents/router/config.*.json
 packages/agents/sequencer/config.*.json
+packages/deployments/contracts/deployments/local_1337
+packages/deployments/contracts/deployments/local_1338

@@ -14,13 +14,94 @@ import {
 import { TransactionService, getConnextInterface } from "@connext/nxtp-txservice";
 import { NxtpSdkBase, NxtpSdkUtils } from "@connext/nxtp-sdk";
 import { BigNumber, constants, Contract, providers, utils, Wallet } from "ethers";
+import { expect } from "chai";
+/**
+ * NOTE: These deployment imports must be kept here (or any .ts file that won't be transpiled/compiled) due to local_1337 and local_1338
+ * deployment step being a dependency for running these tests. If these imports are moved to a .ts file, `integrations` module will likely
+ * be unable to build as local_1337 and local_1338 deployment files are not kept in the repository.
+ *
+ * If it's showing errors below, run `setup_integration_test.sh` script (in root) to generate the deployments.
+ *
+ * We use these imports to retrieve the deployment addresses dynamically at runtime, so the PARAMETERS config does not need to be hardcoded.
+ */
+// Local 1338 deployment imports:
+import ConnextHandler_DiamondProxy_1338 from "@connext/nxtp-contracts/deployments/local_1338/ConnextHandler_DiamondProxy.json";
+import PromiseRouterUpgradeBeaconProxy_1338 from "@connext/nxtp-contracts/deployments/local_1338/PromiseRouterUpgradeBeaconProxy.json";
+import RelayerFeeRouterUpgradeBeaconProxy_1338 from "@connext/nxtp-contracts/deployments/local_1338/RelayerFeeRouterUpgradeBeaconProxy.json";
+import BridgeRouterUpgradeBeaconProxy_1338 from "@connext/nxtp-contracts/deployments/local_1338/BridgeRouterUpgradeBeaconProxy.json";
+import TokenRegistryUpgradeBeaconProxy_1338 from "@connext/nxtp-contracts/deployments/local_1338/TokenRegistryUpgradeBeaconProxy.json";
+import TestERC20_1338 from "@connext/nxtp-contracts/deployments/local_1338/TestERC20.json";
+// Local 1337 deployment imports:
+import ConnextHandler_DiamondProxy_1337 from "@connext/nxtp-contracts/deployments/local_1337/ConnextHandler_DiamondProxy.json";
+import PromiseRouterUpgradeBeaconProxy_1337 from "@connext/nxtp-contracts/deployments/local_1337/PromiseRouterUpgradeBeaconProxy.json";
+import RelayerFeeRouterUpgradeBeaconProxy_1337 from "@connext/nxtp-contracts/deployments/local_1337/RelayerFeeRouterUpgradeBeaconProxy.json";
+import BridgeRouterUpgradeBeaconProxy_1337 from "@connext/nxtp-contracts/deployments/local_1337/BridgeRouterUpgradeBeaconProxy.json";
+import TokenRegistryUpgradeBeaconProxy_1337 from "@connext/nxtp-contracts/deployments/local_1337/TokenRegistryUpgradeBeaconProxy.json";
+import TestERC20_1337 from "@connext/nxtp-contracts/deployments/local_1337/TestERC20.json";
+import { ConnextHandlerInterface } from "@connext/nxtp-contracts";
 
 import { pollSomething } from "./helpers/shared";
 import { enrollHandlers, enrollCustom, setupRouter, setupAsset, addLiquidity, addRelayer } from "./helpers/local";
-import { DEPLOYER_WALLET, PARAMETERS, SUBG_POLL_PARITY, USER_WALLET } from "./constants/local";
-import { expect } from "chai";
+import { DEPLOYER_WALLET, PARAMETERS as _PARAMETERS, SUBG_POLL_PARITY, USER_WALLET } from "./constants/local";
+import { addConnextions } from "./helpers/local/addConnextions";
+import { addSequencer } from "./helpers/local/addSequencer";
 
-const logger = new Logger({ name: "e2e" });
+export const logger = new Logger({ name: "e2e" });
+
+type Deployments = {
+  ConnextHandler: string;
+  PromiseRouterUpgradeBeaconProxy: string;
+  RelayerFeeRouterUpgradeBeaconProxy: string;
+  BridgeRouterUpgradeBeaconProxy: string;
+  TokenRegistryUpgradeBeaconProxy: string;
+  TestERC20: string;
+};
+
+/**
+ * Get deployments needed for E2E test for the specified chain.
+ * @param _chain - Local chain for which we are getting deployment addresses.
+ * @returns Deployments object.
+ */
+export const getDeployments = (_chain: string | number): Deployments => {
+  const chain = _chain.toString();
+  let result: Deployments;
+  if (chain === "1337") {
+    result = {
+      ConnextHandler: ConnextHandler_DiamondProxy_1337.address,
+      PromiseRouterUpgradeBeaconProxy: PromiseRouterUpgradeBeaconProxy_1337.address,
+      RelayerFeeRouterUpgradeBeaconProxy: RelayerFeeRouterUpgradeBeaconProxy_1337.address,
+      BridgeRouterUpgradeBeaconProxy: BridgeRouterUpgradeBeaconProxy_1337.address,
+      TokenRegistryUpgradeBeaconProxy: TokenRegistryUpgradeBeaconProxy_1337.address,
+      TestERC20: TestERC20_1337.address,
+    };
+  } else if (chain === "1338") {
+    result = {
+      ConnextHandler: ConnextHandler_DiamondProxy_1338.address,
+      PromiseRouterUpgradeBeaconProxy: PromiseRouterUpgradeBeaconProxy_1338.address,
+      RelayerFeeRouterUpgradeBeaconProxy: RelayerFeeRouterUpgradeBeaconProxy_1338.address,
+      BridgeRouterUpgradeBeaconProxy: BridgeRouterUpgradeBeaconProxy_1338.address,
+      TokenRegistryUpgradeBeaconProxy: TokenRegistryUpgradeBeaconProxy_1338.address,
+      TestERC20: TestERC20_1338.address,
+    };
+  } else {
+    throw new Error(`Chain ${chain} not supported! Cannot retrieve contract deployment addresses for that chain.`);
+  }
+  console.log(`Retrieved deployments for chain ${chain}:`, result);
+  return result;
+};
+
+// Add deployment addresses to the config PARAMETERS constant.
+const PARAMETERS = {
+  ..._PARAMETERS,
+  A: {
+    ..._PARAMETERS.A,
+    DEPLOYMENTS: getDeployments(_PARAMETERS.A.CHAIN),
+  },
+  B: {
+    ..._PARAMETERS.B,
+    DEPLOYMENTS: getDeployments(_PARAMETERS.B.CHAIN),
+  },
+} as const;
 
 const deployerTxService = new TransactionService(
   logger,
@@ -60,24 +141,26 @@ const sendXCall = async (
   xcallData: XCallArgs;
 }> => {
   logger.info("Formatting XCall.");
-  const xcallData = {
-    amount: "1000",
+  const xcallData: XCallArgs = {
     params: {
       to: PARAMETERS.AGENTS.USER.address,
       originDomain: PARAMETERS.A.DOMAIN,
       destinationDomain: PARAMETERS.B.DOMAIN,
-      agent: constants.AddressZero,
       callback: constants.AddressZero,
+      agent: PARAMETERS.AGENTS.USER.address,
       callbackFee: "0",
       callData: "0x",
       forceSlow: false,
-      receiveLocal: false,
+      // TODO: Will need option to override `receiveLocal` when we do AMM-related tests.
+      receiveLocal: true,
       recovery: PARAMETERS.AGENTS.USER.address,
       relayerFee: "0",
-      slippageTol: "0",
+      destinationMinOut: "0",
       ...xparams,
     },
-    transactingAssetId: PARAMETERS.ASSET.address,
+    transactingAsset: PARAMETERS.A.DEPLOYMENTS.TestERC20,
+    transactingAmount: "1000",
+    originMinOut: "0",
   };
   const tx = await sdkBase.xcall(xcallData);
 
@@ -88,16 +171,36 @@ const sendXCall = async (
       to: tx.to!,
       value: tx.value ?? 0,
       data: utils.hexlify(tx.data!),
-      chainId: 1337,
+      chainId: PARAMETERS.A.CHAIN,
     });
     receipt = await res.wait(1);
   } else {
     receipt = await userTxService.sendTx(
-      { to: tx.to!, value: tx.value ?? 0, data: utils.hexlify(tx.data!), chainId: 1337 },
+      { to: tx.to!, value: tx.value ?? 0, data: utils.hexlify(tx.data!), chainId: PARAMETERS.A.CHAIN },
       requestContext,
     );
   }
-  logger.info("XCall sent!");
+
+  logger.info("XCall sent!", undefined, undefined, {
+    hash: receipt.transactionHash,
+    confirmations: receipt.confirmations,
+    blockNumber: receipt.blockNumber,
+    logs: receipt.logs
+      .map((event) => {
+        try {
+          const result = ConnextHandlerInterface.parseLog(event);
+          return {
+            name: result.eventFragment.name,
+            signature: result.signature,
+            topic: result.topic,
+            args: result.args,
+          };
+        } catch (e: unknown) {
+          return undefined;
+        }
+      })
+      .filter((event) => !!event),
+  });
   return { receipt, xcallData };
 };
 
@@ -113,18 +216,24 @@ const getTransferByTransactionHash = async (
 
   const startTime = Date.now();
   const xTransfer: XTransfer | undefined = await pollSomething({
-    // Attempts will be made for 2 minute.
+    // Attempts will be made for 2 minutes.
     attempts: Math.floor(120_000 / SUBG_POLL_PARITY),
     parity: SUBG_POLL_PARITY,
     method: async () => {
       try {
         const dbTransfer = await sdkUtils.getTransferByTransactionHash(transactionHash);
+        if (dbTransfer.length === 0) {
+          logger.info("No results! Waiting for next loop...");
+          return undefined;
+        }
         const transfer = convertFromDbTransfer(dbTransfer[0]);
+        logger.info("Transfer found!", undefined, undefined, { transfer });
         if (transfer.origin!.xcall!.transactionHash) {
           return transfer;
         }
       } catch (e: unknown) {
-        console.log("Waiting for next loop...");
+        console.warn(e);
+        logger.info("Waiting for next loop...");
       }
       return undefined;
     },
@@ -201,40 +310,202 @@ const getTransferById = async (sdkUtils: NxtpSdkUtils, domain: string, transferI
   return xTransfer;
 };
 
-const enrollReplica = async (singer: Wallet) => {
-  const xAppConnectionManager = new utils.Interface([
+const onchainSetup = async (sdkBase: NxtpSdkBase) => {
+  // TODO: Mirror connectors set up for messaging
+  // TODO: Whitelist messaging routers as callers of dispatch?
+  // TODO: Approve relayers as caller for connectors and root manager?
+
+  logger.info("Adding connextions...");
+  await addConnextions(
+    [
+      {
+        chain: PARAMETERS.A.CHAIN,
+        domain: PARAMETERS.A.DOMAIN,
+        ConnextHandler: PARAMETERS.A.DEPLOYMENTS.ConnextHandler,
+      },
+      {
+        chain: PARAMETERS.B.CHAIN,
+        domain: PARAMETERS.B.DOMAIN,
+        ConnextHandler: PARAMETERS.B.DEPLOYMENTS.ConnextHandler,
+      },
+    ],
+    deployerTxService,
+    logger,
+  );
+  logger.info("Added connextions.");
+
+  logger.info("Enrolling handlers...");
+  await enrollHandlers(
+    [
+      {
+        chain: PARAMETERS.A.CHAIN,
+        domain: PARAMETERS.A.DOMAIN,
+        ...PARAMETERS.A.DEPLOYMENTS,
+      },
+      {
+        chain: PARAMETERS.B.CHAIN,
+        domain: PARAMETERS.B.DOMAIN,
+        ...PARAMETERS.B.DEPLOYMENTS,
+      },
+    ],
+    deployerTxService,
+  );
+  logger.info("Enrolled handlers.");
+
+  logger.info("Enrolling custom asset with TokenRegistry...");
+  await enrollCustom(
     {
-      inputs: [
-        {
-          internalType: "address",
-          name: "_replica",
-          type: "address",
-        },
-        {
-          internalType: "uint32",
-          name: "_domain",
-          type: "uint32",
-        },
-      ],
-      name: "ownerEnrollReplica",
-      outputs: [],
-      stateMutability: "nonpayable",
-      type: "function",
+      domain: PARAMETERS.A.DOMAIN,
+      tokenAddress: PARAMETERS.A.DEPLOYMENTS.TestERC20,
     },
-  ]);
-  const encoded = xAppConnectionManager.encodeFunctionData("ownerEnrollReplica", [singer.address, PARAMETERS.B.DOMAIN]);
+    [
+      {
+        domain: PARAMETERS.B.DOMAIN,
+        tokenAddress: PARAMETERS.B.DEPLOYMENTS.TestERC20,
+        TokenRegistry: PARAMETERS.B.DEPLOYMENTS.TokenRegistryUpgradeBeaconProxy,
+      },
+    ],
+    deployerTxService,
+  );
+  logger.info("Enrolled custom asset.");
 
-  const tx = await singer.sendTransaction({
-    to: PARAMETERS.B.DEPLOYMENTS.XAppConnectionManager,
-    data: encoded,
-    chainId: PARAMETERS.B.CHAIN,
-  });
+  logger.info("Setting up router...");
+  await setupRouter(
+    PARAMETERS.AGENTS.ROUTER.address,
+    [
+      { ConnextHandler: PARAMETERS.A.DEPLOYMENTS.ConnextHandler, domain: PARAMETERS.A.DOMAIN },
+      { ConnextHandler: PARAMETERS.B.DEPLOYMENTS.ConnextHandler, domain: PARAMETERS.B.DOMAIN },
+    ],
+    deployerTxService,
+  );
+  logger.info("Set up router.");
 
-  const receipt = await tx.wait(1);
-  logger.info("Enrolled deployer as replica.", requestContext, methodContext, {
-    deployer: singer.address,
-    receipt,
-  });
+  logger.info("Setting up assets...");
+  await setupAsset(
+    { domain: PARAMETERS.A.DOMAIN, tokenAddress: PARAMETERS.A.DEPLOYMENTS.TestERC20 },
+    [
+      {
+        domain: PARAMETERS.A.DOMAIN,
+        ConnextHandler: PARAMETERS.A.DEPLOYMENTS.ConnextHandler,
+        // NOTE: Same as local; this means we won't be doing any swaps.
+        adopted: PARAMETERS.A.DEPLOYMENTS.TestERC20,
+      },
+      {
+        domain: PARAMETERS.B.DOMAIN,
+        ConnextHandler: PARAMETERS.B.DEPLOYMENTS.ConnextHandler,
+        // NOTE: Same as local; this means we won't be doing any swaps.
+        adopted: PARAMETERS.B.DEPLOYMENTS.TestERC20,
+      },
+    ],
+    deployerTxService,
+    logger,
+  );
+  logger.info("Set up assets.");
+
+  logger.info(`Adding liquidity for router: ${PARAMETERS.AGENTS.ROUTER.address}...`);
+  await addLiquidity(
+    [
+      {
+        domain: PARAMETERS.A.DOMAIN,
+        amount: utils.parseEther("100").toString(),
+        router: PARAMETERS.AGENTS.ROUTER.address,
+        asset: PARAMETERS.A.DEPLOYMENTS.TestERC20,
+        ConnextHandler: PARAMETERS.A.DEPLOYMENTS.ConnextHandler,
+      },
+      {
+        domain: PARAMETERS.B.DOMAIN,
+        amount: utils.parseEther("100").toString(),
+        router: PARAMETERS.AGENTS.ROUTER.address,
+        asset: PARAMETERS.B.DEPLOYMENTS.TestERC20,
+        ConnextHandler: PARAMETERS.B.DEPLOYMENTS.ConnextHandler,
+      },
+    ],
+    deployerTxService,
+    logger,
+  );
+  logger.info("Added liquidity.");
+
+  logger.info(`Adding a relayer: ${PARAMETERS.AGENTS.RELAYER.address}`);
+  await addRelayer(
+    [
+      {
+        domain: PARAMETERS.A.DOMAIN,
+        relayer: PARAMETERS.AGENTS.RELAYER.address,
+        ConnextHandler: PARAMETERS.A.DEPLOYMENTS.ConnextHandler,
+      },
+      {
+        domain: PARAMETERS.B.DOMAIN,
+        relayer: PARAMETERS.AGENTS.RELAYER.address,
+        ConnextHandler: PARAMETERS.B.DEPLOYMENTS.ConnextHandler,
+      },
+    ],
+    deployerTxService,
+    logger,
+  );
+
+  logger.info(`Adding a sequencer: ${PARAMETERS.AGENTS.SEQUENCER.address}`);
+  await addSequencer(
+    [
+      {
+        domain: PARAMETERS.A.DOMAIN,
+        sequencer: PARAMETERS.AGENTS.SEQUENCER.address,
+        ConnextHandler: PARAMETERS.A.DEPLOYMENTS.ConnextHandler,
+      },
+      {
+        domain: PARAMETERS.B.DOMAIN,
+        sequencer: PARAMETERS.AGENTS.SEQUENCER.address,
+        ConnextHandler: PARAMETERS.B.DEPLOYMENTS.ConnextHandler,
+      },
+    ],
+    deployerTxService,
+    logger,
+  );
+
+  // TODO: Read user's balance and skip if they already have TEST tokens.
+  logger.info("Minting tokens for user agent...");
+  {
+    const erc20 = new utils.Interface(ERC20Abi);
+    const amount = BigNumber.from("1000000000000000");
+    const encoded = erc20.encodeFunctionData("mint", [PARAMETERS.AGENTS.USER.address, amount]);
+    const receipt = await deployerTxService.sendTx(
+      {
+        chainId: 1337,
+        to: PARAMETERS.A.DEPLOYMENTS.TestERC20,
+        data: encoded,
+        value: BigNumber.from("0"),
+      },
+      requestContext,
+    );
+    logger.info("Minted tokens.", requestContext, methodContext, {
+      amount: amount.toString(),
+      asset: PARAMETERS.A.DEPLOYMENTS.TestERC20,
+      txHash: receipt.transactionHash,
+    });
+
+    const balanceOfData = erc20.encodeFunctionData("balanceOf", [PARAMETERS.AGENTS.USER.address]);
+    const res = await deployerTxService.readTx({
+      chainId: PARAMETERS.A.CHAIN,
+      data: balanceOfData,
+      to: PARAMETERS.A.DEPLOYMENTS.TestERC20,
+    });
+    const [tokenBalance] = erc20.decodeFunctionResult("balanceOf", res);
+    logger.info(`New user token balance: ${tokenBalance.toString()}`);
+  }
+
+  let tx = await sdkBase.approveIfNeeded(PARAMETERS.A.DOMAIN, PARAMETERS.A.DEPLOYMENTS.TestERC20, "1", true);
+  if (tx) {
+    await userTxService.sendTx(
+      { chainId: PARAMETERS.A.CHAIN, to: tx.to!, value: 0, data: utils.hexlify(tx.data!) },
+      requestContext,
+    );
+  }
+  tx = await sdkBase.approveIfNeeded(PARAMETERS.B.DOMAIN, PARAMETERS.B.DEPLOYMENTS.TestERC20, "1", true);
+  if (tx) {
+    await userTxService.sendTx(
+      { chainId: PARAMETERS.B.CHAIN, to: tx.to!, value: 0, data: utils.hexlify(tx.data!) },
+      requestContext,
+    );
+  }
 };
 
 const { requestContext, methodContext } = createLoggingContext("e2e");
@@ -242,180 +513,60 @@ describe("LOCAL:E2E", () => {
   let sdkBase: NxtpSdkBase;
   let sdkUtils: NxtpSdkUtils;
 
-  const onchainSetup = async () => {
-    logger.info("Enrolling handlers...");
-    await enrollHandlers(
-      [
-        {
-          domain: PARAMETERS.A.DOMAIN,
-          ...PARAMETERS.A.DEPLOYMENTS,
-        },
-        {
-          domain: PARAMETERS.B.DOMAIN,
-          ...PARAMETERS.B.DEPLOYMENTS,
-        },
-      ],
-      deployerTxService,
-    );
-    logger.info("Enrolled handlers.");
-
-    logger.info("Enrolling custom asset with TokenRegistry...");
-    await enrollCustom(
-      {
-        domain: PARAMETERS.A.DOMAIN,
-        tokenAddress: PARAMETERS.ASSET.address,
-      },
-      [
-        {
-          domain: PARAMETERS.B.DOMAIN,
-          tokenAddress: PARAMETERS.ASSET.address,
-          TokenRegistry: PARAMETERS.B.DEPLOYMENTS.TokenRegistry,
-        },
-      ],
-      deployerTxService,
-    );
-    logger.info("Enrolled custom asset.");
-
-    logger.info("Setting up router...");
-    await setupRouter(
-      PARAMETERS.AGENTS.ROUTER.address,
-      [
-        { ConnextHandler: PARAMETERS.A.DEPLOYMENTS.ConnextHandler, domain: PARAMETERS.A.DOMAIN },
-        { ConnextHandler: PARAMETERS.B.DEPLOYMENTS.ConnextHandler, domain: PARAMETERS.B.DOMAIN },
-      ],
-      deployerTxService,
-    );
-    logger.info("Set up router.");
-
-    logger.info("Setting up assets...");
-    await setupAsset(
-      { domain: PARAMETERS.A.DOMAIN, tokenAddress: PARAMETERS.ASSET.address },
-      [
-        {
-          domain: PARAMETERS.A.DOMAIN,
-          ConnextHandler: PARAMETERS.A.DEPLOYMENTS.ConnextHandler,
-          // NOTE: Same as local; this means we won't be doing any swaps.
-          adopted: PARAMETERS.ASSET.address,
-        },
-        {
-          domain: PARAMETERS.B.DOMAIN,
-          ConnextHandler: PARAMETERS.B.DEPLOYMENTS.ConnextHandler,
-          // NOTE: Same as local; this means we won't be doing any swaps.
-          adopted: PARAMETERS.ASSET.address,
-        },
-      ],
-      deployerTxService,
-    );
-    logger.info("Set up assets.");
-
-    logger.info(`Adding liquidity for router: ${PARAMETERS.AGENTS.ROUTER.address}...`);
-    await addLiquidity(
-      [
-        {
-          domain: PARAMETERS.A.DOMAIN,
-          amount: utils.parseEther("100").toString(),
-          router: PARAMETERS.AGENTS.ROUTER.address,
-          asset: PARAMETERS.ASSET.address,
-          ConnextHandler: PARAMETERS.A.DEPLOYMENTS.ConnextHandler,
-        },
-        {
-          domain: PARAMETERS.B.DOMAIN,
-          amount: utils.parseEther("100").toString(),
-          router: PARAMETERS.AGENTS.ROUTER.address,
-          asset: PARAMETERS.ASSET.address,
-          ConnextHandler: PARAMETERS.B.DEPLOYMENTS.ConnextHandler,
-        },
-      ],
-      deployerTxService,
-    );
-    logger.info("Added liquidity.");
-
-    logger.info(`Adding a relayer: ${PARAMETERS.AGENTS.RELAYER.address}`);
-    await addRelayer(
-      [
-        {
-          domain: PARAMETERS.A.DOMAIN,
-          relayer: PARAMETERS.AGENTS.RELAYER.address,
-          ConnextHandler: PARAMETERS.A.DEPLOYMENTS.ConnextHandler,
-        },
-        {
-          domain: PARAMETERS.B.DOMAIN,
-          relayer: PARAMETERS.AGENTS.RELAYER.address,
-          ConnextHandler: PARAMETERS.A.DEPLOYMENTS.ConnextHandler,
-        },
-      ],
-      deployerTxService,
-    );
-    logger.info("Minting tokens for user agent...");
-    {
-      const erc20 = new utils.Interface(ERC20Abi);
-      const amount = BigNumber.from("1000000000000000");
-      const encoded = erc20.encodeFunctionData("mint", [PARAMETERS.AGENTS.USER.address, amount]);
-      const receipt = await deployerTxService.sendTx(
-        {
-          chainId: 1337,
-          to: PARAMETERS.ASSET.address,
-          data: encoded,
-          value: BigNumber.from("0"),
-        },
-        requestContext,
-      );
-      logger.info("Minted tokens.", requestContext, methodContext, {
-        amount: amount.toString(),
-        asset: PARAMETERS.ASSET.address,
-        txHash: receipt.transactionHash,
-      });
-
-      const balanceOfData = erc20.encodeFunctionData("balanceOf", [PARAMETERS.AGENTS.USER.address]);
-      const res = await deployerTxService.readTx({
-        chainId: PARAMETERS.A.CHAIN,
-        data: balanceOfData,
-        to: PARAMETERS.ASSET.address,
-      });
-      const [tokenBalance] = erc20.decodeFunctionResult("balanceOf", res);
-      logger.info(`New user token balance: ${tokenBalance.toString()}`);
-    }
-
-    let tx = await sdkBase.approveIfNeeded(PARAMETERS.A.DOMAIN, PARAMETERS.ASSET.address, "1", true);
-    if (tx) {
-      await userTxService.sendTx(
-        { chainId: 1337, to: tx.to!, value: 0, data: utils.hexlify(tx.data!) },
-        requestContext,
-      );
-    }
-    if (tx) {
-      tx = await sdkBase.approveIfNeeded(PARAMETERS.B.DOMAIN, PARAMETERS.ASSET.address, "1", true);
-    }
-  };
-
   before(async () => {
-    // Ensure automine is off. Additionally, fund the user agent address some ETH.
     const originProvider = new providers.JsonRpcProvider(PARAMETERS.A.RPC[0]);
-    await originProvider.send("evm_setAutomine", [false]);
-    await originProvider.send("hardhat_setBalance", [PARAMETERS.AGENTS.USER.address, "0x84595161401484A000000"]);
     const destinationProvider = new providers.JsonRpcProvider(PARAMETERS.B.RPC[0]);
+    // Ensure automine is off.
+    await originProvider.send("evm_setAutomine", [false]);
     await destinationProvider.send("evm_setAutomine", [false]);
+
+    // Fund the user and relayer agents some ETH.
+    await originProvider.send("hardhat_setBalance", [PARAMETERS.AGENTS.USER.address, "0x84595161401484A000000"]);
+    await originProvider.send("hardhat_setBalance", [PARAMETERS.AGENTS.RELAYER.address, "0x84595161401484A000000"]);
     await destinationProvider.send("hardhat_setBalance", [PARAMETERS.AGENTS.USER.address, "0x84595161401484A000000"]);
+    await destinationProvider.send("hardhat_setBalance", [
+      PARAMETERS.AGENTS.RELAYER.address,
+      "0x84595161401484A000000",
+    ]);
+
+    // Sanity checks: make sure addresses configured are correct by checking to make sure contracts are deployed
+    // at those addresses (using `getCode`).
+    for (const key of ["A", "B"]) {
+      const config = PARAMETERS[key as "A" | "B"];
+      const { CHAIN: chain, DEPLOYMENTS: deployments } = config;
+      for (const [deployment, address] of Object.entries(deployments)) {
+        const code = await deployerTxService.getCode(chain, address);
+        if (code === "0x") {
+          throw new Error(`No contract found at given ${deployment} address: ${address} on chain ${chain}!`);
+        }
+      }
+    }
 
     // Peripherals.
     logger.info("Setting up sdk...");
     const sdkConfig = {
       chains: {
         [PARAMETERS.A.DOMAIN]: {
-          assets: [{ address: PARAMETERS.ASSET.address, name: PARAMETERS.ASSET.name, symbol: PARAMETERS.ASSET.symbol }],
+          assets: [{ address: PARAMETERS.A.DEPLOYMENTS.TestERC20, name: "TestERC20", symbol: "TEST" }],
           providers: PARAMETERS.A.RPC,
           deployments: {
             connext: PARAMETERS.A.DEPLOYMENTS.ConnextHandler,
-            tokenRegistry: PARAMETERS.A.DEPLOYMENTS.TokenRegistry,
+            tokenRegistry: PARAMETERS.A.DEPLOYMENTS.TokenRegistryUpgradeBeaconProxy,
             stableSwap: constants.AddressZero,
           },
         },
         [PARAMETERS.B.DOMAIN]: {
-          assets: [{ address: PARAMETERS.ASSET.address, name: PARAMETERS.ASSET.name, symbol: PARAMETERS.ASSET.symbol }],
+          assets: [
+            {
+              address: PARAMETERS.B.DEPLOYMENTS.TestERC20,
+              name: "TestERC20",
+              symbol: "TEST",
+            },
+          ],
           providers: PARAMETERS.B.RPC,
           deployments: {
             connext: PARAMETERS.B.DEPLOYMENTS.ConnextHandler,
-            tokenRegistry: PARAMETERS.B.DEPLOYMENTS.TokenRegistry,
+            tokenRegistry: PARAMETERS.B.DEPLOYMENTS.TokenRegistryUpgradeBeaconProxy,
             stableSwap: constants.AddressZero,
           },
         },
@@ -429,10 +580,10 @@ describe("LOCAL:E2E", () => {
     logger.info("Set up sdk.");
 
     // On-chain / contracts configuration, approvals, etc.
-    await onchainSetup();
+    await onchainSetup(sdkBase);
   });
 
-  it("handles fast liquidity transfer", async () => {
+  it.only("handles fast liquidity transfer", async () => {
     const originProvider = new providers.JsonRpcProvider(PARAMETERS.A.RPC[0]);
     const { receipt, xcallData } = await sendXCall(
       sdkBase,
@@ -499,7 +650,7 @@ describe("LOCAL:E2E", () => {
     });
   });
 
-  it("handles slow liquidity transfer", async () => {
+  it.skip("handles slow liquidity transfer", async () => {
     // Get the remote router ID for the `handle` call.
     const destinationProvider = new providers.JsonRpcProvider(PARAMETERS.B.RPC[0]);
     const deployer = PARAMETERS.AGENTS.DEPLOYER.signer.connect(destinationProvider);
@@ -507,7 +658,7 @@ describe("LOCAL:E2E", () => {
     // Enroll an EOA (the deployer) as the replica address for this domain.
     // NOTE: In a production environment the replica address will always be a contract. We're using an EOA here in order
     // to circumvent the nomad message lifecycle / nomad ecosystem.
-    await enrollReplica(deployer);
+    // await enrollReplica(deployer);
 
     const originProvider = new providers.JsonRpcProvider(PARAMETERS.A.RPC[0]);
     const { receipt, xcallData } = await sendXCall(

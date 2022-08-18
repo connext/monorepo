@@ -133,7 +133,7 @@ describe("Database client", () => {
       reconcile_block_number integer,
       update_time timestamp without time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
       agent character(42),
-      slippage_tol numeric
+      destination_min_out numeric
     );
     --
     -- Name: asset_balances asset_balances_pkey; Type: CONSTRAINT; Schema: public; Owner: -

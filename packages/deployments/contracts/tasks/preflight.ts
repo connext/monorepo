@@ -3,7 +3,7 @@ import { isAddress } from "ethers/lib/utils";
 import { task } from "hardhat/config";
 
 import { Env, getDeploymentName, mustGetEnv } from "../src/utils";
-import { canonizeId, getDomainInfoFromChainId } from "../src/nomad";
+import { canonizeId, chainIdToDomain } from "../src/nomad";
 
 // Default amount of tokens to mint / add liquidity for.
 const DEFAULT_AMOUNT = "2500000";
@@ -71,8 +71,8 @@ export default task("preflight", "Ensure correct setup for e2e demo with a speci
       }
       // Get the domain of the current network (this could be the canonical network, so same as above).
       const network = await hre.ethers.provider.getNetwork();
-      const domainInfo = await getDomainInfoFromChainId(network.chainId, hre);
-      if (!domainInfo) {
+      const domain = chainIdToDomain(network.chainId);
+      if (!domain) {
         throw new Error("Unsupported network");
       }
       const canonicalAsset = _asset ?? process.env.CANONICAL_TOKEN;
@@ -88,7 +88,7 @@ export default task("preflight", "Ensure correct setup for e2e demo with a speci
 
       // Retrieve the local asset from the token registry, if applicable.
       let localAsset: string;
-      if (+canonicalDomain === domainInfo.domain) {
+      if (+canonicalDomain === domain) {
         // Use the canonical asset as the local asset since we're on the canonical network.
         localAsset = canonicalAsset;
       } else {
@@ -123,11 +123,23 @@ export default task("preflight", "Ensure correct setup for e2e demo with a speci
       }
       console.log("*** Router approved!");
 
+      const functionSelectors = await connext.facets();
+      console.log("facets", functionSelectors);
+
       // Make sure the asset is approved.
       // The stable swap pool address, if applicable; if mad asset is what's being used,
       // should be set to address(0).
+
       const pool = _pool ?? constants.AddressZero;
-      const isAssetApproved = await connext.approvedAssets(canonicalTokenId);
+      const ret = await deployer.call({
+        to: connext.address,
+        value: constants.Zero,
+        data: connext.interface.encodeFunctionData("approvedAssets((uint32,bytes32))", [
+          [canonicalDomain, canonicalTokenId],
+        ]),
+      });
+      const [isAssetApproved] = connext.interface.decodeFunctionResult("approvedAssets((uint32,bytes32))", ret);
+      console.log("isAssetApproved", isAssetApproved);
       console.log("\nLocal asset: ", localAsset);
       console.log("Canonical asset: ", canonicalAsset);
       if (!isAssetApproved) {

@@ -1,6 +1,6 @@
 @postgrestUrl = http://localhost:3000
-@postgrestUrl = https://postgrest.testnet.connext.ninja
-@postgrestUrl = https://postgrest.testnet.staging.connext.ninja
+# @postgrestUrl = https://postgrest.testnet.connext.ninja
+# @postgrestUrl = https://postgrest.testnet.staging.connext.ninja
 
 # just a few examples, more examples here: https://postgrest.org/en/stable/api.html#horizontal-filtering-rows
 

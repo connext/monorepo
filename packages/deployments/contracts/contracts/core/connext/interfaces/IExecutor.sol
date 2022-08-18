@@ -18,7 +18,8 @@ interface IExecutor {
     address to;
     address recovery;
     address assetId;
-    bytes properties;
+    address originSender;
+    uint32 originDomain;
     bytes callData;
   }
 
@@ -28,7 +29,8 @@ interface IExecutor {
     address indexed recovery,
     address assetId,
     uint256 amount,
-    bytes _properties,
+    address originSender,
+    uint32 originDomain,
     bytes callData,
     bytes returnData,
     bool success
@@ -36,11 +38,5 @@ interface IExecutor {
 
   function getConnext() external returns (address);
 
-  function originSender() external returns (address);
-
-  function origin() external returns (uint32);
-
-  function amount() external returns (uint256);
-
-  function execute(ExecutorArgs calldata _args) external payable returns (bool success, bytes memory returnData);
+  function execute(ExecutorArgs calldata _args) external returns (bool success, bytes memory returnData);
 }

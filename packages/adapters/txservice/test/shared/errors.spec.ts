@@ -30,7 +30,7 @@ describe("#parseError", () => {
 
     expect(parsed instanceof ServerError).to.be.true;
     expect(parsed.context.message).to.be.eq("fail");
-    expect(parsed.message).to.be.eq(ServerError.reasons.BadResponse);
+    expect(parsed.message).to.contain(ServerError.reasons.BadResponse);
   });
 
   it("should handle unpredictable gas limit error", () => {
@@ -75,7 +75,7 @@ describe("#parseError", () => {
         error: { message: `<d12kegvzpwe1f${err}@!#!$%!@%<<>` },
       });
       expect(parsed instanceof RpcError).to.be.true;
-      expect(parsed.message).to.be.eq(RpcError.reasons.ConnectionReset);
+      expect(parsed.message).to.contain(RpcError.reasons.ConnectionReset);
     });
   });
 
@@ -136,7 +136,7 @@ describe("#parseError", () => {
         const parsed = parseError(err);
         expect(parsed.message).to.be.eq(reason);
         expect(parsed.context.message).to.be.eq(err.message);
-        expect(parsed.context.chainError.code).to.be.eq(err.code);
+        expect(parsed.context.code).to.be.eq(err.code);
       });
     }
   });
@@ -182,8 +182,8 @@ describe("#parseError", () => {
 
         const parsed = parseError(err);
         expect(parsed.message).to.be.eq(reason);
-        expect(parsed.context.message).to.be.eq(err.message);
-        expect(parsed.context.chainError.code).to.be.eq(err.code);
+        expect(parsed.context.message).to.contain(err.message);
+        expect(parsed.context.code).to.be.eq(err.code);
       });
     }
   });
@@ -235,8 +235,8 @@ describe("#parseError", () => {
         };
 
         const parsed = parseError(err);
-        expect(parsed.message).to.be.eq(reason);
-        expect(parsed.context.chainError.code).to.be.eq(err.code);
+        expect(parsed.message).to.contain(reason);
+        expect(parsed.context.code).to.be.eq(err.code);
       });
     }
   });

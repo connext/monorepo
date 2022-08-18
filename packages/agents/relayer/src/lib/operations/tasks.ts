@@ -35,7 +35,7 @@ export const createTask = async (
   } = getContext();
   const { requestContext, methodContext } = createLoggingContext(createTask.name, _requestContext);
 
-  const { to, data, fee } = params;
+  const { data, fee } = params;
 
   // TODO: Allow alternative shitcoins.
   if (fee.token !== constants.AddressZero) {
@@ -62,11 +62,13 @@ export const createTask = async (
         recovery: decoded.params.recovery,
         agent: decoded.params.agent,
         relayerFee: decoded.params.relayerFee.toString(),
-        slippageTol: decoded.params.slippageTol.toString(),
+        destinationMinOut: decoded.params.destinationMinOut.toString(),
       },
       local: decoded.local,
       routers: decoded.routers,
       routerSignatures: decoded.routerSignatures,
+      sequencer: decoded.sequencer,
+      sequencerSignature: decoded.sequencerSignature,
       amount: decoded.amount.toString(),
       nonce: (decoded.nonce as BigNumber).toNumber(),
       originSender: decoded.originSender,
@@ -95,12 +97,6 @@ export const createTask = async (
     getDeployedConnextContract(chain, config.environment === "staging" ? "Staging" : "")?.address;
   if (!connextAddress) {
     throw new ContractDeploymentMissing(ContractDeploymentMissing.contracts.connext, chain);
-  } else if (to.toLowerCase() !== connextAddress.toLowerCase()) {
-    throw new ParamsInvalid({
-      paramsError: "to must be designated connext contract address",
-      to,
-      connextAddress,
-    });
   }
 
   if (!chainToDomainMap.has(chain)) {
@@ -111,7 +107,7 @@ export const createTask = async (
 
   const taskId: string = await cache.tasks.createTask({
     chain,
-    to,
+    to: connextAddress,
     data,
     fee,
   });
