@@ -1,13 +1,17 @@
-import { createLoggingContext, getGelatoTaskStatus, jsonifyError, ExecutorDataStatus } from "@connext/nxtp-utils";
-import { GelatoTaskState } from "@connext/nxtp-utils/dist/types/relayer";
+import { createLoggingContext, jsonifyError } from "@connext/nxtp-utils";
 import interval from "interval-promise";
 
+import { getOperations } from "../../../lib/operations";
 import { getContext } from "../../../sequencer";
 
-const DEFAULT_POLL_INTERAL = 15_000;
+const DEFAULT_POLL_INTERAL = 1_000;
+
 export const bindTasks = async (_pollInterval?: number) => {
   const { config, logger } = getContext();
   const { requestContext, methodContext } = createLoggingContext(bindTasks.name);
+  const {
+    tasks: { updateTasks },
+  } = getOperations();
   const pollInterval = _pollInterval ?? DEFAULT_POLL_INTERAL;
   interval(async (_, stop) => {
     if (config.mode.cleanup) {
@@ -25,27 +29,4 @@ export const bindTasks = async (_pollInterval?: number) => {
       }
     }
   }, pollInterval);
-};
-
-export const updateTasks = async () => {
-  const {
-    logger,
-    adapters: { cache },
-  } = getContext();
-  const { requestContext, methodContext } = createLoggingContext(updateTasks.name);
-  logger.info("Method start", requestContext, methodContext);
-  const pendingExecuteSlowTxs = await cache.executors.getSentTransfers();
-  await Promise.all(
-    pendingExecuteSlowTxs.map(async (transferId: string) => {
-      const metaTxTask = await cache.executors.getTask(transferId);
-      const taskId = metaTxTask?.taskId;
-      if (taskId) {
-        const taskStatus = await getGelatoTaskStatus(taskId);
-        if (taskStatus === GelatoTaskState.ExecSuccess) {
-          await cache.executors.setExecutorDataStatus(transferId, ExecutorDataStatus.Completed);
-          await cache.executors.pruneLighthouseData(transferId);
-        }
-      }
-    }),
-  );
 };

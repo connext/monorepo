@@ -1,9 +1,9 @@
 import { stub, restore, reset, SinonStub } from "sinon";
 import { mkAddress, expect, OriginTransfer } from "@connext/nxtp-utils";
 
-import { mock, mockRelayerAddress } from "../../mock";
-import { sendExecuteFastToRelayer } from "../../../src/lib/operations/relayer";
-import { ctxMock, getHelpersStub } from "../../globalTestHook";
+import { mock, mockRelayerAddress } from "../../../mock";
+import { sendExecuteFastToRelayer } from "../../../../src/lib/operations/relayer";
+import { ctxMock, getHelpersStub } from "../../../globalTestHook";
 
 const mockTransfers: OriginTransfer[] = [
   mock.entity.xtransfer({
