@@ -1,5 +1,7 @@
 import { Type, Static } from "@sinclair/typebox";
 
+import { TIntegerString } from "./primitives";
+
 export enum ExecutorDataStatus {
   None = "None",
   Pending = "Pending",
@@ -13,7 +15,7 @@ export const ExecutorDataSchema = Type.Object({
   transferId: Type.String(),
   origin: Type.String(),
   relayerFee: Type.Object({
-    amount: Type.String(),
+    amount: TIntegerString,
     asset: Type.String(),
   }),
   encodedData: Type.String(),
