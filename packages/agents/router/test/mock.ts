@@ -65,6 +65,7 @@ export const mock = {
     logLevel: "info",
     redis: { port: 6379, host: "localhost" },
     sequencerUrl: "http://localhost:8081",
+    cartographerUrl: "http://localhost:3000",
     server: {
       pub: {
         host: "0.0.0.0",
@@ -87,6 +88,7 @@ export const mock = {
     polling: {
       subgraph: 10_000,
       cache: 10_000,
+      cartographer: 10_000,
     },
     auctionRoundDepth: 4,
     environment: "staging",

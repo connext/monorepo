@@ -145,7 +145,7 @@ export const getEnvConfig = (
       configFile.allowedTolerance ||
       DEFAULT_ALLOWED_TOLERANCE,
     sequencerUrl: process.env.NXTP_SEQUENCER || configJson.sequencerUrl || configFile.sequencerUrl,
-    cartographerUrl: process.env.NXTP_CARTOGRAPHER || configJson.cartographerrUrl || configFile.cartographerUrl,
+    cartographerUrl: process.env.NXTP_CARTOGRAPHER || configJson.cartographerUrl || configFile.cartographerUrl,
     polling: {
       subgraph:
         process.env.NXTP_SUBGRAPH_POLL_INTERVAL ||

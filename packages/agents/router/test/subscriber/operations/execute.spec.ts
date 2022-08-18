@@ -66,7 +66,7 @@ describe("Operations:Execute", () => {
 
     it("happy", async () => {
       const result = await sendBid(mockBid, requestContext);
-      expect(axiosPostStub).to.have.been.calledOnceWithExactly(formatUrl(mockSequencerUrl, "auctions"), mockBid);
+      expect(axiosPostStub).to.have.been.calledOnceWithExactly(formatUrl(mockSequencerUrl, "execute-fast"), mockBid);
       expect(result).to.equal("ok");
     });
 
