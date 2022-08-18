@@ -74,12 +74,6 @@
       {
         "indexed": false,
         "internalType": "address",
-        "name": "supportedAsset",
-        "type": "address"
-      },
-      {
-        "indexed": false,
-        "internalType": "address",
         "name": "localAsset",
         "type": "address"
       },
