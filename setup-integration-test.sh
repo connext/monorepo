@@ -13,7 +13,9 @@ relayer_image="${RELAYER_IMAGE:-'relayer:latest'}"
 cartographer_transfers_image="${CARTOGRAPHER_TRANSFERS_IMAGE:-'cartographer-transfers:latest'}"
 cartographer_routers_image="${CARTOGRAPHER_ROUTERS_IMAGE:-'cartographer-routers:latest'}"
 lighthouse_image="${LIGHTHOUSE_IMAGE:-'lighthouse:latest'}"
-WEB3_SIGNER_PRIVATE_KEY="0xc87509a1c067bbde78beb793e6fa76530b6382a4c0241e5e4a9ec0a0f44dc0d3"
+WEB3_SIGNER_PRIVATE_KEY_ROUTER="0xc87509a1c067bbde78beb793e6fa76530b6382a4c0241e5e4a9ec0a0f44dc0d3" # 0x627306090abaB3A6e1400e9345bC60c78a8BEf57
+WEB3_SIGNER_PRIVATE_KEY_SEQUENCER="0xae6ae8e5ccbfb04590405997ee2d52d2b330726137b875053c36d94e974d162f" # 0xf17f52151EbEF6C7334FAD080c5704D77216b732
+WEB3_SIGNER_PRIVATE_KEY_RELAYER="0x09ac2359ab897a5ffc47d7c67df32abbf9c006e00fa2ba36580e0cecc58834fe" # 0xc5842D5870622B406a71eeC1EcB2Df01D9dF5C28
 RELAYER_URL="http://relayer:8082"
 #####
 
@@ -38,11 +40,13 @@ NXTP_CONFIG=config.local.json
 SEQ_CONFIG=config.local.json
 RELAYER_CONFIG=config.local.json
 
-NXTP_ENVIRONMENT=production
+NXTP_ENVIRONMENT=local
 NXTP_NOMAD_ENVIRONMENT=staging
 
 MNEMONIC=${DEFAULT_MNEMONIC}
-WEB3_SIGNER_PRIVATE_KEY=${WEB3_SIGNER_PRIVATE_KEY}
+WEB3_SIGNER_PRIVATE_KEY_ROUTER=${WEB3_SIGNER_PRIVATE_KEY_ROUTER}
+WEB3_SIGNER_PRIVATE_KEY_SEQUENCER=${WEB3_SIGNER_PRIVATE_KEY_SEQUENCER}
+WEB3_SIGNER_PRIVATE_KEY_RELAYER=${WEB3_SIGNER_PRIVATE_KEY_RELAYER}
 
 # Images used for building docker containers
 ROUTER_PUBLISHER_IMAGE=${router_publisher_image}
@@ -61,6 +65,11 @@ LIGHTHOUSE_IMAGE=${lighthouse_image}
 " > .env
 #####
 
+##### Delete previous local_1337 and local_1338 chain deployment records if they exist.
+rm -rf -- packages/deployments/contracts/deployments/local_1337
+rm -rf -- packages/deployments/contracts/deployments/local_1338
+#####
+
 ##### Local chains, graph nodes, and IPFS.
 echo "Starting 1337 and 1338 local chains..."
 docker compose -f docker-compose.chains.yaml up -d --force-recreate
@@ -69,17 +78,19 @@ sleep 5
 
 ##### Contract Deployments
 echo "Deploying contracts to 1337..."
-MNEMONIC=${DEFAULT_MNEMONIC} ENV=production CHAIN_ID=1337 ETH_PROVIDER_URL=http://${LOCALHOST}:8547 yarn workspace @connext/nxtp-contracts hardhat deploy --network localhost --tags local
+# MNEMONIC="candy maple cake sugar pudding cream honey rich smooth crumble sweet treat" ENV=production CHAIN_ID=1338 ETH_PROVIDER_URL=http://localhost:8547 yarn workspace @connext/nxtp-contracts hardhat deploy --network local_1337 --tags local
+MNEMONIC=${DEFAULT_MNEMONIC} ENV=production CHAIN_ID=1337 ETH_PROVIDER_URL=http://${LOCALHOST}:8547 yarn workspace @connext/nxtp-contracts hardhat deploy --network local_1337 --tags local
 echo "Deployed contracts to 1337"
 
 echo "Deploying contracts to 1338..."
-MNEMONIC=${DEFAULT_MNEMONIC} ENV=production CHAIN_ID=1338 ETH_PROVIDER_URL=http://${LOCALHOST}:8546 yarn workspace @connext/nxtp-contracts hardhat deploy --network localhost --tags local
+# MNEMONIC="candy maple cake sugar pudding cream honey rich smooth crumble sweet treat" ENV=production CHAIN_ID=1338 ETH_PROVIDER_URL=http://localhost:8546 yarn workspace @connext/nxtp-contracts hardhat deploy --network local_1338 --tags local
+MNEMONIC=${DEFAULT_MNEMONIC} ENV=production CHAIN_ID=1338 ETH_PROVIDER_URL=http://${LOCALHOST}:8546 yarn workspace @connext/nxtp-contracts hardhat deploy --network local_1338 --tags local
 echo "Deployed contracts to 1338"
 #####
 
 ##### Subgraph Deployments
 echo "Building subgraph..."
-yarn workspace @connext/nxtp-subgraph prepare:v0
+yarn workspace @connext/nxtp-subgraph prepare:local_1337
 yarn workspace @connext/nxtp-subgraph codegen
 echo "Built subgraph"
 
@@ -87,6 +98,11 @@ echo "Deploying subgraph to 1337..."
 yarn workspace @connext/nxtp-subgraph create-local-1337
 yarn workspace @connext/nxtp-subgraph deploy-local-1337 -l v0.0.1
 echo "Deployed subgraph to 1337"
+
+echo "Building subgraph..."
+yarn workspace @connext/nxtp-subgraph prepare:local_1338
+yarn workspace @connext/nxtp-subgraph codegen
+echo "Built subgraph"
 
 echo "Deploying subgraph to 1338..."
 yarn workspace @connext/nxtp-subgraph create-local-1338

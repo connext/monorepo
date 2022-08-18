@@ -1,4 +1,5 @@
-import { BigNumberish, Contract, utils } from "ethers";
+import { BigNumberish, constants, Contract, utils } from "ethers";
+import { defaultAbiCoder, solidityKeccak256 } from "ethers/lib/utils";
 import { task } from "hardhat/config";
 
 import { Env, getDeploymentName, mustGetEnv } from "../src/utils";
@@ -50,7 +51,7 @@ export default task("add-liquidity", "Add liquidity for a router")
       const connext = new Contract(connextAddress, connextDeployment.abi, deployer);
       let amount;
       if (asset !== ethers.constants.AddressZero) {
-        const erc20 = await ethers.getContractAt(getDeploymentName("TestERC20", env), asset);
+        const erc20 = await ethers.getContractAt("TestERC20", asset);
         const balance = await erc20.balanceOf(deployer.address);
         amount = utils.parseUnits(_amount, (await erc20.decimals()) as BigNumberish);
         console.log("balance: ", balance.toString());
@@ -87,8 +88,16 @@ export default task("add-liquidity", "Add liquidity for a router")
       const [domain, canonical] = await tokenRegistry.getTokenId(asset);
       console.log("domain: ", domain);
       console.log("canonical: ", canonical);
+      const key = solidityKeccak256(["bytes"], [defaultAbiCoder.encode(["bytes32", "uint32"], [canonical, domain])]);
 
-      const approvedAsset = await connext.approvedAssets(canonical);
+      const [approvedAsset] = connext.interface.decodeFunctionResult(
+        "approvedAssets(bytes32)",
+        await deployer.call({
+          to: connext.address,
+          value: constants.Zero,
+          data: connext.interface.encodeFunctionData("approvedAssets(bytes32)", [key]),
+        }),
+      );
       console.log("approvedAsset: ", approvedAsset);
       if (!approvedAsset) {
         throw new Error("Asset not approved");

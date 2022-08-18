@@ -15,6 +15,8 @@ import { getNtpTimeSeconds } from "../helpers";
 
 import { mkAddress, mkBytes32, mkSig } from ".";
 
+export const mockSequencer = mkAddress("0x333");
+
 /**
  * General mock toolset used for testing globally.
  */
@@ -86,13 +88,14 @@ export const mock = {
       receiveLocal: false,
       agent: mkAddress(),
       recovery: mkAddress("0xcccc"),
-      slippageTol: "0",
+      destinationMinOut: "0",
       ...overrides,
     }),
     xcallArgs: (overrides: Partial<XCallArgs> = {}): XCallArgs => ({
       params: mock.entity.callParams(),
-      transactingAssetId: mock.asset.A.address,
-      amount: utils.parseEther("1").toString(),
+      transactingAsset: mock.asset.A.address,
+      transactingAmount: utils.parseEther("1").toString(),
+      originMinOut: "0",
       ...overrides,
     }),
     executeArgs: (overrides: Partial<ExecuteArgs> = {}): ExecuteArgs => ({
@@ -100,6 +103,8 @@ export const mock = {
       local: mock.asset.A.address,
       routers: [mkAddress("0x222")],
       routerSignatures: [mock.signature],
+      sequencer: mockSequencer,
+      sequencerSignature: mock.signature,
       amount: utils.parseEther("1").toString(),
       nonce: 0,
       originSender: mkAddress(),
@@ -175,7 +180,7 @@ export const mock = {
           agent: mkAddress("0x"),
           forceSlow: false,
           receiveLocal: false,
-          slippageTol: "0",
+          destinationMinOut: "0",
           destinationDomain,
           originDomain,
         },
@@ -183,6 +188,8 @@ export const mock = {
         origin: shouldHaveOriginDefined
           ? {
               chain: originChain,
+
+              originMinOut: "0",
 
               // Assets
               assets: {
