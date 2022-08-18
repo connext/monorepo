@@ -35,7 +35,6 @@ export const originTransfer = (entity: any): OriginTransfer => {
 
   return {
     // Meta Data
-
     transferId: entity.transferId,
     nonce: BigNumber.from(entity.nonce).toNumber(),
 
