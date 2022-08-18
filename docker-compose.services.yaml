@@ -142,6 +142,19 @@ services:
       - ${PWD}/docker/relayer/:/home/node/agents/relayer/
       - ${PWD}/docker/relayer/config.local.json:/home/node/packages/agents/relayer/config.json
 
+  signer-relayer:
+    container_name: signer-relayer
+    image: "ghcr.io/connext/web3signer:latest"
+    restart: always
+    environment:
+      - WEB3_SIGNER_PRIVATE_KEY=$WEB3_SIGNER_PRIVATE_KEY_RELAYER
+      - WEB3SIGNER_HTTP_HOST_ALLOWLIST=*
+    logging:
+      driver: json-file
+      options:
+        max-size: 10m
+        tag: "{{.ImageName}}|{{.Name}}|{{.ImageFullID}}|{{.FullID}}"
+
   relayer-cache:
     container_name: relayer-cache
     image: redis:latest

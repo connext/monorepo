@@ -12,7 +12,7 @@
     "1337": {
       "providers": ["http://chain-1337:8545"],
       "deployments": {
-        "connext": "0x8e4C131B37383E431B9cd0635D3cF9f3F628EDae"
+        "connext": "0x98d9f9e8DEbd4A632682ba207670d2a5ACD3c489"
       },
       "assets": [
         {
@@ -24,7 +24,7 @@
     "1338": {
       "providers": ["http://chain-1338:8545"],
       "deployments": {
-        "connext": "0x8e4C131B37383E431B9cd0635D3cF9f3F628EDae"
+        "connext": "0xF08dF3eFDD854FEDE77Ed3b2E515090EEe765154"
       },
       "assets": [
         {
@@ -34,6 +34,6 @@
       ]
     }
   },
-  "web3SignerUrl": "http://signer:9000",
+  "web3SignerUrl": "http://signer-relayer:9000",
   "environment": "production"
 }
