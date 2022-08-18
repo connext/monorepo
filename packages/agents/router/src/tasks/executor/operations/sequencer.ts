@@ -15,7 +15,7 @@ import { getGelatoRelayerAddress } from "../../../mockable";
 import { getContext } from "../executor";
 // @ts-ignore
 import { version } from "../../../../package.json";
-import { SequencerPostFailed, SequencerResponseInvalid } from "../../../errors";
+import { SequencerResponseInvalid } from "../../../errors";
 
 export const sendExecuteSlowToSequencer = async (
   args: ExecuteArgs,

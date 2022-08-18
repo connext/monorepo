@@ -1,5 +1,4 @@
 import fastify, { FastifyInstance, FastifyReply } from "fastify";
-import pino from "pino";
 import {
   AuctionStatus,
   createLoggingContext,

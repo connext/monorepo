@@ -1,6 +1,13 @@
-import { ExecutorData, expect, mkAddress, mkBytes32 } from "@connext/nxtp-utils";
-import { stub, restore, reset, SinonStub } from "sinon";
-import { ExecutorVersionInvalid, GasEstimationFailed, MissingXCall, ParamsInvalid } from "../../../src/lib/errors";
+import { ExecutorData, ExecutorDataStatus, expect, mkAddress, mkBytes32 } from "@connext/nxtp-utils";
+import { stub, SinonStub } from "sinon";
+import Broker from "foo-foo-mq";
+import {
+  ExecutorVersionInvalid,
+  GasEstimationFailed,
+  MissingXCall,
+  ParamsInvalid,
+  ExecuteSlowCompleted,
+} from "../../../src/lib/errors";
 import { storeExecutorData } from "../../../src/lib/operations/executor";
 import { ctxMock, getOperationsStub, getHelpersStub } from "../../globalTestHook";
 import { mock } from "../../mock";
@@ -10,13 +17,24 @@ describe("Operations:Executor", () => {
   let getGelatoRelayerAddressStub: SinonStub;
   let getTransferStub: SinonStub;
   let storeTransferStub: SinonStub;
+  let getExecutorDataStatusStub: SinonStub;
+  let storeBackupDataStub: SinonStub;
+  let setExecutorDataStatusStub: SinonStub;
+  let storeExecutorDataStub: SinonStub;
+  let publishStub: SinonStub;
   beforeEach(() => {
-    const { subgraph } = ctxMock.adapters;
+    const { mqClient } = ctxMock.adapters;
     const { executors, transfers } = ctxMock.adapters.cache;
 
     getGelatoRelayerAddressStub = stub();
     getTransferStub = stub(transfers, "getTransfer");
     storeTransferStub = stub(transfers, "storeTransfers");
+    getExecutorDataStatusStub = stub(executors, "getExecutorDataStatus");
+    storeBackupDataStub = stub(executors, "storeBackupData");
+    setExecutorDataStatusStub = stub(executors, "setExecutorDataStatus");
+    storeExecutorDataStub = stub(executors, "storeExecutorData");
+    publishStub = ctxMock.adapters.mqClient.publish as SinonStub;
+
     getHelpersStub.returns({
       relayer: {
         getGelatoRelayerAddress: getGelatoRelayerAddressStub,
@@ -61,9 +79,48 @@ describe("Operations:Executor", () => {
       const mockExecutorData = mock.entity.executorData();
       await expect(storeExecutorData(mockExecutorData, requestContext)).to.be.rejectedWith(GasEstimationFailed);
     });
-    it("should throw if the slow data got already executed", async () => {});
-    it("should store executor data in the backup cache if its already being processed", async () => {});
-    it("should publish data to the message queue successfully", async () => {});
+
+    it("should throw if the slow data got already executed", async () => {
+      getTransferStub.resolves(undefined);
+      const mockTransfer = mock.entity.xtransfer();
+      (ctxMock.adapters.subgraph.getOriginTransferById as SinonStub).resolves(mockTransfer);
+      storeTransferStub.resolves();
+      getGelatoRelayerAddressStub.resolves(mkAddress("0x111"));
+      getExecutorDataStatusStub.resolves(ExecutorDataStatus.Completed);
+      const mockExecutorData = mock.entity.executorData();
+      await expect(storeExecutorData(mockExecutorData, requestContext)).to.be.rejectedWith(ExecuteSlowCompleted);
+    });
+    it("should store executor data in the backup cache if its already being processed", async () => {
+      getTransferStub.resolves(undefined);
+      const mockTransfer = mock.entity.xtransfer();
+      (ctxMock.adapters.subgraph.getOriginTransferById as SinonStub).resolves(mockTransfer);
+      storeTransferStub.resolves();
+      getGelatoRelayerAddressStub.resolves(mkAddress("0x111"));
+      getExecutorDataStatusStub.resolves(ExecutorDataStatus.Pending);
+      storeBackupDataStub.resolves(1);
+      const mockExecutorData = mock.entity.executorData();
+      await storeExecutorData(mockExecutorData, requestContext);
+      expect(storeBackupDataStub.callCount).to.be.eq(1);
+      storeBackupDataStub.resolves(2);
+      await storeExecutorData(mockExecutorData, requestContext);
+      expect(storeBackupDataStub.callCount).to.be.eq(2);
+    });
+    it("should publish data to the message queue successfully", async () => {
+      getTransferStub.resolves(undefined);
+      const mockTransfer = mock.entity.xtransfer();
+      (ctxMock.adapters.subgraph.getOriginTransferById as SinonStub).resolves(mockTransfer);
+      storeTransferStub.resolves();
+      getGelatoRelayerAddressStub.resolves(mkAddress("0x111"));
+      getExecutorDataStatusStub.resolves(ExecutorDataStatus.None);
+      setExecutorDataStatusStub.resolves();
+      storeExecutorDataStub.resolves();
+      storeBackupDataStub.resolves(1);
+      publishStub.resolves();
+      const mockExecutorData = mock.entity.executorData();
+      await storeExecutorData(mockExecutorData, requestContext);
+      expect(publishStub.callCount).to.be.eq(1);
+      expect(storeBackupDataStub.callCount).to.be.eq(0);
+    });
   });
   describe("#executeSlowPathData", () => {
     it("should throw if transfer doesn't exist", async () => {});
