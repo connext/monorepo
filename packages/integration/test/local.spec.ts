@@ -313,6 +313,7 @@ const getTransferById = async (sdkUtils: NxtpSdkUtils, domain: string, transferI
 const onchainSetup = async (sdkBase: NxtpSdkBase) => {
   // TODO: Mirror connectors set up for messaging
   // TODO: Whitelist messaging routers as callers of dispatch?
+  // TODO: Approve relayers as caller for connectors and root manager?
 
   logger.info("Adding connextions...");
   await addConnextions(

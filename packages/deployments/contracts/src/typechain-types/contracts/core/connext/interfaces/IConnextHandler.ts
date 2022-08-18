@@ -228,6 +228,7 @@ export interface IConnextHandlerInterface extends utils.Interface {
     "approvedAssets(bytes32)": FunctionFragment;
     "approvedAssets((uint32,bytes32))": FunctionFragment;
     "approvedRelayers(address)": FunctionFragment;
+    "approvedSequencers(address)": FunctionFragment;
     "assetWhitelistRemoved()": FunctionFragment;
     "assetWhitelistTimestamp()": FunctionFragment;
     "bridgeRouter()": FunctionFragment;
@@ -358,6 +359,7 @@ export interface IConnextHandlerInterface extends utils.Interface {
       | "approvedAssets(bytes32)"
       | "approvedAssets((uint32,bytes32))"
       | "approvedRelayers"
+      | "approvedSequencers"
       | "assetWhitelistRemoved"
       | "assetWhitelistTimestamp"
       | "bridgeRouter"
@@ -550,6 +552,10 @@ export interface IConnextHandlerInterface extends utils.Interface {
   ): string;
   encodeFunctionData(
     functionFragment: "approvedRelayers",
+    values: [PromiseOrValue<string>]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "approvedSequencers",
     values: [PromiseOrValue<string>]
   ): string;
   encodeFunctionData(
@@ -1144,6 +1150,10 @@ export interface IConnextHandlerInterface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
+    functionFragment: "approvedSequencers",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
     functionFragment: "assetWhitelistRemoved",
     data: BytesLike
   ): Result;
@@ -1668,6 +1678,11 @@ export interface IConnextHandler extends BaseContract {
 
     approvedRelayers(
       _relayer: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<[boolean]>;
+
+    approvedSequencers(
+      _sequencer: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<[boolean]>;
 
@@ -2333,6 +2348,11 @@ export interface IConnextHandler extends BaseContract {
     overrides?: CallOverrides
   ): Promise<boolean>;
 
+  approvedSequencers(
+    _sequencer: PromiseOrValue<string>,
+    overrides?: CallOverrides
+  ): Promise<boolean>;
+
   assetWhitelistRemoved(overrides?: CallOverrides): Promise<boolean>;
 
   assetWhitelistTimestamp(overrides?: CallOverrides): Promise<BigNumber>;
@@ -2980,6 +3000,11 @@ export interface IConnextHandler extends BaseContract {
 
     approvedRelayers(
       _relayer: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<boolean>;
+
+    approvedSequencers(
+      _sequencer: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<boolean>;
 
@@ -3660,6 +3685,11 @@ export interface IConnextHandler extends BaseContract {
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
+    approvedSequencers(
+      _sequencer: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
     assetWhitelistRemoved(overrides?: CallOverrides): Promise<BigNumber>;
 
     assetWhitelistTimestamp(overrides?: CallOverrides): Promise<BigNumber>;
@@ -4316,6 +4346,11 @@ export interface IConnextHandler extends BaseContract {
 
     approvedRelayers(
       _relayer: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    approvedSequencers(
+      _sequencer: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
