@@ -10,7 +10,6 @@ import {
   NotEnoughAmount,
   MissingXCall,
   CallDataForNonContract,
-  SequencerResponseInvalid,
   AuctionExpired,
   InvalidAuctionRound,
   UnableToGetAsset,

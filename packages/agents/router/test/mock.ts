@@ -2,11 +2,17 @@ import { utils, BigNumber, Wallet, constants } from "ethers";
 import { createStubInstance, SinonStubbedInstance, stub } from "sinon";
 import { AuctionsCache, TransfersCache } from "@connext/nxtp-adapters-cache";
 import { SubgraphReader } from "@connext/nxtp-adapters-subgraph";
-import { ConnextContractDeployments, ConnextContractInterfaces, TransactionService } from "@connext/nxtp-txservice";
+import {
+  ChainReader,
+  ConnextContractDeployments,
+  ConnextContractInterfaces,
+  TransactionService,
+} from "@connext/nxtp-txservice";
 import { mkAddress, Logger, mock as _mock, OriginTransfer } from "@connext/nxtp-utils";
 
 import { AppContext as PublisherAppContext } from "../src/tasks/publisher/context";
 import { AppContext as SubscriberAppContext } from "../src/tasks/subscriber/context";
+import { AppContext as ExecutorAppContext } from "../src/tasks/executor/context";
 import { NxtpRouterConfig } from "../src/config";
 
 export const mock = {
@@ -38,6 +44,17 @@ export const mock = {
       routerAddress: mock.address.router,
       logger: new Logger({ name: "mock", level: process.env.LOG_LEVEL || "silent" }),
       bridgeContext: mock.bridgeContext(),
+    };
+  },
+  executorContext: (): ExecutorAppContext => {
+    return {
+      adapters: {
+        chainreader: mock.adapters.chainreader(),
+        contracts: mock.contracts.interfaces(),
+      },
+      config: mock.config(),
+      chainData: mock.chainData(),
+      logger: new Logger({ name: "mock", level: process.env.LOG_LEVEL || "silent" }),
     };
   },
   config: (): NxtpRouterConfig => ({
@@ -142,6 +159,12 @@ export const mock = {
       txservice.sendTx.resolves(mockReceipt);
       txservice.getTransactionReceipt.resolves(mockReceipt);
       return txservice;
+    },
+    chainreader: (): SinonStubbedInstance<ChainReader> => {
+      const chainReader = createStubInstance(ChainReader);
+      chainReader.getGasEstimate.resolves(utils.parseUnits("1", 9));
+      chainReader.getGasEstimateWithRevertCode.resolves(utils.parseUnits("1", 9));
+      return chainReader;
     },
     mqClient: () => {
       return {

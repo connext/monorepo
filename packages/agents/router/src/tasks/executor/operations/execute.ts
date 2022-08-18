@@ -2,10 +2,11 @@ import { ajv, createLoggingContext, ExecuteArgs, ExecuteArgsSchema } from "@conn
 
 import { DomainNotSupported } from "../../../errors";
 import { getContext } from "../executor";
-import { getOperations } from "../operations";
+
+import { sendExecuteSlowToSequencer } from "./sequencer";
 
 /**
- * Lighthouse creates a new bid and sends it to sequencer.
+ * Router creates a new execute-slow and sends it to sequencer.
  *
  * @param args - The crosschain xcall params.
  */
@@ -16,7 +17,6 @@ export const execute = async (args: ExecuteArgs, transferId: string): Promise<vo
     adapters: { contracts },
     config,
   } = getContext();
-  const { sendExecuteSlowToSequencer } = getOperations();
 
   logger.info(`Method start: ${execute.name}`, requestContext, methodContext, { args });
 

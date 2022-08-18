@@ -84,7 +84,7 @@ export class RouterNotApproved extends ExecuteError {
 
 export class SequencerResponseInvalid extends ExecuteError {
   constructor(context: any = {}) {
-    super("sendBid: POST request returned invalid response", context, SequencerResponseInvalid.name);
+    super("Sequencer POST request returned invalid response", context, SequencerResponseInvalid.name);
   }
 }
 

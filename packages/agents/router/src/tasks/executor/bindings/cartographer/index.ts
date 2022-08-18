@@ -2,12 +2,11 @@ import { createLoggingContext, jsonifyError } from "@connext/nxtp-utils";
 import interval from "interval-promise";
 
 import { getContext } from "../../executor";
-import { getOperations } from "../../operations";
+import { pollCartographer } from "../../operations";
 
 export const bindCartographer = async (_pollInterval: number) => {
   const { config, logger } = getContext();
   const { requestContext, methodContext } = createLoggingContext(bindCartographer.name);
-  const { pollCartographer } = getOperations();
   interval(async (_, stop) => {
     if (config.mode.cleanup) {
       stop();

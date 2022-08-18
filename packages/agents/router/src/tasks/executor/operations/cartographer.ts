@@ -12,12 +12,11 @@ import axios from "axios";
 import { CartoApiRequestFailed } from "../../../errors";
 import { getContext } from "../executor";
 
-import { getOperations } from "./";
+import { execute } from "./execute";
 
 export const pollCartographer = async () => {
   const { requestContext, methodContext } = createLoggingContext(pollCartographer.name);
   const { logger } = getContext();
-  const { execute } = getOperations();
 
   logger.debug(`Method start: ${pollCartographer.name}`, requestContext, methodContext, {});
   const reconciledTransactions = await getReconciledTransactions();

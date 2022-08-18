@@ -5,8 +5,8 @@ import {
   ExecuteArgs,
   jsonifyError,
   NxtpError,
-  getChainIdFromDomain,
   formatUrl,
+  getChainIdFromDomain,
   ExecutorPostDataRequest,
 } from "@connext/nxtp-utils";
 import axios, { AxiosResponse } from "axios";
@@ -77,32 +77,30 @@ export const sendExecuteSlowToSequencer = async (
       relayerFee,
       transferId: transferId,
     });
+
+    return;
   }
 
   const url = formatUrl(config.sequencerUrl, "execute-slow");
 
-  try {
-    const response = await axios.post<any, AxiosResponse<any, any>, ExecutorPostDataRequest>(url, {
-      executorVersion: version,
-      transferId,
-      origin: args.params.originDomain,
-      relayerFee,
-      encodedData,
-    });
-    // Make sure response.data is valid.
-    if (!response || !response.data) {
-      throw new SequencerResponseInvalid({ response });
-    }
-
-    logger.info(`Sent meta tx to the sequencer`, requestContext, methodContext, {
-      relayer: relayerAddress,
-      connext: destinationConnextAddress,
-      domain: args.params.destinationDomain,
-      relayerFee,
-      result: response.data,
-      transferId: transferId,
-    });
-  } catch (error: unknown) {
-    throw new SequencerPostFailed({ error });
+  const response = await axios.post<any, AxiosResponse<any, any>, ExecutorPostDataRequest>(url, {
+    executorVersion: version,
+    transferId,
+    origin: args.params.originDomain,
+    relayerFee,
+    encodedData,
+  });
+  // Make sure response.data is valid.
+  if (!response || !response.data) {
+    throw new SequencerResponseInvalid({ response });
   }
+
+  logger.info(`Sent meta tx to the sequencer`, requestContext, methodContext, {
+    relayer: relayerAddress,
+    connext: destinationConnextAddress,
+    domain: args.params.destinationDomain,
+    relayerFee,
+    result: response.data,
+    transferId: transferId,
+  });
 };
