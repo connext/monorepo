@@ -12,7 +12,7 @@ export const getOperations = () => {
       sendExecuteFastToRelayer,
       sendExecuteSlowToRelayer,
     },
-    lighthouse: {
+    executor: {
       storeExecutorData,
       executeSlowPathData,
     },

@@ -124,7 +124,7 @@ export const makeSubscriber = async (_configOverride?: SequencerConfig) => {
 export const execute = async (_configOverride?: SequencerConfig) => {
   const {
     auctions: { executeAuction },
-    lighthouse: { executeSlowPathData },
+    executor: { executeSlowPathData },
   } = getOperations();
   try {
     // Transfer ID is a CLI argument. Always provided by the parent

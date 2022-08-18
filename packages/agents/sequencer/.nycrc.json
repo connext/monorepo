@@ -3,6 +3,10 @@
   "exclude": [
     "src/index.ts",
     "src/sequencer.ts",
+    "src/publisher.ts",
+    "src/subscriber.ts",
+    "src/executer.ts",
+    "src/lib/errors/*.ts",
     "src/bindings/index.ts",
     "src/lib/entities/*.ts",
     "src/lib/errors/*.ts",

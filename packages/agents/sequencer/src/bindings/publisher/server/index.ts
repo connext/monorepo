@@ -24,7 +24,6 @@ import {
   ExecutorPostDataResponse,
   ExecutorDataStatusRequest,
   ExecutorDataStatusResponse,
-  ExecutorDataStatusRequestSchema,
   ExecutorDataStatusResponseSchema,
 } from "@connext/nxtp-utils";
 
@@ -163,7 +162,7 @@ export const bindServer = async (): Promise<FastifyInstance> => {
     async (request, response) => {
       const { requestContext } = createLoggingContext("POST /execute-slow endpoint");
       const {
-        lighthouse: { storeExecutorData },
+        executor: { storeExecutorData },
       } = getOperations();
       try {
         const executorData = request.body;
