@@ -104,7 +104,6 @@ describe("Adapters: Gelato", () => {
         "0xbeed",
         loggingContext.requestContext,
       );
-      console.log("taskId: ", taskId);
       expect(gelatoSendStub).to.be.calledOnce;
       expect(taskId).to.eq(mockAxiosSuccessResponse.taskId);
     });

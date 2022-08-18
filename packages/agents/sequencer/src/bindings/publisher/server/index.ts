@@ -29,7 +29,6 @@ import {
 
 import { getContext } from "../../../sequencer";
 import { getOperations } from "../../../lib/operations";
-import { AuctionExpired } from "../../../lib/errors";
 
 export const bindServer = async (): Promise<FastifyInstance> => {
   const {
@@ -37,7 +36,7 @@ export const bindServer = async (): Promise<FastifyInstance> => {
     logger,
     adapters: { cache },
   } = getContext();
-  const server = fastify({ logger: pino({ level: config.logLevel === "debug" ? "debug" : "warn" }) });
+  const server = fastify();
 
   server.get("/ping", async (_req, res) => {
     return res.code(200).send("pong\n");
@@ -105,11 +104,7 @@ export const bindServer = async (): Promise<FastifyInstance> => {
       const {
         auctions: { storeBid },
       } = getOperations();
-      const { requestContext, methodContext } = createLoggingContext(
-        "POST /execute-fast/:transferId endpoint",
-        undefined,
-        "",
-      );
+      const { requestContext } = createLoggingContext("POST /execute-fast/:transferId endpoint", undefined, "");
       try {
         const bid = request.body;
         requestContext.transferId = bid.transferId;
@@ -117,10 +112,6 @@ export const bindServer = async (): Promise<FastifyInstance> => {
         return response.status(200).send({ message: "Bid received", transferId: bid.transferId, router: bid.router });
       } catch (error: unknown) {
         const type = (error as NxtpError).type;
-        if (type !== AuctionExpired.name) {
-          // If this is a routine AuctionExpired error, let's avoid logging it.
-          logger.error(`Bid Post Error`, requestContext, methodContext, jsonifyError(error as Error));
-        }
         return response.code(500).send({ message: type, error: jsonifyError(error as Error) });
       }
     },
@@ -167,7 +158,7 @@ export const bindServer = async (): Promise<FastifyInstance> => {
       try {
         const executorData = request.body;
         await storeExecutorData(executorData, requestContext);
-        return response.status(200).send({ message: "lighthouse data received", transferId: executorData.transferId });
+        return response.status(200).send({ message: "executor data received", transferId: executorData.transferId });
       } catch (error: unknown) {
         const type = (error as NxtpError).type;
         return response.code(500).send({ message: type, error: jsonifyError(error as Error) });
