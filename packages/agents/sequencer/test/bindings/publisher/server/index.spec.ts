@@ -63,7 +63,7 @@ describe("Bindings:Server", () => {
 
       const response = await fastifyApp.inject({
         method: "POST",
-        url: "/auctions",
+        url: "/execute-fast",
         payload: data,
       });
 
@@ -90,7 +90,7 @@ describe("Bindings:Server", () => {
       getStatusStub.resolves(AuctionStatus.None);
       const response = await fastifyApp.inject({
         method: "GET",
-        url: "/auctions/badid",
+        url: "/execute-fast/badid",
       });
       expect(response.statusCode).to.be.eq(500);
     });
@@ -102,7 +102,7 @@ describe("Bindings:Server", () => {
 
       const response = await fastifyApp.inject({
         method: "POST",
-        url: "/auctions",
+        url: "/execute-fast",
         payload: data,
       });
 
