@@ -71,7 +71,7 @@ export class ExecutorCache extends Cache {
    * Removes all the executor data including backup items for a given transferId.
    * @param tranferId - The transferId you're gonna remove for
    */
-  public async pruneLighthouseData(tranferId: string): Promise<void> {
+  public async pruneExecutorData(tranferId: string): Promise<void> {
     const dataKey = `${this.prefix}:data`;
     const backupKey = `${this.prefix}:backup`;
     await this.data.hdel(dataKey, tranferId);

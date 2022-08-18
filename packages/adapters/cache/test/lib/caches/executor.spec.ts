@@ -121,12 +121,12 @@ describe("ExecutorCache", () => {
     });
   });
 
-  describe("#pruneLighthouseData", () => {
+  describe("#pruneExecutorData", () => {
     it("happy", async () => {
       await cache.storeExecutorData(mockData1);
       await cache.storeBackupData(mockData2);
       await cache.setExecutorDataStatus(mockTransferId, ExecutorDataStatus.Pending);
-      await cache.pruneLighthouseData(mockTransferId);
+      await cache.pruneExecutorData(mockTransferId);
 
       const executorData = await cache.getExecutorData(mockTransferId);
       expect(executorData).to.be.undefined;

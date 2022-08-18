@@ -18,7 +18,7 @@ export const updateTasks = async () => {
         const taskStatus = await getGelatoTaskStatus(taskId);
         if (taskStatus === GelatoTaskState.ExecSuccess) {
           await cache.executors.setExecutorDataStatus(transferId, ExecutorDataStatus.Completed);
-          await cache.executors.pruneLighthouseData(transferId);
+          await cache.executors.pruneExecutorData(transferId);
         }
       }
     }),

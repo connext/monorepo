@@ -14,7 +14,6 @@ import {
   ExecutorVersionInvalid,
   ExecutorDataExpired,
   MissingXCall,
-  InvalidSlowLiqTransfer,
   GasEstimationFailed,
   MissingTransfer,
   MissingExecutorData,
@@ -164,13 +163,6 @@ export const executeSlowPathData = async (
     throw new MissingTransfer({ transferId });
   }
 
-  if (!transfer.destination?.reconcile || transfer.destination?.execute) {
-    // This transfer has already been Executed or not Reconciled yet, so slow liquidity is no longer valid.
-    throw new InvalidSlowLiqTransfer({
-      transfer,
-    });
-  }
-
   let executorData = await cache.executors.getExecutorData(transferId);
   if (!executorData) {
     throw new MissingExecutorData({ transfer });
@@ -205,6 +197,6 @@ export const executeSlowPathData = async (
     await cache.executors.upsertTask({ transferId, taskId });
   } else {
     // Prunes all the executor data for a given transferId
-    await cache.executors.pruneLighthouseData(transferId);
+    await cache.executors.pruneExecutorData(transferId);
   }
 };
