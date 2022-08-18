@@ -1,6 +1,5 @@
 import { ExecutorData, ExecutorDataStatus, expect, mkAddress, mkBytes32 } from "@connext/nxtp-utils";
-import { constants } from "ethers";
-import Sinon, { stub, SinonStub } from "sinon";
+import { stub, SinonStub } from "sinon";
 import { MessageType } from "../../../src/lib/entities";
 import {
   ExecutorVersionInvalid,

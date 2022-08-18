@@ -1,11 +1,11 @@
 import { stub, restore, reset, SinonStub } from "sinon";
-import { mkAddress, expect, OriginTransfer } from "@connext/nxtp-utils";
+import { mkAddress, expect, OriginTransfer, XTransfer } from "@connext/nxtp-utils";
 
 import { mock, mockRelayerAddress } from "../../../mock";
 import { sendExecuteFastToRelayer } from "../../../../src/lib/operations/relayer";
 import { ctxMock, getHelpersStub } from "../../../globalTestHook";
 
-const mockTransfers: OriginTransfer[] = [
+const mockTransfers: XTransfer[] = [
   mock.entity.xtransfer({
     originDomain: "13337",
     destinationDomain: "13338",
@@ -13,7 +13,6 @@ const mockTransfers: OriginTransfer[] = [
     relayerFee: "0.1",
     amount: "10",
     nonce: 0,
-    originSender: mkAddress("0xsenderorigin"),
   }),
   mock.entity.xtransfer({
     originDomain: "13337",
@@ -22,32 +21,36 @@ const mockTransfers: OriginTransfer[] = [
     relayerFee: "0.1",
     amount: "10",
     nonce: 0,
-    originSender: mkAddress("0xsenderorigin"),
   }),
   {
     ...mock.entity.xtransfer(),
-    originDomain: "13337",
-    destinationDomain: "13338",
     xparams: {
       to: mkAddress("0xbeefdead"),
       callData: "0x0",
       forceSlow: false,
       receiveLocal: false,
+      callback: mkAddress("0x"),
+      callbackFee: "0",
+      relayerFee: "0",
+      recovery: mkAddress("0x"),
+      agent: mkAddress("0x"),
+      destinationMinOut: "0",
+      destinationDomain: "13338",
+      originDomain: "13337",
     },
-    local: mkAddress("0xdedddddddddddddd"),
-    relayerFee: "0.1",
-    amount: "10",
     nonce: 7,
-    originSender: mkAddress("0xoriginsender"),
   },
 ];
 
 const mockLocalAsset = mkAddress("0xdedddddddddddddd");
 
-const mockBids = [mock.entity.bid(mockTransfers[0]), mock.entity.bid(mockTransfers[1])];
+const mockBids = [
+  mock.entity.bid({ transferId: mockTransfers[0].transferId }),
+  mock.entity.bid({ transferId: mockTransfers[1].transferId }),
+];
 
 const loggingContext = mock.loggingContext("RELAYER-TEST");
-describe("#relayer", () => {
+describe("Operations:ExecuteFast", () => {
   describe("#sendExecuteFastToRelayer", () => {
     let encodeExecuteFromBidsStub: SinonStub;
     beforeEach(() => {
@@ -67,7 +70,7 @@ describe("#relayer", () => {
       await sendExecuteFastToRelayer(
         1,
         mockBids.slice(0, 1),
-        mockTransfers[0],
+        mockTransfers[0] as OriginTransfer,
         mockLocalAsset,
         loggingContext.requestContext,
       );

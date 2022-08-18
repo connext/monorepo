@@ -1,6 +1,7 @@
-import { createLoggingContext, getGelatoTaskStatus, ExecutorDataStatus } from "@connext/nxtp-utils";
+import { createLoggingContext, ExecutorDataStatus } from "@connext/nxtp-utils";
 import { GelatoTaskState } from "@connext/nxtp-utils/dist/types/relayer";
 import { getContext } from "../../sequencer";
+import { getHelpers } from "../helpers";
 
 export const updateTasks = async () => {
   const {
@@ -8,6 +9,9 @@ export const updateTasks = async () => {
     adapters: { cache },
   } = getContext();
   const { requestContext, methodContext } = createLoggingContext(updateTasks.name);
+  const {
+    relayer: { getGelatoTaskStatus },
+  } = getHelpers();
   logger.info("Method start", requestContext, methodContext);
   const pendingExecuteSlowTxs = await cache.executors.getSentTransfers();
   await Promise.all(

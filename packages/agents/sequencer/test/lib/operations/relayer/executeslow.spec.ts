@@ -1,3 +1,6 @@
+import { stub, SinonStub } from "sinon";
+import { ctxMock, getHelpersStub } from "../../../globalTestHook";
+
 describe("Operations:ExecuteSlow", () => {
   describe("#sendExecuteSlowToRelayer", () => {
     it("should throw if transfer is missing", async () => {});
