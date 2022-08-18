@@ -193,7 +193,7 @@ const sendXCall = async (
             name: result.eventFragment.name,
             signature: result.signature,
             topic: result.topic,
-            args: result.args,
+            rargs: result.args,
           };
         } catch (e: unknown) {
           return undefined;

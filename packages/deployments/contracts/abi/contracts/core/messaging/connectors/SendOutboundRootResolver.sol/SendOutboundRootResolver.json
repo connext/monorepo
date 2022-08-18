@@ -1,0 +1,5 @@
+[
+  "constructor(address)",
+  "function CONNECTOR() view returns (address)",
+  "function checker() view returns (bool, bytes)"
+]

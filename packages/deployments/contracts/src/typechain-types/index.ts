@@ -154,8 +154,12 @@ export type { OptimismL1Connector } from "./contracts/core/messaging/connectors/
 export { OptimismL1Connector__factory } from "./factories/contracts/core/messaging/connectors/OptimismConnector.sol/OptimismL1Connector__factory";
 export type { OptimismL2Connector } from "./contracts/core/messaging/connectors/OptimismConnector.sol/OptimismL2Connector";
 export { OptimismL2Connector__factory } from "./factories/contracts/core/messaging/connectors/OptimismConnector.sol/OptimismL2Connector__factory";
+export type { SendOutboundRootResolver } from "./contracts/core/messaging/connectors/SendOutboundRootResolver";
+export { SendOutboundRootResolver__factory } from "./factories/contracts/core/messaging/connectors/SendOutboundRootResolver__factory";
 export type { IConnector } from "./contracts/core/messaging/interfaces/IConnector";
 export { IConnector__factory } from "./factories/contracts/core/messaging/interfaces/IConnector__factory";
+export type { IResolver } from "./contracts/core/messaging/interfaces/IResolver";
+export { IResolver__factory } from "./factories/contracts/core/messaging/interfaces/IResolver__factory";
 export type { IRootManager } from "./contracts/core/messaging/interfaces/IRootManager";
 export { IRootManager__factory } from "./factories/contracts/core/messaging/interfaces/IRootManager__factory";
 export type { RootManager } from "./contracts/core/messaging/RootManager";

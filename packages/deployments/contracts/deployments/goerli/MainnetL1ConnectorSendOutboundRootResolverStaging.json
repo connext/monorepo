@@ -1,0 +1,85 @@
+{
+  "address": "0x5c05F06cCC7C7F9E300607328b2cda21f657C191",
+  "abi": [
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "_connector",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "nonpayable",
+      "type": "constructor"
+    },
+    {
+      "inputs": [],
+      "name": "CONNECTOR",
+      "outputs": [
+        {
+          "internalType": "contract IConnector",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "checker",
+      "outputs": [
+        {
+          "internalType": "bool",
+          "name": "canExec",
+          "type": "bool"
+        },
+        {
+          "internalType": "bytes",
+          "name": "execPayload",
+          "type": "bytes"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    }
+  ],
+  "transactionHash": "0x3b75009b6f8490759cf473c5d3a37766cd69387a5ecb6e330ca4f85c95841349",
+  "receipt": {
+    "to": null,
+    "from": "0x54BAA998771639628ffC0206c3b916c466b79c89",
+    "contractAddress": "0x5c05F06cCC7C7F9E300607328b2cda21f657C191",
+    "transactionIndex": 32,
+    "gasUsed": "187900",
+    "logsBloom": "0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+    "blockHash": "0x5fd009d0792cb80929253f74830bc315ea0d3dfac2e8fc74a4148ed8d4eafec8",
+    "transactionHash": "0x3b75009b6f8490759cf473c5d3a37766cd69387a5ecb6e330ca4f85c95841349",
+    "logs": [],
+    "blockNumber": 7425347,
+    "cumulativeGasUsed": "13646359",
+    "status": 1,
+    "byzantium": true
+  },
+  "args": [
+    "0x62421Bb8f563902aA738a97860B5a739e2821a47"
+  ],
+  "numDeployments": 1,
+  "solcInputHash": "217aac0616117d34ca0afe79b4be6397",
+  "metadata": "{\"compiler\":{\"version\":\"0.8.15+commit.e14f2714\"},\"language\":\"Solidity\",\"output\":{\"abi\":[{\"inputs\":[{\"internalType\":\"address\",\"name\":\"_connector\",\"type\":\"address\"}],\"stateMutability\":\"nonpayable\",\"type\":\"constructor\"},{\"inputs\":[],\"name\":\"CONNECTOR\",\"outputs\":[{\"internalType\":\"contract IConnector\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"checker\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"canExec\",\"type\":\"bool\"},{\"internalType\":\"bytes\",\"name\":\"execPayload\",\"type\":\"bytes\"}],\"stateMutability\":\"view\",\"type\":\"function\"}],\"devdoc\":{\"kind\":\"dev\",\"methods\":{},\"version\":1},\"userdoc\":{\"kind\":\"user\",\"methods\":{},\"version\":1}},\"settings\":{\"compilationTarget\":{\"contracts/core/messaging/connectors/SendOutboundRootResolver.sol\":\"SendOutboundRootResolver\"},\"evmVersion\":\"london\",\"libraries\":{},\"metadata\":{\"bytecodeHash\":\"ipfs\",\"useLiteralContent\":true},\"optimizer\":{\"enabled\":true,\"runs\":200},\"remappings\":[]},\"sources\":{\"contracts/core/messaging/connectors/SendOutboundRootResolver.sol\":{\"content\":\"// SPDX-License-Identifier: MIT OR Apache-2.0\\npragma solidity 0.8.15;\\n\\nimport {IResolver} from \\\"../interfaces/IResolver.sol\\\";\\nimport {IConnector} from \\\"../interfaces/IConnector.sol\\\";\\n\\ncontract SendOutboundRootResolver is IResolver {\\n  IConnector public immutable CONNECTOR;\\n\\n  constructor(address _connector) {\\n    CONNECTOR = IConnector(_connector);\\n  }\\n\\n  function checker() external view override returns (bool canExec, bytes memory execPayload) {\\n    bytes32 outboundRoot = CONNECTOR.outboundRoot();\\n    execPayload = abi.encodeWithSelector(IConnector.sendMessage.selector, abi.encode(outboundRoot));\\n    return (true, execPayload);\\n  }\\n}\\n\",\"keccak256\":\"0x79e6c2fdea86d0cb3cd3b97e22448d3515ce46f8b7a2ef41f988b5eb6c8fd175\",\"license\":\"MIT OR Apache-2.0\"},\"contracts/core/messaging/interfaces/IConnector.sol\":{\"content\":\"// SPDX-License-Identifier: MIT OR Apache-2.0\\npragma solidity 0.8.15;\\n\\nimport {IProposedOwnable} from \\\"../../shared/interfaces/IProposedOwnable.sol\\\";\\n\\n/**\\n * @notice This interface is what the Connext contract will send and receive messages through.\\n * The messaging layer should conform to this interface, and should be interchangeable (i.e.\\n * could be Nomad or a generic AMB under the hood).\\n *\\n * @dev This uses the nomad format to ensure nomad can be added in as it comes back online.\\n *\\n * Flow from transfer from polygon to optimism:\\n * 1. User calls `xcall` with destination specified\\n * 2. This will swap in to the bridge assets\\n * 3. The swapped assets will get burned\\n * 4. The Connext contract will call `dispatch` on the messaging contract to add the transfer\\n *    to the root\\n * 5. [At some time interval] Relayers call `send` to send the current root from polygon to\\n *    mainnet. This is done on all \\\"spoke\\\" domains.\\n * 6. [At some time interval] Relayers call `propagate` [better name] on mainnet, this generates a new merkle\\n *    root from all of the AMBs\\n *    - This function must be able to read root data from all AMBs and aggregate them into a single merkle\\n *      tree root\\n *    - Will send the mixed root from all chains back through the respective AMBs to all other chains\\n * 7. AMB will call `update` to update the latest root on the messaging contract on spoke domains\\n * 8. [At any point] Relayers can call `proveAndProcess` to prove inclusion of dispatched message, and call\\n *    process on the `Connext` contract\\n * 9. Takes minted bridge tokens and credits the LP\\n *\\n * AMB requirements:\\n * - Access `msg.sender` both from mainnet -> spoke and vice versa\\n * - Ability to read *our root* from the AMB\\n *\\n * AMBs:\\n * - PoS bridge from polygon\\n * - arbitrum bridge\\n * - optimism bridge\\n * - gnosis chain\\n * - bsc (use multichain for messaging)\\n */\\ninterface IConnector is IProposedOwnable {\\n  function outboundRoot() external view returns (bytes32);\\n\\n  function aggregateRoot() external view returns (bytes32);\\n\\n  function sendMessage(bytes memory _data) external;\\n\\n  function processMessage(address _sender, bytes memory _data) external;\\n\\n  function verifySender(address _expected) external returns (bool);\\n\\n  /**\\n   * @notice This function should send a message through the AMB by adding it to the merkle root\\n   * stored on that chain.\\n   */\\n  function dispatch(\\n    uint32 _destinationDomain,\\n    bytes32 _recipientAddress,\\n    bytes memory _messageBody\\n  ) external;\\n\\n  /**\\n   * @notice Must be able to call the `handle` function on the BridgeRouter contract. This is called\\n   * on the destination domain to handle incoming messages\\n   */\\n  function proveAndProcess(\\n    bytes memory _message,\\n    bytes32[32] calldata _proof,\\n    uint256 _index\\n  ) external;\\n\\n  /**\\n   * @notice This is called by relayers to trigger passing of current root to mainnet root manager\\n   * @dev This is called at specific time intervals\\n   */\\n  function send() external;\\n}\\n\",\"keccak256\":\"0x0d68bc3fe964226f35a6af441aa2d92b714404c3bd75680d9a131a756c6d1596\",\"license\":\"MIT OR Apache-2.0\"},\"contracts/core/messaging/interfaces/IResolver.sol\":{\"content\":\"// SPDX-License-Identifier: MIT\\npragma solidity ^0.8.0;\\n\\ninterface IResolver {\\n  function checker() external view returns (bool canExec, bytes memory execPayload);\\n}\\n\",\"keccak256\":\"0x42490481e6142113ed59e2101ca6a58d16c54ac21874bf94ece5cc81417ccc8a\",\"license\":\"MIT\"},\"contracts/core/shared/interfaces/IProposedOwnable.sol\":{\"content\":\"// SPDX-License-Identifier: MIT\\npragma solidity 0.8.15;\\n\\n/**\\n * @title IProposedOwnable\\n * @notice Defines a minimal interface for ownership with a two step proposal and acceptance\\n * process\\n */\\ninterface IProposedOwnable {\\n  /**\\n   * @dev This emits when change in ownership of a contract is proposed.\\n   */\\n  event OwnershipProposed(address indexed proposedOwner);\\n\\n  /**\\n   * @dev This emits when ownership of a contract changes.\\n   */\\n  event OwnershipTransferred(address indexed previousOwner, address indexed newOwner);\\n\\n  /**\\n   * @notice Get the address of the owner\\n   * @return owner_ The address of the owner.\\n   */\\n  function owner() external view returns (address owner_);\\n\\n  /**\\n   * @notice Get the address of the proposed owner\\n   * @return proposed_ The address of the proposed.\\n   */\\n  function proposed() external view returns (address proposed_);\\n\\n  /**\\n   * @notice Set the address of the proposed owner of the contract\\n   * @param newlyProposed The proposed new owner of the contract\\n   */\\n  function proposeNewOwner(address newlyProposed) external;\\n\\n  /**\\n   * @notice Set the address of the proposed owner of the contract\\n   */\\n  function acceptProposedOwner() external;\\n}\\n\",\"keccak256\":\"0xfb763d8c311e5972fd6e7d7334ce10cc3f5dbe8a922308b3c160bfb722109f63\",\"license\":\"MIT\"}},\"version\":1}",
+  "bytecode": "0x60a060405234801561001057600080fd5b506040516102f83803806102f883398101604081905261002f91610040565b6001600160a01b0316608052610070565b60006020828403121561005257600080fd5b81516001600160a01b038116811461006957600080fd5b9392505050565b6080516102686100906000396000818160400152609d01526102686000f3fe608060405234801561001057600080fd5b50600436106100365760003560e01c8063a5f875441461003b578063cf5303cf1461007f575b600080fd5b6100627f000000000000000000000000000000000000000000000000000000000000000081565b6040516001600160a01b0390911681526020015b60405180910390f35b610087610095565b6040516100769291906101dc565b6000606060007f00000000000000000000000000000000000000000000000000000000000000006001600160a01b03166365eaf11b6040518163ffffffff1660e01b8152600401602060405180830381865afa1580156100f9573d6000803e3d6000fd5b505050506040513d601f19601f8201168201806040525081019061011d91906101ff565b604080516020810183905291925063104c8d4b60e31b910160408051601f198184030181529082905261015291602401610218565b60408051601f198184030181529190526020810180516001600160e01b03166001600160e01b031990931692909217909152600194909350915050565b6000815180845260005b818110156101b557602081850181015186830182015201610199565b818111156101c7576000602083870101525b50601f01601f19169290920160200192915050565b82151581526040602082015260006101f7604083018461018f565b949350505050565b60006020828403121561021157600080fd5b5051919050565b60208152600061022b602083018461018f565b939250505056fea26469706673582212202e21b0d0ff7a266f59c29257bd4d354d346e67b73c39817b7f764571afed445d64736f6c634300080f0033",
+  "deployedBytecode": "0x608060405234801561001057600080fd5b50600436106100365760003560e01c8063a5f875441461003b578063cf5303cf1461007f575b600080fd5b6100627f000000000000000000000000000000000000000000000000000000000000000081565b6040516001600160a01b0390911681526020015b60405180910390f35b610087610095565b6040516100769291906101dc565b6000606060007f00000000000000000000000000000000000000000000000000000000000000006001600160a01b03166365eaf11b6040518163ffffffff1660e01b8152600401602060405180830381865afa1580156100f9573d6000803e3d6000fd5b505050506040513d601f19601f8201168201806040525081019061011d91906101ff565b604080516020810183905291925063104c8d4b60e31b910160408051601f198184030181529082905261015291602401610218565b60408051601f198184030181529190526020810180516001600160e01b03166001600160e01b031990931692909217909152600194909350915050565b6000815180845260005b818110156101b557602081850181015186830182015201610199565b818111156101c7576000602083870101525b50601f01601f19169290920160200192915050565b82151581526040602082015260006101f7604083018461018f565b949350505050565b60006020828403121561021157600080fd5b5051919050565b60208152600061022b602083018461018f565b939250505056fea26469706673582212202e21b0d0ff7a266f59c29257bd4d354d346e67b73c39817b7f764571afed445d64736f6c634300080f0033",
+  "devdoc": {
+    "kind": "dev",
+    "methods": {},
+    "version": 1
+  },
+  "userdoc": {
+    "kind": "user",
+    "methods": {},
+    "version": 1
+  },
+  "storageLayout": {
+    "storage": [],
+    "types": null
+  }
+}
