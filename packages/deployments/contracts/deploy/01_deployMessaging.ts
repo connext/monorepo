@@ -170,6 +170,16 @@ const handleDeploySpoke = async (
     log: true,
   });
   console.log(`${contract} deployed to ${deployment.address}`);
+
+  console.log(`Deploying ${contract} SendOutboundRootResolver...`);
+  const resolverDeployment = await hre.deployments.deploy(getDeploymentName(`${contract}SendOutboundRootResolver`), {
+    contract: "SendOutboundRootResolver",
+    from: deployer.address,
+    args: [deployment.address, 30 * 60], // 30 min
+    skipIfAlreadyDeployed: true,
+    log: true,
+  });
+  console.log(`${contract} SendOutboundRootResolver deployed to ${resolverDeployment.address}`);
   return deployment;
 };
 
