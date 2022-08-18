@@ -1,8 +1,8 @@
 import { ExecutorDataStatus, NxtpError } from "@connext/nxtp-utils";
 
-export class LightHouseVersionInvalid extends NxtpError {
+export class ExecutorVersionInvalid extends NxtpError {
   constructor(context: any = {}) {
-    super(`LightHouse version is not supported by this sequencer`, context, LightHouseVersionInvalid.name);
+    super(`LightHouse version is not supported by this sequencer`, context, ExecutorVersionInvalid.name);
   }
 }
 

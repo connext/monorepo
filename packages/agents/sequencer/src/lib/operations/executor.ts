@@ -11,7 +11,7 @@ import {
 import { getContext } from "../../sequencer";
 import {
   ParamsInvalid,
-  LightHouseVersionInvalid,
+  ExecutorVersionInvalid,
   ExecutorDataExpired,
   MissingXCall,
   InvalidSlowLiqTransfer,
@@ -53,7 +53,7 @@ export const storeExecutorData = async (executorData: ExecutorData, _requestCont
   // check if bid router version is compatible with hosted sequencer
   const checkVersion = compare(executorVersion, config.supportedVersion!, "<");
   if (checkVersion) {
-    throw new LightHouseVersionInvalid({
+    throw new ExecutorVersionInvalid({
       supportedVersion: config.supportedVersion,
       executorData,
     });
