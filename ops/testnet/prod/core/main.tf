@@ -157,6 +157,16 @@ module "sequencer_subscriber" {
   container_env_vars       = local.sequencer_env_vars
 }
 
+module "sequencer_subscriber_auto_scaling" {
+  source           = "../../../modules/auto-scaling"
+  stage            = var.stage
+  environment      = var.environment
+  domain           = var.domain
+  ecs_service_name = module.sequencer_subscriber.service_name
+  ecs_cluster_name = module.ecs.ecs_cluster_name
+}
+
+
 module "web3signer" {
   source                   = "../../../modules/service"
   stage                    = var.stage
