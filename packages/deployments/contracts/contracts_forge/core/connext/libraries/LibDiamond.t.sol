@@ -8,8 +8,6 @@ import "../../../../contracts/core/connext/libraries/LibDiamond.sol";
 import {IConnextHandler} from "../../../../contracts/core/connext/interfaces/IConnextHandler.sol";
 import {IDiamondCut} from "../../../../contracts/core/connext/interfaces/IDiamondCut.sol";
 
-import "forge-std/console.sol";
-
 contract LibDiamondTest is ForgeHelper, Deployer {
   // ============ Libraries ============
 
@@ -76,15 +74,11 @@ contract LibDiamondTest is ForgeHelper, Deployer {
       functionSelectors: versionFacetSelectors
     });
 
-    IDiamondCut(address(connextDiamondProxy)).proposeDiamondCut(facetCuts, address(diamondInit), initCallData);
+    vm.warp(100);
+    connextHandler.proposeDiamondCut(facetCuts, address(diamondInit), initCallData);
 
-    vm.warp(block.timestamp + 7 days + 1);
-
-    LibDiamond.DiamondStorage storage ds = LibDiamond.diamondStorage();
-    bytes32 key = keccak256(abi.encode(facetCuts, address(diamondInit), initCallData));
-    ds.acceptanceTimes[key] = 1;
-
-    IDiamondCut(address(connextDiamondProxy)).diamondCut(facetCuts, address(diamondInit), initCallData);
+    vm.warp(100 + 7 days + 1);
+    connextHandler.diamondCut(facetCuts, address(diamondInit), initCallData);
 
     // still initialized
     assertTrue(connextDiamondProxy.isInitialized());
@@ -101,7 +95,6 @@ contract LibDiamondTest is ForgeHelper, Deployer {
   function testFail_LibDiamond__initializeDiamondCut_beforeAcceptanceDelay_reverts() public {
     uint32 newDomain = 2;
     address newXAppConnectionManager = address(11);
-    address newWrapper = address(12);
     address newRelayerFeeRouter = address(13);
     address newPromiseRouter = address(14);
     address newTokenRegistry = address(15);
@@ -111,7 +104,6 @@ contract LibDiamondTest is ForgeHelper, Deployer {
       newDomain,
       newXAppConnectionManager,
       newTokenRegistry,
-      newWrapper,
       newRelayerFeeRouter,
       newPromiseRouter,
       acceptanceDelay
@@ -139,7 +131,6 @@ contract LibDiamondTest is ForgeHelper, Deployer {
       uint256(domain),
       xAppConnectionManager,
       tokenRegistry,
-      address(wrapper),
       address(relayerFeeRouter),
       payable(promiseRouter),
       0
@@ -150,7 +141,6 @@ contract LibDiamondTest is ForgeHelper, Deployer {
 
     uint32 newDomain = 2;
     address newXAppConnectionManager = address(11);
-    address newWrapper = address(12);
     address newRelayerFeeRouter = address(13);
     address newPromiseRouter = address(14);
     address newTokenRegistry = address(15);
@@ -160,7 +150,6 @@ contract LibDiamondTest is ForgeHelper, Deployer {
       newDomain,
       newXAppConnectionManager,
       newTokenRegistry,
-      newWrapper,
       newRelayerFeeRouter,
       newPromiseRouter,
       acceptanceDelay
