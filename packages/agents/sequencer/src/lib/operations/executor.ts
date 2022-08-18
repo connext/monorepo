@@ -50,7 +50,7 @@ export const storeExecutorData = async (executorData: ExecutorData, _requestCont
     });
   }
 
-  // check if bid router version is compatible with hosted sequencer
+  // check if executor version is compatible with hosted sequencer
   const checkVersion = compare(executorVersion, config.supportedVersion!, "<");
   if (checkVersion) {
     throw new ExecutorVersionInvalid({
@@ -176,9 +176,9 @@ export const executeSlowPathData = async (
     throw new MissingExecutorData({ transfer });
   }
 
-  // Ensure that the lighthouse data for this transfer hasn't expired.
+  // Ensure that the executor data for this transfer hasn't expired.
   const status = await cache.executors.getExecutorDataStatus(transferId);
-  if (status !== ExecutorDataStatus.None && status !== ExecutorDataStatus.Cancelled) {
+  if (status !== ExecutorDataStatus.Pending) {
     throw new ExecutorDataExpired(status, {
       transferId,
       executorData,
@@ -204,7 +204,7 @@ export const executeSlowPathData = async (
     await cache.executors.setExecutorDataStatus(transferId, ExecutorDataStatus.Sent);
     await cache.executors.upsertTask({ transferId, taskId });
   } else {
-    // Prunes all the lighthouse data for a given transferId
+    // Prunes all the executor data for a given transferId
     await cache.executors.pruneLighthouseData(transferId);
   }
 };
