@@ -4,11 +4,13 @@ A test script to validate the end-to-end cross-chain transfer process.
 
 # E2E Local Environment
 
-## External Dependencies
+## Setup
+
+### 1. External Dependencies
 
 Make sure you have docker installed globally.
 
-## Environment Variables
+### 2. Environment Variables
 
 In your local environment, run the following commands to export env variables which will be used in the local e2e runtime environment:
 
@@ -17,7 +19,9 @@ export GRAPH_1337_ENDPOINT="http://localhost:8010/subgraphs/name/connext/nxtp"
 export GRAPH_1338_ENDPOINT="http://localhost:9010/subgraphs/name/connext/nxtp"
 ```
 
-## Build Local Images
+In `setup-integration-test.sh` there is a section that creates a `.env` file. Anything here such as image tags can be changed to reflect the test design. For example, if you want to run the test against a different image, you can change the tag in the bash file variables for `ROUTER_IMAGE` and `SEQUENCER_IMAGE`.
+
+### 3. Build Local Images
 
 If you need to run the test locally against local changes, you can build the images yourself.
 
@@ -25,16 +29,15 @@ If you need to run the test locally against local changes, you can build the ima
 ./packages/integration/build-docker-images.sh
 ```
 
-## Edit Config If Needed
-
-In `setup.sh` there is a section that creates a `.env` file. Anything here such as image tags can be changed to reflect the test design. For example, if you want to run the test against a different image, you can change the tag in the bash file variables for `ROUTER_IMAGE` and `SEQUENCER_IMAGE`.
-
-## Steps
-
-NOTE: As of the time of writing this, `yarn workspace @connext/nxtp-integration run setup` does not start the local chains properly. Please call the `setup.sh` directly, as shown here:
+### 4. Setup Script
 
 ```sh
-./packages/integration/setup.sh
+./setup-integration-test.sh
+```
+
+### 5. Run the Test
+
+```sh
 yarn workspace @connext/nxtp-integration run test
 ```
 

@@ -2,12 +2,12 @@ import {
   Bid,
   createLoggingContext,
   ajv,
-  XTransferSchema,
   OriginTransfer,
   RequestContext,
   formatUrl,
   AuctionsApiPostBidReq,
   getMinimumBidsCountForRound as _getMinimumBidsCountForRound,
+  OriginTransferSchema,
 } from "@connext/nxtp-utils";
 import { BigNumber } from "ethers";
 import axios, { AxiosResponse } from "axios";
@@ -186,7 +186,7 @@ export const execute = async (params: OriginTransfer, _requestContext: RequestCo
   logger.debug("Method start", requestContext, methodContext, { params });
 
   // Validate Input schema
-  const validateInput = ajv.compile(XTransferSchema);
+  const validateInput = ajv.compile(OriginTransferSchema);
   const validInput = validateInput(params);
   if (!validInput) {
     const msg = validateInput.errors?.map((err: any) => `${err.instancePath} - ${err.message}`).join(",");

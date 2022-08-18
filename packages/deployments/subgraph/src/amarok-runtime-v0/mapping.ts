@@ -224,6 +224,7 @@ export function handleXCalled(event: XCalled): void {
   transfer.transferId = event.params.transferId;
   transfer.nonce = event.params.nonce;
   transfer.status = "XCalled";
+  transfer.originMinOut = event.params.xcallArgs.originMinOut;
 
   // Call Params
   transfer.to = event.params.xcallArgs.params.to;
