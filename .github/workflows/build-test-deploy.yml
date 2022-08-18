@@ -4,10 +4,12 @@ on:
   push:
     branches:
       - main
+      - staging
       - prod
   pull_request:
     branches:
       - main
+      - staging
       - prod
   create:
     tag:
@@ -496,7 +498,7 @@ jobs:
       lighthouse-tags: ${{ needs.build-and-push-lighthouse-image.outputs.json }}
 
   terraform-infra:
-    if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/prod'
+    if: github.ref == 'refs/heads/staging' || github.ref == 'refs/heads/prod'
     runs-on: ubuntu-latest
     needs: [smoke-tests]
     env:
