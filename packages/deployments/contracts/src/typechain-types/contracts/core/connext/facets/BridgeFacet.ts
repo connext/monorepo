@@ -129,6 +129,7 @@ export interface BridgeFacetInterface extends utils.Interface {
     "AAVE_REFERRAL_CODE()": FunctionFragment;
     "addConnextion(uint32,address)": FunctionFragment;
     "addSequencer(address)": FunctionFragment;
+    "approvedSequencers(address)": FunctionFragment;
     "bumpTransfer(bytes32)": FunctionFragment;
     "connextion(uint32)": FunctionFragment;
     "domain()": FunctionFragment;
@@ -153,6 +154,7 @@ export interface BridgeFacetInterface extends utils.Interface {
       | "AAVE_REFERRAL_CODE"
       | "addConnextion"
       | "addSequencer"
+      | "approvedSequencers"
       | "bumpTransfer"
       | "connextion"
       | "domain"
@@ -182,6 +184,10 @@ export interface BridgeFacetInterface extends utils.Interface {
   ): string;
   encodeFunctionData(
     functionFragment: "addSequencer",
+    values: [PromiseOrValue<string>]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "approvedSequencers",
     values: [PromiseOrValue<string>]
   ): string;
   encodeFunctionData(
@@ -261,6 +267,10 @@ export interface BridgeFacetInterface extends utils.Interface {
   ): Result;
   decodeFunctionResult(
     functionFragment: "addSequencer",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "approvedSequencers",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -525,6 +535,11 @@ export interface BridgeFacet extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
+    approvedSequencers(
+      _sequencer: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<[boolean]>;
+
     bumpTransfer(
       _transferId: PromiseOrValue<BytesLike>,
       overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
@@ -614,6 +629,11 @@ export interface BridgeFacet extends BaseContract {
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
+  approvedSequencers(
+    _sequencer: PromiseOrValue<string>,
+    overrides?: CallOverrides
+  ): Promise<boolean>;
+
   bumpTransfer(
     _transferId: PromiseOrValue<BytesLike>,
     overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
@@ -702,6 +722,11 @@ export interface BridgeFacet extends BaseContract {
       _sequencer: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<void>;
+
+    approvedSequencers(
+      _sequencer: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<boolean>;
 
     bumpTransfer(
       _transferId: PromiseOrValue<BytesLike>,
@@ -922,6 +947,11 @@ export interface BridgeFacet extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
+    approvedSequencers(
+      _sequencer: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
     bumpTransfer(
       _transferId: PromiseOrValue<BytesLike>,
       overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
@@ -1012,6 +1042,11 @@ export interface BridgeFacet extends BaseContract {
     addSequencer(
       _sequencer: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
+    approvedSequencers(
+      _sequencer: PromiseOrValue<string>,
+      overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
     bumpTransfer(

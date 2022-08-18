@@ -44,6 +44,7 @@ import { pollSomething } from "./helpers/shared";
 import { enrollHandlers, enrollCustom, setupRouter, setupAsset, addLiquidity, addRelayer } from "./helpers/local";
 import { DEPLOYER_WALLET, PARAMETERS as _PARAMETERS, SUBG_POLL_PARITY, USER_WALLET } from "./constants/local";
 import { addConnextions } from "./helpers/local/addConnextions";
+import { addSequencer } from "./helpers/local/addSequencer";
 
 export const logger = new Logger({ name: "e2e" });
 
@@ -435,6 +436,24 @@ const onchainSetup = async (sdkBase: NxtpSdkBase) => {
       {
         domain: PARAMETERS.B.DOMAIN,
         relayer: PARAMETERS.AGENTS.RELAYER.address,
+        ConnextHandler: PARAMETERS.B.DEPLOYMENTS.ConnextHandler,
+      },
+    ],
+    deployerTxService,
+    logger,
+  );
+
+  logger.info(`Adding a sequencer: ${PARAMETERS.AGENTS.SEQUENCER.address}`);
+  await addSequencer(
+    [
+      {
+        domain: PARAMETERS.A.DOMAIN,
+        sequencer: PARAMETERS.AGENTS.SEQUENCER.address,
+        ConnextHandler: PARAMETERS.A.DEPLOYMENTS.ConnextHandler,
+      },
+      {
+        domain: PARAMETERS.B.DOMAIN,
+        sequencer: PARAMETERS.AGENTS.SEQUENCER.address,
         ConnextHandler: PARAMETERS.B.DEPLOYMENTS.ConnextHandler,
       },
     ],

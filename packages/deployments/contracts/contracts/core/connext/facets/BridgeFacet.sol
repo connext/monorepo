@@ -226,6 +226,10 @@ contract BridgeFacet is BaseConnextFacet {
     return s.promiseRouter;
   }
 
+  function approvedSequencers(address _sequencer) external view returns (bool) {
+    return s.approvedSequencers[_sequencer];
+  }
+
   // ============ Admin methods ==============
 
   function setPromiseRouter(address payable _promiseRouter) external onlyOwner {

@@ -16,6 +16,9 @@ export const PARAMETERS = {
     ROUTER: {
       address: "0x627306090abaB3A6e1400e9345bC60c78a8BEf57",
     },
+    SEQUENCER: {
+      address: "0xf17f52151EbEF6C7334FAD080c5704D77216b732",
+    },
     RELAYER: { address: "0xc5842D5870622B406a71eeC1EcB2Df01D9dF5C28" },
     CARTOGRAPHER: {
       url: "http://localhost:3000",
