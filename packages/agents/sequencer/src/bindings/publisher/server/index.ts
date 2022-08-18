@@ -176,11 +176,10 @@ export const bindServer = async (): Promise<FastifyInstance> => {
     },
   );
 
-  server.get<{ Body: ExecutorDataStatusRequest; Reply: ExecutorDataStatusResponse | SequencerApiErrorResponse }>(
+  server.get<{ Params: ExecutorDataStatusRequest; Reply: ExecutorDataStatusResponse | SequencerApiErrorResponse }>(
     "/execute-slow/:transferId",
     {
       schema: {
-        body: ExecutorDataStatusRequestSchema,
         response: {
           200: ExecutorDataStatusResponseSchema,
           500: SequencerApiErrorResponseSchema,
@@ -189,7 +188,7 @@ export const bindServer = async (): Promise<FastifyInstance> => {
     },
     async (request, response) => {
       try {
-        const transferId = request.body.transferId;
+        const { transferId } = request.params;
         const status = await cache.executors.getExecutorDataStatus(transferId);
         return response.status(200).send({ transferId, status });
       } catch (error: unknown) {
