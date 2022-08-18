@@ -2,4 +2,5 @@
 /* tslint:disable */
 /* eslint-disable */
 export type { IConnector } from "./IConnector";
+export type { IResolver } from "./IResolver";
 export type { IRootManager } from "./IRootManager";

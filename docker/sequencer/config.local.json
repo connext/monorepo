@@ -15,11 +15,11 @@
   "chains": {
     "1337": {
       "providers": ["http://chain-1337:8545"],
-      "assets": [{ "address": "0x913bbCFea2f347a24cfCA441d483E7CBAc8De3Db", "name": "TEST" }]
+      "assets": [{ "address": "0x8065F4c7b8c2bf53561af92D9DA2Ea022A0b28Ca", "name": "TEST" }]
     },
     "1338": {
       "providers": ["http://chain-1337:8545"],
-      "assets": [{ "address": "0x913bbCFea2f347a24cfCA441d483E7CBAc8De3Db", "name": "TEST" }]
+      "assets": [{ "address": "0x2467636BEa0F3c2441227eeDBfFaC59f11D54a80", "name": "TEST" }]
     }
   },
   "logLevel": "debug",
