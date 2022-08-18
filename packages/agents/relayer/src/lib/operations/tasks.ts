@@ -97,12 +97,6 @@ export const createTask = async (
     getDeployedConnextContract(chain, config.environment === "staging" ? "Staging" : "")?.address;
   if (!connextAddress) {
     throw new ContractDeploymentMissing(ContractDeploymentMissing.contracts.connext, chain);
-  } else if (to.toLowerCase() !== connextAddress.toLowerCase()) {
-    throw new ParamsInvalid({
-      paramsError: "to must be designated connext contract address",
-      to,
-      connextAddress,
-    });
   }
 
   if (!chainToDomainMap.has(chain)) {
