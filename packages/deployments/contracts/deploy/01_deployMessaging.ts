@@ -84,7 +84,7 @@ const handleDeployHub = async (
     {
       contract: "SendOutboundRootResolver",
       from: deployer.address,
-      args: [deployment.address],
+      args: [deployment.address, 30 * 60], // 30 min
       skipIfAlreadyDeployed: true,
       log: true,
     },
@@ -121,7 +121,7 @@ const handleDeployHub = async (
     const resolverDeployment = await hre.deployments.deploy(getDeploymentName(`${contract}SendOutboundRootResolver`), {
       contract: "SendOutboundRootResolver",
       from: deployer.address,
-      args: [deployment.address],
+      args: [deployment.address, 30 * 60],
       skipIfAlreadyDeployed: true,
       log: true,
     });
