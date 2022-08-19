@@ -19,6 +19,7 @@ type TaskArgs = {
   callbackFee?: string;
   forceSlow?: string;
   receiveLocal?: string;
+  agent?: string;
   recovery?: string;
   originMinOut?: string;
   destinationMinOut?: string;
@@ -39,6 +40,7 @@ export default task("xcall", "Prepare a cross-chain tx")
   .addOptionalParam("callbackFee", "Override callback fee")
   .addOptionalParam("forceSlow", "Override for forcing slow path")
   .addOptionalParam("receiveLocal", "Override for receiving local")
+  .addOptionalParam("agent", "Override for agent address")
   .addOptionalParam("recovery", "Override for recovery address")
   .addOptionalParam("originMinOut", "Override for origin domain tokens out (slippage tolerance)")
   .addOptionalParam("destinationMinOut", "Override for destination domain tokens out (slippage tolerance)")
@@ -61,6 +63,7 @@ export default task("xcall", "Prepare a cross-chain tx")
         callbackFee: _callbackFee,
         forceSlow: _forceSlow,
         receiveLocal: _receiveLocal,
+        agent: _agent,
         recovery: _recovery,
         originMinOut: _originMinOut,
         destinationMinOut: _destinationMinOut,
@@ -145,6 +148,7 @@ export default task("xcall", "Prepare a cross-chain tx")
       const callbackFee = _callbackFee ?? "0";
       const forceSlow = _forceSlow === "true" ? true : false;
       const receiveLocal = _receiveLocal === "true" ? true : false;
+      const agent = _agent ?? to;
       const recovery = _recovery ?? to;
       const destinationMinOut = _destinationMinOut ?? "0";
       const originMinOut = _originMinOut ?? "0";
@@ -186,7 +190,7 @@ export default task("xcall", "Prepare a cross-chain tx")
         originDomain: `${originDomain}`,
         destinationDomain: `${destinationDomain}`,
         recovery,
-        agent: constants.AddressZero,
+        agent,
         callback,
         callbackFee,
         relayerFee,
