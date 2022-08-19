@@ -1,7 +1,7 @@
 FROM node:16-alpine as node
 
 # ----------------------------------------
-# Builds Docker container for router-subscriber package.
+# Builds Docker container for router-executor package.
 
 
 # ----------------------------------------
@@ -72,4 +72,4 @@ WORKDIR /home/node/packages/agents/router
 
 EXPOSE 8080
 
-CMD ["node", "--trace-warnings", "dist/tasks/subscriber/index.js"]
+CMD ["node", "--trace-warnings", "dist/tasks/executor/index.js"]
