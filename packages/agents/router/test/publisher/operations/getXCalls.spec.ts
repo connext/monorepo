@@ -2,7 +2,7 @@ import { expect, mkBytes32, OriginTransfer } from "@connext/nxtp-utils";
 
 import { mock } from "../../mock";
 import { mockPubContext } from "../../globalTestHook";
-import { getXCalls } from "../../../src/publisher/operations/getXCalls";
+import { getXCalls } from "../../../src/tasks/publisher/operations/getXCalls";
 import { SinonStub } from "sinon";
 const mockInfo = {
   [mock.domain.A]: {

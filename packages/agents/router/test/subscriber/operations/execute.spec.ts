@@ -3,14 +3,13 @@ import { reset, restore, SinonStub, stub } from "sinon";
 import { BaseRequestContext, Bid, expect, formatUrl, OriginTransfer } from "@connext/nxtp-utils";
 import axios from "axios";
 
-import * as ExecuteFns from "../../../src/subscriber/operations/execute";
+import * as ExecuteFns from "../../../src/tasks/subscriber/operations/execute";
 import * as Mockable from "../../../src/mockable";
 import {
   ParamsInvalid,
   NotEnoughAmount,
   MissingXCall,
   CallDataForNonContract,
-  SequencerResponseInvalid,
   AuctionExpired,
   InvalidAuctionRound,
   UnableToGetAsset,
@@ -66,7 +65,7 @@ describe("Operations:Execute", () => {
 
     it("happy", async () => {
       const result = await sendBid(mockBid, requestContext);
-      expect(axiosPostStub).to.have.been.calledOnceWithExactly(formatUrl(mockSequencerUrl, "auctions"), mockBid);
+      expect(axiosPostStub).to.have.been.calledOnceWithExactly(formatUrl(mockSequencerUrl, "execute-fast"), mockBid);
       expect(result).to.equal("ok");
     });
 

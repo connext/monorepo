@@ -2,11 +2,17 @@ import { utils, BigNumber, Wallet, constants } from "ethers";
 import { createStubInstance, SinonStubbedInstance, stub } from "sinon";
 import { AuctionsCache, TransfersCache } from "@connext/nxtp-adapters-cache";
 import { SubgraphReader } from "@connext/nxtp-adapters-subgraph";
-import { ConnextContractDeployments, ConnextContractInterfaces, TransactionService } from "@connext/nxtp-txservice";
-import { mkAddress, Logger, mock as _mock, OriginTransfer, DestinationTransfer } from "@connext/nxtp-utils";
+import {
+  ChainReader,
+  ConnextContractDeployments,
+  ConnextContractInterfaces,
+  TransactionService,
+} from "@connext/nxtp-txservice";
+import { mkAddress, Logger, mock as _mock, OriginTransfer } from "@connext/nxtp-utils";
 
-import { AppContext as PublisherAppContext } from "../src/publisher/context";
-import { AppContext as SubscriberAppContext } from "../src/subscriber/context";
+import { AppContext as PublisherAppContext } from "../src/tasks/publisher/context";
+import { AppContext as SubscriberAppContext } from "../src/tasks/subscriber/context";
+import { AppContext as ExecutorAppContext } from "../src/tasks/executor/context";
 import { NxtpRouterConfig } from "../src/config";
 
 export const mock = {
@@ -40,6 +46,17 @@ export const mock = {
       bridgeContext: mock.bridgeContext(),
     };
   },
+  executorContext: (): ExecutorAppContext => {
+    return {
+      adapters: {
+        chainreader: mock.adapters.chainreader(),
+        contracts: mock.contracts.interfaces(),
+      },
+      config: mock.config(),
+      chainData: mock.chainData(),
+      logger: new Logger({ name: "mock", level: process.env.LOG_LEVEL || "silent" }),
+    };
+  },
   config: (): NxtpRouterConfig => ({
     chains: {
       [mock.domain.A]: {
@@ -65,6 +82,7 @@ export const mock = {
     logLevel: "info",
     redis: { port: 6379, host: "localhost" },
     sequencerUrl: "http://localhost:8081",
+    cartographerUrl: "http://localhost:3000",
     server: {
       pub: {
         host: "0.0.0.0",
@@ -87,6 +105,7 @@ export const mock = {
     polling: {
       subgraph: 10_000,
       cache: 10_000,
+      cartographer: 10_000,
     },
     auctionRoundDepth: 4,
     environment: "staging",
@@ -140,6 +159,12 @@ export const mock = {
       txservice.sendTx.resolves(mockReceipt);
       txservice.getTransactionReceipt.resolves(mockReceipt);
       return txservice;
+    },
+    chainreader: (): SinonStubbedInstance<ChainReader> => {
+      const chainReader = createStubInstance(ChainReader);
+      chainReader.getGasEstimate.resolves(utils.parseUnits("1", 9));
+      chainReader.getGasEstimateWithRevertCode.resolves(utils.parseUnits("1", 9));
+      return chainReader;
     },
     mqClient: () => {
       return {

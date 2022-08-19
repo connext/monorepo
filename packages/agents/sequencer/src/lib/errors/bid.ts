@@ -11,7 +11,6 @@ export class BidVersionInvalid extends NxtpError {
     super(`Router version is not supported by this sequencer`, context, BidVersionInvalid.name);
   }
 }
-
 export class AuctionExpired extends NxtpError {
   constructor(status: AuctionStatus, context: any = {}) {
     super("This auction has already expired.", { status, ...context }, AuctionExpired.name);

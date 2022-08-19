@@ -6,7 +6,7 @@ import { TimestampedCacheValue } from "../../../src/lib/entities";
 const RedisMock = require("ioredis-mock");
 const redis = new RedisMock();
 
-describe("AuctionCache", () => {
+describe("RoutersCache", () => {
   const prefix = "routers";
   // Helpers for accessing mock cache directly and altering state.
   const mockRedisHelpers = {
