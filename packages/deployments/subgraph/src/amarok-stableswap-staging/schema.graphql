@@ -1,0 +1,180 @@
+type MetaData @entity {
+  id: ID!
+  lpTokenName: String!
+  lpTokenAddress: Bytes!
+  pooledTokens: [PoolToken!]! @derivedFrom(field: "router")
+  initialA: BigInt!
+  futureA: BigInt!
+  adminFee: BigInt!
+  swapFee: BigInt!
+  withdrawFee: BigInt!
+  paused: Boolean!
+}
+
+type PoolToken @entity {
+  id: ID!
+  address: Bytes!
+  precisionMultiplier: BigInt!
+  tokenAdminFee: BigInt!
+  balance: BigInt!
+}
+
+type Asset @entity {
+  id: ID!
+  local: Bytes!
+  adoptedAsset: Bytes!
+  canonicalId: Bytes!
+  canonicalDomain: BigInt!
+  blockNumber: BigInt! # needed in case multiple locals are stored under the same canonicalId
+}
+
+type AssetBalance @entity {
+  id: ID!
+  amount: BigInt!
+  router: Router!
+  asset: Asset!
+}
+
+# Router represents a router and its associated liquidity
+type Router @entity {
+  id: ID!
+  isActive: Boolean!
+  owner: Bytes
+  recipient: Bytes
+  proposedOwner: Bytes
+  proposedTimestamp: BigInt
+  assetBalances: [AssetBalance!]! @derivedFrom(field: "router")
+}
+
+type Setting @entity {
+  id: ID!
+  maxRoutersPerTransfer: BigInt!
+  caller: Bytes!
+}
+
+type Relayer @entity {
+  id: ID!
+  isActive: Boolean!
+  relayer: Bytes
+}
+
+type StableSwap @entity {
+  id: ID!
+  canonicalId: Bytes!
+  domain: BigInt
+  swapPool: Bytes!
+}
+
+type SponsorVault @entity {
+  id: ID!
+  sponsorVault: Bytes!
+}
+
+enum TransferStatus {
+  XCalled
+  Executed
+  Reconciled
+  CompletedSlow
+  CompletedFast
+}
+
+type OriginTransfer @entity {
+  id: ID!
+
+  # Meta
+  chainId: BigInt
+  transferId: Bytes
+  nonce: BigInt
+
+  # CallParams
+  to: Bytes
+  callData: Bytes
+  originDomain: BigInt
+  destinationDomain: BigInt
+  agent: Bytes
+  recovery: Bytes
+  forceSlow: Boolean
+  receiveLocal: Boolean
+  callback: Bytes
+  callbackFee: BigInt
+  relayerFee: BigInt
+  slippageTol: BigInt
+
+  # Event Data
+  status: TransferStatus
+  message: Bytes
+
+  # Asset
+  # The asset that gets sent in.
+  transactingAsset: Bytes
+  # Amount of asset sent in.
+  transactingAmount: BigInt
+  # Nomad asset being bridged.
+  bridgedAsset: Bytes
+  # Amount of bridged nomad asset.
+  bridgedAmount: BigInt
+
+  # XCalled Transaction
+  caller: Bytes
+  transactionHash: Bytes
+  timestamp: BigInt
+  gasPrice: BigInt
+  gasLimit: BigInt
+  blockNumber: BigInt
+}
+
+type DestinationTransfer @entity {
+  id: ID!
+
+  # Meta
+  chainId: BigInt
+  transferId: Bytes
+  nonce: BigInt
+
+  # CallParams
+  to: Bytes
+  callData: Bytes
+  originDomain: BigInt
+  destinationDomain: BigInt
+  agent: Bytes
+  recovery: Bytes
+  forceSlow: Boolean
+  receiveLocal: Boolean
+  callback: Bytes
+  callbackFee: BigInt
+  relayerFee: BigInt
+  slippageTol: BigInt
+
+  # Event Data
+  status: TransferStatus
+  routers: [Router!]
+  originSender: Bytes
+
+  # Asset
+  # The asset that gets delivered.
+  transactingAsset: Bytes
+  # Amount of delivered asset.
+  transactingAmount: BigInt
+  # The local version of the bridged asset.
+  localAsset: Bytes
+  # The amount of the local asset.
+  localAmount: BigInt
+
+  sponsorVaultRelayerFee: BigInt
+
+  # Executed Transaction
+  executedCaller: Bytes
+  executedTransactionHash: Bytes
+  executedTimestamp: BigInt
+  executedGasPrice: BigInt
+  executedGasLimit: BigInt
+  executedBlockNumber: BigInt
+
+  # Reconciled Transaction
+  reconciledCaller: Bytes
+  reconciledTransactionHash: Bytes
+  reconciledTimestamp: BigInt
+  reconciledGasPrice: BigInt
+  reconciledGasLimit: BigInt
+  reconciledBlockNumber: BigInt
+}
