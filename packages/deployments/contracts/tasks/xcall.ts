@@ -4,6 +4,7 @@ import { CallParams, XCallArgs } from "@connext/nxtp-utils";
 
 import { Env, getDeploymentName, mustGetEnv } from "../src/utils";
 import { canonizeId, chainIdToDomain } from "../src/nomad";
+import { connect } from "http2";
 
 type TaskArgs = {
   transactingAssetId?: string;
@@ -161,6 +162,23 @@ export default task("xcall", "Prepare a cross-chain tx")
       }
       console.log("tokenRegistry:", tokenRegistry);
 
+      const domain = await connext.connect(senders[0]).domain();
+      if (domain !== originDomain) {
+        throw new Error(`Wrong origin domain!. expected: ${domain}, provided: ${originDomain}`);
+      }
+
+      if (originDomain === destinationDomain) {
+        throw new Error(`origin domain == destination domain!`);
+      }
+
+      console.log("domain", domain);
+
+      const connextion = await connext.connect(senders[0]).connextion(destinationDomain);
+      if (connextion === "0x0000000000000000000000000000000000000000") {
+        throw new Error(`destination domain not supported!`);
+      }
+      console.log(`connextion for domain ${destinationDomain}: ${connextion}`);
+
       // Construct xcall args
       const params: CallParams = {
         to: to,
@@ -183,7 +201,6 @@ export default task("xcall", "Prepare a cross-chain tx")
         transactingAmount: amount,
         originMinOut,
       };
-
       // Check balances and allowances
       for (let i = 0; i < senders.length; i++) {
         let balance: BigNumber;
