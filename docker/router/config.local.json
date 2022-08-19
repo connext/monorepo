@@ -1,6 +1,7 @@
 {
   "logLevel": "debug",
   "sequencerUrl": "http://sequencer-publisher:8081",
+  "cartographerUrl": "http://cartographer-api:3000",
   "redis": {
     "host": "router-cache",
     "port": 6379
