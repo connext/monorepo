@@ -106,7 +106,7 @@ export const makeSubscriber = async (_configOverride?: SequencerConfig) => {
 
     // Create health server, set up routes, and start listening.
     await bindHealthServer();
-    await bindTasks();
+    await bindTasks(15_000);
   } catch (error: any) {
     console.error("Error starting subscriber :'(", error);
     Broker.close();

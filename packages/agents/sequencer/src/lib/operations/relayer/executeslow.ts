@@ -1,13 +1,8 @@
-import {
-  RequestContext,
-  createLoggingContext,
-  connextRelayerSend,
-  ExecutorData,
-  getChainIdFromDomain,
-} from "@connext/nxtp-utils";
+import { RequestContext, createLoggingContext, ExecutorData, getChainIdFromDomain } from "@connext/nxtp-utils";
 
 import { getContext } from "../../../sequencer";
 import { MissingTransfer } from "../../errors";
+import { getHelpers } from "../../helpers";
 
 export const sendExecuteSlowToRelayer = async (
   executorData: ExecutorData,
@@ -21,6 +16,10 @@ export const sendExecuteSlowToRelayer = async (
   } = getContext();
 
   const { requestContext, methodContext } = createLoggingContext(sendExecuteSlowToRelayer.name, _requestContext);
+
+  const {
+    relayer: { connextRelayerSend },
+  } = getHelpers();
 
   const { transferId, relayerFee, encodedData } = executorData;
   let transfer = await cache.transfers.getTransfer(transferId);
