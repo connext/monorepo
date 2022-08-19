@@ -7,9 +7,10 @@ echo "Docker: building sequencer-publisher and sequencer-subscriber images..."
 docker build --tag sequencer-publisher:latest --file ./docker/sequencer/publisher/Dockerfile .
 docker build --tag sequencer-subscriber:latest --file ./docker/sequencer/subscriber/Dockerfile .
 
-echo "Docker: building router-publisher and router-subscriber images..."
+echo "Docker: building router-publisher, router-subscriber and router-executor images..."
 docker build --tag router-publisher:latest --file ./docker/router/publisher/Dockerfile .
 docker build --tag router-subscriber:latest --file ./docker/router/subscriber/Dockerfile .
+docker build --tag router-executor:latest --file ./docker/router/executor/Dockerfile .
 
 echo "Docker: building relayer image..."
 docker build --tag relayer:latest --file ./docker/relayer/Dockerfile .

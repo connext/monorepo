@@ -43,6 +43,27 @@ services:
       GRAPH_1337_ENDPOINT: "http://graph-node-1337:8000/subgraphs/name/connext/nxtp"
       GRAPH_1338_ENDPOINT: "http://graph-node-1338:8000/subgraphs/name/connext/nxtp"
 
+  router-executor:
+    container_name: router-executor
+    depends_on:
+      - message-queue
+      - sequencer-publisher
+      - signer-router
+    image: ${ROUTER_EXECUTOR_IMAGE}
+    restart: always
+    ports:
+      - "8881:8080"
+    logging:
+      driver: json-file
+      options:
+        max-size: 10m
+    volumes:
+      - ${PWD}/docker/router/executor/:/home/node/agents/executor/
+      - ${PWD}/docker/router/config.local.json:/home/node/packages/agents/router/config.json
+    environment:
+      GRAPH_1337_ENDPOINT: "http://graph-node-1337:8000/subgraphs/name/connext/nxtp"
+      GRAPH_1338_ENDPOINT: "http://graph-node-1338:8000/subgraphs/name/connext/nxtp"
+
   signer-router:
     container_name: signer-router
     image: "ghcr.io/connext/web3signer:latest"
