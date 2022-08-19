@@ -1,6 +1,7 @@
 {
   "logLevel": "debug",
   "sequencerUrl": "http://sequencer-publisher:8081",
+  "cartographerUrl": "http://cartographer-api:3000",
   "redis": {
     "host": "router-cache",
     "port": 6379
@@ -20,7 +21,7 @@
       "assets": [
         {
           "name": "TEST",
-          "address": "0x913bbCFea2f347a24cfCA441d483E7CBAc8De3Db"
+          "address": "0x8065F4c7b8c2bf53561af92D9DA2Ea022A0b28Ca"
         }
       ]
     },
@@ -29,7 +30,7 @@
       "assets": [
         {
           "name": "TEST",
-          "address": "0x913bbCFea2f347a24cfCA441d483E7CBAc8De3Db"
+          "address": "0x2467636BEa0F3c2441227eeDBfFaC59f11D54a80"
         }
       ]
     }

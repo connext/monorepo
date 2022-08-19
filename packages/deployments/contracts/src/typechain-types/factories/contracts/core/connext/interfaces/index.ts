@@ -4,6 +4,7 @@
 export { IAavePool__factory } from "./IAavePool__factory";
 export { IBridgeHook__factory } from "./IBridgeHook__factory";
 export { IBridgeRouter__factory } from "./IBridgeRouter__factory";
+export { IBridgeToken__factory } from "./IBridgeToken__factory";
 export { IConnextHandler__factory } from "./IConnextHandler__factory";
 export { IDiamondCut__factory } from "./IDiamondCut__factory";
 export { IDiamondLoupe__factory } from "./IDiamondLoupe__factory";
@@ -17,3 +18,4 @@ export { IStableSwap__factory } from "./IStableSwap__factory";
 export { ITokenExchange__factory } from "./ITokenExchange__factory";
 export { ITokenRegistry__factory } from "./ITokenRegistry__factory";
 export { IWeth__factory } from "./IWeth__factory";
+export { IWrapped__factory } from "./IWrapped__factory";

@@ -7,6 +7,7 @@ ROUTER_PORT="8080"
 DEFAULT_MNEMONIC="candy maple cake sugar pudding cream honey rich smooth crumble sweet treat"
 router_publisher_image="${ROUTER_PUBLISHER_IMAGE:-'router-publisher:latest'}"
 router_subscriber_image="${ROUTER_SUBSCRIBER_IMAGE:-'router-subscriber:latest'}"
+router_executor_image="${ROUTER_EXECUTOR_IMAGE:-'router-executor:latest'}"
 sequencer_publisher_image="${SEQUENCER_PUBLISHER_IMAGE:-'sequencer-publisher:latest'}"
 sequencer_subscriber_image="${SEQUENCER_SUBSCRIBER_IMAGE:-'sequencer-subscriber:latest'}"
 relayer_image="${RELAYER_IMAGE:-'relayer:latest'}"
@@ -51,6 +52,7 @@ WEB3_SIGNER_PRIVATE_KEY_RELAYER=${WEB3_SIGNER_PRIVATE_KEY_RELAYER}
 # Images used for building docker containers
 ROUTER_PUBLISHER_IMAGE=${router_publisher_image}
 ROUTER_SUBSCRIBER_IMAGE=${router_subscriber_image}
+ROUTER_EXECUTOR_IMAGE=${router_executor_image}
 SEQUENCER_PUBLISHER_IMAGE=${sequencer_publisher_image}
 SEQUENCER_SUBSCRIBER_IMAGE=${sequencer_subscriber_image}
 RELAYER_IMAGE=${relayer_image}

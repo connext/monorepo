@@ -20,11 +20,11 @@ export const create = async (
   // Parse the Network names from the subgraph prefix names in the mesh config.
   const networks = names
     .filter((name) => {
-      const result = getNetwork(name, env);
+      const result = getNetwork(name, prefixOverride ? "production" : env);
       return !!result;
     })
     .map((name) => {
-      const result = getNetwork(name, env);
+      const result = getNetwork(name, prefixOverride ? "production" : env);
       // Should be the first match group.
       return result![1].toLowerCase();
     });
@@ -33,7 +33,7 @@ export const create = async (
     supported: {},
   };
   [...chaindata.values()].forEach((chainData) => {
-    if (networks.includes(chainData.network)) {
+    if (networks.map((n) => n.replace("test_", "")).includes(chainData.network)) {
       config.sources[chainData.domainId] = {
         domain: chainData.domainId,
         prefix: prefixOverride

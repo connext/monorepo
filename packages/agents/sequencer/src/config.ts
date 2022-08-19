@@ -73,11 +73,8 @@ export const getEnvConfig = (
     mode: {
       cleanup: process.env.SEQ_CLEANUP_MODE || configJson.mode?.cleanup || configFile.mode?.cleanup || false,
     },
-    supportedBidVersion:
-      process.env.SEQ_SUPPORTED_BID_VERSION ||
-      configJson.supportedBidVersion ||
-      configFile.supportedBidVersion ||
-      version,
+    supportedVersion:
+      process.env.SEQ_SUPPORTED_BID_VERSION || configJson.supportedVersion || configFile.supportedVersion || version,
     subgraphPrefix: process.env.SEQ_SUBGRAPH_PREFIX || configJson.subgraphPrefix || configFile.subgraphPrefix,
     auctionRoundDepth:
       process.env.AUCTION_ROUND_DEPTH ||

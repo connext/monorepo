@@ -33,7 +33,7 @@ export const bindSubscriber = async (queueName: string) => {
 
         logger.debug("Spawning executer for transfer", requestContext, methodContext, msg.body);
 
-        const child = spawn(process.argv[0], ["dist/executer.js", message.transferId], {
+        const child = spawn(process.argv[0], ["dist/executer.js", message.transferId, message.type], {
           timeout: config.messageQueue.executerTimeout,
         });
 
