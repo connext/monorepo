@@ -4,7 +4,6 @@ import { CallParams, XCallArgs } from "@connext/nxtp-utils";
 
 import { Env, getDeploymentName, mustGetEnv } from "../src/utils";
 import { canonizeId, chainIdToDomain } from "../src/nomad";
-import { connect } from "http2";
 
 type TaskArgs = {
   transactingAssetId?: string;
@@ -212,7 +211,9 @@ export default task("xcall", "Prepare a cross-chain tx")
           balance = await hre.ethers.provider.getBalance(senders[i].address);
         } else {
           const erc20 = await hre.ethers.getContractAt("IERC20", transactingAssetId, senders[i]);
-          const allowance = await erc20.connect(senders[i]).allowance(senders[i].address, connextAddress);
+          console.log("erc20: ", erc20.address);
+          const allowance = await erc20.allowance(senders[i].address, connextAddress);
+          console.log("allowance: ", allowance.toString());
           if (allowance.lt(BigNumber.from(amount).mul(runs))) {
             tx = await erc20.approve(connextAddress, constants.MaxUint256);
             await tx.wait();
@@ -234,13 +235,7 @@ export default task("xcall", "Prepare a cross-chain tx")
         const receipts = Promise.all(
           senders.map(async (sender) => {
             args.params.to = sender.address;
-
-            const tx = await connext
-              .connect(sender)
-              .functions.xcall(args, { from: sender.address, gasLimit: 2_000_000 });
-            console.log(`Transaction from sender: ${sender.address}`);
-            console.log("  Tx: ", tx.hash);
-
+            const encoded = connext.interface.encodeFunctionData("xcall", [args]);
             if (showArgs) {
               console.log("  originDomain: ", originDomain);
               console.log("  destinationDomain: ", destinationDomain);
@@ -255,10 +250,15 @@ export default task("xcall", "Prepare a cross-chain tx")
               console.log("  originMinOut:", originMinOut);
               console.log("  destinationMinOut:", destinationMinOut);
               console.log("xcall args", JSON.stringify(args));
-              const encoded = connext.interface.encodeFunctionData("xcall", [args]);
               console.log("encoded: ", encoded);
               console.log("to: ", connext.address);
             }
+
+            const tx = await connext
+              .connect(sender)
+              .functions.xcall(args, { from: sender.address, gasLimit: 2_000_000 });
+            console.log(`Transaction from sender: ${sender.address}`);
+            console.log("  Tx: ", tx.hash);
 
             return tx.wait();
           }),
