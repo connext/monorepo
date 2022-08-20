@@ -5,6 +5,10 @@ import "./ForgeHelper.sol";
 
 // Holds shared config values
 contract ConnectorHelper is ForgeHelper {
+  // ============ Events ============
+  event MessageSent(bytes data, address caller);
+  event MessageProcessed(bytes data, address caller);
+
   // ============ Storage ============
 
   uint32 _l1Domain = 1000;
