@@ -16,6 +16,9 @@ import "../../../utils/Mock.sol";
 import "forge-std/console.sol";
 
 contract ArbitrumConnectorTest is ConnectorHelper {
+  // ============ Events ============
+  event DefaultGasPriceUpdated(uint256 previous, uint256 current);
+
   // ============ Storage ============
   uint256 _defaultGasPrice = 10 gwei;
 
@@ -54,7 +57,7 @@ contract ArbitrumConnectorTest is ConnectorHelper {
   }
 
   // ============ Utils ============
-  function utils_setL1ConnectorProcessMocks(address _sender) public {
+  function utils_setL1ConnectorVerifyMocks(address _sender) public {
     // setup mocks
     address outbox = address(654321);
     // 1. call to amb on active outbox
@@ -62,12 +65,49 @@ contract ArbitrumConnectorTest is ConnectorHelper {
 
     // 2. call to outbox to get sender
     vm.mockCall(outbox, abi.encodeWithSelector(ArbitrumL1_Outbox.l2ToL1Sender.selector), abi.encode(_sender));
+  }
 
+  function utils_setL1ConnectorProcessMocks(address _sender) public {
+    utils_setL1ConnectorVerifyMocks(_sender);
     // 3. call to root manager
     vm.mockCall(_rootManager, abi.encodeWithSelector(IRootManager.setOutboundRoot.selector), abi.encode(true));
   }
 
+  // ============ setDefaultGasPrice ============
+  function test_ArbitrumL1Connector__setDefaultGasPrice_shouldWork() public {
+    uint256 updated = 100 wei;
+    vm.expectEmit(true, true, true, true);
+    emit DefaultGasPriceUpdated(_defaultGasPrice, updated);
+
+    vm.prank(ArbitrumL1Connector(_l1Connector).owner());
+    ArbitrumL1Connector(_l1Connector).setDefaultGasPrice(updated);
+    assertEq(ArbitrumL1Connector(_l1Connector).defaultGasPrice(), updated);
+  }
+
   // ============ verifySender ============
+  function test_ArbitrumL1Connector__verifySender_shouldWorkIfTrue() public {
+    address expected = address(234);
+    utils_setL1ConnectorVerifyMocks(expected);
+
+    vm.prank(_amb);
+    assertTrue(ArbitrumL1Connector(_l1Connector).verifySender(expected));
+  }
+
+  function test_ArbitrumL1Connector__verifySender_shouldWorkIfFalse() public {
+    address expected = address(234);
+    utils_setL1ConnectorVerifyMocks(address(122));
+
+    vm.prank(_amb);
+    assertEq(ArbitrumL1Connector(_l1Connector).verifySender(expected), false);
+  }
+
+  function test_ArbitrumL1Connector__verifySender_shouldFailIfCallerNotAmb() public {
+    address expected = address(234);
+    utils_setL1ConnectorVerifyMocks(expected);
+
+    vm.expectRevert(NotCrossChainCall.selector);
+    assertEq(ArbitrumL1Connector(_l1Connector).verifySender(expected), false);
+  }
 
   // ============ sendMessage ============
   function test_ArbitrumL1Connector__sendMessage_works() public {
