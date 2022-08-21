@@ -54,13 +54,13 @@ abstract contract BaseBSCConnector is Connector {
     @dev Receive function signature
   */
   function anyExecute(bytes memory _data) external returns (bool success, bytes memory result) {
-    _processMessage(_data);
+    _processMessage(msg.sender, _data); // msg.sender not used
   }
 
   function _verifySender(address _expected) internal override returns (bool) {
     require(msg.sender == AMB, "!bridge");
 
-    (address from, uint256 fromChainId, ) = IAnycallV6Proxy(anycallExecutor).context();
+    (address from, uint256 fromChainId, ) = MultichainCall(executor).context();
     return from == _expected;
   }
 }
@@ -94,6 +94,8 @@ contract BSCL2Connector is BaseBSCConnector {
    * @dev Sends `outboundRoot` to root manager on l1
    */
   function _sendMessage(bytes memory _data) internal override {
+    // TODO: check access control to implement
+
     MultichainCall(AMB).anyCall(
       AMB, // Same address on every chain, using AMB as it is immutable
       // sending the encoded bytes of the string msg and decode on the destination chain
@@ -119,10 +121,10 @@ contract BSCL2Connector is BaseBSCConnector {
     require(_verifySender(AMB), "!l1Connector");
     // get the data (should be the aggregate root)
     require(_data.length == 32, "!length");
-    // set the outbound root for optimism
+    // set the outbound root for BSC
     update(bytes32(_data));
     // get the state commitment root
-    // if state commitment root is <
+    // ?
   }
 }
 
@@ -138,7 +140,7 @@ contract BSCL1Connector is BaseBSCConnector {
     uint256 _processGas,
     uint256 _reserveGas
   )
-    BaseOptimismConnector(
+    BaseBSCConnector(
       _domain,
       _mirrorDomain,
       _amb,
@@ -175,7 +177,7 @@ contract BSCL1Connector is BaseBSCConnector {
   /**
    * @dev Handles an incoming `outboundRoot`
    */
-  function _processMessage(address _sender, bytes memory _data) internal override {
+  function _processMessage(address, bytes memory _data) internal override {
     // enforce this came from connector on l2
     require(_verifySender(AMB), "!l2Connector");
     // get the data (should be the outbound root)
@@ -184,6 +186,6 @@ contract BSCL1Connector is BaseBSCConnector {
     IRootManager(ROOT_MANAGER).setOutboundRoot(mirrorDomain, bytes32(_data));
     // get the state commitment root
     // if state commitment root is <
-    emit MessageProcessed(_sender, _data, msg.sender);
+    // emit MessageProcessed(_sender, _data, msg.sender);
   }
 }
