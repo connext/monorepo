@@ -3,12 +3,14 @@ pragma solidity 0.8.15;
 
 import {IOutbox as ArbitrumL1_Outbox} from "@openzeppelin/contracts/vendor/arbitrum/IOutbox.sol";
 import {IBridge as ArbitrumL1_Bridge} from "@openzeppelin/contracts/vendor/arbitrum/IBridge.sol";
+import {IArbSys as ArbitrumL2_Bridge} from "@openzeppelin/contracts/vendor/arbitrum/IArbSys.sol";
+
 import "@openzeppelin/contracts/crosschain/errors.sol";
 
 import {IRootManager} from "../../../../contracts/core/messaging/interfaces/IRootManager.sol";
 
 import {Connector} from "../../../../contracts/core/messaging/connectors/Connector.sol";
-import {ArbitrumL1Connector, ArbitrumL2Connector, ArbitrumL1AMB} from "../../../../contracts/core/messaging/connectors/ArbitrumConnector.sol";
+import {ArbitrumL1Connector, ArbitrumL2Connector, ArbitrumL1AMB, ArbitrumL2AMB} from "../../../../contracts/core/messaging/connectors/ArbitrumConnector.sol";
 
 import "../../../utils/ConnectorHelper.sol";
 import "../../../utils/Mock.sol";
@@ -67,13 +69,30 @@ contract ArbitrumConnectorTest is ConnectorHelper {
     vm.mockCall(outbox, abi.encodeWithSelector(ArbitrumL1_Outbox.l2ToL1Sender.selector), abi.encode(_sender));
   }
 
+  function utils_setL2ConnectorVerifyMocks(address _sender, bool _isCrosschain) public {
+    // setup mocks
+    // 1. call to ensure it was a crosschain tx
+    vm.mockCall(
+      _amb,
+      abi.encodeWithSelector(ArbitrumL2_Bridge.wasMyCallersAddressAliased.selector),
+      abi.encode(_isCrosschain)
+    );
+
+    // 2. call to l2 bridge to get address
+    vm.mockCall(
+      _amb,
+      abi.encodeWithSelector(ArbitrumL2_Bridge.myCallersAddressWithoutAliasing.selector),
+      abi.encode(_sender)
+    );
+  }
+
   function utils_setL1ConnectorProcessMocks(address _sender) public {
     utils_setL1ConnectorVerifyMocks(_sender);
     // 3. call to root manager
     vm.mockCall(_rootManager, abi.encodeWithSelector(IRootManager.setOutboundRoot.selector), abi.encode(true));
   }
 
-  // ============ setDefaultGasPrice ============
+  // ============ ArbitrumL1Connector.setDefaultGasPrice ============
   function test_ArbitrumL1Connector__setDefaultGasPrice_shouldWork() public {
     uint256 updated = 100 wei;
     vm.expectEmit(true, true, true, true);
@@ -84,7 +103,7 @@ contract ArbitrumConnectorTest is ConnectorHelper {
     assertEq(ArbitrumL1Connector(_l1Connector).defaultGasPrice(), updated);
   }
 
-  // ============ verifySender ============
+  // ============ ArbitrumL1Connector.verifySender ============
   function test_ArbitrumL1Connector__verifySender_shouldWorkIfTrue() public {
     address expected = address(234);
     utils_setL1ConnectorVerifyMocks(expected);
@@ -109,7 +128,30 @@ contract ArbitrumConnectorTest is ConnectorHelper {
     assertEq(ArbitrumL1Connector(_l1Connector).verifySender(expected), false);
   }
 
-  // ============ sendMessage ============
+  // ============ ArbitrumL2Connector.verifySender ============
+  function test_ArbitrumL2Connector__verifySender_shouldWorkIfTrue() public {
+    address expected = address(234);
+    utils_setL2ConnectorVerifyMocks(expected, true);
+
+    assertTrue(ArbitrumL2Connector(_l2Connector).verifySender(expected));
+  }
+
+  function test_ArbitrumL2Connector__verifySender_shouldWorkIfFalse() public {
+    address expected = address(234);
+    utils_setL2ConnectorVerifyMocks(address(122), true);
+
+    assertEq(ArbitrumL2Connector(_l2Connector).verifySender(expected), false);
+  }
+
+  function test_ArbitrumL2Connector__verifySender_shouldFailIfCallerNotAmb() public {
+    address expected = address(234);
+    utils_setL2ConnectorVerifyMocks(expected, false);
+
+    vm.expectRevert(NotCrossChainCall.selector);
+    assertEq(ArbitrumL2Connector(_l2Connector).verifySender(expected), false);
+  }
+
+  // ============ ArbitrumL1Connector.sendMessage ============
   function test_ArbitrumL1Connector__sendMessage_works() public {
     // setup mock
     vm.mockCall(_amb, abi.encodeWithSelector(ArbitrumL1AMB.sendContractTransaction.selector), abi.encode(123));
@@ -137,7 +179,25 @@ contract ArbitrumConnectorTest is ConnectorHelper {
     ArbitrumL1Connector(_l1Connector).sendMessage(_data);
   }
 
-  // ============ processMessage ============
+  // ============ ArbitrumL2Connector.sendMessage ============
+  function test_ArbitrumL2Connector__sendMessage_works() public {
+    // setup mock
+    vm.mockCall(_amb, abi.encodeWithSelector(ArbitrumL2AMB.sendTxToL1.selector), abi.encode(123));
+
+    // data
+    bytes memory _data = abi.encode(123123123);
+
+    // should emit an event
+    vm.expectEmit(true, true, true, true);
+    emit MessageSent(_data, address(this));
+
+    // should call send contract transaction
+    vm.expectCall(_amb, abi.encodeWithSelector(ArbitrumL2AMB.sendTxToL1.selector, _l1Connector, _data));
+
+    ArbitrumL2Connector(_l2Connector).sendMessage(_data);
+  }
+
+  // ============ ArbitrumL1Connector.processMessage ============
   function test_ArbitrumL1Connector__processMessage_works() public {
     utils_setL1ConnectorProcessMocks(_l2Connector);
 
@@ -193,5 +253,55 @@ contract ArbitrumConnectorTest is ConnectorHelper {
     vm.prank(_amb);
     // make call
     ArbitrumL1Connector(_l1Connector).processMessage(_data);
+  }
+
+  // ============ ArbitrumL2Connector.processMessage ============
+  function test_ArbitrumL2Connector__processMessage_works() public {
+    utils_setL2ConnectorVerifyMocks(_l1Connector, true);
+
+    // get outbound data
+    bytes memory _data = abi.encode(bytes32("test"));
+
+    // should emit an event
+    vm.expectEmit(true, true, true, true);
+    emit MessageProcessed(_data, address(this));
+
+    // make call
+    ArbitrumL2Connector(_l2Connector).processMessage(_data);
+
+    // assert update
+    assertEq(bytes32(_data), ArbitrumL2Connector(_l2Connector).aggregateRoot());
+  }
+
+  function test_ArbitrumL2Connector__processMessage_failsIfNotCrosschain() public {
+    utils_setL2ConnectorVerifyMocks(_l1Connector, false);
+
+    // call does not originate from amb
+    vm.expectRevert(NotCrossChainCall.selector);
+    // make call
+    ArbitrumL2Connector(_l2Connector).processMessage(abi.encode(bytes32("test")));
+  }
+
+  function test_ArbitrumL2Connector__processMessage_failsIfNotMirrorConnector() public {
+    // setup mocks
+    utils_setL2ConnectorVerifyMocks(address(654321), true);
+
+    // should revert because not bridge
+    vm.expectRevert(bytes("!mirrorConnector"));
+    // make call
+    ArbitrumL2Connector(_l2Connector).processMessage(abi.encode(bytes32("test")));
+  }
+
+  function test_ArbitrumL2Connector__processMessage_failsIfNot32Bytes() public {
+    utils_setL2ConnectorVerifyMocks(_l1Connector, true);
+
+    // get outbound data
+    bytes memory _data = abi.encode(bytes32("test"), 123123123);
+
+    // should revert because not bridge
+    vm.expectRevert(bytes("!length"));
+
+    // make call
+    ArbitrumL2Connector(_l2Connector).processMessage(_data);
   }
 }

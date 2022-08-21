@@ -8,6 +8,8 @@ import {IRootManager} from "../interfaces/IRootManager.sol";
 
 import {Connector} from "./Connector.sol";
 
+import "forge-std/console.sol";
+
 interface ArbitrumL1AMB {
   function sendContractTransaction(
     uint256 maxGas,
