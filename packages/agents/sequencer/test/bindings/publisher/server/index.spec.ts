@@ -1,13 +1,13 @@
 import { SinonStub, stub, restore, reset } from "sinon";
 import {
   ExecuteFastApiPostBidReq,
-  AuctionStatus,
+  ExecStatus,
   expect,
   getRandomBytes32,
   mkAddress,
   ExecutorPostDataRequest,
   mkBytes32,
-  ExecutorDataStatus,
+  ExecStatus,
 } from "@connext/nxtp-utils";
 import { FastifyInstance } from "fastify";
 
@@ -25,7 +25,7 @@ describe("Bindings:Server", () => {
     let upsertAuctionStub: SinonStub;
     let getStatusStub: SinonStub;
     let setStatusStub: SinonStub;
-    let getExecutorDataStatusStub: SinonStub;
+    let getExecStatusStub: SinonStub;
 
     // operations
     let storeBidStub: SinonStub;
@@ -35,12 +35,12 @@ describe("Bindings:Server", () => {
       const { auctions, executors } = ctxMock.adapters.cache;
       upsertAuctionStub = stub(auctions, "upsertAuction").resolves(0);
       getAuctionStub = stub(auctions, "getAuction");
-      getStatusStub = stub(auctions, "getStatus").resolves(AuctionStatus.None);
+      getStatusStub = stub(auctions, "getStatus").resolves(ExecStatus.None);
       setStatusStub = stub(auctions, "setStatus").resolves(1);
       getQueuedTransfersStub = stub(auctions, "getQueuedTransfers");
       getTaskStub = stub(auctions, "getTask").resolves(undefined);
 
-      getExecutorDataStatusStub = stub(executors, "getExecutorDataStatus");
+      getExecStatusStub = stub(executors, "getExecStatus");
 
       storeBidStub = stub();
       storeExecutorDataStub = stub();
@@ -159,7 +159,7 @@ describe("Bindings:Server", () => {
     });
 
     it("should get 500 on non-existent auction", async () => {
-      getStatusStub.resolves(AuctionStatus.None);
+      getStatusStub.resolves(ExecStatus.None);
       const response = await fastifyApp.inject({
         method: "GET",
         url: "/execute-fast/badid",
@@ -168,7 +168,7 @@ describe("Bindings:Server", () => {
     });
 
     it("should get 500 on non-existent auction instance", async () => {
-      getStatusStub.resolves(AuctionStatus.Queued);
+      getStatusStub.resolves(ExecStatus.Queued);
       getAuctionStub.resolves(undefined);
       const response = await fastifyApp.inject({
         method: "GET",
@@ -178,7 +178,7 @@ describe("Bindings:Server", () => {
     });
 
     it("happy: should get 200", async () => {
-      getStatusStub.resolves(AuctionStatus.Queued);
+      getStatusStub.resolves(ExecStatus.Queued);
       const bid1 = mock.entity.bid({ router: mkAddress("0x111") });
       const bid2 = mock.entity.bid({ router: mkAddress("0x222") });
       getAuctionStub.resolves({ bids: { bid1, bid2 }, timestamp: 1000 });
@@ -190,7 +190,7 @@ describe("Bindings:Server", () => {
     });
 
     it("should get 500 if getting executorDataStatus fails", async () => {
-      getExecutorDataStatusStub.throws();
+      getExecStatusStub.throws();
       const response = await fastifyApp.inject({
         method: "GET",
         url: "/execute-slow/badid",
@@ -199,7 +199,7 @@ describe("Bindings:Server", () => {
     });
 
     it("happy: should get 200", async () => {
-      getExecutorDataStatusStub.resolves(ExecutorDataStatus.Completed);
+      getExecStatusStub.resolves(ExecStatus.Completed);
       const response = await fastifyApp.inject({
         method: "GET",
         url: "/execute-slow/badid",

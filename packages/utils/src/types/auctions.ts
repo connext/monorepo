@@ -21,12 +21,6 @@ export type BidSignatureDigest = {
 };
 
 /// MARK - Auctions Cache Types ---------------------------------------------------------------------
-export enum AuctionStatus {
-  None = "None",
-  Queued = "Queued",
-  Sent = "Sent",
-  Executed = "Executed",
-}
 
 // Auction metadata, reflected in the header for auctions API and the auction cache.
 export const AuctionHeaderSchema = Type.Object({

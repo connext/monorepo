@@ -2,7 +2,7 @@ import {
   mkAddress,
   Bid,
   expect,
-  AuctionStatus,
+  ExecStatus,
   getRandomBytes32,
   getNtpTimeSeconds,
   XTransfer,
@@ -46,7 +46,7 @@ describe("Operations:Auctions", () => {
     upsertAuctionStub = stub(auctions, "upsertAuction").resolves(0);
     getAuctionStub = stub(auctions, "getAuction");
 
-    getStatusStub = stub(auctions, "getStatus").resolves(AuctionStatus.None);
+    getStatusStub = stub(auctions, "getStatus").resolves(ExecStatus.None);
     setStatusStub = stub(auctions, "setStatus").resolves(1);
 
     getQueuedTransfersStub = stub(auctions, "getQueuedTransfers");
@@ -95,8 +95,8 @@ describe("Operations:Auctions", () => {
 
       const bid: Bid = mock.entity.bid({ transferId });
 
-      getStatusStub.onCall(0).resolves(AuctionStatus.None);
-      getStatusStub.onCall(1).resolves(AuctionStatus.Queued);
+      getStatusStub.onCall(0).resolves(ExecStatus.None);
+      getStatusStub.onCall(1).resolves(ExecStatus.Queued);
 
       await storeBid(bid, requestContext);
 
@@ -139,7 +139,7 @@ describe("Operations:Auctions", () => {
 
     it("should error if the auction has expired", async () => {
       const bid: Bid = mock.entity.bid();
-      getStatusStub.resolves(AuctionStatus.Sent);
+      getStatusStub.resolves(ExecStatus.Sent);
       await expect(storeBid(bid, requestContext)).to.be.rejectedWith(AuctionExpired);
     });
 
@@ -264,7 +264,7 @@ describe("Operations:Auctions", () => {
           },
         },
       ]);
-      expect(setStatusStub.getCall(0).args).to.be.deep.eq([transferId, AuctionStatus.Sent]);
+      expect(setStatusStub.getCall(0).args).to.be.deep.eq([transferId, ExecStatus.Sent]);
       expect(upsertTaskStub.getCall(0).args).to.be.deep.eq([{ transferId, taskId }]);
     });
 
@@ -345,7 +345,7 @@ describe("Operations:Auctions", () => {
           },
         },
       ]);
-      expect(setStatusStub.getCall(0).args).to.be.deep.eq([transferId, AuctionStatus.Sent]);
+      expect(setStatusStub.getCall(0).args).to.be.deep.eq([transferId, ExecStatus.Sent]);
       expect(upsertTaskStub.getCall(0).args).to.be.deep.eq([{ transferId, taskId }]);
     });
 
@@ -434,7 +434,7 @@ describe("Operations:Auctions", () => {
           },
         },
       ]);
-      expect(setStatusStub.getCall(0).args).to.be.deep.eq([transferId, AuctionStatus.Sent]);
+      expect(setStatusStub.getCall(0).args).to.be.deep.eq([transferId, ExecStatus.Sent]);
       expect(upsertTaskStub.getCall(0).args).to.be.deep.eq([{ transferId, taskId }]);
     });
 

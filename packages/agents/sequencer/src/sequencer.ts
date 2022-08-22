@@ -9,7 +9,8 @@ import {
   jsonifyError,
   BaseRequestContext,
   MethodContext,
-  ExecutorDataStatus,
+  ExecStatus,
+  NxtpError,
 } from "@connext/nxtp-utils";
 import Broker from "foo-foo-mq";
 import { SubgraphReader } from "@connext/nxtp-adapters-subgraph";
@@ -25,6 +26,9 @@ import { bindServer } from "./bindings/publisher";
 import { setupRelayer } from "./adapters";
 import { getHelpers } from "./lib/helpers";
 import { getOperations } from "./lib/operations";
+import { GelatoTaskState } from "@connext/nxtp-utils/dist/types/relayer";
+import interval from "interval-promise";
+import { getGelatoTaskStatus } from "./lib/helpers/relayer";
 
 const context: AppContext = {} as any;
 export const getContext = () => context;
@@ -152,11 +156,40 @@ export const execute = async (_configOverride?: SequencerConfig) => {
         taskId,
       });
     }
+
+    let taskStatus = GelatoTaskState.NotFound;
+    if (taskId) {
+      await new Promise((res) => {
+        interval(async (_, stop) => {
+          try {
+            taskStatus = await getGelatoTaskStatus(taskId!);
+            if (
+              taskStatus === GelatoTaskState.ExecSuccess ||
+              taskStatus === GelatoTaskState.ExecReverted ||
+              taskStatus === GelatoTaskState.Cancelled ||
+              taskStatus === GelatoTaskState.Blacklisted
+            ) {
+              stop();
+              res(undefined);
+            }
+          } catch (error: unknown) {
+            context.logger.error(
+              "Error getting gelato task status, waiting for next loop",
+              requestContext,
+              methodContext,
+              jsonifyError(error as NxtpError),
+            );
+          }
+        }, 5_000);
+      });
+    }
   } catch (error: any) {
     const { requestContext, methodContext } = createLoggingContext(execute.name);
     context.logger.error("Error executing:", requestContext, methodContext, jsonifyError(error as Error));
     process.exit(1);
   }
+
+  process.exit(0);
 };
 
 /// MARK - Task Poller

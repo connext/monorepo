@@ -5,7 +5,7 @@ import {
   RequestContext,
   createLoggingContext,
   ajv,
-  AuctionStatus,
+  ExecStatus,
   getNtpTimeSeconds,
   jsonifyError,
   OriginTransfer,
@@ -52,7 +52,7 @@ export const storeBid = async (bid: Bid, _requestContext: RequestContext): Promi
 
   // Ensure that the auction for this transfer hasn't expired.
   const status = await cache.auctions.getStatus(transferId);
-  if (status !== AuctionStatus.None && status !== AuctionStatus.Queued) {
+  if (status !== ExecStatus.None && status !== ExecStatus.Queued) {
     throw new AuctionExpired(status, {
       transferId,
       bid,
@@ -99,7 +99,7 @@ export const storeBid = async (bid: Bid, _requestContext: RequestContext): Promi
   });
 
   // Enqueue only once to dedup, when the first bid for the transfer is stored.
-  if (status === AuctionStatus.None) {
+  if (status === ExecStatus.None) {
     const message: Message = {
       transferId: transfer.transferId,
       originDomain: transfer.xparams!.originDomain,
@@ -215,7 +215,7 @@ export const executeAuction = async (
       transfer,
       bids,
     });
-    await cache.auctions.setStatus(transferId, AuctionStatus.Executed);
+    await cache.auctions.setStatus(transferId, ExecStatus.Completed);
     return taskId;
   }
 
@@ -371,7 +371,7 @@ export const executeAuction = async (
       combinations: combinedBidsForRound,
     });
 
-    await cache.auctions.setStatus(transferId, AuctionStatus.Sent);
+    await cache.auctions.setStatus(transferId, ExecStatus.Sent);
     await cache.auctions.upsertTask({ transferId, taskId });
 
     return taskId;

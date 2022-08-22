@@ -1,4 +1,4 @@
-import { ExecutorDataStatus, ExecutorData, MetaTxTask, getNtpTimeSeconds } from "@connext/nxtp-utils";
+import { ExecStatus, ExecutorData, MetaTxTask, getNtpTimeSeconds } from "@connext/nxtp-utils";
 
 import { Cache } from "./cache";
 
@@ -8,7 +8,7 @@ import { Cache } from "./cache";
  *   key: data:$transferId | value: ExecutorData;
  *
  * Executor tx Status:
- *   key: status:$transferId | value: ExecutorDataStatus;
+ *   key: status:$transferId | value: ExecStatus;
  */
 export class ExecutorCache extends Cache {
   private readonly prefix = "executor";
@@ -77,7 +77,7 @@ export class ExecutorCache extends Cache {
     await this.data.hdel(dataKey, tranferId);
     await this.data.hdel(backupKey, tranferId);
 
-    await this.setExecutorDataStatus(tranferId, ExecutorDataStatus.None);
+    await this.setExecStatus(tranferId, ExecStatus.None);
   }
 
   /// MARK - Executor Tx Status
@@ -87,7 +87,7 @@ export class ExecutorCache extends Cache {
    * @param status - The status to set
    * @returns 1 if added, 0 if updated.
    */
-  public async setExecutorDataStatus(tranferId: string, status: ExecutorDataStatus): Promise<number> {
+  public async setExecStatus(tranferId: string, status: ExecStatus): Promise<number> {
     const key = `${this.prefix}:status`;
     return await this.data.hset(key, tranferId, status.toString());
   }
@@ -97,12 +97,12 @@ export class ExecutorCache extends Cache {
    * @param transferId - Tranfer Id to get
    * @returns The executor tx status.
    */
-  public async getExecutorDataStatus(transferId: string): Promise<ExecutorDataStatus> {
+  public async getExecStatus(transferId: string): Promise<ExecStatus> {
     const key = `${this.prefix}:status`;
     const res = await this.data.hget(key, transferId);
-    return res && Object.values(ExecutorDataStatus).includes(res as ExecutorDataStatus)
-      ? ExecutorDataStatus[res as ExecutorDataStatus]
-      : ExecutorDataStatus.None;
+    return res && Object.values(ExecStatus).includes(res as ExecStatus)
+      ? ExecStatus[res as ExecStatus]
+      : ExecStatus.None;
   }
 
   /// MARK - Meta TX Tasks

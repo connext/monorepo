@@ -1,10 +1,25 @@
 import { Type, Static } from "@sinclair/typebox";
 
 import { BidSchema } from "./auctions";
-import { ExecutorDataSchema, ExecutorDataStatus } from "./executor";
+import { ExecutorDataSchema } from "./executor";
 import { NxtpErrorJsonSchema } from "./error";
 // import { ExecuteArgsSchema, CallParamsSchema } from "./xtransfers";
 import { TAddress, TChainId, TDecimalString } from "./primitives";
+
+export enum RelayerTaskStatus {
+  None = "None",
+  Pending = "Pending",
+  Cancelled = "Cancelled",
+  Completed = "Completed",
+}
+
+export enum ExecStatus {
+  None = "None",
+  Queued = "Queued",
+  Sent = "Sent",
+  Completed = "Completed",
+  Cancelled = "Cancelled",
+}
 
 /// MARK - Shared API
 export const AdminSchema = Type.Object({
@@ -46,21 +61,21 @@ export const ExecuteFastApiGetAuctionsStatusResponseSchema = Type.Object({
   }),
 });
 
-export type ExecuteFastApiGetAuctionStatusResponse = Static<typeof ExecuteFastApiGetAuctionsStatusResponseSchema>;
+export type ExecuteFastApiGetExecStatusResponse = Static<typeof ExecuteFastApiGetAuctionsStatusResponseSchema>;
 
 export const ExecuteFastApiGetQueuedResponseSchema = Type.Object({
   queued: Type.Array(Type.String()),
 });
 export type ExecuteFastApiGetQueuedResponse = Static<typeof ExecuteFastApiGetQueuedResponseSchema>;
 
-export const ExecutorDataStatusRequestSchema = Type.Object({ transferId: Type.String() });
-export type ExecutorDataStatusRequest = Static<typeof ExecutorDataStatusRequestSchema>;
+export const ExecStatusRequestSchema = Type.Object({ transferId: Type.String() });
+export type ExecStatusRequest = Static<typeof ExecStatusRequestSchema>;
 
-export const ExecutorDataStatusResponseSchema = Type.Object({
+export const ExecStatusResponseSchema = Type.Object({
   transferId: Type.String(),
-  status: Type.Enum(ExecutorDataStatus),
+  status: Type.Enum(ExecStatus),
 });
-export type ExecutorDataStatusResponse = Static<typeof ExecutorDataStatusResponseSchema>;
+export type ExecStatusResponse = Static<typeof ExecStatusResponseSchema>;
 
 export type ExecutorPostDataRequest = Static<typeof ExecutorDataSchema>;
 
@@ -132,13 +147,6 @@ export const RelayerApiErrorResponseSchema = Type.Object({
   error: Type.Optional(NxtpErrorJsonSchema),
 });
 export type RelayerApiErrorResponse = Static<typeof RelayerApiErrorResponseSchema>;
-
-export enum RelayerTaskStatus {
-  None = "None",
-  Pending = "Pending",
-  Cancelled = "Cancelled",
-  Completed = "Completed",
-}
 
 export const RelayerApiStatusResponseSchema = Type.Object({
   chain: Type.String(),

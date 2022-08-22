@@ -1,4 +1,4 @@
-import { ExecutorDataStatus, expect, MetaTxTask, mkBytes32 } from "@connext/nxtp-utils";
+import { ExecStatus, expect, MetaTxTask, mkBytes32 } from "@connext/nxtp-utils";
 import { GelatoTaskState } from "@connext/nxtp-utils/dist/types/relayer";
 import { stub, SinonStub } from "sinon";
 import { updateTask } from "../../../src/lib/operations/tasks";
@@ -8,17 +8,17 @@ describe("Operations:Tasks", () => {
   let getGelatoTaskStatusStub: SinonStub;
   let getSentTransfersStub: SinonStub;
   let getTaskStub: SinonStub;
-  let setExecutorDataStatusStub: SinonStub;
-  let getExecutorDataStatusStub: SinonStub;
+  let setExecStatusStub: SinonStub;
+  let getExecStatusStub: SinonStub;
   let pruneExecutorDataStub: SinonStub;
   beforeEach(() => {
     const { executors } = ctxMock.adapters.cache;
     getGelatoTaskStatusStub = stub();
     getSentTransfersStub = stub(executors, "getSentTransfers");
     getTaskStub = stub(executors, "getTask");
-    setExecutorDataStatusStub = stub(executors, "setExecutorDataStatus");
+    setExecStatusStub = stub(executors, "setExecStatus");
     pruneExecutorDataStub = stub(executors, "pruneExecutorData");
-    getExecutorDataStatusStub = stub(executors, "getExecutorDataStatus");
+    getExecStatusStub = stub(executors, "getExecStatus");
 
     getHelpersStub.returns({
       relayer: {
@@ -36,16 +36,16 @@ describe("Operations:Tasks", () => {
         attempts: 1,
       } as MetaTxTask;
 
-      getExecutorDataStatusStub.resolves(ExecutorDataStatus.Sent);
+      getExecStatusStub.resolves(ExecStatus.Sent);
       getTaskStub.resolves(mockMetaTxTask);
       getGelatoTaskStatusStub.resolves(GelatoTaskState.ExecSuccess);
-      setExecutorDataStatusStub.resolves();
+      setExecStatusStub.resolves();
       pruneExecutorDataStub.resolves();
       await updateTask(mockTransferId1);
-      expect(getExecutorDataStatusStub.callCount).to.be.eq(1);
+      expect(getExecStatusStub.callCount).to.be.eq(1);
       expect(getTaskStub.callCount).to.be.eq(1);
       expect(getGelatoTaskStatusStub.callCount).to.be.eq(1);
-      expect(setExecutorDataStatusStub.callCount).to.be.eq(1);
+      expect(setExecStatusStub.callCount).to.be.eq(1);
       expect(pruneExecutorDataStub.callCount).to.be.eq(1);
     });
   });

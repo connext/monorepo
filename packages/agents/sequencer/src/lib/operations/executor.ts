@@ -5,7 +5,7 @@ import {
   createLoggingContext,
   ajv,
   ExecutorDataSchema,
-  ExecutorDataStatus,
+  ExecStatus,
   getChainIdFromDomain,
 } from "@connext/nxtp-utils";
 import { getContext } from "../../sequencer";
@@ -102,11 +102,11 @@ export const storeExecutorData = async (executorData: ExecutorData, _requestCont
   }
 
   // Ensure that the executor data for this transfer hasn't expired.
-  const status = await cache.executors.getExecutorDataStatus(transferId);
-  if (status === ExecutorDataStatus.Completed) {
+  const status = await cache.executors.getExecStatus(transferId);
+  if (status === ExecStatus.Completed) {
     throw new ExecuteSlowCompleted({ transferId });
-  } else if (status === ExecutorDataStatus.None) {
-    await cache.executors.setExecutorDataStatus(transferId, ExecutorDataStatus.Pending);
+  } else if (status === ExecStatus.None) {
+    await cache.executors.setExecStatus(transferId, ExecStatus.Queued);
     await cache.executors.storeExecutorData(executorData);
     logger.info("Created a executor tx", requestContext, methodContext, { transferId, executorData });
 
@@ -170,8 +170,8 @@ export const executeSlowPathData = async (
   }
 
   // Ensure that the executor data for this transfer hasn't expired.
-  const status = await cache.executors.getExecutorDataStatus(transferId);
-  if (status !== ExecutorDataStatus.Pending) {
+  const status = await cache.executors.getExecStatus(transferId);
+  if (status !== ExecStatus.Queued) {
     throw new ExecutorDataExpired(status, {
       transferId,
       executorData,
@@ -193,7 +193,7 @@ export const executeSlowPathData = async (
     }
   }
   if (taskId) {
-    await cache.executors.setExecutorDataStatus(transferId, ExecutorDataStatus.Completed);
+    await cache.executors.setExecStatus(transferId, ExecStatus.Completed);
     await cache.executors.upsertTask({ transferId, taskId });
   } else {
     // Prunes all the executor data for a given transferId

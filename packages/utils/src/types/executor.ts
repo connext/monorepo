@@ -2,14 +2,6 @@ import { Type, Static } from "@sinclair/typebox";
 
 import { TIntegerString } from "./primitives";
 
-export enum ExecutorDataStatus {
-  None = "None",
-  Pending = "Pending",
-  Sent = "Sent",
-  Completed = "Completed",
-  Cancelled = "Cancelled",
-}
-
 export const ExecutorDataSchema = Type.Object({
   executorVersion: Type.String(),
   transferId: Type.String(),

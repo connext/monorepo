@@ -1,4 +1,4 @@
-import { createLoggingContext, ExecutorDataStatus, jsonifyError } from "@connext/nxtp-utils";
+import { createLoggingContext, ExecStatus, jsonifyError } from "@connext/nxtp-utils";
 import interval from "interval-promise";
 
 import { getOperations } from "../../../lib/operations";
@@ -13,9 +13,9 @@ export const bindTask = async (transferId: string, _pollInterval?: number) => {
     tasks: { updateTask },
   } = getOperations();
   const pollInterval = _pollInterval ?? DEFAULT_POLL_INTERAL;
-  let executorDataStatus = ExecutorDataStatus.None;
+  let executorDataStatus = ExecStatus.None;
   interval(async () => {
-    if (executorDataStatus === ExecutorDataStatus.Completed || executorDataStatus === ExecutorDataStatus.Cancelled) {
+    if (executorDataStatus === ExecStatus.Completed || executorDataStatus === ExecStatus.Cancelled) {
       process.exit();
     } else {
       try {

@@ -1,4 +1,4 @@
-import { expect, ExecutorData, ExecutorDataStatus, Logger, mkBytes32 } from "@connext/nxtp-utils";
+import { expect, ExecutorData, ExecStatus, Logger, mkBytes32 } from "@connext/nxtp-utils";
 import { constants } from "ethers";
 import { ExecutorCache } from "../../../src";
 
@@ -64,35 +64,35 @@ describe("ExecutorCache", () => {
     });
   });
 
-  describe("#setExecutorDataStatus", () => {
+  describe("#setExecStatus", () => {
     it("happy", async () => {
-      await cache.setExecutorDataStatus(mockData1.transferId, ExecutorDataStatus.Pending);
-      let status = await cache.getExecutorDataStatus(mockData1.transferId);
-      expect(status).to.be.eq(ExecutorDataStatus.Pending);
-      await cache.setExecutorDataStatus(mockData1.transferId, ExecutorDataStatus.Sent);
-      status = await cache.getExecutorDataStatus(mockData1.transferId);
-      expect(status).to.be.eq(ExecutorDataStatus.Sent);
-      await cache.setExecutorDataStatus(mockData1.transferId, ExecutorDataStatus.Completed);
-      status = await cache.getExecutorDataStatus(mockData1.transferId);
-      expect(status).to.be.eq(ExecutorDataStatus.Completed);
+      await cache.setExecStatus(mockData1.transferId, ExecStatus.Queued);
+      let status = await cache.getExecStatus(mockData1.transferId);
+      expect(status).to.be.eq(ExecStatus.Queued);
+      await cache.setExecStatus(mockData1.transferId, ExecStatus.Sent);
+      status = await cache.getExecStatus(mockData1.transferId);
+      expect(status).to.be.eq(ExecStatus.Sent);
+      await cache.setExecStatus(mockData1.transferId, ExecStatus.Completed);
+      status = await cache.getExecStatus(mockData1.transferId);
+      expect(status).to.be.eq(ExecStatus.Completed);
     });
   });
 
-  describe("#getExecutorDataStatus", () => {
+  describe("#getExecStatus", () => {
     it("should be none if no exists", async () => {
-      let status = await cache.getExecutorDataStatus(mockData1.transferId);
-      expect(status).to.be.eq(ExecutorDataStatus.None);
+      let status = await cache.getExecStatus(mockData1.transferId);
+      expect(status).to.be.eq(ExecStatus.None);
     });
     it("happy", async () => {
-      await cache.setExecutorDataStatus(mockData1.transferId, ExecutorDataStatus.Pending);
-      let status = await cache.getExecutorDataStatus(mockData1.transferId);
-      expect(status).to.be.eq(ExecutorDataStatus.Pending);
-      await cache.setExecutorDataStatus(mockData1.transferId, ExecutorDataStatus.Sent);
-      status = await cache.getExecutorDataStatus(mockData1.transferId);
-      expect(status).to.be.eq(ExecutorDataStatus.Sent);
-      await cache.setExecutorDataStatus(mockData1.transferId, ExecutorDataStatus.Completed);
-      status = await cache.getExecutorDataStatus(mockData1.transferId);
-      expect(status).to.be.eq(ExecutorDataStatus.Completed);
+      await cache.setExecStatus(mockData1.transferId, ExecStatus.Queued);
+      let status = await cache.getExecStatus(mockData1.transferId);
+      expect(status).to.be.eq(ExecStatus.Queued);
+      await cache.setExecStatus(mockData1.transferId, ExecStatus.Sent);
+      status = await cache.getExecStatus(mockData1.transferId);
+      expect(status).to.be.eq(ExecStatus.Sent);
+      await cache.setExecStatus(mockData1.transferId, ExecStatus.Completed);
+      status = await cache.getExecStatus(mockData1.transferId);
+      expect(status).to.be.eq(ExecStatus.Completed);
     });
   });
 
@@ -125,7 +125,7 @@ describe("ExecutorCache", () => {
     it("happy", async () => {
       await cache.storeExecutorData(mockData1);
       await cache.storeBackupData(mockData2);
-      await cache.setExecutorDataStatus(mockTransferId, ExecutorDataStatus.Pending);
+      await cache.setExecStatus(mockTransferId, ExecStatus.Queued);
       await cache.pruneExecutorData(mockTransferId);
 
       const executorData = await cache.getExecutorData(mockTransferId);
@@ -134,8 +134,8 @@ describe("ExecutorCache", () => {
       const backupData = await cache.getBackupData(mockTransferId);
       expect(backupData).to.be.deep.eq([]);
 
-      const status = await cache.getExecutorDataStatus(mockTransferId);
-      expect(status).to.be.eq(ExecutorDataStatus.None);
+      const status = await cache.getExecStatus(mockTransferId);
+      expect(status).to.be.eq(ExecStatus.None);
     });
   });
   describe("#upsertTask", () => {

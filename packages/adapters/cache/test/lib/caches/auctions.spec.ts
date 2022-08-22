@@ -5,7 +5,7 @@ import {
   mock,
   mkAddress,
   Auction,
-  AuctionStatus,
+  ExecStatus,
   AuctionTask,
   getRandomBytes32,
   Bid,
@@ -28,11 +28,11 @@ describe("AuctionCache", () => {
       return res ? JSON.parse(res) : null;
     },
 
-    setStatus: async (transferId: string, status: AuctionStatus) =>
+    setStatus: async (transferId: string, status: ExecStatus) =>
       await redis.hset(`${prefix}:status`, transferId, status.toString()),
-    getStatus: async (transferId: string): Promise<AuctionStatus | null> => {
+    getStatus: async (transferId: string): Promise<ExecStatus | null> => {
       const res = await redis.hget(`${prefix}:status`, transferId);
-      return res ? AuctionStatus[res as AuctionStatus] : null;
+      return res ? ExecStatus[res as ExecStatus] : null;
     },
 
     setTask: async (transferId: string, task: AuctionTask) =>
@@ -154,7 +154,7 @@ describe("AuctionCache", () => {
 
     describe("#getStatus", () => {
       it("happy: should retrieve existing auction status", async () => {
-        for (const status of [AuctionStatus.Queued, AuctionStatus.Sent, AuctionStatus.Executed]) {
+        for (const status of [ExecStatus.Queued, ExecStatus.Sent, ExecStatus.Completed]) {
           const transferId = getRandomBytes32();
           await mockRedisHelpers.setStatus(transferId, status);
           const res = await cache.getStatus(transferId);
@@ -162,10 +162,10 @@ describe("AuctionCache", () => {
         }
       });
 
-      it("sad: should return AuctionStatus.None if auction status does not exist", async () => {
+      it("sad: should return ExecStatus.None if auction status does not exist", async () => {
         const transferId = getRandomBytes32();
         const res = await cache.getStatus(transferId);
-        expect(res).to.eq(AuctionStatus.None);
+        expect(res).to.eq(ExecStatus.None);
       });
     });
 
@@ -173,13 +173,13 @@ describe("AuctionCache", () => {
       it("happy: should set status", async () => {
         const transferId = getRandomBytes32();
 
-        const resOne = await cache.setStatus(transferId, AuctionStatus.Queued);
+        const resOne = await cache.setStatus(transferId, ExecStatus.Queued);
         expect(resOne).to.eq(1);
-        expect(await mockRedisHelpers.getStatus(transferId)).to.eq(AuctionStatus.Queued);
+        expect(await mockRedisHelpers.getStatus(transferId)).to.eq(ExecStatus.Queued);
 
-        const resTwo = await cache.setStatus(transferId, AuctionStatus.Sent);
+        const resTwo = await cache.setStatus(transferId, ExecStatus.Sent);
         expect(resTwo).to.eq(0);
-        expect(await mockRedisHelpers.getStatus(transferId)).to.eq(AuctionStatus.Sent);
+        expect(await mockRedisHelpers.getStatus(transferId)).to.eq(ExecStatus.Sent);
       });
     });
 
@@ -251,7 +251,7 @@ describe("AuctionCache", () => {
       it("happy: should retrieve existing queued transfers", async () => {
         const transferIds = mockTransferIdBatch(10);
         for (const transferId of transferIds) {
-          await mockRedisHelpers.setStatus(transferId, AuctionStatus.Queued);
+          await mockRedisHelpers.setStatus(transferId, ExecStatus.Queued);
         }
 
         const res = await cache.getQueuedTransfers();
@@ -261,13 +261,13 @@ describe("AuctionCache", () => {
       it("should not retrieve transfers of other statuses", async () => {
         const queuedTransferIds = mockTransferIdBatch(10);
         for (const transferId of queuedTransferIds) {
-          await mockRedisHelpers.setStatus(transferId, AuctionStatus.Queued);
+          await mockRedisHelpers.setStatus(transferId, ExecStatus.Queued);
         }
 
         // Simulate: a lot have been sent already.
         const sentTransferIds = mockTransferIdBatch(1234);
         for (const transferId of sentTransferIds) {
-          await mockRedisHelpers.setStatus(transferId, AuctionStatus.Sent);
+          await mockRedisHelpers.setStatus(transferId, ExecStatus.Sent);
         }
 
         const res = await cache.getQueuedTransfers();
@@ -277,7 +277,7 @@ describe("AuctionCache", () => {
       it("should return empty array if no transfers have queued status", async () => {
         const sentTransferIds = mockTransferIdBatch(27);
         for (const transferId of sentTransferIds) {
-          await mockRedisHelpers.setStatus(transferId, AuctionStatus.Sent);
+          await mockRedisHelpers.setStatus(transferId, ExecStatus.Sent);
         }
 
         const res = await cache.getQueuedTransfers();
