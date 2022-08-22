@@ -2,8 +2,6 @@
 /* tslint:disable */
 /* eslint-disable */
 export * as connextPriceOracleSol from "./ConnextPriceOracle.sol";
-export * as ozerc20Sol from "./OZERC20.sol";
-export { BridgeToken__factory } from "./BridgeToken__factory";
 export { ConnextProxyAdmin__factory } from "./ConnextProxyAdmin__factory";
 export { Executor__factory } from "./Executor__factory";
 export { LPToken__factory } from "./LPToken__factory";
@@ -12,4 +10,3 @@ export { OwnerPausableUpgradeable__factory } from "./OwnerPausableUpgradeable__f
 export { PriceOracle__factory } from "./PriceOracle__factory";
 export { SponsorVault__factory } from "./SponsorVault__factory";
 export { StableSwap__factory } from "./StableSwap__factory";
-export { TokenRegistry__factory } from "./TokenRegistry__factory";
