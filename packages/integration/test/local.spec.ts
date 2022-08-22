@@ -583,7 +583,7 @@ describe("LOCAL:E2E", () => {
     await onchainSetup(sdkBase);
   });
 
-  it("handles fast liquidity transfer", async () => {
+  it.only("handles fast liquidity transfer", async () => {
     const originProvider = new providers.JsonRpcProvider(PARAMETERS.A.RPC[0]);
     const { receipt, xcallData } = await sendXCall(
       sdkBase,
@@ -650,7 +650,7 @@ describe("LOCAL:E2E", () => {
     });
   });
 
-  it("handles slow liquidity transfer", async () => {
+  it.skip("handles slow liquidity transfer", async () => {
     // Get the remote router ID for the `handle` call.
     const destinationProvider = new providers.JsonRpcProvider(PARAMETERS.B.RPC[0]);
     const deployer = PARAMETERS.AGENTS.DEPLOYER.signer.connect(destinationProvider);
