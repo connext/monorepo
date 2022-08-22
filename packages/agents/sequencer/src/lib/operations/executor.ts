@@ -22,6 +22,7 @@ import {
 import { getHelpers } from "../helpers";
 import { Message, MessageType } from "../entities";
 import { getOperations } from ".";
+import { GelatoTaskState } from "@connext/nxtp-utils/dist/types/relayer";
 
 export const storeExecutorData = async (executorData: ExecutorData, _requestContext: RequestContext): Promise<void> => {
   const {
@@ -145,7 +146,7 @@ export const executeSlowPathData = async (
   transferId: string,
   type: string,
   _requestContext: RequestContext,
-): Promise<ExecutorDataStatus> => {
+): Promise<string | undefined> => {
   const {
     logger,
     adapters: { cache },
@@ -191,16 +192,13 @@ export const executeSlowPathData = async (
       if (taskId) break;
     }
   }
-  let executorDataStatus = ExecutorDataStatus.Pending;
   if (taskId) {
-    executorDataStatus = ExecutorDataStatus.Sent;
-    await cache.executors.setExecutorDataStatus(transferId, executorDataStatus);
+    await cache.executors.setExecutorDataStatus(transferId, ExecutorDataStatus.Completed);
     await cache.executors.upsertTask({ transferId, taskId });
   } else {
-    executorDataStatus = ExecutorDataStatus.None;
     // Prunes all the executor data for a given transferId
     await cache.executors.pruneExecutorData(transferId);
   }
 
-  return executorDataStatus;
+  return taskId;
 };

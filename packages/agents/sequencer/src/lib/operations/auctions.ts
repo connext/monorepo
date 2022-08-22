@@ -125,7 +125,10 @@ export const storeBid = async (bid: Bid, _requestContext: RequestContext): Promi
   return;
 };
 
-export const executeAuction = async (transferId: string, _requestContext: RequestContext) => {
+export const executeAuction = async (
+  transferId: string,
+  _requestContext: RequestContext,
+): Promise<string | undefined> => {
   const {
     config,
     logger,
@@ -135,6 +138,7 @@ export const executeAuction = async (transferId: string, _requestContext: Reques
   const {
     relayer: { sendExecuteFastToRelayer },
   } = getOperations();
+  let taskId: string | undefined;
   const {
     auctions: { getDestinationLocalAsset, getBidsRoundMap, getAllSubsets, getMinimumBidsCountForRound },
   } = getHelpers();
@@ -143,7 +147,7 @@ export const executeAuction = async (transferId: string, _requestContext: Reques
 
   if (!transferId) {
     logger.debug("No auction to execute", requestContext, methodContext);
-    return;
+    return taskId;
   }
 
   // Validate if transfer has exceeded the auction period and merits execution.
@@ -166,7 +170,7 @@ export const executeAuction = async (transferId: string, _requestContext: Reques
     logger.error("Auction data not found for transfer!", requestContext, methodContext, undefined, {
       transferId: transferId,
     });
-    return;
+    return taskId;
   }
 
   // Handling each domain in parallel, but each individual transfer synchronously. This is to account
@@ -192,7 +196,7 @@ export const executeAuction = async (transferId: string, _requestContext: Reques
       destination,
       bids,
     });
-    return;
+    return taskId;
   } else if (!transfer.origin) {
     // TODO: Same as above!
     // Again, shouldn't happen: sequencer should not have accepted an auction for a transfer with no xcall.
@@ -201,7 +205,7 @@ export const executeAuction = async (transferId: string, _requestContext: Reques
       transfer,
       bids,
     });
-    return;
+    return taskId;
   }
 
   const destTx = await subgraph.getDestinationTransferById(transfer.xparams!.destinationDomain!, transferId);
@@ -212,7 +216,7 @@ export const executeAuction = async (transferId: string, _requestContext: Reques
       bids,
     });
     await cache.auctions.setStatus(transferId, AuctionStatus.Executed);
-    return;
+    return taskId;
   }
 
   const bidsRoundMap = getBidsRoundMap(bids, config.auctionRoundDepth);
@@ -223,7 +227,7 @@ export const executeAuction = async (transferId: string, _requestContext: Reques
       transferId,
     });
 
-    return;
+    return taskId;
   }
 
   for (const roundIdx of availableRoundIds) {
@@ -237,7 +241,6 @@ export const executeAuction = async (transferId: string, _requestContext: Reques
       combinationCount: combinedBidsForRound.length,
       combinations: combinedBidsForRound,
     });
-    let taskId: string | undefined;
 
     // Try every combinations until we find one that works.
     for (const randomCombination of combinedBidsForRound) {
@@ -371,6 +374,8 @@ export const executeAuction = async (transferId: string, _requestContext: Reques
     await cache.auctions.setStatus(transferId, AuctionStatus.Sent);
     await cache.auctions.upsertTask({ transferId, taskId });
 
-    return;
+    return taskId;
   }
+
+  return taskId;
 };

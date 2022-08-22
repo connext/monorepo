@@ -138,21 +138,19 @@ export const execute = async (_configOverride?: SequencerConfig) => {
     // TODO: Setting up the context every time for this execution is non-ideal.
     await setupContext(requestContext, methodContext, _configOverride);
 
+    let taskId: string | undefined;
     if (messageType == MessageType.ExecuteFast) {
-      await executeAuction(transferId, requestContext);
-      context.logger.info("Executed fast path transfer", requestContext, methodContext, { transferId: transferId });
-      process.exit();
+      taskId = await executeAuction(transferId, requestContext);
+      context.logger.info("Executed fast path transfer", requestContext, methodContext, {
+        transferId: transferId,
+        taskId,
+      });
     } else if (messageType == MessageType.ExecuteSlow) {
-      const executorDataStatus = await executeSlowPathData(transferId, messageType, requestContext);
-      if (executorDataStatus === ExecutorDataStatus.Sent) {
-        context.logger.info("Binding a task", requestContext, methodContext, { transferId });
-        await bindTask(transferId, 15_000);
-      } else {
-        context.logger.info("Executed slow path transfer", requestContext, methodContext, {
-          transferId: transferId,
-          status: executorDataStatus,
-        });
-      }
+      taskId = await executeSlowPathData(transferId, messageType, requestContext);
+      context.logger.info("Executed slow path transfer", requestContext, methodContext, {
+        transferId: transferId,
+        taskId,
+      });
     }
   } catch (error: any) {
     const { requestContext, methodContext } = createLoggingContext(execute.name);
