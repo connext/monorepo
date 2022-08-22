@@ -4,6 +4,8 @@ LOCALHOST="127.0.0.1"
 # LOCALHOST="localhost"
 SEQUENCER_PORT="8081"
 ROUTER_PORT="8080"
+SEQUENCER_SUBSCRIBER_COUNT="1"
+ROUTER_SUBSCRIBER_COUNT="1"
 DEFAULT_MNEMONIC="candy maple cake sugar pudding cream honey rich smooth crumble sweet treat"
 router_publisher_image="${ROUTER_PUBLISHER_IMAGE:-'router-publisher:latest'}"
 router_subscriber_image="${ROUTER_SUBSCRIBER_IMAGE:-'router-subscriber:latest'}"
@@ -114,6 +116,6 @@ echo "Deployed subgraph to 1338"
 
 ##### Off-Chain Agents
 echo "Starting services and off-chain agents..."
-docker compose -f docker-compose.services.yaml up -d --force-recreate
+docker compose -f docker-compose.services.yaml up -d --force-recreate --scale sequencer-subscriber=${SEQUENCER_SUBSCRIBER_COUNT} --scale sequencer-subscriber=${ROUTER_SUBSCRIBER_COUNT}
 sleep 5
 #####

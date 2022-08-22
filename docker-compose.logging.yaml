@@ -1,0 +1,34 @@
+version: "3.3"
+
+networks:
+  loki:
+
+services:
+  loki:
+    container_name: loki
+    image: grafana/loki:2.6.0
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:3100:3100"
+    volumes:
+      - ${LOGDIR}/loki/config/loki-config.yaml:/etc/loki/loki-config.yaml
+      - ${LOGDIR}/loki/data:/data/loki
+    command: -config.file=/etc/loki/loki-config.yaml
+    networks:
+      - loki
+
+  grafana:
+    image: "grafana/grafana:latest"
+    restart: unless-stopped
+    user: "0"
+    volumes:
+      - "${LOGDIR}/grafana/data:/var/lib/grafana"
+    ports:
+      - 3000:3000
+    environment:
+      - GF_AUTH_DISABLE_LOGIN_FORM=true
+      - GF_AUTH_ANONYMOUS_ENABLED=true
+      - GF_AUTH_ANONYMOUS_ORG_ROLE=Admin
+      - GF_SECURITY_ALLOW_EMBEDDING=true
+    networks:
+      - loki

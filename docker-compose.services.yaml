@@ -1,7 +1,14 @@
 version: "3.3"
 
+x-logging: &logging
+  logging:
+    driver: loki
+    options:
+      loki-url: "http://host.docker.internal:3100/loki/api/v1/push"
+
 services:
   router-publisher:
+    <<: *logging
     container_name: router-publisher
     depends_on:
       - message-queue
@@ -11,10 +18,6 @@ services:
     restart: always
     ports:
       - "8880:8080"
-    logging:
-      driver: json-file
-      options:
-        max-size: 10m
     volumes:
       - ${PWD}/docker/router/publisher/:/home/node/agents/publisher/
       - ${PWD}/docker/router/config.local.json:/home/node/packages/agents/router/config.json
@@ -23,7 +26,7 @@ services:
       GRAPH_1338_ENDPOINT: "http://graph-node-1338:8000/subgraphs/name/connext/nxtp"
 
   router-subscriber:
-    container_name: router-subscriber
+    <<: *logging
     depends_on:
       - message-queue
       - sequencer-publisher
@@ -32,10 +35,6 @@ services:
     restart: always
     ports:
       - "8881:8080"
-    logging:
-      driver: json-file
-      options:
-        max-size: 10m
     volumes:
       - ${PWD}/docker/router/subscriber/:/home/node/agents/subscriber/
       - ${PWD}/docker/router/config.local.json:/home/node/packages/agents/router/config.json
@@ -44,6 +43,7 @@ services:
       GRAPH_1338_ENDPOINT: "http://graph-node-1338:8000/subgraphs/name/connext/nxtp"
 
   router-executor:
+    <<: *logging
     container_name: router-executor
     depends_on:
       - message-queue
@@ -51,10 +51,6 @@ services:
       - signer-router
     image: ${ROUTER_EXECUTOR_IMAGE}
     restart: always
-    logging:
-      driver: json-file
-      options:
-        max-size: 10m
     volumes:
       - ${PWD}/docker/router/executor/:/home/node/agents/executor/
       - ${PWD}/docker/router/config.local.json:/home/node/packages/agents/router/config.json
@@ -63,17 +59,13 @@ services:
       GRAPH_1338_ENDPOINT: "http://graph-node-1338:8000/subgraphs/name/connext/nxtp"
 
   signer-router:
+    <<: *logging
     container_name: signer-router
     image: "ghcr.io/connext/web3signer:latest"
     restart: always
     environment:
       - WEB3_SIGNER_PRIVATE_KEY=$WEB3_SIGNER_PRIVATE_KEY_ROUTER
       - WEB3SIGNER_HTTP_HOST_ALLOWLIST=*
-    logging:
-      driver: json-file
-      options:
-        max-size: 10m
-        tag: "{{.ImageName}}|{{.Name}}|{{.ImageFullID}}|{{.FullID}}"
 
   router-cache:
     container_name: router-cache
@@ -82,6 +74,7 @@ services:
       - "6379:6379"
 
   sequencer-publisher:
+    <<: *logging
     container_name: sequencer-publisher
     depends_on:
       - message-queue
@@ -89,10 +82,6 @@ services:
     restart: always
     ports:
       - "8882:8081"
-    logging:
-      driver: json-file
-      options:
-        max-size: 10m
     volumes:
       - ${PWD}/docker/sequencer/:/home/node/agents/sequencer/
       - ${PWD}/docker/sequencer/config.local.json:/home/node/packages/agents/sequencer/config.json
@@ -101,17 +90,13 @@ services:
       GRAPH_1338_ENDPOINT: "http://graph-node-1338:8000/subgraphs/name/connext/nxtp"
 
   sequencer-subscriber:
-    container_name: sequencer-subscriber
+    <<: *logging
     depends_on:
       - message-queue
     image: ${SEQUENCER_SUBSCRIBER_IMAGE}
     restart: always
     ports:
       - "8883:8081"
-    logging:
-      driver: json-file
-      options:
-        max-size: 10m
     volumes:
       - ${PWD}/docker/sequencer/:/home/node/agents/sequencer/
       - ${PWD}/docker/sequencer/config.local.json:/home/node/packages/agents/sequencer/config.json
@@ -120,17 +105,13 @@ services:
       GRAPH_1338_ENDPOINT: "http://graph-node-1338:8000/subgraphs/name/connext/nxtp"
 
   signer-sequencer:
+    <<: *logging
     container_name: signer-sequencer
     image: "ghcr.io/connext/web3signer:latest"
     restart: always
     environment:
       - WEB3_SIGNER_PRIVATE_KEY=$WEB3_SIGNER_PRIVATE_KEY_SEQUENCER
       - WEB3SIGNER_HTTP_HOST_ALLOWLIST=*
-    logging:
-      driver: json-file
-      options:
-        max-size: 10m
-        tag: "{{.ImageName}}|{{.Name}}|{{.ImageFullID}}|{{.FullID}}"
 
   message-queue:
     container_name: message-queue
@@ -146,6 +127,7 @@ services:
       - "6380:6379"
 
   relayer:
+    <<: *logging
     container_name: relayer
     depends_on:
       - sequencer-subscriber
@@ -153,26 +135,18 @@ services:
     restart: always
     ports:
       - "8082:8080"
-    logging:
-      driver: json-file
-      options:
-        max-size: 10m
     volumes:
       - ${PWD}/docker/relayer/:/home/node/agents/relayer/
       - ${PWD}/docker/relayer/config.local.json:/home/node/packages/agents/relayer/config.json
 
   signer-relayer:
+    <<: *logging
     container_name: signer-relayer
     image: "ghcr.io/connext/web3signer:latest"
     restart: always
     environment:
       - WEB3_SIGNER_PRIVATE_KEY=$WEB3_SIGNER_PRIVATE_KEY_RELAYER
       - WEB3SIGNER_HTTP_HOST_ALLOWLIST=*
-    logging:
-      driver: json-file
-      options:
-        max-size: 10m
-        tag: "{{.ImageName}}|{{.Name}}|{{.ImageFullID}}|{{.FullID}}"
 
   relayer-cache:
     container_name: relayer-cache
@@ -181,6 +155,7 @@ services:
       - "6381:6379"
 
   cartographer-transfers:
+    <<: *logging
     container_name: cartographer-transfers
     depends_on:
       - cartographer-database
@@ -189,10 +164,6 @@ services:
     restart: always
     ports:
       - "8083:8080"
-    logging:
-      driver: json-file
-      options:
-        max-size: 10m
     volumes:
       - ${PWD}/docker/cartographer/transfers/:/home/node/agents/cartographer/
       - ${PWD}/docker/cartographer/config.local.json:/home/node/packages/agents/cartographer/poller/config.json
@@ -202,6 +173,7 @@ services:
       DATABASE_URL: "postgres://postgres:qwerty@cartographer-database:5432/connext?sslmode=disable"
 
   cartographer-routers:
+    <<: *logging
     container_name: cartographer-routers
     depends_on:
       - cartographer-database
@@ -210,10 +182,6 @@ services:
     restart: always
     ports:
       - "8093:8080"
-    logging:
-      driver: json-file
-      options:
-        max-size: 10m
     volumes:
       - ${PWD}/docker/cartographer/routers/:/home/node/agents/cartographer/
       - ${PWD}/docker/cartographer/config.local.json:/home/node/packages/agents/cartographer/poller/config.json
