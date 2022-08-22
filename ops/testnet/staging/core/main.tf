@@ -227,26 +227,26 @@ module "web3signer" {
   container_env_vars       = local.web3signer_env_vars
 }
 
-module "lighthouse" {
-  source                  = "../../../modules/daemon"
-  region                  = var.region
-  dd_api_key              = var.dd_api_key
-  execution_role_arn      = data.aws_iam_role.ecr_admin_role.arn
-  cluster_id              = module.ecs.ecs_cluster_id
-  vpc_id                  = module.network.vpc_id
-  private_subnets         = module.network.private_subnets
-  docker_image            = var.full_image_name_lighthouse
-  container_family        = "lighthouse"
-  container_port          = 8080
-  cpu                     = 256
-  memory                  = 512
-  instance_count          = 1
-  environment             = var.environment
-  stage                   = var.stage
-  domain                  = var.domain
-  service_security_groups = flatten([module.network.allow_all_sg, module.network.ecs_task_sg])
-  container_env_vars      = local.lighthouse_env_vars
-}
+# module "lighthouse" {
+#   source                  = "../../../modules/daemon"
+#   region                  = var.region
+#   dd_api_key              = var.dd_api_key
+#   execution_role_arn      = data.aws_iam_role.ecr_admin_role.arn
+#   cluster_id              = module.ecs.ecs_cluster_id
+#   vpc_id                  = module.network.vpc_id
+#   private_subnets         = module.network.private_subnets
+#   docker_image            = var.full_image_name_lighthouse
+#   container_family        = "lighthouse"
+#   container_port          = 8080
+#   cpu                     = 256
+#   memory                  = 512
+#   instance_count          = 1
+#   environment             = var.environment
+#   stage                   = var.stage
+#   domain                  = var.domain
+#   service_security_groups = flatten([module.network.allow_all_sg, module.network.ecs_task_sg])
+#   container_env_vars      = local.lighthouse_env_vars
+# }
 
 module "network" {
   source      = "../../../modules/networking"
