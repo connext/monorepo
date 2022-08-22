@@ -1,3 +1,4 @@
+#!/bin/bash
 echo "Running yarn and building all packages..."
 yarn
 yarn build:all
