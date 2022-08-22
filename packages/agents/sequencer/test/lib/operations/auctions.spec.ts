@@ -36,7 +36,7 @@ describe("Operations:Auctions", () => {
   let publishStub: SinonStub;
 
   // operations
-  let sendToRelayerStub: SinonStub;
+  let sendExecuteFastToRelayerStub: SinonStub;
 
   // helpers
   let encodeExecuteFromBidStub: SinonStub;
@@ -59,10 +59,10 @@ describe("Operations:Auctions", () => {
     setLiquidityStub = stub(routers, "setLiquidity");
     getLiquidityStub = stub(routers, "getLiquidity");
 
-    sendToRelayerStub = stub().resolves();
+    sendExecuteFastToRelayerStub = stub().resolves();
     getOperationsStub.returns({
       relayer: {
-        sendToRelayer: sendToRelayerStub,
+        sendExecuteFastToRelayer: sendExecuteFastToRelayerStub,
       },
     });
 
@@ -202,7 +202,7 @@ describe("Operations:Auctions", () => {
     it("should pick up the auction rounds which has enough number of bids", async () => {
       getLiquidityStub.resolves(BigNumber.from("10000000000000000000"));
       const taskId = getRandomBytes32();
-      sendToRelayerStub.resolves(taskId);
+      sendExecuteFastToRelayerStub.resolves(taskId);
       const transferId = getRandomBytes32();
       getQueuedTransfersStub.resolves([transferId]);
 
@@ -251,9 +251,9 @@ describe("Operations:Auctions", () => {
       const transfer = mock.entity.xtransfer({ transferId });
       getTransferStub.resolves(transfer);
       await executeAuction(transferId, requestContext);
-      expect(sendToRelayerStub.callCount).to.be.eq(1);
-      expect(sendToRelayerStub.getCall(0).args[0]).to.be.eq(1);
-      expect(sendToRelayerStub.getCall(0).args[1]).to.be.deep.eq([
+      expect(sendExecuteFastToRelayerStub.callCount).to.be.eq(1);
+      expect(sendExecuteFastToRelayerStub.getCall(0).args[0]).to.be.eq(1);
+      expect(sendExecuteFastToRelayerStub.getCall(0).args[1]).to.be.deep.eq([
         {
           routerVersion: "0.0.0",
           transferId: transferId,
@@ -271,7 +271,7 @@ describe("Operations:Auctions", () => {
     it("should pick up a round-2 auction if a round-1 auction doesn't exist", async () => {
       getLiquidityStub.resolves(BigNumber.from("10000000000000000000"));
       const taskId = getRandomBytes32();
-      sendToRelayerStub.resolves(taskId);
+      sendExecuteFastToRelayerStub.resolves(taskId);
       const transferId = getRandomBytes32();
       getQueuedTransfersStub.resolves([transferId]);
 
@@ -321,11 +321,11 @@ describe("Operations:Auctions", () => {
       const transfer = mock.entity.xtransfer({ transferId });
       getTransferStub.resolves(transfer);
       await executeAuction(transferId, requestContext);
-      expect(sendToRelayerStub.callCount).to.be.eq(1);
+      expect(sendExecuteFastToRelayerStub.callCount).to.be.eq(1);
 
       // round-2 needs to be selected
-      expect(sendToRelayerStub.getCall(0).args[0]).to.be.eq(2);
-      expect(sendToRelayerStub.getCall(0).args[1]).to.be.deep.eq([
+      expect(sendExecuteFastToRelayerStub.getCall(0).args[0]).to.be.eq(2);
+      expect(sendExecuteFastToRelayerStub.getCall(0).args[1]).to.be.deep.eq([
         {
           routerVersion: "0.0.0",
           transferId: transferId,
@@ -351,7 +351,7 @@ describe("Operations:Auctions", () => {
 
     it("should skip the combination with the bid of which router has insufficient liquidity", async () => {
       const taskId = getRandomBytes32();
-      sendToRelayerStub.resolves(taskId);
+      sendExecuteFastToRelayerStub.resolves(taskId);
       const transferId = getRandomBytes32();
       getQueuedTransfersStub.resolves([transferId]);
 
@@ -410,11 +410,11 @@ describe("Operations:Auctions", () => {
       const transfer = mock.entity.xtransfer({ transferId });
       getTransferStub.resolves(transfer);
       await executeAuction(transferId, requestContext);
-      expect(sendToRelayerStub.callCount).to.be.eq(1);
+      expect(sendExecuteFastToRelayerStub.callCount).to.be.eq(1);
 
       // round-2 needs to be selected
-      expect(sendToRelayerStub.getCall(0).args[0]).to.be.eq(2);
-      expect(sendToRelayerStub.getCall(0).args[1]).to.be.deep.eq([
+      expect(sendExecuteFastToRelayerStub.getCall(0).args[0]).to.be.eq(2);
+      expect(sendExecuteFastToRelayerStub.getCall(0).args[1]).to.be.deep.eq([
         {
           routerVersion: "0.0.0",
           transferId: transferId,
@@ -441,7 +441,7 @@ describe("Operations:Auctions", () => {
     it("should wait then proceed if time elapsed is insufficient", async () => {
       getLiquidityStub.resolves(BigNumber.from("10000000000000000000"));
       const taskId = getRandomBytes32();
-      sendToRelayerStub.resolves(taskId);
+      sendExecuteFastToRelayerStub.resolves(taskId);
 
       const router1 = mkAddress("0x1");
       const transferId = getRandomBytes32();
@@ -465,7 +465,7 @@ describe("Operations:Auctions", () => {
     it("should ignore if transfer is undefined", async () => {
       getLiquidityStub.resolves(BigNumber.from("10000000000000000000"));
       const taskId = getRandomBytes32();
-      sendToRelayerStub.resolves(taskId);
+      sendExecuteFastToRelayerStub.resolves(taskId);
 
       const transferId = getRandomBytes32();
       getQueuedTransfersStub.resolves([transferId]);
@@ -477,7 +477,7 @@ describe("Operations:Auctions", () => {
 
       expect(getAuctionStub.callCount).to.be.eq(1);
       expect(getTransferStub.callCount).to.be.eq(1);
-      expect(sendToRelayerStub.callCount).to.be.eq(0);
+      expect(sendExecuteFastToRelayerStub.callCount).to.be.eq(0);
     });
 
     it("should ignore if transfer is executed", async () => {
@@ -493,13 +493,13 @@ describe("Operations:Auctions", () => {
 
       expect(getAuctionStub.callCount).to.be.eq(1);
       expect(getTransferStub.callCount).to.be.eq(1);
-      expect(sendToRelayerStub.callCount).to.be.eq(0);
+      expect(sendExecuteFastToRelayerStub.callCount).to.be.eq(0);
     });
 
     it("should ignore if transfer xcall or relayer fee undefined", async () => {
       getLiquidityStub.resolves(BigNumber.from("10000000000000000000"));
       const taskId = getRandomBytes32();
-      sendToRelayerStub.resolves(taskId);
+      sendExecuteFastToRelayerStub.resolves(taskId);
 
       const transferId = getRandomBytes32();
       getQueuedTransfersStub.resolves([transferId]);
@@ -515,13 +515,13 @@ describe("Operations:Auctions", () => {
 
       expect(getAuctionStub.callCount).to.be.eq(1);
       expect(getTransferStub.callCount).to.be.eq(1);
-      expect(sendToRelayerStub.callCount).to.be.eq(0);
+      expect(sendExecuteFastToRelayerStub.callCount).to.be.eq(0);
     });
 
     it("should skip if not enough bids for the round(s)", async () => {
       getLiquidityStub.resolves(BigNumber.from("10000000000000000000"));
       const taskId = getRandomBytes32();
-      sendToRelayerStub.resolves(taskId);
+      sendExecuteFastToRelayerStub.resolves(taskId);
 
       const transferId = getRandomBytes32();
       getQueuedTransfersStub.resolves([transferId]);
@@ -542,13 +542,13 @@ describe("Operations:Auctions", () => {
 
       expect(getAuctionStub.callCount).to.be.eq(1);
       expect(getTransferStub.callCount).to.be.eq(1);
-      expect(sendToRelayerStub.callCount).to.be.eq(0);
+      expect(sendExecuteFastToRelayerStub.callCount).to.be.eq(0);
     });
 
     it("should skip if no liquidity found for router in subgraph", async () => {
       getLiquidityStub.resolves(BigNumber.from("10000000000000000000"));
       const taskId = getRandomBytes32();
-      sendToRelayerStub.resolves(taskId);
+      sendExecuteFastToRelayerStub.resolves(taskId);
 
       const transferId = getRandomBytes32();
       getQueuedTransfersStub.resolves([transferId]);
@@ -562,13 +562,13 @@ describe("Operations:Auctions", () => {
 
       expect(getAuctionStub.callCount).to.be.eq(1);
       expect(getTransferStub.callCount).to.be.eq(1);
-      expect(sendToRelayerStub.callCount).to.be.eq(0);
+      expect(sendExecuteFastToRelayerStub.callCount).to.be.eq(0);
     });
 
     it("should cache liquidity", async () => {
       getLiquidityStub.resolves(BigNumber.from("10000000000000000000"));
       const taskId = getRandomBytes32();
-      sendToRelayerStub.resolves(taskId);
+      sendExecuteFastToRelayerStub.resolves(taskId);
 
       const router = mkAddress("0x1");
       const transferId = getRandomBytes32();
@@ -617,13 +617,13 @@ describe("Operations:Auctions", () => {
       ]);
 
       // Should have sent!
-      expect(sendToRelayerStub.callCount).to.be.eq(1);
+      expect(sendExecuteFastToRelayerStub.callCount).to.be.eq(1);
     });
 
     it("should skip router with insufficient liquidity", async () => {
       getLiquidityStub.resolves(BigNumber.from("10000000000000000000"));
       const taskId = getRandomBytes32();
-      sendToRelayerStub.resolves(taskId);
+      sendExecuteFastToRelayerStub.resolves(taskId);
 
       const transferId = getRandomBytes32();
       getQueuedTransfersStub.resolves([transferId]);
@@ -643,7 +643,7 @@ describe("Operations:Auctions", () => {
 
       expect(getAuctionStub.callCount).to.be.eq(1);
       expect(getTransferStub.callCount).to.be.eq(1);
-      expect(sendToRelayerStub.callCount).to.be.eq(0);
+      expect(sendExecuteFastToRelayerStub.callCount).to.be.eq(0);
     });
 
     it("does nothing if none queued", async () => {

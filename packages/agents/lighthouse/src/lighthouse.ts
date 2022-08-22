@@ -1,7 +1,7 @@
 import { createMethodContext, createRequestContext, getChainData, Logger } from "@connext/nxtp-utils";
 import { getContractInterfaces, ChainReader, contractDeployments } from "@connext/nxtp-txservice";
 
-import { setupRelayer } from "./adapters";
+import { setupSequencer } from "./adapters";
 import { getConfig } from "./config";
 import { bindCartographer } from "./bindings";
 import { AppContext } from "./lib/entities";
@@ -44,7 +44,7 @@ export const makeLighthouse = async () => {
     );
 
     context.adapters.contracts = getContractInterfaces();
-    context.adapters.relayer = await setupRelayer();
+    context.adapters.sequencer = await setupSequencer();
 
     // Set up bindings.
     context.logger.info("Bindings initialized.", requestContext, methodContext);

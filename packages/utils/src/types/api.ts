@@ -1,6 +1,7 @@
 import { Type, Static } from "@sinclair/typebox";
 
 import { BidSchema } from "./auctions";
+import { ExecutorDataSchema, ExecutorDataStatus } from "./executor";
 import { NxtpErrorJsonSchema } from "./error";
 // import { ExecuteArgsSchema, CallParamsSchema } from "./xtransfers";
 import { TAddress, TChainId, TDecimalString } from "./primitives";
@@ -15,19 +16,26 @@ export const ClearCacheRequestSchema = AdminSchema;
 export type ClearCacheRequest = Static<typeof ClearCacheRequestSchema>;
 
 /// MARK - Sequencer API ----------------------------------------------------------------------------
-export const AuctionsApiPostBidReqSchema = BidSchema;
 
-export type AuctionsApiPostBidReq = Static<typeof AuctionsApiPostBidReqSchema>;
+export const SequencerApiErrorResponseSchema = Type.Object({
+  message: Type.String(),
+  error: Type.Optional(NxtpErrorJsonSchema),
+});
+export type SequencerApiErrorResponse = Static<typeof SequencerApiErrorResponseSchema>;
 
-export const AuctionsApiBidResponseSchema = Type.Object({
+export const ExecuteFastApiPostBidReqSchema = BidSchema;
+
+export type ExecuteFastApiPostBidReq = Static<typeof ExecuteFastApiPostBidReqSchema>;
+
+export const ExecuteFastApiBidResponseSchema = Type.Object({
   message: Type.String(),
   transferId: Type.String(),
   router: Type.String(),
   error: Type.Optional(NxtpErrorJsonSchema),
 });
-export type AuctionsApiBidResponse = Static<typeof AuctionsApiBidResponseSchema>;
+export type ExecuteFastApiBidResponse = Static<typeof ExecuteFastApiBidResponseSchema>;
 
-export const AuctionsApiGetAuctionsStatusResponseSchema = Type.Object({
+export const ExecuteFastApiGetAuctionsStatusResponseSchema = Type.Object({
   bids: Type.Record(Type.String(), BidSchema),
   status: Type.String(),
   attempts: Type.Optional(Type.Number()),
@@ -38,18 +46,31 @@ export const AuctionsApiGetAuctionsStatusResponseSchema = Type.Object({
   }),
 });
 
-export type AuctionsApiGetAuctionStatusResponse = Static<typeof AuctionsApiGetAuctionsStatusResponseSchema>;
+export type ExecuteFastApiGetAuctionStatusResponse = Static<typeof ExecuteFastApiGetAuctionsStatusResponseSchema>;
 
-export const AuctionsApiGetQueuedResponseSchema = Type.Object({
+export const ExecuteFastApiGetQueuedResponseSchema = Type.Object({
   queued: Type.Array(Type.String()),
 });
-export type AuctionsApiGetQueuedResponse = Static<typeof AuctionsApiGetQueuedResponseSchema>;
+export type ExecuteFastApiGetQueuedResponse = Static<typeof ExecuteFastApiGetQueuedResponseSchema>;
 
-export const AuctionsApiErrorResponseSchema = Type.Object({
+export const ExecutorDataStatusRequestSchema = Type.Object({ transferId: Type.String() });
+export type ExecutorDataStatusRequest = Static<typeof ExecutorDataStatusRequestSchema>;
+
+export const ExecutorDataStatusResponseSchema = Type.Object({
+  transferId: Type.String(),
+  status: Type.Enum(ExecutorDataStatus),
+});
+export type ExecutorDataStatusResponse = Static<typeof ExecutorDataStatusResponseSchema>;
+
+export type ExecutorPostDataRequest = Static<typeof ExecutorDataSchema>;
+
+export const ExecutorPostDataResponseSchema = Type.Object({
   message: Type.String(),
+  transferId: Type.String(),
   error: Type.Optional(NxtpErrorJsonSchema),
 });
-export type AuctionsApiErrorResponse = Static<typeof AuctionsApiErrorResponseSchema>;
+
+export type ExecutorPostDataResponse = Static<typeof ExecutorPostDataResponseSchema>;
 
 /// MARK - Router API -------------------------------------------------------------------------------
 export const AddLiquidityForRequestSchema = Type.Intersect([

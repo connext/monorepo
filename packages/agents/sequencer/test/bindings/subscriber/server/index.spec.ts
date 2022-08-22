@@ -1,10 +1,8 @@
-import { SinonStub, stub, restore, reset } from "sinon";
-import { AuctionsApiPostBidReq, AuctionStatus, expect, getRandomBytes32 } from "@connext/nxtp-utils";
+import { restore, reset } from "sinon";
+import { expect } from "@connext/nxtp-utils";
 import { FastifyInstance } from "fastify";
 
 import * as BindingFns from "../../../../src/bindings/subscriber";
-import { mock } from "../../../mock";
-import { ctxMock, getOperationsStub } from "../../../globalTestHook";
 
 let fastifyApp: FastifyInstance;
 describe("Bindings:HealthServer", () => {
