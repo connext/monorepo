@@ -74,6 +74,8 @@ interface IConnextHandler is IDiamondLoupe, IDiamondCut {
 
   function promiseRouter() external view returns (PromiseRouter);
 
+  function approvedSequencers(address _sequencer) external view returns (bool);
+
   function setPromiseRouter(address payable _promiseRouter) external;
 
   function setExecutor(address _executor) external;

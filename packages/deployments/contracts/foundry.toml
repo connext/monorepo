@@ -1,4 +1,4 @@
-[default]
+[profile.default]
 src = 'contracts_forge'
 out = 'artifacts_forge'
 libs = ["node_modules", "lib"]

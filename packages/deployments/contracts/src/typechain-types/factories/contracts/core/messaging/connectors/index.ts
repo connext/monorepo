@@ -7,3 +7,4 @@ export * as mainnetConnectorSol from "./MainnetConnector.sol";
 export * as optimismConnectorSol from "./OptimismConnector.sol";
 export { Connector__factory } from "./Connector__factory";
 export { ConnectorManager__factory } from "./ConnectorManager__factory";
+export { SendOutboundRootResolver__factory } from "./SendOutboundRootResolver__factory";

@@ -1270,6 +1270,25 @@ const _abi = [
   {
     inputs: [
       {
+        internalType: "address",
+        name: "_sequencer",
+        type: "address",
+      },
+    ],
+    name: "approvedSequencers",
+    outputs: [
+      {
+        internalType: "bool",
+        name: "",
+        type: "bool",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
         internalType: "bytes32",
         name: "_transferId",
         type: "bytes32",

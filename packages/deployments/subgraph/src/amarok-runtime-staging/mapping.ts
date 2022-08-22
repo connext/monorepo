@@ -152,7 +152,7 @@ export function handleAssetAdded(event: AssetAdded): void {
   if (asset == null) {
     asset = new Asset(assetId);
   }
-  asset.local = event.params.localAsset;
+  asset.local = event.params.key;
   asset.adoptedAsset = event.params.adoptedAsset;
   asset.canonicalId = event.params.canonicalId;
   asset.canonicalDomain = event.params.domain;
@@ -224,6 +224,7 @@ export function handleXCalled(event: XCalled): void {
   transfer.transferId = event.params.transferId;
   transfer.nonce = event.params.nonce;
   transfer.status = "XCalled";
+  transfer.originMinOut = event.params.xcallArgs.originMinOut;
 
   // Call Params
   transfer.to = event.params.xcallArgs.params.to;

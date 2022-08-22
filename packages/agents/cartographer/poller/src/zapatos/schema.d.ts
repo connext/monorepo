@@ -426,6 +426,592 @@ declare module 'zapatos/schema' {
   }
 
   /**
+   * **daily_router_tvl**
+   * - View in database
+   */
+  export namespace daily_router_tvl {
+    export type Table = 'daily_router_tvl';
+    export interface Selectable {
+      /**
+      * **daily_router_tvl.latest_transfer_day**
+      * - `date` in database
+      * - Nullable, no default
+      */
+    latest_transfer_day: Date | null;
+      /**
+      * **daily_router_tvl.asset**
+      * - `bpchar` in database
+      * - Nullable, no default
+      */
+    asset: string | null;
+      /**
+      * **daily_router_tvl.router**
+      * - `bpchar` in database
+      * - Nullable, no default
+      */
+    router: string | null;
+      /**
+      * **daily_router_tvl.tvl**
+      * - `numeric` in database
+      * - Nullable, no default
+      */
+    tvl: number | null;
+    }
+    export interface JSONSelectable {
+      /**
+      * **daily_router_tvl.latest_transfer_day**
+      * - `date` in database
+      * - Nullable, no default
+      */
+    latest_transfer_day: db.DateString | null;
+      /**
+      * **daily_router_tvl.asset**
+      * - `bpchar` in database
+      * - Nullable, no default
+      */
+    asset: string | null;
+      /**
+      * **daily_router_tvl.router**
+      * - `bpchar` in database
+      * - Nullable, no default
+      */
+    router: string | null;
+      /**
+      * **daily_router_tvl.tvl**
+      * - `numeric` in database
+      * - Nullable, no default
+      */
+    tvl: number | null;
+    }
+    export interface Whereable {
+      /**
+      * **daily_router_tvl.latest_transfer_day**
+      * - `date` in database
+      * - Nullable, no default
+      */
+    latest_transfer_day?: (db.DateString | Date) | db.Parameter<(db.DateString | Date)> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, (db.DateString | Date) | db.Parameter<(db.DateString | Date)> | db.SQLFragment | db.ParentColumn>;
+      /**
+      * **daily_router_tvl.asset**
+      * - `bpchar` in database
+      * - Nullable, no default
+      */
+    asset?: string | db.Parameter<string> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
+      /**
+      * **daily_router_tvl.router**
+      * - `bpchar` in database
+      * - Nullable, no default
+      */
+    router?: string | db.Parameter<string> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
+      /**
+      * **daily_router_tvl.tvl**
+      * - `numeric` in database
+      * - Nullable, no default
+      */
+    tvl?: number | db.Parameter<number> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, number | db.Parameter<number> | db.SQLFragment | db.ParentColumn>;
+    }
+    export interface Insertable {
+      [key: string]: never;
+    }
+    export interface Updatable {
+      [key: string]: never;
+    }
+    export type UniqueIndex = never;
+    export type Column = keyof Selectable;
+    export type OnlyCols<T extends readonly Column[]> = Pick<Selectable, T[number]>;
+    export type SQLExpression = Table | db.ColumnNames<Updatable | (keyof Updatable)[]> | db.ColumnValues<Updatable> | Whereable | Column | db.ParentColumn | db.GenericSQLExpression;
+    export type SQL = SQLExpression | SQLExpression[];
+  }
+
+  /**
+   * **daily_transfer_metrics**
+   * - View in database
+   */
+  export namespace daily_transfer_metrics {
+    export type Table = 'daily_transfer_metrics';
+    export interface Selectable {
+      /**
+      * **daily_transfer_metrics.transfer_date**
+      * - `date` in database
+      * - Nullable, no default
+      */
+    transfer_date: Date | null;
+      /**
+      * **daily_transfer_metrics.status**
+      * - `transfer_status` in database
+      * - Nullable, no default
+      */
+    status: transfer_status | null;
+      /**
+      * **daily_transfer_metrics.origin_chain**
+      * - `varchar` in database
+      * - Nullable, no default
+      */
+    origin_chain: string | null;
+      /**
+      * **daily_transfer_metrics.destination_chain**
+      * - `varchar` in database
+      * - Nullable, no default
+      */
+    destination_chain: string | null;
+      /**
+      * **daily_transfer_metrics.router**
+      * - `text` in database
+      * - Nullable, no default
+      */
+    router: string | null;
+      /**
+      * **daily_transfer_metrics.asset**
+      * - `bpchar` in database
+      * - Nullable, no default
+      */
+    asset: string | null;
+      /**
+      * **daily_transfer_metrics.transfer_count**
+      * - `int8` in database
+      * - Nullable, no default
+      */
+    transfer_count: db.Int8String | null;
+      /**
+      * **daily_transfer_metrics.force_slow_transfer_count**
+      * - `int8` in database
+      * - Nullable, no default
+      */
+    force_slow_transfer_count: db.Int8String | null;
+      /**
+      * **daily_transfer_metrics.unique_user_count**
+      * - `int8` in database
+      * - Nullable, no default
+      */
+    unique_user_count: db.Int8String | null;
+      /**
+      * **daily_transfer_metrics.zero_amount_transfer_count**
+      * - `int8` in database
+      * - Nullable, no default
+      */
+    zero_amount_transfer_count: db.Int8String | null;
+      /**
+      * **daily_transfer_metrics.avg_ttv_in_secs**
+      * - `numeric` in database
+      * - Nullable, no default
+      */
+    avg_ttv_in_secs: number | null;
+      /**
+      * **daily_transfer_metrics.avg_ttr_in_secs**
+      * - `numeric` in database
+      * - Nullable, no default
+      */
+    avg_ttr_in_secs: number | null;
+    }
+    export interface JSONSelectable {
+      /**
+      * **daily_transfer_metrics.transfer_date**
+      * - `date` in database
+      * - Nullable, no default
+      */
+    transfer_date: db.DateString | null;
+      /**
+      * **daily_transfer_metrics.status**
+      * - `transfer_status` in database
+      * - Nullable, no default
+      */
+    status: transfer_status | null;
+      /**
+      * **daily_transfer_metrics.origin_chain**
+      * - `varchar` in database
+      * - Nullable, no default
+      */
+    origin_chain: string | null;
+      /**
+      * **daily_transfer_metrics.destination_chain**
+      * - `varchar` in database
+      * - Nullable, no default
+      */
+    destination_chain: string | null;
+      /**
+      * **daily_transfer_metrics.router**
+      * - `text` in database
+      * - Nullable, no default
+      */
+    router: string | null;
+      /**
+      * **daily_transfer_metrics.asset**
+      * - `bpchar` in database
+      * - Nullable, no default
+      */
+    asset: string | null;
+      /**
+      * **daily_transfer_metrics.transfer_count**
+      * - `int8` in database
+      * - Nullable, no default
+      */
+    transfer_count: number | null;
+      /**
+      * **daily_transfer_metrics.force_slow_transfer_count**
+      * - `int8` in database
+      * - Nullable, no default
+      */
+    force_slow_transfer_count: number | null;
+      /**
+      * **daily_transfer_metrics.unique_user_count**
+      * - `int8` in database
+      * - Nullable, no default
+      */
+    unique_user_count: number | null;
+      /**
+      * **daily_transfer_metrics.zero_amount_transfer_count**
+      * - `int8` in database
+      * - Nullable, no default
+      */
+    zero_amount_transfer_count: number | null;
+      /**
+      * **daily_transfer_metrics.avg_ttv_in_secs**
+      * - `numeric` in database
+      * - Nullable, no default
+      */
+    avg_ttv_in_secs: number | null;
+      /**
+      * **daily_transfer_metrics.avg_ttr_in_secs**
+      * - `numeric` in database
+      * - Nullable, no default
+      */
+    avg_ttr_in_secs: number | null;
+    }
+    export interface Whereable {
+      /**
+      * **daily_transfer_metrics.transfer_date**
+      * - `date` in database
+      * - Nullable, no default
+      */
+    transfer_date?: (db.DateString | Date) | db.Parameter<(db.DateString | Date)> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, (db.DateString | Date) | db.Parameter<(db.DateString | Date)> | db.SQLFragment | db.ParentColumn>;
+      /**
+      * **daily_transfer_metrics.status**
+      * - `transfer_status` in database
+      * - Nullable, no default
+      */
+    status?: transfer_status | db.Parameter<transfer_status> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, transfer_status | db.Parameter<transfer_status> | db.SQLFragment | db.ParentColumn>;
+      /**
+      * **daily_transfer_metrics.origin_chain**
+      * - `varchar` in database
+      * - Nullable, no default
+      */
+    origin_chain?: string | db.Parameter<string> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
+      /**
+      * **daily_transfer_metrics.destination_chain**
+      * - `varchar` in database
+      * - Nullable, no default
+      */
+    destination_chain?: string | db.Parameter<string> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
+      /**
+      * **daily_transfer_metrics.router**
+      * - `text` in database
+      * - Nullable, no default
+      */
+    router?: string | db.Parameter<string> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
+      /**
+      * **daily_transfer_metrics.asset**
+      * - `bpchar` in database
+      * - Nullable, no default
+      */
+    asset?: string | db.Parameter<string> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
+      /**
+      * **daily_transfer_metrics.transfer_count**
+      * - `int8` in database
+      * - Nullable, no default
+      */
+    transfer_count?: (number | db.Int8String) | db.Parameter<(number | db.Int8String)> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, (number | db.Int8String) | db.Parameter<(number | db.Int8String)> | db.SQLFragment | db.ParentColumn>;
+      /**
+      * **daily_transfer_metrics.force_slow_transfer_count**
+      * - `int8` in database
+      * - Nullable, no default
+      */
+    force_slow_transfer_count?: (number | db.Int8String) | db.Parameter<(number | db.Int8String)> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, (number | db.Int8String) | db.Parameter<(number | db.Int8String)> | db.SQLFragment | db.ParentColumn>;
+      /**
+      * **daily_transfer_metrics.unique_user_count**
+      * - `int8` in database
+      * - Nullable, no default
+      */
+    unique_user_count?: (number | db.Int8String) | db.Parameter<(number | db.Int8String)> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, (number | db.Int8String) | db.Parameter<(number | db.Int8String)> | db.SQLFragment | db.ParentColumn>;
+      /**
+      * **daily_transfer_metrics.zero_amount_transfer_count**
+      * - `int8` in database
+      * - Nullable, no default
+      */
+    zero_amount_transfer_count?: (number | db.Int8String) | db.Parameter<(number | db.Int8String)> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, (number | db.Int8String) | db.Parameter<(number | db.Int8String)> | db.SQLFragment | db.ParentColumn>;
+      /**
+      * **daily_transfer_metrics.avg_ttv_in_secs**
+      * - `numeric` in database
+      * - Nullable, no default
+      */
+    avg_ttv_in_secs?: number | db.Parameter<number> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, number | db.Parameter<number> | db.SQLFragment | db.ParentColumn>;
+      /**
+      * **daily_transfer_metrics.avg_ttr_in_secs**
+      * - `numeric` in database
+      * - Nullable, no default
+      */
+    avg_ttr_in_secs?: number | db.Parameter<number> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, number | db.Parameter<number> | db.SQLFragment | db.ParentColumn>;
+    }
+    export interface Insertable {
+      [key: string]: never;
+    }
+    export interface Updatable {
+      [key: string]: never;
+    }
+    export type UniqueIndex = never;
+    export type Column = keyof Selectable;
+    export type OnlyCols<T extends readonly Column[]> = Pick<Selectable, T[number]>;
+    export type SQLExpression = Table | db.ColumnNames<Updatable | (keyof Updatable)[]> | db.ColumnValues<Updatable> | Whereable | Column | db.ParentColumn | db.GenericSQLExpression;
+    export type SQL = SQLExpression | SQLExpression[];
+  }
+
+  /**
+   * **daily_transfer_volume**
+   * - View in database
+   */
+  export namespace daily_transfer_volume {
+    export type Table = 'daily_transfer_volume';
+    export interface Selectable {
+      /**
+      * **daily_transfer_volume.status**
+      * - `transfer_status` in database
+      * - Nullable, no default
+      */
+    status: transfer_status | null;
+      /**
+      * **daily_transfer_volume.transfer_date**
+      * - `date` in database
+      * - Nullable, no default
+      */
+    transfer_date: Date | null;
+      /**
+      * **daily_transfer_volume.origin_chain**
+      * - `varchar` in database
+      * - Nullable, no default
+      */
+    origin_chain: string | null;
+      /**
+      * **daily_transfer_volume.destination_chain**
+      * - `varchar` in database
+      * - Nullable, no default
+      */
+    destination_chain: string | null;
+      /**
+      * **daily_transfer_volume.router**
+      * - `text` in database
+      * - Nullable, no default
+      */
+    router: string | null;
+      /**
+      * **daily_transfer_volume.asset**
+      * - `bpchar` in database
+      * - Nullable, no default
+      */
+    asset: string | null;
+      /**
+      * **daily_transfer_volume.volume**
+      * - `numeric` in database
+      * - Nullable, no default
+      */
+    volume: number | null;
+      /**
+      * **daily_transfer_volume.force_slow_transfer_volume**
+      * - `int8` in database
+      * - Nullable, no default
+      */
+    force_slow_transfer_volume: db.Int8String | null;
+    }
+    export interface JSONSelectable {
+      /**
+      * **daily_transfer_volume.status**
+      * - `transfer_status` in database
+      * - Nullable, no default
+      */
+    status: transfer_status | null;
+      /**
+      * **daily_transfer_volume.transfer_date**
+      * - `date` in database
+      * - Nullable, no default
+      */
+    transfer_date: db.DateString | null;
+      /**
+      * **daily_transfer_volume.origin_chain**
+      * - `varchar` in database
+      * - Nullable, no default
+      */
+    origin_chain: string | null;
+      /**
+      * **daily_transfer_volume.destination_chain**
+      * - `varchar` in database
+      * - Nullable, no default
+      */
+    destination_chain: string | null;
+      /**
+      * **daily_transfer_volume.router**
+      * - `text` in database
+      * - Nullable, no default
+      */
+    router: string | null;
+      /**
+      * **daily_transfer_volume.asset**
+      * - `bpchar` in database
+      * - Nullable, no default
+      */
+    asset: string | null;
+      /**
+      * **daily_transfer_volume.volume**
+      * - `numeric` in database
+      * - Nullable, no default
+      */
+    volume: number | null;
+      /**
+      * **daily_transfer_volume.force_slow_transfer_volume**
+      * - `int8` in database
+      * - Nullable, no default
+      */
+    force_slow_transfer_volume: number | null;
+    }
+    export interface Whereable {
+      /**
+      * **daily_transfer_volume.status**
+      * - `transfer_status` in database
+      * - Nullable, no default
+      */
+    status?: transfer_status | db.Parameter<transfer_status> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, transfer_status | db.Parameter<transfer_status> | db.SQLFragment | db.ParentColumn>;
+      /**
+      * **daily_transfer_volume.transfer_date**
+      * - `date` in database
+      * - Nullable, no default
+      */
+    transfer_date?: (db.DateString | Date) | db.Parameter<(db.DateString | Date)> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, (db.DateString | Date) | db.Parameter<(db.DateString | Date)> | db.SQLFragment | db.ParentColumn>;
+      /**
+      * **daily_transfer_volume.origin_chain**
+      * - `varchar` in database
+      * - Nullable, no default
+      */
+    origin_chain?: string | db.Parameter<string> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
+      /**
+      * **daily_transfer_volume.destination_chain**
+      * - `varchar` in database
+      * - Nullable, no default
+      */
+    destination_chain?: string | db.Parameter<string> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
+      /**
+      * **daily_transfer_volume.router**
+      * - `text` in database
+      * - Nullable, no default
+      */
+    router?: string | db.Parameter<string> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
+      /**
+      * **daily_transfer_volume.asset**
+      * - `bpchar` in database
+      * - Nullable, no default
+      */
+    asset?: string | db.Parameter<string> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
+      /**
+      * **daily_transfer_volume.volume**
+      * - `numeric` in database
+      * - Nullable, no default
+      */
+    volume?: number | db.Parameter<number> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, number | db.Parameter<number> | db.SQLFragment | db.ParentColumn>;
+      /**
+      * **daily_transfer_volume.force_slow_transfer_volume**
+      * - `int8` in database
+      * - Nullable, no default
+      */
+    force_slow_transfer_volume?: (number | db.Int8String) | db.Parameter<(number | db.Int8String)> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, (number | db.Int8String) | db.Parameter<(number | db.Int8String)> | db.SQLFragment | db.ParentColumn>;
+    }
+    export interface Insertable {
+      [key: string]: never;
+    }
+    export interface Updatable {
+      [key: string]: never;
+    }
+    export type UniqueIndex = never;
+    export type Column = keyof Selectable;
+    export type OnlyCols<T extends readonly Column[]> = Pick<Selectable, T[number]>;
+    export type SQLExpression = Table | db.ColumnNames<Updatable | (keyof Updatable)[]> | db.ColumnValues<Updatable> | Whereable | Column | db.ParentColumn | db.GenericSQLExpression;
+    export type SQL = SQLExpression | SQLExpression[];
+  }
+
+  /**
+   * **router_tvl**
+   * - View in database
+   */
+  export namespace router_tvl {
+    export type Table = 'router_tvl';
+    export interface Selectable {
+      /**
+      * **router_tvl.latest_transfer_day**
+      * - `date` in database
+      * - Nullable, no default
+      */
+    latest_transfer_day: Date | null;
+      /**
+      * **router_tvl.asset**
+      * - `bpchar` in database
+      * - Nullable, no default
+      */
+    asset: string | null;
+      /**
+      * **router_tvl.tvl**
+      * - `numeric` in database
+      * - Nullable, no default
+      */
+    tvl: number | null;
+    }
+    export interface JSONSelectable {
+      /**
+      * **router_tvl.latest_transfer_day**
+      * - `date` in database
+      * - Nullable, no default
+      */
+    latest_transfer_day: db.DateString | null;
+      /**
+      * **router_tvl.asset**
+      * - `bpchar` in database
+      * - Nullable, no default
+      */
+    asset: string | null;
+      /**
+      * **router_tvl.tvl**
+      * - `numeric` in database
+      * - Nullable, no default
+      */
+    tvl: number | null;
+    }
+    export interface Whereable {
+      /**
+      * **router_tvl.latest_transfer_day**
+      * - `date` in database
+      * - Nullable, no default
+      */
+    latest_transfer_day?: (db.DateString | Date) | db.Parameter<(db.DateString | Date)> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, (db.DateString | Date) | db.Parameter<(db.DateString | Date)> | db.SQLFragment | db.ParentColumn>;
+      /**
+      * **router_tvl.asset**
+      * - `bpchar` in database
+      * - Nullable, no default
+      */
+    asset?: string | db.Parameter<string> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
+      /**
+      * **router_tvl.tvl**
+      * - `numeric` in database
+      * - Nullable, no default
+      */
+    tvl?: number | db.Parameter<number> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, number | db.Parameter<number> | db.SQLFragment | db.ParentColumn>;
+    }
+    export interface Insertable {
+      [key: string]: never;
+    }
+    export interface Updatable {
+      [key: string]: never;
+    }
+    export type UniqueIndex = never;
+    export type Column = keyof Selectable;
+    export type OnlyCols<T extends readonly Column[]> = Pick<Selectable, T[number]>;
+    export type SQLExpression = Table | db.ColumnNames<Updatable | (keyof Updatable)[]> | db.ColumnValues<Updatable> | Whereable | Column | db.ParentColumn | db.GenericSQLExpression;
+    export type SQL = SQLExpression | SQLExpression[];
+  }
+
+  /**
    * **routers**
    * - Table in database
    */
@@ -730,6 +1316,236 @@ declare module 'zapatos/schema' {
     version?: string | db.Parameter<string> | db.SQLFragment | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment>;
     }
     export type UniqueIndex = 'schema_migrations_pkey';
+    export type Column = keyof Selectable;
+    export type OnlyCols<T extends readonly Column[]> = Pick<Selectable, T[number]>;
+    export type SQLExpression = Table | db.ColumnNames<Updatable | (keyof Updatable)[]> | db.ColumnValues<Updatable> | Whereable | Column | db.ParentColumn | db.GenericSQLExpression;
+    export type SQL = SQLExpression | SQLExpression[];
+  }
+
+  /**
+   * **transfer_count**
+   * - View in database
+   */
+  export namespace transfer_count {
+    export type Table = 'transfer_count';
+    export interface Selectable {
+      /**
+      * **transfer_count.status**
+      * - `transfer_status` in database
+      * - Nullable, no default
+      */
+    status: transfer_status | null;
+      /**
+      * **transfer_count.transfer_day**
+      * - `date` in database
+      * - Nullable, no default
+      */
+    transfer_day: Date | null;
+      /**
+      * **transfer_count.origin_chain**
+      * - `varchar` in database
+      * - Nullable, no default
+      */
+    origin_chain: string | null;
+      /**
+      * **transfer_count.asset**
+      * - `bpchar` in database
+      * - Nullable, no default
+      */
+    asset: string | null;
+      /**
+      * **transfer_count.transfer_count**
+      * - `int8` in database
+      * - Nullable, no default
+      */
+    transfer_count: db.Int8String | null;
+    }
+    export interface JSONSelectable {
+      /**
+      * **transfer_count.status**
+      * - `transfer_status` in database
+      * - Nullable, no default
+      */
+    status: transfer_status | null;
+      /**
+      * **transfer_count.transfer_day**
+      * - `date` in database
+      * - Nullable, no default
+      */
+    transfer_day: db.DateString | null;
+      /**
+      * **transfer_count.origin_chain**
+      * - `varchar` in database
+      * - Nullable, no default
+      */
+    origin_chain: string | null;
+      /**
+      * **transfer_count.asset**
+      * - `bpchar` in database
+      * - Nullable, no default
+      */
+    asset: string | null;
+      /**
+      * **transfer_count.transfer_count**
+      * - `int8` in database
+      * - Nullable, no default
+      */
+    transfer_count: number | null;
+    }
+    export interface Whereable {
+      /**
+      * **transfer_count.status**
+      * - `transfer_status` in database
+      * - Nullable, no default
+      */
+    status?: transfer_status | db.Parameter<transfer_status> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, transfer_status | db.Parameter<transfer_status> | db.SQLFragment | db.ParentColumn>;
+      /**
+      * **transfer_count.transfer_day**
+      * - `date` in database
+      * - Nullable, no default
+      */
+    transfer_day?: (db.DateString | Date) | db.Parameter<(db.DateString | Date)> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, (db.DateString | Date) | db.Parameter<(db.DateString | Date)> | db.SQLFragment | db.ParentColumn>;
+      /**
+      * **transfer_count.origin_chain**
+      * - `varchar` in database
+      * - Nullable, no default
+      */
+    origin_chain?: string | db.Parameter<string> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
+      /**
+      * **transfer_count.asset**
+      * - `bpchar` in database
+      * - Nullable, no default
+      */
+    asset?: string | db.Parameter<string> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
+      /**
+      * **transfer_count.transfer_count**
+      * - `int8` in database
+      * - Nullable, no default
+      */
+    transfer_count?: (number | db.Int8String) | db.Parameter<(number | db.Int8String)> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, (number | db.Int8String) | db.Parameter<(number | db.Int8String)> | db.SQLFragment | db.ParentColumn>;
+    }
+    export interface Insertable {
+      [key: string]: never;
+    }
+    export interface Updatable {
+      [key: string]: never;
+    }
+    export type UniqueIndex = never;
+    export type Column = keyof Selectable;
+    export type OnlyCols<T extends readonly Column[]> = Pick<Selectable, T[number]>;
+    export type SQLExpression = Table | db.ColumnNames<Updatable | (keyof Updatable)[]> | db.ColumnValues<Updatable> | Whereable | Column | db.ParentColumn | db.GenericSQLExpression;
+    export type SQL = SQLExpression | SQLExpression[];
+  }
+
+  /**
+   * **transfer_volume**
+   * - View in database
+   */
+  export namespace transfer_volume {
+    export type Table = 'transfer_volume';
+    export interface Selectable {
+      /**
+      * **transfer_volume.status**
+      * - `transfer_status` in database
+      * - Nullable, no default
+      */
+    status: transfer_status | null;
+      /**
+      * **transfer_volume.transfer_day**
+      * - `date` in database
+      * - Nullable, no default
+      */
+    transfer_day: Date | null;
+      /**
+      * **transfer_volume.origin_chain**
+      * - `varchar` in database
+      * - Nullable, no default
+      */
+    origin_chain: string | null;
+      /**
+      * **transfer_volume.asset**
+      * - `bpchar` in database
+      * - Nullable, no default
+      */
+    asset: string | null;
+      /**
+      * **transfer_volume.volume**
+      * - `numeric` in database
+      * - Nullable, no default
+      */
+    volume: number | null;
+    }
+    export interface JSONSelectable {
+      /**
+      * **transfer_volume.status**
+      * - `transfer_status` in database
+      * - Nullable, no default
+      */
+    status: transfer_status | null;
+      /**
+      * **transfer_volume.transfer_day**
+      * - `date` in database
+      * - Nullable, no default
+      */
+    transfer_day: db.DateString | null;
+      /**
+      * **transfer_volume.origin_chain**
+      * - `varchar` in database
+      * - Nullable, no default
+      */
+    origin_chain: string | null;
+      /**
+      * **transfer_volume.asset**
+      * - `bpchar` in database
+      * - Nullable, no default
+      */
+    asset: string | null;
+      /**
+      * **transfer_volume.volume**
+      * - `numeric` in database
+      * - Nullable, no default
+      */
+    volume: number | null;
+    }
+    export interface Whereable {
+      /**
+      * **transfer_volume.status**
+      * - `transfer_status` in database
+      * - Nullable, no default
+      */
+    status?: transfer_status | db.Parameter<transfer_status> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, transfer_status | db.Parameter<transfer_status> | db.SQLFragment | db.ParentColumn>;
+      /**
+      * **transfer_volume.transfer_day**
+      * - `date` in database
+      * - Nullable, no default
+      */
+    transfer_day?: (db.DateString | Date) | db.Parameter<(db.DateString | Date)> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, (db.DateString | Date) | db.Parameter<(db.DateString | Date)> | db.SQLFragment | db.ParentColumn>;
+      /**
+      * **transfer_volume.origin_chain**
+      * - `varchar` in database
+      * - Nullable, no default
+      */
+    origin_chain?: string | db.Parameter<string> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
+      /**
+      * **transfer_volume.asset**
+      * - `bpchar` in database
+      * - Nullable, no default
+      */
+    asset?: string | db.Parameter<string> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
+      /**
+      * **transfer_volume.volume**
+      * - `numeric` in database
+      * - Nullable, no default
+      */
+    volume?: number | db.Parameter<number> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, number | db.Parameter<number> | db.SQLFragment | db.ParentColumn>;
+    }
+    export interface Insertable {
+      [key: string]: never;
+    }
+    export interface Updatable {
+      [key: string]: never;
+    }
+    export type UniqueIndex = never;
     export type Column = keyof Selectable;
     export type OnlyCols<T extends readonly Column[]> = Pick<Selectable, T[number]>;
     export type SQLExpression = Table | db.ColumnNames<Updatable | (keyof Updatable)[]> | db.ColumnValues<Updatable> | Whereable | Column | db.ParentColumn | db.GenericSQLExpression;
@@ -2142,20 +2958,20 @@ declare module 'zapatos/schema' {
   /* --- aggregate types --- */
 
   export namespace public {  
-    export type Table = asset_balances.Table | assets.Table | checkpoints.Table | routers.Table | routers_with_balances.Table | schema_migrations.Table | transfers.Table;
-    export type Selectable = asset_balances.Selectable | assets.Selectable | checkpoints.Selectable | routers.Selectable | routers_with_balances.Selectable | schema_migrations.Selectable | transfers.Selectable;
-    export type JSONSelectable = asset_balances.JSONSelectable | assets.JSONSelectable | checkpoints.JSONSelectable | routers.JSONSelectable | routers_with_balances.JSONSelectable | schema_migrations.JSONSelectable | transfers.JSONSelectable;
-    export type Whereable = asset_balances.Whereable | assets.Whereable | checkpoints.Whereable | routers.Whereable | routers_with_balances.Whereable | schema_migrations.Whereable | transfers.Whereable;
-    export type Insertable = asset_balances.Insertable | assets.Insertable | checkpoints.Insertable | routers.Insertable | routers_with_balances.Insertable | schema_migrations.Insertable | transfers.Insertable;
-    export type Updatable = asset_balances.Updatable | assets.Updatable | checkpoints.Updatable | routers.Updatable | routers_with_balances.Updatable | schema_migrations.Updatable | transfers.Updatable;
-    export type UniqueIndex = asset_balances.UniqueIndex | assets.UniqueIndex | checkpoints.UniqueIndex | routers.UniqueIndex | routers_with_balances.UniqueIndex | schema_migrations.UniqueIndex | transfers.UniqueIndex;
-    export type Column = asset_balances.Column | assets.Column | checkpoints.Column | routers.Column | routers_with_balances.Column | schema_migrations.Column | transfers.Column;
+    export type Table = asset_balances.Table | assets.Table | checkpoints.Table | daily_router_tvl.Table | daily_transfer_metrics.Table | daily_transfer_volume.Table | router_tvl.Table | routers.Table | routers_with_balances.Table | schema_migrations.Table | transfer_count.Table | transfer_volume.Table | transfers.Table;
+    export type Selectable = asset_balances.Selectable | assets.Selectable | checkpoints.Selectable | daily_router_tvl.Selectable | daily_transfer_metrics.Selectable | daily_transfer_volume.Selectable | router_tvl.Selectable | routers.Selectable | routers_with_balances.Selectable | schema_migrations.Selectable | transfer_count.Selectable | transfer_volume.Selectable | transfers.Selectable;
+    export type JSONSelectable = asset_balances.JSONSelectable | assets.JSONSelectable | checkpoints.JSONSelectable | daily_router_tvl.JSONSelectable | daily_transfer_metrics.JSONSelectable | daily_transfer_volume.JSONSelectable | router_tvl.JSONSelectable | routers.JSONSelectable | routers_with_balances.JSONSelectable | schema_migrations.JSONSelectable | transfer_count.JSONSelectable | transfer_volume.JSONSelectable | transfers.JSONSelectable;
+    export type Whereable = asset_balances.Whereable | assets.Whereable | checkpoints.Whereable | daily_router_tvl.Whereable | daily_transfer_metrics.Whereable | daily_transfer_volume.Whereable | router_tvl.Whereable | routers.Whereable | routers_with_balances.Whereable | schema_migrations.Whereable | transfer_count.Whereable | transfer_volume.Whereable | transfers.Whereable;
+    export type Insertable = asset_balances.Insertable | assets.Insertable | checkpoints.Insertable | daily_router_tvl.Insertable | daily_transfer_metrics.Insertable | daily_transfer_volume.Insertable | router_tvl.Insertable | routers.Insertable | routers_with_balances.Insertable | schema_migrations.Insertable | transfer_count.Insertable | transfer_volume.Insertable | transfers.Insertable;
+    export type Updatable = asset_balances.Updatable | assets.Updatable | checkpoints.Updatable | daily_router_tvl.Updatable | daily_transfer_metrics.Updatable | daily_transfer_volume.Updatable | router_tvl.Updatable | routers.Updatable | routers_with_balances.Updatable | schema_migrations.Updatable | transfer_count.Updatable | transfer_volume.Updatable | transfers.Updatable;
+    export type UniqueIndex = asset_balances.UniqueIndex | assets.UniqueIndex | checkpoints.UniqueIndex | daily_router_tvl.UniqueIndex | daily_transfer_metrics.UniqueIndex | daily_transfer_volume.UniqueIndex | router_tvl.UniqueIndex | routers.UniqueIndex | routers_with_balances.UniqueIndex | schema_migrations.UniqueIndex | transfer_count.UniqueIndex | transfer_volume.UniqueIndex | transfers.UniqueIndex;
+    export type Column = asset_balances.Column | assets.Column | checkpoints.Column | daily_router_tvl.Column | daily_transfer_metrics.Column | daily_transfer_volume.Column | router_tvl.Column | routers.Column | routers_with_balances.Column | schema_migrations.Column | transfer_count.Column | transfer_volume.Column | transfers.Column;
   
     export type AllBaseTables = [asset_balances.Table, assets.Table, checkpoints.Table, routers.Table, schema_migrations.Table, transfers.Table];
     export type AllForeignTables = [];
-    export type AllViews = [routers_with_balances.Table];
+    export type AllViews = [daily_router_tvl.Table, daily_transfer_metrics.Table, daily_transfer_volume.Table, router_tvl.Table, routers_with_balances.Table, transfer_count.Table, transfer_volume.Table];
     export type AllMaterializedViews = [];
-    export type AllTablesAndViews = [asset_balances.Table, assets.Table, checkpoints.Table, routers.Table, routers_with_balances.Table, schema_migrations.Table, transfers.Table];
+    export type AllTablesAndViews = [asset_balances.Table, assets.Table, checkpoints.Table, daily_router_tvl.Table, daily_transfer_metrics.Table, daily_transfer_volume.Table, router_tvl.Table, routers.Table, routers_with_balances.Table, schema_migrations.Table, transfer_count.Table, transfer_volume.Table, transfers.Table];
   }
 
 
@@ -2186,9 +3002,15 @@ declare module 'zapatos/schema' {
     "asset_balances": asset_balances.Selectable;
     "assets": assets.Selectable;
     "checkpoints": checkpoints.Selectable;
+    "daily_router_tvl": daily_router_tvl.Selectable;
+    "daily_transfer_metrics": daily_transfer_metrics.Selectable;
+    "daily_transfer_volume": daily_transfer_volume.Selectable;
+    "router_tvl": router_tvl.Selectable;
     "routers": routers.Selectable;
     "routers_with_balances": routers_with_balances.Selectable;
     "schema_migrations": schema_migrations.Selectable;
+    "transfer_count": transfer_count.Selectable;
+    "transfer_volume": transfer_volume.Selectable;
     "transfers": transfers.Selectable;
   }[T];
 
@@ -2196,9 +3018,15 @@ declare module 'zapatos/schema' {
     "asset_balances": asset_balances.JSONSelectable;
     "assets": assets.JSONSelectable;
     "checkpoints": checkpoints.JSONSelectable;
+    "daily_router_tvl": daily_router_tvl.JSONSelectable;
+    "daily_transfer_metrics": daily_transfer_metrics.JSONSelectable;
+    "daily_transfer_volume": daily_transfer_volume.JSONSelectable;
+    "router_tvl": router_tvl.JSONSelectable;
     "routers": routers.JSONSelectable;
     "routers_with_balances": routers_with_balances.JSONSelectable;
     "schema_migrations": schema_migrations.JSONSelectable;
+    "transfer_count": transfer_count.JSONSelectable;
+    "transfer_volume": transfer_volume.JSONSelectable;
     "transfers": transfers.JSONSelectable;
   }[T];
 
@@ -2206,9 +3034,15 @@ declare module 'zapatos/schema' {
     "asset_balances": asset_balances.Whereable;
     "assets": assets.Whereable;
     "checkpoints": checkpoints.Whereable;
+    "daily_router_tvl": daily_router_tvl.Whereable;
+    "daily_transfer_metrics": daily_transfer_metrics.Whereable;
+    "daily_transfer_volume": daily_transfer_volume.Whereable;
+    "router_tvl": router_tvl.Whereable;
     "routers": routers.Whereable;
     "routers_with_balances": routers_with_balances.Whereable;
     "schema_migrations": schema_migrations.Whereable;
+    "transfer_count": transfer_count.Whereable;
+    "transfer_volume": transfer_volume.Whereable;
     "transfers": transfers.Whereable;
   }[T];
 
@@ -2216,9 +3050,15 @@ declare module 'zapatos/schema' {
     "asset_balances": asset_balances.Insertable;
     "assets": assets.Insertable;
     "checkpoints": checkpoints.Insertable;
+    "daily_router_tvl": daily_router_tvl.Insertable;
+    "daily_transfer_metrics": daily_transfer_metrics.Insertable;
+    "daily_transfer_volume": daily_transfer_volume.Insertable;
+    "router_tvl": router_tvl.Insertable;
     "routers": routers.Insertable;
     "routers_with_balances": routers_with_balances.Insertable;
     "schema_migrations": schema_migrations.Insertable;
+    "transfer_count": transfer_count.Insertable;
+    "transfer_volume": transfer_volume.Insertable;
     "transfers": transfers.Insertable;
   }[T];
 
@@ -2226,9 +3066,15 @@ declare module 'zapatos/schema' {
     "asset_balances": asset_balances.Updatable;
     "assets": assets.Updatable;
     "checkpoints": checkpoints.Updatable;
+    "daily_router_tvl": daily_router_tvl.Updatable;
+    "daily_transfer_metrics": daily_transfer_metrics.Updatable;
+    "daily_transfer_volume": daily_transfer_volume.Updatable;
+    "router_tvl": router_tvl.Updatable;
     "routers": routers.Updatable;
     "routers_with_balances": routers_with_balances.Updatable;
     "schema_migrations": schema_migrations.Updatable;
+    "transfer_count": transfer_count.Updatable;
+    "transfer_volume": transfer_volume.Updatable;
     "transfers": transfers.Updatable;
   }[T];
 
@@ -2236,9 +3082,15 @@ declare module 'zapatos/schema' {
     "asset_balances": asset_balances.UniqueIndex;
     "assets": assets.UniqueIndex;
     "checkpoints": checkpoints.UniqueIndex;
+    "daily_router_tvl": daily_router_tvl.UniqueIndex;
+    "daily_transfer_metrics": daily_transfer_metrics.UniqueIndex;
+    "daily_transfer_volume": daily_transfer_volume.UniqueIndex;
+    "router_tvl": router_tvl.UniqueIndex;
     "routers": routers.UniqueIndex;
     "routers_with_balances": routers_with_balances.UniqueIndex;
     "schema_migrations": schema_migrations.UniqueIndex;
+    "transfer_count": transfer_count.UniqueIndex;
+    "transfer_volume": transfer_volume.UniqueIndex;
     "transfers": transfers.UniqueIndex;
   }[T];
 
@@ -2246,9 +3098,15 @@ declare module 'zapatos/schema' {
     "asset_balances": asset_balances.Column;
     "assets": assets.Column;
     "checkpoints": checkpoints.Column;
+    "daily_router_tvl": daily_router_tvl.Column;
+    "daily_transfer_metrics": daily_transfer_metrics.Column;
+    "daily_transfer_volume": daily_transfer_volume.Column;
+    "router_tvl": router_tvl.Column;
     "routers": routers.Column;
     "routers_with_balances": routers_with_balances.Column;
     "schema_migrations": schema_migrations.Column;
+    "transfer_count": transfer_count.Column;
+    "transfer_volume": transfer_volume.Column;
     "transfers": transfers.Column;
   }[T];
 
@@ -2256,9 +3114,15 @@ declare module 'zapatos/schema' {
     "asset_balances": asset_balances.SQL;
     "assets": assets.SQL;
     "checkpoints": checkpoints.SQL;
+    "daily_router_tvl": daily_router_tvl.SQL;
+    "daily_transfer_metrics": daily_transfer_metrics.SQL;
+    "daily_transfer_volume": daily_transfer_volume.SQL;
+    "router_tvl": router_tvl.SQL;
     "routers": routers.SQL;
     "routers_with_balances": routers_with_balances.SQL;
     "schema_migrations": schema_migrations.SQL;
+    "transfer_count": transfer_count.SQL;
+    "transfer_volume": transfer_volume.SQL;
     "transfers": transfers.SQL;
   }[T];
 

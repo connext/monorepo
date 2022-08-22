@@ -540,6 +540,25 @@ const _abi = [
     type: "function",
   },
   {
+    inputs: [
+      {
+        internalType: "address",
+        name: "_sequencer",
+        type: "address",
+      },
+    ],
+    name: "approvedSequencers",
+    outputs: [
+      {
+        internalType: "bool",
+        name: "",
+        type: "bool",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
     inputs: [],
     name: "assetWhitelistRemoved",
     outputs: [

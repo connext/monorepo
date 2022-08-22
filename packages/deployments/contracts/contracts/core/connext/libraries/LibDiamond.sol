@@ -13,11 +13,6 @@ import {IDiamondCut} from "../interfaces/IDiamondCut.sol";
 library LibDiamond {
   bytes32 constant DIAMOND_STORAGE_POSITION = keccak256("diamond.standard.diamond.storage");
 
-  /**
-   * @dev This is used as both the *delay* and the *validity period* for a given update
-   */
-  uint256 private constant _governancePeriod = 7 days;
-
   struct FacetAddressAndPosition {
     address facetAddress;
     uint96 functionSelectorPosition; // position in facetFunctionSelectors.functionSelectors array
@@ -43,8 +38,8 @@ library LibDiamond {
     address contractOwner;
     // hash of proposed facets => acceptance time
     mapping(bytes32 => uint256) acceptanceTimes;
-    // stores whether there has been an initial cut
-    bool initialCut;
+    // acceptance delay for upgrading facets
+    uint256 acceptanceDelay;
   }
 
   function diamondStorage() internal pure returns (DiamondStorage storage ds) {
@@ -78,8 +73,9 @@ library LibDiamond {
     address _init,
     bytes memory _calldata
   ) internal {
-    uint256 acceptance = block.timestamp + _governancePeriod;
-    diamondStorage().acceptanceTimes[keccak256(abi.encode(_diamondCut, _init, _calldata))] = acceptance;
+    DiamondStorage storage ds = diamondStorage();
+    uint256 acceptance = block.timestamp + ds.acceptanceDelay;
+    ds.acceptanceTimes[keccak256(abi.encode(_diamondCut, _init, _calldata))] = acceptance;
     emit DiamondCutProposed(_diamondCut, _init, _calldata, acceptance);
   }
 
@@ -105,23 +101,10 @@ library LibDiamond {
     bytes memory _calldata
   ) internal {
     DiamondStorage storage ds = diamondStorage();
-    if (ds.initialCut) {
-      uint256 validityPeriodStart = ds.acceptanceTimes[keccak256(abi.encode(_diamondCut, _init, _calldata))];
-      require(
-        validityPeriodStart != 0 &&
-          validityPeriodStart < block.timestamp &&
-          validityPeriodStart + _governancePeriod > block.timestamp,
-        "LibDiamond: outside of validity window"
-      );
-
-      // Now, 0-out the acceptance time to ensure the update cannot be re-executed without another
-      // proposal
-      rescindDiamondCut(_diamondCut, _init, _calldata);
-    } else {
-      // This is the first instance of using `diamondCut` and setting the facets.
-      // Update the flag so future iterations go through the proposal process
-      ds.initialCut = true;
-    }
+    if (ds.facetAddresses.length != 0) {
+      uint256 time = ds.acceptanceTimes[keccak256(abi.encode(_diamondCut, _init, _calldata))];
+      require(time != 0 && time <= block.timestamp, "LibDiamond: delay not elapsed");
+    } // Otherwise, this is the first instance of deployment and it can be set automatically
     for (uint256 facetIndex; facetIndex < _diamondCut.length; facetIndex++) {
       IDiamondCut.FacetCutAction action = _diamondCut[facetIndex].action;
       if (action == IDiamondCut.FacetCutAction.Add) {

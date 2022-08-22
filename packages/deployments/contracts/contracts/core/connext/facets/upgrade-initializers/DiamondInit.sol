@@ -37,7 +37,8 @@ contract DiamondInit is BaseConnextFacet {
     uint32 _domain,
     address _tokenRegistry, // Nomad token registry
     address _relayerFeeRouter,
-    address payable _promiseRouter
+    address payable _promiseRouter,
+    uint256 _acceptanceDelay
   ) external {
     // adding ERC165 data
     LibDiamond.DiamondStorage storage ds = LibDiamond.diamondStorage();
@@ -45,6 +46,7 @@ contract DiamondInit is BaseConnextFacet {
     ds.supportedInterfaces[type(IDiamondCut).interfaceId] = true;
     ds.supportedInterfaces[type(IDiamondLoupe).interfaceId] = true;
     ds.supportedInterfaces[type(IProposedOwnable).interfaceId] = true;
+    ds.acceptanceDelay = _acceptanceDelay;
 
     // add your own state variables
     // EIP-2535 specifies that the `diamondCut` function takes two optional

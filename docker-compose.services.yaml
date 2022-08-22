@@ -43,6 +43,25 @@ services:
       GRAPH_1337_ENDPOINT: "http://graph-node-1337:8000/subgraphs/name/connext/nxtp"
       GRAPH_1338_ENDPOINT: "http://graph-node-1338:8000/subgraphs/name/connext/nxtp"
 
+  router-executor:
+    container_name: router-executor
+    depends_on:
+      - message-queue
+      - sequencer-publisher
+      - signer-router
+    image: ${ROUTER_EXECUTOR_IMAGE}
+    restart: always
+    logging:
+      driver: json-file
+      options:
+        max-size: 10m
+    volumes:
+      - ${PWD}/docker/router/executor/:/home/node/agents/executor/
+      - ${PWD}/docker/router/config.local.json:/home/node/packages/agents/router/config.json
+    environment:
+      GRAPH_1337_ENDPOINT: "http://graph-node-1337:8000/subgraphs/name/connext/nxtp"
+      GRAPH_1338_ENDPOINT: "http://graph-node-1338:8000/subgraphs/name/connext/nxtp"
+
   signer-router:
     container_name: signer-router
     image: "ghcr.io/connext/web3signer:latest"
@@ -142,6 +161,19 @@ services:
       - ${PWD}/docker/relayer/:/home/node/agents/relayer/
       - ${PWD}/docker/relayer/config.local.json:/home/node/packages/agents/relayer/config.json
 
+  signer-relayer:
+    container_name: signer-relayer
+    image: "ghcr.io/connext/web3signer:latest"
+    restart: always
+    environment:
+      - WEB3_SIGNER_PRIVATE_KEY=$WEB3_SIGNER_PRIVATE_KEY_RELAYER
+      - WEB3SIGNER_HTTP_HOST_ALLOWLIST=*
+    logging:
+      driver: json-file
+      options:
+        max-size: 10m
+        tag: "{{.ImageName}}|{{.Name}}|{{.ImageFullID}}|{{.FullID}}"
+
   relayer-cache:
     container_name: relayer-cache
     image: redis:latest
@@ -211,16 +243,16 @@ services:
       PGRST_DB_SCHEMA: public
       PGRST_DB_ANON_ROLE: query
 
-  lighthouse:
-    container_name: lighthouse
-    depends_on:
-      - cartographer-api
-    image: ${LIGHTHOUSE_IMAGE}
-    restart: always
-    logging:
-      driver: json-file
-      options:
-        max-size: 10m
-    volumes:
-      - ${PWD}/docker/lighthouse/:/home/node/agents/lighthouse/
-      - ${PWD}/docker/lighthouse/config.local.json:/home/node/packages/agents/lighthouse/config.json
+  # lighthouse:
+  #   container_name: lighthouse
+  #   depends_on:
+  #     - cartographer-api
+  #   image: ${LIGHTHOUSE_IMAGE}
+  #   restart: always
+  #   logging:
+  #     driver: json-file
+  #     options:
+  #       max-size: 10m
+  #   volumes:
+  #     - ${PWD}/docker/lighthouse/:/home/node/agents/lighthouse/
+  #     - ${PWD}/docker/lighthouse/config.local.json:/home/node/packages/agents/lighthouse/config.json

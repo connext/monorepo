@@ -30,7 +30,9 @@ import type {
 export interface IConnectorInterface extends utils.Interface {
   functions: {
     "acceptProposedOwner()": FunctionFragment;
+    "aggregateRoot()": FunctionFragment;
     "dispatch(uint32,bytes32,bytes)": FunctionFragment;
+    "outboundRoot()": FunctionFragment;
     "owner()": FunctionFragment;
     "processMessage(bytes)": FunctionFragment;
     "proposeNewOwner(address)": FunctionFragment;
@@ -44,7 +46,9 @@ export interface IConnectorInterface extends utils.Interface {
   getFunction(
     nameOrSignatureOrTopic:
       | "acceptProposedOwner"
+      | "aggregateRoot"
       | "dispatch"
+      | "outboundRoot"
       | "owner"
       | "processMessage"
       | "proposeNewOwner"
@@ -60,12 +64,20 @@ export interface IConnectorInterface extends utils.Interface {
     values?: undefined
   ): string;
   encodeFunctionData(
+    functionFragment: "aggregateRoot",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
     functionFragment: "dispatch",
     values: [
       PromiseOrValue<BigNumberish>,
       PromiseOrValue<BytesLike>,
       PromiseOrValue<BytesLike>
     ]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "outboundRoot",
+    values?: undefined
   ): string;
   encodeFunctionData(functionFragment: "owner", values?: undefined): string;
   encodeFunctionData(
@@ -99,7 +111,15 @@ export interface IConnectorInterface extends utils.Interface {
     functionFragment: "acceptProposedOwner",
     data: BytesLike
   ): Result;
+  decodeFunctionResult(
+    functionFragment: "aggregateRoot",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(functionFragment: "dispatch", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "outboundRoot",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(functionFragment: "owner", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "processMessage",
@@ -187,12 +207,16 @@ export interface IConnector extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
+    aggregateRoot(overrides?: CallOverrides): Promise<[string]>;
+
     dispatch(
       _destinationDomain: PromiseOrValue<BigNumberish>,
       _recipientAddress: PromiseOrValue<BytesLike>,
       _messageBody: PromiseOrValue<BytesLike>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
+
+    outboundRoot(overrides?: CallOverrides): Promise<[string]>;
 
     owner(overrides?: CallOverrides): Promise<[string] & { owner_: string }>;
 
@@ -236,12 +260,16 @@ export interface IConnector extends BaseContract {
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
+  aggregateRoot(overrides?: CallOverrides): Promise<string>;
+
   dispatch(
     _destinationDomain: PromiseOrValue<BigNumberish>,
     _recipientAddress: PromiseOrValue<BytesLike>,
     _messageBody: PromiseOrValue<BytesLike>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
+
+  outboundRoot(overrides?: CallOverrides): Promise<string>;
 
   owner(overrides?: CallOverrides): Promise<string>;
 
@@ -281,12 +309,16 @@ export interface IConnector extends BaseContract {
   callStatic: {
     acceptProposedOwner(overrides?: CallOverrides): Promise<void>;
 
+    aggregateRoot(overrides?: CallOverrides): Promise<string>;
+
     dispatch(
       _destinationDomain: PromiseOrValue<BigNumberish>,
       _recipientAddress: PromiseOrValue<BytesLike>,
       _messageBody: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
     ): Promise<void>;
+
+    outboundRoot(overrides?: CallOverrides): Promise<string>;
 
     owner(overrides?: CallOverrides): Promise<string>;
 
@@ -345,12 +377,16 @@ export interface IConnector extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
+    aggregateRoot(overrides?: CallOverrides): Promise<BigNumber>;
+
     dispatch(
       _destinationDomain: PromiseOrValue<BigNumberish>,
       _recipientAddress: PromiseOrValue<BytesLike>,
       _messageBody: PromiseOrValue<BytesLike>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
+
+    outboundRoot(overrides?: CallOverrides): Promise<BigNumber>;
 
     owner(overrides?: CallOverrides): Promise<BigNumber>;
 
@@ -393,12 +429,16 @@ export interface IConnector extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
+    aggregateRoot(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
     dispatch(
       _destinationDomain: PromiseOrValue<BigNumberish>,
       _recipientAddress: PromiseOrValue<BytesLike>,
       _messageBody: PromiseOrValue<BytesLike>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
+
+    outboundRoot(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     owner(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 

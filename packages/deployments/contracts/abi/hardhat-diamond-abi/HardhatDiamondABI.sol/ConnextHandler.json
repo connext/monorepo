@@ -83,6 +83,7 @@
   "function AAVE_REFERRAL_CODE() view returns (uint16)",
   "function addConnextion(uint32,address)",
   "function addSequencer(address)",
+  "function approvedSequencers(address) view returns (bool)",
   "function bumpTransfer(bytes32) payable",
   "function connextion(uint32) view returns (address)",
   "function domain() view returns (uint32)",

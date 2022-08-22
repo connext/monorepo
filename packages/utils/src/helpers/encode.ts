@@ -10,11 +10,6 @@ import { ExternalCall, ReconciledTransaction } from "..";
  */
 export const tidy = (str: string): string => `${str.replace(/\n/g, "").replace(/ +/g, " ")}`;
 
-export const SignedSequencerPermitEncoding = tidy(`tuple(
-  bytes32 transferId,
-  address[] routers
-)`);
-
 export const SignedRouterPathEncoding = tidy(`tuple(
   bytes32 transferId,
   uint256 pathLength
@@ -40,7 +35,7 @@ export const ReconciledTransactionDataEncoding = tidy(`tuple(
  * @returns Encoded sequencer permit payload.
  */
 export const encodeSequencerPermitPayload = (transferId: string, routers: string[]): string => {
-  return defaultAbiCoder.encode([SignedSequencerPermitEncoding], [{ transferId, routers }]);
+  return defaultAbiCoder.encode(["bytes32", "address[]"], [transferId, routers]);
 };
 
 /**

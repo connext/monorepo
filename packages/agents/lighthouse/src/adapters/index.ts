@@ -1,17 +1,18 @@
 import { RequestContext } from "@connext/nxtp-utils";
 
-import { send } from "./relayer/gelato";
+import { send } from "./sequencer";
 
-export type Relayer = {
+export type Sequencer = {
   send: (
-    chainId: number,
-    destinationAddress: string,
+    transferId: string,
+    origin: string,
+    relayerFee: { amount: string; asset: string },
     encodedData: string,
     _requestContext: RequestContext,
   ) => Promise<string>;
 };
 
-export const setupRelayer = async (): Promise<Relayer> => {
+export const setupSequencer = async (): Promise<Sequencer> => {
   return {
     send,
   };

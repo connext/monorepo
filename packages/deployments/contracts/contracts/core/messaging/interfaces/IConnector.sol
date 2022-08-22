@@ -40,6 +40,10 @@ import {IProposedOwnable} from "../../shared/interfaces/IProposedOwnable.sol";
  * - bsc (use multichain for messaging)
  */
 interface IConnector is IProposedOwnable {
+  function outboundRoot() external view returns (bytes32);
+
+  function aggregateRoot() external view returns (bytes32);
+
   function sendMessage(bytes memory _data) external;
 
   function processMessage(bytes memory _data) external;

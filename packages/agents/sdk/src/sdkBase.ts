@@ -137,9 +137,9 @@ export class NxtpSdkBase {
     // All XCallArgs must be defined except for params.
     args: Omit<XCallArgs, "params"> & {
       // In params, all fields are optional (because of Partial) except for the ones listed by string literals here:
-      params: Omit<Partial<CallParams>, "to" | "originDomain" | "destinationDomain" | "agent" | "destinationMinOut"> &
+      params: Omit<Partial<CallParams>, "to" | "originDomain" | "destinationDomain" | "destinationMinOut"> &
         // This Pick is used to make these fields required to be defined. The rest are optional with default values.
-        Pick<CallParams, "to" | "originDomain" | "destinationDomain" | "agent" | "destinationMinOut">;
+        Pick<CallParams, "to" | "originDomain" | "destinationDomain" | "destinationMinOut">;
     },
   ): Promise<providers.TransactionRequest> {
     const { requestContext, methodContext } = createLoggingContext(this.xcall.name);
@@ -174,7 +174,8 @@ export class NxtpSdkBase {
       forceSlow: params.forceSlow || false,
       receiveLocal: params.receiveLocal || false,
       relayerFee: relayerFee!,
-      // agent: params.agent || constants.AddressZero,
+      // Default to using the user's signer address as the 'agent'.
+      agent: params.agent || signerAddress,
     };
 
     // Validate XCall arguments.
@@ -221,7 +222,12 @@ export class NxtpSdkBase {
       from: signerAddress,
       chainId,
     };
-    this.logger.info("XCall transaction formatted.", requestContext, methodContext, txRequest);
+    this.logger.info("XCall transaction formatted.", requestContext, methodContext, {
+      args: formattedXCallArgs,
+      to: txRequest.to,
+      from: txRequest.from,
+      value: txRequest.value?.toString(),
+    });
 
     return txRequest;
   }

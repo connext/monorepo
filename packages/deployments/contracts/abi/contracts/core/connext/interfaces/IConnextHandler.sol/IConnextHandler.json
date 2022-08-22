@@ -23,6 +23,7 @@
   "function approvedAssets(bytes32) view returns (bool)",
   "function approvedAssets(tuple(uint32,bytes32)) view returns (bool)",
   "function approvedRelayers(address) view returns (bool)",
+  "function approvedSequencers(address) view returns (bool)",
   "function assetWhitelistRemoved() view returns (bool)",
   "function assetWhitelistTimestamp() view returns (uint256)",
   "function bridgeRouter() view returns (address)",
