@@ -3,6 +3,7 @@
   "event Dispatch(bytes32 indexed,uint256 indexed,uint64 indexed,bytes32,bytes)",
   "event DoubleUpdate(bytes32,bytes32[2],bytes,bytes)",
   "event ImproperUpdate(bytes32,bytes32,bytes)",
+  "event Initialized(uint8)",
   "event NewUpdater(address,address)",
   "event NewUpdaterManager(address)",
   "event OwnershipTransferred(address indexed,address indexed)",
