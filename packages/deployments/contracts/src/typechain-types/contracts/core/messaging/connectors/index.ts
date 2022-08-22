@@ -9,6 +9,8 @@ import type * as mainnetConnectorSol from "./MainnetConnector.sol";
 export type { mainnetConnectorSol };
 import type * as optimismConnectorSol from "./OptimismConnector.sol";
 export type { optimismConnectorSol };
+import type * as polygonConnectorSol from "./PolygonConnector.sol";
+export type { polygonConnectorSol };
 export type { Connector } from "./Connector";
 export type { ConnectorManager } from "./ConnectorManager";
 export type { SendOutboundRootResolver } from "./SendOutboundRootResolver";
