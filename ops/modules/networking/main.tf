@@ -2,10 +2,11 @@ data "aws_availability_zones" "available" {}
 
 resource "aws_vpc" "main" {
   cidr_block = var.cidr_block
-  tags                       = {
+  enable_dns_hostnames = true
+  tags = {
     Environment = var.environment
-    Stage = var.stage
-    Domain = var.domain
+    Stage       = var.stage
+    Domain      = var.domain
   }
 }
 
@@ -82,9 +83,9 @@ resource "aws_security_group" "ecs_tasks" {
   vpc_id      = aws_vpc.main.id
 
   ingress {
-    protocol  = "tcp"
-    from_port = 80
-    to_port   = 80
+    protocol    = "tcp"
+    from_port   = 80
+    to_port     = 80
     cidr_blocks = ["0.0.0.0/0"]
     # security_groups = ["${aws_security_group.lb.id}"]
   }

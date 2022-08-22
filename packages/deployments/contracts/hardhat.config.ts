@@ -42,6 +42,8 @@ import "./tasks/stableswap/addSwapLiquidity";
 import "./tasks/stableswap/removeSwapLiquidity";
 import "./tasks/stableswap/setSwapFees";
 import "./tasks/setMirrorConnectors";
+import "./tasks/addConnextions";
+import "./tasks/setBridgeRouter";
 
 const urlOverride = process.env.ETH_PROVIDER_URL;
 const chainId = parseInt(process.env.CHAIN_ID ?? "1337", 10);

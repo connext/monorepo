@@ -41,7 +41,7 @@
     "@types/js-yaml": "4.0.5",
     "@types/mustache": "4.2.1",
     "@types/yaml": "1.9.7",
-    "eslint": "8.20.0",
+    "eslint": "8.22.0",
     "sinon": "14.0.0"
   },
   "stableVersion": "0.1.25"
