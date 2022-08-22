@@ -4,6 +4,7 @@ import { getContractInterfaces, ChainReader, contractDeployments } from "@connex
 import { setupSequencer } from "./adapters";
 import { getConfig } from "./config";
 import { AppContext } from "./lib/entities";
+import { bindCartographer } from "./bindings";
 
 // AppContext instance used for interacting with adapters, config, etc.
 const context: AppContext = {} as any;
@@ -47,7 +48,7 @@ export const makeLighthouse = async () => {
 
     // Set up bindings.
     context.logger.info("Bindings initialized.", requestContext, methodContext);
-    // await bindCartographer(context.config.polling.cartographer);
+    await bindCartographer(context.config.polling.cartographer);
 
     context.logger.info("Lighthouse boot complete!", requestContext, methodContext, {
       chains: [...Object.keys(context.config.chains)],
