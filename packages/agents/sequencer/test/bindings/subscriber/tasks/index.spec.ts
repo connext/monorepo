@@ -1,38 +1,40 @@
-import { expect, delay } from "@connext/nxtp-utils";
+import { expect, delay, mkBytes32 } from "@connext/nxtp-utils";
 import { stub, SinonStub } from "sinon";
 import { ctxMock, getOperationsStub } from "../../../globalTestHook";
 
-import { bindTasks } from "../../../../src/bindings/subscriber";
+import { bindTask } from "../../../../src/bindings/subscriber";
 
 describe("Bindings:Tasks", () => {
   describe("#bindTasks", () => {
-    let updateTasksStub: SinonStub;
+    let updateTaskStub: SinonStub;
 
     beforeEach(() => {
-      updateTasksStub = stub();
+      updateTaskStub = stub();
 
       getOperationsStub.returns({
         tasks: {
-          updateTasks: updateTasksStub,
+          updateTask: updateTaskStub,
         },
       });
     });
     it("should catch the error if updateTasks throws", async () => {
-      updateTasksStub.throws();
+      updateTaskStub.throws();
       ctxMock.config.mode.cleanup = false;
-      await bindTasks();
+      const mockTransferId = mkBytes32();
+      await bindTask(mockTransferId);
       await delay(1500);
       ctxMock.config.mode.cleanup = true;
-      expect(updateTasksStub.callCount).to.be.gte(1);
+      expect(updateTaskStub.callCount).to.be.gte(1);
     });
 
     it("happy: should start an interval loop that calls polling fn", async () => {
-      updateTasksStub.resolves();
+      updateTaskStub.resolves();
       ctxMock.config.mode.cleanup = false;
-      await bindTasks(10);
+      const mockTransferId = mkBytes32();
+      await bindTask(mockTransferId, 10);
       await delay(20);
       ctxMock.config.mode.cleanup = true;
-      expect(updateTasksStub.callCount).to.be.gte(1);
+      expect(updateTaskStub.callCount).to.be.gte(1);
     });
   });
 });
