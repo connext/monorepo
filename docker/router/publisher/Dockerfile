@@ -72,4 +72,4 @@ WORKDIR /home/node/packages/agents/router
 
 EXPOSE 8080
 
-CMD ["node", "--trace-warnings", "dist/publisher/index.js"]
+CMD ["node", "--trace-warnings", "dist/tasks/publisher/index.js"]

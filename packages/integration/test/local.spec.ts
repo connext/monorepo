@@ -2,8 +2,8 @@ import axios, { AxiosResponse } from "axios";
 import {
   createLoggingContext,
   Logger,
-  AuctionsApiGetAuctionStatusResponse,
-  AuctionsApiErrorResponse,
+  ExecuteFastApiGetAuctionStatusResponse,
+  SequencerApiErrorResponse,
   XCallArgs,
   CallParams,
   ERC20Abi,
@@ -603,17 +603,17 @@ describe("LOCAL:E2E", () => {
     if (sequencerUrl) {
       logger.info("Polling sequencer for auction status...");
       let error: any | undefined;
-      const status: AxiosResponse<AuctionsApiGetAuctionStatusResponse> | undefined = await pollSomething({
+      const status: AxiosResponse<ExecuteFastApiGetAuctionStatusResponse> | undefined = await pollSomething({
         attempts: Math.floor(60_000 / SUBG_POLL_PARITY),
         parity: SUBG_POLL_PARITY,
         method: async () => {
           return await axios
-            .request<AuctionsApiGetAuctionStatusResponse>({
+            .request<ExecuteFastApiGetAuctionStatusResponse>({
               method: "get",
               baseURL: sequencerUrl,
               url: `/auctions/${originTransfer.transferId}`,
             })
-            .catch((e: AxiosResponse<AuctionsApiErrorResponse>) => {
+            .catch((e: AxiosResponse<SequencerApiErrorResponse>) => {
               error = e.data ? (e.data.error ? e.data.error.message : e.data) : e;
               return undefined;
             });

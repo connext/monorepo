@@ -1,12 +1,10 @@
-import { existsSync, readFileSync, gelatoSend, isChainSupportedByGelato, getGelatoRelayerAddress } from "./shared";
-import { connextRelayerSend } from "./relayer";
+import { getGelatoRelayerAddress } from "@connext/nxtp-utils";
+import { existsSync, readFileSync } from "./shared";
+
 export const getHelpers = () => {
   return {
     relayer: {
-      gelatoSend,
-      isChainSupportedByGelato,
       getGelatoRelayerAddress,
-      connextRelayerSend,
     },
     shared: {
       existsSync,

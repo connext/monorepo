@@ -1,4 +1,4 @@
-import { stub, restore, reset, SinonStub } from "sinon";
+import { stub, SinonStub } from "sinon";
 import { mkAddress, expect, XTransfer } from "@connext/nxtp-utils";
 
 import { mock } from "../../mock";
@@ -85,6 +85,18 @@ describe("Adapters: Gelato", () => {
       ).to.eventually.be.rejectedWith(RelayerSendFailed);
     });
 
+    it("should throw if the chain isn't supported by gelato", () => {
+      isChainSupportedByGelatoStub.resolves(false);
+      expect(
+        send(
+          Number(mock.chain.A),
+          ctxMock.config.chains[mock.domain.A].deployments.connext,
+          "0xbeed",
+          loggingContext.requestContext,
+        ),
+      ).to.eventually.be.rejectedWith(Error);
+    });
+
     it("should send the bid to the relayer", async () => {
       const taskId = await send(
         Number(mock.chain.A),
@@ -92,7 +104,6 @@ describe("Adapters: Gelato", () => {
         "0xbeed",
         loggingContext.requestContext,
       );
-      console.log("taskId: ", taskId);
       expect(gelatoSendStub).to.be.calledOnce;
       expect(taskId).to.eq(mockAxiosSuccessResponse.taskId);
     });
