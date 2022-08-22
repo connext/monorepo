@@ -4,7 +4,7 @@
   "function acceptProposedOwner()",
   "function dispatch(uint32,bytes32,bytes)",
   "function owner() view returns (address)",
-  "function processMessage(address,bytes)",
+  "function processMessage(bytes)",
   "function proposeNewOwner(address)",
   "function proposed() view returns (address)",
   "function proveAndProcess(bytes,bytes32[32],uint256)",

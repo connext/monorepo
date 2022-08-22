@@ -32,7 +32,7 @@ export interface IConnectorInterface extends utils.Interface {
     "acceptProposedOwner()": FunctionFragment;
     "dispatch(uint32,bytes32,bytes)": FunctionFragment;
     "owner()": FunctionFragment;
-    "processMessage(address,bytes)": FunctionFragment;
+    "processMessage(bytes)": FunctionFragment;
     "proposeNewOwner(address)": FunctionFragment;
     "proposed()": FunctionFragment;
     "proveAndProcess(bytes,bytes32[32],uint256)": FunctionFragment;
@@ -70,7 +70,7 @@ export interface IConnectorInterface extends utils.Interface {
   encodeFunctionData(functionFragment: "owner", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "processMessage",
-    values: [PromiseOrValue<string>, PromiseOrValue<BytesLike>]
+    values: [PromiseOrValue<BytesLike>]
   ): string;
   encodeFunctionData(
     functionFragment: "proposeNewOwner",
@@ -197,7 +197,6 @@ export interface IConnector extends BaseContract {
     owner(overrides?: CallOverrides): Promise<[string] & { owner_: string }>;
 
     processMessage(
-      _sender: PromiseOrValue<string>,
       _data: PromiseOrValue<BytesLike>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
@@ -247,7 +246,6 @@ export interface IConnector extends BaseContract {
   owner(overrides?: CallOverrides): Promise<string>;
 
   processMessage(
-    _sender: PromiseOrValue<string>,
     _data: PromiseOrValue<BytesLike>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
@@ -293,7 +291,6 @@ export interface IConnector extends BaseContract {
     owner(overrides?: CallOverrides): Promise<string>;
 
     processMessage(
-      _sender: PromiseOrValue<string>,
       _data: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
     ): Promise<void>;
@@ -358,7 +355,6 @@ export interface IConnector extends BaseContract {
     owner(overrides?: CallOverrides): Promise<BigNumber>;
 
     processMessage(
-      _sender: PromiseOrValue<string>,
       _data: PromiseOrValue<BytesLike>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
@@ -407,7 +403,6 @@ export interface IConnector extends BaseContract {
     owner(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     processMessage(
-      _sender: PromiseOrValue<string>,
       _data: PromiseOrValue<BytesLike>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;

@@ -51,7 +51,7 @@ export interface OptimismL2ConnectorInterface extends utils.Interface {
     "nonces(uint32)": FunctionFragment;
     "outboundRoot()": FunctionFragment;
     "owner()": FunctionFragment;
-    "processMessage(address,bytes)": FunctionFragment;
+    "processMessage(bytes)": FunctionFragment;
     "proposeNewOwner(address)": FunctionFragment;
     "proposed()": FunctionFragment;
     "proposedTimestamp()": FunctionFragment;
@@ -184,7 +184,7 @@ export interface OptimismL2ConnectorInterface extends utils.Interface {
   encodeFunctionData(functionFragment: "owner", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "processMessage",
-    values: [PromiseOrValue<string>, PromiseOrValue<BytesLike>]
+    values: [PromiseOrValue<BytesLike>]
   ): string;
   encodeFunctionData(
     functionFragment: "proposeNewOwner",
@@ -340,7 +340,7 @@ export interface OptimismL2ConnectorInterface extends utils.Interface {
 
   events: {
     "Dispatch(bytes32,uint256,bytes32,bytes)": EventFragment;
-    "MessageProcessed(address,bytes,address)": EventFragment;
+    "MessageProcessed(bytes,address)": EventFragment;
     "MessageSent(bytes,address)": EventFragment;
     "MirrorConnectorUpdated(address,address)": EventFragment;
     "OwnershipProposed(address)": EventFragment;
@@ -375,12 +375,11 @@ export type DispatchEvent = TypedEvent<
 export type DispatchEventFilter = TypedEventFilter<DispatchEvent>;
 
 export interface MessageProcessedEventObject {
-  from: string;
   data: string;
   caller: string;
 }
 export type MessageProcessedEvent = TypedEvent<
-  [string, string, string],
+  [string, string],
   MessageProcessedEventObject
 >;
 
@@ -550,7 +549,6 @@ export interface OptimismL2Connector extends BaseContract {
     owner(overrides?: CallOverrides): Promise<[string]>;
 
     processMessage(
-      _sender: PromiseOrValue<string>,
       _data: PromiseOrValue<BytesLike>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
@@ -682,7 +680,6 @@ export interface OptimismL2Connector extends BaseContract {
   owner(overrides?: CallOverrides): Promise<string>;
 
   processMessage(
-    _sender: PromiseOrValue<string>,
     _data: PromiseOrValue<BytesLike>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
@@ -810,7 +807,6 @@ export interface OptimismL2Connector extends BaseContract {
     owner(overrides?: CallOverrides): Promise<string>;
 
     processMessage(
-      _sender: PromiseOrValue<string>,
       _data: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
     ): Promise<void>;
@@ -886,16 +882,11 @@ export interface OptimismL2Connector extends BaseContract {
       message?: null
     ): DispatchEventFilter;
 
-    "MessageProcessed(address,bytes,address)"(
-      from?: null,
+    "MessageProcessed(bytes,address)"(
       data?: null,
       caller?: null
     ): MessageProcessedEventFilter;
-    MessageProcessed(
-      from?: null,
-      data?: null,
-      caller?: null
-    ): MessageProcessedEventFilter;
+    MessageProcessed(data?: null, caller?: null): MessageProcessedEventFilter;
 
     "MessageSent(bytes,address)"(
       data?: null,
@@ -1007,7 +998,6 @@ export interface OptimismL2Connector extends BaseContract {
     owner(overrides?: CallOverrides): Promise<BigNumber>;
 
     processMessage(
-      _sender: PromiseOrValue<string>,
       _data: PromiseOrValue<BytesLike>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
@@ -1138,7 +1128,6 @@ export interface OptimismL2Connector extends BaseContract {
     owner(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     processMessage(
-      _sender: PromiseOrValue<string>,
       _data: PromiseOrValue<BytesLike>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
