@@ -9,3 +9,4 @@ import type * as optimismConnectorSol from "./OptimismConnector.sol";
 export type { optimismConnectorSol };
 export type { Connector } from "./Connector";
 export type { ConnectorManager } from "./ConnectorManager";
+export type { SendOutboundRootResolver } from "./SendOutboundRootResolver";

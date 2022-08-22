@@ -15,7 +15,7 @@ import { compare } from "compare-versions";
 import { AuctionExpired, MissingXCall, ParamsInvalid, BidVersionInvalid } from "../errors";
 import { getContext } from "../../sequencer";
 import { getHelpers } from "../helpers";
-import { Message } from "../entities";
+import { Message, MessageType } from "../entities";
 
 import { getOperations } from ".";
 
@@ -42,10 +42,10 @@ export const storeBid = async (bid: Bid, _requestContext: RequestContext): Promi
   }
 
   // check if bid router version is compatible with hosted sequencer
-  const checkVersion = compare(bid.routerVersion, config.supportedBidVersion!, "<");
+  const checkVersion = compare(bid.routerVersion, config.supportedVersion!, "<");
   if (checkVersion) {
     throw new BidVersionInvalid({
-      supportedBidVersion: config.supportedBidVersion,
+      supportedVersion: config.supportedVersion,
       bid,
     });
   }
@@ -100,7 +100,12 @@ export const storeBid = async (bid: Bid, _requestContext: RequestContext): Promi
 
   // Enqueue only once to dedup, when the first bid for the transfer is stored.
   if (status === AuctionStatus.None) {
-    const message: Message = { transferId: transfer.transferId, originDomain: transfer.xparams!.originDomain };
+    const message: Message = {
+      transferId: transfer.transferId,
+      originDomain: transfer.xparams!.originDomain,
+      type: MessageType.ExecuteFast,
+    };
+
     await mqClient.publish(config.messageQueue.publisher!, {
       type: transfer.xparams!.originDomain,
       body: message,
@@ -128,7 +133,7 @@ export const executeAuction = async (transferId: string, _requestContext: Reques
   } = getContext();
   // TODO: Bit of an antipattern here.
   const {
-    relayer: { sendToRelayer },
+    relayer: { sendExecuteFastToRelayer },
   } = getOperations();
   const {
     auctions: { getDestinationLocalAsset, getBidsRoundMap, getAllSubsets, getMinimumBidsCountForRound },
@@ -306,7 +311,7 @@ export const executeAuction = async (transferId: string, _requestContext: Reques
           },
         });
         // Send the relayer request based on chosen bids.
-        taskId = await sendToRelayer(roundIdInNum, randomCombination, transfer, asset, requestContext);
+        taskId = await sendExecuteFastToRelayer(roundIdInNum, randomCombination, transfer, asset, requestContext);
         logger.info("Sent bid to relayer", requestContext, methodContext, {
           transferId,
           taskId,

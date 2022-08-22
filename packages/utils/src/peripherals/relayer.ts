@@ -1,5 +1,5 @@
 import axios from "axios";
-import { BigNumber } from "ethers";
+import { BigNumber, constants } from "ethers";
 
 import { Logger } from "../logging";
 import {
@@ -9,6 +9,7 @@ import {
   NxtpError,
   RelayerApiPostTaskResponse,
 } from "../types";
+import { GelatoTaskState } from "../types/relayer";
 
 /// MARK - Gelato Relay API
 /// Docs: https://relay.gelato.digital/api-docs/
@@ -46,7 +47,7 @@ export const isChainSupportedByGelato = async (chainId: number): Promise<boolean
 };
 
 export const getGelatoRelayerAddress = async (chainId: number, logger?: Logger): Promise<string> => {
-  let result = [];
+  let result = constants.AddressZero;
   try {
     const res = await axios.get(`${GELATO_SERVER}/relays/${chainId}/address`);
     result = res.data.address;
@@ -148,6 +149,26 @@ export const getConversionRate = async (_chainId: number, to?: string, logger?: 
   } catch (error: unknown) {
     if (logger) logger.error("Error in getConversionRate", undefined, undefined, jsonifyError(error as Error));
   }
+  return result;
+};
+
+/**
+ * Gets the task status for a given taskId from gelato api
+ * @param taskId - The task Id we want to get the status for
+ * @param logger - Logger Instance
+ * @returns - GelatoTaskState
+ */
+export const getGelatoTaskStatus = async (taskId: string, logger?: Logger): Promise<GelatoTaskState> => {
+  let result = GelatoTaskState.NotFound;
+  try {
+    const apiEndpoint = `${GELATO_SERVER}/tasks/${taskId}`;
+    const res = await axios.get(apiEndpoint);
+    result = res.data[0]?.taskState as GelatoTaskState;
+  } catch (error: unknown) {
+    if (logger) logger.error("Error in getGelatoTaskStatus", undefined, undefined, jsonifyError(error as Error));
+    else console.log("Error in gelatoTaskStatus, error: ", error);
+  }
+
   return result;
 };
 

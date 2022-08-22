@@ -16,10 +16,10 @@ import { StoreManager } from "@connext/nxtp-adapters-cache";
 import { ChainReader, getContractInterfaces, contractDeployments } from "@connext/nxtp-txservice";
 import { Web3Signer } from "@connext/nxtp-adapters-web3signer";
 
-import { SequencerConfig } from "./lib/entities";
+import { MessageType, SequencerConfig } from "./lib/entities";
 import { getConfig } from "./config";
 import { AppContext } from "./lib/entities/context";
-import { bindHealthServer, bindSubscriber } from "./bindings/subscriber";
+import { bindHealthServer, bindSubscriber, bindTasks } from "./bindings/subscriber";
 import { bindServer } from "./bindings/publisher";
 import { setupRelayer } from "./adapters";
 import { getHelpers } from "./lib/helpers";
@@ -106,6 +106,7 @@ export const makeSubscriber = async (_configOverride?: SequencerConfig) => {
 
     // Create health server, set up routes, and start listening.
     await bindHealthServer();
+    await bindTasks(15_000);
   } catch (error: any) {
     console.error("Error starting subscriber :'(", error);
     Broker.close();
@@ -123,10 +124,12 @@ export const makeSubscriber = async (_configOverride?: SequencerConfig) => {
 export const execute = async (_configOverride?: SequencerConfig) => {
   const {
     auctions: { executeAuction },
+    executor: { executeSlowPathData },
   } = getOperations();
   try {
     // Transfer ID is a CLI argument. Always provided by the parent
     const transferId = process.argv[2];
+    const messageType = process.argv[3];
     const { requestContext, methodContext } = createLoggingContext(execute.name, undefined, transferId);
 
     context.adapters = {} as any;
@@ -135,7 +138,12 @@ export const execute = async (_configOverride?: SequencerConfig) => {
     // TODO: Setting up the context every time for this execution is non-ideal.
     await setupContext(requestContext, methodContext, _configOverride);
 
-    await executeAuction(transferId, requestContext);
+    if (messageType == MessageType.ExecuteFast) {
+      await executeAuction(transferId, requestContext);
+    } else if (messageType == MessageType.ExecuteSlow) {
+      await executeSlowPathData(transferId, messageType, requestContext);
+    }
+
     context.logger.info("Executed", requestContext, methodContext, { transferId: transferId });
   } catch (error: any) {
     const { requestContext, methodContext } = createLoggingContext(execute.name);
