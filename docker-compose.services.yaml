@@ -34,7 +34,7 @@ services:
     image: ${ROUTER_SUBSCRIBER_IMAGE}
     restart: always
     ports:
-      - "8881:8080"
+      - "8080"
     volumes:
       - ${PWD}/docker/router/subscriber/:/home/node/agents/subscriber/
       - ${PWD}/docker/router/config.local.json:/home/node/packages/agents/router/config.json
@@ -96,7 +96,7 @@ services:
     image: ${SEQUENCER_SUBSCRIBER_IMAGE}
     restart: always
     ports:
-      - "8883:8081"
+      - "8081"
     volumes:
       - ${PWD}/docker/sequencer/:/home/node/agents/sequencer/
       - ${PWD}/docker/sequencer/config.local.json:/home/node/packages/agents/sequencer/config.json
