@@ -100,14 +100,14 @@ export const storeExecutorData = async (executorData: ExecutorData, _requestCont
     throw new GasEstimationFailed({ transferId, executorData });
   }
 
-  // Ensure that the lighthouse data for this transfer hasn't expired.
+  // Ensure that the executor data for this transfer hasn't expired.
   const status = await cache.executors.getExecutorDataStatus(transferId);
   if (status === ExecutorDataStatus.Completed) {
     throw new ExecuteSlowCompleted({ transferId });
   } else if (status === ExecutorDataStatus.None) {
     await cache.executors.setExecutorDataStatus(transferId, ExecutorDataStatus.Pending);
     await cache.executors.storeExecutorData(executorData);
-    logger.info("Created a lighthouse tx", requestContext, methodContext, { transferId, executorData });
+    logger.info("Created a executor tx", requestContext, methodContext, { transferId, executorData });
 
     const message: Message = {
       transferId: transfer.transferId,
@@ -125,11 +125,11 @@ export const storeExecutorData = async (executorData: ExecutorData, _requestCont
       message: message,
     });
   } else {
-    // The lighthouse data status here is Pending/Cancelled.
+    // The executor data status here is Pending/Cancelled.
     // If Cancelled, fallback processor would work so lets just keep it storing
     // If Pending, the data needs to be stored in the cache as a backup item
     const res = await cache.executors.storeBackupData(executorData);
-    logger.info("Stored a lighthouse data in the backup cache", requestContext, methodContext, {
+    logger.info("Stored a executor data in the backup cache", requestContext, methodContext, {
       executorData,
       result: res == 2 ? "Skipped" : "Saved",
     });
@@ -137,7 +137,7 @@ export const storeExecutorData = async (executorData: ExecutorData, _requestCont
 };
 
 /**
- * Send any slow-path data from the lighthouse to the relayer directly once sanity checks passes
+ * Send any slow-path data from the executor to the relayer directly once sanity checks passes
  * @param transferId - The transfer id you're gonna send
  * @param _requestContext - The parant request context instance
  */
@@ -145,7 +145,7 @@ export const executeSlowPathData = async (
   transferId: string,
   type: string,
   _requestContext: RequestContext,
-): Promise<void> => {
+): Promise<ExecutorDataStatus> => {
   const {
     logger,
     adapters: { cache },
@@ -191,12 +191,16 @@ export const executeSlowPathData = async (
       if (taskId) break;
     }
   }
-
+  let executorDataStatus = ExecutorDataStatus.Pending;
   if (taskId) {
-    await cache.executors.setExecutorDataStatus(transferId, ExecutorDataStatus.Sent);
+    executorDataStatus = ExecutorDataStatus.Sent;
+    await cache.executors.setExecutorDataStatus(transferId, executorDataStatus);
     await cache.executors.upsertTask({ transferId, taskId });
   } else {
+    executorDataStatus = ExecutorDataStatus.None;
     // Prunes all the executor data for a given transferId
     await cache.executors.pruneExecutorData(transferId);
   }
+
+  return executorDataStatus;
 };

@@ -9,6 +9,7 @@ import {
   jsonifyError,
   BaseRequestContext,
   MethodContext,
+  ExecutorDataStatus,
 } from "@connext/nxtp-utils";
 import Broker from "foo-foo-mq";
 import { SubgraphReader } from "@connext/nxtp-adapters-subgraph";
@@ -19,7 +20,7 @@ import { Web3Signer } from "@connext/nxtp-adapters-web3signer";
 import { MessageType, SequencerConfig } from "./lib/entities";
 import { getConfig } from "./config";
 import { AppContext } from "./lib/entities/context";
-import { bindHealthServer, bindSubscriber, bindTasks } from "./bindings/subscriber";
+import { bindHealthServer, bindSubscriber, bindTask } from "./bindings/subscriber";
 import { bindServer } from "./bindings/publisher";
 import { setupRelayer } from "./adapters";
 import { getHelpers } from "./lib/helpers";
@@ -106,7 +107,6 @@ export const makeSubscriber = async (_configOverride?: SequencerConfig) => {
 
     // Create health server, set up routes, and start listening.
     await bindHealthServer();
-    await bindTasks(15_000);
   } catch (error: any) {
     console.error("Error starting subscriber :'(", error);
     Broker.close();
@@ -140,17 +140,55 @@ export const execute = async (_configOverride?: SequencerConfig) => {
 
     if (messageType == MessageType.ExecuteFast) {
       await executeAuction(transferId, requestContext);
+      context.logger.info("Executed fast path transfer", requestContext, methodContext, { transferId: transferId });
+      process.exit();
     } else if (messageType == MessageType.ExecuteSlow) {
-      await executeSlowPathData(transferId, messageType, requestContext);
+      const executorDataStatus = await executeSlowPathData(transferId, messageType, requestContext);
+      if (executorDataStatus === ExecutorDataStatus.Sent) {
+        context.logger.info("Binding a task", requestContext, methodContext, { transferId });
+        await bindTask(transferId, 15_000);
+      } else {
+        context.logger.info("Executed slow path transfer", requestContext, methodContext, {
+          transferId: transferId,
+          status: executorDataStatus,
+        });
+      }
     }
-
-    context.logger.info("Executed", requestContext, methodContext, { transferId: transferId });
   } catch (error: any) {
     const { requestContext, methodContext } = createLoggingContext(execute.name);
     context.logger.error("Error executing:", requestContext, methodContext, jsonifyError(error as Error));
     process.exit(1);
   }
-  process.exit();
+};
+
+/// MARK - Task Poller
+/**
+ * This is used to fetch the relayer task status from the API and update its status in the cache
+ * @param _configOverride - Overrides for configuration; normally only used for testing.
+ */
+export const taskPoller = async (_configOverride?: SequencerConfig) => {
+  try {
+    const transferId = process.env[1];
+
+    const { requestContext, methodContext } = createLoggingContext(taskPoller.name);
+    context.adapters = {} as any;
+    await setupContext(requestContext, methodContext, _configOverride);
+    if (!transferId) {
+      context.logger.error(`Invalid argument, transferId: ${transferId}`);
+      process.exit(1);
+    }
+
+    await bindTask(transferId, 15_000);
+  } catch (error: any) {
+    const { requestContext, methodContext } = createLoggingContext(execute.name);
+    context.logger.error(
+      "Error fetching the task status:",
+      requestContext,
+      methodContext,
+      jsonifyError(error as Error),
+    );
+    process.exit(1);
+  }
 };
 
 /// MARK - Context Setup

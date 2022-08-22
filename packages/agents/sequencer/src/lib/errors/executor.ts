@@ -41,3 +41,9 @@ export class ExecuteSlowCompleted extends NxtpError {
     super("Slow transfer got already completed", context, ExecuteSlowCompleted.name);
   }
 }
+
+export class NoGelatoTask extends NxtpError {
+  constructor(context: any = {}) {
+    super("Should be sent to the gelato first", context, NoGelatoTask.name);
+  }
+}
