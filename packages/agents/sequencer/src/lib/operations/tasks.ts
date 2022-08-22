@@ -1,4 +1,4 @@
-import { createLoggingContext, ExecutorDataStatus, MetaTxTask, RelayerTaskStatus } from "@connext/nxtp-utils";
+import { createLoggingContext, ExecutorDataStatus } from "@connext/nxtp-utils";
 import { GelatoTaskState } from "@connext/nxtp-utils/dist/types/relayer";
 import { getContext } from "../../sequencer";
 import { NoGelatoTask } from "../errors";
