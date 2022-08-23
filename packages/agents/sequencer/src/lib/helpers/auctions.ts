@@ -4,7 +4,6 @@ import {
   OriginTransfer,
   getMinimumBidsCountForRound as _getMinimumBidsCountForRound,
   signSequencerPermitPayload as _signSequencerPermitPayload,
-  Logger,
   createLoggingContext,
 } from "@connext/nxtp-utils";
 import { constants } from "ethers";

@@ -11,7 +11,6 @@ import {
   MethodContext,
   NxtpError,
   RelayerTaskStatus,
-  RelayerType,
 } from "@connext/nxtp-utils";
 import Broker from "foo-foo-mq";
 import { SubgraphReader } from "@connext/nxtp-adapters-subgraph";

@@ -17,7 +17,6 @@ import { AuctionExpired, MissingXCall, ParamsInvalid, BidVersionInvalid } from "
 import { getContext } from "../../../sequencer";
 import { getHelpers } from "../../helpers";
 import { Message, MessageType } from "../../entities";
-
 import { getOperations } from "..";
 
 export const storeFastPathData = async (bid: Bid, _requestContext: RequestContext): Promise<void> => {
@@ -384,7 +383,7 @@ export const executeFastPathData = async (
     });
 
     await cache.auctions.setExecStatus(transferId, ExecStatus.Sent);
-    await cache.auctions.upsertMetaTxTask({ transferId, taskId, relayer: relayer! });
+    await cache.auctions.upsertMetaTxTask({ transferId, taskId, relayer: relayer });
 
     return { taskId, relayer };
   }

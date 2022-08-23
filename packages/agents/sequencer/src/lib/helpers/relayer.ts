@@ -6,7 +6,6 @@ import {
   getTaskStatusFromBackupRelayer as _getTaskStatusFromBackupRelayer,
   connextRelayerSend as _connextRelayerSend,
 } from "@connext/nxtp-utils";
-import { getContext } from "../../sequencer";
 
 export const gelatoSend = _gelatoSend;
 
