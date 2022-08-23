@@ -132,7 +132,7 @@ export const execute = async (_configOverride?: SequencerConfig) => {
   try {
     // Transfer ID is a CLI argument. Always provided by the parent
     const transferId = process.argv[2];
-    const messageType = process.argv[3];
+    const messageType = process.argv[3] as MessageType;
     const { requestContext, methodContext } = createLoggingContext(execute.name, undefined, transferId);
 
     context.adapters = {} as any;

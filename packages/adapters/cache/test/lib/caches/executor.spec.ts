@@ -41,7 +41,7 @@ describe("ExecutorCache", () => {
 
   describe("#storeSlowPathData", () => {
     it("happy: should store lighthosue data successfully", async () => {
-      await cache.storeSlowPathData(mockData1);
+      await cache.storeExecutorData(mockData1);
       const mockTransferId = mockData1.transferId;
       const lightHouseData = await cache.getExecutorData(mockTransferId);
       expect(lightHouseData).to.be.deep.eq(mockData1);
@@ -58,7 +58,7 @@ describe("ExecutorCache", () => {
       const mockTransferId = mockData1.transferId;
       let lightHouseData = await cache.getExecutorData(mockTransferId);
       expect(lightHouseData).to.be.undefined;
-      await cache.storeSlowPathData(mockData1);
+      await cache.storeExecutorData(mockData1);
       lightHouseData = await cache.getExecutorData(mockTransferId);
       expect(lightHouseData).to.be.deep.eq(mockData1);
     });
@@ -123,7 +123,7 @@ describe("ExecutorCache", () => {
 
   describe("#pruneExecutorData", () => {
     it("happy", async () => {
-      await cache.storeSlowPathData(mockData1);
+      await cache.storeExecutorData(mockData1);
       await cache.storeBackupData(mockData2);
       await cache.setExecStatus(mockTransferId, ExecStatus.Queued);
       await cache.pruneExecutorData(mockTransferId);

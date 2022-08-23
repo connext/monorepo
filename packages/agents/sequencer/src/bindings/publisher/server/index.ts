@@ -101,7 +101,7 @@ export const bindServer = async (): Promise<FastifyInstance> => {
     },
     async (request, response) => {
       const {
-        auctions: { storeFastPathData },
+        execute: { storeFastPathData },
       } = getOperations();
       const { requestContext } = createLoggingContext("POST /execute-fast/:transferId endpoint", undefined, "");
       try {
@@ -152,7 +152,7 @@ export const bindServer = async (): Promise<FastifyInstance> => {
     async (request, response) => {
       const { requestContext } = createLoggingContext("POST /execute-slow endpoint");
       const {
-        executor: { storeSlowPathData },
+        execute: { storeSlowPathData },
       } = getOperations();
       try {
         const executorData = request.body;

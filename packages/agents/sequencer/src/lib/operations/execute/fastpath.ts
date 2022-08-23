@@ -140,7 +140,7 @@ export const executeFastPathData = async (
     relayer: { sendExecuteFastToRelayer },
   } = getOperations();
   let taskId: string | undefined;
-  let relayer: RelayerType | undefined;
+  let relayer: RelayerType = RelayerType.Gelato;
   const {
     auctions: { getDestinationLocalAsset, getBidsRoundMap, getAllSubsets, getMinimumBidsCountForRound },
   } = getHelpers();
@@ -383,7 +383,7 @@ export const executeFastPathData = async (
     });
 
     await cache.auctions.setStatus(transferId, ExecStatus.Sent);
-    await cache.auctions.upsertMetaTxTask({ transferId, taskId, relayer });
+    await cache.auctions.upsertMetaTxTask({ transferId, taskId, relayer: relayer! });
 
     return { taskId, relayer };
   }

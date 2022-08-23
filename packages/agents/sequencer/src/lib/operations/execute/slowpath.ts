@@ -107,7 +107,7 @@ export const storeSlowPathData = async (executorData: ExecutorData, _requestCont
     throw new ExecuteSlowCompleted({ transferId });
   } else if (status === ExecStatus.None) {
     await cache.executors.setExecStatus(transferId, ExecStatus.Queued);
-    await cache.executors.storeSlowPathData(executorData);
+    await cache.executors.storeExecutorData(executorData);
     logger.info("Created a executor tx", requestContext, methodContext, { transferId, executorData });
 
     const message: Message = {

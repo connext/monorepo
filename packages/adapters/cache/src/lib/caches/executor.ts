@@ -21,7 +21,7 @@ export class ExecutorCache extends Cache {
    * @param params - Executor data to store
    * @returns 1 if added, 0 if updated.
    */
-  public async storeSlowPathData(params: ExecutorData): Promise<number> {
+  public async storeExecutorData(params: ExecutorData): Promise<number> {
     const key = `${this.prefix}:data`;
     return await this.data.hset(key, params.transferId, JSON.stringify(params));
   }
