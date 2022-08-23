@@ -16,9 +16,9 @@ output "router-executor-dns" {
   value = module.router_executor.daemon_service_name
 }
 
-output "lighthouse-dns" {
-  value = module.lighthouse.daemon_service_name
-}
+# output "lighthouse-dns" {
+#   value = module.lighthouse.daemon_service_name
+# }
 
 
 output "sequencer-publisher-service-endpoint" {
@@ -41,9 +41,9 @@ output "router-subscriber-service-endpoint" {
   value = module.router_executor.service_endpoint
 }
 
-output "lighthouse-service-name" {
-  value = module.lighthouse.daemon_service_name
-}
+# output "lighthouse-service-name" {
+#   value = module.lighthouse.daemon_service_name
+# }
 
 output "rmq-management-endpoint" {
   value = module.centralised_message_queue.aws_mq_broker_console
