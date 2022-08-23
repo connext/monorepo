@@ -5,7 +5,7 @@ import { updateTask } from "../../../src/lib/operations/tasks";
 import { ctxMock, getHelpersStub } from "../../globalTestHook";
 
 describe("Operations:Tasks", () => {
-  let getGelatoTaskStatusStub: SinonStub;
+  let getTaskStatusFromGelatoStub: SinonStub;
   let getSentTransfersStub: SinonStub;
   let getTaskStub: SinonStub;
   let setExecStatusStub: SinonStub;
@@ -13,7 +13,7 @@ describe("Operations:Tasks", () => {
   let pruneExecutorDataStub: SinonStub;
   beforeEach(() => {
     const { executors } = ctxMock.adapters.cache;
-    getGelatoTaskStatusStub = stub();
+    getTaskStatusFromGelatoStub = stub();
     getSentTransfersStub = stub(executors, "getSentTransfers");
     getTaskStub = stub(executors, "getTask");
     setExecStatusStub = stub(executors, "setExecStatus");
@@ -22,7 +22,7 @@ describe("Operations:Tasks", () => {
 
     getHelpersStub.returns({
       relayer: {
-        getGelatoTaskStatus: getGelatoTaskStatusStub,
+        getTaskStatusFromGelato: getTaskStatusFromGelatoStub,
       },
     });
   });
@@ -38,13 +38,13 @@ describe("Operations:Tasks", () => {
 
       getExecStatusStub.resolves(ExecStatus.Sent);
       getTaskStub.resolves(mockMetaTxTask);
-      getGelatoTaskStatusStub.resolves(RelayerTaskStatus.ExecSuccess);
+      getTaskStatusFromGelatoStub.resolves(RelayerTaskStatus.ExecSuccess);
       setExecStatusStub.resolves();
       pruneExecutorDataStub.resolves();
       await updateTask(mockTransferId1);
       expect(getExecStatusStub.callCount).to.be.eq(1);
       expect(getTaskStub.callCount).to.be.eq(1);
-      expect(getGelatoTaskStatusStub.callCount).to.be.eq(1);
+      expect(getTaskStatusFromGelatoStub.callCount).to.be.eq(1);
       expect(setExecStatusStub.callCount).to.be.eq(1);
       expect(pruneExecutorDataStub.callCount).to.be.eq(1);
     });

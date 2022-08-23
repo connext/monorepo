@@ -1,4 +1,4 @@
-import { Bid, getNtpTimeSeconds, Auction, ExecStatus, MetaTxTask } from "@connext/nxtp-utils";
+import { Bid, getNtpTimeSeconds, Auction, ExecStatus, MetaTxTask, RelayerType } from "@connext/nxtp-utils";
 
 import { Cache } from "./cache";
 
@@ -89,12 +89,21 @@ export class AuctionsCache extends Cache {
    *
    * @returns 0 if updated, 1 if created
    */
-  public async upsertTask({ transferId, taskId }: { transferId: string; taskId: string }): Promise<number> {
+  public async upsertTask({
+    transferId,
+    taskId,
+    relayer,
+  }: {
+    transferId: string;
+    taskId: string;
+    relayer: RelayerType;
+  }): Promise<number> {
     const existing = await this.getTask(transferId);
     const task: MetaTxTask = {
       // We update the timestamp each time here; it is intended to reflect when the *last* meta tx was sent.
       timestamp: getNtpTimeSeconds().toString(),
       taskId,
+      relayer,
       attempts: existing ? existing.attempts + 1 : 1,
     };
     const res = await this.data.hset(`${this.prefix}:task`, transferId, JSON.stringify(task));

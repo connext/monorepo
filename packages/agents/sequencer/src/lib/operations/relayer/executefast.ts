@@ -1,5 +1,12 @@
 import { constants } from "ethers";
-import { RequestContext, createLoggingContext, Bid, connextRelayerSend, OriginTransfer } from "@connext/nxtp-utils";
+import {
+  RequestContext,
+  createLoggingContext,
+  Bid,
+  connextRelayerSend,
+  OriginTransfer,
+  RelayerType,
+} from "@connext/nxtp-utils";
 
 import { getContext } from "../../../sequencer";
 import { getHelpers } from "../../helpers";
@@ -10,7 +17,7 @@ export const sendExecuteFastToRelayer = async (
   transfer: OriginTransfer,
   local: string,
   _requestContext: RequestContext,
-): Promise<string> => {
+): Promise<{ taskId: string; relayer: RelayerType }> => {
   const {
     logger,
     chainData,
@@ -58,7 +65,7 @@ export const sendExecuteFastToRelayer = async (
         taskId,
         transferId: transfer.transferId,
       });
-      return taskId;
+      return { taskId, relayer: RelayerType.Backup };
     } catch (error: unknown) {
       logger.warn("Failed to send meta transaction to Connext relayer", requestContext, methodContext, {
         transferId: transfer.transferId,
@@ -94,5 +101,5 @@ export const sendExecuteFastToRelayer = async (
   });
 
   const taskId = await relayer.send(destinationChainId, destinationConnextAddress, encodedData, _requestContext);
-  return taskId;
+  return { taskId, relayer: RelayerType.Gelato };
 };

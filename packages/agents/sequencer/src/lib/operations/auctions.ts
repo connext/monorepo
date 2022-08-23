@@ -9,6 +9,7 @@ import {
   getNtpTimeSeconds,
   jsonifyError,
   OriginTransfer,
+  RelayerType,
 } from "@connext/nxtp-utils";
 import { compare } from "compare-versions";
 
@@ -125,7 +126,7 @@ export const storeBid = async (bid: Bid, _requestContext: RequestContext): Promi
   return;
 };
 
-export const executeAuction = async (
+export const executeFastPathData = async (
   transferId: string,
   _requestContext: RequestContext,
 ): Promise<string | undefined> => {
@@ -139,11 +140,12 @@ export const executeAuction = async (
     relayer: { sendExecuteFastToRelayer },
   } = getOperations();
   let taskId: string | undefined;
+  let relayer: RelayerType = RelayerType.Gelato;
   const {
     auctions: { getDestinationLocalAsset, getBidsRoundMap, getAllSubsets, getMinimumBidsCountForRound },
   } = getHelpers();
-  const { requestContext, methodContext } = createLoggingContext(executeAuction.name, _requestContext);
-  logger.debug(`Method start: ${executeAuction.name}`, requestContext, methodContext);
+  const { requestContext, methodContext } = createLoggingContext(executeFastPathData.name, _requestContext);
+  logger.debug(`Method start: ${executeFastPathData.name}`, requestContext, methodContext);
 
   if (!transferId) {
     logger.debug("No auction to execute", requestContext, methodContext);
@@ -314,10 +316,19 @@ export const executeAuction = async (
           },
         });
         // Send the relayer request based on chosen bids.
-        taskId = await sendExecuteFastToRelayer(roundIdInNum, randomCombination, transfer, asset, requestContext);
+        const { taskId: _taskId, relayer: _relayer } = await sendExecuteFastToRelayer(
+          roundIdInNum,
+          randomCombination,
+          transfer,
+          asset,
+          requestContext,
+        );
+        taskId = _taskId;
+        relayer = _relayer;
         logger.info("Sent bid to relayer", requestContext, methodContext, {
           transferId,
           taskId,
+          relayer,
           origin,
           destination,
         });
@@ -372,7 +383,7 @@ export const executeAuction = async (
     });
 
     await cache.auctions.setStatus(transferId, ExecStatus.Sent);
-    await cache.auctions.upsertTask({ transferId, taskId });
+    await cache.auctions.upsertTask({ transferId, taskId, relayer });
 
     return taskId;
   }

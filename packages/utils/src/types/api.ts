@@ -1,21 +1,9 @@
 import { Type, Static } from "@sinclair/typebox";
 
 import { BidSchema } from "./auctions";
-import { ExecutorDataSchema } from "./executor";
+import { ExecutorDataSchema, RelayerTaskStatus } from "./relayer";
 import { NxtpErrorJsonSchema } from "./error";
-// import { ExecuteArgsSchema, CallParamsSchema } from "./xtransfers";
 import { TAddress, TChainId, TDecimalString } from "./primitives";
-
-export enum RelayerTaskStatus {
-  CheckPending = "CheckPending",
-  ExecPending = "ExecPending",
-  ExecSuccess = "ExecSuccess",
-  ExecReverted = "ExecReverted",
-  WaitingForConfirmation = "WaitingForConfirmation",
-  Blacklisted = "Blacklisted",
-  Cancelled = "Cancelled",
-  NotFound = "NotFound",
-}
 
 export enum ExecStatus {
   None = "None",

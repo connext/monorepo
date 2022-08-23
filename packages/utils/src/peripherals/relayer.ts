@@ -8,8 +8,8 @@ import {
   RelayerApiPostTaskRequestParams,
   NxtpError,
   RelayerApiPostTaskResponse,
+  RelayerTaskStatus,
 } from "../types";
-import { RelayerTaskStatus } from "../types/api";
 
 /// MARK - Gelato Relay API
 /// Docs: https://relay.gelato.digital/api-docs/
@@ -158,14 +158,14 @@ export const getConversionRate = async (_chainId: number, to?: string, logger?: 
  * @param logger - Logger Instance
  * @returns - RelayerTaskStatus
  */
-export const getGelatoTaskStatus = async (taskId: string, logger?: Logger): Promise<RelayerTaskStatus> => {
+export const getTaskStatusFromGelato = async (taskId: string, logger?: Logger): Promise<RelayerTaskStatus> => {
   let result = RelayerTaskStatus.NotFound;
   try {
     const apiEndpoint = `${GELATO_SERVER}/tasks/${taskId}`;
     const res = await axios.get(apiEndpoint);
     result = res.data[0]?.taskState as RelayerTaskStatus;
   } catch (error: unknown) {
-    if (logger) logger.error("Error in getGelatoTaskStatus", undefined, undefined, jsonifyError(error as Error));
+    if (logger) logger.error("Error in getTaskStatusFromGelato", undefined, undefined, jsonifyError(error as Error));
     else console.log("Error in gelatoTaskStatus, error: ", error);
   }
 
@@ -186,3 +186,5 @@ export const connextRelayerSend = async (
   }
   return output;
 };
+
+// export const getTaskStatusFromBackupRelayer = async (taskId: string, logger?: Logger): Promise<RelayerTaskStatus> => {};

@@ -2,7 +2,7 @@ import {
   gelatoSend,
   isChainSupportedByGelato,
   getGelatoRelayerAddress,
-  getGelatoTaskStatus,
+  getTaskStatusFromGelato,
   connextRelayerSend,
 } from "./relayer";
 import {
@@ -19,7 +19,7 @@ export const getHelpers = () => {
       gelatoSend,
       isChainSupportedByGelato,
       getGelatoRelayerAddress,
-      getGelatoTaskStatus,
+      getTaskStatusFromGelato,
       connextRelayerSend,
     },
     auctions: {

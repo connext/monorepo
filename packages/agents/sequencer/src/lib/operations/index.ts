@@ -1,4 +1,4 @@
-import { storeBid, executeAuction } from "./auctions";
+import { storeBid, executeFastPathData } from "./auctions";
 import { executeSlowPathData, storeExecutorData } from "./executor";
 import { sendExecuteFastToRelayer, sendExecuteSlowToRelayer } from "./relayer";
 import { updateTask } from "./tasks";
@@ -7,7 +7,7 @@ export const getOperations = () => {
   return {
     auctions: {
       storeBid,
-      executeAuction,
+      executeFastPathData,
     },
     relayer: {
       sendExecuteFastToRelayer,

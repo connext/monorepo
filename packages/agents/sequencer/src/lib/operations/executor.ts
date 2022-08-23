@@ -8,6 +8,7 @@ import {
   ExecStatus,
   getChainIdFromDomain,
   RelayerTaskStatus,
+  RelayerType,
 } from "@connext/nxtp-utils";
 import { getContext } from "../../sequencer";
 import {
@@ -178,9 +179,12 @@ export const executeSlowPathData = async (
     });
   }
 
-  let taskId;
+  let taskId: string | undefined;
+  let relayer: RelayerType | undefined;
   try {
-    taskId = await sendExecuteSlowToRelayer(executorData, requestContext);
+    const result = await sendExecuteSlowToRelayer(executorData, requestContext);
+    taskId = result.taskId;
+    relayer = result.relayer;
   } catch (error: unknown) {
     // TODO: If the first slow-liq transfer fails, we'll try to send backup data one by one
     // If any of backup data succeeds, we'll make the data status `sent`.
@@ -188,13 +192,15 @@ export const executeSlowPathData = async (
     const backupSlowTxs = await cache.executors.getBackupData(transferId);
     logger.debug("Running a fallback mechanism", requestContext, methodContext, { transferId, backupSlowTxs });
     for (const backupSlowTx of backupSlowTxs) {
-      taskId = await sendExecuteSlowToRelayer(backupSlowTx, requestContext);
+      const result = await sendExecuteSlowToRelayer(backupSlowTx, requestContext);
+      taskId = result.taskId;
+      relayer = result.relayer;
       if (taskId) break;
     }
   }
-  if (taskId) {
+  if (taskId && relayer) {
     await cache.executors.setExecStatus(transferId, ExecStatus.Completed);
-    await cache.executors.upsertTask({ transferId, taskId });
+    await cache.executors.upsertTask({ transferId, taskId, relayer });
   } else {
     // Prunes all the executor data for a given transferId
     await cache.executors.pruneExecutorData(transferId);

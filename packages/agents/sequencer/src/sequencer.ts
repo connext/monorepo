@@ -27,7 +27,7 @@ import { bindServer } from "./bindings/publisher";
 import { setupRelayer } from "./adapters";
 import { getHelpers } from "./lib/helpers";
 import { getOperations } from "./lib/operations";
-import { getGelatoTaskStatus } from "./lib/helpers/relayer";
+import { getTaskStatusFromGelato } from "./lib/helpers/relayer";
 
 const context: AppContext = {} as any;
 export const getContext = () => context;
@@ -126,7 +126,7 @@ export const makeSubscriber = async (_configOverride?: SequencerConfig) => {
  */
 export const execute = async (_configOverride?: SequencerConfig) => {
   const {
-    auctions: { executeAuction },
+    auctions: { executeFastPathData },
     executor: { executeSlowPathData },
   } = getOperations();
   try {
@@ -143,7 +143,7 @@ export const execute = async (_configOverride?: SequencerConfig) => {
 
     let taskId: string | undefined;
     if (messageType == MessageType.ExecuteFast) {
-      taskId = await executeAuction(transferId, requestContext);
+      taskId = await executeFastPathData(transferId, requestContext);
       context.logger.info("Executed fast path transfer", requestContext, methodContext, {
         transferId: transferId,
         taskId,
@@ -161,7 +161,7 @@ export const execute = async (_configOverride?: SequencerConfig) => {
       await new Promise((res) => {
         interval(async (_, stop) => {
           try {
-            taskStatus = await getGelatoTaskStatus(taskId!);
+            taskStatus = await getTaskStatusFromGelato(taskId!);
             if (
               taskStatus === RelayerTaskStatus.ExecSuccess ||
               taskStatus === RelayerTaskStatus.ExecReverted ||
