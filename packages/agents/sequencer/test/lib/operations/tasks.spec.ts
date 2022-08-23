@@ -1,5 +1,5 @@
 import { ExecStatus, expect, MetaTxTask, mkBytes32 } from "@connext/nxtp-utils";
-import { GelatoTaskState } from "@connext/nxtp-utils/dist/types/relayer";
+import { RelayerTaskStatus } from "@connext/nxtp-utils/dist/types/relayer";
 import { stub, SinonStub } from "sinon";
 import { updateTask } from "../../../src/lib/operations/tasks";
 import { ctxMock, getHelpersStub } from "../../globalTestHook";
@@ -38,7 +38,7 @@ describe("Operations:Tasks", () => {
 
       getExecStatusStub.resolves(ExecStatus.Sent);
       getTaskStub.resolves(mockMetaTxTask);
-      getGelatoTaskStatusStub.resolves(GelatoTaskState.ExecSuccess);
+      getGelatoTaskStatusStub.resolves(RelayerTaskStatus.ExecSuccess);
       setExecStatusStub.resolves();
       pruneExecutorDataStub.resolves();
       await updateTask(mockTransferId1);

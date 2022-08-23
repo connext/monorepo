@@ -41,14 +41,4 @@ export type Auction = AuctionHeader & {
   };
 };
 
-// Record of important data for an auction's meta tx.
-export type AuctionTask = {
-  // Timestamp of when execution meta tx was sent.
-  timestamp: string;
-  // Gelato task ID.
-  // NOTE: Will need to be replaced with a more generic solution when we support relayer aggregation.
-  taskId: string;
-  // Number of meta tx attempts sent. Should be 1 in 99% of cases.
-  attempts: number;
-};
 /// -------------------------------------------------------------------------------------------------

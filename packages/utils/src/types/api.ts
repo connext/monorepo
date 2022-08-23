@@ -7,10 +7,14 @@ import { NxtpErrorJsonSchema } from "./error";
 import { TAddress, TChainId, TDecimalString } from "./primitives";
 
 export enum RelayerTaskStatus {
-  None = "None",
-  Pending = "Pending",
+  CheckPending = "CheckPending",
+  ExecPending = "ExecPending",
+  ExecSuccess = "ExecSuccess",
+  ExecReverted = "ExecReverted",
+  WaitingForConfirmation = "WaitingForConfirmation",
+  Blacklisted = "Blacklisted",
   Cancelled = "Cancelled",
-  Completed = "Completed",
+  NotFound = "NotFound",
 }
 
 export enum ExecStatus {

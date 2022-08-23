@@ -9,25 +9,24 @@ import {
   jsonifyError,
   BaseRequestContext,
   MethodContext,
-  ExecStatus,
   NxtpError,
+  RelayerTaskStatus,
 } from "@connext/nxtp-utils";
 import Broker from "foo-foo-mq";
 import { SubgraphReader } from "@connext/nxtp-adapters-subgraph";
 import { StoreManager } from "@connext/nxtp-adapters-cache";
 import { ChainReader, getContractInterfaces, contractDeployments } from "@connext/nxtp-txservice";
 import { Web3Signer } from "@connext/nxtp-adapters-web3signer";
+import interval from "interval-promise";
 
 import { MessageType, SequencerConfig } from "./lib/entities";
 import { getConfig } from "./config";
 import { AppContext } from "./lib/entities/context";
-import { bindHealthServer, bindSubscriber, bindTask } from "./bindings/subscriber";
+import { bindHealthServer, bindSubscriber } from "./bindings/subscriber";
 import { bindServer } from "./bindings/publisher";
 import { setupRelayer } from "./adapters";
 import { getHelpers } from "./lib/helpers";
 import { getOperations } from "./lib/operations";
-import { GelatoTaskState } from "@connext/nxtp-utils/dist/types/relayer";
-import interval from "interval-promise";
 import { getGelatoTaskStatus } from "./lib/helpers/relayer";
 
 const context: AppContext = {} as any;
@@ -157,17 +156,17 @@ export const execute = async (_configOverride?: SequencerConfig) => {
       });
     }
 
-    let taskStatus = GelatoTaskState.NotFound;
+    let taskStatus = RelayerTaskStatus.NotFound;
     if (taskId) {
       await new Promise((res) => {
         interval(async (_, stop) => {
           try {
             taskStatus = await getGelatoTaskStatus(taskId!);
             if (
-              taskStatus === GelatoTaskState.ExecSuccess ||
-              taskStatus === GelatoTaskState.ExecReverted ||
-              taskStatus === GelatoTaskState.Cancelled ||
-              taskStatus === GelatoTaskState.Blacklisted
+              taskStatus === RelayerTaskStatus.ExecSuccess ||
+              taskStatus === RelayerTaskStatus.ExecReverted ||
+              taskStatus === RelayerTaskStatus.Cancelled ||
+              taskStatus === RelayerTaskStatus.Blacklisted
             ) {
               stop();
               res(undefined);
@@ -190,36 +189,6 @@ export const execute = async (_configOverride?: SequencerConfig) => {
   }
 
   process.exit(0);
-};
-
-/// MARK - Task Poller
-/**
- * This is used to fetch the relayer task status from the API and update its status in the cache
- * @param _configOverride - Overrides for configuration; normally only used for testing.
- */
-export const taskPoller = async (_configOverride?: SequencerConfig) => {
-  try {
-    const transferId = process.env[1];
-
-    const { requestContext, methodContext } = createLoggingContext(taskPoller.name);
-    context.adapters = {} as any;
-    await setupContext(requestContext, methodContext, _configOverride);
-    if (!transferId) {
-      context.logger.error(`Invalid argument, transferId: ${transferId}`);
-      process.exit(1);
-    }
-
-    await bindTask(transferId, 15_000);
-  } catch (error: any) {
-    const { requestContext, methodContext } = createLoggingContext(execute.name);
-    context.logger.error(
-      "Error fetching the task status:",
-      requestContext,
-      methodContext,
-      jsonifyError(error as Error),
-    );
-    process.exit(1);
-  }
 };
 
 /// MARK - Context Setup

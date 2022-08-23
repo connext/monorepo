@@ -7,6 +7,7 @@ import {
   ExecutorDataSchema,
   ExecStatus,
   getChainIdFromDomain,
+  RelayerTaskStatus,
 } from "@connext/nxtp-utils";
 import { getContext } from "../../sequencer";
 import {
@@ -22,7 +23,6 @@ import {
 import { getHelpers } from "../helpers";
 import { Message, MessageType } from "../entities";
 import { getOperations } from ".";
-import { GelatoTaskState } from "@connext/nxtp-utils/dist/types/relayer";
 
 export const storeExecutorData = async (executorData: ExecutorData, _requestContext: RequestContext): Promise<void> => {
   const {

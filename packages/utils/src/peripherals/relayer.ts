@@ -9,7 +9,7 @@ import {
   NxtpError,
   RelayerApiPostTaskResponse,
 } from "../types";
-import { GelatoTaskState } from "../types/relayer";
+import { RelayerTaskStatus } from "../types/api";
 
 /// MARK - Gelato Relay API
 /// Docs: https://relay.gelato.digital/api-docs/
@@ -156,14 +156,14 @@ export const getConversionRate = async (_chainId: number, to?: string, logger?: 
  * Gets the task status for a given taskId from gelato api
  * @param taskId - The task Id we want to get the status for
  * @param logger - Logger Instance
- * @returns - GelatoTaskState
+ * @returns - RelayerTaskStatus
  */
-export const getGelatoTaskStatus = async (taskId: string, logger?: Logger): Promise<GelatoTaskState> => {
-  let result = GelatoTaskState.NotFound;
+export const getGelatoTaskStatus = async (taskId: string, logger?: Logger): Promise<RelayerTaskStatus> => {
+  let result = RelayerTaskStatus.NotFound;
   try {
     const apiEndpoint = `${GELATO_SERVER}/tasks/${taskId}`;
     const res = await axios.get(apiEndpoint);
-    result = res.data[0]?.taskState as GelatoTaskState;
+    result = res.data[0]?.taskState as RelayerTaskStatus;
   } catch (error: unknown) {
     if (logger) logger.error("Error in getGelatoTaskStatus", undefined, undefined, jsonifyError(error as Error));
     else console.log("Error in gelatoTaskStatus, error: ", error);

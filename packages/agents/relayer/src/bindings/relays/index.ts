@@ -65,7 +65,7 @@ export const pollCache = async () => {
     for (const task of tasksByChain[chain]) {
       const taskId = task.id;
       const status = await cache.tasks.getStatus(taskId);
-      if (status !== RelayerTaskStatus.Pending) {
+      if (status !== RelayerTaskStatus.ExecPending) {
         // Sanity: task should be pending.
         // Possible in the event of a race while updating the cache.
         logger.debug("Task status was not pending task ID", requestContext, methodContext, { taskId });

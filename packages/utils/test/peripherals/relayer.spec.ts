@@ -20,7 +20,7 @@ import {
   getGelatoTaskStatus,
   getGelatoRelayerAddress,
 } from "../../src";
-import { GelatoTaskState } from "../../src/types/relayer";
+import { RelayerTaskStatus } from "../../src/types/relayer";
 
 describe("Peripherals:Gelato", () => {
   let axiosGetStub: SinonStub;
@@ -293,13 +293,13 @@ describe("Peripherals:Gelato", () => {
         ],
       });
 
-      expect(await getGelatoTaskStatus("0x")).to.be.eq(GelatoTaskState.CheckPending);
+      expect(await getGelatoTaskStatus("0x")).to.be.eq(RelayerTaskStatus.CheckPending);
     });
 
     it("should return NotFound if the request fails", async () => {
       axiosGetStub.throws(new Error("Request failed!"));
 
-      expect(await getGelatoTaskStatus("0x")).to.be.eq(GelatoTaskState.NotFound);
+      expect(await getGelatoTaskStatus("0x")).to.be.eq(RelayerTaskStatus.NotFound);
     });
   });
 

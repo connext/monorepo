@@ -6,7 +6,7 @@ import {
   mkAddress,
   Auction,
   ExecStatus,
-  AuctionTask,
+  MetaTxTask,
   getRandomBytes32,
   Bid,
   getNtpTimeSeconds,
@@ -35,9 +35,9 @@ describe("AuctionCache", () => {
       return res ? ExecStatus[res as ExecStatus] : null;
     },
 
-    setTask: async (transferId: string, task: AuctionTask) =>
+    setTask: async (transferId: string, task: MetaTxTask) =>
       await redis.hset(`${prefix}:task`, transferId, JSON.stringify(task)),
-    getTask: async (transferId: string): Promise<AuctionTask | null> => {
+    getTask: async (transferId: string): Promise<MetaTxTask | null> => {
       const res = await redis.hget(`${prefix}:task`, transferId);
       return res ? JSON.parse(res) : null;
     },
@@ -186,7 +186,7 @@ describe("AuctionCache", () => {
     describe("#getTask", () => {
       it("happy: should retrieve existing auction task", async () => {
         const transferId = getRandomBytes32();
-        const task: AuctionTask = {
+        const task: MetaTxTask = {
           timestamp: getNtpTimeSeconds().toString(),
           taskId: getRandomBytes32(),
           attempts: 7,
