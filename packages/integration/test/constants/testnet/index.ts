@@ -224,6 +224,10 @@ export const ROUTER_CONFIG: Promise<RouterConfig> = (async (): Promise<RouterCon
         port: 8080,
         host: LOCALHOST,
       },
+      exec: {
+        port: 8082,
+        host: LOCALHOST,
+      },
       requestLimit: 10,
     },
     chains: {

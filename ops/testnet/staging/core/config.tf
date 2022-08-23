@@ -39,42 +39,29 @@ locals {
 
     logLevel = "debug"
     chains = {
-      "1111" = {
-        providers = ["https://eth-rinkeby.alchemyapi.io/v2/${var.rinkeby_alchemy_key_0}", "https://rpc.ankr.com/eth_rinkeby"]
+      "1735356532" = {
+        providers = ["https://opt-goerli.g.alchemy.com/v2/${var.optgoerli_alchemy_key_0}", "https://goerli.optimism.io"]
         assets = [
           {
             name    = "TEST"
-            address = "0x3ffc03f05d1869f493c7dbf913e636c6280e0ff9"
+            address = "0xf21Ad79d25d3E2eCAEe99e09c237EfDD83fdAfEB"
           },
           {
             name    = "WETH"
-            address = "0xF25927315D101aC04C631878570152658defa7Db"
+            address = "0x6dC42a10F89Da5dAE486De606B1Dc4d8C5Ed1bfE"
           }
         ]
       }
-      "3331" = {
+      "1735353714" = {
         providers = ["https://eth-goerli.alchemyapi.io/v2/${var.goerli_alchemy_key_0}", "https://rpc.ankr.com/eth_goerli"]
         assets = [
           {
             name    = "TEST"
-            address = "0x26FE8a8f86511d678d031a022E48FfF41c6a3e3b"
+            address = "0x30C687780AD7946d77C62b3413A95D5126B57cA1"
           },
           {
             name    = "WETH"
             address = "0xB4FBF271143F4FBf7B91A5ded31805e42b2208d6"
-          }
-        ]
-      }
-      "9991" = {
-        providers = ["https://polygon-testnet.blastapi.io/${var.mumbai_blast_key_0}", "https://rpc.ankr.com/polygon_mumbai"]
-        assets = [
-          {
-            name    = "TEST"
-            address = "0x21c5a4dAeAf9625c781Aa996E9229eA95EE4Ff77"
-          },
-          {
-            name    = "WETH"
-            address = "0x4E2FCcA06dA37869047d84b82364d1831E5aa7E1"
           }
         ]
       }
@@ -96,19 +83,13 @@ locals {
       ]
       queues = [
         {
-          name       = "1111"
+          name       = "1735356532"
           limit      = 3
           queueLimit = 10000
           subscribe  = true
         },
         {
-          name       = "3331"
-          limit      = 3
-          queueLimit = 10000
-          subscribe  = true
-        },
-        {
-          name       = "9991"
+          name       = "1735353714"
           limit      = 3
           queueLimit = 10000
           subscribe  = true
@@ -117,18 +98,13 @@ locals {
       bindings = [
         {
           exchange = "sequencerX"
-          target   = "1111"
-          keys     = ["1111"]
+          target   = "1735356532"
+          keys     = ["1735356532"]
         },
         {
           exchange = "sequencerX"
-          target   = "3331"
-          keys     = ["3331"]
-        },
-        {
-          exchange = "sequencerX"
-          target   = "9991"
-          keys     = ["9991"]
+          target   = "1735353714"
+          keys     = ["1735353714"]
         }
       ]
       executerTimeout = 300000
@@ -154,23 +130,26 @@ locals {
       sub = {
         port = 8080
       }
+      exec = {
+        port = 8080
+      }
     }
     chains = {
-      "1111" = {
-        providers = ["https://eth-rinkeby.alchemyapi.io/v2/${var.rinkeby_alchemy_key_0}", "https://rpc.ankr.com/eth_rinkeby"]
+      "1735356532" = {
+        providers = ["https://opt-goerli.g.alchemy.com/v2/${var.optgoerli_alchemy_key_1}", "https://goerli.optimism.io"]
         assets = [
           {
             name    = "TEST"
-            address = "0x3ffc03f05d1869f493c7dbf913e636c6280e0ff9"
+            address = "0xf21Ad79d25d3E2eCAEe99e09c237EfDD83fdAfEB"
           },
           {
             name    = "WETH"
-            address = "0xF25927315D101aC04C631878570152658defa7Db"
+            address = "0x6dC42a10F89Da5dAE486De606B1Dc4d8C5Ed1bfE"
           }
         ]
       }
-      "3331" = {
-        providers = ["https://eth-goerli.alchemyapi.io/v2/${var.goerli_alchemy_key_0}", "https://rpc.ankr.com/eth_goerli"]
+      "1735353714" = {
+        providers = ["https://eth-goerli.alchemyapi.io/v2/${var.goerli_alchemy_key_1}", "https://rpc.ankr.com/eth_goerli"]
         assets = [
           {
             name    = "TEST"
@@ -178,20 +157,7 @@ locals {
           },
           {
             name    = "WETH"
-            address = "0xB4FBF271143F4FBf7B91A5ded31805e42b2208d6"
-          }
-        ]
-      }
-      "9991" = {
-        providers = ["https://polygon-testnet.blastapi.io/${var.mumbai_blast_key_0}", "https://rpc.ankr.com/polygon_mumbai"]
-        assets = [
-          {
-            name    = "TEST"
-            address = "0x21c5a4dAeAf9625c781Aa996E9229eA95EE4Ff77"
-          },
-          {
-            name    = "WETH"
-            address = "0x4E2FCcA06dA37869047d84b82364d1831E5aa7E1"
+            address = "0x30C687780AD7946d77C62b3413A95D5126B57cA1"
           }
         ]
       }
@@ -202,23 +168,5 @@ locals {
     messageQueue = {
       uri = "amqps://${var.rmq_mgt_user}:${var.rmq_mgt_password}@${module.centralised_message_queue.aws_mq_amqp_endpoint}"
     }
-  })
-}
-
-locals {
-  local_lighthouse_config = jsonencode({
-    logLevel = "debug"
-    chains = {
-      "1111" = {
-        providers = ["https://eth-rinkeby.alchemyapi.io/v2/${var.rinkeby_alchemy_key_1}"]
-      }
-      "3331" = {
-        providers = ["https://eth-goerli.alchemyapi.io/v2/${var.goerli_alchemy_key_1}"]
-      }
-      "9991" = {
-        providers = ["https://polygon-testnet.blastapi.io/${var.mumbai_blast_key_0}", "https://rpc.ankr.com/polygon_mumbai"]
-      }
-    }
-    environment = var.stage
   })
 }
