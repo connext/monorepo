@@ -1,6 +1,6 @@
-import { ExecutorData, ExecStatus, expect, mkAddress, mkBytes32 } from "@connext/nxtp-utils";
+import { ExecutorData, ExecStatus, expect, mkAddress, mkBytes32, RelayerType } from "@connext/nxtp-utils";
 import { stub, SinonStub } from "sinon";
-import { MessageType } from "../../../src/lib/entities";
+import { MessageType } from "../../../../src/lib/entities";
 import {
   ExecutorVersionInvalid,
   GasEstimationFailed,
@@ -10,13 +10,13 @@ import {
   MissingTransfer,
   MissingExecutorData,
   ExecutorDataExpired,
-} from "../../../src/lib/errors";
-import { executeSlowPathData, storeSlowPathData } from "../../../src/lib/operations/execute";
-import { ctxMock, getOperationsStub, getHelpersStub } from "../../globalTestHook";
-import { mock } from "../../mock";
+} from "../../../../src/lib/errors";
+import { executeSlowPathData, storeSlowPathData } from "../../../../src/lib/operations/execute";
+import { ctxMock, getOperationsStub, getHelpersStub } from "../../../globalTestHook";
+import { mock } from "../../../mock";
 const { requestContext } = mock.loggingContext("EXECUTOR-TEST");
 
-describe("Operations:Executor", () => {
+describe("Operations:Execute:SlowPath", () => {
   let getGelatoRelayerAddressStub: SinonStub;
   let getTransferStub: SinonStub;
   let storeTransferStub: SinonStub;
@@ -39,9 +39,9 @@ describe("Operations:Executor", () => {
     getExecStatusStub = stub(executors, "getExecStatus");
     storeBackupDataStub = stub(executors, "storeBackupData");
     setExecStatusStub = stub(executors, "setExecStatus");
-    storeSlowPathDataStub = stub(executors, "storeSlowPathData");
+    storeSlowPathDataStub = stub(executors, "storeExecutorData");
     getBackupDataStub = stub(executors, "getBackupData");
-    upsertTaskStub = stub(executors, "upsertTask");
+    upsertTaskStub = stub(executors, "upsertMetaTxTask");
     pruneExecutorDataStub = stub(executors, "pruneExecutorData");
     publishStub = ctxMock.adapters.mqClient.publish as SinonStub;
 
@@ -190,8 +190,8 @@ describe("Operations:Executor", () => {
       getExecStatusStub.resolves(ExecStatus.Queued);
       getBackupDataStub.resolves([mockExecutorBackupData1, mockExecutorBackupData2]);
       sendExecuteSlowToRelayerStub.onCall(0).throws("Failed to send to the gelato");
-      sendExecuteSlowToRelayerStub.onCall(1).resolves(undefined);
-      sendExecuteSlowToRelayerStub.onCall(2).resolves(mockTaskId);
+      sendExecuteSlowToRelayerStub.onCall(1).resolves({ taskId: undefined, relayer: undefined });
+      sendExecuteSlowToRelayerStub.onCall(2).resolves({ taskId: mockTaskId, relayer: RelayerType.Mock });
       setExecStatusStub.resolves();
       upsertTaskStub.resolves();
       await expect(executeSlowPathData(mockTransferId, MessageType.ExecuteSlow, requestContext)).to.not.rejected;
@@ -220,8 +220,8 @@ describe("Operations:Executor", () => {
       getExecStatusStub.resolves(ExecStatus.Queued);
       getBackupDataStub.resolves([mockExecutorBackupData1, mockExecutorBackupData2]);
       sendExecuteSlowToRelayerStub.onCall(0).throws("Failed to send to the gelato");
-      sendExecuteSlowToRelayerStub.onCall(1).resolves(undefined);
-      sendExecuteSlowToRelayerStub.onCall(2).resolves(undefined);
+      sendExecuteSlowToRelayerStub.onCall(1).resolves({ taskId: undefined, relayer: undefined });
+      sendExecuteSlowToRelayerStub.onCall(2).resolves({ taskId: undefined, relayer: undefined });
       setExecStatusStub.resolves();
       upsertTaskStub.resolves();
       pruneExecutorDataStub.resolves();

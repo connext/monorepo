@@ -61,7 +61,7 @@ export const updateSlowPathTask = async (transferId: string, status: ExecStatus)
   const {
     adapters: { cache },
   } = getContext();
-  const metaTxTask = await cache.auctions.getMetaTxTask(transferId);
+  const metaTxTask = await cache.executors.getMetaTxTask(transferId);
   const taskId = metaTxTask?.taskId;
   if (taskId) {
     await cache.executors.setExecStatus(transferId, status);

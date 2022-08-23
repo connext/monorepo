@@ -7,7 +7,6 @@ import {
   mkAddress,
   ExecutorPostDataRequest,
   mkBytes32,
-  ExecStatus,
 } from "@connext/nxtp-utils";
 import { FastifyInstance } from "fastify";
 
@@ -35,20 +34,18 @@ describe("Bindings:Server", () => {
       const { auctions, executors } = ctxMock.adapters.cache;
       upsertAuctionStub = stub(auctions, "upsertAuction").resolves(0);
       getAuctionStub = stub(auctions, "getAuction");
-      getStatusStub = stub(auctions, "getStatus").resolves(ExecStatus.None);
-      setStatusStub = stub(auctions, "setStatus").resolves(1);
+      getStatusStub = stub(auctions, "getExecStatus").resolves(ExecStatus.None);
+      setStatusStub = stub(auctions, "setExecStatus").resolves(1);
       getQueuedTransfersStub = stub(auctions, "getQueuedTransfers");
-      getTaskStub = stub(auctions, "getTask").resolves(undefined);
+      getTaskStub = stub(auctions, "getMetaTxTask").resolves(undefined);
 
       getExecStatusStub = stub(executors, "getExecStatus");
 
       storeFastPathDataStub = stub();
       storeSlowPathDataStub = stub();
       getOperationsStub.returns({
-        auctions: {
+        execute: {
           storeFastPathData: storeFastPathDataStub,
-        },
-        executor: {
           storeSlowPathData: storeSlowPathDataStub,
         },
       });
