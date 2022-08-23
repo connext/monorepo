@@ -16,7 +16,7 @@ import Broker from "foo-foo-mq";
 import { ctxMock, getOperationsStub, getHelpersStub } from "../../globalTestHook";
 import { mock } from "../../mock";
 import { AuctionExpired, BidVersionInvalid, MissingXCall, ParamsInvalid } from "../../../src/lib/errors";
-import { executeFastPathData, storeFastPathData } from "../../../src/lib/operations/auctions";
+import { executeFastPathData, storeFastPathData } from "../../../src/lib/operations/execute";
 import { getAllSubsets, getBidsRoundMap, getMinimumBidsCountForRound } from "../../../src/lib/helpers/auctions";
 
 const { requestContext } = mock.loggingContext("BID-TEST");

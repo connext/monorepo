@@ -11,7 +11,7 @@ import {
   MissingExecutorData,
   ExecutorDataExpired,
 } from "../../../src/lib/errors";
-import { executeSlowPathData, storeSlowPathData } from "../../../src/lib/operations/executor";
+import { executeSlowPathData, storeSlowPathData } from "../../../src/lib/operations/execute";
 import { ctxMock, getOperationsStub, getHelpersStub } from "../../globalTestHook";
 import { mock } from "../../mock";
 const { requestContext } = mock.loggingContext("EXECUTOR-TEST");
