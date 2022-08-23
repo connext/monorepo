@@ -1,82 +1,8 @@
 import * as fs from "fs";
 
-// NOTE: Agents will currently be whitelisted on ALL domains.
-export type WhitelistAgents = {
-  // Arrays of addresses for each type of agent that requires whitelisting.
-  relayers: string[]; // NOTE: Relayers will be whitelisted for both `execute` and messaging calls.
-  sequencers: string[];
-  routers: string[];
-  watchers: string[];
-};
+import { getChainIdFromDomain, getDomainFromChainId } from "@connext/nxtp-utils";
 
-export type AssetStack = {
-  canonical: {
-    // The canonical domain of the asset.
-    domain: string;
-    // Address of the official canonical token on the canonical domain.
-    local: string;
-  };
-  representations: {
-    [domain: string]: {
-      // Address of the bridged asset on this domain.
-      local: string;
-      // Address of the adopted asset on this domain.
-      // NOTE: If adopted is specified, a stableswap will be initialized! If not
-      // specified, then we assume the local asset is the adopted asset on this domain.
-      adopted?: string;
-    };
-  };
-};
-
-export type DomainStack = {
-  // Meta info.
-  chain: number;
-  domain: string;
-
-  // RPC provider to use for this network.
-  rpc: string;
-
-  // NOTE: If deployments are not specified, we will attempt to retrieve them locally.
-  deployments?: {
-    // Diamond.
-    Connext: string;
-    // Handlers.
-    handlers: {
-      BridgeRouter: string; // TODO/NOTE: Will likely be combined with Connext in the future.
-      RelayerFeeRouter: string;
-      PromiseRouter: string;
-    };
-    // Registry.
-    TokenRegistry: string;
-
-    // Messaging Layer.
-    // ConnectorManager
-    // SendOutboundRootResolver
-
-    // The messaging layer deployments are different depending on whether this
-    // is the hub domain or spoke domain.
-    messaging:
-      | {
-          RootManager: string;
-          MainnetConnector: string;
-          HubConnectors: string;
-        }
-      | {
-          SpokeConnector: string;
-        };
-  };
-};
-
-export type ProtocolStack = {
-  hub: string; // The hub domain.
-  // Domain stack should have all info pertaining to each supported domain.
-  domains: DomainStack[];
-  // Crosschain ERC20 assets to enroll in TokenRegistry.
-  assets: AssetStack[];
-  // Agents that need to be whitelisted (across all domains).
-  // Leave undefined if no agents should be whitelisted in this setup.
-  agents?: WhitelistAgents;
-};
+import { ProtocolStack, getDeployments } from "./helpers";
 
 /**
  * Call the core `initProtocol` method using a JSON config file provided by the local environment.
@@ -92,11 +18,98 @@ export const initWithEnv = async () => {
   const json = fs.readFileSync(path, { encoding: "utf-8" });
   console.log("Parsing JSON config...");
   // TODO: Use typebox and AJV parser for config to ensure params are correct?
-  const config = JSON.parse(json) as ProtocolStack;
+  const config = JSON.parse(json);
   if (!config) {
     throw new Error("Config was empty? Please ensure your JSON file has, like, stuff in it.");
   }
-  await initProtocol(config);
+
+  /// MARK - Deployer
+  // Get deployer mnemonic, which should be provided in env if not in the config.
+  config.deployer = config.deployer || process.env.DEPLOYER || process.env.DEPLOYER_MNEMONIC;
+  if (!config.deployer) {
+    throw new Error(
+      "Deployer mnemonic was not specified. Please specify `deployer` in the config file, " +
+        "or set DEPLOYER or DEPLOYER_MNEMONIC in env. C'mon bro, that's like the most important thing.",
+    );
+  }
+
+  /// MARK - Domains
+  // Make sure domains were specified.
+  if (!Array.isArray(config.domains) || config.domains.length === 0) {
+    throw new Error(
+      "Domains were not specified in the config, or the domains list was empty. " +
+        "Do you even want to init anything?",
+    );
+  }
+  // Make sure hub is specified.
+  if (!config.hub) {
+    throw new Error("`hub` was not specified in config. Please specify the Hub (L1) domain used for messaging.");
+  }
+
+  /// MARK - Deployments
+  // Get deployment environment.
+  const env = process.env.ENVIRONMENT;
+  if (!env) {
+    throw new Error(
+      "ENVIRONMENT was not specified in env. Please specify whether ENVIRONMENT (for deployments) is `staging` " +
+        "or `production`, etc.",
+    );
+  }
+  const useStaging = env === "staging";
+
+  // Get deployments for each domain if not specified in the config.
+  for (let i = 0; i < config.domains.length; i++) {
+    const stack = config.domains[i];
+    // Make sure either domain or chain are specified.
+    if (!stack.domain && !stack.chain) {
+      throw new Error(
+        "One of the domains in config doesn't even have a `domain` or `chain` " +
+          "specified... bro, am I reading this right?",
+      );
+    } else if (stack.domain) {
+      const domain = (stack.domain as string | number).toString();
+
+      // Make sure domain is saved as a string.
+      stack.domain = domain;
+      // Make sure correct chain ID is saved.
+      // NOTE: Even if chain was specified as well, we'll consult the Domain => Chain ID conversion table anyway.
+      stack.chain = (await getChainIdFromDomain(domain)).toString();
+    } else if (stack.chain) {
+      const chain = (stack.chain as string | number).toString();
+
+      // Make sure chain is saved as a string.
+      stack.chain = chain;
+      // Make sure domain is specified.
+      stack.domain = await getDomainFromChainId(parseInt(chain, 10));
+    }
+
+    // RPC provider is required.
+    if (!stack.rpc) {
+      throw new Error(
+        `You didn't include an RPC provider for domain ${stack.domain}. ` +
+          "I literally can't work in these conditions.",
+      );
+    }
+
+    // Get the deployments for this domain, if needed.
+    if (!stack.deployments) {
+      const isHub = stack.domain === config.hub;
+      stack.deployments = getDeployments(stack.chain as string, isHub, useStaging);
+    }
+
+    // Make sure the stack is set.
+    // TODO: Is this already performed in-place?
+    config.domains[i] = stack;
+  }
+
+  // TODO: Sanitize assets - all addresses specified?
+  // TODO: Sanitize agents - all strings are addresses?
+
+  await initProtocol({
+    ...config,
+    // If assets are not specified, just set an empty array.
+    assets: config.assets ?? [],
+  } as ProtocolStack);
 };
 
 /**
@@ -111,13 +124,25 @@ export const initProtocol = async (protocol: ProtocolStack) => {
   /// ********************** SETUP **********************
   /// MARK - Sanity Checks
   // Hub domain should be included in domains.
+  const supportedDomains = protocol.domains.map((d) => d.domain);
+  if (!supportedDomains.includes(protocol.hub)) {
+    throw new Error(
+      `Hub domain ${protocol.hub} was not found among the \`domains\` in protocol config. Is this some kind of prank?`,
+    );
+  }
   // All domains specified in AssetStack(s) must be included in domains.
-  // DomainStack for hub includes proper messaging deployments.
-  // All spoke domains should have proper messaging deployments.
-  /// MARK - Deployer
-  // Get deployer mnemonic, which should be provided in env.
-  /// MARK - Deployments
-  // Get all deployments
+  for (const asset of protocol.assets) {
+    const domains = [asset.canonical.domain].concat(Object.keys(asset.representations));
+    for (const domain of domains) {
+      if (!supportedDomains.includes(domain)) {
+        throw new Error(
+          `Asset with canonical address of ${asset.canonical.local} and canonical domain ${asset.canonical.domain} included ` +
+            `an entry for a non-supported domain ${domain}. Please add the domain to the \`domains\` list in your config. ` +
+            "Or don't. I'm not your boss. But have you ever heard the definition of insanity?",
+        );
+      }
+    }
+  }
   /// ******************** MESSAGING ********************
   /// MARK - Init
   // TODO: Currently unused, as messaging init checks are not needed with the AMB-compatible stack.
@@ -145,11 +170,13 @@ export const initProtocol = async (protocol: ProtocolStack) => {
   // - Set up mappings for canonical ID / canonical domain / adopted asset address / etc.
   // - Set up mapping for stableswap pool if applicable.
   /// ********************* AGENTS **********************
-  /// MARK - Enroll Watchers
+  /// MARK - Watchers
   // Whitelist watchers in RootManager, with the ability to disconnect malicious connectors.
   /// MARK - Relayers
   // Whitelist named relayers for the Connext bridge, in order to call `execute`.
   // Approve relayers as callers for connectors and root manager
   /// MARK - Sequencers
   // Whitelist named sequencers.
+  /// MARK - Routers
+  // Whitelist routers.
 };
