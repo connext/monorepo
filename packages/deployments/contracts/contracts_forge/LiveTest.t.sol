@@ -76,8 +76,6 @@ contract LiveTest is ForgeHelper {
   }
 
   function test_xcall() public {
-    bytes32 remote = BridgeRouter(payable(0x13907A8c215d50174759eA7189382cccf0111135)).remotes(1735356532);
-    emit log_bytes32(remote);
     vm.prank(0x54BAA998771639628ffC0206c3b916c466b79c89);
     TestERC20(0xf21Ad79d25d3E2eCAEe99e09c237EfDD83fdAfEB).approve(address(connext), 150000000000000000);
     vm.prank(0x54BAA998771639628ffC0206c3b916c466b79c89);
