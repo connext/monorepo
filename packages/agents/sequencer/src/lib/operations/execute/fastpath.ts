@@ -52,7 +52,7 @@ export const storeFastPathData = async (bid: Bid, _requestContext: RequestContex
   }
 
   // Ensure that the auction for this transfer hasn't expired.
-  const status = await cache.auctions.getStatus(transferId);
+  const status = await cache.auctions.getExecStatus(transferId);
   if (status !== ExecStatus.None && status !== ExecStatus.Queued) {
     throw new AuctionExpired(status, {
       transferId,
@@ -96,7 +96,7 @@ export const storeFastPathData = async (bid: Bid, _requestContext: RequestContex
   logger.info("Updated auction", requestContext, methodContext, {
     new: res === 0,
     auction: await cache.auctions.getAuction(transferId),
-    status: await cache.auctions.getStatus(transferId),
+    status: await cache.auctions.getExecStatus(transferId),
   });
 
   // Enqueue only once to dedup, when the first bid for the transfer is stored.
@@ -217,7 +217,7 @@ export const executeFastPathData = async (
       transfer,
       bids,
     });
-    await cache.auctions.setStatus(transferId, ExecStatus.Completed);
+    await cache.auctions.setExecStatus(transferId, ExecStatus.Completed);
     return { taskId, relayer };
   }
 
@@ -383,7 +383,7 @@ export const executeFastPathData = async (
       combinations: combinedBidsForRound,
     });
 
-    await cache.auctions.setStatus(transferId, ExecStatus.Sent);
+    await cache.auctions.setExecStatus(transferId, ExecStatus.Sent);
     await cache.auctions.upsertMetaTxTask({ transferId, taskId, relayer: relayer! });
 
     return { taskId, relayer };

@@ -58,7 +58,7 @@ export const bindServer = async (): Promise<FastifyInstance> => {
       const { requestContext, methodContext } = createLoggingContext("GET /execute-fast/:transferId endpoint");
       try {
         const { transferId } = request.params;
-        const status = await cache.auctions.getStatus(transferId);
+        const status = await cache.auctions.getExecStatus(transferId);
         if (status === ExecStatus.None) {
           throw new Error("No auction found for transferId");
         }

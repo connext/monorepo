@@ -142,19 +142,19 @@ describe("ExecutorCache", () => {
     it("happy", async () => {
       const mockTaskId = mkBytes32("0x123");
       await cache.upsertMetaTxTask({ transferId: mockTransferId, taskId: mockTaskId });
-      const metaTxTask = await cache.getTask(mockTransferId);
+      const metaTxTask = await cache.getMetaTxTask(mockTransferId);
       expect(metaTxTask?.taskId).to.be.eq(mockTaskId);
     });
   });
-  describe("#getTask", () => {
+  describe("#getMetaTxTask", () => {
     it("should be undefined", async () => {
-      const metaTxTask = await cache.getTask(mockTransferId);
+      const metaTxTask = await cache.getMetaTxTask(mockTransferId);
       expect(metaTxTask).to.be.undefined;
     });
     it("happy", async () => {
       const mockTaskId = mkBytes32("0x123");
       await cache.upsertMetaTxTask({ transferId: mockTransferId, taskId: mockTaskId });
-      const metaTxTask = await cache.getTask(mockTransferId);
+      const metaTxTask = await cache.getMetaTxTask(mockTransferId);
       expect(metaTxTask?.taskId).to.be.eq(mockTaskId);
     });
   });

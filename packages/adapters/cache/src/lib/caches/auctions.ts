@@ -64,7 +64,7 @@ export class AuctionsCache extends Cache {
 
     if (!existing) {
       // If the auction didn't previously exist, create an entry for status as well.
-      await this.setStatus(transferId, ExecStatus.Queued);
+      await this.setExecStatus(transferId, ExecStatus.Queued);
     }
 
     return Number(res >= 1);
@@ -116,14 +116,14 @@ export class AuctionsCache extends Cache {
    * @param transferId - The ID of the transfer we are auctioning.
    * @returns ExecStatus if exists, ExecStatus.None if no entry was found.
    */
-  public async getStatus(transferId: string): Promise<ExecStatus> {
+  public async getExecStatus(transferId: string): Promise<ExecStatus> {
     const res = await this.data.hget(`${this.prefix}:status`, transferId);
     return res && Object.values(ExecStatus).includes(res as ExecStatus)
       ? ExecStatus[res as ExecStatus]
       : ExecStatus.None;
   }
 
-  public async setStatus(transferId: string, status: ExecStatus): Promise<number> {
+  public async setExecStatus(transferId: string, status: ExecStatus): Promise<number> {
     return await this.data.hset(`${this.prefix}:status`, transferId, status.toString());
   }
 
@@ -149,7 +149,7 @@ export class AuctionsCache extends Cache {
     });
     const filtered: string[] = [];
     for (const key of keys) {
-      const status = await this.getStatus(key);
+      const status = await this.getExecStatus(key);
       if (status === ExecStatus.Queued) {
         filtered.push(key);
       }

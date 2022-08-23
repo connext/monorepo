@@ -53,7 +53,7 @@ export const updateFastPathTask = async (transferId: string, status: ExecStatus)
   const metaTxTask = await cache.auctions.getMetaTxTask(transferId);
   const taskId = metaTxTask?.taskId;
   if (taskId) {
-    await cache.auctions.setStatus(transferId, status);
+    await cache.auctions.setExecStatus(transferId, status);
   }
 };
 

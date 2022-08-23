@@ -54,7 +54,7 @@ export const bindSubscriber = async (queueName: string) => {
           if ((code == null || code == 0) && (signal == null || termSignals.includes(signal))) {
             // ACK on success
             // Validate transfer is sent to relayer before ACK
-            const status = await cache.auctions.getStatus(message.transferId);
+            const status = await cache.auctions.getExecStatus(message.transferId);
             const task = await cache.auctions.getMetaTxTask(message.transferId);
             if ((task?.taskId && status == ExecStatus.Sent) || status == ExecStatus.Completed) {
               msg.ack();
