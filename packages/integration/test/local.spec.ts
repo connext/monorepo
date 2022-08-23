@@ -40,7 +40,7 @@ import TokenRegistryUpgradeBeaconProxy_1337 from "@connext/nxtp-contracts/deploy
 import TestERC20_1337 from "@connext/nxtp-contracts/deployments/local_1337/TestERC20.json";
 import { ConnextHandlerInterface } from "@connext/nxtp-contracts";
 
-import { pollSomething } from "./helpers/shared";
+import { pollSomething } from "./helpers/utils/shared";
 import { enrollHandlers, enrollCustom, setupRouter, setupAsset, addLiquidity, addRelayer } from "./helpers/local";
 import { DEPLOYER_WALLET, PARAMETERS as _PARAMETERS, SUBG_POLL_PARITY, USER_WALLET } from "./constants/local";
 import { addConnextions } from "./helpers/local/addConnextions";

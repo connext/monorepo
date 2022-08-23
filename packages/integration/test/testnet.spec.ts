@@ -58,8 +58,8 @@ import {
   removeAsset,
   setupAsset,
   log,
-} from "./helpers/testnet";
-import { pollSomething } from "./helpers/shared";
+} from "./helpers/utils";
+import { pollSomething } from "./helpers/utils/shared";
 
 const ROUTER_MNEMONIC = process.env.ROUTER_MNEMONIC;
 const RELAYER_MNEMONIC = process.env.RELAYER_MNEMONIC;
