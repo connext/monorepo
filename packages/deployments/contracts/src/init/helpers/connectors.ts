@@ -17,7 +17,19 @@ export const getConnectorMirrorDomain = async (args: {
   if (!res) {
     throw new Error(`Connector ${_Connector.address} for domain ${stack.domain} returned no mirrorDomain: ${res}`);
   }
-  return (res as number).toString();
+  return res.toString();
+};
+
+export const getConnectorMirror = async (args: { Connector: Deployment; stack: DomainStack }): Promise<string> => {
+  const { Connector: _Connector, stack } = args;
+  const iface = Connector__factory.createInterface();
+
+  const Connector = new Contract(_Connector.address, iface, stack.rpc);
+  const res = await Connector.callStatic.mirrorConnector();
+  if (!res) {
+    throw new Error(`Connector ${_Connector.address} for domain ${stack.domain} returned no mirrorConnector: ${res}`);
+  }
+  return res.toString();
 };
 
 export const setConnectorMirrors = async (args: {

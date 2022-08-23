@@ -1,7 +1,7 @@
 import * as fs from "fs";
 
 import { getChainIdFromDomain, getDomainFromChainId } from "@connext/nxtp-utils";
-import { providers, Wallet } from "ethers";
+import { constants, providers, Wallet } from "ethers";
 
 import {
   ProtocolStack,
@@ -11,6 +11,7 @@ import {
   getConnectorMirrorDomain,
   setConnectorMirrors,
   SpokeMessagingDeployments,
+  getConnectorMirror,
 } from "./helpers";
 
 /**
@@ -190,6 +191,7 @@ export const initProtocol = async (protocol: ProtocolStack) => {
   // TODO: Currently unused, as messaging init checks are not needed with the AMB-compatible stack.
   // However, they will be useful as sanity checks for Nomad deployments in the future - thus, leaving
   // this placeholder here for now...
+
   /// MARK - Connector Mirrors
   // Connectors should have their mirrors' address set; this lets them know about their counterparts.
   for (const HubConnector of HubConnectors) {
@@ -214,6 +216,9 @@ export const initProtocol = async (protocol: ProtocolStack) => {
             stack,
           },
         });
+        // TODO: Sanity checks:
+        // Make sure IS_HUB is false.
+        // RootManager is address(0).
       }
     }
     // TODO: Actually, should we just submit a warning and skip this iteration? We may discontinue an L2...
@@ -225,6 +230,22 @@ export const initProtocol = async (protocol: ProtocolStack) => {
     }
   }
   // On the hub itself, you only need to connect the mainnet l1 connector to RootManager (no mirror).
+  // Make sure both things are set correctly.
+  {
+    const mirror = await getConnectorMirror({
+      Connector: MainnetConnector,
+      stack: hub,
+    });
+    console.log("* Retrieved MainnetConnector mirror; should be address(0):", mirror);
+    if (mirror !== constants.AddressZero) {
+      // TODO: Should we just go ahead and zero it out?
+      throw new Error(`mirrorConnector for Mainnet/L1 Connector was set to an invalid value (should be address(0)): `);
+    }
+    // TODO: RootManager should be set correctly.
+    // const rootManager = await getConnectorRootManager({
+    //   Connector:
+    // });
+  }
 
   /// MARK - Enroll Handlers
   // Whitelist message-sending Handler contracts (AKA 'Routers'); will enable those message senders to call `dispatch`.
