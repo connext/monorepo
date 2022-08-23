@@ -1,4 +1,4 @@
-import { expect, ExecutorData, ExecStatus, Logger, mkBytes32 } from "@connext/nxtp-utils";
+import { expect, ExecutorData, ExecStatus, Logger, mkBytes32, RelayerType } from "@connext/nxtp-utils";
 import { constants } from "ethers";
 import { ExecutorCache } from "../../../src";
 
@@ -141,7 +141,11 @@ describe("ExecutorCache", () => {
   describe("#upsertTask", () => {
     it("happy", async () => {
       const mockTaskId = mkBytes32("0x123");
-      await cache.upsertMetaTxTask({ transferId: mockTransferId, taskId: mockTaskId });
+      await cache.upsertMetaTxTask({
+        transferId: mockTransferId,
+        taskId: mockTaskId,
+        relayer: RelayerType.Mock,
+      });
       const metaTxTask = await cache.getMetaTxTask(mockTransferId);
       expect(metaTxTask?.taskId).to.be.eq(mockTaskId);
     });
@@ -153,7 +157,11 @@ describe("ExecutorCache", () => {
     });
     it("happy", async () => {
       const mockTaskId = mkBytes32("0x123");
-      await cache.upsertMetaTxTask({ transferId: mockTransferId, taskId: mockTaskId });
+      await cache.upsertMetaTxTask({
+        transferId: mockTransferId,
+        taskId: mockTaskId,
+        relayer: RelayerType.Mock,
+      });
       const metaTxTask = await cache.getMetaTxTask(mockTransferId);
       expect(metaTxTask?.taskId).to.be.eq(mockTaskId);
     });
@@ -165,9 +173,21 @@ describe("ExecutorCache", () => {
       const mockTransferId2 = mkBytes32("0x222");
       const mockTransferId3 = mkBytes32("0x333");
 
-      await cache.upsertMetaTxTask({ transferId: mockTransferId1, taskId: mkBytes32("0x111") });
-      await cache.upsertMetaTxTask({ transferId: mockTransferId2, taskId: mkBytes32("0x222") });
-      await cache.upsertMetaTxTask({ transferId: mockTransferId3, taskId: mkBytes32("0x333") });
+      await cache.upsertMetaTxTask({
+        transferId: mockTransferId1,
+        taskId: mkBytes32("0x111"),
+        relayer: RelayerType.Mock,
+      });
+      await cache.upsertMetaTxTask({
+        transferId: mockTransferId2,
+        taskId: mkBytes32("0x222"),
+        relayer: RelayerType.Mock,
+      });
+      await cache.upsertMetaTxTask({
+        transferId: mockTransferId3,
+        taskId: mkBytes32("0x333"),
+        relayer: RelayerType.Mock,
+      });
 
       const transferIds = await cache.getSentTransfers();
       expect(transferIds).to.be.deep.eq([mockTransferId1, mockTransferId2, mockTransferId3]);

@@ -27,8 +27,9 @@ export enum RelayerTaskStatus {
 }
 
 export enum RelayerType {
-  BackupRelayer = "BackupRelayer",
   Gelato = "Gelato",
+  BackupRelayer = "BackupRelayer",
+  Mock = "Mock",
 }
 
 // Record of important data for any meta tx.

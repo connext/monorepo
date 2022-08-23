@@ -10,6 +10,7 @@ import {
   getRandomBytes32,
   Bid,
   getNtpTimeSeconds,
+  RelayerType,
 } from "@connext/nxtp-utils";
 
 import { AuctionsCache } from "../../../src/index";
@@ -189,6 +190,7 @@ describe("AuctionCache", () => {
         const task: MetaTxTask = {
           timestamp: getNtpTimeSeconds().toString(),
           taskId: getRandomBytes32(),
+          relayer: RelayerType.Mock,
           attempts: 7,
         };
         await mockRedisHelpers.setMetaTxTask(transferId, task);
@@ -211,6 +213,7 @@ describe("AuctionCache", () => {
         const resOne = await cache.upsertMetaTxTask({
           transferId,
           taskId,
+          relayer: RelayerType.Mock,
         });
         expect(resOne).to.eq(1);
 
@@ -225,6 +228,7 @@ describe("AuctionCache", () => {
         await mockRedisHelpers.setMetaTxTask(transferId, {
           timestamp,
           taskId,
+          relayer: RelayerType.Mock,
           attempts: 1,
         });
 
@@ -232,6 +236,7 @@ describe("AuctionCache", () => {
         const resTwo = await cache.upsertMetaTxTask({
           transferId,
           taskId: updatedTaskId,
+          relayer: RelayerType.Mock,
         });
         expect(resTwo).to.eq(0);
 
