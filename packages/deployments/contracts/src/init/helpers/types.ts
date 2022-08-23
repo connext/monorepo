@@ -1,3 +1,5 @@
+import { providers, Wallet } from "ethers";
+
 // NOTE: Agents will currently be whitelisted on ALL domains.
 export type WhitelistAgents = {
   // Arrays of addresses for each type of agent that requires whitelisting.
@@ -26,17 +28,33 @@ export type AssetStack = {
   };
 };
 
+export type Deployment = {
+  name: string;
+  address: string;
+  abi: any[];
+};
+
+export type HubMessagingDeployments = {
+  RootManager: Deployment;
+  MainnetConnector: Deployment;
+  HubConnectors: Deployment[];
+};
+
+export type SpokeMessagingDeployments = {
+  SpokeConnector: Deployment;
+};
+
 export type DomainDeployments = {
   // Diamond.
-  Connext: string;
+  Connext: Deployment;
   // Handlers.
   handlers: {
-    BridgeRouter: string; // TODO/NOTE: Will likely be combined with Connext in the future.
-    RelayerFeeRouter: string;
-    PromiseRouter: string;
+    BridgeRouter: Deployment; // TODO/NOTE: Will likely be combined with Connext in the future.
+    RelayerFeeRouter: Deployment;
+    PromiseRouter: Deployment;
   };
   // Registry.
-  TokenRegistry: string;
+  TokenRegistry: Deployment;
 
   // Messaging Layer.
   // ConnectorManager
@@ -44,15 +62,7 @@ export type DomainDeployments = {
 
   // The messaging layer deployments are different depending on whether this
   // is the hub domain or spoke domain.
-  messaging:
-    | {
-        RootManager: string;
-        MainnetConnector: string;
-        HubConnectors: string[];
-      }
-    | {
-        SpokeConnector: string;
-      };
+  messaging: HubMessagingDeployments | SpokeMessagingDeployments;
 };
 
 export type DomainStack = {
@@ -61,14 +71,14 @@ export type DomainStack = {
   domain: string;
 
   // RPC provider to use for this network.
-  rpc: string;
+  rpc: providers.JsonRpcProvider;
 
   // NOTE: If deployments are not specified in JSON config, we will attempt to retrieve them locally.
   deployments: DomainDeployments;
 };
 
 export type ProtocolStack = {
-  deployer: string; // The deployer/admin address.
+  deployer: Wallet; // The deployer/admin wallet.
   hub: string; // The hub domain.
   // Domain stack should have all info pertaining to each supported domain.
   domains: DomainStack[];

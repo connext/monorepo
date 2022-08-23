@@ -1,16 +1,22 @@
 import _Deployments from "../../../deployments.json";
 
-import { DomainDeployments } from "./types";
+import { Deployment, DomainDeployments } from "./types";
 
 const Deployments = _Deployments as any;
 
 export const getDeployments = (chain: string, isHub: boolean, useStaging: boolean): DomainDeployments => {
   const deployments = Deployments[chain];
-  const contracts = deployments["contracts"] as { [contract: string]: any };
+  if (!deployments) {
+    throw new Error(`No deployments found for chain ${chain}!`);
+  }
+  const contracts = deployments[0]["contracts"] as { [contract: string]: any };
+  if (!contracts) {
+    throw new Error(`No contracts found under deployments for chain ${chain}!`);
+  }
   const env = useStaging ? "Staging" : "";
 
   // Get all the Hub connectors, if applicable.
-  const connectors: string[] = [];
+  const connectors: Deployment[] = [];
   if (isHub) {
     for (const key of Object.keys(contracts)) {
       // TODO: Use regex? Or a more flexible method?
@@ -19,13 +25,23 @@ export const getDeployments = (chain: string, isHub: boolean, useStaging: boolea
         continue;
       }
       if (key.endsWith("Connector" + env) && !key.includes("Mainnet")) {
-        connectors.push(key);
+        const contract = contracts[key];
+        connectors.push({
+          name: key,
+          address: contract.address,
+          abi: contract.abi,
+        });
       }
     }
   } else {
     for (const key of Object.keys(contracts)) {
       if (key.endsWith("L2Connector" + env) || key.endsWith("SpokeConnector" + env)) {
-        connectors.push(key);
+        const contract = contracts[key];
+        connectors.push({
+          name: key,
+          address: contract.address,
+          abi: contract.abi,
+        });
       }
     }
     if (connectors.length > 1) {
@@ -42,8 +58,14 @@ export const getDeployments = (chain: string, isHub: boolean, useStaging: boolea
     const result = contracts[key];
     if (!result) {
       throw new Error(`Contract ${key} was not found in deployments.json!`);
+    } else if (!result.address || !result.abi) {
+      throw new Error(`Contract ${key} was missing address or ABI in deployments.json!`);
     }
-    return result;
+    return {
+      name: key,
+      address: result.address,
+      abi: result.abi,
+    };
   };
 
   return {

@@ -1,8 +1,15 @@
 import * as fs from "fs";
 
 import { getChainIdFromDomain, getDomainFromChainId } from "@connext/nxtp-utils";
+import { providers, Wallet } from "ethers";
 
-import { ProtocolStack, getDeployments } from "./helpers";
+import {
+  ProtocolStack,
+  getDeployments,
+  HubMessagingDeployments,
+  DomainStack,
+  getConnectorMirrorDomain,
+} from "./helpers";
 
 /**
  * Call the core `initProtocol` method using a JSON config file provided by the local environment.
@@ -25,13 +32,15 @@ export const initWithEnv = async () => {
 
   /// MARK - Deployer
   // Get deployer mnemonic, which should be provided in env if not in the config.
-  config.deployer = config.deployer || process.env.DEPLOYER || process.env.DEPLOYER_MNEMONIC;
-  if (!config.deployer) {
+  const mnemonic = config.deployer || process.env.DEPLOYER || process.env.DEPLOYER_MNEMONIC;
+  if (!mnemonic) {
     throw new Error(
       "Deployer mnemonic was not specified. Please specify `deployer` in the config file, " +
         "or set DEPLOYER or DEPLOYER_MNEMONIC in env. C'mon bro, that's like the most important thing.",
     );
   }
+  // Convert deployer from mnemonic to Wallet.
+  const deployer = Wallet.fromMnemonic(mnemonic as string);
 
   /// MARK - Domains
   // Make sure domains were specified.
@@ -48,10 +57,10 @@ export const initWithEnv = async () => {
 
   /// MARK - Deployments
   // Get deployment environment.
-  const env = process.env.ENVIRONMENT;
+  const env = config.environment || process.env.ENVIRONMENT;
   if (!env) {
     throw new Error(
-      "ENVIRONMENT was not specified in env. Please specify whether ENVIRONMENT (for deployments) is `staging` " +
+      "ENVIRONMENT was not specified in config or env. Please specify whether ENVIRONMENT (for deployments) is `staging` " +
         "or `production`, etc.",
     );
   }
@@ -90,6 +99,8 @@ export const initWithEnv = async () => {
           "I literally can't work in these conditions.",
       );
     }
+    // Convert RPC from URL string to JsonRpcProvider.
+    stack.rpc = new providers.JsonRpcProvider(stack.rpc as string);
 
     // Get the deployments for this domain, if needed.
     if (!stack.deployments) {
@@ -105,11 +116,16 @@ export const initWithEnv = async () => {
   // TODO: Sanitize assets - all addresses specified?
   // TODO: Sanitize agents - all strings are addresses?
 
-  await initProtocol({
+  const sanitized = {
     ...config,
+    deployer,
+    // Make sure hub domain is a string value.
+    hub: (config.hub as string | number).toString(),
     // If assets are not specified, just set an empty array.
     assets: config.assets ?? [],
-  } as ProtocolStack);
+  } as ProtocolStack;
+  console.log("Sanitized protocol config:", sanitized);
+  await initProtocol(sanitized);
 };
 
 /**
@@ -123,13 +139,20 @@ export const initWithEnv = async () => {
 export const initProtocol = async (protocol: ProtocolStack) => {
   /// ********************** SETUP **********************
   /// MARK - Sanity Checks
-  // Hub domain should be included in domains.
+  // Hub domain should be a domain ID and be included in domains.
+  const supportedChains = protocol.domains.map((d) => d.chain);
+  // Consumer could have specified the hub by chain ID. If so, convert the hub to domain ID.
+  if (supportedChains.includes(protocol.hub)) {
+    protocol.hub = await getDomainFromChainId(+protocol.hub);
+  }
+  // Check to make sure the hub domain is in the list of supported domains.
   const supportedDomains = protocol.domains.map((d) => d.domain);
   if (!supportedDomains.includes(protocol.hub)) {
     throw new Error(
-      `Hub domain ${protocol.hub} was not found among the \`domains\` in protocol config. Is this some kind of prank?`,
+      `Hub domain/chain ${protocol.hub} was not found among the \`domains\` in protocol config. Is this some kind of prank?`,
     );
   }
+
   // All domains specified in AssetStack(s) must be included in domains.
   for (const asset of protocol.assets) {
     const domains = [asset.canonical.domain].concat(Object.keys(asset.representations));
@@ -143,13 +166,67 @@ export const initProtocol = async (protocol: ProtocolStack) => {
       }
     }
   }
+
+  /// MARK - Peripherals Setup
+  // Get hub domain for specific use.
+  const hub: DomainStack = protocol.domains.filter((d) => d.domain === protocol.hub)[0];
   /// ******************** MESSAGING ********************
   /// MARK - Init
   // TODO: Currently unused, as messaging init checks are not needed with the AMB-compatible stack.
   // However, they will be useful as sanity checks for Nomad deployments in the future - thus, leaving
   // this placeholder here for now...
   /// MARK - Connector Mirrors
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const { RootManager, MainnetConnector, HubConnectors } = hub.deployments.messaging as HubMessagingDeployments;
+
+  for (const Connector of HubConnectors) {
+    // Get the connector's mirror domain.
+    const mirrorDomain = await getConnectorMirrorDomain({
+      Connector,
+      domain: hub,
+    });
+    console.log(mirrorDomain);
+  }
+
   // Connectors should have their mirrors' address set; this lets them know about their counterparts.
+  // const connectors: { chain: string; hub: Deployment; spoke: Deployment }[] = [];
+  // On the hub, you only need to connect the mainnet l1 connector (no mirror).
+
+  for (const stack of protocol.domains) {
+    // Skip hub domain.
+    if (stack.domain === protocol.hub) {
+      continue;
+      // connectors.push({
+      //   chain: +stack.chain,
+      //   deployment:
+      //   mirrorName: undefined,
+      //   mirrorChain: undefined,
+      // });
+      // continue;
+    }
+
+    // When not on the hub, there will be a name for both the hub and spoke side connectors.
+    // connectors.push({
+    //   chain: stack.chain,
+    //   hub: HubConnectors.
+    // })
+
+    // const hubName = getDeploymentName(`${config.prefix}${HUB_PREFIX}Connector`);
+    // const spokeName = getDeploymentName(`${config.prefix}${SPOKE_PREFIX}Connector`);
+    // connectors.push({
+    //   chain: protocol.hub,
+    //   name: hubName,
+    //   mirrorName: spokeName,
+    //   mirrorChain: +chainId,
+    // });
+    // connectors.push({
+    //   chain: +chainId,
+    //   name: spokeName,
+    //   mirrorName: hubName,
+    //   mirrorChain: protocol.hub,
+    // });
+  }
+
   /// MARK - Enroll Handlers
   // Whitelist message-sending Handler contracts (AKA 'Routers'); will enable those message senders to call `dispatch`.
   // Call `addSender` on Connector contract, passing in each Handler contract.
