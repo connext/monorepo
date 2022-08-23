@@ -1,5 +1,7 @@
+import * as fs from "fs";
+
 // NOTE: Agents will currently be whitelisted on ALL domains.
-type WhitelistAgents = {
+export type WhitelistAgents = {
   // Arrays of addresses for each type of agent that requires whitelisting.
   relayers: string[]; // NOTE: Relayers will be whitelisted for both `execute` and messaging calls.
   sequencers: string[];
@@ -7,7 +9,7 @@ type WhitelistAgents = {
   watchers: string[];
 };
 
-type AssetStack = {
+export type AssetStack = {
   canonical: {
     // The canonical domain of the asset.
     domain: string;
@@ -26,7 +28,7 @@ type AssetStack = {
   };
 };
 
-type DomainStack = {
+export type DomainStack = {
   // Meta info.
   chain: number;
   domain: string;
@@ -34,7 +36,8 @@ type DomainStack = {
   // RPC provider to use for this network.
   rpc: string;
 
-  deployments: {
+  // NOTE: If deployments are not specified, we will attempt to retrieve them locally.
+  deployments?: {
     // Diamond.
     Connext: string;
     // Handlers.
@@ -64,7 +67,7 @@ type DomainStack = {
   };
 };
 
-type ProtocolStack = {
+export type ProtocolStack = {
   hub: string; // The hub domain.
   // Domain stack should have all info pertaining to each supported domain.
   domains: DomainStack[];
@@ -76,6 +79,27 @@ type ProtocolStack = {
 };
 
 /**
+ * Call the core `initProtocol` method using a JSON config file provided by the local environment.
+ */
+export const initWithEnv = async () => {
+  const path = process.env.INIT_CONFIG_FILE ?? "init.json";
+  console.log(`Retrieving config file from ${path}...`);
+  if (!fs.existsSync(path)) {
+    throw new Error(
+      "No init config file was provided. Please set INIT_CONFIG_FILE in env or create init.json locally.",
+    );
+  }
+  const json = fs.readFileSync(path, { encoding: "utf-8" });
+  console.log("Parsing JSON config...");
+  // TODO: Use typebox and AJV parser for config to ensure params are correct?
+  const config = JSON.parse(json) as ProtocolStack;
+  if (!config) {
+    throw new Error("Config was empty? Please ensure your JSON file has, like, stuff in it.");
+  }
+  await initProtocol(config);
+};
+
+/**
  * Handle configuration of the entire protocol, including messaging stack and connext diamond
  * contracts, across all listed domains.
  *
@@ -83,7 +107,7 @@ type ProtocolStack = {
  * requires configuration and/or setup has been done so properly.
  */
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-export const configureProtocol = async (protocol: ProtocolStack) => {
+export const initProtocol = async (protocol: ProtocolStack) => {
   /// ********************** SETUP **********************
   /// MARK - Sanity Checks
   // Hub domain should be included in domains.
@@ -109,6 +133,8 @@ export const configureProtocol = async (protocol: ProtocolStack) => {
   // Check to make sure Diamond Proxy is initialized.
   /// MARK - Connextions
   // TODO/NOTE: Will likely be removing 'connextions' once we combine Connext+BridgeRouter.
+  /// MARK - Set BridgeRouter
+  // Set `bridgeRouter` in Connext contract to the correct address.
   /// ********************* ASSETS **********************
   /// MARK - Register Assets
   // Convert asset addresses: get canonical ID, canonical domain, convert to `key` hash.
