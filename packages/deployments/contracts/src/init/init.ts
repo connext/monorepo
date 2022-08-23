@@ -44,34 +44,19 @@ export const sanitizeAndInit = async (config: any) => {
   if (!mnemonic) {
     throw new Error(
       "Deployer mnemonic was not specified. Please specify `deployer` in the config file, " +
-        "or set DEPLOYER or DEPLOYER_MNEMONIC in env. C'mon bro, that's like the most important thing.",
+        "or set DEPLOYER or DEPLOYER_MNEMONIC in env.",
     );
   }
   // Convert deployer from mnemonic to Wallet.
   const deployer = Wallet.fromMnemonic(mnemonic as string);
 
-  /// MARK - Hub
+  /// MARK - Domains
   // Make sure hub is specified.
   if (!config.hub) {
     throw new Error("`hub` was not specified in config. Please specify the Hub (L1) domain used for messaging.");
   }
-  // Hub domain should be a domain ID and be included in domains.
-  const supportedChains = config.domains.map((d: any) => d.chain);
   // Make sure hub domain is a string value.
   let hub = (config.hub as string | number).toString();
-  // Consumer could have specified the hub by chain ID. If so, convert the hub to domain ID.
-  if (supportedChains.includes(config.hub)) {
-    hub = await getDomainFromChainId(+hub);
-  }
-  // Check to make sure the hub domain is in the list of supported domains.
-  const supportedDomains = config.domains.map((d: any) => d.domain);
-  if (!supportedDomains.includes(hub)) {
-    throw new Error(
-      `Hub domain/chain ${hub} was not found among the \`domains\` in protocol config. Is this some kind of prank?`,
-    );
-  }
-
-  /// MARK - Domains
   // Make sure domains were specified.
   if (!Array.isArray(config.domains) || config.domains.length === 0) {
     throw new Error(
@@ -128,7 +113,12 @@ export const sanitizeAndInit = async (config: any) => {
 
     // Get the deployments for this domain, if needed.
     if (!stack.deployments) {
-      const isHub = stack.domain === hub;
+      let isHub = stack.domain === hub;
+      if (stack.chain === hub) {
+        // Consumer could have specified the hub by chain ID. If so, convert the hub to domain ID.
+        isHub = true;
+        hub = stack.domain;
+      }
       stack.deployments = getDeployments(stack.chain as string, isHub, useStaging);
     }
 
@@ -137,16 +127,28 @@ export const sanitizeAndInit = async (config: any) => {
     config.domains[i] = stack;
   }
 
+  /// MARK - Hub
+  // Hub domain should be a domain ID and be included in the list of supported domains.
+  const supportedDomains = config.domains.map((d: any) => d.domain);
+  if (!supportedDomains.includes(hub)) {
+    const supportedChains = config.domains.map((d: any) => d.chain);
+    throw new Error(
+      `Hub domain/chain ${hub} was not found among the \`domains\` in protocol config. Is this some kind of prank?` +
+        `Support domains: ${supportedDomains.join(",")}; Supported chains: ${supportedChains.join(",")}`,
+    );
+  }
+
   /// MARK - Assets
+  // If assets are not specified, just set an empty array.
+  const assets = config.assets ?? [];
   // All domains specified in AssetStack(s) must be included in domains.
-  for (const asset of config.assets) {
+  for (const asset of assets) {
     const domains = [asset.canonical.domain].concat(Object.keys(asset.representations as { [domain: string]: any }));
     for (const domain of domains) {
       if (!supportedDomains.includes(domain)) {
         throw new Error(
           `Asset with canonical address of ${asset.canonical.local} and canonical domain ${asset.canonical.domain} included ` +
-            `an entry for a non-supported domain ${domain}. Please add the domain to the \`domains\` list in your config. ` +
-            "Or don't. I'm not your boss. But have you ever heard the definition of insanity?",
+            `an entry for a non-supported domain ${domain}. Please add the domain to the \`domains\` list in your config. `,
         );
       }
     }
@@ -160,8 +162,7 @@ export const sanitizeAndInit = async (config: any) => {
     ...config,
     deployer,
     hub,
-    // If assets are not specified, just set an empty array.
-    assets: config.assets ?? [],
+    assets,
   } as ProtocolStack;
   console.log("Sanitized protocol config:", sanitized);
   await initProtocol(sanitized);
