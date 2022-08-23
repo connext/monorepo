@@ -4,19 +4,17 @@ type WhitelistAgents = {
   relayers: string[]; // NOTE: Relayers will be whitelisted for both `execute` and messaging calls.
   sequencers: string[];
   routers: string[];
+  watchers: string[];
 };
 
 type AssetStack = {
   canonical: {
     // The canonical domain of the asset.
     domain: string;
-    // Address of the bridged asset on the canonical domain.
+    // Address of the official canonical token on the canonical domain.
     local: string;
-    // The address of the official canonical token.
-    // NOTE: If not specified here, then I guess the asset is natively cross-chain?
-    adopted?: string;
   };
-  representational: {
+  representations: {
     [domain: string]: {
       // Address of the bridged asset on this domain.
       local: string;
@@ -40,9 +38,11 @@ type DomainStack = {
     // Diamond.
     Connext: string;
     // Handlers.
-    BridgeRouter: string;
-    RelayerFeeRouter: string;
-    PromiseRouter: string;
+    handlers: {
+      BridgeRouter: string; // TODO/NOTE: Will likely be combined with Connext in the future.
+      RelayerFeeRouter: string;
+      PromiseRouter: string;
+    };
     // Registry.
     TokenRegistry: string;
 
@@ -102,18 +102,25 @@ export const configureProtocol = async (protocol: ProtocolStack) => {
   /// MARK - Connector Mirrors
   // Connectors should have their mirrors' address set; this lets them know about their counterparts.
   /// MARK - Enroll Handlers
-  // Whitelist messaging routers as callers of dispatch?
-  // Enroll messaging handlers.
+  // Whitelist message-sending Handler contracts (AKA 'Routers'); will enable those message senders to call `dispatch`.
+  // Call `addSender` on Connector contract, passing in each Handler contract.
   /// ********************* CONNEXT *********************
   /// MARK - Init
   // Check to make sure Diamond Proxy is initialized.
   /// MARK - Connextions
-  //
+  // TODO/NOTE: Will likely be removing 'connextions' once we combine Connext+BridgeRouter.
   /// ********************* ASSETS **********************
   /// MARK - Register Assets
-  // Convert asset addresses
-  // Register assets in the TokenRegistry (enroll-custom).
+  // Convert asset addresses: get canonical ID, canonical domain, convert to `key` hash.
+  // Determine if a stableswap pool is needed - does asset have both `local` and `adopted`?
+  // If so, initialize stableswap pool with `initializeSwap`.
+  // Call `setupAsset` for each domain. This will:
+  // - Register assets in the TokenRegistry (enroll-custom).
+  // - Set up mappings for canonical ID / canonical domain / adopted asset address / etc.
+  // - Set up mapping for stableswap pool if applicable.
   /// ********************* AGENTS **********************
+  /// MARK - Enroll Watchers
+  // Whitelist watchers in RootManager, with the ability to disconnect malicious connectors.
   /// MARK - Relayers
   // Whitelist named relayers for the Connext bridge, in order to call `execute`.
   // Approve relayers as callers for connectors and root manager
