@@ -1,5 +1,6 @@
 import { createLoggingContext, ExecutorDataStatus } from "@connext/nxtp-utils";
 import { GelatoTaskState } from "@connext/nxtp-utils/dist/types/relayer";
+
 import { getContext } from "../../sequencer";
 import { getHelpers } from "../helpers";
 

@@ -22,7 +22,7 @@ export const sendExecuteSlowToRelayer = async (
   } = getHelpers();
 
   const { transferId, relayerFee, encodedData } = executorData;
-  let transfer = await cache.transfers.getTransfer(transferId);
+  const transfer = await cache.transfers.getTransfer(transferId);
   if (!transfer) {
     throw new MissingTransfer({ transferId });
   }

@@ -8,6 +8,7 @@ import {
   ExecutorDataStatus,
   getChainIdFromDomain,
 } from "@connext/nxtp-utils";
+
 import { getContext } from "../../sequencer";
 import {
   ParamsInvalid,
@@ -21,6 +22,7 @@ import {
 } from "../errors";
 import { getHelpers } from "../helpers";
 import { Message, MessageType } from "../entities";
+
 import { getOperations } from ".";
 
 export const storeExecutorData = async (executorData: ExecutorData, _requestContext: RequestContext): Promise<void> => {
@@ -158,12 +160,12 @@ export const executeSlowPathData = async (
   const { requestContext, methodContext } = createLoggingContext(storeExecutorData.name, _requestContext);
   logger.debug(`Method start: ${executeSlowPathData.name}`, requestContext, methodContext, { transferId, type });
 
-  let transfer = await cache.transfers.getTransfer(transferId);
+  const transfer = await cache.transfers.getTransfer(transferId);
   if (!transfer) {
     throw new MissingTransfer({ transferId });
   }
 
-  let executorData = await cache.executors.getExecutorData(transferId);
+  const executorData = await cache.executors.getExecutorData(transferId);
   if (!executorData) {
     throw new MissingExecutorData({ transfer });
   }
