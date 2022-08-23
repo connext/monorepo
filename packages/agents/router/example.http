@@ -1,5 +1,5 @@
 @routerUrl = http://localhost:8080
-# @routerUrl = https://router.testnet.staging.connext.ninja
+@routerUrl = https://router-publisher.testnet.staging.connext.ninja
 
 @adminToken = foo
 

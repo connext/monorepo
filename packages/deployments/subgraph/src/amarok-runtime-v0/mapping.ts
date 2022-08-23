@@ -429,6 +429,8 @@ function getChainId(): BigInt {
     chainId = BigInt.fromI32(137);
   } else if (network == "fantom") {
     chainId = BigInt.fromI32(250);
+  } else if (network == "optimism-goerli") {
+    chainId = BigInt.fromI32(420);
   } else if (network == "mbase") {
     chainId = BigInt.fromI32(1287);
   } else if (network == "arbitrum-one") {
