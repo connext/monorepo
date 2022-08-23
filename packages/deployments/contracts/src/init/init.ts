@@ -9,6 +9,8 @@ import {
   HubMessagingDeployments,
   DomainStack,
   getConnectorMirrorDomain,
+  setConnectorMirrors,
+  SpokeMessagingDeployments,
 } from "./helpers";
 
 /**
@@ -181,62 +183,48 @@ export const initProtocol = async (protocol: ProtocolStack) => {
   /// MARK - Peripherals Setup
   // Get hub domain for specific use.
   const hub: DomainStack = protocol.domains.filter((d) => d.domain === protocol.hub)[0];
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const { RootManager, MainnetConnector, HubConnectors } = hub.deployments.messaging as HubMessagingDeployments;
   /// ******************** MESSAGING ********************
   /// MARK - Init
   // TODO: Currently unused, as messaging init checks are not needed with the AMB-compatible stack.
   // However, they will be useful as sanity checks for Nomad deployments in the future - thus, leaving
   // this placeholder here for now...
   /// MARK - Connector Mirrors
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const { RootManager, MainnetConnector, HubConnectors } = hub.deployments.messaging as HubMessagingDeployments;
-
-  for (const Connector of HubConnectors) {
+  // Connectors should have their mirrors' address set; this lets them know about their counterparts.
+  for (const HubConnector of HubConnectors) {
     // Get the connector's mirror domain.
     const mirrorDomain = await getConnectorMirrorDomain({
-      Connector,
-      domain: hub,
+      Connector: HubConnector,
+      stack: hub,
     });
-    console.log(mirrorDomain);
-  }
-
-  // Connectors should have their mirrors' address set; this lets them know about their counterparts.
-  // const connectors: { chain: string; hub: Deployment; spoke: Deployment }[] = [];
-  // On the hub, you only need to connect the mainnet l1 connector (no mirror).
-
-  for (const stack of protocol.domains) {
-    // Skip hub domain.
-    if (stack.domain === protocol.hub) {
-      continue;
-      // connectors.push({
-      //   chain: +stack.chain,
-      //   deployment:
-      //   mirrorName: undefined,
-      //   mirrorChain: undefined,
-      // });
-      // continue;
+    // Find the spoke domain. Set the mirrors for both the spoke domain's Connector and hub domain's Connector.
+    let foundMirror = false;
+    for (const stack of protocol.domains) {
+      if (stack.domain === mirrorDomain) {
+        foundMirror = true;
+        await setConnectorMirrors({
+          deployer: protocol.deployer,
+          hub: {
+            Connector: HubConnector,
+            stack: hub,
+          },
+          spoke: {
+            Connector: (stack.deployments.messaging as SpokeMessagingDeployments).SpokeConnector,
+            stack,
+          },
+        });
+      }
     }
-
-    // When not on the hub, there will be a name for both the hub and spoke side connectors.
-    // connectors.push({
-    //   chain: stack.chain,
-    //   hub: HubConnectors.
-    // })
-
-    // const hubName = getDeploymentName(`${config.prefix}${HUB_PREFIX}Connector`);
-    // const spokeName = getDeploymentName(`${config.prefix}${SPOKE_PREFIX}Connector`);
-    // connectors.push({
-    //   chain: protocol.hub,
-    //   name: hubName,
-    //   mirrorName: spokeName,
-    //   mirrorChain: +chainId,
-    // });
-    // connectors.push({
-    //   chain: +chainId,
-    //   name: spokeName,
-    //   mirrorName: hubName,
-    //   mirrorChain: protocol.hub,
-    // });
+    // TODO: Actually, should we just submit a warning and skip this iteration? We may discontinue an L2...
+    // TODO: Alternatively, this would be best as a sanity check.
+    if (!foundMirror) {
+      throw new Error(
+        `Did not find mirrorDomain ${mirrorDomain} in protocol domains! Please configure all L2/spoke domains.`,
+      );
+    }
   }
+  // On the hub itself, you only need to connect the mainnet l1 connector to RootManager (no mirror).
 
   /// MARK - Enroll Handlers
   // Whitelist message-sending Handler contracts (AKA 'Routers'); will enable those message senders to call `dispatch`.
