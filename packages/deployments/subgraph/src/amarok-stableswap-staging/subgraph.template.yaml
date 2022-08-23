@@ -16,15 +16,13 @@ dataSources:
       apiVersion: 0.0.6
       language: wasm/assemblyscript
       entities:
-        - Asset
-        - AssetBalance
+        - MetaData
+        - PoolToken
         - Router
         - Transfer
       abis:
         - name: StableSwap
           file: ./src/amarok-stableswap-staging/abis/StableSwap.json
-        - name: SwapUtilsExternal
-          file: ./src/amarok-stableswap-staging/abis/SwapUtilsExternal.json
       eventHandlers:
         - event: AddLiquidity(indexed address,uint256[],uint256[],uint256,uint256)
           handler: handleAddLiquidity
