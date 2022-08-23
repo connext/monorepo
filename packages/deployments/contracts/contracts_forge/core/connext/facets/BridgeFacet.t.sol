@@ -1251,7 +1251,7 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
 
     (, XCallArgs memory args) = utils_makeXCallArgs(_amount);
 
-    vm.expectRevert("ERC20: transfer amount exceeds allowance");
+    vm.expectRevert("ERC20: insufficient allowance");
     vm.prank(_originSender);
     this.xcall{value: args.params.relayerFee}(args);
   }

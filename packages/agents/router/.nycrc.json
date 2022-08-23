@@ -23,6 +23,7 @@
     "src/tasks/subscriber/bindings/index.ts",
     "src/tasks/subscriber/operations/index.ts",
     "src/tasks/executor/context.ts",
+    "src/tasks/executor/bindings/server/index.ts",
     "src/tasks/executor/executor.ts",
     "src/tasks/executor/index.ts",
     "test/**/*.ts"

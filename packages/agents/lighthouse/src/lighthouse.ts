@@ -3,8 +3,8 @@ import { getContractInterfaces, ChainReader, contractDeployments } from "@connex
 
 import { setupSequencer } from "./adapters";
 import { getConfig } from "./config";
-import { bindCartographer } from "./bindings";
 import { AppContext } from "./lib/entities";
+import { bindCartographer } from "./bindings";
 
 // AppContext instance used for interacting with adapters, config, etc.
 const context: AppContext = {} as any;
