@@ -208,7 +208,7 @@ describe("AuctionCache", () => {
         const transferId = getRandomBytes32();
 
         const taskId = getRandomBytes32();
-        const resOne = await cache.upsertTask({
+        const resOne = await cache.upsertMetaTxTask({
           transferId,
           taskId,
         });
@@ -229,7 +229,7 @@ describe("AuctionCache", () => {
         });
 
         const updatedTaskId = getRandomBytes32();
-        const resTwo = await cache.upsertTask({
+        const resTwo = await cache.upsertMetaTxTask({
           transferId,
           taskId: updatedTaskId,
         });

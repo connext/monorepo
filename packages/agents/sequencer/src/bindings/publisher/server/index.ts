@@ -67,7 +67,7 @@ export const bindServer = async (): Promise<FastifyInstance> => {
           throw new Error("Critical error: auction status was present but data not found");
         }
 
-        const task = await cache.auctions.getTask(transferId);
+        const task = await cache.auctions.getMetaTxTask(transferId);
 
         return response.status(200).send({
           bids: auction.bids,

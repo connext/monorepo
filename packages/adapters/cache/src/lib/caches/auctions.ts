@@ -76,7 +76,7 @@ export class AuctionsCache extends Cache {
    * @param transferId - The ID of the transfer we are auctioning.
    * @returns MetaTxTask if exists, undefined otherwise.
    */
-  public async getTask(transferId: string): Promise<MetaTxTask | undefined> {
+  public async getMetaTxTask(transferId: string): Promise<MetaTxTask | undefined> {
     const res = await this.data.hget(`${this.prefix}:task`, transferId);
     return res ? (JSON.parse(res) as MetaTxTask) : undefined;
   }
@@ -89,7 +89,7 @@ export class AuctionsCache extends Cache {
    *
    * @returns 0 if updated, 1 if created
    */
-  public async upsertTask({
+  public async upsertMetaTxTask({
     transferId,
     taskId,
     relayer,
@@ -98,7 +98,7 @@ export class AuctionsCache extends Cache {
     taskId: string;
     relayer: RelayerType;
   }): Promise<number> {
-    const existing = await this.getTask(transferId);
+    const existing = await this.getMetaTxTask(transferId);
     const task: MetaTxTask = {
       // We update the timestamp each time here; it is intended to reflect when the *last* meta tx was sent.
       timestamp: getNtpTimeSeconds().toString(),

@@ -17,7 +17,7 @@ export const updateTask = async (transferId: string, status: RelayerTaskStatus):
   if (executorDataStatus !== ExecStatus.Sent) {
     throw new NoGelatoTask({ transferId });
   }
-  const metaTxTask = await cache.executors.getTask(transferId);
+  const metaTxTask = await cache.executors.getMetaTxTask(transferId);
   const taskId = metaTxTask?.taskId;
   let result = ExecStatus.Sent;
   if (taskId) {

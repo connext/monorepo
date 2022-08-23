@@ -200,7 +200,7 @@ export const executeSlowPathData = async (
   }
   if (taskId && relayer) {
     await cache.executors.setExecStatus(transferId, ExecStatus.Completed);
-    await cache.executors.upsertTask({ transferId, taskId, relayer });
+    await cache.executors.upsertMetaTxTask({ transferId, taskId, relayer });
   } else {
     // Prunes all the executor data for a given transferId
     await cache.executors.pruneExecutorData(transferId);

@@ -55,7 +55,7 @@ export const bindSubscriber = async (queueName: string) => {
             // ACK on success
             // Validate transfer is sent to relayer before ACK
             const status = await cache.auctions.getStatus(message.transferId);
-            const task = await cache.auctions.getTask(message.transferId);
+            const task = await cache.auctions.getMetaTxTask(message.transferId);
             if ((task?.taskId && status == ExecStatus.Sent) || status == ExecStatus.Completed) {
               msg.ack();
               logger.info("Transfer ACKed", requestContext, methodContext, {

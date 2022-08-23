@@ -383,7 +383,7 @@ export const executeFastPathData = async (
     });
 
     await cache.auctions.setStatus(transferId, ExecStatus.Sent);
-    await cache.auctions.upsertTask({ transferId, taskId, relayer });
+    await cache.auctions.upsertMetaTxTask({ transferId, taskId, relayer });
 
     return taskId;
   }
