@@ -482,6 +482,7 @@ jobs:
     outputs:
       router-publisher-tags: ${{ needs.build-and-push-router-publisher-image.outputs.json }}
       router-subscriber-tags: ${{ needs.build-and-push-router-subscriber-image.outputs.json }}
+      router-executor-tags: ${{ needs.build-and-push-router-executor-image.outputs.json }}
       sequencer-publisher-tags: ${{ needs.build-and-push-sequencer-publisher-image.outputs.json }}
       sequencer-subscriber-tags: ${{ needs.build-and-push-sequencer-subscriber-image.outputs.json }}
       cartographer-routers-tags: ${{ needs.build-and-push-cartographer-routers-image.outputs.json }}
@@ -539,9 +540,9 @@ jobs:
     outputs:
       router-publisher-tags: ${{ needs.build-and-push-router-publisher-image.outputs.json }}
       router-subscriber-tags: ${{ needs.build-and-push-router-subscriber-image.outputs.json }}
+      router-executor-tags: ${{ needs.build-and-push-router-executor-image.outputs.json }}
       sequencer-publisher-tags: ${{ needs.build-and-push-sequencer-publisher-image.outputs.json }}
       sequencer-subscriber-tags: ${{ needs.build-and-push-sequencer-subscriber-image.outputs.json }}
-
       cartographer-routers-tags: ${{ needs.build-and-push-cartographer-routers-image.outputs.json }}
       cartographer-transfers-tags: ${{ needs.build-and-push-cartographer-transfers-image.outputs.json }}
       lighthouse-tags: ${{ needs.build-and-push-lighthouse-image.outputs.json }}
