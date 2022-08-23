@@ -306,8 +306,9 @@ export const executeAuction = async (transferId: string, _requestContext: Reques
         logger.debug("Sending bid to relayer", requestContext, methodContext, {
           transferId,
           bid: {
-            // NOTE: Obfuscating signatures here for safety.
-            routers: randomCombination.map((bid) => bid.router),
+            routers: randomCombination.map((bid) => {
+              return { router: bid.router, signature: bid.signatures };
+            }),
           },
         });
         // Send the relayer request based on chosen bids.
