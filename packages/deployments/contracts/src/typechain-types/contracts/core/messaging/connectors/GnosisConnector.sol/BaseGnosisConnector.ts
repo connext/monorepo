@@ -339,7 +339,7 @@ export interface BaseGnosisConnectorInterface extends utils.Interface {
   ): Result;
 
   events: {
-    "Dispatch(bytes32,uint256,bytes32,bytes)": EventFragment;
+    "Dispatch(bytes32,uint256,bytes32,uint32,bytes)": EventFragment;
     "MessageProcessed(address,bytes,address)": EventFragment;
     "MessageSent(bytes,address)": EventFragment;
     "MirrorConnectorUpdated(address,address)": EventFragment;
@@ -365,10 +365,11 @@ export interface DispatchEventObject {
   leaf: string;
   index: BigNumber;
   root: string;
+  destinationDomain: number;
   message: string;
 }
 export type DispatchEvent = TypedEvent<
-  [string, BigNumber, string, string],
+  [string, BigNumber, string, number, string],
   DispatchEventObject
 >;
 
@@ -873,16 +874,18 @@ export interface BaseGnosisConnector extends BaseContract {
   };
 
   filters: {
-    "Dispatch(bytes32,uint256,bytes32,bytes)"(
+    "Dispatch(bytes32,uint256,bytes32,uint32,bytes)"(
       leaf?: null,
       index?: null,
       root?: null,
+      destinationDomain?: null,
       message?: null
     ): DispatchEventFilter;
     Dispatch(
       leaf?: null,
       index?: null,
       root?: null,
+      destinationDomain?: null,
       message?: null
     ): DispatchEventFilter;
 

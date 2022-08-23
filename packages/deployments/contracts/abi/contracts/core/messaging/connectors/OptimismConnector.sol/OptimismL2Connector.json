@@ -8,7 +8,7 @@
   "error ProposedOwnable__renounceOwnership_delayNotElapsed()",
   "error ProposedOwnable__renounceOwnership_invalidProposal()",
   "error ProposedOwnable__renounceOwnership_noProposal()",
-  "event Dispatch(bytes32,uint256,bytes32,bytes)",
+  "event Dispatch(bytes32,uint256,bytes32,uint32,bytes)",
   "event MessageProcessed(address,bytes,address)",
   "event MessageSent(bytes,address)",
   "event MirrorConnectorUpdated(address,address)",

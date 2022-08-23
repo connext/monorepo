@@ -36,7 +36,7 @@ abstract contract Connector is ProposedOwnable, MerkleTreeManager, ConnectorMana
 
   event SenderRemoved(address sender);
 
-  event Dispatch(bytes32 leaf, uint256 index, bytes32 root, bytes message);
+  event Dispatch(bytes32 leaf, uint256 index, bytes32 root, uint32 destinationDomain, bytes message);
 
   event Process(bytes32 leaf, bool success, bytes returnData);
 
@@ -265,7 +265,7 @@ abstract contract Connector is ProposedOwnable, MerkleTreeManager, ConnectorMana
     outboundRoot = root();
     // Emit Dispatch event with message information
     // note: leafIndex is count() - 1 since new leaf has already been inserted
-    emit Dispatch(_messageHash, count() - 1, outboundRoot, _message);
+    emit Dispatch(_messageHash, count() - 1, outboundRoot, _destinationDomain, _message);
   }
 
   /**

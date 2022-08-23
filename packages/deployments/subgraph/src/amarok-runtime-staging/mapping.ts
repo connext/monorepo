@@ -1,6 +1,7 @@
 /* eslint-disable prefer-const */
 import { Address, BigInt, Bytes, dataSource } from "@graphprotocol/graph-ts";
 
+import { Dispatch } from "../../generated/Connector/Connector";
 import {
   RouterLiquidityAdded,
   RouterLiquidityRemoved,
@@ -29,6 +30,7 @@ import {
   OriginTransfer,
   DestinationTransfer,
   Setting,
+  Message,
 } from "../../generated/schema";
 
 const DEFAULT_MAX_ROUTERS_PER_TRANSFER = 5;
@@ -477,4 +479,24 @@ function getOrCreateAssetBalance(local: Address, routerAddress: Address): AssetB
     assetBalance.amount = new BigInt(0);
   }
   return assetBalance;
+}
+
+/**
+ * Messaging: `handleDispatch` responds to `Dispatch` events, which occur on the Connector contract
+ * when an `xcall` appends to the current `outboundRoot`.
+ *
+ * The Message entity saved in the subgraph records the cross-chain message and the target destination
+ * domain, which will be consulted to handle the `proveAndProcess` component later.
+ */
+export function handleDispatch(event: Dispatch): void {
+  // Create a new Message for this Dispatch event. ID is composed of leaf hash + index.
+  const id = event.params.leaf.toHex() + event.params.index.toHex();
+  let message = new Message(id);
+
+  // Fill out Message entity information.
+  message.leaf = event.params.leaf;
+  message.index = event.params.index;
+  message.root = event.params.root;
+  message.destinationDomain = event.params.destinationDomain;
+  message.message = event.params.message;
 }

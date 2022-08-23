@@ -73,6 +73,12 @@ const _abi = [
       },
       {
         indexed: false,
+        internalType: "uint32",
+        name: "destinationDomain",
+        type: "uint32",
+      },
+      {
+        indexed: false,
         internalType: "bytes",
         name: "message",
         type: "bytes",

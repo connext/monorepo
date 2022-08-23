@@ -157,3 +157,19 @@ type DestinationTransfer @entity {
   reconciledGasLimit: BigInt
   reconciledBlockNumber: BigInt
 }
+
+# Messaging
+type Message @entity {
+  id: ID!
+
+  # Merkle Info
+  leaf: Bytes
+  index: BigInt
+  root: Bytes
+
+  # Route Info
+  destinationDomain: BigInt
+
+  # Content
+  message: Bytes
+}

@@ -2,6 +2,29 @@ specVersion: 0.0.4
 schema:
   file: ./src/amarok-runtime-v0/schema.graphql
 dataSources:
+  # Connector.sol events
+  - kind: ethereum/contract
+    name: Connector
+    network: "{{network}}"
+    source:
+      address: "{{address}}"
+      abi: Connector
+      # prettier-ignore
+      startBlock: {{startBlock}}
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.6
+      language: wasm/assemblyscript
+      entities:
+        - Message
+      abis:
+        - name: Connector
+          file: ./src/amarok-runtime-v0/abis/Connector.json
+      eventHandlers:
+        # Dispatch: leaf, index, root, message
+        - event: Dispatch(bytes32,uint256,bytes32,uint32,bytes)
+          handler: handleDispatch
+      file: ./src/amarok-runtime-v0/mapping.ts
   # ConnextHandler.sol events
   - kind: ethereum/contract
     name: Connext
