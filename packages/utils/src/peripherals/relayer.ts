@@ -187,4 +187,28 @@ export const connextRelayerSend = async (
   return output;
 };
 
-// export const getTaskStatusFromBackupRelayer = async (taskId: string, logger?: Logger): Promise<RelayerTaskStatus> => {};
+/**
+ * Gets the task status from the backup relayer
+ * @param url - The base url
+ * @param taskId - The task id you wanna get the status for
+ * @param logger - Logger Instance
+ * @returns - RelayerTaskStatus
+ */
+export const getTaskStatusFromBackupRelayer = async (
+  url: string,
+  taskId: string,
+  logger?: Logger,
+): Promise<RelayerTaskStatus> => {
+  let result = RelayerTaskStatus.NotFound;
+  try {
+    const apiEndpoint = `${url}/tasks/${taskId}`;
+    const res = await axios.get(apiEndpoint);
+    result = res.data[0]?.taskState as RelayerTaskStatus;
+  } catch (error: unknown) {
+    if (logger)
+      logger.error("Error in getTaskStatusFromBackupRelayer", undefined, undefined, jsonifyError(error as Error));
+    else console.log("Error in getTaskStatusFromBackupRelayer, error: ", error);
+  }
+
+  return result;
+};

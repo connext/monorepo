@@ -170,7 +170,7 @@ export const mock = {
   },
   operations: {
     auctions: {
-      storeBid: stub(),
+      storeFastPathData: stub(),
       executeFastPathData: stub(),
     },
     relayer: {

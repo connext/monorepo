@@ -65,7 +65,7 @@ export const sendExecuteFastToRelayer = async (
         taskId,
         transferId: transfer.transferId,
       });
-      return { taskId, relayer: RelayerType.Backup };
+      return { taskId, relayer: RelayerType.BackupRelayer };
     } catch (error: unknown) {
       logger.warn("Failed to send meta transaction to Connext relayer", requestContext, methodContext, {
         transferId: transfer.transferId,

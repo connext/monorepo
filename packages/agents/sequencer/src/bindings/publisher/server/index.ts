@@ -101,13 +101,13 @@ export const bindServer = async (): Promise<FastifyInstance> => {
     },
     async (request, response) => {
       const {
-        auctions: { storeBid },
+        auctions: { storeFastPathData },
       } = getOperations();
       const { requestContext } = createLoggingContext("POST /execute-fast/:transferId endpoint", undefined, "");
       try {
         const bid = request.body;
         requestContext.transferId = bid.transferId;
-        await storeBid(bid, requestContext);
+        await storeFastPathData(bid, requestContext);
         return response.status(200).send({ message: "Bid received", transferId: bid.transferId, router: bid.router });
       } catch (error: unknown) {
         const type = (error as NxtpError).type;
@@ -152,11 +152,11 @@ export const bindServer = async (): Promise<FastifyInstance> => {
     async (request, response) => {
       const { requestContext } = createLoggingContext("POST /execute-slow endpoint");
       const {
-        executor: { storeExecutorData },
+        executor: { storeSlowPathData },
       } = getOperations();
       try {
         const executorData = request.body;
-        await storeExecutorData(executorData, requestContext);
+        await storeSlowPathData(executorData, requestContext);
         return response.status(200).send({ message: "executor data received", transferId: executorData.transferId });
       } catch (error: unknown) {
         const type = (error as NxtpError).type;

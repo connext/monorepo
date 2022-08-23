@@ -11,6 +11,7 @@ import {
   MethodContext,
   NxtpError,
   RelayerTaskStatus,
+  RelayerType,
 } from "@connext/nxtp-utils";
 import Broker from "foo-foo-mq";
 import { SubgraphReader } from "@connext/nxtp-adapters-subgraph";
@@ -27,7 +28,6 @@ import { bindServer } from "./bindings/publisher";
 import { setupRelayer } from "./adapters";
 import { getHelpers } from "./lib/helpers";
 import { getOperations } from "./lib/operations";
-import { getTaskStatusFromGelato } from "./lib/helpers/relayer";
 
 const context: AppContext = {} as any;
 export const getContext = () => context;
@@ -126,8 +126,8 @@ export const makeSubscriber = async (_configOverride?: SequencerConfig) => {
  */
 export const execute = async (_configOverride?: SequencerConfig) => {
   const {
-    auctions: { executeFastPathData },
-    executor: { executeSlowPathData },
+    execute: { executeFastPathData, executeSlowPathData },
+    tasks: { updateTask, getTaskStatus },
   } = getOperations();
   try {
     // Transfer ID is a CLI argument. Always provided by the parent
@@ -141,27 +141,17 @@ export const execute = async (_configOverride?: SequencerConfig) => {
     // TODO: Setting up the context every time for this execution is non-ideal.
     await setupContext(requestContext, methodContext, _configOverride);
 
-    let taskId: string | undefined;
-    if (messageType == MessageType.ExecuteFast) {
-      taskId = await executeFastPathData(transferId, requestContext);
-      context.logger.info("Executed fast path transfer", requestContext, methodContext, {
-        transferId: transferId,
-        taskId,
-      });
-    } else if (messageType == MessageType.ExecuteSlow) {
-      taskId = await executeSlowPathData(transferId, messageType, requestContext);
-      context.logger.info("Executed slow path transfer", requestContext, methodContext, {
-        transferId: transferId,
-        taskId,
-      });
-    }
+    const { taskId, relayer } =
+      messageType === MessageType.ExecuteFast
+        ? await executeFastPathData(transferId, requestContext)
+        : await executeSlowPathData(transferId, messageType, requestContext);
 
     let taskStatus = RelayerTaskStatus.NotFound;
-    if (taskId) {
+    if (taskId && relayer) {
       await new Promise((res) => {
         interval(async (_, stop) => {
           try {
-            taskStatus = await getTaskStatusFromGelato(taskId!);
+            taskStatus = await getTaskStatus(taskId, relayer);
             if (
               taskStatus === RelayerTaskStatus.ExecSuccess ||
               taskStatus === RelayerTaskStatus.ExecReverted ||
@@ -181,6 +171,10 @@ export const execute = async (_configOverride?: SequencerConfig) => {
           }
         }, 5_000);
       });
+
+      if (taskStatus !== RelayerTaskStatus.NotFound) {
+        await updateTask(transferId, taskStatus, messageType);
+      }
     }
   } catch (error: any) {
     const { requestContext, methodContext } = createLoggingContext(execute.name);

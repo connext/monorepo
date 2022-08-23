@@ -6,6 +6,7 @@ import {
   ExecuteArgs,
   ajv,
   ExecuteArgsSchema,
+  RelayerTaskStatus,
 } from "@connext/nxtp-utils";
 import { getDeployedConnextContract } from "@connext/nxtp-txservice";
 

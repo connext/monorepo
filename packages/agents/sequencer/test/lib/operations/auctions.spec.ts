@@ -16,7 +16,7 @@ import Broker from "foo-foo-mq";
 import { ctxMock, getOperationsStub, getHelpersStub } from "../../globalTestHook";
 import { mock } from "../../mock";
 import { AuctionExpired, BidVersionInvalid, MissingXCall, ParamsInvalid } from "../../../src/lib/errors";
-import { executeFastPathData, storeBid } from "../../../src/lib/operations/auctions";
+import { executeFastPathData, storeFastPathData } from "../../../src/lib/operations/auctions";
 import { getAllSubsets, getBidsRoundMap, getMinimumBidsCountForRound } from "../../../src/lib/helpers/auctions";
 
 const { requestContext } = mock.loggingContext("BID-TEST");
@@ -87,7 +87,7 @@ describe("Operations:Auctions", () => {
     reset();
   });
 
-  describe("#storeBid", () => {
+  describe("#storeFastPathData", () => {
     it("happy: should store bid in auction cache", async () => {
       const transfer: XTransfer = mock.entity.xtransfer();
       const transferId = transfer.transferId;
@@ -98,7 +98,7 @@ describe("Operations:Auctions", () => {
       getStatusStub.onCall(0).resolves(ExecStatus.None);
       getStatusStub.onCall(1).resolves(ExecStatus.Queued);
 
-      await storeBid(bid, requestContext);
+      await storeFastPathData(bid, requestContext);
 
       expect(upsertAuctionStub).to.have.been.calledOnceWithExactly({
         transferId,
@@ -117,7 +117,7 @@ describe("Operations:Auctions", () => {
         ...mock.entity.bid(),
         router: 1,
       };
-      await expect(storeBid(invalidBid1, requestContext)).to.be.rejectedWith(ParamsInvalid);
+      await expect(storeFastPathData(invalidBid1, requestContext)).to.be.rejectedWith(ParamsInvalid);
 
       const invalidBid2: any = {
         ...mock.entity.bid(),
@@ -126,7 +126,7 @@ describe("Operations:Auctions", () => {
         },
       };
 
-      await expect(storeBid(invalidBid2, requestContext)).to.be.rejectedWith(ParamsInvalid);
+      await expect(storeFastPathData(invalidBid2, requestContext)).to.be.rejectedWith(ParamsInvalid);
     });
 
     it("should error if bidVersion is lower than supported version", async () => {
@@ -134,20 +134,20 @@ describe("Operations:Auctions", () => {
         ...mock.entity.bid(),
         routerVersion: "0.0",
       };
-      await expect(storeBid(invalidBid1, requestContext)).to.be.rejectedWith(BidVersionInvalid);
+      await expect(storeFastPathData(invalidBid1, requestContext)).to.be.rejectedWith(BidVersionInvalid);
     });
 
     it("should error if the auction has expired", async () => {
       const bid: Bid = mock.entity.bid();
       getStatusStub.resolves(ExecStatus.Sent);
-      await expect(storeBid(bid, requestContext)).to.be.rejectedWith(AuctionExpired);
+      await expect(storeFastPathData(bid, requestContext)).to.be.rejectedWith(AuctionExpired);
     });
 
     it("should error if transfer is missing", async () => {
       getTransferStub.resolves(undefined);
       (ctxMock.adapters.subgraph.getOriginTransferById as SinonStub).resolves(undefined);
       const bid: Bid = mock.entity.bid();
-      await expect(storeBid(bid, requestContext)).to.be.rejectedWith(MissingXCall);
+      await expect(storeFastPathData(bid, requestContext)).to.be.rejectedWith(MissingXCall);
     });
 
     it("should error if xcall is missing", async () => {
@@ -158,7 +158,7 @@ describe("Operations:Auctions", () => {
       });
       (ctxMock.adapters.subgraph.getOriginTransferById as SinonStub).resolves(undefined);
       const bid: Bid = mock.entity.bid();
-      await expect(storeBid(bid, requestContext)).to.be.rejectedWith(MissingXCall);
+      await expect(storeFastPathData(bid, requestContext)).to.be.rejectedWith(MissingXCall);
     });
 
     it("should cache transfer if missing from cache but found in subgraph", async () => {
@@ -169,7 +169,7 @@ describe("Operations:Auctions", () => {
         transferId: bid.transferId,
       };
       (ctxMock.adapters.subgraph as any).getOriginTransferById.resolves(transfer);
-      await storeBid(bid, requestContext);
+      await storeFastPathData(bid, requestContext);
       expect(storeTransfersStub).to.have.been.calledOnceWithExactly([transfer]);
     });
 
@@ -182,7 +182,7 @@ describe("Operations:Auctions", () => {
         transferId: bid.transferId,
       };
       getTransferStub.resolves(transfer);
-      await expect(storeBid(bid, requestContext)).to.be.rejectedWith(AuctionExpired);
+      await expect(storeFastPathData(bid, requestContext)).to.be.rejectedWith(AuctionExpired);
     });
   });
 

@@ -28,8 +28,8 @@ describe("Bindings:Server", () => {
     let getExecStatusStub: SinonStub;
 
     // operations
-    let storeBidStub: SinonStub;
-    let storeExecutorDataStub: SinonStub;
+    let storeFastPathDataStub: SinonStub;
+    let storeSlowPathDataStub: SinonStub;
 
     beforeEach(() => {
       const { auctions, executors } = ctxMock.adapters.cache;
@@ -42,14 +42,14 @@ describe("Bindings:Server", () => {
 
       getExecStatusStub = stub(executors, "getExecStatus");
 
-      storeBidStub = stub();
-      storeExecutorDataStub = stub();
+      storeFastPathDataStub = stub();
+      storeSlowPathDataStub = stub();
       getOperationsStub.returns({
         auctions: {
-          storeBid: storeBidStub,
+          storeFastPathData: storeFastPathDataStub,
         },
         executor: {
-          storeExecutorData: storeExecutorDataStub,
+          storeSlowPathData: storeSlowPathDataStub,
         },
       });
     });
@@ -71,7 +71,7 @@ describe("Bindings:Server", () => {
     });
 
     it("happy: should succeed to post a bid", async () => {
-      storeBidStub.resolves();
+      storeFastPathDataStub.resolves();
       const bid = mock.entity.bid();
       const data: ExecuteFastApiPostBidReq = bid;
 
@@ -83,12 +83,12 @@ describe("Bindings:Server", () => {
 
       expect(response.statusCode).to.be.eq(200);
       expect(JSON.parse(response.payload).message).to.be.eq("Bid received");
-      expect(storeBidStub.callCount).to.be.eq(1);
-      expect(storeBidStub.getCall(0).args.slice(0, 1)).to.be.deep.eq([bid]);
+      expect(storeFastPathDataStub.callCount).to.be.eq(1);
+      expect(storeFastPathDataStub.getCall(0).args.slice(0, 1)).to.be.deep.eq([bid]);
     });
 
     it("should fail to post a execute-slow data", async () => {
-      storeExecutorDataStub.throws();
+      storeSlowPathDataStub.throws();
       const mockExecutorData: ExecutorPostDataRequest = {
         transferId: mkBytes32(),
         origin: "13337",
@@ -110,7 +110,7 @@ describe("Bindings:Server", () => {
     });
 
     it("happy: should succeed to post a execute-slow data", async () => {
-      storeExecutorDataStub.resolves();
+      storeSlowPathDataStub.resolves();
       const mockExecutorData: ExecutorPostDataRequest = {
         transferId: mkBytes32(),
         origin: "13337",
@@ -130,8 +130,8 @@ describe("Bindings:Server", () => {
 
       expect(response.statusCode).to.be.eq(200);
       expect(JSON.parse(response.payload).message).to.be.eq("executor data received");
-      expect(storeExecutorDataStub.callCount).to.be.eq(1);
-      expect(storeExecutorDataStub.getCall(0).args.slice(0, 1)).to.be.deep.eq([mockExecutorData]);
+      expect(storeSlowPathDataStub.callCount).to.be.eq(1);
+      expect(storeSlowPathDataStub.getCall(0).args.slice(0, 1)).to.be.deep.eq([mockExecutorData]);
     });
 
     it("happy: should get empty queued bids", async () => {
@@ -208,7 +208,7 @@ describe("Bindings:Server", () => {
     });
 
     it("happy: should receive 500 error if handling the bid fails", async () => {
-      storeBidStub.throws(new Error("Handling the bid failed!"));
+      storeFastPathDataStub.throws(new Error("Handling the bid failed!"));
       const bid = mock.entity.bid();
       const data: ExecuteFastApiPostBidReq = bid;
 

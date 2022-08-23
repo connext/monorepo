@@ -13,21 +13,21 @@ import {
 } from "@connext/nxtp-utils";
 import { compare } from "compare-versions";
 
-import { AuctionExpired, MissingXCall, ParamsInvalid, BidVersionInvalid } from "../errors";
-import { getContext } from "../../sequencer";
-import { getHelpers } from "../helpers";
-import { Message, MessageType } from "../entities";
+import { AuctionExpired, MissingXCall, ParamsInvalid, BidVersionInvalid } from "../../errors";
+import { getContext } from "../../../sequencer";
+import { getHelpers } from "../../helpers";
+import { Message, MessageType } from "../../entities";
 
-import { getOperations } from ".";
+import { getOperations } from "..";
 
-export const storeBid = async (bid: Bid, _requestContext: RequestContext): Promise<void> => {
+export const storeFastPathData = async (bid: Bid, _requestContext: RequestContext): Promise<void> => {
   const {
     logger,
     config,
     adapters: { cache, subgraph, mqClient },
   } = getContext();
-  const { requestContext, methodContext } = createLoggingContext(storeBid.name, _requestContext);
-  logger.debug(`Method start: ${storeBid.name}`, requestContext, methodContext, { bid });
+  const { requestContext, methodContext } = createLoggingContext(storeFastPathData.name, _requestContext);
+  logger.debug(`Method start: ${storeFastPathData.name}`, requestContext, methodContext, { bid });
 
   const { transferId, origin } = bid;
 
@@ -129,7 +129,7 @@ export const storeBid = async (bid: Bid, _requestContext: RequestContext): Promi
 export const executeFastPathData = async (
   transferId: string,
   _requestContext: RequestContext,
-): Promise<string | undefined> => {
+): Promise<{ taskId: string | undefined; relayer: RelayerType | undefined }> => {
   const {
     config,
     logger,
@@ -140,7 +140,7 @@ export const executeFastPathData = async (
     relayer: { sendExecuteFastToRelayer },
   } = getOperations();
   let taskId: string | undefined;
-  let relayer: RelayerType = RelayerType.Gelato;
+  let relayer: RelayerType | undefined;
   const {
     auctions: { getDestinationLocalAsset, getBidsRoundMap, getAllSubsets, getMinimumBidsCountForRound },
   } = getHelpers();
@@ -149,7 +149,7 @@ export const executeFastPathData = async (
 
   if (!transferId) {
     logger.debug("No auction to execute", requestContext, methodContext);
-    return taskId;
+    return { taskId, relayer };
   }
 
   // Validate if transfer has exceeded the auction period and merits execution.
@@ -172,7 +172,7 @@ export const executeFastPathData = async (
     logger.error("Auction data not found for transfer!", requestContext, methodContext, undefined, {
       transferId: transferId,
     });
-    return taskId;
+    return { taskId, relayer };
   }
 
   // Handling each domain in parallel, but each individual transfer synchronously. This is to account
@@ -198,7 +198,7 @@ export const executeFastPathData = async (
       destination,
       bids,
     });
-    return taskId;
+    return { taskId, relayer };
   } else if (!transfer.origin) {
     // TODO: Same as above!
     // Again, shouldn't happen: sequencer should not have accepted an auction for a transfer with no xcall.
@@ -207,7 +207,7 @@ export const executeFastPathData = async (
       transfer,
       bids,
     });
-    return taskId;
+    return { taskId, relayer };
   }
 
   const destTx = await subgraph.getDestinationTransferById(transfer.xparams!.destinationDomain!, transferId);
@@ -218,7 +218,7 @@ export const executeFastPathData = async (
       bids,
     });
     await cache.auctions.setStatus(transferId, ExecStatus.Completed);
-    return taskId;
+    return { taskId, relayer };
   }
 
   const bidsRoundMap = getBidsRoundMap(bids, config.auctionRoundDepth);
@@ -229,7 +229,7 @@ export const executeFastPathData = async (
       transferId,
     });
 
-    return taskId;
+    return { taskId, relayer };
   }
 
   for (const roundIdx of availableRoundIds) {
@@ -385,8 +385,8 @@ export const executeFastPathData = async (
     await cache.auctions.setStatus(transferId, ExecStatus.Sent);
     await cache.auctions.upsertMetaTxTask({ transferId, taskId, relayer });
 
-    return taskId;
+    return { taskId, relayer };
   }
 
-  return taskId;
+  return { taskId, relayer };
 };

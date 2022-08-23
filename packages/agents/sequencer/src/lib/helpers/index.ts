@@ -3,6 +3,7 @@ import {
   isChainSupportedByGelato,
   getGelatoRelayerAddress,
   getTaskStatusFromGelato,
+  getTaskStatusFromBackupRelayer,
   connextRelayerSend,
 } from "./relayer";
 import {
@@ -20,6 +21,7 @@ export const getHelpers = () => {
       isChainSupportedByGelato,
       getGelatoRelayerAddress,
       getTaskStatusFromGelato,
+      getTaskStatusFromBackupRelayer,
       connextRelayerSend,
     },
     auctions: {

@@ -7,10 +7,9 @@ import {
   ExecutorDataSchema,
   ExecStatus,
   getChainIdFromDomain,
-  RelayerTaskStatus,
   RelayerType,
 } from "@connext/nxtp-utils";
-import { getContext } from "../../sequencer";
+import { getContext } from "../../../sequencer";
 import {
   ParamsInvalid,
   ExecutorVersionInvalid,
@@ -20,12 +19,12 @@ import {
   MissingTransfer,
   MissingExecutorData,
   ExecuteSlowCompleted,
-} from "../errors";
-import { getHelpers } from "../helpers";
-import { Message, MessageType } from "../entities";
-import { getOperations } from ".";
+} from "../../errors";
+import { getHelpers } from "../../helpers";
+import { Message, MessageType } from "../../entities";
+import { getOperations } from "..";
 
-export const storeExecutorData = async (executorData: ExecutorData, _requestContext: RequestContext): Promise<void> => {
+export const storeSlowPathData = async (executorData: ExecutorData, _requestContext: RequestContext): Promise<void> => {
   const {
     logger,
     config,
@@ -35,8 +34,8 @@ export const storeExecutorData = async (executorData: ExecutorData, _requestCont
   const {
     relayer: { getGelatoRelayerAddress },
   } = getHelpers();
-  const { requestContext, methodContext } = createLoggingContext(storeExecutorData.name, _requestContext);
-  logger.debug(`Method start: ${storeExecutorData.name}`, requestContext, methodContext, { executorData });
+  const { requestContext, methodContext } = createLoggingContext(storeSlowPathData.name, _requestContext);
+  logger.debug(`Method start: ${storeSlowPathData.name}`, requestContext, methodContext, { executorData });
 
   const { transferId, relayerFee, encodedData, executorVersion, origin } = executorData;
 
@@ -108,7 +107,7 @@ export const storeExecutorData = async (executorData: ExecutorData, _requestCont
     throw new ExecuteSlowCompleted({ transferId });
   } else if (status === ExecStatus.None) {
     await cache.executors.setExecStatus(transferId, ExecStatus.Queued);
-    await cache.executors.storeExecutorData(executorData);
+    await cache.executors.storeSlowPathData(executorData);
     logger.info("Created a executor tx", requestContext, methodContext, { transferId, executorData });
 
     const message: Message = {
@@ -147,7 +146,7 @@ export const executeSlowPathData = async (
   transferId: string,
   type: string,
   _requestContext: RequestContext,
-): Promise<string | undefined> => {
+): Promise<{ taskId: string | undefined; relayer: RelayerType | undefined }> => {
   const {
     logger,
     adapters: { cache },
@@ -157,7 +156,7 @@ export const executeSlowPathData = async (
     relayer: { sendExecuteSlowToRelayer },
   } = getOperations();
 
-  const { requestContext, methodContext } = createLoggingContext(storeExecutorData.name, _requestContext);
+  const { requestContext, methodContext } = createLoggingContext(storeSlowPathData.name, _requestContext);
   logger.debug(`Method start: ${executeSlowPathData.name}`, requestContext, methodContext, { transferId, type });
 
   let transfer = await cache.transfers.getTransfer(transferId);
@@ -206,5 +205,5 @@ export const executeSlowPathData = async (
     await cache.executors.pruneExecutorData(transferId);
   }
 
-  return taskId;
+  return { taskId, relayer };
 };

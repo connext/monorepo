@@ -27,7 +27,7 @@ export enum RelayerTaskStatus {
 }
 
 export enum RelayerType {
-  Backup = "Backup",
+  BackupRelayer = "BackupRelayer",
   Gelato = "Gelato",
 }
 

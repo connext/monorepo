@@ -3,8 +3,10 @@ import {
   isChainSupportedByGelato as _isChainSupportedByGelato,
   getGelatoRelayerAddress as _getGelatoRelayerAddress,
   getTaskStatusFromGelato as _getTaskStatusFromGelato,
+  getTaskStatusFromBackupRelayer as _getTaskStatusFromBackupRelayer,
   connextRelayerSend as _connextRelayerSend,
 } from "@connext/nxtp-utils";
+import { getContext } from "../../sequencer";
 
 export const gelatoSend = _gelatoSend;
 
@@ -15,3 +17,5 @@ export const getGelatoRelayerAddress = _getGelatoRelayerAddress;
 export const getTaskStatusFromGelato = _getTaskStatusFromGelato;
 
 export const connextRelayerSend = _connextRelayerSend;
+
+export const getTaskStatusFromBackupRelayer = _getTaskStatusFromBackupRelayer;
