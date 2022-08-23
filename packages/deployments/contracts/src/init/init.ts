@@ -30,6 +30,14 @@ export const initWithEnv = async () => {
     throw new Error("Config was empty? Please ensure your JSON file has, like, stuff in it.");
   }
 
+  await sanitizeAndInit(config);
+};
+
+/**
+ * Sanitizer method to make sure config is set up correctly.
+ * @param config - ProtocolStack, but as any/Partial.
+ */
+export const sanitizeAndInit = async (config: any) => {
   /// MARK - Deployer
   // Get deployer mnemonic, which should be provided in env if not in the config.
   const mnemonic = config.deployer || process.env.DEPLOYER || process.env.DEPLOYER_MNEMONIC;
@@ -42,6 +50,27 @@ export const initWithEnv = async () => {
   // Convert deployer from mnemonic to Wallet.
   const deployer = Wallet.fromMnemonic(mnemonic as string);
 
+  /// MARK - Hub
+  // Make sure hub is specified.
+  if (!config.hub) {
+    throw new Error("`hub` was not specified in config. Please specify the Hub (L1) domain used for messaging.");
+  }
+  // Hub domain should be a domain ID and be included in domains.
+  const supportedChains = config.domains.map((d: any) => d.chain);
+  // Make sure hub domain is a string value.
+  let hub = (config.hub as string | number).toString();
+  // Consumer could have specified the hub by chain ID. If so, convert the hub to domain ID.
+  if (supportedChains.includes(config.hub)) {
+    hub = await getDomainFromChainId(+hub);
+  }
+  // Check to make sure the hub domain is in the list of supported domains.
+  const supportedDomains = config.domains.map((d: any) => d.domain);
+  if (!supportedDomains.includes(hub)) {
+    throw new Error(
+      `Hub domain/chain ${hub} was not found among the \`domains\` in protocol config. Is this some kind of prank?`,
+    );
+  }
+
   /// MARK - Domains
   // Make sure domains were specified.
   if (!Array.isArray(config.domains) || config.domains.length === 0) {
@@ -49,10 +78,6 @@ export const initWithEnv = async () => {
       "Domains were not specified in the config, or the domains list was empty. " +
         "Do you even want to init anything?",
     );
-  }
-  // Make sure hub is specified.
-  if (!config.hub) {
-    throw new Error("`hub` was not specified in config. Please specify the Hub (L1) domain used for messaging.");
   }
 
   /// MARK - Deployments
@@ -65,7 +90,6 @@ export const initWithEnv = async () => {
     );
   }
   const useStaging = env === "staging";
-
   // Get deployments for each domain if not specified in the config.
   for (let i = 0; i < config.domains.length; i++) {
     const stack = config.domains[i];
@@ -104,7 +128,7 @@ export const initWithEnv = async () => {
 
     // Get the deployments for this domain, if needed.
     if (!stack.deployments) {
-      const isHub = stack.domain === config.hub;
+      const isHub = stack.domain === hub;
       stack.deployments = getDeployments(stack.chain as string, isHub, useStaging);
     }
 
@@ -113,14 +137,29 @@ export const initWithEnv = async () => {
     config.domains[i] = stack;
   }
 
+  /// MARK - Assets
+  // All domains specified in AssetStack(s) must be included in domains.
+  for (const asset of config.assets) {
+    const domains = [asset.canonical.domain].concat(Object.keys(asset.representations as { [domain: string]: any }));
+    for (const domain of domains) {
+      if (!supportedDomains.includes(domain)) {
+        throw new Error(
+          `Asset with canonical address of ${asset.canonical.local} and canonical domain ${asset.canonical.domain} included ` +
+            `an entry for a non-supported domain ${domain}. Please add the domain to the \`domains\` list in your config. ` +
+            "Or don't. I'm not your boss. But have you ever heard the definition of insanity?",
+        );
+      }
+    }
+  }
   // TODO: Sanitize assets - all addresses specified?
+
+  /// MARK - Agents
   // TODO: Sanitize agents - all strings are addresses?
 
   const sanitized = {
     ...config,
     deployer,
-    // Make sure hub domain is a string value.
-    hub: (config.hub as string | number).toString(),
+    hub,
     // If assets are not specified, just set an empty array.
     assets: config.assets ?? [],
   } as ProtocolStack;
@@ -138,35 +177,6 @@ export const initWithEnv = async () => {
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 export const initProtocol = async (protocol: ProtocolStack) => {
   /// ********************** SETUP **********************
-  /// MARK - Sanity Checks
-  // Hub domain should be a domain ID and be included in domains.
-  const supportedChains = protocol.domains.map((d) => d.chain);
-  // Consumer could have specified the hub by chain ID. If so, convert the hub to domain ID.
-  if (supportedChains.includes(protocol.hub)) {
-    protocol.hub = await getDomainFromChainId(+protocol.hub);
-  }
-  // Check to make sure the hub domain is in the list of supported domains.
-  const supportedDomains = protocol.domains.map((d) => d.domain);
-  if (!supportedDomains.includes(protocol.hub)) {
-    throw new Error(
-      `Hub domain/chain ${protocol.hub} was not found among the \`domains\` in protocol config. Is this some kind of prank?`,
-    );
-  }
-
-  // All domains specified in AssetStack(s) must be included in domains.
-  for (const asset of protocol.assets) {
-    const domains = [asset.canonical.domain].concat(Object.keys(asset.representations));
-    for (const domain of domains) {
-      if (!supportedDomains.includes(domain)) {
-        throw new Error(
-          `Asset with canonical address of ${asset.canonical.local} and canonical domain ${asset.canonical.domain} included ` +
-            `an entry for a non-supported domain ${domain}. Please add the domain to the \`domains\` list in your config. ` +
-            "Or don't. I'm not your boss. But have you ever heard the definition of insanity?",
-        );
-      }
-    }
-  }
-
   /// MARK - Peripherals Setup
   // Get hub domain for specific use.
   const hub: DomainStack = protocol.domains.filter((d) => d.domain === protocol.hub)[0];
