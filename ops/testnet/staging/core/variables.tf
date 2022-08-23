@@ -42,6 +42,12 @@ variable "full_image_name_router_subscriber" {
   default     = "ghcr.io/connext/router-subscriber:sha-64dc7c9"
 }
 
+variable "full_image_name_router_executor" {
+  type        = string
+  description = "router image name"
+  default     = "ghcr.io/connext/router-executor:sha-64dc7c9"
+}
+
 variable "full_image_name_sequencer_publisher" {
   type        = string
   description = "sequencer image name"
@@ -52,12 +58,6 @@ variable "full_image_name_sequencer_subscriber" {
   type        = string
   description = "sequencer image name"
   default     = "ghcr.io/connext/sequencer-subscriber:sha-64dc7c9"
-}
-
-variable "full_image_name_lighthouse" {
-  type        = string
-  description = "router image name"
-  default     = "ghcr.io/connext/lighthouse:sha-64dc7c9"
 }
 
 variable "mnemonic" {
@@ -87,27 +87,19 @@ variable "certificate_arn_testnet" {
   default = "arn:aws:acm:us-east-1:679752396206:certificate/45908dc4-137b-4366-8538-4f59ee6a914e"
 }
 
-variable "rinkeby_alchemy_key_0" {
-  type = string
-}
-
-variable "kovan_alchemy_key_0" {
-  type = string
-}
-
 variable "goerli_alchemy_key_0" {
   type = string
 }
 
-variable "rinkeby_alchemy_key_1" {
-  type = string
-}
-
-variable "kovan_alchemy_key_1" {
-  type = string
-}
-
 variable "goerli_alchemy_key_1" {
+  type = string
+}
+
+variable "optgoerli_alchemy_key_0" {
+  type = string
+}
+
+variable "optgoerli_alchemy_key_1" {
   type = string
 }
 
