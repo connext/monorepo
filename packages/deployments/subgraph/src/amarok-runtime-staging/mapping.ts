@@ -244,6 +244,7 @@ export function handleExecuted(event: Executed): void {
   }
 
   const routers: string[] = [];
+  const fees: BigInt[] = [];
   if (transfer.status != "Reconciled") {
     // Handle router asset balances if this is fast liquidity path.
     const num = event.params.args.routers.length;
@@ -256,10 +257,12 @@ export function handleExecuted(event: Executed): void {
       let router = getOrCreateRouter(param);
 
       routers.push(router.id);
+      fees.push(feesTaken);
 
       // Update router's liquidity
       const assetBalance = getOrCreateAssetBalance(event.params.args.local, event.params.args.routers[i]);
       assetBalance.amount = assetBalance.amount.minus(routerAmount);
+      assetBalance.routerfees = assetBalance.routerfees.plus(feesTaken);
       assetBalance.save();
     }
   } // otherwise no routers used
@@ -298,6 +301,7 @@ export function handleExecuted(event: Executed): void {
     transfer.status = "Executed";
   }
   transfer.routers = routers;
+  transfer.fees = fees;
   transfer.originSender = event.params.args.originSender;
 
   // Executed Transaction
