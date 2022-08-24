@@ -5,7 +5,7 @@ import { constants, providers, Wallet } from "ethers";
 
 import {
   ProtocolStack,
-  DomainStack,
+  NetworkStack,
   HubMessagingDeployments,
   SpokeMessagingDeployments,
   getDeployments,
@@ -185,9 +185,10 @@ export const initProtocol = async (protocol: ProtocolStack) => {
   /// ********************** SETUP **********************
   /// MARK - Peripherals Setup
   // Get hub domain for specific use.
-  const hub: DomainStack = protocol.domains.filter((d) => d.domain === protocol.hub)[0];
+  const hub: NetworkStack = protocol.networks.filter((d) => d.domain === protocol.hub)[0];
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const { RootManager, MainnetConnector, HubConnectors } = hub.deployments.messaging as HubMessagingDeployments;
+
   /// ******************** MESSAGING ********************
   /// MARK - Init
   // TODO: Currently unused, as messaging init checks are not needed with the AMB-compatible stack.
@@ -195,32 +196,33 @@ export const initProtocol = async (protocol: ProtocolStack) => {
   // this placeholder here for now...
 
   /// MARK - Connector Mirrors
+  console.log("\n\nSTEP: SET MIRROR CONNECTORS");
   // Connectors should have their mirrors' address set; this lets them know about their counterparts.
   for (const HubConnector of HubConnectors) {
     // Get the connector's mirror domain.
     const mirrorDomain = await getConnectorMirrorDomain({
       Connector: HubConnector,
-      stack: hub,
+      network: hub,
     });
     // Find the spoke domain. Set the mirrors for both the spoke domain's Connector and hub domain's Connector.
     let foundMirror = false;
-    for (const stack of protocol.domains) {
-      if (stack.domain === mirrorDomain) {
+    for (const network of protocol.networks) {
+      if (network.domain === mirrorDomain) {
         foundMirror = true;
         await setConnectorMirrors({
           deployer: protocol.deployer,
           hub: {
             Connector: HubConnector,
-            stack: hub,
+            network: hub,
           },
           spoke: {
-            Connector: (stack.deployments.messaging as SpokeMessagingDeployments).SpokeConnector,
-            stack,
+            Connector: (network.deployments.messaging as SpokeMessagingDeployments).SpokeConnector,
+            network,
           },
         });
         // TODO: Sanity checks:
         // Make sure IS_HUB is false.
-        // RootManager is address(0).
+        // Sanity check: RootManager is address(0).
       }
     }
     // TODO: Actually, should we just submit a warning and skip this iteration? We may discontinue an L2...
@@ -231,38 +233,48 @@ export const initProtocol = async (protocol: ProtocolStack) => {
       );
     }
   }
+
   // On the hub itself, you only need to connect the mainnet l1 connector to RootManager (no mirror).
-  // Make sure both things are set correctly.
+  // Make sure all things are set correctly.
   {
+    // Sanity check: mirror is address(0).
     const mirror = await getConnectorMirror({
       Connector: MainnetConnector,
-      stack: hub,
+      network: hub,
     });
-    console.log("* Retrieved MainnetConnector mirror; should be address(0):", mirror);
+    console.log("\n* Retrieved MainnetConnector mirror; should be address(0):", mirror);
     if (mirror !== constants.AddressZero) {
       // TODO: Should we just go ahead and zero it out?
       throw new Error(`mirrorConnector for Mainnet/L1 Connector was set to an invalid value (should be address(0)): `);
     }
-    // TODO: RootManager should be set correctly.
+
+    // TODO: Sanity check: RootManager should be set correctly.
     // const rootManager = await getConnectorRootManager({
     //   Connector:
     // });
   }
 
-  /// MARK - Enroll Handlers
+  /// MARK - Whitelist Senders
+  console.log("\n\nSTEP: WHITELIST CONNECTORS");
   // Whitelist message-sending Handler contracts (AKA 'Routers'); will enable those message senders to call `dispatch`.
-  for (const stack of protocol.domains) {
+  for (const stack of protocol.networks) {
     // Skip the hub; no senders need whitelisting.
     if (stack.domain === protocol.hub) {
       continue;
     }
     await whitelistSenders({
       deployer: protocol.deployer,
-      stack,
+      network: stack,
     });
   }
 
+  /// MARK - Enroll Handlers
+  console.log("\n\nSTEP: ENROLL HANDLERS");
+  // While the Connectors will only accept messages from registered routers on their domains, Routers will only process
+  // messages that originate from their counterpart on another domain (e.g. BridgeRouter on Domain X to BridgeRouter on
+  // Domain Y). Thus, we need to enroll each Handler/Router contract with all of their counterparts on all other domains.
   await enrollHandlers({ protocol });
+
   /// ********************* CONNEXT *********************
   /// MARK - Init
   // Check to make sure Diamond Proxy is initialized.

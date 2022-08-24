@@ -65,7 +65,7 @@ export type DomainDeployments = {
   messaging: HubMessagingDeployments | SpokeMessagingDeployments;
 };
 
-export type DomainStack = {
+export type NetworkStack = {
   // Meta info.
   chain: string;
   domain: string;
@@ -80,8 +80,8 @@ export type DomainStack = {
 export type ProtocolStack = {
   deployer: Wallet; // The deployer/admin wallet.
   hub: string; // The hub domain.
-  // Domain stack should have all info pertaining to each supported domain.
-  domains: DomainStack[];
+  // Network stack should have all info pertaining to each supported domain.
+  networks: NetworkStack[];
   // Crosschain ERC20 assets to enroll in TokenRegistry.
   assets: AssetStack[];
   // Agents that need to be whitelisted (across all domains).
