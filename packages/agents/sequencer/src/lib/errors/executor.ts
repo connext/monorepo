@@ -1,4 +1,4 @@
-import { ExecutorDataStatus, NxtpError } from "@connext/nxtp-utils";
+import { ExecStatus, NxtpError } from "@connext/nxtp-utils";
 
 export class ExecutorVersionInvalid extends NxtpError {
   constructor(context: any = {}) {
@@ -7,7 +7,7 @@ export class ExecutorVersionInvalid extends NxtpError {
 }
 
 export class ExecutorDataExpired extends NxtpError {
-  constructor(status: ExecutorDataStatus, context: any = {}) {
+  constructor(status: ExecStatus, context: any = {}) {
     super("This lighthouse data has already expired.", { status, ...context }, ExecutorDataExpired.name);
   }
 }
