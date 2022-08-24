@@ -3,7 +3,7 @@
   "version": "0.2.0-beta.20",
   "description": "",
   "scripts": {
-    "test": "yarn forge test --gas-report",
+    "test": "yarn forge test --gas-report --no-match-contract 'LiveTest'",
     "forge": "forge",
     "forge:install": "forge install",
     "build": "hardhat compile && tsc --build ./tsconfig.build.json",

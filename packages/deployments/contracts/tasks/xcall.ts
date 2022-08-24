@@ -87,6 +87,10 @@ export default task("xcall", "Prepare a cross-chain tx")
 
       const senders = await hre.ethers.getSigners();
       senders.splice(accounts);
+      console.log(
+        "senders: ",
+        senders.map((s) => s.address),
+      );
 
       // Get the origin and destination domains.
       const network = await hre.ethers.provider.getNetwork();
