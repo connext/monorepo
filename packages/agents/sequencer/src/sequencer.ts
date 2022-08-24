@@ -177,7 +177,9 @@ export const execute = async (_configOverride?: SequencerConfig) => {
     }
   } catch (error: any) {
     const { requestContext, methodContext } = createLoggingContext(execute.name);
-    context.logger.error("Error executing:", requestContext, methodContext, jsonifyError(error as Error));
+    if (context.logger)
+      context.logger.error("Error executing:", requestContext, methodContext, jsonifyError(error as Error));
+    else console.error("Error executing:", error);
     process.exit(1);
   }
 

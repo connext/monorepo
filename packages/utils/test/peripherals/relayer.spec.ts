@@ -286,11 +286,13 @@ describe("Peripherals:Gelato", () => {
     it("happy: should get task status from gelato", async () => {
       axiosGetStub.resolves({
         status: 200,
-        data: [
-          {
-            taskState: "CheckPending",
-          },
-        ],
+        data: {
+          data: [
+            {
+              taskState: "CheckPending",
+            },
+          ],
+        },
       });
 
       expect(await getTaskStatusFromGelato("0x")).to.be.eq(RelayerTaskStatus.CheckPending);
