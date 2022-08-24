@@ -11,8 +11,6 @@ export const setConnextions = async (args: { protocol: ProtocolStack }) => {
     const targetNetwork = protocol.networks[i];
     const connextDeployment = targetNetwork.deployments.Connext;
 
-    console.log(`\n* [${targetNetwork.chain}] Connext: ${connextDeployment.address}`);
-
     const remoteNetworks = protocol.networks.filter((_, j) => j !== i);
     for (const remoteNetwork of remoteNetworks) {
       const desiredConnextion = remoteNetwork.deployments.Connext.address;

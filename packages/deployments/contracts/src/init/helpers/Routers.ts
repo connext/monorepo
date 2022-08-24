@@ -54,6 +54,7 @@ export const enrollHandlers = async (args: { protocol: ProtocolStack }) => {
         const bridgeRouterDeployment = network.deployments.handlers.BridgeRouter;
 
         // If bridge router is not set, we need to set it to be the BridgeRouterUpgradeBeaconProxy address.
+        console.log("\t\tSetting bridgeRouter for Connext contract...");
         await updateIfNeeded({
           scheme: {
             contract: new Contract(

@@ -19,7 +19,7 @@ export type AssetStack = {
     // The canonical domain of the asset.
     domain: string;
     // Address of the official canonical token on the canonical domain.
-    local: string;
+    address: string;
   };
   representations: {
     [domain: string]: {
@@ -107,6 +107,6 @@ export type CallScheme<T> = {
   // Write method to call to update value on contract.
   write?: {
     method: string;
-    args?: (number | string)[];
+    args?: any[];
   };
 };

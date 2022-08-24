@@ -18,6 +18,7 @@ import {
   assertValue,
   getValue,
 } from "./helpers";
+import { setupAsset } from "./helpers/assets";
 
 /**
  * Call the core `initProtocol` method using a JSON config file provided by the local environment.
@@ -376,6 +377,14 @@ export const initProtocol = async (protocol: ProtocolStack) => {
   // - Register assets in the TokenRegistry (enroll-custom).
   // - Set up mappings for canonical ID / canonical domain / adopted asset address / etc.
   // - Set up mapping for stableswap pool if applicable.
+  for (const asset of protocol.assets) {
+    setupAsset({
+      deployer,
+      asset,
+      networks: protocol.networks,
+    });
+  }
+
   /// ********************* AGENTS **********************
   if (protocol.agents) {
     /// MARK - Watchers
