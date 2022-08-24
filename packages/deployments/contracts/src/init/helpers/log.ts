@@ -44,5 +44,10 @@ export const log = {
           `Value is invalid or incorrect and could not be updated. Expected: ${desired}; Actual: ${value}`,
       );
     },
+    // For when a method is not found.
+    method: (args: { method: string; callable: any[] }) => {
+      const { method, callable } = args;
+      throw new Error(`Method ${method} not found in contract functions! \nCallable methods: ${callable.join(",")}`);
+    },
   },
 };

@@ -24,7 +24,7 @@ export const setConnextions = async (args: { protocol: ProtocolStack }) => {
             protocol.deployer.connect(targetNetwork.rpc),
           ),
           desired: desiredConnextion,
-          read: { method: "remotes", args: [remoteNetwork.domain] },
+          read: { method: "connextion", args: [remoteNetwork.domain] },
           write: { method: "addConnextion", args: [remoteNetwork.domain, desiredConnextion] },
         },
       });

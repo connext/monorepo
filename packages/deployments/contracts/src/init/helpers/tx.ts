@@ -20,8 +20,9 @@ export const waitForTx = async (args: {
   const info = chainData.get(tx.chainId.toString());
 
   const prefix = `${log.prefix.base({ chain: tx.chainId, address: tx.to ?? constants.AddressZero })} ${_name}() `;
-  console.log(`\t${prefix}Transaction sent: ${tx.hash}`);
-  const receipt = await tx.wait(info?.confirmations ?? DEFAULT_CONFIRMATIONS);
+  const confirmations = info?.confirmations ?? DEFAULT_CONFIRMATIONS;
+  console.log(`\t${prefix}Transaction sent: ${tx.hash}\n\tWaiting for ${confirmations} confirmations.`);
+  const receipt = await tx.wait(confirmations);
   console.log(`\t${prefix}Transaction mined:`, receipt.transactionHash);
 
   let value: any | undefined = undefined;
@@ -67,10 +68,10 @@ export const updateIfNeeded = async <T>(args: { scheme: CallScheme<T> }): Promis
   // Sanity check: contract has methods.
   const callable = Object.keys(contract.functions).concat(Object.keys(contract.callStatic));
   if (!callable.includes(read.method)) {
-    throw new Error(`Read method ${read.method} not found in contract functions!`);
+    log.error.method({ method: read.method, callable });
   }
   if (!callable.includes(write.method)) {
-    throw new Error(`Write method ${write.method} not found in contract functions!`);
+    log.error.method({ method: write.method, callable });
   }
 
   const readCall = async (): Promise<T> => {
@@ -123,7 +124,7 @@ export const assertValue = async <T>(args: { scheme: CallScheme<T> }): Promise<v
   // Sanity check: contract has read method.
   const callable = Object.keys(contract.functions).concat(Object.keys(contract.callStatic));
   if (!callable.includes(read.method)) {
-    throw new Error(`Read method ${read.method} not found in contract functions!`);
+    log.error.method({ method: read.method, callable });
   }
 
   const readCall = async (): Promise<T> => {
@@ -162,7 +163,7 @@ export const getValue = async <T>(args: { scheme: CallScheme<T> }): Promise<T> =
   // Sanity check: contract has read method.
   const callable = Object.keys(contract.functions).concat(Object.keys(contract.callStatic));
   if (!callable.includes(read.method)) {
-    throw new Error(`Read method ${read.method} not found in contract functions!`);
+    log.error.method({ method: read.method, callable });
   }
 
   const readCall = async (): Promise<T> => {
