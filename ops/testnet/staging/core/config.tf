@@ -15,13 +15,17 @@ locals {
     { name = "DD_ENV", value = var.stage },
     { name = "DD_SERVICE", value = "router-${var.environment}" }
   ]
-  lighthouse_env_vars = [
-    { name = "NXTP_CONFIG", value = local.local_lighthouse_config },
-    { name = "ENVIRONMENT", value = var.environment },
-    { name = "STAGE", value = var.stage }
+  # lighthouse_env_vars = [
+  #   { name = "NXTP_CONFIG", value = local.local_lighthouse_config },
+  #   { name = "ENVIRONMENT", value = var.environment },
+  #   { name = "STAGE", value = var.stage }
+  # ]
+  router_web3signer_env_vars = [
+    { name = "WEB3_SIGNER_PRIVATE_KEY", value = var.router_web3_signer_private_key },
+    { name = "WEB3SIGNER_HTTP_HOST_ALLOWLIST", value = "*" }
   ]
-  web3signer_env_vars = [
-    { name = "WEB3_SIGNER_PRIVATE_KEY", value = var.web3_signer_private_key },
+  sequencer_web3signer_env_vars = [
+    { name = "WEB3_SIGNER_PRIVATE_KEY", value = var.sequencer_web3_signer_private_key },
     { name = "WEB3SIGNER_HTTP_HOST_ALLOWLIST", value = "*" }
   ]
 }
@@ -44,7 +48,7 @@ locals {
         assets = [
           {
             name    = "TEST"
-            address = "0xf21Ad79d25d3E2eCAEe99e09c237EfDD83fdAfEB"
+            address = "0x68Db1c8d85C09d546097C65ec7DCBFF4D6497CbF"
           },
           {
             name    = "WETH"
@@ -57,7 +61,7 @@ locals {
         assets = [
           {
             name    = "TEST"
-            address = "0x30C687780AD7946d77C62b3413A95D5126B57cA1"
+            address = "0x7ea6eA49B0b0Ae9c5db7907d139D9Cd3439862a1"
           },
           {
             name    = "WETH"
@@ -66,7 +70,7 @@ locals {
         ]
       }
     }
-
+    web3SignerUrl    = "https://${module.sequencer_web3signer.service_endpoint}"
     environment = var.stage
     messageQueue = {
       connection = {
@@ -140,7 +144,7 @@ locals {
         assets = [
           {
             name    = "TEST"
-            address = "0xf21Ad79d25d3E2eCAEe99e09c237EfDD83fdAfEB"
+            address = "0x68Db1c8d85C09d546097C65ec7DCBFF4D6497CbF"
           },
           {
             name    = "WETH"
@@ -153,18 +157,19 @@ locals {
         assets = [
           {
             name    = "TEST"
-            address = "0x26FE8a8f86511d678d031a022E48FfF41c6a3e3b"
+            address = "0x7ea6eA49B0b0Ae9c5db7907d139D9Cd3439862a1"
           },
           {
             name    = "WETH"
-            address = "0x30C687780AD7946d77C62b3413A95D5126B57cA1"
+            address = "0xB4FBF271143F4FBf7B91A5ded31805e42b2208d6"
           }
         ]
       }
     }
-    web3SignerUrl    = "https://${module.web3signer.service_endpoint}"
+    cartographerUrl  = "https://postgrest.testnet.staging.connext.ninja"
+    web3SignerUrl    = "https://${module.router_web3signer.service_endpoint}"
     environment      = var.stage
-    nomadEnvironment = var.nomad_environment
+    nomadEnvironment = "none"
     messageQueue = {
       uri = "amqps://${var.rmq_mgt_user}:${var.rmq_mgt_password}@${module.centralised_message_queue.aws_mq_amqp_endpoint}"
     }
