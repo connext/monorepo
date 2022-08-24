@@ -82,14 +82,7 @@ export function handleRelayerRemoved(event: RelayerRemoved): void {
 }
 
 export function handleRouterAdded(event: RouterAdded): void {
-  let routerId = event.params.router.toHex();
-  let router = Router.load(routerId);
-
-  if (router == null) {
-    router = new Router(event.params.router.toHex());
-    router.isActive = true;
-    router.save();
-  }
+  getOrCreateRouter(event.params.router);
 
   let settingEntity = Setting.load("1");
   if (settingEntity == null) {
@@ -101,45 +94,26 @@ export function handleRouterAdded(event: RouterAdded): void {
 }
 
 export function handleRouterRemoved(event: RouterRemoved): void {
-  let routerId = event.params.router.toHex();
-  let router = Router.load(routerId);
-  if (!router) {
-    router = new Router(routerId);
-  }
+  let router = getOrCreateRouter(event.params.router);
   router.isActive = false;
   router.save();
 }
 
 export function handleRouterRecipientSet(event: RouterRecipientSet): void {
-  let routerId = event.params.router.toHex();
-  let router = Router.load(routerId);
-  if (!router) {
-    router = new Router(routerId);
-    router.isActive = true;
-  }
+  let router = getOrCreateRouter(event.params.router);
   router.recipient = event.params.newRecipient;
   router.save();
 }
 
 export function handleRouterOwnerProposed(event: RouterOwnerProposed): void {
-  let routerId = event.params.router.toHex();
-  let router = Router.load(routerId);
-  if (!router) {
-    router = new Router(routerId);
-    router.isActive = true;
-  }
+  let router = getOrCreateRouter(event.params.router);
   router.proposedOwner = event.params.newProposed;
   router.proposedTimestamp = event.block.timestamp;
   router.save();
 }
 
 export function handleRouterOwnerAccepted(event: RouterOwnerAccepted): void {
-  let routerId = event.params.router.toHex();
-  let router = Router.load(routerId);
-  if (!router) {
-    router = new Router(routerId);
-    router.isActive = true;
-  }
+  let router = getOrCreateRouter(event.params.router);
   router.owner = event.params.newOwner;
   router.proposedOwner = null;
   router.proposedTimestamp = null;
@@ -278,15 +252,8 @@ export function handleExecuted(event: Executed): void {
     const feesTaken = amount.times(BigInt.fromI32(5)).div(BigInt.fromI32(10000));
     const routerAmount = amount.minus(feesTaken).div(BigInt.fromI32(num));
     for (let i = 0; i < num; i++) {
-      const param = event.params.args.routers[i].toHex();
-      let router = Router.load(param);
-      if (router == null) {
-        // TODO: Shouldn't we be throwing an error here? How did a transfer get made with a non-existent
-        // router?
-        router = new Router(param);
-        router.isActive = true;
-        router.save();
-      }
+      const param = event.params.args.routers[i];
+      let router = getOrCreateRouter(param);
 
       routers.push(router.id);
 
@@ -454,12 +421,7 @@ function getOrCreateAssetBalance(local: Address, routerAddress: Address): AssetB
   let assetBalanceId = local.toHex() + "-" + routerAddress.toHex();
   let assetBalance = AssetBalance.load(assetBalanceId);
 
-  let router = Router.load(routerAddress.toHex());
-  if (router == null) {
-    router = new Router(routerAddress.toHex());
-    router.isActive = true;
-    router.save();
-  }
+  let router = getOrCreateRouter(routerAddress);
 
   if (assetBalance == null) {
     let asset = Asset.load(local.toHex());
@@ -479,4 +441,15 @@ function getOrCreateAssetBalance(local: Address, routerAddress: Address): AssetB
     assetBalance.amount = new BigInt(0);
   }
   return assetBalance;
+}
+
+function getOrCreateRouter(routerAddress: Address): Router {
+  let router = Router.load(routerAddress.toHex());
+  if (router == null) {
+    router = new Router(routerAddress.toHex());
+    router.isActive = true;
+    router.save();
+  }
+
+  return router;
 }
