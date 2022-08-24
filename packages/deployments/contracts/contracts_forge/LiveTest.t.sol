@@ -31,6 +31,8 @@ import "./utils/ForgeHelper.sol";
 import "./utils/Mock.sol";
 import "./utils/Deployer.sol";
 
+import "forge-std/console.sol";
+
 contract LiveTest is ForgeHelper {
   IConnextHandler connext = IConnextHandler(0xB7CF5324641bD9F82903504c56c9DE2193B4822F);
 
@@ -87,9 +89,22 @@ contract LiveTest is ForgeHelper {
   }
 
   function test_xcall() public {
-    vm.prank(0x54BAA998771639628ffC0206c3b916c466b79c89);
-    TestERC20(0x68Db1c8d85C09d546097C65ec7DCBFF4D6497CbF).approve(address(connext), 150000000000000000);
-    vm.prank(0x54BAA998771639628ffC0206c3b916c466b79c89);
+    address transactingAsset = 0x68Db1c8d85C09d546097C65ec7DCBFF4D6497CbF;
+    vm.startPrank(0x54BAA998771639628ffC0206c3b916c466b79c89);
+    TestERC20(transactingAsset).approve(address(connext), 150000000000000000);
+
+    emit log_named_address("bridge router: ", address(connext.bridgeRouter()));
+    emit log_named_address("token registry: ", address(connext.tokenRegistry()));
+    emit log_named_bytes32("canonical id: ", connext.adoptedToCanonical(transactingAsset).id);
+
+    (uint32 canonicalDomain, bytes32 canonicalId) = connext.tokenRegistry().getTokenId(transactingAsset);
+    address local = connext.tokenRegistry().getLocalAddress(canonicalDomain, canonicalId);
+    emit log_named_address("local asset: ", local);
+    emit log_named_uint(
+      "tokenRegistry.isLocalOrigin(_token)",
+      uint256(connext.tokenRegistry().isLocalOrigin(local) ? 1 : 0)
+    );
+
     connext.xcall(
       XCallArgs(
         CallParams(
@@ -106,10 +121,12 @@ contract LiveTest is ForgeHelper {
           0, // relayerFee
           0 // destinationMinOut
         ), // CallParams
-        0x68Db1c8d85C09d546097C65ec7DCBFF4D6497CbF,
+        transactingAsset,
         150000000000000000,
         0
       )
     );
+
+    vm.stopPrank();
   }
 }
