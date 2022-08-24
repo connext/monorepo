@@ -1,0 +1,5 @@
+[
+  "function DOMAIN_SEPARATOR() view returns (bytes32)",
+  "function nonces(address) view returns (uint256)",
+  "function permit(address,address,uint256,uint256,uint8,bytes32,bytes32)"
+]
