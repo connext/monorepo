@@ -121,7 +121,7 @@ export function handleRouterOwnerAccepted(event: RouterOwnerAccepted): void {
 }
 
 export function handleAssetAdded(event: AssetAdded): void {
-  let assetId = event.params.key.toHex();
+  let assetId = event.params.localAsset.toHex();
   let asset = Asset.load(assetId);
   if (asset == null) {
     asset = new Asset(assetId);

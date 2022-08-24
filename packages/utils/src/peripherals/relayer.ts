@@ -163,7 +163,7 @@ export const getTaskStatusFromGelato = async (taskId: string, logger?: Logger): 
   try {
     const apiEndpoint = `${GELATO_SERVER}/tasks/${taskId}`;
     const res = await axios.get(apiEndpoint);
-    result = res.data[0]?.taskState as RelayerTaskStatus;
+    result = res.data.data[0]?.taskState;
   } catch (error: unknown) {
     if (logger) logger.error("Error in getTaskStatusFromGelato", undefined, undefined, jsonifyError(error as Error));
     else console.log("Error in gelatoTaskStatus, error: ", error);

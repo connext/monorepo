@@ -67,7 +67,7 @@ sources:
         timeout: 30000 # 30 seconds
     transforms:
       - prefix:
-          value: stagingoptimismgoerli_
+          value: testoptimismgoerli_
           includeRootOperations: true
           ignore:
             - _SubgraphErrorPolicy_
@@ -82,7 +82,7 @@ sources:
         timeout: 30000 # 30 seconds
     transforms:
       - prefix:
-          value: testoptimismgoerli_
+          value: stagingoptimismgoerli_
           includeRootOperations: true
           ignore:
             - _SubgraphErrorPolicy_

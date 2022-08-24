@@ -1,5 +1,6 @@
 type Asset @entity {
   id: ID!
+  key: Bytes
   local: Bytes!
   adoptedAsset: Bytes!
   canonicalId: Bytes!
