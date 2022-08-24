@@ -1,10 +1,10 @@
-import { BytesLike, Contract, providers, utils } from "ethers";
+import { BytesLike, Contract, utils } from "ethers";
 import { canonizeId, ConnextHandlerInterface } from "@connext/nxtp-contracts";
 
 import { Router__factory } from "../../typechain-types";
 
 import { Deployment, NetworkStack, ProtocolStack } from "./types";
-import { waitForTx } from "./tx";
+import { updateIfNeeded } from "./tx";
 
 export const enrollHandlers = async (args: { protocol: ProtocolStack }) => {
   const { protocol } = args;
@@ -31,28 +31,18 @@ export const enrollHandlers = async (args: { protocol: ProtocolStack }) => {
       for (const remoteHandler of remoteHandlers) {
         // Get the canonized address of the Handler we want to enroll (will be padded with 0-bytes).
         const canonized = utils.hexlify(canonizeId(remoteHandler.deployment.address as BytesLike));
-        // Set up Handler contract with connected deployer signer.
-        const Handler = new Contract(
-          targetHandler.deployment.address,
-          RouterInterface,
-          protocol.deployer.connect(targetHandler.network.rpc),
-        );
-        const remote = await Handler.callStatic.remotes(remoteHandler.network.domain);
-        // Check if already registered.
-        if (remote === canonized) {
-          console.log(`\t  ${remoteHandler.network.domain} (${remoteHandler.network.chain}) => ${remote}`);
-        } else {
-          const tx = (await Handler.enrollRemoteRouter()) as providers.TransactionResponse;
-          await waitForTx({
-            tx,
-            name: "enrollRemoteRouters",
-            checkResult: {
-              method: async () => await Handler.callStatic.remotes(remoteHandler.network.domain),
-              desired: canonized,
-            },
-          });
-          console.log(`\t ${remoteHandler.network.domain} (${remoteHandler.network.chain}) => ${remote} !!!`);
-        }
+        await updateIfNeeded({
+          scheme: {
+            contract: new Contract(
+              targetHandler.deployment.address,
+              RouterInterface,
+              protocol.deployer.connect(targetHandler.network.rpc),
+            ),
+            desired: canonized,
+            read: { method: "remotes", args: [remoteHandler.network.domain] },
+            write: { method: "enrollRemoteRouter", args: [remoteHandler.network.domain] },
+          },
+        });
       }
     }
 
@@ -63,26 +53,19 @@ export const enrollHandlers = async (args: { protocol: ProtocolStack }) => {
         const connextDeployment = network.deployments.Connext;
         const bridgeRouterDeployment = network.deployments.handlers.BridgeRouter;
 
-        // Set up Connext contract with connected deployer signer.
-        const Connext = new Contract(
-          connextDeployment.address,
-          ConnextHandlerInterface,
-          protocol.deployer.connect(network.rpc),
-        );
-        // Get the currently set BridgeRouter address.
-        const bridgeRouter = (await Connext.callStatic.bridgeRouter()).toString();
         // If bridge router is not set, we need to set it to be the BridgeRouterUpgradeBeaconProxy address.
-        if (bridgeRouter !== bridgeRouterDeployment.address) {
-          const tx = (await Connext.setBridgeRouter(bridgeRouterDeployment.address)) as providers.TransactionResponse;
-          await waitForTx({
-            tx,
-            name: "setBridgeRouter",
-            checkResult: {
-              method: async () => (await Connext.callStatic.bridgeRouter()).toString(),
-              desired: bridgeRouterDeployment.address,
-            },
-          });
-        }
+        await updateIfNeeded({
+          scheme: {
+            contract: new Contract(
+              connextDeployment.address,
+              ConnextHandlerInterface,
+              protocol.deployer.connect(network.rpc),
+            ),
+            desired: bridgeRouterDeployment.address,
+            read: "bridgeRouter",
+            write: { method: "setBridgeRouter", args: [bridgeRouterDeployment.address] },
+          },
+        });
       }
     }
   }

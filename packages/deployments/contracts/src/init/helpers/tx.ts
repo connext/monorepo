@@ -1,4 +1,4 @@
-import { providers } from "ethers";
+import { constants, providers } from "ethers";
 import { getChainData } from "@connext/nxtp-utils";
 
 import { log } from "./log";
@@ -19,16 +19,16 @@ export const waitForTx = async (args: {
   const chainData = await getChainData();
   const info = chainData.get(tx.chainId.toString());
 
-  const name = `[${_name}] `;
-  console.log(`\t${name}Transaction sent: ${tx.hash}`);
+  const prefix = `${log.prefix.base({ chain: tx.chainId, address: tx.to ?? constants.AddressZero })} ${_name}() `;
+  console.log(`\t${prefix}Transaction sent: ${tx.hash}`);
   const receipt = await tx.wait(info?.confirmations ?? DEFAULT_CONFIRMATIONS);
-  console.log(`\tTransaction mined:`, receipt.transactionHash);
+  console.log(`\t${prefix}Transaction mined:`, receipt.transactionHash);
 
   let value: any | undefined = undefined;
   if (checkResult && typeof checkResult.method === "function") {
     value = await checkResult.method();
     if (value !== checkResult.desired) {
-      throw new Error(`${name}Checking result of update failed: ${value} !== ${checkResult.desired}`);
+      throw new Error(`${prefix}Checking result of update failed: ${value} !== ${checkResult.desired}`);
     }
   }
 

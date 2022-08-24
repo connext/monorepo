@@ -1,6 +1,6 @@
 import * as fs from "fs";
 
-import { getChainIdFromDomain, getDomainFromChainId } from "@connext/nxtp-utils";
+import { getChainData, getChainIdFromDomain, getDomainFromChainId } from "@connext/nxtp-utils";
 import { constants, providers, Wallet } from "ethers";
 
 import {
@@ -186,14 +186,19 @@ export const sanitizeAndInit = async (config: any) => {
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 export const initProtocol = async (protocol: ProtocolStack) => {
   /// ********************** SETUP **********************
-  /// MARK - Peripherals Setup
+  /// MARK - ChainData
+  // Retrieve chain data for it to be saved locally; this will avoid those pesky logs and handle the http request upfront.
+  await getChainData();
+
+  /// MARK - Peripherals
   // Get hub domain for specific use.
   const hub: NetworkStack = protocol.networks.filter((d) => d.domain === protocol.hub)[0];
-  const { RootManager, MainnetConnector, HubConnectors } = hub.deployments.messaging as HubMessagingDeployments;
   const { deployer } = protocol;
 
-  // TODO: Might be cool to go ahead and convert all deployments to Contract objects, connected to their corresponding providers...
+  /// MARK - Contracts
   // Convenience setup for contracts.
+  const { RootManager, MainnetConnector, HubConnectors } = hub.deployments.messaging as HubMessagingDeployments;
+  // TODO: Might be cool to go ahead and convert all deployments to Contract objects, connected to their corresponding providers...
   const RootManagerContract = getRootManagerContract({
     deployer,
     hub,
@@ -221,12 +226,14 @@ export const initProtocol = async (protocol: ProtocolStack) => {
     });
 
     // Get the connector's mirror domain.
-    const mirrorDomain = await getValue<string>({
-      scheme: {
-        contract: HubConnectorContract,
-        read: "mirrorDomain",
-      },
-    });
+    const mirrorDomain = (
+      await getValue<number>({
+        scheme: {
+          contract: HubConnectorContract,
+          read: "mirrorDomain",
+        },
+      })
+    ).toString();
 
     // Find the spoke domain.
     let foundMirror = false;
@@ -239,9 +246,6 @@ export const initProtocol = async (protocol: ProtocolStack) => {
           network: spoke,
           address: SpokeConnector.address,
         });
-        console.log(
-          `* [${hub.chain} <> ${spoke.chain}] Connectors: ${HubConnector.address} <> ${SpokeConnector.address}`,
-        );
 
         // Sanity check: Make sure RootManager is set correctly for the HubConnector.
         // NOTE: We CANNOT update the currently set ROOT_MANAGER; it is `immutable` and will require redeployment.
@@ -267,7 +271,7 @@ export const initProtocol = async (protocol: ProtocolStack) => {
             contract: RootManagerContract,
             desired: HubConnector.address,
             read: { method: "connectors", args: [spoke.domain] },
-            write: { method: "addConnector", args: [spoke.domain] },
+            write: { method: "addConnector", args: [spoke.domain, HubConnector.address] },
           },
         });
 

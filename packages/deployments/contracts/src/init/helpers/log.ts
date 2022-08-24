@@ -1,14 +1,18 @@
 export const log = {
   prefix: {
+    base: (args: { chain: number | string; address: string; fullAddress?: boolean }) => {
+      const { chain, address: _address, fullAddress } = args;
+      const address = fullAddress ? _address : `${_address.slice(0, 7)}..${_address.slice(37)}`;
+      return `\t[${chain}] [${address}] `;
+    },
     value: (args: {
       chain: number | string;
       address: string;
       call: { method: string; args: (number | string)[] };
       fullAddress?: boolean;
     }) => {
-      const { chain, address: _address, call, fullAddress } = args;
-      const address = fullAddress ? _address : `${_address.slice(0, 7)}..${_address.slice(37)}`;
-      return `\t[${chain}] [${address}] ${call.method}(${call.args.join(",")}) : `;
+      const { chain, address, call, fullAddress } = args;
+      return log.prefix.base({ chain, address, fullAddress }) + `${call.method}(${call.args.join(",")}) : `;
     },
   },
   info: {
