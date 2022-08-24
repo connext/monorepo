@@ -61,7 +61,7 @@ abstract contract BaseBSCConnector is Connector {
     require(msg.sender == AMB, "!bridge");
 
     (address from, uint256 fromChainId, ) = MultichainCall(executor).context();
-    return from == _expected;
+    return from == _expected; // TODO: convert chainId to domain and assert fromId==mirrorDomain
   }
 }
 
@@ -118,7 +118,7 @@ contract BSCL2Connector is BaseBSCConnector {
     bytes memory _data
   ) internal override {
     // enforce this came from connector on l2
-    require(_verifySender(AMB), "!l1Connector");
+    // require(_verifySender(AMB), "!l1Connector"); -> checked in update(..)
     // get the data (should be the aggregate root)
     require(_data.length == 32, "!length");
     // set the outbound root for BSC
@@ -157,7 +157,7 @@ contract BSCL1Connector is BaseBSCConnector {
    * @dev Sends `aggregateRoot` to messaging on l2
    */
   function _sendMessage(bytes memory _data) internal override {
-    require(msg.sender == ROOT_MANAGER, "!rootManager");
+    require(msg.sender == ROOT_MANAGER, "!rootManager"); //TODO: change for custom errors
 
     MultichainCall(AMB).anyCall(
       AMB, // Same address on every chain, using AMB as it is immutable
@@ -179,7 +179,7 @@ contract BSCL1Connector is BaseBSCConnector {
    */
   function _processMessage(address, bytes memory _data) internal override {
     // enforce this came from connector on l2
-    require(_verifySender(AMB), "!l2Connector");
+    require(_verifySender(mirrorConnector), "!l2Connector");
     // get the data (should be the outbound root)
     require(_data.length == 32, "!length");
     // set the outbound root for optimism
