@@ -10,7 +10,6 @@ export const whitelistSenders = async (args: { deployer: Wallet; network: Networ
   const { deployer, network } = args;
   const ConnectorInterface = Connector__factory.createInterface();
 
-  console.log(`\n* Whitelisting senders for chain ${network.chain}`);
   for (const [name, handler] of Object.entries(network.deployments.handlers)) {
     // NOTE: Only needs to be done on Spoke domains.
     const connectorAddress = (network.deployments.messaging as any).SpokeConnector as Deployment;
@@ -35,7 +34,7 @@ export const whitelistSenders = async (args: { deployer: Wallet; network: Networ
           desired: true,
         },
       });
-      console.log(`${name} whitelisted: ${isWhitelisted}`);
+      console.log(`\t${name} whitelisted: ${isWhitelisted}`);
     }
   }
 };
@@ -74,7 +73,7 @@ export const enrollHandlers = async (args: { protocol: ProtocolStack }) => {
         const remote = await Handler.callStatic.remotes(remoteHandler.network.domain);
         // Check if already registered.
         if (remote === canonized) {
-          console.log(`\t (${remoteHandler.network.chain} | ${remoteHandler.network.domain}) => ${remote}`);
+          console.log(`\t  ${remoteHandler.network.domain} (${remoteHandler.network.chain}) => ${remote}`);
         } else {
           const tx = (await Handler.enrollRemoteRouter()) as providers.TransactionResponse;
           await waitForTx({
@@ -85,7 +84,7 @@ export const enrollHandlers = async (args: { protocol: ProtocolStack }) => {
               desired: canonized,
             },
           });
-          console.log(`\t (${remoteHandler.network.chain} | ${remoteHandler.network.domain}) => ${remote} !!!`);
+          console.log(`\t ${remoteHandler.network.domain} (${remoteHandler.network.chain}) => ${remote} !!!`);
         }
       }
     }

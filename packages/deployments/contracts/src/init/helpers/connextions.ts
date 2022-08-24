@@ -11,7 +11,7 @@ export const setConnextions = async (args: { protocol: ProtocolStack }) => {
     const targetNetwork = protocol.networks[i];
     const connextDeployment = targetNetwork.deployments.Connext;
 
-    console.log(`\n* (${targetNetwork.chain} | ${targetNetwork.domain}) Connext: ${connextDeployment.address}`);
+    console.log(`\n* [${targetNetwork.chain}] Connext: ${connextDeployment.address}`);
 
     // Set up Connext contract with connected deployer signer.
     const Connext = new Contract(
@@ -26,7 +26,7 @@ export const setConnextions = async (args: { protocol: ProtocolStack }) => {
       // Check to see if the connextion is already set (correctly).
       const connextion: string = await Connext.callStatic.connextion(remoteNetwork.domain);
       if (connextion === desiredConnextion) {
-        console.log(`\t (${remoteNetwork.chain} | ${remoteNetwork.domain}) => ${connextion}`);
+        console.log(`\t ${remoteNetwork.domain} (${remoteNetwork.chain}) => ${connextion}`);
       } else {
         const tx = (await Connext.addConnextion(
           remoteNetwork.domain,

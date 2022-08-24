@@ -14,7 +14,9 @@ import {
   getConnectorMirror,
   whitelistSenders,
   enrollHandlers,
+  getConnectorRootManager,
 } from "./helpers";
+import { setConnextions } from "./helpers/connextions";
 
 /**
  * Call the core `initProtocol` method using a JSON config file provided by the local environment.
@@ -204,11 +206,32 @@ export const initProtocol = async (protocol: ProtocolStack) => {
       Connector: HubConnector,
       network: hub,
     });
-    // Find the spoke domain. Set the mirrors for both the spoke domain's Connector and hub domain's Connector.
+
+    // Find the spoke domain.
     let foundMirror = false;
     for (const network of protocol.networks) {
       if (network.domain === mirrorDomain) {
         foundMirror = true;
+        const SpokeConnector = (network.deployments.messaging as SpokeMessagingDeployments).SpokeConnector;
+        console.log(
+          `* [${hub.chain} <> ${network.chain}] Connectors: ${HubConnector.address} <> ${SpokeConnector.address}`,
+        );
+
+        // Sanity check: Make sure RootManager is set correctly for this hub connector.
+        const rootManager = await getConnectorRootManager({
+          Connector: HubConnector,
+          network: hub,
+        });
+        console.log(`\tHub: ROOT_MANAGER: ${rootManager}`);
+        if (rootManager !== RootManager.address) {
+          throw new Error(
+            `Root manager address was set incorrectly for the HubConnector deployment ${HubConnector.address} on chain ${hub.chain}. ` +
+              `Should have been: ${RootManager.address}`,
+          );
+        }
+
+        // Set the mirrors for both the spoke domain's Connector and hub domain's Connector.
+        console.log("\tmirrorConnectors:");
         await setConnectorMirrors({
           deployer: protocol.deployer,
           hub: {
@@ -216,7 +239,7 @@ export const initProtocol = async (protocol: ProtocolStack) => {
             network: hub,
           },
           spoke: {
-            Connector: (network.deployments.messaging as SpokeMessagingDeployments).SpokeConnector,
+            Connector: SpokeConnector,
             network,
           },
         });
@@ -242,7 +265,7 @@ export const initProtocol = async (protocol: ProtocolStack) => {
       Connector: MainnetConnector,
       network: hub,
     });
-    console.log("\n* Retrieved MainnetConnector mirror; should be address(0):", mirror);
+    console.log(`\n* [${hub.chain}] MainnetConnector mirror (should be zero): ${mirror}`);
     if (mirror !== constants.AddressZero) {
       // TODO: Should we just go ahead and zero it out?
       throw new Error(
@@ -257,16 +280,17 @@ export const initProtocol = async (protocol: ProtocolStack) => {
   }
 
   /// MARK - Whitelist Senders
-  console.log("\n\nSTEP: WHITELIST CONNECTORS");
+  console.log("\n\nSTEP: WHITELIST SENDERS");
   // Whitelist message-sending Handler contracts (AKA 'Routers'); will enable those message senders to call `dispatch`.
-  for (const stack of protocol.networks) {
+  for (const network of protocol.networks) {
     // Skip the hub; no senders need whitelisting.
-    if (stack.domain === protocol.hub) {
+    if (network.domain === protocol.hub) {
       continue;
     }
+    console.log(`\n* [${network.chain}] Whitelisting senders.`);
     await whitelistSenders({
       deployer: protocol.deployer,
-      network: stack,
+      network,
     });
   }
 
@@ -275,15 +299,16 @@ export const initProtocol = async (protocol: ProtocolStack) => {
   // While the Connectors will only accept messages from registered routers on their domains, Routers will only process
   // messages that originate from their counterpart on another domain (e.g. BridgeRouter on Domain X to BridgeRouter on
   // Domain Y). Thus, we need to enroll each Handler/Router contract with all of their counterparts on all other domains.
+  // NOTE: This will also set `bridgeRouter` in Connext contract to the correct address.
   await enrollHandlers({ protocol });
 
   /// ********************* CONNEXT *********************
   /// MARK - Init
   // Check to make sure Diamond Proxy is initialized.
   /// MARK - Connextions
+  console.log("\n\nSTEP: SET CONNEXTIONS");
   // TODO/NOTE: Will likely be removing 'connextions' once we combine Connext+BridgeRouter.
-  /// MARK - Set BridgeRouter
-  // Set `bridgeRouter` in Connext contract to the correct address.
+  await setConnextions({ protocol });
   /// ********************* ASSETS **********************
   /// MARK - Register Assets
   // Convert asset addresses: get canonical ID, canonical domain, convert to `key` hash.

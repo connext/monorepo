@@ -32,6 +32,21 @@ export const getConnectorMirror = async (args: { Connector: Deployment; network:
   return res.toString();
 };
 
+export const getConnectorRootManager = async (args: {
+  Connector: Deployment;
+  network: NetworkStack;
+}): Promise<string> => {
+  const { Connector: _Connector, network } = args;
+  const iface = Connector__factory.createInterface();
+
+  const Connector = new Contract(_Connector.address, iface, network.rpc);
+  const res = await Connector.callStatic.ROOT_MANAGER();
+  if (!res) {
+    throw new Error(`Connector ${_Connector.address} for domain ${network.domain} returned no ROOT_MANAGER: ${res}`);
+  }
+  return res.toString();
+};
+
 export const setConnectorMirrors = async (args: {
   deployer: Wallet;
   hub: {
@@ -46,7 +61,6 @@ export const setConnectorMirrors = async (args: {
   const { hub, spoke, deployer } = args;
   const iface = Connector__factory.createInterface();
 
-  console.log(`\n* Checking Connector pair for connection to chain ${spoke.network.chain}.`);
   for (const connection of [
     {
       ...hub,
@@ -61,7 +75,7 @@ export const setConnectorMirrors = async (args: {
 
     // Check to see if the mirror is set (correctly).
     const currentMirror = await Connector.callStatic.mirrorConnector();
-    console.log(`(${connection.network.chain}) Current: ${currentMirror} | Desired: ${connection.mirror}`);
+    console.log(`\t[${connection.network.chain}] Current: ${currentMirror} | Desired: ${connection.mirror}`);
     if (currentMirror !== connection.mirror) {
       console.log(`Setting mirror connector on ${connection.Connector.name} to ${connection.mirror}...`);
       const tx = (await Connector.connect(deployer).setMirrorConnector(
