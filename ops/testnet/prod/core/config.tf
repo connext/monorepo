@@ -20,8 +20,12 @@ locals {
   #   { name = "ENVIRONMENT", value = var.environment },
   #   { name = "STAGE", value = var.stage }
   # ]
-  web3signer_env_vars = [
-    { name = "WEB3_SIGNER_PRIVATE_KEY", value = var.web3_signer_private_key },
+  router_web3signer_env_vars = [
+    { name = "WEB3_SIGNER_PRIVATE_KEY", value = var.router_web3_signer_private_key },
+    { name = "WEB3SIGNER_HTTP_HOST_ALLOWLIST", value = "*" }
+  ]
+  sequencer_web3signer_env_vars = [
+    { name = "WEB3_SIGNER_PRIVATE_KEY", value = var.sequencer_web3_signer_private_key },
     { name = "WEB3SIGNER_HTTP_HOST_ALLOWLIST", value = "*" }
   ]
 }
@@ -66,7 +70,7 @@ locals {
         ]
       }
     }
-
+    web3SignerUrl    = "https://${module.sequencer_web3signer.service_endpoint}"
     environment = var.stage
     messageQueue = {
       connection = {
@@ -162,9 +166,10 @@ locals {
         ]
       }
     }
-    web3SignerUrl    = "https://${module.web3signer.service_endpoint}"
+    cartographerUrl  = "https://postgrest.testnet.connext.ninja"
+    web3SignerUrl    = "https://${module.router_web3signer.service_endpoint}"
     environment      = var.stage
-    nomadEnvironment = var.nomad_environment
+    nomadEnvironment = "none"
     messageQueue = {
       uri = "amqps://${var.rmq_mgt_user}:${var.rmq_mgt_password}@${module.centralised_message_queue.aws_mq_amqp_endpoint}"
     }
