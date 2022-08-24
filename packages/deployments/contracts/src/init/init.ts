@@ -10,7 +10,6 @@ import {
   SpokeMessagingDeployments,
   getDeployments,
   getConnectorMirrorDomain,
-  setConnectorMirrors,
   getConnectorMirror,
   enrollHandlers,
   getConnectorRootManager,
@@ -239,18 +238,31 @@ export const initProtocol = async (protocol: ProtocolStack) => {
         }
 
         // Set the mirrors for both the spoke domain's Connector and hub domain's Connector.
-        console.log("\tmirrorConnectors:");
-        await setConnectorMirrors({
-          deployer: protocol.deployer,
-          hub: {
-            Connector: HubConnector,
+        for (const connection of [
+          {
+            local: HubConnector.address,
             network: hub,
+            mirror: SpokeConnector.address,
           },
-          spoke: {
-            Connector: SpokeConnector,
+          {
+            local: SpokeConnector.address,
             network,
+            mirror: HubConnector.address,
           },
-        });
+        ]) {
+          await updateIfNeeded({
+            scheme: {
+              contract: getConnectorContract({
+                deployer,
+                network,
+                address: connection.local,
+              }),
+              desired: connection.mirror,
+              read: { method: "mirrorConnector", args: [] },
+              write: { method: "setMirrorConnector", args: [connection.mirror] },
+            },
+          });
+        }
 
         // Sanity checks:
         {
@@ -336,8 +348,7 @@ export const initProtocol = async (protocol: ProtocolStack) => {
       continue;
     }
     console.log(`\n* [${network.chain}] Whitelisting senders.`);
-    for (const [name, handler] of Object.entries(network.deployments.handlers)) {
-      console.log(`${name}:`);
+    for (const handler of Object.values(network.deployments.handlers)) {
       await updateIfNeeded({
         scheme: {
           contract: getConnectorContract({

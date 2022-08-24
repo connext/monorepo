@@ -5,48 +5,6 @@ import { RootManager__factory } from "../../typechain-types";
 import { waitForTx } from "./tx";
 import { HubMessagingDeployments, NetworkStack, SpokeMessagingDeployments } from "./types";
 
-export const getRootManagerContract = (args: { deployer: Wallet; hub: NetworkStack }): Contract => {
-  const { hub, deployer } = args;
-  const _RootManager = (hub.deployments.messaging as HubMessagingDeployments).RootManager;
-  if (!_RootManager) {
-    throw new Error("RootManager was not configured correctly for the hub network.");
-  }
-  const iface = RootManager__factory.createInterface();
-  return new Contract(_RootManager.address, iface, deployer.connect(hub.rpc));
-};
-
-export const whitelistWatcher = async (args: {
-  deployer: Wallet;
-  watcher: string;
-  hub: NetworkStack;
-}): Promise<void> => {
-  const { hub, watcher, deployer } = args;
-  const _RootManager = (hub.deployments.messaging as HubMessagingDeployments).RootManager;
-  if (!_RootManager) {
-    throw new Error("RootManager was not configured correctly for the hub network.");
-  }
-
-  const iface = RootManager__factory.createInterface();
-  const RootManager = new Contract(_RootManager.address, iface, deployer.connect(hub.rpc));
-
-  const isWhitelisted = await RootManager.callStatic.watchers(watcher);
-  if (isWhitelisted) {
-    console.log(`Watcher ${watcher.slice(0, 8)} whitelisted: ${isWhitelisted}`);
-  } else {
-    // Call `addWatcher` to whitelist the new Watcher agent address.
-    const tx = (await RootManager.addWatcher(watcher)) as providers.TransactionResponse;
-    await waitForTx({
-      tx,
-      name: "addWatcher",
-      checkResult: {
-        method: async () => (await RootManager.callStatic.watchers(watcher)) as boolean,
-        desired: true,
-      },
-    });
-    console.log(`\tWatcher ${watcher.slice(0, 8)} whitelisted: true !!!`);
-  }
-};
-
 export const setRootManagerConnector = async (args: {
   deployer: Wallet;
   hub: NetworkStack;

@@ -5,3 +5,6 @@ export * from "./tx";
 export * from "./Routers";
 export * from "./Connext";
 export * from "./RootManager";
+export * from "./update";
+export * from "./log";
+export * from "./contracts";

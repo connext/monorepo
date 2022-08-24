@@ -1,5 +1,6 @@
 import { providers } from "ethers";
 
+import { log } from "./log";
 import { waitForTx } from "./tx";
 import { UpdateScheme } from "./types";
 
@@ -45,8 +46,11 @@ export const updateIfNeeded = async <T>(args: { scheme: UpdateScheme<T> }) => {
     return await contract[write.method](...write.args);
   };
 
+  const network = await contract.provider.getNetwork();
+  const address = contract.address;
+
   const value = await readCall();
-  console.log(`\t${read.method}(${read.args.join(",")}) : ${value}`);
+  log.value({ network, address, call: read, value, updated: false });
   if (value !== desired) {
     const tx = await writeCall();
     await waitForTx({
@@ -57,6 +61,6 @@ export const updateIfNeeded = async <T>(args: { scheme: UpdateScheme<T> }) => {
         desired,
       },
     });
-    console.log(`\t${read.method}(${read.args.join(",")}) : ${value} !!!`);
+    log.value({ network, address, call: read, value, updated: true });
   }
 };
