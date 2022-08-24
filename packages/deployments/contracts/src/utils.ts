@@ -18,9 +18,10 @@ export const getProtocolNetwork = (_chain: string | number, _env?: string): "mai
   // If chain 1337 or 1338, use local network.
   return chain === "1337" || chain === "1338"
     ? "local"
-    : // 'production' env => eth mainnet
+    : // TODO: we need production testnet and mainnet
+    // @jake pls take another look at this
     env === "production"
-    ? "mainnet"
+    ? "testnet"
     : // 'staging' env => testnet
     env === "staging"
     ? "testnet"
