@@ -33,7 +33,7 @@ export const whitelistWatcher = async (args: {
         desired: true,
       },
     });
-    console.log(`\tWatcher ${watcher.slice(0, 8)} whitelisted: ${isWhitelisted} !!!`);
+    console.log(`\tWatcher ${watcher.slice(0, 8)} whitelisted: true !!!`);
   }
 };
 
@@ -66,6 +66,6 @@ export const setRootManagerConnector = async (args: {
         desired: desiredAddress,
       },
     });
-    console.log(`\t ${remote.domain} (${remote.chain}) => ${desiredAddress}`);
+    console.log(`\t ${remote.domain} (${remote.chain}) => ${desiredAddress} !!!`);
   }
 };

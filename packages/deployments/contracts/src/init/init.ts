@@ -368,12 +368,14 @@ export const initProtocol = async (protocol: ProtocolStack) => {
   /// ********************* AGENTS **********************
   if (protocol.agents) {
     if (protocol.agents.watchers) {
-      /// MARK - Watchers
-      console.log("\n\nROOT MANAGER : WHITELIST WATCHERS");
-      // Watchers are a permissioned role with the ability to disconnect malicious connectors.
-      // Whitelist watchers in RootManager.
-      for (const watcher of protocol.agents.watchers.whitelist) {
-        await whitelistWatcher({ deployer, watcher, hub });
+      if (protocol.agents.watchers.whitelist) {
+        /// MARK - Watchers
+        console.log("\n\nROOT MANAGER : WHITELIST WATCHERS");
+        // Watchers are a permissioned role with the ability to disconnect malicious connectors.
+        // Whitelist watchers in RootManager.
+        for (const watcher of protocol.agents.watchers.whitelist) {
+          await whitelistWatcher({ deployer, watcher, hub });
+        }
       }
     }
 

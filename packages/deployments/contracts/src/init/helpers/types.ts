@@ -3,8 +3,8 @@ import { providers, Wallet } from "ethers";
 // NOTE: Agents will currently be whitelisted/blacklisted respectively on ALL domains.
 export type AgentStack = {
   // Arrays of addresses for each type of agent that requires whitelisting/blacklisting.
-  whitelist: string[];
-  blacklist: string[];
+  whitelist?: string[];
+  blacklist?: string[];
 };
 
 export type WhitelistAgents = {
