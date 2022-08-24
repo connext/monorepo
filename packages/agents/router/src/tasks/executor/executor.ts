@@ -52,7 +52,7 @@ export const makeExecutor = async () => {
     context.logger.info("Executor boot complete!", requestContext, methodContext, {
       chains: [...Object.keys(context.config.chains)],
     });
-    context.logger.info(
+    console.log(
       `
 
         _|_|_|     _|_|     _|      _|   _|      _|   _|_|_|_|   _|      _|   _|_|_|_|_|

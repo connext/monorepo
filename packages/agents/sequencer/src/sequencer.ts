@@ -1,4 +1,4 @@
-import { logger as ethersLogger, Wallet } from "ethers";
+import { Wallet } from "ethers";
 import {
   Logger,
   getChainData,
@@ -55,7 +55,7 @@ export const makePublisher = async (_configOverride?: SequencerConfig) => {
       },
       chains: [...Object.keys(context.config.chains)],
     });
-    ethersLogger.info(
+    console.log(
       `
 
           _|_|_|     _|_|     _|      _|   _|      _|   _|_|_|_|   _|      _|   _|_|_|_|_|
