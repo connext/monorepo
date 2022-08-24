@@ -4,10 +4,10 @@
 -- Schema change
 -- 
 ALTER TABLE public.transfers
-ADD COLUMN IF NOT EXISTS transfer_status_update_by_agent numeric;
+ADD COLUMN IF NOT EXISTS transfer_status_update_by_agent character(42);
 
 ALTER TABLE public.transfers
-ADD COLUMN IF NOT EXISTS transfer_status_message_by_agent numeric;
+ADD COLUMN IF NOT EXISTS transfer_status_message_by_agent character(42);
 
 -- 
 -- New Hourly Metrics
