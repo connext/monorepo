@@ -40,7 +40,7 @@ export const setConnextions = async (args: { protocol: ProtocolStack }) => {
             desired: desiredConnextion,
           },
         });
-        console.log(`\t (${remoteNetwork.chain} | ${remoteNetwork.domain}) => ${desiredConnextion} !!!`);
+        console.log(`\t ${remoteNetwork.domain} (${remoteNetwork.chain}) => ${desiredConnextion} !!!`);
       }
     }
   }

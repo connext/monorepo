@@ -34,7 +34,7 @@ export const whitelistSenders = async (args: { deployer: Wallet; network: Networ
           desired: true,
         },
       });
-      console.log(`\t${name} whitelisted: ${isWhitelisted}`);
+      console.log(`\t${name} whitelisted: ${isWhitelisted} !!!`);
     }
   }
 };

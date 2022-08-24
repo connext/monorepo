@@ -15,8 +15,9 @@ import {
   whitelistSenders,
   enrollHandlers,
   getConnectorRootManager,
+  setConnextions,
+  setRootManagerConnector,
 } from "./helpers";
-import { setConnextions } from "./helpers/connextions";
 
 /**
  * Call the core `initProtocol` method using a JSON config file provided by the local environment.
@@ -188,7 +189,6 @@ export const initProtocol = async (protocol: ProtocolStack) => {
   /// MARK - Peripherals Setup
   // Get hub domain for specific use.
   const hub: NetworkStack = protocol.networks.filter((d) => d.domain === protocol.hub)[0];
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const { RootManager, MainnetConnector, HubConnectors } = hub.deployments.messaging as HubMessagingDeployments;
 
   /// ******************** MESSAGING ********************
@@ -198,7 +198,7 @@ export const initProtocol = async (protocol: ProtocolStack) => {
   // this placeholder here for now...
 
   /// MARK - Connector Mirrors
-  console.log("\n\nSTEP: SET MIRROR CONNECTORS");
+  console.log("\n\nCONNECTORS : SET MIRROR CONNECTORS");
   // Connectors should have their mirrors' address set; this lets them know about their counterparts.
   for (const HubConnector of HubConnectors) {
     // Get the connector's mirror domain.
@@ -311,8 +311,20 @@ export const initProtocol = async (protocol: ProtocolStack) => {
     }
   }
 
+  /// MARK - RootManager
+  console.log("\n\nROOT MANAGER : ADD CONNECTORS");
+  // addConnectors for RootManager by domain.
+  for (const remote of protocol.networks) {
+    // Skip the hub domain.
+    if (remote.domain === protocol.hub) {
+      continue;
+    }
+
+    await setRootManagerConnector({ hub, remote });
+  }
+
   /// MARK - Whitelist Senders
-  console.log("\n\nSTEP: WHITELIST SENDERS");
+  console.log("\n\nHANDLERS : WHITELIST SENDERS");
   // Whitelist message-sending Handler contracts (AKA 'Routers'); will enable those message senders to call `dispatch`.
   for (const network of protocol.networks) {
     // Skip the hub; no senders need whitelisting.
@@ -327,7 +339,7 @@ export const initProtocol = async (protocol: ProtocolStack) => {
   }
 
   /// MARK - Enroll Handlers
-  console.log("\n\nSTEP: ENROLL HANDLERS");
+  console.log("\n\nHANDLERS : ENROLL HANDLERS");
   // While the Connectors will only accept messages from registered routers on their domains, Routers will only process
   // messages that originate from their counterpart on another domain (e.g. BridgeRouter on Domain X to BridgeRouter on
   // Domain Y). Thus, we need to enroll each Handler/Router contract with all of their counterparts on all other domains.
@@ -338,9 +350,10 @@ export const initProtocol = async (protocol: ProtocolStack) => {
   /// MARK - Init
   // Check to make sure Diamond Proxy is initialized.
   /// MARK - Connextions
-  console.log("\n\nSTEP: SET CONNEXTIONS");
+  console.log("\n\nCONNEXT : SET CONNEXTIONS");
   // TODO/NOTE: Will likely be removing 'connextions' once we combine Connext+BridgeRouter.
   await setConnextions({ protocol });
+
   /// ********************* ASSETS **********************
   /// MARK - Register Assets
   // Convert asset addresses: get canonical ID, canonical domain, convert to `key` hash.
@@ -352,7 +365,9 @@ export const initProtocol = async (protocol: ProtocolStack) => {
   // - Set up mapping for stableswap pool if applicable.
   /// ********************* AGENTS **********************
   /// MARK - Watchers
-  // Whitelist watchers in RootManager, with the ability to disconnect malicious connectors.
+  // Watchers are a permissioned role with the ability to disconnect malicious connectors.
+  // Whitelist watchers in RootManager.
+
   /// MARK - Relayers
   // Whitelist named relayers for the Connext bridge, in order to call `execute`.
   // Approve relayers as callers for connectors and root manager
