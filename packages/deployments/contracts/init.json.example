@@ -1,0 +1,15 @@
+{
+  "deployer": "...",
+  "hub": 5,
+  "networks": [
+    {
+      "chain": 5,
+      "rpc": "https://goerli.infura.io/v3/55b1cf0f39d04e4c9084f1b9bea7e41f"
+    },
+    {
+      "chain": 420,
+      "rpc": "https://optimism-goerli.infura.io/v3/7672e2bf7cbe427e8cd25b0f1dde65cf"
+    }
+  ],
+  "environment": "staging"
+}
