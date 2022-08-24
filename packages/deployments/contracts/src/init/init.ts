@@ -217,17 +217,21 @@ export const initProtocol = async (protocol: ProtocolStack) => {
           `* [${hub.chain} <> ${network.chain}] Connectors: ${HubConnector.address} <> ${SpokeConnector.address}`,
         );
 
-        // Sanity check: Make sure RootManager is set correctly for this hub connector.
-        const rootManager = await getConnectorRootManager({
-          Connector: HubConnector,
-          network: hub,
-        });
-        console.log(`\tHub: ROOT_MANAGER: ${rootManager}`);
-        if (rootManager !== RootManager.address) {
-          throw new Error(
-            `Root manager address was set incorrectly for the HubConnector deployment ${HubConnector.address} on chain ${hub.chain}. ` +
-              `Should have been: ${RootManager.address}`,
-          );
+        // Sanity checks:
+        {
+          // Make sure RootManager is set correctly for this HubConnector.
+          // NOTE: We CANNOT update the currently set ROOT_MANAGER; it is `immutable` and will require redeployment.
+          const rootManager = await getConnectorRootManager({
+            Connector: HubConnector,
+            network: hub,
+          });
+          console.log(`\tHub: ROOT_MANAGER: ${rootManager}`);
+          if (rootManager !== RootManager.address) {
+            throw new Error(
+              `Root manager address was set incorrectly for the HubConnector deployment ${HubConnector.address} on chain ${hub.chain}. ` +
+                `Should have been: ${RootManager.address}`,
+            );
+          }
         }
 
         // Set the mirrors for both the spoke domain's Connector and hub domain's Connector.
@@ -243,11 +247,27 @@ export const initProtocol = async (protocol: ProtocolStack) => {
             network,
           },
         });
-        // TODO: Sanity checks:
-        // Make sure IS_HUB is false.
-        // Sanity check: RootManager is address(0).
+
+        // Sanity checks:
+        {
+          // TODO: Make sure IS_HUB is false.
+
+          // RootManager should be set correctly for this SpokeConnector.
+          const rootManager = await getConnectorRootManager({
+            Connector: HubConnector,
+            network: hub,
+          });
+          console.log(`\tSpoke: ROOT_MANAGER: ${rootManager}`);
+          if (rootManager !== RootManager.address) {
+            throw new Error(
+              `Root manager address was set incorrectly for the SpokeConnector deployment ${SpokeConnector.address} on chain ${network.chain}. ` +
+                `Should have been: ${RootManager.address}`,
+            );
+          }
+        }
       }
     }
+
     // TODO: Actually, should we just submit a warning and skip this iteration? We may discontinue an L2...
     // TODO: Alternatively, this would be best as a sanity check.
     if (!foundMirror) {
@@ -261,11 +281,12 @@ export const initProtocol = async (protocol: ProtocolStack) => {
   // Make sure all things are set correctly.
   {
     // Sanity check: mirror is address(0).
+    console.log(`\n* [${hub.chain}] MainnetConnector: ${MainnetConnector.address}`);
     const mirror = await getConnectorMirror({
       Connector: MainnetConnector,
       network: hub,
     });
-    console.log(`\n* [${hub.chain}] MainnetConnector mirror (should be zero): ${mirror}`);
+    console.log(`\tMirror (should be zero): ${mirror}`);
     if (mirror !== constants.AddressZero) {
       // TODO: Should we just go ahead and zero it out?
       throw new Error(
@@ -274,9 +295,20 @@ export const initProtocol = async (protocol: ProtocolStack) => {
     }
 
     // TODO: Sanity check: RootManager should be set correctly.
-    // const rootManager = await getConnectorRootManager({
-    //   Connector:
-    // });
+
+    // Make sure RootManager is set correctly for this MainnetConnector.
+    // NOTE: We CANNOT update the currently set ROOT_MANAGER; it is `immutable` and will require redeployment.
+    const rootManager = await getConnectorRootManager({
+      Connector: MainnetConnector,
+      network: hub,
+    });
+    console.log(`\tROOT_MANAGER: ${rootManager}`);
+    if (rootManager !== RootManager.address) {
+      throw new Error(
+        `Root manager address was set incorrectly for the MainnetConnector deployment ${MainnetConnector.address} on chain ${hub.chain}. ` +
+          `Should have been: ${RootManager.address}`,
+      );
+    }
   }
 
   /// MARK - Whitelist Senders
