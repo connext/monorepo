@@ -220,6 +220,7 @@ describe("AuctionCache", () => {
         const { timestamp: firstCallTimestamp, ...firstEntry } = await mockRedisHelpers.getMetaTxTask(transferId);
         expect(firstEntry).to.deep.eq({
           taskId,
+          relayer: RelayerType.Mock,
           attempts: 1,
         });
 
@@ -243,6 +244,7 @@ describe("AuctionCache", () => {
         const { timestamp: secondCallTimestamp, ...secondEntry } = await mockRedisHelpers.getMetaTxTask(transferId);
         expect(secondEntry).to.deep.eq({
           taskId: updatedTaskId,
+          relayer: RelayerType.Mock,
           attempts: 2,
         });
         // Ts should be overwritten with latest in this case.
