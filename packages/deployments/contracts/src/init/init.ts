@@ -5,13 +5,15 @@ import { constants, providers, Wallet } from "ethers";
 
 import {
   ProtocolStack,
-  getDeployments,
-  HubMessagingDeployments,
   DomainStack,
+  HubMessagingDeployments,
+  SpokeMessagingDeployments,
+  getDeployments,
   getConnectorMirrorDomain,
   setConnectorMirrors,
-  SpokeMessagingDeployments,
   getConnectorMirror,
+  whitelistSenders,
+  enrollHandlers,
 } from "./helpers";
 
 /**
@@ -249,7 +251,18 @@ export const initProtocol = async (protocol: ProtocolStack) => {
 
   /// MARK - Enroll Handlers
   // Whitelist message-sending Handler contracts (AKA 'Routers'); will enable those message senders to call `dispatch`.
-  // Call `addSender` on Connector contract, passing in each Handler contract.
+  for (const stack of protocol.domains) {
+    // Skip the hub; no senders need whitelisting.
+    if (stack.domain === protocol.hub) {
+      continue;
+    }
+    await whitelistSenders({
+      deployer: protocol.deployer,
+      stack,
+    });
+  }
+
+  await enrollHandlers({ protocol });
   /// ********************* CONNEXT *********************
   /// MARK - Init
   // Check to make sure Diamond Proxy is initialized.

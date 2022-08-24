@@ -58,13 +58,23 @@ export const setConnectorMirrors = async (args: {
     },
   ]) {
     const Connector = new Contract(connection.Connector.address, iface, connection.stack.rpc);
+
     // Check to see if the mirror is set (correctly).
     const currentMirror = await Connector.callStatic.mirrorConnector();
     console.log(`(${connection.stack.chain}) Current: ${currentMirror} | Desired: ${connection.mirror}`);
     if (currentMirror !== connection.mirror) {
       console.log(`Setting mirror connector on ${connection.Connector.name} to ${connection.mirror}...`);
-      const tx = await Connector.connect(deployer).setMirrorConnector(connection.mirror);
-      await waitForTx(tx as providers.TransactionResponse, `setMirrorConnector`);
+      const tx = (await Connector.connect(deployer).setMirrorConnector(
+        connection.mirror,
+      )) as providers.TransactionResponse;
+      await waitForTx({
+        tx,
+        name: "setMirrorConnector",
+        checkResult: {
+          method: Connector.callStatic.mirrorConnector,
+          desired: connection.mirror,
+        },
+      });
     }
   }
 };
