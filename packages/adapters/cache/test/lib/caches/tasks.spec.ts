@@ -92,7 +92,7 @@ describe("TasksCache", () => {
       // Should return random task ID.
       expect(taskId.length).to.be.eq(getRandomBytes32().length);
       expect(setStatusStub.calledOnce).to.be.true;
-      expect(setStatusStub).to.have.been.calledOnceWithExactly(taskId, RelayerTaskStatus.Pending);
+      expect(setStatusStub).to.have.been.calledOnceWithExactly(taskId, RelayerTaskStatus.ExecPending);
       const task = await mockRedisHelpers.getTask(taskId);
       expect(task).to.deep.eq(mockTask);
     });
@@ -100,7 +100,11 @@ describe("TasksCache", () => {
 
   describe("#getStatus", () => {
     it("happy: should retrieve existing task status", async () => {
-      for (const status of [RelayerTaskStatus.Pending, RelayerTaskStatus.Cancelled, RelayerTaskStatus.Completed]) {
+      for (const status of [
+        RelayerTaskStatus.ExecPending,
+        RelayerTaskStatus.Cancelled,
+        RelayerTaskStatus.ExecSuccess,
+      ]) {
         const taskId = getRandomBytes32();
         await mockRedisHelpers.setStatus(taskId, status);
         const res = await cache.getStatus(taskId);
@@ -108,10 +112,10 @@ describe("TasksCache", () => {
       }
     });
 
-    it("sad: should return RelayerTaskStatus.None if task status does not exist", async () => {
+    it("sad: should return RelayerTaskStatus.NotFound if task status does not exist", async () => {
       const taskId = getRandomBytes32();
       const res = await cache.getStatus(taskId);
-      expect(res).to.eq(RelayerTaskStatus.None);
+      expect(res).to.eq(RelayerTaskStatus.NotFound);
     });
   });
 
@@ -119,13 +123,13 @@ describe("TasksCache", () => {
     it("happy: should set status", async () => {
       const taskId = getRandomBytes32();
 
-      const resOne = await (cache as any).setStatus(taskId, RelayerTaskStatus.Pending);
+      const resOne = await (cache as any).setStatus(taskId, RelayerTaskStatus.ExecPending);
       expect(resOne).to.eq(1);
-      expect(await mockRedisHelpers.getStatus(taskId)).to.eq(RelayerTaskStatus.Pending);
+      expect(await mockRedisHelpers.getStatus(taskId)).to.eq(RelayerTaskStatus.ExecPending);
 
-      const resTwo = await (cache as any).setStatus(taskId, RelayerTaskStatus.Completed);
+      const resTwo = await (cache as any).setStatus(taskId, RelayerTaskStatus.ExecSuccess);
       expect(resTwo).to.eq(0);
-      expect(await mockRedisHelpers.getStatus(taskId)).to.eq(RelayerTaskStatus.Completed);
+      expect(await mockRedisHelpers.getStatus(taskId)).to.eq(RelayerTaskStatus.ExecSuccess);
     });
   });
 
@@ -163,7 +167,7 @@ describe("TasksCache", () => {
     it("happy: should retrieve existing pending tasks", async () => {
       const taskIds = mockTaskIdBatch(10);
       for (const taskId of taskIds) {
-        await mockRedisHelpers.setStatus(taskId, RelayerTaskStatus.Pending);
+        await mockRedisHelpers.setStatus(taskId, RelayerTaskStatus.ExecPending);
       }
 
       const res = await cache.getPending();
@@ -173,13 +177,13 @@ describe("TasksCache", () => {
     it("should not retrieve tasks of other statuses", async () => {
       const pendingTaskIds = mockTaskIdBatch(10);
       for (const taskId of pendingTaskIds) {
-        await mockRedisHelpers.setStatus(taskId, RelayerTaskStatus.Pending);
+        await mockRedisHelpers.setStatus(taskId, RelayerTaskStatus.ExecPending);
       }
 
       // Simulate: a lot have been sent already.
       const completedTaskIds = mockTaskIdBatch(1234);
       for (const taskId of completedTaskIds) {
-        await mockRedisHelpers.setStatus(taskId, RelayerTaskStatus.Completed);
+        await mockRedisHelpers.setStatus(taskId, RelayerTaskStatus.ExecSuccess);
       }
 
       const res = await cache.getPending();
@@ -189,7 +193,7 @@ describe("TasksCache", () => {
     it("should return empty array if no tasks have pending status", async () => {
       const completedTaskIds = mockTaskIdBatch(27);
       for (const taskId of completedTaskIds) {
-        await mockRedisHelpers.setStatus(taskId, RelayerTaskStatus.Completed);
+        await mockRedisHelpers.setStatus(taskId, RelayerTaskStatus.ExecSuccess);
       }
 
       const res = await cache.getPending();

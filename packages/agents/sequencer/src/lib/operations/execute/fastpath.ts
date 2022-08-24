@@ -5,28 +5,28 @@ import {
   RequestContext,
   createLoggingContext,
   ajv,
-  AuctionStatus,
+  ExecStatus,
   getNtpTimeSeconds,
   jsonifyError,
   OriginTransfer,
+  RelayerType,
 } from "@connext/nxtp-utils";
 import { compare } from "compare-versions";
 
-import { AuctionExpired, MissingXCall, ParamsInvalid, BidVersionInvalid } from "../errors";
-import { getContext } from "../../sequencer";
-import { getHelpers } from "../helpers";
-import { Message, MessageType } from "../entities";
+import { AuctionExpired, MissingXCall, ParamsInvalid, BidVersionInvalid } from "../../errors";
+import { getContext } from "../../../sequencer";
+import { getHelpers } from "../../helpers";
+import { Message, MessageType } from "../../entities";
+import { getOperations } from "..";
 
-import { getOperations } from ".";
-
-export const storeBid = async (bid: Bid, _requestContext: RequestContext): Promise<void> => {
+export const storeFastPathData = async (bid: Bid, _requestContext: RequestContext): Promise<void> => {
   const {
     logger,
     config,
     adapters: { cache, subgraph, mqClient },
   } = getContext();
-  const { requestContext, methodContext } = createLoggingContext(storeBid.name, _requestContext);
-  logger.debug(`Method start: ${storeBid.name}`, requestContext, methodContext, { bid });
+  const { requestContext, methodContext } = createLoggingContext(storeFastPathData.name, _requestContext);
+  logger.debug(`Method start: ${storeFastPathData.name}`, requestContext, methodContext, { bid });
 
   const { transferId, origin } = bid;
 
@@ -51,8 +51,8 @@ export const storeBid = async (bid: Bid, _requestContext: RequestContext): Promi
   }
 
   // Ensure that the auction for this transfer hasn't expired.
-  const status = await cache.auctions.getStatus(transferId);
-  if (status !== AuctionStatus.None && status !== AuctionStatus.Queued) {
+  const status = await cache.auctions.getExecStatus(transferId);
+  if (status !== ExecStatus.None && status !== ExecStatus.Queued) {
     throw new AuctionExpired(status, {
       transferId,
       bid,
@@ -95,11 +95,11 @@ export const storeBid = async (bid: Bid, _requestContext: RequestContext): Promi
   logger.info("Updated auction", requestContext, methodContext, {
     new: res === 0,
     auction: await cache.auctions.getAuction(transferId),
-    status: await cache.auctions.getStatus(transferId),
+    status: await cache.auctions.getExecStatus(transferId),
   });
 
   // Enqueue only once to dedup, when the first bid for the transfer is stored.
-  if (status === AuctionStatus.None) {
+  if (status === ExecStatus.None) {
     const message: Message = {
       transferId: transfer.transferId,
       originDomain: transfer.xparams!.originDomain,
@@ -125,7 +125,10 @@ export const storeBid = async (bid: Bid, _requestContext: RequestContext): Promi
   return;
 };
 
-export const executeAuction = async (transferId: string, _requestContext: RequestContext) => {
+export const executeFastPathData = async (
+  transferId: string,
+  _requestContext: RequestContext,
+): Promise<{ taskId: string | undefined; relayer: RelayerType | undefined }> => {
   const {
     config,
     logger,
@@ -135,15 +138,17 @@ export const executeAuction = async (transferId: string, _requestContext: Reques
   const {
     relayer: { sendExecuteFastToRelayer },
   } = getOperations();
+  let taskId: string | undefined;
+  let relayer: RelayerType = RelayerType.Gelato;
   const {
     auctions: { getDestinationLocalAsset, getBidsRoundMap, getAllSubsets, getMinimumBidsCountForRound },
   } = getHelpers();
-  const { requestContext, methodContext } = createLoggingContext(executeAuction.name, _requestContext);
-  logger.debug(`Method start: ${executeAuction.name}`, requestContext, methodContext);
+  const { requestContext, methodContext } = createLoggingContext(executeFastPathData.name, _requestContext);
+  logger.debug(`Method start: ${executeFastPathData.name}`, requestContext, methodContext);
 
   if (!transferId) {
     logger.debug("No auction to execute", requestContext, methodContext);
-    return;
+    return { taskId, relayer };
   }
 
   // Validate if transfer has exceeded the auction period and merits execution.
@@ -166,7 +171,7 @@ export const executeAuction = async (transferId: string, _requestContext: Reques
     logger.error("Auction data not found for transfer!", requestContext, methodContext, undefined, {
       transferId: transferId,
     });
-    return;
+    return { taskId, relayer };
   }
 
   // Handling each domain in parallel, but each individual transfer synchronously. This is to account
@@ -192,7 +197,7 @@ export const executeAuction = async (transferId: string, _requestContext: Reques
       destination,
       bids,
     });
-    return;
+    return { taskId, relayer };
   } else if (!transfer.origin) {
     // TODO: Same as above!
     // Again, shouldn't happen: sequencer should not have accepted an auction for a transfer with no xcall.
@@ -201,7 +206,7 @@ export const executeAuction = async (transferId: string, _requestContext: Reques
       transfer,
       bids,
     });
-    return;
+    return { taskId, relayer };
   }
 
   const destTx = await subgraph.getDestinationTransferById(transfer.xparams!.destinationDomain!, transferId);
@@ -211,8 +216,8 @@ export const executeAuction = async (transferId: string, _requestContext: Reques
       transfer,
       bids,
     });
-    await cache.auctions.setStatus(transferId, AuctionStatus.Executed);
-    return;
+    await cache.auctions.setExecStatus(transferId, ExecStatus.Completed);
+    return { taskId, relayer };
   }
 
   const bidsRoundMap = getBidsRoundMap(bids, config.auctionRoundDepth);
@@ -223,7 +228,7 @@ export const executeAuction = async (transferId: string, _requestContext: Reques
       transferId,
     });
 
-    return;
+    return { taskId, relayer };
   }
 
   for (const roundIdx of availableRoundIds) {
@@ -237,7 +242,6 @@ export const executeAuction = async (transferId: string, _requestContext: Reques
       combinationCount: combinedBidsForRound.length,
       combinations: combinedBidsForRound,
     });
-    let taskId: string | undefined;
 
     // Try every combinations until we find one that works.
     for (const randomCombination of combinedBidsForRound) {
@@ -312,10 +316,19 @@ export const executeAuction = async (transferId: string, _requestContext: Reques
           },
         });
         // Send the relayer request based on chosen bids.
-        taskId = await sendExecuteFastToRelayer(roundIdInNum, randomCombination, transfer, asset, requestContext);
+        const { taskId: _taskId, relayer: _relayer } = await sendExecuteFastToRelayer(
+          roundIdInNum,
+          randomCombination,
+          transfer,
+          asset,
+          requestContext,
+        );
+        taskId = _taskId;
+        relayer = _relayer;
         logger.info("Sent bid to relayer", requestContext, methodContext, {
           transferId,
           taskId,
+          relayer,
           origin,
           destination,
         });
@@ -369,9 +382,11 @@ export const executeAuction = async (transferId: string, _requestContext: Reques
       combinations: combinedBidsForRound,
     });
 
-    await cache.auctions.setStatus(transferId, AuctionStatus.Sent);
-    await cache.auctions.upsertTask({ transferId, taskId });
+    await cache.auctions.setExecStatus(transferId, ExecStatus.Sent);
+    await cache.auctions.upsertMetaTxTask({ transferId, taskId, relayer: relayer });
 
-    return;
+    return { taskId, relayer };
   }
+
+  return { taskId, relayer };
 };

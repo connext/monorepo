@@ -5,10 +5,12 @@ import {
   createLoggingContext,
   ajv,
   ExecutorDataSchema,
-  ExecutorDataStatus,
+  ExecStatus,
   getChainIdFromDomain,
+  RelayerType,
 } from "@connext/nxtp-utils";
-import { getContext } from "../../sequencer";
+
+import { getContext } from "../../../sequencer";
 import {
   ParamsInvalid,
   ExecutorVersionInvalid,
@@ -18,12 +20,12 @@ import {
   MissingTransfer,
   MissingExecutorData,
   ExecuteSlowCompleted,
-} from "../errors";
-import { getHelpers } from "../helpers";
-import { Message, MessageType } from "../entities";
-import { getOperations } from ".";
+} from "../../errors";
+import { getHelpers } from "../../helpers";
+import { Message, MessageType } from "../../entities";
+import { getOperations } from "..";
 
-export const storeExecutorData = async (executorData: ExecutorData, _requestContext: RequestContext): Promise<void> => {
+export const storeSlowPathData = async (executorData: ExecutorData, _requestContext: RequestContext): Promise<void> => {
   const {
     logger,
     config,
@@ -33,8 +35,8 @@ export const storeExecutorData = async (executorData: ExecutorData, _requestCont
   const {
     relayer: { getGelatoRelayerAddress },
   } = getHelpers();
-  const { requestContext, methodContext } = createLoggingContext(storeExecutorData.name, _requestContext);
-  logger.debug(`Method start: ${storeExecutorData.name}`, requestContext, methodContext, { executorData });
+  const { requestContext, methodContext } = createLoggingContext(storeSlowPathData.name, _requestContext);
+  logger.debug(`Method start: ${storeSlowPathData.name}`, requestContext, methodContext, { executorData });
 
   const { transferId, relayerFee, encodedData, executorVersion, origin } = executorData;
 
@@ -100,14 +102,14 @@ export const storeExecutorData = async (executorData: ExecutorData, _requestCont
     throw new GasEstimationFailed({ transferId, executorData });
   }
 
-  // Ensure that the lighthouse data for this transfer hasn't expired.
-  const status = await cache.executors.getExecutorDataStatus(transferId);
-  if (status === ExecutorDataStatus.Completed) {
+  // Ensure that the executor data for this transfer hasn't expired.
+  const status = await cache.executors.getExecStatus(transferId);
+  if (status === ExecStatus.Completed) {
     throw new ExecuteSlowCompleted({ transferId });
-  } else if (status === ExecutorDataStatus.None) {
-    await cache.executors.setExecutorDataStatus(transferId, ExecutorDataStatus.Pending);
+  } else if (status === ExecStatus.None) {
+    await cache.executors.setExecStatus(transferId, ExecStatus.Queued);
     await cache.executors.storeExecutorData(executorData);
-    logger.info("Created a lighthouse tx", requestContext, methodContext, { transferId, executorData });
+    logger.info("Created a executor tx", requestContext, methodContext, { transferId, executorData });
 
     const message: Message = {
       transferId: transfer.transferId,
@@ -125,11 +127,11 @@ export const storeExecutorData = async (executorData: ExecutorData, _requestCont
       message: message,
     });
   } else {
-    // The lighthouse data status here is Pending/Cancelled.
+    // The executor data status here is Pending/Cancelled.
     // If Cancelled, fallback processor would work so lets just keep it storing
     // If Pending, the data needs to be stored in the cache as a backup item
     const res = await cache.executors.storeBackupData(executorData);
-    logger.info("Stored a lighthouse data in the backup cache", requestContext, methodContext, {
+    logger.info("Stored a executor data in the backup cache", requestContext, methodContext, {
       executorData,
       result: res == 2 ? "Skipped" : "Saved",
     });
@@ -137,7 +139,7 @@ export const storeExecutorData = async (executorData: ExecutorData, _requestCont
 };
 
 /**
- * Send any slow-path data from the lighthouse to the relayer directly once sanity checks passes
+ * Send any slow-path data from the executor to the relayer directly once sanity checks passes
  * @param transferId - The transfer id you're gonna send
  * @param _requestContext - The parant request context instance
  */
@@ -145,7 +147,7 @@ export const executeSlowPathData = async (
   transferId: string,
   type: string,
   _requestContext: RequestContext,
-): Promise<void> => {
+): Promise<{ taskId: string | undefined; relayer: RelayerType | undefined }> => {
   const {
     logger,
     adapters: { cache },
@@ -155,31 +157,34 @@ export const executeSlowPathData = async (
     relayer: { sendExecuteSlowToRelayer },
   } = getOperations();
 
-  const { requestContext, methodContext } = createLoggingContext(storeExecutorData.name, _requestContext);
+  const { requestContext, methodContext } = createLoggingContext(storeSlowPathData.name, _requestContext);
   logger.debug(`Method start: ${executeSlowPathData.name}`, requestContext, methodContext, { transferId, type });
 
-  let transfer = await cache.transfers.getTransfer(transferId);
+  const transfer = await cache.transfers.getTransfer(transferId);
   if (!transfer) {
     throw new MissingTransfer({ transferId });
   }
 
-  let executorData = await cache.executors.getExecutorData(transferId);
+  const executorData = await cache.executors.getExecutorData(transferId);
   if (!executorData) {
     throw new MissingExecutorData({ transfer });
   }
 
   // Ensure that the executor data for this transfer hasn't expired.
-  const status = await cache.executors.getExecutorDataStatus(transferId);
-  if (status !== ExecutorDataStatus.Pending) {
+  const status = await cache.executors.getExecStatus(transferId);
+  if (status !== ExecStatus.Queued) {
     throw new ExecutorDataExpired(status, {
       transferId,
       executorData,
     });
   }
 
-  let taskId;
+  let taskId: string | undefined;
+  let relayer: RelayerType | undefined;
   try {
-    taskId = await sendExecuteSlowToRelayer(executorData, requestContext);
+    const result = await sendExecuteSlowToRelayer(executorData, requestContext);
+    taskId = result.taskId;
+    relayer = result.relayer;
   } catch (error: unknown) {
     // TODO: If the first slow-liq transfer fails, we'll try to send backup data one by one
     // If any of backup data succeeds, we'll make the data status `sent`.
@@ -187,16 +192,19 @@ export const executeSlowPathData = async (
     const backupSlowTxs = await cache.executors.getBackupData(transferId);
     logger.debug("Running a fallback mechanism", requestContext, methodContext, { transferId, backupSlowTxs });
     for (const backupSlowTx of backupSlowTxs) {
-      taskId = await sendExecuteSlowToRelayer(backupSlowTx, requestContext);
+      const result = await sendExecuteSlowToRelayer(backupSlowTx, requestContext);
+      taskId = result.taskId;
+      relayer = result.relayer;
       if (taskId) break;
     }
   }
-
-  if (taskId) {
-    await cache.executors.setExecutorDataStatus(transferId, ExecutorDataStatus.Sent);
-    await cache.executors.upsertTask({ transferId, taskId });
+  if (taskId && relayer) {
+    await cache.executors.setExecStatus(transferId, ExecStatus.Completed);
+    await cache.executors.upsertMetaTxTask({ transferId, taskId, relayer });
   } else {
     // Prunes all the executor data for a given transferId
     await cache.executors.pruneExecutorData(transferId);
   }
+
+  return { taskId, relayer };
 };

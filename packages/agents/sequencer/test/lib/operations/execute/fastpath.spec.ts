@@ -2,26 +2,27 @@ import {
   mkAddress,
   Bid,
   expect,
-  AuctionStatus,
+  ExecStatus,
   getRandomBytes32,
   getNtpTimeSeconds,
   XTransfer,
   XTransferStatus,
   mkSig,
+  RelayerType,
 } from "@connext/nxtp-utils";
 import { stub, restore, reset, SinonStub } from "sinon";
 import { constants, BigNumber } from "ethers";
 import Broker from "foo-foo-mq";
 
-import { ctxMock, getOperationsStub, getHelpersStub } from "../../globalTestHook";
-import { mock } from "../../mock";
-import { AuctionExpired, BidVersionInvalid, MissingXCall, ParamsInvalid } from "../../../src/lib/errors";
-import { executeAuction, storeBid } from "../../../src/lib/operations/auctions";
-import { getAllSubsets, getBidsRoundMap, getMinimumBidsCountForRound } from "../../../src/lib/helpers/auctions";
+import { ctxMock, getOperationsStub, getHelpersStub } from "../../../globalTestHook";
+import { mock } from "../../../mock";
+import { AuctionExpired, BidVersionInvalid, MissingXCall, ParamsInvalid } from "../../../../src/lib/errors";
+import { executeFastPathData, storeFastPathData } from "../../../../src/lib/operations/execute";
+import { getAllSubsets, getBidsRoundMap, getMinimumBidsCountForRound } from "../../../../src/lib/helpers/auctions";
 
 const { requestContext } = mock.loggingContext("BID-TEST");
 
-describe("Operations:Auctions", () => {
+describe("Operations:Execute:FastPath", () => {
   // db
   let getQueuedTransfersStub: SinonStub;
   let getAuctionStub: SinonStub;
@@ -46,12 +47,12 @@ describe("Operations:Auctions", () => {
     upsertAuctionStub = stub(auctions, "upsertAuction").resolves(0);
     getAuctionStub = stub(auctions, "getAuction");
 
-    getStatusStub = stub(auctions, "getStatus").resolves(AuctionStatus.None);
-    setStatusStub = stub(auctions, "setStatus").resolves(1);
+    getStatusStub = stub(auctions, "getExecStatus").resolves(ExecStatus.None);
+    setStatusStub = stub(auctions, "setExecStatus").resolves(1);
 
     getQueuedTransfersStub = stub(auctions, "getQueuedTransfers");
 
-    upsertTaskStub = stub(auctions, "upsertTask").resolves(0);
+    upsertTaskStub = stub(auctions, "upsertMetaTxTask").resolves(0);
 
     getTransferStub = stub(transfers, "getTransfer");
     storeTransfersStub = stub(transfers, "storeTransfers");
@@ -87,7 +88,7 @@ describe("Operations:Auctions", () => {
     reset();
   });
 
-  describe("#storeBid", () => {
+  describe("#storeFastPathData", () => {
     it("happy: should store bid in auction cache", async () => {
       const transfer: XTransfer = mock.entity.xtransfer();
       const transferId = transfer.transferId;
@@ -95,10 +96,10 @@ describe("Operations:Auctions", () => {
 
       const bid: Bid = mock.entity.bid({ transferId });
 
-      getStatusStub.onCall(0).resolves(AuctionStatus.None);
-      getStatusStub.onCall(1).resolves(AuctionStatus.Queued);
+      getStatusStub.onCall(0).resolves(ExecStatus.None);
+      getStatusStub.onCall(1).resolves(ExecStatus.Queued);
 
-      await storeBid(bid, requestContext);
+      await storeFastPathData(bid, requestContext);
 
       expect(upsertAuctionStub).to.have.been.calledOnceWithExactly({
         transferId,
@@ -117,7 +118,7 @@ describe("Operations:Auctions", () => {
         ...mock.entity.bid(),
         router: 1,
       };
-      await expect(storeBid(invalidBid1, requestContext)).to.be.rejectedWith(ParamsInvalid);
+      await expect(storeFastPathData(invalidBid1, requestContext)).to.be.rejectedWith(ParamsInvalid);
 
       const invalidBid2: any = {
         ...mock.entity.bid(),
@@ -126,7 +127,7 @@ describe("Operations:Auctions", () => {
         },
       };
 
-      await expect(storeBid(invalidBid2, requestContext)).to.be.rejectedWith(ParamsInvalid);
+      await expect(storeFastPathData(invalidBid2, requestContext)).to.be.rejectedWith(ParamsInvalid);
     });
 
     it("should error if bidVersion is lower than supported version", async () => {
@@ -134,20 +135,20 @@ describe("Operations:Auctions", () => {
         ...mock.entity.bid(),
         routerVersion: "0.0",
       };
-      await expect(storeBid(invalidBid1, requestContext)).to.be.rejectedWith(BidVersionInvalid);
+      await expect(storeFastPathData(invalidBid1, requestContext)).to.be.rejectedWith(BidVersionInvalid);
     });
 
     it("should error if the auction has expired", async () => {
       const bid: Bid = mock.entity.bid();
-      getStatusStub.resolves(AuctionStatus.Sent);
-      await expect(storeBid(bid, requestContext)).to.be.rejectedWith(AuctionExpired);
+      getStatusStub.resolves(ExecStatus.Sent);
+      await expect(storeFastPathData(bid, requestContext)).to.be.rejectedWith(AuctionExpired);
     });
 
     it("should error if transfer is missing", async () => {
       getTransferStub.resolves(undefined);
       (ctxMock.adapters.subgraph.getOriginTransferById as SinonStub).resolves(undefined);
       const bid: Bid = mock.entity.bid();
-      await expect(storeBid(bid, requestContext)).to.be.rejectedWith(MissingXCall);
+      await expect(storeFastPathData(bid, requestContext)).to.be.rejectedWith(MissingXCall);
     });
 
     it("should error if xcall is missing", async () => {
@@ -158,7 +159,7 @@ describe("Operations:Auctions", () => {
       });
       (ctxMock.adapters.subgraph.getOriginTransferById as SinonStub).resolves(undefined);
       const bid: Bid = mock.entity.bid();
-      await expect(storeBid(bid, requestContext)).to.be.rejectedWith(MissingXCall);
+      await expect(storeFastPathData(bid, requestContext)).to.be.rejectedWith(MissingXCall);
     });
 
     it("should cache transfer if missing from cache but found in subgraph", async () => {
@@ -169,7 +170,7 @@ describe("Operations:Auctions", () => {
         transferId: bid.transferId,
       };
       (ctxMock.adapters.subgraph as any).getOriginTransferById.resolves(transfer);
-      await storeBid(bid, requestContext);
+      await storeFastPathData(bid, requestContext);
       expect(storeTransfersStub).to.have.been.calledOnceWithExactly([transfer]);
     });
 
@@ -182,11 +183,11 @@ describe("Operations:Auctions", () => {
         transferId: bid.transferId,
       };
       getTransferStub.resolves(transfer);
-      await expect(storeBid(bid, requestContext)).to.be.rejectedWith(AuctionExpired);
+      await expect(storeFastPathData(bid, requestContext)).to.be.rejectedWith(AuctionExpired);
     });
   });
 
-  describe("#executeAuction", () => {
+  describe("#executeFastPathData", () => {
     beforeEach(() => {});
     afterEach(() => {
       restore();
@@ -202,7 +203,7 @@ describe("Operations:Auctions", () => {
     it("should pick up the auction rounds which has enough number of bids", async () => {
       getLiquidityStub.resolves(BigNumber.from("10000000000000000000"));
       const taskId = getRandomBytes32();
-      sendExecuteFastToRelayerStub.resolves(taskId);
+      sendExecuteFastToRelayerStub.resolves({ taskId, relayer: RelayerType.Mock });
       const transferId = getRandomBytes32();
       getQueuedTransfersStub.resolves([transferId]);
 
@@ -250,7 +251,7 @@ describe("Operations:Auctions", () => {
 
       const transfer = mock.entity.xtransfer({ transferId });
       getTransferStub.resolves(transfer);
-      await executeAuction(transferId, requestContext);
+      await executeFastPathData(transferId, requestContext);
       expect(sendExecuteFastToRelayerStub.callCount).to.be.eq(1);
       expect(sendExecuteFastToRelayerStub.getCall(0).args[0]).to.be.eq(1);
       expect(sendExecuteFastToRelayerStub.getCall(0).args[1]).to.be.deep.eq([
@@ -264,14 +265,14 @@ describe("Operations:Auctions", () => {
           },
         },
       ]);
-      expect(setStatusStub.getCall(0).args).to.be.deep.eq([transferId, AuctionStatus.Sent]);
-      expect(upsertTaskStub.getCall(0).args).to.be.deep.eq([{ transferId, taskId }]);
+      expect(setStatusStub.getCall(0).args).to.be.deep.eq([transferId, ExecStatus.Sent]);
+      expect(upsertTaskStub.getCall(0).args).to.be.deep.eq([{ transferId, taskId, relayer: RelayerType.Mock }]);
     });
 
     it("should pick up a round-2 auction if a round-1 auction doesn't exist", async () => {
       getLiquidityStub.resolves(BigNumber.from("10000000000000000000"));
       const taskId = getRandomBytes32();
-      sendExecuteFastToRelayerStub.resolves(taskId);
+      sendExecuteFastToRelayerStub.resolves({ taskId, relayer: RelayerType.Mock });
       const transferId = getRandomBytes32();
       getQueuedTransfersStub.resolves([transferId]);
 
@@ -320,7 +321,7 @@ describe("Operations:Auctions", () => {
 
       const transfer = mock.entity.xtransfer({ transferId });
       getTransferStub.resolves(transfer);
-      await executeAuction(transferId, requestContext);
+      await executeFastPathData(transferId, requestContext);
       expect(sendExecuteFastToRelayerStub.callCount).to.be.eq(1);
 
       // round-2 needs to be selected
@@ -345,13 +346,13 @@ describe("Operations:Auctions", () => {
           },
         },
       ]);
-      expect(setStatusStub.getCall(0).args).to.be.deep.eq([transferId, AuctionStatus.Sent]);
-      expect(upsertTaskStub.getCall(0).args).to.be.deep.eq([{ transferId, taskId }]);
+      expect(setStatusStub.getCall(0).args).to.be.deep.eq([transferId, ExecStatus.Sent]);
+      expect(upsertTaskStub.getCall(0).args).to.be.deep.eq([{ transferId, taskId, relayer: RelayerType.Mock }]);
     });
 
     it("should skip the combination with the bid of which router has insufficient liquidity", async () => {
       const taskId = getRandomBytes32();
-      sendExecuteFastToRelayerStub.resolves(taskId);
+      sendExecuteFastToRelayerStub.resolves({ taskId, relayer: RelayerType.Mock });
       const transferId = getRandomBytes32();
       getQueuedTransfersStub.resolves([transferId]);
 
@@ -402,14 +403,13 @@ describe("Operations:Auctions", () => {
 
       const auction = mock.entity.auction({
         timestamp: (getNtpTimeSeconds() - ctxMock.config.auctionWaitTime - 20).toString(),
-        amount: "1000",
         bids,
       });
       getAuctionStub.resolves(auction);
 
       const transfer = mock.entity.xtransfer({ transferId });
       getTransferStub.resolves(transfer);
-      await executeAuction(transferId, requestContext);
+      await executeFastPathData(transferId, requestContext);
       expect(sendExecuteFastToRelayerStub.callCount).to.be.eq(1);
 
       // round-2 needs to be selected
@@ -434,14 +434,14 @@ describe("Operations:Auctions", () => {
           },
         },
       ]);
-      expect(setStatusStub.getCall(0).args).to.be.deep.eq([transferId, AuctionStatus.Sent]);
-      expect(upsertTaskStub.getCall(0).args).to.be.deep.eq([{ transferId, taskId }]);
+      expect(setStatusStub.getCall(0).args).to.be.deep.eq([transferId, ExecStatus.Sent]);
+      expect(upsertTaskStub.getCall(0).args).to.be.deep.eq([{ transferId, taskId, relayer: RelayerType.Mock }]);
     });
 
     it("should wait then proceed if time elapsed is insufficient", async () => {
       getLiquidityStub.resolves(BigNumber.from("10000000000000000000"));
       const taskId = getRandomBytes32();
-      sendExecuteFastToRelayerStub.resolves(taskId);
+      sendExecuteFastToRelayerStub.resolves({ taskId, relayer: RelayerType.Mock });
 
       const router1 = mkAddress("0x1");
       const transferId = getRandomBytes32();
@@ -457,7 +457,7 @@ describe("Operations:Auctions", () => {
       });
       getAuctionStub.resolves(auction);
 
-      await executeAuction(transferId, requestContext);
+      await executeFastPathData(transferId, requestContext);
 
       expect(getTransferStub.callCount).to.be.eq(1);
     });
@@ -465,7 +465,7 @@ describe("Operations:Auctions", () => {
     it("should ignore if transfer is undefined", async () => {
       getLiquidityStub.resolves(BigNumber.from("10000000000000000000"));
       const taskId = getRandomBytes32();
-      sendExecuteFastToRelayerStub.resolves(taskId);
+      sendExecuteFastToRelayerStub.resolves({ taskId, relayer: RelayerType.Mock });
 
       const transferId = getRandomBytes32();
       getQueuedTransfersStub.resolves([transferId]);
@@ -473,7 +473,7 @@ describe("Operations:Auctions", () => {
       getAuctionStub.resolves(auction);
       getTransferStub.resolves(undefined);
 
-      await executeAuction(requestContext);
+      await executeFastPathData(requestContext);
 
       expect(getAuctionStub.callCount).to.be.eq(1);
       expect(getTransferStub.callCount).to.be.eq(1);
@@ -489,7 +489,7 @@ describe("Operations:Auctions", () => {
       const auction = mockAuctionDataBatch(1)[0];
       getAuctionStub.resolves(auction);
 
-      await executeAuction(requestContext);
+      await executeFastPathData(requestContext);
 
       expect(getAuctionStub.callCount).to.be.eq(1);
       expect(getTransferStub.callCount).to.be.eq(1);
@@ -499,7 +499,7 @@ describe("Operations:Auctions", () => {
     it("should ignore if transfer xcall or relayer fee undefined", async () => {
       getLiquidityStub.resolves(BigNumber.from("10000000000000000000"));
       const taskId = getRandomBytes32();
-      sendExecuteFastToRelayerStub.resolves(taskId);
+      sendExecuteFastToRelayerStub.resolves({ taskId, relayer: RelayerType.Mock });
 
       const transferId = getRandomBytes32();
       getQueuedTransfersStub.resolves([transferId]);
@@ -511,7 +511,7 @@ describe("Operations:Auctions", () => {
         origin: undefined,
       });
 
-      await executeAuction(requestContext);
+      await executeFastPathData(requestContext);
 
       expect(getAuctionStub.callCount).to.be.eq(1);
       expect(getTransferStub.callCount).to.be.eq(1);
@@ -521,7 +521,7 @@ describe("Operations:Auctions", () => {
     it("should skip if not enough bids for the round(s)", async () => {
       getLiquidityStub.resolves(BigNumber.from("10000000000000000000"));
       const taskId = getRandomBytes32();
-      sendExecuteFastToRelayerStub.resolves(taskId);
+      sendExecuteFastToRelayerStub.resolves({ taskId, relayer: RelayerType.Mock });
 
       const transferId = getRandomBytes32();
       getQueuedTransfersStub.resolves([transferId]);
@@ -538,7 +538,7 @@ describe("Operations:Auctions", () => {
       });
       getAuctionStub.resolves(auction);
 
-      await executeAuction(requestContext);
+      await executeFastPathData(requestContext);
 
       expect(getAuctionStub.callCount).to.be.eq(1);
       expect(getTransferStub.callCount).to.be.eq(1);
@@ -548,7 +548,7 @@ describe("Operations:Auctions", () => {
     it("should skip if no liquidity found for router in subgraph", async () => {
       getLiquidityStub.resolves(BigNumber.from("10000000000000000000"));
       const taskId = getRandomBytes32();
-      sendExecuteFastToRelayerStub.resolves(taskId);
+      sendExecuteFastToRelayerStub.resolves({ taskId, relayer: RelayerType.Mock });
 
       const transferId = getRandomBytes32();
       getQueuedTransfersStub.resolves([transferId]);
@@ -558,7 +558,7 @@ describe("Operations:Auctions", () => {
       getLiquidityStub.resolves(undefined);
       (ctxMock.adapters.subgraph as any).getAssetBalance.resolves(constants.Zero);
 
-      await executeAuction(requestContext);
+      await executeFastPathData(requestContext);
 
       expect(getAuctionStub.callCount).to.be.eq(1);
       expect(getTransferStub.callCount).to.be.eq(1);
@@ -568,7 +568,7 @@ describe("Operations:Auctions", () => {
     it("should cache liquidity", async () => {
       getLiquidityStub.resolves(BigNumber.from("10000000000000000000"));
       const taskId = getRandomBytes32();
-      sendExecuteFastToRelayerStub.resolves(taskId);
+      sendExecuteFastToRelayerStub.resolves({ taskId, relayer: RelayerType.Mock });
 
       const router = mkAddress("0x1");
       const transferId = getRandomBytes32();
@@ -597,7 +597,7 @@ describe("Operations:Auctions", () => {
       getLiquidityStub.resolves(undefined);
       (ctxMock.adapters.subgraph as any).getAssetBalance.resolves(routerFunds);
 
-      await executeAuction(requestContext);
+      await executeFastPathData(requestContext);
 
       expect(getAuctionStub.callCount).to.be.eq(1);
       expect(getTransferStub.callCount).to.be.eq(1);
@@ -623,7 +623,7 @@ describe("Operations:Auctions", () => {
     it("should skip router with insufficient liquidity", async () => {
       getLiquidityStub.resolves(BigNumber.from("10000000000000000000"));
       const taskId = getRandomBytes32();
-      sendExecuteFastToRelayerStub.resolves(taskId);
+      sendExecuteFastToRelayerStub.resolves({ taskId, relayer: RelayerType.Mock });
 
       const transferId = getRandomBytes32();
       getQueuedTransfersStub.resolves([transferId]);
@@ -639,7 +639,7 @@ describe("Operations:Auctions", () => {
 
       (ctxMock.adapters.subgraph as any).getAssetBalance.resolves(BigNumber.from("1"));
 
-      await executeAuction(requestContext);
+      await executeFastPathData(requestContext);
 
       expect(getAuctionStub.callCount).to.be.eq(1);
       expect(getTransferStub.callCount).to.be.eq(1);
@@ -648,7 +648,7 @@ describe("Operations:Auctions", () => {
 
     it("does nothing if none queued", async () => {
       getQueuedTransfersStub.resolves([]);
-      await executeAuction(requestContext);
+      await executeFastPathData(requestContext);
     });
   });
 });

@@ -1,4 +1,4 @@
-import { Bid, getNtpTimeSeconds, Auction, AuctionStatus, AuctionTask } from "@connext/nxtp-utils";
+import { Bid, getNtpTimeSeconds, Auction, ExecStatus, MetaTxTask, RelayerType } from "@connext/nxtp-utils";
 
 import { Cache } from "./cache";
 
@@ -8,10 +8,10 @@ import { Cache } from "./cache";
  *   key: $transferId | value: JSON.stringify(Auction);
  *
  * Auction Status:
- *   key: $transferId | value: JSON.stringify(AuctionStatus);
+ *   key: $transferId | value: JSON.stringify(ExecStatus);
  *
  * Auction Tasks:
- *   key: $transferId | value: JSON.stringify(AuctionTask);
+ *   key: $transferId | value: JSON.stringify(MetaTxTask);
  */
 export class AuctionsCache extends Cache {
   private readonly prefix = "auctions";
@@ -64,7 +64,7 @@ export class AuctionsCache extends Cache {
 
     if (!existing) {
       // If the auction didn't previously exist, create an entry for status as well.
-      await this.setStatus(transferId, AuctionStatus.Queued);
+      await this.setExecStatus(transferId, ExecStatus.Queued);
     }
 
     return Number(res >= 1);
@@ -74,11 +74,11 @@ export class AuctionsCache extends Cache {
   /**
    * Gets the auction meta tx information for the given transfer ID.
    * @param transferId - The ID of the transfer we are auctioning.
-   * @returns AuctionTask if exists, undefined otherwise.
+   * @returns MetaTxTask if exists, undefined otherwise.
    */
-  public async getTask(transferId: string): Promise<AuctionTask | undefined> {
+  public async getMetaTxTask(transferId: string): Promise<MetaTxTask | undefined> {
     const res = await this.data.hget(`${this.prefix}:task`, transferId);
-    return res ? (JSON.parse(res) as AuctionTask) : undefined;
+    return res ? (JSON.parse(res) as MetaTxTask) : undefined;
   }
 
   /**
@@ -89,12 +89,21 @@ export class AuctionsCache extends Cache {
    *
    * @returns 0 if updated, 1 if created
    */
-  public async upsertTask({ transferId, taskId }: { transferId: string; taskId: string }): Promise<number> {
-    const existing = await this.getTask(transferId);
-    const task: AuctionTask = {
+  public async upsertMetaTxTask({
+    transferId,
+    taskId,
+    relayer,
+  }: {
+    transferId: string;
+    taskId: string;
+    relayer: RelayerType;
+  }): Promise<number> {
+    const existing = await this.getMetaTxTask(transferId);
+    const task: MetaTxTask = {
       // We update the timestamp each time here; it is intended to reflect when the *last* meta tx was sent.
       timestamp: getNtpTimeSeconds().toString(),
       taskId,
+      relayer,
       attempts: existing ? existing.attempts + 1 : 1,
     };
     const res = await this.data.hset(`${this.prefix}:task`, transferId, JSON.stringify(task));
@@ -105,22 +114,22 @@ export class AuctionsCache extends Cache {
   /**
    * Gets the auction status for the given transfer ID.
    * @param transferId - The ID of the transfer we are auctioning.
-   * @returns AuctionStatus if exists, AuctionStatus.None if no entry was found.
+   * @returns ExecStatus if exists, ExecStatus.None if no entry was found.
    */
-  public async getStatus(transferId: string): Promise<AuctionStatus> {
+  public async getExecStatus(transferId: string): Promise<ExecStatus> {
     const res = await this.data.hget(`${this.prefix}:status`, transferId);
-    return res && Object.values(AuctionStatus).includes(res as AuctionStatus)
-      ? AuctionStatus[res as AuctionStatus]
-      : AuctionStatus.None;
+    return res && Object.values(ExecStatus).includes(res as ExecStatus)
+      ? ExecStatus[res as ExecStatus]
+      : ExecStatus.None;
   }
 
-  public async setStatus(transferId: string, status: AuctionStatus): Promise<number> {
+  public async setExecStatus(transferId: string, status: ExecStatus): Promise<number> {
     return await this.data.hset(`${this.prefix}:status`, transferId, status.toString());
   }
 
   /// MARK - Queued Transfers
   /**
-   * Retrieve all transfer IDs that have the AuctionStatus.Queued status.
+   * Retrieve all transfer IDs that have the ExecStatus.Queued status.
    * @returns An array of transfer IDs.
    */
   public async getQueuedTransfers(): Promise<string[]> {
@@ -140,8 +149,8 @@ export class AuctionsCache extends Cache {
     });
     const filtered: string[] = [];
     for (const key of keys) {
-      const status = await this.getStatus(key);
-      if (status === AuctionStatus.Queued) {
+      const status = await this.getExecStatus(key);
+      if (status === ExecStatus.Queued) {
         filtered.push(key);
       }
     }
