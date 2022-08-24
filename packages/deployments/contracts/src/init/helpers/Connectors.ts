@@ -3,7 +3,24 @@ import { Contract, providers, Wallet } from "ethers";
 import { Connector__factory } from "../../typechain-types";
 
 import { waitForTx } from "./tx";
-import { Deployment, NetworkStack } from "./types";
+import { Deployment, HubMessagingDeployments, NetworkStack, SpokeMessagingDeployments } from "./types";
+
+export const getConnectorContract = (args: { deployer: Wallet; network: NetworkStack; address?: string }): Contract => {
+  const { network, deployer, address: _address } = args;
+  let address = _address;
+  if (!address) {
+    const connectorDeployment =
+      (network.deployments.messaging as SpokeMessagingDeployments).SpokeConnector ??
+      (network.deployments.messaging as HubMessagingDeployments).HubConnectors[0];
+    if (!connectorDeployment) {
+      throw new Error(`No Connector address trying to whitelist senders for chain ${network.chain}!`);
+    }
+    address = connectorDeployment.address;
+  }
+
+  const iface = Connector__factory.createInterface();
+  return new Contract(address, iface, deployer.connect(network.rpc));
+};
 
 export const getConnectorMirrorDomain = async (args: {
   Connector: Deployment;

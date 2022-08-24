@@ -1,43 +1,10 @@
-import { BytesLike, Contract, providers, utils, Wallet } from "ethers";
+import { BytesLike, Contract, providers, utils } from "ethers";
 import { canonizeId, ConnextHandlerInterface } from "@connext/nxtp-contracts";
 
-import { Router__factory, Connector__factory } from "../../typechain-types";
+import { Router__factory } from "../../typechain-types";
 
 import { Deployment, NetworkStack, ProtocolStack } from "./types";
 import { waitForTx } from "./tx";
-
-export const whitelistSenders = async (args: { deployer: Wallet; network: NetworkStack }) => {
-  const { deployer, network } = args;
-  const ConnectorInterface = Connector__factory.createInterface();
-
-  for (const [name, handler] of Object.entries(network.deployments.handlers)) {
-    // NOTE: Only needs to be done on Spoke domains.
-    const connectorAddress = (network.deployments.messaging as any).SpokeConnector as Deployment;
-    if (!connectorAddress) {
-      throw new Error(`No Connector address trying to whitelist senders for chain ${network.chain}!`);
-    }
-
-    const Connector = new Contract(connectorAddress.address, ConnectorInterface, deployer.connect(network.rpc));
-
-    // Check if already whitelisted.
-    const isWhitelisted = (await Connector.callStatic.whitelistedSenders(handler.address)) as boolean;
-    if (isWhitelisted) {
-      console.log(`${name} whitelisted: ${isWhitelisted}`);
-    } else {
-      // Call `addSender` on Connector contract, passing in each Handler contract address.
-      const tx = (await Connector.addSender(handler.address)) as providers.TransactionResponse;
-      await waitForTx({
-        tx,
-        name: "addSender",
-        checkResult: {
-          method: async () => (await Connector.callStatic.whitelistedSenders(handler.address)) as boolean,
-          desired: true,
-        },
-      });
-      console.log(`\t${name} whitelisted: true !!!`);
-    }
-  }
-};
 
 export const enrollHandlers = async (args: { protocol: ProtocolStack }) => {
   const { protocol } = args;

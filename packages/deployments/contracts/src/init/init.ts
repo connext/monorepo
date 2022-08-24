@@ -12,13 +12,15 @@ import {
   getConnectorMirrorDomain,
   setConnectorMirrors,
   getConnectorMirror,
-  whitelistSenders,
   enrollHandlers,
   getConnectorRootManager,
   setConnextions,
   setRootManagerConnector,
-  whitelistWatcher,
+  getConnextContract,
+  getRootManagerContract,
+  getConnectorContract,
 } from "./helpers";
+import { updateIfNeeded } from "./helpers/update";
 
 /**
  * Call the core `initProtocol` method using a JSON config file provided by the local environment.
@@ -334,10 +336,21 @@ export const initProtocol = async (protocol: ProtocolStack) => {
       continue;
     }
     console.log(`\n* [${network.chain}] Whitelisting senders.`);
-    await whitelistSenders({
-      deployer,
-      network,
-    });
+    for (const [name, handler] of Object.entries(network.deployments.handlers)) {
+      console.log(`${name}:`);
+      await updateIfNeeded({
+        scheme: {
+          contract: getConnectorContract({
+            deployer,
+            network,
+            address: undefined, // Will default to the address from SpokeConnector deployment.
+          }),
+          desired: true,
+          read: { method: "whitelistedSenders", args: [handler.address] },
+          write: { method: "addSender", args: [handler.address] },
+        },
+      });
+    }
   }
 
   /// MARK - Enroll Handlers
@@ -367,24 +380,63 @@ export const initProtocol = async (protocol: ProtocolStack) => {
   // - Set up mapping for stableswap pool if applicable.
   /// ********************* AGENTS **********************
   if (protocol.agents) {
+    /// MARK - Watchers
     if (protocol.agents.watchers) {
       if (protocol.agents.watchers.whitelist) {
-        /// MARK - Watchers
         console.log("\n\nROOT MANAGER : WHITELIST WATCHERS");
         // Watchers are a permissioned role with the ability to disconnect malicious connectors.
         // Whitelist watchers in RootManager.
         for (const watcher of protocol.agents.watchers.whitelist) {
-          await whitelistWatcher({ deployer, watcher, hub });
+          await updateIfNeeded({
+            scheme: {
+              contract: getRootManagerContract({
+                deployer,
+                hub,
+              }),
+              desired: true,
+              read: { method: "watchers", args: [watcher] },
+              write: { method: "addWatcher", args: [watcher] },
+            },
+          });
         }
       }
+      // TODO: Blacklist/remove watchers.
     }
 
     /// MARK - Relayers
-    // Whitelist named relayers for the Connext bridge, in order to call `execute`.
-    // Approve relayers as callers for connectors and root manager
+    if (protocol.agents.relayers) {
+      if (protocol.agents.relayers.whitelist) {
+        console.log("\n\nCONNEXT : WHITELIST RELAYERS");
+        // Whitelist named relayers for the Connext bridge, in order to call `execute`.
+        // for (const relayer of protocol.agents.relayers.whitelist) {
+        // }
+        // Additionally, approve relayers as callers for connectors and root manager.
+      }
+      // TODO: Blacklist/remove relayers.
+    }
+
     /// MARK - Sequencers
-    // Whitelist named sequencers.
+    if (protocol.agents.sequencers) {
+      if (protocol.agents.sequencers.whitelist) {
+        // Whitelist named sequencers.
+        for (const sequencer of protocol.agents.sequencers.whitelist) {
+          for (const network of protocol.networks) {
+            updateIfNeeded({
+              scheme: {
+                contract: getConnextContract({ deployer, network }),
+                desired: true,
+                read: { method: "sequencers", args: [sequencer] },
+                write: { method: "addSequencer", args: [sequencer] },
+              },
+            });
+          }
+        }
+      }
+      // TODO: Blacklist/remove sequencers.
+    }
+
     /// MARK - Routers
     // Whitelist routers.
+    // TODO: Blacklist/remove routers.
   }
 };

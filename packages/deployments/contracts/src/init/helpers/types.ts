@@ -1,4 +1,4 @@
-import { providers, Wallet } from "ethers";
+import { Contract, providers, Wallet } from "ethers";
 
 // NOTE: Agents will currently be whitelisted/blacklisted respectively on ALL domains.
 export type AgentStack = {
@@ -92,4 +92,19 @@ export type ProtocolStack = {
   // Agents that need to be whitelisted (across all domains).
   // Leave undefined if no agents should be whitelisted in this setup.
   agents?: WhitelistAgents;
+};
+
+export type UpdateScheme<T> = {
+  contract: Contract;
+  desired: T; // Desired value.
+  // Read method to call on contract.
+  read: {
+    method: string;
+    args: (number | string)[];
+  };
+  // Write method to call to update value on contract.
+  write: {
+    method: string;
+    args: (number | string)[];
+  };
 };

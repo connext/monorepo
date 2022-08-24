@@ -5,6 +5,16 @@ import { RootManager__factory } from "../../typechain-types";
 import { waitForTx } from "./tx";
 import { HubMessagingDeployments, NetworkStack, SpokeMessagingDeployments } from "./types";
 
+export const getRootManagerContract = (args: { deployer: Wallet; hub: NetworkStack }): Contract => {
+  const { hub, deployer } = args;
+  const _RootManager = (hub.deployments.messaging as HubMessagingDeployments).RootManager;
+  if (!_RootManager) {
+    throw new Error("RootManager was not configured correctly for the hub network.");
+  }
+  const iface = RootManager__factory.createInterface();
+  return new Contract(_RootManager.address, iface, deployer.connect(hub.rpc));
+};
+
 export const whitelistWatcher = async (args: {
   deployer: Wallet;
   watcher: string;
