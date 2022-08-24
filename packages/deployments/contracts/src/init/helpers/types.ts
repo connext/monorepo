@@ -1,12 +1,17 @@
 import { providers, Wallet } from "ethers";
 
-// NOTE: Agents will currently be whitelisted on ALL domains.
+// NOTE: Agents will currently be whitelisted/blacklisted respectively on ALL domains.
+export type AgentStack = {
+  // Arrays of addresses for each type of agent that requires whitelisting/blacklisting.
+  whitelist: string[];
+  blacklist: string[];
+};
+
 export type WhitelistAgents = {
-  // Arrays of addresses for each type of agent that requires whitelisting.
-  relayers?: string[]; // NOTE: Relayers will be whitelisted for both `execute` and messaging calls.
-  sequencers?: string[];
-  routers?: string[];
-  watchers?: string[];
+  relayers?: AgentStack; // NOTE: Relayers will be whitelisted for both `execute` and messaging calls.
+  sequencers?: AgentStack;
+  routers?: AgentStack;
+  watchers?: AgentStack;
 };
 
 export type AssetStack = {

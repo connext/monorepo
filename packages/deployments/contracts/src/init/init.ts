@@ -17,6 +17,7 @@ import {
   getConnectorRootManager,
   setConnextions,
   setRootManagerConnector,
+  whitelistWatcher,
 } from "./helpers";
 
 /**
@@ -190,6 +191,7 @@ export const initProtocol = async (protocol: ProtocolStack) => {
   // Get hub domain for specific use.
   const hub: NetworkStack = protocol.networks.filter((d) => d.domain === protocol.hub)[0];
   const { RootManager, MainnetConnector, HubConnectors } = hub.deployments.messaging as HubMessagingDeployments;
+  const { deployer } = protocol;
 
   /// ******************** MESSAGING ********************
   /// MARK - Init
@@ -312,15 +314,15 @@ export const initProtocol = async (protocol: ProtocolStack) => {
   }
 
   /// MARK - RootManager
+  // addConnectors for RootManager for each supported spoke domain.
   console.log("\n\nROOT MANAGER : ADD CONNECTORS");
-  // addConnectors for RootManager by domain.
   for (const remote of protocol.networks) {
     // Skip the hub domain.
     if (remote.domain === protocol.hub) {
       continue;
     }
 
-    await setRootManagerConnector({ hub, remote });
+    await setRootManagerConnector({ deployer, hub, remote });
   }
 
   /// MARK - Whitelist Senders
@@ -333,7 +335,7 @@ export const initProtocol = async (protocol: ProtocolStack) => {
     }
     console.log(`\n* [${network.chain}] Whitelisting senders.`);
     await whitelistSenders({
-      deployer: protocol.deployer,
+      deployer,
       network,
     });
   }
@@ -364,15 +366,23 @@ export const initProtocol = async (protocol: ProtocolStack) => {
   // - Set up mappings for canonical ID / canonical domain / adopted asset address / etc.
   // - Set up mapping for stableswap pool if applicable.
   /// ********************* AGENTS **********************
-  /// MARK - Watchers
-  // Watchers are a permissioned role with the ability to disconnect malicious connectors.
-  // Whitelist watchers in RootManager.
+  if (protocol.agents) {
+    if (protocol.agents.watchers) {
+      /// MARK - Watchers
+      console.log("\n\nROOT MANAGER : WHITELIST WATCHERS");
+      // Watchers are a permissioned role with the ability to disconnect malicious connectors.
+      // Whitelist watchers in RootManager.
+      for (const watcher of protocol.agents.watchers.whitelist) {
+        await whitelistWatcher({ deployer, watcher, hub });
+      }
+    }
 
-  /// MARK - Relayers
-  // Whitelist named relayers for the Connext bridge, in order to call `execute`.
-  // Approve relayers as callers for connectors and root manager
-  /// MARK - Sequencers
-  // Whitelist named sequencers.
-  /// MARK - Routers
-  // Whitelist routers.
+    /// MARK - Relayers
+    // Whitelist named relayers for the Connext bridge, in order to call `execute`.
+    // Approve relayers as callers for connectors and root manager
+    /// MARK - Sequencers
+    // Whitelist named sequencers.
+    /// MARK - Routers
+    // Whitelist routers.
+  }
 };
