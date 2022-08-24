@@ -108,6 +108,8 @@ export const getEnvConfig = (
       connext:
         chainConfig.deployments?.connext ??
         (() => {
+          console.log("chainDataForChain: ", chainDataForChain);
+          console.log("chainDataForChain.chainId: ", chainDataForChain!.chainId);
           const res =
             domainId === "1337" || domainId === "1338"
               ? { address: "0x8e4C131B37383E431B9cd0635D3cF9f3F628EDae" } // hardcoded for testing
