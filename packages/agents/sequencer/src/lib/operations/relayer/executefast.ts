@@ -29,7 +29,7 @@ export const sendExecuteFastToRelayer = async (
 
   const destinationConnextAddress = config.chains[transfer.xparams.destinationDomain].deployments.connext;
 
-  const encodedData = await encodeExecuteFromBids(round, bids, transfer, local);
+  const encodedData = await encodeExecuteFromBids(round, bids, transfer, local, _requestContext);
 
   const relayerFee = {
     // TODO: Is this correct?
