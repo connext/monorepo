@@ -42,6 +42,9 @@ import "./tasks/stableswap/addSwapLiquidity";
 import "./tasks/stableswap/removeSwapLiquidity";
 import "./tasks/stableswap/setSwapFees";
 import "./tasks/setMirrorConnectors";
+import "./tasks/addConnextions";
+import "./tasks/setBridgeRouter";
+import "./tasks/addSequencer";
 
 const urlOverride = process.env.ETH_PROVIDER_URL;
 const chainId = parseInt(process.env.CHAIN_ID ?? "1337", 10);
@@ -274,6 +277,14 @@ const config: HardhatUserConfig = {
       "PortalFacet",
     ],
     strict: false,
+    filter: function (abiElement, index, fullAbi, fullyQualifiedName) {
+      const contractName = fullyQualifiedName.split(":")[1];
+      if (abiElement.type === "error" && abiElement.name.includes("Facet") && !abiElement.name.includes(contractName)) {
+        return false;
+      }
+
+      return true;
+    },
   },
   typechain: {
     outDir: "src/typechain-types",

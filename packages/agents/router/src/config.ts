@@ -55,7 +55,15 @@ export const NxtpRouterConfigSchema = Type.Object({
   redis: TOptionalPeripheralConfig,
   sequencerUrl: Type.String({ format: "uri" }),
   cartographerUrl: Type.String({ format: "uri" }),
-  server: TServerConfig,
+  server: Type.Intersect([
+    TServerConfig,
+    Type.Object({
+      exec: Type.Object({
+        port: Type.Integer({ minimum: 1, maximum: 65535 }),
+        host: Type.String({ format: "ipv4" }),
+      }),
+    }),
+  ]),
   maxSlippage: Type.Integer({ minimum: 0, maximum: 100 }),
   mode: TModeConfig,
   network: Type.Union([Type.Literal("testnet"), Type.Literal("mainnet"), Type.Literal("local")]),
@@ -124,6 +132,15 @@ export const getEnvConfig = (
         port: process.env.NXTP_SERVER_SUB_PORT || configJson.server?.sub?.port || configFile.server?.sub?.port || 8090,
         host:
           process.env.NXTP_SERVER_SUB_HOST || configJson.server?.sub?.host || configFile.server?.sub?.host || "0.0.0.0",
+      },
+      exec: {
+        port:
+          process.env.NXTP_SERVER_EXEC_PORT || configJson.server?.exec?.port || configFile.server?.exec?.port || 8092,
+        host:
+          process.env.NXTP_SERVER_EXEC_HOST ||
+          configJson.server?.exec?.host ||
+          configFile.server?.exec?.host ||
+          "0.0.0.0",
       },
       requestLimit:
         process.env.NXTP_SERVER_REQUEST_LIMIT ||
