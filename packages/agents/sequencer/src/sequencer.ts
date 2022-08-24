@@ -194,7 +194,6 @@ export const setupContext = async (
   // Get ChainData and parse out configuration.
   context.chainData = await getChainData();
   // Apply override if it used (config override is intended namely for testing purposes).
-  console.log("contractDeployments: ", contractDeployments);
   context.config = _configOverride ?? (await getConfig(context.chainData, contractDeployments));
   // Init logger used int he application.
   context.logger = new Logger({
