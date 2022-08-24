@@ -40,7 +40,7 @@ export class TasksCache extends Cache {
 
   /**
    * Set recorded liquidity amount for a given router on a given domain for a given asset. Will also set
-   * the status of the task to be RelayerTaskStatus.Pending.
+   * the status of the task to be RelayerTaskStatus.ExecPending.
    *
    * @param params.chain - Chain number.
    * @param params.data - Execute calldata.
@@ -53,7 +53,7 @@ export class TasksCache extends Cache {
     const taskId = getRandomBytes32();
     const key = `${this.prefix}:data`;
     await this.data.hset(key, taskId, JSON.stringify(params));
-    await this.setStatus(taskId, RelayerTaskStatus.Pending);
+    await this.setStatus(taskId, RelayerTaskStatus.ExecPending);
     return taskId;
   }
 
@@ -67,7 +67,7 @@ export class TasksCache extends Cache {
     const res = await this.data.hget(`${this.prefix}:status`, taskId);
     return res && Object.values(RelayerTaskStatus).includes(res as RelayerTaskStatus)
       ? RelayerTaskStatus[res as RelayerTaskStatus]
-      : RelayerTaskStatus.None;
+      : RelayerTaskStatus.NotFound;
   }
 
   /**
@@ -115,19 +115,19 @@ export class TasksCache extends Cache {
   }
 
   /**
-   * Set the transaction hash for a given task. Will also set the status of the task to RelayerTaskStatus.Completed.
+   * Set the transaction hash for a given task. Will also set the status of the task to RelayerTaskStatus.ExecSuccess.
    * @param taskId - The ID of the task.
    * @param txHash - The transaction hash to set.
    * @returns Number indicating whether the transaction hash was updated.
    */
   public async setHash(taskId: string, txHash: string): Promise<number> {
-    await this.setStatus(taskId, RelayerTaskStatus.Completed);
+    await this.setStatus(taskId, RelayerTaskStatus.ExecSuccess);
     return await this.data.hset(`${this.prefix}:hash`, taskId, txHash);
   }
 
   /// MARK - Pending Tasks
   /**
-   * Retrieve all task IDs that are pending action, based on status marked RelayerTaskStatus.Pending.
+   * Retrieve all task IDs that are pending action, based on status marked RelayerTaskStatus.ExecPending.
    *
    * @returns An array of task IDs.
    */
@@ -149,7 +149,7 @@ export class TasksCache extends Cache {
     const filtered: string[] = [];
     for (const key of keys) {
       const status = await this.getStatus(key);
-      if (status === RelayerTaskStatus.Pending) {
+      if (status === RelayerTaskStatus.ExecPending) {
         filtered.push(key);
       }
     }

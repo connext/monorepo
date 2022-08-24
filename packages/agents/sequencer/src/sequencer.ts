@@ -9,17 +9,20 @@ import {
   jsonifyError,
   BaseRequestContext,
   MethodContext,
+  NxtpError,
+  RelayerTaskStatus,
 } from "@connext/nxtp-utils";
 import Broker from "foo-foo-mq";
 import { SubgraphReader } from "@connext/nxtp-adapters-subgraph";
 import { StoreManager } from "@connext/nxtp-adapters-cache";
 import { ChainReader, getContractInterfaces, contractDeployments } from "@connext/nxtp-txservice";
 import { Web3Signer } from "@connext/nxtp-adapters-web3signer";
+import interval from "interval-promise";
 
 import { MessageType, SequencerConfig } from "./lib/entities";
 import { getConfig } from "./config";
 import { AppContext } from "./lib/entities/context";
-import { bindHealthServer, bindSubscriber, bindTasks } from "./bindings/subscriber";
+import { bindHealthServer, bindSubscriber } from "./bindings/subscriber";
 import { bindServer } from "./bindings/publisher";
 import { setupRelayer } from "./adapters";
 import { getHelpers } from "./lib/helpers";
@@ -106,7 +109,6 @@ export const makeSubscriber = async (_configOverride?: SequencerConfig) => {
 
     // Create health server, set up routes, and start listening.
     await bindHealthServer();
-    await bindTasks(15_000);
   } catch (error: any) {
     console.error("Error starting subscriber :'(", error);
     Broker.close();
@@ -123,13 +125,13 @@ export const makeSubscriber = async (_configOverride?: SequencerConfig) => {
  */
 export const execute = async (_configOverride?: SequencerConfig) => {
   const {
-    auctions: { executeAuction },
-    executor: { executeSlowPathData },
+    execute: { executeFastPathData, executeSlowPathData },
+    tasks: { updateTask, getTaskStatus },
   } = getOperations();
   try {
     // Transfer ID is a CLI argument. Always provided by the parent
     const transferId = process.argv[2];
-    const messageType = process.argv[3];
+    const messageType = process.argv[3] as MessageType;
     const { requestContext, methodContext } = createLoggingContext(execute.name, undefined, transferId);
 
     context.adapters = {} as any;
@@ -138,19 +140,48 @@ export const execute = async (_configOverride?: SequencerConfig) => {
     // TODO: Setting up the context every time for this execution is non-ideal.
     await setupContext(requestContext, methodContext, _configOverride);
 
-    if (messageType == MessageType.ExecuteFast) {
-      await executeAuction(transferId, requestContext);
-    } else if (messageType == MessageType.ExecuteSlow) {
-      await executeSlowPathData(transferId, messageType, requestContext);
-    }
+    const { taskId, relayer } =
+      messageType === MessageType.ExecuteFast
+        ? await executeFastPathData(transferId, requestContext)
+        : await executeSlowPathData(transferId, messageType, requestContext);
 
-    context.logger.info("Executed", requestContext, methodContext, { transferId: transferId });
+    let taskStatus = RelayerTaskStatus.NotFound;
+    if (taskId && relayer) {
+      await new Promise((res) => {
+        interval(async (_, stop) => {
+          try {
+            taskStatus = await getTaskStatus(taskId, relayer);
+            if (
+              taskStatus === RelayerTaskStatus.ExecSuccess ||
+              taskStatus === RelayerTaskStatus.ExecReverted ||
+              taskStatus === RelayerTaskStatus.Cancelled ||
+              taskStatus === RelayerTaskStatus.Blacklisted
+            ) {
+              stop();
+              res(undefined);
+            }
+          } catch (error: unknown) {
+            context.logger.error(
+              "Error getting gelato task status, waiting for next loop",
+              requestContext,
+              methodContext,
+              jsonifyError(error as NxtpError),
+            );
+          }
+        }, 5_000);
+      });
+
+      if (taskStatus !== RelayerTaskStatus.NotFound) {
+        await updateTask(transferId, taskStatus, messageType);
+      }
+    }
   } catch (error: any) {
     const { requestContext, methodContext } = createLoggingContext(execute.name);
     context.logger.error("Error executing:", requestContext, methodContext, jsonifyError(error as Error));
     process.exit(1);
   }
-  process.exit();
+
+  process.exit(0);
 };
 
 /// MARK - Context Setup

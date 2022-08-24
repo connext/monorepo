@@ -1,36 +1,54 @@
-import { RequestContext, createLoggingContext, ExecutorData, getChainIdFromDomain } from "@connext/nxtp-utils";
+import { constants } from "ethers";
+import {
+  RequestContext,
+  createLoggingContext,
+  Bid,
+  connextRelayerSend,
+  OriginTransfer,
+  RelayerType,
+} from "@connext/nxtp-utils";
 
 import { getContext } from "../../../sequencer";
-import { MissingTransfer } from "../../errors";
 import { getHelpers } from "../../helpers";
 
-export const sendExecuteSlowToRelayer = async (
-  executorData: ExecutorData,
+export const sendExecuteFastToRelayer = async (
+  round: number,
+  bids: Bid[],
+  transfer: OriginTransfer,
+  local: string,
   _requestContext: RequestContext,
-): Promise<string> => {
+): Promise<{ taskId: string; relayer: RelayerType }> => {
   const {
     logger,
     chainData,
     config,
-    adapters: { chainreader, relayer, cache },
+    adapters: { chainreader, relayer },
   } = getContext();
-
-  const { requestContext, methodContext } = createLoggingContext(sendExecuteSlowToRelayer.name, _requestContext);
-
   const {
-    relayer: { connextRelayerSend },
+    auctions: { encodeExecuteFromBids },
   } = getHelpers();
 
-  const { transferId, relayerFee, encodedData } = executorData;
-  let transfer = await cache.transfers.getTransfer(transferId);
-  if (!transfer) {
-    throw new MissingTransfer({ transferId });
-  }
+  const { requestContext, methodContext } = createLoggingContext(sendExecuteFastToRelayer.name, _requestContext);
+  logger.debug(`Method start: ${sendExecuteFastToRelayer.name}`, requestContext, methodContext, { transfer });
 
-  const originChainId = await getChainIdFromDomain(transfer.xparams.originDomain, chainData);
-  const destinationChainId = await getChainIdFromDomain(transfer.xparams.destinationDomain, chainData);
+  const originChainId = chainData.get(transfer.xparams.originDomain)!.chainId;
+  const destinationChainId = chainData.get(transfer.xparams.destinationDomain)!.chainId;
+
   const destinationConnextAddress = config.chains[transfer.xparams.destinationDomain].deployments.connext;
 
+  const encodedData = await encodeExecuteFromBids(round, bids, transfer, local);
+
+  const relayerFee = {
+    // TODO: Is this correct?
+    amount: "0",
+    // amount: transfer.relayerFee!,
+    // TODO: should handle relayer fee paid in alternative assets once that is implemented.
+    asset: constants.AddressZero,
+  };
+
+  // TODO: Might want to move this logic inside the `relayer.send` method below.
+  // Try sending the tx to the custom configured relayer, if applicable.
+  // If this fails, we'll resort to using the default relayer network.
   if (config.relayerUrl) {
     try {
       const result = await connextRelayerSend(config.relayerUrl, destinationChainId, {
@@ -47,7 +65,7 @@ export const sendExecuteSlowToRelayer = async (
         taskId,
         transferId: transfer.transferId,
       });
-      return taskId;
+      return { taskId, relayer: RelayerType.BackupRelayer };
     } catch (error: unknown) {
       logger.warn("Failed to send meta transaction to Connext relayer", requestContext, methodContext, {
         transferId: transfer.transferId,
@@ -56,7 +74,7 @@ export const sendExecuteSlowToRelayer = async (
     }
   }
 
-  // Validate the call will succeed on chain.
+  // Validate the bid's fulfill call will succeed on chain.
   const relayerAddress = await relayer.getRelayerAddress(destinationChainId);
 
   logger.debug("Getting gas estimate", requestContext, methodContext, {
@@ -83,5 +101,5 @@ export const sendExecuteSlowToRelayer = async (
   });
 
   const taskId = await relayer.send(destinationChainId, destinationConnextAddress, encodedData, _requestContext);
-  return taskId;
+  return { taskId, relayer: RelayerType.Gelato };
 };

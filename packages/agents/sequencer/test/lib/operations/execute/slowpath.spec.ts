@@ -1,6 +1,6 @@
-import { ExecutorData, ExecutorDataStatus, expect, mkAddress, mkBytes32 } from "@connext/nxtp-utils";
+import { ExecutorData, ExecStatus, expect, mkAddress, mkBytes32, RelayerType } from "@connext/nxtp-utils";
 import { stub, SinonStub } from "sinon";
-import { MessageType } from "../../../src/lib/entities";
+import { MessageType } from "../../../../src/lib/entities";
 import {
   ExecutorVersionInvalid,
   GasEstimationFailed,
@@ -10,21 +10,21 @@ import {
   MissingTransfer,
   MissingExecutorData,
   ExecutorDataExpired,
-} from "../../../src/lib/errors";
-import { executeSlowPathData, storeExecutorData } from "../../../src/lib/operations/executor";
-import { ctxMock, getOperationsStub, getHelpersStub } from "../../globalTestHook";
-import { mock } from "../../mock";
+} from "../../../../src/lib/errors";
+import { executeSlowPathData, storeSlowPathData } from "../../../../src/lib/operations/execute";
+import { ctxMock, getOperationsStub, getHelpersStub } from "../../../globalTestHook";
+import { mock } from "../../../mock";
 const { requestContext } = mock.loggingContext("EXECUTOR-TEST");
 
-describe("Operations:Executor", () => {
+describe("Operations:Execute:SlowPath", () => {
   let getGelatoRelayerAddressStub: SinonStub;
   let getTransferStub: SinonStub;
   let storeTransferStub: SinonStub;
   let getExecutorDataStub: SinonStub;
-  let getExecutorDataStatusStub: SinonStub;
+  let getExecStatusStub: SinonStub;
   let storeBackupDataStub: SinonStub;
-  let setExecutorDataStatusStub: SinonStub;
-  let storeExecutorDataStub: SinonStub;
+  let setExecStatusStub: SinonStub;
+  let storeSlowPathDataStub: SinonStub;
   let publishStub: SinonStub;
   let sendExecuteSlowToRelayerStub: SinonStub;
   let getBackupDataStub: SinonStub;
@@ -36,12 +36,12 @@ describe("Operations:Executor", () => {
     getTransferStub = stub(transfers, "getTransfer");
     storeTransferStub = stub(transfers, "storeTransfers");
     getExecutorDataStub = stub(executors, "getExecutorData");
-    getExecutorDataStatusStub = stub(executors, "getExecutorDataStatus");
+    getExecStatusStub = stub(executors, "getExecStatus");
     storeBackupDataStub = stub(executors, "storeBackupData");
-    setExecutorDataStatusStub = stub(executors, "setExecutorDataStatus");
-    storeExecutorDataStub = stub(executors, "storeExecutorData");
+    setExecStatusStub = stub(executors, "setExecStatus");
+    storeSlowPathDataStub = stub(executors, "storeExecutorData");
     getBackupDataStub = stub(executors, "getBackupData");
-    upsertTaskStub = stub(executors, "upsertTask");
+    upsertTaskStub = stub(executors, "upsertMetaTxTask");
     pruneExecutorDataStub = stub(executors, "pruneExecutorData");
     publishStub = ctxMock.adapters.mqClient.publish as SinonStub;
 
@@ -59,7 +59,7 @@ describe("Operations:Executor", () => {
       },
     });
   });
-  describe("#storeExecutorData", () => {
+  describe("#storeSlowPathData", () => {
     it("should throw if params invalid", async () => {
       const mockExecutorData = {
         transferId: mkBytes32(),
@@ -72,19 +72,19 @@ describe("Operations:Executor", () => {
         encodedData: "0xabcde",
       } as ExecutorData;
 
-      await expect(storeExecutorData(mockExecutorData, requestContext)).to.be.rejectedWith(ParamsInvalid);
+      await expect(storeSlowPathData(mockExecutorData, requestContext)).to.be.rejectedWith(ParamsInvalid);
     });
     it("should throw if executor version isn't supported by the sequencer", async () => {
       ctxMock.config.supportedVersion = "0.0.2";
       const mockExecutorData = mock.entity.executorData({ executorVersion: "0.0.1" });
-      await expect(storeExecutorData(mockExecutorData, requestContext)).to.be.rejectedWith(ExecutorVersionInvalid);
+      await expect(storeSlowPathData(mockExecutorData, requestContext)).to.be.rejectedWith(ExecutorVersionInvalid);
     });
 
     it("should throw if transfer doesn't exist in the cache", async () => {
       getTransferStub.resolves(undefined);
       (ctxMock.adapters.subgraph.getOriginTransferById as SinonStub).resolves(undefined);
       const mockExecutorData = mock.entity.executorData();
-      await expect(storeExecutorData(mockExecutorData, requestContext)).to.be.rejectedWith(MissingXCall);
+      await expect(storeSlowPathData(mockExecutorData, requestContext)).to.be.rejectedWith(MissingXCall);
     });
 
     it("should throw if gas estimation fails", async () => {
@@ -95,7 +95,7 @@ describe("Operations:Executor", () => {
       getGelatoRelayerAddressStub.resolves(mkAddress("0x111"));
       (ctxMock.adapters.chainreader.getGasEstimateWithRevertCode as SinonStub).throws();
       const mockExecutorData = mock.entity.executorData();
-      await expect(storeExecutorData(mockExecutorData, requestContext)).to.be.rejectedWith(GasEstimationFailed);
+      await expect(storeSlowPathData(mockExecutorData, requestContext)).to.be.rejectedWith(GasEstimationFailed);
     });
 
     it("should throw if the slow data got already executed", async () => {
@@ -104,9 +104,9 @@ describe("Operations:Executor", () => {
       (ctxMock.adapters.subgraph.getOriginTransferById as SinonStub).resolves(mockTransfer);
       storeTransferStub.resolves();
       getGelatoRelayerAddressStub.resolves(mkAddress("0x111"));
-      getExecutorDataStatusStub.resolves(ExecutorDataStatus.Completed);
+      getExecStatusStub.resolves(ExecStatus.Completed);
       const mockExecutorData = mock.entity.executorData();
-      await expect(storeExecutorData(mockExecutorData, requestContext)).to.be.rejectedWith(ExecuteSlowCompleted);
+      await expect(storeSlowPathData(mockExecutorData, requestContext)).to.be.rejectedWith(ExecuteSlowCompleted);
     });
     it("should store executor data in the backup cache if its already being processed", async () => {
       getTransferStub.resolves(undefined);
@@ -114,13 +114,13 @@ describe("Operations:Executor", () => {
       (ctxMock.adapters.subgraph.getOriginTransferById as SinonStub).resolves(mockTransfer);
       storeTransferStub.resolves();
       getGelatoRelayerAddressStub.resolves(mkAddress("0x111"));
-      getExecutorDataStatusStub.resolves(ExecutorDataStatus.Pending);
+      getExecStatusStub.resolves(ExecStatus.Queued);
       storeBackupDataStub.resolves(1);
       const mockExecutorData = mock.entity.executorData();
-      await storeExecutorData(mockExecutorData, requestContext);
+      await storeSlowPathData(mockExecutorData, requestContext);
       expect(storeBackupDataStub.callCount).to.be.eq(1);
       storeBackupDataStub.resolves(2);
-      await storeExecutorData(mockExecutorData, requestContext);
+      await storeSlowPathData(mockExecutorData, requestContext);
       expect(storeBackupDataStub.callCount).to.be.eq(2);
     });
     it("should publish data to the message queue successfully", async () => {
@@ -129,13 +129,13 @@ describe("Operations:Executor", () => {
       (ctxMock.adapters.subgraph.getOriginTransferById as SinonStub).resolves(mockTransfer);
       storeTransferStub.resolves();
       getGelatoRelayerAddressStub.resolves(mkAddress("0x111"));
-      getExecutorDataStatusStub.resolves(ExecutorDataStatus.None);
-      setExecutorDataStatusStub.resolves();
-      storeExecutorDataStub.resolves();
+      getExecStatusStub.resolves(ExecStatus.None);
+      setExecStatusStub.resolves();
+      storeSlowPathDataStub.resolves();
       storeBackupDataStub.resolves(1);
       publishStub.resolves();
       const mockExecutorData = mock.entity.executorData();
-      await storeExecutorData(mockExecutorData, requestContext);
+      await storeSlowPathData(mockExecutorData, requestContext);
       expect(publishStub.callCount).to.be.eq(1);
       expect(storeBackupDataStub.callCount).to.be.eq(0);
     });
@@ -164,7 +164,7 @@ describe("Operations:Executor", () => {
       const mockTransfer = mock.entity.xtransfer({ transferId: mockTransferId });
       getTransferStub.resolves(mockTransfer);
       getExecutorDataStub.resolves(mock.entity.executorData());
-      getExecutorDataStatusStub.resolves(ExecutorDataStatus.Sent);
+      getExecStatusStub.resolves(ExecStatus.Sent);
       await expect(executeSlowPathData(mockTransferId, MessageType.ExecuteSlow, requestContext)).to.be.rejectedWith(
         ExecutorDataExpired,
       );
@@ -187,16 +187,16 @@ describe("Operations:Executor", () => {
 
       getTransferStub.resolves(mockTransfer);
       getExecutorDataStub.resolves(mockExecutorData);
-      getExecutorDataStatusStub.resolves(ExecutorDataStatus.Pending);
+      getExecStatusStub.resolves(ExecStatus.Queued);
       getBackupDataStub.resolves([mockExecutorBackupData1, mockExecutorBackupData2]);
       sendExecuteSlowToRelayerStub.onCall(0).throws("Failed to send to the gelato");
-      sendExecuteSlowToRelayerStub.onCall(1).resolves(undefined);
-      sendExecuteSlowToRelayerStub.onCall(2).resolves(mockTaskId);
-      setExecutorDataStatusStub.resolves();
+      sendExecuteSlowToRelayerStub.onCall(1).resolves({ taskId: undefined, relayer: undefined });
+      sendExecuteSlowToRelayerStub.onCall(2).resolves({ taskId: mockTaskId, relayer: RelayerType.Mock });
+      setExecStatusStub.resolves();
       upsertTaskStub.resolves();
       await expect(executeSlowPathData(mockTransferId, MessageType.ExecuteSlow, requestContext)).to.not.rejected;
       expect(sendExecuteSlowToRelayerStub.callCount).to.be.eq(3);
-      expect(setExecutorDataStatusStub.callCount).to.be.eq(1);
+      expect(setExecStatusStub.callCount).to.be.eq(1);
       expect(upsertTaskStub.callCount).to.be.eq(1);
     });
 
@@ -217,17 +217,17 @@ describe("Operations:Executor", () => {
 
       getTransferStub.resolves(mockTransfer);
       getExecutorDataStub.resolves(mockExecutorData);
-      getExecutorDataStatusStub.resolves(ExecutorDataStatus.Pending);
+      getExecStatusStub.resolves(ExecStatus.Queued);
       getBackupDataStub.resolves([mockExecutorBackupData1, mockExecutorBackupData2]);
       sendExecuteSlowToRelayerStub.onCall(0).throws("Failed to send to the gelato");
-      sendExecuteSlowToRelayerStub.onCall(1).resolves(undefined);
-      sendExecuteSlowToRelayerStub.onCall(2).resolves(undefined);
-      setExecutorDataStatusStub.resolves();
+      sendExecuteSlowToRelayerStub.onCall(1).resolves({ taskId: undefined, relayer: undefined });
+      sendExecuteSlowToRelayerStub.onCall(2).resolves({ taskId: undefined, relayer: undefined });
+      setExecStatusStub.resolves();
       upsertTaskStub.resolves();
       pruneExecutorDataStub.resolves();
       await expect(executeSlowPathData(mockTransferId, MessageType.ExecuteSlow, requestContext)).to.not.rejected;
       expect(sendExecuteSlowToRelayerStub.callCount).to.be.eq(3);
-      expect(setExecutorDataStatusStub.callCount).to.be.eq(0);
+      expect(setExecStatusStub.callCount).to.be.eq(0);
       expect(upsertTaskStub.callCount).to.be.eq(0);
       expect(pruneExecutorDataStub.callCount).to.be.eq(1);
     });
