@@ -9,17 +9,15 @@ import {
   HubMessagingDeployments,
   SpokeMessagingDeployments,
   getDeployments,
-  getConnectorMirrorDomain,
-  getConnectorMirror,
   enrollHandlers,
-  getConnectorRootManager,
   setConnextions,
-  setRootManagerConnector,
   getConnextContract,
   getRootManagerContract,
   getConnectorContract,
+  updateIfNeeded,
+  assertValue,
+  getValue,
 } from "./helpers";
-import { updateIfNeeded } from "./helpers/update";
 
 /**
  * Call the core `initProtocol` method using a JSON config file provided by the local environment.
@@ -194,6 +192,18 @@ export const initProtocol = async (protocol: ProtocolStack) => {
   const { RootManager, MainnetConnector, HubConnectors } = hub.deployments.messaging as HubMessagingDeployments;
   const { deployer } = protocol;
 
+  // TODO: Might be cool to go ahead and convert all deployments to Contract objects, connected to their corresponding providers...
+  // Convenience setup for contracts.
+  const RootManagerContract = getRootManagerContract({
+    deployer,
+    hub,
+  });
+  const MainnetConnectorContract = getConnectorContract({
+    deployer,
+    network: hub,
+    address: MainnetConnector.address,
+  });
+
   /// ******************** MESSAGING ********************
   /// MARK - Init
   // TODO: Currently unused, as messaging init checks are not needed with the AMB-compatible stack.
@@ -201,86 +211,83 @@ export const initProtocol = async (protocol: ProtocolStack) => {
   // this placeholder here for now...
 
   /// MARK - Connector Mirrors
-  console.log("\n\nCONNECTORS : SET MIRROR CONNECTORS");
+  console.log("\n\nCONNECTORS : SET MIRRORS");
   // Connectors should have their mirrors' address set; this lets them know about their counterparts.
   for (const HubConnector of HubConnectors) {
-    // Get the connector's mirror domain.
-    const mirrorDomain = await getConnectorMirrorDomain({
-      Connector: HubConnector,
+    const HubConnectorContract = getConnectorContract({
+      deployer,
       network: hub,
+      address: HubConnector.address,
+    });
+
+    // Get the connector's mirror domain.
+    const mirrorDomain = await getValue<string>({
+      scheme: {
+        contract: HubConnectorContract,
+        read: "mirrorDomain",
+      },
     });
 
     // Find the spoke domain.
     let foundMirror = false;
-    for (const network of protocol.networks) {
-      if (network.domain === mirrorDomain) {
+    for (const spoke of protocol.networks) {
+      if (spoke.domain === mirrorDomain) {
         foundMirror = true;
-        const SpokeConnector = (network.deployments.messaging as SpokeMessagingDeployments).SpokeConnector;
+        const SpokeConnector = (spoke.deployments.messaging as SpokeMessagingDeployments).SpokeConnector;
+        const SpokeConnectorContract = getConnectorContract({
+          deployer,
+          network: spoke,
+          address: SpokeConnector.address,
+        });
         console.log(
-          `* [${hub.chain} <> ${network.chain}] Connectors: ${HubConnector.address} <> ${SpokeConnector.address}`,
+          `* [${hub.chain} <> ${spoke.chain}] Connectors: ${HubConnector.address} <> ${SpokeConnector.address}`,
         );
 
-        // Sanity checks:
-        {
-          // Make sure RootManager is set correctly for this HubConnector.
-          // NOTE: We CANNOT update the currently set ROOT_MANAGER; it is `immutable` and will require redeployment.
-          const rootManager = await getConnectorRootManager({
-            Connector: HubConnector,
-            network: hub,
-          });
-          console.log(`\tHub: ROOT_MANAGER: ${rootManager}`);
-          if (rootManager !== RootManager.address) {
-            throw new Error(
-              `Root manager address was set incorrectly for the HubConnector deployment ${HubConnector.address} on chain ${hub.chain}. ` +
-                `Should have been: ${RootManager.address}`,
-            );
-          }
-        }
+        // Sanity check: Make sure RootManager is set correctly for the HubConnector.
+        // NOTE: We CANNOT update the currently set ROOT_MANAGER; it is `immutable` and will require redeployment.
+        await assertValue({
+          scheme: {
+            contract: HubConnectorContract,
+            read: "ROOT_MANAGER",
+            desired: RootManager.address,
+          },
+        });
+        // Sanity check: Make sure RootManager is set correctly for the SpokeConnector.
+        await assertValue({
+          scheme: {
+            contract: SpokeConnectorContract,
+            read: "ROOT_MANAGER",
+            desired: RootManager.address,
+          },
+        });
+
+        // Set hub connector address for this domain on RootManager.
+        await updateIfNeeded({
+          scheme: {
+            contract: RootManagerContract,
+            desired: HubConnector.address,
+            read: { method: "connectors", args: [spoke.domain] },
+            write: { method: "addConnector", args: [spoke.domain] },
+          },
+        });
 
         // Set the mirrors for both the spoke domain's Connector and hub domain's Connector.
-        for (const connection of [
-          {
-            local: HubConnector.address,
-            network: hub,
-            mirror: SpokeConnector.address,
+        await updateIfNeeded({
+          scheme: {
+            contract: HubConnectorContract,
+            desired: SpokeConnector.address,
+            read: { method: "mirrorConnector", args: [] },
+            write: { method: "setMirrorConnector", args: [SpokeConnector.address] },
           },
-          {
-            local: SpokeConnector.address,
-            network,
-            mirror: HubConnector.address,
+        });
+        await updateIfNeeded({
+          scheme: {
+            contract: SpokeConnectorContract,
+            desired: HubConnector.address,
+            read: { method: "mirrorConnector", args: [] },
+            write: { method: "setMirrorConnector", args: [HubConnector.address] },
           },
-        ]) {
-          await updateIfNeeded({
-            scheme: {
-              contract: getConnectorContract({
-                deployer,
-                network,
-                address: connection.local,
-              }),
-              desired: connection.mirror,
-              read: { method: "mirrorConnector", args: [] },
-              write: { method: "setMirrorConnector", args: [connection.mirror] },
-            },
-          });
-        }
-
-        // Sanity checks:
-        {
-          // TODO: Make sure IS_HUB is false.
-
-          // RootManager should be set correctly for this SpokeConnector.
-          const rootManager = await getConnectorRootManager({
-            Connector: HubConnector,
-            network: hub,
-          });
-          console.log(`\tSpoke: ROOT_MANAGER: ${rootManager}`);
-          if (rootManager !== RootManager.address) {
-            throw new Error(
-              `Root manager address was set incorrectly for the SpokeConnector deployment ${SpokeConnector.address} on chain ${network.chain}. ` +
-                `Should have been: ${RootManager.address}`,
-            );
-          }
-        }
+        });
       }
     }
 
@@ -295,49 +302,25 @@ export const initProtocol = async (protocol: ProtocolStack) => {
 
   // On the hub itself, you only need to connect the mainnet l1 connector to RootManager (no mirror).
   // Make sure all things are set correctly.
-  {
-    // Sanity check: mirror is address(0).
-    console.log(`\n* [${hub.chain}] MainnetConnector: ${MainnetConnector.address}`);
-    const mirror = await getConnectorMirror({
-      Connector: MainnetConnector,
-      network: hub,
-    });
-    console.log(`\tMirror (should be zero): ${mirror}`);
-    if (mirror !== constants.AddressZero) {
-      // TODO: Should we just go ahead and zero it out?
-      throw new Error(
-        `mirrorConnector for Mainnet (L1) Connector was set to an invalid value (should be address(0)): `,
-      );
-    }
 
-    // TODO: Sanity check: RootManager should be set correctly.
+  // Sanity check: mirror is address(0).
+  assertValue({
+    scheme: {
+      contract: MainnetConnectorContract,
+      desired: constants.AddressZero,
+      read: "mirrorConnector",
+    },
+  });
 
-    // Make sure RootManager is set correctly for this MainnetConnector.
-    // NOTE: We CANNOT update the currently set ROOT_MANAGER; it is `immutable` and will require redeployment.
-    const rootManager = await getConnectorRootManager({
-      Connector: MainnetConnector,
-      network: hub,
-    });
-    console.log(`\tROOT_MANAGER: ${rootManager}`);
-    if (rootManager !== RootManager.address) {
-      throw new Error(
-        `Root manager address was set incorrectly for the MainnetConnector deployment ${MainnetConnector.address} on chain ${hub.chain}. ` +
-          `Should have been: ${RootManager.address}`,
-      );
-    }
-  }
-
-  /// MARK - RootManager
-  // addConnectors for RootManager for each supported spoke domain.
-  console.log("\n\nROOT MANAGER : ADD CONNECTORS");
-  for (const remote of protocol.networks) {
-    // Skip the hub domain.
-    if (remote.domain === protocol.hub) {
-      continue;
-    }
-
-    await setRootManagerConnector({ deployer, hub, remote });
-  }
+  // Make sure RootManager is set correctly for this MainnetConnector.
+  // NOTE: We CANNOT update the currently set ROOT_MANAGER; it is `immutable` and will require redeployment.
+  assertValue({
+    scheme: {
+      contract: MainnetConnectorContract,
+      desired: RootManager.address,
+      read: "ROOT_MANAGER",
+    },
+  });
 
   /// MARK - Whitelist Senders
   console.log("\n\nHANDLERS : WHITELIST SENDERS");
@@ -400,10 +383,7 @@ export const initProtocol = async (protocol: ProtocolStack) => {
         for (const watcher of protocol.agents.watchers.whitelist) {
           await updateIfNeeded({
             scheme: {
-              contract: getRootManagerContract({
-                deployer,
-                hub,
-              }),
+              contract: RootManagerContract,
               desired: true,
               read: { method: "watchers", args: [watcher] },
               write: { method: "addWatcher", args: [watcher] },

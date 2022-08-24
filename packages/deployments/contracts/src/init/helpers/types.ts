@@ -94,17 +94,19 @@ export type ProtocolStack = {
   agents?: WhitelistAgents;
 };
 
-export type UpdateScheme<T> = {
+export type CallScheme<T> = {
   contract: Contract;
-  desired: T; // Desired value.
+  desired?: T; // Desired value.
   // Read method to call on contract.
-  read: {
-    method: string;
-    args: (number | string)[];
-  };
+  read:
+    | {
+        method: string;
+        args?: (number | string)[];
+      }
+    | string;
   // Write method to call to update value on contract.
-  write: {
+  write?: {
     method: string;
-    args: (number | string)[];
+    args?: (number | string)[];
   };
 };

@@ -1,10 +1,9 @@
 export * from "./deployments";
 export * from "./types";
-export * from "./Connectors";
 export * from "./tx";
-export * from "./Routers";
-export * from "./Connext";
-export * from "./RootManager";
-export * from "./update";
 export * from "./log";
 export * from "./contracts";
+
+export * from "./Routers";
+export * from "./Connext";
+export * from "./Connectors";
