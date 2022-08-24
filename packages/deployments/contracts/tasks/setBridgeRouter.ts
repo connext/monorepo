@@ -21,7 +21,7 @@ export default task("set-bridge-router", "Set bridge router")
     console.log("deployer: ", deployer.address);
 
     const connext = await ethers.getContract(getDeploymentName("ConnextHandler", env), deployer);
-    const bridgeRouter = await deployments.get(getDeploymentName("BridgeRouter", env));
+    const bridgeRouter = await deployments.get(getDeploymentName("BridgeRouterUpgradeBeaconProxy", env));
     console.log("bridgeRouter: ", bridgeRouter.address);
     const tx = await connext.setBridgeRouter(bridgeRouter.address);
     console.log("setBridgeRouter tx: ", tx);
