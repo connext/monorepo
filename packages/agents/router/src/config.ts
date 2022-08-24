@@ -17,7 +17,9 @@ const DEFAULT_ALLOWED_TOLERANCE = 10; // in percent
 
 // Polling mins and defaults.
 const MIN_SUBGRAPH_POLL_INTERVAL = 2_000;
+const MIN_CARTOGRAPHER_POLL_INTERVAL = 2_000;
 const DEFAULT_SUBGRAPH_POLL_INTERVAL = 15_000;
+const DEFAULT_CARTOGRAPHER_POLL_INTERVAL = 15_000;
 const DEFAULT_CONFIRMATIONS = 3;
 const MIN_CACHE_POLL_INTERVAL = 2_000;
 const DEFAULT_CACHE_POLL_INTERVAL = 20_000;
@@ -33,6 +35,7 @@ export const TModeConfig = Type.Object({
 
 export const TPollingConfig = Type.Object({
   subgraph: Type.Integer({ minimum: MIN_SUBGRAPH_POLL_INTERVAL }),
+  cartographer: Type.Integer({ minimum: MIN_CARTOGRAPHER_POLL_INTERVAL }),
   cache: Type.Integer({ minimum: MIN_CACHE_POLL_INTERVAL }),
 });
 
@@ -51,7 +54,16 @@ export const NxtpRouterConfigSchema = Type.Object({
   web3SignerUrl: Type.Optional(Type.String()),
   redis: TOptionalPeripheralConfig,
   sequencerUrl: Type.String({ format: "uri" }),
-  server: TServerConfig,
+  cartographerUrl: Type.String({ format: "uri" }),
+  server: Type.Intersect([
+    TServerConfig,
+    Type.Object({
+      exec: Type.Object({
+        port: Type.Integer({ minimum: 1, maximum: 65535 }),
+        host: Type.String({ format: "ipv4" }),
+      }),
+    }),
+  ]),
   maxSlippage: Type.Integer({ minimum: 0, maximum: 100 }),
   mode: TModeConfig,
   network: Type.Union([Type.Literal("testnet"), Type.Literal("mainnet"), Type.Literal("local")]),
@@ -121,6 +133,15 @@ export const getEnvConfig = (
         host:
           process.env.NXTP_SERVER_SUB_HOST || configJson.server?.sub?.host || configFile.server?.sub?.host || "0.0.0.0",
       },
+      exec: {
+        port:
+          process.env.NXTP_SERVER_EXEC_PORT || configJson.server?.exec?.port || configFile.server?.exec?.port || 8092,
+        host:
+          process.env.NXTP_SERVER_EXEC_HOST ||
+          configJson.server?.exec?.host ||
+          configFile.server?.exec?.host ||
+          "0.0.0.0",
+      },
       requestLimit:
         process.env.NXTP_SERVER_REQUEST_LIMIT ||
         configJson.server?.requestLimit ||
@@ -141,6 +162,7 @@ export const getEnvConfig = (
       configFile.allowedTolerance ||
       DEFAULT_ALLOWED_TOLERANCE,
     sequencerUrl: process.env.NXTP_SEQUENCER || configJson.sequencerUrl || configFile.sequencerUrl,
+    cartographerUrl: process.env.NXTP_CARTOGRAPHER || configJson.cartographerUrl || configFile.cartographerUrl,
     polling: {
       subgraph:
         process.env.NXTP_SUBGRAPH_POLL_INTERVAL ||
@@ -155,6 +177,11 @@ export const getEnvConfig = (
         configJson.polling?.cache ||
         configFile.polling?.cach ||
         DEFAULT_CACHE_POLL_INTERVAL,
+      cartographer:
+        process.env.NXTP_CARTOGRAPHER_POLL_INTERVAL ||
+        configJson.polling?.cartographer ||
+        configFile.polling?.cartographer ||
+        DEFAULT_CARTOGRAPHER_POLL_INTERVAL,
     },
     auctionRoundDepth:
       process.env.AUCTION_ROUND_DEPTH ||

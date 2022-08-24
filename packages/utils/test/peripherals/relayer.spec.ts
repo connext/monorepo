@@ -1,6 +1,6 @@
 import { restore, reset, stub, SinonStub } from "sinon";
 import axios from "axios";
-import { BigNumber } from "ethers";
+import { BigNumber, constants } from "ethers";
 
 import {
   gelatoSend,
@@ -16,7 +16,11 @@ import {
   connextRelayerSend,
   RelayerApiPostTaskRequestParams,
   expect,
+  getConversionRate,
+  getTaskStatusFromGelato,
+  getGelatoRelayerAddress,
 } from "../../src";
+import { RelayerTaskStatus } from "../../src/types/relayer";
 
 describe("Peripherals:Gelato", () => {
   let axiosGetStub: SinonStub;
@@ -131,6 +135,7 @@ describe("Peripherals:Gelato", () => {
       expect(await getGelatoEstimatedFee(1337, "0x", 100, true)).to.be.deep.eq(BigNumber.from("0"));
     });
   });
+
   describe("#isOracleActive", () => {
     afterEach(() => {
       restore();
@@ -180,6 +185,29 @@ describe("Peripherals:Gelato", () => {
     });
   });
 
+  describe("#getGelatoRelayerAddress", () => {
+    afterEach(() => {
+      restore();
+      reset();
+    });
+    it("happy: should return address", async () => {
+      axiosGetStub.resolves({
+        status: 200,
+        data: {
+          address: mkAddress("0x111"),
+        },
+      });
+
+      expect(await getGelatoRelayerAddress(1337)).to.be.eq(mkAddress("0x111"));
+    });
+
+    it("should return zero address if the request fails", async () => {
+      axiosGetStub.throws(new Error("Request failed!"));
+
+      await expect(getGelatoRelayerAddress(1337)).to.be.rejectedWith("Error in getGelatoRelayerAddress");
+    });
+  });
+
   describe("#isPaymentTokenSupported", () => {
     afterEach(() => {
       restore();
@@ -225,6 +253,55 @@ describe("Peripherals:Gelato", () => {
       axiosGetStub.throws(new Error("Request failed!"));
 
       expect(await getPaymentTokens(1337)).to.be.deep.eq([]);
+    });
+  });
+
+  describe("#getConversionRate", () => {
+    afterEach(() => {
+      restore();
+      reset();
+    });
+    it("happy: should get conversion rate from gelato", async () => {
+      axiosGetStub.resolves({
+        status: 200,
+        data: {
+          conversionRate: 5.5,
+        },
+      });
+
+      expect(await getConversionRate(1337)).to.be.eq(5.5);
+    });
+
+    it("should return 0 if the request fails", async () => {
+      axiosGetStub.throws(new Error("Request failed!"));
+      expect(await getConversionRate(1337)).to.be.eq(0);
+    });
+  });
+
+  describe("#getTaskStatusFromGelato", () => {
+    afterEach(() => {
+      restore();
+      reset();
+    });
+    it("happy: should get task status from gelato", async () => {
+      axiosGetStub.resolves({
+        status: 200,
+        data: {
+          data: [
+            {
+              taskState: "CheckPending",
+            },
+          ],
+        },
+      });
+
+      expect(await getTaskStatusFromGelato("0x")).to.be.eq(RelayerTaskStatus.CheckPending);
+    });
+
+    it("should return NotFound if the request fails", async () => {
+      axiosGetStub.throws(new Error("Request failed!"));
+
+      expect(await getTaskStatusFromGelato("0x")).to.be.eq(RelayerTaskStatus.NotFound);
     });
   });
 

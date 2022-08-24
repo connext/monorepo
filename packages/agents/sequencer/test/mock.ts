@@ -69,7 +69,7 @@ export const mock = {
     mode: {
       cleanup: false,
     },
-    supportedBidVersion: "0.0.1",
+    supportedVersion: "0.0.1",
     environment: "staging",
     messageQueue: {
       connection: {
@@ -170,11 +170,11 @@ export const mock = {
   },
   operations: {
     auctions: {
-      storeBid: stub(),
-      executeAuction: stub(),
+      storeFastPathData: stub(),
+      executeFastPathData: stub(),
     },
     relayer: {
-      sendToRelayer: stub(),
+      sendExecuteFastToRelayer: stub(),
     },
   },
 };
