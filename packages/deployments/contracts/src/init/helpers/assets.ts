@@ -1,4 +1,4 @@
-import { constants, utils, Wallet } from "ethers";
+import { constants, Contract, utils, Wallet } from "ethers";
 import { canonizeId } from "@connext/nxtp-contracts";
 
 import { AssetStack, NetworkStack } from "./types";
@@ -31,21 +31,41 @@ export const setupAsset = async (args: { deployer: Wallet; asset: AssetStack; ne
       );
     }
 
-    const adopted = representation.adopted ?? representation.local;
-    if (!adopted) {
+    if (!representation.local) {
       throw new Error("Can't setupAsset for a domain with no representations!");
     }
+
+    // Enroll custom local token.
+    const TokenRegistry = network.deployments.TokenRegistry;
+    const TokenRegistryContract = new Contract(TokenRegistry.address, TokenRegistry.abi, deployer.connect(network.rpc));
+    await updateIfNeeded({
+      scheme: {
+        contract: TokenRegistryContract,
+        desired: representation.local,
+        read: { method: "getRepresentationAddress", args: [canonical.domain, canonical.id] },
+        write: {
+          method: "setupAsset",
+          args: [canonical.domain, canonical.id, representation.local],
+        },
+      },
+    });
+    // Sanity check for certainty and logging purposes.
+    const enrolled = await TokenRegistryContract.getRepresentationAddress(canonical.domain, canonical.id);
+    console.log(`* Local representation of ${canonical.id} on ${domain}: ${enrolled}`);
+
+    // Run setupAsset.
+    const desiredAdopted = representation.adopted ?? representation.local;
     await updateIfNeeded({
       scheme: {
         contract: getConnextContract({
           deployer,
           network,
         }),
-        desired: adopted,
+        desired: desiredAdopted,
         read: { method: "canonicalToAdopted(bytes32)", args: [key] },
         write: {
           method: "setupAsset",
-          args: [[canonical.domain, canonical.id], adopted, stableswapPool],
+          args: [[canonical.domain, canonical.id], desiredAdopted, stableswapPool],
         },
       },
     });
