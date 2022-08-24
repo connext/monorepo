@@ -95,7 +95,13 @@ export const chainDataToMap = (data: any): Map<string, ChainData> => {
   return chainData;
 };
 
-export const getChainData = async (): Promise<Map<string, ChainData>> => {
+export const getChainData = async (useCached?: boolean): Promise<Map<string, ChainData>> => {
+  if (useCached && fs.existsSync("./chaindata.json")) {
+    console.info("Using cached chain data.");
+    const data = JSON.parse(fs.readFileSync("./chaindata.json", "utf-8"));
+    return chainDataToMap(data);
+  }
+
   const url = "https://raw.githubusercontent.com/connext/chaindata/main/crossChain.json";
   try {
     const data = await fetchJson(url);

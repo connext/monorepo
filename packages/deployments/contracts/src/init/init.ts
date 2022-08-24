@@ -187,8 +187,8 @@ export const sanitizeAndInit = async (config: any) => {
 export const initProtocol = async (protocol: ProtocolStack) => {
   /// ********************** SETUP **********************
   /// MARK - ChainData
-  // Retrieve chain data for it to be saved locally; this will avoid those pesky logs and handle the http request upfront.
-  await getChainData();
+  // Retrieve chain data for it to be saved locally; this will avoid those pesky logs and frontload the http request.
+  await getChainData(true);
 
   /// MARK - Peripherals
   // Get hub domain for specific use.
@@ -413,14 +413,15 @@ export const initProtocol = async (protocol: ProtocolStack) => {
     /// MARK - Sequencers
     if (protocol.agents.sequencers) {
       if (protocol.agents.sequencers.whitelist) {
+        console.log("\n\nCONNEXT : WHITELIST SEQUENCERS");
         // Whitelist named sequencers.
         for (const sequencer of protocol.agents.sequencers.whitelist) {
           for (const network of protocol.networks) {
-            updateIfNeeded({
+            await updateIfNeeded({
               scheme: {
                 contract: getConnextContract({ deployer, network }),
                 desired: true,
-                read: { method: "sequencers", args: [sequencer] },
+                read: { method: "approvedSequencers", args: [sequencer] },
                 write: { method: "addSequencer", args: [sequencer] },
               },
             });
@@ -431,7 +432,25 @@ export const initProtocol = async (protocol: ProtocolStack) => {
     }
 
     /// MARK - Routers
-    // Whitelist routers.
-    // TODO: Blacklist/remove routers.
+    if (protocol.agents.routers) {
+      if (protocol.agents.routers.whitelist) {
+        console.log("\n\nCONNEXT : WHITELIST ROUTERS");
+        // Whitelist connext routers.
+        for (const router of protocol.agents.routers.whitelist) {
+          for (const network of protocol.networks) {
+            await updateIfNeeded({
+              scheme: {
+                contract: getConnextContract({ deployer, network }),
+                desired: true,
+                read: { method: "getRouterApproval", args: [router] },
+                // TODO: Should we enable configuring owner and recipient for this script, too?
+                write: { method: "setupRouter", args: [router, router, router] },
+              },
+            });
+          }
+        }
+      }
+      // TODO: Blacklist/remove routers.
+    }
   }
 };
