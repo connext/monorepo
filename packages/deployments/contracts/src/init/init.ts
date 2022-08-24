@@ -62,10 +62,10 @@ export const sanitizeAndInit = async (config: any) => {
   }
   // Make sure hub domain is a string value.
   let hub = (config.hub as string | number).toString();
-  // Make sure domains were specified.
-  if (!Array.isArray(config.domains) || config.domains.length === 0) {
+  // Make sure networks were specified.
+  if (!Array.isArray(config.networks) || config.networks.length === 0) {
     throw new Error(
-      "Domains were not specified in the config, or the domains list was empty. " +
+      "Networks were not specified in the config, or the networks list was empty. " +
         "Do you even want to init anything?",
     );
   }
@@ -81,64 +81,64 @@ export const sanitizeAndInit = async (config: any) => {
   }
   const useStaging = env === "staging";
   // Get deployments for each domain if not specified in the config.
-  for (let i = 0; i < config.domains.length; i++) {
-    const stack = config.domains[i];
+  for (let i = 0; i < config.networks.length; i++) {
+    const network = config.networks[i];
     // Make sure either domain or chain are specified.
-    if (!stack.domain && !stack.chain) {
+    if (!network.domain && !network.chain) {
       throw new Error(
-        "One of the domains in config doesn't even have a `domain` or `chain` " +
+        "One of the networks in config doesn't even have a `domain` or `chain` " +
           "specified... bro, am I reading this right?",
       );
-    } else if (stack.domain) {
-      const domain = (stack.domain as string | number).toString();
+    } else if (network.domain) {
+      const domain = (network.domain as string | number).toString();
 
       // Make sure domain is saved as a string.
-      stack.domain = domain;
+      network.domain = domain;
       // Make sure correct chain ID is saved.
       // NOTE: Even if chain was specified as well, we'll consult the Domain => Chain ID conversion table anyway.
-      stack.chain = (await getChainIdFromDomain(domain)).toString();
-    } else if (stack.chain) {
-      const chain = (stack.chain as string | number).toString();
+      network.chain = (await getChainIdFromDomain(domain)).toString();
+    } else if (network.chain) {
+      const chain = (network.chain as string | number).toString();
 
       // Make sure chain is saved as a string.
-      stack.chain = chain;
+      network.chain = chain;
       // Make sure domain is specified.
-      stack.domain = await getDomainFromChainId(parseInt(chain, 10));
+      network.domain = await getDomainFromChainId(parseInt(chain, 10));
     }
 
     // RPC provider is required.
-    if (!stack.rpc) {
+    if (!network.rpc) {
       throw new Error(
-        `You didn't include an RPC provider for domain ${stack.domain}. ` +
+        `You didn't include an RPC provider for domain ${network.domain}. ` +
           "I literally can't work in these conditions.",
       );
     }
     // Convert RPC from URL string to JsonRpcProvider.
-    stack.rpc = new providers.JsonRpcProvider(stack.rpc as string);
+    network.rpc = new providers.JsonRpcProvider(network.rpc as string);
 
     // Get the deployments for this domain, if needed.
-    if (!stack.deployments) {
-      let isHub = stack.domain === hub;
-      if (stack.chain === hub) {
+    if (!network.deployments) {
+      let isHub = network.domain === hub;
+      if (network.chain === hub) {
         // Consumer could have specified the hub by chain ID. If so, convert the hub to domain ID.
         isHub = true;
-        hub = stack.domain;
+        hub = network.domain;
       }
-      stack.deployments = getDeployments(stack.chain as string, isHub, useStaging);
+      network.deployments = getDeployments(network.chain as string, isHub, useStaging);
     }
 
     // Make sure the stack is set.
     // TODO: Is this already performed in-place?
-    config.domains[i] = stack;
+    config.networks[i] = network;
   }
 
   /// MARK - Hub
   // Hub domain should be a domain ID and be included in the list of supported domains.
-  const supportedDomains = config.domains.map((d: any) => d.domain);
+  const supportedDomains = config.networks.map((d: any) => d.domain);
   if (!supportedDomains.includes(hub)) {
-    const supportedChains = config.domains.map((d: any) => d.chain);
+    const supportedChains = config.networks.map((d: any) => d.chain);
     throw new Error(
-      `Hub domain/chain ${hub} was not found among the \`domains\` in protocol config. Is this some kind of prank?` +
+      `Hub domain/chain ${hub} was not found among the networks in protocol config. Is this some kind of prank?` +
         `Support domains: ${supportedDomains.join(",")}; Supported chains: ${supportedChains.join(",")}`,
     );
   }
@@ -153,7 +153,7 @@ export const sanitizeAndInit = async (config: any) => {
       if (!supportedDomains.includes(domain)) {
         throw new Error(
           `Asset with canonical address of ${asset.canonical.local} and canonical domain ${asset.canonical.domain} included ` +
-            `an entry for a non-supported domain ${domain}. Please add the domain to the \`domains\` list in your config. `,
+            `an entry for a non-supported domain ${domain}. Please add the domain under the networks list in your config file.`,
         );
       }
     }
@@ -229,7 +229,7 @@ export const initProtocol = async (protocol: ProtocolStack) => {
     // TODO: Alternatively, this would be best as a sanity check.
     if (!foundMirror) {
       throw new Error(
-        `Did not find mirrorDomain ${mirrorDomain} in protocol domains! Please configure all L2/spoke domains.`,
+        `Did not find mirrorDomain ${mirrorDomain} in protocol networks! Please configure all Spoke (L2) networks.`,
       );
     }
   }
@@ -245,7 +245,9 @@ export const initProtocol = async (protocol: ProtocolStack) => {
     console.log("\n* Retrieved MainnetConnector mirror; should be address(0):", mirror);
     if (mirror !== constants.AddressZero) {
       // TODO: Should we just go ahead and zero it out?
-      throw new Error(`mirrorConnector for Mainnet/L1 Connector was set to an invalid value (should be address(0)): `);
+      throw new Error(
+        `mirrorConnector for Mainnet (L1) Connector was set to an invalid value (should be address(0)): `,
+      );
     }
 
     // TODO: Sanity check: RootManager should be set correctly.
