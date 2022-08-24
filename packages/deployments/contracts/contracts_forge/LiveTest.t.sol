@@ -31,6 +31,8 @@ import "./utils/ForgeHelper.sol";
 import "./utils/Mock.sol";
 import "./utils/Deployer.sol";
 
+import "forge-std/console.sol";
+
 contract LiveTest is ForgeHelper {
   IConnextHandler connext = IConnextHandler(0xB7CF5324641bD9F82903504c56c9DE2193B4822F);
 
@@ -44,7 +46,18 @@ contract LiveTest is ForgeHelper {
     bytes[] memory routerSignatures = new bytes[](1);
     routerSignatures[
       0
-    ] = hex"23df9704e97a28dad53c29b18bae2f0075a1bfa3e2df0312a9da8f6ab662e2fe23dfaed78a5b6c52791cdfa663e2b20d80007704345a026533ab3ef184826ed91b";
+    ] = hex"5917c2232316794f2ef3bbb4b922240af72ebc4720087f8285ab3b201b2fc17f12273707ab155bb5c4f15730a641cfc8f239a0bd5bddeb087a3777d5ab17af331b";
+
+    bytes32 preImage = keccak256(
+      abi.encode(0x07ef75eb13759ad6ae936f2bf20474f332cc78e72fe2dc951f4c742b11c23ba3, routers)
+    );
+    bytes32 toSign = ECDSA.toEthSignedMessageHash(preImage);
+    emit log_named_address("signer: ", vm.addr(0x33f78d7a832d07cc041625f1e7b65208de9986cd8572e9c2b0f4cb8267ae3093));
+    (uint8 v, bytes32 r, bytes32 _s) = vm.sign(
+      0x33f78d7a832d07cc041625f1e7b65208de9986cd8572e9c2b0f4cb8267ae3093,
+      toSign
+    );
+    emit log_bytes(abi.encodePacked(r, _s, v));
 
     vm.prank(0xaB0A8DCb1590C4565C35cC785dc25A0590398054);
     connext.execute(
@@ -63,22 +76,35 @@ contract LiveTest is ForgeHelper {
           0, // relayerFee
           0 ether // destinationMinOut
         ), // CallParams
-        0x68Db1c8d85C09d546097C65ec7DCBFF4D6497CbF, // local asset
+        0xf21Ad79d25d3E2eCAEe99e09c237EfDD83fdAfEB, // local asset
         routers, // routers
         routerSignatures, // router signatures
         0xAFCBcdF90776bCFBcB334a6908fdEDa02A75B983, // sequencer
-        hex"7dce20e40050a52b12d6b1a71d919d4e94c9aac22bd894b733b3e3edf363c14e0b6a886d597d42cb3c36ccf8f4fb15d9efbbd1ee2c7d6e1470ea3b244578c7eb1c", // sequencer signatures
+        hex"dc0f344e003d949df43b67f660aedbf0aa884ef7ec558000a4ba2f0c5853022f4349ae081c87234cfc1ea057c7caaae5c9f1c445277110d57ea3a6fc14d78a171c", // sequencer signatures
         150000000000000000, // amount
-        0, // nonce
+        2, // nonce
         0x54BAA998771639628ffC0206c3b916c466b79c89 // originSender
       )
     );
   }
 
   function test_xcall() public {
-    vm.prank(0x54BAA998771639628ffC0206c3b916c466b79c89);
-    TestERC20(0x68Db1c8d85C09d546097C65ec7DCBFF4D6497CbF).approve(address(connext), 150000000000000000);
-    vm.prank(0x54BAA998771639628ffC0206c3b916c466b79c89);
+    address transactingAsset = 0x68Db1c8d85C09d546097C65ec7DCBFF4D6497CbF;
+    vm.startPrank(0x54BAA998771639628ffC0206c3b916c466b79c89);
+    TestERC20(transactingAsset).approve(address(connext), 150000000000000000);
+
+    emit log_named_address("bridge router: ", address(connext.bridgeRouter()));
+    emit log_named_address("token registry: ", address(connext.tokenRegistry()));
+    emit log_named_bytes32("canonical id: ", connext.adoptedToCanonical(transactingAsset).id);
+
+    (uint32 canonicalDomain, bytes32 canonicalId) = connext.tokenRegistry().getTokenId(transactingAsset);
+    address local = connext.tokenRegistry().getLocalAddress(canonicalDomain, canonicalId);
+    emit log_named_address("local asset: ", local);
+    emit log_named_uint(
+      "tokenRegistry.isLocalOrigin(_token)",
+      uint256(connext.tokenRegistry().isLocalOrigin(local) ? 1 : 0)
+    );
+
     connext.xcall(
       XCallArgs(
         CallParams(
@@ -95,10 +121,12 @@ contract LiveTest is ForgeHelper {
           0, // relayerFee
           0 // destinationMinOut
         ), // CallParams
-        0x68Db1c8d85C09d546097C65ec7DCBFF4D6497CbF,
+        transactingAsset,
         150000000000000000,
         0
       )
     );
+
+    vm.stopPrank();
   }
 }

@@ -1,52 +1,86 @@
-import { expect, MetaTxTask, mkBytes32 } from "@connext/nxtp-utils";
-import { GelatoTaskState } from "@connext/nxtp-utils/dist/types/relayer";
+import { ExecStatus, expect, MetaTxTask, mkBytes32 } from "@connext/nxtp-utils";
+import { RelayerTaskStatus, RelayerType } from "@connext/nxtp-utils/dist/types/relayer";
 import { stub, SinonStub } from "sinon";
-import { updateTasks } from "../../../src/lib/operations/tasks";
+import { MessageType } from "../../../src/lib/entities";
+import { getTaskStatus, updateTask } from "../../../src/lib/operations/tasks";
 import { ctxMock, getHelpersStub } from "../../globalTestHook";
 
 describe("Operations:Tasks", () => {
-  let getGelatoTaskStatusStub: SinonStub;
-  let getSentTransfersStub: SinonStub;
-  let getTaskStub: SinonStub;
-  let setExecutorDataStatusStub: SinonStub;
-  let pruneExecutorDataStub: SinonStub;
-  beforeEach(() => {
-    const { executors } = ctxMock.adapters.cache;
-    getGelatoTaskStatusStub = stub();
-    getSentTransfersStub = stub(executors, "getSentTransfers");
-    getTaskStub = stub(executors, "getTask");
-    setExecutorDataStatusStub = stub(executors, "setExecutorDataStatus");
-    pruneExecutorDataStub = stub(executors, "pruneExecutorData");
+  let executorGetTaskStub: SinonStub;
+  let executorSetExecStatusStub: SinonStub;
+  let executorPruneExecutorDataStub: SinonStub;
 
+  let auctionsGetTaskStub: SinonStub;
+  let auctionsSetExecStatusStub: SinonStub;
+
+  let getTaskStatusFromGelatoStub: SinonStub;
+  let getTaskStatusFromBackupRelayerStub: SinonStub;
+  beforeEach(() => {
+    const { executors, auctions } = ctxMock.adapters.cache;
+    executorGetTaskStub = stub(executors, "getMetaTxTask");
+    executorSetExecStatusStub = stub(executors, "setExecStatus");
+    executorPruneExecutorDataStub = stub(executors, "pruneExecutorData");
+
+    auctionsGetTaskStub = stub(auctions, "getMetaTxTask");
+    auctionsSetExecStatusStub = stub(auctions, "setExecStatus");
+    getTaskStatusFromGelatoStub = stub();
+    getTaskStatusFromBackupRelayerStub = stub();
     getHelpersStub.returns({
       relayer: {
-        getGelatoTaskStatus: getGelatoTaskStatusStub,
+        getTaskStatusFromGelato: getTaskStatusFromGelatoStub,
+        getTaskStatusFromBackupRelayer: getTaskStatusFromBackupRelayerStub,
       },
     });
   });
-  describe("#updateTasks", () => {
-    it("should update tasks successfully", async () => {
+  describe("#updateTask", () => {
+    it("should update fast-path task successfully", async () => {
       const mockTransferId1 = mkBytes32("0x111");
-      const mockTransferId2 = mkBytes32("0x222");
-      const mockTransferId3 = mkBytes32("0x333");
 
       const mockMetaTxTask = {
         timestamp: "100",
         taskId: "0xtask",
+        relayer: RelayerType.Gelato,
         attempts: 1,
       } as MetaTxTask;
 
-      getSentTransfersStub.resolves([mockTransferId1, mockTransferId2, mockTransferId3]);
-      getTaskStub.resolves(mockMetaTxTask);
-      getGelatoTaskStatusStub.resolves(GelatoTaskState.ExecSuccess);
-      setExecutorDataStatusStub.resolves();
-      pruneExecutorDataStub.resolves();
-      await updateTasks();
-      expect(getSentTransfersStub.callCount).to.be.eq(1);
-      expect(getTaskStub.callCount).to.be.eq(3);
-      expect(getGelatoTaskStatusStub.callCount).to.be.eq(3);
-      expect(setExecutorDataStatusStub.callCount).to.be.eq(3);
-      expect(pruneExecutorDataStub.callCount).to.be.eq(3);
+      auctionsGetTaskStub.resolves(mockMetaTxTask);
+      auctionsSetExecStatusStub.resolves();
+      await updateTask(mockTransferId1, RelayerTaskStatus.ExecSuccess, MessageType.ExecuteFast);
+      expect(auctionsGetTaskStub.callCount).to.be.eq(1);
+      expect(auctionsSetExecStatusStub.callCount).to.be.eq(1);
     });
+  });
+  it("should update slow-path task successfully", async () => {
+    const mockTransferId1 = mkBytes32("0x111");
+
+    const mockMetaTxTask = {
+      timestamp: "100",
+      taskId: "0xtask",
+      relayer: RelayerType.Gelato,
+      attempts: 1,
+    } as MetaTxTask;
+
+    executorGetTaskStub.resolves(mockMetaTxTask);
+    executorSetExecStatusStub.resolves();
+    executorPruneExecutorDataStub.resolves();
+    await updateTask(mockTransferId1, RelayerTaskStatus.ExecSuccess, MessageType.ExecuteSlow);
+    expect(executorGetTaskStub.callCount).to.be.eq(1);
+    expect(executorSetExecStatusStub.callCount).to.be.eq(1);
+    expect(executorPruneExecutorDataStub.callCount).to.be.eq(1);
+  });
+  it("should get task status from gelato", async () => {
+    ctxMock.config.relayerUrl = "http://mock-realyer.com";
+    const mockTaskId = mkBytes32();
+    getTaskStatusFromBackupRelayerStub.resolves(RelayerTaskStatus.ExecSuccess);
+    const status = await getTaskStatus(mockTaskId, RelayerType.BackupRelayer);
+    expect(status).to.be.deep.eq(RelayerTaskStatus.ExecSuccess);
+    expect(getTaskStatusFromBackupRelayerStub.callCount).to.be.eq(1);
+  });
+  it("should get task status from backup relayer", async () => {
+    ctxMock.config.relayerUrl = "http://mock-realyer.com";
+    const mockTaskId = mkBytes32();
+    getTaskStatusFromGelatoStub.resolves(RelayerTaskStatus.ExecSuccess);
+    const status = await getTaskStatus(mockTaskId, RelayerType.Gelato);
+    expect(status).to.be.deep.eq(RelayerTaskStatus.ExecSuccess);
   });
 });

@@ -1,6 +1,6 @@
 import fastify, { FastifyInstance, FastifyReply } from "fastify";
 import {
-  AuctionStatus,
+  ExecStatus,
   createLoggingContext,
   jsonifyError,
   ExecuteFastApiPostBidReq,
@@ -9,7 +9,7 @@ import {
   ExecuteFastApiBidResponseSchema,
   SequencerApiErrorResponseSchema,
   SequencerApiErrorResponse,
-  ExecuteFastApiGetAuctionStatusResponse,
+  ExecuteFastApiGetExecStatusResponse,
   ExecuteFastApiGetAuctionsStatusResponseSchema,
   ExecuteFastApiGetQueuedResponseSchema,
   ExecuteFastApiGetQueuedResponse,
@@ -21,9 +21,9 @@ import {
   ExecutorPostDataRequest,
   ExecutorPostDataResponseSchema,
   ExecutorPostDataResponse,
-  ExecutorDataStatusRequest,
-  ExecutorDataStatusResponse,
-  ExecutorDataStatusResponseSchema,
+  ExecStatusRequest,
+  ExecStatusResponse,
+  ExecStatusResponseSchema,
 } from "@connext/nxtp-utils";
 
 import { getContext } from "../../../sequencer";
@@ -43,7 +43,7 @@ export const bindServer = async (): Promise<FastifyInstance> => {
 
   server.get<{
     Params: { transferId: string };
-    Reply: ExecuteFastApiGetAuctionStatusResponse | SequencerApiErrorResponse;
+    Reply: ExecuteFastApiGetExecStatusResponse | SequencerApiErrorResponse;
   }>(
     "/execute-fast/:transferId",
     {
@@ -58,8 +58,8 @@ export const bindServer = async (): Promise<FastifyInstance> => {
       const { requestContext, methodContext } = createLoggingContext("GET /execute-fast/:transferId endpoint");
       try {
         const { transferId } = request.params;
-        const status = await cache.auctions.getStatus(transferId);
-        if (status === AuctionStatus.None) {
+        const status = await cache.auctions.getExecStatus(transferId);
+        if (status === ExecStatus.None) {
           throw new Error("No auction found for transferId");
         }
         const auction = await cache.auctions.getAuction(transferId);
@@ -67,7 +67,7 @@ export const bindServer = async (): Promise<FastifyInstance> => {
           throw new Error("Critical error: auction status was present but data not found");
         }
 
-        const task = await cache.auctions.getTask(transferId);
+        const task = await cache.auctions.getMetaTxTask(transferId);
 
         return response.status(200).send({
           bids: auction.bids,
@@ -101,13 +101,13 @@ export const bindServer = async (): Promise<FastifyInstance> => {
     },
     async (request, response) => {
       const {
-        auctions: { storeBid },
+        execute: { storeFastPathData },
       } = getOperations();
       const { requestContext } = createLoggingContext("POST /execute-fast/:transferId endpoint", undefined, "");
       try {
         const bid = request.body;
         requestContext.transferId = bid.transferId;
-        await storeBid(bid, requestContext);
+        await storeFastPathData(bid, requestContext);
         return response.status(200).send({ message: "Bid received", transferId: bid.transferId, router: bid.router });
       } catch (error: unknown) {
         const type = (error as NxtpError).type;
@@ -152,11 +152,11 @@ export const bindServer = async (): Promise<FastifyInstance> => {
     async (request, response) => {
       const { requestContext } = createLoggingContext("POST /execute-slow endpoint");
       const {
-        executor: { storeExecutorData },
+        execute: { storeSlowPathData },
       } = getOperations();
       try {
         const executorData = request.body;
-        await storeExecutorData(executorData, requestContext);
+        await storeSlowPathData(executorData, requestContext);
         return response.status(200).send({ message: "executor data received", transferId: executorData.transferId });
       } catch (error: unknown) {
         const type = (error as NxtpError).type;
@@ -165,12 +165,12 @@ export const bindServer = async (): Promise<FastifyInstance> => {
     },
   );
 
-  server.get<{ Params: ExecutorDataStatusRequest; Reply: ExecutorDataStatusResponse | SequencerApiErrorResponse }>(
+  server.get<{ Params: ExecStatusRequest; Reply: ExecStatusResponse | SequencerApiErrorResponse }>(
     "/execute-slow/:transferId",
     {
       schema: {
         response: {
-          200: ExecutorDataStatusResponseSchema,
+          200: ExecStatusResponseSchema,
           500: SequencerApiErrorResponseSchema,
         },
       },
@@ -178,7 +178,7 @@ export const bindServer = async (): Promise<FastifyInstance> => {
     async (request, response) => {
       try {
         const { transferId } = request.params;
-        const status = await cache.executors.getExecutorDataStatus(transferId);
+        const status = await cache.executors.getExecStatus(transferId);
         return response.status(200).send({ transferId, status });
       } catch (error: unknown) {
         const type = (error as NxtpError).type;

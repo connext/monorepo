@@ -8,8 +8,8 @@ import {
   RelayerApiPostTaskRequestParams,
   NxtpError,
   RelayerApiPostTaskResponse,
+  RelayerTaskStatus,
 } from "../types";
-import { GelatoTaskState } from "../types/relayer";
 
 /// MARK - Gelato Relay API
 /// Docs: https://relay.gelato.digital/api-docs/
@@ -156,16 +156,16 @@ export const getConversionRate = async (_chainId: number, to?: string, logger?: 
  * Gets the task status for a given taskId from gelato api
  * @param taskId - The task Id we want to get the status for
  * @param logger - Logger Instance
- * @returns - GelatoTaskState
+ * @returns - RelayerTaskStatus
  */
-export const getGelatoTaskStatus = async (taskId: string, logger?: Logger): Promise<GelatoTaskState> => {
-  let result = GelatoTaskState.NotFound;
+export const getTaskStatusFromGelato = async (taskId: string, logger?: Logger): Promise<RelayerTaskStatus> => {
+  let result = RelayerTaskStatus.NotFound;
   try {
     const apiEndpoint = `${GELATO_SERVER}/tasks/${taskId}`;
     const res = await axios.get(apiEndpoint);
-    result = res.data[0]?.taskState as GelatoTaskState;
+    result = res.data[0]?.taskState as RelayerTaskStatus;
   } catch (error: unknown) {
-    if (logger) logger.error("Error in getGelatoTaskStatus", undefined, undefined, jsonifyError(error as Error));
+    if (logger) logger.error("Error in getTaskStatusFromGelato", undefined, undefined, jsonifyError(error as Error));
     else console.log("Error in gelatoTaskStatus, error: ", error);
   }
 
@@ -185,4 +185,30 @@ export const connextRelayerSend = async (
     throw new NxtpError("Error sending request to Connext Relayer", { error: jsonifyError(error as Error) });
   }
   return output;
+};
+
+/**
+ * Gets the task status from the backup relayer
+ * @param url - The base url
+ * @param taskId - The task id you wanna get the status for
+ * @param logger - Logger Instance
+ * @returns - RelayerTaskStatus
+ */
+export const getTaskStatusFromBackupRelayer = async (
+  url: string,
+  taskId: string,
+  logger?: Logger,
+): Promise<RelayerTaskStatus> => {
+  let result = RelayerTaskStatus.NotFound;
+  try {
+    const apiEndpoint = `${url}/tasks/${taskId}`;
+    const res = await axios.get(apiEndpoint);
+    result = res.data[0]?.taskState as RelayerTaskStatus;
+  } catch (error: unknown) {
+    if (logger)
+      logger.error("Error in getTaskStatusFromBackupRelayer", undefined, undefined, jsonifyError(error as Error));
+    else console.log("Error in getTaskStatusFromBackupRelayer, error: ", error);
+  }
+
+  return result;
 };
