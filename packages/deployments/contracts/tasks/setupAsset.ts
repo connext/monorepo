@@ -2,7 +2,7 @@ import { constants } from "ethers";
 import { defaultAbiCoder, hexlify, solidityKeccak256 } from "ethers/lib/utils";
 import { task } from "hardhat/config";
 
-import { canonizeId } from "../src/nomad";
+import { canonizeId } from "../src";
 import { Env, getDeploymentName, mustGetEnv } from "../src/utils";
 
 type TaskArgs = {

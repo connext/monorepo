@@ -3,7 +3,7 @@ import { task } from "hardhat/config";
 import { CallParams, XCallArgs } from "@connext/nxtp-utils";
 
 import { Env, getDeploymentName, mustGetEnv } from "../src/utils";
-import { canonizeId, chainIdToDomain } from "../src/nomad";
+import { canonizeId, chainIdToDomain } from "../src";
 
 type TaskArgs = {
   transactingAssetId?: string;
