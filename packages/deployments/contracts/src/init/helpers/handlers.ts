@@ -25,7 +25,6 @@ export const enrollHandlers = async (args: { protocol: ProtocolStack }) => {
       const targetHandler = handlers[i];
       const remoteHandlers = handlers.filter((_, j) => j !== i);
 
-      console.log(`\n* (${targetHandler.network.chain}) ${handlerName}: ${targetHandler.deployment.address}`);
       for (const remoteHandler of remoteHandlers) {
         // Get the canonized address of the Handler we want to enroll (will be padded with 0-bytes).
         const canonized = utils.hexlify(canonizeId(remoteHandler.deployment.address as BytesLike));
@@ -41,11 +40,12 @@ export const enrollHandlers = async (args: { protocol: ProtocolStack }) => {
     // TODO: If Connext === bridge router, this contract property will be removed; remove the following code in that case!
     // Set the bridge router in Connext contract, if applicable.
     if (handlerName === "BridgeRouter") {
+      console.log("\tSetting bridgeRouter for all Connext contracts...");
+
       for (const network of protocol.networks) {
         const { BridgeRouter } = network.deployments.handlers;
 
         // If bridge router is not set, we need to set it to be the BridgeRouterUpgradeBeaconProxy address.
-        console.log("\tChecking bridgeRouter for Connext contract...");
         await updateIfNeeded({
           deployment: network.deployments.Connext,
           desired: BridgeRouter.address,

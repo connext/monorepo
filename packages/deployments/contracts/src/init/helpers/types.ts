@@ -34,6 +34,7 @@ export type AssetStack = {
 };
 
 export type Deployment = {
+  proxy?: string;
   name: string;
   address: string;
   abi: any[];

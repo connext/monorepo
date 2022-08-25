@@ -1,12 +1,13 @@
-import { constants, providers } from "ethers";
+import { providers } from "ethers";
 import { getChainData } from "@connext/nxtp-utils";
 
 import { log } from "./log";
-import { CallSchema } from "./types";
+import { CallSchema, Deployment } from "./types";
 
 const DEFAULT_CONFIRMATIONS = 3;
 
 export const waitForTx = async (args: {
+  deployment: Deployment;
   tx: providers.TransactionResponse;
   name: string;
   checkResult?: {
@@ -14,12 +15,12 @@ export const waitForTx = async (args: {
     desired: any;
   };
 }): Promise<{ receipt: providers.TransactionReceipt; result?: any }> => {
-  const { tx, name: _name, checkResult } = args;
+  const { tx, name: _name, checkResult, deployment } = args;
   // Try to get the desired amount of confirmations from chain data.
   const chainData = await getChainData(true, true);
   const info = chainData.get(tx.chainId.toString());
 
-  const prefix = `${log.prefix.base({ chain: tx.chainId, address: tx.to ?? constants.AddressZero })} ${_name}() `;
+  const prefix = `${log.prefix.base({ chain: tx.chainId, deployment })} ${_name}() `;
   const confirmations = info?.confirmations ?? DEFAULT_CONFIRMATIONS;
   console.log(`${prefix}Transaction sent: ${tx.hash}\n\t\tWaiting for ${confirmations} confirmations.`);
   const receipt = await tx.wait(confirmations);
@@ -37,12 +38,8 @@ export const waitForTx = async (args: {
 };
 
 export const updateIfNeeded = async <T>(schema: CallSchema<T>): Promise<void> => {
-  const {
-    deployment: { contract },
-    read: _read,
-    write: _write,
-    desired,
-  } = schema;
+  const { deployment, read: _read, write: _write, desired } = schema;
+  const { contract } = deployment;
 
   // Sanity check: write method included.
   if (!_write) {
@@ -71,10 +68,10 @@ export const updateIfNeeded = async <T>(schema: CallSchema<T>): Promise<void> =>
   // Sanity check: contract has methods.
   const callable = Object.keys(contract.functions).concat(Object.keys(contract.callStatic));
   if (!callable.includes(read.method)) {
-    log.error.method({ method: read.method, callable });
+    log.error.method({ deployment, method: read.method, callable });
   }
   if (!callable.includes(write.method)) {
-    log.error.method({ method: write.method, callable });
+    log.error.method({ deployment, method: write.method, callable });
   }
 
   const readCall = async (): Promise<T> => {
@@ -86,13 +83,13 @@ export const updateIfNeeded = async <T>(schema: CallSchema<T>): Promise<void> =>
 
   const network = await contract.provider.getNetwork();
   const chain = network.chainId;
-  const address = contract.address;
 
   const value = await readCall();
-  log.info.value({ chain, address, call: read, value });
+  log.info.value({ chain, deployment, call: read, value });
   if (value !== desired) {
     const tx = await writeCall();
     const res = await waitForTx({
+      deployment,
       tx,
       name: write.method,
       checkResult: {
@@ -100,16 +97,13 @@ export const updateIfNeeded = async <T>(schema: CallSchema<T>): Promise<void> =>
         desired,
       },
     });
-    log.info.value({ chain, address, call: read, value: res.result, updated: true });
+    log.info.value({ chain, deployment, call: read, value: res.result, updated: true });
   }
 };
 
 export const assertValue = async <T>(schema: CallSchema<T>): Promise<void> => {
-  const {
-    deployment: { contract },
-    read: _read,
-    desired,
-  } = schema;
+  const { deployment, read: _read, desired } = schema;
+  const { contract } = deployment;
 
   const read =
     typeof _read === "string"
@@ -129,7 +123,7 @@ export const assertValue = async <T>(schema: CallSchema<T>): Promise<void> => {
   // Sanity check: contract has read method.
   const callable = Object.keys(contract.functions).concat(Object.keys(contract.callStatic));
   if (!callable.includes(read.method)) {
-    log.error.method({ method: read.method, callable });
+    log.error.method({ deployment, method: read.method, callable });
   }
 
   const readCall = async (): Promise<T> => {
@@ -138,22 +132,19 @@ export const assertValue = async <T>(schema: CallSchema<T>): Promise<void> => {
 
   const network = await contract.provider.getNetwork();
   const chain = network.chainId;
-  const address = contract.address;
 
   const value = await readCall();
 
   if (value === desired) {
-    log.info.value({ chain, address, call: read, value });
+    log.info.value({ chain, deployment, call: read, value });
   } else {
-    log.error.value({ chain, address, call: read, value, desired });
+    log.error.value({ chain, deployment, call: read, value, desired });
   }
 };
 
 export const getValue = async <T>(schema: CallSchema<T>): Promise<T> => {
-  const {
-    deployment: { contract },
-    read: _read,
-  } = schema;
+  const { deployment, read: _read } = schema;
+  const { contract } = deployment;
 
   const read =
     typeof _read === "string"
@@ -169,7 +160,7 @@ export const getValue = async <T>(schema: CallSchema<T>): Promise<T> => {
   // Sanity check: contract has read method.
   const callable = Object.keys(contract.functions).concat(Object.keys(contract.callStatic));
   if (!callable.includes(read.method)) {
-    log.error.method({ method: read.method, callable });
+    log.error.method({ deployment, method: read.method, callable });
   }
 
   const readCall = async (): Promise<T> => {
@@ -178,9 +169,8 @@ export const getValue = async <T>(schema: CallSchema<T>): Promise<T> => {
 
   const network = await contract.provider.getNetwork();
   const chain = network.chainId;
-  const address = contract.address;
 
   const value = await readCall();
-  log.info.value({ chain, address, call: read, value });
+  log.info.value({ chain, deployment, call: read, value });
   return value;
 };

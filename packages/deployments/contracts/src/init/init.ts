@@ -163,10 +163,13 @@ export const sanitizeAndInit = async (config: any) => {
       }
     }
   }
+
   // TODO: Sanitize assets - all addresses specified?
 
   /// MARK - Agents
   // TODO: Sanitize agents - all strings are addresses?
+
+  // TODO: Sanity - check that every hub has a spoke and vice versa!
 
   const sanitized = {
     ...config,
@@ -207,7 +210,7 @@ export const initProtocol = async (protocol: ProtocolStack) => {
   // this placeholder here for now...
 
   /// MARK - Connector Mirrors
-  console.log("\n\nCONNECTORS : SET MIRRORS");
+  console.log("\n\nMESSAGING");
   // Connectors should have their mirrors' address set; this lets them know about their counterparts.
   for (const HubConnector of HubConnectors) {
     // Get the connector's mirror domain (and convert to a string value).
@@ -222,9 +225,13 @@ export const initProtocol = async (protocol: ProtocolStack) => {
     let foundMirror = false;
     for (const spoke of protocol.networks) {
       if (spoke.domain === mirrorDomain) {
+        if (spoke.domain === hub.domain) {
+          throw new Error("Mirror domain was hub? Bruh");
+        }
         foundMirror = true;
         const SpokeConnector = (spoke.deployments.messaging as SpokeMessagingDeployments).SpokeConnector;
 
+        /// MARK - Sanity Checks
         // Sanity check: Make sure RootManager is set correctly for the HubConnector.
         // NOTE: We CANNOT update the currently set ROOT_MANAGER; it is `immutable` and will require redeployment.
         await assertValue({
@@ -239,6 +246,7 @@ export const initProtocol = async (protocol: ProtocolStack) => {
           desired: RootManager.address,
         });
 
+        /// MARK - RootManager: Add Connector
         // Set hub connector address for this domain on RootManager.
         await updateIfNeeded({
           deployment: RootManager,
@@ -247,6 +255,7 @@ export const initProtocol = async (protocol: ProtocolStack) => {
           write: { method: "addConnector", args: [spoke.domain, HubConnector.address] },
         });
 
+        /// MARK - Connectors: Mirrors
         // Set the mirrors for both the spoke domain's Connector and hub domain's Connector.
         await updateIfNeeded({
           deployment: HubConnector,
@@ -260,6 +269,26 @@ export const initProtocol = async (protocol: ProtocolStack) => {
           read: { method: "mirrorConnector", args: [] },
           write: { method: "setMirrorConnector", args: [HubConnector.address] },
         });
+
+        /// MARK - Connectors: Whitelist Senders
+        // Whitelist message-sending Handler contracts (AKA 'Routers'); will enable those message senders to
+        // call `dispatch`.
+        for (const handler of Object.values(spoke.deployments.handlers)) {
+          await updateIfNeeded({
+            deployment: SpokeConnector,
+            desired: true,
+            read: { method: "whitelistedSenders", args: [handler.address] },
+            write: { method: "addSender", args: [handler.address] },
+          });
+        }
+        for (const handler of Object.values(hub.deployments.handlers)) {
+          await updateIfNeeded({
+            deployment: HubConnector,
+            desired: true,
+            read: { method: "whitelistedSenders", args: [handler.address] },
+            write: { method: "addSender", args: [handler.address] },
+          });
+        }
       }
     }
 
@@ -272,9 +301,9 @@ export const initProtocol = async (protocol: ProtocolStack) => {
     }
   }
 
+  /// MARK - MainnetConnector
   // On the hub itself, you only need to connect the mainnet l1 connector to RootManager (no mirror).
   // Make sure all things are set correctly.
-
   // Sanity check: mirror is address(0).
   assertValue({
     deployment: MainnetConnector,
@@ -290,27 +319,17 @@ export const initProtocol = async (protocol: ProtocolStack) => {
     read: "ROOT_MANAGER",
   });
 
-  /// MARK - Whitelist Senders
-  console.log("\n\nHANDLERS : WHITELIST SENDERS");
-  // Whitelist message-sending Handler contracts (AKA 'Routers'); will enable those message senders to call `dispatch`.
-  for (const network of protocol.networks) {
-    // Skip the hub; no senders need whitelisting.
-    if (network.domain === protocol.hub) {
-      continue;
-    }
-    console.log(`\n* [${network.chain}] Whitelisting senders.`);
-    for (const handler of Object.values(network.deployments.handlers)) {
-      await updateIfNeeded({
-        deployment: network.deployments.Connext,
-        desired: true,
-        read: { method: "whitelistedSenders", args: [handler.address] },
-        write: { method: "addSender", args: [handler.address] },
-      });
-    }
+  for (const handler of Object.values(hub.deployments.handlers)) {
+    await updateIfNeeded({
+      deployment: MainnetConnector,
+      desired: true,
+      read: { method: "whitelistedSenders", args: [handler.address] },
+      write: { method: "addSender", args: [handler.address] },
+    });
   }
 
   /// MARK - Enroll Handlers
-  console.log("\n\nHANDLERS : ENROLL HANDLERS");
+  console.log("\n\nENROLL HANDLERS");
   // While the Connectors will only accept messages from registered routers on their domains, Routers will only process
   // messages that originate from their counterpart on another domain (e.g. BridgeRouter on Domain X to BridgeRouter on
   // Domain Y). Thus, we need to enroll each Handler/Router contract with all of their counterparts on all other domains.
@@ -321,7 +340,7 @@ export const initProtocol = async (protocol: ProtocolStack) => {
   /// MARK - Init
   // Check to make sure Diamond Proxy is initialized.
   /// MARK - Connextions
-  console.log("\n\nCONNEXT : SET CONNEXTIONS");
+  console.log("\n\nSET CONNEXTIONS");
   // TODO/NOTE: Will likely be removing 'connextions' once we combine Connext+BridgeRouter.
   for (let i = 0; i < protocol.networks.length; i++) {
     const targetNetwork = protocol.networks[i];
@@ -339,7 +358,7 @@ export const initProtocol = async (protocol: ProtocolStack) => {
 
   /// ********************* ASSETS **********************
   /// MARK - Register Assets
-  console.log("\n\nASSETS : REGISTER ASSETS");
+  console.log("\n\nREGISTER ASSETS");
   // Convert asset addresses: get canonical ID, canonical domain, convert to `key` hash.
   // Determine if a stableswap pool is needed - does asset have both `local` and `adopted`?
   // If so, initialize stableswap pool with `initializeSwap`.
@@ -359,7 +378,7 @@ export const initProtocol = async (protocol: ProtocolStack) => {
     /// MARK - Watchers
     if (protocol.agents.watchers) {
       if (protocol.agents.watchers.whitelist) {
-        console.log("\n\nROOT MANAGER : WHITELIST WATCHERS");
+        console.log("\n\nWHITELIST WATCHERS");
         // Watchers are a permissioned role with the ability to disconnect malicious connectors.
         // Whitelist watchers in RootManager.
         for (const watcher of protocol.agents.watchers.whitelist) {
@@ -377,10 +396,18 @@ export const initProtocol = async (protocol: ProtocolStack) => {
     /// MARK - Relayers
     if (protocol.agents.relayers) {
       if (protocol.agents.relayers.whitelist) {
-        console.log("\n\nCONNEXT : WHITELIST RELAYERS");
+        console.log("\n\nWHITELIST RELAYERS");
         // Whitelist named relayers for the Connext bridge, in order to call `execute`.
-        // for (const relayer of protocol.agents.relayers.whitelist) {
-        // }
+        for (const relayer of protocol.agents.relayers.whitelist) {
+          for (const network of protocol.networks) {
+            await updateIfNeeded({
+              deployment: network.deployments.Connext,
+              desired: true,
+              read: { method: "approvedRelayers", args: [relayer] },
+              write: { method: "addRelayer", args: [relayer] },
+            });
+          }
+        }
         // Additionally, approve relayers as callers for connectors and root manager.
       }
       // TODO: Blacklist/remove relayers.
@@ -389,7 +416,7 @@ export const initProtocol = async (protocol: ProtocolStack) => {
     /// MARK - Sequencers
     if (protocol.agents.sequencers) {
       if (protocol.agents.sequencers.whitelist) {
-        console.log("\n\nCONNEXT : WHITELIST SEQUENCERS");
+        console.log("\n\nWHITELIST SEQUENCERS");
         // Whitelist named sequencers.
         for (const sequencer of protocol.agents.sequencers.whitelist) {
           for (const network of protocol.networks) {
@@ -408,7 +435,7 @@ export const initProtocol = async (protocol: ProtocolStack) => {
     /// MARK - Routers
     if (protocol.agents.routers) {
       if (protocol.agents.routers.whitelist) {
-        console.log("\n\nCONNEXT : WHITELIST ROUTERS");
+        console.log("\n\nWHITELIST ROUTERS");
         // Whitelist connext routers.
         for (const router of protocol.agents.routers.whitelist) {
           for (const network of protocol.networks) {

@@ -2,6 +2,7 @@ import { Contract, Wallet } from "ethers";
 
 import _Deployments from "../../../deployments.json";
 import { ConnextHandlerInterface } from "../../contracts";
+import { Router__factory } from "../../typechain-types";
 
 import { Deployment, DomainDeployments, NetworkStack } from "./types";
 
@@ -89,8 +90,14 @@ export const getDeployments = (args: {
       }
     }
 
+    // If this is a Router/Handler contract, append the core Router ABI.
+    if (contract.includes("Router")) {
+      abi = abi.concat(Router__factory.createInterface().fragments);
+    }
+
     return {
-      name: key,
+      proxy: key,
+      name: isConnextHandler ? "Connext" : implementation ?? contract,
       address: result.address,
       abi,
       contract: new Contract(
