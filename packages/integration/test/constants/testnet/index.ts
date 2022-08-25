@@ -17,7 +17,7 @@ export const LOCALHOST = "localhost"; // alt. 0.0.0.0
 const ASSET_CONTRACT_NAME = "TestERC20";
 
 /// MARK - Integration Settings
-const DEFAULT_ROUTE = ["1111", "3331"]; // Rinkeby => Goerli
+const DEFAULT_ROUTE = ["1735356532", "1735353714"]; // Optimism-Goerli => Goerli
 
 // Environment setting.
 export const ENVIRONMENT: "staging" | "production" = (process.env.ENV ||
@@ -62,7 +62,7 @@ export const EMPTY_BYTES = mkBytes32("0x0");
 
 // Message Queue settings
 export const EXCHANGE_NAME = "sequencerX";
-export const QUEUE_NAME = "1111";
+export const QUEUE_NAME = "1735356532";
 
 /// MARK - General
 export type DomainInfo = {
