@@ -41,7 +41,7 @@ export const enrollHandlers = async (args: { protocol: ProtocolStack }) => {
             ),
             desired: canonized,
             read: { method: "remotes", args: [remoteHandler.network.domain] },
-            write: { method: "enrollRemoteRouter", args: [remoteHandler.network.domain] },
+            write: { method: "enrollRemoteRouter", args: [remoteHandler.network.domain, canonized] },
           },
         });
       }
