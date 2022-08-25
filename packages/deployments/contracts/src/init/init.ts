@@ -128,7 +128,12 @@ export const sanitizeAndInit = async (config: any) => {
         isHub = true;
         hub = network.domain;
       }
-      network.deployments = getDeployments(network.chain as string, isHub, useStaging);
+      network.deployments = getDeployments({
+        deployer,
+        network,
+        isHub,
+        useStaging,
+      });
     }
 
     // Make sure the stack is set.

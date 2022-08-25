@@ -4,7 +4,7 @@ import { getChainData } from "@connext/nxtp-utils";
 import { log } from "./log";
 import { CallScheme } from "./types";
 
-const DEFAULT_CONFIRMATIONS = 5;
+const DEFAULT_CONFIRMATIONS = 3;
 
 export const waitForTx = async (args: {
   tx: providers.TransactionResponse;
@@ -21,9 +21,9 @@ export const waitForTx = async (args: {
 
   const prefix = `${log.prefix.base({ chain: tx.chainId, address: tx.to ?? constants.AddressZero })} ${_name}() `;
   const confirmations = info?.confirmations ?? DEFAULT_CONFIRMATIONS;
-  console.log(`\t${prefix}Transaction sent: ${tx.hash}\n\t\t\tWaiting for ${confirmations} confirmations.`);
+  console.log(`${prefix}Transaction sent: ${tx.hash}\n\t\tWaiting for ${confirmations} confirmations.`);
   const receipt = await tx.wait(confirmations);
-  console.log(`\t${prefix}Transaction mined:`, receipt.transactionHash);
+  console.log(`${prefix}Transaction mined:`, receipt.transactionHash);
 
   let value: any | undefined = undefined;
   if (checkResult && typeof checkResult.method === "function") {

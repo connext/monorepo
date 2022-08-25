@@ -1,10 +1,20 @@
-import _Deployments from "../../../deployments.json";
+import { Contract, Wallet } from "ethers";
 
-import { Deployment, DomainDeployments } from "./types";
+import _Deployments from "../../../deployments.json";
+import { ConnextHandlerInterface } from "../../contracts";
+
+import { Deployment, DomainDeployments, NetworkStack } from "./types";
 
 const Deployments = _Deployments as any;
 
-export const getDeployments = (chain: string, isHub: boolean, useStaging: boolean): DomainDeployments => {
+export const getDeployments = (args: {
+  deployer: Wallet;
+  network: NetworkStack;
+  isHub: boolean;
+  useStaging: boolean;
+}): DomainDeployments => {
+  const { network, isHub, useStaging, deployer: _deployer } = args;
+  const chain = network.chain;
   const deployments = Deployments[chain];
   if (!deployments) {
     throw new Error(`No deployments found for chain ${chain}!`);
@@ -14,6 +24,8 @@ export const getDeployments = (chain: string, isHub: boolean, useStaging: boolea
     throw new Error(`No contracts found under deployments for chain ${chain}!`);
   }
   const env = useStaging ? "Staging" : "";
+
+  const deployer = _deployer.connect(network.rpc);
 
   // Get all the Hub connectors, if applicable.
   const connectors: Deployment[] = [];
@@ -30,6 +42,7 @@ export const getDeployments = (chain: string, isHub: boolean, useStaging: boolea
           name: key,
           address: contract.address,
           abi: contract.abi,
+          contract: new Contract(contract.address as string, contract.abi as any[], deployer),
         });
       }
     }
@@ -41,6 +54,7 @@ export const getDeployments = (chain: string, isHub: boolean, useStaging: boolea
           name: key,
           address: contract.address,
           abi: contract.abi,
+          contract: new Contract(contract.address as string, contract.abi as any[], deployer),
         });
       }
     }
@@ -54,17 +68,37 @@ export const getDeployments = (chain: string, isHub: boolean, useStaging: boolea
 
   // Custom function to format lookup by env and double check that the contract retrieved is not null.
   const getContract = (contract: string): any => {
-    const key = contract.includes("ConnextHandler") ? `ConnextHandler${env}_DiamondProxy` : contract + env;
+    const isConnextHandler = contract.includes("ConnextHandler");
+    const key = isConnextHandler ? `ConnextHandler${env}_DiamondProxy` : contract + env;
     const result = contracts[key];
     if (!result) {
       throw new Error(`Contract ${key} was not found in deployments.json!`);
     } else if (!result.address || !result.abi) {
       throw new Error(`Contract ${key} was missing address or ABI in deployments.json!`);
     }
+
+    // Use the ABI of the implementation contract, if applicable.
+    let abi = result.abi as any[];
+    const implementation = contract.includes("UpgradeBeaconProxy")
+      ? contract.replace("UpgradeBeaconProxy", "")
+      : undefined;
+    if (implementation) {
+      const found = contracts[implementation];
+      if (found && found.abi) {
+        abi = found.abi as any[];
+      }
+    }
+
     return {
       name: key,
       address: result.address,
-      abi: result.abi,
+      abi,
+      contract: new Contract(
+        result.address as string,
+        // Special case if this is the Connext diamond.
+        isConnextHandler ? ConnextHandlerInterface : abi,
+        deployer,
+      ),
     };
   };
 

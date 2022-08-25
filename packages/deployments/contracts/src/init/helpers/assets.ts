@@ -45,7 +45,7 @@ export const setupAsset = async (args: { deployer: Wallet; asset: AssetStack; ne
         desired: representation.local,
         read: { method: "getRepresentationAddress", args: [canonical.domain, canonical.id] },
         write: {
-          method: "setupAsset",
+          method: "enrollCustom",
           args: [canonical.domain, canonical.id, representation.local],
         },
       },

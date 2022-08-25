@@ -146,11 +146,13 @@ export const getDomainInfoFromChainId = async (
       domain: chainId,
       contracts: {
         bridge: {
-          bridgeToken: { beacon: (await hre.deployments.get(getDeploymentName(`BridgeTokenUpgradeBeacon`))).address },
+          bridgeToken: {
+            beacon: (await (hre as any).deployments.get(getDeploymentName(`BridgeTokenUpgradeBeacon`))).address,
+          },
         },
         core: {
           replicas: [],
-          home: { proxy: (await hre.deployments.get(getDeploymentName(`HomeUpgradeBeaconProxy`))).address },
+          home: { proxy: (await (hre as any).deployments.get(getDeploymentName(`HomeUpgradeBeaconProxy`))).address },
         },
       },
     } as any;

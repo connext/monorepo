@@ -3,7 +3,7 @@ export const log = {
     base: (args: { chain: number | string; address: string; fullAddress?: boolean }) => {
       const { chain, address: _address, fullAddress } = args;
       const address = fullAddress ? _address : `${_address.slice(0, 7)}..${_address.slice(37)}`;
-      return `\t[${chain}] [${address}] `;
+      return `[${chain}] [${address}] `;
     },
     value: (args: {
       chain: number | string;
@@ -47,7 +47,10 @@ export const log = {
     // For when a method is not found.
     method: (args: { method: string; callable: any[] }) => {
       const { method, callable } = args;
-      throw new Error(`Method ${method} not found in contract functions! \nCallable methods: ${callable.join(",")}`);
+      throw new Error(
+        `Method ${method} not found in contract functions! Is the ABI from the implementation contract?` +
+          ` \nCallable methods: ${callable ? callable.join(",") : "None found!"}`,
+      );
     },
   },
 };

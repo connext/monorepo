@@ -37,6 +37,7 @@ export type Deployment = {
   name: string;
   address: string;
   abi: any[];
+  contract: Contract;
 };
 
 export type HubMessagingDeployments = {
