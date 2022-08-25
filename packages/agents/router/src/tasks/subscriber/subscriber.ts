@@ -1,12 +1,5 @@
 import { Wallet } from "ethers";
-import {
-  createMethodContext,
-  createRequestContext,
-  getChainData,
-  jsonifyError,
-  Logger,
-  RequestContext,
-} from "@connext/nxtp-utils";
+import { createMethodContext, createRequestContext, getChainData, jsonifyError, Logger } from "@connext/nxtp-utils";
 import { Web3Signer } from "@connext/nxtp-adapters-web3signer";
 import { getContractInterfaces, TransactionService, contractDeployments } from "@connext/nxtp-txservice";
 import axios from "axios";
