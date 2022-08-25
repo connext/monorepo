@@ -2,6 +2,11 @@
 
 ## Next Release
 
+## Amarok 0.2.0-beta.21
+
+- [sdk] Function updates.
+- [contracts] Parameter updates.
+
 ## Amarok 0.2.0-beta.20
 
 - [sdk] Function updates.
