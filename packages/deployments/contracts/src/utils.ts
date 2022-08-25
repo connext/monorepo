@@ -113,8 +113,6 @@ export const getConnectorDeployments = (env: Env): ConnectorDeployment[] => {
     });
   });
 
-  console.log(`names of connectors to setup mirrors for:`, connectors);
-
   const getAddressAndAbi = (name: string, chain: number): { address: string; abi: ContractInterface } => {
     const [record] = (deploymentRecords as any)[chain.toString()] ?? [undefined];
     if (!record) {

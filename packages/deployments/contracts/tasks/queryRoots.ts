@@ -7,7 +7,7 @@ type TaskArgs = {
   env?: Env;
 };
 
-export default task("read-balances", "Read balances of accounts")
+export default task("query-roots", "Read balances of accounts")
   .addOptionalParam("asset", "Transacting asset Id")
   .addOptionalParam("env", "Environment of contracts")
   .setAction(async ({ env: _env }: TaskArgs, hre) => {
@@ -23,7 +23,7 @@ export default task("read-balances", "Read balances of accounts")
     await executeOnAllConnectors(env, async (deployment: ConnectorDeployment, provider: providers.JsonRpcProvider) => {
       const { name, address, abi } = deployment;
       // Create the connector contract
-      const connector = new Contract(address, abi, deployer.connect(provider));
+      const connector = new Contract(address, abi, provider);
       console.log(`--------- ${name} ---------`);
       console.log("- address:", address);
       console.log("- outboundRoot:", await connector.outboundRoot());
