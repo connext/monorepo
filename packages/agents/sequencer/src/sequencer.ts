@@ -1,4 +1,4 @@
-import { Wallet } from "ethers";
+import { logger, Wallet } from "ethers";
 import {
   Logger,
   getChainData,
@@ -151,6 +151,7 @@ export const execute = async (_configOverride?: SequencerConfig) => {
         interval(async (_, stop) => {
           try {
             taskStatus = await getTaskStatus(taskId, relayer);
+            logger.debug("Task status", requestContext, methodContext, { taskStatus, taskId });
             if (
               taskStatus === RelayerTaskStatus.ExecSuccess ||
               taskStatus === RelayerTaskStatus.ExecReverted ||
