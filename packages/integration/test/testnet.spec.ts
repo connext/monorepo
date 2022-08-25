@@ -437,7 +437,7 @@ describe("TESTNET:E2E", () => {
           // Might as well mint enough for 100 test iterations...
           const amount = TRANSFER_TOKEN_AMOUNT.mul(100);
           const encoded = testERC20.encodeFunctionData("mint", [agents.user.address, amount]);
-          const tx = await (agents.router ?? agents.user).origin.sendTransaction({
+          const tx = await (agents.deployer ?? agents.user).origin.sendTransaction({
             to: originAsset.address,
             data: encoded,
             value: BigNumber.from("0"),
