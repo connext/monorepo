@@ -28,12 +28,15 @@ contract RootManager is ProposedOwnable, IRootManager {
   mapping(uint32 => bytes32) public outboundRoots;
 
   uint32[] public domains;
+  uint32 public immutable l1Domain;
 
   mapping(address => bool) public watchers;
 
   // ============ Constructor ============
-  constructor() ProposedOwnable() {
+  constructor(uint32 _l1Domain) ProposedOwnable() {
     _setOwner(msg.sender);
+
+    l1Domain = _l1Domain;
   }
 
   // ============ Modifiers ============
@@ -56,11 +59,13 @@ contract RootManager is ProposedOwnable, IRootManager {
    * FIXME proper merkle tree implementation
    */
   function propagate() external override {
-    bytes memory aggregate = abi.encodePacked(outboundRoots[domains[0]]);
+    bytes memory aggregate = abi.encodePacked(outboundRoots[l1Domain]);
     for (uint8 i; i < domains.length; i++) {
-      address connector = connectors[domains[i]];
-      if (connector != address(0)) {
-        IConnector(connector).sendMessage(aggregate);
+      if (domains[i] != l1Domain) {
+        address connector = connectors[domains[i]];
+        if (connector != address(0)) {
+          IConnector(connector).sendMessage(aggregate);
+        }
       }
     }
   }
@@ -74,28 +79,15 @@ contract RootManager is ProposedOwnable, IRootManager {
 
   /**
    * @dev Owner can add a new connector. Address should be the connector on l1
-   * NOTE: owner can add address(0) to effectively remove a connector
+   * NOTE: owner can't add address(0) to avoid duplicated domain in array and reduce gas fee while progating
    */
   function addConnector(uint32 _domain, address _connector) external onlyOwner {
+    require(_connector != address(0), "!connector");
+    require(connectors[_domain] == address(0), "already connector");
+
     connectors[_domain] = _connector;
     domains.push(_domain);
     emit ConnectorAdded(_domain, _connector);
-  }
-
-  /**
-   * @dev Owner can enroll a watcher (who has ability to disconnect connector)
-   */
-  function addWatcher(address _watcher) external onlyOwner {
-    watchers[_watcher] = true;
-    emit WatcherAdded(_watcher);
-  }
-
-  /**
-   * @dev Owner can unenroll a watcher (who has ability to disconnect connector)
-   */
-  function removeWatcher(address _watcher) external onlyOwner {
-    watchers[_watcher] = false;
-    emit WatcherRemoved(_watcher);
   }
 
   /**
@@ -104,6 +96,8 @@ contract RootManager is ProposedOwnable, IRootManager {
    */
   function removeConnector(uint32 _domain) external onlyWatcher {
     address connector = connectors[_domain];
+    require(connector != address(0), "!exist");
+
     // remove connector from mapping
     delete connectors[_domain];
 
@@ -117,5 +111,23 @@ contract RootManager is ProposedOwnable, IRootManager {
     }
     domains.pop();
     emit ConnectorRemoved(_domain, connector);
+  }
+
+  /**
+   * @dev Owner can enroll a watcher (who has ability to disconnect connector)
+   */
+  function addWatcher(address _watcher) external onlyOwner {
+    require(!watchers[_watcher], "already watcher");
+    watchers[_watcher] = true;
+    emit WatcherAdded(_watcher);
+  }
+
+  /**
+   * @dev Owner can unenroll a watcher (who has ability to disconnect connector)
+   */
+  function removeWatcher(address _watcher) external onlyOwner {
+    require(watchers[_watcher], "!exist");
+    watchers[_watcher] = false;
+    emit WatcherRemoved(_watcher);
   }
 }
