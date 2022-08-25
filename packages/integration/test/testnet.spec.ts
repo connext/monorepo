@@ -1,8 +1,8 @@
 import axios, { AxiosResponse } from "axios";
 import { Wallet, utils, BigNumber, providers, constants } from "ethers";
 import { makePublisher, makeSubscriber } from "@connext/nxtp-sequencer/src/sequencer";
-import { makePublisher as makeRouterPublisher } from "@connext/nxtp-router/src/publisher/publisher";
-import { makeSubscriber as makeRouterSubscriber } from "@connext/nxtp-router/src/subscriber/subscriber";
+import { makePublisher as makeRouterPublisher } from "@connext/nxtp-router/src/tasks/publisher/publisher";
+import { makeSubscriber as makeRouterSubscriber } from "@connext/nxtp-router/src/tasks/subscriber/subscriber";
 import { makeRelayer } from "@connext/nxtp-relayer/src/relayer";
 import { makeRoutersPoller } from "@connext/cartographer-poller/src/routersPoller";
 import { makeTransfersPoller } from "@connext/cartographer-poller/src/transfersPoller";
@@ -96,13 +96,21 @@ describe("TESTNET:E2E", () => {
   let context: OperationContext;
 
   before(async () => {
+    log.info("Fetching Configs");
+    log.next("ChainData");
     chainData = await CHAIN_DATA;
+    log.next("Domains");
     domainInfo = await DOMAINS;
+    log.next("Router");
     routerConfig = await ROUTER_CONFIG;
+    log.next("Sequencer");
     sequencerConfig = await SEQUENCER_CONFIG;
+    log.next("Relayer");
     relayerConfig = await RELAYER_CONFIG;
+    log.next("Cartographer");
     cartographerConfig = await CARTOGRAPHER_CONFIG;
 
+    log.info("Init Agents");
     // Init agents.
     const router = ROUTER_MNEMONIC ? Wallet.fromMnemonic(ROUTER_MNEMONIC) : undefined;
     // As a backup, the relayer can use the router wallet as well.
@@ -141,6 +149,7 @@ describe("TESTNET:E2E", () => {
       },
     };
 
+    log.info("Init Services");
     // Init services.
     chainreader = new ChainReader(
       new Logger({
@@ -164,6 +173,7 @@ describe("TESTNET:E2E", () => {
   });
 
   const test = async () => {
+    log.info("Starting Test");
     const connext = getConnextInterface();
     const testERC20 = new utils.Interface(ERC20Abi);
     const originConnextAddress = domainInfo.ORIGIN.config.deployments.connext;
