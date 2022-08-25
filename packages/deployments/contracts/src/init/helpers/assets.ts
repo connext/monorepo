@@ -46,9 +46,6 @@ export const setupAsset = async (args: { asset: AssetStack; networks: NetworkSta
         args: [canonical.domain, canonical.id, representation.local],
       },
     });
-    // Sanity check for certainty and logging purposes.
-    const enrolled = await TokenRegistry.contract.getRepresentationAddress(canonical.domain, canonical.id);
-    console.log(`* Local representation of ${canonical.id} on ${domain}: ${enrolled}`);
 
     // Run setupAsset.
     const desiredAdopted = representation.adopted ?? representation.local;
