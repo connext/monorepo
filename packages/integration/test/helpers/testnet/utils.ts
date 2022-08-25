@@ -30,6 +30,7 @@ export const formatEtherscanLink = (input: { network: string; hash?: string; add
     rinkeby: "rinkeby.etherscan.io",
     kovan: "kovan.etherscan.io",
     goerli: "goerli.etherscan.io",
+    optimismgoerli: "blockscout.com/optimism/goerli",
   };
   const url = networkNameToUrl[network];
   if (!url) {
