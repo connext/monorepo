@@ -62,6 +62,7 @@ import {
 import { pollSomething } from "./helpers/shared";
 
 const ROUTER_MNEMONIC = process.env.ROUTER_MNEMONIC;
+const SEQUENCER_MNEMONIC = process.env.SEQUENCER_MNEMONIC;
 const RELAYER_MNEMONIC = process.env.RELAYER_MNEMONIC;
 const DEPLOYER_MNEMONIC = process.env.DEPLOYER_MNEMONIC;
 const USER_MNEMONIC = process.env.USER_MNEMONIC || Wallet.createRandom()._mnemonic().phrase;
@@ -760,32 +761,33 @@ describe("TESTNET:E2E", () => {
         await delay(1_000);
       }
 
-      if (agents.router) {
-        log.next("SEQUENCER START");
-        await makePublisher({
-          ...sequencerConfig,
-          relayerUrl: agents.relayer ? sequencerConfig.relayerUrl : undefined,
-        });
-        await delay(1_000);
+      // if (agents.router) {
+      //   log.next("SEQUENCER START");
+      //   await makePublisher({
+      //     ...sequencerConfig,
+      //     mnemonic: SEQUENCER_MNEMONIC,
+      //     relayerUrl: agents.relayer ? sequencerConfig.relayerUrl : undefined,
+      //   });
+      //   await delay(1_000);
 
-        await makeSubscriber({
-          ...sequencerConfig,
-          relayerUrl: agents.relayer ? sequencerConfig.relayerUrl : undefined,
-        });
-        await delay(1_000);
+      //   await makeSubscriber({
+      //     ...sequencerConfig,
+      //     relayerUrl: agents.relayer ? sequencerConfig.relayerUrl : undefined,
+      //   });
+      //   await delay(1_000);
 
-        log.next("ROUTER START");
-        await makeRouterPublisher({
-          ...routerConfig,
-          mnemonic: ROUTER_MNEMONIC,
-        });
+      //   log.next("ROUTER START");
+      //   await makeRouterPublisher({
+      //     ...routerConfig,
+      //     mnemonic: ROUTER_MNEMONIC,
+      //   });
 
-        await makeRouterSubscriber({
-          ...routerConfig,
-          mnemonic: ROUTER_MNEMONIC,
-        });
-        await delay(1_000);
-      }
+      //   await makeRouterSubscriber({
+      //     ...routerConfig,
+      //     mnemonic: ROUTER_MNEMONIC,
+      //   });
+      //   await delay(1_000);
+      // }
     }
 
     /// MARK - E2E Test
