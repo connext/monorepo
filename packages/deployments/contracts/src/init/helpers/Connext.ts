@@ -1,5 +1,6 @@
-import { ConnextHandlerInterface } from "@connext/nxtp-contracts";
 import { Contract } from "ethers";
+
+import { ConnextHandlerInterface } from "../../contracts";
 
 import { updateIfNeeded } from "./tx";
 import { ProtocolStack } from "./types";

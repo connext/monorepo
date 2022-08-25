@@ -1,5 +1,6 @@
 import { constants, Contract, utils, Wallet } from "ethers";
-import { canonizeId } from "@connext/nxtp-contracts";
+
+import { canonizeId } from "../../nomad";
 
 import { AssetStack, NetworkStack } from "./types";
 import { updateIfNeeded } from "./tx";

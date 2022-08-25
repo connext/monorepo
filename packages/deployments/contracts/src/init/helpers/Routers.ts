@@ -1,6 +1,7 @@
 import { BytesLike, Contract, utils } from "ethers";
-import { canonizeId, ConnextHandlerInterface } from "@connext/nxtp-contracts";
 
+import { ConnextHandlerInterface } from "../../contracts";
+import { canonizeId } from "../../nomad";
 import { Router__factory } from "../../typechain-types";
 
 import { Deployment, NetworkStack, ProtocolStack } from "./types";
