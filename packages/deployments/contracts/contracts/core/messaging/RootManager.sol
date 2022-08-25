@@ -61,11 +61,9 @@ contract RootManager is ProposedOwnable, IRootManager {
   function propagate() external override {
     bytes memory aggregate = abi.encodePacked(outboundRoots[l1Domain]);
     for (uint8 i; i < domains.length; i++) {
-      if (domains[i] != l1Domain) {
-        address connector = connectors[domains[i]];
-        if (connector != address(0)) {
-          IConnector(connector).sendMessage(aggregate);
-        }
+      address connector = connectors[domains[i]];
+      if (connector != address(0)) {
+        IConnector(connector).sendMessage(aggregate);
       }
     }
   }
