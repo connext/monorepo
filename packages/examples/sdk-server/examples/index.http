@@ -55,7 +55,7 @@ Content-Type: application/json
 
 ##############
 ### GET getCanonicalFromLocal
-GET {{baseUrl}}/getCanonicalFromLocal/1735356532/0x6dC42a10F89Da5dAE486De606B1Dc4d8C5Ed1bfE
+GET {{baseUrl}}/getCanonicalFromLocal/1735356532/0x39B061B7e41DE8B721f9aEcEB6b3f17ECB7ba63E
 
 ##############
 ### GET getLPTokenAddress
@@ -75,7 +75,7 @@ GET {{baseUrl}}/getPoolTokenBalance/1735356532/0x000000000000000000000000b4fbf27
 
 ##############
 ### GET getPoolTokenUserBalance
-GET {{baseUrl}}/getPoolTokenUserBalance/1735356532/0x6dC42a10F89Da5dAE486De606B1Dc4d8C5Ed1bfE/{{yourAddress}}
+GET {{baseUrl}}/getPoolTokenUserBalance/1735356532/0x39B061B7e41DE8B721f9aEcEB6b3f17ECB7ba63E/{{yourAddress}}
 
 ##############
 ### GET getPoolTokenAddress
