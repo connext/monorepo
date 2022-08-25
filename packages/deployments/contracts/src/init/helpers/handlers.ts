@@ -1,15 +1,12 @@
-import { BytesLike, Contract, utils } from "ethers";
+import { BytesLike, utils } from "ethers";
 
-import { ConnextHandlerInterface } from "../../contracts";
 import { canonizeId } from "../../nomad";
-import { Router__factory } from "../../typechain-types";
 
 import { Deployment, NetworkStack, ProtocolStack } from "./types";
 import { updateIfNeeded } from "./tx";
 
 export const enrollHandlers = async (args: { protocol: ProtocolStack }) => {
   const { protocol } = args;
-  const RouterInterface = Router__factory.createInterface();
   // Each handler will need to have enrolled the handlers of all other domains.
   // For example, each BridgeRouter should have enrolled the BridgeRouter of every other domain.
   for (const handlerName of ["BridgeRouter", "PromiseRouter", "RelayerFeeRouter"]) {
@@ -33,16 +30,10 @@ export const enrollHandlers = async (args: { protocol: ProtocolStack }) => {
         // Get the canonized address of the Handler we want to enroll (will be padded with 0-bytes).
         const canonized = utils.hexlify(canonizeId(remoteHandler.deployment.address as BytesLike));
         await updateIfNeeded({
-          scheme: {
-            contract: new Contract(
-              targetHandler.deployment.address,
-              RouterInterface,
-              protocol.deployer.connect(targetHandler.network.rpc),
-            ),
-            desired: canonized,
-            read: { method: "remotes", args: [remoteHandler.network.domain] },
-            write: { method: "enrollRemoteRouter", args: [remoteHandler.network.domain, canonized] },
-          },
+          deployment: targetHandler.deployment,
+          desired: canonized,
+          read: { method: "remotes", args: [remoteHandler.network.domain] },
+          write: { method: "enrollRemoteRouter", args: [remoteHandler.network.domain, canonized] },
         });
       }
     }
@@ -51,22 +42,15 @@ export const enrollHandlers = async (args: { protocol: ProtocolStack }) => {
     // Set the bridge router in Connext contract, if applicable.
     if (handlerName === "BridgeRouter") {
       for (const network of protocol.networks) {
-        const connextDeployment = network.deployments.Connext;
-        const bridgeRouterDeployment = network.deployments.handlers.BridgeRouter;
+        const { BridgeRouter } = network.deployments.handlers;
 
         // If bridge router is not set, we need to set it to be the BridgeRouterUpgradeBeaconProxy address.
         console.log("\tChecking bridgeRouter for Connext contract...");
         await updateIfNeeded({
-          scheme: {
-            contract: new Contract(
-              connextDeployment.address,
-              ConnextHandlerInterface,
-              protocol.deployer.connect(network.rpc),
-            ),
-            desired: bridgeRouterDeployment.address,
-            read: "bridgeRouter",
-            write: { method: "setBridgeRouter", args: [bridgeRouterDeployment.address] },
-          },
+          deployment: network.deployments.Connext,
+          desired: BridgeRouter.address,
+          read: "bridgeRouter",
+          write: { method: "setBridgeRouter", args: [BridgeRouter.address] },
         });
       }
     }

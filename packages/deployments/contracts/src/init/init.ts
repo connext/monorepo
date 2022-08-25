@@ -10,10 +10,6 @@ import {
   SpokeMessagingDeployments,
   getDeployments,
   enrollHandlers,
-  setConnextions,
-  getConnextContract,
-  getRootManagerContract,
-  getConnectorContract,
   updateIfNeeded,
   assertValue,
   getValue,
@@ -199,21 +195,10 @@ export const initProtocol = async (protocol: ProtocolStack) => {
   /// MARK - Peripherals
   // Get hub domain for specific use.
   const hub: NetworkStack = protocol.networks.filter((d) => d.domain === protocol.hub)[0];
-  const { deployer } = protocol;
 
   /// MARK - Contracts
   // Convenience setup for contracts.
   const { RootManager, MainnetConnector, HubConnectors } = hub.deployments.messaging as HubMessagingDeployments;
-  // TODO: Might be cool to go ahead and convert all deployments to Contract objects, connected to their corresponding providers...
-  const RootManagerContract = getRootManagerContract({
-    deployer,
-    hub,
-  });
-  const MainnetConnectorContract = getConnectorContract({
-    deployer,
-    network: hub,
-    address: MainnetConnector.address,
-  });
 
   /// ******************** MESSAGING ********************
   /// MARK - Init
@@ -225,19 +210,11 @@ export const initProtocol = async (protocol: ProtocolStack) => {
   console.log("\n\nCONNECTORS : SET MIRRORS");
   // Connectors should have their mirrors' address set; this lets them know about their counterparts.
   for (const HubConnector of HubConnectors) {
-    const HubConnectorContract = getConnectorContract({
-      deployer,
-      network: hub,
-      address: HubConnector.address,
-    });
-
-    // Get the connector's mirror domain.
+    // Get the connector's mirror domain (and convert to a string value).
     const mirrorDomain = (
       await getValue<number>({
-        scheme: {
-          contract: HubConnectorContract,
-          read: "mirrorDomain",
-        },
+        deployment: HubConnector,
+        read: "mirrorDomain",
       })
     ).toString();
 
@@ -247,56 +224,41 @@ export const initProtocol = async (protocol: ProtocolStack) => {
       if (spoke.domain === mirrorDomain) {
         foundMirror = true;
         const SpokeConnector = (spoke.deployments.messaging as SpokeMessagingDeployments).SpokeConnector;
-        const SpokeConnectorContract = getConnectorContract({
-          deployer,
-          network: spoke,
-          address: SpokeConnector.address,
-        });
 
         // Sanity check: Make sure RootManager is set correctly for the HubConnector.
         // NOTE: We CANNOT update the currently set ROOT_MANAGER; it is `immutable` and will require redeployment.
         await assertValue({
-          scheme: {
-            contract: HubConnectorContract,
-            read: "ROOT_MANAGER",
-            desired: RootManager.address,
-          },
+          deployment: HubConnector,
+          read: "ROOT_MANAGER",
+          desired: RootManager.address,
         });
         // Sanity check: Make sure RootManager is set correctly for the SpokeConnector.
         await assertValue({
-          scheme: {
-            contract: SpokeConnectorContract,
-            read: "ROOT_MANAGER",
-            desired: RootManager.address,
-          },
+          deployment: SpokeConnector,
+          read: "ROOT_MANAGER",
+          desired: RootManager.address,
         });
 
         // Set hub connector address for this domain on RootManager.
         await updateIfNeeded({
-          scheme: {
-            contract: RootManagerContract,
-            desired: HubConnector.address,
-            read: { method: "connectors", args: [spoke.domain] },
-            write: { method: "addConnector", args: [spoke.domain, HubConnector.address] },
-          },
+          deployment: RootManager,
+          desired: HubConnector.address,
+          read: { method: "connectors", args: [spoke.domain] },
+          write: { method: "addConnector", args: [spoke.domain, HubConnector.address] },
         });
 
         // Set the mirrors for both the spoke domain's Connector and hub domain's Connector.
         await updateIfNeeded({
-          scheme: {
-            contract: HubConnectorContract,
-            desired: SpokeConnector.address,
-            read: { method: "mirrorConnector", args: [] },
-            write: { method: "setMirrorConnector", args: [SpokeConnector.address] },
-          },
+          deployment: HubConnector,
+          desired: SpokeConnector.address,
+          read: { method: "mirrorConnector", args: [] },
+          write: { method: "setMirrorConnector", args: [SpokeConnector.address] },
         });
         await updateIfNeeded({
-          scheme: {
-            contract: SpokeConnectorContract,
-            desired: HubConnector.address,
-            read: { method: "mirrorConnector", args: [] },
-            write: { method: "setMirrorConnector", args: [HubConnector.address] },
-          },
+          deployment: SpokeConnector,
+          desired: HubConnector.address,
+          read: { method: "mirrorConnector", args: [] },
+          write: { method: "setMirrorConnector", args: [HubConnector.address] },
         });
       }
     }
@@ -315,21 +277,17 @@ export const initProtocol = async (protocol: ProtocolStack) => {
 
   // Sanity check: mirror is address(0).
   assertValue({
-    scheme: {
-      contract: MainnetConnectorContract,
-      desired: constants.AddressZero,
-      read: "mirrorConnector",
-    },
+    deployment: MainnetConnector,
+    desired: constants.AddressZero,
+    read: "mirrorConnector",
   });
 
   // Make sure RootManager is set correctly for this MainnetConnector.
   // NOTE: We CANNOT update the currently set ROOT_MANAGER; it is `immutable` and will require redeployment.
   assertValue({
-    scheme: {
-      contract: MainnetConnectorContract,
-      desired: RootManager.address,
-      read: "ROOT_MANAGER",
-    },
+    deployment: MainnetConnector,
+    desired: RootManager.address,
+    read: "ROOT_MANAGER",
   });
 
   /// MARK - Whitelist Senders
@@ -343,16 +301,10 @@ export const initProtocol = async (protocol: ProtocolStack) => {
     console.log(`\n* [${network.chain}] Whitelisting senders.`);
     for (const handler of Object.values(network.deployments.handlers)) {
       await updateIfNeeded({
-        scheme: {
-          contract: getConnectorContract({
-            deployer,
-            network,
-            address: undefined, // Will default to the address from SpokeConnector deployment.
-          }),
-          desired: true,
-          read: { method: "whitelistedSenders", args: [handler.address] },
-          write: { method: "addSender", args: [handler.address] },
-        },
+        deployment: network.deployments.Connext,
+        desired: true,
+        read: { method: "whitelistedSenders", args: [handler.address] },
+        write: { method: "addSender", args: [handler.address] },
       });
     }
   }
@@ -371,7 +323,19 @@ export const initProtocol = async (protocol: ProtocolStack) => {
   /// MARK - Connextions
   console.log("\n\nCONNEXT : SET CONNEXTIONS");
   // TODO/NOTE: Will likely be removing 'connextions' once we combine Connext+BridgeRouter.
-  await setConnextions({ protocol });
+  for (let i = 0; i < protocol.networks.length; i++) {
+    const targetNetwork = protocol.networks[i];
+    const remoteNetworks = protocol.networks.filter((_, j) => j !== i);
+    for (const remoteNetwork of remoteNetworks) {
+      const desiredConnextion = remoteNetwork.deployments.Connext.address;
+      await updateIfNeeded({
+        deployment: targetNetwork.deployments.Connext,
+        desired: desiredConnextion,
+        read: { method: "connextion", args: [remoteNetwork.domain] },
+        write: { method: "addConnextion", args: [remoteNetwork.domain, desiredConnextion] },
+      });
+    }
+  }
 
   /// ********************* ASSETS **********************
   /// MARK - Register Assets
@@ -385,7 +349,6 @@ export const initProtocol = async (protocol: ProtocolStack) => {
   // - Set up mapping for stableswap pool if applicable.
   for (const asset of protocol.assets) {
     await setupAsset({
-      deployer,
       asset,
       networks: protocol.networks,
     });
@@ -401,12 +364,10 @@ export const initProtocol = async (protocol: ProtocolStack) => {
         // Whitelist watchers in RootManager.
         for (const watcher of protocol.agents.watchers.whitelist) {
           await updateIfNeeded({
-            scheme: {
-              contract: RootManagerContract,
-              desired: true,
-              read: { method: "watchers", args: [watcher] },
-              write: { method: "addWatcher", args: [watcher] },
-            },
+            deployment: RootManager,
+            desired: true,
+            read: { method: "watchers", args: [watcher] },
+            write: { method: "addWatcher", args: [watcher] },
           });
         }
       }
@@ -433,12 +394,10 @@ export const initProtocol = async (protocol: ProtocolStack) => {
         for (const sequencer of protocol.agents.sequencers.whitelist) {
           for (const network of protocol.networks) {
             await updateIfNeeded({
-              scheme: {
-                contract: getConnextContract({ deployer, network }),
-                desired: true,
-                read: { method: "approvedSequencers", args: [sequencer] },
-                write: { method: "addSequencer", args: [sequencer] },
-              },
+              deployment: network.deployments.Connext,
+              desired: true,
+              read: { method: "approvedSequencers", args: [sequencer] },
+              write: { method: "addSequencer", args: [sequencer] },
             });
           }
         }
@@ -454,13 +413,11 @@ export const initProtocol = async (protocol: ProtocolStack) => {
         for (const router of protocol.agents.routers.whitelist) {
           for (const network of protocol.networks) {
             await updateIfNeeded({
-              scheme: {
-                contract: getConnextContract({ deployer, network }),
-                desired: true,
-                read: { method: "getRouterApproval", args: [router] },
-                // TODO: Should we enable configuring owner and recipient for this script, too?
-                write: { method: "setupRouter", args: [router, router, router] },
-              },
+              deployment: network.deployments.Connext,
+              desired: true,
+              read: { method: "getRouterApproval", args: [router] },
+              // TODO: Should we enable configuring owner and recipient for this script, too?
+              write: { method: "setupRouter", args: [router, router, router] },
             });
           }
         }

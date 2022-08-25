@@ -2,7 +2,7 @@ import { constants, providers } from "ethers";
 import { getChainData } from "@connext/nxtp-utils";
 
 import { log } from "./log";
-import { CallScheme } from "./types";
+import { CallSchema } from "./types";
 
 const DEFAULT_CONFIRMATIONS = 3;
 
@@ -36,10 +36,13 @@ export const waitForTx = async (args: {
   return { receipt, result: value };
 };
 
-export const updateIfNeeded = async <T>(args: { scheme: CallScheme<T> }): Promise<void> => {
+export const updateIfNeeded = async <T>(schema: CallSchema<T>): Promise<void> => {
   const {
-    scheme: { contract, read: _read, write: _write, desired },
-  } = args;
+    deployment: { contract },
+    read: _read,
+    write: _write,
+    desired,
+  } = schema;
 
   // Sanity check: write method included.
   if (!_write) {
@@ -101,10 +104,12 @@ export const updateIfNeeded = async <T>(args: { scheme: CallScheme<T> }): Promis
   }
 };
 
-export const assertValue = async <T>(args: { scheme: CallScheme<T> }): Promise<void> => {
+export const assertValue = async <T>(schema: CallSchema<T>): Promise<void> => {
   const {
-    scheme: { contract, read: _read, desired },
-  } = args;
+    deployment: { contract },
+    read: _read,
+    desired,
+  } = schema;
 
   const read =
     typeof _read === "string"
@@ -144,10 +149,11 @@ export const assertValue = async <T>(args: { scheme: CallScheme<T> }): Promise<v
   }
 };
 
-export const getValue = async <T>(args: { scheme: CallScheme<T> }): Promise<T> => {
+export const getValue = async <T>(schema: CallSchema<T>): Promise<T> => {
   const {
-    scheme: { contract, read: _read },
-  } = args;
+    deployment: { contract },
+    read: _read,
+  } = schema;
 
   const read =
     typeof _read === "string"

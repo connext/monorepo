@@ -95,8 +95,8 @@ export type ProtocolStack = {
   agents?: WhitelistAgents;
 };
 
-export type CallScheme<T> = {
-  contract: Contract;
+export type CallSchema<T> = {
+  deployment: Deployment;
   desired?: T; // Desired value.
   // Read method to call on contract.
   read:
