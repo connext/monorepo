@@ -147,11 +147,12 @@ export function handleRouterOwnerAccepted(event: RouterOwnerAccepted): void {
 }
 
 export function handleAssetAdded(event: AssetAdded): void {
-  let assetId = event.params.supportedAsset.toHex();
+  let assetId = event.params.localAsset.toHex();
   let asset = Asset.load(assetId);
   if (asset == null) {
     asset = new Asset(assetId);
   }
+  asset.key = event.params.key;
   asset.local = event.params.localAsset;
   asset.adoptedAsset = event.params.adoptedAsset;
   asset.canonicalId = event.params.canonicalId;
@@ -224,6 +225,7 @@ export function handleXCalled(event: XCalled): void {
   transfer.transferId = event.params.transferId;
   transfer.nonce = event.params.nonce;
   transfer.status = "XCalled";
+  transfer.originMinOut = event.params.xcallArgs.originMinOut;
 
   // Call Params
   transfer.to = event.params.xcallArgs.params.to;
@@ -237,16 +239,13 @@ export function handleXCalled(event: XCalled): void {
   transfer.callback = event.params.xcallArgs.params.callback;
   transfer.callbackFee = event.params.xcallArgs.params.callbackFee;
   transfer.relayerFee = event.params.xcallArgs.params.relayerFee;
-  transfer.slippageTol = event.params.xcallArgs.params.slippageTol;
+  transfer.destinationMinOut = event.params.xcallArgs.params.destinationMinOut;
 
   // Assets
-  transfer.transactingAsset = event.params.args.transactingAssetId;
-  transfer.transactingAmount = event.params.args.amount;
-  transfer.bridgedAsset = event.params.args.bridged;
-  transfer.bridgedAmount = event.params.args.bridgedAmt;
-
-  // Event Data
-  transfer.message = event.params.message;
+  transfer.transactingAsset = event.params.xcallArgs.transactingAsset;
+  transfer.transactingAmount = event.params.xcallArgs.transactingAmount;
+  transfer.bridgedAsset = event.params.bridgedAsset;
+  transfer.bridgedAmount = event.params.bridgedAmount;
 
   // XCall Transaction
   transfer.caller = event.params.caller;
@@ -316,7 +315,7 @@ export function handleExecuted(event: Executed): void {
   transfer.callback = event.params.args.params.callback;
   transfer.callbackFee = event.params.args.params.callbackFee;
   transfer.relayerFee = event.params.args.params.relayerFee;
-  transfer.slippageTol = event.params.args.params.slippageTol;
+  transfer.destinationMinOut = event.params.args.params.destinationMinOut;
 
   // Assets
   transfer.transactingAmount = event.params.transactingAmount;
@@ -380,7 +379,7 @@ export function handleReconciled(event: Reconciled): void {
   transfer.transferId = event.params.transferId;
 
   // Call Params
-  transfer.originDomain = event.params.origin;
+  // transfer.originDomain = event.params.origin;
 
   // Assets
   transfer.localAsset = event.params.asset;
@@ -431,6 +430,8 @@ function getChainId(): BigInt {
     chainId = BigInt.fromI32(137);
   } else if (network == "fantom") {
     chainId = BigInt.fromI32(250);
+  } else if (network == "optimism-goerli") {
+    chainId = BigInt.fromI32(420);
   } else if (network == "mbase") {
     chainId = BigInt.fromI32(1287);
   } else if (network == "arbitrum-one") {

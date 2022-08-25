@@ -33,7 +33,6 @@ contract RelayerFeeRouterTest is ForgeHelper {
   uint256 domain = 1;
   address bridgeRouter = address(1);
   address tokenRegistry = address(2);
-  address wrapper = address(3);
 
   address internal xAppConnectionManager = address(1);
   address internal home;
@@ -48,10 +47,9 @@ contract RelayerFeeRouterTest is ForgeHelper {
 
   function setUp() public {
     connext = new MockConnext();
-    home = address(new MockHome());
+    home = address(new MockHome(localDomain));
     vm.mockCall(xAppConnectionManager, abi.encodeWithSignature("home()"), abi.encode(home));
     vm.mockCall(xAppConnectionManager, abi.encodeWithSignature("isReplica(address)"), abi.encode(bool(true)));
-    vm.mockCall(home, abi.encodeWithSignature("localDomain()"), abi.encode(localDomain));
 
     relayerFeeRouterImplementation = new RelayerFeeRouter();
 

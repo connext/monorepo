@@ -14,6 +14,7 @@ directive @derivedFrom(field: String!) on FIELD_DEFINITION
 
 type testgoerli_Asset {
   id: ID!
+  key: testgoerli_Bytes
   local: testgoerli_Bytes!
   adoptedAsset: testgoerli_Bytes!
   canonicalId: testgoerli_Bytes!
@@ -107,6 +108,12 @@ input testgoerli_Asset_filter {
   id_lte: ID
   id_in: [ID!]
   id_not_in: [ID!]
+  key: testgoerli_Bytes
+  key_not: testgoerli_Bytes
+  key_in: [testgoerli_Bytes!]
+  key_not_in: [testgoerli_Bytes!]
+  key_contains: testgoerli_Bytes
+  key_not_contains: testgoerli_Bytes
   local: testgoerli_Bytes
   local_not: testgoerli_Bytes
   local_in: [testgoerli_Bytes!]
@@ -147,6 +154,7 @@ input testgoerli_Asset_filter {
 
 enum testgoerli_Asset_orderBy {
   id
+  key
   local
   adoptedAsset
   canonicalId
@@ -186,7 +194,7 @@ type testgoerli_DestinationTransfer {
   callback: testgoerli_Bytes
   callbackFee: BigInt
   relayerFee: BigInt
-  slippageTol: BigInt
+  destinationMinOut: BigInt
   status: testgoerli_TransferStatus
   routers(skip: Int = 0, first: Int = 100, orderBy: testgoerli_Router_orderBy, orderDirection: testgoerli_OrderDirection, where: testgoerli_Router_filter): [testgoerli_Router!]
   originSender: testgoerli_Bytes
@@ -310,14 +318,14 @@ input testgoerli_DestinationTransfer_filter {
   relayerFee_lte: BigInt
   relayerFee_in: [BigInt!]
   relayerFee_not_in: [BigInt!]
-  slippageTol: BigInt
-  slippageTol_not: BigInt
-  slippageTol_gt: BigInt
-  slippageTol_lt: BigInt
-  slippageTol_gte: BigInt
-  slippageTol_lte: BigInt
-  slippageTol_in: [BigInt!]
-  slippageTol_not_in: [BigInt!]
+  destinationMinOut: BigInt
+  destinationMinOut_not: BigInt
+  destinationMinOut_gt: BigInt
+  destinationMinOut_lt: BigInt
+  destinationMinOut_gte: BigInt
+  destinationMinOut_lte: BigInt
+  destinationMinOut_in: [BigInt!]
+  destinationMinOut_not_in: [BigInt!]
   status: testgoerli_TransferStatus
   status_not: testgoerli_TransferStatus
   status_in: [testgoerli_TransferStatus!]
@@ -479,7 +487,7 @@ enum testgoerli_DestinationTransfer_orderBy {
   callback
   callbackFee
   relayerFee
-  slippageTol
+  destinationMinOut
   status
   routers
   originSender
@@ -524,9 +532,9 @@ type testgoerli_OriginTransfer {
   callback: testgoerli_Bytes
   callbackFee: BigInt
   relayerFee: BigInt
-  slippageTol: BigInt
+  destinationMinOut: BigInt
   status: testgoerli_TransferStatus
-  message: testgoerli_Bytes
+  originMinOut: BigInt
   transactingAsset: testgoerli_Bytes
   transactingAmount: BigInt
   bridgedAsset: testgoerli_Bytes
@@ -640,24 +648,26 @@ input testgoerli_OriginTransfer_filter {
   relayerFee_lte: BigInt
   relayerFee_in: [BigInt!]
   relayerFee_not_in: [BigInt!]
-  slippageTol: BigInt
-  slippageTol_not: BigInt
-  slippageTol_gt: BigInt
-  slippageTol_lt: BigInt
-  slippageTol_gte: BigInt
-  slippageTol_lte: BigInt
-  slippageTol_in: [BigInt!]
-  slippageTol_not_in: [BigInt!]
+  destinationMinOut: BigInt
+  destinationMinOut_not: BigInt
+  destinationMinOut_gt: BigInt
+  destinationMinOut_lt: BigInt
+  destinationMinOut_gte: BigInt
+  destinationMinOut_lte: BigInt
+  destinationMinOut_in: [BigInt!]
+  destinationMinOut_not_in: [BigInt!]
   status: testgoerli_TransferStatus
   status_not: testgoerli_TransferStatus
   status_in: [testgoerli_TransferStatus!]
   status_not_in: [testgoerli_TransferStatus!]
-  message: testgoerli_Bytes
-  message_not: testgoerli_Bytes
-  message_in: [testgoerli_Bytes!]
-  message_not_in: [testgoerli_Bytes!]
-  message_contains: testgoerli_Bytes
-  message_not_contains: testgoerli_Bytes
+  originMinOut: BigInt
+  originMinOut_not: BigInt
+  originMinOut_gt: BigInt
+  originMinOut_lt: BigInt
+  originMinOut_gte: BigInt
+  originMinOut_lte: BigInt
+  originMinOut_in: [BigInt!]
+  originMinOut_not_in: [BigInt!]
   transactingAsset: testgoerli_Bytes
   transactingAsset_not: testgoerli_Bytes
   transactingAsset_in: [testgoerli_Bytes!]
@@ -750,9 +760,9 @@ enum testgoerli_OriginTransfer_orderBy {
   callback
   callbackFee
   relayerFee
-  slippageTol
+  destinationMinOut
   status
-  message
+  originMinOut
   transactingAsset
   transactingAmount
   bridgedAsset
@@ -1470,6 +1480,8 @@ type testgoerli__Block_ {
   hash: testgoerli_Bytes
   """The block number"""
   number: Int!
+  """Timestamp of the block if available, format depends on the chain"""
+  timestamp: String
 }
 
 """The type for the top-level _meta field"""

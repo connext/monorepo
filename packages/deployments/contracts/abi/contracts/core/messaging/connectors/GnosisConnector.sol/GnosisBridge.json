@@ -1,0 +1,16 @@
+[
+  "function destinationChainId() view returns (uint256)",
+  "function failedMessageDataHash(bytes32) view returns (bytes32)",
+  "function failedMessageReceiver(bytes32) view returns (address)",
+  "function failedMessageSender(bytes32) view returns (address)",
+  "function maxGasPerTx() view returns (uint256)",
+  "function messageCallStatus(bytes32) view returns (bool)",
+  "function messageId() view returns (bytes32)",
+  "function messageSender() view returns (address)",
+  "function messageSourceChainId() view returns (bytes32)",
+  "function requireToConfirmMessage(address,bytes,uint256) returns (bytes32)",
+  "function requireToGetInformation(bytes32,bytes) returns (bytes32)",
+  "function requireToPassMessage(address,bytes,uint256) returns (bytes32)",
+  "function sourceChainId() view returns (uint256)",
+  "function transactionHash() view returns (bytes32)"
+]

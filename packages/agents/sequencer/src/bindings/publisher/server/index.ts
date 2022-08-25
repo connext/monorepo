@@ -1,28 +1,33 @@
 import fastify, { FastifyInstance, FastifyReply } from "fastify";
-import pino from "pino";
 import {
-  AuctionStatus,
+  ExecStatus,
   createLoggingContext,
   jsonifyError,
-  AuctionsApiPostBidReq,
-  AuctionsApiBidResponse,
-  AuctionsApiPostBidReqSchema,
-  AuctionsApiBidResponseSchema,
-  AuctionsApiErrorResponseSchema,
-  AuctionsApiErrorResponse,
-  AuctionsApiGetAuctionStatusResponse,
-  AuctionsApiGetAuctionsStatusResponseSchema,
-  AuctionsApiGetQueuedResponseSchema,
-  AuctionsApiGetQueuedResponse,
+  ExecuteFastApiPostBidReq,
+  ExecuteFastApiBidResponse,
+  ExecuteFastApiPostBidReqSchema,
+  ExecuteFastApiBidResponseSchema,
+  SequencerApiErrorResponseSchema,
+  SequencerApiErrorResponse,
+  ExecuteFastApiGetExecStatusResponse,
+  ExecuteFastApiGetAuctionsStatusResponseSchema,
+  ExecuteFastApiGetQueuedResponseSchema,
+  ExecuteFastApiGetQueuedResponse,
   ClearCacheRequest,
   ClearCacheRequestSchema,
   AdminRequest,
   NxtpError,
+  ExecutorDataSchema,
+  ExecutorPostDataRequest,
+  ExecutorPostDataResponseSchema,
+  ExecutorPostDataResponse,
+  ExecStatusRequest,
+  ExecStatusResponse,
+  ExecStatusResponseSchema,
 } from "@connext/nxtp-utils";
 
 import { getContext } from "../../../sequencer";
 import { getOperations } from "../../../lib/operations";
-import { AuctionExpired } from "../../../lib/errors";
 
 export const bindServer = async (): Promise<FastifyInstance> => {
   const {
@@ -30,7 +35,7 @@ export const bindServer = async (): Promise<FastifyInstance> => {
     logger,
     adapters: { cache },
   } = getContext();
-  const server = fastify({ logger: pino({ level: config.logLevel === "debug" ? "debug" : "warn" }) });
+  const server = fastify();
 
   server.get("/ping", async (_req, res) => {
     return res.code(200).send("pong\n");
@@ -38,23 +43,23 @@ export const bindServer = async (): Promise<FastifyInstance> => {
 
   server.get<{
     Params: { transferId: string };
-    Reply: AuctionsApiGetAuctionStatusResponse | AuctionsApiErrorResponse;
+    Reply: ExecuteFastApiGetExecStatusResponse | SequencerApiErrorResponse;
   }>(
-    "/auctions/:transferId",
+    "/execute-fast/:transferId",
     {
       schema: {
         response: {
-          200: AuctionsApiGetAuctionsStatusResponseSchema,
-          500: AuctionsApiErrorResponseSchema,
+          200: ExecuteFastApiGetAuctionsStatusResponseSchema,
+          500: SequencerApiErrorResponseSchema,
         },
       },
     },
     async (request, response) => {
-      const { requestContext, methodContext } = createLoggingContext("GET /auctions/:transferId endpoint");
+      const { requestContext, methodContext } = createLoggingContext("GET /execute-fast/:transferId endpoint");
       try {
         const { transferId } = request.params;
-        const status = await cache.auctions.getStatus(transferId);
-        if (status === AuctionStatus.None) {
+        const status = await cache.auctions.getExecStatus(transferId);
+        if (status === ExecStatus.None) {
           throw new Error("No auction found for transferId");
         }
         const auction = await cache.auctions.getAuction(transferId);
@@ -62,7 +67,7 @@ export const bindServer = async (): Promise<FastifyInstance> => {
           throw new Error("Critical error: auction status was present but data not found");
         }
 
-        const task = await cache.auctions.getTask(transferId);
+        const task = await cache.auctions.getMetaTxTask(transferId);
 
         return response.status(200).send({
           bids: auction.bids,
@@ -83,49 +88,41 @@ export const bindServer = async (): Promise<FastifyInstance> => {
     },
   );
 
-  server.post<{ Body: AuctionsApiPostBidReq; Reply: AuctionsApiBidResponse | AuctionsApiErrorResponse }>(
-    "/auctions",
+  server.post<{ Body: ExecuteFastApiPostBidReq; Reply: ExecuteFastApiBidResponse | SequencerApiErrorResponse }>(
+    "/execute-fast",
     {
       schema: {
-        body: AuctionsApiPostBidReqSchema,
+        body: ExecuteFastApiPostBidReqSchema,
         response: {
-          200: AuctionsApiBidResponseSchema,
-          500: AuctionsApiErrorResponseSchema,
+          200: ExecuteFastApiBidResponseSchema,
+          500: SequencerApiErrorResponseSchema,
         },
       },
     },
     async (request, response) => {
       const {
-        auctions: { storeBid },
+        execute: { storeFastPathData },
       } = getOperations();
-      const { requestContext, methodContext } = createLoggingContext(
-        "POST /auctions/:transferId endpoint",
-        undefined,
-        "",
-      );
+      const { requestContext } = createLoggingContext("POST /execute-fast/:transferId endpoint", undefined, "");
       try {
         const bid = request.body;
         requestContext.transferId = bid.transferId;
-        await storeBid(bid, requestContext);
+        await storeFastPathData(bid, requestContext);
         return response.status(200).send({ message: "Bid received", transferId: bid.transferId, router: bid.router });
       } catch (error: unknown) {
         const type = (error as NxtpError).type;
-        if (type !== AuctionExpired.name) {
-          // If this is a routine AuctionExpired error, let's avoid logging it.
-          logger.error(`Bid Post Error`, requestContext, methodContext, jsonifyError(error as Error));
-        }
         return response.code(500).send({ message: type, error: jsonifyError(error as Error) });
       }
     },
   );
 
-  server.get<{ Reply: AuctionsApiGetQueuedResponse | AuctionsApiErrorResponse }>(
+  server.get<{ Reply: ExecuteFastApiGetQueuedResponse | SequencerApiErrorResponse }>(
     "/queued",
     {
       schema: {
         response: {
-          200: AuctionsApiGetQueuedResponseSchema,
-          500: AuctionsApiErrorResponseSchema,
+          200: ExecuteFastApiGetQueuedResponseSchema,
+          500: SequencerApiErrorResponseSchema,
         },
       },
     },
@@ -137,6 +134,55 @@ export const bindServer = async (): Promise<FastifyInstance> => {
       } catch (error: unknown) {
         logger.error(`Pending Bid Get Error`, requestContext, methodContext);
         return response.code(500).send({ message: `Pending Bid Get Error`, error: jsonifyError(error as Error) });
+      }
+    },
+  );
+
+  server.post<{ Body: ExecutorPostDataRequest; Reply: ExecutorPostDataResponse | SequencerApiErrorResponse }>(
+    "/execute-slow",
+    {
+      schema: {
+        body: ExecutorDataSchema,
+        response: {
+          200: ExecutorPostDataResponseSchema,
+          500: SequencerApiErrorResponseSchema,
+        },
+      },
+    },
+    async (request, response) => {
+      const { requestContext } = createLoggingContext("POST /execute-slow endpoint");
+      const {
+        execute: { storeSlowPathData },
+      } = getOperations();
+      try {
+        const executorData = request.body;
+        await storeSlowPathData(executorData, requestContext);
+        return response.status(200).send({ message: "executor data received", transferId: executorData.transferId });
+      } catch (error: unknown) {
+        const type = (error as NxtpError).type;
+        return response.code(500).send({ message: type, error: jsonifyError(error as Error) });
+      }
+    },
+  );
+
+  server.get<{ Params: ExecStatusRequest; Reply: ExecStatusResponse | SequencerApiErrorResponse }>(
+    "/execute-slow/:transferId",
+    {
+      schema: {
+        response: {
+          200: ExecStatusResponseSchema,
+          500: SequencerApiErrorResponseSchema,
+        },
+      },
+    },
+    async (request, response) => {
+      try {
+        const { transferId } = request.params;
+        const status = await cache.executors.getExecStatus(transferId);
+        return response.status(200).send({ transferId, status });
+      } catch (error: unknown) {
+        const type = (error as NxtpError).type;
+        return response.code(500).send({ message: type, error: jsonifyError(error as Error) });
       }
     },
   );

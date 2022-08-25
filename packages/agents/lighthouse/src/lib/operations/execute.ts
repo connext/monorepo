@@ -4,11 +4,8 @@ import { DomainNotSupported } from "../errors";
 import { getOperations } from "../operations";
 import { getContext } from "../../lighthouse";
 
-// fee percentage paid to relayer. need to be updated later
-export const RELAYER_FEE_PERCENTAGE = "1"; //  1%
-
 /**
- * Router creates a new bid and sends it to auctioneer.
+ * Lighthouse creates a new bid and sends it to sequencer.
  *
  * @param args - The crosschain xcall params.
  */
@@ -19,9 +16,9 @@ export const execute = async (args: ExecuteArgs, transferId: string): Promise<vo
     adapters: { contracts },
     config,
   } = getContext();
-  const { sendToRelayer } = getOperations();
+  const { sendExecuteSlowToSequencer } = getOperations();
 
-  logger.info(`Method start: ${execute.name}`, requestContext, methodContext, { args });
+  logger.info("Method start", requestContext, methodContext, { args });
 
   // Ensure we support the target domain (i.e. it's been configured).
   if (!config.chains[args.params.destinationDomain]) {
@@ -38,5 +35,5 @@ export const execute = async (args: ExecuteArgs, transferId: string): Promise<vo
   }
 
   const encodedData = contracts.connext.encodeFunctionData("execute", [args]);
-  await sendToRelayer(args, encodedData, transferId, requestContext);
+  await sendExecuteSlowToSequencer(args, encodedData, transferId, requestContext);
 };

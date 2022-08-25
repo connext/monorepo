@@ -5,6 +5,9 @@ import util from "util";
 import YAML from "yaml";
 import yamlToJson from "js-yaml";
 
+// import ConnextHandler_DiamondProxy_1337 from "../../contracts/deployments/local_1337/ConnextHandler_DiamondProxy.json";
+// import ConnextHandler_DiamondProxy_1338 from "../../contracts/deployments/local_1338/ConnextHandler_DiamondProxy.json";
+
 const exec = util.promisify(_exec);
 
 export type Network = {
@@ -67,6 +70,13 @@ const run = async () => {
 
   for (const n of networksToDeploy) {
     console.log(n);
+    // if (n.network === "local_1337") {
+    //   n.address = ConnextHandler_DiamondProxy_1337.address;
+    // }
+
+    // if (n.network === "local_1338") {
+    //   n.address = ConnextHandler_DiamondProxy_1338.address;
+    // }
 
     /// prepare
     jsonFile.dataSources = (jsonFile.dataSources ?? []).map((ds: any) => {
@@ -93,7 +103,7 @@ const run = async () => {
     console.error(`stderr: ${err}`);
 
     /// deploy
-    if (configFile !== "local") {
+    if (!configFile.includes("local")) {
       console.log("Running Deployment command for " + n.network);
       const { stdout, stderr } = await exec(
         `graph deploy --node https://api.thegraph.com/deploy/ --ipfs https://api.thegraph.com/ipfs/ ${n.subgraphName} --access-token ${accessToken}`,

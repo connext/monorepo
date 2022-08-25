@@ -2,15 +2,13 @@ import * as fs from "fs";
 
 import fastify, { FastifyInstance } from "fastify";
 import { ethers, providers } from "ethers";
-import { NxtpSdkConfig, NxtpSdkBase, NxtpSdkPool, NxtpSdkRouter, create } from "@connext/nxtp-sdk";
+import { NxtpSdkConfig, NxtpSdkBase, NxtpSdkPool, create } from "@connext/nxtp-sdk";
 
-import { poolRoutes } from "./routes/pool";
-import { baseRoutes } from "./routes/base";
-import { routerRoutes } from "./routes/router";
+import { poolRoutes } from "./pool";
+import { baseRoutes } from "./base";
 
 let sdkBaseInstance: NxtpSdkBase;
 let sdkPoolInstance: NxtpSdkPool;
-let sdkRouterInstance: NxtpSdkRouter;
 
 export const sdkServer = async (): Promise<FastifyInstance> => {
   const server = fastify();
@@ -56,12 +54,12 @@ export const sdkServer = async (): Promise<FastifyInstance> => {
     chains: chains,
     logLevel: configJson.logLevel || "info",
     signerAddress: signerAddress,
+    environment: configJson.environment,
   };
 
-  const { nxtpSdkBase, nxtpSdkPool, nxtpSdkRouter } = await create(nxtpConfig);
+  const { nxtpSdkBase, nxtpSdkPool } = await create(nxtpConfig);
   sdkBaseInstance = nxtpSdkBase;
   sdkPoolInstance = nxtpSdkPool;
-  sdkRouterInstance = nxtpSdkRouter;
   console.log(`Initialized SDK with config ${nxtpConfig}`);
 
   // Register routes
@@ -82,7 +80,6 @@ export const sdkServer = async (): Promise<FastifyInstance> => {
 
   server.register(baseRoutes, sdkBaseInstance);
   server.register(poolRoutes, sdkPoolInstance);
-  server.register(routerRoutes, sdkRouterInstance);
 
   server.listen(8080, (err, address) => {
     if (err) {

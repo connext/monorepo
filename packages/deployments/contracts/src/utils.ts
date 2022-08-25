@@ -2,14 +2,31 @@ import { config } from "dotenv";
 import { HardhatRuntimeEnvironment } from "hardhat/types";
 config();
 
-export type Env = "staging" | "production";
+export type Env = "staging" | "production" | "local";
 
 export const mustGetEnv = (_env?: string) => {
   const env = _env ?? process.env.ENV ?? "staging";
-  if (env !== "staging" && env !== "production") {
+  if (env !== "staging" && env !== "production" && env !== "local") {
     throw new Error(`Unrecognized env: ${env}`);
   }
   return env;
+};
+
+export const getProtocolNetwork = (_chain: string | number, _env?: string): "mainnet" | "testnet" | "local" => {
+  const chain = _chain.toString();
+  const env = _env ?? mustGetEnv();
+  // If chain 1337 or 1338, use local network.
+  return chain === "1337" || chain === "1338"
+    ? "local"
+    : // TODO: we need production testnet and mainnet
+    // @jake pls take another look at this
+    env === "production"
+    ? "testnet"
+    : // 'staging' env => testnet
+    env === "staging"
+    ? "testnet"
+    : // Default to local otherwise.
+      "local";
 };
 
 // These contracts do not have a `Staging` deployment

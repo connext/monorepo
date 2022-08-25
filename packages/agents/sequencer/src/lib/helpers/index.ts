@@ -1,4 +1,11 @@
-import { gelatoSend, isChainSupportedByGelato, getGelatoRelayerAddress } from "./relayer";
+import {
+  gelatoSend,
+  isChainSupportedByGelato,
+  getGelatoRelayerAddress,
+  getTaskStatusFromGelato,
+  getTaskStatusFromBackupRelayer,
+  connextRelayerSend,
+} from "./relayer";
 import {
   encodeExecuteFromBids,
   getDestinationLocalAsset,
@@ -13,6 +20,9 @@ export const getHelpers = () => {
       gelatoSend,
       isChainSupportedByGelato,
       getGelatoRelayerAddress,
+      getTaskStatusFromGelato,
+      getTaskStatusFromBackupRelayer,
+      connextRelayerSend,
     },
     auctions: {
       encodeExecuteFromBids,

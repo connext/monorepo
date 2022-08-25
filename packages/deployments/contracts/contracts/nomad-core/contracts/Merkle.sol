@@ -16,11 +16,6 @@ contract MerkleTreeManager {
   using MerkleLib for MerkleLib.Tree;
   MerkleLib.Tree public tree;
 
-  // ============ Upgrade Gap ============
-
-  // gap for upgrade safety
-  uint256[49] private __GAP;
-
   // ============ Public Functions ============
 
   /**

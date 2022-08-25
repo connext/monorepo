@@ -2,33 +2,47 @@
 pragma solidity 0.8.15;
 
 import {ERC20} from "@openzeppelin/contracts/token/ERC20/ERC20.sol";
-import {IBridgeToken} from "../core/connext/interfaces/IBridgeToken.sol";
-import {ConnextMessage} from "../core/connext/libraries/ConnextMessage.sol";
+
+import {IBridgeToken} from "./IBridgeToken.sol";
 
 /**
  * @notice This token is ONLY useful for testing
  * @dev Anybody can mint as many tokens as they like
  * @dev Anybody can burn anyone else's tokens
  */
-contract TestERC20 is IBridgeToken, ERC20 {
+contract TestERC20 is ERC20, IBridgeToken {
   constructor(string memory _name, string memory _symbol) ERC20(_name, _symbol) {
     _mint(msg.sender, 1000000 ether);
   }
 
-  // ============ IBridgeToken functions ===============
+  // ============ Bridge functions ===============
   function initialize() external override {}
 
   function detailsHash() external view override returns (bytes32) {
-    return ConnextMessage.formatDetailsHash(name(), symbol(), decimals());
+    return
+      keccak256(
+        abi.encodePacked(
+          bytes(this.name()).length,
+          this.name(),
+          bytes(this.symbol()).length,
+          this.symbol(),
+          this.decimals()
+        )
+      );
   }
 
-  function setDetailsHash(bytes32 _detailsHash) external override {}
+  function setDetailsHash(bytes32 _detailsHash) external override {
+    // Does nothing, in practice will update the details to match the hash in message
+  }
 
   function setDetails(
-    string calldata _name,
-    string calldata _symbol,
-    uint8 _decimals
-  ) external override {}
+    string calldata _newName,
+    string calldata _newSymbol,
+    uint8 _newDecimals
+  ) external override {
+    // Does nothing, in practice will update the details to match the hash in message
+    // not the autodeployed results
+  }
 
   function transferOwnership(address _newOwner) external override {}
 

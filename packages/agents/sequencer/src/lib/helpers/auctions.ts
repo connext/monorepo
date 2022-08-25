@@ -3,22 +3,37 @@ import {
   ExecuteArgs,
   OriginTransfer,
   getMinimumBidsCountForRound as _getMinimumBidsCountForRound,
+  signSequencerPermitPayload as _signSequencerPermitPayload,
+  createLoggingContext,
+  RequestContext,
 } from "@connext/nxtp-utils";
 import { constants } from "ethers";
 
 import { getContext } from "../../sequencer";
 import { RoundInvalid } from "../errors";
 
-export const encodeExecuteFromBids = (round: number, bids: Bid[], transfer: OriginTransfer, local: string): string => {
+export const signSequencerPermitPayload = _signSequencerPermitPayload;
+
+export const encodeExecuteFromBids = async (
+  round: number,
+  bids: Bid[],
+  transfer: OriginTransfer,
+  local: string,
+  _requestContext: RequestContext,
+): Promise<string> => {
   const {
-    adapters: { contracts },
+    adapters: { contracts, wallet },
+    logger,
   } = getContext();
+
+  const { requestContext, methodContext } = createLoggingContext(encodeExecuteFromBids.name, _requestContext);
   // Sanity check.
   if (!transfer.origin) {
     throw new Error("XTransfer provided did not have XCall present!");
   }
 
   // Format arguments from XTransfer.
+  const routers = bids.map((b) => b.router);
   const args: ExecuteArgs = {
     params: {
       originDomain: transfer.xparams.originDomain,
@@ -32,15 +47,18 @@ export const encodeExecuteFromBids = (round: number, bids: Bid[], transfer: Orig
       receiveLocal: transfer.xparams.receiveLocal,
       recovery: transfer.xparams.recovery,
       agent: transfer.xparams.agent,
-      slippageTol: transfer.xparams.slippageTol,
+      destinationMinOut: transfer.xparams.destinationMinOut,
     },
     local,
-    routers: bids.map((b) => b.router),
+    routers,
     routerSignatures: bids.map((b) => b.signatures[round.toString()]),
+    sequencer: await wallet.getAddress(),
+    sequencerSignature: await signSequencerPermitPayload(transfer.transferId, routers, wallet),
     amount: transfer.origin.assets.bridged.amount,
     nonce: transfer.nonce,
     originSender: transfer.origin.xcall.caller,
   };
+  logger.debug("Encoded execute args", requestContext, methodContext, { args });
   return contracts.connext.encodeFunctionData("execute", [args]);
 };
 

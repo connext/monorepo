@@ -37,6 +37,8 @@ export const getEnvConfig = (
   }
 
   const _sequencerConfig: SequencerConfig = {
+    mnemonic: process.env.SEQ_MNEMONIC || configJson.mnemonic || configFile.mnemonic,
+    web3SignerUrl: process.env.SEQ_WEB3_SIGNER_URL || configJson.web3SignerUrl || configFile.web3SignerUrl,
     redis: {
       host: process.env.SEQ_REDIS_HOST || configJson.redis?.host || configFile.redis?.host,
       port: process.env.SEQ_REDIS_PORT || configJson.redis?.port || configFile.redis?.port || 6379,
@@ -71,11 +73,8 @@ export const getEnvConfig = (
     mode: {
       cleanup: process.env.SEQ_CLEANUP_MODE || configJson.mode?.cleanup || configFile.mode?.cleanup || false,
     },
-    supportedBidVersion:
-      process.env.SEQ_SUPPORTED_BID_VERSION ||
-      configJson.supportedBidVersion ||
-      configFile.supportedBidVersion ||
-      version,
+    supportedVersion:
+      process.env.SEQ_SUPPORTED_BID_VERSION || configJson.supportedVersion || configFile.supportedVersion || version,
     subgraphPrefix: process.env.SEQ_SUBGRAPH_PREFIX || configJson.subgraphPrefix || configFile.subgraphPrefix,
     auctionRoundDepth:
       process.env.AUCTION_ROUND_DEPTH ||
@@ -111,7 +110,7 @@ export const getEnvConfig = (
         (() => {
           const res =
             domainId === "1337" || domainId === "1338"
-              ? { address: "0xF08dF3eFDD854FEDE77Ed3b2E515090EEe765154" } // hardcoded for testing
+              ? { address: "0x8e4C131B37383E431B9cd0635D3cF9f3F628EDae" } // hardcoded for testing
               : chainDataForChain
               ? deployments.connext(chainDataForChain.chainId, contractPostfix)
               : undefined;

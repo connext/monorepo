@@ -103,3 +103,7 @@ variable "db_subnet_group_subnet_ids" {
   description = "subnet group ids"
   type = list(string)
 }
+
+variable "publicly_accessible" {
+  default = false
+}
