@@ -146,7 +146,9 @@ export const DOMAINS: Promise<{ ORIGIN: DomainInfo; DESTINATION: DomainInfo }> =
       ? `https://${originChainData.network}.infura.io/v3/${infuraKey}`
       : undefined;
   const destinationProvider =
-    process.env.DESTINATION_PROVIDER ?? infuraKey
+    process.env.DESTINATION_PROVIDER ?? destination === OPTIMISM_GOERLI_DOMAIN_ID
+      ? OPTIMISM_GOERLI_PROVIDER
+      : infuraKey
       ? `https://${destinationChainData.network}.infura.io/v3/${infuraKey}`
       : undefined;
 
