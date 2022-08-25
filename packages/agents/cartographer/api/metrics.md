@@ -5,9 +5,11 @@
 1. TTR & TTV by Transfers
 2. Daily Transfer Metrics
 3. Daily Volume Metrics
-4. TVL by Router
+4. Hourly Transfer Metrics
+5. Hourly Volume Metrics
+6. TVL by Router
 
-### TTR & TTV by Transfers
+### 1. TTR & TTV by Transfers
 
 #### Endpoint
 
@@ -73,7 +75,7 @@ This enpoint is an extention of transfers endpoint with TTR and TTV calculated f
 }
 ```
 
-### Daily Transfer Metrics
+### 2. Daily Transfer Metrics
 
 Aggreagte count the distinct transfer for a given trandfer_date.
 
@@ -144,7 +146,7 @@ Transfer parameters can be used to furter slice the data and do aggreagations on
 - Few aggreation can't be reaggreagted based on how the data is returned by the API.
 - User metric: `unique_user_count` can't be summed together by transfer parameters to get overall user count.
 
-### Daily Volume Metrics
+### 3. Daily Volume Metrics
 
 #### Endpoint
 
@@ -187,11 +189,75 @@ Transfer parameters can be used to furter slice the data and do aggreagations on
 - Total forced slow volume by router for a given asset
 - Total forced slow volume till date for a given asset
 
-### TVL by Routers
+### 4. Hourly Transfer metrics
 
 #### Endpoint
 
-`http://0.0.0.0:3000/daily_router_tvl`
+[http://0.0.0.0:3000/hourly_transfer_metrics](http://0.0.0.0:3000/hourly_transfer_metrics)
+
+This endpoint is similar as, `http://0.0.0.0:3000/daily_transfer_metrics` in terms on filters with exception of metrics aggregated on hourly basis.
+
+#### Sample data returned
+
+```json
+{
+  "transfer_hour": "2022-07-07T04:00:00+00:00",
+  "origin_chain": "1111",
+  "destination_chain": "3331",
+  "router": null,
+  "asset": "0x3ffc03f05d1869f493c7dbf913e636c6280e0ff9",
+  "transfer_count": 1,
+  "unique_user_count": 1,
+  "force_slow_transfer_count": 0,
+  "zero_amount_transfer_count": 0,
+  "xcalled_transfer_count": 1,
+  "executed_transfer_count": 0,
+  "reconciled_transfer_count": 0,
+  "completedfast_transfer_count": 0,
+  "completedslow_transfer_count": 0,
+  "fastpath_avg_ttv_in_secs": null,
+  "fastpath_avg_ttr_in_secs": null,
+  "slowpath_avg_ttv_in_secs": null,
+  "slowpath_avg_ttr_in_secs": null
+}
+```
+
+#### Aggregations on top of this endpoint
+
+Simmilar to Daily Transfer Metrics.
+
+### 5. Hourly Transfer Volume
+
+#### Endpoint
+
+[http://0.0.0.0:3000/hourly_transfer_volume](http://0.0.0.0:3000/hourly_transfer_volume)
+
+This endpoint is similar as, `http://0.0.0.0:3000/daily_transfer_volume` in terms of filters with exception of metrics aggregated on hourly basis.
+
+#### Sample data returned
+
+```json
+{
+  "status": "XCalled",
+  "transfer_hour": "2022-07-11T19:00:00+00:00",
+  "origin_chain": "1111",
+  "destination_chain": "3331",
+  "router": null,
+  "asset": "0x3ffc03f05d1869f493c7dbf913e636c6280e0ff9",
+  "volume": 3700000000000000000000,
+  "force_slow_transfer_volume": 0
+}
+```
+
+#### Aggregations on top of this endpoint
+
+Simmilar to Daily Transfer Metrics.
+
+### 6. TVL by Routers
+
+#### Endpoint
+
+[http://0.0.0.0:3000/daily_router_tvl](http://0.0.0.0:3000/daily_router_tvl)
 
 - Aggreagtions:
 
