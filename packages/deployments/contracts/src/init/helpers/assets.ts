@@ -18,10 +18,29 @@ export const setupAsset = async (args: { asset: AssetStack; networks: NetworkSta
     [utils.defaultAbiCoder.encode(["bytes32", "uint32"], [canonical.id, canonical.domain])],
   );
 
+  // Set up the canonical asset on the canonical domain.
+  const home = networks.find((n) => n.domain === asset.canonical.domain);
+  if (!home) {
+    throw new Error(
+      `Could not find canonical domain network ${asset.canonical.domain} for asset ${asset.canonical.address} in` +
+        "the configured list of networks!",
+    );
+  }
+  await updateIfNeeded({
+    deployment: home.deployments.Connext,
+    desired: asset.canonical.address,
+    read: { method: "canonicalToAdopted(bytes32)", args: [key] },
+    write: {
+      method: "setupAsset",
+      args: [[canonical.domain, canonical.id], asset.canonical.address, constants.AddressZero],
+    },
+  });
+
+  // Set up all the representational assets on their respective domains.
   for (const [domain, representation] of Object.entries(asset.representations)) {
     const stableswapPool = constants.AddressZero;
     if (representation.local && representation.adopted) {
-      // A stableswap pool is needed. Initialize the pool.
+      // TODO: A stableswap pool is needed. Initialize the pool.
     }
 
     const network = networks.find((n) => n.domain === domain);
