@@ -10,7 +10,7 @@ type TaskArgs = {
   env?: Env;
 };
 
-export default task("set-xapp-mannager", "Updates the xapp connection manager")
+export default task("set-xapp-manager", "Updates the xapp connection manager")
   .addParam("type", "Which handler to enroll (all, connext, promise, relayer")
   .addOptionalParam("env", "Environment of contracts")
   .setAction(async ({ type, chains: _chains, env: _env }: TaskArgs, hre) => {
