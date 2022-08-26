@@ -170,8 +170,6 @@ export type { BaseGnosisConnector } from "./contracts/core/messaging/connectors/
 export { BaseGnosisConnector__factory } from "./factories/contracts/core/messaging/connectors/GnosisConnector.sol/BaseGnosisConnector__factory";
 export type { GnosisAMB } from "./contracts/core/messaging/connectors/GnosisConnector.sol/GnosisAMB";
 export { GnosisAMB__factory } from "./factories/contracts/core/messaging/connectors/GnosisConnector.sol/GnosisAMB__factory";
-export type { GnosisBridge } from "./contracts/core/messaging/connectors/GnosisConnector.sol/GnosisBridge";
-export { GnosisBridge__factory } from "./factories/contracts/core/messaging/connectors/GnosisConnector.sol/GnosisBridge__factory";
 export type { GnosisL1Connector } from "./contracts/core/messaging/connectors/GnosisConnector.sol/GnosisL1Connector";
 export { GnosisL1Connector__factory } from "./factories/contracts/core/messaging/connectors/GnosisConnector.sol/GnosisL1Connector__factory";
 export type { GnosisL2Connector } from "./contracts/core/messaging/connectors/GnosisConnector.sol/GnosisL2Connector";
@@ -182,8 +180,6 @@ export type { BaseOptimismConnector } from "./contracts/core/messaging/connector
 export { BaseOptimismConnector__factory } from "./factories/contracts/core/messaging/connectors/OptimismConnector.sol/BaseOptimismConnector__factory";
 export type { OptimismAMB } from "./contracts/core/messaging/connectors/OptimismConnector.sol/OptimismAMB";
 export { OptimismAMB__factory } from "./factories/contracts/core/messaging/connectors/OptimismConnector.sol/OptimismAMB__factory";
-export type { OptimismBridge } from "./contracts/core/messaging/connectors/OptimismConnector.sol/OptimismBridge";
-export { OptimismBridge__factory } from "./factories/contracts/core/messaging/connectors/OptimismConnector.sol/OptimismBridge__factory";
 export type { OptimismL1Connector } from "./contracts/core/messaging/connectors/OptimismConnector.sol/OptimismL1Connector";
 export { OptimismL1Connector__factory } from "./factories/contracts/core/messaging/connectors/OptimismConnector.sol/OptimismL1Connector__factory";
 export type { OptimismL2Connector } from "./contracts/core/messaging/connectors/OptimismConnector.sol/OptimismL2Connector";
