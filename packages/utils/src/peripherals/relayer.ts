@@ -22,6 +22,7 @@ const EquivalentChainsForGelato: Record<number, number> = {
   5: 1,
   1337: 1,
   1338: 1,
+  420: 1,
 };
 
 export const gelatoSend = async (

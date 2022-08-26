@@ -1,7 +1,6 @@
 import { ChainData, Logger } from "@connext/nxtp-utils";
 import { SubgraphReader } from "@connext/nxtp-adapters-subgraph";
 import Rabbit from "foo-foo-mq";
-import { BridgeContext } from "@nomad-xyz/sdk-bridge";
 import { Wallet } from "ethers";
 import { Web3Signer } from "@connext/nxtp-adapters-web3signer";
 import { ConnextContractInterfaces, TransactionService } from "@connext/nxtp-txservice";
@@ -10,7 +9,6 @@ import { NxtpRouterConfig } from "../../config";
 
 export type AppContext = {
   logger: Logger;
-  bridgeContext?: BridgeContext;
   adapters: {
     // Stateful interfaces for peripherals.
     wallet: Wallet | Web3Signer; // Used for signing metatxs for bids.
