@@ -3520,13 +3520,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@openzeppelin/contracts-upgradeable@npm:~3.4.2":
-  version: 3.4.2
-  resolution: "@openzeppelin/contracts-upgradeable@npm:3.4.2"
-  checksum: dd461cdc8353ee6219e746fa71eced068df46c6df4bfe29207a8ad35064b476c2aa532ec0026c505d9515857ada5838c445b2433e2dadc0878fc678046c4e8b0
-  languageName: node
-  linkType: hard
-
 "@openzeppelin/contracts@npm:4.7.3":
   version: 4.7.3
   resolution: "@openzeppelin/contracts@npm:4.7.3"
