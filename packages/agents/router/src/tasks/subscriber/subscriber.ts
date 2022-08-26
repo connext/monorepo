@@ -1,16 +1,8 @@
 import { Wallet } from "ethers";
-import {
-  createMethodContext,
-  createRequestContext,
-  getChainData,
-  jsonifyError,
-  Logger,
-  RequestContext,
-} from "@connext/nxtp-utils";
+import { createMethodContext, createRequestContext, getChainData, jsonifyError, Logger } from "@connext/nxtp-utils";
 import { Web3Signer } from "@connext/nxtp-adapters-web3signer";
 import { getContractInterfaces, TransactionService, contractDeployments } from "@connext/nxtp-txservice";
 import axios from "axios";
-import { BridgeContext } from "@nomad-xyz/sdk-bridge";
 import fetch, { Headers, Request, Response } from "node-fetch";
 
 if (!(globalThis as any).fetch) {
@@ -69,10 +61,6 @@ export const makeSubscriber = async (_configOverride?: NxtpRouterConfig) => {
     context.logger.info("Generated config.", requestContext, methodContext, {
       config: { ...context.config, mnemonic: context.config.mnemonic ? "*****" : "N/A" },
     });
-
-    /// MARK - BridgeContext
-    context.bridgeContext =
-      context.config.nomadEnvironment !== "none" ? await setupBridgeContext(requestContext) : undefined;
 
     /// MARK - Adapters
     context.adapters.subgraph = await setupSubgraphReader(
@@ -145,22 +133,4 @@ export const makeSubscriber = async (_configOverride?: NxtpRouterConfig) => {
     console.error("Error starting router subscriber. Sad! :(", e);
     process.exit();
   }
-};
-
-export const setupBridgeContext = async (requestContext: RequestContext): Promise<BridgeContext> => {
-  const { config, logger } = context;
-  const methodContext = createMethodContext(setupBridgeContext.name);
-  logger.info("BridgeContext setup in progress...", requestContext, methodContext, {});
-
-  const bridgeContext = await BridgeContext.fetch(config.nomadEnvironment);
-
-  const allowedDomains = [...Object.keys(config.chains)];
-  for (const allowedDomain of allowedDomains) {
-    const chainData = config.chains[allowedDomain];
-    chainData.providers.map((provider) => {
-      bridgeContext.registerRpcProvider(Number(allowedDomain), provider);
-    });
-  }
-  logger.info("BridgeContext setup done!", requestContext, methodContext, {});
-  return bridgeContext;
 };

@@ -100,12 +100,6 @@ export class SanityCheckFailed extends ExecuteError {
   }
 }
 
-export class NomadHomeBlacklisted extends ExecuteError {
-  constructor(context: any = {}) {
-    super("Home network is on blacklist (nomad down)", context, NomadHomeBlacklisted.name);
-  }
-}
-
 export class InvalidAuctionRound extends ExecuteError {
   constructor(context: any = {}) {
     super("Invalid auction round", context, InvalidAuctionRound.name);
