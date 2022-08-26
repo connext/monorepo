@@ -1,0 +1,24 @@
+# @postgrestUrl = http://localhost:3000
+@postgrestUrl = https://postgrest.testnet.connext.ninja
+# @postgrestUrl = https://postgrest.testnet.staging.connext.ninja
+
+# just a few examples, more examples here: https://postgrest.org/en/stable/api.html#horizontal-filtering-rows
+
+### 1. TTR & TTV by Transfers
+GET {{postgrestUrl}}/transfers_with_ttr_ttv?limit=15
+
+### 2. Daily Transfer Metrics
+GET {{postgrestUrl}}/daily_transfer_metrics
+
+### 3. Daily Volume Metrics
+GET {{postgrestUrl}}/daily_transfer_volume
+Prefer: count=planned
+
+### 4. Hourly Transfer metrics
+GET {{postgrestUrl}}/hourly_transfer_metrics
+
+### 5. Hourly Transfer Volume
+GET {{postgrestUrl}}/hourly_transfer_volume
+
+### 6. TVL by Routers
+GET {{postgrestUrl}}/daily_router_tvl

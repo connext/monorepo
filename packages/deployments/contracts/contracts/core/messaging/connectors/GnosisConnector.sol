@@ -173,7 +173,6 @@ contract GnosisL1Connector is BaseGnosisConnector {
       abi.encodeWithSelector(Connector.processMessage.selector, address(this), _data),
       mirrorProcessGas
     );
-    emit MessageSent(_data, msg.sender);
   }
 
   /**
