@@ -1,11 +1,11 @@
 import { config } from "dotenv";
 import { ContractInterface, providers } from "ethers";
-import { HardhatRuntimeEnvironment } from "hardhat/types";
+import { HardhatRuntimeEnvironment, HardhatUserConfig } from "hardhat/types";
 
-import hardhatConfig from "../hardhat.config";
 import { HUB_PREFIX, MESSAGING_PROTOCOL_CONFIGS, SPOKE_PREFIX } from "../deployConfig/shared";
-config();
 import deploymentRecords from "../deployments.json";
+
+config();
 
 export type Env = "staging" | "production" | "local";
 
@@ -137,6 +137,7 @@ export const getConnectorDeployments = (env: Env): ConnectorDeployment[] => {
 };
 
 export const executeOnAllConnectors = async <T = any>(
+  hardhatConfig: HardhatUserConfig,
   env: Env,
   fn: (d: ConnectorDeployment, provider: providers.JsonRpcProvider) => Promise<T>,
 ): Promise<T[]> => {

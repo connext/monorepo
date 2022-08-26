@@ -1,6 +1,8 @@
 import { Contract, providers } from "ethers";
 import { task } from "hardhat/config";
 
+import config from "../hardhat.config";
+
 import { ConnectorDeployment, Env, executeOnAllConnectors, mustGetEnv } from "../src/utils";
 
 type TaskArgs = {
@@ -20,7 +22,7 @@ export default task("query-roots", "Read balances of accounts")
     console.log("env:", env);
     console.log("deployer: ", deployer.address);
 
-    await executeOnAllConnectors(env, async (deployment: ConnectorDeployment, provider: providers.JsonRpcProvider) => {
+    await executeOnAllConnectors(config, env, async (deployment: ConnectorDeployment, provider: providers.JsonRpcProvider) => {
       const { name, address, abi } = deployment;
       // Create the connector contract
       const connector = new Contract(address, abi, provider);

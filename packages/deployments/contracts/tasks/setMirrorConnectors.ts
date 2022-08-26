@@ -19,21 +19,25 @@ export default task("set-mirror-connectors", "Add a remote router")
     console.log("env:", env);
     console.log("deployer: ", deployer.address);
 
-    await executeOnAllConnectors(env, async (deployment: ConnectorDeployment, provider: providers.JsonRpcProvider) => {
-      const { name, address, abi, mirrorConnector } = deployment;
-      // Create the connector contract
-      const connector = new Contract(address, abi, deployer.connect(provider));
+    await executeOnAllConnectors(
+      hardhatConfig,
+      env,
+      async (deployment: ConnectorDeployment, provider: providers.JsonRpcProvider) => {
+        const { name, address, abi, mirrorConnector } = deployment;
+        // Create the connector contract
+        const connector = new Contract(address, abi, deployer.connect(provider));
 
-      // Check if mirror is set
-      const set = await connector.mirrorConnector();
-      if (!mirrorConnector || set.toLowerCase() === mirrorConnector.toLowerCase()) {
-        return;
-      }
+        // Check if mirror is set
+        const set = await connector.mirrorConnector();
+        if (!mirrorConnector || set.toLowerCase() === mirrorConnector.toLowerCase()) {
+          return;
+        }
 
-      console.log(`setting mirror connector to ${mirrorConnector} on ${name}...`);
-      const tx = await connector.setMirrorConnector(mirrorConnector);
-      console.log(`set mirror tx sent:`, tx.hash);
-      const receipt = await tx.wait();
-      console.log(`tx mined:`, receipt.transactionHash);
-    });
+        console.log(`setting mirror connector to ${mirrorConnector} on ${name}...`);
+        const tx = await connector.setMirrorConnector(mirrorConnector);
+        console.log(`set mirror tx sent:`, tx.hash);
+        const receipt = await tx.wait();
+        console.log(`tx mined:`, receipt.transactionHash);
+      },
+    );
   });
