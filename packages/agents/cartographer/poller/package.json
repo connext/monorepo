@@ -1,6 +1,6 @@
 {
   "name": "@connext/cartographer-poller",
-  "version": "0.2.0-beta.20",
+  "version": "0.2.0-beta.22",
   "description": "",
   "types": "dist/index.d.ts",
   "files": [
@@ -8,7 +8,7 @@
     "src/**/*"
   ],
   "scripts": {
-    "dev": "concurrently -i -k -n 'app,tsc' -c 'green,cyan' 'node dist/entryTransfers.js' 'node dist/entryRouters.js'",
+    "start:all": "concurrently -i -k -n 'transfers,router' -c 'green,cyan' 'node dist/entryTransfers.js' 'node dist/entryRouters.js'",
     "lint": "eslint ./src --ext .ts --env node",
     "test": "nyc ts-mocha --check-leaks --exit --timeout 60000 'test/**/*.spec.ts'",
     "clean": "rimraf ./dist ./tsconfig.tsBuildInfo",

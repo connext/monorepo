@@ -4,6 +4,8 @@ import {
   OriginTransfer,
   getMinimumBidsCountForRound as _getMinimumBidsCountForRound,
   signSequencerPermitPayload as _signSequencerPermitPayload,
+  createLoggingContext,
+  RequestContext,
 } from "@connext/nxtp-utils";
 import { constants } from "ethers";
 
@@ -17,10 +19,14 @@ export const encodeExecuteFromBids = async (
   bids: Bid[],
   transfer: OriginTransfer,
   local: string,
+  _requestContext: RequestContext,
 ): Promise<string> => {
   const {
     adapters: { contracts, wallet },
+    logger,
   } = getContext();
+
+  const { requestContext, methodContext } = createLoggingContext(encodeExecuteFromBids.name, _requestContext);
   // Sanity check.
   if (!transfer.origin) {
     throw new Error("XTransfer provided did not have XCall present!");
@@ -52,6 +58,7 @@ export const encodeExecuteFromBids = async (
     nonce: transfer.nonce,
     originSender: transfer.origin.xcall.caller,
   };
+  logger.debug("Encoded execute args", requestContext, methodContext, { args });
   return contracts.connext.encodeFunctionData("execute", [args]);
 };
 

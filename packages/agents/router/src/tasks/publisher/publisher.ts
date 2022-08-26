@@ -69,7 +69,7 @@ export const makePublisher = async (_configOverride?: NxtpRouterConfig) => {
       port: context.config.server.pub.port,
       chains: [...Object.keys(context.config.chains)],
     });
-    context.logger.info(
+    console.log(
       `
 
         _|_|_|     _|_|     _|      _|   _|      _|   _|_|_|_|   _|      _|   _|_|_|_|_|

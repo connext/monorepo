@@ -129,7 +129,7 @@ contract OptimismL1Connector is BaseOptimismConnector {
    */
   function _sendMessage(bytes memory _data) internal override {
     require(msg.sender == ROOT_MANAGER, "!rootManager");
-    OptimismAMB(AMB).sendMessage(mirrorConnector, _data, uint32(mirrorProcessGas));
+    OptimismBridge(AMB).sendMessage(mirrorConnector, _data, uint32(mirrorProcessGas));
   }
 
   /**

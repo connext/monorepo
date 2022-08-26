@@ -8,6 +8,7 @@
   "error ProposedOwnable__renounceOwnership_delayNotElapsed()",
   "error ProposedOwnable__renounceOwnership_invalidProposal()",
   "error ProposedOwnable__renounceOwnership_noProposal()",
+  "event AggregateRootUpdated(bytes32,bytes32)",
   "event Dispatch(bytes32,uint256,bytes32,bytes)",
   "event MessageProcessed(bytes,address)",
   "event MessageSent(bytes,address)",

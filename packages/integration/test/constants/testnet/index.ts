@@ -16,8 +16,13 @@ export enum Environment {
 export const LOCALHOST = "localhost"; // alt. 0.0.0.0
 const ASSET_CONTRACT_NAME = "TestERC20";
 
+const OPTIMISM_GOERLI_PROVIDER = "https://goerli.optimism.io";
+
+const OPTIMISM_GOERLI_DOMAIN_ID = "1735356532";
+const GOERLI_DOMAIN_ID = "1735353714";
+
 /// MARK - Integration Settings
-const DEFAULT_ROUTE = ["1111", "3331"]; // Rinkeby => Goerli
+const DEFAULT_ROUTE = [OPTIMISM_GOERLI_DOMAIN_ID, GOERLI_DOMAIN_ID]; // Optimism-Goerli => Goerli
 
 // Environment setting.
 export const ENVIRONMENT: "staging" | "production" = (process.env.ENV ||
@@ -62,7 +67,7 @@ export const EMPTY_BYTES = mkBytes32("0x0");
 
 // Message Queue settings
 export const EXCHANGE_NAME = "sequencerX";
-export const QUEUE_NAME = "1111";
+export const QUEUE_NAME = "1735356532";
 
 /// MARK - General
 export type DomainInfo = {
@@ -133,12 +138,17 @@ export const DOMAINS: Promise<{ ORIGIN: DomainInfo; DESTINATION: DomainInfo }> =
   /// MARK - Configure providers.
   const infuraKey =
     process.env.INFURA_KEY || process.env.INFURA_API_KEY || process.env.INFURA_PROJECT || process.env.INFURA_PROJECT_ID;
+
   const originProvider =
-    process.env.ORIGIN_PROVIDER ?? infuraKey
+    process.env.ORIGIN_PROVIDER ?? origin === OPTIMISM_GOERLI_DOMAIN_ID
+      ? OPTIMISM_GOERLI_PROVIDER
+      : infuraKey
       ? `https://${originChainData.network}.infura.io/v3/${infuraKey}`
       : undefined;
   const destinationProvider =
-    process.env.DESTINATION_PROVIDER ?? infuraKey
+    process.env.DESTINATION_PROVIDER ?? destination === OPTIMISM_GOERLI_DOMAIN_ID
+      ? OPTIMISM_GOERLI_PROVIDER
+      : infuraKey
       ? `https://${destinationChainData.network}.infura.io/v3/${infuraKey}`
       : undefined;
 
@@ -222,6 +232,10 @@ export const ROUTER_CONFIG: Promise<RouterConfig> = (async (): Promise<RouterCon
       },
       sub: {
         port: 8080,
+        host: LOCALHOST,
+      },
+      exec: {
+        port: 8082,
         host: LOCALHOST,
       },
       requestLimit: 10,

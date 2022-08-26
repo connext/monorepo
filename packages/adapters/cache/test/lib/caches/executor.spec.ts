@@ -1,4 +1,4 @@
-import { expect, ExecutorData, ExecutorDataStatus, Logger, mkBytes32 } from "@connext/nxtp-utils";
+import { expect, ExecutorData, ExecStatus, Logger, mkBytes32, RelayerType } from "@connext/nxtp-utils";
 import { constants } from "ethers";
 import { ExecutorCache } from "../../../src";
 
@@ -39,7 +39,7 @@ describe("ExecutorCache", () => {
     await redis.flushall();
   });
 
-  describe("#storeExecutorData", () => {
+  describe("#storeSlowPathData", () => {
     it("happy: should store lighthosue data successfully", async () => {
       await cache.storeExecutorData(mockData1);
       const mockTransferId = mockData1.transferId;
@@ -64,35 +64,35 @@ describe("ExecutorCache", () => {
     });
   });
 
-  describe("#setExecutorDataStatus", () => {
+  describe("#setExecStatus", () => {
     it("happy", async () => {
-      await cache.setExecutorDataStatus(mockData1.transferId, ExecutorDataStatus.Pending);
-      let status = await cache.getExecutorDataStatus(mockData1.transferId);
-      expect(status).to.be.eq(ExecutorDataStatus.Pending);
-      await cache.setExecutorDataStatus(mockData1.transferId, ExecutorDataStatus.Sent);
-      status = await cache.getExecutorDataStatus(mockData1.transferId);
-      expect(status).to.be.eq(ExecutorDataStatus.Sent);
-      await cache.setExecutorDataStatus(mockData1.transferId, ExecutorDataStatus.Completed);
-      status = await cache.getExecutorDataStatus(mockData1.transferId);
-      expect(status).to.be.eq(ExecutorDataStatus.Completed);
+      await cache.setExecStatus(mockData1.transferId, ExecStatus.Queued);
+      let status = await cache.getExecStatus(mockData1.transferId);
+      expect(status).to.be.eq(ExecStatus.Queued);
+      await cache.setExecStatus(mockData1.transferId, ExecStatus.Sent);
+      status = await cache.getExecStatus(mockData1.transferId);
+      expect(status).to.be.eq(ExecStatus.Sent);
+      await cache.setExecStatus(mockData1.transferId, ExecStatus.Completed);
+      status = await cache.getExecStatus(mockData1.transferId);
+      expect(status).to.be.eq(ExecStatus.Completed);
     });
   });
 
-  describe("#getExecutorDataStatus", () => {
+  describe("#getExecStatus", () => {
     it("should be none if no exists", async () => {
-      let status = await cache.getExecutorDataStatus(mockData1.transferId);
-      expect(status).to.be.eq(ExecutorDataStatus.None);
+      let status = await cache.getExecStatus(mockData1.transferId);
+      expect(status).to.be.eq(ExecStatus.None);
     });
     it("happy", async () => {
-      await cache.setExecutorDataStatus(mockData1.transferId, ExecutorDataStatus.Pending);
-      let status = await cache.getExecutorDataStatus(mockData1.transferId);
-      expect(status).to.be.eq(ExecutorDataStatus.Pending);
-      await cache.setExecutorDataStatus(mockData1.transferId, ExecutorDataStatus.Sent);
-      status = await cache.getExecutorDataStatus(mockData1.transferId);
-      expect(status).to.be.eq(ExecutorDataStatus.Sent);
-      await cache.setExecutorDataStatus(mockData1.transferId, ExecutorDataStatus.Completed);
-      status = await cache.getExecutorDataStatus(mockData1.transferId);
-      expect(status).to.be.eq(ExecutorDataStatus.Completed);
+      await cache.setExecStatus(mockData1.transferId, ExecStatus.Queued);
+      let status = await cache.getExecStatus(mockData1.transferId);
+      expect(status).to.be.eq(ExecStatus.Queued);
+      await cache.setExecStatus(mockData1.transferId, ExecStatus.Sent);
+      status = await cache.getExecStatus(mockData1.transferId);
+      expect(status).to.be.eq(ExecStatus.Sent);
+      await cache.setExecStatus(mockData1.transferId, ExecStatus.Completed);
+      status = await cache.getExecStatus(mockData1.transferId);
+      expect(status).to.be.eq(ExecStatus.Completed);
     });
   });
 
@@ -125,7 +125,7 @@ describe("ExecutorCache", () => {
     it("happy", async () => {
       await cache.storeExecutorData(mockData1);
       await cache.storeBackupData(mockData2);
-      await cache.setExecutorDataStatus(mockTransferId, ExecutorDataStatus.Pending);
+      await cache.setExecStatus(mockTransferId, ExecStatus.Queued);
       await cache.pruneExecutorData(mockTransferId);
 
       const executorData = await cache.getExecutorData(mockTransferId);
@@ -134,27 +134,35 @@ describe("ExecutorCache", () => {
       const backupData = await cache.getBackupData(mockTransferId);
       expect(backupData).to.be.deep.eq([]);
 
-      const status = await cache.getExecutorDataStatus(mockTransferId);
-      expect(status).to.be.eq(ExecutorDataStatus.None);
+      const status = await cache.getExecStatus(mockTransferId);
+      expect(status).to.be.eq(ExecStatus.None);
     });
   });
   describe("#upsertTask", () => {
     it("happy", async () => {
       const mockTaskId = mkBytes32("0x123");
-      await cache.upsertTask({ transferId: mockTransferId, taskId: mockTaskId });
-      const metaTxTask = await cache.getTask(mockTransferId);
+      await cache.upsertMetaTxTask({
+        transferId: mockTransferId,
+        taskId: mockTaskId,
+        relayer: RelayerType.Mock,
+      });
+      const metaTxTask = await cache.getMetaTxTask(mockTransferId);
       expect(metaTxTask?.taskId).to.be.eq(mockTaskId);
     });
   });
-  describe("#getTask", () => {
+  describe("#getMetaTxTask", () => {
     it("should be undefined", async () => {
-      const metaTxTask = await cache.getTask(mockTransferId);
+      const metaTxTask = await cache.getMetaTxTask(mockTransferId);
       expect(metaTxTask).to.be.undefined;
     });
     it("happy", async () => {
       const mockTaskId = mkBytes32("0x123");
-      await cache.upsertTask({ transferId: mockTransferId, taskId: mockTaskId });
-      const metaTxTask = await cache.getTask(mockTransferId);
+      await cache.upsertMetaTxTask({
+        transferId: mockTransferId,
+        taskId: mockTaskId,
+        relayer: RelayerType.Mock,
+      });
+      const metaTxTask = await cache.getMetaTxTask(mockTransferId);
       expect(metaTxTask?.taskId).to.be.eq(mockTaskId);
     });
   });
@@ -165,9 +173,21 @@ describe("ExecutorCache", () => {
       const mockTransferId2 = mkBytes32("0x222");
       const mockTransferId3 = mkBytes32("0x333");
 
-      await cache.upsertTask({ transferId: mockTransferId1, taskId: mkBytes32("0x111") });
-      await cache.upsertTask({ transferId: mockTransferId2, taskId: mkBytes32("0x222") });
-      await cache.upsertTask({ transferId: mockTransferId3, taskId: mkBytes32("0x333") });
+      await cache.upsertMetaTxTask({
+        transferId: mockTransferId1,
+        taskId: mkBytes32("0x111"),
+        relayer: RelayerType.Mock,
+      });
+      await cache.upsertMetaTxTask({
+        transferId: mockTransferId2,
+        taskId: mkBytes32("0x222"),
+        relayer: RelayerType.Mock,
+      });
+      await cache.upsertMetaTxTask({
+        transferId: mockTransferId3,
+        taskId: mkBytes32("0x333"),
+        relayer: RelayerType.Mock,
+      });
 
       const transferIds = await cache.getSentTransfers();
       expect(transferIds).to.be.deep.eq([mockTransferId1, mockTransferId2, mockTransferId3]);

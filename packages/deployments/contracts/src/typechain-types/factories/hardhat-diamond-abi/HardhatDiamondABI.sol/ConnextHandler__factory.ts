@@ -31,31 +31,6 @@ const _abi = [
     type: "error",
   },
   {
-    inputs: [],
-    name: "BaseConnextFacet__nonReentrant_reentrantCall",
-    type: "error",
-  },
-  {
-    inputs: [],
-    name: "BaseConnextFacet__onlyBridgeRouter_notBridgeRouter",
-    type: "error",
-  },
-  {
-    inputs: [],
-    name: "BaseConnextFacet__onlyOwner_notOwner",
-    type: "error",
-  },
-  {
-    inputs: [],
-    name: "BaseConnextFacet__onlyProposed_notProposedOwner",
-    type: "error",
-  },
-  {
-    inputs: [],
-    name: "BaseConnextFacet__whenNotPaused_paused",
-    type: "error",
-  },
-  {
     anonymous: false,
     inputs: [
       {
@@ -537,31 +512,6 @@ const _abi = [
   {
     inputs: [],
     name: "AssetLogic__transferAssetToContract_feeOnTransferNotSupported",
-    type: "error",
-  },
-  {
-    inputs: [],
-    name: "BaseConnextFacet__nonReentrant_reentrantCall",
-    type: "error",
-  },
-  {
-    inputs: [],
-    name: "BaseConnextFacet__onlyBridgeRouter_notBridgeRouter",
-    type: "error",
-  },
-  {
-    inputs: [],
-    name: "BaseConnextFacet__onlyOwner_notOwner",
-    type: "error",
-  },
-  {
-    inputs: [],
-    name: "BaseConnextFacet__onlyProposed_notProposedOwner",
-    type: "error",
-  },
-  {
-    inputs: [],
-    name: "BaseConnextFacet__whenNotPaused_paused",
     type: "error",
   },
   {
@@ -2172,31 +2122,6 @@ const _abi = [
   },
   {
     inputs: [],
-    name: "BaseConnextFacet__nonReentrant_reentrantCall",
-    type: "error",
-  },
-  {
-    inputs: [],
-    name: "BaseConnextFacet__onlyBridgeRouter_notBridgeRouter",
-    type: "error",
-  },
-  {
-    inputs: [],
-    name: "BaseConnextFacet__onlyOwner_notOwner",
-    type: "error",
-  },
-  {
-    inputs: [],
-    name: "BaseConnextFacet__onlyProposed_notProposedOwner",
-    type: "error",
-  },
-  {
-    inputs: [],
-    name: "BaseConnextFacet__whenNotPaused_paused",
-    type: "error",
-  },
-  {
-    inputs: [],
     name: "NomadFacet__reconcile_alreadyReconciled",
     type: "error",
   },
@@ -2359,31 +2284,6 @@ const _abi = [
   {
     inputs: [],
     name: "AssetLogic__transferAssetToContract_feeOnTransferNotSupported",
-    type: "error",
-  },
-  {
-    inputs: [],
-    name: "BaseConnextFacet__nonReentrant_reentrantCall",
-    type: "error",
-  },
-  {
-    inputs: [],
-    name: "BaseConnextFacet__onlyBridgeRouter_notBridgeRouter",
-    type: "error",
-  },
-  {
-    inputs: [],
-    name: "BaseConnextFacet__onlyOwner_notOwner",
-    type: "error",
-  },
-  {
-    inputs: [],
-    name: "BaseConnextFacet__onlyProposed_notProposedOwner",
-    type: "error",
-  },
-  {
-    inputs: [],
-    name: "BaseConnextFacet__whenNotPaused_paused",
     type: "error",
   },
   {
@@ -2755,31 +2655,6 @@ const _abi = [
   },
   {
     inputs: [],
-    name: "BaseConnextFacet__nonReentrant_reentrantCall",
-    type: "error",
-  },
-  {
-    inputs: [],
-    name: "BaseConnextFacet__onlyBridgeRouter_notBridgeRouter",
-    type: "error",
-  },
-  {
-    inputs: [],
-    name: "BaseConnextFacet__onlyOwner_notOwner",
-    type: "error",
-  },
-  {
-    inputs: [],
-    name: "BaseConnextFacet__onlyProposed_notProposedOwner",
-    type: "error",
-  },
-  {
-    inputs: [],
-    name: "BaseConnextFacet__whenNotPaused_paused",
-    type: "error",
-  },
-  {
-    inputs: [],
     name: "ProposedOwnableFacet__acceptProposedOwner_delayNotElapsed",
     type: "error",
   },
@@ -3137,31 +3012,6 @@ const _abi = [
   },
   {
     inputs: [],
-    name: "BaseConnextFacet__nonReentrant_reentrantCall",
-    type: "error",
-  },
-  {
-    inputs: [],
-    name: "BaseConnextFacet__onlyBridgeRouter_notBridgeRouter",
-    type: "error",
-  },
-  {
-    inputs: [],
-    name: "BaseConnextFacet__onlyOwner_notOwner",
-    type: "error",
-  },
-  {
-    inputs: [],
-    name: "BaseConnextFacet__onlyProposed_notProposedOwner",
-    type: "error",
-  },
-  {
-    inputs: [],
-    name: "BaseConnextFacet__whenNotPaused_paused",
-    type: "error",
-  },
-  {
-    inputs: [],
     name: "RelayerFacet__addRelayer_alreadyApproved",
     type: "error",
   },
@@ -3459,31 +3309,6 @@ const _abi = [
   {
     inputs: [],
     name: "AssetLogic__transferAssetToContract_feeOnTransferNotSupported",
-    type: "error",
-  },
-  {
-    inputs: [],
-    name: "BaseConnextFacet__nonReentrant_reentrantCall",
-    type: "error",
-  },
-  {
-    inputs: [],
-    name: "BaseConnextFacet__onlyBridgeRouter_notBridgeRouter",
-    type: "error",
-  },
-  {
-    inputs: [],
-    name: "BaseConnextFacet__onlyOwner_notOwner",
-    type: "error",
-  },
-  {
-    inputs: [],
-    name: "BaseConnextFacet__onlyProposed_notProposedOwner",
-    type: "error",
-  },
-  {
-    inputs: [],
-    name: "BaseConnextFacet__whenNotPaused_paused",
     type: "error",
   },
   {
@@ -4279,31 +4104,6 @@ const _abi = [
     outputs: [],
     stateMutability: "nonpayable",
     type: "function",
-  },
-  {
-    inputs: [],
-    name: "BaseConnextFacet__nonReentrant_reentrantCall",
-    type: "error",
-  },
-  {
-    inputs: [],
-    name: "BaseConnextFacet__onlyBridgeRouter_notBridgeRouter",
-    type: "error",
-  },
-  {
-    inputs: [],
-    name: "BaseConnextFacet__onlyOwner_notOwner",
-    type: "error",
-  },
-  {
-    inputs: [],
-    name: "BaseConnextFacet__onlyProposed_notProposedOwner",
-    type: "error",
-  },
-  {
-    inputs: [],
-    name: "BaseConnextFacet__whenNotPaused_paused",
-    type: "error",
   },
   {
     inputs: [],

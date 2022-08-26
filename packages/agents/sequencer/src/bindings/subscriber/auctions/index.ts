@@ -1,6 +1,6 @@
 import { spawn } from "child_process";
 
-import { AuctionStatus, createLoggingContext, jsonifyError } from "@connext/nxtp-utils";
+import { ExecStatus, createLoggingContext, jsonifyError } from "@connext/nxtp-utils";
 
 import { getContext } from "../../../sequencer";
 import { Message } from "../../../lib/entities";
@@ -54,9 +54,9 @@ export const bindSubscriber = async (queueName: string) => {
           if ((code == null || code == 0) && (signal == null || termSignals.includes(signal))) {
             // ACK on success
             // Validate transfer is sent to relayer before ACK
-            const status = await cache.auctions.getStatus(message.transferId);
-            const task = await cache.auctions.getTask(message.transferId);
-            if ((task?.taskId && status == AuctionStatus.Sent) || status == AuctionStatus.Executed) {
+            const status = await cache.auctions.getExecStatus(message.transferId);
+            const task = await cache.auctions.getMetaTxTask(message.transferId);
+            if ((task?.taskId && status == ExecStatus.Sent) || status == ExecStatus.Completed) {
               msg.ack();
               logger.info("Transfer ACKed", requestContext, methodContext, {
                 transferId: message.transferId,

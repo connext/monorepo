@@ -147,12 +147,13 @@ export function handleRouterOwnerAccepted(event: RouterOwnerAccepted): void {
 }
 
 export function handleAssetAdded(event: AssetAdded): void {
-  let assetId = event.params.key.toHex();
+  let assetId = event.params.localAsset.toHex();
   let asset = Asset.load(assetId);
   if (asset == null) {
     asset = new Asset(assetId);
   }
-  asset.local = event.params.key;
+  asset.key = event.params.key;
+  asset.local = event.params.localAsset;
   asset.adoptedAsset = event.params.adoptedAsset;
   asset.canonicalId = event.params.canonicalId;
   asset.canonicalDomain = event.params.domain;
@@ -429,6 +430,8 @@ function getChainId(): BigInt {
     chainId = BigInt.fromI32(137);
   } else if (network == "fantom") {
     chainId = BigInt.fromI32(250);
+  } else if (network == "optimism-goerli") {
+    chainId = BigInt.fromI32(420);
   } else if (network == "mbase") {
     chainId = BigInt.fromI32(1287);
   } else if (network == "arbitrum-one") {

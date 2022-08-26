@@ -18720,6 +18720,27 @@ const schemaAST = {
             }
           },
           "directives": []
+        },
+        {
+          "kind": "FieldDefinition",
+          "description": {
+            "kind": "StringValue",
+            "value": "Timestamp of the block if available, format depends on the chain",
+            "block": true
+          },
+          "name": {
+            "kind": "Name",
+            "value": "timestamp"
+          },
+          "arguments": [],
+          "type": {
+            "kind": "NamedType",
+            "name": {
+              "kind": "Name",
+              "value": "String"
+            }
+          },
+          "directives": []
         }
       ],
       "interfaces": [],
