@@ -26,6 +26,7 @@ type staginggoerli_AssetBalance {
   id: ID!
   amount: BigInt!
   router: staginggoerli_Router!
+  routerfees: BigInt!
   asset: staginggoerli_Asset!
 }
 
@@ -67,6 +68,14 @@ input staginggoerli_AssetBalance_filter {
   router_not_ends_with: String
   router_not_ends_with_nocase: String
   router_: staginggoerli_Router_filter
+  routerfees: BigInt
+  routerfees_not: BigInt
+  routerfees_gt: BigInt
+  routerfees_lt: BigInt
+  routerfees_gte: BigInt
+  routerfees_lte: BigInt
+  routerfees_in: [BigInt!]
+  routerfees_not_in: [BigInt!]
   asset: String
   asset_not: String
   asset_gt: String
@@ -96,6 +105,7 @@ enum staginggoerli_AssetBalance_orderBy {
   id
   amount
   router
+  routerfees
   asset
 }
 
@@ -203,6 +213,7 @@ type staginggoerli_DestinationTransfer {
   localAsset: staginggoerli_Bytes
   localAmount: BigInt
   sponsorVaultRelayerFee: BigInt
+  fees: [BigInt!]
   executedCaller: staginggoerli_Bytes
   executedTransactionHash: staginggoerli_Bytes
   executedTimestamp: BigInt
@@ -379,6 +390,12 @@ input staginggoerli_DestinationTransfer_filter {
   sponsorVaultRelayerFee_lte: BigInt
   sponsorVaultRelayerFee_in: [BigInt!]
   sponsorVaultRelayerFee_not_in: [BigInt!]
+  fees: [BigInt!]
+  fees_not: [BigInt!]
+  fees_contains: [BigInt!]
+  fees_contains_nocase: [BigInt!]
+  fees_not_contains: [BigInt!]
+  fees_not_contains_nocase: [BigInt!]
   executedCaller: staginggoerli_Bytes
   executedCaller_not: staginggoerli_Bytes
   executedCaller_in: [staginggoerli_Bytes!]
@@ -496,6 +513,7 @@ enum staginggoerli_DestinationTransfer_orderBy {
   localAsset
   localAmount
   sponsorVaultRelayerFee
+  fees
   executedCaller
   executedTransactionHash
   executedTimestamp

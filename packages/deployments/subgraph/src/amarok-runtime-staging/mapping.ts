@@ -444,6 +444,7 @@ function getOrCreateAssetBalance(local: Address, routerAddress: Address): AssetB
     assetBalance.asset = asset.id;
     assetBalance.router = router.id;
     assetBalance.amount = new BigInt(0);
+    assetBalance.routerfees = new BigInt(0);
   }
   return assetBalance;
 }

@@ -26,6 +26,7 @@ type stagingoptimismgoerli_AssetBalance {
   id: ID!
   amount: BigInt!
   router: stagingoptimismgoerli_Router!
+  routerfees: BigInt!
   asset: stagingoptimismgoerli_Asset!
 }
 
@@ -67,6 +68,14 @@ input stagingoptimismgoerli_AssetBalance_filter {
   router_not_ends_with: String
   router_not_ends_with_nocase: String
   router_: stagingoptimismgoerli_Router_filter
+  routerfees: BigInt
+  routerfees_not: BigInt
+  routerfees_gt: BigInt
+  routerfees_lt: BigInt
+  routerfees_gte: BigInt
+  routerfees_lte: BigInt
+  routerfees_in: [BigInt!]
+  routerfees_not_in: [BigInt!]
   asset: String
   asset_not: String
   asset_gt: String
@@ -96,6 +105,7 @@ enum stagingoptimismgoerli_AssetBalance_orderBy {
   id
   amount
   router
+  routerfees
   asset
 }
 
@@ -203,6 +213,7 @@ type stagingoptimismgoerli_DestinationTransfer {
   localAsset: stagingoptimismgoerli_Bytes
   localAmount: BigInt
   sponsorVaultRelayerFee: BigInt
+  fees: [BigInt!]
   executedCaller: stagingoptimismgoerli_Bytes
   executedTransactionHash: stagingoptimismgoerli_Bytes
   executedTimestamp: BigInt
@@ -379,6 +390,12 @@ input stagingoptimismgoerli_DestinationTransfer_filter {
   sponsorVaultRelayerFee_lte: BigInt
   sponsorVaultRelayerFee_in: [BigInt!]
   sponsorVaultRelayerFee_not_in: [BigInt!]
+  fees: [BigInt!]
+  fees_not: [BigInt!]
+  fees_contains: [BigInt!]
+  fees_contains_nocase: [BigInt!]
+  fees_not_contains: [BigInt!]
+  fees_not_contains_nocase: [BigInt!]
   executedCaller: stagingoptimismgoerli_Bytes
   executedCaller_not: stagingoptimismgoerli_Bytes
   executedCaller_in: [stagingoptimismgoerli_Bytes!]
@@ -496,6 +513,7 @@ enum stagingoptimismgoerli_DestinationTransfer_orderBy {
   localAsset
   localAmount
   sponsorVaultRelayerFee
+  fees
   executedCaller
   executedTransactionHash
   executedTimestamp
