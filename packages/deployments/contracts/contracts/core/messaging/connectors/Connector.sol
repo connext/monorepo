@@ -36,6 +36,8 @@ abstract contract Connector is ProposedOwnable, MerkleTreeManager, ConnectorMana
 
   event SenderRemoved(address sender);
 
+  event AggregateRootUpdated(bytes32 current, bytes32 previous);
+
   event Dispatch(bytes32 leaf, uint256 index, bytes32 root, bytes message);
 
   event Process(bytes32 leaf, bool success, bytes returnData);
@@ -224,6 +226,7 @@ abstract contract Connector is ProposedOwnable, MerkleTreeManager, ConnectorMana
   // ============ Public fns ============
   function sendMessage(bytes memory _data) external {
     _sendMessage(_data);
+    emit MessageSent(_data, msg.sender);
   }
 
   function processMessage(address _sender, bytes memory _data) external {
@@ -323,6 +326,7 @@ abstract contract Connector is ProposedOwnable, MerkleTreeManager, ConnectorMana
    */
   function update(bytes32 _newRoot) internal {
     require(_verifySender(mirrorConnector), "!sender");
+    emit AggregateRootUpdated(_newRoot, aggregateRoot);
     aggregateRoot = _newRoot;
   }
 
