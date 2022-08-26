@@ -339,6 +339,7 @@ export interface GnosisL2ConnectorInterface extends utils.Interface {
   ): Result;
 
   events: {
+    "AggregateRootUpdated(bytes32,bytes32)": EventFragment;
     "Dispatch(bytes32,uint256,bytes32,bytes)": EventFragment;
     "MessageProcessed(bytes,address)": EventFragment;
     "MessageSent(bytes,address)": EventFragment;
@@ -350,6 +351,7 @@ export interface GnosisL2ConnectorInterface extends utils.Interface {
     "SenderRemoved(address)": EventFragment;
   };
 
+  getEvent(nameOrSignatureOrTopic: "AggregateRootUpdated"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "Dispatch"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "MessageProcessed"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "MessageSent"): EventFragment;
@@ -360,6 +362,18 @@ export interface GnosisL2ConnectorInterface extends utils.Interface {
   getEvent(nameOrSignatureOrTopic: "SenderAdded"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "SenderRemoved"): EventFragment;
 }
+
+export interface AggregateRootUpdatedEventObject {
+  current: string;
+  previous: string;
+}
+export type AggregateRootUpdatedEvent = TypedEvent<
+  [string, string],
+  AggregateRootUpdatedEventObject
+>;
+
+export type AggregateRootUpdatedEventFilter =
+  TypedEventFilter<AggregateRootUpdatedEvent>;
 
 export interface DispatchEventObject {
   leaf: string;
@@ -869,6 +883,15 @@ export interface GnosisL2Connector extends BaseContract {
   };
 
   filters: {
+    "AggregateRootUpdated(bytes32,bytes32)"(
+      current?: null,
+      previous?: null
+    ): AggregateRootUpdatedEventFilter;
+    AggregateRootUpdated(
+      current?: null,
+      previous?: null
+    ): AggregateRootUpdatedEventFilter;
+
     "Dispatch(bytes32,uint256,bytes32,bytes)"(
       leaf?: null,
       index?: null,
