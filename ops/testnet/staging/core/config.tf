@@ -52,7 +52,7 @@ locals {
           },
           {
             name    = "WETH"
-            address = "0x6dC42a10F89Da5dAE486De606B1Dc4d8C5Ed1bfE"
+            address = "0x39B061B7e41DE8B721f9aEcEB6b3f17ECB7ba63E"
           }
         ]
       }
@@ -88,13 +88,13 @@ locals {
       queues = [
         {
           name       = "1735356532"
-          limit      = 3
+          limit      = 6
           queueLimit = 10000
           subscribe  = true
         },
         {
           name       = "1735353714"
-          limit      = 3
+          limit      = 6
           queueLimit = 10000
           subscribe  = true
         }
@@ -148,7 +148,7 @@ locals {
           },
           {
             name    = "WETH"
-            address = "0x6dC42a10F89Da5dAE486De606B1Dc4d8C5Ed1bfE"
+            address = "0x39B061B7e41DE8B721f9aEcEB6b3f17ECB7ba63E"
           }
         ]
       }

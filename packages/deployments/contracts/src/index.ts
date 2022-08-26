@@ -1,4 +1,4 @@
-export * from "./nomad";
+export * from "./domain";
 export * from "./utils";
 export * from "./typechain-types";
 export { Deployments } from "./deployments";

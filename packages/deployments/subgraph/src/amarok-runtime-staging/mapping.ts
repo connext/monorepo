@@ -147,12 +147,13 @@ export function handleRouterOwnerAccepted(event: RouterOwnerAccepted): void {
 }
 
 export function handleAssetAdded(event: AssetAdded): void {
-  let assetId = event.params.key.toHex();
+  let assetId = event.params.localAsset.toHex();
   let asset = Asset.load(assetId);
   if (asset == null) {
     asset = new Asset(assetId);
   }
-  asset.local = event.params.key;
+  asset.key = event.params.key;
+  asset.local = event.params.localAsset;
   asset.adoptedAsset = event.params.adoptedAsset;
   asset.canonicalId = event.params.canonicalId;
   asset.canonicalDomain = event.params.domain;
