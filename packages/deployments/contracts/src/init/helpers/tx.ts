@@ -85,8 +85,9 @@ export const updateIfNeeded = async <T>(schema: CallSchema<T>): Promise<void> =>
   const chain = network.chainId;
 
   const value = await readCall();
-  log.info.value({ chain, deployment, call: read, value });
-  if (value !== desired) {
+  const valid = value === desired;
+  log.info.value({ chain, deployment, call: read, value, valid });
+  if (!valid) {
     const tx = await writeCall();
     const res = await waitForTx({
       deployment,
@@ -136,7 +137,7 @@ export const assertValue = async <T>(schema: CallSchema<T>): Promise<void> => {
   const value = await readCall();
 
   if (value === desired) {
-    log.info.value({ chain, deployment, call: read, value });
+    log.info.value({ chain, deployment, call: read, value, valid: true });
   } else {
     log.error.value({ chain, deployment, call: read, value, desired });
   }
@@ -171,6 +172,12 @@ export const getValue = async <T>(schema: CallSchema<T>): Promise<T> => {
   const chain = network.chainId;
 
   const value = await readCall();
-  log.info.value({ chain, deployment, call: read, value });
+  log.info.value({
+    chain,
+    deployment,
+    call: read,
+    value,
+    valid: schema.desired ? value === schema.desired : undefined,
+  });
   return value;
 };

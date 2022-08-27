@@ -17,6 +17,11 @@ export const setupAsset = async (args: { asset: AssetStack; networks: NetworkSta
     ["bytes"],
     [utils.defaultAbiCoder.encode(["bytes32", "uint32"], [canonical.id, canonical.domain])],
   );
+  console.log(
+    `\tVerifying asset setup for ${asset.name ?? asset.canonical.address}. Canonical ID: ${
+      canonical.id
+    }; Canonical Domain: ${canonical.domain}; Key: ${key}`,
+  );
 
   // Set up the canonical asset on the canonical domain.
   const home = networks.find((n) => n.domain === asset.canonical.domain);
@@ -51,7 +56,9 @@ export const setupAsset = async (args: { asset: AssetStack; networks: NetworkSta
     }
 
     if (!representation.local) {
-      throw new Error("Can't setupAsset for a domain with no representations!");
+      throw new Error(
+        "Can't call `setupAsset` for an asset with no local representations! No `local` bridge token was provided.",
+      );
     }
 
     // Enroll custom local token.

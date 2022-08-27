@@ -26,9 +26,10 @@ export const log = {
       call: { method: string; args: (number | string)[] };
       value: any;
       updated?: boolean;
+      valid?: boolean;
     }) => {
-      const { chain, deployment, call, value, updated } = args;
-      console.log(log.prefix.value({ chain, deployment, call }) + `${value} ${updated ? "!!!" : ""}`);
+      const { chain, deployment, call, value, updated, valid } = args;
+      console.log(log.prefix.value({ chain, deployment, call }) + `${value}${updated ? " !!!" : valid ? " ✔" : ""}`);
     },
   },
   error: {

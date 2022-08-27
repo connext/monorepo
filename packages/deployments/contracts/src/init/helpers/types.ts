@@ -15,6 +15,7 @@ export type WhitelistAgents = {
 };
 
 export type AssetStack = {
+  name: string;
   canonical: {
     // The canonical domain of the asset.
     domain: string;

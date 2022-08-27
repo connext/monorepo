@@ -231,9 +231,12 @@ export const initProtocol = async (protocol: ProtocolStack) => {
         foundMirror = true;
         const SpokeConnector = (spoke.deployments.messaging as SpokeMessagingDeployments).SpokeConnector;
 
+        console.log(`\tVerifying connection: ${hub.chain}<>${spoke.chain}:`);
+
         /// MARK - Sanity Checks
         // Sanity check: Make sure RootManager is set correctly for the HubConnector.
         // NOTE: We CANNOT update the currently set ROOT_MANAGER; it is `immutable` and will require redeployment.
+        console.log("\tVerifying Connectors' ROOT_MANAGER set correctly.");
         await assertValue({
           deployment: HubConnector,
           read: "ROOT_MANAGER",
@@ -248,6 +251,7 @@ export const initProtocol = async (protocol: ProtocolStack) => {
 
         /// MARK - RootManager: Add Connector
         // Set hub connector address for this domain on RootManager.
+        console.log("\tVerifying RootManager `connectors` has HubConnector set correctly.");
         await updateIfNeeded({
           deployment: RootManager,
           desired: HubConnector.address,
@@ -257,6 +261,7 @@ export const initProtocol = async (protocol: ProtocolStack) => {
 
         /// MARK - Connectors: Mirrors
         // Set the mirrors for both the spoke domain's Connector and hub domain's Connector.
+        console.log("\tVerifying mirror connectors are set correctly.");
         await updateIfNeeded({
           deployment: HubConnector,
           desired: SpokeConnector.address,
@@ -273,6 +278,7 @@ export const initProtocol = async (protocol: ProtocolStack) => {
         /// MARK - Connectors: Whitelist Senders
         // Whitelist message-sending Handler contracts (AKA 'Routers'); will enable those message senders to
         // call `dispatch`.
+        console.log("\tVerifying senders (handlers) are whitelisted.");
         for (const handler of Object.values(spoke.deployments.handlers)) {
           await updateIfNeeded({
             deployment: SpokeConnector,
@@ -303,7 +309,7 @@ export const initProtocol = async (protocol: ProtocolStack) => {
 
   /// MARK - MainnetConnector
   // On the hub itself, you only need to connect the mainnet l1 connector to RootManager (no mirror).
-  // Make sure all things are set correctly.
+  console.log("\tVerifying MainnetConnector is set up correctly...");
   // Sanity check: mirror is address(0).
   assertValue({
     deployment: MainnetConnector,
