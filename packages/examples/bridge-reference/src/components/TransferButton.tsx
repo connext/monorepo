@@ -86,6 +86,8 @@ export const TransferButton = ({
         setApproving(null);
         setCalling(true);
 
+        const min_amount_out = (amount || 0) * (100 - DEFAULT_BRIDGE_SLIPPAGE_PERCENTAGE);
+
         if (sdk) {
             const source_chain_data = chains?.find(c => c?.id === source_chain?.id);
             const source_asset_data = assets?.find(a => a?.id === asset?.id);
@@ -107,10 +109,15 @@ export const TransferButton = ({
                     forceSlow: false,
                     receiveLocal: false,
                     relayerFee: '0',
-                    slippageTol: ((100 - DEFAULT_BRIDGE_SLIPPAGE_PERCENTAGE) * 100).toString()
+                    destinationMinOut: utils
+                        .parseUnits(min_amount_out.toString(), source_contract_data?.decimals || 18)
+                        .toString()
                 },
-                transactingAssetId: source_contract_data!.contract_address!,
-                amount: utils.parseUnits(amount?.toString() || '0', source_contract_data?.decimals || 18).toString()
+                transactingAsset: source_contract_data!.contract_address!,
+                transactingAmount: utils
+                    .parseUnits(amount?.toString() || '0', source_contract_data?.decimals || 18)
+                    .toString(),
+                originMinOut: utils.parseUnits(min_amount_out.toString(), source_contract_data?.decimals || 18).toString()
             };
 
             let failed = false;
@@ -118,8 +125,8 @@ export const TransferButton = ({
             try {
                 const approve_request = await sdk.nxtpSdkBase.approveIfNeeded(
                     xcallParams.params.originDomain,
-                    xcallParams.transactingAssetId,
-                    xcallParams.amount,
+                    xcallParams.transactingAsset,
+                    xcallParams.transactingAmount,
                     false
                 );
 
