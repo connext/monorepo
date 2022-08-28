@@ -15,7 +15,6 @@
     "dependencies": {
         "@coinbase/wallet-sdk": "^3.4.0",
         "@connext/nxtp-sdk": "workspace:*",
-        "@connext/nxtp-utils": "workspace:*",
         "@tailwindcss/forms": "^0.5.2",
         "@walletconnect/web3-provider": "^1.7.8",
         "cross-env": "^7.0.3",
