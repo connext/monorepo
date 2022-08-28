@@ -4,8 +4,10 @@
     "license": "MIT",
     "description": "A reference implementation to bridging ERC-20 tokens across EVM chains via Connext",
     "scripts": {
-        "start": "cross-env NODE_ENV=test parcel serve src/index.html -p 8080 --open",
-        "build": "cross-env NODE_ENV=test parcel build src/index.html",
+        "start": "parcel serve src/index.html -p 8080 --open",
+        "build": "parcel build src/index.html",
+        "start:testnet": "cross-env NODE_ENV=test parcel serve src/index.html -p 8080 --open",
+        "build:testnet": "cross-env NODE_ENV=test parcel build src/index.html",
         "clean": "rimraf ./dist ./tsconfig.tsBuildInfo",
         "purge": "yarn clean && rimraf ./node_modules",
         "lint": "eslint ./src --ext .ts --env node"
