@@ -9,8 +9,7 @@
     "start:testnet": "cross-env NODE_ENV=test parcel serve src/index.html -p 8080 --open",
     "build:testnet": "cross-env NODE_ENV=test parcel build src/index.html",
     "clean": "rimraf ./dist ./tsconfig.tsBuildInfo",
-    "purge": "yarn clean && rimraf ./node_modules",
-    "lint": "eslint ./src --ext .ts,.tsx --env node"
+    "purge": "yarn clean && rimraf ./node_modules"
   },
   "dependencies": {
     "@coinbase/wallet-sdk": "^3.4.0",
