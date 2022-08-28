@@ -1,47 +1,49 @@
-import { useContext } from 'react';
-import { Contract } from '../types/asset';
-import { createCtx } from '../utils/context';
-import { uniqBy, concat } from 'lodash';
+import { useContext } from "react";
+import { uniqBy, concat } from "lodash";
+
+import { Contract } from "../types/asset";
+import { createCtx } from "../utils/context";
 
 interface Balance extends Contract {
-    amount: number;
+  amount: number;
 }
 
 interface IAppState {
-    balances?: Record<number, Balance[]>;
+  balances?: Record<number, Balance[]>;
 }
 
 const initialState: IAppState = {
-    balances: undefined
+  balances: undefined,
 };
 
 type AppState = typeof initialState;
-type Action = { type: 'set'; payload: { chainId: number; balance: Balance } } | { type: 'reset' };
+type Action = { type: "set"; payload: { chainId: number; balance: Balance } } | { type: "reset" };
 
 function reducer(state: AppState, action: Action): AppState {
-    switch (action.type) {
-        case 'set':
-            let values = state?.balances?.[action.payload.chainId] || [];
-            values = uniqBy(concat(action.payload.balance || [], values), 'contract_address');
+  let values;
+  switch (action.type) {
+    case "set":
+      values = state?.balances?.[action.payload.chainId] || [];
+      values = uniqBy(concat(action.payload.balance || [], values), "contract_address");
 
-            return { ...state, balances: { ...state.balances, [action.payload.chainId]: values } };
-        case 'reset':
-            return { ...initialState };
-        default:
-            throw new Error();
-    }
+      return { ...state, balances: { ...state.balances, [action.payload.chainId]: values } };
+    case "reset":
+      return { ...initialState };
+    default:
+      throw new Error();
+  }
 }
 
 const [ctx, BalancesProvider] = createCtx(reducer, initialState);
 
 function useBalances() {
-    const context = useContext(ctx);
+  const context = useContext(ctx);
 
-    if (context === undefined) {
-        throw new Error('useBalances must be used within a BalancesProvider');
-    }
+  if (context === undefined) {
+    throw new Error("useBalances must be used within a BalancesProvider");
+  }
 
-    return context;
+  return context;
 }
 
 export { BalancesProvider, useBalances };
