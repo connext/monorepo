@@ -1,43 +1,8 @@
 [
     {
-        "id": "rinkeby",
-        "chain_id": 4,
-        "domain_id": "1111",
-        "name": "Rinkeby",
-        "short_name": "RIN",
-        "provider_params": [
-            {
-                "chainId": "0x4",
-                "chainName": "Ethereum Rinkeby",
-                "rpcUrls": ["https://rinkeby.infura.io/v3/9aa3d95b3bc440fa88ea12eaa4456161"],
-                "nativeCurrency": {
-                    "name": "Rinkeby Ether",
-                    "symbol": "RIN",
-                    "decimals": 18
-                },
-                "blockExplorerUrls": ["https://rinkeby.etherscan.io"]
-            }
-        ],
-        "explorer": {
-            "name": "Etherscan",
-            "url": "https://rinkeby.etherscan.io",
-            "icon": "/logos/explorers/etherscan.png",
-            "block_path": "/block/{block}",
-            "address_path": "/address/{address}",
-            "contract_path": "/token/{address}",
-            "contract_0_path": "/address/{address}",
-            "transaction_path": "/tx/{tx}"
-        },
-        "image": "/logos/chains/rinkeby.png",
-        "color": "#c0c2c3",
-        "website": "https://rinkeby.io",
-        "coingecko_id": "ethereum",
-        "group": "evm"
-    },
-    {
         "id": "gorli",
         "chain_id": 5,
-        "domain_id": "3331",
+        "domain_id": "1735353714",
         "name": "Görli",
         "short_name": "GOR",
         "provider_params": [
@@ -67,6 +32,39 @@
         "color": "#c0c2c3",
         "website": "https://goerli.net",
         "coingecko_id": "ethereum",
+        "group": "evm"
+    },
+    {
+        "id": "optimism-gorli",
+        "chain_id": 420,
+        "domain_id": "1735356532",
+        "name": "Optimism Görli",
+        "short_name": "OPT-GOR",
+        "provider_params": [
+            {
+                "chainId": "0x420",
+                "chainName": "Optimism Görli",
+                "rpcUrls": ["https://optimism-goerli.infura.io/v3/9aa3d95b3bc440fa88ea12eaa4456161"],
+                "nativeCurrency": {
+                    "name": "Optimism Görli Ether",
+                    "symbol": "OPT-GOR",
+                    "decimals": 18
+                },
+                "blockExplorerUrls": ["https://blockscout.com/optimism/goerli"]
+            }
+        ],
+        "explorer": {
+            "name": "Etherscan",
+            "url": "https://blockscout.com/optimism/goerli",
+            "icon": "/logos/explorers/etherscan.png",
+            "block_path": "/block/{block}",
+            "address_path": "/address/{address}",
+            "contract_path": "/token/{address}",
+            "contract_0_path": "/address/{address}",
+            "transaction_path": "/tx/{tx}"
+        },
+        "image": "/logos/chains/gorli.png",
+        "color": "#c0c2c3",
         "group": "evm"
     }
 ]
