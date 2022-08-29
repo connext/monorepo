@@ -2,7 +2,7 @@ import { hexlify } from "ethers/lib/utils";
 import { task } from "hardhat/config";
 import { Contract } from "ethers";
 
-import { canonizeId, chainIdToDomain } from "../src/nomad";
+import { canonizeId, chainIdToDomain } from "../src";
 import { Env, getDeploymentName, mustGetEnv } from "../src/utils";
 import deploymentRecords from "../deployments.json";
 

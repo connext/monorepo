@@ -21,24 +21,9 @@ import { mockSubContext } from "../../globalTestHook";
 
 const { requestContext } = mock.loggingContext("Operations:Execute");
 
-const { execute, getBlacklist, getDestinationLocalAsset, sendBid, getMinimumBidsCountForRound } = ExecuteFns;
+const { execute, getDestinationLocalAsset, sendBid, getMinimumBidsCountForRound } = ExecuteFns;
 
 describe("Operations:Execute", () => {
-  describe("#getBlacklist", () => {
-    it("should return no blacklist", async () => {
-      const { destinationBlacklisted, originBlacklisted } = await getBlacklist("1337", "1338");
-      expect(destinationBlacklisted).to.be.false;
-      expect(originBlacklisted).to.be.false;
-    });
-
-    it("should return blacklist", async () => {
-      (mockSubContext.bridgeContext!.blacklist as SinonStub).returns(new Set([1337, 1338]));
-      const { destinationBlacklisted, originBlacklisted } = await getBlacklist("1337", "1338");
-      expect(destinationBlacklisted).to.be.true;
-      expect(originBlacklisted).to.be.true;
-    });
-  });
-
   describe("#getDestinationLocalAsset", () => {
     it("should return the local asset for the destination chain", async () => {
       const mockLocalAsset = "0x456";

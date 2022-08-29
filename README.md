@@ -155,7 +155,7 @@ Note 2: Routers will take a 30-60 minute lockup on their funds when relaying tra
 
 - [agents](https://github.com/connext/nxtp/tree/main/packages/agents) - Any kind of backend service that we have running
 
-  - [Cartograpber](https://github.com/connext/nxtp/tree/main/packages/agents/cartographer) is our chain indexer, which indexes from subgraph
+  - [Cartographer](https://github.com/connext/nxtp/tree/main/packages/agents/cartographer) is our chain indexer, which indexes from subgraph
   - [Lighthouse](https://github.com/connext/nxtp/tree/main/packages/agents/lighthouse) is our implementation of a Watchtower, when transfers are fulfilled using slowpath, they are not executed by a router. So they need to be executed by another agent, and that's what lighthouse does
   - [Relayer](https://github.com/connext/nxtp/tree/main/packages/agents/relayer is an implementatino of a relayer in case we can't use Gelato
   - [Router](https://github.com/connext/nxtp/tree/main/packages/router) - listens for events from messaging service and subgraph, and then dispatches transactions to txService

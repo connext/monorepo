@@ -17,10 +17,10 @@ import {
   RelayerApiPostTaskRequestParams,
   expect,
   getConversionRate,
-  getGelatoTaskStatus,
+  getTaskStatusFromGelato,
   getGelatoRelayerAddress,
 } from "../../src";
-import { GelatoTaskState } from "../../src/types/relayer";
+import { RelayerTaskStatus } from "../../src/types/relayer";
 
 describe("Peripherals:Gelato", () => {
   let axiosGetStub: SinonStub;
@@ -278,7 +278,7 @@ describe("Peripherals:Gelato", () => {
     });
   });
 
-  describe("#getGelatoTaskStatus", () => {
+  describe("#getTaskStatusFromGelato", () => {
     afterEach(() => {
       restore();
       reset();
@@ -286,20 +286,22 @@ describe("Peripherals:Gelato", () => {
     it("happy: should get task status from gelato", async () => {
       axiosGetStub.resolves({
         status: 200,
-        data: [
-          {
-            taskState: "CheckPending",
-          },
-        ],
+        data: {
+          data: [
+            {
+              taskState: "CheckPending",
+            },
+          ],
+        },
       });
 
-      expect(await getGelatoTaskStatus("0x")).to.be.eq(GelatoTaskState.CheckPending);
+      expect(await getTaskStatusFromGelato("0x")).to.be.eq(RelayerTaskStatus.CheckPending);
     });
 
     it("should return NotFound if the request fails", async () => {
       axiosGetStub.throws(new Error("Request failed!"));
 
-      expect(await getGelatoTaskStatus("0x")).to.be.eq(GelatoTaskState.NotFound);
+      expect(await getTaskStatusFromGelato("0x")).to.be.eq(RelayerTaskStatus.NotFound);
     });
   });
 
