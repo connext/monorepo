@@ -14,11 +14,11 @@ import { stub, restore, reset, SinonStub } from "sinon";
 import { constants, BigNumber } from "ethers";
 import Broker from "foo-foo-mq";
 
-import { ctxMock, getOperationsStub, getHelpersStub } from "../../globalTestHook";
-import { mock } from "../../mock";
-import { AuctionExpired, BidVersionInvalid, MissingXCall, ParamsInvalid } from "../../../src/lib/errors";
-import { executeAuction, storeBid } from "../../../src/lib/operations/auctions";
-import { getAllSubsets, getBidsRoundMap, getMinimumBidsCountForRound } from "../../../src/lib/helpers/auctions";
+import { ctxMock, getOperationsStub, getHelpersStub } from "../../../globalTestHook";
+import { mock } from "../../../mock";
+import { AuctionExpired, RouterVersionInvalid, MissingXCall, ParamsInvalid } from "../../../../src/lib/errors";
+import { executeFastPathData, storeFastPathData } from "../../../../src/lib/operations/execute";
+import { getAllSubsets, getBidsRoundMap, getMinimumBidsCountForRound } from "../../../../src/lib/helpers/auctions";
 
 const { requestContext } = mock.loggingContext("BID-TEST");
 
@@ -135,7 +135,7 @@ describe("Operations:Execute:FastPath", () => {
         ...mock.entity.bid(),
         routerVersion: "0.0",
       };
-      await expect(storeBid(invalidBid1, requestContext)).to.be.rejectedWith(BidVersionInvalid);
+      await expect(storeFastPathData(invalidBid1, requestContext)).to.be.rejectedWith(RouterVersionInvalid);
     });
 
     it("should error if the auction has expired", async () => {

@@ -106,6 +106,7 @@ export const makeSubscriber = async (_configOverride?: NxtpRouterConfig) => {
           requestContext,
           methodContext,
           undefined,
+
           { supportedBidVersion: supportedBidVersion, routerVersion: version },
         );
         process.exit(1);
