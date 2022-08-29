@@ -359,6 +359,7 @@ export interface ArbitrumL1ConnectorInterface extends utils.Interface {
   ): Result;
 
   events: {
+    "AggregateRootUpdated(bytes32,bytes32)": EventFragment;
     "DefaultGasPriceUpdated(uint256,uint256)": EventFragment;
     "Dispatch(bytes32,uint256,bytes32,bytes)": EventFragment;
     "MessageProcessed(bytes,address)": EventFragment;
@@ -371,6 +372,7 @@ export interface ArbitrumL1ConnectorInterface extends utils.Interface {
     "SenderRemoved(address)": EventFragment;
   };
 
+  getEvent(nameOrSignatureOrTopic: "AggregateRootUpdated"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "DefaultGasPriceUpdated"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "Dispatch"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "MessageProcessed"): EventFragment;
@@ -382,6 +384,18 @@ export interface ArbitrumL1ConnectorInterface extends utils.Interface {
   getEvent(nameOrSignatureOrTopic: "SenderAdded"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "SenderRemoved"): EventFragment;
 }
+
+export interface AggregateRootUpdatedEventObject {
+  current: string;
+  previous: string;
+}
+export type AggregateRootUpdatedEvent = TypedEvent<
+  [string, string],
+  AggregateRootUpdatedEventObject
+>;
+
+export type AggregateRootUpdatedEventFilter =
+  TypedEventFilter<AggregateRootUpdatedEvent>;
 
 export interface DefaultGasPriceUpdatedEventObject {
   previous: BigNumber;
@@ -924,6 +938,15 @@ export interface ArbitrumL1Connector extends BaseContract {
   };
 
   filters: {
+    "AggregateRootUpdated(bytes32,bytes32)"(
+      current?: null,
+      previous?: null
+    ): AggregateRootUpdatedEventFilter;
+    AggregateRootUpdated(
+      current?: null,
+      previous?: null
+    ): AggregateRootUpdatedEventFilter;
+
     "DefaultGasPriceUpdated(uint256,uint256)"(
       previous?: null,
       current?: null
