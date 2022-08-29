@@ -14,6 +14,7 @@ directive @derivedFrom(field: String!) on FIELD_DEFINITION
 
 type goerli_Asset {
   id: ID!
+  key: goerli_Bytes
   local: goerli_Bytes!
   adoptedAsset: goerli_Bytes!
   canonicalId: goerli_Bytes!
@@ -107,6 +108,12 @@ input goerli_Asset_filter {
   id_lte: ID
   id_in: [ID!]
   id_not_in: [ID!]
+  key: goerli_Bytes
+  key_not: goerli_Bytes
+  key_in: [goerli_Bytes!]
+  key_not_in: [goerli_Bytes!]
+  key_contains: goerli_Bytes
+  key_not_contains: goerli_Bytes
   local: goerli_Bytes
   local_not: goerli_Bytes
   local_in: [goerli_Bytes!]
@@ -147,6 +154,7 @@ input goerli_Asset_filter {
 
 enum goerli_Asset_orderBy {
   id
+  key
   local
   adoptedAsset
   canonicalId
@@ -186,7 +194,7 @@ type goerli_DestinationTransfer {
   callback: goerli_Bytes
   callbackFee: BigInt
   relayerFee: BigInt
-  slippageTol: BigInt
+  destinationMinOut: BigInt
   status: goerli_TransferStatus
   routers(skip: Int = 0, first: Int = 100, orderBy: goerli_Router_orderBy, orderDirection: goerli_OrderDirection, where: goerli_Router_filter): [goerli_Router!]
   originSender: goerli_Bytes
@@ -310,14 +318,14 @@ input goerli_DestinationTransfer_filter {
   relayerFee_lte: BigInt
   relayerFee_in: [BigInt!]
   relayerFee_not_in: [BigInt!]
-  slippageTol: BigInt
-  slippageTol_not: BigInt
-  slippageTol_gt: BigInt
-  slippageTol_lt: BigInt
-  slippageTol_gte: BigInt
-  slippageTol_lte: BigInt
-  slippageTol_in: [BigInt!]
-  slippageTol_not_in: [BigInt!]
+  destinationMinOut: BigInt
+  destinationMinOut_not: BigInt
+  destinationMinOut_gt: BigInt
+  destinationMinOut_lt: BigInt
+  destinationMinOut_gte: BigInt
+  destinationMinOut_lte: BigInt
+  destinationMinOut_in: [BigInt!]
+  destinationMinOut_not_in: [BigInt!]
   status: goerli_TransferStatus
   status_not: goerli_TransferStatus
   status_in: [goerli_TransferStatus!]
@@ -479,7 +487,7 @@ enum goerli_DestinationTransfer_orderBy {
   callback
   callbackFee
   relayerFee
-  slippageTol
+  destinationMinOut
   status
   routers
   originSender
@@ -524,9 +532,9 @@ type goerli_OriginTransfer {
   callback: goerli_Bytes
   callbackFee: BigInt
   relayerFee: BigInt
-  slippageTol: BigInt
+  destinationMinOut: BigInt
   status: goerli_TransferStatus
-  message: goerli_Bytes
+  originMinOut: BigInt
   transactingAsset: goerli_Bytes
   transactingAmount: BigInt
   bridgedAsset: goerli_Bytes
@@ -640,24 +648,26 @@ input goerli_OriginTransfer_filter {
   relayerFee_lte: BigInt
   relayerFee_in: [BigInt!]
   relayerFee_not_in: [BigInt!]
-  slippageTol: BigInt
-  slippageTol_not: BigInt
-  slippageTol_gt: BigInt
-  slippageTol_lt: BigInt
-  slippageTol_gte: BigInt
-  slippageTol_lte: BigInt
-  slippageTol_in: [BigInt!]
-  slippageTol_not_in: [BigInt!]
+  destinationMinOut: BigInt
+  destinationMinOut_not: BigInt
+  destinationMinOut_gt: BigInt
+  destinationMinOut_lt: BigInt
+  destinationMinOut_gte: BigInt
+  destinationMinOut_lte: BigInt
+  destinationMinOut_in: [BigInt!]
+  destinationMinOut_not_in: [BigInt!]
   status: goerli_TransferStatus
   status_not: goerli_TransferStatus
   status_in: [goerli_TransferStatus!]
   status_not_in: [goerli_TransferStatus!]
-  message: goerli_Bytes
-  message_not: goerli_Bytes
-  message_in: [goerli_Bytes!]
-  message_not_in: [goerli_Bytes!]
-  message_contains: goerli_Bytes
-  message_not_contains: goerli_Bytes
+  originMinOut: BigInt
+  originMinOut_not: BigInt
+  originMinOut_gt: BigInt
+  originMinOut_lt: BigInt
+  originMinOut_gte: BigInt
+  originMinOut_lte: BigInt
+  originMinOut_in: [BigInt!]
+  originMinOut_not_in: [BigInt!]
   transactingAsset: goerli_Bytes
   transactingAsset_not: goerli_Bytes
   transactingAsset_in: [goerli_Bytes!]
@@ -750,9 +760,9 @@ enum goerli_OriginTransfer_orderBy {
   callback
   callbackFee
   relayerFee
-  slippageTol
+  destinationMinOut
   status
-  message
+  originMinOut
   transactingAsset
   transactingAmount
   bridgedAsset
@@ -1470,6 +1480,8 @@ type goerli__Block_ {
   hash: goerli_Bytes
   """The block number"""
   number: Int!
+  """Timestamp of the block if available, format depends on the chain"""
+  timestamp: String
 }
 
 """The type for the top-level _meta field"""

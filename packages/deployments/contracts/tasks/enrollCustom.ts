@@ -2,7 +2,7 @@ import { constants, Contract } from "ethers";
 import { hexlify } from "ethers/lib/utils";
 import { task } from "hardhat/config";
 
-import { canonizeId, delay } from "../src/nomad";
+import { canonizeId, delay } from "../src";
 import { Env, getDeploymentName, mustGetEnv } from "../src/utils";
 
 type TaskArgs = {

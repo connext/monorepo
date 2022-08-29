@@ -54,6 +54,7 @@ export const sdkServer = async (): Promise<FastifyInstance> => {
     chains: chains,
     logLevel: configJson.logLevel || "info",
     signerAddress: signerAddress,
+    environment: configJson.environment,
   };
 
   const { nxtpSdkBase, nxtpSdkPool } = await create(nxtpConfig);

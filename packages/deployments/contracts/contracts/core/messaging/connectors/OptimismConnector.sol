@@ -21,7 +21,7 @@ import {Connector} from "./Connector.sol";
  * L2 messenger: https://github.com/ethereum-optimism/optimism/blob/develop/packages/contracts/contracts/L2/messaging/L2CrossDomainMessenger.sol
  * L1 messenger: https://github.com/ethereum-optimism/optimism/blob/develop/packages/contracts/contracts/L1/messaging/L1CrossDomainMessenger.sol
  */
-interface OptimismAMB {
+interface OptimismBridge {
   function sendMessage(
     address _target,
     bytes memory _message,
@@ -49,7 +49,7 @@ abstract contract BaseOptimismConnector is Connector {
   // ============ Public Fns ============
   function _verifySender(address _expected) internal override returns (bool) {
     require(msg.sender == AMB, "!bridge");
-    return OptimismAMB(AMB).xDomainMessageSender() == _expected;
+    return OptimismBridge(AMB).xDomainMessageSender() == _expected;
   }
 }
 
@@ -82,20 +82,25 @@ contract OptimismL2Connector is BaseOptimismConnector {
    * @dev Sends `outboundRoot` to root manager on l1
    */
   function _sendMessage(bytes memory _data) internal override {
-    OptimismAMB(AMB).sendMessage(mirrorConnector, _data, uint32(mirrorProcessGas));
+    OptimismBridge(AMB).sendMessage(mirrorConnector, _data, uint32(mirrorProcessGas));
   }
 
   /**
    * @dev Handles an incoming `aggregateRoot`
    * NOTE: Could store latest root sent and prove aggregate root
    */
-  function _processMessage(bytes memory _data) internal override {
+  function _processMessage(
+    address, // _sender -- not used
+    bytes memory _data
+  ) internal override {
     // enforce this came from connector on l2
     require(_verifySender(mirrorConnector), "!l1Connector");
     // get the data (should be the aggregate root)
     require(_data.length == 32, "!length");
     // set the outbound root for optimism
     update(bytes32(_data));
+    // get the state commitment root
+    // if state commitment root is <
   }
 }
 
@@ -129,7 +134,7 @@ contract OptimismL1Connector is BaseOptimismConnector {
    */
   function _sendMessage(bytes memory _data) internal override {
     require(msg.sender == ROOT_MANAGER, "!rootManager");
-    OptimismAMB(AMB).sendMessage(mirrorConnector, _data, uint32(mirrorProcessGas));
+    OptimismBridge(AMB).sendMessage(mirrorConnector, _data, uint32(mirrorProcessGas));
   }
 
   /**
@@ -138,12 +143,15 @@ contract OptimismL1Connector is BaseOptimismConnector {
    * which requires waiting out the full delay. Need to figure out the right
    * flow to shortcut this
    */
-  function _processMessage(bytes memory _data) internal override {
+  function _processMessage(address _sender, bytes memory _data) internal override {
     // enforce this came from connector on l2
     require(_verifySender(mirrorConnector), "!l2Connector");
     // get the data (should be the outbound root)
     require(_data.length == 32, "!length");
     // set the outbound root for optimism
     IRootManager(ROOT_MANAGER).setOutboundRoot(mirrorDomain, bytes32(_data));
+    // get the state commitment root
+    // if state commitment root is <
+    emit MessageProcessed(_sender, _data, msg.sender);
   }
 }
