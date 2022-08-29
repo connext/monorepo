@@ -52,7 +52,7 @@ export const storeSlowPathData = async (executorData: ExecutorData, _requestCont
   }
 
   // check if executor version is compatible with hosted sequencer
-  const checkVersion = compare(executorVersion, config.supportedVersion!, "<=");
+  const checkVersion = compare(executorVersion, config.supportedVersion!, "<");
   if (checkVersion) {
     throw new ExecutorVersionInvalid({
       supportedVersion: config.supportedVersion,

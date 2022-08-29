@@ -42,7 +42,7 @@ export const storeFastPathData = async (bid: Bid, _requestContext: RequestContex
   }
 
   // check if bid router version is compatible with hosted sequencer
-  const checkVersion = compare(bid.routerVersion, config.supportedVersion!, "<=");
+  const checkVersion = compare(bid.routerVersion, config.supportedVersion!, "<");
   if (checkVersion) {
     throw new RouterVersionInvalid({
       supportedVersion: config.supportedVersion,
