@@ -89,10 +89,7 @@ contract OptimismL2Connector is BaseOptimismConnector {
    * @dev Handles an incoming `aggregateRoot`
    * NOTE: Could store latest root sent and prove aggregate root
    */
-  function _processMessage(
-    address, // _sender -- not used
-    bytes memory _data
-  ) internal override {
+  function _processMessage(bytes memory _data) internal override {
     // enforce this came from connector on l2
     require(_verifySender(mirrorConnector), "!l1Connector");
     // get the data (should be the aggregate root)
@@ -143,7 +140,7 @@ contract OptimismL1Connector is BaseOptimismConnector {
    * which requires waiting out the full delay. Need to figure out the right
    * flow to shortcut this
    */
-  function _processMessage(address _sender, bytes memory _data) internal override {
+  function _processMessage(bytes memory _data) internal override {
     // enforce this came from connector on l2
     require(_verifySender(mirrorConnector), "!l2Connector");
     // get the data (should be the outbound root)
@@ -152,6 +149,6 @@ contract OptimismL1Connector is BaseOptimismConnector {
     IRootManager(ROOT_MANAGER).setOutboundRoot(mirrorDomain, bytes32(_data));
     // get the state commitment root
     // if state commitment root is <
-    emit MessageProcessed(_sender, _data, msg.sender);
+    emit MessageProcessed(_data, msg.sender);
   }
 }
