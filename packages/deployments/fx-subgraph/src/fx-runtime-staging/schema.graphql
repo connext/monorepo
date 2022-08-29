@@ -7,6 +7,8 @@ type Message @entity {
 
   caller: Bytes
   transactionHash: Bytes
+  logIndex: BigInt
+  transactionLogIndex: BigInt
   timestamp: BigInt
   gasPrice: BigInt
   gasLimit: BigInt

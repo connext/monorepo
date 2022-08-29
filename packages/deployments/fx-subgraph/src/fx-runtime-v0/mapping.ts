@@ -1,7 +1,7 @@
 /* eslint-disable prefer-const */
 import { BigInt, crypto, dataSource } from "@graphprotocol/graph-ts";
 
-import { MessageSent } from "../../generated/Connext/ConnextHandler";
+import { MessageSent } from "../../generated/PolygonL2Connector/PolygonL2Connector";
 import { Message } from "../../generated/schema";
 
 /**
@@ -18,8 +18,10 @@ export function handleMessageSent(event: MessageSent): void {
   message.chainId = getChainId();
   message.message = event.params.message;
 
-  message.caller = event.params.caller;
+  message.caller = event.transaction.from;
   message.transactionHash = event.transaction.hash;
+  message.logIndex = event.logIndex;
+  message.transactionLogIndex = event.transactionLogIndex;
   message.timestamp = event.block.timestamp;
   message.gasPrice = event.transaction.gasPrice;
   message.gasLimit = event.transaction.gasLimit;
