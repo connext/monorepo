@@ -28,16 +28,20 @@ contract PolygonL2Connector is Connector, FxBaseChildTunnel {
   )
     Connector(_domain, _mirrorDomain, _amb, _rootManager, _mirrorConnector, _mirrorProcessGas, _processGas, _reserveGas)
     FxBaseChildTunnel(_amb)
-  {}
+  {
+    // setFxRootTunnel(_mirrorConnector);
+  }
 
   // ============ Private fns ============
 
   function _verifySender(address _expected) internal view override returns (bool) {
+    require(msg.sender == AMB, "!bridge");
     return true;
   }
 
   function _sendMessage(bytes memory _data) internal override {
-    _sendMessageToRoot(msg.data);
+    // Simply emit `MessageSent(_data)`
+    _sendMessageToRoot(_data);
   }
 
   function _processMessageFromRoot(
@@ -45,17 +49,14 @@ contract PolygonL2Connector is Connector, FxBaseChildTunnel {
     address sender,
     bytes memory data
   ) internal override validateSender(sender) {
-    _processMessage(data);
+    require(msg.sender == AMB, "!bridge");
+    // get the data (should be the aggregate root)
+    require(data.length == 32, "!length");
+    // update the aggregate root on the domain
+    update(bytes32(data));
   }
 
-  function _processMessage(bytes memory _data) internal override {
-    // only callable by mirror connector
-    require(_verifySender(mirrorConnector), "!mirrorConnector");
-    // get the data (should be the aggregate root)
-    require(_data.length == 32, "!length");
-    // update the aggregate root on the domain
-    update(bytes32(_data));
-  }
+  function _processMessage(bytes memory _data) internal override {}
 }
 
 contract PolygonL1Connector is Connector, FxBaseRootTunnel {
@@ -84,19 +85,17 @@ contract PolygonL1Connector is Connector, FxBaseRootTunnel {
   }
 
   function _sendMessage(bytes memory _data) internal override {
-    _sendMessageToChild(msg.data);
+    _sendMessageToChild(_data);
   }
 
   function _processMessageFromChild(bytes memory message) internal override {
-    _processMessage(message);
+    // get the data (should be the aggregate root)
+    require(message.length == 32, "!length");
+    // update the root on the root manager
+    IRootManager(ROOT_MANAGER).setOutboundRoot(mirrorDomain, bytes32(message));
+
+    emit MessageProcessed(message, msg.sender);
   }
 
-  function _processMessage(bytes memory _data) internal override {
-    // only callable by mirror connector
-    require(_verifySender(mirrorConnector), "!mirrorConnector");
-    // get the data (should be the aggregate root)
-    require(_data.length == 32, "!length");
-    // update the root on the root manager
-    IRootManager(ROOT_MANAGER).setOutboundRoot(mirrorDomain, bytes32(_data));
-  }
+  function _processMessage(bytes memory _data) internal override {}
 }
