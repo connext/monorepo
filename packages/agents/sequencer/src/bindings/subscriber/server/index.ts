@@ -37,7 +37,7 @@ export const api = {
     },
     supportedBidVersion: async (res: FastifyReply) => {
       const { config } = getContext();
-      return res.status(200).send(config.supportedBidVersion);
+      return res.status(200).send(config.supportedVersion);
     },
     metrics: async (res: FastifyReply) => {
       const { logger } = getContext();
