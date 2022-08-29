@@ -1,0 +1,70 @@
+[
+    {
+        "id": "gorli",
+        "chain_id": 5,
+        "domain_id": "1735353714",
+        "name": "Görli",
+        "short_name": "GOR",
+        "provider_params": [
+            {
+                "chainId": "0x5",
+                "chainName": "Ethereum Görli",
+                "rpcUrls": ["https://goerli.infura.io/v3/9aa3d95b3bc440fa88ea12eaa4456161"],
+                "nativeCurrency": {
+                    "name": "Görli Ether",
+                    "symbol": "GOR",
+                    "decimals": 18
+                },
+                "blockExplorerUrls": ["https://goerli.etherscan.io"]
+            }
+        ],
+        "explorer": {
+            "name": "Etherscan",
+            "url": "https://goerli.etherscan.io",
+            "icon": "/logos/explorers/etherscan.png",
+            "block_path": "/block/{block}",
+            "address_path": "/address/{address}",
+            "contract_path": "/token/{address}",
+            "contract_0_path": "/address/{address}",
+            "transaction_path": "/tx/{tx}"
+        },
+        "image": "/logos/chains/gorli.png",
+        "color": "#c0c2c3",
+        "website": "https://goerli.net",
+        "coingecko_id": "ethereum",
+        "group": "evm"
+    },
+    {
+        "id": "optimism-gorli",
+        "chain_id": 420,
+        "domain_id": "1735356532",
+        "name": "Optimism Görli",
+        "short_name": "OPT-GOR",
+        "provider_params": [
+            {
+                "chainId": "0x420",
+                "chainName": "Optimism Görli",
+                "rpcUrls": ["https://optimism-goerli.infura.io/v3/9aa3d95b3bc440fa88ea12eaa4456161"],
+                "nativeCurrency": {
+                    "name": "Optimism Görli Ether",
+                    "symbol": "OPT-GOR",
+                    "decimals": 18
+                },
+                "blockExplorerUrls": ["https://blockscout.com/optimism/goerli"]
+            }
+        ],
+        "explorer": {
+            "name": "Etherscan",
+            "url": "https://blockscout.com/optimism/goerli",
+            "icon": "/logos/explorers/etherscan.png",
+            "block_path": "/block/{block}",
+            "address_path": "/address/{address}",
+            "contract_path": "/token/{address}",
+            "contract_0_path": "/address/{address}",
+            "transaction_path": "/tx/{tx}"
+        },
+        "image": "/logos/chains/gorli.png",
+        "color": "#c0c2c3",
+        "group": "evm"
+    }
+]
