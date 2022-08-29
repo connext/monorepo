@@ -1,4 +1,4 @@
-import { delay, ERC20Abi } from "@connext/nxtp-utils";
+import { delay, ERC20Abi, XCallArgs } from "@connext/nxtp-utils";
 import { constants, providers, utils, Wallet, BigNumber } from "ethers";
 import { NxtpSdkBase } from "@connext/nxtp-sdk";
 
@@ -132,8 +132,8 @@ export const prepareTx = async (wallet: Wallet): Promise<providers.TransactionRe
   await destinationProvider.send("evm_setAutomine", [false]);
   await destinationProvider.send("hardhat_setBalance", [PARAMETERS.AGENTS.USER.address, "0x84595161401484A000000"]);
   const sdkBase = await NxtpSdkBase.create(sdkConfig);
-  const xcallData = {
-    amount: "1000",
+  const xcallData: XCallArgs = {
+    transactingAmount: "1000",
     params: {
       to: wallet.address,
       originDomain: PARAMETERS.A.DOMAIN,
@@ -146,9 +146,10 @@ export const prepareTx = async (wallet: Wallet): Promise<providers.TransactionRe
       receiveLocal: false,
       recovery: wallet.address,
       relayerFee: "0",
-      slippageTol: "0",
+      destinationMinOut: "0",
     },
-    transactingAssetId: PARAMETERS.ASSET.address,
+    transactingAsset: PARAMETERS.ASSET.address,
+    originMinOut: "0",
   };
   return sdkBase.xcall(xcallData);
 };
