@@ -87,6 +87,9 @@ export const DESTINATION_TRANSFER_ENTITY = `
       }
       originSender
 
+      # Computed
+      fees
+
       # Executed Transaction
       executedCaller
       executedTransactionHash
@@ -104,11 +107,42 @@ export const DESTINATION_TRANSFER_ENTITY = `
       reconciledBlockNumber
 `;
 
-export const BLOCK_NUMBER_ENTITY = `
-      block {
-        number
-      }
+export const ASSET_ENTITY = `
+  id
+  key
+  local
+  adoptedAsset
+  canonicalId
+  canonicalDomain
+  blockNumber
 `;
+
+export const ASSET_BALANCE_ENTITY = `
+  id
+  amount
+  router {
+    id
+  }
+  routerfees
+  asset {
+    ${ASSET_ENTITY}
+  }
+`;
+
+export const ROUTER_ENTITY = ` 
+  id
+  isActive
+  assetBalances {
+    ${ASSET_BALANCE_ENTITY}
+  }
+`;
+
+export const BLOCK_NUMBER_ENTITY = `
+  block {
+    number
+  }
+`;
+
 const lastedBlockNumberQuery = (prefix: string): string => {
   return `${prefix}__meta { ${BLOCK_NUMBER_ENTITY}}`;
 };
@@ -142,16 +176,7 @@ export const getMaxRoutersPerTransferQuery = (prefixes: string[]): string => {
 
 export const getAssetBalanceQuery = (prefix: string, router: string, local: string): string => {
   const queryString = `
-    ${prefix}_assetBalance(id: "${local}-${router}") {
-      amount
-      asset {
-        canonicalId
-        canonicalDomain
-        local
-        adoptedAsset
-        blockNumber
-      }
-    }`;
+    ${prefix}_assetBalance(id: "${local}-${router}") {${ASSET_BALANCE_ENTITY}}`;
   return gql`
     query GetAssetBalance {
       ${queryString}
@@ -161,16 +186,7 @@ export const getAssetBalanceQuery = (prefix: string, router: string, local: stri
 
 export const getAssetBalancesQuery = (prefix: string, router: string): string => {
   const queryString = `
-    ${prefix}_assetBalances(where: { router: "${router}" }) {
-      amount
-      asset {
-          canonicalId
-          canonicalDomain
-          local
-          adoptedAsset
-          blockNumber
-      }
-    }`;
+    ${prefix}_assetBalances(where: { router: "${router}" }) {${ASSET_BALANCE_ENTITY}}`;
 
   return gql`
       query GetAssetBalance {
@@ -190,19 +206,7 @@ export const getAssetBalancesRoutersQuery = (
     skip: ${offset},
     first: ${limit},
     orderBy: id,
-    orderDirection: ${orderDirection}) {
-      id
-      assetBalances {
-        amount
-        asset {
-          local
-          adoptedAsset
-          canonicalId
-          canonicalDomain
-          blockNumber
-        }
-      }
-    }`;
+    orderDirection: ${orderDirection}) {${ROUTER_ENTITY}}`;
 
   return gql`
       query GetAssetBalancesRouters {
@@ -213,9 +217,7 @@ export const getAssetBalancesRoutersQuery = (
 
 export const getRouterQuery = (prefix: string, router: string): string => {
   const queryString = `
-    ${prefix}_router(id: "${router}") {
-      id
-    }`;
+    ${prefix}_router(id: "${router}") {${ROUTER_ENTITY}}`;
 
   return gql`
     query GetRouter {
@@ -226,14 +228,7 @@ export const getRouterQuery = (prefix: string, router: string): string => {
 
 export const getAssetByLocalQuery = (prefix: string, local: string): string => {
   const queryString = `
-    ${prefix}_assets(where: { local: "${local}" }) {
-      id
-      local
-      adoptedAsset
-      canonicalId
-      canonicalDomain
-      blockNumber
-    }`;
+    ${prefix}_assets(where: { local: "${local}" }) {${ASSET_ENTITY}}`;
   return gql`
     query GetAssetByLocal {
       ${queryString}
@@ -243,15 +238,7 @@ export const getAssetByLocalQuery = (prefix: string, local: string): string => {
 
 export const getAssetByCanonicalIdQuery = (prefix: string, canonicalId: string): string => {
   const str = `
-    ${prefix}_assets(where: { canonicalId: "${canonicalId}" }, orderBy: blockNumber, orderDirection: desc) {
-            id
-            local
-            adoptedAsset
-            canonicalId
-            canonicalDomain
-            blockNumber
-        }
-    `;
+    ${prefix}_assets(where: { canonicalId: "${canonicalId}" }, orderBy: blockNumber, orderDirection: desc) {${ASSET_ENTITY}}`;
 
   return gql`
     query GetAssetByCanonicalId {
