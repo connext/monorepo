@@ -48,6 +48,8 @@ jobs:
         run: yarn test:all
 
       - name: Yarn lint
+        env:
+          NODE_OPTIONS: "--max-old-space-size=8192"
         run: yarn lint:all
 
       - name: Publish

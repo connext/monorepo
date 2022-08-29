@@ -1,0 +1,20 @@
+[
+    {
+        "id": "test",
+        "symbol": "TEST",
+        "name": "Test",
+        "is_stablecoin": true,
+        "contracts": [
+            {
+                "contract_address": "0x7ea6eA49B0b0Ae9c5db7907d139D9Cd3439862a1",
+                "chain_id": 5,
+                "contract_decimals": 18
+            },
+            {
+                "contract_address": "0x68Db1c8d85C09d546097C65ec7DCBFF4D6497CbF",
+                "chain_id": 420,
+                "contract_decimals": 18
+            }
+        ]
+    }
+]
