@@ -27,7 +27,8 @@
     "packages/agents/relayer",
     "packages/agents/lighthouse",
     "packages/integration",
-    "packages/examples/sdk-server"
+    "packages/examples/sdk-server",
+    "packages/examples/bridge-reference"
   ],
   "scripts": {
     "lint:all": "NODE_OPTIONS=--max_old_space_size=4096 yarn workspaces foreach --exclude @connext/nxtp-subgraph --exclude @connext/nxtp-integration run lint --fix",
