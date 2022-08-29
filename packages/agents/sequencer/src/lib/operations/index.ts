@@ -1,14 +1,22 @@
-import { storeBid, executeAuction } from "./auctions";
-import { sendToRelayer } from "./relayer";
+import { storeFastPathData, executeFastPathData, executeSlowPathData, storeSlowPathData } from "./execute";
+import { sendExecuteFastToRelayer, sendExecuteSlowToRelayer } from "./relayer";
+import { updateTask, getTaskStatus } from "./tasks";
 
 export const getOperations = () => {
   return {
-    auctions: {
-      storeBid,
-      executeAuction,
+    execute: {
+      storeFastPathData,
+      executeFastPathData,
+      storeSlowPathData,
+      executeSlowPathData,
     },
     relayer: {
-      sendToRelayer,
+      sendExecuteFastToRelayer,
+      sendExecuteSlowToRelayer,
+    },
+    tasks: {
+      updateTask,
+      getTaskStatus,
     },
   };
 };

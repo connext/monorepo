@@ -13,8 +13,6 @@ import {IDiamondCut} from "../interfaces/IDiamondCut.sol";
 library LibDiamond {
   bytes32 constant DIAMOND_STORAGE_POSITION = keccak256("diamond.standard.diamond.storage");
 
-  uint256 private constant _delay = 7 days;
-
   struct FacetAddressAndPosition {
     address facetAddress;
     uint96 functionSelectorPosition; // position in facetFunctionSelectors.functionSelectors array
@@ -40,6 +38,8 @@ library LibDiamond {
     address contractOwner;
     // hash of proposed facets => acceptance time
     mapping(bytes32 => uint256) acceptanceTimes;
+    // acceptance delay for upgrading facets
+    uint256 acceptanceDelay;
   }
 
   function diamondStorage() internal pure returns (DiamondStorage storage ds) {
@@ -73,8 +73,9 @@ library LibDiamond {
     address _init,
     bytes memory _calldata
   ) internal {
-    uint256 acceptance = block.timestamp + _delay;
-    diamondStorage().acceptanceTimes[keccak256(abi.encode(_diamondCut, _init, _calldata))] = acceptance;
+    DiamondStorage storage ds = diamondStorage();
+    uint256 acceptance = block.timestamp + ds.acceptanceDelay;
+    ds.acceptanceTimes[keccak256(abi.encode(_diamondCut, _init, _calldata))] = acceptance;
     emit DiamondCutProposed(_diamondCut, _init, _calldata, acceptance);
   }
 
@@ -85,6 +86,8 @@ library LibDiamond {
     address _init,
     bytes memory _calldata
   ) internal {
+    // NOTE: you can always rescind a proposed facet cut as the owner, even if outside of the validity
+    // period or befor the delay elpases
     diamondStorage().acceptanceTimes[keccak256(abi.encode(_diamondCut, _init, _calldata))] = 0;
     emit DiamondCutRescinded(_diamondCut, _init, _calldata);
   }
@@ -100,7 +103,7 @@ library LibDiamond {
     DiamondStorage storage ds = diamondStorage();
     if (ds.facetAddresses.length != 0) {
       uint256 time = ds.acceptanceTimes[keccak256(abi.encode(_diamondCut, _init, _calldata))];
-      require(time != 0 && time < block.timestamp, "LibDiamond: delay not elapsed");
+      require(time != 0 && time <= block.timestamp, "LibDiamond: delay not elapsed");
     } // Otherwise, this is the first instance of deployment and it can be set automatically
     for (uint256 facetIndex; facetIndex < _diamondCut.length; facetIndex++) {
       IDiamondCut.FacetCutAction action = _diamondCut[facetIndex].action;

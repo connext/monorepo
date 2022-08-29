@@ -1,7 +1,7 @@
 import { Contract } from "ethers";
 import { task } from "hardhat/config";
 
-import { getDomainInfoFromChainId } from "../src/nomad";
+import { chainIdToDomain } from "../src";
 import { Env, getDeploymentName, mustGetEnv } from "../src/utils";
 
 type TaskArgs = {
@@ -34,7 +34,7 @@ export default task("set-local-domain", "Set the local domain of the token regis
 
     const { chainId } = await hre.ethers.provider.getNetwork();
 
-    const { domain } = await getDomainInfoFromChainId(+chainId, hre);
+    const domain = chainIdToDomain(+chainId);
 
     const setLocalTx = await registry.setLocalDomain(domain);
     console.log("set local domain tx:", setLocalTx);

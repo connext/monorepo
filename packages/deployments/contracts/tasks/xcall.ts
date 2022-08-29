@@ -3,7 +3,7 @@ import { task } from "hardhat/config";
 import { CallParams, XCallArgs } from "@connext/nxtp-utils";
 
 import { Env, getDeploymentName, mustGetEnv } from "../src/utils";
-import { canonizeId, getDomainInfoFromChainId } from "../src/nomad";
+import { canonizeId, chainIdToDomain } from "../src";
 
 type TaskArgs = {
   transactingAssetId?: string;
@@ -18,8 +18,10 @@ type TaskArgs = {
   callbackFee?: string;
   forceSlow?: string;
   receiveLocal?: string;
+  agent?: string;
   recovery?: string;
-  slippageTol?: string;
+  originMinOut?: string;
+  destinationMinOut?: string;
   runs?: number;
   accounts?: number;
   showArgs?: string;
@@ -37,8 +39,10 @@ export default task("xcall", "Prepare a cross-chain tx")
   .addOptionalParam("callbackFee", "Override callback fee")
   .addOptionalParam("forceSlow", "Override for forcing slow path")
   .addOptionalParam("receiveLocal", "Override for receiving local")
+  .addOptionalParam("agent", "Override for agent address")
   .addOptionalParam("recovery", "Override for recovery address")
-  .addOptionalParam("slippageTol", "Override for slippage tolerance")
+  .addOptionalParam("originMinOut", "Override for origin domain tokens out (slippage tolerance)")
+  .addOptionalParam("destinationMinOut", "Override for destination domain tokens out (slippage tolerance)")
   .addOptionalParam("env", "Environment of contracts")
   .addOptionalParam("runs", "Number of times to fire the xcall")
   .addOptionalParam("accounts", "Number of accounts to fire xcalls in parallel")
@@ -58,8 +62,10 @@ export default task("xcall", "Prepare a cross-chain tx")
         callbackFee: _callbackFee,
         forceSlow: _forceSlow,
         receiveLocal: _receiveLocal,
+        agent: _agent,
         recovery: _recovery,
-        slippageTol: _slippageTol,
+        originMinOut: _originMinOut,
+        destinationMinOut: _destinationMinOut,
         runs: _runs,
         accounts: _accounts,
         showArgs: _showArgs,
@@ -81,10 +87,14 @@ export default task("xcall", "Prepare a cross-chain tx")
 
       const senders = await hre.ethers.getSigners();
       senders.splice(accounts);
+      console.log(
+        "senders: ",
+        senders.map((s) => s.address),
+      );
 
       // Get the origin and destination domains.
       const network = await hre.ethers.provider.getNetwork();
-      const originDomain = (await getDomainInfoFromChainId(network.chainId, hre)).domain;
+      const originDomain = chainIdToDomain(network.chainId);
       const destinationDomain = +(_destinationDomain ?? process.env.TRANSFER_DESTINATION_DOMAIN ?? "0");
       if (!destinationDomain) {
         throw new Error("Destination domain must be specified as params or from env (TRANSFER_DESTINATION_DOMAIN)");
@@ -141,8 +151,10 @@ export default task("xcall", "Prepare a cross-chain tx")
       const callbackFee = _callbackFee ?? "0";
       const forceSlow = _forceSlow === "true" ? true : false;
       const receiveLocal = _receiveLocal === "true" ? true : false;
+      const agent = _agent ?? to;
       const recovery = _recovery ?? to;
-      const slippageTol = _slippageTol ?? "0";
+      const destinationMinOut = _destinationMinOut ?? "0";
+      const originMinOut = _originMinOut ?? "0";
 
       // Load contracts
       const connextName = getDeploymentName("ConnextHandler", env);
@@ -157,6 +169,23 @@ export default task("xcall", "Prepare a cross-chain tx")
       }
       console.log("tokenRegistry:", tokenRegistry);
 
+      const domain = await connext.connect(senders[0]).domain();
+      if (domain !== originDomain) {
+        throw new Error(`Wrong origin domain!. expected: ${domain}, provided: ${originDomain}`);
+      }
+
+      if (originDomain === destinationDomain) {
+        throw new Error(`origin domain == destination domain!`);
+      }
+
+      console.log("domain", domain);
+
+      const connextion = await connext.connect(senders[0]).connextion(destinationDomain);
+      if (connextion === "0x0000000000000000000000000000000000000000") {
+        throw new Error(`destination domain not supported!`);
+      }
+      console.log(`connextion for domain ${destinationDomain}: ${connextion}`);
+
       // Construct xcall args
       const params: CallParams = {
         to: to,
@@ -164,21 +193,21 @@ export default task("xcall", "Prepare a cross-chain tx")
         originDomain: `${originDomain}`,
         destinationDomain: `${destinationDomain}`,
         recovery,
-        agent: constants.AddressZero,
+        agent,
         callback,
         callbackFee,
         relayerFee,
         forceSlow,
         receiveLocal,
-        slippageTol,
+        destinationMinOut,
       };
 
       const args: XCallArgs = {
         params,
-        transactingAssetId,
-        amount,
+        transactingAsset: transactingAssetId,
+        transactingAmount: amount,
+        originMinOut,
       };
-
       // Check balances and allowances
       for (let i = 0; i < senders.length; i++) {
         let balance: BigNumber;
@@ -186,10 +215,14 @@ export default task("xcall", "Prepare a cross-chain tx")
           balance = await hre.ethers.provider.getBalance(senders[i].address);
         } else {
           const erc20 = await hre.ethers.getContractAt("IERC20", transactingAssetId, senders[i]);
-          const allowance = await erc20.connect(senders[i]).allowance(senders[i].address, connextAddress);
+          console.log("erc20: ", erc20.address);
+          const allowance = await erc20.allowance(senders[i].address, connextAddress);
+          console.log("allowance: ", allowance.toString());
           if (allowance.lt(BigNumber.from(amount).mul(runs))) {
             tx = await erc20.approve(connextAddress, constants.MaxUint256);
-            await tx.wait();
+            console.log("allowance tx: ", tx.hash);
+            const r = await tx.wait();
+            console.log("allowance tx mined: ", r.transactionHash);
           }
           balance = await erc20.balanceOf(senders[i].address);
         }
@@ -208,13 +241,7 @@ export default task("xcall", "Prepare a cross-chain tx")
         const receipts = Promise.all(
           senders.map(async (sender) => {
             args.params.to = sender.address;
-
-            const tx = await connext
-              .connect(sender)
-              .functions.xcall(args, { from: sender.address, gasLimit: 2_000_000 });
-            console.log(`Transaction from sender: ${sender.address}`);
-            console.log("  Tx: ", tx.hash);
-
+            const encoded = connext.interface.encodeFunctionData("xcall", [args]);
             if (showArgs) {
               console.log("  originDomain: ", originDomain);
               console.log("  destinationDomain: ", destinationDomain);
@@ -226,12 +253,18 @@ export default task("xcall", "Prepare a cross-chain tx")
               console.log("  forceSlow: ", forceSlow);
               console.log("  receiveLocal: ", receiveLocal);
               console.log("  recovery: ", recovery);
-              console.log("  slippageTol:", slippageTol);
+              console.log("  originMinOut:", originMinOut);
+              console.log("  destinationMinOut:", destinationMinOut);
               console.log("xcall args", JSON.stringify(args));
-              const encoded = connext.interface.encodeFunctionData("xcall", [args]);
               console.log("encoded: ", encoded);
               console.log("to: ", connext.address);
             }
+
+            const tx = await connext
+              .connect(sender)
+              .functions.xcall(args, { from: sender.address, gasLimit: 2_000_000 });
+            console.log(`Transaction from sender: ${sender.address}`);
+            console.log("  Tx: ", tx.hash);
 
             return tx.wait();
           }),

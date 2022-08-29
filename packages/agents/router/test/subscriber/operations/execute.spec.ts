@@ -3,14 +3,13 @@ import { reset, restore, SinonStub, stub } from "sinon";
 import { BaseRequestContext, Bid, expect, formatUrl, OriginTransfer } from "@connext/nxtp-utils";
 import axios from "axios";
 
-import * as ExecuteFns from "../../../src/subscriber/operations/execute";
+import * as ExecuteFns from "../../../src/tasks/subscriber/operations/execute";
 import * as Mockable from "../../../src/mockable";
 import {
   ParamsInvalid,
   NotEnoughAmount,
   MissingXCall,
   CallDataForNonContract,
-  SequencerResponseInvalid,
   AuctionExpired,
   InvalidAuctionRound,
   UnableToGetAsset,
@@ -22,24 +21,9 @@ import { mockSubContext } from "../../globalTestHook";
 
 const { requestContext } = mock.loggingContext("Operations:Execute");
 
-const { execute, getBlacklist, getDestinationLocalAsset, sendBid, getMinimumBidsCountForRound } = ExecuteFns;
+const { execute, getDestinationLocalAsset, sendBid, getMinimumBidsCountForRound } = ExecuteFns;
 
 describe("Operations:Execute", () => {
-  describe("#getBlacklist", () => {
-    it("should return no blacklist", async () => {
-      const { destinationBlacklisted, originBlacklisted } = await getBlacklist("1337", "1338");
-      expect(destinationBlacklisted).to.be.false;
-      expect(originBlacklisted).to.be.false;
-    });
-
-    it("should return blacklist", async () => {
-      (mockSubContext.bridgeContext!.blacklist as SinonStub).returns(new Set([1337, 1338]));
-      const { destinationBlacklisted, originBlacklisted } = await getBlacklist("1337", "1338");
-      expect(destinationBlacklisted).to.be.true;
-      expect(originBlacklisted).to.be.true;
-    });
-  });
-
   describe("#getDestinationLocalAsset", () => {
     it("should return the local asset for the destination chain", async () => {
       const mockLocalAsset = "0x456";
@@ -66,7 +50,7 @@ describe("Operations:Execute", () => {
 
     it("happy", async () => {
       const result = await sendBid(mockBid, requestContext);
-      expect(axiosPostStub).to.have.been.calledOnceWithExactly(formatUrl(mockSequencerUrl, "auctions"), mockBid);
+      expect(axiosPostStub).to.have.been.calledOnceWithExactly(formatUrl(mockSequencerUrl, "execute-fast"), mockBid);
       expect(result).to.equal("ok");
     });
 

@@ -17,7 +17,11 @@ import { getOperations } from "../../lib/operations";
 
 export const bindServer = () =>
   new Promise<FastifyInstance>((res) => {
-    const { config, logger } = getContext();
+    const {
+      config,
+      logger,
+      adapters: { cache },
+    } = getContext();
     const server = fastify({ logger: pino({ level: config.logLevel === "debug" ? "debug" : "warn" }) });
 
     server.get("/ping", async (_req, res) => {
@@ -60,6 +64,19 @@ export const bindServer = () =>
         }
       },
     );
+
+    server.get<{ Params: { taskId: string } }>("/tasks/:taskId", async (request, response) => {
+      const { requestContext, methodContext } = createLoggingContext("GET /tasks/:taskId endpoint");
+
+      try {
+        const { taskId } = request.params;
+        const status = await cache.tasks.getStatus(taskId);
+        return response.status(200).send([{ taskId, taskState: status }]);
+      } catch (error: unknown) {
+        logger.error(`Error getting task status`, requestContext, methodContext);
+        return response.code(500).send({ message: `Error getting task status`, error: jsonifyError(error as Error) });
+      }
+    });
 
     server.listen(config.server.port, config.server.host, (err, address) => {
       if (err) {

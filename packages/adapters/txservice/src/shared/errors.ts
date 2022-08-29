@@ -36,7 +36,14 @@ export class RpcError extends NxtpError {
   };
 
   constructor(public readonly reason: Values<typeof RpcError.reasons>, public readonly context: any = {}) {
-    super(reason, context, RpcError.type);
+    const errors = (context.errors ? (context.errors as any[]) : []).map((e, i) => `-${i}: ${e}`).join(";\n");
+    const stringifiedContext = Object.entries({
+      ...context,
+      errors,
+    } as unknown as object)
+      .map((k, v) => `${k}: ${v}`)
+      .join("\n");
+    super(reason + `\n{${stringifiedContext}}`, context, RpcError.type);
   }
 }
 
@@ -189,7 +196,10 @@ export class ServerError extends NxtpError {
   };
 
   constructor(public readonly reason?: Values<typeof ServerError.reasons>, public readonly context: any = {}) {
-    super(reason ?? "Server error occurred.", context, ServerError.type);
+    const stringifiedContext = Object.entries(context as unknown as object)
+      .map((k, v) => `${k}: ${v}`)
+      .join(";");
+    super((reason ?? "Server error occurred.") + `{${stringifiedContext}}`, context, ServerError.type);
   }
 }
 
@@ -355,12 +365,39 @@ export const parseError = (error: any): NxtpError => {
   } else if (typeof error.responseText === "string") {
     message = error.responseText;
   }
+
+  // Preserve error data, if applicable.
+  let data = "";
+  if (error.data) {
+    if (error.data.data) {
+      data = error.data.data.toString();
+    } else {
+      data = error.data.toString();
+    }
+  } else if (error.error?.data) {
+    if (error.error.data.data) {
+      data = error.error.data.data;
+    } else {
+      data = error.error.data;
+    }
+  } else if (error.body) {
+    if (error.body.data) {
+      if (error.body.data.data) {
+        data = error.body.data.data;
+      } else {
+        data = error.body.data;
+      }
+    }
+  }
+
   // Preserve the original message before making it lower case.
   const originalMessage = message;
   message = (message || "").toLowerCase();
   const context = {
+    data: data ?? "n/a",
     message: originalMessage,
-    chainError: { code: error.code, reason: error.reason, data: error.error ? error.error.data : "n/a" },
+    code: error.code ?? "n/a",
+    reason: error.reason ?? "n/a",
   };
 
   if (message.match(/execution reverted/)) {

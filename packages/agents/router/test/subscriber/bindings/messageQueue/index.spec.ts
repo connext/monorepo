@@ -1,6 +1,6 @@
 import { expect } from "@connext/nxtp-utils";
 
-import { bindMessageQueue } from "../../../../src/subscriber/bindings/messageQueue";
+import { bindMessageQueue } from "../../../../src/tasks/subscriber/bindings/messageQueue";
 import { mockSubContext } from "../../../globalTestHook";
 import { XCALL_MESSAGE_TYPE, XCALL_QUEUE } from "../../../../src/setup";
 

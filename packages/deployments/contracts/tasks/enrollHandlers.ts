@@ -2,12 +2,12 @@ import { hexlify } from "ethers/lib/utils";
 import { task } from "hardhat/config";
 import { Contract } from "ethers";
 
-import { canonizeId, getDomainInfoFromChainId } from "../src/nomad";
+import { canonizeId, chainIdToDomain } from "../src";
 import { Env, getDeploymentName, mustGetEnv } from "../src/utils";
 import deploymentRecords from "../deployments.json";
 
 type TaskArgs = {
-  type: "all" | "connext" | "promise" | "relayer";
+  type: "all" | "bridge" | "promise" | "relayer";
   chains: string; // 1,2,3..
   env?: Env;
 };
@@ -34,7 +34,11 @@ export default task("enroll-handlers", "Add a remote router")
     console.log("chains:", chains);
     console.log("deployer: ", deployer.address);
 
-    const names = ["ConnextHandler", "PromiseRouterUpgradeBeaconProxy", "RelayerFeeRouterUpgradeBeaconProxy"]
+    const names = [
+      "BridgeRouterUpgradeBeaconProxy",
+      "PromiseRouterUpgradeBeaconProxy",
+      "RelayerFeeRouterUpgradeBeaconProxy",
+    ]
       .filter((name) => {
         if (type === "all") {
           return true;
@@ -61,7 +65,7 @@ export default task("enroll-handlers", "Add a remote router")
 
     for (const { chain, remotes } of handlers) {
       console.log(`enrolling ${remotes.length} remote handlers for ${chain}`);
-      const { domain } = await getDomainInfoFromChainId(chain, hre);
+      const domain = chainIdToDomain(chain);
       for (const { address, name } of remotes) {
         const localRouterDeployment = await hre.deployments.get(name);
         const { abi: localRouterAbi } = await hre.deployments.get(

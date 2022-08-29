@@ -61,6 +61,8 @@ export const mockOriginTransferEntity = {
   gasPrice: "10000000000",
   gasLimit: "1000000",
   blockNumber: 5000,
+  originMinOut: "123",
+  destinationMinOut: "456",
 };
 
 export const mockDestinationTransferEntity = {
@@ -86,6 +88,7 @@ export const mockDestinationTransferEntity = {
   reconciledGasPrice: "10000000000",
   reconciledGasLimit: "1000000",
   reconciledBlockNumber: 5000,
+  destinationMinOut: "456",
 };
 
 const defaultContext: { config: SubgraphMap } = {

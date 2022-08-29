@@ -89,7 +89,7 @@ export class RouterNotApproved extends ExecuteError {
 
 export class SequencerResponseInvalid extends ExecuteError {
   constructor(context: any = {}) {
-    super("sendBid: POST request returned invalid response", context, SequencerResponseInvalid.name);
+    super("Sequencer POST request returned invalid response", context, SequencerResponseInvalid.name);
   }
 }
 
@@ -102,12 +102,6 @@ export class AuctionExpired extends ExecuteError {
 export class SanityCheckFailed extends ExecuteError {
   constructor(context: any = {}) {
     super("Sanity check failed", context, SanityCheckFailed.name);
-  }
-}
-
-export class NomadHomeBlacklisted extends ExecuteError {
-  constructor(context: any = {}) {
-    super("Home network is on blacklist (nomad down)", context, NomadHomeBlacklisted.name);
   }
 }
 
@@ -132,5 +126,27 @@ export class RetryableBidPostError extends ExecuteError {
 export class NonRetryableBidPostError extends ExecuteError {
   constructor(context: any = {}) {
     super("Could not send bid, nonretryable", context, NonRetryableBidPostError.name, undefined, false);
+  }
+}
+
+export class CartoApiRequestFailed extends ExecuteError {
+  constructor(context: any = {}) {
+    super("Cartographer api request failed, waiting for next loop", context, CartoApiRequestFailed.name);
+  }
+}
+
+export class DomainNotSupported extends ExecuteError {
+  constructor(domain: string, transferId: string, context: any = {}) {
+    super(
+      "Destination domain for this transfer is not supported",
+      { ...context, domain, transferId },
+      DomainNotSupported.name,
+    );
+  }
+}
+
+export class SequencerPostFailed extends ExecuteError {
+  constructor(context: any = {}) {
+    super("Sequencer POST request failed", context, SequencerPostFailed.name);
   }
 }

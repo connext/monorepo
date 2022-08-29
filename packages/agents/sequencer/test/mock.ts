@@ -1,9 +1,9 @@
-import { utils, BigNumber } from "ethers";
+import { utils, BigNumber, Wallet } from "ethers";
 import { createStubInstance, SinonStubbedInstance, stub } from "sinon";
 import { AuctionsCache, RoutersCache, StoreManager } from "@connext/nxtp-adapters-cache";
 import { SubgraphReader } from "@connext/nxtp-adapters-subgraph";
 import { ChainReader, ConnextContractInterfaces } from "@connext/nxtp-txservice";
-import { mkAddress, Logger, mock as _mock, mkBytes32 } from "@connext/nxtp-utils";
+import { mkAddress, Logger, mock as _mock, mkBytes32, mockSequencer } from "@connext/nxtp-utils";
 import { ConnextInterface } from "@connext/nxtp-contracts/typechain-types/Connext";
 import { ConnextPriceOracleInterface } from "@connext/nxtp-contracts/typechain-types/ConnextPriceOracle";
 import { TokenRegistryInterface } from "@connext/nxtp-contracts/typechain-types/TokenRegistry";
@@ -25,7 +25,8 @@ export const mock = {
         chainreader: mock.adapters.chainreader(),
         contracts: mock.adapters.contracts(),
         relayer: mock.adapters.relayer(),
-        mqClient: mock.adapters.mqClient(),
+        mqClient: mock.adapters.mqClient() as any,
+        wallet: createStubInstance(Wallet, { getAddress: Promise.resolve(mockSequencer) }),
       },
       config: mock.config(),
       chainData: mock.chainData(),
@@ -68,7 +69,7 @@ export const mock = {
     mode: {
       cleanup: false,
     },
-    supportedBidVersion: "0.0.1",
+    supportedVersion: "0.0.1",
     environment: "staging",
     messageQueue: {
       connection: {
@@ -140,6 +141,7 @@ export const mock = {
         priceOracle: priceOracle as unknown as ConnextPriceOracleInterface,
         tokenRegistry: tokenRegistry as unknown as TokenRegistryInterface,
         stableSwap: stableSwap as unknown as StableSwapInterface,
+        erc20Extended: erc20 as any,
       };
     },
     relayer: () => {
@@ -168,11 +170,11 @@ export const mock = {
   },
   operations: {
     auctions: {
-      storeBid: stub(),
-      executeAuction: stub(),
+      storeFastPathData: stub(),
+      executeFastPathData: stub(),
     },
     relayer: {
-      sendToRelayer: stub(),
+      sendExecuteFastToRelayer: stub(),
     },
   },
 };

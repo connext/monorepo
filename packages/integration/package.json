@@ -1,6 +1,6 @@
 {
   "name": "@connext/nxtp-integration",
-  "version": "0.2.0-beta.20",
+  "version": "0.2.0-beta.22",
   "description": "Integration tests for NXTP",
   "author": "Connext",
   "license": "MIT",
@@ -8,6 +8,7 @@
     "dev": "exit 0",
     "lint": "eslint ./src --ext .ts --env node",
     "itest": "yarn tsc && node",
+    "setup": "./setup.sh",
     "test": "nyc ts-mocha --check-leaks --exit --timeout 300000 'test/local.spec.ts'",
     "test:local": "nyc ts-mocha --check-leaks --exit --timeout 300000 'test/local.spec.ts'",
     "test:live": "nyc ts-mocha --check-leaks --exit --timeout 300000 'test/testnet.spec.ts'",
@@ -54,7 +55,7 @@
     "ts-node": "10.9.1"
   },
   "devDependencies": {
-    "@types/chai": "4.3.1",
+    "@types/chai": "4.3.3",
     "@types/chai-as-promised": "7.1.5",
     "@types/chai-subset": "1.3.3",
     "@types/mocha": "9.1.1",
@@ -63,11 +64,11 @@
     "chai": "4.3.6",
     "chai-as-promised": "7.1.1",
     "chai-subset": "1.6.0",
-    "eslint": "8.20.0",
+    "eslint": "8.22.0",
     "mocha": "10.0.0",
     "nyc": "15.1.0",
     "p-queue": "6.6.2",
-    "pino-pretty": "8.1.0",
+    "pino-pretty": "9.0.1",
     "rimraf": "3.0.2",
     "sinon": "14.0.0",
     "ts-mocha": "10.0.0",

@@ -41,7 +41,7 @@ export const NxtpLighthouseConfigSchema = Type.Object({
   mode: TModeConfig,
   polling: TPollingConfig,
   environment: Type.Union([Type.Literal("staging"), Type.Literal("production")]),
-  relayerUrl: Type.Optional(Type.String()),
+  sequencerUrl: Type.String(),
 });
 
 export type NxtpLighthouseConfig = Static<typeof NxtpLighthouseConfigSchema>;
@@ -101,7 +101,7 @@ export const getEnvConfig = (
     },
     environment: process.env.NXTP_ENVIRONMENT || configJson.environment || configFile.environment || "production",
     cartographerUrl: process.env.NXTP_CARTOGRAPHER_URL || configJson.cartographerUrl || configFile.cartographerUrl,
-    relayerUrl: process.env.NXTP_RELAYER_URL || configJson.relayerUrl || configFile.relayerUrl,
+    sequencerUrl: process.env.NXTP_SEQUENCER || configJson.sequencerUrl || configFile.sequencerUrl,
   };
 
   nxtpConfig.cartographerUrl =
@@ -129,7 +129,7 @@ export const getEnvConfig = (
         (() => {
           const res =
             domainId === "1337" || domainId === "1338"
-              ? { address: "0xF08dF3eFDD854FEDE77Ed3b2E515090EEe765154" } // hardcoded for testing
+              ? { address: "0x8e4C131B37383E431B9cd0635D3cF9f3F628EDae" } // hardcoded for testing
               : chainDataForChain
               ? deployments.connext(chainDataForChain.chainId, contractPostfix)
               : undefined;

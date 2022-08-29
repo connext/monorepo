@@ -1,0 +1,3 @@
+[
+  "function checker() view returns (bool, bytes)"
+]

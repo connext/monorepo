@@ -1,6 +1,6 @@
 {
   "name": "@connext/cartographer-poller",
-  "version": "0.2.0-beta.20",
+  "version": "0.2.0-beta.22",
   "description": "",
   "types": "dist/index.d.ts",
   "files": [
@@ -8,7 +8,7 @@
     "src/**/*"
   ],
   "scripts": {
-    "dev": "concurrently -i -k -n 'app,tsc' -c 'green,cyan' 'node dist/entryTransfers.js' 'node dist/entryRouters.js'",
+    "start:all": "concurrently -i -k -n 'transfers,router' -c 'green,cyan' 'node dist/entryTransfers.js' 'node dist/entryRouters.js'",
     "lint": "eslint ./src --ext .ts --env node",
     "test": "nyc ts-mocha --check-leaks --exit --timeout 60000 'test/**/*.spec.ts'",
     "clean": "rimraf ./dist ./tsconfig.tsBuildInfo",
@@ -24,8 +24,8 @@
   "dependencies": {
     "@connext/nxtp-adapters-subgraph": "workspace:*",
     "@connext/nxtp-utils": "workspace:*",
-    "@sinclair/typebox": "0.24.20",
-    "dd-trace": "2.11.0",
+    "@sinclair/typebox": "0.24.28",
+    "dd-trace": "3.0.0",
     "dotenv": "16.0.1",
     "ethers": "5.6.9",
     "interval-promise": "1.4.0",
@@ -35,11 +35,11 @@
   "devDependencies": {
     "@types/pg": "8.6.5",
     "concurrently": "7.3.0",
-    "eslint": "8.20.0",
+    "eslint": "8.22.0",
     "nodemon": "2.0.19",
     "nyc": "15.1.0",
     "pg-mem": "2.6.3",
-    "pino-pretty": "8.1.0",
+    "pino-pretty": "9.0.1",
     "rimraf": "3.0.2",
     "sinclair": "0.2.0",
     "sinon": "14.0.0",

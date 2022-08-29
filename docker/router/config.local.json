@@ -1,6 +1,7 @@
 {
   "logLevel": "debug",
   "sequencerUrl": "http://sequencer-publisher:8081",
+  "cartographerUrl": "http://cartographer-api:3000",
   "redis": {
     "host": "router-cache",
     "port": 6379
@@ -20,7 +21,7 @@
       "assets": [
         {
           "name": "TEST",
-          "address": "0x1411CB266FCEd1587b0AA29E9d5a9Ef3Db64A9C5"
+          "address": "0x8065F4c7b8c2bf53561af92D9DA2Ea022A0b28Ca"
         }
       ]
     },
@@ -29,15 +30,15 @@
       "assets": [
         {
           "name": "TEST",
-          "address": "0x1411CB266FCEd1587b0AA29E9d5a9Ef3Db64A9C5"
+          "address": "0x2467636BEa0F3c2441227eeDBfFaC59f11D54a80"
         }
       ]
     }
   },
-  "web3SignerUrl": "http://signer:9000",
+  "web3SignerUrl": "http://signer-router:9000",
   "environment": "production",
   "nomadEnvironment": "none",
   "messageQueue": {
-    "uri": "amqp://guest:guest@router-message-queue:5672"
+    "uri": "amqp://guest:guest@message-queue:5672"
   }
 }

@@ -105,15 +105,6 @@ CREATE VIEW public.routers_with_balances AS
 
 
 --
--- Name: schema_migrations; Type: TABLE; Schema: public; Owner: -
---
-
-CREATE TABLE public.schema_migrations (
-    version character varying(255) NOT NULL
-);
-
-
---
 -- Name: transfers; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -163,8 +154,227 @@ CREATE TABLE public.transfers (
     reconcile_block_number integer,
     update_time timestamp without time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
     agent character(42),
-    slippage_tol numeric
+    destination_min_out numeric
 );
+
+
+--
+-- Name: daily_router_tvl; Type: VIEW; Schema: public; Owner: -
+--
+
+CREATE VIEW public.daily_router_tvl AS
+ SELECT latest_transfer.latest_transfer_day,
+    router_tvl.asset,
+    router_tvl.router_address AS router,
+    router_tvl.tvl
+   FROM (( SELECT rb.local AS asset,
+            rb.router_address,
+            sum(rb.balance) AS tvl
+           FROM public.routers_with_balances rb
+          GROUP BY rb.local, rb.router_address) router_tvl
+     CROSS JOIN ( SELECT max((date_trunc('day'::text, to_timestamp((tf.xcall_timestamp)::double precision)))::date) AS latest_transfer_day
+           FROM public.transfers tf) latest_transfer);
+
+
+--
+-- Name: daily_transfer_metrics; Type: VIEW; Schema: public; Owner: -
+--
+
+CREATE VIEW public.daily_transfer_metrics AS
+ SELECT (date_trunc('day'::text, to_timestamp((tf.xcall_timestamp)::double precision)))::date AS transfer_date,
+    tf.origin_domain AS origin_chain,
+    tf.destination_domain AS destination_chain,
+    regexp_replace((tf.routers)::text, '[\{\}]'::text, ''::text, 'g'::text) AS router,
+    tf.origin_transacting_asset AS asset,
+    count(tf.transfer_id) AS transfer_count,
+    count(DISTINCT tf.xcall_caller) AS unique_user_count,
+    count(
+        CASE
+            WHEN (tf.force_slow IS TRUE) THEN tf.transfer_id
+            ELSE NULL::bpchar
+        END) AS force_slow_transfer_count,
+    count(
+        CASE
+            WHEN (tf.origin_bridged_amount = (0)::numeric) THEN tf.transfer_id
+            ELSE NULL::bpchar
+        END) AS zero_amount_transfer_count,
+    count(
+        CASE
+            WHEN (tf.status = 'XCalled'::public.transfer_status) THEN tf.transfer_id
+            ELSE NULL::bpchar
+        END) AS xcalled_transfer_count,
+    count(
+        CASE
+            WHEN (tf.status = 'Executed'::public.transfer_status) THEN tf.transfer_id
+            ELSE NULL::bpchar
+        END) AS executed_transfer_count,
+    count(
+        CASE
+            WHEN (tf.status = 'Reconciled'::public.transfer_status) THEN tf.transfer_id
+            ELSE NULL::bpchar
+        END) AS reconciled_transfer_count,
+    count(
+        CASE
+            WHEN (tf.status = 'CompletedFast'::public.transfer_status) THEN tf.transfer_id
+            ELSE NULL::bpchar
+        END) AS completedfast_transfer_count,
+    count(
+        CASE
+            WHEN (tf.status = 'CompletedSlow'::public.transfer_status) THEN tf.transfer_id
+            ELSE NULL::bpchar
+        END) AS completedslow_transfer_count,
+    avg(
+        CASE
+            WHEN (tf.status = 'CompletedFast'::public.transfer_status) THEN (tf.execute_timestamp - tf.xcall_timestamp)
+            ELSE NULL::integer
+        END) AS fastpath_avg_ttv_in_secs,
+    avg(
+        CASE
+            WHEN (tf.status = 'CompletedFast'::public.transfer_status) THEN (tf.reconcile_timestamp - tf.xcall_timestamp)
+            ELSE NULL::integer
+        END) AS fastpath_avg_ttr_in_secs,
+    avg(
+        CASE
+            WHEN (tf.status = 'CompletedSlow'::public.transfer_status) THEN (tf.execute_timestamp - tf.xcall_timestamp)
+            ELSE NULL::integer
+        END) AS slowpath_avg_ttv_in_secs,
+    avg(
+        CASE
+            WHEN (tf.status = 'CompletedSlow'::public.transfer_status) THEN (tf.reconcile_timestamp - tf.xcall_timestamp)
+            ELSE NULL::integer
+        END) AS slowpath_avg_ttr_in_secs
+   FROM public.transfers tf
+  GROUP BY ((date_trunc('day'::text, to_timestamp((tf.xcall_timestamp)::double precision)))::date), tf.origin_domain, tf.destination_domain, (regexp_replace((tf.routers)::text, '[\{\}]'::text, ''::text, 'g'::text)), tf.origin_transacting_asset;
+
+
+--
+-- Name: daily_transfer_volume; Type: VIEW; Schema: public; Owner: -
+--
+
+CREATE VIEW public.daily_transfer_volume AS
+ SELECT tf.status,
+    (date_trunc('day'::text, to_timestamp((tf.xcall_timestamp)::double precision)))::date AS transfer_date,
+    tf.origin_domain AS origin_chain,
+    tf.destination_domain AS destination_chain,
+    regexp_replace((tf.routers)::text, '[\{\}]'::text, ''::text, 'g'::text) AS router,
+    tf.origin_transacting_asset AS asset,
+    sum(tf.origin_transacting_amount) AS volume,
+    count(
+        CASE
+            WHEN (tf.force_slow IS TRUE) THEN tf.origin_transacting_amount
+            ELSE NULL::numeric
+        END) AS force_slow_transfer_volume
+   FROM public.transfers tf
+  GROUP BY tf.status, ((date_trunc('day'::text, to_timestamp((tf.xcall_timestamp)::double precision)))::date), tf.origin_domain, tf.destination_domain, (regexp_replace((tf.routers)::text, '[\{\}]'::text, ''::text, 'g'::text)), tf.origin_transacting_asset;
+
+
+--
+-- Name: router_tvl; Type: VIEW; Schema: public; Owner: -
+--
+
+CREATE VIEW public.router_tvl AS
+ SELECT latest_transfer.latest_transfer_day,
+    router_tvl.asset,
+    router_tvl.tvl
+   FROM (( SELECT rb.local AS asset,
+            sum(rb.balance) AS tvl
+           FROM public.routers_with_balances rb
+          GROUP BY rb.local) router_tvl
+     CROSS JOIN ( SELECT max((date_trunc('day'::text, to_timestamp((tf.xcall_timestamp)::double precision)))::date) AS latest_transfer_day
+           FROM public.transfers tf) latest_transfer);
+
+
+--
+-- Name: schema_migrations; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.schema_migrations (
+    version character varying(255) NOT NULL
+);
+
+
+--
+-- Name: transfer_count; Type: VIEW; Schema: public; Owner: -
+--
+
+CREATE VIEW public.transfer_count AS
+ SELECT tf.status,
+    (date_trunc('day'::text, to_timestamp((tf.xcall_timestamp)::double precision)))::date AS transfer_day,
+    tf.origin_domain AS origin_chain,
+    tf.origin_transacting_asset AS asset,
+    count(tf.transfer_id) AS transfer_count
+   FROM public.transfers tf
+  GROUP BY tf.status, ((date_trunc('day'::text, to_timestamp((tf.xcall_timestamp)::double precision)))::date), tf.origin_domain, tf.origin_transacting_asset;
+
+
+--
+-- Name: transfer_volume; Type: VIEW; Schema: public; Owner: -
+--
+
+CREATE VIEW public.transfer_volume AS
+ SELECT tf.status,
+    (date_trunc('day'::text, to_timestamp((tf.xcall_timestamp)::double precision)))::date AS transfer_day,
+    tf.origin_domain AS origin_chain,
+    tf.origin_transacting_asset AS asset,
+    sum(tf.origin_transacting_amount) AS volume
+   FROM public.transfers tf
+  GROUP BY tf.status, ((date_trunc('day'::text, to_timestamp((tf.xcall_timestamp)::double precision)))::date), tf.origin_domain, tf.origin_transacting_asset;
+
+
+--
+-- Name: transfers_with_ttr_ttv; Type: VIEW; Schema: public; Owner: -
+--
+
+CREATE VIEW public.transfers_with_ttr_ttv AS
+ SELECT tf.transfer_id,
+    tf.nonce,
+    tf."to",
+    tf.call_data,
+    tf.origin_domain,
+    tf.destination_domain,
+    tf.recovery,
+    tf.force_slow,
+    tf.receive_local,
+    tf.callback,
+    tf.callback_fee,
+    tf.relayer_fee,
+    tf.origin_chain,
+    tf.origin_transacting_asset,
+    tf.origin_transacting_amount,
+    tf.origin_bridged_asset,
+    tf.origin_bridged_amount,
+    tf.xcall_caller,
+    tf.xcall_transaction_hash,
+    tf.xcall_timestamp,
+    tf.xcall_gas_price,
+    tf.xcall_gas_limit,
+    tf.xcall_block_number,
+    tf.destination_chain,
+    tf.status,
+    tf.routers,
+    tf.destination_transacting_asset,
+    tf.destination_transacting_amount,
+    tf.destination_local_asset,
+    tf.destination_local_amount,
+    tf.execute_caller,
+    tf.execute_transaction_hash,
+    tf.execute_timestamp,
+    tf.execute_gas_price,
+    tf.execute_gas_limit,
+    tf.execute_block_number,
+    tf.execute_origin_sender,
+    tf.reconcile_caller,
+    tf.reconcile_transaction_hash,
+    tf.reconcile_timestamp,
+    tf.reconcile_gas_price,
+    tf.reconcile_gas_limit,
+    tf.reconcile_block_number,
+    tf.update_time,
+    tf.agent,
+    tf.destination_min_out,
+    (tf.execute_timestamp - tf.xcall_timestamp) AS ttr,
+    (tf.reconcile_timestamp - tf.xcall_timestamp) AS ttv
+   FROM public.transfers tf;
 
 
 --
@@ -252,4 +462,8 @@ INSERT INTO public.schema_migrations (version) VALUES
     ('20220524141906'),
     ('20220617215641'),
     ('20220618065158'),
-    ('20220707182823');
+    ('20220707182823'),
+    ('20220730013440'),
+    ('20220811120125'),
+    ('20220816134851');
+    ('20220824094332');

@@ -1,7 +1,8 @@
 import axios, { AxiosResponse } from "axios";
 import { Wallet, utils, BigNumber, providers, constants } from "ethers";
 import { makePublisher, makeSubscriber } from "@connext/nxtp-sequencer/src/sequencer";
-import { makeRouter } from "@connext/nxtp-router/src/router";
+import { makePublisher as makeRouterPublisher } from "@connext/nxtp-router/src/tasks/publisher/publisher";
+import { makeSubscriber as makeRouterSubscriber } from "@connext/nxtp-router/src/tasks/subscriber/subscriber";
 import { makeRelayer } from "@connext/nxtp-relayer/src/relayer";
 import { makeRoutersPoller } from "@connext/cartographer-poller/src/routersPoller";
 import { makeTransfersPoller } from "@connext/cartographer-poller/src/transfersPoller";
@@ -10,8 +11,8 @@ import { NxtpRouterConfig as RouterConfig } from "@connext/nxtp-router/src/confi
 import { RelayerConfig } from "@connext/nxtp-relayer/src/lib/entities/config";
 import { CartographerConfig } from "@connext/cartographer-poller/src/config";
 import {
-  AuctionsApiErrorResponse,
-  AuctionsApiGetAuctionStatusResponse,
+  SequencerApiErrorResponse,
+  ExecuteFastApiGetExecStatusResponse,
   delay,
   OriginTransfer,
   DestinationTransfer,
@@ -41,7 +42,6 @@ import {
   SKIP_SEQUENCER_CHECKS,
   RELAYER_CONFIG,
   LOCAL_RELAYER_ENABLED,
-  CANONICAL_ASSET,
   CHAIN_DATA,
   LOCAL_CARTOGRAPHER_ENABLED,
   CARTOGRAPHER_CONFIG,
@@ -62,6 +62,7 @@ import {
 import { pollSomething } from "./helpers/shared";
 
 const ROUTER_MNEMONIC = process.env.ROUTER_MNEMONIC;
+const SEQUENCER_MNEMONIC = process.env.SEQUENCER_MNEMONIC;
 const RELAYER_MNEMONIC = process.env.RELAYER_MNEMONIC;
 const DEPLOYER_MNEMONIC = process.env.DEPLOYER_MNEMONIC;
 const USER_MNEMONIC = process.env.USER_MNEMONIC || Wallet.createRandom()._mnemonic().phrase;
@@ -96,13 +97,21 @@ describe("TESTNET:E2E", () => {
   let context: OperationContext;
 
   before(async () => {
+    log.info("Fetching Configs");
+    log.next("ChainData");
     chainData = await CHAIN_DATA;
+    log.next("Domains");
     domainInfo = await DOMAINS;
+    log.next("Router");
     routerConfig = await ROUTER_CONFIG;
+    log.next("Sequencer");
     sequencerConfig = await SEQUENCER_CONFIG;
+    log.next("Relayer");
     relayerConfig = await RELAYER_CONFIG;
+    log.next("Cartographer");
     cartographerConfig = await CARTOGRAPHER_CONFIG;
 
+    log.info("Init Agents");
     // Init agents.
     const router = ROUTER_MNEMONIC ? Wallet.fromMnemonic(ROUTER_MNEMONIC) : undefined;
     // As a backup, the relayer can use the router wallet as well.
@@ -141,6 +150,7 @@ describe("TESTNET:E2E", () => {
       },
     };
 
+    log.info("Init Services");
     // Init services.
     chainreader = new ChainReader(
       new Logger({
@@ -164,6 +174,7 @@ describe("TESTNET:E2E", () => {
   });
 
   const test = async () => {
+    log.info("Starting Test");
     const connext = getConnextInterface();
     const testERC20 = new utils.Interface(ERC20Abi);
     const originConnextAddress = domainInfo.ORIGIN.config.deployments.connext;
@@ -249,25 +260,22 @@ describe("TESTNET:E2E", () => {
           { domain: domainInfo.DESTINATION, deployer: agents.deployer?.destination },
         ]) {
           const localAsset = domain.config.assets[0].address.toLowerCase();
-          let canonicalAsset: string | undefined = CANONICAL_ASSET;
-          if (!canonicalAsset) {
-            // Convert the local asset into the canonical asset using information from the chain.
-            const { canonicalTokenId, canonicalAsset: _canonicalAsset } = await convertToCanonicalAsset(context, {
-              adopted: localAsset,
-              domain,
-            });
-            canonicalAsset = _canonicalAsset;
-            log.info("Retrieved canonical asset from onchain.", {
-              domain,
-              etc: { canonicalAsset, canonicalTokenId },
-            });
-          }
+          // Convert the local asset into the canonical asset using information from the chain.
+          const { canonicalId, canonicalDomain } = await convertToCanonicalAsset(context, {
+            adopted: localAsset,
+            domain,
+          });
+          log.info("Retrieved canonical asset info from onchain.", {
+            domain,
+            etc: { canonicalId, canonicalDomain },
+          });
 
           if (
-            canonicalAsset === constants.AddressZero ||
+            canonicalId === constants.AddressZero ||
             !(await getAssetApproval(context, {
               domain,
-              canonical: canonicalAsset,
+              canonicalId,
+              canonicalDomain,
             }))
           ) {
             if (!deployer) {
@@ -276,28 +284,36 @@ describe("TESTNET:E2E", () => {
             const hash = await setupAsset(context, {
               deployer,
               domain,
-              canonical: canonicalAsset,
+              canonical: canonicalId,
               local: localAsset,
             });
             log.info("Added asset to chain.", { domain, hash });
           } else {
             // Check to make sure canonical -> local is correct onchain.
-            const { adoptedToCanonical, canonicalToAdopted, canonicalTokenId, getTokenId, tokenRegistry } =
-              await checkOnchainLocalAsset(context, {
-                domain,
-                adopted: localAsset,
-              });
-            if (canonicalToAdopted !== localAsset || adoptedToCanonical !== canonicalTokenId) {
+            const {
+              adoptedToCanonical,
+              canonicalToAdopted,
+              canonicalId,
+              canonicalDomain,
+              canonicalKey,
+              getTokenId,
+              tokenRegistry,
+            } = await checkOnchainLocalAsset(context, {
+              domain,
+              adopted: localAsset,
+            });
+            if (canonicalToAdopted !== localAsset || adoptedToCanonical !== canonicalId) {
               // TODO: Change this to log.info, actually carry out the on-chain replacement below.
               // (Need to confirm that this works.)
               log.fail("Asset needs to be overwritten! Wrong local asset set on this domain.", {
                 domain,
                 etc: {
-                  canonical: canonicalAsset,
                   local: localAsset,
                   adoptedToCanonical,
                   canonicalToAdopted,
-                  canonicalTokenId,
+                  canonicalId,
+                  canonicalDomain,
+                  canonicalKey,
                   getTokenId,
                 },
               });
@@ -309,7 +325,8 @@ describe("TESTNET:E2E", () => {
                 const hash = await removeAsset(context, {
                   deployer,
                   domain,
-                  canonical: canonicalAsset,
+                  canonicalId,
+                  canonicalDomain,
                   local: localAsset,
                 });
                 log.info("Removed asset.", { domain, hash });
@@ -318,7 +335,7 @@ describe("TESTNET:E2E", () => {
                 const hash = await setupAsset(context, {
                   deployer,
                   domain,
-                  canonical: canonicalAsset,
+                  canonical: canonicalId,
                   local: localAsset,
                 });
                 log.info("Replaced asset.", { domain, hash });
@@ -327,11 +344,12 @@ describe("TESTNET:E2E", () => {
               log.info("Transfer asset is approved.", {
                 domain,
                 etc: {
-                  canonical: canonicalAsset,
                   local: localAsset,
                   adoptedToCanonical,
                   canonicalToAdopted,
-                  canonicalTokenId,
+                  canonicalId,
+                  canonicalDomain,
+                  canonicalKey,
                   getTokenId,
                   tokenRegistry,
                 },
@@ -419,7 +437,7 @@ describe("TESTNET:E2E", () => {
           // Might as well mint enough for 100 test iterations...
           const amount = TRANSFER_TOKEN_AMOUNT.mul(100);
           const encoded = testERC20.encodeFunctionData("mint", [agents.user.address, amount]);
-          const tx = await (agents.router ?? agents.user).origin.sendTransaction({
+          const tx = await (agents.deployer ?? agents.user).origin.sendTransaction({
             to: originAsset.address,
             data: encoded,
             value: BigNumber.from("0"),
@@ -743,27 +761,33 @@ describe("TESTNET:E2E", () => {
         await delay(1_000);
       }
 
-      if (agents.router) {
-        log.next("SEQUENCER START");
-        await makePublisher({
-          ...sequencerConfig,
-          relayerUrl: agents.relayer ? sequencerConfig.relayerUrl : undefined,
-        });
-        await delay(1_000);
+      // if (agents.router) {
+      //   log.next("SEQUENCER START");
+      //   await makePublisher({
+      //     ...sequencerConfig,
+      //     mnemonic: SEQUENCER_MNEMONIC,
+      //     relayerUrl: agents.relayer ? sequencerConfig.relayerUrl : undefined,
+      //   });
+      //   await delay(1_000);
 
-        await makeSubscriber({
-          ...sequencerConfig,
-          relayerUrl: agents.relayer ? sequencerConfig.relayerUrl : undefined,
-        });
-        await delay(1_000);
+      //   await makeSubscriber({
+      //     ...sequencerConfig,
+      //     relayerUrl: agents.relayer ? sequencerConfig.relayerUrl : undefined,
+      //   });
+      //   await delay(1_000);
 
-        log.next("ROUTER START");
-        await makeRouter({
-          ...routerConfig,
-          mnemonic: ROUTER_MNEMONIC,
-        });
-        await delay(1_000);
-      }
+      //   log.next("ROUTER START");
+      //   await makeRouterPublisher({
+      //     ...routerConfig,
+      //     mnemonic: ROUTER_MNEMONIC,
+      //   });
+
+      //   await makeRouterSubscriber({
+      //     ...routerConfig,
+      //     mnemonic: ROUTER_MNEMONIC,
+      //   });
+      //   await delay(1_000);
+      // }
     }
 
     /// MARK - E2E Test
@@ -790,10 +814,11 @@ describe("TESTNET:E2E", () => {
               relayerFee: "0",
               recovery: agents.user.address,
               agent: agents.user.address,
-              slippageTol: "3",
+              destinationMinOut: "0",
             },
-            transactingAssetId: originAsset.address,
-            amount: TRANSFER_TOKEN_AMOUNT.toString(),
+            transactingAsset: originAsset.address,
+            transactingAmount: TRANSFER_TOKEN_AMOUNT.toString(),
+            originMinOut: "0",
           };
           const encoded = connext.encodeFunctionData("xcall", [args]);
           const tx = await agents.user.origin.sendTransaction({
@@ -858,17 +883,17 @@ describe("TESTNET:E2E", () => {
           // Poll the sequencer a few times to see if we can get the auction status.
           // NOTE: This may be unsuccessful, but is good information to have for debugging if available.
           let error: any | undefined;
-          const status: AxiosResponse<AuctionsApiGetAuctionStatusResponse> | undefined = await pollSomething({
+          const status: AxiosResponse<ExecuteFastApiGetExecStatusResponse> | undefined = await pollSomething({
             attempts: Math.floor(60_000 / SUBG_POLL_PARITY),
             parity: SUBG_POLL_PARITY,
             method: async () => {
               return await axios
-                .request<AuctionsApiGetAuctionStatusResponse>({
+                .request<ExecuteFastApiGetExecStatusResponse>({
                   method: "get",
-                  baseURL: `http://${sequencerConfig.server.host}:${sequencerConfig.server.port}`,
+                  baseURL: `http://${sequencerConfig.server.pub.host}:${sequencerConfig.server.pub.port}`,
                   url: `/auctions/0xf8b72dd5eb4b330a736b8f336ae13f95a26f92774e2fe95e7b5236fda75f27ed`,
                 })
-                .catch((e: AxiosResponse<AuctionsApiErrorResponse>) => {
+                .catch((e: AxiosResponse<SequencerApiErrorResponse>) => {
                   error = e.data ? (e.data.error ? e.data.error.message : e.data) : e;
                   return undefined;
                 });
