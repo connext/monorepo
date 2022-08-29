@@ -42,9 +42,7 @@ DATABASE_URL=postgres://postgres:qwerty@localhost:5432/connext?sslmode=disable
 {
   "logLevel": "debug",
   "environment": "staging",
-  "database": {
-    "url": "<your db url>"
-  },
+  "databaseUrl": "<your db url>",
   "server": {
     "adminToken": "<your admin token>",
     "port": 8085,
