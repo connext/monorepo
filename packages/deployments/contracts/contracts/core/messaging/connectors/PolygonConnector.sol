@@ -28,9 +28,7 @@ contract PolygonL2Connector is Connector, FxBaseChildTunnel {
   )
     Connector(_domain, _mirrorDomain, _amb, _rootManager, _mirrorConnector, _mirrorProcessGas, _processGas, _reserveGas)
     FxBaseChildTunnel(_amb)
-  {
-    // setFxRootTunnel(_mirrorConnector);
-  }
+  {}
 
   // ============ Private fns ============
 
