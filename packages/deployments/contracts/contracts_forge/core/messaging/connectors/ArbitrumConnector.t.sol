@@ -161,7 +161,7 @@ contract ArbitrumConnectorTest is ConnectorHelper {
 
     // should emit an event
     vm.expectEmit(true, true, true, true);
-    emit MessageSent(_data, address(this));
+    emit MessageSent(_data, _rootManager);
 
     // should call send contract transaction
     vm.expectCall(
@@ -176,6 +176,7 @@ contract ArbitrumConnectorTest is ConnectorHelper {
       )
     );
 
+    vm.prank(_rootManager);
     ArbitrumL1Connector(_l1Connector).sendMessage(_data);
   }
 
@@ -189,11 +190,12 @@ contract ArbitrumConnectorTest is ConnectorHelper {
 
     // should emit an event
     vm.expectEmit(true, true, true, true);
-    emit MessageSent(_data, address(this));
+    emit MessageSent(_data, _rootManager);
 
     // should call send contract transaction
     vm.expectCall(_amb, abi.encodeWithSelector(ArbitrumL2AMB.sendTxToL1.selector, _l1Connector, _data));
 
+    vm.prank(_rootManager);
     ArbitrumL2Connector(_l2Connector).sendMessage(_data);
   }
 
@@ -224,7 +226,7 @@ contract ArbitrumConnectorTest is ConnectorHelper {
     utils_setL1ConnectorProcessMocks(_l2Connector);
 
     // call does not originate from amb
-    vm.expectRevert(NotCrossChainCall.selector);
+    vm.expectRevert(bytes("!AMB"));
     // make call
     ArbitrumL1Connector(_l1Connector).processMessage(abi.encode(bytes32("test")));
   }
@@ -264,9 +266,10 @@ contract ArbitrumConnectorTest is ConnectorHelper {
 
     // should emit an event
     vm.expectEmit(true, true, true, true);
-    emit MessageProcessed(_data, address(this));
+    emit MessageProcessed(_data, _amb);
 
     // make call
+    vm.prank(_amb);
     ArbitrumL2Connector(_l2Connector).processMessage(_data);
 
     // assert update
@@ -277,18 +280,19 @@ contract ArbitrumConnectorTest is ConnectorHelper {
     utils_setL2ConnectorVerifyMocks(_l1Connector, false);
 
     // call does not originate from amb
-    vm.expectRevert(NotCrossChainCall.selector);
+    vm.expectRevert(bytes("!AMB"));
     // make call
     ArbitrumL2Connector(_l2Connector).processMessage(abi.encode(bytes32("test")));
   }
 
-  function test_ArbitrumL2Connector__processMessage_failsIfNotMirrorConnector() public {
+  function test_ArbitrumL2Connectoclearr__processMessage_failsIfNotMirrorConnector() public {
     // setup mocks
     utils_setL2ConnectorVerifyMocks(address(654321), true);
 
     // should revert because not bridge
     vm.expectRevert(bytes("!mirrorConnector"));
     // make call
+    vm.prank(_amb);
     ArbitrumL2Connector(_l2Connector).processMessage(abi.encode(bytes32("test")));
   }
 
@@ -302,6 +306,7 @@ contract ArbitrumConnectorTest is ConnectorHelper {
     vm.expectRevert(bytes("!length"));
 
     // make call
+    vm.prank(_amb);
     ArbitrumL2Connector(_l2Connector).processMessage(_data);
   }
 }
