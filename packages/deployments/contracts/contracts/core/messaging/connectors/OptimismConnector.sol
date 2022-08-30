@@ -147,8 +147,5 @@ contract OptimismL1Connector is BaseOptimismConnector {
     require(_data.length == 32, "!length");
     // set the outbound root for optimism
     IRootManager(ROOT_MANAGER).setOutboundRoot(mirrorDomain, bytes32(_data));
-    // get the state commitment root
-    // if state commitment root is <
-    emit MessageProcessed(_data, msg.sender);
   }
 }
