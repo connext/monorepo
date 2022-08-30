@@ -1,6 +1,5 @@
 import { Contract, providers } from "ethers";
 import { task } from "hardhat/config";
-import { CrossChainMessenger, MessageStatus } from "@eth-optimism/sdk";
 
 import config from "../hardhat.config";
 import {
@@ -10,6 +9,7 @@ import {
   getMessagingProtocolConfig,
   getProviderFromConfig,
   mustGetEnv,
+  queryOptimismMessageStatus,
 } from "../src/utils";
 
 type TaskArgs = {
@@ -58,22 +58,14 @@ export default task("query-roots", "Read balances of accounts")
 
         // Check the message status, varies by chain
         if (name.includes("Optimism")) {
-          const crossChainMessenger = new CrossChainMessenger({
-            l1ChainId: protocol.hub,
-            l2ChainId: chain,
-            l1SignerOrProvider: getProviderFromConfig(config, protocol.hub),
-            l2SignerOrProvider: provider,
-          });
-          const status = await crossChainMessenger.getMessageStatus(hash);
-          const mapping = {
-            [MessageStatus.UNCONFIRMED_L1_TO_L2_MESSAGE]: "Unconfirmed L1 -> L2",
-            [MessageStatus.FAILED_L1_TO_L2_MESSAGE]: "Failed L1 -> L2",
-            [MessageStatus.STATE_ROOT_NOT_PUBLISHED]: "State root not published",
-            [MessageStatus.IN_CHALLENGE_PERIOD]: "In challenge period",
-            [MessageStatus.READY_FOR_RELAY]: "Ready for relay",
-            [MessageStatus.RELAYED]: "Relayed",
-          };
-          console.log(`- message status: ${mapping[status]}`);
+          const status = await queryOptimismMessageStatus(
+            hash,
+            protocol.hub,
+            chain,
+            getProviderFromConfig(config, protocol.hub),
+            provider,
+          );
+          console.log(`- message status: ${status}`);
         } else {
           console.log(`- message status: unable to retrieve status for ${name}`);
         }

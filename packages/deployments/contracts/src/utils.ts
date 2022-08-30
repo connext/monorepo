@@ -1,5 +1,6 @@
 import { config } from "dotenv";
 import { ContractInterface, providers } from "ethers";
+import { CrossChainMessenger, MessageStatus } from "@eth-optimism/sdk";
 import { HardhatRuntimeEnvironment, HardhatUserConfig } from "hardhat/types";
 
 import { HUB_PREFIX, MESSAGING_PROTOCOL_CONFIGS, SPOKE_PREFIX } from "../deployConfig/shared";
@@ -167,4 +168,30 @@ export const executeOnAllConnectors = async <T = any>(
     results.push(await fn(deploy, getProviderFromConfig(hardhatConfig, deploy.chain)));
   }
   return results;
+};
+
+// Retrieves the status of an optimism message
+export const queryOptimismMessageStatus = async (
+  hash: string,
+  l1ChainId: number,
+  l2ChainId: number,
+  l1Provider: providers.JsonRpcProvider,
+  l2Provider: providers.JsonRpcProvider,
+): Promise<string> => {
+  const crossChainMessenger = new CrossChainMessenger({
+    l1ChainId,
+    l2ChainId,
+    l1SignerOrProvider: l1Provider,
+    l2SignerOrProvider: l2Provider,
+  });
+  const status = await crossChainMessenger.getMessageStatus(hash);
+  const mapping = {
+    [MessageStatus.UNCONFIRMED_L1_TO_L2_MESSAGE]: "Unconfirmed L1 -> L2",
+    [MessageStatus.FAILED_L1_TO_L2_MESSAGE]: "Failed L1 -> L2",
+    [MessageStatus.STATE_ROOT_NOT_PUBLISHED]: "State root not published",
+    [MessageStatus.IN_CHALLENGE_PERIOD]: "In challenge period",
+    [MessageStatus.READY_FOR_RELAY]: "Ready for relay",
+    [MessageStatus.RELAYED]: "Relayed",
+  };
+  return mapping[status];
 };
