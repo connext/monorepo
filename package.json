@@ -32,7 +32,7 @@
     "packages/examples/bridge-reference"
   ],
   "scripts": {
-    "lint:all": "NODE_OPTIONS=--max_old_space_size=4096 yarn workspaces foreach --exclude @connext/nxtp-subgraph --exclude @connext/nxtp-integration run lint --fix",
+    "lint:all": "yarn workspaces foreach --exclude @connext/nxtp-subgraph --exclude @connext/nxtp-integration run lint --fix",
     "test:all": "yarn workspaces foreach --exclude @connext/nxtp-relayer --exclude @connext/nxtp-lighthouse --exclude @connext/nxtp-subgraph --exclude @connext/nxtp-integration run test",
     "clean:all": "yarn workspaces foreach --exclude @connext/nxtp-integration --exclude @connext/nxtp-subgraph run clean",
     "build:all": "yarn workspaces foreach -pt --exclude @connext/nxtp-subgraph run build",
