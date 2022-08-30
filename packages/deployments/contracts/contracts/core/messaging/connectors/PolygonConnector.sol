@@ -40,7 +40,6 @@ contract PolygonL2Connector is Connector, FxBaseChildTunnel {
   }
 
   function _sendMessage(bytes memory _data) internal override {
-    // Simply emit `MessageSent(_data)`
     _sendMessageToRoot(_data);
   }
 
