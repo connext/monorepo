@@ -67,6 +67,17 @@ export const verify = async (
   }
 };
 
+// Gets the messaging protocol config for a given chain
+export const getMessagingProtocolConfig = (env: Env) => {
+  const network = env === "production" ? "mainnet" : env === "staging" ? "testnet" : "local";
+  const protocol = MESSAGING_PROTOCOL_CONFIGS[network];
+
+  if (!protocol || !protocol.configs[protocol.hub]) {
+    throw new Error(`Network ${network} is not supported! (no messaging config)`);
+  }
+  return protocol;
+};
+
 // This function is useful for tasks that should be executed across all connectors
 export type ConnectorDeployment = {
   address: string;
@@ -77,12 +88,7 @@ export type ConnectorDeployment = {
 };
 
 export const getConnectorDeployments = (env: Env): ConnectorDeployment[] => {
-  const network = env === "production" ? "mainnet" : env === "staging" ? "testnet" : "local";
-  const protocol = MESSAGING_PROTOCOL_CONFIGS[network];
-
-  if (!protocol || !protocol.configs[protocol.hub]) {
-    throw new Error(`Network ${network} is not supported! (no messaging config)`);
-  }
+  const protocol = getMessagingProtocolConfig(env);
 
   const connectors: { name: string; chain: number; mirrorName?: string; mirrorChain?: number }[] = [];
   Object.entries(protocol.configs).forEach(([chainId, config]) => {
