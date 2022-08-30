@@ -163,7 +163,11 @@ contract GnosisL1Connector is BaseGnosisConnector {
   /**
    * @dev Messaging uses this function to send data to l2 via amb
    */
-  function _sendMessage(bytes memory _data) internal override onlyRootManager {
+  function _sendMessage(bytes memory _data) internal override {
+    // Should always be dispatching the aggregate root
+    require(_data.length == 32, "!length");
+    // Update record of root on this contract
+    update(bytes32(_data));
     // send message via AMB, should call "processMessage" which will update aggregate root
     GnosisAMB(AMB).requireToPassMessage(
       mirrorConnector,

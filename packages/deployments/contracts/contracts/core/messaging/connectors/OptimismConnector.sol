@@ -128,7 +128,11 @@ contract OptimismL1Connector is BaseOptimismConnector {
    * @dev Sends `aggregateRoot` to messaging on l2
    */
   function _sendMessage(bytes memory _data) internal override {
-    require(msg.sender == ROOT_MANAGER, "!rootManager");
+    // Should always be dispatching the aggregate root
+    require(_data.length == 32, "!length");
+    // Update record of root on this contract
+    update(bytes32(_data));
+    // Dispatch message
     OptimismAMB(AMB).sendMessage(mirrorConnector, _data, uint32(mirrorProcessGas));
   }
 
@@ -143,7 +147,7 @@ contract OptimismL1Connector is BaseOptimismConnector {
     require(_verifySender(mirrorConnector), "!l2Connector");
     // get the data (should be the outbound root)
     require(_data.length == 32, "!length");
-    // set the outbound root for optimism
+    // set the outbound root for optimism on root manager
     IRootManager(ROOT_MANAGER).setOutboundRoot(mirrorDomain, bytes32(_data));
   }
 }

@@ -136,7 +136,7 @@ abstract contract Connector is ProposedOwnable, MerkleTreeManager, ConnectorMana
   modifier onlyRootManager() {
     // NOTE: RootManager will be zero address for spoke connectors.
     // Only root manager can dispatch a message to spokes/L2s via the hub connector.
-    require(msg.sender == ROOT_MANAGER, "!rootManagcer");
+    require(msg.sender == ROOT_MANAGER, "!rootManager");
     _;
   }
 
@@ -229,16 +229,35 @@ abstract contract Connector is ProposedOwnable, MerkleTreeManager, ConnectorMana
     return root();
   }
 
-  function sendMessage(bytes memory _data) external {
+  /**
+   * @notice This is called by relayers to trigger passing of current root to mainnet root manager.
+   * @dev At runtime, this method should be called at specific time intervals.
+   */
+  function send() external {
+    bytes memory _data = abi.encodePacked(root());
     _sendMessage(_data);
     emit MessageSent(_data, msg.sender);
   }
 
-  function processMessage(bytes memory _data) external {
+  /**
+   * @notice This is called by the root manager *only* on mainnet to propagate the aggregate root
+   */
+  function sendMessage(bytes memory _data) external onlyRootManager {
+    _sendMessage(_data);
+    emit MessageSent(_data, msg.sender);
+  }
+
+  /**
+   * @notice This is called by AMBs to process messages originating from mirror connector
+   */
+  function processMessage(bytes memory _data) external onlyAMB {
     _processMessage(_data);
     emit MessageProcessed(_data, msg.sender);
   }
 
+  /**
+   * @notice Checks the cross domain sender for a given address
+   */
   function verifySender(address _expected) external returns (bool) {
     return _verifySender(_expected);
   }
@@ -314,13 +333,6 @@ abstract contract Connector is ProposedOwnable, MerkleTreeManager, ConnectorMana
   function _verifySender(address _expected) internal virtual returns (bool);
 
   // ============ Private fns ============
-  /**
-   * @notice This is called by relayers to trigger passing of current root to mainnet root manager.
-   * @dev At runtime, this method should be called at specific time intervals.
-   */
-  function send() external {
-    _sendMessage(abi.encodePacked(root()));
-  }
 
   /**
    * @notice This is either called by the Connector (AKA `this`) on the spoke (L2) chain after retrieving
