@@ -1,5 +1,5 @@
 import { config } from "dotenv";
-import { ContractInterface, providers } from "ethers";
+import { ContractInterface, providers, Wallet } from "ethers";
 import { CrossChainMessenger, MessageStatus } from "@eth-optimism/sdk";
 import { HardhatRuntimeEnvironment, HardhatUserConfig } from "hardhat/types";
 
@@ -185,6 +185,8 @@ export const queryOptimismMessageStatus = async (
     l2SignerOrProvider: l2Provider,
   });
   const status = await crossChainMessenger.getMessageStatus(hash);
+  const [message] = await crossChainMessenger.getMessagesByTransaction(hash);
+  console.log("message", { ...message, minGasLimit: message.minGasLimit.toString() });
   const mapping = {
     [MessageStatus.UNCONFIRMED_L1_TO_L2_MESSAGE]: "Unconfirmed L1 -> L2",
     [MessageStatus.FAILED_L1_TO_L2_MESSAGE]: "Failed L1 -> L2",
