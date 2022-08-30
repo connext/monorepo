@@ -80,6 +80,8 @@ export const sanitizeAndInit = async (config: any) => {
     );
   }
   const useStaging = env === "staging";
+  console.log(`USING ${useStaging ? "STAGING" : "PRODUCTION"} AS ENVIRONMENT`);
+
   // Get deployments for each domain if not specified in the config.
   for (let i = 0; i < config.networks.length; i++) {
     const network = config.networks[i];
@@ -178,6 +180,34 @@ export const sanitizeAndInit = async (config: any) => {
     assets,
   } as ProtocolStack;
   console.log("Sanitized protocol config:", sanitized);
+
+  console.log("DEBUG: Logging all deployment names:");
+  for (const network of sanitized.networks) {
+    console.log(
+      network.chain,
+      "deployments:",
+      "\n" +
+        Object.entries(network.deployments)
+          .map(([k, v]) => {
+            if ((v as any).name) {
+              return `${k}: ${(v as any).proxy}`;
+            } else {
+              return Object.entries(network.deployments[k as keyof typeof network.deployments] as unknown as object)
+                .map(([k, v]) => {
+                  if (k === "HubConnectors") {
+                    const list: string = v.map((c: any) => c.name).join(", ");
+                    return `${k}: [ ${list} ]`;
+                  }
+                  return `${k}: ${v.proxy ?? v.name}`;
+                })
+                .join(";\n");
+            }
+          })
+          .join(";\n"),
+      "\n",
+    );
+  }
+
   await initProtocol(sanitized);
 };
 
