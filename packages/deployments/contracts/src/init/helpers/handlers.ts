@@ -1,6 +1,6 @@
 import { BytesLike, utils } from "ethers";
 
-import { canonizeId } from "../../nomad";
+import { canonizeId } from "../../domain";
 
 import { Deployment, NetworkStack, ProtocolStack } from "./types";
 import { updateIfNeeded } from "./tx";

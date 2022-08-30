@@ -869,14 +869,7 @@ __metadata:
   resolution: "@connext/nxtp-contracts@workspace:packages/deployments/contracts"
   dependencies:
     "@connext/nxtp-utils": "workspace:*"
-<<<<<<< HEAD
-    "@nomad-xyz/configuration": 0.1.0
-    "@nomad-xyz/sdk": 2.1.1
-    "@nomad-xyz/sdk-bridge": 1.1.1
-    "@nomiclabs/hardhat-ethers": 2.1.0
-=======
     "@nomiclabs/hardhat-ethers": 2.1.1
->>>>>>> main
     "@nomiclabs/hardhat-etherscan": 3.1.0
     "@nomiclabs/hardhat-waffle": 2.0.3
     "@openzeppelin/contracts": 4.7.3
@@ -897,7 +890,7 @@ __metadata:
     eslint: 8.22.0
     ethereum-waffle: 3.4.4
     ethers: 5.6.9
-    hardhat: 2.10.1
+    hardhat: 2.10.2
     hardhat-abi-exporter: 2.10.0
     hardhat-contract-sizer: 2.6.1
     hardhat-deploy: 0.11.12
@@ -7378,7 +7371,7 @@ __metadata:
   resolution: "babel-plugin-dynamic-import-node@npm:2.3.3"
   dependencies:
     object.assign: ^4.1.0
-  checksum: c9d24415bcc608d0db7d4c8540d8002ac2f94e2573d2eadced137a29d9eab7e2,5d2cbb4bc6b9db65cf6ee7430f7dd011d19c911a9a778f0533b4a05ce8292c9b
+  checksum: c9d24415bcc608d0db7d4c8540d8002ac2f94e2573d2eadced137a29d9eab7e25d2cbb4bc6b9db65cf6ee7430f7dd011d19c911a9a778f0533b4a05ce8292c9b
   languageName: node
   linkType: hard
 
@@ -14032,9 +14025,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"hardhat@npm:2.10.1":
-  version: 2.10.1
-  resolution: "hardhat@npm:2.10.1"
+"hardhat@npm:2.10.2":
+  version: 2.10.2
+  resolution: "hardhat@npm:2.10.2"
   dependencies:
     "@ethereumjs/block": ^3.6.2
     "@ethereumjs/blockchain": ^5.5.2
@@ -14094,7 +14087,7 @@ __metadata:
       optional: true
   bin:
     hardhat: internal/cli/cli.js
-  checksum: ca9060a25fc620f7be412eb49496603dbb311e2eff0a5d689aa632ff7947aa433009fe4155250acb81daaa6557fb075602174e8313460659891233768881f368
+  checksum: 3034a213d25d2727fc80e4b45a6e82dc0ae01ec7b9fb669ee3650fa8a1ba8d38f29f689440826b8747fb2647882da15efb524d077e18c7e9eb55ebd574b9052a
   languageName: node
   linkType: hard
 

@@ -1,6 +1,6 @@
 import { constants, utils } from "ethers";
 
-import { canonizeId } from "../../nomad";
+import { canonizeId } from "../../domain";
 
 import { AssetStack, NetworkStack } from "./types";
 import { updateIfNeeded } from "./tx";
