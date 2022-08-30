@@ -247,6 +247,9 @@ const config: HardhatUserConfig = {
       accounts: { mnemonic },
       chainId: 80001,
       url: "https://rpc.ankr.com/polygon_mumbai",
+      companionNetworks: {
+        hub: "goerli",
+      },
     },
     "arbitrum-rinkeby": {
       accounts: { mnemonic },
@@ -262,6 +265,7 @@ const config: HardhatUserConfig = {
       ropsten: process.env.ETHERSCAN_API_KEY!,
       goerli: process.env.ETHERSCAN_API_KEY!,
       "optimism-goerli": process.env.ETHERSCAN_API_KEY!,
+      mumbai: process.env.ETHERSCAN_API_KEY!,
     },
     customChains: [
       {
