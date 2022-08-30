@@ -1,5 +1,6 @@
 [
   "event Approval(address indexed,address indexed,uint256)",
+  "event Initialized(uint8)",
   "event Transfer(address indexed,address indexed,uint256)",
   "function allowance(address,address) view returns (uint256)",
   "function approve(address,uint256) returns (bool)",

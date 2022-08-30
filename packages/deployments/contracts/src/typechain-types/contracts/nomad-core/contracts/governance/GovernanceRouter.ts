@@ -265,6 +265,7 @@ export interface GovernanceRouterInterface extends utils.Interface {
     "BatchExecuted(bytes32)": EventFragment;
     "BatchReceived(bytes32)": EventFragment;
     "ExitRecovery(address)": EventFragment;
+    "Initialized(uint8)": EventFragment;
     "InitiateRecovery(address,uint256)": EventFragment;
     "SetRouter(uint32,bytes32,bytes32)": EventFragment;
     "TransferGovernor(uint32,uint32,address,address)": EventFragment;
@@ -274,6 +275,7 @@ export interface GovernanceRouterInterface extends utils.Interface {
   getEvent(nameOrSignatureOrTopic: "BatchExecuted"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "BatchReceived"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "ExitRecovery"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "Initialized"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "InitiateRecovery"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "SetRouter"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "TransferGovernor"): EventFragment;
@@ -300,6 +302,13 @@ export interface ExitRecoveryEventObject {
 export type ExitRecoveryEvent = TypedEvent<[string], ExitRecoveryEventObject>;
 
 export type ExitRecoveryEventFilter = TypedEventFilter<ExitRecoveryEvent>;
+
+export interface InitializedEventObject {
+  version: number;
+}
+export type InitializedEvent = TypedEvent<[number], InitializedEventObject>;
+
+export type InitializedEventFilter = TypedEventFilter<InitializedEvent>;
 
 export interface InitiateRecoveryEventObject {
   recoveryManager: string;
@@ -679,6 +688,9 @@ export interface GovernanceRouter extends BaseContract {
 
     "ExitRecovery(address)"(recoveryManager?: null): ExitRecoveryEventFilter;
     ExitRecovery(recoveryManager?: null): ExitRecoveryEventFilter;
+
+    "Initialized(uint8)"(version?: null): InitializedEventFilter;
+    Initialized(version?: null): InitializedEventFilter;
 
     "InitiateRecovery(address,uint256)"(
       recoveryManager?: PromiseOrValue<string> | null,

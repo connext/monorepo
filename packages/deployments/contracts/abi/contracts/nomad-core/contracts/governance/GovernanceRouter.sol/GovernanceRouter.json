@@ -3,6 +3,7 @@
   "event BatchExecuted(bytes32 indexed)",
   "event BatchReceived(bytes32 indexed)",
   "event ExitRecovery(address)",
+  "event Initialized(uint8)",
   "event InitiateRecovery(address indexed,uint256)",
   "event SetRouter(uint32 indexed,bytes32,bytes32)",
   "event TransferGovernor(uint32,uint32,address indexed,address indexed)",

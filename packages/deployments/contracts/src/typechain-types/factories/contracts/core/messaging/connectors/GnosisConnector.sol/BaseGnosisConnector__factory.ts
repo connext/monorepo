@@ -105,12 +105,6 @@ const _abi = [
     inputs: [
       {
         indexed: false,
-        internalType: "address",
-        name: "from",
-        type: "address",
-      },
-      {
-        indexed: false,
         internalType: "bytes",
         name: "data",
         type: "bytes",
@@ -556,11 +550,6 @@ const _abi = [
   },
   {
     inputs: [
-      {
-        internalType: "address",
-        name: "_sender",
-        type: "address",
-      },
       {
         internalType: "bytes",
         name: "_data",

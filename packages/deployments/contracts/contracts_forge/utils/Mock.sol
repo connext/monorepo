@@ -509,15 +509,15 @@ contract MockConnector is Connector {
     emit MessageSent(_data, msg.sender);
   }
 
-  function _processMessage(address _sender, bytes memory _data) internal override {
-    lastReceived = keccak256(abi.encode(_sender, _data));
+  function _processMessage(bytes memory _data) internal override {
+    lastReceived = keccak256(_data);
     if (updatesAggregate) {
       // FIXME: when using this.update it sets caller to address(this) not AMB
       aggregateRoot = bytes32(_data);
     } else {
       RootManager(ROOT_MANAGER).setOutboundRoot(mirrorDomain, bytes32(_data));
     }
-    emit MessageProcessed(_sender, _data, msg.sender);
+    emit MessageProcessed(_data, msg.sender);
   }
 
   function _verifySender(address _expected) internal override returns (bool) {

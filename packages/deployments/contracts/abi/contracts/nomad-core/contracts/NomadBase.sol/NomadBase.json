@@ -1,5 +1,6 @@
 [
   "event DoubleUpdate(bytes32,bytes32[2],bytes,bytes)",
+  "event Initialized(uint8)",
   "event NewUpdater(address,address)",
   "event OwnershipTransferred(address indexed,address indexed)",
   "event Update(uint32 indexed,bytes32 indexed,bytes32 indexed,bytes)",

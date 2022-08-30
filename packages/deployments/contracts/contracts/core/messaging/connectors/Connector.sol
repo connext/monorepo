@@ -44,7 +44,7 @@ abstract contract Connector is ProposedOwnable, MerkleTreeManager, ConnectorMana
 
   event MessageSent(bytes data, address caller);
 
-  event MessageProcessed(address from, bytes data, address caller);
+  event MessageProcessed(bytes data, address caller);
 
   event MirrorConnectorUpdated(address previous, address current);
 
@@ -229,9 +229,9 @@ abstract contract Connector is ProposedOwnable, MerkleTreeManager, ConnectorMana
     emit MessageSent(_data, msg.sender);
   }
 
-  function processMessage(address _sender, bytes memory _data) external {
-    _processMessage(_sender, _data);
-    emit MessageProcessed(_sender, _data, msg.sender);
+  function processMessage(bytes memory _data) external {
+    _processMessage(_data);
+    emit MessageProcessed(_data, msg.sender);
   }
 
   function verifySender(address _expected) external returns (bool) {
@@ -300,7 +300,7 @@ abstract contract Connector is ProposedOwnable, MerkleTreeManager, ConnectorMana
    * @notice This function is used by the AMBs to handle incoming messages. Should store the latest
    * root generated on the l2 domain.
    */
-  function _processMessage(address _sender, bytes memory _data) internal virtual;
+  function _processMessage(bytes memory _data) internal virtual;
 
   /**
    * @notice Verify that the msg.sender is the correct AMB contract, and that the message's origin sender

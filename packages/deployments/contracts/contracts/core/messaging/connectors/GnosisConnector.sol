@@ -8,7 +8,7 @@ import {Connector} from "./Connector.sol";
 // TODO: how to handle message passing failures?
 
 // Taken from: https://github.com/omni/tokenbridge-contracts/blob/master/contracts/interfaces/IAMB.sol
-interface GnosisBridge {
+interface GnosisAMB {
   function messageSender() external view returns (address);
 
   function maxGasPerTx() external view returns (uint256);
@@ -67,7 +67,7 @@ abstract contract BaseGnosisConnector is Connector {
    */
   function _verifySender(address _expected) internal view override returns (bool) {
     require(msg.sender == AMB, "!bridge");
-    return GnosisBridge(AMB).messageSender() == _expected;
+    return GnosisAMB(AMB).messageSender() == _expected;
   }
 }
 
@@ -107,7 +107,7 @@ contract GnosisL2Connector is BaseGnosisConnector {
    */
   function _sendMessage(bytes memory _data) internal override {
     // send the message to the l1 connector by calling `processMessage`
-    GnosisBridge(AMB).requireToPassMessage(
+    GnosisAMB(AMB).requireToPassMessage(
       mirrorConnector,
       abi.encodeWithSelector(Connector.processMessage.selector, address(this), _data),
       mirrorProcessGas
@@ -117,16 +117,13 @@ contract GnosisL2Connector is BaseGnosisConnector {
   /**
    * @dev AMB calls this function to store aggregate root that is sent up by the root manager
    */
-  function _processMessage(
-    address, // _sender -- not used
-    bytes memory _data
-  ) internal override {
+  function _processMessage(bytes memory _data) internal override {
     // ensure the l1 connector sent the message
     require(_verifySender(mirrorConnector), "!l1Connector");
     // ensure it is headed to this domain
-    require(GnosisBridge(AMB).destinationChainId() == block.chainid, "!destinationChain");
+    require(GnosisAMB(AMB).destinationChainId() == block.chainid, "!destinationChain");
     // ensure it came from mainnet
-    require(GnosisBridge(AMB).sourceChainId() == 1, "!sourceChainId");
+    require(GnosisAMB(AMB).sourceChainId() == 1, "!sourceChainId");
     // update the aggregate root on the domain
     update(bytes32(_data));
   }
@@ -168,7 +165,7 @@ contract GnosisL1Connector is BaseGnosisConnector {
    */
   function _sendMessage(bytes memory _data) internal override onlyRootManager {
     // send message via AMB, should call "processMessage" which will update aggregate root
-    GnosisBridge(AMB).requireToPassMessage(
+    GnosisAMB(AMB).requireToPassMessage(
       mirrorConnector,
       abi.encodeWithSelector(Connector.processMessage.selector, address(this), _data),
       mirrorProcessGas
@@ -178,17 +175,16 @@ contract GnosisL1Connector is BaseGnosisConnector {
   /**
    * @dev L2 connector calls this function to pass down latest outbound root
    */
-  function _processMessage(address _sender, bytes memory _data) internal override {
+  function _processMessage(bytes memory _data) internal override {
     // ensure the l1 connector sent the message
     require(_verifySender(mirrorConnector), "!l2Connector");
     // ensure it is headed to this domain
-    require(GnosisBridge(AMB).destinationChainId() == block.chainid, "!destinationChain");
+    require(GnosisAMB(AMB).destinationChainId() == block.chainid, "!destinationChain");
     // ensure it came from mainnet
-    require(GnosisBridge(AMB).sourceChainId() == 100, "!sourceChainId");
+    require(GnosisAMB(AMB).sourceChainId() == 100, "!sourceChainId");
     // get the data (should be the outbound root)
     require(_data.length == 32, "!length");
     // update the root on the root manager
     IRootManager(ROOT_MANAGER).setOutboundRoot(mirrorDomain, bytes32(_data));
-    emit MessageProcessed(_sender, _data, msg.sender);
   }
 }
