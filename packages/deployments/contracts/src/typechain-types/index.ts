@@ -180,6 +180,8 @@ export type { BaseOptimismConnector } from "./contracts/core/messaging/connector
 export { BaseOptimismConnector__factory } from "./factories/contracts/core/messaging/connectors/OptimismConnector.sol/BaseOptimismConnector__factory";
 export type { OptimismAMB } from "./contracts/core/messaging/connectors/OptimismConnector.sol/OptimismAMB";
 export { OptimismAMB__factory } from "./factories/contracts/core/messaging/connectors/OptimismConnector.sol/OptimismAMB__factory";
+export type { OptimismBridge } from "./contracts/core/messaging/connectors/OptimismConnector.sol/OptimismBridge";
+export { OptimismBridge__factory } from "./factories/contracts/core/messaging/connectors/OptimismConnector.sol/OptimismBridge__factory";
 export type { OptimismL1Connector } from "./contracts/core/messaging/connectors/OptimismConnector.sol/OptimismL1Connector";
 export { OptimismL1Connector__factory } from "./factories/contracts/core/messaging/connectors/OptimismConnector.sol/OptimismL1Connector__factory";
 export type { OptimismL2Connector } from "./contracts/core/messaging/connectors/OptimismConnector.sol/OptimismL2Connector";
