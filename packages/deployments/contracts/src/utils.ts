@@ -76,13 +76,18 @@ export type ConnectorDeployment = {
   name: string;
 };
 
-export const getConnectorDeployments = (env: Env): ConnectorDeployment[] => {
+export const getMessagingProtocolConfig = (env: Env) => {
   const network = env === "production" ? "mainnet" : env === "staging" ? "testnet" : "local";
   const protocol = MESSAGING_PROTOCOL_CONFIGS[network];
 
   if (!protocol || !protocol.configs[protocol.hub]) {
     throw new Error(`Network ${network} is not supported! (no messaging config)`);
   }
+  return protocol;
+};
+
+export const getConnectorDeployments = (env: Env): ConnectorDeployment[] => {
+  const protocol = getMessagingProtocolConfig(env);
 
   const connectors: { name: string; chain: number; mirrorName?: string; mirrorChain?: number }[] = [];
   Object.entries(protocol.configs).forEach(([chainId, config]) => {
@@ -113,14 +118,16 @@ export const getConnectorDeployments = (env: Env): ConnectorDeployment[] => {
     });
   });
 
-  const getAddressAndAbi = (name: string, chain: number): { address: string; abi: ContractInterface } => {
+  const getAddressAndAbi = (name: string, chain: number): { address: string; abi: ContractInterface } | undefined => {
     const [record] = (deploymentRecords as any)[chain.toString()] ?? [undefined];
     if (!record) {
-      throw new Error(`Deployment records not found for ${chain}`);
+      console.log(`Deployment records not found for ${chain}`);
+      return undefined;
     }
     const { address, abi } = record.contracts[name] ?? {};
     if (!address || !abi) {
-      throw new Error(`Deployment values not found for ${name} on ${chain}`);
+      console.log(`Deployment values not found for ${name} on ${chain}`);
+      return undefined;
     }
     return { address, abi };
   };
@@ -128,12 +135,24 @@ export const getConnectorDeployments = (env: Env): ConnectorDeployment[] => {
   // get deployments for connectors
   const deployments = connectors.map(({ name, chain, mirrorName, mirrorChain }) => {
     // Get deployment records
-    const { address, abi } = getAddressAndAbi(name, chain);
-    const mirrorConnector = mirrorName && mirrorChain ? getAddressAndAbi(mirrorName, mirrorChain).address : undefined;
+    const { address, abi } = getAddressAndAbi(name, chain) ?? {};
+    if (!address || !abi) {
+      return undefined;
+    }
+    const mirrorConnector = mirrorName && mirrorChain ? getAddressAndAbi(mirrorName, mirrorChain)?.address : undefined;
     return { address, abi, mirrorConnector, chain, name };
   });
 
-  return deployments;
+  return deployments.filter((x) => !!x) as any;
+};
+
+export const getProviderFromConfig = (config: HardhatUserConfig, chain: number) => {
+  // Get the provider address from the hardhat config on given chain
+  const url = (Object.values(config.networks!).find((n) => n?.chainId === chain) as any)?.url;
+  if (!url) {
+    throw new Error(`No provider url found for ${chain}`);
+  }
+  return new providers.JsonRpcProvider(url as string, chain);
 };
 
 export const executeOnAllConnectors = async <T = any>(
@@ -145,12 +164,7 @@ export const executeOnAllConnectors = async <T = any>(
   const results = [];
   for (const deploy of deployments) {
     // Get the provider address from the hardhat config on given chain
-    const url = (Object.values(hardhatConfig.networks!).find((n) => n?.chainId === deploy.chain) as any)?.url;
-    if (!url) {
-      throw new Error(`No provider url found for ${deploy.chain}`);
-    }
-
-    results.push(await fn(deploy, new providers.JsonRpcProvider(url as string, deploy.chain)));
+    results.push(await fn(deploy, getProviderFromConfig(hardhatConfig, deploy.chain)));
   }
   return results;
 };
