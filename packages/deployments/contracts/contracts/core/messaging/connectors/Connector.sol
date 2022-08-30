@@ -24,8 +24,11 @@ import {IConnector} from "../interfaces/IConnector.sol";
  * override virtual methods in this abstract contract to interface with a domain-specific AMB.
  * @dev Optimization: combine with the connector contract
  */
+
+// TODO: Home.sol uses a queue to manage updates into the merkle tree, is this required?
 abstract contract Connector is ProposedOwnable, MerkleTreeManager, ConnectorManager, IConnector {
   // ============ Libraries ============
+
   using MerkleLib for MerkleLib.Tree;
   using TypedMemView for bytes;
   using TypedMemView for bytes29;
@@ -100,12 +103,6 @@ abstract contract Connector is ProposedOwnable, MerkleTreeManager, ConnectorMana
   bytes32 public aggregateRoot;
 
   /**
-   * @notice This tracks the root of all transfers with the origin domain as this domain (i.e.
-   * all outbound transfers)
-   */
-  bytes32 public outboundRoot;
-
-  /**
    * @notice This tracks whether the root has been proven to exist within the given aggregate root
    * @dev Tracking this is an optimization so you dont have to prove inclusion of the same constituent
    * root many times
@@ -173,7 +170,7 @@ abstract contract Connector is ProposedOwnable, MerkleTreeManager, ConnectorMana
     uint256 _mirrorProcessGas,
     uint256 _processGas,
     uint256 _reserveGas
-  ) ProposedOwnable() ConnectorManager(_domain) {
+  ) ProposedOwnable() MerkleTreeManager() ConnectorManager(_domain) {
     // Sanity checks.
     require(_domain > 0, "!domain");
     // require(_amb != address(0), "!amb"); // May be address(0) if on mainnet
@@ -224,6 +221,14 @@ abstract contract Connector is ProposedOwnable, MerkleTreeManager, ConnectorMana
   }
 
   // ============ Public fns ============
+  /**
+   * @notice This returns the root of all messages with the origin domain as this domain (i.e.
+   * all outbound messages)
+   */
+  function outboundRoot() external view returns (bytes32) {
+    return root();
+  }
+
   function sendMessage(bytes memory _data) external {
     _sendMessage(_data);
     emit MessageSent(_data, msg.sender);
@@ -264,11 +269,10 @@ abstract contract Connector is ProposedOwnable, MerkleTreeManager, ConnectorMana
     // insert the hashed message into the Merkle tree
     bytes32 _messageHash = keccak256(_message);
     tree.insert(_messageHash);
-    // enqueue the new Merkle root after inserting the message
-    outboundRoot = root();
+    // TODO: see comment on queue manager at the top
     // Emit Dispatch event with message information
     // note: leafIndex is count() - 1 since new leaf has already been inserted
-    emit Dispatch(_messageHash, count() - 1, outboundRoot, _message);
+    emit Dispatch(_messageHash, count() - 1, root(), _message);
   }
 
   /**
@@ -315,7 +319,7 @@ abstract contract Connector is ProposedOwnable, MerkleTreeManager, ConnectorMana
    * @dev At runtime, this method should be called at specific time intervals.
    */
   function send() external {
-    _sendMessage(abi.encodePacked(outboundRoot));
+    _sendMessage(abi.encodePacked(root()));
   }
 
   /**
