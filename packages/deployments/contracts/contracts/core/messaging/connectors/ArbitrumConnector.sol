@@ -58,6 +58,7 @@ contract ArbitrumL2Connector is Connector {
   }
 }
 
+// TODO: remove aggregate root from l1 contracts
 contract ArbitrumL1Connector is Connector {
   uint256 public defaultGasPrice;
 
@@ -97,8 +98,6 @@ contract ArbitrumL1Connector is Connector {
   function _sendMessage(bytes memory _data) internal override {
     // Should always be dispatching the aggregate root
     require(_data.length == 32, "!length");
-    // Update record of root on this contract
-    update(bytes32(_data));
     // dispatch to l2
     ArbitrumL1AMB(AMB).sendContractTransaction(mirrorProcessGas, defaultGasPrice, mirrorConnector, 0, _data);
   }

@@ -99,6 +99,7 @@ contract OptimismL2Connector is BaseOptimismConnector {
   }
 }
 
+// TODO: remove aggregate root from l1 contracts
 contract OptimismL1Connector is BaseOptimismConnector {
   // ============ Constructor ============
   constructor(
@@ -130,8 +131,6 @@ contract OptimismL1Connector is BaseOptimismConnector {
   function _sendMessage(bytes memory _data) internal override {
     // Should always be dispatching the aggregate root
     require(_data.length == 32, "!length");
-    // Update record of root on this contract
-    update(bytes32(_data));
     // Dispatch message
     OptimismAMB(AMB).sendMessage(mirrorConnector, _data, uint32(mirrorProcessGas));
   }
