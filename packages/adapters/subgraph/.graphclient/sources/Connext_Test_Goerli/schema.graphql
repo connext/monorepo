@@ -14,6 +14,7 @@ directive @derivedFrom(field: String!) on FIELD_DEFINITION
 
 type testgoerli_Asset {
   id: ID!
+  key: testgoerli_Bytes
   local: testgoerli_Bytes!
   adoptedAsset: testgoerli_Bytes!
   canonicalId: testgoerli_Bytes!
@@ -107,6 +108,12 @@ input testgoerli_Asset_filter {
   id_lte: ID
   id_in: [ID!]
   id_not_in: [ID!]
+  key: testgoerli_Bytes
+  key_not: testgoerli_Bytes
+  key_in: [testgoerli_Bytes!]
+  key_not_in: [testgoerli_Bytes!]
+  key_contains: testgoerli_Bytes
+  key_not_contains: testgoerli_Bytes
   local: testgoerli_Bytes
   local_not: testgoerli_Bytes
   local_in: [testgoerli_Bytes!]
@@ -147,6 +154,7 @@ input testgoerli_Asset_filter {
 
 enum testgoerli_Asset_orderBy {
   id
+  key
   local
   adoptedAsset
   canonicalId
@@ -1472,6 +1480,8 @@ type testgoerli__Block_ {
   hash: testgoerli_Bytes
   """The block number"""
   number: Int!
+  """Timestamp of the block if available, format depends on the chain"""
+  timestamp: String
 }
 
 """The type for the top-level _meta field"""

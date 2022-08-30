@@ -1,6 +1,7 @@
 [
   "constructor(uint32,uint256,uint256)",
   "event DoubleUpdate(bytes32,bytes32[2],bytes,bytes)",
+  "event Initialized(uint8)",
   "event NewUpdater(address,address)",
   "event OwnershipTransferred(address indexed,address indexed)",
   "event Process(bytes32 indexed,bool indexed,bytes indexed)",

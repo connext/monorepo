@@ -14,6 +14,7 @@ directive @derivedFrom(field: String!) on FIELD_DEFINITION
 
 type local1338_Asset {
   id: ID!
+  key: local1338_Bytes
   local: local1338_Bytes!
   adoptedAsset: local1338_Bytes!
   canonicalId: local1338_Bytes!
@@ -107,6 +108,12 @@ input local1338_Asset_filter {
   id_lte: ID
   id_in: [ID!]
   id_not_in: [ID!]
+  key: local1338_Bytes
+  key_not: local1338_Bytes
+  key_in: [local1338_Bytes!]
+  key_not_in: [local1338_Bytes!]
+  key_contains: local1338_Bytes
+  key_not_contains: local1338_Bytes
   local: local1338_Bytes
   local_not: local1338_Bytes
   local_in: [local1338_Bytes!]
@@ -147,6 +154,7 @@ input local1338_Asset_filter {
 
 enum local1338_Asset_orderBy {
   id
+  key
   local
   adoptedAsset
   canonicalId
@@ -1472,6 +1480,8 @@ type local1338__Block_ {
   hash: local1338_Bytes
   """The block number"""
   number: Int!
+  """Timestamp of the block if available, format depends on the chain"""
+  timestamp: String
 }
 
 """The type for the top-level _meta field"""

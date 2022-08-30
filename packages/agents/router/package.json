@@ -1,6 +1,6 @@
 {
   "name": "@connext/nxtp-router",
-  "version": "0.2.0-beta.20",
+  "version": "0.2.0-beta.22",
   "description": "",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -29,9 +29,6 @@
     "@connext/nxtp-adapters-web3signer": "workspace:*",
     "@connext/nxtp-txservice": "workspace:*",
     "@connext/nxtp-utils": "workspace:*",
-    "@nomad-xyz/configuration": "0.1.0",
-    "@nomad-xyz/sdk": "2.1.1",
-    "@nomad-xyz/sdk-bridge": "1.1.1",
     "@sinclair/typebox": "0.24.28",
     "axios": "0.27.2",
     "compare-versions": "4.1.3",

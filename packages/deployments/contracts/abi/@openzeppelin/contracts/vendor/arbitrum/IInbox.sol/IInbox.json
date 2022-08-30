@@ -1,0 +1,17 @@
+[
+  "event InboxMessageDelivered(uint256 indexed,bytes)",
+  "event InboxMessageDeliveredFromOrigin(uint256 indexed)",
+  "function bridge() view returns (address)",
+  "function createRetryableTicket(address,uint256,uint256,address,address,uint256,uint256,bytes) payable returns (uint256)",
+  "function createRetryableTicketNoRefundAliasRewrite(address,uint256,uint256,address,address,uint256,uint256,bytes) payable returns (uint256)",
+  "function depositEth(uint256) payable returns (uint256)",
+  "function pauseCreateRetryables()",
+  "function sendContractTransaction(uint256,uint256,address,uint256,bytes) returns (uint256)",
+  "function sendL1FundedContractTransaction(uint256,uint256,address,bytes) payable returns (uint256)",
+  "function sendL1FundedUnsignedTransaction(uint256,uint256,uint256,address,bytes) payable returns (uint256)",
+  "function sendL2Message(bytes) returns (uint256)",
+  "function sendUnsignedTransaction(uint256,uint256,uint256,address,uint256,bytes) returns (uint256)",
+  "function startRewriteAddress()",
+  "function stopRewriteAddress()",
+  "function unpauseCreateRetryables()"
+]

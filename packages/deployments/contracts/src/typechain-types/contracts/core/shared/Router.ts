@@ -143,13 +143,22 @@ export interface RouterInterface extends utils.Interface {
   ): Result;
 
   events: {
+    "Initialized(uint8)": EventFragment;
     "OwnershipProposed(address)": EventFragment;
     "OwnershipTransferred(address,address)": EventFragment;
   };
 
+  getEvent(nameOrSignatureOrTopic: "Initialized"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "OwnershipProposed"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "OwnershipTransferred"): EventFragment;
 }
+
+export interface InitializedEventObject {
+  version: number;
+}
+export type InitializedEvent = TypedEvent<[number], InitializedEventObject>;
+
+export type InitializedEventFilter = TypedEventFilter<InitializedEvent>;
 
 export interface OwnershipProposedEventObject {
   proposedOwner: string;
@@ -348,6 +357,9 @@ export interface Router extends BaseContract {
   };
 
   filters: {
+    "Initialized(uint8)"(version?: null): InitializedEventFilter;
+    Initialized(version?: null): InitializedEventFilter;
+
     "OwnershipProposed(address)"(
       proposedOwner?: PromiseOrValue<string> | null
     ): OwnershipProposedEventFilter;

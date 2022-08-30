@@ -73,15 +73,24 @@ export interface OwnerPausableUpgradeableInterface extends utils.Interface {
   decodeFunctionResult(functionFragment: "unpause", data: BytesLike): Result;
 
   events: {
+    "Initialized(uint8)": EventFragment;
     "OwnershipTransferred(address,address)": EventFragment;
     "Paused(address)": EventFragment;
     "Unpaused(address)": EventFragment;
   };
 
+  getEvent(nameOrSignatureOrTopic: "Initialized"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "OwnershipTransferred"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "Paused"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "Unpaused"): EventFragment;
 }
+
+export interface InitializedEventObject {
+  version: number;
+}
+export type InitializedEvent = TypedEvent<[number], InitializedEventObject>;
+
+export type InitializedEventFilter = TypedEventFilter<InitializedEvent>;
 
 export interface OwnershipTransferredEventObject {
   previousOwner: string;
@@ -197,6 +206,9 @@ export interface OwnerPausableUpgradeable extends BaseContract {
   };
 
   filters: {
+    "Initialized(uint8)"(version?: null): InitializedEventFilter;
+    Initialized(version?: null): InitializedEventFilter;
+
     "OwnershipTransferred(address,address)"(
       previousOwner?: PromiseOrValue<string> | null,
       newOwner?: PromiseOrValue<string> | null

@@ -3,7 +3,7 @@ import { task } from "hardhat/config";
 import { CallParams, XCallArgs } from "@connext/nxtp-utils";
 
 import { Env, getDeploymentName, mustGetEnv } from "../src/utils";
-import { canonizeId, chainIdToDomain } from "../src/nomad";
+import { canonizeId, chainIdToDomain } from "../src";
 
 type TaskArgs = {
   transactingAssetId?: string;
@@ -220,7 +220,9 @@ export default task("xcall", "Prepare a cross-chain tx")
           console.log("allowance: ", allowance.toString());
           if (allowance.lt(BigNumber.from(amount).mul(runs))) {
             tx = await erc20.approve(connextAddress, constants.MaxUint256);
-            await tx.wait();
+            console.log("allowance tx: ", tx.hash);
+            const r = await tx.wait();
+            console.log("allowance tx mined: ", r.transactionHash);
           }
           balance = await erc20.balanceOf(senders[i].address);
         }

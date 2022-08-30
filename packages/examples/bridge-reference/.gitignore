@@ -1,0 +1,29 @@
+# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
+
+# dependencies
+/node_modules
+/.pnp
+.pnp.js
+
+# testing
+/coverage
+
+# production
+/build
+
+# misc
+.DS_Store
+.env.ey
+!.env.dist
+
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# parcel-bundler cache (https://parceljs.org/)
+.cache
+dist
+.parcel-cache
+
+# VisualStudioCode #
+.vscode/*

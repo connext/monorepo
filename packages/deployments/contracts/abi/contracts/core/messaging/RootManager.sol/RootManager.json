@@ -13,6 +13,7 @@
   "event OutboundRootUpdated(uint32,bytes32)",
   "event OwnershipProposed(address indexed)",
   "event OwnershipTransferred(address indexed,address indexed)",
+  "event RootPropagated(bytes32,uint32[])",
   "event WatcherAdded(address)",
   "event WatcherRemoved(address)",
   "function acceptProposedOwner()",

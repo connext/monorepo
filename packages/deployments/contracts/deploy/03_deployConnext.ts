@@ -5,7 +5,7 @@ import { ethers } from "hardhat";
 
 import { SKIP_SETUP } from "../src/constants";
 import { getDeploymentName, getProtocolNetwork } from "../src/utils";
-import { chainIdToDomain } from "../src/nomad";
+import { chainIdToDomain } from "../src";
 import { deployConfigs } from "../deployConfig";
 import { MESSAGING_PROTOCOL_CONFIGS, HUB_PREFIX, SPOKE_PREFIX } from "../deployConfig/shared";
 

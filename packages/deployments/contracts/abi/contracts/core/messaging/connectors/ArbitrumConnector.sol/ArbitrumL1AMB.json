@@ -1,0 +1,3 @@
+[
+  "function sendContractTransaction(uint256,uint256,address,uint256,bytes) payable returns (uint256)"
+]

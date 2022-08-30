@@ -1,8 +1,8 @@
 import axios, { AxiosResponse } from "axios";
 import { Wallet, utils, BigNumber, providers, constants } from "ethers";
 import { makePublisher, makeSubscriber } from "@connext/nxtp-sequencer/src/sequencer";
-import { makePublisher as makeRouterPublisher } from "@connext/nxtp-router/src/publisher/publisher";
-import { makeSubscriber as makeRouterSubscriber } from "@connext/nxtp-router/src/subscriber/subscriber";
+import { makePublisher as makeRouterPublisher } from "@connext/nxtp-router/src/tasks/publisher/publisher";
+import { makeSubscriber as makeRouterSubscriber } from "@connext/nxtp-router/src/tasks/subscriber/subscriber";
 import { makeRelayer } from "@connext/nxtp-relayer/src/relayer";
 import { makeRoutersPoller } from "@connext/cartographer-poller/src/routersPoller";
 import { makeTransfersPoller } from "@connext/cartographer-poller/src/transfersPoller";
@@ -62,6 +62,7 @@ import {
 import { pollSomething } from "./helpers/shared";
 
 const ROUTER_MNEMONIC = process.env.ROUTER_MNEMONIC;
+const SEQUENCER_MNEMONIC = process.env.SEQUENCER_MNEMONIC;
 const RELAYER_MNEMONIC = process.env.RELAYER_MNEMONIC;
 const DEPLOYER_MNEMONIC = process.env.DEPLOYER_MNEMONIC;
 const USER_MNEMONIC = process.env.USER_MNEMONIC || Wallet.createRandom()._mnemonic().phrase;
@@ -96,13 +97,21 @@ describe("TESTNET:E2E", () => {
   let context: OperationContext;
 
   before(async () => {
+    log.info("Fetching Configs");
+    log.next("ChainData");
     chainData = await CHAIN_DATA;
+    log.next("Domains");
     domainInfo = await DOMAINS;
+    log.next("Router");
     routerConfig = await ROUTER_CONFIG;
+    log.next("Sequencer");
     sequencerConfig = await SEQUENCER_CONFIG;
+    log.next("Relayer");
     relayerConfig = await RELAYER_CONFIG;
+    log.next("Cartographer");
     cartographerConfig = await CARTOGRAPHER_CONFIG;
 
+    log.info("Init Agents");
     // Init agents.
     const router = ROUTER_MNEMONIC ? Wallet.fromMnemonic(ROUTER_MNEMONIC) : undefined;
     // As a backup, the relayer can use the router wallet as well.
@@ -141,6 +150,7 @@ describe("TESTNET:E2E", () => {
       },
     };
 
+    log.info("Init Services");
     // Init services.
     chainreader = new ChainReader(
       new Logger({
@@ -164,6 +174,7 @@ describe("TESTNET:E2E", () => {
   });
 
   const test = async () => {
+    log.info("Starting Test");
     const connext = getConnextInterface();
     const testERC20 = new utils.Interface(ERC20Abi);
     const originConnextAddress = domainInfo.ORIGIN.config.deployments.connext;
@@ -426,7 +437,7 @@ describe("TESTNET:E2E", () => {
           // Might as well mint enough for 100 test iterations...
           const amount = TRANSFER_TOKEN_AMOUNT.mul(100);
           const encoded = testERC20.encodeFunctionData("mint", [agents.user.address, amount]);
-          const tx = await (agents.router ?? agents.user).origin.sendTransaction({
+          const tx = await (agents.deployer ?? agents.user).origin.sendTransaction({
             to: originAsset.address,
             data: encoded,
             value: BigNumber.from("0"),
@@ -750,32 +761,33 @@ describe("TESTNET:E2E", () => {
         await delay(1_000);
       }
 
-      if (agents.router) {
-        log.next("SEQUENCER START");
-        await makePublisher({
-          ...sequencerConfig,
-          relayerUrl: agents.relayer ? sequencerConfig.relayerUrl : undefined,
-        });
-        await delay(1_000);
+      // if (agents.router) {
+      //   log.next("SEQUENCER START");
+      //   await makePublisher({
+      //     ...sequencerConfig,
+      //     mnemonic: SEQUENCER_MNEMONIC,
+      //     relayerUrl: agents.relayer ? sequencerConfig.relayerUrl : undefined,
+      //   });
+      //   await delay(1_000);
 
-        await makeSubscriber({
-          ...sequencerConfig,
-          relayerUrl: agents.relayer ? sequencerConfig.relayerUrl : undefined,
-        });
-        await delay(1_000);
+      //   await makeSubscriber({
+      //     ...sequencerConfig,
+      //     relayerUrl: agents.relayer ? sequencerConfig.relayerUrl : undefined,
+      //   });
+      //   await delay(1_000);
 
-        log.next("ROUTER START");
-        await makeRouterPublisher({
-          ...routerConfig,
-          mnemonic: ROUTER_MNEMONIC,
-        });
+      //   log.next("ROUTER START");
+      //   await makeRouterPublisher({
+      //     ...routerConfig,
+      //     mnemonic: ROUTER_MNEMONIC,
+      //   });
 
-        await makeRouterSubscriber({
-          ...routerConfig,
-          mnemonic: ROUTER_MNEMONIC,
-        });
-        await delay(1_000);
-      }
+      //   await makeRouterSubscriber({
+      //     ...routerConfig,
+      //     mnemonic: ROUTER_MNEMONIC,
+      //   });
+      //   await delay(1_000);
+      // }
     }
 
     /// MARK - E2E Test
