@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// @unsupported: ovm
+// https://github.com/fx-portal/contracts/blob/main/contracts/tunnel/FxBaseChildTunnel.sol
 pragma solidity 0.8.15;
 
 // IFxMessageProcessor represents interface to process message
@@ -35,7 +35,7 @@ abstract contract FxBaseChildTunnel is IFxMessageProcessor {
   }
 
   // set fxRootTunnel if not set already
-  function setFxRootTunnel(address _fxRootTunnel) public {
+  function setFxRootTunnel(address _fxRootTunnel) external virtual {
     require(fxRootTunnel == address(0x0), "FxBaseChildTunnel: ROOT_TUNNEL_ALREADY_SET");
     fxRootTunnel = _fxRootTunnel;
   }
@@ -44,7 +44,7 @@ abstract contract FxBaseChildTunnel is IFxMessageProcessor {
     uint256 stateId,
     address rootMessageSender,
     bytes calldata data
-  ) public override {
+  ) external override {
     require(msg.sender == fxChild, "FxBaseChildTunnel: INVALID_SENDER");
     _processMessageFromRoot(stateId, rootMessageSender, data);
   }
