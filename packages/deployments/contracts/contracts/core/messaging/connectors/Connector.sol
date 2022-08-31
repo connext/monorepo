@@ -341,7 +341,6 @@ abstract contract Connector is ProposedOwnable, MerkleTreeManager, ConnectorMana
    * these roots.
    */
   function update(bytes32 _newRoot) internal {
-    require(_verifySender(mirrorConnector), "!sender");
     emit AggregateRootUpdated(_newRoot, aggregateRoot);
     aggregateRoot = _newRoot;
   }
