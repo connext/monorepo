@@ -683,6 +683,11 @@ describe("LOCAL:E2E", () => {
       throw new Error("Did not find XCalled event (or event was missing `message` arguments)!");
     }
 
+    // TODO. Relayer Tasks.
+    // 1. Calls `send` of source connector to package the latest outboundRoot into a message
+    // 2. Calls propagate of RootManager to send mixed root to all the spoke domains
+    // 3. ProveAndProcess on the dest connector once it gets bridged
+
     const poll = getTransferByTransactionHash(sdkUtils, PARAMETERS.A.DOMAIN, receipt.transactionHash);
     // TODO: Read remote from contract directly?
     const remote = "0x000000000000000000000000f08df3efdd854fede77ed3b2e515090eee765154";
