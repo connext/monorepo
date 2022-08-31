@@ -7,7 +7,7 @@ type TaskArgs = {
   env?: Env;
 };
 
-export default task("connector-send", "Send from MainnetL1Connector")
+export default task("root-manager-propagate", "propagate from RootManager")
   .addOptionalParam("env", "Environment of contracts")
   .setAction(async ({ env: _env }: TaskArgs, { deployments, ethers }) => {
     let { deployer } = await ethers.getNamedSigners();
@@ -18,15 +18,15 @@ export default task("connector-send", "Send from MainnetL1Connector")
     const env = mustGetEnv(_env);
     console.log("env:", env);
 
-    const deploymentName = getDeploymentName("MainnetL1Connector", env);
+    const deploymentName = getDeploymentName("RootManager", env);
     const deployment = await deployments.get(deploymentName);
     const address = deployment.address;
-    console.log("MainnetL1Connector Address: ", address);
+    console.log("RootManager Address: ", address);
 
-    const mainnetL1Connector = new Contract(address, deployment.abi, deployer);
+    const rootManager = new Contract(address, deployment.abi, deployer);
 
-    const tx = await mainnetL1Connector.send();
-    console.log("mainnetL1Connector send tx: ", tx);
+    const tx = await rootManager.propagate();
+    console.log("RootManager propogate tx: ", tx);
     const receipt = await tx.wait();
-    console.log("mainnetL1Connector send tx mined: ", receipt.transactionHash);
+    console.log("RootManager propogate tx mined: ", receipt.transactionHash);
   });
