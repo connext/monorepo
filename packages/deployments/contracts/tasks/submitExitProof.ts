@@ -1,5 +1,5 @@
 import { task } from "hardhat/config";
-import { Contract, Wallet } from "ethers";
+import { Contract, utils } from "ethers";
 import { generateExitPayload } from "@connext/nxtp-utils";
 
 import hardhatConfig from "../hardhat.config";
@@ -67,6 +67,11 @@ export default task("submit-exit-proof", "Submit Exit proof to L2 chain")
       providers,
     );
 
+    console.log("--------------------------------------------------------------");
+    console.log("payload");
+    console.log(payload);
+    console.log("--------------------------------------------------------------");
+    console.log(utils.RLP.decode(payload as string));
     if (payload) {
       const L1ConnectorContract = new Contract(L1ConnectorDeployment.address, L1ConnectorDeployment.abi, deployer);
       const tx = await L1ConnectorContract.receiveMessage(payload);
