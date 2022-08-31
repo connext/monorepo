@@ -15,21 +15,25 @@ import {
 type TaskArgs = {
   env?: Env;
   hash?: string;
+  relay?: string;
 };
 
 export default task("query-roots", "Read balances of accounts")
   .addOptionalParam("env", "Environment of contracts")
   .addOptionalParam("hash", "Tx hash of `propagate` function (where messages sent)")
-  .setAction(async ({ env: _env, hash }: TaskArgs, hre) => {
+  .addOptionalParam("relay", "Whether the message should be relayed if possible")
+  .setAction(async ({ env: _env, hash, relay: _relay }: TaskArgs, hre) => {
     let { deployer } = await hre.ethers.getNamedSigners();
     if (!deployer) {
       [deployer] = await hre.ethers.getUnnamedSigners();
     }
 
     const env = mustGetEnv(_env);
+    const relay = _relay === "false" ? false : true;
     console.log("env:", env);
     console.log("deployer: ", deployer.address);
     console.log("hash: ", hash);
+    console.log("relay:", relay);
 
     const protocol = getMessagingProtocolConfig(env);
 
@@ -64,6 +68,8 @@ export default task("query-roots", "Read balances of accounts")
             chain,
             getProviderFromConfig(config, protocol.hub),
             provider,
+            relay,
+            deployer,
           );
           console.log(`- message status: ${status}`);
         } else {

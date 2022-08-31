@@ -1,5 +1,5 @@
 import { config } from "dotenv";
-import { ContractInterface, providers, Wallet } from "ethers";
+import { ContractInterface, providers, Signer, Wallet } from "ethers";
 import { CrossChainMessenger, MessageStatus } from "@eth-optimism/sdk";
 import { HardhatRuntimeEnvironment, HardhatUserConfig } from "hardhat/types";
 
@@ -178,6 +178,8 @@ export const queryOptimismMessageStatus = async (
   l2ChainId: number,
   l1Provider: providers.JsonRpcProvider,
   l2Provider: providers.JsonRpcProvider,
+  relay: boolean,
+  signer: Signer,
 ): Promise<string> => {
   const crossChainMessenger = new CrossChainMessenger({
     l1ChainId,
@@ -196,5 +198,11 @@ export const queryOptimismMessageStatus = async (
     [MessageStatus.READY_FOR_RELAY]: "Ready for relay",
     [MessageStatus.RELAYED]: "Relayed",
   };
+  if (relay && status === MessageStatus.READY_FOR_RELAY) {
+    const tx = await crossChainMessenger.finalizeMessage(hash, { signer });
+    console.log("relay message tx submitted:", tx.hash);
+    const receipt = await tx.wait();
+    console.log("relay message tx mined:", receipt.transactionHash);
+  }
   return mapping[status];
 };
