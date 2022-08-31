@@ -6,6 +6,7 @@ import { getChainData, initMatic, MaticJsErrorType, InfoError } from "..";
  * @param {String} mirrorDomain
  * @param {String} burnTxHash
  * @param {String} eventSignature
+ * @param {Map<String, string[]>} providers
  * @returns {string}
  */
 export const generateExitPayload = async (
@@ -13,6 +14,7 @@ export const generateExitPayload = async (
   mirrorDomain: string,
   burnTxHash: string,
   eventSignature: string,
+  providers?: Map<string, string[]>,
 ): Promise<string | undefined> => {
   const allChainData = await getChainData();
 
@@ -27,9 +29,9 @@ export const generateExitPayload = async (
   const mirrorChainData = allChainData.get(mirrorDomain)!;
   const isMainnet = chainData.type === "mainnet";
 
-  const maticRPC = chainData.rpc;
-  const ethereumRPC = mirrorChainData.rpc;
-  const rpcLength = maticRPC.length;
+  const maticRPC = providers?.get(domain) ?? chainData.rpc;
+  const ethereumRPC = providers?.get(mirrorDomain) ?? mirrorChainData.rpc;
+  const rpcLength = Math.min(maticRPC.length, ethereumRPC.length);
   const maxRetries = rpcLength * 2;
   const initialRpcIndex = 0;
 

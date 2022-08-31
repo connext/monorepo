@@ -1,5 +1,5 @@
 import { POSClient, use } from "@maticnetwork/maticjs";
-import { Web3ClientPlugin } from "@maticnetwork/maticjs-ethers";
+import { Web3ClientPlugin } from "@maticnetwork/maticjs-web3";
 import { constants } from "ethers";
 
 // install ethers plugin
