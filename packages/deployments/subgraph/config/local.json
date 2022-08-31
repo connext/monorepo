@@ -2,6 +2,9 @@
   {
     "network": "mainnet",
     "address": "0x1411CB266FCEd1587b0AA29E9d5a9Ef3Db64A9C5",
-    "startBlock": 0
+    "startBlock": 0,
+    "network1": "mainnet",
+    "address1": "0x1411CB266FCEd1587b0AA29E9d5a9Ef3Db64A9C5",
+    "startBlock1": 0
   }
 ]
