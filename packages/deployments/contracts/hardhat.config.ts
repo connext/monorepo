@@ -47,6 +47,7 @@ import "./tasks/setBridgeRouter";
 import "./tasks/addSequencer";
 import "./tasks/setXAppConnectionManager";
 import "./tasks/queryRoots";
+import "./tasks/addConnectors";
 
 const urlOverride = process.env.ETH_PROVIDER_URL;
 const chainId = parseInt(process.env.CHAIN_ID ?? "1337", 10);
