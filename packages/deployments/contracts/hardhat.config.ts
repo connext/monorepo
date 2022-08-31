@@ -41,6 +41,7 @@ import "./tasks/stableswap/initializeSwap";
 import "./tasks/stableswap/addSwapLiquidity";
 import "./tasks/stableswap/removeSwapLiquidity";
 import "./tasks/stableswap/setSwapFees";
+import "./tasks/MainnetL1Connector/send";
 import "./tasks/setMirrorConnectors";
 import "./tasks/addConnextions";
 import "./tasks/setBridgeRouter";
