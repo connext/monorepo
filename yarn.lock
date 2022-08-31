@@ -1190,7 +1190,6 @@ __metadata:
   resolution: "@connext/nxtp-utils@workspace:packages/utils"
   dependencies:
     "@maticnetwork/maticjs": ^3.4.0
-    "@maticnetwork/maticjs-ethers": ^1.0.2
     "@maticnetwork/maticjs-web3": ^1.0.1
     "@sinclair/typebox": 0.24.28
     "@types/chai": 4.3.3
@@ -3779,17 +3778,6 @@ __metadata:
   version: 2.5.2
   resolution: "@lmdb/lmdb-win32-x64@npm:2.5.2"
   conditions: os=win32 & cpu=x64
-  languageName: node
-  linkType: hard
-
-"@maticnetwork/maticjs-ethers@npm:^1.0.2":
-  version: 1.0.2
-  resolution: "@maticnetwork/maticjs-ethers@npm:1.0.2"
-  dependencies:
-    ethers: ^5.5.1
-  peerDependencies:
-    "@maticnetwork/maticjs": ^3.2.5
-  checksum: 3238fbdf7a5a7886c8c6f1a455b7635c2766a7b2a4acf06c125fa3699ad5890e734c446e5976f2f0f4ee8becca96889c4a58f28b6dd90ac3e7bed5a60a8954f1
   languageName: node
   linkType: hard
 
@@ -12228,7 +12216,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"ethers@npm:^5.0.1, ethers@npm:^5.0.2, ethers@npm:^5.5.1, ethers@npm:^5.5.2, ethers@npm:^5.5.3, ethers@npm:^5.6.8, ethers@npm:^5.6.9":
+"ethers@npm:^5.0.1, ethers@npm:^5.0.2, ethers@npm:^5.5.2, ethers@npm:^5.5.3, ethers@npm:^5.6.8, ethers@npm:^5.6.9":
   version: 5.7.0
   resolution: "ethers@npm:5.7.0"
   dependencies:

@@ -22,7 +22,6 @@
   ],
   "dependencies": {
     "@maticnetwork/maticjs": "^3.4.0",
-    "@maticnetwork/maticjs-ethers": "^1.0.2",
     "@maticnetwork/maticjs-web3": "^1.0.1",
     "@sinclair/typebox": "0.24.28",
     "@typescript-eslint/eslint-plugin": "5.33.1",
