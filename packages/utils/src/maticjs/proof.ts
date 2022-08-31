@@ -13,7 +13,7 @@ export const generateExitPayload = async (
   mirrorDomain: string,
   burnTxHash: string,
   eventSignature: string,
-): Promise<string> => {
+): Promise<string | undefined> => {
   const allChainData = await getChainData();
 
   if (!allChainData.has(domain)) {
