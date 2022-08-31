@@ -31184,7 +31184,7 @@
           ]
         },
         "PolygonL1ConnectorSendOutboundRootResolverStaging": {
-          "address": "0xd40909a89855763395EE5C289DBe73d6c0a28EB8",
+          "address": "0x6B28E9C094442d16FcA255eE4Df4C9Fc4319a561",
           "abi": [
             {
               "inputs": [
@@ -31465,7 +31465,7 @@
           ]
         },
         "PolygonL1ConnectorStaging": {
-          "address": "0xc328DE0F3B210a0FCD5f8450754BFA4247dBD66A",
+          "address": "0x885DE7121e515673B31b6494c54879ddD198eADb",
           "abi": [
             {
               "inputs": [
@@ -88427,7 +88427,7 @@
       "chainId": "80001",
       "contracts": {
         "PolygonL2ConnectorSendOutboundRootResolverStaging": {
-          "address": "0x30F9BDda2A4187eB03261d171e82A4745143cfea",
+          "address": "0xd45bc52D5A055d24A649a26a5E036b0B58172010",
           "abi": [
             {
               "inputs": [
@@ -88708,7 +88708,7 @@
           ]
         },
         "PolygonL2ConnectorStaging": {
-          "address": "0x4290AF46C296eE8e9618760f87f6B4BB70B4EBA4",
+          "address": "0xcc8F41DDcf1dC9F125226E3eFce05119C1cb29Ec",
           "abi": [
             {
               "inputs": [
