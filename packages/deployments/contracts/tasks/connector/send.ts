@@ -28,7 +28,7 @@ export default task("connector-send", "Call `Connector.send()` to distribute out
     );
     const deployment = await deployments.get(deploymentName);
     const address = deployment.address;
-    console.log("connector:", address);
+    console.log(deploymentName, "connector:", address);
 
     const connector = new Contract(address, deployment.abi, deployer);
 

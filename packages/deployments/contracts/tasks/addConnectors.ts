@@ -19,6 +19,7 @@ type TaskArgs = {
 
 export default task("add-connectors", "Add all connectors to the root manager")
   .addOptionalParam("env", "Environment of contracts")
+  .addOptionalParam("remove", "Whether or not to remove connectors that exist")
   .setAction(async ({ env: _env, remove: _remove }: TaskArgs, hre) => {
     const chain = await hre.getChainId();
     const networkConfig = Object.values(hardhatConfig.networks!).find((n) => n?.chainId === +chain)!;

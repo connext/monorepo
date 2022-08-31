@@ -7,7 +7,7 @@ type TaskArgs = {
   env?: Env;
 };
 
-export default task("root-manager-propagate", "propagate from RootManager")
+export default task("propagate", "Propagate aggregate root from RootManager")
   .addOptionalParam("env", "Environment of contracts")
   .setAction(async ({ env: _env }: TaskArgs, { deployments, ethers }) => {
     let { deployer } = await ethers.getNamedSigners();
@@ -19,14 +19,16 @@ export default task("root-manager-propagate", "propagate from RootManager")
     console.log("env:", env);
 
     const deploymentName = getDeploymentName("RootManager", env);
-    const deployment = await deployments.get(deploymentName);
-    const address = deployment.address;
-    console.log("RootManager Address: ", address);
+    const rootManagerDeployment = await deployments.get(deploymentName);
+    if (!rootManagerDeployment) {
+      throw new Error(`No ${deploymentName} found`);
+    }
+    console.log("rootManagerAddress: ", rootManagerDeployment.address);
 
-    const rootManager = new Contract(address, deployment.abi, deployer);
+    const rootManager = new Contract(rootManagerDeployment.address, rootManagerDeployment.abi, deployer);
 
     const tx = await rootManager.propagate();
-    console.log("RootManager propogate tx: ", tx);
+    console.log("propogate tx: ", tx);
     const receipt = await tx.wait();
-    console.log("RootManager propogate tx mined: ", receipt.transactionHash);
+    console.log("propogate tx mined: ", receipt.transactionHash);
   });
