@@ -50,6 +50,7 @@ import "./tasks/addSequencer";
 import "./tasks/setXAppConnectionManager";
 import "./tasks/queryRoots";
 import "./tasks/addConnectors";
+import "./tasks/connector/proveAndProcess";
 
 const urlOverride = process.env.ETH_PROVIDER_URL;
 const chainId = parseInt(process.env.CHAIN_ID ?? "1337", 10);
