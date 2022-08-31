@@ -73463,7 +73463,7 @@
           ]
         },
         "OptimismL2ConnectorStaging": {
-          "address": "0x89da1edE4EC98841bEA5f274bB20cF9e881dBEED",
+          "address": "0xb41E61076390612a5B69282f0E42a0a735e24687",
           "abi": [
             {
               "inputs": [
@@ -73604,12 +73604,6 @@
             {
               "anonymous": false,
               "inputs": [
-                {
-                  "indexed": false,
-                  "internalType": "address",
-                  "name": "from",
-                  "type": "address"
-                },
                 {
                   "indexed": false,
                   "internalType": "bytes",
@@ -74057,11 +74051,6 @@
             },
             {
               "inputs": [
-                {
-                  "internalType": "address",
-                  "name": "_sender",
-                  "type": "address"
-                },
                 {
                   "internalType": "bytes",
                   "name": "_data",
