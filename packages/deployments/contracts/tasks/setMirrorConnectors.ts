@@ -23,13 +23,14 @@ export default task("set-mirror-connectors", "Add a remote router")
       hardhatConfig,
       env,
       async (deployment: ConnectorDeployment, provider: providers.JsonRpcProvider) => {
-        const { name, address, abi, mirrorConnector } = deployment;
+        const { name, address, abi, mirrorConnector: _mirrorConnector } = deployment;
         // Create the connector contract
         const connector = new Contract(address, abi, deployer.connect(provider));
+        const mirrorConnector = _mirrorConnector ?? address;
 
         // Check if mirror is set
         const set = await connector.mirrorConnector();
-        if (!mirrorConnector || set.toLowerCase() === mirrorConnector.toLowerCase()) {
+        if (set.toLowerCase() === mirrorConnector.toLowerCase()) {
           return;
         }
 
