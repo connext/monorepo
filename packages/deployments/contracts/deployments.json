@@ -499,7 +499,7 @@
           ]
         },
         "AssetFacetStaging": {
-          "address": "0x5597F952E9aB06D914CFf34f6E26f3D0C0cc5e51",
+          "address": "0x2c29495b312BF4C3dAd97cA8D41C319A3e87b186",
           "abi": [
             {
               "inputs": [],
@@ -2297,7 +2297,7 @@
           ]
         },
         "BridgeFacetStaging": {
-          "address": "0x84C71140bf315a9caC00D76Bf31418745e1fFeB1",
+          "address": "0x00F92674288ba7907165ec9C77E05ed684f8EA7D",
           "abi": [
             {
               "inputs": [],
@@ -4123,7 +4123,7 @@
           ]
         },
         "BridgeRouterStaging": {
-          "address": "0x4D1c682f1936665842C16f0109f8b0b937B8B04D",
+          "address": "0x5B302959eBCF581C1eb6a54a4340E09d5CC73D5e",
           "abi": [
             {
               "inputs": [],
@@ -4164,6 +4164,19 @@
               "inputs": [],
               "name": "ProposedOwnable__renounceOwnership_noProposal",
               "type": "error"
+            },
+            {
+              "anonymous": false,
+              "inputs": [
+                {
+                  "indexed": false,
+                  "internalType": "uint8",
+                  "name": "version",
+                  "type": "uint8"
+                }
+              ],
+              "name": "Initialized",
+              "type": "event"
             },
             {
               "anonymous": false,
@@ -5324,7 +5337,7 @@
           ]
         },
         "BridgeTokenStaging": {
-          "address": "0xeb73E32aFB7B00eA7a7B6650CeA334d111D6FB22",
+          "address": "0x90FB7cC768A8BF684C17656A7018D4D1201D42Eb",
           "abi": [
             {
               "anonymous": false,
@@ -5349,6 +5362,19 @@
                 }
               ],
               "name": "Approval",
+              "type": "event"
+            },
+            {
+              "anonymous": false,
+              "inputs": [
+                {
+                  "indexed": false,
+                  "internalType": "uint8",
+                  "name": "version",
+                  "type": "uint8"
+                }
+              ],
+              "name": "Initialized",
               "type": "event"
             },
             {
@@ -25600,7 +25626,7 @@
           ]
         },
         "DiamondCutFacetStaging": {
-          "address": "0x8F1Ac9752f7d778a01eFA438238dBd7B46815392",
+          "address": "0x9F263bb0E554D3eB508717bE6b6Fe5dF00aa794c",
           "abi": [
             {
               "anonymous": false,
@@ -25772,6 +25798,52 @@
               "name": "diamondCut",
               "outputs": [],
               "stateMutability": "nonpayable",
+              "type": "function"
+            },
+            {
+              "inputs": [
+                {
+                  "components": [
+                    {
+                      "internalType": "address",
+                      "name": "facetAddress",
+                      "type": "address"
+                    },
+                    {
+                      "internalType": "enum IDiamondCut.FacetCutAction",
+                      "name": "action",
+                      "type": "uint8"
+                    },
+                    {
+                      "internalType": "bytes4[]",
+                      "name": "functionSelectors",
+                      "type": "bytes4[]"
+                    }
+                  ],
+                  "internalType": "struct IDiamondCut.FacetCut[]",
+                  "name": "_diamondCut",
+                  "type": "tuple[]"
+                },
+                {
+                  "internalType": "address",
+                  "name": "_init",
+                  "type": "address"
+                },
+                {
+                  "internalType": "bytes",
+                  "name": "_calldata",
+                  "type": "bytes"
+                }
+              ],
+              "name": "getAcceptanceTime",
+              "outputs": [
+                {
+                  "internalType": "uint256",
+                  "name": "",
+                  "type": "uint256"
+                }
+              ],
+              "stateMutability": "view",
               "type": "function"
             },
             {
@@ -27706,7 +27778,7 @@
           ]
         },
         "MainnetL1ConnectorStaging": {
-          "address": "0x5C62ddEcf10A36C0662ce538C454fC17c9f34DD7",
+          "address": "0x9feadb2B9D57D627e7121707b3dD9d3a6adB937d",
           "abi": [
             {
               "inputs": [
@@ -27847,12 +27919,6 @@
             {
               "anonymous": false,
               "inputs": [
-                {
-                  "indexed": false,
-                  "internalType": "address",
-                  "name": "from",
-                  "type": "address"
-                },
                 {
                   "indexed": false,
                   "internalType": "bytes",
@@ -28300,11 +28366,6 @@
             },
             {
               "inputs": [
-                {
-                  "internalType": "address",
-                  "name": "_sender",
-                  "type": "address"
-                },
                 {
                   "internalType": "bytes",
                   "name": "_data",
@@ -28793,7 +28854,7 @@
           ]
         },
         "NomadFacetStaging": {
-          "address": "0xa6d56f179Ce66aB234739FE86BaD48464b02803f",
+          "address": "0xDD2a91724D80AA0Aeb3C4B7411d7C4645159679a",
           "abi": [
             {
               "inputs": [],
@@ -30360,7 +30421,7 @@
           ]
         },
         "OptimismL1ConnectorStaging": {
-          "address": "0xe89981B82d59c7337f40fC4A1Fa6Af8100F0fDdF",
+          "address": "0x6960Ea3b2ca82D66C4C3DDbD6fA918373b58814b",
           "abi": [
             {
               "inputs": [
@@ -30501,12 +30562,6 @@
             {
               "anonymous": false,
               "inputs": [
-                {
-                  "indexed": false,
-                  "internalType": "address",
-                  "name": "from",
-                  "type": "address"
-                },
                 {
                   "indexed": false,
                   "internalType": "bytes",
@@ -30954,11 +31009,6 @@
             },
             {
               "inputs": [
-                {
-                  "internalType": "address",
-                  "name": "_sender",
-                  "type": "address"
-                },
                 {
                   "internalType": "bytes",
                   "name": "_data",
@@ -31891,7 +31941,7 @@
           ]
         },
         "PromiseRouterStaging": {
-          "address": "0xd78F609E1F3e6db7aac1D88745f3493EA6F86Adf",
+          "address": "0xc39c15b8723804Dbc79763958Eda6c98D076fe95",
           "abi": [
             {
               "inputs": [],
@@ -32042,6 +32092,19 @@
                 }
               ],
               "name": "CallbackFeeAdded",
+              "type": "event"
+            },
+            {
+              "anonymous": false,
+              "inputs": [
+                {
+                  "indexed": false,
+                  "internalType": "uint8",
+                  "name": "version",
+                  "type": "uint8"
+                }
+              ],
+              "name": "Initialized",
               "type": "event"
             },
             {
@@ -33119,7 +33182,7 @@
           ]
         },
         "ProposedOwnableFacetStaging": {
-          "address": "0x09e9cc882B2fe557131c64a32EF60B963E897A53",
+          "address": "0x8e623Da7Fc51c5F9d412A442af174BF50b4D6E4a",
           "abi": [
             {
               "inputs": [],
@@ -33822,7 +33885,7 @@
           ]
         },
         "RelayerFacetStaging": {
-          "address": "0xA3839EF98Fd254f5c7D7c0D3a48b7b2F8208A105",
+          "address": "0x53833De01e0ac34c1489e0E34F7a22CDc0a57D4c",
           "abi": [
             {
               "inputs": [],
@@ -34569,7 +34632,7 @@
           ]
         },
         "RelayerFeeRouterStaging": {
-          "address": "0xA20E6cDF53Be6Bd17A0F60A62285858789036364",
+          "address": "0xC14f05128E13cDd21c4F313e808a9FA5c9D0F2fd",
           "abi": [
             {
               "inputs": [],
@@ -34625,6 +34688,19 @@
               "inputs": [],
               "name": "RelayerFeeRouter__send_recipientEmpty",
               "type": "error"
+            },
+            {
+              "anonymous": false,
+              "inputs": [
+                {
+                  "indexed": false,
+                  "internalType": "uint8",
+                  "name": "version",
+                  "type": "uint8"
+                }
+              ],
+              "name": "Initialized",
+              "type": "event"
             },
             {
               "anonymous": false,
@@ -36841,7 +36917,7 @@
           ]
         },
         "RoutersFacetStaging": {
-          "address": "0x879aE6356804afDA6055790E13874F96FD97c4bA",
+          "address": "0xd9f191732D2223CC93561168E87e0f77fb4d16C3",
           "abi": [
             {
               "inputs": [],
@@ -39429,7 +39505,7 @@
           ]
         },
         "StableSwapFacetStaging": {
-          "address": "0x41FF3A69103de65622F5699a62A1E66399c43e9F",
+          "address": "0x096fEf4db750C79f186A1399d6A9e93C61f256EC",
           "abi": [
             {
               "inputs": [],
@@ -41602,7 +41678,7 @@
           ]
         },
         "SwapAdminFacetStaging": {
-          "address": "0x81b178600010c1fF1261085d73a0563e7dAe0554",
+          "address": "0x695E3Bc7b6b28dEaAf48913359f5f05DA03dd537",
           "abi": [
             {
               "inputs": [],
@@ -44095,7 +44171,7 @@
           ]
         },
         "TokenRegistryStaging": {
-          "address": "0xCB9ED2b1A04A98F0EeAb01d9f3F6ebE8C376DEf0",
+          "address": "0x525dd3a19D1bB755e406E32726b27d00AEdc1759",
           "abi": [
             {
               "inputs": [],
@@ -44136,6 +44212,19 @@
               "inputs": [],
               "name": "ProposedOwnable__renounceOwnership_noProposal",
               "type": "error"
+            },
+            {
+              "anonymous": false,
+              "inputs": [
+                {
+                  "indexed": false,
+                  "internalType": "uint8",
+                  "name": "version",
+                  "type": "uint8"
+                }
+              ],
+              "name": "Initialized",
+              "type": "event"
             },
             {
               "anonymous": false,
@@ -44983,7 +45072,7 @@
           ]
         },
         "VersionFacetStaging": {
-          "address": "0x2c00958d73b1f5ebbd02F5CFC2eA30ccf75C5F39",
+          "address": "0x92B40Ec494accc3e8A2573503662289456167A92",
           "abi": [
             {
               "inputs": [],
@@ -45651,7 +45740,7 @@
           ]
         },
         "AssetFacetStaging": {
-          "address": "0x5597F952E9aB06D914CFf34f6E26f3D0C0cc5e51",
+          "address": "0xedDC52a6c854fE95253606D4ab8400D75679B7FE",
           "abi": [
             {
               "inputs": [],
@@ -47449,7 +47538,7 @@
           ]
         },
         "BridgeFacetStaging": {
-          "address": "0x84C71140bf315a9caC00D76Bf31418745e1fFeB1",
+          "address": "0xA0D35BF0733DbA84A287a02eEfe23e6089Ac5285",
           "abi": [
             {
               "inputs": [],
@@ -49275,7 +49364,7 @@
           ]
         },
         "BridgeRouterStaging": {
-          "address": "0x21c5a4dAeAf9625c781Aa996E9229eA95EE4Ff77",
+          "address": "0xC90Bd1041A8316f98C7C987613C2ad0B36f68A4C",
           "abi": [
             {
               "inputs": [],
@@ -49316,6 +49405,19 @@
               "inputs": [],
               "name": "ProposedOwnable__renounceOwnership_noProposal",
               "type": "error"
+            },
+            {
+              "anonymous": false,
+              "inputs": [
+                {
+                  "indexed": false,
+                  "internalType": "uint8",
+                  "name": "version",
+                  "type": "uint8"
+                }
+              ],
+              "name": "Initialized",
+              "type": "event"
             },
             {
               "anonymous": false,
@@ -50476,7 +50578,7 @@
           ]
         },
         "BridgeTokenStaging": {
-          "address": "0xCF902FFDB63F7948d08b776478933aDdA5aC39cA",
+          "address": "0xE5486072064657c2CA93DA8beE615B229B96c161",
           "abi": [
             {
               "anonymous": false,
@@ -50501,6 +50603,19 @@
                 }
               ],
               "name": "Approval",
+              "type": "event"
+            },
+            {
+              "anonymous": false,
+              "inputs": [
+                {
+                  "indexed": false,
+                  "internalType": "uint8",
+                  "name": "version",
+                  "type": "uint8"
+                }
+              ],
+              "name": "Initialized",
               "type": "event"
             },
             {
@@ -70752,7 +70867,7 @@
           ]
         },
         "DiamondCutFacetStaging": {
-          "address": "0x8F1Ac9752f7d778a01eFA438238dBd7B46815392",
+          "address": "0x2F09e3b39572D8F1a971046368B4807fAbe30240",
           "abi": [
             {
               "anonymous": false,
@@ -70924,6 +71039,52 @@
               "name": "diamondCut",
               "outputs": [],
               "stateMutability": "nonpayable",
+              "type": "function"
+            },
+            {
+              "inputs": [
+                {
+                  "components": [
+                    {
+                      "internalType": "address",
+                      "name": "facetAddress",
+                      "type": "address"
+                    },
+                    {
+                      "internalType": "enum IDiamondCut.FacetCutAction",
+                      "name": "action",
+                      "type": "uint8"
+                    },
+                    {
+                      "internalType": "bytes4[]",
+                      "name": "functionSelectors",
+                      "type": "bytes4[]"
+                    }
+                  ],
+                  "internalType": "struct IDiamondCut.FacetCut[]",
+                  "name": "_diamondCut",
+                  "type": "tuple[]"
+                },
+                {
+                  "internalType": "address",
+                  "name": "_init",
+                  "type": "address"
+                },
+                {
+                  "internalType": "bytes",
+                  "name": "_calldata",
+                  "type": "bytes"
+                }
+              ],
+              "name": "getAcceptanceTime",
+              "outputs": [
+                {
+                  "internalType": "uint256",
+                  "name": "",
+                  "type": "uint256"
+                }
+              ],
+              "stateMutability": "view",
               "type": "function"
             },
             {
@@ -71735,7 +71896,7 @@
           ]
         },
         "NomadFacetStaging": {
-          "address": "0xa6d56f179Ce66aB234739FE86BaD48464b02803f",
+          "address": "0xc965F69ea98C123bfc862C2cEA943DCE6dF5c5E5",
           "abi": [
             {
               "inputs": [],
@@ -74833,7 +74994,7 @@
           ]
         },
         "PromiseRouterStaging": {
-          "address": "0x910b23227b190f235aCb1708Ff5CFa13f6C38923",
+          "address": "0x2E0F7599CB4515bC25a9541A8C3C87fEd3037176",
           "abi": [
             {
               "inputs": [],
@@ -74984,6 +75145,19 @@
                 }
               ],
               "name": "CallbackFeeAdded",
+              "type": "event"
+            },
+            {
+              "anonymous": false,
+              "inputs": [
+                {
+                  "indexed": false,
+                  "internalType": "uint8",
+                  "name": "version",
+                  "type": "uint8"
+                }
+              ],
+              "name": "Initialized",
               "type": "event"
             },
             {
@@ -76061,7 +76235,7 @@
           ]
         },
         "ProposedOwnableFacetStaging": {
-          "address": "0x09e9cc882B2fe557131c64a32EF60B963E897A53",
+          "address": "0xd683Cfd4a9e643d3935115dB306e898d7B64f35f",
           "abi": [
             {
               "inputs": [],
@@ -76764,7 +76938,7 @@
           ]
         },
         "RelayerFacetStaging": {
-          "address": "0xA3839EF98Fd254f5c7D7c0D3a48b7b2F8208A105",
+          "address": "0xa464A01d1260DD2B2D29bFA75184CBf380A1d766",
           "abi": [
             {
               "inputs": [],
@@ -77511,7 +77685,7 @@
           ]
         },
         "RelayerFeeRouterStaging": {
-          "address": "0x765cbd312ad84A791908000DF58d879e4eaf768b",
+          "address": "0xC7E383603fA18DDc1A39F314617EcA4E45ef5522",
           "abi": [
             {
               "inputs": [],
@@ -77567,6 +77741,19 @@
               "inputs": [],
               "name": "RelayerFeeRouter__send_recipientEmpty",
               "type": "error"
+            },
+            {
+              "anonymous": false,
+              "inputs": [
+                {
+                  "indexed": false,
+                  "internalType": "uint8",
+                  "name": "version",
+                  "type": "uint8"
+                }
+              ],
+              "name": "Initialized",
+              "type": "event"
             },
             {
               "anonymous": false,
@@ -78915,7 +79102,7 @@
           ]
         },
         "RoutersFacetStaging": {
-          "address": "0x879aE6356804afDA6055790E13874F96FD97c4bA",
+          "address": "0x8F3B240010DCC70769A7dE210a7Ca52B191407a2",
           "abi": [
             {
               "inputs": [],
@@ -81503,7 +81690,7 @@
           ]
         },
         "StableSwapFacetStaging": {
-          "address": "0x41FF3A69103de65622F5699a62A1E66399c43e9F",
+          "address": "0x1bAC9a033F46Ea83fa036724407F12e5bEdf4A8E",
           "abi": [
             {
               "inputs": [],
@@ -83676,7 +83863,7 @@
           ]
         },
         "SwapAdminFacetStaging": {
-          "address": "0x81b178600010c1fF1261085d73a0563e7dAe0554",
+          "address": "0xb310D335df76fd3535941712c5f9D5c0b41e240c",
           "abi": [
             {
               "inputs": [],
@@ -86169,7 +86356,7 @@
           ]
         },
         "TokenRegistryStaging": {
-          "address": "0x76e2030331865d2FD5B93DcAD5b8C754D5184a3a",
+          "address": "0xB945bfB0A8FCB642D31544C885FEb0d68Fac2876",
           "abi": [
             {
               "inputs": [],
@@ -86210,6 +86397,19 @@
               "inputs": [],
               "name": "ProposedOwnable__renounceOwnership_noProposal",
               "type": "error"
+            },
+            {
+              "anonymous": false,
+              "inputs": [
+                {
+                  "indexed": false,
+                  "internalType": "uint8",
+                  "name": "version",
+                  "type": "uint8"
+                }
+              ],
+              "name": "Initialized",
+              "type": "event"
             },
             {
               "anonymous": false,
@@ -87057,7 +87257,7 @@
           ]
         },
         "VersionFacetStaging": {
-          "address": "0x2c00958d73b1f5ebbd02F5CFC2eA30ccf75C5F39",
+          "address": "0x9a0bC414aC2C230c6C62b363366bf3d562f36203",
           "abi": [
             {
               "inputs": [],

@@ -73,6 +73,7 @@ export type ConnectorDeployment = {
   address: string;
   abi: ContractInterface;
   mirrorConnector?: string;
+  mirrorChain?: number;
   chain: number;
   name: string;
 };
@@ -141,7 +142,7 @@ export const getConnectorDeployments = (env: Env): ConnectorDeployment[] => {
       return undefined;
     }
     const mirrorConnector = mirrorName && mirrorChain ? getAddressAndAbi(mirrorName, mirrorChain)?.address : undefined;
-    return { address, abi, mirrorConnector, chain, name };
+    return { address, abi, mirrorConnector, chain, name, mirrorChain };
   });
 
   return deployments.filter((x) => !!x) as any;
