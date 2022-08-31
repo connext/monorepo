@@ -1,7 +1,7 @@
 import { constants, Contract } from "ethers";
 import { task } from "hardhat/config";
 
-import { Env, getDeploymentName, getMessagingProtocolConfig, mustGetEnv } from "../../src/utils";
+import { Env, getDeploymentName, getMessagingProtocolConfig, getProtocolNetwork, mustGetEnv } from "../../src/utils";
 
 type TaskArgs = {
   message: string;
@@ -20,8 +20,8 @@ export default task("prove-and-process", "Call `Connector.proveAndProcess()` to 
     console.log("message:", message);
     const env = mustGetEnv(_env);
     console.log("env:", env);
-    const protocolConfig = getMessagingProtocolConfig(env);
     const network = await ethers.provider.getNetwork();
+    const protocolConfig = getMessagingProtocolConfig(getProtocolNetwork(network.chainId, env));
 
     const deploymentName = getDeploymentName(
       `${protocolConfig.configs[network.chainId].prefix}${

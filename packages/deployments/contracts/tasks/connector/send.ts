@@ -1,7 +1,7 @@
 import { Contract } from "ethers";
 import { task } from "hardhat/config";
 
-import { Env, getDeploymentName, getMessagingProtocolConfig, mustGetEnv } from "../../src/utils";
+import { Env, getDeploymentName, getMessagingProtocolConfig, getProtocolNetwork, mustGetEnv } from "../../src/utils";
 
 type TaskArgs = {
   env?: Env;
@@ -17,8 +17,9 @@ export default task("connector-send", "Call `Connector.send()` to distribute out
 
     const env = mustGetEnv(_env);
     console.log("env:", env);
-    const protocolConfig = getMessagingProtocolConfig(env);
     const network = await ethers.provider.getNetwork();
+    const protocolNetwork = getProtocolNetwork(network.chainId, env);
+    const protocolConfig = getMessagingProtocolConfig(protocolNetwork);
 
     const deploymentName = getDeploymentName(
       `${protocolConfig.configs[network.chainId].prefix}${

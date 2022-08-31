@@ -1,14 +1,17 @@
 import { config } from "dotenv";
-import { ContractInterface, providers, Signer, Wallet } from "ethers";
+import { ContractInterface, providers, Signer } from "ethers";
 import { CrossChainMessenger, MessageStatus } from "@eth-optimism/sdk";
 import { HardhatRuntimeEnvironment, HardhatUserConfig } from "hardhat/types";
 
 import { HUB_PREFIX, MESSAGING_PROTOCOL_CONFIGS, SPOKE_PREFIX } from "../deployConfig/shared";
 import deploymentRecords from "../deployments.json";
 
+import { MAINNET_CHAINS } from "./constants";
+
 config();
 
 export type Env = "staging" | "production" | "local";
+export type ProtocolNetwork = "mainnet" | "testnet" | "local";
 
 export const mustGetEnv = (_env?: string) => {
   const env = _env ?? process.env.ENV ?? "staging";
@@ -18,9 +21,12 @@ export const mustGetEnv = (_env?: string) => {
   return env;
 };
 
-export const getProtocolNetwork = (_chain: string | number, _env?: string): "mainnet" | "testnet" | "local" => {
+export const getProtocolNetwork = (_chain: string | number, _env?: string): ProtocolNetwork => {
   const chain = _chain.toString();
   const env = _env ?? mustGetEnv();
+  if (MAINNET_CHAINS.includes(+chain)) {
+    return "mainnet";
+  }
   // If chain 1337 or 1338, use local network.
   return chain === "1337" || chain === "1338"
     ? "local"
@@ -78,8 +84,7 @@ export type ConnectorDeployment = {
   name: string;
 };
 
-export const getMessagingProtocolConfig = (env: Env) => {
-  const network = env === "production" ? "mainnet" : env === "staging" ? "testnet" : "local";
+export const getMessagingProtocolConfig = (network: ProtocolNetwork) => {
   const protocol = MESSAGING_PROTOCOL_CONFIGS[network];
 
   if (!protocol || !protocol.configs[protocol.hub]) {
@@ -88,8 +93,8 @@ export const getMessagingProtocolConfig = (env: Env) => {
   return protocol;
 };
 
-export const getConnectorDeployments = (env: Env): ConnectorDeployment[] => {
-  const protocol = getMessagingProtocolConfig(env);
+export const getConnectorDeployments = (network: ProtocolNetwork, env: Env): ConnectorDeployment[] => {
+  const protocol = getMessagingProtocolConfig(network);
 
   const connectors: { name: string; chain: number; mirrorName?: string; mirrorChain?: number }[] = [];
   Object.entries(protocol.configs).forEach(([chainId, config]) => {
@@ -97,15 +102,15 @@ export const getConnectorDeployments = (env: Env): ConnectorDeployment[] => {
       // On the hub, you only need to connect the mainnet l1 connector (no mirror)
       connectors.push({
         chain: protocol.hub,
-        name: getDeploymentName(`${config.prefix}${HUB_PREFIX}Connector`),
+        name: getDeploymentName(`${config.prefix}${HUB_PREFIX}Connector`, env),
         mirrorName: undefined,
         mirrorChain: undefined,
       });
       return;
     }
     // When not on the hub, there will be a name for both the hub and spoke side connectors
-    const hubName = getDeploymentName(`${config.prefix}${HUB_PREFIX}Connector`);
-    const spokeName = getDeploymentName(`${config.prefix}${SPOKE_PREFIX}Connector`);
+    const hubName = getDeploymentName(`${config.prefix}${HUB_PREFIX}Connector`, env);
+    const spokeName = getDeploymentName(`${config.prefix}${SPOKE_PREFIX}Connector`, env);
     connectors.push({
       chain: protocol.hub,
       name: hubName,
@@ -159,10 +164,11 @@ export const getProviderFromConfig = (config: HardhatUserConfig, chain: number) 
 
 export const executeOnAllConnectors = async <T = any>(
   hardhatConfig: HardhatUserConfig,
-  env: Env,
+  network: ProtocolNetwork,
+  deploymentEnv: Env,
   fn: (d: ConnectorDeployment, provider: providers.JsonRpcProvider) => Promise<T>,
 ): Promise<T[]> => {
-  const deployments = getConnectorDeployments(env);
+  const deployments = getConnectorDeployments(network, deploymentEnv);
   const results = [];
   for (const deploy of deployments) {
     // Get the provider address from the hardhat config on given chain

@@ -9,6 +9,7 @@ import {
   executeOnAllConnectors,
   getDeploymentName,
   getMessagingProtocolConfig,
+  getProtocolNetwork,
   mustGetEnv,
 } from "../src/utils";
 
@@ -33,7 +34,8 @@ export default task("add-connectors", "Add all connectors to the root manager")
 
     const network = await hre.ethers.provider.getNetwork();
 
-    const config = getMessagingProtocolConfig(env);
+    const protocolNetwork = getProtocolNetwork(network.chainId, env);
+    const config = getMessagingProtocolConfig(protocolNetwork);
 
     if (+network.chainId != config.hub) {
       throw new Error(`Should be on ${config.hub}, not ${network.chainId}`);
@@ -51,6 +53,7 @@ export default task("add-connectors", "Add all connectors to the root manager")
 
     await executeOnAllConnectors(
       hardhatConfig,
+      protocolNetwork,
       env,
       async (deployment: ConnectorDeployment, _provider: providers.JsonRpcProvider) => {
         const { name, address, chain, mirrorChain } = deployment;

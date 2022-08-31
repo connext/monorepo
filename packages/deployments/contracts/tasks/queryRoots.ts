@@ -7,6 +7,7 @@ import {
   Env,
   executeOnAllConnectors,
   getMessagingProtocolConfig,
+  getProtocolNetwork,
   getProviderFromConfig,
   mustGetEnv,
   queryOptimismMessageStatus,
@@ -30,15 +31,19 @@ export default task("query-roots", "Read balances of accounts")
 
     const env = mustGetEnv(_env);
     const relay = _relay === "false" ? false : true;
+    const network = await hre.ethers.provider.getNetwork();
+    const protocolNetwork = getProtocolNetwork(network.chainId, env);
+
     console.log("env:", env);
     console.log("deployer: ", deployer.address);
     console.log("hash: ", hash);
     console.log("relay:", relay);
 
-    const protocol = getMessagingProtocolConfig(env);
+    const protocol = getMessagingProtocolConfig(protocolNetwork);
 
     await executeOnAllConnectors(
       config,
+      protocolNetwork,
       env,
       async (deployment: ConnectorDeployment, provider: providers.JsonRpcProvider) => {
         const { name, address, abi, chain } = deployment;

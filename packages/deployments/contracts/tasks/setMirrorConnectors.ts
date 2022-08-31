@@ -2,7 +2,7 @@ import { task } from "hardhat/config";
 import { Contract, providers, Wallet } from "ethers";
 
 import hardhatConfig from "../hardhat.config";
-import { ConnectorDeployment, Env, executeOnAllConnectors, mustGetEnv } from "../src/utils";
+import { ConnectorDeployment, Env, executeOnAllConnectors, getProtocolNetwork, mustGetEnv } from "../src/utils";
 
 type TaskArgs = {
   env?: Env;
@@ -21,7 +21,8 @@ export default task("set-mirror-connectors", "Add a remote router")
 
     await executeOnAllConnectors(
       hardhatConfig,
-      env,
+      getProtocolNetwork(chain, env),
+      env, // deployment env
       async (deployment: ConnectorDeployment, provider: providers.JsonRpcProvider) => {
         const { name, address, abi, mirrorConnector: _mirrorConnector } = deployment;
         // Create the connector contract
