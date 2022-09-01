@@ -18,8 +18,7 @@ export default task("connector-send", "Call `Connector.send()` to distribute out
     const env = mustGetEnv(_env);
     console.log("env:", env);
     const network = await ethers.provider.getNetwork();
-    const protocolNetwork = getProtocolNetwork(network.chainId, env);
-    const protocolConfig = getMessagingProtocolConfig(protocolNetwork);
+    const protocolConfig = getMessagingProtocolConfig(env);
 
     const deploymentName = getDeploymentName(
       `${protocolConfig.configs[network.chainId].prefix}${
