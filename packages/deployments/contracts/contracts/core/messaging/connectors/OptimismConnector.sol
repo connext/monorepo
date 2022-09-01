@@ -97,6 +97,8 @@ contract OptimismL2Connector is BaseOptimismConnector {
     require(_data.length == 32, "!length");
     // set the outbound root for optimism
     update(bytes32(_data));
+    // get the state commitment root
+    // if state commitment root is <
   }
 }
 

@@ -2,5 +2,6 @@
 /* tslint:disable */
 /* eslint-disable */
 export * as connectors from "./connectors";
+export * as helpers from "./helpers";
 export * as interfaces from "./interfaces";
 export { RootManager__factory } from "./RootManager__factory";
