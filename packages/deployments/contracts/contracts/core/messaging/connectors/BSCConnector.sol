@@ -60,43 +60,8 @@ abstract contract BaseMultichainConnector is Connector {
     _processMessage(_data);
   }
 
-  function _verifySender(address _expected) internal override returns (bool) {
-    require(msg.sender == AMB, "!bridge");
-
-    (address from, uint256 fromChainId, ) = MultichainCall(executor).context();
-    return from == _expected && fromChainId == mirrorChainId;
-  }
-}
-
-contract BSCL2Connector is BaseMultichainConnector {
-  // ============ Constructor ============
-  constructor(
-    uint32 _domain,
-    uint32 _mirrorDomain,
-    uint256 _mirrorChainId,
-    address _amb,
-    address _rootManager,
-    address _mirrorConnector,
-    uint256 _mirrorProcessGas,
-    uint256 _processGas,
-    uint256 _reserveGas
-  )
-    BaseMultichainConnector(
-      _domain,
-      _mirrorDomain,
-     _mirrorChainId,
-      _amb,
-      _rootManager,
-      _mirrorConnector,
-      _mirrorProcessGas,
-      _processGas,
-      _reserveGas
-    )
-  {}
-
-  // ============ Private fns ============
   /**
-   * @dev Sends `outboundRoot` to root manager on l1
+   * @dev Sends `outboundRoot` to root manager on the mirror chain
    */
   function _sendMessage(bytes memory _data) internal override {
     MultichainCall(AMB).anyCall(
@@ -108,21 +73,15 @@ contract BSCL2Connector is BaseMultichainConnector {
     );
   }
 
-  /**
-   * @dev Handles an incoming `aggregateRoot`
-   * NOTE: Could store latest root sent and prove aggregate root
-   */
-  function _processMessage(
-    bytes memory _data
-  ) internal override {
-    // sanity check: data length
-    require(_data.length == 32, "!length");
-    // set the outbound root for BSC + access control
-    update(bytes32(_data));
+  function _verifySender(address _expected) internal override returns (bool) {
+    require(msg.sender == AMB, "!bridge");
+
+    (address from, uint256 fromChainId, ) = MultichainCall(executor).context();
+    return from == _expected && fromChainId == mirrorChainId;
   }
 }
 
-contract BSCL1Connector is BaseMultichainConnector {
+contract MultichainL2Connector is BaseMultichainConnector {
   // ============ Constructor ============
   constructor(
     uint32 _domain,
@@ -150,22 +109,48 @@ contract BSCL1Connector is BaseMultichainConnector {
 
   // ============ Private fns ============
   /**
-   * @dev Sends `aggregateRoot` to messaging on l2
+   * @dev Handles an incoming `aggregateRoot`
+   * NOTE: Could store latest root sent and prove aggregate root
    */
-  function _sendMessage(bytes memory _data) internal override {
-    require(msg.sender == ROOT_MANAGER, "!rootManager"); //TODO: change for custom errors
-
-    MultichainCall(AMB).anyCall(
-      AMB, // Same address on every chain, using AMB as it is immutable
-      _data,
-      address(0), // Fallback address on origin chain
-      mirrorChainId,
-      0 // pay fees on origin chain
-    );
-
-    emit MessageSent(_data, msg.sender);
+  function _processMessage(
+    bytes memory _data
+  ) internal override {
+    // enforce this came from connector on l1
+    require(_verifySender(mirrorConnector), "!l1Connector");
+    // sanity check: data length
+    require(_data.length == 32, "!length");
+    // set the outbound root for BSC + access control
+    update(bytes32(_data));
   }
+}
 
+contract MultichainL1Connector is BaseMultichainConnector {
+  // ============ Constructor ============
+  constructor(
+    uint32 _domain,
+    uint32 _mirrorDomain,
+    uint256 _mirrorChainId,
+    address _amb,
+    address _rootManager,
+    address _mirrorConnector,
+    uint256 _mirrorProcessGas,
+    uint256 _processGas,
+    uint256 _reserveGas
+  )
+    BaseMultichainConnector(
+      _domain,
+      _mirrorDomain,
+     _mirrorChainId,
+      _amb,
+      _rootManager,
+      _mirrorConnector,
+      _mirrorProcessGas,
+      _processGas,
+      _reserveGas
+    )
+  {}
+
+  // ============ Private fns ============
   /**
    * @dev Handles an incoming `outboundRoot`
    */

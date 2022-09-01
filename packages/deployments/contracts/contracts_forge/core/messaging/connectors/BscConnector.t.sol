@@ -2,18 +2,18 @@
 pragma solidity 0.8.15;
 
 import {Connector} from "../../../../contracts/core/messaging/connectors/Connector.sol";
-import {BSCL1Connector, BSCL2Connector, BaseMultichainConnector, MultichainCall} from "../../../../contracts/core/messaging/connectors/BSCConnector.sol";
+import {MultichainL1Connector, MultichainL2Connector, BaseMultichainConnector, MultichainCall} from "../../../../contracts/core/messaging/connectors/BSCConnector.sol";
 
 import "../../../utils/ConnectorHelper.sol";
 import "../../../utils/Mock.sol";
 
-contract BscConnectorTest is ConnectorHelper {
+contract MultichainConnectorTest is ConnectorHelper {
   using stdStorage for StdStorage;
 
   // ============ Storage ============
   address _executor = address(bytes20(keccak256("_executor")));
   uint256 _chainIdMainnet = 1;
-  uint256 _chainIdBSC = 56;
+  uint256 _chainIdL2 = 42069;
 
   // ============ Test set up ============
   function setUp() public {
@@ -30,10 +30,10 @@ contract BscConnectorTest is ConnectorHelper {
     // Deploy
     vm.prank(_owner);
     _l1Connector = address(
-      new BSCL1Connector(
+      new MultichainL1Connector(
         _l1Domain,
         _l2Domain,
-        _chainIdBSC,
+        _chainIdL2,
         _amb,
         _rootManager,
         _futureL2address,
@@ -45,10 +45,10 @@ contract BscConnectorTest is ConnectorHelper {
 
     vm.prank(_owner);
     _l2Connector = address(
-      new BSCL2Connector(
+      new MultichainL2Connector(
         _l2Domain,
         _l1Domain,
-        _chainIdBSC,
+        _chainIdMainnet,
         _amb,
         _rootManager,
         _l1Connector,
@@ -65,7 +65,9 @@ contract BscConnectorTest is ConnectorHelper {
   // ============ Utils ============
 
   // ============ sendMessage ============
-  function test_BSCL1_sendMessage_sendMessageAndEmitEvent(bytes memory _data) public {
+
+  // Happy path L1
+  function test_MultichainL1Connector_sendMessage_sendMessageAndEmitEvent(bytes memory _data) public {
     // Mock the call to anyCall
     vm.mockCall(
       _amb,
@@ -75,7 +77,7 @@ contract BscConnectorTest is ConnectorHelper {
           _amb,
           _data,
           address(0), // fallback address
-          56, // chain id
+          _chainIdL2, // chain id
           0
         ) // 0 = fee on destination
       ),
@@ -87,13 +89,14 @@ contract BscConnectorTest is ConnectorHelper {
     emit MessageSent(_data, _rootManager);
 
     // Check: call to multichain anyCall?
-    vm.expectCall(_amb, abi.encodeCall(MultichainCall.anyCall, (_amb, _data, address(0), 56, 0)));
+    vm.expectCall(_amb, abi.encodeCall(MultichainCall.anyCall, (_amb, _data, address(0), _chainIdL2, 0)));
 
     vm.prank(_rootManager);
-    BSCL1Connector(_l1Connector).sendMessage(_data);
+    MultichainL1Connector(_l1Connector).sendMessage(_data);
   }
 
-  function test_BSCL2_sendMessage_sendMessageAndEmitEvent(bytes memory _data) public {
+  // Happy path L2
+  function test_MultichainL2Connector_sendMessage_sendMessageAndEmitEvent(bytes memory _data) public {
     // Mock the call to anyCall
     vm.mockCall(
       _amb,
@@ -103,7 +106,7 @@ contract BscConnectorTest is ConnectorHelper {
           _amb,
           _data,
           address(0), // fallback address
-          1, // chain id
+          _chainIdMainnet, // chain id
           0
         ) // 0 = fee on destination
       ),
@@ -111,31 +114,31 @@ contract BscConnectorTest is ConnectorHelper {
     );
 
     // Check: call to multichain anyCall?
-    vm.expectCall(_amb, abi.encodeCall(MultichainCall.anyCall, (_amb, _data, address(0), 1, 0)));
+    vm.expectCall(_amb, abi.encodeCall(MultichainCall.anyCall, (_amb, _data, address(0), _chainIdMainnet, 0)));
 
     vm.prank(_rootManager);
-    BSCL1Connector(_l2Connector).sendMessage(_data);
+    MultichainL1Connector(_l2Connector).sendMessage(_data);
   }
 
-  function test_BSCL1_sendMessage_revertIfSenderIsNotRootManager(address _nonRootManager, bytes memory _data) public {
+  // Access control
+  function test_Connector_sendMessage_revertIfSenderIsNotRootManager(address _nonRootManager, bytes memory _data) public {
     vm.assume(_nonRootManager != _rootManager);
 
     // Check: revert if caller is not root manager
     vm.expectRevert(abi.encodePacked("!rootManager"));
 
     vm.prank(_nonRootManager);
-    BSCL1Connector(_l1Connector).sendMessage(_data);
+    MultichainL1Connector(_l1Connector).sendMessage(_data);
   }
-
-  // id L2?
 
   // ============ processMessage ============
 
-  function test_BSCL1_processMessage_processMessageAndEmitEvent(bytes calldata _data) public {
-    uint32 _mirrorDomain = BSCL1Connector(_l1Connector).mirrorDomain();
+  // Happy path L1
+  function test_MultichainL1Connector_processMessage_processMessageAndEmitEvent(bytes calldata _data) public {
+    uint32 _mirrorDomain = MultichainL1Connector(_l1Connector).mirrorDomain();
 
     // Mock the call to the executor, to retrieve the context
-    vm.mockCall(_executor, abi.encodeCall(MultichainCall.context, ()), abi.encode(_l2Connector, 56, 1));
+    vm.mockCall(_executor, abi.encodeCall(MultichainCall.context, ()), abi.encode(_l2Connector, _chainIdL2, 1));
 
     // Mock the call to the root manager
     vm.mockCall(
@@ -156,10 +159,11 @@ contract BscConnectorTest is ConnectorHelper {
 
     // multichain _amb has the same address, irrespective of underlying network
     vm.prank(_amb);
-    BSCL1Connector(_l1Connector).processMessage( _dataCorrectSize);
+    MultichainL1Connector(_l1Connector).processMessage( _dataCorrectSize);
   }
 
-  function test_BSCL2_processMessage_processMessageUpdateRootAndEmitEvent(bytes calldata _data) public {
+  // Happy path L2
+  function test_MultichainL2Connector_processMessage_processMessageUpdateRootAndEmitEvent(bytes calldata _data) public {
     // Mock the call to the executor, to retrieve the context
     vm.mockCall(_executor, abi.encodeCall(MultichainCall.context, ()), abi.encode(_l1Connector, 1, 1));
 
@@ -172,41 +176,44 @@ contract BscConnectorTest is ConnectorHelper {
 
     // multichain _amb has the same address, irrespective of underlying network
     vm.prank(_amb);
-    BSCL2Connector(_l2Connector).processMessage( _dataCorrectSize);
+    MultichainL2Connector(_l2Connector).processMessage( _dataCorrectSize);
 
     // Check: root is updated
-    assertEq(BSCL2Connector(_l2Connector).aggregateRoot(), bytes32(_data));
+    assertEq(MultichainL2Connector(_l2Connector).aggregateRoot(), bytes32(_data));
   }
 
-  function test_BSCL1_processMessage_revertIfAmbIsNotMsgSender(address _notAmb, bytes calldata _data) public {
+  // msg.sender is not the bridge on L1
+  function test_MultichainL1Connector_processMessage_revertIfAmbIsNotMsgSender(address _notAmb, bytes calldata _data) public {
     vm.assume(_amb != _notAmb);
 
     // Resize fuzzed bytes to 32 bytes long
     bytes memory _dataCorrectSize = abi.encodePacked(bytes32(_data));
 
-    vm.expectRevert(abi.encodePacked("!bridge"));
+    vm.expectRevert(abi.encodePacked("!AMB"));
     vm.prank(_notAmb);
-    BSCL1Connector(_l1Connector).processMessage(_dataCorrectSize);
+    MultichainL1Connector(_l1Connector).processMessage(_dataCorrectSize);
   }
 
-  function test_BSCL2_processMessage_revertIfAmbIsNotMsgSender(address _notAmb, bytes calldata _data) public {
+  // msg.sender is not the bridge on L2
+  function test_MultichainL2Connector_processMessage_revertIfAmbIsNotMsgSender(address _notAmb, bytes calldata _data) public {
     vm.assume(_amb != _notAmb);
 
     // Resize fuzzed bytes to 32 bytes long
     bytes memory _dataCorrectSize = abi.encodePacked(bytes32(_data));
 
-    vm.expectRevert(abi.encodePacked("!bridge"));
+    vm.expectRevert(abi.encodePacked("!AMB"));
     vm.prank(_notAmb);
-    BSCL2Connector(_l2Connector).processMessage(_dataCorrectSize);
+    MultichainL2Connector(_l2Connector).processMessage(_dataCorrectSize);
   }
-
-  function test_BSCL1_processMessage_revertIfWrongMirror(address _wrongMirror, bytes calldata _data) public {
+ 
+  // message coming from a wrong sender on the origin chain to L1
+  function test_MultichainL1Connector_processMessage_revertIfWrongMirror(address _wrongMirror, bytes calldata _data) public {
     vm.assume(_wrongMirror != _l2Connector);
 
-    uint32 _mirrorDomain = BSCL1Connector(_l1Connector).mirrorDomain();
+    uint32 _mirrorDomain = MultichainL1Connector(_l1Connector).mirrorDomain();
 
     // Mock the call to the executor, to retrieve the context
-    vm.mockCall(_executor, abi.encodeCall(MultichainCall.context, ()), abi.encode(_wrongMirror, 56, 1));
+    vm.mockCall(_executor, abi.encodeCall(MultichainCall.context, ()), abi.encode(_wrongMirror, _chainIdL2, 1));
 
     // Mock the call to the root manager
     vm.mockCall(
@@ -220,28 +227,69 @@ contract BscConnectorTest is ConnectorHelper {
 
     vm.expectRevert(abi.encodePacked("!l2Connector"));
     vm.prank(_amb);
-    BSCL1Connector(_l1Connector).processMessage(_dataCorrectSize);
+    MultichainL1Connector(_l1Connector).processMessage(_dataCorrectSize);
   }
 
-  function test_BSCL2_processMessage_revertIfWrongMirror(address _wrongMirror, bytes calldata _data) public {
+  // message coming from a wrong sender on the origin chain to L2
+  function test_MultichainL2Connector_processMessage_revertIfWrongMirror(address _wrongMirror, bytes calldata _data) public {
     vm.assume(_wrongMirror != _l1Connector);
 
     // Mock the call to the executor, to retrieve the context
-    vm.mockCall(_executor, abi.encodeCall(MultichainCall.context, ()), abi.encode(_wrongMirror, 1, 1));
+    vm.mockCall(_executor, abi.encodeCall(MultichainCall.context, ()), abi.encode(_wrongMirror, _chainIdMainnet, 1));
 
     // Resize fuzzed bytes to 32 bytes long
     bytes memory _dataCorrectSize = abi.encodePacked(bytes32(_data));
 
-    vm.expectRevert(abi.encodePacked("!sender"));
+    vm.expectRevert(abi.encodePacked("!l1Connector"));
     vm.prank(_amb);
-    BSCL2Connector(_l2Connector).processMessage(_dataCorrectSize);
+    MultichainL2Connector(_l2Connector).processMessage(_dataCorrectSize);
   }
 
-  function test_BSCL1_processMessage_revertIfWrongDataLength(uint8 callDataLength) public {
+  // message coming from a wrong chain to L1
+  function test_MultichainL1Connector_processMessage_revertIfWrongOriginId(uint256 _wrongId, bytes calldata _data) public {
+    vm.assume(_wrongId != _chainIdL2);
+
+    uint32 _mirrorDomain = MultichainL1Connector(_l1Connector).mirrorDomain();
+
+    // Mock the call to the executor, to retrieve the context
+    vm.mockCall(_executor, abi.encodeCall(MultichainCall.context, ()), abi.encode(_l2Connector, _wrongId, 1));
+
+    // Mock the call to the root manager
+    vm.mockCall(
+      _rootManager,
+      abi.encodeCall(IRootManager.setOutboundRoot, (_mirrorDomain, bytes32(_data))),
+      abi.encode()
+    );
+
+    // Resize fuzzed bytes to 32 bytes long
+    bytes memory _dataCorrectSize = abi.encodePacked(bytes32(_data));
+
+    vm.expectRevert(abi.encodePacked("!l2Connector"));
+    vm.prank(_amb);
+    MultichainL1Connector(_l1Connector).processMessage(_dataCorrectSize);
+  }
+
+  // message coming from a wrong chain to L2
+  function test_MultichainL2Connector_processMessage_revertIfWrongOriginId(uint256 _wrongId, bytes calldata _data) public {
+    vm.assume(_wrongId != _chainIdMainnet);
+
+    // Mock the call to the executor, to retrieve the context
+    vm.mockCall(_executor, abi.encodeCall(MultichainCall.context, ()), abi.encode(_l1Connector, _wrongId, 1));
+
+    // Resize fuzzed bytes to 32 bytes long
+    bytes memory _dataCorrectSize = abi.encodePacked(bytes32(_data));
+
+    vm.expectRevert(abi.encodePacked("!l1Connector"));
+    vm.prank(_amb);
+    MultichainL2Connector(_l2Connector).processMessage(_dataCorrectSize);
+  }
+
+  // message has a length > 32 bytes
+  function test_MultichainL1Connector_processMessage_revertIfWrongDataLength(uint8 callDataLength) public {
     vm.assume(callDataLength != 32);
 
     // Mock the call to the executor, to retrieve the context
-    vm.mockCall(_executor, abi.encodeCall(MultichainCall.context, ()), abi.encode(_l2Connector, 56, 1));
+    vm.mockCall(_executor, abi.encodeCall(MultichainCall.context, ()), abi.encode(_l2Connector, _chainIdL2, 1));
 
     // Insert mock data in the payload
     bytes memory _wrongLengthCalldata = new bytes(callDataLength);
@@ -249,11 +297,16 @@ contract BscConnectorTest is ConnectorHelper {
 
     vm.expectRevert(abi.encodePacked("!length"));
     vm.prank(_amb);
-    BSCL1Connector(_l1Connector).processMessage(_wrongLengthCalldata);
+    MultichainL1Connector(_l1Connector).processMessage(_wrongLengthCalldata);
   }
 
-  function test_BSCL2_processMessage_revertIfWrongDataLength(uint8 callDataLength) public {
+  // message has a length > 32 bytes
+  function test_MultichainL2Connector_processMessage_revertIfWrongDataLength(uint8 callDataLength) public {
     vm.assume(callDataLength != 32);
+
+    // Mock the call to the executor, to retrieve the context
+    vm.mockCall(_executor, abi.encodeCall(MultichainCall.context, ()), abi.encode(_l1Connector, _chainIdMainnet, 1));
+
 
     // Insert mock data in the payload
     bytes memory _wrongLengthCalldata = new bytes(callDataLength);
@@ -261,7 +314,7 @@ contract BscConnectorTest is ConnectorHelper {
 
     vm.expectRevert(abi.encodePacked("!length"));
     vm.prank(_amb);
-    BSCL2Connector(_l2Connector).processMessage(_wrongLengthCalldata);
+    MultichainL2Connector(_l2Connector).processMessage(_wrongLengthCalldata);
   }
 
   // ============ verifySender ============
@@ -269,7 +322,7 @@ contract BscConnectorTest is ConnectorHelper {
   // Initiator is the address on the other chain, as returned by multichaincall.context() (ie the mirror)
   function test_BSCConnector_verifySender_trueIfCorrectInitiatorAndMsgSender(address _from) public {
     // Mock the call to the executor, to retrieve the context
-    vm.mockCall(_executor, abi.encodeCall(MultichainCall.context, ()), abi.encode(_from, 56, 1));
+    vm.mockCall(_executor, abi.encodeCall(MultichainCall.context, ()), abi.encode(_from, _chainIdL2, 1));
 
     // multichain _amb has the same address, irrespective of underlying network
     vm.prank(_amb);
@@ -280,7 +333,18 @@ contract BscConnectorTest is ConnectorHelper {
   function test_BSCConnector_verifySender_falseIfWrongInitiator(address _from, address _wrongFrom) public {
     vm.assume(_from != _wrongFrom);
     // Mock the call to the executor, to retrieve the context
-    vm.mockCall(_executor, abi.encodeCall(MultichainCall.context, ()), abi.encode(_wrongFrom, 56, 1));
+    vm.mockCall(_executor, abi.encodeCall(MultichainCall.context, ()), abi.encode(_wrongFrom, _chainIdL2, 1));
+
+    // multichain _amb has the same address, irrespective of underlying network
+    vm.prank(_amb);
+    assertFalse(BaseMultichainConnector(_l1Connector).verifySender(_from));
+  }
+
+  // return false if the origin chain has an unexpected id
+  function test_BSCConnector_verifySender_falseIfWrongOriginId(uint256 _wrongId, address _from) public {
+    vm.assume(_wrongId != _chainIdL2);
+    // Mock the call to the executor, to retrieve the context
+    vm.mockCall(_executor, abi.encodeCall(MultichainCall.context, ()), abi.encode(_l2Connector, _wrongId, 1));
 
     // multichain _amb has the same address, irrespective of underlying network
     vm.prank(_amb);
