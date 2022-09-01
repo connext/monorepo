@@ -2,7 +2,6 @@ import { Contract, providers } from "ethers";
 import { task } from "hardhat/config";
 
 import config from "../hardhat.config";
-
 import { ConnectorDeployment, Env, executeOnAllConnectors, mustGetEnv } from "../src/utils";
 
 type TaskArgs = {

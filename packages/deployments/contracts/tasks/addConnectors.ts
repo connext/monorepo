@@ -9,7 +9,6 @@ import {
   executeOnAllConnectors,
   getDeploymentName,
   getMessagingProtocolConfig,
-  getProtocolNetwork,
   mustGetEnv,
 } from "../src/utils";
 
