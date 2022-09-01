@@ -67,11 +67,6 @@ export default task("submit-exit-proof", "Submit Exit proof to L2 chain")
       providers,
     );
 
-    console.log("--------------------------------------------------------------");
-    console.log("payload");
-    console.log(payload);
-    console.log("--------------------------------------------------------------");
-    console.log(utils.RLP.decode(payload as string));
     if (payload) {
       const L1ConnectorContract = new Contract(L1ConnectorDeployment.address, L1ConnectorDeployment.abi, deployer);
       const tx = await L1ConnectorContract.receiveMessage(payload);
