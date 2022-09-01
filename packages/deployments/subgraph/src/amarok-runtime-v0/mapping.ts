@@ -19,6 +19,7 @@ import {
   RouterRecipientSet,
   MaxRoutersPerTransferUpdated,
 } from "../../generated/Connext/ConnextHandler";
+import { Dispatch, Process, AggregateRootUpdated } from "../../generated/Connector/Connector";
 import {
   Asset,
   AssetBalance,
@@ -29,9 +30,14 @@ import {
   OriginTransfer,
   DestinationTransfer,
   Setting,
+  OriginMessage,
+  DestinationMessage,
+  AggregateRoot
 } from "../../generated/schema";
 
 const DEFAULT_MAX_ROUTERS_PER_TRANSFER = 5;
+const DEFAULT_AGGREGATE_ROOTS_ID = "AGGREGATE_ROOTS";
+
 export function handleRelayerAdded(event: RelayerAdded): void {
   let relayerId = event.params.relayer.toHex();
   let relayer = Relayer.load(relayerId);
@@ -402,6 +408,45 @@ export function handleReconciled(event: Reconciled): void {
   transfer.reconciledBlockNumber = event.block.number;
 
   transfer.save();
+}
+
+export function handleDispatch(event: Dispatch): void {
+  // Dispatch(bytes32 leaf, uint256 index, bytes32 root, bytes message);
+  let message = OriginMessage.load(event.params.leaf.toHexString());
+  if (message == null) {
+    message = new OriginMessage(event.params.leaf.toHexString());
+  }
+
+  message.leaf = event.params.leaf;
+  message.index = event.params.index;
+  message.root = event.params.root;
+  message.message = event.params.message;
+
+  message.save();
+}
+
+export function handleProcess(event: Process): void {
+  let message = DestinationMessage.load(event.params.leaf.toHexString());
+  if (message == null) {
+    message = new DestinationMessage(event.params.leaf.toHexString());
+  }
+
+  message.leaf = event.params.leaf;
+  message.processed = event.params.success;
+  message.returnData = event.params.returnData;
+
+  message.save();
+}
+
+export function handleAggregateRootUpdated(event: AggregateRootUpdated): void {
+
+  let aggregateRoot = AggregateRoot.load(event.params.current.toHexString());
+  if (aggregateRoot == null) {
+    aggregateRoot = new AggregateRoot(event.params.current.toHexString());
+  }
+
+  aggregateRoot.root = event.params.current;
+  aggregateRoot.save();
 }
 
 // eslint-disable-next-line @typescript-eslint/ban-types
