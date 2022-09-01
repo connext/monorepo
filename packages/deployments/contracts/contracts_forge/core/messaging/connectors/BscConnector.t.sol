@@ -149,14 +149,14 @@ contract BscConnectorTest is ConnectorHelper {
 
     // Check: correct event?
     vm.expectEmit(false, false, false, true, _l1Connector);
-    emit MessageProcessed(_executor, _dataCorrectSize, _amb);
+    emit MessageProcessed(_dataCorrectSize, _amb);
 
     // Check: call to root manager?
     vm.expectCall(_rootManager, abi.encodeCall(IRootManager.setOutboundRoot, (_mirrorDomain, bytes32(_data))));
 
     // multichain _amb has the same address, irrespective of underlying network
     vm.prank(_amb);
-    BSCL1Connector(_l1Connector).processMessage(_executor, _dataCorrectSize);
+    BSCL1Connector(_l1Connector).processMessage( _dataCorrectSize);
   }
 
   function test_BSCL2_processMessage_processMessageUpdateRootAndEmitEvent(bytes calldata _data) public {
@@ -168,11 +168,11 @@ contract BscConnectorTest is ConnectorHelper {
 
     // Check: correct event?
     vm.expectEmit(false, false, false, true, _l2Connector);
-    emit MessageProcessed(_executor, _dataCorrectSize, _amb);
+    emit MessageProcessed(_dataCorrectSize, _amb);
 
     // multichain _amb has the same address, irrespective of underlying network
     vm.prank(_amb);
-    BSCL2Connector(_l2Connector).processMessage(_executor, _dataCorrectSize);
+    BSCL2Connector(_l2Connector).processMessage( _dataCorrectSize);
 
     // Check: root is updated
     assertEq(BSCL2Connector(_l2Connector).aggregateRoot(), bytes32(_data));
@@ -186,7 +186,7 @@ contract BscConnectorTest is ConnectorHelper {
 
     vm.expectRevert(abi.encodePacked("!bridge"));
     vm.prank(_notAmb);
-    BSCL1Connector(_l1Connector).processMessage(_executor, _dataCorrectSize);
+    BSCL1Connector(_l1Connector).processMessage(_dataCorrectSize);
   }
 
   function test_BSCL2_processMessage_revertIfAmbIsNotMsgSender(address _notAmb, bytes calldata _data) public {
@@ -197,7 +197,7 @@ contract BscConnectorTest is ConnectorHelper {
 
     vm.expectRevert(abi.encodePacked("!bridge"));
     vm.prank(_notAmb);
-    BSCL2Connector(_l2Connector).processMessage(_executor, _dataCorrectSize);
+    BSCL2Connector(_l2Connector).processMessage(_dataCorrectSize);
   }
 
   function test_BSCL1_processMessage_revertIfWrongMirror(address _wrongMirror, bytes calldata _data) public {
@@ -220,7 +220,7 @@ contract BscConnectorTest is ConnectorHelper {
 
     vm.expectRevert(abi.encodePacked("!l2Connector"));
     vm.prank(_amb);
-    BSCL1Connector(_l1Connector).processMessage(_executor, _dataCorrectSize);
+    BSCL1Connector(_l1Connector).processMessage(_dataCorrectSize);
   }
 
   function test_BSCL2_processMessage_revertIfWrongMirror(address _wrongMirror, bytes calldata _data) public {
@@ -234,7 +234,7 @@ contract BscConnectorTest is ConnectorHelper {
 
     vm.expectRevert(abi.encodePacked("!sender"));
     vm.prank(_amb);
-    BSCL2Connector(_l2Connector).processMessage(_executor, _dataCorrectSize);
+    BSCL2Connector(_l2Connector).processMessage(_dataCorrectSize);
   }
 
   function test_BSCL1_processMessage_revertIfWrongDataLength(uint8 callDataLength) public {
@@ -249,7 +249,7 @@ contract BscConnectorTest is ConnectorHelper {
 
     vm.expectRevert(abi.encodePacked("!length"));
     vm.prank(_amb);
-    BSCL1Connector(_l1Connector).processMessage(_executor, _wrongLengthCalldata);
+    BSCL1Connector(_l1Connector).processMessage(_wrongLengthCalldata);
   }
 
   function test_BSCL2_processMessage_revertIfWrongDataLength(uint8 callDataLength) public {
@@ -261,7 +261,7 @@ contract BscConnectorTest is ConnectorHelper {
 
     vm.expectRevert(abi.encodePacked("!length"));
     vm.prank(_amb);
-    BSCL2Connector(_l2Connector).processMessage(_executor, _wrongLengthCalldata);
+    BSCL2Connector(_l2Connector).processMessage(_wrongLengthCalldata);
   }
 
   // ============ verifySender ============

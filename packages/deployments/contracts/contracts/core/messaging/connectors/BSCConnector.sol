@@ -57,7 +57,7 @@ abstract contract BaseMultichainConnector is Connector {
 
   // ============ Public Fns ============
   function anyExecute(bytes memory _data) external returns (bool success, bytes memory result) {
-    _processMessage(msg.sender, _data); // msg.sender not used
+    _processMessage(_data);
   }
 
   function _verifySender(address _expected) internal override returns (bool) {
@@ -113,7 +113,6 @@ contract BSCL2Connector is BaseMultichainConnector {
    * NOTE: Could store latest root sent and prove aggregate root
    */
   function _processMessage(
-    address, // _sender -- unused
     bytes memory _data
   ) internal override {
     // sanity check: data length
@@ -170,7 +169,7 @@ contract BSCL1Connector is BaseMultichainConnector {
   /**
    * @dev Handles an incoming `outboundRoot`
    */
-  function _processMessage(address, bytes memory _data) internal override {
+  function _processMessage(bytes memory _data) internal override {
     // enforce this came from connector on l2
     require(_verifySender(mirrorConnector), "!l2Connector");
     // get the data (should be the outbound root)

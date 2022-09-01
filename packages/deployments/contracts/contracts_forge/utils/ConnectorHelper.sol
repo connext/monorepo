@@ -9,10 +9,11 @@ contract ConnectorHelper is ForgeHelper {
 
   event SenderAdded(address sender);
   event SenderRemoved(address sender);
+  event AggregateRootUpdated(bytes32 current, bytes32 previous);
   event Dispatch(bytes32 leaf, uint256 index, bytes32 root, bytes message);
   event Process(bytes32 leaf, bool success, bytes returnData);
   event MessageSent(bytes data, address caller);
-  event MessageProcessed(address from, bytes data, address caller);
+  event MessageProcessed(bytes data, address caller);
   event MirrorConnectorUpdated(address previous, address current);
 
   // ============ Storage ============
