@@ -136,7 +136,11 @@ contract PingPong is ConnectorHelper {
   function test_messageFlowsWork() public {
     // 1. Send message through Messaging contract
     bytes memory body = abi.encode(_destinationDomain * _originDomain);
-    assertEq(Connector(_originConnectorL2).outboundRoot(), bytes32(0));
+    // okay to hardcode here because this is the default value of an empty tree
+    assertEq(
+      Connector(_originConnectorL2).outboundRoot(),
+      bytes32(0x27ae5ba08d7291c96c8cbddcc148bf48a6d68c7974b94356f53754ef6171d757)
+    );
     Connector(_originConnectorL2).dispatch(_destinationDomain, _destinationRouter, body);
     // assert added to outboundRoot
     assertEq(Connector(_originConnectorL2).count(), 1);

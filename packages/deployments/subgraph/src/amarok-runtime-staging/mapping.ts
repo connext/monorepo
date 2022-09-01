@@ -19,6 +19,7 @@ import {
   RouterRecipientSet,
   MaxRoutersPerTransferUpdated,
 } from "../../generated/Connext/ConnextHandler";
+import { Dispatch, Process } from "../../generated/Connector/Connector";
 import {
   Asset,
   AssetBalance,
@@ -402,6 +403,16 @@ export function handleReconciled(event: Reconciled): void {
   transfer.reconciledBlockNumber = event.block.number;
 
   transfer.save();
+}
+
+export function handleDispatch(event: Dispatch): void {
+  // Dispatch(bytes32 leaf, uint256 index, bytes32 root, bytes message);
+  // initiate origin transfer: save message, root
+}
+
+export function handleProcess(event: Process): void {
+  // Dispatch(bytes32 leaf, uint256 index, bytes32 root, bytes message);
+  // initiate destination transfer: save processed: boolean
 }
 
 // eslint-disable-next-line @typescript-eslint/ban-types

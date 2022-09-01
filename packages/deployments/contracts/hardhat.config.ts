@@ -41,12 +41,16 @@ import "./tasks/stableswap/initializeSwap";
 import "./tasks/stableswap/addSwapLiquidity";
 import "./tasks/stableswap/removeSwapLiquidity";
 import "./tasks/stableswap/setSwapFees";
+import "./tasks/connector/send";
+import "./tasks/rootmanager/propagate";
 import "./tasks/setMirrorConnectors";
 import "./tasks/addConnextions";
 import "./tasks/setBridgeRouter";
 import "./tasks/addSequencer";
 import "./tasks/setXAppConnectionManager";
 import "./tasks/queryRoots";
+import "./tasks/addConnectors";
+import "./tasks/connector/proveAndProcess";
 import "./tasks/addSender";
 
 const urlOverride = process.env.ETH_PROVIDER_URL;
