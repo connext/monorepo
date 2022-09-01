@@ -101,12 +101,6 @@ type OriginTransfer @entity {
   gasPrice: BigInt
   gasLimit: BigInt
   blockNumber: BigInt
-
-  # Dispatch Transaction
-  leaf: Bytes
-  index: BigInt
-  root: Bytes
-  message: Bytes
 }
 
 type DestinationTransfer @entity {
@@ -163,9 +157,28 @@ type DestinationTransfer @entity {
   reconciledGasPrice: BigInt
   reconciledGasLimit: BigInt
   reconciledBlockNumber: BigInt
+}
+
+type OriginMessage @entity {
+  id: ID!
+
+  # Dispatch Transaction
+  leaf: Bytes
+  index: BigInt
+  root: Bytes
+  message: Bytes
+}
+
+type DestinationMessage @entity {
+  id: ID!
 
   # Process Transaction
   leaf: Bytes
   processed: Boolean
   returnData: Bytes
+}
+
+type AggregateRoot @entity {
+  id: ID!
+  root: Bytes!
 }
