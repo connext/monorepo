@@ -81,12 +81,12 @@ dataSources:
   # Connector.sol events
   - kind: ethereum/contract
     name: Connector
-    network: "{{network1}}"
+    network: "{{network}}"
     source:
-      address: "{{address1}}"
+      address: "{{address}}"
       abi: Connector
       # prettier-ignore
-      startBlock: {{startBlock1}}
+      startBlock: {{startBlock}}
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.6
@@ -100,26 +100,13 @@ dataSources:
         - name: Connector
           file: ./src/amarok-runtime-staging/abis/Connector.json
       eventHandlers:
+        #AggregateRootUpdated(bytes32 current, bytes32 previous);
         - event: AggregateRootUpdated(bytes32,bytes32)
           handler: handleAggregateRootUpdated
         # Dispatch(bytes32 leaf, uint256 index, bytes32 root, bytes message);  
         - event: Dispatch(bytes32,uint256,bytes32,bytes)
           handler: handleDispatch
-        - event: MessageProcessed(bytes,address)
-          handler: handleMessageProcessed
-        - event: MessageSent(bytes,address)
-          handler: handleMessageSent
-        - event: MirrorConnectorUpdated(address,address)
-          handler: handleMirrorConnectorUpdated
-        - event: OwnershipProposed(indexed address)
-          handler: handleOwnershipProposed
-        - event: OwnershipTransferred(indexed address,indexed address)
-          handler: handleOwnershipTransferred
         # Process(bytes32 leaf, bool success, bytes returnData);
         - event: Process(bytes32,bool,bytes)
           handler: handleProcess
-        - event: SenderAdded(address)
-          handler: handleSenderAdded
-        - event: SenderRemoved(address)
-          handler: handleSenderRemoved
       file: ./src/amarok-runtime-staging/mapping.ts
