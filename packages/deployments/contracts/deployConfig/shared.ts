@@ -228,6 +228,19 @@ export const MESSAGING_PROTOCOL_CONFIGS: {
       //   processGas: DEFAULT_PROCESS_GAS,
       //   reserveGas: DEFAULT_RESERVE_GAS,
       // },
+      // Arbitrum nitro goerli testnet:
+      // https://developer.offchainlabs.com/docs/Useful_Addresses
+      421613: {
+        prefix: "Arbitrum",
+        ambs: {
+          // https://goerli.etherscan.io/address/0x6BEbC4925716945D46F0Ec336D5C2564F419682C
+          hub: "0x6BEbC4925716945D46F0Ec336D5C2564F419682C",
+          // https://goerli-rollup-explorer.arbitrum.io/address/0x0000000000000000000000000000000000000064
+          spoke: "0x0000000000000000000000000000000000000064",
+        },
+        processGas: DEFAULT_PROCESS_GAS,
+        reserveGas: DEFAULT_RESERVE_GAS,
+      },
       5: {
         prefix: "Mainnet",
         ambs: {
@@ -272,6 +285,19 @@ export const MESSAGING_PROTOCOL_CONFIGS: {
           hub: "0x4C36d2919e407f0Cc2Ee3c993ccF8ac26d9CE64e",
           // https://blockscout.com/xdai/mainnet/address/0x75Df5AF045d91108662D8080fD1FEFAd6aA0bb59
           spoke: "0x75Df5AF045d91108662D8080fD1FEFAd6aA0bb59",
+        },
+        processGas: DEFAULT_PROCESS_GAS,
+        reserveGas: DEFAULT_RESERVE_GAS,
+      },
+      // Arbitrum one: TODO: nitro??????
+      // https://developer.offchainlabs.com/docs/Useful_Addresses
+      42161: {
+        prefix: "Arbitrum",
+        ambs: {
+          // https://etherscan.io/address/0x4Dbd4fc535Ac27206064B68FfCf827b0A60BAB3f
+          hub: "0x4Dbd4fc535Ac27206064B68FfCf827b0A60BAB3f",
+          // https://arbiscan.io/address/0x0000000000000000000000000000000000000064
+          spoke: "0x0000000000000000000000000000000000000064",
         },
         processGas: DEFAULT_PROCESS_GAS,
         reserveGas: DEFAULT_RESERVE_GAS,

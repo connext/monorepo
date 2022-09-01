@@ -41,10 +41,17 @@ import "./tasks/stableswap/initializeSwap";
 import "./tasks/stableswap/addSwapLiquidity";
 import "./tasks/stableswap/removeSwapLiquidity";
 import "./tasks/stableswap/setSwapFees";
+import "./tasks/connector/send";
+import "./tasks/rootmanager/propagate";
 import "./tasks/setMirrorConnectors";
 import "./tasks/addConnextions";
 import "./tasks/setBridgeRouter";
 import "./tasks/addSequencer";
+import "./tasks/setXAppConnectionManager";
+import "./tasks/queryRoots";
+import "./tasks/addConnectors";
+import "./tasks/connector/proveAndProcess";
+import "./tasks/addSender";
 
 const urlOverride = process.env.ETH_PROVIDER_URL;
 const chainId = parseInt(process.env.CHAIN_ID ?? "1337", 10);
@@ -163,6 +170,12 @@ const config: HardhatUserConfig = {
       companionNetworks: {
         hub: "goerli",
       },
+      verify: {
+        etherscan: {
+          apiKey: process.env.ETHERSCAN_API_KEY!,
+          apiUrl: "https://blockscout.com/optimism/goerli",
+        },
+      },
     },
     bsc: {
       accounts: { mnemonic },
@@ -253,7 +266,18 @@ const config: HardhatUserConfig = {
       mainnet: process.env.ETHERSCAN_API_KEY!,
       ropsten: process.env.ETHERSCAN_API_KEY!,
       goerli: process.env.ETHERSCAN_API_KEY!,
+      "optimism-goerli": process.env.ETHERSCAN_API_KEY!,
     },
+    customChains: [
+      {
+        network: "optimism-goerli",
+        chainId: 420,
+        urls: {
+          apiURL: "https://blockscout.com/optimism/goerli/api",
+          browserURL: "https://blockscout.com/optimism/goerli",
+        },
+      },
+    ],
   },
   gasReporter: {
     enabled: process.env.REPORT_GAS == "true",

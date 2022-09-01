@@ -1,4 +1,4 @@
-import { expect, mkAddress, mkBytes32 } from "@connext/nxtp-utils";
+import { expect, mkAddress, mkBytes32, RelayerType } from "@connext/nxtp-utils";
 import { stub, SinonStub } from "sinon";
 import { MissingTransfer } from "../../../../src/lib/errors";
 import { sendExecuteSlowToRelayer } from "../../../../src/lib/operations/relayer";
@@ -38,8 +38,9 @@ describe("Operations:ExecuteSlow", () => {
       const mockTaskId = mkBytes32("0x111");
       const mockExecutorData = mock.entity.executorData({ transferId: mockTransferId });
       getTransferStub.resolves(mockTransfer);
-      connextRelayerSendStub.resolves({ taskId: mockTaskId });
-      const taskId = await sendExecuteSlowToRelayer(mockExecutorData, requestContext);
+      connextRelayerSendStub.resolves({ taskId: mockTaskId, relayer: RelayerType.BackupRelayer });
+      const { taskId, relayer } = await sendExecuteSlowToRelayer(mockExecutorData, requestContext);
+      expect(relayer).to.be.deep.eq(RelayerType.BackupRelayer);
       expect(taskId).to.be.eq(mockTaskId);
       expect(getTransferStub).to.have.been.calledOnceWithExactly(mockTransferId);
       expect(connextRelayerSendStub.callCount).to.be.eq(1);
@@ -56,8 +57,9 @@ describe("Operations:ExecuteSlow", () => {
       getRelayerAddressStub.resolves(mockRelayerAddress);
       sendStub.resolves(mockTaskId);
 
-      const taskId = await sendExecuteSlowToRelayer(mockExecutorData, requestContext);
+      const { taskId, relayer } = await sendExecuteSlowToRelayer(mockExecutorData, requestContext);
       expect(taskId).to.be.eq(mockTaskId);
+      expect(relayer).to.be.deep.eq(RelayerType.Gelato);
       expect(getTransferStub).to.have.been.calledOnceWithExactly(mockTransferId);
       expect(connextRelayerSendStub.callCount).to.be.eq(1);
       expect(getRelayerAddressStub.callCount).to.be.eq(1);

@@ -1,5 +1,6 @@
 type Asset @entity {
   id: ID!
+  key: Bytes
   local: Bytes!
   adoptedAsset: Bytes!
   canonicalId: Bytes!
@@ -100,6 +101,12 @@ type OriginTransfer @entity {
   gasPrice: BigInt
   gasLimit: BigInt
   blockNumber: BigInt
+
+  # Dispatch Transaction
+  leaf: Bytes
+  index: BigInt
+  root: Bytes
+  message: Bytes
 }
 
 type DestinationTransfer @entity {
@@ -156,4 +163,9 @@ type DestinationTransfer @entity {
   reconciledGasPrice: BigInt
   reconciledGasLimit: BigInt
   reconciledBlockNumber: BigInt
+
+  # Process Transaction
+  leaf: Bytes
+  processed: Boolean
+  returnData: Bytes
 }

@@ -29,29 +29,25 @@ contract MainnetL1Connector is Connector {
   }
 
   /**
-   * @dev Messaging uses this function to send outboundRoot to root manager. On mainnet,
-   * would just update the root manager directly
+   * @dev There are two times messages get "sent" from this connector:
+   * 1. `RootManager` calls `sendMessage` during `propagate`
+   * 2. Relayers call `sendMessage` to set the outbound root
    */
   function _sendMessage(bytes memory _data) internal override {
-    // get the data (should be the outbound root)
+    // get the data (should be either the outbound or aggregate root, depending on sender)
     require(_data.length == 32, "!length");
-    // update the outbound root on the root manager
+    if (msg.sender == ROOT_MANAGER) {
+      // update the aggregate root
+      update(bytes32(_data));
+      return;
+    }
+    // otherwise is relayer, update the outbound root on the root manager
     IRootManager(ROOT_MANAGER).setOutboundRoot(domain, bytes32(_data));
   }
 
   /**
-   * @dev Called by the root manager to update the aggregateRoot. On mainnet, update the
-   * aggregateRoot directly
+   * @dev The `RootManager` calls `.sendMessage` on all connectors, there is nothing on mainnet
+   * that would be processing "inbound messages", so do nothing in this function
    */
-  function _processMessage(
-    address, // _sender -- not used
-    bytes memory _data
-  ) internal override {
-    // ensure the l1 connector sent the message
-    require(msg.sender == ROOT_MANAGER, "!sender");
-    // should be the aggregate root
-    require(_data.length == 32, "!length");
-    // update the aggregate root on the domain
-    update(bytes32(_data));
-  }
+  function _processMessage(bytes memory _data) internal override {}
 }

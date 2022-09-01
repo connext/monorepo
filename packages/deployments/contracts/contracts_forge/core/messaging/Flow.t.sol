@@ -7,7 +7,7 @@ import {Message} from "../../../contracts/nomad-core/libs/Message.sol";
 import {RootManager} from "../../../contracts/core/messaging/RootManager.sol";
 import {Connector} from "../../../contracts/core/messaging/connectors/Connector.sol";
 
-import "../../utils/ForgeHelper.sol";
+import "../../utils/ConnectorHelper.sol";
 import "../../utils/Mock.sol";
 
 import "forge-std/console.sol";
@@ -16,11 +16,7 @@ import "forge-std/console.sol";
  * @notice This contract is designed to test the full messaging flow using
  * mocked mainnet and l2 connectors
  */
-contract PingPong is ForgeHelper {
-  // ============ Events ============
-  event MessageSent(bytes data, address caller);
-  event MessageProcessed(address from, bytes data, address caller);
-
+contract PingPong is ConnectorHelper {
   // ============ Storage ============
 
   // ============ config
@@ -42,9 +38,6 @@ contract PingPong is ForgeHelper {
   address _originConnectorL1;
   address _destinationConnectorL2;
   address _destinationConnectorL1;
-
-  // ============ root manager
-  address _rootManager;
 
   // ============ destination router
   bytes32 _destinationRouter;
@@ -143,7 +136,11 @@ contract PingPong is ForgeHelper {
   function test_messageFlowsWork() public {
     // 1. Send message through Messaging contract
     bytes memory body = abi.encode(_destinationDomain * _originDomain);
-    assertEq(Connector(_originConnectorL2).outboundRoot(), bytes32(0));
+    // okay to hardcode here because this is the default value of an empty tree
+    assertEq(
+      Connector(_originConnectorL2).outboundRoot(),
+      bytes32(0x27ae5ba08d7291c96c8cbddcc148bf48a6d68c7974b94356f53754ef6171d757)
+    );
     Connector(_originConnectorL2).dispatch(_destinationDomain, _destinationRouter, body);
     // assert added to outboundRoot
     assertEq(Connector(_originConnectorL2).count(), 1);
@@ -162,14 +159,11 @@ contract PingPong is ForgeHelper {
 
     // 3. Process outboundRoot on mainnet
     vm.expectEmit(true, true, true, true);
-    emit MessageProcessed(address(this), abi.encode(outboundRoot), _originMainnetAMB);
+    emit MessageProcessed(abi.encode(outboundRoot), _originMainnetAMB);
     vm.prank(_originMainnetAMB);
-    MockConnector(_originConnectorL1).processMessage(address(this), abi.encode(outboundRoot));
+    MockConnector(_originConnectorL1).processMessage(abi.encode(outboundRoot));
     assertEq(RootManager(_rootManager).outboundRoots(_originDomain), outboundRoot);
-    assertEq(
-      MockConnector(_originConnectorL1).lastReceived(),
-      keccak256(abi.encode(address(this), abi.encode(outboundRoot)))
-    );
+    assertEq(MockConnector(_originConnectorL1).lastReceived(), keccak256(abi.encode(outboundRoot)));
 
     // 4. Propagate roots to both connectors
     bytes memory expectedAggregate = abi.encodePacked(outboundRoot);
@@ -179,9 +173,9 @@ contract PingPong is ForgeHelper {
 
     // 5. Process aggregateRoot on destination
     vm.expectEmit(true, true, true, true);
-    emit MessageProcessed(address(this), expectedAggregate, _destinationAMB);
+    emit MessageProcessed(expectedAggregate, _destinationAMB);
     vm.prank(_destinationAMB);
-    MockConnector(_destinationConnectorL2).processMessage(address(this), expectedAggregate);
+    MockConnector(_destinationConnectorL2).processMessage(expectedAggregate);
     assertEq(Connector(_destinationConnectorL2).aggregateRoot(), outboundRoot);
 
     // 6. Process original message

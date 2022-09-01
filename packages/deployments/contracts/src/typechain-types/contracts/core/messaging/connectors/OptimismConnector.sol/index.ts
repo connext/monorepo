@@ -2,6 +2,6 @@
 /* tslint:disable */
 /* eslint-disable */
 export type { BaseOptimismConnector } from "./BaseOptimismConnector";
-export type { OptimismBridge } from "./OptimismBridge";
+export type { OptimismAMB } from "./OptimismAMB";
 export type { OptimismL1Connector } from "./OptimismL1Connector";
 export type { OptimismL2Connector } from "./OptimismL2Connector";

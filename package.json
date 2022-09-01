@@ -1,6 +1,6 @@
 {
   "name": "@connext/nxtp",
-  "version": "0.2.0-beta.20",
+  "version": "0.2.0-beta.22",
   "private": true,
   "devDependencies": {
     "@istanbuljs/nyc-config-typescript": "1.0.2",
@@ -27,7 +27,8 @@
     "packages/agents/relayer",
     "packages/agents/lighthouse",
     "packages/integration",
-    "packages/examples/sdk-server"
+    "packages/examples/sdk-server",
+    "packages/examples/bridge-reference"
   ],
   "scripts": {
     "lint:all": "yarn workspaces foreach --exclude @connext/nxtp-subgraph --exclude @connext/nxtp-integration run lint --fix",
@@ -45,6 +46,6 @@
   "resolutions": {
     "@nomiclabs/hardhat-ethers": "https://registry.npmjs.org/hardhat-deploy-ethers/-/hardhat-deploy-ethers-0.3.0-beta.10.tgz"
   },
-  "packageManager": "yarn@3.2.1",
+  "packageManager": "yarn@3.2.3",
   "stableVersion": "0.1.25"
 }

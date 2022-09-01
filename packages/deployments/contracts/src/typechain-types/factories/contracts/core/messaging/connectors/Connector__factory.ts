@@ -56,6 +56,25 @@ const _abi = [
       {
         indexed: false,
         internalType: "bytes32",
+        name: "current",
+        type: "bytes32",
+      },
+      {
+        indexed: false,
+        internalType: "bytes32",
+        name: "previous",
+        type: "bytes32",
+      },
+    ],
+    name: "AggregateRootUpdated",
+    type: "event",
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: false,
+        internalType: "bytes32",
         name: "leaf",
         type: "bytes32",
       },
@@ -84,12 +103,6 @@ const _abi = [
   {
     anonymous: false,
     inputs: [
-      {
-        indexed: false,
-        internalType: "address",
-        name: "from",
-        type: "address",
-      },
       {
         indexed: false,
         internalType: "bytes",
@@ -537,11 +550,6 @@ const _abi = [
   },
   {
     inputs: [
-      {
-        internalType: "address",
-        name: "_sender",
-        type: "address",
-      },
       {
         internalType: "bytes",
         name: "_data",

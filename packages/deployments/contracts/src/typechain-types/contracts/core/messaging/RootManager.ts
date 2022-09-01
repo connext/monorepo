@@ -181,6 +181,7 @@ export interface RootManagerInterface extends utils.Interface {
     "OutboundRootUpdated(uint32,bytes32)": EventFragment;
     "OwnershipProposed(address)": EventFragment;
     "OwnershipTransferred(address,address)": EventFragment;
+    "RootPropagated(bytes32,uint32[])": EventFragment;
     "WatcherAdded(address)": EventFragment;
     "WatcherRemoved(address)": EventFragment;
   };
@@ -190,6 +191,7 @@ export interface RootManagerInterface extends utils.Interface {
   getEvent(nameOrSignatureOrTopic: "OutboundRootUpdated"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "OwnershipProposed"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "OwnershipTransferred"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "RootPropagated"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "WatcherAdded"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "WatcherRemoved"): EventFragment;
 }
@@ -251,6 +253,17 @@ export type OwnershipTransferredEvent = TypedEvent<
 
 export type OwnershipTransferredEventFilter =
   TypedEventFilter<OwnershipTransferredEvent>;
+
+export interface RootPropagatedEventObject {
+  aggregate: string;
+  domains: number[];
+}
+export type RootPropagatedEvent = TypedEvent<
+  [string, number[]],
+  RootPropagatedEventObject
+>;
+
+export type RootPropagatedEventFilter = TypedEventFilter<RootPropagatedEvent>;
 
 export interface WatcherAddedEventObject {
   watcher: string;
@@ -555,6 +568,12 @@ export interface RootManager extends BaseContract {
       previousOwner?: PromiseOrValue<string> | null,
       newOwner?: PromiseOrValue<string> | null
     ): OwnershipTransferredEventFilter;
+
+    "RootPropagated(bytes32,uint32[])"(
+      aggregate?: null,
+      domains?: null
+    ): RootPropagatedEventFilter;
+    RootPropagated(aggregate?: null, domains?: null): RootPropagatedEventFilter;
 
     "WatcherAdded(address)"(watcher?: null): WatcherAddedEventFilter;
     WatcherAdded(watcher?: null): WatcherAddedEventFilter;

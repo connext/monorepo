@@ -78,3 +78,48 @@ dataSources:
         - event: NewSwapFee(indexed bytes32,uint256)
           handler: handleAmmNewSwapFee
       file: ./src/amarok-runtime-staging/mapping.ts
+  # Connector.sol events
+  - kind: ethereum/contract
+    name: Connector
+    network: "{{network1}}"
+    source:
+      address: "{{address1}}"
+      abi: Connector
+      # prettier-ignore
+      startBlock: {{startBlock1}}
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.6
+      language: wasm/assemblyscript
+      entities:
+        - Asset
+        - AssetBalance
+        - Router
+        - Transfer
+      abis:
+        - name: Connector
+          file: ./src/amarok-runtime-staging/abis/Connector.json
+      eventHandlers:
+        - event: AggregateRootUpdated(bytes32,bytes32)
+          handler: handleAggregateRootUpdated
+        # Dispatch(bytes32 leaf, uint256 index, bytes32 root, bytes message);  
+        - event: Dispatch(bytes32,uint256,bytes32,bytes)
+          handler: handleDispatch
+        - event: MessageProcessed(bytes,address)
+          handler: handleMessageProcessed
+        - event: MessageSent(bytes,address)
+          handler: handleMessageSent
+        - event: MirrorConnectorUpdated(address,address)
+          handler: handleMirrorConnectorUpdated
+        - event: OwnershipProposed(indexed address)
+          handler: handleOwnershipProposed
+        - event: OwnershipTransferred(indexed address,indexed address)
+          handler: handleOwnershipTransferred
+        # Process(bytes32 leaf, bool success, bytes returnData);
+        - event: Process(bytes32,bool,bytes)
+          handler: handleProcess
+        - event: SenderAdded(address)
+          handler: handleSenderAdded
+        - event: SenderRemoved(address)
+          handler: handleSenderRemoved
+      file: ./src/amarok-runtime-staging/mapping.ts

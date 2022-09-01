@@ -1,5 +1,6 @@
 [
   "event Approval(address indexed,address indexed,uint256)",
+  "event Initialized(uint8)",
   "event OwnershipTransferred(address indexed,address indexed)",
   "event Transfer(address indexed,address indexed,uint256)",
   "event UpdateDetails(string indexed,string indexed,uint8 indexed)",

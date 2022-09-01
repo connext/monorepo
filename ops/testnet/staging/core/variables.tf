@@ -111,6 +111,10 @@ variable "dd_api_key" {
   type = string
 }
 
-variable "web3_signer_private_key" {
+variable "router_web3_signer_private_key" {
+  type = string
+}
+
+variable "sequencer_web3_signer_private_key" {
   type = string
 }

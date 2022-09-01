@@ -1,8 +1,12 @@
 # SDK Server
 
-### Configuration
+This package provides an HTTP server that allows direct interaction with our supported testnets and exposes our SDK via RESTful APIs.
 
-Create `config.json` in the root of this package (`packages/sdk-server):
+It comes with a .http file located in the examples folder in this package, which can be loaded in Postman or in a VScode extension like humao.rest-client .
+
+## Configuration
+
+Create `config.json` or copy `config.json.example` in the root of this package (`packages/sdk-server`)
 
 ```json
 {
@@ -33,6 +37,25 @@ Create a `.env` in the root of this package (`packages/sdk-server`) with the fol
 - `NXTP_LOG_LEVEL`: _optional_ Override default LogLevel info. Example: `debug`
 - `NXTP_MESSAGING_MNEMONIC`: _optional_ Override Random messaging key.
 - `NXTP_SKIP_POLLING`: _optional_ skip auction waiting for testing.
+
+## First time setup
+
+First of all, make sure you are on the latest yarn version:
+
+- `yarn set version berry`
+
+You must install the dependencies of the connext workspace.
+To do so, from the root of the repo, run:
+
+- `yarn`
+
+If you have issues, try deleting `node_modules` and `yarn.lock`. After deleting `yarn.lock` run `touch yarn.lock` since it does not like if there is no lock file.
+
+We must now build all packages:
+
+- `yarn build:all`
+
+If you have issues, try running `yarn clean:all`
 
 ### Running the Server
 

@@ -2,7 +2,7 @@ import { Contract, utils } from "ethers";
 import { task } from "hardhat/config";
 
 import { Env, getDeploymentName, mustGetEnv } from "../../src/utils";
-import { canonizeId } from "../../src/nomad";
+import { canonizeId } from "../../src";
 
 type TaskArgs = {
   canonical: string;

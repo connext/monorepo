@@ -8,7 +8,7 @@ import {
 import { BigNumber, providers, Wallet, constants, utils, BigNumberish } from "ethers";
 import { task } from "hardhat/config";
 
-import { canonizeId } from "../src/nomad";
+import { canonizeId } from "../src";
 import { Env, getDeploymentName, mustGetEnv } from "../src/utils";
 
 type TaskArgs = {
