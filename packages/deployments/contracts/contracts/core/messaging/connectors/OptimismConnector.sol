@@ -82,7 +82,8 @@ contract OptimismL2Connector is BaseOptimismConnector {
    * @dev Sends `outboundRoot` to root manager on l1
    */
   function _sendMessage(bytes memory _data) internal override {
-    OptimismAMB(AMB).sendMessage(mirrorConnector, _data, uint32(mirrorProcessGas));
+    bytes memory _calldata = abi.encodeWithSelector(Connector.processMessage.selector, _data);
+    OptimismAMB(AMB).sendMessage(mirrorConnector, _calldata, uint32(mirrorProcessGas));
   }
 
   /**
@@ -101,6 +102,7 @@ contract OptimismL2Connector is BaseOptimismConnector {
   }
 }
 
+// TODO: remove aggregate root from l1 contracts
 contract OptimismL1Connector is BaseOptimismConnector {
   // ============ Constructor ============
   constructor(
@@ -130,8 +132,12 @@ contract OptimismL1Connector is BaseOptimismConnector {
    * @dev Sends `aggregateRoot` to messaging on l2
    */
   function _sendMessage(bytes memory _data) internal override {
-    require(msg.sender == ROOT_MANAGER, "!rootManager");
-    OptimismAMB(AMB).sendMessage(mirrorConnector, _data, uint32(mirrorProcessGas));
+    // Should always be dispatching the aggregate root
+    require(_data.length == 32, "!length");
+    // Get the calldata
+    bytes memory _calldata = abi.encodeWithSelector(Connector.processMessage.selector, _data);
+    // Dispatch message
+    OptimismAMB(AMB).sendMessage(mirrorConnector, _calldata, uint32(mirrorProcessGas));
   }
 
   /**
@@ -145,7 +151,7 @@ contract OptimismL1Connector is BaseOptimismConnector {
     require(_verifySender(mirrorConnector), "!l2Connector");
     // get the data (should be the outbound root)
     require(_data.length == 32, "!length");
-    // set the outbound root for optimism
+    // set the outbound root for optimism on root manager
     IRootManager(ROOT_MANAGER).setOutboundRoot(mirrorDomain, bytes32(_data));
   }
 }

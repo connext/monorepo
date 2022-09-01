@@ -135,6 +135,7 @@ contract GnosisL2Connector is BaseGnosisConnector {
  * - outboundRoot is processed as AMB on L1 handles the `Messaging.send` call within `_processMessage`
  * - aggregateRoot is sent via RootManager on L1 using `_sendMessage` call via `RootManager.propagate`
  */
+// TODO: remove aggregate root from l1 contracts
 contract GnosisL1Connector is BaseGnosisConnector {
   // ============ Constructor ============
   constructor(
@@ -163,7 +164,9 @@ contract GnosisL1Connector is BaseGnosisConnector {
   /**
    * @dev Messaging uses this function to send data to l2 via amb
    */
-  function _sendMessage(bytes memory _data) internal override onlyRootManager {
+  function _sendMessage(bytes memory _data) internal override {
+    // Should always be dispatching the aggregate root
+    require(_data.length == 32, "!length");
     // send message via AMB, should call "processMessage" which will update aggregate root
     GnosisAMB(AMB).requireToPassMessage(
       mirrorConnector,

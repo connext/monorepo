@@ -24,8 +24,11 @@ import {IConnector} from "../interfaces/IConnector.sol";
  * override virtual methods in this abstract contract to interface with a domain-specific AMB.
  * @dev Optimization: combine with the connector contract
  */
+
+// TODO: Home.sol uses a queue to manage updates into the merkle tree, is this required?
 abstract contract Connector is ProposedOwnable, MerkleTreeManager, ConnectorManager, IConnector {
   // ============ Libraries ============
+
   using MerkleLib for MerkleLib.Tree;
   using TypedMemView for bytes;
   using TypedMemView for bytes29;
@@ -100,12 +103,6 @@ abstract contract Connector is ProposedOwnable, MerkleTreeManager, ConnectorMana
   bytes32 public aggregateRoot;
 
   /**
-   * @notice This tracks the root of all transfers with the origin domain as this domain (i.e.
-   * all outbound transfers)
-   */
-  bytes32 public outboundRoot;
-
-  /**
    * @notice This tracks whether the root has been proven to exist within the given aggregate root
    * @dev Tracking this is an optimization so you dont have to prove inclusion of the same constituent
    * root many times
@@ -139,7 +136,7 @@ abstract contract Connector is ProposedOwnable, MerkleTreeManager, ConnectorMana
   modifier onlyRootManager() {
     // NOTE: RootManager will be zero address for spoke connectors.
     // Only root manager can dispatch a message to spokes/L2s via the hub connector.
-    require(msg.sender == ROOT_MANAGER, "!rootManagcer");
+    require(msg.sender == ROOT_MANAGER, "!rootManager");
     _;
   }
 
@@ -173,7 +170,7 @@ abstract contract Connector is ProposedOwnable, MerkleTreeManager, ConnectorMana
     uint256 _mirrorProcessGas,
     uint256 _processGas,
     uint256 _reserveGas
-  ) ProposedOwnable() ConnectorManager(_domain) {
+  ) ProposedOwnable() MerkleTreeManager() ConnectorManager(_domain) {
     // Sanity checks.
     require(_domain > 0, "!domain");
     // require(_amb != address(0), "!amb"); // May be address(0) if on mainnet
@@ -224,16 +221,43 @@ abstract contract Connector is ProposedOwnable, MerkleTreeManager, ConnectorMana
   }
 
   // ============ Public fns ============
-  function sendMessage(bytes memory _data) external {
+  /**
+   * @notice This returns the root of all messages with the origin domain as this domain (i.e.
+   * all outbound messages)
+   */
+  function outboundRoot() external view returns (bytes32) {
+    return root();
+  }
+
+  /**
+   * @notice This is called by relayers to trigger passing of current root to mainnet root manager.
+   * @dev At runtime, this method should be called at specific time intervals.
+   */
+  function send() external {
+    bytes memory _data = abi.encodePacked(root());
     _sendMessage(_data);
     emit MessageSent(_data, msg.sender);
   }
 
-  function processMessage(bytes memory _data) external {
+  /**
+   * @notice This is called by the root manager *only* on mainnet to propagate the aggregate root
+   */
+  function sendMessage(bytes memory _data) external onlyRootManager {
+    _sendMessage(_data);
+    emit MessageSent(_data, msg.sender);
+  }
+
+  /**
+   * @notice This is called by AMBs to process messages originating from mirror connector
+   */
+  function processMessage(bytes memory _data) external onlyAMB {
     _processMessage(_data);
     emit MessageProcessed(_data, msg.sender);
   }
 
+  /**
+   * @notice Checks the cross domain sender for a given address
+   */
   function verifySender(address _expected) external returns (bool) {
     return _verifySender(_expected);
   }
@@ -264,11 +288,10 @@ abstract contract Connector is ProposedOwnable, MerkleTreeManager, ConnectorMana
     // insert the hashed message into the Merkle tree
     bytes32 _messageHash = keccak256(_message);
     tree.insert(_messageHash);
-    // enqueue the new Merkle root after inserting the message
-    outboundRoot = root();
+    // TODO: see comment on queue manager at the top
     // Emit Dispatch event with message information
     // note: leafIndex is count() - 1 since new leaf has already been inserted
-    emit Dispatch(_messageHash, count() - 1, outboundRoot, _message);
+    emit Dispatch(_messageHash, count() - 1, root(), _message);
   }
 
   /**
@@ -310,13 +333,6 @@ abstract contract Connector is ProposedOwnable, MerkleTreeManager, ConnectorMana
   function _verifySender(address _expected) internal virtual returns (bool);
 
   // ============ Private fns ============
-  /**
-   * @notice This is called by relayers to trigger passing of current root to mainnet root manager.
-   * @dev At runtime, this method should be called at specific time intervals.
-   */
-  function send() external {
-    _sendMessage(abi.encodePacked(outboundRoot));
-  }
 
   /**
    * @notice This is either called by the Connector (AKA `this`) on the spoke (L2) chain after retrieving
@@ -325,7 +341,6 @@ abstract contract Connector is ProposedOwnable, MerkleTreeManager, ConnectorMana
    * these roots.
    */
   function update(bytes32 _newRoot) internal {
-    require(_verifySender(mirrorConnector), "!sender");
     emit AggregateRootUpdated(_newRoot, aggregateRoot);
     aggregateRoot = _newRoot;
   }
