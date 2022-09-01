@@ -2,7 +2,7 @@
 pragma solidity 0.8.15;
 
 import {Connector} from "../../../../contracts/core/messaging/connectors/Connector.sol";
-import {MultichainL1Connector, MultichainL2Connector, BaseMultichainConnector, MultichainCall} from "../../../../contracts/core/messaging/connectors/BSCConnector.sol";
+import {MultichainL1Connector, MultichainL2Connector, BaseMultichainConnector, MultichainCall} from "../../../../contracts/core/messaging/connectors/MultichainConnector.sol";
 
 import "../../../utils/ConnectorHelper.sol";
 import "../../../utils/Mock.sol";
