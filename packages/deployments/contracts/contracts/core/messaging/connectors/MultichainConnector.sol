@@ -6,8 +6,8 @@ import {IRootManager} from "../interfaces/IRootManager.sol";
 import {Connector} from "./Connector.sol";
 
 /**
-  @dev interface to interact with multicall (prev anyswap) anycall proxy
-       see https://github.com/anyswap/multichain-smart-contracts/blob/main/contracts/anycall/AnyswapV6CallProxy.sol
+ * @dev interface to interact with multicall (prev anyswap) anycall proxy
+ *     see https://github.com/anyswap/multichain-smart-contracts/blob/main/contracts/anycall/AnyswapV6CallProxy.sol
  */
 interface MultichainCall {
   function anyCall(
@@ -73,7 +73,7 @@ abstract contract BaseMultichainConnector is Connector {
     );
   }
 
-  function _verifySender(address _expected) internal override returns (bool) {
+  function _verifySender(address _expected) internal view override returns (bool) {
     require(msg.sender == AMB, "!bridge");
 
     (address from, uint256 fromChainId, ) = MultichainCall(executor).context();
@@ -97,7 +97,7 @@ contract MultichainL2Connector is BaseMultichainConnector {
     BaseMultichainConnector(
       _domain,
       _mirrorDomain,
-     _mirrorChainId,
+      _mirrorChainId,
       _amb,
       _rootManager,
       _mirrorConnector,
@@ -112,9 +112,7 @@ contract MultichainL2Connector is BaseMultichainConnector {
    * @dev Handles an incoming `aggregateRoot`
    * NOTE: Could store latest root sent and prove aggregate root
    */
-  function _processMessage(
-    bytes memory _data
-  ) internal override {
+  function _processMessage(bytes memory _data) internal override {
     // enforce this came from connector on l1
     require(_verifySender(mirrorConnector), "!l1Connector");
     // sanity check: data length
@@ -140,7 +138,7 @@ contract MultichainL1Connector is BaseMultichainConnector {
     BaseMultichainConnector(
       _domain,
       _mirrorDomain,
-     _mirrorChainId,
+      _mirrorChainId,
       _amb,
       _rootManager,
       _mirrorConnector,
