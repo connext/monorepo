@@ -50,7 +50,6 @@ export const generateExitPayload = async (
         // Checking for checkpoint status
         isCheckpointed = await maticClient.exitUtil.isCheckPointed(burnTxHash);
       } catch (error: any) {
-        console.error(error);
         if (i === maxRetries - 1) {
           throw new InfoError(MaticJsErrorType.IncorrectTx, "Incorrect burn transaction");
         }
