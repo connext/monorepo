@@ -2,7 +2,7 @@
 pragma solidity 0.8.15;
 
 import {Connector} from "../../../../contracts/core/messaging/connectors/Connector.sol";
-import {BSCL1Connector, BSCL2Connector, BaseBSCConnector, MultichainCall} from "../../../../contracts/core/messaging/connectors/BSCConnector.sol";
+import {BSCL1Connector, BSCL2Connector, BaseMultichainConnector, MultichainCall} from "../../../../contracts/core/messaging/connectors/BSCConnector.sol";
 
 import "../../../utils/ConnectorHelper.sol";
 import "../../../utils/Mock.sol";
@@ -12,6 +12,8 @@ contract BscConnectorTest is ConnectorHelper {
 
   // ============ Storage ============
   address _executor = address(bytes20(keccak256("_executor")));
+  uint256 _chainIdMainnet = 1;
+  uint256 _chainIdBSC = 56;
 
   // ============ Test set up ============
   function setUp() public {
@@ -31,6 +33,7 @@ contract BscConnectorTest is ConnectorHelper {
       new BSCL1Connector(
         _l1Domain,
         _l2Domain,
+        _chainIdBSC,
         _amb,
         _rootManager,
         _futureL2address,
@@ -45,6 +48,7 @@ contract BscConnectorTest is ConnectorHelper {
       new BSCL2Connector(
         _l2Domain,
         _l1Domain,
+        _chainIdBSC,
         _amb,
         _rootManager,
         _l1Connector,
@@ -269,7 +273,7 @@ contract BscConnectorTest is ConnectorHelper {
 
     // multichain _amb has the same address, irrespective of underlying network
     vm.prank(_amb);
-    assertTrue(BaseBSCConnector(_l1Connector).verifySender(_from));
+    assertTrue(BaseMultichainConnector(_l1Connector).verifySender(_from));
   }
 
   // return false if wrong executor
@@ -280,7 +284,7 @@ contract BscConnectorTest is ConnectorHelper {
 
     // multichain _amb has the same address, irrespective of underlying network
     vm.prank(_amb);
-    assertFalse(BaseBSCConnector(_l1Connector).verifySender(_from));
+    assertFalse(BaseMultichainConnector(_l1Connector).verifySender(_from));
   }
 
   // reverse if sender != amb
@@ -292,6 +296,6 @@ contract BscConnectorTest is ConnectorHelper {
 
     vm.expectRevert(abi.encodePacked("!bridge"));
     vm.prank(_wrongAmb);
-    BaseBSCConnector(_l1Connector).verifySender(_from);
+    BaseMultichainConnector(_l1Connector).verifySender(_from);
   }
 }

@@ -6,6 +6,8 @@ import {IRootManager} from "../interfaces/IRootManager.sol";
 import {Connector} from "./Connector.sol";
 
 /**
+  @dev interface to interact with multicall (prev anyswap) anycall proxy
+       see https://github.com/anyswap/multichain-smart-contracts/blob/main/contracts/anycall/AnyswapV6CallProxy.sol
  */
 interface MultichainCall {
   function anyCall(
@@ -29,13 +31,17 @@ interface MultichainCall {
 }
 
 //AMB: MultichainCall(0xC10Ef9F491C9B59f936957026020C321651ac078) -  Chain agnostic
-abstract contract BaseBSCConnector is Connector {
-  address private immutable executor; // Is != amb, used only to retrieve sender context
+abstract contract BaseMultichainConnector is Connector {
+  address internal immutable executor; // Is != amb, used only to retrieve sender context
+
+  // Mirror chain id
+  uint256 internal immutable mirrorChainId;
 
   // ============ Constructor ============
   constructor(
     uint32 _domain,
     uint32 _mirrorDomain,
+    uint256 _mirrorChainId,
     address _amb,
     address _rootManager,
     address _mirrorConnector,
@@ -46,13 +52,10 @@ abstract contract BaseBSCConnector is Connector {
     Connector(_domain, _mirrorDomain, _amb, _rootManager, _mirrorConnector, _mirrorProcessGas, _processGas, _reserveGas)
   {
     executor = MultichainCall(_amb).executor();
+    mirrorChainId = _mirrorChainId;
   }
 
   // ============ Public Fns ============
-
-  /**
-    @dev Receive function signature
-  */
   function anyExecute(bytes memory _data) external returns (bool success, bytes memory result) {
     _processMessage(msg.sender, _data); // msg.sender not used
   }
@@ -61,15 +64,16 @@ abstract contract BaseBSCConnector is Connector {
     require(msg.sender == AMB, "!bridge");
 
     (address from, uint256 fromChainId, ) = MultichainCall(executor).context();
-    return from == _expected; // TODO: convert chainId to domain and assert fromId==mirrorDomain
+    return from == _expected && fromChainId == mirrorChainId;
   }
 }
 
-contract BSCL2Connector is BaseBSCConnector {
+contract BSCL2Connector is BaseMultichainConnector {
   // ============ Constructor ============
   constructor(
     uint32 _domain,
     uint32 _mirrorDomain,
+    uint256 _mirrorChainId,
     address _amb,
     address _rootManager,
     address _mirrorConnector,
@@ -77,9 +81,10 @@ contract BSCL2Connector is BaseBSCConnector {
     uint256 _processGas,
     uint256 _reserveGas
   )
-    BaseBSCConnector(
+    BaseMultichainConnector(
       _domain,
       _mirrorDomain,
+     _mirrorChainId,
       _amb,
       _rootManager,
       _mirrorConnector,
@@ -94,18 +99,12 @@ contract BSCL2Connector is BaseBSCConnector {
    * @dev Sends `outboundRoot` to root manager on l1
    */
   function _sendMessage(bytes memory _data) internal override {
-    // TODO: check access control to implement
-
     MultichainCall(AMB).anyCall(
       AMB, // Same address on every chain, using AMB as it is immutable
-      // sending the encoded bytes of the string msg and decode on the destination chain
       _data,
-      // If fallback (failure on 1 -> fallback on bsc): function anyFallback(address _to, bytes calldata _data) external;
-      address(0),
-      // chainid of mainnet
-      1,
-      // TODO: Using 0 flag to pay fee on mainnet (ok?) vs paying on BSC: '2' (then need to compute and send them)
-      0
+      address(0), // fallback address on origin chain
+      mirrorChainId,
+      0 // fee paid on origin chain
     );
   }
 
@@ -114,25 +113,22 @@ contract BSCL2Connector is BaseBSCConnector {
    * NOTE: Could store latest root sent and prove aggregate root
    */
   function _processMessage(
-    address, // _sender -- not used
+    address, // _sender -- unused
     bytes memory _data
   ) internal override {
-    // enforce this came from connector on l2
-    // require(_verifySender(AMB), "!l1Connector"); -> checked in update(..)
-    // get the data (should be the aggregate root)
+    // sanity check: data length
     require(_data.length == 32, "!length");
-    // set the outbound root for BSC
+    // set the outbound root for BSC + access control
     update(bytes32(_data));
-    // get the state commitment root
-    // ?
   }
 }
 
-contract BSCL1Connector is BaseBSCConnector {
+contract BSCL1Connector is BaseMultichainConnector {
   // ============ Constructor ============
   constructor(
     uint32 _domain,
     uint32 _mirrorDomain,
+    uint256 _mirrorChainId,
     address _amb,
     address _rootManager,
     address _mirrorConnector,
@@ -140,9 +136,10 @@ contract BSCL1Connector is BaseBSCConnector {
     uint256 _processGas,
     uint256 _reserveGas
   )
-    BaseBSCConnector(
+    BaseMultichainConnector(
       _domain,
       _mirrorDomain,
+     _mirrorChainId,
       _amb,
       _rootManager,
       _mirrorConnector,
@@ -161,14 +158,10 @@ contract BSCL1Connector is BaseBSCConnector {
 
     MultichainCall(AMB).anyCall(
       AMB, // Same address on every chain, using AMB as it is immutable
-      // sending the encoded bytes of the string msg and decode on the destination chain
       _data,
-      // No fallback (failure on mainnet -> fallback on bsc via function anyFallback(address _to, bytes calldata _data) external;)
-      address(0),
-      // chainid of BSC
-      56,
-      // TODO: Using 0 flag to pay fee on BSC (ok?) vs paying on mainnet: '2' (then need to compute and send them)
-      0
+      address(0), // Fallback address on origin chain
+      mirrorChainId,
+      0 // pay fees on origin chain
     );
 
     emit MessageSent(_data, msg.sender);
@@ -182,10 +175,7 @@ contract BSCL1Connector is BaseBSCConnector {
     require(_verifySender(mirrorConnector), "!l2Connector");
     // get the data (should be the outbound root)
     require(_data.length == 32, "!length");
-    // set the outbound root for optimism
+    // set the outbound root for BSC domain
     IRootManager(ROOT_MANAGER).setOutboundRoot(mirrorDomain, bytes32(_data));
-    // get the state commitment root
-    // if state commitment root is <
-    // emit MessageProcessed(_sender, _data, msg.sender);
   }
 }
