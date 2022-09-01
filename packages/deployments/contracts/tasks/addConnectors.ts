@@ -34,8 +34,7 @@ export default task("add-connectors", "Add all connectors to the root manager")
 
     const network = await hre.ethers.provider.getNetwork();
 
-    const protocolNetwork = getProtocolNetwork(network.chainId, env);
-    const config = getMessagingProtocolConfig(protocolNetwork);
+    const config = getMessagingProtocolConfig(env);
 
     if (+network.chainId != config.hub) {
       throw new Error(`Should be on ${config.hub}, not ${network.chainId}`);
@@ -53,10 +52,9 @@ export default task("add-connectors", "Add all connectors to the root manager")
 
     await executeOnAllConnectors(
       hardhatConfig,
-      protocolNetwork,
       env,
       async (deployment: ConnectorDeployment, _provider: providers.JsonRpcProvider) => {
-        const { name, address, chain, mirrorChain } = deployment;
+        const { name, address, chain } = deployment;
         if (!name.includes("L1")) {
           // this is not the relevant connector
           return;
@@ -64,7 +62,7 @@ export default task("add-connectors", "Add all connectors to the root manager")
         // connector now has "L1" in the title
         // NOTE: on mainnet connector there will be no mirror chain, so just register the mainnet
         // domain
-        const domain = await getDomainFromChainId(mirrorChain ?? chain);
+        const domain = await getDomainFromChainId(chain);
         console.log(`trying to enroll connector for ${domain} (${chain})`);
 
         let stored = await rootManager.connectors(domain);
