@@ -176,6 +176,14 @@ export type { GnosisL2Connector } from "./contracts/core/messaging/connectors/Gn
 export { GnosisL2Connector__factory } from "./factories/contracts/core/messaging/connectors/GnosisConnector.sol/GnosisL2Connector__factory";
 export type { MainnetL1Connector } from "./contracts/core/messaging/connectors/MainnetConnector.sol/MainnetL1Connector";
 export { MainnetL1Connector__factory } from "./factories/contracts/core/messaging/connectors/MainnetConnector.sol/MainnetL1Connector__factory";
+export type { BaseMultichainConnector } from "./contracts/core/messaging/connectors/MultichainConnector.sol/BaseMultichainConnector";
+export { BaseMultichainConnector__factory } from "./factories/contracts/core/messaging/connectors/MultichainConnector.sol/BaseMultichainConnector__factory";
+export type { MultichainCall } from "./contracts/core/messaging/connectors/MultichainConnector.sol/MultichainCall";
+export { MultichainCall__factory } from "./factories/contracts/core/messaging/connectors/MultichainConnector.sol/MultichainCall__factory";
+export type { MultichainL1Connector } from "./contracts/core/messaging/connectors/MultichainConnector.sol/MultichainL1Connector";
+export { MultichainL1Connector__factory } from "./factories/contracts/core/messaging/connectors/MultichainConnector.sol/MultichainL1Connector__factory";
+export type { MultichainL2Connector } from "./contracts/core/messaging/connectors/MultichainConnector.sol/MultichainL2Connector";
+export { MultichainL2Connector__factory } from "./factories/contracts/core/messaging/connectors/MultichainConnector.sol/MultichainL2Connector__factory";
 export type { BaseOptimismConnector } from "./contracts/core/messaging/connectors/OptimismConnector.sol/BaseOptimismConnector";
 export { BaseOptimismConnector__factory } from "./factories/contracts/core/messaging/connectors/OptimismConnector.sol/BaseOptimismConnector__factory";
 export type { OptimismAMB } from "./contracts/core/messaging/connectors/OptimismConnector.sol/OptimismAMB";
