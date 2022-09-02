@@ -3,8 +3,7 @@ pragma solidity 0.8.15;
 
 import {ERC1967Proxy} from "@openzeppelin/contracts/proxy/ERC1967/ERC1967Proxy.sol";
 
-import {XAppConnectionManager} from "../contracts/nomad-core/contracts/XAppConnectionManager.sol";
-import {TypeCasts} from "../contracts/nomad-core/libs/TypeCasts.sol";
+import {TypeCasts} from "../contracts/core/shared/libraries/TypeCasts.sol";
 
 import {TokenId} from "../contracts/core/connext/libraries/LibConnextStorage.sol";
 

@@ -1,8 +1,7 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity 0.8.15;
 
-import {XAppConnectionManager} from "../../../contracts/nomad-core/contracts/XAppConnectionManager.sol";
-import {Home} from "../../../contracts/nomad-core/contracts/Home.sol";
+import {IConnectorManager} from "../../../contracts/core/messaging/interfaces/IConnectorManager.sol";
 
 import "../../utils/ForgeHelper.sol";
 
@@ -194,7 +193,7 @@ contract PromiseRouterTest is ForgeHelper, PromiseRouter {
     // register as replica
     vm.mockCall(
       _xAppConnectionManager,
-      abi.encodeWithSelector(XAppConnectionManager.isReplica.selector, address(this)),
+      abi.encodeWithSelector(IConnectorManager.isReplica.selector, address(this)),
       abi.encode(true)
     );
 
@@ -220,7 +219,7 @@ contract PromiseRouterTest is ForgeHelper, PromiseRouter {
     // register as replica
     vm.mockCall(
       _xAppConnectionManager,
-      abi.encodeWithSelector(XAppConnectionManager.isReplica.selector, address(this)),
+      abi.encodeWithSelector(IConnectorManager.isReplica.selector, address(this)),
       abi.encode(true)
     );
 
@@ -252,11 +251,7 @@ contract PromiseRouterTest is ForgeHelper, PromiseRouter {
     bytes29 _msg = message.ref(0).mustBePromiseCallback();
 
     // mock is replica result for handle
-    vm.mockCall(
-      _xAppConnectionManager,
-      abi.encodeWithSelector(XAppConnectionManager.isReplica.selector),
-      abi.encode(true)
-    );
+    vm.mockCall(_xAppConnectionManager, abi.encodeWithSelector(IConnectorManager.isReplica.selector), abi.encode(true));
 
     promiseRouter.handle(_domain, nonce, _remote, message);
     assertEq(promiseRouter.messageHashes(_transferId), _msg.keccak());
@@ -276,11 +271,7 @@ contract PromiseRouterTest is ForgeHelper, PromiseRouter {
     bytes29 _msg = message.ref(0).mustBePromiseCallback();
 
     // mock is replica result for handle
-    vm.mockCall(
-      _xAppConnectionManager,
-      abi.encodeWithSelector(XAppConnectionManager.isReplica.selector),
-      abi.encode(true)
-    );
+    vm.mockCall(_xAppConnectionManager, abi.encodeWithSelector(IConnectorManager.isReplica.selector), abi.encode(true));
 
     promiseRouter.handle(_domain, nonce, _remote, message);
     assertEq(promiseRouter.messageHashes(_transferId), _msg.keccak());
@@ -302,11 +293,7 @@ contract PromiseRouterTest is ForgeHelper, PromiseRouter {
     bytes29 _msg = message.ref(0).mustBePromiseCallback();
 
     // mock is replica result for handle
-    vm.mockCall(
-      _xAppConnectionManager,
-      abi.encodeWithSelector(XAppConnectionManager.isReplica.selector),
-      abi.encode(true)
-    );
+    vm.mockCall(_xAppConnectionManager, abi.encodeWithSelector(IConnectorManager.isReplica.selector), abi.encode(true));
 
     promiseRouter.handle(_domain, nonce, _remote, message);
     assertEq(promiseRouter.messageHashes(_transferId), _msg.keccak());
@@ -331,11 +318,7 @@ contract PromiseRouterTest is ForgeHelper, PromiseRouter {
     uint256 beforeBalance = address(promiseRouter).balance;
 
     // mock is replica result for handle
-    vm.mockCall(
-      _xAppConnectionManager,
-      abi.encodeWithSelector(XAppConnectionManager.isReplica.selector),
-      abi.encode(true)
-    );
+    vm.mockCall(_xAppConnectionManager, abi.encodeWithSelector(IConnectorManager.isReplica.selector), abi.encode(true));
 
     promiseRouter.handle(_domain, nonce, _remote, message);
     assertEq(promiseRouter.messageHashes(_transferId), _msg.keccak());
@@ -376,11 +359,7 @@ contract PromiseRouterTest is ForgeHelper, PromiseRouter {
     uint256 relayerBeforeBalance = relayer.balance;
 
     // mock is replica result for handle
-    vm.mockCall(
-      _xAppConnectionManager,
-      abi.encodeWithSelector(XAppConnectionManager.isReplica.selector),
-      abi.encode(true)
-    );
+    vm.mockCall(_xAppConnectionManager, abi.encodeWithSelector(IConnectorManager.isReplica.selector), abi.encode(true));
 
     promiseRouter.handle(_domain, nonce, _remote, message);
     assertEq(promiseRouter.messageHashes(_transferId), _msg.keccak());
@@ -430,11 +409,7 @@ contract PromiseRouterTest is ForgeHelper, PromiseRouter {
     uint256 relayerBeforeBalance = relayer.balance;
 
     // mock is replica result for handle
-    vm.mockCall(
-      _xAppConnectionManager,
-      abi.encodeWithSelector(XAppConnectionManager.isReplica.selector),
-      abi.encode(true)
-    );
+    vm.mockCall(_xAppConnectionManager, abi.encodeWithSelector(IConnectorManager.isReplica.selector), abi.encode(true));
 
     promiseRouter.handle(_domain, nonce, _remote, message);
     assertEq(promiseRouter.messageHashes(_transferId), _msg.keccak());
@@ -524,11 +499,7 @@ contract PromiseRouterTest is ForgeHelper, PromiseRouter {
     uint256 beforeBalance = address(promiseRouter).balance;
 
     // mock is replica result for handle
-    vm.mockCall(
-      _xAppConnectionManager,
-      abi.encodeWithSelector(XAppConnectionManager.isReplica.selector),
-      abi.encode(true)
-    );
+    vm.mockCall(_xAppConnectionManager, abi.encodeWithSelector(IConnectorManager.isReplica.selector), abi.encode(true));
 
     promiseRouter.handle(_domain, nonce, _remote, message);
     assertEq(promiseRouter.messageHashes(_transferId), _msg.keccak());

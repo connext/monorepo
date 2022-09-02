@@ -2,15 +2,15 @@
 pragma solidity >=0.6.11;
 
 // ============ External Imports ============
-import {Home} from "../../nomad-core/contracts/Home.sol";
-import {XAppConnectionManager} from "../../nomad-core/contracts/XAppConnectionManager.sol";
+import {IOutbox} from "../messaging/interfaces/IOutbox.sol";
+import {IConnectorManager} from "../messaging/interfaces/IConnectorManager.sol";
 
 import {ProposedOwnableUpgradeable} from "./ProposedOwnable.sol";
 
 abstract contract XAppConnectionClient is ProposedOwnableUpgradeable {
   // ============ Mutable Storage ============
 
-  XAppConnectionManager public xAppConnectionManager;
+  IConnectorManager public xAppConnectionManager;
 
   // ============ Upgrade Gap ============
 
@@ -29,7 +29,7 @@ abstract contract XAppConnectionClient is ProposedOwnableUpgradeable {
   // ======== Initializer =========
 
   function __XAppConnectionClient_initialize(address _xAppConnectionManager) internal initializer {
-    xAppConnectionManager = XAppConnectionManager(_xAppConnectionManager);
+    xAppConnectionManager = IConnectorManager(_xAppConnectionManager);
     __ProposedOwnable_init();
   }
 
@@ -40,7 +40,7 @@ abstract contract XAppConnectionClient is ProposedOwnableUpgradeable {
    * @param _xAppConnectionManager The address of the xAppConnectionManager contract
    */
   function setXAppConnectionManager(address _xAppConnectionManager) external onlyOwner {
-    xAppConnectionManager = XAppConnectionManager(_xAppConnectionManager);
+    xAppConnectionManager = IConnectorManager(_xAppConnectionManager);
   }
 
   // ============ Internal functions ============
@@ -49,7 +49,7 @@ abstract contract XAppConnectionClient is ProposedOwnableUpgradeable {
    * @notice Get the local Home contract from the xAppConnectionManager
    * @return The local Home contract
    */
-  function _home() internal view returns (Home) {
+  function _home() internal view returns (IOutbox) {
     return xAppConnectionManager.home();
   }
 

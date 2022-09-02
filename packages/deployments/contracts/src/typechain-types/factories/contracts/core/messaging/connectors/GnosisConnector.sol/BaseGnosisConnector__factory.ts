@@ -405,7 +405,7 @@ const _abi = [
     name: "home",
     outputs: [
       {
-        internalType: "contract Connector",
+        internalType: "contract IOutbox",
         name: "",
         type: "address",
       },

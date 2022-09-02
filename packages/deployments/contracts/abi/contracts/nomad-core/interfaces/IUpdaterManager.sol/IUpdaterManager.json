@@ -1,4 +1,0 @@
-[
-  "function slashUpdater(address)",
-  "function updater() view returns (address)"
-]

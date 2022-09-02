@@ -8,6 +8,8 @@ import {SafeERC20} from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol
 
 import {IRootManager} from "../../contracts/core/messaging/interfaces/IRootManager.sol";
 import {IConnector} from "../../contracts/core/messaging/interfaces/IConnector.sol";
+import {IConnectorManager} from "../../contracts/core/messaging/interfaces/IConnectorManager.sol";
+import {IOutbox} from "../../contracts/core/messaging/interfaces/IOutbox.sol";
 import {Connector} from "../../contracts/core/messaging/connectors/Connector.sol";
 import {RootManager} from "../../contracts/core/messaging/RootManager.sol";
 
@@ -29,24 +31,37 @@ import {TestERC20} from "../../contracts/test/TestERC20.sol";
 
 import "forge-std/console.sol";
 
-contract MockXAppConnectionManager {
+contract MockXAppConnectionManager is IConnectorManager {
   MockHome _home;
+
+  uint32 public immutable domain;
+
+  mapping(address => bool) enrolledInboxes;
 
   constructor(MockHome home) public {
     _home = home;
+    domain = _home.localDomain();
   }
 
-  function home() external returns (MockHome) {
-    return _home;
+  function home() external view returns (IOutbox) {
+    return IOutbox(address(_home));
   }
 
-  function isReplica(address _replica) external returns (bool) {
-    return true;
+  function isReplica(address _replica) external view returns (bool) {
+    return enrolledInboxes[_replica];
+  }
+
+  function localDomain() external view returns (uint32) {
+    return domain;
+  }
+
+  function enrollInbox(address _inbox) external {
+    enrolledInboxes[_inbox] = true;
   }
 }
 
-contract MockHome {
-  uint32 private domain;
+contract MockHome is IOutbox {
+  uint32 public domain;
 
   constructor(uint32 _domain) {
     domain = _domain;

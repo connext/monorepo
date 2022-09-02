@@ -1,10 +1,10 @@
 // SPDX-License-Identifier: MIT OR Apache-2.0
-pragma solidity >=0.6.11;
+pragma solidity 0.8.15;
 
 // ============ Internal Imports ============
 import {XAppConnectionClient} from "./XAppConnectionClient.sol";
 // ============ External Imports ============
-import {IMessageRecipient} from "../../nomad-core/interfaces/IMessageRecipient.sol";
+import {IMessageRecipient} from "../messaging/interfaces/IMessageRecipient.sol";
 
 abstract contract Router is XAppConnectionClient, IMessageRecipient {
   // ============ Mutable Storage ============

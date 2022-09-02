@@ -3,8 +3,8 @@ pragma solidity 0.8.15;
 
 import {ERC1967Proxy} from "@openzeppelin/contracts/proxy/ERC1967/ERC1967Proxy.sol";
 
-import {XAppConnectionManager} from "../contracts/nomad-core/contracts/XAppConnectionManager.sol";
-import {TypeCasts} from "../contracts/nomad-core/libs/TypeCasts.sol";
+import {IConnectorManager} from "../contracts/core/messaging/interfaces/IConnectorManager.sol";
+import {TypeCasts} from "../contracts/core/shared/libraries/TypeCasts.sol";
 
 import {TokenId} from "../contracts/core/connext/libraries/LibConnextStorage.sol";
 
@@ -106,9 +106,9 @@ contract ConnextTest is ForgeHelper, Deployer {
   address _destinationAdopted;
   address _destinationLp; // deployed IFF pool init-d
 
-  // ============ XAppConnectionManager
-  XAppConnectionManager _originManager;
-  XAppConnectionManager _destinationManager;
+  // ============ IConnectorManager
+  IConnectorManager _originManager;
+  IConnectorManager _destinationManager;
 
   // ============ TokenRegistry
   TokenRegistry _originRegistry;
@@ -152,13 +152,10 @@ contract ConnextTest is ForgeHelper, Deployer {
     // Deploy mock home
     MockHome originHome = new MockHome(_origin);
     MockHome destinationHome = new MockHome(_destination);
-    // Deploy origin XAppConnectionManager
-    _originManager = new XAppConnectionManager();
-    // Deploy destination XAppConnectionManager
-    _destinationManager = new XAppConnectionManager();
-    // set homes
-    _originManager.setHome(address(originHome));
-    _destinationManager.setHome(address(destinationHome));
+    // Deploy origin IConnectorManager
+    _originManager = new MockXAppConnectionManager(originHome);
+    // Deploy destination IConnectorManager
+    _destinationManager = new MockXAppConnectionManager(destinationHome);
 
     // Deploy token beacon
     address beacon = address(new TestERC20("Test Token", "TEST"));
@@ -183,8 +180,8 @@ contract ConnextTest is ForgeHelper, Deployer {
     _originBridgeRouter = address(new MockBridgeRouter());
 
     // set this to be a replica so we can call `handle` directly on routers
-    _destinationManager.ownerEnrollReplica(address(this), _origin);
-    _originManager.ownerEnrollReplica(address(this), _destination);
+    MockXAppConnectionManager(address(_destinationManager)).enrollInbox(address(this));
+    MockXAppConnectionManager(address(_originManager)).enrollInbox(address(this));
   }
 
   function utils_deployPromiseRouter() public {

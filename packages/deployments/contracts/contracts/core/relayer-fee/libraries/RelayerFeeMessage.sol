@@ -2,7 +2,7 @@
 pragma solidity 0.8.15;
 
 // ============ External Imports ============
-import {TypedMemView} from "../../../nomad-core/libs/TypedMemView.sol";
+import {TypedMemView} from "../../shared/libraries/TypedMemView.sol";
 
 library RelayerFeeMessage {
   // ============ Libraries ============

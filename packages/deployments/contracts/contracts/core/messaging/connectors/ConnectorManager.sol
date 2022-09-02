@@ -3,16 +3,19 @@ pragma solidity 0.8.15;
 
 import {Connector} from "./Connector.sol";
 
+import {IConnectorManager} from "../interfaces/IConnectorManager.sol";
+import {IOutbox} from "../interfaces/IOutbox.sol";
+
 /**
  * @notice This is an interface to allow the `Messaging` contract to be used
  * as a `XappConnectionManager` on all router contracts.
  *
- * Each nomad router contract has a `XappConnectionClient`, which references a
- * XappConnectionManager to get the `Home` and approved `Replica` instances. At
- * any point the client can replace the manager it's pointing to, thereby changing
- * the underlying messaging connection.
+ * @dev Each nomad router contract has a `XappConnectionClient`, which references a
+ * XappConnectionManager to get the `Home` (oubtox) and approved `Replica` (inbox)
+ * instances. At any point the client can replace the manager it's pointing to,
+ * changing the underlying messaging connection.
  */
-contract ConnectorManager {
+contract ConnectorManager is IConnectorManager {
   uint32 public immutable domain;
 
   constructor(uint32 _domain) {
@@ -20,8 +23,8 @@ contract ConnectorManager {
     domain = _domain;
   }
 
-  function home() public view returns (Connector) {
-    return Connector(address(this));
+  function home() public view returns (IOutbox) {
+    return IOutbox(address(this));
   }
 
   function isReplica(address _potentialReplica) public view returns (bool) {
