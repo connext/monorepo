@@ -20,7 +20,7 @@ import {LibDiamond} from "../../libraries/LibDiamond.sol";
 
 import {BaseConnextFacet} from "../BaseConnextFacet.sol";
 
-import {IProposedOwnable} from "../../../shared/interfaces/IProposedOwnable.sol";
+import {IProposedOwnable} from "../../../../shared/interfaces/IProposedOwnable.sol";
 import {RelayerFeeRouter} from "../../../relayer-fee/RelayerFeeRouter.sol";
 import {PromiseRouter} from "../../../promise/PromiseRouter.sol";
 

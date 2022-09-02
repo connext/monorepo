@@ -7,10 +7,10 @@ import {IArbSys as ArbitrumL2_Bridge} from "@openzeppelin/contracts/vendor/arbit
 
 import "@openzeppelin/contracts/crosschain/errors.sol";
 
-import {IRootManager} from "../../../../contracts/core/messaging/interfaces/IRootManager.sol";
+import {IRootManager} from "../../../../contracts/messaging/interfaces/IRootManager.sol";
 
-import {Connector} from "../../../../contracts/core/messaging/connectors/Connector.sol";
-import {ArbitrumL1Connector, ArbitrumL2Connector, ArbitrumL1AMB, ArbitrumL2AMB} from "../../../../contracts/core/messaging/connectors/ArbitrumConnector.sol";
+import {Connector} from "../../../../contracts/messaging/connectors/Connector.sol";
+import {ArbitrumL1Connector, ArbitrumL2Connector, ArbitrumL1AMB, ArbitrumL2AMB} from "../../../../contracts/messaging/connectors/ArbitrumConnector.sol";
 
 import "../../../utils/ConnectorHelper.sol";
 import "../../../utils/Mock.sol";

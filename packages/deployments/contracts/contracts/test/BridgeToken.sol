@@ -3,7 +3,7 @@ pragma solidity 0.8.15;
 
 import {OwnableUpgradeable} from "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
 
-import {TypeCasts} from "../core/shared/libraries/TypeCasts.sol";
+import {TypeCasts} from "../shared/libraries/TypeCasts.sol";
 
 import {ERC20} from "./OZERC20.sol";
 import {BridgeMessage} from "./BridgeMessage.sol";

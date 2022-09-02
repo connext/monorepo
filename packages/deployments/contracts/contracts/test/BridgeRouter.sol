@@ -8,13 +8,13 @@ import {IBridgeHook} from "./IBridgeHook.sol";
 
 import {ITokenRegistry} from "../core/connext/interfaces/ITokenRegistry.sol";
 
-import {IOutbox} from "../core/messaging/interfaces/IOutbox.sol";
+import {IOutbox} from "../messaging/interfaces/IOutbox.sol";
 
-import {XAppConnectionClient} from "../core/shared/XAppConnectionClient.sol";
-import {Router} from "../core/shared/Router.sol";
+import {XAppConnectionClient} from "../core/XAppConnectionClient.sol";
+import {Router} from "../core/Router.sol";
 
-import {TypedMemView} from "../core/shared/libraries/TypedMemView.sol";
-import {TypeCasts} from "../core/shared/libraries/TypeCasts.sol";
+import {TypedMemView} from "../shared/libraries/TypedMemView.sol";
+import {TypeCasts} from "../shared/libraries/TypeCasts.sol";
 
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import {SafeERC20} from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";

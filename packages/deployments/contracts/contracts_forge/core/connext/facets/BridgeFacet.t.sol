@@ -5,8 +5,8 @@ import {ECDSA} from "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import {Address} from "@openzeppelin/contracts/utils/Address.sol";
 
-import {TypeCasts} from "../../../../contracts/core/shared/libraries/TypeCasts.sol";
-import {TypedMemView} from "../../../../contracts/core/shared/libraries/TypedMemView.sol";
+import {TypeCasts} from "../../../../contracts/shared/libraries/TypeCasts.sol";
+import {TypedMemView} from "../../../../contracts/shared/libraries/TypedMemView.sol";
 
 import {IAavePool} from "../../../../contracts/core/connext/interfaces/IAavePool.sol";
 import {IStableSwap} from "../../../../contracts/core/connext/interfaces/IStableSwap.sol";

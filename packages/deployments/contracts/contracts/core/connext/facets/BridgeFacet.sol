@@ -6,8 +6,8 @@ import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import {ECDSA} from "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
 import {Address} from "@openzeppelin/contracts/utils/Address.sol";
 
-import {TypedMemView} from "../../shared/libraries/TypedMemView.sol";
-import {TypeCasts} from "../../shared/libraries/TypeCasts.sol";
+import {TypedMemView} from "../../../shared/libraries/TypedMemView.sol";
+import {TypeCasts} from "../../../shared/libraries/TypeCasts.sol";
 
 import {BaseConnextFacet} from "./BaseConnextFacet.sol";
 

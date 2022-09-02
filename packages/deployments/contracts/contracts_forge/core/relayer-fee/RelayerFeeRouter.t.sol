@@ -4,7 +4,7 @@ pragma solidity 0.8.15;
 import {ERC1967Proxy} from "@openzeppelin/contracts/proxy/ERC1967/ERC1967Proxy.sol";
 
 import {TypedMemView, RelayerFeeMessage, RelayerFeeRouter} from "../../../contracts/core/relayer-fee/RelayerFeeRouter.sol";
-import {ProposedOwnable} from "../../../contracts/core/shared/ProposedOwnable.sol";
+import {ProposedOwnable} from "../../../contracts/shared/ProposedOwnable.sol";
 
 import {MockHome, MockConnext} from "../../utils/Mock.sol";
 import "../../utils/ForgeHelper.sol";

@@ -4,7 +4,7 @@ pragma solidity 0.8.15;
 import {ERC1967Proxy} from "@openzeppelin/contracts/proxy/ERC1967/ERC1967Proxy.sol";
 import {Initializable} from "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 
-import {ProposedOwnable, ProposedOwnableUpgradeable} from "../../../contracts/core/shared/ProposedOwnable.sol";
+import {ProposedOwnable, ProposedOwnableUpgradeable} from "../../../contracts/shared/ProposedOwnable.sol";
 
 import "../../utils/ForgeHelper.sol";
 import "../../utils/Mock.sol";

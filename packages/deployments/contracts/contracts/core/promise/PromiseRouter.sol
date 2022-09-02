@@ -6,12 +6,12 @@ import {ReentrancyGuardUpgradeable} from "@openzeppelin/contracts-upgradeable/se
 
 import {IConnextHandler} from "../connext/interfaces/IConnextHandler.sol";
 
-import {Router} from "../shared/Router.sol";
-import {XAppConnectionClient} from "../shared/XAppConnectionClient.sol";
-import {Version} from "../shared/Version.sol";
+import {Router} from "../Router.sol";
+import {XAppConnectionClient} from "../XAppConnectionClient.sol";
+import {Version} from "../Version.sol";
 
-import {TypedMemView} from "../shared/libraries/TypedMemView.sol";
-import {ExcessivelySafeCall} from "../shared/libraries/ExcessivelySafeCall.sol";
+import {TypedMemView} from "../../shared/libraries/TypedMemView.sol";
+import {ExcessivelySafeCall} from "../../shared/libraries/ExcessivelySafeCall.sol";
 
 import {ICallback} from "./interfaces/ICallback.sol";
 import {PromiseMessage} from "./libraries/PromiseMessage.sol";

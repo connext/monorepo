@@ -1,16 +1,16 @@
 // SPDX-License-Identifier: MIT OR Apache-2.0
 pragma solidity 0.8.15;
 
-import {TypedMemView} from "../core/shared/libraries/TypedMemView.sol";
-import {TypeCasts} from "../core/shared/libraries/TypeCasts.sol";
+import {TypedMemView} from "../shared/libraries/TypedMemView.sol";
+import {TypeCasts} from "../shared/libraries/TypeCasts.sol";
 
-import {UpgradeBeaconProxy} from "../core/shared/upgrade/UpgradeBeaconProxy.sol";
+import {UpgradeBeaconProxy} from "../shared/upgrade/UpgradeBeaconProxy.sol";
 
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import {Initializable} from "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 
 import {TokenId} from "../core/connext/libraries/LibConnextStorage.sol";
-import {XAppConnectionClient} from "../core/shared/XAppConnectionClient.sol";
+import {XAppConnectionClient} from "../core/XAppConnectionClient.sol";
 import {ITokenRegistry} from "../core/connext/interfaces/ITokenRegistry.sol";
 
 import {Encoding} from "./Encoding.sol";

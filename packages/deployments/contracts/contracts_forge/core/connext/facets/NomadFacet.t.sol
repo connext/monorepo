@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity 0.8.15;
 
-import {TypeCasts} from "../../../../contracts/core/shared/libraries/TypeCasts.sol";
-import {TypedMemView} from "../../../../contracts/core/shared/libraries/TypedMemView.sol";
+import {TypeCasts} from "../../../../contracts/shared/libraries/TypeCasts.sol";
+import {TypedMemView} from "../../../../contracts/shared/libraries/TypedMemView.sol";
 
 import {IBridgeRouter} from "../../../../contracts/core/connext/interfaces/IBridgeRouter.sol";
 

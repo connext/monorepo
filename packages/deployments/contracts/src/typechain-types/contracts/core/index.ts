@@ -11,3 +11,6 @@ import type * as relayerFee from "./relayer-fee";
 export type { relayerFee };
 import type * as shared from "./shared";
 export type { shared };
+export type { Router } from "./Router";
+export type { Version } from "./Version";
+export type { XAppConnectionClient } from "./XAppConnectionClient";

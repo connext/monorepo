@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: MIT OR Apache-2.0
 pragma solidity 0.8.15;
 
-import {Connector} from "../../../../contracts/core/messaging/connectors/Connector.sol";
-import {MultichainL1Connector, MultichainL2Connector, BaseMultichainConnector, MultichainCall} from "../../../../contracts/core/messaging/connectors/MultichainConnector.sol";
+import {Connector} from "../../../../contracts/messaging/connectors/Connector.sol";
+import {MultichainL1Connector, MultichainL2Connector, BaseMultichainConnector, MultichainCall} from "../../../../contracts/messaging/connectors/MultichainConnector.sol";
 
 import "../../../utils/ConnectorHelper.sol";
 import "../../../utils/Mock.sol";
@@ -121,7 +121,9 @@ contract MultichainConnectorTest is ConnectorHelper {
   }
 
   // Access control
-  function test_Connector_sendMessage_revertIfSenderIsNotRootManager(address _nonRootManager, bytes memory _data) public {
+  function test_Connector_sendMessage_revertIfSenderIsNotRootManager(address _nonRootManager, bytes memory _data)
+    public
+  {
     vm.assume(_nonRootManager != _rootManager);
 
     // Check: revert if caller is not root manager
@@ -159,7 +161,7 @@ contract MultichainConnectorTest is ConnectorHelper {
 
     // multichain _amb has the same address, irrespective of underlying network
     vm.prank(_amb);
-    MultichainL1Connector(_l1Connector).processMessage( _dataCorrectSize);
+    MultichainL1Connector(_l1Connector).processMessage(_dataCorrectSize);
   }
 
   // Happy path L2
@@ -176,14 +178,16 @@ contract MultichainConnectorTest is ConnectorHelper {
 
     // multichain _amb has the same address, irrespective of underlying network
     vm.prank(_amb);
-    MultichainL2Connector(_l2Connector).processMessage( _dataCorrectSize);
+    MultichainL2Connector(_l2Connector).processMessage(_dataCorrectSize);
 
     // Check: root is updated
     assertEq(MultichainL2Connector(_l2Connector).aggregateRoot(), bytes32(_data));
   }
 
   // msg.sender is not the bridge on L1
-  function test_MultichainL1Connector_processMessage_revertIfAmbIsNotMsgSender(address _notAmb, bytes calldata _data) public {
+  function test_MultichainL1Connector_processMessage_revertIfAmbIsNotMsgSender(address _notAmb, bytes calldata _data)
+    public
+  {
     vm.assume(_amb != _notAmb);
 
     // Resize fuzzed bytes to 32 bytes long
@@ -195,7 +199,9 @@ contract MultichainConnectorTest is ConnectorHelper {
   }
 
   // msg.sender is not the bridge on L2
-  function test_MultichainL2Connector_processMessage_revertIfAmbIsNotMsgSender(address _notAmb, bytes calldata _data) public {
+  function test_MultichainL2Connector_processMessage_revertIfAmbIsNotMsgSender(address _notAmb, bytes calldata _data)
+    public
+  {
     vm.assume(_amb != _notAmb);
 
     // Resize fuzzed bytes to 32 bytes long
@@ -205,9 +211,11 @@ contract MultichainConnectorTest is ConnectorHelper {
     vm.prank(_notAmb);
     MultichainL2Connector(_l2Connector).processMessage(_dataCorrectSize);
   }
- 
+
   // message coming from a wrong sender on the origin chain to L1
-  function test_MultichainL1Connector_processMessage_revertIfWrongMirror(address _wrongMirror, bytes calldata _data) public {
+  function test_MultichainL1Connector_processMessage_revertIfWrongMirror(address _wrongMirror, bytes calldata _data)
+    public
+  {
     vm.assume(_wrongMirror != _l2Connector);
 
     uint32 _mirrorDomain = MultichainL1Connector(_l1Connector).mirrorDomain();
@@ -231,7 +239,9 @@ contract MultichainConnectorTest is ConnectorHelper {
   }
 
   // message coming from a wrong sender on the origin chain to L2
-  function test_MultichainL2Connector_processMessage_revertIfWrongMirror(address _wrongMirror, bytes calldata _data) public {
+  function test_MultichainL2Connector_processMessage_revertIfWrongMirror(address _wrongMirror, bytes calldata _data)
+    public
+  {
     vm.assume(_wrongMirror != _l1Connector);
 
     // Mock the call to the executor, to retrieve the context
@@ -246,7 +256,9 @@ contract MultichainConnectorTest is ConnectorHelper {
   }
 
   // message coming from a wrong chain to L1
-  function test_MultichainL1Connector_processMessage_revertIfWrongOriginId(uint256 _wrongId, bytes calldata _data) public {
+  function test_MultichainL1Connector_processMessage_revertIfWrongOriginId(uint256 _wrongId, bytes calldata _data)
+    public
+  {
     vm.assume(_wrongId != _chainIdL2);
 
     uint32 _mirrorDomain = MultichainL1Connector(_l1Connector).mirrorDomain();
@@ -270,7 +282,9 @@ contract MultichainConnectorTest is ConnectorHelper {
   }
 
   // message coming from a wrong chain to L2
-  function test_MultichainL2Connector_processMessage_revertIfWrongOriginId(uint256 _wrongId, bytes calldata _data) public {
+  function test_MultichainL2Connector_processMessage_revertIfWrongOriginId(uint256 _wrongId, bytes calldata _data)
+    public
+  {
     vm.assume(_wrongId != _chainIdMainnet);
 
     // Mock the call to the executor, to retrieve the context
@@ -306,7 +320,6 @@ contract MultichainConnectorTest is ConnectorHelper {
 
     // Mock the call to the executor, to retrieve the context
     vm.mockCall(_executor, abi.encodeCall(MultichainCall.context, ()), abi.encode(_l1Connector, _chainIdMainnet, 1));
-
 
     // Insert mock data in the payload
     bytes memory _wrongLengthCalldata = new bytes(callDataLength);

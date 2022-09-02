@@ -3,10 +3,11 @@ pragma solidity 0.8.15;
 
 import {IConnextHandler} from "../connext/interfaces/IConnextHandler.sol";
 
-import {TypedMemView} from "../shared/libraries/TypedMemView.sol";
-import {Router} from "../shared/Router.sol";
-import {XAppConnectionClient} from "../shared/XAppConnectionClient.sol";
-import {Version} from "../shared/Version.sol";
+import {TypedMemView} from "../../shared/libraries/TypedMemView.sol";
+
+import {Router} from "../Router.sol";
+import {XAppConnectionClient} from "../XAppConnectionClient.sol";
+import {Version} from "../Version.sol";
 
 import {RelayerFeeMessage} from "./libraries/RelayerFeeMessage.sol";
 

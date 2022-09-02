@@ -1,12 +1,12 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity 0.8.15;
 
-import {IConnectorManager} from "../../../contracts/core/messaging/interfaces/IConnectorManager.sol";
+import {IConnectorManager} from "../../../contracts/messaging/interfaces/IConnectorManager.sol";
 
 import "../../utils/ForgeHelper.sol";
 
 import {TypedMemView, PromiseMessage, PromiseRouter, AddressUpgradeable} from "../../../contracts/core/promise/PromiseRouter.sol";
-import {ProposedOwnable} from "../../../contracts/core/shared/ProposedOwnable.sol";
+import {ProposedOwnable} from "../../../contracts/shared/ProposedOwnable.sol";
 import {ERC1967Proxy} from "@openzeppelin/contracts/proxy/ERC1967/ERC1967Proxy.sol";
 import {Deployer} from "../../utils/Deployer.sol";
 import {IConnextHandler} from "../../../contracts/core/connext/interfaces/IConnextHandler.sol";

@@ -6,12 +6,12 @@ import {ERC20} from "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import {Address} from "@openzeppelin/contracts/utils/Address.sol";
 import {SafeERC20} from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 
-import {IRootManager} from "../../contracts/core/messaging/interfaces/IRootManager.sol";
-import {IConnector} from "../../contracts/core/messaging/interfaces/IConnector.sol";
-import {IConnectorManager} from "../../contracts/core/messaging/interfaces/IConnectorManager.sol";
-import {IOutbox} from "../../contracts/core/messaging/interfaces/IOutbox.sol";
-import {Connector} from "../../contracts/core/messaging/connectors/Connector.sol";
-import {RootManager} from "../../contracts/core/messaging/RootManager.sol";
+import {IRootManager} from "../../contracts/messaging/interfaces/IRootManager.sol";
+import {IConnector} from "../../contracts/messaging/interfaces/IConnector.sol";
+import {IConnectorManager} from "../../contracts/messaging/interfaces/IConnectorManager.sol";
+import {IOutbox} from "../../contracts/messaging/interfaces/IOutbox.sol";
+import {Connector} from "../../contracts/messaging/connectors/Connector.sol";
+import {RootManager} from "../../contracts/messaging/RootManager.sol";
 
 import {TypedMemView, PromiseMessage, PromiseRouter} from "../../contracts/core/promise/PromiseRouter.sol";
 import {ICallback} from "../../contracts/core/promise/interfaces/ICallback.sol";
@@ -25,7 +25,7 @@ import {IWeth} from "../../contracts/core/connext/interfaces/IWeth.sol";
 import {IExecutor} from "../../contracts/core/connext/interfaces/IExecutor.sol";
 import {LibCrossDomainProperty} from "../../contracts/core/connext/libraries/LibCrossDomainProperty.sol";
 
-import {ProposedOwnable} from "../../contracts/core/shared/ProposedOwnable.sol";
+import {ProposedOwnable} from "../../contracts/shared/ProposedOwnable.sol";
 
 import {TestERC20} from "../../contracts/test/TestERC20.sol";
 
