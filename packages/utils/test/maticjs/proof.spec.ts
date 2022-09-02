@@ -8,19 +8,19 @@ import { POSClient } from "@maticnetwork/maticjs";
 const mockChainData = [
   {
     name: "Unit Test Chain 1",
-    chainId: "80001",
-    domainId: "9991",
+    chainId: "1337",
+    domainId: "1337",
     confirmations: 1,
     assetId: {},
-    rpc: ["https://rpc.ankr.com/polygon_mumbai"],
+    rpc: ["https://mock.mumbai.rpc"],
   },
   {
     name: "Unit Test Chain 2",
-    chainId: "5",
-    domainId: "1735353714",
+    chainId: "1338",
+    domainId: "1338",
     confirmations: 1,
     assetId: {},
-    rpc: ["https://rpc.ankr.com/eth_goerli"],
+    rpc: ["https://mock.goerli.rpc"],
   },
 ];
 
@@ -32,8 +32,8 @@ describe("maticjs:proof", () => {
     let exitBuildStub: SinonStub;
     let exitCheckpointStub: SinonStub;
 
-    const domain = "9991";
-    const mirrorDomain = "1735353714";
+    const domain = "1337";
+    const mirrorDomain = "1338";
     const burnTx = mkHash("0xburn");
     const eventSignature = mkSig("MessageSent(bytes)");
     const mockProof = mkHash("0xproof");
