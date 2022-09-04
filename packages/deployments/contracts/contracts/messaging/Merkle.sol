@@ -19,13 +19,6 @@ contract MerkleTreeManager {
   // ============ Public Functions ============
 
   /**
-   * @notice Calculates and returns tree's current root
-   */
-  function root() public view returns (bytes32) {
-    return tree.root();
-  }
-
-  /**
    * @notice Returns the number of inserted leaves in the tree (current index)
    */
   function count() public view returns (uint256) {

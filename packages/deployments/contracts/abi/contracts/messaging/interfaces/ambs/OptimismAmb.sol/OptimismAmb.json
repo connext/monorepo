@@ -1,0 +1,4 @@
+[
+  "function sendMessage(address,bytes,uint32)",
+  "function xDomainMessageSender() view returns (address)"
+]

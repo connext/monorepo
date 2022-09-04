@@ -37,7 +37,7 @@ contract MultichainConnectorTest is ConnectorHelper {
         _amb,
         _rootManager,
         _futureL2address,
-        _mirrorProcessGas,
+        _mirrorGas,
         _processGas,
         _reserveGas
       )
@@ -52,7 +52,7 @@ contract MultichainConnectorTest is ConnectorHelper {
         _amb,
         _rootManager,
         _l1Connector,
-        _mirrorProcessGas,
+        _mirrorGas,
         _processGas,
         _reserveGas
       )

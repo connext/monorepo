@@ -62,7 +62,7 @@ contract PingPong is ConnectorHelper {
         _originAMB, // address _amb,
         _rootManager, // address _rootManager,
         address(0), // address _mirrorConnector
-        PROCESS_GAS, // uint256 _mirrorProcessGas
+        PROCESS_GAS, // uint256 _mirrorGas
         PROCESS_GAS, // uint256 _processGas,
         RESERVE_GAS // uint256 _reserveGas
       )
@@ -75,7 +75,7 @@ contract PingPong is ConnectorHelper {
         _originMainnetAMB, // address _amb,
         _rootManager, // address _rootManager,
         _originConnectorL2, // address _mirrorConnector,
-        PROCESS_GAS, // uint256 _mirrorProcessGas
+        PROCESS_GAS, // uint256 _mirrorGas
         PROCESS_GAS, // uint256 _processGas,
         RESERVE_GAS // uint256 _reserveGas
       )
@@ -88,7 +88,7 @@ contract PingPong is ConnectorHelper {
         _destinationAMB, // address _amb,
         _rootManager, // address _rootManager,
         address(0), // address _mirrorConnector,
-        PROCESS_GAS, // uint256 _mirrorProcessGas
+        PROCESS_GAS, // uint256 _mirrorGas
         PROCESS_GAS, // uint256 _processGas,
         RESERVE_GAS // uint256 _reserveGas
       )
@@ -101,7 +101,7 @@ contract PingPong is ConnectorHelper {
         _destinationMainnetAMB, // address _amb,
         _rootManager, // address _rootManager,
         _destinationConnectorL2, // address _mirrorConnector,
-        PROCESS_GAS, // uint256 _mirrorProcessGas
+        PROCESS_GAS, // uint256 _mirrorGas
         PROCESS_GAS, // uint256 _processGas,
         RESERVE_GAS // uint256 _reserveGas
       )

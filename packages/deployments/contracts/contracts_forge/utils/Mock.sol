@@ -500,12 +500,12 @@ contract MockConnector is Connector {
     address _amb,
     address _rootManager,
     address _mirrorConnector,
-    uint256 _mirrorProcessGas,
+    uint256 _mirrorGas,
     uint256 _processGas,
     uint256 _reserveGas
   )
     ProposedOwnable()
-    Connector(_domain, _mirrorDomain, _amb, _rootManager, _mirrorConnector, _mirrorProcessGas, _processGas, _reserveGas)
+    Connector(_domain, _mirrorDomain, _amb, _rootManager, _mirrorConnector, _mirrorGas, _processGas, _reserveGas)
   {
     _setOwner(msg.sender);
     verified = true;

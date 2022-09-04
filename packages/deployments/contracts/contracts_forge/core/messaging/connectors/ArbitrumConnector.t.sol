@@ -10,7 +10,7 @@ import "@openzeppelin/contracts/crosschain/errors.sol";
 import {IRootManager} from "../../../../contracts/messaging/interfaces/IRootManager.sol";
 
 import {Connector} from "../../../../contracts/messaging/connectors/Connector.sol";
-import {ArbitrumL1Connector, ArbitrumL2Connector, ArbitrumL1AMB, ArbitrumL2AMB} from "../../../../contracts/messaging/connectors/ArbitrumConnector.sol";
+import {ArbitrumL1Connector, ArbitrumL2Connector, ArbitrumL1Amb, ArbitrumL2Amb} from "../../../../contracts/messaging/connectors/ArbitrumConnector.sol";
 
 import "../../../utils/ConnectorHelper.sol";
 import "../../../utils/Mock.sol";
@@ -34,7 +34,7 @@ contract ArbitrumConnectorTest is ConnectorHelper {
         _amb,
         _rootManager,
         address(0),
-        _mirrorProcessGas,
+        _mirrorGas,
         _processGas,
         _reserveGas,
         _defaultGasPrice
@@ -48,7 +48,7 @@ contract ArbitrumConnectorTest is ConnectorHelper {
         _amb,
         _rootManager,
         _l1Connector,
-        _mirrorProcessGas,
+        _mirrorGas,
         _processGas,
         _reserveGas
       )
@@ -154,7 +154,7 @@ contract ArbitrumConnectorTest is ConnectorHelper {
   // ============ ArbitrumL1Connector.sendMessage ============
   function test_ArbitrumL1Connector__sendMessage_works() public {
     // setup mock
-    vm.mockCall(_amb, abi.encodeWithSelector(ArbitrumL1AMB.sendContractTransaction.selector), abi.encode(123));
+    vm.mockCall(_amb, abi.encodeWithSelector(ArbitrumL1Amb.sendContractTransaction.selector), abi.encode(123));
 
     // data
     bytes memory _data = abi.encode(123123123);
@@ -167,8 +167,8 @@ contract ArbitrumConnectorTest is ConnectorHelper {
     vm.expectCall(
       _amb,
       abi.encodeWithSelector(
-        ArbitrumL1AMB.sendContractTransaction.selector,
-        _mirrorProcessGas,
+        ArbitrumL1Amb.sendContractTransaction.selector,
+        _mirrorGas,
         _defaultGasPrice,
         _l2Connector,
         0,
@@ -183,7 +183,7 @@ contract ArbitrumConnectorTest is ConnectorHelper {
   // ============ ArbitrumL2Connector.sendMessage ============
   function test_ArbitrumL2Connector__sendMessage_works() public {
     // setup mock
-    vm.mockCall(_amb, abi.encodeWithSelector(ArbitrumL2AMB.sendTxToL1.selector), abi.encode(123));
+    vm.mockCall(_amb, abi.encodeWithSelector(ArbitrumL2Amb.sendTxToL1.selector), abi.encode(123));
 
     // data
     bytes memory _data = abi.encode(123123123);
@@ -193,7 +193,7 @@ contract ArbitrumConnectorTest is ConnectorHelper {
     emit MessageSent(_data, _rootManager);
 
     // should call send contract transaction
-    vm.expectCall(_amb, abi.encodeWithSelector(ArbitrumL2AMB.sendTxToL1.selector, _l1Connector, _data));
+    vm.expectCall(_amb, abi.encodeWithSelector(ArbitrumL2Amb.sendTxToL1.selector, _l1Connector, _data));
 
     vm.prank(_rootManager);
     ArbitrumL2Connector(_l2Connector).sendMessage(_data);

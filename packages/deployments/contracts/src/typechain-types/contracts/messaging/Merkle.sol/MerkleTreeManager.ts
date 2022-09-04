@@ -23,20 +23,15 @@ import type {
 export interface MerkleTreeManagerInterface extends utils.Interface {
   functions: {
     "count()": FunctionFragment;
-    "root()": FunctionFragment;
     "tree()": FunctionFragment;
   };
 
-  getFunction(
-    nameOrSignatureOrTopic: "count" | "root" | "tree"
-  ): FunctionFragment;
+  getFunction(nameOrSignatureOrTopic: "count" | "tree"): FunctionFragment;
 
   encodeFunctionData(functionFragment: "count", values?: undefined): string;
-  encodeFunctionData(functionFragment: "root", values?: undefined): string;
   encodeFunctionData(functionFragment: "tree", values?: undefined): string;
 
   decodeFunctionResult(functionFragment: "count", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "root", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "tree", data: BytesLike): Result;
 
   events: {};
@@ -71,8 +66,6 @@ export interface MerkleTreeManager extends BaseContract {
   functions: {
     count(overrides?: CallOverrides): Promise<[BigNumber]>;
 
-    root(overrides?: CallOverrides): Promise<[string]>;
-
     tree(
       overrides?: CallOverrides
     ): Promise<[BigNumber] & { count: BigNumber }>;
@@ -80,14 +73,10 @@ export interface MerkleTreeManager extends BaseContract {
 
   count(overrides?: CallOverrides): Promise<BigNumber>;
 
-  root(overrides?: CallOverrides): Promise<string>;
-
   tree(overrides?: CallOverrides): Promise<BigNumber>;
 
   callStatic: {
     count(overrides?: CallOverrides): Promise<BigNumber>;
-
-    root(overrides?: CallOverrides): Promise<string>;
 
     tree(overrides?: CallOverrides): Promise<BigNumber>;
   };
@@ -97,15 +86,11 @@ export interface MerkleTreeManager extends BaseContract {
   estimateGas: {
     count(overrides?: CallOverrides): Promise<BigNumber>;
 
-    root(overrides?: CallOverrides): Promise<BigNumber>;
-
     tree(overrides?: CallOverrides): Promise<BigNumber>;
   };
 
   populateTransaction: {
     count(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
-    root(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     tree(overrides?: CallOverrides): Promise<PopulatedTransaction>;
   };
