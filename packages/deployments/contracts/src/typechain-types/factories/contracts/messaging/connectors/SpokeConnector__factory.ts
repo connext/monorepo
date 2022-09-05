@@ -695,6 +695,13 @@ const _abi = [
     type: "function",
   },
   {
+    inputs: [],
+    name: "send",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
     inputs: [
       {
         internalType: "bytes",

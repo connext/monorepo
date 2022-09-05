@@ -14,6 +14,44 @@ const _abi = [
     anonymous: false,
     inputs: [
       {
+        indexed: false,
+        internalType: "bytes",
+        name: "data",
+        type: "bytes",
+      },
+      {
+        indexed: false,
+        internalType: "address",
+        name: "caller",
+        type: "address",
+      },
+    ],
+    name: "MessageProcessed",
+    type: "event",
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: false,
+        internalType: "bytes",
+        name: "data",
+        type: "bytes",
+      },
+      {
+        indexed: false,
+        internalType: "address",
+        name: "caller",
+        type: "address",
+      },
+    ],
+    name: "MessageSent",
+    type: "event",
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
         indexed: true,
         internalType: "address",
         name: "proposedOwner",
@@ -47,55 +85,6 @@ const _abi = [
     name: "acceptProposedOwner",
     outputs: [],
     stateMutability: "nonpayable",
-    type: "function",
-  },
-  {
-    inputs: [],
-    name: "aggregateRoot",
-    outputs: [
-      {
-        internalType: "bytes32",
-        name: "",
-        type: "bytes32",
-      },
-    ],
-    stateMutability: "view",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
-        internalType: "uint32",
-        name: "_destinationDomain",
-        type: "uint32",
-      },
-      {
-        internalType: "bytes32",
-        name: "_recipientAddress",
-        type: "bytes32",
-      },
-      {
-        internalType: "bytes",
-        name: "_messageBody",
-        type: "bytes",
-      },
-    ],
-    name: "dispatch",
-    outputs: [],
-    stateMutability: "nonpayable",
-    type: "function",
-  },
-  {
-    inputs: [],
-    name: "outboundRoot",
-    outputs: [
-      {
-        internalType: "bytes32",
-        name: "",
-        type: "bytes32",
-      },
-    ],
-    stateMutability: "view",
     type: "function",
   },
   {
@@ -148,36 +137,6 @@ const _abi = [
       },
     ],
     stateMutability: "view",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
-        internalType: "bytes",
-        name: "_message",
-        type: "bytes",
-      },
-      {
-        internalType: "bytes32[32]",
-        name: "_proof",
-        type: "bytes32[32]",
-      },
-      {
-        internalType: "uint256",
-        name: "_index",
-        type: "uint256",
-      },
-    ],
-    name: "proveAndProcess",
-    outputs: [],
-    stateMutability: "nonpayable",
-    type: "function",
-  },
-  {
-    inputs: [],
-    name: "send",
-    outputs: [],
-    stateMutability: "nonpayable",
     type: "function",
   },
   {

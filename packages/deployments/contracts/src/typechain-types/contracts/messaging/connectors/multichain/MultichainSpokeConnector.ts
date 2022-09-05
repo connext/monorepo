@@ -61,6 +61,7 @@ export interface MultichainSpokeConnectorInterface extends utils.Interface {
     "removeSender(address)": FunctionFragment;
     "renounceOwnership()": FunctionFragment;
     "renounced()": FunctionFragment;
+    "send()": FunctionFragment;
     "sendMessage(bytes)": FunctionFragment;
     "setMirrorConnector(address)": FunctionFragment;
     "setMirrorGas(uint256)": FunctionFragment;
@@ -103,6 +104,7 @@ export interface MultichainSpokeConnectorInterface extends utils.Interface {
       | "removeSender"
       | "renounceOwnership"
       | "renounced"
+      | "send"
       | "sendMessage"
       | "setMirrorConnector"
       | "setMirrorGas"
@@ -217,6 +219,7 @@ export interface MultichainSpokeConnectorInterface extends utils.Interface {
     values?: undefined
   ): string;
   encodeFunctionData(functionFragment: "renounced", values?: undefined): string;
+  encodeFunctionData(functionFragment: "send", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "sendMessage",
     values: [PromiseOrValue<BytesLike>]
@@ -319,6 +322,7 @@ export interface MultichainSpokeConnectorInterface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "renounced", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "send", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "sendMessage",
     data: BytesLike
@@ -621,6 +625,10 @@ export interface MultichainSpokeConnector extends BaseContract {
 
     renounced(overrides?: CallOverrides): Promise<[boolean]>;
 
+    send(
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
+
     sendMessage(
       _data: PromiseOrValue<BytesLike>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -756,6 +764,10 @@ export interface MultichainSpokeConnector extends BaseContract {
 
   renounced(overrides?: CallOverrides): Promise<boolean>;
 
+  send(
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
+
   sendMessage(
     _data: PromiseOrValue<BytesLike>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -884,6 +896,8 @@ export interface MultichainSpokeConnector extends BaseContract {
     renounceOwnership(overrides?: CallOverrides): Promise<void>;
 
     renounced(overrides?: CallOverrides): Promise<boolean>;
+
+    send(overrides?: CallOverrides): Promise<void>;
 
     sendMessage(
       _data: PromiseOrValue<BytesLike>,
@@ -1102,6 +1116,10 @@ export interface MultichainSpokeConnector extends BaseContract {
 
     renounced(overrides?: CallOverrides): Promise<BigNumber>;
 
+    send(
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
+
     sendMessage(
       _data: PromiseOrValue<BytesLike>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -1235,6 +1253,10 @@ export interface MultichainSpokeConnector extends BaseContract {
     ): Promise<PopulatedTransaction>;
 
     renounced(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    send(
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
 
     sendMessage(
       _data: PromiseOrValue<BytesLike>,

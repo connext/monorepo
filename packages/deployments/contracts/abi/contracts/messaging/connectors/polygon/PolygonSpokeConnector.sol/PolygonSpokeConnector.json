@@ -54,6 +54,7 @@
   "function removeSender(address)",
   "function renounceOwnership()",
   "function renounced() view returns (bool)",
+  "function send()",
   "function sendMessage(bytes)",
   "function setFxRootTunnel(address)",
   "function setMirrorConnector(address)",

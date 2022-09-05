@@ -51,6 +51,7 @@
   "function removeSender(address)",
   "function renounceOwnership()",
   "function renounced() view returns (bool)",
+  "function send()",
   "function sendMessage(bytes)",
   "function setMirrorConnector(address)",
   "function setMirrorGas(uint256)",
