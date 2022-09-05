@@ -86,10 +86,14 @@ contract ArbitrumSpokeConnectorTest is ConnectorHelper {
   // ============ ArbitrumSpokeConnector.sendMessage ============
   function test_ArbitrumSpokeConnector__sendMessage_works() public {
     // setup mock
-    vm.mockCall(_amb, abi.encodeWithSelector(ArbitrumL2Amb.sendTxToL1.selector), abi.encode(123));
+    vm.mockCall(
+      _amb,
+      abi.encodeWithSelector(ArbitrumL2Amb.sendTxToL1.selector),
+      abi.encode(ArbitrumSpokeConnector(_l2Connector).outboundRoot())
+    );
 
     // data
-    bytes memory _data = abi.encode(123123123);
+    bytes memory _data = abi.encode(ArbitrumSpokeConnector(_l2Connector).outboundRoot());
 
     // should emit an event
     vm.expectEmit(true, true, true, true);
@@ -99,7 +103,7 @@ contract ArbitrumSpokeConnectorTest is ConnectorHelper {
     vm.expectCall(_amb, abi.encodeWithSelector(ArbitrumL2Amb.sendTxToL1.selector, _l1Connector, _data));
 
     vm.prank(_rootManager);
-    ArbitrumSpokeConnector(_l2Connector).sendMessage(_data);
+    ArbitrumSpokeConnector(_l2Connector).send();
   }
 
   // ============ ArbitrumSpokeConnector.processMessage ============

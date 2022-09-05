@@ -6,15 +6,15 @@ import {IBridge as ArbitrumL1_Bridge} from "@openzeppelin/contracts/vendor/arbit
 import {IArbSys as ArbitrumL2_Bridge} from "@openzeppelin/contracts/vendor/arbitrum/IArbSys.sol";
 import "@openzeppelin/contracts/crosschain/errors.sol";
 
-import {IRootManager} from "../../../../../contracts/messaging/interfaces/IRootManager.sol";
+import {IRootManager} from "../../../../contracts/messaging/interfaces/IRootManager.sol";
 
-import {ArbitrumHubConnector} from "../../../../../contracts/messaging/connectors/arbitrum/ArbitrumHubConnector.sol";
+import {ArbitrumHubConnector} from "../../../../contracts/messaging/connectors/arbitrum/ArbitrumHubConnector.sol";
 
-import {ArbitrumL1Amb} from "../../../../../contracts/messaging/interfaces/ambs/ArbitrumL1Amb.sol";
-import {ArbitrumL2Amb} from "../../../../../contracts/messaging/interfaces/ambs/ArbitrumL2Amb.sol";
+import {ArbitrumL1Amb} from "../../../../contracts/messaging/interfaces/ambs/ArbitrumL1Amb.sol";
+import {ArbitrumL2Amb} from "../../../../contracts/messaging/interfaces/ambs/ArbitrumL2Amb.sol";
 
-import "../../../../utils/ConnectorHelper.sol";
-import "../../../../utils/Mock.sol";
+import "../../../utils/ConnectorHelper.sol";
+import "../../../utils/Mock.sol";
 
 contract ArbitrumHubConnectorTest is ConnectorHelper {
   // ============ Events ============

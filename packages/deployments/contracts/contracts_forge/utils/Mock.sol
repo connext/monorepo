@@ -7,6 +7,7 @@ import {Address} from "@openzeppelin/contracts/utils/Address.sol";
 import {SafeERC20} from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 
 import {IRootManager} from "../../contracts/messaging/interfaces/IRootManager.sol";
+import {IHubConnector} from "../../contracts/messaging/interfaces/IHubConnector.sol";
 import {IConnector} from "../../contracts/messaging/interfaces/IConnector.sol";
 import {IConnectorManager} from "../../contracts/messaging/interfaces/IConnectorManager.sol";
 import {IOutbox} from "../../contracts/messaging/interfaces/IOutbox.sol";
@@ -487,7 +488,7 @@ contract FeeERC20 is ERC20 {
 /**
  * @notice This class mocks the connector functionality.
  */
-contract MockConnector is SpokeConnector {
+contract MockConnector is SpokeConnector, IHubConnector {
   bytes32 public lastOutbound;
   bytes32 public lastReceived;
 
@@ -522,6 +523,11 @@ contract MockConnector is SpokeConnector {
 
   function setUpdatesAggregate(bool _updatesAggregate) public {
     updatesAggregate = _updatesAggregate;
+  }
+
+  function sendMessage(bytes memory _data) external onlyRootManager {
+    _sendMessage(_data);
+    emit MessageSent(_data, msg.sender);
   }
 
   function _sendMessage(bytes memory _data) internal override {

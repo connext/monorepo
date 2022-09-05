@@ -46,7 +46,8 @@ contract MultichainSpokeConnectorTest is ConnectorHelper {
 
   // ============ sendMessage ============
   // Happy path L2
-  function test_MultichainSpokeConnector_sendMessage_sendMessageAndEmitEvent(bytes memory _data) public {
+  function test_MultichainSpokeConnector_sendMessage_sendMessageAndEmitEvent() public {
+    bytes memory _data = abi.encode(MultichainSpokeConnector(_l2Connector).outboundRoot());
     // Mock the call to anyCall
     vm.mockCall(
       _amb,
@@ -67,7 +68,7 @@ contract MultichainSpokeConnectorTest is ConnectorHelper {
     vm.expectCall(_amb, abi.encodeCall(Multichain.anyCall, (_amb, _data, address(0), _chainIdMainnet, 0)));
 
     vm.prank(_rootManager);
-    MultichainSpokeConnector(_l2Connector).sendMessage(_data);
+    MultichainSpokeConnector(_l2Connector).send();
   }
 
   // ============ processMessage ============
