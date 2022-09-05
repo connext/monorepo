@@ -171,6 +171,16 @@ abstract contract SpokeConnector is HubConnector, ConnectorManager, MerkleTreeMa
   }
 
   /**
+   * @notice This returns the root of all messages with the origin domain as this domain (i.e.
+   * all outbound messages)
+   */
+  function send() external {
+    bytes memory _data = abi.encodePacked(tree.root());
+    _sendMessage(_data);
+    emit MessageSent(_data, msg.sender);
+  }
+
+  /**
    * @notice This function adds transfers to the outbound transfer merkle tree.
    * @dev The root of this tree will eventually be dispatched to mainnet via `send`. On mainnet (the "hub"),
    * it will be combined into a single aggregate root by RootManager (along with outbound roots from other
