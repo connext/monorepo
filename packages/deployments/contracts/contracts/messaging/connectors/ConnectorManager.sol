@@ -13,13 +13,8 @@ import {IOutbox} from "../interfaces/IOutbox.sol";
  * instances. At any point the client can replace the manager it's pointing to,
  * changing the underlying messaging connection.
  */
-contract ConnectorManager is IConnectorManager {
-  uint32 public immutable domain;
-
-  constructor(uint32 _domain) {
-    require(_domain != 0, "!domain");
-    domain = _domain;
-  }
+abstract contract ConnectorManager is IConnectorManager {
+  constructor() {}
 
   function home() public view returns (IOutbox) {
     return IOutbox(address(this));
@@ -29,7 +24,5 @@ contract ConnectorManager is IConnectorManager {
     return _potentialReplica == address(this);
   }
 
-  function localDomain() public view returns (uint32) {
-    return domain;
-  }
+  function localDomain() external view virtual returns (uint32);
 }

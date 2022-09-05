@@ -2,7 +2,7 @@
 pragma solidity 0.8.15;
 
 import {IRootManager} from "./interfaces/IRootManager.sol";
-import {IConnector} from "./interfaces/IConnector.sol";
+import {IHubConnector} from "./interfaces/IHubConnector.sol";
 import {ProposedOwnable} from "../shared/ProposedOwnable.sol";
 
 /**
@@ -61,7 +61,7 @@ contract RootManager is ProposedOwnable, IRootManager {
     bytes memory aggregate = abi.encodePacked(outboundRoots[domains[0]]);
     for (uint8 i; i < domains.length; i++) {
       address connector = connectors[domains[i]];
-      IConnector(connector).sendMessage(aggregate);
+      IHubConnector(connector).sendMessage(aggregate);
     }
     emit RootPropagated(outboundRoots[domains[0]], domains);
   }

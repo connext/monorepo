@@ -10,7 +10,7 @@ import {Message} from "../libraries/Message.sol";
 
 import {MerkleTreeManager} from "../Merkle.sol";
 
-import {HubConnector} from "./HubConnector.sol";
+import {Connector} from "./Connector.sol";
 import {ConnectorManager} from "./ConnectorManager.sol";
 
 /**
@@ -25,7 +25,7 @@ import {ConnectorManager} from "./ConnectorManager.sol";
  *
  * TODO: what about the queue manager? see Home.sol for context
  */
-abstract contract SpokeConnector is HubConnector, ConnectorManager, MerkleTreeManager, ReentrancyGuard {
+abstract contract SpokeConnector is Connector, ConnectorManager, MerkleTreeManager, ReentrancyGuard {
   // ============ Libraries ============
 
   using MerkleLib for MerkleLib.Tree;
@@ -129,9 +129,9 @@ abstract contract SpokeConnector is HubConnector, ConnectorManager, MerkleTreeMa
     uint256 _processGas,
     uint256 _reserveGas
   )
-    ConnectorManager(_domain)
+    ConnectorManager()
     MerkleTreeManager()
-    HubConnector(_domain, _mirrorDomain, _amb, _rootManager, _mirrorConnector, _mirrorGas)
+    Connector(_domain, _mirrorDomain, _amb, _rootManager, _mirrorConnector, _mirrorGas)
   {
     // sanity check constants
     require(_processGas >= 850_000, "!process gas");
@@ -168,6 +168,14 @@ abstract contract SpokeConnector is HubConnector, ConnectorManager, MerkleTreeMa
    */
   function outboundRoot() external view returns (bytes32) {
     return tree.root();
+  }
+
+  /**
+   * @notice This provides the implementation for what is defined in the ConnectorManager
+   * to avoid storing the domain redundantly
+   */
+  function localDomain() external view override returns (uint32) {
+    return DOMAIN;
   }
 
   /**

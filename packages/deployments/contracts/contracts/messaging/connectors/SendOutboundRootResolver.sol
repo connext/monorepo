@@ -23,10 +23,10 @@ contract SendOutboundRootResolver is IResolver, ProposedOwnable {
     EXECUTION_INTERVAL = _executionInterval;
   }
 
-  function sendMessage(bytes32 outboundRoot) external {
-    CONNECTOR.sendMessage(abi.encode(outboundRoot));
+  function sendMessage() external {
+    lastRootSent = CONNECTOR.outboundRoot();
+    CONNECTOR.send();
     lastExecuted = block.timestamp;
-    lastRootSent = outboundRoot;
   }
 
   function checker() external view override returns (bool canExec, bytes memory execPayload) {

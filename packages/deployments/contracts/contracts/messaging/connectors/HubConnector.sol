@@ -14,27 +14,6 @@ import {Connector} from "./Connector.sol";
  * which extend this should implement the virtual functions defined in the BaseConnector class
  */
 abstract contract HubConnector is Connector {
-  // ============ Events ============
-  event MirrorConnectorUpdated(address previous, address current);
-
-  event MirrorGasUpdated(uint256 previous, uint256 current);
-
-  // ============ Public storage ============
-  /**
-   * @notice The domain of the corresponding messaging (i.e. Connector) contract.
-   */
-  uint32 public immutable MIRROR_DOMAIN;
-
-  /**
-   * @notice Connector on L2 for L1 connectors, and vice versa.
-   */
-  address public mirrorConnector;
-
-  /**
-   * @notice Gas costs forwarded to the `processMessage` call on the mirror domain
-   */
-  uint256 public mirrorGas;
-
   /**
    * @notice Creates a new HubConnector instance
    * @dev The connectors are deployed such that there is one on each side of an AMB (i.e.
@@ -53,43 +32,16 @@ abstract contract HubConnector is Connector {
     address _rootManager,
     address _mirrorConnector,
     uint256 _mirrorGas
-  ) Connector(_domain, _amb, _rootManager) {
-    // set immutables
-    MIRROR_DOMAIN = _mirrorDomain;
+  ) Connector(_domain, _mirrorDomain, _amb, _rootManager, _mirrorConnector, _mirrorGas) {}
 
-    // set mutables if defined
-    if (_mirrorConnector != address(0)) {
-      _setMirrorConnector(_mirrorConnector);
-    }
-
-    if (_mirrorGas != 0) {
-      _setMirrorGas(_mirrorGas);
-    }
-  }
-
-  // ============ Admin fns ============
+  // ============ Public fns ============
   /**
-   * @notice Sets the address of the l2Connector for this domain
+   * @notice Sends a message over the amb
+   * @dev This is called by the root manager *only* on mainnet to propagate the aggregate root
    */
-  function setMirrorConnector(address _mirrorConnector) public onlyOwner {
-    _setMirrorConnector(_mirrorConnector);
-  }
-
-  /**
-   * @notice Sets the address of the l2Connector for this domain
-   */
-  function setMirrorGas(uint256 _mirrorGas) public onlyOwner {
-    _setMirrorGas(_mirrorGas);
-  }
-
-  // ============ Private fns ============
-  function _setMirrorConnector(address _mirrorConnector) internal {
-    emit MirrorConnectorUpdated(mirrorConnector, _mirrorConnector);
-    mirrorConnector = _mirrorConnector;
-  }
-
-  function _setMirrorGas(uint256 _mirrorGas) internal {
-    emit MirrorGasUpdated(mirrorGas, _mirrorGas);
-    mirrorGas = _mirrorGas;
+  // TODO: make more opinionated (i.e. sendAggregateRoot)
+  function sendMessage(bytes memory _data) external onlyRootManager {
+    _sendMessage(_data);
+    emit MessageSent(_data, msg.sender);
   }
 }

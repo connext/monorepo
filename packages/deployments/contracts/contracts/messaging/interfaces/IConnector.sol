@@ -58,8 +58,6 @@ interface IConnector is IProposedOwnable {
 
   // ============ Public fns ============
 
-  function sendMessage(bytes memory _data) external;
-
   function processMessage(bytes memory _data) external;
 
   function verifySender(address _expected) external returns (bool);
