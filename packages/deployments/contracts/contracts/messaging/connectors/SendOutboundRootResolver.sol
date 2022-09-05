@@ -2,11 +2,11 @@
 pragma solidity 0.8.15;
 
 import {IResolver} from "../interfaces/IResolver.sol";
-import {IConnector} from "../interfaces/IConnector.sol";
+import {SpokeConnector} from "./SpokeConnector.sol";
 import {ProposedOwnable} from "../../shared/ProposedOwnable.sol";
 
 contract SendOutboundRootResolver is IResolver, ProposedOwnable {
-  IConnector public immutable CONNECTOR;
+  SpokeConnector public immutable CONNECTOR;
   uint256 public EXECUTION_INTERVAL;
   uint256 public lastExecuted;
   bytes32 public lastRootSent;
@@ -14,7 +14,7 @@ contract SendOutboundRootResolver is IResolver, ProposedOwnable {
   constructor(address _connector, uint256 _executionInterval) ProposedOwnable() {
     require(_executionInterval > 0, "SendOutboundRootResolver: execution interval must be > 0");
     _setOwner(msg.sender);
-    CONNECTOR = IConnector(_connector);
+    CONNECTOR = SpokeConnector(_connector);
     EXECUTION_INTERVAL = _executionInterval;
   }
 
