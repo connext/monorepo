@@ -11,6 +11,7 @@ import {IConnector} from "../../contracts/messaging/interfaces/IConnector.sol";
 import {IConnectorManager} from "../../contracts/messaging/interfaces/IConnectorManager.sol";
 import {IOutbox} from "../../contracts/messaging/interfaces/IOutbox.sol";
 import {Connector} from "../../contracts/messaging/connectors/Connector.sol";
+import {SpokeConnector} from "../../contracts/messaging/connectors/SpokeConnector.sol";
 import {RootManager} from "../../contracts/messaging/RootManager.sol";
 
 import {TypedMemView, PromiseMessage, PromiseRouter} from "../../contracts/core/promise/PromiseRouter.sol";
@@ -38,8 +39,8 @@ contract MockXAppConnectionManager is IConnectorManager {
 
   mapping(address => bool) enrolledInboxes;
 
-  constructor(MockHome home) public {
-    _home = home;
+  constructor(MockHome home_) public {
+    _home = home_;
     domain = _home.localDomain();
   }
 
@@ -486,13 +487,16 @@ contract FeeERC20 is ERC20 {
 /**
  * @notice This class mocks the connector functionality.
  */
-contract MockConnector is Connector {
+contract MockConnector is SpokeConnector {
   bytes32 public lastOutbound;
   bytes32 public lastReceived;
 
   bool public verified;
 
   bool updatesAggregate;
+
+  // bytes32 public aggregateRoot;
+  // uint32 public mirrorDomain;
 
   constructor(
     uint32 _domain,
@@ -505,10 +509,11 @@ contract MockConnector is Connector {
     uint256 _reserveGas
   )
     ProposedOwnable()
-    Connector(_domain, _mirrorDomain, _amb, _rootManager, _mirrorConnector, _mirrorGas, _processGas, _reserveGas)
+    SpokeConnector(_domain, _mirrorDomain, _amb, _rootManager, _mirrorConnector, _mirrorGas, _processGas, _reserveGas)
   {
     _setOwner(msg.sender);
     verified = true;
+    // mirrorDomain = _mirrorDomain;
   }
 
   function setSenderVerified(bool _verified) public {
@@ -530,7 +535,7 @@ contract MockConnector is Connector {
       // FIXME: when using this.update it sets caller to address(this) not AMB
       aggregateRoot = bytes32(_data);
     } else {
-      RootManager(ROOT_MANAGER).setOutboundRoot(mirrorDomain, bytes32(_data));
+      RootManager(ROOT_MANAGER).setOutboundRoot(MIRROR_DOMAIN, bytes32(_data));
     }
     emit MessageProcessed(_data, msg.sender);
   }

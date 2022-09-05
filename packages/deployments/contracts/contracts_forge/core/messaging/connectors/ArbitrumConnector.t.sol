@@ -10,7 +10,10 @@ import "@openzeppelin/contracts/crosschain/errors.sol";
 import {IRootManager} from "../../../../contracts/messaging/interfaces/IRootManager.sol";
 
 import {Connector} from "../../../../contracts/messaging/connectors/Connector.sol";
-import {ArbitrumL1Connector, ArbitrumL2Connector, ArbitrumL1Amb, ArbitrumL2Amb} from "../../../../contracts/messaging/connectors/ArbitrumConnector.sol";
+import {ArbitrumHubConnector} from "../../../../contracts/messaging/connectors/arbitrum/ArbitrumHubConnector.sol";
+import {ArbitrumSpokeConnector} from "../../../../contracts/messaging/connectors/arbitrum/ArbitrumSpokeConnector.sol";
+import {ArbitrumL1Amb} from "../../../../contracts/messaging/interfaces/ambs/ArbitrumL1Amb.sol";
+import {ArbitrumL2Amb} from "../../../../contracts/messaging/interfaces/ambs/ArbitrumL2Amb.sol";
 
 import "../../../utils/ConnectorHelper.sol";
 import "../../../utils/Mock.sol";
@@ -28,21 +31,11 @@ contract ArbitrumConnectorTest is ConnectorHelper {
   function setUp() public {
     // deploy
     _l1Connector = address(
-      new ArbitrumL1Connector(
-        _l1Domain,
-        _l2Domain,
-        _amb,
-        _rootManager,
-        address(0),
-        _mirrorGas,
-        _processGas,
-        _reserveGas,
-        _defaultGasPrice
-      )
+      new ArbitrumHubConnector(_l1Domain, _l2Domain, _amb, _rootManager, address(0), _mirrorGas, _defaultGasPrice)
     );
 
     _l2Connector = address(
-      new ArbitrumL2Connector(
+      new ArbitrumSpokeConnector(
         _l2Domain,
         _l1Domain,
         _amb,
@@ -55,7 +48,7 @@ contract ArbitrumConnectorTest is ConnectorHelper {
     );
 
     // set mirror connector on l1
-    ArbitrumL1Connector(_l1Connector).setMirrorConnector(_l2Connector);
+    ArbitrumHubConnector(_l1Connector).setMirrorConnector(_l2Connector);
   }
 
   // ============ Utils ============
@@ -92,24 +85,24 @@ contract ArbitrumConnectorTest is ConnectorHelper {
     vm.mockCall(_rootManager, abi.encodeWithSelector(IRootManager.setOutboundRoot.selector), abi.encode(true));
   }
 
-  // ============ ArbitrumL1Connector.setDefaultGasPrice ============
+  // ============ ArbitrumHubConnector.setDefaultGasPrice ============
   function test_ArbitrumL1Connector__setDefaultGasPrice_shouldWork() public {
     uint256 updated = 100 wei;
     vm.expectEmit(true, true, true, true);
     emit DefaultGasPriceUpdated(_defaultGasPrice, updated);
 
-    vm.prank(ArbitrumL1Connector(_l1Connector).owner());
-    ArbitrumL1Connector(_l1Connector).setDefaultGasPrice(updated);
-    assertEq(ArbitrumL1Connector(_l1Connector).defaultGasPrice(), updated);
+    vm.prank(ArbitrumHubConnector(_l1Connector).owner());
+    ArbitrumHubConnector(_l1Connector).setDefaultGasPrice(updated);
+    assertEq(ArbitrumHubConnector(_l1Connector).defaultGasPrice(), updated);
   }
 
-  // ============ ArbitrumL1Connector.verifySender ============
+  // ============ ArbitrumHubConnector.verifySender ============
   function test_ArbitrumL1Connector__verifySender_shouldWorkIfTrue() public {
     address expected = address(234);
     utils_setL1ConnectorVerifyMocks(expected);
 
     vm.prank(_amb);
-    assertTrue(ArbitrumL1Connector(_l1Connector).verifySender(expected));
+    assertTrue(ArbitrumHubConnector(_l1Connector).verifySender(expected));
   }
 
   function test_ArbitrumL1Connector__verifySender_shouldWorkIfFalse() public {
@@ -117,7 +110,7 @@ contract ArbitrumConnectorTest is ConnectorHelper {
     utils_setL1ConnectorVerifyMocks(address(122));
 
     vm.prank(_amb);
-    assertEq(ArbitrumL1Connector(_l1Connector).verifySender(expected), false);
+    assertEq(ArbitrumHubConnector(_l1Connector).verifySender(expected), false);
   }
 
   function test_ArbitrumL1Connector__verifySender_shouldFailIfCallerNotAmb() public {
@@ -125,22 +118,22 @@ contract ArbitrumConnectorTest is ConnectorHelper {
     utils_setL1ConnectorVerifyMocks(expected);
 
     vm.expectRevert(NotCrossChainCall.selector);
-    assertEq(ArbitrumL1Connector(_l1Connector).verifySender(expected), false);
+    assertEq(ArbitrumHubConnector(_l1Connector).verifySender(expected), false);
   }
 
-  // ============ ArbitrumL2Connector.verifySender ============
+  // ============ ArbitrumSpokeConnector.verifySender ============
   function test_ArbitrumL2Connector__verifySender_shouldWorkIfTrue() public {
     address expected = address(234);
     utils_setL2ConnectorVerifyMocks(expected, true);
 
-    assertTrue(ArbitrumL2Connector(_l2Connector).verifySender(expected));
+    assertTrue(ArbitrumSpokeConnector(_l2Connector).verifySender(expected));
   }
 
   function test_ArbitrumL2Connector__verifySender_shouldWorkIfFalse() public {
     address expected = address(234);
     utils_setL2ConnectorVerifyMocks(address(122), true);
 
-    assertEq(ArbitrumL2Connector(_l2Connector).verifySender(expected), false);
+    assertEq(ArbitrumSpokeConnector(_l2Connector).verifySender(expected), false);
   }
 
   function test_ArbitrumL2Connector__verifySender_shouldFailIfCallerNotAmb() public {
@@ -148,10 +141,10 @@ contract ArbitrumConnectorTest is ConnectorHelper {
     utils_setL2ConnectorVerifyMocks(expected, false);
 
     vm.expectRevert(NotCrossChainCall.selector);
-    assertEq(ArbitrumL2Connector(_l2Connector).verifySender(expected), false);
+    assertEq(ArbitrumSpokeConnector(_l2Connector).verifySender(expected), false);
   }
 
-  // ============ ArbitrumL1Connector.sendMessage ============
+  // ============ ArbitrumHubConnector.sendMessage ============
   function test_ArbitrumL1Connector__sendMessage_works() public {
     // setup mock
     vm.mockCall(_amb, abi.encodeWithSelector(ArbitrumL1Amb.sendContractTransaction.selector), abi.encode(123));
@@ -177,10 +170,10 @@ contract ArbitrumConnectorTest is ConnectorHelper {
     );
 
     vm.prank(_rootManager);
-    ArbitrumL1Connector(_l1Connector).sendMessage(_data);
+    ArbitrumHubConnector(_l1Connector).sendMessage(_data);
   }
 
-  // ============ ArbitrumL2Connector.sendMessage ============
+  // ============ ArbitrumSpokeConnector.sendMessage ============
   function test_ArbitrumL2Connector__sendMessage_works() public {
     // setup mock
     vm.mockCall(_amb, abi.encodeWithSelector(ArbitrumL2Amb.sendTxToL1.selector), abi.encode(123));
@@ -196,10 +189,10 @@ contract ArbitrumConnectorTest is ConnectorHelper {
     vm.expectCall(_amb, abi.encodeWithSelector(ArbitrumL2Amb.sendTxToL1.selector, _l1Connector, _data));
 
     vm.prank(_rootManager);
-    ArbitrumL2Connector(_l2Connector).sendMessage(_data);
+    ArbitrumSpokeConnector(_l2Connector).sendMessage(_data);
   }
 
-  // ============ ArbitrumL1Connector.processMessage ============
+  // ============ ArbitrumHubConnector.processMessage ============
   function test_ArbitrumL1Connector__processMessage_works() public {
     utils_setL1ConnectorProcessMocks(_l2Connector);
 
@@ -219,7 +212,7 @@ contract ArbitrumConnectorTest is ConnectorHelper {
     // call comes from amb
     vm.prank(_amb);
     // make call
-    ArbitrumL1Connector(_l1Connector).processMessage(_data);
+    ArbitrumHubConnector(_l1Connector).processMessage(_data);
   }
 
   function test_ArbitrumL1Connector__processMessage_failsIfNotSentByBridge() public {
@@ -228,7 +221,7 @@ contract ArbitrumConnectorTest is ConnectorHelper {
     // call does not originate from amb
     vm.expectRevert(bytes("!AMB"));
     // make call
-    ArbitrumL1Connector(_l1Connector).processMessage(abi.encode(bytes32("test")));
+    ArbitrumHubConnector(_l1Connector).processMessage(abi.encode(bytes32("test")));
   }
 
   function test_ArbitrumL1Connector__processMessage_failsIfNotMirrorConnector() public {
@@ -240,7 +233,7 @@ contract ArbitrumConnectorTest is ConnectorHelper {
     // call comes from amb
     vm.prank(_amb);
     // make call
-    ArbitrumL1Connector(_l1Connector).processMessage(abi.encode(bytes32("test")));
+    ArbitrumHubConnector(_l1Connector).processMessage(abi.encode(bytes32("test")));
   }
 
   function test_ArbitrumL1Connector__processMessage_failsIfNot32Bytes() public {
@@ -254,10 +247,10 @@ contract ArbitrumConnectorTest is ConnectorHelper {
     // call comes from amb
     vm.prank(_amb);
     // make call
-    ArbitrumL1Connector(_l1Connector).processMessage(_data);
+    ArbitrumHubConnector(_l1Connector).processMessage(_data);
   }
 
-  // ============ ArbitrumL2Connector.processMessage ============
+  // ============ ArbitrumSpokeConnector.processMessage ============
   function test_ArbitrumL2Connector__processMessage_works() public {
     utils_setL2ConnectorVerifyMocks(_l1Connector, true);
 
@@ -270,10 +263,10 @@ contract ArbitrumConnectorTest is ConnectorHelper {
 
     // make call
     vm.prank(_amb);
-    ArbitrumL2Connector(_l2Connector).processMessage(_data);
+    ArbitrumSpokeConnector(_l2Connector).processMessage(_data);
 
     // assert update
-    assertEq(bytes32(_data), ArbitrumL2Connector(_l2Connector).aggregateRoot());
+    assertEq(bytes32(_data), ArbitrumSpokeConnector(_l2Connector).aggregateRoot());
   }
 
   function test_ArbitrumL2Connector__processMessage_failsIfNotCrosschain() public {
@@ -282,7 +275,7 @@ contract ArbitrumConnectorTest is ConnectorHelper {
     // call does not originate from amb
     vm.expectRevert(bytes("!AMB"));
     // make call
-    ArbitrumL2Connector(_l2Connector).processMessage(abi.encode(bytes32("test")));
+    ArbitrumSpokeConnector(_l2Connector).processMessage(abi.encode(bytes32("test")));
   }
 
   function test_ArbitrumL2Connectoclearr__processMessage_failsIfNotMirrorConnector() public {
@@ -293,7 +286,7 @@ contract ArbitrumConnectorTest is ConnectorHelper {
     vm.expectRevert(bytes("!mirrorConnector"));
     // make call
     vm.prank(_amb);
-    ArbitrumL2Connector(_l2Connector).processMessage(abi.encode(bytes32("test")));
+    ArbitrumSpokeConnector(_l2Connector).processMessage(abi.encode(bytes32("test")));
   }
 
   function test_ArbitrumL2Connector__processMessage_failsIfNot32Bytes() public {
@@ -307,6 +300,6 @@ contract ArbitrumConnectorTest is ConnectorHelper {
 
     // make call
     vm.prank(_amb);
-    ArbitrumL2Connector(_l2Connector).processMessage(_data);
+    ArbitrumSpokeConnector(_l2Connector).processMessage(_data);
   }
 }

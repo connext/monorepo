@@ -5,7 +5,7 @@ import {TypeCasts} from "../../../contracts/shared/libraries/TypeCasts.sol";
 import {Message} from "../../../contracts/messaging/libraries/Message.sol";
 
 import {RootManager} from "../../../contracts/messaging/RootManager.sol";
-import {Connector} from "../../../contracts/messaging/connectors/Connector.sol";
+import {SpokeConnector} from "../../../contracts/messaging/connectors/SpokeConnector.sol";
 
 import "../../utils/ConnectorHelper.sol";
 import "../../utils/Mock.sol";
@@ -111,14 +111,14 @@ contract PingPong is ConnectorHelper {
 
   function utils_configureContracts() public {
     // enroll this as approved sender for messaging
-    Connector(_originConnectorL2).addSender(address(this));
-    Connector(_originConnectorL2).setMirrorConnector(_originConnectorL1);
-    Connector(_destinationConnectorL2).setMirrorConnector(_destinationConnectorL1);
+    SpokeConnector(_originConnectorL2).addSender(address(this));
+    SpokeConnector(_originConnectorL2).setMirrorConnector(_originConnectorL1);
+    SpokeConnector(_destinationConnectorL2).setMirrorConnector(_destinationConnectorL1);
     // check setup
-    assertEq(Connector(_destinationConnectorL2).mirrorConnector(), _destinationConnectorL1);
-    assertEq(Connector(_originConnectorL2).mirrorConnector(), _originConnectorL1);
-    assertEq(Connector(_destinationConnectorL1).mirrorConnector(), _destinationConnectorL2);
-    assertEq(Connector(_originConnectorL1).mirrorConnector(), _originConnectorL2);
+    assertEq(SpokeConnector(_destinationConnectorL2).mirrorConnector(), _destinationConnectorL1);
+    assertEq(SpokeConnector(_originConnectorL2).mirrorConnector(), _originConnectorL1);
+    assertEq(SpokeConnector(_destinationConnectorL1).mirrorConnector(), _destinationConnectorL2);
+    assertEq(SpokeConnector(_originConnectorL1).mirrorConnector(), _originConnectorL2);
 
     MockConnector(_destinationConnectorL2).setUpdatesAggregate(true);
 
@@ -138,23 +138,23 @@ contract PingPong is ConnectorHelper {
     bytes memory body = abi.encode(_destinationDomain * _originDomain);
     // okay to hardcode here because this is the default value of an empty tree
     assertEq(
-      Connector(_originConnectorL2).outboundRoot(),
+      SpokeConnector(_originConnectorL2).outboundRoot(),
       bytes32(0x27ae5ba08d7291c96c8cbddcc148bf48a6d68c7974b94356f53754ef6171d757)
     );
-    Connector(_originConnectorL2).dispatch(_destinationDomain, _destinationRouter, body);
+    SpokeConnector(_originConnectorL2).dispatch(_destinationDomain, _destinationRouter, body);
     // assert added to outboundRoot
-    assertEq(Connector(_originConnectorL2).count(), 1);
+    assertEq(SpokeConnector(_originConnectorL2).count(), 1);
     // TODO: actually assert this is the correct root outside of using hardcoded values
     assertEq(
-      Connector(_originConnectorL2).outboundRoot(),
+      SpokeConnector(_originConnectorL2).outboundRoot(),
       bytes32(0x86fa2992f68fd0ba27a6303c3704838c670c809d4f602481f9bcdefc5687aa23)
     );
 
     // 2. Send outboundRoot through Connector to mainnet
-    bytes32 outboundRoot = Connector(_originConnectorL2).outboundRoot();
+    bytes32 outboundRoot = SpokeConnector(_originConnectorL2).outboundRoot();
     vm.expectEmit(true, true, true, true);
     emit MessageSent(abi.encode(outboundRoot), address(this));
-    Connector(_originConnectorL2).send();
+    SpokeConnector(_originConnectorL2).send();
     assertEq(keccak256(abi.encode(outboundRoot)), MockConnector(_originConnectorL2).lastOutbound());
 
     // 3. Process outboundRoot on mainnet
@@ -176,7 +176,7 @@ contract PingPong is ConnectorHelper {
     emit MessageProcessed(expectedAggregate, _destinationAMB);
     vm.prank(_destinationAMB);
     MockConnector(_destinationConnectorL2).processMessage(expectedAggregate);
-    assertEq(Connector(_destinationConnectorL2).aggregateRoot(), outboundRoot);
+    assertEq(SpokeConnector(_destinationConnectorL2).aggregateRoot(), outboundRoot);
 
     // 6. Process original message
     bytes memory message = Message.formatMessage(
@@ -190,8 +190,8 @@ contract PingPong is ConnectorHelper {
     // TODO: fix proof
     bytes32[32] memory proof;
     // TODO: fix index
-    Connector(_destinationConnectorL2).proveAndProcess(message, proof, 0);
-    assertEq(uint256(Connector(_destinationConnectorL2).messages(keccak256(message))), 2);
+    SpokeConnector(_destinationConnectorL2).proveAndProcess(message, proof, 0);
+    assertEq(uint256(SpokeConnector(_destinationConnectorL2).messages(keccak256(message))), 2);
     assertEq(MockRelayerFeeRouter(TypeCasts.bytes32ToAddress(_destinationRouter)).handledOrigin(), _originDomain);
     assertEq(MockRelayerFeeRouter(TypeCasts.bytes32ToAddress(_destinationRouter)).handledNonce(), 0);
     assertEq(
