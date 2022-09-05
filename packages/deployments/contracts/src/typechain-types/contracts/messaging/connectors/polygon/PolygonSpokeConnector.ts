@@ -41,7 +41,6 @@ export interface PolygonSpokeConnectorInterface extends utils.Interface {
     "count()": FunctionFragment;
     "delay()": FunctionFragment;
     "dispatch(uint32,bytes32,bytes)": FunctionFragment;
-    "domain()": FunctionFragment;
     "fxChild()": FunctionFragment;
     "fxRootTunnel()": FunctionFragment;
     "home()": FunctionFragment;
@@ -64,7 +63,6 @@ export interface PolygonSpokeConnectorInterface extends utils.Interface {
     "renounceOwnership()": FunctionFragment;
     "renounced()": FunctionFragment;
     "send()": FunctionFragment;
-    "sendMessage(bytes)": FunctionFragment;
     "setFxRootTunnel(address)": FunctionFragment;
     "setMirrorConnector(address)": FunctionFragment;
     "setMirrorGas(uint256)": FunctionFragment;
@@ -87,7 +85,6 @@ export interface PolygonSpokeConnectorInterface extends utils.Interface {
       | "count"
       | "delay"
       | "dispatch"
-      | "domain"
       | "fxChild"
       | "fxRootTunnel"
       | "home"
@@ -110,7 +107,6 @@ export interface PolygonSpokeConnectorInterface extends utils.Interface {
       | "renounceOwnership"
       | "renounced"
       | "send"
-      | "sendMessage"
       | "setFxRootTunnel"
       | "setMirrorConnector"
       | "setMirrorGas"
@@ -159,7 +155,6 @@ export interface PolygonSpokeConnectorInterface extends utils.Interface {
       PromiseOrValue<BytesLike>
     ]
   ): string;
-  encodeFunctionData(functionFragment: "domain", values?: undefined): string;
   encodeFunctionData(functionFragment: "fxChild", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "fxRootTunnel",
@@ -236,10 +231,6 @@ export interface PolygonSpokeConnectorInterface extends utils.Interface {
   encodeFunctionData(functionFragment: "renounced", values?: undefined): string;
   encodeFunctionData(functionFragment: "send", values?: undefined): string;
   encodeFunctionData(
-    functionFragment: "sendMessage",
-    values: [PromiseOrValue<BytesLike>]
-  ): string;
-  encodeFunctionData(
     functionFragment: "setFxRootTunnel",
     values: [PromiseOrValue<string>]
   ): string;
@@ -291,7 +282,6 @@ export interface PolygonSpokeConnectorInterface extends utils.Interface {
   decodeFunctionResult(functionFragment: "count", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "delay", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "dispatch", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "domain", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "fxChild", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "fxRootTunnel",
@@ -350,10 +340,6 @@ export interface PolygonSpokeConnectorInterface extends utils.Interface {
   ): Result;
   decodeFunctionResult(functionFragment: "renounced", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "send", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "sendMessage",
-    data: BytesLike
-  ): Result;
   decodeFunctionResult(
     functionFragment: "setFxRootTunnel",
     data: BytesLike
@@ -599,8 +585,6 @@ export interface PolygonSpokeConnector extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
-    domain(overrides?: CallOverrides): Promise<[number]>;
-
     fxChild(overrides?: CallOverrides): Promise<[string]>;
 
     fxRootTunnel(overrides?: CallOverrides): Promise<[string]>;
@@ -680,11 +664,6 @@ export interface PolygonSpokeConnector extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
-    sendMessage(
-      _data: PromiseOrValue<BytesLike>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
-
     setFxRootTunnel(
       _fxRootTunnel: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -748,8 +727,6 @@ export interface PolygonSpokeConnector extends BaseContract {
     _messageBody: PromiseOrValue<BytesLike>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
-
-  domain(overrides?: CallOverrides): Promise<number>;
 
   fxChild(overrides?: CallOverrides): Promise<string>;
 
@@ -830,11 +807,6 @@ export interface PolygonSpokeConnector extends BaseContract {
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
-  sendMessage(
-    _data: PromiseOrValue<BytesLike>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
-
   setFxRootTunnel(
     _fxRootTunnel: PromiseOrValue<string>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -894,8 +866,6 @@ export interface PolygonSpokeConnector extends BaseContract {
       _messageBody: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
     ): Promise<void>;
-
-    domain(overrides?: CallOverrides): Promise<number>;
 
     fxChild(overrides?: CallOverrides): Promise<string>;
 
@@ -971,11 +941,6 @@ export interface PolygonSpokeConnector extends BaseContract {
     renounced(overrides?: CallOverrides): Promise<boolean>;
 
     send(overrides?: CallOverrides): Promise<void>;
-
-    sendMessage(
-      _data: PromiseOrValue<BytesLike>,
-      overrides?: CallOverrides
-    ): Promise<void>;
 
     setFxRootTunnel(
       _fxRootTunnel: PromiseOrValue<string>,
@@ -1123,8 +1088,6 @@ export interface PolygonSpokeConnector extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
-    domain(overrides?: CallOverrides): Promise<BigNumber>;
-
     fxChild(overrides?: CallOverrides): Promise<BigNumber>;
 
     fxRootTunnel(overrides?: CallOverrides): Promise<BigNumber>;
@@ -1204,11 +1167,6 @@ export interface PolygonSpokeConnector extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
-    sendMessage(
-      _data: PromiseOrValue<BytesLike>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
-
     setFxRootTunnel(
       _fxRootTunnel: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -1271,8 +1229,6 @@ export interface PolygonSpokeConnector extends BaseContract {
       _messageBody: PromiseOrValue<BytesLike>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
-
-    domain(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     fxChild(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
@@ -1350,11 +1306,6 @@ export interface PolygonSpokeConnector extends BaseContract {
     renounced(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     send(
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
-
-    sendMessage(
-      _data: PromiseOrValue<BytesLike>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 

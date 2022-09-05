@@ -43,7 +43,7 @@ export interface SendOutboundRootResolverInterface extends utils.Interface {
     "proposedTimestamp()": FunctionFragment;
     "renounceOwnership()": FunctionFragment;
     "renounced()": FunctionFragment;
-    "sendMessage(bytes32)": FunctionFragment;
+    "sendMessage()": FunctionFragment;
   };
 
   getFunction(
@@ -105,7 +105,7 @@ export interface SendOutboundRootResolverInterface extends utils.Interface {
   encodeFunctionData(functionFragment: "renounced", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "sendMessage",
-    values: [PromiseOrValue<BytesLike>]
+    values?: undefined
   ): string;
 
   decodeFunctionResult(functionFragment: "CONNECTOR", data: BytesLike): Result;
@@ -251,7 +251,6 @@ export interface SendOutboundRootResolver extends BaseContract {
     renounced(overrides?: CallOverrides): Promise<[boolean]>;
 
     sendMessage(
-      outboundRoot: PromiseOrValue<BytesLike>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
   };
@@ -297,7 +296,6 @@ export interface SendOutboundRootResolver extends BaseContract {
   renounced(overrides?: CallOverrides): Promise<boolean>;
 
   sendMessage(
-    outboundRoot: PromiseOrValue<BytesLike>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
@@ -338,10 +336,7 @@ export interface SendOutboundRootResolver extends BaseContract {
 
     renounced(overrides?: CallOverrides): Promise<boolean>;
 
-    sendMessage(
-      outboundRoot: PromiseOrValue<BytesLike>,
-      overrides?: CallOverrides
-    ): Promise<void>;
+    sendMessage(overrides?: CallOverrides): Promise<void>;
   };
 
   filters: {
@@ -402,7 +397,6 @@ export interface SendOutboundRootResolver extends BaseContract {
     renounced(overrides?: CallOverrides): Promise<BigNumber>;
 
     sendMessage(
-      outboundRoot: PromiseOrValue<BytesLike>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
   };
@@ -449,7 +443,6 @@ export interface SendOutboundRootResolver extends BaseContract {
     renounced(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     sendMessage(
-      outboundRoot: PromiseOrValue<BytesLike>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
   };

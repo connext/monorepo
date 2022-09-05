@@ -5,9 +5,9 @@
 import { Contract, Signer, utils } from "ethers";
 import type { Provider } from "@ethersproject/providers";
 import type {
-  IConnector,
-  IConnectorInterface,
-} from "../../../../contracts/messaging/interfaces/IConnector";
+  IHubConnector,
+  IHubConnectorInterface,
+} from "../../../../contracts/messaging/interfaces/IHubConnector";
 
 const _abi = [
   {
@@ -142,6 +142,19 @@ const _abi = [
   {
     inputs: [
       {
+        internalType: "bytes",
+        name: "_data",
+        type: "bytes",
+      },
+    ],
+    name: "sendMessage",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
         internalType: "address",
         name: "_expected",
         type: "address",
@@ -160,15 +173,15 @@ const _abi = [
   },
 ];
 
-export class IConnector__factory {
+export class IHubConnector__factory {
   static readonly abi = _abi;
-  static createInterface(): IConnectorInterface {
-    return new utils.Interface(_abi) as IConnectorInterface;
+  static createInterface(): IHubConnectorInterface {
+    return new utils.Interface(_abi) as IHubConnectorInterface;
   }
   static connect(
     address: string,
     signerOrProvider: Signer | Provider
-  ): IConnector {
-    return new Contract(address, _abi, signerOrProvider) as IConnector;
+  ): IHubConnector {
+    return new Contract(address, _abi, signerOrProvider) as IHubConnector;
   }
 }

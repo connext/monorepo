@@ -4,6 +4,7 @@
 import type {
   BaseContract,
   BigNumber,
+  BigNumberish,
   BytesLike,
   CallOverrides,
   ContractTransaction,
@@ -30,9 +31,12 @@ export interface ConnectorInterface extends utils.Interface {
   functions: {
     "AMB()": FunctionFragment;
     "DOMAIN()": FunctionFragment;
+    "MIRROR_DOMAIN()": FunctionFragment;
     "ROOT_MANAGER()": FunctionFragment;
     "acceptProposedOwner()": FunctionFragment;
     "delay()": FunctionFragment;
+    "mirrorConnector()": FunctionFragment;
+    "mirrorGas()": FunctionFragment;
     "owner()": FunctionFragment;
     "processMessage(bytes)": FunctionFragment;
     "proposeNewOwner(address)": FunctionFragment;
@@ -40,7 +44,8 @@ export interface ConnectorInterface extends utils.Interface {
     "proposedTimestamp()": FunctionFragment;
     "renounceOwnership()": FunctionFragment;
     "renounced()": FunctionFragment;
-    "sendMessage(bytes)": FunctionFragment;
+    "setMirrorConnector(address)": FunctionFragment;
+    "setMirrorGas(uint256)": FunctionFragment;
     "verifySender(address)": FunctionFragment;
   };
 
@@ -48,9 +53,12 @@ export interface ConnectorInterface extends utils.Interface {
     nameOrSignatureOrTopic:
       | "AMB"
       | "DOMAIN"
+      | "MIRROR_DOMAIN"
       | "ROOT_MANAGER"
       | "acceptProposedOwner"
       | "delay"
+      | "mirrorConnector"
+      | "mirrorGas"
       | "owner"
       | "processMessage"
       | "proposeNewOwner"
@@ -58,12 +66,17 @@ export interface ConnectorInterface extends utils.Interface {
       | "proposedTimestamp"
       | "renounceOwnership"
       | "renounced"
-      | "sendMessage"
+      | "setMirrorConnector"
+      | "setMirrorGas"
       | "verifySender"
   ): FunctionFragment;
 
   encodeFunctionData(functionFragment: "AMB", values?: undefined): string;
   encodeFunctionData(functionFragment: "DOMAIN", values?: undefined): string;
+  encodeFunctionData(
+    functionFragment: "MIRROR_DOMAIN",
+    values?: undefined
+  ): string;
   encodeFunctionData(
     functionFragment: "ROOT_MANAGER",
     values?: undefined
@@ -73,6 +86,11 @@ export interface ConnectorInterface extends utils.Interface {
     values?: undefined
   ): string;
   encodeFunctionData(functionFragment: "delay", values?: undefined): string;
+  encodeFunctionData(
+    functionFragment: "mirrorConnector",
+    values?: undefined
+  ): string;
+  encodeFunctionData(functionFragment: "mirrorGas", values?: undefined): string;
   encodeFunctionData(functionFragment: "owner", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "processMessage",
@@ -93,8 +111,12 @@ export interface ConnectorInterface extends utils.Interface {
   ): string;
   encodeFunctionData(functionFragment: "renounced", values?: undefined): string;
   encodeFunctionData(
-    functionFragment: "sendMessage",
-    values: [PromiseOrValue<BytesLike>]
+    functionFragment: "setMirrorConnector",
+    values: [PromiseOrValue<string>]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "setMirrorGas",
+    values: [PromiseOrValue<BigNumberish>]
   ): string;
   encodeFunctionData(
     functionFragment: "verifySender",
@@ -104,6 +126,10 @@ export interface ConnectorInterface extends utils.Interface {
   decodeFunctionResult(functionFragment: "AMB", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "DOMAIN", data: BytesLike): Result;
   decodeFunctionResult(
+    functionFragment: "MIRROR_DOMAIN",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
     functionFragment: "ROOT_MANAGER",
     data: BytesLike
   ): Result;
@@ -112,6 +138,11 @@ export interface ConnectorInterface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "delay", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "mirrorConnector",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(functionFragment: "mirrorGas", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "owner", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "processMessage",
@@ -132,7 +163,11 @@ export interface ConnectorInterface extends utils.Interface {
   ): Result;
   decodeFunctionResult(functionFragment: "renounced", data: BytesLike): Result;
   decodeFunctionResult(
-    functionFragment: "sendMessage",
+    functionFragment: "setMirrorConnector",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "setMirrorGas",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -143,12 +178,16 @@ export interface ConnectorInterface extends utils.Interface {
   events: {
     "MessageProcessed(bytes,address)": EventFragment;
     "MessageSent(bytes,address)": EventFragment;
+    "MirrorConnectorUpdated(address,address)": EventFragment;
+    "MirrorGasUpdated(uint256,uint256)": EventFragment;
     "OwnershipProposed(address)": EventFragment;
     "OwnershipTransferred(address,address)": EventFragment;
   };
 
   getEvent(nameOrSignatureOrTopic: "MessageProcessed"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "MessageSent"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "MirrorConnectorUpdated"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "MirrorGasUpdated"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "OwnershipProposed"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "OwnershipTransferred"): EventFragment;
 }
@@ -175,6 +214,30 @@ export type MessageSentEvent = TypedEvent<
 >;
 
 export type MessageSentEventFilter = TypedEventFilter<MessageSentEvent>;
+
+export interface MirrorConnectorUpdatedEventObject {
+  previous: string;
+  current: string;
+}
+export type MirrorConnectorUpdatedEvent = TypedEvent<
+  [string, string],
+  MirrorConnectorUpdatedEventObject
+>;
+
+export type MirrorConnectorUpdatedEventFilter =
+  TypedEventFilter<MirrorConnectorUpdatedEvent>;
+
+export interface MirrorGasUpdatedEventObject {
+  previous: BigNumber;
+  current: BigNumber;
+}
+export type MirrorGasUpdatedEvent = TypedEvent<
+  [BigNumber, BigNumber],
+  MirrorGasUpdatedEventObject
+>;
+
+export type MirrorGasUpdatedEventFilter =
+  TypedEventFilter<MirrorGasUpdatedEvent>;
 
 export interface OwnershipProposedEventObject {
   proposedOwner: string;
@@ -230,6 +293,8 @@ export interface Connector extends BaseContract {
 
     DOMAIN(overrides?: CallOverrides): Promise<[number]>;
 
+    MIRROR_DOMAIN(overrides?: CallOverrides): Promise<[number]>;
+
     ROOT_MANAGER(overrides?: CallOverrides): Promise<[string]>;
 
     acceptProposedOwner(
@@ -237,6 +302,10 @@ export interface Connector extends BaseContract {
     ): Promise<ContractTransaction>;
 
     delay(overrides?: CallOverrides): Promise<[BigNumber]>;
+
+    mirrorConnector(overrides?: CallOverrides): Promise<[string]>;
+
+    mirrorGas(overrides?: CallOverrides): Promise<[BigNumber]>;
 
     owner(overrides?: CallOverrides): Promise<[string]>;
 
@@ -260,8 +329,13 @@ export interface Connector extends BaseContract {
 
     renounced(overrides?: CallOverrides): Promise<[boolean]>;
 
-    sendMessage(
-      _data: PromiseOrValue<BytesLike>,
+    setMirrorConnector(
+      _mirrorConnector: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
+
+    setMirrorGas(
+      _mirrorGas: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
@@ -275,6 +349,8 @@ export interface Connector extends BaseContract {
 
   DOMAIN(overrides?: CallOverrides): Promise<number>;
 
+  MIRROR_DOMAIN(overrides?: CallOverrides): Promise<number>;
+
   ROOT_MANAGER(overrides?: CallOverrides): Promise<string>;
 
   acceptProposedOwner(
@@ -282,6 +358,10 @@ export interface Connector extends BaseContract {
   ): Promise<ContractTransaction>;
 
   delay(overrides?: CallOverrides): Promise<BigNumber>;
+
+  mirrorConnector(overrides?: CallOverrides): Promise<string>;
+
+  mirrorGas(overrides?: CallOverrides): Promise<BigNumber>;
 
   owner(overrides?: CallOverrides): Promise<string>;
 
@@ -305,8 +385,13 @@ export interface Connector extends BaseContract {
 
   renounced(overrides?: CallOverrides): Promise<boolean>;
 
-  sendMessage(
-    _data: PromiseOrValue<BytesLike>,
+  setMirrorConnector(
+    _mirrorConnector: PromiseOrValue<string>,
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
+
+  setMirrorGas(
+    _mirrorGas: PromiseOrValue<BigNumberish>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
@@ -320,11 +405,17 @@ export interface Connector extends BaseContract {
 
     DOMAIN(overrides?: CallOverrides): Promise<number>;
 
+    MIRROR_DOMAIN(overrides?: CallOverrides): Promise<number>;
+
     ROOT_MANAGER(overrides?: CallOverrides): Promise<string>;
 
     acceptProposedOwner(overrides?: CallOverrides): Promise<void>;
 
     delay(overrides?: CallOverrides): Promise<BigNumber>;
+
+    mirrorConnector(overrides?: CallOverrides): Promise<string>;
+
+    mirrorGas(overrides?: CallOverrides): Promise<BigNumber>;
 
     owner(overrides?: CallOverrides): Promise<string>;
 
@@ -346,8 +437,13 @@ export interface Connector extends BaseContract {
 
     renounced(overrides?: CallOverrides): Promise<boolean>;
 
-    sendMessage(
-      _data: PromiseOrValue<BytesLike>,
+    setMirrorConnector(
+      _mirrorConnector: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    setMirrorGas(
+      _mirrorGas: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<void>;
 
@@ -369,6 +465,24 @@ export interface Connector extends BaseContract {
       caller?: null
     ): MessageSentEventFilter;
     MessageSent(data?: null, caller?: null): MessageSentEventFilter;
+
+    "MirrorConnectorUpdated(address,address)"(
+      previous?: null,
+      current?: null
+    ): MirrorConnectorUpdatedEventFilter;
+    MirrorConnectorUpdated(
+      previous?: null,
+      current?: null
+    ): MirrorConnectorUpdatedEventFilter;
+
+    "MirrorGasUpdated(uint256,uint256)"(
+      previous?: null,
+      current?: null
+    ): MirrorGasUpdatedEventFilter;
+    MirrorGasUpdated(
+      previous?: null,
+      current?: null
+    ): MirrorGasUpdatedEventFilter;
 
     "OwnershipProposed(address)"(
       proposedOwner?: PromiseOrValue<string> | null
@@ -392,6 +506,8 @@ export interface Connector extends BaseContract {
 
     DOMAIN(overrides?: CallOverrides): Promise<BigNumber>;
 
+    MIRROR_DOMAIN(overrides?: CallOverrides): Promise<BigNumber>;
+
     ROOT_MANAGER(overrides?: CallOverrides): Promise<BigNumber>;
 
     acceptProposedOwner(
@@ -399,6 +515,10 @@ export interface Connector extends BaseContract {
     ): Promise<BigNumber>;
 
     delay(overrides?: CallOverrides): Promise<BigNumber>;
+
+    mirrorConnector(overrides?: CallOverrides): Promise<BigNumber>;
+
+    mirrorGas(overrides?: CallOverrides): Promise<BigNumber>;
 
     owner(overrides?: CallOverrides): Promise<BigNumber>;
 
@@ -422,8 +542,13 @@ export interface Connector extends BaseContract {
 
     renounced(overrides?: CallOverrides): Promise<BigNumber>;
 
-    sendMessage(
-      _data: PromiseOrValue<BytesLike>,
+    setMirrorConnector(
+      _mirrorConnector: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
+
+    setMirrorGas(
+      _mirrorGas: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
@@ -438,6 +563,8 @@ export interface Connector extends BaseContract {
 
     DOMAIN(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
+    MIRROR_DOMAIN(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
     ROOT_MANAGER(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     acceptProposedOwner(
@@ -445,6 +572,10 @@ export interface Connector extends BaseContract {
     ): Promise<PopulatedTransaction>;
 
     delay(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    mirrorConnector(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    mirrorGas(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     owner(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
@@ -468,8 +599,13 @@ export interface Connector extends BaseContract {
 
     renounced(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
-    sendMessage(
-      _data: PromiseOrValue<BytesLike>,
+    setMirrorConnector(
+      _mirrorConnector: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
+    setMirrorGas(
+      _mirrorGas: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 

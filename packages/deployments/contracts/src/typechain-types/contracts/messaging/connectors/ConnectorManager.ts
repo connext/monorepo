@@ -22,17 +22,15 @@ import type {
 
 export interface ConnectorManagerInterface extends utils.Interface {
   functions: {
-    "domain()": FunctionFragment;
     "home()": FunctionFragment;
     "isReplica(address)": FunctionFragment;
     "localDomain()": FunctionFragment;
   };
 
   getFunction(
-    nameOrSignatureOrTopic: "domain" | "home" | "isReplica" | "localDomain"
+    nameOrSignatureOrTopic: "home" | "isReplica" | "localDomain"
   ): FunctionFragment;
 
-  encodeFunctionData(functionFragment: "domain", values?: undefined): string;
   encodeFunctionData(functionFragment: "home", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "isReplica",
@@ -43,7 +41,6 @@ export interface ConnectorManagerInterface extends utils.Interface {
     values?: undefined
   ): string;
 
-  decodeFunctionResult(functionFragment: "domain", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "home", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "isReplica", data: BytesLike): Result;
   decodeFunctionResult(
@@ -81,8 +78,6 @@ export interface ConnectorManager extends BaseContract {
   removeListener: OnEvent<this>;
 
   functions: {
-    domain(overrides?: CallOverrides): Promise<[number]>;
-
     home(overrides?: CallOverrides): Promise<[string]>;
 
     isReplica(
@@ -92,8 +87,6 @@ export interface ConnectorManager extends BaseContract {
 
     localDomain(overrides?: CallOverrides): Promise<[number]>;
   };
-
-  domain(overrides?: CallOverrides): Promise<number>;
 
   home(overrides?: CallOverrides): Promise<string>;
 
@@ -105,8 +98,6 @@ export interface ConnectorManager extends BaseContract {
   localDomain(overrides?: CallOverrides): Promise<number>;
 
   callStatic: {
-    domain(overrides?: CallOverrides): Promise<number>;
-
     home(overrides?: CallOverrides): Promise<string>;
 
     isReplica(
@@ -120,8 +111,6 @@ export interface ConnectorManager extends BaseContract {
   filters: {};
 
   estimateGas: {
-    domain(overrides?: CallOverrides): Promise<BigNumber>;
-
     home(overrides?: CallOverrides): Promise<BigNumber>;
 
     isReplica(
@@ -133,8 +122,6 @@ export interface ConnectorManager extends BaseContract {
   };
 
   populateTransaction: {
-    domain(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
     home(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     isReplica(

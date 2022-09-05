@@ -26,13 +26,14 @@ import type {
   PromiseOrValue,
 } from "../../../common";
 
-export interface IConnectorInterface extends utils.Interface {
+export interface IHubConnectorInterface extends utils.Interface {
   functions: {
     "acceptProposedOwner()": FunctionFragment;
     "owner()": FunctionFragment;
     "processMessage(bytes)": FunctionFragment;
     "proposeNewOwner(address)": FunctionFragment;
     "proposed()": FunctionFragment;
+    "sendMessage(bytes)": FunctionFragment;
     "verifySender(address)": FunctionFragment;
   };
 
@@ -43,6 +44,7 @@ export interface IConnectorInterface extends utils.Interface {
       | "processMessage"
       | "proposeNewOwner"
       | "proposed"
+      | "sendMessage"
       | "verifySender"
   ): FunctionFragment;
 
@@ -60,6 +62,10 @@ export interface IConnectorInterface extends utils.Interface {
     values: [PromiseOrValue<string>]
   ): string;
   encodeFunctionData(functionFragment: "proposed", values?: undefined): string;
+  encodeFunctionData(
+    functionFragment: "sendMessage",
+    values: [PromiseOrValue<BytesLike>]
+  ): string;
   encodeFunctionData(
     functionFragment: "verifySender",
     values: [PromiseOrValue<string>]
@@ -79,6 +85,10 @@ export interface IConnectorInterface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "proposed", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "sendMessage",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(
     functionFragment: "verifySender",
     data: BytesLike
@@ -143,12 +153,12 @@ export type OwnershipTransferredEvent = TypedEvent<
 export type OwnershipTransferredEventFilter =
   TypedEventFilter<OwnershipTransferredEvent>;
 
-export interface IConnector extends BaseContract {
+export interface IHubConnector extends BaseContract {
   connect(signerOrProvider: Signer | Provider | string): this;
   attach(addressOrName: string): this;
   deployed(): Promise<this>;
 
-  interface: IConnectorInterface;
+  interface: IHubConnectorInterface;
 
   queryFilter<TEvent extends TypedEvent>(
     event: TypedEventFilter<TEvent>,
@@ -190,6 +200,11 @@ export interface IConnector extends BaseContract {
       overrides?: CallOverrides
     ): Promise<[string] & { proposed_: string }>;
 
+    sendMessage(
+      _data: PromiseOrValue<BytesLike>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
+
     verifySender(
       _expected: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -214,6 +229,11 @@ export interface IConnector extends BaseContract {
 
   proposed(overrides?: CallOverrides): Promise<string>;
 
+  sendMessage(
+    _data: PromiseOrValue<BytesLike>,
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
+
   verifySender(
     _expected: PromiseOrValue<string>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -235,6 +255,11 @@ export interface IConnector extends BaseContract {
     ): Promise<void>;
 
     proposed(overrides?: CallOverrides): Promise<string>;
+
+    sendMessage(
+      _data: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides
+    ): Promise<void>;
 
     verifySender(
       _expected: PromiseOrValue<string>,
@@ -291,6 +316,11 @@ export interface IConnector extends BaseContract {
 
     proposed(overrides?: CallOverrides): Promise<BigNumber>;
 
+    sendMessage(
+      _data: PromiseOrValue<BytesLike>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
+
     verifySender(
       _expected: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -315,6 +345,11 @@ export interface IConnector extends BaseContract {
     ): Promise<PopulatedTransaction>;
 
     proposed(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    sendMessage(
+      _data: PromiseOrValue<BytesLike>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
 
     verifySender(
       _expected: PromiseOrValue<string>,

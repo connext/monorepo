@@ -41,7 +41,6 @@ export interface MainnetSpokeConnectorInterface extends utils.Interface {
     "count()": FunctionFragment;
     "delay()": FunctionFragment;
     "dispatch(uint32,bytes32,bytes)": FunctionFragment;
-    "domain()": FunctionFragment;
     "home()": FunctionFragment;
     "isReplica(address)": FunctionFragment;
     "localDomain()": FunctionFragment;
@@ -83,7 +82,6 @@ export interface MainnetSpokeConnectorInterface extends utils.Interface {
       | "count"
       | "delay"
       | "dispatch"
-      | "domain"
       | "home"
       | "isReplica"
       | "localDomain"
@@ -151,7 +149,6 @@ export interface MainnetSpokeConnectorInterface extends utils.Interface {
       PromiseOrValue<BytesLike>
     ]
   ): string;
-  encodeFunctionData(functionFragment: "domain", values?: undefined): string;
   encodeFunctionData(functionFragment: "home", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "isReplica",
@@ -266,7 +263,6 @@ export interface MainnetSpokeConnectorInterface extends utils.Interface {
   decodeFunctionResult(functionFragment: "count", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "delay", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "dispatch", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "domain", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "home", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "isReplica", data: BytesLike): Result;
   decodeFunctionResult(
@@ -547,8 +543,6 @@ export interface MainnetSpokeConnector extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
-    domain(overrides?: CallOverrides): Promise<[number]>;
-
     home(overrides?: CallOverrides): Promise<[string]>;
 
     isReplica(
@@ -681,8 +675,6 @@ export interface MainnetSpokeConnector extends BaseContract {
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
-  domain(overrides?: CallOverrides): Promise<number>;
-
   home(overrides?: CallOverrides): Promise<string>;
 
   isReplica(
@@ -810,8 +802,6 @@ export interface MainnetSpokeConnector extends BaseContract {
       _messageBody: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
     ): Promise<void>;
-
-    domain(overrides?: CallOverrides): Promise<number>;
 
     home(overrides?: CallOverrides): Promise<string>;
 
@@ -1023,8 +1013,6 @@ export interface MainnetSpokeConnector extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
-    domain(overrides?: CallOverrides): Promise<BigNumber>;
-
     home(overrides?: CallOverrides): Promise<BigNumber>;
 
     isReplica(
@@ -1155,8 +1143,6 @@ export interface MainnetSpokeConnector extends BaseContract {
       _messageBody: PromiseOrValue<BytesLike>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
-
-    domain(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     home(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 

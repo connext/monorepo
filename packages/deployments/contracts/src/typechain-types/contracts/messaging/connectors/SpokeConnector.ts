@@ -41,7 +41,6 @@ export interface SpokeConnectorInterface extends utils.Interface {
     "count()": FunctionFragment;
     "delay()": FunctionFragment;
     "dispatch(uint32,bytes32,bytes)": FunctionFragment;
-    "domain()": FunctionFragment;
     "home()": FunctionFragment;
     "isReplica(address)": FunctionFragment;
     "localDomain()": FunctionFragment;
@@ -61,7 +60,6 @@ export interface SpokeConnectorInterface extends utils.Interface {
     "renounceOwnership()": FunctionFragment;
     "renounced()": FunctionFragment;
     "send()": FunctionFragment;
-    "sendMessage(bytes)": FunctionFragment;
     "setMirrorConnector(address)": FunctionFragment;
     "setMirrorGas(uint256)": FunctionFragment;
     "tree()": FunctionFragment;
@@ -83,7 +81,6 @@ export interface SpokeConnectorInterface extends utils.Interface {
       | "count"
       | "delay"
       | "dispatch"
-      | "domain"
       | "home"
       | "isReplica"
       | "localDomain"
@@ -103,7 +100,6 @@ export interface SpokeConnectorInterface extends utils.Interface {
       | "renounceOwnership"
       | "renounced"
       | "send"
-      | "sendMessage"
       | "setMirrorConnector"
       | "setMirrorGas"
       | "tree"
@@ -151,7 +147,6 @@ export interface SpokeConnectorInterface extends utils.Interface {
       PromiseOrValue<BytesLike>
     ]
   ): string;
-  encodeFunctionData(functionFragment: "domain", values?: undefined): string;
   encodeFunctionData(functionFragment: "home", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "isReplica",
@@ -215,10 +210,6 @@ export interface SpokeConnectorInterface extends utils.Interface {
   encodeFunctionData(functionFragment: "renounced", values?: undefined): string;
   encodeFunctionData(functionFragment: "send", values?: undefined): string;
   encodeFunctionData(
-    functionFragment: "sendMessage",
-    values: [PromiseOrValue<BytesLike>]
-  ): string;
-  encodeFunctionData(
     functionFragment: "setMirrorConnector",
     values: [PromiseOrValue<string>]
   ): string;
@@ -266,7 +257,6 @@ export interface SpokeConnectorInterface extends utils.Interface {
   decodeFunctionResult(functionFragment: "count", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "delay", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "dispatch", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "domain", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "home", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "isReplica", data: BytesLike): Result;
   decodeFunctionResult(
@@ -316,10 +306,6 @@ export interface SpokeConnectorInterface extends utils.Interface {
   ): Result;
   decodeFunctionResult(functionFragment: "renounced", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "send", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "sendMessage",
-    data: BytesLike
-  ): Result;
   decodeFunctionResult(
     functionFragment: "setMirrorConnector",
     data: BytesLike
@@ -547,8 +533,6 @@ export interface SpokeConnector extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
-    domain(overrides?: CallOverrides): Promise<[number]>;
-
     home(overrides?: CallOverrides): Promise<[string]>;
 
     isReplica(
@@ -617,11 +601,6 @@ export interface SpokeConnector extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
-    sendMessage(
-      _data: PromiseOrValue<BytesLike>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
-
     setMirrorConnector(
       _mirrorConnector: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -680,8 +659,6 @@ export interface SpokeConnector extends BaseContract {
     _messageBody: PromiseOrValue<BytesLike>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
-
-  domain(overrides?: CallOverrides): Promise<number>;
 
   home(overrides?: CallOverrides): Promise<string>;
 
@@ -751,11 +728,6 @@ export interface SpokeConnector extends BaseContract {
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
-  sendMessage(
-    _data: PromiseOrValue<BytesLike>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
-
   setMirrorConnector(
     _mirrorConnector: PromiseOrValue<string>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -810,8 +782,6 @@ export interface SpokeConnector extends BaseContract {
       _messageBody: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
     ): Promise<void>;
-
-    domain(overrides?: CallOverrides): Promise<number>;
 
     home(overrides?: CallOverrides): Promise<string>;
 
@@ -876,11 +846,6 @@ export interface SpokeConnector extends BaseContract {
     renounced(overrides?: CallOverrides): Promise<boolean>;
 
     send(overrides?: CallOverrides): Promise<void>;
-
-    sendMessage(
-      _data: PromiseOrValue<BytesLike>,
-      overrides?: CallOverrides
-    ): Promise<void>;
 
     setMirrorConnector(
       _mirrorConnector: PromiseOrValue<string>,
@@ -1023,8 +988,6 @@ export interface SpokeConnector extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
-    domain(overrides?: CallOverrides): Promise<BigNumber>;
-
     home(overrides?: CallOverrides): Promise<BigNumber>;
 
     isReplica(
@@ -1093,11 +1056,6 @@ export interface SpokeConnector extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
-    sendMessage(
-      _data: PromiseOrValue<BytesLike>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
-
     setMirrorConnector(
       _mirrorConnector: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -1155,8 +1113,6 @@ export interface SpokeConnector extends BaseContract {
       _messageBody: PromiseOrValue<BytesLike>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
-
-    domain(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     home(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
@@ -1223,11 +1179,6 @@ export interface SpokeConnector extends BaseContract {
     renounced(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     send(
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
-
-    sendMessage(
-      _data: PromiseOrValue<BytesLike>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 

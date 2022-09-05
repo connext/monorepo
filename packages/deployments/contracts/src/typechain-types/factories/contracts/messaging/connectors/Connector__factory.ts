@@ -92,6 +92,44 @@ const _abi = [
     anonymous: false,
     inputs: [
       {
+        indexed: false,
+        internalType: "address",
+        name: "previous",
+        type: "address",
+      },
+      {
+        indexed: false,
+        internalType: "address",
+        name: "current",
+        type: "address",
+      },
+    ],
+    name: "MirrorConnectorUpdated",
+    type: "event",
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: false,
+        internalType: "uint256",
+        name: "previous",
+        type: "uint256",
+      },
+      {
+        indexed: false,
+        internalType: "uint256",
+        name: "current",
+        type: "uint256",
+      },
+    ],
+    name: "MirrorGasUpdated",
+    type: "event",
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
         indexed: true,
         internalType: "address",
         name: "proposedOwner",
@@ -148,6 +186,19 @@ const _abi = [
   },
   {
     inputs: [],
+    name: "MIRROR_DOMAIN",
+    outputs: [
+      {
+        internalType: "uint32",
+        name: "",
+        type: "uint32",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [],
     name: "ROOT_MANAGER",
     outputs: [
       {
@@ -169,6 +220,32 @@ const _abi = [
   {
     inputs: [],
     name: "delay",
+    outputs: [
+      {
+        internalType: "uint256",
+        name: "",
+        type: "uint256",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "mirrorConnector",
+    outputs: [
+      {
+        internalType: "address",
+        name: "",
+        type: "address",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "mirrorGas",
     outputs: [
       {
         internalType: "uint256",
@@ -267,12 +344,25 @@ const _abi = [
   {
     inputs: [
       {
-        internalType: "bytes",
-        name: "_data",
-        type: "bytes",
+        internalType: "address",
+        name: "_mirrorConnector",
+        type: "address",
       },
     ],
-    name: "sendMessage",
+    name: "setMirrorConnector",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "uint256",
+        name: "_mirrorGas",
+        type: "uint256",
+      },
+    ],
+    name: "setMirrorGas",
     outputs: [],
     stateMutability: "nonpayable",
     type: "function",

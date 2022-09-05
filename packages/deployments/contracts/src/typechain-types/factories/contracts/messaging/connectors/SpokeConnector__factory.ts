@@ -421,19 +421,6 @@ const _abi = [
   },
   {
     inputs: [],
-    name: "domain",
-    outputs: [
-      {
-        internalType: "uint32",
-        name: "",
-        type: "uint32",
-      },
-    ],
-    stateMutability: "view",
-    type: "function",
-  },
-  {
-    inputs: [],
     name: "home",
     outputs: [
       {
@@ -697,19 +684,6 @@ const _abi = [
   {
     inputs: [],
     name: "send",
-    outputs: [],
-    stateMutability: "nonpayable",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
-        internalType: "bytes",
-        name: "_data",
-        type: "bytes",
-      },
-    ],
-    name: "sendMessage",
     outputs: [],
     stateMutability: "nonpayable",
     type: "function",

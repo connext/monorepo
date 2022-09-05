@@ -8,5 +8,6 @@
   "function processMessage(bytes)",
   "function proposeNewOwner(address)",
   "function proposed() view returns (address)",
+  "function sendMessage(bytes)",
   "function verifySender(address) returns (bool)"
 ]

@@ -31,7 +31,6 @@
   "function count() view returns (uint256)",
   "function delay() view returns (uint256)",
   "function dispatch(uint32,bytes32,bytes)",
-  "function domain() view returns (uint32)",
   "function home() view returns (address)",
   "function isReplica(address) view returns (bool)",
   "function localDomain() view returns (uint32)",
