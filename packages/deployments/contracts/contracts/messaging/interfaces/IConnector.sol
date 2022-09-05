@@ -40,39 +40,27 @@ import {IProposedOwnable} from "../../shared/interfaces/IProposedOwnable.sol";
  * - bsc (use multichain for messaging)
  */
 interface IConnector is IProposedOwnable {
-  function outboundRoot() external view returns (bytes32);
+  // ============ Events ============
+  /**
+   * @notice Emitted whenever a message is successfully sent over an AMB
+   * @param data The contents of the message
+   * @param caller Who called the function (sent the message)
+   */
+  // TODO: should this be more specific, i.e. AggregateRootSent v OutboundRootSent ?
+  event MessageSent(bytes data, address caller);
 
-  function aggregateRoot() external view returns (bytes32);
+  /**
+   * @notice Emitted whenever a message is successfully received over an AMB
+   * @param data The contents of the message
+   * @param caller Who called the function
+   */
+  event MessageProcessed(bytes data, address caller);
+
+  // ============ Public fns ============
 
   function sendMessage(bytes memory _data) external;
 
   function processMessage(bytes memory _data) external;
 
   function verifySender(address _expected) external returns (bool);
-
-  /**
-   * @notice This function should send a message through the AMB by adding it to the merkle root
-   * stored on that chain.
-   */
-  function dispatch(
-    uint32 _destinationDomain,
-    bytes32 _recipientAddress,
-    bytes memory _messageBody
-  ) external;
-
-  /**
-   * @notice Must be able to call the `handle` function on the BridgeRouter contract. This is called
-   * on the destination domain to handle incoming messages
-   */
-  function proveAndProcess(
-    bytes memory _message,
-    bytes32[32] calldata _proof,
-    uint256 _index
-  ) external;
-
-  /**
-   * @notice This is called by relayers to trigger passing of current root to mainnet root manager
-   * @dev This is called at specific time intervals
-   */
-  function send() external;
 }

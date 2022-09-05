@@ -2,6 +2,7 @@
 pragma solidity 0.8.15;
 
 import {ProposedOwnable} from "../../shared/ProposedOwnable.sol";
+import {IConnector} from "../interfaces/IConnector.sol";
 
 /**
  * @title Connector
@@ -13,22 +14,8 @@ import {ProposedOwnable} from "../../shared/ProposedOwnable.sol";
  * mainnet). In this case, the `mirrorConnector`, `MIRROR_DOMAIN`, and `mirrorGas`
  * will be empty
  */
-abstract contract Connector is ProposedOwnable {
+abstract contract Connector is ProposedOwnable, IConnector {
   // ============ Events ============
-  /**
-   * @notice Emitted whenever a message is successfully sent over an AMB
-   * @param data The contents of the message
-   * @param caller Who called the function (sent the message)
-   */
-  // TODO: should this be more specific, i.e. AggregateRootSent v OutboundRootSent ?
-  event MessageSent(bytes data, address caller);
-
-  /**
-   * @notice Emitted whenever a message is successfully received over an AMB
-   * @param data The contents of the message
-   * @param caller Who called the function
-   */
-  event MessageProcessed(bytes data, address caller);
 
   // ============ Public storage ============
   /**
