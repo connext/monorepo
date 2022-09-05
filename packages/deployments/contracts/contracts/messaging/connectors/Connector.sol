@@ -95,7 +95,6 @@ abstract contract Connector is ProposedOwnable, IConnector {
 
     // sanity checks on values
     require(_domain != 0, "empty domain");
-    require(_amb != address(0), "empty amb");
     require(_rootManager != address(0), "empty rootManager");
     // see note at top of contract on why the mirror values are not sanity checked
 
