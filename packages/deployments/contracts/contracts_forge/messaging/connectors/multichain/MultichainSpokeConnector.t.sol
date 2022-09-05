@@ -1,11 +1,11 @@
 // SPDX-License-Identifier: MIT OR Apache-2.0
 pragma solidity 0.8.15;
 
-import {MultichainSpokeConnector} from "../../../../../contracts/messaging/connectors/multichain/MultichainSpokeConnector.sol";
-import {Multichain} from "../../../../../contracts/messaging/interfaces/ambs/Multichain.sol";
+import {MultichainSpokeConnector} from "../../../../contracts/messaging/connectors/multichain/MultichainSpokeConnector.sol";
+import {Multichain} from "../../../../contracts/messaging/interfaces/ambs/Multichain.sol";
 
-import "../../../../utils/ConnectorHelper.sol";
-import "../../../../utils/Mock.sol";
+import "../../../utils/ConnectorHelper.sol";
+import "../../../utils/Mock.sol";
 
 contract MultichainSpokeConnectorTest is ConnectorHelper {
   using stdStorage for StdStorage;

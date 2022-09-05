@@ -1,14 +1,14 @@
 // SPDX-License-Identifier: MIT OR Apache-2.0
 pragma solidity 0.8.15;
 
-import {TypeCasts} from "../../../contracts/shared/libraries/TypeCasts.sol";
-import {Message} from "../../../contracts/messaging/libraries/Message.sol";
+import {TypeCasts} from "../../contracts/shared/libraries/TypeCasts.sol";
+import {Message} from "../../contracts/messaging/libraries/Message.sol";
 
-import {RootManager} from "../../../contracts/messaging/RootManager.sol";
-import {SpokeConnector} from "../../../contracts/messaging/connectors/SpokeConnector.sol";
+import {RootManager} from "../../contracts/messaging/RootManager.sol";
+import {SpokeConnector} from "../../contracts/messaging/connectors/SpokeConnector.sol";
 
-import "../../utils/ConnectorHelper.sol";
-import "../../utils/Mock.sol";
+import "../utils/ConnectorHelper.sol";
+import "../utils/Mock.sol";
 
 import "forge-std/console.sol";
 
