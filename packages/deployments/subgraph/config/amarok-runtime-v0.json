@@ -1,6 +1,6 @@
 [
   {
-    "subgraphName": "connext/runtime-v0-opt-goerli-staging",
+    "subgraphName": "connext/amarok-runtime-v0-opt-goerli",
     "network": "optimism-goerli",
     "source": [
       {
@@ -12,7 +12,7 @@
     ]
   },
   {
-    "subgraphName": "connext/nxtp-amarok-runtime-staging-goerli",
+    "subgraphName": "connext/nxtp-amarok-runtime-v0-goerli",
     "network": "goerli",
     "source": [
       {
