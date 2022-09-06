@@ -246,7 +246,6 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment): Promise<voi
     { name: getDeploymentName("SwapAdminFacet"), contract: "SwapAdminFacet", args: [] },
     { name: getDeploymentName("VersionFacet"), contract: "VersionFacet", args: [] },
     { name: getDeploymentName("DiamondCutFacet"), contract: "DiamondCutFacet", args: [] },
-    { name: getDeploymentName("DiamondLoupeFacet"), contract: "DiamondLoupeFacet", args: [] },
   ];
   let connext;
   if (isDiamondUpgrade) {
