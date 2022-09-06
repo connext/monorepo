@@ -312,7 +312,10 @@ contract BridgeFacet is BaseConnextFacet {
     bytes32 remoteInstance;
     {
       // Not native asset
-      if (_args.transactingAsset == address(0)) {
+      // NOTE: we support using address(0) as an intuitive default iff you are sending a 0-value
+      // transfer. in that edgecase, address(0) will not be registered as a supported asset, but should
+      // pass the `isLocalOrigin` check on the TokenRegistry
+      if (_args.transactingAsset == address(0) && _args.transactingAmount != 0) {
         revert BridgeFacet__xcall_nativeAssetNotSupported();
       }
 
@@ -363,7 +366,13 @@ contract BridgeFacet is BaseConnextFacet {
     {
       // Check that the asset is supported -- can be either adopted or local.
       TokenId memory canonical = s.adoptedToCanonical[_args.transactingAsset];
-      if (canonical.id == bytes32(0)) {
+
+      // NOTE: above we check that you can only have `address(0)` as a transacting asset when
+      // you are sending 0-amounts. Because 0-amount transfers shortcircuit all checks on
+      // mappings keyed on hash(canonicalId, canonicalDomain), this is safe even when the
+      // address(0) asset is not whitelisted. These values are only used for the `transactionId`
+      // generation
+      if (canonical.id == bytes32(0) && _args.transactingAsset != address(0)) {
         // Here, the asset is *not* the adopted asset. The only other valid option
         // is for this asset to be the local asset (i.e. transferring madEth on optimism)
         // NOTE: it *cannot* be the canonical asset. the canonical asset is only used on
