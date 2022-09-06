@@ -39,7 +39,7 @@ const formatConnectorArgs = (
       `constructorArgs:`,
       hubArgs.map((c) => c.toString()),
     );
-    return hubArgs;
+    return [...hubArgs, config.processGas, config.reserveGas];
   }
   const constructorArgs = [
     ...hubArgs,
