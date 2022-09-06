@@ -913,7 +913,7 @@ __metadata:
     hardhat: 2.10.2
     hardhat-abi-exporter: 2.10.0
     hardhat-contract-sizer: 2.6.1
-    hardhat-deploy: 0.11.12
+    hardhat-deploy: 0.11.13
     hardhat-diamond-abi: 3.0.1
     hardhat-gas-reporter: 1.0.8
     node-fetch: 2
@@ -13977,7 +13977,7 @@ __metadata:
     yargs-parser: ^16.1.0
   bin:
     gluegun: bin/gluegun
-  checksum: 39134821c7233bae61fa0d85bcc5ab4ccd2cbe00173c53cc3cab74c4f29d54de939809832fc4e9bedb896a0795313d28f854bc7d5abe7b154bf7d77c319398bd
+  checksum: 429c1577b6867b3b718dc8c33f1149b98c77f263603c17da7adbec236e7ec4544a8bde5bac43d4128bc44cd179cd18c1fc56483194aaeadb4d6f49a7ab6d07e0
   languageName: node
   linkType: hard
 
@@ -14228,7 +14228,28 @@ __metadata:
   languageName: node
   linkType: hard
 
-"hardhat-deploy@npm:0.11.12, hardhat-deploy@npm:^0.11.10":
+"hardhat-deploy@npm:0.11.13":
+  version: 0.11.13
+  resolution: "hardhat-deploy@npm:0.11.13"
+  dependencies:
+    "@types/qs": ^6.9.7
+    axios: ^0.21.1
+    chalk: ^4.1.2
+    chokidar: ^3.5.2
+    debug: ^4.3.2
+    enquirer: ^2.3.6
+    ethers: ^5.5.3
+    form-data: ^4.0.0
+    fs-extra: ^10.0.0
+    match-all: ^1.2.6
+    murmur-128: ^0.2.1
+    qs: ^6.9.4
+    zksync-web3: ^0.8.1
+  checksum: 13d0ce856979e69dc4554eb293d6980a899e924999122392f420816100891b0f1e7bd6c38293204f046f3ae7a2af65cb5bd0e01f69e3b6084877a39319bd7334
+  languageName: node
+  linkType: hard
+
+"hardhat-deploy@npm:^0.11.10":
   version: 0.11.12
   resolution: "hardhat-deploy@npm:0.11.12"
   dependencies:
@@ -26813,5 +26834,14 @@ __metadata:
   peerDependencies:
     ethers: ~5.5.0
   checksum: e93e22f80c46af2fb8c0b604156f0548e464b5988b6b66f44500f7409cc16aa397b3675e57cee09a93a60ae7277d8ae2f7b0503cb27b586765b2408d0894880a
+  languageName: node
+  linkType: hard
+
+"zksync-web3@npm:^0.8.1":
+  version: 0.8.1
+  resolution: "zksync-web3@npm:0.8.1"
+  peerDependencies:
+    ethers: ~5.7.0
+  checksum: 613ebe822df1bef0af4d62386f3aaf65917d45dd80932b0ddf5b81eba6b0a46376f3e74263d153915dcfb8be954f730ded2e34d7806b6b199bbc74e0f124a0fb
   languageName: node
   linkType: hard
