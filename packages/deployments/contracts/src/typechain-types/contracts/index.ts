@@ -5,6 +5,8 @@ import type * as core from "./core";
 export type { core };
 import type * as messaging from "./messaging";
 export type { messaging };
+import type * as nomadCore from "./nomad-core";
+export type { nomadCore };
 import type * as shared from "./shared";
 export type { shared };
 import type * as test from "./test";
