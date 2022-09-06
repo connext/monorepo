@@ -35,6 +35,7 @@ const formatConnectorArgs = (
     config.processGas, // mirror process gas
     config.processGas,
     config.reserveGas,
+    ...Object.values((isHub ? config?.custom?.hub : config?.custom?.spoke) ?? {}),
   ];
   console.log(
     `constructorArgs:`,

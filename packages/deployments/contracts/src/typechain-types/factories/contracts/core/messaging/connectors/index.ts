@@ -4,7 +4,9 @@
 export * as arbitrumConnectorSol from "./ArbitrumConnector.sol";
 export * as gnosisConnectorSol from "./GnosisConnector.sol";
 export * as mainnetConnectorSol from "./MainnetConnector.sol";
+export * as multichainConnectorSol from "./MultichainConnector.sol";
 export * as optimismConnectorSol from "./OptimismConnector.sol";
+export * as polygonConnectorSol from "./PolygonConnector.sol";
 export { Connector__factory } from "./Connector__factory";
 export { ConnectorManager__factory } from "./ConnectorManager__factory";
 export { SendOutboundRootResolver__factory } from "./SendOutboundRootResolver__factory";

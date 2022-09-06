@@ -31,13 +31,29 @@ export default task("set-mirror-connectors", "Add a remote router")
         const set = await connector.mirrorConnector();
         if (!mirrorConnector || set.toLowerCase() === mirrorConnector.toLowerCase()) {
           return;
+        } else {
+          console.log(`setting mirror connector to ${mirrorConnector} on ${name}...`);
+          const tx = await connector.setMirrorConnector(mirrorConnector);
+          console.log(`set mirror tx sent:`, tx.hash);
+          const receipt = await tx.wait();
+          console.log(`tx mined:`, receipt.transactionHash);
         }
 
-        console.log(`setting mirror connector to ${mirrorConnector} on ${name}...`);
-        const tx = await connector.setMirrorConnector(mirrorConnector);
-        console.log(`set mirror tx sent:`, tx.hash);
-        const receipt = await tx.wait();
-        console.log(`tx mined:`, receipt.transactionHash);
+        if (name.includes("PolygonL1Connector")) {
+          console.log(`setting fxChildTunnel to ${mirrorConnector} on ${name}...`);
+          const tx = await connector.setFxChildTunnel(mirrorConnector);
+          console.log(`set fxChildTunnel tx sent:`, tx.hash);
+          const receipt = await tx.wait();
+          console.log(`tx mined:`, receipt.transactionHash);
+        }
+
+        if (name.includes("PolygonL2Connector")) {
+          console.log(`setting fxRootTunnel to ${mirrorConnector} on ${name}...`);
+          const tx = await connector.setFxRootTunnel(mirrorConnector);
+          console.log(`set fxRootTunnel tx sent:`, tx.hash);
+          const receipt = await tx.wait();
+          console.log(`tx mined:`, receipt.transactionHash);
+        }
       },
     );
   });

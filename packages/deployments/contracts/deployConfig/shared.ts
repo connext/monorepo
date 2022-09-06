@@ -165,6 +165,10 @@ export type MessagingProtocolConfig = {
       };
       processGas: BigNumber;
       reserveGas: BigNumber;
+      custom?: {
+        hub?: { [key: string]: string | BigNumber };
+        spoke?: { [key: string]: string | BigNumber };
+      };
     };
   };
 };
@@ -230,16 +234,35 @@ export const MESSAGING_PROTOCOL_CONFIGS: {
       // },
       // Arbitrum nitro goerli testnet:
       // https://developer.offchainlabs.com/docs/Useful_Addresses
-      421613: {
-        prefix: "Arbitrum",
+      // 421613: {
+      //   prefix: "Arbitrum",
+      //   ambs: {
+      //     // https://goerli.etherscan.io/address/0x6BEbC4925716945D46F0Ec336D5C2564F419682C
+      //     hub: "0x6BEbC4925716945D46F0Ec336D5C2564F419682C",
+      //     // https://goerli-rollup-explorer.arbitrum.io/address/0x0000000000000000000000000000000000000064
+      //     spoke: "0x0000000000000000000000000000000000000064",
+      //   },
+      //   processGas: DEFAULT_PROCESS_GAS,
+      //   reserveGas: DEFAULT_RESERVE_GAS,
+      // },
+      80001: {
+        prefix: "Polygon",
         ambs: {
-          // https://goerli.etherscan.io/address/0x6BEbC4925716945D46F0Ec336D5C2564F419682C
-          hub: "0x6BEbC4925716945D46F0Ec336D5C2564F419682C",
-          // https://goerli-rollup-explorer.arbitrum.io/address/0x0000000000000000000000000000000000000064
-          spoke: "0x0000000000000000000000000000000000000064",
+          // FxRoot on goerli
+          // https://goerli.etherscan.io/address/0x3d1d3E34f7fB6D26245E6640E1c50710eFFf15bA
+          hub: "0x3d1d3E34f7fB6D26245E6640E1c50710eFFf15bA",
+          // FxChild on mumbai
+          // https://mumbai.polygonscan.com/address/0xCf73231F28B7331BBe3124B907840A94851f9f11
+          spoke: "0xCf73231F28B7331BBe3124B907840A94851f9f11",
         },
         processGas: DEFAULT_PROCESS_GAS,
         reserveGas: DEFAULT_RESERVE_GAS,
+        custom: {
+          hub: {
+            // https://goerli.etherscan.io/address/0x2890ba17efe978480615e330ecb65333b880928e
+            checkpointManager: "0x2890bA17EfE978480615e330ecB65333b880928e",
+          },
+        },
       },
       5: {
         prefix: "Mainnet",

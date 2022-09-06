@@ -16,6 +16,7 @@
     "packages/utils",
     "packages/deployments/contracts",
     "packages/deployments/subgraph",
+    "packages/deployments/fx-subgraph",
     "packages/adapters/txservice",
     "packages/adapters/cache",
     "packages/adapters/subgraph",

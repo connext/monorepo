@@ -49,6 +49,7 @@ import "./tasks/setBridgeRouter";
 import "./tasks/addSequencer";
 import "./tasks/setXAppConnectionManager";
 import "./tasks/queryRoots";
+import "./tasks/submitExitProof";
 import "./tasks/addConnectors";
 import "./tasks/connector/proveAndProcess";
 import "./tasks/addSender";
@@ -252,6 +253,9 @@ const config: HardhatUserConfig = {
       accounts: { mnemonic },
       chainId: 80001,
       url: "https://rpc.ankr.com/polygon_mumbai",
+      companionNetworks: {
+        hub: "goerli",
+      },
     },
     "arbitrum-rinkeby": {
       accounts: { mnemonic },
@@ -267,6 +271,7 @@ const config: HardhatUserConfig = {
       ropsten: process.env.ETHERSCAN_API_KEY!,
       goerli: process.env.ETHERSCAN_API_KEY!,
       "optimism-goerli": process.env.ETHERSCAN_API_KEY!,
+      mumbai: process.env.ETHERSCAN_API_KEY!,
     },
     customChains: [
       {

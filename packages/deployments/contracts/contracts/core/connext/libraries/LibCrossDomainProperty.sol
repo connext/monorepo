@@ -51,7 +51,7 @@ library LibCrossDomainProperty {
     uint32 _originDomain,
     address _originSender,
     bytes memory _calldata
-  ) internal returns (bytes memory) {
+  ) internal pure returns (bytes memory) {
     // Convert data to bytes
     bytes memory properties = abi.encodePacked(_amount, _originDomain, _originSender);
     return bytes.concat(_calldata, properties);
@@ -63,7 +63,7 @@ library LibCrossDomainProperty {
    * @param _data The msg.data sent by executor
    * @return uint256 Amount to execute call with
    */
-  function amount(bytes memory _data) internal returns (uint256) {
+  function amount(bytes memory _data) internal pure returns (uint256) {
     // create view
     bytes29 typed = _data.ref(0);
     // before the domain = calldata
@@ -76,7 +76,7 @@ library LibCrossDomainProperty {
    * @param _data The msg.data sent by executor
    * @return uint32 origin domain
    */
-  function origin(bytes memory _data) internal returns (uint32) {
+  function origin(bytes memory _data) internal pure returns (uint32) {
     // create view
     bytes29 typed = _data.ref(0);
     // before the domain = calldata + amount
@@ -89,7 +89,7 @@ library LibCrossDomainProperty {
    * @param _data The msg.data sent by executor
    * @return address The msg.sender of the initial `xcall`
    */
-  function originSender(bytes memory _data) internal returns (address) {
+  function originSender(bytes memory _data) internal pure returns (address) {
     // create view
     bytes29 typed = _data.ref(0);
     // before the domain = calldata + amount + domain
@@ -102,7 +102,7 @@ library LibCrossDomainProperty {
    * @param _view The msg.data sent by executor cast as a TypedMemView
    * @return uint256 Length of the calldata
    */
-  function callDataLength(bytes29 _view) internal returns (uint256) {
+  function callDataLength(bytes29 _view) internal pure returns (uint256) {
     uint256 len = _view.len();
     require(len >= PROPERTIES_LENGTH, "!length");
     // The data will be packed with the properties appended to the data
