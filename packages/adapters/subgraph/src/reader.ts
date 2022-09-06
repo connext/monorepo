@@ -517,4 +517,13 @@ export class SubgraphReader {
 
     return [...allTxById.values()].filter((xTransfer) => !!xTransfer.destination);
   }
+
+  /**
+   * Gets all the xtranfer message starting with index for a given domain
+   * @param domain - The domain you wanna get messages on
+   * @param index - Message Index
+   */
+  public async getMessagesByDomain(domain: string, index: number): Promise<XTrasferMessage[]> {
+    throw new Error("Not implemented yet");
+  }
 }
