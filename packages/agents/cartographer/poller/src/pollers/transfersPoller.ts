@@ -1,10 +1,10 @@
 import { SubgraphReader } from "@connext/nxtp-adapters-subgraph";
 import { createMethodContext, createRequestContext, getChainData, Logger } from "@connext/nxtp-utils";
 
-import { getDatabase, closeDatabase } from "./adapters/database";
-import { bindTransfers } from "./bindings";
-import { CartographerConfig, getConfig } from "./config";
-import { context } from "./shared";
+import { getDatabase, closeDatabase } from "../adapters/database";
+import { bindTransfers } from "../bindings";
+import { CartographerConfig, getConfig } from "../config";
+import { context } from "../shared";
 
 export const makeTransfersPoller = async (_configOverride?: CartographerConfig) => {
   const requestContext = createRequestContext("Transfers Poller Init");

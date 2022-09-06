@@ -32,7 +32,7 @@ import {
   Setting,
   OriginMessage,
   DestinationMessage,
-  AggregateRoot
+  AggregateRoot,
 } from "../../generated/schema";
 
 const DEFAULT_MAX_ROUTERS_PER_TRANSFER = 5;
@@ -439,7 +439,6 @@ export function handleProcess(event: Process): void {
 }
 
 export function handleAggregateRootUpdated(event: AggregateRootUpdated): void {
-
   let aggregateRoot = AggregateRoot.load(event.params.current.toHexString());
   if (aggregateRoot == null) {
     aggregateRoot = new AggregateRoot(event.params.current.toHexString());

@@ -1,6 +1,6 @@
 import tracer from "dd-trace";
 
-import { makeRoutersPoller } from "./pollers/routersPoller";
+import { makeMessagesPoller } from "./pollers/messagePoller";
 
 tracer.init({ profiling: true, runtimeMetrics: true });
-makeRoutersPoller();
+makeMessagesPoller();
