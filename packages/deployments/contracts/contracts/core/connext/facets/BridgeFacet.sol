@@ -365,37 +365,47 @@ contract BridgeFacet is BaseConnextFacet {
     uint256 bridgedAmount;
     {
       // Check that the asset is supported -- can be either adopted or local.
-      TokenId memory canonical = s.adoptedToCanonical[_args.transactingAsset];
+      TokenId memory canonical;
 
       // NOTE: above we check that you can only have `address(0)` as a transacting asset when
       // you are sending 0-amounts. Because 0-amount transfers shortcircuit all checks on
       // mappings keyed on hash(canonicalId, canonicalDomain), this is safe even when the
       // address(0) asset is not whitelisted. These values are only used for the `transactionId`
       // generation
-      if (canonical.id == bytes32(0) && _args.transactingAsset != address(0)) {
-        // Here, the asset is *not* the adopted asset. The only other valid option
-        // is for this asset to be the local asset (i.e. transferring madEth on optimism)
-        // NOTE: it *cannot* be the canonical asset. the canonical asset is only used on
-        // the canonical domain, where it is *also* the adopted asset.
-        if (s.tokenRegistry.isLocalOrigin(_args.transactingAsset)) {
-          // revert, using a token of local origin that is not registered as adopted
-          revert BridgeFacet__xcall_notSupportedAsset();
-        }
+      if (_args.transactingAsset == address(0)) {
+        s.adoptedToCanonical[_args.transactingAsset];
 
-        (uint32 canonicalDomain, bytes32 canonicalId) = s.tokenRegistry.getTokenId(_args.transactingAsset);
-        canonical = TokenId(canonicalDomain, canonicalId);
+        if (canonical.id == bytes32(0)) {
+          // Here, the asset is *not* the adopted asset. The only other valid option
+          // is for this asset to be the local asset (i.e. transferring madEth on optimism)
+          // NOTE: it *cannot* be the canonical asset. the canonical asset is only used on
+          // the canonical domain, where it is *also* the adopted asset.
+          if (s.tokenRegistry.isLocalOrigin(_args.transactingAsset)) {
+            // revert, using a token of local origin that is not registered as adopted
+            revert BridgeFacet__xcall_notSupportedAsset();
+          }
+
+          (uint32 canonicalDomain, bytes32 canonicalId) = s.tokenRegistry.getTokenId(_args.transactingAsset);
+          canonical = TokenId(canonicalDomain, canonicalId);
+        }
       }
 
-      // Transfer funds of transacting asset to the contract from the user.
-      AssetLogic.transferAssetToContract(_args.transactingAsset, _args.transactingAmount);
+      if (_args.transactingAmount > 0) {
+        // Transfer funds of transacting asset to the contract from the user.
+        AssetLogic.transferAssetToContract(_args.transactingAsset, _args.transactingAmount);
 
-      // Swap to the local asset from adopted if applicable.
-      (bridgedAmount, bridgedAsset) = AssetLogic.swapToLocalAssetIfNeeded(
-        canonical,
-        _args.transactingAsset,
-        _args.transactingAmount,
-        _args.originMinOut
-      );
+        // Swap to the local asset from adopted if applicable.
+        (bridgedAmount, bridgedAsset) = AssetLogic.swapToLocalAssetIfNeeded(
+          canonical,
+          _args.transactingAsset,
+          _args.transactingAmount,
+          _args.originMinOut
+        );
+
+        // Approve bridge router
+        SafeERC20.safeApprove(IERC20(bridgedAsset), address(s.bridgeRouter), 0);
+        SafeERC20.safeIncreaseAllowance(IERC20(bridgedAsset), address(s.bridgeRouter), bridgedAmount);
+      }
 
       // Calculate the transfer id
       transferId = _getTransferId(_args, canonical, bridgedAmount);
@@ -410,10 +420,6 @@ contract BridgeFacet is BaseConnextFacet {
       if (_args.params.callbackFee != 0) {
         s.promiseRouter.initCallbackFee{value: _args.params.callbackFee}(transferId);
       }
-
-      // Approve bridge router
-      SafeERC20.safeApprove(IERC20(bridgedAsset), address(s.bridgeRouter), 0);
-      SafeERC20.safeIncreaseAllowance(IERC20(bridgedAsset), address(s.bridgeRouter), bridgedAmount);
 
       // Send message
       s.bridgeRouter.sendToHook(
