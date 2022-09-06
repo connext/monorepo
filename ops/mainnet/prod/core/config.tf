@@ -64,7 +64,7 @@ locals {
       queues = [
         {
           name       = "1"
-          limit   = 3
+          limit   = 6
           queueLimit = 10000
           subscribe  = true
         }
