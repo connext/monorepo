@@ -297,7 +297,9 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
     bool shouldSwap
   ) public {
     // bridged is either local or canonical, depending on domain xcall originates on
-    address bridged = _canonicalDomain == args.params.originDomain ? _canonical : _local;
+    address bridged = args.transactingAsset == address(0) ? address(0) : _canonicalDomain == args.params.originDomain
+      ? _canonical
+      : _local;
     vm.expectEmit(true, true, true, true);
     emit XCalled(transferId, s.nonce, args, bridged, bridgedAmt, _originSender);
 
@@ -331,7 +333,9 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
       );
     }
     // Assert approval call
-    vm.expectCall(bridged, abi.encodeWithSelector(IERC20.approve.selector, _bridgeRouter, bridgedAmt));
+    if (bridgedAmt > 0) {
+      vm.expectCall(bridged, abi.encodeWithSelector(IERC20.approve.selector, _bridgeRouter, bridgedAmt));
+    }
 
     // Assert bridge router call
     vm.expectCall(
@@ -1355,6 +1359,7 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
 
   // should work with 0 value
   function test_BridgeFacet__xcall_worksWithoutValue() public {
+    utils_setupAsset(false, false);
     _amount = 0;
     helpers_xcallAndAssert(0, true);
   }
