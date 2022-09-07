@@ -6,11 +6,12 @@ import {
   Asset,
   OriginTransfer,
   DestinationTransfer,
-  XTrasferMessage,
   RouterBalance,
   AssetBalance,
   SubgraphQueryByTransferIDsMetaParams,
   SubgraphQueryByTimestampMetaParams,
+  OriginMessage,
+  DestinationMessage,
 } from "@connext/nxtp-utils";
 
 import { getHelpers } from "./lib/helpers";
@@ -525,12 +526,21 @@ export class SubgraphReader {
    * @param domain - The domain you wanna get messages on
    * @param index - Message Index
    */
-  public async getMessagesByDomain(params: { domain: string; index: number }[]): Promise<XTrasferMessage[]> {
+  public async getOriginMessagesByDomain(params: { domain: string; index: number }[]): Promise<OriginMessage[]> {
     const { parser, execute } = getHelpers();
     const originMessageQuery = getOriginMessagesByDomainAndIndexQuery(params);
     const response = await execute(originMessageQuery);
+    const _messages: any[] = [];
+    for (const key of response.keys()) {
+      const value = response.get(key);
+      _messages.push(value?.flat());
+    }
 
-    // TODO. not implemented yet
-    return [];
+    const originMessages: OriginMessage[] = _messages
+      .flat()
+      .filter((x: any) => !!x)
+      .map(parser.originMessage);
+
+    return originMessages;
   }
 }

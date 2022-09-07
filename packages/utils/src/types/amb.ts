@@ -1,6 +1,6 @@
 import { Type, Static } from "@sinclair/typebox";
 
-export const XTransferMessageSchema = Type.Object({
+export const XMessageSchema = Type.Object({
   leaf: Type.String(),
   origin: Type.Object({
     index: Type.Number({ minimum: 0 }),
@@ -14,5 +14,19 @@ export const XTransferMessageSchema = Type.Object({
     }),
   ),
 });
+export type XMessage = Static<typeof XMessageSchema>;
 
-export type XTransferMessage = Static<typeof XTransferMessageSchema>;
+export const OriginMessageSchema = Type.Object({
+  leaf: Type.String(),
+  index: Type.Number({ minimum: 0 }),
+  root: Type.String(),
+  message: Type.String(),
+});
+export type OriginMessage = Static<typeof OriginMessageSchema>;
+
+export const DestinationMessageSchema = Type.Object({
+  leaf: Type.String(),
+  processed: Type.Boolean(),
+  returnData: Type.String(),
+});
+export type DestinationMessage = Static<typeof DestinationMessageSchema>;
