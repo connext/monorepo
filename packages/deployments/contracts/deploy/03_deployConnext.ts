@@ -284,10 +284,11 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment): Promise<voi
     // Save updated abi to Connext Deployment
     const diamondDeployment: DeploymentSubmission = {
       ...connext,
-      abi,
+      abi: abi ?? connext.abi,
     };
 
-    await hre.deployments.saveDeployment(getDeploymentName("ConnextHandler"), diamondDeployment);
+    await hre.deployments.save(getDeploymentName("ConnextHandler"), diamondDeployment);
+    console.log("upgraded abi");
   } else {
     connext = await hre.deployments.diamond.deploy(getDeploymentName("ConnextHandler"), {
       from: deployer.address,
