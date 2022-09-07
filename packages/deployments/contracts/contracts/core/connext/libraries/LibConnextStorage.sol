@@ -33,6 +33,25 @@ struct TransferIdInformation {
 }
 
 /**
+ * @dev FIXME: When we are at the point where we want to fix the xcall interface
+ * by removing the struct-based arguments, remove this and keep the CallParams below
+ *
+ * @notice These are the params the user supplies to `xcall` of the `CallParams`
+ */
+struct UserFacingCallParams {
+  address to;
+  bytes callData;
+  uint32 destinationDomain;
+  address agent;
+  address recovery;
+  bool receiveLocal;
+  address callback;
+  uint256 callbackFee;
+  uint256 relayerFee;
+  uint256 destinationMinOut;
+}
+
+/**
  * @notice These are the call parameters that will remain constant between the
  * two chains. They are supplied on `xcall` and should be asserted on `execute`
  * @property to - The account that receives funds, in the event of a crosschain call,
@@ -73,7 +92,7 @@ struct CallParams {
  * @param originMinOut - Minimum amount received on swaps for adopted <> local on origin chain
  */
 struct XCallArgs {
-  CallParams params;
+  UserFacingCallParams params;
   address transactingAsset; // Could be adopted, local, or canonical.
   uint256 transactingAmount;
   uint256 originMinOut;
