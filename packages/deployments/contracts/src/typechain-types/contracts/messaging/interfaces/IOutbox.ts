@@ -114,7 +114,7 @@ export interface IOutbox extends BaseContract {
       _recipientAddress: PromiseOrValue<BytesLike>,
       _messageBody: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
-    ): Promise<void>;
+    ): Promise<string>;
   };
 
   filters: {
