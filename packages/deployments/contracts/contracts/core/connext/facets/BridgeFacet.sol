@@ -372,8 +372,8 @@ contract BridgeFacet is BaseConnextFacet {
       // mappings keyed on hash(canonicalId, canonicalDomain), this is safe even when the
       // address(0) asset is not whitelisted. These values are only used for the `transactionId`
       // generation
-      if (_args.transactingAsset == address(0)) {
-        s.adoptedToCanonical[_args.transactingAsset];
+      if (_args.transactingAsset != address(0)) {
+        canonical = s.adoptedToCanonical[_args.transactingAsset];
 
         if (canonical.id == bytes32(0)) {
           // Here, the asset is *not* the adopted asset. The only other valid option
@@ -405,6 +405,11 @@ contract BridgeFacet is BaseConnextFacet {
         // Approve bridge router
         SafeERC20.safeApprove(IERC20(bridgedAsset), address(s.bridgeRouter), 0);
         SafeERC20.safeIncreaseAllowance(IERC20(bridgedAsset), address(s.bridgeRouter), bridgedAmount);
+      } else {
+        // Get the bridged asset so you can emit it properly within the event
+        bridgedAsset = _args.transactingAsset == address(0)
+          ? address(0)
+          : s.tokenRegistry.getLocalAddress(canonical.domain, canonical.id);
       }
 
       // Calculate the transfer id
