@@ -168,13 +168,18 @@ contract TokenRegistry is Initializable, XAppConnectionClient, ITokenRegistry {
    * @return _id canonical identifier on that domain
    */
   function getTokenId(address _token) external view override returns (uint32 _domain, bytes32 _id) {
-    TokenId memory _tokenId = representationToCanonical[_token];
-    if (_tokenId.domain == 0) {
-      _domain = _localDomain();
-      _id = TypeCasts.addressToBytes32(_token);
+    if (_token == address(0)) {
+      _domain = 0;
+      _id = bytes32(0);
     } else {
-      _domain = _tokenId.domain;
-      _id = _tokenId.id;
+      TokenId memory _tokenId = representationToCanonical[_token];
+      if (_tokenId.domain == 0) {
+        _domain = _localDomain();
+        _id = TypeCasts.addressToBytes32(_token);
+      } else {
+        _domain = _tokenId.domain;
+        _id = _tokenId.id;
+      }
     }
   }
 
