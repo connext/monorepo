@@ -4,10 +4,7 @@
 
 import { Contract, Signer, utils } from "ethers";
 import type { Provider } from "@ethersproject/providers";
-import type {
-  IOutbox,
-  IOutboxInterface,
-} from "../../../../contracts/messaging/interfaces/IOutbox";
+import type { IOutbox, IOutboxInterface } from "../../../../contracts/messaging/interfaces/IOutbox";
 
 const _abi = [
   {
@@ -66,13 +63,7 @@ const _abi = [
       },
     ],
     name: "dispatch",
-    outputs: [
-      {
-        internalType: "bytes32",
-        name: "",
-        type: "bytes32",
-      },
-    ],
+    outputs: [],
     stateMutability: "nonpayable",
     type: "function",
   },
@@ -83,10 +74,7 @@ export class IOutbox__factory {
   static createInterface(): IOutboxInterface {
     return new utils.Interface(_abi) as IOutboxInterface;
   }
-  static connect(
-    address: string,
-    signerOrProvider: Signer | Provider
-  ): IOutbox {
+  static connect(address: string, signerOrProvider: Signer | Provider): IOutbox {
     return new Contract(address, _abi, signerOrProvider) as IOutbox;
   }
 }

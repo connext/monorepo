@@ -13,19 +13,9 @@ import type {
   Signer,
   utils,
 } from "ethers";
-import type {
-  FunctionFragment,
-  Result,
-  EventFragment,
-} from "@ethersproject/abi";
+import type { FunctionFragment, Result, EventFragment } from "@ethersproject/abi";
 import type { Listener, Provider } from "@ethersproject/providers";
-import type {
-  TypedEventFilter,
-  TypedEvent,
-  TypedListener,
-  OnEvent,
-  PromiseOrValue,
-} from "../../../../common";
+import type { TypedEventFilter, TypedEvent, TypedListener, OnEvent, PromiseOrValue } from "../../../../common";
 
 export interface MainnetSpokeConnectorInterface extends utils.Interface {
   functions: {
@@ -106,233 +96,90 @@ export interface MainnetSpokeConnectorInterface extends utils.Interface {
       | "setMirrorGas"
       | "tree"
       | "verifySender"
-      | "whitelistedSenders"
+      | "whitelistedSenders",
   ): FunctionFragment;
 
   encodeFunctionData(functionFragment: "AMB", values?: undefined): string;
   encodeFunctionData(functionFragment: "DOMAIN", values?: undefined): string;
-  encodeFunctionData(
-    functionFragment: "MIRROR_DOMAIN",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "PROCESS_GAS",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "RESERVE_GAS",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "ROOT_MANAGER",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "acceptProposedOwner",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "addSender",
-    values: [PromiseOrValue<string>]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "aggregateRoot",
-    values?: undefined
-  ): string;
+  encodeFunctionData(functionFragment: "MIRROR_DOMAIN", values?: undefined): string;
+  encodeFunctionData(functionFragment: "PROCESS_GAS", values?: undefined): string;
+  encodeFunctionData(functionFragment: "RESERVE_GAS", values?: undefined): string;
+  encodeFunctionData(functionFragment: "ROOT_MANAGER", values?: undefined): string;
+  encodeFunctionData(functionFragment: "acceptProposedOwner", values?: undefined): string;
+  encodeFunctionData(functionFragment: "addSender", values: [PromiseOrValue<string>]): string;
+  encodeFunctionData(functionFragment: "aggregateRoot", values?: undefined): string;
   encodeFunctionData(functionFragment: "count", values?: undefined): string;
   encodeFunctionData(functionFragment: "delay", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "dispatch",
-    values: [
-      PromiseOrValue<BigNumberish>,
-      PromiseOrValue<BytesLike>,
-      PromiseOrValue<BytesLike>
-    ]
+    values: [PromiseOrValue<BigNumberish>, PromiseOrValue<BytesLike>, PromiseOrValue<BytesLike>],
   ): string;
   encodeFunctionData(functionFragment: "home", values?: undefined): string;
-  encodeFunctionData(
-    functionFragment: "isReplica",
-    values: [PromiseOrValue<string>]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "localDomain",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "messages",
-    values: [PromiseOrValue<BytesLike>]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "mirrorConnector",
-    values?: undefined
-  ): string;
+  encodeFunctionData(functionFragment: "isReplica", values: [PromiseOrValue<string>]): string;
+  encodeFunctionData(functionFragment: "localDomain", values?: undefined): string;
+  encodeFunctionData(functionFragment: "messages", values: [PromiseOrValue<BytesLike>]): string;
+  encodeFunctionData(functionFragment: "mirrorConnector", values?: undefined): string;
   encodeFunctionData(functionFragment: "mirrorGas", values?: undefined): string;
-  encodeFunctionData(
-    functionFragment: "nonces",
-    values: [PromiseOrValue<BigNumberish>]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "outboundRoot",
-    values?: undefined
-  ): string;
+  encodeFunctionData(functionFragment: "nonces", values: [PromiseOrValue<BigNumberish>]): string;
+  encodeFunctionData(functionFragment: "outboundRoot", values?: undefined): string;
   encodeFunctionData(functionFragment: "owner", values?: undefined): string;
-  encodeFunctionData(
-    functionFragment: "processMessage",
-    values: [PromiseOrValue<BytesLike>]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "proposeNewOwner",
-    values: [PromiseOrValue<string>]
-  ): string;
+  encodeFunctionData(functionFragment: "processMessage", values: [PromiseOrValue<BytesLike>]): string;
+  encodeFunctionData(functionFragment: "proposeNewOwner", values: [PromiseOrValue<string>]): string;
   encodeFunctionData(functionFragment: "proposed", values?: undefined): string;
-  encodeFunctionData(
-    functionFragment: "proposedTimestamp",
-    values?: undefined
-  ): string;
+  encodeFunctionData(functionFragment: "proposedTimestamp", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "proveAndProcess",
-    values: [
-      PromiseOrValue<BytesLike>,
-      PromiseOrValue<BytesLike>[],
-      PromiseOrValue<BigNumberish>
-    ]
+    values: [PromiseOrValue<BytesLike>, PromiseOrValue<BytesLike>[], PromiseOrValue<BigNumberish>],
   ): string;
-  encodeFunctionData(
-    functionFragment: "provenRoots",
-    values: [PromiseOrValue<BytesLike>]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "removeSender",
-    values: [PromiseOrValue<string>]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "renounceOwnership",
-    values?: undefined
-  ): string;
+  encodeFunctionData(functionFragment: "provenRoots", values: [PromiseOrValue<BytesLike>]): string;
+  encodeFunctionData(functionFragment: "removeSender", values: [PromiseOrValue<string>]): string;
+  encodeFunctionData(functionFragment: "renounceOwnership", values?: undefined): string;
   encodeFunctionData(functionFragment: "renounced", values?: undefined): string;
   encodeFunctionData(functionFragment: "send", values?: undefined): string;
-  encodeFunctionData(
-    functionFragment: "sendMessage",
-    values: [PromiseOrValue<BytesLike>]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "setMirrorConnector",
-    values: [PromiseOrValue<string>]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "setMirrorGas",
-    values: [PromiseOrValue<BigNumberish>]
-  ): string;
+  encodeFunctionData(functionFragment: "sendMessage", values: [PromiseOrValue<BytesLike>]): string;
+  encodeFunctionData(functionFragment: "setMirrorConnector", values: [PromiseOrValue<string>]): string;
+  encodeFunctionData(functionFragment: "setMirrorGas", values: [PromiseOrValue<BigNumberish>]): string;
   encodeFunctionData(functionFragment: "tree", values?: undefined): string;
-  encodeFunctionData(
-    functionFragment: "verifySender",
-    values: [PromiseOrValue<string>]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "whitelistedSenders",
-    values: [PromiseOrValue<string>]
-  ): string;
+  encodeFunctionData(functionFragment: "verifySender", values: [PromiseOrValue<string>]): string;
+  encodeFunctionData(functionFragment: "whitelistedSenders", values: [PromiseOrValue<string>]): string;
 
   decodeFunctionResult(functionFragment: "AMB", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "DOMAIN", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "MIRROR_DOMAIN",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "PROCESS_GAS",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "RESERVE_GAS",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "ROOT_MANAGER",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "acceptProposedOwner",
-    data: BytesLike
-  ): Result;
+  decodeFunctionResult(functionFragment: "MIRROR_DOMAIN", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "PROCESS_GAS", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "RESERVE_GAS", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "ROOT_MANAGER", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "acceptProposedOwner", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "addSender", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "aggregateRoot",
-    data: BytesLike
-  ): Result;
+  decodeFunctionResult(functionFragment: "aggregateRoot", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "count", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "delay", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "dispatch", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "home", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "isReplica", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "localDomain",
-    data: BytesLike
-  ): Result;
+  decodeFunctionResult(functionFragment: "localDomain", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "messages", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "mirrorConnector",
-    data: BytesLike
-  ): Result;
+  decodeFunctionResult(functionFragment: "mirrorConnector", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "mirrorGas", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "nonces", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "outboundRoot",
-    data: BytesLike
-  ): Result;
+  decodeFunctionResult(functionFragment: "outboundRoot", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "owner", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "processMessage",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "proposeNewOwner",
-    data: BytesLike
-  ): Result;
+  decodeFunctionResult(functionFragment: "processMessage", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "proposeNewOwner", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "proposed", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "proposedTimestamp",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "proveAndProcess",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "provenRoots",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "removeSender",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "renounceOwnership",
-    data: BytesLike
-  ): Result;
+  decodeFunctionResult(functionFragment: "proposedTimestamp", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "proveAndProcess", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "provenRoots", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "removeSender", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "renounceOwnership", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "renounced", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "send", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "sendMessage",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "setMirrorConnector",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "setMirrorGas",
-    data: BytesLike
-  ): Result;
+  decodeFunctionResult(functionFragment: "sendMessage", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "setMirrorConnector", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "setMirrorGas", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "tree", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "verifySender",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "whitelistedSenders",
-    data: BytesLike
-  ): Result;
+  decodeFunctionResult(functionFragment: "verifySender", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "whitelistedSenders", data: BytesLike): Result;
 
   events: {
     "AggregateRootUpdated(bytes32,bytes32)": EventFragment;
@@ -365,13 +212,9 @@ export interface AggregateRootUpdatedEventObject {
   current: string;
   previous: string;
 }
-export type AggregateRootUpdatedEvent = TypedEvent<
-  [string, string],
-  AggregateRootUpdatedEventObject
->;
+export type AggregateRootUpdatedEvent = TypedEvent<[string, string], AggregateRootUpdatedEventObject>;
 
-export type AggregateRootUpdatedEventFilter =
-  TypedEventFilter<AggregateRootUpdatedEvent>;
+export type AggregateRootUpdatedEventFilter = TypedEventFilter<AggregateRootUpdatedEvent>;
 
 export interface DispatchEventObject {
   leaf: string;
@@ -379,10 +222,7 @@ export interface DispatchEventObject {
   root: string;
   message: string;
 }
-export type DispatchEvent = TypedEvent<
-  [string, BigNumber, string, string],
-  DispatchEventObject
->;
+export type DispatchEvent = TypedEvent<[string, BigNumber, string, string], DispatchEventObject>;
 
 export type DispatchEventFilter = TypedEventFilter<DispatchEvent>;
 
@@ -390,22 +230,15 @@ export interface MessageProcessedEventObject {
   data: string;
   caller: string;
 }
-export type MessageProcessedEvent = TypedEvent<
-  [string, string],
-  MessageProcessedEventObject
->;
+export type MessageProcessedEvent = TypedEvent<[string, string], MessageProcessedEventObject>;
 
-export type MessageProcessedEventFilter =
-  TypedEventFilter<MessageProcessedEvent>;
+export type MessageProcessedEventFilter = TypedEventFilter<MessageProcessedEvent>;
 
 export interface MessageSentEventObject {
   data: string;
   caller: string;
 }
-export type MessageSentEvent = TypedEvent<
-  [string, string],
-  MessageSentEventObject
->;
+export type MessageSentEvent = TypedEvent<[string, string], MessageSentEventObject>;
 
 export type MessageSentEventFilter = TypedEventFilter<MessageSentEvent>;
 
@@ -413,58 +246,39 @@ export interface MirrorConnectorUpdatedEventObject {
   previous: string;
   current: string;
 }
-export type MirrorConnectorUpdatedEvent = TypedEvent<
-  [string, string],
-  MirrorConnectorUpdatedEventObject
->;
+export type MirrorConnectorUpdatedEvent = TypedEvent<[string, string], MirrorConnectorUpdatedEventObject>;
 
-export type MirrorConnectorUpdatedEventFilter =
-  TypedEventFilter<MirrorConnectorUpdatedEvent>;
+export type MirrorConnectorUpdatedEventFilter = TypedEventFilter<MirrorConnectorUpdatedEvent>;
 
 export interface MirrorGasUpdatedEventObject {
   previous: BigNumber;
   current: BigNumber;
 }
-export type MirrorGasUpdatedEvent = TypedEvent<
-  [BigNumber, BigNumber],
-  MirrorGasUpdatedEventObject
->;
+export type MirrorGasUpdatedEvent = TypedEvent<[BigNumber, BigNumber], MirrorGasUpdatedEventObject>;
 
-export type MirrorGasUpdatedEventFilter =
-  TypedEventFilter<MirrorGasUpdatedEvent>;
+export type MirrorGasUpdatedEventFilter = TypedEventFilter<MirrorGasUpdatedEvent>;
 
 export interface OwnershipProposedEventObject {
   proposedOwner: string;
 }
-export type OwnershipProposedEvent = TypedEvent<
-  [string],
-  OwnershipProposedEventObject
->;
+export type OwnershipProposedEvent = TypedEvent<[string], OwnershipProposedEventObject>;
 
-export type OwnershipProposedEventFilter =
-  TypedEventFilter<OwnershipProposedEvent>;
+export type OwnershipProposedEventFilter = TypedEventFilter<OwnershipProposedEvent>;
 
 export interface OwnershipTransferredEventObject {
   previousOwner: string;
   newOwner: string;
 }
-export type OwnershipTransferredEvent = TypedEvent<
-  [string, string],
-  OwnershipTransferredEventObject
->;
+export type OwnershipTransferredEvent = TypedEvent<[string, string], OwnershipTransferredEventObject>;
 
-export type OwnershipTransferredEventFilter =
-  TypedEventFilter<OwnershipTransferredEvent>;
+export type OwnershipTransferredEventFilter = TypedEventFilter<OwnershipTransferredEvent>;
 
 export interface ProcessEventObject {
   leaf: string;
   success: boolean;
   returnData: string;
 }
-export type ProcessEvent = TypedEvent<
-  [string, boolean, string],
-  ProcessEventObject
->;
+export type ProcessEvent = TypedEvent<[string, boolean, string], ProcessEventObject>;
 
 export type ProcessEventFilter = TypedEventFilter<ProcessEvent>;
 
@@ -492,16 +306,12 @@ export interface MainnetSpokeConnector extends BaseContract {
   queryFilter<TEvent extends TypedEvent>(
     event: TypedEventFilter<TEvent>,
     fromBlockOrBlockhash?: string | number | undefined,
-    toBlock?: string | number | undefined
+    toBlock?: string | number | undefined,
   ): Promise<Array<TEvent>>;
 
-  listeners<TEvent extends TypedEvent>(
-    eventFilter?: TypedEventFilter<TEvent>
-  ): Array<TypedListener<TEvent>>;
+  listeners<TEvent extends TypedEvent>(eventFilter?: TypedEventFilter<TEvent>): Array<TypedListener<TEvent>>;
   listeners(eventName?: string): Array<Listener>;
-  removeAllListeners<TEvent extends TypedEvent>(
-    eventFilter: TypedEventFilter<TEvent>
-  ): this;
+  removeAllListeners<TEvent extends TypedEvent>(eventFilter: TypedEventFilter<TEvent>): this;
   removeAllListeners(eventName?: string): this;
   off: OnEvent<this>;
   on: OnEvent<this>;
@@ -521,13 +331,11 @@ export interface MainnetSpokeConnector extends BaseContract {
 
     ROOT_MANAGER(overrides?: CallOverrides): Promise<[string]>;
 
-    acceptProposedOwner(
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
+    acceptProposedOwner(overrides?: Overrides & { from?: PromiseOrValue<string> }): Promise<ContractTransaction>;
 
     addSender(
       _sender: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: Overrides & { from?: PromiseOrValue<string> },
     ): Promise<ContractTransaction>;
 
     aggregateRoot(overrides?: CallOverrides): Promise<[string]>;
@@ -540,31 +348,22 @@ export interface MainnetSpokeConnector extends BaseContract {
       _destinationDomain: PromiseOrValue<BigNumberish>,
       _recipientAddress: PromiseOrValue<BytesLike>,
       _messageBody: PromiseOrValue<BytesLike>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: Overrides & { from?: PromiseOrValue<string> },
     ): Promise<ContractTransaction>;
 
     home(overrides?: CallOverrides): Promise<[string]>;
 
-    isReplica(
-      _potentialReplica: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<[boolean]>;
+    isReplica(_potentialReplica: PromiseOrValue<string>, overrides?: CallOverrides): Promise<[boolean]>;
 
     localDomain(overrides?: CallOverrides): Promise<[number]>;
 
-    messages(
-      arg0: PromiseOrValue<BytesLike>,
-      overrides?: CallOverrides
-    ): Promise<[number]>;
+    messages(arg0: PromiseOrValue<BytesLike>, overrides?: CallOverrides): Promise<[number]>;
 
     mirrorConnector(overrides?: CallOverrides): Promise<[string]>;
 
     mirrorGas(overrides?: CallOverrides): Promise<[BigNumber]>;
 
-    nonces(
-      arg0: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
-    ): Promise<[number]>;
+    nonces(arg0: PromiseOrValue<BigNumberish>, overrides?: CallOverrides): Promise<[number]>;
 
     outboundRoot(overrides?: CallOverrides): Promise<[string]>;
 
@@ -572,12 +371,12 @@ export interface MainnetSpokeConnector extends BaseContract {
 
     processMessage(
       _data: PromiseOrValue<BytesLike>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: Overrides & { from?: PromiseOrValue<string> },
     ): Promise<ContractTransaction>;
 
     proposeNewOwner(
       newlyProposed: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: Overrides & { from?: PromiseOrValue<string> },
     ): Promise<ContractTransaction>;
 
     proposed(overrides?: CallOverrides): Promise<[string]>;
@@ -588,57 +387,45 @@ export interface MainnetSpokeConnector extends BaseContract {
       _message: PromiseOrValue<BytesLike>,
       _proof: PromiseOrValue<BytesLike>[],
       _index: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: Overrides & { from?: PromiseOrValue<string> },
     ): Promise<ContractTransaction>;
 
-    provenRoots(
-      arg0: PromiseOrValue<BytesLike>,
-      overrides?: CallOverrides
-    ): Promise<[boolean]>;
+    provenRoots(arg0: PromiseOrValue<BytesLike>, overrides?: CallOverrides): Promise<[boolean]>;
 
     removeSender(
       _sender: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: Overrides & { from?: PromiseOrValue<string> },
     ): Promise<ContractTransaction>;
 
-    renounceOwnership(
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
+    renounceOwnership(overrides?: Overrides & { from?: PromiseOrValue<string> }): Promise<ContractTransaction>;
 
     renounced(overrides?: CallOverrides): Promise<[boolean]>;
 
-    send(
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
+    send(overrides?: Overrides & { from?: PromiseOrValue<string> }): Promise<ContractTransaction>;
 
     sendMessage(
       _data: PromiseOrValue<BytesLike>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: Overrides & { from?: PromiseOrValue<string> },
     ): Promise<ContractTransaction>;
 
     setMirrorConnector(
       _mirrorConnector: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: Overrides & { from?: PromiseOrValue<string> },
     ): Promise<ContractTransaction>;
 
     setMirrorGas(
       _mirrorGas: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: Overrides & { from?: PromiseOrValue<string> },
     ): Promise<ContractTransaction>;
 
-    tree(
-      overrides?: CallOverrides
-    ): Promise<[BigNumber] & { count: BigNumber }>;
+    tree(overrides?: CallOverrides): Promise<[BigNumber] & { count: BigNumber }>;
 
     verifySender(
       _expected: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: Overrides & { from?: PromiseOrValue<string> },
     ): Promise<ContractTransaction>;
 
-    whitelistedSenders(
-      arg0: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<[boolean]>;
+    whitelistedSenders(arg0: PromiseOrValue<string>, overrides?: CallOverrides): Promise<[boolean]>;
   };
 
   AMB(overrides?: CallOverrides): Promise<string>;
@@ -653,13 +440,11 @@ export interface MainnetSpokeConnector extends BaseContract {
 
   ROOT_MANAGER(overrides?: CallOverrides): Promise<string>;
 
-  acceptProposedOwner(
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
+  acceptProposedOwner(overrides?: Overrides & { from?: PromiseOrValue<string> }): Promise<ContractTransaction>;
 
   addSender(
     _sender: PromiseOrValue<string>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
+    overrides?: Overrides & { from?: PromiseOrValue<string> },
   ): Promise<ContractTransaction>;
 
   aggregateRoot(overrides?: CallOverrides): Promise<string>;
@@ -672,31 +457,22 @@ export interface MainnetSpokeConnector extends BaseContract {
     _destinationDomain: PromiseOrValue<BigNumberish>,
     _recipientAddress: PromiseOrValue<BytesLike>,
     _messageBody: PromiseOrValue<BytesLike>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
+    overrides?: Overrides & { from?: PromiseOrValue<string> },
   ): Promise<ContractTransaction>;
 
   home(overrides?: CallOverrides): Promise<string>;
 
-  isReplica(
-    _potentialReplica: PromiseOrValue<string>,
-    overrides?: CallOverrides
-  ): Promise<boolean>;
+  isReplica(_potentialReplica: PromiseOrValue<string>, overrides?: CallOverrides): Promise<boolean>;
 
   localDomain(overrides?: CallOverrides): Promise<number>;
 
-  messages(
-    arg0: PromiseOrValue<BytesLike>,
-    overrides?: CallOverrides
-  ): Promise<number>;
+  messages(arg0: PromiseOrValue<BytesLike>, overrides?: CallOverrides): Promise<number>;
 
   mirrorConnector(overrides?: CallOverrides): Promise<string>;
 
   mirrorGas(overrides?: CallOverrides): Promise<BigNumber>;
 
-  nonces(
-    arg0: PromiseOrValue<BigNumberish>,
-    overrides?: CallOverrides
-  ): Promise<number>;
+  nonces(arg0: PromiseOrValue<BigNumberish>, overrides?: CallOverrides): Promise<number>;
 
   outboundRoot(overrides?: CallOverrides): Promise<string>;
 
@@ -704,12 +480,12 @@ export interface MainnetSpokeConnector extends BaseContract {
 
   processMessage(
     _data: PromiseOrValue<BytesLike>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
+    overrides?: Overrides & { from?: PromiseOrValue<string> },
   ): Promise<ContractTransaction>;
 
   proposeNewOwner(
     newlyProposed: PromiseOrValue<string>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
+    overrides?: Overrides & { from?: PromiseOrValue<string> },
   ): Promise<ContractTransaction>;
 
   proposed(overrides?: CallOverrides): Promise<string>;
@@ -720,55 +496,45 @@ export interface MainnetSpokeConnector extends BaseContract {
     _message: PromiseOrValue<BytesLike>,
     _proof: PromiseOrValue<BytesLike>[],
     _index: PromiseOrValue<BigNumberish>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
+    overrides?: Overrides & { from?: PromiseOrValue<string> },
   ): Promise<ContractTransaction>;
 
-  provenRoots(
-    arg0: PromiseOrValue<BytesLike>,
-    overrides?: CallOverrides
-  ): Promise<boolean>;
+  provenRoots(arg0: PromiseOrValue<BytesLike>, overrides?: CallOverrides): Promise<boolean>;
 
   removeSender(
     _sender: PromiseOrValue<string>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
+    overrides?: Overrides & { from?: PromiseOrValue<string> },
   ): Promise<ContractTransaction>;
 
-  renounceOwnership(
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
+  renounceOwnership(overrides?: Overrides & { from?: PromiseOrValue<string> }): Promise<ContractTransaction>;
 
   renounced(overrides?: CallOverrides): Promise<boolean>;
 
-  send(
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
+  send(overrides?: Overrides & { from?: PromiseOrValue<string> }): Promise<ContractTransaction>;
 
   sendMessage(
     _data: PromiseOrValue<BytesLike>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
+    overrides?: Overrides & { from?: PromiseOrValue<string> },
   ): Promise<ContractTransaction>;
 
   setMirrorConnector(
     _mirrorConnector: PromiseOrValue<string>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
+    overrides?: Overrides & { from?: PromiseOrValue<string> },
   ): Promise<ContractTransaction>;
 
   setMirrorGas(
     _mirrorGas: PromiseOrValue<BigNumberish>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
+    overrides?: Overrides & { from?: PromiseOrValue<string> },
   ): Promise<ContractTransaction>;
 
   tree(overrides?: CallOverrides): Promise<BigNumber>;
 
   verifySender(
     _expected: PromiseOrValue<string>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
+    overrides?: Overrides & { from?: PromiseOrValue<string> },
   ): Promise<ContractTransaction>;
 
-  whitelistedSenders(
-    arg0: PromiseOrValue<string>,
-    overrides?: CallOverrides
-  ): Promise<boolean>;
+  whitelistedSenders(arg0: PromiseOrValue<string>, overrides?: CallOverrides): Promise<boolean>;
 
   callStatic: {
     AMB(overrides?: CallOverrides): Promise<string>;
@@ -785,10 +551,7 @@ export interface MainnetSpokeConnector extends BaseContract {
 
     acceptProposedOwner(overrides?: CallOverrides): Promise<void>;
 
-    addSender(
-      _sender: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<void>;
+    addSender(_sender: PromiseOrValue<string>, overrides?: CallOverrides): Promise<void>;
 
     aggregateRoot(overrides?: CallOverrides): Promise<string>;
 
@@ -800,45 +563,30 @@ export interface MainnetSpokeConnector extends BaseContract {
       _destinationDomain: PromiseOrValue<BigNumberish>,
       _recipientAddress: PromiseOrValue<BytesLike>,
       _messageBody: PromiseOrValue<BytesLike>,
-      overrides?: CallOverrides
-    ): Promise<string>;
+      overrides?: CallOverrides,
+    ): Promise<void>;
 
     home(overrides?: CallOverrides): Promise<string>;
 
-    isReplica(
-      _potentialReplica: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<boolean>;
+    isReplica(_potentialReplica: PromiseOrValue<string>, overrides?: CallOverrides): Promise<boolean>;
 
     localDomain(overrides?: CallOverrides): Promise<number>;
 
-    messages(
-      arg0: PromiseOrValue<BytesLike>,
-      overrides?: CallOverrides
-    ): Promise<number>;
+    messages(arg0: PromiseOrValue<BytesLike>, overrides?: CallOverrides): Promise<number>;
 
     mirrorConnector(overrides?: CallOverrides): Promise<string>;
 
     mirrorGas(overrides?: CallOverrides): Promise<BigNumber>;
 
-    nonces(
-      arg0: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
-    ): Promise<number>;
+    nonces(arg0: PromiseOrValue<BigNumberish>, overrides?: CallOverrides): Promise<number>;
 
     outboundRoot(overrides?: CallOverrides): Promise<string>;
 
     owner(overrides?: CallOverrides): Promise<string>;
 
-    processMessage(
-      _data: PromiseOrValue<BytesLike>,
-      overrides?: CallOverrides
-    ): Promise<void>;
+    processMessage(_data: PromiseOrValue<BytesLike>, overrides?: CallOverrides): Promise<void>;
 
-    proposeNewOwner(
-      newlyProposed: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<void>;
+    proposeNewOwner(newlyProposed: PromiseOrValue<string>, overrides?: CallOverrides): Promise<void>;
 
     proposed(overrides?: CallOverrides): Promise<string>;
 
@@ -848,18 +596,12 @@ export interface MainnetSpokeConnector extends BaseContract {
       _message: PromiseOrValue<BytesLike>,
       _proof: PromiseOrValue<BytesLike>[],
       _index: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
+      overrides?: CallOverrides,
     ): Promise<void>;
 
-    provenRoots(
-      arg0: PromiseOrValue<BytesLike>,
-      overrides?: CallOverrides
-    ): Promise<boolean>;
+    provenRoots(arg0: PromiseOrValue<BytesLike>, overrides?: CallOverrides): Promise<boolean>;
 
-    removeSender(
-      _sender: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<void>;
+    removeSender(_sender: PromiseOrValue<string>, overrides?: CallOverrides): Promise<void>;
 
     renounceOwnership(overrides?: CallOverrides): Promise<void>;
 
@@ -867,108 +609,56 @@ export interface MainnetSpokeConnector extends BaseContract {
 
     send(overrides?: CallOverrides): Promise<void>;
 
-    sendMessage(
-      _data: PromiseOrValue<BytesLike>,
-      overrides?: CallOverrides
-    ): Promise<void>;
+    sendMessage(_data: PromiseOrValue<BytesLike>, overrides?: CallOverrides): Promise<void>;
 
-    setMirrorConnector(
-      _mirrorConnector: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<void>;
+    setMirrorConnector(_mirrorConnector: PromiseOrValue<string>, overrides?: CallOverrides): Promise<void>;
 
-    setMirrorGas(
-      _mirrorGas: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
-    ): Promise<void>;
+    setMirrorGas(_mirrorGas: PromiseOrValue<BigNumberish>, overrides?: CallOverrides): Promise<void>;
 
     tree(overrides?: CallOverrides): Promise<BigNumber>;
 
-    verifySender(
-      _expected: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<boolean>;
+    verifySender(_expected: PromiseOrValue<string>, overrides?: CallOverrides): Promise<boolean>;
 
-    whitelistedSenders(
-      arg0: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<boolean>;
+    whitelistedSenders(arg0: PromiseOrValue<string>, overrides?: CallOverrides): Promise<boolean>;
   };
 
   filters: {
-    "AggregateRootUpdated(bytes32,bytes32)"(
-      current?: null,
-      previous?: null
-    ): AggregateRootUpdatedEventFilter;
-    AggregateRootUpdated(
-      current?: null,
-      previous?: null
-    ): AggregateRootUpdatedEventFilter;
+    "AggregateRootUpdated(bytes32,bytes32)"(current?: null, previous?: null): AggregateRootUpdatedEventFilter;
+    AggregateRootUpdated(current?: null, previous?: null): AggregateRootUpdatedEventFilter;
 
     "Dispatch(bytes32,uint256,bytes32,bytes)"(
       leaf?: null,
       index?: null,
       root?: null,
-      message?: null
+      message?: null,
     ): DispatchEventFilter;
-    Dispatch(
-      leaf?: null,
-      index?: null,
-      root?: null,
-      message?: null
-    ): DispatchEventFilter;
+    Dispatch(leaf?: null, index?: null, root?: null, message?: null): DispatchEventFilter;
 
-    "MessageProcessed(bytes,address)"(
-      data?: null,
-      caller?: null
-    ): MessageProcessedEventFilter;
+    "MessageProcessed(bytes,address)"(data?: null, caller?: null): MessageProcessedEventFilter;
     MessageProcessed(data?: null, caller?: null): MessageProcessedEventFilter;
 
-    "MessageSent(bytes,address)"(
-      data?: null,
-      caller?: null
-    ): MessageSentEventFilter;
+    "MessageSent(bytes,address)"(data?: null, caller?: null): MessageSentEventFilter;
     MessageSent(data?: null, caller?: null): MessageSentEventFilter;
 
-    "MirrorConnectorUpdated(address,address)"(
-      previous?: null,
-      current?: null
-    ): MirrorConnectorUpdatedEventFilter;
-    MirrorConnectorUpdated(
-      previous?: null,
-      current?: null
-    ): MirrorConnectorUpdatedEventFilter;
+    "MirrorConnectorUpdated(address,address)"(previous?: null, current?: null): MirrorConnectorUpdatedEventFilter;
+    MirrorConnectorUpdated(previous?: null, current?: null): MirrorConnectorUpdatedEventFilter;
 
-    "MirrorGasUpdated(uint256,uint256)"(
-      previous?: null,
-      current?: null
-    ): MirrorGasUpdatedEventFilter;
-    MirrorGasUpdated(
-      previous?: null,
-      current?: null
-    ): MirrorGasUpdatedEventFilter;
+    "MirrorGasUpdated(uint256,uint256)"(previous?: null, current?: null): MirrorGasUpdatedEventFilter;
+    MirrorGasUpdated(previous?: null, current?: null): MirrorGasUpdatedEventFilter;
 
-    "OwnershipProposed(address)"(
-      proposedOwner?: PromiseOrValue<string> | null
-    ): OwnershipProposedEventFilter;
-    OwnershipProposed(
-      proposedOwner?: PromiseOrValue<string> | null
-    ): OwnershipProposedEventFilter;
+    "OwnershipProposed(address)"(proposedOwner?: PromiseOrValue<string> | null): OwnershipProposedEventFilter;
+    OwnershipProposed(proposedOwner?: PromiseOrValue<string> | null): OwnershipProposedEventFilter;
 
     "OwnershipTransferred(address,address)"(
       previousOwner?: PromiseOrValue<string> | null,
-      newOwner?: PromiseOrValue<string> | null
+      newOwner?: PromiseOrValue<string> | null,
     ): OwnershipTransferredEventFilter;
     OwnershipTransferred(
       previousOwner?: PromiseOrValue<string> | null,
-      newOwner?: PromiseOrValue<string> | null
+      newOwner?: PromiseOrValue<string> | null,
     ): OwnershipTransferredEventFilter;
 
-    "Process(bytes32,bool,bytes)"(
-      leaf?: null,
-      success?: null,
-      returnData?: null
-    ): ProcessEventFilter;
+    "Process(bytes32,bool,bytes)"(leaf?: null, success?: null, returnData?: null): ProcessEventFilter;
     Process(leaf?: null, success?: null, returnData?: null): ProcessEventFilter;
 
     "SenderAdded(address)"(sender?: null): SenderAddedEventFilter;
@@ -991,13 +681,11 @@ export interface MainnetSpokeConnector extends BaseContract {
 
     ROOT_MANAGER(overrides?: CallOverrides): Promise<BigNumber>;
 
-    acceptProposedOwner(
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
+    acceptProposedOwner(overrides?: Overrides & { from?: PromiseOrValue<string> }): Promise<BigNumber>;
 
     addSender(
       _sender: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: Overrides & { from?: PromiseOrValue<string> },
     ): Promise<BigNumber>;
 
     aggregateRoot(overrides?: CallOverrides): Promise<BigNumber>;
@@ -1010,31 +698,22 @@ export interface MainnetSpokeConnector extends BaseContract {
       _destinationDomain: PromiseOrValue<BigNumberish>,
       _recipientAddress: PromiseOrValue<BytesLike>,
       _messageBody: PromiseOrValue<BytesLike>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: Overrides & { from?: PromiseOrValue<string> },
     ): Promise<BigNumber>;
 
     home(overrides?: CallOverrides): Promise<BigNumber>;
 
-    isReplica(
-      _potentialReplica: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
+    isReplica(_potentialReplica: PromiseOrValue<string>, overrides?: CallOverrides): Promise<BigNumber>;
 
     localDomain(overrides?: CallOverrides): Promise<BigNumber>;
 
-    messages(
-      arg0: PromiseOrValue<BytesLike>,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
+    messages(arg0: PromiseOrValue<BytesLike>, overrides?: CallOverrides): Promise<BigNumber>;
 
     mirrorConnector(overrides?: CallOverrides): Promise<BigNumber>;
 
     mirrorGas(overrides?: CallOverrides): Promise<BigNumber>;
 
-    nonces(
-      arg0: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
+    nonces(arg0: PromiseOrValue<BigNumberish>, overrides?: CallOverrides): Promise<BigNumber>;
 
     outboundRoot(overrides?: CallOverrides): Promise<BigNumber>;
 
@@ -1042,12 +721,12 @@ export interface MainnetSpokeConnector extends BaseContract {
 
     processMessage(
       _data: PromiseOrValue<BytesLike>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: Overrides & { from?: PromiseOrValue<string> },
     ): Promise<BigNumber>;
 
     proposeNewOwner(
       newlyProposed: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: Overrides & { from?: PromiseOrValue<string> },
     ): Promise<BigNumber>;
 
     proposed(overrides?: CallOverrides): Promise<BigNumber>;
@@ -1058,55 +737,45 @@ export interface MainnetSpokeConnector extends BaseContract {
       _message: PromiseOrValue<BytesLike>,
       _proof: PromiseOrValue<BytesLike>[],
       _index: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: Overrides & { from?: PromiseOrValue<string> },
     ): Promise<BigNumber>;
 
-    provenRoots(
-      arg0: PromiseOrValue<BytesLike>,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
+    provenRoots(arg0: PromiseOrValue<BytesLike>, overrides?: CallOverrides): Promise<BigNumber>;
 
     removeSender(
       _sender: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: Overrides & { from?: PromiseOrValue<string> },
     ): Promise<BigNumber>;
 
-    renounceOwnership(
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
+    renounceOwnership(overrides?: Overrides & { from?: PromiseOrValue<string> }): Promise<BigNumber>;
 
     renounced(overrides?: CallOverrides): Promise<BigNumber>;
 
-    send(
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
+    send(overrides?: Overrides & { from?: PromiseOrValue<string> }): Promise<BigNumber>;
 
     sendMessage(
       _data: PromiseOrValue<BytesLike>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: Overrides & { from?: PromiseOrValue<string> },
     ): Promise<BigNumber>;
 
     setMirrorConnector(
       _mirrorConnector: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: Overrides & { from?: PromiseOrValue<string> },
     ): Promise<BigNumber>;
 
     setMirrorGas(
       _mirrorGas: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: Overrides & { from?: PromiseOrValue<string> },
     ): Promise<BigNumber>;
 
     tree(overrides?: CallOverrides): Promise<BigNumber>;
 
     verifySender(
       _expected: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: Overrides & { from?: PromiseOrValue<string> },
     ): Promise<BigNumber>;
 
-    whitelistedSenders(
-      arg0: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
+    whitelistedSenders(arg0: PromiseOrValue<string>, overrides?: CallOverrides): Promise<BigNumber>;
   };
 
   populateTransaction: {
@@ -1122,13 +791,11 @@ export interface MainnetSpokeConnector extends BaseContract {
 
     ROOT_MANAGER(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
-    acceptProposedOwner(
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
+    acceptProposedOwner(overrides?: Overrides & { from?: PromiseOrValue<string> }): Promise<PopulatedTransaction>;
 
     addSender(
       _sender: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: Overrides & { from?: PromiseOrValue<string> },
     ): Promise<PopulatedTransaction>;
 
     aggregateRoot(overrides?: CallOverrides): Promise<PopulatedTransaction>;
@@ -1141,31 +808,22 @@ export interface MainnetSpokeConnector extends BaseContract {
       _destinationDomain: PromiseOrValue<BigNumberish>,
       _recipientAddress: PromiseOrValue<BytesLike>,
       _messageBody: PromiseOrValue<BytesLike>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: Overrides & { from?: PromiseOrValue<string> },
     ): Promise<PopulatedTransaction>;
 
     home(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
-    isReplica(
-      _potentialReplica: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
+    isReplica(_potentialReplica: PromiseOrValue<string>, overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     localDomain(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
-    messages(
-      arg0: PromiseOrValue<BytesLike>,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
+    messages(arg0: PromiseOrValue<BytesLike>, overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     mirrorConnector(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     mirrorGas(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
-    nonces(
-      arg0: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
+    nonces(arg0: PromiseOrValue<BigNumberish>, overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     outboundRoot(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
@@ -1173,12 +831,12 @@ export interface MainnetSpokeConnector extends BaseContract {
 
     processMessage(
       _data: PromiseOrValue<BytesLike>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: Overrides & { from?: PromiseOrValue<string> },
     ): Promise<PopulatedTransaction>;
 
     proposeNewOwner(
       newlyProposed: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: Overrides & { from?: PromiseOrValue<string> },
     ): Promise<PopulatedTransaction>;
 
     proposed(overrides?: CallOverrides): Promise<PopulatedTransaction>;
@@ -1189,54 +847,44 @@ export interface MainnetSpokeConnector extends BaseContract {
       _message: PromiseOrValue<BytesLike>,
       _proof: PromiseOrValue<BytesLike>[],
       _index: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: Overrides & { from?: PromiseOrValue<string> },
     ): Promise<PopulatedTransaction>;
 
-    provenRoots(
-      arg0: PromiseOrValue<BytesLike>,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
+    provenRoots(arg0: PromiseOrValue<BytesLike>, overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     removeSender(
       _sender: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: Overrides & { from?: PromiseOrValue<string> },
     ): Promise<PopulatedTransaction>;
 
-    renounceOwnership(
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
+    renounceOwnership(overrides?: Overrides & { from?: PromiseOrValue<string> }): Promise<PopulatedTransaction>;
 
     renounced(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
-    send(
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
+    send(overrides?: Overrides & { from?: PromiseOrValue<string> }): Promise<PopulatedTransaction>;
 
     sendMessage(
       _data: PromiseOrValue<BytesLike>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: Overrides & { from?: PromiseOrValue<string> },
     ): Promise<PopulatedTransaction>;
 
     setMirrorConnector(
       _mirrorConnector: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: Overrides & { from?: PromiseOrValue<string> },
     ): Promise<PopulatedTransaction>;
 
     setMirrorGas(
       _mirrorGas: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: Overrides & { from?: PromiseOrValue<string> },
     ): Promise<PopulatedTransaction>;
 
     tree(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     verifySender(
       _expected: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: Overrides & { from?: PromiseOrValue<string> },
     ): Promise<PopulatedTransaction>;
 
-    whitelistedSenders(
-      arg0: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
+    whitelistedSenders(arg0: PromiseOrValue<string>, overrides?: CallOverrides): Promise<PopulatedTransaction>;
   };
 }
