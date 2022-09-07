@@ -4,22 +4,25 @@ pragma solidity 0.8.15;
 // ============ Internal Imports ============
 import {BridgeMessage} from "./BridgeMessage.sol";
 import {IBridgeToken} from "./IBridgeToken.sol";
-import {ITokenRegistry} from "../core/connext/interfaces/ITokenRegistry.sol";
 import {IBridgeHook} from "./IBridgeHook.sol";
-// ============ External Imports ============
-import {XAppConnectionClient} from "../core/shared/XAppConnectionClient.sol";
-import {Router} from "../core/shared/Router.sol";
-import {Home} from "../nomad-core/contracts/Home.sol";
-import {TypeCasts} from "../nomad-core/libs/TypeCasts.sol";
-import {Version0} from "../nomad-core/contracts/Version0.sol";
-import {TypedMemView} from "../nomad-core/libs/TypedMemView.sol";
+
+import {ITokenRegistry} from "../core/connext/interfaces/ITokenRegistry.sol";
+
+import {IOutbox} from "../messaging/interfaces/IOutbox.sol";
+
+import {XAppConnectionClient} from "../core/XAppConnectionClient.sol";
+import {Router} from "../core/Router.sol";
+
+import {TypedMemView} from "../shared/libraries/TypedMemView.sol";
+import {TypeCasts} from "../shared/libraries/TypeCasts.sol";
+
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import {SafeERC20} from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 
 /**
  * @title BridgeRouter
  */
-contract BridgeRouter is Version0, Router {
+contract BridgeRouter is Router {
   // ============ Libraries ============
 
   using TypedMemView for bytes;
@@ -278,7 +281,11 @@ contract BridgeRouter is Version0, Router {
     // get remote BridgeRouter address; revert if not found
     bytes32 _remote = _mustHaveRemote(_destination);
     // send message to remote chain via Nomad
-    Home(xAppConnectionManager.home()).dispatch(_destination, _remote, BridgeMessage.formatMessage(_tokenId, _action));
+    IOutbox(xAppConnectionManager.home()).dispatch(
+      _destination,
+      _remote,
+      BridgeMessage.formatMessage(_tokenId, _action)
+    );
   }
 
   // ============ Internal: Handle ============

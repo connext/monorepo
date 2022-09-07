@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity 0.8.15;
 
-import {TypedMemView} from "../../../nomad-core/libs/TypedMemView.sol";
+import {TypedMemView} from "../../../shared/libraries/TypedMemView.sol";
 
 /**
  * @notice This library includes functions to help parse the values appended
