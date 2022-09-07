@@ -312,7 +312,7 @@ contract BridgeFacet is BaseConnextFacet {
     bytes32 remoteInstance;
     {
       // Not native asset
-      // NOTE: we support using address(0) as an intuitive default iff you are sending a 0-value
+      // NOTE: we support using address(0) as an intuitive default if you are sending a 0-value
       // transfer. in that edgecase, address(0) will not be registered as a supported asset, but should
       // pass the `isLocalOrigin` check on the TokenRegistry
       if (_args.transactingAsset == address(0) && _args.transactingAmount != 0) {
