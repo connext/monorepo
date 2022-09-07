@@ -270,7 +270,7 @@ const _abi = [
     name: "xAppConnectionManager",
     outputs: [
       {
-        internalType: "contract XAppConnectionManager",
+        internalType: "contract IConnectorManager",
         name: "",
         type: "address",
       },

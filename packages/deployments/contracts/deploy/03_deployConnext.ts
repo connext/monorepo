@@ -6,10 +6,10 @@ import { FunctionFragment, Interface } from "ethers/lib/utils";
 import { FacetCut, FacetCutAction } from "hardhat-deploy/dist/types";
 
 import { SKIP_SETUP } from "../src/constants";
-import { getDeploymentName, getProtocolNetwork } from "../src/utils";
+import { getConnectorName, getDeploymentName, getProtocolNetwork } from "../src/utils";
 import { chainIdToDomain } from "../src";
 import { deployConfigs } from "../deployConfig";
-import { MESSAGING_PROTOCOL_CONFIGS, HUB_PREFIX, SPOKE_PREFIX } from "../deployConfig/shared";
+import { MESSAGING_PROTOCOL_CONFIGS } from "../deployConfig/shared";
 
 function sigsFromABI(abi: any[]): string[] {
   return abi
@@ -27,6 +27,7 @@ const proposeDiamondUpgrade = async (
   // Get existing facets + selectors
   const existingDeployment = (await hre.deployments.getOrNull(getDeploymentName("ConnextHandler")))!;
   const contract = new Contract(existingDeployment.address, existingDeployment?.abi, deployer);
+  console.log("trying to get facets");
   const oldFacets: { facetAddress: string; functionSelectors: string[] }[] = await contract.facets();
   const oldSelectors: string[] = [];
   const oldSelectorsFacetAddress: { [selector: string]: string } = {};
@@ -37,6 +38,9 @@ const proposeDiamondUpgrade = async (
     }
   }
   console.log("got all previous selectors");
+
+  // Add DiamondLoupeFacet
+  facets.push({ name: "_DefaultDiamondLoupeFacet", contract: "DiamondLoupeFacet", args: [] });
 
   let changesDetected = false;
 
@@ -97,6 +101,9 @@ const proposeDiamondUpgrade = async (
         action: FacetCutAction.Add,
       });
     }
+
+    console.log("trying to add:", selectorsToAdd);
+    console.log("trying to replace:", selectorsToReplace);
   }
 
   // Get facet selectors to delete
@@ -107,6 +114,7 @@ const proposeDiamondUpgrade = async (
     }
   }
 
+  console.log("trying to remove:", selectorsToDelete);
   if (selectorsToDelete.length > 0) {
     changesDetected = true;
     facetCuts.unshift({
@@ -122,11 +130,13 @@ const proposeDiamondUpgrade = async (
   }
 
   // Make sure this isnt a duplicate proposal (i.e. you aren't just resetting times)
+  console.log("here");
   const acceptanceTime = await contract.getAcceptanceTime(facetCuts, constants.AddressZero, "0x");
   if (!acceptanceTime.isZero()) {
     console.log(`cut has already been proposed`);
     return { cuts: facetCuts, tx: undefined };
   }
+  console.log("calling propose");
 
   // Propose facet cut
   return { cuts: facetCuts, tx: await contract.proposeDiamondCut(facetCuts, constants.AddressZero, "0x") };
@@ -189,9 +199,7 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment): Promise<voi
     throw new Error(`Network ${messagingNetwork} is not supported! (no messaging config)`);
   }
 
-  const connectorName = `${protocol.configs[network.chainId].prefix}${
-    protocol.hub === network.chainId ? HUB_PREFIX : SPOKE_PREFIX
-  }Connector`;
+  const connectorName = getConnectorName(protocol, +chainId);
   const connectorManagerDeployment = await hre.deployments.getOrNull(getDeploymentName(connectorName));
   if (!connectorManagerDeployment) {
     throw new Error(`${connectorName} not deployed`);

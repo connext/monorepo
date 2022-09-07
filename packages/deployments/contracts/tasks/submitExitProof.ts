@@ -1,10 +1,10 @@
 import { task } from "hardhat/config";
-import { Contract, utils } from "ethers";
+import { Contract } from "ethers";
 import { generateExitPayload } from "@connext/nxtp-utils";
 
 import hardhatConfig from "../hardhat.config";
-import { Env, getConnectorDeployments, getDeploymentName, mustGetEnv } from "../src/utils";
-import { HUB_PREFIX, MESSAGING_PROTOCOL_CONFIGS, SPOKE_PREFIX } from "../deployConfig/shared";
+import { Env, getConnectorDeployments, getConnectorName, getDeploymentName, mustGetEnv } from "../src/utils";
+import { MESSAGING_PROTOCOL_CONFIGS } from "../deployConfig/shared";
 import { chainIdToDomain } from "../src";
 
 type TaskArgs = {
@@ -38,10 +38,10 @@ export default task("submit-exit-proof", "Submit Exit proof to L2 chain")
 
     const deployments = getConnectorDeployments(env);
     const L1ConnectorDeployment = deployments.find(
-      ({ name }) => name === getDeploymentName(`Polygon${HUB_PREFIX}Connector`),
+      ({ name }) => name === getDeploymentName(getConnectorName(protocol, protocol.hub)),
     );
     const L2ConnectorDeployment = deployments.find(
-      ({ name }) => name === getDeploymentName(`Polygon${SPOKE_PREFIX}Connector`),
+      ({ name }) => name === getDeploymentName(getConnectorName(protocol, +chain)),
     );
 
     if (!L1ConnectorDeployment || !L2ConnectorDeployment) {

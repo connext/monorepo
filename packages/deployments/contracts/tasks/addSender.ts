@@ -1,7 +1,7 @@
 import { Contract } from "ethers";
 import { task } from "hardhat/config";
 
-import { Env, getDeploymentName, getMessagingProtocolConfig, mustGetEnv } from "../src/utils";
+import { Env, getConnectorName, getDeploymentName, getMessagingProtocolConfig, mustGetEnv } from "../src/utils";
 
 type TaskArgs = {
   sender: string;
@@ -27,10 +27,7 @@ export default task("add-sender", "Add sender to connector whitelist")
 
     const protocol = getMessagingProtocolConfig(env);
 
-    const connectorName = getDeploymentName(
-      `${protocol.configs[network.chainId].prefix}${+network.chainId === protocol.hub ? "L1" : "L2"}Connector`,
-      env,
-    );
+    const connectorName = getDeploymentName(getConnectorName(protocol, +network.chainId), env);
     console.log("connectorName:", connectorName);
     const connectorDeployment = await deployments.get(connectorName);
     const connectorAddress = "0x48e7ffa0725863a2388a5ccbe1a41133c96bba2d"; // _connectorAddress ?? connectorDeployment.address;

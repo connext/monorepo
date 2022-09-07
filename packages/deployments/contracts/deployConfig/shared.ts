@@ -145,8 +145,8 @@ export const OPTIMISM_AMB: AMBInfo = {
  */
 
 // Contract prefixes for Connector contracts.
-export const HUB_PREFIX = "L1";
-export const SPOKE_PREFIX = "L2";
+export const HUB_PREFIX = "Hub";
+export const SPOKE_PREFIX = "Spoke";
 
 const DEFAULT_PROCESS_GAS = BigNumber.from("850000");
 const DEFAULT_RESERVE_GAS = BigNumber.from("15000");

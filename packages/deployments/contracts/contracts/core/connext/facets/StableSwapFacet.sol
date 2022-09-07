@@ -3,8 +3,9 @@ pragma solidity 0.8.15;
 
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 
-import {BaseConnextFacet} from "./BaseConnextFacet.sol";
 import {AmplificationUtils, SwapUtils} from "../libraries/AmplificationUtils.sol";
+
+import {BaseConnextFacet} from "./BaseConnextFacet.sol";
 
 /**
  * @title Swap - A StableSwap implementation in solidity.

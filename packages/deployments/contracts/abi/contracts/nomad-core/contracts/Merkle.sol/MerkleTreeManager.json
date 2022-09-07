@@ -1,5 +1,0 @@
-[
-  "function count() view returns (uint256)",
-  "function root() view returns (bytes32)",
-  "function tree() view returns (uint256)"
-]

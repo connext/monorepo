@@ -2,8 +2,8 @@ import { HardhatRuntimeEnvironment } from "hardhat/types";
 import { DeployFunction } from "hardhat-deploy/types";
 import { BigNumber, Contract, Signer, Wallet } from "ethers";
 
-import { getDeploymentName, getProtocolNetwork } from "../src/utils";
-import { HUB_PREFIX, MESSAGING_PROTOCOL_CONFIGS, SPOKE_PREFIX } from "../deployConfig/shared";
+import { getConnectorName, getDeploymentName, getProtocolNetwork } from "../src/utils";
+import { MESSAGING_PROTOCOL_CONFIGS } from "../deployConfig/shared";
 import { deployConfigs } from "../deployConfig";
 
 export const deployBeaconProxy = async <T extends Contract = Contract>(
@@ -141,9 +141,7 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment): Promise<voi
     throw new Error(`Network ${network} is not supported! (no messaging config)`);
   }
 
-  const connectorName = `${protocol.configs[chainId].prefix}${
-    protocol.hub === chainId ? HUB_PREFIX : SPOKE_PREFIX
-  }Connector`;
+  const connectorName = getConnectorName(protocol, chainId);
   console.log(`using connector: ${connectorName}`);
 
   // Find the connector that exists on this domain / chain
