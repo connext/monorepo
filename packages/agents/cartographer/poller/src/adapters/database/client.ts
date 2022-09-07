@@ -85,14 +85,18 @@ export const saveTransfers = async (xtransfers: XTransfer[], _pool?: Pool): Prom
 };
 
 export const saveMessages = async (xMessages: XMessage[], _pool?: Pool): Promise<void> => {
+  // TODO: should insert messages into the message table.
+  // The `xMessages` are the ones retrieved only from the origin domain
   throw new Error("Not implemented yet");
 };
 
 export const updateMessages = async (xMessages: XMessage[], _pool?: Pool): Promise<void> => {
+  // TODO: Update the statuses of `xMessages` by getting the status from the destination domain
   throw new Error("Not implemented yet");
 };
 
 export const getPendingMessages = async (_pool?: Pool): Promise<XMessage[]> => {
+  // TODO: should be able to get the messages in which `processed` is false
   throw new Error("Not implemented yet");
 };
 
