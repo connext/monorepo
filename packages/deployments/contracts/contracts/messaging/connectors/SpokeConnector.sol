@@ -198,7 +198,7 @@ abstract contract SpokeConnector is Connector, ConnectorManager, MerkleTreeManag
     uint32 _destinationDomain,
     bytes32 _recipientAddress,
     bytes memory _messageBody
-  ) external onlyWhitelistedSender {
+  ) external onlyWhitelistedSender returns (bytes32) {
     // get the next nonce for the destination domain, then increment it
     uint32 _nonce = nonces[_destinationDomain];
     nonces[_destinationDomain] = _nonce + 1;
@@ -218,6 +218,7 @@ abstract contract SpokeConnector is Connector, ConnectorManager, MerkleTreeManag
     // Emit Dispatch event with message information
     // note: leafIndex is count() - 1 since new leaf has already been inserted
     emit Dispatch(_messageHash, count() - 1, tree.root(), _message);
+    return _messageHash;
   }
 
   /**
