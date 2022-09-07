@@ -13,9 +13,19 @@ import type {
   Signer,
   utils,
 } from "ethers";
-import type { FunctionFragment, Result, EventFragment } from "@ethersproject/abi";
+import type {
+  FunctionFragment,
+  Result,
+  EventFragment,
+} from "@ethersproject/abi";
 import type { Listener, Provider } from "@ethersproject/providers";
-import type { TypedEventFilter, TypedEvent, TypedListener, OnEvent, PromiseOrValue } from "../../../common";
+import type {
+  TypedEventFilter,
+  TypedEvent,
+  TypedListener,
+  OnEvent,
+  PromiseOrValue,
+} from "../../../common";
 
 export interface IOutboxInterface extends utils.Interface {
   functions: {
@@ -26,7 +36,11 @@ export interface IOutboxInterface extends utils.Interface {
 
   encodeFunctionData(
     functionFragment: "dispatch",
-    values: [PromiseOrValue<BigNumberish>, PromiseOrValue<BytesLike>, PromiseOrValue<BytesLike>],
+    values: [
+      PromiseOrValue<BigNumberish>,
+      PromiseOrValue<BytesLike>,
+      PromiseOrValue<BytesLike>
+    ]
   ): string;
 
   decodeFunctionResult(functionFragment: "dispatch", data: BytesLike): Result;
@@ -45,7 +59,10 @@ export interface DispatchEventObject {
   committedRoot: string;
   message: string;
 }
-export type DispatchEvent = TypedEvent<[string, BigNumber, BigNumber, string, string], DispatchEventObject>;
+export type DispatchEvent = TypedEvent<
+  [string, BigNumber, BigNumber, string, string],
+  DispatchEventObject
+>;
 
 export type DispatchEventFilter = TypedEventFilter<DispatchEvent>;
 
@@ -59,12 +76,16 @@ export interface IOutbox extends BaseContract {
   queryFilter<TEvent extends TypedEvent>(
     event: TypedEventFilter<TEvent>,
     fromBlockOrBlockhash?: string | number | undefined,
-    toBlock?: string | number | undefined,
+    toBlock?: string | number | undefined
   ): Promise<Array<TEvent>>;
 
-  listeners<TEvent extends TypedEvent>(eventFilter?: TypedEventFilter<TEvent>): Array<TypedListener<TEvent>>;
+  listeners<TEvent extends TypedEvent>(
+    eventFilter?: TypedEventFilter<TEvent>
+  ): Array<TypedListener<TEvent>>;
   listeners(eventName?: string): Array<Listener>;
-  removeAllListeners<TEvent extends TypedEvent>(eventFilter: TypedEventFilter<TEvent>): this;
+  removeAllListeners<TEvent extends TypedEvent>(
+    eventFilter: TypedEventFilter<TEvent>
+  ): this;
   removeAllListeners(eventName?: string): this;
   off: OnEvent<this>;
   on: OnEvent<this>;
@@ -76,7 +97,7 @@ export interface IOutbox extends BaseContract {
       _destinationDomain: PromiseOrValue<BigNumberish>,
       _recipientAddress: PromiseOrValue<BytesLike>,
       _messageBody: PromiseOrValue<BytesLike>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> },
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
   };
 
@@ -84,7 +105,7 @@ export interface IOutbox extends BaseContract {
     _destinationDomain: PromiseOrValue<BigNumberish>,
     _recipientAddress: PromiseOrValue<BytesLike>,
     _messageBody: PromiseOrValue<BytesLike>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> },
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
   callStatic: {
@@ -92,8 +113,8 @@ export interface IOutbox extends BaseContract {
       _destinationDomain: PromiseOrValue<BigNumberish>,
       _recipientAddress: PromiseOrValue<BytesLike>,
       _messageBody: PromiseOrValue<BytesLike>,
-      overrides?: CallOverrides,
-    ): Promise<void>;
+      overrides?: CallOverrides
+    ): Promise<string>;
   };
 
   filters: {
@@ -102,14 +123,14 @@ export interface IOutbox extends BaseContract {
       leafIndex?: PromiseOrValue<BigNumberish> | null,
       destinationAndNonce?: PromiseOrValue<BigNumberish> | null,
       committedRoot?: null,
-      message?: null,
+      message?: null
     ): DispatchEventFilter;
     Dispatch(
       messageHash?: PromiseOrValue<BytesLike> | null,
       leafIndex?: PromiseOrValue<BigNumberish> | null,
       destinationAndNonce?: PromiseOrValue<BigNumberish> | null,
       committedRoot?: null,
-      message?: null,
+      message?: null
     ): DispatchEventFilter;
   };
 
@@ -118,7 +139,7 @@ export interface IOutbox extends BaseContract {
       _destinationDomain: PromiseOrValue<BigNumberish>,
       _recipientAddress: PromiseOrValue<BytesLike>,
       _messageBody: PromiseOrValue<BytesLike>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> },
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
   };
 
@@ -127,7 +148,7 @@ export interface IOutbox extends BaseContract {
       _destinationDomain: PromiseOrValue<BigNumberish>,
       _recipientAddress: PromiseOrValue<BytesLike>,
       _messageBody: PromiseOrValue<BytesLike>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> },
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
   };
 }

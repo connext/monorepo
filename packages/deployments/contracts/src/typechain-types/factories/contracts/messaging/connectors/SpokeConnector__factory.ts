@@ -415,7 +415,13 @@ const _abi = [
       },
     ],
     name: "dispatch",
-    outputs: [],
+    outputs: [
+      {
+        internalType: "bytes32",
+        name: "",
+        type: "bytes32",
+      },
+    ],
     stateMutability: "nonpayable",
     type: "function",
   },
@@ -772,7 +778,10 @@ export class SpokeConnector__factory {
   static createInterface(): SpokeConnectorInterface {
     return new utils.Interface(_abi) as SpokeConnectorInterface;
   }
-  static connect(address: string, signerOrProvider: Signer | Provider): SpokeConnector {
+  static connect(
+    address: string,
+    signerOrProvider: Signer | Provider
+  ): SpokeConnector {
     return new Contract(address, _abi, signerOrProvider) as SpokeConnector;
   }
 }
