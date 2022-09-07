@@ -566,12 +566,14 @@ export const getDestinationTransfersByDomainAndIdsQuery = (txIdsByDestinationDom
   `;
 };
 
-export const getOriginMessagesByDomainAndIndexQuery = (params: { domain: string; index: number }[]): string => {
+export const getOriginMessagesByDomainAndIndexQuery = (
+  params: { domain: string; offset: number; limit: number }[],
+): string => {
   const { config } = getContext();
   let combinedQuery = "";
   for (const param of params) {
     const prefix = config.sources[param.domain].prefix;
-    combinedQuery += `${prefix}_originMessages ( where: { index_gte: ${param.index}}) {${ORIGIN_MESSAGE_ENTITY}}`;
+    combinedQuery += `${prefix}_originMessages ( first: ${param.limit}, where: { index_gte: ${param.offset}}) {${ORIGIN_MESSAGE_ENTITY}} orderBy: index, orderDirection: asc`;
   }
 
   return gql`

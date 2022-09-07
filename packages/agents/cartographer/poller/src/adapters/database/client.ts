@@ -1,4 +1,4 @@
-import { XTransfer, XTransferStatus, RouterBalance, convertFromDbTransfer } from "@connext/nxtp-utils";
+import { XTransfer, XTransferStatus, RouterBalance, convertFromDbTransfer, XMessage } from "@connext/nxtp-utils";
 import { Pool } from "pg";
 import * as db from "zapatos/db";
 import { raw } from "zapatos/db";
@@ -82,6 +82,10 @@ export const saveTransfers = async (xtransfers: XTransfer[], _pool?: Pool): Prom
       transfer,
     )}) RETURNING *`.run(poolToUse);
   }
+};
+
+export const saveMessages = async (xmessages: XMessage[], _pool?: Pool): Promise<void> => {
+  throw new Error("Not implemented yet");
 };
 
 export const saveCheckPoint = async (check: string, point: number, _pool?: Pool): Promise<void> => {
