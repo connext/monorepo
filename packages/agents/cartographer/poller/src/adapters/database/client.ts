@@ -84,7 +84,15 @@ export const saveTransfers = async (xtransfers: XTransfer[], _pool?: Pool): Prom
   }
 };
 
-export const saveMessages = async (xmessages: XMessage[], _pool?: Pool): Promise<void> => {
+export const saveMessages = async (xMessages: XMessage[], _pool?: Pool): Promise<void> => {
+  throw new Error("Not implemented yet");
+};
+
+export const updateMessages = async (xMessages: XMessage[], _pool?: Pool): Promise<void> => {
+  throw new Error("Not implemented yet");
+};
+
+export const getPendingMessages = async (_pool?: Pool): Promise<XMessage[]> => {
   throw new Error("Not implemented yet");
 };
 
