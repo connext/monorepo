@@ -30,7 +30,6 @@ import type {
 export interface BridgeRouterInterface extends utils.Interface {
   functions: {
     "DUST_AMOUNT()": FunctionFragment;
-    "VERSION()": FunctionFragment;
     "acceptProposedOwner()": FunctionFragment;
     "delay()": FunctionFragment;
     "enrollCustom(uint32,bytes32,address)": FunctionFragment;
@@ -56,7 +55,6 @@ export interface BridgeRouterInterface extends utils.Interface {
   getFunction(
     nameOrSignatureOrTopic:
       | "DUST_AMOUNT"
-      | "VERSION"
       | "acceptProposedOwner"
       | "delay"
       | "enrollCustom"
@@ -83,7 +81,6 @@ export interface BridgeRouterInterface extends utils.Interface {
     functionFragment: "DUST_AMOUNT",
     values?: undefined
   ): string;
-  encodeFunctionData(functionFragment: "VERSION", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "acceptProposedOwner",
     values?: undefined
@@ -178,7 +175,6 @@ export interface BridgeRouterInterface extends utils.Interface {
     functionFragment: "DUST_AMOUNT",
     data: BytesLike
   ): Result;
-  decodeFunctionResult(functionFragment: "VERSION", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "acceptProposedOwner",
     data: BytesLike
@@ -333,8 +329,6 @@ export interface BridgeRouter extends BaseContract {
   functions: {
     DUST_AMOUNT(overrides?: CallOverrides): Promise<[BigNumber]>;
 
-    VERSION(overrides?: CallOverrides): Promise<[number]>;
-
     acceptProposedOwner(
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
@@ -430,8 +424,6 @@ export interface BridgeRouter extends BaseContract {
 
   DUST_AMOUNT(overrides?: CallOverrides): Promise<BigNumber>;
 
-  VERSION(overrides?: CallOverrides): Promise<number>;
-
   acceptProposedOwner(
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
@@ -526,8 +518,6 @@ export interface BridgeRouter extends BaseContract {
 
   callStatic: {
     DUST_AMOUNT(overrides?: CallOverrides): Promise<BigNumber>;
-
-    VERSION(overrides?: CallOverrides): Promise<number>;
 
     acceptProposedOwner(overrides?: CallOverrides): Promise<void>;
 
@@ -674,8 +664,6 @@ export interface BridgeRouter extends BaseContract {
   estimateGas: {
     DUST_AMOUNT(overrides?: CallOverrides): Promise<BigNumber>;
 
-    VERSION(overrides?: CallOverrides): Promise<BigNumber>;
-
     acceptProposedOwner(
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
@@ -771,8 +759,6 @@ export interface BridgeRouter extends BaseContract {
 
   populateTransaction: {
     DUST_AMOUNT(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
-    VERSION(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     acceptProposedOwner(
       overrides?: Overrides & { from?: PromiseOrValue<string> }

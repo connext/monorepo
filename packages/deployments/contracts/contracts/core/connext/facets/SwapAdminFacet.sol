@@ -1,11 +1,13 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity 0.8.15;
 
-import {BaseConnextFacet} from "./BaseConnextFacet.sol";
-import {AmplificationUtils, SwapUtils} from "../libraries/AmplificationUtils.sol";
-import {LPToken} from "../helpers/LPToken.sol";
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import {Clones} from "@openzeppelin/contracts/proxy/Clones.sol";
+
+import {AmplificationUtils, SwapUtils} from "../libraries/AmplificationUtils.sol";
+import {LPToken} from "../helpers/LPToken.sol";
+
+import {BaseConnextFacet} from "./BaseConnextFacet.sol";
 
 /**
  * @title SwapAdminFacet

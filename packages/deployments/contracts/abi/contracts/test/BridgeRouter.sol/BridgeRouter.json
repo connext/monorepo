@@ -13,7 +13,6 @@
   "event Receive(uint64 indexed,address indexed,address indexed,address,uint256)",
   "event Send(address indexed,address indexed,uint32 indexed,bytes32,uint256,bool)",
   "function DUST_AMOUNT() view returns (uint256)",
-  "function VERSION() view returns (uint8)",
   "function acceptProposedOwner()",
   "function delay() view returns (uint256)",
   "function enrollCustom(uint32,bytes32,address)",

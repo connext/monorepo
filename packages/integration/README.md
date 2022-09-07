@@ -26,7 +26,7 @@ In `setup-integration-test.sh` there is a section that creates a `.env` file. An
 If you need to run the test locally against local changes, you can build the images yourself.
 
 ```sh
-./packages/integration/build-docker-images.sh
+./build-docker-images.sh
 ```
 
 ### 4. Setup Script
