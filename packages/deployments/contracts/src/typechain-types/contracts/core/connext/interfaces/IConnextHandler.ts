@@ -45,7 +45,6 @@ export type CallParamsStruct = {
   destinationDomain: PromiseOrValue<BigNumberish>;
   agent: PromiseOrValue<string>;
   recovery: PromiseOrValue<string>;
-  forceSlow: PromiseOrValue<boolean>;
   receiveLocal: PromiseOrValue<boolean>;
   callback: PromiseOrValue<string>;
   callbackFee: PromiseOrValue<BigNumberish>;
@@ -61,7 +60,6 @@ export type CallParamsStructOutput = [
   string,
   string,
   boolean,
-  boolean,
   string,
   BigNumber,
   BigNumber,
@@ -73,7 +71,6 @@ export type CallParamsStructOutput = [
   destinationDomain: number;
   agent: string;
   recovery: string;
-  forceSlow: boolean;
   receiveLocal: boolean;
   callback: string;
   callbackFee: BigNumber;
@@ -244,13 +241,13 @@ export interface IConnextHandlerInterface extends utils.Interface {
     "delay()": FunctionFragment;
     "diamondCut((address,uint8,bytes4[])[],address,bytes)": FunctionFragment;
     "domain()": FunctionFragment;
-    "execute(((address,bytes,uint32,uint32,address,address,bool,bool,address,uint256,uint256,uint256),address,address[],bytes[],address,bytes,uint256,uint256,address))": FunctionFragment;
+    "execute(((address,bytes,uint32,uint32,address,address,bool,address,uint256,uint256,uint256),address,address[],bytes[],address,bytes,uint256,uint256,address))": FunctionFragment;
     "executor()": FunctionFragment;
     "facetAddress(bytes4)": FunctionFragment;
     "facetAddresses()": FunctionFragment;
     "facetFunctionSelectors(address)": FunctionFragment;
     "facets()": FunctionFragment;
-    "forceReceiveLocal((address,bytes,uint32,uint32,address,address,bool,bool,address,uint256,uint256,uint256),uint256,uint256,bytes32,uint32,address)": FunctionFragment;
+    "forceReceiveLocal((address,bytes,uint32,uint32,address,address,bool,address,uint256,uint256,uint256),uint256,uint256,bytes32,uint32,address)": FunctionFragment;
     "getAavePortalDebt(bytes32)": FunctionFragment;
     "getAavePortalFeeDebt(bytes32)": FunctionFragment;
     "getProposedRouterOwner(address)": FunctionFragment;
@@ -301,8 +298,8 @@ export interface IConnextHandlerInterface extends utils.Interface {
     "removeSwapLiquidityOneToken(bytes32,uint256,uint8,uint256,uint256)": FunctionFragment;
     "renounceOwnership()": FunctionFragment;
     "renounced()": FunctionFragment;
-    "repayAavePortal((address,bytes,uint32,uint32,address,address,bool,bool,address,uint256,uint256,uint256),address,address,uint256,uint256,uint256,uint256,uint256)": FunctionFragment;
-    "repayAavePortalFor((address,bytes,uint32,uint32,address,address,bool,bool,address,uint256,uint256,uint256),address,address,uint256,uint256,uint256,uint256)": FunctionFragment;
+    "repayAavePortal((address,bytes,uint32,uint32,address,address,bool,address,uint256,uint256,uint256),address,address,uint256,uint256,uint256,uint256,uint256)": FunctionFragment;
+    "repayAavePortalFor((address,bytes,uint32,uint32,address,address,bool,address,uint256,uint256,uint256),address,address,uint256,uint256,uint256,uint256)": FunctionFragment;
     "rescindDiamondCut((address,uint8,bytes4[])[],address,bytes)": FunctionFragment;
     "routedTransfers(bytes32)": FunctionFragment;
     "routerBalances(address,address)": FunctionFragment;
@@ -333,7 +330,7 @@ export interface IConnextHandlerInterface extends utils.Interface {
     "unapproveRouterForPortal(address)": FunctionFragment;
     "unpause()": FunctionFragment;
     "withdrawSwapAdminFees(bytes32)": FunctionFragment;
-    "xcall(((address,bytes,uint32,uint32,address,address,bool,bool,address,uint256,uint256,uint256),address,uint256,uint256))": FunctionFragment;
+    "xcall(((address,bytes,uint32,uint32,address,address,bool,address,uint256,uint256,uint256),address,uint256,uint256))": FunctionFragment;
   };
 
   getFunction(
