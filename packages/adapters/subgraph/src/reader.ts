@@ -6,6 +6,7 @@ import {
   Asset,
   OriginTransfer,
   DestinationTransfer,
+  XTrasferMessage,
   RouterBalance,
   AssetBalance,
   SubgraphQueryByTransferIDsMetaParams,
@@ -32,6 +33,7 @@ import {
   getOriginTransfersByNonceQuery,
   getDestinationTransfersByNonceQuery,
   getDestinationTransfersByDomainAndReconcileTimestampQuery,
+  getOriginMessagesByDomainAndIndexQuery,
 } from "./lib/operations";
 import { SubgraphMap } from "./lib/entities";
 
@@ -525,5 +527,10 @@ export class SubgraphReader {
    */
   public async getMessagesByDomain(params: { domain: string; index: number }[]): Promise<XTrasferMessage[]> {
     const { parser, execute } = getHelpers();
+    const originMessageQuery = getOriginMessagesByDomainAndIndexQuery(params);
+    const response = await execute(originMessageQuery);
+
+    // TODO. not implemented yet
+    return [];
   }
 }

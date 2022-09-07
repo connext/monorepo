@@ -116,6 +116,7 @@ export const ORIGIN_MESSAGE_ENTITY = `
       index
       root
       message
+      destination
 `;
 export const DESTINATION_MESSAGE_ENTITY = `
       id
