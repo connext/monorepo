@@ -41,12 +41,18 @@ import "./tasks/stableswap/initializeSwap";
 import "./tasks/stableswap/addSwapLiquidity";
 import "./tasks/stableswap/removeSwapLiquidity";
 import "./tasks/stableswap/setSwapFees";
+import "./tasks/connector/send";
+import "./tasks/rootmanager/propagate";
 import "./tasks/setMirrorConnectors";
 import "./tasks/addConnextions";
 import "./tasks/setBridgeRouter";
 import "./tasks/addSequencer";
 import "./tasks/setXAppConnectionManager";
 import "./tasks/queryRoots";
+import "./tasks/submitExitProof";
+import "./tasks/addConnectors";
+import "./tasks/connector/proveAndProcess";
+import "./tasks/addSender";
 
 const urlOverride = process.env.ETH_PROVIDER_URL;
 const chainId = parseInt(process.env.CHAIN_ID ?? "1337", 10);
@@ -247,6 +253,9 @@ const config: HardhatUserConfig = {
       accounts: { mnemonic },
       chainId: 80001,
       url: "https://rpc.ankr.com/polygon_mumbai",
+      companionNetworks: {
+        hub: "goerli",
+      },
     },
     "arbitrum-rinkeby": {
       accounts: { mnemonic },
@@ -262,6 +271,7 @@ const config: HardhatUserConfig = {
       ropsten: process.env.ETHERSCAN_API_KEY!,
       goerli: process.env.ETHERSCAN_API_KEY!,
       "optimism-goerli": process.env.ETHERSCAN_API_KEY!,
+      mumbai: process.env.ETHERSCAN_API_KEY!,
     },
     customChains: [
       {

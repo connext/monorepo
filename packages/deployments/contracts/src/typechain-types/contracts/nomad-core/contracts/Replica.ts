@@ -266,6 +266,7 @@ export interface ReplicaInterface extends utils.Interface {
 
   events: {
     "DoubleUpdate(bytes32,bytes32[2],bytes,bytes)": EventFragment;
+    "Initialized(uint8)": EventFragment;
     "NewUpdater(address,address)": EventFragment;
     "OwnershipTransferred(address,address)": EventFragment;
     "Process(bytes32,bool,bytes)": EventFragment;
@@ -275,6 +276,7 @@ export interface ReplicaInterface extends utils.Interface {
   };
 
   getEvent(nameOrSignatureOrTopic: "DoubleUpdate"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "Initialized"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "NewUpdater"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "OwnershipTransferred"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "Process"): EventFragment;
@@ -295,6 +297,13 @@ export type DoubleUpdateEvent = TypedEvent<
 >;
 
 export type DoubleUpdateEventFilter = TypedEventFilter<DoubleUpdateEvent>;
+
+export interface InitializedEventObject {
+  version: number;
+}
+export type InitializedEvent = TypedEvent<[number], InitializedEventObject>;
+
+export type InitializedEventFilter = TypedEventFilter<InitializedEvent>;
 
 export interface NewUpdaterEventObject {
   oldUpdater: string;
@@ -720,6 +729,9 @@ export interface Replica extends BaseContract {
       signature?: null,
       signature2?: null
     ): DoubleUpdateEventFilter;
+
+    "Initialized(uint8)"(version?: null): InitializedEventFilter;
+    Initialized(version?: null): InitializedEventFilter;
 
     "NewUpdater(address,address)"(
       oldUpdater?: null,

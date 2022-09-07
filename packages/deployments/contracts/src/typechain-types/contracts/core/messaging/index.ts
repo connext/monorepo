@@ -3,6 +3,8 @@
 /* eslint-disable */
 import type * as connectors from "./connectors";
 export type { connectors };
+import type * as helpers from "./helpers";
+export type { helpers };
 import type * as interfaces from "./interfaces";
 export type { interfaces };
 export type { RootManager } from "./RootManager";

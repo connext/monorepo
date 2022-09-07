@@ -255,6 +255,7 @@ export interface HomeInterface extends utils.Interface {
     "Dispatch(bytes32,uint256,uint64,bytes32,bytes)": EventFragment;
     "DoubleUpdate(bytes32,bytes32[2],bytes,bytes)": EventFragment;
     "ImproperUpdate(bytes32,bytes32,bytes)": EventFragment;
+    "Initialized(uint8)": EventFragment;
     "NewUpdater(address,address)": EventFragment;
     "NewUpdaterManager(address)": EventFragment;
     "OwnershipTransferred(address,address)": EventFragment;
@@ -265,6 +266,7 @@ export interface HomeInterface extends utils.Interface {
   getEvent(nameOrSignatureOrTopic: "Dispatch"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "DoubleUpdate"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "ImproperUpdate"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "Initialized"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "NewUpdater"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "NewUpdaterManager"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "OwnershipTransferred"): EventFragment;
@@ -310,6 +312,13 @@ export type ImproperUpdateEvent = TypedEvent<
 >;
 
 export type ImproperUpdateEventFilter = TypedEventFilter<ImproperUpdateEvent>;
+
+export interface InitializedEventObject {
+  version: number;
+}
+export type InitializedEvent = TypedEvent<[number], InitializedEventObject>;
+
+export type InitializedEventFilter = TypedEventFilter<InitializedEvent>;
 
 export interface NewUpdaterEventObject {
   oldUpdater: string;
@@ -723,6 +732,9 @@ export interface Home extends BaseContract {
       newRoot?: null,
       signature?: null
     ): ImproperUpdateEventFilter;
+
+    "Initialized(uint8)"(version?: null): InitializedEventFilter;
+    Initialized(version?: null): InitializedEventFilter;
 
     "NewUpdater(address,address)"(
       oldUpdater?: null,

@@ -1,0 +1,19 @@
+[
+  "event AggregateRootUpdated(bytes32,bytes32)",
+  "event Dispatch(bytes32,uint256,bytes32,bytes)",
+  "event MessageProcessed(bytes,address)",
+  "event MessageSent(bytes,address)",
+  "event OwnershipProposed(address indexed)",
+  "event OwnershipTransferred(address indexed,address indexed)",
+  "event Process(bytes32,bool,bytes)",
+  "function acceptProposedOwner()",
+  "function dispatch(uint32,bytes32,bytes)",
+  "function outboundRoot() view returns (bytes32)",
+  "function owner() view returns (address)",
+  "function processMessage(bytes)",
+  "function proposeNewOwner(address)",
+  "function proposed() view returns (address)",
+  "function proveAndProcess(bytes,bytes32[32],uint256)",
+  "function send()",
+  "function verifySender(address) returns (bool)"
+]

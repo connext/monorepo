@@ -2,7 +2,7 @@ import { config } from "dotenv";
 import { ContractInterface, providers } from "ethers";
 import { HardhatRuntimeEnvironment, HardhatUserConfig } from "hardhat/types";
 
-import { HUB_PREFIX, MESSAGING_PROTOCOL_CONFIGS, SPOKE_PREFIX } from "../deployConfig/shared";
+import { HUB_PREFIX, MessagingProtocolConfig, MESSAGING_PROTOCOL_CONFIGS, SPOKE_PREFIX } from "../deployConfig/shared";
 import deploymentRecords from "../deployments.json";
 
 config();
@@ -32,6 +32,17 @@ export const getProtocolNetwork = (_chain: string | number, _env?: string): "mai
     ? "testnet"
     : // Default to local otherwise.
       "local";
+};
+
+export const getConnectorName = (config: MessagingProtocolConfig, chainId: number): string => {
+  const naming = config.configs[chainId];
+  if (!naming) {
+    throw new Error(`Could not find ${chainId} in config`);
+  }
+  // Only spoke connectors deployed for mainnet contracts
+  return `${naming.prefix}${
+    config.hub === chainId && !naming.prefix.includes("Mainnet") ? HUB_PREFIX : SPOKE_PREFIX
+  }Connector`;
 };
 
 // These contracts do not have a `Staging` deployment
@@ -67,6 +78,17 @@ export const verify = async (
   }
 };
 
+// Gets the messaging protocol config for a given chain
+export const getMessagingProtocolConfig = (env: Env): MessagingProtocolConfig => {
+  const network = env === "production" ? "mainnet" : env === "staging" ? "testnet" : "local";
+  const protocol = MESSAGING_PROTOCOL_CONFIGS[network];
+
+  if (!protocol || !protocol.configs[protocol.hub]) {
+    throw new Error(`Network ${network} is not supported! (no messaging config)`);
+  }
+  return protocol;
+};
+
 // This function is useful for tasks that should be executed across all connectors
 export type ConnectorDeployment = {
   address: string;
@@ -77,36 +99,32 @@ export type ConnectorDeployment = {
 };
 
 export const getConnectorDeployments = (env: Env): ConnectorDeployment[] => {
-  const network = env === "production" ? "mainnet" : env === "staging" ? "testnet" : "local";
-  const protocol = MESSAGING_PROTOCOL_CONFIGS[network];
-
-  if (!protocol || !protocol.configs[protocol.hub]) {
-    throw new Error(`Network ${network} is not supported! (no messaging config)`);
-  }
+  const protocol = getMessagingProtocolConfig(env);
 
   const connectors: { name: string; chain: number; mirrorName?: string; mirrorChain?: number }[] = [];
-  Object.entries(protocol.configs).forEach(([chainId, config]) => {
-    if (protocol.hub === +chainId) {
+  Object.keys(protocol.configs).forEach((_chainId) => {
+    const chainId = +_chainId;
+    if (protocol.hub === chainId) {
       // On the hub, you only need to connect the mainnet l1 connector (no mirror)
       connectors.push({
         chain: protocol.hub,
-        name: getDeploymentName(`${config.prefix}${HUB_PREFIX}Connector`),
+        name: getDeploymentName(getConnectorName(protocol, protocol.hub)),
         mirrorName: undefined,
         mirrorChain: undefined,
       });
       return;
     }
     // When not on the hub, there will be a name for both the hub and spoke side connectors
-    const hubName = getDeploymentName(`${config.prefix}${HUB_PREFIX}Connector`);
-    const spokeName = getDeploymentName(`${config.prefix}${SPOKE_PREFIX}Connector`);
+    const hubName = getDeploymentName(getConnectorName(protocol, protocol.hub));
+    const spokeName = getDeploymentName(getConnectorName(protocol, chainId));
     connectors.push({
       chain: protocol.hub,
       name: hubName,
       mirrorName: spokeName,
-      mirrorChain: +chainId,
+      mirrorChain: chainId,
     });
     connectors.push({
-      chain: +chainId,
+      chain: chainId,
       name: spokeName,
       mirrorName: hubName,
       mirrorChain: protocol.hub,
