@@ -665,6 +665,9 @@ contract BridgeFacet is BaseConnextFacet {
     bool _isFast,
     ExecuteArgs calldata _args
   ) private returns (uint256, address) {
+    // Save the addresses of all routers providing liquidity for this transfer.
+    s.routedTransfers[_transferId] = _args.routers;
+
     if (_args.amount == 0) {
       return (0, _args.local);
     }
@@ -681,9 +684,6 @@ contract BridgeFacet is BaseConnextFacet {
 
       // Calculate amount that routers will provide with the fast-liquidity fee deducted.
       toSwap = _muldiv(_args.amount, s.LIQUIDITY_FEE_NUMERATOR, BPS_FEE_DENOMINATOR);
-
-      // Save the addresses of all routers providing liquidity for this transfer.
-      s.routedTransfers[_transferId] = _args.routers;
 
       if (pathLen == 1) {
         // If router does not have enough liquidity, try to use Aave Portals.

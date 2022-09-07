@@ -243,8 +243,6 @@ contract BridgeRouter is Router {
    *         symbol, decimal)
    */
   function _takeTokens(address _token, uint256 _amount) internal returns (bytes29 _tokenId, bytes32 _detailsHash) {
-    // ensure that amount is non-zero
-    require(_amount > 0, "!amnt");
     // Setup vars used in both if branches
     IBridgeToken _t = IBridgeToken(_token);
     // remove tokens from circulation on this chain
