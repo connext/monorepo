@@ -39,6 +39,9 @@ const proposeDiamondUpgrade = async (
   }
   console.log("got all previous selectors");
 
+  // Add DiamondLoupeFacet
+  facets.push({ name: "_DefaultDiamondLoupeFacet", contract: "DiamondLoupeFacet", args: [] });
+
   let changesDetected = false;
 
   // Deploy new facets + retrieve selectors
@@ -246,7 +249,6 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment): Promise<voi
     { name: getDeploymentName("SwapAdminFacet"), contract: "SwapAdminFacet", args: [] },
     { name: getDeploymentName("VersionFacet"), contract: "VersionFacet", args: [] },
     { name: getDeploymentName("DiamondCutFacet"), contract: "DiamondCutFacet", args: [] },
-    { name: getDeploymentName("DiamondLoupeFacet"), contract: "DiamondLoupeFacet", args: [] },
   ];
   let connext;
   if (isDiamondUpgrade) {
