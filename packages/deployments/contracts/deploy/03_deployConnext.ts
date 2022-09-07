@@ -39,6 +39,9 @@ const proposeDiamondUpgrade = async (
   }
   console.log("got all previous selectors");
 
+  // Add DiamondLoupeFacet
+  facets.push({ name: "_DefaultDiamondLoupeFacet", contract: "DiamondLoupeFacet", args: [] });
+
   let changesDetected = false;
 
   // Deploy new facets + retrieve selectors
