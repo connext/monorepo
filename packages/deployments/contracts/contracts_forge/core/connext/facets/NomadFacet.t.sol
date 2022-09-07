@@ -62,7 +62,6 @@ contract NomadFacetTest is NomadFacet, FacetHelper {
       _destinationDomain, // destination domain
       address(112233332211), // agent
       _recovery, // recovery address
-      false, // forceSlow
       false, // receiveLocal
       address(0), // callback
       0, // callbackFee

@@ -88,7 +88,6 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
       _destinationDomain, // destination domain
       _agent, // agent
       _recovery, // recovery address
-      false, // forceSlow
       false, // receiveLocal
       address(0), // callback
       0, // callbackFee
@@ -1403,28 +1402,6 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
     this.execute(args);
   }
 
-  // should fail if it is a slow transfer (forceSlow = true) and not reconciled
-  function test_BridgeFacet__execute_failIfForceSlowAndNotReconciled() public {
-    _params.forceSlow = true;
-
-    (bytes32 transferId, ExecuteArgs memory args) = utils_makeExecuteArgs(0);
-
-    vm.expectRevert(BridgeFacet.BridgeFacet__execute_notReconciled.selector);
-    this.execute(args);
-  }
-
-  // should fail if it is a slow transfer (forceSlow = true) and we try to execute with routers
-  function test_BridgeFacet__execute_failIfForceSlowAndRoutersSet() public {
-    _params.forceSlow = true;
-
-    // Routers providing liquidity implies this is a fast-liquidity transfer. If we're forcing slow,
-    // this should fail.
-    (bytes32 transferId, ExecuteArgs memory args) = utils_makeExecuteArgs(2);
-
-    vm.expectRevert(BridgeFacet.BridgeFacet__execute_notReconciled.selector);
-    this.execute(args);
-  }
-
   // should fail if no routers were passed in and not reconciled
   function test_BridgeFacet__execute_failIfNoRoutersAndNotReconciled() public {
     // Setting no routers in the execute call means that the transfer must already be reconciled.
@@ -1622,23 +1599,6 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
   }
 
   // ============ execute success cases
-  // should use slow liquidity if specified (forceSlow = true)
-  function test_BridgeFacet__execute_forceSlowWorks() public {
-    // set test params
-    _params.forceSlow = true;
-
-    // get args
-    (bytes32 transferId, ExecuteArgs memory _args) = utils_makeExecuteArgs(0);
-
-    // set reconciled context
-    s.reconciledTransfers[transferId] = true;
-
-    // set asset context (local == adopted)
-    utils_setupAsset(true, false);
-
-    helpers_executeAndAssert(transferId, _args);
-  }
-
   // should use the local asset if specified (receiveLocal = true)
   function test_BridgeFacet__execute_receiveLocalWorks() public {
     _params.receiveLocal = true;
