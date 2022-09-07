@@ -75,8 +75,6 @@ contract PortalFacetTest is PortalFacet, FacetHelper {
   // ============ Test utils ============
 
   function utils_calculateTransferId() public returns (bytes32) {
-    console.log("canonical id");
-    console.logBytes32(_canonicalId);
     return keccak256(abi.encode(nonce, params, originSender, _canonicalId, _canonicalDomain, bridgedAmt));
   }
 
@@ -373,7 +371,6 @@ contract PortalFacetTest is PortalFacet, FacetHelper {
     emit AavePortalRepayment(transferId, _adopted, backing, fee, sender);
     vm.prank(sender);
     utils_repayPortalFor(params, _adopted, backing, fee);
-    console.log("repaid");
 
     // assert balance decrement
     assertEq(IERC20(_adopted).balanceOf(sender), 0);

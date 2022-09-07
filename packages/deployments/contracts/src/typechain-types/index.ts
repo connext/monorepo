@@ -98,6 +98,8 @@ export type { ConnextPriceOracle } from "./contracts/core/connext/helpers/Connex
 export { ConnextPriceOracle__factory } from "./factories/contracts/core/connext/helpers/ConnextPriceOracle.sol/ConnextPriceOracle__factory";
 export type { ConnextProxyAdmin } from "./contracts/core/connext/helpers/ConnextProxyAdmin";
 export { ConnextProxyAdmin__factory } from "./factories/contracts/core/connext/helpers/ConnextProxyAdmin__factory";
+export type { Diamond } from "./contracts/core/connext/helpers/Diamond";
+export { Diamond__factory } from "./factories/contracts/core/connext/helpers/Diamond__factory";
 export type { Executor } from "./contracts/core/connext/helpers/Executor";
 export { Executor__factory } from "./factories/contracts/core/connext/helpers/Executor__factory";
 export type { LPToken } from "./contracts/core/connext/helpers/LPToken";
