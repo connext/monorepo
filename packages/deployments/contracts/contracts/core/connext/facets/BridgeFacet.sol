@@ -549,10 +549,8 @@ contract BridgeFacet is BaseConnextFacet {
     // Derive transfer ID based on given arguments.
     bytes32 transferId = _getTransferId(_args, canonicalDomain, canonicalId);
 
-    // Retrieve the reconciled record. If the transfer is `forceSlow` then it must be reconciled first
-    // before it's executed.
+    // Retrieve the reconciled record.
     bool reconciled = s.reconciledTransfers[transferId];
-    if (_args.params.forceSlow && !reconciled) revert BridgeFacet__execute_notReconciled();
 
     // Hash the payload for which each router should have produced a signature.
     // Each router should have signed the `transferId` (which implicitly signs call params,
