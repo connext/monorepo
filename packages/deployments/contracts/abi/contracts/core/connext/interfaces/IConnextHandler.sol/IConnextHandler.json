@@ -128,5 +128,5 @@
   "function unapproveRouterForPortal(address)",
   "function unpause()",
   "function withdrawSwapAdminFees(bytes32)",
-  "function xcall(tuple(tuple(address,bytes,uint32,uint32,address,address,bool,address,uint256,uint256,uint256),address,uint256,uint256)) payable returns (bytes32)"
+  "function xcall(tuple(tuple(address,bytes,uint32,address,address,bool,address,uint256,uint256,uint256),address,uint256,uint256)) payable returns (bytes32)"
 ]

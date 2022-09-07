@@ -102,20 +102,57 @@ export type ExecuteArgsStructOutput = [
   originSender: string;
 };
 
+export type UserFacingCallParamsStruct = {
+  to: PromiseOrValue<string>;
+  callData: PromiseOrValue<BytesLike>;
+  destinationDomain: PromiseOrValue<BigNumberish>;
+  agent: PromiseOrValue<string>;
+  recovery: PromiseOrValue<string>;
+  receiveLocal: PromiseOrValue<boolean>;
+  callback: PromiseOrValue<string>;
+  callbackFee: PromiseOrValue<BigNumberish>;
+  relayerFee: PromiseOrValue<BigNumberish>;
+  destinationMinOut: PromiseOrValue<BigNumberish>;
+};
+
+export type UserFacingCallParamsStructOutput = [
+  string,
+  string,
+  number,
+  string,
+  string,
+  boolean,
+  string,
+  BigNumber,
+  BigNumber,
+  BigNumber
+] & {
+  to: string;
+  callData: string;
+  destinationDomain: number;
+  agent: string;
+  recovery: string;
+  receiveLocal: boolean;
+  callback: string;
+  callbackFee: BigNumber;
+  relayerFee: BigNumber;
+  destinationMinOut: BigNumber;
+};
+
 export type XCallArgsStruct = {
-  params: CallParamsStruct;
+  params: UserFacingCallParamsStruct;
   transactingAsset: PromiseOrValue<string>;
   transactingAmount: PromiseOrValue<BigNumberish>;
   originMinOut: PromiseOrValue<BigNumberish>;
 };
 
 export type XCallArgsStructOutput = [
-  CallParamsStructOutput,
+  UserFacingCallParamsStructOutput,
   string,
   BigNumber,
   BigNumber
 ] & {
-  params: CallParamsStructOutput;
+  params: UserFacingCallParamsStructOutput;
   transactingAsset: string;
   transactingAmount: BigNumber;
   originMinOut: BigNumber;
@@ -143,7 +180,7 @@ export interface BridgeFacetInterface extends utils.Interface {
     "setPromiseRouter(address)": FunctionFragment;
     "setSponsorVault(address)": FunctionFragment;
     "sponsorVault()": FunctionFragment;
-    "xcall(((address,bytes,uint32,uint32,address,address,bool,address,uint256,uint256,uint256),address,uint256,uint256))": FunctionFragment;
+    "xcall(((address,bytes,uint32,address,address,bool,address,uint256,uint256,uint256),address,uint256,uint256))": FunctionFragment;
   };
 
   getFunction(
