@@ -211,6 +211,7 @@ export const originMessage = (entity: any): OriginMessage => {
 
   return {
     domain: entity.domain,
+    destination: entity.destinationDomain,
     index: entity.index,
     leaf: entity.leaf,
     root: entity.root,

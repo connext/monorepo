@@ -116,7 +116,7 @@ export const ORIGIN_MESSAGE_ENTITY = `
       index
       root
       message
-      destination
+      destinationDomain
 `;
 export const DESTINATION_MESSAGE_ENTITY = `
       id
@@ -583,12 +583,14 @@ export const getOriginMessagesByDomainAndIndexQuery = (
   `;
 };
 
-export const getDestinationMessagesByDomainAndLeafQuery = (params: { domain: string; leaf: string }[]) => {
+export const getDestinationMessagesByDomainAndLeafQuery = (params: Map<string, string[]>) => {
   const { config } = getContext();
   let combinedQuery = "";
-  for (const param of params) {
-    const prefix = config.sources[param.domain].prefix;
-    combinedQuery += `${prefix}_destinationMessages ( where: { leaf: ${param.leaf}}) {${DESTINATION_MESSAGE_ENTITY}}`;
+  for (const domain of params.keys()) {
+    const prefix = config.sources[domain].prefix;
+    combinedQuery += `${prefix}_destinationMessages ( where: { leaf_id: [${params.get(
+      domain,
+    )}] }) {${DESTINATION_MESSAGE_ENTITY}}`;
   }
 
   return gql`
