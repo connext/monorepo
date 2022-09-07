@@ -17,6 +17,7 @@ export const XMessageSchema = Type.Object({
 export type XMessage = Static<typeof XMessageSchema>;
 
 export const OriginMessageSchema = Type.Object({
+  domain: Type.String(),
   leaf: Type.String(),
   index: Type.Number({ minimum: 0 }),
   root: Type.String(),
@@ -25,6 +26,7 @@ export const OriginMessageSchema = Type.Object({
 export type OriginMessage = Static<typeof OriginMessageSchema>;
 
 export const DestinationMessageSchema = Type.Object({
+  domain: Type.String(),
   leaf: Type.String(),
   processed: Type.Boolean(),
   returnData: Type.String(),

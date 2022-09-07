@@ -35,6 +35,7 @@ import {
   getDestinationTransfersByNonceQuery,
   getDestinationTransfersByDomainAndReconcileTimestampQuery,
   getOriginMessagesByDomainAndIndexQuery,
+  getDestinationMessagesByDomainAndLeafQuery,
 } from "./lib/operations";
 import { SubgraphMap } from "./lib/entities";
 
@@ -522,9 +523,7 @@ export class SubgraphReader {
   }
 
   /**
-   * Gets all the xtranfer message starting with index for a given domain
-   * @param domain - The domain you wanna get messages on
-   * @param index - Message Index
+   * Gets all the origin message starting with index for a given domain
    */
   public async getOriginMessagesByDomain(params: { domain: string; index: number }[]): Promise<OriginMessage[]> {
     const { parser, execute } = getHelpers();
@@ -533,7 +532,11 @@ export class SubgraphReader {
     const _messages: any[] = [];
     for (const key of response.keys()) {
       const value = response.get(key);
-      _messages.push(value?.flat());
+      const flatten = value?.flat();
+      const _message = flatten?.map((x) => {
+        return { ...x, domain: key };
+      });
+      _messages.push(_message);
     }
 
     const originMessages: OriginMessage[] = _messages
@@ -542,5 +545,32 @@ export class SubgraphReader {
       .map(parser.originMessage);
 
     return originMessages;
+  }
+
+  /**
+   * Gets all the destination messages by domain and message leaf
+   */
+  public async getDestinationMessagesByDomainAndLeaf(
+    params: { domain: string; leaf: string }[],
+  ): Promise<DestinationMessage[]> {
+    const { parser, execute } = getHelpers();
+    const destinationMessageQuery = getDestinationMessagesByDomainAndLeafQuery(params);
+    const response = await execute(destinationMessageQuery);
+    const _messages: any[] = [];
+    for (const key of response.keys()) {
+      const value = response.get(key);
+      const flatten = value?.flat();
+      const _message = flatten?.map((x) => {
+        return { ...x, domain: key };
+      });
+      _messages.push(_message);
+    }
+
+    const destinationMessages: DestinationMessage[] = _messages
+      .flat()
+      .filter((x: any) => !!x)
+      .map(parser.destinationMessage);
+
+    return destinationMessages;
   }
 }
