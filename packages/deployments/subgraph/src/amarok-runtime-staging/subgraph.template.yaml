@@ -37,7 +37,7 @@ dataSources:
           handler: handleRouterLiquidityAdded
         - event: RouterLiquidityRemoved(indexed address,address,address,uint256,address)
           handler: handleRouterLiquidityRemoved
-        - event: XCalled(indexed bytes32,indexed uint256,((address,bytes,uint32,uint32,address,address,bool,bool,address,uint256,uint256,uint256),address,uint256,uint256),address,uint256,address)
+        - event: XCalled(indexed bytes32,indexed uint256,indexed bytes32,((address,bytes,uint32,uint32,address,address,bool,bool,address,uint256,uint256,uint256),address,uint256,uint256),address,uint256,address)
           handler: handleXCalled
         - event: Executed(indexed bytes32,indexed address,((address,bytes,uint32,uint32,address,address,bool,bool,address,uint256,uint256,uint256),address,address[],bytes[],address,bytes,uint256,uint256,address),address,uint256,address)
           handler: handleExecuted
@@ -102,7 +102,7 @@ dataSources:
       eventHandlers:
         - event: AggregateRootUpdated(bytes32,bytes32)
           handler: handleAggregateRootUpdated
-        # Dispatch(bytes32 leaf, uint256 index, bytes32 root, bytes message);  
+        # Dispatch(bytes32 leaf, uint256 index, bytes32 root, bytes message);
         - event: Dispatch(bytes32,uint256,bytes32,bytes)
           handler: handleDispatch
         - event: MessageProcessed(bytes,address)
