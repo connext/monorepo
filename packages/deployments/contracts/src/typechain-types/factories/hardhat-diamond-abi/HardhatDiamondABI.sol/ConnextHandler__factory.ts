@@ -665,11 +665,6 @@ const _abi = [
     type: "error",
   },
   {
-    inputs: [],
-    name: "BridgeFacet__xcall_wrongDomain",
-    type: "error",
-  },
-  {
     anonymous: false,
     inputs: [
       {
