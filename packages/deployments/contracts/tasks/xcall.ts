@@ -204,7 +204,7 @@ export default task("xcall", "Prepare a cross-chain tx")
 
       const args: XCallArgs = {
         params,
-        transactingAsset: assetId,
+        asset: assetId,
         transactingAmount: amount,
         originMinOut,
       };
