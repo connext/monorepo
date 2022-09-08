@@ -314,18 +314,12 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
     // assert swap if expected
     if (shouldSwap && bridgedAmt != 0) {
       // Transacting asset shouldve been approved for amount in
-      vm.expectCall(args.asset, abi.encodeWithSelector(IERC20.approve.selector, _stableSwap, args.transactingAmount));
+      vm.expectCall(args.asset, abi.encodeWithSelector(IERC20.approve.selector, _stableSwap, args.amount));
 
       // swapExact on pool should have been called
       vm.expectCall(
         _stableSwap,
-        abi.encodeWithSelector(
-          IStableSwap.swapExact.selector,
-          args.transactingAmount,
-          args.asset,
-          _local,
-          args.originMinOut
-        )
+        abi.encodeWithSelector(IStableSwap.swapExact.selector, args.amount, args.asset, _local, args.originMinOut)
       );
     }
 
@@ -416,7 +410,7 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
 
       // Check that the user has been debited the correct amount of tokens.
       if (args.asset != address(0)) {
-        assertEq(TestERC20(args.asset).balanceOf(_originSender), initialUserBalance - args.transactingAmount);
+        assertEq(TestERC20(args.asset).balanceOf(_originSender), initialUserBalance - args.amount);
       } else {
         // User should have been debited fees... but also tx cost?
         assertEq(_originSender.balance, (initialUserBalance - fees));
@@ -462,13 +456,13 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
     bool swaps
   ) public {
     (bytes32 transferId, XCallArgs memory args) = utils_makeXCallArgs(bridged);
-    uint256 dealTokens = (args.asset == address(0)) ? 0 : args.transactingAmount;
+    uint256 dealTokens = (args.asset == address(0)) ? 0 : args.amount;
     helpers_xcallAndAssert(transferId, args, dealTokens, bridged, expectedError, swaps);
   }
 
   function helpers_xcallAndAssert(bytes4 expectedError) public {
     (bytes32 transferId, XCallArgs memory args) = utils_makeXCallArgs(_amount);
-    uint256 dealTokens = (args.asset == address(0)) ? 0 : args.transactingAmount;
+    uint256 dealTokens = (args.asset == address(0)) ? 0 : args.amount;
     helpers_xcallAndAssert(transferId, args, dealTokens, 0, expectedError, false);
   }
 
@@ -484,7 +478,7 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
     bool swaps
   ) public {
     (bytes32 transferId, XCallArgs memory args) = utils_makeXCallArgs(transacting, bridged);
-    helpers_xcallAndAssert(transferId, args, args.transactingAmount, bridged, bytes4(""), swaps);
+    helpers_xcallAndAssert(transferId, args, args.amount, bridged, bytes4(""), swaps);
   }
 
   // Shortcut for the main fn.
@@ -1324,7 +1318,7 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
       abi.encode(false)
     );
     args.asset = _local;
-    helpers_xcallAndAssert(transferId, args, args.transactingAmount, args.transactingAmount, bytes4(""), false);
+    helpers_xcallAndAssert(transferId, args, args.amount, args.amount, bytes4(""), false);
   }
 
   function test_BridgeFacet__xcall_worksIfPreexistingRelayerFee() public {
@@ -1333,7 +1327,7 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
     _params.relayerFee = 0.1 ether;
     (bytes32 transferId, XCallArgs memory args) = utils_makeXCallArgs(_amount);
     s.relayerFees[transferId] = 2 ether;
-    helpers_xcallAndAssert(transferId, args, args.transactingAmount, args.transactingAmount, bytes4(""), false);
+    helpers_xcallAndAssert(transferId, args, args.amount, args.amount, bytes4(""), false);
     assertEq(s.relayerFees[transferId], 2.1 ether);
   }
 
