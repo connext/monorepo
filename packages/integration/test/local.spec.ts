@@ -158,7 +158,7 @@ const sendXCall = async (
       destinationMinOut: "0",
       ...xparams,
     },
-    transactingAsset: PARAMETERS.A.DEPLOYMENTS.TestERC20,
+    asset: PARAMETERS.A.DEPLOYMENTS.TestERC20,
     transactingAmount: "1000",
     originMinOut: "0",
   };

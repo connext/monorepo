@@ -70,7 +70,7 @@ contract ConnextTest is ForgeHelper, Deployer {
     bytes32 indexed transferId,
     address indexed to,
     ExecuteArgs args,
-    address transactingAsset,
+    address asset,
     uint256 transactingAmount,
     address caller
   );
@@ -426,11 +426,11 @@ contract ConnextTest is ForgeHelper, Deployer {
     uint256 _bridgedAmt
   ) public returns (bytes32) {
     // Approve the bridge
-    if (_args.transactingAsset != address(0)) {
-      IERC20(_args.transactingAsset).approve(address(_originConnext), _args.transactingAmount);
+    if (_args.asset != address(0)) {
+      IERC20(_args.asset).approve(address(_originConnext), _args.transactingAmount);
     }
     // Get initial balances
-    XCallBalances memory initial = utils_getXCallBalances(_args.transactingAsset, address(_originConnext));
+    XCallBalances memory initial = utils_getXCallBalances(_args.asset, address(_originConnext));
 
     // Register transfer id on bridge
     uint256 nonce = 0;
@@ -457,10 +457,10 @@ contract ConnextTest is ForgeHelper, Deployer {
     assertEq(ret, transferId);
 
     // Check balances
-    XCallBalances memory end = utils_getXCallBalances(_args.transactingAsset, address(_originConnext));
+    XCallBalances memory end = utils_getXCallBalances(_args.asset, address(_originConnext));
     assertEq(
       end.bridgeTransacting,
-      _args.transactingAsset == _originLocal
+      _args.asset == _originLocal
         ? initial.bridgeTransacting // will be transferred
         : initial.bridgeTransacting + _args.transactingAmount // will be swapped
     );
@@ -468,7 +468,7 @@ contract ConnextTest is ForgeHelper, Deployer {
       end.bridgeLocal,
       // on xcall, local will be (1) transferred (or swapped) in, (2) sent to the bridge router
       // meaning the balance should only change by the amount swapped
-      _args.transactingAsset == _bridged ? initial.bridgeLocal : initial.bridgeLocal - _bridgedAmt
+      _args.asset == _bridged ? initial.bridgeLocal : initial.bridgeLocal - _bridgedAmt
     );
     assertEq(end.bridgeNative, initial.bridgeNative + _args.params.relayerFee);
     assertEq(end.callerTransacting, initial.callerTransacting - _args.transactingAmount);

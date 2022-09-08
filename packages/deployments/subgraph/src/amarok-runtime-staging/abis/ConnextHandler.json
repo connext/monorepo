@@ -873,7 +873,7 @@
       {
         "indexed": false,
         "internalType": "address",
-        "name": "transactingAsset",
+        "name": "asset",
         "type": "address"
       },
       {
@@ -1153,7 +1153,7 @@
           },
           {
             "internalType": "address",
-            "name": "transactingAsset",
+            "name": "asset",
             "type": "address"
           },
           {
@@ -1745,7 +1745,7 @@
           },
           {
             "internalType": "address",
-            "name": "transactingAsset",
+            "name": "asset",
             "type": "address"
           },
           {
