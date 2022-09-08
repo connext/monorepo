@@ -19,7 +19,7 @@ import {Executor} from "../../../../contracts/core/connext/helpers/Executor.sol"
 import {RelayerFeeMessage} from "../../../../contracts/core/relayer-fee/libraries/RelayerFeeMessage.sol";
 import {AssetLogic} from "../../../../contracts/core/connext/libraries/AssetLogic.sol";
 import {LibCrossDomainProperty} from "../../../../contracts/core/connext/libraries/LibCrossDomainProperty.sol";
-import {CallParams, ExecuteArgs, XCallArgs, TokenId, TransferIdInformation} from "../../../../contracts/core/connext/libraries/LibConnextStorage.sol";
+import {CallParams, ExecuteArgs, XCallArgs, TokenId, TransferIdInformation, UserFacingCallParams} from "../../../../contracts/core/connext/libraries/LibConnextStorage.sol";
 import {LibDiamond} from "../../../../contracts/core/connext/libraries/LibDiamond.sol";
 import {BridgeFacet} from "../../../../contracts/core/connext/facets/BridgeFacet.sol";
 import {BaseConnextFacet} from "../../../../contracts/core/connext/facets/BaseConnextFacet.sol";
@@ -159,8 +159,11 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
     bytes32 canonicalId,
     uint32 canonicalDomain,
     uint256 bridigedAmt
-  ) public view returns (bytes32) {
-    return keccak256(abi.encode(s.nonce, _args.params, sender, canonicalId, canonicalDomain, bridigedAmt));
+  ) public returns (bytes32) {
+    return
+      keccak256(
+        abi.encode(s.nonce, utils_getCallParams(_args.params), sender, canonicalId, canonicalDomain, bridigedAmt)
+      );
   }
 
   // Meant to mimic the corresponding `_getTransferId` method in the BridgeFacet contract.
@@ -171,11 +174,27 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
       );
   }
 
+  function utils_getUserFacingParams() public returns (UserFacingCallParams memory) {
+    return
+      UserFacingCallParams(
+        _params.to,
+        _params.callData,
+        _params.destinationDomain, // destination domain
+        _params.agent, // agent
+        _params.recovery, // recovery address
+        _params.receiveLocal,
+        _params.callback,
+        _params.callbackFee,
+        _params.relayerFee, // relayer fee
+        _params.destinationMinOut
+      );
+  }
+
   // Makes some mock xcall arguments using params set in storage.
   function utils_makeXCallArgs(uint256 bridged) public returns (bytes32, XCallArgs memory) {
     s.domain = _originDomain;
     // get args
-    XCallArgs memory args = XCallArgs(_params, _adopted, _amount, (_amount * 9990) / 10000);
+    XCallArgs memory args = XCallArgs(utils_getUserFacingParams(), _adopted, _amount, (_amount * 9990) / 10000);
     // generate transfer id
     bytes32 transferId = utils_getTransferIdFromXCallArgs(args, _originSender, _canonicalId, _canonicalDomain, bridged);
 
@@ -186,7 +205,7 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
     s.domain = _originDomain;
     // get args
     XCallArgs memory args = XCallArgs(
-      _params,
+      utils_getUserFacingParams(),
       transactingAssetId, // transactingAssetId : could be adopted, local, or wrapped.
       _amount,
       (_amount * 9990) / 10000
@@ -296,7 +315,7 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
     bool shouldSwap
   ) public {
     // bridged is either local or canonical, depending on domain xcall originates on
-    address bridged = args.transactingAsset == address(0) ? address(0) : _canonicalDomain == args.params.originDomain
+    address bridged = args.transactingAsset == address(0) ? address(0) : _canonicalDomain == s.domain
       ? _canonical
       : _local;
     vm.expectEmit(true, true, true, true);
@@ -345,7 +364,7 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
         bridgedAmt,
         args.params.destinationDomain,
         s.connextions[args.params.destinationDomain], // always use this as remote connext
-        abi.encode(TransferIdInformation(args.params, s.nonce, _originSender))
+        abi.encode(TransferIdInformation(utils_getCallParams(args.params), s.nonce, _originSender))
       )
     );
   }
@@ -360,7 +379,7 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
     bool shouldSwap
   ) public {
     bool shouldSucceed = keccak256(abi.encode(expectedError)) == keccak256(abi.encode(bytes4("")));
-    bool isCanonical = _canonicalDomain == args.params.originDomain;
+    bool isCanonical = _canonicalDomain == s.domain;
 
     // Deal the user required eth for transfer.
     vm.deal(_originSender, 100 ether);
@@ -1143,12 +1162,6 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
   // FIXME: move to BaseConnextFacet.t.sol
   function test_BridgeFacet__xcall_failIfPaused() public {
     // require(false, "not tested");
-  }
-
-  // fails if origin domain is incorrect
-  function test_BridgeFacet__xcall_failIfDomainIncorrect() public {
-    _params.originDomain = 999999;
-    helpers_xcallAndAssert(BridgeFacet.BridgeFacet__xcall_wrongDomain.selector);
   }
 
   function test_BridgeFacet__xcall_failIfDestinationNotSupported() public {

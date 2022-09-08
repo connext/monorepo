@@ -5,7 +5,7 @@ import {ERC1967Proxy} from "@openzeppelin/contracts/proxy/ERC1967/ERC1967Proxy.s
 
 import {TypeCasts} from "../contracts/shared/libraries/TypeCasts.sol";
 
-import {TokenId} from "../contracts/core/connext/libraries/LibConnextStorage.sol";
+import {TokenId, UserFacingCallParams} from "../contracts/core/connext/libraries/LibConnextStorage.sol";
 
 import {IConnextHandler} from "../contracts/core/connext/interfaces/IConnextHandler.sol";
 import {ITokenRegistry} from "../contracts/core/connext/interfaces/ITokenRegistry.sol";
@@ -105,10 +105,9 @@ contract LiveTest is ForgeHelper {
 
     connext.xcall(
       XCallArgs(
-        CallParams(
+        UserFacingCallParams(
           0x54BAA998771639628ffC0206c3b916c466b79c89, // to
           bytes(""), // callData
-          1735356532, // origin domain
           1735353714, // dest domain
           0x5A9e792143bf2708b4765C144451dCa54f559a19, // agent
           0x5A9e792143bf2708b4765C144451dCa54f559a19, // recovery

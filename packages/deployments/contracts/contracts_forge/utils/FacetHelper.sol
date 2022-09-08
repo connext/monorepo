@@ -5,7 +5,7 @@ import {ITokenRegistry} from "../../contracts/core/connext/interfaces/ITokenRegi
 import {IStableSwap} from "../../contracts/core/connext/interfaces/IStableSwap.sol";
 import {IWeth} from "../../contracts/core/connext/interfaces/IWeth.sol";
 
-import {LibConnextStorage, AppStorage, TokenId} from "../../contracts/core/connext/libraries/LibConnextStorage.sol";
+import {LibConnextStorage, AppStorage, TokenId, UserFacingCallParams, CallParams} from "../../contracts/core/connext/libraries/LibConnextStorage.sol";
 import {IStableSwap} from "../../contracts/core/connext/interfaces/IStableSwap.sol";
 
 import {TestERC20} from "../../contracts/test/TestERC20.sol";
@@ -130,5 +130,22 @@ contract FacetHelper is ForgeHelper {
     // console.log("- canonical:", _canonical);
     // console.log("- stableSwap:", _stableSwap);
     // console.log("- isLocalOrigin", onCanonical);
+  }
+
+  function utils_getCallParams(UserFacingCallParams memory params) public returns (CallParams memory) {
+    return
+      CallParams(
+        params.to,
+        params.callData,
+        _originDomain,
+        params.destinationDomain, // destination domain
+        params.agent, // agent
+        params.recovery, // recovery address
+        params.receiveLocal,
+        params.callback,
+        params.callbackFee,
+        params.relayerFee, // relayer fee
+        params.destinationMinOut
+      );
   }
 }
