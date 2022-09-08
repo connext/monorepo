@@ -117,7 +117,7 @@ export type ExecuteArgsStructOutput = [
 
 export type XCallArgsStruct = {
   params: CallParamsStruct;
-  transactingAsset: PromiseOrValue<string>;
+  asset: PromiseOrValue<string>;
   transactingAmount: PromiseOrValue<BigNumberish>;
   originMinOut: PromiseOrValue<BigNumberish>;
 };
@@ -129,7 +129,7 @@ export type XCallArgsStructOutput = [
   BigNumber
 ] & {
   params: CallParamsStructOutput;
-  transactingAsset: string;
+  asset: string;
   transactingAmount: BigNumber;
   originMinOut: BigNumber;
 };
@@ -1656,7 +1656,7 @@ export interface ExecutedEventObject {
   transferId: string;
   to: string;
   args: ExecuteArgsStructOutput;
-  transactingAsset: string;
+  asset: string;
   transactingAmount: BigNumber;
   caller: string;
 }
@@ -4108,7 +4108,7 @@ export interface ConnextHandler extends BaseContract {
       transferId?: PromiseOrValue<BytesLike> | null,
       to?: PromiseOrValue<string> | null,
       args?: null,
-      transactingAsset?: null,
+      asset?: null,
       transactingAmount?: null,
       caller?: null
     ): ExecutedEventFilter;
@@ -4116,7 +4116,7 @@ export interface ConnextHandler extends BaseContract {
       transferId?: PromiseOrValue<BytesLike> | null,
       to?: PromiseOrValue<string> | null,
       args?: null,
-      transactingAsset?: null,
+      asset?: null,
       transactingAmount?: null,
       caller?: null
     ): ExecutedEventFilter;

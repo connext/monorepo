@@ -150,7 +150,7 @@ export class NxtpSdkBase {
       throw new SignerAddressMissing();
     }
 
-    const { params, transactingAmount, transactingAsset, originMinOut } = args;
+    const { params, transactingAmount, asset, originMinOut } = args;
     const { originDomain, destinationDomain, relayerFee: _relayerFee } = params;
 
     // Calculate estimate for relayer fee and include it in the call params.
@@ -179,7 +179,7 @@ export class NxtpSdkBase {
     };
 
     // Validate XCall arguments.
-    if (transactingAsset === constants.AddressZero) {
+    if (asset === constants.AddressZero) {
       // TODO: Custom error.
       throw new Error("Transacting asset specified was address zero; native assets are not supported!");
     }
@@ -208,7 +208,7 @@ export class NxtpSdkBase {
     // Take the finalized xcall arguments and encode calldata.
     const formattedXCallArgs: XCallArgs = {
       params: formattedXParams,
-      transactingAsset,
+      asset,
       transactingAmount,
       originMinOut,
     };
@@ -253,7 +253,7 @@ export class NxtpSdkBase {
     }
     const ConnextContractAddress = this.config.chains[domain].deployments!.connext;
 
-    // if transactingAsset is AddressZero then we are adding relayerFee to amount for value
+    // if asset is AddressZero then we are adding relayerFee to amount for value
     const value = BigNumber.from(relayerFee);
 
     const data = this.contracts.connext.encodeFunctionData("bumpTransfer", [transferId]);

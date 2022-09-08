@@ -816,7 +816,7 @@ describe("TESTNET:E2E", () => {
               agent: agents.user.address,
               destinationMinOut: "0",
             },
-            transactingAsset: originAsset.address,
+            asset: originAsset.address,
             transactingAmount: TRANSFER_TOKEN_AMOUNT.toString(),
             originMinOut: "0",
           };

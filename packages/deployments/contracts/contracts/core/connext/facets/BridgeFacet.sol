@@ -75,8 +75,8 @@ contract BridgeFacet is BaseConnextFacet {
    * @param transferId - The unique identifier of the crosschain transfer.
    * @param nonce - The bridge nonce of the transfer on the origin domain.
    * @param xcallArgs - The `XCallArgs` provided to the function.
-   * @param bridgedAsset - The local (mad) asset being bridged. Could be the same as the transactingAsset (adopted
-   * asset), or may be different (indicating the transactingAsset was swapped for this bridgedAsset).
+   * @param bridgedAsset - The local (mad) asset being bridged. Could be the same as the asset (adopted
+   * asset), or may be different (indicating the asset was swapped for this bridgedAsset).
    * @param bridgedAmount - The amount of the bridgedAsset being sent, after AMM swap from adopted asset if it was
    * necessary.
    * @param caller - The account that called the function.
@@ -97,7 +97,7 @@ contract BridgeFacet is BaseConnextFacet {
    * @param transferId - The unique identifier of the crosschain transfer.
    * @param to - The recipient `CallParams.to` provided, created as indexed parameter.
    * @param args - The `ExecuteArgs` provided to the function.
-   * @param transactingAsset - The asset the to gets or the external call is executed with. Should be the
+   * @param asset - The asset the to gets or the external call is executed with. Should be the
    * adopted asset on that chain.
    * @param amount - The amount of transferring asset the to address receives or the external call is
    * executed with.
@@ -107,7 +107,7 @@ contract BridgeFacet is BaseConnextFacet {
     bytes32 indexed transferId,
     address indexed to,
     ExecuteArgs args,
-    address transactingAsset,
+    address asset,
     uint256 amount,
     address caller
   );
@@ -316,7 +316,7 @@ contract BridgeFacet is BaseConnextFacet {
       // NOTE: we support using address(0) as an intuitive default if you are sending a 0-value
       // transfer. in that edgecase, address(0) will not be registered as a supported asset, but should
       // pass the `isLocalOrigin` check on the TokenRegistry
-      if (_args.transactingAsset == address(0) && _args.amount != 0) {
+      if (_args.asset == address(0) && _args.amount != 0) {
         revert BridgeFacet__xcall_nativeAssetNotSupported();
       }
 
@@ -374,32 +374,32 @@ contract BridgeFacet is BaseConnextFacet {
       // mappings keyed on hash(canonicalId, canonicalDomain), this is safe even when the
       // address(0) asset is not whitelisted. These values are only used for the `transactionId`
       // generation
-      if (_args.transactingAsset != address(0)) {
-        canonical = s.adoptedToCanonical[_args.transactingAsset];
+      if (_args.asset != address(0)) {
+        canonical = s.adoptedToCanonical[_args.asset];
 
         if (canonical.id == bytes32(0)) {
           // Here, the asset is *not* the adopted asset. The only other valid option
           // is for this asset to be the local asset (i.e. transferring madEth on optimism)
           // NOTE: it *cannot* be the canonical asset. the canonical asset is only used on
           // the canonical domain, where it is *also* the adopted asset.
-          if (s.tokenRegistry.isLocalOrigin(_args.transactingAsset)) {
+          if (s.tokenRegistry.isLocalOrigin(_args.asset)) {
             // revert, using a token of local origin that is not registered as adopted
             revert BridgeFacet__xcall_notSupportedAsset();
           }
 
-          (uint32 canonicalDomain, bytes32 canonicalId) = s.tokenRegistry.getTokenId(_args.transactingAsset);
+          (uint32 canonicalDomain, bytes32 canonicalId) = s.tokenRegistry.getTokenId(_args.asset);
           canonical = TokenId(canonicalDomain, canonicalId);
         }
       }
 
       if (_args.amount > 0) {
         // Transfer funds of transacting asset to the contract from the user.
-        AssetLogic.transferAssetToContract(_args.transactingAsset, _args.amount);
+        AssetLogic.transferAssetToContract(_args.asset, _args.amount);
 
         // Swap to the local asset from adopted if applicable.
         (bridgedAmount, bridgedAsset) = AssetLogic.swapToLocalAssetIfNeeded(
           canonical,
-          _args.transactingAsset,
+          _args.asset,
           _args.amount,
           _args.originMinOut
         );
@@ -409,7 +409,7 @@ contract BridgeFacet is BaseConnextFacet {
         SafeERC20.safeIncreaseAllowance(IERC20(bridgedAsset), address(s.bridgeRouter), bridgedAmount);
       } else {
         // Get the bridged asset so you can emit it properly within the event
-        bridgedAsset = _args.transactingAsset == address(0)
+        bridgedAsset = _args.asset == address(0)
           ? address(0)
           : s.tokenRegistry.getLocalAddress(canonical.domain, canonical.id);
       }
