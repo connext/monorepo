@@ -32,7 +32,7 @@ export const ORIGIN_TRANSFER_ENTITY = `
       
       # Asset Data
       asset
-      transactingAmount
+      amount
       originMinOut
       bridgedAsset
       bridgedAmount
@@ -77,7 +77,7 @@ export const DESTINATION_TRANSFER_ENTITY = `
       localAmount
       originMinOut
       asset
-      transactingAmount
+      amount
       sponsorVaultRelayerFee
 
       # Executed event Data
