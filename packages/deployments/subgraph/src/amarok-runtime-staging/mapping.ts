@@ -18,6 +18,13 @@ import {
   RouterOwnerProposed,
   RouterRecipientSet,
   MaxRoutersPerTransferUpdated,
+  TokenSwap,
+  AddLiquidity,
+  NewAdminFee,
+  NewSwapFee,
+  RemoveLiquidity,
+  RemoveLiquidityImbalance,
+  RemoveLiquidityOne,
 } from "../../generated/Connext/ConnextHandler";
 import { Dispatch, Process } from "../../generated/Connector/Connector";
 import {
@@ -405,15 +412,23 @@ export function handleReconciled(event: Reconciled): void {
   transfer.save();
 }
 
-export function handleDispatch(event: Dispatch): void {
+export function handleDispatch(_event: Dispatch): void {
   // Dispatch(bytes32 leaf, uint256 index, bytes32 root, bytes message);
   // initiate origin transfer: save message, root
 }
 
-export function handleProcess(event: Process): void {
+export function handleProcess(_event: Process): void {
   // Dispatch(bytes32 leaf, uint256 index, bytes32 root, bytes message);
   // initiate destination transfer: save processed: boolean
 }
+
+export function handleAmmTokenSwap(_event: TokenSwap): void {}
+export function handleAmmAddLiquidity(_event: AddLiquidity): void {}
+export function handleAmmRemoveLiquidity(_event: RemoveLiquidity): void {}
+export function handleAmmRemoveLiquidityOne(_event: RemoveLiquidityOne): void {}
+export function handleAmmRemoveLiquidityImbalance(_event: RemoveLiquidityImbalance): void {}
+export function handleAmmNewAdminFee(_event: NewAdminFee): void {}
+export function handleAmmNewSwapFee(_event: NewSwapFee): void {}
 
 // eslint-disable-next-line @typescript-eslint/ban-types
 function getChainId(): BigInt {
