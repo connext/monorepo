@@ -119,7 +119,7 @@ export const getDeployments = (args: {
     messaging: isHub
       ? {
           RootManager: getContract("RootManager"),
-          MainnetConnector: getContract("MainnetL1Connector"),
+          MainnetConnector: getContract("MainnetSpokeConnector"),
           HubConnectors: connectors,
         }
       : {
