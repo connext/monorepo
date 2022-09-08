@@ -817,7 +817,7 @@ describe("TESTNET:E2E", () => {
               destinationMinOut: "0",
             },
             asset: originAsset.address,
-            transactingAmount: TRANSFER_TOKEN_AMOUNT.toString(),
+            amount: TRANSFER_TOKEN_AMOUNT.toString(),
             originMinOut: "0",
           };
           const encoded = connext.encodeFunctionData("xcall", [args]);
