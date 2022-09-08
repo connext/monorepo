@@ -66,7 +66,13 @@ const _abi = [
       },
     ],
     name: "dispatch",
-    outputs: [],
+    outputs: [
+      {
+        internalType: "bytes32",
+        name: "",
+        type: "bytes32",
+      },
+    ],
     stateMutability: "nonpayable",
     type: "function",
   },

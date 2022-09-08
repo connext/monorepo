@@ -18,7 +18,8 @@
     "src/**/*.ts",
     "./artifacts",
     "./deployments.json",
-    "./abi/**/*.json"
+    "./abi/**/*.json",
+    "src/init/*.ts"
   ],
   "exclude": ["test/**/*.ts"],
   "references": [

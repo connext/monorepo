@@ -1,3 +1,4 @@
+import { config as envConfig } from "dotenv";
 import "hardhat-diamond-abi";
 import "@typechain/hardhat";
 import "@nomiclabs/hardhat-ethers";
@@ -54,6 +55,7 @@ import "./tasks/addConnectors";
 import "./tasks/connector/proveAndProcess";
 import "./tasks/addSender";
 
+envConfig();
 const urlOverride = process.env.ETH_PROVIDER_URL;
 const chainId = parseInt(process.env.CHAIN_ID ?? "1337", 10);
 
@@ -167,7 +169,10 @@ const config: HardhatUserConfig = {
     "optimism-goerli": {
       accounts: { mnemonic },
       chainId: 420,
-      url: "https://optimism-goerli.infura.io/v3/7672e2bf7cbe427e8cd25b0f1dde65cf",
+      url:
+        urlOverride ||
+        process.env.OPTI_GOERLI_ETH_PROVIDER_URL ||
+        "https://optimism-goerli.infura.io/v3/7672e2bf7cbe427e8cd25b0f1dde65cf",
       companionNetworks: {
         hub: "goerli",
       },

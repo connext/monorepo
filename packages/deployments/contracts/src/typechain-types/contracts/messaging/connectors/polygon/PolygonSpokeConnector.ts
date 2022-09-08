@@ -865,7 +865,7 @@ export interface PolygonSpokeConnector extends BaseContract {
       _recipientAddress: PromiseOrValue<BytesLike>,
       _messageBody: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
-    ): Promise<void>;
+    ): Promise<string>;
 
     fxChild(overrides?: CallOverrides): Promise<string>;
 

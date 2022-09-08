@@ -1485,7 +1485,7 @@ export interface ConnextHandlerInterface extends utils.Interface {
     "SequencerRemoved(address,address)": EventFragment;
     "SponsorVaultUpdated(address,address,address)": EventFragment;
     "TransferRelayerFeesUpdated(bytes32,uint256,address)": EventFragment;
-    "XCalled(bytes32,uint256,tuple,address,uint256,address)": EventFragment;
+    "XCalled(bytes32,uint256,bytes32,tuple,address,uint256,address)": EventFragment;
     "DiamondCut(tuple[],address,bytes)": EventFragment;
     "DiamondCutProposed(tuple[],address,bytes,uint256)": EventFragment;
     "DiamondCutRescinded(tuple[],address,bytes)": EventFragment;
@@ -1758,13 +1758,14 @@ export type TransferRelayerFeesUpdatedEventFilter =
 export interface XCalledEventObject {
   transferId: string;
   nonce: BigNumber;
+  messageHash: string;
   xcallArgs: XCallArgsStructOutput;
   bridgedAsset: string;
   bridgedAmount: BigNumber;
   caller: string;
 }
 export type XCalledEvent = TypedEvent<
-  [string, BigNumber, XCallArgsStructOutput, string, BigNumber, string],
+  [string, BigNumber, string, XCallArgsStructOutput, string, BigNumber, string],
   XCalledEventObject
 >;
 
@@ -4192,9 +4193,10 @@ export interface ConnextHandler extends BaseContract {
       caller?: null
     ): TransferRelayerFeesUpdatedEventFilter;
 
-    "XCalled(bytes32,uint256,tuple,address,uint256,address)"(
+    "XCalled(bytes32,uint256,bytes32,tuple,address,uint256,address)"(
       transferId?: PromiseOrValue<BytesLike> | null,
       nonce?: PromiseOrValue<BigNumberish> | null,
+      messageHash?: PromiseOrValue<BytesLike> | null,
       xcallArgs?: null,
       bridgedAsset?: null,
       bridgedAmount?: null,
@@ -4203,6 +4205,7 @@ export interface ConnextHandler extends BaseContract {
     XCalled(
       transferId?: PromiseOrValue<BytesLike> | null,
       nonce?: PromiseOrValue<BigNumberish> | null,
+      messageHash?: PromiseOrValue<BytesLike> | null,
       xcallArgs?: null,
       bridgedAsset?: null,
       bridgedAmount?: null,
