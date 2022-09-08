@@ -48,7 +48,7 @@
   "event SequencerRemoved(address,address)",
   "event SponsorVaultUpdated(address,address,address)",
   "event TransferRelayerFeesUpdated(bytes32 indexed,uint256,address)",
-  "event XCalled(bytes32 indexed,uint256 indexed,tuple(tuple(address,bytes,uint32,uint32,address,address,bool,bool,address,uint256,uint256,uint256),address,uint256,uint256),address,uint256,address)",
+  "event XCalled(bytes32 indexed,uint256 indexed,bytes32 indexed,tuple(tuple(address,bytes,uint32,uint32,address,address,bool,bool,address,uint256,uint256,uint256),address,uint256,uint256),address,uint256,address)",
   "function AAVE_REFERRAL_CODE() view returns (uint16)",
   "function addConnextion(uint32,address)",
   "function addSequencer(address)",

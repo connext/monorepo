@@ -40,5 +40,5 @@ interface IBridgeRouter {
     uint32 _destination,
     bytes32 _remoteHook,
     bytes calldata _extraData
-  ) external;
+  ) external returns (bytes32);
 }

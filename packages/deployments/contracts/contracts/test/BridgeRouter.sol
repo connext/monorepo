@@ -173,7 +173,7 @@ contract BridgeRouter is Router {
     uint32 _destination,
     bytes32 _remoteHook,
     bytes calldata _extraData
-  ) external {
+  ) external returns (bytes32) {
     // debit tokens from msg.sender
     (bytes29 _tokenId, bytes32 _detailsHash) = _takeTokens(_token, _amount);
     // format Hook transfer message
@@ -185,9 +185,10 @@ contract BridgeRouter is Router {
       _extraData
     );
     // send message to destination chain bridge router
-    _sendTransferMessage(_destination, _tokenId, _action);
+    bytes32 _messageHash = _sendTransferMessage(_destination, _tokenId, _action);
     // emit Send event to record token sender
     emit Send(_token, msg.sender, _destination, _remoteHook, _amount, true);
+    return _messageHash;
   }
 
   // ======== External: Custom Tokens =========
@@ -275,15 +276,16 @@ contract BridgeRouter is Router {
     uint32 _destination,
     bytes29 _tokenId,
     bytes29 _action
-  ) internal {
+  ) internal returns (bytes32) {
     // get remote BridgeRouter address; revert if not found
     bytes32 _remote = _mustHaveRemote(_destination);
     // send message to remote chain via Nomad
-    IOutbox(xAppConnectionManager.home()).dispatch(
-      _destination,
-      _remote,
-      BridgeMessage.formatMessage(_tokenId, _action)
-    );
+    return
+      IOutbox(xAppConnectionManager.home()).dispatch(
+        _destination,
+        _remote,
+        BridgeMessage.formatMessage(_tokenId, _action)
+      );
   }
 
   // ============ Internal: Handle ============
