@@ -89,10 +89,13 @@ type OriginTransfer @entity {
   transactingAsset: Bytes
   # Amount of asset sent in.
   transactingAmount: BigInt
-  # Nomad asset being bridged.
+  # asset being bridged.
   bridgedAsset: Bytes
   # Amount of bridged nomad asset.
   bridgedAmount: BigInt
+
+  # Message
+  messageHash: Bytes
 
   # XCalled Transaction
   caller: Bytes
