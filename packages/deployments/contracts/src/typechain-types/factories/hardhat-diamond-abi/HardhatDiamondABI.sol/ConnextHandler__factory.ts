@@ -606,11 +606,6 @@ const _abi = [
   },
   {
     inputs: [],
-    name: "BridgeFacet__setExecutor_invalidExecutor",
-    type: "error",
-  },
-  {
-    inputs: [],
     name: "BridgeFacet__setPromiseRouter_invalidPromiseRouter",
     type: "error",
   },
@@ -876,25 +871,25 @@ const _abi = [
     anonymous: false,
     inputs: [
       {
-        indexed: false,
-        internalType: "address",
-        name: "oldExecutor",
-        type: "address",
+        indexed: true,
+        internalType: "bytes32",
+        name: "transferId",
+        type: "bytes32",
       },
       {
         indexed: false,
-        internalType: "address",
-        name: "newExecutor",
-        type: "address",
+        internalType: "bool",
+        name: "success",
+        type: "bool",
       },
       {
         indexed: false,
-        internalType: "address",
-        name: "caller",
-        type: "address",
+        internalType: "bytes",
+        name: "returnData",
+        type: "bytes",
       },
     ],
-    name: "ExecutorUpdated",
+    name: "ExternalCalldataExecuted",
     type: "event",
   },
   {
@@ -1401,19 +1396,6 @@ const _abi = [
     type: "function",
   },
   {
-    inputs: [],
-    name: "executor",
-    outputs: [
-      {
-        internalType: "contract IExecutor",
-        name: "",
-        type: "address",
-      },
-    ],
-    stateMutability: "view",
-    type: "function",
-  },
-  {
     inputs: [
       {
         components: [
@@ -1602,19 +1584,6 @@ const _abi = [
       },
     ],
     stateMutability: "view",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
-        internalType: "address",
-        name: "_executor",
-        type: "address",
-      },
-    ],
-    name: "setExecutor",
-    outputs: [],
-    stateMutability: "nonpayable",
     type: "function",
   },
   {

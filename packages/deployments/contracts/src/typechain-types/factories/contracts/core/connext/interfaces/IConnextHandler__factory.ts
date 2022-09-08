@@ -1003,19 +1003,6 @@ const _abi = [
     type: "function",
   },
   {
-    inputs: [],
-    name: "executor",
-    outputs: [
-      {
-        internalType: "contract IExecutor",
-        name: "",
-        type: "address",
-      },
-    ],
-    stateMutability: "view",
-    type: "function",
-  },
-  {
     inputs: [
       {
         internalType: "bytes4",
@@ -2582,19 +2569,6 @@ const _abi = [
       },
     ],
     name: "setBridgeRouter",
-    outputs: [],
-    stateMutability: "nonpayable",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
-        internalType: "address",
-        name: "_executor",
-        type: "address",
-      },
-    ],
-    name: "setExecutor",
     outputs: [],
     stateMutability: "nonpayable",
     type: "function",
