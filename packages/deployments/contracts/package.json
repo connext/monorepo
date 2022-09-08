@@ -20,7 +20,8 @@
     "purge": "yarn clean && rimraf ./node_modules ./cache ",
     "tsp": "yarn run tsp:root \"$@\" --cwd $(pwd)",
     "hardhat": "hardhat",
-    "size": "hardhat size-contracts"
+    "size": "hardhat size-contracts",
+    "init": "ts-node ./src/init/main.ts"
   },
   "main": "dist/src/index.js",
   "types": "dist/src/index.d.ts",
