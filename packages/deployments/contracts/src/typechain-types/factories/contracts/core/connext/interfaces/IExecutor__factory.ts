@@ -26,12 +26,6 @@ const _abi = [
         type: "address",
       },
       {
-        indexed: true,
-        internalType: "address",
-        name: "recovery",
-        type: "address",
-      },
-      {
         indexed: false,
         internalType: "address",
         name: "assetId",
@@ -94,11 +88,6 @@ const _abi = [
           {
             internalType: "address",
             name: "to",
-            type: "address",
-          },
-          {
-            internalType: "address",
-            name: "recovery",
             type: "address",
           },
           {

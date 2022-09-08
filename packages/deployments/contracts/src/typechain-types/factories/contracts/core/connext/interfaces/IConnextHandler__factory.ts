@@ -911,11 +911,6 @@ const _abi = [
                 type: "address",
               },
               {
-                internalType: "address",
-                name: "recovery",
-                type: "address",
-              },
-              {
                 internalType: "bool",
                 name: "forceSlow",
                 type: "bool",
@@ -1123,11 +1118,6 @@ const _abi = [
           {
             internalType: "address",
             name: "agent",
-            type: "address",
-          },
-          {
-            internalType: "address",
-            name: "recovery",
             type: "address",
           },
           {
@@ -2273,11 +2263,6 @@ const _abi = [
             type: "address",
           },
           {
-            internalType: "address",
-            name: "recovery",
-            type: "address",
-          },
-          {
             internalType: "bool",
             name: "forceSlow",
             type: "bool",
@@ -2380,11 +2365,6 @@ const _abi = [
           {
             internalType: "address",
             name: "agent",
-            type: "address",
-          },
-          {
-            internalType: "address",
-            name: "recovery",
             type: "address",
           },
           {
@@ -3061,11 +3041,6 @@ const _abi = [
               {
                 internalType: "address",
                 name: "agent",
-                type: "address",
-              },
-              {
-                internalType: "address",
-                name: "recovery",
                 type: "address",
               },
               {
