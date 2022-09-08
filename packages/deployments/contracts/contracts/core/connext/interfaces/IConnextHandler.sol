@@ -11,7 +11,6 @@ import {LibDiamond} from "../libraries/LibDiamond.sol";
 import {SwapUtils} from "../libraries/SwapUtils.sol";
 
 import {IStableSwap} from "./IStableSwap.sol";
-import {IExecutor} from "./IExecutor.sol";
 import {ISponsorVault} from "./ISponsorVault.sol";
 import {IWeth} from "./IWeth.sol";
 import {ITokenRegistry} from "./ITokenRegistry.sol";
@@ -65,8 +64,6 @@ interface IConnextHandler is IDiamondLoupe, IDiamondCut {
 
   function domain() external view returns (uint256);
 
-  function executor() external view returns (IExecutor);
-
   function nonce() external view returns (uint256);
 
   function sponsorVault() external view returns (ISponsorVault);
@@ -76,8 +73,6 @@ interface IConnextHandler is IDiamondLoupe, IDiamondCut {
   function approvedSequencers(address _sequencer) external view returns (bool);
 
   function setPromiseRouter(address payable _promiseRouter) external;
-
-  function setExecutor(address _executor) external;
 
   function setSponsorVault(address _sponsorVault) external;
 
