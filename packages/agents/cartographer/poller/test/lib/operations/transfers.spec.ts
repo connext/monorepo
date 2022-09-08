@@ -1,7 +1,7 @@
 import { createStubInstance, SinonStub, stub, restore, reset } from "sinon";
 import { expect, mock, chainDataToMap, Logger, OriginTransfer } from "@connext/nxtp-utils";
-import * as transfersPoller from "../../../src/transfersPoller";
-import * as routersPoller from "../../../src/routersPoller";
+import * as transfersPoller from "../../../src/pollers/transfersPoller";
+import * as routersPoller from "../../../src/pollers/routersPoller";
 import { bindTransfers } from "../../../src/bindings/transfers";
 import { bindRouters } from "../../../src/bindings/routers";
 
