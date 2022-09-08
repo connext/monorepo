@@ -1,0 +1,53 @@
+specVersion: 0.0.4
+schema:
+  file: ./src/amarok-stableswap-staging/schema.graphql
+dataSources:
+  # StableSwap.sol events
+  - kind: ethereum/contract
+    name: Connext
+    network: "{{network}}"
+    source:
+      address: "{{address}}"
+      abi: StableSwap
+      # prettier-ignore
+      startBlock: {{startBlock}}
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.6
+      language: wasm/assemblyscript
+      entities:
+        - MetaData
+        - PoolToken
+        - Router
+        - Transfer
+      abis:
+        - name: StableSwap
+          file: ./src/amarok-stableswap-staging/abis/StableSwap.json
+      eventHandlers:
+        - event: AddLiquidity(indexed address,uint256[],uint256[],uint256,uint256)
+          handler: handleAddLiquidity
+        - event: NewAdminFee(uint256)
+          handler: handleNewAdminFee
+        - event: NewSwapFee(uint256)
+          handler: handleNewSwapFee
+        - event: NewWithdrawFee(uint256)
+          handler: handleNewWithdrawFee
+        - event: OwnershipTransferred(indexed address,indexed address)
+          handler: handleOwnershipTransferred
+        - event: Paused(address)
+          handler: handlePaused
+        - event: RampA(uint256,uint256,uint256,uint256)
+          handler: handleRampA
+        - event: RemoveLiquidity(indexed address,uint256[],uint256)
+          handler: handleRemoveLiquidity
+        - event: RemoveLiquidityImbalance(indexed address,uint256[],uint256[],uint256,uint256)
+          handler: handleRemoveLiquidityImbalance
+        - event: RemoveLiquidityOne(indexed address,uint256,uint256,uint256,uint256)
+          handler: handleRemoveLiquidityOne
+        - event: StopRampA(uint256,uint256)
+          handler: handleStopRampA
+        - event: TokenSwap(indexed address,uint256,uint256,uint128,uint128)
+          handler: handleTokenSwap
+        - event: Unpaused(address)
+          handler: handleUnpaused
+      file: ./src/amarok-stableswap-staging/mapping.ts
