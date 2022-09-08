@@ -596,7 +596,7 @@ export interface BridgeRouter extends BaseContract {
       _remoteHook: PromiseOrValue<BytesLike>,
       _extraData: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
-    ): Promise<void>;
+    ): Promise<string>;
 
     setXAppConnectionManager(
       _xAppConnectionManager: PromiseOrValue<string>,

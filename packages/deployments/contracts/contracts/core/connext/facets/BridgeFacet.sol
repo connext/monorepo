@@ -84,6 +84,7 @@ contract BridgeFacet is BaseConnextFacet {
   event XCalled(
     bytes32 indexed transferId,
     uint256 indexed nonce,
+    bytes32 indexed messageHash,
     XCallArgs xcallArgs,
     address bridgedAsset,
     uint256 bridgedAmount,
@@ -312,7 +313,10 @@ contract BridgeFacet is BaseConnextFacet {
     bytes32 remoteInstance;
     {
       // Not native asset
-      if (_args.transactingAsset == address(0)) {
+      // NOTE: we support using address(0) as an intuitive default if you are sending a 0-value
+      // transfer. in that edgecase, address(0) will not be registered as a supported asset, but should
+      // pass the `isLocalOrigin` check on the TokenRegistry
+      if (_args.transactingAsset == address(0) && _args.transactingAmount != 0) {
         revert BridgeFacet__xcall_nativeAssetNotSupported();
       }
 
@@ -360,38 +364,62 @@ contract BridgeFacet is BaseConnextFacet {
     uint256 _sNonce;
     address bridgedAsset;
     uint256 bridgedAmount;
+    bytes32 messageHash;
     {
       // Check that the asset is supported -- can be either adopted or local.
-      TokenId memory canonical = s.adoptedToCanonical[_args.transactingAsset];
-      if (canonical.id == bytes32(0)) {
-        // Here, the asset is *not* the adopted asset. The only other valid option
-        // is for this asset to be the local asset (i.e. transferring madEth on optimism)
-        // NOTE: it *cannot* be the canonical asset. the canonical asset is only used on
-        // the canonical domain, where it is *also* the adopted asset.
-        if (s.tokenRegistry.isLocalOrigin(_args.transactingAsset)) {
-          // revert, using a token of local origin that is not registered as adopted
-          revert BridgeFacet__xcall_notSupportedAsset();
-        }
+      TokenId memory canonical;
 
-        (uint32 canonicalDomain, bytes32 canonicalId) = s.tokenRegistry.getTokenId(_args.transactingAsset);
-        canonical = TokenId(canonicalDomain, canonicalId);
+      // NOTE: above we check that you can only have `address(0)` as a transacting asset when
+      // you are sending 0-amounts. Because 0-amount transfers shortcircuit all checks on
+      // mappings keyed on hash(canonicalId, canonicalDomain), this is safe even when the
+      // address(0) asset is not whitelisted. These values are only used for the `transactionId`
+      // generation
+      if (_args.transactingAsset != address(0)) {
+        canonical = s.adoptedToCanonical[_args.transactingAsset];
+
+        if (canonical.id == bytes32(0)) {
+          // Here, the asset is *not* the adopted asset. The only other valid option
+          // is for this asset to be the local asset (i.e. transferring madEth on optimism)
+          // NOTE: it *cannot* be the canonical asset. the canonical asset is only used on
+          // the canonical domain, where it is *also* the adopted asset.
+          if (s.tokenRegistry.isLocalOrigin(_args.transactingAsset)) {
+            // revert, using a token of local origin that is not registered as adopted
+            revert BridgeFacet__xcall_notSupportedAsset();
+          }
+
+          (uint32 canonicalDomain, bytes32 canonicalId) = s.tokenRegistry.getTokenId(_args.transactingAsset);
+          canonical = TokenId(canonicalDomain, canonicalId);
+        }
       }
 
-      // Transfer funds of transacting asset to the contract from the user.
-      AssetLogic.transferAssetToContract(_args.transactingAsset, _args.transactingAmount);
+      if (_args.transactingAmount > 0) {
+        // Transfer funds of transacting asset to the contract from the user.
+        AssetLogic.transferAssetToContract(_args.transactingAsset, _args.transactingAmount);
 
-      // Swap to the local asset from adopted if applicable.
-      (bridgedAmount, bridgedAsset) = AssetLogic.swapToLocalAssetIfNeeded(
-        canonical,
-        _args.transactingAsset,
-        _args.transactingAmount,
-        _args.originMinOut
-      );
+        // Swap to the local asset from adopted if applicable.
+        (bridgedAmount, bridgedAsset) = AssetLogic.swapToLocalAssetIfNeeded(
+          canonical,
+          _args.transactingAsset,
+          _args.transactingAmount,
+          _args.originMinOut
+        );
+
+        // Approve bridge router
+        SafeERC20.safeApprove(IERC20(bridgedAsset), address(s.bridgeRouter), 0);
+        SafeERC20.safeIncreaseAllowance(IERC20(bridgedAsset), address(s.bridgeRouter), bridgedAmount);
+      } else {
+        // Get the bridged asset so you can emit it properly within the event
+        bridgedAsset = _args.transactingAsset == address(0)
+          ? address(0)
+          : s.tokenRegistry.getLocalAddress(canonical.domain, canonical.id);
+      }
 
       // Calculate the transfer id
       transferId = _getTransferId(_args, canonical, bridgedAmount);
       _sNonce = s.nonce++;
+    }
 
+    {
       // Store the relayer fee
       // NOTE: this has to be done *after* transferring in + swapping assets because
       // the transfer id uses the amount that is bridged (i.e. amount in local asset)
@@ -402,12 +430,8 @@ contract BridgeFacet is BaseConnextFacet {
         s.promiseRouter.initCallbackFee{value: _args.params.callbackFee}(transferId);
       }
 
-      // Approve bridge router
-      SafeERC20.safeApprove(IERC20(bridgedAsset), address(s.bridgeRouter), 0);
-      SafeERC20.safeIncreaseAllowance(IERC20(bridgedAsset), address(s.bridgeRouter), bridgedAmount);
-
       // Send message
-      s.bridgeRouter.sendToHook(
+      messageHash = s.bridgeRouter.sendToHook(
         bridgedAsset,
         bridgedAmount,
         _args.params.destinationDomain,
@@ -417,7 +441,7 @@ contract BridgeFacet is BaseConnextFacet {
     }
 
     // emit event
-    emit XCalled(transferId, _sNonce, _args, bridgedAsset, bridgedAmount, msg.sender);
+    emit XCalled(transferId, _sNonce, messageHash, _args, bridgedAsset, bridgedAmount, msg.sender);
 
     return transferId;
   }
@@ -661,6 +685,9 @@ contract BridgeFacet is BaseConnextFacet {
     bool _isFast,
     ExecuteArgs calldata _args
   ) private returns (uint256, address) {
+    // Save the addresses of all routers providing liquidity for this transfer.
+    s.routedTransfers[_transferId] = _args.routers;
+
     if (_args.amount == 0) {
       return (0, _args.local);
     }
@@ -677,9 +704,6 @@ contract BridgeFacet is BaseConnextFacet {
 
       // Calculate amount that routers will provide with the fast-liquidity fee deducted.
       toSwap = _muldiv(_args.amount, s.LIQUIDITY_FEE_NUMERATOR, BPS_FEE_DENOMINATOR);
-
-      // Save the addresses of all routers providing liquidity for this transfer.
-      s.routedTransfers[_transferId] = _args.routers;
 
       if (pathLen == 1) {
         // If router does not have enough liquidity, try to use Aave Portals.

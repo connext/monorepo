@@ -192,6 +192,10 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
       _amount,
       (_amount * 9990) / 10000
     );
+    if (transactingAssetId == address(0)) {
+      _canonicalId = bytes32(0);
+      _canonicalDomain = 0;
+    }
     // generate transfer id
     bytes32 transferId = utils_getTransferIdFromXCallArgs(args, _originSender, _canonicalId, _canonicalDomain, bridged);
 
@@ -293,9 +297,19 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
     bool shouldSwap
   ) public {
     // bridged is either local or canonical, depending on domain xcall originates on
-    address bridged = _canonicalDomain == args.params.originDomain ? _canonical : _local;
+    address bridged = args.transactingAsset == address(0) ? address(0) : _canonicalDomain == args.params.originDomain
+      ? _canonical
+      : _local;
     vm.expectEmit(true, true, true, true);
-    emit XCalled(transferId, s.nonce, args, bridged, bridgedAmt, _originSender);
+    emit XCalled(
+      transferId,
+      s.nonce,
+      MockBridgeRouter(_bridgeRouter).MESSAGE_HASH(),
+      args,
+      bridged,
+      bridgedAmt,
+      _originSender
+    );
 
     // assert swap if expected
     if (shouldSwap && bridgedAmt != 0) {
@@ -327,7 +341,9 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
       );
     }
     // Assert approval call
-    vm.expectCall(bridged, abi.encodeWithSelector(IERC20.approve.selector, _bridgeRouter, bridgedAmt));
+    if (bridgedAmt > 0) {
+      vm.expectCall(bridged, abi.encodeWithSelector(IERC20.approve.selector, _bridgeRouter, bridgedAmt));
+    }
 
     // Assert bridge router call
     vm.expectCall(
@@ -361,18 +377,23 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
     uint256 initialUserBalance;
     uint256 initialContractBalance;
     {
-      TestERC20 tokenIn = TestERC20(args.transactingAsset);
-      TestERC20 localToken = TestERC20(_local);
+      if (args.transactingAsset != address(0)) {
+        TestERC20 tokenIn = TestERC20(args.transactingAsset);
+        TestERC20 localToken = TestERC20(_local);
 
-      // Mint the specified amount of tokens for the user.
-      tokenIn.mint(_originSender, dealTokens);
+        // Mint the specified amount of tokens for the user.
+        tokenIn.mint(_originSender, dealTokens);
 
-      initialUserBalance = tokenIn.balanceOf(_originSender);
-      initialContractBalance = localToken.balanceOf(address(this));
+        initialUserBalance = tokenIn.balanceOf(_originSender);
+        initialContractBalance = localToken.balanceOf(address(this));
 
-      // Approve the target contract to spend the specified amount of tokens.
-      vm.prank(_originSender);
-      tokenIn.approve(address(this), dealTokens);
+        // Approve the target contract to spend the specified amount of tokens.
+        vm.prank(_originSender);
+        tokenIn.approve(address(this), dealTokens);
+      } else {
+        initialUserBalance = address(_originSender).balance;
+        initialContractBalance = address(this).balance;
+      }
     }
 
     if (shouldSwap) {
@@ -397,12 +418,23 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
       // assertEq(payable(_originSender).balance, initialUserBalance - fees);
 
       // Check that the user has been debited the correct amount of tokens.
-      assertEq(TestERC20(args.transactingAsset).balanceOf(_originSender), initialUserBalance - args.transactingAmount);
+      if (args.transactingAsset != address(0)) {
+        assertEq(
+          TestERC20(args.transactingAsset).balanceOf(_originSender),
+          initialUserBalance - args.transactingAmount
+        );
+      } else {
+        // User should have been debited fees... but also tx cost?
+        assertEq(_originSender.balance, (initialUserBalance - fees));
+      }
 
       // Check that the contract has been credited the correct amount of tokens.
       // NOTE: Because the tokens are a representational local asset, they are burnt. The contract
       // should NOT be holding any additional tokens after xcall completes.
-      if (isCanonical) {
+      if (args.transactingAsset == address(0)) {
+        // No balance change
+        assertEq(address(this).balance, initialContractBalance + fees);
+      } else if (isCanonical) {
         // This should be a canonical asset transfer
         assertEq(TestERC20(_canonical).balanceOf(address(this)), initialContractBalance);
       } else {
@@ -495,14 +527,14 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
 
   function utils_getExecuteBalances(
     bytes32 transferId,
-    IERC20 asset,
+    address asset,
     address _to
   ) public returns (ExecuteBalances memory) {
     uint256 debt = s.portalDebt[transferId];
     uint256 fee = s.portalFeeDebt[transferId];
-    uint256 bridge = IERC20(_local).balanceOf(address(this));
-    uint256 to = asset.balanceOf(_to);
-    uint256 executor = asset.balanceOf(_executor);
+    uint256 bridge = _local == address(0) ? address(this).balance : IERC20(_local).balanceOf(address(this));
+    uint256 to = asset == address(0) ? _to.balance : IERC20(asset).balanceOf(_to);
+    uint256 executor = asset == address(0) ? _executor.balance : IERC20(asset).balanceOf(_executor);
     return ExecuteBalances(bridge, to, executor, debt, fee);
   }
 
@@ -639,7 +671,7 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
 
     // get pre-execute balance here in local
     IERC20 token = IERC20(_inputs.token);
-    ExecuteBalances memory prevBalances = utils_getExecuteBalances(transferId, token, _args.params.to);
+    ExecuteBalances memory prevBalances = utils_getExecuteBalances(transferId, _inputs.token, _args.params.to);
 
     // execute
     // expected amount is impacted by (1) fast liquidity fees (2) slippage
@@ -693,7 +725,7 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
 
     {
       // assertions
-      ExecuteBalances memory finalBalances = utils_getExecuteBalances(transferId, token, _args.params.to);
+      ExecuteBalances memory finalBalances = utils_getExecuteBalances(transferId, _inputs.token, _args.params.to);
 
       // NOTE: the balance of the bridge *should* always decrement in local, however that depends on
       // the token executing the `swap` / `withdraw` call when a swap is needed (which we have as mocked).
@@ -1173,7 +1205,7 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
     helpers_xcallAndAssert(BridgeFacet.BridgeFacet__xcall_notSupportedAsset.selector);
   }
 
-  // fails if native asset is used
+  // fails if native asset is used && amount > 0
   function test_BridgeFacet__xcall_failIfNativeAsset() public {
     _amount = 1 ether;
     TestERC20 localToken = TestERC20(_local);
@@ -1272,6 +1304,14 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
     helpers_xcallAndAssert(_amount, false);
   }
 
+  // works when transferring 0 value and empty asset
+  function test_BridgeFacet__xcall_zeroValueEmptyAssetWorks() public {
+    _amount = 0;
+    utils_setupAsset(true, true);
+    s.adoptedToCanonical[address(0)] = TokenId(0, bytes32(0));
+    helpers_xcallAndAssert(0, address(0), false);
+  }
+
   // local token transfer on non-canonical domain (local != adopted)
   function test_BridgeFacet__xcall_localTokenTransferWorksWithAdopted() public {
     uint256 bridged = (_amount * 9995) / _liquidityFeeDenominator;
@@ -1318,11 +1358,6 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
     helpers_xcallAndAssert(bridged, true);
   }
 
-  // FIXME: should work with fee on transfer tokens
-  function test_BridgeFacet__xcall_feeOnTransferWorks() public {
-    // require(false, "not tested");
-  }
-
   // should work with positive slippage
   function test_BridgeFacet__xcall_worksWithPositiveSlippage() public {
     utils_setupAsset(false, false);
@@ -1332,6 +1367,7 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
 
   // should work with 0 value
   function test_BridgeFacet__xcall_worksWithoutValue() public {
+    utils_setupAsset(false, false);
     _amount = 0;
     helpers_xcallAndAssert(0, true);
   }
@@ -1655,6 +1691,23 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
 
   // should work with approved router if router ownership is not renounced
   function test_BridgeFacet__execute_worksWithLocalAsAdopted() public {
+    (bytes32 transferId, ExecuteArgs memory args) = utils_makeExecuteArgs(1);
+
+    s.routerBalances[args.routers[0]][args.local] += 10 ether;
+    s.routerPermissionInfo.approvedRouters[args.routers[0]] = true;
+
+    // set asset context (local == adopted)
+    utils_setupAsset(true, false);
+
+    helpers_executeAndAssert(transferId, args);
+  }
+
+  // should work with approved router if router ownership is not renounced
+  function test_BridgeFacet__execute_worksWithEmptyCanonicalIfZeroValue() public {
+    _canonicalId = bytes32(0);
+    _canonicalDomain = 0;
+    _amount = 0;
+    _local = address(0);
     (bytes32 transferId, ExecuteArgs memory args) = utils_makeExecuteArgs(1);
 
     s.routerBalances[args.routers[0]][args.local] += 10 ether;

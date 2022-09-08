@@ -33,10 +33,11 @@ interface IOutbox {
    * @param _destinationDomain Domain of destination chain
    * @param _recipientAddress Address of recipient on destination chain as bytes32
    * @param _messageBody Raw bytes content of message
+   * @return bytes32 The leaf added to the tree
    */
   function dispatch(
     uint32 _destinationDomain,
     bytes32 _recipientAddress,
     bytes memory _messageBody
-  ) external;
+  ) external returns (bytes32);
 }

@@ -59,6 +59,7 @@ contract ConnextTest is ForgeHelper, Deployer {
   event XCalled(
     bytes32 indexed transferId,
     uint256 indexed nonce,
+    bytes32 indexed messageHash,
     XCallArgs xcallArgs,
     address bridgedAsset,
     uint256 bridgedAmount,
@@ -441,7 +442,15 @@ contract ConnextTest is ForgeHelper, Deployer {
 
     // Expect an event
     vm.expectEmit(true, true, true, true);
-    emit XCalled(transferId, nonce, _args, _bridged, _bridgedAmt, address(this));
+    emit XCalled(
+      transferId,
+      nonce,
+      MockBridgeRouter(_originBridgeRouter).MESSAGE_HASH(),
+      _args,
+      _bridged,
+      _bridgedAmt,
+      address(this)
+    );
 
     // Make call
     bytes32 ret = _originConnext.xcall{value: _args.params.relayerFee + _args.params.callbackFee}(_args);
@@ -624,7 +633,7 @@ contract ConnextTest is ForgeHelper, Deployer {
     uint256 debited = isFast ? (utils_getFastTransferAmount(args.amount)) / pathLen : 0;
     address[] memory stored = _destinationConnext.routedTransfers(transferId);
     if (isFast) {
-      for (uint256 i; i < pathLen - 1; i++) {
+      for (uint256 i; i <= pathLen - 1; i++) {
         assertEq(stored[i], args.routers[i]);
         assertEq(end.liquidity[i], usesPortals ? initial.liquidity[i] : initial.liquidity[i] - debited);
       }
@@ -731,6 +740,31 @@ contract ConnextTest is ForgeHelper, Deployer {
   }
 
   // ============ Testing scenarios ============
+  // you should be able to create a 0-value transfer
+  function test_Connext__zeroValueTransferShouldWork() public {
+    /// 0. setup contracts
+    utils_setupAssets(_origin, true);
+
+    // 1. `xcall` on the origin
+    XCallArgs memory xcall = XCallArgs(utils_createCallParams(_destination), _originLocal, 0, 0);
+    bytes32 transferId = utils_xcallAndAssert(xcall, _originLocal, 0);
+
+    // 2. call `execute` on the destination
+    ExecuteArgs memory execute = utils_createExecuteArgs(xcall.params, 1, transferId, 0);
+    utils_executeAndAssert(execute, transferId, 0);
+
+    // 3. call `handle` on the destination
+    utils_reconcileAndAssert(
+      transferId,
+      xcall.transactingAmount,
+      xcall.params.to,
+      execute.routers,
+      xcall.params,
+      0,
+      address(this)
+    );
+  }
+
   // you should be able to bridge tokens (local == adopted)
   function test_Connext__bridgingTokensShouldWorkFastNoSwap() public {
     /// 0. setup contracts
