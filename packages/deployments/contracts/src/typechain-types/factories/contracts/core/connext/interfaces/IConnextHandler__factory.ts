@@ -3110,7 +3110,7 @@ const _abi = [
           },
           {
             internalType: "uint256",
-            name: "transactingAmount",
+            name: "amount",
             type: "uint256",
           },
           {

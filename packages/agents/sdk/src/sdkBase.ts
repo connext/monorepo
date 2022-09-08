@@ -150,7 +150,7 @@ export class NxtpSdkBase {
       throw new SignerAddressMissing();
     }
 
-    const { params, transactingAmount, asset, originMinOut } = args;
+    const { params, amount, asset, originMinOut } = args;
     const { originDomain, destinationDomain, relayerFee: _relayerFee } = params;
 
     // Calculate estimate for relayer fee and include it in the call params.
@@ -209,7 +209,7 @@ export class NxtpSdkBase {
     const formattedXCallArgs: XCallArgs = {
       params: formattedXParams,
       asset,
-      transactingAmount,
+      amount,
       originMinOut,
     };
     const data = this.contracts.connext.encodeFunctionData("xcall", [formattedXCallArgs]);

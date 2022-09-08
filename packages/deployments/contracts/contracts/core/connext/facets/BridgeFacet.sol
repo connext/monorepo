@@ -99,7 +99,7 @@ contract BridgeFacet is BaseConnextFacet {
    * @param args - The `ExecuteArgs` provided to the function.
    * @param asset - The asset the to gets or the external call is executed with. Should be the
    * adopted asset on that chain.
-   * @param transactingAmount - The amount of transferring asset the to address receives or the external call is
+   * @param amount - The amount of transferring asset the to address receives or the external call is
    * executed with.
    * @param caller - The account that called the function.
    */
@@ -108,7 +108,7 @@ contract BridgeFacet is BaseConnextFacet {
     address indexed to,
     ExecuteArgs args,
     address asset,
-    uint256 transactingAmount,
+    uint256 amount,
     address caller
   );
 
@@ -316,7 +316,7 @@ contract BridgeFacet is BaseConnextFacet {
       // NOTE: we support using address(0) as an intuitive default if you are sending a 0-value
       // transfer. in that edgecase, address(0) will not be registered as a supported asset, but should
       // pass the `isLocalOrigin` check on the TokenRegistry
-      if (_args.asset == address(0) && _args.transactingAmount != 0) {
+      if (_args.asset == address(0) && _args.amount != 0) {
         revert BridgeFacet__xcall_nativeAssetNotSupported();
       }
 
@@ -392,15 +392,15 @@ contract BridgeFacet is BaseConnextFacet {
         }
       }
 
-      if (_args.transactingAmount > 0) {
+      if (_args.amount > 0) {
         // Transfer funds of transacting asset to the contract from the user.
-        AssetLogic.transferAssetToContract(_args.asset, _args.transactingAmount);
+        AssetLogic.transferAssetToContract(_args.asset, _args.amount);
 
         // Swap to the local asset from adopted if applicable.
         (bridgedAmount, bridgedAsset) = AssetLogic.swapToLocalAssetIfNeeded(
           canonical,
           _args.asset,
-          _args.transactingAmount,
+          _args.amount,
           _args.originMinOut
         );
 

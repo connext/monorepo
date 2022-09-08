@@ -88,7 +88,7 @@ type OriginTransfer @entity {
   # The asset that gets sent in.
   asset: Bytes
   # Amount of asset sent in.
-  transactingAmount: BigInt
+  amount: BigInt
   # Nomad asset being bridged.
   bridgedAsset: Bytes
   # Amount of bridged nomad asset.
@@ -140,7 +140,7 @@ type DestinationTransfer @entity {
   # The asset that gets delivered.
   asset: Bytes
   # Amount of delivered asset.
-  transactingAmount: BigInt
+  amount: BigInt
   # The local version of the bridged asset.
   localAsset: Bytes
   # The amount of the local asset.
