@@ -208,7 +208,7 @@ describe("Helpers:parse", () => {
           ...mockDestinationTransferEntity,
 
           to: undefined,
-          transactingAmount: undefined,
+          amount: undefined,
           executedTimestamp: undefined,
           executedBlockNumber: undefined,
           reconciledTimestamp: undefined,

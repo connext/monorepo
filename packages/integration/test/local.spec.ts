@@ -158,8 +158,8 @@ const sendXCall = async (
       destinationMinOut: "0",
       ...xparams,
     },
-    transactingAsset: PARAMETERS.A.DEPLOYMENTS.TestERC20,
-    transactingAmount: "1000",
+    asset: PARAMETERS.A.DEPLOYMENTS.TestERC20,
+    amount: "1000",
     originMinOut: "0",
   };
   const tx = await sdkBase.xcall(xcallData);
