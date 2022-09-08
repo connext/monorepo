@@ -554,6 +554,12 @@ export class SubgraphReader {
    */
   public async getDestinationMessagesByDomainAndLeaf(params: Map<string, string[]>): Promise<DestinationMessage[]> {
     const { parser, execute } = getHelpers();
+
+    let destinationMessages: DestinationMessage[] = [];
+    if (!params || params.values.length == 0) {
+      return destinationMessages;
+    }
+
     const destinationMessageQuery = getDestinationMessagesByDomainAndLeafQuery(params);
     const response = await execute(destinationMessageQuery);
     const _messages: any[] = [];
@@ -566,7 +572,7 @@ export class SubgraphReader {
       _messages.push(_message);
     }
 
-    const destinationMessages: DestinationMessage[] = _messages
+    destinationMessages = _messages
       .flat()
       .filter((x: any) => !!x)
       .map(parser.destinationMessage);
