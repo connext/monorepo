@@ -858,7 +858,7 @@ const _abi = [
       {
         indexed: false,
         internalType: "address",
-        name: "transactingAsset",
+        name: "asset",
         type: "address",
       },
       {
@@ -1138,7 +1138,7 @@ const _abi = [
           },
           {
             internalType: "address",
-            name: "transactingAsset",
+            name: "asset",
             type: "address",
           },
           {
@@ -1749,7 +1749,7 @@ const _abi = [
           },
           {
             internalType: "address",
-            name: "transactingAsset",
+            name: "asset",
             type: "address",
           },
           {

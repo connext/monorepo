@@ -3105,7 +3105,7 @@ const _abi = [
           },
           {
             internalType: "address",
-            name: "transactingAsset",
+            name: "asset",
             type: "address",
           },
           {
