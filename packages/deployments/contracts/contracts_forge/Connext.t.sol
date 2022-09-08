@@ -802,7 +802,7 @@ contract ConnextTest is ForgeHelper, Deployer {
     bytes32 transferId = utils_xcallAndAssert(xcall, _originLocal, xcall.amount);
 
     // 2. call `execute` on the destination
-    ExecuteArgs memory execute = utils_createExecuteArgs(xcall.params, 2, transferId, xcall.amount);
+    ExecuteArgs memory execute = utils_createExecuteArgs(params, 2, transferId, xcall.amount);
     utils_executeAndAssert(execute, transferId, utils_getFastTransferAmount(execute.amount));
 
     // 3. call `handle` on the destination
