@@ -243,7 +243,7 @@ export function handleXCalled(event: XCalled): void {
 
   // Assets
   transfer.asset = event.params.xcallArgs.asset;
-  transfer.transactingAmount = event.params.xcallArgs.transactingAmount;
+  transfer.amount = event.params.xcallArgs.amount;
   transfer.bridgedAsset = event.params.bridgedAsset;
   transfer.bridgedAmount = event.params.bridgedAmount;
 
@@ -318,7 +318,7 @@ export function handleExecuted(event: Executed): void {
   transfer.destinationMinOut = event.params.args.params.destinationMinOut;
 
   // Assets
-  transfer.transactingAmount = event.params.transactingAmount;
+  transfer.amount = event.params.amount;
   transfer.asset = event.params.asset;
   transfer.localAsset = event.params.args.local;
   transfer.localAmount = event.params.args.amount;
