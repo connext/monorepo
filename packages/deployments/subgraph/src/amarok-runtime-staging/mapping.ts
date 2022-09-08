@@ -20,13 +20,22 @@ import {
   MaxRoutersPerTransferUpdated,
   TokenSwap,
   AddLiquidity,
-  NewAdminFee,
-  NewSwapFee,
   RemoveLiquidity,
-  RemoveLiquidityImbalance,
   RemoveLiquidityOne,
+  RemoveLiquidityImbalance,
 } from "../../generated/Connext/ConnextHandler";
-import { Dispatch, Process } from "../../generated/Connector/Connector";
+import {
+  AggregateRootUpdated,
+  Dispatch,
+  MessageProcessed,
+  MessageSent,
+  MirrorConnectorUpdated,
+  OwnershipProposed,
+  OwnershipTransferred,
+  Process,
+  SenderAdded,
+  SenderRemoved,
+} from "../../generated/Connector/Connector";
 import {
   Asset,
   AssetBalance,
@@ -40,16 +49,21 @@ import {
 } from "../../generated/schema";
 
 const DEFAULT_MAX_ROUTERS_PER_TRANSFER = 5;
-export function handleRelayerAdded(event: RelayerAdded): void {
-  let relayerId = event.params.relayer.toHex();
-  let relayer = Relayer.load(relayerId);
 
-  if (relayer == null) {
-    relayer = new Relayer(relayerId);
-    relayer.isActive = true;
-    relayer.relayer = event.params.relayer;
-    relayer.save();
+/// MARK - Assets
+export function handleAssetAdded(event: AssetAdded): void {
+  let assetId = event.params.localAsset.toHex();
+  let asset = Asset.load(assetId);
+  if (asset == null) {
+    asset = new Asset(assetId);
   }
+  asset.key = event.params.key;
+  asset.local = event.params.localAsset;
+  asset.adoptedAsset = event.params.adoptedAsset;
+  asset.canonicalId = event.params.canonicalId;
+  asset.canonicalDomain = event.params.domain;
+  asset.blockNumber = event.block.number;
+  asset.save();
 }
 
 export function handleStableSwapAdded(event: StableSwapAdded): void {
@@ -78,6 +92,19 @@ export function handleSponsorVaultUpdated(event: SponsorVaultUpdated): void {
   }
 }
 
+/// MARK - Relayers
+export function handleRelayerAdded(event: RelayerAdded): void {
+  let relayerId = event.params.relayer.toHex();
+  let relayer = Relayer.load(relayerId);
+
+  if (relayer == null) {
+    relayer = new Relayer(relayerId);
+    relayer.isActive = true;
+    relayer.relayer = event.params.relayer;
+    relayer.save();
+  }
+}
+
 export function handleRelayerRemoved(event: RelayerRemoved): void {
   let relayerId = event.params.relayer.toHex();
   let relayer = Relayer.load(relayerId);
@@ -89,6 +116,7 @@ export function handleRelayerRemoved(event: RelayerRemoved): void {
   }
 }
 
+/// MARK - Routers
 export function handleRouterAdded(event: RouterAdded): void {
   let routerId = event.params.router.toHex();
   let router = Router.load(routerId);
@@ -154,21 +182,6 @@ export function handleRouterOwnerAccepted(event: RouterOwnerAccepted): void {
   router.save();
 }
 
-export function handleAssetAdded(event: AssetAdded): void {
-  let assetId = event.params.localAsset.toHex();
-  let asset = Asset.load(assetId);
-  if (asset == null) {
-    asset = new Asset(assetId);
-  }
-  asset.key = event.params.key;
-  asset.local = event.params.localAsset;
-  asset.adoptedAsset = event.params.adoptedAsset;
-  asset.canonicalId = event.params.canonicalId;
-  asset.canonicalDomain = event.params.domain;
-  asset.blockNumber = event.block.number;
-  asset.save();
-}
-
 /**
  * Updates the subgraph records when LiquidityAdded events are emitted. Will create a Router record if it does not exist
  *
@@ -214,6 +227,7 @@ export function handleMaxRoutersPerTransferUpdated(event: MaxRoutersPerTransferU
   settingEntity.save();
 }
 
+/// MARK - Connext Bridge
 /**
  * Creates subgraph records when TransactionPrepared events are emitted.
  *
@@ -412,6 +426,15 @@ export function handleReconciled(event: Reconciled): void {
   transfer.save();
 }
 
+/// MARK - AMMs
+export function handleAmmTokenSwap(_event: TokenSwap): void {}
+export function handleAmmAddLiquidity(_event: AddLiquidity): void {}
+export function handleAmmRemoveLiquidity(_event: RemoveLiquidity): void {}
+export function handleAmmRemoveLiquidityOne(_event: RemoveLiquidityOne): void {}
+export function handleAmmRemoveLiquidityImbalance(_event: RemoveLiquidityImbalance): void {}
+export function handleAmmNewAdminFee(_event: RemoveLiquidityImbalance): void {}
+
+/// MARK - Connector
 export function handleDispatch(_event: Dispatch): void {
   // Dispatch(bytes32 leaf, uint256 index, bytes32 root, bytes message);
   // initiate origin transfer: save message, root
@@ -422,14 +445,16 @@ export function handleProcess(_event: Process): void {
   // initiate destination transfer: save processed: boolean
 }
 
-export function handleAmmTokenSwap(_event: TokenSwap): void {}
-export function handleAmmAddLiquidity(_event: AddLiquidity): void {}
-export function handleAmmRemoveLiquidity(_event: RemoveLiquidity): void {}
-export function handleAmmRemoveLiquidityOne(_event: RemoveLiquidityOne): void {}
-export function handleAmmRemoveLiquidityImbalance(_event: RemoveLiquidityImbalance): void {}
-export function handleAmmNewAdminFee(_event: NewAdminFee): void {}
-export function handleAmmNewSwapFee(_event: NewSwapFee): void {}
+export function handleAggregateRootUpdated(_event: AggregateRootUpdated): void {}
+export function handleMessageProcessed(_event: MessageProcessed): void {}
+export function handleMessageSent(_event: MessageSent): void {}
+export function handleMirrorConnectorUpdated(_event: MirrorConnectorUpdated): void {}
+export function handleOwnershipProposed(_event: OwnershipProposed): void {}
+export function handleOwnershipTransferred(_event: OwnershipTransferred): void {}
+export function handleSenderAdded(_event: SenderAdded): void {}
+export function handleSenderRemoved(_event: SenderRemoved): void {}
 
+/// MARK - Helpers
 // eslint-disable-next-line @typescript-eslint/ban-types
 function getChainId(): BigInt {
   // try to get chainId from the mapping
