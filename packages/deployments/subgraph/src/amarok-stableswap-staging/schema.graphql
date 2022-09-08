@@ -1,0 +1,20 @@
+type MetaData @entity {
+  id: ID!
+  lpTokenName: String!
+  lpTokenAddress: Bytes!
+  pooledTokens: [PoolToken!]!
+  initialA: BigInt!
+  futureA: BigInt!
+  adminFee: BigInt!
+  swapFee: BigInt!
+  withdrawFee: BigInt!
+  paused: Boolean!
+}
+
+type PoolToken @entity {
+  id: ID!
+  address: Bytes!
+  precisionMultiplier: BigInt!
+  tokenAdminFee: BigInt!
+  balance: BigInt!
+}
