@@ -16,7 +16,6 @@ interface IExecutor {
     bytes32 transferId;
     uint256 amount;
     address to;
-    address recovery;
     address assetId;
     address originSender;
     uint32 originDomain;
@@ -26,7 +25,6 @@ interface IExecutor {
   event Executed(
     bytes32 indexed transferId,
     address indexed to,
-    address indexed recovery,
     address assetId,
     uint256 amount,
     address originSender,

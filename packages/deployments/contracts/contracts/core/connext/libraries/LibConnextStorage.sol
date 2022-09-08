@@ -43,7 +43,6 @@ struct TransferIdInformation {
  * @param originDomain - The originating domain (i.e. where `xcall` is called). Must match nomad domain schema
  * @param destinationDomain - The final domain (i.e. where `execute` / `reconcile` are called). Must match nomad domain schema
  * @param agent - An address who can execute txs on behalf of `to`, in addition to allowing relayers
- * @param recovery - The address to send funds to if your `Executor.execute call` fails
  * @param callback - The address on the origin domain of the callback contract
  * @param callbackFee - The relayer fee to execute the callback
  * @param forceSlow - If true, will take slow liquidity path even if it is not a permissioned call
@@ -57,7 +56,6 @@ struct CallParams {
   uint32 originDomain;
   uint32 destinationDomain;
   address agent;
-  address recovery;
   bool forceSlow;
   bool receiveLocal;
   address callback;
