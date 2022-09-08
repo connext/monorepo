@@ -111,9 +111,9 @@ contract NomadFacetTest is NomadFacet, FacetHelper {
     return (transferId, args);
   }
 
-  function utils_makeXCallArgs(address transactingAssetId) public returns (bytes32, XCallArgs memory) {
+  function utils_makeXCallArgs(address assetId) public returns (bytes32, XCallArgs memory) {
     // get args
-    XCallArgs memory args = XCallArgs(_params, transactingAssetId, _amount, (_amount * 9990) / 10000);
+    XCallArgs memory args = XCallArgs(_params, assetId, _amount, (_amount * 9990) / 10000);
     // generate transfer id
     bytes32 transferId = utils_getTransferIdFromXCallArgs(args, _originSender, _canonicalId, _canonicalDomain);
 

@@ -183,16 +183,16 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
     return (transferId, args);
   }
 
-  function utils_makeXCallArgs(address transactingAssetId, uint256 bridged) public returns (bytes32, XCallArgs memory) {
+  function utils_makeXCallArgs(address assetId, uint256 bridged) public returns (bytes32, XCallArgs memory) {
     s.domain = _originDomain;
     // get args
     XCallArgs memory args = XCallArgs(
       _params,
-      transactingAssetId, // transactingAssetId : could be adopted, local, or wrapped.
+      assetId, // assetId : could be adopted, local, or wrapped.
       _amount,
       (_amount * 9990) / 10000
     );
-    if (transactingAssetId == address(0)) {
+    if (assetId == address(0)) {
       _canonicalId = bytes32(0);
       _canonicalDomain = 0;
     }
@@ -297,7 +297,7 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
     bool shouldSwap
   ) public {
     // bridged is either local or canonical, depending on domain xcall originates on
-    address bridged = args.transactingAsset == address(0) ? address(0) : _canonicalDomain == args.params.originDomain
+    address bridged = args.asset == address(0) ? address(0) : _canonicalDomain == args.params.originDomain
       ? _canonical
       : _local;
     vm.expectEmit(true, true, true, true);
@@ -314,10 +314,7 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
     // assert swap if expected
     if (shouldSwap && bridgedAmt != 0) {
       // Transacting asset shouldve been approved for amount in
-      vm.expectCall(
-        args.transactingAsset,
-        abi.encodeWithSelector(IERC20.approve.selector, _stableSwap, args.transactingAmount)
-      );
+      vm.expectCall(args.asset, abi.encodeWithSelector(IERC20.approve.selector, _stableSwap, args.transactingAmount));
 
       // swapExact on pool should have been called
       vm.expectCall(
@@ -325,7 +322,7 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
         abi.encodeWithSelector(
           IStableSwap.swapExact.selector,
           args.transactingAmount,
-          args.transactingAsset,
+          args.asset,
           _local,
           args.originMinOut
         )
@@ -377,8 +374,8 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
     uint256 initialUserBalance;
     uint256 initialContractBalance;
     {
-      if (args.transactingAsset != address(0)) {
-        TestERC20 tokenIn = TestERC20(args.transactingAsset);
+      if (args.asset != address(0)) {
+        TestERC20 tokenIn = TestERC20(args.asset);
         TestERC20 localToken = TestERC20(_local);
 
         // Mint the specified amount of tokens for the user.
@@ -418,11 +415,8 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
       // assertEq(payable(_originSender).balance, initialUserBalance - fees);
 
       // Check that the user has been debited the correct amount of tokens.
-      if (args.transactingAsset != address(0)) {
-        assertEq(
-          TestERC20(args.transactingAsset).balanceOf(_originSender),
-          initialUserBalance - args.transactingAmount
-        );
+      if (args.asset != address(0)) {
+        assertEq(TestERC20(args.asset).balanceOf(_originSender), initialUserBalance - args.transactingAmount);
       } else {
         // User should have been debited fees... but also tx cost?
         assertEq(_originSender.balance, (initialUserBalance - fees));
@@ -431,7 +425,7 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
       // Check that the contract has been credited the correct amount of tokens.
       // NOTE: Because the tokens are a representational local asset, they are burnt. The contract
       // should NOT be holding any additional tokens after xcall completes.
-      if (args.transactingAsset == address(0)) {
+      if (args.asset == address(0)) {
         // No balance change
         assertEq(address(this).balance, initialContractBalance + fees);
       } else if (isCanonical) {
@@ -443,9 +437,7 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
         // the prod difference in balance is net 0. However, because the swap here is mocked,
         // when a swap occurrs no balance increase of local happens (i.e. if swap needed, the
         // balance will decrease by bridgedAmt / what is burned)
-        uint256 expected = args.transactingAsset == _local
-          ? initialContractBalance
-          : initialContractBalance - bridgedAmt;
+        uint256 expected = args.asset == _local ? initialContractBalance : initialContractBalance - bridgedAmt;
         assertEq(TestERC20(_local).balanceOf(address(this)), expected);
       }
 
@@ -470,13 +462,13 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
     bool swaps
   ) public {
     (bytes32 transferId, XCallArgs memory args) = utils_makeXCallArgs(bridged);
-    uint256 dealTokens = (args.transactingAsset == address(0)) ? 0 : args.transactingAmount;
+    uint256 dealTokens = (args.asset == address(0)) ? 0 : args.transactingAmount;
     helpers_xcallAndAssert(transferId, args, dealTokens, bridged, expectedError, swaps);
   }
 
   function helpers_xcallAndAssert(bytes4 expectedError) public {
     (bytes32 transferId, XCallArgs memory args) = utils_makeXCallArgs(_amount);
-    uint256 dealTokens = (args.transactingAsset == address(0)) ? 0 : args.transactingAmount;
+    uint256 dealTokens = (args.asset == address(0)) ? 0 : args.transactingAmount;
     helpers_xcallAndAssert(transferId, args, dealTokens, 0, expectedError, false);
   }
 
@@ -1189,7 +1181,7 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
     helpers_xcallAndAssert(BridgeFacet.BridgeFacet__xcall_callbackNotAContract.selector);
   }
 
-  // fails if asset is not supported (i.e. s.adoptedToCanonical[transactingAssetId].id == bytes32(0) and using non-local)
+  // fails if asset is not supported (i.e. s.adoptedToCanonical[assetId].id == bytes32(0) and using non-local)
   function test_BridgeFacet__xcall_failIfAssetNotSupported() public {
     // setup asset with local != adopted, not on canonical domain
     utils_setupAsset(false, false);
@@ -1219,7 +1211,7 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
 
     // Set transacting asset to address 0, indicating the user wants to send native token, which
     // isn't supported.
-    args.transactingAsset = address(0);
+    args.asset = address(0);
 
     vm.expectRevert(BridgeFacet.BridgeFacet__xcall_nativeAssetNotSupported.selector);
     vm.prank(_originSender);
@@ -1331,7 +1323,7 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
       abi.encodeWithSelector(ITokenRegistry.isLocalOrigin.selector, _local),
       abi.encode(false)
     );
-    args.transactingAsset = _local;
+    args.asset = _local;
     helpers_xcallAndAssert(transferId, args, args.transactingAmount, args.transactingAmount, bytes4(""), false);
   }
 
