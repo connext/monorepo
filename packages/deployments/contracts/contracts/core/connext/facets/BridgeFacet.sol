@@ -40,7 +40,7 @@ contract BridgeFacet is BaseConnextFacet {
   error BridgeFacet__removeSequencer_notApproved();
   error BridgeFacet__xcall_nativeAssetNotSupported();
   error BridgeFacet__xcall_destinationNotSupported();
-  error BridgeFacet__xcall_emptyToOrRecovery();
+  error BridgeFacet__xcall_emptyTo();
   error BridgeFacet__xcall_notSupportedAsset();
   error BridgeFacet__xcall_nonZeroCallbackFeeForCallback();
   error BridgeFacet__xcall_callbackNotAContract();
@@ -340,9 +340,9 @@ contract BridgeFacet is BaseConnextFacet {
         revert BridgeFacet__xcall_destinationNotSupported();
       }
 
-      // Recipient and recovery defined.
-      if (params.to == address(0) || params.recovery == address(0)) {
-        revert BridgeFacet__xcall_emptyToOrRecovery();
+      // Recipient defined.
+      if (_args.params.to == address(0)) {
+        revert BridgeFacet__xcall_emptyTo();
       }
 
       // If the user might be receiving adopted assets on the destination chain, they ought to have a defined agent
@@ -819,7 +819,6 @@ contract BridgeFacet is BaseConnextFacet {
           _transferId,
           _amountOut,
           _args.params.to,
-          _args.params.recovery,
           _asset,
           _reconciled ? _args.originSender : address(0),
           _reconciled ? _args.params.originDomain : uint32(0),
