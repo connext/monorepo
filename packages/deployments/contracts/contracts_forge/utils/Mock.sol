@@ -323,7 +323,9 @@ contract MockBridgeRouter is IBridgeRouter {
     destinationInputs[id] = _destination;
     hookInputs[id] = _remoteHook;
     // transfer amount here
-    SafeERC20.safeTransferFrom(IERC20(_token), msg.sender, address(this), _amount);
+    if (_amount > 0) {
+      SafeERC20.safeTransferFrom(IERC20(_token), msg.sender, address(this), _amount);
+    }
     emit XSendCalled(_token, _amount, _destination, _remoteHook, _external);
   }
 

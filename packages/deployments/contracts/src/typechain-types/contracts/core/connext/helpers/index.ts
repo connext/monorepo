@@ -4,6 +4,7 @@
 import type * as connextPriceOracleSol from "./ConnextPriceOracle.sol";
 export type { connextPriceOracleSol };
 export type { ConnextProxyAdmin } from "./ConnextProxyAdmin";
+export type { Diamond } from "./Diamond";
 export type { Executor } from "./Executor";
 export type { LPToken } from "./LPToken";
 export type { Multicall } from "./Multicall";
