@@ -1,4 +1,4 @@
 [
   "event Dispatch(bytes32 indexed,uint256 indexed,uint64 indexed,bytes32,bytes)",
-  "function dispatch(uint32,bytes32,bytes)"
+  "function dispatch(uint32,bytes32,bytes) returns (bytes32)"
 ]

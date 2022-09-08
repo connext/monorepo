@@ -781,7 +781,7 @@ export interface ArbitrumSpokeConnector extends BaseContract {
       _recipientAddress: PromiseOrValue<BytesLike>,
       _messageBody: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
-    ): Promise<void>;
+    ): Promise<string>;
 
     home(overrides?: CallOverrides): Promise<string>;
 

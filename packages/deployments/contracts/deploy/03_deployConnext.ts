@@ -10,6 +10,9 @@ import { getConnectorName, getDeploymentName, getProtocolNetwork } from "../src/
 import { chainIdToDomain } from "../src";
 import { deployConfigs } from "../deployConfig";
 import { MESSAGING_PROTOCOL_CONFIGS } from "../deployConfig/shared";
+import { ExtendedArtifact } from "hardhat-deploy/dist/types";
+import { mergeABIs } from "hardhat-deploy/dist/src/utils";
+import { DeploymentSubmission } from "hardhat-deploy/dist/types";
 
 function sigsFromABI(abi: any[]): string[] {
   return abi
@@ -23,11 +26,11 @@ const proposeDiamondUpgrade = async (
   facets: FacetOptions[],
   hre: HardhatRuntimeEnvironment,
   deployer: Wallet,
-): Promise<{ cuts: FacetCut[]; tx: undefined | providers.TransactionResponse }> => {
+): Promise<{ cuts: FacetCut[]; tx: undefined | providers.TransactionResponse; abi: undefined | any[] }> => {
   // Get existing facets + selectors
   const existingDeployment = (await hre.deployments.getOrNull(getDeploymentName("ConnextHandler")))!;
   const contract = new Contract(existingDeployment.address, existingDeployment?.abi, deployer);
-  console.log("trying to get facets");
+
   const oldFacets: { facetAddress: string; functionSelectors: string[] }[] = await contract.facets();
   const oldSelectors: string[] = [];
   const oldSelectorsFacetAddress: { [selector: string]: string } = {};
@@ -37,7 +40,12 @@ const proposeDiamondUpgrade = async (
       oldSelectorsFacetAddress[selector] = oldFacet.facetAddress;
     }
   }
-  console.log("got all previous selectors");
+
+  let diamondArtifact: ExtendedArtifact = await hre.deployments.getExtendedArtifact("Diamond");
+  let abi: any[] = diamondArtifact.abi.concat([]);
+
+  // Add DiamondLoupeFacet
+  facets.push({ name: "_DefaultDiamondLoupeFacet", contract: "DiamondLoupeFacet", args: [] });
 
   let changesDetected = false;
 
@@ -63,6 +71,11 @@ const proposeDiamondUpgrade = async (
       functionSelectors,
     });
     newSelectors.push(...functionSelectors);
+
+    abi = mergeABIs([abi, implementation.abi], {
+      check: true,
+      skipSupportsInterface: false,
+    });
   }
 
   // Find selectors to add and selectors to replace
@@ -123,20 +136,19 @@ const proposeDiamondUpgrade = async (
 
   // If no changes detected, do nothing
   if (!changesDetected) {
-    return { cuts: facetCuts, tx: undefined };
+    return { cuts: facetCuts, tx: undefined, abi: undefined };
   }
 
   // Make sure this isnt a duplicate proposal (i.e. you aren't just resetting times)
-  console.log("here");
   const acceptanceTime = await contract.getAcceptanceTime(facetCuts, constants.AddressZero, "0x");
   if (!acceptanceTime.isZero()) {
     console.log(`cut has already been proposed`);
-    return { cuts: facetCuts, tx: undefined };
+    return { cuts: facetCuts, tx: undefined, abi: undefined };
   }
   console.log("calling propose");
 
   // Propose facet cut
-  return { cuts: facetCuts, tx: await contract.proposeDiamondCut(facetCuts, constants.AddressZero, "0x") };
+  return { cuts: facetCuts, tx: await contract.proposeDiamondCut(facetCuts, constants.AddressZero, "0x"), abi: abi };
 };
 
 /**
@@ -253,7 +265,7 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment): Promise<voi
 
     connext = (await hre.deployments.getOrNull(getDeploymentName("ConnextHandler")))!;
 
-    const { cuts, tx: proposalTx } = await proposeDiamondUpgrade(facets, hre, deployer);
+    const { cuts, tx: proposalTx, abi } = await proposeDiamondUpgrade(facets, hre, deployer);
     if (!proposalTx) {
       console.log(`No upgrade needed, using previous deployment`);
     } else {
@@ -265,9 +277,18 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment): Promise<voi
     // Fallthrough after proposal, will either work or fail depending on delay
     const contract = new Contract(connext.address, connext.abi, deployer);
     const upgradeTx = await contract.diamondCut(cuts, constants.AddressZero, "0x");
-    console.log("upgrade trandaction", upgradeTx.hash);
+    console.log("upgrade transaction", upgradeTx.hash);
     const receipt = await upgradeTx.wait();
     console.log("upgrade receipt", receipt);
+
+    // Save updated abi to Connext Deployment
+    const diamondDeployment: DeploymentSubmission = {
+      ...connext,
+      abi: abi ?? connext.abi,
+    };
+
+    await hre.deployments.save(getDeploymentName("ConnextHandler"), diamondDeployment);
+    console.log("upgraded abi");
   } else {
     connext = await hre.deployments.diamond.deploy(getDeploymentName("ConnextHandler"), {
       from: deployer.address,

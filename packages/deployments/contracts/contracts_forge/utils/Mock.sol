@@ -64,6 +64,7 @@ contract MockXAppConnectionManager is IConnectorManager {
 
 contract MockHome is IOutbox {
   uint32 public domain;
+  bytes32 public immutable MESSAGE_HASH = bytes32("test message");
 
   constructor(uint32 _domain) {
     domain = _domain;
@@ -73,8 +74,9 @@ contract MockHome is IOutbox {
     uint32 _destinationDomain,
     bytes32 _recipientAddress,
     bytes memory _messageBody
-  ) external {
+  ) external returns (bytes32) {
     1 == 1;
+    return MESSAGE_HASH;
   }
 
   function localDomain() external returns (uint32) {
@@ -295,6 +297,8 @@ contract MockBridgeRouter is IBridgeRouter {
 
   bytes32 public id;
 
+  bytes32 public immutable MESSAGE_HASH = bytes32("test message");
+
   event XSendCalled(address _token, uint256 _amount, uint32 _destination, bytes32 hook, bytes extra);
 
   function send(
@@ -317,14 +321,17 @@ contract MockBridgeRouter is IBridgeRouter {
     uint32 _destination,
     bytes32 _remoteHook,
     bytes calldata _external
-  ) external {
+  ) external returns (bytes32) {
     tokenInputs[id] = _token;
     amountInputs[id] = _amount;
     destinationInputs[id] = _destination;
     hookInputs[id] = _remoteHook;
     // transfer amount here
-    SafeERC20.safeTransferFrom(IERC20(_token), msg.sender, address(this), _amount);
+    if (_amount > 0) {
+      SafeERC20.safeTransferFrom(IERC20(_token), msg.sender, address(this), _amount);
+    }
     emit XSendCalled(_token, _amount, _destination, _remoteHook, _external);
+    return MESSAGE_HASH;
   }
 
   function getToken(bytes32 transferId) external returns (address) {
