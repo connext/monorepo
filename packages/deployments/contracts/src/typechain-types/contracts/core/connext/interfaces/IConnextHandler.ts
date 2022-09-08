@@ -118,7 +118,7 @@ export type ExecuteArgsStructOutput = [
 export type XCallArgsStruct = {
   params: CallParamsStruct;
   asset: PromiseOrValue<string>;
-  transactingAmount: PromiseOrValue<BigNumberish>;
+  amount: PromiseOrValue<BigNumberish>;
   originMinOut: PromiseOrValue<BigNumberish>;
 };
 
@@ -130,7 +130,7 @@ export type XCallArgsStructOutput = [
 ] & {
   params: CallParamsStructOutput;
   asset: string;
-  transactingAmount: BigNumber;
+  amount: BigNumber;
   originMinOut: BigNumber;
 };
 
