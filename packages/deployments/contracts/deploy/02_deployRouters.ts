@@ -2,8 +2,8 @@ import { HardhatRuntimeEnvironment } from "hardhat/types";
 import { DeployFunction } from "hardhat-deploy/types";
 import { BigNumber, Contract, Signer, Wallet } from "ethers";
 
-import { getDeploymentName, getProtocolNetwork } from "../src/utils";
-import { HUB_PREFIX, MESSAGING_PROTOCOL_CONFIGS, SPOKE_PREFIX } from "../deployConfig/shared";
+import { getConnectorName, getDeploymentName, getProtocolNetwork } from "../src/utils";
+import { MESSAGING_PROTOCOL_CONFIGS } from "../deployConfig/shared";
 import { deployConfigs } from "../deployConfig";
 
 export const deployBeaconProxy = async <T extends Contract = Contract>(
@@ -141,9 +141,7 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment): Promise<voi
     throw new Error(`Network ${network} is not supported! (no messaging config)`);
   }
 
-  const connectorName = `${protocol.configs[chainId].prefix}${
-    protocol.hub === chainId ? HUB_PREFIX : SPOKE_PREFIX
-  }Connector`;
+  const connectorName = getConnectorName(protocol, chainId);
   console.log(`using connector: ${connectorName}`);
 
   // Find the connector that exists on this domain / chain
@@ -179,9 +177,26 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment): Promise<voi
         hre,
       )
     ).connect(deployer);
-    console.log(`${router} deployed to ${deployment.address}`);
-    const owner = await deployment.owner();
+    // const deployment = await hre.deployments.getOrNull(getDeploymentName(`${router}UpgradeBeaconProxy`));
+    if (!deployment) {
+      throw new Error(`No deployment (looking for: ${getDeploymentName(`${router}UpgradeBeaconProxy`)})`);
+    }
+    const implementation = await hre.deployments.getOrNull(getDeploymentName(router));
+    if (!implementation) {
+      throw new Error(`No implementation (looking for: ${getDeploymentName(`${router}`)})`);
+    }
+    const contract = new Contract(deployment.address, implementation.abi, deployer);
+
+    console.log(`${router} deployed to ${contract.address}`);
+    const owner = await contract.owner();
     console.log(`${router} owner set to ${owner}`);
+
+    if ((await contract.xAppConnectionManager()).toLowerCase() !== connector.address.toLowerCase()) {
+      const setXAppConnectionManagerTx = await contract.setXAppConnectionManager(connector.address);
+      console.log(`setXAppConnectionManager tx submitted:`, setXAppConnectionManagerTx.hash);
+      const receipt = await setXAppConnectionManagerTx.wait();
+      console.log(`setXAppConnectionManager tx mined:`, receipt.transactionHash);
+    }
 
     // whitelist the router on the connector
     if (await connector.whitelistedSenders(deployment.address)) {

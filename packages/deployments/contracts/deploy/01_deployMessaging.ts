@@ -2,8 +2,8 @@ import { HardhatRuntimeEnvironment } from "hardhat/types";
 import { DeployFunction, DeployResult } from "hardhat-deploy/types";
 import { BigNumber, constants, Wallet } from "ethers";
 
-import { chainIdToDomain, getDeploymentName, getProtocolNetwork } from "../src";
-import { HUB_PREFIX, MessagingProtocolConfig, MESSAGING_PROTOCOL_CONFIGS, SPOKE_PREFIX } from "../deployConfig/shared";
+import { chainIdToDomain, getConnectorName, getDeploymentName, getProtocolNetwork } from "../src";
+import { MessagingProtocolConfig, MESSAGING_PROTOCOL_CONFIGS } from "../deployConfig/shared";
 
 // Format the arguments for Connector contract constructor.
 const formatConnectorArgs = (
@@ -24,24 +24,35 @@ const formatConnectorArgs = (
   // FIXME: settle on domains w/nomad
   const deploymentDomain = BigNumber.from(chainIdToDomain(deploymentChainId).toString());
   const mirrorDomain = BigNumber.from(chainIdToDomain(mirrorChainId).toString());
-  const constructorArgs = [
+  const hubArgs = [
     deploymentDomain,
     // Mirror domain should be known.
     mirrorDomain,
     isHub ? config.ambs.hub : config.ambs.spoke,
     rootManager,
-    // Mirror contract address should be configured separately, after deployment.
     constants.AddressZero,
-    config.processGas, // mirror process gas
+    config.processGas,
+    ...Object.values(config?.custom?.hub ?? {}),
+  ];
+  if (isHub) {
+    console.log(
+      `constructorArgs:`,
+      hubArgs.map((c) => c.toString()),
+    );
+    return [...hubArgs, config.processGas, config.reserveGas];
+  }
+  const constructorArgs = [
+    ...hubArgs,
     config.processGas,
     config.reserveGas,
+    ...Object.values(config?.custom?.spoke ?? {}),
   ];
   console.log(
     `constructorArgs:`,
     constructorArgs.map((c) => c.toString()),
   );
   // console.log(`- domain:`, constructorArgs[0].toString());
-  return constructorArgs;
+  return isHub ? hubArgs : constructorArgs;
 };
 
 // Deploy messaging contracts unique to Eth mainnet, including hub connectors.
@@ -61,8 +72,8 @@ const handleDeployHub = async (
   });
   console.log(`RootManager deployed to ${rootManager.address}`);
 
-  // Deploy MainnetL1Connector.
-  const connectorName = `${protocol.configs[protocol.hub].prefix}${HUB_PREFIX}Connector`;
+  // Deploy MainnetSpokeConnector.
+  const connectorName = getConnectorName(protocol, protocol.hub);
   console.log(`Deploying ${connectorName}...`);
   const deployment = await hre.deployments.deploy(getDeploymentName(connectorName), {
     contract: connectorName,
@@ -100,8 +111,13 @@ const handleDeployHub = async (
       continue;
     }
 
-    const prefix = configs[mirrorChainId].prefix + HUB_PREFIX;
-    const contract = `${prefix}Connector`;
+    const contract = getConnectorName(protocol, mirrorChainId);
+    if (
+      (!connectorName.includes("Optimism") && !connectorName.includes("Polygon")) ||
+      connectorName.includes("Mainnet")
+    ) {
+      return;
+    }
     console.log(`Deploying ${contract}...`);
     const deployment = await hre.deployments.deploy(getDeploymentName(contract), {
       contract,
@@ -142,7 +158,7 @@ const handleDeploySpoke = async (
   deployer: Wallet,
   protocol: MessagingProtocolConfig,
   deploymentChainId: number,
-): Promise<DeployResult> => {
+): Promise<DeployResult | undefined> => {
   // Get hub root manager from deployments. if it does not exist, error (should always
   // deploy hub chain first in series of chain deployments)
   const rootManagerDeployment = await hre.companionNetworks["hub"].deployments.getOrNull(
@@ -153,9 +169,10 @@ const handleDeploySpoke = async (
   }
 
   // Deploy the Connector contract for this Spoke chain.
-  const { configs } = protocol;
-  const prefix = configs[deploymentChainId].prefix + SPOKE_PREFIX;
-  const contract = `${prefix}Connector`;
+  const contract = getConnectorName(protocol, deploymentChainId);
+  if ((!contract.includes("Optimism") && !contract.includes("Polygon")) || contract.includes("Mainnet")) {
+    return;
+  }
   console.log(`Deploying ${contract}...`);
   const deployment = await hre.deployments.deploy(getDeploymentName(contract), {
     contract,

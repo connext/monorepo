@@ -1,7 +1,0 @@
-[
-  "constructor(uint32)",
-  "function domain() view returns (uint32)",
-  "function home() view returns (address)",
-  "function isReplica(address) view returns (bool)",
-  "function localDomain() view returns (uint32)"
-]

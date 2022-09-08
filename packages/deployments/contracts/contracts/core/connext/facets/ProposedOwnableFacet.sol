@@ -3,7 +3,7 @@ pragma solidity 0.8.15;
 
 import {BaseConnextFacet} from "./BaseConnextFacet.sol";
 import {LibDiamond} from "../libraries/LibDiamond.sol";
-import {IProposedOwnable} from "../../shared/interfaces/IProposedOwnable.sol";
+import {IProposedOwnable} from "../../../shared/interfaces/IProposedOwnable.sol";
 
 /**
  * @title ProposedOwnable

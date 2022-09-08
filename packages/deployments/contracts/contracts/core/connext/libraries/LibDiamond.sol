@@ -62,6 +62,10 @@ library LibDiamond {
     contractOwner_ = diamondStorage().contractOwner;
   }
 
+  function acceptanceTime(bytes32 _key) internal view returns (uint256) {
+    return diamondStorage().acceptanceTimes[_key];
+  }
+
   function enforceIsContractOwner() internal view {
     require(msg.sender == diamondStorage().contractOwner, "LibDiamond: !contract owner");
   }

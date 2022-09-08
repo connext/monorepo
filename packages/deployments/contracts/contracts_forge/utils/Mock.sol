@@ -6,10 +6,14 @@ import {ERC20} from "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import {Address} from "@openzeppelin/contracts/utils/Address.sol";
 import {SafeERC20} from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 
-import {IRootManager} from "../../contracts/core/messaging/interfaces/IRootManager.sol";
-import {IConnector} from "../../contracts/core/messaging/interfaces/IConnector.sol";
-import {Connector} from "../../contracts/core/messaging/connectors/Connector.sol";
-import {RootManager} from "../../contracts/core/messaging/RootManager.sol";
+import {IRootManager} from "../../contracts/messaging/interfaces/IRootManager.sol";
+import {IHubConnector} from "../../contracts/messaging/interfaces/IHubConnector.sol";
+import {IConnector} from "../../contracts/messaging/interfaces/IConnector.sol";
+import {IConnectorManager} from "../../contracts/messaging/interfaces/IConnectorManager.sol";
+import {IOutbox} from "../../contracts/messaging/interfaces/IOutbox.sol";
+import {Connector} from "../../contracts/messaging/connectors/Connector.sol";
+import {SpokeConnector} from "../../contracts/messaging/connectors/SpokeConnector.sol";
+import {RootManager} from "../../contracts/messaging/RootManager.sol";
 
 import {TypedMemView, PromiseMessage, PromiseRouter} from "../../contracts/core/promise/PromiseRouter.sol";
 import {ICallback} from "../../contracts/core/promise/interfaces/ICallback.sol";
@@ -23,30 +27,44 @@ import {IWeth} from "../../contracts/core/connext/interfaces/IWeth.sol";
 import {IExecutor} from "../../contracts/core/connext/interfaces/IExecutor.sol";
 import {LibCrossDomainProperty} from "../../contracts/core/connext/libraries/LibCrossDomainProperty.sol";
 
-import {ProposedOwnable} from "../../contracts/core/shared/ProposedOwnable.sol";
+import {ProposedOwnable} from "../../contracts/shared/ProposedOwnable.sol";
 
 import {TestERC20} from "../../contracts/test/TestERC20.sol";
 
 import "forge-std/console.sol";
 
-contract MockXAppConnectionManager {
+contract MockXAppConnectionManager is IConnectorManager {
   MockHome _home;
 
-  constructor(MockHome home) public {
-    _home = home;
+  uint32 public immutable domain;
+
+  mapping(address => bool) enrolledInboxes;
+
+  constructor(MockHome home_) public {
+    _home = home_;
+    domain = _home.localDomain();
   }
 
-  function home() external returns (MockHome) {
-    return _home;
+  function home() external view returns (IOutbox) {
+    return IOutbox(address(_home));
   }
 
-  function isReplica(address _replica) external returns (bool) {
-    return true;
+  function isReplica(address _replica) external view returns (bool) {
+    return enrolledInboxes[_replica];
+  }
+
+  function localDomain() external view returns (uint32) {
+    return domain;
+  }
+
+  function enrollInbox(address _inbox) external {
+    enrolledInboxes[_inbox] = true;
   }
 }
 
-contract MockHome {
-  uint32 private domain;
+contract MockHome is IOutbox {
+  uint32 public domain;
+  bytes32 public immutable MESSAGE_HASH = bytes32("test message");
 
   constructor(uint32 _domain) {
     domain = _domain;
@@ -56,8 +74,9 @@ contract MockHome {
     uint32 _destinationDomain,
     bytes32 _recipientAddress,
     bytes memory _messageBody
-  ) external {
+  ) external returns (bytes32) {
     1 == 1;
+    return MESSAGE_HASH;
   }
 
   function localDomain() external returns (uint32) {
@@ -278,6 +297,8 @@ contract MockBridgeRouter is IBridgeRouter {
 
   bytes32 public id;
 
+  bytes32 public immutable MESSAGE_HASH = bytes32("test message");
+
   event XSendCalled(address _token, uint256 _amount, uint32 _destination, bytes32 hook, bytes extra);
 
   function send(
@@ -300,14 +321,17 @@ contract MockBridgeRouter is IBridgeRouter {
     uint32 _destination,
     bytes32 _remoteHook,
     bytes calldata _external
-  ) external {
+  ) external returns (bytes32) {
     tokenInputs[id] = _token;
     amountInputs[id] = _amount;
     destinationInputs[id] = _destination;
     hookInputs[id] = _remoteHook;
     // transfer amount here
-    SafeERC20.safeTransferFrom(IERC20(_token), msg.sender, address(this), _amount);
+    if (_amount > 0) {
+      SafeERC20.safeTransferFrom(IERC20(_token), msg.sender, address(this), _amount);
+    }
     emit XSendCalled(_token, _amount, _destination, _remoteHook, _external);
+    return MESSAGE_HASH;
   }
 
   function getToken(bytes32 transferId) external returns (address) {
@@ -471,7 +495,7 @@ contract FeeERC20 is ERC20 {
 /**
  * @notice This class mocks the connector functionality.
  */
-contract MockConnector is Connector {
+contract MockConnector is SpokeConnector, IHubConnector {
   bytes32 public lastOutbound;
   bytes32 public lastReceived;
 
@@ -479,21 +503,25 @@ contract MockConnector is Connector {
 
   bool updatesAggregate;
 
+  // bytes32 public aggregateRoot;
+  // uint32 public mirrorDomain;
+
   constructor(
     uint32 _domain,
     uint32 _mirrorDomain,
     address _amb,
     address _rootManager,
     address _mirrorConnector,
-    uint256 _mirrorProcessGas,
+    uint256 _mirrorGas,
     uint256 _processGas,
     uint256 _reserveGas
   )
     ProposedOwnable()
-    Connector(_domain, _mirrorDomain, _amb, _rootManager, _mirrorConnector, _mirrorProcessGas, _processGas, _reserveGas)
+    SpokeConnector(_domain, _mirrorDomain, _amb, _rootManager, _mirrorConnector, _mirrorGas, _processGas, _reserveGas)
   {
     _setOwner(msg.sender);
     verified = true;
+    // mirrorDomain = _mirrorDomain;
   }
 
   function setSenderVerified(bool _verified) public {
@@ -502,6 +530,11 @@ contract MockConnector is Connector {
 
   function setUpdatesAggregate(bool _updatesAggregate) public {
     updatesAggregate = _updatesAggregate;
+  }
+
+  function sendMessage(bytes memory _data) external onlyRootManager {
+    _sendMessage(_data);
+    emit MessageSent(_data, msg.sender);
   }
 
   function _sendMessage(bytes memory _data) internal override {
@@ -515,7 +548,7 @@ contract MockConnector is Connector {
       // FIXME: when using this.update it sets caller to address(this) not AMB
       aggregateRoot = bytes32(_data);
     } else {
-      RootManager(ROOT_MANAGER).setOutboundRoot(mirrorDomain, bytes32(_data));
+      RootManager(ROOT_MANAGER).setOutboundRoot(MIRROR_DOMAIN, bytes32(_data));
     }
     emit MessageProcessed(_data, msg.sender);
   }
