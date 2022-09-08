@@ -29,7 +29,7 @@
   "function renounceOwnership()",
   "function renounced() view returns (bool)",
   "function send(address,uint256,uint32,bytes32,bool)",
-  "function sendToHook(address,uint256,uint32,bytes32,bytes)",
+  "function sendToHook(address,uint256,uint32,bytes32,bytes) returns (bytes32)",
   "function setXAppConnectionManager(address)",
   "function tokenRegistry() view returns (address)",
   "function xAppConnectionManager() view returns (address)"

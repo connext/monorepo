@@ -1057,6 +1057,12 @@ const _abi = [
         type: "uint256",
       },
       {
+        indexed: true,
+        internalType: "bytes32",
+        name: "messageHash",
+        type: "bytes32",
+      },
+      {
         components: [
           {
             components: [

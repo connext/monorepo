@@ -4,3 +4,4 @@ artifacts_forge
 coverage.json
 deployments/*/solcInputs
 .openzeppelin/unknown-31337.json
+init.json

@@ -319,7 +319,15 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
       ? _canonical
       : _local;
     vm.expectEmit(true, true, true, true);
-    emit XCalled(transferId, s.nonce, args, bridged, bridgedAmt, _originSender);
+    emit XCalled(
+      transferId,
+      s.nonce,
+      MockBridgeRouter(_bridgeRouter).MESSAGE_HASH(),
+      args,
+      bridged,
+      bridgedAmt,
+      _originSender
+    );
 
     // assert swap if expected
     if (shouldSwap && bridgedAmt != 0) {

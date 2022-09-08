@@ -60,6 +60,7 @@ contract ConnextTest is ForgeHelper, Deployer {
   event XCalled(
     bytes32 indexed transferId,
     uint256 indexed nonce,
+    bytes32 indexed messageHash,
     XCallArgs xcallArgs,
     address bridgedAsset,
     uint256 bridgedAmount,
@@ -474,7 +475,15 @@ contract ConnextTest is ForgeHelper, Deployer {
 
     // Expect an event
     vm.expectEmit(true, true, true, true);
-    emit XCalled(transferId, nonce, _args, _bridged, _bridgedAmt, address(this));
+    emit XCalled(
+      transferId,
+      nonce,
+      MockBridgeRouter(_originBridgeRouter).MESSAGE_HASH(),
+      _args,
+      _bridged,
+      _bridgedAmt,
+      address(this)
+    );
 
     // Make call
     bytes32 ret = _originConnext.xcall{value: _args.params.relayerFee + _args.params.callbackFee}(_args);

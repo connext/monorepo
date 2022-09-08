@@ -83,6 +83,7 @@ contract BridgeFacet is BaseConnextFacet {
   event XCalled(
     bytes32 indexed transferId,
     uint256 indexed nonce,
+    bytes32 indexed messageHash,
     XCallArgs xcallArgs,
     address bridgedAsset,
     uint256 bridgedAmount,
@@ -370,6 +371,7 @@ contract BridgeFacet is BaseConnextFacet {
     uint256 _sNonce;
     address bridgedAsset;
     uint256 bridgedAmount;
+    bytes32 messageHash;
     {
       // Check that the asset is supported -- can be either adopted or local.
       TokenId memory canonical;
@@ -422,7 +424,9 @@ contract BridgeFacet is BaseConnextFacet {
       // Calculate the transfer id
       transferId = _getTransferId(params, canonical, bridgedAmount);
       _sNonce = s.nonce++;
+    }
 
+    {
       // Store the relayer fee
       // NOTE: this has to be done *after* transferring in + swapping assets because
       // the transfer id uses the amount that is bridged (i.e. amount in local asset)
@@ -434,7 +438,7 @@ contract BridgeFacet is BaseConnextFacet {
       }
 
       // Send message
-      s.bridgeRouter.sendToHook(
+      messageHash = s.bridgeRouter.sendToHook(
         bridgedAsset,
         bridgedAmount,
         params.destinationDomain,
@@ -444,7 +448,7 @@ contract BridgeFacet is BaseConnextFacet {
     }
 
     // emit event
-    emit XCalled(transferId, _sNonce, _args, bridgedAsset, bridgedAmount, msg.sender);
+    emit XCalled(transferId, _sNonce, messageHash, _args, bridgedAsset, bridgedAmount, msg.sender);
 
     return transferId;
   }
