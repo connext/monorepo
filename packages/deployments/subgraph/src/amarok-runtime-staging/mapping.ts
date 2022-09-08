@@ -36,7 +36,6 @@ import {
 } from "../../generated/schema";
 
 const DEFAULT_MAX_ROUTERS_PER_TRANSFER = 5;
-const DEFAULT_AGGREGATE_ROOTS_ID = "AGGREGATE_ROOTS";
 
 export function handleRelayerAdded(event: RelayerAdded): void {
   let relayerId = event.params.relayer.toHex();
@@ -252,6 +251,9 @@ export function handleXCalled(event: XCalled): void {
   transfer.transactingAmount = event.params.xcallArgs.transactingAmount;
   transfer.bridgedAsset = event.params.bridgedAsset;
   transfer.bridgedAmount = event.params.bridgedAmount;
+
+  // Message
+  transfer.messageHash = event.params.messageHash;
 
   // XCall Transaction
   transfer.caller = event.params.caller;
