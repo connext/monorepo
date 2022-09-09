@@ -16,7 +16,6 @@ import {IBridgeRouter} from "../../../../contracts/core/connext/interfaces/IBrid
 import {IWeth} from "../../../../contracts/core/connext/interfaces/IWeth.sol";
 import {RelayerFeeMessage} from "../../../../contracts/core/relayer-fee/libraries/RelayerFeeMessage.sol";
 import {AssetLogic} from "../../../../contracts/core/connext/libraries/AssetLogic.sol";
-import {LibCrossDomainProperty} from "../../../../contracts/core/connext/libraries/LibCrossDomainProperty.sol";
 import {CallParams, ExecuteArgs, XCallArgs, TokenId, TransferIdInformation, UserFacingCallParams} from "../../../../contracts/core/connext/libraries/LibConnextStorage.sol";
 import {LibDiamond} from "../../../../contracts/core/connext/libraries/LibDiamond.sol";
 import {BridgeFacet} from "../../../../contracts/core/connext/facets/BridgeFacet.sol";

@@ -24,7 +24,6 @@ import {ISponsorVault} from "../../contracts/core/connext/interfaces/ISponsorVau
 import {ITokenRegistry} from "../../contracts/core/connext/interfaces/ITokenRegistry.sol";
 import {IBridgeRouter} from "../../contracts/core/connext/interfaces/IBridgeRouter.sol";
 import {IWeth} from "../../contracts/core/connext/interfaces/IWeth.sol";
-import {LibCrossDomainProperty} from "../../contracts/core/connext/libraries/LibCrossDomainProperty.sol";
 
 import {ProposedOwnable} from "../../contracts/shared/ProposedOwnable.sol";
 
@@ -101,7 +100,8 @@ contract MockXApp {
 
   // This method call will transfer asset to this contract and succeed.
   function fulfill(address asset, bytes32 message) external checkMockMessage(message) returns (bytes32) {
-    emit MockXAppEvent(msg.sender, asset, message, LibCrossDomainProperty.amount(msg.data));
+    // TODO: fixme
+    emit MockXAppEvent(msg.sender, asset, message, 0);
 
     IERC20(asset).transferFrom(msg.sender, address(this), LibCrossDomainProperty.amount(msg.data));
 
@@ -115,7 +115,6 @@ contract MockXApp {
     uint256 expectedOriginDomain,
     address expectedOriginSender
   ) external checkMockMessage(message) returns (bytes32) {
-
     emit MockXAppEvent(msg.sender, asset, message, LibCrossDomainProperty.amount(msg.data));
 
     IERC20(asset).transferFrom(msg.sender, address(this), LibCrossDomainProperty.amount(msg.data));
