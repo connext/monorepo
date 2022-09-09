@@ -97,7 +97,7 @@ export const makeSubscriber = async (_configOverride?: NxtpRouterConfig) => {
         response: res.data,
       });
 
-      const supportedBidVersion: string = res.data;
+      const supportedBidVersion: string = res.data.supportedVersion;
       // check if bid router version is compatible with hosted sequencer
       const checkVersion = compare(version, supportedBidVersion, "<");
       if (checkVersion) {
