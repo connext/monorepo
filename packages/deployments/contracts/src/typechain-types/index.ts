@@ -146,8 +146,6 @@ export type { ITokenRegistry } from "./contracts/core/connext/interfaces/ITokenR
 export { ITokenRegistry__factory } from "./factories/contracts/core/connext/interfaces/ITokenRegistry__factory";
 export type { IWeth } from "./contracts/core/connext/interfaces/IWeth";
 export { IWeth__factory } from "./factories/contracts/core/connext/interfaces/IWeth__factory";
-export type { IXReceiver } from "./contracts/core/connext/interfaces/IXReceiver";
-export { IXReceiver__factory } from "./factories/contracts/core/connext/interfaces/IXReceiver__factory";
 export type { AmplificationUtils } from "./contracts/core/connext/libraries/AmplificationUtils";
 export { AmplificationUtils__factory } from "./factories/contracts/core/connext/libraries/AmplificationUtils__factory";
 export type { AssetLogic } from "./contracts/core/connext/libraries/AssetLogic";
