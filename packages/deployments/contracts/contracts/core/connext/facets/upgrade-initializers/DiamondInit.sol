@@ -20,11 +20,9 @@ import {LibDiamond} from "../../libraries/LibDiamond.sol";
 
 import {BaseConnextFacet} from "../BaseConnextFacet.sol";
 
-import {IProposedOwnable} from "../../../shared/interfaces/IProposedOwnable.sol";
+import {IProposedOwnable} from "../../../../shared/interfaces/IProposedOwnable.sol";
 import {RelayerFeeRouter} from "../../../relayer-fee/RelayerFeeRouter.sol";
 import {PromiseRouter} from "../../../promise/PromiseRouter.sol";
-
-import {XAppConnectionManager} from "../../../../nomad-core/contracts/XAppConnectionManager.sol";
 
 // It is expected that this contract is customized if you want to deploy your diamond
 // with data from a deployment script. Use the init function to initialize state variables

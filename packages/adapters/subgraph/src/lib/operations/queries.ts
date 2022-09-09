@@ -1,4 +1,5 @@
 import { gql } from "graphql-request";
+
 import {
   SubgraphQueryMetaParams,
   XTransferStatus,
@@ -142,7 +143,6 @@ export const BLOCK_NUMBER_ENTITY = `
     number
   }
 `;
-
 const lastedBlockNumberQuery = (prefix: string): string => {
   return `${prefix}__meta { ${BLOCK_NUMBER_ENTITY}}`;
 };
@@ -535,5 +535,39 @@ export const getDestinationTransfersByDomainAndIdsQuery = (txIdsByDestinationDom
     query GetDestinationTransfers { 
         ${combinedQuery}
       }
+  `;
+};
+
+export const getOriginMessagesByDomainAndIndexQuery = (
+  params: { domain: string; offset: number; limit: number }[],
+): string => {
+  const { config } = getContext();
+  let combinedQuery = "";
+  for (const param of params) {
+    const prefix = config.sources[param.domain].prefix;
+    combinedQuery += `${prefix}_originMessages ( first: ${param.limit}, where: { index_gte: ${param.offset}}) {${ORIGIN_MESSAGE_ENTITY}} orderBy: index, orderDirection: asc`;
+  }
+
+  return gql`
+    query GetOriginMessages {
+      ${combinedQuery}
+    }
+  `;
+};
+
+export const getDestinationMessagesByDomainAndLeafQuery = (params: Map<string, string[]>) => {
+  const { config } = getContext();
+  let combinedQuery = "";
+  for (const domain of params.keys()) {
+    const prefix = config.sources[domain].prefix;
+    combinedQuery += `${prefix}_destinationMessages ( where: { leaf_id: [${params.get(
+      domain,
+    )}] }) {${DESTINATION_MESSAGE_ENTITY}}`;
+  }
+
+  return gql`
+    query GetOriginMessages {
+      ${combinedQuery}
+    }
   `;
 };

@@ -176,6 +176,7 @@ export interface RelayerFeeRouterInterface extends utils.Interface {
   ): Result;
 
   events: {
+    "Initialized(uint8)": EventFragment;
     "OwnershipProposed(address)": EventFragment;
     "OwnershipTransferred(address,address)": EventFragment;
     "Receive(uint64,uint32,address,bytes32[])": EventFragment;
@@ -183,12 +184,20 @@ export interface RelayerFeeRouterInterface extends utils.Interface {
     "SetConnext(address)": EventFragment;
   };
 
+  getEvent(nameOrSignatureOrTopic: "Initialized"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "OwnershipProposed"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "OwnershipTransferred"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "Receive"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "Send"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "SetConnext"): EventFragment;
 }
+
+export interface InitializedEventObject {
+  version: number;
+}
+export type InitializedEvent = TypedEvent<[number], InitializedEventObject>;
+
+export type InitializedEventFilter = TypedEventFilter<InitializedEvent>;
 
 export interface OwnershipProposedEventObject {
   proposedOwner: string;
@@ -484,6 +493,9 @@ export interface RelayerFeeRouter extends BaseContract {
   };
 
   filters: {
+    "Initialized(uint8)"(version?: null): InitializedEventFilter;
+    Initialized(version?: null): InitializedEventFilter;
+
     "OwnershipProposed(address)"(
       proposedOwner?: PromiseOrValue<string> | null
     ): OwnershipProposedEventFilter;

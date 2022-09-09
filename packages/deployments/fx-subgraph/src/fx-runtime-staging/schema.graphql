@@ -1,0 +1,16 @@
+type Message @entity {
+  id: ID!
+
+  chainId: BigInt
+
+  message: Bytes
+
+  caller: Bytes
+  transactionHash: Bytes
+  logIndex: BigInt
+  transactionLogIndex: BigInt
+  timestamp: BigInt
+  gasPrice: BigInt
+  gasLimit: BigInt
+  blockNumber: BigInt
+}

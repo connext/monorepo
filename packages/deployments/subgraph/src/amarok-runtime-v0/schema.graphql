@@ -90,10 +90,13 @@ type OriginTransfer @entity {
   transactingAsset: Bytes
   # Amount of asset sent in.
   transactingAmount: BigInt
-  # Nomad asset being bridged.
+  # asset being bridged.
   bridgedAsset: Bytes
   # Amount of bridged nomad asset.
   bridgedAmount: BigInt
+
+  # Message
+  messageHash: Bytes
 
   # XCalled Transaction
   caller: Bytes
@@ -161,4 +164,28 @@ type DestinationTransfer @entity {
   reconciledGasPrice: BigInt
   reconciledGasLimit: BigInt
   reconciledBlockNumber: BigInt
+}
+
+type OriginMessage @entity {
+  id: ID!
+
+  # Dispatch Transaction
+  leaf: Bytes
+  index: BigInt
+  root: Bytes
+  message: Bytes
+}
+
+type DestinationMessage @entity {
+  id: ID!
+
+  # Process Transaction
+  leaf: Bytes
+  processed: Boolean
+  returnData: Bytes
+}
+
+type AggregateRoot @entity {
+  id: ID!
+  root: Bytes!
 }
