@@ -14,6 +14,8 @@ import {ISponsorVault} from "../../../../contracts/core/connext/interfaces/ISpon
 import {ITokenRegistry} from "../../../../contracts/core/connext/interfaces/ITokenRegistry.sol";
 import {IBridgeRouter} from "../../../../contracts/core/connext/interfaces/IBridgeRouter.sol";
 import {IWeth} from "../../../../contracts/core/connext/interfaces/IWeth.sol";
+import {IExecutor} from "../../../../contracts/core/connext/interfaces/IExecutor.sol";
+import {Executor} from "../../../../contracts/core/connext/helpers/Executor.sol";
 import {RelayerFeeMessage} from "../../../../contracts/core/relayer-fee/libraries/RelayerFeeMessage.sol";
 import {AssetLogic} from "../../../../contracts/core/connext/libraries/AssetLogic.sol";
 import {LibCrossDomainProperty} from "../../../../contracts/core/connext/libraries/LibCrossDomainProperty.sol";
