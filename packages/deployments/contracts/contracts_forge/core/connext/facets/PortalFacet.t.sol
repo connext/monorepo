@@ -60,7 +60,6 @@ contract PortalFacetTest is PortalFacet, FacetHelper {
       _destinationDomain, // destination domain
       address(222222222), // agent
       address(6666666), // recovery address
-      false, // forceSlow
       false, // receiveLocal
       address(0), // callback
       0, // callbackFee

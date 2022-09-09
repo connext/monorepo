@@ -40,7 +40,7 @@ contract MockXAppConnectionManager is IConnectorManager {
 
   mapping(address => bool) enrolledInboxes;
 
-  constructor(MockHome home_) public {
+  constructor(MockHome home_) {
     _home = home_;
     domain = _home.localDomain();
   }

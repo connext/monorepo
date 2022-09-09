@@ -33,6 +33,25 @@ struct TransferIdInformation {
 }
 
 /**
+ * @dev FIXME: When we are at the point where we want to fix the xcall interface
+ * by removing the struct-based arguments, remove this and keep the CallParams below
+ *
+ * @notice These are the params the user supplies to `xcall` of the `CallParams`
+ */
+struct UserFacingCallParams {
+  address to;
+  bytes callData;
+  uint32 destinationDomain;
+  address agent;
+  address recovery;
+  bool receiveLocal;
+  address callback;
+  uint256 callbackFee;
+  uint256 relayerFee;
+  uint256 destinationMinOut;
+}
+
+/**
  * @notice These are the call parameters that will remain constant between the
  * two chains. They are supplied on `xcall` and should be asserted on `execute`
  * @property to - The account that receives funds, in the event of a crosschain call,
@@ -46,7 +65,6 @@ struct TransferIdInformation {
  * @param recovery - The address to send funds to if your `Executor.execute call` fails
  * @param callback - The address on the origin domain of the callback contract
  * @param callbackFee - The relayer fee to execute the callback
- * @param forceSlow - If true, will take slow liquidity path even if it is not a permissioned call
  * @param receiveLocal - If true, will use the local nomad asset on the destination instead of adopted.
  * @param relayerFee - The amount of relayer fee the tx called xcall with
  * @param destinationMinOut - Minimum amount received on swaps for local <> adopted on destination chain.
@@ -58,7 +76,6 @@ struct CallParams {
   uint32 destinationDomain;
   address agent;
   address recovery;
-  bool forceSlow;
   bool receiveLocal;
   address callback;
   uint256 callbackFee;
@@ -75,7 +92,7 @@ struct CallParams {
  * @param originMinOut - Minimum amount received on swaps for adopted <> local on origin chain
  */
 struct XCallArgs {
-  CallParams params;
+  UserFacingCallParams params;
   address asset; // Could be adopted, local, or canonical.
   uint256 amount;
   uint256 originMinOut;

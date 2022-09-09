@@ -39,7 +39,6 @@ contract BridgeFacet is BaseConnextFacet {
   error BridgeFacet__addSequencer_alreadyApproved();
   error BridgeFacet__removeSequencer_notApproved();
   error BridgeFacet__xcall_nativeAssetNotSupported();
-  error BridgeFacet__xcall_wrongDomain();
   error BridgeFacet__xcall_destinationNotSupported();
   error BridgeFacet__xcall_emptyToOrRecovery();
   error BridgeFacet__xcall_notSupportedAsset();
@@ -311,6 +310,19 @@ contract BridgeFacet is BaseConnextFacet {
   function xcall(XCallArgs calldata _args) external payable nonReentrant whenNotPaused returns (bytes32) {
     // Sanity checks.
     bytes32 remoteInstance;
+    CallParams memory params = CallParams({
+      to: _args.params.to,
+      callData: _args.params.callData,
+      originDomain: s.domain,
+      destinationDomain: _args.params.destinationDomain,
+      agent: _args.params.agent,
+      recovery: _args.params.recovery,
+      receiveLocal: _args.params.receiveLocal,
+      callback: _args.params.callback,
+      callbackFee: _args.params.callbackFee,
+      relayerFee: _args.params.relayerFee,
+      destinationMinOut: _args.params.destinationMinOut
+    });
     {
       // Not native asset
       // NOTE: we support using address(0) as an intuitive default if you are sending a 0-value
@@ -320,42 +332,37 @@ contract BridgeFacet is BaseConnextFacet {
         revert BridgeFacet__xcall_nativeAssetNotSupported();
       }
 
-      // Correct origin domain.
-      if (_args.params.originDomain != s.domain) {
-        revert BridgeFacet__xcall_wrongDomain();
-      }
-
       // Destination domain is supported.
-      // NOTE: This check implicitly also checks that `_args.params.destinationDomain != s.domain`, because the index
+      // NOTE: This check implicitly also checks that `.params.destinationDomain != s.domain`, because the index
       // `s.domain` of `s.connextions` should always be `bytes32(0)`.
-      remoteInstance = s.connextions[_args.params.destinationDomain];
+      remoteInstance = s.connextions[params.destinationDomain];
       if (remoteInstance == bytes32(0)) {
         revert BridgeFacet__xcall_destinationNotSupported();
       }
 
       // Recipient and recovery defined.
-      if (_args.params.to == address(0) || _args.params.recovery == address(0)) {
+      if (params.to == address(0) || params.recovery == address(0)) {
         revert BridgeFacet__xcall_emptyToOrRecovery();
       }
 
       // If the user might be receiving adopted assets on the destination chain, they ought to have a defined agent
       // so that they can call `forceReceiveLocal` if need be.
-      if (_args.params.agent == address(0) && !_args.params.receiveLocal) {
+      if (params.agent == address(0) && !params.receiveLocal) {
         revert BridgeFacet__xcall_missingAgent();
       }
 
-      if (_args.params.callback != address(0)) {
+      if (params.callback != address(0)) {
         // Callback address must be a contract if it is supplied.
-        if (!Address.isContract(_args.params.callback)) {
+        if (!Address.isContract(params.callback)) {
           revert BridgeFacet__xcall_callbackNotAContract();
         }
-      } else if (_args.params.callbackFee != 0) {
+      } else if (params.callbackFee != 0) {
         // Othewrise, if callback address is not set, callback fee should be 0.
         revert BridgeFacet__xcall_nonZeroCallbackFeeForCallback();
       }
 
       // Check to make sure fee amount in argument is equal to msg.value.
-      if (msg.value != _args.params.relayerFee + _args.params.callbackFee) {
+      if (msg.value != params.relayerFee + params.callbackFee) {
         revert BridgeFacet__xcall_ethValueMismatchedFees();
       }
     }
@@ -415,7 +422,7 @@ contract BridgeFacet is BaseConnextFacet {
       }
 
       // Calculate the transfer id
-      transferId = _getTransferId(_args, canonical, bridgedAmount);
+      transferId = _getTransferId(params, canonical, bridgedAmount);
       _sNonce = s.nonce++;
     }
 
@@ -423,20 +430,20 @@ contract BridgeFacet is BaseConnextFacet {
       // Store the relayer fee
       // NOTE: this has to be done *after* transferring in + swapping assets because
       // the transfer id uses the amount that is bridged (i.e. amount in local asset)
-      s.relayerFees[transferId] += _args.params.relayerFee;
+      s.relayerFees[transferId] += params.relayerFee;
 
       // Transfer callback fee to PromiseRouter if set
-      if (_args.params.callbackFee != 0) {
-        s.promiseRouter.initCallbackFee{value: _args.params.callbackFee}(transferId);
+      if (params.callbackFee != 0) {
+        s.promiseRouter.initCallbackFee{value: params.callbackFee}(transferId);
       }
 
       // Send message
       messageHash = s.bridgeRouter.sendToHook(
         bridgedAsset,
         bridgedAmount,
-        _args.params.destinationDomain,
+        params.destinationDomain,
         remoteInstance,
-        abi.encode(TransferIdInformation(_args.params, _sNonce, msg.sender))
+        abi.encode(TransferIdInformation(params, _sNonce, msg.sender))
       );
     }
 
@@ -573,10 +580,8 @@ contract BridgeFacet is BaseConnextFacet {
     // Derive transfer ID based on given arguments.
     bytes32 transferId = _getTransferId(_args, canonicalDomain, canonicalId);
 
-    // Retrieve the reconciled record. If the transfer is `forceSlow` then it must be reconciled first
-    // before it's executed.
+    // Retrieve the reconciled record.
     bool reconciled = s.reconciledTransfers[transferId];
-    if (_args.params.forceSlow && !reconciled) revert BridgeFacet__execute_notReconciled();
 
     // Hash the payload for which each router should have produced a signature.
     // Each router should have signed the `transferId` (which implicitly signs call params,
@@ -641,11 +646,11 @@ contract BridgeFacet is BaseConnextFacet {
    * @dev Need this to prevent stack too deep
    */
   function _getTransferId(
-    XCallArgs calldata _args,
+    CallParams memory _params,
     TokenId memory _canonical,
     uint256 bridgedAmount
   ) private view returns (bytes32) {
-    return _calculateTransferId(_args.params, bridgedAmount, s.nonce, _canonical.id, _canonical.domain, msg.sender);
+    return _calculateTransferId(_params, bridgedAmount, s.nonce, _canonical.id, _canonical.domain, msg.sender);
   }
 
   /**
