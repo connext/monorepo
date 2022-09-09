@@ -71,6 +71,7 @@ contract ExecutorTest is ForgeHelper {
   event Executed(
     bytes32 indexed transferId,
     address indexed to,
+    address indexed recovery,
     address assetId,
     uint256 amount,
     address originSender,
@@ -89,6 +90,7 @@ contract ExecutorTest is ForgeHelper {
 
   address connext = address(this);
   address originSender = address(2);
+  address recovery = address(3);
   uint32 origin = uint32(1000);
   bytes32 transferId = keccak256(abi.encode(1));
 
@@ -119,29 +121,61 @@ contract ExecutorTest is ForgeHelper {
     // Get the calldata
     bytes memory data = abi.encodeWithSelector(PropertyQuery.setAmount.selector, "");
 
+    // Get starting recovery balance
+    uint256 initRecovery = asset.balanceOf(recovery);
+
     // send tx
     uint256 amount = 1200;
     vm.expectRevert(bytes("!connext"));
     vm.prank(address(12345));
-    executor.execute(IExecutor.ExecutorArgs(transferId, amount, address(23), address(asset), address(0), 0, data));
+    (bool success, ) = executor.execute(
+      IExecutor.ExecutorArgs(
+        transferId,
+        amount,
+        payable(address(12344321)),
+        payable(recovery),
+        address(asset),
+        address(0),
+        0,
+        data
+      )
+    );
   }
 
-  // Should error if no code at `to`
-  function test_Executor__execute_revertIfNoCode() public {
+  // Should gracefully handle failure of no code at to
+  function test_Executor__execute_handlesNoCodeFailure() public {
     // Get the calldata
     bytes memory data = abi.encodeWithSelector(PropertyQuery.setAmount.selector, "");
+
+    // Get starting recovery balance
+    uint256 initRecovery = asset.balanceOf(recovery);
 
     // send tx
     uint256 amount = 1200;
     address to = payable(address(12344321));
-    vm.expectRevert(bytes("!code"));
-    executor.execute(IExecutor.ExecutorArgs(transferId, amount, to, address(asset), address(0), 0, data));
+
+    // expect the call to transfer to recovery
+    vm.expectCall(address(asset), abi.encodeWithSelector(IERC20.transfer.selector, recovery, amount));
+
+    vm.expectEmit(true, true, true, true);
+    emit Executed(transferId, to, recovery, address(asset), amount, address(0), 0, data, bytes(""), false);
+
+    (bool success, ) = executor.execute(
+      IExecutor.ExecutorArgs(transferId, amount, to, payable(recovery), address(asset), address(0), 0, data)
+    );
+    assertTrue(!success);
+
+    // should have transferred funds to recovery address
+    assertEq(asset.balanceOf(recovery), initRecovery + amount);
   }
 
   // Should hande the case if excessivlySafeCall fails
   function test_Executor__execute_handlesExcessivelySafeCallFailure() public {
     // Get the calldata
     bytes memory data = abi.encodeWithSelector(MockStaking.descreaseNonce.selector, "");
+
+    // Get starting recovery balance
+    uint256 initRecovery = asset.balanceOf(recovery);
 
     uint256 amount = 10000;
     address to = address(mockStaking);
@@ -155,20 +189,27 @@ contract ExecutorTest is ForgeHelper {
     // expect the call to decrease allowance
     vm.expectCall(address(asset), abi.encodeWithSelector(IERC20.approve.selector, to, 0));
 
+    // expect the call to transfer to recovery
+    vm.expectCall(address(asset), abi.encodeWithSelector(IERC20.transfer.selector, recovery, amount));
+
     vm.expectEmit(true, true, true, true);
-    emit Executed(transferId, to, address(asset), amount, address(0), 0, data, ret, false);
+    emit Executed(transferId, to, recovery, address(asset), amount, address(0), 0, data, ret, false);
 
     (bool success, ) = executor.execute(
-      IExecutor.ExecutorArgs(transferId, amount, to, address(asset), address(0), 0, data)
+      IExecutor.ExecutorArgs(transferId, amount, to, payable(recovery), address(asset), address(0), 0, data)
     );
 
     assertTrue(!success);
+    assertEq(asset.balanceOf(recovery), initRecovery + amount);
   }
 
   // Should hande the case if excessivlySafeCall fails
   function test_Executor__execute_handlesExcessivelySafeCallFailure0Value() public {
     // Get the calldata
     bytes memory data = abi.encodeWithSelector(MockStaking.descreaseNonce.selector, "");
+
+    // Get starting recovery balance
+    uint256 initRecovery = asset.balanceOf(recovery);
 
     uint256 amount = 0;
     address to = address(mockStaking);
@@ -179,13 +220,14 @@ contract ExecutorTest is ForgeHelper {
     // no calls because no amount
 
     vm.expectEmit(true, true, true, true);
-    emit Executed(transferId, to, address(asset), amount, address(0), 0, data, ret, false);
+    emit Executed(transferId, to, recovery, address(asset), amount, address(0), 0, data, ret, false);
 
     (bool success, ) = executor.execute(
-      IExecutor.ExecutorArgs(transferId, amount, to, address(asset), address(0), 0, data)
+      IExecutor.ExecutorArgs(transferId, amount, to, payable(recovery), address(asset), address(0), 0, data)
     );
 
     assertTrue(!success);
+    assertEq(asset.balanceOf(recovery), initRecovery);
   }
 
   // Should work with tokens
@@ -203,10 +245,21 @@ contract ExecutorTest is ForgeHelper {
     vm.expectCall(address(asset), abi.encodeWithSelector(IERC20.approve.selector, address(mockStaking), amount));
 
     vm.expectEmit(true, true, true, true);
-    emit Executed(transferId, to, address(asset), amount, address(0), 0, data, abi.encodePacked(amount), true);
+    emit Executed(
+      transferId,
+      to,
+      recovery,
+      address(asset),
+      amount,
+      address(0),
+      0,
+      data,
+      abi.encodePacked(amount),
+      true
+    );
 
     (bool success, ) = executor.execute(
-      IExecutor.ExecutorArgs(transferId, amount, to, address(asset), address(0), 0, data)
+      IExecutor.ExecutorArgs(transferId, amount, to, recovery, address(asset), address(0), 0, data)
     );
 
     assertTrue(success);
