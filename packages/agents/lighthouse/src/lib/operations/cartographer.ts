@@ -12,7 +12,7 @@ import { constants } from "ethers";
 
 import { getOperations } from "../../lib/operations";
 import { getContext } from "../../lighthouse";
-import { ApiRequestFailed } from "../errors/cartographer";
+import { ApiRequestFailed } from "../../errors/cartographer";
 
 export const pollCartographer = async () => {
   const { requestContext, methodContext } = createLoggingContext(pollCartographer.name);

@@ -1,6 +1,6 @@
 import { ajv, createLoggingContext, ExecuteArgs, ExecuteArgsSchema } from "@connext/nxtp-utils";
 
-import { DomainNotSupported } from "../errors";
+import { DomainNotSupported } from "../../errors";
 import { getOperations } from "../operations";
 import { getContext } from "../../lighthouse";
 

@@ -9,7 +9,6 @@ CREATE TABLE IF NOT EXISTS public.messages (
     processed boolean DEFAULT false,
     return_data character varying(255)
 );
-
+GRANT SELECT ON public.messages to query;
 -- migrate:down
 DROP TABLE IF EXISTS public.messages;
-

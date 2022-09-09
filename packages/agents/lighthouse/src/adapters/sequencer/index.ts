@@ -1,7 +1,7 @@
 import { createLoggingContext, formatUrl, ExecutorPostDataRequest, RequestContext } from "@connext/nxtp-utils";
 import axios, { AxiosResponse } from "axios";
 
-import { SequencerPostFailed, SequencerResponseInvalid } from "../../lib/errors";
+import { SequencerPostFailed, SequencerResponseInvalid } from "../../errors";
 import { getContext } from "../../lighthouse";
 // @ts-ignore
 import { version } from "../../../package.json";
