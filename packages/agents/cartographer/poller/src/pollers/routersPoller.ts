@@ -1,10 +1,10 @@
 import { SubgraphReader } from "@connext/nxtp-adapters-subgraph";
 import { createMethodContext, createRequestContext, getChainData, Logger } from "@connext/nxtp-utils";
 
-import { closeDatabase, getDatabase } from "./adapters/database";
-import { bindRouters } from "./bindings";
-import { CartographerConfig, getConfig } from "./config";
-import { context } from "./shared";
+import { closeDatabase, getDatabase } from "../adapters/database";
+import { bindRouters } from "../bindings";
+import { CartographerConfig, getConfig } from "../config";
+import { context } from "../shared";
 
 export const makeRoutersPoller = async (_configOverride?: CartographerConfig) => {
   const requestContext = createRequestContext("Routers Poller Init");
