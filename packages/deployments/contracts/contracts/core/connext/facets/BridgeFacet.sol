@@ -303,7 +303,6 @@ contract BridgeFacet is BaseConnextFacet {
       originDomain: s.domain,
       destinationDomain: _args.params.destinationDomain,
       agent: _args.params.agent,
-      recovery: _args.params.recovery,
       receiveLocal: _args.params.receiveLocal,
       callback: _args.params.callback,
       callbackFee: _args.params.callbackFee,
