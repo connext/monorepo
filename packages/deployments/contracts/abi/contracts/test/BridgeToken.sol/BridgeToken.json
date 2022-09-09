@@ -1,9 +1,9 @@
 [
   "event Approval(address indexed,address indexed,uint256)",
+  "event Initialized(uint8)",
   "event OwnershipTransferred(address indexed,address indexed)",
   "event Transfer(address indexed,address indexed,uint256)",
   "event UpdateDetails(string indexed,string indexed,uint8 indexed)",
-  "function VERSION() view returns (uint8)",
   "function _PERMIT_TYPEHASH() view returns (bytes32)",
   "function allowance(address,address) view returns (uint256)",
   "function approve(address,uint256) returns (bool)",

@@ -145,8 +145,8 @@ export const OPTIMISM_AMB: AMBInfo = {
  */
 
 // Contract prefixes for Connector contracts.
-export const HUB_PREFIX = "L1";
-export const SPOKE_PREFIX = "L2";
+export const HUB_PREFIX = "Hub";
+export const SPOKE_PREFIX = "Spoke";
 
 const DEFAULT_PROCESS_GAS = BigNumber.from("850000");
 const DEFAULT_RESERVE_GAS = BigNumber.from("15000");
@@ -165,6 +165,10 @@ export type MessagingProtocolConfig = {
       };
       processGas: BigNumber;
       reserveGas: BigNumber;
+      custom?: {
+        hub?: { [key: string]: string | BigNumber };
+        spoke?: { [key: string]: string | BigNumber };
+      };
     };
   };
 };
@@ -228,6 +232,38 @@ export const MESSAGING_PROTOCOL_CONFIGS: {
       //   processGas: DEFAULT_PROCESS_GAS,
       //   reserveGas: DEFAULT_RESERVE_GAS,
       // },
+      // Arbitrum nitro goerli testnet:
+      // https://developer.offchainlabs.com/docs/Useful_Addresses
+      // 421613: {
+      //   prefix: "Arbitrum",
+      //   ambs: {
+      //     // https://goerli.etherscan.io/address/0x6BEbC4925716945D46F0Ec336D5C2564F419682C
+      //     hub: "0x6BEbC4925716945D46F0Ec336D5C2564F419682C",
+      //     // https://goerli-rollup-explorer.arbitrum.io/address/0x0000000000000000000000000000000000000064
+      //     spoke: "0x0000000000000000000000000000000000000064",
+      //   },
+      //   processGas: DEFAULT_PROCESS_GAS,
+      //   reserveGas: DEFAULT_RESERVE_GAS,
+      // },
+      80001: {
+        prefix: "Polygon",
+        ambs: {
+          // FxRoot on goerli
+          // https://goerli.etherscan.io/address/0x3d1d3E34f7fB6D26245E6640E1c50710eFFf15bA
+          hub: "0x3d1d3E34f7fB6D26245E6640E1c50710eFFf15bA",
+          // FxChild on mumbai
+          // https://mumbai.polygonscan.com/address/0xCf73231F28B7331BBe3124B907840A94851f9f11
+          spoke: "0xCf73231F28B7331BBe3124B907840A94851f9f11",
+        },
+        processGas: DEFAULT_PROCESS_GAS,
+        reserveGas: DEFAULT_RESERVE_GAS,
+        custom: {
+          hub: {
+            // https://goerli.etherscan.io/address/0x2890ba17efe978480615e330ecb65333b880928e
+            checkpointManager: "0x2890bA17EfE978480615e330ecB65333b880928e",
+          },
+        },
+      },
       5: {
         prefix: "Mainnet",
         ambs: {
@@ -272,6 +308,19 @@ export const MESSAGING_PROTOCOL_CONFIGS: {
           hub: "0x4C36d2919e407f0Cc2Ee3c993ccF8ac26d9CE64e",
           // https://blockscout.com/xdai/mainnet/address/0x75Df5AF045d91108662D8080fD1FEFAd6aA0bb59
           spoke: "0x75Df5AF045d91108662D8080fD1FEFAd6aA0bb59",
+        },
+        processGas: DEFAULT_PROCESS_GAS,
+        reserveGas: DEFAULT_RESERVE_GAS,
+      },
+      // Arbitrum one: TODO: nitro??????
+      // https://developer.offchainlabs.com/docs/Useful_Addresses
+      42161: {
+        prefix: "Arbitrum",
+        ambs: {
+          // https://etherscan.io/address/0x4Dbd4fc535Ac27206064B68FfCf827b0A60BAB3f
+          hub: "0x4Dbd4fc535Ac27206064B68FfCf827b0A60BAB3f",
+          // https://arbiscan.io/address/0x0000000000000000000000000000000000000064
+          spoke: "0x0000000000000000000000000000000000000064",
         },
         processGas: DEFAULT_PROCESS_GAS,
         reserveGas: DEFAULT_RESERVE_GAS,

@@ -2,7 +2,7 @@ import { TransactionService } from "@connext/nxtp-txservice";
 import { createRequestContext } from "@connext/nxtp-utils";
 import { canonizeId, ConnextHandlerInterface } from "@connext/nxtp-contracts";
 import { BigNumber, BytesLike, constants, utils } from "ethers";
-import Router from "@connext/nxtp-contracts/artifacts/contracts/core/shared/Router.sol/Router.json";
+import Router from "@connext/nxtp-contracts/artifacts/contracts/core/Router.sol/Router.json";
 
 export const enrollHandlers = async (
   handlers: {

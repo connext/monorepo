@@ -5,3 +5,4 @@ export * from "./logging";
 export * from "./mocks";
 export * from "./peripherals";
 export * from "./types";
+export * from "./maticjs";

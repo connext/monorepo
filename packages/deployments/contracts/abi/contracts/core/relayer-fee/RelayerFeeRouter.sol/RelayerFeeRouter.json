@@ -10,6 +10,7 @@
   "error RelayerFeeRouter__onlyConnext_notConnext()",
   "error RelayerFeeRouter__send_claimEmpty()",
   "error RelayerFeeRouter__send_recipientEmpty()",
+  "event Initialized(uint8)",
   "event OwnershipProposed(address indexed)",
   "event OwnershipTransferred(address indexed,address indexed)",
   "event Receive(uint64 indexed,uint32 indexed,address indexed,bytes32[])",

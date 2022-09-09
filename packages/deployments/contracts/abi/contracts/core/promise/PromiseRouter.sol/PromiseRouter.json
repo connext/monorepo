@@ -20,6 +20,7 @@
   "error ProposedOwnable__renounceOwnership_noProposal()",
   "event CallbackExecuted(bytes32 indexed,bool,address)",
   "event CallbackFeeAdded(bytes32 indexed,uint256,uint256,address)",
+  "event Initialized(uint8)",
   "event OwnershipProposed(address indexed)",
   "event OwnershipTransferred(address indexed,address indexed)",
   "event Receive(uint64 indexed,uint32 indexed,bytes32,address,bool,bytes,bytes)",

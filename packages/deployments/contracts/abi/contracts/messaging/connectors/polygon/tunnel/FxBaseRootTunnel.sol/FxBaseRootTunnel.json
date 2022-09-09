@@ -1,0 +1,9 @@
+[
+  "function SEND_MESSAGE_EVENT_SIG() view returns (bytes32)",
+  "function checkpointManager() view returns (address)",
+  "function fxChildTunnel() view returns (address)",
+  "function fxRoot() view returns (address)",
+  "function processedExits(bytes32) view returns (bool)",
+  "function receiveMessage(bytes)",
+  "function setFxChildTunnel(address)"
+]
