@@ -34,7 +34,6 @@ export type CallParamsStruct = {
   originDomain: PromiseOrValue<BigNumberish>;
   destinationDomain: PromiseOrValue<BigNumberish>;
   agent: PromiseOrValue<string>;
-  recovery: PromiseOrValue<string>;
   forceSlow: PromiseOrValue<boolean>;
   receiveLocal: PromiseOrValue<boolean>;
   callback: PromiseOrValue<string>;
@@ -49,7 +48,6 @@ export type CallParamsStructOutput = [
   number,
   number,
   string,
-  string,
   boolean,
   boolean,
   string,
@@ -62,7 +60,6 @@ export type CallParamsStructOutput = [
   originDomain: number;
   destinationDomain: number;
   agent: string;
-  recovery: string;
   forceSlow: boolean;
   receiveLocal: boolean;
   callback: string;
@@ -77,8 +74,8 @@ export interface PortalFacetInterface extends utils.Interface {
     "aavePortalFee()": FunctionFragment;
     "getAavePortalDebt(bytes32)": FunctionFragment;
     "getAavePortalFeeDebt(bytes32)": FunctionFragment;
-    "repayAavePortal((address,bytes,uint32,uint32,address,address,bool,bool,address,uint256,uint256,uint256),address,address,uint256,uint256,uint256,uint256,uint256)": FunctionFragment;
-    "repayAavePortalFor((address,bytes,uint32,uint32,address,address,bool,bool,address,uint256,uint256,uint256),address,address,uint256,uint256,uint256,uint256)": FunctionFragment;
+    "repayAavePortal((address,bytes,uint32,uint32,address,bool,bool,address,uint256,uint256,uint256),address,address,uint256,uint256,uint256,uint256,uint256)": FunctionFragment;
+    "repayAavePortalFor((address,bytes,uint32,uint32,address,bool,bool,address,uint256,uint256,uint256),address,address,uint256,uint256,uint256,uint256)": FunctionFragment;
     "setAavePool(address)": FunctionFragment;
     "setAavePortalFee(uint256)": FunctionFragment;
   };
