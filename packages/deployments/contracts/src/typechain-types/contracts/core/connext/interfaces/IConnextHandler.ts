@@ -44,7 +44,6 @@ export type CallParamsStruct = {
   originDomain: PromiseOrValue<BigNumberish>;
   destinationDomain: PromiseOrValue<BigNumberish>;
   agent: PromiseOrValue<string>;
-  recovery: PromiseOrValue<string>;
   forceSlow: PromiseOrValue<boolean>;
   receiveLocal: PromiseOrValue<boolean>;
   callback: PromiseOrValue<string>;
@@ -59,7 +58,6 @@ export type CallParamsStructOutput = [
   number,
   number,
   string,
-  string,
   boolean,
   boolean,
   string,
@@ -72,7 +70,6 @@ export type CallParamsStructOutput = [
   originDomain: number;
   destinationDomain: number;
   agent: string;
-  recovery: string;
   forceSlow: boolean;
   receiveLocal: boolean;
   callback: string;
@@ -244,13 +241,12 @@ export interface IConnextHandlerInterface extends utils.Interface {
     "delay()": FunctionFragment;
     "diamondCut((address,uint8,bytes4[])[],address,bytes)": FunctionFragment;
     "domain()": FunctionFragment;
-    "execute(((address,bytes,uint32,uint32,address,address,bool,bool,address,uint256,uint256,uint256),address,address[],bytes[],address,bytes,uint256,uint256,address))": FunctionFragment;
-    "executor()": FunctionFragment;
+    "execute(((address,bytes,uint32,uint32,address,bool,bool,address,uint256,uint256,uint256),address,address[],bytes[],address,bytes,uint256,uint256,address))": FunctionFragment;
     "facetAddress(bytes4)": FunctionFragment;
     "facetAddresses()": FunctionFragment;
     "facetFunctionSelectors(address)": FunctionFragment;
     "facets()": FunctionFragment;
-    "forceReceiveLocal((address,bytes,uint32,uint32,address,address,bool,bool,address,uint256,uint256,uint256),uint256,uint256,bytes32,uint32,address)": FunctionFragment;
+    "forceReceiveLocal((address,bytes,uint32,uint32,address,bool,bool,address,uint256,uint256,uint256),uint256,uint256,bytes32,uint32,address)": FunctionFragment;
     "getAavePortalDebt(bytes32)": FunctionFragment;
     "getAavePortalFeeDebt(bytes32)": FunctionFragment;
     "getProposedRouterOwner(address)": FunctionFragment;
@@ -301,8 +297,8 @@ export interface IConnextHandlerInterface extends utils.Interface {
     "removeSwapLiquidityOneToken(bytes32,uint256,uint8,uint256,uint256)": FunctionFragment;
     "renounceOwnership()": FunctionFragment;
     "renounced()": FunctionFragment;
-    "repayAavePortal((address,bytes,uint32,uint32,address,address,bool,bool,address,uint256,uint256,uint256),address,address,uint256,uint256,uint256,uint256,uint256)": FunctionFragment;
-    "repayAavePortalFor((address,bytes,uint32,uint32,address,address,bool,bool,address,uint256,uint256,uint256),address,address,uint256,uint256,uint256,uint256)": FunctionFragment;
+    "repayAavePortal((address,bytes,uint32,uint32,address,bool,bool,address,uint256,uint256,uint256),address,address,uint256,uint256,uint256,uint256,uint256)": FunctionFragment;
+    "repayAavePortalFor((address,bytes,uint32,uint32,address,bool,bool,address,uint256,uint256,uint256),address,address,uint256,uint256,uint256,uint256)": FunctionFragment;
     "rescindDiamondCut((address,uint8,bytes4[])[],address,bytes)": FunctionFragment;
     "routedTransfers(bytes32)": FunctionFragment;
     "routerBalances(address,address)": FunctionFragment;
@@ -311,7 +307,6 @@ export interface IConnextHandlerInterface extends utils.Interface {
     "setAavePool(address)": FunctionFragment;
     "setAavePortalFee(uint256)": FunctionFragment;
     "setBridgeRouter(address)": FunctionFragment;
-    "setExecutor(address)": FunctionFragment;
     "setLiquidityFeeNumerator(uint256)": FunctionFragment;
     "setMaxRoutersPerTransfer(uint256)": FunctionFragment;
     "setPromiseRouter(address)": FunctionFragment;
@@ -333,7 +328,7 @@ export interface IConnextHandlerInterface extends utils.Interface {
     "unapproveRouterForPortal(address)": FunctionFragment;
     "unpause()": FunctionFragment;
     "withdrawSwapAdminFees(bytes32)": FunctionFragment;
-    "xcall(((address,bytes,uint32,uint32,address,address,bool,bool,address,uint256,uint256,uint256),address,uint256,uint256))": FunctionFragment;
+    "xcall(((address,bytes,uint32,uint32,address,bool,bool,address,uint256,uint256,uint256),address,uint256,uint256))": FunctionFragment;
   };
 
   getFunction(
@@ -376,7 +371,6 @@ export interface IConnextHandlerInterface extends utils.Interface {
       | "diamondCut"
       | "domain"
       | "execute"
-      | "executor"
       | "facetAddress"
       | "facetAddresses"
       | "facetFunctionSelectors"
@@ -442,7 +436,6 @@ export interface IConnextHandlerInterface extends utils.Interface {
       | "setAavePool"
       | "setAavePortalFee"
       | "setBridgeRouter"
-      | "setExecutor"
       | "setLiquidityFeeNumerator"
       | "setMaxRoutersPerTransfer"
       | "setPromiseRouter"
@@ -633,7 +626,6 @@ export interface IConnextHandlerInterface extends utils.Interface {
     functionFragment: "execute",
     values: [ExecuteArgsStruct]
   ): string;
-  encodeFunctionData(functionFragment: "executor", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "facetAddress",
     values: [PromiseOrValue<BytesLike>]
@@ -960,10 +952,6 @@ export interface IConnextHandlerInterface extends utils.Interface {
     values: [PromiseOrValue<string>]
   ): string;
   encodeFunctionData(
-    functionFragment: "setExecutor",
-    values: [PromiseOrValue<string>]
-  ): string;
-  encodeFunctionData(
     functionFragment: "setLiquidityFeeNumerator",
     values: [PromiseOrValue<BigNumberish>]
   ): string;
@@ -1199,7 +1187,6 @@ export interface IConnextHandlerInterface extends utils.Interface {
   decodeFunctionResult(functionFragment: "diamondCut", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "domain", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "execute", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "executor", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "facetAddress",
     data: BytesLike
@@ -1431,10 +1418,6 @@ export interface IConnextHandlerInterface extends utils.Interface {
   ): Result;
   decodeFunctionResult(
     functionFragment: "setBridgeRouter",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "setExecutor",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -1761,8 +1744,6 @@ export interface IConnextHandler extends BaseContract {
       _args: ExecuteArgsStruct,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
-
-    executor(overrides?: CallOverrides): Promise<[string]>;
 
     facetAddress(
       _functionSelector: PromiseOrValue<BytesLike>,
@@ -2118,11 +2099,6 @@ export interface IConnextHandler extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
-    setExecutor(
-      _executor: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
-
     setLiquidityFeeNumerator(
       _numerator: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -2428,8 +2404,6 @@ export interface IConnextHandler extends BaseContract {
     _args: ExecuteArgsStruct,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
-
-  executor(overrides?: CallOverrides): Promise<string>;
 
   facetAddress(
     _functionSelector: PromiseOrValue<BytesLike>,
@@ -2777,11 +2751,6 @@ export interface IConnextHandler extends BaseContract {
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
-  setExecutor(
-    _executor: PromiseOrValue<string>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
-
   setLiquidityFeeNumerator(
     _numerator: PromiseOrValue<BigNumberish>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -3083,8 +3052,6 @@ export interface IConnextHandler extends BaseContract {
       _args: ExecuteArgsStruct,
       overrides?: CallOverrides
     ): Promise<string>;
-
-    executor(overrides?: CallOverrides): Promise<string>;
 
     facetAddress(
       _functionSelector: PromiseOrValue<BytesLike>,
@@ -3419,11 +3386,6 @@ export interface IConnextHandler extends BaseContract {
 
     setBridgeRouter(
       _bridge: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<void>;
-
-    setExecutor(
-      _executor: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<void>;
 
@@ -3765,8 +3727,6 @@ export interface IConnextHandler extends BaseContract {
       _args: ExecuteArgsStruct,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
-
-    executor(overrides?: CallOverrides): Promise<BigNumber>;
 
     facetAddress(
       _functionSelector: PromiseOrValue<BytesLike>,
@@ -4114,11 +4074,6 @@ export interface IConnextHandler extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
-    setExecutor(
-      _executor: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
-
     setLiquidityFeeNumerator(
       _numerator: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -4433,8 +4388,6 @@ export interface IConnextHandler extends BaseContract {
       _args: ExecuteArgsStruct,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
-
-    executor(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     facetAddress(
       _functionSelector: PromiseOrValue<BytesLike>,
@@ -4785,11 +4738,6 @@ export interface IConnextHandler extends BaseContract {
 
     setBridgeRouter(
       _bridge: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
-
-    setExecutor(
-      _executor: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 

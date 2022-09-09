@@ -32,7 +32,6 @@ export declare namespace IExecutor {
     transferId: PromiseOrValue<BytesLike>;
     amount: PromiseOrValue<BigNumberish>;
     to: PromiseOrValue<string>;
-    recovery: PromiseOrValue<string>;
     assetId: PromiseOrValue<string>;
     originSender: PromiseOrValue<string>;
     originDomain: PromiseOrValue<BigNumberish>;
@@ -45,14 +44,12 @@ export declare namespace IExecutor {
     string,
     string,
     string,
-    string,
     number,
     string
   ] & {
     transferId: string;
     amount: BigNumber;
     to: string;
-    recovery: string;
     assetId: string;
     originSender: string;
     originDomain: number;
@@ -64,7 +61,7 @@ export interface ExecutorInterface extends utils.Interface {
   functions: {
     "FAILURE_GAS()": FunctionFragment;
     "MAX_COPY()": FunctionFragment;
-    "execute((bytes32,uint256,address,address,address,address,uint32,bytes))": FunctionFragment;
+    "execute((bytes32,uint256,address,address,address,uint32,bytes))": FunctionFragment;
     "getConnext()": FunctionFragment;
   };
 
@@ -99,7 +96,7 @@ export interface ExecutorInterface extends utils.Interface {
   decodeFunctionResult(functionFragment: "getConnext", data: BytesLike): Result;
 
   events: {
-    "Executed(bytes32,address,address,address,uint256,address,uint32,bytes,bytes,bool)": EventFragment;
+    "Executed(bytes32,address,address,uint256,address,uint32,bytes,bytes,bool)": EventFragment;
   };
 
   getEvent(nameOrSignatureOrTopic: "Executed"): EventFragment;
@@ -108,7 +105,6 @@ export interface ExecutorInterface extends utils.Interface {
 export interface ExecutedEventObject {
   transferId: string;
   to: string;
-  recovery: string;
   assetId: string;
   amount: BigNumber;
   originSender: string;
@@ -118,18 +114,7 @@ export interface ExecutedEventObject {
   success: boolean;
 }
 export type ExecutedEvent = TypedEvent<
-  [
-    string,
-    string,
-    string,
-    string,
-    BigNumber,
-    string,
-    number,
-    string,
-    string,
-    boolean
-  ],
+  [string, string, string, BigNumber, string, number, string, string, boolean],
   ExecutedEventObject
 >;
 
@@ -199,10 +184,9 @@ export interface Executor extends BaseContract {
   };
 
   filters: {
-    "Executed(bytes32,address,address,address,uint256,address,uint32,bytes,bytes,bool)"(
+    "Executed(bytes32,address,address,uint256,address,uint32,bytes,bytes,bool)"(
       transferId?: PromiseOrValue<BytesLike> | null,
       to?: PromiseOrValue<string> | null,
-      recovery?: PromiseOrValue<string> | null,
       assetId?: null,
       amount?: null,
       originSender?: null,
@@ -214,7 +198,6 @@ export interface Executor extends BaseContract {
     Executed(
       transferId?: PromiseOrValue<BytesLike> | null,
       to?: PromiseOrValue<string> | null,
-      recovery?: PromiseOrValue<string> | null,
       assetId?: null,
       amount?: null,
       originSender?: null,

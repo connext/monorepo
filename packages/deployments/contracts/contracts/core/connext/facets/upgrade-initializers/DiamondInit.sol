@@ -14,8 +14,6 @@ import {IERC165} from "../../interfaces/IERC165.sol";
 import {IWeth} from "../../interfaces/IWeth.sol";
 import {ITokenRegistry} from "../../interfaces/ITokenRegistry.sol";
 
-import {Executor} from "../../helpers/Executor.sol";
-
 import {LibDiamond} from "../../libraries/LibDiamond.sol";
 
 import {BaseConnextFacet} from "../BaseConnextFacet.sol";
@@ -66,7 +64,6 @@ contract DiamondInit is BaseConnextFacet {
       s.domain = _domain;
       s.relayerFeeRouter = RelayerFeeRouter(_relayerFeeRouter);
       s.promiseRouter = PromiseRouter(_promiseRouter);
-      s.executor = new Executor(address(this));
       s.tokenRegistry = ITokenRegistry(_tokenRegistry);
       s.LIQUIDITY_FEE_NUMERATOR = 9995;
       s.maxRoutersPerTransfer = 5;
