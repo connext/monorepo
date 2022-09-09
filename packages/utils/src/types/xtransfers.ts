@@ -145,8 +145,8 @@ export type CallParams = Static<typeof CallParamsSchema>;
 
 export const XCallArgsSchema = Type.Object({
   params: CallParamsSchema,
-  transactingAsset: Type.String(),
-  transactingAmount: TIntegerString,
+  asset: Type.String(),
+  amount: TIntegerString,
   originMinOut: TIntegerString,
 });
 

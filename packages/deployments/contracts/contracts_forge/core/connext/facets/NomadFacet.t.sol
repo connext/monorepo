@@ -98,7 +98,7 @@ contract NomadFacetTest is NomadFacet, FacetHelper {
     bytes32 canonicalId,
     uint32 canonicalDomain
   ) public view returns (bytes32) {
-    return keccak256(abi.encode(s.nonce, _args.params, sender, canonicalId, canonicalDomain, _args.transactingAmount));
+    return keccak256(abi.encode(s.nonce, _args.params, sender, canonicalId, canonicalDomain, _args.amount));
   }
 
   // Makes some mock xcall arguments using params set in storage.
@@ -111,9 +111,9 @@ contract NomadFacetTest is NomadFacet, FacetHelper {
     return (transferId, args);
   }
 
-  function utils_makeXCallArgs(address transactingAssetId) public returns (bytes32, XCallArgs memory) {
+  function utils_makeXCallArgs(address assetId) public returns (bytes32, XCallArgs memory) {
     // get args
-    XCallArgs memory args = XCallArgs(_params, transactingAssetId, _amount, (_amount * 9990) / 10000);
+    XCallArgs memory args = XCallArgs(_params, assetId, _amount, (_amount * 9990) / 10000);
     // generate transfer id
     bytes32 transferId = utils_getTransferIdFromXCallArgs(args, _originSender, _canonicalId, _canonicalDomain);
 
@@ -155,18 +155,18 @@ contract NomadFacetTest is NomadFacet, FacetHelper {
 
     if (shouldSucceed) {
       vm.expectEmit(true, true, true, true);
-      emit Reconciled(transferId, s.routedTransfers[transferId], _local, args.transactingAmount, _bridge);
+      emit Reconciled(transferId, s.routedTransfers[transferId], _local, args.amount, _bridge);
     } else {
       vm.expectRevert(expectedError);
     }
 
-    helpers_reconcileCaller(_local, args.transactingAmount, _bridgeCaller, args.params);
+    helpers_reconcileCaller(_local, args.amount, _bridgeCaller, args.params);
 
     if (shouldSucceed) {
       assertEq(s.reconciledTransfers[transferId], true);
       address[] memory routers = s.routedTransfers[transferId];
       if (routers.length != 0) {
-        uint256 routerAmt = args.transactingAmount / s.routedTransfers[transferId].length;
+        uint256 routerAmt = args.amount / s.routedTransfers[transferId].length;
 
         // Fast liquidity route. Should have reimbursed routers.
         for (uint256 i = 0; i < routers.length; i++) {
@@ -229,7 +229,7 @@ contract NomadFacetTest is NomadFacet, FacetHelper {
       canonicalDomain,
       canonicalId,
       _local,
-      args.transactingAmount,
+      args.amount,
       abi.encode(TransferIdInformation(args.params, s.nonce, _originSender))
     );
   }
@@ -250,7 +250,7 @@ contract NomadFacetTest is NomadFacet, FacetHelper {
       canonicalDomain,
       canonicalId,
       _local,
-      args.transactingAmount,
+      args.amount,
       abi.encode(TransferIdInformation(args.params, s.nonce, _originSender))
     );
   }
@@ -275,7 +275,7 @@ contract NomadFacetTest is NomadFacet, FacetHelper {
       canonicalDomain,
       canonicalId,
       _local,
-      args.transactingAmount,
+      args.amount,
       abi.encode(TransferIdInformation(args.params, s.nonce, _originSender))
     );
   }

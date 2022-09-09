@@ -107,8 +107,8 @@ export type ExecuteArgsStructOutput = [
 
 export type XCallArgsStruct = {
   params: CallParamsStruct;
-  transactingAsset: PromiseOrValue<string>;
-  transactingAmount: PromiseOrValue<BigNumberish>;
+  asset: PromiseOrValue<string>;
+  amount: PromiseOrValue<BigNumberish>;
   originMinOut: PromiseOrValue<BigNumberish>;
 };
 
@@ -119,8 +119,8 @@ export type XCallArgsStructOutput = [
   BigNumber
 ] & {
   params: CallParamsStructOutput;
-  transactingAsset: string;
-  transactingAmount: BigNumber;
+  asset: string;
+  amount: BigNumber;
   originMinOut: BigNumber;
 };
 
@@ -381,8 +381,8 @@ export interface ExecutedEventObject {
   transferId: string;
   to: string;
   args: ExecuteArgsStructOutput;
-  transactingAsset: string;
-  transactingAmount: BigNumber;
+  asset: string;
+  amount: BigNumber;
   caller: string;
 }
 export type ExecutedEvent = TypedEvent<
@@ -831,16 +831,16 @@ export interface BridgeFacet extends BaseContract {
       transferId?: PromiseOrValue<BytesLike> | null,
       to?: PromiseOrValue<string> | null,
       args?: null,
-      transactingAsset?: null,
-      transactingAmount?: null,
+      asset?: null,
+      amount?: null,
       caller?: null
     ): ExecutedEventFilter;
     Executed(
       transferId?: PromiseOrValue<BytesLike> | null,
       to?: PromiseOrValue<string> | null,
       args?: null,
-      transactingAsset?: null,
-      transactingAmount?: null,
+      asset?: null,
+      amount?: null,
       caller?: null
     ): ExecutedEventFilter;
 

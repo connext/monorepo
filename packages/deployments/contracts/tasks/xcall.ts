@@ -6,7 +6,7 @@ import { Env, getDeploymentName, mustGetEnv } from "../src/utils";
 import { canonizeId, chainIdToDomain } from "../src";
 
 type TaskArgs = {
-  transactingAssetId?: string;
+  assetId?: string;
   amount?: string;
   to?: string;
   destinationDomain?: string;
@@ -28,7 +28,7 @@ type TaskArgs = {
 };
 
 export default task("xcall", "Prepare a cross-chain tx")
-  .addOptionalParam("transactingAssetId", "Transacting asset Id")
+  .addOptionalParam("assetId", "Transacting asset Id")
   .addOptionalParam("amount", "Amount to transfer")
   .addOptionalParam("to", "To address")
   .addOptionalParam("destinationDomain", "Destination domain")
@@ -50,7 +50,7 @@ export default task("xcall", "Prepare a cross-chain tx")
   .setAction(
     async (
       {
-        transactingAssetId: _transactingAssetId,
+        assetId: _assetId,
         amount: _amount,
         connextAddress: _connextAddress,
         to: _to,
@@ -113,8 +113,8 @@ export default task("xcall", "Prepare a cross-chain tx")
       const relayerFee = _relayerFee ?? process.env.RELAYER_FEE ?? "0";
 
       // Get the transacting asset ID.
-      let transactingAssetId = _transactingAssetId ?? process.env.TRANSFER_ASSET;
-      if (!transactingAssetId) {
+      let assetId = _assetId ?? process.env.TRANSFER_ASSET;
+      if (!assetId) {
         // Alternatively, try defaulting to using the canonical token from the .env (if present) as the transacting asset ID,
         // deriving the local asset using the token registry if applicable.
         const canonicalDomain = process.env.CANONICAL_DOMAIN;
@@ -127,7 +127,7 @@ export default task("xcall", "Prepare a cross-chain tx")
         // Retrieve the local asset from the token registry, if applicable.
         if (+canonicalDomain === originDomain) {
           // Use the canonical asset as the local asset since we're on the canonical network.
-          transactingAssetId = canonicalAsset;
+          assetId = canonicalAsset;
         } else {
           // Current network's domain is not canonical domain, so we need to get the local asset representation.
           const tokenDeployment = await hre.deployments.get(getDeploymentName("TokenRegistryUpgradeBeaconProxy", env));
@@ -135,13 +135,13 @@ export default task("xcall", "Prepare a cross-chain tx")
             tokenDeployment.address,
             (await hre.deployments.get(getDeploymentName("TokenRegistry"))).abi,
           );
-          transactingAssetId = await tokenRegistry.getRepresentationAddress(canonicalDomain, canonicalTokenId);
-          if (transactingAssetId === constants.AddressZero) {
-            throw new Error("Empty transactingAssetId on registry");
+          assetId = await tokenRegistry.getRepresentationAddress(canonicalDomain, canonicalTokenId);
+          if (assetId === constants.AddressZero) {
+            throw new Error("Empty assetId on registry");
           }
         }
       }
-      if (!transactingAssetId) {
+      if (!assetId) {
         // If the above attempt fails, then we default to telling the user to just specify the transacting asset ID.
         throw new Error("Transfer asset ID must be specified as param or from env (TRANSFER_ASSET)");
       }
@@ -204,17 +204,17 @@ export default task("xcall", "Prepare a cross-chain tx")
 
       const args: XCallArgs = {
         params,
-        transactingAsset: transactingAssetId,
-        transactingAmount: amount,
+        asset: assetId,
+        amount: amount,
         originMinOut,
       };
       // Check balances and allowances
       for (let i = 0; i < senders.length; i++) {
         let balance: BigNumber;
-        if (transactingAssetId === constants.AddressZero) {
+        if (assetId === constants.AddressZero) {
           balance = await hre.ethers.provider.getBalance(senders[i].address);
         } else {
-          const erc20 = await hre.ethers.getContractAt("IERC20", transactingAssetId, senders[i]);
+          const erc20 = await hre.ethers.getContractAt("IERC20", assetId, senders[i]);
           console.log("erc20: ", erc20.address);
           const allowance = await erc20.allowance(senders[i].address, connextAddress);
           console.log("allowance: ", allowance.toString());
@@ -245,7 +245,7 @@ export default task("xcall", "Prepare a cross-chain tx")
             if (showArgs) {
               console.log("  originDomain: ", originDomain);
               console.log("  destinationDomain: ", destinationDomain);
-              console.log("  transactingAsset: ", transactingAssetId);
+              console.log("  asset: ", assetId);
               console.log("  amount: ", amount);
               console.log("  callData: ", callData);
               console.log("  callback: ", callback);

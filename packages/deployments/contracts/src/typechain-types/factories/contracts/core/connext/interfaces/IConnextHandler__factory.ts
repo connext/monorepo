@@ -3105,12 +3105,12 @@ const _abi = [
           },
           {
             internalType: "address",
-            name: "transactingAsset",
+            name: "asset",
             type: "address",
           },
           {
             internalType: "uint256",
-            name: "transactingAmount",
+            name: "amount",
             type: "uint256",
           },
           {

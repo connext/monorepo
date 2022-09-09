@@ -88,15 +88,15 @@ contract LiveTest is ForgeHelper {
   }
 
   function test_xcall() public {
-    address transactingAsset = 0x68Db1c8d85C09d546097C65ec7DCBFF4D6497CbF;
+    address asset = 0x68Db1c8d85C09d546097C65ec7DCBFF4D6497CbF;
     vm.startPrank(0x54BAA998771639628ffC0206c3b916c466b79c89);
-    TestERC20(transactingAsset).approve(address(connext), 150000000000000000);
+    TestERC20(asset).approve(address(connext), 150000000000000000);
 
     emit log_named_address("bridge router: ", address(connext.bridgeRouter()));
     emit log_named_address("token registry: ", address(connext.tokenRegistry()));
-    emit log_named_bytes32("canonical id: ", connext.adoptedToCanonical(transactingAsset).id);
+    emit log_named_bytes32("canonical id: ", connext.adoptedToCanonical(asset).id);
 
-    (uint32 canonicalDomain, bytes32 canonicalId) = connext.tokenRegistry().getTokenId(transactingAsset);
+    (uint32 canonicalDomain, bytes32 canonicalId) = connext.tokenRegistry().getTokenId(asset);
     address local = connext.tokenRegistry().getLocalAddress(canonicalDomain, canonicalId);
     emit log_named_address("local asset: ", local);
     emit log_named_uint(
@@ -120,7 +120,7 @@ contract LiveTest is ForgeHelper {
           0, // relayerFee
           0 // destinationMinOut
         ), // CallParams
-        transactingAsset,
+        asset,
         150000000000000000,
         0
       )
