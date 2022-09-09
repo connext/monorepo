@@ -12,6 +12,7 @@ type AssetBalance @entity {
   id: ID!
   amount: BigInt!
   router: Router!
+  routerfees: BigInt!
   asset: Asset!
 }
 
@@ -142,6 +143,9 @@ type DestinationTransfer @entity {
   localAsset: Bytes
   # The amount of the local asset.
   localAmount: BigInt
+
+  # Computed
+  fees: [BigInt!]
 
   sponsorVaultRelayerFee: BigInt
 
