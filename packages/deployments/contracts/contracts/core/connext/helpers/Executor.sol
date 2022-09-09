@@ -17,6 +17,8 @@ import {LibCrossDomainProperty} from "../libraries/LibCrossDomainProperty.sol";
  * @notice This library contains an `execute` function that is callable by
  * an associated Connext contract. This is used to execute
  * arbitrary calldata on a receiving chain.
+ * @dev In the event this external call fails, funds will be sent to a provided
+ * recovery address. Consequently, funds held in this contract should be transitory
  */
 contract Executor is IExecutor {
   // ============ Libraries =============
@@ -83,7 +85,23 @@ contract Executor is IExecutor {
     bool success;
     bytes memory returnData;
 
-    require(Address.isContract(_args.to), "!code");
+    if (!Address.isContract(_args.to)) {
+      _sendToRecovery(false, _args.assetId, _args.to, _args.recovery, _args.amount);
+      // Emit event
+      emit Executed(
+        _args.transferId,
+        _args.to,
+        _args.recovery,
+        _args.assetId,
+        _args.amount,
+        _args.originSender,
+        _args.originDomain,
+        _args.callData,
+        returnData,
+        success
+      );
+      return (success, returnData);
+    }
 
     // Approve the `to` address for spending tokens.
     // We approve here rather than transfer since many external contracts simply require an approval, and
@@ -114,10 +132,16 @@ contract Executor is IExecutor {
       )
     );
 
+    // Handle failure cases
+    if (!success) {
+      _sendToRecovery(hasValue, _args.assetId, _args.to, _args.recovery, _args.amount);
+    }
+
     // Emit event
     emit Executed(
       _args.transferId,
       _args.to,
+      _args.recovery,
       _args.assetId,
       _args.amount,
       _args.originSender,
@@ -127,5 +151,34 @@ contract Executor is IExecutor {
       success
     );
     return (success, returnData);
+  }
+
+  /**
+   * @notice Sends funds to the specified recovery address
+   * @dev Called if the external call data fails or if the recipient was not a contract.
+   * @param _hasIncreased - Whether the allowance was increased
+   * @param _assetId - Asset associated with call
+   * @param _to - Where call was attempted
+   * @param _recovery - Where to send funds
+   * @param _amount - Amount to send
+   */
+  function _sendToRecovery(
+    bool _hasIncreased,
+    address _assetId,
+    address _to,
+    address _recovery,
+    uint256 _amount
+  ) internal {
+    if (_amount == 0) {
+      // Nothing to do, exit early
+      return;
+    }
+
+    // Decrease allowance
+    if (_hasIncreased) {
+      SafeERC20.safeDecreaseAllowance(IERC20(_assetId), _to, _amount);
+    }
+    // Transfer funds
+    SafeERC20.safeTransfer(IERC20(_assetId), _recovery, _amount);
   }
 }
