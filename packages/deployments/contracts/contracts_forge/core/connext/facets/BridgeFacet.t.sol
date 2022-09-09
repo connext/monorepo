@@ -14,6 +14,8 @@ import {ISponsorVault} from "../../../../contracts/core/connext/interfaces/ISpon
 import {ITokenRegistry} from "../../../../contracts/core/connext/interfaces/ITokenRegistry.sol";
 import {IBridgeRouter} from "../../../../contracts/core/connext/interfaces/IBridgeRouter.sol";
 import {IWeth} from "../../../../contracts/core/connext/interfaces/IWeth.sol";
+import {IExecutor} from "../../../../contracts/core/connext/interfaces/IExecutor.sol";
+import {Executor} from "../../../../contracts/core/connext/helpers/Executor.sol";
 import {RelayerFeeMessage} from "../../../../contracts/core/relayer-fee/libraries/RelayerFeeMessage.sol";
 import {AssetLogic} from "../../../../contracts/core/connext/libraries/AssetLogic.sol";
 import {LibCrossDomainProperty} from "../../../../contracts/core/connext/libraries/LibCrossDomainProperty.sol";
@@ -74,6 +76,9 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
   // default nonce on xcall
   uint256 _nonce = 1;
 
+  // default recovery address
+  address constant _recovery = address(121212);
+
   // default CallParams
   CallParams _params =
     CallParams(
@@ -82,6 +87,7 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
       _originDomain, // origin domain
       _destinationDomain, // destination domain
       _agent, // agent
+      _recovery, // recovery address
       false, // forceSlow
       false, // receiveLocal
       address(0), // callback
@@ -607,6 +613,7 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
               transferId,
               _inputs.expectedAmt,
               _args.params.to,
+              _args.params.recovery,
               _inputs.token,
               _inputs.isSlow ? _args.originSender : address(0),
               _inputs.isSlow ? _args.params.originDomain : 0,
@@ -730,6 +737,8 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
       if (_inputs.callsExternal) {
         // should increment balance of executor
         // should NOT increment balance of to
+        // NOTE: recovery address testing should be done in Executor.t.sol
+        // as such, executor balance should *always* increment
         assertEq(finalBalances.executor, prevBalances.executor + _inputs.expectedAmt);
         assertEq(token.balanceOf(_params.to), prevBalances.to);
       } else {
@@ -1149,7 +1158,7 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
   // fails if recipient `to` not a valid address (i.e. != address(0))
   function test_BridgeFacet__xcall_failIfNoRecipient() public {
     _params.to = address(0);
-    helpers_xcallAndAssert(BridgeFacet.BridgeFacet__xcall_emptyTo.selector);
+    helpers_xcallAndAssert(BridgeFacet.BridgeFacet__xcall_emptyToOrRecovery.selector);
   }
 
   // fails if callback fee > 0 but callback address is not defined

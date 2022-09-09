@@ -396,6 +396,7 @@ contract ConnextTest is ForgeHelper, Deployer {
         sendToDest ? _origin : _destination, // origin domain
         destination, // dest domain
         address(2222), // agent
+        address(3333), // recovery
         false, // forceSlow
         false, // receiveLocal
         address(0), // callback
