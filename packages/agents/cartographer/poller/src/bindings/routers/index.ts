@@ -3,9 +3,6 @@ import { createLoggingContext, jsonifyError, NxtpError } from "@connext/nxtp-uti
 import { getContext } from "../../shared";
 import { updateRouters } from "../../lib/operations/routers";
 
-// Ought to be configured properly for each network; we consult the chain config below.
-export const DEFAULT_SAFE_CONFIRMATIONS = 5;
-
 export const bindRouters = async () => {
   const { logger } = getContext();
   const { requestContext, methodContext } = createLoggingContext(bindRouters.name);

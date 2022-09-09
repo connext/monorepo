@@ -1,4 +1,11 @@
-import { XTransfer, XTransferStatus, RouterBalance, convertFromDbTransfer } from "@connext/nxtp-utils";
+import {
+  XTransfer,
+  XTransferStatus,
+  RouterBalance,
+  convertFromDbTransfer,
+  XMessage,
+  convertFromDbMessage,
+} from "@connext/nxtp-utils";
 import { Pool } from "pg";
 import * as db from "zapatos/db";
 import { raw } from "zapatos/db";
@@ -65,6 +72,19 @@ const convertToDbTransfer = (transfer: XTransfer): s.transfers.Insertable => {
   };
 };
 
+const convertToDbMessage = (message: XMessage): s.messages.Insertable => {
+  return {
+    leaf: message.leaf,
+    origin_domain: message.originDomain,
+    destination_domain: message.destinationDomain,
+    index: message.origin?.index,
+    root: message.origin?.root,
+    message: message.origin?.message,
+    processed: message.destination?.processed,
+    return_data: message.destination?.returnData,
+  };
+};
+
 const sanitizeNull = (obj: { [s: string]: any }): any => {
   return Object.fromEntries(Object.entries(obj).filter(([_, v]) => v != null));
 };
@@ -82,6 +102,31 @@ export const saveTransfers = async (xtransfers: XTransfer[], _pool?: Pool): Prom
       transfer,
     )}) RETURNING *`.run(poolToUse);
   }
+};
+
+export const saveMessages = async (xMessages: XMessage[], _pool?: Pool): Promise<void> => {
+  // The `xMessages` are the ones retrieved only from the origin or destination domain
+  const poolToUse = _pool ?? pool;
+  const messages: s.messages.Insertable[] = xMessages.map(convertToDbMessage);
+
+  for (const oneMessage of messages) {
+    const message = sanitizeNull(oneMessage);
+    await db.sql<s.messages.SQL, s.messages.JSONSelectable[]>`INSERT INTO ${"messages"} (${db.cols(message)})
+    VALUES (${db.vals(message)}) ON CONFLICT ("leaf") DO UPDATE SET (${db.cols(message)}) = (${db.vals(
+      message,
+    )}) RETURNING *`.run(poolToUse);
+  }
+};
+
+export const getPendingMessages = async (_pool?: Pool, orderDirection: "ASC" | "DESC" = "ASC"): Promise<XMessage[]> => {
+  // Get the messages in which `processed` is false
+  const poolToUse = _pool ?? pool;
+  const processed = false;
+
+  const x = await db.sql<s.messages.SQL, s.messages.JSONSelectable[]>`SELECT * FROM ${"messages"} WHERE ${{
+    processed,
+  }} ORDER BY "index" ${raw(`${orderDirection}`)} NULLS LAST`.run(poolToUse);
+  return x.map(convertFromDbMessage);
 };
 
 export const saveCheckPoint = async (check: string, point: number, _pool?: Pool): Promise<void> => {

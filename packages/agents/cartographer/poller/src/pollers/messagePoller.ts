@@ -1,14 +1,14 @@
 import { SubgraphReader } from "@connext/nxtp-adapters-subgraph";
 import { createMethodContext, createRequestContext, getChainData, Logger } from "@connext/nxtp-utils";
 
-import { getDatabase, closeDatabase } from "./adapters/database";
-import { bindTransfers } from "./bindings";
-import { CartographerConfig, getConfig } from "./config";
-import { context } from "./shared";
+import { closeDatabase, getDatabase } from "../adapters/database";
+import { bindMessages } from "../bindings";
+import { CartographerConfig, getConfig } from "../config";
+import { context } from "../shared";
 
-export const makeTransfersPoller = async (_configOverride?: CartographerConfig) => {
-  const requestContext = createRequestContext("Transfers Poller Init");
-  const methodContext = createMethodContext(makeTransfersPoller.name);
+export const makeMessagesPoller = async (_configOverride?: CartographerConfig) => {
+  const requestContext = createRequestContext("Messages Poller Init");
+  const methodContext = createMethodContext(makeMessagesPoller.name);
   context.adapters = {} as any;
 
   /// MARK - Config
@@ -18,7 +18,7 @@ export const makeTransfersPoller = async (_configOverride?: CartographerConfig) 
   context.config = _configOverride ?? (await getConfig());
   context.logger = new Logger({
     level: context.config.logLevel,
-    name: "cartographer-transfers",
+    name: "cartographer-messages",
     formatters: {
       level: (label) => {
         return { level: label.toUpperCase() };
@@ -41,7 +41,7 @@ export const makeTransfersPoller = async (_configOverride?: CartographerConfig) 
   context.domains = Object.keys(context.config.chains).filter((domain) => supported[domain]);
 
   /// MARK - Bindings
-  context.logger.info("Transfers Poller initialized!", requestContext, methodContext, {
+  context.logger.info("Messages Poller initialized!", requestContext, methodContext, {
     domains: context.domains,
   });
   context.logger.info(
@@ -56,6 +56,6 @@ export const makeTransfersPoller = async (_configOverride?: CartographerConfig) 
     `,
   );
 
-  await bindTransfers();
+  await bindMessages();
   await closeDatabase();
 };
