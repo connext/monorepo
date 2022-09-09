@@ -18,11 +18,6 @@ import {
   RouterOwnerProposed,
   RouterRecipientSet,
   MaxRoutersPerTransferUpdated,
-  TokenSwap,
-  AddLiquidity,
-  RemoveLiquidity,
-  RemoveLiquidityOne,
-  RemoveLiquidityImbalance,
 } from "../../generated/Connext/ConnextHandler";
 import { Dispatch, Process, AggregateRootUpdated } from "../../generated/Connector/Connector";
 import {
@@ -41,10 +36,6 @@ import {
 } from "../../generated/schema";
 
 const DEFAULT_MAX_ROUTERS_PER_TRANSFER = 5;
-
-export function handleRelayerAdded(event: RelayerAdded): void {
-  let relayerId = event.params.relayer.toHex();
-  let relayer = Relayer.load(relayerId);
 
 /// MARK - Assets
 export function handleAssetAdded(event: AssetAdded): void {
@@ -425,16 +416,8 @@ export function handleReconciled(event: Reconciled): void {
   transfer.save();
 }
 
-/// MARK - AMMs
-export function handleAmmTokenSwap(_event: TokenSwap): void {}
-export function handleAmmAddLiquidity(_event: AddLiquidity): void {}
-export function handleAmmRemoveLiquidity(_event: RemoveLiquidity): void {}
-export function handleAmmRemoveLiquidityOne(_event: RemoveLiquidityOne): void {}
-export function handleAmmRemoveLiquidityImbalance(_event: RemoveLiquidityImbalance): void {}
-export function handleAmmNewAdminFee(_event: RemoveLiquidityImbalance): void {}
-
 /// MARK - Connector
-export function handleDispatch(_event: Dispatch): void {
+export function handleDispatch(event: Dispatch): void {
   // Dispatch(bytes32 leaf, uint256 index, bytes32 root, bytes message);
   let message = OriginMessage.load(event.params.leaf.toHexString());
   if (message == null) {
@@ -471,15 +454,6 @@ export function handleAggregateRootUpdated(event: AggregateRootUpdated): void {
   aggregateRoot.root = event.params.current;
   aggregateRoot.save();
 }
-
-export function handleAggregateRootUpdated(_event: AggregateRootUpdated): void {}
-export function handleMessageProcessed(_event: MessageProcessed): void {}
-export function handleMessageSent(_event: MessageSent): void {}
-export function handleMirrorConnectorUpdated(_event: MirrorConnectorUpdated): void {}
-export function handleOwnershipProposed(_event: OwnershipProposed): void {}
-export function handleOwnershipTransferred(_event: OwnershipTransferred): void {}
-export function handleSenderAdded(_event: SenderAdded): void {}
-export function handleSenderRemoved(_event: SenderRemoved): void {}
 
 /// MARK - Helpers
 // eslint-disable-next-line @typescript-eslint/ban-types
