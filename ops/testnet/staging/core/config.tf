@@ -15,11 +15,11 @@ locals {
     { name = "DD_ENV", value = var.stage },
     { name = "DD_SERVICE", value = "router-${var.environment}" }
   ]
-  # lighthouse_env_vars = [
-  #   { name = "NXTP_CONFIG", value = local.local_lighthouse_config },
-  #   { name = "ENVIRONMENT", value = var.environment },
-  #   { name = "STAGE", value = var.stage }
-  # ]
+  lighthouse_prover_env_vars = [
+    { name = "NXTP_CONFIG", value = local.local_prover_lighthouse_config },
+    { name = "ENVIRONMENT", value = var.environment },
+    { name = "STAGE", value = var.stage }
+  ]
   router_web3signer_env_vars = [
     { name = "WEB3_SIGNER_PRIVATE_KEY", value = var.router_web3_signer_private_key },
     { name = "WEB3SIGNER_HTTP_HOST_ALLOWLIST", value = "*" }
@@ -70,8 +70,8 @@ locals {
         ]
       }
     }
-    web3SignerUrl    = "https://${module.sequencer_web3signer.service_endpoint}"
-    environment = var.stage
+    web3SignerUrl = "https://${module.sequencer_web3signer.service_endpoint}"
+    environment   = var.stage
     messageQueue = {
       connection = {
         uri = "amqps://${var.rmq_mgt_user}:${var.rmq_mgt_password}@${module.centralised_message_queue.aws_mq_amqp_endpoint}"
@@ -120,6 +120,64 @@ locals {
 
 locals {
   local_router_config = jsonencode({
+    redis = {
+      host = module.router_cache.redis_instance_address,
+      port = module.router_cache.redis_instance_port
+    },
+    logLevel     = "debug"
+    sequencerUrl = "https://${module.sequencer_publisher.service_endpoint}"
+    server = {
+      adminToken = var.admin_token_router
+      pub = {
+        port = 8080
+      }
+      sub = {
+        port = 8080
+      }
+      exec = {
+        port = 8080
+      }
+    }
+    chains = {
+      "1735356532" = {
+        providers = ["https://opt-goerli.g.alchemy.com/v2/${var.optgoerli_alchemy_key_1}", "https://goerli.optimism.io"]
+        assets = [
+          {
+            name    = "TEST"
+            address = "0x68Db1c8d85C09d546097C65ec7DCBFF4D6497CbF"
+          },
+          {
+            name    = "WETH"
+            address = "0x39B061B7e41DE8B721f9aEcEB6b3f17ECB7ba63E"
+          }
+        ]
+      }
+      "1735353714" = {
+        providers = ["https://eth-goerli.alchemyapi.io/v2/${var.goerli_alchemy_key_1}", "https://rpc.ankr.com/eth_goerli"]
+        assets = [
+          {
+            name    = "TEST"
+            address = "0x7ea6eA49B0b0Ae9c5db7907d139D9Cd3439862a1"
+          },
+          {
+            name    = "WETH"
+            address = "0xB4FBF271143F4FBf7B91A5ded31805e42b2208d6"
+          }
+        ]
+      }
+    }
+    cartographerUrl  = "https://postgrest.testnet.staging.connext.ninja"
+    web3SignerUrl    = "https://${module.router_web3signer.service_endpoint}"
+    environment      = var.stage
+    nomadEnvironment = "none"
+    messageQueue = {
+      uri = "amqps://${var.rmq_mgt_user}:${var.rmq_mgt_password}@${module.centralised_message_queue.aws_mq_amqp_endpoint}"
+    }
+  })
+}
+
+locals {
+  local_lighthouse_prover_config = jsonencode({
     redis = {
       host = module.router_cache.redis_instance_address,
       port = module.router_cache.redis_instance_port

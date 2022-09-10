@@ -9,7 +9,7 @@
     "src/**/*"
   ],
   "scripts": {
-    "start:executor": "node --enable-source-maps dist/tasks/prover/index.js",,
+    "start:prover": "node --enable-source-maps dist/tasks/prover/index.js",
     "lint": "eslint ./src --ext .ts --env node",
     "test": "nyc ts-mocha --require 'test/globalTestHook.ts' --check-leaks --exit --timeout 60000 'test/**/*.spec.ts'",
     "clean": "rimraf ./dist ./tsconfig.tsBuildInfo",

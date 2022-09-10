@@ -2,13 +2,11 @@
 
 import { Type, Static } from "@sinclair/typebox";
 import { config as dotenvConfig } from "dotenv";
-import { ajv, ChainData, TAddress, TLogLevel } from "@connext/nxtp-utils";
-import { ConnextContractDeployments, ContractPostfix } from "@connext/nxtp-txservice";
+import { ajv, TAddress, TLogLevel } from "@connext/nxtp-utils";
 
 import { existsSync, readFileSync } from "./mockable";
 
 // Polling mins and defaults.
-const DEFAULT_CONFIRMATIONS = 3;
 const MIN_CARTOGRAPHER_POLL_INTERVAL = 30_000;
 const DEFAULT_CARTOGRAPHER_POLL_INTERVAL = 60_000;
 
@@ -16,9 +14,7 @@ dotenvConfig();
 
 export const TChainConfig = Type.Object({
   providers: Type.Array(Type.String()),
-  confirmations: Type.Integer({ minimum: 1 }), // What we consider the "safe confirmations" number for this chain.
   deployments: Type.Object({
-    connext: TAddress,
     spokeConnector: TAddress,
   }),
 });
@@ -52,10 +48,7 @@ export type NxtpLighthouseConfig = Static<typeof NxtpLighthouseConfigSchema>;
  *
  * @returns The router config with sensible defaults
  */
-export const getEnvConfig = (
-  chainData: Map<string, ChainData>,
-  deployments: ConnextContractDeployments,
-): NxtpLighthouseConfig => {
+export const getEnvConfig = (): NxtpLighthouseConfig => {
   let configJson: Record<string, any> = {};
   let configFile: any = {};
 
@@ -108,33 +101,14 @@ export const getEnvConfig = (
       ? "https://postgrest.testnet.connext.ninja"
       : "https://postgrest.testnet.staging.connext.ninja");
 
-  const contractPostfix: ContractPostfix =
-    nxtpConfig.environment === "production"
-      ? ""
-      : (`${nxtpConfig.environment[0].toUpperCase()}${nxtpConfig.environment.slice(1)}` as ContractPostfix);
-
   // add contract deployments if they exist
-  Object.entries(nxtpConfig.chains).forEach(([domainId, chainConfig]) => {
-    const chainDataForChain = chainData.get(domainId);
-    const chainRecommendedConfirmations = chainDataForChain?.confirmations ?? DEFAULT_CONFIRMATIONS;
-
+  Object.entries(nxtpConfig.chains).forEach(([domainId]) => {
     // Make sure deployments is filled out correctly.
     // allow passed in address to override
     // format: { [domainId]: { { "deployments": { "connext": <address>, ... } }
     nxtpConfig.chains[domainId].deployments = {
-      connext:
-        chainConfig.deployments?.connext ??
-        (() => {
-          const res = chainDataForChain ? deployments.connext(chainDataForChain.chainId, contractPostfix) : undefined;
-          if (!res) {
-            throw new Error(`No Connext contract address for domain ${domainId}`);
-          }
-          return res.address;
-        })(),
       spokeConnector: nxtpConfig.chains[domainId].deployments.spokeConnector, // TODO: can we infer this?
     };
-
-    nxtpConfig.chains[domainId].confirmations = chainConfig.confirmations ?? chainRecommendedConfirmations;
   });
 
   const validate = ajv.compile(NxtpLighthouseConfigSchema);
@@ -155,12 +129,9 @@ let nxtpConfig: NxtpLighthouseConfig | undefined;
  *
  * @returns The config
  */
-export const getConfig = async (
-  chainData: Map<string, ChainData>,
-  deployments: ConnextContractDeployments,
-): Promise<NxtpLighthouseConfig> => {
+export const getConfig = async (): Promise<NxtpLighthouseConfig> => {
   if (!nxtpConfig) {
-    nxtpConfig = getEnvConfig(chainData, deployments);
+    nxtpConfig = getEnvConfig();
   }
   return nxtpConfig;
 };
