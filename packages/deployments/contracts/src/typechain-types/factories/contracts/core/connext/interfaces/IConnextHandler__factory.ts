@@ -2586,19 +2586,6 @@ const _abi = [
   {
     inputs: [
       {
-        internalType: "address",
-        name: "_sponsorVault",
-        type: "address",
-      },
-    ],
-    name: "setSponsorVault",
-    outputs: [],
-    stateMutability: "nonpayable",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
         internalType: "bytes32",
         name: "canonicalId",
         type: "bytes32",
@@ -2701,19 +2688,6 @@ const _abi = [
     name: "setupRouter",
     outputs: [],
     stateMutability: "nonpayable",
-    type: "function",
-  },
-  {
-    inputs: [],
-    name: "sponsorVault",
-    outputs: [
-      {
-        internalType: "contract ISponsorVault",
-        name: "",
-        type: "address",
-      },
-    ],
-    stateMutability: "view",
     type: "function",
   },
   {

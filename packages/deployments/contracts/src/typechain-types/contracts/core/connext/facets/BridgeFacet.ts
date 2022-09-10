@@ -158,8 +158,6 @@ export interface BridgeFacetInterface extends utils.Interface {
     "removeSequencer(address)": FunctionFragment;
     "routedTransfers(bytes32)": FunctionFragment;
     "setExecutor(address)": FunctionFragment;
-    "setSponsorVault(address)": FunctionFragment;
-    "sponsorVault()": FunctionFragment;
     "xcall(((address,bytes,uint32,address,address,bool,uint256),address,uint256,uint256))": FunctionFragment;
   };
 
@@ -181,8 +179,6 @@ export interface BridgeFacetInterface extends utils.Interface {
       | "removeSequencer"
       | "routedTransfers"
       | "setExecutor"
-      | "setSponsorVault"
-      | "sponsorVault"
       | "xcall"
   ): FunctionFragment;
 
@@ -249,14 +245,6 @@ export interface BridgeFacetInterface extends utils.Interface {
     values: [PromiseOrValue<string>]
   ): string;
   encodeFunctionData(
-    functionFragment: "setSponsorVault",
-    values: [PromiseOrValue<string>]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "sponsorVault",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
     functionFragment: "xcall",
     values: [XCallArgsStruct]
   ): string;
@@ -310,14 +298,6 @@ export interface BridgeFacetInterface extends utils.Interface {
     functionFragment: "setExecutor",
     data: BytesLike
   ): Result;
-  decodeFunctionResult(
-    functionFragment: "setSponsorVault",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "sponsorVault",
-    data: BytesLike
-  ): Result;
   decodeFunctionResult(functionFragment: "xcall", data: BytesLike): Result;
 
   events: {
@@ -328,7 +308,6 @@ export interface BridgeFacetInterface extends utils.Interface {
     "ForcedReceiveLocal(bytes32,bytes32,uint32,uint256)": EventFragment;
     "SequencerAdded(address,address)": EventFragment;
     "SequencerRemoved(address,address)": EventFragment;
-    "SponsorVaultUpdated(address,address,address)": EventFragment;
     "TransferRelayerFeesUpdated(bytes32,uint256,address)": EventFragment;
     "XCalled(bytes32,uint256,bytes32,tuple,address,uint256,address)": EventFragment;
   };
@@ -340,7 +319,6 @@ export interface BridgeFacetInterface extends utils.Interface {
   getEvent(nameOrSignatureOrTopic: "ForcedReceiveLocal"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "SequencerAdded"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "SequencerRemoved"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "SponsorVaultUpdated"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "TransferRelayerFeesUpdated"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "XCalled"): EventFragment;
 }
@@ -434,19 +412,6 @@ export type SequencerRemovedEvent = TypedEvent<
 
 export type SequencerRemovedEventFilter =
   TypedEventFilter<SequencerRemovedEvent>;
-
-export interface SponsorVaultUpdatedEventObject {
-  oldSponsorVault: string;
-  newSponsorVault: string;
-  caller: string;
-}
-export type SponsorVaultUpdatedEvent = TypedEvent<
-  [string, string, string],
-  SponsorVaultUpdatedEventObject
->;
-
-export type SponsorVaultUpdatedEventFilter =
-  TypedEventFilter<SponsorVaultUpdatedEvent>;
 
 export interface TransferRelayerFeesUpdatedEventObject {
   transferId: string;
@@ -578,13 +543,6 @@ export interface BridgeFacet extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
-    setSponsorVault(
-      _sponsorVault: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
-
-    sponsorVault(overrides?: CallOverrides): Promise<[string]>;
-
     xcall(
       _args: XCallArgsStruct,
       overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
@@ -665,13 +623,6 @@ export interface BridgeFacet extends BaseContract {
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
-  setSponsorVault(
-    _sponsorVault: PromiseOrValue<string>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
-
-  sponsorVault(overrides?: CallOverrides): Promise<string>;
-
   xcall(
     _args: XCallArgsStruct,
     overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
@@ -751,13 +702,6 @@ export interface BridgeFacet extends BaseContract {
       _executor: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<void>;
-
-    setSponsorVault(
-      _sponsorVault: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<void>;
-
-    sponsorVault(overrides?: CallOverrides): Promise<string>;
 
     xcall(_args: XCallArgsStruct, overrides?: CallOverrides): Promise<string>;
   };
@@ -842,17 +786,6 @@ export interface BridgeFacet extends BaseContract {
       sequencer?: null,
       caller?: null
     ): SequencerRemovedEventFilter;
-
-    "SponsorVaultUpdated(address,address,address)"(
-      oldSponsorVault?: null,
-      newSponsorVault?: null,
-      caller?: null
-    ): SponsorVaultUpdatedEventFilter;
-    SponsorVaultUpdated(
-      oldSponsorVault?: null,
-      newSponsorVault?: null,
-      caller?: null
-    ): SponsorVaultUpdatedEventFilter;
 
     "TransferRelayerFeesUpdated(bytes32,uint256,address)"(
       transferId?: PromiseOrValue<BytesLike> | null,
@@ -960,13 +893,6 @@ export interface BridgeFacet extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
-    setSponsorVault(
-      _sponsorVault: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
-
-    sponsorVault(overrides?: CallOverrides): Promise<BigNumber>;
-
     xcall(
       _args: XCallArgsStruct,
       overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
@@ -1049,13 +975,6 @@ export interface BridgeFacet extends BaseContract {
       _executor: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
-
-    setSponsorVault(
-      _sponsorVault: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
-
-    sponsorVault(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     xcall(
       _args: XCallArgsStruct,

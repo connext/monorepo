@@ -252,8 +252,6 @@ export interface ConnextHandlerInterface extends utils.Interface {
     "removeSequencer(address)": FunctionFragment;
     "routedTransfers(bytes32)": FunctionFragment;
     "setExecutor(address)": FunctionFragment;
-    "setSponsorVault(address)": FunctionFragment;
-    "sponsorVault()": FunctionFragment;
     "xcall(((address,bytes,uint32,address,address,bool,uint256),address,uint256,uint256))": FunctionFragment;
     "diamondCut((address,uint8,bytes4[])[],address,bytes)": FunctionFragment;
     "getAcceptanceTime((address,uint8,bytes4[])[],address,bytes)": FunctionFragment;
@@ -377,8 +375,6 @@ export interface ConnextHandlerInterface extends utils.Interface {
       | "removeSequencer"
       | "routedTransfers"
       | "setExecutor"
-      | "setSponsorVault"
-      | "sponsorVault"
       | "xcall"
       | "diamondCut"
       | "getAcceptanceTime"
@@ -584,14 +580,6 @@ export interface ConnextHandlerInterface extends utils.Interface {
   encodeFunctionData(
     functionFragment: "setExecutor",
     values: [PromiseOrValue<string>]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "setSponsorVault",
-    values: [PromiseOrValue<string>]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "sponsorVault",
-    values?: undefined
   ): string;
   encodeFunctionData(
     functionFragment: "xcall",
@@ -1145,14 +1133,6 @@ export interface ConnextHandlerInterface extends utils.Interface {
     functionFragment: "setExecutor",
     data: BytesLike
   ): Result;
-  decodeFunctionResult(
-    functionFragment: "setSponsorVault",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "sponsorVault",
-    data: BytesLike
-  ): Result;
   decodeFunctionResult(functionFragment: "xcall", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "diamondCut", data: BytesLike): Result;
   decodeFunctionResult(
@@ -1478,7 +1458,6 @@ export interface ConnextHandlerInterface extends utils.Interface {
     "ForcedReceiveLocal(bytes32,bytes32,uint32,uint256)": EventFragment;
     "SequencerAdded(address,address)": EventFragment;
     "SequencerRemoved(address,address)": EventFragment;
-    "SponsorVaultUpdated(address,address,address)": EventFragment;
     "TransferRelayerFeesUpdated(bytes32,uint256,address)": EventFragment;
     "XCalled(bytes32,uint256,bytes32,tuple,address,uint256,address)": EventFragment;
     "DiamondCut(tuple[],address,bytes)": EventFragment;
@@ -1524,7 +1503,6 @@ export interface ConnextHandlerInterface extends utils.Interface {
   getEvent(nameOrSignatureOrTopic: "ForcedReceiveLocal"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "SequencerAdded"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "SequencerRemoved"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "SponsorVaultUpdated"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "TransferRelayerFeesUpdated"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "XCalled"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "DiamondCut"): EventFragment;
@@ -1709,19 +1687,6 @@ export type SequencerRemovedEvent = TypedEvent<
 
 export type SequencerRemovedEventFilter =
   TypedEventFilter<SequencerRemovedEvent>;
-
-export interface SponsorVaultUpdatedEventObject {
-  oldSponsorVault: string;
-  newSponsorVault: string;
-  caller: string;
-}
-export type SponsorVaultUpdatedEvent = TypedEvent<
-  [string, string, string],
-  SponsorVaultUpdatedEventObject
->;
-
-export type SponsorVaultUpdatedEventFilter =
-  TypedEventFilter<SponsorVaultUpdatedEvent>;
 
 export interface TransferRelayerFeesUpdatedEventObject {
   transferId: string;
@@ -2276,13 +2241,6 @@ export interface ConnextHandler extends BaseContract {
       _executor: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
-
-    setSponsorVault(
-      _sponsorVault: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
-
-    sponsorVault(overrides?: CallOverrides): Promise<[string]>;
 
     xcall(
       _args: XCallArgsStruct,
@@ -2905,13 +2863,6 @@ export interface ConnextHandler extends BaseContract {
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
-  setSponsorVault(
-    _sponsorVault: PromiseOrValue<string>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
-
-  sponsorVault(overrides?: CallOverrides): Promise<string>;
-
   xcall(
     _args: XCallArgsStruct,
     overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
@@ -3525,13 +3476,6 @@ export interface ConnextHandler extends BaseContract {
       overrides?: CallOverrides
     ): Promise<void>;
 
-    setSponsorVault(
-      _sponsorVault: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<void>;
-
-    sponsorVault(overrides?: CallOverrides): Promise<string>;
-
     xcall(_args: XCallArgsStruct, overrides?: CallOverrides): Promise<string>;
 
     diamondCut(
@@ -4120,17 +4064,6 @@ export interface ConnextHandler extends BaseContract {
       caller?: null
     ): SequencerRemovedEventFilter;
 
-    "SponsorVaultUpdated(address,address,address)"(
-      oldSponsorVault?: null,
-      newSponsorVault?: null,
-      caller?: null
-    ): SponsorVaultUpdatedEventFilter;
-    SponsorVaultUpdated(
-      oldSponsorVault?: null,
-      newSponsorVault?: null,
-      caller?: null
-    ): SponsorVaultUpdatedEventFilter;
-
     "TransferRelayerFeesUpdated(bytes32,uint256,address)"(
       transferId?: PromiseOrValue<BytesLike> | null,
       relayerFee?: null,
@@ -4589,13 +4522,6 @@ export interface ConnextHandler extends BaseContract {
       _executor: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
-
-    setSponsorVault(
-      _sponsorVault: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
-
-    sponsorVault(overrides?: CallOverrides): Promise<BigNumber>;
 
     xcall(
       _args: XCallArgsStruct,
@@ -5212,13 +5138,6 @@ export interface ConnextHandler extends BaseContract {
       _executor: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
-
-    setSponsorVault(
-      _sponsorVault: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
-
-    sponsorVault(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     xcall(
       _args: XCallArgsStruct,

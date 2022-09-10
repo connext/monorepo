@@ -611,11 +611,6 @@ const _abi = [
   },
   {
     inputs: [],
-    name: "BridgeFacet__setSponsorVault_invalidSponsorVault",
-    type: "error",
-  },
-  {
-    inputs: [],
     name: "BridgeFacet__xcall_destinationNotSupported",
     type: "error",
   },
@@ -924,31 +919,6 @@ const _abi = [
       },
     ],
     name: "SequencerRemoved",
-    type: "event",
-  },
-  {
-    anonymous: false,
-    inputs: [
-      {
-        indexed: false,
-        internalType: "address",
-        name: "oldSponsorVault",
-        type: "address",
-      },
-      {
-        indexed: false,
-        internalType: "address",
-        name: "newSponsorVault",
-        type: "address",
-      },
-      {
-        indexed: false,
-        internalType: "address",
-        name: "caller",
-        type: "address",
-      },
-    ],
-    name: "SponsorVaultUpdated",
     type: "event",
   },
   {
@@ -1487,32 +1457,6 @@ const _abi = [
     name: "setExecutor",
     outputs: [],
     stateMutability: "nonpayable",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
-        internalType: "address",
-        name: "_sponsorVault",
-        type: "address",
-      },
-    ],
-    name: "setSponsorVault",
-    outputs: [],
-    stateMutability: "nonpayable",
-    type: "function",
-  },
-  {
-    inputs: [],
-    name: "sponsorVault",
-    outputs: [
-      {
-        internalType: "contract ISponsorVault",
-        name: "",
-        type: "address",
-      },
-    ],
-    stateMutability: "view",
     type: "function",
   },
   {

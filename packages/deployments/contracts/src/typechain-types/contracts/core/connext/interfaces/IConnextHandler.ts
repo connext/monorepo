@@ -331,13 +331,11 @@ export interface IConnextHandlerInterface extends utils.Interface {
     "setMaxRoutersPerTransfer(uint256)": FunctionFragment;
     "setRelayerFeeRouter(address)": FunctionFragment;
     "setRouterRecipient(address,address)": FunctionFragment;
-    "setSponsorVault(address)": FunctionFragment;
     "setSwapAdminFee(bytes32,uint256)": FunctionFragment;
     "setSwapFee(bytes32,uint256)": FunctionFragment;
     "setTokenRegistry(address)": FunctionFragment;
     "setupAsset((uint32,bytes32),address,address)": FunctionFragment;
     "setupRouter(address,address,address)": FunctionFragment;
-    "sponsorVault()": FunctionFragment;
     "stopRampA(bytes32)": FunctionFragment;
     "swap(bytes32,uint8,uint8,uint256,uint256,uint256)": FunctionFragment;
     "swapExact(bytes32,uint256,address,address,uint256,uint256)": FunctionFragment;
@@ -460,13 +458,11 @@ export interface IConnextHandlerInterface extends utils.Interface {
       | "setMaxRoutersPerTransfer"
       | "setRelayerFeeRouter"
       | "setRouterRecipient"
-      | "setSponsorVault"
       | "setSwapAdminFee"
       | "setSwapFee"
       | "setTokenRegistry"
       | "setupAsset"
       | "setupRouter"
-      | "sponsorVault"
       | "stopRampA"
       | "swap"
       | "swapExact"
@@ -988,10 +984,6 @@ export interface IConnextHandlerInterface extends utils.Interface {
     values: [PromiseOrValue<string>, PromiseOrValue<string>]
   ): string;
   encodeFunctionData(
-    functionFragment: "setSponsorVault",
-    values: [PromiseOrValue<string>]
-  ): string;
-  encodeFunctionData(
     functionFragment: "setSwapAdminFee",
     values: [PromiseOrValue<BytesLike>, PromiseOrValue<BigNumberish>]
   ): string;
@@ -1014,10 +1006,6 @@ export interface IConnextHandlerInterface extends utils.Interface {
       PromiseOrValue<string>,
       PromiseOrValue<string>
     ]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "sponsorVault",
-    values?: undefined
   ): string;
   encodeFunctionData(
     functionFragment: "stopRampA",
@@ -1454,10 +1442,6 @@ export interface IConnextHandlerInterface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "setSponsorVault",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
     functionFragment: "setSwapAdminFee",
     data: BytesLike
   ): Result;
@@ -1469,10 +1453,6 @@ export interface IConnextHandlerInterface extends utils.Interface {
   decodeFunctionResult(functionFragment: "setupAsset", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "setupRouter",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "sponsorVault",
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "stopRampA", data: BytesLike): Result;
@@ -2138,11 +2118,6 @@ export interface IConnextHandler extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
-    setSponsorVault(
-      _sponsorVault: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
-
     setSwapAdminFee(
       canonicalId: PromiseOrValue<BytesLike>,
       newAdminFee: PromiseOrValue<BigNumberish>,
@@ -2173,8 +2148,6 @@ export interface IConnextHandler extends BaseContract {
       recipient: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
-
-    sponsorVault(overrides?: CallOverrides): Promise<[string]>;
 
     stopRampA(
       canonicalId: PromiseOrValue<BytesLike>,
@@ -2790,11 +2763,6 @@ export interface IConnextHandler extends BaseContract {
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
-  setSponsorVault(
-    _sponsorVault: PromiseOrValue<string>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
-
   setSwapAdminFee(
     canonicalId: PromiseOrValue<BytesLike>,
     newAdminFee: PromiseOrValue<BigNumberish>,
@@ -2825,8 +2793,6 @@ export interface IConnextHandler extends BaseContract {
     recipient: PromiseOrValue<string>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
-
-  sponsorVault(overrides?: CallOverrides): Promise<string>;
 
   stopRampA(
     canonicalId: PromiseOrValue<BytesLike>,
@@ -3428,11 +3394,6 @@ export interface IConnextHandler extends BaseContract {
       overrides?: CallOverrides
     ): Promise<void>;
 
-    setSponsorVault(
-      _sponsorVault: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<void>;
-
     setSwapAdminFee(
       canonicalId: PromiseOrValue<BytesLike>,
       newAdminFee: PromiseOrValue<BigNumberish>,
@@ -3463,8 +3424,6 @@ export interface IConnextHandler extends BaseContract {
       recipient: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<void>;
-
-    sponsorVault(overrides?: CallOverrides): Promise<string>;
 
     stopRampA(
       canonicalId: PromiseOrValue<BytesLike>,
@@ -4113,11 +4072,6 @@ export interface IConnextHandler extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
-    setSponsorVault(
-      _sponsorVault: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
-
     setSwapAdminFee(
       canonicalId: PromiseOrValue<BytesLike>,
       newAdminFee: PromiseOrValue<BigNumberish>,
@@ -4148,8 +4102,6 @@ export interface IConnextHandler extends BaseContract {
       recipient: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
-
-    sponsorVault(overrides?: CallOverrides): Promise<BigNumber>;
 
     stopRampA(
       canonicalId: PromiseOrValue<BytesLike>,
@@ -4780,11 +4732,6 @@ export interface IConnextHandler extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
-    setSponsorVault(
-      _sponsorVault: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
-
     setSwapAdminFee(
       canonicalId: PromiseOrValue<BytesLike>,
       newAdminFee: PromiseOrValue<BigNumberish>,
@@ -4815,8 +4762,6 @@ export interface IConnextHandler extends BaseContract {
       recipient: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
-
-    sponsorVault(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     stopRampA(
       canonicalId: PromiseOrValue<BytesLike>,
