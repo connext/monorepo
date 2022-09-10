@@ -17,8 +17,6 @@ import "../contracts/core/connext/libraries/LibConnextStorage.sol";
 
 import {LPToken} from "../contracts/core/connext/helpers/LPToken.sol";
 
-import {PromiseRouter} from "../contracts/core/promise/PromiseRouter.sol";
-
 import {RelayerFeeRouter} from "../contracts/core/relayer-fee/RelayerFeeRouter.sol";
 import {RelayerFeeMessage} from "../contracts/core/relayer-fee/libraries/RelayerFeeMessage.sol";
 
@@ -116,10 +114,6 @@ contract ConnextTest is ForgeHelper, Deployer {
   TokenRegistry _originRegistry;
   TokenRegistry _destinationRegistry;
 
-  // ============ Promise router
-  PromiseRouter _originPromise;
-  PromiseRouter _destinationPromise;
-
   // ============ Relayer fee router
   RelayerFeeRouter _originRelayerFee;
   RelayerFeeRouter _destinationRelayerFee;
@@ -186,29 +180,8 @@ contract ConnextTest is ForgeHelper, Deployer {
     MockXAppConnectionManager(address(_originManager)).enrollInbox(address(this));
   }
 
-  function utils_deployPromiseRouter() public {
-    // Deploy promise router (origin + destination)
-    PromiseRouter promiseRouterImpl = new PromiseRouter();
-
-    ERC1967Proxy originProxy = new ERC1967Proxy(
-      address(promiseRouterImpl),
-      abi.encodeWithSelector(PromiseRouter.initialize.selector, address(_originManager))
-    );
-    _originPromise = PromiseRouter(payable(address(originProxy)));
-
-    ERC1967Proxy destinationProxy = new ERC1967Proxy(
-      address(promiseRouterImpl),
-      abi.encodeWithSelector(PromiseRouter.initialize.selector, _destinationManager)
-    );
-    _destinationPromise = PromiseRouter(payable(address(destinationProxy)));
-
-    // enroll remotes
-    _originPromise.enrollRemoteRouter(_destination, TypeCasts.addressToBytes32(address(_destinationPromise)));
-    _destinationPromise.enrollRemoteRouter(_origin, TypeCasts.addressToBytes32(address(_originPromise)));
-  }
-
   function utils_deployRelayerFeeRouter() public {
-    // Deploy promise router (origin + destination)
+    // Deploy relayer fee router (origin + destination)
     RelayerFeeRouter impl = new RelayerFeeRouter();
 
     ERC1967Proxy originProxy = new ERC1967Proxy(
@@ -219,7 +192,7 @@ contract ConnextTest is ForgeHelper, Deployer {
 
     ERC1967Proxy destinationProxy = new ERC1967Proxy(
       address(impl),
-      abi.encodeWithSelector(PromiseRouter.initialize.selector, _destinationManager)
+      abi.encodeWithSelector(RelayerFeeRouter.initialize.selector, address(_destinationManager))
     );
     _destinationRelayerFee = RelayerFeeRouter(payable(address(destinationProxy)));
 
@@ -229,8 +202,6 @@ contract ConnextTest is ForgeHelper, Deployer {
   }
 
   function utils_deployConnext() public {
-    // deploy promise router
-    utils_deployPromiseRouter();
     // deploy relayer fee router
     utils_deployRelayerFeeRouter();
 
@@ -240,7 +211,6 @@ contract ConnextTest is ForgeHelper, Deployer {
       address(_originManager),
       address(_originRegistry),
       address(_originRelayerFee),
-      payable(address(_originPromise)),
       7 days
     );
     _originConnext = IConnextHandler(originConnext);
@@ -250,7 +220,6 @@ contract ConnextTest is ForgeHelper, Deployer {
       address(_destinationManager),
       address(_destinationRegistry),
       address(_destinationRelayerFee),
-      payable(address(_destinationPromise)),
       7 days
     );
     _destinationConnext = IConnextHandler(destinationConnext);
@@ -265,9 +234,7 @@ contract ConnextTest is ForgeHelper, Deployer {
 
     // set connext on relayer contracts
     _originRelayerFee.setConnext(address(_originConnext));
-    _originPromise.setConnext(address(_originConnext));
     _destinationRelayerFee.setConnext(address(_destinationConnext));
-    _destinationPromise.setConnext(address(_destinationConnext));
 
     // enroll instances
     _originConnext.addConnextion(_destination, address(_destinationConnext));
@@ -399,8 +366,6 @@ contract ConnextTest is ForgeHelper, Deployer {
         address(2222), // agent
         address(3333), // recovery
         false, // receiveLocal
-        address(0), // callback
-        0, // callbackFee
         0, // relayerFee
         0.9 ether // slippage tol
       );
@@ -415,8 +380,6 @@ contract ConnextTest is ForgeHelper, Deployer {
         address(2222), // agent
         address(3333), // recovery
         false, // receiveLocal
-        address(0), // callback
-        0, // callbackFee
         0, // relayerFee
         0.9 ether // slippage tol
       );
@@ -433,8 +396,6 @@ contract ConnextTest is ForgeHelper, Deployer {
         params.agent, // agent
         params.recovery, // recovery address
         params.receiveLocal,
-        params.callback,
-        params.callbackFee,
         params.relayerFee, // relayer fee
         params.destinationMinOut
       );
@@ -486,7 +447,7 @@ contract ConnextTest is ForgeHelper, Deployer {
     );
 
     // Make call
-    bytes32 ret = _originConnext.xcall{value: _args.params.relayerFee + _args.params.callbackFee}(_args);
+    bytes32 ret = _originConnext.xcall{value: _args.params.relayerFee}(_args);
     assertEq(ret, transferId);
 
     // Check balances
@@ -505,7 +466,7 @@ contract ConnextTest is ForgeHelper, Deployer {
     );
     assertEq(end.bridgeNative, initial.bridgeNative + _args.params.relayerFee);
     assertEq(end.callerTransacting, initial.callerTransacting - _args.amount);
-    assertEq(end.callerNative, initial.callerNative - _args.params.relayerFee - _args.params.callbackFee);
+    assertEq(end.callerNative, initial.callerNative - _args.params.relayerFee);
 
     // Check call to bridge router
     assertEq(MockBridgeRouter(_originBridgeRouter).getToken(transferId), _bridged);
@@ -930,61 +891,6 @@ contract ConnextTest is ForgeHelper, Deployer {
     // 3. call `execute` on the destination
     utils_executeAndAssert(execute, transferId, execute.amount);
     // NOTE: execute only passes if external call passes because of balance assertions on `to`
-  }
-
-  // you should be able to use a callback
-  function test_Connext__callbacksWork() public {
-    // 0. setup contracts
-    utils_setupAssets(_origin, true);
-    MockCalldata callTo = new MockCalldata(address(this), _origin);
-    bytes memory callData = abi.encodeWithSelector(MockCalldata.unpermissionedCall.selector, _destinationAdopted);
-    MockCallback callback = new MockCallback();
-
-    (, bytes memory sample) = address(callTo).call(callData);
-
-    // 1. xcall
-    CallParams memory params = utils_createCallParams(_destination);
-    XCallArgs memory xcall = XCallArgs(utils_createUserCallParams(_destination), _originLocal, 1 ether, 0.95 ether);
-    xcall.params.to = address(callTo);
-    params.to = address(callTo);
-
-    xcall.params.callData = callData;
-    params.callData = callData;
-
-    xcall.params.callback = address(callback);
-    params.callback = address(callback);
-
-    bytes32 transferId = utils_xcallAndAssert(xcall, _originLocal, xcall.amount);
-
-    // 2. call `execute` on the destination
-    ExecuteArgs memory execute = utils_createExecuteArgs(params, 2, transferId, xcall.amount);
-    utils_executeAndAssert(execute, transferId, utils_getFastTransferAmount(execute.amount));
-    // NOTE: execute only passes if external call passes because of balance assertions on `to`
-
-    // 3. call `handle` on promise router
-    bytes memory promiseMessage = abi.encodePacked(
-      uint8(1),
-      transferId,
-      address(callback),
-      uint8(1),
-      sample.length,
-      sample
-    );
-    _originPromise.handle(_destination, 0, TypeCasts.addressToBytes32(address(_destinationPromise)), promiseMessage);
-
-    // 4. bump callback fee
-    uint256 bump = 0.01 ether;
-    uint256 initRouter = address(_originPromise).balance;
-    _originPromise.bumpCallbackFee{value: bump}(transferId);
-    assertEq(_originPromise.callbackFees(transferId), bump + xcall.params.callbackFee);
-    assertEq(address(_originPromise).balance, initRouter + bump);
-
-    // 5. call `process` on promise router
-    uint256 initRelayer = address(this).balance;
-    _originPromise.process(transferId, promiseMessage);
-    assertTrue(callback.transferSuccess(transferId));
-    assertEq(_originPromise.callbackFees(transferId), 0);
-    assertEq(address(this).balance, initRelayer + bump + xcall.params.callbackFee);
   }
 
   // you should be able to use a sponsor vault

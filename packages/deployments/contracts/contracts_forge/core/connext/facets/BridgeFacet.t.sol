@@ -26,8 +26,6 @@ import {BaseConnextFacet} from "../../../../contracts/core/connext/facets/BaseCo
 import {TestERC20} from "../../../../contracts/test/TestERC20.sol";
 import {TokenRegistry} from "../../../../contracts/test/TokenRegistry.sol";
 import {BridgeMessage} from "../../../../contracts/test/BridgeMessage.sol";
-import {PromiseRouter} from "../../../../contracts/core/promise/PromiseRouter.sol";
-
 import "../../../utils/Mock.sol";
 import "../../../utils/FacetHelper.sol";
 
@@ -49,10 +47,6 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
   address _xapp;
   // mock bridge router
   address _bridgeRouter;
-  // mock promise router
-  address payable _promiseRouter;
-  // mock callback contract
-  address _callback;
 
   // agents
   address _agent = address(123456654321);
@@ -89,8 +83,6 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
       _agent, // agent
       _recovery, // recovery address
       false, // receiveLocal
-      address(0), // callback
-      0, // callbackFee
       _relayerFee, // relayer fee
       1 ether // destinationMinOut
     );
@@ -105,10 +97,6 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
     // Set up asset context. By default, local is the adopted asset - the one the 'user'
     // is using - and is representational (meaning canonically it belongs to another chain).
     utils_setupAsset(true, false);
-
-    // Promise router mock calls.
-    vm.mockCall(_promiseRouter, abi.encodeWithSelector(PromiseRouter.send.selector), abi.encode());
-    vm.mockCall(_promiseRouter, abi.encodeWithSelector(PromiseRouter.initCallbackFee.selector), abi.encode());
 
     // Other context setup: configuration, storage, etc.
     s.approvedRelayers[address(this)] = true;
@@ -140,12 +128,6 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
 
     // Deploy a mock bridge router.
     _bridgeRouter = address(new MockBridgeRouter());
-    // Deploy the promise router.
-    s.promiseRouter = new MockPromiseRouter();
-    _promiseRouter = payable(address(s.promiseRouter));
-
-    // Deploy a mock callback.
-    _callback = address(new MockCallback());
 
     // setup aave pool
     _aavePool = address(new MockPool(false));
@@ -183,8 +165,6 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
         _params.agent, // agent
         _params.recovery, // recovery address
         _params.receiveLocal,
-        _params.callback,
-        _params.callbackFee,
         _params.relayerFee, // relayer fee
         _params.destinationMinOut
       );
@@ -339,14 +319,6 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
       );
     }
 
-    if (args.params.callbackFee != 0) {
-      // Assert that CallbackFee would be paid by the user.
-      vm.expectCall(
-        _promiseRouter,
-        args.params.callbackFee,
-        abi.encodeWithSelector(PromiseRouter.initCallbackFee.selector, transferId)
-      );
-    }
     // Assert approval call
     if (bridgedAmt > 0) {
       vm.expectCall(bridged, abi.encodeWithSelector(IERC20.approve.selector, _bridgeRouter, bridgedAmt));
@@ -416,7 +388,7 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
       vm.expectRevert(expectedError);
     }
 
-    uint256 fees = args.params.relayerFee + args.params.callbackFee;
+    uint256 fees = args.params.relayerFee;
     vm.prank(_originSender);
     this.xcall{value: fees}(args);
 
@@ -453,12 +425,6 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
 
       // Should have updated relayer fees mapping.
       assertEq(this.relayerFees(transferId), args.params.relayerFee + initialRelayerFees);
-
-      if (args.params.callbackFee != 0) {
-        // TODO: For some reason, balance isn't changing. Perhaps the vm.mockCall prevents this?
-        // CallbackFee should be delivered to the PromiseRouter.
-        // assertEq(_promiseRouter.balance, _params.callbackFee);
-      }
     } else {
       // Should have reverted.
       assertEq(this.relayerFees(transferId), initialRelayerFees);
@@ -638,21 +604,6 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
           )
         );
       }
-    }
-
-    // expected promise router call
-    if (_args.params.callback != address(0)) {
-      vm.expectCall(
-        _promiseRouter,
-        abi.encodeWithSelector(
-          PromiseRouter.send.selector,
-          _originDomain,
-          transferId,
-          _args.params.callback,
-          _inputs.externalCallSucceeds,
-          bytes("")
-        )
-      );
     }
   }
 
@@ -894,77 +845,10 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
     assertEq(address(this.sponsorVault()), _local);
   }
 
-  function test_BridgeFacet_promiseRouter_works() public {
-    s.promiseRouter = PromiseRouter(payable(address(0)));
-    assertEq(address(this.promiseRouter()), address(0));
-    s.promiseRouter = PromiseRouter(payable(_local));
-    assertEq(address(this.promiseRouter()), _local);
-  }
-
   // The rest (relayerFees, routedTransfers, reconciledTransfers) are checked on
   // assertions for xcall / reconcile / execute
 
   // ============ Admin methods ==============
-  // setPromiseRouter
-  // FIXME: move to BaseConnextFacet.t.sol
-  function test_BridgeFacet__setPromiseRouter_failIfNotOwner() public {
-    // constants
-    address old = address(123);
-    address updated = address(_local);
-
-    // set storage
-    s.promiseRouter = PromiseRouter(payable(old));
-
-    // test revert
-    vm.prank(_originSender);
-    vm.expectRevert(BaseConnextFacet.BaseConnextFacet__onlyOwner_notOwner.selector);
-    this.setPromiseRouter(payable(updated));
-  }
-
-  function test_BridgeFacet__setPromiseRouter_failIfNoChange() public {
-    // constants
-    address old = address(123);
-    address updated = old;
-
-    // set storage
-    s.promiseRouter = PromiseRouter(payable(old));
-
-    // test revert
-    vm.prank(LibDiamond.contractOwner());
-    vm.expectRevert(BridgeFacet.BridgeFacet__setPromiseRouter_invalidPromiseRouter.selector);
-    this.setPromiseRouter(payable(updated));
-  }
-
-  function test_BridgeFacet__setPromiseRouter_failIfNotContract() public {
-    // constants
-    address old = address(123);
-    address updated = address(456);
-
-    // set storage
-    s.promiseRouter = PromiseRouter(payable(old));
-
-    // test revert
-    vm.prank(LibDiamond.contractOwner());
-    vm.expectRevert(BridgeFacet.BridgeFacet__setPromiseRouter_invalidPromiseRouter.selector);
-    this.setPromiseRouter(payable(updated));
-  }
-
-  function test_BridgeFacet__setPromiseRouter_works() public {
-    // constants
-    address old = address(123);
-    address updated = address(_local);
-
-    // set storage
-    s.promiseRouter = PromiseRouter(payable(old));
-
-    // test success
-    vm.prank(LibDiamond.contractOwner());
-    vm.expectEmit(true, true, true, true);
-    emit PromiseRouterUpdated(old, updated, LibDiamond.contractOwner());
-    this.setPromiseRouter(payable(updated));
-    assertEq(address(this.promiseRouter()), updated);
-  }
-
   // setExecutor
   function test_BridgeFacet__setExecutor_failIfNotOwner() public {
     // constants
@@ -1171,20 +1055,6 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
     helpers_xcallAndAssert(BridgeFacet.BridgeFacet__xcall_emptyToOrRecovery.selector);
   }
 
-  // fails if callback fee > 0 but callback address is not defined
-  function test_BridgeFacet__xcall_failIfCallbackFeeButNoContract() public {
-    _params.callback = address(0);
-    _params.callbackFee = 0.001 ether;
-    helpers_xcallAndAssert(BridgeFacet.BridgeFacet__xcall_nonZeroCallbackFeeForCallback.selector);
-  }
-
-  // fails if callback is defined but not a contract
-  function test_BridgeFacet__xcall_failIfCallbackNotAContract() public {
-    _params.callback = address(42);
-    _params.callbackFee = 0.001 ether;
-    helpers_xcallAndAssert(BridgeFacet.BridgeFacet__xcall_callbackNotAContract.selector);
-  }
-
   // fails if asset is not supported (i.e. s.adoptedToCanonical[assetId].id == bytes32(0) and using non-local)
   function test_BridgeFacet__xcall_failIfAssetNotSupported() public {
     // setup asset with local != adopted, not on canonical domain
@@ -1222,7 +1092,7 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
     this.xcall{value: args.params.relayerFee}(args);
   }
 
-  // fails if erc20 transfer and eth sent < relayerFee + callbackFee
+  // fails if erc20 transfer and eth sent < relayerFee
   function test_BridgeFacet__xcall_failEthWithErc20TransferInsufficient() public {
     utils_setupAsset(true, false);
     vm.deal(_originSender, 100 ether);
@@ -1236,7 +1106,7 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
     this.xcall{value: 0.08 ether}(args);
   }
 
-  // fails if erc20 transfer and eth sent > relayerFee + callbackFee
+  // fails if erc20 transfer and eth sent > relayerFee
   function test_BridgeFacet__xcall_failEthWithErc20TransferUnnecessary() public {
     vm.deal(_originSender, 100 ether);
     _relayerFee = 0.1 ether;
@@ -1368,22 +1238,9 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
     helpers_xcallAndAssert(0, true);
   }
 
-  // should send promise router callback fee
-  function test_BridgeFacet__xcall_shouldHandleCallbackFee() public {
-    _params.callback = _callback;
-    _params.callbackFee = 0.02 ether;
-    helpers_xcallAndAssert(_amount, false);
-  }
-
   // works if relayer fee is set to 0
   function test_BridgeFacet__xcall_zeroRelayerFeeWorks() public {
     _relayerFee = 0;
-    helpers_xcallAndAssert(_amount, false);
-  }
-
-  // works with callback fee set to 0
-  function test_BridgeFacet__xcall_zeroCallbackFeesWorks() public {
-    _params.callbackFee = 0;
     helpers_xcallAndAssert(_amount, false);
   }
 
@@ -1880,31 +1737,6 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
 
     vm.expectRevert(stdError.arithmeticError);
     this.execute(_args);
-  }
-
-  // should work with a callback
-  function test_BridgeFacet__execute_worksWithCallback() public {
-    // set asset context (local == adopted)
-    utils_setupAsset(true, false);
-
-    _params.callback = address(123456654321);
-    // Set the args.to to the mock xapp address, and args.callData to the `fulfill` fn.
-    _params.callData = abi.encodeWithSelector(MockXApp.fulfill.selector, _local, TEST_MESSAGE);
-
-    (bytes32 transferId, ExecuteArgs memory args) = utils_makeExecuteArgs(1);
-
-    s.routerBalances[args.routers[0]][args.local] += 10 ether;
-
-    helpers_executeAndAssert(
-      transferId,
-      args,
-      utils_getFastTransferAmount(args.amount),
-      true,
-      true,
-      false,
-      false,
-      false
-    );
   }
 
   // FIXME: move to Executor.t.sol

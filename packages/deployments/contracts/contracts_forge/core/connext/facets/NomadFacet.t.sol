@@ -63,8 +63,6 @@ contract NomadFacetTest is NomadFacet, FacetHelper {
       address(112233332211), // agent
       _recovery, // recovery address
       false, // receiveLocal
-      address(0), // callback
-      0, // callbackFee
       _relayerFee, // relayer fee
       9900 // slippage tol
     );
@@ -115,8 +113,6 @@ contract NomadFacetTest is NomadFacet, FacetHelper {
         _params.agent, // agent
         _params.recovery, // recovery address
         _params.receiveLocal,
-        _params.callback,
-        _params.callbackFee,
         _params.relayerFee, // relayer fee
         _params.destinationMinOut
       );
