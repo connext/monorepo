@@ -21,7 +21,6 @@ export const getUnProcessedMessages = async (): Promise<XMessage[]> => {
   logger.debug("Getting messages from URI", requestContext, methodContext, { uri });
   try {
     const response = await axiosGet(uri);
-    console.log("response: ", response);
     if ((response as unknown as AxiosError).isAxiosError) {
       throw new ApiRequestFailed({ response });
     }

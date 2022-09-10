@@ -10,5 +10,6 @@ CREATE TABLE IF NOT EXISTS public.messages (
     return_data character varying(255)
 );
 GRANT SELECT ON public.messages to query;
+GRANT SELECT ON public.messages to reader;
 -- migrate:down
 DROP TABLE IF EXISTS public.messages;
