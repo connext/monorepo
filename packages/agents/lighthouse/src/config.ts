@@ -2,9 +2,10 @@
 
 import { Type, Static } from "@sinclair/typebox";
 import { config as dotenvConfig } from "dotenv";
-import { ajv, TAddress, TLogLevel } from "@connext/nxtp-utils";
+import { ajv, ChainData, TAddress, TLogLevel } from "@connext/nxtp-utils";
 
 import { existsSync, readFileSync } from "./mockable";
+import { ConnextContractDeployments, ContractPostfix } from "@connext/nxtp-txservice";
 
 // Polling mins and defaults.
 const MIN_CARTOGRAPHER_POLL_INTERVAL = 30_000;
@@ -43,12 +44,21 @@ export const NxtpLighthouseConfigSchema = Type.Object({
 
 export type NxtpLighthouseConfig = Static<typeof NxtpLighthouseConfigSchema>;
 
+// map spoke connector contract names to domains, i.e. MainnetSpokeConnector
+export const SPOKE_CONNECTOR_PREFIXES: Record<string, string> = {
+  "1735356532": "Optimism",
+  "1735353714": "Mainnet",
+};
+
 /**
  * Gets and validates the router config from the environment.
  *
  * @returns The router config with sensible defaults
  */
-export const getEnvConfig = (): NxtpLighthouseConfig => {
+export const getEnvConfig = (
+  chainData: Map<string, ChainData>,
+  deployments: ConnextContractDeployments,
+): NxtpLighthouseConfig => {
   let configJson: Record<string, any> = {};
   let configFile: any = {};
 
@@ -101,13 +111,33 @@ export const getEnvConfig = (): NxtpLighthouseConfig => {
       ? "https://postgrest.testnet.connext.ninja"
       : "https://postgrest.testnet.staging.connext.ninja");
 
+  const contractPostfix: ContractPostfix =
+    nxtpConfig.environment === "production"
+      ? ""
+      : (`${nxtpConfig.environment[0].toUpperCase()}${nxtpConfig.environment.slice(1)}` as ContractPostfix);
+
   // add contract deployments if they exist
   Object.entries(nxtpConfig.chains).forEach(([domainId]) => {
+    const chainDataForChain = chainData.get(domainId);
     // Make sure deployments is filled out correctly.
     // allow passed in address to override
     // format: { [domainId]: { { "deployments": { "connext": <address>, ... } }
     nxtpConfig.chains[domainId].deployments = {
-      spokeConnector: nxtpConfig.chains[domainId].deployments.spokeConnector, // TODO: can we infer this?
+      spokeConnector:
+        nxtpConfig.chains[domainId].deployments?.spokeConnector ??
+        (() => {
+          const prefix = SPOKE_CONNECTOR_PREFIXES[domainId];
+          if (!prefix) {
+            throw new Error(`No spoke connector prefix for domain ${domainId}`);
+          }
+          const res = chainDataForChain
+            ? deployments.spokeConnector(chainDataForChain.chainId, prefix, contractPostfix)
+            : undefined;
+          if (!res) {
+            throw new Error(`No SpokeConnector contract address for domain ${domainId}`);
+          }
+          return res.address;
+        })(),
     };
   });
 
@@ -129,9 +159,12 @@ let nxtpConfig: NxtpLighthouseConfig | undefined;
  *
  * @returns The config
  */
-export const getConfig = async (): Promise<NxtpLighthouseConfig> => {
+export const getConfig = async (
+  chainData: Map<string, ChainData>,
+  deployments: ConnextContractDeployments,
+): Promise<NxtpLighthouseConfig> => {
   if (!nxtpConfig) {
-    nxtpConfig = getEnvConfig();
+    nxtpConfig = getEnvConfig(chainData, deployments);
   }
   return nxtpConfig;
 };

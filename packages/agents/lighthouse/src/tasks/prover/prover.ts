@@ -1,5 +1,5 @@
 import { createMethodContext, createRequestContext, getChainData, Logger } from "@connext/nxtp-utils";
-import { getContractInterfaces, ChainReader } from "@connext/nxtp-txservice";
+import { getContractInterfaces, ChainReader, contractDeployments } from "@connext/nxtp-txservice";
 
 import { getConfig } from "../../config";
 
@@ -23,7 +23,7 @@ export const makeProver = async () => {
     }
     context.adapters = {} as any;
     context.chainData = chainData;
-    context.config = await getConfig();
+    context.config = await getConfig(context.chainData, contractDeployments);
 
     // Make logger instance.
     context.logger = new Logger({
