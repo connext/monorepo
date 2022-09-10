@@ -257,16 +257,17 @@ module "sequencer_web3signer" {
   container_env_vars       = local.sequencer_web3signer_env_vars
 }
 
-module "lighthouse_prover" {
-  source                  = "../../../modules/daemon"
+module "lighthouse_prover_cron" {
+  source                  = "../../../modules/cron"
   region                  = var.region
   dd_api_key              = var.dd_api_key
   execution_role_arn      = data.aws_iam_role.ecr_admin_role.arn
   cluster_id              = module.ecs.ecs_cluster_id
+  ecs_cluster_arn         = module.ecs.ecs_cluster_arn
   vpc_id                  = module.network.vpc_id
   private_subnets         = module.network.private_subnets
   docker_image            = var.full_image_name_lighthouse_prover
-  container_family        = "lighthouse-prover"
+  container_family        = "lighthouse_prover_cron"
   container_port          = 8080
   cpu                     = 256
   memory                  = 512
@@ -275,7 +276,8 @@ module "lighthouse_prover" {
   stage                   = var.stage
   domain                  = var.domain
   service_security_groups = flatten([module.network.allow_all_sg, module.network.ecs_task_sg])
-  container_env_vars      = local.lighthouse_prover_env_vars
+  container_env_vars      = concat(local.lighthouse_env_vars, [{ name = "DD_SERVICE", value = "lighthouse-prover-${var.environment}" }])
+  schedule_expression     = "cron(30 * * * ? *)"
 }
 
 module "network" {
