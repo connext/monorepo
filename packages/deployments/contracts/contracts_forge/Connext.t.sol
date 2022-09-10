@@ -366,7 +366,6 @@ contract ConnextTest is ForgeHelper, Deployer {
         address(2222), // agent
         address(3333), // recovery
         false, // receiveLocal
-        0, // relayerFee
         0.9 ether // slippage tol
       );
   }
@@ -380,7 +379,6 @@ contract ConnextTest is ForgeHelper, Deployer {
         address(2222), // agent
         address(3333), // recovery
         false, // receiveLocal
-        0, // relayerFee
         0.9 ether // slippage tol
       );
   }
@@ -396,7 +394,6 @@ contract ConnextTest is ForgeHelper, Deployer {
         params.agent, // agent
         params.recovery, // recovery address
         params.receiveLocal,
-        params.relayerFee, // relayer fee
         params.destinationMinOut
       );
   }
@@ -417,7 +414,8 @@ contract ConnextTest is ForgeHelper, Deployer {
   function utils_xcallAndAssert(
     XCallArgs memory _args,
     address _bridged,
-    uint256 _bridgedAmt
+    uint256 _bridgedAmt,
+    uint256 _relayerFee
   ) public returns (bytes32) {
     // Approve the bridge
     if (_args.asset != address(0)) {
@@ -447,7 +445,7 @@ contract ConnextTest is ForgeHelper, Deployer {
     );
 
     // Make call
-    bytes32 ret = _originConnext.xcall{value: _args.params.relayerFee}(_args);
+    bytes32 ret = _originConnext.xcall{value: _relayerFee}(_args);
     assertEq(ret, transferId);
 
     // Check balances
@@ -464,9 +462,9 @@ contract ConnextTest is ForgeHelper, Deployer {
       // meaning the balance should only change by the amount swapped
       _args.asset == _bridged ? initial.bridgeLocal : initial.bridgeLocal - _bridgedAmt
     );
-    assertEq(end.bridgeNative, initial.bridgeNative + _args.params.relayerFee);
+    assertEq(end.bridgeNative, initial.bridgeNative + _relayerFee);
     assertEq(end.callerTransacting, initial.callerTransacting - _args.amount);
-    assertEq(end.callerNative, initial.callerNative - _args.params.relayerFee);
+    assertEq(end.callerNative, initial.callerNative - _relayerFee);
 
     // Check call to bridge router
     assertEq(MockBridgeRouter(_originBridgeRouter).getToken(transferId), _bridged);
@@ -742,7 +740,7 @@ contract ConnextTest is ForgeHelper, Deployer {
     // 1. `xcall` on the origin
     CallParams memory params = utils_createCallParams(_destination);
     XCallArgs memory xcall = XCallArgs(utils_createUserCallParams(_destination), _originLocal, 0, 0);
-    bytes32 transferId = utils_xcallAndAssert(xcall, _originLocal, 0);
+    bytes32 transferId = utils_xcallAndAssert(xcall, _originLocal, 0, 0);
 
     // 2. call `execute` on the destination
     ExecuteArgs memory execute = utils_createExecuteArgs(params, 1, transferId, 0);
@@ -760,7 +758,7 @@ contract ConnextTest is ForgeHelper, Deployer {
     // 1. `xcall` on the origin
     CallParams memory params = utils_createCallParams(_destination);
     XCallArgs memory xcall = XCallArgs(utils_createUserCallParams(_destination), _originLocal, 1 ether, 0.95 ether);
-    bytes32 transferId = utils_xcallAndAssert(xcall, _originLocal, xcall.amount);
+    bytes32 transferId = utils_xcallAndAssert(xcall, _originLocal, xcall.amount, 0);
 
     // 2. call `execute` on the destination
     ExecuteArgs memory execute = utils_createExecuteArgs(params, 2, transferId, xcall.amount);
@@ -784,7 +782,7 @@ contract ConnextTest is ForgeHelper, Deployer {
       1, // adopted idx always 1
       args.amount // no min
     );
-    bytes32 transferId = utils_xcallAndAssert(args, _originLocal, expected);
+    bytes32 transferId = utils_xcallAndAssert(args, _originLocal, expected, 0);
 
     // 2. call `execute` on the destination
     ExecuteArgs memory execute = utils_createExecuteArgs(params, 1, transferId, expected);
@@ -808,7 +806,7 @@ contract ConnextTest is ForgeHelper, Deployer {
     // 1. `xcall` on the origin
     CallParams memory params = utils_createCallParams(_destination);
     XCallArgs memory args = XCallArgs(utils_createUserCallParams(_destination), _originLocal, 1 ether, 0.95 ether);
-    bytes32 transferId = utils_xcallAndAssert(args, _originLocal, args.amount);
+    bytes32 transferId = utils_xcallAndAssert(args, _originLocal, args.amount, 0);
 
     // 2. call `execute` on the destination
     ExecuteArgs memory execute = utils_createExecuteArgs(params, 2, transferId, args.amount);
@@ -832,7 +830,7 @@ contract ConnextTest is ForgeHelper, Deployer {
     // 1. `xcall` on the origin
     CallParams memory params = utils_createCallParams(_destination);
     XCallArgs memory args = XCallArgs(utils_createUserCallParams(_destination), _originLocal, 1 ether, 0.95 ether);
-    bytes32 transferId = utils_xcallAndAssert(args, _originLocal, args.amount);
+    bytes32 transferId = utils_xcallAndAssert(args, _originLocal, args.amount, 0);
 
     // create execute args
     ExecuteArgs memory execute = utils_createExecuteArgs(params, 0, transferId, args.amount);
@@ -858,7 +856,7 @@ contract ConnextTest is ForgeHelper, Deployer {
     params.to = address(callTo);
     xcall.params.callData = callData;
     params.callData = callData;
-    bytes32 transferId = utils_xcallAndAssert(xcall, _originLocal, xcall.amount);
+    bytes32 transferId = utils_xcallAndAssert(xcall, _originLocal, xcall.amount, 0);
 
     // 2. call `execute` on the destination
     ExecuteArgs memory execute = utils_createExecuteArgs(params, 2, transferId, xcall.amount);
@@ -880,7 +878,7 @@ contract ConnextTest is ForgeHelper, Deployer {
     params.to = address(callTo);
     xcall.params.callData = callData;
     params.callData = callData;
-    bytes32 transferId = utils_xcallAndAssert(xcall, _originLocal, xcall.amount);
+    bytes32 transferId = utils_xcallAndAssert(xcall, _originLocal, xcall.amount, 0);
 
     // create execute args
     ExecuteArgs memory execute = utils_createExecuteArgs(params, 0, transferId, xcall.amount);
@@ -906,7 +904,7 @@ contract ConnextTest is ForgeHelper, Deployer {
     // 1. xcall
     CallParams memory params = utils_createCallParams(_destination);
     XCallArgs memory xcall = XCallArgs(utils_createUserCallParams(_destination), _originLocal, 1 ether, 0.95 ether);
-    bytes32 transferId = utils_xcallAndAssert(xcall, _originLocal, xcall.amount);
+    bytes32 transferId = utils_xcallAndAssert(xcall, _originLocal, xcall.amount, 0);
 
     // 2. call `execute` on the destination
     uint256 initLiquidity = IERC20(_destinationLocal).balanceOf(xcall.params.to);
@@ -938,7 +936,7 @@ contract ConnextTest is ForgeHelper, Deployer {
     // 1. `xcall` on the origin
     CallParams memory params = utils_createCallParams(_destination);
     XCallArgs memory args = XCallArgs(utils_createUserCallParams(_destination), _originAdopted, 1 ether, 0.95 ether);
-    bytes32 transferId = utils_xcallAndAssert(args, _originLocal, args.amount);
+    bytes32 transferId = utils_xcallAndAssert(args, _originLocal, args.amount, 0);
 
     // 2. call `execute` on the destination
     ExecuteArgs memory execute = utils_createExecuteArgs(params, 1, transferId, args.amount, 0);
@@ -971,17 +969,18 @@ contract ConnextTest is ForgeHelper, Deployer {
     utils_setupAssets(_origin, true);
 
     // 1. `xcall` on the origin
+    uint256 relayerFee = 0.01 ether;
     CallParams memory params = utils_createCallParams(_destination);
     XCallArgs memory xcall = XCallArgs(utils_createUserCallParams(_destination), _originLocal, 1 ether, 0.95 ether);
-    bytes32 transferId = utils_xcallAndAssert(xcall, _originLocal, xcall.amount);
+    bytes32 transferId = utils_xcallAndAssert(xcall, _originLocal, xcall.amount, relayerFee);
 
     // 2. bump transfer id
     uint256 bump = 0.01 ether;
     uint256 init = address(_originConnext).balance;
     vm.expectEmit(true, true, true, true);
-    emit TransferRelayerFeesUpdated(transferId, bump + xcall.params.relayerFee, address(this));
+    emit TransferRelayerFeesUpdated(transferId, bump + relayerFee, address(this));
     _originConnext.bumpTransfer{value: bump}(transferId);
-    assertEq(_originConnext.relayerFees(transferId), bump + xcall.params.relayerFee);
+    assertEq(_originConnext.relayerFees(transferId), bump + relayerFee);
     assertEq(address(_originConnext).balance, bump + init);
 
     // 3. call `execute` on the destination
@@ -998,7 +997,7 @@ contract ConnextTest is ForgeHelper, Deployer {
 
     // 5. process claim
     vm.expectEmit(true, true, true, true);
-    emit Claimed(recipient, bump + xcall.params.relayerFee, ids);
+    emit Claimed(recipient, bump + relayerFee, ids);
 
     uint256 recipientInit = recipient.balance;
     _originRelayerFee.handle(
@@ -1008,7 +1007,7 @@ contract ConnextTest is ForgeHelper, Deployer {
       abi.encodePacked(uint8(1), recipient, ids.length, ids)
     );
 
-    assertEq(recipient.balance, recipientInit + bump + xcall.params.relayerFee);
+    assertEq(recipient.balance, recipientInit + bump + relayerFee);
     assertEq(_originConnext.relayerFees(transferId), 0);
   }
 }

@@ -83,7 +83,6 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
       _agent, // agent
       _recovery, // recovery address
       false, // receiveLocal
-      _relayerFee, // relayer fee
       1 ether // destinationMinOut
     );
 
@@ -165,7 +164,6 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
         _params.agent, // agent
         _params.recovery, // recovery address
         _params.receiveLocal,
-        _params.relayerFee, // relayer fee
         _params.destinationMinOut
       );
   }
@@ -388,9 +386,8 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
       vm.expectRevert(expectedError);
     }
 
-    uint256 fees = args.params.relayerFee;
     vm.prank(_originSender);
-    this.xcall{value: fees}(args);
+    this.xcall{value: _relayerFee}(args);
 
     if (shouldSucceed) {
       // User should have been debited fees... but also tx cost?
@@ -400,8 +397,8 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
       if (args.asset != address(0)) {
         assertEq(TestERC20(args.asset).balanceOf(_originSender), initialUserBalance - args.amount);
       } else {
-        // User should have been debited fees... but also tx cost?
-        assertEq(_originSender.balance, (initialUserBalance - fees));
+        // User should have been debited fees
+        assertEq(_originSender.balance, (initialUserBalance - _relayerFee));
       }
 
       // Check that the contract has been credited the correct amount of tokens.
@@ -409,7 +406,7 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
       // should NOT be holding any additional tokens after xcall completes.
       if (args.asset == address(0)) {
         // No balance change
-        assertEq(address(this).balance, initialContractBalance + fees);
+        assertEq(address(this).balance, initialContractBalance + _relayerFee);
       } else if (isCanonical) {
         // This should be a canonical asset transfer
         assertEq(TestERC20(_canonical).balanceOf(address(this)), initialContractBalance);
@@ -424,7 +421,7 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
       }
 
       // Should have updated relayer fees mapping.
-      assertEq(this.relayerFees(transferId), args.params.relayerFee + initialRelayerFees);
+      assertEq(this.relayerFees(transferId), _relayerFee + initialRelayerFees);
     } else {
       // Should have reverted.
       assertEq(this.relayerFees(transferId), initialRelayerFees);
@@ -559,16 +556,6 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
           )
         );
       }
-      // always reimburses relayer fees
-      vm.expectCall(
-        address(s.sponsorVault),
-        abi.encodeWithSelector(
-          ISponsorVault.reimburseRelayerFees.selector,
-          _originDomain,
-          _args.params.to,
-          _args.params.relayerFee
-        )
-      );
     }
 
     // expected transfer out of contract
@@ -1089,34 +1076,7 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
 
     vm.expectRevert(BridgeFacet.BridgeFacet__xcall_nativeAssetNotSupported.selector);
     vm.prank(_originSender);
-    this.xcall{value: args.params.relayerFee}(args);
-  }
-
-  // fails if erc20 transfer and eth sent < relayerFee
-  function test_BridgeFacet__xcall_failEthWithErc20TransferInsufficient() public {
-    utils_setupAsset(true, false);
-    vm.deal(_originSender, 100 ether);
-    _relayerFee = 0.1 ether;
-
-    (, XCallArgs memory args) = utils_makeXCallArgs(_amount);
-
-    vm.expectRevert(BridgeFacet.BridgeFacet__xcall_ethValueMismatchedFees.selector);
-    vm.prank(_originSender);
-    // Sending insufficent eth to cover relayer fee.
-    this.xcall{value: 0.08 ether}(args);
-  }
-
-  // fails if erc20 transfer and eth sent > relayerFee
-  function test_BridgeFacet__xcall_failEthWithErc20TransferUnnecessary() public {
-    vm.deal(_originSender, 100 ether);
-    _relayerFee = 0.1 ether;
-
-    (, XCallArgs memory args) = utils_makeXCallArgs(_amount);
-
-    vm.expectRevert(BridgeFacet.BridgeFacet__xcall_ethValueMismatchedFees.selector);
-    vm.prank(_originSender);
-    // Sending too much eth.
-    this.xcall{value: 1 ether}(args);
+    this.xcall{value: _relayerFee}(args);
   }
 
   // fails if user has insufficient tokens
@@ -1133,7 +1093,7 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
 
     vm.expectRevert("ERC20: transfer amount exceeds balance");
     vm.prank(_originSender);
-    this.xcall{value: args.params.relayerFee}(args);
+    this.xcall{value: _relayerFee}(args);
   }
 
   // fails if user has not set enough allowance
@@ -1150,7 +1110,7 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
 
     vm.expectRevert("ERC20: insufficient allowance");
     vm.prank(_originSender);
-    this.xcall{value: args.params.relayerFee}(args);
+    this.xcall{value: _relayerFee}(args);
   }
 
   // ============ xcall success cases
@@ -1204,7 +1164,7 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
   function test_BridgeFacet__xcall_worksIfPreexistingRelayerFee() public {
     // local is not adopted, not on canonical domain, sending in local
     utils_setupAsset(true, false);
-    _params.relayerFee = 0.1 ether;
+    _relayerFee = 0.1 ether;
     (bytes32 transferId, XCallArgs memory args) = utils_makeXCallArgs(_amount);
     s.relayerFees[transferId] = 2 ether;
     helpers_xcallAndAssert(transferId, args, args.amount, args.amount, bytes4(""), false);

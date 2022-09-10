@@ -38,9 +38,6 @@ contract NomadFacetTest is NomadFacet, FacetHelper {
   // set connextion
   bytes32 _originConnext = TypeCasts.addressToBytes32(address(12365136));
 
-  // relayer fee
-  uint256 _relayerFee = 0.1 ether;
-
   // default amount
   uint256 _amount = 1.1 ether;
 
@@ -63,7 +60,6 @@ contract NomadFacetTest is NomadFacet, FacetHelper {
       address(112233332211), // agent
       _recovery, // recovery address
       false, // receiveLocal
-      _relayerFee, // relayer fee
       9900 // slippage tol
     );
 
@@ -113,7 +109,6 @@ contract NomadFacetTest is NomadFacet, FacetHelper {
         _params.agent, // agent
         _params.recovery, // recovery address
         _params.receiveLocal,
-        _params.relayerFee, // relayer fee
         _params.destinationMinOut
       );
   }

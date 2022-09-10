@@ -67,7 +67,6 @@ contract LiveTest is ForgeHelper {
           0x5A9e792143bf2708b4765C144451dCa54f559a19, // agent
           0x5A9e792143bf2708b4765C144451dCa54f559a19, // recovery
           false, // receiveLocal
-          0, // relayerFee
           0 ether // destinationMinOut
         ), // CallParams
         0xf21Ad79d25d3E2eCAEe99e09c237EfDD83fdAfEB, // local asset
@@ -108,7 +107,6 @@ contract LiveTest is ForgeHelper {
           0x5A9e792143bf2708b4765C144451dCa54f559a19, // agent
           0x5A9e792143bf2708b4765C144451dCa54f559a19, // recovery
           false, // receiveLocal
-          0, // relayerFee
           0 // destinationMinOut
         ), // CallParams
         asset,

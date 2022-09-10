@@ -142,7 +142,6 @@ contract FacetHelper is ForgeHelper {
         params.agent, // agent
         params.recovery, // recovery address
         params.receiveLocal,
-        params.relayerFee, // relayer fee
         params.destinationMinOut
       );
   }

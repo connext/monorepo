@@ -61,7 +61,6 @@ contract PortalFacetTest is PortalFacet, FacetHelper {
       address(222222222), // agent
       address(6666666), // recovery address
       false, // receiveLocal
-      0, // relayer fee
       1 ether // destinationMinOut
     );
 
