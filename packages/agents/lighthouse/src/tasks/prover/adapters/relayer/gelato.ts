@@ -1,8 +1,8 @@
-import { createLoggingContext, gelatoSend, isChainSupportedByGelato } from "@connext/nxtp-utils";
+import { createLoggingContext } from "@connext/nxtp-utils";
 import { AxiosError } from "axios";
 
 import { RelayerSendFailed } from "../../../../errors";
-import { getGelatoRelayerAddress } from "../../../../mockable";
+import { getGelatoRelayerAddress, isChainSupportedByGelato, gelatoSend } from "../../../../mockable";
 import { getContext } from "../../prover";
 
 export const getRelayerAddress = async (chainId: number): Promise<string> => {

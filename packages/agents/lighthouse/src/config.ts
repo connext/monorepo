@@ -42,7 +42,7 @@ export const NxtpLighthouseConfigSchema = Type.Object({
   mode: TModeConfig,
   polling: TPollingConfig,
   environment: Type.Union([Type.Literal("staging"), Type.Literal("production")]),
-  sequencerUrl: Type.String(),
+  relayerUrl: Type.Optional(Type.String({ format: "uri" })),
 });
 
 export type NxtpLighthouseConfig = Static<typeof NxtpLighthouseConfigSchema>;
@@ -99,7 +99,7 @@ export const getEnvConfig = (
     },
     environment: process.env.NXTP_ENVIRONMENT || configJson.environment || configFile.environment || "production",
     cartographerUrl: process.env.NXTP_CARTOGRAPHER_URL || configJson.cartographerUrl || configFile.cartographerUrl,
-    sequencerUrl: process.env.NXTP_SEQUENCER || configJson.sequencerUrl || configFile.sequencerUrl,
+    relayerUrl: process.env.NXTP_RELAYER_URL || configJson.relayerUrl || configFile.relayerUrl,
   };
 
   nxtpConfig.cartographerUrl =
