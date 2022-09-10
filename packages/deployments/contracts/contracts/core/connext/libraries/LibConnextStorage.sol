@@ -42,7 +42,6 @@ struct UserFacingCallParams {
   bytes callData;
   uint32 destinationDomain;
   address agent;
-  address recovery;
   bool receiveLocal;
   address callback;
   uint256 callbackFee;
