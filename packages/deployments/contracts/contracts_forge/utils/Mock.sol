@@ -20,6 +20,7 @@ import {ICallback} from "../../contracts/core/promise/interfaces/ICallback.sol";
 
 import {BaseConnextFacet} from "../../contracts/core/connext/facets/BaseConnextFacet.sol";
 import {IAavePool} from "../../contracts/core/connext/interfaces/IAavePool.sol";
+import {IXReceiver} from "../../contracts/core/connext/interfaces/IXReceiver.sol";
 import {ISponsorVault} from "../../contracts/core/connext/interfaces/ISponsorVault.sol";
 import {ITokenRegistry} from "../../contracts/core/connext/interfaces/ITokenRegistry.sol";
 import {IBridgeRouter} from "../../contracts/core/connext/interfaces/IBridgeRouter.sol";
@@ -88,46 +89,50 @@ contract MockConnext {
   }
 }
 
-contract MockXApp {
-  bytes32 constant TEST_MESSAGE = bytes32("test message");
+contract MockXApp is IXReceiver {
+  bool public fails = false;
+  bool public permissioned = false;
 
-  event MockXAppEvent(address caller, address asset, bytes32 message, uint256 amount);
+  address public originSender;
+  uint32 public originDomain;
 
-  modifier checkMockMessage(bytes32 message) {
-    require(keccak256(abi.encode(message)) == keccak256(abi.encode(TEST_MESSAGE)), "Mock message invalid!");
-    _;
-  }
-
-  // This method call will transfer asset to this contract and succeed.
-  function fulfill(address asset, bytes32 message) external checkMockMessage(message) returns (bytes32) {
-    // TODO: fixme
-    emit MockXAppEvent(msg.sender, asset, message, 0);
-
-    IERC20(asset).transferFrom(msg.sender, address(this), LibCrossDomainProperty.amount(msg.data));
-
-    return (bytes32("good"));
-  }
-
-  // Read from originDomain/originSender properties and validate them based on arguments.
-  function fulfillWithProperties(
+  event MockXAppEvent(
+    address caller,
+    bytes32 transferId,
+    uint256 amount,
     address asset,
-    bytes32 message,
-    uint256 expectedOriginDomain,
-    address expectedOriginSender
-  ) external checkMockMessage(message) returns (bytes32) {
-    emit MockXAppEvent(msg.sender, asset, message, LibCrossDomainProperty.amount(msg.data));
+    address originSender,
+    uint32 origin,
+    bytes callData
+  );
 
-    IERC20(asset).transferFrom(msg.sender, address(this), LibCrossDomainProperty.amount(msg.data));
-
-    require(expectedOriginDomain == LibCrossDomainProperty.origin(msg.data), "Origin domain incorrect");
-    require(expectedOriginSender == LibCrossDomainProperty.originSender(msg.data), "Origin sender incorrect");
-
-    return (bytes32("good"));
+  function setFail(bool _fails) public {
+    fails = _fails;
   }
 
-  // This method call will always fail.
-  function fail() external pure {
-    require(false, "bad");
+  function setPermissions(address _originSender, uint32 _originDomain) public {
+    permissioned = true;
+    originSender = _originSender;
+    originDomain = _originDomain;
+  }
+
+  function xReceive(
+    bytes32 _transferId,
+    uint256 _amount,
+    address _asset,
+    address _originSender,
+    uint32 _origin,
+    bytes memory _callData
+  ) public returns (bytes memory) {
+    require(!fails, "fails");
+    if (permissioned) {
+      require(_originSender == originSender, "!originSender");
+      require(_origin == originDomain, "!originDomain");
+    }
+
+    emit MockXAppEvent(msg.sender, _transferId, _amount, _asset, _originSender, _origin, _callData);
+
+    return bytes("xReceive");
   }
 }
 
@@ -414,38 +419,6 @@ contract MockSponsorVault is ISponsorVault {
     address receiver,
     uint256 amount
   ) external {}
-}
-
-contract MockCalldata {
-  address public originSender;
-  uint32 public originDomain;
-
-  bool public called = false;
-
-  constructor(address _originSender, uint32 _originDomain) {
-    setPermissions(_originSender, _originDomain);
-  }
-
-  function setPermissions(address _originSender, uint32 _originDomain) public {
-    originSender = _originSender;
-    originDomain = _originDomain;
-  }
-
-  function permissionedCall(address asset) public returns (bool) {
-    require(LibCrossDomainProperty.originSender(msg.data) == originSender);
-    require(LibCrossDomainProperty.origin(msg.data) == originDomain);
-    // transfer funds from sender
-    IERC20(asset).transferFrom(msg.sender, address(this), LibCrossDomainProperty.amount(msg.data));
-    called = true;
-    return called;
-  }
-
-  function unpermissionedCall(address asset) public returns (bool) {
-    // transfer funds from sender
-    IERC20(asset).transferFrom(msg.sender, address(this), LibCrossDomainProperty.amount(msg.data));
-    called = true;
-    return called;
-  }
 }
 
 contract FeeERC20 is ERC20 {

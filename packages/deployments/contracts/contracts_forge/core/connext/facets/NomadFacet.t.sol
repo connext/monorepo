@@ -109,7 +109,6 @@ contract NomadFacetTest is NomadFacet, FacetHelper {
         _params.callData,
         _params.destinationDomain, // destination domain
         _params.agent, // agent
-        _params.recovery, // recovery address
         _params.receiveLocal,
         _params.callback,
         _params.callbackFee,
