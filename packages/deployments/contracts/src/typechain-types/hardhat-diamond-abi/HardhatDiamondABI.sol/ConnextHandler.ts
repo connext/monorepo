@@ -45,7 +45,6 @@ export type CallParamsStruct = {
   destinationDomain: PromiseOrValue<BigNumberish>;
   agent: PromiseOrValue<string>;
   recovery: PromiseOrValue<string>;
-  forceSlow: PromiseOrValue<boolean>;
   receiveLocal: PromiseOrValue<boolean>;
   callback: PromiseOrValue<string>;
   callbackFee: PromiseOrValue<BigNumberish>;
@@ -61,7 +60,6 @@ export type CallParamsStructOutput = [
   string,
   string,
   boolean,
-  boolean,
   string,
   BigNumber,
   BigNumber,
@@ -73,7 +71,6 @@ export type CallParamsStructOutput = [
   destinationDomain: number;
   agent: string;
   recovery: string;
-  forceSlow: boolean;
   receiveLocal: boolean;
   callback: string;
   callbackFee: BigNumber;
@@ -115,22 +112,59 @@ export type ExecuteArgsStructOutput = [
   originSender: string;
 };
 
+export type UserFacingCallParamsStruct = {
+  to: PromiseOrValue<string>;
+  callData: PromiseOrValue<BytesLike>;
+  destinationDomain: PromiseOrValue<BigNumberish>;
+  agent: PromiseOrValue<string>;
+  recovery: PromiseOrValue<string>;
+  receiveLocal: PromiseOrValue<boolean>;
+  callback: PromiseOrValue<string>;
+  callbackFee: PromiseOrValue<BigNumberish>;
+  relayerFee: PromiseOrValue<BigNumberish>;
+  destinationMinOut: PromiseOrValue<BigNumberish>;
+};
+
+export type UserFacingCallParamsStructOutput = [
+  string,
+  string,
+  number,
+  string,
+  string,
+  boolean,
+  string,
+  BigNumber,
+  BigNumber,
+  BigNumber
+] & {
+  to: string;
+  callData: string;
+  destinationDomain: number;
+  agent: string;
+  recovery: string;
+  receiveLocal: boolean;
+  callback: string;
+  callbackFee: BigNumber;
+  relayerFee: BigNumber;
+  destinationMinOut: BigNumber;
+};
+
 export type XCallArgsStruct = {
-  params: CallParamsStruct;
-  transactingAsset: PromiseOrValue<string>;
-  transactingAmount: PromiseOrValue<BigNumberish>;
+  params: UserFacingCallParamsStruct;
+  asset: PromiseOrValue<string>;
+  amount: PromiseOrValue<BigNumberish>;
   originMinOut: PromiseOrValue<BigNumberish>;
 };
 
 export type XCallArgsStructOutput = [
-  CallParamsStructOutput,
+  UserFacingCallParamsStructOutput,
   string,
   BigNumber,
   BigNumber
 ] & {
-  params: CallParamsStructOutput;
-  transactingAsset: string;
-  transactingAmount: BigNumber;
+  params: UserFacingCallParamsStructOutput;
+  asset: string;
+  amount: BigNumber;
   originMinOut: BigNumber;
 };
 
@@ -227,9 +261,9 @@ export interface ConnextHandlerInterface extends utils.Interface {
     "bumpTransfer(bytes32)": FunctionFragment;
     "connextion(uint32)": FunctionFragment;
     "domain()": FunctionFragment;
-    "execute(((address,bytes,uint32,uint32,address,address,bool,bool,address,uint256,uint256,uint256),address,address[],bytes[],address,bytes,uint256,uint256,address))": FunctionFragment;
+    "execute(((address,bytes,uint32,uint32,address,address,bool,address,uint256,uint256,uint256),address,address[],bytes[],address,bytes,uint256,uint256,address))": FunctionFragment;
     "executor()": FunctionFragment;
-    "forceReceiveLocal((address,bytes,uint32,uint32,address,address,bool,bool,address,uint256,uint256,uint256),uint256,uint256,bytes32,uint32,address)": FunctionFragment;
+    "forceReceiveLocal((address,bytes,uint32,uint32,address,address,bool,address,uint256,uint256,uint256),uint256,uint256,bytes32,uint32,address)": FunctionFragment;
     "nonce()": FunctionFragment;
     "promiseRouter()": FunctionFragment;
     "reconciledTransfers(bytes32)": FunctionFragment;
@@ -240,7 +274,7 @@ export interface ConnextHandlerInterface extends utils.Interface {
     "setPromiseRouter(address)": FunctionFragment;
     "setSponsorVault(address)": FunctionFragment;
     "sponsorVault()": FunctionFragment;
-    "xcall(((address,bytes,uint32,uint32,address,address,bool,bool,address,uint256,uint256,uint256),address,uint256,uint256))": FunctionFragment;
+    "xcall(((address,bytes,uint32,address,address,bool,address,uint256,uint256,uint256),address,uint256,uint256))": FunctionFragment;
     "diamondCut((address,uint8,bytes4[])[],address,bytes)": FunctionFragment;
     "getAcceptanceTime((address,uint8,bytes4[])[],address,bytes)": FunctionFragment;
     "proposeDiamondCut((address,uint8,bytes4[])[],address,bytes)": FunctionFragment;
@@ -257,8 +291,8 @@ export interface ConnextHandlerInterface extends utils.Interface {
     "aavePortalFee()": FunctionFragment;
     "getAavePortalDebt(bytes32)": FunctionFragment;
     "getAavePortalFeeDebt(bytes32)": FunctionFragment;
-    "repayAavePortal((address,bytes,uint32,uint32,address,address,bool,bool,address,uint256,uint256,uint256),address,address,uint256,uint256,uint256,uint256,uint256)": FunctionFragment;
-    "repayAavePortalFor((address,bytes,uint32,uint32,address,address,bool,bool,address,uint256,uint256,uint256),address,address,uint256,uint256,uint256,uint256)": FunctionFragment;
+    "repayAavePortal((address,bytes,uint32,uint32,address,address,bool,address,uint256,uint256,uint256),address,address,uint256,uint256,uint256,uint256,uint256)": FunctionFragment;
+    "repayAavePortalFor((address,bytes,uint32,uint32,address,address,bool,address,uint256,uint256,uint256),address,address,uint256,uint256,uint256,uint256)": FunctionFragment;
     "setAavePool(address)": FunctionFragment;
     "setAavePortalFee(uint256)": FunctionFragment;
     "acceptProposedOwner()": FunctionFragment;
@@ -1656,8 +1690,8 @@ export interface ExecutedEventObject {
   transferId: string;
   to: string;
   args: ExecuteArgsStructOutput;
-  transactingAsset: string;
-  transactingAmount: BigNumber;
+  asset: string;
+  amount: BigNumber;
   caller: string;
 }
 export type ExecutedEvent = TypedEvent<
@@ -4108,16 +4142,16 @@ export interface ConnextHandler extends BaseContract {
       transferId?: PromiseOrValue<BytesLike> | null,
       to?: PromiseOrValue<string> | null,
       args?: null,
-      transactingAsset?: null,
-      transactingAmount?: null,
+      asset?: null,
+      amount?: null,
       caller?: null
     ): ExecutedEventFilter;
     Executed(
       transferId?: PromiseOrValue<BytesLike> | null,
       to?: PromiseOrValue<string> | null,
       args?: null,
-      transactingAsset?: null,
-      transactingAmount?: null,
+      asset?: null,
+      amount?: null,
       caller?: null
     ): ExecutedEventFilter;
 

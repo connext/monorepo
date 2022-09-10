@@ -665,11 +665,6 @@ const _abi = [
     type: "error",
   },
   {
-    inputs: [],
-    name: "BridgeFacet__xcall_wrongDomain",
-    type: "error",
-  },
-  {
     anonymous: false,
     inputs: [
       {
@@ -776,11 +771,6 @@ const _abi = [
               },
               {
                 internalType: "bool",
-                name: "forceSlow",
-                type: "bool",
-              },
-              {
-                internalType: "bool",
                 name: "receiveLocal",
                 type: "bool",
               },
@@ -858,13 +848,13 @@ const _abi = [
       {
         indexed: false,
         internalType: "address",
-        name: "transactingAsset",
+        name: "asset",
         type: "address",
       },
       {
         indexed: false,
         internalType: "uint256",
-        name: "transactingAmount",
+        name: "amount",
         type: "uint256",
       },
       {
@@ -1083,11 +1073,6 @@ const _abi = [
               },
               {
                 internalType: "uint32",
-                name: "originDomain",
-                type: "uint32",
-              },
-              {
-                internalType: "uint32",
                 name: "destinationDomain",
                 type: "uint32",
               },
@@ -1100,11 +1085,6 @@ const _abi = [
                 internalType: "address",
                 name: "recovery",
                 type: "address",
-              },
-              {
-                internalType: "bool",
-                name: "forceSlow",
-                type: "bool",
               },
               {
                 internalType: "bool",
@@ -1132,18 +1112,18 @@ const _abi = [
                 type: "uint256",
               },
             ],
-            internalType: "struct CallParams",
+            internalType: "struct UserFacingCallParams",
             name: "params",
             type: "tuple",
           },
           {
             internalType: "address",
-            name: "transactingAsset",
+            name: "asset",
             type: "address",
           },
           {
             internalType: "uint256",
-            name: "transactingAmount",
+            name: "amount",
             type: "uint256",
           },
           {
@@ -1325,11 +1305,6 @@ const _abi = [
               },
               {
                 internalType: "bool",
-                name: "forceSlow",
-                type: "bool",
-              },
-              {
-                internalType: "bool",
                 name: "receiveLocal",
                 type: "bool",
               },
@@ -1461,11 +1436,6 @@ const _abi = [
             internalType: "address",
             name: "recovery",
             type: "address",
-          },
-          {
-            internalType: "bool",
-            name: "forceSlow",
-            type: "bool",
           },
           {
             internalType: "bool",
@@ -1694,11 +1664,6 @@ const _abi = [
               },
               {
                 internalType: "uint32",
-                name: "originDomain",
-                type: "uint32",
-              },
-              {
-                internalType: "uint32",
                 name: "destinationDomain",
                 type: "uint32",
               },
@@ -1711,11 +1676,6 @@ const _abi = [
                 internalType: "address",
                 name: "recovery",
                 type: "address",
-              },
-              {
-                internalType: "bool",
-                name: "forceSlow",
-                type: "bool",
               },
               {
                 internalType: "bool",
@@ -1743,18 +1703,18 @@ const _abi = [
                 type: "uint256",
               },
             ],
-            internalType: "struct CallParams",
+            internalType: "struct UserFacingCallParams",
             name: "params",
             type: "tuple",
           },
           {
             internalType: "address",
-            name: "transactingAsset",
+            name: "asset",
             type: "address",
           },
           {
             internalType: "uint256",
-            name: "transactingAmount",
+            name: "amount",
             type: "uint256",
           },
           {
@@ -2500,11 +2460,6 @@ const _abi = [
           },
           {
             internalType: "bool",
-            name: "forceSlow",
-            type: "bool",
-          },
-          {
-            internalType: "bool",
             name: "receiveLocal",
             type: "bool",
           },
@@ -2607,11 +2562,6 @@ const _abi = [
             internalType: "address",
             name: "recovery",
             type: "address",
-          },
-          {
-            internalType: "bool",
-            name: "forceSlow",
-            type: "bool",
           },
           {
             internalType: "bool",

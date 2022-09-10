@@ -36,7 +36,6 @@ contract BridgeFacet is BaseConnextFacet {
   error BridgeFacet__addSequencer_alreadyApproved();
   error BridgeFacet__removeSequencer_notApproved();
   error BridgeFacet__xcall_nativeAssetNotSupported();
-  error BridgeFacet__xcall_wrongDomain();
   error BridgeFacet__xcall_destinationNotSupported();
   error BridgeFacet__xcall_emptyToOrRecovery();
   error BridgeFacet__xcall_notSupportedAsset();
@@ -70,8 +69,8 @@ contract BridgeFacet is BaseConnextFacet {
    * @param transferId - The unique identifier of the crosschain transfer.
    * @param nonce - The bridge nonce of the transfer on the origin domain.
    * @param xcallArgs - The `XCallArgs` provided to the function.
-   * @param bridgedAsset - The local (mad) asset being bridged. Could be the same as the transactingAsset (adopted
-   * asset), or may be different (indicating the transactingAsset was swapped for this bridgedAsset).
+   * @param bridgedAsset - The local (mad) asset being bridged. Could be the same as the asset (adopted
+   * asset), or may be different (indicating the asset was swapped for this bridgedAsset).
    * @param bridgedAmount - The amount of the bridgedAsset being sent, after AMM swap from adopted asset if it was
    * necessary.
    * @param caller - The account that called the function.
@@ -92,9 +91,9 @@ contract BridgeFacet is BaseConnextFacet {
    * @param transferId - The unique identifier of the crosschain transfer.
    * @param to - The recipient `CallParams.to` provided, created as indexed parameter.
    * @param args - The `ExecuteArgs` provided to the function.
-   * @param transactingAsset - The asset the to gets or the external call is executed with. Should be the
+   * @param asset - The asset the to gets or the external call is executed with. Should be the
    * adopted asset on that chain.
-   * @param transactingAmount - The amount of transferring asset the to address receives or the external call is
+   * @param amount - The amount of transferring asset the to address receives or the external call is
    * executed with.
    * @param caller - The account that called the function.
    */
@@ -102,8 +101,8 @@ contract BridgeFacet is BaseConnextFacet {
     bytes32 indexed transferId,
     address indexed to,
     ExecuteArgs args,
-    address transactingAsset,
-    uint256 transactingAmount,
+    address asset,
+    uint256 amount,
     address caller
   );
 
@@ -285,36 +284,44 @@ contract BridgeFacet is BaseConnextFacet {
   function xcall(XCallArgs calldata _args) external payable nonReentrant whenNotPaused returns (bytes32) {
     // Sanity checks.
     bytes32 remoteInstance;
+    CallParams memory params = CallParams({
+      to: _args.params.to,
+      callData: _args.params.callData,
+      originDomain: s.domain,
+      destinationDomain: _args.params.destinationDomain,
+      agent: _args.params.agent,
+      recovery: _args.params.recovery,
+      receiveLocal: _args.params.receiveLocal,
+      callback: _args.params.callback,
+      callbackFee: _args.params.callbackFee,
+      relayerFee: _args.params.relayerFee,
+      destinationMinOut: _args.params.destinationMinOut
+    });
     {
       // Not native asset
       // NOTE: we support using address(0) as an intuitive default if you are sending a 0-value
       // transfer. in that edgecase, address(0) will not be registered as a supported asset, but should
       // pass the `isLocalOrigin` check on the TokenRegistry
-      if (_args.transactingAsset == address(0) && _args.transactingAmount != 0) {
+      if (_args.asset == address(0) && _args.amount != 0) {
         revert BridgeFacet__xcall_nativeAssetNotSupported();
       }
 
-      // Correct origin domain.
-      if (_args.params.originDomain != s.domain) {
-        revert BridgeFacet__xcall_wrongDomain();
-      }
-
       // Destination domain is supported.
-      // NOTE: This check implicitly also checks that `_args.params.destinationDomain != s.domain`, because the index
+      // NOTE: This check implicitly also checks that `.params.destinationDomain != s.domain`, because the index
       // `s.domain` of `s.connextions` should always be `bytes32(0)`.
-      remoteInstance = s.connextions[_args.params.destinationDomain];
+      remoteInstance = s.connextions[params.destinationDomain];
       if (remoteInstance == bytes32(0)) {
         revert BridgeFacet__xcall_destinationNotSupported();
       }
 
       // Recipient and recovery defined.
-      if (_args.params.to == address(0) || _args.params.recovery == address(0)) {
+      if (params.to == address(0) || params.recovery == address(0)) {
         revert BridgeFacet__xcall_emptyToOrRecovery();
       }
 
       // If the user might be receiving adopted assets on the destination chain, they ought to have a defined agent
       // so that they can call `forceReceiveLocal` if need be.
-      if (_args.params.agent == address(0) && !_args.params.receiveLocal) {
+      if (params.agent == address(0) && !params.receiveLocal) {
         revert BridgeFacet__xcall_missingAgent();
       }
 
@@ -338,33 +345,33 @@ contract BridgeFacet is BaseConnextFacet {
       // mappings keyed on hash(canonicalId, canonicalDomain), this is safe even when the
       // address(0) asset is not whitelisted. These values are only used for the `transactionId`
       // generation
-      if (_args.transactingAsset != address(0)) {
-        canonical = s.adoptedToCanonical[_args.transactingAsset];
+      if (_args.asset != address(0)) {
+        canonical = s.adoptedToCanonical[_args.asset];
 
         if (canonical.id == bytes32(0)) {
           // Here, the asset is *not* the adopted asset. The only other valid option
           // is for this asset to be the local asset (i.e. transferring madEth on optimism)
           // NOTE: it *cannot* be the canonical asset. the canonical asset is only used on
           // the canonical domain, where it is *also* the adopted asset.
-          if (s.tokenRegistry.isLocalOrigin(_args.transactingAsset)) {
+          if (s.tokenRegistry.isLocalOrigin(_args.asset)) {
             // revert, using a token of local origin that is not registered as adopted
             revert BridgeFacet__xcall_notSupportedAsset();
           }
 
-          (uint32 canonicalDomain, bytes32 canonicalId) = s.tokenRegistry.getTokenId(_args.transactingAsset);
+          (uint32 canonicalDomain, bytes32 canonicalId) = s.tokenRegistry.getTokenId(_args.asset);
           canonical = TokenId(canonicalDomain, canonicalId);
         }
       }
 
-      if (_args.transactingAmount > 0) {
+      if (_args.amount > 0) {
         // Transfer funds of transacting asset to the contract from the user.
-        AssetLogic.transferAssetToContract(_args.transactingAsset, _args.transactingAmount);
+        AssetLogic.transferAssetToContract(_args.asset, _args.amount);
 
         // Swap to the local asset from adopted if applicable.
         (bridgedAmount, bridgedAsset) = AssetLogic.swapToLocalAssetIfNeeded(
           canonical,
-          _args.transactingAsset,
-          _args.transactingAmount,
+          _args.asset,
+          _args.amount,
           _args.originMinOut
         );
 
@@ -373,13 +380,13 @@ contract BridgeFacet is BaseConnextFacet {
         SafeERC20.safeIncreaseAllowance(IERC20(bridgedAsset), address(s.bridgeRouter), bridgedAmount);
       } else {
         // Get the bridged asset so you can emit it properly within the event
-        bridgedAsset = _args.transactingAsset == address(0)
+        bridgedAsset = _args.asset == address(0)
           ? address(0)
           : s.tokenRegistry.getLocalAddress(canonical.domain, canonical.id);
       }
 
       // Calculate the transfer id
-      transferId = _getTransferId(_args, canonical, bridgedAmount);
+      transferId = _getTransferId(params, canonical, bridgedAmount);
       _sNonce = s.nonce++;
     }
 
@@ -393,9 +400,9 @@ contract BridgeFacet is BaseConnextFacet {
       messageHash = s.bridgeRouter.sendToHook(
         bridgedAsset,
         bridgedAmount,
-        _args.params.destinationDomain,
+        params.destinationDomain,
         remoteInstance,
-        abi.encode(TransferIdInformation(_args.params, _sNonce, msg.sender))
+        abi.encode(TransferIdInformation(params, _sNonce, msg.sender))
       );
     }
 
@@ -532,10 +539,8 @@ contract BridgeFacet is BaseConnextFacet {
     // Derive transfer ID based on given arguments.
     bytes32 transferId = _getTransferId(_args, canonicalDomain, canonicalId);
 
-    // Retrieve the reconciled record. If the transfer is `forceSlow` then it must be reconciled first
-    // before it's executed.
+    // Retrieve the reconciled record.
     bool reconciled = s.reconciledTransfers[transferId];
-    if (_args.params.forceSlow && !reconciled) revert BridgeFacet__execute_notReconciled();
 
     // Hash the payload for which each router should have produced a signature.
     // Each router should have signed the `transferId` (which implicitly signs call params,
@@ -600,11 +605,11 @@ contract BridgeFacet is BaseConnextFacet {
    * @dev Need this to prevent stack too deep
    */
   function _getTransferId(
-    XCallArgs calldata _args,
+    CallParams memory _params,
     TokenId memory _canonical,
     uint256 bridgedAmount
   ) private view returns (bytes32) {
-    return _calculateTransferId(_args.params, bridgedAmount, s.nonce, _canonical.id, _canonical.domain, msg.sender);
+    return _calculateTransferId(_params, bridgedAmount, s.nonce, _canonical.id, _canonical.domain, msg.sender);
   }
 
   /**

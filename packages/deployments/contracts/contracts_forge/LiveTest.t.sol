@@ -5,7 +5,7 @@ import {ERC1967Proxy} from "@openzeppelin/contracts/proxy/ERC1967/ERC1967Proxy.s
 
 import {TypeCasts} from "../contracts/shared/libraries/TypeCasts.sol";
 
-import {TokenId} from "../contracts/core/connext/libraries/LibConnextStorage.sol";
+import {TokenId, UserFacingCallParams} from "../contracts/core/connext/libraries/LibConnextStorage.sol";
 
 import {IConnextHandler} from "../contracts/core/connext/interfaces/IConnextHandler.sol";
 import {ITokenRegistry} from "../contracts/core/connext/interfaces/ITokenRegistry.sol";
@@ -68,7 +68,6 @@ contract LiveTest is ForgeHelper {
           1735356532, // dest domain
           0x5A9e792143bf2708b4765C144451dCa54f559a19, // agent
           0x5A9e792143bf2708b4765C144451dCa54f559a19, // recovery
-          false, // forceSlow
           false, // receiveLocal
           address(0), // callback
           0, // callbackFee
@@ -88,15 +87,15 @@ contract LiveTest is ForgeHelper {
   }
 
   function test_xcall() public {
-    address transactingAsset = 0x68Db1c8d85C09d546097C65ec7DCBFF4D6497CbF;
+    address asset = 0x68Db1c8d85C09d546097C65ec7DCBFF4D6497CbF;
     vm.startPrank(0x54BAA998771639628ffC0206c3b916c466b79c89);
-    TestERC20(transactingAsset).approve(address(connext), 150000000000000000);
+    TestERC20(asset).approve(address(connext), 150000000000000000);
 
     emit log_named_address("bridge router: ", address(connext.bridgeRouter()));
     emit log_named_address("token registry: ", address(connext.tokenRegistry()));
-    emit log_named_bytes32("canonical id: ", connext.adoptedToCanonical(transactingAsset).id);
+    emit log_named_bytes32("canonical id: ", connext.adoptedToCanonical(asset).id);
 
-    (uint32 canonicalDomain, bytes32 canonicalId) = connext.tokenRegistry().getTokenId(transactingAsset);
+    (uint32 canonicalDomain, bytes32 canonicalId) = connext.tokenRegistry().getTokenId(asset);
     address local = connext.tokenRegistry().getLocalAddress(canonicalDomain, canonicalId);
     emit log_named_address("local asset: ", local);
     emit log_named_uint(
@@ -106,21 +105,19 @@ contract LiveTest is ForgeHelper {
 
     connext.xcall(
       XCallArgs(
-        CallParams(
+        UserFacingCallParams(
           0x54BAA998771639628ffC0206c3b916c466b79c89, // to
           bytes(""), // callData
-          1735356532, // origin domain
           1735353714, // dest domain
           0x5A9e792143bf2708b4765C144451dCa54f559a19, // agent
           0x5A9e792143bf2708b4765C144451dCa54f559a19, // recovery
-          false, // forceSlow
           false, // receiveLocal
           address(0), // callback
           0, // callbackFee
           0, // relayerFee
           0 // destinationMinOut
         ), // CallParams
-        transactingAsset,
+        asset,
         150000000000000000,
         0
       )

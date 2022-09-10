@@ -48,8 +48,8 @@ Content-Type: application/json
     "relayerFee": "0",
     "destinationMinOut": "0"
   },
-  "transactingAsset": "0x7ea6eA49B0b0Ae9c5db7907d139D9Cd3439862a1",
-  "transactingAmount": "10000000000000000",
+  "asset": "0x7ea6eA49B0b0Ae9c5db7907d139D9Cd3439862a1",
+  "amount": "10000000000000000",
   "originMinOut": "0"
 }
 
