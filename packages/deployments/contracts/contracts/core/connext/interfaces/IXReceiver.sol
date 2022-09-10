@@ -8,6 +8,6 @@ interface IXReceiver {
     address _asset,
     address _originSender,
     uint32 _origin,
-    bytes memory callData
+    bytes memory _callData
   ) external returns (bytes memory);
 }
