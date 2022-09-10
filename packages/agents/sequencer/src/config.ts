@@ -108,12 +108,7 @@ export const getEnvConfig = (
       connext:
         chainConfig.deployments?.connext ??
         (() => {
-          const res =
-            domainId === "1337" || domainId === "1338"
-              ? { address: "0x8e4C131B37383E431B9cd0635D3cF9f3F628EDae" } // hardcoded for testing
-              : chainDataForChain
-              ? deployments.connext(chainDataForChain.chainId, contractPostfix)
-              : undefined;
+          const res = chainDataForChain ? deployments.connext(chainDataForChain.chainId, contractPostfix) : undefined;
 
           if (!res) {
             throw new Error(`No Connext contract address for domain ${domainId}`);

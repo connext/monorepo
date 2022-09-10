@@ -116,7 +116,7 @@ describe("Config", () => {
         }),
       });
 
-      const expectedDeployment = mockDeployments.connext(alteredMockChain);
+      const expectedDeployment = mockDeployments.connext(+alteredMockChain);
       const config = getEnvConfig(mockChainData, mockDeployments);
       expect(config.chains[alteredMockChain].deployments.connext).to.be.eq(expectedDeployment!.address);
     });
@@ -146,7 +146,7 @@ describe("Config", () => {
         }),
       });
 
-      expect(() => getEnvConfig(mockChainData, mockDeployments)).throw("must have required property");
+      expect(() => getEnvConfig(mockChainData, mockDeployments)).throw("No Connext contract address for domain");
     });
 
     it("should read config from NXTP Config with local network values overridden", () => {

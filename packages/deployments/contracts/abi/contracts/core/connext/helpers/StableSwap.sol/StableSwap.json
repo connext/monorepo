@@ -1,5 +1,6 @@
 [
   "event AddLiquidity(address indexed,uint256[],uint256[],uint256,uint256)",
+  "event Initialized(uint8)",
   "event NewAdminFee(uint256)",
   "event NewSwapFee(uint256)",
   "event NewWithdrawFee(uint256)",

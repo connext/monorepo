@@ -58,6 +58,11 @@ library AssetLogic {
    * actual amount transferred (i.e. fee on transfer tokens)
    */
   function handleIncomingAsset(address _assetId, uint256 _assetAmount) internal {
+    // If amount is 0 do nothing
+    if (_assetAmount == 0) {
+      return;
+    }
+
     if (_assetId == address(0)) {
       revert AssetLogic__handleIncomingAsset_nativeAssetNotSupported();
     }
@@ -77,13 +82,12 @@ library AssetLogic {
     address _to,
     uint256 _amount
   ) internal {
-    // No native assets should ever be stored on this contract
-    if (_assetId == address(0)) revert AssetLogic__handleOutgoingAsset_notNative();
-
     // If amount is 0 do nothing
     if (_amount == 0) {
       return;
     }
+    // No native assets should ever be stored on this contract
+    if (_assetId == address(0)) revert AssetLogic__handleOutgoingAsset_notNative();
 
     // Transfer ERC20 asset
     SafeERC20.safeTransfer(IERC20(_assetId), _to, _amount);
@@ -95,6 +99,10 @@ library AssetLogic {
    * @param _amount - The specified amount to transfer
    */
   function transferAssetToContract(address _assetId, uint256 _amount) internal {
+    // Do nothing if the amount is 0
+    if (_amount == 0) {
+      return;
+    }
     // Validate correct amounts are transferred
     uint256 starting = IERC20(_assetId).balanceOf(address(this));
 

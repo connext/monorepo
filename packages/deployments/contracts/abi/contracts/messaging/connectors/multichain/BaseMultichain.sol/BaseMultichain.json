@@ -1,0 +1,3 @@
+[
+  "function anyExecute(bytes) returns (bool, bytes)"
+]

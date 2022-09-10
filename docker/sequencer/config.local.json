@@ -15,10 +15,16 @@
   "chains": {
     "1337": {
       "providers": ["http://chain-1337:8545"],
-      "assets": [{ "address": "0x8065F4c7b8c2bf53561af92D9DA2Ea022A0b28Ca", "name": "TEST" }]
+      "deployments": {
+        "connext": "0x98d9f9e8DEbd4A632682ba207670d2a5ACD3c489"
+      },
+      "assets": [{ "address": "0x855d1c79Ad3fb086D516554Dc7187E3Fdfc1C79a", "name": "TEST" }]
     },
     "1338": {
       "providers": ["http://chain-1337:8545"],
+      "deployments": {
+        "connext": "0x74e3FC764c2474f25369B9d021b7F92e8441A2Dc"
+      },
       "assets": [{ "address": "0x2467636BEa0F3c2441227eeDBfFaC59f11D54a80", "name": "TEST" }]
     }
   },

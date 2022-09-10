@@ -1,0 +1,15 @@
+[
+  "event L2ToL1Transaction(address,address indexed,uint256 indexed,uint256 indexed,uint256,uint256,uint256,uint256,uint256,bytes)",
+  "function arbBlockNumber() view returns (uint256)",
+  "function arbChainID() view returns (uint256)",
+  "function arbOSVersion() pure returns (uint256)",
+  "function getStorageAt(address,uint256) view returns (uint256)",
+  "function getStorageGasAvailable() view returns (uint256)",
+  "function getTransactionCount(address) view returns (uint256)",
+  "function isTopLevelCall() view returns (bool)",
+  "function mapL1SenderContractAddressToL2Alias(address,address) pure returns (address)",
+  "function myCallersAddressWithoutAliasing() view returns (address)",
+  "function sendTxToL1(address,bytes) payable returns (uint256)",
+  "function wasMyCallersAddressAliased() view returns (bool)",
+  "function withdrawEth(address) payable returns (uint256)"
+]
