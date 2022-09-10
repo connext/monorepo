@@ -15,9 +15,6 @@ import {Connector} from "../../contracts/messaging/connectors/Connector.sol";
 import {SpokeConnector} from "../../contracts/messaging/connectors/SpokeConnector.sol";
 import {RootManager} from "../../contracts/messaging/RootManager.sol";
 
-import {TypedMemView, PromiseMessage, PromiseRouter} from "../../contracts/core/promise/PromiseRouter.sol";
-import {ICallback} from "../../contracts/core/promise/interfaces/ICallback.sol";
-
 import {BaseConnextFacet} from "../../contracts/core/connext/facets/BaseConnextFacet.sol";
 import {IAavePool} from "../../contracts/core/connext/interfaces/IAavePool.sol";
 import {ISponsorVault} from "../../contracts/core/connext/interfaces/ISponsorVault.sol";
@@ -160,48 +157,6 @@ contract MockRelayerFeeRouter {
     handledNonce = nonce;
     handledSender = sender;
     handledBody = body;
-  }
-}
-
-contract MockPromiseRouter is PromiseRouter {
-  using TypedMemView for bytes;
-  using TypedMemView for bytes29;
-  using PromiseMessage for bytes29;
-
-  function mockHandle(
-    address callbackAddress,
-    bool returnSuccess,
-    bytes calldata returnData
-  ) public {
-    bytes32 transferId = "A";
-
-    bytes memory message = PromiseMessage.formatPromiseCallback(transferId, callbackAddress, returnSuccess, returnData);
-    bytes29 _msg = message.ref(0).mustBePromiseCallback();
-
-    messageHashes[transferId] = _msg.keccak();
-  }
-}
-
-contract MockCallback is ICallback {
-  mapping(bytes32 => bool) public transferSuccess;
-  mapping(bytes32 => bytes32) public transferData;
-
-  bool public fails;
-
-  function shouldFail(bool fail) external {
-    fails = fail;
-  }
-
-  function callback(
-    bytes32 transferId,
-    bool success,
-    bytes memory data
-  ) external {
-    if (fails) {
-      require(false, "fails");
-    }
-    transferSuccess[transferId] = success;
-    transferData[transferId] = keccak256(data);
   }
 }
 

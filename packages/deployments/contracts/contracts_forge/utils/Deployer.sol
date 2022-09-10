@@ -101,19 +101,17 @@ contract Deployer {
     bridgeFacetSelectors[5] = BridgeFacet.executor.selector;
     bridgeFacetSelectors[6] = BridgeFacet.nonce.selector;
     bridgeFacetSelectors[7] = BridgeFacet.sponsorVault.selector;
-    bridgeFacetSelectors[8] = BridgeFacet.promiseRouter.selector;
     // admin
-    bridgeFacetSelectors[9] = BridgeFacet.setPromiseRouter.selector;
-    bridgeFacetSelectors[10] = BridgeFacet.setExecutor.selector;
-    bridgeFacetSelectors[11] = BridgeFacet.setSponsorVault.selector;
-    bridgeFacetSelectors[12] = BridgeFacet.addConnextion.selector;
-    bridgeFacetSelectors[13] = BridgeFacet.addSequencer.selector;
-    bridgeFacetSelectors[14] = BridgeFacet.removeSequencer.selector;
+    bridgeFacetSelectors[8] = BridgeFacet.setExecutor.selector;
+    bridgeFacetSelectors[9] = BridgeFacet.setSponsorVault.selector;
+    bridgeFacetSelectors[10] = BridgeFacet.addConnextion.selector;
+    bridgeFacetSelectors[11] = BridgeFacet.addSequencer.selector;
+    bridgeFacetSelectors[12] = BridgeFacet.removeSequencer.selector;
     // public
-    bridgeFacetSelectors[15] = BridgeFacet.xcall.selector;
-    bridgeFacetSelectors[16] = BridgeFacet.execute.selector;
-    bridgeFacetSelectors[17] = BridgeFacet.bumpTransfer.selector;
-    bridgeFacetSelectors[18] = BridgeFacet.forceReceiveLocal.selector;
+    bridgeFacetSelectors[13] = BridgeFacet.xcall.selector;
+    bridgeFacetSelectors[14] = BridgeFacet.execute.selector;
+    bridgeFacetSelectors[15] = BridgeFacet.bumpTransfer.selector;
+    bridgeFacetSelectors[16] = BridgeFacet.forceReceiveLocal.selector;
     return
       IDiamondCut.FacetCut({
         facetAddress: _bridgeFacet,
@@ -356,7 +354,6 @@ contract Deployer {
     address xAppConnectionManager,
     address tokenRegistry,
     address relayerFeeRouter,
-    address payable promiseRouter,
     uint256 acceptanceDelay
   ) internal returns (address) {
     bytes memory initCallData = abi.encodeWithSelector(
@@ -364,7 +361,6 @@ contract Deployer {
       domain,
       tokenRegistry,
       relayerFeeRouter,
-      promiseRouter,
       acceptanceDelay
     );
 
