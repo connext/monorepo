@@ -823,6 +823,36 @@ __metadata:
   languageName: unknown
   linkType: soft
 
+"@connext/lighthouse@workspace:packages/agents/lighthouse":
+  version: 0.0.0-use.local
+  resolution: "@connext/lighthouse@workspace:packages/agents/lighthouse"
+  dependencies:
+    "@connext/nxtp-txservice": "workspace:*"
+    "@connext/nxtp-utils": "workspace:*"
+    "@graphql-codegen/cli": 2.11.6
+    "@sinclair/typebox": 0.24.28
+    "@types/mocha": 9.1.1
+    "@types/sinon": 10.0.13
+    axios: 0.27.2
+    concurrently: 7.3.0
+    dotenv: 16.0.1
+    eslint: 8.22.0
+    ethers: 5.6.9
+    fastify: 4.5.0
+    graphql: 16.6.0
+    interval-promise: 1.4.0
+    mocha: 10.0.0
+    nodemon: 2.0.19
+    nyc: 15.1.0
+    pino-pretty: 9.0.1
+    prom-client: 14.0.1
+    rimraf: 3.0.2
+    sinon: 14.0.0
+    ts-mocha: 10.0.0
+    typescript: 4.7.4
+  languageName: unknown
+  linkType: soft
+
 "@connext/nxtp-adapters-cache@workspace:*, @connext/nxtp-adapters-cache@workspace:packages/adapters/cache":
   version: 0.0.0-use.local
   resolution: "@connext/nxtp-adapters-cache@workspace:packages/adapters/cache"
@@ -967,36 +997,6 @@ __metadata:
     ts-mocha: 10.0.0
     ts-node: 10.9.1
     tslib: 2.4.0
-    typescript: 4.7.4
-  languageName: unknown
-  linkType: soft
-
-"@connext/nxtp-lighthouse@workspace:packages/agents/lighthouse":
-  version: 0.0.0-use.local
-  resolution: "@connext/nxtp-lighthouse@workspace:packages/agents/lighthouse"
-  dependencies:
-    "@connext/nxtp-txservice": "workspace:*"
-    "@connext/nxtp-utils": "workspace:*"
-    "@graphql-codegen/cli": 2.11.6
-    "@sinclair/typebox": 0.24.28
-    "@types/mocha": 9.1.1
-    "@types/sinon": 10.0.13
-    axios: 0.27.2
-    concurrently: 7.3.0
-    dotenv: 16.0.1
-    eslint: 8.22.0
-    ethers: 5.6.9
-    fastify: 4.5.0
-    graphql: 16.6.0
-    interval-promise: 1.4.0
-    mocha: 10.0.0
-    nodemon: 2.0.19
-    nyc: 15.1.0
-    pino-pretty: 9.0.1
-    prom-client: 14.0.1
-    rimraf: 3.0.2
-    sinon: 14.0.0
-    ts-mocha: 10.0.0
     typescript: 4.7.4
   languageName: unknown
   linkType: soft
