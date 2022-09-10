@@ -19,7 +19,6 @@ import {IWeth} from "../interfaces/IWeth.sol";
 import {ITokenRegistry} from "../interfaces/ITokenRegistry.sol";
 import {IExecutor} from "../interfaces/IExecutor.sol";
 import {IAavePool} from "../interfaces/IAavePool.sol";
-import {ISponsorVault} from "../interfaces/ISponsorVault.sol";
 
 contract BridgeFacet is BaseConnextFacet {
   // ============ Libraries ============
@@ -31,7 +30,6 @@ contract BridgeFacet is BaseConnextFacet {
   // ========== Custom Errors ===========
 
   error BridgeFacet__setExecutor_invalidExecutor();
-  error BridgeFacet__setSponsorVault_invalidSponsorVault();
   error BridgeFacet__addConnextion_invalidDomain();
   error BridgeFacet__addSequencer_alreadyApproved();
   error BridgeFacet__removeSequencer_notApproved();
@@ -138,14 +136,6 @@ contract BridgeFacet is BaseConnextFacet {
   event AavePortalMintUnbacked(bytes32 indexed transferId, address indexed router, address asset, uint256 amount);
 
   /**
-   * @notice Emitted when the sponsorVault variable is updated
-   * @param oldSponsorVault - The sponsorVault old value
-   * @param newSponsorVault - The sponsorVault new value
-   * @param caller - The account that called the function
-   */
-  event SponsorVaultUpdated(address oldSponsorVault, address newSponsorVault, address caller);
-
-  /**
    * @notice Emitted when the executor variable is updated
    * @param oldExecutor - The executor old value
    * @param newExecutor - The executor new value
@@ -205,10 +195,6 @@ contract BridgeFacet is BaseConnextFacet {
     return s.nonce;
   }
 
-  function sponsorVault() public view returns (ISponsorVault) {
-    return s.sponsorVault;
-  }
-
   function approvedSequencers(address _sequencer) external view returns (bool) {
     return s.approvedSequencers[_sequencer];
   }
@@ -221,15 +207,6 @@ contract BridgeFacet is BaseConnextFacet {
 
     s.executor = IExecutor(_executor);
     emit ExecutorUpdated(old, _executor, msg.sender);
-  }
-
-  function setSponsorVault(address _sponsorVault) external onlyOwner {
-    address old = address(s.sponsorVault);
-    if (old == _sponsorVault || !Address.isContract(_sponsorVault))
-      revert BridgeFacet__setSponsorVault_invalidSponsorVault();
-
-    s.sponsorVault = ISponsorVault(_sponsorVault);
-    emit SponsorVaultUpdated(old, _sponsorVault, msg.sender);
   }
 
   function addConnextion(uint32 _domain, address _connext) external onlyOwner {
@@ -712,38 +689,6 @@ contract BridgeFacet is BaseConnextFacet {
     bytes32 _transferId,
     bool _reconciled
   ) private returns (uint256) {
-    // If the domain if sponsored
-    if (address(s.sponsorVault) != address(0)) {
-      // fast liquidity path
-      if (!_reconciled) {
-        // Vault will return the amount of the fee they sponsored in the native fee
-        // NOTE: some considerations here around fee on transfer tokens and ensuring
-        // there are no malicious `Vaults` that do not transfer the correct amount. Should likely do a
-        // balance read about it
-
-        uint256 starting = IERC20(_asset).balanceOf(address(this));
-        uint256 denom = BPS_FEE_DENOMINATOR;
-        // NOTE: using the amount that was transferred to calculate the liquidity fee, not the _amountOut
-        // which already has fees debited and was swapped
-        uint256 liquidityFee = _muldiv(_args.amount, (denom - s.LIQUIDITY_FEE_NUMERATOR), denom);
-
-        (bool success, bytes memory data) = address(s.sponsorVault).call(
-          abi.encodeWithSelector(s.sponsorVault.reimburseLiquidityFees.selector, _asset, liquidityFee, _args.params.to)
-        );
-
-        if (success) {
-          uint256 sponsored = abi.decode(data, (uint256));
-
-          // Validate correct amounts are transferred
-          if (IERC20(_asset).balanceOf(address(this)) != starting + sponsored) {
-            revert BridgeFacet__handleExecuteTransaction_invalidSponsoredAmount();
-          }
-
-          _amountOut += sponsored;
-        }
-      }
-    }
-
     // execute the the transaction
     if (keccak256(_args.params.callData) == EMPTY_HASH) {
       // no call data, send funds to the user

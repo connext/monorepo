@@ -9,7 +9,6 @@ import {ITokenRegistry} from "../interfaces/ITokenRegistry.sol";
 import {IBridgeRouter} from "../interfaces/IBridgeRouter.sol";
 import {IExecutor} from "../interfaces/IExecutor.sol";
 import {IStableSwap} from "../interfaces/IStableSwap.sol";
-import {ISponsorVault} from "../interfaces/ISponsorVault.sol";
 
 import {SwapUtils} from "./SwapUtils.sol";
 
@@ -242,50 +241,45 @@ struct AppStorage {
   // 18
   uint256 maxRoutersPerTransfer;
   /**
-   * @notice The Vault used for sponsoring fees
-   */
-  // 19
-  ISponsorVault sponsorVault;
-  /**
    * @notice The address of the nomad bridge router for this chain
    */
-  // 20
+  // 19
   IBridgeRouter bridgeRouter;
   /**
    * @notice Stores whether a transfer has had `receiveLocal` overrides forced
    */
-  // 21
+  // 20
   mapping(bytes32 => bool) receiveLocalOverrides;
   /**
    * @notice Stores a mapping of connext addresses keyed on domains
    * @dev Addresses are cast to bytes32
    */
-  // 22
+  // 21
   mapping(uint32 => bytes32) connextions;
   //
   // ProposedOwnable
   //
-  // 23
+  // 22
   address _proposed;
-  // 24
+  // 23
   uint256 _proposedOwnershipTimestamp;
-  // 25
+  // 24
   bool _routerWhitelistRemoved;
-  // 26
+  // 25
   uint256 _routerWhitelistTimestamp;
-  // 27
+  // 26
   bool _assetWhitelistRemoved;
-  // 28
+  // 27
   uint256 _assetWhitelistTimestamp;
   //
   // RouterFacet
   //
-  // 29
+  // 28
   RouterPermissionsManagerInfo routerPermissionInfo;
   //
   // ReentrancyGuard
   //
-  // 30
+  // 29
   uint256 _status;
   //
   // StableSwap
@@ -296,18 +290,18 @@ struct AppStorage {
    * Struct storing data responsible for automatic market maker functionalities. In order to
    * access this data, this contract uses SwapUtils library. For more details, see SwapUtils.sol
    */
-  // 31
+  // 30
   mapping(bytes32 => SwapUtils.Swap) swapStorages;
   /**
    * @notice Maps token address to an index in the pool. Used to prevent duplicate tokens in the pool.
    * @dev getTokenIndex function also relies on this mapping to retrieve token index.
    */
-  // 32
+  // 31
   mapping(bytes32 => mapping(address => uint8)) tokenIndexes;
   /**
    * @notice Stores whether or not bribing, AMMs, have been paused
    */
-  // 33
+  // 32
   bool _paused;
   //
   // AavePortals
@@ -315,30 +309,30 @@ struct AppStorage {
   /**
    * @notice Address of Aave Pool contract
    */
-  // 34
+  // 33
   address aavePool;
   /**
    * @notice Fee percentage numerator for using Portal liquidity
    * @dev Assumes the same basis points as the liquidity fee
    */
-  // 35
+  // 34
   uint256 aavePortalFeeNumerator;
   /**
    * @notice Mapping to store the transfer liquidity amount provided by Aave Portals
    */
-  // 36
+  // 35
   mapping(bytes32 => uint256) portalDebt;
   /**
    * @notice Mapping to store the transfer liquidity amount provided by Aave Portals
    */
-  // 37
+  // 36
   mapping(bytes32 => uint256) portalFeeDebt;
   /**
    * @notice Mapping of approved sequencers
    * @dev Sequencer address provided must belong to an approved sequencer in order to call `execute`
    * for the fast liquidity route.
    */
-  // 38
+  // 37
   mapping(address => bool) approvedSequencers;
 }
 
