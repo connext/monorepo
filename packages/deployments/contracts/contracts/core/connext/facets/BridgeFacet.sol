@@ -15,8 +15,6 @@ import {AssetLogic} from "../libraries/AssetLogic.sol";
 import {XCallArgs, ExecuteArgs, CallParams, TokenId, TransferIdInformation} from "../libraries/LibConnextStorage.sol";
 import {LibCrossDomainProperty} from "../libraries/LibCrossDomainProperty.sol";
 
-import {PromiseRouter} from "../../promise/PromiseRouter.sol";
-
 import {IWeth} from "../interfaces/IWeth.sol";
 import {ITokenRegistry} from "../interfaces/ITokenRegistry.sol";
 import {IExecutor} from "../interfaces/IExecutor.sol";
@@ -32,7 +30,6 @@ contract BridgeFacet is BaseConnextFacet {
 
   // ========== Custom Errors ===========
 
-  error BridgeFacet__setPromiseRouter_invalidPromiseRouter();
   error BridgeFacet__setExecutor_invalidExecutor();
   error BridgeFacet__setSponsorVault_invalidSponsorVault();
   error BridgeFacet__addConnextion_invalidDomain();
@@ -43,8 +40,6 @@ contract BridgeFacet is BaseConnextFacet {
   error BridgeFacet__xcall_destinationNotSupported();
   error BridgeFacet__xcall_emptyToOrRecovery();
   error BridgeFacet__xcall_notSupportedAsset();
-  error BridgeFacet__xcall_nonZeroCallbackFeeForCallback();
-  error BridgeFacet__xcall_callbackNotAContract();
   error BridgeFacet__xcall_missingAgent();
   error BridgeFacet__xcall_invalidSlippageTol();
   error BridgeFacet__xcall_ethValueMismatchedFees();
@@ -153,14 +148,6 @@ contract BridgeFacet is BaseConnextFacet {
   event SponsorVaultUpdated(address oldSponsorVault, address newSponsorVault, address caller);
 
   /**
-   * @notice Emitted when the promiseRouter variable is updated
-   * @param oldRouter - The promiseRouter old value
-   * @param newRouter - The promiseRouter new value
-   * @param caller - The account that called the function
-   */
-  event PromiseRouterUpdated(address oldRouter, address newRouter, address caller);
-
-  /**
    * @notice Emitted when the executor variable is updated
    * @param oldExecutor - The executor old value
    * @param newExecutor - The executor new value
@@ -224,24 +211,11 @@ contract BridgeFacet is BaseConnextFacet {
     return s.sponsorVault;
   }
 
-  function promiseRouter() external view returns (PromiseRouter) {
-    return s.promiseRouter;
-  }
-
   function approvedSequencers(address _sequencer) external view returns (bool) {
     return s.approvedSequencers[_sequencer];
   }
 
   // ============ Admin methods ==============
-
-  function setPromiseRouter(address payable _promiseRouter) external onlyOwner {
-    address old = address(s.promiseRouter);
-    if (old == _promiseRouter || !Address.isContract(_promiseRouter))
-      revert BridgeFacet__setPromiseRouter_invalidPromiseRouter();
-
-    s.promiseRouter = PromiseRouter(_promiseRouter);
-    emit PromiseRouterUpdated(old, _promiseRouter, msg.sender);
-  }
 
   function setExecutor(address _executor) external onlyOwner {
     address old = address(s.executor);
@@ -344,18 +318,8 @@ contract BridgeFacet is BaseConnextFacet {
         revert BridgeFacet__xcall_missingAgent();
       }
 
-      if (_args.params.callback != address(0)) {
-        // Callback address must be a contract if it is supplied.
-        if (!Address.isContract(_args.params.callback)) {
-          revert BridgeFacet__xcall_callbackNotAContract();
-        }
-      } else if (_args.params.callbackFee != 0) {
-        // Othewrise, if callback address is not set, callback fee should be 0.
-        revert BridgeFacet__xcall_nonZeroCallbackFeeForCallback();
-      }
-
       // Check to make sure fee amount in argument is equal to msg.value.
-      if (msg.value != _args.params.relayerFee + _args.params.callbackFee) {
+      if (msg.value != _args.params.relayerFee) {
         revert BridgeFacet__xcall_ethValueMismatchedFees();
       }
     }
@@ -424,11 +388,6 @@ contract BridgeFacet is BaseConnextFacet {
       // NOTE: this has to be done *after* transferring in + swapping assets because
       // the transfer id uses the amount that is bridged (i.e. amount in local asset)
       s.relayerFees[transferId] += _args.params.relayerFee;
-
-      // Transfer callback fee to PromiseRouter if set
-      if (_args.params.callbackFee != 0) {
-        s.promiseRouter.initCallbackFee{value: _args.params.callbackFee}(transferId);
-      }
 
       // Send message
       messageHash = s.bridgeRouter.sendToHook(
@@ -821,11 +780,6 @@ contract BridgeFacet is BaseConnextFacet {
           _args.params.callData
         )
       );
-
-      // If callback address is not zero, send on the PromiseRouter
-      if (_args.params.callback != address(0)) {
-        s.promiseRouter.send(_args.params.originDomain, _transferId, _args.params.callback, success, returnData);
-      }
     }
 
     return _amountOut;
