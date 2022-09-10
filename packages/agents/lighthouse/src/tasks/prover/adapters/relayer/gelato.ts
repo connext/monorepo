@@ -1,31 +1,20 @@
-import {
-  createLoggingContext,
-  Logger,
-  RequestContext,
-  gelatoSend,
-  isChainSupportedByGelato,
-} from "@connext/nxtp-utils";
+import { createLoggingContext, gelatoSend, isChainSupportedByGelato } from "@connext/nxtp-utils";
 import { AxiosError } from "axios";
-import { RelayerSendFailed } from "../../errors";
 
-import { getHelpers } from "../../lib/helpers";
+import { RelayerSendFailed } from "../../../../errors";
+import { getGelatoRelayerAddress } from "../../../../mockable";
+import { getContext } from "../../prover";
 
-export const getRelayerAddress = async (chainId: number, logger: Logger): Promise<string> => {
-  const {
-    relayer: { getGelatoRelayerAddress },
-  } = getHelpers();
+export const getRelayerAddress = async (chainId: number): Promise<string> => {
+  const { logger } = getContext();
   const relayerAddress = await getGelatoRelayerAddress(chainId, logger);
   return relayerAddress;
 };
 
-export const send = async (
-  chainId: number,
-  destinationAddress: string,
-  encodedData: string,
-  _requestContext: RequestContext,
-  logger: Logger,
-): Promise<string> => {
-  const { requestContext, methodContext } = createLoggingContext(send.name, _requestContext);
+export const send = async (chainId: number, destinationAddress: string, encodedData: string): Promise<string> => {
+  const { logger } = getContext();
+  const { requestContext, methodContext } = createLoggingContext(send.name);
+
   const isSupportedByGelato = await isChainSupportedByGelato(chainId);
   if (!isSupportedByGelato) {
     throw new Error("Chain not supported by gelato.");

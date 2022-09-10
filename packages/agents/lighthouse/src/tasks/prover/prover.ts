@@ -4,14 +4,16 @@ import { getContractInterfaces, ChainReader, contractDeployments } from "@connex
 import { getConfig } from "../../config";
 
 import { ProverContext } from "./context";
+import { proveAndProcess } from "./operations";
+import { setupCartographer, setupRelayer } from "./adapters";
 
 // AppContext instance used for interacting with adapters, config, etc.
 const context: ProverContext = {} as any;
 export const getContext = () => context;
 
-export const makeLighthouse = async () => {
-  const requestContext = createRequestContext(makeLighthouse.name);
-  const methodContext = createMethodContext(makeLighthouse.name);
+export const makeProver = async () => {
+  const requestContext = createRequestContext(makeProver.name);
+  const methodContext = createMethodContext(makeProver.name);
 
   try {
     // Get ChainData and parse out configuration.
@@ -42,6 +44,9 @@ export const makeLighthouse = async () => {
       context.config.chains,
     );
 
+    context.adapters.cartographer = await setupCartographer();
+    context.adapters.relayer = await setupRelayer();
+
     context.adapters.contracts = getContractInterfaces();
 
     // Set up bindings.
@@ -61,6 +66,8 @@ export const makeLighthouse = async () => {
 
       `,
     );
+
+    await proveAndProcess();
   } catch (e: unknown) {
     console.error("Error starting Prover. Sad! :(", e);
     process.exit();

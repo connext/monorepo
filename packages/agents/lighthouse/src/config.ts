@@ -5,7 +5,7 @@ import { config as dotenvConfig } from "dotenv";
 import { ajv, ChainData, TAddress, TLogLevel } from "@connext/nxtp-utils";
 import { ConnextContractDeployments, ContractPostfix } from "@connext/nxtp-txservice";
 
-import { getHelpers } from "./lib/helpers";
+import { existsSync, readFileSync } from "./mockable";
 
 // Polling mins and defaults.
 const DEFAULT_CONFIRMATIONS = 3;
@@ -19,6 +19,7 @@ export const TChainConfig = Type.Object({
   confirmations: Type.Integer({ minimum: 1 }), // What we consider the "safe confirmations" number for this chain.
   deployments: Type.Object({
     connext: TAddress,
+    spokeConnector: TAddress,
   }),
 });
 
@@ -65,9 +66,6 @@ export const getEnvConfig = (
   }
   try {
     let json: string;
-    const {
-      shared: { existsSync, readFileSync },
-    } = getHelpers();
     const path = process.env.NXTP_CONFIG_FILE ?? "config.json";
 
     if (existsSync(path)) {
@@ -133,6 +131,7 @@ export const getEnvConfig = (
           }
           return res.address;
         })(),
+      spokeConnector: nxtpConfig.chains[domainId].deployments.spokeConnector, // TODO: can we infer this?
     };
 
     nxtpConfig.chains[domainId].confirmations = chainConfig.confirmations ?? chainRecommendedConfirmations;
