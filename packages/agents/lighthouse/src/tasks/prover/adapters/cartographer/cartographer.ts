@@ -6,9 +6,10 @@ import {
   NxtpError,
   XMessage,
 } from "@connext/nxtp-utils";
-import axios from "axios";
+import { AxiosError } from "axios";
 
 import { ApiRequestFailed } from "../../../../errors";
+import { axiosGet } from "../../../../mockable";
 import { getContext } from "../../prover";
 
 export const getUnProcessedMessages = async (): Promise<XMessage[]> => {
@@ -19,7 +20,11 @@ export const getUnProcessedMessages = async (): Promise<XMessage[]> => {
   const uri = formatUrl(config.cartographerUrl, "messages?", statusIdentifier);
   logger.debug("Getting messages from URI", requestContext, methodContext, { uri });
   try {
-    const response = await axios.get(uri);
+    const response = await axiosGet(uri);
+    console.log("response: ", response);
+    if ((response as unknown as AxiosError).isAxiosError) {
+      throw new ApiRequestFailed({ response });
+    }
     return response.data.map(convertFromDbMessage);
   } catch (error: any) {
     throw new ApiRequestFailed({ uri, error: jsonifyError(error as NxtpError) });

@@ -2,6 +2,7 @@
   "extends": "../../../.nycrc.json",
   "exclude": [
     "src/config.ts",
+    "src/errors/*.ts",
     "src/mockable.ts",
     "src/tasks/prover/adapters/cartographer/index.ts",
     "src/tasks/prover/adapters/relayer/index.ts",

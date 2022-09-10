@@ -41,12 +41,7 @@ export const processMessage = async (message: XMessage) => {
   ]);
   const destinationSpokeConnector = config.chains[message.destinationDomain]?.deployments.spokeConnector;
   if (!destinationSpokeConnector) {
-    logger.error(
-      "No spoke connector found for chain",
-      requestContext,
-      methodContext,
-      new NoDestinationDomainForProof(message.destinationDomain),
-    );
+    throw new NoDestinationDomainForProof(message.destinationDomain);
   }
   logger.info("Proving and processing message", requestContext, methodContext, {
     message,
