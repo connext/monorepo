@@ -44,7 +44,6 @@ struct UserFacingCallParams {
   address agent;
   address recovery;
   bool receiveLocal;
-  uint256 relayerFee;
   uint256 destinationMinOut;
 }
 
@@ -61,7 +60,6 @@ struct UserFacingCallParams {
  * @param agent - An address who can execute txs on behalf of `to`, in addition to allowing relayers
  * @param recovery - The address to send funds to if your `Executor.execute call` fails
  * @param receiveLocal - If true, will use the local nomad asset on the destination instead of adopted.
- * @param relayerFee - The amount of relayer fee the tx called xcall with
  * @param destinationMinOut - Minimum amount received on swaps for local <> adopted on destination chain.
  */
 struct CallParams {
@@ -72,7 +70,6 @@ struct CallParams {
   address agent;
   address recovery;
   bool receiveLocal;
-  uint256 relayerFee;
   uint256 destinationMinOut;
 }
 

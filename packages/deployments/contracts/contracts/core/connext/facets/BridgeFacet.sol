@@ -41,7 +41,6 @@ contract BridgeFacet is BaseConnextFacet {
   error BridgeFacet__xcall_notSupportedAsset();
   error BridgeFacet__xcall_missingAgent();
   error BridgeFacet__xcall_invalidSlippageTol();
-  error BridgeFacet__xcall_ethValueMismatchedFees();
   error BridgeFacet__execute_unapprovedSender();
   error BridgeFacet__execute_wrongDomain();
   error BridgeFacet__execute_notSupportedSequencer();
@@ -292,7 +291,6 @@ contract BridgeFacet is BaseConnextFacet {
       agent: _args.params.agent,
       recovery: _args.params.recovery,
       receiveLocal: _args.params.receiveLocal,
-      relayerFee: _args.params.relayerFee,
       destinationMinOut: _args.params.destinationMinOut
     });
     {
@@ -321,11 +319,6 @@ contract BridgeFacet is BaseConnextFacet {
       // so that they can call `forceReceiveLocal` if need be.
       if (params.agent == address(0) && !params.receiveLocal) {
         revert BridgeFacet__xcall_missingAgent();
-      }
-
-      // Check to make sure fee amount in argument is equal to msg.value.
-      if (msg.value != _args.params.relayerFee) {
-        revert BridgeFacet__xcall_ethValueMismatchedFees();
       }
     }
 
@@ -392,7 +385,7 @@ contract BridgeFacet is BaseConnextFacet {
       // Store the relayer fee
       // NOTE: this has to be done *after* transferring in + swapping assets because
       // the transfer id uses the amount that is bridged (i.e. amount in local asset)
-      s.relayerFees[transferId] += _args.params.relayerFee;
+      s.relayerFees[transferId] += msg.value;
 
       // Send message
       messageHash = s.bridgeRouter.sendToHook(
@@ -749,18 +742,6 @@ contract BridgeFacet is BaseConnextFacet {
           _amountOut += sponsored;
         }
       }
-
-      // Should dust the recipient with the lesser of a vault-defined cap or the converted relayer fee
-      // If there is no conversion available (i.e. no oracles for origin domain asset <> dest asset pair),
-      // then the vault should just pay out the configured constant
-      address(s.sponsorVault).call(
-        abi.encodeWithSelector(
-          s.sponsorVault.reimburseRelayerFees.selector,
-          _args.params.originDomain,
-          payable(_args.params.to),
-          _args.params.relayerFee
-        )
-      );
     }
 
     // execute the the transaction
