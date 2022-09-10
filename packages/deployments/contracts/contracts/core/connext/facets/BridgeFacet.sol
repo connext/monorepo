@@ -796,16 +796,7 @@ contract BridgeFacet is BaseConnextFacet {
     AssetLogic.handleOutgoingAsset(_asset, _args.params.to, _amountOut);
 
     // execute the calldata
-    _executeCalldata(
-      _transferId,
-      _amountOut,
-      _asset,
-      _args.params.to,
-      _args.params.originDomain,
-      _args.originSender,
-      _reconciled,
-      _args.params.callData
-    );
+    _executeCalldata(_transferId, _amountOut, _asset, _args.originSender, _reconciled, _args.params);
 
     return _amountOut;
   }
@@ -827,17 +818,18 @@ contract BridgeFacet is BaseConnextFacet {
     bytes32 _transferId,
     uint256 _amount,
     address _asset,
-    address _to,
-    uint32 _originDomain,
     address _originSender,
     bool _reconciled,
-    bytes memory _callData
+    CallParams calldata _params
   ) internal {
     // execute the calldata
-    if (keccak256(_callData) == EMPTY_HASH) {
+    if (keccak256(_params.callData) == EMPTY_HASH) {
       // no call data, return amount out
       return;
     }
+
+    bool success;
+    bytes memory returnData;
 
     // See above devnote
     if (_reconciled) {
@@ -849,8 +841,8 @@ contract BridgeFacet is BaseConnextFacet {
       // FIXME: should the values used here be settable constants?
 
       // Use SafeCall here
-      (bool success, bytes memory returnData) = ExcessivelySafeCall.excessivelySafeCall(
-        _to,
+      (success, returnData) = ExcessivelySafeCall.excessivelySafeCall(
+        _params.to,
         gasleft() - 10_000,
         0, // native asset value (always 0)
         256, // only copy 256 bytes back as calldata
@@ -860,24 +852,28 @@ contract BridgeFacet is BaseConnextFacet {
           _amount,
           _asset,
           _originSender, // use passed in value iff authenticated
-          _originDomain,
-          _callData
+          _params.originDomain,
+          _params.callData
         )
       );
-
-      // Emit an event including the call result
-      emit ExternalCalldataExecuted(_transferId, success, returnData);
     } else {
       // use address(0) for origin sender on fast path
-      bytes memory returnData = IXReceiver(_to).xReceive(
+      returnData = IXReceiver(_params.to).xReceive(
         _transferId,
         _amount,
         _asset,
         address(0),
-        _originDomain,
-        _callData
+        _params.originDomain,
+        _params.callData
       );
-      emit ExternalCalldataExecuted(_transferId, true, returnData);
+      success = true;
+    }
+
+    emit ExternalCalldataExecuted(_transferId, success, returnData);
+
+    // perform callback
+    if (_params.callback != address(0)) {
+      s.promiseRouter.send(_params.originDomain, _transferId, _params.callback, success, returnData);
     }
   }
 
