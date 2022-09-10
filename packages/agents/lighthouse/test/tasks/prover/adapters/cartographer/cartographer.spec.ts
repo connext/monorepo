@@ -6,14 +6,19 @@ import { axiosGetStub, mockAxiosErrorResponse } from "../../../../globalTestHook
 
 describe("Adapters: Cartographer", () => {
   describe("#getUnProcessedMessages", () => {
+    it("should error if errors", async () => {
+      axiosGetStub.rejects("foo");
+      await expect(getUnProcessedMessages()).to.be.rejectedWith(ApiRequestFailed);
+    });
+
     it("should error if cartographer returns error", async () => {
       axiosGetStub.resolves(mockAxiosErrorResponse);
       await expect(getUnProcessedMessages()).to.be.rejectedWith(ApiRequestFailed);
     });
-  });
 
-  it("should work", async () => {
-    const unprocessed = await getUnProcessedMessages();
-    expect(unprocessed).to.deep.eq([]);
+    it("should work", async () => {
+      const unprocessed = await getUnProcessedMessages();
+      expect(unprocessed).to.deep.eq([]);
+    });
   });
 });
