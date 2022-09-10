@@ -5,10 +5,14 @@
     "source": [
       {
         "name": "ConnextHandler",
-        "address": "0xe37f1f55eab648dA87047A03CB03DeE3d3fe7eC7",
-        "startBlock": 615385
+        "address": "0xA04f29c24CCf3AF30D4164F608A56Dc495B2c976",
+        "startBlock": 989083
       },
-      { "name": "Connector", "address": "0x703f7F285D9731329a65b87C203C9Cdf43159829", "startBlock": 777547 }
+      {
+        "name": "Connector",
+        "address": "0x48443593dF5A84D80840879207287dd86B3b8198",
+        "startBlock": 989019
+      }
     ]
   },
   {
@@ -17,10 +21,14 @@
     "source": [
       {
         "name": "ConnextHandler",
-        "address": "0xB4C1340434920d70aD774309C75f9a4B679d801e",
-        "startBlock": 7464912
+        "address": "0xD9e8b18Db316d7736A3d0386C59CA3332810df3B",
+        "startBlock": 7562303
       },
-      { "name": "Connector", "address": "0xa0EaE38b7b3A0d99bBFCbF33EAD7a444D43f41f2", "startBlock": 7505717 }
+      {
+        "name": "Connector",
+        "address": "0xaBf979F6B6BC504eA342d52cf7a4c37c179aB2b5",
+        "startBlock": 7505717
+      }
     ]
   }
 ]
