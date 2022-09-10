@@ -10,7 +10,6 @@ import {TypedMemView} from "../../../../contracts/shared/libraries/TypedMemView.
 
 import {IAavePool} from "../../../../contracts/core/connext/interfaces/IAavePool.sol";
 import {IStableSwap} from "../../../../contracts/core/connext/interfaces/IStableSwap.sol";
-import {ISponsorVault} from "../../../../contracts/core/connext/interfaces/ISponsorVault.sol";
 import {ITokenRegistry} from "../../../../contracts/core/connext/interfaces/ITokenRegistry.sol";
 import {IBridgeRouter} from "../../../../contracts/core/connext/interfaces/IBridgeRouter.sol";
 import {IWeth} from "../../../../contracts/core/connext/interfaces/IWeth.sol";
@@ -542,22 +541,6 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
       );
     }
 
-    // expected sponsor vault
-    if (address(s.sponsorVault) != address(0)) {
-      // if it is a fast transfer, then it should reimburse liquidity fees
-      if (!_inputs.isSlow) {
-        vm.expectCall(
-          address(s.sponsorVault),
-          abi.encodeWithSelector(
-            ISponsorVault.reimburseLiquidityFees.selector,
-            _inputs.token,
-            (_args.amount * (BPS_FEE_DENOMINATOR - s.LIQUIDITY_FEE_NUMERATOR)) / BPS_FEE_DENOMINATOR,
-            _args.params.to
-          )
-        );
-      }
-    }
-
     // expected transfer out of contract
     if (_args.amount != 0) {
       // token transfer
@@ -825,13 +808,6 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
     assertEq(this.nonce(), _destinationDomain);
   }
 
-  function test_BridgeFacet_sponsorVault_works() public {
-    s.sponsorVault = ISponsorVault(address(0));
-    assertEq(address(this.sponsorVault()), address(0));
-    s.sponsorVault = ISponsorVault(_local);
-    assertEq(address(this.sponsorVault()), _local);
-  }
-
   // The rest (relayerFees, routedTransfers, reconciledTransfers) are checked on
   // assertions for xcall / reconcile / execute
 
@@ -893,51 +869,6 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
     emit ExecutorUpdated(old, updated, LibDiamond.contractOwner());
     this.setExecutor(payable(updated));
     assertEq(address(this.executor()), updated);
-  }
-
-  // setSponsorVault
-  function test_BridgeFacet__setSponsorVault_failIfNotOwner() public {
-    // constants
-    address old = address(123);
-    address updated = old;
-
-    // set storage
-    s.sponsorVault = ISponsorVault(payable(old));
-
-    // test revert
-    vm.prank(_originSender);
-    vm.expectRevert(BaseConnextFacet.BaseConnextFacet__onlyOwner_notOwner.selector);
-    this.setSponsorVault(payable(updated));
-  }
-
-  function test_BridgeFacet__setSponsorVault_failIfNoChange() public {
-    // constants
-    address old = address(123);
-    address updated = old;
-
-    // set storage
-    s.sponsorVault = ISponsorVault(payable(old));
-
-    // test revert
-    vm.prank(LibDiamond.contractOwner());
-    vm.expectRevert(BridgeFacet.BridgeFacet__setSponsorVault_invalidSponsorVault.selector);
-    this.setSponsorVault(payable(updated));
-  }
-
-  function test_BridgeFacet__setSponsorVault_works() public {
-    // constants
-    address old = address(123);
-    address updated = address(_local);
-
-    // set storage
-    s.sponsorVault = ISponsorVault(payable(old));
-
-    // test revert
-    vm.prank(LibDiamond.contractOwner());
-    vm.expectEmit(true, true, true, true);
-    emit SponsorVaultUpdated(old, updated, LibDiamond.contractOwner());
-    this.setSponsorVault(payable(updated));
-    assertEq(address(this.sponsorVault()), updated);
   }
 
   // addSequencer
@@ -1415,25 +1346,6 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
     this.execute(args);
   }
 
-  // should fail if sponsored vault did not fund contract with returned amount
-  function test_BridgeFacet__execute_failIfSponsorVaultLied() public {
-    (, ExecuteArgs memory args) = utils_makeExecuteArgs(1);
-    s.routerPermissionInfo.approvedRouters[args.routers[0]] = true;
-    for (uint256 i = 0; i < args.routers.length; i++) {
-      // The other routers have plenty of funds.
-      s.routerBalances[args.routers[i]][args.local] = 50 ether;
-    }
-
-    // set mock sponsor vault
-    address vault = address(123456654321);
-    s.sponsorVault = ISponsorVault(vault);
-    // set change
-    vm.mockCall(vault, abi.encodeWithSelector(ISponsorVault.reimburseLiquidityFees.selector), abi.encode(10 ether));
-
-    vm.expectRevert(BridgeFacet.BridgeFacet__handleExecuteTransaction_invalidSponsoredAmount.selector);
-    this.execute(args);
-  }
-
   function test_BridgeFacet__execute_failsIfRouterNotApprovedForPortal() public {
     _amount = 5 ether;
 
@@ -1570,54 +1482,6 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
     utils_setupAsset(true, false);
 
     helpers_executeAndAssert(transferId, args);
-  }
-
-  // should work if no sponsor vault set
-  function test_BridgeFacet__execute_worksWithoutVault() public {
-    s.sponsorVault = ISponsorVault(address(0));
-
-    // set asset context (local == adopted)
-    utils_setupAsset(true, false);
-
-    (bytes32 transferId, ExecuteArgs memory args) = utils_makeExecuteArgs(1);
-    s.routerBalances[args.routers[0]][args.local] += 10 ether;
-
-    helpers_executeAndAssert(transferId, args);
-  }
-
-  // should sponsor if fast liquidity is used and sponsor vault set
-  function test_BridgeFacet__execute_worksWithSponsorLiquidity() public {
-    // setup vault
-    uint256 vaultAmount = 10000;
-    MockSponsorVault vault = new MockSponsorVault(vaultAmount, 0);
-    s.sponsorVault = vault;
-
-    // set asset context (local == adopted)
-    utils_setupAsset(true, false);
-
-    (bytes32 transferId, ExecuteArgs memory args) = utils_makeExecuteArgs(1);
-    s.routerBalances[args.routers[0]][args.local] += 10 ether;
-
-    helpers_executeAndAssert(transferId, args, utils_getFastTransferAmount(args.amount) + vaultAmount, false);
-  }
-
-  // should sponsor relayer fee in slow liquidity
-  function test_BridgeFacet__execute_sponsorsRelayersSlow() public {
-    // set test vault
-    uint256 vaultAmount = 10000;
-    MockSponsorVault vault = new MockSponsorVault(vaultAmount, 0);
-    s.sponsorVault = vault;
-
-    // set asset context (local == adopted)
-    utils_setupAsset(true, false);
-
-    // get args
-    (bytes32 transferId, ExecuteArgs memory _args) = utils_makeExecuteArgs(0);
-
-    // set reconciled context
-    s.reconciledTransfers[transferId] = true;
-
-    helpers_executeAndAssert(transferId, _args);
   }
 
   // should work without calldata

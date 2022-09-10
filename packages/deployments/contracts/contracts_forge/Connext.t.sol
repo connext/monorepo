@@ -891,40 +891,6 @@ contract ConnextTest is ForgeHelper, Deployer {
     // NOTE: execute only passes if external call passes because of balance assertions on `to`
   }
 
-  // you should be able to use a sponsor vault
-  function test_Connext__sponsorVaultsWork() public {
-    // 0. deploy sponsor vault + setup contracts
-    utils_setupAssets(_origin, true);
-    uint256 liquidityReimbursement = 0.1 ether;
-    uint256 dust = 0.01 ether;
-    MockSponsorVault vault = new MockSponsorVault(liquidityReimbursement, dust);
-    vm.deal(address(vault), 100 ether); // fund for dusting
-    _destinationConnext.setSponsorVault(address(vault));
-
-    // 1. xcall
-    CallParams memory params = utils_createCallParams(_destination);
-    XCallArgs memory xcall = XCallArgs(utils_createUserCallParams(_destination), _originLocal, 1 ether, 0.95 ether);
-    bytes32 transferId = utils_xcallAndAssert(xcall, _originLocal, xcall.amount, 0);
-
-    // 2. call `execute` on the destination
-    uint256 initLiquidity = IERC20(_destinationLocal).balanceOf(xcall.params.to);
-    uint256 initReceiver = xcall.params.to.balance;
-    ExecuteArgs memory execute = utils_createExecuteArgs(params, 2, transferId, xcall.amount);
-    utils_executeAndAssert(
-      execute,
-      transferId,
-      utils_getFastTransferAmount(execute.amount),
-      liquidityReimbursement,
-      false
-    );
-
-    assertEq(xcall.params.to.balance, initReceiver + dust);
-    assertEq(
-      IERC20(_destinationLocal).balanceOf(xcall.params.to),
-      initLiquidity + utils_getFastTransferAmount(execute.amount) + liquidityReimbursement
-    );
-  }
-
   // you should be able to use a portal
   function test_Connext__portalsShouldWork() public {
     // 0. deploy pool + setup contracts

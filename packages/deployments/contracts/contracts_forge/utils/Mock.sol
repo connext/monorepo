@@ -17,7 +17,6 @@ import {RootManager} from "../../contracts/messaging/RootManager.sol";
 
 import {BaseConnextFacet} from "../../contracts/core/connext/facets/BaseConnextFacet.sol";
 import {IAavePool} from "../../contracts/core/connext/interfaces/IAavePool.sol";
-import {ISponsorVault} from "../../contracts/core/connext/interfaces/ISponsorVault.sol";
 import {ITokenRegistry} from "../../contracts/core/connext/interfaces/ITokenRegistry.sol";
 import {IBridgeRouter} from "../../contracts/core/connext/interfaces/IBridgeRouter.sol";
 import {IWeth} from "../../contracts/core/connext/interfaces/IWeth.sol";
@@ -207,10 +206,6 @@ contract TestSetterFacet is BaseConnextFacet {
     s.routerPermissionInfo.approvedForPortalRouters[_router] = _value;
   }
 
-  function setTestSponsorVault(address _sponsorVault) external {
-    s.sponsorVault = ISponsorVault(_sponsorVault);
-  }
-
   function setTestApprovedRelayer(address _relayer, bool _approved) external {
     s.approvedRelayers[_relayer] = _approved;
   }
@@ -332,48 +327,6 @@ contract MockTokenRegistry is ITokenRegistry {
   function oldReprToCurrentRepr(address _oldRepr) external pure returns (address _currentRepr) {
     return address(42);
   }
-}
-
-contract MockSponsorVault is ISponsorVault {
-  uint256 liquidity;
-  uint256 dust;
-
-  constructor(uint256 _liquidity, uint256 _dust) {
-    liquidity = _liquidity;
-    dust = _dust;
-  }
-
-  function setLiquidity(uint256 _liquidity) external {
-    liquidity = _liquidity;
-  }
-
-  function reimburseLiquidityFees(
-    address token,
-    uint256 amount,
-    address receiver
-  ) external returns (uint256) {
-    TestERC20(token).mint(msg.sender, liquidity);
-    return liquidity;
-  }
-
-  function reimburseRelayerFees(
-    uint32 originDomain,
-    address payable receiver,
-    uint256 amount
-  ) external {
-    Address.sendValue(receiver, dust);
-  }
-
-  // Should allow anyone to send funds to the vault for sponsoring fees
-  function deposit(address _token, uint256 _amount) external payable {}
-
-  // Should allow the owner of the vault to withdraw funds put in to a given
-  // address
-  function withdraw(
-    address token,
-    address receiver,
-    uint256 amount
-  ) external {}
 }
 
 contract MockCalldata {
