@@ -1,10 +1,13 @@
 [
   {
     "network": "mainnet",
-    "address": "0x1411CB266FCEd1587b0AA29E9d5a9Ef3Db64A9C5",
-    "startBlock": 0,
-    "network1": "mainnet",
-    "address1": "0x1411CB266FCEd1587b0AA29E9d5a9Ef3Db64A9C5",
-    "startBlock1": 0
+    "source": [
+      {
+        "name": "ConnextHandler",
+        "address": "0x8664bE4C5C12c718838b5dCd8748B66F3A0f6A18",
+        "startBlock": 7426310
+      },
+      { "name": "Connector", "address": "0xb8E2831060794fF2Da6869fca1c1707dFbbE00FD", "startBlock": 7505252 }
+    ]
   }
 ]
