@@ -39,18 +39,14 @@ export const makeProver = async () => {
       config: { ...context.config, mnemonic: "*****" },
     });
 
+    // Adapters
     context.adapters.chainreader = new ChainReader(
       context.logger.child({ module: "ChainReader" }),
       context.config.chains,
     );
-
     context.adapters.cartographer = await setupCartographer();
     context.adapters.relayer = await setupRelayer();
-
     context.adapters.contracts = getContractInterfaces();
-
-    // Set up bindings.
-    context.logger.info("Bindings initialized.", requestContext, methodContext);
 
     context.logger.info("Prover boot complete!", requestContext, methodContext, {
       chains: [...Object.keys(context.config.chains)],
@@ -67,6 +63,7 @@ export const makeProver = async () => {
       `,
     );
 
+    // Start the prover.
     await proveAndProcess();
   } catch (e: unknown) {
     console.error("Error starting Prover. Sad! :(", e);
