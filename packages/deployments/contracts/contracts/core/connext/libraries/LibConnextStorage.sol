@@ -44,8 +44,6 @@ struct UserFacingCallParams {
   address agent;
   address recovery;
   bool receiveLocal;
-  address callback;
-  uint256 callbackFee;
   uint256 relayerFee;
   uint256 destinationMinOut;
 }

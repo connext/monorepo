@@ -292,8 +292,6 @@ contract BridgeFacet is BaseConnextFacet {
       agent: _args.params.agent,
       recovery: _args.params.recovery,
       receiveLocal: _args.params.receiveLocal,
-      callback: _args.params.callback,
-      callbackFee: _args.params.callbackFee,
       relayerFee: _args.params.relayerFee,
       destinationMinOut: _args.params.destinationMinOut
     });
