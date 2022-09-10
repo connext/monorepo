@@ -46,7 +46,6 @@ export type CallParamsStruct = {
   agent: PromiseOrValue<string>;
   recovery: PromiseOrValue<string>;
   receiveLocal: PromiseOrValue<boolean>;
-  relayerFee: PromiseOrValue<BigNumberish>;
   destinationMinOut: PromiseOrValue<BigNumberish>;
 };
 
@@ -58,7 +57,6 @@ export type CallParamsStructOutput = [
   string,
   string,
   boolean,
-  BigNumber,
   BigNumber
 ] & {
   to: string;
@@ -68,7 +66,6 @@ export type CallParamsStructOutput = [
   agent: string;
   recovery: string;
   receiveLocal: boolean;
-  relayerFee: BigNumber;
   destinationMinOut: BigNumber;
 };
 
@@ -113,7 +110,6 @@ export type UserFacingCallParamsStruct = {
   agent: PromiseOrValue<string>;
   recovery: PromiseOrValue<string>;
   receiveLocal: PromiseOrValue<boolean>;
-  relayerFee: PromiseOrValue<BigNumberish>;
   destinationMinOut: PromiseOrValue<BigNumberish>;
 };
 
@@ -124,7 +120,6 @@ export type UserFacingCallParamsStructOutput = [
   string,
   string,
   boolean,
-  BigNumber,
   BigNumber
 ] & {
   to: string;
@@ -133,7 +128,6 @@ export type UserFacingCallParamsStructOutput = [
   agent: string;
   recovery: string;
   receiveLocal: boolean;
-  relayerFee: BigNumber;
   destinationMinOut: BigNumber;
 };
 
@@ -249,9 +243,9 @@ export interface ConnextHandlerInterface extends utils.Interface {
     "bumpTransfer(bytes32)": FunctionFragment;
     "connextion(uint32)": FunctionFragment;
     "domain()": FunctionFragment;
-    "execute(((address,bytes,uint32,uint32,address,address,bool,uint256,uint256),address,address[],bytes[],address,bytes,uint256,uint256,address))": FunctionFragment;
+    "execute(((address,bytes,uint32,uint32,address,address,bool,uint256),address,address[],bytes[],address,bytes,uint256,uint256,address))": FunctionFragment;
     "executor()": FunctionFragment;
-    "forceReceiveLocal((address,bytes,uint32,uint32,address,address,bool,uint256,uint256),uint256,uint256,bytes32,uint32,address)": FunctionFragment;
+    "forceReceiveLocal((address,bytes,uint32,uint32,address,address,bool,uint256),uint256,uint256,bytes32,uint32,address)": FunctionFragment;
     "nonce()": FunctionFragment;
     "reconciledTransfers(bytes32)": FunctionFragment;
     "relayerFees(bytes32)": FunctionFragment;
@@ -260,7 +254,7 @@ export interface ConnextHandlerInterface extends utils.Interface {
     "setExecutor(address)": FunctionFragment;
     "setSponsorVault(address)": FunctionFragment;
     "sponsorVault()": FunctionFragment;
-    "xcall(((address,bytes,uint32,address,address,bool,uint256,uint256),address,uint256,uint256))": FunctionFragment;
+    "xcall(((address,bytes,uint32,address,address,bool,uint256),address,uint256,uint256))": FunctionFragment;
     "diamondCut((address,uint8,bytes4[])[],address,bytes)": FunctionFragment;
     "getAcceptanceTime((address,uint8,bytes4[])[],address,bytes)": FunctionFragment;
     "proposeDiamondCut((address,uint8,bytes4[])[],address,bytes)": FunctionFragment;
@@ -277,8 +271,8 @@ export interface ConnextHandlerInterface extends utils.Interface {
     "aavePortalFee()": FunctionFragment;
     "getAavePortalDebt(bytes32)": FunctionFragment;
     "getAavePortalFeeDebt(bytes32)": FunctionFragment;
-    "repayAavePortal((address,bytes,uint32,uint32,address,address,bool,uint256,uint256),address,address,uint256,uint256,uint256,uint256,uint256)": FunctionFragment;
-    "repayAavePortalFor((address,bytes,uint32,uint32,address,address,bool,uint256,uint256),address,address,uint256,uint256,uint256,uint256)": FunctionFragment;
+    "repayAavePortal((address,bytes,uint32,uint32,address,address,bool,uint256),address,address,uint256,uint256,uint256,uint256,uint256)": FunctionFragment;
+    "repayAavePortalFor((address,bytes,uint32,uint32,address,address,bool,uint256),address,address,uint256,uint256,uint256,uint256)": FunctionFragment;
     "setAavePool(address)": FunctionFragment;
     "setAavePortalFee(uint256)": FunctionFragment;
     "acceptProposedOwner()": FunctionFragment;

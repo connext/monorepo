@@ -922,11 +922,6 @@ const _abi = [
               },
               {
                 internalType: "uint256",
-                name: "relayerFee",
-                type: "uint256",
-              },
-              {
-                internalType: "uint256",
                 name: "destinationMinOut",
                 type: "uint256",
               },
@@ -1119,11 +1114,6 @@ const _abi = [
             internalType: "bool",
             name: "receiveLocal",
             type: "bool",
-          },
-          {
-            internalType: "uint256",
-            name: "relayerFee",
-            type: "uint256",
           },
           {
             internalType: "uint256",
@@ -2241,11 +2231,6 @@ const _abi = [
           },
           {
             internalType: "uint256",
-            name: "relayerFee",
-            type: "uint256",
-          },
-          {
-            internalType: "uint256",
             name: "destinationMinOut",
             type: "uint256",
           },
@@ -2333,11 +2318,6 @@ const _abi = [
             internalType: "bool",
             name: "receiveLocal",
             type: "bool",
-          },
-          {
-            internalType: "uint256",
-            name: "relayerFee",
-            type: "uint256",
           },
           {
             internalType: "uint256",
@@ -2981,11 +2961,6 @@ const _abi = [
                 internalType: "bool",
                 name: "receiveLocal",
                 type: "bool",
-              },
-              {
-                internalType: "uint256",
-                name: "relayerFee",
-                type: "uint256",
               },
               {
                 internalType: "uint256",

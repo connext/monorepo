@@ -626,11 +626,6 @@ const _abi = [
   },
   {
     inputs: [],
-    name: "BridgeFacet__xcall_ethValueMismatchedFees",
-    type: "error",
-  },
-  {
-    inputs: [],
     name: "BridgeFacet__xcall_invalidSlippageTol",
     type: "error",
   },
@@ -758,11 +753,6 @@ const _abi = [
                 internalType: "bool",
                 name: "receiveLocal",
                 type: "bool",
-              },
-              {
-                internalType: "uint256",
-                name: "relayerFee",
-                type: "uint256",
               },
               {
                 internalType: "uint256",
@@ -1043,11 +1033,6 @@ const _abi = [
               },
               {
                 internalType: "uint256",
-                name: "relayerFee",
-                type: "uint256",
-              },
-              {
-                internalType: "uint256",
                 name: "destinationMinOut",
                 type: "uint256",
               },
@@ -1250,11 +1235,6 @@ const _abi = [
               },
               {
                 internalType: "uint256",
-                name: "relayerFee",
-                type: "uint256",
-              },
-              {
-                internalType: "uint256",
                 name: "destinationMinOut",
                 type: "uint256",
               },
@@ -1371,11 +1351,6 @@ const _abi = [
             internalType: "bool",
             name: "receiveLocal",
             type: "bool",
-          },
-          {
-            internalType: "uint256",
-            name: "relayerFee",
-            type: "uint256",
           },
           {
             internalType: "uint256",
@@ -1575,11 +1550,6 @@ const _abi = [
                 internalType: "bool",
                 name: "receiveLocal",
                 type: "bool",
-              },
-              {
-                internalType: "uint256",
-                name: "relayerFee",
-                type: "uint256",
               },
               {
                 internalType: "uint256",
@@ -2349,11 +2319,6 @@ const _abi = [
           },
           {
             internalType: "uint256",
-            name: "relayerFee",
-            type: "uint256",
-          },
-          {
-            internalType: "uint256",
             name: "destinationMinOut",
             type: "uint256",
           },
@@ -2441,11 +2406,6 @@ const _abi = [
             internalType: "bool",
             name: "receiveLocal",
             type: "bool",
-          },
-          {
-            internalType: "uint256",
-            name: "relayerFee",
-            type: "uint256",
           },
           {
             internalType: "uint256",
