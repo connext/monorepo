@@ -1,0 +1,1 @@
+export { proveAndProcess } from "./proveAndProcess";
