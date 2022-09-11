@@ -51,7 +51,7 @@
     "chai": "4.3.6",
     "ethereum-waffle": "3.4.4",
     "ethers": "5.7.0",
-    "hardhat": "2.11.1",
+    "hardhat": "2.10.2",
     "hardhat-abi-exporter": "2.10.0",
     "hardhat-contract-sizer": "2.6.1",
     "node-fetch": "2",
