@@ -83,6 +83,27 @@ contract BridgeFacet is BaseConnextFacet {
   );
 
   /**
+   * @notice Emitted when `xcallLocal` is called on the origin domain
+   * @param transferId - The unique identifier of the crosschain transfer.
+   * @param nonce - The bridge nonce of the transfer on the origin domain.
+   * @param xcallArgs - The `XCallArgs` provided to the function.
+   * @param bridgedAsset - The local (mad) asset being bridged. Could be the same as the asset (adopted
+   * asset), or may be different (indicating the asset was swapped for this bridgedAsset).
+   * @param bridgedAmount - The amount of the bridgedAsset being sent, after AMM swap from adopted asset if it was
+   * necessary.
+   * @param caller - The account that called the function.
+   */
+  event XCalledLocal(
+    bytes32 indexed transferId,
+    uint256 indexed nonce,
+    bytes32 indexed messageHash,
+    XCallArgs xcallArgs,
+    address bridgedAsset,
+    uint256 bridgedAmount,
+    address caller
+  );
+
+  /**
    * @notice Emitted when `execute` is called on the destination chain
    * @dev `execute` may be called when providing fast liquidity *or* when processing a reconciled transfer
    * @param transferId - The unique identifier of the crosschain transfer.
@@ -244,12 +265,12 @@ contract BridgeFacet is BaseConnextFacet {
   // ============ Public methods ==============
 
   /**
-   * @notice Initiates a cross-chain transfer of funds, calldata, and/or various named properties using the nomad
+   * @notice Initiates a cross-chain transfer of funds, calldata, and/or various named properties using the connext bridge
    * network.
    *
    * @dev For ERC20 transfers, this contract must have approval to transfer the input (transacting) assets. The adopted
-   * assets will be swapped for their local nomad asset counterparts (i.e. bridgeable tokens) via the configured AMM if
-   * necessary. In the event that the adopted assets *are* local nomad assets, no swap is needed. The local tokens will
+   * assets will be swapped for their local connext bridged asset counterparts (i.e. bridgeable tokens) via the configured AMM if
+   * necessary. In the event that the adopted assets *are* local connext bridged assets, no swap is needed. The local tokens will
    * then be sent via the bridge router. If the local assets are representational for an asset on another chain, we will
    * burn the tokens here. If the local assets are canonical (meaning that the adopted<>local asset pairing is native
    * to this chain), we will custody the tokens here.
@@ -258,6 +279,123 @@ contract BridgeFacet is BaseConnextFacet {
    * @return bytes32 - The transfer ID of the newly created crosschain transfer.
    */
   function xcall(XCallArgs calldata _args) external payable nonReentrant whenNotPaused returns (bytes32) {
+    return xcallInternal(_args, false);
+  }
+
+  /**
+   * @notice Initiates a cross-chain transfer of funds, calldata, and/or various named properties, forcing receipt of the
+   * local asset on destination.
+   *
+   * @dev For ERC20 transfers, this contract must have approval to transfer the input (transacting) assets. The adopted
+   * assets will be swapped for their local connext bridged asset counterparts (i.e. bridgeable tokens) via the configured AMM if
+   * necessary. In the event that the adopted assets *are* local connext bridged assets, no swap is needed. The local tokens will
+   * then be sent via the bridge router. If the local assets are representational for an asset on another chain, we will
+   * burn the tokens here. If the local assets are canonical (meaning that the adopted<>local asset pairing is native
+   * to this chain), we will custody the tokens here.
+   *
+   * @param _args - The XCallArgs arguments.
+   * @return bytes32 - The transfer ID of the newly created crosschain transfer.
+   */
+
+  function xcallLocal(XCallArgs calldata _args) external payable nonReentrant whenNotPaused returns (bytes32) {
+    return xcallInternal(_args, true);
+  }
+
+  /**
+   * @notice Called on a destination domain to disburse correct assets to end recipient and execute any included
+   * calldata.
+   *
+   * @dev Can be called before or after `handle` [reconcile] is called (regarding the same transfer), depending on
+   * whether the fast liquidity route (i.e. funds provided by routers) is being used for this transfer. As a result,
+   * executed calldata (including properties like `originSender`) may or may not be verified depending on whether the
+   * reconcile has been completed (i.e. the optimistic confirmation period has elapsed).
+   *
+   * @param _args - ExecuteArgs arguments.
+   * @return bytes32 - The transfer ID of the crosschain transfer. Should match the xcall's transfer ID in order for
+   * reconciliation to occur.
+   */
+  function execute(ExecuteArgs calldata _args) external nonReentrant whenNotPaused returns (bytes32) {
+    // Retrieve canonical domain and ID for the transacting asset.
+    (uint32 canonicalDomain, bytes32 canonicalId) = s.tokenRegistry.getTokenId(_args.local);
+
+    (bytes32 transferId, bool reconciled) = _executeSanityChecks(_args, canonicalDomain, canonicalId);
+
+    // Set the relayer for this transaction to allow for future claim
+    s.transferRelayer[transferId] = msg.sender;
+
+    // execute router liquidity when this is a fast transfer
+    // asset will be adopted unless specified to be local in params
+    (uint256 amountOut, address asset) = _handleExecuteLiquidity(
+      transferId,
+      _calculateCanonicalHash(canonicalId, canonicalDomain),
+      !reconciled,
+      _args
+    );
+
+    // execute the transaction
+    uint256 amountWithSponsors = _handleExecuteTransaction(_args, amountOut, asset, transferId, reconciled);
+
+    // emit event
+    emit Executed(transferId, _args.params.to, _args, asset, amountWithSponsors, msg.sender);
+
+    return transferId;
+  }
+
+  /**
+   * @notice Anyone can call this function on the origin domain to increase the relayer fee for a transfer.
+   * @param _transferId - The unique identifier of the crosschain transaction
+   */
+  function bumpTransfer(bytes32 _transferId) external payable nonReentrant whenNotPaused {
+    if (msg.value == 0) revert BridgeFacet__bumpTransfer_valueIsZero();
+
+    s.relayerFees[_transferId] += msg.value;
+
+    emit TransferRelayerFeesUpdated(_transferId, s.relayerFees[_transferId], msg.sender);
+  }
+
+  /**
+   * @notice A user-specified agent can call this to accept the local asset instead of the
+   * previously specified adopted asset.
+   * @dev Should be called in situations where transfers are facing unfavorable slippage
+   * conditions for extended periods
+   * @param _params - The call params for the transaction
+   * @param _amount - The amount of transferring asset the tx called xcall with
+   * @param _nonce - The nonce for the transfer
+   * @param _canonicalId - The identifier of the canonical asset associated with the transfer
+   * @param _canonicalDomain - The domain of the canonical asset associated with the transfer
+   * @param _originSender - The msg.sender of the origin call
+   */
+  function forceReceiveLocal(
+    CallParams calldata _params,
+    uint256 _amount,
+    uint256 _nonce,
+    bytes32 _canonicalId,
+    uint32 _canonicalDomain,
+    address _originSender
+  ) external nonReentrant {
+    // Enforce caller
+    if (msg.sender != _params.agent) revert BridgeFacet__forceReceiveLocal_invalidSender();
+
+    // Calculate transfer id
+    bytes32 transferId = _calculateTransferId(_params, _amount, _nonce, _canonicalId, _canonicalDomain, _originSender);
+
+    // Store receive local
+    s.receiveLocalOverrides[transferId] = true;
+
+    // Emit event
+    emit ForcedReceiveLocal(transferId, _canonicalId, _canonicalDomain, _amount);
+  }
+
+  // ============ Private Functions ============
+
+  /**
+   * @notice Internal function to handle XCall & XCallLocal
+   *
+   * @param _args - The XCallArgs arguments.
+   * @param receiveLocal - Determines whether the local or adopted asset is received on destination.
+   * @return bytes32 - The transfer ID of the newly created crosschain transfer.
+   **/
+  function xcallInternal(XCallArgs calldata _args, bool receiveLocal) internal returns (bytes32) {
     // Sanity checks.
     bytes32 remoteInstance;
     CallParams memory params = CallParams({
@@ -267,7 +405,7 @@ contract BridgeFacet is BaseConnextFacet {
       destinationDomain: _args.params.destinationDomain,
       agent: _args.params.agent,
       recovery: _args.params.recovery,
-      receiveLocal: _args.params.receiveLocal,
+      receiveLocal: receiveLocal,
       destinationMinOut: _args.params.destinationMinOut
     });
     {
@@ -374,98 +512,16 @@ contract BridgeFacet is BaseConnextFacet {
       );
     }
 
-    // emit event
-    emit XCalled(transferId, _sNonce, messageHash, _args, bridgedAsset, bridgedAmount, msg.sender);
+    if (!receiveLocal) {
+      // emit xcall event
+      emit XCalled(transferId, _sNonce, messageHash, _args, bridgedAsset, bridgedAmount, msg.sender);
+    } else {
+      // emit xcallLocal event
+      emit XCalledLocal(transferId, _sNonce, messageHash, _args, bridgedAsset, bridgedAmount, msg.sender);
+    }
 
     return transferId;
   }
-
-  /**
-   * @notice Called on a destination domain to disburse correct assets to end recipient and execute any included
-   * calldata.
-   *
-   * @dev Can be called before or after `handle` [reconcile] is called (regarding the same transfer), depending on
-   * whether the fast liquidity route (i.e. funds provided by routers) is being used for this transfer. As a result,
-   * executed calldata (including properties like `originSender`) may or may not be verified depending on whether the
-   * reconcile has been completed (i.e. the optimistic confirmation period has elapsed).
-   *
-   * @param _args - ExecuteArgs arguments.
-   * @return bytes32 - The transfer ID of the crosschain transfer. Should match the xcall's transfer ID in order for
-   * reconciliation to occur.
-   */
-  function execute(ExecuteArgs calldata _args) external nonReentrant whenNotPaused returns (bytes32) {
-    // Retrieve canonical domain and ID for the transacting asset.
-    (uint32 canonicalDomain, bytes32 canonicalId) = s.tokenRegistry.getTokenId(_args.local);
-
-    (bytes32 transferId, bool reconciled) = _executeSanityChecks(_args, canonicalDomain, canonicalId);
-
-    // Set the relayer for this transaction to allow for future claim
-    s.transferRelayer[transferId] = msg.sender;
-
-    // execute router liquidity when this is a fast transfer
-    // asset will be adopted unless specified to be local in params
-    (uint256 amountOut, address asset) = _handleExecuteLiquidity(
-      transferId,
-      _calculateCanonicalHash(canonicalId, canonicalDomain),
-      !reconciled,
-      _args
-    );
-
-    // execute the transaction
-    uint256 amountWithSponsors = _handleExecuteTransaction(_args, amountOut, asset, transferId, reconciled);
-
-    // emit event
-    emit Executed(transferId, _args.params.to, _args, asset, amountWithSponsors, msg.sender);
-
-    return transferId;
-  }
-
-  /**
-   * @notice Anyone can call this function on the origin domain to increase the relayer fee for a transfer.
-   * @param _transferId - The unique identifier of the crosschain transaction
-   */
-  function bumpTransfer(bytes32 _transferId) external payable nonReentrant whenNotPaused {
-    if (msg.value == 0) revert BridgeFacet__bumpTransfer_valueIsZero();
-
-    s.relayerFees[_transferId] += msg.value;
-
-    emit TransferRelayerFeesUpdated(_transferId, s.relayerFees[_transferId], msg.sender);
-  }
-
-  /**
-   * @notice A user-specified agent can call this to accept the local asset instead of the
-   * previously specified adopted asset.
-   * @dev Should be called in situations where transfers are facing unfavorable slippage
-   * conditions for extended periods
-   * @param _params - The call params for the transaction
-   * @param _amount - The amount of transferring asset the tx called xcall with
-   * @param _nonce - The nonce for the transfer
-   * @param _canonicalId - The identifier of the canonical asset associated with the transfer
-   * @param _canonicalDomain - The domain of the canonical asset associated with the transfer
-   * @param _originSender - The msg.sender of the origin call
-   */
-  function forceReceiveLocal(
-    CallParams calldata _params,
-    uint256 _amount,
-    uint256 _nonce,
-    bytes32 _canonicalId,
-    uint32 _canonicalDomain,
-    address _originSender
-  ) external nonReentrant {
-    // Enforce caller
-    if (msg.sender != _params.agent) revert BridgeFacet__forceReceiveLocal_invalidSender();
-
-    // Calculate transfer id
-    bytes32 transferId = _calculateTransferId(_params, _amount, _nonce, _canonicalId, _canonicalDomain, _originSender);
-
-    // Store receive local
-    s.receiveLocalOverrides[transferId] = true;
-
-    // Emit event
-    emit ForcedReceiveLocal(transferId, _canonicalId, _canonicalDomain, _amount);
-  }
-
-  // ============ Private Functions ============
 
   /**
    * @notice Holds the logic to recover the signer from an encoded payload.
