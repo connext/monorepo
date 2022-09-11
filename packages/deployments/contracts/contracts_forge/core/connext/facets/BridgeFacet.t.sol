@@ -133,17 +133,17 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
   }
 
   // Meant to mimic the corresponding `_getTransferId` method in the BridgeFacet contract.
-  // TODO this is hardcoding to always not receive local - do we care?
   function utils_getTransferIdFromXCallArgs(
     XCallArgs memory _args,
     address sender,
     bytes32 canonicalId,
     uint32 canonicalDomain,
-    uint256 bridgedAmt
+    uint256 bridgedAmt,
+    bool receiveLocal
   ) public returns (bytes32) {
     return
       keccak256(
-        abi.encode(s.nonce, utils_getCallParams(_args.params, false), sender, canonicalId, canonicalDomain, bridgedAmt)
+        abi.encode(s.nonce, utils_getCallParams(_args.params, receiveLocal), sender, canonicalId, canonicalDomain, bridgedAmt)
       );
   }
 
@@ -167,18 +167,26 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
       );
   }
 
-  // Makes some mock xcall arguments using params set in storage.
   function utils_makeXCallArgs(uint256 bridged) public returns (bytes32, XCallArgs memory) {
+    return utils_makeXCallArgs(bridged, false);
+  }
+
+  // Makes some mock xcall arguments using params set in storage.
+  function utils_makeXCallArgs(uint256 bridged, bool receiveLocal) public returns (bytes32, XCallArgs memory) {
     s.domain = _originDomain;
     // get args
     XCallArgs memory args = XCallArgs(utils_getUserFacingParams(), _adopted, _amount, (_amount * 9990) / 10000);
     // generate transfer id
-    bytes32 transferId = utils_getTransferIdFromXCallArgs(args, _originSender, _canonicalId, _canonicalDomain, bridged);
+    bytes32 transferId = utils_getTransferIdFromXCallArgs(args, _originSender, _canonicalId, _canonicalDomain, bridged, receiveLocal);
 
     return (transferId, args);
   }
 
   function utils_makeXCallArgs(address assetId, uint256 bridged) public returns (bytes32, XCallArgs memory) {
+    return utils_makeXCallArgs(assetId, bridged, false);
+  }
+
+  function utils_makeXCallArgs(address assetId, uint256 bridged, bool receiveLocal) public returns (bytes32, XCallArgs memory) {
     s.domain = _originDomain;
     // get args
     XCallArgs memory args = XCallArgs(
@@ -192,7 +200,7 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
       _canonicalDomain = 0;
     }
     // generate transfer id
-    bytes32 transferId = utils_getTransferIdFromXCallArgs(args, _originSender, _canonicalId, _canonicalDomain, bridged);
+    bytes32 transferId = utils_getTransferIdFromXCallArgs(args, _originSender, _canonicalId, _canonicalDomain, bridged, receiveLocal);
 
     return (transferId, args);
   }
@@ -613,9 +621,9 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
 
   // Shortcut for the above fn, with no expected error.
   function helpers_xcallLocalAndAssert(uint256 bridged, bool swaps) public {
-    (bytes32 transferId, XCallArgs memory args) = utils_makeXCallArgs(bridged);
+    (bytes32 transferId, XCallArgs memory args) = utils_makeXCallArgs(bridged, true);
     uint256 dealTokens = (args.asset == address(0)) ? 0 : args.amount;
-    helpers_xcallAndAssert(transferId, args, dealTokens, bridged, bytes4(""), swaps);
+    helpers_xcallLocalAndAssert(transferId, args, dealTokens, bridged, bytes4(""), swaps);
   }
 
   struct ExecuteBalances {
