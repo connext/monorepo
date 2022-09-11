@@ -53,7 +53,6 @@ contract BridgeFacet is BaseConnextFacet {
   error BridgeFacet__handleExecuteTransaction_invalidSponsoredAmount();
   error BridgeFacet__executePortalTransfer_insufficientAmountWithdrawn();
   error BridgeFacet__bumpTransfer_valueIsZero();
-  error BridgeFacet__forceReceiveLocal_invalidSender();
 
   // ============ Properties ============
 
@@ -380,12 +379,6 @@ contract BridgeFacet is BaseConnextFacet {
       // Recipient and recovery defined.
       if (params.to == address(0) || params.recovery == address(0)) {
         revert BridgeFacet__xcall_emptyToOrRecovery();
-      }
-
-      // If the user might be receiving adopted assets on the destination chain, they ought to have a defined agent
-      // so that they can call `forceReceiveLocal` if need be.
-      if (params.agent == address(0) && !params.receiveLocal) {
-        revert BridgeFacet__xcall_missingAgent();
       }
     }
 
