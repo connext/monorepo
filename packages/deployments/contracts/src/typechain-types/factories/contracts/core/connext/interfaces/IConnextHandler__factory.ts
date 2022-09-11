@@ -2932,11 +2932,6 @@ const _abi = [
                 type: "address",
               },
               {
-                internalType: "bool",
-                name: "receiveLocal",
-                type: "bool",
-              },
-              {
                 internalType: "uint256",
                 name: "destinationMinOut",
                 type: "uint256",

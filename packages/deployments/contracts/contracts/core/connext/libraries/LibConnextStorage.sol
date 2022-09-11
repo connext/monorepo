@@ -57,6 +57,7 @@ struct UserFacingCallParams {
  * @param destinationDomain - The final domain (i.e. where `execute` / `reconcile` are called). Must match nomad domain schema
  * @param agent - An address who can execute txs on behalf of `to`, in addition to allowing relayers
  * @param recovery - The address to send funds to if your `Executor.execute call` fails
+ * @param receiveLocal - If true, will use the local nomad asset on the destination instead of adopted.
  * @param destinationMinOut - Minimum amount received on swaps for local <> adopted on destination chain.
  */
 struct CallParams {
@@ -66,6 +67,7 @@ struct CallParams {
   uint32 destinationDomain;
   address agent;
   address recovery;
+  bool receiveLocal;
   uint256 destinationMinOut;
 }
 

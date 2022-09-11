@@ -109,7 +109,6 @@ export type UserFacingCallParamsStruct = {
   destinationDomain: PromiseOrValue<BigNumberish>;
   agent: PromiseOrValue<string>;
   recovery: PromiseOrValue<string>;
-  receiveLocal: PromiseOrValue<boolean>;
   destinationMinOut: PromiseOrValue<BigNumberish>;
 };
 
@@ -119,7 +118,6 @@ export type UserFacingCallParamsStructOutput = [
   number,
   string,
   string,
-  boolean,
   BigNumber
 ] & {
   to: string;
@@ -127,7 +125,6 @@ export type UserFacingCallParamsStructOutput = [
   destinationDomain: number;
   agent: string;
   recovery: string;
-  receiveLocal: boolean;
   destinationMinOut: BigNumber;
 };
 
@@ -345,7 +342,7 @@ export interface IConnextHandlerInterface extends utils.Interface {
     "unapproveRouterForPortal(address)": FunctionFragment;
     "unpause()": FunctionFragment;
     "withdrawSwapAdminFees(bytes32)": FunctionFragment;
-    "xcall(((address,bytes,uint32,address,address,bool,uint256),address,uint256,uint256))": FunctionFragment;
+    "xcall(((address,bytes,uint32,address,address,uint256),address,uint256,uint256))": FunctionFragment;
   };
 
   getFunction(
