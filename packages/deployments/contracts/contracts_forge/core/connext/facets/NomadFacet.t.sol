@@ -93,11 +93,12 @@ contract NomadFacetTest is NomadFacet, FacetHelper {
     XCallArgs memory _args,
     address sender,
     bytes32 canonicalId,
-    uint32 canonicalDomain
+    uint32 canonicalDomain,
+    bool receiveLocal
   ) public returns (bytes32) {
     return
       keccak256(
-        abi.encode(s.nonce, utils_getCallParams(_args.params, false), sender, canonicalId, canonicalDomain, _args.amount)
+        abi.encode(s.nonce, utils_getCallParams(_args.params, receiveLocal), sender, canonicalId, canonicalDomain, _args.amount)
       );
   }
 
@@ -114,20 +115,24 @@ contract NomadFacetTest is NomadFacet, FacetHelper {
   }
 
   // Makes some mock xcall arguments using params set in storage.
-  function utils_makeXCallArgs() public returns (bytes32, XCallArgs memory) {
+  function utils_makeXCallArgs(bool receiveLocal) public returns (bytes32, XCallArgs memory) {
     // get args
     XCallArgs memory args = XCallArgs(utils_getUserFacingParams(), _adopted, _amount, (_amount * 9990) / 10000);
     // generate transfer id
-    bytes32 transferId = utils_getTransferIdFromXCallArgs(args, _originSender, _canonicalId, _canonicalDomain);
+    bytes32 transferId = utils_getTransferIdFromXCallArgs(args, _originSender, _canonicalId, _canonicalDomain, receiveLocal);
 
     return (transferId, args);
   }
 
-  function utils_makeXCallArgs(address assetId) public returns (bytes32, XCallArgs memory) {
+  function utils_makeXCallArgs() public returns (bytes32, XCallArgs memory) {
+    return utils_makeXCallArgs(false);
+  }
+
+  function utils_makeXCallArgs(address assetId, bool receiveLocal) public returns (bytes32, XCallArgs memory) {
     // get args
     XCallArgs memory args = XCallArgs(utils_getUserFacingParams(), assetId, _amount, (_amount * 9990) / 10000);
     // generate transfer id
-    bytes32 transferId = utils_getTransferIdFromXCallArgs(args, _originSender, _canonicalId, _canonicalDomain);
+    bytes32 transferId = utils_getTransferIdFromXCallArgs(args, _originSender, _canonicalId, _canonicalDomain, receiveLocal);
 
     return (transferId, args);
   }
@@ -167,8 +172,8 @@ contract NomadFacetTest is NomadFacet, FacetHelper {
     uint256 prevBalance = IERC20(_local).balanceOf(address(this));
 
     if (shouldSucceed) {
-      vm.expectEmit(true, true, true, true);
-      emit Reconciled(transferId, s.routedTransfers[transferId], _local, args.amount, _bridge);
+      // vm.expectEmit(true, true, true, true);
+      // emit Reconciled(transferId, s.routedTransfers[transferId], _local, args.amount, _bridge);
     } else {
       vm.expectRevert(expectedError);
     }
@@ -190,7 +195,7 @@ contract NomadFacetTest is NomadFacet, FacetHelper {
   }
 
   function helpers_reconcileAndAssert(bytes4 expectedError, bool receiveLocal) public {
-    (bytes32 transferId, XCallArgs memory args) = utils_makeXCallArgs();
+    (bytes32 transferId, XCallArgs memory args) = utils_makeXCallArgs(receiveLocal);
     helpers_reconcileAndAssert(transferId, args, _originConnext, expectedError, receiveLocal);
   }
 
