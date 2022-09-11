@@ -15,11 +15,11 @@ locals {
     { name = "DD_ENV", value = var.stage },
     { name = "DD_SERVICE", value = "router-${var.environment}" }
   ]
-  # lighthouse_env_vars = [
-  #   { name = "NXTP_CONFIG", value = local.local_lighthouse_config },
-  #   { name = "ENVIRONMENT", value = var.environment },
-  #   { name = "STAGE", value = var.stage }
-  # ]
+  lighthouse_prover_env_vars = [
+    { name = "NXTP_CONFIG", value = local.local_prover_lighthouse_config },
+    { name = "ENVIRONMENT", value = var.environment },
+    { name = "STAGE", value = var.stage }
+  ]
   router_web3signer_env_vars = [
     { name = "WEB3_SIGNER_PRIVATE_KEY", value = var.router_web3_signer_private_key },
     { name = "WEB3SIGNER_HTTP_HOST_ALLOWLIST", value = "*" }
@@ -70,8 +70,8 @@ locals {
         ]
       }
     }
-    web3SignerUrl    = "https://${module.sequencer_web3signer.service_endpoint}"
-    environment = var.stage
+    web3SignerUrl = "https://${module.sequencer_web3signer.service_endpoint}"
+    environment   = var.stage
     messageQueue = {
       connection = {
         uri = "amqps://${var.rmq_mgt_user}:${var.rmq_mgt_password}@${module.centralised_message_queue.aws_mq_amqp_endpoint}"
@@ -173,5 +173,20 @@ locals {
     messageQueue = {
       uri = "amqps://${var.rmq_mgt_user}:${var.rmq_mgt_password}@${module.centralised_message_queue.aws_mq_amqp_endpoint}"
     }
+  })
+}
+
+locals {
+  local_lighthouse_config = jsonencode({
+    logLevel = "debug"
+    chains = {
+      "1735356532" = {
+        providers = ["https://opt-goerli.g.alchemy.com/v2/${var.optgoerli_alchemy_key_1}", "https://goerli.optimism.io"]
+      }
+      "1735353714" = {
+        providers = ["https://eth-goerli.alchemyapi.io/v2/${var.goerli_alchemy_key_1}", "https://rpc.ankr.com/eth_goerli"]
+      }
+    }
+    environment = var.stage
   })
 }

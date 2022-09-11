@@ -1,14 +1,16 @@
 {
   "extends": "../../../.nycrc.json",
   "exclude": [
-    "src/index.ts",
-    "src/lighthouse.ts",
-    "src/adapters/index.ts",
-    "src/bindings/index.ts",
-    "src//lib/operations/index.ts",
-    "src/lib/helpers/*.ts",
-    "src/lib/errors/*.ts",
-    "src/lib/entities/*.ts",
+    "src/config.ts",
+    "src/errors/*.ts",
+    "src/mockable.ts",
+    "src/tasks/prover/adapters/cartographer/index.ts",
+    "src/tasks/prover/adapters/relayer/index.ts",
+    "src/tasks/prover/adapters/index.ts",
+    "src/tasks/prover/operations/index.ts",
+    "src/tasks/prover/context.ts",
+    "src/tasks/prover/index.ts",
+    "src/tasks/prover/prover.ts",
     "test/**/*.ts",
     "./globalTestHook.ts"
   ]
