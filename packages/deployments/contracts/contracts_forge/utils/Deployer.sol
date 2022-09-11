@@ -107,7 +107,7 @@ contract Deployer {
     bridgeFacetSelectors[10] = BridgeFacet.removeSequencer.selector;
     // public
     bridgeFacetSelectors[11] = BridgeFacet.xcall.selector;
-    bridgeFacetSelectors[12] = BridgeFaces.xcallLocal.selector;
+    bridgeFacetSelectors[12] = BridgeFacet.xcallLocal.selector;
     bridgeFacetSelectors[13] = BridgeFacet.execute.selector;
     bridgeFacetSelectors[14] = BridgeFacet.bumpTransfer.selector;
     return

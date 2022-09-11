@@ -133,16 +133,17 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
   }
 
   // Meant to mimic the corresponding `_getTransferId` method in the BridgeFacet contract.
+  // TODO this is hardcoding to always not receive local - do we care?
   function utils_getTransferIdFromXCallArgs(
     XCallArgs memory _args,
     address sender,
     bytes32 canonicalId,
     uint32 canonicalDomain,
-    uint256 bridigedAmt
+    uint256 bridgedAmt
   ) public returns (bytes32) {
     return
       keccak256(
-        abi.encode(s.nonce, utils_getCallParams(_args.params), sender, canonicalId, canonicalDomain, bridigedAmt)
+        abi.encode(s.nonce, utils_getCallParams(_args.params, false), sender, canonicalId, canonicalDomain, bridgedAmt)
       );
   }
 
@@ -162,7 +163,6 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
         _params.destinationDomain, // destination domain
         _params.agent, // agent
         _params.recovery, // recovery address
-        _params.receiveLocal,
         _params.destinationMinOut
       );
   }
@@ -330,7 +330,57 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
         bridgedAmt,
         args.params.destinationDomain,
         s.connextions[args.params.destinationDomain], // always use this as remote connext
-        abi.encode(TransferIdInformation(utils_getCallParams(args.params), s.nonce, _originSender))
+        abi.encode(TransferIdInformation(utils_getCallParams(args.params, false), s.nonce, _originSender))
+      )
+    );
+  }
+
+  function helpers_setupSuccessfulXcallLocalCallAssertions(
+    bytes32 transferId,
+    XCallArgs memory args,
+    uint256 bridgedAmt,
+    bool shouldSwap
+  ) public {
+    // bridged is either local or canonical, depending on domain xcall originates on
+    address bridged = args.asset == address(0) ? address(0) : _canonicalDomain == s.domain ? _canonical : _local;
+    vm.expectEmit(true, true, true, true);
+    emit XCalledLocal(
+      transferId,
+      s.nonce,
+      MockBridgeRouter(_bridgeRouter).MESSAGE_HASH(),
+      args,
+      bridged,
+      bridgedAmt,
+      _originSender
+    );
+
+    // assert swap if expected
+    if (shouldSwap && bridgedAmt != 0) {
+      // Transacting asset shouldve been approved for amount in
+      vm.expectCall(args.asset, abi.encodeWithSelector(IERC20.approve.selector, _stableSwap, args.amount));
+
+      // swapExact on pool should have been called
+      vm.expectCall(
+        _stableSwap,
+        abi.encodeWithSelector(IStableSwap.swapExact.selector, args.amount, args.asset, _local, args.originMinOut)
+      );
+    }
+
+    // Assert approval call
+    if (bridgedAmt > 0) {
+      vm.expectCall(bridged, abi.encodeWithSelector(IERC20.approve.selector, _bridgeRouter, bridgedAmt));
+    }
+
+    // Assert bridge router call
+    vm.expectCall(
+      _bridgeRouter,
+      abi.encodeWithSelector(
+        IBridgeRouter.sendToHook.selector,
+        bridged,
+        bridgedAmt,
+        args.params.destinationDomain,
+        s.connextions[args.params.destinationDomain], // always use this as remote connext
+        abi.encode(TransferIdInformation(utils_getCallParams(args.params, true), s.nonce, _originSender))
       )
     );
   }
@@ -466,6 +516,105 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
     bool swaps
   ) public {
     (bytes32 transferId, XCallArgs memory args) = utils_makeXCallArgs(bridged);
+    helpers_xcallAndAssert(transferId, args, dealTokens, bridged, bytes4(""), swaps);
+  }
+
+    // Calls `xcallLocal` with given args and handles standard assertions.
+  function helpers_xcallLocalAndAssert(
+    bytes32 transferId,
+    XCallArgs memory args,
+    uint256 dealTokens,
+    uint256 bridgedAmt,
+    bytes4 expectedError,
+    bool shouldSwap
+  ) public {
+    bool shouldSucceed = keccak256(abi.encode(expectedError)) == keccak256(abi.encode(bytes4("")));
+    bool isCanonical = _canonicalDomain == s.domain;
+
+    // Deal the user required eth for transfer.
+    vm.deal(_originSender, 100 ether);
+
+    uint256 initialUserBalance;
+    uint256 initialContractBalance;
+    {
+      if (args.asset != address(0)) {
+        TestERC20 tokenIn = TestERC20(args.asset);
+        TestERC20 localToken = TestERC20(_local);
+
+        // Mint the specified amount of tokens for the user.
+        tokenIn.mint(_originSender, dealTokens);
+
+        initialUserBalance = tokenIn.balanceOf(_originSender);
+        initialContractBalance = localToken.balanceOf(address(this));
+
+        // Approve the target contract to spend the specified amount of tokens.
+        vm.prank(_originSender);
+        tokenIn.approve(address(this), dealTokens);
+      } else {
+        initialUserBalance = address(_originSender).balance;
+        initialContractBalance = address(this).balance;
+      }
+    }
+
+    if (shouldSwap) {
+      // Setup the expected swap mock (adopted <> local)
+      vm.mockCall(_stableSwap, abi.encodeWithSelector(IStableSwap.swapExact.selector), abi.encode(bridgedAmt, _local));
+    }
+
+    uint256 initialRelayerFees = s.relayerFees[transferId];
+
+    if (shouldSucceed) {
+      helpers_setupSuccessfulXcallLocalCallAssertions(transferId, args, bridgedAmt, shouldSwap);
+    } else {
+      vm.expectRevert(expectedError);
+    }
+
+    vm.prank(_originSender);
+    this.xcallLocal{value: _relayerFee}(args);
+
+    if (shouldSucceed) {
+      // User should have been debited fees... but also tx cost?
+      // assertEq(payable(_originSender).balance, initialUserBalance - fees);
+
+      // Check that the user has been debited the correct amount of tokens.
+      if (args.asset != address(0)) {
+        assertEq(TestERC20(args.asset).balanceOf(_originSender), initialUserBalance - args.amount);
+      } else {
+        // User should have been debited fees
+        assertEq(_originSender.balance, (initialUserBalance - _relayerFee));
+      }
+
+      // Check that the contract has been credited the correct amount of tokens.
+      // NOTE: Because the tokens are a representational local asset, they are burnt. The contract
+      // should NOT be holding any additional tokens after xcall completes.
+      if (args.asset == address(0)) {
+        // No balance change
+        assertEq(address(this).balance, initialContractBalance + _relayerFee);
+      } else if (isCanonical) {
+        // This should be a canonical asset transfer
+        assertEq(TestERC20(_canonical).balanceOf(address(this)), initialContractBalance);
+      } else {
+        // NOTE: Normally the adopted asset would be swapped into the local asset and then
+        // the local asset would be burned. Because the swap increases the contracts balance
+        // the prod difference in balance is net 0. However, because the swap here is mocked,
+        // when a swap occurrs no balance increase of local happens (i.e. if swap needed, the
+        // balance will decrease by bridgedAmt / what is burned)
+        uint256 expected = args.asset == _local ? initialContractBalance : initialContractBalance - bridgedAmt;
+        assertEq(TestERC20(_local).balanceOf(address(this)), expected);
+      }
+
+      // Should have updated relayer fees mapping.
+      assertEq(this.relayerFees(transferId), _relayerFee + initialRelayerFees);
+    } else {
+      // Should have reverted.
+      assertEq(this.relayerFees(transferId), initialRelayerFees);
+    }
+  }
+
+  // Shortcut for the above fn, with no expected error.
+  function helpers_xcallLocalAndAssert(uint256 bridged, bool swaps) public {
+    (bytes32 transferId, XCallArgs memory args) = utils_makeXCallArgs(bridged);
+    uint256 dealTokens = (args.asset == address(0)) ? 0 : args.amount;
     helpers_xcallAndAssert(transferId, args, dealTokens, bridged, bytes4(""), swaps);
   }
 
@@ -1133,6 +1282,12 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
   function test_BridgeFacet__xcall_zeroRelayerFeeWorks() public {
     _relayerFee = 0;
     helpers_xcallAndAssert(_amount, false);
+  }
+
+  // xcallLocal works
+  function test_BridgeFacet__xcallLocal_canonicalTokenTransferWorks() public {
+    utils_setupAsset(true, true);
+    helpers_xcallLocalAndAssert(_amount, false);
   }
 
   // FIXME: move to BaseConnextFacet.t.sol

@@ -88,6 +88,7 @@ contract NomadFacetTest is NomadFacet, FacetHelper {
   }
 
   // Meant to mimic the corresponding `_getTransferId` method in the BridgeFacet contract.
+  // TODO this is hardcoding to always not receiveLocal - do we care?
   function utils_getTransferIdFromXCallArgs(
     XCallArgs memory _args,
     address sender,
@@ -96,7 +97,7 @@ contract NomadFacetTest is NomadFacet, FacetHelper {
   ) public returns (bytes32) {
     return
       keccak256(
-        abi.encode(s.nonce, utils_getCallParams(_args.params), sender, canonicalId, canonicalDomain, _args.amount)
+        abi.encode(s.nonce, utils_getCallParams(_args.params, false), sender, canonicalId, canonicalDomain, _args.amount)
       );
   }
 
@@ -108,7 +109,6 @@ contract NomadFacetTest is NomadFacet, FacetHelper {
         _params.destinationDomain, // destination domain
         _params.agent, // agent
         _params.recovery, // recovery address
-        _params.receiveLocal,
         _params.destinationMinOut
       );
   }
@@ -151,7 +151,8 @@ contract NomadFacetTest is NomadFacet, FacetHelper {
     bytes32 transferId,
     XCallArgs memory args,
     bytes32 _bridgeCaller,
-    bytes4 expectedError
+    bytes4 expectedError,
+    bool receiveLocal
   ) public {
     bool shouldSucceed = keccak256(abi.encode(expectedError)) == keccak256(abi.encode(bytes4("")));
 
@@ -172,7 +173,7 @@ contract NomadFacetTest is NomadFacet, FacetHelper {
       vm.expectRevert(expectedError);
     }
 
-    helpers_reconcileCaller(_local, args.amount, _bridgeCaller, utils_getCallParams(args.params));
+    helpers_reconcileCaller(_local, args.amount, _bridgeCaller, utils_getCallParams(args.params, receiveLocal));
 
     if (shouldSucceed) {
       assertEq(s.reconciledTransfers[transferId], true);
@@ -188,9 +189,19 @@ contract NomadFacetTest is NomadFacet, FacetHelper {
     }
   }
 
+  function helpers_reconcileAndAssert(bytes4 expectedError, bool receiveLocal) public {
+    (bytes32 transferId, XCallArgs memory args) = utils_makeXCallArgs();
+    helpers_reconcileAndAssert(transferId, args, _originConnext, expectedError, receiveLocal);
+  }
+
   function helpers_reconcileAndAssert(bytes4 expectedError) public {
     (bytes32 transferId, XCallArgs memory args) = utils_makeXCallArgs();
-    helpers_reconcileAndAssert(transferId, args, _originConnext, expectedError);
+    helpers_reconcileAndAssert(transferId, args, _originConnext, expectedError, false);
+  }
+
+  // Shortcut for above method.
+  function helpers_reconcileAndAssert(bool receiveLocal) public {
+    helpers_reconcileAndAssert(bytes4(""), receiveLocal);
   }
 
   // Shortcut for above method.
@@ -242,7 +253,7 @@ contract NomadFacetTest is NomadFacet, FacetHelper {
       canonicalId,
       _local,
       args.amount,
-      abi.encode(TransferIdInformation(utils_getCallParams(args.params), s.nonce, _originSender))
+      abi.encode(TransferIdInformation(utils_getCallParams(args.params, false), s.nonce, _originSender))
     );
   }
 
@@ -263,7 +274,7 @@ contract NomadFacetTest is NomadFacet, FacetHelper {
       canonicalId,
       _local,
       args.amount,
-      abi.encode(TransferIdInformation(utils_getCallParams(args.params), s.nonce, _originSender))
+      abi.encode(TransferIdInformation(utils_getCallParams(args.params, false), s.nonce, _originSender))
     );
   }
 
@@ -288,7 +299,7 @@ contract NomadFacetTest is NomadFacet, FacetHelper {
       canonicalId,
       _local,
       args.amount,
-      abi.encode(TransferIdInformation(utils_getCallParams(args.params), s.nonce, _originSender))
+      abi.encode(TransferIdInformation(utils_getCallParams(args.params, false), s.nonce, _originSender))
     );
   }
 
@@ -296,7 +307,7 @@ contract NomadFacetTest is NomadFacet, FacetHelper {
   // works with local representational tokens (remote origin, so they will be minted)
   function test_NomadFacet__reconcile_worksWithLocal() public {
     utils_setupAsset(true, false);
-    helpers_reconcileAndAssert();
+    helpers_reconcileAndAssert(true);
   }
 
   function test_NomadFacet__reconcile_worksWithCanonical() public {
@@ -310,7 +321,7 @@ contract NomadFacetTest is NomadFacet, FacetHelper {
     (bytes32 transferId, XCallArgs memory args) = utils_makeXCallArgs();
     delete s.routedTransfers[transferId];
 
-    helpers_reconcileAndAssert(transferId, args, _originConnext, bytes4(""));
+    helpers_reconcileAndAssert(transferId, args, _originConnext, bytes4(""), false);
   }
 
   // funds router when post-execute (fast liquidity route)
@@ -318,7 +329,7 @@ contract NomadFacetTest is NomadFacet, FacetHelper {
     utils_setupAsset(true, false);
     (bytes32 transferId, XCallArgs memory args) = utils_makeXCallArgs();
     s.routedTransfers[transferId] = [address(42)];
-    helpers_reconcileAndAssert(transferId, args, _originConnext, bytes4(""));
+    helpers_reconcileAndAssert(transferId, args, _originConnext, bytes4(""), false);
   }
 
   // funds routers when post-execute multipath (fast liquidity route)
@@ -326,6 +337,6 @@ contract NomadFacetTest is NomadFacet, FacetHelper {
     utils_setupAsset(true, false);
     (bytes32 transferId, XCallArgs memory args) = utils_makeXCallArgs();
     s.routedTransfers[transferId] = [address(42), address(43), address(44), address(45)];
-    helpers_reconcileAndAssert(transferId, args, _originConnext, bytes4(""));
+    helpers_reconcileAndAssert(transferId, args, _originConnext, bytes4(""), false);
   }
 }

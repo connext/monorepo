@@ -106,7 +106,42 @@ contract LiveTest is ForgeHelper {
           1735353714, // dest domain
           0x5A9e792143bf2708b4765C144451dCa54f559a19, // agent
           0x5A9e792143bf2708b4765C144451dCa54f559a19, // recovery
-          false, // receiveLocal
+          0 // destinationMinOut
+        ), // CallParams
+        asset,
+        150000000000000000,
+        0
+      )
+    );
+
+    vm.stopPrank();
+  }
+
+  function test_xcallLocal() public {
+    address asset = 0x68Db1c8d85C09d546097C65ec7DCBFF4D6497CbF;
+    vm.startPrank(0x54BAA998771639628ffC0206c3b916c466b79c89);
+    TestERC20(asset).approve(address(connext), 150000000000000000);
+
+    emit log_named_address("bridge router: ", address(connext.bridgeRouter()));
+    emit log_named_address("token registry: ", address(connext.tokenRegistry()));
+    emit log_named_bytes32("canonical id: ", connext.adoptedToCanonical(asset).id);
+
+    (uint32 canonicalDomain, bytes32 canonicalId) = connext.tokenRegistry().getTokenId(asset);
+    address local = connext.tokenRegistry().getLocalAddress(canonicalDomain, canonicalId);
+    emit log_named_address("local asset: ", local);
+    emit log_named_uint(
+      "tokenRegistry.isLocalOrigin(_token)",
+      uint256(connext.tokenRegistry().isLocalOrigin(local) ? 1 : 0)
+    );
+
+    connext.xcallLocal(
+      XCallArgs(
+        UserFacingCallParams(
+          0x54BAA998771639628ffC0206c3b916c466b79c89, // to
+          bytes(""), // callData
+          1735353714, // dest domain
+          0x5A9e792143bf2708b4765C144451dCa54f559a19, // agent
+          0x5A9e792143bf2708b4765C144451dCa54f559a19, // recovery
           0 // destinationMinOut
         ), // CallParams
         asset,

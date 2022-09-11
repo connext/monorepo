@@ -79,6 +79,8 @@ interface IConnextHandler is IDiamondLoupe, IDiamondCut {
 
   function xcall(XCallArgs calldata _args) external payable returns (bytes32);
 
+  function xcallLocal(XCallArgs calldata _args) external payable returns (bytes32);
+
   function execute(ExecuteArgs calldata _args) external returns (bytes32 transferId);
 
   function bumpTransfer(bytes32 _transferId) external payable;

@@ -132,7 +132,7 @@ contract FacetHelper is ForgeHelper {
     // console.log("- isLocalOrigin", onCanonical);
   }
 
-  function utils_getCallParams(UserFacingCallParams memory params) public returns (CallParams memory) {
+  function utils_getCallParams(UserFacingCallParams memory params, bool receiveLocal) public returns (CallParams memory) {
     return
       CallParams(
         params.to,
@@ -141,7 +141,7 @@ contract FacetHelper is ForgeHelper {
         params.destinationDomain, // destination domain
         params.agent, // agent
         params.recovery, // recovery address
-        params.receiveLocal,
+        receiveLocal,
         params.destinationMinOut
       );
   }
