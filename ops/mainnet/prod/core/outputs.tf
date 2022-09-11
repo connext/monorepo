@@ -37,7 +37,7 @@ output "router-subscriber-service-endpoint" {
   value = module.router_subscriber.service_endpoint
 }
 
-output "router-subscriber-service-endpoint" {
+output "router-executor-service-endpoint" {
   value = module.router_executor.service_endpoint
 }
 
