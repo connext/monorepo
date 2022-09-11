@@ -132,7 +132,7 @@ module "cartographer-transfers-cron" {
   schedule_expression     = "cron(* * * * ? *)"
 }
 
-module "cartographer-transfers-cron" {
+module "cartographer-messages-cron" {
   source                  = "../../../modules/cron"
   region                  = var.region
   dd_api_key              = var.dd_api_key
