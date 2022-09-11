@@ -263,7 +263,6 @@ export interface IConnextHandlerInterface extends utils.Interface {
     "facetAddresses()": FunctionFragment;
     "facetFunctionSelectors(address)": FunctionFragment;
     "facets()": FunctionFragment;
-    "forceReceiveLocal((address,bytes,uint32,uint32,address,address,bool,uint256),uint256,uint256,bytes32,uint32,address)": FunctionFragment;
     "getAavePortalDebt(bytes32)": FunctionFragment;
     "getAavePortalFeeDebt(bytes32)": FunctionFragment;
     "getProposedRouterOwner(address)": FunctionFragment;
@@ -343,6 +342,7 @@ export interface IConnextHandlerInterface extends utils.Interface {
     "unpause()": FunctionFragment;
     "withdrawSwapAdminFees(bytes32)": FunctionFragment;
     "xcall(((address,bytes,uint32,address,address,uint256),address,uint256,uint256))": FunctionFragment;
+    "xcallLocal(((address,bytes,uint32,address,address,uint256),address,uint256,uint256))": FunctionFragment;
   };
 
   getFunction(
@@ -390,7 +390,6 @@ export interface IConnextHandlerInterface extends utils.Interface {
       | "facetAddresses"
       | "facetFunctionSelectors"
       | "facets"
-      | "forceReceiveLocal"
       | "getAavePortalDebt"
       | "getAavePortalFeeDebt"
       | "getProposedRouterOwner"
@@ -470,6 +469,7 @@ export interface IConnextHandlerInterface extends utils.Interface {
       | "unpause"
       | "withdrawSwapAdminFees"
       | "xcall"
+      | "xcallLocal"
   ): FunctionFragment;
 
   encodeFunctionData(
@@ -652,17 +652,6 @@ export interface IConnextHandlerInterface extends utils.Interface {
     values: [PromiseOrValue<string>]
   ): string;
   encodeFunctionData(functionFragment: "facets", values?: undefined): string;
-  encodeFunctionData(
-    functionFragment: "forceReceiveLocal",
-    values: [
-      CallParamsStruct,
-      PromiseOrValue<BigNumberish>,
-      PromiseOrValue<BigNumberish>,
-      PromiseOrValue<BytesLike>,
-      PromiseOrValue<BigNumberish>,
-      PromiseOrValue<string>
-    ]
-  ): string;
   encodeFunctionData(
     functionFragment: "getAavePortalDebt",
     values: [PromiseOrValue<BytesLike>]
@@ -1062,6 +1051,10 @@ export interface IConnextHandlerInterface extends utils.Interface {
     functionFragment: "xcall",
     values: [XCallArgsStruct]
   ): string;
+  encodeFunctionData(
+    functionFragment: "xcallLocal",
+    values: [XCallArgsStruct]
+  ): string;
 
   decodeFunctionResult(
     functionFragment: "LIQUIDITY_FEE_DENOMINATOR",
@@ -1202,10 +1195,6 @@ export interface IConnextHandlerInterface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "facets", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "forceReceiveLocal",
-    data: BytesLike
-  ): Result;
   decodeFunctionResult(
     functionFragment: "getAavePortalDebt",
     data: BytesLike
@@ -1477,6 +1466,7 @@ export interface IConnextHandlerInterface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "xcall", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "xcallLocal", data: BytesLike): Result;
 
   events: {
     "DiamondCut(tuple[],address,bytes)": EventFragment;
@@ -1758,16 +1748,6 @@ export interface IConnextHandler extends BaseContract {
         facets_: IDiamondLoupe.FacetStructOutput[];
       }
     >;
-
-    forceReceiveLocal(
-      _params: CallParamsStruct,
-      _amount: PromiseOrValue<BigNumberish>,
-      _nonce: PromiseOrValue<BigNumberish>,
-      _canonicalId: PromiseOrValue<BytesLike>,
-      _canonicalDomain: PromiseOrValue<BigNumberish>,
-      _originSender: PromiseOrValue<string>,
-      overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
 
     getAavePortalDebt(
       _transferId: PromiseOrValue<BytesLike>,
@@ -2206,6 +2186,11 @@ export interface IConnextHandler extends BaseContract {
       _args: XCallArgsStruct,
       overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
+
+    xcallLocal(
+      _args: XCallArgsStruct,
+      overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
   };
 
   LIQUIDITY_FEE_DENOMINATOR(overrides?: CallOverrides): Promise<BigNumber>;
@@ -2403,16 +2388,6 @@ export interface IConnextHandler extends BaseContract {
   ): Promise<string[]>;
 
   facets(overrides?: CallOverrides): Promise<IDiamondLoupe.FacetStructOutput[]>;
-
-  forceReceiveLocal(
-    _params: CallParamsStruct,
-    _amount: PromiseOrValue<BigNumberish>,
-    _nonce: PromiseOrValue<BigNumberish>,
-    _canonicalId: PromiseOrValue<BytesLike>,
-    _canonicalDomain: PromiseOrValue<BigNumberish>,
-    _originSender: PromiseOrValue<string>,
-    overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
 
   getAavePortalDebt(
     _transferId: PromiseOrValue<BytesLike>,
@@ -2852,6 +2827,11 @@ export interface IConnextHandler extends BaseContract {
     overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
+  xcallLocal(
+    _args: XCallArgsStruct,
+    overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
+
   callStatic: {
     LIQUIDITY_FEE_DENOMINATOR(overrides?: CallOverrides): Promise<BigNumber>;
 
@@ -3046,16 +3026,6 @@ export interface IConnextHandler extends BaseContract {
     facets(
       overrides?: CallOverrides
     ): Promise<IDiamondLoupe.FacetStructOutput[]>;
-
-    forceReceiveLocal(
-      _params: CallParamsStruct,
-      _amount: PromiseOrValue<BigNumberish>,
-      _nonce: PromiseOrValue<BigNumberish>,
-      _canonicalId: PromiseOrValue<BytesLike>,
-      _canonicalDomain: PromiseOrValue<BigNumberish>,
-      _originSender: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<void>;
 
     getAavePortalDebt(
       _transferId: PromiseOrValue<BytesLike>,
@@ -3477,6 +3447,11 @@ export interface IConnextHandler extends BaseContract {
     ): Promise<void>;
 
     xcall(_args: XCallArgsStruct, overrides?: CallOverrides): Promise<string>;
+
+    xcallLocal(
+      _args: XCallArgsStruct,
+      overrides?: CallOverrides
+    ): Promise<string>;
   };
 
   filters: {
@@ -3712,16 +3687,6 @@ export interface IConnextHandler extends BaseContract {
     ): Promise<BigNumber>;
 
     facets(overrides?: CallOverrides): Promise<BigNumber>;
-
-    forceReceiveLocal(
-      _params: CallParamsStruct,
-      _amount: PromiseOrValue<BigNumberish>,
-      _nonce: PromiseOrValue<BigNumberish>,
-      _canonicalId: PromiseOrValue<BytesLike>,
-      _canonicalDomain: PromiseOrValue<BigNumberish>,
-      _originSender: PromiseOrValue<string>,
-      overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
 
     getAavePortalDebt(
       _transferId: PromiseOrValue<BytesLike>,
@@ -4160,6 +4125,11 @@ export interface IConnextHandler extends BaseContract {
       _args: XCallArgsStruct,
       overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
+
+    xcallLocal(
+      _args: XCallArgsStruct,
+      overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
   };
 
   populateTransaction: {
@@ -4366,16 +4336,6 @@ export interface IConnextHandler extends BaseContract {
     ): Promise<PopulatedTransaction>;
 
     facets(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
-    forceReceiveLocal(
-      _params: CallParamsStruct,
-      _amount: PromiseOrValue<BigNumberish>,
-      _nonce: PromiseOrValue<BigNumberish>,
-      _canonicalId: PromiseOrValue<BytesLike>,
-      _canonicalDomain: PromiseOrValue<BigNumberish>,
-      _originSender: PromiseOrValue<string>,
-      overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
 
     getAavePortalDebt(
       _transferId: PromiseOrValue<BytesLike>,
@@ -4817,6 +4777,11 @@ export interface IConnextHandler extends BaseContract {
     ): Promise<PopulatedTransaction>;
 
     xcall(
+      _args: XCallArgsStruct,
+      overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
+    xcallLocal(
       _args: XCallArgsStruct,
       overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;

@@ -591,11 +591,6 @@ const _abi = [
   },
   {
     inputs: [],
-    name: "BridgeFacet__forceReceiveLocal_invalidSender",
-    type: "error",
-  },
-  {
-    inputs: [],
     name: "BridgeFacet__handleExecuteTransaction_invalidSponsoredAmount",
     type: "error",
   },

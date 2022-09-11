@@ -110,8 +110,6 @@ export type { OwnerPausableUpgradeable } from "./contracts/core/connext/helpers/
 export { OwnerPausableUpgradeable__factory } from "./factories/contracts/core/connext/helpers/OwnerPausableUpgradeable__factory";
 export type { PriceOracle } from "./contracts/core/connext/helpers/PriceOracle";
 export { PriceOracle__factory } from "./factories/contracts/core/connext/helpers/PriceOracle__factory";
-export type { SponsorVault } from "./contracts/core/connext/helpers/SponsorVault";
-export { SponsorVault__factory } from "./factories/contracts/core/connext/helpers/SponsorVault__factory";
 export type { StableSwap } from "./contracts/core/connext/helpers/StableSwap";
 export { StableSwap__factory } from "./factories/contracts/core/connext/helpers/StableSwap__factory";
 export type { IAavePool } from "./contracts/core/connext/interfaces/IAavePool";
@@ -136,8 +134,6 @@ export type { IGasTokenOracle } from "./contracts/core/connext/interfaces/IGasTo
 export { IGasTokenOracle__factory } from "./factories/contracts/core/connext/interfaces/IGasTokenOracle__factory";
 export type { IPriceOracle } from "./contracts/core/connext/interfaces/IPriceOracle";
 export { IPriceOracle__factory } from "./factories/contracts/core/connext/interfaces/IPriceOracle__factory";
-export type { ISponsorVault } from "./contracts/core/connext/interfaces/ISponsorVault";
-export { ISponsorVault__factory } from "./factories/contracts/core/connext/interfaces/ISponsorVault__factory";
 export type { IStableSwap } from "./contracts/core/connext/interfaces/IStableSwap";
 export { IStableSwap__factory } from "./factories/contracts/core/connext/interfaces/IStableSwap__factory";
 export type { ITokenExchange } from "./contracts/core/connext/interfaces/ITokenExchange";

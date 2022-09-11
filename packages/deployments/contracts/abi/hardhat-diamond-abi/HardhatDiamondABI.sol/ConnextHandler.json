@@ -43,7 +43,6 @@
   "error BridgeFacet__execute_notSupportedSequencer()",
   "error BridgeFacet__execute_unapprovedSender()",
   "error BridgeFacet__execute_wrongDomain()",
-  "error BridgeFacet__forceReceiveLocal_invalidSender()",
   "error BridgeFacet__handleExecuteTransaction_invalidSponsoredAmount()",
   "error BridgeFacet__removeSequencer_notApproved()",
   "error BridgeFacet__setExecutor_invalidExecutor()",
