@@ -8,7 +8,7 @@
     "src/**/*"
   ],
   "scripts": {
-    "start:all": "concurrently -i -k -n 'transfers,router,messages' -c 'green,cyan,yellow' 'node dist/entryTransfers.js' 'node dist/entryRouters.js' 'node dist/entryRouters.js",
+    "start:all": "concurrently -i -k -n 'transfers,router,messages' -c 'green,cyan,yellow' 'node dist/entryTransfers.js' 'node dist/entryRouters.js' 'node dist/entryRouters.js'",
     "lint": "eslint ./src --ext .ts --env node",
     "test": "nyc ts-mocha --check-leaks --exit --timeout 60000 'test/**/*.spec.ts'",
     "clean": "rimraf ./dist ./tsconfig.tsBuildInfo",
