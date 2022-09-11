@@ -386,6 +386,7 @@ export interface StableSwapInterface extends utils.Interface {
 
   events: {
     "AddLiquidity(address,uint256[],uint256[],uint256,uint256)": EventFragment;
+    "Initialized(uint8)": EventFragment;
     "NewAdminFee(uint256)": EventFragment;
     "NewSwapFee(uint256)": EventFragment;
     "NewWithdrawFee(uint256)": EventFragment;
@@ -401,6 +402,7 @@ export interface StableSwapInterface extends utils.Interface {
   };
 
   getEvent(nameOrSignatureOrTopic: "AddLiquidity"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "Initialized"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "NewAdminFee"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "NewSwapFee"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "NewWithdrawFee"): EventFragment;
@@ -428,6 +430,13 @@ export type AddLiquidityEvent = TypedEvent<
 >;
 
 export type AddLiquidityEventFilter = TypedEventFilter<AddLiquidityEvent>;
+
+export interface InitializedEventObject {
+  version: number;
+}
+export type InitializedEvent = TypedEvent<[number], InitializedEventObject>;
+
+export type InitializedEventFilter = TypedEventFilter<InitializedEvent>;
 
 export interface NewAdminFeeEventObject {
   newAdminFee: BigNumber;
@@ -1212,6 +1221,9 @@ export interface StableSwap extends BaseContract {
       invariant?: null,
       lpTokenSupply?: null
     ): AddLiquidityEventFilter;
+
+    "Initialized(uint8)"(version?: null): InitializedEventFilter;
+    Initialized(version?: null): InitializedEventFilter;
 
     "NewAdminFee(uint256)"(newAdminFee?: null): NewAdminFeeEventFilter;
     NewAdminFee(newAdminFee?: null): NewAdminFeeEventFilter;

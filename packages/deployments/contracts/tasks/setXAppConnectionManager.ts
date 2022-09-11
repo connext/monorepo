@@ -1,8 +1,8 @@
 import { task } from "hardhat/config";
 import { Contract } from "ethers";
 
-import { Env, getDeploymentName, mustGetEnv } from "../src/utils";
-import { HUB_PREFIX, MESSAGING_PROTOCOL_CONFIGS, SPOKE_PREFIX } from "../deployConfig/shared";
+import { Env, getConnectorName, getDeploymentName, mustGetEnv } from "../src/utils";
+import { MESSAGING_PROTOCOL_CONFIGS } from "../deployConfig/shared";
 
 type TaskArgs = {
   type: "all" | "bridge" | "promise" | "relayer";
@@ -31,9 +31,7 @@ export default task("set-xapp-manager", "Updates the xapp connection manager")
       throw new Error(`Network ${network} is not supported! (no messaging config)`);
     }
     const chainId = +(await hre.getChainId());
-    const connectorName = getDeploymentName(
-      `${protocol.configs[chainId].prefix}${protocol.hub === chainId ? HUB_PREFIX : SPOKE_PREFIX}Connector`,
-    );
+    const connectorName = getDeploymentName(getConnectorName(protocol, chainId));
     const connector = await hre.deployments.getOrNull(connectorName);
     if (!connector) {
       throw new Error(`${connectorName} not deployed`);

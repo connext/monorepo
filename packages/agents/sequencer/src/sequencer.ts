@@ -57,6 +57,7 @@ export const makePublisher = async (_configOverride?: SequencerConfig) => {
         sub: context.config.server.sub.port,
       },
       chains: [...Object.keys(context.config.chains)],
+      address: context.adapters.wallet.address,
     });
     console.log(
       `

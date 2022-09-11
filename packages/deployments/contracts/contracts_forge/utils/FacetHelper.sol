@@ -100,7 +100,7 @@ contract FacetHelper is ForgeHelper {
     vm.mockCall(
       _tokenRegistry,
       abi.encodeWithSelector(ITokenRegistry.getTokenId.selector),
-      abi.encode(_canonicalDomain, _canonicalId)
+      _local != address(0) ? abi.encode(_canonicalDomain, _canonicalId) : abi.encode(0, bytes32(0))
     );
 
     // if you are not on canonical domain, ensure the local origin returns false

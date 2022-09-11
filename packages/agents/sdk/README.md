@@ -1,33 +1,19 @@
 # SDK
 
-## TLDR
+Package that wraps Connext contract interactions.
 
-### Video Walkthrough
+## SDK Base
 
-If even this looks like too much reading, video walkthrough of the code can be found [here](https://youtu.be/f-H8yu0X3YM).
+Contains SDK initialization, `xcall`, and peripheral helpers like transaction approval, relayer estimation, and transfer bumping functions.
 
-### High level Overview
+## SDK Router
 
-1. Setup
+Contains functions for adding router liquidity.
 
-- connects to Messaging server
-- run check active transfer
-- if `active transfer`, then returns the data for the respective digest
+## SDK Pool
 
-2. Auction
+Contains functions for interacting with StableSwap pools.
 
-- get best quote offered by router
+## SDK Utils
 
-3. Cross Chain Transfer
-
-- Bob prepares on chainA
-- router receives the `prepare` event by bob
-- router prepares on chainB
-- bob receives and validate the `prepare` event by router
-- bob broadcast the signature
-- router `fulfill` on chainA
-- router `fulfill` on chainB
-
-## FAQ
-
-1. Messaging Server: Used to communicate run Auction & communicate with Router.
+Contains functions for getting `xcall` transfer data.

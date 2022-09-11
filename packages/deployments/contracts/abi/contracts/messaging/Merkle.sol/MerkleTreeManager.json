@@ -1,0 +1,4 @@
+[
+  "function count() view returns (uint256)",
+  "function tree() view returns (uint256)"
+]

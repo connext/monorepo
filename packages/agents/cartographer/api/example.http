@@ -1,5 +1,5 @@
-@postgrestUrl = http://localhost:3000
-# @postgrestUrl = https://postgrest.testnet.connext.ninja
+# @postgrestUrl = http://localhost:3000
+@postgrestUrl = https://postgrest.testnet.connext.ninja
 @postgrestUrl = https://postgrest.testnet.staging.connext.ninja
 
 # just a few examples, more examples here: https://postgrest.org/en/stable/api.html#horizontal-filtering-rows
@@ -31,3 +31,6 @@ GET {{postgrestUrl}}/routers_with_balances?address=eq.0xc4eac3bfae3f3c951225c168
 
 ### GET TRANSFER BY ROUTER
 GET {{postgrestUrl}}/transfers?routers=cs.{0x41da7e2e59e021d45e29b9adb682715299e01973}
+
+### GET UN PROCESSED MESSAGES
+GET {{postgrestUrl}}/messages

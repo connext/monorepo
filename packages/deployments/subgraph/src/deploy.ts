@@ -13,8 +13,13 @@ const exec = util.promisify(_exec);
 export type Network = {
   subgraphName: string;
   network: string;
-  address: string;
-  startBlock: number;
+  source: [
+    {
+      name: string;
+      address: string;
+      startBlock: number;
+    },
+  ];
 };
 
 const run = async () => {
@@ -79,20 +84,22 @@ const run = async () => {
     // }
 
     /// prepare
-    jsonFile.dataSources = (jsonFile.dataSources ?? []).map((ds: any) => {
+    jsonFile.dataSources = (jsonFile.dataSources ?? []).map((ds: any, index: number) => {
       return {
         ...ds,
         network: n.network,
         source: {
           ...ds.source,
-          address: n.address,
-          startBlock: n.startBlock,
+          address: n.source[index].address,
+          startBlock: n.source[index].startBlock,
         },
       };
     });
 
+    const stringFile = JSON.stringify(jsonFile);
+
     const doc = new YAML.Document();
-    const obj = JSON.parse(JSON.stringify(jsonFile));
+    const obj = JSON.parse(stringFile);
     doc.contents = obj;
     writeFileSync("./subgraph.yaml", doc.toString());
 

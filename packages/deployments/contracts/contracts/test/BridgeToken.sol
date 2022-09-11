@@ -3,14 +3,13 @@ pragma solidity 0.8.15;
 
 import {OwnableUpgradeable} from "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
 
-import {Version0} from "../nomad-core/contracts/Version0.sol";
-import {TypeCasts} from "../nomad-core/contracts/XAppConnectionManager.sol";
+import {TypeCasts} from "../shared/libraries/TypeCasts.sol";
 
 import {ERC20} from "./OZERC20.sol";
 import {BridgeMessage} from "./BridgeMessage.sol";
 import {IBridgeToken} from "./IBridgeToken.sol";
 
-contract BridgeToken is Version0, IBridgeToken, OwnableUpgradeable, ERC20 {
+contract BridgeToken is IBridgeToken, OwnableUpgradeable, ERC20 {
   // ============ Immutables ============
 
   // Immutables used in EIP 712 structured data hashing & signing
