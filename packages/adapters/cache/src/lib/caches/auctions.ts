@@ -156,4 +156,15 @@ export class AuctionsCache extends Cache {
     }
     return filtered;
   }
+
+  /**
+   * Removes all the auction data for a given transferId.
+   * @param tranferId - The transferId to be removed
+   */
+  public async pruneAuctionData(tranferId: string): Promise<void> {
+    const dataKey = `${this.prefix}:data`;
+    await this.data.hdel(dataKey, tranferId);
+
+    await this.setExecStatus(tranferId, ExecStatus.None);
+  }
 }
