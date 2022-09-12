@@ -3,7 +3,7 @@ import { DeployFunction, DeployResult } from "hardhat-deploy/types";
 import { BigNumber, constants, Wallet } from "ethers";
 
 import { chainIdToDomain, getConnectorName, getDeploymentName, getProtocolNetwork } from "../src";
-import { MessagingProtocolConfig, MESSAGING_PROTOCOL_CONFIGS } from "../deployConfig/shared";
+import { HUB_PREFIX, MessagingProtocolConfig, MESSAGING_PROTOCOL_CONFIGS } from "../deployConfig/shared";
 
 // Format the arguments for Connector contract constructor.
 const formatConnectorArgs = (
@@ -111,7 +111,8 @@ const handleDeployHub = async (
       continue;
     }
 
-    const contract = getConnectorName(protocol, mirrorChainId);
+    const contract = `${configs[mirrorChainId].prefix}${HUB_PREFIX}Connector`;
+    console.log(contract);
     if (
       (!connectorName.includes("Optimism") && !connectorName.includes("Polygon")) ||
       connectorName.includes("Mainnet")
