@@ -8,6 +8,26 @@ import {
 
 import { getContext } from "../../reader";
 
+export const BLOCK_NUMBER_ENTITY = `
+      block {
+        number
+      }
+`;
+
+export const ORIGIN_MESSAGE_ENTITY = `
+      id
+      leaf
+      index
+      root
+      message
+`;
+export const DESTINATION_MESSAGE_ENTITY = `
+      id
+      leaf
+      processed
+      returnData
+`;
+
 export const ORIGIN_TRANSFER_ENTITY = `
       id
       # Meta Data
@@ -37,8 +57,8 @@ export const ORIGIN_TRANSFER_ENTITY = `
       bridgedAsset
       bridgedAmount
 
-      # Event Data
-      message
+      # Message Data
+      ${ORIGIN_MESSAGE_ENTITY}
 
       # XCalled Transaction
       caller
@@ -104,26 +124,6 @@ export const DESTINATION_TRANSFER_ENTITY = `
       reconciledBlockNumber
 `;
 
-export const BLOCK_NUMBER_ENTITY = `
-      block {
-        number
-      }
-`;
-
-export const ORIGIN_MESSAGE_ENTITY = `
-      id
-      leaf
-      index
-      root
-      message
-      destinationDomain
-`;
-export const DESTINATION_MESSAGE_ENTITY = `
-      id
-      leaf
-      processed
-      returnData
-`;
 const lastedBlockNumberQuery = (prefix: string): string => {
   return `${prefix}__meta { ${BLOCK_NUMBER_ENTITY}}`;
 };
