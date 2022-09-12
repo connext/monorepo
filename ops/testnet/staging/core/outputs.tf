@@ -13,7 +13,11 @@ output "router-publisher-dns" {
 }
 
 output "lighthouse-prover-dns" {
-  value = module.lighthouse_prover.daemon_service_name
+  value = module.lighthouse_prover_cron.daemon_service_name
+}
+
+output "lighthouse-prover-service-name" {
+  value = module.lighthouse_prover_cron.daemon_service_name
 }
 
 output "sequencer-publisher-service-endpoint" {
@@ -32,10 +36,6 @@ output "router-subscriber-service-endpoint" {
   value = module.router_subscriber.service_endpoint
 }
 
-
-output "lighthouse-prover-service-name" {
-  value = module.lighthouse_prover.daemon_service_name
-}
 
 output "rmq-management-endpoint" {
   value = module.centralised_message_queue.aws_mq_broker_console

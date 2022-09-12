@@ -95,7 +95,7 @@ type OriginTransfer @entity {
   bridgedAmount: BigInt
 
   # Message
-  messageHash: Bytes
+  message: OriginMessage
 
   # XCalled Transaction
   caller: Bytes
