@@ -112,7 +112,6 @@ const handleDeployHub = async (
     }
 
     const contract = getConnectorName(protocol, mirrorChainId, protocol.hub);
-    console.log(contract);
     if ((!contract.includes("Optimism") && !contract.includes("Polygon")) || contract.includes("Mainnet")) {
       return;
     }
