@@ -59,7 +59,7 @@ export const processMessage = async (message: XMessage) => {
     from: relayerAddress,
     transferId: message.transferId,
   });
-  const gas = await chainreader.getGasEstimateWithRevertCode(Number(chainId), {
+  const gas = await chainreader.getGasEstimateWithRevertCode(Number(message.destinationDomain), {
     chainId,
     to: destinationSpokeConnector,
     data,
