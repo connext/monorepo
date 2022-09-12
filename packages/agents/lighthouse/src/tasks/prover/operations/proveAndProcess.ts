@@ -29,7 +29,7 @@ export const proveAndProcess = async () => {
 export const processMessage = async (message: XMessage) => {
   const {
     logger,
-    adapters: { contracts, relayer },
+    adapters: { contracts, relayer, chainreader },
     config,
     chainData,
   } = getContext();
@@ -50,6 +50,30 @@ export const processMessage = async (message: XMessage) => {
     destinationSpokeConnector,
   });
   const chainId = chainData.get(message.destinationDomain)!.chainId;
+
+  const relayerAddress = await relayer.getRelayerAddress(chainId);
+  logger.debug("Getting gas estimate", requestContext, methodContext, {
+    chainId,
+    to: destinationSpokeConnector,
+    data,
+    from: relayerAddress,
+    transferId: message.transferId,
+  });
+  const gas = await chainreader.getGasEstimateWithRevertCode(Number(message.destinationDomain), {
+    chainId,
+    to: destinationSpokeConnector,
+    data,
+    from: relayerAddress,
+  });
+
+  logger.info("Sending meta tx to relayer", requestContext, methodContext, {
+    relayer: relayerAddress,
+    spokeConnector: destinationSpokeConnector,
+    domain: message.destinationDomain,
+    gas: gas.toString(),
+    transferId: message.transferId,
+  });
+
   const taskId = await relayer.send(chainId, destinationSpokeConnector, data);
   logger.info("Proved and processed message sent to relayer", requestContext, methodContext, { taskId });
 };
