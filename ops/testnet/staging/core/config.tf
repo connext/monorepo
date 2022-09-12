@@ -15,8 +15,8 @@ locals {
     { name = "DD_ENV", value = var.stage },
     { name = "DD_SERVICE", value = "router-${var.environment}" }
   ]
-  lighthouse_prover_env_vars = [
-    { name = "NXTP_CONFIG", value = local.local_prover_lighthouse_config },
+  lighthouse_env_vars = [
+    { name = "NXTP_CONFIG", value = local.local_lighthouse_config },
     { name = "ENVIRONMENT", value = var.environment },
     { name = "STAGE", value = var.stage }
   ]

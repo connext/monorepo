@@ -70,8 +70,8 @@ locals {
         ]
       }
     }
-    web3SignerUrl    = "https://${module.sequencer_web3signer.service_endpoint}"
-    environment = var.stage
+    web3SignerUrl = "https://${module.sequencer_web3signer.service_endpoint}"
+    environment   = var.stage
     messageQueue = {
       connection = {
         uri = "amqps://${var.rmq_mgt_user}:${var.rmq_mgt_password}@${module.centralised_message_queue.aws_mq_amqp_endpoint}"
