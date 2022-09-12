@@ -156,7 +156,8 @@ CREATE TABLE public.transfers (
     agent character(42),
     destination_min_out numeric,
     transfer_status_update_by_agent character(42),
-    transfer_status_message_by_agent character(42)
+    transfer_status_message_by_agent character(42),
+    message_hash character(66)
 );
 
 
@@ -567,6 +568,14 @@ ALTER TABLE ONLY public.asset_balances
 
 
 --
+-- Name: transfers fk_transfers_messages; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.transfers
+    ADD CONSTRAINT fk_transfers_messages FOREIGN KEY (message_hash) REFERENCES public.messages(leaf);
+
+
+--
 -- PostgreSQL database dump complete
 --
 
@@ -585,4 +594,5 @@ INSERT INTO public.schema_migrations (version) VALUES
     ('20220811120125'),
     ('20220816134851'),
     ('20220824094332'),
-    ('20220907212007');
+    ('20220907212007'),
+    ('20220912073208');
