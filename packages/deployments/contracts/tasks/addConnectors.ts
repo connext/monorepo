@@ -11,6 +11,7 @@ import {
   getMessagingProtocolConfig,
   mustGetEnv,
 } from "../src/utils";
+import { HUB_PREFIX } from "../deployConfig/shared";
 
 type TaskArgs = {
   env?: Env;
@@ -54,7 +55,7 @@ export default task("add-connectors", "Add all connectors to the root manager")
       env,
       async (deployment: ConnectorDeployment, _provider: providers.JsonRpcProvider) => {
         const { name, address, chain } = deployment;
-        if (!name.includes("L1")) {
+        if (!name.includes(HUB_PREFIX)) {
           // this is not the relevant connector
           return;
         }
