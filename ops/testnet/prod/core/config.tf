@@ -115,10 +115,7 @@ locals {
       publisher       = "sequencerX"
     }
   })
-}
 
-
-locals {
   local_router_config = jsonencode({
     redis = {
       host = module.router_cache.redis_instance_address,
@@ -173,5 +170,18 @@ locals {
     messageQueue = {
       uri = "amqps://${var.rmq_mgt_user}:${var.rmq_mgt_password}@${module.centralised_message_queue.aws_mq_amqp_endpoint}"
     }
+  })
+
+  local_lighthouse_config = jsonencode({
+    logLevel = "debug"
+    chains = {
+      "1735356532" = {
+        providers = ["https://opt-goerli.g.alchemy.com/v2/${var.optgoerli_alchemy_key_1}", "https://goerli.optimism.io"]
+      }
+      "1735353714" = {
+        providers = ["https://eth-goerli.alchemyapi.io/v2/${var.goerli_alchemy_key_1}", "https://rpc.ankr.com/eth_goerli"]
+      }
+    }
+    environment = var.stage
   })
 }

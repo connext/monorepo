@@ -6,6 +6,10 @@ output "cartographer-transfers-service-name" {
   value = module.cartographer-transfers-cron.daemon_service_name
 }
 
+output "cartographer-messages-service-name" {
+  value = module.cartographer-messages-cron.daemon_service_name
+}
+
 output "postgrest-dns" {
   value = module.postgrest.dns_name
 }

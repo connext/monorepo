@@ -115,10 +115,7 @@ locals {
       publisher       = "sequencerX"
     }
   })
-}
 
-
-locals {
   local_router_config = jsonencode({
     redis = {
       host = module.router_cache.redis_instance_address,
@@ -174,9 +171,7 @@ locals {
       uri = "amqps://${var.rmq_mgt_user}:${var.rmq_mgt_password}@${module.centralised_message_queue.aws_mq_amqp_endpoint}"
     }
   })
-}
 
-locals {
   local_lighthouse_config = jsonencode({
     logLevel = "debug"
     chains = {
