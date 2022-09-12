@@ -32,7 +32,7 @@ const formatConnectorArgs = (
     rootManager,
     constants.AddressZero,
     config.processGas,
-    ...Object.values(config?.custom?.hub ?? {}),
+    ...Object.values((isHub ? config?.custom?.hub : config?.custom?.spoke) ?? {}),
   ];
   if (isHub) {
     console.log(
