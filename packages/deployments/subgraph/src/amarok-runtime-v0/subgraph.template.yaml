@@ -77,7 +77,7 @@ dataSources:
         #   handler: handleAmmNewAdminFee
         # - event: NewSwapFee(indexed bytes32,uint256)
         #   handler: handleAmmNewSwapFee
-      file: ./src/amarok-runtime-staging/mapping.ts
+      file: ./src/amarok-runtime-v0/mapping.ts
   # Connector.sol events
   - kind: ethereum/contract
     name: Connector
@@ -109,4 +109,8 @@ dataSources:
         # Process(bytes32 leaf, bool success, bytes returnData);
         - event: Process(bytes32,bool,bytes)
           handler: handleProcess
+        - event: MessageSent(bytes,address)
+          handler: handleMessageSent
+        - event: MessageProcessed(bytes,address)
+          handler: handleMessageProcessed
       file: ./src/amarok-runtime-v0/mapping.ts

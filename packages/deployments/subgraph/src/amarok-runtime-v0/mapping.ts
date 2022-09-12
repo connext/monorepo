@@ -19,7 +19,13 @@ import {
   RouterRecipientSet,
   MaxRoutersPerTransferUpdated,
 } from "../../generated/Connext/ConnextHandler";
-import { Dispatch, Process, AggregateRootUpdated } from "../../generated/Connector/Connector";
+import {
+  Dispatch,
+  Process,
+  AggregateRootUpdated,
+  MessageSent,
+  MessageProcessed,
+} from "../../generated/Connector/Connector";
 import {
   Asset,
   AssetBalance,
@@ -33,6 +39,7 @@ import {
   OriginMessage,
   DestinationMessage,
   AggregateRoot,
+  RootMessage,
 } from "../../generated/schema";
 
 const DEFAULT_MAX_ROUTERS_PER_TRANSFER = 5;
@@ -461,6 +468,42 @@ export function handleAggregateRootUpdated(event: AggregateRootUpdated): void {
 
   aggregateRoot.root = event.params.current;
   aggregateRoot.save();
+}
+
+export function handleMessageSent(event: MessageSent): void {
+  let message = RootMessage.load(event.params.data.toHexString());
+  if (message == null) {
+    message = new RootMessage(event.params.data.toHexString());
+  }
+
+  message.data = event.params.data;
+  message.caller = event.params.caller;
+  message.transactionHash = event.transaction.hash;
+  message.logIndex = event.logIndex;
+  message.transactionLogIndex = event.transactionLogIndex;
+  message.timestamp = event.block.timestamp;
+  message.gasPrice = event.transaction.gasPrice;
+  message.gasLimit = event.transaction.gasLimit;
+  message.blockNumber = event.block.number;
+  message.save();
+}
+
+export function handleMessageProcessed(event: MessageProcessed): void {
+  let message = RootMessage.load(event.params.data.toHexString());
+  if (message == null) {
+    message = new RootMessage(event.params.data.toHexString());
+  }
+
+  message.data = event.params.data;
+  message.caller = event.params.caller;
+  message.transactionHash = event.transaction.hash;
+  message.logIndex = event.logIndex;
+  message.transactionLogIndex = event.transactionLogIndex;
+  message.timestamp = event.block.timestamp;
+  message.gasPrice = event.transaction.gasPrice;
+  message.gasLimit = event.transaction.gasLimit;
+  message.blockNumber = event.block.number;
+  message.save();
 }
 
 /// MARK - Helpers
