@@ -3,7 +3,7 @@ import { DeployFunction, DeployResult } from "hardhat-deploy/types";
 import { BigNumber, constants, Wallet } from "ethers";
 
 import { chainIdToDomain, getConnectorName, getDeploymentName, getProtocolNetwork } from "../src";
-import { HUB_PREFIX, MessagingProtocolConfig, MESSAGING_PROTOCOL_CONFIGS } from "../deployConfig/shared";
+import { MessagingProtocolConfig, MESSAGING_PROTOCOL_CONFIGS } from "../deployConfig/shared";
 
 // Format the arguments for Connector contract constructor.
 const formatConnectorArgs = (
@@ -19,7 +19,7 @@ const formatConnectorArgs = (
   const config = protocol.configs[connectorChainId];
   console.log(`using config`, config);
 
-  const isHub = deploymentChainId === protocol.hub;
+  const isHub = deploymentChainId === protocol.hub && connectorChainId != protocol.hub;
 
   // FIXME: settle on domains w/nomad
   const deploymentDomain = BigNumber.from(chainIdToDomain(deploymentChainId).toString());
