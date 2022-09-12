@@ -15,11 +15,11 @@ locals {
     { name = "DD_ENV", value = var.stage },
     { name = "DD_SERVICE", value = "router-${var.environment}" }
   ]
-  # lighthouse_env_vars = [
-  #   { name = "NXTP_CONFIG", value = local.local_lighthouse_config },
-  #   { name = "ENVIRONMENT", value = var.environment },
-  #   { name = "STAGE", value = var.stage }
-  # ]
+  lighthouse_env_vars = [
+    { name = "NXTP_CONFIG", value = local.local_lighthouse_config },
+    { name = "ENVIRONMENT", value = var.environment },
+    { name = "STAGE", value = var.stage }
+  ]
   router_web3signer_env_vars = [
     { name = "WEB3_SIGNER_PRIVATE_KEY", value = var.router_web3_signer_private_key },
     { name = "WEB3SIGNER_HTTP_HOST_ALLOWLIST", value = "*" }
@@ -115,10 +115,7 @@ locals {
       publisher       = "sequencerX"
     }
   })
-}
 
-
-locals {
   local_router_config = jsonencode({
     redis = {
       host = module.router_cache.redis_instance_address,
@@ -173,5 +170,18 @@ locals {
     messageQueue = {
       uri = "amqps://${var.rmq_mgt_user}:${var.rmq_mgt_password}@${module.centralised_message_queue.aws_mq_amqp_endpoint}"
     }
+  })
+
+  local_lighthouse_config = jsonencode({
+    logLevel = "debug"
+    chains = {
+      "1735356532" = {
+        providers = ["https://opt-goerli.g.alchemy.com/v2/${var.optgoerli_alchemy_key_1}", "https://goerli.optimism.io"]
+      }
+      "1735353714" = {
+        providers = ["https://eth-goerli.alchemyapi.io/v2/${var.goerli_alchemy_key_1}", "https://rpc.ankr.com/eth_goerli"]
+      }
+    }
+    environment = var.stage
   })
 }
