@@ -260,12 +260,11 @@ export function handleXCalled(event: XCalled): void {
   let message = OriginMessage.load(event.params.messageHash.toHex());
   if (message == null) {
     message = new OriginMessage(event.params.messageHash.toHex());
-
-    message.leaf = event.params.messageHash;
-    message.destinationDomain = event.params.xcallArgs.params.destinationDomain;
-    message.transferId = event.params.transferId;
-    message.save();
   }
+  message.leaf = event.params.messageHash;
+  message.destinationDomain = event.params.xcallArgs.params.destinationDomain;
+  message.transferId = event.params.transferId;
+  message.save();
   transfer.message = message.id;
 
   // XCall Transaction
