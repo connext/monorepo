@@ -177,7 +177,7 @@ locals {
 }
 
 locals {
-  local_lighthouse_config = jsonencode({
+  local_prover_lighthouse_config = jsonencode({
     logLevel = "debug"
     chains = {
       "1735356532" = {

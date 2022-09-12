@@ -276,7 +276,7 @@ module "lighthouse_prover_cron" {
   stage                   = var.stage
   domain                  = var.domain
   service_security_groups = flatten([module.network.allow_all_sg, module.network.ecs_task_sg])
-  container_env_vars      = concat(local.lighthouse_env_vars, [{ name = "DD_SERVICE", value = "lighthouse-prover-${var.environment}" }])
+  container_env_vars      = concat(local.lighthouse_prover_env_vars, [{ name = "DD_SERVICE", value = "lighthouse-prover-${var.environment}" }])
   schedule_expression     = "cron(30 * * * ? *)"
 }
 
