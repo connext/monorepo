@@ -1,4 +1,4 @@
-import { expect } from "@connext/nxtp-utils";
+import { expect, mock } from "@connext/nxtp-utils";
 import { SinonStub, stub } from "sinon";
 
 import { proveAndProcess, processMessage } from "../../../../src/tasks/prover/operations/proveAndProcess";
@@ -16,6 +16,7 @@ describe("Operations: ProveAndProcess", () => {
           leaf: string;
           originDomain: string;
           destinationDomain: string;
+          transferId: string;
           origin: { index: number; root: string; message: string };
         },
       ],
@@ -48,7 +49,7 @@ describe("Operations: ProveAndProcess", () => {
     it("should process a message", async () => {
       await processMessage(mockXMessage1);
       expect(proverCtxMock.adapters.relayer.send).to.be.calledOnceWithExactly(
-        +mockXMessage1.destinationDomain,
+        +mock.chain.B,
         proverCtxMock.config.chains[mockXMessage1.destinationDomain].deployments.spokeConnector,
         encodedDataMock,
       );

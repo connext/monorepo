@@ -17,6 +17,7 @@ export const mockXMessage1: XMessage = {
   destinationDomain: _mock.domain.B,
   leaf: mkBytes32("0xabcde"),
   origin: { index: 42, message: mkBytes32("0xabc"), root: mkBytes32("0x123") },
+  transferId: mkBytes32("0xabc"),
 };
 
 export const mockXMessage2: XMessage = {
@@ -24,6 +25,7 @@ export const mockXMessage2: XMessage = {
   destinationDomain: _mock.domain.A,
   leaf: mkBytes32("0xedcba"),
   origin: { index: 24, message: mkBytes32("0xcba"), root: mkBytes32("0x321") },
+  transferId: mkBytes32("0xabcdef"),
 };
 
 export const mock = {
@@ -44,18 +46,14 @@ export const mock = {
   config: (): NxtpLighthouseConfig => ({
     chains: {
       [mock.domain.A]: {
-        confirmations: 1,
         providers: ["http://example.com"],
         deployments: {
-          connext: mkAddress("0xabcdef123"),
           spokeConnector: mkAddress("0xfedcba321"),
         },
       },
       [mock.domain.B]: {
-        confirmations: 1,
         providers: ["http://example.com"],
         deployments: {
-          connext: mkAddress("0xabcdef123"),
           spokeConnector: mkAddress("0xfedcba321"),
         },
       },
@@ -141,8 +139,9 @@ export const mock = {
           abi: {},
         }),
         priceOracle: (_: number) => ({ address: mkAddress("0xbaddad"), abi: {} }),
-        tokenRegistry: (_: number) => ({ address: mkAddress("0xbbbddd"), abi: {} }),
-        stableSwap: (_: number) => ({ address: mkAddress("0xbbbddd"), abi: {} }),
+        tokenRegistry: (_: number) => ({ address: mkAddress("0xbbbddde"), abi: {} }),
+        stableSwap: (_: number) => ({ address: mkAddress("0xbbbdddf"), abi: {} }),
+        spokeConnector: (_: number) => ({ address: mkAddress("0xbbbddda"), abi: {} }),
       };
     },
   },
