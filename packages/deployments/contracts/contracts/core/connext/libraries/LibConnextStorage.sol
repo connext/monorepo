@@ -20,17 +20,6 @@ struct TokenId {
 }
 
 /**
- * @notice Contains all information needed to calculate transfer id within the
- * `onReceive` hook from nomad.
- * @dev This excludes information that is included within that interface
- */
-struct TransferIdInformation {
-  CallParams params;
-  uint256 nonce;
-  address originSender;
-}
-
-/**
  * @dev FIXME: When we are at the point where we want to fix the xcall interface
  * by removing the struct-based arguments, remove this and keep the CallParams below
  *
@@ -43,7 +32,7 @@ struct UserFacingCallParams {
   address agent;
   address recovery;
   bool receiveLocal;
-  uint256 destinationMinOut;
+  uint256 slippage;
 }
 
 /**
@@ -59,8 +48,11 @@ struct UserFacingCallParams {
  * @param agent - An address who can execute txs on behalf of `to`, in addition to allowing relayers
  * @param recovery - The address to send funds to if your `Executor.execute call` fails
  * @param receiveLocal - If true, will use the local nomad asset on the destination instead of adopted.
- * @param destinationMinOut - Minimum amount received on swaps for local <> adopted on destination chain.
+ * @param slippage - Slippage user is willing to accept from original amount in expressed in BPS (i.e. if
+ * a user takes 1% slippage, this is expressed as 1_000)
  */
+// FIXME: make this the struct containing all information used to generate a transfer id.
+// should be internal from the perspective of the user
 struct CallParams {
   address to;
   bytes callData;
@@ -69,7 +61,18 @@ struct CallParams {
   address agent;
   address recovery;
   bool receiveLocal;
-  uint256 destinationMinOut;
+  uint256 slippage;
+}
+
+// FIXME: this should be moved into the CallParams struct
+// used in PortalFacet to fix stack too deep errors
+struct TransferIdGenerationInformation {
+  address originSender;
+  uint256 bridgedAmt;
+  uint256 normalizedIn;
+  uint256 nonce;
+  bytes32 canonicalId;
+  uint32 canonicalDomain;
 }
 
 /**
@@ -78,13 +81,11 @@ struct CallParams {
  * @param asset - The asset the caller sent with the transfer. Can be the adopted, canonical,
  * or the representational asset.
  * @param amount - The amount of transferring asset supplied by the user in the `xcall`.
- * @param originMinOut - Minimum amount received on swaps for adopted <> local on origin chain
  */
 struct XCallArgs {
   UserFacingCallParams params;
   address asset; // Could be adopted, local, or canonical.
   uint256 amount;
-  uint256 originMinOut;
 }
 
 /**
@@ -98,9 +99,9 @@ struct XCallArgs {
  * @param sequencer - The sequencer who assigned the router path to this transfer.
  * @param sequencerSignature - Signature produced by the sequencer for path assignment accountability
  * for the path that was signed.
- * @param amount - The amount of liquidity the router provided or the bridge forwarded, depending on
- * whether fast liquidity was used.
+ * @param amount - The amount forwarded from the bridge
  * @param nonce - The nonce used to generate transfer ID.
+ * @param normalizedIn - The amount the user sent in on `xcall`, normalized to 18 decimals
  * @param originSender - The msg.sender of the xcall on origin domain.
  */
 struct ExecuteArgs {
@@ -112,6 +113,7 @@ struct ExecuteArgs {
   bytes sequencerSignature;
   uint256 amount;
   uint256 nonce;
+  uint256 normalizedIn;
   address originSender;
 }
 
