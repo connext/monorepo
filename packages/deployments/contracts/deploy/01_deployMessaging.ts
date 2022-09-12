@@ -113,10 +113,7 @@ const handleDeployHub = async (
 
     const contract = `${configs[mirrorChainId].prefix}${HUB_PREFIX}Connector`;
     console.log(contract);
-    if (
-      (!connectorName.includes("Optimism") && !connectorName.includes("Polygon")) ||
-      connectorName.includes("Mainnet")
-    ) {
+    if ((!contract.includes("Optimism") && !contract.includes("Polygon")) || contract.includes("Mainnet")) {
       return;
     }
     console.log(`Deploying ${contract}...`);
