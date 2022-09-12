@@ -116,6 +116,7 @@ export const ORIGIN_MESSAGE_ENTITY = `
       index
       root
       message
+      transferId
       destinationDomain
 `;
 export const DESTINATION_MESSAGE_ENTITY = `
@@ -573,7 +574,7 @@ export const getOriginMessagesByDomainAndIndexQuery = (
   let combinedQuery = "";
   for (const param of params) {
     const prefix = config.sources[param.domain].prefix;
-    combinedQuery += `${prefix}_originMessages ( first: ${param.limit}, where: { index_gte: ${param.offset}}) {${ORIGIN_MESSAGE_ENTITY}} orderBy: index, orderDirection: asc`;
+    combinedQuery += `${prefix}_originMessages ( first: ${param.limit}, where: { index_gte: ${param.offset}, transferId_not: null, destinationDomain_not: null}) {${ORIGIN_MESSAGE_ENTITY}} orderBy: index, orderDirection: asc`;
   }
 
   return gql`

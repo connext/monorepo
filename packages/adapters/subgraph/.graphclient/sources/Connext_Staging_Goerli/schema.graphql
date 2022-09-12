@@ -590,6 +590,8 @@ enum staginggoerli_OrderDirection {
 
 type staginggoerli_OriginMessage {
   id: ID!
+  transferId: staginggoerli_Bytes
+  destinationDomain: BigInt
   leaf: staginggoerli_Bytes
   index: BigInt
   root: staginggoerli_Bytes
@@ -605,6 +607,20 @@ input staginggoerli_OriginMessage_filter {
   id_lte: ID
   id_in: [ID!]
   id_not_in: [ID!]
+  transferId: staginggoerli_Bytes
+  transferId_not: staginggoerli_Bytes
+  transferId_in: [staginggoerli_Bytes!]
+  transferId_not_in: [staginggoerli_Bytes!]
+  transferId_contains: staginggoerli_Bytes
+  transferId_not_contains: staginggoerli_Bytes
+  destinationDomain: BigInt
+  destinationDomain_not: BigInt
+  destinationDomain_gt: BigInt
+  destinationDomain_lt: BigInt
+  destinationDomain_gte: BigInt
+  destinationDomain_lte: BigInt
+  destinationDomain_in: [BigInt!]
+  destinationDomain_not_in: [BigInt!]
   leaf: staginggoerli_Bytes
   leaf_not: staginggoerli_Bytes
   leaf_in: [staginggoerli_Bytes!]
@@ -637,6 +653,8 @@ input staginggoerli_OriginMessage_filter {
 
 enum staginggoerli_OriginMessage_orderBy {
   id
+  transferId
+  destinationDomain
   leaf
   index
   root
@@ -666,7 +684,7 @@ type staginggoerli_OriginTransfer {
   transactingAmount: BigInt
   bridgedAsset: staginggoerli_Bytes
   bridgedAmount: BigInt
-  messageHash: staginggoerli_Bytes
+  message: staginggoerli_OriginMessage
   caller: staginggoerli_Bytes
   transactionHash: staginggoerli_Bytes
   timestamp: BigInt
@@ -824,12 +842,27 @@ input staginggoerli_OriginTransfer_filter {
   bridgedAmount_lte: BigInt
   bridgedAmount_in: [BigInt!]
   bridgedAmount_not_in: [BigInt!]
-  messageHash: staginggoerli_Bytes
-  messageHash_not: staginggoerli_Bytes
-  messageHash_in: [staginggoerli_Bytes!]
-  messageHash_not_in: [staginggoerli_Bytes!]
-  messageHash_contains: staginggoerli_Bytes
-  messageHash_not_contains: staginggoerli_Bytes
+  message: String
+  message_not: String
+  message_gt: String
+  message_lt: String
+  message_gte: String
+  message_lte: String
+  message_in: [String!]
+  message_not_in: [String!]
+  message_contains: String
+  message_contains_nocase: String
+  message_not_contains: String
+  message_not_contains_nocase: String
+  message_starts_with: String
+  message_starts_with_nocase: String
+  message_not_starts_with: String
+  message_not_starts_with_nocase: String
+  message_ends_with: String
+  message_ends_with_nocase: String
+  message_not_ends_with: String
+  message_not_ends_with_nocase: String
+  message_: staginggoerli_OriginMessage_filter
   caller: staginggoerli_Bytes
   caller_not: staginggoerli_Bytes
   caller_in: [staginggoerli_Bytes!]
@@ -901,7 +934,7 @@ enum staginggoerli_OriginTransfer_orderBy {
   transactingAmount
   bridgedAsset
   bridgedAmount
-  messageHash
+  message
   caller
   transactionHash
   timestamp
