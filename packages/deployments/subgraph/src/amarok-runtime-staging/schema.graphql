@@ -165,6 +165,10 @@ type DestinationTransfer @entity {
 type OriginMessage @entity {
   id: ID!
 
+  # origin transfer data
+  transferId: Bytes
+  destinationDomain: BigInt
+
   # Dispatch Transaction
   leaf: Bytes
   index: BigInt
