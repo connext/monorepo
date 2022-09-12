@@ -15,7 +15,7 @@ import { HUB_PREFIX } from "../deployConfig/shared";
 
 type TaskArgs = {
   env?: Env;
-  remove?: boolean;
+  remove?: string;
 };
 
 export default task("add-connectors", "Add all connectors to the root manager")
@@ -27,7 +27,7 @@ export default task("add-connectors", "Add all connectors to the root manager")
     const deployer = Wallet.fromMnemonic((networkConfig.accounts as any).mnemonic as unknown as string);
 
     const env = mustGetEnv(_env);
-    const remove = _remove ?? true;
+    const remove = _remove ? _remove === "true" : true;
     console.log("env:", env);
     console.log("remove:", remove);
     console.log("deployer: ", deployer.address);
@@ -54,15 +54,15 @@ export default task("add-connectors", "Add all connectors to the root manager")
       hardhatConfig,
       env,
       async (deployment: ConnectorDeployment, _provider: providers.JsonRpcProvider) => {
-        const { name, address, chain } = deployment;
-        if (!name.includes(HUB_PREFIX)) {
+        const { name, address, chain, mirrorChain } = deployment;
+        if (!name.includes(HUB_PREFIX) && !name.includes("Mainnet")) {
           // this is not the relevant connector
           return;
         }
         // connector now has "L1" in the title
         // NOTE: on mainnet connector there will be no mirror chain, so just register the mainnet
         // domain
-        const domain = await getDomainFromChainId(chain);
+        const domain = await getDomainFromChainId(mirrorChain ?? chain);
         console.log(`trying to enroll connector for ${domain} (${chain})`);
 
         let stored = await rootManager.connectors(domain);
@@ -72,7 +72,7 @@ export default task("add-connectors", "Add all connectors to the root manager")
         }
 
         // Must either remove before enlisting
-        if (stored !== constants.AddressZero && remove) {
+        if (stored !== constants.AddressZero || remove) {
           console.log(`Removing ${name} registered for ${domain}: ${address}`);
           const tx = await rootManager.removeConnector(domain);
           console.log("remove connector tx submitted:", tx.hash);

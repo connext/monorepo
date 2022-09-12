@@ -86,7 +86,8 @@ export const verify = async (
 
 // Gets the messaging protocol config for a given chain
 export const getMessagingProtocolConfig = (env: Env): MessagingProtocolConfig => {
-  const network = env === "production" ? "mainnet" : env === "staging" ? "testnet" : "local";
+  // TODO: "tesnet"  => "mainnet"  for production
+  const network = env === "production" ? "testnet" : env === "staging" ? "testnet" : "local";
   const protocol = MESSAGING_PROTOCOL_CONFIGS[network];
 
   if (!protocol || !protocol.configs[protocol.hub]) {
@@ -100,6 +101,7 @@ export type ConnectorDeployment = {
   address: string;
   abi: ContractInterface;
   mirrorConnector?: string;
+  mirrorChain?: number;
   chain: number;
   name: string;
 };
@@ -154,7 +156,7 @@ export const getConnectorDeployments = (env: Env): ConnectorDeployment[] => {
     // Get deployment records
     const { address, abi } = getAddressAndAbi(name, chain);
     const mirrorConnector = mirrorName && mirrorChain ? getAddressAndAbi(mirrorName, mirrorChain).address : undefined;
-    return { address, abi, mirrorConnector, chain, name };
+    return { address, abi, mirrorConnector, chain, mirrorChain, name };
   });
 
   return deployments;
