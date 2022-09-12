@@ -109,4 +109,8 @@ dataSources:
         # Process(bytes32 leaf, bool success, bytes returnData);
         - event: Process(bytes32,bool,bytes)
           handler: handleProcess
+        - event: MessageSent(bytes,address)
+          handler: handleMessageSent
+        - event: MessageProcessed(bytes,address)
+          handler: handleMessageProcessed
       file: ./src/amarok-runtime-staging/mapping.ts
