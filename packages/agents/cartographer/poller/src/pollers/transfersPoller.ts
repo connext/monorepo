@@ -44,7 +44,7 @@ export const makeTransfersPoller = async (_configOverride?: CartographerConfig) 
   context.logger.info("Transfers Poller initialized!", requestContext, methodContext, {
     domains: context.domains,
   });
-  context.logger.info(
+  console.log(
     `
 
       _|_|_|     _|_|     _|      _|   _|      _|   _|_|_|_|   _|      _|   _|_|_|_|_|

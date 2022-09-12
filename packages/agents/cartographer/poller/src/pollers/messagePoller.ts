@@ -44,7 +44,7 @@ export const makeMessagesPoller = async (_configOverride?: CartographerConfig) =
   context.logger.info("Messages Poller initialized!", requestContext, methodContext, {
     domains: context.domains,
   });
-  context.logger.info(
+  console.log(
     `
 
       _|_|_|     _|_|     _|      _|   _|      _|   _|_|_|_|   _|      _|   _|_|_|_|_|

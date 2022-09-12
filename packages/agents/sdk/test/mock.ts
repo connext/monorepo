@@ -11,7 +11,7 @@ export const mock = {
   ..._mock,
   config: (): NxtpSdkConfig => ({
     signerAddress: mkAddress("0xabcdef123"),
-    logLevel: "debug",
+    logLevel: (process.env.LOG_LEVEL as any) || "debug",
     network: "testnet",
     maxSlippage: 0,
     environment: "staging",
