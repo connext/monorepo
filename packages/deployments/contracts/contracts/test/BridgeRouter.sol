@@ -285,6 +285,12 @@ contract BridgeRouter is Router {
     // get the tokenID
     (uint32 _domain, bytes32 _id) = tokenRegistry.getTokenId(_token);
     _tokenId = BridgeMessage.formatTokenId(_domain, _id);
+    // handle the 0-case
+    if (_token == address(0)) {
+      _detailsHash = bytes32(0);
+      _isLocal = false;
+      return (_tokenId, _detailsHash, _isLocal);
+    }
     // Setup vars used in both if branches
     IBridgeToken _t = IBridgeToken(_token);
     // get the details hash
