@@ -36,10 +36,10 @@ const formatConnectorArgs = (
   ];
   if (isHub) {
     console.log(
-      `constructorArgs:`,
+      `hub connector constructorArgs:`,
       hubArgs.map((c) => c.toString()),
     );
-    return [...hubArgs, config.processGas, config.reserveGas];
+    return hubArgs;
   }
   const constructorArgs = [
     ...hubArgs,
@@ -48,11 +48,11 @@ const formatConnectorArgs = (
     ...Object.values(config?.custom?.spoke ?? {}),
   ];
   console.log(
-    `constructorArgs:`,
+    `spoke connector constructorArgs:`,
     constructorArgs.map((c) => c.toString()),
   );
   // console.log(`- domain:`, constructorArgs[0].toString());
-  return isHub ? hubArgs : constructorArgs;
+  return constructorArgs;
 };
 
 // Deploy messaging contracts unique to Eth mainnet, including hub connectors.
