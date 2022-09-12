@@ -18,6 +18,7 @@ const convertToDbTransfer = (transfer: XTransfer): s.transfers.Insertable => {
   return {
     transfer_id: transfer.transferId,
     nonce: transfer.nonce,
+    message_hash: transfer.messageHash,
 
     to: transfer.xparams?.to,
     call_data: transfer.xparams?.callData,

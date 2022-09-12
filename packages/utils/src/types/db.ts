@@ -33,6 +33,7 @@ export const convertFromDbTransfer = (transfer: any): XTransfer => {
       destinationMinOut: BigNumber.from(BigInt((transfer.destination_min_out as string) ?? "0")).toString(),
     },
     transferId: transfer.transfer_id,
+    messageHash: transfer.message_hash,
 
     origin: transfer.origin_chain
       ? {

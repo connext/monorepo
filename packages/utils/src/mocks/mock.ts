@@ -153,6 +153,7 @@ export const mock = {
         asset?: string;
         transferId?: string;
         nonce?: number;
+        messageHash?: string;
         user?: string;
         relayerFee?: string;
         routers?: string[];
@@ -167,6 +168,7 @@ export const mock = {
       const asset: string = overrides.asset ?? mock.asset.A.address;
       const transferId: string = overrides.transferId ?? getRandomBytes32();
       const nonce = overrides.nonce ?? 1234;
+      const messageHash = overrides.messageHash ?? mkAddress("0xfadec");
       const user: string = overrides.user ?? mkAddress("0xfaded");
       const relayerFee = overrides.relayerFee ?? "12345";
       const routers = overrides.routers ?? [mock.address.router];
@@ -179,6 +181,7 @@ export const mock = {
         // Meta
         transferId,
         nonce: !isReconciledOnly ? nonce : undefined,
+        messageHash: messageHash || undefined,
 
         // Call Params
         xparams: {

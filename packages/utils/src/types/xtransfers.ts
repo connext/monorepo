@@ -104,6 +104,9 @@ export const XTransferSchema = Type.Intersect([
     // NOTE: Nonce is delivered by XCalled and Executed events, but not Reconciled event.
     nonce: Type.Optional(Type.Integer()),
 
+    // NOTE: MessageHash is delivered in xcall event
+    messageHash: Type.Optional(Type.String()),
+
     // Call Params
     // NOTE: CallParams is emitted by XCalled and Executed events, but not Reconciled event.
     xparams: CallParamsSchema,
