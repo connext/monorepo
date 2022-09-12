@@ -2736,6 +2736,12 @@ declare module 'zapatos/schema' {
       * - Nullable, no default
       */
     transfer_status_message_by_agent: string | null;
+      /**
+      * **transfers.message_hash**
+      * - `bpchar` in database
+      * - Nullable, no default
+      */
+    message_hash: string | null;
     }
     export interface JSONSelectable {
       /**
@@ -3026,6 +3032,12 @@ declare module 'zapatos/schema' {
       * - Nullable, no default
       */
     transfer_status_message_by_agent: string | null;
+      /**
+      * **transfers.message_hash**
+      * - `bpchar` in database
+      * - Nullable, no default
+      */
+    message_hash: string | null;
     }
     export interface Whereable {
       /**
@@ -3316,6 +3328,12 @@ declare module 'zapatos/schema' {
       * - Nullable, no default
       */
     transfer_status_message_by_agent?: string | db.Parameter<string> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
+      /**
+      * **transfers.message_hash**
+      * - `bpchar` in database
+      * - Nullable, no default
+      */
+    message_hash?: string | db.Parameter<string> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
     }
     export interface Insertable {
       /**
@@ -3606,6 +3624,12 @@ declare module 'zapatos/schema' {
       * - Nullable, no default
       */
     transfer_status_message_by_agent?: string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment;
+      /**
+      * **transfers.message_hash**
+      * - `bpchar` in database
+      * - Nullable, no default
+      */
+    message_hash?: string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment;
     }
     export interface Updatable {
       /**
@@ -3896,6 +3920,12 @@ declare module 'zapatos/schema' {
       * - Nullable, no default
       */
     transfer_status_message_by_agent?: string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment | db.SQLFragment<any, string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment>;
+      /**
+      * **transfers.message_hash**
+      * - `bpchar` in database
+      * - Nullable, no default
+      */
+    message_hash?: string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment | db.SQLFragment<any, string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment>;
     }
     export type UniqueIndex = 'transfers_pkey';
     export type Column = keyof Selectable;
