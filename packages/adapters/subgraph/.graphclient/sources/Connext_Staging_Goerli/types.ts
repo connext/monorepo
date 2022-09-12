@@ -595,6 +595,8 @@ export type staginggoerli_OrderDirection =
 
 export type staginggoerli_OriginMessage = {
   id: Scalars['ID'];
+  transferId?: Maybe<Scalars['staginggoerli_Bytes']>;
+  destinationDomain?: Maybe<Scalars['BigInt']>;
   leaf?: Maybe<Scalars['staginggoerli_Bytes']>;
   index?: Maybe<Scalars['BigInt']>;
   root?: Maybe<Scalars['staginggoerli_Bytes']>;
@@ -610,6 +612,20 @@ export type staginggoerli_OriginMessage_filter = {
   id_lte?: InputMaybe<Scalars['ID']>;
   id_in?: InputMaybe<Array<Scalars['ID']>>;
   id_not_in?: InputMaybe<Array<Scalars['ID']>>;
+  transferId?: InputMaybe<Scalars['staginggoerli_Bytes']>;
+  transferId_not?: InputMaybe<Scalars['staginggoerli_Bytes']>;
+  transferId_in?: InputMaybe<Array<Scalars['staginggoerli_Bytes']>>;
+  transferId_not_in?: InputMaybe<Array<Scalars['staginggoerli_Bytes']>>;
+  transferId_contains?: InputMaybe<Scalars['staginggoerli_Bytes']>;
+  transferId_not_contains?: InputMaybe<Scalars['staginggoerli_Bytes']>;
+  destinationDomain?: InputMaybe<Scalars['BigInt']>;
+  destinationDomain_not?: InputMaybe<Scalars['BigInt']>;
+  destinationDomain_gt?: InputMaybe<Scalars['BigInt']>;
+  destinationDomain_lt?: InputMaybe<Scalars['BigInt']>;
+  destinationDomain_gte?: InputMaybe<Scalars['BigInt']>;
+  destinationDomain_lte?: InputMaybe<Scalars['BigInt']>;
+  destinationDomain_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  destinationDomain_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
   leaf?: InputMaybe<Scalars['staginggoerli_Bytes']>;
   leaf_not?: InputMaybe<Scalars['staginggoerli_Bytes']>;
   leaf_in?: InputMaybe<Array<Scalars['staginggoerli_Bytes']>>;
@@ -642,6 +658,8 @@ export type staginggoerli_OriginMessage_filter = {
 
 export type staginggoerli_OriginMessage_orderBy =
   | 'id'
+  | 'transferId'
+  | 'destinationDomain'
   | 'leaf'
   | 'index'
   | 'root'
@@ -670,7 +688,7 @@ export type staginggoerli_OriginTransfer = {
   transactingAmount?: Maybe<Scalars['BigInt']>;
   bridgedAsset?: Maybe<Scalars['staginggoerli_Bytes']>;
   bridgedAmount?: Maybe<Scalars['BigInt']>;
-  messageHash?: Maybe<Scalars['staginggoerli_Bytes']>;
+  message?: Maybe<staginggoerli_OriginMessage>;
   caller?: Maybe<Scalars['staginggoerli_Bytes']>;
   transactionHash?: Maybe<Scalars['staginggoerli_Bytes']>;
   timestamp?: Maybe<Scalars['BigInt']>;
@@ -828,12 +846,27 @@ export type staginggoerli_OriginTransfer_filter = {
   bridgedAmount_lte?: InputMaybe<Scalars['BigInt']>;
   bridgedAmount_in?: InputMaybe<Array<Scalars['BigInt']>>;
   bridgedAmount_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  messageHash?: InputMaybe<Scalars['staginggoerli_Bytes']>;
-  messageHash_not?: InputMaybe<Scalars['staginggoerli_Bytes']>;
-  messageHash_in?: InputMaybe<Array<Scalars['staginggoerli_Bytes']>>;
-  messageHash_not_in?: InputMaybe<Array<Scalars['staginggoerli_Bytes']>>;
-  messageHash_contains?: InputMaybe<Scalars['staginggoerli_Bytes']>;
-  messageHash_not_contains?: InputMaybe<Scalars['staginggoerli_Bytes']>;
+  message?: InputMaybe<Scalars['String']>;
+  message_not?: InputMaybe<Scalars['String']>;
+  message_gt?: InputMaybe<Scalars['String']>;
+  message_lt?: InputMaybe<Scalars['String']>;
+  message_gte?: InputMaybe<Scalars['String']>;
+  message_lte?: InputMaybe<Scalars['String']>;
+  message_in?: InputMaybe<Array<Scalars['String']>>;
+  message_not_in?: InputMaybe<Array<Scalars['String']>>;
+  message_contains?: InputMaybe<Scalars['String']>;
+  message_contains_nocase?: InputMaybe<Scalars['String']>;
+  message_not_contains?: InputMaybe<Scalars['String']>;
+  message_not_contains_nocase?: InputMaybe<Scalars['String']>;
+  message_starts_with?: InputMaybe<Scalars['String']>;
+  message_starts_with_nocase?: InputMaybe<Scalars['String']>;
+  message_not_starts_with?: InputMaybe<Scalars['String']>;
+  message_not_starts_with_nocase?: InputMaybe<Scalars['String']>;
+  message_ends_with?: InputMaybe<Scalars['String']>;
+  message_ends_with_nocase?: InputMaybe<Scalars['String']>;
+  message_not_ends_with?: InputMaybe<Scalars['String']>;
+  message_not_ends_with_nocase?: InputMaybe<Scalars['String']>;
+  message_?: InputMaybe<staginggoerli_OriginMessage_filter>;
   caller?: InputMaybe<Scalars['staginggoerli_Bytes']>;
   caller_not?: InputMaybe<Scalars['staginggoerli_Bytes']>;
   caller_in?: InputMaybe<Array<Scalars['staginggoerli_Bytes']>>;
@@ -905,7 +938,7 @@ export type staginggoerli_OriginTransfer_orderBy =
   | 'transactingAmount'
   | 'bridgedAsset'
   | 'bridgedAmount'
-  | 'messageHash'
+  | 'message'
   | 'caller'
   | 'transactionHash'
   | 'timestamp'

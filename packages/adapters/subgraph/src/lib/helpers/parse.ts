@@ -200,7 +200,7 @@ export const originMessage = (entity: any): OriginMessage => {
   if (!entity) {
     throw new NxtpError("Subgraph `OriginMessage` entity parser: OriginMessage entity is `undefined`.");
   }
-  for (const field of ["index", "leaf", "root", "message", "domain"]) {
+  for (const field of ["index", "leaf", "root", "message", "domain", "destinationDomain", "transferId"]) {
     if (!entity[field]) {
       throw new NxtpError("Subgraph `OriginMessage` entity parser: Message entity missing required field", {
         missingField: field,
@@ -212,6 +212,7 @@ export const originMessage = (entity: any): OriginMessage => {
   return {
     domain: entity.domain,
     destinationDomain: entity.destinationDomain,
+    transferId: entity.transferId,
     index: entity.index,
     leaf: entity.leaf,
     root: entity.root,

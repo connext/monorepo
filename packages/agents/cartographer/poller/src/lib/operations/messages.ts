@@ -25,6 +25,7 @@ export const retrieveOriginMessages = async () => {
         leaf: _message.leaf,
         originDomain: _message.domain,
         destinationDomain: _message.destinationDomain,
+        transferId: _message.transferId,
         origin: { index: _message.index, root: _message.root, message: _message.message },
       };
     });
