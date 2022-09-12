@@ -922,7 +922,7 @@ const _abi = [
               },
               {
                 internalType: "uint256",
-                name: "destinationMinOut",
+                name: "slippage",
                 type: "uint256",
               },
             ],
@@ -963,6 +963,11 @@ const _abi = [
           {
             internalType: "uint256",
             name: "nonce",
+            type: "uint256",
+          },
+          {
+            internalType: "uint256",
+            name: "normalizedIn",
             type: "uint256",
           },
           {
@@ -1117,7 +1122,7 @@ const _abi = [
           },
           {
             internalType: "uint256",
-            name: "destinationMinOut",
+            name: "slippage",
             type: "uint256",
           },
         ],
@@ -2231,7 +2236,7 @@ const _abi = [
           },
           {
             internalType: "uint256",
-            name: "destinationMinOut",
+            name: "slippage",
             type: "uint256",
           },
         ],
@@ -2321,7 +2326,7 @@ const _abi = [
           },
           {
             internalType: "uint256",
-            name: "destinationMinOut",
+            name: "slippage",
             type: "uint256",
           },
         ],
@@ -2938,7 +2943,7 @@ const _abi = [
               },
               {
                 internalType: "uint256",
-                name: "destinationMinOut",
+                name: "slippage",
                 type: "uint256",
               },
             ],
@@ -2954,11 +2959,6 @@ const _abi = [
           {
             internalType: "uint256",
             name: "amount",
-            type: "uint256",
-          },
-          {
-            internalType: "uint256",
-            name: "originMinOut",
             type: "uint256",
           },
         ],

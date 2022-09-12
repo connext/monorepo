@@ -46,7 +46,7 @@ export type CallParamsStruct = {
   agent: PromiseOrValue<string>;
   recovery: PromiseOrValue<string>;
   receiveLocal: PromiseOrValue<boolean>;
-  destinationMinOut: PromiseOrValue<BigNumberish>;
+  slippage: PromiseOrValue<BigNumberish>;
 };
 
 export type CallParamsStructOutput = [
@@ -66,7 +66,7 @@ export type CallParamsStructOutput = [
   agent: string;
   recovery: string;
   receiveLocal: boolean;
-  destinationMinOut: BigNumber;
+  slippage: BigNumber;
 };
 
 export type ExecuteArgsStruct = {
@@ -78,6 +78,7 @@ export type ExecuteArgsStruct = {
   sequencerSignature: PromiseOrValue<BytesLike>;
   amount: PromiseOrValue<BigNumberish>;
   nonce: PromiseOrValue<BigNumberish>;
+  normalizedIn: PromiseOrValue<BigNumberish>;
   originSender: PromiseOrValue<string>;
 };
 
@@ -90,6 +91,7 @@ export type ExecuteArgsStructOutput = [
   string,
   BigNumber,
   BigNumber,
+  BigNumber,
   string
 ] & {
   params: CallParamsStructOutput;
@@ -100,6 +102,7 @@ export type ExecuteArgsStructOutput = [
   sequencerSignature: string;
   amount: BigNumber;
   nonce: BigNumber;
+  normalizedIn: BigNumber;
   originSender: string;
 };
 
@@ -110,7 +113,7 @@ export type UserFacingCallParamsStruct = {
   agent: PromiseOrValue<string>;
   recovery: PromiseOrValue<string>;
   receiveLocal: PromiseOrValue<boolean>;
-  destinationMinOut: PromiseOrValue<BigNumberish>;
+  slippage: PromiseOrValue<BigNumberish>;
 };
 
 export type UserFacingCallParamsStructOutput = [
@@ -128,26 +131,23 @@ export type UserFacingCallParamsStructOutput = [
   agent: string;
   recovery: string;
   receiveLocal: boolean;
-  destinationMinOut: BigNumber;
+  slippage: BigNumber;
 };
 
 export type XCallArgsStruct = {
   params: UserFacingCallParamsStruct;
   asset: PromiseOrValue<string>;
   amount: PromiseOrValue<BigNumberish>;
-  originMinOut: PromiseOrValue<BigNumberish>;
 };
 
 export type XCallArgsStructOutput = [
   UserFacingCallParamsStructOutput,
   string,
-  BigNumber,
   BigNumber
 ] & {
   params: UserFacingCallParamsStructOutput;
   asset: string;
   amount: BigNumber;
-  originMinOut: BigNumber;
 };
 
 export declare namespace IDiamondCut {
@@ -260,7 +260,7 @@ export interface IConnextHandlerInterface extends utils.Interface {
     "delay()": FunctionFragment;
     "diamondCut((address,uint8,bytes4[])[],address,bytes)": FunctionFragment;
     "domain()": FunctionFragment;
-    "execute(((address,bytes,uint32,uint32,address,address,bool,uint256),address,address[],bytes[],address,bytes,uint256,uint256,address))": FunctionFragment;
+    "execute(((address,bytes,uint32,uint32,address,address,bool,uint256),address,address[],bytes[],address,bytes,uint256,uint256,uint256,address))": FunctionFragment;
     "executor()": FunctionFragment;
     "facetAddress(bytes4)": FunctionFragment;
     "facetAddresses()": FunctionFragment;
@@ -345,7 +345,7 @@ export interface IConnextHandlerInterface extends utils.Interface {
     "unapproveRouterForPortal(address)": FunctionFragment;
     "unpause()": FunctionFragment;
     "withdrawSwapAdminFees(bytes32)": FunctionFragment;
-    "xcall(((address,bytes,uint32,address,address,bool,uint256),address,uint256,uint256))": FunctionFragment;
+    "xcall(((address,bytes,uint32,address,address,bool,uint256),address,uint256))": FunctionFragment;
   };
 
   getFunction(

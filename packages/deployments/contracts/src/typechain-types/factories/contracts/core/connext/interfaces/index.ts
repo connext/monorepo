@@ -12,7 +12,6 @@ export { IERC20Extended__factory } from "./IERC20Extended__factory";
 export { IExecutor__factory } from "./IExecutor__factory";
 export { IGasTokenOracle__factory } from "./IGasTokenOracle__factory";
 export { IPriceOracle__factory } from "./IPriceOracle__factory";
-export { ISponsorVault__factory } from "./ISponsorVault__factory";
 export { IStableSwap__factory } from "./IStableSwap__factory";
 export { ITokenExchange__factory } from "./ITokenExchange__factory";
 export { ITokenRegistry__factory } from "./ITokenRegistry__factory";

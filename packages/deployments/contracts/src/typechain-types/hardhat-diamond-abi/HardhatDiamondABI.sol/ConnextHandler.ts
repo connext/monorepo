@@ -46,7 +46,7 @@ export type CallParamsStruct = {
   agent: PromiseOrValue<string>;
   recovery: PromiseOrValue<string>;
   receiveLocal: PromiseOrValue<boolean>;
-  destinationMinOut: PromiseOrValue<BigNumberish>;
+  slippage: PromiseOrValue<BigNumberish>;
 };
 
 export type CallParamsStructOutput = [
@@ -66,7 +66,7 @@ export type CallParamsStructOutput = [
   agent: string;
   recovery: string;
   receiveLocal: boolean;
-  destinationMinOut: BigNumber;
+  slippage: BigNumber;
 };
 
 export type ExecuteArgsStruct = {
@@ -78,6 +78,7 @@ export type ExecuteArgsStruct = {
   sequencerSignature: PromiseOrValue<BytesLike>;
   amount: PromiseOrValue<BigNumberish>;
   nonce: PromiseOrValue<BigNumberish>;
+  normalizedIn: PromiseOrValue<BigNumberish>;
   originSender: PromiseOrValue<string>;
 };
 
@@ -90,6 +91,7 @@ export type ExecuteArgsStructOutput = [
   string,
   BigNumber,
   BigNumber,
+  BigNumber,
   string
 ] & {
   params: CallParamsStructOutput;
@@ -100,6 +102,7 @@ export type ExecuteArgsStructOutput = [
   sequencerSignature: string;
   amount: BigNumber;
   nonce: BigNumber;
+  normalizedIn: BigNumber;
   originSender: string;
 };
 
@@ -110,7 +113,7 @@ export type UserFacingCallParamsStruct = {
   agent: PromiseOrValue<string>;
   recovery: PromiseOrValue<string>;
   receiveLocal: PromiseOrValue<boolean>;
-  destinationMinOut: PromiseOrValue<BigNumberish>;
+  slippage: PromiseOrValue<BigNumberish>;
 };
 
 export type UserFacingCallParamsStructOutput = [
@@ -128,26 +131,48 @@ export type UserFacingCallParamsStructOutput = [
   agent: string;
   recovery: string;
   receiveLocal: boolean;
-  destinationMinOut: BigNumber;
+  slippage: BigNumber;
 };
 
 export type XCallArgsStruct = {
   params: UserFacingCallParamsStruct;
   asset: PromiseOrValue<string>;
   amount: PromiseOrValue<BigNumberish>;
-  originMinOut: PromiseOrValue<BigNumberish>;
 };
 
 export type XCallArgsStructOutput = [
   UserFacingCallParamsStructOutput,
   string,
-  BigNumber,
   BigNumber
 ] & {
   params: UserFacingCallParamsStructOutput;
   asset: string;
   amount: BigNumber;
-  originMinOut: BigNumber;
+};
+
+export type TransferIdGenerationInformationStruct = {
+  originSender: PromiseOrValue<string>;
+  bridgedAmt: PromiseOrValue<BigNumberish>;
+  normalizedIn: PromiseOrValue<BigNumberish>;
+  nonce: PromiseOrValue<BigNumberish>;
+  canonicalId: PromiseOrValue<BytesLike>;
+  canonicalDomain: PromiseOrValue<BigNumberish>;
+};
+
+export type TransferIdGenerationInformationStructOutput = [
+  string,
+  BigNumber,
+  BigNumber,
+  BigNumber,
+  string,
+  number
+] & {
+  originSender: string;
+  bridgedAmt: BigNumber;
+  normalizedIn: BigNumber;
+  nonce: BigNumber;
+  canonicalId: string;
+  canonicalDomain: number;
 };
 
 export declare namespace IDiamondCut {
@@ -243,16 +268,16 @@ export interface ConnextHandlerInterface extends utils.Interface {
     "bumpTransfer(bytes32)": FunctionFragment;
     "connextion(uint32)": FunctionFragment;
     "domain()": FunctionFragment;
-    "execute(((address,bytes,uint32,uint32,address,address,bool,uint256),address,address[],bytes[],address,bytes,uint256,uint256,address))": FunctionFragment;
+    "execute(((address,bytes,uint32,uint32,address,address,bool,uint256),address,address[],bytes[],address,bytes,uint256,uint256,uint256,address))": FunctionFragment;
     "executor()": FunctionFragment;
-    "forceReceiveLocal((address,bytes,uint32,uint32,address,address,bool,uint256),uint256,uint256,bytes32,uint32,address)": FunctionFragment;
+    "forceReceiveLocal((address,bytes,uint32,uint32,address,address,bool,uint256),uint256,uint256,uint256,bytes32,uint32,address)": FunctionFragment;
     "nonce()": FunctionFragment;
     "reconciledTransfers(bytes32)": FunctionFragment;
     "relayerFees(bytes32)": FunctionFragment;
     "removeSequencer(address)": FunctionFragment;
     "routedTransfers(bytes32)": FunctionFragment;
     "setExecutor(address)": FunctionFragment;
-    "xcall(((address,bytes,uint32,address,address,bool,uint256),address,uint256,uint256))": FunctionFragment;
+    "xcall(((address,bytes,uint32,address,address,bool,uint256),address,uint256))": FunctionFragment;
     "diamondCut((address,uint8,bytes4[])[],address,bytes)": FunctionFragment;
     "getAcceptanceTime((address,uint8,bytes4[])[],address,bytes)": FunctionFragment;
     "proposeDiamondCut((address,uint8,bytes4[])[],address,bytes)": FunctionFragment;
@@ -269,8 +294,8 @@ export interface ConnextHandlerInterface extends utils.Interface {
     "aavePortalFee()": FunctionFragment;
     "getAavePortalDebt(bytes32)": FunctionFragment;
     "getAavePortalFeeDebt(bytes32)": FunctionFragment;
-    "repayAavePortal((address,bytes,uint32,uint32,address,address,bool,uint256),address,address,uint256,uint256,uint256,uint256,uint256)": FunctionFragment;
-    "repayAavePortalFor((address,bytes,uint32,uint32,address,address,bool,uint256),address,address,uint256,uint256,uint256,uint256)": FunctionFragment;
+    "repayAavePortal((address,bytes,uint32,uint32,address,address,bool,uint256),(address,uint256,uint256,uint256,bytes32,uint32),uint256,uint256,uint256)": FunctionFragment;
+    "repayAavePortalFor((address,bytes,uint32,uint32,address,address,bool,uint256),address,address,uint256,uint256,uint256,uint256,uint256)": FunctionFragment;
     "setAavePool(address)": FunctionFragment;
     "setAavePortalFee(uint256)": FunctionFragment;
     "acceptProposedOwner()": FunctionFragment;
@@ -555,6 +580,7 @@ export interface ConnextHandlerInterface extends utils.Interface {
       CallParamsStruct,
       PromiseOrValue<BigNumberish>,
       PromiseOrValue<BigNumberish>,
+      PromiseOrValue<BigNumberish>,
       PromiseOrValue<BytesLike>,
       PromiseOrValue<BigNumberish>,
       PromiseOrValue<string>
@@ -671,10 +697,7 @@ export interface ConnextHandlerInterface extends utils.Interface {
     functionFragment: "repayAavePortal",
     values: [
       CallParamsStruct,
-      PromiseOrValue<string>,
-      PromiseOrValue<string>,
-      PromiseOrValue<BigNumberish>,
-      PromiseOrValue<BigNumberish>,
+      TransferIdGenerationInformationStruct,
       PromiseOrValue<BigNumberish>,
       PromiseOrValue<BigNumberish>,
       PromiseOrValue<BigNumberish>
@@ -686,6 +709,7 @@ export interface ConnextHandlerInterface extends utils.Interface {
       CallParamsStruct,
       PromiseOrValue<string>,
       PromiseOrValue<string>,
+      PromiseOrValue<BigNumberish>,
       PromiseOrValue<BigNumberish>,
       PromiseOrValue<BigNumberish>,
       PromiseOrValue<BigNumberish>,
@@ -2208,6 +2232,7 @@ export interface ConnextHandler extends BaseContract {
     forceReceiveLocal(
       _params: CallParamsStruct,
       _amount: PromiseOrValue<BigNumberish>,
+      _normalizedIn: PromiseOrValue<BigNumberish>,
       _nonce: PromiseOrValue<BigNumberish>,
       _canonicalId: PromiseOrValue<BytesLike>,
       _canonicalDomain: PromiseOrValue<BigNumberish>,
@@ -2307,8 +2332,8 @@ export interface ConnextHandler extends BaseContract {
     onReceive(
       _origin: PromiseOrValue<BigNumberish>,
       _sender: PromiseOrValue<BytesLike>,
-      _tokenDomain: PromiseOrValue<BigNumberish>,
-      _tokenAddress: PromiseOrValue<BytesLike>,
+      arg2: PromiseOrValue<BigNumberish>,
+      arg3: PromiseOrValue<BytesLike>,
       _localToken: PromiseOrValue<string>,
       _amount: PromiseOrValue<BigNumberish>,
       _extraData: PromiseOrValue<BytesLike>,
@@ -2336,10 +2361,7 @@ export interface ConnextHandler extends BaseContract {
 
     repayAavePortal(
       _params: CallParamsStruct,
-      _local: PromiseOrValue<string>,
-      _originSender: PromiseOrValue<string>,
-      _bridgedAmt: PromiseOrValue<BigNumberish>,
-      _nonce: PromiseOrValue<BigNumberish>,
+      _idInfo: TransferIdGenerationInformationStruct,
       _backingAmount: PromiseOrValue<BigNumberish>,
       _feeAmount: PromiseOrValue<BigNumberish>,
       _maxIn: PromiseOrValue<BigNumberish>,
@@ -2350,6 +2372,7 @@ export interface ConnextHandler extends BaseContract {
       _params: CallParamsStruct,
       _adopted: PromiseOrValue<string>,
       _originSender: PromiseOrValue<string>,
+      _normalizedIn: PromiseOrValue<BigNumberish>,
       _bridgedAmt: PromiseOrValue<BigNumberish>,
       _nonce: PromiseOrValue<BigNumberish>,
       _backingAmount: PromiseOrValue<BigNumberish>,
@@ -2829,6 +2852,7 @@ export interface ConnextHandler extends BaseContract {
   forceReceiveLocal(
     _params: CallParamsStruct,
     _amount: PromiseOrValue<BigNumberish>,
+    _normalizedIn: PromiseOrValue<BigNumberish>,
     _nonce: PromiseOrValue<BigNumberish>,
     _canonicalId: PromiseOrValue<BytesLike>,
     _canonicalDomain: PromiseOrValue<BigNumberish>,
@@ -2920,8 +2944,8 @@ export interface ConnextHandler extends BaseContract {
   onReceive(
     _origin: PromiseOrValue<BigNumberish>,
     _sender: PromiseOrValue<BytesLike>,
-    _tokenDomain: PromiseOrValue<BigNumberish>,
-    _tokenAddress: PromiseOrValue<BytesLike>,
+    arg2: PromiseOrValue<BigNumberish>,
+    arg3: PromiseOrValue<BytesLike>,
     _localToken: PromiseOrValue<string>,
     _amount: PromiseOrValue<BigNumberish>,
     _extraData: PromiseOrValue<BytesLike>,
@@ -2949,10 +2973,7 @@ export interface ConnextHandler extends BaseContract {
 
   repayAavePortal(
     _params: CallParamsStruct,
-    _local: PromiseOrValue<string>,
-    _originSender: PromiseOrValue<string>,
-    _bridgedAmt: PromiseOrValue<BigNumberish>,
-    _nonce: PromiseOrValue<BigNumberish>,
+    _idInfo: TransferIdGenerationInformationStruct,
     _backingAmount: PromiseOrValue<BigNumberish>,
     _feeAmount: PromiseOrValue<BigNumberish>,
     _maxIn: PromiseOrValue<BigNumberish>,
@@ -2963,6 +2984,7 @@ export interface ConnextHandler extends BaseContract {
     _params: CallParamsStruct,
     _adopted: PromiseOrValue<string>,
     _originSender: PromiseOrValue<string>,
+    _normalizedIn: PromiseOrValue<BigNumberish>,
     _bridgedAmt: PromiseOrValue<BigNumberish>,
     _nonce: PromiseOrValue<BigNumberish>,
     _backingAmount: PromiseOrValue<BigNumberish>,
@@ -3442,6 +3464,7 @@ export interface ConnextHandler extends BaseContract {
     forceReceiveLocal(
       _params: CallParamsStruct,
       _amount: PromiseOrValue<BigNumberish>,
+      _normalizedIn: PromiseOrValue<BigNumberish>,
       _nonce: PromiseOrValue<BigNumberish>,
       _canonicalId: PromiseOrValue<BytesLike>,
       _canonicalDomain: PromiseOrValue<BigNumberish>,
@@ -3532,8 +3555,8 @@ export interface ConnextHandler extends BaseContract {
     onReceive(
       _origin: PromiseOrValue<BigNumberish>,
       _sender: PromiseOrValue<BytesLike>,
-      _tokenDomain: PromiseOrValue<BigNumberish>,
-      _tokenAddress: PromiseOrValue<BytesLike>,
+      arg2: PromiseOrValue<BigNumberish>,
+      arg3: PromiseOrValue<BytesLike>,
       _localToken: PromiseOrValue<string>,
       _amount: PromiseOrValue<BigNumberish>,
       _extraData: PromiseOrValue<BytesLike>,
@@ -3561,10 +3584,7 @@ export interface ConnextHandler extends BaseContract {
 
     repayAavePortal(
       _params: CallParamsStruct,
-      _local: PromiseOrValue<string>,
-      _originSender: PromiseOrValue<string>,
-      _bridgedAmt: PromiseOrValue<BigNumberish>,
-      _nonce: PromiseOrValue<BigNumberish>,
+      _idInfo: TransferIdGenerationInformationStruct,
       _backingAmount: PromiseOrValue<BigNumberish>,
       _feeAmount: PromiseOrValue<BigNumberish>,
       _maxIn: PromiseOrValue<BigNumberish>,
@@ -3575,6 +3595,7 @@ export interface ConnextHandler extends BaseContract {
       _params: CallParamsStruct,
       _adopted: PromiseOrValue<string>,
       _originSender: PromiseOrValue<string>,
+      _normalizedIn: PromiseOrValue<BigNumberish>,
       _bridgedAmt: PromiseOrValue<BigNumberish>,
       _nonce: PromiseOrValue<BigNumberish>,
       _backingAmount: PromiseOrValue<BigNumberish>,
@@ -4489,6 +4510,7 @@ export interface ConnextHandler extends BaseContract {
     forceReceiveLocal(
       _params: CallParamsStruct,
       _amount: PromiseOrValue<BigNumberish>,
+      _normalizedIn: PromiseOrValue<BigNumberish>,
       _nonce: PromiseOrValue<BigNumberish>,
       _canonicalId: PromiseOrValue<BytesLike>,
       _canonicalDomain: PromiseOrValue<BigNumberish>,
@@ -4580,8 +4602,8 @@ export interface ConnextHandler extends BaseContract {
     onReceive(
       _origin: PromiseOrValue<BigNumberish>,
       _sender: PromiseOrValue<BytesLike>,
-      _tokenDomain: PromiseOrValue<BigNumberish>,
-      _tokenAddress: PromiseOrValue<BytesLike>,
+      arg2: PromiseOrValue<BigNumberish>,
+      arg3: PromiseOrValue<BytesLike>,
       _localToken: PromiseOrValue<string>,
       _amount: PromiseOrValue<BigNumberish>,
       _extraData: PromiseOrValue<BytesLike>,
@@ -4609,10 +4631,7 @@ export interface ConnextHandler extends BaseContract {
 
     repayAavePortal(
       _params: CallParamsStruct,
-      _local: PromiseOrValue<string>,
-      _originSender: PromiseOrValue<string>,
-      _bridgedAmt: PromiseOrValue<BigNumberish>,
-      _nonce: PromiseOrValue<BigNumberish>,
+      _idInfo: TransferIdGenerationInformationStruct,
       _backingAmount: PromiseOrValue<BigNumberish>,
       _feeAmount: PromiseOrValue<BigNumberish>,
       _maxIn: PromiseOrValue<BigNumberish>,
@@ -4623,6 +4642,7 @@ export interface ConnextHandler extends BaseContract {
       _params: CallParamsStruct,
       _adopted: PromiseOrValue<string>,
       _originSender: PromiseOrValue<string>,
+      _normalizedIn: PromiseOrValue<BigNumberish>,
       _bridgedAmt: PromiseOrValue<BigNumberish>,
       _nonce: PromiseOrValue<BigNumberish>,
       _backingAmount: PromiseOrValue<BigNumberish>,
@@ -5105,6 +5125,7 @@ export interface ConnextHandler extends BaseContract {
     forceReceiveLocal(
       _params: CallParamsStruct,
       _amount: PromiseOrValue<BigNumberish>,
+      _normalizedIn: PromiseOrValue<BigNumberish>,
       _nonce: PromiseOrValue<BigNumberish>,
       _canonicalId: PromiseOrValue<BytesLike>,
       _canonicalDomain: PromiseOrValue<BigNumberish>,
@@ -5196,8 +5217,8 @@ export interface ConnextHandler extends BaseContract {
     onReceive(
       _origin: PromiseOrValue<BigNumberish>,
       _sender: PromiseOrValue<BytesLike>,
-      _tokenDomain: PromiseOrValue<BigNumberish>,
-      _tokenAddress: PromiseOrValue<BytesLike>,
+      arg2: PromiseOrValue<BigNumberish>,
+      arg3: PromiseOrValue<BytesLike>,
       _localToken: PromiseOrValue<string>,
       _amount: PromiseOrValue<BigNumberish>,
       _extraData: PromiseOrValue<BytesLike>,
@@ -5225,10 +5246,7 @@ export interface ConnextHandler extends BaseContract {
 
     repayAavePortal(
       _params: CallParamsStruct,
-      _local: PromiseOrValue<string>,
-      _originSender: PromiseOrValue<string>,
-      _bridgedAmt: PromiseOrValue<BigNumberish>,
-      _nonce: PromiseOrValue<BigNumberish>,
+      _idInfo: TransferIdGenerationInformationStruct,
       _backingAmount: PromiseOrValue<BigNumberish>,
       _feeAmount: PromiseOrValue<BigNumberish>,
       _maxIn: PromiseOrValue<BigNumberish>,
@@ -5239,6 +5257,7 @@ export interface ConnextHandler extends BaseContract {
       _params: CallParamsStruct,
       _adopted: PromiseOrValue<string>,
       _originSender: PromiseOrValue<string>,
+      _normalizedIn: PromiseOrValue<BigNumberish>,
       _bridgedAmt: PromiseOrValue<BigNumberish>,
       _nonce: PromiseOrValue<BigNumberish>,
       _backingAmount: PromiseOrValue<BigNumberish>,

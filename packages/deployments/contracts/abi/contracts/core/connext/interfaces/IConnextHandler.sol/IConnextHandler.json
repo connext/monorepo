@@ -39,7 +39,7 @@
   "function delay() view returns (uint256)",
   "function diamondCut(tuple(address,uint8,bytes4[])[],address,bytes)",
   "function domain() view returns (uint256)",
-  "function execute(tuple(tuple(address,bytes,uint32,uint32,address,address,bool,uint256),address,address[],bytes[],address,bytes,uint256,uint256,address)) returns (bytes32)",
+  "function execute(tuple(tuple(address,bytes,uint32,uint32,address,address,bool,uint256),address,address[],bytes[],address,bytes,uint256,uint256,uint256,address)) returns (bytes32)",
   "function executor() view returns (address)",
   "function facetAddress(bytes4) view returns (address)",
   "function facetAddresses() view returns (address[])",
@@ -124,5 +124,5 @@
   "function unapproveRouterForPortal(address)",
   "function unpause()",
   "function withdrawSwapAdminFees(bytes32)",
-  "function xcall(tuple(tuple(address,bytes,uint32,address,address,bool,uint256),address,uint256,uint256)) payable returns (bytes32)"
+  "function xcall(tuple(tuple(address,bytes,uint32,address,address,bool,uint256),address,uint256)) payable returns (bytes32)"
 ]
