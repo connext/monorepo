@@ -66,7 +66,7 @@ export default task("add-connectors", "Add all connectors to the root manager")
         console.log(`trying to enroll connector for ${domain} (${chain})`);
 
         let stored = await rootManager.connectors(domain);
-        if (stored === address.toLowerCase()) {
+        if (stored.toLowerCase() === address.toLowerCase()) {
           console.log(`${name} already registered for ${domain}: ${address}`);
           return;
         }
