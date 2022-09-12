@@ -34,14 +34,20 @@ export const getProtocolNetwork = (_chain: string | number, _env?: string): "mai
       "local";
 };
 
-export const getConnectorName = (config: MessagingProtocolConfig, chainId: number): string => {
-  const naming = config.configs[chainId];
+export const getConnectorName = (
+  config: MessagingProtocolConfig,
+  connectorChainId: number,
+  deployChainId?: number | undefined,
+): string => {
+  deployChainId = deployChainId ?? connectorChainId;
+
+  const naming = config.configs[connectorChainId];
   if (!naming) {
-    throw new Error(`Could not find ${chainId} in config`);
+    throw new Error(`Could not find ${connectorChainId} in config`);
   }
   // Only spoke connectors deployed for mainnet contracts
   return `${naming.prefix}${
-    config.hub === chainId && !naming.prefix.includes("Mainnet") ? HUB_PREFIX : SPOKE_PREFIX
+    config.hub === deployChainId && !naming.prefix.includes("Mainnet") ? HUB_PREFIX : SPOKE_PREFIX
   }Connector`;
 };
 
@@ -115,7 +121,7 @@ export const getConnectorDeployments = (env: Env): ConnectorDeployment[] => {
       return;
     }
     // When not on the hub, there will be a name for both the hub and spoke side connectors
-    const hubName = getDeploymentName(getConnectorName(protocol, protocol.hub));
+    const hubName = getDeploymentName(getConnectorName(protocol, chainId, protocol.hub));
     const spokeName = getDeploymentName(getConnectorName(protocol, chainId));
     connectors.push({
       chain: protocol.hub,
