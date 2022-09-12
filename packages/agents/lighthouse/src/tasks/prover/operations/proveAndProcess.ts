@@ -31,6 +31,7 @@ export const processMessage = async (message: XMessage) => {
     logger,
     adapters: { contracts, relayer },
     config,
+    chainData,
   } = getContext();
   const { requestContext, methodContext } = createLoggingContext("processUnprocessedMessage");
 
@@ -48,6 +49,7 @@ export const processMessage = async (message: XMessage) => {
     data,
     destinationSpokeConnector,
   });
-  const taskId = await relayer.send(+message.destinationDomain, destinationSpokeConnector, data);
+  const chainId = chainData.get(message.destinationDomain)!.chainId;
+  const taskId = await relayer.send(chainId, destinationSpokeConnector, data);
   logger.info("Proved and processed message sent to relayer", requestContext, methodContext, { taskId });
 };
