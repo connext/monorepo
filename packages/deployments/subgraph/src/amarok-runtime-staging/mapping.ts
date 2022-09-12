@@ -257,7 +257,12 @@ export function handleXCalled(event: XCalled): void {
   transfer.bridgedAmount = event.params.bridgedAmount;
 
   // Message
-  transfer.messageHash = event.params.messageHash;
+  let message = OriginMessage.load(event.params.messageHash.toHex());
+  if (message == null) {
+    message = new OriginMessage(event.params.messageHash.toHex());
+    message.save();
+  }
+  transfer.message = message.id;
 
   // XCall Transaction
   transfer.caller = event.params.caller;
