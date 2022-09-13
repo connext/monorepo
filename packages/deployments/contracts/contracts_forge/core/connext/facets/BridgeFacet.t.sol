@@ -74,7 +74,7 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
       _originDomain, // origin domain
       _destinationDomain, // destination domain
       _agent, // agent
-      false, // receiveLocal
+      _receiveLocal, // receiveLocal
       1000 // slippage
     );
 
@@ -302,8 +302,10 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
       transferId,
       s.nonce,
       MockBridgeRouter(_bridgeRouter).MESSAGE_HASH(),
-      args,
+      _params,
+      args.asset,
       bridged,
+      args.amount,
       bridgedAmt,
       _originSender
     );
@@ -396,7 +398,9 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
     }
 
     vm.prank(_originSender);
-    bytes32 ret = this.xcall{value: _relayerFee}(args);
+    bytes32 ret = _params.receiveLocal
+      ? this.xcallIntoBridgeAsset{value: _relayerFee}(args)
+      : this.xcall{value: _relayerFee}(args);
 
     if (shouldSucceed) {
       assertEq(ret, transferId);
@@ -994,6 +998,13 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
     helpers_xcallAndAssert(bridged, true);
   }
 
+  function test_BridgeFacet_xcallIntoBridgeAsset_works() public {
+    uint256 bridged = (_amount * 9995) / _liquidityFeeDenominator;
+    utils_setupAsset(false, false);
+    _receiveLocal = true;
+    helpers_xcallAndAssert(bridged, true);
+  }
+
   // local token transfer on non-canonical domain, local != adopted, send in local
   // (i.e. i should be able to xcall with madEth on optimism)
   function test_BridgeFacet__xcall_localTokenTransferWorksWhenNotAdopted() public {
@@ -1051,12 +1062,6 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
   function test_BridgeFacet__xcall_zeroRelayerFeeWorks() public {
     _relayerFee = 0;
     helpers_xcallAndAssert(_amount, false);
-  }
-
-  // FIXME: move to BaseConnextFacet.t.sol
-  // works if swap isnt required and swaps are paused
-  function test_BridgeFacet__xcall_worksIfNoSwapAndSwapPaused() public {
-    // require(false, "not tested");
   }
 
   // ============ execute ============

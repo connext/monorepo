@@ -59,8 +59,10 @@ contract ConnextTest is ForgeHelper, Deployer {
     bytes32 indexed transferId,
     uint256 indexed nonce,
     bytes32 indexed messageHash,
-    XCallArgs xcallArgs,
+    CallParams params,
+    address asset,
     address bridgedAsset,
+    uint256 amount,
     uint256 bridgedAmount,
     address caller
   );
@@ -442,8 +444,10 @@ contract ConnextTest is ForgeHelper, Deployer {
       transferId,
       nonce,
       MockBridgeRouter(_originBridgeRouter).MESSAGE_HASH(),
-      _args,
+      utils_getCallParams(_args.params),
+      _args.asset,
       _bridged,
+      _args.amount,
       _bridgedAmt,
       address(this)
     );
