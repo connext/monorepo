@@ -1,5 +1,21 @@
 [
   {
+    "subgraphName": "connext/nxtp-amarok-runtime-v0-goerli",
+    "network": "goerli",
+    "source": [
+      {
+        "name": "ConnextHandler",
+        "address": "0xD9e8b18Db316d7736A3d0386C59CA3332810df3B",
+        "startBlock": 7562303
+      },
+      {
+        "name": "Connector",
+        "address": "0xaBf979F6B6BC504eA342d52cf7a4c37c179aB2b5",
+        "startBlock": 7505717
+      }
+    ]
+  },
+  {
     "subgraphName": "connext/amarok-runtime-v0-opt-goerli",
     "network": "optimism-goerli",
     "source": [
@@ -16,18 +32,18 @@
     ]
   },
   {
-    "subgraphName": "connext/nxtp-amarok-runtime-v0-goerli",
-    "network": "goerli",
+    "subgraphName": "connext/nxtp-amarok-runtime-v0-mumbai",
+    "network": "mumbai",
     "source": [
       {
         "name": "ConnextHandler",
-        "address": "0xD9e8b18Db316d7736A3d0386C59CA3332810df3B",
-        "startBlock": 7562303
+        "address": "0xfdA9C9aE45866D12E5008912318bf3c34fc30912",
+        "startBlock": 28067919
       },
       {
         "name": "Connector",
-        "address": "0xaBf979F6B6BC504eA342d52cf7a4c37c179aB2b5",
-        "startBlock": 7505717
+        "address": "0x11734ac77588a8bA03b079d99d889d7fA1cCAab8",
+        "startBlock": 28073255
       }
     ]
   }
