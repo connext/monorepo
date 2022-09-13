@@ -104,7 +104,6 @@ export type UserFacingCallParamsStruct = {
   callData: PromiseOrValue<BytesLike>;
   destinationDomain: PromiseOrValue<BigNumberish>;
   agent: PromiseOrValue<string>;
-  recovery: PromiseOrValue<string>;
   receiveLocal: PromiseOrValue<boolean>;
   callback: PromiseOrValue<string>;
   callbackFee: PromiseOrValue<BigNumberish>;
@@ -117,7 +116,6 @@ export type UserFacingCallParamsStructOutput = [
   string,
   number,
   string,
-  string,
   boolean,
   string,
   BigNumber,
@@ -128,7 +126,6 @@ export type UserFacingCallParamsStructOutput = [
   callData: string;
   destinationDomain: number;
   agent: string;
-  recovery: string;
   receiveLocal: boolean;
   callback: string;
   callbackFee: BigNumber;
@@ -175,7 +172,7 @@ export interface BridgeFacetInterface extends utils.Interface {
     "setPromiseRouter(address)": FunctionFragment;
     "setSponsorVault(address)": FunctionFragment;
     "sponsorVault()": FunctionFragment;
-    "xcall(((address,bytes,uint32,address,address,bool,address,uint256,uint256,uint256),address,uint256,uint256))": FunctionFragment;
+    "xcall(((address,bytes,uint32,address,bool,address,uint256,uint256,uint256),address,uint256,uint256))": FunctionFragment;
   };
 
   getFunction(

@@ -2993,11 +2993,6 @@ const _abi = [
                 type: "address",
               },
               {
-                internalType: "address",
-                name: "recovery",
-                type: "address",
-              },
-              {
                 internalType: "bool",
                 name: "receiveLocal",
                 type: "bool",
