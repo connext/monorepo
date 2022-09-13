@@ -1066,81 +1066,6 @@ const _abi = [
   {
     inputs: [
       {
-        components: [
-          {
-            internalType: "address",
-            name: "to",
-            type: "address",
-          },
-          {
-            internalType: "bytes",
-            name: "callData",
-            type: "bytes",
-          },
-          {
-            internalType: "uint32",
-            name: "originDomain",
-            type: "uint32",
-          },
-          {
-            internalType: "uint32",
-            name: "destinationDomain",
-            type: "uint32",
-          },
-          {
-            internalType: "address",
-            name: "agent",
-            type: "address",
-          },
-          {
-            internalType: "bool",
-            name: "receiveLocal",
-            type: "bool",
-          },
-          {
-            internalType: "uint256",
-            name: "slippage",
-            type: "uint256",
-          },
-        ],
-        internalType: "struct CallParams",
-        name: "_params",
-        type: "tuple",
-      },
-      {
-        internalType: "uint256",
-        name: "_amount",
-        type: "uint256",
-      },
-      {
-        internalType: "uint256",
-        name: "_nonce",
-        type: "uint256",
-      },
-      {
-        internalType: "bytes32",
-        name: "_canonicalId",
-        type: "bytes32",
-      },
-      {
-        internalType: "uint32",
-        name: "_canonicalDomain",
-        type: "uint32",
-      },
-      {
-        internalType: "address",
-        name: "_originSender",
-        type: "address",
-      },
-    ],
-    name: "forceReceiveLocal",
-    outputs: [],
-    stateMutability: "payable",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
         internalType: "bytes32",
         name: "_transferId",
         type: "bytes32",
@@ -2944,6 +2869,69 @@ const _abi = [
     stateMutability: "payable",
     type: "function",
   },
+  {
+    inputs: [
+      {
+        components: [
+          {
+            components: [
+              {
+                internalType: "address",
+                name: "to",
+                type: "address",
+              },
+              {
+                internalType: "bytes",
+                name: "callData",
+                type: "bytes",
+              },
+              {
+                internalType: "uint32",
+                name: "destinationDomain",
+                type: "uint32",
+              },
+              {
+                internalType: "address",
+                name: "agent",
+                type: "address",
+              },
+              {
+                internalType: "uint256",
+                name: "slippage",
+                type: "uint256",
+              },
+            ],
+            internalType: "struct UserFacingCallParams",
+            name: "params",
+            type: "tuple",
+          },
+          {
+            internalType: "address",
+            name: "asset",
+            type: "address",
+          },
+          {
+            internalType: "uint256",
+            name: "amount",
+            type: "uint256",
+          },
+        ],
+        internalType: "struct XCallArgs",
+        name: "_args",
+        type: "tuple",
+      },
+    ],
+    name: "xcallIntoBridgeAsset",
+    outputs: [
+      {
+        internalType: "bytes32",
+        name: "",
+        type: "bytes32",
+      },
+    ],
+    stateMutability: "payable",
+    type: "function",
+  },
 ];
 
 export class IConnextHandler__factory {
@@ -2951,7 +2939,10 @@ export class IConnextHandler__factory {
   static createInterface(): IConnextHandlerInterface {
     return new utils.Interface(_abi) as IConnextHandlerInterface;
   }
-  static connect(address: string, signerOrProvider: Signer | Provider): IConnextHandler {
+  static connect(
+    address: string,
+    signerOrProvider: Signer | Provider
+  ): IConnextHandler {
     return new Contract(address, _abi, signerOrProvider) as IConnextHandler;
   }
 }
