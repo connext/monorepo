@@ -11,22 +11,18 @@ import {ITokenRegistry} from "../../../../contracts/core/connext/interfaces/ITok
 import "../../../utils/FacetHelper.sol";
 import "../../../utils/Mock.sol";
 
-
 // Helper to call library with native value functions
 contract LibCaller {
   constructor() {
     AppStorage storage s = LibConnextStorage.connextStorage();
   }
 
-  function handleIncomingAsset(
-    address _assetId,
-    uint256 _assetAmount
-  ) public payable {
+  function handleIncomingAsset(address _assetId, uint256 _assetAmount) public payable {
     AssetLogic.handleIncomingAsset(_assetId, _assetAmount);
   }
 
   function deposit(IWeth wrapper) public payable {
-    wrapper.deposit{ value: msg.value }();
+    wrapper.deposit{value: msg.value}();
   }
 
   function transferAssetToContract(address _assetId, uint256 _amount) public {
@@ -59,39 +55,42 @@ contract AssetLogicTest is BaseConnextFacet, FacetHelper {
     uint256[] memory _tokenPrecisionMultipliers = new uint256[](2);
     _tokenPrecisionMultipliers[0] = 1;
     _tokenPrecisionMultipliers[1] = 1;
-    uint256[] memory  _balances = new uint256[](2);
+    uint256[] memory _balances = new uint256[](2);
     _balances[0] = 100;
     _balances[1] = 100;
-    
+
     SwapUtils.Swap memory swap = SwapUtils.Swap({
-        key: _canonicalKey,
-        initialA : 0,
-        futureA : 0,
-        initialATime: 0,
-        futureATime: 0,
-        // fee calculations
-        swapFee : 0,
-        adminFee : 0,
-        lpToken: LPToken(address(100)),
-        // contract references for all tokens being pooled
-        pooledTokens: _pooledTokens,
-        // multipliers for each pooled token's precision to get to POOL_PRECISION_DECIMALS
-        // for example, TBTC has 18 decimals, so the multiplier should be 1. WBTC
-        // has 8, so the multiplier should be 10 ** 18 / 10 ** 8 => 10 ** 10
-        tokenPrecisionMultipliers: _tokenPrecisionMultipliers,
-        // the pool balance of each token, in the token's precision
-        // the contract's actual token balance might differ
-        balances: _balances,
-        adminFees:  new uint256[](2)
+      key: _canonicalKey,
+      initialA: 0,
+      futureA: 0,
+      initialATime: 0,
+      futureATime: 0,
+      // fee calculations
+      swapFee: 0,
+      adminFee: 0,
+      lpToken: LPToken(address(100)),
+      // contract references for all tokens being pooled
+      pooledTokens: _pooledTokens,
+      // multipliers for each pooled token's precision to get to POOL_PRECISION_DECIMALS
+      // for example, TBTC has 18 decimals, so the multiplier should be 1. WBTC
+      // has 8, so the multiplier should be 10 ** 18 / 10 ** 8 => 10 ** 10
+      tokenPrecisionMultipliers: _tokenPrecisionMultipliers,
+      // the pool balance of each token, in the token's precision
+      // the contract's actual token balance might differ
+      balances: _balances,
+      adminFees: new uint256[](2)
     });
 
     s.swapStorages[_canonicalKey] = swap;
     s.tokenIndexes[_canonicalKey][_adopted] = 0;
-    
   }
 
   // transfers specified asset to contract
-  function utils_handleIncomingAssetAndAssert(address assetId, uint256 amount, uint256 fee) public {
+  function utils_handleIncomingAssetAndAssert(
+    address assetId,
+    uint256 amount,
+    uint256 fee
+  ) public {
     // get initial balances
     uint256 initDestAssetBalance = IERC20(assetId).balanceOf(address(caller));
     uint256 initDestFeeBalance = address(caller).balance;
@@ -102,7 +101,7 @@ contract AssetLogicTest is BaseConnextFacet, FacetHelper {
     // approve
     IERC20(assetId).approve(address(caller), amount);
 
-    caller.handleIncomingAsset{ value: fee }(assetId, amount);
+    caller.handleIncomingAsset{value: fee}(assetId, amount);
 
     // caller balance always goes up in token
     assertEq(IERC20(assetId).balanceOf(address(caller)), initDestAssetBalance + amount);
@@ -113,7 +112,11 @@ contract AssetLogicTest is BaseConnextFacet, FacetHelper {
   }
 
   // transfers specified asset from contract
-  function utils_handleOutgoingAssetAndAssert(address assetId, address to, uint256 amount) public {
+  function utils_handleOutgoingAssetAndAssert(
+    address assetId,
+    address to,
+    uint256 amount
+  ) public {
     TestERC20(assetId).mint(address(this), 10 ether);
 
     // set expects
@@ -136,7 +139,13 @@ contract AssetLogicTest is BaseConnextFacet, FacetHelper {
   }
 
   // Sets up env to swap from local -> adopted using external pools only
-  function utils_swapFromLocalAndAssertViaExternal(address asset, uint256 amount, uint256 swapOut) internal {
+  function utils_swapFromLocalAndAssertViaExternal(
+    address asset,
+    uint256 amount,
+    uint256 swapOut,
+    uint256 slippage,
+    uint256 normalizedIn
+  ) internal {
     // set mock
     vm.mockCall(_stableSwap, abi.encodeWithSelector(IStableSwap.swapExact.selector), abi.encode(swapOut));
 
@@ -150,7 +159,7 @@ contract AssetLogicTest is BaseConnextFacet, FacetHelper {
 
     (uint32 domain, bytes32 canonicalId) = s.tokenRegistry.getTokenId(asset);
     bytes32 key = keccak256(abi.encode(canonicalId, domain));
-    (uint256 received, address out) = AssetLogic.swapFromLocalAssetIfNeeded(key, asset, amount, _liquidityFeeDenominator);
+    (uint256 received, address out) = AssetLogic.swapFromLocalAssetIfNeeded(key, asset, amount, slippage, normalizedIn);
     // assert return amount
     assertEq(received, willSwap ? swapOut : amount);
     // assert return asset
@@ -158,7 +167,12 @@ contract AssetLogicTest is BaseConnextFacet, FacetHelper {
   }
 
   // Sets up env to swap from local -> adopted using external pools only
-  function utils_swapToLocalAndAssertViaExternal(address asset, uint256 amount, uint256 swapOut) internal {
+  function utils_swapToLocalAndAssertViaExternal(
+    address asset,
+    uint256 amount,
+    uint256 swapOut,
+    uint256 slippage
+  ) internal {
     // set mock
     vm.mockCall(_stableSwap, abi.encodeWithSelector(IStableSwap.swapExact.selector), abi.encode(swapOut));
 
@@ -170,7 +184,12 @@ contract AssetLogicTest is BaseConnextFacet, FacetHelper {
       vm.expectCall(_stableSwap, abi.encodeWithSelector(IStableSwap.swapExact.selector, amount, _adopted, _local));
     }
 
-    (uint256 received, address out) = AssetLogic.swapToLocalAssetIfNeeded(TokenId(_canonicalDomain, _canonicalId), asset, amount, _liquidityFeeDenominator);
+    (uint256 received, address out) = AssetLogic.swapToLocalAssetIfNeeded(
+      TokenId(_canonicalDomain, _canonicalId),
+      asset,
+      amount,
+      slippage
+    );
     // assert return amount
     assertEq(received, willSwap ? swapOut : amount);
     // assert return asset
@@ -251,33 +270,33 @@ contract AssetLogicTest is BaseConnextFacet, FacetHelper {
 
   // doesnt swap
   function test_AssetLogic__swapToLocalAssetIfNeeded_worksIfZero() public {
-    utils_swapToLocalAndAssertViaExternal(_adopted, 0, 10000);
+    utils_swapToLocalAndAssertViaExternal(_adopted, 0, 10000, 1_000);
   }
 
   // does not swap if already local
   function test_AssetLogic__swapToLocalAssetIfNeeded_worksWithLocal() public {
-    utils_swapToLocalAndAssertViaExternal(_local, 1 ether, 0.9 ether);
+    utils_swapToLocalAndAssertViaExternal(_local, 1 ether, 0.9 ether, 1_000);
   }
 
   // works
   function test_AssetLogic__swapToLocalAssetIfNeeded_worksWithAdopted() public {
-    utils_swapToLocalAndAssertViaExternal(_adopted, 1 ether, 0.9 ether);
+    utils_swapToLocalAndAssertViaExternal(_adopted, 1 ether, 0.9 ether, 1_000);
   }
 
   // ============ swapFromLocalAssetIfNeeded ============
 
   // doesnt swap
   function test_AssetLogic__swapFromLocalAssetIfNeeded_worksIfZero() public {
-    utils_swapFromLocalAndAssertViaExternal(_local, 0, 0.1 ether);
+    utils_swapFromLocalAndAssertViaExternal(_local, 0, 0.1 ether, 1_000, 0 ether);
   }
 
   // does not swap if already adopted
   function test_AssetLogic__swapFromLocalAssetIfNeeded_worksWithAdopted() public {
-    utils_swapFromLocalAndAssertViaExternal(_adopted, 1 ether, 0.9 ether);
+    utils_swapFromLocalAndAssertViaExternal(_adopted, 1 ether, 0.9 ether, 1_000, 1 ether);
   }
 
   // should work (swap local for adopted)
   function test_AssetLogic__swapFromLocalAssetIfNeeded_worksWithLocal() public {
-    utils_swapFromLocalAndAssertViaExternal(_local, 1 ether, 0.9 ether);
+    utils_swapFromLocalAndAssertViaExternal(_local, 1 ether, 0.9 ether, 1_000, 1 ether);
   }
 }
