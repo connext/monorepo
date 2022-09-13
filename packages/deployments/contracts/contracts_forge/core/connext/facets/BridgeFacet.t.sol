@@ -13,11 +13,8 @@ import {IStableSwap} from "../../../../contracts/core/connext/interfaces/IStable
 import {ITokenRegistry} from "../../../../contracts/core/connext/interfaces/ITokenRegistry.sol";
 import {IBridgeRouter} from "../../../../contracts/core/connext/interfaces/IBridgeRouter.sol";
 import {IWeth} from "../../../../contracts/core/connext/interfaces/IWeth.sol";
-import {IExecutor} from "../../../../contracts/core/connext/interfaces/IExecutor.sol";
-import {Executor} from "../../../../contracts/core/connext/helpers/Executor.sol";
 import {RelayerFeeMessage} from "../../../../contracts/core/relayer-fee/libraries/RelayerFeeMessage.sol";
 import {AssetLogic} from "../../../../contracts/core/connext/libraries/AssetLogic.sol";
-import {LibCrossDomainProperty} from "../../../../contracts/core/connext/libraries/LibCrossDomainProperty.sol";
 import {CallParams, ExecuteArgs, XCallArgs, TokenId, UserFacingCallParams} from "../../../../contracts/core/connext/libraries/LibConnextStorage.sol";
 import {LibDiamond} from "../../../../contracts/core/connext/libraries/LibDiamond.sol";
 import {BridgeFacet} from "../../../../contracts/core/connext/facets/BridgeFacet.sol";
@@ -42,8 +39,6 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
   // diamond storage contract owner
   address _ds_owner = address(987654321);
 
-  // executor contract
-  address _executor;
   // mock xapp contract
   address _xapp;
   // mock bridge router
@@ -71,9 +66,6 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
   // default nonce on xcall
   uint256 _nonce = 1;
 
-  // default recovery address
-  address constant _recovery = address(121212);
-
   // default CallParams
   CallParams _params =
     CallParams(
@@ -82,7 +74,6 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
       _originDomain, // origin domain
       _destinationDomain, // destination domain
       _agent, // agent
-      _recovery, // recovery address
       false, // receiveLocal
       1000 // slippage
     );
@@ -120,9 +111,6 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
   // Used in set up for deploying any needed peripheral contracts.
   function utils_deployContracts() public {
     utils_deployAssetContracts();
-    // Deploy an executor.
-    _executor = address(new Executor(address(this)));
-    s.executor = IExecutor(_executor);
     // Deploy a mock xapp consumer.
     _xapp = address(new MockXApp());
 
@@ -179,7 +167,6 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
         _params.callData,
         _params.destinationDomain, // destination domain
         _params.agent, // agent
-        _params.recovery, // recovery address
         _params.receiveLocal,
         _params.slippage
       );
@@ -497,7 +484,6 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
   struct ExecuteBalances {
     uint256 bridge;
     uint256 to;
-    uint256 executor;
     uint256 debt;
     uint256 feeDebt;
   }
@@ -523,8 +509,7 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
     uint256 fee = s.portalFeeDebt[transferId];
     uint256 bridge = _local == address(0) ? address(this).balance : IERC20(_local).balanceOf(address(this));
     uint256 to = asset == address(0) ? _to.balance : IERC20(asset).balanceOf(_to);
-    uint256 executor = asset == address(0) ? _executor.balance : IERC20(asset).balanceOf(_executor);
-    return ExecuteBalances(bridge, to, executor, debt, fee);
+    return ExecuteBalances(bridge, to, debt, fee);
   }
 
   function helpers_setupExecuteAssertions(
@@ -571,34 +556,24 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
       // token transfer
       vm.expectCall(
         _inputs.token,
-        abi.encodeWithSelector(
-          IERC20.transfer.selector,
-          _inputs.callsExternal ? _executor : _args.params.to,
-          _inputs.expectedAmt
-        )
+        abi.encodeWithSelector(IERC20.transfer.selector, _args.params.to, _inputs.expectedAmt)
       );
     }
 
-    // expected executor call
+    // expected external call
     if (_inputs.callsExternal) {
-      {
-        vm.expectCall(
-          _executor,
-          abi.encodeWithSelector(
-            IExecutor.execute.selector,
-            IExecutor.ExecutorArgs(
-              transferId,
-              _inputs.expectedAmt,
-              _args.params.to,
-              _args.params.recovery,
-              _inputs.token,
-              _inputs.isSlow ? _args.originSender : address(0),
-              _inputs.isSlow ? _args.params.originDomain : 0,
-              _args.params.callData
-            )
-          )
-        );
-      }
+      vm.expectCall(
+        _args.params.to,
+        abi.encodeWithSelector(
+          IXReceiver.xReceive.selector,
+          transferId,
+          _inputs.expectedAmt,
+          _inputs.token,
+          _inputs.isSlow ? _args.originSender : address(0),
+          _args.params.originDomain,
+          _args.params.callData
+        )
+      );
     }
   }
 
@@ -634,13 +609,6 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
         abi.encode(_inputs.expectedAmt, _adopted)
       );
     }
-
-    // setup execute mock
-    vm.mockCall(
-      _executor,
-      abi.encodeWithSelector(Executor.execute.selector),
-      abi.encode(_inputs.externalCallSucceeds, bytes(""))
-    );
 
     // register expected calls
     helpers_setupExecuteAssertions(transferId, _args, _inputs);
@@ -696,19 +664,7 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
         assertEq(finalBalances.debt, prevBalances.debt);
       }
 
-      if (_inputs.callsExternal) {
-        // should increment balance of executor
-        // should NOT increment balance of to
-        // NOTE: recovery address testing should be done in Executor.t.sol
-        // as such, executor balance should *always* increment
-        assertEq(finalBalances.executor, prevBalances.executor + _inputs.expectedAmt);
-        assertEq(token.balanceOf(_params.to), prevBalances.to);
-      } else {
-        // should have incremented balance of `to`
-        // should NOT increment balance of executor
-        assertEq(finalBalances.to, prevBalances.to + _inputs.expectedAmt);
-        assertEq(finalBalances.executor, prevBalances.executor);
-      }
+      assertEq(finalBalances.to, prevBalances.to + _inputs.expectedAmt);
     }
 
     // should mark the transfer as executed
@@ -819,13 +775,6 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
     assertEq(this.domain(), _destinationDomain);
   }
 
-  function test_BridgeFacet_executor_works() public {
-    s.executor = IExecutor(address(0));
-    assertEq(address(this.executor()), address(0));
-    s.executor = IExecutor(_local);
-    assertEq(address(this.executor()), _local);
-  }
-
   function test_BridgeFacet_nonce_works() public {
     s.nonce = 0;
     assertEq(this.nonce(), 0);
@@ -837,65 +786,6 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
   // assertions for xcall / reconcile / execute
 
   // ============ Admin methods ==============
-  // setExecutor
-  function test_BridgeFacet__setExecutor_failIfNotOwner() public {
-    // constants
-    address old = address(123);
-    address updated = address(_local);
-
-    // set storage
-    s.executor = IExecutor(payable(old));
-
-    // test revert
-    vm.prank(_originSender);
-    vm.expectRevert(BaseConnextFacet.BaseConnextFacet__onlyOwner_notOwner.selector);
-    this.setExecutor(payable(updated));
-  }
-
-  function test_BridgeFacet__setExecutor_failIfNoChange() public {
-    // constants
-    address old = address(123);
-    address updated = old;
-
-    // set storage
-    s.executor = IExecutor(payable(old));
-
-    // test revert
-    vm.prank(LibDiamond.contractOwner());
-    vm.expectRevert(BridgeFacet.BridgeFacet__setExecutor_invalidExecutor.selector);
-    this.setExecutor(payable(updated));
-  }
-
-  function test_BridgeFacet__setExecutor_failIfNotContract() public {
-    // constants
-    address old = address(123);
-    address updated = address(456);
-
-    // set storage
-    s.executor = IExecutor(payable(old));
-
-    // test revert
-    vm.prank(LibDiamond.contractOwner());
-    vm.expectRevert(BridgeFacet.BridgeFacet__setExecutor_invalidExecutor.selector);
-    this.setExecutor(payable(updated));
-  }
-
-  function test_BridgeFacet__setExecutor_works() public {
-    // constants
-    address old = address(123);
-    address updated = address(_local);
-
-    // set storage
-    s.executor = IExecutor(payable(old));
-
-    // test revert
-    vm.prank(LibDiamond.contractOwner());
-    vm.expectEmit(true, true, true, true);
-    emit ExecutorUpdated(old, updated, LibDiamond.contractOwner());
-    this.setExecutor(payable(updated));
-    assertEq(address(this.executor()), updated);
-  }
-
   // addSequencer
   function test_BridgeFacet__addSequencer_failIfNotOwner() public {
     // constants
@@ -991,12 +881,6 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
   // TODO: fails if destination domain does not have an xapp router registered
   // FIXME: this should be tested at the integration level (i.e. when we deploy
   // the contracts via Deployer.sol), or on a facet that asserts this
-
-  // fails if recipient `to` not a valid address (i.e. != address(0))
-  function test_BridgeFacet__xcall_failIfNoRecipient() public {
-    _params.to = address(0);
-    helpers_xcallAndAssert(BridgeFacet.BridgeFacet__xcall_emptyToOrRecovery.selector);
-  }
 
   // fails if asset is not supported (i.e. s.adoptedToCanonical[assetId].id == bytes32(0) and using non-local)
   function test_BridgeFacet__xcall_failIfAssetNotSupported() public {
@@ -1526,7 +1410,8 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
   // should work with successful calldata and using fast liquidity
   function test_BridgeFacet__execute_successfulCalldata() public {
     // Set the args.to to the mock xapp address, and args.callData to the `fulfill` fn.
-    _params.callData = abi.encodeWithSelector(MockXApp.fulfill.selector, _local, TEST_MESSAGE);
+    _params.to = _xapp;
+    _params.callData = bytes("zomg");
 
     (bytes32 transferId, ExecuteArgs memory args) = utils_makeExecuteArgs(1);
 
@@ -1548,9 +1433,10 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
   }
 
   // should work with failing calldata : contract call failed
-  function test_BridgeFacet__execute_failingCalldata() public {
-    // Set the args.to to the mock xapp address, and args.callData to the `fail` fn.
-    _params.callData = abi.encodeWithSelector(MockXApp.fail.selector);
+  function test_BridgeFacet__execute_calldataFailsLoudlyOnFast() public {
+    // Set the args.to to the mock xapp address, and set to fail
+    MockXApp(_xapp).setFail(true);
+    _params.callData = bytes("zomg");
     _params.to = _xapp;
 
     (bytes32 transferId, ExecuteArgs memory args) = utils_makeExecuteArgs(1);
@@ -1560,16 +1446,28 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
     // set asset context (local == adopted)
     utils_setupAsset(true, false);
 
-    helpers_executeAndAssert(
-      transferId,
-      args,
-      utils_getFastTransferAmount(args.amount),
-      true,
-      false,
-      false,
-      false,
-      false
-    );
+    // get args
+    (, ExecuteArgs memory _args) = utils_makeExecuteArgs(1);
+
+    vm.expectRevert("fails");
+    this.execute(_args);
+  }
+
+  // should work with failing calldata : contract call failed
+  function test_BridgeFacet__execute_calldataFailureHandledOnSlow() public {
+    // Set the args.to to the mock xapp address, and set to fail
+    MockXApp(_xapp).setFail(true);
+    _params.callData = bytes("zomg");
+    _params.to = _xapp;
+
+    (bytes32 transferId, ExecuteArgs memory args) = utils_makeExecuteArgs(0);
+
+    s.reconciledTransfers[transferId] = true;
+
+    // set asset context (local == adopted)
+    utils_setupAsset(true, false);
+
+    helpers_executeAndAssert(transferId, args, args.amount, true, false, false, false, false);
   }
 
   function test_BridgeFacet__execute_failsIfNoLiquidityAndAaveNotEnabled() public {
@@ -1588,33 +1486,6 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
     this.execute(_args);
   }
 
-  // FIXME: move to Executor.t.sol
-  // should work with failing calldata : recipient `to` is not a contract (should call _handleFailure)
-  function test_BridgeFacet__execute_handleRecipientNotAContract() public {
-    // Setting the calldata to be for fulfill... but obviously, that method should never be called.
-    // Because `to` is not a valid contract address.
-    _params.callData = abi.encodeWithSelector(MockXApp.fulfill.selector, _local, TEST_MESSAGE);
-    _params.to = address(42);
-
-    (bytes32 transferId, ExecuteArgs memory args) = utils_makeExecuteArgs(1);
-
-    s.routerBalances[args.routers[0]][args.local] += 10 ether;
-
-    // set asset context (local == adopted)
-    utils_setupAsset(true, false);
-
-    helpers_executeAndAssert(
-      transferId,
-      args,
-      utils_getFastTransferAmount(args.amount),
-      true,
-      true,
-      false,
-      false,
-      false
-    );
-  }
-
   // should work if already reconciled (happening in slow liquidity mode, uses
   // authenticated data)
   function test_BridgeFacet__execute_handleAlreadyReconciled() public {
@@ -1624,13 +1495,8 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
     // Set the args.to to the mock xapp address, and args.callData to the
     // `fulfillWithProperties` fn. This will check to make sure `originDomain` and
     // `originSender` properties are correctly set.
-    _params.callData = abi.encodeWithSelector(
-      MockXApp.fulfillWithProperties.selector,
-      _local,
-      TEST_MESSAGE,
-      _originDomain,
-      _originSender
-    );
+    MockXApp(_xapp).setPermissions(_originSender, _originDomain);
+    _params.callData = bytes("yayaytestsyay");
     _params.to = _xapp;
 
     // We specify that 0 routers are in the path for this execution.

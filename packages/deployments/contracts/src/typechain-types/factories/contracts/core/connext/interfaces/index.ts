@@ -16,3 +16,4 @@ export { IStableSwap__factory } from "./IStableSwap__factory";
 export { ITokenExchange__factory } from "./ITokenExchange__factory";
 export { ITokenRegistry__factory } from "./ITokenRegistry__factory";
 export { IWeth__factory } from "./IWeth__factory";
+export { IXReceiver__factory } from "./IXReceiver__factory";

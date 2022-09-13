@@ -59,6 +59,12 @@ variable "full_image_name_sequencer_subscriber" {
   default     = "ghcr.io/connext/sequencer-subscriber:sha-229b6dd"
 }
 
+variable "full_image_name_lighthouse_prover" {
+  type        = string
+  description = "sequencer image name"
+  default     = "ghcr.io/connext/lighthouse-prover:sha-229b6dd"
+}
+
 variable "mnemonic" {
   type        = string
   description = "mnemonic"

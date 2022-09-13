@@ -167,6 +167,7 @@ export const convertFromDbMessage = (message: any): XMessage => {
     leaf: message.leaf,
     originDomain: message.origin_domain,
     destinationDomain: message.destination_domain,
+    transferId: message.transferId,
     origin: {
       index: BigNumber.from(message.index).toNumber(),
       root: message.root,

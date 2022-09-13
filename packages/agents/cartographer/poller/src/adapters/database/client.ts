@@ -118,14 +118,18 @@ export const saveMessages = async (xMessages: XMessage[], _pool?: Pool): Promise
   }
 };
 
-export const getPendingMessages = async (_pool?: Pool, orderDirection: "ASC" | "DESC" = "ASC"): Promise<XMessage[]> => {
+export const getPendingMessages = async (
+  _pool?: Pool,
+  limit = 100,
+  orderDirection: "ASC" | "DESC" = "ASC",
+): Promise<XMessage[]> => {
   // Get the messages in which `processed` is false
   const poolToUse = _pool ?? pool;
   const processed = false;
 
   const x = await db.sql<s.messages.SQL, s.messages.JSONSelectable[]>`SELECT * FROM ${"messages"} WHERE ${{
     processed,
-  }} ORDER BY "index" ${raw(`${orderDirection}`)} NULLS LAST`.run(poolToUse);
+  }} ORDER BY "index" ${raw(`${orderDirection}`)} NULLS LAST LIMIT ${db.param(limit)}`.run(poolToUse);
   return x.map(convertFromDbMessage);
 };
 

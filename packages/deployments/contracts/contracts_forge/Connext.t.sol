@@ -364,7 +364,6 @@ contract ConnextTest is ForgeHelper, Deployer {
         sendToDest ? _origin : _destination, // origin domain
         destination, // dest domain
         address(2222), // agent
-        address(3333), // recovery
         false, // receiveLocal
         1000 // slippage tol
       );
@@ -377,7 +376,6 @@ contract ConnextTest is ForgeHelper, Deployer {
         bytes(""), // callData
         destination, // dest domain
         address(2222), // agent
-        address(3333), // recovery
         false, // receiveLocal
         1000 // slippage tol
       );
@@ -392,7 +390,6 @@ contract ConnextTest is ForgeHelper, Deployer {
         _origin,
         params.destinationDomain, // destination domain
         params.agent, // agent
-        params.recovery, // recovery address
         params.receiveLocal,
         params.slippage
       );
@@ -855,8 +852,8 @@ contract ConnextTest is ForgeHelper, Deployer {
   function test_Connext__unpermissionedCallsWork() public {
     // 0. setup contracts
     utils_setupAssets(_origin, true);
-    MockCalldata callTo = new MockCalldata(address(this), _origin);
-    bytes memory callData = abi.encodeWithSelector(MockCalldata.unpermissionedCall.selector, _destinationAdopted);
+    MockXApp callTo = new MockXApp();
+    bytes memory callData = bytes("calling cool stuff");
 
     // 1. xcall
     CallParams memory params = utils_createCallParams(_destination);
@@ -877,8 +874,9 @@ contract ConnextTest is ForgeHelper, Deployer {
   function test_Connext__permissionedCallsWork() public {
     // 0. setup contracts
     utils_setupAssets(_origin, true);
-    MockCalldata callTo = new MockCalldata(address(this), _origin);
-    bytes memory callData = abi.encodeWithSelector(MockCalldata.permissionedCall.selector, _destinationAdopted);
+    MockXApp callTo = new MockXApp();
+    callTo.setPermissions(address(this), _origin);
+    bytes memory callData = bytes("calling cool stuff");
 
     // 1. xcall
     CallParams memory params = utils_createCallParams(_destination);
