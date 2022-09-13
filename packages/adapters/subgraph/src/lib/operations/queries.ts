@@ -128,7 +128,7 @@ export const DESTINATION_MESSAGE_ENTITY = `
 
 export const ROOT_MESSAGE_ENTITY = `
       id
-      data
+      root
     
       chainId
       # MessageSent/MessageProcessed Transaction
@@ -640,7 +640,7 @@ export const getRootMessagesByDomainAndDataQuery = (params: Map<string, string[]
   for (const domain of params.keys()) {
     const prefix = config.sources[domain].prefix;
     const roots = [...params.get(domain)!.map((root) => `"${root}"`)];
-    combinedQuery += `${prefix}_rootMessages ( where: { data_in: [${roots}] }) {${ROOT_MESSAGE_ENTITY}}`;
+    combinedQuery += `${prefix}_rootMessages ( where: { root_in: [${roots}] }) {${ROOT_MESSAGE_ENTITY}}`;
   }
 
   return gql`
