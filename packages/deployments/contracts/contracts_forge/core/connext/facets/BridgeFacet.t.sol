@@ -882,12 +882,6 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
     helpers_xcallAndAssert(BridgeFacet.BridgeFacet__xcall_emptyTo.selector);
   }
 
-  function test_BridgeFacet__xcall_failIfMissingAgent() public {
-    _params.agent = address(0);
-    _params.receiveLocal = false;
-    helpers_xcallAndAssert(BridgeFacet.BridgeFacet__xcall_missingAgent.selector);
-  }
-
   function test_BridgeFacet__xcall_failIfInvalidSlippage() public {
     _params.slippage = 15_000;
     helpers_xcallAndAssert(BridgeFacet.BridgeFacet__xcall_invalidSlippage.selector);
