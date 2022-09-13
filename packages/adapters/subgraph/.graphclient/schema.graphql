@@ -3548,313 +3548,456 @@ type Subscription {
     """
     The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
     """
-    block: optimismgoerli_Block_height
+    block: local1337_Block_height
     """
     Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
     """
     subgraphError: _SubgraphErrorPolicy_! = deny
-  ): optimismgoerli_Asset
-  optimismgoerli_assets(
+  ): local1337_SponsorVault
+  local1337_sponsorVaults(
     skip: Int = 0
     first: Int = 100
-    orderBy: optimismgoerli_Asset_orderBy
-    orderDirection: optimismgoerli_OrderDirection
-    where: optimismgoerli_Asset_filter
+    orderBy: local1337_SponsorVault_orderBy
+    orderDirection: local1337_OrderDirection
+    where: local1337_SponsorVault_filter
     """
     The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
     """
-    block: optimismgoerli_Block_height
+    block: local1337_Block_height
     """
     Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
     """
     subgraphError: _SubgraphErrorPolicy_! = deny
-  ): [optimismgoerli_Asset!]!
-  optimismgoerli_assetBalance(
+  ): [local1337_SponsorVault!]!
+  local1337_originTransfer(
     id: ID!
     """
     The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
     """
-    block: optimismgoerli_Block_height
+    block: local1337_Block_height
     """
     Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
     """
     subgraphError: _SubgraphErrorPolicy_! = deny
-  ): optimismgoerli_AssetBalance
-  optimismgoerli_assetBalances(
+  ): local1337_OriginTransfer
+  local1337_originTransfers(
     skip: Int = 0
     first: Int = 100
-    orderBy: optimismgoerli_AssetBalance_orderBy
-    orderDirection: optimismgoerli_OrderDirection
-    where: optimismgoerli_AssetBalance_filter
+    orderBy: local1337_OriginTransfer_orderBy
+    orderDirection: local1337_OrderDirection
+    where: local1337_OriginTransfer_filter
     """
     The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
     """
-    block: optimismgoerli_Block_height
+    block: local1337_Block_height
     """
     Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
     """
     subgraphError: _SubgraphErrorPolicy_! = deny
-  ): [optimismgoerli_AssetBalance!]!
-  optimismgoerli_router(
+  ): [local1337_OriginTransfer!]!
+  local1337_destinationTransfer(
     id: ID!
     """
     The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
     """
-    block: optimismgoerli_Block_height
+    block: local1337_Block_height
     """
     Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
     """
     subgraphError: _SubgraphErrorPolicy_! = deny
-  ): optimismgoerli_Router
-  optimismgoerli_routers(
+  ): local1337_DestinationTransfer
+  local1337_destinationTransfers(
     skip: Int = 0
     first: Int = 100
-    orderBy: optimismgoerli_Router_orderBy
-    orderDirection: optimismgoerli_OrderDirection
-    where: optimismgoerli_Router_filter
+    orderBy: local1337_DestinationTransfer_orderBy
+    orderDirection: local1337_OrderDirection
+    where: local1337_DestinationTransfer_filter
     """
     The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
     """
-    block: optimismgoerli_Block_height
+    block: local1337_Block_height
     """
     Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
     """
     subgraphError: _SubgraphErrorPolicy_! = deny
-  ): [optimismgoerli_Router!]!
-  optimismgoerli_setting(
+  ): [local1337_DestinationTransfer!]!
+  """Access to subgraph metadata"""
+  local1337__meta(block: local1337_Block_height): local1337__Meta_
+  testgoerli_asset(
     id: ID!
     """
     The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
     """
-    block: optimismgoerli_Block_height
+    block: testgoerli_Block_height
     """
     Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
     """
     subgraphError: _SubgraphErrorPolicy_! = deny
-  ): optimismgoerli_Setting
-  optimismgoerli_settings(
+  ): testgoerli_Asset
+  testgoerli_assets(
     skip: Int = 0
     first: Int = 100
-    orderBy: optimismgoerli_Setting_orderBy
-    orderDirection: optimismgoerli_OrderDirection
-    where: optimismgoerli_Setting_filter
+    orderBy: testgoerli_Asset_orderBy
+    orderDirection: testgoerli_OrderDirection
+    where: testgoerli_Asset_filter
     """
     The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
     """
-    block: optimismgoerli_Block_height
+    block: testgoerli_Block_height
     """
     Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
     """
     subgraphError: _SubgraphErrorPolicy_! = deny
-  ): [optimismgoerli_Setting!]!
-  optimismgoerli_relayer(
+  ): [testgoerli_Asset!]!
+  testgoerli_assetBalance(
     id: ID!
     """
     The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
     """
-    block: optimismgoerli_Block_height
+    block: testgoerli_Block_height
     """
     Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
     """
     subgraphError: _SubgraphErrorPolicy_! = deny
-  ): optimismgoerli_Relayer
-  optimismgoerli_relayers(
+  ): testgoerli_AssetBalance
+  testgoerli_assetBalances(
     skip: Int = 0
     first: Int = 100
-    orderBy: optimismgoerli_Relayer_orderBy
-    orderDirection: optimismgoerli_OrderDirection
-    where: optimismgoerli_Relayer_filter
+    orderBy: testgoerli_AssetBalance_orderBy
+    orderDirection: testgoerli_OrderDirection
+    where: testgoerli_AssetBalance_filter
     """
     The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
     """
-    block: optimismgoerli_Block_height
+    block: testgoerli_Block_height
     """
     Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
     """
     subgraphError: _SubgraphErrorPolicy_! = deny
-  ): [optimismgoerli_Relayer!]!
-  optimismgoerli_stableSwap(
+  ): [testgoerli_AssetBalance!]!
+  testgoerli_router(
     id: ID!
     """
     The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
     """
-    block: optimismgoerli_Block_height
+    block: testgoerli_Block_height
     """
     Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
     """
     subgraphError: _SubgraphErrorPolicy_! = deny
-  ): optimismgoerli_StableSwap
-  optimismgoerli_stableSwaps(
+  ): testgoerli_Router
+  testgoerli_routers(
     skip: Int = 0
     first: Int = 100
-    orderBy: optimismgoerli_StableSwap_orderBy
-    orderDirection: optimismgoerli_OrderDirection
-    where: optimismgoerli_StableSwap_filter
+    orderBy: testgoerli_Router_orderBy
+    orderDirection: testgoerli_OrderDirection
+    where: testgoerli_Router_filter
     """
     The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
     """
-    block: optimismgoerli_Block_height
+    block: testgoerli_Block_height
     """
     Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
     """
     subgraphError: _SubgraphErrorPolicy_! = deny
-  ): [optimismgoerli_StableSwap!]!
-  optimismgoerli_sponsorVault(
+<<<<<<< HEAD
+  ): [testgoerli_Router!]!
+  testgoerli_setting(
+=======
+  ): [stagingoptimismgoerli_AggregateRoot!]!
+  """Access to subgraph metadata"""
+  stagingoptimismgoerli__meta(block: stagingoptimismgoerli_Block_height): stagingoptimismgoerli__Meta_
+  staginggoerli_asset(
+>>>>>>> prod
     id: ID!
     """
     The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
     """
-    block: optimismgoerli_Block_height
+<<<<<<< HEAD
+    block: testgoerli_Block_height
+=======
+    block: staginggoerli_Block_height
+>>>>>>> prod
     """
     Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
     """
     subgraphError: _SubgraphErrorPolicy_! = deny
-  ): optimismgoerli_SponsorVault
-  optimismgoerli_sponsorVaults(
+<<<<<<< HEAD
+  ): testgoerli_Setting
+  testgoerli_settings(
     skip: Int = 0
     first: Int = 100
-    orderBy: optimismgoerli_SponsorVault_orderBy
-    orderDirection: optimismgoerli_OrderDirection
-    where: optimismgoerli_SponsorVault_filter
+    orderBy: testgoerli_Setting_orderBy
+    orderDirection: testgoerli_OrderDirection
+    where: testgoerli_Setting_filter
     """
     The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
     """
-    block: optimismgoerli_Block_height
+    block: testgoerli_Block_height
+=======
+  ): staginggoerli_Asset
+  staginggoerli_assets(
+    skip: Int = 0
+    first: Int = 100
+    orderBy: staginggoerli_Asset_orderBy
+    orderDirection: staginggoerli_OrderDirection
+    where: staginggoerli_Asset_filter
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: staginggoerli_Block_height
+>>>>>>> prod
     """
     Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
     """
     subgraphError: _SubgraphErrorPolicy_! = deny
-  ): [optimismgoerli_SponsorVault!]!
-  optimismgoerli_originTransfer(
+<<<<<<< HEAD
+  ): [testgoerli_Setting!]!
+  testgoerli_relayer(
+=======
+  ): [staginggoerli_Asset!]!
+  staginggoerli_assetBalance(
+>>>>>>> prod
     id: ID!
     """
     The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
     """
-    block: optimismgoerli_Block_height
+<<<<<<< HEAD
+    block: testgoerli_Block_height
+=======
+    block: staginggoerli_Block_height
+>>>>>>> prod
     """
     Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
     """
     subgraphError: _SubgraphErrorPolicy_! = deny
-  ): optimismgoerli_OriginTransfer
-  optimismgoerli_originTransfers(
+<<<<<<< HEAD
+  ): testgoerli_Relayer
+  testgoerli_relayers(
     skip: Int = 0
     first: Int = 100
-    orderBy: optimismgoerli_OriginTransfer_orderBy
-    orderDirection: optimismgoerli_OrderDirection
-    where: optimismgoerli_OriginTransfer_filter
+    orderBy: testgoerli_Relayer_orderBy
+    orderDirection: testgoerli_OrderDirection
+    where: testgoerli_Relayer_filter
     """
     The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
     """
-    block: optimismgoerli_Block_height
+    block: testgoerli_Block_height
+=======
+  ): staginggoerli_AssetBalance
+  staginggoerli_assetBalances(
+    skip: Int = 0
+    first: Int = 100
+    orderBy: staginggoerli_AssetBalance_orderBy
+    orderDirection: staginggoerli_OrderDirection
+    where: staginggoerli_AssetBalance_filter
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: staginggoerli_Block_height
+>>>>>>> prod
     """
     Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
     """
     subgraphError: _SubgraphErrorPolicy_! = deny
-  ): [optimismgoerli_OriginTransfer!]!
-  optimismgoerli_destinationTransfer(
+<<<<<<< HEAD
+  ): [testgoerli_Relayer!]!
+  testgoerli_stableSwap(
+=======
+  ): [staginggoerli_AssetBalance!]!
+  staginggoerli_router(
+>>>>>>> prod
     id: ID!
     """
     The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
     """
-    block: optimismgoerli_Block_height
+<<<<<<< HEAD
+    block: testgoerli_Block_height
+=======
+    block: staginggoerli_Block_height
+>>>>>>> prod
     """
     Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
     """
     subgraphError: _SubgraphErrorPolicy_! = deny
-  ): optimismgoerli_DestinationTransfer
-  optimismgoerli_destinationTransfers(
+<<<<<<< HEAD
+  ): testgoerli_StableSwap
+  testgoerli_stableSwaps(
     skip: Int = 0
     first: Int = 100
-    orderBy: optimismgoerli_DestinationTransfer_orderBy
-    orderDirection: optimismgoerli_OrderDirection
-    where: optimismgoerli_DestinationTransfer_filter
+    orderBy: testgoerli_StableSwap_orderBy
+    orderDirection: testgoerli_OrderDirection
+    where: testgoerli_StableSwap_filter
     """
     The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
     """
-    block: optimismgoerli_Block_height
+    block: testgoerli_Block_height
+=======
+  ): staginggoerli_Router
+  staginggoerli_routers(
+    skip: Int = 0
+    first: Int = 100
+    orderBy: staginggoerli_Router_orderBy
+    orderDirection: staginggoerli_OrderDirection
+    where: staginggoerli_Router_filter
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: staginggoerli_Block_height
+>>>>>>> prod
     """
     Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
     """
     subgraphError: _SubgraphErrorPolicy_! = deny
-  ): [optimismgoerli_DestinationTransfer!]!
-  optimismgoerli_originMessage(
+<<<<<<< HEAD
+  ): [testgoerli_StableSwap!]!
+  testgoerli_sponsorVault(
+=======
+  ): [staginggoerli_Router!]!
+  staginggoerli_setting(
+>>>>>>> prod
     id: ID!
     """
     The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
     """
-    block: optimismgoerli_Block_height
+<<<<<<< HEAD
+    block: testgoerli_Block_height
+=======
+    block: staginggoerli_Block_height
+>>>>>>> prod
     """
     Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
     """
     subgraphError: _SubgraphErrorPolicy_! = deny
-  ): optimismgoerli_OriginMessage
-  optimismgoerli_originMessages(
+<<<<<<< HEAD
+  ): testgoerli_SponsorVault
+  testgoerli_sponsorVaults(
     skip: Int = 0
     first: Int = 100
-    orderBy: optimismgoerli_OriginMessage_orderBy
-    orderDirection: optimismgoerli_OrderDirection
-    where: optimismgoerli_OriginMessage_filter
+    orderBy: testgoerli_SponsorVault_orderBy
+    orderDirection: testgoerli_OrderDirection
+    where: testgoerli_SponsorVault_filter
     """
     The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
     """
-    block: optimismgoerli_Block_height
+    block: testgoerli_Block_height
+=======
+  ): staginggoerli_Setting
+  staginggoerli_settings(
+    skip: Int = 0
+    first: Int = 100
+    orderBy: staginggoerli_Setting_orderBy
+    orderDirection: staginggoerli_OrderDirection
+    where: staginggoerli_Setting_filter
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: staginggoerli_Block_height
+>>>>>>> prod
     """
     Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
     """
     subgraphError: _SubgraphErrorPolicy_! = deny
-  ): [optimismgoerli_OriginMessage!]!
-  optimismgoerli_destinationMessage(
+<<<<<<< HEAD
+  ): [testgoerli_SponsorVault!]!
+  testgoerli_originTransfer(
+=======
+  ): [staginggoerli_Setting!]!
+  staginggoerli_relayer(
+>>>>>>> prod
     id: ID!
     """
     The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
     """
-    block: optimismgoerli_Block_height
+<<<<<<< HEAD
+    block: testgoerli_Block_height
+=======
+    block: staginggoerli_Block_height
+>>>>>>> prod
     """
     Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
     """
     subgraphError: _SubgraphErrorPolicy_! = deny
-  ): optimismgoerli_DestinationMessage
-  optimismgoerli_destinationMessages(
+<<<<<<< HEAD
+  ): testgoerli_OriginTransfer
+  testgoerli_originTransfers(
     skip: Int = 0
     first: Int = 100
-    orderBy: optimismgoerli_DestinationMessage_orderBy
-    orderDirection: optimismgoerli_OrderDirection
-    where: optimismgoerli_DestinationMessage_filter
+    orderBy: testgoerli_OriginTransfer_orderBy
+    orderDirection: testgoerli_OrderDirection
+    where: testgoerli_OriginTransfer_filter
     """
     The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
     """
-    block: optimismgoerli_Block_height
+    block: testgoerli_Block_height
+=======
+  ): staginggoerli_Relayer
+  staginggoerli_relayers(
+    skip: Int = 0
+    first: Int = 100
+    orderBy: staginggoerli_Relayer_orderBy
+    orderDirection: staginggoerli_OrderDirection
+    where: staginggoerli_Relayer_filter
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: staginggoerli_Block_height
+>>>>>>> prod
     """
     Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
     """
     subgraphError: _SubgraphErrorPolicy_! = deny
-  ): [optimismgoerli_DestinationMessage!]!
-  optimismgoerli_aggregateRoot(
+<<<<<<< HEAD
+  ): [testgoerli_OriginTransfer!]!
+  testgoerli_destinationTransfer(
+=======
+  ): [staginggoerli_Relayer!]!
+  staginggoerli_stableSwap(
+>>>>>>> prod
     id: ID!
     """
     The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
     """
-    block: optimismgoerli_Block_height
+<<<<<<< HEAD
+    block: testgoerli_Block_height
+=======
+    block: staginggoerli_Block_height
+>>>>>>> prod
     """
     Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
     """
     subgraphError: _SubgraphErrorPolicy_! = deny
-  ): optimismgoerli_AggregateRoot
-  optimismgoerli_aggregateRoots(
+<<<<<<< HEAD
+  ): testgoerli_DestinationTransfer
+  testgoerli_destinationTransfers(
     skip: Int = 0
     first: Int = 100
-    orderBy: optimismgoerli_AggregateRoot_orderBy
-    orderDirection: optimismgoerli_OrderDirection
-    where: optimismgoerli_AggregateRoot_filter
+    orderBy: testgoerli_DestinationTransfer_orderBy
+    orderDirection: testgoerli_OrderDirection
+    where: testgoerli_DestinationTransfer_filter
     """
     The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
     """
-    block: optimismgoerli_Block_height
+    block: testgoerli_Block_height
+=======
+  ): staginggoerli_StableSwap
+  staginggoerli_stableSwaps(
+    skip: Int = 0
+    first: Int = 100
+    orderBy: staginggoerli_StableSwap_orderBy
+    orderDirection: staginggoerli_OrderDirection
+    where: staginggoerli_StableSwap_filter
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: staginggoerli_Block_height
+>>>>>>> prod
     """
     Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
     """
     subgraphError: _SubgraphErrorPolicy_! = deny
-  ): [optimismgoerli_AggregateRoot!]!
+<<<<<<< HEAD
+  ): [testgoerli_DestinationTransfer!]!
   """Access to subgraph metadata"""
   optimismgoerli__meta(block: optimismgoerli_Block_height): optimismgoerli__Meta_
   local1337_asset(
@@ -5782,12 +5925,7 @@ input staginggoerli_OriginTransfer_filter {
 
 enum staginggoerli_OriginTransfer_orderBy {
   id
-  chainId
   transferId
-  nonce
-  to
-  callData
-  originDomain
   destinationDomain
   agent
   recovery
@@ -6821,6 +6959,7 @@ enum local1338_OriginTransfer_orderBy {
   transactingAmount
   bridgedAsset
   bridgedAmount
+  message
   caller
   transactionHash
   timestamp
@@ -9258,6 +9397,7 @@ type goerli__Meta_ {
   deployment: String!
   """If `true`, the subgraph encountered indexing errors at some past block"""
   hasIndexingErrors: Boolean!
+<<<<<<< HEAD
 }
 
 type optimismgoerli_AggregateRoot {

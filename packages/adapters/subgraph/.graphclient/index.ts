@@ -1049,224 +1049,224 @@ export type Querygoerli__metaArgs = {
 };
 
 
-export type Queryoptimismgoerli_assetArgs = {
+export type Querygoerli_assetArgs = {
   id: Scalars['ID'];
-  block?: InputMaybe<optimismgoerli_Block_height>;
+  block?: InputMaybe<goerli_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Queryoptimismgoerli_assetsArgs = {
+export type Querygoerli_assetsArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<optimismgoerli_Asset_orderBy>;
-  orderDirection?: InputMaybe<optimismgoerli_OrderDirection>;
-  where?: InputMaybe<optimismgoerli_Asset_filter>;
-  block?: InputMaybe<optimismgoerli_Block_height>;
+  orderBy?: InputMaybe<goerli_Asset_orderBy>;
+  orderDirection?: InputMaybe<goerli_OrderDirection>;
+  where?: InputMaybe<goerli_Asset_filter>;
+  block?: InputMaybe<goerli_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Queryoptimismgoerli_assetBalanceArgs = {
+export type Querygoerli_assetBalanceArgs = {
   id: Scalars['ID'];
-  block?: InputMaybe<optimismgoerli_Block_height>;
+  block?: InputMaybe<goerli_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Queryoptimismgoerli_assetBalancesArgs = {
+export type Querygoerli_assetBalancesArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<optimismgoerli_AssetBalance_orderBy>;
-  orderDirection?: InputMaybe<optimismgoerli_OrderDirection>;
-  where?: InputMaybe<optimismgoerli_AssetBalance_filter>;
-  block?: InputMaybe<optimismgoerli_Block_height>;
+  orderBy?: InputMaybe<goerli_AssetBalance_orderBy>;
+  orderDirection?: InputMaybe<goerli_OrderDirection>;
+  where?: InputMaybe<goerli_AssetBalance_filter>;
+  block?: InputMaybe<goerli_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Queryoptimismgoerli_routerArgs = {
+export type Querygoerli_routerArgs = {
   id: Scalars['ID'];
-  block?: InputMaybe<optimismgoerli_Block_height>;
+  block?: InputMaybe<goerli_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Queryoptimismgoerli_routersArgs = {
+export type Querygoerli_routersArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<optimismgoerli_Router_orderBy>;
-  orderDirection?: InputMaybe<optimismgoerli_OrderDirection>;
-  where?: InputMaybe<optimismgoerli_Router_filter>;
-  block?: InputMaybe<optimismgoerli_Block_height>;
+  orderBy?: InputMaybe<goerli_Router_orderBy>;
+  orderDirection?: InputMaybe<goerli_OrderDirection>;
+  where?: InputMaybe<goerli_Router_filter>;
+  block?: InputMaybe<goerli_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Queryoptimismgoerli_settingArgs = {
+export type Querygoerli_settingArgs = {
   id: Scalars['ID'];
-  block?: InputMaybe<optimismgoerli_Block_height>;
+  block?: InputMaybe<goerli_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Queryoptimismgoerli_settingsArgs = {
+export type Querygoerli_settingsArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<optimismgoerli_Setting_orderBy>;
-  orderDirection?: InputMaybe<optimismgoerli_OrderDirection>;
-  where?: InputMaybe<optimismgoerli_Setting_filter>;
-  block?: InputMaybe<optimismgoerli_Block_height>;
+  orderBy?: InputMaybe<goerli_Setting_orderBy>;
+  orderDirection?: InputMaybe<goerli_OrderDirection>;
+  where?: InputMaybe<goerli_Setting_filter>;
+  block?: InputMaybe<goerli_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Queryoptimismgoerli_relayerArgs = {
+export type Querygoerli_relayerArgs = {
   id: Scalars['ID'];
-  block?: InputMaybe<optimismgoerli_Block_height>;
+  block?: InputMaybe<goerli_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Queryoptimismgoerli_relayersArgs = {
+export type Querygoerli_relayersArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<optimismgoerli_Relayer_orderBy>;
-  orderDirection?: InputMaybe<optimismgoerli_OrderDirection>;
-  where?: InputMaybe<optimismgoerli_Relayer_filter>;
-  block?: InputMaybe<optimismgoerli_Block_height>;
+  orderBy?: InputMaybe<goerli_Relayer_orderBy>;
+  orderDirection?: InputMaybe<goerli_OrderDirection>;
+  where?: InputMaybe<goerli_Relayer_filter>;
+  block?: InputMaybe<goerli_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Queryoptimismgoerli_stableSwapArgs = {
+export type Querygoerli_stableSwapArgs = {
   id: Scalars['ID'];
-  block?: InputMaybe<optimismgoerli_Block_height>;
+  block?: InputMaybe<goerli_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Queryoptimismgoerli_stableSwapsArgs = {
+export type Querygoerli_stableSwapsArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<optimismgoerli_StableSwap_orderBy>;
-  orderDirection?: InputMaybe<optimismgoerli_OrderDirection>;
-  where?: InputMaybe<optimismgoerli_StableSwap_filter>;
-  block?: InputMaybe<optimismgoerli_Block_height>;
+  orderBy?: InputMaybe<goerli_StableSwap_orderBy>;
+  orderDirection?: InputMaybe<goerli_OrderDirection>;
+  where?: InputMaybe<goerli_StableSwap_filter>;
+  block?: InputMaybe<goerli_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Queryoptimismgoerli_sponsorVaultArgs = {
+export type Querygoerli_sponsorVaultArgs = {
   id: Scalars['ID'];
-  block?: InputMaybe<optimismgoerli_Block_height>;
+  block?: InputMaybe<goerli_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Queryoptimismgoerli_sponsorVaultsArgs = {
+export type Querygoerli_sponsorVaultsArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<optimismgoerli_SponsorVault_orderBy>;
-  orderDirection?: InputMaybe<optimismgoerli_OrderDirection>;
-  where?: InputMaybe<optimismgoerli_SponsorVault_filter>;
-  block?: InputMaybe<optimismgoerli_Block_height>;
+  orderBy?: InputMaybe<goerli_SponsorVault_orderBy>;
+  orderDirection?: InputMaybe<goerli_OrderDirection>;
+  where?: InputMaybe<goerli_SponsorVault_filter>;
+  block?: InputMaybe<goerli_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Queryoptimismgoerli_originTransferArgs = {
+export type Querygoerli_originTransferArgs = {
   id: Scalars['ID'];
-  block?: InputMaybe<optimismgoerli_Block_height>;
+  block?: InputMaybe<goerli_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Queryoptimismgoerli_originTransfersArgs = {
+export type Querygoerli_originTransfersArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<optimismgoerli_OriginTransfer_orderBy>;
-  orderDirection?: InputMaybe<optimismgoerli_OrderDirection>;
-  where?: InputMaybe<optimismgoerli_OriginTransfer_filter>;
-  block?: InputMaybe<optimismgoerli_Block_height>;
+  orderBy?: InputMaybe<goerli_OriginTransfer_orderBy>;
+  orderDirection?: InputMaybe<goerli_OrderDirection>;
+  where?: InputMaybe<goerli_OriginTransfer_filter>;
+  block?: InputMaybe<goerli_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Queryoptimismgoerli_destinationTransferArgs = {
+export type Querygoerli_destinationTransferArgs = {
   id: Scalars['ID'];
-  block?: InputMaybe<optimismgoerli_Block_height>;
+  block?: InputMaybe<goerli_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Queryoptimismgoerli_destinationTransfersArgs = {
+export type Querygoerli_destinationTransfersArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<optimismgoerli_DestinationTransfer_orderBy>;
-  orderDirection?: InputMaybe<optimismgoerli_OrderDirection>;
-  where?: InputMaybe<optimismgoerli_DestinationTransfer_filter>;
-  block?: InputMaybe<optimismgoerli_Block_height>;
+  orderBy?: InputMaybe<goerli_DestinationTransfer_orderBy>;
+  orderDirection?: InputMaybe<goerli_OrderDirection>;
+  where?: InputMaybe<goerli_DestinationTransfer_filter>;
+  block?: InputMaybe<goerli_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Queryoptimismgoerli_originMessageArgs = {
+export type Querygoerli_originMessageArgs = {
   id: Scalars['ID'];
-  block?: InputMaybe<optimismgoerli_Block_height>;
+  block?: InputMaybe<goerli_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Queryoptimismgoerli_originMessagesArgs = {
+export type Querygoerli_originMessagesArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<optimismgoerli_OriginMessage_orderBy>;
-  orderDirection?: InputMaybe<optimismgoerli_OrderDirection>;
-  where?: InputMaybe<optimismgoerli_OriginMessage_filter>;
-  block?: InputMaybe<optimismgoerli_Block_height>;
+  orderBy?: InputMaybe<goerli_OriginMessage_orderBy>;
+  orderDirection?: InputMaybe<goerli_OrderDirection>;
+  where?: InputMaybe<goerli_OriginMessage_filter>;
+  block?: InputMaybe<goerli_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Queryoptimismgoerli_destinationMessageArgs = {
+export type Querygoerli_destinationMessageArgs = {
   id: Scalars['ID'];
-  block?: InputMaybe<optimismgoerli_Block_height>;
+  block?: InputMaybe<goerli_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Queryoptimismgoerli_destinationMessagesArgs = {
+export type Querygoerli_destinationMessagesArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<optimismgoerli_DestinationMessage_orderBy>;
-  orderDirection?: InputMaybe<optimismgoerli_OrderDirection>;
-  where?: InputMaybe<optimismgoerli_DestinationMessage_filter>;
-  block?: InputMaybe<optimismgoerli_Block_height>;
+  orderBy?: InputMaybe<goerli_DestinationMessage_orderBy>;
+  orderDirection?: InputMaybe<goerli_OrderDirection>;
+  where?: InputMaybe<goerli_DestinationMessage_filter>;
+  block?: InputMaybe<goerli_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Queryoptimismgoerli_aggregateRootArgs = {
+export type Querygoerli_aggregateRootArgs = {
   id: Scalars['ID'];
-  block?: InputMaybe<optimismgoerli_Block_height>;
+  block?: InputMaybe<goerli_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Queryoptimismgoerli_aggregateRootsArgs = {
+export type Querygoerli_aggregateRootsArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<optimismgoerli_AggregateRoot_orderBy>;
-  orderDirection?: InputMaybe<optimismgoerli_OrderDirection>;
-  where?: InputMaybe<optimismgoerli_AggregateRoot_filter>;
-  block?: InputMaybe<optimismgoerli_Block_height>;
+  orderBy?: InputMaybe<goerli_AggregateRoot_orderBy>;
+  orderDirection?: InputMaybe<goerli_OrderDirection>;
+  where?: InputMaybe<goerli_AggregateRoot_filter>;
+  block?: InputMaybe<goerli_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Queryoptimismgoerli__metaArgs = {
-  block?: InputMaybe<optimismgoerli_Block_height>;
+export type Querygoerli__metaArgs = {
+  block?: InputMaybe<goerli_Block_height>;
 };
 
 
@@ -2975,224 +2975,224 @@ export type Subscriptiongoerli__metaArgs = {
 };
 
 
-export type Subscriptionoptimismgoerli_assetArgs = {
+export type Subscriptiongoerli_assetArgs = {
   id: Scalars['ID'];
-  block?: InputMaybe<optimismgoerli_Block_height>;
+  block?: InputMaybe<goerli_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Subscriptionoptimismgoerli_assetsArgs = {
+export type Subscriptiongoerli_assetsArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<optimismgoerli_Asset_orderBy>;
-  orderDirection?: InputMaybe<optimismgoerli_OrderDirection>;
-  where?: InputMaybe<optimismgoerli_Asset_filter>;
-  block?: InputMaybe<optimismgoerli_Block_height>;
+  orderBy?: InputMaybe<goerli_Asset_orderBy>;
+  orderDirection?: InputMaybe<goerli_OrderDirection>;
+  where?: InputMaybe<goerli_Asset_filter>;
+  block?: InputMaybe<goerli_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Subscriptionoptimismgoerli_assetBalanceArgs = {
+export type Subscriptiongoerli_assetBalanceArgs = {
   id: Scalars['ID'];
-  block?: InputMaybe<optimismgoerli_Block_height>;
+  block?: InputMaybe<goerli_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Subscriptionoptimismgoerli_assetBalancesArgs = {
+export type Subscriptiongoerli_assetBalancesArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<optimismgoerli_AssetBalance_orderBy>;
-  orderDirection?: InputMaybe<optimismgoerli_OrderDirection>;
-  where?: InputMaybe<optimismgoerli_AssetBalance_filter>;
-  block?: InputMaybe<optimismgoerli_Block_height>;
+  orderBy?: InputMaybe<goerli_AssetBalance_orderBy>;
+  orderDirection?: InputMaybe<goerli_OrderDirection>;
+  where?: InputMaybe<goerli_AssetBalance_filter>;
+  block?: InputMaybe<goerli_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Subscriptionoptimismgoerli_routerArgs = {
+export type Subscriptiongoerli_routerArgs = {
   id: Scalars['ID'];
-  block?: InputMaybe<optimismgoerli_Block_height>;
+  block?: InputMaybe<goerli_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Subscriptionoptimismgoerli_routersArgs = {
+export type Subscriptiongoerli_routersArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<optimismgoerli_Router_orderBy>;
-  orderDirection?: InputMaybe<optimismgoerli_OrderDirection>;
-  where?: InputMaybe<optimismgoerli_Router_filter>;
-  block?: InputMaybe<optimismgoerli_Block_height>;
+  orderBy?: InputMaybe<goerli_Router_orderBy>;
+  orderDirection?: InputMaybe<goerli_OrderDirection>;
+  where?: InputMaybe<goerli_Router_filter>;
+  block?: InputMaybe<goerli_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Subscriptionoptimismgoerli_settingArgs = {
+export type Subscriptiongoerli_settingArgs = {
   id: Scalars['ID'];
-  block?: InputMaybe<optimismgoerli_Block_height>;
+  block?: InputMaybe<goerli_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Subscriptionoptimismgoerli_settingsArgs = {
+export type Subscriptiongoerli_settingsArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<optimismgoerli_Setting_orderBy>;
-  orderDirection?: InputMaybe<optimismgoerli_OrderDirection>;
-  where?: InputMaybe<optimismgoerli_Setting_filter>;
-  block?: InputMaybe<optimismgoerli_Block_height>;
+  orderBy?: InputMaybe<goerli_Setting_orderBy>;
+  orderDirection?: InputMaybe<goerli_OrderDirection>;
+  where?: InputMaybe<goerli_Setting_filter>;
+  block?: InputMaybe<goerli_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Subscriptionoptimismgoerli_relayerArgs = {
+export type Subscriptiongoerli_relayerArgs = {
   id: Scalars['ID'];
-  block?: InputMaybe<optimismgoerli_Block_height>;
+  block?: InputMaybe<goerli_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Subscriptionoptimismgoerli_relayersArgs = {
+export type Subscriptiongoerli_relayersArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<optimismgoerli_Relayer_orderBy>;
-  orderDirection?: InputMaybe<optimismgoerli_OrderDirection>;
-  where?: InputMaybe<optimismgoerli_Relayer_filter>;
-  block?: InputMaybe<optimismgoerli_Block_height>;
+  orderBy?: InputMaybe<goerli_Relayer_orderBy>;
+  orderDirection?: InputMaybe<goerli_OrderDirection>;
+  where?: InputMaybe<goerli_Relayer_filter>;
+  block?: InputMaybe<goerli_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Subscriptionoptimismgoerli_stableSwapArgs = {
+export type Subscriptiongoerli_stableSwapArgs = {
   id: Scalars['ID'];
-  block?: InputMaybe<optimismgoerli_Block_height>;
+  block?: InputMaybe<goerli_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Subscriptionoptimismgoerli_stableSwapsArgs = {
+export type Subscriptiongoerli_stableSwapsArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<optimismgoerli_StableSwap_orderBy>;
-  orderDirection?: InputMaybe<optimismgoerli_OrderDirection>;
-  where?: InputMaybe<optimismgoerli_StableSwap_filter>;
-  block?: InputMaybe<optimismgoerli_Block_height>;
+  orderBy?: InputMaybe<goerli_StableSwap_orderBy>;
+  orderDirection?: InputMaybe<goerli_OrderDirection>;
+  where?: InputMaybe<goerli_StableSwap_filter>;
+  block?: InputMaybe<goerli_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Subscriptionoptimismgoerli_sponsorVaultArgs = {
+export type Subscriptiongoerli_sponsorVaultArgs = {
   id: Scalars['ID'];
-  block?: InputMaybe<optimismgoerli_Block_height>;
+  block?: InputMaybe<goerli_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Subscriptionoptimismgoerli_sponsorVaultsArgs = {
+export type Subscriptiongoerli_sponsorVaultsArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<optimismgoerli_SponsorVault_orderBy>;
-  orderDirection?: InputMaybe<optimismgoerli_OrderDirection>;
-  where?: InputMaybe<optimismgoerli_SponsorVault_filter>;
-  block?: InputMaybe<optimismgoerli_Block_height>;
+  orderBy?: InputMaybe<goerli_SponsorVault_orderBy>;
+  orderDirection?: InputMaybe<goerli_OrderDirection>;
+  where?: InputMaybe<goerli_SponsorVault_filter>;
+  block?: InputMaybe<goerli_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Subscriptionoptimismgoerli_originTransferArgs = {
+export type Subscriptiongoerli_originTransferArgs = {
   id: Scalars['ID'];
-  block?: InputMaybe<optimismgoerli_Block_height>;
+  block?: InputMaybe<goerli_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Subscriptionoptimismgoerli_originTransfersArgs = {
+export type Subscriptiongoerli_originTransfersArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<optimismgoerli_OriginTransfer_orderBy>;
-  orderDirection?: InputMaybe<optimismgoerli_OrderDirection>;
-  where?: InputMaybe<optimismgoerli_OriginTransfer_filter>;
-  block?: InputMaybe<optimismgoerli_Block_height>;
+  orderBy?: InputMaybe<goerli_OriginTransfer_orderBy>;
+  orderDirection?: InputMaybe<goerli_OrderDirection>;
+  where?: InputMaybe<goerli_OriginTransfer_filter>;
+  block?: InputMaybe<goerli_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Subscriptionoptimismgoerli_destinationTransferArgs = {
+export type Subscriptiongoerli_destinationTransferArgs = {
   id: Scalars['ID'];
-  block?: InputMaybe<optimismgoerli_Block_height>;
+  block?: InputMaybe<goerli_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Subscriptionoptimismgoerli_destinationTransfersArgs = {
+export type Subscriptiongoerli_destinationTransfersArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<optimismgoerli_DestinationTransfer_orderBy>;
-  orderDirection?: InputMaybe<optimismgoerli_OrderDirection>;
-  where?: InputMaybe<optimismgoerli_DestinationTransfer_filter>;
-  block?: InputMaybe<optimismgoerli_Block_height>;
+  orderBy?: InputMaybe<goerli_DestinationTransfer_orderBy>;
+  orderDirection?: InputMaybe<goerli_OrderDirection>;
+  where?: InputMaybe<goerli_DestinationTransfer_filter>;
+  block?: InputMaybe<goerli_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Subscriptionoptimismgoerli_originMessageArgs = {
+export type Subscriptiongoerli_originMessageArgs = {
   id: Scalars['ID'];
-  block?: InputMaybe<optimismgoerli_Block_height>;
+  block?: InputMaybe<goerli_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Subscriptionoptimismgoerli_originMessagesArgs = {
+export type Subscriptiongoerli_originMessagesArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<optimismgoerli_OriginMessage_orderBy>;
-  orderDirection?: InputMaybe<optimismgoerli_OrderDirection>;
-  where?: InputMaybe<optimismgoerli_OriginMessage_filter>;
-  block?: InputMaybe<optimismgoerli_Block_height>;
+  orderBy?: InputMaybe<goerli_OriginMessage_orderBy>;
+  orderDirection?: InputMaybe<goerli_OrderDirection>;
+  where?: InputMaybe<goerli_OriginMessage_filter>;
+  block?: InputMaybe<goerli_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Subscriptionoptimismgoerli_destinationMessageArgs = {
+export type Subscriptiongoerli_destinationMessageArgs = {
   id: Scalars['ID'];
-  block?: InputMaybe<optimismgoerli_Block_height>;
+  block?: InputMaybe<goerli_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Subscriptionoptimismgoerli_destinationMessagesArgs = {
+export type Subscriptiongoerli_destinationMessagesArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<optimismgoerli_DestinationMessage_orderBy>;
-  orderDirection?: InputMaybe<optimismgoerli_OrderDirection>;
-  where?: InputMaybe<optimismgoerli_DestinationMessage_filter>;
-  block?: InputMaybe<optimismgoerli_Block_height>;
+  orderBy?: InputMaybe<goerli_DestinationMessage_orderBy>;
+  orderDirection?: InputMaybe<goerli_OrderDirection>;
+  where?: InputMaybe<goerli_DestinationMessage_filter>;
+  block?: InputMaybe<goerli_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Subscriptionoptimismgoerli_aggregateRootArgs = {
+export type Subscriptiongoerli_aggregateRootArgs = {
   id: Scalars['ID'];
-  block?: InputMaybe<optimismgoerli_Block_height>;
+  block?: InputMaybe<goerli_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Subscriptionoptimismgoerli_aggregateRootsArgs = {
+export type Subscriptiongoerli_aggregateRootsArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<optimismgoerli_AggregateRoot_orderBy>;
-  orderDirection?: InputMaybe<optimismgoerli_OrderDirection>;
-  where?: InputMaybe<optimismgoerli_AggregateRoot_filter>;
-  block?: InputMaybe<optimismgoerli_Block_height>;
+  orderBy?: InputMaybe<goerli_AggregateRoot_orderBy>;
+  orderDirection?: InputMaybe<goerli_OrderDirection>;
+  where?: InputMaybe<goerli_AggregateRoot_filter>;
+  block?: InputMaybe<goerli_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Subscriptionoptimismgoerli__metaArgs = {
-  block?: InputMaybe<optimismgoerli_Block_height>;
+export type Subscriptiongoerli__metaArgs = {
+  block?: InputMaybe<goerli_Block_height>;
 };
 
 
@@ -5093,11 +5093,6 @@ export type staginggoerli__Meta_ = {
   hasIndexingErrors: Scalars['Boolean'];
 };
 
-export type _SubgraphErrorPolicy_ =
-  /** Data will be returned even if the subgraph has indexing errors */
-  | 'allow'
-  /** If the subgraph has indexing errors, data will be omitted. The default. */
-  | 'deny';
 
 export type local1338_Asset = {
   id: Scalars['ID'];
@@ -6074,9 +6069,7 @@ export type local1338_StableSwap_filter = {
 
 export type local1338_StableSwap_orderBy =
   | 'id'
-  | 'canonicalId'
-  | 'domain'
-  | 'swapPool';
+  | 'root';
 
 export type local1338_TransferStatus =
   | 'XCalled'
@@ -6864,6 +6857,7 @@ export type testoptimismgoerli_OriginTransfer_orderBy =
   | 'transactingAmount'
   | 'bridgedAsset'
   | 'bridgedAmount'
+  | 'message'
   | 'caller'
   | 'transactionHash'
   | 'timestamp'
@@ -15098,6 +15092,58 @@ export type local1338__Meta_Resolvers<ContextType = MeshContext, ParentType exte
   deployment?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   hasIndexingErrors?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+=======
+  staginggoerli_asset?: SubscriptionResolver<Maybe<ResolversTypes['staginggoerli_Asset']>, "staginggoerli_asset", ParentType, ContextType, RequireFields<Subscriptionstaginggoerli_assetArgs, 'id' | 'subgraphError'>>;
+  staginggoerli_assets?: SubscriptionResolver<Array<ResolversTypes['staginggoerli_Asset']>, "staginggoerli_assets", ParentType, ContextType, RequireFields<Subscriptionstaginggoerli_assetsArgs, 'skip' | 'first' | 'subgraphError'>>;
+  staginggoerli_assetBalance?: SubscriptionResolver<Maybe<ResolversTypes['staginggoerli_AssetBalance']>, "staginggoerli_assetBalance", ParentType, ContextType, RequireFields<Subscriptionstaginggoerli_assetBalanceArgs, 'id' | 'subgraphError'>>;
+  staginggoerli_assetBalances?: SubscriptionResolver<Array<ResolversTypes['staginggoerli_AssetBalance']>, "staginggoerli_assetBalances", ParentType, ContextType, RequireFields<Subscriptionstaginggoerli_assetBalancesArgs, 'skip' | 'first' | 'subgraphError'>>;
+  staginggoerli_router?: SubscriptionResolver<Maybe<ResolversTypes['staginggoerli_Router']>, "staginggoerli_router", ParentType, ContextType, RequireFields<Subscriptionstaginggoerli_routerArgs, 'id' | 'subgraphError'>>;
+  staginggoerli_routers?: SubscriptionResolver<Array<ResolversTypes['staginggoerli_Router']>, "staginggoerli_routers", ParentType, ContextType, RequireFields<Subscriptionstaginggoerli_routersArgs, 'skip' | 'first' | 'subgraphError'>>;
+  staginggoerli_setting?: SubscriptionResolver<Maybe<ResolversTypes['staginggoerli_Setting']>, "staginggoerli_setting", ParentType, ContextType, RequireFields<Subscriptionstaginggoerli_settingArgs, 'id' | 'subgraphError'>>;
+  staginggoerli_settings?: SubscriptionResolver<Array<ResolversTypes['staginggoerli_Setting']>, "staginggoerli_settings", ParentType, ContextType, RequireFields<Subscriptionstaginggoerli_settingsArgs, 'skip' | 'first' | 'subgraphError'>>;
+  staginggoerli_relayer?: SubscriptionResolver<Maybe<ResolversTypes['staginggoerli_Relayer']>, "staginggoerli_relayer", ParentType, ContextType, RequireFields<Subscriptionstaginggoerli_relayerArgs, 'id' | 'subgraphError'>>;
+  staginggoerli_relayers?: SubscriptionResolver<Array<ResolversTypes['staginggoerli_Relayer']>, "staginggoerli_relayers", ParentType, ContextType, RequireFields<Subscriptionstaginggoerli_relayersArgs, 'skip' | 'first' | 'subgraphError'>>;
+  staginggoerli_stableSwap?: SubscriptionResolver<Maybe<ResolversTypes['staginggoerli_StableSwap']>, "staginggoerli_stableSwap", ParentType, ContextType, RequireFields<Subscriptionstaginggoerli_stableSwapArgs, 'id' | 'subgraphError'>>;
+  staginggoerli_stableSwaps?: SubscriptionResolver<Array<ResolversTypes['staginggoerli_StableSwap']>, "staginggoerli_stableSwaps", ParentType, ContextType, RequireFields<Subscriptionstaginggoerli_stableSwapsArgs, 'skip' | 'first' | 'subgraphError'>>;
+  staginggoerli_sponsorVault?: SubscriptionResolver<Maybe<ResolversTypes['staginggoerli_SponsorVault']>, "staginggoerli_sponsorVault", ParentType, ContextType, RequireFields<Subscriptionstaginggoerli_sponsorVaultArgs, 'id' | 'subgraphError'>>;
+  staginggoerli_sponsorVaults?: SubscriptionResolver<Array<ResolversTypes['staginggoerli_SponsorVault']>, "staginggoerli_sponsorVaults", ParentType, ContextType, RequireFields<Subscriptionstaginggoerli_sponsorVaultsArgs, 'skip' | 'first' | 'subgraphError'>>;
+  staginggoerli_originTransfer?: SubscriptionResolver<Maybe<ResolversTypes['staginggoerli_OriginTransfer']>, "staginggoerli_originTransfer", ParentType, ContextType, RequireFields<Subscriptionstaginggoerli_originTransferArgs, 'id' | 'subgraphError'>>;
+  staginggoerli_originTransfers?: SubscriptionResolver<Array<ResolversTypes['staginggoerli_OriginTransfer']>, "staginggoerli_originTransfers", ParentType, ContextType, RequireFields<Subscriptionstaginggoerli_originTransfersArgs, 'skip' | 'first' | 'subgraphError'>>;
+  staginggoerli_destinationTransfer?: SubscriptionResolver<Maybe<ResolversTypes['staginggoerli_DestinationTransfer']>, "staginggoerli_destinationTransfer", ParentType, ContextType, RequireFields<Subscriptionstaginggoerli_destinationTransferArgs, 'id' | 'subgraphError'>>;
+  staginggoerli_destinationTransfers?: SubscriptionResolver<Array<ResolversTypes['staginggoerli_DestinationTransfer']>, "staginggoerli_destinationTransfers", ParentType, ContextType, RequireFields<Subscriptionstaginggoerli_destinationTransfersArgs, 'skip' | 'first' | 'subgraphError'>>;
+  staginggoerli_originMessage?: SubscriptionResolver<Maybe<ResolversTypes['staginggoerli_OriginMessage']>, "staginggoerli_originMessage", ParentType, ContextType, RequireFields<Subscriptionstaginggoerli_originMessageArgs, 'id' | 'subgraphError'>>;
+  staginggoerli_originMessages?: SubscriptionResolver<Array<ResolversTypes['staginggoerli_OriginMessage']>, "staginggoerli_originMessages", ParentType, ContextType, RequireFields<Subscriptionstaginggoerli_originMessagesArgs, 'skip' | 'first' | 'subgraphError'>>;
+  staginggoerli_destinationMessage?: SubscriptionResolver<Maybe<ResolversTypes['staginggoerli_DestinationMessage']>, "staginggoerli_destinationMessage", ParentType, ContextType, RequireFields<Subscriptionstaginggoerli_destinationMessageArgs, 'id' | 'subgraphError'>>;
+  staginggoerli_destinationMessages?: SubscriptionResolver<Array<ResolversTypes['staginggoerli_DestinationMessage']>, "staginggoerli_destinationMessages", ParentType, ContextType, RequireFields<Subscriptionstaginggoerli_destinationMessagesArgs, 'skip' | 'first' | 'subgraphError'>>;
+  staginggoerli_aggregateRoot?: SubscriptionResolver<Maybe<ResolversTypes['staginggoerli_AggregateRoot']>, "staginggoerli_aggregateRoot", ParentType, ContextType, RequireFields<Subscriptionstaginggoerli_aggregateRootArgs, 'id' | 'subgraphError'>>;
+  staginggoerli_aggregateRoots?: SubscriptionResolver<Array<ResolversTypes['staginggoerli_AggregateRoot']>, "staginggoerli_aggregateRoots", ParentType, ContextType, RequireFields<Subscriptionstaginggoerli_aggregateRootsArgs, 'skip' | 'first' | 'subgraphError'>>;
+  staginggoerli__meta?: SubscriptionResolver<Maybe<ResolversTypes['staginggoerli__Meta_']>, "staginggoerli__meta", ParentType, ContextType, Partial<Subscriptionstaginggoerli__metaArgs>>;
+  goerli_asset?: SubscriptionResolver<Maybe<ResolversTypes['goerli_Asset']>, "goerli_asset", ParentType, ContextType, RequireFields<Subscriptiongoerli_assetArgs, 'id' | 'subgraphError'>>;
+  goerli_assets?: SubscriptionResolver<Array<ResolversTypes['goerli_Asset']>, "goerli_assets", ParentType, ContextType, RequireFields<Subscriptiongoerli_assetsArgs, 'skip' | 'first' | 'subgraphError'>>;
+  goerli_assetBalance?: SubscriptionResolver<Maybe<ResolversTypes['goerli_AssetBalance']>, "goerli_assetBalance", ParentType, ContextType, RequireFields<Subscriptiongoerli_assetBalanceArgs, 'id' | 'subgraphError'>>;
+  goerli_assetBalances?: SubscriptionResolver<Array<ResolversTypes['goerli_AssetBalance']>, "goerli_assetBalances", ParentType, ContextType, RequireFields<Subscriptiongoerli_assetBalancesArgs, 'skip' | 'first' | 'subgraphError'>>;
+  goerli_router?: SubscriptionResolver<Maybe<ResolversTypes['goerli_Router']>, "goerli_router", ParentType, ContextType, RequireFields<Subscriptiongoerli_routerArgs, 'id' | 'subgraphError'>>;
+  goerli_routers?: SubscriptionResolver<Array<ResolversTypes['goerli_Router']>, "goerli_routers", ParentType, ContextType, RequireFields<Subscriptiongoerli_routersArgs, 'skip' | 'first' | 'subgraphError'>>;
+  goerli_setting?: SubscriptionResolver<Maybe<ResolversTypes['goerli_Setting']>, "goerli_setting", ParentType, ContextType, RequireFields<Subscriptiongoerli_settingArgs, 'id' | 'subgraphError'>>;
+  goerli_settings?: SubscriptionResolver<Array<ResolversTypes['goerli_Setting']>, "goerli_settings", ParentType, ContextType, RequireFields<Subscriptiongoerli_settingsArgs, 'skip' | 'first' | 'subgraphError'>>;
+  goerli_relayer?: SubscriptionResolver<Maybe<ResolversTypes['goerli_Relayer']>, "goerli_relayer", ParentType, ContextType, RequireFields<Subscriptiongoerli_relayerArgs, 'id' | 'subgraphError'>>;
+  goerli_relayers?: SubscriptionResolver<Array<ResolversTypes['goerli_Relayer']>, "goerli_relayers", ParentType, ContextType, RequireFields<Subscriptiongoerli_relayersArgs, 'skip' | 'first' | 'subgraphError'>>;
+  goerli_stableSwap?: SubscriptionResolver<Maybe<ResolversTypes['goerli_StableSwap']>, "goerli_stableSwap", ParentType, ContextType, RequireFields<Subscriptiongoerli_stableSwapArgs, 'id' | 'subgraphError'>>;
+  goerli_stableSwaps?: SubscriptionResolver<Array<ResolversTypes['goerli_StableSwap']>, "goerli_stableSwaps", ParentType, ContextType, RequireFields<Subscriptiongoerli_stableSwapsArgs, 'skip' | 'first' | 'subgraphError'>>;
+  goerli_sponsorVault?: SubscriptionResolver<Maybe<ResolversTypes['goerli_SponsorVault']>, "goerli_sponsorVault", ParentType, ContextType, RequireFields<Subscriptiongoerli_sponsorVaultArgs, 'id' | 'subgraphError'>>;
+  goerli_sponsorVaults?: SubscriptionResolver<Array<ResolversTypes['goerli_SponsorVault']>, "goerli_sponsorVaults", ParentType, ContextType, RequireFields<Subscriptiongoerli_sponsorVaultsArgs, 'skip' | 'first' | 'subgraphError'>>;
+  goerli_originTransfer?: SubscriptionResolver<Maybe<ResolversTypes['goerli_OriginTransfer']>, "goerli_originTransfer", ParentType, ContextType, RequireFields<Subscriptiongoerli_originTransferArgs, 'id' | 'subgraphError'>>;
+  goerli_originTransfers?: SubscriptionResolver<Array<ResolversTypes['goerli_OriginTransfer']>, "goerli_originTransfers", ParentType, ContextType, RequireFields<Subscriptiongoerli_originTransfersArgs, 'skip' | 'first' | 'subgraphError'>>;
+  goerli_destinationTransfer?: SubscriptionResolver<Maybe<ResolversTypes['goerli_DestinationTransfer']>, "goerli_destinationTransfer", ParentType, ContextType, RequireFields<Subscriptiongoerli_destinationTransferArgs, 'id' | 'subgraphError'>>;
+  goerli_destinationTransfers?: SubscriptionResolver<Array<ResolversTypes['goerli_DestinationTransfer']>, "goerli_destinationTransfers", ParentType, ContextType, RequireFields<Subscriptiongoerli_destinationTransfersArgs, 'skip' | 'first' | 'subgraphError'>>;
+  goerli_originMessage?: SubscriptionResolver<Maybe<ResolversTypes['goerli_OriginMessage']>, "goerli_originMessage", ParentType, ContextType, RequireFields<Subscriptiongoerli_originMessageArgs, 'id' | 'subgraphError'>>;
+  goerli_originMessages?: SubscriptionResolver<Array<ResolversTypes['goerli_OriginMessage']>, "goerli_originMessages", ParentType, ContextType, RequireFields<Subscriptiongoerli_originMessagesArgs, 'skip' | 'first' | 'subgraphError'>>;
+  goerli_destinationMessage?: SubscriptionResolver<Maybe<ResolversTypes['goerli_DestinationMessage']>, "goerli_destinationMessage", ParentType, ContextType, RequireFields<Subscriptiongoerli_destinationMessageArgs, 'id' | 'subgraphError'>>;
+  goerli_destinationMessages?: SubscriptionResolver<Array<ResolversTypes['goerli_DestinationMessage']>, "goerli_destinationMessages", ParentType, ContextType, RequireFields<Subscriptiongoerli_destinationMessagesArgs, 'skip' | 'first' | 'subgraphError'>>;
+  goerli_aggregateRoot?: SubscriptionResolver<Maybe<ResolversTypes['goerli_AggregateRoot']>, "goerli_aggregateRoot", ParentType, ContextType, RequireFields<Subscriptiongoerli_aggregateRootArgs, 'id' | 'subgraphError'>>;
+  goerli_aggregateRoots?: SubscriptionResolver<Array<ResolversTypes['goerli_AggregateRoot']>, "goerli_aggregateRoots", ParentType, ContextType, RequireFields<Subscriptiongoerli_aggregateRootsArgs, 'skip' | 'first' | 'subgraphError'>>;
+  goerli__meta?: SubscriptionResolver<Maybe<ResolversTypes['goerli__Meta_']>, "goerli__meta", ParentType, ContextType, Partial<Subscriptiongoerli__metaArgs>>;
+>>>>>>> prod
 }>;
 
 export type testoptimismgoerli_AssetResolvers<ContextType = MeshContext, ParentType extends ResolversParentTypes['testoptimismgoerli_Asset'] = ResolversParentTypes['testoptimismgoerli_Asset']> = ResolversObject<{
@@ -15918,74 +15964,74 @@ export type stagingoptimismgoerli_AggregateRootResolvers<ContextType = MeshConte
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
-export type stagingoptimismgoerli_AssetResolvers<ContextType = MeshContext, ParentType extends ResolversParentTypes['stagingoptimismgoerli_Asset'] = ResolversParentTypes['stagingoptimismgoerli_Asset']> = ResolversObject<{
+export type stagingstagingoptimismgoerli_AssetResolvers<ContextType = MeshContext, ParentType extends ResolversParentTypes['stagingstagingoptimismgoerli_Asset'] = ResolversParentTypes['stagingstagingoptimismgoerli_Asset']> = ResolversObject<{
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
-  key?: Resolver<Maybe<ResolversTypes['stagingoptimismgoerli_Bytes']>, ParentType, ContextType>;
-  local?: Resolver<ResolversTypes['stagingoptimismgoerli_Bytes'], ParentType, ContextType>;
-  adoptedAsset?: Resolver<ResolversTypes['stagingoptimismgoerli_Bytes'], ParentType, ContextType>;
-  canonicalId?: Resolver<ResolversTypes['stagingoptimismgoerli_Bytes'], ParentType, ContextType>;
+  key?: Resolver<Maybe<ResolversTypes['stagingstagingoptimismgoerli_Bytes']>, ParentType, ContextType>;
+  local?: Resolver<ResolversTypes['stagingstagingoptimismgoerli_Bytes'], ParentType, ContextType>;
+  adoptedAsset?: Resolver<ResolversTypes['stagingstagingoptimismgoerli_Bytes'], ParentType, ContextType>;
+  canonicalId?: Resolver<ResolversTypes['stagingstagingoptimismgoerli_Bytes'], ParentType, ContextType>;
   canonicalDomain?: Resolver<ResolversTypes['BigInt'], ParentType, ContextType>;
   blockNumber?: Resolver<ResolversTypes['BigInt'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
-export type stagingoptimismgoerli_AssetBalanceResolvers<ContextType = MeshContext, ParentType extends ResolversParentTypes['stagingoptimismgoerli_AssetBalance'] = ResolversParentTypes['stagingoptimismgoerli_AssetBalance']> = ResolversObject<{
+export type stagingstagingoptimismgoerli_AssetBalanceResolvers<ContextType = MeshContext, ParentType extends ResolversParentTypes['stagingstagingoptimismgoerli_AssetBalance'] = ResolversParentTypes['stagingstagingoptimismgoerli_AssetBalance']> = ResolversObject<{
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   amount?: Resolver<ResolversTypes['BigInt'], ParentType, ContextType>;
-  router?: Resolver<ResolversTypes['stagingoptimismgoerli_Router'], ParentType, ContextType>;
-  asset?: Resolver<ResolversTypes['stagingoptimismgoerli_Asset'], ParentType, ContextType>;
+  router?: Resolver<ResolversTypes['stagingstagingoptimismgoerli_Router'], ParentType, ContextType>;
+  asset?: Resolver<ResolversTypes['stagingstagingoptimismgoerli_Asset'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
-export interface stagingoptimismgoerli_BigDecimalScalarConfig extends GraphQLScalarTypeConfig<ResolversTypes['stagingoptimismgoerli_BigDecimal'], any> {
-  name: 'stagingoptimismgoerli_BigDecimal';
+export interface stagingstagingoptimismgoerli_BigDecimalScalarConfig extends GraphQLScalarTypeConfig<ResolversTypes['stagingstagingoptimismgoerli_BigDecimal'], any> {
+  name: 'stagingstagingoptimismgoerli_BigDecimal';
 }
 
-export interface stagingoptimismgoerli_BytesScalarConfig extends GraphQLScalarTypeConfig<ResolversTypes['stagingoptimismgoerli_Bytes'], any> {
-  name: 'stagingoptimismgoerli_Bytes';
+export interface stagingstagingoptimismgoerli_BytesScalarConfig extends GraphQLScalarTypeConfig<ResolversTypes['stagingstagingoptimismgoerli_Bytes'], any> {
+  name: 'stagingstagingoptimismgoerli_Bytes';
 }
 
-export type stagingoptimismgoerli_DestinationMessageResolvers<ContextType = MeshContext, ParentType extends ResolversParentTypes['stagingoptimismgoerli_DestinationMessage'] = ResolversParentTypes['stagingoptimismgoerli_DestinationMessage']> = ResolversObject<{
+export type stagingstagingoptimismgoerli_DestinationMessageResolvers<ContextType = MeshContext, ParentType extends ResolversParentTypes['stagingstagingoptimismgoerli_DestinationMessage'] = ResolversParentTypes['stagingstagingoptimismgoerli_DestinationMessage']> = ResolversObject<{
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
-  leaf?: Resolver<Maybe<ResolversTypes['stagingoptimismgoerli_Bytes']>, ParentType, ContextType>;
+  leaf?: Resolver<Maybe<ResolversTypes['stagingstagingoptimismgoerli_Bytes']>, ParentType, ContextType>;
   processed?: Resolver<Maybe<ResolversTypes['Boolean']>, ParentType, ContextType>;
-  returnData?: Resolver<Maybe<ResolversTypes['stagingoptimismgoerli_Bytes']>, ParentType, ContextType>;
+  returnData?: Resolver<Maybe<ResolversTypes['stagingstagingoptimismgoerli_Bytes']>, ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
-export type stagingoptimismgoerli_DestinationTransferResolvers<ContextType = MeshContext, ParentType extends ResolversParentTypes['stagingoptimismgoerli_DestinationTransfer'] = ResolversParentTypes['stagingoptimismgoerli_DestinationTransfer']> = ResolversObject<{
+export type stagingstagingoptimismgoerli_DestinationTransferResolvers<ContextType = MeshContext, ParentType extends ResolversParentTypes['stagingstagingoptimismgoerli_DestinationTransfer'] = ResolversParentTypes['stagingstagingoptimismgoerli_DestinationTransfer']> = ResolversObject<{
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   chainId?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
-  transferId?: Resolver<Maybe<ResolversTypes['stagingoptimismgoerli_Bytes']>, ParentType, ContextType>;
+  transferId?: Resolver<Maybe<ResolversTypes['stagingstagingoptimismgoerli_Bytes']>, ParentType, ContextType>;
   nonce?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
-  to?: Resolver<Maybe<ResolversTypes['stagingoptimismgoerli_Bytes']>, ParentType, ContextType>;
-  callData?: Resolver<Maybe<ResolversTypes['stagingoptimismgoerli_Bytes']>, ParentType, ContextType>;
+  to?: Resolver<Maybe<ResolversTypes['stagingstagingoptimismgoerli_Bytes']>, ParentType, ContextType>;
+  callData?: Resolver<Maybe<ResolversTypes['stagingstagingoptimismgoerli_Bytes']>, ParentType, ContextType>;
   originDomain?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
   destinationDomain?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
-  agent?: Resolver<Maybe<ResolversTypes['stagingoptimismgoerli_Bytes']>, ParentType, ContextType>;
-  recovery?: Resolver<Maybe<ResolversTypes['stagingoptimismgoerli_Bytes']>, ParentType, ContextType>;
+  agent?: Resolver<Maybe<ResolversTypes['stagingstagingoptimismgoerli_Bytes']>, ParentType, ContextType>;
+  recovery?: Resolver<Maybe<ResolversTypes['stagingstagingoptimismgoerli_Bytes']>, ParentType, ContextType>;
   forceSlow?: Resolver<Maybe<ResolversTypes['Boolean']>, ParentType, ContextType>;
   receiveLocal?: Resolver<Maybe<ResolversTypes['Boolean']>, ParentType, ContextType>;
-  callback?: Resolver<Maybe<ResolversTypes['stagingoptimismgoerli_Bytes']>, ParentType, ContextType>;
+  callback?: Resolver<Maybe<ResolversTypes['stagingstagingoptimismgoerli_Bytes']>, ParentType, ContextType>;
   callbackFee?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
   relayerFee?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
   destinationMinOut?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
-  status?: Resolver<Maybe<ResolversTypes['stagingoptimismgoerli_TransferStatus']>, ParentType, ContextType>;
-  routers?: Resolver<Maybe<Array<ResolversTypes['stagingoptimismgoerli_Router']>>, ParentType, ContextType, RequireFields<stagingoptimismgoerli_DestinationTransferroutersArgs, 'skip' | 'first'>>;
-  originSender?: Resolver<Maybe<ResolversTypes['stagingoptimismgoerli_Bytes']>, ParentType, ContextType>;
-  transactingAsset?: Resolver<Maybe<ResolversTypes['stagingoptimismgoerli_Bytes']>, ParentType, ContextType>;
+  status?: Resolver<Maybe<ResolversTypes['stagingstagingoptimismgoerli_TransferStatus']>, ParentType, ContextType>;
+  routers?: Resolver<Maybe<Array<ResolversTypes['stagingstagingoptimismgoerli_Router']>>, ParentType, ContextType, RequireFields<stagingstagingoptimismgoerli_DestinationTransferroutersArgs, 'skip' | 'first'>>;
+  originSender?: Resolver<Maybe<ResolversTypes['stagingstagingoptimismgoerli_Bytes']>, ParentType, ContextType>;
+  transactingAsset?: Resolver<Maybe<ResolversTypes['stagingstagingoptimismgoerli_Bytes']>, ParentType, ContextType>;
   transactingAmount?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
-  localAsset?: Resolver<Maybe<ResolversTypes['stagingoptimismgoerli_Bytes']>, ParentType, ContextType>;
+  localAsset?: Resolver<Maybe<ResolversTypes['stagingstagingoptimismgoerli_Bytes']>, ParentType, ContextType>;
   localAmount?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
   sponsorVaultRelayerFee?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
-  executedCaller?: Resolver<Maybe<ResolversTypes['stagingoptimismgoerli_Bytes']>, ParentType, ContextType>;
-  executedTransactionHash?: Resolver<Maybe<ResolversTypes['stagingoptimismgoerli_Bytes']>, ParentType, ContextType>;
+  executedCaller?: Resolver<Maybe<ResolversTypes['stagingstagingoptimismgoerli_Bytes']>, ParentType, ContextType>;
+  executedTransactionHash?: Resolver<Maybe<ResolversTypes['stagingstagingoptimismgoerli_Bytes']>, ParentType, ContextType>;
   executedTimestamp?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
   executedGasPrice?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
   executedGasLimit?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
   executedBlockNumber?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
-  reconciledCaller?: Resolver<Maybe<ResolversTypes['stagingoptimismgoerli_Bytes']>, ParentType, ContextType>;
-  reconciledTransactionHash?: Resolver<Maybe<ResolversTypes['stagingoptimismgoerli_Bytes']>, ParentType, ContextType>;
+  reconciledCaller?: Resolver<Maybe<ResolversTypes['stagingstagingoptimismgoerli_Bytes']>, ParentType, ContextType>;
+  reconciledTransactionHash?: Resolver<Maybe<ResolversTypes['stagingstagingoptimismgoerli_Bytes']>, ParentType, ContextType>;
   reconciledTimestamp?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
   reconciledGasPrice?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
   reconciledGasLimit?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
@@ -15993,39 +16039,41 @@ export type stagingoptimismgoerli_DestinationTransferResolvers<ContextType = Mes
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
-export type stagingoptimismgoerli_OriginMessageResolvers<ContextType = MeshContext, ParentType extends ResolversParentTypes['stagingoptimismgoerli_OriginMessage'] = ResolversParentTypes['stagingoptimismgoerli_OriginMessage']> = ResolversObject<{
+export type stagingstagingoptimismgoerli_OriginMessageResolvers<ContextType = MeshContext, ParentType extends ResolversParentTypes['stagingstagingoptimismgoerli_OriginMessage'] = ResolversParentTypes['stagingstagingoptimismgoerli_OriginMessage']> = ResolversObject<{
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  transferId?: Resolver<Maybe<ResolversTypes['staginggoerli_Bytes']>, ParentType, ContextType>;
+  destinationDomain?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
   transferId?: Resolver<Maybe<ResolversTypes['stagingoptimismgoerli_Bytes']>, ParentType, ContextType>;
   destinationDomain?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
-  leaf?: Resolver<Maybe<ResolversTypes['stagingoptimismgoerli_Bytes']>, ParentType, ContextType>;
+  leaf?: Resolver<Maybe<ResolversTypes['stagingstagingoptimismgoerli_Bytes']>, ParentType, ContextType>;
   index?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
-  root?: Resolver<Maybe<ResolversTypes['stagingoptimismgoerli_Bytes']>, ParentType, ContextType>;
-  message?: Resolver<Maybe<ResolversTypes['stagingoptimismgoerli_Bytes']>, ParentType, ContextType>;
+  root?: Resolver<Maybe<ResolversTypes['stagingstagingoptimismgoerli_Bytes']>, ParentType, ContextType>;
+  message?: Resolver<Maybe<ResolversTypes['stagingstagingoptimismgoerli_Bytes']>, ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
-export type stagingoptimismgoerli_OriginTransferResolvers<ContextType = MeshContext, ParentType extends ResolversParentTypes['stagingoptimismgoerli_OriginTransfer'] = ResolversParentTypes['stagingoptimismgoerli_OriginTransfer']> = ResolversObject<{
+export type stagingstagingoptimismgoerli_OriginTransferResolvers<ContextType = MeshContext, ParentType extends ResolversParentTypes['stagingstagingoptimismgoerli_OriginTransfer'] = ResolversParentTypes['stagingstagingoptimismgoerli_OriginTransfer']> = ResolversObject<{
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   chainId?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
-  transferId?: Resolver<Maybe<ResolversTypes['stagingoptimismgoerli_Bytes']>, ParentType, ContextType>;
+  transferId?: Resolver<Maybe<ResolversTypes['stagingstagingoptimismgoerli_Bytes']>, ParentType, ContextType>;
   nonce?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
-  to?: Resolver<Maybe<ResolversTypes['stagingoptimismgoerli_Bytes']>, ParentType, ContextType>;
-  callData?: Resolver<Maybe<ResolversTypes['stagingoptimismgoerli_Bytes']>, ParentType, ContextType>;
+  to?: Resolver<Maybe<ResolversTypes['stagingstagingoptimismgoerli_Bytes']>, ParentType, ContextType>;
+  callData?: Resolver<Maybe<ResolversTypes['stagingstagingoptimismgoerli_Bytes']>, ParentType, ContextType>;
   originDomain?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
   destinationDomain?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
-  agent?: Resolver<Maybe<ResolversTypes['stagingoptimismgoerli_Bytes']>, ParentType, ContextType>;
-  recovery?: Resolver<Maybe<ResolversTypes['stagingoptimismgoerli_Bytes']>, ParentType, ContextType>;
+  agent?: Resolver<Maybe<ResolversTypes['stagingstagingoptimismgoerli_Bytes']>, ParentType, ContextType>;
+  recovery?: Resolver<Maybe<ResolversTypes['stagingstagingoptimismgoerli_Bytes']>, ParentType, ContextType>;
   forceSlow?: Resolver<Maybe<ResolversTypes['Boolean']>, ParentType, ContextType>;
   receiveLocal?: Resolver<Maybe<ResolversTypes['Boolean']>, ParentType, ContextType>;
-  callback?: Resolver<Maybe<ResolversTypes['stagingoptimismgoerli_Bytes']>, ParentType, ContextType>;
+  callback?: Resolver<Maybe<ResolversTypes['stagingstagingoptimismgoerli_Bytes']>, ParentType, ContextType>;
   callbackFee?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
   relayerFee?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
   destinationMinOut?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
-  status?: Resolver<Maybe<ResolversTypes['stagingoptimismgoerli_TransferStatus']>, ParentType, ContextType>;
+  status?: Resolver<Maybe<ResolversTypes['stagingstagingoptimismgoerli_TransferStatus']>, ParentType, ContextType>;
   originMinOut?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
-  transactingAsset?: Resolver<Maybe<ResolversTypes['stagingoptimismgoerli_Bytes']>, ParentType, ContextType>;
+  transactingAsset?: Resolver<Maybe<ResolversTypes['stagingstagingoptimismgoerli_Bytes']>, ParentType, ContextType>;
   transactingAmount?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
-  bridgedAsset?: Resolver<Maybe<ResolversTypes['stagingoptimismgoerli_Bytes']>, ParentType, ContextType>;
+  bridgedAsset?: Resolver<Maybe<ResolversTypes['stagingstagingoptimismgoerli_Bytes']>, ParentType, ContextType>;
   bridgedAmount?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
   message?: Resolver<Maybe<ResolversTypes['stagingoptimismgoerli_OriginMessage']>, ParentType, ContextType>;
   caller?: Resolver<Maybe<ResolversTypes['stagingoptimismgoerli_Bytes']>, ParentType, ContextType>;
@@ -16037,54 +16085,54 @@ export type stagingoptimismgoerli_OriginTransferResolvers<ContextType = MeshCont
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
-export type stagingoptimismgoerli_RelayerResolvers<ContextType = MeshContext, ParentType extends ResolversParentTypes['stagingoptimismgoerli_Relayer'] = ResolversParentTypes['stagingoptimismgoerli_Relayer']> = ResolversObject<{
+export type stagingstagingoptimismgoerli_RelayerResolvers<ContextType = MeshContext, ParentType extends ResolversParentTypes['stagingstagingoptimismgoerli_Relayer'] = ResolversParentTypes['stagingstagingoptimismgoerli_Relayer']> = ResolversObject<{
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   isActive?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
-  relayer?: Resolver<Maybe<ResolversTypes['stagingoptimismgoerli_Bytes']>, ParentType, ContextType>;
+  relayer?: Resolver<Maybe<ResolversTypes['stagingstagingoptimismgoerli_Bytes']>, ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
-export type stagingoptimismgoerli_RouterResolvers<ContextType = MeshContext, ParentType extends ResolversParentTypes['stagingoptimismgoerli_Router'] = ResolversParentTypes['stagingoptimismgoerli_Router']> = ResolversObject<{
+export type stagingstagingoptimismgoerli_RouterResolvers<ContextType = MeshContext, ParentType extends ResolversParentTypes['stagingstagingoptimismgoerli_Router'] = ResolversParentTypes['stagingstagingoptimismgoerli_Router']> = ResolversObject<{
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   isActive?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
-  owner?: Resolver<Maybe<ResolversTypes['stagingoptimismgoerli_Bytes']>, ParentType, ContextType>;
-  recipient?: Resolver<Maybe<ResolversTypes['stagingoptimismgoerli_Bytes']>, ParentType, ContextType>;
-  proposedOwner?: Resolver<Maybe<ResolversTypes['stagingoptimismgoerli_Bytes']>, ParentType, ContextType>;
+  owner?: Resolver<Maybe<ResolversTypes['stagingstagingoptimismgoerli_Bytes']>, ParentType, ContextType>;
+  recipient?: Resolver<Maybe<ResolversTypes['stagingstagingoptimismgoerli_Bytes']>, ParentType, ContextType>;
+  proposedOwner?: Resolver<Maybe<ResolversTypes['stagingstagingoptimismgoerli_Bytes']>, ParentType, ContextType>;
   proposedTimestamp?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
-  assetBalances?: Resolver<Array<ResolversTypes['stagingoptimismgoerli_AssetBalance']>, ParentType, ContextType, RequireFields<stagingoptimismgoerli_RouterassetBalancesArgs, 'skip' | 'first'>>;
+  assetBalances?: Resolver<Array<ResolversTypes['stagingstagingoptimismgoerli_AssetBalance']>, ParentType, ContextType, RequireFields<stagingstagingoptimismgoerli_RouterassetBalancesArgs, 'skip' | 'first'>>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
-export type stagingoptimismgoerli_SettingResolvers<ContextType = MeshContext, ParentType extends ResolversParentTypes['stagingoptimismgoerli_Setting'] = ResolversParentTypes['stagingoptimismgoerli_Setting']> = ResolversObject<{
+export type stagingstagingoptimismgoerli_SettingResolvers<ContextType = MeshContext, ParentType extends ResolversParentTypes['stagingstagingoptimismgoerli_Setting'] = ResolversParentTypes['stagingstagingoptimismgoerli_Setting']> = ResolversObject<{
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   maxRoutersPerTransfer?: Resolver<ResolversTypes['BigInt'], ParentType, ContextType>;
-  caller?: Resolver<ResolversTypes['stagingoptimismgoerli_Bytes'], ParentType, ContextType>;
+  caller?: Resolver<ResolversTypes['stagingstagingoptimismgoerli_Bytes'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
-export type stagingoptimismgoerli_SponsorVaultResolvers<ContextType = MeshContext, ParentType extends ResolversParentTypes['stagingoptimismgoerli_SponsorVault'] = ResolversParentTypes['stagingoptimismgoerli_SponsorVault']> = ResolversObject<{
+export type stagingstagingoptimismgoerli_SponsorVaultResolvers<ContextType = MeshContext, ParentType extends ResolversParentTypes['stagingstagingoptimismgoerli_SponsorVault'] = ResolversParentTypes['stagingstagingoptimismgoerli_SponsorVault']> = ResolversObject<{
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
-  sponsorVault?: Resolver<ResolversTypes['stagingoptimismgoerli_Bytes'], ParentType, ContextType>;
+  sponsorVault?: Resolver<ResolversTypes['stagingstagingoptimismgoerli_Bytes'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
-export type stagingoptimismgoerli_StableSwapResolvers<ContextType = MeshContext, ParentType extends ResolversParentTypes['stagingoptimismgoerli_StableSwap'] = ResolversParentTypes['stagingoptimismgoerli_StableSwap']> = ResolversObject<{
+export type stagingstagingoptimismgoerli_StableSwapResolvers<ContextType = MeshContext, ParentType extends ResolversParentTypes['stagingstagingoptimismgoerli_StableSwap'] = ResolversParentTypes['stagingstagingoptimismgoerli_StableSwap']> = ResolversObject<{
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
-  canonicalId?: Resolver<ResolversTypes['stagingoptimismgoerli_Bytes'], ParentType, ContextType>;
+  canonicalId?: Resolver<ResolversTypes['stagingstagingoptimismgoerli_Bytes'], ParentType, ContextType>;
   domain?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
-  swapPool?: Resolver<ResolversTypes['stagingoptimismgoerli_Bytes'], ParentType, ContextType>;
+  swapPool?: Resolver<ResolversTypes['stagingstagingoptimismgoerli_Bytes'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
-export type stagingoptimismgoerli__Block_Resolvers<ContextType = MeshContext, ParentType extends ResolversParentTypes['stagingoptimismgoerli__Block_'] = ResolversParentTypes['stagingoptimismgoerli__Block_']> = ResolversObject<{
-  hash?: Resolver<Maybe<ResolversTypes['stagingoptimismgoerli_Bytes']>, ParentType, ContextType>;
+export type stagingstagingoptimismgoerli__Block_Resolvers<ContextType = MeshContext, ParentType extends ResolversParentTypes['stagingstagingoptimismgoerli__Block_'] = ResolversParentTypes['stagingstagingoptimismgoerli__Block_']> = ResolversObject<{
+  hash?: Resolver<Maybe<ResolversTypes['stagingstagingoptimismgoerli_Bytes']>, ParentType, ContextType>;
   number?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   timestamp?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
-export type stagingoptimismgoerli__Meta_Resolvers<ContextType = MeshContext, ParentType extends ResolversParentTypes['stagingoptimismgoerli__Meta_'] = ResolversParentTypes['stagingoptimismgoerli__Meta_']> = ResolversObject<{
-  block?: Resolver<ResolversTypes['stagingoptimismgoerli__Block_'], ParentType, ContextType>;
+export type stagingstagingoptimismgoerli__Meta_Resolvers<ContextType = MeshContext, ParentType extends ResolversParentTypes['stagingstagingoptimismgoerli__Meta_'] = ResolversParentTypes['stagingstagingoptimismgoerli__Meta_']> = ResolversObject<{
+  block?: Resolver<ResolversTypes['stagingstagingoptimismgoerli__Block_'], ParentType, ContextType>;
   deployment?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   hasIndexingErrors?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
