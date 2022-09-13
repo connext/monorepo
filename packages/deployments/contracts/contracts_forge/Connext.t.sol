@@ -710,7 +710,7 @@ contract ConnextTest is ForgeHelper, Deployer {
 
     // expect emit
     vm.expectEmit(true, true, true, true);
-    emit Reconciled(transferId, routers, _destinationLocal, bridgedAmt, _destinationBridgeRouter);
+    emit Reconciled(transferId, params.originDomain, routers, _destinationLocal, bridgedAmt, _destinationBridgeRouter);
 
     vm.prank(_destinationBridgeRouter);
     _destinationConnext.onReceive(
