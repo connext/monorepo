@@ -112,9 +112,7 @@ const handleDeployHub = async (
     }
 
     const contract = getConnectorName(protocol, mirrorChainId, protocol.hub);
-    if ((!contract.includes("Optimism") && !contract.includes("Polygon")) || contract.includes("Mainnet")) {
-      return;
-    }
+
     console.log(`Deploying ${contract}...`);
     const deployment = await hre.deployments.deploy(getDeploymentName(contract), {
       contract,
