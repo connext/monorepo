@@ -359,7 +359,9 @@ contract BridgeFacet is BaseConnextFacet {
       }
 
       // Get the normalized amount in (amount sent in by user in 18 decimals)
-      uint256 normalized = AssetLogic.normalizeDecimals(ERC20(_args.asset).decimals(), uint8(18), _args.amount);
+      uint256 normalized = _args.amount == 0
+        ? 0
+        : AssetLogic.normalizeDecimals(ERC20(_args.asset).decimals(), uint8(18), _args.amount);
 
       // Calculate the transfer id
       transferId = _getTransferId(params, canonical, bridgedAmount, normalized);
