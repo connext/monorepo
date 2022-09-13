@@ -147,6 +147,7 @@ export interface BridgeFacetInterface extends utils.Interface {
     "removeSequencer(address)": FunctionFragment;
     "routedTransfers(bytes32)": FunctionFragment;
     "xcall(((address,bytes,uint32,address,uint256),address,uint256))": FunctionFragment;
+    "xcallIntoBridgeAsset(((address,bytes,uint32,address,uint256),address,uint256))": FunctionFragment;
   };
 
   getFunction(
@@ -165,6 +166,7 @@ export interface BridgeFacetInterface extends utils.Interface {
       | "removeSequencer"
       | "routedTransfers"
       | "xcall"
+      | "xcallIntoBridgeAsset"
   ): FunctionFragment;
 
   encodeFunctionData(
@@ -217,6 +219,10 @@ export interface BridgeFacetInterface extends utils.Interface {
     functionFragment: "xcall",
     values: [XCallArgsStruct]
   ): string;
+  encodeFunctionData(
+    functionFragment: "xcallIntoBridgeAsset",
+    values: [XCallArgsStruct]
+  ): string;
 
   decodeFunctionResult(
     functionFragment: "AAVE_REFERRAL_CODE",
@@ -259,6 +265,10 @@ export interface BridgeFacetInterface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "xcall", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "xcallIntoBridgeAsset",
+    data: BytesLike
+  ): Result;
 
   events: {
     "AavePortalMintUnbacked(bytes32,address,address,uint256)": EventFragment;
@@ -268,7 +278,7 @@ export interface BridgeFacetInterface extends utils.Interface {
     "SequencerAdded(address,address)": EventFragment;
     "SequencerRemoved(address,address)": EventFragment;
     "TransferRelayerFeesUpdated(bytes32,uint256,address)": EventFragment;
-    "XCalled(bytes32,uint256,bytes32,tuple,address,uint256,address)": EventFragment;
+    "XCalled(bytes32,uint256,bytes32,tuple,address,address,uint256,uint256,address)": EventFragment;
   };
 
   getEvent(nameOrSignatureOrTopic: "AavePortalMintUnbacked"): EventFragment;
@@ -375,13 +385,25 @@ export interface XCalledEventObject {
   transferId: string;
   nonce: BigNumber;
   messageHash: string;
-  xcallArgs: XCallArgsStructOutput;
+  params: CallParamsStructOutput;
+  asset: string;
   bridgedAsset: string;
+  amount: BigNumber;
   bridgedAmount: BigNumber;
   caller: string;
 }
 export type XCalledEvent = TypedEvent<
-  [string, BigNumber, string, XCallArgsStructOutput, string, BigNumber, string],
+  [
+    string,
+    BigNumber,
+    string,
+    CallParamsStructOutput,
+    string,
+    string,
+    BigNumber,
+    BigNumber,
+    string
+  ],
   XCalledEventObject
 >;
 
@@ -475,6 +497,11 @@ export interface BridgeFacet extends BaseContract {
       _args: XCallArgsStruct,
       overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
+
+    xcallIntoBridgeAsset(
+      _args: XCallArgsStruct,
+      overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
   };
 
   AAVE_REFERRAL_CODE(overrides?: CallOverrides): Promise<number>;
@@ -539,6 +566,11 @@ export interface BridgeFacet extends BaseContract {
     overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
+  xcallIntoBridgeAsset(
+    _args: XCallArgsStruct,
+    overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
+
   callStatic: {
     AAVE_REFERRAL_CODE(overrides?: CallOverrides): Promise<number>;
 
@@ -598,6 +630,11 @@ export interface BridgeFacet extends BaseContract {
     ): Promise<string[]>;
 
     xcall(_args: XCallArgsStruct, overrides?: CallOverrides): Promise<string>;
+
+    xcallIntoBridgeAsset(
+      _args: XCallArgsStruct,
+      overrides?: CallOverrides
+    ): Promise<string>;
   };
 
   filters: {
@@ -679,12 +716,14 @@ export interface BridgeFacet extends BaseContract {
       caller?: null
     ): TransferRelayerFeesUpdatedEventFilter;
 
-    "XCalled(bytes32,uint256,bytes32,tuple,address,uint256,address)"(
+    "XCalled(bytes32,uint256,bytes32,tuple,address,address,uint256,uint256,address)"(
       transferId?: PromiseOrValue<BytesLike> | null,
       nonce?: PromiseOrValue<BigNumberish> | null,
       messageHash?: PromiseOrValue<BytesLike> | null,
-      xcallArgs?: null,
+      params?: null,
+      asset?: null,
       bridgedAsset?: null,
+      amount?: null,
       bridgedAmount?: null,
       caller?: null
     ): XCalledEventFilter;
@@ -692,8 +731,10 @@ export interface BridgeFacet extends BaseContract {
       transferId?: PromiseOrValue<BytesLike> | null,
       nonce?: PromiseOrValue<BigNumberish> | null,
       messageHash?: PromiseOrValue<BytesLike> | null,
-      xcallArgs?: null,
+      params?: null,
+      asset?: null,
       bridgedAsset?: null,
+      amount?: null,
       bridgedAmount?: null,
       caller?: null
     ): XCalledEventFilter;
@@ -761,6 +802,11 @@ export interface BridgeFacet extends BaseContract {
       _args: XCallArgsStruct,
       overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
+
+    xcallIntoBridgeAsset(
+      _args: XCallArgsStruct,
+      overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
   };
 
   populateTransaction: {
@@ -824,6 +870,11 @@ export interface BridgeFacet extends BaseContract {
     ): Promise<PopulatedTransaction>;
 
     xcall(
+      _args: XCallArgsStruct,
+      overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
+    xcallIntoBridgeAsset(
       _args: XCallArgsStruct,
       overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;

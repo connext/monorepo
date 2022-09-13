@@ -266,6 +266,7 @@ export interface ConnextHandlerInterface extends utils.Interface {
     "removeSequencer(address)": FunctionFragment;
     "routedTransfers(bytes32)": FunctionFragment;
     "xcall(((address,bytes,uint32,address,uint256),address,uint256))": FunctionFragment;
+    "xcallIntoBridgeAsset(((address,bytes,uint32,address,uint256),address,uint256))": FunctionFragment;
     "diamondCut((address,uint8,bytes4[])[],address,bytes)": FunctionFragment;
     "getAcceptanceTime((address,uint8,bytes4[])[],address,bytes)": FunctionFragment;
     "proposeDiamondCut((address,uint8,bytes4[])[],address,bytes)": FunctionFragment;
@@ -386,6 +387,7 @@ export interface ConnextHandlerInterface extends utils.Interface {
       | "removeSequencer"
       | "routedTransfers"
       | "xcall"
+      | "xcallIntoBridgeAsset"
       | "diamondCut"
       | "getAcceptanceTime"
       | "proposeDiamondCut"
@@ -577,6 +579,10 @@ export interface ConnextHandlerInterface extends utils.Interface {
   ): string;
   encodeFunctionData(
     functionFragment: "xcall",
+    values: [XCallArgsStruct]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "xcallIntoBridgeAsset",
     values: [XCallArgsStruct]
   ): string;
   encodeFunctionData(
@@ -1117,6 +1123,10 @@ export interface ConnextHandlerInterface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "xcall", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "xcallIntoBridgeAsset",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(functionFragment: "diamondCut", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "getAcceptanceTime",
@@ -1441,7 +1451,7 @@ export interface ConnextHandlerInterface extends utils.Interface {
     "SequencerAdded(address,address)": EventFragment;
     "SequencerRemoved(address,address)": EventFragment;
     "TransferRelayerFeesUpdated(bytes32,uint256,address)": EventFragment;
-    "XCalled(bytes32,uint256,bytes32,tuple,address,uint256,address)": EventFragment;
+    "XCalled(bytes32,uint256,bytes32,tuple,address,address,uint256,uint256,address)": EventFragment;
     "DiamondCut(tuple[],address,bytes)": EventFragment;
     "DiamondCutProposed(tuple[],address,bytes,uint256)": EventFragment;
     "DiamondCutRescinded(tuple[],address,bytes)": EventFragment;
@@ -1673,13 +1683,25 @@ export interface XCalledEventObject {
   transferId: string;
   nonce: BigNumber;
   messageHash: string;
-  xcallArgs: XCallArgsStructOutput;
+  params: CallParamsStructOutput;
+  asset: string;
   bridgedAsset: string;
+  amount: BigNumber;
   bridgedAmount: BigNumber;
   caller: string;
 }
 export type XCalledEvent = TypedEvent<
-  [string, BigNumber, string, XCallArgsStructOutput, string, BigNumber, string],
+  [
+    string,
+    BigNumber,
+    string,
+    CallParamsStructOutput,
+    string,
+    string,
+    BigNumber,
+    BigNumber,
+    string
+  ],
   XCalledEventObject
 >;
 
@@ -2194,6 +2216,11 @@ export interface ConnextHandler extends BaseContract {
     ): Promise<[string[]]>;
 
     xcall(
+      _args: XCallArgsStruct,
+      overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
+
+    xcallIntoBridgeAsset(
       _args: XCallArgsStruct,
       overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
@@ -2800,6 +2827,11 @@ export interface ConnextHandler extends BaseContract {
     overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
+  xcallIntoBridgeAsset(
+    _args: XCallArgsStruct,
+    overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
+
   diamondCut(
     _diamondCut: IDiamondCut.FacetCutStruct[],
     _init: PromiseOrValue<string>,
@@ -3391,6 +3423,11 @@ export interface ConnextHandler extends BaseContract {
 
     xcall(_args: XCallArgsStruct, overrides?: CallOverrides): Promise<string>;
 
+    xcallIntoBridgeAsset(
+      _args: XCallArgsStruct,
+      overrides?: CallOverrides
+    ): Promise<string>;
+
     diamondCut(
       _diamondCut: IDiamondCut.FacetCutStruct[],
       _init: PromiseOrValue<string>,
@@ -3973,12 +4010,14 @@ export interface ConnextHandler extends BaseContract {
       caller?: null
     ): TransferRelayerFeesUpdatedEventFilter;
 
-    "XCalled(bytes32,uint256,bytes32,tuple,address,uint256,address)"(
+    "XCalled(bytes32,uint256,bytes32,tuple,address,address,uint256,uint256,address)"(
       transferId?: PromiseOrValue<BytesLike> | null,
       nonce?: PromiseOrValue<BigNumberish> | null,
       messageHash?: PromiseOrValue<BytesLike> | null,
-      xcallArgs?: null,
+      params?: null,
+      asset?: null,
       bridgedAsset?: null,
+      amount?: null,
       bridgedAmount?: null,
       caller?: null
     ): XCalledEventFilter;
@@ -3986,8 +4025,10 @@ export interface ConnextHandler extends BaseContract {
       transferId?: PromiseOrValue<BytesLike> | null,
       nonce?: PromiseOrValue<BigNumberish> | null,
       messageHash?: PromiseOrValue<BytesLike> | null,
-      xcallArgs?: null,
+      params?: null,
+      asset?: null,
       bridgedAsset?: null,
+      amount?: null,
       bridgedAmount?: null,
       caller?: null
     ): XCalledEventFilter;
@@ -4405,6 +4446,11 @@ export interface ConnextHandler extends BaseContract {
     ): Promise<BigNumber>;
 
     xcall(
+      _args: XCallArgsStruct,
+      overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
+
+    xcallIntoBridgeAsset(
       _args: XCallArgsStruct,
       overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
@@ -5002,6 +5048,11 @@ export interface ConnextHandler extends BaseContract {
     ): Promise<PopulatedTransaction>;
 
     xcall(
+      _args: XCallArgsStruct,
+      overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
+    xcallIntoBridgeAsset(
       _args: XCallArgsStruct,
       overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;

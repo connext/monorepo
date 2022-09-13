@@ -924,58 +924,63 @@ const _abi = [
       {
         components: [
           {
-            components: [
-              {
-                internalType: "address",
-                name: "to",
-                type: "address",
-              },
-              {
-                internalType: "bytes",
-                name: "callData",
-                type: "bytes",
-              },
-              {
-                internalType: "uint32",
-                name: "destinationDomain",
-                type: "uint32",
-              },
-              {
-                internalType: "address",
-                name: "agent",
-                type: "address",
-              },
-              {
-                internalType: "uint256",
-                name: "slippage",
-                type: "uint256",
-              },
-            ],
-            internalType: "struct UserFacingCallParams",
-            name: "params",
-            type: "tuple",
-          },
-          {
             internalType: "address",
-            name: "asset",
+            name: "to",
             type: "address",
           },
           {
+            internalType: "bytes",
+            name: "callData",
+            type: "bytes",
+          },
+          {
+            internalType: "uint32",
+            name: "originDomain",
+            type: "uint32",
+          },
+          {
+            internalType: "uint32",
+            name: "destinationDomain",
+            type: "uint32",
+          },
+          {
+            internalType: "address",
+            name: "agent",
+            type: "address",
+          },
+          {
+            internalType: "bool",
+            name: "receiveLocal",
+            type: "bool",
+          },
+          {
             internalType: "uint256",
-            name: "amount",
+            name: "slippage",
             type: "uint256",
           },
         ],
         indexed: false,
-        internalType: "struct XCallArgs",
-        name: "xcallArgs",
+        internalType: "struct CallParams",
+        name: "params",
         type: "tuple",
+      },
+      {
+        indexed: false,
+        internalType: "address",
+        name: "asset",
+        type: "address",
       },
       {
         indexed: false,
         internalType: "address",
         name: "bridgedAsset",
         type: "address",
+      },
+      {
+        indexed: false,
+        internalType: "uint256",
+        name: "amount",
+        type: "uint256",
       },
       {
         indexed: false,
@@ -1345,6 +1350,69 @@ const _abi = [
       },
     ],
     name: "xcall",
+    outputs: [
+      {
+        internalType: "bytes32",
+        name: "",
+        type: "bytes32",
+      },
+    ],
+    stateMutability: "payable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        components: [
+          {
+            components: [
+              {
+                internalType: "address",
+                name: "to",
+                type: "address",
+              },
+              {
+                internalType: "bytes",
+                name: "callData",
+                type: "bytes",
+              },
+              {
+                internalType: "uint32",
+                name: "destinationDomain",
+                type: "uint32",
+              },
+              {
+                internalType: "address",
+                name: "agent",
+                type: "address",
+              },
+              {
+                internalType: "uint256",
+                name: "slippage",
+                type: "uint256",
+              },
+            ],
+            internalType: "struct UserFacingCallParams",
+            name: "params",
+            type: "tuple",
+          },
+          {
+            internalType: "address",
+            name: "asset",
+            type: "address",
+          },
+          {
+            internalType: "uint256",
+            name: "amount",
+            type: "uint256",
+          },
+        ],
+        internalType: "struct XCallArgs",
+        name: "_args",
+        type: "tuple",
+      },
+    ],
+    name: "xcallIntoBridgeAsset",
     outputs: [
       {
         internalType: "bytes32",
