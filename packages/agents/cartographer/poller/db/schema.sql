@@ -368,7 +368,6 @@ CREATE VIEW public.hourly_transfer_volume AS
 
 CREATE TABLE public.messages (
     leaf character(66) NOT NULL,
-    transferId character varying(255),
     origin_domain character varying(255) NOT NULL,
     destination_domain character varying(255),
     index numeric,

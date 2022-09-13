@@ -282,6 +282,20 @@ export const initProtocol = async (protocol: ProtocolStack) => {
         /// MARK - RootManager: Add Connector
         // Set hub connector address for this domain on RootManager.
         console.log("\tVerifying RootManager `connectors` has HubConnector set correctly.");
+        const currentValue = await getValue({
+          deployment: RootManager,
+          read: { method: "connectors", args: [spoke.domain] },
+        });
+        // If the current connector address is not correct and isn't empty, we need to remove the connector first.
+        if (currentValue !== HubConnector.address && currentValue !== constants.AddressZero) {
+          await updateIfNeeded({
+            deployment: RootManager,
+            desired: constants.AddressZero,
+            read: { method: "connectors", args: [spoke.domain] },
+            write: { method: "removeConnector", args: [spoke.domain] },
+          });
+        }
+
         await updateIfNeeded({
           deployment: RootManager,
           desired: HubConnector.address,
@@ -353,6 +367,27 @@ export const initProtocol = async (protocol: ProtocolStack) => {
     deployment: MainnetConnector,
     desired: RootManager.address,
     read: "ROOT_MANAGER",
+  });
+
+  // Functionality of the MainnetConnector is that of a spoke; we should hook it up to the RootManager.
+  const currentValue = await getValue({
+    deployment: RootManager,
+    read: { method: "connectors", args: [hub.domain] },
+  });
+  // If the current connector address is not correct and isn't empty, we need to remove the connector first.
+  if (currentValue !== MainnetConnector.address && currentValue !== constants.AddressZero) {
+    await updateIfNeeded({
+      deployment: RootManager,
+      desired: constants.AddressZero,
+      read: { method: "connectors", args: [hub.domain] },
+      write: { method: "removeConnector", args: [hub.domain] },
+    });
+  }
+  await updateIfNeeded({
+    deployment: RootManager,
+    desired: MainnetConnector.address,
+    read: { method: "connectors", args: [hub.domain] },
+    write: { method: "addConnector", args: [hub.domain, MainnetConnector.address] },
   });
 
   for (const handler of Object.values(hub.deployments.handlers)) {
