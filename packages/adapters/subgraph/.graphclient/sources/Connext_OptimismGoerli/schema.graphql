@@ -590,6 +590,8 @@ enum optimismgoerli_OrderDirection {
 
 type optimismgoerli_OriginMessage {
   id: ID!
+  transferId: optimismgoerli_Bytes
+  destinationDomain: BigInt
   leaf: optimismgoerli_Bytes
   index: BigInt
   root: optimismgoerli_Bytes
@@ -605,6 +607,20 @@ input optimismgoerli_OriginMessage_filter {
   id_lte: ID
   id_in: [ID!]
   id_not_in: [ID!]
+  transferId: optimismgoerli_Bytes
+  transferId_not: optimismgoerli_Bytes
+  transferId_in: [optimismgoerli_Bytes!]
+  transferId_not_in: [optimismgoerli_Bytes!]
+  transferId_contains: optimismgoerli_Bytes
+  transferId_not_contains: optimismgoerli_Bytes
+  destinationDomain: BigInt
+  destinationDomain_not: BigInt
+  destinationDomain_gt: BigInt
+  destinationDomain_lt: BigInt
+  destinationDomain_gte: BigInt
+  destinationDomain_lte: BigInt
+  destinationDomain_in: [BigInt!]
+  destinationDomain_not_in: [BigInt!]
   leaf: optimismgoerli_Bytes
   leaf_not: optimismgoerli_Bytes
   leaf_in: [optimismgoerli_Bytes!]
@@ -637,6 +653,8 @@ input optimismgoerli_OriginMessage_filter {
 
 enum optimismgoerli_OriginMessage_orderBy {
   id
+  transferId
+  destinationDomain
   leaf
   index
   root
@@ -666,7 +684,7 @@ type optimismgoerli_OriginTransfer {
   transactingAmount: BigInt
   bridgedAsset: optimismgoerli_Bytes
   bridgedAmount: BigInt
-  messageHash: optimismgoerli_Bytes
+  message: optimismgoerli_OriginMessage
   caller: optimismgoerli_Bytes
   transactionHash: optimismgoerli_Bytes
   timestamp: BigInt
@@ -824,12 +842,27 @@ input optimismgoerli_OriginTransfer_filter {
   bridgedAmount_lte: BigInt
   bridgedAmount_in: [BigInt!]
   bridgedAmount_not_in: [BigInt!]
-  messageHash: optimismgoerli_Bytes
-  messageHash_not: optimismgoerli_Bytes
-  messageHash_in: [optimismgoerli_Bytes!]
-  messageHash_not_in: [optimismgoerli_Bytes!]
-  messageHash_contains: optimismgoerli_Bytes
-  messageHash_not_contains: optimismgoerli_Bytes
+  message: String
+  message_not: String
+  message_gt: String
+  message_lt: String
+  message_gte: String
+  message_lte: String
+  message_in: [String!]
+  message_not_in: [String!]
+  message_contains: String
+  message_contains_nocase: String
+  message_not_contains: String
+  message_not_contains_nocase: String
+  message_starts_with: String
+  message_starts_with_nocase: String
+  message_not_starts_with: String
+  message_not_starts_with_nocase: String
+  message_ends_with: String
+  message_ends_with_nocase: String
+  message_not_ends_with: String
+  message_not_ends_with_nocase: String
+  message_: optimismgoerli_OriginMessage_filter
   caller: optimismgoerli_Bytes
   caller_not: optimismgoerli_Bytes
   caller_in: [optimismgoerli_Bytes!]
@@ -901,7 +934,7 @@ enum optimismgoerli_OriginTransfer_orderBy {
   transactingAmount
   bridgedAsset
   bridgedAmount
-  messageHash
+  message
   caller
   transactionHash
   timestamp
