@@ -5,7 +5,7 @@ import {IERC20} from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 
 import {RelayerFeeRouter} from "../../relayer-fee/RelayerFeeRouter.sol";
 
-import {XCallArgs, ExecuteArgs, CallParams, TokenId} from "../libraries/LibConnextStorage.sol";
+import {XCallArgs, ExecuteArgs, CallParams, TokenId, TransferIdGenerationInformation} from "../libraries/LibConnextStorage.sol";
 import {LibDiamond} from "../libraries/LibDiamond.sol";
 import {SwapUtils} from "../libraries/SwapUtils.sol";
 
@@ -245,10 +245,7 @@ interface IConnextHandler is IDiamondLoupe, IDiamondCut {
 
   function repayAavePortal(
     CallParams calldata _params,
-    address _local,
-    address _originSender,
-    uint256 _bridgedAmt,
-    uint256 _nonce,
+    TransferIdGenerationInformation calldata _idInfo,
     uint256 _backingAmount,
     uint256 _feeAmount,
     uint256 _maxIn
@@ -258,6 +255,7 @@ interface IConnextHandler is IDiamondLoupe, IDiamondCut {
     CallParams calldata _params,
     address _adopted,
     address _originSender,
+    uint256 _normalizedIn,
     uint256 _bridgedAmt,
     uint256 _nonce,
     uint256 _backingAmount,
