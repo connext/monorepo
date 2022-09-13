@@ -122,5 +122,5 @@
   "function unpause()",
   "function withdrawSwapAdminFees(bytes32)",
   "function xcall(tuple(tuple(address,bytes,uint32,address,uint256),address,uint256)) payable returns (bytes32)",
-  "function xcallIntoBridgeAsset(tuple(tuple(address,bytes,uint32,address,uint256),address,uint256)) payable returns (bytes32)"
+  "function xcallIntoLocal(tuple(tuple(address,bytes,uint32,address,uint256),address,uint256)) payable returns (bytes32)"
 ]

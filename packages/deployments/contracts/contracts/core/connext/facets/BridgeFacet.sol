@@ -231,7 +231,7 @@ contract BridgeFacet is BaseConnextFacet {
     return _xcall(params, _args.asset, _args.amount);
   }
 
-  function xcallIntoBridgeAsset(XCallArgs calldata _args) external payable returns (bytes32) {
+  function xcallIntoLocal(XCallArgs calldata _args) external payable returns (bytes32) {
     CallParams memory params = CallParams({
       to: _args.params.to,
       callData: _args.params.callData,

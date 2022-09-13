@@ -399,7 +399,7 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
 
     vm.prank(_originSender);
     bytes32 ret = _params.receiveLocal
-      ? this.xcallIntoBridgeAsset{value: _relayerFee}(args)
+      ? this.xcallIntoLocal{value: _relayerFee}(args)
       : this.xcall{value: _relayerFee}(args);
 
     if (shouldSucceed) {
@@ -998,7 +998,7 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
     helpers_xcallAndAssert(bridged, true);
   }
 
-  function test_BridgeFacet_xcallIntoBridgeAsset_works() public {
+  function test_BridgeFacet_xcallIntoLocal_works() public {
     uint256 bridged = (_amount * 9995) / _liquidityFeeDenominator;
     utils_setupAsset(false, false);
     _receiveLocal = true;

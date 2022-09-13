@@ -147,7 +147,7 @@ export interface BridgeFacetInterface extends utils.Interface {
     "removeSequencer(address)": FunctionFragment;
     "routedTransfers(bytes32)": FunctionFragment;
     "xcall(((address,bytes,uint32,address,uint256),address,uint256))": FunctionFragment;
-    "xcallIntoBridgeAsset(((address,bytes,uint32,address,uint256),address,uint256))": FunctionFragment;
+    "xcallIntoLocal(((address,bytes,uint32,address,uint256),address,uint256))": FunctionFragment;
   };
 
   getFunction(
@@ -166,7 +166,7 @@ export interface BridgeFacetInterface extends utils.Interface {
       | "removeSequencer"
       | "routedTransfers"
       | "xcall"
-      | "xcallIntoBridgeAsset"
+      | "xcallIntoLocal"
   ): FunctionFragment;
 
   encodeFunctionData(
@@ -220,7 +220,7 @@ export interface BridgeFacetInterface extends utils.Interface {
     values: [XCallArgsStruct]
   ): string;
   encodeFunctionData(
-    functionFragment: "xcallIntoBridgeAsset",
+    functionFragment: "xcallIntoLocal",
     values: [XCallArgsStruct]
   ): string;
 
@@ -266,7 +266,7 @@ export interface BridgeFacetInterface extends utils.Interface {
   ): Result;
   decodeFunctionResult(functionFragment: "xcall", data: BytesLike): Result;
   decodeFunctionResult(
-    functionFragment: "xcallIntoBridgeAsset",
+    functionFragment: "xcallIntoLocal",
     data: BytesLike
   ): Result;
 
@@ -498,7 +498,7 @@ export interface BridgeFacet extends BaseContract {
       overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
-    xcallIntoBridgeAsset(
+    xcallIntoLocal(
       _args: XCallArgsStruct,
       overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
@@ -566,7 +566,7 @@ export interface BridgeFacet extends BaseContract {
     overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
-  xcallIntoBridgeAsset(
+  xcallIntoLocal(
     _args: XCallArgsStruct,
     overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
@@ -631,7 +631,7 @@ export interface BridgeFacet extends BaseContract {
 
     xcall(_args: XCallArgsStruct, overrides?: CallOverrides): Promise<string>;
 
-    xcallIntoBridgeAsset(
+    xcallIntoLocal(
       _args: XCallArgsStruct,
       overrides?: CallOverrides
     ): Promise<string>;
@@ -803,7 +803,7 @@ export interface BridgeFacet extends BaseContract {
       overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
-    xcallIntoBridgeAsset(
+    xcallIntoLocal(
       _args: XCallArgsStruct,
       overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
@@ -874,7 +874,7 @@ export interface BridgeFacet extends BaseContract {
       overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
-    xcallIntoBridgeAsset(
+    xcallIntoLocal(
       _args: XCallArgsStruct,
       overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;

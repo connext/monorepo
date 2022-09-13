@@ -1412,7 +1412,7 @@ const _abi = [
         type: "tuple",
       },
     ],
-    name: "xcallIntoBridgeAsset",
+    name: "xcallIntoLocal",
     outputs: [
       {
         internalType: "bytes32",

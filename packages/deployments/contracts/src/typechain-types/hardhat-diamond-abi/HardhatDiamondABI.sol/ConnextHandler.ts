@@ -266,7 +266,7 @@ export interface ConnextHandlerInterface extends utils.Interface {
     "removeSequencer(address)": FunctionFragment;
     "routedTransfers(bytes32)": FunctionFragment;
     "xcall(((address,bytes,uint32,address,uint256),address,uint256))": FunctionFragment;
-    "xcallIntoBridgeAsset(((address,bytes,uint32,address,uint256),address,uint256))": FunctionFragment;
+    "xcallIntoLocal(((address,bytes,uint32,address,uint256),address,uint256))": FunctionFragment;
     "diamondCut((address,uint8,bytes4[])[],address,bytes)": FunctionFragment;
     "getAcceptanceTime((address,uint8,bytes4[])[],address,bytes)": FunctionFragment;
     "proposeDiamondCut((address,uint8,bytes4[])[],address,bytes)": FunctionFragment;
@@ -387,7 +387,7 @@ export interface ConnextHandlerInterface extends utils.Interface {
       | "removeSequencer"
       | "routedTransfers"
       | "xcall"
-      | "xcallIntoBridgeAsset"
+      | "xcallIntoLocal"
       | "diamondCut"
       | "getAcceptanceTime"
       | "proposeDiamondCut"
@@ -582,7 +582,7 @@ export interface ConnextHandlerInterface extends utils.Interface {
     values: [XCallArgsStruct]
   ): string;
   encodeFunctionData(
-    functionFragment: "xcallIntoBridgeAsset",
+    functionFragment: "xcallIntoLocal",
     values: [XCallArgsStruct]
   ): string;
   encodeFunctionData(
@@ -1124,7 +1124,7 @@ export interface ConnextHandlerInterface extends utils.Interface {
   ): Result;
   decodeFunctionResult(functionFragment: "xcall", data: BytesLike): Result;
   decodeFunctionResult(
-    functionFragment: "xcallIntoBridgeAsset",
+    functionFragment: "xcallIntoLocal",
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "diamondCut", data: BytesLike): Result;
@@ -2220,7 +2220,7 @@ export interface ConnextHandler extends BaseContract {
       overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
-    xcallIntoBridgeAsset(
+    xcallIntoLocal(
       _args: XCallArgsStruct,
       overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
@@ -2827,7 +2827,7 @@ export interface ConnextHandler extends BaseContract {
     overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
-  xcallIntoBridgeAsset(
+  xcallIntoLocal(
     _args: XCallArgsStruct,
     overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
@@ -3423,7 +3423,7 @@ export interface ConnextHandler extends BaseContract {
 
     xcall(_args: XCallArgsStruct, overrides?: CallOverrides): Promise<string>;
 
-    xcallIntoBridgeAsset(
+    xcallIntoLocal(
       _args: XCallArgsStruct,
       overrides?: CallOverrides
     ): Promise<string>;
@@ -4450,7 +4450,7 @@ export interface ConnextHandler extends BaseContract {
       overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
-    xcallIntoBridgeAsset(
+    xcallIntoLocal(
       _args: XCallArgsStruct,
       overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
@@ -5052,7 +5052,7 @@ export interface ConnextHandler extends BaseContract {
       overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
-    xcallIntoBridgeAsset(
+    xcallIntoLocal(
       _args: XCallArgsStruct,
       overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
