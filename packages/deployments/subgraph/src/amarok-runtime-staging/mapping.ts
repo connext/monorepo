@@ -399,7 +399,7 @@ export function handleReconciled(event: Reconciled): void {
   transfer.transferId = event.params.transferId;
 
   // Call Params
-  // transfer.originDomain = event.params.origin;
+  transfer.originDomain = event.params.originDomain;
 
   // Assets
   transfer.localAsset = event.params.asset;
