@@ -16,6 +16,14 @@ import {IConnector} from "../interfaces/IConnector.sol";
  */
 abstract contract Connector is ProposedOwnable, IConnector {
   // ============ Events ============
+  event NewConnector(
+    uint32 indexed domain,
+    uint32 indexed mirrorDomain,
+    address amb,
+    address rootManager,
+    address mirrorConnector
+  );
+
   event MirrorConnectorUpdated(address previous, address current);
 
   event MirrorGasUpdated(uint256 previous, uint256 current);
@@ -111,6 +119,8 @@ abstract contract Connector is ProposedOwnable, IConnector {
     if (_mirrorGas != 0) {
       _setMirrorGas(_mirrorGas);
     }
+
+    emit NewConnector(_domain, _mirrorDomain, _amb, _rootManager, _mirrorConnector);
   }
 
   // ============ Admin fns ============
