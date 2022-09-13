@@ -591,11 +591,6 @@ const _abi = [
   },
   {
     inputs: [],
-    name: "BridgeFacet__forceReceiveLocal_invalidSender",
-    type: "error",
-  },
-  {
-    inputs: [],
     name: "BridgeFacet__handleExecuteTransaction_invalidSponsoredAmount",
     type: "error",
   },
@@ -617,11 +612,6 @@ const _abi = [
   {
     inputs: [],
     name: "BridgeFacet__xcall_invalidSlippageTol",
-    type: "error",
-  },
-  {
-    inputs: [],
-    name: "BridgeFacet__xcall_missingAgent",
     type: "error",
   },
   {
@@ -846,37 +836,6 @@ const _abi = [
     anonymous: false,
     inputs: [
       {
-        indexed: true,
-        internalType: "bytes32",
-        name: "transferId",
-        type: "bytes32",
-      },
-      {
-        indexed: true,
-        internalType: "bytes32",
-        name: "canonicalId",
-        type: "bytes32",
-      },
-      {
-        indexed: false,
-        internalType: "uint32",
-        name: "canonicalDomain",
-        type: "uint32",
-      },
-      {
-        indexed: false,
-        internalType: "uint256",
-        name: "amount",
-        type: "uint256",
-      },
-    ],
-    name: "ForcedReceiveLocal",
-    type: "event",
-  },
-  {
-    anonymous: false,
-    inputs: [
-      {
         indexed: false,
         internalType: "address",
         name: "sequencer",
@@ -980,11 +939,6 @@ const _abi = [
                 internalType: "address",
                 name: "agent",
                 type: "address",
-              },
-              {
-                internalType: "bool",
-                name: "receiveLocal",
-                type: "bool",
               },
               {
                 internalType: "uint256",
@@ -1251,81 +1205,6 @@ const _abi = [
     type: "function",
   },
   {
-    inputs: [
-      {
-        components: [
-          {
-            internalType: "address",
-            name: "to",
-            type: "address",
-          },
-          {
-            internalType: "bytes",
-            name: "callData",
-            type: "bytes",
-          },
-          {
-            internalType: "uint32",
-            name: "originDomain",
-            type: "uint32",
-          },
-          {
-            internalType: "uint32",
-            name: "destinationDomain",
-            type: "uint32",
-          },
-          {
-            internalType: "address",
-            name: "agent",
-            type: "address",
-          },
-          {
-            internalType: "bool",
-            name: "receiveLocal",
-            type: "bool",
-          },
-          {
-            internalType: "uint256",
-            name: "destinationMinOut",
-            type: "uint256",
-          },
-        ],
-        internalType: "struct CallParams",
-        name: "_params",
-        type: "tuple",
-      },
-      {
-        internalType: "uint256",
-        name: "_amount",
-        type: "uint256",
-      },
-      {
-        internalType: "uint256",
-        name: "_nonce",
-        type: "uint256",
-      },
-      {
-        internalType: "bytes32",
-        name: "_canonicalId",
-        type: "bytes32",
-      },
-      {
-        internalType: "uint32",
-        name: "_canonicalDomain",
-        type: "uint32",
-      },
-      {
-        internalType: "address",
-        name: "_originSender",
-        type: "address",
-      },
-    ],
-    name: "forceReceiveLocal",
-    outputs: [],
-    stateMutability: "nonpayable",
-    type: "function",
-  },
-  {
     inputs: [],
     name: "nonce",
     outputs: [
@@ -1433,11 +1312,6 @@ const _abi = [
                 internalType: "address",
                 name: "agent",
                 type: "address",
-              },
-              {
-                internalType: "bool",
-                name: "receiveLocal",
-                type: "bool",
               },
               {
                 internalType: "uint256",

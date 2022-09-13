@@ -1061,81 +1061,6 @@ const _abi = [
   {
     inputs: [
       {
-        components: [
-          {
-            internalType: "address",
-            name: "to",
-            type: "address",
-          },
-          {
-            internalType: "bytes",
-            name: "callData",
-            type: "bytes",
-          },
-          {
-            internalType: "uint32",
-            name: "originDomain",
-            type: "uint32",
-          },
-          {
-            internalType: "uint32",
-            name: "destinationDomain",
-            type: "uint32",
-          },
-          {
-            internalType: "address",
-            name: "agent",
-            type: "address",
-          },
-          {
-            internalType: "bool",
-            name: "receiveLocal",
-            type: "bool",
-          },
-          {
-            internalType: "uint256",
-            name: "destinationMinOut",
-            type: "uint256",
-          },
-        ],
-        internalType: "struct CallParams",
-        name: "_params",
-        type: "tuple",
-      },
-      {
-        internalType: "uint256",
-        name: "_amount",
-        type: "uint256",
-      },
-      {
-        internalType: "uint256",
-        name: "_nonce",
-        type: "uint256",
-      },
-      {
-        internalType: "bytes32",
-        name: "_canonicalId",
-        type: "bytes32",
-      },
-      {
-        internalType: "uint32",
-        name: "_canonicalDomain",
-        type: "uint32",
-      },
-      {
-        internalType: "address",
-        name: "_originSender",
-        type: "address",
-      },
-    ],
-    name: "forceReceiveLocal",
-    outputs: [],
-    stateMutability: "payable",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
         internalType: "bytes32",
         name: "_transferId",
         type: "bytes32",
@@ -2879,11 +2804,6 @@ const _abi = [
                 internalType: "address",
                 name: "agent",
                 type: "address",
-              },
-              {
-                internalType: "bool",
-                name: "receiveLocal",
-                type: "bool",
               },
               {
                 internalType: "uint256",
