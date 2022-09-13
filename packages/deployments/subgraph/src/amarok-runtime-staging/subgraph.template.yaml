@@ -42,7 +42,7 @@ dataSources:
         - event: Executed(indexed bytes32,indexed address,((address,bytes,uint32,uint32,address,address,bool,bool,address,uint256,uint256,uint256),address,address[],bytes[],address,bytes,uint256,uint256,address),address,uint256,address)
           handler: handleExecuted
           # Reconciled: transferId, origin, routers, asset, amount, caller
-        - event: Reconciled(indexed bytes32,address[],address,uint256,address)
+        - event: Reconciled(indexed bytes32,uint32,address[],address,uint256,address)
           handler: handleReconciled
           # StableSwapAdded: bytes32 canonicalId, bytes32 domain, address swapPool, address caller
         - event: StableSwapAdded(indexed bytes32,indexed bytes32,indexed uint32,address,address)
@@ -109,4 +109,8 @@ dataSources:
         # Process(bytes32 leaf, bool success, bytes returnData);
         - event: Process(bytes32,bool,bytes)
           handler: handleProcess
+        - event: MessageSent(bytes,address)
+          handler: handleMessageSent
+        - event: MessageProcessed(bytes,address)
+          handler: handleMessageProcessed
       file: ./src/amarok-runtime-staging/mapping.ts
