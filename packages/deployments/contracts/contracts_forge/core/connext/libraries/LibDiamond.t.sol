@@ -20,21 +20,13 @@ contract LibDiamondTest is ForgeHelper, Deployer {
   address internal xAppConnectionManager = address(1);
   address relayerFeeRouter = address(3);
   address tokenRegistry = address(5);
-  address executor = address(0);
 
   // ============ Setup ============
 
   function setUp() public {
-    deployConnext(
-      uint256(domain),
-      xAppConnectionManager,
-      tokenRegistry,
-      address(relayerFeeRouter),
-      acceptanceDelay
-    );
+    deployConnext(uint256(domain), xAppConnectionManager, tokenRegistry, address(relayerFeeRouter), acceptanceDelay);
 
     connextHandler = IConnextHandler(address(connextDiamondProxy));
-    executor = address(connextHandler.executor());
   }
 
   // ============ Utils ============
@@ -42,7 +34,6 @@ contract LibDiamondTest is ForgeHelper, Deployer {
   // Should work: first initialization
   function test_LibDiamond__initializeDiamondCut_works() public {
     assertTrue(connextDiamondProxy.isInitialized());
-    assertTrue(executor != address(0));
   }
 
   // Second initialization should not alter state.
@@ -78,9 +69,6 @@ contract LibDiamondTest is ForgeHelper, Deployer {
 
     // still initialized
     assertTrue(connextDiamondProxy.isInitialized());
-
-    // executor not updated
-    assertTrue(address(connextHandler.executor()) == executor);
   }
 
   // Diamond cut prior to elapsed delay should revert.
@@ -117,16 +105,9 @@ contract LibDiamondTest is ForgeHelper, Deployer {
 
   // Diamond cut after setting 0 acceptance delay should work.
   function test_LibDiamond__initializeDiamondCut_withZeroAcceptanceDelay_works() public {
-    deployConnext(
-      uint256(domain),
-      xAppConnectionManager,
-      tokenRegistry,
-      address(relayerFeeRouter),
-      0
-    );
+    deployConnext(uint256(domain), xAppConnectionManager, tokenRegistry, address(relayerFeeRouter), 0);
 
     connextHandler = IConnextHandler(address(connextDiamondProxy));
-    executor = address(connextHandler.executor());
 
     uint32 newDomain = 2;
     address newXAppConnectionManager = address(11);
@@ -156,6 +137,5 @@ contract LibDiamondTest is ForgeHelper, Deployer {
     connextHandler.diamondCut(facetCuts, address(diamondInit), initCallData);
 
     assertTrue(connextDiamondProxy.isInitialized());
-    assertTrue(executor != address(0));
   }
 }

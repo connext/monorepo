@@ -47,9 +47,6 @@ contract NomadFacetTest is NomadFacet, FacetHelper {
   // bridge router
   address _bridge = address(565656565);
 
-  // default recovery address
-  address constant _recovery = address(121212);
-
   // default CallParams
   CallParams _params =
     CallParams(
@@ -58,7 +55,6 @@ contract NomadFacetTest is NomadFacet, FacetHelper {
       _originDomain, // origin domain
       _destinationDomain, // destination domain
       address(112233332211), // agent
-      _recovery, // recovery address
       false, // receiveLocal
       9900 // slippage tol
     );
@@ -107,7 +103,6 @@ contract NomadFacetTest is NomadFacet, FacetHelper {
         _params.callData,
         _params.destinationDomain, // destination domain
         _params.agent, // agent
-        _params.recovery, // recovery address
         _params.receiveLocal,
         _params.destinationMinOut
       );

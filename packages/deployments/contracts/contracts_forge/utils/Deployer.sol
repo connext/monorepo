@@ -91,25 +91,23 @@ contract Deployer {
   }
 
   function getBridgeFacetCut(address _bridgeFacet) internal pure returns (IDiamondCut.FacetCut memory) {
-    bytes4[] memory bridgeFacetSelectors = new bytes4[](15);
+    bytes4[] memory bridgeFacetSelectors = new bytes4[](13);
     // getters
     bridgeFacetSelectors[0] = BridgeFacet.relayerFees.selector;
     bridgeFacetSelectors[1] = BridgeFacet.routedTransfers.selector;
     bridgeFacetSelectors[2] = BridgeFacet.reconciledTransfers.selector;
     bridgeFacetSelectors[3] = BridgeFacet.connextion.selector;
     bridgeFacetSelectors[4] = BridgeFacet.domain.selector;
-    bridgeFacetSelectors[5] = BridgeFacet.executor.selector;
-    bridgeFacetSelectors[6] = BridgeFacet.nonce.selector;
+    bridgeFacetSelectors[5] = BridgeFacet.nonce.selector;
     // admin
-    bridgeFacetSelectors[7] = BridgeFacet.setExecutor.selector;
-    bridgeFacetSelectors[8] = BridgeFacet.addConnextion.selector;
-    bridgeFacetSelectors[9] = BridgeFacet.addSequencer.selector;
-    bridgeFacetSelectors[10] = BridgeFacet.removeSequencer.selector;
+    bridgeFacetSelectors[6] = BridgeFacet.addConnextion.selector;
+    bridgeFacetSelectors[7] = BridgeFacet.addSequencer.selector;
+    bridgeFacetSelectors[8] = BridgeFacet.removeSequencer.selector;
     // public
-    bridgeFacetSelectors[11] = BridgeFacet.xcall.selector;
-    bridgeFacetSelectors[12] = BridgeFacet.execute.selector;
-    bridgeFacetSelectors[13] = BridgeFacet.bumpTransfer.selector;
-    bridgeFacetSelectors[14] = BridgeFacet.forceReceiveLocal.selector;
+    bridgeFacetSelectors[9] = BridgeFacet.xcall.selector;
+    bridgeFacetSelectors[10] = BridgeFacet.execute.selector;
+    bridgeFacetSelectors[11] = BridgeFacet.bumpTransfer.selector;
+    bridgeFacetSelectors[12] = BridgeFacet.forceReceiveLocal.selector;
     return
       IDiamondCut.FacetCut({
         facetAddress: _bridgeFacet,

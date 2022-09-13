@@ -911,11 +911,6 @@ const _abi = [
                 type: "address",
               },
               {
-                internalType: "address",
-                name: "recovery",
-                type: "address",
-              },
-              {
                 internalType: "bool",
                 name: "receiveLocal",
                 type: "bool",
@@ -985,19 +980,6 @@ const _abi = [
       },
     ],
     stateMutability: "nonpayable",
-    type: "function",
-  },
-  {
-    inputs: [],
-    name: "executor",
-    outputs: [
-      {
-        internalType: "contract IExecutor",
-        name: "",
-        type: "address",
-      },
-    ],
-    stateMutability: "view",
     type: "function",
   },
   {
@@ -1103,11 +1085,6 @@ const _abi = [
           {
             internalType: "address",
             name: "agent",
-            type: "address",
-          },
-          {
-            internalType: "address",
-            name: "recovery",
             type: "address",
           },
           {
@@ -2220,11 +2197,6 @@ const _abi = [
             type: "address",
           },
           {
-            internalType: "address",
-            name: "recovery",
-            type: "address",
-          },
-          {
             internalType: "bool",
             name: "receiveLocal",
             type: "bool",
@@ -2307,11 +2279,6 @@ const _abi = [
           {
             internalType: "address",
             name: "agent",
-            type: "address",
-          },
-          {
-            internalType: "address",
-            name: "recovery",
             type: "address",
           },
           {
@@ -2509,19 +2476,6 @@ const _abi = [
       },
     ],
     name: "setBridgeRouter",
-    outputs: [],
-    stateMutability: "nonpayable",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
-        internalType: "address",
-        name: "_executor",
-        type: "address",
-      },
-    ],
-    name: "setExecutor",
     outputs: [],
     stateMutability: "nonpayable",
     type: "function",

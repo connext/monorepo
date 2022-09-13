@@ -6,6 +6,7 @@ import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import {ECDSA} from "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
 import {Address} from "@openzeppelin/contracts/utils/Address.sol";
 
+import {ExcessivelySafeCall} from "../../../shared/libraries/ExcessivelySafeCall.sol";
 import {TypedMemView} from "../../../shared/libraries/TypedMemView.sol";
 import {TypeCasts} from "../../../shared/libraries/TypeCasts.sol";
 
@@ -17,7 +18,7 @@ import {LibCrossDomainProperty} from "../libraries/LibCrossDomainProperty.sol";
 
 import {IWeth} from "../interfaces/IWeth.sol";
 import {ITokenRegistry} from "../interfaces/ITokenRegistry.sol";
-import {IExecutor} from "../interfaces/IExecutor.sol";
+import {IXReceiver} from "../interfaces/IXReceiver.sol";
 import {IAavePool} from "../interfaces/IAavePool.sol";
 
 contract BridgeFacet is BaseConnextFacet {
@@ -29,13 +30,12 @@ contract BridgeFacet is BaseConnextFacet {
 
   // ========== Custom Errors ===========
 
-  error BridgeFacet__setExecutor_invalidExecutor();
   error BridgeFacet__addConnextion_invalidDomain();
   error BridgeFacet__addSequencer_alreadyApproved();
   error BridgeFacet__removeSequencer_notApproved();
   error BridgeFacet__xcall_nativeAssetNotSupported();
   error BridgeFacet__xcall_destinationNotSupported();
-  error BridgeFacet__xcall_emptyToOrRecovery();
+  error BridgeFacet__xcall_emptyTo();
   error BridgeFacet__xcall_notSupportedAsset();
   error BridgeFacet__xcall_missingAgent();
   error BridgeFacet__xcall_invalidSlippageTol();
@@ -81,6 +81,14 @@ contract BridgeFacet is BaseConnextFacet {
     uint256 bridgedAmount,
     address caller
   );
+
+  /**
+   * @notice Emitted when a transfer has its external data executed
+   * @param transferId - The unique identifier of the crosschain transfer.
+   * @param success - Whether calldata succeeded
+   * @param returnData - Return bytes from the IXReceiver
+   */
+  event ExternalCalldataExecuted(bytes32 indexed transferId, bool success, bytes returnData);
 
   /**
    * @notice Emitted when `execute` is called on the destination chain
@@ -136,14 +144,6 @@ contract BridgeFacet is BaseConnextFacet {
   event AavePortalMintUnbacked(bytes32 indexed transferId, address indexed router, address asset, uint256 amount);
 
   /**
-   * @notice Emitted when the executor variable is updated
-   * @param oldExecutor - The executor old value
-   * @param newExecutor - The executor new value
-   * @param caller - The account that called the function
-   */
-  event ExecutorUpdated(address oldExecutor, address newExecutor, address caller);
-
-  /**
    * @notice Emitted when a new connext instance is added
    * @param domain - The domain the connext instance is on
    * @param connext - The address of the connext instance
@@ -187,10 +187,6 @@ contract BridgeFacet is BaseConnextFacet {
     return s.domain;
   }
 
-  function executor() public view returns (IExecutor) {
-    return s.executor;
-  }
-
   function nonce() public view returns (uint256) {
     return s.nonce;
   }
@@ -200,14 +196,6 @@ contract BridgeFacet is BaseConnextFacet {
   }
 
   // ============ Admin methods ==============
-
-  function setExecutor(address _executor) external onlyOwner {
-    address old = address(s.executor);
-    if (old == _executor || !Address.isContract(_executor)) revert BridgeFacet__setExecutor_invalidExecutor();
-
-    s.executor = IExecutor(_executor);
-    emit ExecutorUpdated(old, _executor, msg.sender);
-  }
 
   function addConnextion(uint32 _domain, address _connext) external onlyOwner {
     // Make sure we aren't setting the current domain as the connextion.
@@ -266,7 +254,6 @@ contract BridgeFacet is BaseConnextFacet {
       originDomain: s.domain,
       destinationDomain: _args.params.destinationDomain,
       agent: _args.params.agent,
-      recovery: _args.params.recovery,
       receiveLocal: _args.params.receiveLocal,
       destinationMinOut: _args.params.destinationMinOut
     });
@@ -287,9 +274,9 @@ contract BridgeFacet is BaseConnextFacet {
         revert BridgeFacet__xcall_destinationNotSupported();
       }
 
-      // Recipient and recovery defined.
-      if (params.to == address(0) || params.recovery == address(0)) {
-        revert BridgeFacet__xcall_emptyToOrRecovery();
+      // Recipient defined.
+      if (_args.params.to == address(0)) {
+        revert BridgeFacet__xcall_emptyTo();
       }
 
       // If the user might be receiving adopted assets on the destination chain, they ought to have a defined agent
@@ -689,29 +676,89 @@ contract BridgeFacet is BaseConnextFacet {
     bytes32 _transferId,
     bool _reconciled
   ) private returns (uint256) {
-    // execute the the transaction
-    if (keccak256(_args.params.callData) == EMPTY_HASH) {
-      // no call data, send funds to the user
-      AssetLogic.handleOutgoingAsset(_asset, _args.params.to, _amountOut);
-    } else {
-      // execute calldata w/funds
-      AssetLogic.handleOutgoingAsset(_asset, address(s.executor), _amountOut);
+    // transfer funds to recipient
+    AssetLogic.handleOutgoingAsset(_asset, _args.params.to, _amountOut);
 
-      (bool success, bytes memory returnData) = s.executor.execute(
-        IExecutor.ExecutorArgs(
-          _transferId,
-          _amountOut,
-          _args.params.to,
-          _args.params.recovery,
-          _asset,
-          _reconciled ? _args.originSender : address(0),
-          _reconciled ? _args.params.originDomain : uint32(0),
-          _args.params.callData
-        )
-      );
-    }
+    // execute the calldata
+    _executeCalldata(_transferId, _amountOut, _asset, _args.originSender, _reconciled, _args.params);
 
     return _amountOut;
+  }
+
+  /**
+   * @notice Executes external calldata.
+   * 
+   * @dev Once a transfer is reconciled (i.e. data is authenticated), external calls will
+   * fail gracefully. This means errors will be emitted in an event, but the function itself
+   * will not revert.
+
+   * In the case where a transaction is *not* reconciled (i.e. data is unauthenticated), this
+   * external call will fail loudly. This allows all functions that rely on authenticated data
+   * (using a specific check on the origin sender), to be forced into the slow path for
+   * execution to succeed.
+   * 
+   */
+  function _executeCalldata(
+    bytes32 _transferId,
+    uint256 _amount,
+    address _asset,
+    address _originSender,
+    bool _reconciled,
+    CallParams calldata _params
+  ) internal {
+    // execute the calldata
+    if (keccak256(_params.callData) == EMPTY_HASH) {
+      // no call data, return amount out
+      return;
+    }
+
+    bool success;
+    bytes memory returnData;
+
+    // See above devnote
+    if (_reconciled) {
+      // after this function executes:
+      // - 2 events are emitted
+      // - transfer id is returned
+      // -> reserve 10K gas
+
+      // FIXME: should the values used here be settable constants?
+
+      // Use SafeCall here
+      (success, returnData) = ExcessivelySafeCall.excessivelySafeCall(
+        _params.to,
+        gasleft() - 10_000,
+        0, // native asset value (always 0)
+        256, // only copy 256 bytes back as calldata
+        abi.encodeWithSelector(
+          IXReceiver.xReceive.selector,
+          _transferId,
+          _amount,
+          _asset,
+          _originSender, // use passed in value iff authenticated
+          _params.originDomain,
+          _params.callData
+        )
+      );
+    } else {
+      // use address(0) for origin sender on fast path
+      returnData = IXReceiver(_params.to).xReceive(
+        _transferId,
+        _amount,
+        _asset,
+        address(0),
+        _params.originDomain,
+        _params.callData
+      );
+      success = true;
+    }
+
+    emit ExternalCalldataExecuted(_transferId, success, returnData);
+
+    // perform callback
+    if (_params.callback != address(0)) {
+      s.promiseRouter.send(_params.originDomain, _transferId, _params.callback, success, returnData);
+    }
   }
 
   /**
