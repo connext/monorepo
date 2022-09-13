@@ -194,6 +194,7 @@ type RootMessage @entity {
   id: ID!
 
   data: Bytes
+  chainId: BigInt
 
   # MessageSent/MessageProcessed Transaction
   caller: Bytes

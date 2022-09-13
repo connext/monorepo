@@ -476,6 +476,8 @@ export function handleMessageSent(event: MessageSent): void {
     message = new RootMessage(event.params.data.toHexString());
   }
 
+  message.chainId = getChainId();
+
   message.data = event.params.data;
   message.caller = event.params.caller;
   message.transactionHash = event.transaction.hash;
@@ -494,6 +496,8 @@ export function handleMessageProcessed(event: MessageProcessed): void {
     message = new RootMessage(event.params.data.toHexString());
   }
 
+  message.chainId = getChainId();
+  
   message.data = event.params.data;
   message.caller = event.params.caller;
   message.transactionHash = event.transaction.hash;
