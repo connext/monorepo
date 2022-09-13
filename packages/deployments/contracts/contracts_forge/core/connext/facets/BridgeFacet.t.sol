@@ -878,6 +878,22 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
     helpers_xcallAndAssert(BridgeFacet.BridgeFacet__xcall_destinationNotSupported.selector);
   }
 
+  function test_BridgeFacet__xcall_failIfEmptyTo() public {
+    _params.to = address(0);
+    helpers_xcallAndAssert(BridgeFacet.BridgeFacet__xcall_emptyTo.selector);
+  }
+
+  function test_BridgeFacet__xcall_failIfMissingAgent() public {
+    _params.agent = address(0);
+    _params.receiveLocal = false;
+    helpers_xcallAndAssert(BridgeFacet.BridgeFacet__xcall_missingAgent.selector);
+  }
+
+  function test_BridgeFacet__xcall_failIfInvalidSlippage() public {
+    _params.slippage = 15_000;
+    helpers_xcallAndAssert(BridgeFacet.BridgeFacet__xcall_invalidSlippage.selector);
+  }
+
   // TODO: fails if destination domain does not have an xapp router registered
   // FIXME: this should be tested at the integration level (i.e. when we deploy
   // the contracts via Deployer.sol), or on a facet that asserts this

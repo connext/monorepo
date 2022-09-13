@@ -224,22 +224,6 @@ contract AssetLogicTest is BaseConnextFacet, FacetHelper {
     utils_handleIncomingAssetAndAssert(assetId, amount, fee);
   }
 
-  // ============ transferAssetToContract ============
-  function test_AssetLogic__transferAssetToContract_works() public {
-    uint256 initSrc = IERC20(_local).balanceOf(address(this));
-    uint256 initDest = IERC20(_local).balanceOf(address(caller));
-    IERC20(_local).approve(address(caller), 100);
-    caller.transferAssetToContract(_local, 100);
-    assertEq(IERC20(_local).balanceOf(address(this)), initSrc - 100);
-    assertEq(IERC20(_local).balanceOf(address(caller)), initDest + 100);
-  }
-
-  function test_AssetLogic__transferAssetToContract_failsWithFeeOnTransfer() public {
-    FeeERC20 fee = new FeeERC20();
-    vm.expectRevert(AssetLogic.AssetLogic__transferAssetToContract_feeOnTransferNotSupported.selector);
-    caller.transferAssetToContract(address(fee), 100);
-  }
-
   // ============ handleOutgoingAsset ============
   function test_AssetLogic__handleOutgoingAsset_failsIfNoAsset() public {
     // set constants
@@ -264,6 +248,87 @@ contract AssetLogicTest is BaseConnextFacet, FacetHelper {
     address to = address(12345);
     uint256 amount = 0;
     utils_handleOutgoingAssetAndAssert(assetId, to, amount);
+  }
+
+  // ============ transferAssetToContract ============
+  function test_AssetLogic__transferAssetToContract_works() public {
+    uint256 initSrc = IERC20(_local).balanceOf(address(this));
+    uint256 initDest = IERC20(_local).balanceOf(address(caller));
+    IERC20(_local).approve(address(caller), 100);
+    caller.transferAssetToContract(_local, 100);
+    assertEq(IERC20(_local).balanceOf(address(this)), initSrc - 100);
+    assertEq(IERC20(_local).balanceOf(address(caller)), initDest + 100);
+  }
+
+  function test_AssetLogic__transferAssetToContract_failsWithFeeOnTransfer() public {
+    FeeERC20 fee = new FeeERC20();
+    vm.expectRevert(AssetLogic.AssetLogic__transferAssetToContract_feeOnTransferNotSupported.selector);
+    caller.transferAssetToContract(address(fee), 100);
+  }
+
+  // ============ calculateSlippageBoundary ============
+  function test_AssetLogic__calculateSlippageBoundary_worksWithSameDecimals() public {
+    uint8 _in = 18;
+    uint8 _out = 18;
+
+    uint256 _amount = 100 ether; // 100000000000000000000 wei
+    uint256 _slippage = 1000;
+    uint256 _expected = (_amount * 9000) / 10000;
+
+    assertEq(_expected, AssetLogic.calculateSlippageBoundary(_in, _out, _amount, _slippage));
+  }
+
+  function test_AssetLogic__calculateSlippageBoundary_worksWithDecreasingPrecision() public {
+    uint8 _in = 18;
+    uint8 _out = 6;
+
+    uint256 _amount = 100 ether; // 100000000000000000000 wei
+    uint256 _slippage = 1000;
+    uint256 _expected = (100000000 * 9000) / 10000;
+
+    assertEq(_expected, AssetLogic.calculateSlippageBoundary(_in, _out, _amount, _slippage));
+  }
+
+  function test_AssetLogic__calculateSlippageBoundary_worksWithIncreasingPrecision() public {
+    uint8 _in = 6;
+    uint8 _out = 18;
+
+    uint256 _amount = 100000000;
+    uint256 _slippage = 1000;
+    uint256 _expected = (100 ether * 9000) / 10000; // 90000000000000000000 wei
+
+    assertEq(_expected, AssetLogic.calculateSlippageBoundary(_in, _out, _amount, _slippage));
+  }
+
+  // ============ normalizeDecimals ============
+  function test_AssetLogic__normalizeDecimals_worksWhenIncreasingDecimals() public {
+    uint8 _in = 6;
+    uint8 _out = 18;
+
+    uint256 _amount = 100000000;
+    uint256 _expected = 100 ether; // 100000000000000000000 wei
+
+    assertEq(_expected, AssetLogic.normalizeDecimals(_in, _out, _amount));
+  }
+
+  function test_AssetLogic__normalizeDecimals_worksWhenDecreasingDecimals() public {
+    uint8 _in = 18;
+    uint8 _out = 6;
+
+    uint256 _amount = 100 ether; // 100000000000000000000 wei
+    uint256 _expected = 100000000;
+
+    assertEq(_expected, AssetLogic.normalizeDecimals(_in, _out, _amount));
+  }
+
+  function test_AssetLogic__normalizeDecimals_worksWhenDecimalsAreSame() public {
+    uint8 _in = 18;
+    uint8 _out = 18;
+
+    uint256 _amount = 100 ether; // 100000000000000000000 wei
+    uint256 _expected = 100 ether;
+
+    assertEq(_expected, AssetLogic.normalizeDecimals(_in, _out, _amount));
   }
 
   // ============ swapToLocalAssetIfNeeded ============
