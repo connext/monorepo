@@ -1490,7 +1490,7 @@ export interface ConnextHandlerInterface extends utils.Interface {
     "DiamondCutProposed(tuple[],address,bytes,uint256)": EventFragment;
     "DiamondCutRescinded(tuple[],address,bytes)": EventFragment;
     "BridgeRouterUpdated(address,address,address)": EventFragment;
-    "Reconciled(bytes32,address[],address,uint256,address)": EventFragment;
+    "Reconciled(bytes32,uint32,address[],address,uint256,address)": EventFragment;
     "AavePortalRepayment(bytes32,address,uint256,uint256,address)": EventFragment;
     "AssetWhitelistRemovalProposed(uint256)": EventFragment;
     "AssetWhitelistRemoved(bool)": EventFragment;
@@ -1825,13 +1825,14 @@ export type BridgeRouterUpdatedEventFilter =
 
 export interface ReconciledEventObject {
   transferId: string;
+  originDomain: number;
   routers: string[];
   asset: string;
   amount: BigNumber;
   caller: string;
 }
 export type ReconciledEvent = TypedEvent<
-  [string, string[], string, BigNumber, string],
+  [string, number, string[], string, BigNumber, string],
   ReconciledEventObject
 >;
 
@@ -4258,8 +4259,9 @@ export interface ConnextHandler extends BaseContract {
       caller?: null
     ): BridgeRouterUpdatedEventFilter;
 
-    "Reconciled(bytes32,address[],address,uint256,address)"(
+    "Reconciled(bytes32,uint32,address[],address,uint256,address)"(
       transferId?: PromiseOrValue<BytesLike> | null,
+      originDomain?: null,
       routers?: null,
       asset?: null,
       amount?: null,
@@ -4267,6 +4269,7 @@ export interface ConnextHandler extends BaseContract {
     ): ReconciledEventFilter;
     Reconciled(
       transferId?: PromiseOrValue<BytesLike> | null,
+      originDomain?: null,
       routers?: null,
       asset?: null,
       amount?: null,
