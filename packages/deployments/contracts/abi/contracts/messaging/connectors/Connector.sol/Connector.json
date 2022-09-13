@@ -11,6 +11,7 @@
   "event MessageSent(bytes,address)",
   "event MirrorConnectorUpdated(address,address)",
   "event MirrorGasUpdated(uint256,uint256)",
+  "event NewConnector(uint32 indexed,uint32 indexed,address,address,address)",
   "event OwnershipProposed(address indexed)",
   "event OwnershipTransferred(address indexed,address indexed)",
   "function AMB() view returns (address)",

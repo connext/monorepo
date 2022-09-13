@@ -2228,6 +2228,12 @@ const _abi = [
       },
       {
         indexed: false,
+        internalType: "uint32",
+        name: "originDomain",
+        type: "uint32",
+      },
+      {
+        indexed: false,
         internalType: "address[]",
         name: "routers",
         type: "address[]",
