@@ -63,7 +63,7 @@ export default task("add-connectors", "Add all connectors to the root manager")
         // NOTE: on mainnet connector there will be no mirror chain, so just register the mainnet
         // domain
         const domain = await getDomainFromChainId(mirrorChain ?? chain);
-        console.log(`trying to enroll connector for ${domain} (${chain})`);
+        console.log(`trying to enroll connector for ${domain} (${mirrorChain ?? chain})`);
 
         let stored = await rootManager.connectors(domain);
         if (stored.toLowerCase() === address.toLowerCase()) {
