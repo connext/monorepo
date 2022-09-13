@@ -1,0 +1,5369 @@
+{
+  "address": "0xD186493Db6CbE0DD27dE04A15450C9dfe1F5A497",
+  "abi": [
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "_contractOwner",
+          "type": "address"
+        },
+        {
+          "components": [
+            {
+              "internalType": "address",
+              "name": "facetAddress",
+              "type": "address"
+            },
+            {
+              "internalType": "enum IDiamondCut.FacetCutAction",
+              "name": "action",
+              "type": "uint8"
+            },
+            {
+              "internalType": "bytes4[]",
+              "name": "functionSelectors",
+              "type": "bytes4[]"
+            }
+          ],
+          "internalType": "struct IDiamondCut.FacetCut[]",
+          "name": "_diamondCut",
+          "type": "tuple[]"
+        },
+        {
+          "components": [
+            {
+              "internalType": "address",
+              "name": "initContract",
+              "type": "address"
+            },
+            {
+              "internalType": "bytes",
+              "name": "initData",
+              "type": "bytes"
+            }
+          ],
+          "internalType": "struct Diamond.Initialization[]",
+          "name": "_initializations",
+          "type": "tuple[]"
+        }
+      ],
+      "stateMutability": "payable",
+      "type": "constructor"
+    },
+    {
+      "stateMutability": "payable",
+      "type": "fallback"
+    },
+    {
+      "stateMutability": "payable",
+      "type": "receive"
+    },
+    {
+      "inputs": [],
+      "name": "AssetFacet__addAssetId_alreadyAdded",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "AssetFacet__addAssetId_nativeAsset",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "AssetFacet__removeAssetId_notAdded",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "AssetFacet__setTokenRegistry_invalidTokenRegistry",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "BaseConnextFacet__nonReentrant_reentrantCall",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "BaseConnextFacet__onlyBridgeRouter_notBridgeRouter",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "BaseConnextFacet__onlyOwner_notOwner",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "BaseConnextFacet__onlyProposed_notProposedOwner",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "BaseConnextFacet__whenNotPaused_paused",
+      "type": "error"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "bytes32",
+          "name": "key",
+          "type": "bytes32"
+        },
+        {
+          "indexed": true,
+          "internalType": "bytes32",
+          "name": "canonicalId",
+          "type": "bytes32"
+        },
+        {
+          "indexed": true,
+          "internalType": "uint32",
+          "name": "domain",
+          "type": "uint32"
+        },
+        {
+          "indexed": false,
+          "internalType": "address",
+          "name": "adoptedAsset",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "internalType": "address",
+          "name": "localAsset",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "internalType": "address",
+          "name": "caller",
+          "type": "address"
+        }
+      ],
+      "name": "AssetAdded",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "bytes32",
+          "name": "key",
+          "type": "bytes32"
+        },
+        {
+          "indexed": false,
+          "internalType": "address",
+          "name": "caller",
+          "type": "address"
+        }
+      ],
+      "name": "AssetRemoved",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "bytes32",
+          "name": "key",
+          "type": "bytes32"
+        },
+        {
+          "indexed": true,
+          "internalType": "bytes32",
+          "name": "canonicalId",
+          "type": "bytes32"
+        },
+        {
+          "indexed": true,
+          "internalType": "uint32",
+          "name": "domain",
+          "type": "uint32"
+        },
+        {
+          "indexed": false,
+          "internalType": "address",
+          "name": "swapPool",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "internalType": "address",
+          "name": "caller",
+          "type": "address"
+        }
+      ],
+      "name": "StableSwapAdded",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": false,
+          "internalType": "address",
+          "name": "oldTokenRegistry",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "internalType": "address",
+          "name": "newTokenRegistry",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "internalType": "address",
+          "name": "caller",
+          "type": "address"
+        }
+      ],
+      "name": "TokenRegistryUpdated",
+      "type": "event"
+    },
+    {
+      "inputs": [
+        {
+          "components": [
+            {
+              "internalType": "uint32",
+              "name": "domain",
+              "type": "uint32"
+            },
+            {
+              "internalType": "bytes32",
+              "name": "id",
+              "type": "bytes32"
+            }
+          ],
+          "internalType": "struct TokenId",
+          "name": "_canonical",
+          "type": "tuple"
+        },
+        {
+          "internalType": "address",
+          "name": "_stableSwapPool",
+          "type": "address"
+        }
+      ],
+      "name": "addStableSwapPool",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "_adopted",
+          "type": "address"
+        }
+      ],
+      "name": "adoptedToCanonical",
+      "outputs": [
+        {
+          "components": [
+            {
+              "internalType": "uint32",
+              "name": "domain",
+              "type": "uint32"
+            },
+            {
+              "internalType": "bytes32",
+              "name": "id",
+              "type": "bytes32"
+            }
+          ],
+          "internalType": "struct TokenId",
+          "name": "",
+          "type": "tuple"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "bytes32",
+          "name": "_key",
+          "type": "bytes32"
+        }
+      ],
+      "name": "adoptedToLocalPools",
+      "outputs": [
+        {
+          "internalType": "contract IStableSwap",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "components": [
+            {
+              "internalType": "uint32",
+              "name": "domain",
+              "type": "uint32"
+            },
+            {
+              "internalType": "bytes32",
+              "name": "id",
+              "type": "bytes32"
+            }
+          ],
+          "internalType": "struct TokenId",
+          "name": "_canonical",
+          "type": "tuple"
+        }
+      ],
+      "name": "adoptedToLocalPools",
+      "outputs": [
+        {
+          "internalType": "contract IStableSwap",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "bytes32",
+          "name": "_key",
+          "type": "bytes32"
+        }
+      ],
+      "name": "approvedAssets",
+      "outputs": [
+        {
+          "internalType": "bool",
+          "name": "",
+          "type": "bool"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "components": [
+            {
+              "internalType": "uint32",
+              "name": "domain",
+              "type": "uint32"
+            },
+            {
+              "internalType": "bytes32",
+              "name": "id",
+              "type": "bytes32"
+            }
+          ],
+          "internalType": "struct TokenId",
+          "name": "_canonical",
+          "type": "tuple"
+        }
+      ],
+      "name": "approvedAssets",
+      "outputs": [
+        {
+          "internalType": "bool",
+          "name": "",
+          "type": "bool"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "bytes32",
+          "name": "_key",
+          "type": "bytes32"
+        }
+      ],
+      "name": "canonicalToAdopted",
+      "outputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "components": [
+            {
+              "internalType": "uint32",
+              "name": "domain",
+              "type": "uint32"
+            },
+            {
+              "internalType": "bytes32",
+              "name": "id",
+              "type": "bytes32"
+            }
+          ],
+          "internalType": "struct TokenId",
+          "name": "_canonical",
+          "type": "tuple"
+        }
+      ],
+      "name": "canonicalToAdopted",
+      "outputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "components": [
+            {
+              "internalType": "uint32",
+              "name": "domain",
+              "type": "uint32"
+            },
+            {
+              "internalType": "bytes32",
+              "name": "id",
+              "type": "bytes32"
+            }
+          ],
+          "internalType": "struct TokenId",
+          "name": "_canonical",
+          "type": "tuple"
+        },
+        {
+          "internalType": "address",
+          "name": "_adoptedAssetId",
+          "type": "address"
+        }
+      ],
+      "name": "removeAssetId",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "bytes32",
+          "name": "_key",
+          "type": "bytes32"
+        },
+        {
+          "internalType": "address",
+          "name": "_adoptedAssetId",
+          "type": "address"
+        }
+      ],
+      "name": "removeAssetId",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "_tokenRegistry",
+          "type": "address"
+        }
+      ],
+      "name": "setTokenRegistry",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "components": [
+            {
+              "internalType": "uint32",
+              "name": "domain",
+              "type": "uint32"
+            },
+            {
+              "internalType": "bytes32",
+              "name": "id",
+              "type": "bytes32"
+            }
+          ],
+          "internalType": "struct TokenId",
+          "name": "_canonical",
+          "type": "tuple"
+        },
+        {
+          "internalType": "address",
+          "name": "_adoptedAssetId",
+          "type": "address"
+        },
+        {
+          "internalType": "address",
+          "name": "_stableSwapPool",
+          "type": "address"
+        }
+      ],
+      "name": "setupAsset",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "tokenRegistry",
+      "outputs": [
+        {
+          "internalType": "contract ITokenRegistry",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "AssetLogic__getTokenIndexFromStableSwapPool_notExist",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "AssetLogic__handleOutgoingAsset_notNative",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "AssetLogic__transferAssetToContract_feeOnTransferNotSupported",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "BridgeFacet__addConnextion_invalidDomain",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "BridgeFacet__addSequencer_alreadyApproved",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "BridgeFacet__bumpTransfer_valueIsZero",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "BridgeFacet__executePortalTransfer_insufficientAmountWithdrawn",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "BridgeFacet__execute_alreadyExecuted",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "BridgeFacet__execute_alreadyReconciled",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "BridgeFacet__execute_invalidRouterSignature",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "BridgeFacet__execute_invalidSequencerSignature",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "BridgeFacet__execute_maxRoutersExceeded",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "BridgeFacet__execute_notApprovedForPortals",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "BridgeFacet__execute_notReconciled",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "BridgeFacet__execute_notSupportedRouter",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "BridgeFacet__execute_notSupportedSequencer",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "BridgeFacet__execute_unapprovedSender",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "BridgeFacet__execute_wrongDomain",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "BridgeFacet__forceReceiveLocal_invalidSender",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "BridgeFacet__handleExecuteTransaction_invalidSponsoredAmount",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "BridgeFacet__removeSequencer_notApproved",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "BridgeFacet__setExecutor_invalidExecutor",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "BridgeFacet__setPromiseRouter_invalidPromiseRouter",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "BridgeFacet__setSponsorVault_invalidSponsorVault",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "BridgeFacet__xcall_callbackNotAContract",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "BridgeFacet__xcall_destinationNotSupported",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "BridgeFacet__xcall_emptyToOrRecovery",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "BridgeFacet__xcall_ethValueMismatchedFees",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "BridgeFacet__xcall_invalidSlippageTol",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "BridgeFacet__xcall_missingAgent",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "BridgeFacet__xcall_nativeAssetNotSupported",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "BridgeFacet__xcall_nonZeroCallbackFeeForCallback",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "BridgeFacet__xcall_notSupportedAsset",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "BridgeFacet__xcall_wrongDomain",
+      "type": "error"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "bytes32",
+          "name": "transferId",
+          "type": "bytes32"
+        },
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "router",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "internalType": "address",
+          "name": "asset",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "amount",
+          "type": "uint256"
+        }
+      ],
+      "name": "AavePortalMintUnbacked",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": false,
+          "internalType": "uint32",
+          "name": "domain",
+          "type": "uint32"
+        },
+        {
+          "indexed": false,
+          "internalType": "address",
+          "name": "connext",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "internalType": "address",
+          "name": "caller",
+          "type": "address"
+        }
+      ],
+      "name": "ConnextionAdded",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "bytes32",
+          "name": "transferId",
+          "type": "bytes32"
+        },
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "to",
+          "type": "address"
+        },
+        {
+          "components": [
+            {
+              "components": [
+                {
+                  "internalType": "address",
+                  "name": "to",
+                  "type": "address"
+                },
+                {
+                  "internalType": "bytes",
+                  "name": "callData",
+                  "type": "bytes"
+                },
+                {
+                  "internalType": "uint32",
+                  "name": "originDomain",
+                  "type": "uint32"
+                },
+                {
+                  "internalType": "uint32",
+                  "name": "destinationDomain",
+                  "type": "uint32"
+                },
+                {
+                  "internalType": "address",
+                  "name": "agent",
+                  "type": "address"
+                },
+                {
+                  "internalType": "address",
+                  "name": "recovery",
+                  "type": "address"
+                },
+                {
+                  "internalType": "bool",
+                  "name": "forceSlow",
+                  "type": "bool"
+                },
+                {
+                  "internalType": "bool",
+                  "name": "receiveLocal",
+                  "type": "bool"
+                },
+                {
+                  "internalType": "address",
+                  "name": "callback",
+                  "type": "address"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "callbackFee",
+                  "type": "uint256"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "relayerFee",
+                  "type": "uint256"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "destinationMinOut",
+                  "type": "uint256"
+                }
+              ],
+              "internalType": "struct CallParams",
+              "name": "params",
+              "type": "tuple"
+            },
+            {
+              "internalType": "address",
+              "name": "local",
+              "type": "address"
+            },
+            {
+              "internalType": "address[]",
+              "name": "routers",
+              "type": "address[]"
+            },
+            {
+              "internalType": "bytes[]",
+              "name": "routerSignatures",
+              "type": "bytes[]"
+            },
+            {
+              "internalType": "address",
+              "name": "sequencer",
+              "type": "address"
+            },
+            {
+              "internalType": "bytes",
+              "name": "sequencerSignature",
+              "type": "bytes"
+            },
+            {
+              "internalType": "uint256",
+              "name": "amount",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "nonce",
+              "type": "uint256"
+            },
+            {
+              "internalType": "address",
+              "name": "originSender",
+              "type": "address"
+            }
+          ],
+          "indexed": false,
+          "internalType": "struct ExecuteArgs",
+          "name": "args",
+          "type": "tuple"
+        },
+        {
+          "indexed": false,
+          "internalType": "address",
+          "name": "transactingAsset",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "transactingAmount",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "internalType": "address",
+          "name": "caller",
+          "type": "address"
+        }
+      ],
+      "name": "Executed",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": false,
+          "internalType": "address",
+          "name": "oldExecutor",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "internalType": "address",
+          "name": "newExecutor",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "internalType": "address",
+          "name": "caller",
+          "type": "address"
+        }
+      ],
+      "name": "ExecutorUpdated",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "bytes32",
+          "name": "transferId",
+          "type": "bytes32"
+        },
+        {
+          "indexed": true,
+          "internalType": "bytes32",
+          "name": "canonicalId",
+          "type": "bytes32"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint32",
+          "name": "canonicalDomain",
+          "type": "uint32"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "amount",
+          "type": "uint256"
+        }
+      ],
+      "name": "ForcedReceiveLocal",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": false,
+          "internalType": "address",
+          "name": "oldRouter",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "internalType": "address",
+          "name": "newRouter",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "internalType": "address",
+          "name": "caller",
+          "type": "address"
+        }
+      ],
+      "name": "PromiseRouterUpdated",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": false,
+          "internalType": "address",
+          "name": "sequencer",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "internalType": "address",
+          "name": "caller",
+          "type": "address"
+        }
+      ],
+      "name": "SequencerAdded",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": false,
+          "internalType": "address",
+          "name": "sequencer",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "internalType": "address",
+          "name": "caller",
+          "type": "address"
+        }
+      ],
+      "name": "SequencerRemoved",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": false,
+          "internalType": "address",
+          "name": "oldSponsorVault",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "internalType": "address",
+          "name": "newSponsorVault",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "internalType": "address",
+          "name": "caller",
+          "type": "address"
+        }
+      ],
+      "name": "SponsorVaultUpdated",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "bytes32",
+          "name": "transferId",
+          "type": "bytes32"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "relayerFee",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "internalType": "address",
+          "name": "caller",
+          "type": "address"
+        }
+      ],
+      "name": "TransferRelayerFeesUpdated",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "bytes32",
+          "name": "transferId",
+          "type": "bytes32"
+        },
+        {
+          "indexed": true,
+          "internalType": "uint256",
+          "name": "nonce",
+          "type": "uint256"
+        },
+        {
+          "indexed": true,
+          "internalType": "bytes32",
+          "name": "messageHash",
+          "type": "bytes32"
+        },
+        {
+          "components": [
+            {
+              "components": [
+                {
+                  "internalType": "address",
+                  "name": "to",
+                  "type": "address"
+                },
+                {
+                  "internalType": "bytes",
+                  "name": "callData",
+                  "type": "bytes"
+                },
+                {
+                  "internalType": "uint32",
+                  "name": "originDomain",
+                  "type": "uint32"
+                },
+                {
+                  "internalType": "uint32",
+                  "name": "destinationDomain",
+                  "type": "uint32"
+                },
+                {
+                  "internalType": "address",
+                  "name": "agent",
+                  "type": "address"
+                },
+                {
+                  "internalType": "address",
+                  "name": "recovery",
+                  "type": "address"
+                },
+                {
+                  "internalType": "bool",
+                  "name": "forceSlow",
+                  "type": "bool"
+                },
+                {
+                  "internalType": "bool",
+                  "name": "receiveLocal",
+                  "type": "bool"
+                },
+                {
+                  "internalType": "address",
+                  "name": "callback",
+                  "type": "address"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "callbackFee",
+                  "type": "uint256"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "relayerFee",
+                  "type": "uint256"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "destinationMinOut",
+                  "type": "uint256"
+                }
+              ],
+              "internalType": "struct CallParams",
+              "name": "params",
+              "type": "tuple"
+            },
+            {
+              "internalType": "address",
+              "name": "transactingAsset",
+              "type": "address"
+            },
+            {
+              "internalType": "uint256",
+              "name": "transactingAmount",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "originMinOut",
+              "type": "uint256"
+            }
+          ],
+          "indexed": false,
+          "internalType": "struct XCallArgs",
+          "name": "xcallArgs",
+          "type": "tuple"
+        },
+        {
+          "indexed": false,
+          "internalType": "address",
+          "name": "bridgedAsset",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "bridgedAmount",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "internalType": "address",
+          "name": "caller",
+          "type": "address"
+        }
+      ],
+      "name": "XCalled",
+      "type": "event"
+    },
+    {
+      "inputs": [],
+      "name": "AAVE_REFERRAL_CODE",
+      "outputs": [
+        {
+          "internalType": "uint16",
+          "name": "",
+          "type": "uint16"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint32",
+          "name": "_domain",
+          "type": "uint32"
+        },
+        {
+          "internalType": "address",
+          "name": "_connext",
+          "type": "address"
+        }
+      ],
+      "name": "addConnextion",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "_sequencer",
+          "type": "address"
+        }
+      ],
+      "name": "addSequencer",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "_sequencer",
+          "type": "address"
+        }
+      ],
+      "name": "approvedSequencers",
+      "outputs": [
+        {
+          "internalType": "bool",
+          "name": "",
+          "type": "bool"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "bytes32",
+          "name": "_transferId",
+          "type": "bytes32"
+        }
+      ],
+      "name": "bumpTransfer",
+      "outputs": [],
+      "stateMutability": "payable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint32",
+          "name": "_domain",
+          "type": "uint32"
+        }
+      ],
+      "name": "connextion",
+      "outputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "domain",
+      "outputs": [
+        {
+          "internalType": "uint32",
+          "name": "",
+          "type": "uint32"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "components": [
+            {
+              "components": [
+                {
+                  "internalType": "address",
+                  "name": "to",
+                  "type": "address"
+                },
+                {
+                  "internalType": "bytes",
+                  "name": "callData",
+                  "type": "bytes"
+                },
+                {
+                  "internalType": "uint32",
+                  "name": "originDomain",
+                  "type": "uint32"
+                },
+                {
+                  "internalType": "uint32",
+                  "name": "destinationDomain",
+                  "type": "uint32"
+                },
+                {
+                  "internalType": "address",
+                  "name": "agent",
+                  "type": "address"
+                },
+                {
+                  "internalType": "address",
+                  "name": "recovery",
+                  "type": "address"
+                },
+                {
+                  "internalType": "bool",
+                  "name": "forceSlow",
+                  "type": "bool"
+                },
+                {
+                  "internalType": "bool",
+                  "name": "receiveLocal",
+                  "type": "bool"
+                },
+                {
+                  "internalType": "address",
+                  "name": "callback",
+                  "type": "address"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "callbackFee",
+                  "type": "uint256"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "relayerFee",
+                  "type": "uint256"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "destinationMinOut",
+                  "type": "uint256"
+                }
+              ],
+              "internalType": "struct CallParams",
+              "name": "params",
+              "type": "tuple"
+            },
+            {
+              "internalType": "address",
+              "name": "local",
+              "type": "address"
+            },
+            {
+              "internalType": "address[]",
+              "name": "routers",
+              "type": "address[]"
+            },
+            {
+              "internalType": "bytes[]",
+              "name": "routerSignatures",
+              "type": "bytes[]"
+            },
+            {
+              "internalType": "address",
+              "name": "sequencer",
+              "type": "address"
+            },
+            {
+              "internalType": "bytes",
+              "name": "sequencerSignature",
+              "type": "bytes"
+            },
+            {
+              "internalType": "uint256",
+              "name": "amount",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "nonce",
+              "type": "uint256"
+            },
+            {
+              "internalType": "address",
+              "name": "originSender",
+              "type": "address"
+            }
+          ],
+          "internalType": "struct ExecuteArgs",
+          "name": "_args",
+          "type": "tuple"
+        }
+      ],
+      "name": "execute",
+      "outputs": [
+        {
+          "internalType": "bytes32",
+          "name": "",
+          "type": "bytes32"
+        }
+      ],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "executor",
+      "outputs": [
+        {
+          "internalType": "contract IExecutor",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "components": [
+            {
+              "internalType": "address",
+              "name": "to",
+              "type": "address"
+            },
+            {
+              "internalType": "bytes",
+              "name": "callData",
+              "type": "bytes"
+            },
+            {
+              "internalType": "uint32",
+              "name": "originDomain",
+              "type": "uint32"
+            },
+            {
+              "internalType": "uint32",
+              "name": "destinationDomain",
+              "type": "uint32"
+            },
+            {
+              "internalType": "address",
+              "name": "agent",
+              "type": "address"
+            },
+            {
+              "internalType": "address",
+              "name": "recovery",
+              "type": "address"
+            },
+            {
+              "internalType": "bool",
+              "name": "forceSlow",
+              "type": "bool"
+            },
+            {
+              "internalType": "bool",
+              "name": "receiveLocal",
+              "type": "bool"
+            },
+            {
+              "internalType": "address",
+              "name": "callback",
+              "type": "address"
+            },
+            {
+              "internalType": "uint256",
+              "name": "callbackFee",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "relayerFee",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "destinationMinOut",
+              "type": "uint256"
+            }
+          ],
+          "internalType": "struct CallParams",
+          "name": "_params",
+          "type": "tuple"
+        },
+        {
+          "internalType": "uint256",
+          "name": "_amount",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "_nonce",
+          "type": "uint256"
+        },
+        {
+          "internalType": "bytes32",
+          "name": "_canonicalId",
+          "type": "bytes32"
+        },
+        {
+          "internalType": "uint32",
+          "name": "_canonicalDomain",
+          "type": "uint32"
+        },
+        {
+          "internalType": "address",
+          "name": "_originSender",
+          "type": "address"
+        }
+      ],
+      "name": "forceReceiveLocal",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "nonce",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "promiseRouter",
+      "outputs": [
+        {
+          "internalType": "contract PromiseRouter",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "bytes32",
+          "name": "_transferId",
+          "type": "bytes32"
+        }
+      ],
+      "name": "reconciledTransfers",
+      "outputs": [
+        {
+          "internalType": "bool",
+          "name": "",
+          "type": "bool"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "bytes32",
+          "name": "_transferId",
+          "type": "bytes32"
+        }
+      ],
+      "name": "relayerFees",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "_sequencer",
+          "type": "address"
+        }
+      ],
+      "name": "removeSequencer",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "bytes32",
+          "name": "_transferId",
+          "type": "bytes32"
+        }
+      ],
+      "name": "routedTransfers",
+      "outputs": [
+        {
+          "internalType": "address[]",
+          "name": "",
+          "type": "address[]"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "_executor",
+          "type": "address"
+        }
+      ],
+      "name": "setExecutor",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address payable",
+          "name": "_promiseRouter",
+          "type": "address"
+        }
+      ],
+      "name": "setPromiseRouter",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "_sponsorVault",
+          "type": "address"
+        }
+      ],
+      "name": "setSponsorVault",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "sponsorVault",
+      "outputs": [
+        {
+          "internalType": "contract ISponsorVault",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "components": [
+            {
+              "components": [
+                {
+                  "internalType": "address",
+                  "name": "to",
+                  "type": "address"
+                },
+                {
+                  "internalType": "bytes",
+                  "name": "callData",
+                  "type": "bytes"
+                },
+                {
+                  "internalType": "uint32",
+                  "name": "originDomain",
+                  "type": "uint32"
+                },
+                {
+                  "internalType": "uint32",
+                  "name": "destinationDomain",
+                  "type": "uint32"
+                },
+                {
+                  "internalType": "address",
+                  "name": "agent",
+                  "type": "address"
+                },
+                {
+                  "internalType": "address",
+                  "name": "recovery",
+                  "type": "address"
+                },
+                {
+                  "internalType": "bool",
+                  "name": "forceSlow",
+                  "type": "bool"
+                },
+                {
+                  "internalType": "bool",
+                  "name": "receiveLocal",
+                  "type": "bool"
+                },
+                {
+                  "internalType": "address",
+                  "name": "callback",
+                  "type": "address"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "callbackFee",
+                  "type": "uint256"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "relayerFee",
+                  "type": "uint256"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "destinationMinOut",
+                  "type": "uint256"
+                }
+              ],
+              "internalType": "struct CallParams",
+              "name": "params",
+              "type": "tuple"
+            },
+            {
+              "internalType": "address",
+              "name": "transactingAsset",
+              "type": "address"
+            },
+            {
+              "internalType": "uint256",
+              "name": "transactingAmount",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "originMinOut",
+              "type": "uint256"
+            }
+          ],
+          "internalType": "struct XCallArgs",
+          "name": "_args",
+          "type": "tuple"
+        }
+      ],
+      "name": "xcall",
+      "outputs": [
+        {
+          "internalType": "bytes32",
+          "name": "",
+          "type": "bytes32"
+        }
+      ],
+      "stateMutability": "payable",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "NomadFacet__reconcile_alreadyReconciled",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "NomadFacet__reconcile_noPortalRouter",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "NomadFacet__reconcile_notConnext",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "NomadFacet__setBridgeRouter_invalidBridge",
+      "type": "error"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": false,
+          "internalType": "address",
+          "name": "oldBridgeRouter",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "internalType": "address",
+          "name": "newBridgeRouter",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "internalType": "address",
+          "name": "caller",
+          "type": "address"
+        }
+      ],
+      "name": "BridgeRouterUpdated",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "bytes32",
+          "name": "transferId",
+          "type": "bytes32"
+        },
+        {
+          "indexed": false,
+          "internalType": "address[]",
+          "name": "routers",
+          "type": "address[]"
+        },
+        {
+          "indexed": false,
+          "internalType": "address",
+          "name": "asset",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "amount",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "internalType": "address",
+          "name": "caller",
+          "type": "address"
+        }
+      ],
+      "name": "Reconciled",
+      "type": "event"
+    },
+    {
+      "inputs": [],
+      "name": "bridgeRouter",
+      "outputs": [
+        {
+          "internalType": "contract IBridgeRouter",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint32",
+          "name": "_origin",
+          "type": "uint32"
+        },
+        {
+          "internalType": "bytes32",
+          "name": "_sender",
+          "type": "bytes32"
+        },
+        {
+          "internalType": "uint32",
+          "name": "_tokenDomain",
+          "type": "uint32"
+        },
+        {
+          "internalType": "bytes32",
+          "name": "_tokenAddress",
+          "type": "bytes32"
+        },
+        {
+          "internalType": "address",
+          "name": "_localToken",
+          "type": "address"
+        },
+        {
+          "internalType": "uint256",
+          "name": "_amount",
+          "type": "uint256"
+        },
+        {
+          "internalType": "bytes",
+          "name": "_extraData",
+          "type": "bytes"
+        }
+      ],
+      "name": "onReceive",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "_bridgeRouter",
+          "type": "address"
+        }
+      ],
+      "name": "setBridgeRouter",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "ProposedOwnableFacet__acceptProposedOwner_delayNotElapsed",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "ProposedOwnableFacet__acceptProposedOwner_noOwnershipChange",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "ProposedOwnableFacet__proposeAssetWhitelistRemoval_noOwnershipChange",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "ProposedOwnableFacet__proposeNewOwner_invalidProposal",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "ProposedOwnableFacet__proposeNewOwner_noOwnershipChange",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "ProposedOwnableFacet__proposeRouterWhitelistRemoval_noOwnershipChange",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "ProposedOwnableFacet__removeAssetWhitelist_delayNotElapsed",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "ProposedOwnableFacet__removeAssetWhitelist_noOwnershipChange",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "ProposedOwnableFacet__removeAssetWhitelist_noProposal",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "ProposedOwnableFacet__removeRouterWhitelist_delayNotElapsed",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "ProposedOwnableFacet__removeRouterWhitelist_noOwnershipChange",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "ProposedOwnableFacet__removeRouterWhitelist_noProposal",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "ProposedOwnableFacet__renounceOwnership_delayNotElapsed",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "ProposedOwnableFacet__renounceOwnership_invalidProposal",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "ProposedOwnableFacet__renounceOwnership_noProposal",
+      "type": "error"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "timestamp",
+          "type": "uint256"
+        }
+      ],
+      "name": "AssetWhitelistRemovalProposed",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": false,
+          "internalType": "bool",
+          "name": "renounced",
+          "type": "bool"
+        }
+      ],
+      "name": "AssetWhitelistRemoved",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "proposedOwner",
+          "type": "address"
+        }
+      ],
+      "name": "OwnershipProposed",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "previousOwner",
+          "type": "address"
+        },
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "newOwner",
+          "type": "address"
+        }
+      ],
+      "name": "OwnershipTransferred",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [],
+      "name": "Paused",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "timestamp",
+          "type": "uint256"
+        }
+      ],
+      "name": "RouterWhitelistRemovalProposed",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": false,
+          "internalType": "bool",
+          "name": "renounced",
+          "type": "bool"
+        }
+      ],
+      "name": "RouterWhitelistRemoved",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [],
+      "name": "Unpaused",
+      "type": "event"
+    },
+    {
+      "inputs": [],
+      "name": "acceptProposedOwner",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "assetWhitelistRemoved",
+      "outputs": [
+        {
+          "internalType": "bool",
+          "name": "",
+          "type": "bool"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "assetWhitelistTimestamp",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "delay",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "pure",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "owner",
+      "outputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "pause",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "proposeAssetWhitelistRemoval",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "newlyProposed",
+          "type": "address"
+        }
+      ],
+      "name": "proposeNewOwner",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "proposeRouterWhitelistRemoval",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "proposed",
+      "outputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "proposedTimestamp",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "removeAssetWhitelist",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "removeRouterWhitelist",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "renounceOwnership",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "renounced",
+      "outputs": [
+        {
+          "internalType": "bool",
+          "name": "",
+          "type": "bool"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "routerWhitelistRemoved",
+      "outputs": [
+        {
+          "internalType": "bool",
+          "name": "",
+          "type": "bool"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "routerWhitelistTimestamp",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "unpause",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "RelayerFacet__addRelayer_alreadyApproved",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "RelayerFacet__initiateClaim_emptyClaim",
+      "type": "error"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "bytes32",
+          "name": "transferId",
+          "type": "bytes32"
+        }
+      ],
+      "name": "RelayerFacet__initiateClaim_notRelayer",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "RelayerFacet__onlyRelayerFeeRouter_notRelayerFeeRouter",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "RelayerFacet__removeRelayer_notApproved",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "RelayerFacet__setRelayerFeeRouter_invalidRelayerFeeRouter",
+      "type": "error"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "recipient",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "total",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "internalType": "bytes32[]",
+          "name": "transferIds",
+          "type": "bytes32[]"
+        }
+      ],
+      "name": "Claimed",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "uint32",
+          "name": "domain",
+          "type": "uint32"
+        },
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "recipient",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "internalType": "address",
+          "name": "caller",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "internalType": "bytes32[]",
+          "name": "transferIds",
+          "type": "bytes32[]"
+        }
+      ],
+      "name": "InitiatedClaim",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": false,
+          "internalType": "address",
+          "name": "relayer",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "internalType": "address",
+          "name": "caller",
+          "type": "address"
+        }
+      ],
+      "name": "RelayerAdded",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": false,
+          "internalType": "address",
+          "name": "oldRouter",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "internalType": "address",
+          "name": "newRouter",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "internalType": "address",
+          "name": "caller",
+          "type": "address"
+        }
+      ],
+      "name": "RelayerFeeRouterUpdated",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": false,
+          "internalType": "address",
+          "name": "relayer",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "internalType": "address",
+          "name": "caller",
+          "type": "address"
+        }
+      ],
+      "name": "RelayerRemoved",
+      "type": "event"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "_relayer",
+          "type": "address"
+        }
+      ],
+      "name": "addRelayer",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "_relayer",
+          "type": "address"
+        }
+      ],
+      "name": "approvedRelayers",
+      "outputs": [
+        {
+          "internalType": "bool",
+          "name": "",
+          "type": "bool"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "_recipient",
+          "type": "address"
+        },
+        {
+          "internalType": "bytes32[]",
+          "name": "_transferIds",
+          "type": "bytes32[]"
+        }
+      ],
+      "name": "claim",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint32",
+          "name": "_domain",
+          "type": "uint32"
+        },
+        {
+          "internalType": "address",
+          "name": "_recipient",
+          "type": "address"
+        },
+        {
+          "internalType": "bytes32[]",
+          "name": "_transferIds",
+          "type": "bytes32[]"
+        }
+      ],
+      "name": "initiateClaim",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "relayerFeeRouter",
+      "outputs": [
+        {
+          "internalType": "contract RelayerFeeRouter",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "_relayer",
+          "type": "address"
+        }
+      ],
+      "name": "removeRelayer",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "_relayerFeeRouter",
+          "type": "address"
+        }
+      ],
+      "name": "setRelayerFeeRouter",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "bytes32",
+          "name": "_transferId",
+          "type": "bytes32"
+        }
+      ],
+      "name": "transferRelayer",
+      "outputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "AssetLogic__handleIncomingAsset_nativeAssetNotSupported",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "RoutersFacet__acceptProposedRouterOwner_notElapsed",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "RoutersFacet__addLiquidityForRouter_amountIsZero",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "RoutersFacet__addLiquidityForRouter_badAsset",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "RoutersFacet__addLiquidityForRouter_badRouter",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "RoutersFacet__addLiquidityForRouter_routerEmpty",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "RoutersFacet__approveRouterForPortal_alreadyApproved",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "RoutersFacet__approveRouterForPortal_notAdded",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "RoutersFacet__onlyProposedRouterOwner_notProposedRouterOwner",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "RoutersFacet__onlyProposedRouterOwner_notRouterOwner",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "RoutersFacet__onlyRouterOwner_notRouterOwner",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "RoutersFacet__proposeRouterOwner_badRouter",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "RoutersFacet__proposeRouterOwner_notNewOwner",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "RoutersFacet__removeRouterLiquidityFor_notOwner",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "RoutersFacet__removeRouterLiquidity_amountIsZero",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "RoutersFacet__removeRouterLiquidity_insufficientFunds",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "RoutersFacet__removeRouterLiquidity_recipientEmpty",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "RoutersFacet__removeRouter_notAdded",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "RoutersFacet__removeRouter_routerEmpty",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "RoutersFacet__setLiquidityFeeNumerator_tooLarge",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "RoutersFacet__setLiquidityFeeNumerator_tooSmall",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "RoutersFacet__setMaxRoutersPerTransfer_invalidMaxRoutersPerTransfer",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "RoutersFacet__setRouterRecipient_notNewRecipient",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "RoutersFacet__setupRouter_alreadyAdded",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "RoutersFacet__setupRouter_routerEmpty",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "RoutersFacet__unapproveRouterForPortal_notApproved",
+      "type": "error"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "liquidityFeeNumerator",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "internalType": "address",
+          "name": "caller",
+          "type": "address"
+        }
+      ],
+      "name": "LiquidityFeeNumeratorUpdated",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "maxRoutersPerTransfer",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "internalType": "address",
+          "name": "caller",
+          "type": "address"
+        }
+      ],
+      "name": "MaxRoutersPerTransferUpdated",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "router",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "internalType": "address",
+          "name": "caller",
+          "type": "address"
+        }
+      ],
+      "name": "RouterAdded",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": false,
+          "internalType": "address",
+          "name": "router",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "internalType": "address",
+          "name": "caller",
+          "type": "address"
+        }
+      ],
+      "name": "RouterApprovedForPortal",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "router",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "internalType": "address",
+          "name": "local",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "internalType": "bytes32",
+          "name": "key",
+          "type": "bytes32"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "amount",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "internalType": "address",
+          "name": "caller",
+          "type": "address"
+        }
+      ],
+      "name": "RouterLiquidityAdded",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "router",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "internalType": "address",
+          "name": "to",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "internalType": "address",
+          "name": "local",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "amount",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "internalType": "address",
+          "name": "caller",
+          "type": "address"
+        }
+      ],
+      "name": "RouterLiquidityRemoved",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "router",
+          "type": "address"
+        },
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "prevOwner",
+          "type": "address"
+        },
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "newOwner",
+          "type": "address"
+        }
+      ],
+      "name": "RouterOwnerAccepted",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "router",
+          "type": "address"
+        },
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "prevProposed",
+          "type": "address"
+        },
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "newProposed",
+          "type": "address"
+        }
+      ],
+      "name": "RouterOwnerProposed",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "router",
+          "type": "address"
+        },
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "prevRecipient",
+          "type": "address"
+        },
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "newRecipient",
+          "type": "address"
+        }
+      ],
+      "name": "RouterRecipientSet",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "router",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "internalType": "address",
+          "name": "caller",
+          "type": "address"
+        }
+      ],
+      "name": "RouterRemoved",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": false,
+          "internalType": "address",
+          "name": "router",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "internalType": "address",
+          "name": "caller",
+          "type": "address"
+        }
+      ],
+      "name": "RouterUnapprovedForPortal",
+      "type": "event"
+    },
+    {
+      "inputs": [],
+      "name": "LIQUIDITY_FEE_DENOMINATOR",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "pure",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "LIQUIDITY_FEE_NUMERATOR",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "router",
+          "type": "address"
+        }
+      ],
+      "name": "acceptProposedRouterOwner",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "_amount",
+          "type": "uint256"
+        },
+        {
+          "internalType": "address",
+          "name": "_local",
+          "type": "address"
+        }
+      ],
+      "name": "addRouterLiquidity",
+      "outputs": [],
+      "stateMutability": "payable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "_amount",
+          "type": "uint256"
+        },
+        {
+          "internalType": "address",
+          "name": "_local",
+          "type": "address"
+        },
+        {
+          "internalType": "address",
+          "name": "_router",
+          "type": "address"
+        }
+      ],
+      "name": "addRouterLiquidityFor",
+      "outputs": [],
+      "stateMutability": "payable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "_router",
+          "type": "address"
+        }
+      ],
+      "name": "approveRouterForPortal",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "_router",
+          "type": "address"
+        }
+      ],
+      "name": "getProposedRouterOwner",
+      "outputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "_router",
+          "type": "address"
+        }
+      ],
+      "name": "getProposedRouterOwnerTimestamp",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "_router",
+          "type": "address"
+        }
+      ],
+      "name": "getRouterApproval",
+      "outputs": [
+        {
+          "internalType": "bool",
+          "name": "",
+          "type": "bool"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "_router",
+          "type": "address"
+        }
+      ],
+      "name": "getRouterApprovalForPortal",
+      "outputs": [
+        {
+          "internalType": "bool",
+          "name": "",
+          "type": "bool"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "_router",
+          "type": "address"
+        }
+      ],
+      "name": "getRouterOwner",
+      "outputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "_router",
+          "type": "address"
+        }
+      ],
+      "name": "getRouterRecipient",
+      "outputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "maxRoutersPerTransfer",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "router",
+          "type": "address"
+        },
+        {
+          "internalType": "address",
+          "name": "proposed",
+          "type": "address"
+        }
+      ],
+      "name": "proposeRouterOwner",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "router",
+          "type": "address"
+        }
+      ],
+      "name": "removeRouter",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "_amount",
+          "type": "uint256"
+        },
+        {
+          "internalType": "address",
+          "name": "_local",
+          "type": "address"
+        },
+        {
+          "internalType": "address payable",
+          "name": "_to",
+          "type": "address"
+        }
+      ],
+      "name": "removeRouterLiquidity",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "_amount",
+          "type": "uint256"
+        },
+        {
+          "internalType": "address",
+          "name": "_local",
+          "type": "address"
+        },
+        {
+          "internalType": "address payable",
+          "name": "_to",
+          "type": "address"
+        },
+        {
+          "internalType": "address",
+          "name": "_router",
+          "type": "address"
+        }
+      ],
+      "name": "removeRouterLiquidityFor",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "_router",
+          "type": "address"
+        },
+        {
+          "internalType": "address",
+          "name": "_asset",
+          "type": "address"
+        }
+      ],
+      "name": "routerBalances",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "_numerator",
+          "type": "uint256"
+        }
+      ],
+      "name": "setLiquidityFeeNumerator",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "_newMaxRouters",
+          "type": "uint256"
+        }
+      ],
+      "name": "setMaxRoutersPerTransfer",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "router",
+          "type": "address"
+        },
+        {
+          "internalType": "address",
+          "name": "recipient",
+          "type": "address"
+        }
+      ],
+      "name": "setRouterRecipient",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "router",
+          "type": "address"
+        },
+        {
+          "internalType": "address",
+          "name": "owner",
+          "type": "address"
+        },
+        {
+          "internalType": "address",
+          "name": "recipient",
+          "type": "address"
+        }
+      ],
+      "name": "setupRouter",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "_router",
+          "type": "address"
+        }
+      ],
+      "name": "unapproveRouterForPortal",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "StableSwapFacet__deadlineCheck_deadlineNotMet",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "StableSwapFacet__getSwapTokenBalance_indexOutOfRange",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "StableSwapFacet__getSwapTokenIndex_notExist",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "StableSwapFacet__getSwapToken_outOfRange",
+      "type": "error"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "bytes32",
+          "name": "key",
+          "type": "bytes32"
+        },
+        {
+          "internalType": "uint256[]",
+          "name": "amounts",
+          "type": "uint256[]"
+        },
+        {
+          "internalType": "uint256",
+          "name": "minToMint",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "deadline",
+          "type": "uint256"
+        }
+      ],
+      "name": "addSwapLiquidity",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "bytes32",
+          "name": "key",
+          "type": "bytes32"
+        },
+        {
+          "internalType": "uint256",
+          "name": "amount",
+          "type": "uint256"
+        }
+      ],
+      "name": "calculateRemoveSwapLiquidity",
+      "outputs": [
+        {
+          "internalType": "uint256[]",
+          "name": "",
+          "type": "uint256[]"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "bytes32",
+          "name": "key",
+          "type": "bytes32"
+        },
+        {
+          "internalType": "uint256",
+          "name": "tokenAmount",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint8",
+          "name": "tokenIndex",
+          "type": "uint8"
+        }
+      ],
+      "name": "calculateRemoveSwapLiquidityOneToken",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "availableTokenAmount",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "bytes32",
+          "name": "key",
+          "type": "bytes32"
+        },
+        {
+          "internalType": "uint8",
+          "name": "tokenIndexFrom",
+          "type": "uint8"
+        },
+        {
+          "internalType": "uint8",
+          "name": "tokenIndexTo",
+          "type": "uint8"
+        },
+        {
+          "internalType": "uint256",
+          "name": "dx",
+          "type": "uint256"
+        }
+      ],
+      "name": "calculateSwap",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "bytes32",
+          "name": "key",
+          "type": "bytes32"
+        },
+        {
+          "internalType": "uint256[]",
+          "name": "amounts",
+          "type": "uint256[]"
+        },
+        {
+          "internalType": "bool",
+          "name": "deposit",
+          "type": "bool"
+        }
+      ],
+      "name": "calculateSwapTokenAmount",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "bytes32",
+          "name": "key",
+          "type": "bytes32"
+        }
+      ],
+      "name": "getSwapA",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "bytes32",
+          "name": "key",
+          "type": "bytes32"
+        }
+      ],
+      "name": "getSwapAPrecise",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "bytes32",
+          "name": "key",
+          "type": "bytes32"
+        },
+        {
+          "internalType": "uint256",
+          "name": "index",
+          "type": "uint256"
+        }
+      ],
+      "name": "getSwapAdminBalance",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "bytes32",
+          "name": "key",
+          "type": "bytes32"
+        }
+      ],
+      "name": "getSwapLPToken",
+      "outputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "bytes32",
+          "name": "key",
+          "type": "bytes32"
+        }
+      ],
+      "name": "getSwapStorage",
+      "outputs": [
+        {
+          "components": [
+            {
+              "internalType": "bytes32",
+              "name": "key",
+              "type": "bytes32"
+            },
+            {
+              "internalType": "uint256",
+              "name": "initialA",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "futureA",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "initialATime",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "futureATime",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "swapFee",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "adminFee",
+              "type": "uint256"
+            },
+            {
+              "internalType": "contract LPToken",
+              "name": "lpToken",
+              "type": "address"
+            },
+            {
+              "internalType": "contract IERC20[]",
+              "name": "pooledTokens",
+              "type": "address[]"
+            },
+            {
+              "internalType": "uint256[]",
+              "name": "tokenPrecisionMultipliers",
+              "type": "uint256[]"
+            },
+            {
+              "internalType": "uint256[]",
+              "name": "balances",
+              "type": "uint256[]"
+            },
+            {
+              "internalType": "uint256[]",
+              "name": "adminFees",
+              "type": "uint256[]"
+            }
+          ],
+          "internalType": "struct SwapUtils.Swap",
+          "name": "",
+          "type": "tuple"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "bytes32",
+          "name": "key",
+          "type": "bytes32"
+        },
+        {
+          "internalType": "uint8",
+          "name": "index",
+          "type": "uint8"
+        }
+      ],
+      "name": "getSwapToken",
+      "outputs": [
+        {
+          "internalType": "contract IERC20",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "bytes32",
+          "name": "key",
+          "type": "bytes32"
+        },
+        {
+          "internalType": "uint8",
+          "name": "index",
+          "type": "uint8"
+        }
+      ],
+      "name": "getSwapTokenBalance",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "bytes32",
+          "name": "key",
+          "type": "bytes32"
+        },
+        {
+          "internalType": "address",
+          "name": "tokenAddress",
+          "type": "address"
+        }
+      ],
+      "name": "getSwapTokenIndex",
+      "outputs": [
+        {
+          "internalType": "uint8",
+          "name": "",
+          "type": "uint8"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "bytes32",
+          "name": "key",
+          "type": "bytes32"
+        }
+      ],
+      "name": "getSwapVirtualPrice",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "bytes32",
+          "name": "key",
+          "type": "bytes32"
+        },
+        {
+          "internalType": "uint256",
+          "name": "amount",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256[]",
+          "name": "minAmounts",
+          "type": "uint256[]"
+        },
+        {
+          "internalType": "uint256",
+          "name": "deadline",
+          "type": "uint256"
+        }
+      ],
+      "name": "removeSwapLiquidity",
+      "outputs": [
+        {
+          "internalType": "uint256[]",
+          "name": "",
+          "type": "uint256[]"
+        }
+      ],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "bytes32",
+          "name": "key",
+          "type": "bytes32"
+        },
+        {
+          "internalType": "uint256[]",
+          "name": "amounts",
+          "type": "uint256[]"
+        },
+        {
+          "internalType": "uint256",
+          "name": "maxBurnAmount",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "deadline",
+          "type": "uint256"
+        }
+      ],
+      "name": "removeSwapLiquidityImbalance",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "bytes32",
+          "name": "key",
+          "type": "bytes32"
+        },
+        {
+          "internalType": "uint256",
+          "name": "tokenAmount",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint8",
+          "name": "tokenIndex",
+          "type": "uint8"
+        },
+        {
+          "internalType": "uint256",
+          "name": "minAmount",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "deadline",
+          "type": "uint256"
+        }
+      ],
+      "name": "removeSwapLiquidityOneToken",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "bytes32",
+          "name": "key",
+          "type": "bytes32"
+        },
+        {
+          "internalType": "uint8",
+          "name": "tokenIndexFrom",
+          "type": "uint8"
+        },
+        {
+          "internalType": "uint8",
+          "name": "tokenIndexTo",
+          "type": "uint8"
+        },
+        {
+          "internalType": "uint256",
+          "name": "dx",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "minDy",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "deadline",
+          "type": "uint256"
+        }
+      ],
+      "name": "swap",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "bytes32",
+          "name": "key",
+          "type": "bytes32"
+        },
+        {
+          "internalType": "uint256",
+          "name": "amountIn",
+          "type": "uint256"
+        },
+        {
+          "internalType": "address",
+          "name": "assetIn",
+          "type": "address"
+        },
+        {
+          "internalType": "address",
+          "name": "assetOut",
+          "type": "address"
+        },
+        {
+          "internalType": "uint256",
+          "name": "minAmountOut",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "deadline",
+          "type": "uint256"
+        }
+      ],
+      "name": "swapExact",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "bytes32",
+          "name": "key",
+          "type": "bytes32"
+        },
+        {
+          "internalType": "uint256",
+          "name": "amountOut",
+          "type": "uint256"
+        },
+        {
+          "internalType": "address",
+          "name": "assetIn",
+          "type": "address"
+        },
+        {
+          "internalType": "address",
+          "name": "assetOut",
+          "type": "address"
+        },
+        {
+          "internalType": "uint256",
+          "name": "maxAmountIn",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "deadline",
+          "type": "uint256"
+        }
+      ],
+      "name": "swapExactOut",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "SwapAdminFacet__initializeSwap_aExceedMax",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "SwapAdminFacet__initializeSwap_adminFeeExceedMax",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "SwapAdminFacet__initializeSwap_alreadyInitialized",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "SwapAdminFacet__initializeSwap_decimalsMismatch",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "SwapAdminFacet__initializeSwap_duplicateTokens",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "SwapAdminFacet__initializeSwap_failedInitLpTokenClone",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "SwapAdminFacet__initializeSwap_feeExceedMax",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "SwapAdminFacet__initializeSwap_invalidPooledTokens",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "SwapAdminFacet__initializeSwap_tokenDecimalsExceedMax",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "SwapAdminFacet__initializeSwap_zeroTokenAddress",
+      "type": "error"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "bytes32",
+          "name": "key",
+          "type": "bytes32"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "newAdminFee",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "internalType": "address",
+          "name": "caller",
+          "type": "address"
+        }
+      ],
+      "name": "AdminFeesSet",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "bytes32",
+          "name": "key",
+          "type": "bytes32"
+        },
+        {
+          "indexed": false,
+          "internalType": "address",
+          "name": "caller",
+          "type": "address"
+        }
+      ],
+      "name": "AdminFeesWithdrawn",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "bytes32",
+          "name": "key",
+          "type": "bytes32"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "futureA",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "futureTime",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "internalType": "address",
+          "name": "caller",
+          "type": "address"
+        }
+      ],
+      "name": "RampAStarted",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "bytes32",
+          "name": "key",
+          "type": "bytes32"
+        },
+        {
+          "indexed": false,
+          "internalType": "address",
+          "name": "caller",
+          "type": "address"
+        }
+      ],
+      "name": "RampAStopped",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "bytes32",
+          "name": "key",
+          "type": "bytes32"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "newSwapFee",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "internalType": "address",
+          "name": "caller",
+          "type": "address"
+        }
+      ],
+      "name": "SwapFeesSet",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "bytes32",
+          "name": "key",
+          "type": "bytes32"
+        },
+        {
+          "components": [
+            {
+              "internalType": "bytes32",
+              "name": "key",
+              "type": "bytes32"
+            },
+            {
+              "internalType": "uint256",
+              "name": "initialA",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "futureA",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "initialATime",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "futureATime",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "swapFee",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "adminFee",
+              "type": "uint256"
+            },
+            {
+              "internalType": "contract LPToken",
+              "name": "lpToken",
+              "type": "address"
+            },
+            {
+              "internalType": "contract IERC20[]",
+              "name": "pooledTokens",
+              "type": "address[]"
+            },
+            {
+              "internalType": "uint256[]",
+              "name": "tokenPrecisionMultipliers",
+              "type": "uint256[]"
+            },
+            {
+              "internalType": "uint256[]",
+              "name": "balances",
+              "type": "uint256[]"
+            },
+            {
+              "internalType": "uint256[]",
+              "name": "adminFees",
+              "type": "uint256[]"
+            }
+          ],
+          "indexed": false,
+          "internalType": "struct SwapUtils.Swap",
+          "name": "swap",
+          "type": "tuple"
+        },
+        {
+          "indexed": false,
+          "internalType": "address",
+          "name": "caller",
+          "type": "address"
+        }
+      ],
+      "name": "SwapInitialized",
+      "type": "event"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "bytes32",
+          "name": "_key",
+          "type": "bytes32"
+        },
+        {
+          "internalType": "contract IERC20[]",
+          "name": "_pooledTokens",
+          "type": "address[]"
+        },
+        {
+          "internalType": "uint8[]",
+          "name": "decimals",
+          "type": "uint8[]"
+        },
+        {
+          "internalType": "string",
+          "name": "lpTokenName",
+          "type": "string"
+        },
+        {
+          "internalType": "string",
+          "name": "lpTokenSymbol",
+          "type": "string"
+        },
+        {
+          "internalType": "uint256",
+          "name": "_a",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "_fee",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "_adminFee",
+          "type": "uint256"
+        },
+        {
+          "internalType": "address",
+          "name": "lpTokenTargetAddress",
+          "type": "address"
+        }
+      ],
+      "name": "initializeSwap",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "bytes32",
+          "name": "key",
+          "type": "bytes32"
+        },
+        {
+          "internalType": "uint256",
+          "name": "futureA",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "futureTime",
+          "type": "uint256"
+        }
+      ],
+      "name": "rampA",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "bytes32",
+          "name": "key",
+          "type": "bytes32"
+        },
+        {
+          "internalType": "uint256",
+          "name": "newAdminFee",
+          "type": "uint256"
+        }
+      ],
+      "name": "setSwapAdminFee",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "bytes32",
+          "name": "key",
+          "type": "bytes32"
+        },
+        {
+          "internalType": "uint256",
+          "name": "newSwapFee",
+          "type": "uint256"
+        }
+      ],
+      "name": "setSwapFee",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "bytes32",
+          "name": "key",
+          "type": "bytes32"
+        }
+      ],
+      "name": "stopRampA",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "bytes32",
+          "name": "key",
+          "type": "bytes32"
+        }
+      ],
+      "name": "withdrawSwapAdminFees",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "VERSION",
+      "outputs": [
+        {
+          "internalType": "uint8",
+          "name": "",
+          "type": "uint8"
+        }
+      ],
+      "stateMutability": "pure",
+      "type": "function"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "components": [
+            {
+              "internalType": "address",
+              "name": "facetAddress",
+              "type": "address"
+            },
+            {
+              "internalType": "enum IDiamondCut.FacetCutAction",
+              "name": "action",
+              "type": "uint8"
+            },
+            {
+              "internalType": "bytes4[]",
+              "name": "functionSelectors",
+              "type": "bytes4[]"
+            }
+          ],
+          "indexed": false,
+          "internalType": "struct IDiamondCut.FacetCut[]",
+          "name": "_diamondCut",
+          "type": "tuple[]"
+        },
+        {
+          "indexed": false,
+          "internalType": "address",
+          "name": "_init",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "internalType": "bytes",
+          "name": "_calldata",
+          "type": "bytes"
+        }
+      ],
+      "name": "DiamondCut",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "components": [
+            {
+              "internalType": "address",
+              "name": "facetAddress",
+              "type": "address"
+            },
+            {
+              "internalType": "enum IDiamondCut.FacetCutAction",
+              "name": "action",
+              "type": "uint8"
+            },
+            {
+              "internalType": "bytes4[]",
+              "name": "functionSelectors",
+              "type": "bytes4[]"
+            }
+          ],
+          "indexed": false,
+          "internalType": "struct IDiamondCut.FacetCut[]",
+          "name": "_diamondCut",
+          "type": "tuple[]"
+        },
+        {
+          "indexed": false,
+          "internalType": "address",
+          "name": "_init",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "internalType": "bytes",
+          "name": "_calldata",
+          "type": "bytes"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "deadline",
+          "type": "uint256"
+        }
+      ],
+      "name": "DiamondCutProposed",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "components": [
+            {
+              "internalType": "address",
+              "name": "facetAddress",
+              "type": "address"
+            },
+            {
+              "internalType": "enum IDiamondCut.FacetCutAction",
+              "name": "action",
+              "type": "uint8"
+            },
+            {
+              "internalType": "bytes4[]",
+              "name": "functionSelectors",
+              "type": "bytes4[]"
+            }
+          ],
+          "indexed": false,
+          "internalType": "struct IDiamondCut.FacetCut[]",
+          "name": "_diamondCut",
+          "type": "tuple[]"
+        },
+        {
+          "indexed": false,
+          "internalType": "address",
+          "name": "_init",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "internalType": "bytes",
+          "name": "_calldata",
+          "type": "bytes"
+        }
+      ],
+      "name": "DiamondCutRescinded",
+      "type": "event"
+    },
+    {
+      "inputs": [
+        {
+          "components": [
+            {
+              "internalType": "address",
+              "name": "facetAddress",
+              "type": "address"
+            },
+            {
+              "internalType": "enum IDiamondCut.FacetCutAction",
+              "name": "action",
+              "type": "uint8"
+            },
+            {
+              "internalType": "bytes4[]",
+              "name": "functionSelectors",
+              "type": "bytes4[]"
+            }
+          ],
+          "internalType": "struct IDiamondCut.FacetCut[]",
+          "name": "_diamondCut",
+          "type": "tuple[]"
+        },
+        {
+          "internalType": "address",
+          "name": "_init",
+          "type": "address"
+        },
+        {
+          "internalType": "bytes",
+          "name": "_calldata",
+          "type": "bytes"
+        }
+      ],
+      "name": "diamondCut",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "components": [
+            {
+              "internalType": "address",
+              "name": "facetAddress",
+              "type": "address"
+            },
+            {
+              "internalType": "enum IDiamondCut.FacetCutAction",
+              "name": "action",
+              "type": "uint8"
+            },
+            {
+              "internalType": "bytes4[]",
+              "name": "functionSelectors",
+              "type": "bytes4[]"
+            }
+          ],
+          "internalType": "struct IDiamondCut.FacetCut[]",
+          "name": "_diamondCut",
+          "type": "tuple[]"
+        },
+        {
+          "internalType": "address",
+          "name": "_init",
+          "type": "address"
+        },
+        {
+          "internalType": "bytes",
+          "name": "_calldata",
+          "type": "bytes"
+        }
+      ],
+      "name": "getAcceptanceTime",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "components": [
+            {
+              "internalType": "address",
+              "name": "facetAddress",
+              "type": "address"
+            },
+            {
+              "internalType": "enum IDiamondCut.FacetCutAction",
+              "name": "action",
+              "type": "uint8"
+            },
+            {
+              "internalType": "bytes4[]",
+              "name": "functionSelectors",
+              "type": "bytes4[]"
+            }
+          ],
+          "internalType": "struct IDiamondCut.FacetCut[]",
+          "name": "_diamondCut",
+          "type": "tuple[]"
+        },
+        {
+          "internalType": "address",
+          "name": "_init",
+          "type": "address"
+        },
+        {
+          "internalType": "bytes",
+          "name": "_calldata",
+          "type": "bytes"
+        }
+      ],
+      "name": "proposeDiamondCut",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "components": [
+            {
+              "internalType": "address",
+              "name": "facetAddress",
+              "type": "address"
+            },
+            {
+              "internalType": "enum IDiamondCut.FacetCutAction",
+              "name": "action",
+              "type": "uint8"
+            },
+            {
+              "internalType": "bytes4[]",
+              "name": "functionSelectors",
+              "type": "bytes4[]"
+            }
+          ],
+          "internalType": "struct IDiamondCut.FacetCut[]",
+          "name": "_diamondCut",
+          "type": "tuple[]"
+        },
+        {
+          "internalType": "address",
+          "name": "_init",
+          "type": "address"
+        },
+        {
+          "internalType": "bytes",
+          "name": "_calldata",
+          "type": "bytes"
+        }
+      ],
+      "name": "rescindDiamondCut",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "bytes4",
+          "name": "_functionSelector",
+          "type": "bytes4"
+        }
+      ],
+      "name": "facetAddress",
+      "outputs": [
+        {
+          "internalType": "address",
+          "name": "facetAddress_",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "facetAddresses",
+      "outputs": [
+        {
+          "internalType": "address[]",
+          "name": "facetAddresses_",
+          "type": "address[]"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "_facet",
+          "type": "address"
+        }
+      ],
+      "name": "facetFunctionSelectors",
+      "outputs": [
+        {
+          "internalType": "bytes4[]",
+          "name": "facetFunctionSelectors_",
+          "type": "bytes4[]"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "facets",
+      "outputs": [
+        {
+          "components": [
+            {
+              "internalType": "address",
+              "name": "facetAddress",
+              "type": "address"
+            },
+            {
+              "internalType": "bytes4[]",
+              "name": "functionSelectors",
+              "type": "bytes4[]"
+            }
+          ],
+          "internalType": "struct IDiamondLoupe.Facet[]",
+          "name": "facets_",
+          "type": "tuple[]"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "bytes4",
+          "name": "_interfaceId",
+          "type": "bytes4"
+        }
+      ],
+      "name": "supportsInterface",
+      "outputs": [
+        {
+          "internalType": "bool",
+          "name": "",
+          "type": "bool"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    }
+  ],
+  "transactionHash": "0x345255739789200feb3eaa72ef850fcfe8b7bda5dfeb71233469a4ed5760684a",
+  "receipt": {
+    "to": null,
+    "from": "0x54BAA998771639628ffC0206c3b916c466b79c89",
+    "contractAddress": "0xD186493Db6CbE0DD27dE04A15450C9dfe1F5A497",
+    "transactionIndex": 7,
+    "gasUsed": "6907367",
+    "logsBloom": "0x00000000000000000000000000000000000010000000000000800000000000000000000000000000000000000000000000008000000000000000000000008000000000000000000000000000000000800401000001000000000900000000000000000000020000000000000000000800000000010000000080000000000000400020000000000000000000000000000000000000000080000000000000000000200000000000000000080000000000000000000000000000000000000000006000000000000000000001000000000100000000000000000000180000000020000000000000000000000000000000000000000000000000000000000000100000",
+    "blockHash": "0xcaa2d5e1c531aad61be9945569bad776769e70d6e9a153abc473e5707f8569f2",
+    "transactionHash": "0x345255739789200feb3eaa72ef850fcfe8b7bda5dfeb71233469a4ed5760684a",
+    "logs": [
+      {
+        "transactionIndex": 7,
+        "blockNumber": 28068383,
+        "transactionHash": "0x345255739789200feb3eaa72ef850fcfe8b7bda5dfeb71233469a4ed5760684a",
+        "address": "0xD186493Db6CbE0DD27dE04A15450C9dfe1F5A497",
+        "topics": [
+          "0x8be0079c531659141344cd1fd0a4f28419497f9722a3daafe3b4186f6b6457e0",
+          "0x0000000000000000000000000000000000000000000000000000000000000000",
+          "0x00000000000000000000000054baa998771639628ffc0206c3b916c466b79c89"
+        ],
+        "data": "0x",
+        "logIndex": 36,
+        "blockHash": "0xcaa2d5e1c531aad61be9945569bad776769e70d6e9a153abc473e5707f8569f2"
+      },
+      {
+        "transactionIndex": 7,
+        "blockNumber": 28068383,
+        "transactionHash": "0x345255739789200feb3eaa72ef850fcfe8b7bda5dfeb71233469a4ed5760684a",
+        "address": "0xD186493Db6CbE0DD27dE04A15450C9dfe1F5A497",
+        "topics": [
+          "0x8faa70878671ccd212d20771b795c50af8fd3ff6cf27f4bde57e5d4de0aeb673"
+        ],
+        "data": "0x0000000000000000000000000000000000000000000000000000000000000060000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000016a0000000000000000000000000000000000000000000000000000000000000000b0000000000000000000000000000000000000000000000000000000000000160000000000000000000000000000000000000000000000000000000000000038000000000000000000000000000000000000000000000000000000000000006a000000000000000000000000000000000000000000000000000000000000007800000000000000000000000000000000000000000000000000000000000000a400000000000000000000000000000000000000000000000000000000000000bc00000000000000000000000000000000000000000000000000000000000000f2000000000000000000000000000000000000000000000000000000000000012200000000000000000000000000000000000000000000000000000000000001360000000000000000000000000000000000000000000000000000000000000140000000000000000000000000000000000000000000000000000000000000015000000000000000000000000009a4ba7e4dc7c4bc5cc7da7d30922e095c5bb1cc800000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000060000000000000000000000000000000000000000000000000000000000000000d1506e463000000000000000000000000000000000000000000000000000000006006209100000000000000000000000000000000000000000000000000000000bd7e1e2e00000000000000000000000000000000000000000000000000000000e9a25ab40000000000000000000000000000000000000000000000000000000057bd0a3200000000000000000000000000000000000000000000000000000000ae8bc0de000000000000000000000000000000000000000000000000000000002c1999d000000000000000000000000000000000000000000000000000000000bd8671a7000000000000000000000000000000000000000000000000000000003c84a51200000000000000000000000000000000000000000000000000000000ea7a904d0000000000000000000000000000000000000000000000000000000035a5af9200000000000000000000000000000000000000000000000000000000569d29e4000000000000000000000000000000000000000000000000000000009d23c4c70000000000000000000000000000000000000000000000000000000000000000000000000000000032c7cd35ecc1daf9a2f66e4efbbb540e1a71386600000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000060000000000000000000000000000000000000000000000000000000000000001505a363de00000000000000000000000000000000000000000000000000000000b4b483ff000000000000000000000000000000000000000000000000000000008a33623100000000000000000000000000000000000000000000000000000000159e041f000000000000000000000000000000000000000000000000000000002424401f00000000000000000000000000000000000000000000000000000000e322074500000000000000000000000000000000000000000000000000000000c2fb26a600000000000000000000000000000000000000000000000000000000b28d4f8e00000000000000000000000000000000000000000000000000000000c34c08e500000000000000000000000000000000000000000000000000000000c230f94700000000000000000000000000000000000000000000000000000000affed0e00000000000000000000000000000000000000000000000000000000072dbadfc00000000000000000000000000000000000000000000000000000000c26c9c0a000000000000000000000000000000000000000000000000000000009b098908000000000000000000000000000000000000000000000000000000006989ca7c000000000000000000000000000000000000000000000000000000001a8bc0e1000000000000000000000000000000000000000000000000000000001c3c0ea800000000000000000000000000000000000000000000000000000000a142d649000000000000000000000000000000000000000000000000000000001aebfe1800000000000000000000000000000000000000000000000000000000bb2804000000000000000000000000000000000000000000000000000000000035c94dfc000000000000000000000000000000000000000000000000000000000000000000000000000000005d64b9553977d92e3b5e5cb1df36339355527b6700000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000060000000000000000000000000000000000000000000000000000000000000000341af5b5200000000000000000000000000000000000000000000000000000000048494fe000000000000000000000000000000000000000000000000000000006df42007000000000000000000000000000000000000000000000000000000000000000000000000000000006570f659a1af214b7dfcd56dae011a97a25c6e2e000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000600000000000000000000000000000000000000000000000000000000000000012c5b350df0000000000000000000000000000000000000000000000000000000011f7ea6d000000000000000000000000000000000000000000000000000000003863f874000000000000000000000000000000000000000000000000000000006a42b8f8000000000000000000000000000000000000000000000000000000008da5cb5b000000000000000000000000000000000000000000000000000000008456cb5900000000000000000000000000000000000000000000000000000000357aac7800000000000000000000000000000000000000000000000000000000b1f8100d000000000000000000000000000000000000000000000000000000002c6c579c00000000000000000000000000000000000000000000000000000000d1851c92000000000000000000000000000000000000000000000000000000003cf52ffb00000000000000000000000000000000000000000000000000000000e2b31fc700000000000000000000000000000000000000000000000000000000a59c8c6400000000000000000000000000000000000000000000000000000000715018a600000000000000000000000000000000000000000000000000000000d232c22000000000000000000000000000000000000000000000000000000000f2d8d74a000000000000000000000000000000000000000000000000000000006e26deba000000000000000000000000000000000000000000000000000000003f4ba83a00000000000000000000000000000000000000000000000000000000000000000000000000000000bfd2d372dee1f660424cb722c47a70bd3decfb53000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000600000000000000000000000000000000000000000000000000000000000000008dd39f00d000000000000000000000000000000000000000000000000000000008cba8b6a00000000000000000000000000000000000000000000000000000000d7aada8100000000000000000000000000000000000000000000000000000000468f666800000000000000000000000000000000000000000000000000000000cf9737690000000000000000000000000000000000000000000000000000000060f0a5ac0000000000000000000000000000000000000000000000000000000024fc7a3100000000000000000000000000000000000000000000000000000000f40fec5200000000000000000000000000000000000000000000000000000000000000000000000000000000b19c2f49261582f01d6b1a480077c22c9f5f466c0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000006000000000000000000000000000000000000000000000000000000000000000174b72c5da000000000000000000000000000000000000000000000000000000000951d6d80000000000000000000000000000000000000000000000000000000009935b8f0000000000000000000000000000000000000000000000000000000054064594000000000000000000000000000000000000000000000000000000002d3f9ef600000000000000000000000000000000000000000000000000000000da3a892f000000000000000000000000000000000000000000000000000000003b688da60000000000000000000000000000000000000000000000000000000012d57170000000000000000000000000000000000000000000000000000000001407093b000000000000000000000000000000000000000000000000000000008770e68200000000000000000000000000000000000000000000000000000000e9160f3e00000000000000000000000000000000000000000000000000000000c6bf691d000000000000000000000000000000000000000000000000000000009bf6d8750000000000000000000000000000000000000000000000000000000022a3c007000000000000000000000000000000000000000000000000000000006ae0b15400000000000000000000000000000000000000000000000000000000899962a100000000000000000000000000000000000000000000000000000000197c139d0000000000000000000000000000000000000000000000000000000041258b5c00000000000000000000000000000000000000000000000000000000582c78d2000000000000000000000000000000000000000000000000000000008290471600000000000000000000000000000000000000000000000000000000ffaf3f1a00000000000000000000000000000000000000000000000000000000eb492f440000000000000000000000000000000000000000000000000000000004376ff400000000000000000000000000000000000000000000000000000000000000000000000000000000f2bb97d6fecee2cc712f4522d6796ffa51ddbf8a0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000006000000000000000000000000000000000000000000000000000000000000000148d36545700000000000000000000000000000000000000000000000000000000a02288f40000000000000000000000000000000000000000000000000000000029d99b10000000000000000000000000000000000000000000000000000000008f11d27f0000000000000000000000000000000000000000000000000000000076ca2e5200000000000000000000000000000000000000000000000000000000d251dc35000000000000000000000000000000000000000000000000000000007652f59d000000000000000000000000000000000000000000000000000000001301caa2000000000000000000000000000000000000000000000000000000008b480b12000000000000000000000000000000000000000000000000000000002d91a51500000000000000000000000000000000000000000000000000000000b3a4eab400000000000000000000000000000000000000000000000000000000bb0577eb00000000000000000000000000000000000000000000000000000000ad94911b00000000000000000000000000000000000000000000000000000000f495e807000000000000000000000000000000000000000000000000000000004bbcba8e00000000000000000000000000000000000000000000000000000000241ca57a00000000000000000000000000000000000000000000000000000000b6618dff00000000000000000000000000000000000000000000000000000000ff126de90000000000000000000000000000000000000000000000000000000080b297e80000000000000000000000000000000000000000000000000000000074c6b89b00000000000000000000000000000000000000000000000000000000000000000000000000000000d52dd1776b68d9a3f6354427afc1dc521b4bacd700000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000060000000000000000000000000000000000000000000000000000000000000000647555ef6000000000000000000000000000000000000000000000000000000001963e426000000000000000000000000000000000000000000000000000000009c8eab970000000000000000000000000000000000000000000000000000000043be5eaf0000000000000000000000000000000000000000000000000000000072a30e0800000000000000000000000000000000000000000000000000000000a1a23c290000000000000000000000000000000000000000000000000000000000000000000000000000000050d0c56bb68da9bfebf0afff2d179cc53096478c000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000600000000000000000000000000000000000000000000000000000000000000001ffa1ad74000000000000000000000000000000000000000000000000000000000000000000000000000000001b46d662ea162aa38b766fe4115ed61f775026750000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000006000000000000000000000000000000000000000000000000000000000000000041f931c1c0000000000000000000000000000000000000000000000000000000056a8ea4800000000000000000000000000000000000000000000000000000000bbf2358e000000000000000000000000000000000000000000000000000000002c67849c000000000000000000000000000000000000000000000000000000000000000000000000000000003bcf4185443a339517ad4e580067f178d1b68e1d000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000600000000000000000000000000000000000000000000000000000000000000005cdffacc60000000000000000000000000000000000000000000000000000000052ef6b2c00000000000000000000000000000000000000000000000000000000adfca15e000000000000000000000000000000000000000000000000000000007a0ed6270000000000000000000000000000000000000000000000000000000001ffc9a7000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+        "logIndex": 37,
+        "blockHash": "0xcaa2d5e1c531aad61be9945569bad776769e70d6e9a153abc473e5707f8569f2"
+      },
+      {
+        "transactionIndex": 7,
+        "blockNumber": 28068383,
+        "transactionHash": "0x345255739789200feb3eaa72ef850fcfe8b7bda5dfeb71233469a4ed5760684a",
+        "address": "0x0000000000000000000000000000000000001010",
+        "topics": [
+          "0x4dfe1bbbcf077ddc3e01291eea2d5c70c2b422b415d95645b9adcfd678cb1d63",
+          "0x0000000000000000000000000000000000000000000000000000000000001010",
+          "0x00000000000000000000000054baa998771639628ffc0206c3b916c466b79c89",
+          "0x0000000000000000000000003a22c8bc68e98b0faf40f349dd2b2890fae01484"
+        ],
+        "data": "0x000000000000000000000000000000000000000000000000003d5988c3be7ace00000000000000000000000000000000000000000000000022b76741d956383000000000000000000000000000000000000000000000003f48b32553364e8ca7000000000000000000000000000000000000000000000000227a0db91597bd6200000000000000000000000000000000000000000000003f48f07edbfa0d0775",
+        "logIndex": 38,
+        "blockHash": "0xcaa2d5e1c531aad61be9945569bad776769e70d6e9a153abc473e5707f8569f2"
+      }
+    ],
+    "blockNumber": 28068383,
+    "cumulativeGasUsed": "8227919",
+    "status": 1,
+    "byzantium": true
+  },
+  "args": [
+    "0x54BAA998771639628ffC0206c3b916c466b79c89",
+    [
+      {
+        "facetAddress": "0x9a4ba7e4dC7c4bC5cC7da7D30922e095C5bB1cC8",
+        "functionSelectors": [
+          "0x1506e463",
+          "0x60062091",
+          "0xbd7e1e2e",
+          "0xe9a25ab4",
+          "0x57bd0a32",
+          "0xae8bc0de",
+          "0x2c1999d0",
+          "0xbd8671a7",
+          "0x3c84a512",
+          "0xea7a904d",
+          "0x35a5af92",
+          "0x569d29e4",
+          "0x9d23c4c7"
+        ],
+        "action": 0
+      },
+      {
+        "facetAddress": "0x32c7cD35ECC1Daf9a2F66e4efbBb540E1a713866",
+        "functionSelectors": [
+          "0x05a363de",
+          "0xb4b483ff",
+          "0x8a336231",
+          "0x159e041f",
+          "0x2424401f",
+          "0xe3220745",
+          "0xc2fb26a6",
+          "0xb28d4f8e",
+          "0xc34c08e5",
+          "0xc230f947",
+          "0xaffed0e0",
+          "0x72dbadfc",
+          "0xc26c9c0a",
+          "0x9b098908",
+          "0x6989ca7c",
+          "0x1a8bc0e1",
+          "0x1c3c0ea8",
+          "0xa142d649",
+          "0x1aebfe18",
+          "0xbb280400",
+          "0x35c94dfc"
+        ],
+        "action": 0
+      },
+      {
+        "facetAddress": "0x5d64b9553977d92E3B5e5CB1dF36339355527B67",
+        "functionSelectors": [
+          "0x41af5b52",
+          "0x048494fe",
+          "0x6df42007"
+        ],
+        "action": 0
+      },
+      {
+        "facetAddress": "0x6570F659a1Af214b7DFCD56Dae011A97A25c6E2e",
+        "functionSelectors": [
+          "0xc5b350df",
+          "0x11f7ea6d",
+          "0x3863f874",
+          "0x6a42b8f8",
+          "0x8da5cb5b",
+          "0x8456cb59",
+          "0x357aac78",
+          "0xb1f8100d",
+          "0x2c6c579c",
+          "0xd1851c92",
+          "0x3cf52ffb",
+          "0xe2b31fc7",
+          "0xa59c8c64",
+          "0x715018a6",
+          "0xd232c220",
+          "0xf2d8d74a",
+          "0x6e26deba",
+          "0x3f4ba83a"
+        ],
+        "action": 0
+      },
+      {
+        "facetAddress": "0xbFd2d372Dee1f660424Cb722C47a70bd3deCFB53",
+        "functionSelectors": [
+          "0xdd39f00d",
+          "0x8cba8b6a",
+          "0xd7aada81",
+          "0x468f6668",
+          "0xcf973769",
+          "0x60f0a5ac",
+          "0x24fc7a31",
+          "0xf40fec52"
+        ],
+        "action": 0
+      },
+      {
+        "facetAddress": "0xb19C2F49261582F01D6B1A480077C22C9f5f466c",
+        "functionSelectors": [
+          "0x4b72c5da",
+          "0x0951d6d8",
+          "0x09935b8f",
+          "0x54064594",
+          "0x2d3f9ef6",
+          "0xda3a892f",
+          "0x3b688da6",
+          "0x12d57170",
+          "0x1407093b",
+          "0x8770e682",
+          "0xe9160f3e",
+          "0xc6bf691d",
+          "0x9bf6d875",
+          "0x22a3c007",
+          "0x6ae0b154",
+          "0x899962a1",
+          "0x197c139d",
+          "0x41258b5c",
+          "0x582c78d2",
+          "0x82904716",
+          "0xffaf3f1a",
+          "0xeb492f44",
+          "0x04376ff4"
+        ],
+        "action": 0
+      },
+      {
+        "facetAddress": "0xF2BB97d6fEcee2CC712F4522d6796FfA51Ddbf8A",
+        "functionSelectors": [
+          "0x8d365457",
+          "0xa02288f4",
+          "0x29d99b10",
+          "0x8f11d27f",
+          "0x76ca2e52",
+          "0xd251dc35",
+          "0x7652f59d",
+          "0x1301caa2",
+          "0x8b480b12",
+          "0x2d91a515",
+          "0xb3a4eab4",
+          "0xbb0577eb",
+          "0xad94911b",
+          "0xf495e807",
+          "0x4bbcba8e",
+          "0x241ca57a",
+          "0xb6618dff",
+          "0xff126de9",
+          "0x80b297e8",
+          "0x74c6b89b"
+        ],
+        "action": 0
+      },
+      {
+        "facetAddress": "0xd52Dd1776B68D9A3F6354427afC1dc521B4Bacd7",
+        "functionSelectors": [
+          "0x47555ef6",
+          "0x1963e426",
+          "0x9c8eab97",
+          "0x43be5eaf",
+          "0x72a30e08",
+          "0xa1a23c29"
+        ],
+        "action": 0
+      },
+      {
+        "facetAddress": "0x50D0c56Bb68Da9Bfebf0AffF2D179Cc53096478C",
+        "functionSelectors": [
+          "0xffa1ad74"
+        ],
+        "action": 0
+      },
+      {
+        "facetAddress": "0x1B46d662ea162aA38b766fE4115ED61f77502675",
+        "functionSelectors": [
+          "0x1f931c1c",
+          "0x56a8ea48",
+          "0xbbf2358e",
+          "0x2c67849c"
+        ],
+        "action": 0
+      },
+      {
+        "facetAddress": "0x3Bcf4185443A339517aD4e580067f178d1B68E1D",
+        "functionSelectors": [
+          "0xcdffacc6",
+          "0x52ef6b2c",
+          "0xadfca15e",
+          "0x7a0ed627",
+          "0x01ffc9a7"
+        ],
+        "action": 0
+      }
+    ],
+    [
+      {
+        "initContract": "0xe68d85348f227d2ebEE814C38918F8A2D7d9B603",
+        "initData": "0x2a84809100000000000000000000000000000000000000000000000000000000000000400000000000000000000000000000000000000000000000000000000000000080000000000000000000000000000000000000000000000000000000000000000148e2b093000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"
+      },
+      {
+        "initContract": "0x89e99fd9D0Ff1BF309b46D81Ef592eA2b57b3431",
+        "initData": "0xd50b5fab0000000000000000000000000000000000000000000000000000000000002707000000000000000000000000a464a01d1260dd2b2d29bfa75184cbf380a1d7660000000000000000000000004b431b14412a48197e22e30449f53c4fb6b03106000000000000000000000000b310d335df76fd3535941712c5f9d5c0b41e240c0000000000000000000000000000000000000000000000000000000000000000"
+      }
+    ]
+  ],
+  "numDeployments": 1,
+  "solcInputHash": "3fe12e823553336a8d0f950a5a792ac9",
+  "metadata": "{\"compiler\":{\"version\":\"0.8.10+commit.fc410830\"},\"language\":\"Solidity\",\"output\":{\"abi\":[{\"inputs\":[{\"internalType\":\"address\",\"name\":\"_contractOwner\",\"type\":\"address\"},{\"components\":[{\"internalType\":\"address\",\"name\":\"facetAddress\",\"type\":\"address\"},{\"internalType\":\"enum IDiamondCut.FacetCutAction\",\"name\":\"action\",\"type\":\"uint8\"},{\"internalType\":\"bytes4[]\",\"name\":\"functionSelectors\",\"type\":\"bytes4[]\"}],\"internalType\":\"struct IDiamondCut.FacetCut[]\",\"name\":\"_diamondCut\",\"type\":\"tuple[]\"},{\"components\":[{\"internalType\":\"address\",\"name\":\"initContract\",\"type\":\"address\"},{\"internalType\":\"bytes\",\"name\":\"initData\",\"type\":\"bytes\"}],\"internalType\":\"struct Diamond.Initialization[]\",\"name\":\"_initializations\",\"type\":\"tuple[]\"}],\"stateMutability\":\"payable\",\"type\":\"constructor\"},{\"stateMutability\":\"payable\",\"type\":\"fallback\"},{\"stateMutability\":\"payable\",\"type\":\"receive\"}],\"devdoc\":{\"kind\":\"dev\",\"methods\":{\"constructor\":{\"params\":{\"_contractOwner\":\"the owner of the contract. With default DiamondCutFacet, this is the sole address allowed to make further cuts.\",\"_diamondCut\":\"the list of facet to add\",\"_initializations\":\"the list of initialization pair to execute. This allow to setup a contract with multiple level of independent initialization.\"}}},\"version\":1},\"userdoc\":{\"kind\":\"user\",\"methods\":{\"constructor\":{\"notice\":\"This construct a diamond contract\"}},\"version\":1}},\"settings\":{\"compilationTarget\":{\"solc_0.8/diamond/Diamond.sol\":\"Diamond\"},\"evmVersion\":\"london\",\"libraries\":{},\"metadata\":{\"bytecodeHash\":\"ipfs\",\"useLiteralContent\":true},\"optimizer\":{\"enabled\":true,\"runs\":999999},\"remappings\":[]},\"sources\":{\"solc_0.8/diamond/Diamond.sol\":{\"content\":\"// SPDX-License-Identifier: MIT\\npragma solidity ^0.8.0;\\n\\n/******************************************************************************\\\\\\n* Author: Nick Mudge <nick@perfectabstractions.com> (https://twitter.com/mudgen)\\n* EIP-2535 Diamonds: https://eips.ethereum.org/EIPS/eip-2535\\n*\\n* Implementation of a diamond.\\n/******************************************************************************/\\n\\nimport {LibDiamond} from \\\"./libraries/LibDiamond.sol\\\";\\nimport {IDiamondCut} from \\\"./interfaces/IDiamondCut.sol\\\";\\n\\ncontract Diamond {\\n    struct Initialization {\\n        address initContract;\\n        bytes initData;\\n    }\\n\\n    /// @notice This construct a diamond contract\\n    /// @param _contractOwner the owner of the contract. With default DiamondCutFacet, this is the sole address allowed to make further cuts.\\n    /// @param _diamondCut the list of facet to add\\n    /// @param _initializations the list of initialization pair to execute. This allow to setup a contract with multiple level of independent initialization.\\n    constructor(\\n        address _contractOwner,\\n        IDiamondCut.FacetCut[] memory _diamondCut,\\n        Initialization[] memory _initializations\\n    ) payable {\\n        if (_contractOwner != address(0)) {\\n            LibDiamond.setContractOwner(_contractOwner);\\n        }\\n\\n        LibDiamond.diamondCut(_diamondCut, address(0), \\\"\\\");\\n\\n        for (uint256 i = 0; i < _initializations.length; i++) {\\n            LibDiamond.initializeDiamondCut(_initializations[i].initContract, _initializations[i].initData);\\n        }\\n    }\\n\\n    // Find facet for function that is called and execute the\\n    // function if a facet is found and return any value.\\n    fallback() external payable {\\n        LibDiamond.DiamondStorage storage ds;\\n        bytes32 position = LibDiamond.DIAMOND_STORAGE_POSITION;\\n        // get diamond storage\\n        assembly {\\n            ds.slot := position\\n        }\\n        // get facet from function selector\\n        address facet = ds.selectorToFacetAndPosition[msg.sig].facetAddress;\\n        require(facet != address(0), \\\"Diamond: Function does not exist\\\");\\n        // Execute external function from facet using delegatecall and return any value.\\n        assembly {\\n            // copy function selector and any arguments\\n            calldatacopy(0, 0, calldatasize())\\n            // execute function call using the facet\\n            let result := delegatecall(gas(), facet, 0, calldatasize(), 0, 0)\\n            // get any return value\\n            returndatacopy(0, 0, returndatasize())\\n            // return any return value or error back to the caller\\n            switch result\\n            case 0 {\\n                revert(0, returndatasize())\\n            }\\n            default {\\n                return(0, returndatasize())\\n            }\\n        }\\n    }\\n\\n    receive() external payable {}\\n}\\n\",\"keccak256\":\"0x9f459a9f18d5429b0dd40e60b4a67a27d2b94693c4d190ed9dd7034a894c1eb6\",\"license\":\"MIT\"},\"solc_0.8/diamond/interfaces/IDiamondCut.sol\":{\"content\":\"// SPDX-License-Identifier: MIT\\npragma solidity ^0.8.0;\\n\\n/******************************************************************************\\\\\\n* Author: Nick Mudge <nick@perfectabstractions.com> (https://twitter.com/mudgen)\\n* EIP-2535 Diamonds: https://eips.ethereum.org/EIPS/eip-2535\\n/******************************************************************************/\\n\\ninterface IDiamondCut {\\n    enum FacetCutAction {Add, Replace, Remove}\\n    // Add=0, Replace=1, Remove=2\\n\\n    struct FacetCut {\\n        address facetAddress;\\n        FacetCutAction action;\\n        bytes4[] functionSelectors;\\n    }\\n\\n    /// @notice Add/replace/remove any number of functions and optionally execute\\n    ///         a function with delegatecall\\n    /// @param _diamondCut Contains the facet addresses and function selectors\\n    /// @param _init The address of the contract or facet to execute _calldata\\n    /// @param _calldata A function call, including function selector and arguments\\n    ///                  _calldata is executed with delegatecall on _init\\n    function diamondCut(\\n        FacetCut[] calldata _diamondCut,\\n        address _init,\\n        bytes calldata _calldata\\n    ) external;\\n\\n    event DiamondCut(FacetCut[] _diamondCut, address _init, bytes _calldata);\\n}\\n\",\"keccak256\":\"0xc00c16bfa30a3fa5f3dc684f7f8ba62c259962b25f647d9588739458989717fc\",\"license\":\"MIT\"},\"solc_0.8/diamond/libraries/LibDiamond.sol\":{\"content\":\"// SPDX-License-Identifier: MIT\\npragma solidity ^0.8.0;\\n\\n/******************************************************************************\\\\\\n* Author: Nick Mudge <nick@perfectabstractions.com> (https://twitter.com/mudgen)\\n* EIP-2535 Diamonds: https://eips.ethereum.org/EIPS/eip-2535\\n/******************************************************************************/\\nimport { IDiamondCut } from \\\"../interfaces/IDiamondCut.sol\\\";\\n\\nlibrary LibDiamond {\\n    bytes32 constant DIAMOND_STORAGE_POSITION = keccak256(\\\"diamond.standard.diamond.storage\\\");\\n\\n    struct FacetAddressAndPosition {\\n        address facetAddress;\\n        uint96 functionSelectorPosition; // position in facetFunctionSelectors.functionSelectors array\\n    }\\n\\n    struct FacetFunctionSelectors {\\n        bytes4[] functionSelectors;\\n        uint256 facetAddressPosition; // position of facetAddress in facetAddresses array\\n    }\\n\\n    struct DiamondStorage {\\n        // maps function selector to the facet address and\\n        // the position of the selector in the facetFunctionSelectors.selectors array\\n        mapping(bytes4 => FacetAddressAndPosition) selectorToFacetAndPosition;\\n        // maps facet addresses to function selectors\\n        mapping(address => FacetFunctionSelectors) facetFunctionSelectors;\\n        // facet addresses\\n        address[] facetAddresses;\\n        // Used to query if a contract implements an interface.\\n        // Used to implement ERC-165.\\n        mapping(bytes4 => bool) supportedInterfaces;\\n        // owner of the contract\\n        address contractOwner;\\n    }\\n\\n    function diamondStorage() internal pure returns (DiamondStorage storage ds) {\\n        bytes32 position = DIAMOND_STORAGE_POSITION;\\n        assembly {\\n            ds.slot := position\\n        }\\n    }\\n\\n    event OwnershipTransferred(address indexed previousOwner, address indexed newOwner);\\n\\n    function setContractOwner(address _newOwner) internal {\\n        DiamondStorage storage ds = diamondStorage();\\n        address previousOwner = ds.contractOwner;\\n        ds.contractOwner = _newOwner;\\n        emit OwnershipTransferred(previousOwner, _newOwner);\\n    }\\n\\n    function contractOwner() internal view returns (address contractOwner_) {\\n        contractOwner_ = diamondStorage().contractOwner;\\n    }\\n\\n    function enforceIsContractOwner() internal view {\\n        require(msg.sender == diamondStorage().contractOwner, \\\"LibDiamond: Must be contract owner\\\");\\n    }\\n\\n    event DiamondCut(IDiamondCut.FacetCut[] _diamondCut, address _init, bytes _calldata);\\n\\n    // Internal function version of diamondCut\\n    function diamondCut(\\n        IDiamondCut.FacetCut[] memory _diamondCut,\\n        address _init,\\n        bytes memory _calldata\\n    ) internal {\\n        for (uint256 facetIndex; facetIndex < _diamondCut.length; facetIndex++) {\\n            IDiamondCut.FacetCutAction action = _diamondCut[facetIndex].action;\\n            if (action == IDiamondCut.FacetCutAction.Add) {\\n                addFunctions(_diamondCut[facetIndex].facetAddress, _diamondCut[facetIndex].functionSelectors);\\n            } else if (action == IDiamondCut.FacetCutAction.Replace) {\\n                replaceFunctions(_diamondCut[facetIndex].facetAddress, _diamondCut[facetIndex].functionSelectors);\\n            } else if (action == IDiamondCut.FacetCutAction.Remove) {\\n                removeFunctions(_diamondCut[facetIndex].facetAddress, _diamondCut[facetIndex].functionSelectors);\\n            } else {\\n                revert(\\\"LibDiamondCut: Incorrect FacetCutAction\\\");\\n            }\\n        }\\n        emit DiamondCut(_diamondCut, _init, _calldata);\\n        initializeDiamondCut(_init, _calldata);\\n    }\\n\\n    function addFunctions(address _facetAddress, bytes4[] memory _functionSelectors) internal {\\n        require(_functionSelectors.length > 0, \\\"LibDiamondCut: No selectors in facet to cut\\\");\\n        DiamondStorage storage ds = diamondStorage();        \\n        require(_facetAddress != address(0), \\\"LibDiamondCut: Add facet can't be address(0)\\\");\\n        uint96 selectorPosition = uint96(ds.facetFunctionSelectors[_facetAddress].functionSelectors.length);\\n        // add new facet address if it does not exist\\n        if (selectorPosition == 0) {\\n            addFacet(ds, _facetAddress);            \\n        }\\n        for (uint256 selectorIndex; selectorIndex < _functionSelectors.length; selectorIndex++) {\\n            bytes4 selector = _functionSelectors[selectorIndex];\\n            address oldFacetAddress = ds.selectorToFacetAndPosition[selector].facetAddress;\\n            require(oldFacetAddress == address(0), \\\"LibDiamondCut: Can't add function that already exists\\\");\\n            addFunction(ds, selector, selectorPosition, _facetAddress);\\n            selectorPosition++;\\n        }\\n    }\\n\\n    function replaceFunctions(address _facetAddress, bytes4[] memory _functionSelectors) internal {\\n        require(_functionSelectors.length > 0, \\\"LibDiamondCut: No selectors in facet to cut\\\");\\n        DiamondStorage storage ds = diamondStorage();\\n        require(_facetAddress != address(0), \\\"LibDiamondCut: Add facet can't be address(0)\\\");\\n        uint96 selectorPosition = uint96(ds.facetFunctionSelectors[_facetAddress].functionSelectors.length);\\n        // add new facet address if it does not exist\\n        if (selectorPosition == 0) {\\n            addFacet(ds, _facetAddress);\\n        }\\n        for (uint256 selectorIndex; selectorIndex < _functionSelectors.length; selectorIndex++) {\\n            bytes4 selector = _functionSelectors[selectorIndex];\\n            address oldFacetAddress = ds.selectorToFacetAndPosition[selector].facetAddress;\\n            require(oldFacetAddress != _facetAddress, \\\"LibDiamondCut: Can't replace function with same function\\\");\\n            removeFunction(ds, oldFacetAddress, selector);\\n            addFunction(ds, selector, selectorPosition, _facetAddress);\\n            selectorPosition++;\\n        }\\n    }\\n\\n    function removeFunctions(address _facetAddress, bytes4[] memory _functionSelectors) internal {\\n        require(_functionSelectors.length > 0, \\\"LibDiamondCut: No selectors in facet to cut\\\");\\n        DiamondStorage storage ds = diamondStorage();\\n        // if function does not exist then do nothing and return\\n        require(_facetAddress == address(0), \\\"LibDiamondCut: Remove facet address must be address(0)\\\");\\n        for (uint256 selectorIndex; selectorIndex < _functionSelectors.length; selectorIndex++) {\\n            bytes4 selector = _functionSelectors[selectorIndex];\\n            address oldFacetAddress = ds.selectorToFacetAndPosition[selector].facetAddress;\\n            removeFunction(ds, oldFacetAddress, selector);\\n        }\\n    }\\n\\n    function addFacet(DiamondStorage storage ds, address _facetAddress) internal {\\n        enforceHasContractCode(_facetAddress, \\\"LibDiamondCut: New facet has no code\\\");\\n        ds.facetFunctionSelectors[_facetAddress].facetAddressPosition = ds.facetAddresses.length;\\n        ds.facetAddresses.push(_facetAddress);\\n    }    \\n\\n\\n    function addFunction(DiamondStorage storage ds, bytes4 _selector, uint96 _selectorPosition, address _facetAddress) internal {\\n        ds.selectorToFacetAndPosition[_selector].functionSelectorPosition = _selectorPosition;\\n        ds.facetFunctionSelectors[_facetAddress].functionSelectors.push(_selector);\\n        ds.selectorToFacetAndPosition[_selector].facetAddress = _facetAddress;\\n    }\\n\\n    function removeFunction(DiamondStorage storage ds, address _facetAddress, bytes4 _selector) internal {        \\n        require(_facetAddress != address(0), \\\"LibDiamondCut: Can't remove function that doesn't exist\\\");\\n        // an immutable function is a function defined directly in a diamond\\n        require(_facetAddress != address(this), \\\"LibDiamondCut: Can't remove immutable function\\\");\\n        // replace selector with last selector, then delete last selector\\n        uint256 selectorPosition = ds.selectorToFacetAndPosition[_selector].functionSelectorPosition;\\n        uint256 lastSelectorPosition = ds.facetFunctionSelectors[_facetAddress].functionSelectors.length - 1;\\n        // if not the same then replace _selector with lastSelector\\n        if (selectorPosition != lastSelectorPosition) {\\n            bytes4 lastSelector = ds.facetFunctionSelectors[_facetAddress].functionSelectors[lastSelectorPosition];\\n            ds.facetFunctionSelectors[_facetAddress].functionSelectors[selectorPosition] = lastSelector;\\n            ds.selectorToFacetAndPosition[lastSelector].functionSelectorPosition = uint96(selectorPosition);\\n        }\\n        // delete the last selector\\n        ds.facetFunctionSelectors[_facetAddress].functionSelectors.pop();\\n        delete ds.selectorToFacetAndPosition[_selector];\\n\\n        // if no more selectors for facet address then delete the facet address\\n        if (lastSelectorPosition == 0) {\\n            // replace facet address with last facet address and delete last facet address\\n            uint256 lastFacetAddressPosition = ds.facetAddresses.length - 1;\\n            uint256 facetAddressPosition = ds.facetFunctionSelectors[_facetAddress].facetAddressPosition;\\n            if (facetAddressPosition != lastFacetAddressPosition) {\\n                address lastFacetAddress = ds.facetAddresses[lastFacetAddressPosition];\\n                ds.facetAddresses[facetAddressPosition] = lastFacetAddress;\\n                ds.facetFunctionSelectors[lastFacetAddress].facetAddressPosition = facetAddressPosition;\\n            }\\n            ds.facetAddresses.pop();\\n            delete ds.facetFunctionSelectors[_facetAddress].facetAddressPosition;\\n        }\\n    }\\n\\n    function initializeDiamondCut(address _init, bytes memory _calldata) internal {\\n        if (_init == address(0)) {\\n            require(_calldata.length == 0, \\\"LibDiamondCut: _init is address(0) but_calldata is not empty\\\");\\n        } else {\\n            require(_calldata.length > 0, \\\"LibDiamondCut: _calldata is empty but _init is not address(0)\\\");\\n            if (_init != address(this)) {\\n                enforceHasContractCode(_init, \\\"LibDiamondCut: _init address has no code\\\");\\n            }\\n            (bool success, bytes memory error) = _init.delegatecall(_calldata);\\n            if (!success) {\\n                if (error.length > 0) {\\n                    // bubble up the error\\n                    revert(string(error));\\n                } else {\\n                    revert(\\\"LibDiamondCut: _init function reverted\\\");\\n                }\\n            }\\n        }\\n    }\\n\\n    function enforceHasContractCode(address _contract, string memory _errorMessage) internal view {\\n        uint256 contractSize;\\n        assembly {\\n            contractSize := extcodesize(_contract)\\n        }\\n        require(contractSize > 0, _errorMessage);\\n    }\\n}\\n\",\"keccak256\":\"0x2205345e83eb86f5281f159a9215a096cb6d404782619f9b8e9d7a4a46c32a37\",\"license\":\"MIT\"}},\"version\":1}",
+  "bytecode": "0x60806040526040516200321e3803806200321e833981016040819052620000269162001340565b6001600160a01b038316156200004c576200004c83620000f760201b620001071760201c565b62000074826000604051806020016040528060008152506200017b60201b620001c11760201c565b60005b8151811015620000ed57620000d88282815181106200009a576200009a62001514565b602002602001015160000151838381518110620000bb57620000bb62001514565b602002602001015160200151620003d960201b620004051760201c565b80620000e48162001540565b91505062000077565b505050506200173d565b7fc8fcad8db84d3cc18b4c41d551ea0ee66dd599cde068d998e57d5e09332c132080546001600160a01b031981166001600160a01b0384811691821790935560405160008051602062003172833981519152939092169182907f8be0079c531659141344cd1fd0a4f28419497f9722a3daafe3b4186f6b6457e090600090a3505050565b60005b83518110156200038a5760008482815181106200019f576200019f62001514565b602002602001015160200151905060006002811115620001c357620001c36200155e565b816002811115620001d857620001d86200155e565b1415620002375762000231858381518110620001f857620001f862001514565b60200260200101516000015186848151811062000219576200021962001514565b602002602001015160400151620005fe60201b60201c565b62000374565b60018160028111156200024e576200024e6200155e565b1415620002a757620002318583815181106200026e576200026e62001514565b6020026020010151600001518684815181106200028f576200028f62001514565b6020026020010151604001516200088860201b60201c565b6002816002811115620002be57620002be6200155e565b1415620003175762000231858381518110620002de57620002de62001514565b602002602001015160000151868481518110620002ff57620002ff62001514565b60200260200101516040015162000b1e60201b60201c565b60405162461bcd60e51b815260206004820152602760248201527f4c69624469616d6f6e644375743a20496e636f727265637420466163657443756044820152663a20b1ba34b7b760c91b60648201526084015b60405180910390fd5b5080620003818162001540565b9150506200017e565b507f8faa70878671ccd212d20771b795c50af8fd3ff6cf27f4bde57e5d4de0aeb673838383604051620003c093929190620015a2565b60405180910390a1620003d48282620003d9565b505050565b6001600160a01b03821662000463578051156200045f5760405162461bcd60e51b815260206004820152603c60248201527f4c69624469616d6f6e644375743a205f696e697420697320616464726573732860448201527f3029206275745f63616c6c64617461206973206e6f7420656d7074790000000060648201526084016200036b565b5050565b6000815111620004dc5760405162461bcd60e51b815260206004820152603d60248201527f4c69624469616d6f6e644375743a205f63616c6c6461746120697320656d707460448201527f7920627574205f696e6974206973206e6f74206164647265737328302900000060648201526084016200036b565b6001600160a01b038216301462000512576200051282604051806060016040528060288152602001620031926028913962000c7e565b600080836001600160a01b0316836040516200052f9190620016a9565b600060405180830381855af49150503d80600081146200056c576040519150601f19603f3d011682016040523d82523d6000602084013e62000571565b606091505b509150915081620005f857805115620005a0578060405162461bcd60e51b81526004016200036b9190620016c7565b60405162461bcd60e51b815260206004820152602660248201527f4c69624469616d6f6e644375743a205f696e69742066756e6374696f6e2072656044820152651d995c9d195960d21b60648201526084016200036b565b50505050565b6000815111620006545760405162461bcd60e51b815260206004820152602b6024820152600080516020620031fe83398151915260448201526a1858d95d081d1bc818dd5d60aa1b60648201526084016200036b565b600080516020620031728339815191526001600160a01b038316620006c05760405162461bcd60e51b815260206004820152602c6024820152600080516020620031ba83398151915260448201526b65206164647265737328302960a01b60648201526084016200036b565b6001600160a01b03831660009081526001820160205260409020546001600160601b038116620006f657620006f6828562000ca2565b60005b8351811015620008815760008482815181106200071a576200071a62001514565b6020908102919091018101516001600160e01b031981166000908152918690526040909120549091506001600160a01b03168015620007c25760405162461bcd60e51b815260206004820152603560248201527f4c69624469616d6f6e644375743a2043616e2774206164642066756e6374696f60448201527f6e207468617420616c726561647920657869737473000000000000000000000060648201526084016200036b565b6001600160e01b0319821660008181526020878152604080832080546001600160a01b03908116600160a01b6001600160601b038c16021782558c168085526001808c0185529285208054938401815585528385206008840401805463ffffffff60079095166004026101000a948502191660e08a901c94909402939093179092559390925287905281546001600160a01b031916179055836200086681620016e3565b94505050508080620008789062001540565b915050620006f9565b5050505050565b6000815111620008de5760405162461bcd60e51b815260206004820152602b6024820152600080516020620031fe83398151915260448201526a1858d95d081d1bc818dd5d60aa1b60648201526084016200036b565b600080516020620031728339815191526001600160a01b0383166200094a5760405162461bcd60e51b815260206004820152602c6024820152600080516020620031ba83398151915260448201526b65206164647265737328302960a01b60648201526084016200036b565b6001600160a01b03831660009081526001820160205260409020546001600160601b038116620009805762000980828562000ca2565b60005b835181101562000881576000848281518110620009a457620009a462001514565b6020908102919091018101516001600160e01b031981166000908152918690526040909120549091506001600160a01b0390811690871681141562000a525760405162461bcd60e51b815260206004820152603860248201527f4c69624469616d6f6e644375743a2043616e2774207265706c6163652066756e60448201527f6374696f6e20776974682073616d652066756e6374696f6e000000000000000060648201526084016200036b565b62000a5f85828462000d0f565b6001600160e01b0319821660008181526020878152604080832080546001600160a01b03908116600160a01b6001600160601b038c16021782558c168085526001808c0185529285208054938401815585528385206008840401805463ffffffff60079095166004026101000a948502191660e08a901c94909402939093179092559390925287905281546001600160a01b0319161790558362000b0381620016e3565b9450505050808062000b159062001540565b91505062000983565b600081511162000b745760405162461bcd60e51b815260206004820152602b6024820152600080516020620031fe83398151915260448201526a1858d95d081d1bc818dd5d60aa1b60648201526084016200036b565b600080516020620031728339815191526001600160a01b0383161562000c035760405162461bcd60e51b815260206004820152603660248201527f4c69624469616d6f6e644375743a2052656d6f7665206661636574206164647260448201527f657373206d75737420626520616464726573732830290000000000000000000060648201526084016200036b565b60005b8251811015620005f857600083828151811062000c275762000c2762001514565b6020908102919091018101516001600160e01b031981166000908152918590526040909120549091506001600160a01b031662000c6684828462000d0f565b5050808062000c759062001540565b91505062000c06565b813b8181620005f85760405162461bcd60e51b81526004016200036b9190620016c7565b62000cc781604051806060016040528060248152602001620031da6024913962000c7e565b6002820180546001600160a01b0390921660008181526001948501602090815260408220860185905594840183559182529290200180546001600160a01b0319169091179055565b6001600160a01b03821662000d8d5760405162461bcd60e51b815260206004820152603760248201527f4c69624469616d6f6e644375743a2043616e27742072656d6f76652066756e6360448201527f74696f6e207468617420646f65736e277420657869737400000000000000000060648201526084016200036b565b6001600160a01b03821630141562000dff5760405162461bcd60e51b815260206004820152602e60248201527f4c69624469616d6f6e644375743a2043616e27742072656d6f766520696d6d7560448201526d3a30b1363290333ab731ba34b7b760911b60648201526084016200036b565b6001600160e01b03198116600090815260208481526040808320546001600160a01b0386168452600180880190935290832054600160a01b9091046001600160601b0316929162000e50916200170d565b905080821462000f49576001600160a01b0384166000908152600186016020526040812080548390811062000e895762000e8962001514565b600091825260208083206008830401546001600160a01b038916845260018a019091526040909220805460079092166004026101000a90920460e01b92508291908590811062000edd5762000edd62001514565b600091825260208083206008830401805463ffffffff60079094166004026101000a938402191660e09590951c929092029390931790556001600160e01b03199290921682528690526040902080546001600160a01b0316600160a01b6001600160601b038516021790555b6001600160a01b0384166000908152600186016020526040902080548062000f755762000f7562001727565b60008281526020808220600860001990940193840401805463ffffffff600460078716026101000a0219169055919092556001600160e01b0319851682528690526040812055806200088157600285015460009062000fd7906001906200170d565b6001600160a01b03861660009081526001808901602052604090912001549091508082146200108d5760008760020183815481106200101a576200101a62001514565b6000918252602090912001546002890180546001600160a01b0390921692508291849081106200104e576200104e62001514565b600091825260208083209190910180546001600160a01b0319166001600160a01b03948516179055929091168152600189810190925260409020018190555b86600201805480620010a357620010a362001727565b60008281526020808220830160001990810180546001600160a01b03191690559092019092556001600160a01b0388168252600189810190915260408220015550505050505050565b80516001600160a01b03811681146200110457600080fd5b919050565b634e487b7160e01b600052604160045260246000fd5b604080519081016001600160401b038111828210171562001144576200114462001109565b60405290565b604051606081016001600160401b038111828210171562001144576200114462001109565b604051601f8201601f191681016001600160401b03811182821017156200119a576200119a62001109565b604052919050565b60006001600160401b03821115620011be57620011be62001109565b5060051b60200190565b60005b83811015620011e5578181015183820152602001620011cb565b83811115620005f85750506000910152565b6000601f83818401126200120a57600080fd5b82516020620012236200121d83620011a2565b6200116f565b82815260059290921b850181019181810190878411156200124357600080fd5b8287015b84811015620013345780516001600160401b0380821115620012695760008081fd5b908901906040601f19838d038101821315620012855760008081fd5b6200128f6200111f565b6200129c898601620010ec565b81528285015184811115620012b15760008081fd5b8086019550508d603f860112620012c85760008081fd5b8885015184811115620012df57620012df62001109565b620012f08a848e840116016200116f565b94508085528e848288010111156200130a57600092508283fd5b6200131b818b8701868901620011c8565b5080890193909352505084525091830191830162001247565b50979650505050505050565b6000806000606084860312156200135657600080fd5b6200136184620010ec565b60208501519093506001600160401b03808211156200137f57600080fd5b818601915086601f8301126200139457600080fd5b8151620013a56200121d82620011a2565b8082825260208201915060208360051b860101925089831115620013c857600080fd5b602085015b83811015620014e057805185811115620013e657600080fd5b86016060818d03601f19011215620013fd57600080fd5b620014076200114a565b6200141560208301620010ec565b81526040820151600381106200142a57600080fd5b60208201526060820151878111156200144257600080fd5b8083019250508c603f8301126200145857600080fd5b60208201516200146c6200121d82620011a2565b81815260059190911b83016040019060208101908f8311156200148e57600080fd5b6040850194505b82851015620014c95784516001600160e01b031981168114620014b757600080fd5b82526020948501949091019062001495565b6040840152505084525060209283019201620013cd565b5060408901519096509350505080821115620014fb57600080fd5b506200150a86828701620011f7565b9150509250925092565b634e487b7160e01b600052603260045260246000fd5b634e487b7160e01b600052601160045260246000fd5b60006000198214156200155757620015576200152a565b5060010190565b634e487b7160e01b600052602160045260246000fd5b600081518084526200158e816020860160208601620011c8565b601f01601f19169290920160200192915050565b60006060808301818452808751808352608092508286019150828160051b8701016020808b0160005b848110156200167757898403607f19018652815180516001600160a01b031685528381015189860190600381106200161357634e487b7160e01b600052602160045260246000fd5b868601526040918201519186018a905281519081905290840190600090898701905b80831015620016615783516001600160e01b031916825292860192600192909201919086019062001635565b50978501979550505090820190600101620015cb565b50506001600160a01b038a169088015286810360408801526200169b818962001574565b9a9950505050505050505050565b60008251620016bd818460208701620011c8565b9190910192915050565b602081526000620016dc602083018462001574565b9392505050565b60006001600160601b03828116808214156200170357620017036200152a565b6001019392505050565b6000828210156200172257620017226200152a565b500390565b634e487b7160e01b600052603160045260246000fd5b611a25806200174d6000396000f3fe60806040523661000b57005b600080357fffffffff000000000000000000000000000000000000000000000000000000001681527fc8fcad8db84d3cc18b4c41d551ea0ee66dd599cde068d998e57d5e09332c131c6020819052604090912054819073ffffffffffffffffffffffffffffffffffffffff16806100e3576040517f08c379a000000000000000000000000000000000000000000000000000000000815260206004820181905260248201527f4469616d6f6e643a2046756e6374696f6e20646f6573206e6f7420657869737460448201526064015b60405180910390fd5b3660008037600080366000845af43d6000803e808015610102573d6000f35b3d6000fd5b7fc8fcad8db84d3cc18b4c41d551ea0ee66dd599cde068d998e57d5e09332c132080547fffffffffffffffffffffffff0000000000000000000000000000000000000000811673ffffffffffffffffffffffffffffffffffffffff8481169182179093556040517fc8fcad8db84d3cc18b4c41d551ea0ee66dd599cde068d998e57d5e09332c131c939092169182907f8be0079c531659141344cd1fd0a4f28419497f9722a3daafe3b4186f6b6457e090600090a3505050565b60005b83518110156103ba5760008482815181106101e1576101e1611657565b60200260200101516020015190506000600281111561020257610202611686565b81600281111561021457610214611686565b14156102635761025e85838151811061022f5761022f611657565b60200260200101516000015186848151811061024d5761024d611657565b6020026020010151604001516106be565b6103a7565b600181600281111561027757610277611686565b14156102c15761025e85838151811061029257610292611657565b6020026020010151600001518684815181106102b0576102b0611657565b602002602001015160400151610a71565b60028160028111156102d5576102d5611686565b141561031f5761025e8583815181106102f0576102f0611657565b60200260200101516000015186848151811061030e5761030e611657565b602002602001015160400151610e2e565b6040517f08c379a000000000000000000000000000000000000000000000000000000000815260206004820152602760248201527f4c69624469616d6f6e644375743a20496e636f7272656374204661636574437560448201527f74416374696f6e0000000000000000000000000000000000000000000000000060648201526084016100da565b50806103b2816116e4565b9150506101c4565b507f8faa70878671ccd212d20771b795c50af8fd3ff6cf27f4bde57e5d4de0aeb6738383836040516103ee93929190611793565b60405180910390a16104008282610405565b505050565b73ffffffffffffffffffffffffffffffffffffffff82166104b3578051156104af576040517f08c379a000000000000000000000000000000000000000000000000000000000815260206004820152603c60248201527f4c69624469616d6f6e644375743a205f696e697420697320616464726573732860448201527f3029206275745f63616c6c64617461206973206e6f7420656d7074790000000060648201526084016100da565b5050565b6000815111610544576040517f08c379a000000000000000000000000000000000000000000000000000000000815260206004820152603d60248201527f4c69624469616d6f6e644375743a205f63616c6c6461746120697320656d707460448201527f7920627574205f696e6974206973206e6f74206164647265737328302900000060648201526084016100da565b73ffffffffffffffffffffffffffffffffffffffff8216301461058357610583826040518060600160405280602881526020016119a46028913961101b565b6000808373ffffffffffffffffffffffffffffffffffffffff16836040516105ab91906118fb565b600060405180830381855af49150503d80600081146105e6576040519150601f19603f3d011682016040523d82523d6000602084013e6105eb565b606091505b5091509150816106b85780511561063057806040517f08c379a00000000000000000000000000000000000000000000000000000000081526004016100da9190611917565b6040517f08c379a000000000000000000000000000000000000000000000000000000000815260206004820152602660248201527f4c69624469616d6f6e644375743a205f696e69742066756e6374696f6e20726560448201527f766572746564000000000000000000000000000000000000000000000000000060648201526084016100da565b50505050565b600081511161074f576040517f08c379a000000000000000000000000000000000000000000000000000000000815260206004820152602b60248201527f4c69624469616d6f6e644375743a204e6f2073656c6563746f727320696e206660448201527f6163657420746f2063757400000000000000000000000000000000000000000060648201526084016100da565b7fc8fcad8db84d3cc18b4c41d551ea0ee66dd599cde068d998e57d5e09332c131c73ffffffffffffffffffffffffffffffffffffffff8316610813576040517f08c379a000000000000000000000000000000000000000000000000000000000815260206004820152602c60248201527f4c69624469616d6f6e644375743a204164642066616365742063616e2774206260448201527f652061646472657373283029000000000000000000000000000000000000000060648201526084016100da565b73ffffffffffffffffffffffffffffffffffffffff831660009081526001820160205260409020546bffffffffffffffffffffffff8116610858576108588285611056565b60005b8351811015610a6a57600084828151811061087857610878611657565b6020908102919091018101517fffffffff00000000000000000000000000000000000000000000000000000000811660009081529186905260409091205490915073ffffffffffffffffffffffffffffffffffffffff16801561095d576040517f08c379a000000000000000000000000000000000000000000000000000000000815260206004820152603560248201527f4c69624469616d6f6e644375743a2043616e2774206164642066756e6374696f60448201527f6e207468617420616c726561647920657869737473000000000000000000000060648201526084016100da565b7fffffffff000000000000000000000000000000000000000000000000000000008216600081815260208781526040808320805473ffffffffffffffffffffffffffffffffffffffff908116740100000000000000000000000000000000000000006bffffffffffffffffffffffff8c16021782558c168085526001808c0185529285208054938401815585528385206008840401805463ffffffff60079095166004026101000a948502191660e08a901c94909402939093179092559390925287905281547fffffffffffffffffffffffff00000000000000000000000000000000000000001617905583610a5281611931565b94505050508080610a62906116e4565b91505061085b565b5050505050565b6000815111610b02576040517f08c379a000000000000000000000000000000000000000000000000000000000815260206004820152602b60248201527f4c69624469616d6f6e644375743a204e6f2073656c6563746f727320696e206660448201527f6163657420746f2063757400000000000000000000000000000000000000000060648201526084016100da565b7fc8fcad8db84d3cc18b4c41d551ea0ee66dd599cde068d998e57d5e09332c131c73ffffffffffffffffffffffffffffffffffffffff8316610bc6576040517f08c379a000000000000000000000000000000000000000000000000000000000815260206004820152602c60248201527f4c69624469616d6f6e644375743a204164642066616365742063616e2774206260448201527f652061646472657373283029000000000000000000000000000000000000000060648201526084016100da565b73ffffffffffffffffffffffffffffffffffffffff831660009081526001820160205260409020546bffffffffffffffffffffffff8116610c0b57610c0b8285611056565b60005b8351811015610a6a576000848281518110610c2b57610c2b611657565b6020908102919091018101517fffffffff00000000000000000000000000000000000000000000000000000000811660009081529186905260409091205490915073ffffffffffffffffffffffffffffffffffffffff908116908716811415610d16576040517f08c379a000000000000000000000000000000000000000000000000000000000815260206004820152603860248201527f4c69624469616d6f6e644375743a2043616e2774207265706c6163652066756e60448201527f6374696f6e20776974682073616d652066756e6374696f6e000000000000000060648201526084016100da565b610d218582846110e5565b7fffffffff000000000000000000000000000000000000000000000000000000008216600081815260208781526040808320805473ffffffffffffffffffffffffffffffffffffffff908116740100000000000000000000000000000000000000006bffffffffffffffffffffffff8c16021782558c168085526001808c0185529285208054938401815585528385206008840401805463ffffffff60079095166004026101000a948502191660e08a901c94909402939093179092559390925287905281547fffffffffffffffffffffffff00000000000000000000000000000000000000001617905583610e1681611931565b94505050508080610e26906116e4565b915050610c0e565b6000815111610ebf576040517f08c379a000000000000000000000000000000000000000000000000000000000815260206004820152602b60248201527f4c69624469616d6f6e644375743a204e6f2073656c6563746f727320696e206660448201527f6163657420746f2063757400000000000000000000000000000000000000000060648201526084016100da565b7fc8fcad8db84d3cc18b4c41d551ea0ee66dd599cde068d998e57d5e09332c131c73ffffffffffffffffffffffffffffffffffffffff831615610f84576040517f08c379a000000000000000000000000000000000000000000000000000000000815260206004820152603660248201527f4c69624469616d6f6e644375743a2052656d6f7665206661636574206164647260448201527f657373206d75737420626520616464726573732830290000000000000000000060648201526084016100da565b60005b82518110156106b8576000838281518110610fa457610fa4611657565b6020908102919091018101517fffffffff00000000000000000000000000000000000000000000000000000000811660009081529185905260409091205490915073ffffffffffffffffffffffffffffffffffffffff166110068482846110e5565b50508080611013906116e4565b915050610f87565b813b81816106b8576040517f08c379a00000000000000000000000000000000000000000000000000000000081526004016100da9190611917565b611078816040518060600160405280602481526020016119cc6024913961101b565b60028201805473ffffffffffffffffffffffffffffffffffffffff90921660008181526001948501602090815260408220860185905594840183559182529290200180547fffffffffffffffffffffffff0000000000000000000000000000000000000000169091179055565b73ffffffffffffffffffffffffffffffffffffffff8216611188576040517f08c379a000000000000000000000000000000000000000000000000000000000815260206004820152603760248201527f4c69624469616d6f6e644375743a2043616e27742072656d6f76652066756e6360448201527f74696f6e207468617420646f65736e277420657869737400000000000000000060648201526084016100da565b73ffffffffffffffffffffffffffffffffffffffff821630141561122e576040517f08c379a000000000000000000000000000000000000000000000000000000000815260206004820152602e60248201527f4c69624469616d6f6e644375743a2043616e27742072656d6f766520696d6d7560448201527f7461626c652066756e6374696f6e00000000000000000000000000000000000060648201526084016100da565b7fffffffff0000000000000000000000000000000000000000000000000000000081166000908152602084815260408083205473ffffffffffffffffffffffffffffffffffffffff86168452600180880190935290832054740100000000000000000000000000000000000000009091046bffffffffffffffffffffffff1692916112b89161195d565b90508082146113ff5773ffffffffffffffffffffffffffffffffffffffff8416600090815260018601602052604081208054839081106112fa576112fa611657565b6000918252602080832060088304015473ffffffffffffffffffffffffffffffffffffffff8916845260018a019091526040909220805460079092166004026101000a90920460e01b92508291908590811061135857611358611657565b600091825260208083206008830401805463ffffffff60079094166004026101000a938402191660e09590951c929092029390931790557fffffffff0000000000000000000000000000000000000000000000000000000092909216825286905260409020805473ffffffffffffffffffffffffffffffffffffffff16740100000000000000000000000000000000000000006bffffffffffffffffffffffff8516021790555b73ffffffffffffffffffffffffffffffffffffffff84166000908152600186016020526040902080548061143557611435611974565b6000828152602080822060087fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff90940193840401805463ffffffff600460078716026101000a0219169055919092557fffffffff0000000000000000000000000000000000000000000000000000000085168252869052604081205580610a6a5760028501546000906114ca9060019061195d565b73ffffffffffffffffffffffffffffffffffffffff861660009081526001808901602052604090912001549091508082146115b857600087600201838154811061151657611516611657565b60009182526020909120015460028901805473ffffffffffffffffffffffffffffffffffffffff909216925082918490811061155457611554611657565b600091825260208083209190910180547fffffffffffffffffffffffff00000000000000000000000000000000000000001673ffffffffffffffffffffffffffffffffffffffff948516179055929091168152600189810190925260409020018190555b866002018054806115cb576115cb611974565b6000828152602080822083017fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff90810180547fffffffffffffffffffffffff000000000000000000000000000000000000000016905590920190925573ffffffffffffffffffffffffffffffffffffffff88168252600189810190915260408220015550505050505050565b7f4e487b7100000000000000000000000000000000000000000000000000000000600052603260045260246000fd5b7f4e487b7100000000000000000000000000000000000000000000000000000000600052602160045260246000fd5b7f4e487b7100000000000000000000000000000000000000000000000000000000600052601160045260246000fd5b60007fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff821415611716576117166116b5565b5060010190565b60005b83811015611738578181015183820152602001611720565b838111156106b85750506000910152565b6000815180845261176181602086016020860161171d565b601f017fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffe0169290920160200192915050565b60006060808301818452808751808352608092508286019150828160051b8701016020808b0160005b848110156118be577fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff808a8503018652815188850173ffffffffffffffffffffffffffffffffffffffff82511686528482015160038110611845577f4e487b7100000000000000000000000000000000000000000000000000000000600052602160045260246000fd5b868601526040918201519186018a905281519081905290840190600090898701905b808310156118a95783517fffffffff00000000000000000000000000000000000000000000000000000000168252928601926001929092019190860190611867565b509785019795505050908201906001016117bc565b505073ffffffffffffffffffffffffffffffffffffffff8a169088015286810360408801526118ed8189611749565b9a9950505050505050505050565b6000825161190d81846020870161171d565b9190910192915050565b60208152600061192a6020830184611749565b9392505050565b60006bffffffffffffffffffffffff80831681811415611953576119536116b5565b6001019392505050565b60008282101561196f5761196f6116b5565b500390565b7f4e487b7100000000000000000000000000000000000000000000000000000000600052603160045260246000fdfe4c69624469616d6f6e644375743a205f696e6974206164647265737320686173206e6f20636f64654c69624469616d6f6e644375743a204e657720666163657420686173206e6f20636f6465a26469706673582212202b18a533b03703e1326000cf2f36b1c6ec631cff163a752d939e5ee79ad2cde364736f6c634300080a0033c8fcad8db84d3cc18b4c41d551ea0ee66dd599cde068d998e57d5e09332c131c4c69624469616d6f6e644375743a205f696e6974206164647265737320686173206e6f20636f64654c69624469616d6f6e644375743a204164642066616365742063616e277420624c69624469616d6f6e644375743a204e657720666163657420686173206e6f20636f64654c69624469616d6f6e644375743a204e6f2073656c6563746f727320696e2066",
+  "deployedBytecode": "0x60806040523661000b57005b600080357fffffffff000000000000000000000000000000000000000000000000000000001681527fc8fcad8db84d3cc18b4c41d551ea0ee66dd599cde068d998e57d5e09332c131c6020819052604090912054819073ffffffffffffffffffffffffffffffffffffffff16806100e3576040517f08c379a000000000000000000000000000000000000000000000000000000000815260206004820181905260248201527f4469616d6f6e643a2046756e6374696f6e20646f6573206e6f7420657869737460448201526064015b60405180910390fd5b3660008037600080366000845af43d6000803e808015610102573d6000f35b3d6000fd5b7fc8fcad8db84d3cc18b4c41d551ea0ee66dd599cde068d998e57d5e09332c132080547fffffffffffffffffffffffff0000000000000000000000000000000000000000811673ffffffffffffffffffffffffffffffffffffffff8481169182179093556040517fc8fcad8db84d3cc18b4c41d551ea0ee66dd599cde068d998e57d5e09332c131c939092169182907f8be0079c531659141344cd1fd0a4f28419497f9722a3daafe3b4186f6b6457e090600090a3505050565b60005b83518110156103ba5760008482815181106101e1576101e1611657565b60200260200101516020015190506000600281111561020257610202611686565b81600281111561021457610214611686565b14156102635761025e85838151811061022f5761022f611657565b60200260200101516000015186848151811061024d5761024d611657565b6020026020010151604001516106be565b6103a7565b600181600281111561027757610277611686565b14156102c15761025e85838151811061029257610292611657565b6020026020010151600001518684815181106102b0576102b0611657565b602002602001015160400151610a71565b60028160028111156102d5576102d5611686565b141561031f5761025e8583815181106102f0576102f0611657565b60200260200101516000015186848151811061030e5761030e611657565b602002602001015160400151610e2e565b6040517f08c379a000000000000000000000000000000000000000000000000000000000815260206004820152602760248201527f4c69624469616d6f6e644375743a20496e636f7272656374204661636574437560448201527f74416374696f6e0000000000000000000000000000000000000000000000000060648201526084016100da565b50806103b2816116e4565b9150506101c4565b507f8faa70878671ccd212d20771b795c50af8fd3ff6cf27f4bde57e5d4de0aeb6738383836040516103ee93929190611793565b60405180910390a16104008282610405565b505050565b73ffffffffffffffffffffffffffffffffffffffff82166104b3578051156104af576040517f08c379a000000000000000000000000000000000000000000000000000000000815260206004820152603c60248201527f4c69624469616d6f6e644375743a205f696e697420697320616464726573732860448201527f3029206275745f63616c6c64617461206973206e6f7420656d7074790000000060648201526084016100da565b5050565b6000815111610544576040517f08c379a000000000000000000000000000000000000000000000000000000000815260206004820152603d60248201527f4c69624469616d6f6e644375743a205f63616c6c6461746120697320656d707460448201527f7920627574205f696e6974206973206e6f74206164647265737328302900000060648201526084016100da565b73ffffffffffffffffffffffffffffffffffffffff8216301461058357610583826040518060600160405280602881526020016119a46028913961101b565b6000808373ffffffffffffffffffffffffffffffffffffffff16836040516105ab91906118fb565b600060405180830381855af49150503d80600081146105e6576040519150601f19603f3d011682016040523d82523d6000602084013e6105eb565b606091505b5091509150816106b85780511561063057806040517f08c379a00000000000000000000000000000000000000000000000000000000081526004016100da9190611917565b6040517f08c379a000000000000000000000000000000000000000000000000000000000815260206004820152602660248201527f4c69624469616d6f6e644375743a205f696e69742066756e6374696f6e20726560448201527f766572746564000000000000000000000000000000000000000000000000000060648201526084016100da565b50505050565b600081511161074f576040517f08c379a000000000000000000000000000000000000000000000000000000000815260206004820152602b60248201527f4c69624469616d6f6e644375743a204e6f2073656c6563746f727320696e206660448201527f6163657420746f2063757400000000000000000000000000000000000000000060648201526084016100da565b7fc8fcad8db84d3cc18b4c41d551ea0ee66dd599cde068d998e57d5e09332c131c73ffffffffffffffffffffffffffffffffffffffff8316610813576040517f08c379a000000000000000000000000000000000000000000000000000000000815260206004820152602c60248201527f4c69624469616d6f6e644375743a204164642066616365742063616e2774206260448201527f652061646472657373283029000000000000000000000000000000000000000060648201526084016100da565b73ffffffffffffffffffffffffffffffffffffffff831660009081526001820160205260409020546bffffffffffffffffffffffff8116610858576108588285611056565b60005b8351811015610a6a57600084828151811061087857610878611657565b6020908102919091018101517fffffffff00000000000000000000000000000000000000000000000000000000811660009081529186905260409091205490915073ffffffffffffffffffffffffffffffffffffffff16801561095d576040517f08c379a000000000000000000000000000000000000000000000000000000000815260206004820152603560248201527f4c69624469616d6f6e644375743a2043616e2774206164642066756e6374696f60448201527f6e207468617420616c726561647920657869737473000000000000000000000060648201526084016100da565b7fffffffff000000000000000000000000000000000000000000000000000000008216600081815260208781526040808320805473ffffffffffffffffffffffffffffffffffffffff908116740100000000000000000000000000000000000000006bffffffffffffffffffffffff8c16021782558c168085526001808c0185529285208054938401815585528385206008840401805463ffffffff60079095166004026101000a948502191660e08a901c94909402939093179092559390925287905281547fffffffffffffffffffffffff00000000000000000000000000000000000000001617905583610a5281611931565b94505050508080610a62906116e4565b91505061085b565b5050505050565b6000815111610b02576040517f08c379a000000000000000000000000000000000000000000000000000000000815260206004820152602b60248201527f4c69624469616d6f6e644375743a204e6f2073656c6563746f727320696e206660448201527f6163657420746f2063757400000000000000000000000000000000000000000060648201526084016100da565b7fc8fcad8db84d3cc18b4c41d551ea0ee66dd599cde068d998e57d5e09332c131c73ffffffffffffffffffffffffffffffffffffffff8316610bc6576040517f08c379a000000000000000000000000000000000000000000000000000000000815260206004820152602c60248201527f4c69624469616d6f6e644375743a204164642066616365742063616e2774206260448201527f652061646472657373283029000000000000000000000000000000000000000060648201526084016100da565b73ffffffffffffffffffffffffffffffffffffffff831660009081526001820160205260409020546bffffffffffffffffffffffff8116610c0b57610c0b8285611056565b60005b8351811015610a6a576000848281518110610c2b57610c2b611657565b6020908102919091018101517fffffffff00000000000000000000000000000000000000000000000000000000811660009081529186905260409091205490915073ffffffffffffffffffffffffffffffffffffffff908116908716811415610d16576040517f08c379a000000000000000000000000000000000000000000000000000000000815260206004820152603860248201527f4c69624469616d6f6e644375743a2043616e2774207265706c6163652066756e60448201527f6374696f6e20776974682073616d652066756e6374696f6e000000000000000060648201526084016100da565b610d218582846110e5565b7fffffffff000000000000000000000000000000000000000000000000000000008216600081815260208781526040808320805473ffffffffffffffffffffffffffffffffffffffff908116740100000000000000000000000000000000000000006bffffffffffffffffffffffff8c16021782558c168085526001808c0185529285208054938401815585528385206008840401805463ffffffff60079095166004026101000a948502191660e08a901c94909402939093179092559390925287905281547fffffffffffffffffffffffff00000000000000000000000000000000000000001617905583610e1681611931565b94505050508080610e26906116e4565b915050610c0e565b6000815111610ebf576040517f08c379a000000000000000000000000000000000000000000000000000000000815260206004820152602b60248201527f4c69624469616d6f6e644375743a204e6f2073656c6563746f727320696e206660448201527f6163657420746f2063757400000000000000000000000000000000000000000060648201526084016100da565b7fc8fcad8db84d3cc18b4c41d551ea0ee66dd599cde068d998e57d5e09332c131c73ffffffffffffffffffffffffffffffffffffffff831615610f84576040517f08c379a000000000000000000000000000000000000000000000000000000000815260206004820152603660248201527f4c69624469616d6f6e644375743a2052656d6f7665206661636574206164647260448201527f657373206d75737420626520616464726573732830290000000000000000000060648201526084016100da565b60005b82518110156106b8576000838281518110610fa457610fa4611657565b6020908102919091018101517fffffffff00000000000000000000000000000000000000000000000000000000811660009081529185905260409091205490915073ffffffffffffffffffffffffffffffffffffffff166110068482846110e5565b50508080611013906116e4565b915050610f87565b813b81816106b8576040517f08c379a00000000000000000000000000000000000000000000000000000000081526004016100da9190611917565b611078816040518060600160405280602481526020016119cc6024913961101b565b60028201805473ffffffffffffffffffffffffffffffffffffffff90921660008181526001948501602090815260408220860185905594840183559182529290200180547fffffffffffffffffffffffff0000000000000000000000000000000000000000169091179055565b73ffffffffffffffffffffffffffffffffffffffff8216611188576040517f08c379a000000000000000000000000000000000000000000000000000000000815260206004820152603760248201527f4c69624469616d6f6e644375743a2043616e27742072656d6f76652066756e6360448201527f74696f6e207468617420646f65736e277420657869737400000000000000000060648201526084016100da565b73ffffffffffffffffffffffffffffffffffffffff821630141561122e576040517f08c379a000000000000000000000000000000000000000000000000000000000815260206004820152602e60248201527f4c69624469616d6f6e644375743a2043616e27742072656d6f766520696d6d7560448201527f7461626c652066756e6374696f6e00000000000000000000000000000000000060648201526084016100da565b7fffffffff0000000000000000000000000000000000000000000000000000000081166000908152602084815260408083205473ffffffffffffffffffffffffffffffffffffffff86168452600180880190935290832054740100000000000000000000000000000000000000009091046bffffffffffffffffffffffff1692916112b89161195d565b90508082146113ff5773ffffffffffffffffffffffffffffffffffffffff8416600090815260018601602052604081208054839081106112fa576112fa611657565b6000918252602080832060088304015473ffffffffffffffffffffffffffffffffffffffff8916845260018a019091526040909220805460079092166004026101000a90920460e01b92508291908590811061135857611358611657565b600091825260208083206008830401805463ffffffff60079094166004026101000a938402191660e09590951c929092029390931790557fffffffff0000000000000000000000000000000000000000000000000000000092909216825286905260409020805473ffffffffffffffffffffffffffffffffffffffff16740100000000000000000000000000000000000000006bffffffffffffffffffffffff8516021790555b73ffffffffffffffffffffffffffffffffffffffff84166000908152600186016020526040902080548061143557611435611974565b6000828152602080822060087fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff90940193840401805463ffffffff600460078716026101000a0219169055919092557fffffffff0000000000000000000000000000000000000000000000000000000085168252869052604081205580610a6a5760028501546000906114ca9060019061195d565b73ffffffffffffffffffffffffffffffffffffffff861660009081526001808901602052604090912001549091508082146115b857600087600201838154811061151657611516611657565b60009182526020909120015460028901805473ffffffffffffffffffffffffffffffffffffffff909216925082918490811061155457611554611657565b600091825260208083209190910180547fffffffffffffffffffffffff00000000000000000000000000000000000000001673ffffffffffffffffffffffffffffffffffffffff948516179055929091168152600189810190925260409020018190555b866002018054806115cb576115cb611974565b6000828152602080822083017fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff90810180547fffffffffffffffffffffffff000000000000000000000000000000000000000016905590920190925573ffffffffffffffffffffffffffffffffffffffff88168252600189810190915260408220015550505050505050565b7f4e487b7100000000000000000000000000000000000000000000000000000000600052603260045260246000fd5b7f4e487b7100000000000000000000000000000000000000000000000000000000600052602160045260246000fd5b7f4e487b7100000000000000000000000000000000000000000000000000000000600052601160045260246000fd5b60007fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff821415611716576117166116b5565b5060010190565b60005b83811015611738578181015183820152602001611720565b838111156106b85750506000910152565b6000815180845261176181602086016020860161171d565b601f017fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffe0169290920160200192915050565b60006060808301818452808751808352608092508286019150828160051b8701016020808b0160005b848110156118be577fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff808a8503018652815188850173ffffffffffffffffffffffffffffffffffffffff82511686528482015160038110611845577f4e487b7100000000000000000000000000000000000000000000000000000000600052602160045260246000fd5b868601526040918201519186018a905281519081905290840190600090898701905b808310156118a95783517fffffffff00000000000000000000000000000000000000000000000000000000168252928601926001929092019190860190611867565b509785019795505050908201906001016117bc565b505073ffffffffffffffffffffffffffffffffffffffff8a169088015286810360408801526118ed8189611749565b9a9950505050505050505050565b6000825161190d81846020870161171d565b9190910192915050565b60208152600061192a6020830184611749565b9392505050565b60006bffffffffffffffffffffffff80831681811415611953576119536116b5565b6001019392505050565b60008282101561196f5761196f6116b5565b500390565b7f4e487b7100000000000000000000000000000000000000000000000000000000600052603160045260246000fdfe4c69624469616d6f6e644375743a205f696e6974206164647265737320686173206e6f20636f64654c69624469616d6f6e644375743a204e657720666163657420686173206e6f20636f6465a26469706673582212202b18a533b03703e1326000cf2f36b1c6ec631cff163a752d939e5ee79ad2cde364736f6c634300080a0033",
+  "facets": [
+    {
+      "facetAddress": "0x9a4ba7e4dC7c4bC5cC7da7D30922e095C5bB1cC8",
+      "functionSelectors": [
+        "0x1506e463",
+        "0x60062091",
+        "0xbd7e1e2e",
+        "0xe9a25ab4",
+        "0x57bd0a32",
+        "0xae8bc0de",
+        "0x2c1999d0",
+        "0xbd8671a7",
+        "0x3c84a512",
+        "0xea7a904d",
+        "0x35a5af92",
+        "0x569d29e4",
+        "0x9d23c4c7"
+      ]
+    },
+    {
+      "facetAddress": "0x32c7cD35ECC1Daf9a2F66e4efbBb540E1a713866",
+      "functionSelectors": [
+        "0x05a363de",
+        "0xb4b483ff",
+        "0x8a336231",
+        "0x159e041f",
+        "0x2424401f",
+        "0xe3220745",
+        "0xc2fb26a6",
+        "0xb28d4f8e",
+        "0xc34c08e5",
+        "0xc230f947",
+        "0xaffed0e0",
+        "0x72dbadfc",
+        "0xc26c9c0a",
+        "0x9b098908",
+        "0x6989ca7c",
+        "0x1a8bc0e1",
+        "0x1c3c0ea8",
+        "0xa142d649",
+        "0x1aebfe18",
+        "0xbb280400",
+        "0x35c94dfc"
+      ]
+    },
+    {
+      "facetAddress": "0x5d64b9553977d92E3B5e5CB1dF36339355527B67",
+      "functionSelectors": [
+        "0x41af5b52",
+        "0x048494fe",
+        "0x6df42007"
+      ]
+    },
+    {
+      "facetAddress": "0x6570F659a1Af214b7DFCD56Dae011A97A25c6E2e",
+      "functionSelectors": [
+        "0xc5b350df",
+        "0x11f7ea6d",
+        "0x3863f874",
+        "0x6a42b8f8",
+        "0x8da5cb5b",
+        "0x8456cb59",
+        "0x357aac78",
+        "0xb1f8100d",
+        "0x2c6c579c",
+        "0xd1851c92",
+        "0x3cf52ffb",
+        "0xe2b31fc7",
+        "0xa59c8c64",
+        "0x715018a6",
+        "0xd232c220",
+        "0xf2d8d74a",
+        "0x6e26deba",
+        "0x3f4ba83a"
+      ]
+    },
+    {
+      "facetAddress": "0xbFd2d372Dee1f660424Cb722C47a70bd3deCFB53",
+      "functionSelectors": [
+        "0xdd39f00d",
+        "0x8cba8b6a",
+        "0xd7aada81",
+        "0x468f6668",
+        "0xcf973769",
+        "0x60f0a5ac",
+        "0x24fc7a31",
+        "0xf40fec52"
+      ]
+    },
+    {
+      "facetAddress": "0xb19C2F49261582F01D6B1A480077C22C9f5f466c",
+      "functionSelectors": [
+        "0x4b72c5da",
+        "0x0951d6d8",
+        "0x09935b8f",
+        "0x54064594",
+        "0x2d3f9ef6",
+        "0xda3a892f",
+        "0x3b688da6",
+        "0x12d57170",
+        "0x1407093b",
+        "0x8770e682",
+        "0xe9160f3e",
+        "0xc6bf691d",
+        "0x9bf6d875",
+        "0x22a3c007",
+        "0x6ae0b154",
+        "0x899962a1",
+        "0x197c139d",
+        "0x41258b5c",
+        "0x582c78d2",
+        "0x82904716",
+        "0xffaf3f1a",
+        "0xeb492f44",
+        "0x04376ff4"
+      ]
+    },
+    {
+      "facetAddress": "0xF2BB97d6fEcee2CC712F4522d6796FfA51Ddbf8A",
+      "functionSelectors": [
+        "0x8d365457",
+        "0xa02288f4",
+        "0x29d99b10",
+        "0x8f11d27f",
+        "0x76ca2e52",
+        "0xd251dc35",
+        "0x7652f59d",
+        "0x1301caa2",
+        "0x8b480b12",
+        "0x2d91a515",
+        "0xb3a4eab4",
+        "0xbb0577eb",
+        "0xad94911b",
+        "0xf495e807",
+        "0x4bbcba8e",
+        "0x241ca57a",
+        "0xb6618dff",
+        "0xff126de9",
+        "0x80b297e8",
+        "0x74c6b89b"
+      ]
+    },
+    {
+      "facetAddress": "0xd52Dd1776B68D9A3F6354427afC1dc521B4Bacd7",
+      "functionSelectors": [
+        "0x47555ef6",
+        "0x1963e426",
+        "0x9c8eab97",
+        "0x43be5eaf",
+        "0x72a30e08",
+        "0xa1a23c29"
+      ]
+    },
+    {
+      "facetAddress": "0x50D0c56Bb68Da9Bfebf0AffF2D179Cc53096478C",
+      "functionSelectors": [
+        "0xffa1ad74"
+      ]
+    },
+    {
+      "facetAddress": "0x1B46d662ea162aA38b766fE4115ED61f77502675",
+      "functionSelectors": [
+        "0x1f931c1c",
+        "0x56a8ea48",
+        "0xbbf2358e",
+        "0x2c67849c"
+      ]
+    },
+    {
+      "facetAddress": "0x3Bcf4185443A339517aD4e580067f178d1B68E1D",
+      "functionSelectors": [
+        "0xcdffacc6",
+        "0x52ef6b2c",
+        "0xadfca15e",
+        "0x7a0ed627",
+        "0x01ffc9a7"
+      ]
+    }
+  ],
+  "execute": {
+    "contract": "DiamondInit",
+    "methodName": "init",
+    "args": [
+      9991,
+      "0xa464A01d1260DD2B2D29bFA75184CBf380A1d766",
+      "0x4B431b14412a48197e22e30449F53c4Fb6b03106",
+      "0xb310D335df76fd3535941712c5f9D5c0b41e240c",
+      0
+    ]
+  },
+  "devdoc": {
+    "kind": "dev",
+    "methods": {
+      "constructor": {
+        "params": {
+          "_contractOwner": "the owner of the contract. With default DiamondCutFacet, this is the sole address allowed to make further cuts.",
+          "_diamondCut": "the list of facet to add",
+          "_initializations": "the list of initialization pair to execute. This allow to setup a contract with multiple level of independent initialization."
+        }
+      }
+    },
+    "version": 1
+  },
+  "userdoc": {
+    "kind": "user",
+    "methods": {
+      "constructor": {
+        "notice": "This construct a diamond contract"
+      }
+    },
+    "version": 1
+  },
+  "storageLayout": {
+    "storage": [],
+    "types": null
+  }
+}

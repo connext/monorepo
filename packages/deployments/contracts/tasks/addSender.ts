@@ -30,7 +30,7 @@ export default task("add-sender", "Add sender to connector whitelist")
     const connectorName = getDeploymentName(getConnectorName(protocol, +network.chainId), env);
     console.log("connectorName:", connectorName);
     const connectorDeployment = await deployments.get(connectorName);
-    const connectorAddress = "0x48e7ffa0725863a2388a5ccbe1a41133c96bba2d"; // _connectorAddress ?? connectorDeployment.address;
+    const connectorAddress = _connectorAddress ?? connectorDeployment.address;
     console.log("connectorAddress:", connectorAddress);
 
     const connector = new Contract(connectorAddress, connectorDeployment.abi, deployer);
