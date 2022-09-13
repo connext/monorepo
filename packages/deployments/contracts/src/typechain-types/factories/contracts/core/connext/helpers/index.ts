@@ -4,7 +4,6 @@
 export * as connextPriceOracleSol from "./ConnextPriceOracle.sol";
 export { ConnextProxyAdmin__factory } from "./ConnextProxyAdmin__factory";
 export { Diamond__factory } from "./Diamond__factory";
-export { Executor__factory } from "./Executor__factory";
 export { LPToken__factory } from "./LPToken__factory";
 export { Multicall__factory } from "./Multicall__factory";
 export { OwnerPausableUpgradeable__factory } from "./OwnerPausableUpgradeable__factory";

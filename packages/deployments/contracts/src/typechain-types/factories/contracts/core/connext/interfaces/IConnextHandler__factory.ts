@@ -2217,24 +2217,41 @@ const _abi = [
         type: "tuple",
       },
       {
-        internalType: "address",
-        name: "_local",
-        type: "address",
-      },
-      {
-        internalType: "address",
-        name: "_originSender",
-        type: "address",
-      },
-      {
-        internalType: "uint256",
-        name: "_bridgedAmt",
-        type: "uint256",
-      },
-      {
-        internalType: "uint256",
-        name: "_nonce",
-        type: "uint256",
+        components: [
+          {
+            internalType: "address",
+            name: "originSender",
+            type: "address",
+          },
+          {
+            internalType: "uint256",
+            name: "bridgedAmt",
+            type: "uint256",
+          },
+          {
+            internalType: "uint256",
+            name: "normalizedIn",
+            type: "uint256",
+          },
+          {
+            internalType: "uint256",
+            name: "nonce",
+            type: "uint256",
+          },
+          {
+            internalType: "bytes32",
+            name: "canonicalId",
+            type: "bytes32",
+          },
+          {
+            internalType: "uint32",
+            name: "canonicalDomain",
+            type: "uint32",
+          },
+        ],
+        internalType: "struct TransferIdGenerationInformation",
+        name: "_idInfo",
+        type: "tuple",
       },
       {
         internalType: "uint256",
@@ -2310,6 +2327,11 @@ const _abi = [
         internalType: "address",
         name: "_originSender",
         type: "address",
+      },
+      {
+        internalType: "uint256",
+        name: "_normalizedIn",
+        type: "uint256",
       },
       {
         internalType: "uint256",
