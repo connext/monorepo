@@ -116,15 +116,15 @@ export const getConnectorDeployments = (env: Env): ConnectorDeployment[] => {
       // On the hub, you only need to connect the mainnet l1 connector (no mirror)
       connectors.push({
         chain: protocol.hub,
-        name: getDeploymentName(getConnectorName(protocol, protocol.hub)),
+        name: getDeploymentName(getConnectorName(protocol, protocol.hub), env),
         mirrorName: undefined,
         mirrorChain: undefined,
       });
       return;
     }
     // When not on the hub, there will be a name for both the hub and spoke side connectors
-    const hubName = getDeploymentName(getConnectorName(protocol, chainId, protocol.hub));
-    const spokeName = getDeploymentName(getConnectorName(protocol, chainId));
+    const hubName = getDeploymentName(getConnectorName(protocol, chainId, protocol.hub), env);
+    const spokeName = getDeploymentName(getConnectorName(protocol, chainId), env);
     connectors.push({
       chain: protocol.hub,
       name: hubName,
