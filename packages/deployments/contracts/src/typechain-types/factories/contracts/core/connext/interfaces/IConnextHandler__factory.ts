@@ -917,7 +917,7 @@ const _abi = [
               },
               {
                 internalType: "uint256",
-                name: "destinationMinOut",
+                name: "slippage",
                 type: "uint256",
               },
             ],
@@ -958,6 +958,11 @@ const _abi = [
           {
             internalType: "uint256",
             name: "nonce",
+            type: "uint256",
+          },
+          {
+            internalType: "uint256",
+            name: "normalizedIn",
             type: "uint256",
           },
           {
@@ -1056,6 +1061,81 @@ const _abi = [
       },
     ],
     stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        components: [
+          {
+            internalType: "address",
+            name: "to",
+            type: "address",
+          },
+          {
+            internalType: "bytes",
+            name: "callData",
+            type: "bytes",
+          },
+          {
+            internalType: "uint32",
+            name: "originDomain",
+            type: "uint32",
+          },
+          {
+            internalType: "uint32",
+            name: "destinationDomain",
+            type: "uint32",
+          },
+          {
+            internalType: "address",
+            name: "agent",
+            type: "address",
+          },
+          {
+            internalType: "bool",
+            name: "receiveLocal",
+            type: "bool",
+          },
+          {
+            internalType: "uint256",
+            name: "slippage",
+            type: "uint256",
+          },
+        ],
+        internalType: "struct CallParams",
+        name: "_params",
+        type: "tuple",
+      },
+      {
+        internalType: "uint256",
+        name: "_amount",
+        type: "uint256",
+      },
+      {
+        internalType: "uint256",
+        name: "_nonce",
+        type: "uint256",
+      },
+      {
+        internalType: "bytes32",
+        name: "_canonicalId",
+        type: "bytes32",
+      },
+      {
+        internalType: "uint32",
+        name: "_canonicalDomain",
+        type: "uint32",
+      },
+      {
+        internalType: "address",
+        name: "_originSender",
+        type: "address",
+      },
+    ],
+    name: "forceReceiveLocal",
+    outputs: [],
+    stateMutability: "payable",
     type: "function",
   },
   {
@@ -2128,7 +2208,7 @@ const _abi = [
           },
           {
             internalType: "uint256",
-            name: "destinationMinOut",
+            name: "slippage",
             type: "uint256",
           },
         ],
@@ -2137,24 +2217,41 @@ const _abi = [
         type: "tuple",
       },
       {
-        internalType: "address",
-        name: "_local",
-        type: "address",
-      },
-      {
-        internalType: "address",
-        name: "_originSender",
-        type: "address",
-      },
-      {
-        internalType: "uint256",
-        name: "_bridgedAmt",
-        type: "uint256",
-      },
-      {
-        internalType: "uint256",
-        name: "_nonce",
-        type: "uint256",
+        components: [
+          {
+            internalType: "address",
+            name: "originSender",
+            type: "address",
+          },
+          {
+            internalType: "uint256",
+            name: "bridgedAmt",
+            type: "uint256",
+          },
+          {
+            internalType: "uint256",
+            name: "normalizedIn",
+            type: "uint256",
+          },
+          {
+            internalType: "uint256",
+            name: "nonce",
+            type: "uint256",
+          },
+          {
+            internalType: "bytes32",
+            name: "canonicalId",
+            type: "bytes32",
+          },
+          {
+            internalType: "uint32",
+            name: "canonicalDomain",
+            type: "uint32",
+          },
+        ],
+        internalType: "struct TransferIdGenerationInformation",
+        name: "_idInfo",
+        type: "tuple",
       },
       {
         internalType: "uint256",
@@ -2213,7 +2310,7 @@ const _abi = [
           },
           {
             internalType: "uint256",
-            name: "destinationMinOut",
+            name: "slippage",
             type: "uint256",
           },
         ],
@@ -2230,6 +2327,11 @@ const _abi = [
         internalType: "address",
         name: "_originSender",
         type: "address",
+      },
+      {
+        internalType: "uint256",
+        name: "_normalizedIn",
+        type: "uint256",
       },
       {
         internalType: "uint256",
@@ -2807,7 +2909,7 @@ const _abi = [
               },
               {
                 internalType: "uint256",
-                name: "destinationMinOut",
+                name: "slippage",
                 type: "uint256",
               },
             ],
@@ -2823,11 +2925,6 @@ const _abi = [
           {
             internalType: "uint256",
             name: "amount",
-            type: "uint256",
-          },
-          {
-            internalType: "uint256",
-            name: "originMinOut",
             type: "uint256",
           },
         ],
@@ -2854,10 +2951,7 @@ export class IConnextHandler__factory {
   static createInterface(): IConnextHandlerInterface {
     return new utils.Interface(_abi) as IConnextHandlerInterface;
   }
-  static connect(
-    address: string,
-    signerOrProvider: Signer | Provider
-  ): IConnextHandler {
+  static connect(address: string, signerOrProvider: Signer | Provider): IConnextHandler {
     return new Contract(address, _abi, signerOrProvider) as IConnextHandler;
   }
 }

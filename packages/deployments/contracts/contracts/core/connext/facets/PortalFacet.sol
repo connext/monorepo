@@ -8,7 +8,7 @@ import {BaseConnextFacet} from "./BaseConnextFacet.sol";
 import {IAavePool} from "../interfaces/IAavePool.sol";
 
 import {AssetLogic} from "../libraries/AssetLogic.sol";
-import {TokenId, CallParams} from "../libraries/LibConnextStorage.sol";
+import {TokenId, CallParams, TransferIdGenerationInformation} from "../libraries/LibConnextStorage.sol";
 
 contract PortalFacet is BaseConnextFacet {
   // ========== Custom Errors ===========
@@ -72,23 +72,21 @@ contract PortalFacet is BaseConnextFacet {
    * @notice Used by routers to perform a manual repayment to Aave Portals to cover any outstanding debt
    * @dev The router must be approved for portal and with enough liquidity, and must be the caller of this
    * function
-   * @param _local The local asset (what router stores liquidity in)
    * @param _backingAmount The principle to be paid (in adopted asset)
    * @param _feeAmount The fee to be paid (in adopted asset)
    * @param _maxIn The max value of the local asset to swap for the _backingAmount of adopted asset
    */
   function repayAavePortal(
     CallParams calldata _params,
-    address _local,
-    address _originSender,
-    uint256 _bridgedAmt,
-    uint256 _nonce,
+    TransferIdGenerationInformation calldata _idInfo,
     uint256 _backingAmount,
     uint256 _feeAmount,
     uint256 _maxIn
   ) external nonReentrant {
+    address local = s.tokenRegistry.getLocalAddress(_idInfo.canonicalDomain, _idInfo.canonicalId);
+
     // Sanity check: has that much to spend
-    if (s.routerBalances[msg.sender][_local] < _maxIn) revert PortalFacet__repayAavePortal_insufficientFunds();
+    if (s.routerBalances[msg.sender][local] < _maxIn) revert PortalFacet__repayAavePortal_insufficientFunds();
 
     // Here, generate the transfer id. This allows us to ensure the `_local` asset
     // is the correct one associated with the transfer. Otherwise, anyone could pay back
@@ -97,8 +95,15 @@ contract PortalFacet is BaseConnextFacet {
     // incorrect, and the _backLoan call (which manipulates the debt stored) will fail.
     // Another option is to store the asset associated with the transfer on `execute`, but
     // this would make an already expensive call even more so.
-    (uint32 domain, bytes32 id) = s.tokenRegistry.getTokenId(_local);
-    bytes32 transferId = _calculateTransferId(_params, _bridgedAmt, _nonce, id, domain, _originSender);
+    bytes32 transferId = _calculateTransferId(
+      _params,
+      _idInfo.normalizedIn,
+      _idInfo.bridgedAmt,
+      _idInfo.nonce,
+      _idInfo.canonicalId,
+      _idInfo.canonicalDomain,
+      _idInfo.originSender
+    );
 
     // Need to swap into adopted asset or asset that was backing the loan
     // The router will always be holding collateral in the local asset while the loaned asset
@@ -106,8 +111,8 @@ contract PortalFacet is BaseConnextFacet {
 
     // Swap for exact `totalRepayAmount` of adopted asset to repay aave
     (bool success, uint256 amountDebited, address assetLoaned) = AssetLogic.swapFromLocalAssetIfNeededForExactOut(
-      _calculateCanonicalHash(id, domain),
-      _local,
+      _calculateCanonicalHash(_idInfo.canonicalId, _idInfo.canonicalDomain),
+      local,
       _backingAmount + _feeAmount,
       _maxIn
     );
@@ -115,7 +120,7 @@ contract PortalFacet is BaseConnextFacet {
     if (!success) revert PortalFacet__repayAavePortal_swapFailed();
 
     // decrement router balances
-    s.routerBalances[msg.sender][_local] -= amountDebited;
+    s.routerBalances[msg.sender][local] -= amountDebited;
 
     // back loan
     _backLoan(assetLoaned, _backingAmount, _feeAmount, transferId);
@@ -139,6 +144,7 @@ contract PortalFacet is BaseConnextFacet {
     CallParams calldata _params,
     address _adopted,
     address _originSender,
+    uint256 _normalizedIn,
     uint256 _bridgedAmt,
     uint256 _nonce,
     uint256 _backingAmount,
@@ -159,6 +165,7 @@ contract PortalFacet is BaseConnextFacet {
     // this would make an already expensive call even more so.
     bytes32 transferId = _calculateTransferId(
       _params,
+      _normalizedIn,
       _bridgedAmt,
       _nonce,
       canonical.id,
