@@ -75,7 +75,14 @@ contract ConnextTest is ForgeHelper, Deployer {
     address caller
   );
 
-  event Reconciled(bytes32 indexed transferId, address[] routers, address asset, uint256 amount, address caller);
+  event Reconciled(
+    bytes32 indexed transferId,
+    uint32 originDomain,
+    address[] routers,
+    address asset,
+    uint256 amount,
+    address caller
+  );
 
   event TransferRelayerFeesUpdated(bytes32 indexed transferId, uint256 relayerFee, address caller);
 
