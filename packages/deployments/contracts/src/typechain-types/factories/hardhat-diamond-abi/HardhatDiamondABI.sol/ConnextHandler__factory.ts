@@ -606,21 +606,6 @@ const _abi = [
   },
   {
     inputs: [],
-    name: "BridgeFacet__setPromiseRouter_invalidPromiseRouter",
-    type: "error",
-  },
-  {
-    inputs: [],
-    name: "BridgeFacet__setSponsorVault_invalidSponsorVault",
-    type: "error",
-  },
-  {
-    inputs: [],
-    name: "BridgeFacet__xcall_callbackNotAContract",
-    type: "error",
-  },
-  {
-    inputs: [],
     name: "BridgeFacet__xcall_destinationNotSupported",
     type: "error",
   },
@@ -994,11 +979,6 @@ const _abi = [
               {
                 internalType: "address",
                 name: "agent",
-                type: "address",
-              },
-              {
-                internalType: "address",
-                name: "recovery",
                 type: "address",
               },
               {
@@ -1431,45 +1411,6 @@ const _abi = [
   {
     inputs: [
       {
-        internalType: "address payable",
-        name: "_promiseRouter",
-        type: "address",
-      },
-    ],
-    name: "setPromiseRouter",
-    outputs: [],
-    stateMutability: "nonpayable",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
-        internalType: "address",
-        name: "_sponsorVault",
-        type: "address",
-      },
-    ],
-    name: "setSponsorVault",
-    outputs: [],
-    stateMutability: "nonpayable",
-    type: "function",
-  },
-  {
-    inputs: [],
-    name: "sponsorVault",
-    outputs: [
-      {
-        internalType: "contract ISponsorVault",
-        name: "",
-        type: "address",
-      },
-    ],
-    stateMutability: "view",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
         components: [
           {
             components: [
@@ -1491,11 +1432,6 @@ const _abi = [
               {
                 internalType: "address",
                 name: "agent",
-                type: "address",
-              },
-              {
-                internalType: "address",
-                name: "recovery",
                 type: "address",
               },
               {
@@ -4542,7 +4478,10 @@ export class ConnextHandler__factory {
   static createInterface(): ConnextHandlerInterface {
     return new utils.Interface(_abi) as ConnextHandlerInterface;
   }
-  static connect(address: string, signerOrProvider: Signer | Provider): ConnextHandler {
+  static connect(
+    address: string,
+    signerOrProvider: Signer | Provider
+  ): ConnextHandler {
     return new Contract(address, _abi, signerOrProvider) as ConnextHandler;
   }
 }

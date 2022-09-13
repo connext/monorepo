@@ -80,7 +80,7 @@ export interface IXReceiver extends BaseContract {
       _asset: PromiseOrValue<string>,
       _originSender: PromiseOrValue<string>,
       _origin: PromiseOrValue<BigNumberish>,
-      callData: PromiseOrValue<BytesLike>,
+      _callData: PromiseOrValue<BytesLike>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
   };
@@ -91,7 +91,7 @@ export interface IXReceiver extends BaseContract {
     _asset: PromiseOrValue<string>,
     _originSender: PromiseOrValue<string>,
     _origin: PromiseOrValue<BigNumberish>,
-    callData: PromiseOrValue<BytesLike>,
+    _callData: PromiseOrValue<BytesLike>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
@@ -102,7 +102,7 @@ export interface IXReceiver extends BaseContract {
       _asset: PromiseOrValue<string>,
       _originSender: PromiseOrValue<string>,
       _origin: PromiseOrValue<BigNumberish>,
-      callData: PromiseOrValue<BytesLike>,
+      _callData: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
     ): Promise<string>;
   };
@@ -116,7 +116,7 @@ export interface IXReceiver extends BaseContract {
       _asset: PromiseOrValue<string>,
       _originSender: PromiseOrValue<string>,
       _origin: PromiseOrValue<BigNumberish>,
-      callData: PromiseOrValue<BytesLike>,
+      _callData: PromiseOrValue<BytesLike>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
   };
@@ -128,7 +128,7 @@ export interface IXReceiver extends BaseContract {
       _asset: PromiseOrValue<string>,
       _originSender: PromiseOrValue<string>,
       _origin: PromiseOrValue<BigNumberish>,
-      callData: PromiseOrValue<BytesLike>,
+      _callData: PromiseOrValue<BytesLike>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
   };
