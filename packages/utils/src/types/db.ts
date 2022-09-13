@@ -28,7 +28,6 @@ export const convertFromDbTransfer = (transfer: any): XTransfer => {
       callback: transfer.callback || constants.AddressZero,
       callbackFee: transfer.callback_fee || "0",
       relayerFee: BigNumber.from(BigInt((transfer.relayer_fee as string) ?? "0")).toString(),
-      forceSlow: transfer.force_slow || false,
       receiveLocal: transfer.receive_local || false,
       destinationMinOut: BigNumber.from(BigInt((transfer.destination_min_out as string) ?? "0")).toString(),
     },

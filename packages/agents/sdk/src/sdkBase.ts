@@ -171,7 +171,6 @@ export class NxtpSdkBase {
       callback: params.callback || constants.AddressZero,
       callbackFee: params.callbackFee || "0",
       recovery: params.recovery || params.to,
-      forceSlow: params.forceSlow || false,
       receiveLocal: params.receiveLocal || false,
       relayerFee: relayerFee!,
       // Default to using the user's signer address as the 'agent'.

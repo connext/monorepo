@@ -43,7 +43,6 @@ export const encodeExecuteFromBids = async (
       callback: transfer.xparams.callback ?? constants.AddressZero,
       callbackFee: transfer.xparams.callbackFee ?? "0",
       relayerFee: transfer.xparams.relayerFee ?? "0",
-      forceSlow: transfer.xparams.forceSlow,
       receiveLocal: transfer.xparams.receiveLocal,
       recovery: transfer.xparams.recovery,
       agent: transfer.xparams.agent,

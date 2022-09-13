@@ -32,7 +32,6 @@ const convertToDbTransfer = (transfer: XTransfer): s.transfers.Insertable => {
     // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
     destination_min_out: transfer.xparams?.destinationMinOut as any,
 
-    force_slow: transfer.xparams?.forceSlow,
     receive_local: transfer.xparams?.receiveLocal,
 
     origin_chain: transfer.origin?.chain,

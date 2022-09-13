@@ -807,7 +807,6 @@ describe("TESTNET:E2E", () => {
               callData: "0x",
               originDomain: domainInfo.ORIGIN.domain,
               destinationDomain: domainInfo.DESTINATION.domain,
-              forceSlow: false,
               receiveLocal: false,
               callback: constants.AddressZero,
               callbackFee: "0",

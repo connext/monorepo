@@ -909,7 +909,6 @@ describe("Connext", () => {
       destinationDomain,
       callback: ZERO_ADDRESS,
       callbackFee: 0,
-      forceSlow: false,
       receiveLocal: false,
       recovery: user.address,
     };
@@ -1012,7 +1011,6 @@ describe("Connext", () => {
       callback: ZERO_ADDRESS,
       callbackFee: 0,
       recovery: user.address,
-      forceSlow: false,
       receiveLocal: false,
     };
     const asset = constants.AddressZero;
@@ -1120,7 +1118,6 @@ describe("Connext", () => {
       destinationDomain,
       callback: ZERO_ADDRESS,
       callbackFee: 0,
-      forceSlow: false,
       recovery: user.address,
       receiveLocal: false,
     };
@@ -1206,7 +1203,6 @@ describe("Connext", () => {
       destinationDomain,
       callback: ZERO_ADDRESS,
       callbackFee: 0,
-      forceSlow: false,
       receiveLocal: false,
     };
     const amount = utils.parseEther("0.001");
@@ -1434,7 +1430,6 @@ describe("Connext", () => {
       destinationDomain,
       callback: ZERO_ADDRESS,
       callbackFee: 0,
-      forceSlow: false,
       receiveLocal: false,
     };
 
@@ -1596,7 +1591,6 @@ describe("Connext", () => {
         destinationDomain,
         callback: ZERO_ADDRESS,
         callbackFee: 0,
-        forceSlow: false,
         receiveLocal: false,
         recovery: user.address,
       };

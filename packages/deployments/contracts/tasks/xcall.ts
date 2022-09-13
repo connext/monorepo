@@ -16,7 +16,6 @@ type TaskArgs = {
   relayerFee?: string;
   callback?: string;
   callbackFee?: string;
-  forceSlow?: string;
   receiveLocal?: string;
   agent?: string;
   recovery?: string;
@@ -37,7 +36,6 @@ export default task("xcall", "Prepare a cross-chain tx")
   .addOptionalParam("relayerFee", "Override relayer fee")
   .addOptionalParam("callback", "Override callback address")
   .addOptionalParam("callbackFee", "Override callback fee")
-  .addOptionalParam("forceSlow", "Override for forcing slow path")
   .addOptionalParam("receiveLocal", "Override for receiving local")
   .addOptionalParam("agent", "Override for agent address")
   .addOptionalParam("recovery", "Override for recovery address")
@@ -60,7 +58,6 @@ export default task("xcall", "Prepare a cross-chain tx")
         relayerFee: _relayerFee,
         callback: _callback,
         callbackFee: _callbackFee,
-        forceSlow: _forceSlow,
         receiveLocal: _receiveLocal,
         agent: _agent,
         recovery: _recovery,
@@ -149,7 +146,6 @@ export default task("xcall", "Prepare a cross-chain tx")
       // Get the other params
       const callback = _callback ?? constants.AddressZero;
       const callbackFee = _callbackFee ?? "0";
-      const forceSlow = _forceSlow === "true" ? true : false;
       const receiveLocal = _receiveLocal === "true" ? true : false;
       const agent = _agent ?? to;
       const recovery = _recovery ?? to;
@@ -197,7 +193,6 @@ export default task("xcall", "Prepare a cross-chain tx")
         callback,
         callbackFee,
         relayerFee,
-        forceSlow,
         receiveLocal,
         destinationMinOut,
       };
@@ -250,7 +245,6 @@ export default task("xcall", "Prepare a cross-chain tx")
               console.log("  callData: ", callData);
               console.log("  callback: ", callback);
               console.log("  callbackFee: ", callbackFee);
-              console.log("  forceSlow: ", forceSlow);
               console.log("  receiveLocal: ", receiveLocal);
               console.log("  recovery: ", recovery);
               console.log("  originMinOut:", originMinOut);
