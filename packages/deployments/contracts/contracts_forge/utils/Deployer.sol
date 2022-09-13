@@ -91,7 +91,7 @@ contract Deployer {
   }
 
   function getBridgeFacetCut(address _bridgeFacet) internal pure returns (IDiamondCut.FacetCut memory) {
-    bytes4[] memory bridgeFacetSelectors = new bytes4[](17);
+    bytes4[] memory bridgeFacetSelectors = new bytes4[](13);
     // getters
     bridgeFacetSelectors[0] = BridgeFacet.relayerFees.selector;
     bridgeFacetSelectors[1] = BridgeFacet.routedTransfers.selector;
@@ -99,19 +99,15 @@ contract Deployer {
     bridgeFacetSelectors[3] = BridgeFacet.connextion.selector;
     bridgeFacetSelectors[4] = BridgeFacet.domain.selector;
     bridgeFacetSelectors[5] = BridgeFacet.nonce.selector;
-    bridgeFacetSelectors[6] = BridgeFacet.sponsorVault.selector;
-    bridgeFacetSelectors[7] = BridgeFacet.promiseRouter.selector;
     // admin
-    bridgeFacetSelectors[8] = BridgeFacet.setPromiseRouter.selector;
-    bridgeFacetSelectors[9] = BridgeFacet.setSponsorVault.selector;
-    bridgeFacetSelectors[10] = BridgeFacet.addConnextion.selector;
-    bridgeFacetSelectors[11] = BridgeFacet.addSequencer.selector;
-    bridgeFacetSelectors[12] = BridgeFacet.removeSequencer.selector;
+    bridgeFacetSelectors[6] = BridgeFacet.addConnextion.selector;
+    bridgeFacetSelectors[7] = BridgeFacet.addSequencer.selector;
+    bridgeFacetSelectors[8] = BridgeFacet.removeSequencer.selector;
     // public
-    bridgeFacetSelectors[13] = BridgeFacet.xcall.selector;
-    bridgeFacetSelectors[14] = BridgeFacet.execute.selector;
-    bridgeFacetSelectors[15] = BridgeFacet.bumpTransfer.selector;
-    bridgeFacetSelectors[16] = BridgeFacet.forceReceiveLocal.selector;
+    bridgeFacetSelectors[9] = BridgeFacet.xcall.selector;
+    bridgeFacetSelectors[10] = BridgeFacet.execute.selector;
+    bridgeFacetSelectors[11] = BridgeFacet.bumpTransfer.selector;
+    bridgeFacetSelectors[12] = BridgeFacet.forceReceiveLocal.selector;
     return
       IDiamondCut.FacetCut({
         facetAddress: _bridgeFacet,
@@ -293,18 +289,17 @@ contract Deployer {
   }
 
   function getTestSetterFacetCut(address _testSetterFacetFacet) internal pure returns (IDiamondCut.FacetCut memory) {
-    bytes4[] memory testSetterFacetSelectors = new bytes4[](11);
+    bytes4[] memory testSetterFacetSelectors = new bytes4[](10);
     testSetterFacetSelectors[0] = TestSetterFacet.setTestRelayerFees.selector;
     testSetterFacetSelectors[1] = TestSetterFacet.setTestTransferRelayer.selector;
     testSetterFacetSelectors[2] = TestSetterFacet.setTestApproveRouterForPortal.selector;
-    testSetterFacetSelectors[3] = TestSetterFacet.setTestSponsorVault.selector;
-    testSetterFacetSelectors[4] = TestSetterFacet.setTestApprovedRelayer.selector;
-    testSetterFacetSelectors[5] = TestSetterFacet.setTestRouterBalances.selector;
-    testSetterFacetSelectors[6] = TestSetterFacet.setTestApprovedRouter.selector;
-    testSetterFacetSelectors[7] = TestSetterFacet.setTestCanonicalToAdopted.selector;
-    testSetterFacetSelectors[8] = TestSetterFacet.setTestAavePortalDebt.selector;
-    testSetterFacetSelectors[9] = TestSetterFacet.setTestAavePortalFeeDebt.selector;
-    testSetterFacetSelectors[10] = TestSetterFacet.setTestRoutedTransfers.selector;
+    testSetterFacetSelectors[3] = TestSetterFacet.setTestApprovedRelayer.selector;
+    testSetterFacetSelectors[4] = TestSetterFacet.setTestRouterBalances.selector;
+    testSetterFacetSelectors[5] = TestSetterFacet.setTestApprovedRouter.selector;
+    testSetterFacetSelectors[6] = TestSetterFacet.setTestCanonicalToAdopted.selector;
+    testSetterFacetSelectors[7] = TestSetterFacet.setTestAavePortalDebt.selector;
+    testSetterFacetSelectors[8] = TestSetterFacet.setTestAavePortalFeeDebt.selector;
+    testSetterFacetSelectors[9] = TestSetterFacet.setTestRoutedTransfers.selector;
     return
       IDiamondCut.FacetCut({
         facetAddress: _testSetterFacetFacet,
@@ -354,7 +349,6 @@ contract Deployer {
     address xAppConnectionManager,
     address tokenRegistry,
     address relayerFeeRouter,
-    address payable promiseRouter,
     uint256 acceptanceDelay
   ) internal returns (address) {
     bytes memory initCallData = abi.encodeWithSelector(
@@ -362,7 +356,6 @@ contract Deployer {
       domain,
       tokenRegistry,
       relayerFeeRouter,
-      promiseRouter,
       acceptanceDelay
     );
 

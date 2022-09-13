@@ -45,9 +45,6 @@ export type CallParamsStruct = {
   destinationDomain: PromiseOrValue<BigNumberish>;
   agent: PromiseOrValue<string>;
   receiveLocal: PromiseOrValue<boolean>;
-  callback: PromiseOrValue<string>;
-  callbackFee: PromiseOrValue<BigNumberish>;
-  relayerFee: PromiseOrValue<BigNumberish>;
   destinationMinOut: PromiseOrValue<BigNumberish>;
 };
 
@@ -58,9 +55,6 @@ export type CallParamsStructOutput = [
   number,
   string,
   boolean,
-  string,
-  BigNumber,
-  BigNumber,
   BigNumber
 ] & {
   to: string;
@@ -69,9 +63,6 @@ export type CallParamsStructOutput = [
   destinationDomain: number;
   agent: string;
   receiveLocal: boolean;
-  callback: string;
-  callbackFee: BigNumber;
-  relayerFee: BigNumber;
   destinationMinOut: BigNumber;
 };
 
@@ -114,11 +105,7 @@ export type UserFacingCallParamsStruct = {
   callData: PromiseOrValue<BytesLike>;
   destinationDomain: PromiseOrValue<BigNumberish>;
   agent: PromiseOrValue<string>;
-  recovery: PromiseOrValue<string>;
   receiveLocal: PromiseOrValue<boolean>;
-  callback: PromiseOrValue<string>;
-  callbackFee: PromiseOrValue<BigNumberish>;
-  relayerFee: PromiseOrValue<BigNumberish>;
   destinationMinOut: PromiseOrValue<BigNumberish>;
 };
 
@@ -127,22 +114,14 @@ export type UserFacingCallParamsStructOutput = [
   string,
   number,
   string,
-  string,
   boolean,
-  string,
-  BigNumber,
-  BigNumber,
   BigNumber
 ] & {
   to: string;
   callData: string;
   destinationDomain: number;
   agent: string;
-  recovery: string;
   receiveLocal: boolean;
-  callback: string;
-  callbackFee: BigNumber;
-  relayerFee: BigNumber;
   destinationMinOut: BigNumber;
 };
 
@@ -258,18 +237,14 @@ export interface ConnextHandlerInterface extends utils.Interface {
     "bumpTransfer(bytes32)": FunctionFragment;
     "connextion(uint32)": FunctionFragment;
     "domain()": FunctionFragment;
-    "execute(((address,bytes,uint32,uint32,address,bool,address,uint256,uint256,uint256),address,address[],bytes[],address,bytes,uint256,uint256,address))": FunctionFragment;
-    "forceReceiveLocal((address,bytes,uint32,uint32,address,bool,address,uint256,uint256,uint256),uint256,uint256,bytes32,uint32,address)": FunctionFragment;
+    "execute(((address,bytes,uint32,uint32,address,bool,uint256),address,address[],bytes[],address,bytes,uint256,uint256,address))": FunctionFragment;
+    "forceReceiveLocal((address,bytes,uint32,uint32,address,bool,uint256),uint256,uint256,bytes32,uint32,address)": FunctionFragment;
     "nonce()": FunctionFragment;
-    "promiseRouter()": FunctionFragment;
     "reconciledTransfers(bytes32)": FunctionFragment;
     "relayerFees(bytes32)": FunctionFragment;
     "removeSequencer(address)": FunctionFragment;
     "routedTransfers(bytes32)": FunctionFragment;
-    "setPromiseRouter(address)": FunctionFragment;
-    "setSponsorVault(address)": FunctionFragment;
-    "sponsorVault()": FunctionFragment;
-    "xcall(((address,bytes,uint32,address,address,bool,address,uint256,uint256,uint256),address,uint256,uint256))": FunctionFragment;
+    "xcall(((address,bytes,uint32,address,bool,uint256),address,uint256,uint256))": FunctionFragment;
     "diamondCut((address,uint8,bytes4[])[],address,bytes)": FunctionFragment;
     "getAcceptanceTime((address,uint8,bytes4[])[],address,bytes)": FunctionFragment;
     "proposeDiamondCut((address,uint8,bytes4[])[],address,bytes)": FunctionFragment;
@@ -286,8 +261,8 @@ export interface ConnextHandlerInterface extends utils.Interface {
     "aavePortalFee()": FunctionFragment;
     "getAavePortalDebt(bytes32)": FunctionFragment;
     "getAavePortalFeeDebt(bytes32)": FunctionFragment;
-    "repayAavePortal((address,bytes,uint32,uint32,address,bool,address,uint256,uint256,uint256),address,address,uint256,uint256,uint256,uint256,uint256)": FunctionFragment;
-    "repayAavePortalFor((address,bytes,uint32,uint32,address,bool,address,uint256,uint256,uint256),address,address,uint256,uint256,uint256,uint256)": FunctionFragment;
+    "repayAavePortal((address,bytes,uint32,uint32,address,bool,uint256),address,address,uint256,uint256,uint256,uint256,uint256)": FunctionFragment;
+    "repayAavePortalFor((address,bytes,uint32,uint32,address,bool,uint256),address,address,uint256,uint256,uint256,uint256)": FunctionFragment;
     "setAavePool(address)": FunctionFragment;
     "setAavePortalFee(uint256)": FunctionFragment;
     "acceptProposedOwner()": FunctionFragment;
@@ -386,14 +361,10 @@ export interface ConnextHandlerInterface extends utils.Interface {
       | "execute"
       | "forceReceiveLocal"
       | "nonce"
-      | "promiseRouter"
       | "reconciledTransfers"
       | "relayerFees"
       | "removeSequencer"
       | "routedTransfers"
-      | "setPromiseRouter"
-      | "setSponsorVault"
-      | "sponsorVault"
       | "xcall"
       | "diamondCut"
       | "getAcceptanceTime"
@@ -580,10 +551,6 @@ export interface ConnextHandlerInterface extends utils.Interface {
   ): string;
   encodeFunctionData(functionFragment: "nonce", values?: undefined): string;
   encodeFunctionData(
-    functionFragment: "promiseRouter",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
     functionFragment: "reconciledTransfers",
     values: [PromiseOrValue<BytesLike>]
   ): string;
@@ -598,18 +565,6 @@ export interface ConnextHandlerInterface extends utils.Interface {
   encodeFunctionData(
     functionFragment: "routedTransfers",
     values: [PromiseOrValue<BytesLike>]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "setPromiseRouter",
-    values: [PromiseOrValue<string>]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "setSponsorVault",
-    values: [PromiseOrValue<string>]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "sponsorVault",
-    values?: undefined
   ): string;
   encodeFunctionData(
     functionFragment: "xcall",
@@ -1143,10 +1098,6 @@ export interface ConnextHandlerInterface extends utils.Interface {
   ): Result;
   decodeFunctionResult(functionFragment: "nonce", data: BytesLike): Result;
   decodeFunctionResult(
-    functionFragment: "promiseRouter",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
     functionFragment: "reconciledTransfers",
     data: BytesLike
   ): Result;
@@ -1160,18 +1111,6 @@ export interface ConnextHandlerInterface extends utils.Interface {
   ): Result;
   decodeFunctionResult(
     functionFragment: "routedTransfers",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "setPromiseRouter",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "setSponsorVault",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "sponsorVault",
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "xcall", data: BytesLike): Result;
@@ -1497,10 +1436,8 @@ export interface ConnextHandlerInterface extends utils.Interface {
     "Executed(bytes32,address,tuple,address,uint256,address)": EventFragment;
     "ExternalCalldataExecuted(bytes32,bool,bytes)": EventFragment;
     "ForcedReceiveLocal(bytes32,bytes32,uint32,uint256)": EventFragment;
-    "PromiseRouterUpdated(address,address,address)": EventFragment;
     "SequencerAdded(address,address)": EventFragment;
     "SequencerRemoved(address,address)": EventFragment;
-    "SponsorVaultUpdated(address,address,address)": EventFragment;
     "TransferRelayerFeesUpdated(bytes32,uint256,address)": EventFragment;
     "XCalled(bytes32,uint256,bytes32,tuple,address,uint256,address)": EventFragment;
     "DiamondCut(tuple[],address,bytes)": EventFragment;
@@ -1544,10 +1481,8 @@ export interface ConnextHandlerInterface extends utils.Interface {
   getEvent(nameOrSignatureOrTopic: "Executed"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "ExternalCalldataExecuted"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "ForcedReceiveLocal"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "PromiseRouterUpdated"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "SequencerAdded"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "SequencerRemoved"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "SponsorVaultUpdated"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "TransferRelayerFeesUpdated"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "XCalled"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "DiamondCut"): EventFragment;
@@ -1711,19 +1646,6 @@ export type ForcedReceiveLocalEvent = TypedEvent<
 export type ForcedReceiveLocalEventFilter =
   TypedEventFilter<ForcedReceiveLocalEvent>;
 
-export interface PromiseRouterUpdatedEventObject {
-  oldRouter: string;
-  newRouter: string;
-  caller: string;
-}
-export type PromiseRouterUpdatedEvent = TypedEvent<
-  [string, string, string],
-  PromiseRouterUpdatedEventObject
->;
-
-export type PromiseRouterUpdatedEventFilter =
-  TypedEventFilter<PromiseRouterUpdatedEvent>;
-
 export interface SequencerAddedEventObject {
   sequencer: string;
   caller: string;
@@ -1746,19 +1668,6 @@ export type SequencerRemovedEvent = TypedEvent<
 
 export type SequencerRemovedEventFilter =
   TypedEventFilter<SequencerRemovedEvent>;
-
-export interface SponsorVaultUpdatedEventObject {
-  oldSponsorVault: string;
-  newSponsorVault: string;
-  caller: string;
-}
-export type SponsorVaultUpdatedEvent = TypedEvent<
-  [string, string, string],
-  SponsorVaultUpdatedEventObject
->;
-
-export type SponsorVaultUpdatedEventFilter =
-  TypedEventFilter<SponsorVaultUpdatedEvent>;
 
 export interface TransferRelayerFeesUpdatedEventObject {
   transferId: string;
@@ -2287,8 +2196,6 @@ export interface ConnextHandler extends BaseContract {
 
     nonce(overrides?: CallOverrides): Promise<[BigNumber]>;
 
-    promiseRouter(overrides?: CallOverrides): Promise<[string]>;
-
     reconciledTransfers(
       _transferId: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
@@ -2308,18 +2215,6 @@ export interface ConnextHandler extends BaseContract {
       _transferId: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
     ): Promise<[string[]]>;
-
-    setPromiseRouter(
-      _promiseRouter: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
-
-    setSponsorVault(
-      _sponsorVault: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
-
-    sponsorVault(overrides?: CallOverrides): Promise<[string]>;
 
     xcall(
       _args: XCallArgsStruct,
@@ -2915,8 +2810,6 @@ export interface ConnextHandler extends BaseContract {
 
   nonce(overrides?: CallOverrides): Promise<BigNumber>;
 
-  promiseRouter(overrides?: CallOverrides): Promise<string>;
-
   reconciledTransfers(
     _transferId: PromiseOrValue<BytesLike>,
     overrides?: CallOverrides
@@ -2936,18 +2829,6 @@ export interface ConnextHandler extends BaseContract {
     _transferId: PromiseOrValue<BytesLike>,
     overrides?: CallOverrides
   ): Promise<string[]>;
-
-  setPromiseRouter(
-    _promiseRouter: PromiseOrValue<string>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
-
-  setSponsorVault(
-    _sponsorVault: PromiseOrValue<string>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
-
-  sponsorVault(overrides?: CallOverrides): Promise<string>;
 
   xcall(
     _args: XCallArgsStruct,
@@ -3535,8 +3416,6 @@ export interface ConnextHandler extends BaseContract {
 
     nonce(overrides?: CallOverrides): Promise<BigNumber>;
 
-    promiseRouter(overrides?: CallOverrides): Promise<string>;
-
     reconciledTransfers(
       _transferId: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
@@ -3556,18 +3435,6 @@ export interface ConnextHandler extends BaseContract {
       _transferId: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
     ): Promise<string[]>;
-
-    setPromiseRouter(
-      _promiseRouter: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<void>;
-
-    setSponsorVault(
-      _sponsorVault: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<void>;
-
-    sponsorVault(overrides?: CallOverrides): Promise<string>;
 
     xcall(_args: XCallArgsStruct, overrides?: CallOverrides): Promise<string>;
 
@@ -4142,17 +4009,6 @@ export interface ConnextHandler extends BaseContract {
       amount?: null
     ): ForcedReceiveLocalEventFilter;
 
-    "PromiseRouterUpdated(address,address,address)"(
-      oldRouter?: null,
-      newRouter?: null,
-      caller?: null
-    ): PromiseRouterUpdatedEventFilter;
-    PromiseRouterUpdated(
-      oldRouter?: null,
-      newRouter?: null,
-      caller?: null
-    ): PromiseRouterUpdatedEventFilter;
-
     "SequencerAdded(address,address)"(
       sequencer?: null,
       caller?: null
@@ -4167,17 +4023,6 @@ export interface ConnextHandler extends BaseContract {
       sequencer?: null,
       caller?: null
     ): SequencerRemovedEventFilter;
-
-    "SponsorVaultUpdated(address,address,address)"(
-      oldSponsorVault?: null,
-      newSponsorVault?: null,
-      caller?: null
-    ): SponsorVaultUpdatedEventFilter;
-    SponsorVaultUpdated(
-      oldSponsorVault?: null,
-      newSponsorVault?: null,
-      caller?: null
-    ): SponsorVaultUpdatedEventFilter;
 
     "TransferRelayerFeesUpdated(bytes32,uint256,address)"(
       transferId?: PromiseOrValue<BytesLike> | null,
@@ -4611,8 +4456,6 @@ export interface ConnextHandler extends BaseContract {
 
     nonce(overrides?: CallOverrides): Promise<BigNumber>;
 
-    promiseRouter(overrides?: CallOverrides): Promise<BigNumber>;
-
     reconciledTransfers(
       _transferId: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
@@ -4632,18 +4475,6 @@ export interface ConnextHandler extends BaseContract {
       _transferId: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
-
-    setPromiseRouter(
-      _promiseRouter: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
-
-    setSponsorVault(
-      _sponsorVault: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
-
-    sponsorVault(overrides?: CallOverrides): Promise<BigNumber>;
 
     xcall(
       _args: XCallArgsStruct,
@@ -5234,8 +5065,6 @@ export interface ConnextHandler extends BaseContract {
 
     nonce(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
-    promiseRouter(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
     reconciledTransfers(
       _transferId: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
@@ -5255,18 +5084,6 @@ export interface ConnextHandler extends BaseContract {
       _transferId: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
-
-    setPromiseRouter(
-      _promiseRouter: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
-
-    setSponsorVault(
-      _sponsorVault: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
-
-    sponsorVault(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     xcall(
       _args: XCallArgsStruct,

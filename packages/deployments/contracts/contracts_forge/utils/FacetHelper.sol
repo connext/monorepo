@@ -141,9 +141,6 @@ contract FacetHelper is ForgeHelper {
         params.destinationDomain, // destination domain
         params.agent, // agent
         params.receiveLocal,
-        params.callback,
-        params.callbackFee,
-        params.relayerFee, // relayer fee
         params.destinationMinOut
       );
   }

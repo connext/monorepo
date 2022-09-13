@@ -606,32 +606,12 @@ const _abi = [
   },
   {
     inputs: [],
-    name: "BridgeFacet__setPromiseRouter_invalidPromiseRouter",
-    type: "error",
-  },
-  {
-    inputs: [],
-    name: "BridgeFacet__setSponsorVault_invalidSponsorVault",
-    type: "error",
-  },
-  {
-    inputs: [],
-    name: "BridgeFacet__xcall_callbackNotAContract",
-    type: "error",
-  },
-  {
-    inputs: [],
     name: "BridgeFacet__xcall_destinationNotSupported",
     type: "error",
   },
   {
     inputs: [],
     name: "BridgeFacet__xcall_emptyTo",
-    type: "error",
-  },
-  {
-    inputs: [],
-    name: "BridgeFacet__xcall_ethValueMismatchedFees",
     type: "error",
   },
   {
@@ -647,11 +627,6 @@ const _abi = [
   {
     inputs: [],
     name: "BridgeFacet__xcall_nativeAssetNotSupported",
-    type: "error",
-  },
-  {
-    inputs: [],
-    name: "BridgeFacet__xcall_nonZeroCallbackFeeForCallback",
     type: "error",
   },
   {
@@ -763,21 +738,6 @@ const _abi = [
                 internalType: "bool",
                 name: "receiveLocal",
                 type: "bool",
-              },
-              {
-                internalType: "address",
-                name: "callback",
-                type: "address",
-              },
-              {
-                internalType: "uint256",
-                name: "callbackFee",
-                type: "uint256",
-              },
-              {
-                internalType: "uint256",
-                name: "relayerFee",
-                type: "uint256",
               },
               {
                 internalType: "uint256",
@@ -919,31 +879,6 @@ const _abi = [
       {
         indexed: false,
         internalType: "address",
-        name: "oldRouter",
-        type: "address",
-      },
-      {
-        indexed: false,
-        internalType: "address",
-        name: "newRouter",
-        type: "address",
-      },
-      {
-        indexed: false,
-        internalType: "address",
-        name: "caller",
-        type: "address",
-      },
-    ],
-    name: "PromiseRouterUpdated",
-    type: "event",
-  },
-  {
-    anonymous: false,
-    inputs: [
-      {
-        indexed: false,
-        internalType: "address",
         name: "sequencer",
         type: "address",
       },
@@ -974,31 +909,6 @@ const _abi = [
       },
     ],
     name: "SequencerRemoved",
-    type: "event",
-  },
-  {
-    anonymous: false,
-    inputs: [
-      {
-        indexed: false,
-        internalType: "address",
-        name: "oldSponsorVault",
-        type: "address",
-      },
-      {
-        indexed: false,
-        internalType: "address",
-        name: "newSponsorVault",
-        type: "address",
-      },
-      {
-        indexed: false,
-        internalType: "address",
-        name: "caller",
-        type: "address",
-      },
-    ],
-    name: "SponsorVaultUpdated",
     type: "event",
   },
   {
@@ -1072,29 +982,9 @@ const _abi = [
                 type: "address",
               },
               {
-                internalType: "address",
-                name: "recovery",
-                type: "address",
-              },
-              {
                 internalType: "bool",
                 name: "receiveLocal",
                 type: "bool",
-              },
-              {
-                internalType: "address",
-                name: "callback",
-                type: "address",
-              },
-              {
-                internalType: "uint256",
-                name: "callbackFee",
-                type: "uint256",
-              },
-              {
-                internalType: "uint256",
-                name: "relayerFee",
-                type: "uint256",
               },
               {
                 internalType: "uint256",
@@ -1294,21 +1184,6 @@ const _abi = [
                 type: "bool",
               },
               {
-                internalType: "address",
-                name: "callback",
-                type: "address",
-              },
-              {
-                internalType: "uint256",
-                name: "callbackFee",
-                type: "uint256",
-              },
-              {
-                internalType: "uint256",
-                name: "relayerFee",
-                type: "uint256",
-              },
-              {
                 internalType: "uint256",
                 name: "destinationMinOut",
                 type: "uint256",
@@ -1410,21 +1285,6 @@ const _abi = [
             type: "bool",
           },
           {
-            internalType: "address",
-            name: "callback",
-            type: "address",
-          },
-          {
-            internalType: "uint256",
-            name: "callbackFee",
-            type: "uint256",
-          },
-          {
-            internalType: "uint256",
-            name: "relayerFee",
-            type: "uint256",
-          },
-          {
             internalType: "uint256",
             name: "destinationMinOut",
             type: "uint256",
@@ -1473,19 +1333,6 @@ const _abi = [
         internalType: "uint256",
         name: "",
         type: "uint256",
-      },
-    ],
-    stateMutability: "view",
-    type: "function",
-  },
-  {
-    inputs: [],
-    name: "promiseRouter",
-    outputs: [
-      {
-        internalType: "contract PromiseRouter",
-        name: "",
-        type: "address",
       },
     ],
     stateMutability: "view",
@@ -1564,45 +1411,6 @@ const _abi = [
   {
     inputs: [
       {
-        internalType: "address payable",
-        name: "_promiseRouter",
-        type: "address",
-      },
-    ],
-    name: "setPromiseRouter",
-    outputs: [],
-    stateMutability: "nonpayable",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
-        internalType: "address",
-        name: "_sponsorVault",
-        type: "address",
-      },
-    ],
-    name: "setSponsorVault",
-    outputs: [],
-    stateMutability: "nonpayable",
-    type: "function",
-  },
-  {
-    inputs: [],
-    name: "sponsorVault",
-    outputs: [
-      {
-        internalType: "contract ISponsorVault",
-        name: "",
-        type: "address",
-      },
-    ],
-    stateMutability: "view",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
         components: [
           {
             components: [
@@ -1627,29 +1435,9 @@ const _abi = [
                 type: "address",
               },
               {
-                internalType: "address",
-                name: "recovery",
-                type: "address",
-              },
-              {
                 internalType: "bool",
                 name: "receiveLocal",
                 type: "bool",
-              },
-              {
-                internalType: "address",
-                name: "callback",
-                type: "address",
-              },
-              {
-                internalType: "uint256",
-                name: "callbackFee",
-                type: "uint256",
-              },
-              {
-                internalType: "uint256",
-                name: "relayerFee",
-                type: "uint256",
               },
               {
                 internalType: "uint256",
@@ -2413,21 +2201,6 @@ const _abi = [
             type: "bool",
           },
           {
-            internalType: "address",
-            name: "callback",
-            type: "address",
-          },
-          {
-            internalType: "uint256",
-            name: "callbackFee",
-            type: "uint256",
-          },
-          {
-            internalType: "uint256",
-            name: "relayerFee",
-            type: "uint256",
-          },
-          {
             internalType: "uint256",
             name: "destinationMinOut",
             type: "uint256",
@@ -2511,21 +2284,6 @@ const _abi = [
             internalType: "bool",
             name: "receiveLocal",
             type: "bool",
-          },
-          {
-            internalType: "address",
-            name: "callback",
-            type: "address",
-          },
-          {
-            internalType: "uint256",
-            name: "callbackFee",
-            type: "uint256",
-          },
-          {
-            internalType: "uint256",
-            name: "relayerFee",
-            type: "uint256",
           },
           {
             internalType: "uint256",
