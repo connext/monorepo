@@ -151,7 +151,6 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
         _params.callData,
         _params.destinationDomain, // destination domain
         _params.agent, // agent
-        _params.receiveLocal,
         _params.destinationMinOut
       );
   }

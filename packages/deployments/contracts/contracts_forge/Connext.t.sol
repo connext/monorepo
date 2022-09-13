@@ -376,7 +376,6 @@ contract ConnextTest is ForgeHelper, Deployer {
         bytes(""), // callData
         destination, // dest domain
         address(2222), // agent
-        false, // receiveLocal
         0.9 ether // slippage tol
       );
   }
@@ -390,7 +389,7 @@ contract ConnextTest is ForgeHelper, Deployer {
         _origin,
         params.destinationDomain, // destination domain
         params.agent, // agent
-        params.receiveLocal,
+        false, // receiveLocal
         params.destinationMinOut
       );
   }
