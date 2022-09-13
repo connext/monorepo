@@ -50,7 +50,7 @@ export const updateMessages = async () => {
   const messageLeavesByDomain: Map<string, string[]> = new Map();
   for (const pendingMessage of pendingMessages) {
     if (messageLeavesByDomain.has(pendingMessage.destinationDomain)) {
-      messageLeavesByDomain.get(pendingMessage.destinationDomain);
+      messageLeavesByDomain.get(pendingMessage.destinationDomain)?.push(pendingMessage.leaf);
     } else {
       messageLeavesByDomain.set(pendingMessage.destinationDomain, [pendingMessage.leaf]);
     }
