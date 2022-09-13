@@ -67,7 +67,6 @@ contract LiveTest is ForgeHelper {
           1735353714, // origin domain
           1735356532, // dest domain
           0x5A9e792143bf2708b4765C144451dCa54f559a19, // agent
-          0x5A9e792143bf2708b4765C144451dCa54f559a19, // recovery
           false, // receiveLocal
           address(0), // callback
           0, // callbackFee
@@ -110,7 +109,6 @@ contract LiveTest is ForgeHelper {
           bytes(""), // callData
           1735353714, // dest domain
           0x5A9e792143bf2708b4765C144451dCa54f559a19, // agent
-          0x5A9e792143bf2708b4765C144451dCa54f559a19, // recovery
           false, // receiveLocal
           address(0), // callback
           0, // callbackFee

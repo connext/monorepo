@@ -21,7 +21,6 @@ contract LibDiamondTest is ForgeHelper, Deployer {
   address relayerFeeRouter = address(3);
   address promiseRouter = address(4);
   address tokenRegistry = address(5);
-  address executor = address(0);
 
   // ============ Setup ============
 
@@ -36,7 +35,6 @@ contract LibDiamondTest is ForgeHelper, Deployer {
     );
 
     connextHandler = IConnextHandler(address(connextDiamondProxy));
-    executor = address(connextHandler.executor());
   }
 
   // ============ Utils ============
@@ -44,7 +42,6 @@ contract LibDiamondTest is ForgeHelper, Deployer {
   // Should work: first initialization
   function test_LibDiamond__initializeDiamondCut_works() public {
     assertTrue(connextDiamondProxy.isInitialized());
-    assertTrue(executor != address(0));
   }
 
   // Second initialization should not alter state.
@@ -82,9 +79,6 @@ contract LibDiamondTest is ForgeHelper, Deployer {
 
     // still initialized
     assertTrue(connextDiamondProxy.isInitialized());
-
-    // executor not updated
-    assertTrue(address(connextHandler.executor()) == executor);
 
     // promise router not updated
     assertTrue(address(connextHandler.promiseRouter()) != newPromiseRouter);
@@ -137,7 +131,6 @@ contract LibDiamondTest is ForgeHelper, Deployer {
     );
 
     connextHandler = IConnextHandler(address(connextDiamondProxy));
-    executor = address(connextHandler.executor());
 
     uint32 newDomain = 2;
     address newXAppConnectionManager = address(11);
@@ -169,6 +162,5 @@ contract LibDiamondTest is ForgeHelper, Deployer {
     connextHandler.diamondCut(facetCuts, address(diamondInit), initCallData);
 
     assertTrue(connextDiamondProxy.isInitialized());
-    assertTrue(executor != address(0));
   }
 }
