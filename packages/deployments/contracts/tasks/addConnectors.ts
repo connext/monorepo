@@ -15,19 +15,19 @@ import { HUB_PREFIX } from "../deployConfig/shared";
 
 type TaskArgs = {
   env?: Env;
-  remove?: string;
+  remove?: boolean;
 };
 
 export default task("add-connectors", "Add all connectors to the root manager")
   .addOptionalParam("env", "Environment of contracts")
-  .addOptionalParam("remove", "Whether or not to remove connectors that exist")
+  .addFlag("remove", "Whether or not to remove connectors that exist")
   .setAction(async ({ env: _env, remove: _remove }: TaskArgs, hre) => {
     const chain = await hre.getChainId();
     const networkConfig = Object.values(hardhatConfig.networks!).find((n) => n?.chainId === +chain)!;
     const deployer = Wallet.fromMnemonic((networkConfig.accounts as any).mnemonic as unknown as string);
 
     const env = mustGetEnv(_env);
-    const remove = _remove ? _remove === "true" : true;
+    const remove = _remove;
     console.log("env:", env);
     console.log("remove:", remove);
     console.log("deployer: ", deployer.address);
