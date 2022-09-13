@@ -116,6 +116,55 @@ library AssetLogic {
   }
 
   /**
+   * @notice This function calculates slippage as a %age of the amount in, and normalizes
+   * That to the `_out` decimals.
+   *
+   * @dev This *ONLY* works for 1:1 assets
+   *
+   * @param _in The decimals of the asset in / amount in
+   * @param _out The decimals of the target asset
+   * @param _amountIn The starting amount for the swap
+   * @param _slippage The slippage allowed for the swap, in BPS
+   * @return The minimum amount out for the swap
+   */
+  function calculateSlippageBoundary(
+    uint8 _in,
+    uint8 _out,
+    uint256 _amountIn,
+    uint256 _slippage
+  ) internal pure returns (uint256) {
+    // Get the min recieved (in same decimals as _amountIn)
+    uint256 min = (_amountIn * (10_000 - _slippage)) / 10_000;
+    return normalizeDecimals(_in, _out, min);
+  }
+
+  /**
+   * @notice This function translates the _amount in _in decimals
+   * to _out decimals
+   *
+   * @param _in The decimals of the asset in / amount in
+   * @param _out The decimals of the target asset
+   * @param _amount The value to normalize to the `_out` decimals
+   */
+  function normalizeDecimals(
+    uint8 _in,
+    uint8 _out,
+    uint256 _amount
+  ) internal pure returns (uint256) {
+    if (_in == _out) {
+      return _amount;
+    }
+    // Convert this value to the same decimals as _out
+    uint256 normalized;
+    if (_in < _out) {
+      normalized = _amount * (10**(_out - _in));
+    } else {
+      normalized = _amount / (10**(_in - _out));
+    }
+    return normalized;
+  }
+
+  /**
    * @notice Swaps an adopted asset to the local (representation or canonical) nomad asset
    * @dev Will not swap if the asset passed in is the local asset
    * @param _canonical - The canonical token
@@ -156,52 +205,6 @@ library AssetLogic {
         _amount,
         calculateSlippageBoundary(ERC20(_asset).decimals(), ERC20(local).decimals(), _amount, _slippage)
       );
-  }
-
-  /**
-   * @notice This function calculates slippage as a %age of the amount in, and normalizes
-   * That to the `_out` decimals.
-   *
-   * @dev This *ONLY* works for 1:1 assets
-   *
-   * @param _in The decimals of the asset in / amount in
-   * @param _out The decimals of the target asset
-   * @param _amountIn The starting amount for the swap
-   * @param _slippage The slippage allowed for the swap, in BPS
-   * @return The minimum amount out for the swap
-   */
-  function calculateSlippageBoundary(
-    uint8 _in,
-    uint8 _out,
-    uint256 _amountIn,
-    uint256 _slippage
-  ) internal pure returns (uint256) {
-    // Get the min recieved (in same decimals as _amountIn)
-    uint256 min = (_amountIn * (10_000 - _slippage)) / 10_000;
-    return normalizeDecimals(_in, _out, min);
-  }
-
-  /**
-   * @notice This function translates the _amount in _in decimals
-   * to _out decimals
-   *
-   * @param _in The decimals of the asset in / amount in
-   * @param _out The decimals of the target asset
-   * @param _amount The value to normalize to the `_out` decimals
-   */
-  function normalizeDecimals(
-    uint8 _in,
-    uint8 _out,
-    uint256 _amount
-  ) internal pure returns (uint256) {
-    // Convert this value to the same decimals as _out
-    uint256 normalized;
-    if (_in > _out) {
-      normalized = _amount * (10**(_out - _in));
-    } else {
-      normalized = _amount / (10**(_in - _out));
-    }
-    return normalized;
   }
 
   /**
