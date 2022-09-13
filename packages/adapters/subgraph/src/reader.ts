@@ -302,7 +302,9 @@ export class SubgraphReader {
     const query = getDestinationTransfersByIdsQuery(prefix, [`"${transferId}"`]);
     const response = await execute(query);
     const transfers = [...response.values()][0][0];
-    return transfers.length === 1 ? parser.destinationTransfer(transfers[0]) : undefined;
+    return transfers.length === 1
+      ? parser.destinationTransfer({ ...transfers[0], destinationDomain: domain })
+      : undefined;
   }
 
   /**
@@ -355,7 +357,13 @@ export class SubgraphReader {
     const transfers: any[] = [];
     for (const key of response.keys()) {
       const value = response.get(key);
-      transfers.push(value?.flat());
+      const domainTransfers = value?.flat();
+
+      transfers.push(
+        domainTransfers?.map((x) => {
+          return { ...x, destinationDomain: key };
+        }),
+      );
     }
 
     const destinationTransfers: XTransfer[] = transfers
@@ -395,7 +403,12 @@ export class SubgraphReader {
     const transfers: any[] = [];
     for (const key of response.keys()) {
       const value = response.get(key);
-      transfers.push(value?.flat());
+      const domainTransfers = value?.flat();
+      transfers.push(
+        domainTransfers?.map((x) => {
+          return { ...x, destinationDomain: key };
+        }),
+      );
     }
 
     const destinationTransfers: XTransfer[] = transfers
@@ -417,7 +430,12 @@ export class SubgraphReader {
     const transfers: any[] = [];
     for (const key of response.keys()) {
       const value = response.get(key);
-      transfers.push(value?.flat());
+      const domainTransfers = value?.flat();
+      transfers.push(
+        domainTransfers?.map((x) => {
+          return { ...x, destinationDomain: key };
+        }),
+      );
     }
 
     const destinationTransfers: XTransfer[] = transfers
@@ -462,7 +480,12 @@ export class SubgraphReader {
     const transfers: any[] = [];
     for (const key of response.keys()) {
       const value = response.get(key);
-      transfers.push(value?.flat());
+      const domainTransfers = value?.flat();
+      transfers.push(
+        domainTransfers?.map((x) => {
+          return { ...x, destinationDomain: key };
+        }),
+      );
     }
 
     const destinationTransfers: XTransfer[] = transfers
@@ -505,7 +528,12 @@ export class SubgraphReader {
     const _transfers: any[] = [];
     for (const key of response.keys()) {
       const value = response.get(key);
-      _transfers.push(value?.flat());
+      const domainTransfers = value?.flat();
+      _transfers.push(
+        domainTransfers?.map((x) => {
+          return { ...x, destinationDomain: key };
+        }),
+      );
     }
 
     const destinationTransfers: XTransfer[] = _transfers
