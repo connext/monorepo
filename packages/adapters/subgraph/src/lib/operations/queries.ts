@@ -109,6 +109,22 @@ export const BLOCK_NUMBER_ENTITY = `
         number
       }
 `;
+
+export const ORIGIN_MESSAGE_ENTITY = `
+      id
+      leaf
+      index
+      root
+      message
+      transferId
+      destinationDomain
+`;
+export const DESTINATION_MESSAGE_ENTITY = `
+      id
+      leaf
+      processed
+      returnData
+`;
 const lastedBlockNumberQuery = (prefix: string): string => {
   return `${prefix}__meta { ${BLOCK_NUMBER_ENTITY}}`;
 };
@@ -548,5 +564,38 @@ export const getDestinationTransfersByDomainAndIdsQuery = (txIdsByDestinationDom
     query GetDestinationTransfers { 
         ${combinedQuery}
       }
+  `;
+};
+
+export const getOriginMessagesByDomainAndIndexQuery = (
+  params: { domain: string; offset: number; limit: number }[],
+): string => {
+  const { config } = getContext();
+  let combinedQuery = "";
+  for (const param of params) {
+    const prefix = config.sources[param.domain].prefix;
+    combinedQuery += `${prefix}_originMessages ( first: ${param.limit}, where: { index_gte: ${param.offset}, transferId_not: null, destinationDomain_not: null}) {${ORIGIN_MESSAGE_ENTITY}} orderBy: index, orderDirection: asc`;
+  }
+
+  return gql`
+    query GetOriginMessages {
+      ${combinedQuery}
+    }
+  `;
+};
+
+export const getDestinationMessagesByDomainAndLeafQuery = (params: Map<string, string[]>) => {
+  const { config } = getContext();
+  let combinedQuery = "";
+  for (const domain of params.keys()) {
+    const prefix = config.sources[domain].prefix;
+    const leafs = [...params.get(domain)!.map((leaf) => `"${leaf}"`)];
+    combinedQuery += `${prefix}_destinationMessages ( where: { leaf_in: [${leafs}] }) {${DESTINATION_MESSAGE_ENTITY}}`;
+  }
+
+  return gql`
+    query GetOriginMessages {
+      ${combinedQuery}
+    }
   `;
 };

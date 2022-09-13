@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity 0.8.15;
 
-import {XAppConnectionManager, TypeCasts} from "../../../../contracts/nomad-core/contracts/XAppConnectionManager.sol";
-import {TypedMemView} from "../../../../contracts/nomad-core/libs/TypedMemView.sol";
+import {TypeCasts} from "../../../../contracts/shared/libraries/TypeCasts.sol";
+import {TypedMemView} from "../../../../contracts/shared/libraries/TypedMemView.sol";
 
 import {IBridgeRouter} from "../../../../contracts/core/connext/interfaces/IBridgeRouter.sol";
 
@@ -155,7 +155,14 @@ contract NomadFacetTest is NomadFacet, FacetHelper {
 
     if (shouldSucceed) {
       vm.expectEmit(true, true, true, true);
-      emit Reconciled(transferId, s.routedTransfers[transferId], _local, args.transactingAmount, _bridge);
+      emit Reconciled(
+        transferId,
+        args.params.originDomain,
+        s.routedTransfers[transferId],
+        _local,
+        args.transactingAmount,
+        _bridge
+      );
     } else {
       vm.expectRevert(expectedError);
     }

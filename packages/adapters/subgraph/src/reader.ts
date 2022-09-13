@@ -10,6 +10,8 @@ import {
   AssetBalance,
   SubgraphQueryByTransferIDsMetaParams,
   SubgraphQueryByTimestampMetaParams,
+  OriginMessage,
+  DestinationMessage,
 } from "@connext/nxtp-utils";
 
 import { getHelpers } from "./lib/helpers";
@@ -32,6 +34,8 @@ import {
   getOriginTransfersByNonceQuery,
   getDestinationTransfersByNonceQuery,
   getDestinationTransfersByDomainAndReconcileTimestampQuery,
+  getOriginMessagesByDomainAndIndexQuery,
+  getDestinationMessagesByDomainAndLeafQuery,
 } from "./lib/operations";
 import { SubgraphMap } from "./lib/entities";
 
@@ -516,5 +520,63 @@ export class SubgraphReader {
     });
 
     return [...allTxById.values()].filter((xTransfer) => !!xTransfer.destination);
+  }
+
+  /**
+   * Gets all the origin message starting with index for a given domain
+   */
+  public async getOriginMessagesByDomain(
+    params: { domain: string; offset: number; limit: number }[],
+  ): Promise<OriginMessage[]> {
+    const { parser, execute } = getHelpers();
+    const originMessageQuery = getOriginMessagesByDomainAndIndexQuery(params);
+    const response = await execute(originMessageQuery);
+    const _messages: any[] = [];
+    for (const key of response.keys()) {
+      const value = response.get(key);
+      const flatten = value?.flat();
+      const _message = flatten?.map((x) => {
+        return { ...x, domain: key };
+      });
+      _messages.push(_message);
+    }
+
+    const originMessages: OriginMessage[] = _messages
+      .flat()
+      .filter((x: any) => !!x)
+      .map(parser.originMessage);
+
+    return originMessages;
+  }
+
+  /**
+   * Gets all the destination messages by domain and message leaf
+   */
+  public async getDestinationMessagesByDomainAndLeaf(params: Map<string, string[]>): Promise<DestinationMessage[]> {
+    const { parser, execute } = getHelpers();
+
+    let destinationMessages: DestinationMessage[] = [];
+    if (!params || params.size === 0) {
+      return destinationMessages;
+    }
+
+    const destinationMessageQuery = getDestinationMessagesByDomainAndLeafQuery(params);
+    const response = await execute(destinationMessageQuery);
+    const _messages: any[] = [];
+    for (const key of response.keys()) {
+      const value = response.get(key);
+      const flatten = value?.flat();
+      const _message = flatten?.map((x) => {
+        return { ...x, domain: key };
+      });
+      _messages.push(_message);
+    }
+
+    destinationMessages = _messages
+      .flat()
+      .filter((x: any) => !!x)
+      .map(parser.destinationMessage);
+
+    return destinationMessages;
   }
 }

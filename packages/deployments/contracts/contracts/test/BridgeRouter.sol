@@ -4,22 +4,25 @@ pragma solidity 0.8.15;
 // ============ Internal Imports ============
 import {BridgeMessage} from "./BridgeMessage.sol";
 import {IBridgeToken} from "./IBridgeToken.sol";
-import {ITokenRegistry} from "../core/connext/interfaces/ITokenRegistry.sol";
 import {IBridgeHook} from "./IBridgeHook.sol";
-// ============ External Imports ============
-import {XAppConnectionClient} from "../core/shared/XAppConnectionClient.sol";
-import {Router} from "../core/shared/Router.sol";
-import {Home} from "../nomad-core/contracts/Home.sol";
-import {TypeCasts} from "../nomad-core/libs/TypeCasts.sol";
-import {Version0} from "../nomad-core/contracts/Version0.sol";
-import {TypedMemView} from "../nomad-core/libs/TypedMemView.sol";
+
+import {ITokenRegistry} from "../core/connext/interfaces/ITokenRegistry.sol";
+
+import {IOutbox} from "../messaging/interfaces/IOutbox.sol";
+
+import {XAppConnectionClient} from "../core/XAppConnectionClient.sol";
+import {Router} from "../core/Router.sol";
+
+import {TypedMemView} from "../shared/libraries/TypedMemView.sol";
+import {TypeCasts} from "../shared/libraries/TypeCasts.sol";
+
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import {SafeERC20} from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 
 /**
  * @title BridgeRouter
  */
-contract BridgeRouter is Version0, Router {
+contract BridgeRouter is Router {
   // ============ Libraries ============
 
   using TypedMemView for bytes;
@@ -170,7 +173,7 @@ contract BridgeRouter is Version0, Router {
     uint32 _destination,
     bytes32 _remoteHook,
     bytes calldata _extraData
-  ) external {
+  ) external returns (bytes32) {
     // debit tokens from msg.sender
     (bytes29 _tokenId, bytes32 _detailsHash) = _takeTokens(_token, _amount);
     // format Hook transfer message
@@ -182,9 +185,10 @@ contract BridgeRouter is Version0, Router {
       _extraData
     );
     // send message to destination chain bridge router
-    _sendTransferMessage(_destination, _tokenId, _action);
+    bytes32 _messageHash = _sendTransferMessage(_destination, _tokenId, _action);
     // emit Send event to record token sender
     emit Send(_token, msg.sender, _destination, _remoteHook, _amount, true);
+    return _messageHash;
   }
 
   // ======== External: Custom Tokens =========
@@ -239,8 +243,6 @@ contract BridgeRouter is Version0, Router {
    *         symbol, decimal)
    */
   function _takeTokens(address _token, uint256 _amount) internal returns (bytes29 _tokenId, bytes32 _detailsHash) {
-    // ensure that amount is non-zero
-    require(_amount > 0, "!amnt");
     // Setup vars used in both if branches
     IBridgeToken _t = IBridgeToken(_token);
     // remove tokens from circulation on this chain
@@ -274,11 +276,16 @@ contract BridgeRouter is Version0, Router {
     uint32 _destination,
     bytes29 _tokenId,
     bytes29 _action
-  ) internal {
+  ) internal returns (bytes32) {
     // get remote BridgeRouter address; revert if not found
     bytes32 _remote = _mustHaveRemote(_destination);
     // send message to remote chain via Nomad
-    Home(xAppConnectionManager.home()).dispatch(_destination, _remote, BridgeMessage.formatMessage(_tokenId, _action));
+    return
+      IOutbox(xAppConnectionManager.home()).dispatch(
+        _destination,
+        _remote,
+        BridgeMessage.formatMessage(_tokenId, _action)
+      );
   }
 
   // ============ Internal: Handle ============

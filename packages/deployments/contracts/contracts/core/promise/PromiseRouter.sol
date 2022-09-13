@@ -1,18 +1,17 @@
 // SPDX-License-Identifier: MIT OR Apache-2.0
 pragma solidity 0.8.15;
 
-import {Home} from "../../nomad-core/contracts/Home.sol";
-import {TypedMemView} from "../../nomad-core/libs/TypedMemView.sol";
-import {ExcessivelySafeCall} from "../../nomad-core/libs/ExcessivelySafeCall.sol";
-
 import {AddressUpgradeable} from "@openzeppelin/contracts-upgradeable/utils/AddressUpgradeable.sol";
 import {ReentrancyGuardUpgradeable} from "@openzeppelin/contracts-upgradeable/security/ReentrancyGuardUpgradeable.sol";
 
 import {IConnextHandler} from "../connext/interfaces/IConnextHandler.sol";
 
-import {Router} from "../shared/Router.sol";
-import {XAppConnectionClient} from "../shared/XAppConnectionClient.sol";
-import {Version} from "../shared/Version.sol";
+import {Router} from "../Router.sol";
+import {XAppConnectionClient} from "../XAppConnectionClient.sol";
+import {Version} from "../Version.sol";
+
+import {TypedMemView} from "../../shared/libraries/TypedMemView.sol";
+import {ExcessivelySafeCall} from "../../shared/libraries/ExcessivelySafeCall.sol";
 
 import {ICallback} from "./interfaces/ICallback.sol";
 import {PromiseMessage} from "./libraries/PromiseMessage.sol";

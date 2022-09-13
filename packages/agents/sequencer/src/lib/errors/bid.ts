@@ -1,4 +1,4 @@
-import { AuctionStatus, NxtpError } from "@connext/nxtp-utils";
+import { ExecStatus, NxtpError } from "@connext/nxtp-utils";
 
 export class ParamsInvalid extends NxtpError {
   constructor(context: any = {}) {
@@ -12,7 +12,7 @@ export class BidVersionInvalid extends NxtpError {
   }
 }
 export class AuctionExpired extends NxtpError {
-  constructor(status: AuctionStatus, context: any = {}) {
+  constructor(status: ExecStatus, context: any = {}) {
     super("This auction has already expired.", { status, ...context }, AuctionExpired.name);
   }
 }

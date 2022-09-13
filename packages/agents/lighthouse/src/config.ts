@@ -3,12 +3,11 @@
 import { Type, Static } from "@sinclair/typebox";
 import { config as dotenvConfig } from "dotenv";
 import { ajv, ChainData, TAddress, TLogLevel } from "@connext/nxtp-utils";
+
+import { existsSync, readFileSync } from "./mockable";
 import { ConnextContractDeployments, ContractPostfix } from "@connext/nxtp-txservice";
 
-import { getHelpers } from "./lib/helpers";
-
 // Polling mins and defaults.
-const DEFAULT_CONFIRMATIONS = 3;
 const MIN_CARTOGRAPHER_POLL_INTERVAL = 30_000;
 const DEFAULT_CARTOGRAPHER_POLL_INTERVAL = 60_000;
 
@@ -16,9 +15,8 @@ dotenvConfig();
 
 export const TChainConfig = Type.Object({
   providers: Type.Array(Type.String()),
-  confirmations: Type.Integer({ minimum: 1 }), // What we consider the "safe confirmations" number for this chain.
   deployments: Type.Object({
-    connext: TAddress,
+    spokeConnector: TAddress,
   }),
 });
 
@@ -41,10 +39,16 @@ export const NxtpLighthouseConfigSchema = Type.Object({
   mode: TModeConfig,
   polling: TPollingConfig,
   environment: Type.Union([Type.Literal("staging"), Type.Literal("production")]),
-  sequencerUrl: Type.String(),
+  relayerUrl: Type.Optional(Type.String({ format: "uri" })),
 });
 
 export type NxtpLighthouseConfig = Static<typeof NxtpLighthouseConfigSchema>;
+
+// map spoke connector contract names to domains, i.e. MainnetSpokeConnector
+export const SPOKE_CONNECTOR_PREFIXES: Record<string, string> = {
+  "1735356532": "Optimism",
+  "1735353714": "Mainnet",
+};
 
 /**
  * Gets and validates the router config from the environment.
@@ -65,9 +69,6 @@ export const getEnvConfig = (
   }
   try {
     let json: string;
-    const {
-      shared: { existsSync, readFileSync },
-    } = getHelpers();
     const path = process.env.NXTP_CONFIG_FILE ?? "config.json";
 
     if (existsSync(path)) {
@@ -101,7 +102,7 @@ export const getEnvConfig = (
     },
     environment: process.env.NXTP_ENVIRONMENT || configJson.environment || configFile.environment || "production",
     cartographerUrl: process.env.NXTP_CARTOGRAPHER_URL || configJson.cartographerUrl || configFile.cartographerUrl,
-    sequencerUrl: process.env.NXTP_SEQUENCER || configJson.sequencerUrl || configFile.sequencerUrl,
+    relayerUrl: process.env.NXTP_RELAYER_URL || configJson.relayerUrl || configFile.relayerUrl,
   };
 
   nxtpConfig.cartographerUrl =
@@ -116,31 +117,28 @@ export const getEnvConfig = (
       : (`${nxtpConfig.environment[0].toUpperCase()}${nxtpConfig.environment.slice(1)}` as ContractPostfix);
 
   // add contract deployments if they exist
-  Object.entries(nxtpConfig.chains).forEach(([domainId, chainConfig]) => {
+  Object.entries(nxtpConfig.chains).forEach(([domainId]) => {
     const chainDataForChain = chainData.get(domainId);
-    const chainRecommendedConfirmations = chainDataForChain?.confirmations ?? DEFAULT_CONFIRMATIONS;
-
     // Make sure deployments is filled out correctly.
     // allow passed in address to override
     // format: { [domainId]: { { "deployments": { "connext": <address>, ... } }
     nxtpConfig.chains[domainId].deployments = {
-      connext:
-        chainConfig.deployments?.connext ??
+      spokeConnector:
+        nxtpConfig.chains[domainId].deployments?.spokeConnector ??
         (() => {
-          const res =
-            domainId === "1337" || domainId === "1338"
-              ? { address: "0x8e4C131B37383E431B9cd0635D3cF9f3F628EDae" } // hardcoded for testing
-              : chainDataForChain
-              ? deployments.connext(chainDataForChain.chainId, contractPostfix)
-              : undefined;
+          const prefix = SPOKE_CONNECTOR_PREFIXES[domainId];
+          if (!prefix) {
+            throw new Error(`No spoke connector prefix for domain ${domainId}`);
+          }
+          const res = chainDataForChain
+            ? deployments.spokeConnector(chainDataForChain.chainId, prefix, contractPostfix)
+            : undefined;
           if (!res) {
-            throw new Error(`No Connext contract address for domain ${domainId}`);
+            throw new Error(`No SpokeConnector contract address for domain ${domainId}`);
           }
           return res.address;
         })(),
     };
-
-    nxtpConfig.chains[domainId].confirmations = chainConfig.confirmations ?? chainRecommendedConfirmations;
   });
 
   const validate = ajv.compile(NxtpLighthouseConfigSchema);

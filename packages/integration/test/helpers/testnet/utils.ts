@@ -30,6 +30,7 @@ export const formatEtherscanLink = (input: { network: string; hash?: string; add
     rinkeby: "rinkeby.etherscan.io",
     kovan: "kovan.etherscan.io",
     goerli: "goerli.etherscan.io",
+    optimismgoerli: "blockscout.com/optimism/goerli",
   };
   const url = networkNameToUrl[network];
   if (!url) {
@@ -98,12 +99,15 @@ export const getAssetApproval = async (
   } = input;
   const connext = getConnextInterface();
 
-  const canonicalId = utils.hexlify(canonizeTokenId(_canonicalId));
-  const payload = utils.defaultAbiCoder.encode(
-    ["tuple(bytes32 canonicalId,uint32 canonicalDomain)"],
-    [{ canonicalId, canonicalDomain }],
+  const canonicalTokenId = {
+    id: utils.hexlify(canonizeTokenId(_canonicalId)),
+    domain: +canonicalDomain,
+  };
+
+  const key = utils.solidityKeccak256(
+    ["bytes"],
+    [utils.defaultAbiCoder.encode(["bytes32", "uint32"], [canonicalTokenId.id, canonicalTokenId.domain])],
   );
-  const key = utils.solidityKeccak256(["bytes32"], [payload]);
 
   const encoded = connext.encodeFunctionData("approvedAssets(bytes32)", [key]);
   const result = await chainreader.readTx({
@@ -196,11 +200,15 @@ export const checkOnchainLocalAsset = async (
   let canonicalKey: string;
   const canonicalId = utils.hexlify(canonizeTokenId(adoptedToCanonical));
   {
-    const payload = utils.defaultAbiCoder.encode(
-      ["tuple(bytes32 canonicalId,uint32 canonicalDomain)"],
-      [{ canonicalId, canonicalDomain }],
+    const canonicalTokenId = {
+      id: utils.hexlify(canonizeTokenId(canonicalId)),
+      domain: +canonicalDomain,
+    };
+
+    canonicalKey = utils.solidityKeccak256(
+      ["bytes"],
+      [utils.defaultAbiCoder.encode(["bytes32", "uint32"], [canonicalTokenId.id, canonicalTokenId.domain])],
     );
-    canonicalKey = utils.solidityKeccak256(["bytes32"], [payload]);
 
     const encoded = connext.encodeFunctionData("canonicalToAdopted(bytes32)", [canonicalKey]);
     const result = await chainreader.readTx({

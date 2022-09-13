@@ -6,7 +6,7 @@ import {SafeERC20} from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol
 import {IERC20Extended} from "../interfaces/IERC20Extended.sol";
 import {IPriceOracle} from "../interfaces/IPriceOracle.sol";
 
-import {ProposedOwnable} from "../../shared/ProposedOwnable.sol";
+import {ProposedOwnable} from "../../../shared/ProposedOwnable.sol";
 import {PriceOracle} from "./PriceOracle.sol";
 
 interface AggregatorV3Interface {

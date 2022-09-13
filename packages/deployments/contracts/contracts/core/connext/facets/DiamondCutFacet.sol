@@ -45,4 +45,12 @@ contract DiamondCutFacet is IDiamondCut {
     LibDiamond.enforceIsContractOwner();
     LibDiamond.rescindDiamondCut(_diamondCut, _init, _calldata);
   }
+
+  function getAcceptanceTime(
+    FacetCut[] calldata _diamondCut,
+    address _init,
+    bytes calldata _calldata
+  ) external view returns (uint256) {
+    return LibDiamond.acceptanceTime(keccak256(abi.encode(_diamondCut, _init, _calldata)));
+  }
 }

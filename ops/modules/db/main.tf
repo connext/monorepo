@@ -4,7 +4,7 @@ resource "aws_db_instance" "db" {
   identifier = var.identifier
 
   engine            = "postgres"
-  engine_version    = "14.2"
+  engine_version    = "14.3"
   instance_class    = var.instance_class
   allocated_storage = var.allocated_storage
 
@@ -31,6 +31,7 @@ resource "aws_db_instance" "db" {
   backup_window           = "03:00-06:00"
   maintenance_window      = var.maintenance_window
 
+  publicly_accessible = var.publicly_accessible
   //  final_snapshot_identifier = "${var.identifier}-snapshot"
   enabled_cloudwatch_logs_exports = ["postgresql"]
 

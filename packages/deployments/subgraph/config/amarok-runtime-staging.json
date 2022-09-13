@@ -1,26 +1,34 @@
 [
   {
-    "subgraphName": "connext/nxtp-amarok-runtime-staging-rinkeby",
-    "network": "rinkeby",
-    "address": "0x9312a6F77865811b19A34eB2599D505eA0B8041e",
-    "startBlock": 10974443
+    "subgraphName": "connext/runtime-v0-opt-goerli-staging",
+    "network": "optimism-goerli",
+    "source": [
+      {
+        "name": "ConnextHandler",
+        "address": "0x699245C07801f4a4031b821A0f194e00d8c74eC4",
+        "startBlock": 947253
+      },
+      {
+        "name": "Connector",
+        "address": "0x42F5eeb35ce93484b29Fe780F0377559b34Ff52f",
+        "startBlock": 947182
+      }
+    ]
   },
   {
     "subgraphName": "connext/nxtp-amarok-runtime-staging-goerli",
     "network": "goerli",
-    "address": "0xc79f8361e8cAC168a66411242C20c239225E78D4",
-    "startBlock": 7176689
-  },
-  {
-    "subgraphName": "connext/nxtp-amarok-runtime-staging-evmos-testnet",
-    "network": "evmos-testnet",
-    "address": "0x2C4564e73C5A32cBbb8D84eeEaEf8683c18E5595",
-    "startBlock": 2477646
-  },
-  {
-    "subgraphName": "connext/nxtp-amarok-runtime-staging-mumbai",
-    "network": "mumbai",
-    "address": "0xf21Ad79d25d3E2eCAEe99e09c237EfDD83fdAfEB",
-    "startBlock": 27329359
+    "source": [
+      {
+        "name": "ConnextHandler",
+        "address": "0x8F5Ce8D12A6d825F725e465ccAf239953db0d327",
+        "startBlock": 7550413
+      },
+      {
+        "name": "Connector",
+        "address": "0xE40A7Cbdf5F62c9DcfEEC314C746b7b22DeF852E",
+        "startBlock": 7550374
+      }
+    ]
   }
 ]

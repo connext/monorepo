@@ -1,4 +1,4 @@
-import { NxtpError, DestinationTransfer, OriginTransfer } from "@connext/nxtp-utils";
+import { NxtpError, DestinationTransfer, OriginTransfer, OriginMessage, DestinationMessage } from "@connext/nxtp-utils";
 import { BigNumber } from "ethers";
 
 import { XQueryResultParseError } from "../errors";
@@ -192,6 +192,53 @@ export const destinationTransfer = (entity: any): DestinationTransfer => {
           }
         : undefined,
     },
+  };
+};
+
+export const originMessage = (entity: any): OriginMessage => {
+  // Sanity checks.
+  if (!entity) {
+    throw new NxtpError("Subgraph `OriginMessage` entity parser: OriginMessage entity is `undefined`.");
+  }
+  for (const field of ["index", "leaf", "root", "message", "domain", "destinationDomain", "transferId"]) {
+    if (!entity[field]) {
+      throw new NxtpError("Subgraph `OriginMessage` entity parser: Message entity missing required field", {
+        missingField: field,
+        entity,
+      });
+    }
+  }
+
+  return {
+    domain: entity.domain,
+    destinationDomain: entity.destinationDomain,
+    transferId: entity.transferId,
+    index: entity.index,
+    leaf: entity.leaf,
+    root: entity.root,
+    message: entity.message,
+  };
+};
+
+export const destinationMessage = (entity: any): DestinationMessage => {
+  // Sanity checks.
+  if (!entity) {
+    throw new NxtpError("Subgraph `DestinationMessage` entity parser: DestinationMessage entity is `undefined`.");
+  }
+  for (const field of ["leaf", "processed", "returnData", "domain"]) {
+    if (!entity[field]) {
+      throw new NxtpError("Subgraph `DestinationMessage` entity parser: Message entity missing required field", {
+        missingField: field,
+        entity,
+      });
+    }
+  }
+
+  return {
+    domain: entity.domain,
+    leaf: entity.leaf,
+    processed: entity.processed,
+    returnData: entity.returnData,
   };
 };
 

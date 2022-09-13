@@ -7,6 +7,7 @@
   "error ProposedOwnable__renounceOwnership_delayNotElapsed()",
   "error ProposedOwnable__renounceOwnership_invalidProposal()",
   "error ProposedOwnable__renounceOwnership_noProposal()",
+  "event Initialized(uint8)",
   "event OwnershipProposed(address indexed)",
   "event OwnershipTransferred(address indexed,address indexed)",
   "event TokenDeployed(uint32 indexed,bytes32 indexed,address indexed)",

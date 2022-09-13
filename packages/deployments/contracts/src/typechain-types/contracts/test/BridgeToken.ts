@@ -29,7 +29,6 @@ import type {
 
 export interface BridgeTokenInterface extends utils.Interface {
   functions: {
-    "VERSION()": FunctionFragment;
     "_PERMIT_TYPEHASH()": FunctionFragment;
     "allowance(address,address)": FunctionFragment;
     "approve(address,uint256)": FunctionFragment;
@@ -58,7 +57,6 @@ export interface BridgeTokenInterface extends utils.Interface {
 
   getFunction(
     nameOrSignatureOrTopic:
-      | "VERSION"
       | "_PERMIT_TYPEHASH"
       | "allowance"
       | "approve"
@@ -85,7 +83,6 @@ export interface BridgeTokenInterface extends utils.Interface {
       | "transferOwnership"
   ): FunctionFragment;
 
-  encodeFunctionData(functionFragment: "VERSION", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "_PERMIT_TYPEHASH",
     values?: undefined
@@ -187,7 +184,6 @@ export interface BridgeTokenInterface extends utils.Interface {
     values: [PromiseOrValue<string>]
   ): string;
 
-  decodeFunctionResult(functionFragment: "VERSION", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "_PERMIT_TYPEHASH",
     data: BytesLike
@@ -245,12 +241,14 @@ export interface BridgeTokenInterface extends utils.Interface {
 
   events: {
     "Approval(address,address,uint256)": EventFragment;
+    "Initialized(uint8)": EventFragment;
     "OwnershipTransferred(address,address)": EventFragment;
     "Transfer(address,address,uint256)": EventFragment;
     "UpdateDetails(string,string,uint8)": EventFragment;
   };
 
   getEvent(nameOrSignatureOrTopic: "Approval"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "Initialized"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "OwnershipTransferred"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "Transfer"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "UpdateDetails"): EventFragment;
@@ -267,6 +265,13 @@ export type ApprovalEvent = TypedEvent<
 >;
 
 export type ApprovalEventFilter = TypedEventFilter<ApprovalEvent>;
+
+export interface InitializedEventObject {
+  version: number;
+}
+export type InitializedEvent = TypedEvent<[number], InitializedEventObject>;
+
+export type InitializedEventFilter = TypedEventFilter<InitializedEvent>;
 
 export interface OwnershipTransferredEventObject {
   previousOwner: string;
@@ -331,8 +336,6 @@ export interface BridgeToken extends BaseContract {
   removeListener: OnEvent<this>;
 
   functions: {
-    VERSION(overrides?: CallOverrides): Promise<[number]>;
-
     _PERMIT_TYPEHASH(overrides?: CallOverrides): Promise<[string]>;
 
     allowance(
@@ -444,8 +447,6 @@ export interface BridgeToken extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
   };
-
-  VERSION(overrides?: CallOverrides): Promise<number>;
 
   _PERMIT_TYPEHASH(overrides?: CallOverrides): Promise<string>;
 
@@ -559,8 +560,6 @@ export interface BridgeToken extends BaseContract {
   ): Promise<ContractTransaction>;
 
   callStatic: {
-    VERSION(overrides?: CallOverrides): Promise<number>;
-
     _PERMIT_TYPEHASH(overrides?: CallOverrides): Promise<string>;
 
     allowance(
@@ -681,6 +680,9 @@ export interface BridgeToken extends BaseContract {
       value?: null
     ): ApprovalEventFilter;
 
+    "Initialized(uint8)"(version?: null): InitializedEventFilter;
+    Initialized(version?: null): InitializedEventFilter;
+
     "OwnershipTransferred(address,address)"(
       previousOwner?: PromiseOrValue<string> | null,
       newOwner?: PromiseOrValue<string> | null
@@ -714,8 +716,6 @@ export interface BridgeToken extends BaseContract {
   };
 
   estimateGas: {
-    VERSION(overrides?: CallOverrides): Promise<BigNumber>;
-
     _PERMIT_TYPEHASH(overrides?: CallOverrides): Promise<BigNumber>;
 
     allowance(
@@ -829,8 +829,6 @@ export interface BridgeToken extends BaseContract {
   };
 
   populateTransaction: {
-    VERSION(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
     _PERMIT_TYPEHASH(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     allowance(

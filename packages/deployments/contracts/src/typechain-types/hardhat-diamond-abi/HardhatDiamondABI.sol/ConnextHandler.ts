@@ -242,6 +242,7 @@ export interface ConnextHandlerInterface extends utils.Interface {
     "sponsorVault()": FunctionFragment;
     "xcall(((address,bytes,uint32,uint32,address,address,bool,bool,address,uint256,uint256,uint256),address,uint256,uint256))": FunctionFragment;
     "diamondCut((address,uint8,bytes4[])[],address,bytes)": FunctionFragment;
+    "getAcceptanceTime((address,uint8,bytes4[])[],address,bytes)": FunctionFragment;
     "proposeDiamondCut((address,uint8,bytes4[])[],address,bytes)": FunctionFragment;
     "rescindDiamondCut((address,uint8,bytes4[])[],address,bytes)": FunctionFragment;
     "facetAddress(bytes4)": FunctionFragment;
@@ -368,6 +369,7 @@ export interface ConnextHandlerInterface extends utils.Interface {
       | "sponsorVault"
       | "xcall"
       | "diamondCut"
+      | "getAcceptanceTime"
       | "proposeDiamondCut"
       | "rescindDiamondCut"
       | "facetAddress"
@@ -593,6 +595,14 @@ export interface ConnextHandlerInterface extends utils.Interface {
   ): string;
   encodeFunctionData(
     functionFragment: "diamondCut",
+    values: [
+      IDiamondCut.FacetCutStruct[],
+      PromiseOrValue<string>,
+      PromiseOrValue<BytesLike>
+    ]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "getAcceptanceTime",
     values: [
       IDiamondCut.FacetCutStruct[],
       PromiseOrValue<string>,
@@ -1150,6 +1160,10 @@ export interface ConnextHandlerInterface extends utils.Interface {
   decodeFunctionResult(functionFragment: "xcall", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "diamondCut", data: BytesLike): Result;
   decodeFunctionResult(
+    functionFragment: "getAcceptanceTime",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
     functionFragment: "proposeDiamondCut",
     data: BytesLike
   ): Result;
@@ -1471,12 +1485,12 @@ export interface ConnextHandlerInterface extends utils.Interface {
     "SequencerRemoved(address,address)": EventFragment;
     "SponsorVaultUpdated(address,address,address)": EventFragment;
     "TransferRelayerFeesUpdated(bytes32,uint256,address)": EventFragment;
-    "XCalled(bytes32,uint256,tuple,address,uint256,address)": EventFragment;
+    "XCalled(bytes32,uint256,bytes32,tuple,address,uint256,address)": EventFragment;
     "DiamondCut(tuple[],address,bytes)": EventFragment;
     "DiamondCutProposed(tuple[],address,bytes,uint256)": EventFragment;
     "DiamondCutRescinded(tuple[],address,bytes)": EventFragment;
     "BridgeRouterUpdated(address,address,address)": EventFragment;
-    "Reconciled(bytes32,address[],address,uint256,address)": EventFragment;
+    "Reconciled(bytes32,uint32,address[],address,uint256,address)": EventFragment;
     "AavePortalRepayment(bytes32,address,uint256,uint256,address)": EventFragment;
     "AssetWhitelistRemovalProposed(uint256)": EventFragment;
     "AssetWhitelistRemoved(bool)": EventFragment;
@@ -1744,13 +1758,14 @@ export type TransferRelayerFeesUpdatedEventFilter =
 export interface XCalledEventObject {
   transferId: string;
   nonce: BigNumber;
+  messageHash: string;
   xcallArgs: XCallArgsStructOutput;
   bridgedAsset: string;
   bridgedAmount: BigNumber;
   caller: string;
 }
 export type XCalledEvent = TypedEvent<
-  [string, BigNumber, XCallArgsStructOutput, string, BigNumber, string],
+  [string, BigNumber, string, XCallArgsStructOutput, string, BigNumber, string],
   XCalledEventObject
 >;
 
@@ -1810,13 +1825,14 @@ export type BridgeRouterUpdatedEventFilter =
 
 export interface ReconciledEventObject {
   transferId: string;
+  originDomain: number;
   routers: string[];
   asset: string;
   amount: BigNumber;
   caller: string;
 }
 export type ReconciledEvent = TypedEvent<
-  [string, string[], string, BigNumber, string],
+  [string, number, string[], string, BigNumber, string],
   ReconciledEventObject
 >;
 
@@ -2306,6 +2322,13 @@ export interface ConnextHandler extends BaseContract {
       _calldata: PromiseOrValue<BytesLike>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
+
+    getAcceptanceTime(
+      _diamondCut: IDiamondCut.FacetCutStruct[],
+      _init: PromiseOrValue<string>,
+      _calldata: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides
+    ): Promise<[BigNumber]>;
 
     proposeDiamondCut(
       _diamondCut: IDiamondCut.FacetCutStruct[],
@@ -2935,6 +2958,13 @@ export interface ConnextHandler extends BaseContract {
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
+  getAcceptanceTime(
+    _diamondCut: IDiamondCut.FacetCutStruct[],
+    _init: PromiseOrValue<string>,
+    _calldata: PromiseOrValue<BytesLike>,
+    overrides?: CallOverrides
+  ): Promise<BigNumber>;
+
   proposeDiamondCut(
     _diamondCut: IDiamondCut.FacetCutStruct[],
     _init: PromiseOrValue<string>,
@@ -3552,6 +3582,13 @@ export interface ConnextHandler extends BaseContract {
       overrides?: CallOverrides
     ): Promise<void>;
 
+    getAcceptanceTime(
+      _diamondCut: IDiamondCut.FacetCutStruct[],
+      _init: PromiseOrValue<string>,
+      _calldata: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
     proposeDiamondCut(
       _diamondCut: IDiamondCut.FacetCutStruct[],
       _init: PromiseOrValue<string>,
@@ -4157,9 +4194,10 @@ export interface ConnextHandler extends BaseContract {
       caller?: null
     ): TransferRelayerFeesUpdatedEventFilter;
 
-    "XCalled(bytes32,uint256,tuple,address,uint256,address)"(
+    "XCalled(bytes32,uint256,bytes32,tuple,address,uint256,address)"(
       transferId?: PromiseOrValue<BytesLike> | null,
       nonce?: PromiseOrValue<BigNumberish> | null,
+      messageHash?: PromiseOrValue<BytesLike> | null,
       xcallArgs?: null,
       bridgedAsset?: null,
       bridgedAmount?: null,
@@ -4168,6 +4206,7 @@ export interface ConnextHandler extends BaseContract {
     XCalled(
       transferId?: PromiseOrValue<BytesLike> | null,
       nonce?: PromiseOrValue<BigNumberish> | null,
+      messageHash?: PromiseOrValue<BytesLike> | null,
       xcallArgs?: null,
       bridgedAsset?: null,
       bridgedAmount?: null,
@@ -4220,8 +4259,9 @@ export interface ConnextHandler extends BaseContract {
       caller?: null
     ): BridgeRouterUpdatedEventFilter;
 
-    "Reconciled(bytes32,address[],address,uint256,address)"(
+    "Reconciled(bytes32,uint32,address[],address,uint256,address)"(
       transferId?: PromiseOrValue<BytesLike> | null,
+      originDomain?: null,
       routers?: null,
       asset?: null,
       amount?: null,
@@ -4229,6 +4269,7 @@ export interface ConnextHandler extends BaseContract {
     ): ReconciledEventFilter;
     Reconciled(
       transferId?: PromiseOrValue<BytesLike> | null,
+      originDomain?: null,
       routers?: null,
       asset?: null,
       amount?: null,
@@ -4627,6 +4668,13 @@ export interface ConnextHandler extends BaseContract {
       _init: PromiseOrValue<string>,
       _calldata: PromiseOrValue<BytesLike>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
+
+    getAcceptanceTime(
+      _diamondCut: IDiamondCut.FacetCutStruct[],
+      _init: PromiseOrValue<string>,
+      _calldata: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides
     ): Promise<BigNumber>;
 
     proposeDiamondCut(
@@ -5250,6 +5298,13 @@ export interface ConnextHandler extends BaseContract {
       _init: PromiseOrValue<string>,
       _calldata: PromiseOrValue<BytesLike>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
+    getAcceptanceTime(
+      _diamondCut: IDiamondCut.FacetCutStruct[],
+      _init: PromiseOrValue<string>,
+      _calldata: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
     proposeDiamondCut(

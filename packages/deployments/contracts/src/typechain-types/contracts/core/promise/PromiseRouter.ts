@@ -252,6 +252,7 @@ export interface PromiseRouterInterface extends utils.Interface {
   events: {
     "CallbackExecuted(bytes32,bool,address)": EventFragment;
     "CallbackFeeAdded(bytes32,uint256,uint256,address)": EventFragment;
+    "Initialized(uint8)": EventFragment;
     "OwnershipProposed(address)": EventFragment;
     "OwnershipTransferred(address,address)": EventFragment;
     "Receive(uint64,uint32,bytes32,address,bool,bytes,bytes)": EventFragment;
@@ -262,6 +263,7 @@ export interface PromiseRouterInterface extends utils.Interface {
 
   getEvent(nameOrSignatureOrTopic: "CallbackExecuted"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "CallbackFeeAdded"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "Initialized"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "OwnershipProposed"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "OwnershipTransferred"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "Receive"): EventFragment;
@@ -296,6 +298,13 @@ export type CallbackFeeAddedEvent = TypedEvent<
 
 export type CallbackFeeAddedEventFilter =
   TypedEventFilter<CallbackFeeAddedEvent>;
+
+export interface InitializedEventObject {
+  version: number;
+}
+export type InitializedEvent = TypedEvent<[number], InitializedEventObject>;
+
+export type InitializedEventFilter = TypedEventFilter<InitializedEvent>;
 
 export interface OwnershipProposedEventObject {
   proposedOwner: string;
@@ -741,6 +750,9 @@ export interface PromiseRouter extends BaseContract {
       totalFee?: null,
       caller?: null
     ): CallbackFeeAddedEventFilter;
+
+    "Initialized(uint8)"(version?: null): InitializedEventFilter;
+    Initialized(version?: null): InitializedEventFilter;
 
     "OwnershipProposed(address)"(
       proposedOwner?: PromiseOrValue<string> | null

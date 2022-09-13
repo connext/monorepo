@@ -3,8 +3,8 @@ pragma solidity 0.8.15;
 
 import {ERC1967Proxy} from "@openzeppelin/contracts/proxy/ERC1967/ERC1967Proxy.sol";
 
-import {XAppConnectionManager} from "../contracts/nomad-core/contracts/XAppConnectionManager.sol";
-import {TypeCasts} from "../contracts/nomad-core/libs/TypeCasts.sol";
+import {IConnectorManager} from "../contracts/messaging/interfaces/IConnectorManager.sol";
+import {TypeCasts} from "../contracts/shared/libraries/TypeCasts.sol";
 
 import {TokenId} from "../contracts/core/connext/libraries/LibConnextStorage.sol";
 
@@ -59,6 +59,7 @@ contract ConnextTest is ForgeHelper, Deployer {
   event XCalled(
     bytes32 indexed transferId,
     uint256 indexed nonce,
+    bytes32 indexed messageHash,
     XCallArgs xcallArgs,
     address bridgedAsset,
     uint256 bridgedAmount,
@@ -74,7 +75,14 @@ contract ConnextTest is ForgeHelper, Deployer {
     address caller
   );
 
-  event Reconciled(bytes32 indexed transferId, address[] routers, address asset, uint256 amount, address caller);
+  event Reconciled(
+    bytes32 indexed transferId,
+    uint32 originDomain,
+    address[] routers,
+    address asset,
+    uint256 amount,
+    address caller
+  );
 
   event TransferRelayerFeesUpdated(bytes32 indexed transferId, uint256 relayerFee, address caller);
 
@@ -106,9 +114,9 @@ contract ConnextTest is ForgeHelper, Deployer {
   address _destinationAdopted;
   address _destinationLp; // deployed IFF pool init-d
 
-  // ============ XAppConnectionManager
-  XAppConnectionManager _originManager;
-  XAppConnectionManager _destinationManager;
+  // ============ IConnectorManager
+  IConnectorManager _originManager;
+  IConnectorManager _destinationManager;
 
   // ============ TokenRegistry
   TokenRegistry _originRegistry;
@@ -152,13 +160,10 @@ contract ConnextTest is ForgeHelper, Deployer {
     // Deploy mock home
     MockHome originHome = new MockHome(_origin);
     MockHome destinationHome = new MockHome(_destination);
-    // Deploy origin XAppConnectionManager
-    _originManager = new XAppConnectionManager();
-    // Deploy destination XAppConnectionManager
-    _destinationManager = new XAppConnectionManager();
-    // set homes
-    _originManager.setHome(address(originHome));
-    _destinationManager.setHome(address(destinationHome));
+    // Deploy origin IConnectorManager
+    _originManager = new MockXAppConnectionManager(originHome);
+    // Deploy destination IConnectorManager
+    _destinationManager = new MockXAppConnectionManager(destinationHome);
 
     // Deploy token beacon
     address beacon = address(new TestERC20("Test Token", "TEST"));
@@ -183,8 +188,8 @@ contract ConnextTest is ForgeHelper, Deployer {
     _originBridgeRouter = address(new MockBridgeRouter());
 
     // set this to be a replica so we can call `handle` directly on routers
-    _destinationManager.ownerEnrollReplica(address(this), _origin);
-    _originManager.ownerEnrollReplica(address(this), _destination);
+    MockXAppConnectionManager(address(_destinationManager)).enrollInbox(address(this));
+    MockXAppConnectionManager(address(_originManager)).enrollInbox(address(this));
   }
 
   function utils_deployPromiseRouter() public {
@@ -444,7 +449,15 @@ contract ConnextTest is ForgeHelper, Deployer {
 
     // Expect an event
     vm.expectEmit(true, true, true, true);
-    emit XCalled(transferId, nonce, _args, _bridged, _bridgedAmt, address(this));
+    emit XCalled(
+      transferId,
+      nonce,
+      MockBridgeRouter(_originBridgeRouter).MESSAGE_HASH(),
+      _args,
+      _bridged,
+      _bridgedAmt,
+      address(this)
+    );
 
     // Make call
     bytes32 ret = _originConnext.xcall{value: _args.params.relayerFee + _args.params.callbackFee}(_args);
@@ -627,7 +640,7 @@ contract ConnextTest is ForgeHelper, Deployer {
     uint256 debited = isFast ? (utils_getFastTransferAmount(args.amount)) / pathLen : 0;
     address[] memory stored = _destinationConnext.routedTransfers(transferId);
     if (isFast) {
-      for (uint256 i; i < pathLen - 1; i++) {
+      for (uint256 i; i <= pathLen - 1; i++) {
         assertEq(stored[i], args.routers[i]);
         assertEq(end.liquidity[i], usesPortals ? initial.liquidity[i] : initial.liquidity[i] - debited);
       }
@@ -704,7 +717,7 @@ contract ConnextTest is ForgeHelper, Deployer {
 
     // expect emit
     vm.expectEmit(true, true, true, true);
-    emit Reconciled(transferId, routers, _destinationLocal, bridgedAmt, _destinationBridgeRouter);
+    emit Reconciled(transferId, params.originDomain, routers, _destinationLocal, bridgedAmt, _destinationBridgeRouter);
 
     vm.prank(_destinationBridgeRouter);
     _destinationConnext.onReceive(
@@ -734,6 +747,31 @@ contract ConnextTest is ForgeHelper, Deployer {
   }
 
   // ============ Testing scenarios ============
+  // you should be able to create a 0-value transfer
+  function test_Connext__zeroValueTransferShouldWork() public {
+    /// 0. setup contracts
+    utils_setupAssets(_origin, true);
+
+    // 1. `xcall` on the origin
+    XCallArgs memory xcall = XCallArgs(utils_createCallParams(_destination), _originLocal, 0, 0);
+    bytes32 transferId = utils_xcallAndAssert(xcall, _originLocal, 0);
+
+    // 2. call `execute` on the destination
+    ExecuteArgs memory execute = utils_createExecuteArgs(xcall.params, 1, transferId, 0);
+    utils_executeAndAssert(execute, transferId, 0);
+
+    // 3. call `handle` on the destination
+    utils_reconcileAndAssert(
+      transferId,
+      xcall.transactingAmount,
+      xcall.params.to,
+      execute.routers,
+      xcall.params,
+      0,
+      address(this)
+    );
+  }
+
   // you should be able to bridge tokens (local == adopted)
   function test_Connext__bridgingTokensShouldWorkFastNoSwap() public {
     /// 0. setup contracts
