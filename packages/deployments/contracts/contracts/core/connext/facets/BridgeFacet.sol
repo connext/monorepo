@@ -63,9 +63,11 @@ contract BridgeFacet is BaseConnextFacet {
    * @notice Emitted when `xcall` is called on the origin domain
    * @param transferId - The unique identifier of the crosschain transfer.
    * @param nonce - The bridge nonce of the transfer on the origin domain.
-   * @param xcallArgs - The `XCallArgs` provided to the function.
+   * @param params - The `CallParams` provided to the function.
+   * @param asset - The asset you sent into xcall
    * @param bridgedAsset - The local (mad) asset being bridged. Could be the same as the asset (adopted
    * asset), or may be different (indicating the asset was swapped for this bridgedAsset).
+   * @param amount - The amount sent into xcall (preswap)
    * @param bridgedAmount - The amount of the bridgedAsset being sent, after AMM swap from adopted asset if it was
    * necessary.
    * @param caller - The account that called the function.
@@ -74,8 +76,10 @@ contract BridgeFacet is BaseConnextFacet {
     bytes32 indexed transferId,
     uint256 indexed nonce,
     bytes32 indexed messageHash,
-    XCallArgs xcallArgs,
+    CallParams params,
+    address asset,
     address bridgedAsset,
+    uint256 amount,
     uint256 bridgedAmount,
     address caller
   );
@@ -214,23 +218,7 @@ contract BridgeFacet is BaseConnextFacet {
 
   // ============ Public methods ==============
 
-  /**
-   * @notice Initiates a cross-chain transfer of funds, calldata, and/or various named properties using the nomad
-   * network.
-   *
-   * @dev For ERC20 transfers, this contract must have approval to transfer the input (transacting) assets. The adopted
-   * assets will be swapped for their local nomad asset counterparts (i.e. bridgeable tokens) via the configured AMM if
-   * necessary. In the event that the adopted assets *are* local nomad assets, no swap is needed. The local tokens will
-   * then be sent via the bridge router. If the local assets are representational for an asset on another chain, we will
-   * burn the tokens here. If the local assets are canonical (meaning that the adopted<>local asset pairing is native
-   * to this chain), we will custody the tokens here.
-   *
-   * @param _args - The XCallArgs arguments.
-   * @return bytes32 - The transfer ID of the newly created crosschain transfer.
-   */
-  function xcall(XCallArgs calldata _args) external payable nonReentrant whenNotPaused returns (bytes32) {
-    // Sanity checks.
-    bytes32 remoteInstance;
+  function xcall(XCallArgs calldata _args) external payable returns (bytes32) {
     CallParams memory params = CallParams({
       to: _args.params.to,
       callData: _args.params.callData,
@@ -240,117 +228,20 @@ contract BridgeFacet is BaseConnextFacet {
       receiveLocal: false, // always swap into adopted in xcall pass
       slippage: _args.params.slippage
     });
-    {
-      // Not native asset
-      // NOTE: we support using address(0) as an intuitive default if you are sending a 0-value
-      // transfer. in that edgecase, address(0) will not be registered as a supported asset, but should
-      // pass the `isLocalOrigin` check on the TokenRegistry
-      if (_args.asset == address(0) && _args.amount != 0) {
-        revert BridgeFacet__xcall_nativeAssetNotSupported();
-      }
+    return _xcall(params, _args.asset, _args.amount);
+  }
 
-      // Destination domain is supported.
-      // NOTE: This check implicitly also checks that `.params.destinationDomain != s.domain`, because the index
-      // `s.domain` of `s.connextions` should always be `bytes32(0)`.
-      remoteInstance = s.connextions[params.destinationDomain];
-      if (remoteInstance == bytes32(0)) {
-        revert BridgeFacet__xcall_destinationNotSupported();
-      }
-
-      // Recipient defined.
-      if (_args.params.to == address(0)) {
-        revert BridgeFacet__xcall_emptyTo();
-      }
-
-      if (params.slippage > BPS_FEE_DENOMINATOR) {
-        revert BridgeFacet__xcall_invalidSlippage();
-      }
-    }
-
-    bytes32 transferId;
-    uint256 _sNonce;
-    address bridgedAsset;
-    uint256 bridgedAmount;
-    bytes32 messageHash;
-    {
-      // Check that the asset is supported -- can be either adopted or local.
-      TokenId memory canonical;
-
-      // NOTE: above we check that you can only have `address(0)` as a transacting asset when
-      // you are sending 0-amounts. Because 0-amount transfers shortcircuit all checks on
-      // mappings keyed on hash(canonicalId, canonicalDomain), this is safe even when the
-      // address(0) asset is not whitelisted. These values are only used for the `transactionId`
-      // generation
-      if (_args.asset != address(0)) {
-        canonical = s.adoptedToCanonical[_args.asset];
-
-        if (canonical.id == bytes32(0)) {
-          // Here, the asset is *not* the adopted asset. The only other valid option
-          // is for this asset to be the local asset (i.e. transferring madEth on optimism)
-          // NOTE: it *cannot* be the canonical asset. the canonical asset is only used on
-          // the canonical domain, where it is *also* the adopted asset.
-          if (s.tokenRegistry.isLocalOrigin(_args.asset)) {
-            // revert, using a token of local origin that is not registered as adopted
-            revert BridgeFacet__xcall_notSupportedAsset();
-          }
-
-          (uint32 canonicalDomain, bytes32 canonicalId) = s.tokenRegistry.getTokenId(_args.asset);
-          canonical = TokenId(canonicalDomain, canonicalId);
-        }
-      }
-
-      if (_args.amount > 0) {
-        // Transfer funds of transacting asset to the contract from the user.
-        AssetLogic.transferAssetToContract(_args.asset, _args.amount);
-
-        // Swap to the local asset from adopted if applicable.
-        (bridgedAmount, bridgedAsset) = AssetLogic.swapToLocalAssetIfNeeded(
-          canonical,
-          _args.asset,
-          _args.amount,
-          params.slippage
-        );
-
-        // Approve bridge router
-        SafeERC20.safeApprove(IERC20(bridgedAsset), address(s.bridgeRouter), 0);
-        SafeERC20.safeIncreaseAllowance(IERC20(bridgedAsset), address(s.bridgeRouter), bridgedAmount);
-      } else {
-        // Get the bridged asset so you can emit it properly within the event
-        bridgedAsset = _args.asset == address(0)
-          ? address(0)
-          : s.tokenRegistry.getLocalAddress(canonical.domain, canonical.id);
-      }
-
-      // Get the normalized amount in (amount sent in by user in 18 decimals)
-      uint256 normalized = _args.amount == 0
-        ? 0
-        : AssetLogic.normalizeDecimals(ERC20(_args.asset).decimals(), uint8(18), _args.amount);
-
-      // Calculate the transfer id
-      transferId = _getTransferId(params, canonical, bridgedAmount, normalized);
-      _sNonce = s.nonce++;
-    }
-
-    {
-      // Store the relayer fee
-      // NOTE: this has to be done *after* transferring in + swapping assets because
-      // the transfer id uses the amount that is bridged (i.e. amount in local asset)
-      s.relayerFees[transferId] += msg.value;
-
-      // Send message
-      messageHash = s.bridgeRouter.sendToHook(
-        bridgedAsset,
-        bridgedAmount,
-        params.destinationDomain,
-        remoteInstance,
-        abi.encode(transferId)
-      );
-    }
-
-    // emit event
-    emit XCalled(transferId, _sNonce, messageHash, _args, bridgedAsset, bridgedAmount, msg.sender);
-
-    return transferId;
+  function xcallIntoBridgeAsset(XCallArgs calldata _args) external payable returns (bytes32) {
+    CallParams memory params = CallParams({
+      to: _args.params.to,
+      callData: _args.params.callData,
+      originDomain: s.domain,
+      destinationDomain: _args.params.destinationDomain,
+      agent: _args.params.agent,
+      receiveLocal: true, // always swap into adopted in xcall pass
+      slippage: _args.params.slippage
+    });
+    return _xcall(params, _args.asset, _args.amount);
   }
 
   /**
@@ -406,6 +297,140 @@ contract BridgeFacet is BaseConnextFacet {
   }
 
   // ============ Private Functions ============
+
+  /**
+   * @notice Initiates a cross-chain transfer of funds, calldata, and/or various named properties using the nomad
+   * network.
+   *
+   * @dev For ERC20 transfers, this contract must have approval to transfer the input (transacting) assets. The adopted
+   * assets will be swapped for their local nomad asset counterparts (i.e. bridgeable tokens) via the configured AMM if
+   * necessary. In the event that the adopted assets *are* local nomad assets, no swap is needed. The local tokens will
+   * then be sent via the bridge router. If the local assets are representational for an asset on another chain, we will
+   * burn the tokens here. If the local assets are canonical (meaning that the adopted<>local asset pairing is native
+   * to this chain), we will custody the tokens here.
+   *
+   * @param _params - The CallParams arguments.
+   * @return bytes32 - The transfer ID of the newly created crosschain transfer.
+   */
+  function _xcall(
+    CallParams memory _params,
+    address _asset,
+    uint256 _amount
+  ) internal nonReentrant whenNotPaused returns (bytes32) {
+    // Sanity checks.
+    bytes32 remoteInstance;
+    {
+      // Not native asset
+      // NOTE: we support using address(0) as an intuitive default if you are sending a 0-value
+      // transfer. in that edgecase, address(0) will not be registered as a supported asset, but should
+      // pass the `isLocalOrigin` check on the TokenRegistry
+      if (_asset == address(0) && _amount != 0) {
+        revert BridgeFacet__xcall_nativeAssetNotSupported();
+      }
+
+      // Destination domain is supported.
+      // NOTE: This check implicitly also checks that `.params.destinationDomain != s.domain`, because the index
+      // `s.domain` of `s.connextions` should always be `bytes32(0)`.
+      remoteInstance = s.connextions[_params.destinationDomain];
+      if (remoteInstance == bytes32(0)) {
+        revert BridgeFacet__xcall_destinationNotSupported();
+      }
+
+      // Recipient defined.
+      if (_params.to == address(0)) {
+        revert BridgeFacet__xcall_emptyTo();
+      }
+
+      if (_params.slippage > BPS_FEE_DENOMINATOR) {
+        revert BridgeFacet__xcall_invalidSlippage();
+      }
+    }
+
+    bytes32 transferId;
+    uint256 _sNonce;
+    address bridgedAsset;
+    uint256 bridgedAmount;
+    bytes32 messageHash;
+    {
+      // Check that the asset is supported -- can be either adopted or local.
+      TokenId memory canonical;
+
+      // NOTE: above we check that you can only have `address(0)` as a transacting asset when
+      // you are sending 0-amounts. Because 0-amount transfers shortcircuit all checks on
+      // mappings keyed on hash(canonicalId, canonicalDomain), this is safe even when the
+      // address(0) asset is not whitelisted. These values are only used for the `transactionId`
+      // generation
+      if (_asset != address(0)) {
+        canonical = s.adoptedToCanonical[_asset];
+
+        if (canonical.id == bytes32(0)) {
+          // Here, the asset is *not* the adopted asset. The only other valid option
+          // is for this asset to be the local asset (i.e. transferring madEth on optimism)
+          // NOTE: it *cannot* be the canonical asset. the canonical asset is only used on
+          // the canonical domain, where it is *also* the adopted asset.
+          if (s.tokenRegistry.isLocalOrigin(_asset)) {
+            // revert, using a token of local origin that is not registered as adopted
+            revert BridgeFacet__xcall_notSupportedAsset();
+          }
+
+          (uint32 canonicalDomain, bytes32 canonicalId) = s.tokenRegistry.getTokenId(_asset);
+          canonical = TokenId(canonicalDomain, canonicalId);
+        }
+      }
+
+      if (_amount > 0) {
+        // Transfer funds of transacting asset to the contract from the user.
+        AssetLogic.transferAssetToContract(_asset, _amount);
+
+        // Swap to the local asset from adopted if applicable.
+        (bridgedAmount, bridgedAsset) = AssetLogic.swapToLocalAssetIfNeeded(
+          canonical,
+          _asset,
+          _amount,
+          _params.slippage
+        );
+
+        // Approve bridge router
+        SafeERC20.safeApprove(IERC20(bridgedAsset), address(s.bridgeRouter), 0);
+        SafeERC20.safeIncreaseAllowance(IERC20(bridgedAsset), address(s.bridgeRouter), bridgedAmount);
+      } else {
+        // Get the bridged asset so you can emit it properly within the event
+        bridgedAsset = _asset == address(0)
+          ? address(0)
+          : s.tokenRegistry.getLocalAddress(canonical.domain, canonical.id);
+      }
+
+      // Get the normalized amount in (amount sent in by user in 18 decimals)
+      uint256 normalized = _amount == 0
+        ? 0
+        : AssetLogic.normalizeDecimals(ERC20(_asset).decimals(), uint8(18), _amount);
+
+      // Calculate the transfer id
+      transferId = _getTransferId(_params, canonical, bridgedAmount, normalized);
+      _sNonce = s.nonce++;
+    }
+
+    {
+      // Store the relayer fee
+      // NOTE: this has to be done *after* transferring in + swapping assets because
+      // the transfer id uses the amount that is bridged (i.e. amount in local asset)
+      s.relayerFees[transferId] += msg.value;
+
+      // Send message
+      messageHash = s.bridgeRouter.sendToHook(
+        bridgedAsset,
+        bridgedAmount,
+        _params.destinationDomain,
+        remoteInstance,
+        abi.encode(transferId)
+      );
+    }
+
+    // emit event
+    emit XCalled(transferId, _sNonce, messageHash, _params, _asset, bridgedAsset, _amount, bridgedAmount, msg.sender);
+
+    return transferId;
+  }
 
   /**
    * @notice Holds the logic to recover the signer from an encoded payload.
