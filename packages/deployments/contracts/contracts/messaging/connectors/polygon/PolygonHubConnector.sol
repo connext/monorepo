@@ -20,9 +20,7 @@ contract PolygonHubConnector is HubConnector, FxBaseRootTunnel {
   )
     HubConnector(_domain, _mirrorDomain, _amb, _rootManager, _mirrorConnector, _mirrorGas)
     FxBaseRootTunnel(_checkPointManager, _amb)
-  {
-    setFxChildTunnel(_mirrorConnector);
-  }
+  {}
 
   // ============ Private fns ============
 

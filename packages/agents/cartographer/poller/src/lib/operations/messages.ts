@@ -25,6 +25,7 @@ export const retrieveOriginMessages = async () => {
         leaf: _message.leaf,
         originDomain: _message.domain,
         destinationDomain: _message.destinationDomain,
+        transferId: _message.transferId,
         origin: { index: _message.index, root: _message.root, message: _message.message },
       };
     });
@@ -49,7 +50,7 @@ export const updateMessages = async () => {
   const messageLeavesByDomain: Map<string, string[]> = new Map();
   for (const pendingMessage of pendingMessages) {
     if (messageLeavesByDomain.has(pendingMessage.destinationDomain)) {
-      messageLeavesByDomain.get(pendingMessage.destinationDomain);
+      messageLeavesByDomain.get(pendingMessage.destinationDomain)?.push(pendingMessage.leaf);
     } else {
       messageLeavesByDomain.set(pendingMessage.destinationDomain, [pendingMessage.leaf]);
     }

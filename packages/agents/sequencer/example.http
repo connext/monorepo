@@ -1,6 +1,6 @@
 @sequencerUrl = http://localhost:8081
-@sequencerUrl = https://sequencer-publisher.testnet.staging.connext.ninja
-@adminToken = foo
+@sequencerUrl = https://sequencer.testnet.connext.ninja
+@adminToken = blahblah
 
 ### PING
 GET {{sequencerUrl}}/ping

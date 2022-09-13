@@ -4,6 +4,7 @@ export const XMessageSchema = Type.Object({
   leaf: Type.String(),
   originDomain: Type.String(),
   destinationDomain: Type.String(),
+  transferId: Type.String(),
   origin: Type.Object({
     index: Type.Number({ minimum: 0 }),
     root: Type.String(),
@@ -20,6 +21,7 @@ export type XMessage = Static<typeof XMessageSchema>;
 
 export const OriginMessageSchema = Type.Object({
   domain: Type.String(),
+  transferId: Type.String(),
   destinationDomain: Type.String(),
   leaf: Type.String(),
   index: Type.Number({ minimum: 0 }),
