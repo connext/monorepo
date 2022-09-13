@@ -236,7 +236,10 @@ export const execute = async (params: OriginTransfer, _requestContext: RequestCo
   // Produce the router path signatures for each auction round we want to bid on.
 
   // Make a list of signatures that reflect which auction rounds we want to bid on.
-  const balance = await subgraph.getAssetBalance(destinationDomain, routerAddress, executeLocalAsset);
+  const balance =
+    executeLocalAsset === ethers.constants.AddressZero
+      ? 0
+      : await subgraph.getAssetBalance(destinationDomain, routerAddress, executeLocalAsset);
   const signatures: Record<string, string> = {};
   for (let roundIdx = 1; roundIdx <= config.auctionRoundDepth; roundIdx++) {
     const amountForRound = getAuctionAmount(roundIdx, BigNumber.from(receivingAmount));
