@@ -56,6 +56,11 @@ export default task("set-xapp-manager", "Updates the xapp connection manager")
       const local = localRouterDeployment.address;
       const localRouter = new Contract(local, localRouterAbi, deployer);
 
+      const stored = await localRouter.xAppConnectionManager();
+      if (stored.toLowerCase() === connector.address.toLowerCase()) {
+        console.log(`${connector.address} already xapp connection manager on ${name}`);
+        continue;
+      }
       const tx = await localRouter.setXAppConnectionManager(connector.address);
       console.log(`set connector manager tx`, tx.hash);
       const receipt = await tx.wait();
