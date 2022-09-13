@@ -131,6 +131,43 @@ const _abi = [
     inputs: [
       {
         indexed: true,
+        internalType: "uint32",
+        name: "domain",
+        type: "uint32",
+      },
+      {
+        indexed: true,
+        internalType: "uint32",
+        name: "mirrorDomain",
+        type: "uint32",
+      },
+      {
+        indexed: false,
+        internalType: "address",
+        name: "amb",
+        type: "address",
+      },
+      {
+        indexed: false,
+        internalType: "address",
+        name: "rootManager",
+        type: "address",
+      },
+      {
+        indexed: false,
+        internalType: "address",
+        name: "mirrorConnector",
+        type: "address",
+      },
+    ],
+    name: "NewConnector",
+    type: "event",
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: true,
         internalType: "address",
         name: "proposedOwner",
         type: "address",
