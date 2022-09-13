@@ -78,15 +78,6 @@ interface IConnextHandler is IDiamondLoupe, IDiamondCut {
 
   function bumpTransfer(bytes32 _transferId) external payable;
 
-  function forceReceiveLocal(
-    CallParams calldata _params,
-    uint256 _amount,
-    uint256 _nonce,
-    bytes32 _canonicalId,
-    uint32 _canonicalDomain,
-    address _originSender
-  ) external payable;
-
   // NomadFacet
   function bridgeRouter() external view returns (IBridgeRouter);
 

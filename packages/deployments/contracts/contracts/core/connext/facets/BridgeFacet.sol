@@ -36,7 +36,6 @@ contract BridgeFacet is BaseConnextFacet {
   error BridgeFacet__xcall_destinationNotSupported();
   error BridgeFacet__xcall_emptyTo();
   error BridgeFacet__xcall_notSupportedAsset();
-  error BridgeFacet__xcall_missingAgent();
   error BridgeFacet__xcall_invalidSlippageTol();
   error BridgeFacet__execute_unapprovedSender();
   error BridgeFacet__execute_wrongDomain();
@@ -52,7 +51,6 @@ contract BridgeFacet is BaseConnextFacet {
   error BridgeFacet__handleExecuteTransaction_invalidSponsoredAmount();
   error BridgeFacet__executePortalTransfer_insufficientAmountWithdrawn();
   error BridgeFacet__bumpTransfer_valueIsZero();
-  error BridgeFacet__forceReceiveLocal_invalidSender();
 
   // ============ Properties ============
 
@@ -117,21 +115,6 @@ contract BridgeFacet is BaseConnextFacet {
    * @param caller - The account that called the function
    */
   event TransferRelayerFeesUpdated(bytes32 indexed transferId, uint256 relayerFee, address caller);
-
-  /**
-   * @notice Emitted when a transfer will accept the local asset instead of the
-   * previously specified adopted asset.
-   * @param transferId - The unique identifier of the crosschain transaction
-   * @param canonicalId - The canonical identifier for the local asset
-   * @param canonicalDomain - The canonical domain for the local asset
-   * @param amount - The amount for the transfer
-   */
-  event ForcedReceiveLocal(
-    bytes32 indexed transferId,
-    bytes32 indexed canonicalId,
-    uint32 canonicalDomain,
-    uint256 amount
-  );
 
   /**
    * @notice Emitted when a router used Aave Portal liquidity for fast transfer
@@ -253,7 +236,7 @@ contract BridgeFacet is BaseConnextFacet {
       originDomain: s.domain,
       destinationDomain: _args.params.destinationDomain,
       agent: _args.params.agent,
-      receiveLocal: _args.params.receiveLocal,
+      receiveLocal: false, // always swap into adopted in xcall pass
       destinationMinOut: _args.params.destinationMinOut
     });
     {
@@ -276,12 +259,6 @@ contract BridgeFacet is BaseConnextFacet {
       // Recipient defined.
       if (_args.params.to == address(0)) {
         revert BridgeFacet__xcall_emptyTo();
-      }
-
-      // If the user might be receiving adopted assets on the destination chain, they ought to have a defined agent
-      // so that they can call `forceReceiveLocal` if need be.
-      if (params.agent == address(0) && !params.receiveLocal) {
-        revert BridgeFacet__xcall_missingAgent();
       }
     }
 
@@ -416,39 +393,6 @@ contract BridgeFacet is BaseConnextFacet {
     s.relayerFees[_transferId] += msg.value;
 
     emit TransferRelayerFeesUpdated(_transferId, s.relayerFees[_transferId], msg.sender);
-  }
-
-  /**
-   * @notice A user-specified agent can call this to accept the local asset instead of the
-   * previously specified adopted asset.
-   * @dev Should be called in situations where transfers are facing unfavorable slippage
-   * conditions for extended periods
-   * @param _params - The call params for the transaction
-   * @param _amount - The amount of transferring asset the tx called xcall with
-   * @param _nonce - The nonce for the transfer
-   * @param _canonicalId - The identifier of the canonical asset associated with the transfer
-   * @param _canonicalDomain - The domain of the canonical asset associated with the transfer
-   * @param _originSender - The msg.sender of the origin call
-   */
-  function forceReceiveLocal(
-    CallParams calldata _params,
-    uint256 _amount,
-    uint256 _nonce,
-    bytes32 _canonicalId,
-    uint32 _canonicalDomain,
-    address _originSender
-  ) external nonReentrant {
-    // Enforce caller
-    if (msg.sender != _params.agent) revert BridgeFacet__forceReceiveLocal_invalidSender();
-
-    // Calculate transfer id
-    bytes32 transferId = _calculateTransferId(_params, _amount, _nonce, _canonicalId, _canonicalDomain, _originSender);
-
-    // Store receive local
-    s.receiveLocalOverrides[transferId] = true;
-
-    // Emit event
-    emit ForcedReceiveLocal(transferId, _canonicalId, _canonicalDomain, _amount);
   }
 
   // ============ Private Functions ============
@@ -609,9 +553,6 @@ contract BridgeFacet is BaseConnextFacet {
     if (_args.amount == 0) {
       return (0, _args.local);
     }
-
-    bool localRequested = _args.params.receiveLocal || s.receiveLocalOverrides[_transferId];
-
     uint256 toSwap = _args.amount;
     // If this is a fast liquidity path, we should handle deducting from applicable routers' liquidity.
     // If this is a slow liquidity path, the transfer must have been reconciled (if we've reached this point),
@@ -627,7 +568,11 @@ contract BridgeFacet is BaseConnextFacet {
         // If router does not have enough liquidity, try to use Aave Portals.
         // only one router should be responsible for taking on this credit risk, and it should only
         // deal with transfers expecting adopted assets (to avoid introducing runtime slippage).
-        if (!localRequested && s.routerBalances[_args.routers[0]][_args.local] < toSwap && s.aavePool != address(0)) {
+        if (
+          !_args.params.receiveLocal &&
+          s.routerBalances[_args.routers[0]][_args.local] < toSwap &&
+          s.aavePool != address(0)
+        ) {
           if (!s.routerPermissionInfo.approvedForPortalRouters[_args.routers[0]])
             revert BridgeFacet__execute_notApprovedForPortals();
 
@@ -656,7 +601,7 @@ contract BridgeFacet is BaseConnextFacet {
 
     // if the local asset is specified, or the adopted asset was overridden (i.e. when
     // user facing slippage conditions outside of their boundaries), exit
-    if (localRequested) {
+    if (_args.params.receiveLocal) {
       return (toSwap, _args.local);
     }
 
