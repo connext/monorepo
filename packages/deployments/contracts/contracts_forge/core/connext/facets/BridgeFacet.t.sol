@@ -859,12 +859,6 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
   // FIXME: this should be tested at the integration level (i.e. when we deploy
   // the contracts via Deployer.sol), or on a facet that asserts this
 
-  // fails if recipient `to` not a valid address (i.e. != address(0))
-  function test_BridgeFacet__xcall_failIfNoRecipient() public {
-    _params.to = address(0);
-    helpers_xcallAndAssert(BridgeFacet.BridgeFacet__xcall_emptyToOrRecovery.selector);
-  }
-
   // fails if asset is not supported (i.e. s.adoptedToCanonical[assetId].id == bytes32(0) and using non-local)
   function test_BridgeFacet__xcall_failIfAssetNotSupported() public {
     // setup asset with local != adopted, not on canonical domain

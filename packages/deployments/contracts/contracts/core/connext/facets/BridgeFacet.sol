@@ -14,7 +14,6 @@ import {BaseConnextFacet} from "./BaseConnextFacet.sol";
 
 import {AssetLogic} from "../libraries/AssetLogic.sol";
 import {XCallArgs, ExecuteArgs, CallParams, TokenId, TransferIdInformation} from "../libraries/LibConnextStorage.sol";
-import {LibCrossDomainProperty} from "../libraries/LibCrossDomainProperty.sol";
 
 import {IWeth} from "../interfaces/IWeth.sol";
 import {ITokenRegistry} from "../interfaces/ITokenRegistry.sol";
@@ -754,11 +753,6 @@ contract BridgeFacet is BaseConnextFacet {
     }
 
     emit ExternalCalldataExecuted(_transferId, success, returnData);
-
-    // perform callback
-    if (_params.callback != address(0)) {
-      s.promiseRouter.send(_params.originDomain, _transferId, _params.callback, success, returnData);
-    }
   }
 
   /**
