@@ -73,7 +73,7 @@ export default task("add-connectors", "Add all connectors to the root manager")
 
         // Must either remove before enlisting
         if (stored !== constants.AddressZero || remove) {
-          console.log(`Removing ${name} registered for ${domain}: ${address}`);
+          console.log(`Removing ${name} registered for ${domain}: ${stored}`);
           const tx = await rootManager.removeConnector(domain);
           console.log("remove connector tx submitted:", tx.hash);
           const receipt = await tx.wait();
