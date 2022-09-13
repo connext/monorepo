@@ -37,3 +37,34 @@ export const DestinationMessageSchema = Type.Object({
   returnData: Type.String(),
 });
 export type DestinationMessage = Static<typeof DestinationMessageSchema>;
+
+export const XRootMessageSchema = Type.Object({
+  root: Type.String(),
+  origin: Type.Object({
+    index: Type.Number({ minimum: 0 }),
+    root: Type.String(),
+    message: Type.String(),
+  }),
+  hub: Type.Optional(
+    Type.Object({
+      transactionHash: Type.String(),
+      returnData: Type.String(),
+    }),
+  ),
+});
+
+export const RootMessageSchema = Type.Object({
+  root: Type.String(),
+  chainId: Type.Number(),
+
+  // MessageSent/MessageProcessed Transaction
+  caller: Type.String(),
+  transactionHash: Type.String(),
+  logIndex: Type.Number(),
+  transactionLogIndex: Type.Number(),
+  timestamp: Type.Number(),
+  gasPrice: Type.Number(),
+  gasLimit: Type.Number(),
+  blockNumber: Type.Number(),
+});
+export type RootMessage = Static<typeof RootMessageSchema>;
