@@ -175,7 +175,7 @@ library AssetLogic {
     uint8 _out,
     uint256 _amountIn,
     uint256 _slippage
-  ) internal view returns (uint256) {
+  ) internal pure returns (uint256) {
     // Get the min recieved (in same decimals as _amountIn)
     uint256 min = (_amountIn * (10_000 - _slippage)) / 10_000;
     return normalizeDecimals(_in, _out, min);
@@ -193,13 +193,13 @@ library AssetLogic {
     uint8 _in,
     uint8 _out,
     uint256 _amount
-  ) internal view returns (uint256) {
+  ) internal pure returns (uint256) {
     // Convert this value to the same decimals as _out
     uint256 normalized;
     if (_in > _out) {
-      normalized = _amount * (10 ^ (_out - _in));
+      normalized = _amount * (10**(_out - _in));
     } else {
-      normalized = _amount / (10 ^ (_in - _out));
+      normalized = _amount / (10**(_in - _out));
     }
     return normalized;
   }
