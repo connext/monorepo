@@ -190,17 +190,29 @@ type AggregateRoot @entity {
   root: Bytes!
 }
 
-type RootMessage @entity {
+type RootMessageSent @entity {
   id: ID!
+  root: Bytes
 
-  data: Bytes
-  chainId: BigInt
+  hub: BigInt
+  spoke: BigInt
 
-  # MessageSent/MessageProcessed Transaction
+  # MessageSent Transaction
   caller: Bytes
   transactionHash: Bytes
-  logIndex: BigInt
-  transactionLogIndex: BigInt
+  timestamp: BigInt
+  gasPrice: BigInt
+  gasLimit: BigInt
+  blockNumber: BigInt
+}
+
+type RootMessageProcessed @entity {
+  id: ID!
+  root: Bytes
+
+  # MessageProcessed Transaction
+  caller: Bytes
+  transactionHash: Bytes
   timestamp: BigInt
   gasPrice: BigInt
   gasLimit: BigInt

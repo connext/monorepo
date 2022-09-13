@@ -44,6 +44,9 @@ import {
 
 const DEFAULT_MAX_ROUTERS_PER_TRANSFER = 5;
 
+/// TEMP: TODO add constuctor event
+const HUB_DOMAIN = "1735353714";
+
 /// MARK - Assets
 export function handleAssetAdded(event: AssetAdded): void {
   let assetId = event.params.localAsset.toHex();
@@ -478,7 +481,7 @@ export function handleMessageSent(event: MessageSent): void {
 
   message.chainId = getChainId();
 
-  message.data = event.params.data;
+  message.root = event.params.data;
   message.caller = event.params.caller;
   message.transactionHash = event.transaction.hash;
   message.logIndex = event.logIndex;
@@ -497,8 +500,8 @@ export function handleMessageProcessed(event: MessageProcessed): void {
   }
 
   message.chainId = getChainId();
-  
-  message.data = event.params.data;
+
+  message.root = event.params.data;
   message.caller = event.params.caller;
   message.transactionHash = event.transaction.hash;
   message.logIndex = event.logIndex;
