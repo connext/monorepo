@@ -9,7 +9,7 @@ import {
   getMinimumBidsCountForRound as _getMinimumBidsCountForRound,
   OriginTransferSchema,
 } from "@connext/nxtp-utils";
-import { BigNumber } from "ethers";
+import { BigNumber, ethers } from "ethers";
 import axios, { AxiosResponse } from "axios";
 
 import {
@@ -45,6 +45,10 @@ export const getDestinationLocalAsset = async (
   const {
     adapters: { subgraph },
   } = getContext();
+  // handle address(0) default case
+  if (_originLocalAsset === ethers.constants.AddressZero) {
+    return ethers.constants.AddressZero;
+  }
 
   // get canonical asset from orgin domain.
   const sendingDomainAsset = await subgraph.getAssetByLocal(_originDomain, _originLocalAsset);
