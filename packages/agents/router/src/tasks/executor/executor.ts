@@ -27,7 +27,7 @@ export const makeExecutor = async () => {
     // Make logger instance.
     context.logger = new Logger({
       level: context.config.logLevel,
-      name: "lighthouse",
+      name: "router-executor",
       formatters: {
         level: (label) => {
           return { level: label.toUpperCase() };
