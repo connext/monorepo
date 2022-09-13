@@ -589,9 +589,8 @@ export const getDestinationMessagesByDomainAndLeafQuery = (params: Map<string, s
   let combinedQuery = "";
   for (const domain of params.keys()) {
     const prefix = config.sources[domain].prefix;
-    combinedQuery += `${prefix}_destinationMessages ( where: { leaf_id: [${params.get(
-      domain,
-    )}] }) {${DESTINATION_MESSAGE_ENTITY}}`;
+    const leafs = [...params.get(domain)!.map((leaf) => `"${leaf}"`)];
+    combinedQuery += `${prefix}_destinationMessages ( where: { leaf_in: [${leafs}] }) {${DESTINATION_MESSAGE_ENTITY}}`;
   }
 
   return gql`

@@ -556,7 +556,7 @@ export class SubgraphReader {
     const { parser, execute } = getHelpers();
 
     let destinationMessages: DestinationMessage[] = [];
-    if (!params || params.values.length == 0) {
+    if (!params || params.size === 0) {
       return destinationMessages;
     }
 
