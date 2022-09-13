@@ -37,12 +37,20 @@ contract NomadFacet is BaseConnextFacet, IBridgeHook {
   /**
    * @notice Emitted when `reconciled` is called by the bridge on the destination domain
    * @param transferId - The unique identifier of the crosschain transaction
+   * @param originDomain - The originating domain
    * @param routers - The CallParams.recipient provided, created as indexed parameter
    * @param asset - The asset that was provided by the bridge
    * @param amount - The amount that was provided by the bridge
    * @param caller - The account that called the function
    */
-  event Reconciled(bytes32 indexed transferId, address[] routers, address asset, uint256 amount, address caller);
+  event Reconciled(
+    bytes32 indexed transferId,
+    uint32 originDomain,
+    address[] routers,
+    address asset,
+    uint256 amount,
+    address caller
+  );
 
   /**
    * @notice Emitted when the bridgeRouter variable is updated
@@ -171,6 +179,6 @@ contract NomadFacet is BaseConnextFacet, IBridgeHook {
       s.routerBalances[routers[pathLen - 1]][_localToken] += toSweep;
     }
 
-    emit Reconciled(transferId, routers, _localToken, _amount, msg.sender);
+    emit Reconciled(transferId, info.params.originDomain, routers, _localToken, _amount, msg.sender);
   }
 }
