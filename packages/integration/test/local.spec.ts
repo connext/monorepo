@@ -274,17 +274,31 @@ const getTransferById = async (sdkUtils: NxtpSdkUtils, domain: string, transferI
     attempts: Math.floor(180_000 / SUBG_POLL_PARITY),
     parity: SUBG_POLL_PARITY,
     method: async () => {
-      const dbTransfer = await sdkUtils.getTransferById(transferId);
-      const transfer = convertFromDbTransfer(dbTransfer[0]);
-      if (transfer.destination?.reconcile?.transactionHash) {
-        logger.info("Transfer was reconciled.", requestContext, methodContext, {
-          domain,
-          hash: transfer.destination!.reconcile!.transactionHash,
-        });
-      }
+      try {
+        const dbTransfer = await sdkUtils.getTransferById(transferId);
+        if (dbTransfer.length === 0) {
+          logger.info("No results! Waiting for next loop...");
+          return undefined;
+        }
+        const transfer = convertFromDbTransfer(dbTransfer[0]);
 
-      if (transfer.destination?.execute?.transactionHash) {
-        return transfer;
+        if (transfer.destination?.reconcile?.transactionHash) {
+          logger.info("Transfer was reconciled.", requestContext, methodContext, {
+            domain,
+            hash: transfer.destination!.reconcile!.transactionHash,
+          });
+        }
+
+        if (transfer.destination?.execute?.transactionHash) {
+          logger.info("Transfer was executed.", requestContext, methodContext, {
+            domain,
+            hash: transfer.destination!.reconcile!.transactionHash,
+          });
+          return transfer;
+        }
+      } catch (e: unknown) {
+        console.warn(e);
+        logger.info("Waiting for next loop...");
       }
       return undefined;
     },
