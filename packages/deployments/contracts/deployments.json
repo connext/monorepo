@@ -26650,7 +26650,7 @@
           ]
         },
         "MainnetSpokeConnector": {
-          "address": "0xaBf979F6B6BC504eA342d52cf7a4c37c179aB2b5",
+          "address": "0xCf3FE97cCF7e6a6EfE60019E3022C2bcca09eAfb",
           "abi": [
             {
               "inputs": [
@@ -26862,6 +26862,43 @@
                 }
               ],
               "name": "MirrorGasUpdated",
+              "type": "event"
+            },
+            {
+              "anonymous": false,
+              "inputs": [
+                {
+                  "indexed": true,
+                  "internalType": "uint32",
+                  "name": "domain",
+                  "type": "uint32"
+                },
+                {
+                  "indexed": true,
+                  "internalType": "uint32",
+                  "name": "mirrorDomain",
+                  "type": "uint32"
+                },
+                {
+                  "indexed": false,
+                  "internalType": "address",
+                  "name": "amb",
+                  "type": "address"
+                },
+                {
+                  "indexed": false,
+                  "internalType": "address",
+                  "name": "rootManager",
+                  "type": "address"
+                },
+                {
+                  "indexed": false,
+                  "internalType": "address",
+                  "name": "mirrorConnector",
+                  "type": "address"
+                }
+              ],
+              "name": "NewConnector",
               "type": "event"
             },
             {
@@ -27475,7 +27512,7 @@
           ]
         },
         "MainnetSpokeConnectorSendOutboundRootResolver": {
-          "address": "0xDDB09c1D5B1d7F73D0f9f77906552F1C0e41aA98",
+          "address": "0xBF318Fc1E9fc31BE48c5632a7f70FC3cf3166C33",
           "abi": [
             {
               "inputs": [
@@ -29337,7 +29374,7 @@
           ]
         },
         "OptimismHubConnector": {
-          "address": "0x362eEd8A49Dcc71b9618D7FB01C4aa26b9118157",
+          "address": "0xD193b05da966D0fd4e1DFf164a4a70812DC4cF64",
           "abi": [
             {
               "inputs": [
@@ -29489,6 +29526,43 @@
                 }
               ],
               "name": "MirrorGasUpdated",
+              "type": "event"
+            },
+            {
+              "anonymous": false,
+              "inputs": [
+                {
+                  "indexed": true,
+                  "internalType": "uint32",
+                  "name": "domain",
+                  "type": "uint32"
+                },
+                {
+                  "indexed": true,
+                  "internalType": "uint32",
+                  "name": "mirrorDomain",
+                  "type": "uint32"
+                },
+                {
+                  "indexed": false,
+                  "internalType": "address",
+                  "name": "amb",
+                  "type": "address"
+                },
+                {
+                  "indexed": false,
+                  "internalType": "address",
+                  "name": "rootManager",
+                  "type": "address"
+                },
+                {
+                  "indexed": false,
+                  "internalType": "address",
+                  "name": "mirrorConnector",
+                  "type": "address"
+                }
+              ],
+              "name": "NewConnector",
               "type": "event"
             },
             {
@@ -29767,7 +29841,7 @@
           ]
         },
         "OptimismHubConnectorSendOutboundRootResolver": {
-          "address": "0xD7BEF6D9a61e96789E5e5938857ee4842376f10F",
+          "address": "0x22a39ddd1Aaff2eBE3CaEeE666337947d48cF22f",
           "abi": [
             {
               "inputs": [
@@ -30784,7 +30858,7 @@
           ]
         },
         "PolygonHubConnector": {
-          "address": "0x8C865c8e29423deE9B1A853eb75d0Ff5b9Ac172F",
+          "address": "0x5201FF98a4c4c249A39dA5C10B30C1FA6A85324E",
           "abi": [
             {
               "inputs": [
@@ -30941,6 +31015,43 @@
                 }
               ],
               "name": "MirrorGasUpdated",
+              "type": "event"
+            },
+            {
+              "anonymous": false,
+              "inputs": [
+                {
+                  "indexed": true,
+                  "internalType": "uint32",
+                  "name": "domain",
+                  "type": "uint32"
+                },
+                {
+                  "indexed": true,
+                  "internalType": "uint32",
+                  "name": "mirrorDomain",
+                  "type": "uint32"
+                },
+                {
+                  "indexed": false,
+                  "internalType": "address",
+                  "name": "amb",
+                  "type": "address"
+                },
+                {
+                  "indexed": false,
+                  "internalType": "address",
+                  "name": "rootManager",
+                  "type": "address"
+                },
+                {
+                  "indexed": false,
+                  "internalType": "address",
+                  "name": "mirrorConnector",
+                  "type": "address"
+                }
+              ],
+              "name": "NewConnector",
               "type": "event"
             },
             {
@@ -31316,7 +31427,7 @@
           ]
         },
         "PolygonHubConnectorSendOutboundRootResolver": {
-          "address": "0xa9da4eCd0dDac3eF79Dfb206c94cde9C4bA500b6",
+          "address": "0x9524bfADf0293b74AAc10239d9133c45B727aB94",
           "abi": [
             {
               "inputs": [
@@ -73607,7 +73718,7 @@
           ]
         },
         "OptimismSpokeConnector": {
-          "address": "0x48443593dF5A84D80840879207287dd86B3b8198",
+          "address": "0xe806161F790e2cfA9b22131c35b31A543F9769D5",
           "abi": [
             {
               "inputs": [
@@ -73819,6 +73930,43 @@
                 }
               ],
               "name": "MirrorGasUpdated",
+              "type": "event"
+            },
+            {
+              "anonymous": false,
+              "inputs": [
+                {
+                  "indexed": true,
+                  "internalType": "uint32",
+                  "name": "domain",
+                  "type": "uint32"
+                },
+                {
+                  "indexed": true,
+                  "internalType": "uint32",
+                  "name": "mirrorDomain",
+                  "type": "uint32"
+                },
+                {
+                  "indexed": false,
+                  "internalType": "address",
+                  "name": "amb",
+                  "type": "address"
+                },
+                {
+                  "indexed": false,
+                  "internalType": "address",
+                  "name": "rootManager",
+                  "type": "address"
+                },
+                {
+                  "indexed": false,
+                  "internalType": "address",
+                  "name": "mirrorConnector",
+                  "type": "address"
+                }
+              ],
+              "name": "NewConnector",
               "type": "event"
             },
             {
@@ -74419,7 +74567,7 @@
           ]
         },
         "OptimismSpokeConnectorSendOutboundRootResolver": {
-          "address": "0x71a52104739064bc35bED4Fc3ba8D9Fb2a84767f",
+          "address": "0x577339c62524c45A9B50aC0aDcB03686D3e6D1a4",
           "abi": [
             {
               "inputs": [
@@ -89027,7 +89175,7 @@
       "chainId": "80001",
       "contracts": {
         "AssetFacet": {
-          "address": "0x9a4ba7e4dC7c4bC5cC7da7D30922e095C5bB1cC8",
+          "address": "0x51B8b89046d9106aDC7B7526216fe1A1A998706d",
           "abi": [
             {
               "inputs": [],
@@ -90015,7 +90163,7 @@
           ]
         },
         "BridgeFacet": {
-          "address": "0x32c7cD35ECC1Daf9a2F66e4efbBb540E1a713866",
+          "address": "0x5f8D495de00173C4a1CB8ad3AD1fB479F01c7772",
           "abi": [
             {
               "inputs": [],
@@ -96931,6 +97079,12 @@
                   "internalType": "bytes32",
                   "name": "transferId",
                   "type": "bytes32"
+                },
+                {
+                  "indexed": false,
+                  "internalType": "uint32",
+                  "name": "originDomain",
+                  "type": "uint32"
                 },
                 {
                   "indexed": false,
@@ -114597,7 +114751,7 @@
           ]
         },
         "DiamondCutFacet": {
-          "address": "0x1B46d662ea162aA38b766fE4115ED61f77502675",
+          "address": "0x5cA4826EC3CF41fcf31AA1e2E641508B5bE610b3",
           "abi": [
             {
               "anonymous": false,
@@ -115761,7 +115915,7 @@
           ]
         },
         "NomadFacet": {
-          "address": "0x5d64b9553977d92E3B5e5CB1dF36339355527B67",
+          "address": "0xdB68A86C316DC4DD440B7FE38988a1eBeC38416E",
           "abi": [
             {
               "inputs": [],
@@ -115841,6 +115995,12 @@
                   "internalType": "bytes32",
                   "name": "transferId",
                   "type": "bytes32"
+                },
+                {
+                  "indexed": false,
+                  "internalType": "uint32",
+                  "name": "originDomain",
+                  "type": "uint32"
                 },
                 {
                   "indexed": false,
@@ -116122,8 +116282,283 @@
             }
           ]
         },
-        "PolygonSpokeConnector": {
-          "address": "0x11734ac77588a8bA03b079d99d889d7fA1cCAab8",
+        "PolygonSpokeConnectorSendOutboundRootResolverStaging": {
+          "address": "0x17356b8CA2225e2d79c500d8603E0587AE61af2E",
+          "abi": [
+            {
+              "inputs": [
+                {
+                  "internalType": "address",
+                  "name": "_connector",
+                  "type": "address"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "_executionInterval",
+                  "type": "uint256"
+                }
+              ],
+              "stateMutability": "nonpayable",
+              "type": "constructor"
+            },
+            {
+              "inputs": [],
+              "name": "ProposedOwnable__acceptProposedOwner_delayNotElapsed",
+              "type": "error"
+            },
+            {
+              "inputs": [],
+              "name": "ProposedOwnable__onlyOwner_notOwner",
+              "type": "error"
+            },
+            {
+              "inputs": [],
+              "name": "ProposedOwnable__onlyProposed_notProposedOwner",
+              "type": "error"
+            },
+            {
+              "inputs": [],
+              "name": "ProposedOwnable__proposeNewOwner_invalidProposal",
+              "type": "error"
+            },
+            {
+              "inputs": [],
+              "name": "ProposedOwnable__proposeNewOwner_noOwnershipChange",
+              "type": "error"
+            },
+            {
+              "inputs": [],
+              "name": "ProposedOwnable__renounceOwnership_delayNotElapsed",
+              "type": "error"
+            },
+            {
+              "inputs": [],
+              "name": "ProposedOwnable__renounceOwnership_invalidProposal",
+              "type": "error"
+            },
+            {
+              "inputs": [],
+              "name": "ProposedOwnable__renounceOwnership_noProposal",
+              "type": "error"
+            },
+            {
+              "anonymous": false,
+              "inputs": [
+                {
+                  "indexed": true,
+                  "internalType": "address",
+                  "name": "proposedOwner",
+                  "type": "address"
+                }
+              ],
+              "name": "OwnershipProposed",
+              "type": "event"
+            },
+            {
+              "anonymous": false,
+              "inputs": [
+                {
+                  "indexed": true,
+                  "internalType": "address",
+                  "name": "previousOwner",
+                  "type": "address"
+                },
+                {
+                  "indexed": true,
+                  "internalType": "address",
+                  "name": "newOwner",
+                  "type": "address"
+                }
+              ],
+              "name": "OwnershipTransferred",
+              "type": "event"
+            },
+            {
+              "inputs": [],
+              "name": "CONNECTOR",
+              "outputs": [
+                {
+                  "internalType": "contract SpokeConnector",
+                  "name": "",
+                  "type": "address"
+                }
+              ],
+              "stateMutability": "view",
+              "type": "function"
+            },
+            {
+              "inputs": [],
+              "name": "EXECUTION_INTERVAL",
+              "outputs": [
+                {
+                  "internalType": "uint256",
+                  "name": "",
+                  "type": "uint256"
+                }
+              ],
+              "stateMutability": "view",
+              "type": "function"
+            },
+            {
+              "inputs": [],
+              "name": "acceptProposedOwner",
+              "outputs": [],
+              "stateMutability": "nonpayable",
+              "type": "function"
+            },
+            {
+              "inputs": [
+                {
+                  "internalType": "uint256",
+                  "name": "_executionInterval",
+                  "type": "uint256"
+                }
+              ],
+              "name": "changeExecutionInterval",
+              "outputs": [],
+              "stateMutability": "nonpayable",
+              "type": "function"
+            },
+            {
+              "inputs": [],
+              "name": "checker",
+              "outputs": [
+                {
+                  "internalType": "bool",
+                  "name": "canExec",
+                  "type": "bool"
+                },
+                {
+                  "internalType": "bytes",
+                  "name": "execPayload",
+                  "type": "bytes"
+                }
+              ],
+              "stateMutability": "view",
+              "type": "function"
+            },
+            {
+              "inputs": [],
+              "name": "delay",
+              "outputs": [
+                {
+                  "internalType": "uint256",
+                  "name": "",
+                  "type": "uint256"
+                }
+              ],
+              "stateMutability": "view",
+              "type": "function"
+            },
+            {
+              "inputs": [],
+              "name": "lastExecuted",
+              "outputs": [
+                {
+                  "internalType": "uint256",
+                  "name": "",
+                  "type": "uint256"
+                }
+              ],
+              "stateMutability": "view",
+              "type": "function"
+            },
+            {
+              "inputs": [],
+              "name": "lastRootSent",
+              "outputs": [
+                {
+                  "internalType": "bytes32",
+                  "name": "",
+                  "type": "bytes32"
+                }
+              ],
+              "stateMutability": "view",
+              "type": "function"
+            },
+            {
+              "inputs": [],
+              "name": "owner",
+              "outputs": [
+                {
+                  "internalType": "address",
+                  "name": "",
+                  "type": "address"
+                }
+              ],
+              "stateMutability": "view",
+              "type": "function"
+            },
+            {
+              "inputs": [
+                {
+                  "internalType": "address",
+                  "name": "newlyProposed",
+                  "type": "address"
+                }
+              ],
+              "name": "proposeNewOwner",
+              "outputs": [],
+              "stateMutability": "nonpayable",
+              "type": "function"
+            },
+            {
+              "inputs": [],
+              "name": "proposed",
+              "outputs": [
+                {
+                  "internalType": "address",
+                  "name": "",
+                  "type": "address"
+                }
+              ],
+              "stateMutability": "view",
+              "type": "function"
+            },
+            {
+              "inputs": [],
+              "name": "proposedTimestamp",
+              "outputs": [
+                {
+                  "internalType": "uint256",
+                  "name": "",
+                  "type": "uint256"
+                }
+              ],
+              "stateMutability": "view",
+              "type": "function"
+            },
+            {
+              "inputs": [],
+              "name": "renounceOwnership",
+              "outputs": [],
+              "stateMutability": "nonpayable",
+              "type": "function"
+            },
+            {
+              "inputs": [],
+              "name": "renounced",
+              "outputs": [
+                {
+                  "internalType": "bool",
+                  "name": "",
+                  "type": "bool"
+                }
+              ],
+              "stateMutability": "view",
+              "type": "function"
+            },
+            {
+              "inputs": [],
+              "name": "sendMessage",
+              "outputs": [],
+              "stateMutability": "nonpayable",
+              "type": "function"
+            }
+          ]
+        },
+        "PolygonSpokeConnectorStaging": {
+          "address": "0x2Ba3aB8588e0447132206Cf72d17b969A6cBeb91",
           "abi": [
             {
               "inputs": [
@@ -116348,6 +116783,43 @@
                 }
               ],
               "name": "MirrorGasUpdated",
+              "type": "event"
+            },
+            {
+              "anonymous": false,
+              "inputs": [
+                {
+                  "indexed": true,
+                  "internalType": "uint32",
+                  "name": "domain",
+                  "type": "uint32"
+                },
+                {
+                  "indexed": true,
+                  "internalType": "uint32",
+                  "name": "mirrorDomain",
+                  "type": "uint32"
+                },
+                {
+                  "indexed": false,
+                  "internalType": "address",
+                  "name": "amb",
+                  "type": "address"
+                },
+                {
+                  "indexed": false,
+                  "internalType": "address",
+                  "name": "rootManager",
+                  "type": "address"
+                },
+                {
+                  "indexed": false,
+                  "internalType": "address",
+                  "name": "mirrorConnector",
+                  "type": "address"
+                }
+              ],
+              "name": "NewConnector",
               "type": "event"
             },
             {
@@ -117005,281 +117477,6 @@
                 }
               ],
               "stateMutability": "view",
-              "type": "function"
-            }
-          ]
-        },
-        "PolygonSpokeConnectorSendOutboundRootResolver": {
-          "address": "0x2C46EA0b6788A571138D5Ced1D4aEE56c498e006",
-          "abi": [
-            {
-              "inputs": [
-                {
-                  "internalType": "address",
-                  "name": "_connector",
-                  "type": "address"
-                },
-                {
-                  "internalType": "uint256",
-                  "name": "_executionInterval",
-                  "type": "uint256"
-                }
-              ],
-              "stateMutability": "nonpayable",
-              "type": "constructor"
-            },
-            {
-              "inputs": [],
-              "name": "ProposedOwnable__acceptProposedOwner_delayNotElapsed",
-              "type": "error"
-            },
-            {
-              "inputs": [],
-              "name": "ProposedOwnable__onlyOwner_notOwner",
-              "type": "error"
-            },
-            {
-              "inputs": [],
-              "name": "ProposedOwnable__onlyProposed_notProposedOwner",
-              "type": "error"
-            },
-            {
-              "inputs": [],
-              "name": "ProposedOwnable__proposeNewOwner_invalidProposal",
-              "type": "error"
-            },
-            {
-              "inputs": [],
-              "name": "ProposedOwnable__proposeNewOwner_noOwnershipChange",
-              "type": "error"
-            },
-            {
-              "inputs": [],
-              "name": "ProposedOwnable__renounceOwnership_delayNotElapsed",
-              "type": "error"
-            },
-            {
-              "inputs": [],
-              "name": "ProposedOwnable__renounceOwnership_invalidProposal",
-              "type": "error"
-            },
-            {
-              "inputs": [],
-              "name": "ProposedOwnable__renounceOwnership_noProposal",
-              "type": "error"
-            },
-            {
-              "anonymous": false,
-              "inputs": [
-                {
-                  "indexed": true,
-                  "internalType": "address",
-                  "name": "proposedOwner",
-                  "type": "address"
-                }
-              ],
-              "name": "OwnershipProposed",
-              "type": "event"
-            },
-            {
-              "anonymous": false,
-              "inputs": [
-                {
-                  "indexed": true,
-                  "internalType": "address",
-                  "name": "previousOwner",
-                  "type": "address"
-                },
-                {
-                  "indexed": true,
-                  "internalType": "address",
-                  "name": "newOwner",
-                  "type": "address"
-                }
-              ],
-              "name": "OwnershipTransferred",
-              "type": "event"
-            },
-            {
-              "inputs": [],
-              "name": "CONNECTOR",
-              "outputs": [
-                {
-                  "internalType": "contract SpokeConnector",
-                  "name": "",
-                  "type": "address"
-                }
-              ],
-              "stateMutability": "view",
-              "type": "function"
-            },
-            {
-              "inputs": [],
-              "name": "EXECUTION_INTERVAL",
-              "outputs": [
-                {
-                  "internalType": "uint256",
-                  "name": "",
-                  "type": "uint256"
-                }
-              ],
-              "stateMutability": "view",
-              "type": "function"
-            },
-            {
-              "inputs": [],
-              "name": "acceptProposedOwner",
-              "outputs": [],
-              "stateMutability": "nonpayable",
-              "type": "function"
-            },
-            {
-              "inputs": [
-                {
-                  "internalType": "uint256",
-                  "name": "_executionInterval",
-                  "type": "uint256"
-                }
-              ],
-              "name": "changeExecutionInterval",
-              "outputs": [],
-              "stateMutability": "nonpayable",
-              "type": "function"
-            },
-            {
-              "inputs": [],
-              "name": "checker",
-              "outputs": [
-                {
-                  "internalType": "bool",
-                  "name": "canExec",
-                  "type": "bool"
-                },
-                {
-                  "internalType": "bytes",
-                  "name": "execPayload",
-                  "type": "bytes"
-                }
-              ],
-              "stateMutability": "view",
-              "type": "function"
-            },
-            {
-              "inputs": [],
-              "name": "delay",
-              "outputs": [
-                {
-                  "internalType": "uint256",
-                  "name": "",
-                  "type": "uint256"
-                }
-              ],
-              "stateMutability": "view",
-              "type": "function"
-            },
-            {
-              "inputs": [],
-              "name": "lastExecuted",
-              "outputs": [
-                {
-                  "internalType": "uint256",
-                  "name": "",
-                  "type": "uint256"
-                }
-              ],
-              "stateMutability": "view",
-              "type": "function"
-            },
-            {
-              "inputs": [],
-              "name": "lastRootSent",
-              "outputs": [
-                {
-                  "internalType": "bytes32",
-                  "name": "",
-                  "type": "bytes32"
-                }
-              ],
-              "stateMutability": "view",
-              "type": "function"
-            },
-            {
-              "inputs": [],
-              "name": "owner",
-              "outputs": [
-                {
-                  "internalType": "address",
-                  "name": "",
-                  "type": "address"
-                }
-              ],
-              "stateMutability": "view",
-              "type": "function"
-            },
-            {
-              "inputs": [
-                {
-                  "internalType": "address",
-                  "name": "newlyProposed",
-                  "type": "address"
-                }
-              ],
-              "name": "proposeNewOwner",
-              "outputs": [],
-              "stateMutability": "nonpayable",
-              "type": "function"
-            },
-            {
-              "inputs": [],
-              "name": "proposed",
-              "outputs": [
-                {
-                  "internalType": "address",
-                  "name": "",
-                  "type": "address"
-                }
-              ],
-              "stateMutability": "view",
-              "type": "function"
-            },
-            {
-              "inputs": [],
-              "name": "proposedTimestamp",
-              "outputs": [
-                {
-                  "internalType": "uint256",
-                  "name": "",
-                  "type": "uint256"
-                }
-              ],
-              "stateMutability": "view",
-              "type": "function"
-            },
-            {
-              "inputs": [],
-              "name": "renounceOwnership",
-              "outputs": [],
-              "stateMutability": "nonpayable",
-              "type": "function"
-            },
-            {
-              "inputs": [],
-              "name": "renounced",
-              "outputs": [
-                {
-                  "internalType": "bool",
-                  "name": "",
-                  "type": "bool"
-                }
-              ],
-              "stateMutability": "view",
-              "type": "function"
-            },
-            {
-              "inputs": [],
-              "name": "sendMessage",
-              "outputs": [],
-              "stateMutability": "nonpayable",
               "type": "function"
             }
           ]
@@ -118859,7 +119056,7 @@
           ]
         },
         "ProposedOwnableFacet": {
-          "address": "0x6570F659a1Af214b7DFCD56Dae011A97A25c6E2e",
+          "address": "0x0a02c3dF1B66f4027358a7b6D032bFC651374666",
           "abi": [
             {
               "inputs": [],
@@ -119633,7 +119830,7 @@
           ]
         },
         "RelayerFacet": {
-          "address": "0xbFd2d372Dee1f660424Cb722C47a70bd3deCFB53",
+          "address": "0x312199D4BBC2483cF7Cf6cBf5329518aeC630396",
           "abi": [
             {
               "inputs": [],
@@ -121287,7 +121484,7 @@
           ]
         },
         "RoutersFacet": {
-          "address": "0xb19C2F49261582F01D6B1A480077C22C9f5f466c",
+          "address": "0x1d7AC9ca56DB94D97E47728A67eFd5342756a666",
           "abi": [
             {
               "inputs": [],
@@ -124035,7 +124232,7 @@
           ]
         },
         "StableSwapFacet": {
-          "address": "0xF2BB97d6fEcee2CC712F4522d6796FfA51Ddbf8A",
+          "address": "0x45f20861DA38298C7AFFa284F7dEfc13CBb79B79",
           "abi": [
             {
               "inputs": [],
@@ -126489,7 +126686,7 @@
           ]
         },
         "SwapAdminFacet": {
-          "address": "0xd52Dd1776B68D9A3F6354427afC1dc521B4Bacd7",
+          "address": "0x6591025dAA3bBBaAcfEb3ED75605d1BaC852B209",
           "abi": [
             {
               "inputs": [],
@@ -130277,7 +130474,7 @@
           ]
         },
         "VersionFacet": {
-          "address": "0x50D0c56Bb68Da9Bfebf0AffF2D179Cc53096478C",
+          "address": "0xC4f0047b39b6C02b5F065680A78bCb8bb7f7Afb7",
           "abi": [
             {
               "inputs": [],
@@ -130485,8 +130682,8 @@
             }
           ]
         },
-        "PolygonSpokeConnectorStaging": {
-          "address": "0x2Ba3aB8588e0447132206Cf72d17b969A6cBeb91",
+        "PolygonSpokeConnector": {
+          "address": "0x4787EEf56A0a391C9d2FeABb6CF90082543AE187",
           "abi": [
             {
               "inputs": [
@@ -131409,8 +131606,8 @@
             }
           ]
         },
-        "PolygonSpokeConnectorSendOutboundRootResolverStaging": {
-          "address": "0x17356b8CA2225e2d79c500d8603E0587AE61af2E",
+        "PolygonSpokeConnectorSendOutboundRootResolver": {
+          "address": "0x801F5323d730d5b26D512b7c938F28b9A992CF96",
           "abi": [
             {
               "inputs": [
