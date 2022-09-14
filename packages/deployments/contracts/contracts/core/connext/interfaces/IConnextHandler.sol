@@ -85,7 +85,8 @@ interface IConnextHandler is IDiamondLoupe, IDiamondCut {
     bytes32 _canonicalId,
     uint256 _normalizedIn,
     uint256 _amount,
-    uint256 _nonce
+    uint256 _nonce,
+    uint256 _slippage
   ) external;
 
   function bumpTransfer(bytes32 _transferId) external payable;
