@@ -116,7 +116,6 @@ type DestinationTransfer @entity {
   # CallParams
   to: Bytes
   callData: Bytes
-  originDomain: BigInt
   destinationDomain: BigInt
   agent: Bytes
   recovery: Bytes

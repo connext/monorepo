@@ -239,7 +239,6 @@ export function handleXCalled(event: XCalled): void {
   // Call Params
   transfer.to = event.params.xcallArgs.params.to;
   transfer.callData = event.params.xcallArgs.params.callData;
-  transfer.originDomain = event.params.xcallArgs.params.originDomain;
   transfer.destinationDomain = event.params.xcallArgs.params.destinationDomain;
   transfer.recovery = event.params.xcallArgs.params.recovery;
   transfer.agent = event.params.xcallArgs.params.agent;
