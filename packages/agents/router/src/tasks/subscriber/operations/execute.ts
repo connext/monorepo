@@ -9,7 +9,7 @@ import {
   getMinimumBidsCountForRound as _getMinimumBidsCountForRound,
   OriginTransferSchema,
 } from "@connext/nxtp-utils";
-import { BigNumber } from "ethers";
+import { BigNumber, ethers } from "ethers";
 import axios, { AxiosResponse } from "axios";
 
 import {
@@ -45,6 +45,10 @@ export const getDestinationLocalAsset = async (
   const {
     adapters: { subgraph },
   } = getContext();
+  // handle address(0) default case
+  if (_originLocalAsset === ethers.constants.AddressZero) {
+    return ethers.constants.AddressZero;
+  }
 
   // get canonical asset from orgin domain.
   const sendingDomainAsset = await subgraph.getAssetByLocal(_originDomain, _originLocalAsset);
@@ -232,7 +236,10 @@ export const execute = async (params: OriginTransfer, _requestContext: RequestCo
   // Produce the router path signatures for each auction round we want to bid on.
 
   // Make a list of signatures that reflect which auction rounds we want to bid on.
-  const balance = await subgraph.getAssetBalance(destinationDomain, routerAddress, executeLocalAsset);
+  const balance =
+    executeLocalAsset === ethers.constants.AddressZero
+      ? 0
+      : await subgraph.getAssetBalance(destinationDomain, routerAddress, executeLocalAsset);
   const signatures: Record<string, string> = {};
   for (let roundIdx = 1; roundIdx <= config.auctionRoundDepth; roundIdx++) {
     const amountForRound = getAuctionAmount(roundIdx, BigNumber.from(receivingAmount));

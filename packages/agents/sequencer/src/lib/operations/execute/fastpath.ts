@@ -250,61 +250,65 @@ export const executeFastPathData = async (
         transfer.origin.assets.bridged.asset,
         destination,
       );
+
       // TODO: Should use amount from router's bid.
       const amount = transfer.origin.assets.bridged.amount;
       const assignedAmount = BigNumber.from(amount).div(randomCombination.length);
-
-      // Check the liquidity of each router whether it has enough funds
-      let insufficientRouterExist = false;
       const routerLiquidityMap: Map<string, BigNumber> = new Map();
-      for (const randomBid of randomCombination) {
-        const { router } = randomBid;
-        let routerLiquidity: BigNumber | undefined = await cache.routers.getLiquidity(router, destination, asset);
-        if (!routerLiquidity) {
-          // Either we haven't cached the liquidity yet, or the value cached has become expired.
-          routerLiquidity = await subgraph.getAssetBalance(destination, router, asset);
-          if (!routerLiquidity.eq(constants.Zero)) {
-            await cache.routers.setLiquidity(router, destination, asset, routerLiquidity);
-          } else {
-            // NOTE: Using WARN level here as this is unexpected behavior... routers who are bidding on a transfer should
-            // have added liquidity for the asset on the corresponding domain.
-            logger.warn("Skipped bid from router; liquidity not found in subgraph", requestContext, methodContext, {
+
+      // Native asset should always be 0 amount, no need to check for sufficient liquidity
+      if (asset !== constants.AddressZero) {
+        // Check the liquidity of each router whether it has enough funds
+        let insufficientRouterExist = false;
+        for (const randomBid of randomCombination) {
+          const { router } = randomBid;
+          let routerLiquidity: BigNumber | undefined = await cache.routers.getLiquidity(router, destination, asset);
+          if (!routerLiquidity) {
+            // Either we haven't cached the liquidity yet, or the value cached has become expired.
+            routerLiquidity = await subgraph.getAssetBalance(destination, router, asset);
+            if (!routerLiquidity.eq(constants.Zero)) {
+              await cache.routers.setLiquidity(router, destination, asset, routerLiquidity);
+            } else {
+              // NOTE: Using WARN level here as this is unexpected behavior... routers who are bidding on a transfer should
+              // have added liquidity for the asset on the corresponding domain.
+              logger.warn("Skipped bid from router; liquidity not found in subgraph", requestContext, methodContext, {
+                transfer: {
+                  transferId,
+                  asset,
+                  destination,
+                  amount: amount.toString(),
+                },
+                assetBalanceId: `${asset.toLowerCase()}-${router.toLowerCase()}`,
+                routerLiquidity,
+                router,
+              });
+              insufficientRouterExist = true;
+              break;
+            }
+          }
+
+          routerLiquidityMap.set(router, routerLiquidity);
+
+          if (routerLiquidity.lt(assignedAmount)) {
+            logger.info("Skipped bid from router: insufficient liquidity", requestContext, methodContext, {
               transfer: {
                 transferId,
                 asset,
                 destination,
-                amount: amount.toString(),
+                totalAmount: amount.toString(),
+                assignedAmount,
               },
-              assetBalanceId: `${asset.toLowerCase()}-${router.toLowerCase()}`,
-              routerLiquidity,
               router,
+              liquidity: routerLiquidity.toString(),
             });
             insufficientRouterExist = true;
             break;
           }
         }
 
-        routerLiquidityMap.set(router, routerLiquidity);
-
-        if (routerLiquidity.lt(assignedAmount)) {
-          logger.info("Skipped bid from router: insufficient liquidity", requestContext, methodContext, {
-            transfer: {
-              transferId,
-              asset,
-              destination,
-              totalAmount: amount.toString(),
-              assignedAmount,
-            },
-            router,
-            liquidity: routerLiquidity.toString(),
-          });
-          insufficientRouterExist = true;
-          break;
-        }
+        // Skip this combination if there is a router which doesn't have enough liquidity
+        if (insufficientRouterExist) continue;
       }
-
-      // Skip this combination if there is a router which doesn't have enough liquidity
-      if (insufficientRouterExist) continue;
 
       try {
         logger.debug("Sending bid to relayer", requestContext, methodContext, {
@@ -335,8 +339,8 @@ export const executeFastPathData = async (
 
         // Update router liquidity record to reflect spending.
         for (const router of routerLiquidityMap.keys()) {
-          const routerLiqudity = routerLiquidityMap.get(router)!.sub(assignedAmount);
-          await cache.routers.setLiquidity(router, destination, asset, routerLiqudity);
+          const routerLiquidity = routerLiquidityMap.get(router)!.sub(assignedAmount);
+          await cache.routers.setLiquidity(router, destination, asset, routerLiquidity);
         }
 
         // Break out from the bid selection loop.
