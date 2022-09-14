@@ -199,3 +199,21 @@ export const convertFromDbSentRootMessage = (message: any): SentRootMessage => {
     blockNumber: message.block_number,
   };
 };
+
+/**
+ * Converts a processed root message from the cartographer db through either DB queries or Postgrest into the ProcessedRootMessage type
+ * @param message - the message from the cartographer db as a JSON object
+ * @returns an ProcessedRootMessage object
+ */
+export const convertFromDbProcessedRootMessage = (message: any): ProcessedRootMessage => {
+  return {
+    id: message.id,
+    root: message.root,
+    caller: message.caller,
+    transactionHash: message.transaction_hash,
+    timestamp: message.sent_timestamp,
+    gasPrice: message.gas_price,
+    gasLimit: message.gas_limit,
+    blockNumber: message.block_number,
+  };
+};
