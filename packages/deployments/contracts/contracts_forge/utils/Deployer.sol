@@ -14,7 +14,7 @@ import {StableSwapFacet} from "../../contracts/core/connext/facets/StableSwapFac
 import {SwapAdminFacet} from "../../contracts/core/connext/facets/SwapAdminFacet.sol";
 import {PortalFacet} from "../../contracts/core/connext/facets/PortalFacet.sol";
 import {VersionFacet} from "../../contracts/core/connext/facets/VersionFacet.sol";
-import {XCallArgs, CallParams} from "../../contracts/core/connext/libraries/LibConnextStorage.sol";
+import {CallParams} from "../../contracts/core/connext/libraries/LibConnextStorage.sol";
 import {IDiamondCut} from "../../contracts/core/connext/interfaces/IDiamondCut.sol";
 
 import {Connext} from "./Connext.sol";

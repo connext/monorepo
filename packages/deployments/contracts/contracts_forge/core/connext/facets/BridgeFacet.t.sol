@@ -15,7 +15,7 @@ import {IBridgeRouter} from "../../../../contracts/core/connext/interfaces/IBrid
 import {IWeth} from "../../../../contracts/core/connext/interfaces/IWeth.sol";
 import {RelayerFeeMessage} from "../../../../contracts/core/relayer-fee/libraries/RelayerFeeMessage.sol";
 import {AssetLogic} from "../../../../contracts/core/connext/libraries/AssetLogic.sol";
-import {CallParams, ExecuteArgs, XCallArgs, TokenId, UserFacingCallParams} from "../../../../contracts/core/connext/libraries/LibConnextStorage.sol";
+import {CallParams, ExecuteArgs, TokenId} from "../../../../contracts/core/connext/libraries/LibConnextStorage.sol";
 import {LibDiamond} from "../../../../contracts/core/connext/libraries/LibDiamond.sol";
 import {BridgeFacet} from "../../../../contracts/core/connext/facets/BridgeFacet.sol";
 import {BaseConnextFacet} from "../../../../contracts/core/connext/facets/BaseConnextFacet.sol";
@@ -52,31 +52,40 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
   address _sequencer = vm.addr(_sequencerPKey);
 
   // default origin sender
-  address _originSender = address(4);
+  address _defaultOriginSender = address(4);
 
   // aave pool details
   address _aavePool;
 
-  // relayer fee
-  uint256 _relayerFee = 0.1 ether;
-
+  // Defaults
+  // default relayer fee
+  uint256 _defaultRelayerFee = 0.1 ether;
+  // default asset
+  address _defaultAsset = _local;
   // default amount
-  uint256 _amount = 1.1 ether;
-
+  uint256 _defaultAmount = 1.1 ether;
   // default nonce on xcall
-  uint256 _nonce = 1;
-
+  uint256 _defaultNonce = 1;
   // default CallParams
-  CallParams _params =
-    CallParams(
-      address(11), // to
-      bytes(""), // callData
-      _originDomain, // origin domain
-      _destinationDomain, // destination domain
-      _delegate, // delegate
-      _receiveLocal, // receiveLocal
-      1000 // slippage
-    );
+  CallParams _defaultParams =
+    CallParams({
+      // These values will be referenced when making the public / user-facing xcall
+      // in the unit tests below.
+      to: address(11),
+      callData: bytes(""),
+      originDomain: _originDomain,
+      destinationDomain: _destinationDomain,
+      delegate: _delegate,
+      receiveLocal: _receiveLocal,
+      slippage: 1000,
+      originSender: _defaultOriginSender,
+      // The following values would normally be assigned in _xcall.
+      nonce: _nonce,
+      canonicalDomain: _canonicalDomain,
+      bridgedAmt: 0,
+      normalizedIn: 0,
+      canonicalId: _canonicalId
+    });
 
   // ============ Test set up ============
   function setUp() public {
@@ -122,26 +131,9 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
     s.aavePool = _aavePool;
   }
 
-  // Meant to mimic the corresponding `_getTransferId` method in the BridgeFacet contract.
-  function utils_getTransferIdFromXCallArgs(
-    XCallArgs memory _args,
-    address sender,
-    bytes32 canonicalId,
-    uint32 canonicalDomain,
-    uint256 bridigedAmt
-  ) public returns (bytes32) {
-    return
-      keccak256(
-        abi.encode(
-          s.nonce,
-          utils_getCallParams(_args.params),
-          sender,
-          canonicalId,
-          canonicalDomain,
-          bridigedAmt,
-          _args.amount
-        )
-      );
+  // Meant to mimic the corresponding `BaseConnextFacet._calculateTransferId` method.
+  function utils_getTransferIdFromCallParams(CallParams memory _params) public returns (bytes32) {
+    return keccak256(abi.encode(_params));
   }
 
   // Meant to mimic the corresponding `_getTransferId` method in the BridgeFacet contract.
@@ -160,45 +152,51 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
       );
   }
 
-  function utils_getUserFacingParams() public returns (UserFacingCallParams memory) {
-    return
-      UserFacingCallParams(
-        _params.to,
-        _params.callData,
-        _params.destinationDomain, // destination domain
-        _params.delegate, // delegate
-        _params.slippage
-      );
-  }
+  // function utils_getUserFacingParams() public returns (UserFacingCallParams memory) {
+  //   return
+  //     UserFacingCallParams(
+  //       _params.to,
+  //       _params.callData,
+  //       _params.destinationDomain, // destination domain
+  //       _params.delegate, // delegate
+  //       _params.slippage
+  //     );
+  // }
 
-  // Makes some mock xcall arguments using params set in storage.
-  function utils_makeXCallArgs(uint256 bridged) public returns (bytes32, XCallArgs memory) {
-    s.domain = _originDomain;
-    // get args
-    XCallArgs memory args = XCallArgs(utils_getUserFacingParams(), _adopted, _amount);
-    // generate transfer id
-    bytes32 transferId = utils_getTransferIdFromXCallArgs(args, _originSender, _canonicalId, _canonicalDomain, bridged);
+  // // Makes some mock xcall arguments using params set in storage.
+  // function utils_makeXCallArgs(uint256 bridged) public returns (bytes32, XCallArgs memory) {
+  //   s.domain = _originDomain;
+  //   // get args
+  //   // XCallArgs memory args = XCallArgs(utils_getUserFacingParams(), _adopted, _amount);
+  //   // generate transfer id
+  //   bytes32 transferId = utils_getTransferIdFromCallParams(_params);
 
-    return (transferId, args);
-  }
+  //   return (transferId, args);
+  // }
 
-  function utils_makeXCallArgs(address assetId, uint256 bridged) public returns (bytes32, XCallArgs memory) {
-    s.domain = _originDomain;
-    // get args
-    XCallArgs memory args = XCallArgs(
-      utils_getUserFacingParams(),
-      assetId, // assetId : could be adopted, local, or wrapped.
-      _amount
-    );
-    if (assetId == address(0)) {
-      _canonicalId = bytes32(0);
-      _canonicalDomain = 0;
-    }
-    // generate transfer id
-    bytes32 transferId = utils_getTransferIdFromXCallArgs(args, _originSender, _canonicalId, _canonicalDomain, bridged);
+  // function utils_makeXCallArgs(address assetId, uint256 bridged) public returns (bytes32, XCallArgs memory) {
+  //   s.domain = _originDomain;
+  //   // get args
+  //   // XCallArgs memory args = XCallArgs(
+  //   //   utils_getUserFacingParams(),
+  //   //   assetId, // assetId : could be adopted, local, or wrapped.
+  //   //   _amount
+  //   // );
+  //   if (assetId == address(0)) {
+  //     _canonicalId = bytes32(0);
+  //     _canonicalDomain = 0;
+  //   }
+  //   // Generate transfer ID.
+  //   bytes32 transferId = utils_getTransferIdFromCallParams(
+  //     args,
+  //     _originSender,
+  //     _canonicalId,
+  //     _canonicalDomain,
+  //     bridged
+  //   );
 
-    return (transferId, args);
-  }
+  //   return (transferId, args);
+  // }
 
   function utils_makeSequencerSignature(
     bytes32 transferId,
@@ -291,39 +289,31 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
   // Helpers used for executing target methods with given params that assert expected base behavior.
   function helpers_setupSuccessfulXcallCallAssertions(
     bytes32 transferId,
-    XCallArgs memory args,
-    uint256 bridgedAmt,
+    CallParams memory params,
+    address asset,
+    uint256 amount,
     bool shouldSwap
   ) public {
     // bridged is either local or canonical, depending on domain xcall originates on
-    address bridged = args.asset == address(0) ? address(0) : _canonicalDomain == s.domain ? _canonical : _local;
+    address bridged = asset == address(0) ? address(0) : _canonicalDomain == s.domain ? _canonical : _local;
+    uint256 bridgedAmt = params.bridgedAmt;
     vm.expectEmit(true, true, true, true);
-    emit XCalled(
-      transferId,
-      s.nonce,
-      MockBridgeRouter(_bridgeRouter).MESSAGE_HASH(),
-      _params,
-      args.asset,
-      bridged,
-      args.amount,
-      bridgedAmt,
-      _originSender
-    );
+    emit XCalled(transferId, s.nonce, MockBridgeRouter(_bridgeRouter).MESSAGE_HASH(), params);
 
     // assert swap if expected
     if (shouldSwap && bridgedAmt != 0) {
       // Transacting asset shouldve been approved for amount in
-      vm.expectCall(args.asset, abi.encodeWithSelector(IERC20.approve.selector, _stableSwap, args.amount));
+      vm.expectCall(asset, abi.encodeWithSelector(IERC20.approve.selector, _stableSwap, amount));
 
       // swapExact on pool should have been called
       vm.expectCall(
         _stableSwap,
         abi.encodeWithSelector(
           IStableSwap.swapExact.selector,
-          args.amount,
-          args.asset,
+          amount,
+          asset,
           _local,
-          (args.amount * (10_000 - args.params.slippage)) / 10_000
+          (amount * (10_000 - params.slippage)) / 10_000
         )
       );
     }
@@ -349,44 +339,51 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
 
   // Calls `xcall` with given args and handles standard assertions.
   function helpers_xcallAndAssert(
-    bytes32 transferId,
-    XCallArgs memory args,
-    uint256 dealTokens,
-    uint256 bridgedAmt,
+    CallParams memory params,
+    address asset,
+    uint256 amount,
+    // bytes32 transferId,
+    // XCallArgs memory args,
+    // uint256 bridgedAmt,
     bytes4 expectedError,
     bool shouldSwap
   ) public {
+    bytes32 transferId = utils_getTransferIdFromCallParams(params);
     bool shouldSucceed = keccak256(abi.encode(expectedError)) == keccak256(abi.encode(bytes4("")));
     bool isCanonical = _canonicalDomain == s.domain;
 
     // Deal the user required eth for transfer.
-    vm.deal(_originSender, 100 ether);
+    vm.deal(params.originSender, 100 ether);
 
     uint256 initialUserBalance;
     uint256 initialContractBalance;
     {
       if (args.asset != address(0)) {
-        TestERC20 tokenIn = TestERC20(args.asset);
+        TestERC20 tokenIn = TestERC20(asset);
         TestERC20 localToken = TestERC20(_local);
 
         // Mint the specified amount of tokens for the user.
-        tokenIn.mint(_originSender, dealTokens);
+        tokenIn.mint(params.originSender, dealTokens);
 
-        initialUserBalance = tokenIn.balanceOf(_originSender);
+        initialUserBalance = tokenIn.balanceOf(params.originSender);
         initialContractBalance = localToken.balanceOf(address(this));
 
         // Approve the target contract to spend the specified amount of tokens.
-        vm.prank(_originSender);
+        vm.prank(params.originSender);
         tokenIn.approve(address(this), dealTokens);
       } else {
-        initialUserBalance = address(_originSender).balance;
+        initialUserBalance = address(params.originSender).balance;
         initialContractBalance = address(this).balance;
       }
     }
 
     if (shouldSwap) {
       // Setup the expected swap mock (adopted <> local)
-      vm.mockCall(_stableSwap, abi.encodeWithSelector(IStableSwap.swapExact.selector), abi.encode(bridgedAmt, _local));
+      vm.mockCall(
+        _stableSwap,
+        abi.encodeWithSelector(IStableSwap.swapExact.selector),
+        abi.encode(params.bridgedAmt, _local)
+      );
     }
 
     uint256 initialRelayerFees = s.relayerFees[transferId];
@@ -444,34 +441,30 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
 
   // Shortcut for the main fn. Generates args within this method.
   function helpers_xcallAndAssert(
+    address asset,
+    uint256 amount,
     bytes4 expectedError,
-    uint256 bridged,
-    bool swaps
+    bool shouldSwap
   ) public {
-    (bytes32 transferId, XCallArgs memory args) = utils_makeXCallArgs(bridged);
-    uint256 dealTokens = (args.asset == address(0)) ? 0 : args.amount;
-    helpers_xcallAndAssert(transferId, args, dealTokens, bridged, expectedError, swaps);
+    helpers_xcallAndAssert(_defaultParams, asset, amount, expectedError, shouldSwap);
   }
 
   function helpers_xcallAndAssert(bytes4 expectedError) public {
-    (bytes32 transferId, XCallArgs memory args) = utils_makeXCallArgs(_amount);
-    uint256 dealTokens = (args.asset == address(0)) ? 0 : args.amount;
-    helpers_xcallAndAssert(transferId, args, dealTokens, 0, expectedError, false);
+    helpers_xcallAndAssert(_defaultParams, _local, amount, expectedError, false);
   }
 
   // Shortcut for the above fn, with no expected error.
-  function helpers_xcallAndAssert(uint256 bridged, bool swaps) public {
-    helpers_xcallAndAssert(bytes4(""), bridged, swaps);
+  function helpers_xcallAndAssert(uint256 amount, bool shouldSwap) public {
+    helpers_xcallAndAssert(_defaultParams, _local, amount, bytes4(""), shouldSwap);
   }
 
   // Shortcut for the above fn, no expected error, specified transacting asset
   function helpers_xcallAndAssert(
-    uint256 bridged,
-    address transacting,
-    bool swaps
+    address asset,
+    uint256 amount,
+    bool shouldSwap
   ) public {
-    (bytes32 transferId, XCallArgs memory args) = utils_makeXCallArgs(transacting, bridged);
-    helpers_xcallAndAssert(transferId, args, args.amount, bridged, bytes4(""), swaps);
+    helpers_xcallAndAssert(_defaultParams, asset, amount, bytes4(""), shouldSwap);
   }
 
   // Shortcut for the main fn.

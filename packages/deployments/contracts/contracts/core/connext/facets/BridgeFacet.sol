@@ -228,17 +228,17 @@ contract BridgeFacet is BaseConnextFacet {
   ) external payable returns (bytes32) {
     // NOTE: These CallParams fill in as much information as they can, but
     // some info is left blank and will be assigned in the internal _xcall
-    // function (i.e. normalizedIn, bridgedAmt, canonical info..)
+    // function (i.e. normalizedIn, bridgedAmt, canonical info, etc).
     CallParams memory params = CallParams({
       to: _to,
       callData: _callData,
       originDomain: s.domain,
       destinationDomain: _destination,
       delegate: _delegate,
-      receiveLocal: false, // always swap into adopted in xcall pass
+      receiveLocal: false, // Always swap into adopted in xcall pass.
       slippage: _slippage,
       originSender: msg.sender,
-      // the following values should be assigned in _xcall
+      // The following values should be assigned in _xcall.
       nonce: 0,
       canonicalDomain: 0,
       bridgedAmt: 0,
@@ -259,17 +259,17 @@ contract BridgeFacet is BaseConnextFacet {
   ) external payable returns (bytes32) {
     // NOTE: These CallParams fill in as much information as they can, but
     // some info is left blank and will be assigned in the internal _xcall
-    // function (i.e. normalizedIn, bridgedAmt, canonical info..)
+    // function (i.e. normalizedIn, bridgedAmt, canonical info, etc).
     CallParams memory params = CallParams({
       to: _to,
       callData: _callData,
       originDomain: s.domain,
       destinationDomain: _destination,
       delegate: _delegate,
-      receiveLocal: true, // dont swap into adopted
+      receiveLocal: true, // Don't swap into adopted.
       slippage: _slippage,
       originSender: msg.sender,
-      // the following values should be assigned in _xcall
+      // The following values should be assigned in _xcall.
       nonce: 0,
       canonicalDomain: 0,
       bridgedAmt: 0,
