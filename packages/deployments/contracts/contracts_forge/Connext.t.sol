@@ -606,22 +606,12 @@ contract ConnextTest is ForgeHelper, Deployer {
 
   function utils_createExecuteArgs(
     CallParams memory params,
-    uint256 pathLen,
-    bytes32 transferId,
-    uint256 bridgedAmt,
-    uint256 liquidity
-  ) public returns (ExecuteArgs memory) {
-    return utils_createExecuteArgs(params, args.amount, _destinationLocal, pathLen, transferId, bridgedAmt, liquidity);
-  }
-
-  function utils_createExecuteArgs(
-    CallParams memory params,
     uint256 normalizedIn,
     uint256 pathLen,
     bytes32 transferId,
     uint256 bridgedAmt
   ) public returns (ExecuteArgs memory) {
-    return utils_createExecuteArgs(params, normalizedIn, pathLen, transferId, bridgedAmt, 20 ether);
+    return utils_createExecuteArgs(params, normalizedIn, _destinationLocal, pathLen, transferId, bridgedAmt, 20 ether);
   }
 
   function utils_getFastTransferAmount(uint256 amount) public returns (uint256) {
@@ -832,47 +822,22 @@ contract ConnextTest is ForgeHelper, Deployer {
 
     // 1. `xcall` on the origin
     CallParams memory params = utils_createCallParams(_destination);
-    params.destinationMinOut = 0;
-    XCallArgs memory xcall = XCallArgs(params, address(0), 0, 0);
+    params.slippage = 0;
+    XCallArgs memory xcall = XCallArgs(
+      UserFacingCallParams(params.to, params.callData, params.destinationDomain, params.agent, params.slippage),
+      address(0),
+      0
+    );
     _canonical = address(0);
     _canonicalDomain = uint32(0);
-    bytes32 transferId = utils_xcallAndAssert(xcall, address(0), 0);
+    bytes32 transferId = utils_xcallAndAssert(xcall, address(0), 0, 0);
 
     // 2. call `execute` on the destination
-    ExecuteArgs memory execute = utils_createExecuteArgs(xcall.params, address(0), 1, transferId, 0, 10 ether);
+    ExecuteArgs memory execute = utils_createExecuteArgs(params, 0, address(0), 1, transferId, 0, 10 ether);
     utils_executeAndAssert(execute, transferId, 0, 0, false);
 
     // 3. call `handle` on the destination
     utils_reconcileAndAssert(transferId, xcall.amount, xcall.params.to, execute.routers, params, 0, address(this));
-  }
-
-  // call a 0-value transfer with address(0) as asset
-  function test_Connext__zeroValueTransferWithEmptyAssetShouldWork() public {
-    /// 0. setup contracts
-    utils_setupAssets(_origin, true);
-
-    // 1. `xcall` on the origin
-    CallParams memory params = utils_createCallParams(_destination);
-    params.destinationMinOut = 0;
-    XCallArgs memory xcall = XCallArgs(params, address(0), 0, 0);
-    _canonical = address(0);
-    _canonicalDomain = uint32(0);
-    bytes32 transferId = utils_xcallAndAssert(xcall, address(0), 0);
-
-    // 2. call `execute` on the destination
-    ExecuteArgs memory execute = utils_createExecuteArgs(xcall.params, address(0), 1, transferId, 0, 10 ether);
-    utils_executeAndAssert(execute, transferId, 0, 0, false);
-
-    // 3. call `handle` on the destination
-    utils_reconcileAndAssert(
-      transferId,
-      xcall.transactingAmount,
-      xcall.params.to,
-      execute.routers,
-      xcall.params,
-      0,
-      address(this)
-    );
   }
 
   // you should be able to bridge tokens (local == adopted)
@@ -1031,7 +996,15 @@ contract ConnextTest is ForgeHelper, Deployer {
     bytes32 transferId = utils_xcallAndAssert(args, _originLocal, args.amount, 0);
 
     // 2. call `execute` on the destination
-    ExecuteArgs memory execute = utils_createExecuteArgs(params, args.amount, 1, transferId, args.amount, 0);
+    ExecuteArgs memory execute = utils_createExecuteArgs(
+      params,
+      args.amount,
+      _destinationLocal,
+      1,
+      transferId,
+      args.amount,
+      0
+    );
     // whitelist routers for portal
     _destinationConnext.approveRouterForPortal(execute.routers[0]);
     assertTrue(_destinationConnext.getRouterApprovalForPortal(execute.routers[0]));
