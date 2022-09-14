@@ -135,6 +135,7 @@ contract PortalFacet is BaseConnextFacet {
    * @param _params CallParams associated with the transfer
    * @param _adopted Address of the adopted asset (asset backing the loan)
    * @param _originSender Original msg.sender of xcall on origin chain
+   * @param _normalizedIn - The amount the user sent in on `xcall`, normalized to 18 decimals
    * @param _bridgedAmt Amount bridged during transfer
    * @param _nonce The nonce for the transfer
    * @param _backingAmount Amount of principle to repay
