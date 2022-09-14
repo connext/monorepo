@@ -24,7 +24,6 @@ import {
   StableSwapFacet,
   ConnextHandler,
   DiamondInit,
-  PromiseRouter,
   PortalFacet,
 } from "../src/typechain-types";
 
@@ -113,8 +112,6 @@ describe("Connext", () => {
   let stableSwap: DummySwap;
   let originRelayerFeeRouter: RelayerFeeRouter;
   let destinationRelayerFeeRouter: RelayerFeeRouter;
-  let originPromiseRouter: PromiseRouter;
-  let destinationPromiseRouter: PromiseRouter;
   let home: Home;
   let destinationHome: Home;
   let snapshot: number;
@@ -163,15 +160,6 @@ describe("Connext", () => {
       [destinationXappConnectionManager.address],
     );
 
-    // Deploy PromiseRouters
-    originPromiseRouter = await deployUpgradeableProxy<PromiseRouter>("PromiseRouter", proxyOwner.address, [
-      originXappConnectionManager.address,
-    ]);
-
-    destinationPromiseRouter = await deployUpgradeableProxy<PromiseRouter>("PromiseRouter", proxyOwner.address, [
-      destinationXappConnectionManager.address,
-    ]);
-
     // Deploy facets
     const diamondCutFacet = await deployContract<DiamondCutFacet>("DiamondCutFacet");
     const diamondLoupeFacet = await deployContract<DiamondLoupeFacet>("DiamondLoupeFacet");
@@ -210,7 +198,6 @@ describe("Connext", () => {
         originTokenRegistry.address,
         weth.address,
         originRelayerFeeRouter.address,
-        originPromiseRouter.address,
       ]),
       "ConnextHandler",
     );
@@ -238,7 +225,6 @@ describe("Connext", () => {
         destinationTokenRegistry.address,
         weth.address,
         destinationRelayerFeeRouter.address,
-        destinationPromiseRouter.address,
       ]),
       "ConnextHandler",
     );

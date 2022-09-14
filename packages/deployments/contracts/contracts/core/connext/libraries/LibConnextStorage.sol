@@ -2,14 +2,12 @@
 pragma solidity 0.8.15;
 
 import {RelayerFeeRouter} from "../../relayer-fee/RelayerFeeRouter.sol";
-import {PromiseRouter} from "../../promise/PromiseRouter.sol";
 
 import {IWeth} from "../interfaces/IWeth.sol";
 import {ITokenRegistry} from "../interfaces/ITokenRegistry.sol";
 
 import {IBridgeRouter} from "../interfaces/IBridgeRouter.sol";
 import {IStableSwap} from "../interfaces/IStableSwap.sol";
-import {ISponsorVault} from "../interfaces/ISponsorVault.sol";
 
 import {SwapUtils} from "./SwapUtils.sol";
 
@@ -43,9 +41,6 @@ struct UserFacingCallParams {
   uint32 destinationDomain;
   address agent;
   bool receiveLocal;
-  address callback;
-  uint256 callbackFee;
-  uint256 relayerFee;
   uint256 destinationMinOut;
 }
 
@@ -60,10 +55,7 @@ struct UserFacingCallParams {
  * @param originDomain - The originating domain (i.e. where `xcall` is called). Must match nomad domain schema
  * @param destinationDomain - The final domain (i.e. where `execute` / `reconcile` are called). Must match nomad domain schema
  * @param agent - An address who can execute txs on behalf of `to`, in addition to allowing relayers
- * @param callback - The address on the origin domain of the callback contract
- * @param callbackFee - The relayer fee to execute the callback
  * @param receiveLocal - If true, will use the local nomad asset on the destination instead of adopted.
- * @param relayerFee - The amount of relayer fee the tx called xcall with
  * @param destinationMinOut - Minimum amount received on swaps for local <> adopted on destination chain.
  */
 struct CallParams {
@@ -73,9 +65,6 @@ struct CallParams {
   uint32 destinationDomain;
   address agent;
   bool receiveLocal;
-  address callback;
-  uint256 callbackFee;
-  uint256 relayerFee;
   uint256 destinationMinOut;
 }
 
@@ -156,9 +145,6 @@ struct AppStorage {
   // The local nomad relayer fee router
   // 2
   RelayerFeeRouter relayerFeeRouter;
-  // The local nomad promise callback router
-  // 3
-  PromiseRouter promiseRouter;
   /**
    * @notice Nonce for the contract, used to keep unique transfer ids.
    * @dev Assigned at first interaction (xcall on origin domain);
@@ -246,50 +232,45 @@ struct AppStorage {
   // 17
   uint256 maxRoutersPerTransfer;
   /**
-   * @notice The Vault used for sponsoring fees
-   */
-  // 18
-  ISponsorVault sponsorVault;
-  /**
    * @notice The address of the nomad bridge router for this chain
    */
-  // 19
+  // 18
   IBridgeRouter bridgeRouter;
   /**
    * @notice Stores whether a transfer has had `receiveLocal` overrides forced
    */
-  // 20
+  // 19
   mapping(bytes32 => bool) receiveLocalOverrides;
   /**
    * @notice Stores a mapping of connext addresses keyed on domains
    * @dev Addresses are cast to bytes32
    */
-  // 21
+  // 20
   mapping(uint32 => bytes32) connextions;
   //
   // ProposedOwnable
   //
-  // 22
+  // 21
   address _proposed;
-  // 23
+  // 22
   uint256 _proposedOwnershipTimestamp;
-  // 24
+  // 23
   bool _routerWhitelistRemoved;
-  // 25
+  // 24
   uint256 _routerWhitelistTimestamp;
-  // 26
+  // 25
   bool _assetWhitelistRemoved;
-  // 27
+  // 26
   uint256 _assetWhitelistTimestamp;
   //
   // RouterFacet
   //
-  // 28
+  // 27
   RouterPermissionsManagerInfo routerPermissionInfo;
   //
   // ReentrancyGuard
   //
-  // 29
+  // 28
   uint256 _status;
   //
   // StableSwap
@@ -300,18 +281,18 @@ struct AppStorage {
    * Struct storing data responsible for automatic market maker functionalities. In order to
    * access this data, this contract uses SwapUtils library. For more details, see SwapUtils.sol
    */
-  // 30
+  // 29
   mapping(bytes32 => SwapUtils.Swap) swapStorages;
   /**
    * @notice Maps token address to an index in the pool. Used to prevent duplicate tokens in the pool.
    * @dev getTokenIndex function also relies on this mapping to retrieve token index.
    */
-  // 31
+  // 30
   mapping(bytes32 => mapping(address => uint8)) tokenIndexes;
   /**
    * @notice Stores whether or not bribing, AMMs, have been paused
    */
-  // 32
+  // 31
   bool _paused;
   //
   // AavePortals
@@ -319,30 +300,30 @@ struct AppStorage {
   /**
    * @notice Address of Aave Pool contract
    */
-  // 33
+  // 32
   address aavePool;
   /**
    * @notice Fee percentage numerator for using Portal liquidity
    * @dev Assumes the same basis points as the liquidity fee
    */
-  // 34
+  // 33
   uint256 aavePortalFeeNumerator;
   /**
    * @notice Mapping to store the transfer liquidity amount provided by Aave Portals
    */
-  // 35
+  // 34
   mapping(bytes32 => uint256) portalDebt;
   /**
    * @notice Mapping to store the transfer liquidity amount provided by Aave Portals
    */
-  // 36
+  // 35
   mapping(bytes32 => uint256) portalFeeDebt;
   /**
    * @notice Mapping of approved sequencers
    * @dev Sequencer address provided must belong to an approved sequencer in order to call `execute`
    * for the fast liquidity route.
    */
-  // 37
+  // 36
   mapping(address => bool) approvedSequencers;
 }
 

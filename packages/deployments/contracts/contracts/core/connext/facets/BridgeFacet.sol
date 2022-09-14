@@ -15,13 +15,10 @@ import {BaseConnextFacet} from "./BaseConnextFacet.sol";
 import {AssetLogic} from "../libraries/AssetLogic.sol";
 import {XCallArgs, ExecuteArgs, CallParams, TokenId, TransferIdInformation} from "../libraries/LibConnextStorage.sol";
 
-import {PromiseRouter} from "../../promise/PromiseRouter.sol";
-
 import {IWeth} from "../interfaces/IWeth.sol";
 import {ITokenRegistry} from "../interfaces/ITokenRegistry.sol";
 import {IXReceiver} from "../interfaces/IXReceiver.sol";
 import {IAavePool} from "../interfaces/IAavePool.sol";
-import {ISponsorVault} from "../interfaces/ISponsorVault.sol";
 
 contract BridgeFacet is BaseConnextFacet {
   // ============ Libraries ============
@@ -32,8 +29,6 @@ contract BridgeFacet is BaseConnextFacet {
 
   // ========== Custom Errors ===========
 
-  error BridgeFacet__setPromiseRouter_invalidPromiseRouter();
-  error BridgeFacet__setSponsorVault_invalidSponsorVault();
   error BridgeFacet__addConnextion_invalidDomain();
   error BridgeFacet__addSequencer_alreadyApproved();
   error BridgeFacet__removeSequencer_notApproved();
@@ -41,11 +36,8 @@ contract BridgeFacet is BaseConnextFacet {
   error BridgeFacet__xcall_destinationNotSupported();
   error BridgeFacet__xcall_emptyTo();
   error BridgeFacet__xcall_notSupportedAsset();
-  error BridgeFacet__xcall_nonZeroCallbackFeeForCallback();
-  error BridgeFacet__xcall_callbackNotAContract();
   error BridgeFacet__xcall_missingAgent();
   error BridgeFacet__xcall_invalidSlippageTol();
-  error BridgeFacet__xcall_ethValueMismatchedFees();
   error BridgeFacet__execute_unapprovedSender();
   error BridgeFacet__execute_wrongDomain();
   error BridgeFacet__execute_notSupportedSequencer();
@@ -151,22 +143,6 @@ contract BridgeFacet is BaseConnextFacet {
   event AavePortalMintUnbacked(bytes32 indexed transferId, address indexed router, address asset, uint256 amount);
 
   /**
-   * @notice Emitted when the sponsorVault variable is updated
-   * @param oldSponsorVault - The sponsorVault old value
-   * @param newSponsorVault - The sponsorVault new value
-   * @param caller - The account that called the function
-   */
-  event SponsorVaultUpdated(address oldSponsorVault, address newSponsorVault, address caller);
-
-  /**
-   * @notice Emitted when the promiseRouter variable is updated
-   * @param oldRouter - The promiseRouter old value
-   * @param newRouter - The promiseRouter new value
-   * @param caller - The account that called the function
-   */
-  event PromiseRouterUpdated(address oldRouter, address newRouter, address caller);
-
-  /**
    * @notice Emitted when a new connext instance is added
    * @param domain - The domain the connext instance is on
    * @param connext - The address of the connext instance
@@ -214,37 +190,11 @@ contract BridgeFacet is BaseConnextFacet {
     return s.nonce;
   }
 
-  function sponsorVault() public view returns (ISponsorVault) {
-    return s.sponsorVault;
-  }
-
-  function promiseRouter() external view returns (PromiseRouter) {
-    return s.promiseRouter;
-  }
-
   function approvedSequencers(address _sequencer) external view returns (bool) {
     return s.approvedSequencers[_sequencer];
   }
 
   // ============ Admin methods ==============
-
-  function setPromiseRouter(address payable _promiseRouter) external onlyOwner {
-    address old = address(s.promiseRouter);
-    if (old == _promiseRouter || !Address.isContract(_promiseRouter))
-      revert BridgeFacet__setPromiseRouter_invalidPromiseRouter();
-
-    s.promiseRouter = PromiseRouter(_promiseRouter);
-    emit PromiseRouterUpdated(old, _promiseRouter, msg.sender);
-  }
-
-  function setSponsorVault(address _sponsorVault) external onlyOwner {
-    address old = address(s.sponsorVault);
-    if (old == _sponsorVault || !Address.isContract(_sponsorVault))
-      revert BridgeFacet__setSponsorVault_invalidSponsorVault();
-
-    s.sponsorVault = ISponsorVault(_sponsorVault);
-    emit SponsorVaultUpdated(old, _sponsorVault, msg.sender);
-  }
 
   function addConnextion(uint32 _domain, address _connext) external onlyOwner {
     // Make sure we aren't setting the current domain as the connextion.
@@ -304,9 +254,6 @@ contract BridgeFacet is BaseConnextFacet {
       destinationDomain: _args.params.destinationDomain,
       agent: _args.params.agent,
       receiveLocal: _args.params.receiveLocal,
-      callback: _args.params.callback,
-      callbackFee: _args.params.callbackFee,
-      relayerFee: _args.params.relayerFee,
       destinationMinOut: _args.params.destinationMinOut
     });
     {
@@ -335,21 +282,6 @@ contract BridgeFacet is BaseConnextFacet {
       // so that they can call `forceReceiveLocal` if need be.
       if (params.agent == address(0) && !params.receiveLocal) {
         revert BridgeFacet__xcall_missingAgent();
-      }
-
-      if (params.callback != address(0)) {
-        // Callback address must be a contract if it is supplied.
-        if (!Address.isContract(params.callback)) {
-          revert BridgeFacet__xcall_callbackNotAContract();
-        }
-      } else if (params.callbackFee != 0) {
-        // Othewrise, if callback address is not set, callback fee should be 0.
-        revert BridgeFacet__xcall_nonZeroCallbackFeeForCallback();
-      }
-
-      // Check to make sure fee amount in argument is equal to msg.value.
-      if (msg.value != params.relayerFee + params.callbackFee) {
-        revert BridgeFacet__xcall_ethValueMismatchedFees();
       }
     }
 
@@ -416,12 +348,7 @@ contract BridgeFacet is BaseConnextFacet {
       // Store the relayer fee
       // NOTE: this has to be done *after* transferring in + swapping assets because
       // the transfer id uses the amount that is bridged (i.e. amount in local asset)
-      s.relayerFees[transferId] += params.relayerFee;
-
-      // Transfer callback fee to PromiseRouter if set
-      if (params.callbackFee != 0) {
-        s.promiseRouter.initCallbackFee{value: params.callbackFee}(transferId);
-      }
+      s.relayerFees[transferId] += msg.value;
 
       // Send message
       messageHash = s.bridgeRouter.sendToHook(
@@ -748,50 +675,6 @@ contract BridgeFacet is BaseConnextFacet {
     bytes32 _transferId,
     bool _reconciled
   ) private returns (uint256) {
-    // If the domain if sponsored
-    if (address(s.sponsorVault) != address(0)) {
-      // fast liquidity path
-      if (!_reconciled) {
-        // Vault will return the amount of the fee they sponsored in the native fee
-        // NOTE: some considerations here around fee on transfer tokens and ensuring
-        // there are no malicious `Vaults` that do not transfer the correct amount. Should likely do a
-        // balance read about it
-
-        uint256 starting = IERC20(_asset).balanceOf(address(this));
-        uint256 denom = BPS_FEE_DENOMINATOR;
-        // NOTE: using the amount that was transferred to calculate the liquidity fee, not the _amountOut
-        // which already has fees debited and was swapped
-        uint256 liquidityFee = _muldiv(_args.amount, (denom - s.LIQUIDITY_FEE_NUMERATOR), denom);
-
-        (bool success, bytes memory data) = address(s.sponsorVault).call(
-          abi.encodeWithSelector(s.sponsorVault.reimburseLiquidityFees.selector, _asset, liquidityFee, _args.params.to)
-        );
-
-        if (success) {
-          uint256 sponsored = abi.decode(data, (uint256));
-
-          // Validate correct amounts are transferred
-          if (IERC20(_asset).balanceOf(address(this)) != starting + sponsored) {
-            revert BridgeFacet__handleExecuteTransaction_invalidSponsoredAmount();
-          }
-
-          _amountOut += sponsored;
-        }
-      }
-
-      // Should dust the recipient with the lesser of a vault-defined cap or the converted relayer fee
-      // If there is no conversion available (i.e. no oracles for origin domain asset <> dest asset pair),
-      // then the vault should just pay out the configured constant
-      address(s.sponsorVault).call(
-        abi.encodeWithSelector(
-          s.sponsorVault.reimburseRelayerFees.selector,
-          _args.params.originDomain,
-          payable(_args.params.to),
-          _args.params.relayerFee
-        )
-      );
-    }
-
     // transfer funds to recipient
     AssetLogic.handleOutgoingAsset(_asset, _args.params.to, _amountOut);
 
@@ -870,11 +753,6 @@ contract BridgeFacet is BaseConnextFacet {
     }
 
     emit ExternalCalldataExecuted(_transferId, success, returnData);
-
-    // perform callback
-    if (_params.callback != address(0)) {
-      s.promiseRouter.send(_params.originDomain, _transferId, _params.callback, success, returnData);
-    }
   }
 
   /**

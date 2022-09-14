@@ -15,8 +15,6 @@ import "../contracts/core/connext/facets/BridgeFacet.sol";
 
 import {LPToken} from "../contracts/core/connext/helpers/LPToken.sol";
 
-import {PromiseRouter} from "../contracts/core/promise/PromiseRouter.sol";
-
 import {RelayerFeeRouter} from "../contracts/core/relayer-fee/RelayerFeeRouter.sol";
 import {RelayerFeeMessage} from "../contracts/core/relayer-fee/libraries/RelayerFeeMessage.sol";
 
@@ -68,9 +66,6 @@ contract LiveTest is ForgeHelper {
           1735356532, // dest domain
           0x5A9e792143bf2708b4765C144451dCa54f559a19, // agent
           false, // receiveLocal
-          address(0), // callback
-          0, // callbackFee
-          0, // relayerFee
           0 ether // destinationMinOut
         ), // CallParams
         0xf21Ad79d25d3E2eCAEe99e09c237EfDD83fdAfEB, // local asset
@@ -110,9 +105,6 @@ contract LiveTest is ForgeHelper {
           1735353714, // dest domain
           0x5A9e792143bf2708b4765C144451dCa54f559a19, // agent
           false, // receiveLocal
-          address(0), // callback
-          0, // callbackFee
-          0, // relayerFee
           0 // destinationMinOut
         ), // CallParams
         asset,

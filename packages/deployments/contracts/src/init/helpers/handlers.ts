@@ -9,7 +9,7 @@ export const enrollHandlers = async (args: { protocol: ProtocolStack }) => {
   const { protocol } = args;
   // Each handler will need to have enrolled the handlers of all other domains.
   // For example, each BridgeRouter should have enrolled the BridgeRouter of every other domain.
-  for (const handlerName of ["BridgeRouter", "PromiseRouter", "RelayerFeeRouter"]) {
+  for (const handlerName of ["BridgeRouter", "RelayerFeeRouter"]) {
     // Round up the specific Handler type we're concerned with for each domain.
     // e.g. Get every BridgeRouter for every domain.
     const handlers: { deployment: Deployment; network: NetworkStack }[] = [];

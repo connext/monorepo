@@ -916,21 +916,6 @@ const _abi = [
                 type: "bool",
               },
               {
-                internalType: "address",
-                name: "callback",
-                type: "address",
-              },
-              {
-                internalType: "uint256",
-                name: "callbackFee",
-                type: "uint256",
-              },
-              {
-                internalType: "uint256",
-                name: "relayerFee",
-                type: "uint256",
-              },
-              {
                 internalType: "uint256",
                 name: "destinationMinOut",
                 type: "uint256",
@@ -1106,21 +1091,6 @@ const _abi = [
             internalType: "bool",
             name: "receiveLocal",
             type: "bool",
-          },
-          {
-            internalType: "address",
-            name: "callback",
-            type: "address",
-          },
-          {
-            internalType: "uint256",
-            name: "callbackFee",
-            type: "uint256",
-          },
-          {
-            internalType: "uint256",
-            name: "relayerFee",
-            type: "uint256",
           },
           {
             internalType: "uint256",
@@ -1735,19 +1705,6 @@ const _abi = [
   },
   {
     inputs: [],
-    name: "promiseRouter",
-    outputs: [
-      {
-        internalType: "contract PromiseRouter",
-        name: "",
-        type: "address",
-      },
-    ],
-    stateMutability: "view",
-    type: "function",
-  },
-  {
-    inputs: [],
     name: "proposeAssetWhitelistRemoval",
     outputs: [],
     stateMutability: "nonpayable",
@@ -2245,21 +2202,6 @@ const _abi = [
             type: "bool",
           },
           {
-            internalType: "address",
-            name: "callback",
-            type: "address",
-          },
-          {
-            internalType: "uint256",
-            name: "callbackFee",
-            type: "uint256",
-          },
-          {
-            internalType: "uint256",
-            name: "relayerFee",
-            type: "uint256",
-          },
-          {
             internalType: "uint256",
             name: "destinationMinOut",
             type: "uint256",
@@ -2343,21 +2285,6 @@ const _abi = [
             internalType: "bool",
             name: "receiveLocal",
             type: "bool",
-          },
-          {
-            internalType: "address",
-            name: "callback",
-            type: "address",
-          },
-          {
-            internalType: "uint256",
-            name: "callbackFee",
-            type: "uint256",
-          },
-          {
-            internalType: "uint256",
-            name: "relayerFee",
-            type: "uint256",
           },
           {
             internalType: "uint256",
@@ -2582,19 +2509,6 @@ const _abi = [
   {
     inputs: [
       {
-        internalType: "address payable",
-        name: "_promiseRouter",
-        type: "address",
-      },
-    ],
-    name: "setPromiseRouter",
-    outputs: [],
-    stateMutability: "nonpayable",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
         internalType: "address",
         name: "_relayerFeeRouter",
         type: "address",
@@ -2619,19 +2533,6 @@ const _abi = [
       },
     ],
     name: "setRouterRecipient",
-    outputs: [],
-    stateMutability: "nonpayable",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
-        internalType: "address",
-        name: "_sponsorVault",
-        type: "address",
-      },
-    ],
-    name: "setSponsorVault",
     outputs: [],
     stateMutability: "nonpayable",
     type: "function",
@@ -2741,19 +2642,6 @@ const _abi = [
     name: "setupRouter",
     outputs: [],
     stateMutability: "nonpayable",
-    type: "function",
-  },
-  {
-    inputs: [],
-    name: "sponsorVault",
-    outputs: [
-      {
-        internalType: "contract ISponsorVault",
-        name: "",
-        type: "address",
-      },
-    ],
-    stateMutability: "view",
     type: "function",
   },
   {
@@ -2996,21 +2884,6 @@ const _abi = [
                 internalType: "bool",
                 name: "receiveLocal",
                 type: "bool",
-              },
-              {
-                internalType: "address",
-                name: "callback",
-                type: "address",
-              },
-              {
-                internalType: "uint256",
-                name: "callbackFee",
-                type: "uint256",
-              },
-              {
-                internalType: "uint256",
-                name: "relayerFee",
-                type: "uint256",
               },
               {
                 internalType: "uint256",
