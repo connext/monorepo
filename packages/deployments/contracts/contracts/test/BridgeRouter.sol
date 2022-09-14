@@ -148,8 +148,10 @@ contract BridgeRouter is Router {
   ) external {
     // validate inputs
     require(_recipient != bytes32(0), "!recip");
+    // get the token id
+    (bytes29 _tokenId, bytes32 _detailsHash, bool _isLocal) = _getTokenIdAndDetailsHash(_token);
     // debit tokens from the sender
-    (bytes29 _tokenId, bytes32 _detailsHash) = _takeTokens(_token, _amount);
+    _takeTokens(_token, _amount, _isLocal);
     // format Transfer message
     bytes29 _action = BridgeMessage.formatTransfer(_recipient, _amount, _detailsHash);
     // send message to destination chain bridge router
@@ -174,8 +176,10 @@ contract BridgeRouter is Router {
     bytes32 _remoteHook,
     bytes calldata _extraData
   ) external returns (bytes32) {
-    // debit tokens from msg.sender
-    (bytes29 _tokenId, bytes32 _detailsHash) = _takeTokens(_token, _amount);
+    // get the token id
+    (bytes29 _tokenId, bytes32 _detailsHash, bool _isLocal) = _getTokenIdAndDetailsHash(_token);
+    // debit tokens from the sender
+    _takeTokens(_token, _amount, _isLocal);
     // format Hook transfer message
     bytes29 _action = BridgeMessage.formatTransferToHook(
       _remoteHook,
@@ -238,29 +242,66 @@ contract BridgeRouter is Router {
    *      OR Burns representation tokens
    * @param _token The token to pull from the sender
    * @param _amount The amount to pull from the sender
-   * @return _tokenId the bytes canonical token identifier
-   * @return _detailsHash the hash of the canonical token details (name,
-   *         symbol, decimal)
+   * @param _isLocal Whether or not the token is locally originating
    */
-  function _takeTokens(address _token, uint256 _amount) internal returns (bytes29 _tokenId, bytes32 _detailsHash) {
+  function _takeTokens(
+    address _token,
+    uint256 _amount,
+    bool _isLocal
+  ) internal {
+    // Exit early if the _amount is 0
+    if (_amount == 0) {
+      return;
+    }
     // Setup vars used in both if branches
     IBridgeToken _t = IBridgeToken(_token);
     // remove tokens from circulation on this chain
-    if (tokenRegistry.isLocalOrigin(_token)) {
+    if (_isLocal) {
       // if the token originates on this chain,
       // hold the tokens in escrow in the Router
       IERC20(_token).safeTransferFrom(msg.sender, address(this), _amount);
-      // query token contract for details and calculate detailsHash
-      _detailsHash = BridgeMessage.getDetailsHash(_t.name(), _t.symbol(), _t.decimals());
     } else {
       // if the token originates on a remote chain,
       // burn the representation tokens on this chain
       _t.burn(msg.sender, _amount);
-      _detailsHash = _t.detailsHash();
     }
+  }
+
+  /**
+   * @notice Returns the token id for a given _token
+   * @param _token The token to pull ID for
+   * @return _tokenId the bytes canonical token identifier
+   * @return _detailsHash the hash of the canonical token details (name,
+   *         symbol, decimal)
+   */
+  function _getTokenIdAndDetailsHash(address _token)
+    internal
+    returns (
+      bytes29 _tokenId,
+      bytes32 _detailsHash,
+      bool _isLocal
+    )
+  {
     // get the tokenID
     (uint32 _domain, bytes32 _id) = tokenRegistry.getTokenId(_token);
     _tokenId = BridgeMessage.formatTokenId(_domain, _id);
+    // handle the 0-case
+    if (_token == address(0)) {
+      _detailsHash = bytes32(0);
+      _isLocal = false;
+      return (_tokenId, _detailsHash, _isLocal);
+    }
+    // Setup vars used in both if branches
+    IBridgeToken _t = IBridgeToken(_token);
+    // get the details hash
+    if (tokenRegistry.isLocalOrigin(_token)) {
+      // query token contract for details and calculate detailsHash
+      _detailsHash = BridgeMessage.getDetailsHash(_t.name(), _t.symbol(), _t.decimals());
+      _isLocal = true;
+    } else {
+      _detailsHash = _t.detailsHash();
+      _isLocal = false;
+    }
   }
 
   /**
@@ -339,6 +380,7 @@ contract BridgeRouter is Router {
     address _hook = _action.evmHook();
     // send tokens
     address _token = _giveTokens(_origin, _nonce, _tokenId, _action, _hook);
+    // NOTE: in the case of 0-value transfers, the token will be empty
     // ABI-encode the calldata for a `Hook.onRecive` call
     bytes memory _call = abi.encodeWithSelector(
       IBridgeHook.onReceive.selector,
@@ -386,6 +428,12 @@ contract BridgeRouter is Router {
     _token = tokenRegistry.ensureLocalToken(_tokenId.domain(), _tokenId.id());
     // load amount once
     uint256 _amount = _action.amnt();
+    if (_amount == 0) {
+      // emit receive event
+      emit Receive(_originAndNonce(_origin, _nonce), _token, _recipient, address(0), _amount);
+      // exit early
+      return _token;
+    }
     // send the tokens into circulation on this chain
     if (tokenRegistry.isLocalOrigin(_token)) {
       // if the token is of local origin, the tokens have been held in
