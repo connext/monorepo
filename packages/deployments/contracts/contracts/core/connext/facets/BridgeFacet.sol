@@ -3,6 +3,7 @@ pragma solidity 0.8.15;
 
 import {SafeERC20} from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import {ERC20} from "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import {ECDSA} from "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
 import {Address} from "@openzeppelin/contracts/utils/Address.sol";
 
@@ -13,7 +14,7 @@ import {TypeCasts} from "../../../shared/libraries/TypeCasts.sol";
 import {BaseConnextFacet} from "./BaseConnextFacet.sol";
 
 import {AssetLogic} from "../libraries/AssetLogic.sol";
-import {XCallArgs, ExecuteArgs, CallParams, TokenId, TransferIdInformation} from "../libraries/LibConnextStorage.sol";
+import {XCallArgs, ExecuteArgs, CallParams, TokenId} from "../libraries/LibConnextStorage.sol";
 
 import {IWeth} from "../interfaces/IWeth.sol";
 import {ITokenRegistry} from "../interfaces/ITokenRegistry.sol";
@@ -37,7 +38,7 @@ contract BridgeFacet is BaseConnextFacet {
   error BridgeFacet__xcall_emptyTo();
   error BridgeFacet__xcall_notSupportedAsset();
   error BridgeFacet__xcall_missingAgent();
-  error BridgeFacet__xcall_invalidSlippageTol();
+  error BridgeFacet__xcall_invalidSlippage();
   error BridgeFacet__execute_unapprovedSender();
   error BridgeFacet__execute_wrongDomain();
   error BridgeFacet__execute_notSupportedSequencer();
@@ -254,7 +255,7 @@ contract BridgeFacet is BaseConnextFacet {
       destinationDomain: _args.params.destinationDomain,
       agent: _args.params.agent,
       receiveLocal: _args.params.receiveLocal,
-      destinationMinOut: _args.params.destinationMinOut
+      slippage: _args.params.slippage
     });
     {
       // Not native asset
@@ -282,6 +283,10 @@ contract BridgeFacet is BaseConnextFacet {
       // so that they can call `forceReceiveLocal` if need be.
       if (params.agent == address(0) && !params.receiveLocal) {
         revert BridgeFacet__xcall_missingAgent();
+      }
+
+      if (params.slippage > BPS_FEE_DENOMINATOR) {
+        revert BridgeFacet__xcall_invalidSlippage();
       }
     }
 
@@ -326,7 +331,7 @@ contract BridgeFacet is BaseConnextFacet {
           canonical,
           _args.asset,
           _args.amount,
-          _args.originMinOut
+          params.slippage
         );
 
         // Approve bridge router
@@ -339,8 +344,13 @@ contract BridgeFacet is BaseConnextFacet {
           : s.tokenRegistry.getLocalAddress(canonical.domain, canonical.id);
       }
 
+      // Get the normalized amount in (amount sent in by user in 18 decimals)
+      uint256 normalized = _args.amount == 0
+        ? 0
+        : AssetLogic.normalizeDecimals(ERC20(_args.asset).decimals(), uint8(18), _args.amount);
+
       // Calculate the transfer id
-      transferId = _getTransferId(params, canonical, bridgedAmount);
+      transferId = _getTransferId(params, canonical, bridgedAmount, normalized);
       _sNonce = s.nonce++;
     }
 
@@ -356,7 +366,7 @@ contract BridgeFacet is BaseConnextFacet {
         bridgedAmount,
         params.destinationDomain,
         remoteInstance,
-        abi.encode(TransferIdInformation(params, _sNonce, msg.sender))
+        abi.encode(transferId)
       );
     }
 
@@ -433,6 +443,7 @@ contract BridgeFacet is BaseConnextFacet {
   function forceReceiveLocal(
     CallParams calldata _params,
     uint256 _amount,
+    uint256 _normalizedIn,
     uint256 _nonce,
     bytes32 _canonicalId,
     uint32 _canonicalDomain,
@@ -442,7 +453,15 @@ contract BridgeFacet is BaseConnextFacet {
     if (msg.sender != _params.agent) revert BridgeFacet__forceReceiveLocal_invalidSender();
 
     // Calculate transfer id
-    bytes32 transferId = _calculateTransferId(_params, _amount, _nonce, _canonicalId, _canonicalDomain, _originSender);
+    bytes32 transferId = _calculateTransferId(
+      _params,
+      _normalizedIn,
+      _amount,
+      _nonce,
+      _canonicalId,
+      _canonicalDomain,
+      _originSender
+    );
 
     // Store receive local
     s.receiveLocalOverrides[transferId] = true;
@@ -561,9 +580,19 @@ contract BridgeFacet is BaseConnextFacet {
   function _getTransferId(
     CallParams memory _params,
     TokenId memory _canonical,
-    uint256 bridgedAmount
+    uint256 _bridgedAmount,
+    uint256 _normalizedIn
   ) private view returns (bytes32) {
-    return _calculateTransferId(_params, bridgedAmount, s.nonce, _canonical.id, _canonical.domain, msg.sender);
+    return
+      _calculateTransferId(
+        _params,
+        _normalizedIn,
+        _bridgedAmount,
+        s.nonce,
+        _canonical.id,
+        _canonical.domain,
+        msg.sender
+      );
   }
 
   /**
@@ -576,7 +605,15 @@ contract BridgeFacet is BaseConnextFacet {
     bytes32 canonicalId
   ) private pure returns (bytes32) {
     return
-      _calculateTransferId(_args.params, _args.amount, _args.nonce, canonicalId, canonicalDomain, _args.originSender);
+      _calculateTransferId(
+        _args.params,
+        _args.normalizedIn,
+        _args.amount,
+        _args.nonce,
+        canonicalId,
+        canonicalDomain,
+        _args.originSender
+      );
   }
 
   /**
@@ -661,7 +698,7 @@ contract BridgeFacet is BaseConnextFacet {
     }
 
     // swap out of mad* asset into adopted asset if needed
-    return AssetLogic.swapFromLocalAssetIfNeeded(_key, _args.local, toSwap, _args.params.destinationMinOut);
+    return AssetLogic.swapFromLocalAssetIfNeeded(_key, _args.local, toSwap, _args.params.slippage, _args.normalizedIn);
   }
 
   /**

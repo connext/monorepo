@@ -10,7 +10,7 @@ import {LibDiamond} from "../../../../contracts/core/connext/libraries/LibDiamon
 
 import {NomadFacet} from "../../../../contracts/core/connext/facets/NomadFacet.sol";
 import {BaseConnextFacet} from "../../../../contracts/core/connext/facets/BaseConnextFacet.sol";
-import {CallParams, ExecuteArgs, XCallArgs, TransferIdInformation} from "../../../../contracts/core/connext/libraries/LibConnextStorage.sol";
+import {CallParams, ExecuteArgs, XCallArgs} from "../../../../contracts/core/connext/libraries/LibConnextStorage.sol";
 
 import "../../../utils/Mock.sol";
 import "../../../utils/FacetHelper.sol";
@@ -104,14 +104,14 @@ contract NomadFacetTest is NomadFacet, FacetHelper {
         _params.destinationDomain, // destination domain
         _params.agent, // agent
         _params.receiveLocal,
-        _params.destinationMinOut
+        _params.slippage
       );
   }
 
   // Makes some mock xcall arguments using params set in storage.
   function utils_makeXCallArgs() public returns (bytes32, XCallArgs memory) {
     // get args
-    XCallArgs memory args = XCallArgs(utils_getUserFacingParams(), _adopted, _amount, (_amount * 9990) / 10000);
+    XCallArgs memory args = XCallArgs(utils_getUserFacingParams(), _adopted, _amount);
     // generate transfer id
     bytes32 transferId = utils_getTransferIdFromXCallArgs(args, _originSender, _canonicalId, _canonicalDomain);
 
@@ -120,7 +120,7 @@ contract NomadFacetTest is NomadFacet, FacetHelper {
 
   function utils_makeXCallArgs(address assetId) public returns (bytes32, XCallArgs memory) {
     // get args
-    XCallArgs memory args = XCallArgs(utils_getUserFacingParams(), assetId, _amount, (_amount * 9990) / 10000);
+    XCallArgs memory args = XCallArgs(utils_getUserFacingParams(), assetId, _amount);
     // generate transfer id
     bytes32 transferId = utils_getTransferIdFromXCallArgs(args, _originSender, _canonicalId, _canonicalDomain);
 
@@ -133,10 +133,10 @@ contract NomadFacetTest is NomadFacet, FacetHelper {
     address _local,
     uint256 _amount,
     bytes32 _bridgeCaller,
-    CallParams memory params
+    bytes32 _transferId
   ) public {
     (uint32 canonicalDomain, bytes32 canonicalId) = s.tokenRegistry.getTokenId(_local);
-    bytes memory data = abi.encode(TransferIdInformation(params, s.nonce, _originSender));
+    bytes memory data = abi.encode(_transferId);
     vm.prank(_bridge);
     this.onReceive(_originDomain, _bridgeCaller, canonicalDomain, canonicalId, _local, _amount, data);
   }
@@ -167,7 +167,7 @@ contract NomadFacetTest is NomadFacet, FacetHelper {
       vm.expectRevert(expectedError);
     }
 
-    helpers_reconcileCaller(_local, args.amount, _bridgeCaller, utils_getCallParams(args.params));
+    helpers_reconcileCaller(_local, args.amount, _bridgeCaller, transferId);
 
     if (shouldSucceed) {
       assertEq(s.reconciledTransfers[transferId], true);
@@ -237,7 +237,7 @@ contract NomadFacetTest is NomadFacet, FacetHelper {
       canonicalId,
       _local,
       args.amount,
-      abi.encode(TransferIdInformation(utils_getCallParams(args.params), s.nonce, _originSender))
+      abi.encode(transferId)
     );
   }
 
@@ -258,7 +258,7 @@ contract NomadFacetTest is NomadFacet, FacetHelper {
       canonicalId,
       _local,
       args.amount,
-      abi.encode(TransferIdInformation(utils_getCallParams(args.params), s.nonce, _originSender))
+      abi.encode(transferId)
     );
   }
 
@@ -283,7 +283,7 @@ contract NomadFacetTest is NomadFacet, FacetHelper {
       canonicalId,
       _local,
       args.amount,
-      abi.encode(TransferIdInformation(utils_getCallParams(args.params), s.nonce, _originSender))
+      abi.encode(transferId)
     );
   }
 

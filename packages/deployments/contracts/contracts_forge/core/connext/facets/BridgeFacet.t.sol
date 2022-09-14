@@ -15,7 +15,7 @@ import {IBridgeRouter} from "../../../../contracts/core/connext/interfaces/IBrid
 import {IWeth} from "../../../../contracts/core/connext/interfaces/IWeth.sol";
 import {RelayerFeeMessage} from "../../../../contracts/core/relayer-fee/libraries/RelayerFeeMessage.sol";
 import {AssetLogic} from "../../../../contracts/core/connext/libraries/AssetLogic.sol";
-import {CallParams, ExecuteArgs, XCallArgs, TokenId, TransferIdInformation, UserFacingCallParams} from "../../../../contracts/core/connext/libraries/LibConnextStorage.sol";
+import {CallParams, ExecuteArgs, XCallArgs, TokenId, UserFacingCallParams} from "../../../../contracts/core/connext/libraries/LibConnextStorage.sol";
 import {LibDiamond} from "../../../../contracts/core/connext/libraries/LibDiamond.sol";
 import {BridgeFacet} from "../../../../contracts/core/connext/facets/BridgeFacet.sol";
 import {BaseConnextFacet} from "../../../../contracts/core/connext/facets/BaseConnextFacet.sol";
@@ -75,7 +75,7 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
       _destinationDomain, // destination domain
       _agent, // agent
       false, // receiveLocal
-      1 ether // destinationMinOut
+      1000 // slippage
     );
 
   // ============ Test set up ============
@@ -132,7 +132,15 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
   ) public returns (bytes32) {
     return
       keccak256(
-        abi.encode(s.nonce, utils_getCallParams(_args.params), sender, canonicalId, canonicalDomain, bridigedAmt)
+        abi.encode(
+          s.nonce,
+          utils_getCallParams(_args.params),
+          sender,
+          canonicalId,
+          canonicalDomain,
+          bridigedAmt,
+          _args.amount
+        )
       );
   }
 
@@ -140,7 +148,15 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
   function utils_getTransferIdFromExecuteArgs(ExecuteArgs memory _args) public returns (bytes32) {
     return
       keccak256(
-        abi.encode(_args.nonce, _args.params, _args.originSender, _canonicalId, _canonicalDomain, _args.amount)
+        abi.encode(
+          _args.nonce,
+          _args.params,
+          _args.originSender,
+          _canonicalId,
+          _canonicalDomain,
+          _args.amount,
+          _args.normalizedIn
+        )
       );
   }
 
@@ -152,7 +168,7 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
         _params.destinationDomain, // destination domain
         _params.agent, // agent
         _params.receiveLocal,
-        _params.destinationMinOut
+        _params.slippage
       );
   }
 
@@ -160,7 +176,7 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
   function utils_makeXCallArgs(uint256 bridged) public returns (bytes32, XCallArgs memory) {
     s.domain = _originDomain;
     // get args
-    XCallArgs memory args = XCallArgs(utils_getUserFacingParams(), _adopted, _amount, (_amount * 9990) / 10000);
+    XCallArgs memory args = XCallArgs(utils_getUserFacingParams(), _adopted, _amount);
     // generate transfer id
     bytes32 transferId = utils_getTransferIdFromXCallArgs(args, _originSender, _canonicalId, _canonicalDomain, bridged);
 
@@ -173,8 +189,7 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
     XCallArgs memory args = XCallArgs(
       utils_getUserFacingParams(),
       assetId, // assetId : could be adopted, local, or wrapped.
-      _amount,
-      (_amount * 9990) / 10000
+      _amount
     );
     if (assetId == address(0)) {
       _canonicalId = bytes32(0);
@@ -235,6 +250,7 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
       bytes(""),
       _amount,
       _nonce,
+      _amount,
       _originSender
     );
     // generate transfer id
@@ -301,7 +317,13 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
       // swapExact on pool should have been called
       vm.expectCall(
         _stableSwap,
-        abi.encodeWithSelector(IStableSwap.swapExact.selector, args.amount, args.asset, _local, args.originMinOut)
+        abi.encodeWithSelector(
+          IStableSwap.swapExact.selector,
+          args.amount,
+          args.asset,
+          _local,
+          (args.amount * (10_000 - args.params.slippage)) / 10_000
+        )
       );
     }
 
@@ -319,7 +341,7 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
         bridgedAmt,
         args.params.destinationDomain,
         s.connextions[args.params.destinationDomain], // always use this as remote connext
-        abi.encode(TransferIdInformation(utils_getCallParams(args.params), s.nonce, _originSender))
+        abi.encode(transferId)
       )
     );
   }
@@ -375,9 +397,10 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
     }
 
     vm.prank(_originSender);
-    this.xcall{value: _relayerFee}(args);
+    bytes32 ret = this.xcall{value: _relayerFee}(args);
 
     if (shouldSucceed) {
+      assertEq(ret, transferId);
       // User should have been debited fees... but also tx cost?
       // assertEq(payable(_originSender).balance, initialUserBalance - fees);
 
@@ -523,7 +546,7 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
           _inputs.routerAmt,
           _local,
           _adopted,
-          _args.params.destinationMinOut
+          (_args.normalizedIn * (10_000 - _args.params.slippage)) / 10_000
         )
       );
     }
@@ -853,6 +876,22 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
   function test_BridgeFacet__xcall_failIfDestinationNotSupported() public {
     _params.destinationDomain = 999999;
     helpers_xcallAndAssert(BridgeFacet.BridgeFacet__xcall_destinationNotSupported.selector);
+  }
+
+  function test_BridgeFacet__xcall_failIfEmptyTo() public {
+    _params.to = address(0);
+    helpers_xcallAndAssert(BridgeFacet.BridgeFacet__xcall_emptyTo.selector);
+  }
+
+  function test_BridgeFacet__xcall_failIfMissingAgent() public {
+    _params.agent = address(0);
+    _params.receiveLocal = false;
+    helpers_xcallAndAssert(BridgeFacet.BridgeFacet__xcall_missingAgent.selector);
+  }
+
+  function test_BridgeFacet__xcall_failIfInvalidSlippage() public {
+    _params.slippage = 15_000;
+    helpers_xcallAndAssert(BridgeFacet.BridgeFacet__xcall_invalidSlippage.selector);
   }
 
   // TODO: fails if destination domain does not have an xapp router registered

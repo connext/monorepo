@@ -141,7 +141,7 @@ contract FacetHelper is ForgeHelper {
         params.destinationDomain, // destination domain
         params.agent, // agent
         params.receiveLocal,
-        params.destinationMinOut
+        params.slippage
       );
   }
 }
