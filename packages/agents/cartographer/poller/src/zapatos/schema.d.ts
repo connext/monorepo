@@ -1822,6 +1822,269 @@ declare module 'zapatos/schema' {
   }
 
   /**
+   * **processed_root_messages**
+   * - Table in database
+   */
+  export namespace processed_root_messages {
+    export type Table = 'processed_root_messages';
+    export interface Selectable {
+      /**
+      * **processed_root_messages.id**
+      * - `bpchar` in database
+      * - `NOT NULL`, no default
+      */
+    id: string;
+      /**
+      * **processed_root_messages.root**
+      * - `bpchar` in database
+      * - Nullable, no default
+      */
+    root: string | null;
+      /**
+      * **processed_root_messages.caller**
+      * - `bpchar` in database
+      * - Nullable, no default
+      */
+    caller: string | null;
+      /**
+      * **processed_root_messages.transaction_hash**
+      * - `bpchar` in database
+      * - Nullable, no default
+      */
+    transaction_hash: string | null;
+      /**
+      * **processed_root_messages.processed_timestamp**
+      * - `int4` in database
+      * - Nullable, no default
+      */
+    processed_timestamp: number | null;
+      /**
+      * **processed_root_messages.gas_price**
+      * - `numeric` in database
+      * - Nullable, no default
+      */
+    gas_price: number | null;
+      /**
+      * **processed_root_messages.gas_limit**
+      * - `numeric` in database
+      * - Nullable, no default
+      */
+    gas_limit: number | null;
+      /**
+      * **processed_root_messages.block_number**
+      * - `int4` in database
+      * - Nullable, no default
+      */
+    block_number: number | null;
+    }
+    export interface JSONSelectable {
+      /**
+      * **processed_root_messages.id**
+      * - `bpchar` in database
+      * - `NOT NULL`, no default
+      */
+    id: string;
+      /**
+      * **processed_root_messages.root**
+      * - `bpchar` in database
+      * - Nullable, no default
+      */
+    root: string | null;
+      /**
+      * **processed_root_messages.caller**
+      * - `bpchar` in database
+      * - Nullable, no default
+      */
+    caller: string | null;
+      /**
+      * **processed_root_messages.transaction_hash**
+      * - `bpchar` in database
+      * - Nullable, no default
+      */
+    transaction_hash: string | null;
+      /**
+      * **processed_root_messages.processed_timestamp**
+      * - `int4` in database
+      * - Nullable, no default
+      */
+    processed_timestamp: number | null;
+      /**
+      * **processed_root_messages.gas_price**
+      * - `numeric` in database
+      * - Nullable, no default
+      */
+    gas_price: number | null;
+      /**
+      * **processed_root_messages.gas_limit**
+      * - `numeric` in database
+      * - Nullable, no default
+      */
+    gas_limit: number | null;
+      /**
+      * **processed_root_messages.block_number**
+      * - `int4` in database
+      * - Nullable, no default
+      */
+    block_number: number | null;
+    }
+    export interface Whereable {
+      /**
+      * **processed_root_messages.id**
+      * - `bpchar` in database
+      * - `NOT NULL`, no default
+      */
+    id?: string | db.Parameter<string> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
+      /**
+      * **processed_root_messages.root**
+      * - `bpchar` in database
+      * - Nullable, no default
+      */
+    root?: string | db.Parameter<string> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
+      /**
+      * **processed_root_messages.caller**
+      * - `bpchar` in database
+      * - Nullable, no default
+      */
+    caller?: string | db.Parameter<string> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
+      /**
+      * **processed_root_messages.transaction_hash**
+      * - `bpchar` in database
+      * - Nullable, no default
+      */
+    transaction_hash?: string | db.Parameter<string> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
+      /**
+      * **processed_root_messages.processed_timestamp**
+      * - `int4` in database
+      * - Nullable, no default
+      */
+    processed_timestamp?: number | db.Parameter<number> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, number | db.Parameter<number> | db.SQLFragment | db.ParentColumn>;
+      /**
+      * **processed_root_messages.gas_price**
+      * - `numeric` in database
+      * - Nullable, no default
+      */
+    gas_price?: number | db.Parameter<number> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, number | db.Parameter<number> | db.SQLFragment | db.ParentColumn>;
+      /**
+      * **processed_root_messages.gas_limit**
+      * - `numeric` in database
+      * - Nullable, no default
+      */
+    gas_limit?: number | db.Parameter<number> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, number | db.Parameter<number> | db.SQLFragment | db.ParentColumn>;
+      /**
+      * **processed_root_messages.block_number**
+      * - `int4` in database
+      * - Nullable, no default
+      */
+    block_number?: number | db.Parameter<number> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, number | db.Parameter<number> | db.SQLFragment | db.ParentColumn>;
+    }
+    export interface Insertable {
+      /**
+      * **processed_root_messages.id**
+      * - `bpchar` in database
+      * - `NOT NULL`, no default
+      */
+    id: string | db.Parameter<string> | db.SQLFragment;
+      /**
+      * **processed_root_messages.root**
+      * - `bpchar` in database
+      * - Nullable, no default
+      */
+    root?: string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment;
+      /**
+      * **processed_root_messages.caller**
+      * - `bpchar` in database
+      * - Nullable, no default
+      */
+    caller?: string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment;
+      /**
+      * **processed_root_messages.transaction_hash**
+      * - `bpchar` in database
+      * - Nullable, no default
+      */
+    transaction_hash?: string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment;
+      /**
+      * **processed_root_messages.processed_timestamp**
+      * - `int4` in database
+      * - Nullable, no default
+      */
+    processed_timestamp?: number | db.Parameter<number> | null | db.DefaultType | db.SQLFragment;
+      /**
+      * **processed_root_messages.gas_price**
+      * - `numeric` in database
+      * - Nullable, no default
+      */
+    gas_price?: number | db.Parameter<number> | null | db.DefaultType | db.SQLFragment;
+      /**
+      * **processed_root_messages.gas_limit**
+      * - `numeric` in database
+      * - Nullable, no default
+      */
+    gas_limit?: number | db.Parameter<number> | null | db.DefaultType | db.SQLFragment;
+      /**
+      * **processed_root_messages.block_number**
+      * - `int4` in database
+      * - Nullable, no default
+      */
+    block_number?: number | db.Parameter<number> | null | db.DefaultType | db.SQLFragment;
+    }
+    export interface Updatable {
+      /**
+      * **processed_root_messages.id**
+      * - `bpchar` in database
+      * - `NOT NULL`, no default
+      */
+    id?: string | db.Parameter<string> | db.SQLFragment | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment>;
+      /**
+      * **processed_root_messages.root**
+      * - `bpchar` in database
+      * - Nullable, no default
+      */
+    root?: string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment | db.SQLFragment<any, string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment>;
+      /**
+      * **processed_root_messages.caller**
+      * - `bpchar` in database
+      * - Nullable, no default
+      */
+    caller?: string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment | db.SQLFragment<any, string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment>;
+      /**
+      * **processed_root_messages.transaction_hash**
+      * - `bpchar` in database
+      * - Nullable, no default
+      */
+    transaction_hash?: string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment | db.SQLFragment<any, string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment>;
+      /**
+      * **processed_root_messages.processed_timestamp**
+      * - `int4` in database
+      * - Nullable, no default
+      */
+    processed_timestamp?: number | db.Parameter<number> | null | db.DefaultType | db.SQLFragment | db.SQLFragment<any, number | db.Parameter<number> | null | db.DefaultType | db.SQLFragment>;
+      /**
+      * **processed_root_messages.gas_price**
+      * - `numeric` in database
+      * - Nullable, no default
+      */
+    gas_price?: number | db.Parameter<number> | null | db.DefaultType | db.SQLFragment | db.SQLFragment<any, number | db.Parameter<number> | null | db.DefaultType | db.SQLFragment>;
+      /**
+      * **processed_root_messages.gas_limit**
+      * - `numeric` in database
+      * - Nullable, no default
+      */
+    gas_limit?: number | db.Parameter<number> | null | db.DefaultType | db.SQLFragment | db.SQLFragment<any, number | db.Parameter<number> | null | db.DefaultType | db.SQLFragment>;
+      /**
+      * **processed_root_messages.block_number**
+      * - `int4` in database
+      * - Nullable, no default
+      */
+    block_number?: number | db.Parameter<number> | null | db.DefaultType | db.SQLFragment | db.SQLFragment<any, number | db.Parameter<number> | null | db.DefaultType | db.SQLFragment>;
+    }
+    export type UniqueIndex = 'processed_root_messages_pkey';
+    export type Column = keyof Selectable;
+    export type OnlyCols<T extends readonly Column[]> = Pick<Selectable, T[number]>;
+    export type SQLExpression = Table | db.ColumnNames<Updatable | (keyof Updatable)[]> | db.ColumnValues<Updatable> | Whereable | Column | db.ParentColumn | db.GenericSQLExpression;
+    export type SQL = SQLExpression | SQLExpression[];
+  }
+
+  /**
    * **router_tvl**
    * - View in database
    */
@@ -5693,20 +5956,20 @@ declare module 'zapatos/schema' {
   /* --- aggregate types --- */
 
   export namespace public {  
-    export type Table = asset_balances.Table | assets.Table | checkpoints.Table | daily_router_tvl.Table | daily_transfer_metrics.Table | daily_transfer_volume.Table | hourly_transfer_metrics.Table | hourly_transfer_volume.Table | messages.Table | router_tvl.Table | routers.Table | routers_with_balances.Table | schema_migrations.Table | sent_root_messages.Table | transfer_count.Table | transfer_volume.Table | transfers.Table | transfers_with_ttr_ttv.Table;
-    export type Selectable = asset_balances.Selectable | assets.Selectable | checkpoints.Selectable | daily_router_tvl.Selectable | daily_transfer_metrics.Selectable | daily_transfer_volume.Selectable | hourly_transfer_metrics.Selectable | hourly_transfer_volume.Selectable | messages.Selectable | router_tvl.Selectable | routers.Selectable | routers_with_balances.Selectable | schema_migrations.Selectable | sent_root_messages.Selectable | transfer_count.Selectable | transfer_volume.Selectable | transfers.Selectable | transfers_with_ttr_ttv.Selectable;
-    export type JSONSelectable = asset_balances.JSONSelectable | assets.JSONSelectable | checkpoints.JSONSelectable | daily_router_tvl.JSONSelectable | daily_transfer_metrics.JSONSelectable | daily_transfer_volume.JSONSelectable | hourly_transfer_metrics.JSONSelectable | hourly_transfer_volume.JSONSelectable | messages.JSONSelectable | router_tvl.JSONSelectable | routers.JSONSelectable | routers_with_balances.JSONSelectable | schema_migrations.JSONSelectable | sent_root_messages.JSONSelectable | transfer_count.JSONSelectable | transfer_volume.JSONSelectable | transfers.JSONSelectable | transfers_with_ttr_ttv.JSONSelectable;
-    export type Whereable = asset_balances.Whereable | assets.Whereable | checkpoints.Whereable | daily_router_tvl.Whereable | daily_transfer_metrics.Whereable | daily_transfer_volume.Whereable | hourly_transfer_metrics.Whereable | hourly_transfer_volume.Whereable | messages.Whereable | router_tvl.Whereable | routers.Whereable | routers_with_balances.Whereable | schema_migrations.Whereable | sent_root_messages.Whereable | transfer_count.Whereable | transfer_volume.Whereable | transfers.Whereable | transfers_with_ttr_ttv.Whereable;
-    export type Insertable = asset_balances.Insertable | assets.Insertable | checkpoints.Insertable | daily_router_tvl.Insertable | daily_transfer_metrics.Insertable | daily_transfer_volume.Insertable | hourly_transfer_metrics.Insertable | hourly_transfer_volume.Insertable | messages.Insertable | router_tvl.Insertable | routers.Insertable | routers_with_balances.Insertable | schema_migrations.Insertable | sent_root_messages.Insertable | transfer_count.Insertable | transfer_volume.Insertable | transfers.Insertable | transfers_with_ttr_ttv.Insertable;
-    export type Updatable = asset_balances.Updatable | assets.Updatable | checkpoints.Updatable | daily_router_tvl.Updatable | daily_transfer_metrics.Updatable | daily_transfer_volume.Updatable | hourly_transfer_metrics.Updatable | hourly_transfer_volume.Updatable | messages.Updatable | router_tvl.Updatable | routers.Updatable | routers_with_balances.Updatable | schema_migrations.Updatable | sent_root_messages.Updatable | transfer_count.Updatable | transfer_volume.Updatable | transfers.Updatable | transfers_with_ttr_ttv.Updatable;
-    export type UniqueIndex = asset_balances.UniqueIndex | assets.UniqueIndex | checkpoints.UniqueIndex | daily_router_tvl.UniqueIndex | daily_transfer_metrics.UniqueIndex | daily_transfer_volume.UniqueIndex | hourly_transfer_metrics.UniqueIndex | hourly_transfer_volume.UniqueIndex | messages.UniqueIndex | router_tvl.UniqueIndex | routers.UniqueIndex | routers_with_balances.UniqueIndex | schema_migrations.UniqueIndex | sent_root_messages.UniqueIndex | transfer_count.UniqueIndex | transfer_volume.UniqueIndex | transfers.UniqueIndex | transfers_with_ttr_ttv.UniqueIndex;
-    export type Column = asset_balances.Column | assets.Column | checkpoints.Column | daily_router_tvl.Column | daily_transfer_metrics.Column | daily_transfer_volume.Column | hourly_transfer_metrics.Column | hourly_transfer_volume.Column | messages.Column | router_tvl.Column | routers.Column | routers_with_balances.Column | schema_migrations.Column | sent_root_messages.Column | transfer_count.Column | transfer_volume.Column | transfers.Column | transfers_with_ttr_ttv.Column;
+    export type Table = asset_balances.Table | assets.Table | checkpoints.Table | daily_router_tvl.Table | daily_transfer_metrics.Table | daily_transfer_volume.Table | hourly_transfer_metrics.Table | hourly_transfer_volume.Table | messages.Table | processed_root_messages.Table | router_tvl.Table | routers.Table | routers_with_balances.Table | schema_migrations.Table | sent_root_messages.Table | transfer_count.Table | transfer_volume.Table | transfers.Table | transfers_with_ttr_ttv.Table;
+    export type Selectable = asset_balances.Selectable | assets.Selectable | checkpoints.Selectable | daily_router_tvl.Selectable | daily_transfer_metrics.Selectable | daily_transfer_volume.Selectable | hourly_transfer_metrics.Selectable | hourly_transfer_volume.Selectable | messages.Selectable | processed_root_messages.Selectable | router_tvl.Selectable | routers.Selectable | routers_with_balances.Selectable | schema_migrations.Selectable | sent_root_messages.Selectable | transfer_count.Selectable | transfer_volume.Selectable | transfers.Selectable | transfers_with_ttr_ttv.Selectable;
+    export type JSONSelectable = asset_balances.JSONSelectable | assets.JSONSelectable | checkpoints.JSONSelectable | daily_router_tvl.JSONSelectable | daily_transfer_metrics.JSONSelectable | daily_transfer_volume.JSONSelectable | hourly_transfer_metrics.JSONSelectable | hourly_transfer_volume.JSONSelectable | messages.JSONSelectable | processed_root_messages.JSONSelectable | router_tvl.JSONSelectable | routers.JSONSelectable | routers_with_balances.JSONSelectable | schema_migrations.JSONSelectable | sent_root_messages.JSONSelectable | transfer_count.JSONSelectable | transfer_volume.JSONSelectable | transfers.JSONSelectable | transfers_with_ttr_ttv.JSONSelectable;
+    export type Whereable = asset_balances.Whereable | assets.Whereable | checkpoints.Whereable | daily_router_tvl.Whereable | daily_transfer_metrics.Whereable | daily_transfer_volume.Whereable | hourly_transfer_metrics.Whereable | hourly_transfer_volume.Whereable | messages.Whereable | processed_root_messages.Whereable | router_tvl.Whereable | routers.Whereable | routers_with_balances.Whereable | schema_migrations.Whereable | sent_root_messages.Whereable | transfer_count.Whereable | transfer_volume.Whereable | transfers.Whereable | transfers_with_ttr_ttv.Whereable;
+    export type Insertable = asset_balances.Insertable | assets.Insertable | checkpoints.Insertable | daily_router_tvl.Insertable | daily_transfer_metrics.Insertable | daily_transfer_volume.Insertable | hourly_transfer_metrics.Insertable | hourly_transfer_volume.Insertable | messages.Insertable | processed_root_messages.Insertable | router_tvl.Insertable | routers.Insertable | routers_with_balances.Insertable | schema_migrations.Insertable | sent_root_messages.Insertable | transfer_count.Insertable | transfer_volume.Insertable | transfers.Insertable | transfers_with_ttr_ttv.Insertable;
+    export type Updatable = asset_balances.Updatable | assets.Updatable | checkpoints.Updatable | daily_router_tvl.Updatable | daily_transfer_metrics.Updatable | daily_transfer_volume.Updatable | hourly_transfer_metrics.Updatable | hourly_transfer_volume.Updatable | messages.Updatable | processed_root_messages.Updatable | router_tvl.Updatable | routers.Updatable | routers_with_balances.Updatable | schema_migrations.Updatable | sent_root_messages.Updatable | transfer_count.Updatable | transfer_volume.Updatable | transfers.Updatable | transfers_with_ttr_ttv.Updatable;
+    export type UniqueIndex = asset_balances.UniqueIndex | assets.UniqueIndex | checkpoints.UniqueIndex | daily_router_tvl.UniqueIndex | daily_transfer_metrics.UniqueIndex | daily_transfer_volume.UniqueIndex | hourly_transfer_metrics.UniqueIndex | hourly_transfer_volume.UniqueIndex | messages.UniqueIndex | processed_root_messages.UniqueIndex | router_tvl.UniqueIndex | routers.UniqueIndex | routers_with_balances.UniqueIndex | schema_migrations.UniqueIndex | sent_root_messages.UniqueIndex | transfer_count.UniqueIndex | transfer_volume.UniqueIndex | transfers.UniqueIndex | transfers_with_ttr_ttv.UniqueIndex;
+    export type Column = asset_balances.Column | assets.Column | checkpoints.Column | daily_router_tvl.Column | daily_transfer_metrics.Column | daily_transfer_volume.Column | hourly_transfer_metrics.Column | hourly_transfer_volume.Column | messages.Column | processed_root_messages.Column | router_tvl.Column | routers.Column | routers_with_balances.Column | schema_migrations.Column | sent_root_messages.Column | transfer_count.Column | transfer_volume.Column | transfers.Column | transfers_with_ttr_ttv.Column;
   
-    export type AllBaseTables = [asset_balances.Table, assets.Table, checkpoints.Table, messages.Table, routers.Table, schema_migrations.Table, sent_root_messages.Table, transfers.Table];
+    export type AllBaseTables = [asset_balances.Table, assets.Table, checkpoints.Table, messages.Table, processed_root_messages.Table, routers.Table, schema_migrations.Table, sent_root_messages.Table, transfers.Table];
     export type AllForeignTables = [];
     export type AllViews = [daily_router_tvl.Table, daily_transfer_metrics.Table, daily_transfer_volume.Table, hourly_transfer_metrics.Table, hourly_transfer_volume.Table, router_tvl.Table, routers_with_balances.Table, transfer_count.Table, transfer_volume.Table, transfers_with_ttr_ttv.Table];
     export type AllMaterializedViews = [];
-    export type AllTablesAndViews = [asset_balances.Table, assets.Table, checkpoints.Table, daily_router_tvl.Table, daily_transfer_metrics.Table, daily_transfer_volume.Table, hourly_transfer_metrics.Table, hourly_transfer_volume.Table, messages.Table, router_tvl.Table, routers.Table, routers_with_balances.Table, schema_migrations.Table, sent_root_messages.Table, transfer_count.Table, transfer_volume.Table, transfers.Table, transfers_with_ttr_ttv.Table];
+    export type AllTablesAndViews = [asset_balances.Table, assets.Table, checkpoints.Table, daily_router_tvl.Table, daily_transfer_metrics.Table, daily_transfer_volume.Table, hourly_transfer_metrics.Table, hourly_transfer_volume.Table, messages.Table, processed_root_messages.Table, router_tvl.Table, routers.Table, routers_with_balances.Table, schema_migrations.Table, sent_root_messages.Table, transfer_count.Table, transfer_volume.Table, transfers.Table, transfers_with_ttr_ttv.Table];
   }
 
 
@@ -5743,6 +6006,7 @@ declare module 'zapatos/schema' {
     "hourly_transfer_metrics": hourly_transfer_metrics.Selectable;
     "hourly_transfer_volume": hourly_transfer_volume.Selectable;
     "messages": messages.Selectable;
+    "processed_root_messages": processed_root_messages.Selectable;
     "router_tvl": router_tvl.Selectable;
     "routers": routers.Selectable;
     "routers_with_balances": routers_with_balances.Selectable;
@@ -5764,6 +6028,7 @@ declare module 'zapatos/schema' {
     "hourly_transfer_metrics": hourly_transfer_metrics.JSONSelectable;
     "hourly_transfer_volume": hourly_transfer_volume.JSONSelectable;
     "messages": messages.JSONSelectable;
+    "processed_root_messages": processed_root_messages.JSONSelectable;
     "router_tvl": router_tvl.JSONSelectable;
     "routers": routers.JSONSelectable;
     "routers_with_balances": routers_with_balances.JSONSelectable;
@@ -5785,6 +6050,7 @@ declare module 'zapatos/schema' {
     "hourly_transfer_metrics": hourly_transfer_metrics.Whereable;
     "hourly_transfer_volume": hourly_transfer_volume.Whereable;
     "messages": messages.Whereable;
+    "processed_root_messages": processed_root_messages.Whereable;
     "router_tvl": router_tvl.Whereable;
     "routers": routers.Whereable;
     "routers_with_balances": routers_with_balances.Whereable;
@@ -5806,6 +6072,7 @@ declare module 'zapatos/schema' {
     "hourly_transfer_metrics": hourly_transfer_metrics.Insertable;
     "hourly_transfer_volume": hourly_transfer_volume.Insertable;
     "messages": messages.Insertable;
+    "processed_root_messages": processed_root_messages.Insertable;
     "router_tvl": router_tvl.Insertable;
     "routers": routers.Insertable;
     "routers_with_balances": routers_with_balances.Insertable;
@@ -5827,6 +6094,7 @@ declare module 'zapatos/schema' {
     "hourly_transfer_metrics": hourly_transfer_metrics.Updatable;
     "hourly_transfer_volume": hourly_transfer_volume.Updatable;
     "messages": messages.Updatable;
+    "processed_root_messages": processed_root_messages.Updatable;
     "router_tvl": router_tvl.Updatable;
     "routers": routers.Updatable;
     "routers_with_balances": routers_with_balances.Updatable;
@@ -5848,6 +6116,7 @@ declare module 'zapatos/schema' {
     "hourly_transfer_metrics": hourly_transfer_metrics.UniqueIndex;
     "hourly_transfer_volume": hourly_transfer_volume.UniqueIndex;
     "messages": messages.UniqueIndex;
+    "processed_root_messages": processed_root_messages.UniqueIndex;
     "router_tvl": router_tvl.UniqueIndex;
     "routers": routers.UniqueIndex;
     "routers_with_balances": routers_with_balances.UniqueIndex;
@@ -5869,6 +6138,7 @@ declare module 'zapatos/schema' {
     "hourly_transfer_metrics": hourly_transfer_metrics.Column;
     "hourly_transfer_volume": hourly_transfer_volume.Column;
     "messages": messages.Column;
+    "processed_root_messages": processed_root_messages.Column;
     "router_tvl": router_tvl.Column;
     "routers": routers.Column;
     "routers_with_balances": routers_with_balances.Column;
@@ -5890,6 +6160,7 @@ declare module 'zapatos/schema' {
     "hourly_transfer_metrics": hourly_transfer_metrics.SQL;
     "hourly_transfer_volume": hourly_transfer_volume.SQL;
     "messages": messages.SQL;
+    "processed_root_messages": processed_root_messages.SQL;
     "router_tvl": router_tvl.SQL;
     "routers": routers.SQL;
     "routers_with_balances": routers_with_balances.SQL;

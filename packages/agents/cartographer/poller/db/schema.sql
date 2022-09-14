@@ -379,6 +379,22 @@ CREATE TABLE public.messages (
 
 
 --
+-- Name: processed_root_messages; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.processed_root_messages (
+    id character(66) NOT NULL,
+    root character(66),
+    caller character(42),
+    transaction_hash character(66),
+    processed_timestamp integer,
+    gas_price numeric,
+    gas_limit numeric,
+    block_number integer
+);
+
+
+--
 -- Name: router_tvl; Type: VIEW; Schema: public; Owner: -
 --
 
@@ -538,6 +554,14 @@ ALTER TABLE ONLY public.messages
 
 
 --
+-- Name: processed_root_messages processed_root_messages_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.processed_root_messages
+    ADD CONSTRAINT processed_root_messages_pkey PRIMARY KEY (id);
+
+
+--
 -- Name: routers routers_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -612,4 +636,5 @@ INSERT INTO public.schema_migrations (version) VALUES
     ('20220816134851'),
     ('20220824094332'),
     ('20220907212007'),
-    ('20220914215736');
+    ('20220914215736'),
+    ('20220914230120');

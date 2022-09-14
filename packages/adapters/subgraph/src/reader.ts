@@ -13,6 +13,7 @@ import {
   OriginMessage,
   DestinationMessage,
   SentRootMessage,
+  ProcessedRootMessage,
 } from "@connext/nxtp-utils";
 
 import { getHelpers } from "./lib/helpers";
@@ -38,6 +39,7 @@ import {
   getOriginMessagesByDomainAndIndexQuery,
   getDestinationMessagesByDomainAndLeafQuery,
   getSentRootMessagesByDomainAndBlockQuery,
+  getProcessedRootMessagesByDomainAndBlockQuery,
 } from "./lib/operations";
 import { SubgraphMap } from "./lib/entities";
 
@@ -635,5 +637,32 @@ export class SubgraphReader {
       .map(parser.sentRootMessage);
 
     return sentRootMessages;
+  }
+
+  /**
+   * Gets all the processed root messages starting with blocknumber for a given domain
+   */
+  public async getProcessedRootMessagesByDomain(
+    params: { domain: string; offset: number; limit: number }[],
+  ): Promise<ProcessedRootMessage[]> {
+    const { parser, execute } = getHelpers();
+    const processedRootMessageQuery = getProcessedRootMessagesByDomainAndBlockQuery(params);
+    const response = await execute(processedRootMessageQuery);
+    const _messages: any[] = [];
+    for (const key of response.keys()) {
+      const value = response.get(key);
+      const flatten = value?.flat();
+      const _message = flatten?.map((x) => {
+        return { ...x, domain: key };
+      });
+      _messages.push(_message);
+    }
+
+    const processedRootMessages: ProcessedRootMessage[] = _messages
+      .flat()
+      .filter((x: any) => !!x)
+      .map(parser.processedRootMessage);
+
+    return processedRootMessages;
   }
 }

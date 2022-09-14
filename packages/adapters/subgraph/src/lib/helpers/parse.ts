@@ -5,6 +5,7 @@ import {
   OriginMessage,
   DestinationMessage,
   SentRootMessage,
+  ProcessedRootMessage,
 } from "@connext/nxtp-utils";
 import { BigNumber } from "ethers";
 
@@ -306,6 +307,32 @@ export const sentRootMessage = (entity: any): SentRootMessage => {
     id: entity.id,
     spokeDomain: entity.spokeDomain,
     hubDomain: entity.hubDomain,
+    root: entity.root,
+    caller: entity.caller,
+    transactionHash: entity.transactionHash,
+    timestamp: entity.timestamp,
+    gasPrice: entity.gasPrice,
+    gasLimit: entity.gasLimit,
+    blockNumber: entity.blockNumber,
+  };
+};
+
+export const processedRootMessage = (entity: any): ProcessedRootMessage => {
+  // Sanity checks.
+  if (!entity) {
+    throw new NxtpError("Subgraph `RootMessageProcessed` entity parser: ProcessedRootMessage, entity is `undefined`.");
+  }
+  for (const field of ["id", "root", "caller", "transactionHash", "timestamp", "gasPrice", "gasLimit", "blockNumber"]) {
+    if (!entity[field]) {
+      throw new NxtpError("Subgraph `RootMessageProcessed` entity parser: Message entity missing required field", {
+        missingField: field,
+        entity,
+      });
+    }
+  }
+
+  return {
+    id: entity.id,
     root: entity.root,
     caller: entity.caller,
     transactionHash: entity.transactionHash,

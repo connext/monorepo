@@ -1,7 +1,12 @@
 import { createLoggingContext, jsonifyError, NxtpError } from "@connext/nxtp-utils";
 
 import { getContext } from "../../shared";
-import { retrieveOriginMessages, updateMessages, retrieveSentRootMessages } from "../../lib/operations/messages";
+import {
+  retrieveOriginMessages,
+  updateMessages,
+  retrieveSentRootMessages,
+  retrieveProcessedRootMessages,
+} from "../../lib/operations/messages";
 
 export const bindMessages = async () => {
   const { logger } = getContext();
@@ -11,6 +16,7 @@ export const bindMessages = async () => {
     await retrieveOriginMessages();
     await updateMessages();
     await retrieveSentRootMessages();
+    await retrieveProcessedRootMessages();
     logger.debug("Bind messages polling loop complete", requestContext, methodContext);
   } catch (err: unknown) {
     logger.error(

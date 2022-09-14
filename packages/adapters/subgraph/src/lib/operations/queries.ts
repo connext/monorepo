@@ -137,6 +137,17 @@ export const ROOT_MESSAGE_SENT_ENTITY = `
       gasLimit
       blockNumber
 `;
+export const ROOT_MESSAGE_PROCESSED_ENTITY = `
+      id
+      root
+      caller
+      transactionHash
+      timestamp
+      gasPrice
+      gasLimit
+      blockNumber
+`;
+
 const lastedBlockNumberQuery = (prefix: string): string => {
   return `${prefix}__meta { ${BLOCK_NUMBER_ENTITY}}`;
 };
@@ -619,12 +630,28 @@ export const getSentRootMessagesByDomainAndBlockQuery = (
   let combinedQuery = "";
   for (const param of params) {
     const prefix = config.sources[param.domain].prefix;
-    // TODO: params
     combinedQuery += `${prefix}_rootMessageSent ( first: ${param.limit}, where: { blockNumber_gt: [${param.offset}] }) {${ROOT_MESSAGE_SENT_ENTITY}}`;
   }
 
   return gql`
     query GetSentRootMessages {
+      ${combinedQuery}
+    }
+  `;
+};
+
+export const getProcessedRootMessagesByDomainAndBlockQuery = (
+  params: { domain: string; offset: number; limit: number }[],
+) => {
+  const { config } = getContext();
+  let combinedQuery = "";
+  for (const param of params) {
+    const prefix = config.sources[param.domain].prefix;
+    combinedQuery += `${prefix}_rootMessageProcessed ( first: ${param.limit}, where: { blockNumber_gt: [${param.offset}] }) {${ROOT_MESSAGE_PROCESSED_ENTITY}}`;
+  }
+
+  return gql`
+    query GetProcessedRootMessages {
       ${combinedQuery}
     }
   `;

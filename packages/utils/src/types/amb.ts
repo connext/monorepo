@@ -51,3 +51,15 @@ export const SentRootMessageSchema = Type.Object({
   blockNumber: Type.Number(),
 });
 export type SentRootMessage = Static<typeof SentRootMessageSchema>;
+
+export const ProcessedRootMessageSchema = Type.Object({
+  id: Type.String(),
+  root: Type.String(),
+  caller: Type.String(),
+  transactionHash: Type.String(),
+  timestamp: Type.Number(),
+  gasPrice: Type.Number(),
+  gasLimit: Type.Number(),
+  blockNumber: Type.Number(),
+});
+export type ProcessedRootMessage = Static<typeof ProcessedRootMessageSchema>;

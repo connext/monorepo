@@ -5,6 +5,7 @@ import {
   RouterBalance,
   XMessage,
   SentRootMessage,
+  ProcessedRootMessage,
 } from "@connext/nxtp-utils";
 import { Pool } from "pg";
 
@@ -18,6 +19,7 @@ import {
   saveRouterBalances,
   saveMessages,
   saveSentRootMessages,
+  saveProcessedRootMessages,
   getPendingMessages,
   saveCheckPoint,
   getCheckPoint,
@@ -47,6 +49,7 @@ export type Database = {
   saveRouterBalances: (routerBalances: RouterBalance[], _pool?: Pool) => Promise<void>;
   saveMessages: (messages: XMessage[], _pool?: Pool) => Promise<void>;
   saveSentRootMessages: (messages: SentRootMessage[], _pool?: Pool) => Promise<void>;
+  saveProcessedRootMessages: (messages: ProcessedRootMessage[], _pool?: Pool) => Promise<void>;
   getPendingMessages: (_pool?: Pool) => Promise<XMessage[]>;
   saveCheckPoint: (check: string, point: number, _pool?: Pool) => Promise<void>;
   getCheckPoint: (check_name: string, _pool?: Pool) => Promise<number>;
@@ -74,6 +77,7 @@ export const getDatabase = async (): Promise<Database> => {
     saveRouterBalances,
     saveMessages,
     saveSentRootMessages,
+    saveProcessedRootMessages,
     getPendingMessages,
     saveCheckPoint,
     getCheckPoint,

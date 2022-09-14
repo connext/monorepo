@@ -1,7 +1,7 @@
-import { createLoggingContext, XMessage, SentRootMessage } from "@connext/nxtp-utils";
+import { createLoggingContext, XMessage, SentRootMessage, ProcessedRootMessage } from "@connext/nxtp-utils";
 import { getContext } from "../../shared";
 
-const getMaxBlockNumber = (messages: SentRootMessage[]): number => {
+const getMaxBlockNumber = (messages: any[]): number => {
   return messages.length == 0 ? 0 : Math.max(...messages.map((message) => message.blockNumber ?? 0)) ?? 0;
 };
 
@@ -84,7 +84,7 @@ export const retrieveSentRootMessages = async () => {
     logger,
     domains,
   } = getContext();
-  const { requestContext, methodContext } = createLoggingContext(retrieveOriginMessages.name);
+  const { requestContext, methodContext } = createLoggingContext(retrieveSentRootMessages.name);
 
   for (const domain of domains) {
     const offset = await database.getCheckPoint("sent_root_message_" + domain);
@@ -106,5 +106,36 @@ export const retrieveSentRootMessages = async () => {
     }
 
     logger.debug("Saved sent root messages", requestContext, methodContext, { domain: domain, offset: newOffset });
+  }
+};
+
+export const retrieveProcessedRootMessages = async () => {
+  const {
+    adapters: { subgraph, database },
+    logger,
+    domains,
+  } = getContext();
+  const { requestContext, methodContext } = createLoggingContext(retrieveProcessedRootMessages.name);
+
+  for (const domain of domains) {
+    const offset = await database.getCheckPoint("processed_root_message_" + domain);
+    const limit = 100;
+    logger.debug("Retrieving processed root messages", requestContext, methodContext, {
+      domain: domain,
+      offset: offset,
+      limit: limit,
+    });
+
+    const processedRootMessages = await subgraph.getProcessedRootMessagesByDomain([{ domain, offset, limit }]);
+
+    await database.saveProcessedRootMessages(processedRootMessages);
+
+    // Reset offset at the end of the cycle.
+    const newOffset = getMaxBlockNumber(processedRootMessages);
+    if (processedRootMessages.length > 0 && newOffset > offset) {
+      await database.saveCheckPoint("processed_root_message_" + domain, newOffset);
+    }
+
+    logger.debug("Saved processed root messages", requestContext, methodContext, { domain: domain, offset: newOffset });
   }
 };
