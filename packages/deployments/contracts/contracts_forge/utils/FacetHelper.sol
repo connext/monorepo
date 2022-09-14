@@ -21,6 +21,9 @@ contract FacetHelper is ForgeHelper {
   // destination remote handler id
   bytes32 _remote = bytes32("remote");
 
+  // ============ CallParam defaults
+  bool _receiveLocal = false;
+
   // ============ Assets
   // canonical token details
   address _canonical;
@@ -140,7 +143,7 @@ contract FacetHelper is ForgeHelper {
         _originDomain,
         params.destinationDomain, // destination domain
         params.agent, // agent
-        params.receiveLocal,
+        false,
         params.slippage
       );
   }

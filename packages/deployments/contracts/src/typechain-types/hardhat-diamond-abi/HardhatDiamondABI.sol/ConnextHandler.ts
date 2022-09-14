@@ -108,7 +108,6 @@ export type UserFacingCallParamsStruct = {
   callData: PromiseOrValue<BytesLike>;
   destinationDomain: PromiseOrValue<BigNumberish>;
   agent: PromiseOrValue<string>;
-  receiveLocal: PromiseOrValue<boolean>;
   slippage: PromiseOrValue<BigNumberish>;
 };
 
@@ -117,14 +116,12 @@ export type UserFacingCallParamsStructOutput = [
   string,
   number,
   string,
-  boolean,
   BigNumber
 ] & {
   to: string;
   callData: string;
   destinationDomain: number;
   agent: string;
-  receiveLocal: boolean;
   slippage: BigNumber;
 };
 
@@ -263,13 +260,13 @@ export interface ConnextHandlerInterface extends utils.Interface {
     "connextion(uint32)": FunctionFragment;
     "domain()": FunctionFragment;
     "execute(((address,bytes,uint32,uint32,address,bool,uint256),address,address[],bytes[],address,bytes,uint256,uint256,uint256,address))": FunctionFragment;
-    "forceReceiveLocal((address,bytes,uint32,uint32,address,bool,uint256),uint256,uint256,uint256,bytes32,uint32,address)": FunctionFragment;
     "nonce()": FunctionFragment;
     "reconciledTransfers(bytes32)": FunctionFragment;
     "relayerFees(bytes32)": FunctionFragment;
     "removeSequencer(address)": FunctionFragment;
     "routedTransfers(bytes32)": FunctionFragment;
-    "xcall(((address,bytes,uint32,address,bool,uint256),address,uint256))": FunctionFragment;
+    "xcall(((address,bytes,uint32,address,uint256),address,uint256))": FunctionFragment;
+    "xcallIntoLocal(((address,bytes,uint32,address,uint256),address,uint256))": FunctionFragment;
     "diamondCut((address,uint8,bytes4[])[],address,bytes)": FunctionFragment;
     "getAcceptanceTime((address,uint8,bytes4[])[],address,bytes)": FunctionFragment;
     "proposeDiamondCut((address,uint8,bytes4[])[],address,bytes)": FunctionFragment;
@@ -384,13 +381,13 @@ export interface ConnextHandlerInterface extends utils.Interface {
       | "connextion"
       | "domain"
       | "execute"
-      | "forceReceiveLocal"
       | "nonce"
       | "reconciledTransfers"
       | "relayerFees"
       | "removeSequencer"
       | "routedTransfers"
       | "xcall"
+      | "xcallIntoLocal"
       | "diamondCut"
       | "getAcceptanceTime"
       | "proposeDiamondCut"
@@ -563,18 +560,6 @@ export interface ConnextHandlerInterface extends utils.Interface {
     functionFragment: "execute",
     values: [ExecuteArgsStruct]
   ): string;
-  encodeFunctionData(
-    functionFragment: "forceReceiveLocal",
-    values: [
-      CallParamsStruct,
-      PromiseOrValue<BigNumberish>,
-      PromiseOrValue<BigNumberish>,
-      PromiseOrValue<BigNumberish>,
-      PromiseOrValue<BytesLike>,
-      PromiseOrValue<BigNumberish>,
-      PromiseOrValue<string>
-    ]
-  ): string;
   encodeFunctionData(functionFragment: "nonce", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "reconciledTransfers",
@@ -594,6 +579,10 @@ export interface ConnextHandlerInterface extends utils.Interface {
   ): string;
   encodeFunctionData(
     functionFragment: "xcall",
+    values: [XCallArgsStruct]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "xcallIntoLocal",
     values: [XCallArgsStruct]
   ): string;
   encodeFunctionData(
@@ -1116,10 +1105,6 @@ export interface ConnextHandlerInterface extends utils.Interface {
   decodeFunctionResult(functionFragment: "connextion", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "domain", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "execute", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "forceReceiveLocal",
-    data: BytesLike
-  ): Result;
   decodeFunctionResult(functionFragment: "nonce", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "reconciledTransfers",
@@ -1138,6 +1123,10 @@ export interface ConnextHandlerInterface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "xcall", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "xcallIntoLocal",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(functionFragment: "diamondCut", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "getAcceptanceTime",
@@ -1459,11 +1448,10 @@ export interface ConnextHandlerInterface extends utils.Interface {
     "ConnextionAdded(uint32,address,address)": EventFragment;
     "Executed(bytes32,address,tuple,address,uint256,address)": EventFragment;
     "ExternalCalldataExecuted(bytes32,bool,bytes)": EventFragment;
-    "ForcedReceiveLocal(bytes32,bytes32,uint32,uint256)": EventFragment;
     "SequencerAdded(address,address)": EventFragment;
     "SequencerRemoved(address,address)": EventFragment;
     "TransferRelayerFeesUpdated(bytes32,uint256,address)": EventFragment;
-    "XCalled(bytes32,uint256,bytes32,tuple,address,uint256,address)": EventFragment;
+    "XCalled(bytes32,uint256,bytes32,tuple,address,address,uint256,uint256,address)": EventFragment;
     "DiamondCut(tuple[],address,bytes)": EventFragment;
     "DiamondCutProposed(tuple[],address,bytes,uint256)": EventFragment;
     "DiamondCutRescinded(tuple[],address,bytes)": EventFragment;
@@ -1504,7 +1492,6 @@ export interface ConnextHandlerInterface extends utils.Interface {
   getEvent(nameOrSignatureOrTopic: "ConnextionAdded"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "Executed"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "ExternalCalldataExecuted"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "ForcedReceiveLocal"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "SequencerAdded"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "SequencerRemoved"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "TransferRelayerFeesUpdated"): EventFragment;
@@ -1656,20 +1643,6 @@ export type ExternalCalldataExecutedEvent = TypedEvent<
 export type ExternalCalldataExecutedEventFilter =
   TypedEventFilter<ExternalCalldataExecutedEvent>;
 
-export interface ForcedReceiveLocalEventObject {
-  transferId: string;
-  canonicalId: string;
-  canonicalDomain: number;
-  amount: BigNumber;
-}
-export type ForcedReceiveLocalEvent = TypedEvent<
-  [string, string, number, BigNumber],
-  ForcedReceiveLocalEventObject
->;
-
-export type ForcedReceiveLocalEventFilter =
-  TypedEventFilter<ForcedReceiveLocalEvent>;
-
 export interface SequencerAddedEventObject {
   sequencer: string;
   caller: string;
@@ -1710,13 +1683,25 @@ export interface XCalledEventObject {
   transferId: string;
   nonce: BigNumber;
   messageHash: string;
-  xcallArgs: XCallArgsStructOutput;
+  params: CallParamsStructOutput;
+  asset: string;
   bridgedAsset: string;
+  amount: BigNumber;
   bridgedAmount: BigNumber;
   caller: string;
 }
 export type XCalledEvent = TypedEvent<
-  [string, BigNumber, string, XCallArgsStructOutput, string, BigNumber, string],
+  [
+    string,
+    BigNumber,
+    string,
+    CallParamsStructOutput,
+    string,
+    string,
+    BigNumber,
+    BigNumber,
+    string
+  ],
   XCalledEventObject
 >;
 
@@ -2208,17 +2193,6 @@ export interface ConnextHandler extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
-    forceReceiveLocal(
-      _params: CallParamsStruct,
-      _amount: PromiseOrValue<BigNumberish>,
-      _normalizedIn: PromiseOrValue<BigNumberish>,
-      _nonce: PromiseOrValue<BigNumberish>,
-      _canonicalId: PromiseOrValue<BytesLike>,
-      _canonicalDomain: PromiseOrValue<BigNumberish>,
-      _originSender: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
-
     nonce(overrides?: CallOverrides): Promise<[BigNumber]>;
 
     reconciledTransfers(
@@ -2242,6 +2216,11 @@ export interface ConnextHandler extends BaseContract {
     ): Promise<[string[]]>;
 
     xcall(
+      _args: XCallArgsStruct,
+      overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
+
+    xcallIntoLocal(
       _args: XCallArgsStruct,
       overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
@@ -2821,17 +2800,6 @@ export interface ConnextHandler extends BaseContract {
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
-  forceReceiveLocal(
-    _params: CallParamsStruct,
-    _amount: PromiseOrValue<BigNumberish>,
-    _normalizedIn: PromiseOrValue<BigNumberish>,
-    _nonce: PromiseOrValue<BigNumberish>,
-    _canonicalId: PromiseOrValue<BytesLike>,
-    _canonicalDomain: PromiseOrValue<BigNumberish>,
-    _originSender: PromiseOrValue<string>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
-
   nonce(overrides?: CallOverrides): Promise<BigNumber>;
 
   reconciledTransfers(
@@ -2855,6 +2823,11 @@ export interface ConnextHandler extends BaseContract {
   ): Promise<string[]>;
 
   xcall(
+    _args: XCallArgsStruct,
+    overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
+
+  xcallIntoLocal(
     _args: XCallArgsStruct,
     overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
@@ -3426,17 +3399,6 @@ export interface ConnextHandler extends BaseContract {
       overrides?: CallOverrides
     ): Promise<string>;
 
-    forceReceiveLocal(
-      _params: CallParamsStruct,
-      _amount: PromiseOrValue<BigNumberish>,
-      _normalizedIn: PromiseOrValue<BigNumberish>,
-      _nonce: PromiseOrValue<BigNumberish>,
-      _canonicalId: PromiseOrValue<BytesLike>,
-      _canonicalDomain: PromiseOrValue<BigNumberish>,
-      _originSender: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<void>;
-
     nonce(overrides?: CallOverrides): Promise<BigNumber>;
 
     reconciledTransfers(
@@ -3460,6 +3422,11 @@ export interface ConnextHandler extends BaseContract {
     ): Promise<string[]>;
 
     xcall(_args: XCallArgsStruct, overrides?: CallOverrides): Promise<string>;
+
+    xcallIntoLocal(
+      _args: XCallArgsStruct,
+      overrides?: CallOverrides
+    ): Promise<string>;
 
     diamondCut(
       _diamondCut: IDiamondCut.FacetCutStruct[],
@@ -4017,19 +3984,6 @@ export interface ConnextHandler extends BaseContract {
       returnData?: null
     ): ExternalCalldataExecutedEventFilter;
 
-    "ForcedReceiveLocal(bytes32,bytes32,uint32,uint256)"(
-      transferId?: PromiseOrValue<BytesLike> | null,
-      canonicalId?: PromiseOrValue<BytesLike> | null,
-      canonicalDomain?: null,
-      amount?: null
-    ): ForcedReceiveLocalEventFilter;
-    ForcedReceiveLocal(
-      transferId?: PromiseOrValue<BytesLike> | null,
-      canonicalId?: PromiseOrValue<BytesLike> | null,
-      canonicalDomain?: null,
-      amount?: null
-    ): ForcedReceiveLocalEventFilter;
-
     "SequencerAdded(address,address)"(
       sequencer?: null,
       caller?: null
@@ -4056,12 +4010,14 @@ export interface ConnextHandler extends BaseContract {
       caller?: null
     ): TransferRelayerFeesUpdatedEventFilter;
 
-    "XCalled(bytes32,uint256,bytes32,tuple,address,uint256,address)"(
+    "XCalled(bytes32,uint256,bytes32,tuple,address,address,uint256,uint256,address)"(
       transferId?: PromiseOrValue<BytesLike> | null,
       nonce?: PromiseOrValue<BigNumberish> | null,
       messageHash?: PromiseOrValue<BytesLike> | null,
-      xcallArgs?: null,
+      params?: null,
+      asset?: null,
       bridgedAsset?: null,
+      amount?: null,
       bridgedAmount?: null,
       caller?: null
     ): XCalledEventFilter;
@@ -4069,8 +4025,10 @@ export interface ConnextHandler extends BaseContract {
       transferId?: PromiseOrValue<BytesLike> | null,
       nonce?: PromiseOrValue<BigNumberish> | null,
       messageHash?: PromiseOrValue<BytesLike> | null,
-      xcallArgs?: null,
+      params?: null,
+      asset?: null,
       bridgedAsset?: null,
+      amount?: null,
       bridgedAmount?: null,
       caller?: null
     ): XCalledEventFilter;
@@ -4465,17 +4423,6 @@ export interface ConnextHandler extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
-    forceReceiveLocal(
-      _params: CallParamsStruct,
-      _amount: PromiseOrValue<BigNumberish>,
-      _normalizedIn: PromiseOrValue<BigNumberish>,
-      _nonce: PromiseOrValue<BigNumberish>,
-      _canonicalId: PromiseOrValue<BytesLike>,
-      _canonicalDomain: PromiseOrValue<BigNumberish>,
-      _originSender: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
-
     nonce(overrides?: CallOverrides): Promise<BigNumber>;
 
     reconciledTransfers(
@@ -4499,6 +4446,11 @@ export interface ConnextHandler extends BaseContract {
     ): Promise<BigNumber>;
 
     xcall(
+      _args: XCallArgsStruct,
+      overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
+
+    xcallIntoLocal(
       _args: XCallArgsStruct,
       overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
@@ -5073,17 +5025,6 @@ export interface ConnextHandler extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
-    forceReceiveLocal(
-      _params: CallParamsStruct,
-      _amount: PromiseOrValue<BigNumberish>,
-      _normalizedIn: PromiseOrValue<BigNumberish>,
-      _nonce: PromiseOrValue<BigNumberish>,
-      _canonicalId: PromiseOrValue<BytesLike>,
-      _canonicalDomain: PromiseOrValue<BigNumberish>,
-      _originSender: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
-
     nonce(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     reconciledTransfers(
@@ -5107,6 +5048,11 @@ export interface ConnextHandler extends BaseContract {
     ): Promise<PopulatedTransaction>;
 
     xcall(
+      _args: XCallArgsStruct,
+      overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
+    xcallIntoLocal(
       _args: XCallArgsStruct,
       overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
