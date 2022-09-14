@@ -192,12 +192,22 @@ type AggregateRoot @entity {
   root: Bytes!
 }
 
+type ConnectorMeta @entity {
+  id: ID! # "ConnectorMeta"
+  spokeDomain: BigInt!
+  hubDomain: BigInt!
+
+  amb: Bytes!
+  rootManager: Bytes!
+  mirrorConnector: Bytes!
+}
+
 type RootMessageSent @entity {
   id: ID!
-  root: Bytes
 
-  hub: BigInt
-  spoke: BigInt
+  spokeDomain: BigInt
+  hubDomain: BigInt
+  root: Bytes
 
   # MessageSent Transaction
   caller: Bytes
@@ -210,6 +220,7 @@ type RootMessageSent @entity {
 
 type RootMessageProcessed @entity {
   id: ID!
+
   root: Bytes
 
   # MessageProcessed Transaction

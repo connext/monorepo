@@ -20,6 +20,7 @@ import {
   MaxRoutersPerTransferUpdated,
 } from "../../generated/Connext/ConnextHandler";
 import {
+  NewConnector,
   Dispatch,
   Process,
   AggregateRootUpdated,
@@ -39,13 +40,14 @@ import {
   OriginMessage,
   DestinationMessage,
   AggregateRoot,
-  RootMessage,
+  RootMessageSent,
+  RootMessageProcessed,
+  ConnectorMeta,
 } from "../../generated/schema";
 
 const DEFAULT_MAX_ROUTERS_PER_TRANSFER = 5;
 
-/// TEMP: TODO add constuctor event
-const HUB_DOMAIN = "1735353714";
+const DEFAULT_CONNECTOR_META_ID = "CONNECTOR_META_ID";
 
 /// MARK - Assets
 export function handleAssetAdded(event: AssetAdded): void {
@@ -476,18 +478,22 @@ export function handleAggregateRootUpdated(event: AggregateRootUpdated): void {
 }
 
 export function handleMessageSent(event: MessageSent): void {
-  let message = RootMessage.load(event.params.data.toHexString());
+  let message = RootMessageSent.load(event.params.data.toHexString());
   if (message == null) {
-    message = new RootMessage(event.params.data.toHexString());
+    message = new RootMessageSent(event.params.data.toHexString());
   }
 
-  message.chainId = getChainId();
+  let meta = ConnectorMeta.load(DEFAULT_CONNECTOR_META_ID);
+  if (meta == null) {
+    meta = new ConnectorMeta(DEFAULT_CONNECTOR_META_ID);
+  }
+
+  message.spokeDomain = meta.spokeDomain;
+  message.hubDomain = meta.hubDomain;
 
   message.root = event.params.data;
   message.caller = event.params.caller;
   message.transactionHash = event.transaction.hash;
-  message.logIndex = event.logIndex;
-  message.transactionLogIndex = event.transactionLogIndex;
   message.timestamp = event.block.timestamp;
   message.gasPrice = event.transaction.gasPrice;
   message.gasLimit = event.transaction.gasLimit;
@@ -496,23 +502,35 @@ export function handleMessageSent(event: MessageSent): void {
 }
 
 export function handleMessageProcessed(event: MessageProcessed): void {
-  let message = RootMessage.load(event.params.data.toHexString());
+  let message = RootMessageProcessed.load(event.params.data.toHexString());
   if (message == null) {
-    message = new RootMessage(event.params.data.toHexString());
+    message = new RootMessageProcessed(event.params.data.toHexString());
   }
-
-  message.chainId = getChainId();
 
   message.root = event.params.data;
   message.caller = event.params.caller;
   message.transactionHash = event.transaction.hash;
-  message.logIndex = event.logIndex;
-  message.transactionLogIndex = event.transactionLogIndex;
   message.timestamp = event.block.timestamp;
   message.gasPrice = event.transaction.gasPrice;
   message.gasLimit = event.transaction.gasLimit;
   message.blockNumber = event.block.number;
   message.save();
+}
+
+export function handleNewConnector(event: NewConnector): void {
+  let meta = ConnectorMeta.load(DEFAULT_CONNECTOR_META_ID);
+  if (meta == null) {
+    meta = new ConnectorMeta(DEFAULT_CONNECTOR_META_ID);
+  }
+
+  meta.spokeDomain = event.params.domain;
+  meta.hubDomain = event.params.mirrorDomain;
+
+  meta.amb = event.params.amb;
+  meta.rootManager = event.params.rootManager;
+  meta.mirrorConnector = event.params.mirrorConnector;
+
+  meta.save();
 }
 
 /// MARK - Helpers
