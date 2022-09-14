@@ -1066,6 +1066,86 @@ const _abi = [
   {
     inputs: [
       {
+        components: [
+          {
+            internalType: "address",
+            name: "to",
+            type: "address",
+          },
+          {
+            internalType: "bytes",
+            name: "callData",
+            type: "bytes",
+          },
+          {
+            internalType: "uint32",
+            name: "originDomain",
+            type: "uint32",
+          },
+          {
+            internalType: "uint32",
+            name: "destinationDomain",
+            type: "uint32",
+          },
+          {
+            internalType: "address",
+            name: "agent",
+            type: "address",
+          },
+          {
+            internalType: "bool",
+            name: "receiveLocal",
+            type: "bool",
+          },
+          {
+            internalType: "uint256",
+            name: "slippage",
+            type: "uint256",
+          },
+        ],
+        internalType: "struct CallParams",
+        name: "_params",
+        type: "tuple",
+      },
+      {
+        internalType: "address",
+        name: "_originSender",
+        type: "address",
+      },
+      {
+        internalType: "uint32",
+        name: "_canonicalDomain",
+        type: "uint32",
+      },
+      {
+        internalType: "bytes32",
+        name: "_canonicalId",
+        type: "bytes32",
+      },
+      {
+        internalType: "uint256",
+        name: "_normalizedIn",
+        type: "uint256",
+      },
+      {
+        internalType: "uint256",
+        name: "_amount",
+        type: "uint256",
+      },
+      {
+        internalType: "uint256",
+        name: "_nonce",
+        type: "uint256",
+      },
+    ],
+    name: "forceUpdateSlippage",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
         internalType: "bytes32",
         name: "_transferId",
         type: "bytes32",

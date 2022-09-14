@@ -260,6 +260,7 @@ export interface ConnextHandlerInterface extends utils.Interface {
     "connextion(uint32)": FunctionFragment;
     "domain()": FunctionFragment;
     "execute(((address,bytes,uint32,uint32,address,bool,uint256),address,address[],bytes[],address,bytes,uint256,uint256,uint256,address))": FunctionFragment;
+    "forceUpdateSlippage((address,bytes,uint32,uint32,address,bool,uint256),address,uint32,bytes32,uint256,uint256,uint256,uint256)": FunctionFragment;
     "nonce()": FunctionFragment;
     "reconciledTransfers(bytes32)": FunctionFragment;
     "relayerFees(bytes32)": FunctionFragment;
@@ -381,6 +382,7 @@ export interface ConnextHandlerInterface extends utils.Interface {
       | "connextion"
       | "domain"
       | "execute"
+      | "forceUpdateSlippage"
       | "nonce"
       | "reconciledTransfers"
       | "relayerFees"
@@ -559,6 +561,19 @@ export interface ConnextHandlerInterface extends utils.Interface {
   encodeFunctionData(
     functionFragment: "execute",
     values: [ExecuteArgsStruct]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "forceUpdateSlippage",
+    values: [
+      CallParamsStruct,
+      PromiseOrValue<string>,
+      PromiseOrValue<BigNumberish>,
+      PromiseOrValue<BytesLike>,
+      PromiseOrValue<BigNumberish>,
+      PromiseOrValue<BigNumberish>,
+      PromiseOrValue<BigNumberish>,
+      PromiseOrValue<BigNumberish>
+    ]
   ): string;
   encodeFunctionData(functionFragment: "nonce", values?: undefined): string;
   encodeFunctionData(
@@ -1105,6 +1120,10 @@ export interface ConnextHandlerInterface extends utils.Interface {
   decodeFunctionResult(functionFragment: "connextion", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "domain", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "execute", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "forceUpdateSlippage",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(functionFragment: "nonce", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "reconciledTransfers",
@@ -1450,6 +1469,7 @@ export interface ConnextHandlerInterface extends utils.Interface {
     "ExternalCalldataExecuted(bytes32,bool,bytes)": EventFragment;
     "SequencerAdded(address,address)": EventFragment;
     "SequencerRemoved(address,address)": EventFragment;
+    "SlippageUpdated(bytes32,uint256)": EventFragment;
     "TransferRelayerFeesUpdated(bytes32,uint256,address)": EventFragment;
     "XCalled(bytes32,uint256,bytes32,tuple,address,address,uint256,uint256,address)": EventFragment;
     "DiamondCut(tuple[],address,bytes)": EventFragment;
@@ -1494,6 +1514,7 @@ export interface ConnextHandlerInterface extends utils.Interface {
   getEvent(nameOrSignatureOrTopic: "ExternalCalldataExecuted"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "SequencerAdded"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "SequencerRemoved"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "SlippageUpdated"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "TransferRelayerFeesUpdated"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "XCalled"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "DiamondCut"): EventFragment;
@@ -1665,6 +1686,17 @@ export type SequencerRemovedEvent = TypedEvent<
 
 export type SequencerRemovedEventFilter =
   TypedEventFilter<SequencerRemovedEvent>;
+
+export interface SlippageUpdatedEventObject {
+  transferId: string;
+  slippage: BigNumber;
+}
+export type SlippageUpdatedEvent = TypedEvent<
+  [string, BigNumber],
+  SlippageUpdatedEventObject
+>;
+
+export type SlippageUpdatedEventFilter = TypedEventFilter<SlippageUpdatedEvent>;
 
 export interface TransferRelayerFeesUpdatedEventObject {
   transferId: string;
@@ -2190,6 +2222,18 @@ export interface ConnextHandler extends BaseContract {
 
     execute(
       _args: ExecuteArgsStruct,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
+
+    forceUpdateSlippage(
+      _params: CallParamsStruct,
+      _originSender: PromiseOrValue<string>,
+      _canonicalDomain: PromiseOrValue<BigNumberish>,
+      _canonicalId: PromiseOrValue<BytesLike>,
+      _normalizedIn: PromiseOrValue<BigNumberish>,
+      _amount: PromiseOrValue<BigNumberish>,
+      _nonce: PromiseOrValue<BigNumberish>,
+      _slippage: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
@@ -2800,6 +2844,18 @@ export interface ConnextHandler extends BaseContract {
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
+  forceUpdateSlippage(
+    _params: CallParamsStruct,
+    _originSender: PromiseOrValue<string>,
+    _canonicalDomain: PromiseOrValue<BigNumberish>,
+    _canonicalId: PromiseOrValue<BytesLike>,
+    _normalizedIn: PromiseOrValue<BigNumberish>,
+    _amount: PromiseOrValue<BigNumberish>,
+    _nonce: PromiseOrValue<BigNumberish>,
+    _slippage: PromiseOrValue<BigNumberish>,
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
+
   nonce(overrides?: CallOverrides): Promise<BigNumber>;
 
   reconciledTransfers(
@@ -3398,6 +3454,18 @@ export interface ConnextHandler extends BaseContract {
       _args: ExecuteArgsStruct,
       overrides?: CallOverrides
     ): Promise<string>;
+
+    forceUpdateSlippage(
+      _params: CallParamsStruct,
+      _originSender: PromiseOrValue<string>,
+      _canonicalDomain: PromiseOrValue<BigNumberish>,
+      _canonicalId: PromiseOrValue<BytesLike>,
+      _normalizedIn: PromiseOrValue<BigNumberish>,
+      _amount: PromiseOrValue<BigNumberish>,
+      _nonce: PromiseOrValue<BigNumberish>,
+      _slippage: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
+    ): Promise<void>;
 
     nonce(overrides?: CallOverrides): Promise<BigNumber>;
 
@@ -3999,6 +4067,15 @@ export interface ConnextHandler extends BaseContract {
       caller?: null
     ): SequencerRemovedEventFilter;
 
+    "SlippageUpdated(bytes32,uint256)"(
+      transferId?: PromiseOrValue<BytesLike> | null,
+      slippage?: null
+    ): SlippageUpdatedEventFilter;
+    SlippageUpdated(
+      transferId?: PromiseOrValue<BytesLike> | null,
+      slippage?: null
+    ): SlippageUpdatedEventFilter;
+
     "TransferRelayerFeesUpdated(bytes32,uint256,address)"(
       transferId?: PromiseOrValue<BytesLike> | null,
       relayerFee?: null,
@@ -4420,6 +4497,18 @@ export interface ConnextHandler extends BaseContract {
 
     execute(
       _args: ExecuteArgsStruct,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
+
+    forceUpdateSlippage(
+      _params: CallParamsStruct,
+      _originSender: PromiseOrValue<string>,
+      _canonicalDomain: PromiseOrValue<BigNumberish>,
+      _canonicalId: PromiseOrValue<BytesLike>,
+      _normalizedIn: PromiseOrValue<BigNumberish>,
+      _amount: PromiseOrValue<BigNumberish>,
+      _nonce: PromiseOrValue<BigNumberish>,
+      _slippage: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
@@ -5022,6 +5111,18 @@ export interface ConnextHandler extends BaseContract {
 
     execute(
       _args: ExecuteArgsStruct,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
+    forceUpdateSlippage(
+      _params: CallParamsStruct,
+      _originSender: PromiseOrValue<string>,
+      _canonicalDomain: PromiseOrValue<BigNumberish>,
+      _canonicalId: PromiseOrValue<BytesLike>,
+      _normalizedIn: PromiseOrValue<BigNumberish>,
+      _amount: PromiseOrValue<BigNumberish>,
+      _nonce: PromiseOrValue<BigNumberish>,
+      _slippage: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 

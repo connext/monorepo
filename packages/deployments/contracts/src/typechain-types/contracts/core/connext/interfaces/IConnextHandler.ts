@@ -281,6 +281,7 @@ export interface IConnextHandlerInterface extends utils.Interface {
     "facetAddresses()": FunctionFragment;
     "facetFunctionSelectors(address)": FunctionFragment;
     "facets()": FunctionFragment;
+    "forceUpdateSlippage((address,bytes,uint32,uint32,address,bool,uint256),address,uint32,bytes32,uint256,uint256,uint256)": FunctionFragment;
     "getAavePortalDebt(bytes32)": FunctionFragment;
     "getAavePortalFeeDebt(bytes32)": FunctionFragment;
     "getProposedRouterOwner(address)": FunctionFragment;
@@ -406,6 +407,7 @@ export interface IConnextHandlerInterface extends utils.Interface {
       | "facetAddresses"
       | "facetFunctionSelectors"
       | "facets"
+      | "forceUpdateSlippage"
       | "getAavePortalDebt"
       | "getAavePortalFeeDebt"
       | "getProposedRouterOwner"
@@ -666,6 +668,18 @@ export interface IConnextHandlerInterface extends utils.Interface {
     values: [PromiseOrValue<string>]
   ): string;
   encodeFunctionData(functionFragment: "facets", values?: undefined): string;
+  encodeFunctionData(
+    functionFragment: "forceUpdateSlippage",
+    values: [
+      CallParamsStruct,
+      PromiseOrValue<string>,
+      PromiseOrValue<BigNumberish>,
+      PromiseOrValue<BytesLike>,
+      PromiseOrValue<BigNumberish>,
+      PromiseOrValue<BigNumberish>,
+      PromiseOrValue<BigNumberish>
+    ]
+  ): string;
   encodeFunctionData(
     functionFragment: "getAavePortalDebt",
     values: [PromiseOrValue<BytesLike>]
@@ -1202,6 +1216,10 @@ export interface IConnextHandlerInterface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "facets", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "forceUpdateSlippage",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(
     functionFragment: "getAavePortalDebt",
     data: BytesLike
@@ -1752,6 +1770,17 @@ export interface IConnextHandler extends BaseContract {
         facets_: IDiamondLoupe.FacetStructOutput[];
       }
     >;
+
+    forceUpdateSlippage(
+      _params: CallParamsStruct,
+      _originSender: PromiseOrValue<string>,
+      _canonicalDomain: PromiseOrValue<BigNumberish>,
+      _canonicalId: PromiseOrValue<BytesLike>,
+      _normalizedIn: PromiseOrValue<BigNumberish>,
+      _amount: PromiseOrValue<BigNumberish>,
+      _nonce: PromiseOrValue<BigNumberish>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
 
     getAavePortalDebt(
       _transferId: PromiseOrValue<BytesLike>,
@@ -2384,6 +2413,17 @@ export interface IConnextHandler extends BaseContract {
 
   facets(overrides?: CallOverrides): Promise<IDiamondLoupe.FacetStructOutput[]>;
 
+  forceUpdateSlippage(
+    _params: CallParamsStruct,
+    _originSender: PromiseOrValue<string>,
+    _canonicalDomain: PromiseOrValue<BigNumberish>,
+    _canonicalId: PromiseOrValue<BytesLike>,
+    _normalizedIn: PromiseOrValue<BigNumberish>,
+    _amount: PromiseOrValue<BigNumberish>,
+    _nonce: PromiseOrValue<BigNumberish>,
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
+
   getAavePortalDebt(
     _transferId: PromiseOrValue<BytesLike>,
     overrides?: CallOverrides
@@ -3012,6 +3052,17 @@ export interface IConnextHandler extends BaseContract {
     facets(
       overrides?: CallOverrides
     ): Promise<IDiamondLoupe.FacetStructOutput[]>;
+
+    forceUpdateSlippage(
+      _params: CallParamsStruct,
+      _originSender: PromiseOrValue<string>,
+      _canonicalDomain: PromiseOrValue<BigNumberish>,
+      _canonicalId: PromiseOrValue<BytesLike>,
+      _normalizedIn: PromiseOrValue<BigNumberish>,
+      _amount: PromiseOrValue<BigNumberish>,
+      _nonce: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
+    ): Promise<void>;
 
     getAavePortalDebt(
       _transferId: PromiseOrValue<BytesLike>,
@@ -3665,6 +3716,17 @@ export interface IConnextHandler extends BaseContract {
 
     facets(overrides?: CallOverrides): Promise<BigNumber>;
 
+    forceUpdateSlippage(
+      _params: CallParamsStruct,
+      _originSender: PromiseOrValue<string>,
+      _canonicalDomain: PromiseOrValue<BigNumberish>,
+      _canonicalId: PromiseOrValue<BytesLike>,
+      _normalizedIn: PromiseOrValue<BigNumberish>,
+      _amount: PromiseOrValue<BigNumberish>,
+      _nonce: PromiseOrValue<BigNumberish>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
+
     getAavePortalDebt(
       _transferId: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
@@ -4304,6 +4366,17 @@ export interface IConnextHandler extends BaseContract {
     ): Promise<PopulatedTransaction>;
 
     facets(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    forceUpdateSlippage(
+      _params: CallParamsStruct,
+      _originSender: PromiseOrValue<string>,
+      _canonicalDomain: PromiseOrValue<BigNumberish>,
+      _canonicalId: PromiseOrValue<BytesLike>,
+      _normalizedIn: PromiseOrValue<BigNumberish>,
+      _amount: PromiseOrValue<BigNumberish>,
+      _nonce: PromiseOrValue<BigNumberish>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
 
     getAavePortalDebt(
       _transferId: PromiseOrValue<BytesLike>,
