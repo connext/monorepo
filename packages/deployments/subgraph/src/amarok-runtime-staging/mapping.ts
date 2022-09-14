@@ -443,6 +443,7 @@ export function handleDispatch(event: Dispatch): void {
   message.index = event.params.index;
   message.root = event.params.root;
   message.message = event.params.message;
+  message.transactionHash = event.transaction.hash;
 
   message.save();
 }
@@ -456,6 +457,7 @@ export function handleProcess(event: Process): void {
   message.leaf = event.params.leaf;
   message.processed = event.params.success;
   message.returnData = event.params.returnData;
+  message.transactionHash = event.transaction.hash;
 
   message.save();
 }

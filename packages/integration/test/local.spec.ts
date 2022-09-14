@@ -134,13 +134,14 @@ const userTxService = new TransactionService(
 
 const sendXCall = async (
   sdkBase: NxtpSdkBase,
-  xparams: Partial<CallParams> = {},
+  xparams: Partial<CallParams> & { transactingAsset?: string; transactingAmount?: string } = {},
   signer?: Wallet,
 ): Promise<{
   receipt: providers.TransactionReceipt;
   xcallData: XCallArgs;
 }> => {
   logger.info("Formatting XCall.");
+  const { transactingAsset, transactingAmount, ...callParams } = xparams;
   const xcallData: XCallArgs = {
     params: {
       to: PARAMETERS.AGENTS.USER.address,
@@ -156,10 +157,10 @@ const sendXCall = async (
       recovery: PARAMETERS.AGENTS.USER.address,
       relayerFee: "0",
       destinationMinOut: "0",
-      ...xparams,
+      ...callParams,
     },
-    transactingAsset: PARAMETERS.A.DEPLOYMENTS.TestERC20,
-    transactingAmount: "1000",
+    transactingAsset: transactingAsset ?? PARAMETERS.A.DEPLOYMENTS.TestERC20,
+    transactingAmount: transactingAmount ?? "1000",
     originMinOut: "0",
   };
   const tx = await sdkBase.xcall(xcallData);
@@ -273,17 +274,31 @@ const getTransferById = async (sdkUtils: NxtpSdkUtils, domain: string, transferI
     attempts: Math.floor(180_000 / SUBG_POLL_PARITY),
     parity: SUBG_POLL_PARITY,
     method: async () => {
-      const dbTransfer = await sdkUtils.getTransferById(transferId);
-      const transfer = convertFromDbTransfer(dbTransfer[0]);
-      if (transfer.destination?.reconcile?.transactionHash) {
-        logger.info("Transfer was reconciled.", requestContext, methodContext, {
-          domain,
-          hash: transfer.destination!.reconcile!.transactionHash,
-        });
-      }
+      try {
+        const dbTransfer = await sdkUtils.getTransferById(transferId);
+        if (dbTransfer.length === 0) {
+          logger.info("No results! Waiting for next loop...");
+          return undefined;
+        }
+        const transfer = convertFromDbTransfer(dbTransfer[0]);
 
-      if (transfer.destination?.execute?.transactionHash) {
-        return transfer;
+        if (transfer.destination?.reconcile?.transactionHash) {
+          logger.info("Transfer was reconciled.", requestContext, methodContext, {
+            domain,
+            hash: transfer.destination!.reconcile!.transactionHash,
+          });
+        }
+
+        if (transfer.destination?.execute?.transactionHash) {
+          logger.info("Transfer was executed.", requestContext, methodContext, {
+            domain,
+            hash: transfer.destination!.reconcile!.transactionHash,
+          });
+          return transfer;
+        }
+      } catch (e: unknown) {
+        console.warn(e);
+        logger.info("Waiting for next loop...");
       }
       return undefined;
     },
@@ -588,6 +603,73 @@ describe("LOCAL:E2E", () => {
     const { receipt, xcallData } = await sendXCall(
       sdkBase,
       { forceSlow: false },
+      PARAMETERS.AGENTS.USER.signer.connect(originProvider),
+    );
+    const originTransfer = await getTransferByTransactionHash(sdkUtils, PARAMETERS.A.DOMAIN, receipt.transactionHash);
+
+    // TODO: Check user funds, assert tokens were deducted.
+
+    logger.info("Waiting for execution on the destination domain.", requestContext, methodContext, {
+      domain: xcallData.params.destinationDomain,
+      transferId: originTransfer?.transferId,
+    });
+
+    const sequencerUrl = process.env.SEQUENCER_URL;
+    if (sequencerUrl) {
+      logger.info("Polling sequencer for auction status...");
+      let error: any | undefined;
+      const status: AxiosResponse<ExecuteFastApiGetExecStatusResponse> | undefined = await pollSomething({
+        attempts: Math.floor(60_000 / SUBG_POLL_PARITY),
+        parity: SUBG_POLL_PARITY,
+        method: async () => {
+          return await axios
+            .request<ExecuteFastApiGetExecStatusResponse>({
+              method: "get",
+              baseURL: sequencerUrl,
+              url: `/auctions/${originTransfer.transferId}`,
+            })
+            .catch((e: AxiosResponse<SequencerApiErrorResponse>) => {
+              error = e.data ? (e.data.error ? e.data.error.message : e.data) : e;
+              return undefined;
+            });
+        },
+      });
+      if (!status) {
+        logger.info("Unable to retrieve auction status from Sequencer.", requestContext, methodContext, {
+          etc: {
+            error,
+          },
+        });
+      } else {
+        logger.info(`Retrieved auction status from Sequencer.`, requestContext, methodContext, {
+          originDomain: xcallData.params.originDomain,
+          destinationDomain: xcallData.params.destinationDomain,
+          etc: { status: status.data },
+        });
+      }
+    }
+
+    const destinationTransfer = await getTransferById(sdkUtils, PARAMETERS.B.DOMAIN, originTransfer.transferId);
+    expect(destinationTransfer.destination?.status).to.be.eq(XTransferStatus.Executed);
+
+    // TODO: Check router liquidity on-chain, assert funds were deducted.
+    logger.info("Fast-liquidity transfer completed successfully!", requestContext, methodContext, {
+      originDomain: xcallData.params.originDomain,
+      destinationDomain: xcallData.params.destinationDomain,
+      etc: {
+        transfer: {
+          ...originTransfer,
+          destination: destinationTransfer.destination,
+        },
+      },
+    });
+  });
+
+  it.only("works for address(0) and 0-value transfers", async () => {
+    const originProvider = new providers.JsonRpcProvider(PARAMETERS.A.RPC[0]);
+    const { receipt, xcallData } = await sendXCall(
+      sdkBase,
+      { forceSlow: false, transactingAmount: "0", transactingAsset: constants.AddressZero },
       PARAMETERS.AGENTS.USER.signer.connect(originProvider),
     );
     const originTransfer = await getTransferByTransactionHash(sdkUtils, PARAMETERS.A.DOMAIN, receipt.transactionHash);

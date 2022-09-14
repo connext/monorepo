@@ -331,6 +331,7 @@ export interface GnosisSpokeConnectorInterface extends utils.Interface {
     "MessageSent(bytes,address)": EventFragment;
     "MirrorConnectorUpdated(address,address)": EventFragment;
     "MirrorGasUpdated(uint256,uint256)": EventFragment;
+    "NewConnector(uint32,uint32,address,address,address)": EventFragment;
     "OwnershipProposed(address)": EventFragment;
     "OwnershipTransferred(address,address)": EventFragment;
     "Process(bytes32,bool,bytes)": EventFragment;
@@ -344,6 +345,7 @@ export interface GnosisSpokeConnectorInterface extends utils.Interface {
   getEvent(nameOrSignatureOrTopic: "MessageSent"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "MirrorConnectorUpdated"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "MirrorGasUpdated"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "NewConnector"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "OwnershipProposed"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "OwnershipTransferred"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "Process"): EventFragment;
@@ -422,6 +424,20 @@ export type MirrorGasUpdatedEvent = TypedEvent<
 
 export type MirrorGasUpdatedEventFilter =
   TypedEventFilter<MirrorGasUpdatedEvent>;
+
+export interface NewConnectorEventObject {
+  domain: number;
+  mirrorDomain: number;
+  amb: string;
+  rootManager: string;
+  mirrorConnector: string;
+}
+export type NewConnectorEvent = TypedEvent<
+  [number, number, string, string, string],
+  NewConnectorEventObject
+>;
+
+export type NewConnectorEventFilter = TypedEventFilter<NewConnectorEvent>;
 
 export interface OwnershipProposedEventObject {
   proposedOwner: string;
@@ -922,6 +938,21 @@ export interface GnosisSpokeConnector extends BaseContract {
       previous?: null,
       current?: null
     ): MirrorGasUpdatedEventFilter;
+
+    "NewConnector(uint32,uint32,address,address,address)"(
+      domain?: PromiseOrValue<BigNumberish> | null,
+      mirrorDomain?: PromiseOrValue<BigNumberish> | null,
+      amb?: null,
+      rootManager?: null,
+      mirrorConnector?: null
+    ): NewConnectorEventFilter;
+    NewConnector(
+      domain?: PromiseOrValue<BigNumberish> | null,
+      mirrorDomain?: PromiseOrValue<BigNumberish> | null,
+      amb?: null,
+      rootManager?: null,
+      mirrorConnector?: null
+    ): NewConnectorEventFilter;
 
     "OwnershipProposed(address)"(
       proposedOwner?: PromiseOrValue<string> | null

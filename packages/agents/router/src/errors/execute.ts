@@ -72,13 +72,19 @@ export class NotEnoughAmount extends ExecuteError {
 
 export class CallDataForNonContract extends ExecuteError {
   constructor(context: any = {}) {
-    super("Calldata specified for an address that is not a contract", context, CallDataForNonContract.name);
+    super(
+      "Calldata specified for an address that is not a contract",
+      context,
+      CallDataForNonContract.name,
+      undefined,
+      false,
+    );
   }
 }
 
 export class RouterNotApproved extends ExecuteError {
   constructor(context: any = {}) {
-    super("Router not approved", context, RouterNotApproved.name);
+    super("Router not approved", context, RouterNotApproved.name, undefined, false);
   }
 }
 
@@ -90,19 +96,19 @@ export class SequencerResponseInvalid extends ExecuteError {
 
 export class AuctionExpired extends ExecuteError {
   constructor(context: any = {}) {
-    super("Auction has already expired for this transfer.", context, AuctionExpired.name);
+    super("Auction has already expired for this transfer.", context, AuctionExpired.name, undefined, false);
   }
 }
 
 export class SanityCheckFailed extends ExecuteError {
   constructor(context: any = {}) {
-    super("Sanity check failed", context, SanityCheckFailed.name);
+    super("Sanity check failed", context, SanityCheckFailed.name, undefined, false);
   }
 }
 
 export class InvalidAuctionRound extends ExecuteError {
   constructor(context: any = {}) {
-    super("Invalid auction round", context, InvalidAuctionRound.name);
+    super("Invalid auction round", context, InvalidAuctionRound.name, undefined, false);
   }
 }
 
@@ -136,6 +142,8 @@ export class DomainNotSupported extends ExecuteError {
       "Destination domain for this transfer is not supported",
       { ...context, domain, transferId },
       DomainNotSupported.name,
+      undefined,
+      false,
     );
   }
 }

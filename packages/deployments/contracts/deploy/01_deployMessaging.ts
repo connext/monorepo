@@ -19,7 +19,7 @@ const formatConnectorArgs = (
   const config = protocol.configs[connectorChainId];
   console.log(`using config`, config);
 
-  const isHub = deploymentChainId === protocol.hub;
+  const isHub = deploymentChainId === protocol.hub && connectorChainId != protocol.hub;
 
   // FIXME: settle on domains w/nomad
   const deploymentDomain = BigNumber.from(chainIdToDomain(deploymentChainId).toString());
@@ -32,14 +32,14 @@ const formatConnectorArgs = (
     rootManager,
     constants.AddressZero,
     config.processGas,
-    ...Object.values(config?.custom?.hub ?? {}),
+    ...Object.values((isHub ? config?.custom?.hub : config?.custom?.spoke) ?? {}),
   ];
   if (isHub) {
     console.log(
-      `constructorArgs:`,
+      `hub connector constructorArgs:`,
       hubArgs.map((c) => c.toString()),
     );
-    return [...hubArgs, config.processGas, config.reserveGas];
+    return hubArgs;
   }
   const constructorArgs = [
     ...hubArgs,
@@ -48,11 +48,11 @@ const formatConnectorArgs = (
     ...Object.values(config?.custom?.spoke ?? {}),
   ];
   console.log(
-    `constructorArgs:`,
+    `spoke connector constructorArgs:`,
     constructorArgs.map((c) => c.toString()),
   );
   // console.log(`- domain:`, constructorArgs[0].toString());
-  return isHub ? hubArgs : constructorArgs;
+  return constructorArgs;
 };
 
 // Deploy messaging contracts unique to Eth mainnet, including hub connectors.
@@ -111,13 +111,8 @@ const handleDeployHub = async (
       continue;
     }
 
-    const contract = getConnectorName(protocol, mirrorChainId);
-    if (
-      (!connectorName.includes("Optimism") && !connectorName.includes("Polygon")) ||
-      connectorName.includes("Mainnet")
-    ) {
-      return;
-    }
+    const contract = getConnectorName(protocol, mirrorChainId, protocol.hub);
+
     console.log(`Deploying ${contract}...`);
     const deployment = await hre.deployments.deploy(getDeploymentName(contract), {
       contract,
