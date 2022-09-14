@@ -39,7 +39,7 @@ export default task("set-mirror-connectors", "Add a remote router")
           console.log(`tx mined:`, receipt.transactionHash);
         }
 
-        if (name.includes("PolygonL1Connector")) {
+        if (name.includes("PolygonHubConnector")) {
           console.log(`setting fxChildTunnel to ${mirrorConnector} on ${name}...`);
           const tx = await connector.setFxChildTunnel(mirrorConnector);
           console.log(`set fxChildTunnel tx sent:`, tx.hash);
@@ -47,7 +47,7 @@ export default task("set-mirror-connectors", "Add a remote router")
           console.log(`tx mined:`, receipt.transactionHash);
         }
 
-        if (name.includes("PolygonL2Connector")) {
+        if (name.includes("PolygonSpokeConnector")) {
           console.log(`setting fxRootTunnel to ${mirrorConnector} on ${name}...`);
           const tx = await connector.setFxRootTunnel(mirrorConnector);
           console.log(`set fxRootTunnel tx sent:`, tx.hash);

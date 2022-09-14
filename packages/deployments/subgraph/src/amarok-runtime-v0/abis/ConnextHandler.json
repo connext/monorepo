@@ -20,31 +20,6 @@
     "type": "error"
   },
   {
-    "inputs": [],
-    "name": "BaseConnextFacet__nonReentrant_reentrantCall",
-    "type": "error"
-  },
-  {
-    "inputs": [],
-    "name": "BaseConnextFacet__onlyBridgeRouter_notBridgeRouter",
-    "type": "error"
-  },
-  {
-    "inputs": [],
-    "name": "BaseConnextFacet__onlyOwner_notOwner",
-    "type": "error"
-  },
-  {
-    "inputs": [],
-    "name": "BaseConnextFacet__onlyProposed_notProposedOwner",
-    "type": "error"
-  },
-  {
-    "inputs": [],
-    "name": "BaseConnextFacet__whenNotPaused_paused",
-    "type": "error"
-  },
-  {
     "anonymous": false,
     "inputs": [
       {
@@ -488,22 +463,6 @@
     "stateMutability": "view",
     "type": "function"
   },
-
-  {
-    "inputs": [],
-    "name": "AssetLogic__getTokenIndexFromStableSwapPool_notExist",
-    "type": "error"
-  },
-  {
-    "inputs": [],
-    "name": "AssetLogic__handleOutgoingAsset_notNative",
-    "type": "error"
-  },
-  {
-    "inputs": [],
-    "name": "AssetLogic__transferAssetToContract_feeOnTransferNotSupported",
-    "type": "error"
-  },
   {
     "inputs": [],
     "name": "BaseConnextFacet__nonReentrant_reentrantCall",
@@ -527,6 +486,21 @@
   {
     "inputs": [],
     "name": "BaseConnextFacet__whenNotPaused_paused",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "AssetLogic__getTokenIndexFromStableSwapPool_notExist",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "AssetLogic__handleOutgoingAsset_notNative",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "AssetLogic__transferAssetToContract_feeOnTransferNotSupported",
     "type": "error"
   },
   {
@@ -1241,6 +1215,25 @@
   {
     "inputs": [
       {
+        "internalType": "address",
+        "name": "_sequencer",
+        "type": "address"
+      }
+    ],
+    "name": "approvedSequencers",
+    "outputs": [
+      {
+        "internalType": "bool",
+        "name": "",
+        "type": "bool"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
         "internalType": "bytes32",
         "name": "_transferId",
         "type": "bytes32"
@@ -1775,31 +1768,398 @@
     "stateMutability": "payable",
     "type": "function"
   },
-
   {
-    "inputs": [],
-    "name": "BaseConnextFacet__nonReentrant_reentrantCall",
-    "type": "error"
+    "anonymous": false,
+    "inputs": [
+      {
+        "components": [
+          {
+            "internalType": "address",
+            "name": "facetAddress",
+            "type": "address"
+          },
+          {
+            "internalType": "enum IDiamondCut.FacetCutAction",
+            "name": "action",
+            "type": "uint8"
+          },
+          {
+            "internalType": "bytes4[]",
+            "name": "functionSelectors",
+            "type": "bytes4[]"
+          }
+        ],
+        "indexed": false,
+        "internalType": "struct IDiamondCut.FacetCut[]",
+        "name": "_diamondCut",
+        "type": "tuple[]"
+      },
+      {
+        "indexed": false,
+        "internalType": "address",
+        "name": "_init",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "bytes",
+        "name": "_calldata",
+        "type": "bytes"
+      }
+    ],
+    "name": "DiamondCut",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "components": [
+          {
+            "internalType": "address",
+            "name": "facetAddress",
+            "type": "address"
+          },
+          {
+            "internalType": "enum IDiamondCut.FacetCutAction",
+            "name": "action",
+            "type": "uint8"
+          },
+          {
+            "internalType": "bytes4[]",
+            "name": "functionSelectors",
+            "type": "bytes4[]"
+          }
+        ],
+        "indexed": false,
+        "internalType": "struct IDiamondCut.FacetCut[]",
+        "name": "_diamondCut",
+        "type": "tuple[]"
+      },
+      {
+        "indexed": false,
+        "internalType": "address",
+        "name": "_init",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "bytes",
+        "name": "_calldata",
+        "type": "bytes"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "deadline",
+        "type": "uint256"
+      }
+    ],
+    "name": "DiamondCutProposed",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "components": [
+          {
+            "internalType": "address",
+            "name": "facetAddress",
+            "type": "address"
+          },
+          {
+            "internalType": "enum IDiamondCut.FacetCutAction",
+            "name": "action",
+            "type": "uint8"
+          },
+          {
+            "internalType": "bytes4[]",
+            "name": "functionSelectors",
+            "type": "bytes4[]"
+          }
+        ],
+        "indexed": false,
+        "internalType": "struct IDiamondCut.FacetCut[]",
+        "name": "_diamondCut",
+        "type": "tuple[]"
+      },
+      {
+        "indexed": false,
+        "internalType": "address",
+        "name": "_init",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "bytes",
+        "name": "_calldata",
+        "type": "bytes"
+      }
+    ],
+    "name": "DiamondCutRescinded",
+    "type": "event"
+  },
+  {
+    "inputs": [
+      {
+        "components": [
+          {
+            "internalType": "address",
+            "name": "facetAddress",
+            "type": "address"
+          },
+          {
+            "internalType": "enum IDiamondCut.FacetCutAction",
+            "name": "action",
+            "type": "uint8"
+          },
+          {
+            "internalType": "bytes4[]",
+            "name": "functionSelectors",
+            "type": "bytes4[]"
+          }
+        ],
+        "internalType": "struct IDiamondCut.FacetCut[]",
+        "name": "_diamondCut",
+        "type": "tuple[]"
+      },
+      {
+        "internalType": "address",
+        "name": "_init",
+        "type": "address"
+      },
+      {
+        "internalType": "bytes",
+        "name": "_calldata",
+        "type": "bytes"
+      }
+    ],
+    "name": "diamondCut",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "components": [
+          {
+            "internalType": "address",
+            "name": "facetAddress",
+            "type": "address"
+          },
+          {
+            "internalType": "enum IDiamondCut.FacetCutAction",
+            "name": "action",
+            "type": "uint8"
+          },
+          {
+            "internalType": "bytes4[]",
+            "name": "functionSelectors",
+            "type": "bytes4[]"
+          }
+        ],
+        "internalType": "struct IDiamondCut.FacetCut[]",
+        "name": "_diamondCut",
+        "type": "tuple[]"
+      },
+      {
+        "internalType": "address",
+        "name": "_init",
+        "type": "address"
+      },
+      {
+        "internalType": "bytes",
+        "name": "_calldata",
+        "type": "bytes"
+      }
+    ],
+    "name": "getAcceptanceTime",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "components": [
+          {
+            "internalType": "address",
+            "name": "facetAddress",
+            "type": "address"
+          },
+          {
+            "internalType": "enum IDiamondCut.FacetCutAction",
+            "name": "action",
+            "type": "uint8"
+          },
+          {
+            "internalType": "bytes4[]",
+            "name": "functionSelectors",
+            "type": "bytes4[]"
+          }
+        ],
+        "internalType": "struct IDiamondCut.FacetCut[]",
+        "name": "_diamondCut",
+        "type": "tuple[]"
+      },
+      {
+        "internalType": "address",
+        "name": "_init",
+        "type": "address"
+      },
+      {
+        "internalType": "bytes",
+        "name": "_calldata",
+        "type": "bytes"
+      }
+    ],
+    "name": "proposeDiamondCut",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "components": [
+          {
+            "internalType": "address",
+            "name": "facetAddress",
+            "type": "address"
+          },
+          {
+            "internalType": "enum IDiamondCut.FacetCutAction",
+            "name": "action",
+            "type": "uint8"
+          },
+          {
+            "internalType": "bytes4[]",
+            "name": "functionSelectors",
+            "type": "bytes4[]"
+          }
+        ],
+        "internalType": "struct IDiamondCut.FacetCut[]",
+        "name": "_diamondCut",
+        "type": "tuple[]"
+      },
+      {
+        "internalType": "address",
+        "name": "_init",
+        "type": "address"
+      },
+      {
+        "internalType": "bytes",
+        "name": "_calldata",
+        "type": "bytes"
+      }
+    ],
+    "name": "rescindDiamondCut",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "bytes4",
+        "name": "_functionSelector",
+        "type": "bytes4"
+      }
+    ],
+    "name": "facetAddress",
+    "outputs": [
+      {
+        "internalType": "address",
+        "name": "facetAddress_",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
   },
   {
     "inputs": [],
-    "name": "BaseConnextFacet__onlyBridgeRouter_notBridgeRouter",
-    "type": "error"
+    "name": "facetAddresses",
+    "outputs": [
+      {
+        "internalType": "address[]",
+        "name": "facetAddresses_",
+        "type": "address[]"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "_facet",
+        "type": "address"
+      }
+    ],
+    "name": "facetFunctionSelectors",
+    "outputs": [
+      {
+        "internalType": "bytes4[]",
+        "name": "facetFunctionSelectors_",
+        "type": "bytes4[]"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
   },
   {
     "inputs": [],
-    "name": "BaseConnextFacet__onlyOwner_notOwner",
-    "type": "error"
+    "name": "facets",
+    "outputs": [
+      {
+        "components": [
+          {
+            "internalType": "address",
+            "name": "facetAddress",
+            "type": "address"
+          },
+          {
+            "internalType": "bytes4[]",
+            "name": "functionSelectors",
+            "type": "bytes4[]"
+          }
+        ],
+        "internalType": "struct IDiamondLoupe.Facet[]",
+        "name": "facets_",
+        "type": "tuple[]"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
   },
   {
-    "inputs": [],
-    "name": "BaseConnextFacet__onlyProposed_notProposedOwner",
-    "type": "error"
-  },
-  {
-    "inputs": [],
-    "name": "BaseConnextFacet__whenNotPaused_paused",
-    "type": "error"
+    "inputs": [
+      {
+        "internalType": "bytes4",
+        "name": "_interfaceId",
+        "type": "bytes4"
+      }
+    ],
+    "name": "supportsInterface",
+    "outputs": [
+      {
+        "internalType": "bool",
+        "name": "",
+        "type": "bool"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
   },
   {
     "inputs": [],
@@ -1809,6 +2169,11 @@
   {
     "inputs": [],
     "name": "NomadFacet__reconcile_noPortalRouter",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "NomadFacet__reconcile_notConnext",
     "type": "error"
   },
   {
@@ -1849,6 +2214,12 @@
         "internalType": "bytes32",
         "name": "transferId",
         "type": "bytes32"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint32",
+        "name": "originDomain",
+        "type": "uint32"
       },
       {
         "indexed": false,
@@ -1895,8 +2266,13 @@
     "inputs": [
       {
         "internalType": "uint32",
-        "name": "",
+        "name": "_origin",
         "type": "uint32"
+      },
+      {
+        "internalType": "bytes32",
+        "name": "_sender",
+        "type": "bytes32"
       },
       {
         "internalType": "uint32",
@@ -1942,7 +2318,1031 @@
     "stateMutability": "nonpayable",
     "type": "function"
   },
-
+  {
+    "inputs": [],
+    "name": "AssetLogic__getTokenIndexFromStableSwapPool_notExist",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "AssetLogic__handleIncomingAsset_nativeAssetNotSupported",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "AssetLogic__transferAssetToContract_feeOnTransferNotSupported",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "PortalFacet__repayAavePortalFor_notSupportedAsset",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "PortalFacet__repayAavePortalFor_zeroAmount",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "PortalFacet__repayAavePortal_insufficientFunds",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "PortalFacet__repayAavePortal_swapFailed",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "PortalFacet__setAavePortalFee_invalidFee",
+    "type": "error"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "bytes32",
+        "name": "transferId",
+        "type": "bytes32"
+      },
+      {
+        "indexed": false,
+        "internalType": "address",
+        "name": "asset",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "amount",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "fee",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "address",
+        "name": "caller",
+        "type": "address"
+      }
+    ],
+    "name": "AavePortalRepayment",
+    "type": "event"
+  },
+  {
+    "inputs": [],
+    "name": "aavePool",
+    "outputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "aavePortalFee",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "bytes32",
+        "name": "_transferId",
+        "type": "bytes32"
+      }
+    ],
+    "name": "getAavePortalDebt",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "bytes32",
+        "name": "_transferId",
+        "type": "bytes32"
+      }
+    ],
+    "name": "getAavePortalFeeDebt",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "components": [
+          {
+            "internalType": "address",
+            "name": "to",
+            "type": "address"
+          },
+          {
+            "internalType": "bytes",
+            "name": "callData",
+            "type": "bytes"
+          },
+          {
+            "internalType": "uint32",
+            "name": "originDomain",
+            "type": "uint32"
+          },
+          {
+            "internalType": "uint32",
+            "name": "destinationDomain",
+            "type": "uint32"
+          },
+          {
+            "internalType": "address",
+            "name": "agent",
+            "type": "address"
+          },
+          {
+            "internalType": "address",
+            "name": "recovery",
+            "type": "address"
+          },
+          {
+            "internalType": "bool",
+            "name": "forceSlow",
+            "type": "bool"
+          },
+          {
+            "internalType": "bool",
+            "name": "receiveLocal",
+            "type": "bool"
+          },
+          {
+            "internalType": "address",
+            "name": "callback",
+            "type": "address"
+          },
+          {
+            "internalType": "uint256",
+            "name": "callbackFee",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "relayerFee",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "destinationMinOut",
+            "type": "uint256"
+          }
+        ],
+        "internalType": "struct CallParams",
+        "name": "_params",
+        "type": "tuple"
+      },
+      {
+        "internalType": "address",
+        "name": "_local",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "_originSender",
+        "type": "address"
+      },
+      {
+        "internalType": "uint256",
+        "name": "_bridgedAmt",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "_nonce",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "_backingAmount",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "_feeAmount",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "_maxIn",
+        "type": "uint256"
+      }
+    ],
+    "name": "repayAavePortal",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "components": [
+          {
+            "internalType": "address",
+            "name": "to",
+            "type": "address"
+          },
+          {
+            "internalType": "bytes",
+            "name": "callData",
+            "type": "bytes"
+          },
+          {
+            "internalType": "uint32",
+            "name": "originDomain",
+            "type": "uint32"
+          },
+          {
+            "internalType": "uint32",
+            "name": "destinationDomain",
+            "type": "uint32"
+          },
+          {
+            "internalType": "address",
+            "name": "agent",
+            "type": "address"
+          },
+          {
+            "internalType": "address",
+            "name": "recovery",
+            "type": "address"
+          },
+          {
+            "internalType": "bool",
+            "name": "forceSlow",
+            "type": "bool"
+          },
+          {
+            "internalType": "bool",
+            "name": "receiveLocal",
+            "type": "bool"
+          },
+          {
+            "internalType": "address",
+            "name": "callback",
+            "type": "address"
+          },
+          {
+            "internalType": "uint256",
+            "name": "callbackFee",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "relayerFee",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "destinationMinOut",
+            "type": "uint256"
+          }
+        ],
+        "internalType": "struct CallParams",
+        "name": "_params",
+        "type": "tuple"
+      },
+      {
+        "internalType": "address",
+        "name": "_adopted",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "_originSender",
+        "type": "address"
+      },
+      {
+        "internalType": "uint256",
+        "name": "_bridgedAmt",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "_nonce",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "_backingAmount",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "_feeAmount",
+        "type": "uint256"
+      }
+    ],
+    "name": "repayAavePortalFor",
+    "outputs": [],
+    "stateMutability": "payable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "_aavePool",
+        "type": "address"
+      }
+    ],
+    "name": "setAavePool",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "_aavePortalFeeNumerator",
+        "type": "uint256"
+      }
+    ],
+    "name": "setAavePortalFee",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "ProposedOwnableFacet__acceptProposedOwner_delayNotElapsed",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "ProposedOwnableFacet__acceptProposedOwner_noOwnershipChange",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "ProposedOwnableFacet__proposeAssetWhitelistRemoval_noOwnershipChange",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "ProposedOwnableFacet__proposeNewOwner_invalidProposal",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "ProposedOwnableFacet__proposeNewOwner_noOwnershipChange",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "ProposedOwnableFacet__proposeRouterWhitelistRemoval_noOwnershipChange",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "ProposedOwnableFacet__removeAssetWhitelist_delayNotElapsed",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "ProposedOwnableFacet__removeAssetWhitelist_noOwnershipChange",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "ProposedOwnableFacet__removeAssetWhitelist_noProposal",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "ProposedOwnableFacet__removeRouterWhitelist_delayNotElapsed",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "ProposedOwnableFacet__removeRouterWhitelist_noOwnershipChange",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "ProposedOwnableFacet__removeRouterWhitelist_noProposal",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "ProposedOwnableFacet__renounceOwnership_delayNotElapsed",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "ProposedOwnableFacet__renounceOwnership_invalidProposal",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "ProposedOwnableFacet__renounceOwnership_noProposal",
+    "type": "error"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "timestamp",
+        "type": "uint256"
+      }
+    ],
+    "name": "AssetWhitelistRemovalProposed",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
+        "internalType": "bool",
+        "name": "renounced",
+        "type": "bool"
+      }
+    ],
+    "name": "AssetWhitelistRemoved",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "proposedOwner",
+        "type": "address"
+      }
+    ],
+    "name": "OwnershipProposed",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "previousOwner",
+        "type": "address"
+      },
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "newOwner",
+        "type": "address"
+      }
+    ],
+    "name": "OwnershipTransferred",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [],
+    "name": "Paused",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "timestamp",
+        "type": "uint256"
+      }
+    ],
+    "name": "RouterWhitelistRemovalProposed",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
+        "internalType": "bool",
+        "name": "renounced",
+        "type": "bool"
+      }
+    ],
+    "name": "RouterWhitelistRemoved",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [],
+    "name": "Unpaused",
+    "type": "event"
+  },
+  {
+    "inputs": [],
+    "name": "acceptProposedOwner",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "assetWhitelistRemoved",
+    "outputs": [
+      {
+        "internalType": "bool",
+        "name": "",
+        "type": "bool"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "assetWhitelistTimestamp",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "delay",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "pure",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "owner",
+    "outputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "pause",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "proposeAssetWhitelistRemoval",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "newlyProposed",
+        "type": "address"
+      }
+    ],
+    "name": "proposeNewOwner",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "proposeRouterWhitelistRemoval",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "proposed",
+    "outputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "proposedTimestamp",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "removeAssetWhitelist",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "removeRouterWhitelist",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "renounceOwnership",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "renounced",
+    "outputs": [
+      {
+        "internalType": "bool",
+        "name": "",
+        "type": "bool"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "routerWhitelistRemoved",
+    "outputs": [
+      {
+        "internalType": "bool",
+        "name": "",
+        "type": "bool"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "routerWhitelistTimestamp",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "unpause",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "RelayerFacet__addRelayer_alreadyApproved",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "RelayerFacet__initiateClaim_emptyClaim",
+    "type": "error"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "bytes32",
+        "name": "transferId",
+        "type": "bytes32"
+      }
+    ],
+    "name": "RelayerFacet__initiateClaim_notRelayer",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "RelayerFacet__onlyRelayerFeeRouter_notRelayerFeeRouter",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "RelayerFacet__removeRelayer_notApproved",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "RelayerFacet__setRelayerFeeRouter_invalidRelayerFeeRouter",
+    "type": "error"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "recipient",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "total",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "bytes32[]",
+        "name": "transferIds",
+        "type": "bytes32[]"
+      }
+    ],
+    "name": "Claimed",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "uint32",
+        "name": "domain",
+        "type": "uint32"
+      },
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "recipient",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "address",
+        "name": "caller",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "bytes32[]",
+        "name": "transferIds",
+        "type": "bytes32[]"
+      }
+    ],
+    "name": "InitiatedClaim",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
+        "internalType": "address",
+        "name": "relayer",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "address",
+        "name": "caller",
+        "type": "address"
+      }
+    ],
+    "name": "RelayerAdded",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
+        "internalType": "address",
+        "name": "oldRouter",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "address",
+        "name": "newRouter",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "address",
+        "name": "caller",
+        "type": "address"
+      }
+    ],
+    "name": "RelayerFeeRouterUpdated",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
+        "internalType": "address",
+        "name": "relayer",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "address",
+        "name": "caller",
+        "type": "address"
+      }
+    ],
+    "name": "RelayerRemoved",
+    "type": "event"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "_relayer",
+        "type": "address"
+      }
+    ],
+    "name": "addRelayer",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "_relayer",
+        "type": "address"
+      }
+    ],
+    "name": "approvedRelayers",
+    "outputs": [
+      {
+        "internalType": "bool",
+        "name": "",
+        "type": "bool"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "_recipient",
+        "type": "address"
+      },
+      {
+        "internalType": "bytes32[]",
+        "name": "_transferIds",
+        "type": "bytes32[]"
+      }
+    ],
+    "name": "claim",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint32",
+        "name": "_domain",
+        "type": "uint32"
+      },
+      {
+        "internalType": "address",
+        "name": "_recipient",
+        "type": "address"
+      },
+      {
+        "internalType": "bytes32[]",
+        "name": "_transferIds",
+        "type": "bytes32[]"
+      }
+    ],
+    "name": "initiateClaim",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "relayerFeeRouter",
+    "outputs": [
+      {
+        "internalType": "contract RelayerFeeRouter",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "_relayer",
+        "type": "address"
+      }
+    ],
+    "name": "removeRelayer",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "_relayerFeeRouter",
+        "type": "address"
+      }
+    ],
+    "name": "setRelayerFeeRouter",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "bytes32",
+        "name": "_transferId",
+        "type": "bytes32"
+      }
+    ],
+    "name": "transferRelayer",
+    "outputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
   {
     "inputs": [],
     "name": "AssetLogic__handleIncomingAsset_nativeAssetNotSupported",
@@ -1956,31 +3356,6 @@
   {
     "inputs": [],
     "name": "AssetLogic__transferAssetToContract_feeOnTransferNotSupported",
-    "type": "error"
-  },
-  {
-    "inputs": [],
-    "name": "BaseConnextFacet__nonReentrant_reentrantCall",
-    "type": "error"
-  },
-  {
-    "inputs": [],
-    "name": "BaseConnextFacet__onlyBridgeRouter_notBridgeRouter",
-    "type": "error"
-  },
-  {
-    "inputs": [],
-    "name": "BaseConnextFacet__onlyOwner_notOwner",
-    "type": "error"
-  },
-  {
-    "inputs": [],
-    "name": "BaseConnextFacet__onlyProposed_notProposedOwner",
-    "type": "error"
-  },
-  {
-    "inputs": [],
-    "name": "BaseConnextFacet__whenNotPaused_paused",
     "type": "error"
   },
   {
@@ -2381,7 +3756,7 @@
         "type": "uint256"
       }
     ],
-    "stateMutability": "view",
+    "stateMutability": "pure",
     "type": "function"
   },
   {
@@ -2777,63 +4152,6 @@
     "stateMutability": "nonpayable",
     "type": "function"
   },
-
-  {
-    "inputs": [],
-    "name": "AssetLogic__getTokenIndexFromStableSwapPool_notExist",
-    "type": "error"
-  },
-  {
-    "inputs": [],
-    "name": "AssetLogic__handleIncomingAsset_nativeAssetNotSupported",
-    "type": "error"
-  },
-  {
-    "inputs": [],
-    "name": "AssetLogic__handleOutgoingAsset_notNative",
-    "type": "error"
-  },
-  {
-    "inputs": [],
-    "name": "AssetLogic__swapFromLocalAssetIfNeeded_swapPaused",
-    "type": "error"
-  },
-  {
-    "inputs": [],
-    "name": "AssetLogic__swapToLocalAssetIfNeeded_swapPaused",
-    "type": "error"
-  },
-  {
-    "inputs": [],
-    "name": "AssetLogic__transferAssetToContract_feeOnTransferNotSupported",
-    "type": "error"
-  },
-
-  {
-    "inputs": [],
-    "name": "BaseConnextFacet__nonReentrant_reentrantCall",
-    "type": "error"
-  },
-  {
-    "inputs": [],
-    "name": "BaseConnextFacet__onlyBridgeRouter_notBridgeRouter",
-    "type": "error"
-  },
-  {
-    "inputs": [],
-    "name": "BaseConnextFacet__onlyOwner_notOwner",
-    "type": "error"
-  },
-  {
-    "inputs": [],
-    "name": "BaseConnextFacet__onlyProposed_notProposedOwner",
-    "type": "error"
-  },
-  {
-    "inputs": [],
-    "name": "BaseConnextFacet__whenNotPaused_paused",
-    "type": "error"
-  },
   {
     "inputs": [],
     "name": "StableSwapFacet__deadlineCheck_deadlineNotMet",
@@ -3097,6 +4415,11 @@
     "outputs": [
       {
         "components": [
+          {
+            "internalType": "bytes32",
+            "name": "key",
+            "type": "bytes32"
+          },
           {
             "internalType": "uint256",
             "name": "initialA",
@@ -3490,559 +4813,5 @@
     ],
     "stateMutability": "nonpayable",
     "type": "function"
-  },
-
-  {
-    "inputs": [],
-    "name": "BaseConnextFacet__nonReentrant_reentrantCall",
-    "type": "error"
-  },
-  {
-    "inputs": [],
-    "name": "BaseConnextFacet__onlyBridgeRouter_notBridgeRouter",
-    "type": "error"
-  },
-  {
-    "inputs": [],
-    "name": "BaseConnextFacet__onlyOwner_notOwner",
-    "type": "error"
-  },
-  {
-    "inputs": [],
-    "name": "BaseConnextFacet__onlyProposed_notProposedOwner",
-    "type": "error"
-  },
-  {
-    "inputs": [],
-    "name": "BaseConnextFacet__whenNotPaused_paused",
-    "type": "error"
-  },
-  {
-    "inputs": [],
-    "name": "RelayerFacet__addRelayer_alreadyApproved",
-    "type": "error"
-  },
-  {
-    "inputs": [],
-    "name": "RelayerFacet__initiateClaim_emptyClaim",
-    "type": "error"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "bytes32",
-        "name": "transferId",
-        "type": "bytes32"
-      }
-    ],
-    "name": "RelayerFacet__initiateClaim_notRelayer",
-    "type": "error"
-  },
-  {
-    "inputs": [],
-    "name": "RelayerFacet__onlyRelayerFeeRouter_notRelayerFeeRouter",
-    "type": "error"
-  },
-  {
-    "inputs": [],
-    "name": "RelayerFacet__removeRelayer_notApproved",
-    "type": "error"
-  },
-  {
-    "inputs": [],
-    "name": "RelayerFacet__setRelayerFeeRouter_invalidRelayerFeeRouter",
-    "type": "error"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": true,
-        "internalType": "address",
-        "name": "recipient",
-        "type": "address"
-      },
-      {
-        "indexed": false,
-        "internalType": "uint256",
-        "name": "total",
-        "type": "uint256"
-      },
-      {
-        "indexed": false,
-        "internalType": "bytes32[]",
-        "name": "transferIds",
-        "type": "bytes32[]"
-      }
-    ],
-    "name": "Claimed",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": true,
-        "internalType": "uint32",
-        "name": "domain",
-        "type": "uint32"
-      },
-      {
-        "indexed": true,
-        "internalType": "address",
-        "name": "recipient",
-        "type": "address"
-      },
-      {
-        "indexed": false,
-        "internalType": "address",
-        "name": "caller",
-        "type": "address"
-      },
-      {
-        "indexed": false,
-        "internalType": "bytes32[]",
-        "name": "transferIds",
-        "type": "bytes32[]"
-      }
-    ],
-    "name": "InitiatedClaim",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": false,
-        "internalType": "address",
-        "name": "relayer",
-        "type": "address"
-      },
-      {
-        "indexed": false,
-        "internalType": "address",
-        "name": "caller",
-        "type": "address"
-      }
-    ],
-    "name": "RelayerAdded",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": false,
-        "internalType": "address",
-        "name": "oldRouter",
-        "type": "address"
-      },
-      {
-        "indexed": false,
-        "internalType": "address",
-        "name": "newRouter",
-        "type": "address"
-      },
-      {
-        "indexed": false,
-        "internalType": "address",
-        "name": "caller",
-        "type": "address"
-      }
-    ],
-    "name": "RelayerFeeRouterUpdated",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": false,
-        "internalType": "address",
-        "name": "relayer",
-        "type": "address"
-      },
-      {
-        "indexed": false,
-        "internalType": "address",
-        "name": "caller",
-        "type": "address"
-      }
-    ],
-    "name": "RelayerRemoved",
-    "type": "event"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "_relayer",
-        "type": "address"
-      }
-    ],
-    "name": "addRelayer",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "_relayer",
-        "type": "address"
-      }
-    ],
-    "name": "approvedRelayers",
-    "outputs": [
-      {
-        "internalType": "bool",
-        "name": "",
-        "type": "bool"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "_recipient",
-        "type": "address"
-      },
-      {
-        "internalType": "bytes32[]",
-        "name": "_transferIds",
-        "type": "bytes32[]"
-      }
-    ],
-    "name": "claim",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "uint32",
-        "name": "_domain",
-        "type": "uint32"
-      },
-      {
-        "internalType": "address",
-        "name": "_recipient",
-        "type": "address"
-      },
-      {
-        "internalType": "bytes32[]",
-        "name": "_transferIds",
-        "type": "bytes32[]"
-      }
-    ],
-    "name": "initiateClaim",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "relayerFeeRouter",
-    "outputs": [
-      {
-        "internalType": "contract RelayerFeeRouter",
-        "name": "",
-        "type": "address"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "_relayer",
-        "type": "address"
-      }
-    ],
-    "name": "removeRelayer",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "_relayerFeeRouter",
-        "type": "address"
-      }
-    ],
-    "name": "setRelayerFeeRouter",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "bytes32",
-        "name": "_transferId",
-        "type": "bytes32"
-      }
-    ],
-    "name": "transferRelayer",
-    "outputs": [
-      {
-        "internalType": "address",
-        "name": "",
-        "type": "address"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-
-  {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": true,
-        "internalType": "bytes32",
-        "name": "key",
-        "type": "bytes32"
-      },
-      {
-        "indexed": true,
-        "internalType": "address",
-        "name": "provider",
-        "type": "address"
-      },
-      {
-        "indexed": false,
-        "internalType": "uint256[]",
-        "name": "tokenAmounts",
-        "type": "uint256[]"
-      },
-      {
-        "indexed": false,
-        "internalType": "uint256[]",
-        "name": "fees",
-        "type": "uint256[]"
-      },
-      {
-        "indexed": false,
-        "internalType": "uint256",
-        "name": "invariant",
-        "type": "uint256"
-      },
-      {
-        "indexed": false,
-        "internalType": "uint256",
-        "name": "lpTokenSupply",
-        "type": "uint256"
-      }
-    ],
-    "name": "AddLiquidity",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": true,
-        "internalType": "bytes32",
-        "name": "key",
-        "type": "bytes32"
-      },
-      {
-        "indexed": false,
-        "internalType": "uint256",
-        "name": "newAdminFee",
-        "type": "uint256"
-      }
-    ],
-    "name": "NewAdminFee",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": true,
-        "internalType": "bytes32",
-        "name": "key",
-        "type": "bytes32"
-      },
-      {
-        "indexed": false,
-        "internalType": "uint256",
-        "name": "newSwapFee",
-        "type": "uint256"
-      }
-    ],
-    "name": "NewSwapFee",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": true,
-        "internalType": "bytes32",
-        "name": "key",
-        "type": "bytes32"
-      },
-      {
-        "indexed": true,
-        "internalType": "address",
-        "name": "provider",
-        "type": "address"
-      },
-      {
-        "indexed": false,
-        "internalType": "uint256[]",
-        "name": "tokenAmounts",
-        "type": "uint256[]"
-      },
-      {
-        "indexed": false,
-        "internalType": "uint256",
-        "name": "lpTokenSupply",
-        "type": "uint256"
-      }
-    ],
-    "name": "RemoveLiquidity",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": true,
-        "internalType": "bytes32",
-        "name": "key",
-        "type": "bytes32"
-      },
-      {
-        "indexed": true,
-        "internalType": "address",
-        "name": "provider",
-        "type": "address"
-      },
-      {
-        "indexed": false,
-        "internalType": "uint256[]",
-        "name": "tokenAmounts",
-        "type": "uint256[]"
-      },
-      {
-        "indexed": false,
-        "internalType": "uint256[]",
-        "name": "fees",
-        "type": "uint256[]"
-      },
-      {
-        "indexed": false,
-        "internalType": "uint256",
-        "name": "invariant",
-        "type": "uint256"
-      },
-      {
-        "indexed": false,
-        "internalType": "uint256",
-        "name": "lpTokenSupply",
-        "type": "uint256"
-      }
-    ],
-    "name": "RemoveLiquidityImbalance",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": true,
-        "internalType": "bytes32",
-        "name": "key",
-        "type": "bytes32"
-      },
-      {
-        "indexed": true,
-        "internalType": "address",
-        "name": "provider",
-        "type": "address"
-      },
-      {
-        "indexed": false,
-        "internalType": "uint256",
-        "name": "lpTokenAmount",
-        "type": "uint256"
-      },
-      {
-        "indexed": false,
-        "internalType": "uint256",
-        "name": "lpTokenSupply",
-        "type": "uint256"
-      },
-      {
-        "indexed": false,
-        "internalType": "uint256",
-        "name": "boughtId",
-        "type": "uint256"
-      },
-      {
-        "indexed": false,
-        "internalType": "uint256",
-        "name": "tokensBought",
-        "type": "uint256"
-      }
-    ],
-    "name": "RemoveLiquidityOne",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": true,
-        "internalType": "bytes32",
-        "name": "key",
-        "type": "bytes32"
-      },
-      {
-        "indexed": true,
-        "internalType": "address",
-        "name": "buyer",
-        "type": "address"
-      },
-      {
-        "indexed": false,
-        "internalType": "uint256",
-        "name": "tokensSold",
-        "type": "uint256"
-      },
-      {
-        "indexed": false,
-        "internalType": "uint256",
-        "name": "tokensBought",
-        "type": "uint256"
-      },
-      {
-        "indexed": false,
-        "internalType": "uint128",
-        "name": "soldId",
-        "type": "uint128"
-      },
-      {
-        "indexed": false,
-        "internalType": "uint128",
-        "name": "boughtId",
-        "type": "uint128"
-      }
-    ],
-    "name": "TokenSwap",
-    "type": "event"
   }
 ]
