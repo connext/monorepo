@@ -404,6 +404,24 @@ CREATE TABLE public.schema_migrations (
 
 
 --
+-- Name: sent_root_messages; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.sent_root_messages (
+    id character(66) NOT NULL,
+    spoke_domain character varying(255),
+    hub_domain character varying(255),
+    root character(66),
+    caller character(42),
+    transaction_hash character(66),
+    sent_timestamp integer,
+    gas_price numeric,
+    gas_limit numeric,
+    block_number integer
+);
+
+
+--
 -- Name: transfer_count; Type: VIEW; Schema: public; Owner: -
 --
 
@@ -536,6 +554,14 @@ ALTER TABLE ONLY public.schema_migrations
 
 
 --
+-- Name: sent_root_messages sent_root_messages_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.sent_root_messages
+    ADD CONSTRAINT sent_root_messages_pkey PRIMARY KEY (id);
+
+
+--
 -- Name: transfers transfers_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -585,4 +611,5 @@ INSERT INTO public.schema_migrations (version) VALUES
     ('20220811120125'),
     ('20220816134851'),
     ('20220824094332'),
-    ('20220907212007');
+    ('20220907212007'),
+    ('20220914215736');

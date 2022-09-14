@@ -1,5 +1,5 @@
 import { BigNumber, constants } from "ethers";
-import { XMessage } from "./amb";
+import { XMessage, SentRootMessage } from "./amb";
 
 import { AssetBalance, RouterBalance, XTransfer, XTransferStatus } from "./xtransfers";
 
@@ -177,5 +177,25 @@ export const convertFromDbMessage = (message: any): XMessage => {
       processed: message.processed || false,
       returnData: message.return_data,
     },
+  };
+};
+
+/**
+ * Converts a sent root message from the cartographer db through either DB queries or Postgrest into the SentRootMessage type
+ * @param message - the message from the cartographer db as a JSON object
+ * @returns an SentRootMessage object
+ */
+export const convertFromDbSentRootMessage = (message: any): SentRootMessage => {
+  return {
+    id: message.id,
+    spokeDomain: message.spoke_domain,
+    hubDomain: message.hub_domain,
+    root: message.root,
+    caller: message.caller,
+    transactionHash: message.transaction_hash,
+    timestamp: message.sent_timestamp,
+    gasPrice: message.gas_price,
+    gasLimit: message.gas_limit,
+    blockNumber: message.block_number,
   };
 };

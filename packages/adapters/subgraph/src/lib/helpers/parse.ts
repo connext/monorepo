@@ -1,4 +1,11 @@
-import { NxtpError, DestinationTransfer, OriginTransfer, OriginMessage, DestinationMessage } from "@connext/nxtp-utils";
+import {
+  NxtpError,
+  DestinationTransfer,
+  OriginTransfer,
+  OriginMessage,
+  DestinationMessage,
+  SentRootMessage,
+} from "@connext/nxtp-utils";
 import { BigNumber } from "ethers";
 
 import { XQueryResultParseError } from "../errors";
@@ -268,4 +275,43 @@ export const xquery = (response: any): Map<string, any[]> => {
   } else {
     throw new XQueryResultParseError({ response });
   }
+};
+
+export const sentRootMessage = (entity: any): SentRootMessage => {
+  // Sanity checks.
+  if (!entity) {
+    throw new NxtpError("Subgraph `RootMessageSent` entity parser: SentRootMessage, entity is `undefined`.");
+  }
+  for (const field of [
+    "id",
+    "spokeDomain",
+    "hubDomain",
+    "root",
+    "caller",
+    "transactionHash",
+    "timestamp",
+    "gasPrice",
+    "gasLimit",
+    "blockNumber",
+  ]) {
+    if (!entity[field]) {
+      throw new NxtpError("Subgraph `RootMessageSent` entity parser: Message entity missing required field", {
+        missingField: field,
+        entity,
+      });
+    }
+  }
+
+  return {
+    id: entity.id,
+    spokeDomain: entity.spokeDomain,
+    hubDomain: entity.hubDomain,
+    root: entity.root,
+    caller: entity.caller,
+    transactionHash: entity.transactionHash,
+    timestamp: entity.timestamp,
+    gasPrice: entity.gasPrice,
+    gasLimit: entity.gasLimit,
+    blockNumber: entity.blockNumber,
+  };
 };

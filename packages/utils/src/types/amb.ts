@@ -37,3 +37,17 @@ export const DestinationMessageSchema = Type.Object({
   returnData: Type.String(),
 });
 export type DestinationMessage = Static<typeof DestinationMessageSchema>;
+
+export const SentRootMessageSchema = Type.Object({
+  id: Type.String(),
+  spokeDomain: Type.String(),
+  hubDomain: Type.String(),
+  root: Type.String(),
+  caller: Type.String(),
+  transactionHash: Type.String(),
+  timestamp: Type.Number(),
+  gasPrice: Type.Number(),
+  gasLimit: Type.Number(),
+  blockNumber: Type.Number(),
+});
+export type SentRootMessage = Static<typeof SentRootMessageSchema>;

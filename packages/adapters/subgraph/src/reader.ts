@@ -12,6 +12,7 @@ import {
   SubgraphQueryByTimestampMetaParams,
   OriginMessage,
   DestinationMessage,
+  SentRootMessage,
 } from "@connext/nxtp-utils";
 
 import { getHelpers } from "./lib/helpers";
@@ -36,6 +37,7 @@ import {
   getDestinationTransfersByDomainAndReconcileTimestampQuery,
   getOriginMessagesByDomainAndIndexQuery,
   getDestinationMessagesByDomainAndLeafQuery,
+  getSentRootMessagesByDomainAndBlockQuery,
 } from "./lib/operations";
 import { SubgraphMap } from "./lib/entities";
 
@@ -606,5 +608,32 @@ export class SubgraphReader {
       .map(parser.destinationMessage);
 
     return destinationMessages;
+  }
+
+  /**
+   * Gets all the sent root messages starting with blocknumber for a given domain
+   */
+  public async getSentRootMessagesByDomain(
+    params: { domain: string; offset: number; limit: number }[],
+  ): Promise<SentRootMessage[]> {
+    const { parser, execute } = getHelpers();
+    const sentRootMessageQuery = getSentRootMessagesByDomainAndBlockQuery(params);
+    const response = await execute(sentRootMessageQuery);
+    const _messages: any[] = [];
+    for (const key of response.keys()) {
+      const value = response.get(key);
+      const flatten = value?.flat();
+      const _message = flatten?.map((x) => {
+        return { ...x, domain: key };
+      });
+      _messages.push(_message);
+    }
+
+    const sentRootMessages: SentRootMessage[] = _messages
+      .flat()
+      .filter((x: any) => !!x)
+      .map(parser.sentRootMessage);
+
+    return sentRootMessages;
   }
 }

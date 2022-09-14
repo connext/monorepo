@@ -1,5 +1,9 @@
-import { createLoggingContext, XMessage } from "@connext/nxtp-utils";
+import { createLoggingContext, XMessage, SentRootMessage } from "@connext/nxtp-utils";
 import { getContext } from "../../shared";
+
+const getMaxBlockNumber = (messages: SentRootMessage[]): number => {
+  return messages.length == 0 ? 0 : Math.max(...messages.map((message) => message.blockNumber ?? 0)) ?? 0;
+};
 
 export const retrieveOriginMessages = async () => {
   const {
@@ -72,4 +76,35 @@ export const updateMessages = async () => {
 
   await database.saveMessages(xMessages);
   logger.debug("Updated messages", requestContext, methodContext, { count: xMessages.length });
+};
+
+export const retrieveSentRootMessages = async () => {
+  const {
+    adapters: { subgraph, database },
+    logger,
+    domains,
+  } = getContext();
+  const { requestContext, methodContext } = createLoggingContext(retrieveOriginMessages.name);
+
+  for (const domain of domains) {
+    const offset = await database.getCheckPoint("sent_root_message_" + domain);
+    const limit = 100;
+    logger.debug("Retrieving sent root messages", requestContext, methodContext, {
+      domain: domain,
+      offset: offset,
+      limit: limit,
+    });
+
+    const sentRootMessages = await subgraph.getSentRootMessagesByDomain([{ domain, offset, limit }]);
+
+    await database.saveSentRootMessages(sentRootMessages);
+
+    // Reset offset at the end of the cycle.
+    const newOffset = getMaxBlockNumber(sentRootMessages);
+    if (sentRootMessages.length > 0 && newOffset > offset) {
+      await database.saveCheckPoint("sent_root_message_" + domain, newOffset);
+    }
+
+    logger.debug("Saved sent root messages", requestContext, methodContext, { domain: domain, offset: newOffset });
+  }
 };

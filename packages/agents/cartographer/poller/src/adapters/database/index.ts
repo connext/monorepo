@@ -1,4 +1,11 @@
-import { jsonifyError, XTransfer, XTransferStatus, RouterBalance, XMessage } from "@connext/nxtp-utils";
+import {
+  jsonifyError,
+  XTransfer,
+  XTransferStatus,
+  RouterBalance,
+  XMessage,
+  SentRootMessage,
+} from "@connext/nxtp-utils";
 import { Pool } from "pg";
 
 import { getContext } from "../../shared";
@@ -10,6 +17,7 @@ import {
   saveTransfers,
   saveRouterBalances,
   saveMessages,
+  saveSentRootMessages,
   getPendingMessages,
   saveCheckPoint,
   getCheckPoint,
@@ -38,6 +46,7 @@ export type Database = {
   ) => Promise<string[]>;
   saveRouterBalances: (routerBalances: RouterBalance[], _pool?: Pool) => Promise<void>;
   saveMessages: (messages: XMessage[], _pool?: Pool) => Promise<void>;
+  saveSentRootMessages: (messages: SentRootMessage[], _pool?: Pool) => Promise<void>;
   getPendingMessages: (_pool?: Pool) => Promise<XMessage[]>;
   saveCheckPoint: (check: string, point: number, _pool?: Pool) => Promise<void>;
   getCheckPoint: (check_name: string, _pool?: Pool) => Promise<number>;
@@ -64,6 +73,7 @@ export const getDatabase = async (): Promise<Database> => {
     getTransfersWithDestinationPending,
     saveRouterBalances,
     saveMessages,
+    saveSentRootMessages,
     getPendingMessages,
     saveCheckPoint,
     getCheckPoint,
