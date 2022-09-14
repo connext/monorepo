@@ -128,4 +128,43 @@ contract LiveTest is ForgeHelper {
 
     vm.stopPrank();
   }
+
+  function test_xcall_native_asset_zero_amount() public {
+    vm.startPrank(0x54BAA998771639628ffC0206c3b916c466b79c89);
+
+    emit log_named_address("bridge router: ", address(connext.bridgeRouter()));
+    emit log_named_address("token registry: ", address(connext.tokenRegistry()));
+
+    (uint32 canonicalDomain, bytes32 canonicalId) = connext.tokenRegistry().getTokenId(NATIVE_ASSET);
+    address local = connext.tokenRegistry().getLocalAddress(canonicalDomain, canonicalId);
+    emit log_named_address("local asset: ", local);
+    emit log_named_uint(
+      "tokenRegistry.isLocalOrigin(_token)",
+      uint256(connext.tokenRegistry().isLocalOrigin(local) ? 1 : 0)
+    );
+
+    connext.xcall(
+      XCallArgs(
+        CallParams(
+          0x54BAA998771639628ffC0206c3b916c466b79c89, // to
+          bytes(""), // callData
+          1735356532, // origin domain
+          1735353714, // dest domain
+          0x5A9e792143bf2708b4765C144451dCa54f559a19, // agent
+          0x5A9e792143bf2708b4765C144451dCa54f559a19, // recovery
+          false, // forceSlow
+          false, // receiveLocal
+          address(0), // callback
+          0, // callbackFee
+          0, // relayerFee
+          0 // destinationMinOut
+        ), // CallParams
+        NATIVE_ASSET,
+        0,
+        0
+      )
+    );
+
+    vm.stopPrank();
+  }
 }
