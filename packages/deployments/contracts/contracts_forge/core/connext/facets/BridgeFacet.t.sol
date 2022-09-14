@@ -541,6 +541,7 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
     if (_inputs.shouldSwap) {
       // register expected approval
       vm.expectCall(_local, abi.encodeWithSelector(IERC20.approve.selector, _stableSwap, _inputs.routerAmt));
+      uint256 slippage = s.slippage[transferId] > 0 ? s.slippage[transferId] : _args.params.slippage;
       // register expected swap amount
       vm.expectCall(
         _stableSwap,
@@ -549,7 +550,7 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
           _inputs.routerAmt,
           _local,
           _adopted,
-          (_args.normalizedIn * (10_000 - _args.params.slippage)) / 10_000
+          (_args.normalizedIn * (10_000 - slippage)) / 10_000
         )
       );
     }
@@ -1588,8 +1589,92 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
     );
   }
 
+  // uses slippage overrides
+  function test_BridgeFacet__execute_respectsSlippageOverrides() public {
+    // set asset context (local != adopted)
+    utils_setupAsset(false, false);
+
+    (bytes32 transferId, ExecuteArgs memory args) = utils_makeExecuteArgs(1);
+
+    // set liquidity
+    s.routerBalances[args.routers[0]][args.local] = 10 ether;
+
+    // set slippage override
+    s.slippage[transferId] = 5000;
+
+    helpers_executeAndAssert(transferId, args, utils_getFastTransferAmount(args.amount), true);
+  }
+
   // ============ bumpTransfer ============
   // ============ bumpTransfer fail cases
-
   // should work with unapproved router if router-whitelist ownership renouncedcanonicalId
+
+  // ============ forceUpdateSlippage ============
+  function test_BridgeFacet__forceUpdateSlippage_failsIfNotAgent() public {
+    (bytes32 transferId, ExecuteArgs memory args) = utils_makeExecuteArgs(1);
+    vm.expectRevert(BridgeFacet.BridgeFacet__onlyAgent_notAgent.selector);
+    this.forceUpdateSlippage(
+      _params,
+      _originSender,
+      _canonicalDomain,
+      _canonicalId,
+      args.amount,
+      args.amount,
+      _nonce,
+      5_000
+    );
+  }
+
+  function test_BridgeFacet__forceUpdateSlippage_failsIfInvalidSlippage() public {
+    (bytes32 transferId, ExecuteArgs memory args) = utils_makeExecuteArgs(1);
+    vm.expectRevert(BridgeFacet.BridgeFacet__forceUpdateSlippage_invalidSlippage.selector);
+    vm.prank(args.params.agent);
+    this.forceUpdateSlippage(
+      _params,
+      _originSender,
+      _canonicalDomain,
+      _canonicalId,
+      args.amount,
+      args.amount,
+      _nonce,
+      25_000
+    );
+  }
+
+  function test_BridgeFacet__forceUpdateSlippage_failsIfNotDestination() public {
+    (bytes32 transferId, ExecuteArgs memory args) = utils_makeExecuteArgs(1);
+    s.domain = args.params.originDomain;
+    vm.expectRevert(BridgeFacet.BridgeFacet__forceUpdateSlippage_notDestination.selector);
+    vm.prank(args.params.agent);
+    this.forceUpdateSlippage(
+      _params,
+      _originSender,
+      _canonicalDomain,
+      _canonicalId,
+      args.amount,
+      args.amount,
+      _nonce,
+      5_000
+    );
+  }
+
+  function test_BridgeFacet__forceUpdateSlippage_works() public {
+    (bytes32 transferId, ExecuteArgs memory args) = utils_makeExecuteArgs(1);
+    s.domain = args.params.destinationDomain;
+
+    vm.expectEmit(true, true, true, true);
+    emit SlippageUpdated(transferId, 5_000);
+
+    vm.prank(args.params.agent);
+    this.forceUpdateSlippage(
+      _params,
+      _originSender,
+      _canonicalDomain,
+      _canonicalId,
+      args.amount,
+      args.amount,
+      _nonce,
+      5_000
+    );
+  }
 }
