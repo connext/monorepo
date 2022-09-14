@@ -54,7 +54,7 @@ contract NomadFacetTest is NomadFacet, FacetHelper {
       bytes(""), // callData
       _originDomain, // origin domain
       _destinationDomain, // destination domain
-      address(112233332211), // agent
+      address(112233332211), // delegate
       false, // receiveLocal
       9900 // slippage tol
     );
@@ -102,7 +102,7 @@ contract NomadFacetTest is NomadFacet, FacetHelper {
         _params.to,
         _params.callData,
         _params.destinationDomain, // destination domain
-        _params.agent, // agent
+        _params.delegate, // delegate
         _params.slippage
       );
   }

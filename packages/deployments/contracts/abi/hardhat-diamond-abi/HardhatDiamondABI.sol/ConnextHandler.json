@@ -46,7 +46,7 @@
   "error BridgeFacet__forceUpdateSlippage_invalidSlippage()",
   "error BridgeFacet__forceUpdateSlippage_notDestination()",
   "error BridgeFacet__handleExecuteTransaction_invalidSponsoredAmount()",
-  "error BridgeFacet__onlyAgent_notAgent()",
+  "error BridgeFacet__onlyDelegate_notDelegate()",
   "error BridgeFacet__removeSequencer_notApproved()",
   "error BridgeFacet__xcall_destinationNotSupported()",
   "error BridgeFacet__xcall_emptyTo()",

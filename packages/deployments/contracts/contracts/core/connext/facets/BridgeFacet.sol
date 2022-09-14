@@ -30,7 +30,7 @@ contract BridgeFacet is BaseConnextFacet {
 
   // ========== Custom Errors ===========
 
-  error BridgeFacet__onlyAgent_notAgent();
+  error BridgeFacet__onlyDelegate_notDelegate();
   error BridgeFacet__addConnextion_invalidDomain();
   error BridgeFacet__addSequencer_alreadyApproved();
   error BridgeFacet__removeSequencer_notApproved();
@@ -163,8 +163,8 @@ contract BridgeFacet is BaseConnextFacet {
   event SequencerRemoved(address sequencer, address caller);
 
   // ============ Modifiers ============
-  modifier onlyAgent(CallParams calldata _params) {
-    if (_params.agent != msg.sender) revert BridgeFacet__onlyAgent_notAgent();
+  modifier onlyDelegate(CallParams calldata _params) {
+    if (_params.delegate != msg.sender) revert BridgeFacet__onlyDelegate_notDelegate();
     _;
   }
 
@@ -240,7 +240,7 @@ contract BridgeFacet is BaseConnextFacet {
       callData: _args.params.callData,
       originDomain: s.domain,
       destinationDomain: _args.params.destinationDomain,
-      agent: _args.params.agent,
+      delegate: _args.params.delegate,
       receiveLocal: false, // always swap into adopted in xcall pass
       slippage: _args.params.slippage
     });
@@ -253,7 +253,7 @@ contract BridgeFacet is BaseConnextFacet {
       callData: _args.params.callData,
       originDomain: s.domain,
       destinationDomain: _args.params.destinationDomain,
-      agent: _args.params.agent,
+      delegate: _args.params.delegate,
       receiveLocal: true, // always swap into adopted in xcall pass
       slippage: _args.params.slippage
     });
@@ -334,7 +334,7 @@ contract BridgeFacet is BaseConnextFacet {
     uint256 _amount,
     uint256 _nonce,
     uint256 _slippage
-  ) external onlyAgent(_params) {
+  ) external onlyDelegate(_params) {
     // Sanity check slippage
     if (_slippage > BPS_FEE_DENOMINATOR) {
       revert BridgeFacet__forceUpdateSlippage_invalidSlippage();
@@ -520,7 +520,7 @@ contract BridgeFacet is BaseConnextFacet {
     bytes32 canonicalId
   ) private view returns (bytes32, bool) {
     // If the sender is not approved relayer, revert
-    if (!s.approvedRelayers[msg.sender] && msg.sender != _args.params.agent) {
+    if (!s.approvedRelayers[msg.sender] && msg.sender != _args.params.delegate) {
       revert BridgeFacet__execute_unapprovedSender();
     }
 

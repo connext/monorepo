@@ -606,7 +606,7 @@ const _abi = [
   },
   {
     inputs: [],
-    name: "BridgeFacet__onlyAgent_notAgent",
+    name: "BridgeFacet__onlyDelegate_notDelegate",
     type: "error",
   },
   {
@@ -736,7 +736,7 @@ const _abi = [
               },
               {
                 internalType: "address",
-                name: "agent",
+                name: "delegate",
                 type: "address",
               },
               {
@@ -979,7 +979,7 @@ const _abi = [
           },
           {
             internalType: "address",
-            name: "agent",
+            name: "delegate",
             type: "address",
           },
           {
@@ -1168,7 +1168,7 @@ const _abi = [
               },
               {
                 internalType: "address",
-                name: "agent",
+                name: "delegate",
                 type: "address",
               },
               {
@@ -1274,7 +1274,7 @@ const _abi = [
           },
           {
             internalType: "address",
-            name: "agent",
+            name: "delegate",
             type: "address",
           },
           {
@@ -1439,7 +1439,7 @@ const _abi = [
               },
               {
                 internalType: "address",
-                name: "agent",
+                name: "delegate",
                 type: "address",
               },
               {
@@ -1502,7 +1502,7 @@ const _abi = [
               },
               {
                 internalType: "address",
-                name: "agent",
+                name: "delegate",
                 type: "address",
               },
               {
@@ -2253,7 +2253,7 @@ const _abi = [
           },
           {
             internalType: "address",
-            name: "agent",
+            name: "delegate",
             type: "address",
           },
           {
@@ -2355,7 +2355,7 @@ const _abi = [
           },
           {
             internalType: "address",
-            name: "agent",
+            name: "delegate",
             type: "address",
           },
           {

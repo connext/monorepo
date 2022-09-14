@@ -907,7 +907,7 @@ const _abi = [
               },
               {
                 internalType: "address",
-                name: "agent",
+                name: "delegate",
                 type: "address",
               },
               {
@@ -1089,7 +1089,7 @@ const _abi = [
           },
           {
             internalType: "address",
-            name: "agent",
+            name: "delegate",
             type: "address",
           },
           {
@@ -1135,6 +1135,11 @@ const _abi = [
       {
         internalType: "uint256",
         name: "_nonce",
+        type: "uint256",
+      },
+      {
+        internalType: "uint256",
+        name: "_slippage",
         type: "uint256",
       },
     ],
@@ -2203,7 +2208,7 @@ const _abi = [
           },
           {
             internalType: "address",
-            name: "agent",
+            name: "delegate",
             type: "address",
           },
           {
@@ -2305,7 +2310,7 @@ const _abi = [
           },
           {
             internalType: "address",
-            name: "agent",
+            name: "delegate",
             type: "address",
           },
           {
@@ -2909,7 +2914,7 @@ const _abi = [
               },
               {
                 internalType: "address",
-                name: "agent",
+                name: "delegate",
                 type: "address",
               },
               {
@@ -2972,7 +2977,7 @@ const _abi = [
               },
               {
                 internalType: "address",
-                name: "agent",
+                name: "delegate",
                 type: "address",
               },
               {

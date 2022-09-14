@@ -44,8 +44,8 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
   // mock bridge router
   address _bridgeRouter;
 
-  // agents
-  address _agent = address(123456654321);
+  // delegates
+  address _delegate = address(123456654321);
 
   // sequencer
   uint256 _sequencerPKey = 0xA11CE;
@@ -73,7 +73,7 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
       bytes(""), // callData
       _originDomain, // origin domain
       _destinationDomain, // destination domain
-      _agent, // agent
+      _delegate, // delegate
       _receiveLocal, // receiveLocal
       1000 // slippage
     );
@@ -166,7 +166,7 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
         _params.to,
         _params.callData,
         _params.destinationDomain, // destination domain
-        _params.agent, // agent
+        _params.delegate, // delegate
         _params.slippage
       );
   }
@@ -500,7 +500,7 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
     bool shouldSwap; // Whether the `to` address should receive the tokens.
     bool isSlow;
     bool usesPortals;
-    bool useAgent;
+    bool useDelegate;
   }
 
   function utils_getExecuteBalances(
@@ -623,7 +623,7 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
     }
 
     // register expected emit event
-    address sender = _inputs.useAgent ? _args.params.agent : address(this);
+    address sender = _inputs.useDelegate ? _args.params.delegate : address(this);
     vm.expectEmit(true, true, false, true);
     emit Executed(transferId, _args.params.to, _args, _inputs.token, _inputs.expectedAmt, sender);
     // make call
@@ -689,7 +689,7 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
     bool externalCallSucceeds,
     bool shouldSwap, // Whether the `to` address should receive the tokens.
     bool usesPortals,
-    bool useAgent
+    bool useDelegate
   ) public {
     uint256 pathLen = _args.routers.length;
     bool isSlow = pathLen == 0;
@@ -707,7 +707,7 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
         shouldSwap,
         isSlow,
         usesPortals,
-        useAgent
+        useDelegate
       )
     );
   }
@@ -761,13 +761,13 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
   function helpers_executeAndAssert(
     bytes32 transferId,
     ExecuteArgs memory _args,
-    bool useAgent
+    bool useDelegate
   ) public {
     uint256 expected = _args.amount;
     if (_args.routers.length != 0) {
       expected = utils_getFastTransferAmount(_args.amount);
     }
-    helpers_executeAndAssert(transferId, _args, expected, false, false, false, false, useAgent);
+    helpers_executeAndAssert(transferId, _args, expected, false, false, false, false, useDelegate);
   }
 
   // ============ Getters ==============
@@ -1082,7 +1082,7 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
     this.execute(args);
   }
 
-  // should fail if msg.sender is not an approved relayer && msg.sender != params.agent
+  // should fail if msg.sender is not an approved relayer && msg.sender != params.delegate
   function test_BridgeFacet__execute_failIfSenderNotApproved() public {
     // set context
     s.approvedRelayers[address(this)] = false;
@@ -1549,9 +1549,9 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
   }
 
   // should work with approved router if router ownership is not renounced
-  function test_BridgeFacet__execute_worksWithAgentAsSender() public {
-    address agent = address(12345654321);
-    _params.agent = agent;
+  function test_BridgeFacet__execute_worksWithDelegateAsSender() public {
+    address delegate = address(12345654321);
+    _params.delegate = delegate;
     (bytes32 transferId, ExecuteArgs memory args) = utils_makeExecuteArgs(1);
 
     s.routerBalances[args.routers[0]][args.local] += 10 ether;
@@ -1610,9 +1610,9 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
   // should work with unapproved router if router-whitelist ownership renouncedcanonicalId
 
   // ============ forceUpdateSlippage ============
-  function test_BridgeFacet__forceUpdateSlippage_failsIfNotAgent() public {
+  function test_BridgeFacet__forceUpdateSlippage_failsIfNotDelegate() public {
     (bytes32 transferId, ExecuteArgs memory args) = utils_makeExecuteArgs(1);
-    vm.expectRevert(BridgeFacet.BridgeFacet__onlyAgent_notAgent.selector);
+    vm.expectRevert(BridgeFacet.BridgeFacet__onlyDelegate_notDelegate.selector);
     this.forceUpdateSlippage(
       _params,
       _originSender,
@@ -1628,7 +1628,7 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
   function test_BridgeFacet__forceUpdateSlippage_failsIfInvalidSlippage() public {
     (bytes32 transferId, ExecuteArgs memory args) = utils_makeExecuteArgs(1);
     vm.expectRevert(BridgeFacet.BridgeFacet__forceUpdateSlippage_invalidSlippage.selector);
-    vm.prank(args.params.agent);
+    vm.prank(args.params.delegate);
     this.forceUpdateSlippage(
       _params,
       _originSender,
@@ -1645,7 +1645,7 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
     (bytes32 transferId, ExecuteArgs memory args) = utils_makeExecuteArgs(1);
     s.domain = args.params.originDomain;
     vm.expectRevert(BridgeFacet.BridgeFacet__forceUpdateSlippage_notDestination.selector);
-    vm.prank(args.params.agent);
+    vm.prank(args.params.delegate);
     this.forceUpdateSlippage(
       _params,
       _originSender,
@@ -1665,7 +1665,7 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
     vm.expectEmit(true, true, true, true);
     emit SlippageUpdated(transferId, 5_000);
 
-    vm.prank(args.params.agent);
+    vm.prank(args.params.delegate);
     this.forceUpdateSlippage(
       _params,
       _originSender,

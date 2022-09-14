@@ -43,7 +43,7 @@ export type CallParamsStruct = {
   callData: PromiseOrValue<BytesLike>;
   originDomain: PromiseOrValue<BigNumberish>;
   destinationDomain: PromiseOrValue<BigNumberish>;
-  agent: PromiseOrValue<string>;
+  delegate: PromiseOrValue<string>;
   receiveLocal: PromiseOrValue<boolean>;
   slippage: PromiseOrValue<BigNumberish>;
 };
@@ -61,7 +61,7 @@ export type CallParamsStructOutput = [
   callData: string;
   originDomain: number;
   destinationDomain: number;
-  agent: string;
+  delegate: string;
   receiveLocal: boolean;
   slippage: BigNumber;
 };
@@ -107,7 +107,7 @@ export type UserFacingCallParamsStruct = {
   to: PromiseOrValue<string>;
   callData: PromiseOrValue<BytesLike>;
   destinationDomain: PromiseOrValue<BigNumberish>;
-  agent: PromiseOrValue<string>;
+  delegate: PromiseOrValue<string>;
   slippage: PromiseOrValue<BigNumberish>;
 };
 
@@ -121,7 +121,7 @@ export type UserFacingCallParamsStructOutput = [
   to: string;
   callData: string;
   destinationDomain: number;
-  agent: string;
+  delegate: string;
   slippage: BigNumber;
 };
 

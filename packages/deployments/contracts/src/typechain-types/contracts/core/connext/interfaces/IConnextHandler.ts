@@ -43,7 +43,7 @@ export type CallParamsStruct = {
   callData: PromiseOrValue<BytesLike>;
   originDomain: PromiseOrValue<BigNumberish>;
   destinationDomain: PromiseOrValue<BigNumberish>;
-  agent: PromiseOrValue<string>;
+  delegate: PromiseOrValue<string>;
   receiveLocal: PromiseOrValue<boolean>;
   slippage: PromiseOrValue<BigNumberish>;
 };
@@ -61,7 +61,7 @@ export type CallParamsStructOutput = [
   callData: string;
   originDomain: number;
   destinationDomain: number;
-  agent: string;
+  delegate: string;
   receiveLocal: boolean;
   slippage: BigNumber;
 };
@@ -132,7 +132,7 @@ export type UserFacingCallParamsStruct = {
   to: PromiseOrValue<string>;
   callData: PromiseOrValue<BytesLike>;
   destinationDomain: PromiseOrValue<BigNumberish>;
-  agent: PromiseOrValue<string>;
+  delegate: PromiseOrValue<string>;
   slippage: PromiseOrValue<BigNumberish>;
 };
 
@@ -146,7 +146,7 @@ export type UserFacingCallParamsStructOutput = [
   to: string;
   callData: string;
   destinationDomain: number;
-  agent: string;
+  delegate: string;
   slippage: BigNumber;
 };
 
@@ -281,7 +281,7 @@ export interface IConnextHandlerInterface extends utils.Interface {
     "facetAddresses()": FunctionFragment;
     "facetFunctionSelectors(address)": FunctionFragment;
     "facets()": FunctionFragment;
-    "forceUpdateSlippage((address,bytes,uint32,uint32,address,bool,uint256),address,uint32,bytes32,uint256,uint256,uint256)": FunctionFragment;
+    "forceUpdateSlippage((address,bytes,uint32,uint32,address,bool,uint256),address,uint32,bytes32,uint256,uint256,uint256,uint256)": FunctionFragment;
     "getAavePortalDebt(bytes32)": FunctionFragment;
     "getAavePortalFeeDebt(bytes32)": FunctionFragment;
     "getProposedRouterOwner(address)": FunctionFragment;
@@ -675,6 +675,7 @@ export interface IConnextHandlerInterface extends utils.Interface {
       PromiseOrValue<string>,
       PromiseOrValue<BigNumberish>,
       PromiseOrValue<BytesLike>,
+      PromiseOrValue<BigNumberish>,
       PromiseOrValue<BigNumberish>,
       PromiseOrValue<BigNumberish>,
       PromiseOrValue<BigNumberish>
@@ -1779,6 +1780,7 @@ export interface IConnextHandler extends BaseContract {
       _normalizedIn: PromiseOrValue<BigNumberish>,
       _amount: PromiseOrValue<BigNumberish>,
       _nonce: PromiseOrValue<BigNumberish>,
+      _slippage: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
@@ -2421,6 +2423,7 @@ export interface IConnextHandler extends BaseContract {
     _normalizedIn: PromiseOrValue<BigNumberish>,
     _amount: PromiseOrValue<BigNumberish>,
     _nonce: PromiseOrValue<BigNumberish>,
+    _slippage: PromiseOrValue<BigNumberish>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
@@ -3061,6 +3064,7 @@ export interface IConnextHandler extends BaseContract {
       _normalizedIn: PromiseOrValue<BigNumberish>,
       _amount: PromiseOrValue<BigNumberish>,
       _nonce: PromiseOrValue<BigNumberish>,
+      _slippage: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<void>;
 
@@ -3724,6 +3728,7 @@ export interface IConnextHandler extends BaseContract {
       _normalizedIn: PromiseOrValue<BigNumberish>,
       _amount: PromiseOrValue<BigNumberish>,
       _nonce: PromiseOrValue<BigNumberish>,
+      _slippage: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
@@ -4375,6 +4380,7 @@ export interface IConnextHandler extends BaseContract {
       _normalizedIn: PromiseOrValue<BigNumberish>,
       _amount: PromiseOrValue<BigNumberish>,
       _nonce: PromiseOrValue<BigNumberish>,
+      _slippage: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 

@@ -28,7 +28,7 @@ struct UserFacingCallParams {
   address to;
   bytes callData;
   uint32 destinationDomain;
-  address agent;
+  address delegate;
   uint256 slippage;
 }
 
@@ -42,7 +42,7 @@ struct UserFacingCallParams {
  * @param callData - The data to execute on the receiving chain. If no crosschain call is needed, then leave empty.
  * @param originDomain - The originating domain (i.e. where `xcall` is called). Must match nomad domain schema
  * @param destinationDomain - The final domain (i.e. where `execute` / `reconcile` are called). Must match nomad domain schema
- * @param agent - An address who can execute txs on behalf of `to`, in addition to allowing relayers
+ * @param delegate - An address who can execute txs on behalf of `to`, in addition to allowing relayers
  * @param receiveLocal - If true, will use the local nomad asset on the destination instead of adopted.
  * @param slippage - Slippage user is willing to accept from original amount in expressed in BPS (i.e. if
  * a user takes 1% slippage, this is expressed as 1_000)
@@ -54,7 +54,7 @@ struct CallParams {
   bytes callData;
   uint32 originDomain;
   uint32 destinationDomain;
-  address agent;
+  address delegate;
   bool receiveLocal;
   uint256 slippage;
 }

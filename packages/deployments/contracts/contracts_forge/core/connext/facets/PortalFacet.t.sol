@@ -58,7 +58,7 @@ contract PortalFacetTest is PortalFacet, FacetHelper {
       bytes(""), // callData
       _originDomain, // origin domain
       _destinationDomain, // destination domain
-      address(222222222), // agent
+      address(222222222), // delegate
       false, // receiveLocal
       1 ether // destinationMinOut
     );

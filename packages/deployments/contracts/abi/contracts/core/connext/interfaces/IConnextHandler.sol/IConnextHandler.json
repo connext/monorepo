@@ -44,7 +44,7 @@
   "function facetAddresses() view returns (address[])",
   "function facetFunctionSelectors(address) view returns (bytes4[])",
   "function facets() view returns (tuple(address,bytes4[])[])",
-  "function forceUpdateSlippage(tuple(address,bytes,uint32,uint32,address,bool,uint256),address,uint32,bytes32,uint256,uint256,uint256)",
+  "function forceUpdateSlippage(tuple(address,bytes,uint32,uint32,address,bool,uint256),address,uint32,bytes32,uint256,uint256,uint256,uint256)",
   "function getAavePortalDebt(bytes32) view returns (uint256)",
   "function getAavePortalFeeDebt(bytes32) view returns (uint256)",
   "function getProposedRouterOwner(address) view returns (address)",

@@ -142,7 +142,7 @@ contract FacetHelper is ForgeHelper {
         params.callData,
         _originDomain,
         params.destinationDomain, // destination domain
-        params.agent, // agent
+        params.delegate, // delegate
         false,
         params.slippage
       );
