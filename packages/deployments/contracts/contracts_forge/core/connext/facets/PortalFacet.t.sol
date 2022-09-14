@@ -9,7 +9,7 @@ import {IDiamondCut} from "../../../../contracts/core/connext/interfaces/IDiamon
 
 import {BaseConnextFacet} from "../../../../contracts/core/connext/facets/BaseConnextFacet.sol";
 import {LibDiamond} from "../../../../contracts/core/connext/libraries/LibDiamond.sol";
-import {CallParams, TransferIdGenerationInformation} from "../../../../contracts/core/connext/libraries/LibConnextStorage.sol";
+import {CallParams} from "../../../../contracts/core/connext/libraries/LibConnextStorage.sol";
 import {PortalFacet} from "../../../../contracts/core/connext/facets/PortalFacet.sol";
 import {TestAavePool} from "../../../../contracts/test/TestAavePool.sol";
 import {TestERC20} from "../../../../contracts/test/TestERC20.sol";

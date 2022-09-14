@@ -57,9 +57,10 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
   // aave pool details
   address _aavePool;
 
+  // relayer fee
+  uint256 _relayerFee = 0.1 ether;
+
   // Defaults
-  // default relayer fee
-  uint256 _defaultRelayerFee = 0.1 ether;
   // default asset
   address _defaultAsset = _local;
   // default amount
@@ -69,21 +70,18 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
   // default CallParams
   CallParams _defaultParams =
     CallParams({
-      // These values will be referenced when making the public / user-facing xcall
-      // in the unit tests below.
-      to: address(11),
-      callData: bytes(""),
       originDomain: _originDomain,
       destinationDomain: _destinationDomain,
+      canonicalDomain: _canonicalDomain,
+      to: address(11),
       delegate: _delegate,
       receiveLocal: _receiveLocal,
+      callData: bytes(""),
       slippage: 1000,
       originSender: _defaultOriginSender,
-      // The following values would normally be assigned in _xcall.
-      nonce: _nonce,
-      canonicalDomain: _canonicalDomain,
       bridgedAmt: 0,
       normalizedIn: 0,
+      nonce: _defaultNonce,
       canonicalId: _canonicalId
     });
 
@@ -131,73 +129,6 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
     s.aavePool = _aavePool;
   }
 
-  // Meant to mimic the corresponding `BaseConnextFacet._calculateTransferId` method.
-  function utils_getTransferIdFromCallParams(CallParams memory _params) public returns (bytes32) {
-    return keccak256(abi.encode(_params));
-  }
-
-  // Meant to mimic the corresponding `_getTransferId` method in the BridgeFacet contract.
-  function utils_getTransferIdFromExecuteArgs(ExecuteArgs memory _args) public returns (bytes32) {
-    return
-      keccak256(
-        abi.encode(
-          _args.nonce,
-          _args.params,
-          _args.originSender,
-          _canonicalId,
-          _canonicalDomain,
-          _args.amount,
-          _args.normalizedIn
-        )
-      );
-  }
-
-  // function utils_getUserFacingParams() public returns (UserFacingCallParams memory) {
-  //   return
-  //     UserFacingCallParams(
-  //       _params.to,
-  //       _params.callData,
-  //       _params.destinationDomain, // destination domain
-  //       _params.delegate, // delegate
-  //       _params.slippage
-  //     );
-  // }
-
-  // // Makes some mock xcall arguments using params set in storage.
-  // function utils_makeXCallArgs(uint256 bridged) public returns (bytes32, XCallArgs memory) {
-  //   s.domain = _originDomain;
-  //   // get args
-  //   // XCallArgs memory args = XCallArgs(utils_getUserFacingParams(), _adopted, _amount);
-  //   // generate transfer id
-  //   bytes32 transferId = utils_getTransferIdFromCallParams(_params);
-
-  //   return (transferId, args);
-  // }
-
-  // function utils_makeXCallArgs(address assetId, uint256 bridged) public returns (bytes32, XCallArgs memory) {
-  //   s.domain = _originDomain;
-  //   // get args
-  //   // XCallArgs memory args = XCallArgs(
-  //   //   utils_getUserFacingParams(),
-  //   //   assetId, // assetId : could be adopted, local, or wrapped.
-  //   //   _amount
-  //   // );
-  //   if (assetId == address(0)) {
-  //     _canonicalId = bytes32(0);
-  //     _canonicalDomain = 0;
-  //   }
-  //   // Generate transfer ID.
-  //   bytes32 transferId = utils_getTransferIdFromCallParams(
-  //     args,
-  //     _originSender,
-  //     _canonicalId,
-  //     _canonicalDomain,
-  //     bridged
-  //   );
-
-  //   return (transferId, args);
-  // }
-
   function utils_makeSequencerSignature(
     bytes32 transferId,
     address[] memory routers,
@@ -238,20 +169,15 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
     s.domain = _destinationDomain;
     // get args
     bytes[] memory empty = new bytes[](0);
-    ExecuteArgs memory args = ExecuteArgs(
-      _params,
-      _local,
-      routers,
-      empty,
-      address(0),
-      bytes(""),
-      _amount,
-      _nonce,
-      _amount,
-      _originSender
-    );
+    ExecuteArgs memory args = ExecuteArgs({
+      params: _defaultParams,
+      routers: routers,
+      routerSignatures: empty,
+      sequencer: address(0),
+      sequencerSignature: bytes("")
+    });
     // generate transfer id
-    bytes32 transferId = utils_getTransferIdFromExecuteArgs(args);
+    bytes32 transferId = utils_getTransferIdFromCallParams(args.params);
     // generate router signatures if applicable
     if (routers.length != 0) {
       args.routerSignatures = utils_makeRouterSignatures(transferId, routers, keys);
@@ -330,8 +256,8 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
         IBridgeRouter.sendToHook.selector,
         bridged,
         bridgedAmt,
-        args.params.destinationDomain,
-        s.connextions[args.params.destinationDomain], // always use this as remote connext
+        params.destinationDomain,
+        s.connextions[params.destinationDomain], // always use this as remote connext
         abi.encode(transferId)
       )
     );
@@ -348,9 +274,10 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
     bytes4 expectedError,
     bool shouldSwap
   ) public {
-    bytes32 transferId = utils_getTransferIdFromCallParams(params);
     bool shouldSucceed = keccak256(abi.encode(expectedError)) == keccak256(abi.encode(bytes4("")));
     bool isCanonical = _canonicalDomain == s.domain;
+    params.bridgedAmt = asset == address(0) ? 0 : isCanonical ? amount : asset == _local ? amount : params.bridgedAmt;
+    bytes32 transferId = _calculateTransferId(params);
 
     // Deal the user required eth for transfer.
     vm.deal(params.originSender, 100 ether);
@@ -358,19 +285,19 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
     uint256 initialUserBalance;
     uint256 initialContractBalance;
     {
-      if (args.asset != address(0)) {
+      if (asset != address(0)) {
         TestERC20 tokenIn = TestERC20(asset);
         TestERC20 localToken = TestERC20(_local);
 
         // Mint the specified amount of tokens for the user.
-        tokenIn.mint(params.originSender, dealTokens);
+        tokenIn.mint(params.originSender, amount);
 
         initialUserBalance = tokenIn.balanceOf(params.originSender);
         initialContractBalance = localToken.balanceOf(address(this));
 
         // Approve the target contract to spend the specified amount of tokens.
         vm.prank(params.originSender);
-        tokenIn.approve(address(this), dealTokens);
+        tokenIn.approve(address(this), amount);
       } else {
         initialUserBalance = address(params.originSender).balance;
         initialContractBalance = address(this).balance;
@@ -389,33 +316,49 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
     uint256 initialRelayerFees = s.relayerFees[transferId];
 
     if (shouldSucceed) {
-      helpers_setupSuccessfulXcallCallAssertions(transferId, args, bridgedAmt, shouldSwap);
+      helpers_setupSuccessfulXcallCallAssertions(transferId, params, asset, amount, shouldSwap);
     } else {
       vm.expectRevert(expectedError);
     }
 
-    vm.prank(_originSender);
-    bytes32 ret = _params.receiveLocal
-      ? this.xcallIntoLocal{value: _relayerFee}(args)
-      : this.xcall{value: _relayerFee}(args);
+    vm.prank(_defaultOriginSender);
+    bytes32 ret = params.receiveLocal
+      ? this.xcallIntoLocal{value: _relayerFee}(
+        params.destinationDomain,
+        params.to,
+        params.asset,
+        params.delegate,
+        params.amount,
+        params.slippage,
+        params.callData
+      )
+      : this.xcall{value: _relayerFee}(
+        params.destinationDomain,
+        params.to,
+        params.asset,
+        params.delegate,
+        params.amount,
+        params.slippage,
+        params.callData
+      );
 
     if (shouldSucceed) {
       assertEq(ret, transferId);
       // User should have been debited fees... but also tx cost?
-      // assertEq(payable(_originSender).balance, initialUserBalance - fees);
+      // assertEq(payable(_defaultOriginSender).balance, initialUserBalance - fees);
 
       // Check that the user has been debited the correct amount of tokens.
-      if (args.asset != address(0)) {
-        assertEq(TestERC20(args.asset).balanceOf(_originSender), initialUserBalance - args.amount);
+      if (asset != address(0)) {
+        assertEq(TestERC20(asset).balanceOf(_defaultOriginSender), initialUserBalance - amount);
       } else {
         // User should have been debited fees
-        assertEq(_originSender.balance, (initialUserBalance - _relayerFee));
+        assertEq(_defaultOriginSender.balance, (initialUserBalance - _relayerFee));
       }
 
       // Check that the contract has been credited the correct amount of tokens.
       // NOTE: Because the tokens are a representational local asset, they are burnt. The contract
       // should NOT be holding any additional tokens after xcall completes.
-      if (args.asset == address(0)) {
+      if (asset == address(0)) {
         // No balance change
         assertEq(address(this).balance, initialContractBalance + _relayerFee);
       } else if (isCanonical) {
@@ -427,7 +370,7 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
         // the prod difference in balance is net 0. However, because the swap here is mocked,
         // when a swap occurrs no balance increase of local happens (i.e. if swap needed, the
         // balance will decrease by bridgedAmt / what is burned)
-        uint256 expected = args.asset == _local ? initialContractBalance : initialContractBalance - bridgedAmt;
+        uint256 expected = asset == _local ? initialContractBalance : initialContractBalance - params.bridgedAmt;
         assertEq(TestERC20(_local).balanceOf(address(this)), expected);
       }
 
@@ -450,12 +393,12 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
   }
 
   function helpers_xcallAndAssert(bytes4 expectedError) public {
-    helpers_xcallAndAssert(_defaultParams, _local, amount, expectedError, false);
+    helpers_xcallAndAssert(_defaultParams, _defaultAsset, _defaultAmount, expectedError, false);
   }
 
   // Shortcut for the above fn, with no expected error.
   function helpers_xcallAndAssert(uint256 amount, bool shouldSwap) public {
-    helpers_xcallAndAssert(_defaultParams, _local, amount, bytes4(""), shouldSwap);
+    helpers_xcallAndAssert(_defaultParams, _defaultAsset, amount, bytes4(""), shouldSwap);
   }
 
   // Shortcut for the above fn, no expected error, specified transacting asset
@@ -465,16 +408,6 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
     bool shouldSwap
   ) public {
     helpers_xcallAndAssert(_defaultParams, asset, amount, bytes4(""), shouldSwap);
-  }
-
-  // Shortcut for the main fn.
-  function helpers_xcallAndAssert(
-    uint256 dealTokens,
-    uint256 bridged,
-    bool swaps
-  ) public {
-    (bytes32 transferId, XCallArgs memory args) = utils_makeXCallArgs(bridged);
-    helpers_xcallAndAssert(transferId, args, dealTokens, bridged, bytes4(""), swaps);
   }
 
   struct ExecuteBalances {
@@ -789,7 +722,7 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
     address sequencer = address(123);
 
     // test revert
-    vm.prank(_originSender);
+    vm.prank(_defaultOriginSender);
     vm.expectRevert(BaseConnextFacet.BaseConnextFacet__onlyOwner_notOwner.selector);
     this.addSequencer(sequencer);
   }
@@ -827,7 +760,7 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
     address sequencer = address(123);
 
     // test revert
-    vm.prank(_originSender);
+    vm.prank(_defaultOriginSender);
     vm.expectRevert(BaseConnextFacet.BaseConnextFacet__onlyOwner_notOwner.selector);
     this.removeSequencer(sequencer);
   }
@@ -871,17 +804,17 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
   }
 
   function test_BridgeFacet__xcall_failIfDestinationNotSupported() public {
-    _params.destinationDomain = 999999;
+    _defaultParams.destinationDomain = 999999;
     helpers_xcallAndAssert(BridgeFacet.BridgeFacet__xcall_destinationNotSupported.selector);
   }
 
   function test_BridgeFacet__xcall_failIfEmptyTo() public {
-    _params.to = address(0);
+    _defaultParams.to = address(0);
     helpers_xcallAndAssert(BridgeFacet.BridgeFacet__xcall_emptyTo.selector);
   }
 
   function test_BridgeFacet__xcall_failIfInvalidSlippage() public {
-    _params.slippage = 15_000;
+    _defaultParams.slippage = 15_000;
     helpers_xcallAndAssert(BridgeFacet.BridgeFacet__xcall_invalidSlippage.selector);
   }
 
@@ -907,58 +840,64 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
 
   // fails if native asset is used && amount > 0
   function test_BridgeFacet__xcall_failIfNativeAsset() public {
-    _amount = 1 ether;
+    uint256 amount = 1 ether;
     TestERC20 localToken = TestERC20(_local);
-    localToken.mint(_originSender, 1 ether);
-    vm.prank(_originSender);
+    localToken.mint(_defaultOriginSender, 1 ether);
+    vm.prank(_defaultOriginSender);
     localToken.approve(address(this), 1 ether);
 
-    vm.deal(_originSender, 100 ether);
-
-    (, XCallArgs memory args) = utils_makeXCallArgs(_amount);
+    vm.deal(_defaultOriginSender, 100 ether);
 
     // Set transacting asset to address 0, indicating the user wants to send native token, which
     // isn't supported.
-    args.asset = address(0);
+    address asset = address(0);
 
     vm.expectRevert(BridgeFacet.BridgeFacet__xcall_nativeAssetNotSupported.selector);
-    vm.prank(_originSender);
-    this.xcall{value: _relayerFee}(args);
+    vm.prank(_defaultOriginSender);
+    this.xcall{value: _relayerFee}(
+      _defaultParams.destinationDomain,
+      _defaultParams.to,
+      asset,
+      _defaultParams.delegate,
+      amount,
+      _defaultParams.slippage,
+      _defaultParams.callData
+    );
   }
 
   // fails if user has insufficient tokens
-  function test_BridgeFacet__xcall_failInsufficientErc20Tokens() public {
-    _amount = 10.1 ether;
-    TestERC20 localToken = TestERC20(_local);
-    localToken.mint(_originSender, 10 ether);
-    vm.prank(_originSender);
-    localToken.approve(address(this), 10.1 ether);
+  // function test_BridgeFacet__xcall_failInsufficientErc20Tokens() public {
+  //   _defaultParams.amount = 10.1 ether;
+  //   TestERC20 localToken = TestERC20(_local);
+  //   localToken.mint(_defaultOriginSender, 10 ether);
+  //   vm.prank(_defaultOriginSender);
+  //   localToken.approve(address(this), 10.1 ether);
 
-    vm.deal(_originSender, 100 ether);
+  //   vm.deal(_defaultOriginSender, 100 ether);
 
-    (, XCallArgs memory args) = utils_makeXCallArgs(_amount);
+  //   (, XCallArgs memory args) = utils_makeXCallArgs(_amount);
 
-    vm.expectRevert("ERC20: transfer amount exceeds balance");
-    vm.prank(_originSender);
-    this.xcall{value: _relayerFee}(args);
-  }
+  //   vm.expectRevert("ERC20: transfer amount exceeds balance");
+  //   vm.prank(_defaultOriginSender);
+  //   this.xcall{value: _relayerFee}(args);
+  // }
 
   // fails if user has not set enough allowance
-  function test_BridgeFacet__xcall_failInsufficientErc20Approval() public {
-    _amount = 10.1 ether;
-    TestERC20 localToken = TestERC20(_local);
-    localToken.mint(_originSender, 10.1 ether);
-    vm.prank(_originSender);
-    localToken.approve(address(this), 10 ether);
+  // function test_BridgeFacet__xcall_failInsufficientErc20Approval() public {
+  //   _defaultParams.amount = 10.1 ether;
+  //   TestERC20 localToken = TestERC20(_local);
+  //   localToken.mint(_defaultOriginSender, 10.1 ether);
+  //   vm.prank(_defaultOriginSender);
+  //   localToken.approve(address(this), 10 ether);
 
-    vm.deal(_originSender, 100 ether);
+  //   vm.deal(_defaultOriginSender, 100 ether);
 
-    (, XCallArgs memory args) = utils_makeXCallArgs(_amount);
+  //   (, XCallArgs memory args) = utils_makeXCallArgs(_amount);
 
-    vm.expectRevert("ERC20: insufficient allowance");
-    vm.prank(_originSender);
-    this.xcall{value: _relayerFee}(args);
-  }
+  //   vm.expectRevert("ERC20: insufficient allowance");
+  //   vm.prank(_defaultOriginSender);
+  //   this.xcall{value: _relayerFee}(args);
+  // }
 
   // ============ xcall success cases
   // asset cases:
@@ -974,12 +913,12 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
   // canonincal token transfer on canonical domain
   function test_BridgeFacet__xcall_canonicalTokenTransferWorks() public {
     utils_setupAsset(true, true);
-    helpers_xcallAndAssert(_amount, false);
+    helpers_xcallAndAssert(_defaultAmount, false);
   }
 
   // works when transferring 0 value and empty asset
   function test_BridgeFacet__xcall_zeroValueEmptyAssetWorks() public {
-    _amount = 0;
+    _defaultAmount = 0;
     utils_setupAsset(true, true);
     s.adoptedToCanonical[address(0)] = TokenId(0, bytes32(0));
     helpers_xcallAndAssert(0, address(0), false);
@@ -987,75 +926,74 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
 
   // local token transfer on non-canonical domain (local != adopted)
   function test_BridgeFacet__xcall_localTokenTransferWorksWithAdopted() public {
-    uint256 bridged = (_amount * 9995) / _liquidityFeeDenominator;
+    uint256 bridged = (_defaultAmount * 9995) / _liquidityFeeDenominator;
     utils_setupAsset(false, false);
     helpers_xcallAndAssert(bridged, true);
   }
 
   function test_BridgeFacet_xcallIntoLocal_works() public {
-    uint256 bridged = (_amount * 9995) / _liquidityFeeDenominator;
+    uint256 bridged = (_defaultAmount * 9995) / _liquidityFeeDenominator;
     utils_setupAsset(false, false);
-    _receiveLocal = true;
+    _defaultParams.receiveLocal = true;
     helpers_xcallAndAssert(bridged, true);
   }
 
   // local token transfer on non-canonical domain, local != adopted, send in local
   // (i.e. i should be able to xcall with madEth on optimism)
-  function test_BridgeFacet__xcall_localTokenTransferWorksWhenNotAdopted() public {
-    // local is not adopted, not on canonical domain, sending in local
-    utils_setupAsset(false, false);
-    s.adoptedToCanonical[_local] = TokenId(0, bytes32(0));
-    (bytes32 transferId, XCallArgs memory args) = utils_makeXCallArgs(_amount);
-    vm.mockCall(
-      _tokenRegistry,
-      abi.encodeWithSelector(ITokenRegistry.isLocalOrigin.selector, _local),
-      abi.encode(false)
-    );
-    args.asset = _local;
-    helpers_xcallAndAssert(transferId, args, args.amount, args.amount, bytes4(""), false);
-  }
+  // function test_BridgeFacet__xcall_localTokenTransferWorksWhenNotAdopted() public {
+  //   // local is not adopted, not on canonical domain, sending in local
+  //   utils_setupAsset(false, false);
+  //   s.adoptedToCanonical[_local] = TokenId(0, bytes32(0));
+  //   (bytes32 transferId, XCallArgs memory args) = utils_makeXCallArgs(_amount);
+  //   vm.mockCall(
+  //     _tokenRegistry,
+  //     abi.encodeWithSelector(ITokenRegistry.isLocalOrigin.selector, _local),
+  //     abi.encode(false)
+  //   );
+  //   args.asset = _local;
+  //   helpers_xcallAndAssert(transferId, args, args.amount, args.amount, bytes4(""), false);
+  // }
 
-  function test_BridgeFacet__xcall_worksIfPreexistingRelayerFee() public {
-    // local is not adopted, not on canonical domain, sending in local
-    utils_setupAsset(true, false);
-    _relayerFee = 0.1 ether;
-    (bytes32 transferId, XCallArgs memory args) = utils_makeXCallArgs(_amount);
-    s.relayerFees[transferId] = 2 ether;
-    helpers_xcallAndAssert(transferId, args, args.amount, args.amount, bytes4(""), false);
-    assertEq(s.relayerFees[transferId], 2.1 ether);
-  }
+  // function test_BridgeFacet__xcall_worksIfPreexistingRelayerFee() public {
+  //   // local is not adopted, not on canonical domain, sending in local
+  //   utils_setupAsset(true, false);
+  //   _relayerFee = 0.1 ether;
+  //   (bytes32 transferId, XCallArgs memory args) = utils_makeXCallArgs(_amount);
+  //   s.relayerFees[transferId] = 2 ether;
+  //   helpers_xcallAndAssert(transferId, args, args.amount, args.amount, bytes4(""), false);
+  //   assertEq(s.relayerFees[transferId], 2.1 ether);
+  // }
 
   // local token transfer on non-canonical domain (local == adopted)
   function test_BridgeFacet__xcall_localTokenTransferWorksWithoutAdopted() public {
     utils_setupAsset(true, false);
-    helpers_xcallAndAssert(_amount, false);
+    helpers_xcallAndAssert(_defaultAmount, false);
   }
 
   // adopted asset transfer
   function test_BridgeFacet__xcall_adoptedTransferWorks() public {
     utils_setupAsset(false, false);
-    uint256 bridged = (_amount * 9995) / _liquidityFeeDenominator;
+    uint256 bridged = (_defaultAmount * 9995) / _liquidityFeeDenominator;
     helpers_xcallAndAssert(bridged, true);
   }
 
   // should work with positive slippage
   function test_BridgeFacet__xcall_worksWithPositiveSlippage() public {
     utils_setupAsset(false, false);
-    uint256 bridged = (_amount * 10005) / _liquidityFeeDenominator;
+    uint256 bridged = (_defaultAmount * 10005) / _liquidityFeeDenominator;
     helpers_xcallAndAssert(bridged, true);
   }
 
   // should work with 0 value
   function test_BridgeFacet__xcall_worksWithoutValue() public {
     utils_setupAsset(false, false);
-    _amount = 0;
     helpers_xcallAndAssert(0, true);
   }
 
   // works if relayer fee is set to 0
   function test_BridgeFacet__xcall_zeroRelayerFeeWorks() public {
     _relayerFee = 0;
-    helpers_xcallAndAssert(_amount, false);
+    helpers_xcallAndAssert(_defaultAmount, false);
   }
 
   // ============ execute ============
@@ -1127,7 +1065,7 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
     s.routerBalances[args.routers[0]][args.local] += 10 ether;
 
     // Make invalid args based on (slightly) altered params.
-    _params.originDomain = 1001;
+    _defaultParams.originDomain = 1001;
     (, ExecuteArgs memory invalidArgs) = utils_makeExecuteArgs(4);
     // The signature of the last router in the group will be invalid.
     args.routerSignatures[0] = invalidArgs.routerSignatures[0];
@@ -1153,7 +1091,7 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
 
     // Make invalid args based on (slightly) altered params (this will make
     // the transfer ID different).
-    _params.originDomain = 1001;
+    _defaultParams.originDomain = 1001;
     (, ExecuteArgs memory invalidArgs) = utils_makeExecuteArgs(4);
     // The signature of the sequencer will be invalid, as it signed a different transfer ID.
     args.sequencerSignature = invalidArgs.sequencerSignature;
@@ -1212,7 +1150,7 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
     }
 
     // Make invalid args based on (slightly) altered params.
-    _params.originDomain = 1001;
+    _defaultParams.originDomain = 1001;
     (, ExecuteArgs memory invalidArgs) = utils_makeExecuteArgs(4);
     // The signature of the last router in the group will be invalid.
     args.routerSignatures[3] = invalidArgs.routerSignatures[3];
@@ -1234,7 +1172,7 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
 
   // should fail if the router does not have sufficient tokens
   function test_BridgeFacet__execute_failIfRouterHasInsufficientFunds() public {
-    _amount = 5 ether;
+    _defaultParams.amount = 5 ether;
 
     (bytes32 transferId, ExecuteArgs memory args) = utils_makeExecuteArgs(2);
 
@@ -1246,11 +1184,11 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
 
   // multipath: should fail if any 1 router has insufficient tokens
   function test_BridgeFacet__execute_failIfAnyRouterHasInsufficientFunds() public {
-    _amount = 5 ether;
+    _defaultParams.amount = 5 ether;
 
     (bytes32 transferId, ExecuteArgs memory args) = utils_makeExecuteArgs(s.maxRoutersPerTransfer);
 
-    uint256 routerAmountSent = _amount / args.routers.length; // The amount each individual router will send.
+    uint256 routerAmountSent = _defaultParams.amount / args.routers.length; // The amount each individual router will send.
 
     // Set the first router's balance to be (slightly) less than the amount that they'd need to send.
     s.routerBalances[args.routers[0]][args.local] = routerAmountSent - 0.1 ether;
@@ -1264,7 +1202,7 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
   }
 
   function test_BridgeFacet__execute_failsIfRouterNotApprovedForPortal() public {
-    _amount = 5 ether;
+    _defaultParams.amount = 5 ether;
 
     (bytes32 _id, ExecuteArgs memory _args) = utils_makeExecuteArgs(1);
 
@@ -1280,7 +1218,7 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
   // ============ execute success cases
   // should use the local asset if specified (receiveLocal = true)
   function test_BridgeFacet__execute_receiveLocalWorks() public {
-    _params.receiveLocal = true;
+    _defaultParams.receiveLocal = true;
 
     (bytes32 transferId, ExecuteArgs memory args) = utils_makeExecuteArgs(1);
 
@@ -1307,9 +1245,9 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
 
   // should work with approved router if router ownership is not renounced
   function test_BridgeFacet__execute_worksWithEmptyCanonicalIfZeroValue() public {
-    _canonicalId = bytes32(0);
-    _canonicalDomain = 0;
-    _amount = 0;
+    _defaultParams.canonicalId = bytes32(0);
+    _defaultParams.canonicalDomain = 0;
+    _defaultParams.amount = 0;
     _local = address(0);
     (bytes32 transferId, ExecuteArgs memory args) = utils_makeExecuteArgs(1);
 
@@ -1391,7 +1329,7 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
 
   // should work with 0 value
   function test_BridgeFacet__execute_worksWith0Value() public {
-    _amount = 0;
+    _defaultParams.amount = 0;
 
     (bytes32 transferId, ExecuteArgs memory args) = utils_makeExecuteArgs(1);
 
@@ -1403,7 +1341,7 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
 
   // should work without calldata
   function test_BridgeFacet__execute_noCalldataWorks() public {
-    _params.callData = bytes("");
+    _defaultParams.callData = bytes("");
     (bytes32 transferId, ExecuteArgs memory args) = utils_makeExecuteArgs(1);
 
     s.routerBalances[args.routers[0]][args.local] += 10 ether;
@@ -1418,8 +1356,8 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
   // should work with successful calldata and using fast liquidity
   function test_BridgeFacet__execute_successfulCalldata() public {
     // Set the args.to to the mock xapp address, and args.callData to the `fulfill` fn.
-    _params.to = _xapp;
-    _params.callData = bytes("zomg");
+    _defaultParams.to = _xapp;
+    _defaultParams.callData = bytes("zomg");
 
     (bytes32 transferId, ExecuteArgs memory args) = utils_makeExecuteArgs(1);
 
@@ -1444,8 +1382,8 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
   function test_BridgeFacet__execute_calldataFailsLoudlyOnFast() public {
     // Set the args.to to the mock xapp address, and set to fail
     MockXApp(_xapp).setFail(true);
-    _params.callData = bytes("zomg");
-    _params.to = _xapp;
+    _defaultParams.callData = bytes("zomg");
+    _defaultParams.to = _xapp;
 
     (bytes32 transferId, ExecuteArgs memory args) = utils_makeExecuteArgs(1);
 
@@ -1465,8 +1403,8 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
   function test_BridgeFacet__execute_calldataFailureHandledOnSlow() public {
     // Set the args.to to the mock xapp address, and set to fail
     MockXApp(_xapp).setFail(true);
-    _params.callData = bytes("zomg");
-    _params.to = _xapp;
+    _defaultParams.callData = bytes("zomg");
+    _defaultParams.to = _xapp;
 
     (bytes32 transferId, ExecuteArgs memory args) = utils_makeExecuteArgs(0);
 
@@ -1503,9 +1441,9 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
     // Set the args.to to the mock xapp address, and args.callData to the
     // `fulfillWithProperties` fn. This will check to make sure `originDomain` and
     // `originSender` properties are correctly set.
-    MockXApp(_xapp).setPermissions(_originSender, _originDomain);
-    _params.callData = bytes("yayaytestsyay");
-    _params.to = _xapp;
+    MockXApp(_xapp).setPermissions(_defaultOriginSender, _originDomain);
+    _defaultParams.callData = bytes("yayaytestsyay");
+    _defaultParams.to = _xapp;
 
     // We specify that 0 routers are in the path for this execution.
     (bytes32 transferId, ExecuteArgs memory args) = utils_makeExecuteArgs(0);
@@ -1518,7 +1456,7 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
 
   // multipath: should subtract equally from each router's liquidity
   function test_BridgeFacet__execute_multipath() public {
-    _amount = 1 ether;
+    _defaultParams.amount = 1 ether;
 
     // Should work if the pathLength == max routers.
     uint256 pathLength = s.maxRoutersPerTransfer;
@@ -1544,7 +1482,7 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
   // should work with approved router if router ownership is not renounced
   function test_BridgeFacet__execute_worksWithDelegateAsSender() public {
     address delegate = address(12345654321);
-    _params.delegate = delegate;
+    _defaultParams.delegate = delegate;
     (bytes32 transferId, ExecuteArgs memory args) = utils_makeExecuteArgs(1);
 
     s.routerBalances[args.routers[0]][args.local] += 10 ether;
@@ -1607,13 +1545,13 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
     (bytes32 transferId, ExecuteArgs memory args) = utils_makeExecuteArgs(1);
     vm.expectRevert(BridgeFacet.BridgeFacet__onlyDelegate_notDelegate.selector);
     this.forceUpdateSlippage(
-      _params,
-      _originSender,
-      _canonicalDomain,
-      _canonicalId,
+      _defaultParams,
+      _defaultParams.originSender,
+      _defaultParams.canonicalDomain,
+      _defaultParams.canonicalId,
       args.amount,
       args.amount,
-      _nonce,
+      _defaultParams.nonce,
       5_000
     );
   }
@@ -1623,13 +1561,13 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
     vm.expectRevert(BridgeFacet.BridgeFacet__forceUpdateSlippage_invalidSlippage.selector);
     vm.prank(args.params.delegate);
     this.forceUpdateSlippage(
-      _params,
-      _originSender,
-      _canonicalDomain,
-      _canonicalId,
+      _defaultParams,
+      _defaultParams.originSender,
+      _defaultParams.canonicalDomain,
+      _defaultParams.canonicalId,
       args.amount,
       args.amount,
-      _nonce,
+      _defaultParams.nonce,
       25_000
     );
   }
@@ -1640,13 +1578,13 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
     vm.expectRevert(BridgeFacet.BridgeFacet__forceUpdateSlippage_notDestination.selector);
     vm.prank(args.params.delegate);
     this.forceUpdateSlippage(
-      _params,
-      _originSender,
-      _canonicalDomain,
-      _canonicalId,
+      _defaultParams,
+      _defaultParams.originSender,
+      _defaultParams.canonicalDomain,
+      _defaultParams.canonicalId,
       args.amount,
       args.amount,
-      _nonce,
+      _defaultParams.nonce,
       5_000
     );
   }
@@ -1660,13 +1598,13 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
 
     vm.prank(args.params.delegate);
     this.forceUpdateSlippage(
-      _params,
-      _originSender,
-      _canonicalDomain,
-      _canonicalId,
+      _defaultParams,
+      _defaultParams.originSender,
+      _defaultParams.canonicalDomain,
+      _defaultParams.canonicalId,
       args.amount,
       args.amount,
-      _nonce,
+      _defaultParams.nonce,
       5_000
     );
   }

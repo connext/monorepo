@@ -414,30 +414,30 @@ contract ConnextTest is ForgeHelper, Deployer {
       );
   }
 
-  function utils_createUserCallParams(uint32 destination) public returns (UserFacingCallParams memory) {
-    return
-      UserFacingCallParams(
-        address(1111), // to
-        bytes(""), // callData
-        destination, // dest domain
-        address(2222), // delegate
-        1000 // slippage tol
-      );
-  }
+  // function utils_createUserCallParams(uint32 destination) public returns (UserFacingCallParams memory) {
+  //   return
+  //     UserFacingCallParams(
+  //       address(1111), // to
+  //       bytes(""), // callData
+  //       destination, // dest domain
+  //       address(2222), // delegate
+  //       1000 // slippage tol
+  //     );
+  // }
 
   // ============ XCall helpers
-  function utils_getCallParams(UserFacingCallParams memory params) public returns (CallParams memory) {
-    return
-      CallParams(
-        params.to,
-        params.callData,
-        _origin,
-        params.destinationDomain, // destination domain
-        params.delegate, // delegate
-        false, // receiveLocal
-        params.slippage
-      );
-  }
+  // function utils_getCallParams(UserFacingCallParams memory params) public returns (CallParams memory) {
+  //   return
+  //     CallParams(
+  //       params.to,
+  //       params.callData,
+  //       _origin,
+  //       params.destinationDomain, // destination domain
+  //       params.delegate, // delegate
+  //       false, // receiveLocal
+  //       params.slippage
+  //     );
+  // }
 
   function utils_getXCallBalances(address transacting, address bridge) public returns (XCallBalances memory) {
     bool isDestination = bridge == address(_destinationConnext);

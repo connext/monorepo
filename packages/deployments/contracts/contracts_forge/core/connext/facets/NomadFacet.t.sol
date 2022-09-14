@@ -10,7 +10,7 @@ import {LibDiamond} from "../../../../contracts/core/connext/libraries/LibDiamon
 
 import {NomadFacet} from "../../../../contracts/core/connext/facets/NomadFacet.sol";
 import {BaseConnextFacet} from "../../../../contracts/core/connext/facets/BaseConnextFacet.sol";
-import {CallParams, ExecuteArgs, XCallArgs} from "../../../../contracts/core/connext/libraries/LibConnextStorage.sol";
+import {CallParams, ExecuteArgs} from "../../../../contracts/core/connext/libraries/LibConnextStorage.sol";
 
 import "../../../utils/Mock.sol";
 import "../../../utils/FacetHelper.sol";
@@ -83,48 +83,35 @@ contract NomadFacetTest is NomadFacet, FacetHelper {
     s.aavePool = _aavePool;
   }
 
-  // Meant to mimic the corresponding `_getTransferId` method in the BridgeFacet contract.
-  function utils_getTransferIdFromXCallArgs(
-    XCallArgs memory _args,
-    address sender,
-    bytes32 canonicalId,
-    uint32 canonicalDomain
-  ) public returns (bytes32) {
-    return
-      keccak256(
-        abi.encode(s.nonce, utils_getCallParams(_args.params), sender, canonicalId, canonicalDomain, _args.amount)
-      );
-  }
-
-  function utils_getUserFacingParams() public returns (UserFacingCallParams memory) {
-    return
-      UserFacingCallParams(
-        _params.to,
-        _params.callData,
-        _params.destinationDomain, // destination domain
-        _params.delegate, // delegate
-        _params.slippage
-      );
-  }
+  // function utils_getUserFacingParams() public returns (UserFacingCallParams memory) {
+  //   return
+  //     UserFacingCallParams(
+  //       _params.to,
+  //       _params.callData,
+  //       _params.destinationDomain, // destination domain
+  //       _params.delegate, // delegate
+  //       _params.slippage
+  //     );
+  // }
 
   // Makes some mock xcall arguments using params set in storage.
-  function utils_makeXCallArgs() public returns (bytes32, XCallArgs memory) {
-    // get args
-    XCallArgs memory args = XCallArgs(utils_getUserFacingParams(), _adopted, _amount);
-    // generate transfer id
-    bytes32 transferId = utils_getTransferIdFromXCallArgs(args, _originSender, _canonicalId, _canonicalDomain);
+  // function utils_makeXCallArgs() public returns (bytes32, XCallArgs memory) {
+  //   // get args
+  //   XCallArgs memory args = XCallArgs(utils_getUserFacingParams(), _adopted, _amount);
+  //   // generate transfer id
+  //   bytes32 transferId = utils_getTransferIdFromXCallArgs(args, _originSender, _canonicalId, _canonicalDomain);
 
-    return (transferId, args);
-  }
+  //   return (transferId, args);
+  // }
 
-  function utils_makeXCallArgs(address assetId) public returns (bytes32, XCallArgs memory) {
-    // get args
-    XCallArgs memory args = XCallArgs(utils_getUserFacingParams(), assetId, _amount);
-    // generate transfer id
-    bytes32 transferId = utils_getTransferIdFromXCallArgs(args, _originSender, _canonicalId, _canonicalDomain);
+  // function utils_makeXCallArgs(address assetId) public returns (bytes32, XCallArgs memory) {
+  //   // get args
+  //   XCallArgs memory args = XCallArgs(utils_getUserFacingParams(), assetId, _amount);
+  //   // generate transfer id
+  //   bytes32 transferId = utils_getTransferIdFromXCallArgs(args, _originSender, _canonicalId, _canonicalDomain);
 
-    return (transferId, args);
-  }
+  //   return (transferId, args);
+  // }
 
   // ============ Helpers ===============
 
