@@ -114,6 +114,13 @@ yarn workspace @connext/nxtp-subgraph deploy-local-1338 -l v0.0.1
 echo "Deployed subgraph to 1338"
 #####
 
+##### Setup Logging
+echo "Starting services and off-chain agents..."
+docker compose -f docker-compose.logging.yaml up -d --force-recreate
+sleep 5
+#####
+
+
 ##### Off-Chain Agents
 echo "Starting services and off-chain agents..."
 docker compose -f docker-compose.services.yaml up -d --force-recreate --scale sequencer-subscriber=${SEQUENCER_SUBSCRIBER_COUNT} --scale sequencer-subscriber=${ROUTER_SUBSCRIBER_COUNT}
