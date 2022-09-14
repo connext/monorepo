@@ -179,7 +179,7 @@ export class NxtpSdkBase {
     };
 
     // Validate XCall arguments.
-    if (asset === constants.AddressZero) {
+    if (asset === constants.AddressZero && amount !== "0") {
       // TODO: Custom error.
       throw new Error("Transacting asset specified was address zero; native assets are not supported!");
     }

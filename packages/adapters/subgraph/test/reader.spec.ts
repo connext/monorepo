@@ -234,10 +234,10 @@ describe("SubgraphReader", () => {
       executeStub.resolves(response);
       expect(await subgraphReader.getDestinationTransferById("1111", mkBytes32())).to.be.undefined;
     });
-    it("should return the origin transfer entity", async () => {
-      response.set("1111", [[mockDestinationTransferEntity]]);
+    it("should return the destination transfer entity", async () => {
+      response.set("3331", [[mockDestinationTransferEntity]]);
       executeStub.resolves(response);
-      expect(await subgraphReader.getDestinationTransferById("1111", mkBytes32())).to.be.deep.eq(
+      expect(await subgraphReader.getDestinationTransferById("3331", mkBytes32())).to.be.deep.eq(
         ParserFns.destinationTransfer(mockDestinationTransferEntity),
       );
     });
@@ -271,8 +271,8 @@ describe("SubgraphReader", () => {
       agents.set("3331", { maxBlockNumber: 99999999, transferIDs: [] });
 
       expect(await subgraphReader.getDestinationTransfersById(agents)).to.be.deep.eq([
-        ParserFns.destinationTransfer(mockDestinationTransferEntity),
-        ParserFns.destinationTransfer(mockDestinationTransferEntity),
+        ParserFns.destinationTransfer({ ...mockDestinationTransferEntity, destinationDomain: "1111" }),
+        ParserFns.destinationTransfer({ ...mockDestinationTransferEntity, destinationDomain: "3331" }),
       ]);
     });
   });
@@ -322,8 +322,8 @@ describe("SubgraphReader", () => {
       agents.set("3331", { maxBlockNumber: 99999999, latestNonce: 0 });
 
       expect(await subgraphReader.getDestinationTransfersByNonce(agents)).to.be.deep.eq([
-        ParserFns.destinationTransfer(mockDestinationTransferEntity),
-        ParserFns.destinationTransfer(mockDestinationTransferEntity),
+        ParserFns.destinationTransfer({ ...mockDestinationTransferEntity, destinationDomain: "1111" }),
+        ParserFns.destinationTransfer({ ...mockDestinationTransferEntity, destinationDomain: "3331" }),
       ]);
     });
   });
@@ -340,8 +340,8 @@ describe("SubgraphReader", () => {
       expect(
         await subgraphReader.getDestinationTransfersByDomainAndReconcileTimestamp(agents.get("1111")!, "1111"),
       ).to.be.deep.eq([
-        ParserFns.destinationTransfer(mockDestinationTransferEntity),
-        ParserFns.destinationTransfer(mockDestinationTransferEntity),
+        ParserFns.destinationTransfer({ ...mockDestinationTransferEntity, destinationDomain: "1111" }),
+        ParserFns.destinationTransfer({ ...mockDestinationTransferEntity, destinationDomain: "3331" }),
       ]);
     });
   });

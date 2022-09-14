@@ -102,6 +102,20 @@ describe("Helpers:Auctions", () => {
       expect((ctxMock.adapters.subgraph as any).getAssetByLocal).calledOnceWithExactly(origin, originLocal);
       expect((ctxMock.adapters.subgraph as any).getAssetByCanonicalId).calledOnceWithExactly(destination, canonicalId);
     });
+    it("should return native asset if origin transacting asset is native asset", async () => {
+      const canonicalId = "0x123";
+      const mockLocalAsset = constants.AddressZero;
+      (ctxMock.adapters.subgraph as any).getAssetByLocal.resolves({ canonicalId });
+      (ctxMock.adapters.subgraph as any).getAssetByCanonicalId.resolves({ local: mockLocalAsset });
+      const origin = mock.domain.A;
+      const originLocal = mock.asset.A.address;
+      const destination = mock.domain.B;
+
+      const localAsset = await getDestinationLocalAsset(origin, originLocal, destination);
+      expect(localAsset).to.be.eq(constants.AddressZero);
+      expect((ctxMock.adapters.subgraph as any).getAssetByLocal).calledOnceWithExactly(origin, originLocal);
+      expect((ctxMock.adapters.subgraph as any).getAssetByCanonicalId).calledOnceWithExactly(destination, canonicalId);
+    });
   });
 
   describe("#getBidsRoundMap", () => {

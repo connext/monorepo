@@ -71,7 +71,7 @@ export interface NomadFacetInterface extends utils.Interface {
 
   events: {
     "BridgeRouterUpdated(address,address,address)": EventFragment;
-    "Reconciled(bytes32,address[],address,uint256,address)": EventFragment;
+    "Reconciled(bytes32,uint32,address[],address,uint256,address)": EventFragment;
   };
 
   getEvent(nameOrSignatureOrTopic: "BridgeRouterUpdated"): EventFragment;
@@ -93,13 +93,14 @@ export type BridgeRouterUpdatedEventFilter =
 
 export interface ReconciledEventObject {
   transferId: string;
+  originDomain: number;
   routers: string[];
   asset: string;
   amount: BigNumber;
   caller: string;
 }
 export type ReconciledEvent = TypedEvent<
-  [string, string[], string, BigNumber, string],
+  [string, number, string[], string, BigNumber, string],
   ReconciledEventObject
 >;
 
@@ -201,8 +202,9 @@ export interface NomadFacet extends BaseContract {
       caller?: null
     ): BridgeRouterUpdatedEventFilter;
 
-    "Reconciled(bytes32,address[],address,uint256,address)"(
+    "Reconciled(bytes32,uint32,address[],address,uint256,address)"(
       transferId?: PromiseOrValue<BytesLike> | null,
+      originDomain?: null,
       routers?: null,
       asset?: null,
       amount?: null,
@@ -210,6 +212,7 @@ export interface NomadFacet extends BaseContract {
     ): ReconciledEventFilter;
     Reconciled(
       transferId?: PromiseOrValue<BytesLike> | null,
+      originDomain?: null,
       routers?: null,
       asset?: null,
       amount?: null,

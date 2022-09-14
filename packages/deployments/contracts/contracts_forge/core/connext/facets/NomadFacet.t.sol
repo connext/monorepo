@@ -161,7 +161,7 @@ contract NomadFacetTest is NomadFacet, FacetHelper {
 
     if (shouldSucceed) {
       vm.expectEmit(true, true, true, true);
-      emit Reconciled(transferId, s.routedTransfers[transferId], _local, args.amount, _bridge);
+      emit Reconciled(transferId, _originDomain, s.routedTransfers[transferId], _local, args.amount, _bridge);
     } else {
       vm.expectRevert(expectedError);
     }

@@ -269,20 +269,24 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment): Promise<voi
     }
 
     // Fallthrough after proposal, will either work or fail depending on delay
-    const contract = new Contract(connext.address, connext.abi, deployer);
-    const upgradeTx = await contract.diamondCut(cuts, constants.AddressZero, "0x");
-    console.log("upgrade transaction", upgradeTx.hash);
-    const receipt = await upgradeTx.wait();
-    console.log("upgrade receipt", receipt);
+    try {
+      const contract = new Contract(connext.address, connext.abi, deployer);
+      const upgradeTx = await contract.diamondCut(cuts, constants.AddressZero, "0x");
+      console.log("upgrade transaction", upgradeTx.hash);
+      const receipt = await upgradeTx.wait();
+      console.log("upgrade receipt", receipt);
 
-    // Save updated abi to Connext Deployment
-    const diamondDeployment: DeploymentSubmission = {
-      ...connext,
-      abi: abi ?? connext.abi,
-    };
+      // Save updated abi to Connext Deployment
+      const diamondDeployment: DeploymentSubmission = {
+        ...connext,
+        abi: abi ?? connext.abi,
+      };
 
-    await hre.deployments.save(getDeploymentName("ConnextHandler"), diamondDeployment);
-    console.log("upgraded abi");
+      await hre.deployments.save(getDeploymentName("ConnextHandler"), diamondDeployment);
+      console.log("upgraded abi");
+    } catch (e: any) {
+      console.log(`upgrade failed`, e);
+    }
   } else {
     connext = await hre.deployments.diamond.deploy(getDeploymentName("ConnextHandler"), {
       from: deployer.address,
