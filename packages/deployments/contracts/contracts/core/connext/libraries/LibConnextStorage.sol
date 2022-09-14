@@ -243,30 +243,35 @@ struct AppStorage {
    */
   // 19
   mapping(uint32 => bytes32) connextions;
+  /**
+   * @notice Stores a mapping of transfer id to slippage overrides
+   */
+  // 20
+  mapping(bytes32 => uint256) slippage;
   //
   // ProposedOwnable
   //
-  // 20
-  address _proposed;
   // 21
-  uint256 _proposedOwnershipTimestamp;
+  address _proposed;
   // 22
-  bool _routerWhitelistRemoved;
+  uint256 _proposedOwnershipTimestamp;
   // 23
-  uint256 _routerWhitelistTimestamp;
+  bool _routerWhitelistRemoved;
   // 24
-  bool _assetWhitelistRemoved;
+  uint256 _routerWhitelistTimestamp;
   // 25
+  bool _assetWhitelistRemoved;
+  // 26
   uint256 _assetWhitelistTimestamp;
   //
   // RouterFacet
   //
-  // 26
+  // 27
   RouterPermissionsManagerInfo routerPermissionInfo;
   //
   // ReentrancyGuard
   //
-  // 27
+  // 28
   uint256 _status;
   //
   // StableSwap
@@ -277,18 +282,18 @@ struct AppStorage {
    * Struct storing data responsible for automatic market maker functionalities. In order to
    * access this data, this contract uses SwapUtils library. For more details, see SwapUtils.sol
    */
-  // 28
+  // 29
   mapping(bytes32 => SwapUtils.Swap) swapStorages;
   /**
    * @notice Maps token address to an index in the pool. Used to prevent duplicate tokens in the pool.
    * @dev getTokenIndex function also relies on this mapping to retrieve token index.
    */
-  // 29
+  // 30
   mapping(bytes32 => mapping(address => uint8)) tokenIndexes;
   /**
    * @notice Stores whether or not bribing, AMMs, have been paused
    */
-  // 30
+  // 31
   bool _paused;
   //
   // AavePortals
@@ -296,30 +301,30 @@ struct AppStorage {
   /**
    * @notice Address of Aave Pool contract
    */
-  // 31
+  // 32
   address aavePool;
   /**
    * @notice Fee percentage numerator for using Portal liquidity
    * @dev Assumes the same basis points as the liquidity fee
    */
-  // 32
+  // 33
   uint256 aavePortalFeeNumerator;
   /**
    * @notice Mapping to store the transfer liquidity amount provided by Aave Portals
    */
-  // 33
+  // 34
   mapping(bytes32 => uint256) portalDebt;
   /**
    * @notice Mapping to store the transfer liquidity amount provided by Aave Portals
    */
-  // 34
+  // 35
   mapping(bytes32 => uint256) portalFeeDebt;
   /**
    * @notice Mapping of approved sequencers
    * @dev Sequencer address provided must belong to an approved sequencer in order to call `execute`
    * for the fast liquidity route.
    */
-  // 35
+  // 36
   mapping(address => bool) approvedSequencers;
 }
 

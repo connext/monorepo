@@ -30,6 +30,7 @@ contract BridgeFacet is BaseConnextFacet {
 
   // ========== Custom Errors ===========
 
+  error BridgeFacet__onlyAgent_notAgent();
   error BridgeFacet__addConnextion_invalidDomain();
   error BridgeFacet__addSequencer_alreadyApproved();
   error BridgeFacet__removeSequencer_notApproved();
@@ -52,6 +53,8 @@ contract BridgeFacet is BaseConnextFacet {
   error BridgeFacet__handleExecuteTransaction_invalidSponsoredAmount();
   error BridgeFacet__executePortalTransfer_insufficientAmountWithdrawn();
   error BridgeFacet__bumpTransfer_valueIsZero();
+  error BridgeFacet__forceUpdateSlippage_invalidSlippage();
+  error BridgeFacet__forceUpdateSlippage_notDestination();
 
   // ============ Properties ============
 
@@ -122,6 +125,13 @@ contract BridgeFacet is BaseConnextFacet {
   event TransferRelayerFeesUpdated(bytes32 indexed transferId, uint256 relayerFee, address caller);
 
   /**
+   * @notice Emitted when `forceUpdateSlippage` is called by an user on the destination domain
+   * @param transferId - The unique identifier of the crosschain transaction
+   * @param slippage - The updated slippage boundary
+   */
+  event SlippageUpdated(bytes32 indexed transferId, uint256 slippage);
+
+  /**
    * @notice Emitted when a router used Aave Portal liquidity for fast transfer
    * @param transferId - The unique identifier of the crosschain transaction
    * @param router - The authorized router that used Aave Portal liquidity
@@ -151,6 +161,12 @@ contract BridgeFacet is BaseConnextFacet {
    * @param caller - The account that called the function
    */
   event SequencerRemoved(address sequencer, address caller);
+
+  // ============ Modifiers ============
+  modifier onlyAgent(CallParams calldata _params) {
+    if (_params.agent != msg.sender) revert BridgeFacet__onlyAgent_notAgent();
+    _;
+  }
 
   // ============ Getters ============
 
@@ -294,6 +310,57 @@ contract BridgeFacet is BaseConnextFacet {
     s.relayerFees[_transferId] += msg.value;
 
     emit TransferRelayerFeesUpdated(_transferId, s.relayerFees[_transferId], msg.sender);
+  }
+
+  /**
+   * @notice Allows a user-specified account to update the slippage they are willing
+   * to take on destination transfers.
+   *
+   * @param _params CallParams associated with the transfer
+   * @param _originSender Original msg.sender of xcall on origin chain
+   * @param _canonicalDomain The domain of the canonical token
+   * @param _canonicalId The identifier of the canonical token
+   * @param _normalizedIn The amount the user sent in on `xcall`, normalized to 18 decimals
+   * @param _amount Amount bridged during transfer
+   * @param _nonce The nonce for the transfer
+   * @param _slippage The updated slippage
+   */
+  function forceUpdateSlippage(
+    CallParams calldata _params,
+    address _originSender,
+    uint32 _canonicalDomain,
+    bytes32 _canonicalId,
+    uint256 _normalizedIn,
+    uint256 _amount,
+    uint256 _nonce,
+    uint256 _slippage
+  ) external onlyAgent(_params) {
+    // Sanity check slippage
+    if (_slippage > BPS_FEE_DENOMINATOR) {
+      revert BridgeFacet__forceUpdateSlippage_invalidSlippage();
+    }
+
+    // Should only be called on destination domain
+    if (_params.destinationDomain != s.domain) {
+      revert BridgeFacet__forceUpdateSlippage_notDestination();
+    }
+
+    // Get transferId
+    bytes32 transferId = _calculateTransferId(
+      _params,
+      _normalizedIn,
+      _amount,
+      _nonce,
+      _canonicalId,
+      _canonicalDomain,
+      _originSender
+    );
+
+    // Store overrides
+    s.slippage[transferId] = _slippage;
+
+    // Emit event
+    emit SlippageUpdated(transferId, _slippage);
   }
 
   // ============ Private Functions ============
@@ -659,7 +726,15 @@ contract BridgeFacet is BaseConnextFacet {
     }
 
     // swap out of mad* asset into adopted asset if needed
-    return AssetLogic.swapFromLocalAssetIfNeeded(_key, _args.local, toSwap, _args.params.slippage, _args.normalizedIn);
+    uint256 slippageOverride = s.slippage[_transferId];
+    return
+      AssetLogic.swapFromLocalAssetIfNeeded(
+        _key,
+        _args.local,
+        toSwap,
+        slippageOverride != 0 ? slippageOverride : _args.params.slippage,
+        _args.normalizedIn
+      );
   }
 
   /**

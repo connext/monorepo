@@ -78,6 +78,16 @@ interface IConnextHandler is IDiamondLoupe, IDiamondCut {
 
   function execute(ExecuteArgs calldata _args) external returns (bytes32 transferId);
 
+  function forceUpdateSlippage(
+    CallParams calldata _params,
+    address _originSender,
+    uint32 _canonicalDomain,
+    bytes32 _canonicalId,
+    uint256 _normalizedIn,
+    uint256 _amount,
+    uint256 _nonce
+  ) external;
+
   function bumpTransfer(bytes32 _transferId) external payable;
 
   // NomadFacet
