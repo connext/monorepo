@@ -100,8 +100,6 @@ export type { ConnextProxyAdmin } from "./contracts/core/connext/helpers/Connext
 export { ConnextProxyAdmin__factory } from "./factories/contracts/core/connext/helpers/ConnextProxyAdmin__factory";
 export type { Diamond } from "./contracts/core/connext/helpers/Diamond";
 export { Diamond__factory } from "./factories/contracts/core/connext/helpers/Diamond__factory";
-export type { Executor } from "./contracts/core/connext/helpers/Executor";
-export { Executor__factory } from "./factories/contracts/core/connext/helpers/Executor__factory";
 export type { LPToken } from "./contracts/core/connext/helpers/LPToken";
 export { LPToken__factory } from "./factories/contracts/core/connext/helpers/LPToken__factory";
 export type { Multicall } from "./contracts/core/connext/helpers/Multicall";
@@ -130,8 +128,6 @@ export type { IERC165 } from "./contracts/core/connext/interfaces/IERC165";
 export { IERC165__factory } from "./factories/contracts/core/connext/interfaces/IERC165__factory";
 export type { IERC20Extended } from "./contracts/core/connext/interfaces/IERC20Extended";
 export { IERC20Extended__factory } from "./factories/contracts/core/connext/interfaces/IERC20Extended__factory";
-export type { IExecutor } from "./contracts/core/connext/interfaces/IExecutor";
-export { IExecutor__factory } from "./factories/contracts/core/connext/interfaces/IExecutor__factory";
 export type { IGasTokenOracle } from "./contracts/core/connext/interfaces/IGasTokenOracle";
 export { IGasTokenOracle__factory } from "./factories/contracts/core/connext/interfaces/IGasTokenOracle__factory";
 export type { IPriceOracle } from "./contracts/core/connext/interfaces/IPriceOracle";
