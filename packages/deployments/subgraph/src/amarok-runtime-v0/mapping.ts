@@ -324,6 +324,7 @@ export function handleExecuted(event: Executed): void {
   // Call params
   transfer.to = event.params.args.params.to;
   transfer.callData = event.params.args.params.callData;
+  transfer.originDomain = event.params.args.params.originDomain;
   transfer.destinationDomain = event.params.args.params.destinationDomain;
   transfer.receiveLocal = event.params.args.params.receiveLocal;
   transfer.recovery = event.params.args.params.recovery;
@@ -395,7 +396,7 @@ export function handleReconciled(event: Reconciled): void {
   transfer.transferId = event.params.transferId;
 
   // Call Params
-  // transfer.originDomain = event.params.origin;
+  transfer.originDomain = event.params.originDomain;
 
   // Assets
   transfer.localAsset = event.params.asset;
