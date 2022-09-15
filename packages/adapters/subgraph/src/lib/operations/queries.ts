@@ -139,6 +139,8 @@ export const ROOT_MESSAGE_SENT_ENTITY = `
 `;
 export const ROOT_MESSAGE_PROCESSED_ENTITY = `
       id
+      spokeDomain
+      hubDomain
       root
       caller
       transactionHash
