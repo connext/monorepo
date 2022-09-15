@@ -101,6 +101,7 @@ export const mock = {
       sequencer: mockSequencer,
       sequencerSignature: mock.signature,
       amount: utils.parseEther("1").toString(),
+      normalizedIn: utils.parseEther("1").toString(),
       nonce: 0,
       originSender: mkAddress(),
       ...overrides,

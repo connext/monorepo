@@ -155,6 +155,7 @@ export const ExecuteArgsSchema = Type.Object({
   sequencer: TAddress,
   sequencerSignature: Type.String(),
   amount: TIntegerString,
+  normalizedIn: TIntegerString,
   nonce: Type.Integer(),
   originSender: TAddress,
 });
