@@ -14,8 +14,8 @@ export function handlePolygonNewConnector(event: NewConnector): void {
     meta = new PolygonConnectorMeta(DEFAULT_POLYGON_HUB_CONNECTOR_META_ID);
   }
 
-  meta.spokeDomain = event.params.domain;
-  meta.hubDomain = event.params.mirrorDomain;
+  meta.spokeDomain = event.params.mirrorDomain;
+  meta.hubDomain = event.params.domain;
 
   meta.amb = event.params.amb;
   meta.rootManager = event.params.rootManager;
