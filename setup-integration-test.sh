@@ -115,7 +115,7 @@ echo "Deployed subgraph to 1338"
 #####
 
 ##### Setup Logging
-echo "Starting services and off-chain agents..."
+echo "Starting logging services..."
 docker compose -f docker-compose.logging.yaml up -d --force-recreate
 sleep 5
 #####
