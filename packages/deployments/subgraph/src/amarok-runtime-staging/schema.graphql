@@ -71,7 +71,6 @@ type OriginTransfer @entity {
   callData: Bytes
   destinationDomain: BigInt
   agent: Bytes
-  recovery: Bytes
   receiveLocal: Boolean
   callback: Bytes
   callbackFee: BigInt
@@ -118,7 +117,6 @@ type DestinationTransfer @entity {
   originDomain: BigInt
   destinationDomain: BigInt
   agent: Bytes
-  recovery: Bytes
   receiveLocal: Boolean
   callback: Bytes
   callbackFee: BigInt
