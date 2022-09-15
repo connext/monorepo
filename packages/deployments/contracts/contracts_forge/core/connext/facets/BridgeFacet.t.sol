@@ -935,38 +935,64 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
   }
 
   // fails if user has insufficient tokens
-  // function test_BridgeFacet__xcall_failInsufficientErc20Tokens() public {
-  //   _defaultAmount = 10.1 ether;
-  //   TestERC20 localToken = TestERC20(_local);
-  //   localToken.mint(_defaultOriginSender, 10 ether);
-  //   vm.prank(_defaultOriginSender);
-  //   localToken.approve(address(this), 10.1 ether);
+  function test_BridgeFacet__xcall_failInsufficientErc20Tokens() public {
+    // The supposed input amount of tokens to be transferred.
+    uint256 amount = 10.1 ether;
+    // Local token contract.
+    TestERC20 localToken = TestERC20(_local);
 
-  //   vm.deal(_defaultOriginSender, 100 ether);
+    // Mint only 10 ether of the input asset for the user - they will be 0.1 ether short!
+    localToken.mint(_defaultOriginSender, 10 ether);
 
-  //   (, XCallArgs memory args) = utils_makeXCallArgs(_amount);
+    // Deal user some ETH for making calls.
+    vm.deal(_defaultOriginSender, 100 ether);
 
-  //   vm.expectRevert("ERC20: transfer amount exceeds balance");
-  //   vm.prank(_defaultOriginSender);
-  //   this.xcall{value: _relayerFee}(args);
-  // }
+    // Approve for 10.1 ether.
+    vm.prank(_defaultOriginSender);
+    localToken.approve(address(this), 10.1 ether);
+
+    vm.expectRevert("ERC20: transfer amount exceeds balance");
+    vm.prank(_defaultOriginSender);
+    this.xcall{value: _relayerFee}(
+      _defaultParams.destinationDomain,
+      _defaultParams.to,
+      _local,
+      _defaultParams.delegate,
+      amount,
+      _defaultParams.slippage,
+      _defaultParams.callData
+    );
+  }
 
   // fails if user has not set enough allowance
-  // function test_BridgeFacet__xcall_failInsufficientErc20Approval() public {
-  //   _defaultAmount = 10.1 ether;
-  //   TestERC20 localToken = TestERC20(_local);
-  //   localToken.mint(_defaultOriginSender, 10.1 ether);
-  //   vm.prank(_defaultOriginSender);
-  //   localToken.approve(address(this), 10 ether);
+  function test_BridgeFacet__xcall_failInsufficientErc20Approval() public {
+    // The input amount of tokens to be transferred.
+    uint256 amount = 10.1 ether;
+    // Local token contract.
+    TestERC20 localToken = TestERC20(_local);
 
-  //   vm.deal(_defaultOriginSender, 100 ether);
+    // Mint 20 ether of the input asset for the user; they have plenty of funds.
+    localToken.mint(_defaultOriginSender, 20 ether);
 
-  //   (, XCallArgs memory args) = utils_makeXCallArgs(_amount);
+    // Deal user some ETH for making calls.
+    vm.deal(_defaultOriginSender, 100 ether);
 
-  //   vm.expectRevert("ERC20: insufficient allowance");
-  //   vm.prank(_defaultOriginSender);
-  //   this.xcall{value: _relayerFee}(args);
-  // }
+    // Approve for only 10 ether - approval is 0.1 ether short!
+    vm.prank(_defaultOriginSender);
+    localToken.approve(address(this), 10 ether);
+
+    vm.expectRevert("ERC20: insufficient allowance");
+    vm.prank(_defaultOriginSender);
+    this.xcall{value: _relayerFee}(
+      _defaultParams.destinationDomain,
+      _defaultParams.to,
+      _local,
+      _defaultParams.delegate,
+      amount,
+      _defaultParams.slippage,
+      _defaultParams.callData
+    );
+  }
 
   // ============ xcall success cases
   // asset cases:
@@ -988,14 +1014,6 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
 
   // works when transferring 0 value and empty asset
   function test_BridgeFacet__xcall_zeroValueEmptyAssetWorks() public {
-    // utils_setupAsset(true, true);
-    // s.adoptedToCanonical[address(0)] = TokenId(0, bytes32(0));
-    // vm.mockCall(
-    //   _tokenRegistry,
-    //   abi.encodeWithSelector(ITokenRegistry.getLocalAddress.selector),
-    //   abi.encode(address(0))
-    // );
-
     helpers_xcallAndAssert(address(0), 0);
   }
 
@@ -1012,30 +1030,40 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
   }
 
   // local token transfer on non-canonical domain, local != adopted, send in local
-  // (i.e. i should be able to xcall with madEth on optimism)
-  // function test_BridgeFacet__xcall_localTokenTransferWorksWhenNotAdopted() public {
-  //   // local is not adopted, not on canonical domain, sending in local
-  //   utils_setupAsset(false, false);
-  //   s.adoptedToCanonical[_local] = TokenId(0, bytes32(0));
-  //   (bytes32 transferId, XCallArgs memory args) = utils_makeXCallArgs(_amount);
-  //   vm.mockCall(
-  //     _tokenRegistry,
-  //     abi.encodeWithSelector(ITokenRegistry.isLocalOrigin.selector, _local),
-  //     abi.encode(false)
-  //   );
-  //   args.asset = _local;
-  //   helpers_xcallAndAssert(transferId, args, args.amount, args.amount, bytes4(""), false);
-  // }
+  // (e.g. I should be able to xcall with madEth on optimism)
+  function test_BridgeFacet__xcall_localTokenTransferWorksWhenNotAdopted() public {
+    // Local is not adopted, not on canonical domain, sending in local.
+    utils_setupAsset(false, false);
+    s.adoptedToCanonical[_local] = TokenId(0, bytes32(0));
+    // `TokenRegistry.isLocalOrigin` method will return false.
+    vm.mockCall(
+      _tokenRegistry,
+      abi.encodeWithSelector(ITokenRegistry.isLocalOrigin.selector, _local),
+      abi.encode(false)
+    );
+    helpers_xcallAndAssert(_local, _defaultAmount);
+  }
 
-  // function test_BridgeFacet__xcall_worksIfPreexistingRelayerFee() public {
-  //   // local is not adopted, not on canonical domain, sending in local
-  //   utils_setupAsset(true, false);
-  //   _relayerFee = 0.1 ether;
-  //   (bytes32 transferId, XCallArgs memory args) = utils_makeXCallArgs(_amount);
-  //   s.relayerFees[transferId] = 2 ether;
-  //   helpers_xcallAndAssert(transferId, args, args.amount, args.amount, bytes4(""), false);
-  //   assertEq(s.relayerFees[transferId], 2.1 ether);
-  // }
+  // should just add relayer fee to the entry under the given transfer ID
+  function test_BridgeFacet__xcall_worksIfPreexistingRelayerFee() public {
+    // Local is not adopted, not on canonical domain, sending in local.
+    utils_setupAsset(true, false);
+
+    // The relayer fee we'll be sending in the helper method below:
+    _relayerFee = 0.1 ether;
+
+    // Flesh out the params and get the expected transfer ID.
+    CallParams memory params = _defaultParams;
+    params.bridgedAmt = _defaultAmount;
+    params.normalizedIn = _defaultAmount;
+    bytes32 transferId = _calculateTransferId(params);
+
+    // Set the current relayer fee record to 2 ether. The msg.value should add 0.1 ether
+    // to this for a total of 2.1 ether, as asserted below.
+    s.relayerFees[transferId] = 2 ether;
+    helpers_xcallAndAssert(params, _local, _defaultAmount, bytes4(""), false);
+    assertEq(s.relayerFees[transferId], 2.1 ether);
+  }
 
   // local token transfer on non-canonical domain (local == adopted)
   function test_BridgeFacet__xcall_localTokenTransferWorksWithoutAdopted() public {

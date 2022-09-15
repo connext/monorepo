@@ -380,10 +380,10 @@ contract BridgeFacet is BaseConnextFacet {
     // Sanity checks.
     bytes32 remoteInstance;
     {
-      // Not native asset
-      // NOTE: we support using address(0) as an intuitive default if you are sending a 0-value
-      // transfer. in that edgecase, address(0) will not be registered as a supported asset, but should
-      // pass the `isLocalOrigin` check on the TokenRegistry
+      // Not native asset.
+      // NOTE: We support using address(0) as an intuitive default if you are sending a 0-value
+      // transfer. In that edge case, address(0) will not be registered as a supported asset, but should
+      // pass the `isLocalOrigin` check on the TokenRegistry.
       if (_asset == address(0) && _amount != 0) {
         revert BridgeFacet__xcall_nativeAssetNotSupported();
       }
@@ -464,24 +464,24 @@ contract BridgeFacet is BaseConnextFacet {
         SafeERC20.safeIncreaseAllowance(IERC20(local), address(s.bridgeRouter), _params.bridgedAmt);
       }
 
-      // Get the normalized amount in (amount sent in by user in 18 decimals)
+      // Get the normalized amount in (amount sent in by user in 18 decimals).
       uint256 normalized = _asset == address(0)
         ? 0 // we know from assertions above this is the case IFF amount == 0
         : AssetLogic.normalizeDecimals(ERC20(_asset).decimals(), uint8(18), _amount);
       _params.normalizedIn = normalized;
 
-      // Calculate the transfer id
+      // Calculate the transfer ID.
       transferId = _calculateTransferId(_params);
       _params.nonce = s.nonce++;
     }
 
     {
-      // Store the relayer fee
-      // NOTE: this has to be done *after* transferring in + swapping assets because
-      // the transfer id uses the amount that is bridged (i.e. amount in local asset)
+      // Store the relayer fee.
+      // NOTE: This has to be done *after* transferring in + swapping assets because
+      // the transfer id uses the amount that is bridged (i.e. amount in local asset).
       s.relayerFees[transferId] += msg.value;
 
-      // Send message
+      // Send the crosschain message.
       messageHash = s.bridgeRouter.sendToHook(
         local,
         _params.bridgedAmt,
