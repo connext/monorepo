@@ -60,8 +60,6 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
   // Defaults
   // default origin sender
   address _defaultOriginSender = address(4);
-  // default asset; will be set below once local asset is deployed
-  address _defaultAsset = address(0);
   // default amount
   uint256 _defaultAmount = 1.1 ether;
   // default nonce on xcall
@@ -71,7 +69,7 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
     CallParams({
       originDomain: _originDomain,
       destinationDomain: _destinationDomain,
-      canonicalDomain: 0, // Will be set in setUp.
+      canonicalDomain: 0, // Will be set in setUp; should also be updated in helpers.
       to: address(11),
       delegate: _delegate,
       receiveLocal: false,
@@ -99,7 +97,6 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
     utils_setupAsset(true, false);
 
     // Defaults setup.
-    _defaultAsset = _local;
     _defaultParams.canonicalId = _canonicalId;
     _defaultParams.canonicalDomain = _canonicalDomain;
 
@@ -312,11 +309,25 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
   ) public {
     bool shouldSucceed = keccak256(abi.encode(expectedError)) == keccak256(abi.encode(bytes4("")));
     bool isCanonical = _canonicalDomain == s.domain;
+
+    if (asset == address(0)) {
+      // Both should be empty if the asset address is 0 (meaning this is probably a 0-value transfer).
+      params.canonicalId = bytes32("");
+      params.canonicalDomain = 0;
+    } else {
+      // Make sure canonical domain and ID are up to date in case this unit test altered the asset setup.
+      params.canonicalId = _canonicalId;
+      params.canonicalDomain = _canonicalDomain;
+    }
+
+    // If the bridged amount was pre-specified, it's likely we wanted to test a specific slippage
+    // amount below in the stableswap mock call.
     if (params.bridgedAmt == 0) {
       // TODO: Is the normalizedIn correct in all cases here? What about diff decimals?
 
       if (shouldSwap) {
         // Bridged amount of asset will be the amount post-swap.
+        // This is just an example of the kind of slippage we could expect.
         params.bridgedAmt = (_defaultAmount * 9995) / _liquidityFeeDenominator;
         // Normalized input amount is the pre-swap amount.
         params.normalizedIn = amount;
@@ -329,6 +340,8 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
         params.bridgedAmt = amount;
         params.normalizedIn = amount;
       }
+    } else if (params.normalizedIn == 0) {
+      params.normalizedIn = amount;
     }
 
     bytes32 transferId = _calculateTransferId(params);
@@ -366,7 +379,7 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
     }
 
     if (shouldSwap) {
-      // Setup the expected swap mock (adopted <> local)
+      // Set up the expected swap mock (adopted <> local).
       vm.mockCall(
         _stableSwap,
         abi.encodeWithSelector(IStableSwap.swapExact.selector),
@@ -438,7 +451,7 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
 
   // Shortcut helper where you just input an expected error.
   function helpers_xcallAndAssert(bytes4 expectedError) public {
-    helpers_xcallAndAssert(_defaultParams, _local, _defaultAmount, expectedError, false);
+    helpers_xcallAndAssert(_defaultParams, _adopted, _defaultAmount, expectedError, true);
   }
 
   // Shortcut helper with no expected error. Asset is determined to be local or adopted
@@ -966,7 +979,8 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
   // - works on cannonical domain
   //   - transferring native (local == adopted)
   //   - transferring asset (local == adopted)
-  // canonincal token transfer on canonical domain
+
+  // canonical token transfer on canonical domain
   function test_BridgeFacet__xcall_canonicalTokenTransferWorks() public {
     utils_setupAsset(true, true);
     helpers_xcallAndAssert(_canonical, _defaultAmount);
@@ -974,9 +988,14 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
 
   // works when transferring 0 value and empty asset
   function test_BridgeFacet__xcall_zeroValueEmptyAssetWorks() public {
-    _defaultAmount = 0;
-    utils_setupAsset(true, true);
-    s.adoptedToCanonical[address(0)] = TokenId(0, bytes32(0));
+    // utils_setupAsset(true, true);
+    // s.adoptedToCanonical[address(0)] = TokenId(0, bytes32(0));
+    // vm.mockCall(
+    //   _tokenRegistry,
+    //   abi.encodeWithSelector(ITokenRegistry.getLocalAddress.selector),
+    //   abi.encode(address(0))
+    // );
+
     helpers_xcallAndAssert(address(0), 0);
   }
 
@@ -1021,27 +1040,31 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
   // local token transfer on non-canonical domain (local == adopted)
   function test_BridgeFacet__xcall_localTokenTransferWorksWithoutAdopted() public {
     utils_setupAsset(true, false);
-    helpers_xcallAndAssert(_defaultAmount, false);
+    helpers_xcallAndAssert(_local, _defaultAmount);
   }
 
   // adopted asset transfer
   function test_BridgeFacet__xcall_adoptedTransferWorks() public {
     utils_setupAsset(false, false);
-    uint256 bridged = (_defaultAmount * 9995) / _liquidityFeeDenominator;
-    helpers_xcallAndAssert(bridged, true);
+    // Set the expected slippage specifically:
+    _defaultParams.bridgedAmt = (_defaultAmount * 9995) / _liquidityFeeDenominator;
+    helpers_xcallAndAssert(_adopted, _defaultAmount);
   }
 
   // should work with positive slippage
   function test_BridgeFacet__xcall_worksWithPositiveSlippage() public {
     utils_setupAsset(false, false);
-    uint256 bridged = (_defaultAmount * 10005) / _liquidityFeeDenominator;
-    helpers_xcallAndAssert(bridged, true);
+    // Set the expected slippage to be positive.
+    _defaultParams.bridgedAmt = (_defaultAmount * 10005) / _liquidityFeeDenominator;
+    helpers_xcallAndAssert(_adopted, _defaultAmount);
   }
 
-  // should work with 0 value
+  // should work with asset defined and 0 value
   function test_BridgeFacet__xcall_worksWithoutValue() public {
     utils_setupAsset(false, false);
-    helpers_xcallAndAssert(0, true);
+    // Despite using the adopted asset as the input asset, this xcall shouldn't
+    // call stableswap because it's a 0-value transfer.
+    helpers_xcallAndAssert(_adopted, 0, bytes4(""), false);
   }
 
   // works if relayer fee is set to 0
