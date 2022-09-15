@@ -263,6 +263,34 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
     );
   }
 
+  function helpers_wrappedXCall(
+    CallParams memory params,
+    address asset,
+    uint256 amount
+  ) public returns (bytes32) {
+    vm.prank(params.originSender);
+    return
+      params.receiveLocal
+        ? this.xcallIntoLocal{value: _relayerFee}(
+          params.destinationDomain,
+          params.to,
+          asset,
+          params.delegate,
+          amount,
+          params.slippage,
+          params.callData
+        )
+        : this.xcall{value: _relayerFee}(
+          params.destinationDomain,
+          params.to,
+          asset,
+          params.delegate,
+          amount,
+          params.slippage,
+          params.callData
+        );
+  }
+
   // Calls `xcall` with given args and handles standard assertions.
   function helpers_xcallAndAssert(
     CallParams memory params,
@@ -321,26 +349,7 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
       vm.expectRevert(expectedError);
     }
 
-    vm.prank(_defaultOriginSender);
-    bytes32 ret = params.receiveLocal
-      ? this.xcallIntoLocal{value: _relayerFee}(
-        params.destinationDomain,
-        params.to,
-        asset,
-        params.delegate,
-        amount,
-        params.slippage,
-        params.callData
-      )
-      : this.xcall{value: _relayerFee}(
-        params.destinationDomain,
-        params.to,
-        asset,
-        params.delegate,
-        amount,
-        params.slippage,
-        params.callData
-      );
+    bytes32 ret = helpers_wrappedXCall(params, asset, amount);
 
     if (shouldSucceed) {
       assertEq(ret, transferId);
