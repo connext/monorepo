@@ -24,8 +24,6 @@ const convertToDbTransfer = (transfer: XTransfer): s.transfers.Insertable => {
     origin_domain: transfer.xparams!.originDomain,
     destination_domain: transfer.xparams!.destinationDomain,
     agent: transfer.xparams?.agent,
-    callback: transfer.xparams?.callback,
-    callback_fee: transfer.xparams?.callbackFee as any,
     // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
     relayer_fee: transfer.xparams?.relayerFee as any,
     // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
