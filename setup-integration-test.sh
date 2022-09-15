@@ -116,6 +116,7 @@ echo "Deployed subgraph to 1338"
 
 ##### Setup Logging
 echo "Starting logging services..."
+docker plugin install grafana/loki-docker-driver:latest --alias loki --grant-all-permissions
 docker compose -f docker-compose.logging.yaml up -d --force-recreate
 sleep 5
 #####
