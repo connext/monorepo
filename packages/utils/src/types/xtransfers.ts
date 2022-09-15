@@ -89,7 +89,6 @@ export const CallParamsSchema = Type.Object({
   destinationDomain: Type.String(),
   agent: TAddress,
   receiveLocal: Type.Boolean(),
-  relayerFee: TIntegerString,
   destinationMinOut: TIntegerString,
 });
 

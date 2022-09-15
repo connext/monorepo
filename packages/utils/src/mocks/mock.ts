@@ -81,7 +81,6 @@ export const mock = {
       callData: "0x",
       originDomain: mock.domain.A,
       destinationDomain: mock.domain.B,
-      relayerFee: "123",
       receiveLocal: false,
       agent: mkAddress(),
       destinationMinOut: "0",
@@ -150,7 +149,6 @@ export const mock = {
         transferId?: string;
         nonce?: number;
         user?: string;
-        relayerFee?: string;
         routers?: string[];
       } = {},
     ): XTransfer => {
@@ -164,10 +162,9 @@ export const mock = {
       const transferId: string = overrides.transferId ?? getRandomBytes32();
       const nonce = overrides.nonce ?? 1234;
       const user: string = overrides.user ?? mkAddress("0xfaded");
-      const relayerFee = overrides.relayerFee ?? "12345";
       const routers = overrides.routers ?? [mock.address.router];
 
-      const shouldHaveOriginDefined = !!relayerFee;
+      const shouldHaveOriginDefined = true;
       const shouldHaveDestinationDefined = !!status;
       const isReconciledOnly = !shouldHaveOriginDefined && status === XTransferStatus.Reconciled;
 
@@ -180,7 +177,6 @@ export const mock = {
         xparams: {
           to: user,
           callData: "0x",
-          relayerFee,
           agent: mkAddress("0x"),
           receiveLocal: false,
           destinationMinOut: "0",

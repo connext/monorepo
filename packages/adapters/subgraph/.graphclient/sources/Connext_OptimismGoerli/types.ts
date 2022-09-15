@@ -211,6 +211,7 @@ export type optimismgoerli_DestinationMessage = {
   leaf?: Maybe<Scalars['optimismgoerli_Bytes']>;
   processed?: Maybe<Scalars['Boolean']>;
   returnData?: Maybe<Scalars['optimismgoerli_Bytes']>;
+  transactionHash?: Maybe<Scalars['optimismgoerli_Bytes']>;
 };
 
 export type optimismgoerli_DestinationMessage_filter = {
@@ -238,6 +239,12 @@ export type optimismgoerli_DestinationMessage_filter = {
   returnData_not_in?: InputMaybe<Array<Scalars['optimismgoerli_Bytes']>>;
   returnData_contains?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
   returnData_not_contains?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
+  transactionHash?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
+  transactionHash_not?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
+  transactionHash_in?: InputMaybe<Array<Scalars['optimismgoerli_Bytes']>>;
+  transactionHash_not_in?: InputMaybe<Array<Scalars['optimismgoerli_Bytes']>>;
+  transactionHash_contains?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
+  transactionHash_not_contains?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
   /** Filter for the block changed event. */
   _change_block?: InputMaybe<optimismgoerli_BlockChangedFilter>;
 };
@@ -246,7 +253,8 @@ export type optimismgoerli_DestinationMessage_orderBy =
   | 'id'
   | 'leaf'
   | 'processed'
-  | 'returnData';
+  | 'returnData'
+  | 'transactionHash';
 
 export type optimismgoerli_DestinationTransfer = {
   id: Scalars['ID'];
@@ -601,6 +609,7 @@ export type optimismgoerli_OriginMessage = {
   index?: Maybe<Scalars['BigInt']>;
   root?: Maybe<Scalars['optimismgoerli_Bytes']>;
   message?: Maybe<Scalars['optimismgoerli_Bytes']>;
+  transactionHash?: Maybe<Scalars['optimismgoerli_Bytes']>;
 };
 
 export type optimismgoerli_OriginMessage_filter = {
@@ -652,6 +661,12 @@ export type optimismgoerli_OriginMessage_filter = {
   message_not_in?: InputMaybe<Array<Scalars['optimismgoerli_Bytes']>>;
   message_contains?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
   message_not_contains?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
+  transactionHash?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
+  transactionHash_not?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
+  transactionHash_in?: InputMaybe<Array<Scalars['optimismgoerli_Bytes']>>;
+  transactionHash_not_in?: InputMaybe<Array<Scalars['optimismgoerli_Bytes']>>;
+  transactionHash_contains?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
+  transactionHash_not_contains?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
   /** Filter for the block changed event. */
   _change_block?: InputMaybe<optimismgoerli_BlockChangedFilter>;
 };
@@ -663,7 +678,8 @@ export type optimismgoerli_OriginMessage_orderBy =
   | 'leaf'
   | 'index'
   | 'root'
-  | 'message';
+  | 'message'
+  | 'transactionHash';
 
 export type optimismgoerli_OriginTransfer = {
   id: Scalars['ID'];
@@ -1820,8 +1836,8 @@ export type optimismgoerli__Block_ = {
   hash?: Maybe<Scalars['optimismgoerli_Bytes']>;
   /** The block number */
   number: Scalars['Int'];
-  /** Timestamp of the block if available, format depends on the chain */
-  timestamp?: Maybe<Scalars['String']>;
+  /** Integer representation of the timestamp stored in blocks for the chain */
+  timestamp?: Maybe<Scalars['Int']>;
 };
 
 /** The type for the top-level _meta field */
