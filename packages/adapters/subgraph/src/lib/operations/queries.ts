@@ -126,22 +126,6 @@ export const DESTINATION_MESSAGE_ENTITY = `
       returnData
 `;
 
-export const ROOT_MESSAGE_ENTITY = `
-      id
-      root
-    
-      chainId
-      # MessageSent/MessageProcessed Transaction
-      caller
-      transactionHash
-      logIndex
-      transactionLogIndex
-      timestamp
-      gasPrice
-      gasLimit
-      blockNumber
-`;
-
 const lastedBlockNumberQuery = (prefix: string): string => {
   return `${prefix}__meta { ${BLOCK_NUMBER_ENTITY}}`;
 };
@@ -612,39 +596,6 @@ export const getDestinationMessagesByDomainAndLeafQuery = (params: Map<string, s
 
   return gql`
     query GetOriginMessages {
-      ${combinedQuery}
-    }
-  `;
-};
-
-export const getRootMessagesByDomainAndIndexQuery = (
-  params: { domain: string; offset: number; limit: number }[],
-): string => {
-  const { config } = getContext();
-  let combinedQuery = "";
-  for (const param of params) {
-    const prefix = config.sources[param.domain].prefix;
-    combinedQuery += `${prefix}_rootMessages ( first: ${param.limit}, where: { index_gte: ${param.offset} }) {${ROOT_MESSAGE_ENTITY}} orderBy: index, orderDirection: asc`;
-  }
-
-  return gql`
-    query GetRootMessages {
-      ${combinedQuery}
-    }
-  `;
-};
-
-export const getRootMessagesByDomainAndDataQuery = (params: Map<string, string[]>) => {
-  const { config } = getContext();
-  let combinedQuery = "";
-  for (const domain of params.keys()) {
-    const prefix = config.sources[domain].prefix;
-    const roots = [...params.get(domain)!.map((root) => `"${root}"`)];
-    combinedQuery += `${prefix}_rootMessages ( where: { root_in: [${roots}] }) {${ROOT_MESSAGE_ENTITY}}`;
-  }
-
-  return gql`
-    query GetRootMessages {
       ${combinedQuery}
     }
   `;
