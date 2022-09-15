@@ -106,9 +106,9 @@ dataSources:
         # Dispatch(bytes32 leaf, uint256 index, bytes32 root, bytes message);
         - event: Dispatch(bytes32,uint256,bytes32,bytes)
           handler: handleDispatch
-        # Process(bytes32 leaf, bool success, bytes returnData);
-        - event: Process(bytes32,bool,bytes)
-          handler: handleProcess
+        # # Process(bytes32 leaf, bool success, bytes returnData);
+        # - event: Process(bytes32,bool,bytes)
+        #   handler: handleProcess
         - event: MessageSent(bytes,address)
           handler: handleMessageSent
         - event: MessageProcessed(bytes,address)
