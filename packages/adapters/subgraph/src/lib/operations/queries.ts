@@ -125,6 +125,7 @@ export const DESTINATION_MESSAGE_ENTITY = `
       processed
       returnData
 `;
+
 const lastedBlockNumberQuery = (prefix: string): string => {
   return `${prefix}__meta { ${BLOCK_NUMBER_ENTITY}}`;
 };

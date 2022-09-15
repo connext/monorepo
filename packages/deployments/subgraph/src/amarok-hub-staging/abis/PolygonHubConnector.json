@@ -32,14 +32,9 @@
         "type": "uint256"
       },
       {
-        "internalType": "uint256",
-        "name": "_processGas",
-        "type": "uint256"
-      },
-      {
-        "internalType": "uint256",
-        "name": "_reserveGas",
-        "type": "uint256"
+        "internalType": "address",
+        "name": "_checkPointManager",
+        "type": "address"
       }
     ],
     "stateMutability": "nonpayable",
@@ -84,56 +79,6 @@
     "inputs": [],
     "name": "ProposedOwnable__renounceOwnership_noProposal",
     "type": "error"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": false,
-        "internalType": "bytes32",
-        "name": "current",
-        "type": "bytes32"
-      },
-      {
-        "indexed": false,
-        "internalType": "bytes32",
-        "name": "previous",
-        "type": "bytes32"
-      }
-    ],
-    "name": "AggregateRootUpdated",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": false,
-        "internalType": "bytes32",
-        "name": "leaf",
-        "type": "bytes32"
-      },
-      {
-        "indexed": false,
-        "internalType": "uint256",
-        "name": "index",
-        "type": "uint256"
-      },
-      {
-        "indexed": false,
-        "internalType": "bytes32",
-        "name": "root",
-        "type": "bytes32"
-      },
-      {
-        "indexed": false,
-        "internalType": "bytes",
-        "name": "message",
-        "type": "bytes"
-      }
-    ],
-    "name": "Dispatch",
-    "type": "event"
   },
   {
     "anonymous": false,
@@ -281,57 +226,6 @@
     "type": "event"
   },
   {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": false,
-        "internalType": "bytes32",
-        "name": "leaf",
-        "type": "bytes32"
-      },
-      {
-        "indexed": false,
-        "internalType": "bool",
-        "name": "success",
-        "type": "bool"
-      },
-      {
-        "indexed": false,
-        "internalType": "bytes",
-        "name": "returnData",
-        "type": "bytes"
-      }
-    ],
-    "name": "Process",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": false,
-        "internalType": "address",
-        "name": "sender",
-        "type": "address"
-      }
-    ],
-    "name": "SenderAdded",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": false,
-        "internalType": "address",
-        "name": "sender",
-        "type": "address"
-      }
-    ],
-    "name": "SenderRemoved",
-    "type": "event"
-  },
-  {
     "inputs": [],
     "name": "AMB",
     "outputs": [
@@ -372,32 +266,6 @@
   },
   {
     "inputs": [],
-    "name": "PROCESS_GAS",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "RESERVE_GAS",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [],
     "name": "ROOT_MANAGER",
     "outputs": [
       {
@@ -411,27 +279,7 @@
   },
   {
     "inputs": [],
-    "name": "acceptProposedOwner",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "_sender",
-        "type": "address"
-      }
-    ],
-    "name": "addSender",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "aggregateRoot",
+    "name": "SEND_MESSAGE_EVENT_SIG",
     "outputs": [
       {
         "internalType": "bytes32",
@@ -444,12 +292,19 @@
   },
   {
     "inputs": [],
-    "name": "count",
+    "name": "acceptProposedOwner",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "checkpointManager",
     "outputs": [
       {
-        "internalType": "uint256",
+        "internalType": "contract ICheckpointManager",
         "name": "",
-        "type": "uint256"
+        "type": "address"
       }
     ],
     "stateMutability": "view",
@@ -469,61 +324,13 @@
     "type": "function"
   },
   {
-    "inputs": [
-      {
-        "internalType": "uint32",
-        "name": "_destinationDomain",
-        "type": "uint32"
-      },
-      {
-        "internalType": "bytes32",
-        "name": "_recipientAddress",
-        "type": "bytes32"
-      },
-      {
-        "internalType": "bytes",
-        "name": "_messageBody",
-        "type": "bytes"
-      }
-    ],
-    "name": "dispatch",
-    "outputs": [
-      {
-        "internalType": "bytes32",
-        "name": "",
-        "type": "bytes32"
-      }
-    ],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
     "inputs": [],
-    "name": "home",
+    "name": "fxChildTunnel",
     "outputs": [
-      {
-        "internalType": "contract IOutbox",
-        "name": "",
-        "type": "address"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
       {
         "internalType": "address",
-        "name": "_potentialReplica",
-        "type": "address"
-      }
-    ],
-    "name": "isReplica",
-    "outputs": [
-      {
-        "internalType": "bool",
         "name": "",
-        "type": "bool"
+        "type": "address"
       }
     ],
     "stateMutability": "view",
@@ -531,31 +338,12 @@
   },
   {
     "inputs": [],
-    "name": "localDomain",
+    "name": "fxRoot",
     "outputs": [
       {
-        "internalType": "uint32",
+        "internalType": "contract IFxStateSender",
         "name": "",
-        "type": "uint32"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "bytes32",
-        "name": "",
-        "type": "bytes32"
-      }
-    ],
-    "name": "messages",
-    "outputs": [
-      {
-        "internalType": "enum SpokeConnector.MessageStatus",
-        "name": "",
-        "type": "uint8"
+        "type": "address"
       }
     ],
     "stateMutability": "view",
@@ -588,38 +376,6 @@
     "type": "function"
   },
   {
-    "inputs": [
-      {
-        "internalType": "uint32",
-        "name": "",
-        "type": "uint32"
-      }
-    ],
-    "name": "nonces",
-    "outputs": [
-      {
-        "internalType": "uint32",
-        "name": "",
-        "type": "uint32"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "outboundRoot",
-    "outputs": [
-      {
-        "internalType": "bytes32",
-        "name": "",
-        "type": "bytes32"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
     "inputs": [],
     "name": "owner",
     "outputs": [
@@ -643,6 +399,25 @@
     "name": "processMessage",
     "outputs": [],
     "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "bytes32",
+        "name": "",
+        "type": "bytes32"
+      }
+    ],
+    "name": "processedExits",
+    "outputs": [
+      {
+        "internalType": "bool",
+        "name": "",
+        "type": "bool"
+      }
+    ],
+    "stateMutability": "view",
     "type": "function"
   },
   {
@@ -688,53 +463,11 @@
     "inputs": [
       {
         "internalType": "bytes",
-        "name": "_message",
+        "name": "inputData",
         "type": "bytes"
-      },
-      {
-        "internalType": "bytes32[32]",
-        "name": "_proof",
-        "type": "bytes32[32]"
-      },
-      {
-        "internalType": "uint256",
-        "name": "_index",
-        "type": "uint256"
       }
     ],
-    "name": "proveAndProcess",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "bytes32",
-        "name": "",
-        "type": "bytes32"
-      }
-    ],
-    "name": "provenRoots",
-    "outputs": [
-      {
-        "internalType": "bool",
-        "name": "",
-        "type": "bool"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "_sender",
-        "type": "address"
-      }
-    ],
-    "name": "removeSender",
+    "name": "receiveMessage",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
@@ -760,13 +493,6 @@
     "type": "function"
   },
   {
-    "inputs": [],
-    "name": "send",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
     "inputs": [
       {
         "internalType": "bytes",
@@ -775,6 +501,19 @@
       }
     ],
     "name": "sendMessage",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "_fxChildTunnel",
+        "type": "address"
+      }
+    ],
+    "name": "setFxChildTunnel",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
@@ -806,19 +545,6 @@
     "type": "function"
   },
   {
-    "inputs": [],
-    "name": "tree",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "count",
-        "type": "uint256"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
     "inputs": [
       {
         "internalType": "address",
@@ -835,25 +561,6 @@
       }
     ],
     "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "",
-        "type": "address"
-      }
-    ],
-    "name": "whitelistedSenders",
-    "outputs": [
-      {
-        "internalType": "bool",
-        "name": "",
-        "type": "bool"
-      }
-    ],
-    "stateMutability": "view",
     "type": "function"
   }
 ]
