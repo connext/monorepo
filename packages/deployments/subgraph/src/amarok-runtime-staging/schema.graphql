@@ -72,7 +72,6 @@ type OriginTransfer @entity {
   destinationDomain: BigInt
   agent: Bytes
   receiveLocal: Boolean
-  relayerFee: BigInt
   destinationMinOut: BigInt
 
   # Event Data
@@ -116,7 +115,6 @@ type DestinationTransfer @entity {
   destinationDomain: BigInt
   agent: Bytes
   receiveLocal: Boolean
-  relayerFee: BigInt
   destinationMinOut: BigInt
 
   # Event Data
