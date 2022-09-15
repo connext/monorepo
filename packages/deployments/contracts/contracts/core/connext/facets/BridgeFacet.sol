@@ -406,9 +406,9 @@ contract BridgeFacet is BaseConnextFacet {
       }
     }
 
-    // get the local asset
-    address local = s.tokenRegistry.getLocalAddress(_params.canonicalDomain, _params.canonicalId);
-
+    // NOTE: The local asset will stay address(0) if input asset is address(0) in the event of a
+    // 0-value transfer. Otherwise, the local address will be retrieved from the TokenRegistry below.
+    address local;
     bytes32 transferId;
     bytes32 messageHash;
     {
@@ -421,12 +421,15 @@ contract BridgeFacet is BaseConnextFacet {
       // address(0) asset is not whitelisted. These values are only used for the `transactionId`
       // generation
       if (_asset != address(0)) {
+        // Retrieve the local asset.
+        local = s.tokenRegistry.getLocalAddress(_params.canonicalDomain, _params.canonicalId);
+        // Retrieve the canonical token information.
         canonical = s.adoptedToCanonical[_asset];
 
         if (canonical.id == bytes32(0)) {
           // Here, the asset is *not* the adopted asset. The only other valid option
-          // is for this asset to be the local asset (i.e. transferring madEth on optimism)
-          // NOTE: it *cannot* be the canonical asset. the canonical asset is only used on
+          // is for this asset to be the local asset (e.g. transferring madEth on optimism)
+          // NOTE: It *cannot* be the canonical asset; the canonical asset is only used on
           // the canonical domain, where it is *also* the adopted asset.
           if (s.tokenRegistry.isLocalOrigin(_asset)) {
             // revert, using a token of local origin that is not registered as adopted
@@ -437,7 +440,7 @@ contract BridgeFacet is BaseConnextFacet {
           canonical = TokenId(canonicalDomain, canonicalId);
         }
 
-        // Update CallParams
+        // Update CallParams to reflect the canonical token information.
         _params.canonicalDomain = canonical.domain;
         _params.canonicalId = canonical.id;
       }
