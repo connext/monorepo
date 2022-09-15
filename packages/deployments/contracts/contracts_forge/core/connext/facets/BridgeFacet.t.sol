@@ -51,9 +51,6 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
   uint256 _sequencerPKey = 0xA11CE;
   address _sequencer = vm.addr(_sequencerPKey);
 
-  // default origin sender
-  address _defaultOriginSender = address(4);
-
   // aave pool details
   address _aavePool;
 
@@ -61,28 +58,33 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
   uint256 _relayerFee = 0.1 ether;
 
   // Defaults
-  // default asset
-  address _defaultAsset = _local;
+  // default origin sender
+  address _defaultOriginSender = address(4);
+  // default asset; will be set below once local asset is deployed
+  address _defaultAsset = address(0);
   // default amount
   uint256 _defaultAmount = 1.1 ether;
   // default nonce on xcall
-  uint256 _defaultNonce = 1;
+  uint256 _defaultNonce = s.nonce;
   // default CallParams
   CallParams _defaultParams =
     CallParams({
       originDomain: _originDomain,
       destinationDomain: _destinationDomain,
-      canonicalDomain: _canonicalDomain,
+      canonicalDomain: 0, // Will be set in setUp.
       to: address(11),
       delegate: _delegate,
-      receiveLocal: _receiveLocal,
+      receiveLocal: false,
       callData: bytes(""),
       slippage: 1000,
+      // These items would normally be replaced in the nested internal _xcall,
+      // but will be defined as the "expected values" for the purpose of getting
+      // the expected transfer ID.
       originSender: _defaultOriginSender,
       bridgedAmt: 0,
       normalizedIn: 0,
       nonce: _defaultNonce,
-      canonicalId: _canonicalId
+      canonicalId: bytes32("") // Will be set in setUp.
     });
 
   // ============ Test set up ============
@@ -96,12 +98,19 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
     // is using - and is representational (meaning canonically it belongs to another chain).
     utils_setupAsset(true, false);
 
+    // Defaults setup.
+    _defaultAsset = _local;
+    _defaultParams.canonicalId = _canonicalId;
+    _defaultParams.canonicalDomain = _canonicalDomain;
+
     // Other context setup: configuration, storage, etc.
     s.approvedRelayers[address(this)] = true;
     s.approvedSequencers[_sequencer] = true;
     s.maxRoutersPerTransfer = 5;
     s._routerWhitelistRemoved = true;
     s.bridgeRouter = IBridgeRouter(_bridgeRouter);
+
+    s.domain = _originDomain;
 
     s.connextions[_destinationDomain] = TypeCasts.addressToBytes32(address(this));
     s.connextions[_originDomain] = TypeCasts.addressToBytes32(address(this));
@@ -118,6 +127,7 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
   // Used in set up for deploying any needed peripheral contracts.
   function utils_deployContracts() public {
     utils_deployAssetContracts();
+
     // Deploy a mock xapp consumer.
     _xapp = address(new MockXApp());
 
@@ -220,7 +230,7 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
     uint256 amount,
     bool shouldSwap
   ) public {
-    // bridged is either local or canonical, depending on domain xcall originates on
+    // Bridged asset will either local or canonical, depending on domain xcall originates on.
     address bridged = asset == address(0) ? address(0) : _canonicalDomain == s.domain ? _canonical : _local;
     uint256 bridgedAmt = params.bridgedAmt;
     vm.expectEmit(true, true, true, true);
@@ -263,6 +273,7 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
     );
   }
 
+  // Helper to prevent stack too deep issues (since there a lot of arguments to xcall).
   function helpers_wrappedXCall(
     CallParams memory params,
     address asset,
@@ -296,16 +307,38 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
     CallParams memory params,
     address asset,
     uint256 amount,
-    // bytes32 transferId,
-    // XCallArgs memory args,
-    // uint256 bridgedAmt,
     bytes4 expectedError,
     bool shouldSwap
   ) public {
     bool shouldSucceed = keccak256(abi.encode(expectedError)) == keccak256(abi.encode(bytes4("")));
     bool isCanonical = _canonicalDomain == s.domain;
-    params.bridgedAmt = asset == address(0) ? 0 : isCanonical ? amount : asset == _local ? amount : params.bridgedAmt;
+    if (params.bridgedAmt == 0) {
+      // TODO: Is the normalizedIn correct in all cases here? What about diff decimals?
+
+      if (shouldSwap) {
+        // Bridged amount of asset will be the amount post-swap.
+        params.bridgedAmt = (_defaultAmount * 9995) / _liquidityFeeDenominator;
+        // Normalized input amount is the pre-swap amount.
+        params.normalizedIn = amount;
+      } else if (asset == address(0)) {
+        // An asset address of 0 indicates this is a 0-value transfer.
+        params.bridgedAmt = 0;
+        params.normalizedIn = 0;
+      } else {
+        // No swap will occur, so the amount bridged should just be the amount in.
+        params.bridgedAmt = amount;
+        params.normalizedIn = amount;
+      }
+    }
+
     bytes32 transferId = _calculateTransferId(params);
+
+    console.log("asset", asset);
+    console.log("amount", amount);
+    console.log("transferID");
+    console.logBytes32(transferId);
+    console.log("bridgedAmt", params.bridgedAmt);
+    console.log("normalizedIn", params.normalizedIn);
 
     // Deal the user required eth for transfer.
     vm.deal(params.originSender, 100 ether);
@@ -350,6 +383,8 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
     }
 
     bytes32 ret = helpers_wrappedXCall(params, asset, amount);
+    console.log("ret");
+    console.logBytes32(ret);
 
     if (shouldSucceed) {
       assertEq(ret, transferId);
@@ -391,7 +426,7 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
     }
   }
 
-  // Shortcut for the main fn. Generates args within this method.
+  // Shortcut for the main fn. Uses default params.
   function helpers_xcallAndAssert(
     address asset,
     uint256 amount,
@@ -401,22 +436,34 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
     helpers_xcallAndAssert(_defaultParams, asset, amount, expectedError, shouldSwap);
   }
 
+  // Shortcut helper where you just input an expected error.
   function helpers_xcallAndAssert(bytes4 expectedError) public {
-    helpers_xcallAndAssert(_defaultParams, _defaultAsset, _defaultAmount, expectedError, false);
+    helpers_xcallAndAssert(_defaultParams, _local, _defaultAmount, expectedError, false);
   }
 
-  // Shortcut for the above fn, with no expected error.
+  // Shortcut helper with no expected error. Asset is determined to be local or adopted
+  // depending on whether a swap should occur.
   function helpers_xcallAndAssert(uint256 amount, bool shouldSwap) public {
-    helpers_xcallAndAssert(_defaultParams, _defaultAsset, amount, bytes4(""), shouldSwap);
+    helpers_xcallAndAssert(_defaultParams, shouldSwap ? _adopted : _local, amount, bytes4(""), shouldSwap);
   }
 
-  // Shortcut for the above fn, no expected error, specified transacting asset
-  function helpers_xcallAndAssert(
-    address asset,
-    uint256 amount,
-    bool shouldSwap
-  ) public {
-    helpers_xcallAndAssert(_defaultParams, asset, amount, bytes4(""), shouldSwap);
+  // Shortcut helper with no expected error, specified input asset and amount.
+  // Determines shouldSwap property implicitly.
+  function helpers_xcallAndAssert(address asset, uint256 amount) public {
+    // shouldSwap is determined by whether the asset is local or canonical or empty (meaning no swap is needed).
+    // If it isn't any of those, it's an adopted asset that will require a swap.
+    helpers_xcallAndAssert(
+      _defaultParams,
+      asset,
+      amount,
+      bytes4(""),
+      asset != address(0) && asset != _local && _canonicalDomain != s.domain
+    );
+  }
+
+  // Helper that uses default values for everything.
+  function helpers_xcallAndAssert() public {
+    helpers_xcallAndAssert(_defaultParams, _adopted, _defaultAmount, bytes4(""), true);
   }
 
   struct ExecuteBalances {
@@ -707,14 +754,14 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
 
   // ============ Getters ==============
 
-  function test_BridgeFacet_domain_works() public {
+  function test_BridgeFacet__domain_works() public {
     s.domain = 0;
     assertEq(this.domain(), 0);
     s.domain = _destinationDomain;
     assertEq(this.domain(), _destinationDomain);
   }
 
-  function test_BridgeFacet_nonce_works() public {
+  function test_BridgeFacet__nonce_works() public {
     s.nonce = 0;
     assertEq(this.nonce(), 0);
     s.nonce = _destinationDomain;
@@ -922,7 +969,7 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
   // canonincal token transfer on canonical domain
   function test_BridgeFacet__xcall_canonicalTokenTransferWorks() public {
     utils_setupAsset(true, true);
-    helpers_xcallAndAssert(_defaultAmount, false);
+    helpers_xcallAndAssert(_canonical, _defaultAmount);
   }
 
   // works when transferring 0 value and empty asset
@@ -930,21 +977,19 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
     _defaultAmount = 0;
     utils_setupAsset(true, true);
     s.adoptedToCanonical[address(0)] = TokenId(0, bytes32(0));
-    helpers_xcallAndAssert(address(0), 0, false);
+    helpers_xcallAndAssert(address(0), 0);
   }
 
   // local token transfer on non-canonical domain (local != adopted)
   function test_BridgeFacet__xcall_localTokenTransferWorksWithAdopted() public {
-    uint256 bridged = (_defaultAmount * 9995) / _liquidityFeeDenominator;
     utils_setupAsset(false, false);
-    helpers_xcallAndAssert(bridged, true);
+    helpers_xcallAndAssert();
   }
 
-  function test_BridgeFacet_xcallIntoLocal_works() public {
-    uint256 bridged = (_defaultAmount * 9995) / _liquidityFeeDenominator;
+  function test_BridgeFacet__xcallIntoLocal_works() public {
     utils_setupAsset(false, false);
     _defaultParams.receiveLocal = true;
-    helpers_xcallAndAssert(bridged, true);
+    helpers_xcallAndAssert();
   }
 
   // local token transfer on non-canonical domain, local != adopted, send in local
