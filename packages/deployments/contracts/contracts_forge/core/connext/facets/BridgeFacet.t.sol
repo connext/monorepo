@@ -177,7 +177,7 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
       sequencerSignature: bytes("")
     });
     // generate transfer id
-    bytes32 transferId = utils_getTransferIdFromCallParams(args.params);
+    bytes32 transferId = _calculateTransferId(args.params);
     // generate router signatures if applicable
     if (routers.length != 0) {
       args.routerSignatures = utils_makeRouterSignatures(transferId, routers, keys);
@@ -326,18 +326,18 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
       ? this.xcallIntoLocal{value: _relayerFee}(
         params.destinationDomain,
         params.to,
-        params.asset,
+        asset,
         params.delegate,
-        params.amount,
+        amount,
         params.slippage,
         params.callData
       )
       : this.xcall{value: _relayerFee}(
         params.destinationDomain,
         params.to,
-        params.asset,
+        asset,
         params.delegate,
-        params.amount,
+        amount,
         params.slippage,
         params.callData
       );
@@ -476,13 +476,13 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
           _inputs.routerAmt,
           _local,
           _adopted,
-          (_args.normalizedIn * (10_000 - slippage)) / 10_000
+          (_args.params.normalizedIn * (10_000 - slippage)) / 10_000
         )
       );
     }
 
     // expected transfer out of contract
-    if (_args.amount != 0) {
+    if (_args.params.bridgedAmt != 0) {
       // token transfer
       vm.expectCall(
         _inputs.token,
@@ -499,7 +499,7 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
           transferId,
           _inputs.expectedAmt,
           _inputs.token,
-          _inputs.isSlow ? _args.originSender : address(0),
+          _inputs.isSlow ? _args.params.originSender : address(0),
           _args.params.originDomain,
           _args.params.callData
         )
@@ -529,7 +529,7 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
     // execute
     // expected amount is impacted by (1) fast liquidity fees (2) slippage
     // router debited amount in local is only impacted by fast liquidity
-    uint256 routerAmt = _inputs.isSlow ? _args.amount : utils_getFastTransferAmount(_args.amount);
+    uint256 routerAmt = _inputs.isSlow ? _args.params.bridgedAmt : utils_getFastTransferAmount(_args.params.bridgedAmt);
 
     // setup pool mock if needed
     if (_inputs.shouldSwap) {
@@ -562,7 +562,7 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
         // should decrement router balance unless using aave
         for (uint256 i; i < pathLen; i++) {
           assertEq(
-            s.routerBalances[_args.routers[i]][_args.local],
+            s.routerBalances[_args.routers[i]][_local],
             _inputs.usesPortals ? prevLiquidity[i] : prevLiquidity[i] - (_inputs.routerAmt / pathLen)
           );
         }
@@ -620,7 +620,7 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
     uint256 pathLen = _args.routers.length;
     bool isSlow = pathLen == 0;
     // get pre-execute balance here in local
-    uint256 routerAmt = isSlow ? _args.amount : utils_getFastTransferAmount(_args.amount);
+    uint256 routerAmt = isSlow ? _args.params.bridgedAmt : utils_getFastTransferAmount(_args.params.bridgedAmt);
     helpers_executeAndAssert(
       transferId,
       _args,
@@ -664,9 +664,9 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
   // - does not call external
   // - calling on non-canonical domain
   function helpers_executeAndAssert(bytes32 transferId, ExecuteArgs memory _args) public {
-    uint256 expected = _args.amount;
+    uint256 expected = _args.params.bridgedAmt;
     if (_args.routers.length != 0) {
-      expected = utils_getFastTransferAmount(_args.amount);
+      expected = utils_getFastTransferAmount(_args.params.bridgedAmt);
     }
     helpers_executeAndAssert(transferId, _args, expected, false, false, false, false, false);
   }
@@ -689,9 +689,9 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
     ExecuteArgs memory _args,
     bool useDelegate
   ) public {
-    uint256 expected = _args.amount;
+    uint256 expected = _args.params.bridgedAmt;
     if (_args.routers.length != 0) {
-      expected = utils_getFastTransferAmount(_args.amount);
+      expected = utils_getFastTransferAmount(_args.params.bridgedAmt);
     }
     helpers_executeAndAssert(transferId, _args, expected, false, false, false, false, useDelegate);
   }
@@ -867,7 +867,7 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
 
   // fails if user has insufficient tokens
   // function test_BridgeFacet__xcall_failInsufficientErc20Tokens() public {
-  //   _defaultParams.amount = 10.1 ether;
+  //   _defaultAmount = 10.1 ether;
   //   TestERC20 localToken = TestERC20(_local);
   //   localToken.mint(_defaultOriginSender, 10 ether);
   //   vm.prank(_defaultOriginSender);
@@ -884,7 +884,7 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
 
   // fails if user has not set enough allowance
   // function test_BridgeFacet__xcall_failInsufficientErc20Approval() public {
-  //   _defaultParams.amount = 10.1 ether;
+  //   _defaultAmount = 10.1 ether;
   //   TestERC20 localToken = TestERC20(_local);
   //   localToken.mint(_defaultOriginSender, 10.1 ether);
   //   vm.prank(_defaultOriginSender);
@@ -921,7 +921,7 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
     _defaultAmount = 0;
     utils_setupAsset(true, true);
     s.adoptedToCanonical[address(0)] = TokenId(0, bytes32(0));
-    helpers_xcallAndAssert(0, address(0), false);
+    helpers_xcallAndAssert(address(0), 0, false);
   }
 
   // local token transfer on non-canonical domain (local != adopted)
@@ -1031,7 +1031,7 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
     (bytes32 transferId, ExecuteArgs memory args) = utils_makeExecuteArgs(s.maxRoutersPerTransfer + 1);
 
     for (uint256 i; i < args.routers.length; i++) {
-      s.routerBalances[args.routers[i]][args.local] += 10 ether;
+      s.routerBalances[args.routers[i]][_local] += 10 ether;
     }
 
     vm.expectRevert(BridgeFacet.BridgeFacet__execute_maxRoutersExceeded.selector);
@@ -1062,7 +1062,7 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
   function test_BridgeFacet__execute_failIfSignatureInvalid() public {
     (bytes32 transferId, ExecuteArgs memory args) = utils_makeExecuteArgs(1);
 
-    s.routerBalances[args.routers[0]][args.local] += 10 ether;
+    s.routerBalances[args.routers[0]][_local] += 10 ether;
 
     // Make invalid args based on (slightly) altered params.
     _defaultParams.originDomain = 1001;
@@ -1087,7 +1087,7 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
   function test_BridgeFacet__execute_failIfSequencerSignatureInvalid() public {
     (bytes32 transferId, ExecuteArgs memory args) = utils_makeExecuteArgs(1);
 
-    s.routerBalances[args.routers[0]][args.local] += 10 ether;
+    s.routerBalances[args.routers[0]][_local] += 10 ether;
 
     // Make invalid args based on (slightly) altered params (this will make
     // the transfer ID different).
@@ -1105,10 +1105,10 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
   function test_BridgeFacet__execute_failIfSequencerSignatureAndRoutersMismatch() public {
     (bytes32 transferId, ExecuteArgs memory args) = utils_makeExecuteArgs(4);
 
-    s.routerBalances[args.routers[0]][args.local] += 100 ether;
-    s.routerBalances[args.routers[1]][args.local] += 100 ether;
-    s.routerBalances[args.routers[2]][args.local] += 100 ether;
-    s.routerBalances[args.routers[3]][args.local] += 100 ether;
+    s.routerBalances[args.routers[0]][_local] += 100 ether;
+    s.routerBalances[args.routers[1]][_local] += 100 ether;
+    s.routerBalances[args.routers[2]][_local] += 100 ether;
+    s.routerBalances[args.routers[3]][_local] += 100 ether;
 
     // Imagine a malicious relayer calling `execute` colludes with the first router in the array
     // to replay their address and signature for the other slots in the path.
@@ -1127,7 +1127,7 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
   function test_BridgeFacet__execute_failIfSequencerSignatureAndSequencerAddressMismatch() public {
     (bytes32 transferId, ExecuteArgs memory args) = utils_makeExecuteArgs(1);
 
-    s.routerBalances[args.routers[0]][args.local] += 10 ether;
+    s.routerBalances[args.routers[0]][_local] += 10 ether;
 
     address otherSequencer = address(789456123);
     s.approvedSequencers[otherSequencer] = true;
@@ -1146,7 +1146,7 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
     (bytes32 transferId, ExecuteArgs memory args) = utils_makeExecuteArgs(4);
 
     for (uint256 i; i < args.routers.length; i++) {
-      s.routerBalances[args.routers[i]][args.local] += 10 ether;
+      s.routerBalances[args.routers[i]][_local] += 10 ether;
     }
 
     // Make invalid args based on (slightly) altered params.
@@ -1164,7 +1164,7 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
     (bytes32 transferId, ExecuteArgs memory args) = utils_makeExecuteArgs(1);
     s.transferRelayer[transferId] = address(this);
 
-    s.routerBalances[args.routers[0]][args.local] += 10 ether;
+    s.routerBalances[args.routers[0]][_local] += 10 ether;
 
     vm.expectRevert(BridgeFacet.BridgeFacet__execute_alreadyExecuted.selector);
     this.execute(args);
@@ -1172,11 +1172,11 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
 
   // should fail if the router does not have sufficient tokens
   function test_BridgeFacet__execute_failIfRouterHasInsufficientFunds() public {
-    _defaultParams.amount = 5 ether;
+    _defaultAmount = 5 ether;
 
     (bytes32 transferId, ExecuteArgs memory args) = utils_makeExecuteArgs(2);
 
-    s.routerBalances[args.routers[0]][args.local] = 1.5 ether;
+    s.routerBalances[args.routers[0]][_local] = 1.5 ether;
 
     vm.expectRevert(stdError.arithmeticError);
     this.execute(args);
@@ -1184,17 +1184,17 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
 
   // multipath: should fail if any 1 router has insufficient tokens
   function test_BridgeFacet__execute_failIfAnyRouterHasInsufficientFunds() public {
-    _defaultParams.amount = 5 ether;
+    _defaultAmount = 5 ether;
 
     (bytes32 transferId, ExecuteArgs memory args) = utils_makeExecuteArgs(s.maxRoutersPerTransfer);
 
-    uint256 routerAmountSent = _defaultParams.amount / args.routers.length; // The amount each individual router will send.
+    uint256 routerAmountSent = _defaultAmount / args.routers.length; // The amount each individual router will send.
 
     // Set the first router's balance to be (slightly) less than the amount that they'd need to send.
-    s.routerBalances[args.routers[0]][args.local] = routerAmountSent - 0.1 ether;
+    s.routerBalances[args.routers[0]][_local] = routerAmountSent - 0.1 ether;
     for (uint256 i = 1; i < args.routers.length; i++) {
       // The other routers have plenty of funds.
-      s.routerBalances[args.routers[i]][args.local] = 50 ether;
+      s.routerBalances[args.routers[i]][_local] = 50 ether;
     }
 
     vm.expectRevert(stdError.arithmeticError);
@@ -1202,11 +1202,11 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
   }
 
   function test_BridgeFacet__execute_failsIfRouterNotApprovedForPortal() public {
-    _defaultParams.amount = 5 ether;
+    _defaultAmount = 5 ether;
 
     (bytes32 _id, ExecuteArgs memory _args) = utils_makeExecuteArgs(1);
 
-    s.routerBalances[_args.routers[0]][_args.local] = 4.5 ether;
+    s.routerBalances[_args.routers[0]][_local] = 4.5 ether;
 
     // set aave enabled
     s.aavePool = _aavePool;
@@ -1222,19 +1222,19 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
 
     (bytes32 transferId, ExecuteArgs memory args) = utils_makeExecuteArgs(1);
 
-    s.routerBalances[args.routers[0]][args.local] += 10 ether;
+    s.routerBalances[args.routers[0]][_local] += 10 ether;
 
     // set asset context (local != adopted)
     utils_setupAsset(false, false);
 
-    helpers_executeAndAssert(transferId, args, utils_getFastTransferAmount(args.amount), false);
+    helpers_executeAndAssert(transferId, args, utils_getFastTransferAmount(args.params.bridgedAmt), false);
   }
 
   // should work with approved router if router ownership is not renounced
   function test_BridgeFacet__execute_worksWithLocalAsAdopted() public {
     (bytes32 transferId, ExecuteArgs memory args) = utils_makeExecuteArgs(1);
 
-    s.routerBalances[args.routers[0]][args.local] += 10 ether;
+    s.routerBalances[args.routers[0]][_local] += 10 ether;
     s.routerPermissionInfo.approvedRouters[args.routers[0]] = true;
 
     // set asset context (local == adopted)
@@ -1247,11 +1247,11 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
   function test_BridgeFacet__execute_worksWithEmptyCanonicalIfZeroValue() public {
     _defaultParams.canonicalId = bytes32(0);
     _defaultParams.canonicalDomain = 0;
-    _defaultParams.amount = 0;
+    _defaultAmount = 0;
     _local = address(0);
     (bytes32 transferId, ExecuteArgs memory args) = utils_makeExecuteArgs(1);
 
-    s.routerBalances[args.routers[0]][args.local] += 10 ether;
+    s.routerBalances[args.routers[0]][_local] += 10 ether;
     s.routerPermissionInfo.approvedRouters[args.routers[0]] = true;
 
     // set asset context (local == adopted)
@@ -1267,36 +1267,36 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
 
     (bytes32 transferId, ExecuteArgs memory args) = utils_makeExecuteArgs(1);
 
-    s.routerBalances[args.routers[0]][args.local] += 10 ether;
+    s.routerBalances[args.routers[0]][_local] += 10 ether;
     s.routerPermissionInfo.approvedRouters[args.routers[0]] = true;
 
-    helpers_executeAndAssert(transferId, args, utils_getFastTransferAmount(args.amount), true);
+    helpers_executeAndAssert(transferId, args, utils_getFastTransferAmount(args.params.bridgedAmt), true);
   }
 
   // works when local != adopted, should work with +ve slippage
   function test_BridgeFacet__execute_worksWithPositiveSlippage() public {
     (bytes32 transferId, ExecuteArgs memory args) = utils_makeExecuteArgs(1);
 
-    s.routerBalances[args.routers[0]][args.local] += 10 ether;
+    s.routerBalances[args.routers[0]][_local] += 10 ether;
     s.routerPermissionInfo.approvedRouters[args.routers[0]] = true;
 
     // set asset context (local != adopted)
     utils_setupAsset(false, false);
 
-    helpers_executeAndAssert(transferId, args, utils_getFastTransferAmount(args.amount) + 1 ether, true);
+    helpers_executeAndAssert(transferId, args, utils_getFastTransferAmount(args.params.bridgedAmt) + 1 ether, true);
   }
 
   // works when local != adopted, should work with -ve slippage
   function test_BridgeFacet__execute_worksWithNegativeSlippage() public {
     (bytes32 transferId, ExecuteArgs memory args) = utils_makeExecuteArgs(1);
 
-    s.routerBalances[args.routers[0]][args.local] += 10 ether;
+    s.routerBalances[args.routers[0]][_local] += 10 ether;
     s.routerPermissionInfo.approvedRouters[args.routers[0]] = true;
 
     // set asset context (local != adopted)
     utils_setupAsset(false, false);
 
-    helpers_executeAndAssert(transferId, args, utils_getFastTransferAmount(args.amount) - 0.01 ether, true);
+    helpers_executeAndAssert(transferId, args, utils_getFastTransferAmount(args.params.bridgedAmt) - 0.01 ether, true);
   }
 
   // works when on canonical domain
@@ -1306,7 +1306,7 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
 
     (bytes32 transferId, ExecuteArgs memory args) = utils_makeExecuteArgs(1);
 
-    s.routerBalances[args.routers[0]][args.local] += 10 ether;
+    s.routerBalances[args.routers[0]][_local] += 10 ether;
     s.routerPermissionInfo.approvedRouters[args.routers[0]] = true;
 
     helpers_executeAndAssert(transferId, args);
@@ -1318,7 +1318,7 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
 
     (bytes32 transferId, ExecuteArgs memory args) = utils_makeExecuteArgs(1);
 
-    s.routerBalances[args.routers[0]][args.local] += 10 ether;
+    s.routerBalances[args.routers[0]][_local] += 10 ether;
     s.routerPermissionInfo.approvedRouters[args.routers[0]] = false;
 
     // set asset context (local == adopted)
@@ -1329,7 +1329,7 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
 
   // should work with 0 value
   function test_BridgeFacet__execute_worksWith0Value() public {
-    _defaultParams.amount = 0;
+    _defaultAmount = 0;
 
     (bytes32 transferId, ExecuteArgs memory args) = utils_makeExecuteArgs(1);
 
@@ -1344,7 +1344,7 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
     _defaultParams.callData = bytes("");
     (bytes32 transferId, ExecuteArgs memory args) = utils_makeExecuteArgs(1);
 
-    s.routerBalances[args.routers[0]][args.local] += 10 ether;
+    s.routerBalances[args.routers[0]][_local] += 10 ether;
 
     // set asset context (local == adopted)
     utils_setupAsset(true, false);
@@ -1361,7 +1361,7 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
 
     (bytes32 transferId, ExecuteArgs memory args) = utils_makeExecuteArgs(1);
 
-    s.routerBalances[args.routers[0]][args.local] += 10 ether;
+    s.routerBalances[args.routers[0]][_local] += 10 ether;
 
     // set asset context (local == adopted)
     utils_setupAsset(true, false);
@@ -1369,7 +1369,7 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
     helpers_executeAndAssert(
       transferId,
       args,
-      utils_getFastTransferAmount(args.amount),
+      utils_getFastTransferAmount(args.params.bridgedAmt),
       true,
       true,
       false,
@@ -1387,7 +1387,7 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
 
     (bytes32 transferId, ExecuteArgs memory args) = utils_makeExecuteArgs(1);
 
-    s.routerBalances[args.routers[0]][args.local] += 10 ether;
+    s.routerBalances[args.routers[0]][_local] += 10 ether;
 
     // set asset context (local == adopted)
     utils_setupAsset(true, false);
@@ -1413,7 +1413,7 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
     // set asset context (local == adopted)
     utils_setupAsset(true, false);
 
-    helpers_executeAndAssert(transferId, args, args.amount, true, false, false, false, false);
+    helpers_executeAndAssert(transferId, args, args.params.bridgedAmt, true, false, false, false, false);
   }
 
   function test_BridgeFacet__execute_failsIfNoLiquidityAndAaveNotEnabled() public {
@@ -1422,7 +1422,7 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
 
     // set liquidity context
     for (uint256 i; i < _args.routers.length; i++) {
-      s.routerBalances[_args.routers[i]][_args.local] = 0 ether;
+      s.routerBalances[_args.routers[i]][_local] = 0 ether;
     }
 
     // set aave not enabled
@@ -1451,12 +1451,12 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
     // Transfer has already been reconciled.
     s.reconciledTransfers[transferId] = true;
 
-    helpers_executeAndAssert(transferId, args, args.amount, true, true, false, false, false);
+    helpers_executeAndAssert(transferId, args, args.params.bridgedAmt, true, true, false, false, false);
   }
 
   // multipath: should subtract equally from each router's liquidity
   function test_BridgeFacet__execute_multipath() public {
-    _defaultParams.amount = 1 ether;
+    _defaultAmount = 1 ether;
 
     // Should work if the pathLength == max routers.
     uint256 pathLength = s.maxRoutersPerTransfer;
@@ -1464,13 +1464,13 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
 
     // Add initial liquiidty
     for (uint256 i = 1; i < args.routers.length; i++) {
-      s.routerBalances[args.routers[i]][args.local] = 10 ether;
+      s.routerBalances[args.routers[i]][_local] = 10 ether;
     }
     // Sanity check: assuming the multipath is > 1, no router should need to have more than half of the
     // transfer amount.
-    s.routerBalances[args.routers[0]][args.local] = 0.5 ether;
+    s.routerBalances[args.routers[0]][_local] = 0.5 ether;
 
-    uint256 amount = utils_getFastTransferAmount(args.amount);
+    uint256 amount = utils_getFastTransferAmount(args.params.bridgedAmt);
     uint256 routerAmountSent = amount / pathLength; // The amount each individual router will send.
 
     // set asset context (local == adopted)
@@ -1485,7 +1485,7 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
     _defaultParams.delegate = delegate;
     (bytes32 transferId, ExecuteArgs memory args) = utils_makeExecuteArgs(1);
 
-    s.routerBalances[args.routers[0]][args.local] += 10 ether;
+    s.routerBalances[args.routers[0]][_local] += 10 ether;
     s.routerPermissionInfo.approvedRouters[args.routers[0]] = true;
 
     // set asset context (local == adopted)
@@ -1503,7 +1503,7 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
     (bytes32 transferId, ExecuteArgs memory args) = utils_makeExecuteArgs(1);
 
     // set liquidity
-    s.routerBalances[args.routers[0]][args.local] = 0;
+    s.routerBalances[args.routers[0]][_local] = 0;
 
     // set approval
     s.routerPermissionInfo.approvedForPortalRouters[args.routers[0]] = true;
@@ -1511,7 +1511,7 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
     helpers_executeAndAssert(
       transferId,
       args,
-      utils_getFastTransferAmount(args.amount),
+      utils_getFastTransferAmount(args.params.bridgedAmt),
       false,
       true,
       false,
@@ -1528,12 +1528,12 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
     (bytes32 transferId, ExecuteArgs memory args) = utils_makeExecuteArgs(1);
 
     // set liquidity
-    s.routerBalances[args.routers[0]][args.local] = 10 ether;
+    s.routerBalances[args.routers[0]][_local] = 10 ether;
 
     // set slippage override
     s.slippage[transferId] = 5000;
 
-    helpers_executeAndAssert(transferId, args, utils_getFastTransferAmount(args.amount), true);
+    helpers_executeAndAssert(transferId, args, utils_getFastTransferAmount(args.params.bridgedAmt), true);
   }
 
   // ============ bumpTransfer ============
@@ -1544,32 +1544,14 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
   function test_BridgeFacet__forceUpdateSlippage_failsIfNotDelegate() public {
     (bytes32 transferId, ExecuteArgs memory args) = utils_makeExecuteArgs(1);
     vm.expectRevert(BridgeFacet.BridgeFacet__onlyDelegate_notDelegate.selector);
-    this.forceUpdateSlippage(
-      _defaultParams,
-      _defaultParams.originSender,
-      _defaultParams.canonicalDomain,
-      _defaultParams.canonicalId,
-      args.amount,
-      args.amount,
-      _defaultParams.nonce,
-      5_000
-    );
+    this.forceUpdateSlippage(args.params, 5_000);
   }
 
   function test_BridgeFacet__forceUpdateSlippage_failsIfInvalidSlippage() public {
     (bytes32 transferId, ExecuteArgs memory args) = utils_makeExecuteArgs(1);
     vm.expectRevert(BridgeFacet.BridgeFacet__forceUpdateSlippage_invalidSlippage.selector);
     vm.prank(args.params.delegate);
-    this.forceUpdateSlippage(
-      _defaultParams,
-      _defaultParams.originSender,
-      _defaultParams.canonicalDomain,
-      _defaultParams.canonicalId,
-      args.amount,
-      args.amount,
-      _defaultParams.nonce,
-      25_000
-    );
+    this.forceUpdateSlippage(args.params, 25_000);
   }
 
   function test_BridgeFacet__forceUpdateSlippage_failsIfNotDestination() public {
@@ -1577,16 +1559,7 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
     s.domain = args.params.originDomain;
     vm.expectRevert(BridgeFacet.BridgeFacet__forceUpdateSlippage_notDestination.selector);
     vm.prank(args.params.delegate);
-    this.forceUpdateSlippage(
-      _defaultParams,
-      _defaultParams.originSender,
-      _defaultParams.canonicalDomain,
-      _defaultParams.canonicalId,
-      args.amount,
-      args.amount,
-      _defaultParams.nonce,
-      5_000
-    );
+    this.forceUpdateSlippage(args.params, 5_000);
   }
 
   function test_BridgeFacet__forceUpdateSlippage_works() public {
@@ -1597,15 +1570,6 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
     emit SlippageUpdated(transferId, 5_000);
 
     vm.prank(args.params.delegate);
-    this.forceUpdateSlippage(
-      _defaultParams,
-      _defaultParams.originSender,
-      _defaultParams.canonicalDomain,
-      _defaultParams.canonicalId,
-      args.amount,
-      args.amount,
-      _defaultParams.nonce,
-      5_000
-    );
+    this.forceUpdateSlippage(args.params, 5_000);
   }
 }
