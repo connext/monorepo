@@ -240,7 +240,6 @@ export function handleXCalled(event: XCalled): void {
   transfer.to = event.params.xcallArgs.params.to;
   transfer.callData = event.params.xcallArgs.params.callData;
   transfer.destinationDomain = event.params.xcallArgs.params.destinationDomain;
-  transfer.recovery = event.params.xcallArgs.params.recovery;
   transfer.agent = event.params.xcallArgs.params.agent;
   transfer.receiveLocal = event.params.xcallArgs.params.receiveLocal;
   transfer.callback = event.params.xcallArgs.params.callback;
@@ -327,7 +326,6 @@ export function handleExecuted(event: Executed): void {
   transfer.originDomain = event.params.args.params.originDomain;
   transfer.destinationDomain = event.params.args.params.destinationDomain;
   transfer.receiveLocal = event.params.args.params.receiveLocal;
-  transfer.recovery = event.params.args.params.recovery;
   transfer.agent = event.params.args.params.agent;
   transfer.callback = event.params.args.params.callback;
   transfer.callbackFee = event.params.args.params.callbackFee;

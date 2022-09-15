@@ -88,7 +88,6 @@ export const CallParamsSchema = Type.Object({
   originDomain: Type.String(),
   destinationDomain: Type.String(),
   agent: TAddress,
-  recovery: TAddress,
   receiveLocal: Type.Boolean(),
   callback: TAddress,
   callbackFee: TIntegerString,

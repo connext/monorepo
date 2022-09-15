@@ -18,7 +18,6 @@ type TaskArgs = {
   callbackFee?: string;
   receiveLocal?: string;
   agent?: string;
-  recovery?: string;
   originMinOut?: string;
   destinationMinOut?: string;
   runs?: number;
@@ -38,7 +37,6 @@ export default task("xcall", "Prepare a cross-chain tx")
   .addOptionalParam("callbackFee", "Override callback fee")
   .addOptionalParam("receiveLocal", "Override for receiving local")
   .addOptionalParam("agent", "Override for agent address")
-  .addOptionalParam("recovery", "Override for recovery address")
   .addOptionalParam("originMinOut", "Override for origin domain tokens out (slippage tolerance)")
   .addOptionalParam("destinationMinOut", "Override for destination domain tokens out (slippage tolerance)")
   .addOptionalParam("env", "Environment of contracts")
@@ -60,7 +58,6 @@ export default task("xcall", "Prepare a cross-chain tx")
         callbackFee: _callbackFee,
         receiveLocal: _receiveLocal,
         agent: _agent,
-        recovery: _recovery,
         originMinOut: _originMinOut,
         destinationMinOut: _destinationMinOut,
         runs: _runs,
@@ -148,7 +145,6 @@ export default task("xcall", "Prepare a cross-chain tx")
       const callbackFee = _callbackFee ?? "0";
       const receiveLocal = _receiveLocal === "true" ? true : false;
       const agent = _agent ?? to;
-      const recovery = _recovery ?? to;
       const destinationMinOut = _destinationMinOut ?? "0";
       const originMinOut = _originMinOut ?? "0";
 
@@ -188,7 +184,6 @@ export default task("xcall", "Prepare a cross-chain tx")
         callData,
         originDomain: `${originDomain}`,
         destinationDomain: `${destinationDomain}`,
-        recovery,
         agent,
         callback,
         callbackFee,
@@ -246,7 +241,6 @@ export default task("xcall", "Prepare a cross-chain tx")
               console.log("  callback: ", callback);
               console.log("  callbackFee: ", callbackFee);
               console.log("  receiveLocal: ", receiveLocal);
-              console.log("  recovery: ", recovery);
               console.log("  originMinOut:", originMinOut);
               console.log("  destinationMinOut:", destinationMinOut);
               console.log("xcall args", JSON.stringify(args));
