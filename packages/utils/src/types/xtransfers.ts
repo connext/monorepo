@@ -89,7 +89,6 @@ export const CallParamsSchema = Type.Object({
   destinationDomain: Type.String(),
   agent: TAddress,
   receiveLocal: Type.Boolean(),
-  relayerFee: TIntegerString,
   destinationMinOut: TIntegerString,
 });
 
@@ -156,6 +155,7 @@ export const ExecuteArgsSchema = Type.Object({
   sequencer: TAddress,
   sequencerSignature: Type.String(),
   amount: TIntegerString,
+  normalizedIn: TIntegerString,
   nonce: Type.Integer(),
   originSender: TAddress,
 });

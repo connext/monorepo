@@ -249,7 +249,6 @@ export function handleXCalled(event: XCalled): void {
   transfer.destinationDomain = event.params.xcallArgs.params.destinationDomain;
   transfer.agent = event.params.xcallArgs.params.agent;
   transfer.receiveLocal = event.params.xcallArgs.params.receiveLocal;
-  transfer.relayerFee = event.params.xcallArgs.params.relayerFee;
   transfer.destinationMinOut = event.params.xcallArgs.params.destinationMinOut;
 
   // Assets
@@ -332,7 +331,6 @@ export function handleExecuted(event: Executed): void {
   transfer.destinationDomain = event.params.args.params.destinationDomain;
   transfer.receiveLocal = event.params.args.params.receiveLocal;
   transfer.agent = event.params.args.params.agent;
-  transfer.relayerFee = event.params.args.params.relayerFee;
   transfer.destinationMinOut = event.params.args.params.destinationMinOut;
 
   // Assets

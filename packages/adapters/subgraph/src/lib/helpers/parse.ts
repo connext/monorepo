@@ -42,9 +42,6 @@ export const originTransfer = (entity: any): OriginTransfer => {
     xparams: {
       to: entity.to,
       callData: entity.callData,
-      callback: entity.callback,
-      callbackFee: entity.callbackFee,
-      relayerFee: entity.relayerFee,
       receiveLocal: entity.receiveLocal,
       originDomain: entity.originDomain,
       destinationDomain: entity.destinationDomain,
@@ -124,9 +121,6 @@ export const destinationTransfer = (entity: any): DestinationTransfer => {
     xparams: {
       to: entity.to,
       callData: entity.callData,
-      callback: entity.callback,
-      callbackFee: entity.callbackFee,
-      relayerFee: entity.relayerFee,
       receiveLocal: entity.receiveLocal,
       destinationDomain: entity.destinationDomain,
       originDomain: entity.originDomain,

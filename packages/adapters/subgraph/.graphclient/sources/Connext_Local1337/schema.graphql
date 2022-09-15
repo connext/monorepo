@@ -1480,8 +1480,8 @@ type local1337__Block_ {
   hash: local1337_Bytes
   """The block number"""
   number: Int!
-  """Timestamp of the block if available, format depends on the chain"""
-  timestamp: String
+  """Integer representation of the timestamp stored in blocks for the chain"""
+  timestamp: Int
 }
 
 """The type for the top-level _meta field"""

@@ -13,7 +13,6 @@ type TaskArgs = {
   callData?: string;
   connextAddress?: string;
   env?: Env;
-  relayerFee?: string;
   receiveLocal?: string;
   agent?: string;
   originMinOut?: string;
@@ -30,7 +29,6 @@ export default task("xcall", "Prepare a cross-chain tx")
   .addOptionalParam("destinationDomain", "Destination domain")
   .addOptionalParam("callData", "Data for external call")
   .addOptionalParam("connextAddress", "Override connext address")
-  .addOptionalParam("relayerFee", "Override relayer fee")
   .addOptionalParam("receiveLocal", "Override for receiving local")
   .addOptionalParam("agent", "Override for agent address")
   .addOptionalParam("originMinOut", "Override for origin domain tokens out (slippage tolerance)")
@@ -49,7 +47,6 @@ export default task("xcall", "Prepare a cross-chain tx")
         callData: _callData,
         destinationDomain: _destinationDomain,
         env: _env,
-        relayerFee: _relayerFee,
         receiveLocal: _receiveLocal,
         agent: _agent,
         originMinOut: _originMinOut,
@@ -96,9 +93,6 @@ export default task("xcall", "Prepare a cross-chain tx")
 
       // Get the amount (defaults to 1 TEST)
       const amount = _amount ?? process.env.TRANSFER_AMOUNT ?? "1000000000000000000";
-
-      // Get the relayer fee (defaults to 0)
-      const relayerFee = _relayerFee ?? process.env.RELAYER_FEE ?? "0";
 
       // Get the transacting asset ID.
       let assetId = _assetId ?? process.env.TRANSFER_ASSET;
@@ -177,7 +171,6 @@ export default task("xcall", "Prepare a cross-chain tx")
         originDomain: `${originDomain}`,
         destinationDomain: `${destinationDomain}`,
         agent,
-        relayerFee,
         receiveLocal,
         destinationMinOut,
       };

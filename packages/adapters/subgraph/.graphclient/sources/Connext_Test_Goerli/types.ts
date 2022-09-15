@@ -1391,8 +1391,8 @@ export type testgoerli__Block_ = {
   hash?: Maybe<Scalars['testgoerli_Bytes']>;
   /** The block number */
   number: Scalars['Int'];
-  /** Timestamp of the block if available, format depends on the chain */
-  timestamp?: Maybe<Scalars['String']>;
+  /** Integer representation of the timestamp stored in blocks for the chain */
+  timestamp?: Maybe<Scalars['Int']>;
 };
 
 /** The type for the top-level _meta field */

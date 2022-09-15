@@ -211,6 +211,7 @@ export type goerli_DestinationMessage = {
   leaf?: Maybe<Scalars['goerli_Bytes']>;
   processed?: Maybe<Scalars['Boolean']>;
   returnData?: Maybe<Scalars['goerli_Bytes']>;
+  transactionHash?: Maybe<Scalars['goerli_Bytes']>;
 };
 
 export type goerli_DestinationMessage_filter = {
@@ -238,6 +239,12 @@ export type goerli_DestinationMessage_filter = {
   returnData_not_in?: InputMaybe<Array<Scalars['goerli_Bytes']>>;
   returnData_contains?: InputMaybe<Scalars['goerli_Bytes']>;
   returnData_not_contains?: InputMaybe<Scalars['goerli_Bytes']>;
+  transactionHash?: InputMaybe<Scalars['goerli_Bytes']>;
+  transactionHash_not?: InputMaybe<Scalars['goerli_Bytes']>;
+  transactionHash_in?: InputMaybe<Array<Scalars['goerli_Bytes']>>;
+  transactionHash_not_in?: InputMaybe<Array<Scalars['goerli_Bytes']>>;
+  transactionHash_contains?: InputMaybe<Scalars['goerli_Bytes']>;
+  transactionHash_not_contains?: InputMaybe<Scalars['goerli_Bytes']>;
   /** Filter for the block changed event. */
   _change_block?: InputMaybe<goerli_BlockChangedFilter>;
 };
@@ -246,7 +253,8 @@ export type goerli_DestinationMessage_orderBy =
   | 'id'
   | 'leaf'
   | 'processed'
-  | 'returnData';
+  | 'returnData'
+  | 'transactionHash';
 
 export type goerli_DestinationTransfer = {
   id: Scalars['ID'];
@@ -601,6 +609,7 @@ export type goerli_OriginMessage = {
   index?: Maybe<Scalars['BigInt']>;
   root?: Maybe<Scalars['goerli_Bytes']>;
   message?: Maybe<Scalars['goerli_Bytes']>;
+  transactionHash?: Maybe<Scalars['goerli_Bytes']>;
 };
 
 export type goerli_OriginMessage_filter = {
@@ -652,6 +661,12 @@ export type goerli_OriginMessage_filter = {
   message_not_in?: InputMaybe<Array<Scalars['goerli_Bytes']>>;
   message_contains?: InputMaybe<Scalars['goerli_Bytes']>;
   message_not_contains?: InputMaybe<Scalars['goerli_Bytes']>;
+  transactionHash?: InputMaybe<Scalars['goerli_Bytes']>;
+  transactionHash_not?: InputMaybe<Scalars['goerli_Bytes']>;
+  transactionHash_in?: InputMaybe<Array<Scalars['goerli_Bytes']>>;
+  transactionHash_not_in?: InputMaybe<Array<Scalars['goerli_Bytes']>>;
+  transactionHash_contains?: InputMaybe<Scalars['goerli_Bytes']>;
+  transactionHash_not_contains?: InputMaybe<Scalars['goerli_Bytes']>;
   /** Filter for the block changed event. */
   _change_block?: InputMaybe<goerli_BlockChangedFilter>;
 };
@@ -663,7 +678,8 @@ export type goerli_OriginMessage_orderBy =
   | 'leaf'
   | 'index'
   | 'root'
-  | 'message';
+  | 'message'
+  | 'transactionHash';
 
 export type goerli_OriginTransfer = {
   id: Scalars['ID'];
@@ -1820,8 +1836,8 @@ export type goerli__Block_ = {
   hash?: Maybe<Scalars['goerli_Bytes']>;
   /** The block number */
   number: Scalars['Int'];
-  /** Timestamp of the block if available, format depends on the chain */
-  timestamp?: Maybe<Scalars['String']>;
+  /** Integer representation of the timestamp stored in blocks for the chain */
+  timestamp?: Maybe<Scalars['Int']>;
 };
 
 /** The type for the top-level _meta field */
