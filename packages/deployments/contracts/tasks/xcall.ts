@@ -14,8 +14,6 @@ type TaskArgs = {
   connextAddress?: string;
   env?: Env;
   relayerFee?: string;
-  callback?: string;
-  callbackFee?: string;
   receiveLocal?: string;
   agent?: string;
   originMinOut?: string;
@@ -33,8 +31,6 @@ export default task("xcall", "Prepare a cross-chain tx")
   .addOptionalParam("callData", "Data for external call")
   .addOptionalParam("connextAddress", "Override connext address")
   .addOptionalParam("relayerFee", "Override relayer fee")
-  .addOptionalParam("callback", "Override callback address")
-  .addOptionalParam("callbackFee", "Override callback fee")
   .addOptionalParam("receiveLocal", "Override for receiving local")
   .addOptionalParam("agent", "Override for agent address")
   .addOptionalParam("originMinOut", "Override for origin domain tokens out (slippage tolerance)")
@@ -54,8 +50,6 @@ export default task("xcall", "Prepare a cross-chain tx")
         destinationDomain: _destinationDomain,
         env: _env,
         relayerFee: _relayerFee,
-        callback: _callback,
-        callbackFee: _callbackFee,
         receiveLocal: _receiveLocal,
         agent: _agent,
         originMinOut: _originMinOut,
@@ -141,8 +135,6 @@ export default task("xcall", "Prepare a cross-chain tx")
       }
 
       // Get the other params
-      const callback = _callback ?? constants.AddressZero;
-      const callbackFee = _callbackFee ?? "0";
       const receiveLocal = _receiveLocal === "true" ? true : false;
       const agent = _agent ?? to;
       const destinationMinOut = _destinationMinOut ?? "0";
@@ -185,8 +177,6 @@ export default task("xcall", "Prepare a cross-chain tx")
         originDomain: `${originDomain}`,
         destinationDomain: `${destinationDomain}`,
         agent,
-        callback,
-        callbackFee,
         relayerFee,
         receiveLocal,
         destinationMinOut,
@@ -238,8 +228,6 @@ export default task("xcall", "Prepare a cross-chain tx")
               console.log("  asset: ", assetId);
               console.log("  amount: ", amount);
               console.log("  callData: ", callData);
-              console.log("  callback: ", callback);
-              console.log("  callbackFee: ", callbackFee);
               console.log("  receiveLocal: ", receiveLocal);
               console.log("  originMinOut:", originMinOut);
               console.log("  destinationMinOut:", destinationMinOut);

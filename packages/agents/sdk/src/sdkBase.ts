@@ -168,8 +168,6 @@ export class NxtpSdkBase {
     const formattedXParams: CallParams = {
       ...params,
       callData: params.callData || "0x",
-      callback: params.callback || constants.AddressZero,
-      callbackFee: params.callbackFee || "0",
       receiveLocal: params.receiveLocal || false,
       relayerFee: relayerFee!,
       // Default to using the user's signer address as the 'agent'.
@@ -201,7 +199,7 @@ export class NxtpSdkBase {
     }
 
     // Add callback and relayer fee together to get the total ETH value that should be sent.
-    const value = BigNumber.from(formattedXParams.relayerFee).add(BigNumber.from(formattedXParams.callbackFee));
+    const value = BigNumber.from(formattedXParams.relayerFee);
 
     // Take the finalized xcall arguments and encode calldata.
     const formattedXCallArgs: XCallArgs = {

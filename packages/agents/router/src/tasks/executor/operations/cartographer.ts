@@ -34,8 +34,6 @@ export const pollCartographer = async () => {
             destinationDomain: xTransfer.xparams?.destinationDomain ?? "",
             to: xTransfer.xparams!.to,
             callData: xTransfer.xparams!.callData,
-            callback: xTransfer.xparams!.callback,
-            callbackFee: xTransfer.xparams!.callbackFee,
             receiveLocal: xTransfer.xparams!.receiveLocal,
             destinationMinOut: xTransfer.xparams!.destinationMinOut,
             agent: xTransfer.xparams!.agent,

@@ -81,8 +81,6 @@ export const mock = {
       callData: "0x",
       originDomain: mock.domain.A,
       destinationDomain: mock.domain.B,
-      callback: mkAddress("0xbbbb"),
-      callbackFee: "0",
       relayerFee: "123",
       receiveLocal: false,
       agent: mkAddress(),
@@ -182,8 +180,6 @@ export const mock = {
         xparams: {
           to: user,
           callData: "0x",
-          callback: mkAddress("0x"),
-          callbackFee: "0",
           relayerFee,
           agent: mkAddress("0x"),
           receiveLocal: false,
