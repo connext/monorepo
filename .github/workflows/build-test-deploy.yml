@@ -70,7 +70,6 @@ jobs:
       REGISTRY: ghcr.io
       IMAGE_NAME: connext/router-publisher
     runs-on: ubuntu-latest
-    needs: build-and-test
     permissions:
       contents: read
       packages: write
@@ -112,7 +111,6 @@ jobs:
       REGISTRY: ghcr.io
       IMAGE_NAME: connext/router-subscriber
     runs-on: ubuntu-latest
-    needs: build-and-test
     permissions:
       contents: read
       packages: write
@@ -154,7 +152,6 @@ jobs:
       REGISTRY: ghcr.io
       IMAGE_NAME: connext/router-executor
     runs-on: ubuntu-latest
-    needs: build-and-test
     permissions:
       contents: read
       packages: write
@@ -196,7 +193,6 @@ jobs:
       REGISTRY: ghcr.io
       IMAGE_NAME: connext/sequencer-publisher
     runs-on: ubuntu-latest
-    needs: build-and-test
     permissions:
       contents: read
       packages: write
@@ -238,7 +234,6 @@ jobs:
       REGISTRY: ghcr.io
       IMAGE_NAME: connext/sequencer-subscriber
     runs-on: ubuntu-latest
-    needs: build-and-test
     permissions:
       contents: read
       packages: write
@@ -280,7 +275,6 @@ jobs:
       REGISTRY: ghcr.io
       IMAGE_NAME: connext/cartographer-routers
     runs-on: ubuntu-latest
-    needs: build-and-test
     permissions:
       contents: read
       packages: write
@@ -322,7 +316,6 @@ jobs:
       REGISTRY: ghcr.io
       IMAGE_NAME: connext/cartographer-transfers
     runs-on: ubuntu-latest
-    needs: build-and-test
     permissions:
       contents: read
       packages: write
@@ -364,7 +357,6 @@ jobs:
       REGISTRY: ghcr.io
       IMAGE_NAME: connext/cartographer-messages
     runs-on: ubuntu-latest
-    needs: build-and-test
     permissions:
       contents: read
       packages: write
@@ -406,7 +398,6 @@ jobs:
       REGISTRY: ghcr.io
       IMAGE_NAME: connext/lighthouse-prover
     runs-on: ubuntu-latest
-    needs: build-and-test
     permissions:
       contents: read
       packages: write
@@ -448,7 +439,6 @@ jobs:
       REGISTRY: ghcr.io
       IMAGE_NAME: connext/relayer
     runs-on: ubuntu-latest
-    needs: build-and-test
     permissions:
       contents: read
       packages: write
