@@ -192,16 +192,40 @@ type AggregateRoot @entity {
   root: Bytes!
 }
 
-type RootMessage @entity {
+type ConnectorMeta @entity {
+  id: ID! # "ConnectorMeta"
+  spokeDomain: BigInt!
+  hubDomain: BigInt!
+
+  amb: Bytes!
+  rootManager: Bytes!
+  mirrorConnector: Bytes!
+}
+
+type RootMessageSent @entity {
   id: ID!
 
-  data: Bytes
+  spokeDomain: BigInt
+  hubDomain: BigInt
+  root: Bytes
 
-  # MessageSent/MessageProcessed Transaction
+  # MessageSent Transaction
   caller: Bytes
   transactionHash: Bytes
-  logIndex: BigInt
-  transactionLogIndex: BigInt
+  timestamp: BigInt
+  gasPrice: BigInt
+  gasLimit: BigInt
+  blockNumber: BigInt
+}
+
+type RootMessageProcessed @entity {
+  id: ID!
+
+  root: Bytes
+
+  # MessageProcessed Transaction
+  caller: Bytes
+  transactionHash: Bytes
   timestamp: BigInt
   gasPrice: BigInt
   gasLimit: BigInt
