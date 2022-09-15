@@ -32,7 +32,9 @@ input goerli_AggregateRoot_filter {
   root_not_in: [goerli_Bytes!]
   root_contains: goerli_Bytes
   root_not_contains: goerli_Bytes
-  """Filter for the block changed event."""
+  """
+  Filter for the block changed event.
+  """
   _change_block: goerli_BlockChangedFilter
 }
 
@@ -117,7 +119,9 @@ input goerli_AssetBalance_filter {
   asset_not_ends_with: String
   asset_not_ends_with_nocase: String
   asset_: goerli_Asset_filter
-  """Filter for the block changed event."""
+  """
+  Filter for the block changed event.
+  """
   _change_block: goerli_BlockChangedFilter
 }
 
@@ -177,7 +181,9 @@ input goerli_Asset_filter {
   blockNumber_lte: BigInt
   blockNumber_in: [BigInt!]
   blockNumber_not_in: [BigInt!]
-  """Filter for the block changed event."""
+  """
+  Filter for the block changed event.
+  """
   _change_block: goerli_BlockChangedFilter
 }
 
@@ -239,7 +245,9 @@ input goerli_DestinationMessage_filter {
   returnData_not_in: [goerli_Bytes!]
   returnData_contains: goerli_Bytes
   returnData_not_contains: goerli_Bytes
-  """Filter for the block changed event."""
+  """
+  Filter for the block changed event.
+  """
   _change_block: goerli_BlockChangedFilter
 }
 
@@ -268,7 +276,13 @@ type goerli_DestinationTransfer {
   relayerFee: BigInt
   destinationMinOut: BigInt
   status: goerli_TransferStatus
-  routers(skip: Int = 0, first: Int = 100, orderBy: goerli_Router_orderBy, orderDirection: goerli_OrderDirection, where: goerli_Router_filter): [goerli_Router!]
+  routers(
+    skip: Int = 0
+    first: Int = 100
+    orderBy: goerli_Router_orderBy
+    orderDirection: goerli_OrderDirection
+    where: goerli_Router_filter
+  ): [goerli_Router!]
   originSender: goerli_Bytes
   transactingAsset: goerli_Bytes
   transactingAmount: BigInt
@@ -539,7 +553,9 @@ input goerli_DestinationTransfer_filter {
   reconciledBlockNumber_lte: BigInt
   reconciledBlockNumber_in: [BigInt!]
   reconciledBlockNumber_not_in: [BigInt!]
-  """Filter for the block changed event."""
+  """
+  Filter for the block changed event.
+  """
   _change_block: goerli_BlockChangedFilter
 }
 
@@ -582,7 +598,9 @@ enum goerli_DestinationTransfer_orderBy {
   reconciledBlockNumber
 }
 
-"""Defines the order direction, either ascending or descending"""
+"""
+Defines the order direction, either ascending or descending
+"""
 enum goerli_OrderDirection {
   asc
   desc
@@ -647,7 +665,9 @@ input goerli_OriginMessage_filter {
   message_not_in: [goerli_Bytes!]
   message_contains: goerli_Bytes
   message_not_contains: goerli_Bytes
-  """Filter for the block changed event."""
+  """
+  Filter for the block changed event.
+  """
   _change_block: goerli_BlockChangedFilter
 }
 
@@ -907,7 +927,9 @@ input goerli_OriginTransfer_filter {
   blockNumber_lte: BigInt
   blockNumber_in: [BigInt!]
   blockNumber_not_in: [BigInt!]
-  """Filter for the block changed event."""
+  """
+  Filter for the block changed event.
+  """
   _change_block: goerli_BlockChangedFilter
 }
 
@@ -1282,7 +1304,9 @@ type Query {
     """
     subgraphError: _SubgraphErrorPolicy_! = deny
   ): [goerli_RootMessage!]!
-  """Access to subgraph metadata"""
+  """
+  Access to subgraph metadata
+  """
   goerli__meta(block: goerli_Block_height): goerli__Meta_
 }
 
@@ -1311,7 +1335,9 @@ input goerli_Relayer_filter {
   relayer_not_in: [goerli_Bytes!]
   relayer_contains: goerli_Bytes
   relayer_not_contains: goerli_Bytes
-  """Filter for the block changed event."""
+  """
+  Filter for the block changed event.
+  """
   _change_block: goerli_BlockChangedFilter
 }
 
@@ -1409,7 +1435,9 @@ input goerli_RootMessage_filter {
   blockNumber_lte: BigInt
   blockNumber_in: [BigInt!]
   blockNumber_not_in: [BigInt!]
-  """Filter for the block changed event."""
+  """
+  Filter for the block changed event.
+  """
   _change_block: goerli_BlockChangedFilter
 }
 
@@ -1433,7 +1461,13 @@ type goerli_Router {
   recipient: goerli_Bytes
   proposedOwner: goerli_Bytes
   proposedTimestamp: BigInt
-  assetBalances(skip: Int = 0, first: Int = 100, orderBy: goerli_AssetBalance_orderBy, orderDirection: goerli_OrderDirection, where: goerli_AssetBalance_filter): [goerli_AssetBalance!]!
+  assetBalances(
+    skip: Int = 0
+    first: Int = 100
+    orderBy: goerli_AssetBalance_orderBy
+    orderDirection: goerli_OrderDirection
+    where: goerli_AssetBalance_filter
+  ): [goerli_AssetBalance!]!
 }
 
 input goerli_Router_filter {
@@ -1476,7 +1510,9 @@ input goerli_Router_filter {
   proposedTimestamp_in: [BigInt!]
   proposedTimestamp_not_in: [BigInt!]
   assetBalances_: goerli_AssetBalance_filter
-  """Filter for the block changed event."""
+  """
+  Filter for the block changed event.
+  """
   _change_block: goerli_BlockChangedFilter
 }
 
@@ -1519,7 +1555,9 @@ input goerli_Setting_filter {
   caller_not_in: [goerli_Bytes!]
   caller_contains: goerli_Bytes
   caller_not_contains: goerli_Bytes
-  """Filter for the block changed event."""
+  """
+  Filter for the block changed event.
+  """
   _change_block: goerli_BlockChangedFilter
 }
 
@@ -1549,7 +1587,9 @@ input goerli_SponsorVault_filter {
   sponsorVault_not_in: [goerli_Bytes!]
   sponsorVault_contains: goerli_Bytes
   sponsorVault_not_contains: goerli_Bytes
-  """Filter for the block changed event."""
+  """
+  Filter for the block changed event.
+  """
   _change_block: goerli_BlockChangedFilter
 }
 
@@ -1594,7 +1634,9 @@ input goerli_StableSwap_filter {
   swapPool_not_in: [goerli_Bytes!]
   swapPool_contains: goerli_Bytes
   swapPool_not_contains: goerli_Bytes
-  """Filter for the block changed event."""
+  """
+  Filter for the block changed event.
+  """
   _change_block: goerli_BlockChangedFilter
 }
 
@@ -1944,7 +1986,9 @@ type Subscription {
     """
     subgraphError: _SubgraphErrorPolicy_! = deny
   ): [goerli_RootMessage!]!
-  """Access to subgraph metadata"""
+  """
+  Access to subgraph metadata
+  """
   goerli__meta(block: goerli_Block_height): goerli__Meta_
 }
 
@@ -1957,32 +2001,45 @@ enum goerli_TransferStatus {
 }
 
 type goerli__Block_ {
-  """The hash of the block"""
+  """
+  The hash of the block
+  """
   hash: goerli_Bytes
-  """The block number"""
+  """
+  The block number
+  """
   number: Int!
-  """Timestamp of the block if available, format depends on the chain"""
+  """
+  Timestamp of the block if available, format depends on the chain
+  """
   timestamp: String
 }
 
-"""The type for the top-level _meta field"""
+"""
+The type for the top-level _meta field
+"""
 type goerli__Meta_ {
   """
   Information about a specific subgraph block. The hash of the block
   will be null if the _meta field has a block constraint that asks for
   a block number. It will be filled if the _meta field has no block constraint
   and therefore asks for the latest  block
-  
   """
   block: goerli__Block_!
-  """The deployment ID"""
+  """
+  The deployment ID
+  """
   deployment: String!
-  """If `true`, the subgraph encountered indexing errors at some past block"""
+  """
+  If `true`, the subgraph encountered indexing errors at some past block
+  """
   hasIndexingErrors: Boolean!
 }
 
 enum _SubgraphErrorPolicy_ {
-  """Data will be returned even if the subgraph has indexing errors"""
+  """
+  Data will be returned even if the subgraph has indexing errors
+  """
   allow
   """
   If the subgraph has indexing errors, data will be omitted. The default.

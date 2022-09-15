@@ -98,13 +98,15 @@ contract BaseConnextFacet {
    */
   function _calculateTransferId(
     CallParams memory _params,
+    uint256 _normalizedIn,
     uint256 _amount,
     uint256 _nonce,
     bytes32 _canonicalId,
     uint32 _canonicalDomain,
     address _originSender
   ) internal pure returns (bytes32) {
-    return keccak256(abi.encode(_nonce, _params, _originSender, _canonicalId, _canonicalDomain, _amount));
+    return
+      keccak256(abi.encode(_nonce, _params, _originSender, _canonicalId, _canonicalDomain, _amount, _normalizedIn));
   }
 
   /**

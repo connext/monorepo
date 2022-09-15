@@ -39,12 +39,11 @@
   "function delay() view returns (uint256)",
   "function diamondCut(tuple(address,uint8,bytes4[])[],address,bytes)",
   "function domain() view returns (uint256)",
-  "function execute(tuple(tuple(address,bytes,uint32,uint32,address,bool,uint256),address,address[],bytes[],address,bytes,uint256,uint256,address)) returns (bytes32)",
+  "function execute(tuple(tuple(address,bytes,uint32,uint32,address,bool,uint256),address,address[],bytes[],address,bytes,uint256,uint256,uint256,address)) returns (bytes32)",
   "function facetAddress(bytes4) view returns (address)",
   "function facetAddresses() view returns (address[])",
   "function facetFunctionSelectors(address) view returns (bytes4[])",
   "function facets() view returns (tuple(address,bytes4[])[])",
-  "function forceReceiveLocal(tuple(address,bytes,uint32,uint32,address,bool,uint256),uint256,uint256,bytes32,uint32,address) payable",
   "function getAavePortalDebt(bytes32) view returns (uint256)",
   "function getAavePortalFeeDebt(bytes32) view returns (uint256)",
   "function getProposedRouterOwner(address) view returns (address)",
@@ -94,8 +93,8 @@
   "function removeSwapLiquidityOneToken(bytes32,uint256,uint8,uint256,uint256) returns (uint256)",
   "function renounceOwnership()",
   "function renounced() view returns (bool)",
-  "function repayAavePortal(tuple(address,bytes,uint32,uint32,address,bool,uint256),address,address,uint256,uint256,uint256,uint256,uint256)",
-  "function repayAavePortalFor(tuple(address,bytes,uint32,uint32,address,bool,uint256),address,address,uint256,uint256,uint256,uint256)",
+  "function repayAavePortal(tuple(address,bytes,uint32,uint32,address,bool,uint256),tuple(address,uint256,uint256,uint256,bytes32,uint32),uint256,uint256,uint256)",
+  "function repayAavePortalFor(tuple(address,bytes,uint32,uint32,address,bool,uint256),address,address,uint256,uint256,uint256,uint256,uint256)",
   "function rescindDiamondCut(tuple(address,uint8,bytes4[])[],address,bytes)",
   "function routedTransfers(bytes32) view returns (address[])",
   "function routerBalances(address,address) view returns (uint256)",
@@ -122,5 +121,6 @@
   "function unapproveRouterForPortal(address)",
   "function unpause()",
   "function withdrawSwapAdminFees(bytes32)",
-  "function xcall(tuple(tuple(address,bytes,uint32,address,bool,uint256),address,uint256,uint256)) payable returns (bytes32)"
+  "function xcall(tuple(tuple(address,bytes,uint32,address,uint256),address,uint256)) payable returns (bytes32)",
+  "function xcallIntoLocal(tuple(tuple(address,bytes,uint32,address,uint256),address,uint256)) payable returns (bytes32)"
 ]

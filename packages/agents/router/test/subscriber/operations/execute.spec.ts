@@ -33,6 +33,14 @@ describe("Operations:Execute", () => {
       const localAsset = await getDestinationLocalAsset(mock.chain.A, mock.asset.A.address, mock.chain.B);
       expect(localAsset).to.be.eq(mockLocalAsset);
     });
+    it("should return native asset if origin transacting asset is native asset", async () => {
+      const mockLocalAsset = constants.AddressZero;
+      (mockSubContext.adapters.subgraph.getAssetByLocal as SinonStub).resolves({ canonicalId: "0x123" });
+      (mockSubContext.adapters.subgraph.getAssetByCanonicalId as SinonStub).resolves({ local: mockLocalAsset });
+
+      const localAsset = await getDestinationLocalAsset(mock.chain.A, mock.asset.A.address, mock.chain.B);
+      expect(localAsset).to.be.eq(constants.AddressZero);
+    });
   });
 
   describe("#sendBid", () => {

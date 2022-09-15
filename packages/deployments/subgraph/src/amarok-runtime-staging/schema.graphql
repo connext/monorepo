@@ -165,6 +165,7 @@ type OriginMessage @entity {
   index: BigInt
   root: Bytes
   message: Bytes
+  transactionHash: Bytes
 }
 
 type DestinationMessage @entity {
@@ -174,9 +175,26 @@ type DestinationMessage @entity {
   leaf: Bytes
   processed: Boolean
   returnData: Bytes
+  transactionHash: Bytes
 }
 
 type AggregateRoot @entity {
   id: ID!
   root: Bytes!
+}
+
+type RootMessage @entity {
+  id: ID!
+
+  data: Bytes
+
+  # MessageSent/MessageProcessed Transaction
+  caller: Bytes
+  transactionHash: Bytes
+  logIndex: BigInt
+  transactionLogIndex: BigInt
+  timestamp: BigInt
+  gasPrice: BigInt
+  gasLimit: BigInt
+  blockNumber: BigInt
 }

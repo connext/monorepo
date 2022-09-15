@@ -5,7 +5,7 @@ import {IERC20} from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 
 import {RelayerFeeRouter} from "../../relayer-fee/RelayerFeeRouter.sol";
 
-import {XCallArgs, ExecuteArgs, CallParams, TokenId} from "../libraries/LibConnextStorage.sol";
+import {XCallArgs, ExecuteArgs, CallParams, TokenId, TransferIdGenerationInformation} from "../libraries/LibConnextStorage.sol";
 import {LibDiamond} from "../libraries/LibDiamond.sol";
 import {SwapUtils} from "../libraries/SwapUtils.sol";
 
@@ -74,18 +74,11 @@ interface IConnextHandler is IDiamondLoupe, IDiamondCut {
 
   function xcall(XCallArgs calldata _args) external payable returns (bytes32);
 
+  function xcallIntoLocal(XCallArgs calldata _args) external payable returns (bytes32);
+
   function execute(ExecuteArgs calldata _args) external returns (bytes32 transferId);
 
   function bumpTransfer(bytes32 _transferId) external payable;
-
-  function forceReceiveLocal(
-    CallParams calldata _params,
-    uint256 _amount,
-    uint256 _nonce,
-    bytes32 _canonicalId,
-    uint32 _canonicalDomain,
-    address _originSender
-  ) external payable;
 
   // NomadFacet
   function bridgeRouter() external view returns (IBridgeRouter);
@@ -240,10 +233,7 @@ interface IConnextHandler is IDiamondLoupe, IDiamondCut {
 
   function repayAavePortal(
     CallParams calldata _params,
-    address _local,
-    address _originSender,
-    uint256 _bridgedAmt,
-    uint256 _nonce,
+    TransferIdGenerationInformation calldata _idInfo,
     uint256 _backingAmount,
     uint256 _feeAmount,
     uint256 _maxIn
@@ -253,6 +243,7 @@ interface IConnextHandler is IDiamondLoupe, IDiamondCut {
     CallParams calldata _params,
     address _adopted,
     address _originSender,
+    uint256 _normalizedIn,
     uint256 _bridgedAmt,
     uint256 _nonce,
     uint256 _backingAmount,

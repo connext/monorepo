@@ -591,11 +591,6 @@ const _abi = [
   },
   {
     inputs: [],
-    name: "BridgeFacet__forceReceiveLocal_invalidSender",
-    type: "error",
-  },
-  {
-    inputs: [],
     name: "BridgeFacet__handleExecuteTransaction_invalidSponsoredAmount",
     type: "error",
   },
@@ -616,12 +611,7 @@ const _abi = [
   },
   {
     inputs: [],
-    name: "BridgeFacet__xcall_invalidSlippageTol",
-    type: "error",
-  },
-  {
-    inputs: [],
-    name: "BridgeFacet__xcall_missingAgent",
+    name: "BridgeFacet__xcall_invalidSlippage",
     type: "error",
   },
   {
@@ -741,7 +731,7 @@ const _abi = [
               },
               {
                 internalType: "uint256",
-                name: "destinationMinOut",
+                name: "slippage",
                 type: "uint256",
               },
             ],
@@ -782,6 +772,11 @@ const _abi = [
           {
             internalType: "uint256",
             name: "nonce",
+            type: "uint256",
+          },
+          {
+            internalType: "uint256",
+            name: "normalizedIn",
             type: "uint256",
           },
           {
@@ -840,37 +835,6 @@ const _abi = [
       },
     ],
     name: "ExternalCalldataExecuted",
-    type: "event",
-  },
-  {
-    anonymous: false,
-    inputs: [
-      {
-        indexed: true,
-        internalType: "bytes32",
-        name: "transferId",
-        type: "bytes32",
-      },
-      {
-        indexed: true,
-        internalType: "bytes32",
-        name: "canonicalId",
-        type: "bytes32",
-      },
-      {
-        indexed: false,
-        internalType: "uint32",
-        name: "canonicalDomain",
-        type: "uint32",
-      },
-      {
-        indexed: false,
-        internalType: "uint256",
-        name: "amount",
-        type: "uint256",
-      },
-    ],
-    name: "ForcedReceiveLocal",
     type: "event",
   },
   {
@@ -960,68 +924,63 @@ const _abi = [
       {
         components: [
           {
-            components: [
-              {
-                internalType: "address",
-                name: "to",
-                type: "address",
-              },
-              {
-                internalType: "bytes",
-                name: "callData",
-                type: "bytes",
-              },
-              {
-                internalType: "uint32",
-                name: "destinationDomain",
-                type: "uint32",
-              },
-              {
-                internalType: "address",
-                name: "agent",
-                type: "address",
-              },
-              {
-                internalType: "bool",
-                name: "receiveLocal",
-                type: "bool",
-              },
-              {
-                internalType: "uint256",
-                name: "destinationMinOut",
-                type: "uint256",
-              },
-            ],
-            internalType: "struct UserFacingCallParams",
-            name: "params",
-            type: "tuple",
-          },
-          {
             internalType: "address",
-            name: "asset",
+            name: "to",
             type: "address",
           },
           {
-            internalType: "uint256",
-            name: "amount",
-            type: "uint256",
+            internalType: "bytes",
+            name: "callData",
+            type: "bytes",
+          },
+          {
+            internalType: "uint32",
+            name: "originDomain",
+            type: "uint32",
+          },
+          {
+            internalType: "uint32",
+            name: "destinationDomain",
+            type: "uint32",
+          },
+          {
+            internalType: "address",
+            name: "agent",
+            type: "address",
+          },
+          {
+            internalType: "bool",
+            name: "receiveLocal",
+            type: "bool",
           },
           {
             internalType: "uint256",
-            name: "originMinOut",
+            name: "slippage",
             type: "uint256",
           },
         ],
         indexed: false,
-        internalType: "struct XCallArgs",
-        name: "xcallArgs",
+        internalType: "struct CallParams",
+        name: "params",
         type: "tuple",
+      },
+      {
+        indexed: false,
+        internalType: "address",
+        name: "asset",
+        type: "address",
       },
       {
         indexed: false,
         internalType: "address",
         name: "bridgedAsset",
         type: "address",
+      },
+      {
+        indexed: false,
+        internalType: "uint256",
+        name: "amount",
+        type: "uint256",
       },
       {
         indexed: false,
@@ -1185,7 +1144,7 @@ const _abi = [
               },
               {
                 internalType: "uint256",
-                name: "destinationMinOut",
+                name: "slippage",
                 type: "uint256",
               },
             ],
@@ -1229,6 +1188,11 @@ const _abi = [
             type: "uint256",
           },
           {
+            internalType: "uint256",
+            name: "normalizedIn",
+            type: "uint256",
+          },
+          {
             internalType: "address",
             name: "originSender",
             type: "address",
@@ -1247,81 +1211,6 @@ const _abi = [
         type: "bytes32",
       },
     ],
-    stateMutability: "nonpayable",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
-        components: [
-          {
-            internalType: "address",
-            name: "to",
-            type: "address",
-          },
-          {
-            internalType: "bytes",
-            name: "callData",
-            type: "bytes",
-          },
-          {
-            internalType: "uint32",
-            name: "originDomain",
-            type: "uint32",
-          },
-          {
-            internalType: "uint32",
-            name: "destinationDomain",
-            type: "uint32",
-          },
-          {
-            internalType: "address",
-            name: "agent",
-            type: "address",
-          },
-          {
-            internalType: "bool",
-            name: "receiveLocal",
-            type: "bool",
-          },
-          {
-            internalType: "uint256",
-            name: "destinationMinOut",
-            type: "uint256",
-          },
-        ],
-        internalType: "struct CallParams",
-        name: "_params",
-        type: "tuple",
-      },
-      {
-        internalType: "uint256",
-        name: "_amount",
-        type: "uint256",
-      },
-      {
-        internalType: "uint256",
-        name: "_nonce",
-        type: "uint256",
-      },
-      {
-        internalType: "bytes32",
-        name: "_canonicalId",
-        type: "bytes32",
-      },
-      {
-        internalType: "uint32",
-        name: "_canonicalDomain",
-        type: "uint32",
-      },
-      {
-        internalType: "address",
-        name: "_originSender",
-        type: "address",
-      },
-    ],
-    name: "forceReceiveLocal",
-    outputs: [],
     stateMutability: "nonpayable",
     type: "function",
   },
@@ -1435,13 +1324,8 @@ const _abi = [
                 type: "address",
               },
               {
-                internalType: "bool",
-                name: "receiveLocal",
-                type: "bool",
-              },
-              {
                 internalType: "uint256",
-                name: "destinationMinOut",
+                name: "slippage",
                 type: "uint256",
               },
             ],
@@ -1459,9 +1343,67 @@ const _abi = [
             name: "amount",
             type: "uint256",
           },
+        ],
+        internalType: "struct XCallArgs",
+        name: "_args",
+        type: "tuple",
+      },
+    ],
+    name: "xcall",
+    outputs: [
+      {
+        internalType: "bytes32",
+        name: "",
+        type: "bytes32",
+      },
+    ],
+    stateMutability: "payable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        components: [
+          {
+            components: [
+              {
+                internalType: "address",
+                name: "to",
+                type: "address",
+              },
+              {
+                internalType: "bytes",
+                name: "callData",
+                type: "bytes",
+              },
+              {
+                internalType: "uint32",
+                name: "destinationDomain",
+                type: "uint32",
+              },
+              {
+                internalType: "address",
+                name: "agent",
+                type: "address",
+              },
+              {
+                internalType: "uint256",
+                name: "slippage",
+                type: "uint256",
+              },
+            ],
+            internalType: "struct UserFacingCallParams",
+            name: "params",
+            type: "tuple",
+          },
+          {
+            internalType: "address",
+            name: "asset",
+            type: "address",
+          },
           {
             internalType: "uint256",
-            name: "originMinOut",
+            name: "amount",
             type: "uint256",
           },
         ],
@@ -1470,7 +1412,7 @@ const _abi = [
         type: "tuple",
       },
     ],
-    name: "xcall",
+    name: "xcallIntoLocal",
     outputs: [
       {
         internalType: "bytes32",
@@ -1930,6 +1872,12 @@ const _abi = [
       },
       {
         indexed: false,
+        internalType: "uint32",
+        name: "originDomain",
+        type: "uint32",
+      },
+      {
+        indexed: false,
         internalType: "address[]",
         name: "routers",
         type: "address[]",
@@ -1983,12 +1931,12 @@ const _abi = [
       },
       {
         internalType: "uint32",
-        name: "_tokenDomain",
+        name: "",
         type: "uint32",
       },
       {
         internalType: "bytes32",
-        name: "_tokenAddress",
+        name: "",
         type: "bytes32",
       },
       {
@@ -2202,7 +2150,7 @@ const _abi = [
           },
           {
             internalType: "uint256",
-            name: "destinationMinOut",
+            name: "slippage",
             type: "uint256",
           },
         ],
@@ -2211,24 +2159,41 @@ const _abi = [
         type: "tuple",
       },
       {
-        internalType: "address",
-        name: "_local",
-        type: "address",
-      },
-      {
-        internalType: "address",
-        name: "_originSender",
-        type: "address",
-      },
-      {
-        internalType: "uint256",
-        name: "_bridgedAmt",
-        type: "uint256",
-      },
-      {
-        internalType: "uint256",
-        name: "_nonce",
-        type: "uint256",
+        components: [
+          {
+            internalType: "address",
+            name: "originSender",
+            type: "address",
+          },
+          {
+            internalType: "uint256",
+            name: "bridgedAmt",
+            type: "uint256",
+          },
+          {
+            internalType: "uint256",
+            name: "normalizedIn",
+            type: "uint256",
+          },
+          {
+            internalType: "uint256",
+            name: "nonce",
+            type: "uint256",
+          },
+          {
+            internalType: "bytes32",
+            name: "canonicalId",
+            type: "bytes32",
+          },
+          {
+            internalType: "uint32",
+            name: "canonicalDomain",
+            type: "uint32",
+          },
+        ],
+        internalType: "struct TransferIdGenerationInformation",
+        name: "_idInfo",
+        type: "tuple",
       },
       {
         internalType: "uint256",
@@ -2287,7 +2252,7 @@ const _abi = [
           },
           {
             internalType: "uint256",
-            name: "destinationMinOut",
+            name: "slippage",
             type: "uint256",
           },
         ],
@@ -2304,6 +2269,11 @@ const _abi = [
         internalType: "address",
         name: "_originSender",
         type: "address",
+      },
+      {
+        internalType: "uint256",
+        name: "_normalizedIn",
+        type: "uint256",
       },
       {
         internalType: "uint256",

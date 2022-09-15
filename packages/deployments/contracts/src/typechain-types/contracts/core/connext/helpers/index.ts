@@ -9,5 +9,4 @@ export type { LPToken } from "./LPToken";
 export type { Multicall } from "./Multicall";
 export type { OwnerPausableUpgradeable } from "./OwnerPausableUpgradeable";
 export type { PriceOracle } from "./PriceOracle";
-export type { SponsorVault } from "./SponsorVault";
 export type { StableSwap } from "./StableSwap";

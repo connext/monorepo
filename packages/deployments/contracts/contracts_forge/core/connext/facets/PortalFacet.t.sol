@@ -9,7 +9,7 @@ import {IDiamondCut} from "../../../../contracts/core/connext/interfaces/IDiamon
 
 import {BaseConnextFacet} from "../../../../contracts/core/connext/facets/BaseConnextFacet.sol";
 import {LibDiamond} from "../../../../contracts/core/connext/libraries/LibDiamond.sol";
-import {CallParams} from "../../../../contracts/core/connext/libraries/LibConnextStorage.sol";
+import {CallParams, TransferIdGenerationInformation} from "../../../../contracts/core/connext/libraries/LibConnextStorage.sol";
 import {PortalFacet} from "../../../../contracts/core/connext/facets/PortalFacet.sol";
 import {TestAavePool} from "../../../../contracts/test/TestAavePool.sol";
 import {TestERC20} from "../../../../contracts/test/TestERC20.sol";
@@ -70,7 +70,7 @@ contract PortalFacetTest is PortalFacet, FacetHelper {
   // ============ Test utils ============
 
   function utils_calculateTransferId() public returns (bytes32) {
-    return keccak256(abi.encode(nonce, params, originSender, _canonicalId, _canonicalDomain, bridgedAmt));
+    return keccak256(abi.encode(nonce, params, originSender, _canonicalId, _canonicalDomain, bridgedAmt, bridgedAmt));
   }
 
   function utils_repayPortal(
@@ -79,7 +79,13 @@ contract PortalFacetTest is PortalFacet, FacetHelper {
     uint256 _feeAmount,
     uint256 _maxIn
   ) public {
-    this.repayAavePortal(p, _local, originSender, bridgedAmt, nonce, _backingAmount, _feeAmount, _maxIn);
+    this.repayAavePortal(
+      p,
+      TransferIdGenerationInformation(originSender, bridgedAmt, bridgedAmt, nonce, _canonicalId, _canonicalDomain),
+      _backingAmount,
+      _feeAmount,
+      _maxIn
+    );
   }
 
   function utils_repayPortalFor(
@@ -88,7 +94,7 @@ contract PortalFacetTest is PortalFacet, FacetHelper {
     uint256 _backingAmount,
     uint256 _feeAmount
   ) public {
-    this.repayAavePortalFor(p, _adopted, originSender, bridgedAmt, nonce, _backingAmount, _feeAmount);
+    this.repayAavePortalFor(p, _adopted, originSender, bridgedAmt, bridgedAmt, nonce, _backingAmount, _feeAmount);
   }
 
   // ============ setAavePool ============

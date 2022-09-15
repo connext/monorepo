@@ -108,8 +108,6 @@ export type { OwnerPausableUpgradeable } from "./contracts/core/connext/helpers/
 export { OwnerPausableUpgradeable__factory } from "./factories/contracts/core/connext/helpers/OwnerPausableUpgradeable__factory";
 export type { PriceOracle } from "./contracts/core/connext/helpers/PriceOracle";
 export { PriceOracle__factory } from "./factories/contracts/core/connext/helpers/PriceOracle__factory";
-export type { SponsorVault } from "./contracts/core/connext/helpers/SponsorVault";
-export { SponsorVault__factory } from "./factories/contracts/core/connext/helpers/SponsorVault__factory";
 export type { StableSwap } from "./contracts/core/connext/helpers/StableSwap";
 export { StableSwap__factory } from "./factories/contracts/core/connext/helpers/StableSwap__factory";
 export type { IAavePool } from "./contracts/core/connext/interfaces/IAavePool";
@@ -132,8 +130,6 @@ export type { IGasTokenOracle } from "./contracts/core/connext/interfaces/IGasTo
 export { IGasTokenOracle__factory } from "./factories/contracts/core/connext/interfaces/IGasTokenOracle__factory";
 export type { IPriceOracle } from "./contracts/core/connext/interfaces/IPriceOracle";
 export { IPriceOracle__factory } from "./factories/contracts/core/connext/interfaces/IPriceOracle__factory";
-export type { ISponsorVault } from "./contracts/core/connext/interfaces/ISponsorVault";
-export { ISponsorVault__factory } from "./factories/contracts/core/connext/interfaces/ISponsorVault__factory";
 export type { IStableSwap } from "./contracts/core/connext/interfaces/IStableSwap";
 export { IStableSwap__factory } from "./factories/contracts/core/connext/interfaces/IStableSwap__factory";
 export type { ITokenExchange } from "./contracts/core/connext/interfaces/ITokenExchange";
@@ -154,10 +150,6 @@ export type { SwapUtils } from "./contracts/core/connext/libraries/SwapUtils";
 export { SwapUtils__factory } from "./factories/contracts/core/connext/libraries/SwapUtils__factory";
 export type { SwapUtilsExternal } from "./contracts/core/connext/libraries/SwapUtilsExternal";
 export { SwapUtilsExternal__factory } from "./factories/contracts/core/connext/libraries/SwapUtilsExternal__factory";
-export type { ICallback } from "./contracts/core/promise/interfaces/ICallback";
-export { ICallback__factory } from "./factories/contracts/core/promise/interfaces/ICallback__factory";
-export type { PromiseRouter } from "./contracts/core/promise/PromiseRouter";
-export { PromiseRouter__factory } from "./factories/contracts/core/promise/PromiseRouter__factory";
 export type { RelayerFeeRouter } from "./contracts/core/relayer-fee/RelayerFeeRouter";
 export { RelayerFeeRouter__factory } from "./factories/contracts/core/relayer-fee/RelayerFeeRouter__factory";
 export type { Router } from "./contracts/core/Router";

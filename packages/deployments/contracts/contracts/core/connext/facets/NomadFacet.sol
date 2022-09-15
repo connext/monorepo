@@ -6,7 +6,6 @@ import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
 import {TypedMemView} from "../../../shared/libraries/TypedMemView.sol";
 
-import {TransferIdInformation} from "../libraries/LibConnextStorage.sol";
 import {AssetLogic} from "../libraries/AssetLogic.sol";
 
 import {IAavePool} from "../interfaces/IAavePool.sol";
@@ -37,12 +36,20 @@ contract NomadFacet is BaseConnextFacet, IBridgeHook {
   /**
    * @notice Emitted when `reconciled` is called by the bridge on the destination domain
    * @param transferId - The unique identifier of the crosschain transaction
+   * @param originDomain - The originating domain
    * @param routers - The CallParams.recipient provided, created as indexed parameter
    * @param asset - The asset that was provided by the bridge
    * @param amount - The amount that was provided by the bridge
    * @param caller - The account that called the function
    */
-  event Reconciled(bytes32 indexed transferId, address[] routers, address asset, uint256 amount, address caller);
+  event Reconciled(
+    bytes32 indexed transferId,
+    uint32 originDomain,
+    address[] routers,
+    address asset,
+    uint256 amount,
+    address caller
+  );
 
   /**
    * @notice Emitted when the bridgeRouter variable is updated
@@ -95,8 +102,6 @@ contract NomadFacet is BaseConnextFacet, IBridgeHook {
    *
    * @param _origin - The origin domain
    * @param _sender - The msg.sender of the original bridge call on origin domain
-   * @param _tokenDomain - The canonical domain of the token
-   * @param _tokenAddress - The canonical identifier of the token
    * @param _localToken - The address of the token representation on this domain, or the canonical
    * address if you are on the canonical domain
    * @param _amount - The amount bridged
@@ -105,8 +110,8 @@ contract NomadFacet is BaseConnextFacet, IBridgeHook {
   function onReceive(
     uint32 _origin,
     bytes32 _sender,
-    uint32 _tokenDomain, // of canonical token not used
-    bytes32 _tokenAddress, // of canonical token
+    uint32, // _tokenDomain of canonical token not used
+    bytes32, // _tokenAddress of canonical token
     address _localToken,
     uint256 _amount,
     bytes memory _extraData
@@ -116,20 +121,8 @@ contract NomadFacet is BaseConnextFacet, IBridgeHook {
       revert NomadFacet__reconcile_notConnext();
     }
 
-    // Calculate the transfer id
-    // NOTE: Rather than sending the transferId through directly, recalculate the information here, to ensure
-    // it was transported correctly to ensure all xcall, execute, and reconcile data must match. The sender
-    // is asserted to be the connext contract on that domain, so this check could be unneccessary, but since
-    // the implications of incorrectly transferred data are severe
-    TransferIdInformation memory info = abi.decode(_extraData, (TransferIdInformation));
-    bytes32 transferId = _calculateTransferId(
-      info.params,
-      _amount,
-      info.nonce,
-      _tokenAddress,
-      _tokenDomain,
-      info.originSender
-    );
+    // Get the transfer id
+    bytes32 transferId = bytes32(_extraData);
 
     // Ensure the transaction has not already been handled (i.e. previously reconciled).
     if (s.reconciledTransfers[transferId]) {
@@ -171,6 +164,6 @@ contract NomadFacet is BaseConnextFacet, IBridgeHook {
       s.routerBalances[routers[pathLen - 1]][_localToken] += toSweep;
     }
 
-    emit Reconciled(transferId, routers, _localToken, _amount, msg.sender);
+    emit Reconciled(transferId, _origin, routers, _localToken, _amount, msg.sender);
   }
 }

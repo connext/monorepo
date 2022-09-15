@@ -43,7 +43,7 @@ export const pollCartographer = async () => {
           routers: [],
           routerSignatures: [],
           sequencer: constants.AddressZero,
-          sequencerSignature: "",
+          sequencerSignature: "0x",
           amount: xTransfer.destination!.assets.local.amount.toString(),
           nonce: xTransfer.nonce!,
           originSender: xTransfer.origin!.xcall.caller,

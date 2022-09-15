@@ -105,6 +105,10 @@ contract TokenRegistry is Initializable, XAppConnectionClient, ITokenRegistry {
    * @return _token the address of the local token contract
    */
   function ensureLocalToken(uint32 _domain, bytes32 _id) external override returns (address _token) {
+    // IF the domain and id are empty then the _token should be address(0)
+    if (_domain == 0 && _id == bytes32(0)) {
+      return address(0);
+    }
     _token = getLocalAddress(_domain, _id);
     if (_token == address(0)) {
       // Representation does not exist yet;

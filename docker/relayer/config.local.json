@@ -12,12 +12,12 @@
     "1337": {
       "providers": ["http://chain-1337:8545"],
       "deployments": {
-        "connext": "0x98d9f9e8DEbd4A632682ba207670d2a5ACD3c489"
+        "connext": "0x1411CB266FCEd1587b0AA29E9d5a9Ef3Db64A9C5"
       },
       "assets": [
         {
           "name": "TEST",
-          "address": "0x855d1c79Ad3fb086D516554Dc7187E3Fdfc1C79a"
+          "address": "0x8065F4c7b8c2bf53561af92D9DA2Ea022A0b28Ca"
         }
       ]
     },

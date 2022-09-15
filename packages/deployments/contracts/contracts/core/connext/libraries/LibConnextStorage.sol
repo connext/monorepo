@@ -19,17 +19,6 @@ struct TokenId {
 }
 
 /**
- * @notice Contains all information needed to calculate transfer id within the
- * `onReceive` hook from nomad.
- * @dev This excludes information that is included within that interface
- */
-struct TransferIdInformation {
-  CallParams params;
-  uint256 nonce;
-  address originSender;
-}
-
-/**
  * @dev FIXME: When we are at the point where we want to fix the xcall interface
  * by removing the struct-based arguments, remove this and keep the CallParams below
  *
@@ -40,8 +29,7 @@ struct UserFacingCallParams {
   bytes callData;
   uint32 destinationDomain;
   address agent;
-  bool receiveLocal;
-  uint256 destinationMinOut;
+  uint256 slippage;
 }
 
 /**
@@ -56,8 +44,11 @@ struct UserFacingCallParams {
  * @param destinationDomain - The final domain (i.e. where `execute` / `reconcile` are called). Must match nomad domain schema
  * @param agent - An address who can execute txs on behalf of `to`, in addition to allowing relayers
  * @param receiveLocal - If true, will use the local nomad asset on the destination instead of adopted.
- * @param destinationMinOut - Minimum amount received on swaps for local <> adopted on destination chain.
+ * @param slippage - Slippage user is willing to accept from original amount in expressed in BPS (i.e. if
+ * a user takes 1% slippage, this is expressed as 1_000)
  */
+// FIXME: make this the struct containing all information used to generate a transfer id.
+// should be internal from the perspective of the user
 struct CallParams {
   address to;
   bytes callData;
@@ -65,7 +56,18 @@ struct CallParams {
   uint32 destinationDomain;
   address agent;
   bool receiveLocal;
-  uint256 destinationMinOut;
+  uint256 slippage;
+}
+
+// FIXME: this should be moved into the CallParams struct
+// used in PortalFacet to fix stack too deep errors
+struct TransferIdGenerationInformation {
+  address originSender;
+  uint256 bridgedAmt;
+  uint256 normalizedIn;
+  uint256 nonce;
+  bytes32 canonicalId;
+  uint32 canonicalDomain;
 }
 
 /**
@@ -74,13 +76,11 @@ struct CallParams {
  * @param asset - The asset the caller sent with the transfer. Can be the adopted, canonical,
  * or the representational asset.
  * @param amount - The amount of transferring asset supplied by the user in the `xcall`.
- * @param originMinOut - Minimum amount received on swaps for adopted <> local on origin chain
  */
 struct XCallArgs {
   UserFacingCallParams params;
   address asset; // Could be adopted, local, or canonical.
   uint256 amount;
-  uint256 originMinOut;
 }
 
 /**
@@ -94,9 +94,9 @@ struct XCallArgs {
  * @param sequencer - The sequencer who assigned the router path to this transfer.
  * @param sequencerSignature - Signature produced by the sequencer for path assignment accountability
  * for the path that was signed.
- * @param amount - The amount of liquidity the router provided or the bridge forwarded, depending on
- * whether fast liquidity was used.
+ * @param amount - The amount forwarded from the bridge
  * @param nonce - The nonce used to generate transfer ID.
+ * @param normalizedIn - The amount the user sent in on `xcall`, normalized to 18 decimals
  * @param originSender - The msg.sender of the xcall on origin domain.
  */
 struct ExecuteArgs {
@@ -108,6 +108,7 @@ struct ExecuteArgs {
   bytes sequencerSignature;
   uint256 amount;
   uint256 nonce;
+  uint256 normalizedIn;
   address originSender;
 }
 
@@ -237,40 +238,35 @@ struct AppStorage {
   // 18
   IBridgeRouter bridgeRouter;
   /**
-   * @notice Stores whether a transfer has had `receiveLocal` overrides forced
-   */
-  // 19
-  mapping(bytes32 => bool) receiveLocalOverrides;
-  /**
    * @notice Stores a mapping of connext addresses keyed on domains
    * @dev Addresses are cast to bytes32
    */
-  // 20
+  // 19
   mapping(uint32 => bytes32) connextions;
   //
   // ProposedOwnable
   //
-  // 21
+  // 20
   address _proposed;
-  // 22
+  // 21
   uint256 _proposedOwnershipTimestamp;
-  // 23
+  // 22
   bool _routerWhitelistRemoved;
-  // 24
+  // 23
   uint256 _routerWhitelistTimestamp;
-  // 25
+  // 24
   bool _assetWhitelistRemoved;
-  // 26
+  // 25
   uint256 _assetWhitelistTimestamp;
   //
   // RouterFacet
   //
-  // 27
+  // 26
   RouterPermissionsManagerInfo routerPermissionInfo;
   //
   // ReentrancyGuard
   //
-  // 28
+  // 27
   uint256 _status;
   //
   // StableSwap
@@ -281,18 +277,18 @@ struct AppStorage {
    * Struct storing data responsible for automatic market maker functionalities. In order to
    * access this data, this contract uses SwapUtils library. For more details, see SwapUtils.sol
    */
-  // 29
+  // 28
   mapping(bytes32 => SwapUtils.Swap) swapStorages;
   /**
    * @notice Maps token address to an index in the pool. Used to prevent duplicate tokens in the pool.
    * @dev getTokenIndex function also relies on this mapping to retrieve token index.
    */
-  // 30
+  // 29
   mapping(bytes32 => mapping(address => uint8)) tokenIndexes;
   /**
    * @notice Stores whether or not bribing, AMMs, have been paused
    */
-  // 31
+  // 30
   bool _paused;
   //
   // AavePortals
@@ -300,30 +296,30 @@ struct AppStorage {
   /**
    * @notice Address of Aave Pool contract
    */
-  // 32
+  // 31
   address aavePool;
   /**
    * @notice Fee percentage numerator for using Portal liquidity
    * @dev Assumes the same basis points as the liquidity fee
    */
-  // 33
+  // 32
   uint256 aavePortalFeeNumerator;
   /**
    * @notice Mapping to store the transfer liquidity amount provided by Aave Portals
    */
-  // 34
+  // 33
   mapping(bytes32 => uint256) portalDebt;
   /**
    * @notice Mapping to store the transfer liquidity amount provided by Aave Portals
    */
-  // 35
+  // 34
   mapping(bytes32 => uint256) portalFeeDebt;
   /**
    * @notice Mapping of approved sequencers
    * @dev Sequencer address provided must belong to an approved sequencer in order to call `execute`
    * for the fast liquidity route.
    */
-  // 36
+  // 35
   mapping(address => bool) approvedSequencers;
 }
 

@@ -99,7 +99,7 @@ export const destinationTransfer = (entity: any): DestinationTransfer => {
   }
   for (const field of [
     ...SHARED_TRANSFER_ENTITY_REQUIREMENTS,
-    // NOTE: destinationDomain is not emitted by Reconciled event, it could be undefined.
+    "destinationDomain",
     "originDomain",
     "localAmount",
     "localAsset",
