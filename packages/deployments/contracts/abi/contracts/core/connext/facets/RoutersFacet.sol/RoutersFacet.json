@@ -2,6 +2,7 @@
   "error AssetLogic__handleIncomingAsset_nativeAssetNotSupported()",
   "error AssetLogic__handleOutgoingAsset_notNative()",
   "error AssetLogic__transferAssetToContract_feeOnTransferNotSupported()",
+  "error BaseConnextFacet__getAdoptedAsset_notWhitelisted()",
   "error BaseConnextFacet__nonReentrant_reentrantCall()",
   "error BaseConnextFacet__onlyBridgeRouter_notBridgeRouter()",
   "error BaseConnextFacet__onlyOwner_notOwner()",

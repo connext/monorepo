@@ -3,6 +3,8 @@
 /* eslint-disable */
 import type * as connext from "./connext";
 export type { connext };
+import type * as promise from "./promise";
+export type { promise };
 import type * as relayerFee from "./relayer-fee";
 export type { relayerFee };
 export type { Router } from "./Router";

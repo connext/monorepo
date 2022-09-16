@@ -5,7 +5,7 @@ import {IERC20} from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 
 import {RelayerFeeRouter} from "../../relayer-fee/RelayerFeeRouter.sol";
 
-import {XCallArgs, ExecuteArgs, CallParams, TokenId, TransferIdGenerationInformation} from "../libraries/LibConnextStorage.sol";
+import {ExecuteArgs, CallParams, TokenId} from "../libraries/LibConnextStorage.sol";
 import {LibDiamond} from "../libraries/LibDiamond.sol";
 import {SwapUtils} from "../libraries/SwapUtils.sol";
 
@@ -72,11 +72,29 @@ interface IConnextHandler is IDiamondLoupe, IDiamondCut {
 
   function removeSequencer(address _sequencer) external;
 
-  function xcall(XCallArgs calldata _args) external payable returns (bytes32);
+  function xcall(
+    uint32 _destination,
+    address _to,
+    address _asset,
+    address _delegate,
+    uint256 _amount,
+    uint256 _slippage,
+    bytes calldata _callData
+  ) external payable returns (bytes32);
 
-  function xcallIntoLocal(XCallArgs calldata _args) external payable returns (bytes32);
+  function xcallIntoLocal(
+    uint32 _destination,
+    address _to,
+    address _asset,
+    address _delegate,
+    uint256 _amount,
+    uint256 _slippage,
+    bytes calldata _callData
+  ) external payable returns (bytes32);
 
   function execute(ExecuteArgs calldata _args) external returns (bytes32 transferId);
+
+  function forceUpdateSlippage(CallParams calldata _params, uint256 _slippage) external;
 
   function bumpTransfer(bytes32 _transferId) external payable;
 
@@ -233,7 +251,6 @@ interface IConnextHandler is IDiamondLoupe, IDiamondCut {
 
   function repayAavePortal(
     CallParams calldata _params,
-    TransferIdGenerationInformation calldata _idInfo,
     uint256 _backingAmount,
     uint256 _feeAmount,
     uint256 _maxIn
@@ -241,11 +258,6 @@ interface IConnextHandler is IDiamondLoupe, IDiamondCut {
 
   function repayAavePortalFor(
     CallParams calldata _params,
-    address _adopted,
-    address _originSender,
-    uint256 _normalizedIn,
-    uint256 _bridgedAmt,
-    uint256 _nonce,
     uint256 _backingAmount,
     uint256 _feeAmount
   ) external;
