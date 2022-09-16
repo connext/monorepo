@@ -69,6 +69,19 @@ locals {
           }
         ]
       }
+      "9991" = {
+        providers = ["https://rpc.ankr.com/polygon_mumbai", "https://polygon-testnet.blastapi.io/${var.mumbai_blast_key_0}"]
+        assets = [
+          {
+            name    = "TEST"
+            address = "0xeDb95D8037f769B72AAab41deeC92903A98C9E16"
+          },
+          {
+            name    = "WETH"
+            address = "0x1E5341E4b7ed5D0680d9066aac0396F0b1bD1E69"
+          }
+        ]
+      }
     }
     web3SignerUrl = "https://${module.sequencer_web3signer.service_endpoint}"
     environment   = var.stage
@@ -162,6 +175,19 @@ locals {
           }
         ]
       }
+      "9991" = {
+        providers = ["https://rpc.ankr.com/polygon_mumbai", "https://polygon-testnet.blastapi.io/${var.mumbai_blast_key_0}"]
+        assets = [
+          {
+            name    = "TEST"
+            address = "0xeDb95D8037f769B72AAab41deeC92903A98C9E16"
+          },
+          {
+            name    = "WETH"
+            address = "0x1E5341E4b7ed5D0680d9066aac0396F0b1bD1E69"
+          }
+        ]
+      }
     }
     cartographerUrl  = "https://postgrest.testnet.connext.ninja"
     web3SignerUrl    = "https://${module.router_web3signer.service_endpoint}"
@@ -180,6 +206,9 @@ locals {
       }
       "1735353714" = {
         providers = ["https://eth-goerli.alchemyapi.io/v2/${var.goerli_alchemy_key_1}", "https://rpc.ankr.com/eth_goerli"]
+      }
+      "9991" = {
+        providers = ["https://rpc.ankr.com/polygon_mumbai", "https://polygon-testnet.blastapi.io/${var.mumbai_blast_key_0}"]
       }
     }
     environment = var.stage
