@@ -400,19 +400,19 @@ contract ConnextTest is ForgeHelper, Deployer {
     }
   }
 
-  function utils_createCallParams(uint32 destination) public returns (CallParams memory) {
-    bool sendToDest = destination == _destination;
-    return
-      CallParams(
-        address(1111), // to
-        bytes(""), // callData
-        sendToDest ? _origin : _destination, // origin domain
-        destination, // dest domain
-        address(2222), // delegate
-        false, // receiveLocal
-        1000 // slippage tol
-      );
-  }
+  // function utils_createCallParams(uint32 destination) public returns (CallParams memory) {
+  //   bool sendToDest = destination == _destination;
+  //   return
+  //     CallParams(
+  //       address(1111), // to
+  //       bytes(""), // callData
+  //       sendToDest ? _origin : _destination, // origin domain
+  //       destination, // dest domain
+  //       address(2222), // delegate
+  //       false, // receiveLocal
+  //       1000 // slippage tol
+  //     );
+  // }
 
   // function utils_createUserCallParams(uint32 destination) public returns (UserFacingCallParams memory) {
   //   return
@@ -451,61 +451,115 @@ contract ConnextTest is ForgeHelper, Deployer {
       );
   }
 
-  function utils_xcallAndAssert(
-    XCallArgs memory _args,
-    address _bridged,
-    uint256 _bridgedAmt,
-    uint256 _relayerFee
-  ) public returns (bytes32) {
-    // Approve the bridge
-    if (_args.asset != address(0)) {
-      IERC20(_args.asset).approve(address(_originConnext), _args.amount);
-    }
-    // Get initial balances
-    XCallBalances memory initial = utils_getXCallBalances(_args.asset, address(_originConnext));
+  // Calls `xcall` with given args and handles standard assertions.
+  function helpers_xcallAndAssert(
+    CallParams memory params,
+    address asset,
+    uint256 amount,
+    bytes4 expectedError,
+    bool shouldSwap
+  ) public {
+    bool shouldSucceed = keccak256(abi.encode(expectedError)) == keccak256(abi.encode(bytes4("")));
+    bool isCanonical = _canonicalDomain == s.domain;
 
-    // Register transfer id on bridge
-    uint256 nonce = 0;
-    bytes32 canonicalId = TypeCasts.addressToBytes32(_canonical);
-    bytes32 transferId = keccak256(
-      abi.encode(
-        nonce,
-        utils_getCallParams(_args.params),
-        address(this),
-        canonicalId,
-        _canonicalDomain,
-        _bridgedAmt,
-        _args.amount
-      )
-    );
+    if (asset == address(0)) {
+      // Both should be empty if the asset address is 0 (meaning this is probably a 0-value transfer).
+      params.canonicalId = bytes32("");
+      params.canonicalDomain = 0;
+    } else {
+      // Make sure canonical domain and ID are up to date in case this unit test altered the asset setup.
+      params.canonicalId = _canonicalId;
+      params.canonicalDomain = _canonicalDomain;
+    }
+
+    // If the bridged amount was pre-specified, it's likely we wanted to test a specific slippage
+    // amount below in the stableswap mock call.
+    if (params.bridgedAmt == 0) {
+      // TODO: Is the normalizedIn correct in all cases here? What about diff decimals?
+
+      if (shouldSwap) {
+        // Bridged amount of asset will be the amount post-swap.
+        // This is just an example of the kind of slippage we could expect.
+        params.bridgedAmt = (_defaultAmount * 9995) / _liquidityFeeDenominator;
+        // Normalized input amount is the pre-swap amount.
+        params.normalizedIn = amount;
+      } else if (asset == address(0)) {
+        // An asset address of 0 indicates this is a 0-value transfer.
+        params.bridgedAmt = 0;
+        params.normalizedIn = 0;
+      } else {
+        // No swap will occur, so the amount bridged should just be the amount in.
+        params.bridgedAmt = amount;
+        params.normalizedIn = amount;
+      }
+    } else if (params.normalizedIn == 0) {
+      params.normalizedIn = amount;
+    }
+
+    bytes32 transferId = _calculateTransferId(params);
+  }
+
+  function utils_xcallAndAssert(
+    address asset,
+    uint256 amount,
+    address bridgedAsset,
+    uint256 bridgedAmount,
+    uint256 relayerFee
+  ) public returns (bytes32) {
+    // Approve the bridge to spend the input tokens.
+    if (asset != address(0)) {
+      IERC20(asset).approve(address(_originConnext), amount);
+    }
+    // Get initial balances.
+    XCallBalances memory initial = utils_getXCallBalances(asset, address(_originConnext));
+
+    // Register transfer ID on bridge
+    // bytes32 canonicalId = TypeCasts.addressToBytes32(_canonical);
+    CallParams memory params = CallParams({
+      originDomain: _originDomain,
+      destinationDomain: _destinationDomain,
+      canonicalDomain: _canonicalDomain,
+      to: address(11),
+      delegate: address(123456654321),
+      receiveLocal: false,
+      callData: bytes(""),
+      slippage: 1000,
+      // These items would normally be replaced in the nested internal _xcall,
+      // but will be defined as the "expected values" for the purpose of getting
+      // the expected transfer ID.
+      originSender: msg.sender,
+      bridgedAmt: bridgedAmount,
+      normalizedIn: amount,
+      nonce: 0,
+      canonicalId: _canonicalId
+    });
+    bytes32 transferId = keccak256(abi.encode(params));
 
     // Expect a Sent event
     vm.expectEmit(true, true, true, true);
     emit Send(
-      _bridged,
+      bridgedAsset,
       address(_originConnext),
-      _args.params.destinationDomain,
+      params.destinationDomain,
       TypeCasts.addressToBytes32(address(_destinationConnext)),
-      _bridgedAmt,
+      bridgedAmount,
       true
     );
 
     // Expect an XCalled event
     vm.expectEmit(true, true, true, true);
-    emit XCalled(
-      transferId,
-      nonce,
-      MockHome(address(MockXAppConnectionManager(address(_originManager)).home())).MESSAGE_HASH(),
-      utils_getCallParams(_args.params),
-      _args.asset,
-      _bridged,
-      _args.amount,
-      _bridgedAmt,
-      address(this)
-    );
+    emit XCalled(transferId, params.nonce, MockBridgeRouter(_bridgeRouter).MESSAGE_HASH(), params);
 
     // Make call
-    bytes32 ret = _originConnext.xcall{value: _relayerFee}(_args);
+    bytes32 ret = _originConnext.xcall{value: _relayerFee}(
+      params.destinationDomain,
+      params.to,
+      asset,
+      params.delegate,
+      amount,
+      params.slippage,
+      params.callData
+    );
     assertEq(ret, transferId);
 
     // Check balances
