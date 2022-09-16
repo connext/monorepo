@@ -400,44 +400,35 @@ contract ConnextTest is ForgeHelper, Deployer {
     }
   }
 
-  // function utils_createCallParams(uint32 destination) public returns (CallParams memory) {
-  //   bool sendToDest = destination == _destination;
-  //   return
-  //     CallParams(
-  //       address(1111), // to
-  //       bytes(""), // callData
-  //       sendToDest ? _origin : _destination, // origin domain
-  //       destination, // dest domain
-  //       address(2222), // delegate
-  //       false, // receiveLocal
-  //       1000 // slippage tol
-  //     );
-  // }
-
-  // function utils_createUserCallParams(uint32 destination) public returns (UserFacingCallParams memory) {
-  //   return
-  //     UserFacingCallParams(
-  //       address(1111), // to
-  //       bytes(""), // callData
-  //       destination, // dest domain
-  //       address(2222), // delegate
-  //       1000 // slippage tol
-  //     );
-  // }
+  function utils_createCallParams(
+    uint32 destination,
+    uint256 amount,
+    uint256 bridgedAmount
+  ) public returns (CallParams memory) {
+    bool sendToDest = destination == _destination;
+    bytes32 canonicalId = TypeCasts.addressToBytes32(_canonical);
+    return
+      CallParams({
+        originDomain: sendToDest ? _origin : _destination,
+        destinationDomain: destination,
+        canonicalDomain: _canonicalDomain,
+        to: address(1111),
+        delegate: address(2222),
+        receiveLocal: false,
+        callData: bytes(""),
+        slippage: 1000,
+        // These items would normally be replaced in the nested internal _xcall,
+        // but will be defined as the "expected values" for the purpose of getting
+        // the expected transfer ID.
+        originSender: msg.sender,
+        bridgedAmt: bridgedAmount,
+        normalizedIn: amount,
+        nonce: 0,
+        canonicalId: canonicalId
+      });
+  }
 
   // ============ XCall helpers
-  // function utils_getCallParams(UserFacingCallParams memory params) public returns (CallParams memory) {
-  //   return
-  //     CallParams(
-  //       params.to,
-  //       params.callData,
-  //       _origin,
-  //       params.destinationDomain, // destination domain
-  //       params.delegate, // delegate
-  //       false, // receiveLocal
-  //       params.slippage
-  //     );
-  // }
 
   function utils_getXCallBalances(address transacting, address bridge) public returns (XCallBalances memory) {
     bool isDestination = bridge == address(_destinationConnext);
@@ -451,88 +442,23 @@ contract ConnextTest is ForgeHelper, Deployer {
       );
   }
 
-  // Calls `xcall` with given args and handles standard assertions.
-  function helpers_xcallAndAssert(
-    CallParams memory params,
-    address asset,
-    uint256 amount,
-    bytes4 expectedError,
-    bool shouldSwap
-  ) public {
-    bool shouldSucceed = keccak256(abi.encode(expectedError)) == keccak256(abi.encode(bytes4("")));
-    bool isCanonical = _canonicalDomain == s.domain;
-
-    if (asset == address(0)) {
-      // Both should be empty if the asset address is 0 (meaning this is probably a 0-value transfer).
-      params.canonicalId = bytes32("");
-      params.canonicalDomain = 0;
-    } else {
-      // Make sure canonical domain and ID are up to date in case this unit test altered the asset setup.
-      params.canonicalId = _canonicalId;
-      params.canonicalDomain = _canonicalDomain;
-    }
-
-    // If the bridged amount was pre-specified, it's likely we wanted to test a specific slippage
-    // amount below in the stableswap mock call.
-    if (params.bridgedAmt == 0) {
-      // TODO: Is the normalizedIn correct in all cases here? What about diff decimals?
-
-      if (shouldSwap) {
-        // Bridged amount of asset will be the amount post-swap.
-        // This is just an example of the kind of slippage we could expect.
-        params.bridgedAmt = (_defaultAmount * 9995) / _liquidityFeeDenominator;
-        // Normalized input amount is the pre-swap amount.
-        params.normalizedIn = amount;
-      } else if (asset == address(0)) {
-        // An asset address of 0 indicates this is a 0-value transfer.
-        params.bridgedAmt = 0;
-        params.normalizedIn = 0;
-      } else {
-        // No swap will occur, so the amount bridged should just be the amount in.
-        params.bridgedAmt = amount;
-        params.normalizedIn = amount;
-      }
-    } else if (params.normalizedIn == 0) {
-      params.normalizedIn = amount;
-    }
-
-    bytes32 transferId = _calculateTransferId(params);
-  }
-
   function utils_xcallAndAssert(
-    address asset,
-    uint256 amount,
-    address bridgedAsset,
-    uint256 bridgedAmount,
+    CallParams memory params,
+    address asset, // input asset
+    uint256 amount, // input amount
     uint256 relayerFee
   ) public returns (bytes32) {
-    // Approve the bridge to spend the input tokens.
+    address bridgedAsset = asset == address(0) ? address(0) : _originLocal;
+    uint256 bridgedAmount = params.bridgedAmt;
+    XCallBalances memory initial;
     if (asset != address(0)) {
+      // Approve the bridge to spend the input tokens.
       IERC20(asset).approve(address(_originConnext), amount);
+      // Get initial balances if applicable.
+      initial = utils_getXCallBalances(asset, address(_originConnext));
     }
-    // Get initial balances.
-    XCallBalances memory initial = utils_getXCallBalances(asset, address(_originConnext));
 
     // Register transfer ID on bridge
-    // bytes32 canonicalId = TypeCasts.addressToBytes32(_canonical);
-    CallParams memory params = CallParams({
-      originDomain: _originDomain,
-      destinationDomain: _destinationDomain,
-      canonicalDomain: _canonicalDomain,
-      to: address(11),
-      delegate: address(123456654321),
-      receiveLocal: false,
-      callData: bytes(""),
-      slippage: 1000,
-      // These items would normally be replaced in the nested internal _xcall,
-      // but will be defined as the "expected values" for the purpose of getting
-      // the expected transfer ID.
-      originSender: msg.sender,
-      bridgedAmt: bridgedAmount,
-      normalizedIn: amount,
-      nonce: 0,
-      canonicalId: _canonicalId
-    });
     bytes32 transferId = keccak256(abi.encode(params));
 
     // Expect a Sent event
@@ -562,23 +488,25 @@ contract ConnextTest is ForgeHelper, Deployer {
     );
     assertEq(ret, transferId);
 
-    // Check balances
-    XCallBalances memory end = utils_getXCallBalances(_args.asset, address(_originConnext));
-    assertEq(
-      end.bridgeTransacting,
-      _args.asset == _originLocal
-        ? initial.bridgeTransacting // will be transferred
-        : initial.bridgeTransacting + _args.amount // will be swapped
-    );
-    assertEq(
-      end.bridgeLocal,
-      // on xcall, local will be (1) transferred (or swapped) in, (2) sent to the bridge router
-      // meaning the balance should only change by the amount swapped
-      _args.asset == _bridged ? initial.bridgeLocal : initial.bridgeLocal - _bridgedAmt
-    );
-    assertEq(end.bridgeNative, initial.bridgeNative + _relayerFee);
-    assertEq(end.callerTransacting, initial.callerTransacting - _args.amount);
-    assertEq(end.callerNative, initial.callerNative - _relayerFee);
+    // Check balances if applicable.
+    if (asset != address(0)) {
+      XCallBalances memory end = utils_getXCallBalances(asset, address(_originConnext));
+      assertEq(
+        end.bridgeTransacting,
+        asset == _originLocal
+          ? initial.bridgeTransacting // will be transferred
+          : initial.bridgeTransacting + amount // will be swapped
+      );
+      assertEq(
+        end.bridgeLocal,
+        // on xcall, local will be (1) transferred (or swapped) in, (2) sent to the bridge router
+        // meaning the balance should only change by the amount swapped
+        asset == _bridged ? initial.bridgeLocal : initial.bridgeLocal - _bridgedAmt
+      );
+      assertEq(end.bridgeNative, initial.bridgeNative + relayerFee);
+      assertEq(end.callerTransacting, initial.callerTransacting - amount);
+      assertEq(end.callerNative, initial.callerNative - relayerFee);
+    }
 
     return ret;
   }
@@ -634,11 +562,8 @@ contract ConnextTest is ForgeHelper, Deployer {
 
   function utils_createExecuteArgs(
     CallParams memory params,
-    uint256 normalizedIn,
-    address local,
-    uint256 pathLen,
     bytes32 transferId,
-    uint256 bridgedAmt,
+    uint256 pathLen,
     uint256 liquidity
   ) public returns (ExecuteArgs memory) {
     (address[] memory routers, bytes[] memory routerSignatures) = utils_createRouters(pathLen, transferId, liquidity);
@@ -646,26 +571,16 @@ contract ConnextTest is ForgeHelper, Deployer {
     return
       ExecuteArgs(
         params, // CallParams
-        local, // local asset
         routers, // routers
         routerSignatures, // router signatures
         sequencer, // sequencer
-        sequencerSignature, // sequencer signatures
-        bridgedAmt, // amount
-        0, // nonce
-        normalizedIn, // origin in
-        address(this) // originSender
+        sequencerSignature // sequencer signatures
       );
   }
 
-  function utils_createExecuteArgs(
-    CallParams memory params,
-    uint256 normalizedIn,
-    uint256 pathLen,
-    bytes32 transferId,
-    uint256 bridgedAmt
-  ) public returns (ExecuteArgs memory) {
-    return utils_createExecuteArgs(params, normalizedIn, _destinationLocal, pathLen, transferId, bridgedAmt, 20 ether);
+  function utils_createExecuteArgs(CallParams memory params, uint256 pathLen) public returns (ExecuteArgs memory) {
+    bytes32 transferId = keccak256(abi.encode(params));
+    return utils_createExecuteArgs(params, transferId, pathLen, 20 ether);
   }
 
   function utils_getFastTransferAmount(uint256 amount) public returns (uint256) {
@@ -699,15 +614,18 @@ contract ConnextTest is ForgeHelper, Deployer {
     uint256 vaultOut,
     bool usesPortals
   ) public {
-    // Get initial balances
+    // Get initial balances, if applicable.
+    bool checkBalances = args.params.bridgedAmt != 0;
     address receiving = args.params.receiveLocal ? _destinationLocal : _destinationAdopted;
-    ExecuteBalances memory initial = utils_getExecuteBalances(
-      args.local,
-      receiving,
-      address(_destinationConnext),
-      args.params.to,
-      args.routers
-    );
+    if (checkBalances) {
+      ExecuteBalances memory initial = utils_getExecuteBalances(
+        _destinationLocal,
+        receiving,
+        address(_destinationConnext),
+        args.params.to,
+        args.routers
+      );
+    }
 
     // Expect an event
     vm.expectEmit(true, true, true, true);
@@ -803,14 +721,13 @@ contract ConnextTest is ForgeHelper, Deployer {
   }
 
   function utils_reconcileAndAssert(
-    bytes32 transferId,
-    uint256 bridgedAmt,
-    address to,
-    address[] memory routers,
     CallParams memory params,
-    uint256 nonce,
-    address originSender
+    bytes32 transferId,
+    address[] memory routers
   ) public {
+    uint256 bridgedAmt = params.bridgedAmt;
+    uint256 nonce = params.nonce;
+    address originSender = params.originSender;
     // NOTE: the bridge router handles the minting and custodying of assets. as far
     // as connext is concerned, the funds will *always* be transferred to the contract
     // when `reconcile` is called. Mint funds to the contract to mock
@@ -851,43 +768,37 @@ contract ConnextTest is ForgeHelper, Deployer {
   }
 
   // ============ Testing scenarios ============
-  // you should be able to create a 0-value transfer
+  // you should be able to create a 0-value transfer (even with asset being defined)
   function test_Connext__zeroValueTransferShouldWork() public {
-    /// 0. setup contracts
+    // 0. setup contracts
     utils_setupAssets(_origin, true);
 
     // 1. `xcall` on the origin
-    CallParams memory params = utils_createCallParams(_destination);
-    XCallArgs memory xcall = XCallArgs(utils_createUserCallParams(_destination), _originLocal, 0);
-    bytes32 transferId = utils_xcallAndAssert(xcall, _originLocal, 0, 0);
+    CallParams memory params = utils_createCallParams(_destination, 0, 0);
+    bytes32 transferId = utils_xcallAndAssert(params, _originLocal, 0, 0);
 
     // 2. call `execute` on the destination
-    ExecuteArgs memory execute = utils_createExecuteArgs(params, xcall.amount, 1, transferId, 0);
+    ExecuteArgs memory execute = utils_createExecuteArgs(params, transferId, 1, 0);
     utils_executeAndAssert(execute, transferId, 0);
 
     // 3. call `handle` on the destination
-    utils_reconcileAndAssert(transferId, xcall.amount, xcall.params.to, execute.routers, params, 0, address(this));
+    utils_reconcileAndAssert(params, transferId, execute.routers);
   }
 
   // call a 0-value transfer with address(0) as asset
   function test_Connext__zeroValueTransferWithEmptyAssetShouldWork() public {
-    /// 0. setup contracts
+    // 0. setup contracts
     utils_setupAssets(_origin, true);
 
     // 1. `xcall` on the origin
     CallParams memory params = utils_createCallParams(_destination);
     params.slippage = 0;
-    XCallArgs memory xcall = XCallArgs(
-      UserFacingCallParams(params.to, params.callData, params.destinationDomain, params.agent, params.slippage),
-      address(0),
-      0
-    );
-    _canonical = address(0);
-    _canonicalDomain = uint32(0);
-    bytes32 transferId = utils_xcallAndAssert(xcall, address(0), 0, 0);
+    params.canonicalId = address(0);
+    params.canonicalDomain = uint32(0);
+    bytes32 transferId = utils_xcallAndAssert(params, address(0), 0, 0);
 
     // 2. call `execute` on the destination
-    ExecuteArgs memory execute = utils_createExecuteArgs(params, 0, address(0), 1, transferId, 0, 10 ether);
+    ExecuteArgs memory execute = utils_createExecuteArgs(params, transferId, 1, 10 ether);
     utils_executeAndAssert(execute, transferId, 0, 0, false);
 
     // 3. call `handle` on the destination
