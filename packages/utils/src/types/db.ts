@@ -1,6 +1,6 @@
 import { BigNumber, constants } from "ethers";
-import { XMessage, RootMessage } from "./amb";
 
+import { XMessage, RootMessage } from "./amb";
 import { AssetBalance, RouterBalance, XTransfer, XTransferStatus } from "./xtransfers";
 
 /**
