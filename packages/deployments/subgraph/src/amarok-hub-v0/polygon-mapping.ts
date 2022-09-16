@@ -3,7 +3,7 @@ import { Address, BigInt, Bytes, dataSource } from "@graphprotocol/graph-ts";
 
 import { NewConnector, MessageProcessed } from "../../generated/PolygonHubConnector/PolygonHubConnector";
 
-import { PolygonConnectorMeta, PolygonRootMessageProcessed } from "../../generated/schema";
+import { PolygonConnectorMeta, RootMessageProcessed } from "../../generated/schema";
 
 const DEFAULT_POLYGON_HUB_CONNECTOR_META_ID = "POLYGON_HUB_CONNECTOR_META_ID";
 
@@ -25,10 +25,18 @@ export function handlePolygonNewConnector(event: NewConnector): void {
 }
 
 export function handlePolygonMessageProcessed(event: MessageProcessed): void {
-  let message = PolygonRootMessageProcessed.load(event.params.data.toHexString());
+  let message = RootMessageProcessed.load(event.params.data.toHexString());
   if (message == null) {
-    message = new PolygonRootMessageProcessed(event.params.data.toHexString());
+    message = new RootMessageProcessed(event.params.data.toHexString());
   }
+
+  let meta = PolygonConnectorMeta.load(DEFAULT_POLYGON_HUB_CONNECTOR_META_ID);
+  if (meta == null) {
+    meta = new PolygonConnectorMeta(DEFAULT_POLYGON_HUB_CONNECTOR_META_ID);
+  }
+
+  message.spokeDomain = meta.spokeDomain;
+  message.hubDomain = meta.hubDomain;
 
   message.root = event.params.data;
   message.caller = event.params.caller;

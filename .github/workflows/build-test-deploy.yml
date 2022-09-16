@@ -480,6 +480,7 @@ jobs:
     runs-on: ubuntu-latest
     needs:
       [
+        build-and-test,
         build-and-push-router-publisher-image,
         build-and-push-router-subscriber-image,
         build-and-push-router-executor-image,
@@ -533,6 +534,7 @@ jobs:
     runs-on: ubuntu-latest
     needs:
       [
+        build-and-test,
         build-and-push-router-publisher-image,
         build-and-push-router-subscriber-image,
         build-and-push-router-executor-image,
