@@ -174,18 +174,27 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
     returns (bytes32, ExecuteArgs memory)
   {
     s.domain = _destinationDomain;
-    // get args
+
+    // Format CallParams.
+    CallParams memory params = _defaultParams;
+    params.canonicalId = _canonicalId;
+    params.canonicalDomain = _canonicalDomain;
+    params.bridgedAmt = _defaultAmount;
+    params.normalizedIn = _defaultAmount;
+
+    // Make args struct, will be updated / filled in below.
     bytes[] memory empty = new bytes[](0);
     ExecuteArgs memory args = ExecuteArgs({
-      params: _defaultParams,
+      params: params,
       routers: routers,
       routerSignatures: empty,
       sequencer: address(0),
       sequencerSignature: bytes("")
     });
-    // generate transfer id
+
+    // Generate transfer ID.
     bytes32 transferId = _calculateTransferId(args.params);
-    // generate router signatures if applicable
+    // Generate router signatures, if applicable.
     if (routers.length != 0) {
       args.routerSignatures = utils_makeRouterSignatures(transferId, routers, keys);
       args.sequencer = _sequencer;
@@ -346,12 +355,13 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
 
     bytes32 transferId = _calculateTransferId(params);
 
-    console.log("asset", asset);
-    console.log("amount", amount);
-    console.log("transferID");
-    console.logBytes32(transferId);
-    console.log("bridgedAmt", params.bridgedAmt);
-    console.log("normalizedIn", params.normalizedIn);
+    // Console logs for debugging:
+    // console.log("asset", asset);
+    // console.log("amount", amount);
+    // console.log("transferID");
+    // console.logBytes32(transferId);
+    // console.log("bridgedAmt", params.bridgedAmt);
+    // console.log("normalizedIn", params.normalizedIn);
 
     // Deal the user required eth for transfer.
     vm.deal(params.originSender, 100 ether);
@@ -396,8 +406,6 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
     }
 
     bytes32 ret = helpers_wrappedXCall(params, asset, amount);
-    console.log("ret");
-    console.logBytes32(ret);
 
     if (shouldSucceed) {
       assertEq(ret, transferId);
@@ -864,8 +872,8 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
   // ============ Public methods ==============
 
   // ============ xcall ============
-
   // ============ xcall fail cases
+
   // fails if paused
   // FIXME: move to BaseConnextFacet.t.sol
   function test_BridgeFacet__xcall_failIfPaused() public {
@@ -995,16 +1003,6 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
   }
 
   // ============ xcall success cases
-  // asset cases:
-  // - works on remote domain
-  //   - transferring native (local == adopted)
-  //   - transferring native (local != adopted)
-  //   - transferring asset (local == adopted)
-  //   - transferring asset (local != adopted)
-
-  // - works on cannonical domain
-  //   - transferring native (local == adopted)
-  //   - transferring asset (local == adopted)
 
   // canonical token transfer on canonical domain
   function test_BridgeFacet__xcall_canonicalTokenTransferWorks() public {
@@ -1023,6 +1021,8 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
     helpers_xcallAndAssert();
   }
 
+  // `xcallIntoLocal` should effectively be the same as the xcall but the CallParams should
+  // have `receiveLocal` set to true.
   function test_BridgeFacet__xcallIntoLocal_works() public {
     utils_setupAsset(false, false);
     _defaultParams.receiveLocal = true;
@@ -1297,8 +1297,8 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
 
     // Set the first router's balance to be (slightly) less than the amount that they'd need to send.
     s.routerBalances[args.routers[0]][_local] = routerAmountSent - 0.1 ether;
+    // All other routers have plenty of funds.
     for (uint256 i = 1; i < args.routers.length; i++) {
-      // The other routers have plenty of funds.
       s.routerBalances[args.routers[i]][_local] = 50 ether;
     }
 
