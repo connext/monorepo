@@ -632,7 +632,7 @@ export const getSentRootMessagesByDomainAndBlockQuery = (
   let combinedQuery = "";
   for (const param of params) {
     const prefix = config.sources[param.domain].prefix;
-    combinedQuery += `${prefix}_rootMessageSent ( first: ${param.limit}, where: { blockNumber_gt: [${param.offset}] }) {${ROOT_MESSAGE_SENT_ENTITY}}`;
+    combinedQuery += `${prefix}_rootMessageSent ( first: ${param.limit}, where: { blockNumber_gt: ${param.offset} }) {${ROOT_MESSAGE_SENT_ENTITY}}`;
   }
 
   return gql`
@@ -649,7 +649,7 @@ export const getProcessedRootMessagesByDomainAndBlockQuery = (
   let combinedQuery = "";
   for (const param of params) {
     const prefix = config.sources[param.domain].prefix;
-    combinedQuery += `${prefix}_rootMessageProcessed ( first: ${param.limit}, where: { blockNumber_gt: [${param.offset}] }) {${ROOT_MESSAGE_PROCESSED_ENTITY}}`;
+    combinedQuery += `${prefix}_rootMessageProcessed ( first: ${param.limit}, where: { blockNumber_gt: ${param.offset} }) {${ROOT_MESSAGE_PROCESSED_ENTITY}}`;
   }
 
   return gql`

@@ -1,6 +1,8 @@
 -- migrate:up
 CREATE TABLE IF NOT EXISTS public.processed_root_messages (
     id character(66) NOT NULL PRIMARY KEY,
+    spoke_domain character varying(255),
+    hub_domain character varying(255),
     root character(66),
     caller character(42),
     transaction_hash character(66),

@@ -1,4 +1,4 @@
-import { createLoggingContext, XMessage, SentRootMessage, ProcessedRootMessage } from "@connext/nxtp-utils";
+import { createLoggingContext, XMessage, RootMessage } from "@connext/nxtp-utils";
 import { getContext } from "../../shared";
 
 const getMaxBlockNumber = (messages: any[]): number => {
@@ -96,6 +96,7 @@ export const retrieveSentRootMessages = async () => {
     });
 
     const sentRootMessages = await subgraph.getSentRootMessagesByDomain([{ domain, offset, limit }]);
+    console.log("___SENT", sentRootMessages);
 
     await database.saveSentRootMessages(sentRootMessages);
 
@@ -127,6 +128,7 @@ export const retrieveProcessedRootMessages = async () => {
     });
 
     const processedRootMessages = await subgraph.getProcessedRootMessagesByDomain([{ domain, offset, limit }]);
+    console.log("___PROCESSED", processedRootMessages);
 
     await database.saveProcessedRootMessages(processedRootMessages);
 

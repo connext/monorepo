@@ -1835,6 +1835,18 @@ declare module 'zapatos/schema' {
       */
     id: string;
       /**
+      * **processed_root_messages.spoke_domain**
+      * - `varchar` in database
+      * - Nullable, no default
+      */
+    spoke_domain: string | null;
+      /**
+      * **processed_root_messages.hub_domain**
+      * - `varchar` in database
+      * - Nullable, no default
+      */
+    hub_domain: string | null;
+      /**
       * **processed_root_messages.root**
       * - `bpchar` in database
       * - Nullable, no default
@@ -1884,6 +1896,18 @@ declare module 'zapatos/schema' {
       * - `NOT NULL`, no default
       */
     id: string;
+      /**
+      * **processed_root_messages.spoke_domain**
+      * - `varchar` in database
+      * - Nullable, no default
+      */
+    spoke_domain: string | null;
+      /**
+      * **processed_root_messages.hub_domain**
+      * - `varchar` in database
+      * - Nullable, no default
+      */
+    hub_domain: string | null;
       /**
       * **processed_root_messages.root**
       * - `bpchar` in database
@@ -1935,6 +1959,18 @@ declare module 'zapatos/schema' {
       */
     id?: string | db.Parameter<string> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
       /**
+      * **processed_root_messages.spoke_domain**
+      * - `varchar` in database
+      * - Nullable, no default
+      */
+    spoke_domain?: string | db.Parameter<string> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
+      /**
+      * **processed_root_messages.hub_domain**
+      * - `varchar` in database
+      * - Nullable, no default
+      */
+    hub_domain?: string | db.Parameter<string> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
+      /**
       * **processed_root_messages.root**
       * - `bpchar` in database
       * - Nullable, no default
@@ -1985,6 +2021,18 @@ declare module 'zapatos/schema' {
       */
     id: string | db.Parameter<string> | db.SQLFragment;
       /**
+      * **processed_root_messages.spoke_domain**
+      * - `varchar` in database
+      * - Nullable, no default
+      */
+    spoke_domain?: string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment;
+      /**
+      * **processed_root_messages.hub_domain**
+      * - `varchar` in database
+      * - Nullable, no default
+      */
+    hub_domain?: string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment;
+      /**
       * **processed_root_messages.root**
       * - `bpchar` in database
       * - Nullable, no default
@@ -2034,6 +2082,18 @@ declare module 'zapatos/schema' {
       * - `NOT NULL`, no default
       */
     id?: string | db.Parameter<string> | db.SQLFragment | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment>;
+      /**
+      * **processed_root_messages.spoke_domain**
+      * - `varchar` in database
+      * - Nullable, no default
+      */
+    spoke_domain?: string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment | db.SQLFragment<any, string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment>;
+      /**
+      * **processed_root_messages.hub_domain**
+      * - `varchar` in database
+      * - Nullable, no default
+      */
+    hub_domain?: string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment | db.SQLFragment<any, string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment>;
       /**
       * **processed_root_messages.root**
       * - `bpchar` in database

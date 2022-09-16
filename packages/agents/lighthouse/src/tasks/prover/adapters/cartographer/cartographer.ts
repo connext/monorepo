@@ -1,14 +1,12 @@
 import {
   convertFromDbMessage,
-  convertFromDbSentRootMessage,
-  convertFromDbProcessedRootMessage,
+  convertFromDbRootMessage,
   createLoggingContext,
   formatUrl,
   jsonifyError,
   NxtpError,
   XMessage,
-  SentRootMessage,
-  ProcessedRootMessage,
+  RootMessage,
 } from "@connext/nxtp-utils";
 import { AxiosError } from "axios";
 
@@ -34,7 +32,7 @@ export const getUnProcessedMessages = async (): Promise<XMessage[]> => {
   }
 };
 
-export const getSentRootMessages = async (): Promise<SentRootMessage[]> => {
+export const getSentRootMessages = async (): Promise<RootMessage[]> => {
   const { requestContext, methodContext } = createLoggingContext(getSentRootMessages.name);
   const { logger, config } = getContext();
 
@@ -46,17 +44,17 @@ export const getSentRootMessages = async (): Promise<SentRootMessage[]> => {
     if ((response as unknown as AxiosError).isAxiosError) {
       throw new ApiRequestFailed({ response });
     }
-    return response.data.map(convertFromDbSentRootMessage);
+    return response.data.map(convertFromDbRootMessage);
   } catch (error: any) {
     throw new ApiRequestFailed({ uri, error: jsonifyError(error as NxtpError) });
   }
 };
 
-export const getProcessedRootMessages = async (): Promise<ProcessedRootMessage[]> => {
-  const { requestContext, methodContext } = createLoggingContext(getProcessedRootMessages.name);
+export const getUnProcessedRootMessages = async (): Promise<RootMessage[]> => {
+  const { requestContext, methodContext } = createLoggingContext(getUnProcessedRootMessages.name);
   const { logger, config } = getContext();
 
-  const statusIdentifier = `order=block_number.asc`;
+  const statusIdentifier = `transaction_hash=is.null&order=block_number.asc`;
   const uri = formatUrl(config.cartographerUrl, "processed_root_messages?", statusIdentifier);
   logger.debug("Getting messages from URI", requestContext, methodContext, { uri });
   try {
@@ -64,7 +62,7 @@ export const getProcessedRootMessages = async (): Promise<ProcessedRootMessage[]
     if ((response as unknown as AxiosError).isAxiosError) {
       throw new ApiRequestFailed({ response });
     }
-    return response.data.map(convertFromDbProcessedRootMessage);
+    return response.data.map(convertFromDbRootMessage);
   } catch (error: any) {
     throw new ApiRequestFailed({ uri, error: jsonifyError(error as NxtpError) });
   }

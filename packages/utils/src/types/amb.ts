@@ -38,7 +38,7 @@ export const DestinationMessageSchema = Type.Object({
 });
 export type DestinationMessage = Static<typeof DestinationMessageSchema>;
 
-export const SentRootMessageSchema = Type.Object({
+export const RootMessageSchema = Type.Object({
   id: Type.String(),
   spokeDomain: Type.String(),
   hubDomain: Type.String(),
@@ -50,16 +50,4 @@ export const SentRootMessageSchema = Type.Object({
   gasLimit: Type.Number(),
   blockNumber: Type.Number(),
 });
-export type SentRootMessage = Static<typeof SentRootMessageSchema>;
-
-export const ProcessedRootMessageSchema = Type.Object({
-  id: Type.String(),
-  root: Type.String(),
-  caller: Type.String(),
-  transactionHash: Type.String(),
-  timestamp: Type.Number(),
-  gasPrice: Type.Number(),
-  gasLimit: Type.Number(),
-  blockNumber: Type.Number(),
-});
-export type ProcessedRootMessage = Static<typeof ProcessedRootMessageSchema>;
+export type RootMessage = Static<typeof RootMessageSchema>;

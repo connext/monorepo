@@ -12,8 +12,7 @@ import {
   SubgraphQueryByTimestampMetaParams,
   OriginMessage,
   DestinationMessage,
-  SentRootMessage,
-  ProcessedRootMessage,
+  RootMessage,
 } from "@connext/nxtp-utils";
 
 import { getHelpers } from "./lib/helpers";
@@ -617,7 +616,7 @@ export class SubgraphReader {
    */
   public async getSentRootMessagesByDomain(
     params: { domain: string; offset: number; limit: number }[],
-  ): Promise<SentRootMessage[]> {
+  ): Promise<RootMessage[]> {
     const { parser, execute } = getHelpers();
     const sentRootMessageQuery = getSentRootMessagesByDomainAndBlockQuery(params);
     const response = await execute(sentRootMessageQuery);
@@ -631,10 +630,10 @@ export class SubgraphReader {
       _messages.push(_message);
     }
 
-    const sentRootMessages: SentRootMessage[] = _messages
+    const sentRootMessages: RootMessage[] = _messages
       .flat()
       .filter((x: any) => !!x)
-      .map(parser.sentRootMessage);
+      .map(parser.rootMessage);
 
     return sentRootMessages;
   }
@@ -644,7 +643,7 @@ export class SubgraphReader {
    */
   public async getProcessedRootMessagesByDomain(
     params: { domain: string; offset: number; limit: number }[],
-  ): Promise<ProcessedRootMessage[]> {
+  ): Promise<RootMessage[]> {
     const { parser, execute } = getHelpers();
     const processedRootMessageQuery = getProcessedRootMessagesByDomainAndBlockQuery(params);
     const response = await execute(processedRootMessageQuery);
@@ -658,10 +657,10 @@ export class SubgraphReader {
       _messages.push(_message);
     }
 
-    const processedRootMessages: ProcessedRootMessage[] = _messages
+    const processedRootMessages: RootMessage[] = _messages
       .flat()
       .filter((x: any) => !!x)
-      .map(parser.processedRootMessage);
+      .map(parser.rootMessage);
 
     return processedRootMessages;
   }

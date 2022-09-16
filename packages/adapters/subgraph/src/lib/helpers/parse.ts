@@ -4,8 +4,7 @@ import {
   OriginTransfer,
   OriginMessage,
   DestinationMessage,
-  SentRootMessage,
-  ProcessedRootMessage,
+  RootMessage,
 } from "@connext/nxtp-utils";
 import { BigNumber } from "ethers";
 
@@ -234,7 +233,7 @@ export const destinationMessage = (entity: any): DestinationMessage => {
     throw new NxtpError("Subgraph `DestinationMessage` entity parser: DestinationMessage entity is `undefined`.");
   }
   for (const field of ["leaf", "processed", "returnData", "domain"]) {
-    if (!entity[field]) {
+    if (entity[field] === undefined) {
       throw new NxtpError("Subgraph `DestinationMessage` entity parser: Message entity missing required field", {
         missingField: field,
         entity,
@@ -278,10 +277,10 @@ export const xquery = (response: any): Map<string, any[]> => {
   }
 };
 
-export const sentRootMessage = (entity: any): SentRootMessage => {
+export const rootMessage = (entity: any): RootMessage => {
   // Sanity checks.
   if (!entity) {
-    throw new NxtpError("Subgraph `RootMessageSent` entity parser: SentRootMessage, entity is `undefined`.");
+    throw new NxtpError("Subgraph `RootMessage` entity parser: RootMessage, entity is `undefined`.");
   }
   for (const field of [
     "id",
@@ -296,7 +295,7 @@ export const sentRootMessage = (entity: any): SentRootMessage => {
     "blockNumber",
   ]) {
     if (!entity[field]) {
-      throw new NxtpError("Subgraph `RootMessageSent` entity parser: Message entity missing required field", {
+      throw new NxtpError("Subgraph `RootMessage` entity parser: Message entity missing required field", {
         missingField: field,
         entity,
       });
@@ -307,32 +306,6 @@ export const sentRootMessage = (entity: any): SentRootMessage => {
     id: entity.id,
     spokeDomain: entity.spokeDomain,
     hubDomain: entity.hubDomain,
-    root: entity.root,
-    caller: entity.caller,
-    transactionHash: entity.transactionHash,
-    timestamp: entity.timestamp,
-    gasPrice: entity.gasPrice,
-    gasLimit: entity.gasLimit,
-    blockNumber: entity.blockNumber,
-  };
-};
-
-export const processedRootMessage = (entity: any): ProcessedRootMessage => {
-  // Sanity checks.
-  if (!entity) {
-    throw new NxtpError("Subgraph `RootMessageProcessed` entity parser: ProcessedRootMessage, entity is `undefined`.");
-  }
-  for (const field of ["id", "root", "caller", "transactionHash", "timestamp", "gasPrice", "gasLimit", "blockNumber"]) {
-    if (!entity[field]) {
-      throw new NxtpError("Subgraph `RootMessageProcessed` entity parser: Message entity missing required field", {
-        missingField: field,
-        entity,
-      });
-    }
-  }
-
-  return {
-    id: entity.id,
     root: entity.root,
     caller: entity.caller,
     transactionHash: entity.transactionHash,

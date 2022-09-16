@@ -4,8 +4,7 @@ import {
   RouterBalance,
   convertFromDbTransfer,
   XMessage,
-  SentRootMessage,
-  ProcessedRootMessage,
+  RootMessage,
   convertFromDbMessage,
 } from "@connext/nxtp-utils";
 import { Pool } from "pg";
@@ -87,7 +86,7 @@ const convertToDbMessage = (message: XMessage): s.messages.Insertable => {
   };
 };
 
-const convertToDbSentRootMessage = (message: SentRootMessage): s.sent_root_messages.Insertable => {
+const convertToDbSentRootMessage = (message: RootMessage): s.sent_root_messages.Insertable => {
   return {
     id: message.id,
     spoke_domain: message.spokeDomain,
@@ -102,9 +101,11 @@ const convertToDbSentRootMessage = (message: SentRootMessage): s.sent_root_messa
   };
 };
 
-const convertToDbProcessedRootMessage = (message: ProcessedRootMessage): s.processed_root_messages.Insertable => {
+const convertToDbProcessedRootMessage = (message: RootMessage): s.processed_root_messages.Insertable => {
   return {
     id: message.id,
+    spoke_domain: message.spokeDomain,
+    hub_domain: message.hubDomain,
     root: message.root,
     caller: message.caller,
     transaction_hash: message.transactionHash,
@@ -148,7 +149,7 @@ export const saveMessages = async (xMessages: XMessage[], _pool?: Pool): Promise
   }
 };
 
-export const saveSentRootMessages = async (_messages: SentRootMessage[], _pool?: Pool): Promise<void> => {
+export const saveSentRootMessages = async (_messages: RootMessage[], _pool?: Pool): Promise<void> => {
   const poolToUse = _pool ?? pool;
   const messages: s.sent_root_messages.Insertable[] = _messages.map(convertToDbSentRootMessage);
 
@@ -164,7 +165,7 @@ export const saveSentRootMessages = async (_messages: SentRootMessage[], _pool?:
   }
 };
 
-export const saveProcessedRootMessages = async (_messages: ProcessedRootMessage[], _pool?: Pool): Promise<void> => {
+export const saveProcessedRootMessages = async (_messages: RootMessage[], _pool?: Pool): Promise<void> => {
   const poolToUse = _pool ?? pool;
   const messages: s.processed_root_messages.Insertable[] = _messages.map(convertToDbProcessedRootMessage);
 

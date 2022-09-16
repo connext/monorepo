@@ -10,7 +10,7 @@ import {
   ExecuteArgs,
   createLoggingContext,
 } from "..";
-import { Auction, ExecutorData, XCallArgs } from "../types";
+import { Auction, ExecutorData, RootMessage, XCallArgs } from "../types";
 import { getNtpTimeSeconds } from "../helpers";
 
 import { mkAddress, mkBytes32, mkSig } from ".";
@@ -327,6 +327,19 @@ export const mock = {
       reconcile_transaction_hash: mkBytes32("0xeee"),
       reconcile_relayer_fee: 0,
       reconcile_origin_sender: mkAddress("0x5"),
+      ...overrides,
+    }),
+    rootMessage: (overrides: Partial<RootMessage> = {}): RootMessage => ({
+      id: getRandomBytes32(),
+      spokeDomain: mock.domain.A,
+      hubDomain: mock.domain.B,
+      root: getRandomBytes32(),
+      caller: mock.address.relayer,
+      transactionHash: getRandomBytes32(),
+      timestamp: Math.floor(Date.now() / 1000),
+      gasPrice: utils.parseUnits("5", "gwei").toNumber(),
+      gasLimit: 100000,
+      blockNumber: Math.floor(Date.now()),
       ...overrides,
     }),
   },

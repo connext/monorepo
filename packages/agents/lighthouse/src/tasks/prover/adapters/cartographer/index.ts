@@ -1,17 +1,17 @@
-import { XMessage, SentRootMessage, ProcessedRootMessage } from "@connext/nxtp-utils";
+import { XMessage, RootMessage } from "@connext/nxtp-utils";
 
-import { getUnProcessedMessages, getSentRootMessages, getProcessedRootMessages } from "./cartographer";
+import { getUnProcessedMessages, getSentRootMessages, getUnProcessedRootMessages } from "./cartographer";
 
 export type Cartographer = {
   getUnProcessedMessages: () => Promise<XMessage[]>;
-  getSentRootMessages: () => Promise<SentRootMessage[]>;
-  getProcessedRootMessages: () => Promise<ProcessedRootMessage[]>;
+  getSentRootMessages: () => Promise<RootMessage[]>;
+  getUnProcessedRootMessages: () => Promise<RootMessage[]>;
 };
 
 export const setupCartographer = async (): Promise<Cartographer> => {
   return {
     getUnProcessedMessages,
     getSentRootMessages,
-    getProcessedRootMessages,
+    getUnProcessedRootMessages,
   };
 };
