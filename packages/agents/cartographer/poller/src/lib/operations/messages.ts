@@ -1,10 +1,6 @@
 import { createLoggingContext, XMessage, RootMessage } from "@connext/nxtp-utils";
 import { getContext } from "../../shared";
 
-const getMaxBlockNumber = (messages: any[]): number => {
-  return messages.length == 0 ? 0 : Math.max(...messages.map((message) => message.blockNumber ?? 0)) ?? 0;
-};
-
 export const retrieveOriginMessages = async () => {
   const {
     adapters: { subgraph, database },
@@ -95,12 +91,13 @@ export const retrieveSentRootMessages = async () => {
       limit: limit,
     });
 
-    const sentRootMessages = await subgraph.getSentRootMessagesByDomain([{ domain, offset, limit }]);
+    const sentRootMessages: RootMessage[] = await subgraph.getSentRootMessagesByDomain([{ domain, offset, limit }]);
 
     await database.saveSentRootMessages(sentRootMessages);
 
     // Reset offset at the end of the cycle.
-    const newOffset = getMaxBlockNumber(sentRootMessages);
+    const newOffset =
+      sentRootMessages.length == 0 ? 0 : Math.max(...sentRootMessages.map((message) => message.blockNumber ?? 0)) ?? 0;
     if (sentRootMessages.length > 0 && newOffset > offset) {
       await database.saveCheckPoint("sent_root_message_" + domain, newOffset);
     }
@@ -126,12 +123,17 @@ export const retrieveProcessedRootMessages = async () => {
       limit: limit,
     });
 
-    const processedRootMessages = await subgraph.getProcessedRootMessagesByDomain([{ domain, offset, limit }]);
+    const processedRootMessages: RootMessage[] = await subgraph.getProcessedRootMessagesByDomain([
+      { domain, offset, limit },
+    ]);
 
     await database.saveProcessedRootMessages(processedRootMessages);
 
     // Reset offset at the end of the cycle.
-    const newOffset = getMaxBlockNumber(processedRootMessages);
+    const newOffset =
+      processedRootMessages.length == 0
+        ? 0
+        : Math.max(...processedRootMessages.map((message) => message.blockNumber ?? 0)) ?? 0;
     if (processedRootMessages.length > 0 && newOffset > offset) {
       await database.saveCheckPoint("processed_root_message_" + domain, newOffset);
     }
