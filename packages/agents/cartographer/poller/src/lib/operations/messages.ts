@@ -96,7 +96,6 @@ export const retrieveSentRootMessages = async () => {
     });
 
     const sentRootMessages = await subgraph.getSentRootMessagesByDomain([{ domain, offset, limit }]);
-    console.log("___SENT", sentRootMessages);
 
     await database.saveSentRootMessages(sentRootMessages);
 
@@ -128,7 +127,6 @@ export const retrieveProcessedRootMessages = async () => {
     });
 
     const processedRootMessages = await subgraph.getProcessedRootMessagesByDomain([{ domain, offset, limit }]);
-    console.log("___PROCESSED", processedRootMessages);
 
     await database.saveProcessedRootMessages(processedRootMessages);
 

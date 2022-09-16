@@ -10,7 +10,7 @@ import {
   ExecuteArgs,
   createLoggingContext,
 } from "..";
-import { Auction, ExecutorData, RootMessage, XCallArgs } from "../types";
+import { Auction, ExecutorData, XMessage, RootMessage, XCallArgs, OriginMessage, DestinationMessage } from "../types";
 import { getNtpTimeSeconds } from "../helpers";
 
 import { mkAddress, mkBytes32, mkSig } from ".";
@@ -327,6 +327,39 @@ export const mock = {
       reconcile_transaction_hash: mkBytes32("0xeee"),
       reconcile_relayer_fee: 0,
       reconcile_origin_sender: mkAddress("0x5"),
+      ...overrides,
+    }),
+    originMessage: (overrides: Partial<OriginMessage> = {}): OriginMessage => ({
+      domain: mock.domain.A,
+      transferId: getRandomBytes32(),
+      destinationDomain: mock.domain.B,
+      leaf: getRandomBytes32(),
+      index: Math.floor(Date.now() / 1000),
+      root: getRandomBytes32(),
+      message: getRandomBytes32(),
+      ...overrides,
+    }),
+    destinationMessage: (overrides: Partial<DestinationMessage> = {}): DestinationMessage => ({
+      domain: mock.domain.A,
+      leaf: getRandomBytes32(),
+      processed: false,
+      returnData: getRandomBytes32(),
+      ...overrides,
+    }),
+    xMessage: (overrides: Partial<XMessage> = {}): XMessage => ({
+      leaf: getRandomBytes32(),
+      originDomain: mock.domain.A,
+      destinationDomain: mock.domain.B,
+      transferId: getRandomBytes32(),
+      origin: {
+        index: Math.floor(Date.now() / 1000),
+        root: getRandomBytes32(),
+        message: getRandomBytes32(),
+      },
+      destination: {
+        processed: false,
+        returnData: getRandomBytes32(),
+      },
       ...overrides,
     }),
     rootMessage: (overrides: Partial<RootMessage> = {}): RootMessage => ({

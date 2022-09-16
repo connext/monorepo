@@ -1,5 +1,14 @@
 import { createStubInstance, SinonStub, stub, restore, reset } from "sinon";
-import { expect, mock, chainDataToMap, Logger, OriginTransfer, RootMessage } from "@connext/nxtp-utils";
+import {
+  expect,
+  mock,
+  chainDataToMap,
+  Logger,
+  OriginMessage,
+  DestinationMessage,
+  XMessage,
+  RootMessage,
+} from "@connext/nxtp-utils";
 import * as transfersPoller from "../../../src/pollers/transfersPoller";
 import * as routersPoller from "../../../src/pollers/routersPoller";
 import * as messagesPoller from "../../../src/pollers/messagePoller";
@@ -13,7 +22,16 @@ import { SubgraphReader } from "@connext/nxtp-adapters-subgraph";
 import { AppContext } from "../../../src/shared";
 import * as shared from "../../../src/shared";
 
-const mockSubgraphResponse = [mock.entity.rootMessage() as RootMessage, mock.entity.rootMessage() as RootMessage];
+const mockRootSubgraphResponse = [mock.entity.rootMessage() as RootMessage, mock.entity.rootMessage() as RootMessage];
+const mockOriginMessageSubgraphResponse = [
+  mock.entity.originMessage() as OriginMessage,
+  mock.entity.originMessage() as OriginMessage,
+];
+const mockDestinationMessageSubgraphResponse = [
+  mock.entity.destinationMessage() as DestinationMessage,
+  mock.entity.destinationMessage() as DestinationMessage,
+];
+const mockXMessageSubgraphResponse = [mock.entity.xMessage() as XMessage, mock.entity.xMessage() as XMessage];
 
 const mockConfig: CartographerConfig = {
   pollInterval: 15000,
@@ -87,7 +105,7 @@ mockBlockNumber.set("10", 1234567);
 const mockNoBlockNumber: Map<string, number> = new Map();
 mockNoBlockNumber.set("99999", 1234567);
 
-describe("Backend operations", () => {
+describe("Message operations", () => {
   let mockContext: AppContext;
 
   beforeEach(() => {
@@ -97,6 +115,10 @@ describe("Backend operations", () => {
     saveCheckPointStub.resolves();
     const saveMessages = stub(dbClient, "saveMessages");
     saveMessages.resolves();
+    const saveSentRootMessagesStub = stub(dbClient, "saveSentRootMessages");
+    saveSentRootMessagesStub.resolves();
+    const saveProcessedRootMessagesStub = stub(dbClient, "saveProcessedRootMessages");
+    saveProcessedRootMessagesStub.resolves();
     const getPendingMessagesStub = stub(dbClient, "getPendingMessages");
     getPendingMessagesStub.resolves([]);
 
@@ -107,15 +129,17 @@ describe("Backend operations", () => {
       }),
       adapters: {
         subgraph: createStubInstance(SubgraphReader, {
-          getOriginMessagesByDomain: Promise.resolve(mockSubgraphResponse),
-          getDestinationMessagesByDomainAndLeaf: Promise.resolve(mockSubgraphResponse),
-          getSentRootMessagesByDomain: Promise.resolve(mockSubgraphResponse),
-          getProcessedRootMessagesByDomain: Promise.resolve(mockSubgraphResponse),
+          getOriginMessagesByDomain: Promise.resolve(mockOriginMessageSubgraphResponse),
+          getDestinationMessagesByDomainAndLeaf: Promise.resolve(mockDestinationMessageSubgraphResponse),
+          getSentRootMessagesByDomain: Promise.resolve(mockRootSubgraphResponse),
+          getProcessedRootMessagesByDomain: Promise.resolve(mockRootSubgraphResponse),
         }),
         database: {
           getCheckPoint: dbClient.getCheckPoint,
           saveCheckPoint: dbClient.saveCheckPoint,
           saveMessages: dbClient.saveMessages,
+          saveSentRootMessages: dbClient.saveSentRootMessages,
+          saveProcessedRootMessages: dbClient.saveProcessedRootMessages,
           getPendingMessages: dbClient.getPendingMessages,
         },
       },
@@ -137,9 +161,22 @@ describe("Backend operations", () => {
     await expect(bindMessages()).to.eventually.not.be.rejected;
   });
 
+  it("should poll subgraph for messages with pending messages", async () => {
+    let pendingMessages: XMessage[] = [];
+    const firstMessage: XMessage = mock.entity.xMessage({ leaf: mockDestinationMessageSubgraphResponse[0].leaf });
+    const secondMessage: XMessage = mock.entity.xMessage({ leaf: mockDestinationMessageSubgraphResponse[1].leaf });
+    pendingMessages.push(firstMessage);
+    pendingMessages.push(secondMessage);
+
+    (mockContext.adapters.database.getPendingMessages as SinonStub).resolves(pendingMessages);
+    await expect(bindMessages()).to.eventually.not.be.rejected;
+  });
+
   it("should poll subgraph with mock backend empty response for messages", async () => {
-    // (mockContext.adapters.subgraph.getOriginMessagesByDomain as SinonStub).resolves([]);
-    // (mockContext.adapters.subgraph.getDestinationMessagesByDomainAndLeaf as SinonStub).resolves([]);
+    (mockContext.adapters.subgraph.getOriginMessagesByDomain as SinonStub).resolves([]);
+    (mockContext.adapters.subgraph.getDestinationMessagesByDomainAndLeaf as SinonStub).resolves([]);
+    (mockContext.adapters.subgraph.getSentRootMessagesByDomain as SinonStub).resolves([]);
+    (mockContext.adapters.subgraph.getProcessedRootMessagesByDomain as SinonStub).resolves([]);
 
     await expect(bindMessages()).to.eventually.not.be.rejected;
   });
