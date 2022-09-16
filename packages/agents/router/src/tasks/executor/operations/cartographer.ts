@@ -37,7 +37,6 @@ export const pollCartographer = async () => {
             receiveLocal: xTransfer.xparams!.receiveLocal,
             destinationMinOut: xTransfer.xparams!.destinationMinOut,
             agent: xTransfer.xparams!.agent,
-            relayerFee: xTransfer.xparams!.relayerFee,
           },
           local: xTransfer.destination!.assets.local.asset,
           routers: [],
