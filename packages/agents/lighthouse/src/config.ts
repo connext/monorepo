@@ -3,9 +3,9 @@
 import { Type, Static } from "@sinclair/typebox";
 import { config as dotenvConfig } from "dotenv";
 import { ajv, ChainData, TAddress, TLogLevel } from "@connext/nxtp-utils";
+import { ConnextContractDeployments, ContractPostfix } from "@connext/nxtp-txservice";
 
 import { existsSync, readFileSync } from "./mockable";
-import { ConnextContractDeployments, ContractPostfix } from "@connext/nxtp-txservice";
 
 // Polling mins and defaults.
 const MIN_CARTOGRAPHER_POLL_INTERVAL = 30_000;

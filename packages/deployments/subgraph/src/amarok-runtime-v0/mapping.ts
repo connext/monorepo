@@ -20,6 +20,7 @@ import {
   MaxRoutersPerTransferUpdated,
 } from "../../generated/Connext/ConnextHandler";
 import {
+  NewConnector,
   Dispatch,
   Process,
   AggregateRootUpdated,
@@ -39,10 +40,14 @@ import {
   OriginMessage,
   DestinationMessage,
   AggregateRoot,
-  RootMessage,
+  RootMessageSent,
+  RootMessageProcessed,
+  ConnectorMeta,
 } from "../../generated/schema";
 
 const DEFAULT_MAX_ROUTERS_PER_TRANSFER = 5;
+
+const DEFAULT_CONNECTOR_META_ID = "CONNECTOR_META_ID";
 
 /// MARK - Assets
 export function handleAssetAdded(event: AssetAdded): void {
@@ -448,19 +453,19 @@ export function handleDispatch(event: Dispatch): void {
   message.save();
 }
 
-export function handleProcess(event: Process): void {
-  let message = DestinationMessage.load(event.params.leaf.toHexString());
-  if (message == null) {
-    message = new DestinationMessage(event.params.leaf.toHexString());
-  }
+// export function handleProcess(event: Process): void {
+//   let message = DestinationMessage.load(event.params.leaf.toHexString());
+//   if (message == null) {
+//     message = new DestinationMessage(event.params.leaf.toHexString());
+//   }
 
-  message.leaf = event.params.leaf;
-  message.processed = event.params.success;
-  message.returnData = event.params.returnData;
-  message.transactionHash = event.transaction.hash;
+//   message.leaf = event.params.leaf;
+//   message.processed = event.params.success;
+//   message.returnData = event.params.returnData;
+//   message.transactionHash = event.transaction.hash;
 
-  message.save();
-}
+//   message.save();
+// }
 
 export function handleAggregateRootUpdated(event: AggregateRootUpdated): void {
   let aggregateRoot = AggregateRoot.load(event.params.current.toHexString());
@@ -473,16 +478,22 @@ export function handleAggregateRootUpdated(event: AggregateRootUpdated): void {
 }
 
 export function handleMessageSent(event: MessageSent): void {
-  let message = RootMessage.load(event.params.data.toHexString());
+  let message = RootMessageSent.load(event.params.data.toHexString());
   if (message == null) {
-    message = new RootMessage(event.params.data.toHexString());
+    message = new RootMessageSent(event.params.data.toHexString());
   }
 
-  message.data = event.params.data;
+  let meta = ConnectorMeta.load(DEFAULT_CONNECTOR_META_ID);
+  if (meta == null) {
+    meta = new ConnectorMeta(DEFAULT_CONNECTOR_META_ID);
+  }
+
+  message.spokeDomain = meta.spokeDomain;
+  message.hubDomain = meta.hubDomain;
+
+  message.root = event.params.data;
   message.caller = event.params.caller;
   message.transactionHash = event.transaction.hash;
-  message.logIndex = event.logIndex;
-  message.transactionLogIndex = event.transactionLogIndex;
   message.timestamp = event.block.timestamp;
   message.gasPrice = event.transaction.gasPrice;
   message.gasLimit = event.transaction.gasLimit;
@@ -491,21 +502,35 @@ export function handleMessageSent(event: MessageSent): void {
 }
 
 export function handleMessageProcessed(event: MessageProcessed): void {
-  let message = RootMessage.load(event.params.data.toHexString());
+  let message = RootMessageProcessed.load(event.params.data.toHexString());
   if (message == null) {
-    message = new RootMessage(event.params.data.toHexString());
+    message = new RootMessageProcessed(event.params.data.toHexString());
   }
 
-  message.data = event.params.data;
+  message.root = event.params.data;
   message.caller = event.params.caller;
   message.transactionHash = event.transaction.hash;
-  message.logIndex = event.logIndex;
-  message.transactionLogIndex = event.transactionLogIndex;
   message.timestamp = event.block.timestamp;
   message.gasPrice = event.transaction.gasPrice;
   message.gasLimit = event.transaction.gasLimit;
   message.blockNumber = event.block.number;
   message.save();
+}
+
+export function handleNewConnector(event: NewConnector): void {
+  let meta = ConnectorMeta.load(DEFAULT_CONNECTOR_META_ID);
+  if (meta == null) {
+    meta = new ConnectorMeta(DEFAULT_CONNECTOR_META_ID);
+  }
+
+  meta.spokeDomain = event.params.domain;
+  meta.hubDomain = event.params.mirrorDomain;
+
+  meta.amb = event.params.amb;
+  meta.rootManager = event.params.rootManager;
+  meta.mirrorConnector = event.params.mirrorConnector;
+
+  meta.save();
 }
 
 /// MARK - Helpers

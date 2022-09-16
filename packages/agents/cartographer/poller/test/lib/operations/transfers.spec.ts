@@ -1,11 +1,18 @@
 import { createStubInstance, SinonStub, stub, restore, reset } from "sinon";
-import { expect, mock, chainDataToMap, Logger, OriginTransfer } from "@connext/nxtp-utils";
+import {
+  expect,
+  mock,
+  chainDataToMap,
+  Logger,
+  OriginTransfer,
+  DestinationTransfer,
+  XTransferStatus,
+} from "@connext/nxtp-utils";
 import * as transfersPoller from "../../../src/pollers/transfersPoller";
 import * as routersPoller from "../../../src/pollers/routersPoller";
 import * as messagesPoller from "../../../src/pollers/messagePoller";
 import { bindTransfers } from "../../../src/bindings/transfers";
 import { bindRouters } from "../../../src/bindings/routers";
-import { bindMessages } from "../../../src/bindings/messages";
 
 import * as dbClient from "../../../src/adapters/database/client";
 import { CartographerConfig } from "../../../src/config";
@@ -13,7 +20,22 @@ import { SubgraphReader } from "@connext/nxtp-adapters-subgraph";
 import { AppContext } from "../../../src/shared";
 import * as shared from "../../../src/shared";
 
-const mockSubgraphResponse = [mock.entity.xtransfer() as OriginTransfer, mock.entity.xtransfer() as OriginTransfer];
+const mockOriginSubgraphResponse = [
+  mock.entity.xtransfer({ originDomain: "1337", destinationDomain: "1338" }) as OriginTransfer,
+  mock.entity.xtransfer({ originDomain: "1337", destinationDomain: "1338" }) as OriginTransfer,
+];
+const mockDestinationSubgraphResponse = [
+  mock.entity.xtransfer({
+    originDomain: "1337",
+    destinationDomain: "1338",
+    status: XTransferStatus.Reconciled,
+  }) as DestinationTransfer,
+  mock.entity.xtransfer({
+    originDomain: "1337",
+    destinationDomain: "1338",
+    status: XTransferStatus.Reconciled,
+  }) as DestinationTransfer,
+];
 const mockRouterResponse = [{}, {}];
 
 const mockConfig: CartographerConfig = {
@@ -95,9 +117,9 @@ describe("Backend operations", () => {
     const saveTransfersStub = stub(dbClient, "saveTransfers");
     saveTransfersStub.resolves();
     const getTransfersByStatusStub = stub(dbClient, "getTransfersByStatus");
-    getTransfersByStatusStub.onFirstCall().resolves(mockSubgraphResponse);
-    getTransfersByStatusStub.onSecondCall().resolves(mockSubgraphResponse);
-    getTransfersByStatusStub.onThirdCall().resolves(mockSubgraphResponse);
+    getTransfersByStatusStub.onFirstCall().resolves(mockOriginSubgraphResponse);
+    getTransfersByStatusStub.onSecondCall().resolves(mockOriginSubgraphResponse);
+    getTransfersByStatusStub.onThirdCall().resolves(mockOriginSubgraphResponse);
     const saveRouterBalancesStub = stub(dbClient, "saveRouterBalances");
     saveRouterBalancesStub.resolves();
     const getCheckPointStub = stub(dbClient, "getCheckPoint");
@@ -120,11 +142,11 @@ describe("Backend operations", () => {
       }),
       adapters: {
         subgraph: createStubInstance(SubgraphReader, {
-          getOriginTransfersByNonce: Promise.resolve(mockSubgraphResponse),
-          getDestinationTransfersByNonce: Promise.resolve(mockSubgraphResponse),
-          getDestinationTransfersByDomainAndReconcileTimestamp: Promise.resolve(mockSubgraphResponse),
-          getOriginTransfersById: Promise.resolve(mockSubgraphResponse),
-          getDestinationTransfersById: Promise.resolve(mockSubgraphResponse),
+          getOriginTransfersByNonce: Promise.resolve(mockOriginSubgraphResponse),
+          getDestinationTransfersByNonce: Promise.resolve(mockDestinationSubgraphResponse),
+          getDestinationTransfersByDomainAndReconcileTimestamp: Promise.resolve(mockDestinationSubgraphResponse),
+          getOriginTransfersById: Promise.resolve(mockOriginSubgraphResponse),
+          getDestinationTransfersById: Promise.resolve(mockDestinationSubgraphResponse),
           getAssetBalancesRouters: Promise.resolve(mockRouterResponse),
         }),
         database: {
@@ -135,8 +157,6 @@ describe("Backend operations", () => {
           getTransfersWithDestinationPending: dbClient.getTransfersWithDestinationPending,
           getCheckPoint: dbClient.getCheckPoint,
           saveCheckPoint: dbClient.saveCheckPoint,
-          saveMessages: dbClient.saveMessages,
-          getPendingMessages: dbClient.getPendingMessages,
         },
       },
       config: mockConfig as CartographerConfig,
@@ -202,32 +222,6 @@ describe("Backend operations", () => {
     process.env.DATABASE_URL = "invalid_URI";
     try {
       await routersPoller.makeRoutersPoller();
-    } catch (Error) {}
-  });
-
-  it("should poll subgraph for messages with mock backend", async () => {
-    await expect(bindMessages()).to.eventually.not.be.rejected;
-  });
-
-  it("should poll subgraph with mock backend empty response for messages", async () => {
-    (mockContext.adapters.subgraph.getOriginMessagesByDomain as SinonStub).resolves([]);
-    (mockContext.adapters.subgraph.getDestinationMessagesByDomainAndLeaf as SinonStub).resolves([]);
-
-    await expect(bindMessages()).to.eventually.not.be.rejected;
-  });
-
-  it("should poll subgraph with mock backend with valid data", async () => {
-    // TODO: Resolves stubs with valid data
-    (mockContext.adapters.subgraph.getOriginMessagesByDomain as SinonStub).resolves([]);
-    (mockContext.adapters.subgraph.getDestinationMessagesByDomainAndLeaf as SinonStub).resolves([]);
-
-    await expect(bindMessages()).to.eventually.not.be.rejected;
-  });
-
-  it("should throw error on backend loadup for messages", async () => {
-    process.env.DATABASE_URL = "invalid_URI";
-    try {
-      await messagesPoller.makeMessagesPoller();
     } catch (Error) {}
   });
 });

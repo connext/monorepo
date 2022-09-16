@@ -9,20 +9,6 @@ type PolygonConnectorMeta @entity {
   mirrorConnector: Bytes!
 }
 
-type PolygonRootMessageProcessed @entity {
-  id: ID!
-
-  root: Bytes
-
-  # MessageProcessed Transaction
-  caller: Bytes
-  transactionHash: Bytes
-  timestamp: BigInt
-  gasPrice: BigInt
-  gasLimit: BigInt
-  blockNumber: BigInt
-}
-
 # OPTIMISM
 type OptimismConnectorMeta @entity {
   id: ID! # "OptimismConnectorMeta"
@@ -34,9 +20,12 @@ type OptimismConnectorMeta @entity {
   mirrorConnector: Bytes!
 }
 
-type OptimismRootMessageProcessed @entity {
+# Common
+type RootMessageProcessed @entity {
   id: ID!
 
+  spokeDomain: BigInt!
+  hubDomain: BigInt!
   root: Bytes
 
   # MessageProcessed Transaction

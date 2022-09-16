@@ -2,7 +2,7 @@
 import { Address, BigInt, Bytes, dataSource } from "@graphprotocol/graph-ts";
 
 import { NewConnector, MessageProcessed } from "../../generated/OptimismHubConnector/OptimismHubConnector";
-import { OptimismConnectorMeta, OptimismRootMessageProcessed } from "../../generated/schema";
+import { OptimismConnectorMeta, RootMessageProcessed } from "../../generated/schema";
 
 const DEFAULT_OPTIMISM_HUB_CONNECTOR_META_ID = "OPTIMISM_HUB_CONNECTOR_META_ID";
 
@@ -24,10 +24,18 @@ export function handleOptimismNewConnector(event: NewConnector): void {
 }
 
 export function handleOptimismMessageProcessed(event: MessageProcessed): void {
-  let message = OptimismRootMessageProcessed.load(event.params.data.toHexString());
+  let message = RootMessageProcessed.load(event.params.data.toHexString());
   if (message == null) {
-    message = new OptimismRootMessageProcessed(event.params.data.toHexString());
+    message = new RootMessageProcessed(event.params.data.toHexString());
   }
+
+  let meta = OptimismConnectorMeta.load(DEFAULT_OPTIMISM_HUB_CONNECTOR_META_ID);
+  if (meta == null) {
+    meta = new OptimismConnectorMeta(DEFAULT_OPTIMISM_HUB_CONNECTOR_META_ID);
+  }
+
+  message.spokeDomain = meta.spokeDomain;
+  message.hubDomain = meta.hubDomain;
 
   message.root = event.params.data;
   message.caller = event.params.caller;

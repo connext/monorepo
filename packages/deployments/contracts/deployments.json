@@ -3613,7 +3613,7 @@
           ]
         },
         "BridgeRouter": {
-          "address": "0xa17DDf7abc2d5BA32151a25F0dBD0171F9Ac241C",
+          "address": "0xeD6257BDFe0cD3D7B6a58E9E26EAE7C9e7F10331",
           "abi": [
             {
               "inputs": [],
@@ -45012,7 +45012,7 @@
           ]
         },
         "TokenRegistry": {
-          "address": "0xB8153030F0e998706301fBbE3f2840C64FB876A6",
+          "address": "0x2de2f24800452568831e1aC63563F1Ad1A914C6e",
           "abi": [
             {
               "inputs": [],
@@ -50231,7 +50231,7 @@
           ]
         },
         "BridgeRouter": {
-          "address": "0x06acE0c58ADF3F8b9D1c8F3D3C8042d3da5b8500",
+          "address": "0x8c5E9426b0Af4e77912685c472e8198845901e22",
           "abi": [
             {
               "inputs": [],
@@ -87564,7 +87564,7 @@
           ]
         },
         "TokenRegistry": {
-          "address": "0x69DdD0f3183805B44363b239708D89B92384a688",
+          "address": "0xC7d21A777409A6D0A3A5b10cE401D0277e5F42A9",
           "abi": [
             {
               "inputs": [],
@@ -92783,7 +92783,7 @@
           ]
         },
         "BridgeRouter": {
-          "address": "0xD135B85E868C4B02df3b328DCE917f34F76895dE",
+          "address": "0x17455fCfc43b22BE07EE5Ff4b177b7Ab6bA4b8d5",
           "abi": [
             {
               "inputs": [],
@@ -130279,7 +130279,7 @@
           ]
         },
         "TokenRegistry": {
-          "address": "0x038537478606eaBC48608D8fB8bF29C0bdA63F89",
+          "address": "0x9F5ED51BC45aEbb0A440C102910f8019035c5673",
           "abi": [
             {
               "inputs": [],
