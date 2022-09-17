@@ -438,8 +438,6 @@ contract ConnextTest is ForgeHelper, Deployer {
     uint256 amount, // input amount
     uint256 relayerFee
   ) public returns (bytes32) {
-    address bridgedAsset = asset == address(0) ? address(0) : _originLocal;
-    uint256 bridgedAmount = params.bridgedAmt;
     XCallBalances memory initial;
     if (asset != address(0)) {
       // Approve the bridge to spend the input tokens.
@@ -448,40 +446,46 @@ contract ConnextTest is ForgeHelper, Deployer {
       initial = utils_getXCallBalances(asset, address(_originConnext));
     }
 
-    // Register transfer ID on bridge
-    bytes32 transferId = keccak256(abi.encode(params));
+    {
+      // Expect a Sent event.
+      address bridgedAsset = asset == address(0) ? address(0) : _originLocal;
+      vm.expectEmit(true, true, true, true);
+      emit Send(
+        bridgedAsset,
+        address(_originConnext),
+        params.destinationDomain,
+        TypeCasts.addressToBytes32(address(_destinationConnext)),
+        params.bridgedAmt,
+        true
+      );
+    }
 
-    // Expect a Sent event
-    vm.expectEmit(true, true, true, true);
-    emit Send(
-      bridgedAsset,
-      address(_originConnext),
-      params.destinationDomain,
-      TypeCasts.addressToBytes32(address(_destinationConnext)),
-      bridgedAmount,
-      true
-    );
+    {
+      // Expect an XCalled event.
+      vm.expectEmit(true, true, true, true);
+      emit XCalled(
+        keccak256(abi.encode(params)),
+        params.nonce,
+        MockHome(address(MockXAppConnectionManager(address(_originManager)).home())).MESSAGE_HASH(),
+        params
+      );
+    }
 
-    // Expect an XCalled event
-    vm.expectEmit(true, true, true, true);
-    emit XCalled(
-      transferId,
-      params.nonce,
-      MockHome(address(MockXAppConnectionManager(address(_originManager)).home())).MESSAGE_HASH(),
-      params
-    );
-
-    // Make call
-    bytes32 ret = _originConnext.xcall{value: relayerFee}(
-      params.destinationDomain,
-      params.to,
-      asset,
-      params.delegate,
-      amount,
-      params.slippage,
-      params.callData
-    );
-    assertEq(ret, transferId);
+    bytes32 ret;
+    {
+      // Make call.
+      ret = _originConnext.xcall{value: relayerFee}(
+        params.destinationDomain,
+        params.to,
+        asset,
+        params.delegate,
+        amount,
+        params.slippage,
+        params.callData
+      );
+      // Compare returned transfer ID to expected transfer ID from expected call params.
+      assertEq(ret, keccak256(abi.encode(params)));
+    }
 
     // Check balances if applicable.
     if (asset != address(0)) {
