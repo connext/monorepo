@@ -310,22 +310,22 @@ contract PortalFacetTest is PortalFacet, FacetHelper {
   // ============ repayAavePortalFor ============
 
   // fails if not supported asset
-  function test_PortalFacet__repayAavePortalFor_failsIfNotSupportedAsset() public {
-    // set debt amount
-    uint256 backing = 1111;
-    uint256 fee = 111;
+  // function test_PortalFacet__repayAavePortalFor_failsIfNotSupportedAsset() public {
+  //   // set debt amount
+  //   uint256 backing = 1111;
+  //   uint256 fee = 111;
 
-    // we are on the destination domain where local != canonical
-    utils_setupAsset(false, false);
+  //   // we are on the destination domain where local != canonical
+  //   utils_setupAsset(false, false);
 
-    // address adopted = address(1);
-    // assertTrue(adopted != _adopted);
-    params.canonicalId = bytes32("bad");
-    params.canonicalDomain = 13;
+  //   // address adopted = address(1);
+  //   // assertTrue(adopted != _adopted);
+  //   params.canonicalId = bytes32("bad");
+  //   params.canonicalDomain = 13;
 
-    vm.expectRevert(abi.encodeWithSelector(PortalFacet.PortalFacet__repayAavePortalFor_notSupportedAsset.selector));
-    utils_repayPortalFor(params, backing, fee);
-  }
+  //   vm.expectRevert(abi.encodeWithSelector(PortalFacet.PortalFacet__repayAavePortalFor_notSupportedAsset.selector));
+  //   utils_repayPortalFor(params, backing, fee);
+  // }
 
   // fails if zero amount
   function test_PortalFacet__repayAavePortalFor_failsIfZeroTotalAmount() public {

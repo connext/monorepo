@@ -661,7 +661,7 @@ contract ConnextTest is ForgeHelper, Deployer {
       assertEq(end.bridgeReceiving, usesPortals ? initial.bridgeReceiving : initial.bridgeReceiving - bridgeOut);
 
       // router loses the liquidity it provides (local)
-      uint256 debited = isFast ? (utils_getFastTransferAmount(args.amount)) / pathLen : 0;
+      uint256 debited = isFast ? (utils_getFastTransferAmount(args.params.bridgedAmt)) / pathLen : 0;
       address[] memory stored = _destinationConnext.routedTransfers(transferId);
       if (isFast) {
         for (uint256 i; i <= pathLen - 1; i++) {
@@ -669,7 +669,7 @@ contract ConnextTest is ForgeHelper, Deployer {
           assertEq(end.liquidity[i], usesPortals ? initial.liquidity[i] : initial.liquidity[i] - debited);
         }
 
-        uint256 sweep = isFast ? debited + (args.amount % pathLen) : 0;
+        uint256 sweep = isFast ? debited + (args.params.bridgedAmt % pathLen) : 0;
         assertEq(stored[pathLen - 1], args.routers[pathLen - 1]);
         assertEq(
           end.liquidity[pathLen - 1],
@@ -795,7 +795,7 @@ contract ConnextTest is ForgeHelper, Deployer {
     // 1. `xcall` on the origin
     CallParams memory params = utils_createCallParams(_destination, 0, 0);
     params.slippage = 0;
-    params.canonicalId = address(0);
+    params.canonicalId = bytes32("");
     params.canonicalDomain = uint32(0);
     bytes32 transferId = utils_xcallAndAssert(params, address(0), 0, 0);
 
@@ -896,7 +896,7 @@ contract ConnextTest is ForgeHelper, Deployer {
     ExecuteArgs memory execute = utils_createExecuteArgs(params, transferId, 0, bridgedAmount);
 
     // 2. call `handle` on the destination
-    utils_reconcileAndAssert(params, transferId, []);
+    utils_reconcileAndAssert(params, transferId, execute.routers);
 
     // 3. call `execute` on the destination
     utils_executeAndAssert(execute, transferId, bridgedAmount);
@@ -919,7 +919,7 @@ contract ConnextTest is ForgeHelper, Deployer {
 
     // 2. call `execute` on the destination
     ExecuteArgs memory execute = utils_createExecuteArgs(params, transferId, 2, bridgedAmount);
-    utils_executeAndAssert(execute, transferId, utils_getFastTransferAmount(execute.amount));
+    utils_executeAndAssert(execute, transferId, utils_getFastTransferAmount(bridgedAmount));
     // NOTE: execute only passes if external call passes because of balance assertions on `to`
   }
 
@@ -943,7 +943,7 @@ contract ConnextTest is ForgeHelper, Deployer {
     ExecuteArgs memory execute = utils_createExecuteArgs(params, transferId, 0, bridgedAmount);
 
     // 2. call `handle` on the destination
-    utils_reconcileAndAssert(params, transferId, []);
+    utils_reconcileAndAssert(params, transferId, execute.routers);
 
     // 3. call `execute` on the destination
     utils_executeAndAssert(execute, transferId, bridgedAmount);
