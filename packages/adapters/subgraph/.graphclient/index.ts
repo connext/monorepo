@@ -19,16 +19,17 @@ import { createMeshHTTPHandler } from '@graphql-mesh/http';
 import { getMesh, ExecuteMeshFn, SubscribeMeshFn, MeshContext as BaseMeshContext, MeshInstance } from '@graphql-mesh/runtime';
 import { MeshStore, FsStoreStorageAdapter } from '@graphql-mesh/store';
 import { path as pathModule } from '@graphql-mesh/cross-helpers';
-import type { ConnextRinkebyContext } from './sources/Connext_Rinkeby/types';
-import type { ConnextStagingGoerliContext } from './sources/Connext_Staging_Goerli/types';
-import type { ConnextGoerliContext } from './sources/Connext_Goerli/types';
-import type { ConnextMumbaiContext } from './sources/Connext_Mumbai/types';
-import type { ConnextStagingOptimismGoerliContext } from './sources/Connext_Staging_OptimismGoerli/types';
-import type { ConnextOptimismGoerliContext } from './sources/Connext_OptimismGoerli/types';
-import type { ConnextLocal1338Context } from './sources/Connext_Local1338/types';
-import type { ConnextLocal1337Context } from './sources/Connext_Local1337/types';
 import type { ConnextTestGoerliContext } from './sources/Connext_Test_Goerli/types';
 import type { ConnextTestOptimismGoerliContext } from './sources/Connext_Test_OptimismGoerli/types';
+import type { ConnextLocal1338Context } from './sources/Connext_Local1338/types';
+import type { ConnextRinkebyContext } from './sources/Connext_Rinkeby/types';
+import type { ConnextMumbaiContext } from './sources/Connext_Mumbai/types';
+import type { ConnextStagingMumbaiContext } from './sources/Connext_Staging_Mumbai/types';
+import type { ConnextStagingOptimismGoerliContext } from './sources/Connext_Staging_OptimismGoerli/types';
+import type { ConnextStagingGoerliContext } from './sources/Connext_Staging_Goerli/types';
+import type { ConnextOptimismGoerliContext } from './sources/Connext_OptimismGoerli/types';
+import type { ConnextGoerliContext } from './sources/Connext_Goerli/types';
+import type { ConnextLocal1337Context } from './sources/Connext_Local1337/types';
 export type Maybe<T> = T | null;
 export type InputMaybe<T> = Maybe<T>;
 export type Exact<T extends { [key: string]: unknown }> = { [K in keyof T]: T[K] };
@@ -45,52 +46,32 @@ export type Scalars = {
   Boolean: boolean;
   Int: number;
   Float: number;
-  rinkeby_BigDecimal: any;
-  BigInt: bigint;
-  rinkeby_Bytes: any;
   testgoerli_BigDecimal: any;
+  BigInt: bigint;
   testgoerli_Bytes: any;
   local1337_BigDecimal: any;
   local1337_Bytes: any;
-  testoptimismgoerli_BigDecimal: any;
-  testoptimismgoerli_Bytes: any;
-  staginggoerli_BigDecimal: any;
-  staginggoerli_Bytes: any;
+  rinkeby_BigDecimal: any;
+  rinkeby_Bytes: any;
   goerli_BigDecimal: any;
   goerli_Bytes: any;
-  local1338_BigDecimal: any;
-  local1338_Bytes: any;
-  stagingmumbai_BigDecimal: any;
-  stagingmumbai_Bytes: any;
+  testoptimismgoerli_BigDecimal: any;
+  testoptimismgoerli_Bytes: any;
   optimismgoerli_BigDecimal: any;
   optimismgoerli_Bytes: any;
+  local1338_BigDecimal: any;
+  local1338_Bytes: any;
   mumbai_BigDecimal: any;
   mumbai_Bytes: any;
+  stagingmumbai_BigDecimal: any;
+  stagingmumbai_Bytes: any;
   stagingoptimismgoerli_BigDecimal: any;
   stagingoptimismgoerli_Bytes: any;
+  staginggoerli_BigDecimal: any;
+  staginggoerli_Bytes: any;
 };
 
 export type Query = {
-  rinkeby_asset?: Maybe<rinkeby_Asset>;
-  rinkeby_assets: Array<rinkeby_Asset>;
-  rinkeby_assetBalance?: Maybe<rinkeby_AssetBalance>;
-  rinkeby_assetBalances: Array<rinkeby_AssetBalance>;
-  rinkeby_router?: Maybe<rinkeby_Router>;
-  rinkeby_routers: Array<rinkeby_Router>;
-  rinkeby_setting?: Maybe<rinkeby_Setting>;
-  rinkeby_settings: Array<rinkeby_Setting>;
-  rinkeby_relayer?: Maybe<rinkeby_Relayer>;
-  rinkeby_relayers: Array<rinkeby_Relayer>;
-  rinkeby_stableSwap?: Maybe<rinkeby_StableSwap>;
-  rinkeby_stableSwaps: Array<rinkeby_StableSwap>;
-  rinkeby_sponsorVault?: Maybe<rinkeby_SponsorVault>;
-  rinkeby_sponsorVaults: Array<rinkeby_SponsorVault>;
-  rinkeby_originTransfer?: Maybe<rinkeby_OriginTransfer>;
-  rinkeby_originTransfers: Array<rinkeby_OriginTransfer>;
-  rinkeby_destinationTransfer?: Maybe<rinkeby_DestinationTransfer>;
-  rinkeby_destinationTransfers: Array<rinkeby_DestinationTransfer>;
-  /** Access to subgraph metadata */
-  rinkeby__meta?: Maybe<rinkeby__Meta_>;
   testgoerli_asset?: Maybe<testgoerli_Asset>;
   testgoerli_assets: Array<testgoerli_Asset>;
   testgoerli_assetBalance?: Maybe<testgoerli_AssetBalance>;
@@ -131,58 +112,26 @@ export type Query = {
   local1337_destinationTransfers: Array<local1337_DestinationTransfer>;
   /** Access to subgraph metadata */
   local1337__meta?: Maybe<local1337__Meta_>;
-  testoptimismgoerli_asset?: Maybe<testoptimismgoerli_Asset>;
-  testoptimismgoerli_assets: Array<testoptimismgoerli_Asset>;
-  testoptimismgoerli_assetBalance?: Maybe<testoptimismgoerli_AssetBalance>;
-  testoptimismgoerli_assetBalances: Array<testoptimismgoerli_AssetBalance>;
-  testoptimismgoerli_router?: Maybe<testoptimismgoerli_Router>;
-  testoptimismgoerli_routers: Array<testoptimismgoerli_Router>;
-  testoptimismgoerli_setting?: Maybe<testoptimismgoerli_Setting>;
-  testoptimismgoerli_settings: Array<testoptimismgoerli_Setting>;
-  testoptimismgoerli_relayer?: Maybe<testoptimismgoerli_Relayer>;
-  testoptimismgoerli_relayers: Array<testoptimismgoerli_Relayer>;
-  testoptimismgoerli_stableSwap?: Maybe<testoptimismgoerli_StableSwap>;
-  testoptimismgoerli_stableSwaps: Array<testoptimismgoerli_StableSwap>;
-  testoptimismgoerli_sponsorVault?: Maybe<testoptimismgoerli_SponsorVault>;
-  testoptimismgoerli_sponsorVaults: Array<testoptimismgoerli_SponsorVault>;
-  testoptimismgoerli_originTransfer?: Maybe<testoptimismgoerli_OriginTransfer>;
-  testoptimismgoerli_originTransfers: Array<testoptimismgoerli_OriginTransfer>;
-  testoptimismgoerli_destinationTransfer?: Maybe<testoptimismgoerli_DestinationTransfer>;
-  testoptimismgoerli_destinationTransfers: Array<testoptimismgoerli_DestinationTransfer>;
+  rinkeby_asset?: Maybe<rinkeby_Asset>;
+  rinkeby_assets: Array<rinkeby_Asset>;
+  rinkeby_assetBalance?: Maybe<rinkeby_AssetBalance>;
+  rinkeby_assetBalances: Array<rinkeby_AssetBalance>;
+  rinkeby_router?: Maybe<rinkeby_Router>;
+  rinkeby_routers: Array<rinkeby_Router>;
+  rinkeby_setting?: Maybe<rinkeby_Setting>;
+  rinkeby_settings: Array<rinkeby_Setting>;
+  rinkeby_relayer?: Maybe<rinkeby_Relayer>;
+  rinkeby_relayers: Array<rinkeby_Relayer>;
+  rinkeby_stableSwap?: Maybe<rinkeby_StableSwap>;
+  rinkeby_stableSwaps: Array<rinkeby_StableSwap>;
+  rinkeby_sponsorVault?: Maybe<rinkeby_SponsorVault>;
+  rinkeby_sponsorVaults: Array<rinkeby_SponsorVault>;
+  rinkeby_originTransfer?: Maybe<rinkeby_OriginTransfer>;
+  rinkeby_originTransfers: Array<rinkeby_OriginTransfer>;
+  rinkeby_destinationTransfer?: Maybe<rinkeby_DestinationTransfer>;
+  rinkeby_destinationTransfers: Array<rinkeby_DestinationTransfer>;
   /** Access to subgraph metadata */
-  testoptimismgoerli__meta?: Maybe<testoptimismgoerli__Meta_>;
-  staginggoerli_asset?: Maybe<staginggoerli_Asset>;
-  staginggoerli_assets: Array<staginggoerli_Asset>;
-  staginggoerli_assetBalance?: Maybe<staginggoerli_AssetBalance>;
-  staginggoerli_assetBalances: Array<staginggoerli_AssetBalance>;
-  staginggoerli_router?: Maybe<staginggoerli_Router>;
-  staginggoerli_routers: Array<staginggoerli_Router>;
-  staginggoerli_setting?: Maybe<staginggoerli_Setting>;
-  staginggoerli_settings: Array<staginggoerli_Setting>;
-  staginggoerli_relayer?: Maybe<staginggoerli_Relayer>;
-  staginggoerli_relayers: Array<staginggoerli_Relayer>;
-  staginggoerli_stableSwap?: Maybe<staginggoerli_StableSwap>;
-  staginggoerli_stableSwaps: Array<staginggoerli_StableSwap>;
-  staginggoerli_sponsorVault?: Maybe<staginggoerli_SponsorVault>;
-  staginggoerli_sponsorVaults: Array<staginggoerli_SponsorVault>;
-  staginggoerli_originTransfer?: Maybe<staginggoerli_OriginTransfer>;
-  staginggoerli_originTransfers: Array<staginggoerli_OriginTransfer>;
-  staginggoerli_destinationTransfer?: Maybe<staginggoerli_DestinationTransfer>;
-  staginggoerli_destinationTransfers: Array<staginggoerli_DestinationTransfer>;
-  staginggoerli_originMessage?: Maybe<staginggoerli_OriginMessage>;
-  staginggoerli_originMessages: Array<staginggoerli_OriginMessage>;
-  staginggoerli_destinationMessage?: Maybe<staginggoerli_DestinationMessage>;
-  staginggoerli_destinationMessages: Array<staginggoerli_DestinationMessage>;
-  staginggoerli_aggregateRoot?: Maybe<staginggoerli_AggregateRoot>;
-  staginggoerli_aggregateRoots: Array<staginggoerli_AggregateRoot>;
-  staginggoerli_connectorMeta?: Maybe<staginggoerli_ConnectorMeta>;
-  staginggoerli_connectorMetas: Array<staginggoerli_ConnectorMeta>;
-  staginggoerli_rootMessageSent?: Maybe<staginggoerli_RootMessageSent>;
-  staginggoerli_rootMessageSents: Array<staginggoerli_RootMessageSent>;
-  staginggoerli_rootMessageProcessed?: Maybe<staginggoerli_RootMessageProcessed>;
-  staginggoerli_rootMessageProcesseds: Array<staginggoerli_RootMessageProcessed>;
-  /** Access to subgraph metadata */
-  staginggoerli__meta?: Maybe<staginggoerli__Meta_>;
+  rinkeby__meta?: Maybe<rinkeby__Meta_>;
   goerli_asset?: Maybe<goerli_Asset>;
   goerli_assets: Array<goerli_Asset>;
   goerli_assetBalance?: Maybe<goerli_AssetBalance>;
@@ -215,58 +164,26 @@ export type Query = {
   goerli_rootMessageProcesseds: Array<goerli_RootMessageProcessed>;
   /** Access to subgraph metadata */
   goerli__meta?: Maybe<goerli__Meta_>;
-  local1338_asset?: Maybe<local1338_Asset>;
-  local1338_assets: Array<local1338_Asset>;
-  local1338_assetBalance?: Maybe<local1338_AssetBalance>;
-  local1338_assetBalances: Array<local1338_AssetBalance>;
-  local1338_router?: Maybe<local1338_Router>;
-  local1338_routers: Array<local1338_Router>;
-  local1338_setting?: Maybe<local1338_Setting>;
-  local1338_settings: Array<local1338_Setting>;
-  local1338_relayer?: Maybe<local1338_Relayer>;
-  local1338_relayers: Array<local1338_Relayer>;
-  local1338_stableSwap?: Maybe<local1338_StableSwap>;
-  local1338_stableSwaps: Array<local1338_StableSwap>;
-  local1338_sponsorVault?: Maybe<local1338_SponsorVault>;
-  local1338_sponsorVaults: Array<local1338_SponsorVault>;
-  local1338_originTransfer?: Maybe<local1338_OriginTransfer>;
-  local1338_originTransfers: Array<local1338_OriginTransfer>;
-  local1338_destinationTransfer?: Maybe<local1338_DestinationTransfer>;
-  local1338_destinationTransfers: Array<local1338_DestinationTransfer>;
+  testoptimismgoerli_asset?: Maybe<testoptimismgoerli_Asset>;
+  testoptimismgoerli_assets: Array<testoptimismgoerli_Asset>;
+  testoptimismgoerli_assetBalance?: Maybe<testoptimismgoerli_AssetBalance>;
+  testoptimismgoerli_assetBalances: Array<testoptimismgoerli_AssetBalance>;
+  testoptimismgoerli_router?: Maybe<testoptimismgoerli_Router>;
+  testoptimismgoerli_routers: Array<testoptimismgoerli_Router>;
+  testoptimismgoerli_setting?: Maybe<testoptimismgoerli_Setting>;
+  testoptimismgoerli_settings: Array<testoptimismgoerli_Setting>;
+  testoptimismgoerli_relayer?: Maybe<testoptimismgoerli_Relayer>;
+  testoptimismgoerli_relayers: Array<testoptimismgoerli_Relayer>;
+  testoptimismgoerli_stableSwap?: Maybe<testoptimismgoerli_StableSwap>;
+  testoptimismgoerli_stableSwaps: Array<testoptimismgoerli_StableSwap>;
+  testoptimismgoerli_sponsorVault?: Maybe<testoptimismgoerli_SponsorVault>;
+  testoptimismgoerli_sponsorVaults: Array<testoptimismgoerli_SponsorVault>;
+  testoptimismgoerli_originTransfer?: Maybe<testoptimismgoerli_OriginTransfer>;
+  testoptimismgoerli_originTransfers: Array<testoptimismgoerli_OriginTransfer>;
+  testoptimismgoerli_destinationTransfer?: Maybe<testoptimismgoerli_DestinationTransfer>;
+  testoptimismgoerli_destinationTransfers: Array<testoptimismgoerli_DestinationTransfer>;
   /** Access to subgraph metadata */
-  local1338__meta?: Maybe<local1338__Meta_>;
-  stagingmumbai_asset?: Maybe<stagingmumbai_Asset>;
-  stagingmumbai_assets: Array<stagingmumbai_Asset>;
-  stagingmumbai_assetBalance?: Maybe<stagingmumbai_AssetBalance>;
-  stagingmumbai_assetBalances: Array<stagingmumbai_AssetBalance>;
-  stagingmumbai_router?: Maybe<stagingmumbai_Router>;
-  stagingmumbai_routers: Array<stagingmumbai_Router>;
-  stagingmumbai_setting?: Maybe<stagingmumbai_Setting>;
-  stagingmumbai_settings: Array<stagingmumbai_Setting>;
-  stagingmumbai_relayer?: Maybe<stagingmumbai_Relayer>;
-  stagingmumbai_relayers: Array<stagingmumbai_Relayer>;
-  stagingmumbai_stableSwap?: Maybe<stagingmumbai_StableSwap>;
-  stagingmumbai_stableSwaps: Array<stagingmumbai_StableSwap>;
-  stagingmumbai_sponsorVault?: Maybe<stagingmumbai_SponsorVault>;
-  stagingmumbai_sponsorVaults: Array<stagingmumbai_SponsorVault>;
-  stagingmumbai_originTransfer?: Maybe<stagingmumbai_OriginTransfer>;
-  stagingmumbai_originTransfers: Array<stagingmumbai_OriginTransfer>;
-  stagingmumbai_destinationTransfer?: Maybe<stagingmumbai_DestinationTransfer>;
-  stagingmumbai_destinationTransfers: Array<stagingmumbai_DestinationTransfer>;
-  stagingmumbai_originMessage?: Maybe<stagingmumbai_OriginMessage>;
-  stagingmumbai_originMessages: Array<stagingmumbai_OriginMessage>;
-  stagingmumbai_destinationMessage?: Maybe<stagingmumbai_DestinationMessage>;
-  stagingmumbai_destinationMessages: Array<stagingmumbai_DestinationMessage>;
-  stagingmumbai_aggregateRoot?: Maybe<stagingmumbai_AggregateRoot>;
-  stagingmumbai_aggregateRoots: Array<stagingmumbai_AggregateRoot>;
-  stagingmumbai_connectorMeta?: Maybe<stagingmumbai_ConnectorMeta>;
-  stagingmumbai_connectorMetas: Array<stagingmumbai_ConnectorMeta>;
-  stagingmumbai_rootMessageSent?: Maybe<stagingmumbai_RootMessageSent>;
-  stagingmumbai_rootMessageSents: Array<stagingmumbai_RootMessageSent>;
-  stagingmumbai_rootMessageProcessed?: Maybe<stagingmumbai_RootMessageProcessed>;
-  stagingmumbai_rootMessageProcesseds: Array<stagingmumbai_RootMessageProcessed>;
-  /** Access to subgraph metadata */
-  stagingmumbai__meta?: Maybe<stagingmumbai__Meta_>;
+  testoptimismgoerli__meta?: Maybe<testoptimismgoerli__Meta_>;
   optimismgoerli_asset?: Maybe<optimismgoerli_Asset>;
   optimismgoerli_assets: Array<optimismgoerli_Asset>;
   optimismgoerli_assetBalance?: Maybe<optimismgoerli_AssetBalance>;
@@ -299,6 +216,26 @@ export type Query = {
   optimismgoerli_rootMessageProcesseds: Array<optimismgoerli_RootMessageProcessed>;
   /** Access to subgraph metadata */
   optimismgoerli__meta?: Maybe<optimismgoerli__Meta_>;
+  local1338_asset?: Maybe<local1338_Asset>;
+  local1338_assets: Array<local1338_Asset>;
+  local1338_assetBalance?: Maybe<local1338_AssetBalance>;
+  local1338_assetBalances: Array<local1338_AssetBalance>;
+  local1338_router?: Maybe<local1338_Router>;
+  local1338_routers: Array<local1338_Router>;
+  local1338_setting?: Maybe<local1338_Setting>;
+  local1338_settings: Array<local1338_Setting>;
+  local1338_relayer?: Maybe<local1338_Relayer>;
+  local1338_relayers: Array<local1338_Relayer>;
+  local1338_stableSwap?: Maybe<local1338_StableSwap>;
+  local1338_stableSwaps: Array<local1338_StableSwap>;
+  local1338_sponsorVault?: Maybe<local1338_SponsorVault>;
+  local1338_sponsorVaults: Array<local1338_SponsorVault>;
+  local1338_originTransfer?: Maybe<local1338_OriginTransfer>;
+  local1338_originTransfers: Array<local1338_OriginTransfer>;
+  local1338_destinationTransfer?: Maybe<local1338_DestinationTransfer>;
+  local1338_destinationTransfers: Array<local1338_DestinationTransfer>;
+  /** Access to subgraph metadata */
+  local1338__meta?: Maybe<local1338__Meta_>;
   mumbai_asset?: Maybe<mumbai_Asset>;
   mumbai_assets: Array<mumbai_Asset>;
   mumbai_assetBalance?: Maybe<mumbai_AssetBalance>;
@@ -327,6 +264,38 @@ export type Query = {
   mumbai_rootMessages: Array<mumbai_RootMessage>;
   /** Access to subgraph metadata */
   mumbai__meta?: Maybe<mumbai__Meta_>;
+  stagingmumbai_asset?: Maybe<stagingmumbai_Asset>;
+  stagingmumbai_assets: Array<stagingmumbai_Asset>;
+  stagingmumbai_assetBalance?: Maybe<stagingmumbai_AssetBalance>;
+  stagingmumbai_assetBalances: Array<stagingmumbai_AssetBalance>;
+  stagingmumbai_router?: Maybe<stagingmumbai_Router>;
+  stagingmumbai_routers: Array<stagingmumbai_Router>;
+  stagingmumbai_setting?: Maybe<stagingmumbai_Setting>;
+  stagingmumbai_settings: Array<stagingmumbai_Setting>;
+  stagingmumbai_relayer?: Maybe<stagingmumbai_Relayer>;
+  stagingmumbai_relayers: Array<stagingmumbai_Relayer>;
+  stagingmumbai_stableSwap?: Maybe<stagingmumbai_StableSwap>;
+  stagingmumbai_stableSwaps: Array<stagingmumbai_StableSwap>;
+  stagingmumbai_sponsorVault?: Maybe<stagingmumbai_SponsorVault>;
+  stagingmumbai_sponsorVaults: Array<stagingmumbai_SponsorVault>;
+  stagingmumbai_originTransfer?: Maybe<stagingmumbai_OriginTransfer>;
+  stagingmumbai_originTransfers: Array<stagingmumbai_OriginTransfer>;
+  stagingmumbai_destinationTransfer?: Maybe<stagingmumbai_DestinationTransfer>;
+  stagingmumbai_destinationTransfers: Array<stagingmumbai_DestinationTransfer>;
+  stagingmumbai_originMessage?: Maybe<stagingmumbai_OriginMessage>;
+  stagingmumbai_originMessages: Array<stagingmumbai_OriginMessage>;
+  stagingmumbai_destinationMessage?: Maybe<stagingmumbai_DestinationMessage>;
+  stagingmumbai_destinationMessages: Array<stagingmumbai_DestinationMessage>;
+  stagingmumbai_aggregateRoot?: Maybe<stagingmumbai_AggregateRoot>;
+  stagingmumbai_aggregateRoots: Array<stagingmumbai_AggregateRoot>;
+  stagingmumbai_connectorMeta?: Maybe<stagingmumbai_ConnectorMeta>;
+  stagingmumbai_connectorMetas: Array<stagingmumbai_ConnectorMeta>;
+  stagingmumbai_rootMessageSent?: Maybe<stagingmumbai_RootMessageSent>;
+  stagingmumbai_rootMessageSents: Array<stagingmumbai_RootMessageSent>;
+  stagingmumbai_rootMessageProcessed?: Maybe<stagingmumbai_RootMessageProcessed>;
+  stagingmumbai_rootMessageProcesseds: Array<stagingmumbai_RootMessageProcessed>;
+  /** Access to subgraph metadata */
+  stagingmumbai__meta?: Maybe<stagingmumbai__Meta_>;
   stagingoptimismgoerli_asset?: Maybe<stagingoptimismgoerli_Asset>;
   stagingoptimismgoerli_assets: Array<stagingoptimismgoerli_Asset>;
   stagingoptimismgoerli_assetBalance?: Maybe<stagingoptimismgoerli_AssetBalance>;
@@ -359,173 +328,38 @@ export type Query = {
   stagingoptimismgoerli_rootMessageProcesseds: Array<stagingoptimismgoerli_RootMessageProcessed>;
   /** Access to subgraph metadata */
   stagingoptimismgoerli__meta?: Maybe<stagingoptimismgoerli__Meta_>;
-};
-
-
-export type Queryrinkeby_assetArgs = {
-  id: Scalars['ID'];
-  block?: InputMaybe<rinkeby_Block_height>;
-  subgraphError?: _SubgraphErrorPolicy_;
-};
-
-
-export type Queryrinkeby_assetsArgs = {
-  skip?: InputMaybe<Scalars['Int']>;
-  first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<rinkeby_Asset_orderBy>;
-  orderDirection?: InputMaybe<rinkeby_OrderDirection>;
-  where?: InputMaybe<rinkeby_Asset_filter>;
-  block?: InputMaybe<rinkeby_Block_height>;
-  subgraphError?: _SubgraphErrorPolicy_;
-};
-
-
-export type Queryrinkeby_assetBalanceArgs = {
-  id: Scalars['ID'];
-  block?: InputMaybe<rinkeby_Block_height>;
-  subgraphError?: _SubgraphErrorPolicy_;
-};
-
-
-export type Queryrinkeby_assetBalancesArgs = {
-  skip?: InputMaybe<Scalars['Int']>;
-  first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<rinkeby_AssetBalance_orderBy>;
-  orderDirection?: InputMaybe<rinkeby_OrderDirection>;
-  where?: InputMaybe<rinkeby_AssetBalance_filter>;
-  block?: InputMaybe<rinkeby_Block_height>;
-  subgraphError?: _SubgraphErrorPolicy_;
-};
-
-
-export type Queryrinkeby_routerArgs = {
-  id: Scalars['ID'];
-  block?: InputMaybe<rinkeby_Block_height>;
-  subgraphError?: _SubgraphErrorPolicy_;
-};
-
-
-export type Queryrinkeby_routersArgs = {
-  skip?: InputMaybe<Scalars['Int']>;
-  first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<rinkeby_Router_orderBy>;
-  orderDirection?: InputMaybe<rinkeby_OrderDirection>;
-  where?: InputMaybe<rinkeby_Router_filter>;
-  block?: InputMaybe<rinkeby_Block_height>;
-  subgraphError?: _SubgraphErrorPolicy_;
-};
-
-
-export type Queryrinkeby_settingArgs = {
-  id: Scalars['ID'];
-  block?: InputMaybe<rinkeby_Block_height>;
-  subgraphError?: _SubgraphErrorPolicy_;
-};
-
-
-export type Queryrinkeby_settingsArgs = {
-  skip?: InputMaybe<Scalars['Int']>;
-  first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<rinkeby_Setting_orderBy>;
-  orderDirection?: InputMaybe<rinkeby_OrderDirection>;
-  where?: InputMaybe<rinkeby_Setting_filter>;
-  block?: InputMaybe<rinkeby_Block_height>;
-  subgraphError?: _SubgraphErrorPolicy_;
-};
-
-
-export type Queryrinkeby_relayerArgs = {
-  id: Scalars['ID'];
-  block?: InputMaybe<rinkeby_Block_height>;
-  subgraphError?: _SubgraphErrorPolicy_;
-};
-
-
-export type Queryrinkeby_relayersArgs = {
-  skip?: InputMaybe<Scalars['Int']>;
-  first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<rinkeby_Relayer_orderBy>;
-  orderDirection?: InputMaybe<rinkeby_OrderDirection>;
-  where?: InputMaybe<rinkeby_Relayer_filter>;
-  block?: InputMaybe<rinkeby_Block_height>;
-  subgraphError?: _SubgraphErrorPolicy_;
-};
-
-
-export type Queryrinkeby_stableSwapArgs = {
-  id: Scalars['ID'];
-  block?: InputMaybe<rinkeby_Block_height>;
-  subgraphError?: _SubgraphErrorPolicy_;
-};
-
-
-export type Queryrinkeby_stableSwapsArgs = {
-  skip?: InputMaybe<Scalars['Int']>;
-  first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<rinkeby_StableSwap_orderBy>;
-  orderDirection?: InputMaybe<rinkeby_OrderDirection>;
-  where?: InputMaybe<rinkeby_StableSwap_filter>;
-  block?: InputMaybe<rinkeby_Block_height>;
-  subgraphError?: _SubgraphErrorPolicy_;
-};
-
-
-export type Queryrinkeby_sponsorVaultArgs = {
-  id: Scalars['ID'];
-  block?: InputMaybe<rinkeby_Block_height>;
-  subgraphError?: _SubgraphErrorPolicy_;
-};
-
-
-export type Queryrinkeby_sponsorVaultsArgs = {
-  skip?: InputMaybe<Scalars['Int']>;
-  first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<rinkeby_SponsorVault_orderBy>;
-  orderDirection?: InputMaybe<rinkeby_OrderDirection>;
-  where?: InputMaybe<rinkeby_SponsorVault_filter>;
-  block?: InputMaybe<rinkeby_Block_height>;
-  subgraphError?: _SubgraphErrorPolicy_;
-};
-
-
-export type Queryrinkeby_originTransferArgs = {
-  id: Scalars['ID'];
-  block?: InputMaybe<rinkeby_Block_height>;
-  subgraphError?: _SubgraphErrorPolicy_;
-};
-
-
-export type Queryrinkeby_originTransfersArgs = {
-  skip?: InputMaybe<Scalars['Int']>;
-  first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<rinkeby_OriginTransfer_orderBy>;
-  orderDirection?: InputMaybe<rinkeby_OrderDirection>;
-  where?: InputMaybe<rinkeby_OriginTransfer_filter>;
-  block?: InputMaybe<rinkeby_Block_height>;
-  subgraphError?: _SubgraphErrorPolicy_;
-};
-
-
-export type Queryrinkeby_destinationTransferArgs = {
-  id: Scalars['ID'];
-  block?: InputMaybe<rinkeby_Block_height>;
-  subgraphError?: _SubgraphErrorPolicy_;
-};
-
-
-export type Queryrinkeby_destinationTransfersArgs = {
-  skip?: InputMaybe<Scalars['Int']>;
-  first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<rinkeby_DestinationTransfer_orderBy>;
-  orderDirection?: InputMaybe<rinkeby_OrderDirection>;
-  where?: InputMaybe<rinkeby_DestinationTransfer_filter>;
-  block?: InputMaybe<rinkeby_Block_height>;
-  subgraphError?: _SubgraphErrorPolicy_;
-};
-
-
-export type Queryrinkeby__metaArgs = {
-  block?: InputMaybe<rinkeby_Block_height>;
+  staginggoerli_asset?: Maybe<staginggoerli_Asset>;
+  staginggoerli_assets: Array<staginggoerli_Asset>;
+  staginggoerli_assetBalance?: Maybe<staginggoerli_AssetBalance>;
+  staginggoerli_assetBalances: Array<staginggoerli_AssetBalance>;
+  staginggoerli_router?: Maybe<staginggoerli_Router>;
+  staginggoerli_routers: Array<staginggoerli_Router>;
+  staginggoerli_setting?: Maybe<staginggoerli_Setting>;
+  staginggoerli_settings: Array<staginggoerli_Setting>;
+  staginggoerli_relayer?: Maybe<staginggoerli_Relayer>;
+  staginggoerli_relayers: Array<staginggoerli_Relayer>;
+  staginggoerli_stableSwap?: Maybe<staginggoerli_StableSwap>;
+  staginggoerli_stableSwaps: Array<staginggoerli_StableSwap>;
+  staginggoerli_sponsorVault?: Maybe<staginggoerli_SponsorVault>;
+  staginggoerli_sponsorVaults: Array<staginggoerli_SponsorVault>;
+  staginggoerli_originTransfer?: Maybe<staginggoerli_OriginTransfer>;
+  staginggoerli_originTransfers: Array<staginggoerli_OriginTransfer>;
+  staginggoerli_destinationTransfer?: Maybe<staginggoerli_DestinationTransfer>;
+  staginggoerli_destinationTransfers: Array<staginggoerli_DestinationTransfer>;
+  staginggoerli_originMessage?: Maybe<staginggoerli_OriginMessage>;
+  staginggoerli_originMessages: Array<staginggoerli_OriginMessage>;
+  staginggoerli_destinationMessage?: Maybe<staginggoerli_DestinationMessage>;
+  staginggoerli_destinationMessages: Array<staginggoerli_DestinationMessage>;
+  staginggoerli_aggregateRoot?: Maybe<staginggoerli_AggregateRoot>;
+  staginggoerli_aggregateRoots: Array<staginggoerli_AggregateRoot>;
+  staginggoerli_connectorMeta?: Maybe<staginggoerli_ConnectorMeta>;
+  staginggoerli_connectorMetas: Array<staginggoerli_ConnectorMeta>;
+  staginggoerli_rootMessageSent?: Maybe<staginggoerli_RootMessageSent>;
+  staginggoerli_rootMessageSents: Array<staginggoerli_RootMessageSent>;
+  staginggoerli_rootMessageProcessed?: Maybe<staginggoerli_RootMessageProcessed>;
+  staginggoerli_rootMessageProcesseds: Array<staginggoerli_RootMessageProcessed>;
+  /** Access to subgraph metadata */
+  staginggoerli__meta?: Maybe<staginggoerli__Meta_>;
 };
 
 
@@ -863,445 +697,170 @@ export type Querylocal1337__metaArgs = {
 };
 
 
-export type Querytestoptimismgoerli_assetArgs = {
+export type Queryrinkeby_assetArgs = {
   id: Scalars['ID'];
-  block?: InputMaybe<testoptimismgoerli_Block_height>;
+  block?: InputMaybe<rinkeby_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Querytestoptimismgoerli_assetsArgs = {
+export type Queryrinkeby_assetsArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<testoptimismgoerli_Asset_orderBy>;
-  orderDirection?: InputMaybe<testoptimismgoerli_OrderDirection>;
-  where?: InputMaybe<testoptimismgoerli_Asset_filter>;
-  block?: InputMaybe<testoptimismgoerli_Block_height>;
+  orderBy?: InputMaybe<rinkeby_Asset_orderBy>;
+  orderDirection?: InputMaybe<rinkeby_OrderDirection>;
+  where?: InputMaybe<rinkeby_Asset_filter>;
+  block?: InputMaybe<rinkeby_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Querytestoptimismgoerli_assetBalanceArgs = {
+export type Queryrinkeby_assetBalanceArgs = {
   id: Scalars['ID'];
-  block?: InputMaybe<testoptimismgoerli_Block_height>;
+  block?: InputMaybe<rinkeby_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Querytestoptimismgoerli_assetBalancesArgs = {
+export type Queryrinkeby_assetBalancesArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<testoptimismgoerli_AssetBalance_orderBy>;
-  orderDirection?: InputMaybe<testoptimismgoerli_OrderDirection>;
-  where?: InputMaybe<testoptimismgoerli_AssetBalance_filter>;
-  block?: InputMaybe<testoptimismgoerli_Block_height>;
+  orderBy?: InputMaybe<rinkeby_AssetBalance_orderBy>;
+  orderDirection?: InputMaybe<rinkeby_OrderDirection>;
+  where?: InputMaybe<rinkeby_AssetBalance_filter>;
+  block?: InputMaybe<rinkeby_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Querytestoptimismgoerli_routerArgs = {
+export type Queryrinkeby_routerArgs = {
   id: Scalars['ID'];
-  block?: InputMaybe<testoptimismgoerli_Block_height>;
+  block?: InputMaybe<rinkeby_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Querytestoptimismgoerli_routersArgs = {
+export type Queryrinkeby_routersArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<testoptimismgoerli_Router_orderBy>;
-  orderDirection?: InputMaybe<testoptimismgoerli_OrderDirection>;
-  where?: InputMaybe<testoptimismgoerli_Router_filter>;
-  block?: InputMaybe<testoptimismgoerli_Block_height>;
+  orderBy?: InputMaybe<rinkeby_Router_orderBy>;
+  orderDirection?: InputMaybe<rinkeby_OrderDirection>;
+  where?: InputMaybe<rinkeby_Router_filter>;
+  block?: InputMaybe<rinkeby_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Querytestoptimismgoerli_settingArgs = {
+export type Queryrinkeby_settingArgs = {
   id: Scalars['ID'];
-  block?: InputMaybe<testoptimismgoerli_Block_height>;
+  block?: InputMaybe<rinkeby_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Querytestoptimismgoerli_settingsArgs = {
+export type Queryrinkeby_settingsArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<testoptimismgoerli_Setting_orderBy>;
-  orderDirection?: InputMaybe<testoptimismgoerli_OrderDirection>;
-  where?: InputMaybe<testoptimismgoerli_Setting_filter>;
-  block?: InputMaybe<testoptimismgoerli_Block_height>;
+  orderBy?: InputMaybe<rinkeby_Setting_orderBy>;
+  orderDirection?: InputMaybe<rinkeby_OrderDirection>;
+  where?: InputMaybe<rinkeby_Setting_filter>;
+  block?: InputMaybe<rinkeby_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Querytestoptimismgoerli_relayerArgs = {
+export type Queryrinkeby_relayerArgs = {
   id: Scalars['ID'];
-  block?: InputMaybe<testoptimismgoerli_Block_height>;
+  block?: InputMaybe<rinkeby_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Querytestoptimismgoerli_relayersArgs = {
+export type Queryrinkeby_relayersArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<testoptimismgoerli_Relayer_orderBy>;
-  orderDirection?: InputMaybe<testoptimismgoerli_OrderDirection>;
-  where?: InputMaybe<testoptimismgoerli_Relayer_filter>;
-  block?: InputMaybe<testoptimismgoerli_Block_height>;
+  orderBy?: InputMaybe<rinkeby_Relayer_orderBy>;
+  orderDirection?: InputMaybe<rinkeby_OrderDirection>;
+  where?: InputMaybe<rinkeby_Relayer_filter>;
+  block?: InputMaybe<rinkeby_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Querytestoptimismgoerli_stableSwapArgs = {
+export type Queryrinkeby_stableSwapArgs = {
   id: Scalars['ID'];
-  block?: InputMaybe<testoptimismgoerli_Block_height>;
+  block?: InputMaybe<rinkeby_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Querytestoptimismgoerli_stableSwapsArgs = {
+export type Queryrinkeby_stableSwapsArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<testoptimismgoerli_StableSwap_orderBy>;
-  orderDirection?: InputMaybe<testoptimismgoerli_OrderDirection>;
-  where?: InputMaybe<testoptimismgoerli_StableSwap_filter>;
-  block?: InputMaybe<testoptimismgoerli_Block_height>;
+  orderBy?: InputMaybe<rinkeby_StableSwap_orderBy>;
+  orderDirection?: InputMaybe<rinkeby_OrderDirection>;
+  where?: InputMaybe<rinkeby_StableSwap_filter>;
+  block?: InputMaybe<rinkeby_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Querytestoptimismgoerli_sponsorVaultArgs = {
+export type Queryrinkeby_sponsorVaultArgs = {
   id: Scalars['ID'];
-  block?: InputMaybe<testoptimismgoerli_Block_height>;
+  block?: InputMaybe<rinkeby_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Querytestoptimismgoerli_sponsorVaultsArgs = {
+export type Queryrinkeby_sponsorVaultsArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<testoptimismgoerli_SponsorVault_orderBy>;
-  orderDirection?: InputMaybe<testoptimismgoerli_OrderDirection>;
-  where?: InputMaybe<testoptimismgoerli_SponsorVault_filter>;
-  block?: InputMaybe<testoptimismgoerli_Block_height>;
+  orderBy?: InputMaybe<rinkeby_SponsorVault_orderBy>;
+  orderDirection?: InputMaybe<rinkeby_OrderDirection>;
+  where?: InputMaybe<rinkeby_SponsorVault_filter>;
+  block?: InputMaybe<rinkeby_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Querytestoptimismgoerli_originTransferArgs = {
+export type Queryrinkeby_originTransferArgs = {
   id: Scalars['ID'];
-  block?: InputMaybe<testoptimismgoerli_Block_height>;
+  block?: InputMaybe<rinkeby_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Querytestoptimismgoerli_originTransfersArgs = {
+export type Queryrinkeby_originTransfersArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<testoptimismgoerli_OriginTransfer_orderBy>;
-  orderDirection?: InputMaybe<testoptimismgoerli_OrderDirection>;
-  where?: InputMaybe<testoptimismgoerli_OriginTransfer_filter>;
-  block?: InputMaybe<testoptimismgoerli_Block_height>;
+  orderBy?: InputMaybe<rinkeby_OriginTransfer_orderBy>;
+  orderDirection?: InputMaybe<rinkeby_OrderDirection>;
+  where?: InputMaybe<rinkeby_OriginTransfer_filter>;
+  block?: InputMaybe<rinkeby_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Querytestoptimismgoerli_destinationTransferArgs = {
+export type Queryrinkeby_destinationTransferArgs = {
   id: Scalars['ID'];
-  block?: InputMaybe<testoptimismgoerli_Block_height>;
+  block?: InputMaybe<rinkeby_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Querytestoptimismgoerli_destinationTransfersArgs = {
+export type Queryrinkeby_destinationTransfersArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<testoptimismgoerli_DestinationTransfer_orderBy>;
-  orderDirection?: InputMaybe<testoptimismgoerli_OrderDirection>;
-  where?: InputMaybe<testoptimismgoerli_DestinationTransfer_filter>;
-  block?: InputMaybe<testoptimismgoerli_Block_height>;
+  orderBy?: InputMaybe<rinkeby_DestinationTransfer_orderBy>;
+  orderDirection?: InputMaybe<rinkeby_OrderDirection>;
+  where?: InputMaybe<rinkeby_DestinationTransfer_filter>;
+  block?: InputMaybe<rinkeby_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Querytestoptimismgoerli__metaArgs = {
-  block?: InputMaybe<testoptimismgoerli_Block_height>;
-};
-
-
-export type Querystaginggoerli_assetArgs = {
-  id: Scalars['ID'];
-  block?: InputMaybe<staginggoerli_Block_height>;
-  subgraphError?: _SubgraphErrorPolicy_;
-};
-
-
-export type Querystaginggoerli_assetsArgs = {
-  skip?: InputMaybe<Scalars['Int']>;
-  first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<staginggoerli_Asset_orderBy>;
-  orderDirection?: InputMaybe<staginggoerli_OrderDirection>;
-  where?: InputMaybe<staginggoerli_Asset_filter>;
-  block?: InputMaybe<staginggoerli_Block_height>;
-  subgraphError?: _SubgraphErrorPolicy_;
-};
-
-
-export type Querystaginggoerli_assetBalanceArgs = {
-  id: Scalars['ID'];
-  block?: InputMaybe<staginggoerli_Block_height>;
-  subgraphError?: _SubgraphErrorPolicy_;
-};
-
-
-export type Querystaginggoerli_assetBalancesArgs = {
-  skip?: InputMaybe<Scalars['Int']>;
-  first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<staginggoerli_AssetBalance_orderBy>;
-  orderDirection?: InputMaybe<staginggoerli_OrderDirection>;
-  where?: InputMaybe<staginggoerli_AssetBalance_filter>;
-  block?: InputMaybe<staginggoerli_Block_height>;
-  subgraphError?: _SubgraphErrorPolicy_;
-};
-
-
-export type Querystaginggoerli_routerArgs = {
-  id: Scalars['ID'];
-  block?: InputMaybe<staginggoerli_Block_height>;
-  subgraphError?: _SubgraphErrorPolicy_;
-};
-
-
-export type Querystaginggoerli_routersArgs = {
-  skip?: InputMaybe<Scalars['Int']>;
-  first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<staginggoerli_Router_orderBy>;
-  orderDirection?: InputMaybe<staginggoerli_OrderDirection>;
-  where?: InputMaybe<staginggoerli_Router_filter>;
-  block?: InputMaybe<staginggoerli_Block_height>;
-  subgraphError?: _SubgraphErrorPolicy_;
-};
-
-
-export type Querystaginggoerli_settingArgs = {
-  id: Scalars['ID'];
-  block?: InputMaybe<staginggoerli_Block_height>;
-  subgraphError?: _SubgraphErrorPolicy_;
-};
-
-
-export type Querystaginggoerli_settingsArgs = {
-  skip?: InputMaybe<Scalars['Int']>;
-  first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<staginggoerli_Setting_orderBy>;
-  orderDirection?: InputMaybe<staginggoerli_OrderDirection>;
-  where?: InputMaybe<staginggoerli_Setting_filter>;
-  block?: InputMaybe<staginggoerli_Block_height>;
-  subgraphError?: _SubgraphErrorPolicy_;
-};
-
-
-export type Querystaginggoerli_relayerArgs = {
-  id: Scalars['ID'];
-  block?: InputMaybe<staginggoerli_Block_height>;
-  subgraphError?: _SubgraphErrorPolicy_;
-};
-
-
-export type Querystaginggoerli_relayersArgs = {
-  skip?: InputMaybe<Scalars['Int']>;
-  first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<staginggoerli_Relayer_orderBy>;
-  orderDirection?: InputMaybe<staginggoerli_OrderDirection>;
-  where?: InputMaybe<staginggoerli_Relayer_filter>;
-  block?: InputMaybe<staginggoerli_Block_height>;
-  subgraphError?: _SubgraphErrorPolicy_;
-};
-
-
-export type Querystaginggoerli_stableSwapArgs = {
-  id: Scalars['ID'];
-  block?: InputMaybe<staginggoerli_Block_height>;
-  subgraphError?: _SubgraphErrorPolicy_;
-};
-
-
-export type Querystaginggoerli_stableSwapsArgs = {
-  skip?: InputMaybe<Scalars['Int']>;
-  first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<staginggoerli_StableSwap_orderBy>;
-  orderDirection?: InputMaybe<staginggoerli_OrderDirection>;
-  where?: InputMaybe<staginggoerli_StableSwap_filter>;
-  block?: InputMaybe<staginggoerli_Block_height>;
-  subgraphError?: _SubgraphErrorPolicy_;
-};
-
-
-export type Querystaginggoerli_sponsorVaultArgs = {
-  id: Scalars['ID'];
-  block?: InputMaybe<staginggoerli_Block_height>;
-  subgraphError?: _SubgraphErrorPolicy_;
-};
-
-
-export type Querystaginggoerli_sponsorVaultsArgs = {
-  skip?: InputMaybe<Scalars['Int']>;
-  first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<staginggoerli_SponsorVault_orderBy>;
-  orderDirection?: InputMaybe<staginggoerli_OrderDirection>;
-  where?: InputMaybe<staginggoerli_SponsorVault_filter>;
-  block?: InputMaybe<staginggoerli_Block_height>;
-  subgraphError?: _SubgraphErrorPolicy_;
-};
-
-
-export type Querystaginggoerli_originTransferArgs = {
-  id: Scalars['ID'];
-  block?: InputMaybe<staginggoerli_Block_height>;
-  subgraphError?: _SubgraphErrorPolicy_;
-};
-
-
-export type Querystaginggoerli_originTransfersArgs = {
-  skip?: InputMaybe<Scalars['Int']>;
-  first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<staginggoerli_OriginTransfer_orderBy>;
-  orderDirection?: InputMaybe<staginggoerli_OrderDirection>;
-  where?: InputMaybe<staginggoerli_OriginTransfer_filter>;
-  block?: InputMaybe<staginggoerli_Block_height>;
-  subgraphError?: _SubgraphErrorPolicy_;
-};
-
-
-export type Querystaginggoerli_destinationTransferArgs = {
-  id: Scalars['ID'];
-  block?: InputMaybe<staginggoerli_Block_height>;
-  subgraphError?: _SubgraphErrorPolicy_;
-};
-
-
-export type Querystaginggoerli_destinationTransfersArgs = {
-  skip?: InputMaybe<Scalars['Int']>;
-  first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<staginggoerli_DestinationTransfer_orderBy>;
-  orderDirection?: InputMaybe<staginggoerli_OrderDirection>;
-  where?: InputMaybe<staginggoerli_DestinationTransfer_filter>;
-  block?: InputMaybe<staginggoerli_Block_height>;
-  subgraphError?: _SubgraphErrorPolicy_;
-};
-
-
-export type Querystaginggoerli_originMessageArgs = {
-  id: Scalars['ID'];
-  block?: InputMaybe<staginggoerli_Block_height>;
-  subgraphError?: _SubgraphErrorPolicy_;
-};
-
-
-export type Querystaginggoerli_originMessagesArgs = {
-  skip?: InputMaybe<Scalars['Int']>;
-  first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<staginggoerli_OriginMessage_orderBy>;
-  orderDirection?: InputMaybe<staginggoerli_OrderDirection>;
-  where?: InputMaybe<staginggoerli_OriginMessage_filter>;
-  block?: InputMaybe<staginggoerli_Block_height>;
-  subgraphError?: _SubgraphErrorPolicy_;
-};
-
-
-export type Querystaginggoerli_destinationMessageArgs = {
-  id: Scalars['ID'];
-  block?: InputMaybe<staginggoerli_Block_height>;
-  subgraphError?: _SubgraphErrorPolicy_;
-};
-
-
-export type Querystaginggoerli_destinationMessagesArgs = {
-  skip?: InputMaybe<Scalars['Int']>;
-  first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<staginggoerli_DestinationMessage_orderBy>;
-  orderDirection?: InputMaybe<staginggoerli_OrderDirection>;
-  where?: InputMaybe<staginggoerli_DestinationMessage_filter>;
-  block?: InputMaybe<staginggoerli_Block_height>;
-  subgraphError?: _SubgraphErrorPolicy_;
-};
-
-
-export type Querystaginggoerli_aggregateRootArgs = {
-  id: Scalars['ID'];
-  block?: InputMaybe<staginggoerli_Block_height>;
-  subgraphError?: _SubgraphErrorPolicy_;
-};
-
-
-export type Querystaginggoerli_aggregateRootsArgs = {
-  skip?: InputMaybe<Scalars['Int']>;
-  first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<staginggoerli_AggregateRoot_orderBy>;
-  orderDirection?: InputMaybe<staginggoerli_OrderDirection>;
-  where?: InputMaybe<staginggoerli_AggregateRoot_filter>;
-  block?: InputMaybe<staginggoerli_Block_height>;
-  subgraphError?: _SubgraphErrorPolicy_;
-};
-
-
-export type Querystaginggoerli_connectorMetaArgs = {
-  id: Scalars['ID'];
-  block?: InputMaybe<staginggoerli_Block_height>;
-  subgraphError?: _SubgraphErrorPolicy_;
-};
-
-
-export type Querystaginggoerli_connectorMetasArgs = {
-  skip?: InputMaybe<Scalars['Int']>;
-  first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<staginggoerli_ConnectorMeta_orderBy>;
-  orderDirection?: InputMaybe<staginggoerli_OrderDirection>;
-  where?: InputMaybe<staginggoerli_ConnectorMeta_filter>;
-  block?: InputMaybe<staginggoerli_Block_height>;
-  subgraphError?: _SubgraphErrorPolicy_;
-};
-
-
-export type Querystaginggoerli_rootMessageSentArgs = {
-  id: Scalars['ID'];
-  block?: InputMaybe<staginggoerli_Block_height>;
-  subgraphError?: _SubgraphErrorPolicy_;
-};
-
-
-export type Querystaginggoerli_rootMessageSentsArgs = {
-  skip?: InputMaybe<Scalars['Int']>;
-  first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<staginggoerli_RootMessageSent_orderBy>;
-  orderDirection?: InputMaybe<staginggoerli_OrderDirection>;
-  where?: InputMaybe<staginggoerli_RootMessageSent_filter>;
-  block?: InputMaybe<staginggoerli_Block_height>;
-  subgraphError?: _SubgraphErrorPolicy_;
-};
-
-
-export type Querystaginggoerli_rootMessageProcessedArgs = {
-  id: Scalars['ID'];
-  block?: InputMaybe<staginggoerli_Block_height>;
-  subgraphError?: _SubgraphErrorPolicy_;
-};
-
-
-export type Querystaginggoerli_rootMessageProcessedsArgs = {
-  skip?: InputMaybe<Scalars['Int']>;
-  first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<staginggoerli_RootMessageProcessed_orderBy>;
-  orderDirection?: InputMaybe<staginggoerli_OrderDirection>;
-  where?: InputMaybe<staginggoerli_RootMessageProcessed_filter>;
-  block?: InputMaybe<staginggoerli_Block_height>;
-  subgraphError?: _SubgraphErrorPolicy_;
-};
-
-
-export type Querystaginggoerli__metaArgs = {
-  block?: InputMaybe<staginggoerli_Block_height>;
+export type Queryrinkeby__metaArgs = {
+  block?: InputMaybe<rinkeby_Block_height>;
 };
 
 
@@ -1580,445 +1139,170 @@ export type Querygoerli__metaArgs = {
 };
 
 
-export type Querylocal1338_assetArgs = {
+export type Querytestoptimismgoerli_assetArgs = {
   id: Scalars['ID'];
-  block?: InputMaybe<local1338_Block_height>;
+  block?: InputMaybe<testoptimismgoerli_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Querylocal1338_assetsArgs = {
+export type Querytestoptimismgoerli_assetsArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<local1338_Asset_orderBy>;
-  orderDirection?: InputMaybe<local1338_OrderDirection>;
-  where?: InputMaybe<local1338_Asset_filter>;
-  block?: InputMaybe<local1338_Block_height>;
+  orderBy?: InputMaybe<testoptimismgoerli_Asset_orderBy>;
+  orderDirection?: InputMaybe<testoptimismgoerli_OrderDirection>;
+  where?: InputMaybe<testoptimismgoerli_Asset_filter>;
+  block?: InputMaybe<testoptimismgoerli_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Querylocal1338_assetBalanceArgs = {
+export type Querytestoptimismgoerli_assetBalanceArgs = {
   id: Scalars['ID'];
-  block?: InputMaybe<local1338_Block_height>;
+  block?: InputMaybe<testoptimismgoerli_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Querylocal1338_assetBalancesArgs = {
+export type Querytestoptimismgoerli_assetBalancesArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<local1338_AssetBalance_orderBy>;
-  orderDirection?: InputMaybe<local1338_OrderDirection>;
-  where?: InputMaybe<local1338_AssetBalance_filter>;
-  block?: InputMaybe<local1338_Block_height>;
+  orderBy?: InputMaybe<testoptimismgoerli_AssetBalance_orderBy>;
+  orderDirection?: InputMaybe<testoptimismgoerli_OrderDirection>;
+  where?: InputMaybe<testoptimismgoerli_AssetBalance_filter>;
+  block?: InputMaybe<testoptimismgoerli_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Querylocal1338_routerArgs = {
+export type Querytestoptimismgoerli_routerArgs = {
   id: Scalars['ID'];
-  block?: InputMaybe<local1338_Block_height>;
+  block?: InputMaybe<testoptimismgoerli_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Querylocal1338_routersArgs = {
+export type Querytestoptimismgoerli_routersArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<local1338_Router_orderBy>;
-  orderDirection?: InputMaybe<local1338_OrderDirection>;
-  where?: InputMaybe<local1338_Router_filter>;
-  block?: InputMaybe<local1338_Block_height>;
+  orderBy?: InputMaybe<testoptimismgoerli_Router_orderBy>;
+  orderDirection?: InputMaybe<testoptimismgoerli_OrderDirection>;
+  where?: InputMaybe<testoptimismgoerli_Router_filter>;
+  block?: InputMaybe<testoptimismgoerli_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Querylocal1338_settingArgs = {
+export type Querytestoptimismgoerli_settingArgs = {
   id: Scalars['ID'];
-  block?: InputMaybe<local1338_Block_height>;
+  block?: InputMaybe<testoptimismgoerli_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Querylocal1338_settingsArgs = {
+export type Querytestoptimismgoerli_settingsArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<local1338_Setting_orderBy>;
-  orderDirection?: InputMaybe<local1338_OrderDirection>;
-  where?: InputMaybe<local1338_Setting_filter>;
-  block?: InputMaybe<local1338_Block_height>;
+  orderBy?: InputMaybe<testoptimismgoerli_Setting_orderBy>;
+  orderDirection?: InputMaybe<testoptimismgoerli_OrderDirection>;
+  where?: InputMaybe<testoptimismgoerli_Setting_filter>;
+  block?: InputMaybe<testoptimismgoerli_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Querylocal1338_relayerArgs = {
+export type Querytestoptimismgoerli_relayerArgs = {
   id: Scalars['ID'];
-  block?: InputMaybe<local1338_Block_height>;
+  block?: InputMaybe<testoptimismgoerli_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Querylocal1338_relayersArgs = {
+export type Querytestoptimismgoerli_relayersArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<local1338_Relayer_orderBy>;
-  orderDirection?: InputMaybe<local1338_OrderDirection>;
-  where?: InputMaybe<local1338_Relayer_filter>;
-  block?: InputMaybe<local1338_Block_height>;
+  orderBy?: InputMaybe<testoptimismgoerli_Relayer_orderBy>;
+  orderDirection?: InputMaybe<testoptimismgoerli_OrderDirection>;
+  where?: InputMaybe<testoptimismgoerli_Relayer_filter>;
+  block?: InputMaybe<testoptimismgoerli_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Querylocal1338_stableSwapArgs = {
+export type Querytestoptimismgoerli_stableSwapArgs = {
   id: Scalars['ID'];
-  block?: InputMaybe<local1338_Block_height>;
+  block?: InputMaybe<testoptimismgoerli_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Querylocal1338_stableSwapsArgs = {
+export type Querytestoptimismgoerli_stableSwapsArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<local1338_StableSwap_orderBy>;
-  orderDirection?: InputMaybe<local1338_OrderDirection>;
-  where?: InputMaybe<local1338_StableSwap_filter>;
-  block?: InputMaybe<local1338_Block_height>;
+  orderBy?: InputMaybe<testoptimismgoerli_StableSwap_orderBy>;
+  orderDirection?: InputMaybe<testoptimismgoerli_OrderDirection>;
+  where?: InputMaybe<testoptimismgoerli_StableSwap_filter>;
+  block?: InputMaybe<testoptimismgoerli_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Querylocal1338_sponsorVaultArgs = {
+export type Querytestoptimismgoerli_sponsorVaultArgs = {
   id: Scalars['ID'];
-  block?: InputMaybe<local1338_Block_height>;
+  block?: InputMaybe<testoptimismgoerli_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Querylocal1338_sponsorVaultsArgs = {
+export type Querytestoptimismgoerli_sponsorVaultsArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<local1338_SponsorVault_orderBy>;
-  orderDirection?: InputMaybe<local1338_OrderDirection>;
-  where?: InputMaybe<local1338_SponsorVault_filter>;
-  block?: InputMaybe<local1338_Block_height>;
+  orderBy?: InputMaybe<testoptimismgoerli_SponsorVault_orderBy>;
+  orderDirection?: InputMaybe<testoptimismgoerli_OrderDirection>;
+  where?: InputMaybe<testoptimismgoerli_SponsorVault_filter>;
+  block?: InputMaybe<testoptimismgoerli_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Querylocal1338_originTransferArgs = {
+export type Querytestoptimismgoerli_originTransferArgs = {
   id: Scalars['ID'];
-  block?: InputMaybe<local1338_Block_height>;
+  block?: InputMaybe<testoptimismgoerli_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Querylocal1338_originTransfersArgs = {
+export type Querytestoptimismgoerli_originTransfersArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<local1338_OriginTransfer_orderBy>;
-  orderDirection?: InputMaybe<local1338_OrderDirection>;
-  where?: InputMaybe<local1338_OriginTransfer_filter>;
-  block?: InputMaybe<local1338_Block_height>;
+  orderBy?: InputMaybe<testoptimismgoerli_OriginTransfer_orderBy>;
+  orderDirection?: InputMaybe<testoptimismgoerli_OrderDirection>;
+  where?: InputMaybe<testoptimismgoerli_OriginTransfer_filter>;
+  block?: InputMaybe<testoptimismgoerli_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Querylocal1338_destinationTransferArgs = {
+export type Querytestoptimismgoerli_destinationTransferArgs = {
   id: Scalars['ID'];
-  block?: InputMaybe<local1338_Block_height>;
+  block?: InputMaybe<testoptimismgoerli_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Querylocal1338_destinationTransfersArgs = {
+export type Querytestoptimismgoerli_destinationTransfersArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<local1338_DestinationTransfer_orderBy>;
-  orderDirection?: InputMaybe<local1338_OrderDirection>;
-  where?: InputMaybe<local1338_DestinationTransfer_filter>;
-  block?: InputMaybe<local1338_Block_height>;
+  orderBy?: InputMaybe<testoptimismgoerli_DestinationTransfer_orderBy>;
+  orderDirection?: InputMaybe<testoptimismgoerli_OrderDirection>;
+  where?: InputMaybe<testoptimismgoerli_DestinationTransfer_filter>;
+  block?: InputMaybe<testoptimismgoerli_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Querylocal1338__metaArgs = {
-  block?: InputMaybe<local1338_Block_height>;
-};
-
-
-export type Querystagingmumbai_assetArgs = {
-  id: Scalars['ID'];
-  block?: InputMaybe<stagingmumbai_Block_height>;
-  subgraphError?: _SubgraphErrorPolicy_;
-};
-
-
-export type Querystagingmumbai_assetsArgs = {
-  skip?: InputMaybe<Scalars['Int']>;
-  first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<stagingmumbai_Asset_orderBy>;
-  orderDirection?: InputMaybe<stagingmumbai_OrderDirection>;
-  where?: InputMaybe<stagingmumbai_Asset_filter>;
-  block?: InputMaybe<stagingmumbai_Block_height>;
-  subgraphError?: _SubgraphErrorPolicy_;
-};
-
-
-export type Querystagingmumbai_assetBalanceArgs = {
-  id: Scalars['ID'];
-  block?: InputMaybe<stagingmumbai_Block_height>;
-  subgraphError?: _SubgraphErrorPolicy_;
-};
-
-
-export type Querystagingmumbai_assetBalancesArgs = {
-  skip?: InputMaybe<Scalars['Int']>;
-  first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<stagingmumbai_AssetBalance_orderBy>;
-  orderDirection?: InputMaybe<stagingmumbai_OrderDirection>;
-  where?: InputMaybe<stagingmumbai_AssetBalance_filter>;
-  block?: InputMaybe<stagingmumbai_Block_height>;
-  subgraphError?: _SubgraphErrorPolicy_;
-};
-
-
-export type Querystagingmumbai_routerArgs = {
-  id: Scalars['ID'];
-  block?: InputMaybe<stagingmumbai_Block_height>;
-  subgraphError?: _SubgraphErrorPolicy_;
-};
-
-
-export type Querystagingmumbai_routersArgs = {
-  skip?: InputMaybe<Scalars['Int']>;
-  first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<stagingmumbai_Router_orderBy>;
-  orderDirection?: InputMaybe<stagingmumbai_OrderDirection>;
-  where?: InputMaybe<stagingmumbai_Router_filter>;
-  block?: InputMaybe<stagingmumbai_Block_height>;
-  subgraphError?: _SubgraphErrorPolicy_;
-};
-
-
-export type Querystagingmumbai_settingArgs = {
-  id: Scalars['ID'];
-  block?: InputMaybe<stagingmumbai_Block_height>;
-  subgraphError?: _SubgraphErrorPolicy_;
-};
-
-
-export type Querystagingmumbai_settingsArgs = {
-  skip?: InputMaybe<Scalars['Int']>;
-  first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<stagingmumbai_Setting_orderBy>;
-  orderDirection?: InputMaybe<stagingmumbai_OrderDirection>;
-  where?: InputMaybe<stagingmumbai_Setting_filter>;
-  block?: InputMaybe<stagingmumbai_Block_height>;
-  subgraphError?: _SubgraphErrorPolicy_;
-};
-
-
-export type Querystagingmumbai_relayerArgs = {
-  id: Scalars['ID'];
-  block?: InputMaybe<stagingmumbai_Block_height>;
-  subgraphError?: _SubgraphErrorPolicy_;
-};
-
-
-export type Querystagingmumbai_relayersArgs = {
-  skip?: InputMaybe<Scalars['Int']>;
-  first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<stagingmumbai_Relayer_orderBy>;
-  orderDirection?: InputMaybe<stagingmumbai_OrderDirection>;
-  where?: InputMaybe<stagingmumbai_Relayer_filter>;
-  block?: InputMaybe<stagingmumbai_Block_height>;
-  subgraphError?: _SubgraphErrorPolicy_;
-};
-
-
-export type Querystagingmumbai_stableSwapArgs = {
-  id: Scalars['ID'];
-  block?: InputMaybe<stagingmumbai_Block_height>;
-  subgraphError?: _SubgraphErrorPolicy_;
-};
-
-
-export type Querystagingmumbai_stableSwapsArgs = {
-  skip?: InputMaybe<Scalars['Int']>;
-  first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<stagingmumbai_StableSwap_orderBy>;
-  orderDirection?: InputMaybe<stagingmumbai_OrderDirection>;
-  where?: InputMaybe<stagingmumbai_StableSwap_filter>;
-  block?: InputMaybe<stagingmumbai_Block_height>;
-  subgraphError?: _SubgraphErrorPolicy_;
-};
-
-
-export type Querystagingmumbai_sponsorVaultArgs = {
-  id: Scalars['ID'];
-  block?: InputMaybe<stagingmumbai_Block_height>;
-  subgraphError?: _SubgraphErrorPolicy_;
-};
-
-
-export type Querystagingmumbai_sponsorVaultsArgs = {
-  skip?: InputMaybe<Scalars['Int']>;
-  first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<stagingmumbai_SponsorVault_orderBy>;
-  orderDirection?: InputMaybe<stagingmumbai_OrderDirection>;
-  where?: InputMaybe<stagingmumbai_SponsorVault_filter>;
-  block?: InputMaybe<stagingmumbai_Block_height>;
-  subgraphError?: _SubgraphErrorPolicy_;
-};
-
-
-export type Querystagingmumbai_originTransferArgs = {
-  id: Scalars['ID'];
-  block?: InputMaybe<stagingmumbai_Block_height>;
-  subgraphError?: _SubgraphErrorPolicy_;
-};
-
-
-export type Querystagingmumbai_originTransfersArgs = {
-  skip?: InputMaybe<Scalars['Int']>;
-  first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<stagingmumbai_OriginTransfer_orderBy>;
-  orderDirection?: InputMaybe<stagingmumbai_OrderDirection>;
-  where?: InputMaybe<stagingmumbai_OriginTransfer_filter>;
-  block?: InputMaybe<stagingmumbai_Block_height>;
-  subgraphError?: _SubgraphErrorPolicy_;
-};
-
-
-export type Querystagingmumbai_destinationTransferArgs = {
-  id: Scalars['ID'];
-  block?: InputMaybe<stagingmumbai_Block_height>;
-  subgraphError?: _SubgraphErrorPolicy_;
-};
-
-
-export type Querystagingmumbai_destinationTransfersArgs = {
-  skip?: InputMaybe<Scalars['Int']>;
-  first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<stagingmumbai_DestinationTransfer_orderBy>;
-  orderDirection?: InputMaybe<stagingmumbai_OrderDirection>;
-  where?: InputMaybe<stagingmumbai_DestinationTransfer_filter>;
-  block?: InputMaybe<stagingmumbai_Block_height>;
-  subgraphError?: _SubgraphErrorPolicy_;
-};
-
-
-export type Querystagingmumbai_originMessageArgs = {
-  id: Scalars['ID'];
-  block?: InputMaybe<stagingmumbai_Block_height>;
-  subgraphError?: _SubgraphErrorPolicy_;
-};
-
-
-export type Querystagingmumbai_originMessagesArgs = {
-  skip?: InputMaybe<Scalars['Int']>;
-  first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<stagingmumbai_OriginMessage_orderBy>;
-  orderDirection?: InputMaybe<stagingmumbai_OrderDirection>;
-  where?: InputMaybe<stagingmumbai_OriginMessage_filter>;
-  block?: InputMaybe<stagingmumbai_Block_height>;
-  subgraphError?: _SubgraphErrorPolicy_;
-};
-
-
-export type Querystagingmumbai_destinationMessageArgs = {
-  id: Scalars['ID'];
-  block?: InputMaybe<stagingmumbai_Block_height>;
-  subgraphError?: _SubgraphErrorPolicy_;
-};
-
-
-export type Querystagingmumbai_destinationMessagesArgs = {
-  skip?: InputMaybe<Scalars['Int']>;
-  first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<stagingmumbai_DestinationMessage_orderBy>;
-  orderDirection?: InputMaybe<stagingmumbai_OrderDirection>;
-  where?: InputMaybe<stagingmumbai_DestinationMessage_filter>;
-  block?: InputMaybe<stagingmumbai_Block_height>;
-  subgraphError?: _SubgraphErrorPolicy_;
-};
-
-
-export type Querystagingmumbai_aggregateRootArgs = {
-  id: Scalars['ID'];
-  block?: InputMaybe<stagingmumbai_Block_height>;
-  subgraphError?: _SubgraphErrorPolicy_;
-};
-
-
-export type Querystagingmumbai_aggregateRootsArgs = {
-  skip?: InputMaybe<Scalars['Int']>;
-  first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<stagingmumbai_AggregateRoot_orderBy>;
-  orderDirection?: InputMaybe<stagingmumbai_OrderDirection>;
-  where?: InputMaybe<stagingmumbai_AggregateRoot_filter>;
-  block?: InputMaybe<stagingmumbai_Block_height>;
-  subgraphError?: _SubgraphErrorPolicy_;
-};
-
-
-export type Querystagingmumbai_connectorMetaArgs = {
-  id: Scalars['ID'];
-  block?: InputMaybe<stagingmumbai_Block_height>;
-  subgraphError?: _SubgraphErrorPolicy_;
-};
-
-
-export type Querystagingmumbai_connectorMetasArgs = {
-  skip?: InputMaybe<Scalars['Int']>;
-  first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<stagingmumbai_ConnectorMeta_orderBy>;
-  orderDirection?: InputMaybe<stagingmumbai_OrderDirection>;
-  where?: InputMaybe<stagingmumbai_ConnectorMeta_filter>;
-  block?: InputMaybe<stagingmumbai_Block_height>;
-  subgraphError?: _SubgraphErrorPolicy_;
-};
-
-
-export type Querystagingmumbai_rootMessageSentArgs = {
-  id: Scalars['ID'];
-  block?: InputMaybe<stagingmumbai_Block_height>;
-  subgraphError?: _SubgraphErrorPolicy_;
-};
-
-
-export type Querystagingmumbai_rootMessageSentsArgs = {
-  skip?: InputMaybe<Scalars['Int']>;
-  first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<stagingmumbai_RootMessageSent_orderBy>;
-  orderDirection?: InputMaybe<stagingmumbai_OrderDirection>;
-  where?: InputMaybe<stagingmumbai_RootMessageSent_filter>;
-  block?: InputMaybe<stagingmumbai_Block_height>;
-  subgraphError?: _SubgraphErrorPolicy_;
-};
-
-
-export type Querystagingmumbai_rootMessageProcessedArgs = {
-  id: Scalars['ID'];
-  block?: InputMaybe<stagingmumbai_Block_height>;
-  subgraphError?: _SubgraphErrorPolicy_;
-};
-
-
-export type Querystagingmumbai_rootMessageProcessedsArgs = {
-  skip?: InputMaybe<Scalars['Int']>;
-  first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<stagingmumbai_RootMessageProcessed_orderBy>;
-  orderDirection?: InputMaybe<stagingmumbai_OrderDirection>;
-  where?: InputMaybe<stagingmumbai_RootMessageProcessed_filter>;
-  block?: InputMaybe<stagingmumbai_Block_height>;
-  subgraphError?: _SubgraphErrorPolicy_;
-};
-
-
-export type Querystagingmumbai__metaArgs = {
-  block?: InputMaybe<stagingmumbai_Block_height>;
+export type Querytestoptimismgoerli__metaArgs = {
+  block?: InputMaybe<testoptimismgoerli_Block_height>;
 };
 
 
@@ -2297,6 +1581,173 @@ export type Queryoptimismgoerli__metaArgs = {
 };
 
 
+export type Querylocal1338_assetArgs = {
+  id: Scalars['ID'];
+  block?: InputMaybe<local1338_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Querylocal1338_assetsArgs = {
+  skip?: InputMaybe<Scalars['Int']>;
+  first?: InputMaybe<Scalars['Int']>;
+  orderBy?: InputMaybe<local1338_Asset_orderBy>;
+  orderDirection?: InputMaybe<local1338_OrderDirection>;
+  where?: InputMaybe<local1338_Asset_filter>;
+  block?: InputMaybe<local1338_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Querylocal1338_assetBalanceArgs = {
+  id: Scalars['ID'];
+  block?: InputMaybe<local1338_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Querylocal1338_assetBalancesArgs = {
+  skip?: InputMaybe<Scalars['Int']>;
+  first?: InputMaybe<Scalars['Int']>;
+  orderBy?: InputMaybe<local1338_AssetBalance_orderBy>;
+  orderDirection?: InputMaybe<local1338_OrderDirection>;
+  where?: InputMaybe<local1338_AssetBalance_filter>;
+  block?: InputMaybe<local1338_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Querylocal1338_routerArgs = {
+  id: Scalars['ID'];
+  block?: InputMaybe<local1338_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Querylocal1338_routersArgs = {
+  skip?: InputMaybe<Scalars['Int']>;
+  first?: InputMaybe<Scalars['Int']>;
+  orderBy?: InputMaybe<local1338_Router_orderBy>;
+  orderDirection?: InputMaybe<local1338_OrderDirection>;
+  where?: InputMaybe<local1338_Router_filter>;
+  block?: InputMaybe<local1338_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Querylocal1338_settingArgs = {
+  id: Scalars['ID'];
+  block?: InputMaybe<local1338_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Querylocal1338_settingsArgs = {
+  skip?: InputMaybe<Scalars['Int']>;
+  first?: InputMaybe<Scalars['Int']>;
+  orderBy?: InputMaybe<local1338_Setting_orderBy>;
+  orderDirection?: InputMaybe<local1338_OrderDirection>;
+  where?: InputMaybe<local1338_Setting_filter>;
+  block?: InputMaybe<local1338_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Querylocal1338_relayerArgs = {
+  id: Scalars['ID'];
+  block?: InputMaybe<local1338_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Querylocal1338_relayersArgs = {
+  skip?: InputMaybe<Scalars['Int']>;
+  first?: InputMaybe<Scalars['Int']>;
+  orderBy?: InputMaybe<local1338_Relayer_orderBy>;
+  orderDirection?: InputMaybe<local1338_OrderDirection>;
+  where?: InputMaybe<local1338_Relayer_filter>;
+  block?: InputMaybe<local1338_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Querylocal1338_stableSwapArgs = {
+  id: Scalars['ID'];
+  block?: InputMaybe<local1338_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Querylocal1338_stableSwapsArgs = {
+  skip?: InputMaybe<Scalars['Int']>;
+  first?: InputMaybe<Scalars['Int']>;
+  orderBy?: InputMaybe<local1338_StableSwap_orderBy>;
+  orderDirection?: InputMaybe<local1338_OrderDirection>;
+  where?: InputMaybe<local1338_StableSwap_filter>;
+  block?: InputMaybe<local1338_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Querylocal1338_sponsorVaultArgs = {
+  id: Scalars['ID'];
+  block?: InputMaybe<local1338_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Querylocal1338_sponsorVaultsArgs = {
+  skip?: InputMaybe<Scalars['Int']>;
+  first?: InputMaybe<Scalars['Int']>;
+  orderBy?: InputMaybe<local1338_SponsorVault_orderBy>;
+  orderDirection?: InputMaybe<local1338_OrderDirection>;
+  where?: InputMaybe<local1338_SponsorVault_filter>;
+  block?: InputMaybe<local1338_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Querylocal1338_originTransferArgs = {
+  id: Scalars['ID'];
+  block?: InputMaybe<local1338_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Querylocal1338_originTransfersArgs = {
+  skip?: InputMaybe<Scalars['Int']>;
+  first?: InputMaybe<Scalars['Int']>;
+  orderBy?: InputMaybe<local1338_OriginTransfer_orderBy>;
+  orderDirection?: InputMaybe<local1338_OrderDirection>;
+  where?: InputMaybe<local1338_OriginTransfer_filter>;
+  block?: InputMaybe<local1338_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Querylocal1338_destinationTransferArgs = {
+  id: Scalars['ID'];
+  block?: InputMaybe<local1338_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Querylocal1338_destinationTransfersArgs = {
+  skip?: InputMaybe<Scalars['Int']>;
+  first?: InputMaybe<Scalars['Int']>;
+  orderBy?: InputMaybe<local1338_DestinationTransfer_orderBy>;
+  orderDirection?: InputMaybe<local1338_OrderDirection>;
+  where?: InputMaybe<local1338_DestinationTransfer_filter>;
+  block?: InputMaybe<local1338_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Querylocal1338__metaArgs = {
+  block?: InputMaybe<local1338_Block_height>;
+};
+
+
 export type Querymumbai_assetArgs = {
   id: Scalars['ID'];
   block?: InputMaybe<mumbai_Block_height>;
@@ -2533,6 +1984,281 @@ export type Querymumbai_rootMessagesArgs = {
 
 export type Querymumbai__metaArgs = {
   block?: InputMaybe<mumbai_Block_height>;
+};
+
+
+export type Querystagingmumbai_assetArgs = {
+  id: Scalars['ID'];
+  block?: InputMaybe<stagingmumbai_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Querystagingmumbai_assetsArgs = {
+  skip?: InputMaybe<Scalars['Int']>;
+  first?: InputMaybe<Scalars['Int']>;
+  orderBy?: InputMaybe<stagingmumbai_Asset_orderBy>;
+  orderDirection?: InputMaybe<stagingmumbai_OrderDirection>;
+  where?: InputMaybe<stagingmumbai_Asset_filter>;
+  block?: InputMaybe<stagingmumbai_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Querystagingmumbai_assetBalanceArgs = {
+  id: Scalars['ID'];
+  block?: InputMaybe<stagingmumbai_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Querystagingmumbai_assetBalancesArgs = {
+  skip?: InputMaybe<Scalars['Int']>;
+  first?: InputMaybe<Scalars['Int']>;
+  orderBy?: InputMaybe<stagingmumbai_AssetBalance_orderBy>;
+  orderDirection?: InputMaybe<stagingmumbai_OrderDirection>;
+  where?: InputMaybe<stagingmumbai_AssetBalance_filter>;
+  block?: InputMaybe<stagingmumbai_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Querystagingmumbai_routerArgs = {
+  id: Scalars['ID'];
+  block?: InputMaybe<stagingmumbai_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Querystagingmumbai_routersArgs = {
+  skip?: InputMaybe<Scalars['Int']>;
+  first?: InputMaybe<Scalars['Int']>;
+  orderBy?: InputMaybe<stagingmumbai_Router_orderBy>;
+  orderDirection?: InputMaybe<stagingmumbai_OrderDirection>;
+  where?: InputMaybe<stagingmumbai_Router_filter>;
+  block?: InputMaybe<stagingmumbai_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Querystagingmumbai_settingArgs = {
+  id: Scalars['ID'];
+  block?: InputMaybe<stagingmumbai_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Querystagingmumbai_settingsArgs = {
+  skip?: InputMaybe<Scalars['Int']>;
+  first?: InputMaybe<Scalars['Int']>;
+  orderBy?: InputMaybe<stagingmumbai_Setting_orderBy>;
+  orderDirection?: InputMaybe<stagingmumbai_OrderDirection>;
+  where?: InputMaybe<stagingmumbai_Setting_filter>;
+  block?: InputMaybe<stagingmumbai_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Querystagingmumbai_relayerArgs = {
+  id: Scalars['ID'];
+  block?: InputMaybe<stagingmumbai_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Querystagingmumbai_relayersArgs = {
+  skip?: InputMaybe<Scalars['Int']>;
+  first?: InputMaybe<Scalars['Int']>;
+  orderBy?: InputMaybe<stagingmumbai_Relayer_orderBy>;
+  orderDirection?: InputMaybe<stagingmumbai_OrderDirection>;
+  where?: InputMaybe<stagingmumbai_Relayer_filter>;
+  block?: InputMaybe<stagingmumbai_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Querystagingmumbai_stableSwapArgs = {
+  id: Scalars['ID'];
+  block?: InputMaybe<stagingmumbai_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Querystagingmumbai_stableSwapsArgs = {
+  skip?: InputMaybe<Scalars['Int']>;
+  first?: InputMaybe<Scalars['Int']>;
+  orderBy?: InputMaybe<stagingmumbai_StableSwap_orderBy>;
+  orderDirection?: InputMaybe<stagingmumbai_OrderDirection>;
+  where?: InputMaybe<stagingmumbai_StableSwap_filter>;
+  block?: InputMaybe<stagingmumbai_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Querystagingmumbai_sponsorVaultArgs = {
+  id: Scalars['ID'];
+  block?: InputMaybe<stagingmumbai_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Querystagingmumbai_sponsorVaultsArgs = {
+  skip?: InputMaybe<Scalars['Int']>;
+  first?: InputMaybe<Scalars['Int']>;
+  orderBy?: InputMaybe<stagingmumbai_SponsorVault_orderBy>;
+  orderDirection?: InputMaybe<stagingmumbai_OrderDirection>;
+  where?: InputMaybe<stagingmumbai_SponsorVault_filter>;
+  block?: InputMaybe<stagingmumbai_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Querystagingmumbai_originTransferArgs = {
+  id: Scalars['ID'];
+  block?: InputMaybe<stagingmumbai_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Querystagingmumbai_originTransfersArgs = {
+  skip?: InputMaybe<Scalars['Int']>;
+  first?: InputMaybe<Scalars['Int']>;
+  orderBy?: InputMaybe<stagingmumbai_OriginTransfer_orderBy>;
+  orderDirection?: InputMaybe<stagingmumbai_OrderDirection>;
+  where?: InputMaybe<stagingmumbai_OriginTransfer_filter>;
+  block?: InputMaybe<stagingmumbai_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Querystagingmumbai_destinationTransferArgs = {
+  id: Scalars['ID'];
+  block?: InputMaybe<stagingmumbai_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Querystagingmumbai_destinationTransfersArgs = {
+  skip?: InputMaybe<Scalars['Int']>;
+  first?: InputMaybe<Scalars['Int']>;
+  orderBy?: InputMaybe<stagingmumbai_DestinationTransfer_orderBy>;
+  orderDirection?: InputMaybe<stagingmumbai_OrderDirection>;
+  where?: InputMaybe<stagingmumbai_DestinationTransfer_filter>;
+  block?: InputMaybe<stagingmumbai_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Querystagingmumbai_originMessageArgs = {
+  id: Scalars['ID'];
+  block?: InputMaybe<stagingmumbai_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Querystagingmumbai_originMessagesArgs = {
+  skip?: InputMaybe<Scalars['Int']>;
+  first?: InputMaybe<Scalars['Int']>;
+  orderBy?: InputMaybe<stagingmumbai_OriginMessage_orderBy>;
+  orderDirection?: InputMaybe<stagingmumbai_OrderDirection>;
+  where?: InputMaybe<stagingmumbai_OriginMessage_filter>;
+  block?: InputMaybe<stagingmumbai_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Querystagingmumbai_destinationMessageArgs = {
+  id: Scalars['ID'];
+  block?: InputMaybe<stagingmumbai_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Querystagingmumbai_destinationMessagesArgs = {
+  skip?: InputMaybe<Scalars['Int']>;
+  first?: InputMaybe<Scalars['Int']>;
+  orderBy?: InputMaybe<stagingmumbai_DestinationMessage_orderBy>;
+  orderDirection?: InputMaybe<stagingmumbai_OrderDirection>;
+  where?: InputMaybe<stagingmumbai_DestinationMessage_filter>;
+  block?: InputMaybe<stagingmumbai_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Querystagingmumbai_aggregateRootArgs = {
+  id: Scalars['ID'];
+  block?: InputMaybe<stagingmumbai_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Querystagingmumbai_aggregateRootsArgs = {
+  skip?: InputMaybe<Scalars['Int']>;
+  first?: InputMaybe<Scalars['Int']>;
+  orderBy?: InputMaybe<stagingmumbai_AggregateRoot_orderBy>;
+  orderDirection?: InputMaybe<stagingmumbai_OrderDirection>;
+  where?: InputMaybe<stagingmumbai_AggregateRoot_filter>;
+  block?: InputMaybe<stagingmumbai_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Querystagingmumbai_connectorMetaArgs = {
+  id: Scalars['ID'];
+  block?: InputMaybe<stagingmumbai_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Querystagingmumbai_connectorMetasArgs = {
+  skip?: InputMaybe<Scalars['Int']>;
+  first?: InputMaybe<Scalars['Int']>;
+  orderBy?: InputMaybe<stagingmumbai_ConnectorMeta_orderBy>;
+  orderDirection?: InputMaybe<stagingmumbai_OrderDirection>;
+  where?: InputMaybe<stagingmumbai_ConnectorMeta_filter>;
+  block?: InputMaybe<stagingmumbai_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Querystagingmumbai_rootMessageSentArgs = {
+  id: Scalars['ID'];
+  block?: InputMaybe<stagingmumbai_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Querystagingmumbai_rootMessageSentsArgs = {
+  skip?: InputMaybe<Scalars['Int']>;
+  first?: InputMaybe<Scalars['Int']>;
+  orderBy?: InputMaybe<stagingmumbai_RootMessageSent_orderBy>;
+  orderDirection?: InputMaybe<stagingmumbai_OrderDirection>;
+  where?: InputMaybe<stagingmumbai_RootMessageSent_filter>;
+  block?: InputMaybe<stagingmumbai_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Querystagingmumbai_rootMessageProcessedArgs = {
+  id: Scalars['ID'];
+  block?: InputMaybe<stagingmumbai_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Querystagingmumbai_rootMessageProcessedsArgs = {
+  skip?: InputMaybe<Scalars['Int']>;
+  first?: InputMaybe<Scalars['Int']>;
+  orderBy?: InputMaybe<stagingmumbai_RootMessageProcessed_orderBy>;
+  orderDirection?: InputMaybe<stagingmumbai_OrderDirection>;
+  where?: InputMaybe<stagingmumbai_RootMessageProcessed_filter>;
+  block?: InputMaybe<stagingmumbai_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Querystagingmumbai__metaArgs = {
+  block?: InputMaybe<stagingmumbai_Block_height>;
 };
 
 
@@ -2810,27 +2536,282 @@ export type Querystagingoptimismgoerli__metaArgs = {
   block?: InputMaybe<stagingoptimismgoerli_Block_height>;
 };
 
+
+export type Querystaginggoerli_assetArgs = {
+  id: Scalars['ID'];
+  block?: InputMaybe<staginggoerli_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Querystaginggoerli_assetsArgs = {
+  skip?: InputMaybe<Scalars['Int']>;
+  first?: InputMaybe<Scalars['Int']>;
+  orderBy?: InputMaybe<staginggoerli_Asset_orderBy>;
+  orderDirection?: InputMaybe<staginggoerli_OrderDirection>;
+  where?: InputMaybe<staginggoerli_Asset_filter>;
+  block?: InputMaybe<staginggoerli_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Querystaginggoerli_assetBalanceArgs = {
+  id: Scalars['ID'];
+  block?: InputMaybe<staginggoerli_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Querystaginggoerli_assetBalancesArgs = {
+  skip?: InputMaybe<Scalars['Int']>;
+  first?: InputMaybe<Scalars['Int']>;
+  orderBy?: InputMaybe<staginggoerli_AssetBalance_orderBy>;
+  orderDirection?: InputMaybe<staginggoerli_OrderDirection>;
+  where?: InputMaybe<staginggoerli_AssetBalance_filter>;
+  block?: InputMaybe<staginggoerli_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Querystaginggoerli_routerArgs = {
+  id: Scalars['ID'];
+  block?: InputMaybe<staginggoerli_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Querystaginggoerli_routersArgs = {
+  skip?: InputMaybe<Scalars['Int']>;
+  first?: InputMaybe<Scalars['Int']>;
+  orderBy?: InputMaybe<staginggoerli_Router_orderBy>;
+  orderDirection?: InputMaybe<staginggoerli_OrderDirection>;
+  where?: InputMaybe<staginggoerli_Router_filter>;
+  block?: InputMaybe<staginggoerli_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Querystaginggoerli_settingArgs = {
+  id: Scalars['ID'];
+  block?: InputMaybe<staginggoerli_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Querystaginggoerli_settingsArgs = {
+  skip?: InputMaybe<Scalars['Int']>;
+  first?: InputMaybe<Scalars['Int']>;
+  orderBy?: InputMaybe<staginggoerli_Setting_orderBy>;
+  orderDirection?: InputMaybe<staginggoerli_OrderDirection>;
+  where?: InputMaybe<staginggoerli_Setting_filter>;
+  block?: InputMaybe<staginggoerli_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Querystaginggoerli_relayerArgs = {
+  id: Scalars['ID'];
+  block?: InputMaybe<staginggoerli_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Querystaginggoerli_relayersArgs = {
+  skip?: InputMaybe<Scalars['Int']>;
+  first?: InputMaybe<Scalars['Int']>;
+  orderBy?: InputMaybe<staginggoerli_Relayer_orderBy>;
+  orderDirection?: InputMaybe<staginggoerli_OrderDirection>;
+  where?: InputMaybe<staginggoerli_Relayer_filter>;
+  block?: InputMaybe<staginggoerli_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Querystaginggoerli_stableSwapArgs = {
+  id: Scalars['ID'];
+  block?: InputMaybe<staginggoerli_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Querystaginggoerli_stableSwapsArgs = {
+  skip?: InputMaybe<Scalars['Int']>;
+  first?: InputMaybe<Scalars['Int']>;
+  orderBy?: InputMaybe<staginggoerli_StableSwap_orderBy>;
+  orderDirection?: InputMaybe<staginggoerli_OrderDirection>;
+  where?: InputMaybe<staginggoerli_StableSwap_filter>;
+  block?: InputMaybe<staginggoerli_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Querystaginggoerli_sponsorVaultArgs = {
+  id: Scalars['ID'];
+  block?: InputMaybe<staginggoerli_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Querystaginggoerli_sponsorVaultsArgs = {
+  skip?: InputMaybe<Scalars['Int']>;
+  first?: InputMaybe<Scalars['Int']>;
+  orderBy?: InputMaybe<staginggoerli_SponsorVault_orderBy>;
+  orderDirection?: InputMaybe<staginggoerli_OrderDirection>;
+  where?: InputMaybe<staginggoerli_SponsorVault_filter>;
+  block?: InputMaybe<staginggoerli_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Querystaginggoerli_originTransferArgs = {
+  id: Scalars['ID'];
+  block?: InputMaybe<staginggoerli_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Querystaginggoerli_originTransfersArgs = {
+  skip?: InputMaybe<Scalars['Int']>;
+  first?: InputMaybe<Scalars['Int']>;
+  orderBy?: InputMaybe<staginggoerli_OriginTransfer_orderBy>;
+  orderDirection?: InputMaybe<staginggoerli_OrderDirection>;
+  where?: InputMaybe<staginggoerli_OriginTransfer_filter>;
+  block?: InputMaybe<staginggoerli_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Querystaginggoerli_destinationTransferArgs = {
+  id: Scalars['ID'];
+  block?: InputMaybe<staginggoerli_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Querystaginggoerli_destinationTransfersArgs = {
+  skip?: InputMaybe<Scalars['Int']>;
+  first?: InputMaybe<Scalars['Int']>;
+  orderBy?: InputMaybe<staginggoerli_DestinationTransfer_orderBy>;
+  orderDirection?: InputMaybe<staginggoerli_OrderDirection>;
+  where?: InputMaybe<staginggoerli_DestinationTransfer_filter>;
+  block?: InputMaybe<staginggoerli_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Querystaginggoerli_originMessageArgs = {
+  id: Scalars['ID'];
+  block?: InputMaybe<staginggoerli_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Querystaginggoerli_originMessagesArgs = {
+  skip?: InputMaybe<Scalars['Int']>;
+  first?: InputMaybe<Scalars['Int']>;
+  orderBy?: InputMaybe<staginggoerli_OriginMessage_orderBy>;
+  orderDirection?: InputMaybe<staginggoerli_OrderDirection>;
+  where?: InputMaybe<staginggoerli_OriginMessage_filter>;
+  block?: InputMaybe<staginggoerli_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Querystaginggoerli_destinationMessageArgs = {
+  id: Scalars['ID'];
+  block?: InputMaybe<staginggoerli_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Querystaginggoerli_destinationMessagesArgs = {
+  skip?: InputMaybe<Scalars['Int']>;
+  first?: InputMaybe<Scalars['Int']>;
+  orderBy?: InputMaybe<staginggoerli_DestinationMessage_orderBy>;
+  orderDirection?: InputMaybe<staginggoerli_OrderDirection>;
+  where?: InputMaybe<staginggoerli_DestinationMessage_filter>;
+  block?: InputMaybe<staginggoerli_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Querystaginggoerli_aggregateRootArgs = {
+  id: Scalars['ID'];
+  block?: InputMaybe<staginggoerli_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Querystaginggoerli_aggregateRootsArgs = {
+  skip?: InputMaybe<Scalars['Int']>;
+  first?: InputMaybe<Scalars['Int']>;
+  orderBy?: InputMaybe<staginggoerli_AggregateRoot_orderBy>;
+  orderDirection?: InputMaybe<staginggoerli_OrderDirection>;
+  where?: InputMaybe<staginggoerli_AggregateRoot_filter>;
+  block?: InputMaybe<staginggoerli_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Querystaginggoerli_connectorMetaArgs = {
+  id: Scalars['ID'];
+  block?: InputMaybe<staginggoerli_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Querystaginggoerli_connectorMetasArgs = {
+  skip?: InputMaybe<Scalars['Int']>;
+  first?: InputMaybe<Scalars['Int']>;
+  orderBy?: InputMaybe<staginggoerli_ConnectorMeta_orderBy>;
+  orderDirection?: InputMaybe<staginggoerli_OrderDirection>;
+  where?: InputMaybe<staginggoerli_ConnectorMeta_filter>;
+  block?: InputMaybe<staginggoerli_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Querystaginggoerli_rootMessageSentArgs = {
+  id: Scalars['ID'];
+  block?: InputMaybe<staginggoerli_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Querystaginggoerli_rootMessageSentsArgs = {
+  skip?: InputMaybe<Scalars['Int']>;
+  first?: InputMaybe<Scalars['Int']>;
+  orderBy?: InputMaybe<staginggoerli_RootMessageSent_orderBy>;
+  orderDirection?: InputMaybe<staginggoerli_OrderDirection>;
+  where?: InputMaybe<staginggoerli_RootMessageSent_filter>;
+  block?: InputMaybe<staginggoerli_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Querystaginggoerli_rootMessageProcessedArgs = {
+  id: Scalars['ID'];
+  block?: InputMaybe<staginggoerli_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Querystaginggoerli_rootMessageProcessedsArgs = {
+  skip?: InputMaybe<Scalars['Int']>;
+  first?: InputMaybe<Scalars['Int']>;
+  orderBy?: InputMaybe<staginggoerli_RootMessageProcessed_orderBy>;
+  orderDirection?: InputMaybe<staginggoerli_OrderDirection>;
+  where?: InputMaybe<staginggoerli_RootMessageProcessed_filter>;
+  block?: InputMaybe<staginggoerli_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Querystaginggoerli__metaArgs = {
+  block?: InputMaybe<staginggoerli_Block_height>;
+};
+
 export type Subscription = {
-  rinkeby_asset?: Maybe<rinkeby_Asset>;
-  rinkeby_assets: Array<rinkeby_Asset>;
-  rinkeby_assetBalance?: Maybe<rinkeby_AssetBalance>;
-  rinkeby_assetBalances: Array<rinkeby_AssetBalance>;
-  rinkeby_router?: Maybe<rinkeby_Router>;
-  rinkeby_routers: Array<rinkeby_Router>;
-  rinkeby_setting?: Maybe<rinkeby_Setting>;
-  rinkeby_settings: Array<rinkeby_Setting>;
-  rinkeby_relayer?: Maybe<rinkeby_Relayer>;
-  rinkeby_relayers: Array<rinkeby_Relayer>;
-  rinkeby_stableSwap?: Maybe<rinkeby_StableSwap>;
-  rinkeby_stableSwaps: Array<rinkeby_StableSwap>;
-  rinkeby_sponsorVault?: Maybe<rinkeby_SponsorVault>;
-  rinkeby_sponsorVaults: Array<rinkeby_SponsorVault>;
-  rinkeby_originTransfer?: Maybe<rinkeby_OriginTransfer>;
-  rinkeby_originTransfers: Array<rinkeby_OriginTransfer>;
-  rinkeby_destinationTransfer?: Maybe<rinkeby_DestinationTransfer>;
-  rinkeby_destinationTransfers: Array<rinkeby_DestinationTransfer>;
-  /** Access to subgraph metadata */
-  rinkeby__meta?: Maybe<rinkeby__Meta_>;
   testgoerli_asset?: Maybe<testgoerli_Asset>;
   testgoerli_assets: Array<testgoerli_Asset>;
   testgoerli_assetBalance?: Maybe<testgoerli_AssetBalance>;
@@ -2871,58 +2852,26 @@ export type Subscription = {
   local1337_destinationTransfers: Array<local1337_DestinationTransfer>;
   /** Access to subgraph metadata */
   local1337__meta?: Maybe<local1337__Meta_>;
-  testoptimismgoerli_asset?: Maybe<testoptimismgoerli_Asset>;
-  testoptimismgoerli_assets: Array<testoptimismgoerli_Asset>;
-  testoptimismgoerli_assetBalance?: Maybe<testoptimismgoerli_AssetBalance>;
-  testoptimismgoerli_assetBalances: Array<testoptimismgoerli_AssetBalance>;
-  testoptimismgoerli_router?: Maybe<testoptimismgoerli_Router>;
-  testoptimismgoerli_routers: Array<testoptimismgoerli_Router>;
-  testoptimismgoerli_setting?: Maybe<testoptimismgoerli_Setting>;
-  testoptimismgoerli_settings: Array<testoptimismgoerli_Setting>;
-  testoptimismgoerli_relayer?: Maybe<testoptimismgoerli_Relayer>;
-  testoptimismgoerli_relayers: Array<testoptimismgoerli_Relayer>;
-  testoptimismgoerli_stableSwap?: Maybe<testoptimismgoerli_StableSwap>;
-  testoptimismgoerli_stableSwaps: Array<testoptimismgoerli_StableSwap>;
-  testoptimismgoerli_sponsorVault?: Maybe<testoptimismgoerli_SponsorVault>;
-  testoptimismgoerli_sponsorVaults: Array<testoptimismgoerli_SponsorVault>;
-  testoptimismgoerli_originTransfer?: Maybe<testoptimismgoerli_OriginTransfer>;
-  testoptimismgoerli_originTransfers: Array<testoptimismgoerli_OriginTransfer>;
-  testoptimismgoerli_destinationTransfer?: Maybe<testoptimismgoerli_DestinationTransfer>;
-  testoptimismgoerli_destinationTransfers: Array<testoptimismgoerli_DestinationTransfer>;
+  rinkeby_asset?: Maybe<rinkeby_Asset>;
+  rinkeby_assets: Array<rinkeby_Asset>;
+  rinkeby_assetBalance?: Maybe<rinkeby_AssetBalance>;
+  rinkeby_assetBalances: Array<rinkeby_AssetBalance>;
+  rinkeby_router?: Maybe<rinkeby_Router>;
+  rinkeby_routers: Array<rinkeby_Router>;
+  rinkeby_setting?: Maybe<rinkeby_Setting>;
+  rinkeby_settings: Array<rinkeby_Setting>;
+  rinkeby_relayer?: Maybe<rinkeby_Relayer>;
+  rinkeby_relayers: Array<rinkeby_Relayer>;
+  rinkeby_stableSwap?: Maybe<rinkeby_StableSwap>;
+  rinkeby_stableSwaps: Array<rinkeby_StableSwap>;
+  rinkeby_sponsorVault?: Maybe<rinkeby_SponsorVault>;
+  rinkeby_sponsorVaults: Array<rinkeby_SponsorVault>;
+  rinkeby_originTransfer?: Maybe<rinkeby_OriginTransfer>;
+  rinkeby_originTransfers: Array<rinkeby_OriginTransfer>;
+  rinkeby_destinationTransfer?: Maybe<rinkeby_DestinationTransfer>;
+  rinkeby_destinationTransfers: Array<rinkeby_DestinationTransfer>;
   /** Access to subgraph metadata */
-  testoptimismgoerli__meta?: Maybe<testoptimismgoerli__Meta_>;
-  staginggoerli_asset?: Maybe<staginggoerli_Asset>;
-  staginggoerli_assets: Array<staginggoerli_Asset>;
-  staginggoerli_assetBalance?: Maybe<staginggoerli_AssetBalance>;
-  staginggoerli_assetBalances: Array<staginggoerli_AssetBalance>;
-  staginggoerli_router?: Maybe<staginggoerli_Router>;
-  staginggoerli_routers: Array<staginggoerli_Router>;
-  staginggoerli_setting?: Maybe<staginggoerli_Setting>;
-  staginggoerli_settings: Array<staginggoerli_Setting>;
-  staginggoerli_relayer?: Maybe<staginggoerli_Relayer>;
-  staginggoerli_relayers: Array<staginggoerli_Relayer>;
-  staginggoerli_stableSwap?: Maybe<staginggoerli_StableSwap>;
-  staginggoerli_stableSwaps: Array<staginggoerli_StableSwap>;
-  staginggoerli_sponsorVault?: Maybe<staginggoerli_SponsorVault>;
-  staginggoerli_sponsorVaults: Array<staginggoerli_SponsorVault>;
-  staginggoerli_originTransfer?: Maybe<staginggoerli_OriginTransfer>;
-  staginggoerli_originTransfers: Array<staginggoerli_OriginTransfer>;
-  staginggoerli_destinationTransfer?: Maybe<staginggoerli_DestinationTransfer>;
-  staginggoerli_destinationTransfers: Array<staginggoerli_DestinationTransfer>;
-  staginggoerli_originMessage?: Maybe<staginggoerli_OriginMessage>;
-  staginggoerli_originMessages: Array<staginggoerli_OriginMessage>;
-  staginggoerli_destinationMessage?: Maybe<staginggoerli_DestinationMessage>;
-  staginggoerli_destinationMessages: Array<staginggoerli_DestinationMessage>;
-  staginggoerli_aggregateRoot?: Maybe<staginggoerli_AggregateRoot>;
-  staginggoerli_aggregateRoots: Array<staginggoerli_AggregateRoot>;
-  staginggoerli_connectorMeta?: Maybe<staginggoerli_ConnectorMeta>;
-  staginggoerli_connectorMetas: Array<staginggoerli_ConnectorMeta>;
-  staginggoerli_rootMessageSent?: Maybe<staginggoerli_RootMessageSent>;
-  staginggoerli_rootMessageSents: Array<staginggoerli_RootMessageSent>;
-  staginggoerli_rootMessageProcessed?: Maybe<staginggoerli_RootMessageProcessed>;
-  staginggoerli_rootMessageProcesseds: Array<staginggoerli_RootMessageProcessed>;
-  /** Access to subgraph metadata */
-  staginggoerli__meta?: Maybe<staginggoerli__Meta_>;
+  rinkeby__meta?: Maybe<rinkeby__Meta_>;
   goerli_asset?: Maybe<goerli_Asset>;
   goerli_assets: Array<goerli_Asset>;
   goerli_assetBalance?: Maybe<goerli_AssetBalance>;
@@ -2955,58 +2904,26 @@ export type Subscription = {
   goerli_rootMessageProcesseds: Array<goerli_RootMessageProcessed>;
   /** Access to subgraph metadata */
   goerli__meta?: Maybe<goerli__Meta_>;
-  local1338_asset?: Maybe<local1338_Asset>;
-  local1338_assets: Array<local1338_Asset>;
-  local1338_assetBalance?: Maybe<local1338_AssetBalance>;
-  local1338_assetBalances: Array<local1338_AssetBalance>;
-  local1338_router?: Maybe<local1338_Router>;
-  local1338_routers: Array<local1338_Router>;
-  local1338_setting?: Maybe<local1338_Setting>;
-  local1338_settings: Array<local1338_Setting>;
-  local1338_relayer?: Maybe<local1338_Relayer>;
-  local1338_relayers: Array<local1338_Relayer>;
-  local1338_stableSwap?: Maybe<local1338_StableSwap>;
-  local1338_stableSwaps: Array<local1338_StableSwap>;
-  local1338_sponsorVault?: Maybe<local1338_SponsorVault>;
-  local1338_sponsorVaults: Array<local1338_SponsorVault>;
-  local1338_originTransfer?: Maybe<local1338_OriginTransfer>;
-  local1338_originTransfers: Array<local1338_OriginTransfer>;
-  local1338_destinationTransfer?: Maybe<local1338_DestinationTransfer>;
-  local1338_destinationTransfers: Array<local1338_DestinationTransfer>;
+  testoptimismgoerli_asset?: Maybe<testoptimismgoerli_Asset>;
+  testoptimismgoerli_assets: Array<testoptimismgoerli_Asset>;
+  testoptimismgoerli_assetBalance?: Maybe<testoptimismgoerli_AssetBalance>;
+  testoptimismgoerli_assetBalances: Array<testoptimismgoerli_AssetBalance>;
+  testoptimismgoerli_router?: Maybe<testoptimismgoerli_Router>;
+  testoptimismgoerli_routers: Array<testoptimismgoerli_Router>;
+  testoptimismgoerli_setting?: Maybe<testoptimismgoerli_Setting>;
+  testoptimismgoerli_settings: Array<testoptimismgoerli_Setting>;
+  testoptimismgoerli_relayer?: Maybe<testoptimismgoerli_Relayer>;
+  testoptimismgoerli_relayers: Array<testoptimismgoerli_Relayer>;
+  testoptimismgoerli_stableSwap?: Maybe<testoptimismgoerli_StableSwap>;
+  testoptimismgoerli_stableSwaps: Array<testoptimismgoerli_StableSwap>;
+  testoptimismgoerli_sponsorVault?: Maybe<testoptimismgoerli_SponsorVault>;
+  testoptimismgoerli_sponsorVaults: Array<testoptimismgoerli_SponsorVault>;
+  testoptimismgoerli_originTransfer?: Maybe<testoptimismgoerli_OriginTransfer>;
+  testoptimismgoerli_originTransfers: Array<testoptimismgoerli_OriginTransfer>;
+  testoptimismgoerli_destinationTransfer?: Maybe<testoptimismgoerli_DestinationTransfer>;
+  testoptimismgoerli_destinationTransfers: Array<testoptimismgoerli_DestinationTransfer>;
   /** Access to subgraph metadata */
-  local1338__meta?: Maybe<local1338__Meta_>;
-  stagingmumbai_asset?: Maybe<stagingmumbai_Asset>;
-  stagingmumbai_assets: Array<stagingmumbai_Asset>;
-  stagingmumbai_assetBalance?: Maybe<stagingmumbai_AssetBalance>;
-  stagingmumbai_assetBalances: Array<stagingmumbai_AssetBalance>;
-  stagingmumbai_router?: Maybe<stagingmumbai_Router>;
-  stagingmumbai_routers: Array<stagingmumbai_Router>;
-  stagingmumbai_setting?: Maybe<stagingmumbai_Setting>;
-  stagingmumbai_settings: Array<stagingmumbai_Setting>;
-  stagingmumbai_relayer?: Maybe<stagingmumbai_Relayer>;
-  stagingmumbai_relayers: Array<stagingmumbai_Relayer>;
-  stagingmumbai_stableSwap?: Maybe<stagingmumbai_StableSwap>;
-  stagingmumbai_stableSwaps: Array<stagingmumbai_StableSwap>;
-  stagingmumbai_sponsorVault?: Maybe<stagingmumbai_SponsorVault>;
-  stagingmumbai_sponsorVaults: Array<stagingmumbai_SponsorVault>;
-  stagingmumbai_originTransfer?: Maybe<stagingmumbai_OriginTransfer>;
-  stagingmumbai_originTransfers: Array<stagingmumbai_OriginTransfer>;
-  stagingmumbai_destinationTransfer?: Maybe<stagingmumbai_DestinationTransfer>;
-  stagingmumbai_destinationTransfers: Array<stagingmumbai_DestinationTransfer>;
-  stagingmumbai_originMessage?: Maybe<stagingmumbai_OriginMessage>;
-  stagingmumbai_originMessages: Array<stagingmumbai_OriginMessage>;
-  stagingmumbai_destinationMessage?: Maybe<stagingmumbai_DestinationMessage>;
-  stagingmumbai_destinationMessages: Array<stagingmumbai_DestinationMessage>;
-  stagingmumbai_aggregateRoot?: Maybe<stagingmumbai_AggregateRoot>;
-  stagingmumbai_aggregateRoots: Array<stagingmumbai_AggregateRoot>;
-  stagingmumbai_connectorMeta?: Maybe<stagingmumbai_ConnectorMeta>;
-  stagingmumbai_connectorMetas: Array<stagingmumbai_ConnectorMeta>;
-  stagingmumbai_rootMessageSent?: Maybe<stagingmumbai_RootMessageSent>;
-  stagingmumbai_rootMessageSents: Array<stagingmumbai_RootMessageSent>;
-  stagingmumbai_rootMessageProcessed?: Maybe<stagingmumbai_RootMessageProcessed>;
-  stagingmumbai_rootMessageProcesseds: Array<stagingmumbai_RootMessageProcessed>;
-  /** Access to subgraph metadata */
-  stagingmumbai__meta?: Maybe<stagingmumbai__Meta_>;
+  testoptimismgoerli__meta?: Maybe<testoptimismgoerli__Meta_>;
   optimismgoerli_asset?: Maybe<optimismgoerli_Asset>;
   optimismgoerli_assets: Array<optimismgoerli_Asset>;
   optimismgoerli_assetBalance?: Maybe<optimismgoerli_AssetBalance>;
@@ -3039,6 +2956,26 @@ export type Subscription = {
   optimismgoerli_rootMessageProcesseds: Array<optimismgoerli_RootMessageProcessed>;
   /** Access to subgraph metadata */
   optimismgoerli__meta?: Maybe<optimismgoerli__Meta_>;
+  local1338_asset?: Maybe<local1338_Asset>;
+  local1338_assets: Array<local1338_Asset>;
+  local1338_assetBalance?: Maybe<local1338_AssetBalance>;
+  local1338_assetBalances: Array<local1338_AssetBalance>;
+  local1338_router?: Maybe<local1338_Router>;
+  local1338_routers: Array<local1338_Router>;
+  local1338_setting?: Maybe<local1338_Setting>;
+  local1338_settings: Array<local1338_Setting>;
+  local1338_relayer?: Maybe<local1338_Relayer>;
+  local1338_relayers: Array<local1338_Relayer>;
+  local1338_stableSwap?: Maybe<local1338_StableSwap>;
+  local1338_stableSwaps: Array<local1338_StableSwap>;
+  local1338_sponsorVault?: Maybe<local1338_SponsorVault>;
+  local1338_sponsorVaults: Array<local1338_SponsorVault>;
+  local1338_originTransfer?: Maybe<local1338_OriginTransfer>;
+  local1338_originTransfers: Array<local1338_OriginTransfer>;
+  local1338_destinationTransfer?: Maybe<local1338_DestinationTransfer>;
+  local1338_destinationTransfers: Array<local1338_DestinationTransfer>;
+  /** Access to subgraph metadata */
+  local1338__meta?: Maybe<local1338__Meta_>;
   mumbai_asset?: Maybe<mumbai_Asset>;
   mumbai_assets: Array<mumbai_Asset>;
   mumbai_assetBalance?: Maybe<mumbai_AssetBalance>;
@@ -3067,6 +3004,38 @@ export type Subscription = {
   mumbai_rootMessages: Array<mumbai_RootMessage>;
   /** Access to subgraph metadata */
   mumbai__meta?: Maybe<mumbai__Meta_>;
+  stagingmumbai_asset?: Maybe<stagingmumbai_Asset>;
+  stagingmumbai_assets: Array<stagingmumbai_Asset>;
+  stagingmumbai_assetBalance?: Maybe<stagingmumbai_AssetBalance>;
+  stagingmumbai_assetBalances: Array<stagingmumbai_AssetBalance>;
+  stagingmumbai_router?: Maybe<stagingmumbai_Router>;
+  stagingmumbai_routers: Array<stagingmumbai_Router>;
+  stagingmumbai_setting?: Maybe<stagingmumbai_Setting>;
+  stagingmumbai_settings: Array<stagingmumbai_Setting>;
+  stagingmumbai_relayer?: Maybe<stagingmumbai_Relayer>;
+  stagingmumbai_relayers: Array<stagingmumbai_Relayer>;
+  stagingmumbai_stableSwap?: Maybe<stagingmumbai_StableSwap>;
+  stagingmumbai_stableSwaps: Array<stagingmumbai_StableSwap>;
+  stagingmumbai_sponsorVault?: Maybe<stagingmumbai_SponsorVault>;
+  stagingmumbai_sponsorVaults: Array<stagingmumbai_SponsorVault>;
+  stagingmumbai_originTransfer?: Maybe<stagingmumbai_OriginTransfer>;
+  stagingmumbai_originTransfers: Array<stagingmumbai_OriginTransfer>;
+  stagingmumbai_destinationTransfer?: Maybe<stagingmumbai_DestinationTransfer>;
+  stagingmumbai_destinationTransfers: Array<stagingmumbai_DestinationTransfer>;
+  stagingmumbai_originMessage?: Maybe<stagingmumbai_OriginMessage>;
+  stagingmumbai_originMessages: Array<stagingmumbai_OriginMessage>;
+  stagingmumbai_destinationMessage?: Maybe<stagingmumbai_DestinationMessage>;
+  stagingmumbai_destinationMessages: Array<stagingmumbai_DestinationMessage>;
+  stagingmumbai_aggregateRoot?: Maybe<stagingmumbai_AggregateRoot>;
+  stagingmumbai_aggregateRoots: Array<stagingmumbai_AggregateRoot>;
+  stagingmumbai_connectorMeta?: Maybe<stagingmumbai_ConnectorMeta>;
+  stagingmumbai_connectorMetas: Array<stagingmumbai_ConnectorMeta>;
+  stagingmumbai_rootMessageSent?: Maybe<stagingmumbai_RootMessageSent>;
+  stagingmumbai_rootMessageSents: Array<stagingmumbai_RootMessageSent>;
+  stagingmumbai_rootMessageProcessed?: Maybe<stagingmumbai_RootMessageProcessed>;
+  stagingmumbai_rootMessageProcesseds: Array<stagingmumbai_RootMessageProcessed>;
+  /** Access to subgraph metadata */
+  stagingmumbai__meta?: Maybe<stagingmumbai__Meta_>;
   stagingoptimismgoerli_asset?: Maybe<stagingoptimismgoerli_Asset>;
   stagingoptimismgoerli_assets: Array<stagingoptimismgoerli_Asset>;
   stagingoptimismgoerli_assetBalance?: Maybe<stagingoptimismgoerli_AssetBalance>;
@@ -3099,173 +3068,38 @@ export type Subscription = {
   stagingoptimismgoerli_rootMessageProcesseds: Array<stagingoptimismgoerli_RootMessageProcessed>;
   /** Access to subgraph metadata */
   stagingoptimismgoerli__meta?: Maybe<stagingoptimismgoerli__Meta_>;
-};
-
-
-export type Subscriptionrinkeby_assetArgs = {
-  id: Scalars['ID'];
-  block?: InputMaybe<rinkeby_Block_height>;
-  subgraphError?: _SubgraphErrorPolicy_;
-};
-
-
-export type Subscriptionrinkeby_assetsArgs = {
-  skip?: InputMaybe<Scalars['Int']>;
-  first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<rinkeby_Asset_orderBy>;
-  orderDirection?: InputMaybe<rinkeby_OrderDirection>;
-  where?: InputMaybe<rinkeby_Asset_filter>;
-  block?: InputMaybe<rinkeby_Block_height>;
-  subgraphError?: _SubgraphErrorPolicy_;
-};
-
-
-export type Subscriptionrinkeby_assetBalanceArgs = {
-  id: Scalars['ID'];
-  block?: InputMaybe<rinkeby_Block_height>;
-  subgraphError?: _SubgraphErrorPolicy_;
-};
-
-
-export type Subscriptionrinkeby_assetBalancesArgs = {
-  skip?: InputMaybe<Scalars['Int']>;
-  first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<rinkeby_AssetBalance_orderBy>;
-  orderDirection?: InputMaybe<rinkeby_OrderDirection>;
-  where?: InputMaybe<rinkeby_AssetBalance_filter>;
-  block?: InputMaybe<rinkeby_Block_height>;
-  subgraphError?: _SubgraphErrorPolicy_;
-};
-
-
-export type Subscriptionrinkeby_routerArgs = {
-  id: Scalars['ID'];
-  block?: InputMaybe<rinkeby_Block_height>;
-  subgraphError?: _SubgraphErrorPolicy_;
-};
-
-
-export type Subscriptionrinkeby_routersArgs = {
-  skip?: InputMaybe<Scalars['Int']>;
-  first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<rinkeby_Router_orderBy>;
-  orderDirection?: InputMaybe<rinkeby_OrderDirection>;
-  where?: InputMaybe<rinkeby_Router_filter>;
-  block?: InputMaybe<rinkeby_Block_height>;
-  subgraphError?: _SubgraphErrorPolicy_;
-};
-
-
-export type Subscriptionrinkeby_settingArgs = {
-  id: Scalars['ID'];
-  block?: InputMaybe<rinkeby_Block_height>;
-  subgraphError?: _SubgraphErrorPolicy_;
-};
-
-
-export type Subscriptionrinkeby_settingsArgs = {
-  skip?: InputMaybe<Scalars['Int']>;
-  first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<rinkeby_Setting_orderBy>;
-  orderDirection?: InputMaybe<rinkeby_OrderDirection>;
-  where?: InputMaybe<rinkeby_Setting_filter>;
-  block?: InputMaybe<rinkeby_Block_height>;
-  subgraphError?: _SubgraphErrorPolicy_;
-};
-
-
-export type Subscriptionrinkeby_relayerArgs = {
-  id: Scalars['ID'];
-  block?: InputMaybe<rinkeby_Block_height>;
-  subgraphError?: _SubgraphErrorPolicy_;
-};
-
-
-export type Subscriptionrinkeby_relayersArgs = {
-  skip?: InputMaybe<Scalars['Int']>;
-  first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<rinkeby_Relayer_orderBy>;
-  orderDirection?: InputMaybe<rinkeby_OrderDirection>;
-  where?: InputMaybe<rinkeby_Relayer_filter>;
-  block?: InputMaybe<rinkeby_Block_height>;
-  subgraphError?: _SubgraphErrorPolicy_;
-};
-
-
-export type Subscriptionrinkeby_stableSwapArgs = {
-  id: Scalars['ID'];
-  block?: InputMaybe<rinkeby_Block_height>;
-  subgraphError?: _SubgraphErrorPolicy_;
-};
-
-
-export type Subscriptionrinkeby_stableSwapsArgs = {
-  skip?: InputMaybe<Scalars['Int']>;
-  first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<rinkeby_StableSwap_orderBy>;
-  orderDirection?: InputMaybe<rinkeby_OrderDirection>;
-  where?: InputMaybe<rinkeby_StableSwap_filter>;
-  block?: InputMaybe<rinkeby_Block_height>;
-  subgraphError?: _SubgraphErrorPolicy_;
-};
-
-
-export type Subscriptionrinkeby_sponsorVaultArgs = {
-  id: Scalars['ID'];
-  block?: InputMaybe<rinkeby_Block_height>;
-  subgraphError?: _SubgraphErrorPolicy_;
-};
-
-
-export type Subscriptionrinkeby_sponsorVaultsArgs = {
-  skip?: InputMaybe<Scalars['Int']>;
-  first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<rinkeby_SponsorVault_orderBy>;
-  orderDirection?: InputMaybe<rinkeby_OrderDirection>;
-  where?: InputMaybe<rinkeby_SponsorVault_filter>;
-  block?: InputMaybe<rinkeby_Block_height>;
-  subgraphError?: _SubgraphErrorPolicy_;
-};
-
-
-export type Subscriptionrinkeby_originTransferArgs = {
-  id: Scalars['ID'];
-  block?: InputMaybe<rinkeby_Block_height>;
-  subgraphError?: _SubgraphErrorPolicy_;
-};
-
-
-export type Subscriptionrinkeby_originTransfersArgs = {
-  skip?: InputMaybe<Scalars['Int']>;
-  first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<rinkeby_OriginTransfer_orderBy>;
-  orderDirection?: InputMaybe<rinkeby_OrderDirection>;
-  where?: InputMaybe<rinkeby_OriginTransfer_filter>;
-  block?: InputMaybe<rinkeby_Block_height>;
-  subgraphError?: _SubgraphErrorPolicy_;
-};
-
-
-export type Subscriptionrinkeby_destinationTransferArgs = {
-  id: Scalars['ID'];
-  block?: InputMaybe<rinkeby_Block_height>;
-  subgraphError?: _SubgraphErrorPolicy_;
-};
-
-
-export type Subscriptionrinkeby_destinationTransfersArgs = {
-  skip?: InputMaybe<Scalars['Int']>;
-  first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<rinkeby_DestinationTransfer_orderBy>;
-  orderDirection?: InputMaybe<rinkeby_OrderDirection>;
-  where?: InputMaybe<rinkeby_DestinationTransfer_filter>;
-  block?: InputMaybe<rinkeby_Block_height>;
-  subgraphError?: _SubgraphErrorPolicy_;
-};
-
-
-export type Subscriptionrinkeby__metaArgs = {
-  block?: InputMaybe<rinkeby_Block_height>;
+  staginggoerli_asset?: Maybe<staginggoerli_Asset>;
+  staginggoerli_assets: Array<staginggoerli_Asset>;
+  staginggoerli_assetBalance?: Maybe<staginggoerli_AssetBalance>;
+  staginggoerli_assetBalances: Array<staginggoerli_AssetBalance>;
+  staginggoerli_router?: Maybe<staginggoerli_Router>;
+  staginggoerli_routers: Array<staginggoerli_Router>;
+  staginggoerli_setting?: Maybe<staginggoerli_Setting>;
+  staginggoerli_settings: Array<staginggoerli_Setting>;
+  staginggoerli_relayer?: Maybe<staginggoerli_Relayer>;
+  staginggoerli_relayers: Array<staginggoerli_Relayer>;
+  staginggoerli_stableSwap?: Maybe<staginggoerli_StableSwap>;
+  staginggoerli_stableSwaps: Array<staginggoerli_StableSwap>;
+  staginggoerli_sponsorVault?: Maybe<staginggoerli_SponsorVault>;
+  staginggoerli_sponsorVaults: Array<staginggoerli_SponsorVault>;
+  staginggoerli_originTransfer?: Maybe<staginggoerli_OriginTransfer>;
+  staginggoerli_originTransfers: Array<staginggoerli_OriginTransfer>;
+  staginggoerli_destinationTransfer?: Maybe<staginggoerli_DestinationTransfer>;
+  staginggoerli_destinationTransfers: Array<staginggoerli_DestinationTransfer>;
+  staginggoerli_originMessage?: Maybe<staginggoerli_OriginMessage>;
+  staginggoerli_originMessages: Array<staginggoerli_OriginMessage>;
+  staginggoerli_destinationMessage?: Maybe<staginggoerli_DestinationMessage>;
+  staginggoerli_destinationMessages: Array<staginggoerli_DestinationMessage>;
+  staginggoerli_aggregateRoot?: Maybe<staginggoerli_AggregateRoot>;
+  staginggoerli_aggregateRoots: Array<staginggoerli_AggregateRoot>;
+  staginggoerli_connectorMeta?: Maybe<staginggoerli_ConnectorMeta>;
+  staginggoerli_connectorMetas: Array<staginggoerli_ConnectorMeta>;
+  staginggoerli_rootMessageSent?: Maybe<staginggoerli_RootMessageSent>;
+  staginggoerli_rootMessageSents: Array<staginggoerli_RootMessageSent>;
+  staginggoerli_rootMessageProcessed?: Maybe<staginggoerli_RootMessageProcessed>;
+  staginggoerli_rootMessageProcesseds: Array<staginggoerli_RootMessageProcessed>;
+  /** Access to subgraph metadata */
+  staginggoerli__meta?: Maybe<staginggoerli__Meta_>;
 };
 
 
@@ -3603,445 +3437,170 @@ export type Subscriptionlocal1337__metaArgs = {
 };
 
 
-export type Subscriptiontestoptimismgoerli_assetArgs = {
+export type Subscriptionrinkeby_assetArgs = {
   id: Scalars['ID'];
-  block?: InputMaybe<testoptimismgoerli_Block_height>;
+  block?: InputMaybe<rinkeby_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Subscriptiontestoptimismgoerli_assetsArgs = {
+export type Subscriptionrinkeby_assetsArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<testoptimismgoerli_Asset_orderBy>;
-  orderDirection?: InputMaybe<testoptimismgoerli_OrderDirection>;
-  where?: InputMaybe<testoptimismgoerli_Asset_filter>;
-  block?: InputMaybe<testoptimismgoerli_Block_height>;
+  orderBy?: InputMaybe<rinkeby_Asset_orderBy>;
+  orderDirection?: InputMaybe<rinkeby_OrderDirection>;
+  where?: InputMaybe<rinkeby_Asset_filter>;
+  block?: InputMaybe<rinkeby_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Subscriptiontestoptimismgoerli_assetBalanceArgs = {
+export type Subscriptionrinkeby_assetBalanceArgs = {
   id: Scalars['ID'];
-  block?: InputMaybe<testoptimismgoerli_Block_height>;
+  block?: InputMaybe<rinkeby_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Subscriptiontestoptimismgoerli_assetBalancesArgs = {
+export type Subscriptionrinkeby_assetBalancesArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<testoptimismgoerli_AssetBalance_orderBy>;
-  orderDirection?: InputMaybe<testoptimismgoerli_OrderDirection>;
-  where?: InputMaybe<testoptimismgoerli_AssetBalance_filter>;
-  block?: InputMaybe<testoptimismgoerli_Block_height>;
+  orderBy?: InputMaybe<rinkeby_AssetBalance_orderBy>;
+  orderDirection?: InputMaybe<rinkeby_OrderDirection>;
+  where?: InputMaybe<rinkeby_AssetBalance_filter>;
+  block?: InputMaybe<rinkeby_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Subscriptiontestoptimismgoerli_routerArgs = {
+export type Subscriptionrinkeby_routerArgs = {
   id: Scalars['ID'];
-  block?: InputMaybe<testoptimismgoerli_Block_height>;
+  block?: InputMaybe<rinkeby_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Subscriptiontestoptimismgoerli_routersArgs = {
+export type Subscriptionrinkeby_routersArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<testoptimismgoerli_Router_orderBy>;
-  orderDirection?: InputMaybe<testoptimismgoerli_OrderDirection>;
-  where?: InputMaybe<testoptimismgoerli_Router_filter>;
-  block?: InputMaybe<testoptimismgoerli_Block_height>;
+  orderBy?: InputMaybe<rinkeby_Router_orderBy>;
+  orderDirection?: InputMaybe<rinkeby_OrderDirection>;
+  where?: InputMaybe<rinkeby_Router_filter>;
+  block?: InputMaybe<rinkeby_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Subscriptiontestoptimismgoerli_settingArgs = {
+export type Subscriptionrinkeby_settingArgs = {
   id: Scalars['ID'];
-  block?: InputMaybe<testoptimismgoerli_Block_height>;
+  block?: InputMaybe<rinkeby_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Subscriptiontestoptimismgoerli_settingsArgs = {
+export type Subscriptionrinkeby_settingsArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<testoptimismgoerli_Setting_orderBy>;
-  orderDirection?: InputMaybe<testoptimismgoerli_OrderDirection>;
-  where?: InputMaybe<testoptimismgoerli_Setting_filter>;
-  block?: InputMaybe<testoptimismgoerli_Block_height>;
+  orderBy?: InputMaybe<rinkeby_Setting_orderBy>;
+  orderDirection?: InputMaybe<rinkeby_OrderDirection>;
+  where?: InputMaybe<rinkeby_Setting_filter>;
+  block?: InputMaybe<rinkeby_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Subscriptiontestoptimismgoerli_relayerArgs = {
+export type Subscriptionrinkeby_relayerArgs = {
   id: Scalars['ID'];
-  block?: InputMaybe<testoptimismgoerli_Block_height>;
+  block?: InputMaybe<rinkeby_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Subscriptiontestoptimismgoerli_relayersArgs = {
+export type Subscriptionrinkeby_relayersArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<testoptimismgoerli_Relayer_orderBy>;
-  orderDirection?: InputMaybe<testoptimismgoerli_OrderDirection>;
-  where?: InputMaybe<testoptimismgoerli_Relayer_filter>;
-  block?: InputMaybe<testoptimismgoerli_Block_height>;
+  orderBy?: InputMaybe<rinkeby_Relayer_orderBy>;
+  orderDirection?: InputMaybe<rinkeby_OrderDirection>;
+  where?: InputMaybe<rinkeby_Relayer_filter>;
+  block?: InputMaybe<rinkeby_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Subscriptiontestoptimismgoerli_stableSwapArgs = {
+export type Subscriptionrinkeby_stableSwapArgs = {
   id: Scalars['ID'];
-  block?: InputMaybe<testoptimismgoerli_Block_height>;
+  block?: InputMaybe<rinkeby_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Subscriptiontestoptimismgoerli_stableSwapsArgs = {
+export type Subscriptionrinkeby_stableSwapsArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<testoptimismgoerli_StableSwap_orderBy>;
-  orderDirection?: InputMaybe<testoptimismgoerli_OrderDirection>;
-  where?: InputMaybe<testoptimismgoerli_StableSwap_filter>;
-  block?: InputMaybe<testoptimismgoerli_Block_height>;
+  orderBy?: InputMaybe<rinkeby_StableSwap_orderBy>;
+  orderDirection?: InputMaybe<rinkeby_OrderDirection>;
+  where?: InputMaybe<rinkeby_StableSwap_filter>;
+  block?: InputMaybe<rinkeby_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Subscriptiontestoptimismgoerli_sponsorVaultArgs = {
+export type Subscriptionrinkeby_sponsorVaultArgs = {
   id: Scalars['ID'];
-  block?: InputMaybe<testoptimismgoerli_Block_height>;
+  block?: InputMaybe<rinkeby_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Subscriptiontestoptimismgoerli_sponsorVaultsArgs = {
+export type Subscriptionrinkeby_sponsorVaultsArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<testoptimismgoerli_SponsorVault_orderBy>;
-  orderDirection?: InputMaybe<testoptimismgoerli_OrderDirection>;
-  where?: InputMaybe<testoptimismgoerli_SponsorVault_filter>;
-  block?: InputMaybe<testoptimismgoerli_Block_height>;
+  orderBy?: InputMaybe<rinkeby_SponsorVault_orderBy>;
+  orderDirection?: InputMaybe<rinkeby_OrderDirection>;
+  where?: InputMaybe<rinkeby_SponsorVault_filter>;
+  block?: InputMaybe<rinkeby_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Subscriptiontestoptimismgoerli_originTransferArgs = {
+export type Subscriptionrinkeby_originTransferArgs = {
   id: Scalars['ID'];
-  block?: InputMaybe<testoptimismgoerli_Block_height>;
+  block?: InputMaybe<rinkeby_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Subscriptiontestoptimismgoerli_originTransfersArgs = {
+export type Subscriptionrinkeby_originTransfersArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<testoptimismgoerli_OriginTransfer_orderBy>;
-  orderDirection?: InputMaybe<testoptimismgoerli_OrderDirection>;
-  where?: InputMaybe<testoptimismgoerli_OriginTransfer_filter>;
-  block?: InputMaybe<testoptimismgoerli_Block_height>;
+  orderBy?: InputMaybe<rinkeby_OriginTransfer_orderBy>;
+  orderDirection?: InputMaybe<rinkeby_OrderDirection>;
+  where?: InputMaybe<rinkeby_OriginTransfer_filter>;
+  block?: InputMaybe<rinkeby_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Subscriptiontestoptimismgoerli_destinationTransferArgs = {
+export type Subscriptionrinkeby_destinationTransferArgs = {
   id: Scalars['ID'];
-  block?: InputMaybe<testoptimismgoerli_Block_height>;
+  block?: InputMaybe<rinkeby_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Subscriptiontestoptimismgoerli_destinationTransfersArgs = {
+export type Subscriptionrinkeby_destinationTransfersArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<testoptimismgoerli_DestinationTransfer_orderBy>;
-  orderDirection?: InputMaybe<testoptimismgoerli_OrderDirection>;
-  where?: InputMaybe<testoptimismgoerli_DestinationTransfer_filter>;
-  block?: InputMaybe<testoptimismgoerli_Block_height>;
+  orderBy?: InputMaybe<rinkeby_DestinationTransfer_orderBy>;
+  orderDirection?: InputMaybe<rinkeby_OrderDirection>;
+  where?: InputMaybe<rinkeby_DestinationTransfer_filter>;
+  block?: InputMaybe<rinkeby_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Subscriptiontestoptimismgoerli__metaArgs = {
-  block?: InputMaybe<testoptimismgoerli_Block_height>;
-};
-
-
-export type Subscriptionstaginggoerli_assetArgs = {
-  id: Scalars['ID'];
-  block?: InputMaybe<staginggoerli_Block_height>;
-  subgraphError?: _SubgraphErrorPolicy_;
-};
-
-
-export type Subscriptionstaginggoerli_assetsArgs = {
-  skip?: InputMaybe<Scalars['Int']>;
-  first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<staginggoerli_Asset_orderBy>;
-  orderDirection?: InputMaybe<staginggoerli_OrderDirection>;
-  where?: InputMaybe<staginggoerli_Asset_filter>;
-  block?: InputMaybe<staginggoerli_Block_height>;
-  subgraphError?: _SubgraphErrorPolicy_;
-};
-
-
-export type Subscriptionstaginggoerli_assetBalanceArgs = {
-  id: Scalars['ID'];
-  block?: InputMaybe<staginggoerli_Block_height>;
-  subgraphError?: _SubgraphErrorPolicy_;
-};
-
-
-export type Subscriptionstaginggoerli_assetBalancesArgs = {
-  skip?: InputMaybe<Scalars['Int']>;
-  first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<staginggoerli_AssetBalance_orderBy>;
-  orderDirection?: InputMaybe<staginggoerli_OrderDirection>;
-  where?: InputMaybe<staginggoerli_AssetBalance_filter>;
-  block?: InputMaybe<staginggoerli_Block_height>;
-  subgraphError?: _SubgraphErrorPolicy_;
-};
-
-
-export type Subscriptionstaginggoerli_routerArgs = {
-  id: Scalars['ID'];
-  block?: InputMaybe<staginggoerli_Block_height>;
-  subgraphError?: _SubgraphErrorPolicy_;
-};
-
-
-export type Subscriptionstaginggoerli_routersArgs = {
-  skip?: InputMaybe<Scalars['Int']>;
-  first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<staginggoerli_Router_orderBy>;
-  orderDirection?: InputMaybe<staginggoerli_OrderDirection>;
-  where?: InputMaybe<staginggoerli_Router_filter>;
-  block?: InputMaybe<staginggoerli_Block_height>;
-  subgraphError?: _SubgraphErrorPolicy_;
-};
-
-
-export type Subscriptionstaginggoerli_settingArgs = {
-  id: Scalars['ID'];
-  block?: InputMaybe<staginggoerli_Block_height>;
-  subgraphError?: _SubgraphErrorPolicy_;
-};
-
-
-export type Subscriptionstaginggoerli_settingsArgs = {
-  skip?: InputMaybe<Scalars['Int']>;
-  first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<staginggoerli_Setting_orderBy>;
-  orderDirection?: InputMaybe<staginggoerli_OrderDirection>;
-  where?: InputMaybe<staginggoerli_Setting_filter>;
-  block?: InputMaybe<staginggoerli_Block_height>;
-  subgraphError?: _SubgraphErrorPolicy_;
-};
-
-
-export type Subscriptionstaginggoerli_relayerArgs = {
-  id: Scalars['ID'];
-  block?: InputMaybe<staginggoerli_Block_height>;
-  subgraphError?: _SubgraphErrorPolicy_;
-};
-
-
-export type Subscriptionstaginggoerli_relayersArgs = {
-  skip?: InputMaybe<Scalars['Int']>;
-  first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<staginggoerli_Relayer_orderBy>;
-  orderDirection?: InputMaybe<staginggoerli_OrderDirection>;
-  where?: InputMaybe<staginggoerli_Relayer_filter>;
-  block?: InputMaybe<staginggoerli_Block_height>;
-  subgraphError?: _SubgraphErrorPolicy_;
-};
-
-
-export type Subscriptionstaginggoerli_stableSwapArgs = {
-  id: Scalars['ID'];
-  block?: InputMaybe<staginggoerli_Block_height>;
-  subgraphError?: _SubgraphErrorPolicy_;
-};
-
-
-export type Subscriptionstaginggoerli_stableSwapsArgs = {
-  skip?: InputMaybe<Scalars['Int']>;
-  first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<staginggoerli_StableSwap_orderBy>;
-  orderDirection?: InputMaybe<staginggoerli_OrderDirection>;
-  where?: InputMaybe<staginggoerli_StableSwap_filter>;
-  block?: InputMaybe<staginggoerli_Block_height>;
-  subgraphError?: _SubgraphErrorPolicy_;
-};
-
-
-export type Subscriptionstaginggoerli_sponsorVaultArgs = {
-  id: Scalars['ID'];
-  block?: InputMaybe<staginggoerli_Block_height>;
-  subgraphError?: _SubgraphErrorPolicy_;
-};
-
-
-export type Subscriptionstaginggoerli_sponsorVaultsArgs = {
-  skip?: InputMaybe<Scalars['Int']>;
-  first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<staginggoerli_SponsorVault_orderBy>;
-  orderDirection?: InputMaybe<staginggoerli_OrderDirection>;
-  where?: InputMaybe<staginggoerli_SponsorVault_filter>;
-  block?: InputMaybe<staginggoerli_Block_height>;
-  subgraphError?: _SubgraphErrorPolicy_;
-};
-
-
-export type Subscriptionstaginggoerli_originTransferArgs = {
-  id: Scalars['ID'];
-  block?: InputMaybe<staginggoerli_Block_height>;
-  subgraphError?: _SubgraphErrorPolicy_;
-};
-
-
-export type Subscriptionstaginggoerli_originTransfersArgs = {
-  skip?: InputMaybe<Scalars['Int']>;
-  first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<staginggoerli_OriginTransfer_orderBy>;
-  orderDirection?: InputMaybe<staginggoerli_OrderDirection>;
-  where?: InputMaybe<staginggoerli_OriginTransfer_filter>;
-  block?: InputMaybe<staginggoerli_Block_height>;
-  subgraphError?: _SubgraphErrorPolicy_;
-};
-
-
-export type Subscriptionstaginggoerli_destinationTransferArgs = {
-  id: Scalars['ID'];
-  block?: InputMaybe<staginggoerli_Block_height>;
-  subgraphError?: _SubgraphErrorPolicy_;
-};
-
-
-export type Subscriptionstaginggoerli_destinationTransfersArgs = {
-  skip?: InputMaybe<Scalars['Int']>;
-  first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<staginggoerli_DestinationTransfer_orderBy>;
-  orderDirection?: InputMaybe<staginggoerli_OrderDirection>;
-  where?: InputMaybe<staginggoerli_DestinationTransfer_filter>;
-  block?: InputMaybe<staginggoerli_Block_height>;
-  subgraphError?: _SubgraphErrorPolicy_;
-};
-
-
-export type Subscriptionstaginggoerli_originMessageArgs = {
-  id: Scalars['ID'];
-  block?: InputMaybe<staginggoerli_Block_height>;
-  subgraphError?: _SubgraphErrorPolicy_;
-};
-
-
-export type Subscriptionstaginggoerli_originMessagesArgs = {
-  skip?: InputMaybe<Scalars['Int']>;
-  first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<staginggoerli_OriginMessage_orderBy>;
-  orderDirection?: InputMaybe<staginggoerli_OrderDirection>;
-  where?: InputMaybe<staginggoerli_OriginMessage_filter>;
-  block?: InputMaybe<staginggoerli_Block_height>;
-  subgraphError?: _SubgraphErrorPolicy_;
-};
-
-
-export type Subscriptionstaginggoerli_destinationMessageArgs = {
-  id: Scalars['ID'];
-  block?: InputMaybe<staginggoerli_Block_height>;
-  subgraphError?: _SubgraphErrorPolicy_;
-};
-
-
-export type Subscriptionstaginggoerli_destinationMessagesArgs = {
-  skip?: InputMaybe<Scalars['Int']>;
-  first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<staginggoerli_DestinationMessage_orderBy>;
-  orderDirection?: InputMaybe<staginggoerli_OrderDirection>;
-  where?: InputMaybe<staginggoerli_DestinationMessage_filter>;
-  block?: InputMaybe<staginggoerli_Block_height>;
-  subgraphError?: _SubgraphErrorPolicy_;
-};
-
-
-export type Subscriptionstaginggoerli_aggregateRootArgs = {
-  id: Scalars['ID'];
-  block?: InputMaybe<staginggoerli_Block_height>;
-  subgraphError?: _SubgraphErrorPolicy_;
-};
-
-
-export type Subscriptionstaginggoerli_aggregateRootsArgs = {
-  skip?: InputMaybe<Scalars['Int']>;
-  first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<staginggoerli_AggregateRoot_orderBy>;
-  orderDirection?: InputMaybe<staginggoerli_OrderDirection>;
-  where?: InputMaybe<staginggoerli_AggregateRoot_filter>;
-  block?: InputMaybe<staginggoerli_Block_height>;
-  subgraphError?: _SubgraphErrorPolicy_;
-};
-
-
-export type Subscriptionstaginggoerli_connectorMetaArgs = {
-  id: Scalars['ID'];
-  block?: InputMaybe<staginggoerli_Block_height>;
-  subgraphError?: _SubgraphErrorPolicy_;
-};
-
-
-export type Subscriptionstaginggoerli_connectorMetasArgs = {
-  skip?: InputMaybe<Scalars['Int']>;
-  first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<staginggoerli_ConnectorMeta_orderBy>;
-  orderDirection?: InputMaybe<staginggoerli_OrderDirection>;
-  where?: InputMaybe<staginggoerli_ConnectorMeta_filter>;
-  block?: InputMaybe<staginggoerli_Block_height>;
-  subgraphError?: _SubgraphErrorPolicy_;
-};
-
-
-export type Subscriptionstaginggoerli_rootMessageSentArgs = {
-  id: Scalars['ID'];
-  block?: InputMaybe<staginggoerli_Block_height>;
-  subgraphError?: _SubgraphErrorPolicy_;
-};
-
-
-export type Subscriptionstaginggoerli_rootMessageSentsArgs = {
-  skip?: InputMaybe<Scalars['Int']>;
-  first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<staginggoerli_RootMessageSent_orderBy>;
-  orderDirection?: InputMaybe<staginggoerli_OrderDirection>;
-  where?: InputMaybe<staginggoerli_RootMessageSent_filter>;
-  block?: InputMaybe<staginggoerli_Block_height>;
-  subgraphError?: _SubgraphErrorPolicy_;
-};
-
-
-export type Subscriptionstaginggoerli_rootMessageProcessedArgs = {
-  id: Scalars['ID'];
-  block?: InputMaybe<staginggoerli_Block_height>;
-  subgraphError?: _SubgraphErrorPolicy_;
-};
-
-
-export type Subscriptionstaginggoerli_rootMessageProcessedsArgs = {
-  skip?: InputMaybe<Scalars['Int']>;
-  first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<staginggoerli_RootMessageProcessed_orderBy>;
-  orderDirection?: InputMaybe<staginggoerli_OrderDirection>;
-  where?: InputMaybe<staginggoerli_RootMessageProcessed_filter>;
-  block?: InputMaybe<staginggoerli_Block_height>;
-  subgraphError?: _SubgraphErrorPolicy_;
-};
-
-
-export type Subscriptionstaginggoerli__metaArgs = {
-  block?: InputMaybe<staginggoerli_Block_height>;
+export type Subscriptionrinkeby__metaArgs = {
+  block?: InputMaybe<rinkeby_Block_height>;
 };
 
 
@@ -4320,445 +3879,170 @@ export type Subscriptiongoerli__metaArgs = {
 };
 
 
-export type Subscriptionlocal1338_assetArgs = {
+export type Subscriptiontestoptimismgoerli_assetArgs = {
   id: Scalars['ID'];
-  block?: InputMaybe<local1338_Block_height>;
+  block?: InputMaybe<testoptimismgoerli_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Subscriptionlocal1338_assetsArgs = {
+export type Subscriptiontestoptimismgoerli_assetsArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<local1338_Asset_orderBy>;
-  orderDirection?: InputMaybe<local1338_OrderDirection>;
-  where?: InputMaybe<local1338_Asset_filter>;
-  block?: InputMaybe<local1338_Block_height>;
+  orderBy?: InputMaybe<testoptimismgoerli_Asset_orderBy>;
+  orderDirection?: InputMaybe<testoptimismgoerli_OrderDirection>;
+  where?: InputMaybe<testoptimismgoerli_Asset_filter>;
+  block?: InputMaybe<testoptimismgoerli_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Subscriptionlocal1338_assetBalanceArgs = {
+export type Subscriptiontestoptimismgoerli_assetBalanceArgs = {
   id: Scalars['ID'];
-  block?: InputMaybe<local1338_Block_height>;
+  block?: InputMaybe<testoptimismgoerli_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Subscriptionlocal1338_assetBalancesArgs = {
+export type Subscriptiontestoptimismgoerli_assetBalancesArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<local1338_AssetBalance_orderBy>;
-  orderDirection?: InputMaybe<local1338_OrderDirection>;
-  where?: InputMaybe<local1338_AssetBalance_filter>;
-  block?: InputMaybe<local1338_Block_height>;
+  orderBy?: InputMaybe<testoptimismgoerli_AssetBalance_orderBy>;
+  orderDirection?: InputMaybe<testoptimismgoerli_OrderDirection>;
+  where?: InputMaybe<testoptimismgoerli_AssetBalance_filter>;
+  block?: InputMaybe<testoptimismgoerli_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Subscriptionlocal1338_routerArgs = {
+export type Subscriptiontestoptimismgoerli_routerArgs = {
   id: Scalars['ID'];
-  block?: InputMaybe<local1338_Block_height>;
+  block?: InputMaybe<testoptimismgoerli_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Subscriptionlocal1338_routersArgs = {
+export type Subscriptiontestoptimismgoerli_routersArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<local1338_Router_orderBy>;
-  orderDirection?: InputMaybe<local1338_OrderDirection>;
-  where?: InputMaybe<local1338_Router_filter>;
-  block?: InputMaybe<local1338_Block_height>;
+  orderBy?: InputMaybe<testoptimismgoerli_Router_orderBy>;
+  orderDirection?: InputMaybe<testoptimismgoerli_OrderDirection>;
+  where?: InputMaybe<testoptimismgoerli_Router_filter>;
+  block?: InputMaybe<testoptimismgoerli_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Subscriptionlocal1338_settingArgs = {
+export type Subscriptiontestoptimismgoerli_settingArgs = {
   id: Scalars['ID'];
-  block?: InputMaybe<local1338_Block_height>;
+  block?: InputMaybe<testoptimismgoerli_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Subscriptionlocal1338_settingsArgs = {
+export type Subscriptiontestoptimismgoerli_settingsArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<local1338_Setting_orderBy>;
-  orderDirection?: InputMaybe<local1338_OrderDirection>;
-  where?: InputMaybe<local1338_Setting_filter>;
-  block?: InputMaybe<local1338_Block_height>;
+  orderBy?: InputMaybe<testoptimismgoerli_Setting_orderBy>;
+  orderDirection?: InputMaybe<testoptimismgoerli_OrderDirection>;
+  where?: InputMaybe<testoptimismgoerli_Setting_filter>;
+  block?: InputMaybe<testoptimismgoerli_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Subscriptionlocal1338_relayerArgs = {
+export type Subscriptiontestoptimismgoerli_relayerArgs = {
   id: Scalars['ID'];
-  block?: InputMaybe<local1338_Block_height>;
+  block?: InputMaybe<testoptimismgoerli_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Subscriptionlocal1338_relayersArgs = {
+export type Subscriptiontestoptimismgoerli_relayersArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<local1338_Relayer_orderBy>;
-  orderDirection?: InputMaybe<local1338_OrderDirection>;
-  where?: InputMaybe<local1338_Relayer_filter>;
-  block?: InputMaybe<local1338_Block_height>;
+  orderBy?: InputMaybe<testoptimismgoerli_Relayer_orderBy>;
+  orderDirection?: InputMaybe<testoptimismgoerli_OrderDirection>;
+  where?: InputMaybe<testoptimismgoerli_Relayer_filter>;
+  block?: InputMaybe<testoptimismgoerli_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Subscriptionlocal1338_stableSwapArgs = {
+export type Subscriptiontestoptimismgoerli_stableSwapArgs = {
   id: Scalars['ID'];
-  block?: InputMaybe<local1338_Block_height>;
+  block?: InputMaybe<testoptimismgoerli_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Subscriptionlocal1338_stableSwapsArgs = {
+export type Subscriptiontestoptimismgoerli_stableSwapsArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<local1338_StableSwap_orderBy>;
-  orderDirection?: InputMaybe<local1338_OrderDirection>;
-  where?: InputMaybe<local1338_StableSwap_filter>;
-  block?: InputMaybe<local1338_Block_height>;
+  orderBy?: InputMaybe<testoptimismgoerli_StableSwap_orderBy>;
+  orderDirection?: InputMaybe<testoptimismgoerli_OrderDirection>;
+  where?: InputMaybe<testoptimismgoerli_StableSwap_filter>;
+  block?: InputMaybe<testoptimismgoerli_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Subscriptionlocal1338_sponsorVaultArgs = {
+export type Subscriptiontestoptimismgoerli_sponsorVaultArgs = {
   id: Scalars['ID'];
-  block?: InputMaybe<local1338_Block_height>;
+  block?: InputMaybe<testoptimismgoerli_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Subscriptionlocal1338_sponsorVaultsArgs = {
+export type Subscriptiontestoptimismgoerli_sponsorVaultsArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<local1338_SponsorVault_orderBy>;
-  orderDirection?: InputMaybe<local1338_OrderDirection>;
-  where?: InputMaybe<local1338_SponsorVault_filter>;
-  block?: InputMaybe<local1338_Block_height>;
+  orderBy?: InputMaybe<testoptimismgoerli_SponsorVault_orderBy>;
+  orderDirection?: InputMaybe<testoptimismgoerli_OrderDirection>;
+  where?: InputMaybe<testoptimismgoerli_SponsorVault_filter>;
+  block?: InputMaybe<testoptimismgoerli_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Subscriptionlocal1338_originTransferArgs = {
+export type Subscriptiontestoptimismgoerli_originTransferArgs = {
   id: Scalars['ID'];
-  block?: InputMaybe<local1338_Block_height>;
+  block?: InputMaybe<testoptimismgoerli_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Subscriptionlocal1338_originTransfersArgs = {
+export type Subscriptiontestoptimismgoerli_originTransfersArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<local1338_OriginTransfer_orderBy>;
-  orderDirection?: InputMaybe<local1338_OrderDirection>;
-  where?: InputMaybe<local1338_OriginTransfer_filter>;
-  block?: InputMaybe<local1338_Block_height>;
+  orderBy?: InputMaybe<testoptimismgoerli_OriginTransfer_orderBy>;
+  orderDirection?: InputMaybe<testoptimismgoerli_OrderDirection>;
+  where?: InputMaybe<testoptimismgoerli_OriginTransfer_filter>;
+  block?: InputMaybe<testoptimismgoerli_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Subscriptionlocal1338_destinationTransferArgs = {
+export type Subscriptiontestoptimismgoerli_destinationTransferArgs = {
   id: Scalars['ID'];
-  block?: InputMaybe<local1338_Block_height>;
+  block?: InputMaybe<testoptimismgoerli_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Subscriptionlocal1338_destinationTransfersArgs = {
+export type Subscriptiontestoptimismgoerli_destinationTransfersArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<local1338_DestinationTransfer_orderBy>;
-  orderDirection?: InputMaybe<local1338_OrderDirection>;
-  where?: InputMaybe<local1338_DestinationTransfer_filter>;
-  block?: InputMaybe<local1338_Block_height>;
+  orderBy?: InputMaybe<testoptimismgoerli_DestinationTransfer_orderBy>;
+  orderDirection?: InputMaybe<testoptimismgoerli_OrderDirection>;
+  where?: InputMaybe<testoptimismgoerli_DestinationTransfer_filter>;
+  block?: InputMaybe<testoptimismgoerli_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Subscriptionlocal1338__metaArgs = {
-  block?: InputMaybe<local1338_Block_height>;
-};
-
-
-export type Subscriptionstagingmumbai_assetArgs = {
-  id: Scalars['ID'];
-  block?: InputMaybe<stagingmumbai_Block_height>;
-  subgraphError?: _SubgraphErrorPolicy_;
-};
-
-
-export type Subscriptionstagingmumbai_assetsArgs = {
-  skip?: InputMaybe<Scalars['Int']>;
-  first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<stagingmumbai_Asset_orderBy>;
-  orderDirection?: InputMaybe<stagingmumbai_OrderDirection>;
-  where?: InputMaybe<stagingmumbai_Asset_filter>;
-  block?: InputMaybe<stagingmumbai_Block_height>;
-  subgraphError?: _SubgraphErrorPolicy_;
-};
-
-
-export type Subscriptionstagingmumbai_assetBalanceArgs = {
-  id: Scalars['ID'];
-  block?: InputMaybe<stagingmumbai_Block_height>;
-  subgraphError?: _SubgraphErrorPolicy_;
-};
-
-
-export type Subscriptionstagingmumbai_assetBalancesArgs = {
-  skip?: InputMaybe<Scalars['Int']>;
-  first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<stagingmumbai_AssetBalance_orderBy>;
-  orderDirection?: InputMaybe<stagingmumbai_OrderDirection>;
-  where?: InputMaybe<stagingmumbai_AssetBalance_filter>;
-  block?: InputMaybe<stagingmumbai_Block_height>;
-  subgraphError?: _SubgraphErrorPolicy_;
-};
-
-
-export type Subscriptionstagingmumbai_routerArgs = {
-  id: Scalars['ID'];
-  block?: InputMaybe<stagingmumbai_Block_height>;
-  subgraphError?: _SubgraphErrorPolicy_;
-};
-
-
-export type Subscriptionstagingmumbai_routersArgs = {
-  skip?: InputMaybe<Scalars['Int']>;
-  first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<stagingmumbai_Router_orderBy>;
-  orderDirection?: InputMaybe<stagingmumbai_OrderDirection>;
-  where?: InputMaybe<stagingmumbai_Router_filter>;
-  block?: InputMaybe<stagingmumbai_Block_height>;
-  subgraphError?: _SubgraphErrorPolicy_;
-};
-
-
-export type Subscriptionstagingmumbai_settingArgs = {
-  id: Scalars['ID'];
-  block?: InputMaybe<stagingmumbai_Block_height>;
-  subgraphError?: _SubgraphErrorPolicy_;
-};
-
-
-export type Subscriptionstagingmumbai_settingsArgs = {
-  skip?: InputMaybe<Scalars['Int']>;
-  first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<stagingmumbai_Setting_orderBy>;
-  orderDirection?: InputMaybe<stagingmumbai_OrderDirection>;
-  where?: InputMaybe<stagingmumbai_Setting_filter>;
-  block?: InputMaybe<stagingmumbai_Block_height>;
-  subgraphError?: _SubgraphErrorPolicy_;
-};
-
-
-export type Subscriptionstagingmumbai_relayerArgs = {
-  id: Scalars['ID'];
-  block?: InputMaybe<stagingmumbai_Block_height>;
-  subgraphError?: _SubgraphErrorPolicy_;
-};
-
-
-export type Subscriptionstagingmumbai_relayersArgs = {
-  skip?: InputMaybe<Scalars['Int']>;
-  first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<stagingmumbai_Relayer_orderBy>;
-  orderDirection?: InputMaybe<stagingmumbai_OrderDirection>;
-  where?: InputMaybe<stagingmumbai_Relayer_filter>;
-  block?: InputMaybe<stagingmumbai_Block_height>;
-  subgraphError?: _SubgraphErrorPolicy_;
-};
-
-
-export type Subscriptionstagingmumbai_stableSwapArgs = {
-  id: Scalars['ID'];
-  block?: InputMaybe<stagingmumbai_Block_height>;
-  subgraphError?: _SubgraphErrorPolicy_;
-};
-
-
-export type Subscriptionstagingmumbai_stableSwapsArgs = {
-  skip?: InputMaybe<Scalars['Int']>;
-  first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<stagingmumbai_StableSwap_orderBy>;
-  orderDirection?: InputMaybe<stagingmumbai_OrderDirection>;
-  where?: InputMaybe<stagingmumbai_StableSwap_filter>;
-  block?: InputMaybe<stagingmumbai_Block_height>;
-  subgraphError?: _SubgraphErrorPolicy_;
-};
-
-
-export type Subscriptionstagingmumbai_sponsorVaultArgs = {
-  id: Scalars['ID'];
-  block?: InputMaybe<stagingmumbai_Block_height>;
-  subgraphError?: _SubgraphErrorPolicy_;
-};
-
-
-export type Subscriptionstagingmumbai_sponsorVaultsArgs = {
-  skip?: InputMaybe<Scalars['Int']>;
-  first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<stagingmumbai_SponsorVault_orderBy>;
-  orderDirection?: InputMaybe<stagingmumbai_OrderDirection>;
-  where?: InputMaybe<stagingmumbai_SponsorVault_filter>;
-  block?: InputMaybe<stagingmumbai_Block_height>;
-  subgraphError?: _SubgraphErrorPolicy_;
-};
-
-
-export type Subscriptionstagingmumbai_originTransferArgs = {
-  id: Scalars['ID'];
-  block?: InputMaybe<stagingmumbai_Block_height>;
-  subgraphError?: _SubgraphErrorPolicy_;
-};
-
-
-export type Subscriptionstagingmumbai_originTransfersArgs = {
-  skip?: InputMaybe<Scalars['Int']>;
-  first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<stagingmumbai_OriginTransfer_orderBy>;
-  orderDirection?: InputMaybe<stagingmumbai_OrderDirection>;
-  where?: InputMaybe<stagingmumbai_OriginTransfer_filter>;
-  block?: InputMaybe<stagingmumbai_Block_height>;
-  subgraphError?: _SubgraphErrorPolicy_;
-};
-
-
-export type Subscriptionstagingmumbai_destinationTransferArgs = {
-  id: Scalars['ID'];
-  block?: InputMaybe<stagingmumbai_Block_height>;
-  subgraphError?: _SubgraphErrorPolicy_;
-};
-
-
-export type Subscriptionstagingmumbai_destinationTransfersArgs = {
-  skip?: InputMaybe<Scalars['Int']>;
-  first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<stagingmumbai_DestinationTransfer_orderBy>;
-  orderDirection?: InputMaybe<stagingmumbai_OrderDirection>;
-  where?: InputMaybe<stagingmumbai_DestinationTransfer_filter>;
-  block?: InputMaybe<stagingmumbai_Block_height>;
-  subgraphError?: _SubgraphErrorPolicy_;
-};
-
-
-export type Subscriptionstagingmumbai_originMessageArgs = {
-  id: Scalars['ID'];
-  block?: InputMaybe<stagingmumbai_Block_height>;
-  subgraphError?: _SubgraphErrorPolicy_;
-};
-
-
-export type Subscriptionstagingmumbai_originMessagesArgs = {
-  skip?: InputMaybe<Scalars['Int']>;
-  first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<stagingmumbai_OriginMessage_orderBy>;
-  orderDirection?: InputMaybe<stagingmumbai_OrderDirection>;
-  where?: InputMaybe<stagingmumbai_OriginMessage_filter>;
-  block?: InputMaybe<stagingmumbai_Block_height>;
-  subgraphError?: _SubgraphErrorPolicy_;
-};
-
-
-export type Subscriptionstagingmumbai_destinationMessageArgs = {
-  id: Scalars['ID'];
-  block?: InputMaybe<stagingmumbai_Block_height>;
-  subgraphError?: _SubgraphErrorPolicy_;
-};
-
-
-export type Subscriptionstagingmumbai_destinationMessagesArgs = {
-  skip?: InputMaybe<Scalars['Int']>;
-  first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<stagingmumbai_DestinationMessage_orderBy>;
-  orderDirection?: InputMaybe<stagingmumbai_OrderDirection>;
-  where?: InputMaybe<stagingmumbai_DestinationMessage_filter>;
-  block?: InputMaybe<stagingmumbai_Block_height>;
-  subgraphError?: _SubgraphErrorPolicy_;
-};
-
-
-export type Subscriptionstagingmumbai_aggregateRootArgs = {
-  id: Scalars['ID'];
-  block?: InputMaybe<stagingmumbai_Block_height>;
-  subgraphError?: _SubgraphErrorPolicy_;
-};
-
-
-export type Subscriptionstagingmumbai_aggregateRootsArgs = {
-  skip?: InputMaybe<Scalars['Int']>;
-  first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<stagingmumbai_AggregateRoot_orderBy>;
-  orderDirection?: InputMaybe<stagingmumbai_OrderDirection>;
-  where?: InputMaybe<stagingmumbai_AggregateRoot_filter>;
-  block?: InputMaybe<stagingmumbai_Block_height>;
-  subgraphError?: _SubgraphErrorPolicy_;
-};
-
-
-export type Subscriptionstagingmumbai_connectorMetaArgs = {
-  id: Scalars['ID'];
-  block?: InputMaybe<stagingmumbai_Block_height>;
-  subgraphError?: _SubgraphErrorPolicy_;
-};
-
-
-export type Subscriptionstagingmumbai_connectorMetasArgs = {
-  skip?: InputMaybe<Scalars['Int']>;
-  first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<stagingmumbai_ConnectorMeta_orderBy>;
-  orderDirection?: InputMaybe<stagingmumbai_OrderDirection>;
-  where?: InputMaybe<stagingmumbai_ConnectorMeta_filter>;
-  block?: InputMaybe<stagingmumbai_Block_height>;
-  subgraphError?: _SubgraphErrorPolicy_;
-};
-
-
-export type Subscriptionstagingmumbai_rootMessageSentArgs = {
-  id: Scalars['ID'];
-  block?: InputMaybe<stagingmumbai_Block_height>;
-  subgraphError?: _SubgraphErrorPolicy_;
-};
-
-
-export type Subscriptionstagingmumbai_rootMessageSentsArgs = {
-  skip?: InputMaybe<Scalars['Int']>;
-  first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<stagingmumbai_RootMessageSent_orderBy>;
-  orderDirection?: InputMaybe<stagingmumbai_OrderDirection>;
-  where?: InputMaybe<stagingmumbai_RootMessageSent_filter>;
-  block?: InputMaybe<stagingmumbai_Block_height>;
-  subgraphError?: _SubgraphErrorPolicy_;
-};
-
-
-export type Subscriptionstagingmumbai_rootMessageProcessedArgs = {
-  id: Scalars['ID'];
-  block?: InputMaybe<stagingmumbai_Block_height>;
-  subgraphError?: _SubgraphErrorPolicy_;
-};
-
-
-export type Subscriptionstagingmumbai_rootMessageProcessedsArgs = {
-  skip?: InputMaybe<Scalars['Int']>;
-  first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<stagingmumbai_RootMessageProcessed_orderBy>;
-  orderDirection?: InputMaybe<stagingmumbai_OrderDirection>;
-  where?: InputMaybe<stagingmumbai_RootMessageProcessed_filter>;
-  block?: InputMaybe<stagingmumbai_Block_height>;
-  subgraphError?: _SubgraphErrorPolicy_;
-};
-
-
-export type Subscriptionstagingmumbai__metaArgs = {
-  block?: InputMaybe<stagingmumbai_Block_height>;
+export type Subscriptiontestoptimismgoerli__metaArgs = {
+  block?: InputMaybe<testoptimismgoerli_Block_height>;
 };
 
 
@@ -5037,6 +4321,173 @@ export type Subscriptionoptimismgoerli__metaArgs = {
 };
 
 
+export type Subscriptionlocal1338_assetArgs = {
+  id: Scalars['ID'];
+  block?: InputMaybe<local1338_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Subscriptionlocal1338_assetsArgs = {
+  skip?: InputMaybe<Scalars['Int']>;
+  first?: InputMaybe<Scalars['Int']>;
+  orderBy?: InputMaybe<local1338_Asset_orderBy>;
+  orderDirection?: InputMaybe<local1338_OrderDirection>;
+  where?: InputMaybe<local1338_Asset_filter>;
+  block?: InputMaybe<local1338_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Subscriptionlocal1338_assetBalanceArgs = {
+  id: Scalars['ID'];
+  block?: InputMaybe<local1338_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Subscriptionlocal1338_assetBalancesArgs = {
+  skip?: InputMaybe<Scalars['Int']>;
+  first?: InputMaybe<Scalars['Int']>;
+  orderBy?: InputMaybe<local1338_AssetBalance_orderBy>;
+  orderDirection?: InputMaybe<local1338_OrderDirection>;
+  where?: InputMaybe<local1338_AssetBalance_filter>;
+  block?: InputMaybe<local1338_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Subscriptionlocal1338_routerArgs = {
+  id: Scalars['ID'];
+  block?: InputMaybe<local1338_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Subscriptionlocal1338_routersArgs = {
+  skip?: InputMaybe<Scalars['Int']>;
+  first?: InputMaybe<Scalars['Int']>;
+  orderBy?: InputMaybe<local1338_Router_orderBy>;
+  orderDirection?: InputMaybe<local1338_OrderDirection>;
+  where?: InputMaybe<local1338_Router_filter>;
+  block?: InputMaybe<local1338_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Subscriptionlocal1338_settingArgs = {
+  id: Scalars['ID'];
+  block?: InputMaybe<local1338_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Subscriptionlocal1338_settingsArgs = {
+  skip?: InputMaybe<Scalars['Int']>;
+  first?: InputMaybe<Scalars['Int']>;
+  orderBy?: InputMaybe<local1338_Setting_orderBy>;
+  orderDirection?: InputMaybe<local1338_OrderDirection>;
+  where?: InputMaybe<local1338_Setting_filter>;
+  block?: InputMaybe<local1338_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Subscriptionlocal1338_relayerArgs = {
+  id: Scalars['ID'];
+  block?: InputMaybe<local1338_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Subscriptionlocal1338_relayersArgs = {
+  skip?: InputMaybe<Scalars['Int']>;
+  first?: InputMaybe<Scalars['Int']>;
+  orderBy?: InputMaybe<local1338_Relayer_orderBy>;
+  orderDirection?: InputMaybe<local1338_OrderDirection>;
+  where?: InputMaybe<local1338_Relayer_filter>;
+  block?: InputMaybe<local1338_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Subscriptionlocal1338_stableSwapArgs = {
+  id: Scalars['ID'];
+  block?: InputMaybe<local1338_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Subscriptionlocal1338_stableSwapsArgs = {
+  skip?: InputMaybe<Scalars['Int']>;
+  first?: InputMaybe<Scalars['Int']>;
+  orderBy?: InputMaybe<local1338_StableSwap_orderBy>;
+  orderDirection?: InputMaybe<local1338_OrderDirection>;
+  where?: InputMaybe<local1338_StableSwap_filter>;
+  block?: InputMaybe<local1338_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Subscriptionlocal1338_sponsorVaultArgs = {
+  id: Scalars['ID'];
+  block?: InputMaybe<local1338_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Subscriptionlocal1338_sponsorVaultsArgs = {
+  skip?: InputMaybe<Scalars['Int']>;
+  first?: InputMaybe<Scalars['Int']>;
+  orderBy?: InputMaybe<local1338_SponsorVault_orderBy>;
+  orderDirection?: InputMaybe<local1338_OrderDirection>;
+  where?: InputMaybe<local1338_SponsorVault_filter>;
+  block?: InputMaybe<local1338_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Subscriptionlocal1338_originTransferArgs = {
+  id: Scalars['ID'];
+  block?: InputMaybe<local1338_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Subscriptionlocal1338_originTransfersArgs = {
+  skip?: InputMaybe<Scalars['Int']>;
+  first?: InputMaybe<Scalars['Int']>;
+  orderBy?: InputMaybe<local1338_OriginTransfer_orderBy>;
+  orderDirection?: InputMaybe<local1338_OrderDirection>;
+  where?: InputMaybe<local1338_OriginTransfer_filter>;
+  block?: InputMaybe<local1338_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Subscriptionlocal1338_destinationTransferArgs = {
+  id: Scalars['ID'];
+  block?: InputMaybe<local1338_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Subscriptionlocal1338_destinationTransfersArgs = {
+  skip?: InputMaybe<Scalars['Int']>;
+  first?: InputMaybe<Scalars['Int']>;
+  orderBy?: InputMaybe<local1338_DestinationTransfer_orderBy>;
+  orderDirection?: InputMaybe<local1338_OrderDirection>;
+  where?: InputMaybe<local1338_DestinationTransfer_filter>;
+  block?: InputMaybe<local1338_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Subscriptionlocal1338__metaArgs = {
+  block?: InputMaybe<local1338_Block_height>;
+};
+
+
 export type Subscriptionmumbai_assetArgs = {
   id: Scalars['ID'];
   block?: InputMaybe<mumbai_Block_height>;
@@ -5273,6 +4724,281 @@ export type Subscriptionmumbai_rootMessagesArgs = {
 
 export type Subscriptionmumbai__metaArgs = {
   block?: InputMaybe<mumbai_Block_height>;
+};
+
+
+export type Subscriptionstagingmumbai_assetArgs = {
+  id: Scalars['ID'];
+  block?: InputMaybe<stagingmumbai_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Subscriptionstagingmumbai_assetsArgs = {
+  skip?: InputMaybe<Scalars['Int']>;
+  first?: InputMaybe<Scalars['Int']>;
+  orderBy?: InputMaybe<stagingmumbai_Asset_orderBy>;
+  orderDirection?: InputMaybe<stagingmumbai_OrderDirection>;
+  where?: InputMaybe<stagingmumbai_Asset_filter>;
+  block?: InputMaybe<stagingmumbai_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Subscriptionstagingmumbai_assetBalanceArgs = {
+  id: Scalars['ID'];
+  block?: InputMaybe<stagingmumbai_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Subscriptionstagingmumbai_assetBalancesArgs = {
+  skip?: InputMaybe<Scalars['Int']>;
+  first?: InputMaybe<Scalars['Int']>;
+  orderBy?: InputMaybe<stagingmumbai_AssetBalance_orderBy>;
+  orderDirection?: InputMaybe<stagingmumbai_OrderDirection>;
+  where?: InputMaybe<stagingmumbai_AssetBalance_filter>;
+  block?: InputMaybe<stagingmumbai_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Subscriptionstagingmumbai_routerArgs = {
+  id: Scalars['ID'];
+  block?: InputMaybe<stagingmumbai_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Subscriptionstagingmumbai_routersArgs = {
+  skip?: InputMaybe<Scalars['Int']>;
+  first?: InputMaybe<Scalars['Int']>;
+  orderBy?: InputMaybe<stagingmumbai_Router_orderBy>;
+  orderDirection?: InputMaybe<stagingmumbai_OrderDirection>;
+  where?: InputMaybe<stagingmumbai_Router_filter>;
+  block?: InputMaybe<stagingmumbai_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Subscriptionstagingmumbai_settingArgs = {
+  id: Scalars['ID'];
+  block?: InputMaybe<stagingmumbai_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Subscriptionstagingmumbai_settingsArgs = {
+  skip?: InputMaybe<Scalars['Int']>;
+  first?: InputMaybe<Scalars['Int']>;
+  orderBy?: InputMaybe<stagingmumbai_Setting_orderBy>;
+  orderDirection?: InputMaybe<stagingmumbai_OrderDirection>;
+  where?: InputMaybe<stagingmumbai_Setting_filter>;
+  block?: InputMaybe<stagingmumbai_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Subscriptionstagingmumbai_relayerArgs = {
+  id: Scalars['ID'];
+  block?: InputMaybe<stagingmumbai_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Subscriptionstagingmumbai_relayersArgs = {
+  skip?: InputMaybe<Scalars['Int']>;
+  first?: InputMaybe<Scalars['Int']>;
+  orderBy?: InputMaybe<stagingmumbai_Relayer_orderBy>;
+  orderDirection?: InputMaybe<stagingmumbai_OrderDirection>;
+  where?: InputMaybe<stagingmumbai_Relayer_filter>;
+  block?: InputMaybe<stagingmumbai_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Subscriptionstagingmumbai_stableSwapArgs = {
+  id: Scalars['ID'];
+  block?: InputMaybe<stagingmumbai_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Subscriptionstagingmumbai_stableSwapsArgs = {
+  skip?: InputMaybe<Scalars['Int']>;
+  first?: InputMaybe<Scalars['Int']>;
+  orderBy?: InputMaybe<stagingmumbai_StableSwap_orderBy>;
+  orderDirection?: InputMaybe<stagingmumbai_OrderDirection>;
+  where?: InputMaybe<stagingmumbai_StableSwap_filter>;
+  block?: InputMaybe<stagingmumbai_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Subscriptionstagingmumbai_sponsorVaultArgs = {
+  id: Scalars['ID'];
+  block?: InputMaybe<stagingmumbai_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Subscriptionstagingmumbai_sponsorVaultsArgs = {
+  skip?: InputMaybe<Scalars['Int']>;
+  first?: InputMaybe<Scalars['Int']>;
+  orderBy?: InputMaybe<stagingmumbai_SponsorVault_orderBy>;
+  orderDirection?: InputMaybe<stagingmumbai_OrderDirection>;
+  where?: InputMaybe<stagingmumbai_SponsorVault_filter>;
+  block?: InputMaybe<stagingmumbai_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Subscriptionstagingmumbai_originTransferArgs = {
+  id: Scalars['ID'];
+  block?: InputMaybe<stagingmumbai_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Subscriptionstagingmumbai_originTransfersArgs = {
+  skip?: InputMaybe<Scalars['Int']>;
+  first?: InputMaybe<Scalars['Int']>;
+  orderBy?: InputMaybe<stagingmumbai_OriginTransfer_orderBy>;
+  orderDirection?: InputMaybe<stagingmumbai_OrderDirection>;
+  where?: InputMaybe<stagingmumbai_OriginTransfer_filter>;
+  block?: InputMaybe<stagingmumbai_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Subscriptionstagingmumbai_destinationTransferArgs = {
+  id: Scalars['ID'];
+  block?: InputMaybe<stagingmumbai_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Subscriptionstagingmumbai_destinationTransfersArgs = {
+  skip?: InputMaybe<Scalars['Int']>;
+  first?: InputMaybe<Scalars['Int']>;
+  orderBy?: InputMaybe<stagingmumbai_DestinationTransfer_orderBy>;
+  orderDirection?: InputMaybe<stagingmumbai_OrderDirection>;
+  where?: InputMaybe<stagingmumbai_DestinationTransfer_filter>;
+  block?: InputMaybe<stagingmumbai_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Subscriptionstagingmumbai_originMessageArgs = {
+  id: Scalars['ID'];
+  block?: InputMaybe<stagingmumbai_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Subscriptionstagingmumbai_originMessagesArgs = {
+  skip?: InputMaybe<Scalars['Int']>;
+  first?: InputMaybe<Scalars['Int']>;
+  orderBy?: InputMaybe<stagingmumbai_OriginMessage_orderBy>;
+  orderDirection?: InputMaybe<stagingmumbai_OrderDirection>;
+  where?: InputMaybe<stagingmumbai_OriginMessage_filter>;
+  block?: InputMaybe<stagingmumbai_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Subscriptionstagingmumbai_destinationMessageArgs = {
+  id: Scalars['ID'];
+  block?: InputMaybe<stagingmumbai_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Subscriptionstagingmumbai_destinationMessagesArgs = {
+  skip?: InputMaybe<Scalars['Int']>;
+  first?: InputMaybe<Scalars['Int']>;
+  orderBy?: InputMaybe<stagingmumbai_DestinationMessage_orderBy>;
+  orderDirection?: InputMaybe<stagingmumbai_OrderDirection>;
+  where?: InputMaybe<stagingmumbai_DestinationMessage_filter>;
+  block?: InputMaybe<stagingmumbai_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Subscriptionstagingmumbai_aggregateRootArgs = {
+  id: Scalars['ID'];
+  block?: InputMaybe<stagingmumbai_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Subscriptionstagingmumbai_aggregateRootsArgs = {
+  skip?: InputMaybe<Scalars['Int']>;
+  first?: InputMaybe<Scalars['Int']>;
+  orderBy?: InputMaybe<stagingmumbai_AggregateRoot_orderBy>;
+  orderDirection?: InputMaybe<stagingmumbai_OrderDirection>;
+  where?: InputMaybe<stagingmumbai_AggregateRoot_filter>;
+  block?: InputMaybe<stagingmumbai_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Subscriptionstagingmumbai_connectorMetaArgs = {
+  id: Scalars['ID'];
+  block?: InputMaybe<stagingmumbai_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Subscriptionstagingmumbai_connectorMetasArgs = {
+  skip?: InputMaybe<Scalars['Int']>;
+  first?: InputMaybe<Scalars['Int']>;
+  orderBy?: InputMaybe<stagingmumbai_ConnectorMeta_orderBy>;
+  orderDirection?: InputMaybe<stagingmumbai_OrderDirection>;
+  where?: InputMaybe<stagingmumbai_ConnectorMeta_filter>;
+  block?: InputMaybe<stagingmumbai_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Subscriptionstagingmumbai_rootMessageSentArgs = {
+  id: Scalars['ID'];
+  block?: InputMaybe<stagingmumbai_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Subscriptionstagingmumbai_rootMessageSentsArgs = {
+  skip?: InputMaybe<Scalars['Int']>;
+  first?: InputMaybe<Scalars['Int']>;
+  orderBy?: InputMaybe<stagingmumbai_RootMessageSent_orderBy>;
+  orderDirection?: InputMaybe<stagingmumbai_OrderDirection>;
+  where?: InputMaybe<stagingmumbai_RootMessageSent_filter>;
+  block?: InputMaybe<stagingmumbai_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Subscriptionstagingmumbai_rootMessageProcessedArgs = {
+  id: Scalars['ID'];
+  block?: InputMaybe<stagingmumbai_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Subscriptionstagingmumbai_rootMessageProcessedsArgs = {
+  skip?: InputMaybe<Scalars['Int']>;
+  first?: InputMaybe<Scalars['Int']>;
+  orderBy?: InputMaybe<stagingmumbai_RootMessageProcessed_orderBy>;
+  orderDirection?: InputMaybe<stagingmumbai_OrderDirection>;
+  where?: InputMaybe<stagingmumbai_RootMessageProcessed_filter>;
+  block?: InputMaybe<stagingmumbai_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Subscriptionstagingmumbai__metaArgs = {
+  block?: InputMaybe<stagingmumbai_Block_height>;
 };
 
 
@@ -5550,1012 +5276,280 @@ export type Subscriptionstagingoptimismgoerli__metaArgs = {
   block?: InputMaybe<stagingoptimismgoerli_Block_height>;
 };
 
-export type rinkeby_Asset = {
+
+export type Subscriptionstaginggoerli_assetArgs = {
   id: Scalars['ID'];
-  local: Scalars['rinkeby_Bytes'];
-  adoptedAsset: Scalars['rinkeby_Bytes'];
-  canonicalId: Scalars['rinkeby_Bytes'];
-  canonicalDomain: Scalars['BigInt'];
-  blockNumber: Scalars['BigInt'];
-};
-
-export type rinkeby_AssetBalance = {
-  id: Scalars['ID'];
-  amount: Scalars['BigInt'];
-  router: rinkeby_Router;
-  asset: rinkeby_Asset;
-};
-
-export type rinkeby_AssetBalance_filter = {
-  id?: InputMaybe<Scalars['ID']>;
-  id_not?: InputMaybe<Scalars['ID']>;
-  id_gt?: InputMaybe<Scalars['ID']>;
-  id_lt?: InputMaybe<Scalars['ID']>;
-  id_gte?: InputMaybe<Scalars['ID']>;
-  id_lte?: InputMaybe<Scalars['ID']>;
-  id_in?: InputMaybe<Array<Scalars['ID']>>;
-  id_not_in?: InputMaybe<Array<Scalars['ID']>>;
-  amount?: InputMaybe<Scalars['BigInt']>;
-  amount_not?: InputMaybe<Scalars['BigInt']>;
-  amount_gt?: InputMaybe<Scalars['BigInt']>;
-  amount_lt?: InputMaybe<Scalars['BigInt']>;
-  amount_gte?: InputMaybe<Scalars['BigInt']>;
-  amount_lte?: InputMaybe<Scalars['BigInt']>;
-  amount_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  amount_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  router?: InputMaybe<Scalars['String']>;
-  router_not?: InputMaybe<Scalars['String']>;
-  router_gt?: InputMaybe<Scalars['String']>;
-  router_lt?: InputMaybe<Scalars['String']>;
-  router_gte?: InputMaybe<Scalars['String']>;
-  router_lte?: InputMaybe<Scalars['String']>;
-  router_in?: InputMaybe<Array<Scalars['String']>>;
-  router_not_in?: InputMaybe<Array<Scalars['String']>>;
-  router_contains?: InputMaybe<Scalars['String']>;
-  router_contains_nocase?: InputMaybe<Scalars['String']>;
-  router_not_contains?: InputMaybe<Scalars['String']>;
-  router_not_contains_nocase?: InputMaybe<Scalars['String']>;
-  router_starts_with?: InputMaybe<Scalars['String']>;
-  router_starts_with_nocase?: InputMaybe<Scalars['String']>;
-  router_not_starts_with?: InputMaybe<Scalars['String']>;
-  router_not_starts_with_nocase?: InputMaybe<Scalars['String']>;
-  router_ends_with?: InputMaybe<Scalars['String']>;
-  router_ends_with_nocase?: InputMaybe<Scalars['String']>;
-  router_not_ends_with?: InputMaybe<Scalars['String']>;
-  router_not_ends_with_nocase?: InputMaybe<Scalars['String']>;
-  router_?: InputMaybe<rinkeby_Router_filter>;
-  asset?: InputMaybe<Scalars['String']>;
-  asset_not?: InputMaybe<Scalars['String']>;
-  asset_gt?: InputMaybe<Scalars['String']>;
-  asset_lt?: InputMaybe<Scalars['String']>;
-  asset_gte?: InputMaybe<Scalars['String']>;
-  asset_lte?: InputMaybe<Scalars['String']>;
-  asset_in?: InputMaybe<Array<Scalars['String']>>;
-  asset_not_in?: InputMaybe<Array<Scalars['String']>>;
-  asset_contains?: InputMaybe<Scalars['String']>;
-  asset_contains_nocase?: InputMaybe<Scalars['String']>;
-  asset_not_contains?: InputMaybe<Scalars['String']>;
-  asset_not_contains_nocase?: InputMaybe<Scalars['String']>;
-  asset_starts_with?: InputMaybe<Scalars['String']>;
-  asset_starts_with_nocase?: InputMaybe<Scalars['String']>;
-  asset_not_starts_with?: InputMaybe<Scalars['String']>;
-  asset_not_starts_with_nocase?: InputMaybe<Scalars['String']>;
-  asset_ends_with?: InputMaybe<Scalars['String']>;
-  asset_ends_with_nocase?: InputMaybe<Scalars['String']>;
-  asset_not_ends_with?: InputMaybe<Scalars['String']>;
-  asset_not_ends_with_nocase?: InputMaybe<Scalars['String']>;
-  asset_?: InputMaybe<rinkeby_Asset_filter>;
-  /** Filter for the block changed event. */
-  _change_block?: InputMaybe<rinkeby_BlockChangedFilter>;
-};
-
-export type rinkeby_AssetBalance_orderBy =
-  | 'id'
-  | 'amount'
-  | 'router'
-  | 'asset';
-
-export type rinkeby_Asset_filter = {
-  id?: InputMaybe<Scalars['ID']>;
-  id_not?: InputMaybe<Scalars['ID']>;
-  id_gt?: InputMaybe<Scalars['ID']>;
-  id_lt?: InputMaybe<Scalars['ID']>;
-  id_gte?: InputMaybe<Scalars['ID']>;
-  id_lte?: InputMaybe<Scalars['ID']>;
-  id_in?: InputMaybe<Array<Scalars['ID']>>;
-  id_not_in?: InputMaybe<Array<Scalars['ID']>>;
-  local?: InputMaybe<Scalars['rinkeby_Bytes']>;
-  local_not?: InputMaybe<Scalars['rinkeby_Bytes']>;
-  local_in?: InputMaybe<Array<Scalars['rinkeby_Bytes']>>;
-  local_not_in?: InputMaybe<Array<Scalars['rinkeby_Bytes']>>;
-  local_contains?: InputMaybe<Scalars['rinkeby_Bytes']>;
-  local_not_contains?: InputMaybe<Scalars['rinkeby_Bytes']>;
-  adoptedAsset?: InputMaybe<Scalars['rinkeby_Bytes']>;
-  adoptedAsset_not?: InputMaybe<Scalars['rinkeby_Bytes']>;
-  adoptedAsset_in?: InputMaybe<Array<Scalars['rinkeby_Bytes']>>;
-  adoptedAsset_not_in?: InputMaybe<Array<Scalars['rinkeby_Bytes']>>;
-  adoptedAsset_contains?: InputMaybe<Scalars['rinkeby_Bytes']>;
-  adoptedAsset_not_contains?: InputMaybe<Scalars['rinkeby_Bytes']>;
-  canonicalId?: InputMaybe<Scalars['rinkeby_Bytes']>;
-  canonicalId_not?: InputMaybe<Scalars['rinkeby_Bytes']>;
-  canonicalId_in?: InputMaybe<Array<Scalars['rinkeby_Bytes']>>;
-  canonicalId_not_in?: InputMaybe<Array<Scalars['rinkeby_Bytes']>>;
-  canonicalId_contains?: InputMaybe<Scalars['rinkeby_Bytes']>;
-  canonicalId_not_contains?: InputMaybe<Scalars['rinkeby_Bytes']>;
-  canonicalDomain?: InputMaybe<Scalars['BigInt']>;
-  canonicalDomain_not?: InputMaybe<Scalars['BigInt']>;
-  canonicalDomain_gt?: InputMaybe<Scalars['BigInt']>;
-  canonicalDomain_lt?: InputMaybe<Scalars['BigInt']>;
-  canonicalDomain_gte?: InputMaybe<Scalars['BigInt']>;
-  canonicalDomain_lte?: InputMaybe<Scalars['BigInt']>;
-  canonicalDomain_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  canonicalDomain_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  blockNumber?: InputMaybe<Scalars['BigInt']>;
-  blockNumber_not?: InputMaybe<Scalars['BigInt']>;
-  blockNumber_gt?: InputMaybe<Scalars['BigInt']>;
-  blockNumber_lt?: InputMaybe<Scalars['BigInt']>;
-  blockNumber_gte?: InputMaybe<Scalars['BigInt']>;
-  blockNumber_lte?: InputMaybe<Scalars['BigInt']>;
-  blockNumber_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  blockNumber_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  /** Filter for the block changed event. */
-  _change_block?: InputMaybe<rinkeby_BlockChangedFilter>;
-};
-
-export type rinkeby_Asset_orderBy =
-  | 'id'
-  | 'local'
-  | 'adoptedAsset'
-  | 'canonicalId'
-  | 'canonicalDomain'
-  | 'blockNumber';
-
-export type rinkeby_BlockChangedFilter = {
-  number_gte: Scalars['Int'];
-};
-
-export type rinkeby_Block_height = {
-  hash?: InputMaybe<Scalars['rinkeby_Bytes']>;
-  number?: InputMaybe<Scalars['Int']>;
-  number_gte?: InputMaybe<Scalars['Int']>;
-};
-
-export type rinkeby_DestinationTransfer = {
-  id: Scalars['ID'];
-  chainId?: Maybe<Scalars['BigInt']>;
-  transferId?: Maybe<Scalars['rinkeby_Bytes']>;
-  nonce?: Maybe<Scalars['BigInt']>;
-  to?: Maybe<Scalars['rinkeby_Bytes']>;
-  callData?: Maybe<Scalars['rinkeby_Bytes']>;
-  originDomain?: Maybe<Scalars['BigInt']>;
-  destinationDomain?: Maybe<Scalars['BigInt']>;
-  agent?: Maybe<Scalars['rinkeby_Bytes']>;
-  recovery?: Maybe<Scalars['rinkeby_Bytes']>;
-  forceSlow?: Maybe<Scalars['Boolean']>;
-  receiveLocal?: Maybe<Scalars['Boolean']>;
-  callback?: Maybe<Scalars['rinkeby_Bytes']>;
-  callbackFee?: Maybe<Scalars['BigInt']>;
-  relayerFee?: Maybe<Scalars['BigInt']>;
-  slippageTol?: Maybe<Scalars['BigInt']>;
-  status?: Maybe<rinkeby_TransferStatus>;
-  routers?: Maybe<Array<rinkeby_Router>>;
-  originSender?: Maybe<Scalars['rinkeby_Bytes']>;
-  transactingAsset?: Maybe<Scalars['rinkeby_Bytes']>;
-  transactingAmount?: Maybe<Scalars['BigInt']>;
-  localAsset?: Maybe<Scalars['rinkeby_Bytes']>;
-  localAmount?: Maybe<Scalars['BigInt']>;
-  sponsorVaultRelayerFee?: Maybe<Scalars['BigInt']>;
-  executedCaller?: Maybe<Scalars['rinkeby_Bytes']>;
-  executedTransactionHash?: Maybe<Scalars['rinkeby_Bytes']>;
-  executedTimestamp?: Maybe<Scalars['BigInt']>;
-  executedGasPrice?: Maybe<Scalars['BigInt']>;
-  executedGasLimit?: Maybe<Scalars['BigInt']>;
-  executedBlockNumber?: Maybe<Scalars['BigInt']>;
-  reconciledCaller?: Maybe<Scalars['rinkeby_Bytes']>;
-  reconciledTransactionHash?: Maybe<Scalars['rinkeby_Bytes']>;
-  reconciledTimestamp?: Maybe<Scalars['BigInt']>;
-  reconciledGasPrice?: Maybe<Scalars['BigInt']>;
-  reconciledGasLimit?: Maybe<Scalars['BigInt']>;
-  reconciledBlockNumber?: Maybe<Scalars['BigInt']>;
+  block?: InputMaybe<staginggoerli_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type rinkeby_DestinationTransferroutersArgs = {
+export type Subscriptionstaginggoerli_assetsArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<rinkeby_Router_orderBy>;
-  orderDirection?: InputMaybe<rinkeby_OrderDirection>;
-  where?: InputMaybe<rinkeby_Router_filter>;
+  orderBy?: InputMaybe<staginggoerli_Asset_orderBy>;
+  orderDirection?: InputMaybe<staginggoerli_OrderDirection>;
+  where?: InputMaybe<staginggoerli_Asset_filter>;
+  block?: InputMaybe<staginggoerli_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
 };
 
-export type rinkeby_DestinationTransfer_filter = {
-  id?: InputMaybe<Scalars['ID']>;
-  id_not?: InputMaybe<Scalars['ID']>;
-  id_gt?: InputMaybe<Scalars['ID']>;
-  id_lt?: InputMaybe<Scalars['ID']>;
-  id_gte?: InputMaybe<Scalars['ID']>;
-  id_lte?: InputMaybe<Scalars['ID']>;
-  id_in?: InputMaybe<Array<Scalars['ID']>>;
-  id_not_in?: InputMaybe<Array<Scalars['ID']>>;
-  chainId?: InputMaybe<Scalars['BigInt']>;
-  chainId_not?: InputMaybe<Scalars['BigInt']>;
-  chainId_gt?: InputMaybe<Scalars['BigInt']>;
-  chainId_lt?: InputMaybe<Scalars['BigInt']>;
-  chainId_gte?: InputMaybe<Scalars['BigInt']>;
-  chainId_lte?: InputMaybe<Scalars['BigInt']>;
-  chainId_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  chainId_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  transferId?: InputMaybe<Scalars['rinkeby_Bytes']>;
-  transferId_not?: InputMaybe<Scalars['rinkeby_Bytes']>;
-  transferId_in?: InputMaybe<Array<Scalars['rinkeby_Bytes']>>;
-  transferId_not_in?: InputMaybe<Array<Scalars['rinkeby_Bytes']>>;
-  transferId_contains?: InputMaybe<Scalars['rinkeby_Bytes']>;
-  transferId_not_contains?: InputMaybe<Scalars['rinkeby_Bytes']>;
-  nonce?: InputMaybe<Scalars['BigInt']>;
-  nonce_not?: InputMaybe<Scalars['BigInt']>;
-  nonce_gt?: InputMaybe<Scalars['BigInt']>;
-  nonce_lt?: InputMaybe<Scalars['BigInt']>;
-  nonce_gte?: InputMaybe<Scalars['BigInt']>;
-  nonce_lte?: InputMaybe<Scalars['BigInt']>;
-  nonce_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  nonce_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  to?: InputMaybe<Scalars['rinkeby_Bytes']>;
-  to_not?: InputMaybe<Scalars['rinkeby_Bytes']>;
-  to_in?: InputMaybe<Array<Scalars['rinkeby_Bytes']>>;
-  to_not_in?: InputMaybe<Array<Scalars['rinkeby_Bytes']>>;
-  to_contains?: InputMaybe<Scalars['rinkeby_Bytes']>;
-  to_not_contains?: InputMaybe<Scalars['rinkeby_Bytes']>;
-  callData?: InputMaybe<Scalars['rinkeby_Bytes']>;
-  callData_not?: InputMaybe<Scalars['rinkeby_Bytes']>;
-  callData_in?: InputMaybe<Array<Scalars['rinkeby_Bytes']>>;
-  callData_not_in?: InputMaybe<Array<Scalars['rinkeby_Bytes']>>;
-  callData_contains?: InputMaybe<Scalars['rinkeby_Bytes']>;
-  callData_not_contains?: InputMaybe<Scalars['rinkeby_Bytes']>;
-  originDomain?: InputMaybe<Scalars['BigInt']>;
-  originDomain_not?: InputMaybe<Scalars['BigInt']>;
-  originDomain_gt?: InputMaybe<Scalars['BigInt']>;
-  originDomain_lt?: InputMaybe<Scalars['BigInt']>;
-  originDomain_gte?: InputMaybe<Scalars['BigInt']>;
-  originDomain_lte?: InputMaybe<Scalars['BigInt']>;
-  originDomain_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  originDomain_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  destinationDomain?: InputMaybe<Scalars['BigInt']>;
-  destinationDomain_not?: InputMaybe<Scalars['BigInt']>;
-  destinationDomain_gt?: InputMaybe<Scalars['BigInt']>;
-  destinationDomain_lt?: InputMaybe<Scalars['BigInt']>;
-  destinationDomain_gte?: InputMaybe<Scalars['BigInt']>;
-  destinationDomain_lte?: InputMaybe<Scalars['BigInt']>;
-  destinationDomain_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  destinationDomain_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  agent?: InputMaybe<Scalars['rinkeby_Bytes']>;
-  agent_not?: InputMaybe<Scalars['rinkeby_Bytes']>;
-  agent_in?: InputMaybe<Array<Scalars['rinkeby_Bytes']>>;
-  agent_not_in?: InputMaybe<Array<Scalars['rinkeby_Bytes']>>;
-  agent_contains?: InputMaybe<Scalars['rinkeby_Bytes']>;
-  agent_not_contains?: InputMaybe<Scalars['rinkeby_Bytes']>;
-  recovery?: InputMaybe<Scalars['rinkeby_Bytes']>;
-  recovery_not?: InputMaybe<Scalars['rinkeby_Bytes']>;
-  recovery_in?: InputMaybe<Array<Scalars['rinkeby_Bytes']>>;
-  recovery_not_in?: InputMaybe<Array<Scalars['rinkeby_Bytes']>>;
-  recovery_contains?: InputMaybe<Scalars['rinkeby_Bytes']>;
-  recovery_not_contains?: InputMaybe<Scalars['rinkeby_Bytes']>;
-  forceSlow?: InputMaybe<Scalars['Boolean']>;
-  forceSlow_not?: InputMaybe<Scalars['Boolean']>;
-  forceSlow_in?: InputMaybe<Array<Scalars['Boolean']>>;
-  forceSlow_not_in?: InputMaybe<Array<Scalars['Boolean']>>;
-  receiveLocal?: InputMaybe<Scalars['Boolean']>;
-  receiveLocal_not?: InputMaybe<Scalars['Boolean']>;
-  receiveLocal_in?: InputMaybe<Array<Scalars['Boolean']>>;
-  receiveLocal_not_in?: InputMaybe<Array<Scalars['Boolean']>>;
-  callback?: InputMaybe<Scalars['rinkeby_Bytes']>;
-  callback_not?: InputMaybe<Scalars['rinkeby_Bytes']>;
-  callback_in?: InputMaybe<Array<Scalars['rinkeby_Bytes']>>;
-  callback_not_in?: InputMaybe<Array<Scalars['rinkeby_Bytes']>>;
-  callback_contains?: InputMaybe<Scalars['rinkeby_Bytes']>;
-  callback_not_contains?: InputMaybe<Scalars['rinkeby_Bytes']>;
-  callbackFee?: InputMaybe<Scalars['BigInt']>;
-  callbackFee_not?: InputMaybe<Scalars['BigInt']>;
-  callbackFee_gt?: InputMaybe<Scalars['BigInt']>;
-  callbackFee_lt?: InputMaybe<Scalars['BigInt']>;
-  callbackFee_gte?: InputMaybe<Scalars['BigInt']>;
-  callbackFee_lte?: InputMaybe<Scalars['BigInt']>;
-  callbackFee_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  callbackFee_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  relayerFee?: InputMaybe<Scalars['BigInt']>;
-  relayerFee_not?: InputMaybe<Scalars['BigInt']>;
-  relayerFee_gt?: InputMaybe<Scalars['BigInt']>;
-  relayerFee_lt?: InputMaybe<Scalars['BigInt']>;
-  relayerFee_gte?: InputMaybe<Scalars['BigInt']>;
-  relayerFee_lte?: InputMaybe<Scalars['BigInt']>;
-  relayerFee_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  relayerFee_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  slippageTol?: InputMaybe<Scalars['BigInt']>;
-  slippageTol_not?: InputMaybe<Scalars['BigInt']>;
-  slippageTol_gt?: InputMaybe<Scalars['BigInt']>;
-  slippageTol_lt?: InputMaybe<Scalars['BigInt']>;
-  slippageTol_gte?: InputMaybe<Scalars['BigInt']>;
-  slippageTol_lte?: InputMaybe<Scalars['BigInt']>;
-  slippageTol_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  slippageTol_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  status?: InputMaybe<rinkeby_TransferStatus>;
-  status_not?: InputMaybe<rinkeby_TransferStatus>;
-  status_in?: InputMaybe<Array<rinkeby_TransferStatus>>;
-  status_not_in?: InputMaybe<Array<rinkeby_TransferStatus>>;
-  routers?: InputMaybe<Array<Scalars['String']>>;
-  routers_not?: InputMaybe<Array<Scalars['String']>>;
-  routers_contains?: InputMaybe<Array<Scalars['String']>>;
-  routers_contains_nocase?: InputMaybe<Array<Scalars['String']>>;
-  routers_not_contains?: InputMaybe<Array<Scalars['String']>>;
-  routers_not_contains_nocase?: InputMaybe<Array<Scalars['String']>>;
-  routers_?: InputMaybe<rinkeby_Router_filter>;
-  originSender?: InputMaybe<Scalars['rinkeby_Bytes']>;
-  originSender_not?: InputMaybe<Scalars['rinkeby_Bytes']>;
-  originSender_in?: InputMaybe<Array<Scalars['rinkeby_Bytes']>>;
-  originSender_not_in?: InputMaybe<Array<Scalars['rinkeby_Bytes']>>;
-  originSender_contains?: InputMaybe<Scalars['rinkeby_Bytes']>;
-  originSender_not_contains?: InputMaybe<Scalars['rinkeby_Bytes']>;
-  transactingAsset?: InputMaybe<Scalars['rinkeby_Bytes']>;
-  transactingAsset_not?: InputMaybe<Scalars['rinkeby_Bytes']>;
-  transactingAsset_in?: InputMaybe<Array<Scalars['rinkeby_Bytes']>>;
-  transactingAsset_not_in?: InputMaybe<Array<Scalars['rinkeby_Bytes']>>;
-  transactingAsset_contains?: InputMaybe<Scalars['rinkeby_Bytes']>;
-  transactingAsset_not_contains?: InputMaybe<Scalars['rinkeby_Bytes']>;
-  transactingAmount?: InputMaybe<Scalars['BigInt']>;
-  transactingAmount_not?: InputMaybe<Scalars['BigInt']>;
-  transactingAmount_gt?: InputMaybe<Scalars['BigInt']>;
-  transactingAmount_lt?: InputMaybe<Scalars['BigInt']>;
-  transactingAmount_gte?: InputMaybe<Scalars['BigInt']>;
-  transactingAmount_lte?: InputMaybe<Scalars['BigInt']>;
-  transactingAmount_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  transactingAmount_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  localAsset?: InputMaybe<Scalars['rinkeby_Bytes']>;
-  localAsset_not?: InputMaybe<Scalars['rinkeby_Bytes']>;
-  localAsset_in?: InputMaybe<Array<Scalars['rinkeby_Bytes']>>;
-  localAsset_not_in?: InputMaybe<Array<Scalars['rinkeby_Bytes']>>;
-  localAsset_contains?: InputMaybe<Scalars['rinkeby_Bytes']>;
-  localAsset_not_contains?: InputMaybe<Scalars['rinkeby_Bytes']>;
-  localAmount?: InputMaybe<Scalars['BigInt']>;
-  localAmount_not?: InputMaybe<Scalars['BigInt']>;
-  localAmount_gt?: InputMaybe<Scalars['BigInt']>;
-  localAmount_lt?: InputMaybe<Scalars['BigInt']>;
-  localAmount_gte?: InputMaybe<Scalars['BigInt']>;
-  localAmount_lte?: InputMaybe<Scalars['BigInt']>;
-  localAmount_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  localAmount_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  sponsorVaultRelayerFee?: InputMaybe<Scalars['BigInt']>;
-  sponsorVaultRelayerFee_not?: InputMaybe<Scalars['BigInt']>;
-  sponsorVaultRelayerFee_gt?: InputMaybe<Scalars['BigInt']>;
-  sponsorVaultRelayerFee_lt?: InputMaybe<Scalars['BigInt']>;
-  sponsorVaultRelayerFee_gte?: InputMaybe<Scalars['BigInt']>;
-  sponsorVaultRelayerFee_lte?: InputMaybe<Scalars['BigInt']>;
-  sponsorVaultRelayerFee_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  sponsorVaultRelayerFee_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  executedCaller?: InputMaybe<Scalars['rinkeby_Bytes']>;
-  executedCaller_not?: InputMaybe<Scalars['rinkeby_Bytes']>;
-  executedCaller_in?: InputMaybe<Array<Scalars['rinkeby_Bytes']>>;
-  executedCaller_not_in?: InputMaybe<Array<Scalars['rinkeby_Bytes']>>;
-  executedCaller_contains?: InputMaybe<Scalars['rinkeby_Bytes']>;
-  executedCaller_not_contains?: InputMaybe<Scalars['rinkeby_Bytes']>;
-  executedTransactionHash?: InputMaybe<Scalars['rinkeby_Bytes']>;
-  executedTransactionHash_not?: InputMaybe<Scalars['rinkeby_Bytes']>;
-  executedTransactionHash_in?: InputMaybe<Array<Scalars['rinkeby_Bytes']>>;
-  executedTransactionHash_not_in?: InputMaybe<Array<Scalars['rinkeby_Bytes']>>;
-  executedTransactionHash_contains?: InputMaybe<Scalars['rinkeby_Bytes']>;
-  executedTransactionHash_not_contains?: InputMaybe<Scalars['rinkeby_Bytes']>;
-  executedTimestamp?: InputMaybe<Scalars['BigInt']>;
-  executedTimestamp_not?: InputMaybe<Scalars['BigInt']>;
-  executedTimestamp_gt?: InputMaybe<Scalars['BigInt']>;
-  executedTimestamp_lt?: InputMaybe<Scalars['BigInt']>;
-  executedTimestamp_gte?: InputMaybe<Scalars['BigInt']>;
-  executedTimestamp_lte?: InputMaybe<Scalars['BigInt']>;
-  executedTimestamp_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  executedTimestamp_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  executedGasPrice?: InputMaybe<Scalars['BigInt']>;
-  executedGasPrice_not?: InputMaybe<Scalars['BigInt']>;
-  executedGasPrice_gt?: InputMaybe<Scalars['BigInt']>;
-  executedGasPrice_lt?: InputMaybe<Scalars['BigInt']>;
-  executedGasPrice_gte?: InputMaybe<Scalars['BigInt']>;
-  executedGasPrice_lte?: InputMaybe<Scalars['BigInt']>;
-  executedGasPrice_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  executedGasPrice_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  executedGasLimit?: InputMaybe<Scalars['BigInt']>;
-  executedGasLimit_not?: InputMaybe<Scalars['BigInt']>;
-  executedGasLimit_gt?: InputMaybe<Scalars['BigInt']>;
-  executedGasLimit_lt?: InputMaybe<Scalars['BigInt']>;
-  executedGasLimit_gte?: InputMaybe<Scalars['BigInt']>;
-  executedGasLimit_lte?: InputMaybe<Scalars['BigInt']>;
-  executedGasLimit_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  executedGasLimit_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  executedBlockNumber?: InputMaybe<Scalars['BigInt']>;
-  executedBlockNumber_not?: InputMaybe<Scalars['BigInt']>;
-  executedBlockNumber_gt?: InputMaybe<Scalars['BigInt']>;
-  executedBlockNumber_lt?: InputMaybe<Scalars['BigInt']>;
-  executedBlockNumber_gte?: InputMaybe<Scalars['BigInt']>;
-  executedBlockNumber_lte?: InputMaybe<Scalars['BigInt']>;
-  executedBlockNumber_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  executedBlockNumber_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  reconciledCaller?: InputMaybe<Scalars['rinkeby_Bytes']>;
-  reconciledCaller_not?: InputMaybe<Scalars['rinkeby_Bytes']>;
-  reconciledCaller_in?: InputMaybe<Array<Scalars['rinkeby_Bytes']>>;
-  reconciledCaller_not_in?: InputMaybe<Array<Scalars['rinkeby_Bytes']>>;
-  reconciledCaller_contains?: InputMaybe<Scalars['rinkeby_Bytes']>;
-  reconciledCaller_not_contains?: InputMaybe<Scalars['rinkeby_Bytes']>;
-  reconciledTransactionHash?: InputMaybe<Scalars['rinkeby_Bytes']>;
-  reconciledTransactionHash_not?: InputMaybe<Scalars['rinkeby_Bytes']>;
-  reconciledTransactionHash_in?: InputMaybe<Array<Scalars['rinkeby_Bytes']>>;
-  reconciledTransactionHash_not_in?: InputMaybe<Array<Scalars['rinkeby_Bytes']>>;
-  reconciledTransactionHash_contains?: InputMaybe<Scalars['rinkeby_Bytes']>;
-  reconciledTransactionHash_not_contains?: InputMaybe<Scalars['rinkeby_Bytes']>;
-  reconciledTimestamp?: InputMaybe<Scalars['BigInt']>;
-  reconciledTimestamp_not?: InputMaybe<Scalars['BigInt']>;
-  reconciledTimestamp_gt?: InputMaybe<Scalars['BigInt']>;
-  reconciledTimestamp_lt?: InputMaybe<Scalars['BigInt']>;
-  reconciledTimestamp_gte?: InputMaybe<Scalars['BigInt']>;
-  reconciledTimestamp_lte?: InputMaybe<Scalars['BigInt']>;
-  reconciledTimestamp_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  reconciledTimestamp_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  reconciledGasPrice?: InputMaybe<Scalars['BigInt']>;
-  reconciledGasPrice_not?: InputMaybe<Scalars['BigInt']>;
-  reconciledGasPrice_gt?: InputMaybe<Scalars['BigInt']>;
-  reconciledGasPrice_lt?: InputMaybe<Scalars['BigInt']>;
-  reconciledGasPrice_gte?: InputMaybe<Scalars['BigInt']>;
-  reconciledGasPrice_lte?: InputMaybe<Scalars['BigInt']>;
-  reconciledGasPrice_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  reconciledGasPrice_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  reconciledGasLimit?: InputMaybe<Scalars['BigInt']>;
-  reconciledGasLimit_not?: InputMaybe<Scalars['BigInt']>;
-  reconciledGasLimit_gt?: InputMaybe<Scalars['BigInt']>;
-  reconciledGasLimit_lt?: InputMaybe<Scalars['BigInt']>;
-  reconciledGasLimit_gte?: InputMaybe<Scalars['BigInt']>;
-  reconciledGasLimit_lte?: InputMaybe<Scalars['BigInt']>;
-  reconciledGasLimit_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  reconciledGasLimit_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  reconciledBlockNumber?: InputMaybe<Scalars['BigInt']>;
-  reconciledBlockNumber_not?: InputMaybe<Scalars['BigInt']>;
-  reconciledBlockNumber_gt?: InputMaybe<Scalars['BigInt']>;
-  reconciledBlockNumber_lt?: InputMaybe<Scalars['BigInt']>;
-  reconciledBlockNumber_gte?: InputMaybe<Scalars['BigInt']>;
-  reconciledBlockNumber_lte?: InputMaybe<Scalars['BigInt']>;
-  reconciledBlockNumber_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  reconciledBlockNumber_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  /** Filter for the block changed event. */
-  _change_block?: InputMaybe<rinkeby_BlockChangedFilter>;
-};
 
-export type rinkeby_DestinationTransfer_orderBy =
-  | 'id'
-  | 'chainId'
-  | 'transferId'
-  | 'nonce'
-  | 'to'
-  | 'callData'
-  | 'originDomain'
-  | 'destinationDomain'
-  | 'agent'
-  | 'recovery'
-  | 'forceSlow'
-  | 'receiveLocal'
-  | 'callback'
-  | 'callbackFee'
-  | 'relayerFee'
-  | 'slippageTol'
-  | 'status'
-  | 'routers'
-  | 'originSender'
-  | 'transactingAsset'
-  | 'transactingAmount'
-  | 'localAsset'
-  | 'localAmount'
-  | 'sponsorVaultRelayerFee'
-  | 'executedCaller'
-  | 'executedTransactionHash'
-  | 'executedTimestamp'
-  | 'executedGasPrice'
-  | 'executedGasLimit'
-  | 'executedBlockNumber'
-  | 'reconciledCaller'
-  | 'reconciledTransactionHash'
-  | 'reconciledTimestamp'
-  | 'reconciledGasPrice'
-  | 'reconciledGasLimit'
-  | 'reconciledBlockNumber';
-
-/** Defines the order direction, either ascending or descending */
-export type rinkeby_OrderDirection =
-  | 'asc'
-  | 'desc';
-
-export type rinkeby_OriginTransfer = {
+export type Subscriptionstaginggoerli_assetBalanceArgs = {
   id: Scalars['ID'];
-  chainId?: Maybe<Scalars['BigInt']>;
-  transferId?: Maybe<Scalars['rinkeby_Bytes']>;
-  nonce?: Maybe<Scalars['BigInt']>;
-  to?: Maybe<Scalars['rinkeby_Bytes']>;
-  callData?: Maybe<Scalars['rinkeby_Bytes']>;
-  originDomain?: Maybe<Scalars['BigInt']>;
-  destinationDomain?: Maybe<Scalars['BigInt']>;
-  agent?: Maybe<Scalars['rinkeby_Bytes']>;
-  recovery?: Maybe<Scalars['rinkeby_Bytes']>;
-  forceSlow?: Maybe<Scalars['Boolean']>;
-  receiveLocal?: Maybe<Scalars['Boolean']>;
-  callback?: Maybe<Scalars['rinkeby_Bytes']>;
-  callbackFee?: Maybe<Scalars['BigInt']>;
-  relayerFee?: Maybe<Scalars['BigInt']>;
-  slippageTol?: Maybe<Scalars['BigInt']>;
-  status?: Maybe<rinkeby_TransferStatus>;
-  message?: Maybe<Scalars['rinkeby_Bytes']>;
-  transactingAsset?: Maybe<Scalars['rinkeby_Bytes']>;
-  transactingAmount?: Maybe<Scalars['BigInt']>;
-  bridgedAsset?: Maybe<Scalars['rinkeby_Bytes']>;
-  bridgedAmount?: Maybe<Scalars['BigInt']>;
-  caller?: Maybe<Scalars['rinkeby_Bytes']>;
-  transactionHash?: Maybe<Scalars['rinkeby_Bytes']>;
-  timestamp?: Maybe<Scalars['BigInt']>;
-  gasPrice?: Maybe<Scalars['BigInt']>;
-  gasLimit?: Maybe<Scalars['BigInt']>;
-  blockNumber?: Maybe<Scalars['BigInt']>;
-};
-
-export type rinkeby_OriginTransfer_filter = {
-  id?: InputMaybe<Scalars['ID']>;
-  id_not?: InputMaybe<Scalars['ID']>;
-  id_gt?: InputMaybe<Scalars['ID']>;
-  id_lt?: InputMaybe<Scalars['ID']>;
-  id_gte?: InputMaybe<Scalars['ID']>;
-  id_lte?: InputMaybe<Scalars['ID']>;
-  id_in?: InputMaybe<Array<Scalars['ID']>>;
-  id_not_in?: InputMaybe<Array<Scalars['ID']>>;
-  chainId?: InputMaybe<Scalars['BigInt']>;
-  chainId_not?: InputMaybe<Scalars['BigInt']>;
-  chainId_gt?: InputMaybe<Scalars['BigInt']>;
-  chainId_lt?: InputMaybe<Scalars['BigInt']>;
-  chainId_gte?: InputMaybe<Scalars['BigInt']>;
-  chainId_lte?: InputMaybe<Scalars['BigInt']>;
-  chainId_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  chainId_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  transferId?: InputMaybe<Scalars['rinkeby_Bytes']>;
-  transferId_not?: InputMaybe<Scalars['rinkeby_Bytes']>;
-  transferId_in?: InputMaybe<Array<Scalars['rinkeby_Bytes']>>;
-  transferId_not_in?: InputMaybe<Array<Scalars['rinkeby_Bytes']>>;
-  transferId_contains?: InputMaybe<Scalars['rinkeby_Bytes']>;
-  transferId_not_contains?: InputMaybe<Scalars['rinkeby_Bytes']>;
-  nonce?: InputMaybe<Scalars['BigInt']>;
-  nonce_not?: InputMaybe<Scalars['BigInt']>;
-  nonce_gt?: InputMaybe<Scalars['BigInt']>;
-  nonce_lt?: InputMaybe<Scalars['BigInt']>;
-  nonce_gte?: InputMaybe<Scalars['BigInt']>;
-  nonce_lte?: InputMaybe<Scalars['BigInt']>;
-  nonce_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  nonce_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  to?: InputMaybe<Scalars['rinkeby_Bytes']>;
-  to_not?: InputMaybe<Scalars['rinkeby_Bytes']>;
-  to_in?: InputMaybe<Array<Scalars['rinkeby_Bytes']>>;
-  to_not_in?: InputMaybe<Array<Scalars['rinkeby_Bytes']>>;
-  to_contains?: InputMaybe<Scalars['rinkeby_Bytes']>;
-  to_not_contains?: InputMaybe<Scalars['rinkeby_Bytes']>;
-  callData?: InputMaybe<Scalars['rinkeby_Bytes']>;
-  callData_not?: InputMaybe<Scalars['rinkeby_Bytes']>;
-  callData_in?: InputMaybe<Array<Scalars['rinkeby_Bytes']>>;
-  callData_not_in?: InputMaybe<Array<Scalars['rinkeby_Bytes']>>;
-  callData_contains?: InputMaybe<Scalars['rinkeby_Bytes']>;
-  callData_not_contains?: InputMaybe<Scalars['rinkeby_Bytes']>;
-  originDomain?: InputMaybe<Scalars['BigInt']>;
-  originDomain_not?: InputMaybe<Scalars['BigInt']>;
-  originDomain_gt?: InputMaybe<Scalars['BigInt']>;
-  originDomain_lt?: InputMaybe<Scalars['BigInt']>;
-  originDomain_gte?: InputMaybe<Scalars['BigInt']>;
-  originDomain_lte?: InputMaybe<Scalars['BigInt']>;
-  originDomain_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  originDomain_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  destinationDomain?: InputMaybe<Scalars['BigInt']>;
-  destinationDomain_not?: InputMaybe<Scalars['BigInt']>;
-  destinationDomain_gt?: InputMaybe<Scalars['BigInt']>;
-  destinationDomain_lt?: InputMaybe<Scalars['BigInt']>;
-  destinationDomain_gte?: InputMaybe<Scalars['BigInt']>;
-  destinationDomain_lte?: InputMaybe<Scalars['BigInt']>;
-  destinationDomain_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  destinationDomain_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  agent?: InputMaybe<Scalars['rinkeby_Bytes']>;
-  agent_not?: InputMaybe<Scalars['rinkeby_Bytes']>;
-  agent_in?: InputMaybe<Array<Scalars['rinkeby_Bytes']>>;
-  agent_not_in?: InputMaybe<Array<Scalars['rinkeby_Bytes']>>;
-  agent_contains?: InputMaybe<Scalars['rinkeby_Bytes']>;
-  agent_not_contains?: InputMaybe<Scalars['rinkeby_Bytes']>;
-  recovery?: InputMaybe<Scalars['rinkeby_Bytes']>;
-  recovery_not?: InputMaybe<Scalars['rinkeby_Bytes']>;
-  recovery_in?: InputMaybe<Array<Scalars['rinkeby_Bytes']>>;
-  recovery_not_in?: InputMaybe<Array<Scalars['rinkeby_Bytes']>>;
-  recovery_contains?: InputMaybe<Scalars['rinkeby_Bytes']>;
-  recovery_not_contains?: InputMaybe<Scalars['rinkeby_Bytes']>;
-  forceSlow?: InputMaybe<Scalars['Boolean']>;
-  forceSlow_not?: InputMaybe<Scalars['Boolean']>;
-  forceSlow_in?: InputMaybe<Array<Scalars['Boolean']>>;
-  forceSlow_not_in?: InputMaybe<Array<Scalars['Boolean']>>;
-  receiveLocal?: InputMaybe<Scalars['Boolean']>;
-  receiveLocal_not?: InputMaybe<Scalars['Boolean']>;
-  receiveLocal_in?: InputMaybe<Array<Scalars['Boolean']>>;
-  receiveLocal_not_in?: InputMaybe<Array<Scalars['Boolean']>>;
-  callback?: InputMaybe<Scalars['rinkeby_Bytes']>;
-  callback_not?: InputMaybe<Scalars['rinkeby_Bytes']>;
-  callback_in?: InputMaybe<Array<Scalars['rinkeby_Bytes']>>;
-  callback_not_in?: InputMaybe<Array<Scalars['rinkeby_Bytes']>>;
-  callback_contains?: InputMaybe<Scalars['rinkeby_Bytes']>;
-  callback_not_contains?: InputMaybe<Scalars['rinkeby_Bytes']>;
-  callbackFee?: InputMaybe<Scalars['BigInt']>;
-  callbackFee_not?: InputMaybe<Scalars['BigInt']>;
-  callbackFee_gt?: InputMaybe<Scalars['BigInt']>;
-  callbackFee_lt?: InputMaybe<Scalars['BigInt']>;
-  callbackFee_gte?: InputMaybe<Scalars['BigInt']>;
-  callbackFee_lte?: InputMaybe<Scalars['BigInt']>;
-  callbackFee_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  callbackFee_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  relayerFee?: InputMaybe<Scalars['BigInt']>;
-  relayerFee_not?: InputMaybe<Scalars['BigInt']>;
-  relayerFee_gt?: InputMaybe<Scalars['BigInt']>;
-  relayerFee_lt?: InputMaybe<Scalars['BigInt']>;
-  relayerFee_gte?: InputMaybe<Scalars['BigInt']>;
-  relayerFee_lte?: InputMaybe<Scalars['BigInt']>;
-  relayerFee_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  relayerFee_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  slippageTol?: InputMaybe<Scalars['BigInt']>;
-  slippageTol_not?: InputMaybe<Scalars['BigInt']>;
-  slippageTol_gt?: InputMaybe<Scalars['BigInt']>;
-  slippageTol_lt?: InputMaybe<Scalars['BigInt']>;
-  slippageTol_gte?: InputMaybe<Scalars['BigInt']>;
-  slippageTol_lte?: InputMaybe<Scalars['BigInt']>;
-  slippageTol_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  slippageTol_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  status?: InputMaybe<rinkeby_TransferStatus>;
-  status_not?: InputMaybe<rinkeby_TransferStatus>;
-  status_in?: InputMaybe<Array<rinkeby_TransferStatus>>;
-  status_not_in?: InputMaybe<Array<rinkeby_TransferStatus>>;
-  message?: InputMaybe<Scalars['rinkeby_Bytes']>;
-  message_not?: InputMaybe<Scalars['rinkeby_Bytes']>;
-  message_in?: InputMaybe<Array<Scalars['rinkeby_Bytes']>>;
-  message_not_in?: InputMaybe<Array<Scalars['rinkeby_Bytes']>>;
-  message_contains?: InputMaybe<Scalars['rinkeby_Bytes']>;
-  message_not_contains?: InputMaybe<Scalars['rinkeby_Bytes']>;
-  transactingAsset?: InputMaybe<Scalars['rinkeby_Bytes']>;
-  transactingAsset_not?: InputMaybe<Scalars['rinkeby_Bytes']>;
-  transactingAsset_in?: InputMaybe<Array<Scalars['rinkeby_Bytes']>>;
-  transactingAsset_not_in?: InputMaybe<Array<Scalars['rinkeby_Bytes']>>;
-  transactingAsset_contains?: InputMaybe<Scalars['rinkeby_Bytes']>;
-  transactingAsset_not_contains?: InputMaybe<Scalars['rinkeby_Bytes']>;
-  transactingAmount?: InputMaybe<Scalars['BigInt']>;
-  transactingAmount_not?: InputMaybe<Scalars['BigInt']>;
-  transactingAmount_gt?: InputMaybe<Scalars['BigInt']>;
-  transactingAmount_lt?: InputMaybe<Scalars['BigInt']>;
-  transactingAmount_gte?: InputMaybe<Scalars['BigInt']>;
-  transactingAmount_lte?: InputMaybe<Scalars['BigInt']>;
-  transactingAmount_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  transactingAmount_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  bridgedAsset?: InputMaybe<Scalars['rinkeby_Bytes']>;
-  bridgedAsset_not?: InputMaybe<Scalars['rinkeby_Bytes']>;
-  bridgedAsset_in?: InputMaybe<Array<Scalars['rinkeby_Bytes']>>;
-  bridgedAsset_not_in?: InputMaybe<Array<Scalars['rinkeby_Bytes']>>;
-  bridgedAsset_contains?: InputMaybe<Scalars['rinkeby_Bytes']>;
-  bridgedAsset_not_contains?: InputMaybe<Scalars['rinkeby_Bytes']>;
-  bridgedAmount?: InputMaybe<Scalars['BigInt']>;
-  bridgedAmount_not?: InputMaybe<Scalars['BigInt']>;
-  bridgedAmount_gt?: InputMaybe<Scalars['BigInt']>;
-  bridgedAmount_lt?: InputMaybe<Scalars['BigInt']>;
-  bridgedAmount_gte?: InputMaybe<Scalars['BigInt']>;
-  bridgedAmount_lte?: InputMaybe<Scalars['BigInt']>;
-  bridgedAmount_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  bridgedAmount_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  caller?: InputMaybe<Scalars['rinkeby_Bytes']>;
-  caller_not?: InputMaybe<Scalars['rinkeby_Bytes']>;
-  caller_in?: InputMaybe<Array<Scalars['rinkeby_Bytes']>>;
-  caller_not_in?: InputMaybe<Array<Scalars['rinkeby_Bytes']>>;
-  caller_contains?: InputMaybe<Scalars['rinkeby_Bytes']>;
-  caller_not_contains?: InputMaybe<Scalars['rinkeby_Bytes']>;
-  transactionHash?: InputMaybe<Scalars['rinkeby_Bytes']>;
-  transactionHash_not?: InputMaybe<Scalars['rinkeby_Bytes']>;
-  transactionHash_in?: InputMaybe<Array<Scalars['rinkeby_Bytes']>>;
-  transactionHash_not_in?: InputMaybe<Array<Scalars['rinkeby_Bytes']>>;
-  transactionHash_contains?: InputMaybe<Scalars['rinkeby_Bytes']>;
-  transactionHash_not_contains?: InputMaybe<Scalars['rinkeby_Bytes']>;
-  timestamp?: InputMaybe<Scalars['BigInt']>;
-  timestamp_not?: InputMaybe<Scalars['BigInt']>;
-  timestamp_gt?: InputMaybe<Scalars['BigInt']>;
-  timestamp_lt?: InputMaybe<Scalars['BigInt']>;
-  timestamp_gte?: InputMaybe<Scalars['BigInt']>;
-  timestamp_lte?: InputMaybe<Scalars['BigInt']>;
-  timestamp_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  timestamp_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  gasPrice?: InputMaybe<Scalars['BigInt']>;
-  gasPrice_not?: InputMaybe<Scalars['BigInt']>;
-  gasPrice_gt?: InputMaybe<Scalars['BigInt']>;
-  gasPrice_lt?: InputMaybe<Scalars['BigInt']>;
-  gasPrice_gte?: InputMaybe<Scalars['BigInt']>;
-  gasPrice_lte?: InputMaybe<Scalars['BigInt']>;
-  gasPrice_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  gasPrice_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  gasLimit?: InputMaybe<Scalars['BigInt']>;
-  gasLimit_not?: InputMaybe<Scalars['BigInt']>;
-  gasLimit_gt?: InputMaybe<Scalars['BigInt']>;
-  gasLimit_lt?: InputMaybe<Scalars['BigInt']>;
-  gasLimit_gte?: InputMaybe<Scalars['BigInt']>;
-  gasLimit_lte?: InputMaybe<Scalars['BigInt']>;
-  gasLimit_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  gasLimit_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  blockNumber?: InputMaybe<Scalars['BigInt']>;
-  blockNumber_not?: InputMaybe<Scalars['BigInt']>;
-  blockNumber_gt?: InputMaybe<Scalars['BigInt']>;
-  blockNumber_lt?: InputMaybe<Scalars['BigInt']>;
-  blockNumber_gte?: InputMaybe<Scalars['BigInt']>;
-  blockNumber_lte?: InputMaybe<Scalars['BigInt']>;
-  blockNumber_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  blockNumber_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  /** Filter for the block changed event. */
-  _change_block?: InputMaybe<rinkeby_BlockChangedFilter>;
-};
-
-export type rinkeby_OriginTransfer_orderBy =
-  | 'id'
-  | 'chainId'
-  | 'transferId'
-  | 'nonce'
-  | 'to'
-  | 'callData'
-  | 'originDomain'
-  | 'destinationDomain'
-  | 'agent'
-  | 'recovery'
-  | 'forceSlow'
-  | 'receiveLocal'
-  | 'callback'
-  | 'callbackFee'
-  | 'relayerFee'
-  | 'slippageTol'
-  | 'status'
-  | 'message'
-  | 'transactingAsset'
-  | 'transactingAmount'
-  | 'bridgedAsset'
-  | 'bridgedAmount'
-  | 'caller'
-  | 'transactionHash'
-  | 'timestamp'
-  | 'gasPrice'
-  | 'gasLimit'
-  | 'blockNumber';
-
-export type rinkeby_Relayer = {
-  id: Scalars['ID'];
-  isActive: Scalars['Boolean'];
-  relayer?: Maybe<Scalars['rinkeby_Bytes']>;
-};
-
-export type rinkeby_Relayer_filter = {
-  id?: InputMaybe<Scalars['ID']>;
-  id_not?: InputMaybe<Scalars['ID']>;
-  id_gt?: InputMaybe<Scalars['ID']>;
-  id_lt?: InputMaybe<Scalars['ID']>;
-  id_gte?: InputMaybe<Scalars['ID']>;
-  id_lte?: InputMaybe<Scalars['ID']>;
-  id_in?: InputMaybe<Array<Scalars['ID']>>;
-  id_not_in?: InputMaybe<Array<Scalars['ID']>>;
-  isActive?: InputMaybe<Scalars['Boolean']>;
-  isActive_not?: InputMaybe<Scalars['Boolean']>;
-  isActive_in?: InputMaybe<Array<Scalars['Boolean']>>;
-  isActive_not_in?: InputMaybe<Array<Scalars['Boolean']>>;
-  relayer?: InputMaybe<Scalars['rinkeby_Bytes']>;
-  relayer_not?: InputMaybe<Scalars['rinkeby_Bytes']>;
-  relayer_in?: InputMaybe<Array<Scalars['rinkeby_Bytes']>>;
-  relayer_not_in?: InputMaybe<Array<Scalars['rinkeby_Bytes']>>;
-  relayer_contains?: InputMaybe<Scalars['rinkeby_Bytes']>;
-  relayer_not_contains?: InputMaybe<Scalars['rinkeby_Bytes']>;
-  /** Filter for the block changed event. */
-  _change_block?: InputMaybe<rinkeby_BlockChangedFilter>;
-};
-
-export type rinkeby_Relayer_orderBy =
-  | 'id'
-  | 'isActive'
-  | 'relayer';
-
-export type rinkeby_Router = {
-  id: Scalars['ID'];
-  isActive: Scalars['Boolean'];
-  owner?: Maybe<Scalars['rinkeby_Bytes']>;
-  recipient?: Maybe<Scalars['rinkeby_Bytes']>;
-  proposedOwner?: Maybe<Scalars['rinkeby_Bytes']>;
-  proposedTimestamp?: Maybe<Scalars['BigInt']>;
-  assetBalances: Array<rinkeby_AssetBalance>;
+  block?: InputMaybe<staginggoerli_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type rinkeby_RouterassetBalancesArgs = {
+export type Subscriptionstaginggoerli_assetBalancesArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<rinkeby_AssetBalance_orderBy>;
-  orderDirection?: InputMaybe<rinkeby_OrderDirection>;
-  where?: InputMaybe<rinkeby_AssetBalance_filter>;
+  orderBy?: InputMaybe<staginggoerli_AssetBalance_orderBy>;
+  orderDirection?: InputMaybe<staginggoerli_OrderDirection>;
+  where?: InputMaybe<staginggoerli_AssetBalance_filter>;
+  block?: InputMaybe<staginggoerli_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
 };
 
-export type rinkeby_Router_filter = {
-  id?: InputMaybe<Scalars['ID']>;
-  id_not?: InputMaybe<Scalars['ID']>;
-  id_gt?: InputMaybe<Scalars['ID']>;
-  id_lt?: InputMaybe<Scalars['ID']>;
-  id_gte?: InputMaybe<Scalars['ID']>;
-  id_lte?: InputMaybe<Scalars['ID']>;
-  id_in?: InputMaybe<Array<Scalars['ID']>>;
-  id_not_in?: InputMaybe<Array<Scalars['ID']>>;
-  isActive?: InputMaybe<Scalars['Boolean']>;
-  isActive_not?: InputMaybe<Scalars['Boolean']>;
-  isActive_in?: InputMaybe<Array<Scalars['Boolean']>>;
-  isActive_not_in?: InputMaybe<Array<Scalars['Boolean']>>;
-  owner?: InputMaybe<Scalars['rinkeby_Bytes']>;
-  owner_not?: InputMaybe<Scalars['rinkeby_Bytes']>;
-  owner_in?: InputMaybe<Array<Scalars['rinkeby_Bytes']>>;
-  owner_not_in?: InputMaybe<Array<Scalars['rinkeby_Bytes']>>;
-  owner_contains?: InputMaybe<Scalars['rinkeby_Bytes']>;
-  owner_not_contains?: InputMaybe<Scalars['rinkeby_Bytes']>;
-  recipient?: InputMaybe<Scalars['rinkeby_Bytes']>;
-  recipient_not?: InputMaybe<Scalars['rinkeby_Bytes']>;
-  recipient_in?: InputMaybe<Array<Scalars['rinkeby_Bytes']>>;
-  recipient_not_in?: InputMaybe<Array<Scalars['rinkeby_Bytes']>>;
-  recipient_contains?: InputMaybe<Scalars['rinkeby_Bytes']>;
-  recipient_not_contains?: InputMaybe<Scalars['rinkeby_Bytes']>;
-  proposedOwner?: InputMaybe<Scalars['rinkeby_Bytes']>;
-  proposedOwner_not?: InputMaybe<Scalars['rinkeby_Bytes']>;
-  proposedOwner_in?: InputMaybe<Array<Scalars['rinkeby_Bytes']>>;
-  proposedOwner_not_in?: InputMaybe<Array<Scalars['rinkeby_Bytes']>>;
-  proposedOwner_contains?: InputMaybe<Scalars['rinkeby_Bytes']>;
-  proposedOwner_not_contains?: InputMaybe<Scalars['rinkeby_Bytes']>;
-  proposedTimestamp?: InputMaybe<Scalars['BigInt']>;
-  proposedTimestamp_not?: InputMaybe<Scalars['BigInt']>;
-  proposedTimestamp_gt?: InputMaybe<Scalars['BigInt']>;
-  proposedTimestamp_lt?: InputMaybe<Scalars['BigInt']>;
-  proposedTimestamp_gte?: InputMaybe<Scalars['BigInt']>;
-  proposedTimestamp_lte?: InputMaybe<Scalars['BigInt']>;
-  proposedTimestamp_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  proposedTimestamp_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  assetBalances_?: InputMaybe<rinkeby_AssetBalance_filter>;
-  /** Filter for the block changed event. */
-  _change_block?: InputMaybe<rinkeby_BlockChangedFilter>;
-};
 
-export type rinkeby_Router_orderBy =
-  | 'id'
-  | 'isActive'
-  | 'owner'
-  | 'recipient'
-  | 'proposedOwner'
-  | 'proposedTimestamp'
-  | 'assetBalances';
-
-export type rinkeby_Setting = {
+export type Subscriptionstaginggoerli_routerArgs = {
   id: Scalars['ID'];
-  maxRoutersPerTransfer: Scalars['BigInt'];
-  caller: Scalars['rinkeby_Bytes'];
+  block?: InputMaybe<staginggoerli_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
 };
 
-export type rinkeby_Setting_filter = {
-  id?: InputMaybe<Scalars['ID']>;
-  id_not?: InputMaybe<Scalars['ID']>;
-  id_gt?: InputMaybe<Scalars['ID']>;
-  id_lt?: InputMaybe<Scalars['ID']>;
-  id_gte?: InputMaybe<Scalars['ID']>;
-  id_lte?: InputMaybe<Scalars['ID']>;
-  id_in?: InputMaybe<Array<Scalars['ID']>>;
-  id_not_in?: InputMaybe<Array<Scalars['ID']>>;
-  maxRoutersPerTransfer?: InputMaybe<Scalars['BigInt']>;
-  maxRoutersPerTransfer_not?: InputMaybe<Scalars['BigInt']>;
-  maxRoutersPerTransfer_gt?: InputMaybe<Scalars['BigInt']>;
-  maxRoutersPerTransfer_lt?: InputMaybe<Scalars['BigInt']>;
-  maxRoutersPerTransfer_gte?: InputMaybe<Scalars['BigInt']>;
-  maxRoutersPerTransfer_lte?: InputMaybe<Scalars['BigInt']>;
-  maxRoutersPerTransfer_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  maxRoutersPerTransfer_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  caller?: InputMaybe<Scalars['rinkeby_Bytes']>;
-  caller_not?: InputMaybe<Scalars['rinkeby_Bytes']>;
-  caller_in?: InputMaybe<Array<Scalars['rinkeby_Bytes']>>;
-  caller_not_in?: InputMaybe<Array<Scalars['rinkeby_Bytes']>>;
-  caller_contains?: InputMaybe<Scalars['rinkeby_Bytes']>;
-  caller_not_contains?: InputMaybe<Scalars['rinkeby_Bytes']>;
-  /** Filter for the block changed event. */
-  _change_block?: InputMaybe<rinkeby_BlockChangedFilter>;
+
+export type Subscriptionstaginggoerli_routersArgs = {
+  skip?: InputMaybe<Scalars['Int']>;
+  first?: InputMaybe<Scalars['Int']>;
+  orderBy?: InputMaybe<staginggoerli_Router_orderBy>;
+  orderDirection?: InputMaybe<staginggoerli_OrderDirection>;
+  where?: InputMaybe<staginggoerli_Router_filter>;
+  block?: InputMaybe<staginggoerli_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
 };
 
-export type rinkeby_Setting_orderBy =
-  | 'id'
-  | 'maxRoutersPerTransfer'
-  | 'caller';
 
-export type rinkeby_SponsorVault = {
+export type Subscriptionstaginggoerli_settingArgs = {
   id: Scalars['ID'];
-  sponsorVault: Scalars['rinkeby_Bytes'];
+  block?: InputMaybe<staginggoerli_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
 };
 
-export type rinkeby_SponsorVault_filter = {
-  id?: InputMaybe<Scalars['ID']>;
-  id_not?: InputMaybe<Scalars['ID']>;
-  id_gt?: InputMaybe<Scalars['ID']>;
-  id_lt?: InputMaybe<Scalars['ID']>;
-  id_gte?: InputMaybe<Scalars['ID']>;
-  id_lte?: InputMaybe<Scalars['ID']>;
-  id_in?: InputMaybe<Array<Scalars['ID']>>;
-  id_not_in?: InputMaybe<Array<Scalars['ID']>>;
-  sponsorVault?: InputMaybe<Scalars['rinkeby_Bytes']>;
-  sponsorVault_not?: InputMaybe<Scalars['rinkeby_Bytes']>;
-  sponsorVault_in?: InputMaybe<Array<Scalars['rinkeby_Bytes']>>;
-  sponsorVault_not_in?: InputMaybe<Array<Scalars['rinkeby_Bytes']>>;
-  sponsorVault_contains?: InputMaybe<Scalars['rinkeby_Bytes']>;
-  sponsorVault_not_contains?: InputMaybe<Scalars['rinkeby_Bytes']>;
-  /** Filter for the block changed event. */
-  _change_block?: InputMaybe<rinkeby_BlockChangedFilter>;
+
+export type Subscriptionstaginggoerli_settingsArgs = {
+  skip?: InputMaybe<Scalars['Int']>;
+  first?: InputMaybe<Scalars['Int']>;
+  orderBy?: InputMaybe<staginggoerli_Setting_orderBy>;
+  orderDirection?: InputMaybe<staginggoerli_OrderDirection>;
+  where?: InputMaybe<staginggoerli_Setting_filter>;
+  block?: InputMaybe<staginggoerli_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
 };
 
-export type rinkeby_SponsorVault_orderBy =
-  | 'id'
-  | 'sponsorVault';
 
-export type rinkeby_StableSwap = {
+export type Subscriptionstaginggoerli_relayerArgs = {
   id: Scalars['ID'];
-  canonicalId: Scalars['rinkeby_Bytes'];
-  domain?: Maybe<Scalars['BigInt']>;
-  swapPool: Scalars['rinkeby_Bytes'];
+  block?: InputMaybe<staginggoerli_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
 };
 
-export type rinkeby_StableSwap_filter = {
-  id?: InputMaybe<Scalars['ID']>;
-  id_not?: InputMaybe<Scalars['ID']>;
-  id_gt?: InputMaybe<Scalars['ID']>;
-  id_lt?: InputMaybe<Scalars['ID']>;
-  id_gte?: InputMaybe<Scalars['ID']>;
-  id_lte?: InputMaybe<Scalars['ID']>;
-  id_in?: InputMaybe<Array<Scalars['ID']>>;
-  id_not_in?: InputMaybe<Array<Scalars['ID']>>;
-  canonicalId?: InputMaybe<Scalars['rinkeby_Bytes']>;
-  canonicalId_not?: InputMaybe<Scalars['rinkeby_Bytes']>;
-  canonicalId_in?: InputMaybe<Array<Scalars['rinkeby_Bytes']>>;
-  canonicalId_not_in?: InputMaybe<Array<Scalars['rinkeby_Bytes']>>;
-  canonicalId_contains?: InputMaybe<Scalars['rinkeby_Bytes']>;
-  canonicalId_not_contains?: InputMaybe<Scalars['rinkeby_Bytes']>;
-  domain?: InputMaybe<Scalars['BigInt']>;
-  domain_not?: InputMaybe<Scalars['BigInt']>;
-  domain_gt?: InputMaybe<Scalars['BigInt']>;
-  domain_lt?: InputMaybe<Scalars['BigInt']>;
-  domain_gte?: InputMaybe<Scalars['BigInt']>;
-  domain_lte?: InputMaybe<Scalars['BigInt']>;
-  domain_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  domain_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  swapPool?: InputMaybe<Scalars['rinkeby_Bytes']>;
-  swapPool_not?: InputMaybe<Scalars['rinkeby_Bytes']>;
-  swapPool_in?: InputMaybe<Array<Scalars['rinkeby_Bytes']>>;
-  swapPool_not_in?: InputMaybe<Array<Scalars['rinkeby_Bytes']>>;
-  swapPool_contains?: InputMaybe<Scalars['rinkeby_Bytes']>;
-  swapPool_not_contains?: InputMaybe<Scalars['rinkeby_Bytes']>;
-  /** Filter for the block changed event. */
-  _change_block?: InputMaybe<rinkeby_BlockChangedFilter>;
+
+export type Subscriptionstaginggoerli_relayersArgs = {
+  skip?: InputMaybe<Scalars['Int']>;
+  first?: InputMaybe<Scalars['Int']>;
+  orderBy?: InputMaybe<staginggoerli_Relayer_orderBy>;
+  orderDirection?: InputMaybe<staginggoerli_OrderDirection>;
+  where?: InputMaybe<staginggoerli_Relayer_filter>;
+  block?: InputMaybe<staginggoerli_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
 };
 
-export type rinkeby_StableSwap_orderBy =
-  | 'id'
-  | 'canonicalId'
-  | 'domain'
-  | 'swapPool';
 
-export type rinkeby_TransferStatus =
-  | 'XCalled'
-  | 'Executed'
-  | 'Reconciled'
-  | 'CompletedSlow'
-  | 'CompletedFast';
-
-export type rinkeby__Block_ = {
-  /** The hash of the block */
-  hash?: Maybe<Scalars['rinkeby_Bytes']>;
-  /** The block number */
-  number: Scalars['Int'];
-  /** Integer representation of the timestamp stored in blocks for the chain */
-  timestamp?: Maybe<Scalars['Int']>;
+export type Subscriptionstaginggoerli_stableSwapArgs = {
+  id: Scalars['ID'];
+  block?: InputMaybe<staginggoerli_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
 };
 
-/** The type for the top-level _meta field */
-export type rinkeby__Meta_ = {
-  /**
-   * Information about a specific subgraph block. The hash of the block
-   * will be null if the _meta field has a block constraint that asks for
-   * a block number. It will be filled if the _meta field has no block constraint
-   * and therefore asks for the latest  block
-   *
-   */
-  block: rinkeby__Block_;
-  /** The deployment ID */
-  deployment: Scalars['String'];
-  /** If `true`, the subgraph encountered indexing errors at some past block */
-  hasIndexingErrors: Scalars['Boolean'];
+
+export type Subscriptionstaginggoerli_stableSwapsArgs = {
+  skip?: InputMaybe<Scalars['Int']>;
+  first?: InputMaybe<Scalars['Int']>;
+  orderBy?: InputMaybe<staginggoerli_StableSwap_orderBy>;
+  orderDirection?: InputMaybe<staginggoerli_OrderDirection>;
+  where?: InputMaybe<staginggoerli_StableSwap_filter>;
+  block?: InputMaybe<staginggoerli_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
 };
 
-export type _SubgraphErrorPolicy_ =
-  /** Data will be returned even if the subgraph has indexing errors */
-  | 'allow'
-  /** If the subgraph has indexing errors, data will be omitted. The default. */
-  | 'deny';
+
+export type Subscriptionstaginggoerli_sponsorVaultArgs = {
+  id: Scalars['ID'];
+  block?: InputMaybe<staginggoerli_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Subscriptionstaginggoerli_sponsorVaultsArgs = {
+  skip?: InputMaybe<Scalars['Int']>;
+  first?: InputMaybe<Scalars['Int']>;
+  orderBy?: InputMaybe<staginggoerli_SponsorVault_orderBy>;
+  orderDirection?: InputMaybe<staginggoerli_OrderDirection>;
+  where?: InputMaybe<staginggoerli_SponsorVault_filter>;
+  block?: InputMaybe<staginggoerli_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Subscriptionstaginggoerli_originTransferArgs = {
+  id: Scalars['ID'];
+  block?: InputMaybe<staginggoerli_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Subscriptionstaginggoerli_originTransfersArgs = {
+  skip?: InputMaybe<Scalars['Int']>;
+  first?: InputMaybe<Scalars['Int']>;
+  orderBy?: InputMaybe<staginggoerli_OriginTransfer_orderBy>;
+  orderDirection?: InputMaybe<staginggoerli_OrderDirection>;
+  where?: InputMaybe<staginggoerli_OriginTransfer_filter>;
+  block?: InputMaybe<staginggoerli_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Subscriptionstaginggoerli_destinationTransferArgs = {
+  id: Scalars['ID'];
+  block?: InputMaybe<staginggoerli_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Subscriptionstaginggoerli_destinationTransfersArgs = {
+  skip?: InputMaybe<Scalars['Int']>;
+  first?: InputMaybe<Scalars['Int']>;
+  orderBy?: InputMaybe<staginggoerli_DestinationTransfer_orderBy>;
+  orderDirection?: InputMaybe<staginggoerli_OrderDirection>;
+  where?: InputMaybe<staginggoerli_DestinationTransfer_filter>;
+  block?: InputMaybe<staginggoerli_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Subscriptionstaginggoerli_originMessageArgs = {
+  id: Scalars['ID'];
+  block?: InputMaybe<staginggoerli_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Subscriptionstaginggoerli_originMessagesArgs = {
+  skip?: InputMaybe<Scalars['Int']>;
+  first?: InputMaybe<Scalars['Int']>;
+  orderBy?: InputMaybe<staginggoerli_OriginMessage_orderBy>;
+  orderDirection?: InputMaybe<staginggoerli_OrderDirection>;
+  where?: InputMaybe<staginggoerli_OriginMessage_filter>;
+  block?: InputMaybe<staginggoerli_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Subscriptionstaginggoerli_destinationMessageArgs = {
+  id: Scalars['ID'];
+  block?: InputMaybe<staginggoerli_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Subscriptionstaginggoerli_destinationMessagesArgs = {
+  skip?: InputMaybe<Scalars['Int']>;
+  first?: InputMaybe<Scalars['Int']>;
+  orderBy?: InputMaybe<staginggoerli_DestinationMessage_orderBy>;
+  orderDirection?: InputMaybe<staginggoerli_OrderDirection>;
+  where?: InputMaybe<staginggoerli_DestinationMessage_filter>;
+  block?: InputMaybe<staginggoerli_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Subscriptionstaginggoerli_aggregateRootArgs = {
+  id: Scalars['ID'];
+  block?: InputMaybe<staginggoerli_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Subscriptionstaginggoerli_aggregateRootsArgs = {
+  skip?: InputMaybe<Scalars['Int']>;
+  first?: InputMaybe<Scalars['Int']>;
+  orderBy?: InputMaybe<staginggoerli_AggregateRoot_orderBy>;
+  orderDirection?: InputMaybe<staginggoerli_OrderDirection>;
+  where?: InputMaybe<staginggoerli_AggregateRoot_filter>;
+  block?: InputMaybe<staginggoerli_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Subscriptionstaginggoerli_connectorMetaArgs = {
+  id: Scalars['ID'];
+  block?: InputMaybe<staginggoerli_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Subscriptionstaginggoerli_connectorMetasArgs = {
+  skip?: InputMaybe<Scalars['Int']>;
+  first?: InputMaybe<Scalars['Int']>;
+  orderBy?: InputMaybe<staginggoerli_ConnectorMeta_orderBy>;
+  orderDirection?: InputMaybe<staginggoerli_OrderDirection>;
+  where?: InputMaybe<staginggoerli_ConnectorMeta_filter>;
+  block?: InputMaybe<staginggoerli_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Subscriptionstaginggoerli_rootMessageSentArgs = {
+  id: Scalars['ID'];
+  block?: InputMaybe<staginggoerli_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Subscriptionstaginggoerli_rootMessageSentsArgs = {
+  skip?: InputMaybe<Scalars['Int']>;
+  first?: InputMaybe<Scalars['Int']>;
+  orderBy?: InputMaybe<staginggoerli_RootMessageSent_orderBy>;
+  orderDirection?: InputMaybe<staginggoerli_OrderDirection>;
+  where?: InputMaybe<staginggoerli_RootMessageSent_filter>;
+  block?: InputMaybe<staginggoerli_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Subscriptionstaginggoerli_rootMessageProcessedArgs = {
+  id: Scalars['ID'];
+  block?: InputMaybe<staginggoerli_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Subscriptionstaginggoerli_rootMessageProcessedsArgs = {
+  skip?: InputMaybe<Scalars['Int']>;
+  first?: InputMaybe<Scalars['Int']>;
+  orderBy?: InputMaybe<staginggoerli_RootMessageProcessed_orderBy>;
+  orderDirection?: InputMaybe<staginggoerli_OrderDirection>;
+  where?: InputMaybe<staginggoerli_RootMessageProcessed_filter>;
+  block?: InputMaybe<staginggoerli_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Subscriptionstaginggoerli__metaArgs = {
+  block?: InputMaybe<staginggoerli_Block_height>;
+};
 
 export type testgoerli_Asset = {
   id: Scalars['ID'];
@@ -7568,6 +6562,12 @@ export type testgoerli__Meta_ = {
   hasIndexingErrors: Scalars['Boolean'];
 };
 
+export type _SubgraphErrorPolicy_ =
+  /** Data will be returned even if the subgraph has indexing errors */
+  | 'allow'
+  /** If the subgraph has indexing errors, data will be omitted. The default. */
+  | 'deny';
+
 export type local1337_Asset = {
   id: Scalars['ID'];
   key?: Maybe<Scalars['local1337_Bytes']>;
@@ -8579,24 +7579,23 @@ export type local1337__Meta_ = {
   hasIndexingErrors: Scalars['Boolean'];
 };
 
-export type testoptimismgoerli_Asset = {
+export type rinkeby_Asset = {
   id: Scalars['ID'];
-  key?: Maybe<Scalars['testoptimismgoerli_Bytes']>;
-  local: Scalars['testoptimismgoerli_Bytes'];
-  adoptedAsset: Scalars['testoptimismgoerli_Bytes'];
-  canonicalId: Scalars['testoptimismgoerli_Bytes'];
+  local: Scalars['rinkeby_Bytes'];
+  adoptedAsset: Scalars['rinkeby_Bytes'];
+  canonicalId: Scalars['rinkeby_Bytes'];
   canonicalDomain: Scalars['BigInt'];
   blockNumber: Scalars['BigInt'];
 };
 
-export type testoptimismgoerli_AssetBalance = {
+export type rinkeby_AssetBalance = {
   id: Scalars['ID'];
   amount: Scalars['BigInt'];
-  router: testoptimismgoerli_Router;
-  asset: testoptimismgoerli_Asset;
+  router: rinkeby_Router;
+  asset: rinkeby_Asset;
 };
 
-export type testoptimismgoerli_AssetBalance_filter = {
+export type rinkeby_AssetBalance_filter = {
   id?: InputMaybe<Scalars['ID']>;
   id_not?: InputMaybe<Scalars['ID']>;
   id_gt?: InputMaybe<Scalars['ID']>;
@@ -8633,7 +7632,7 @@ export type testoptimismgoerli_AssetBalance_filter = {
   router_ends_with_nocase?: InputMaybe<Scalars['String']>;
   router_not_ends_with?: InputMaybe<Scalars['String']>;
   router_not_ends_with_nocase?: InputMaybe<Scalars['String']>;
-  router_?: InputMaybe<testoptimismgoerli_Router_filter>;
+  router_?: InputMaybe<rinkeby_Router_filter>;
   asset?: InputMaybe<Scalars['String']>;
   asset_not?: InputMaybe<Scalars['String']>;
   asset_gt?: InputMaybe<Scalars['String']>;
@@ -8654,18 +7653,18 @@ export type testoptimismgoerli_AssetBalance_filter = {
   asset_ends_with_nocase?: InputMaybe<Scalars['String']>;
   asset_not_ends_with?: InputMaybe<Scalars['String']>;
   asset_not_ends_with_nocase?: InputMaybe<Scalars['String']>;
-  asset_?: InputMaybe<testoptimismgoerli_Asset_filter>;
+  asset_?: InputMaybe<rinkeby_Asset_filter>;
   /** Filter for the block changed event. */
-  _change_block?: InputMaybe<testoptimismgoerli_BlockChangedFilter>;
+  _change_block?: InputMaybe<rinkeby_BlockChangedFilter>;
 };
 
-export type testoptimismgoerli_AssetBalance_orderBy =
+export type rinkeby_AssetBalance_orderBy =
   | 'id'
   | 'amount'
   | 'router'
   | 'asset';
 
-export type testoptimismgoerli_Asset_filter = {
+export type rinkeby_Asset_filter = {
   id?: InputMaybe<Scalars['ID']>;
   id_not?: InputMaybe<Scalars['ID']>;
   id_gt?: InputMaybe<Scalars['ID']>;
@@ -8674,30 +7673,24 @@ export type testoptimismgoerli_Asset_filter = {
   id_lte?: InputMaybe<Scalars['ID']>;
   id_in?: InputMaybe<Array<Scalars['ID']>>;
   id_not_in?: InputMaybe<Array<Scalars['ID']>>;
-  key?: InputMaybe<Scalars['testoptimismgoerli_Bytes']>;
-  key_not?: InputMaybe<Scalars['testoptimismgoerli_Bytes']>;
-  key_in?: InputMaybe<Array<Scalars['testoptimismgoerli_Bytes']>>;
-  key_not_in?: InputMaybe<Array<Scalars['testoptimismgoerli_Bytes']>>;
-  key_contains?: InputMaybe<Scalars['testoptimismgoerli_Bytes']>;
-  key_not_contains?: InputMaybe<Scalars['testoptimismgoerli_Bytes']>;
-  local?: InputMaybe<Scalars['testoptimismgoerli_Bytes']>;
-  local_not?: InputMaybe<Scalars['testoptimismgoerli_Bytes']>;
-  local_in?: InputMaybe<Array<Scalars['testoptimismgoerli_Bytes']>>;
-  local_not_in?: InputMaybe<Array<Scalars['testoptimismgoerli_Bytes']>>;
-  local_contains?: InputMaybe<Scalars['testoptimismgoerli_Bytes']>;
-  local_not_contains?: InputMaybe<Scalars['testoptimismgoerli_Bytes']>;
-  adoptedAsset?: InputMaybe<Scalars['testoptimismgoerli_Bytes']>;
-  adoptedAsset_not?: InputMaybe<Scalars['testoptimismgoerli_Bytes']>;
-  adoptedAsset_in?: InputMaybe<Array<Scalars['testoptimismgoerli_Bytes']>>;
-  adoptedAsset_not_in?: InputMaybe<Array<Scalars['testoptimismgoerli_Bytes']>>;
-  adoptedAsset_contains?: InputMaybe<Scalars['testoptimismgoerli_Bytes']>;
-  adoptedAsset_not_contains?: InputMaybe<Scalars['testoptimismgoerli_Bytes']>;
-  canonicalId?: InputMaybe<Scalars['testoptimismgoerli_Bytes']>;
-  canonicalId_not?: InputMaybe<Scalars['testoptimismgoerli_Bytes']>;
-  canonicalId_in?: InputMaybe<Array<Scalars['testoptimismgoerli_Bytes']>>;
-  canonicalId_not_in?: InputMaybe<Array<Scalars['testoptimismgoerli_Bytes']>>;
-  canonicalId_contains?: InputMaybe<Scalars['testoptimismgoerli_Bytes']>;
-  canonicalId_not_contains?: InputMaybe<Scalars['testoptimismgoerli_Bytes']>;
+  local?: InputMaybe<Scalars['rinkeby_Bytes']>;
+  local_not?: InputMaybe<Scalars['rinkeby_Bytes']>;
+  local_in?: InputMaybe<Array<Scalars['rinkeby_Bytes']>>;
+  local_not_in?: InputMaybe<Array<Scalars['rinkeby_Bytes']>>;
+  local_contains?: InputMaybe<Scalars['rinkeby_Bytes']>;
+  local_not_contains?: InputMaybe<Scalars['rinkeby_Bytes']>;
+  adoptedAsset?: InputMaybe<Scalars['rinkeby_Bytes']>;
+  adoptedAsset_not?: InputMaybe<Scalars['rinkeby_Bytes']>;
+  adoptedAsset_in?: InputMaybe<Array<Scalars['rinkeby_Bytes']>>;
+  adoptedAsset_not_in?: InputMaybe<Array<Scalars['rinkeby_Bytes']>>;
+  adoptedAsset_contains?: InputMaybe<Scalars['rinkeby_Bytes']>;
+  adoptedAsset_not_contains?: InputMaybe<Scalars['rinkeby_Bytes']>;
+  canonicalId?: InputMaybe<Scalars['rinkeby_Bytes']>;
+  canonicalId_not?: InputMaybe<Scalars['rinkeby_Bytes']>;
+  canonicalId_in?: InputMaybe<Array<Scalars['rinkeby_Bytes']>>;
+  canonicalId_not_in?: InputMaybe<Array<Scalars['rinkeby_Bytes']>>;
+  canonicalId_contains?: InputMaybe<Scalars['rinkeby_Bytes']>;
+  canonicalId_not_contains?: InputMaybe<Scalars['rinkeby_Bytes']>;
   canonicalDomain?: InputMaybe<Scalars['BigInt']>;
   canonicalDomain_not?: InputMaybe<Scalars['BigInt']>;
   canonicalDomain_gt?: InputMaybe<Scalars['BigInt']>;
@@ -8715,61 +7708,60 @@ export type testoptimismgoerli_Asset_filter = {
   blockNumber_in?: InputMaybe<Array<Scalars['BigInt']>>;
   blockNumber_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
   /** Filter for the block changed event. */
-  _change_block?: InputMaybe<testoptimismgoerli_BlockChangedFilter>;
+  _change_block?: InputMaybe<rinkeby_BlockChangedFilter>;
 };
 
-export type testoptimismgoerli_Asset_orderBy =
+export type rinkeby_Asset_orderBy =
   | 'id'
-  | 'key'
   | 'local'
   | 'adoptedAsset'
   | 'canonicalId'
   | 'canonicalDomain'
   | 'blockNumber';
 
-export type testoptimismgoerli_BlockChangedFilter = {
+export type rinkeby_BlockChangedFilter = {
   number_gte: Scalars['Int'];
 };
 
-export type testoptimismgoerli_Block_height = {
-  hash?: InputMaybe<Scalars['testoptimismgoerli_Bytes']>;
+export type rinkeby_Block_height = {
+  hash?: InputMaybe<Scalars['rinkeby_Bytes']>;
   number?: InputMaybe<Scalars['Int']>;
   number_gte?: InputMaybe<Scalars['Int']>;
 };
 
-export type testoptimismgoerli_DestinationTransfer = {
+export type rinkeby_DestinationTransfer = {
   id: Scalars['ID'];
   chainId?: Maybe<Scalars['BigInt']>;
-  transferId?: Maybe<Scalars['testoptimismgoerli_Bytes']>;
+  transferId?: Maybe<Scalars['rinkeby_Bytes']>;
   nonce?: Maybe<Scalars['BigInt']>;
-  to?: Maybe<Scalars['testoptimismgoerli_Bytes']>;
-  callData?: Maybe<Scalars['testoptimismgoerli_Bytes']>;
+  to?: Maybe<Scalars['rinkeby_Bytes']>;
+  callData?: Maybe<Scalars['rinkeby_Bytes']>;
   originDomain?: Maybe<Scalars['BigInt']>;
   destinationDomain?: Maybe<Scalars['BigInt']>;
-  agent?: Maybe<Scalars['testoptimismgoerli_Bytes']>;
-  recovery?: Maybe<Scalars['testoptimismgoerli_Bytes']>;
+  agent?: Maybe<Scalars['rinkeby_Bytes']>;
+  recovery?: Maybe<Scalars['rinkeby_Bytes']>;
   forceSlow?: Maybe<Scalars['Boolean']>;
   receiveLocal?: Maybe<Scalars['Boolean']>;
-  callback?: Maybe<Scalars['testoptimismgoerli_Bytes']>;
+  callback?: Maybe<Scalars['rinkeby_Bytes']>;
   callbackFee?: Maybe<Scalars['BigInt']>;
   relayerFee?: Maybe<Scalars['BigInt']>;
-  destinationMinOut?: Maybe<Scalars['BigInt']>;
-  status?: Maybe<testoptimismgoerli_TransferStatus>;
-  routers?: Maybe<Array<testoptimismgoerli_Router>>;
-  originSender?: Maybe<Scalars['testoptimismgoerli_Bytes']>;
-  transactingAsset?: Maybe<Scalars['testoptimismgoerli_Bytes']>;
+  slippageTol?: Maybe<Scalars['BigInt']>;
+  status?: Maybe<rinkeby_TransferStatus>;
+  routers?: Maybe<Array<rinkeby_Router>>;
+  originSender?: Maybe<Scalars['rinkeby_Bytes']>;
+  transactingAsset?: Maybe<Scalars['rinkeby_Bytes']>;
   transactingAmount?: Maybe<Scalars['BigInt']>;
-  localAsset?: Maybe<Scalars['testoptimismgoerli_Bytes']>;
+  localAsset?: Maybe<Scalars['rinkeby_Bytes']>;
   localAmount?: Maybe<Scalars['BigInt']>;
   sponsorVaultRelayerFee?: Maybe<Scalars['BigInt']>;
-  executedCaller?: Maybe<Scalars['testoptimismgoerli_Bytes']>;
-  executedTransactionHash?: Maybe<Scalars['testoptimismgoerli_Bytes']>;
+  executedCaller?: Maybe<Scalars['rinkeby_Bytes']>;
+  executedTransactionHash?: Maybe<Scalars['rinkeby_Bytes']>;
   executedTimestamp?: Maybe<Scalars['BigInt']>;
   executedGasPrice?: Maybe<Scalars['BigInt']>;
   executedGasLimit?: Maybe<Scalars['BigInt']>;
   executedBlockNumber?: Maybe<Scalars['BigInt']>;
-  reconciledCaller?: Maybe<Scalars['testoptimismgoerli_Bytes']>;
-  reconciledTransactionHash?: Maybe<Scalars['testoptimismgoerli_Bytes']>;
+  reconciledCaller?: Maybe<Scalars['rinkeby_Bytes']>;
+  reconciledTransactionHash?: Maybe<Scalars['rinkeby_Bytes']>;
   reconciledTimestamp?: Maybe<Scalars['BigInt']>;
   reconciledGasPrice?: Maybe<Scalars['BigInt']>;
   reconciledGasLimit?: Maybe<Scalars['BigInt']>;
@@ -8777,15 +7769,15 @@ export type testoptimismgoerli_DestinationTransfer = {
 };
 
 
-export type testoptimismgoerli_DestinationTransferroutersArgs = {
+export type rinkeby_DestinationTransferroutersArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<testoptimismgoerli_Router_orderBy>;
-  orderDirection?: InputMaybe<testoptimismgoerli_OrderDirection>;
-  where?: InputMaybe<testoptimismgoerli_Router_filter>;
+  orderBy?: InputMaybe<rinkeby_Router_orderBy>;
+  orderDirection?: InputMaybe<rinkeby_OrderDirection>;
+  where?: InputMaybe<rinkeby_Router_filter>;
 };
 
-export type testoptimismgoerli_DestinationTransfer_filter = {
+export type rinkeby_DestinationTransfer_filter = {
   id?: InputMaybe<Scalars['ID']>;
   id_not?: InputMaybe<Scalars['ID']>;
   id_gt?: InputMaybe<Scalars['ID']>;
@@ -8802,12 +7794,12 @@ export type testoptimismgoerli_DestinationTransfer_filter = {
   chainId_lte?: InputMaybe<Scalars['BigInt']>;
   chainId_in?: InputMaybe<Array<Scalars['BigInt']>>;
   chainId_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  transferId?: InputMaybe<Scalars['testoptimismgoerli_Bytes']>;
-  transferId_not?: InputMaybe<Scalars['testoptimismgoerli_Bytes']>;
-  transferId_in?: InputMaybe<Array<Scalars['testoptimismgoerli_Bytes']>>;
-  transferId_not_in?: InputMaybe<Array<Scalars['testoptimismgoerli_Bytes']>>;
-  transferId_contains?: InputMaybe<Scalars['testoptimismgoerli_Bytes']>;
-  transferId_not_contains?: InputMaybe<Scalars['testoptimismgoerli_Bytes']>;
+  transferId?: InputMaybe<Scalars['rinkeby_Bytes']>;
+  transferId_not?: InputMaybe<Scalars['rinkeby_Bytes']>;
+  transferId_in?: InputMaybe<Array<Scalars['rinkeby_Bytes']>>;
+  transferId_not_in?: InputMaybe<Array<Scalars['rinkeby_Bytes']>>;
+  transferId_contains?: InputMaybe<Scalars['rinkeby_Bytes']>;
+  transferId_not_contains?: InputMaybe<Scalars['rinkeby_Bytes']>;
   nonce?: InputMaybe<Scalars['BigInt']>;
   nonce_not?: InputMaybe<Scalars['BigInt']>;
   nonce_gt?: InputMaybe<Scalars['BigInt']>;
@@ -8816,18 +7808,18 @@ export type testoptimismgoerli_DestinationTransfer_filter = {
   nonce_lte?: InputMaybe<Scalars['BigInt']>;
   nonce_in?: InputMaybe<Array<Scalars['BigInt']>>;
   nonce_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  to?: InputMaybe<Scalars['testoptimismgoerli_Bytes']>;
-  to_not?: InputMaybe<Scalars['testoptimismgoerli_Bytes']>;
-  to_in?: InputMaybe<Array<Scalars['testoptimismgoerli_Bytes']>>;
-  to_not_in?: InputMaybe<Array<Scalars['testoptimismgoerli_Bytes']>>;
-  to_contains?: InputMaybe<Scalars['testoptimismgoerli_Bytes']>;
-  to_not_contains?: InputMaybe<Scalars['testoptimismgoerli_Bytes']>;
-  callData?: InputMaybe<Scalars['testoptimismgoerli_Bytes']>;
-  callData_not?: InputMaybe<Scalars['testoptimismgoerli_Bytes']>;
-  callData_in?: InputMaybe<Array<Scalars['testoptimismgoerli_Bytes']>>;
-  callData_not_in?: InputMaybe<Array<Scalars['testoptimismgoerli_Bytes']>>;
-  callData_contains?: InputMaybe<Scalars['testoptimismgoerli_Bytes']>;
-  callData_not_contains?: InputMaybe<Scalars['testoptimismgoerli_Bytes']>;
+  to?: InputMaybe<Scalars['rinkeby_Bytes']>;
+  to_not?: InputMaybe<Scalars['rinkeby_Bytes']>;
+  to_in?: InputMaybe<Array<Scalars['rinkeby_Bytes']>>;
+  to_not_in?: InputMaybe<Array<Scalars['rinkeby_Bytes']>>;
+  to_contains?: InputMaybe<Scalars['rinkeby_Bytes']>;
+  to_not_contains?: InputMaybe<Scalars['rinkeby_Bytes']>;
+  callData?: InputMaybe<Scalars['rinkeby_Bytes']>;
+  callData_not?: InputMaybe<Scalars['rinkeby_Bytes']>;
+  callData_in?: InputMaybe<Array<Scalars['rinkeby_Bytes']>>;
+  callData_not_in?: InputMaybe<Array<Scalars['rinkeby_Bytes']>>;
+  callData_contains?: InputMaybe<Scalars['rinkeby_Bytes']>;
+  callData_not_contains?: InputMaybe<Scalars['rinkeby_Bytes']>;
   originDomain?: InputMaybe<Scalars['BigInt']>;
   originDomain_not?: InputMaybe<Scalars['BigInt']>;
   originDomain_gt?: InputMaybe<Scalars['BigInt']>;
@@ -8844,18 +7836,18 @@ export type testoptimismgoerli_DestinationTransfer_filter = {
   destinationDomain_lte?: InputMaybe<Scalars['BigInt']>;
   destinationDomain_in?: InputMaybe<Array<Scalars['BigInt']>>;
   destinationDomain_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  agent?: InputMaybe<Scalars['testoptimismgoerli_Bytes']>;
-  agent_not?: InputMaybe<Scalars['testoptimismgoerli_Bytes']>;
-  agent_in?: InputMaybe<Array<Scalars['testoptimismgoerli_Bytes']>>;
-  agent_not_in?: InputMaybe<Array<Scalars['testoptimismgoerli_Bytes']>>;
-  agent_contains?: InputMaybe<Scalars['testoptimismgoerli_Bytes']>;
-  agent_not_contains?: InputMaybe<Scalars['testoptimismgoerli_Bytes']>;
-  recovery?: InputMaybe<Scalars['testoptimismgoerli_Bytes']>;
-  recovery_not?: InputMaybe<Scalars['testoptimismgoerli_Bytes']>;
-  recovery_in?: InputMaybe<Array<Scalars['testoptimismgoerli_Bytes']>>;
-  recovery_not_in?: InputMaybe<Array<Scalars['testoptimismgoerli_Bytes']>>;
-  recovery_contains?: InputMaybe<Scalars['testoptimismgoerli_Bytes']>;
-  recovery_not_contains?: InputMaybe<Scalars['testoptimismgoerli_Bytes']>;
+  agent?: InputMaybe<Scalars['rinkeby_Bytes']>;
+  agent_not?: InputMaybe<Scalars['rinkeby_Bytes']>;
+  agent_in?: InputMaybe<Array<Scalars['rinkeby_Bytes']>>;
+  agent_not_in?: InputMaybe<Array<Scalars['rinkeby_Bytes']>>;
+  agent_contains?: InputMaybe<Scalars['rinkeby_Bytes']>;
+  agent_not_contains?: InputMaybe<Scalars['rinkeby_Bytes']>;
+  recovery?: InputMaybe<Scalars['rinkeby_Bytes']>;
+  recovery_not?: InputMaybe<Scalars['rinkeby_Bytes']>;
+  recovery_in?: InputMaybe<Array<Scalars['rinkeby_Bytes']>>;
+  recovery_not_in?: InputMaybe<Array<Scalars['rinkeby_Bytes']>>;
+  recovery_contains?: InputMaybe<Scalars['rinkeby_Bytes']>;
+  recovery_not_contains?: InputMaybe<Scalars['rinkeby_Bytes']>;
   forceSlow?: InputMaybe<Scalars['Boolean']>;
   forceSlow_not?: InputMaybe<Scalars['Boolean']>;
   forceSlow_in?: InputMaybe<Array<Scalars['Boolean']>>;
@@ -8864,12 +7856,12 @@ export type testoptimismgoerli_DestinationTransfer_filter = {
   receiveLocal_not?: InputMaybe<Scalars['Boolean']>;
   receiveLocal_in?: InputMaybe<Array<Scalars['Boolean']>>;
   receiveLocal_not_in?: InputMaybe<Array<Scalars['Boolean']>>;
-  callback?: InputMaybe<Scalars['testoptimismgoerli_Bytes']>;
-  callback_not?: InputMaybe<Scalars['testoptimismgoerli_Bytes']>;
-  callback_in?: InputMaybe<Array<Scalars['testoptimismgoerli_Bytes']>>;
-  callback_not_in?: InputMaybe<Array<Scalars['testoptimismgoerli_Bytes']>>;
-  callback_contains?: InputMaybe<Scalars['testoptimismgoerli_Bytes']>;
-  callback_not_contains?: InputMaybe<Scalars['testoptimismgoerli_Bytes']>;
+  callback?: InputMaybe<Scalars['rinkeby_Bytes']>;
+  callback_not?: InputMaybe<Scalars['rinkeby_Bytes']>;
+  callback_in?: InputMaybe<Array<Scalars['rinkeby_Bytes']>>;
+  callback_not_in?: InputMaybe<Array<Scalars['rinkeby_Bytes']>>;
+  callback_contains?: InputMaybe<Scalars['rinkeby_Bytes']>;
+  callback_not_contains?: InputMaybe<Scalars['rinkeby_Bytes']>;
   callbackFee?: InputMaybe<Scalars['BigInt']>;
   callbackFee_not?: InputMaybe<Scalars['BigInt']>;
   callbackFee_gt?: InputMaybe<Scalars['BigInt']>;
@@ -8886,37 +7878,37 @@ export type testoptimismgoerli_DestinationTransfer_filter = {
   relayerFee_lte?: InputMaybe<Scalars['BigInt']>;
   relayerFee_in?: InputMaybe<Array<Scalars['BigInt']>>;
   relayerFee_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  destinationMinOut?: InputMaybe<Scalars['BigInt']>;
-  destinationMinOut_not?: InputMaybe<Scalars['BigInt']>;
-  destinationMinOut_gt?: InputMaybe<Scalars['BigInt']>;
-  destinationMinOut_lt?: InputMaybe<Scalars['BigInt']>;
-  destinationMinOut_gte?: InputMaybe<Scalars['BigInt']>;
-  destinationMinOut_lte?: InputMaybe<Scalars['BigInt']>;
-  destinationMinOut_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  destinationMinOut_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  status?: InputMaybe<testoptimismgoerli_TransferStatus>;
-  status_not?: InputMaybe<testoptimismgoerli_TransferStatus>;
-  status_in?: InputMaybe<Array<testoptimismgoerli_TransferStatus>>;
-  status_not_in?: InputMaybe<Array<testoptimismgoerli_TransferStatus>>;
+  slippageTol?: InputMaybe<Scalars['BigInt']>;
+  slippageTol_not?: InputMaybe<Scalars['BigInt']>;
+  slippageTol_gt?: InputMaybe<Scalars['BigInt']>;
+  slippageTol_lt?: InputMaybe<Scalars['BigInt']>;
+  slippageTol_gte?: InputMaybe<Scalars['BigInt']>;
+  slippageTol_lte?: InputMaybe<Scalars['BigInt']>;
+  slippageTol_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  slippageTol_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  status?: InputMaybe<rinkeby_TransferStatus>;
+  status_not?: InputMaybe<rinkeby_TransferStatus>;
+  status_in?: InputMaybe<Array<rinkeby_TransferStatus>>;
+  status_not_in?: InputMaybe<Array<rinkeby_TransferStatus>>;
   routers?: InputMaybe<Array<Scalars['String']>>;
   routers_not?: InputMaybe<Array<Scalars['String']>>;
   routers_contains?: InputMaybe<Array<Scalars['String']>>;
   routers_contains_nocase?: InputMaybe<Array<Scalars['String']>>;
   routers_not_contains?: InputMaybe<Array<Scalars['String']>>;
   routers_not_contains_nocase?: InputMaybe<Array<Scalars['String']>>;
-  routers_?: InputMaybe<testoptimismgoerli_Router_filter>;
-  originSender?: InputMaybe<Scalars['testoptimismgoerli_Bytes']>;
-  originSender_not?: InputMaybe<Scalars['testoptimismgoerli_Bytes']>;
-  originSender_in?: InputMaybe<Array<Scalars['testoptimismgoerli_Bytes']>>;
-  originSender_not_in?: InputMaybe<Array<Scalars['testoptimismgoerli_Bytes']>>;
-  originSender_contains?: InputMaybe<Scalars['testoptimismgoerli_Bytes']>;
-  originSender_not_contains?: InputMaybe<Scalars['testoptimismgoerli_Bytes']>;
-  transactingAsset?: InputMaybe<Scalars['testoptimismgoerli_Bytes']>;
-  transactingAsset_not?: InputMaybe<Scalars['testoptimismgoerli_Bytes']>;
-  transactingAsset_in?: InputMaybe<Array<Scalars['testoptimismgoerli_Bytes']>>;
-  transactingAsset_not_in?: InputMaybe<Array<Scalars['testoptimismgoerli_Bytes']>>;
-  transactingAsset_contains?: InputMaybe<Scalars['testoptimismgoerli_Bytes']>;
-  transactingAsset_not_contains?: InputMaybe<Scalars['testoptimismgoerli_Bytes']>;
+  routers_?: InputMaybe<rinkeby_Router_filter>;
+  originSender?: InputMaybe<Scalars['rinkeby_Bytes']>;
+  originSender_not?: InputMaybe<Scalars['rinkeby_Bytes']>;
+  originSender_in?: InputMaybe<Array<Scalars['rinkeby_Bytes']>>;
+  originSender_not_in?: InputMaybe<Array<Scalars['rinkeby_Bytes']>>;
+  originSender_contains?: InputMaybe<Scalars['rinkeby_Bytes']>;
+  originSender_not_contains?: InputMaybe<Scalars['rinkeby_Bytes']>;
+  transactingAsset?: InputMaybe<Scalars['rinkeby_Bytes']>;
+  transactingAsset_not?: InputMaybe<Scalars['rinkeby_Bytes']>;
+  transactingAsset_in?: InputMaybe<Array<Scalars['rinkeby_Bytes']>>;
+  transactingAsset_not_in?: InputMaybe<Array<Scalars['rinkeby_Bytes']>>;
+  transactingAsset_contains?: InputMaybe<Scalars['rinkeby_Bytes']>;
+  transactingAsset_not_contains?: InputMaybe<Scalars['rinkeby_Bytes']>;
   transactingAmount?: InputMaybe<Scalars['BigInt']>;
   transactingAmount_not?: InputMaybe<Scalars['BigInt']>;
   transactingAmount_gt?: InputMaybe<Scalars['BigInt']>;
@@ -8925,12 +7917,12 @@ export type testoptimismgoerli_DestinationTransfer_filter = {
   transactingAmount_lte?: InputMaybe<Scalars['BigInt']>;
   transactingAmount_in?: InputMaybe<Array<Scalars['BigInt']>>;
   transactingAmount_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  localAsset?: InputMaybe<Scalars['testoptimismgoerli_Bytes']>;
-  localAsset_not?: InputMaybe<Scalars['testoptimismgoerli_Bytes']>;
-  localAsset_in?: InputMaybe<Array<Scalars['testoptimismgoerli_Bytes']>>;
-  localAsset_not_in?: InputMaybe<Array<Scalars['testoptimismgoerli_Bytes']>>;
-  localAsset_contains?: InputMaybe<Scalars['testoptimismgoerli_Bytes']>;
-  localAsset_not_contains?: InputMaybe<Scalars['testoptimismgoerli_Bytes']>;
+  localAsset?: InputMaybe<Scalars['rinkeby_Bytes']>;
+  localAsset_not?: InputMaybe<Scalars['rinkeby_Bytes']>;
+  localAsset_in?: InputMaybe<Array<Scalars['rinkeby_Bytes']>>;
+  localAsset_not_in?: InputMaybe<Array<Scalars['rinkeby_Bytes']>>;
+  localAsset_contains?: InputMaybe<Scalars['rinkeby_Bytes']>;
+  localAsset_not_contains?: InputMaybe<Scalars['rinkeby_Bytes']>;
   localAmount?: InputMaybe<Scalars['BigInt']>;
   localAmount_not?: InputMaybe<Scalars['BigInt']>;
   localAmount_gt?: InputMaybe<Scalars['BigInt']>;
@@ -8947,18 +7939,18 @@ export type testoptimismgoerli_DestinationTransfer_filter = {
   sponsorVaultRelayerFee_lte?: InputMaybe<Scalars['BigInt']>;
   sponsorVaultRelayerFee_in?: InputMaybe<Array<Scalars['BigInt']>>;
   sponsorVaultRelayerFee_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  executedCaller?: InputMaybe<Scalars['testoptimismgoerli_Bytes']>;
-  executedCaller_not?: InputMaybe<Scalars['testoptimismgoerli_Bytes']>;
-  executedCaller_in?: InputMaybe<Array<Scalars['testoptimismgoerli_Bytes']>>;
-  executedCaller_not_in?: InputMaybe<Array<Scalars['testoptimismgoerli_Bytes']>>;
-  executedCaller_contains?: InputMaybe<Scalars['testoptimismgoerli_Bytes']>;
-  executedCaller_not_contains?: InputMaybe<Scalars['testoptimismgoerli_Bytes']>;
-  executedTransactionHash?: InputMaybe<Scalars['testoptimismgoerli_Bytes']>;
-  executedTransactionHash_not?: InputMaybe<Scalars['testoptimismgoerli_Bytes']>;
-  executedTransactionHash_in?: InputMaybe<Array<Scalars['testoptimismgoerli_Bytes']>>;
-  executedTransactionHash_not_in?: InputMaybe<Array<Scalars['testoptimismgoerli_Bytes']>>;
-  executedTransactionHash_contains?: InputMaybe<Scalars['testoptimismgoerli_Bytes']>;
-  executedTransactionHash_not_contains?: InputMaybe<Scalars['testoptimismgoerli_Bytes']>;
+  executedCaller?: InputMaybe<Scalars['rinkeby_Bytes']>;
+  executedCaller_not?: InputMaybe<Scalars['rinkeby_Bytes']>;
+  executedCaller_in?: InputMaybe<Array<Scalars['rinkeby_Bytes']>>;
+  executedCaller_not_in?: InputMaybe<Array<Scalars['rinkeby_Bytes']>>;
+  executedCaller_contains?: InputMaybe<Scalars['rinkeby_Bytes']>;
+  executedCaller_not_contains?: InputMaybe<Scalars['rinkeby_Bytes']>;
+  executedTransactionHash?: InputMaybe<Scalars['rinkeby_Bytes']>;
+  executedTransactionHash_not?: InputMaybe<Scalars['rinkeby_Bytes']>;
+  executedTransactionHash_in?: InputMaybe<Array<Scalars['rinkeby_Bytes']>>;
+  executedTransactionHash_not_in?: InputMaybe<Array<Scalars['rinkeby_Bytes']>>;
+  executedTransactionHash_contains?: InputMaybe<Scalars['rinkeby_Bytes']>;
+  executedTransactionHash_not_contains?: InputMaybe<Scalars['rinkeby_Bytes']>;
   executedTimestamp?: InputMaybe<Scalars['BigInt']>;
   executedTimestamp_not?: InputMaybe<Scalars['BigInt']>;
   executedTimestamp_gt?: InputMaybe<Scalars['BigInt']>;
@@ -8991,18 +7983,18 @@ export type testoptimismgoerli_DestinationTransfer_filter = {
   executedBlockNumber_lte?: InputMaybe<Scalars['BigInt']>;
   executedBlockNumber_in?: InputMaybe<Array<Scalars['BigInt']>>;
   executedBlockNumber_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  reconciledCaller?: InputMaybe<Scalars['testoptimismgoerli_Bytes']>;
-  reconciledCaller_not?: InputMaybe<Scalars['testoptimismgoerli_Bytes']>;
-  reconciledCaller_in?: InputMaybe<Array<Scalars['testoptimismgoerli_Bytes']>>;
-  reconciledCaller_not_in?: InputMaybe<Array<Scalars['testoptimismgoerli_Bytes']>>;
-  reconciledCaller_contains?: InputMaybe<Scalars['testoptimismgoerli_Bytes']>;
-  reconciledCaller_not_contains?: InputMaybe<Scalars['testoptimismgoerli_Bytes']>;
-  reconciledTransactionHash?: InputMaybe<Scalars['testoptimismgoerli_Bytes']>;
-  reconciledTransactionHash_not?: InputMaybe<Scalars['testoptimismgoerli_Bytes']>;
-  reconciledTransactionHash_in?: InputMaybe<Array<Scalars['testoptimismgoerli_Bytes']>>;
-  reconciledTransactionHash_not_in?: InputMaybe<Array<Scalars['testoptimismgoerli_Bytes']>>;
-  reconciledTransactionHash_contains?: InputMaybe<Scalars['testoptimismgoerli_Bytes']>;
-  reconciledTransactionHash_not_contains?: InputMaybe<Scalars['testoptimismgoerli_Bytes']>;
+  reconciledCaller?: InputMaybe<Scalars['rinkeby_Bytes']>;
+  reconciledCaller_not?: InputMaybe<Scalars['rinkeby_Bytes']>;
+  reconciledCaller_in?: InputMaybe<Array<Scalars['rinkeby_Bytes']>>;
+  reconciledCaller_not_in?: InputMaybe<Array<Scalars['rinkeby_Bytes']>>;
+  reconciledCaller_contains?: InputMaybe<Scalars['rinkeby_Bytes']>;
+  reconciledCaller_not_contains?: InputMaybe<Scalars['rinkeby_Bytes']>;
+  reconciledTransactionHash?: InputMaybe<Scalars['rinkeby_Bytes']>;
+  reconciledTransactionHash_not?: InputMaybe<Scalars['rinkeby_Bytes']>;
+  reconciledTransactionHash_in?: InputMaybe<Array<Scalars['rinkeby_Bytes']>>;
+  reconciledTransactionHash_not_in?: InputMaybe<Array<Scalars['rinkeby_Bytes']>>;
+  reconciledTransactionHash_contains?: InputMaybe<Scalars['rinkeby_Bytes']>;
+  reconciledTransactionHash_not_contains?: InputMaybe<Scalars['rinkeby_Bytes']>;
   reconciledTimestamp?: InputMaybe<Scalars['BigInt']>;
   reconciledTimestamp_not?: InputMaybe<Scalars['BigInt']>;
   reconciledTimestamp_gt?: InputMaybe<Scalars['BigInt']>;
@@ -9036,10 +8028,10 @@ export type testoptimismgoerli_DestinationTransfer_filter = {
   reconciledBlockNumber_in?: InputMaybe<Array<Scalars['BigInt']>>;
   reconciledBlockNumber_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
   /** Filter for the block changed event. */
-  _change_block?: InputMaybe<testoptimismgoerli_BlockChangedFilter>;
+  _change_block?: InputMaybe<rinkeby_BlockChangedFilter>;
 };
 
-export type testoptimismgoerli_DestinationTransfer_orderBy =
+export type rinkeby_DestinationTransfer_orderBy =
   | 'id'
   | 'chainId'
   | 'transferId'
@@ -9055,7 +8047,7 @@ export type testoptimismgoerli_DestinationTransfer_orderBy =
   | 'callback'
   | 'callbackFee'
   | 'relayerFee'
-  | 'destinationMinOut'
+  | 'slippageTol'
   | 'status'
   | 'routers'
   | 'originSender'
@@ -9078,42 +8070,42 @@ export type testoptimismgoerli_DestinationTransfer_orderBy =
   | 'reconciledBlockNumber';
 
 /** Defines the order direction, either ascending or descending */
-export type testoptimismgoerli_OrderDirection =
+export type rinkeby_OrderDirection =
   | 'asc'
   | 'desc';
 
-export type testoptimismgoerli_OriginTransfer = {
+export type rinkeby_OriginTransfer = {
   id: Scalars['ID'];
   chainId?: Maybe<Scalars['BigInt']>;
-  transferId?: Maybe<Scalars['testoptimismgoerli_Bytes']>;
+  transferId?: Maybe<Scalars['rinkeby_Bytes']>;
   nonce?: Maybe<Scalars['BigInt']>;
-  to?: Maybe<Scalars['testoptimismgoerli_Bytes']>;
-  callData?: Maybe<Scalars['testoptimismgoerli_Bytes']>;
+  to?: Maybe<Scalars['rinkeby_Bytes']>;
+  callData?: Maybe<Scalars['rinkeby_Bytes']>;
   originDomain?: Maybe<Scalars['BigInt']>;
   destinationDomain?: Maybe<Scalars['BigInt']>;
-  agent?: Maybe<Scalars['testoptimismgoerli_Bytes']>;
-  recovery?: Maybe<Scalars['testoptimismgoerli_Bytes']>;
+  agent?: Maybe<Scalars['rinkeby_Bytes']>;
+  recovery?: Maybe<Scalars['rinkeby_Bytes']>;
   forceSlow?: Maybe<Scalars['Boolean']>;
   receiveLocal?: Maybe<Scalars['Boolean']>;
-  callback?: Maybe<Scalars['testoptimismgoerli_Bytes']>;
+  callback?: Maybe<Scalars['rinkeby_Bytes']>;
   callbackFee?: Maybe<Scalars['BigInt']>;
   relayerFee?: Maybe<Scalars['BigInt']>;
-  destinationMinOut?: Maybe<Scalars['BigInt']>;
-  status?: Maybe<testoptimismgoerli_TransferStatus>;
-  originMinOut?: Maybe<Scalars['BigInt']>;
-  transactingAsset?: Maybe<Scalars['testoptimismgoerli_Bytes']>;
+  slippageTol?: Maybe<Scalars['BigInt']>;
+  status?: Maybe<rinkeby_TransferStatus>;
+  message?: Maybe<Scalars['rinkeby_Bytes']>;
+  transactingAsset?: Maybe<Scalars['rinkeby_Bytes']>;
   transactingAmount?: Maybe<Scalars['BigInt']>;
-  bridgedAsset?: Maybe<Scalars['testoptimismgoerli_Bytes']>;
+  bridgedAsset?: Maybe<Scalars['rinkeby_Bytes']>;
   bridgedAmount?: Maybe<Scalars['BigInt']>;
-  caller?: Maybe<Scalars['testoptimismgoerli_Bytes']>;
-  transactionHash?: Maybe<Scalars['testoptimismgoerli_Bytes']>;
+  caller?: Maybe<Scalars['rinkeby_Bytes']>;
+  transactionHash?: Maybe<Scalars['rinkeby_Bytes']>;
   timestamp?: Maybe<Scalars['BigInt']>;
   gasPrice?: Maybe<Scalars['BigInt']>;
   gasLimit?: Maybe<Scalars['BigInt']>;
   blockNumber?: Maybe<Scalars['BigInt']>;
 };
 
-export type testoptimismgoerli_OriginTransfer_filter = {
+export type rinkeby_OriginTransfer_filter = {
   id?: InputMaybe<Scalars['ID']>;
   id_not?: InputMaybe<Scalars['ID']>;
   id_gt?: InputMaybe<Scalars['ID']>;
@@ -9130,12 +8122,12 @@ export type testoptimismgoerli_OriginTransfer_filter = {
   chainId_lte?: InputMaybe<Scalars['BigInt']>;
   chainId_in?: InputMaybe<Array<Scalars['BigInt']>>;
   chainId_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  transferId?: InputMaybe<Scalars['testoptimismgoerli_Bytes']>;
-  transferId_not?: InputMaybe<Scalars['testoptimismgoerli_Bytes']>;
-  transferId_in?: InputMaybe<Array<Scalars['testoptimismgoerli_Bytes']>>;
-  transferId_not_in?: InputMaybe<Array<Scalars['testoptimismgoerli_Bytes']>>;
-  transferId_contains?: InputMaybe<Scalars['testoptimismgoerli_Bytes']>;
-  transferId_not_contains?: InputMaybe<Scalars['testoptimismgoerli_Bytes']>;
+  transferId?: InputMaybe<Scalars['rinkeby_Bytes']>;
+  transferId_not?: InputMaybe<Scalars['rinkeby_Bytes']>;
+  transferId_in?: InputMaybe<Array<Scalars['rinkeby_Bytes']>>;
+  transferId_not_in?: InputMaybe<Array<Scalars['rinkeby_Bytes']>>;
+  transferId_contains?: InputMaybe<Scalars['rinkeby_Bytes']>;
+  transferId_not_contains?: InputMaybe<Scalars['rinkeby_Bytes']>;
   nonce?: InputMaybe<Scalars['BigInt']>;
   nonce_not?: InputMaybe<Scalars['BigInt']>;
   nonce_gt?: InputMaybe<Scalars['BigInt']>;
@@ -9144,18 +8136,18 @@ export type testoptimismgoerli_OriginTransfer_filter = {
   nonce_lte?: InputMaybe<Scalars['BigInt']>;
   nonce_in?: InputMaybe<Array<Scalars['BigInt']>>;
   nonce_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  to?: InputMaybe<Scalars['testoptimismgoerli_Bytes']>;
-  to_not?: InputMaybe<Scalars['testoptimismgoerli_Bytes']>;
-  to_in?: InputMaybe<Array<Scalars['testoptimismgoerli_Bytes']>>;
-  to_not_in?: InputMaybe<Array<Scalars['testoptimismgoerli_Bytes']>>;
-  to_contains?: InputMaybe<Scalars['testoptimismgoerli_Bytes']>;
-  to_not_contains?: InputMaybe<Scalars['testoptimismgoerli_Bytes']>;
-  callData?: InputMaybe<Scalars['testoptimismgoerli_Bytes']>;
-  callData_not?: InputMaybe<Scalars['testoptimismgoerli_Bytes']>;
-  callData_in?: InputMaybe<Array<Scalars['testoptimismgoerli_Bytes']>>;
-  callData_not_in?: InputMaybe<Array<Scalars['testoptimismgoerli_Bytes']>>;
-  callData_contains?: InputMaybe<Scalars['testoptimismgoerli_Bytes']>;
-  callData_not_contains?: InputMaybe<Scalars['testoptimismgoerli_Bytes']>;
+  to?: InputMaybe<Scalars['rinkeby_Bytes']>;
+  to_not?: InputMaybe<Scalars['rinkeby_Bytes']>;
+  to_in?: InputMaybe<Array<Scalars['rinkeby_Bytes']>>;
+  to_not_in?: InputMaybe<Array<Scalars['rinkeby_Bytes']>>;
+  to_contains?: InputMaybe<Scalars['rinkeby_Bytes']>;
+  to_not_contains?: InputMaybe<Scalars['rinkeby_Bytes']>;
+  callData?: InputMaybe<Scalars['rinkeby_Bytes']>;
+  callData_not?: InputMaybe<Scalars['rinkeby_Bytes']>;
+  callData_in?: InputMaybe<Array<Scalars['rinkeby_Bytes']>>;
+  callData_not_in?: InputMaybe<Array<Scalars['rinkeby_Bytes']>>;
+  callData_contains?: InputMaybe<Scalars['rinkeby_Bytes']>;
+  callData_not_contains?: InputMaybe<Scalars['rinkeby_Bytes']>;
   originDomain?: InputMaybe<Scalars['BigInt']>;
   originDomain_not?: InputMaybe<Scalars['BigInt']>;
   originDomain_gt?: InputMaybe<Scalars['BigInt']>;
@@ -9172,18 +8164,18 @@ export type testoptimismgoerli_OriginTransfer_filter = {
   destinationDomain_lte?: InputMaybe<Scalars['BigInt']>;
   destinationDomain_in?: InputMaybe<Array<Scalars['BigInt']>>;
   destinationDomain_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  agent?: InputMaybe<Scalars['testoptimismgoerli_Bytes']>;
-  agent_not?: InputMaybe<Scalars['testoptimismgoerli_Bytes']>;
-  agent_in?: InputMaybe<Array<Scalars['testoptimismgoerli_Bytes']>>;
-  agent_not_in?: InputMaybe<Array<Scalars['testoptimismgoerli_Bytes']>>;
-  agent_contains?: InputMaybe<Scalars['testoptimismgoerli_Bytes']>;
-  agent_not_contains?: InputMaybe<Scalars['testoptimismgoerli_Bytes']>;
-  recovery?: InputMaybe<Scalars['testoptimismgoerli_Bytes']>;
-  recovery_not?: InputMaybe<Scalars['testoptimismgoerli_Bytes']>;
-  recovery_in?: InputMaybe<Array<Scalars['testoptimismgoerli_Bytes']>>;
-  recovery_not_in?: InputMaybe<Array<Scalars['testoptimismgoerli_Bytes']>>;
-  recovery_contains?: InputMaybe<Scalars['testoptimismgoerli_Bytes']>;
-  recovery_not_contains?: InputMaybe<Scalars['testoptimismgoerli_Bytes']>;
+  agent?: InputMaybe<Scalars['rinkeby_Bytes']>;
+  agent_not?: InputMaybe<Scalars['rinkeby_Bytes']>;
+  agent_in?: InputMaybe<Array<Scalars['rinkeby_Bytes']>>;
+  agent_not_in?: InputMaybe<Array<Scalars['rinkeby_Bytes']>>;
+  agent_contains?: InputMaybe<Scalars['rinkeby_Bytes']>;
+  agent_not_contains?: InputMaybe<Scalars['rinkeby_Bytes']>;
+  recovery?: InputMaybe<Scalars['rinkeby_Bytes']>;
+  recovery_not?: InputMaybe<Scalars['rinkeby_Bytes']>;
+  recovery_in?: InputMaybe<Array<Scalars['rinkeby_Bytes']>>;
+  recovery_not_in?: InputMaybe<Array<Scalars['rinkeby_Bytes']>>;
+  recovery_contains?: InputMaybe<Scalars['rinkeby_Bytes']>;
+  recovery_not_contains?: InputMaybe<Scalars['rinkeby_Bytes']>;
   forceSlow?: InputMaybe<Scalars['Boolean']>;
   forceSlow_not?: InputMaybe<Scalars['Boolean']>;
   forceSlow_in?: InputMaybe<Array<Scalars['Boolean']>>;
@@ -9192,12 +8184,12 @@ export type testoptimismgoerli_OriginTransfer_filter = {
   receiveLocal_not?: InputMaybe<Scalars['Boolean']>;
   receiveLocal_in?: InputMaybe<Array<Scalars['Boolean']>>;
   receiveLocal_not_in?: InputMaybe<Array<Scalars['Boolean']>>;
-  callback?: InputMaybe<Scalars['testoptimismgoerli_Bytes']>;
-  callback_not?: InputMaybe<Scalars['testoptimismgoerli_Bytes']>;
-  callback_in?: InputMaybe<Array<Scalars['testoptimismgoerli_Bytes']>>;
-  callback_not_in?: InputMaybe<Array<Scalars['testoptimismgoerli_Bytes']>>;
-  callback_contains?: InputMaybe<Scalars['testoptimismgoerli_Bytes']>;
-  callback_not_contains?: InputMaybe<Scalars['testoptimismgoerli_Bytes']>;
+  callback?: InputMaybe<Scalars['rinkeby_Bytes']>;
+  callback_not?: InputMaybe<Scalars['rinkeby_Bytes']>;
+  callback_in?: InputMaybe<Array<Scalars['rinkeby_Bytes']>>;
+  callback_not_in?: InputMaybe<Array<Scalars['rinkeby_Bytes']>>;
+  callback_contains?: InputMaybe<Scalars['rinkeby_Bytes']>;
+  callback_not_contains?: InputMaybe<Scalars['rinkeby_Bytes']>;
   callbackFee?: InputMaybe<Scalars['BigInt']>;
   callbackFee_not?: InputMaybe<Scalars['BigInt']>;
   callbackFee_gt?: InputMaybe<Scalars['BigInt']>;
@@ -9214,32 +8206,30 @@ export type testoptimismgoerli_OriginTransfer_filter = {
   relayerFee_lte?: InputMaybe<Scalars['BigInt']>;
   relayerFee_in?: InputMaybe<Array<Scalars['BigInt']>>;
   relayerFee_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  destinationMinOut?: InputMaybe<Scalars['BigInt']>;
-  destinationMinOut_not?: InputMaybe<Scalars['BigInt']>;
-  destinationMinOut_gt?: InputMaybe<Scalars['BigInt']>;
-  destinationMinOut_lt?: InputMaybe<Scalars['BigInt']>;
-  destinationMinOut_gte?: InputMaybe<Scalars['BigInt']>;
-  destinationMinOut_lte?: InputMaybe<Scalars['BigInt']>;
-  destinationMinOut_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  destinationMinOut_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  status?: InputMaybe<testoptimismgoerli_TransferStatus>;
-  status_not?: InputMaybe<testoptimismgoerli_TransferStatus>;
-  status_in?: InputMaybe<Array<testoptimismgoerli_TransferStatus>>;
-  status_not_in?: InputMaybe<Array<testoptimismgoerli_TransferStatus>>;
-  originMinOut?: InputMaybe<Scalars['BigInt']>;
-  originMinOut_not?: InputMaybe<Scalars['BigInt']>;
-  originMinOut_gt?: InputMaybe<Scalars['BigInt']>;
-  originMinOut_lt?: InputMaybe<Scalars['BigInt']>;
-  originMinOut_gte?: InputMaybe<Scalars['BigInt']>;
-  originMinOut_lte?: InputMaybe<Scalars['BigInt']>;
-  originMinOut_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  originMinOut_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  transactingAsset?: InputMaybe<Scalars['testoptimismgoerli_Bytes']>;
-  transactingAsset_not?: InputMaybe<Scalars['testoptimismgoerli_Bytes']>;
-  transactingAsset_in?: InputMaybe<Array<Scalars['testoptimismgoerli_Bytes']>>;
-  transactingAsset_not_in?: InputMaybe<Array<Scalars['testoptimismgoerli_Bytes']>>;
-  transactingAsset_contains?: InputMaybe<Scalars['testoptimismgoerli_Bytes']>;
-  transactingAsset_not_contains?: InputMaybe<Scalars['testoptimismgoerli_Bytes']>;
+  slippageTol?: InputMaybe<Scalars['BigInt']>;
+  slippageTol_not?: InputMaybe<Scalars['BigInt']>;
+  slippageTol_gt?: InputMaybe<Scalars['BigInt']>;
+  slippageTol_lt?: InputMaybe<Scalars['BigInt']>;
+  slippageTol_gte?: InputMaybe<Scalars['BigInt']>;
+  slippageTol_lte?: InputMaybe<Scalars['BigInt']>;
+  slippageTol_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  slippageTol_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  status?: InputMaybe<rinkeby_TransferStatus>;
+  status_not?: InputMaybe<rinkeby_TransferStatus>;
+  status_in?: InputMaybe<Array<rinkeby_TransferStatus>>;
+  status_not_in?: InputMaybe<Array<rinkeby_TransferStatus>>;
+  message?: InputMaybe<Scalars['rinkeby_Bytes']>;
+  message_not?: InputMaybe<Scalars['rinkeby_Bytes']>;
+  message_in?: InputMaybe<Array<Scalars['rinkeby_Bytes']>>;
+  message_not_in?: InputMaybe<Array<Scalars['rinkeby_Bytes']>>;
+  message_contains?: InputMaybe<Scalars['rinkeby_Bytes']>;
+  message_not_contains?: InputMaybe<Scalars['rinkeby_Bytes']>;
+  transactingAsset?: InputMaybe<Scalars['rinkeby_Bytes']>;
+  transactingAsset_not?: InputMaybe<Scalars['rinkeby_Bytes']>;
+  transactingAsset_in?: InputMaybe<Array<Scalars['rinkeby_Bytes']>>;
+  transactingAsset_not_in?: InputMaybe<Array<Scalars['rinkeby_Bytes']>>;
+  transactingAsset_contains?: InputMaybe<Scalars['rinkeby_Bytes']>;
+  transactingAsset_not_contains?: InputMaybe<Scalars['rinkeby_Bytes']>;
   transactingAmount?: InputMaybe<Scalars['BigInt']>;
   transactingAmount_not?: InputMaybe<Scalars['BigInt']>;
   transactingAmount_gt?: InputMaybe<Scalars['BigInt']>;
@@ -9248,12 +8238,12 @@ export type testoptimismgoerli_OriginTransfer_filter = {
   transactingAmount_lte?: InputMaybe<Scalars['BigInt']>;
   transactingAmount_in?: InputMaybe<Array<Scalars['BigInt']>>;
   transactingAmount_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  bridgedAsset?: InputMaybe<Scalars['testoptimismgoerli_Bytes']>;
-  bridgedAsset_not?: InputMaybe<Scalars['testoptimismgoerli_Bytes']>;
-  bridgedAsset_in?: InputMaybe<Array<Scalars['testoptimismgoerli_Bytes']>>;
-  bridgedAsset_not_in?: InputMaybe<Array<Scalars['testoptimismgoerli_Bytes']>>;
-  bridgedAsset_contains?: InputMaybe<Scalars['testoptimismgoerli_Bytes']>;
-  bridgedAsset_not_contains?: InputMaybe<Scalars['testoptimismgoerli_Bytes']>;
+  bridgedAsset?: InputMaybe<Scalars['rinkeby_Bytes']>;
+  bridgedAsset_not?: InputMaybe<Scalars['rinkeby_Bytes']>;
+  bridgedAsset_in?: InputMaybe<Array<Scalars['rinkeby_Bytes']>>;
+  bridgedAsset_not_in?: InputMaybe<Array<Scalars['rinkeby_Bytes']>>;
+  bridgedAsset_contains?: InputMaybe<Scalars['rinkeby_Bytes']>;
+  bridgedAsset_not_contains?: InputMaybe<Scalars['rinkeby_Bytes']>;
   bridgedAmount?: InputMaybe<Scalars['BigInt']>;
   bridgedAmount_not?: InputMaybe<Scalars['BigInt']>;
   bridgedAmount_gt?: InputMaybe<Scalars['BigInt']>;
@@ -9262,18 +8252,18 @@ export type testoptimismgoerli_OriginTransfer_filter = {
   bridgedAmount_lte?: InputMaybe<Scalars['BigInt']>;
   bridgedAmount_in?: InputMaybe<Array<Scalars['BigInt']>>;
   bridgedAmount_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  caller?: InputMaybe<Scalars['testoptimismgoerli_Bytes']>;
-  caller_not?: InputMaybe<Scalars['testoptimismgoerli_Bytes']>;
-  caller_in?: InputMaybe<Array<Scalars['testoptimismgoerli_Bytes']>>;
-  caller_not_in?: InputMaybe<Array<Scalars['testoptimismgoerli_Bytes']>>;
-  caller_contains?: InputMaybe<Scalars['testoptimismgoerli_Bytes']>;
-  caller_not_contains?: InputMaybe<Scalars['testoptimismgoerli_Bytes']>;
-  transactionHash?: InputMaybe<Scalars['testoptimismgoerli_Bytes']>;
-  transactionHash_not?: InputMaybe<Scalars['testoptimismgoerli_Bytes']>;
-  transactionHash_in?: InputMaybe<Array<Scalars['testoptimismgoerli_Bytes']>>;
-  transactionHash_not_in?: InputMaybe<Array<Scalars['testoptimismgoerli_Bytes']>>;
-  transactionHash_contains?: InputMaybe<Scalars['testoptimismgoerli_Bytes']>;
-  transactionHash_not_contains?: InputMaybe<Scalars['testoptimismgoerli_Bytes']>;
+  caller?: InputMaybe<Scalars['rinkeby_Bytes']>;
+  caller_not?: InputMaybe<Scalars['rinkeby_Bytes']>;
+  caller_in?: InputMaybe<Array<Scalars['rinkeby_Bytes']>>;
+  caller_not_in?: InputMaybe<Array<Scalars['rinkeby_Bytes']>>;
+  caller_contains?: InputMaybe<Scalars['rinkeby_Bytes']>;
+  caller_not_contains?: InputMaybe<Scalars['rinkeby_Bytes']>;
+  transactionHash?: InputMaybe<Scalars['rinkeby_Bytes']>;
+  transactionHash_not?: InputMaybe<Scalars['rinkeby_Bytes']>;
+  transactionHash_in?: InputMaybe<Array<Scalars['rinkeby_Bytes']>>;
+  transactionHash_not_in?: InputMaybe<Array<Scalars['rinkeby_Bytes']>>;
+  transactionHash_contains?: InputMaybe<Scalars['rinkeby_Bytes']>;
+  transactionHash_not_contains?: InputMaybe<Scalars['rinkeby_Bytes']>;
   timestamp?: InputMaybe<Scalars['BigInt']>;
   timestamp_not?: InputMaybe<Scalars['BigInt']>;
   timestamp_gt?: InputMaybe<Scalars['BigInt']>;
@@ -9307,10 +8297,10 @@ export type testoptimismgoerli_OriginTransfer_filter = {
   blockNumber_in?: InputMaybe<Array<Scalars['BigInt']>>;
   blockNumber_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
   /** Filter for the block changed event. */
-  _change_block?: InputMaybe<testoptimismgoerli_BlockChangedFilter>;
+  _change_block?: InputMaybe<rinkeby_BlockChangedFilter>;
 };
 
-export type testoptimismgoerli_OriginTransfer_orderBy =
+export type rinkeby_OriginTransfer_orderBy =
   | 'id'
   | 'chainId'
   | 'transferId'
@@ -9326,9 +8316,9 @@ export type testoptimismgoerli_OriginTransfer_orderBy =
   | 'callback'
   | 'callbackFee'
   | 'relayerFee'
-  | 'destinationMinOut'
+  | 'slippageTol'
   | 'status'
-  | 'originMinOut'
+  | 'message'
   | 'transactingAsset'
   | 'transactingAmount'
   | 'bridgedAsset'
@@ -9340,13 +8330,13 @@ export type testoptimismgoerli_OriginTransfer_orderBy =
   | 'gasLimit'
   | 'blockNumber';
 
-export type testoptimismgoerli_Relayer = {
+export type rinkeby_Relayer = {
   id: Scalars['ID'];
   isActive: Scalars['Boolean'];
-  relayer?: Maybe<Scalars['testoptimismgoerli_Bytes']>;
+  relayer?: Maybe<Scalars['rinkeby_Bytes']>;
 };
 
-export type testoptimismgoerli_Relayer_filter = {
+export type rinkeby_Relayer_filter = {
   id?: InputMaybe<Scalars['ID']>;
   id_not?: InputMaybe<Scalars['ID']>;
   id_gt?: InputMaybe<Scalars['ID']>;
@@ -9359,41 +8349,41 @@ export type testoptimismgoerli_Relayer_filter = {
   isActive_not?: InputMaybe<Scalars['Boolean']>;
   isActive_in?: InputMaybe<Array<Scalars['Boolean']>>;
   isActive_not_in?: InputMaybe<Array<Scalars['Boolean']>>;
-  relayer?: InputMaybe<Scalars['testoptimismgoerli_Bytes']>;
-  relayer_not?: InputMaybe<Scalars['testoptimismgoerli_Bytes']>;
-  relayer_in?: InputMaybe<Array<Scalars['testoptimismgoerli_Bytes']>>;
-  relayer_not_in?: InputMaybe<Array<Scalars['testoptimismgoerli_Bytes']>>;
-  relayer_contains?: InputMaybe<Scalars['testoptimismgoerli_Bytes']>;
-  relayer_not_contains?: InputMaybe<Scalars['testoptimismgoerli_Bytes']>;
+  relayer?: InputMaybe<Scalars['rinkeby_Bytes']>;
+  relayer_not?: InputMaybe<Scalars['rinkeby_Bytes']>;
+  relayer_in?: InputMaybe<Array<Scalars['rinkeby_Bytes']>>;
+  relayer_not_in?: InputMaybe<Array<Scalars['rinkeby_Bytes']>>;
+  relayer_contains?: InputMaybe<Scalars['rinkeby_Bytes']>;
+  relayer_not_contains?: InputMaybe<Scalars['rinkeby_Bytes']>;
   /** Filter for the block changed event. */
-  _change_block?: InputMaybe<testoptimismgoerli_BlockChangedFilter>;
+  _change_block?: InputMaybe<rinkeby_BlockChangedFilter>;
 };
 
-export type testoptimismgoerli_Relayer_orderBy =
+export type rinkeby_Relayer_orderBy =
   | 'id'
   | 'isActive'
   | 'relayer';
 
-export type testoptimismgoerli_Router = {
+export type rinkeby_Router = {
   id: Scalars['ID'];
   isActive: Scalars['Boolean'];
-  owner?: Maybe<Scalars['testoptimismgoerli_Bytes']>;
-  recipient?: Maybe<Scalars['testoptimismgoerli_Bytes']>;
-  proposedOwner?: Maybe<Scalars['testoptimismgoerli_Bytes']>;
+  owner?: Maybe<Scalars['rinkeby_Bytes']>;
+  recipient?: Maybe<Scalars['rinkeby_Bytes']>;
+  proposedOwner?: Maybe<Scalars['rinkeby_Bytes']>;
   proposedTimestamp?: Maybe<Scalars['BigInt']>;
-  assetBalances: Array<testoptimismgoerli_AssetBalance>;
+  assetBalances: Array<rinkeby_AssetBalance>;
 };
 
 
-export type testoptimismgoerli_RouterassetBalancesArgs = {
+export type rinkeby_RouterassetBalancesArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<testoptimismgoerli_AssetBalance_orderBy>;
-  orderDirection?: InputMaybe<testoptimismgoerli_OrderDirection>;
-  where?: InputMaybe<testoptimismgoerli_AssetBalance_filter>;
+  orderBy?: InputMaybe<rinkeby_AssetBalance_orderBy>;
+  orderDirection?: InputMaybe<rinkeby_OrderDirection>;
+  where?: InputMaybe<rinkeby_AssetBalance_filter>;
 };
 
-export type testoptimismgoerli_Router_filter = {
+export type rinkeby_Router_filter = {
   id?: InputMaybe<Scalars['ID']>;
   id_not?: InputMaybe<Scalars['ID']>;
   id_gt?: InputMaybe<Scalars['ID']>;
@@ -9406,24 +8396,24 @@ export type testoptimismgoerli_Router_filter = {
   isActive_not?: InputMaybe<Scalars['Boolean']>;
   isActive_in?: InputMaybe<Array<Scalars['Boolean']>>;
   isActive_not_in?: InputMaybe<Array<Scalars['Boolean']>>;
-  owner?: InputMaybe<Scalars['testoptimismgoerli_Bytes']>;
-  owner_not?: InputMaybe<Scalars['testoptimismgoerli_Bytes']>;
-  owner_in?: InputMaybe<Array<Scalars['testoptimismgoerli_Bytes']>>;
-  owner_not_in?: InputMaybe<Array<Scalars['testoptimismgoerli_Bytes']>>;
-  owner_contains?: InputMaybe<Scalars['testoptimismgoerli_Bytes']>;
-  owner_not_contains?: InputMaybe<Scalars['testoptimismgoerli_Bytes']>;
-  recipient?: InputMaybe<Scalars['testoptimismgoerli_Bytes']>;
-  recipient_not?: InputMaybe<Scalars['testoptimismgoerli_Bytes']>;
-  recipient_in?: InputMaybe<Array<Scalars['testoptimismgoerli_Bytes']>>;
-  recipient_not_in?: InputMaybe<Array<Scalars['testoptimismgoerli_Bytes']>>;
-  recipient_contains?: InputMaybe<Scalars['testoptimismgoerli_Bytes']>;
-  recipient_not_contains?: InputMaybe<Scalars['testoptimismgoerli_Bytes']>;
-  proposedOwner?: InputMaybe<Scalars['testoptimismgoerli_Bytes']>;
-  proposedOwner_not?: InputMaybe<Scalars['testoptimismgoerli_Bytes']>;
-  proposedOwner_in?: InputMaybe<Array<Scalars['testoptimismgoerli_Bytes']>>;
-  proposedOwner_not_in?: InputMaybe<Array<Scalars['testoptimismgoerli_Bytes']>>;
-  proposedOwner_contains?: InputMaybe<Scalars['testoptimismgoerli_Bytes']>;
-  proposedOwner_not_contains?: InputMaybe<Scalars['testoptimismgoerli_Bytes']>;
+  owner?: InputMaybe<Scalars['rinkeby_Bytes']>;
+  owner_not?: InputMaybe<Scalars['rinkeby_Bytes']>;
+  owner_in?: InputMaybe<Array<Scalars['rinkeby_Bytes']>>;
+  owner_not_in?: InputMaybe<Array<Scalars['rinkeby_Bytes']>>;
+  owner_contains?: InputMaybe<Scalars['rinkeby_Bytes']>;
+  owner_not_contains?: InputMaybe<Scalars['rinkeby_Bytes']>;
+  recipient?: InputMaybe<Scalars['rinkeby_Bytes']>;
+  recipient_not?: InputMaybe<Scalars['rinkeby_Bytes']>;
+  recipient_in?: InputMaybe<Array<Scalars['rinkeby_Bytes']>>;
+  recipient_not_in?: InputMaybe<Array<Scalars['rinkeby_Bytes']>>;
+  recipient_contains?: InputMaybe<Scalars['rinkeby_Bytes']>;
+  recipient_not_contains?: InputMaybe<Scalars['rinkeby_Bytes']>;
+  proposedOwner?: InputMaybe<Scalars['rinkeby_Bytes']>;
+  proposedOwner_not?: InputMaybe<Scalars['rinkeby_Bytes']>;
+  proposedOwner_in?: InputMaybe<Array<Scalars['rinkeby_Bytes']>>;
+  proposedOwner_not_in?: InputMaybe<Array<Scalars['rinkeby_Bytes']>>;
+  proposedOwner_contains?: InputMaybe<Scalars['rinkeby_Bytes']>;
+  proposedOwner_not_contains?: InputMaybe<Scalars['rinkeby_Bytes']>;
   proposedTimestamp?: InputMaybe<Scalars['BigInt']>;
   proposedTimestamp_not?: InputMaybe<Scalars['BigInt']>;
   proposedTimestamp_gt?: InputMaybe<Scalars['BigInt']>;
@@ -9432,12 +8422,12 @@ export type testoptimismgoerli_Router_filter = {
   proposedTimestamp_lte?: InputMaybe<Scalars['BigInt']>;
   proposedTimestamp_in?: InputMaybe<Array<Scalars['BigInt']>>;
   proposedTimestamp_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  assetBalances_?: InputMaybe<testoptimismgoerli_AssetBalance_filter>;
+  assetBalances_?: InputMaybe<rinkeby_AssetBalance_filter>;
   /** Filter for the block changed event. */
-  _change_block?: InputMaybe<testoptimismgoerli_BlockChangedFilter>;
+  _change_block?: InputMaybe<rinkeby_BlockChangedFilter>;
 };
 
-export type testoptimismgoerli_Router_orderBy =
+export type rinkeby_Router_orderBy =
   | 'id'
   | 'isActive'
   | 'owner'
@@ -9446,13 +8436,13 @@ export type testoptimismgoerli_Router_orderBy =
   | 'proposedTimestamp'
   | 'assetBalances';
 
-export type testoptimismgoerli_Setting = {
+export type rinkeby_Setting = {
   id: Scalars['ID'];
   maxRoutersPerTransfer: Scalars['BigInt'];
-  caller: Scalars['testoptimismgoerli_Bytes'];
+  caller: Scalars['rinkeby_Bytes'];
 };
 
-export type testoptimismgoerli_Setting_filter = {
+export type rinkeby_Setting_filter = {
   id?: InputMaybe<Scalars['ID']>;
   id_not?: InputMaybe<Scalars['ID']>;
   id_gt?: InputMaybe<Scalars['ID']>;
@@ -9469,27 +8459,27 @@ export type testoptimismgoerli_Setting_filter = {
   maxRoutersPerTransfer_lte?: InputMaybe<Scalars['BigInt']>;
   maxRoutersPerTransfer_in?: InputMaybe<Array<Scalars['BigInt']>>;
   maxRoutersPerTransfer_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  caller?: InputMaybe<Scalars['testoptimismgoerli_Bytes']>;
-  caller_not?: InputMaybe<Scalars['testoptimismgoerli_Bytes']>;
-  caller_in?: InputMaybe<Array<Scalars['testoptimismgoerli_Bytes']>>;
-  caller_not_in?: InputMaybe<Array<Scalars['testoptimismgoerli_Bytes']>>;
-  caller_contains?: InputMaybe<Scalars['testoptimismgoerli_Bytes']>;
-  caller_not_contains?: InputMaybe<Scalars['testoptimismgoerli_Bytes']>;
+  caller?: InputMaybe<Scalars['rinkeby_Bytes']>;
+  caller_not?: InputMaybe<Scalars['rinkeby_Bytes']>;
+  caller_in?: InputMaybe<Array<Scalars['rinkeby_Bytes']>>;
+  caller_not_in?: InputMaybe<Array<Scalars['rinkeby_Bytes']>>;
+  caller_contains?: InputMaybe<Scalars['rinkeby_Bytes']>;
+  caller_not_contains?: InputMaybe<Scalars['rinkeby_Bytes']>;
   /** Filter for the block changed event. */
-  _change_block?: InputMaybe<testoptimismgoerli_BlockChangedFilter>;
+  _change_block?: InputMaybe<rinkeby_BlockChangedFilter>;
 };
 
-export type testoptimismgoerli_Setting_orderBy =
+export type rinkeby_Setting_orderBy =
   | 'id'
   | 'maxRoutersPerTransfer'
   | 'caller';
 
-export type testoptimismgoerli_SponsorVault = {
+export type rinkeby_SponsorVault = {
   id: Scalars['ID'];
-  sponsorVault: Scalars['testoptimismgoerli_Bytes'];
+  sponsorVault: Scalars['rinkeby_Bytes'];
 };
 
-export type testoptimismgoerli_SponsorVault_filter = {
+export type rinkeby_SponsorVault_filter = {
   id?: InputMaybe<Scalars['ID']>;
   id_not?: InputMaybe<Scalars['ID']>;
   id_gt?: InputMaybe<Scalars['ID']>;
@@ -9498,28 +8488,28 @@ export type testoptimismgoerli_SponsorVault_filter = {
   id_lte?: InputMaybe<Scalars['ID']>;
   id_in?: InputMaybe<Array<Scalars['ID']>>;
   id_not_in?: InputMaybe<Array<Scalars['ID']>>;
-  sponsorVault?: InputMaybe<Scalars['testoptimismgoerli_Bytes']>;
-  sponsorVault_not?: InputMaybe<Scalars['testoptimismgoerli_Bytes']>;
-  sponsorVault_in?: InputMaybe<Array<Scalars['testoptimismgoerli_Bytes']>>;
-  sponsorVault_not_in?: InputMaybe<Array<Scalars['testoptimismgoerli_Bytes']>>;
-  sponsorVault_contains?: InputMaybe<Scalars['testoptimismgoerli_Bytes']>;
-  sponsorVault_not_contains?: InputMaybe<Scalars['testoptimismgoerli_Bytes']>;
+  sponsorVault?: InputMaybe<Scalars['rinkeby_Bytes']>;
+  sponsorVault_not?: InputMaybe<Scalars['rinkeby_Bytes']>;
+  sponsorVault_in?: InputMaybe<Array<Scalars['rinkeby_Bytes']>>;
+  sponsorVault_not_in?: InputMaybe<Array<Scalars['rinkeby_Bytes']>>;
+  sponsorVault_contains?: InputMaybe<Scalars['rinkeby_Bytes']>;
+  sponsorVault_not_contains?: InputMaybe<Scalars['rinkeby_Bytes']>;
   /** Filter for the block changed event. */
-  _change_block?: InputMaybe<testoptimismgoerli_BlockChangedFilter>;
+  _change_block?: InputMaybe<rinkeby_BlockChangedFilter>;
 };
 
-export type testoptimismgoerli_SponsorVault_orderBy =
+export type rinkeby_SponsorVault_orderBy =
   | 'id'
   | 'sponsorVault';
 
-export type testoptimismgoerli_StableSwap = {
+export type rinkeby_StableSwap = {
   id: Scalars['ID'];
-  canonicalId: Scalars['testoptimismgoerli_Bytes'];
+  canonicalId: Scalars['rinkeby_Bytes'];
   domain?: Maybe<Scalars['BigInt']>;
-  swapPool: Scalars['testoptimismgoerli_Bytes'];
+  swapPool: Scalars['rinkeby_Bytes'];
 };
 
-export type testoptimismgoerli_StableSwap_filter = {
+export type rinkeby_StableSwap_filter = {
   id?: InputMaybe<Scalars['ID']>;
   id_not?: InputMaybe<Scalars['ID']>;
   id_gt?: InputMaybe<Scalars['ID']>;
@@ -9528,12 +8518,12 @@ export type testoptimismgoerli_StableSwap_filter = {
   id_lte?: InputMaybe<Scalars['ID']>;
   id_in?: InputMaybe<Array<Scalars['ID']>>;
   id_not_in?: InputMaybe<Array<Scalars['ID']>>;
-  canonicalId?: InputMaybe<Scalars['testoptimismgoerli_Bytes']>;
-  canonicalId_not?: InputMaybe<Scalars['testoptimismgoerli_Bytes']>;
-  canonicalId_in?: InputMaybe<Array<Scalars['testoptimismgoerli_Bytes']>>;
-  canonicalId_not_in?: InputMaybe<Array<Scalars['testoptimismgoerli_Bytes']>>;
-  canonicalId_contains?: InputMaybe<Scalars['testoptimismgoerli_Bytes']>;
-  canonicalId_not_contains?: InputMaybe<Scalars['testoptimismgoerli_Bytes']>;
+  canonicalId?: InputMaybe<Scalars['rinkeby_Bytes']>;
+  canonicalId_not?: InputMaybe<Scalars['rinkeby_Bytes']>;
+  canonicalId_in?: InputMaybe<Array<Scalars['rinkeby_Bytes']>>;
+  canonicalId_not_in?: InputMaybe<Array<Scalars['rinkeby_Bytes']>>;
+  canonicalId_contains?: InputMaybe<Scalars['rinkeby_Bytes']>;
+  canonicalId_not_contains?: InputMaybe<Scalars['rinkeby_Bytes']>;
   domain?: InputMaybe<Scalars['BigInt']>;
   domain_not?: InputMaybe<Scalars['BigInt']>;
   domain_gt?: InputMaybe<Scalars['BigInt']>;
@@ -9542,32 +8532,32 @@ export type testoptimismgoerli_StableSwap_filter = {
   domain_lte?: InputMaybe<Scalars['BigInt']>;
   domain_in?: InputMaybe<Array<Scalars['BigInt']>>;
   domain_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  swapPool?: InputMaybe<Scalars['testoptimismgoerli_Bytes']>;
-  swapPool_not?: InputMaybe<Scalars['testoptimismgoerli_Bytes']>;
-  swapPool_in?: InputMaybe<Array<Scalars['testoptimismgoerli_Bytes']>>;
-  swapPool_not_in?: InputMaybe<Array<Scalars['testoptimismgoerli_Bytes']>>;
-  swapPool_contains?: InputMaybe<Scalars['testoptimismgoerli_Bytes']>;
-  swapPool_not_contains?: InputMaybe<Scalars['testoptimismgoerli_Bytes']>;
+  swapPool?: InputMaybe<Scalars['rinkeby_Bytes']>;
+  swapPool_not?: InputMaybe<Scalars['rinkeby_Bytes']>;
+  swapPool_in?: InputMaybe<Array<Scalars['rinkeby_Bytes']>>;
+  swapPool_not_in?: InputMaybe<Array<Scalars['rinkeby_Bytes']>>;
+  swapPool_contains?: InputMaybe<Scalars['rinkeby_Bytes']>;
+  swapPool_not_contains?: InputMaybe<Scalars['rinkeby_Bytes']>;
   /** Filter for the block changed event. */
-  _change_block?: InputMaybe<testoptimismgoerli_BlockChangedFilter>;
+  _change_block?: InputMaybe<rinkeby_BlockChangedFilter>;
 };
 
-export type testoptimismgoerli_StableSwap_orderBy =
+export type rinkeby_StableSwap_orderBy =
   | 'id'
   | 'canonicalId'
   | 'domain'
   | 'swapPool';
 
-export type testoptimismgoerli_TransferStatus =
+export type rinkeby_TransferStatus =
   | 'XCalled'
   | 'Executed'
   | 'Reconciled'
   | 'CompletedSlow'
   | 'CompletedFast';
 
-export type testoptimismgoerli__Block_ = {
+export type rinkeby__Block_ = {
   /** The hash of the block */
-  hash?: Maybe<Scalars['testoptimismgoerli_Bytes']>;
+  hash?: Maybe<Scalars['rinkeby_Bytes']>;
   /** The block number */
   number: Scalars['Int'];
   /** Integer representation of the timestamp stored in blocks for the chain */
@@ -9575,7 +8565,7 @@ export type testoptimismgoerli__Block_ = {
 };
 
 /** The type for the top-level _meta field */
-export type testoptimismgoerli__Meta_ = {
+export type rinkeby__Meta_ = {
   /**
    * Information about a specific subgraph block. The hash of the block
    * will be null if the _meta field has a block constraint that asks for
@@ -9583,1451 +8573,7 @@ export type testoptimismgoerli__Meta_ = {
    * and therefore asks for the latest  block
    *
    */
-  block: testoptimismgoerli__Block_;
-  /** The deployment ID */
-  deployment: Scalars['String'];
-  /** If `true`, the subgraph encountered indexing errors at some past block */
-  hasIndexingErrors: Scalars['Boolean'];
-};
-
-export type staginggoerli_AggregateRoot = {
-  id: Scalars['ID'];
-  root: Scalars['staginggoerli_Bytes'];
-};
-
-export type staginggoerli_AggregateRoot_filter = {
-  id?: InputMaybe<Scalars['ID']>;
-  id_not?: InputMaybe<Scalars['ID']>;
-  id_gt?: InputMaybe<Scalars['ID']>;
-  id_lt?: InputMaybe<Scalars['ID']>;
-  id_gte?: InputMaybe<Scalars['ID']>;
-  id_lte?: InputMaybe<Scalars['ID']>;
-  id_in?: InputMaybe<Array<Scalars['ID']>>;
-  id_not_in?: InputMaybe<Array<Scalars['ID']>>;
-  root?: InputMaybe<Scalars['staginggoerli_Bytes']>;
-  root_not?: InputMaybe<Scalars['staginggoerli_Bytes']>;
-  root_in?: InputMaybe<Array<Scalars['staginggoerli_Bytes']>>;
-  root_not_in?: InputMaybe<Array<Scalars['staginggoerli_Bytes']>>;
-  root_contains?: InputMaybe<Scalars['staginggoerli_Bytes']>;
-  root_not_contains?: InputMaybe<Scalars['staginggoerli_Bytes']>;
-  /** Filter for the block changed event. */
-  _change_block?: InputMaybe<staginggoerli_BlockChangedFilter>;
-};
-
-export type staginggoerli_AggregateRoot_orderBy =
-  | 'id'
-  | 'root';
-
-export type staginggoerli_Asset = {
-  id: Scalars['ID'];
-  key?: Maybe<Scalars['staginggoerli_Bytes']>;
-  local: Scalars['staginggoerli_Bytes'];
-  adoptedAsset: Scalars['staginggoerli_Bytes'];
-  canonicalId: Scalars['staginggoerli_Bytes'];
-  canonicalDomain: Scalars['BigInt'];
-  blockNumber: Scalars['BigInt'];
-};
-
-export type staginggoerli_AssetBalance = {
-  id: Scalars['ID'];
-  amount: Scalars['BigInt'];
-  router: staginggoerli_Router;
-  asset: staginggoerli_Asset;
-};
-
-export type staginggoerli_AssetBalance_filter = {
-  id?: InputMaybe<Scalars['ID']>;
-  id_not?: InputMaybe<Scalars['ID']>;
-  id_gt?: InputMaybe<Scalars['ID']>;
-  id_lt?: InputMaybe<Scalars['ID']>;
-  id_gte?: InputMaybe<Scalars['ID']>;
-  id_lte?: InputMaybe<Scalars['ID']>;
-  id_in?: InputMaybe<Array<Scalars['ID']>>;
-  id_not_in?: InputMaybe<Array<Scalars['ID']>>;
-  amount?: InputMaybe<Scalars['BigInt']>;
-  amount_not?: InputMaybe<Scalars['BigInt']>;
-  amount_gt?: InputMaybe<Scalars['BigInt']>;
-  amount_lt?: InputMaybe<Scalars['BigInt']>;
-  amount_gte?: InputMaybe<Scalars['BigInt']>;
-  amount_lte?: InputMaybe<Scalars['BigInt']>;
-  amount_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  amount_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  router?: InputMaybe<Scalars['String']>;
-  router_not?: InputMaybe<Scalars['String']>;
-  router_gt?: InputMaybe<Scalars['String']>;
-  router_lt?: InputMaybe<Scalars['String']>;
-  router_gte?: InputMaybe<Scalars['String']>;
-  router_lte?: InputMaybe<Scalars['String']>;
-  router_in?: InputMaybe<Array<Scalars['String']>>;
-  router_not_in?: InputMaybe<Array<Scalars['String']>>;
-  router_contains?: InputMaybe<Scalars['String']>;
-  router_contains_nocase?: InputMaybe<Scalars['String']>;
-  router_not_contains?: InputMaybe<Scalars['String']>;
-  router_not_contains_nocase?: InputMaybe<Scalars['String']>;
-  router_starts_with?: InputMaybe<Scalars['String']>;
-  router_starts_with_nocase?: InputMaybe<Scalars['String']>;
-  router_not_starts_with?: InputMaybe<Scalars['String']>;
-  router_not_starts_with_nocase?: InputMaybe<Scalars['String']>;
-  router_ends_with?: InputMaybe<Scalars['String']>;
-  router_ends_with_nocase?: InputMaybe<Scalars['String']>;
-  router_not_ends_with?: InputMaybe<Scalars['String']>;
-  router_not_ends_with_nocase?: InputMaybe<Scalars['String']>;
-  router_?: InputMaybe<staginggoerli_Router_filter>;
-  asset?: InputMaybe<Scalars['String']>;
-  asset_not?: InputMaybe<Scalars['String']>;
-  asset_gt?: InputMaybe<Scalars['String']>;
-  asset_lt?: InputMaybe<Scalars['String']>;
-  asset_gte?: InputMaybe<Scalars['String']>;
-  asset_lte?: InputMaybe<Scalars['String']>;
-  asset_in?: InputMaybe<Array<Scalars['String']>>;
-  asset_not_in?: InputMaybe<Array<Scalars['String']>>;
-  asset_contains?: InputMaybe<Scalars['String']>;
-  asset_contains_nocase?: InputMaybe<Scalars['String']>;
-  asset_not_contains?: InputMaybe<Scalars['String']>;
-  asset_not_contains_nocase?: InputMaybe<Scalars['String']>;
-  asset_starts_with?: InputMaybe<Scalars['String']>;
-  asset_starts_with_nocase?: InputMaybe<Scalars['String']>;
-  asset_not_starts_with?: InputMaybe<Scalars['String']>;
-  asset_not_starts_with_nocase?: InputMaybe<Scalars['String']>;
-  asset_ends_with?: InputMaybe<Scalars['String']>;
-  asset_ends_with_nocase?: InputMaybe<Scalars['String']>;
-  asset_not_ends_with?: InputMaybe<Scalars['String']>;
-  asset_not_ends_with_nocase?: InputMaybe<Scalars['String']>;
-  asset_?: InputMaybe<staginggoerli_Asset_filter>;
-  /** Filter for the block changed event. */
-  _change_block?: InputMaybe<staginggoerli_BlockChangedFilter>;
-};
-
-export type staginggoerli_AssetBalance_orderBy =
-  | 'id'
-  | 'amount'
-  | 'router'
-  | 'asset';
-
-export type staginggoerli_Asset_filter = {
-  id?: InputMaybe<Scalars['ID']>;
-  id_not?: InputMaybe<Scalars['ID']>;
-  id_gt?: InputMaybe<Scalars['ID']>;
-  id_lt?: InputMaybe<Scalars['ID']>;
-  id_gte?: InputMaybe<Scalars['ID']>;
-  id_lte?: InputMaybe<Scalars['ID']>;
-  id_in?: InputMaybe<Array<Scalars['ID']>>;
-  id_not_in?: InputMaybe<Array<Scalars['ID']>>;
-  key?: InputMaybe<Scalars['staginggoerli_Bytes']>;
-  key_not?: InputMaybe<Scalars['staginggoerli_Bytes']>;
-  key_in?: InputMaybe<Array<Scalars['staginggoerli_Bytes']>>;
-  key_not_in?: InputMaybe<Array<Scalars['staginggoerli_Bytes']>>;
-  key_contains?: InputMaybe<Scalars['staginggoerli_Bytes']>;
-  key_not_contains?: InputMaybe<Scalars['staginggoerli_Bytes']>;
-  local?: InputMaybe<Scalars['staginggoerli_Bytes']>;
-  local_not?: InputMaybe<Scalars['staginggoerli_Bytes']>;
-  local_in?: InputMaybe<Array<Scalars['staginggoerli_Bytes']>>;
-  local_not_in?: InputMaybe<Array<Scalars['staginggoerli_Bytes']>>;
-  local_contains?: InputMaybe<Scalars['staginggoerli_Bytes']>;
-  local_not_contains?: InputMaybe<Scalars['staginggoerli_Bytes']>;
-  adoptedAsset?: InputMaybe<Scalars['staginggoerli_Bytes']>;
-  adoptedAsset_not?: InputMaybe<Scalars['staginggoerli_Bytes']>;
-  adoptedAsset_in?: InputMaybe<Array<Scalars['staginggoerli_Bytes']>>;
-  adoptedAsset_not_in?: InputMaybe<Array<Scalars['staginggoerli_Bytes']>>;
-  adoptedAsset_contains?: InputMaybe<Scalars['staginggoerli_Bytes']>;
-  adoptedAsset_not_contains?: InputMaybe<Scalars['staginggoerli_Bytes']>;
-  canonicalId?: InputMaybe<Scalars['staginggoerli_Bytes']>;
-  canonicalId_not?: InputMaybe<Scalars['staginggoerli_Bytes']>;
-  canonicalId_in?: InputMaybe<Array<Scalars['staginggoerli_Bytes']>>;
-  canonicalId_not_in?: InputMaybe<Array<Scalars['staginggoerli_Bytes']>>;
-  canonicalId_contains?: InputMaybe<Scalars['staginggoerli_Bytes']>;
-  canonicalId_not_contains?: InputMaybe<Scalars['staginggoerli_Bytes']>;
-  canonicalDomain?: InputMaybe<Scalars['BigInt']>;
-  canonicalDomain_not?: InputMaybe<Scalars['BigInt']>;
-  canonicalDomain_gt?: InputMaybe<Scalars['BigInt']>;
-  canonicalDomain_lt?: InputMaybe<Scalars['BigInt']>;
-  canonicalDomain_gte?: InputMaybe<Scalars['BigInt']>;
-  canonicalDomain_lte?: InputMaybe<Scalars['BigInt']>;
-  canonicalDomain_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  canonicalDomain_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  blockNumber?: InputMaybe<Scalars['BigInt']>;
-  blockNumber_not?: InputMaybe<Scalars['BigInt']>;
-  blockNumber_gt?: InputMaybe<Scalars['BigInt']>;
-  blockNumber_lt?: InputMaybe<Scalars['BigInt']>;
-  blockNumber_gte?: InputMaybe<Scalars['BigInt']>;
-  blockNumber_lte?: InputMaybe<Scalars['BigInt']>;
-  blockNumber_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  blockNumber_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  /** Filter for the block changed event. */
-  _change_block?: InputMaybe<staginggoerli_BlockChangedFilter>;
-};
-
-export type staginggoerli_Asset_orderBy =
-  | 'id'
-  | 'key'
-  | 'local'
-  | 'adoptedAsset'
-  | 'canonicalId'
-  | 'canonicalDomain'
-  | 'blockNumber';
-
-export type staginggoerli_BlockChangedFilter = {
-  number_gte: Scalars['Int'];
-};
-
-export type staginggoerli_Block_height = {
-  hash?: InputMaybe<Scalars['staginggoerli_Bytes']>;
-  number?: InputMaybe<Scalars['Int']>;
-  number_gte?: InputMaybe<Scalars['Int']>;
-};
-
-export type staginggoerli_ConnectorMeta = {
-  id: Scalars['ID'];
-  spokeDomain: Scalars['BigInt'];
-  hubDomain: Scalars['BigInt'];
-  amb: Scalars['staginggoerli_Bytes'];
-  rootManager: Scalars['staginggoerli_Bytes'];
-  mirrorConnector: Scalars['staginggoerli_Bytes'];
-};
-
-export type staginggoerli_ConnectorMeta_filter = {
-  id?: InputMaybe<Scalars['ID']>;
-  id_not?: InputMaybe<Scalars['ID']>;
-  id_gt?: InputMaybe<Scalars['ID']>;
-  id_lt?: InputMaybe<Scalars['ID']>;
-  id_gte?: InputMaybe<Scalars['ID']>;
-  id_lte?: InputMaybe<Scalars['ID']>;
-  id_in?: InputMaybe<Array<Scalars['ID']>>;
-  id_not_in?: InputMaybe<Array<Scalars['ID']>>;
-  spokeDomain?: InputMaybe<Scalars['BigInt']>;
-  spokeDomain_not?: InputMaybe<Scalars['BigInt']>;
-  spokeDomain_gt?: InputMaybe<Scalars['BigInt']>;
-  spokeDomain_lt?: InputMaybe<Scalars['BigInt']>;
-  spokeDomain_gte?: InputMaybe<Scalars['BigInt']>;
-  spokeDomain_lte?: InputMaybe<Scalars['BigInt']>;
-  spokeDomain_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  spokeDomain_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  hubDomain?: InputMaybe<Scalars['BigInt']>;
-  hubDomain_not?: InputMaybe<Scalars['BigInt']>;
-  hubDomain_gt?: InputMaybe<Scalars['BigInt']>;
-  hubDomain_lt?: InputMaybe<Scalars['BigInt']>;
-  hubDomain_gte?: InputMaybe<Scalars['BigInt']>;
-  hubDomain_lte?: InputMaybe<Scalars['BigInt']>;
-  hubDomain_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  hubDomain_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  amb?: InputMaybe<Scalars['staginggoerli_Bytes']>;
-  amb_not?: InputMaybe<Scalars['staginggoerli_Bytes']>;
-  amb_in?: InputMaybe<Array<Scalars['staginggoerli_Bytes']>>;
-  amb_not_in?: InputMaybe<Array<Scalars['staginggoerli_Bytes']>>;
-  amb_contains?: InputMaybe<Scalars['staginggoerli_Bytes']>;
-  amb_not_contains?: InputMaybe<Scalars['staginggoerli_Bytes']>;
-  rootManager?: InputMaybe<Scalars['staginggoerli_Bytes']>;
-  rootManager_not?: InputMaybe<Scalars['staginggoerli_Bytes']>;
-  rootManager_in?: InputMaybe<Array<Scalars['staginggoerli_Bytes']>>;
-  rootManager_not_in?: InputMaybe<Array<Scalars['staginggoerli_Bytes']>>;
-  rootManager_contains?: InputMaybe<Scalars['staginggoerli_Bytes']>;
-  rootManager_not_contains?: InputMaybe<Scalars['staginggoerli_Bytes']>;
-  mirrorConnector?: InputMaybe<Scalars['staginggoerli_Bytes']>;
-  mirrorConnector_not?: InputMaybe<Scalars['staginggoerli_Bytes']>;
-  mirrorConnector_in?: InputMaybe<Array<Scalars['staginggoerli_Bytes']>>;
-  mirrorConnector_not_in?: InputMaybe<Array<Scalars['staginggoerli_Bytes']>>;
-  mirrorConnector_contains?: InputMaybe<Scalars['staginggoerli_Bytes']>;
-  mirrorConnector_not_contains?: InputMaybe<Scalars['staginggoerli_Bytes']>;
-  /** Filter for the block changed event. */
-  _change_block?: InputMaybe<staginggoerli_BlockChangedFilter>;
-};
-
-export type staginggoerli_ConnectorMeta_orderBy =
-  | 'id'
-  | 'spokeDomain'
-  | 'hubDomain'
-  | 'amb'
-  | 'rootManager'
-  | 'mirrorConnector';
-
-export type staginggoerli_DestinationMessage = {
-  id: Scalars['ID'];
-  leaf?: Maybe<Scalars['staginggoerli_Bytes']>;
-  processed?: Maybe<Scalars['Boolean']>;
-  returnData?: Maybe<Scalars['staginggoerli_Bytes']>;
-  transactionHash?: Maybe<Scalars['staginggoerli_Bytes']>;
-};
-
-export type staginggoerli_DestinationMessage_filter = {
-  id?: InputMaybe<Scalars['ID']>;
-  id_not?: InputMaybe<Scalars['ID']>;
-  id_gt?: InputMaybe<Scalars['ID']>;
-  id_lt?: InputMaybe<Scalars['ID']>;
-  id_gte?: InputMaybe<Scalars['ID']>;
-  id_lte?: InputMaybe<Scalars['ID']>;
-  id_in?: InputMaybe<Array<Scalars['ID']>>;
-  id_not_in?: InputMaybe<Array<Scalars['ID']>>;
-  leaf?: InputMaybe<Scalars['staginggoerli_Bytes']>;
-  leaf_not?: InputMaybe<Scalars['staginggoerli_Bytes']>;
-  leaf_in?: InputMaybe<Array<Scalars['staginggoerli_Bytes']>>;
-  leaf_not_in?: InputMaybe<Array<Scalars['staginggoerli_Bytes']>>;
-  leaf_contains?: InputMaybe<Scalars['staginggoerli_Bytes']>;
-  leaf_not_contains?: InputMaybe<Scalars['staginggoerli_Bytes']>;
-  processed?: InputMaybe<Scalars['Boolean']>;
-  processed_not?: InputMaybe<Scalars['Boolean']>;
-  processed_in?: InputMaybe<Array<Scalars['Boolean']>>;
-  processed_not_in?: InputMaybe<Array<Scalars['Boolean']>>;
-  returnData?: InputMaybe<Scalars['staginggoerli_Bytes']>;
-  returnData_not?: InputMaybe<Scalars['staginggoerli_Bytes']>;
-  returnData_in?: InputMaybe<Array<Scalars['staginggoerli_Bytes']>>;
-  returnData_not_in?: InputMaybe<Array<Scalars['staginggoerli_Bytes']>>;
-  returnData_contains?: InputMaybe<Scalars['staginggoerli_Bytes']>;
-  returnData_not_contains?: InputMaybe<Scalars['staginggoerli_Bytes']>;
-  transactionHash?: InputMaybe<Scalars['staginggoerli_Bytes']>;
-  transactionHash_not?: InputMaybe<Scalars['staginggoerli_Bytes']>;
-  transactionHash_in?: InputMaybe<Array<Scalars['staginggoerli_Bytes']>>;
-  transactionHash_not_in?: InputMaybe<Array<Scalars['staginggoerli_Bytes']>>;
-  transactionHash_contains?: InputMaybe<Scalars['staginggoerli_Bytes']>;
-  transactionHash_not_contains?: InputMaybe<Scalars['staginggoerli_Bytes']>;
-  /** Filter for the block changed event. */
-  _change_block?: InputMaybe<staginggoerli_BlockChangedFilter>;
-};
-
-export type staginggoerli_DestinationMessage_orderBy =
-  | 'id'
-  | 'leaf'
-  | 'processed'
-  | 'returnData'
-  | 'transactionHash';
-
-export type staginggoerli_DestinationTransfer = {
-  id: Scalars['ID'];
-  chainId?: Maybe<Scalars['BigInt']>;
-  transferId?: Maybe<Scalars['staginggoerli_Bytes']>;
-  nonce?: Maybe<Scalars['BigInt']>;
-  to?: Maybe<Scalars['staginggoerli_Bytes']>;
-  callData?: Maybe<Scalars['staginggoerli_Bytes']>;
-  originDomain?: Maybe<Scalars['BigInt']>;
-  destinationDomain?: Maybe<Scalars['BigInt']>;
-  agent?: Maybe<Scalars['staginggoerli_Bytes']>;
-  recovery?: Maybe<Scalars['staginggoerli_Bytes']>;
-  forceSlow?: Maybe<Scalars['Boolean']>;
-  receiveLocal?: Maybe<Scalars['Boolean']>;
-  callback?: Maybe<Scalars['staginggoerli_Bytes']>;
-  callbackFee?: Maybe<Scalars['BigInt']>;
-  relayerFee?: Maybe<Scalars['BigInt']>;
-  destinationMinOut?: Maybe<Scalars['BigInt']>;
-  status?: Maybe<staginggoerli_TransferStatus>;
-  routers?: Maybe<Array<staginggoerli_Router>>;
-  originSender?: Maybe<Scalars['staginggoerli_Bytes']>;
-  transactingAsset?: Maybe<Scalars['staginggoerli_Bytes']>;
-  transactingAmount?: Maybe<Scalars['BigInt']>;
-  localAsset?: Maybe<Scalars['staginggoerli_Bytes']>;
-  localAmount?: Maybe<Scalars['BigInt']>;
-  sponsorVaultRelayerFee?: Maybe<Scalars['BigInt']>;
-  executedCaller?: Maybe<Scalars['staginggoerli_Bytes']>;
-  executedTransactionHash?: Maybe<Scalars['staginggoerli_Bytes']>;
-  executedTimestamp?: Maybe<Scalars['BigInt']>;
-  executedGasPrice?: Maybe<Scalars['BigInt']>;
-  executedGasLimit?: Maybe<Scalars['BigInt']>;
-  executedBlockNumber?: Maybe<Scalars['BigInt']>;
-  reconciledCaller?: Maybe<Scalars['staginggoerli_Bytes']>;
-  reconciledTransactionHash?: Maybe<Scalars['staginggoerli_Bytes']>;
-  reconciledTimestamp?: Maybe<Scalars['BigInt']>;
-  reconciledGasPrice?: Maybe<Scalars['BigInt']>;
-  reconciledGasLimit?: Maybe<Scalars['BigInt']>;
-  reconciledBlockNumber?: Maybe<Scalars['BigInt']>;
-};
-
-
-export type staginggoerli_DestinationTransferroutersArgs = {
-  skip?: InputMaybe<Scalars['Int']>;
-  first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<staginggoerli_Router_orderBy>;
-  orderDirection?: InputMaybe<staginggoerli_OrderDirection>;
-  where?: InputMaybe<staginggoerli_Router_filter>;
-};
-
-export type staginggoerli_DestinationTransfer_filter = {
-  id?: InputMaybe<Scalars['ID']>;
-  id_not?: InputMaybe<Scalars['ID']>;
-  id_gt?: InputMaybe<Scalars['ID']>;
-  id_lt?: InputMaybe<Scalars['ID']>;
-  id_gte?: InputMaybe<Scalars['ID']>;
-  id_lte?: InputMaybe<Scalars['ID']>;
-  id_in?: InputMaybe<Array<Scalars['ID']>>;
-  id_not_in?: InputMaybe<Array<Scalars['ID']>>;
-  chainId?: InputMaybe<Scalars['BigInt']>;
-  chainId_not?: InputMaybe<Scalars['BigInt']>;
-  chainId_gt?: InputMaybe<Scalars['BigInt']>;
-  chainId_lt?: InputMaybe<Scalars['BigInt']>;
-  chainId_gte?: InputMaybe<Scalars['BigInt']>;
-  chainId_lte?: InputMaybe<Scalars['BigInt']>;
-  chainId_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  chainId_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  transferId?: InputMaybe<Scalars['staginggoerli_Bytes']>;
-  transferId_not?: InputMaybe<Scalars['staginggoerli_Bytes']>;
-  transferId_in?: InputMaybe<Array<Scalars['staginggoerli_Bytes']>>;
-  transferId_not_in?: InputMaybe<Array<Scalars['staginggoerli_Bytes']>>;
-  transferId_contains?: InputMaybe<Scalars['staginggoerli_Bytes']>;
-  transferId_not_contains?: InputMaybe<Scalars['staginggoerli_Bytes']>;
-  nonce?: InputMaybe<Scalars['BigInt']>;
-  nonce_not?: InputMaybe<Scalars['BigInt']>;
-  nonce_gt?: InputMaybe<Scalars['BigInt']>;
-  nonce_lt?: InputMaybe<Scalars['BigInt']>;
-  nonce_gte?: InputMaybe<Scalars['BigInt']>;
-  nonce_lte?: InputMaybe<Scalars['BigInt']>;
-  nonce_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  nonce_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  to?: InputMaybe<Scalars['staginggoerli_Bytes']>;
-  to_not?: InputMaybe<Scalars['staginggoerli_Bytes']>;
-  to_in?: InputMaybe<Array<Scalars['staginggoerli_Bytes']>>;
-  to_not_in?: InputMaybe<Array<Scalars['staginggoerli_Bytes']>>;
-  to_contains?: InputMaybe<Scalars['staginggoerli_Bytes']>;
-  to_not_contains?: InputMaybe<Scalars['staginggoerli_Bytes']>;
-  callData?: InputMaybe<Scalars['staginggoerli_Bytes']>;
-  callData_not?: InputMaybe<Scalars['staginggoerli_Bytes']>;
-  callData_in?: InputMaybe<Array<Scalars['staginggoerli_Bytes']>>;
-  callData_not_in?: InputMaybe<Array<Scalars['staginggoerli_Bytes']>>;
-  callData_contains?: InputMaybe<Scalars['staginggoerli_Bytes']>;
-  callData_not_contains?: InputMaybe<Scalars['staginggoerli_Bytes']>;
-  originDomain?: InputMaybe<Scalars['BigInt']>;
-  originDomain_not?: InputMaybe<Scalars['BigInt']>;
-  originDomain_gt?: InputMaybe<Scalars['BigInt']>;
-  originDomain_lt?: InputMaybe<Scalars['BigInt']>;
-  originDomain_gte?: InputMaybe<Scalars['BigInt']>;
-  originDomain_lte?: InputMaybe<Scalars['BigInt']>;
-  originDomain_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  originDomain_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  destinationDomain?: InputMaybe<Scalars['BigInt']>;
-  destinationDomain_not?: InputMaybe<Scalars['BigInt']>;
-  destinationDomain_gt?: InputMaybe<Scalars['BigInt']>;
-  destinationDomain_lt?: InputMaybe<Scalars['BigInt']>;
-  destinationDomain_gte?: InputMaybe<Scalars['BigInt']>;
-  destinationDomain_lte?: InputMaybe<Scalars['BigInt']>;
-  destinationDomain_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  destinationDomain_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  agent?: InputMaybe<Scalars['staginggoerli_Bytes']>;
-  agent_not?: InputMaybe<Scalars['staginggoerli_Bytes']>;
-  agent_in?: InputMaybe<Array<Scalars['staginggoerli_Bytes']>>;
-  agent_not_in?: InputMaybe<Array<Scalars['staginggoerli_Bytes']>>;
-  agent_contains?: InputMaybe<Scalars['staginggoerli_Bytes']>;
-  agent_not_contains?: InputMaybe<Scalars['staginggoerli_Bytes']>;
-  recovery?: InputMaybe<Scalars['staginggoerli_Bytes']>;
-  recovery_not?: InputMaybe<Scalars['staginggoerli_Bytes']>;
-  recovery_in?: InputMaybe<Array<Scalars['staginggoerli_Bytes']>>;
-  recovery_not_in?: InputMaybe<Array<Scalars['staginggoerli_Bytes']>>;
-  recovery_contains?: InputMaybe<Scalars['staginggoerli_Bytes']>;
-  recovery_not_contains?: InputMaybe<Scalars['staginggoerli_Bytes']>;
-  forceSlow?: InputMaybe<Scalars['Boolean']>;
-  forceSlow_not?: InputMaybe<Scalars['Boolean']>;
-  forceSlow_in?: InputMaybe<Array<Scalars['Boolean']>>;
-  forceSlow_not_in?: InputMaybe<Array<Scalars['Boolean']>>;
-  receiveLocal?: InputMaybe<Scalars['Boolean']>;
-  receiveLocal_not?: InputMaybe<Scalars['Boolean']>;
-  receiveLocal_in?: InputMaybe<Array<Scalars['Boolean']>>;
-  receiveLocal_not_in?: InputMaybe<Array<Scalars['Boolean']>>;
-  callback?: InputMaybe<Scalars['staginggoerli_Bytes']>;
-  callback_not?: InputMaybe<Scalars['staginggoerli_Bytes']>;
-  callback_in?: InputMaybe<Array<Scalars['staginggoerli_Bytes']>>;
-  callback_not_in?: InputMaybe<Array<Scalars['staginggoerli_Bytes']>>;
-  callback_contains?: InputMaybe<Scalars['staginggoerli_Bytes']>;
-  callback_not_contains?: InputMaybe<Scalars['staginggoerli_Bytes']>;
-  callbackFee?: InputMaybe<Scalars['BigInt']>;
-  callbackFee_not?: InputMaybe<Scalars['BigInt']>;
-  callbackFee_gt?: InputMaybe<Scalars['BigInt']>;
-  callbackFee_lt?: InputMaybe<Scalars['BigInt']>;
-  callbackFee_gte?: InputMaybe<Scalars['BigInt']>;
-  callbackFee_lte?: InputMaybe<Scalars['BigInt']>;
-  callbackFee_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  callbackFee_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  relayerFee?: InputMaybe<Scalars['BigInt']>;
-  relayerFee_not?: InputMaybe<Scalars['BigInt']>;
-  relayerFee_gt?: InputMaybe<Scalars['BigInt']>;
-  relayerFee_lt?: InputMaybe<Scalars['BigInt']>;
-  relayerFee_gte?: InputMaybe<Scalars['BigInt']>;
-  relayerFee_lte?: InputMaybe<Scalars['BigInt']>;
-  relayerFee_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  relayerFee_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  destinationMinOut?: InputMaybe<Scalars['BigInt']>;
-  destinationMinOut_not?: InputMaybe<Scalars['BigInt']>;
-  destinationMinOut_gt?: InputMaybe<Scalars['BigInt']>;
-  destinationMinOut_lt?: InputMaybe<Scalars['BigInt']>;
-  destinationMinOut_gte?: InputMaybe<Scalars['BigInt']>;
-  destinationMinOut_lte?: InputMaybe<Scalars['BigInt']>;
-  destinationMinOut_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  destinationMinOut_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  status?: InputMaybe<staginggoerli_TransferStatus>;
-  status_not?: InputMaybe<staginggoerli_TransferStatus>;
-  status_in?: InputMaybe<Array<staginggoerli_TransferStatus>>;
-  status_not_in?: InputMaybe<Array<staginggoerli_TransferStatus>>;
-  routers?: InputMaybe<Array<Scalars['String']>>;
-  routers_not?: InputMaybe<Array<Scalars['String']>>;
-  routers_contains?: InputMaybe<Array<Scalars['String']>>;
-  routers_contains_nocase?: InputMaybe<Array<Scalars['String']>>;
-  routers_not_contains?: InputMaybe<Array<Scalars['String']>>;
-  routers_not_contains_nocase?: InputMaybe<Array<Scalars['String']>>;
-  routers_?: InputMaybe<staginggoerli_Router_filter>;
-  originSender?: InputMaybe<Scalars['staginggoerli_Bytes']>;
-  originSender_not?: InputMaybe<Scalars['staginggoerli_Bytes']>;
-  originSender_in?: InputMaybe<Array<Scalars['staginggoerli_Bytes']>>;
-  originSender_not_in?: InputMaybe<Array<Scalars['staginggoerli_Bytes']>>;
-  originSender_contains?: InputMaybe<Scalars['staginggoerli_Bytes']>;
-  originSender_not_contains?: InputMaybe<Scalars['staginggoerli_Bytes']>;
-  transactingAsset?: InputMaybe<Scalars['staginggoerli_Bytes']>;
-  transactingAsset_not?: InputMaybe<Scalars['staginggoerli_Bytes']>;
-  transactingAsset_in?: InputMaybe<Array<Scalars['staginggoerli_Bytes']>>;
-  transactingAsset_not_in?: InputMaybe<Array<Scalars['staginggoerli_Bytes']>>;
-  transactingAsset_contains?: InputMaybe<Scalars['staginggoerli_Bytes']>;
-  transactingAsset_not_contains?: InputMaybe<Scalars['staginggoerli_Bytes']>;
-  transactingAmount?: InputMaybe<Scalars['BigInt']>;
-  transactingAmount_not?: InputMaybe<Scalars['BigInt']>;
-  transactingAmount_gt?: InputMaybe<Scalars['BigInt']>;
-  transactingAmount_lt?: InputMaybe<Scalars['BigInt']>;
-  transactingAmount_gte?: InputMaybe<Scalars['BigInt']>;
-  transactingAmount_lte?: InputMaybe<Scalars['BigInt']>;
-  transactingAmount_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  transactingAmount_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  localAsset?: InputMaybe<Scalars['staginggoerli_Bytes']>;
-  localAsset_not?: InputMaybe<Scalars['staginggoerli_Bytes']>;
-  localAsset_in?: InputMaybe<Array<Scalars['staginggoerli_Bytes']>>;
-  localAsset_not_in?: InputMaybe<Array<Scalars['staginggoerli_Bytes']>>;
-  localAsset_contains?: InputMaybe<Scalars['staginggoerli_Bytes']>;
-  localAsset_not_contains?: InputMaybe<Scalars['staginggoerli_Bytes']>;
-  localAmount?: InputMaybe<Scalars['BigInt']>;
-  localAmount_not?: InputMaybe<Scalars['BigInt']>;
-  localAmount_gt?: InputMaybe<Scalars['BigInt']>;
-  localAmount_lt?: InputMaybe<Scalars['BigInt']>;
-  localAmount_gte?: InputMaybe<Scalars['BigInt']>;
-  localAmount_lte?: InputMaybe<Scalars['BigInt']>;
-  localAmount_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  localAmount_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  sponsorVaultRelayerFee?: InputMaybe<Scalars['BigInt']>;
-  sponsorVaultRelayerFee_not?: InputMaybe<Scalars['BigInt']>;
-  sponsorVaultRelayerFee_gt?: InputMaybe<Scalars['BigInt']>;
-  sponsorVaultRelayerFee_lt?: InputMaybe<Scalars['BigInt']>;
-  sponsorVaultRelayerFee_gte?: InputMaybe<Scalars['BigInt']>;
-  sponsorVaultRelayerFee_lte?: InputMaybe<Scalars['BigInt']>;
-  sponsorVaultRelayerFee_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  sponsorVaultRelayerFee_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  executedCaller?: InputMaybe<Scalars['staginggoerli_Bytes']>;
-  executedCaller_not?: InputMaybe<Scalars['staginggoerli_Bytes']>;
-  executedCaller_in?: InputMaybe<Array<Scalars['staginggoerli_Bytes']>>;
-  executedCaller_not_in?: InputMaybe<Array<Scalars['staginggoerli_Bytes']>>;
-  executedCaller_contains?: InputMaybe<Scalars['staginggoerli_Bytes']>;
-  executedCaller_not_contains?: InputMaybe<Scalars['staginggoerli_Bytes']>;
-  executedTransactionHash?: InputMaybe<Scalars['staginggoerli_Bytes']>;
-  executedTransactionHash_not?: InputMaybe<Scalars['staginggoerli_Bytes']>;
-  executedTransactionHash_in?: InputMaybe<Array<Scalars['staginggoerli_Bytes']>>;
-  executedTransactionHash_not_in?: InputMaybe<Array<Scalars['staginggoerli_Bytes']>>;
-  executedTransactionHash_contains?: InputMaybe<Scalars['staginggoerli_Bytes']>;
-  executedTransactionHash_not_contains?: InputMaybe<Scalars['staginggoerli_Bytes']>;
-  executedTimestamp?: InputMaybe<Scalars['BigInt']>;
-  executedTimestamp_not?: InputMaybe<Scalars['BigInt']>;
-  executedTimestamp_gt?: InputMaybe<Scalars['BigInt']>;
-  executedTimestamp_lt?: InputMaybe<Scalars['BigInt']>;
-  executedTimestamp_gte?: InputMaybe<Scalars['BigInt']>;
-  executedTimestamp_lte?: InputMaybe<Scalars['BigInt']>;
-  executedTimestamp_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  executedTimestamp_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  executedGasPrice?: InputMaybe<Scalars['BigInt']>;
-  executedGasPrice_not?: InputMaybe<Scalars['BigInt']>;
-  executedGasPrice_gt?: InputMaybe<Scalars['BigInt']>;
-  executedGasPrice_lt?: InputMaybe<Scalars['BigInt']>;
-  executedGasPrice_gte?: InputMaybe<Scalars['BigInt']>;
-  executedGasPrice_lte?: InputMaybe<Scalars['BigInt']>;
-  executedGasPrice_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  executedGasPrice_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  executedGasLimit?: InputMaybe<Scalars['BigInt']>;
-  executedGasLimit_not?: InputMaybe<Scalars['BigInt']>;
-  executedGasLimit_gt?: InputMaybe<Scalars['BigInt']>;
-  executedGasLimit_lt?: InputMaybe<Scalars['BigInt']>;
-  executedGasLimit_gte?: InputMaybe<Scalars['BigInt']>;
-  executedGasLimit_lte?: InputMaybe<Scalars['BigInt']>;
-  executedGasLimit_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  executedGasLimit_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  executedBlockNumber?: InputMaybe<Scalars['BigInt']>;
-  executedBlockNumber_not?: InputMaybe<Scalars['BigInt']>;
-  executedBlockNumber_gt?: InputMaybe<Scalars['BigInt']>;
-  executedBlockNumber_lt?: InputMaybe<Scalars['BigInt']>;
-  executedBlockNumber_gte?: InputMaybe<Scalars['BigInt']>;
-  executedBlockNumber_lte?: InputMaybe<Scalars['BigInt']>;
-  executedBlockNumber_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  executedBlockNumber_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  reconciledCaller?: InputMaybe<Scalars['staginggoerli_Bytes']>;
-  reconciledCaller_not?: InputMaybe<Scalars['staginggoerli_Bytes']>;
-  reconciledCaller_in?: InputMaybe<Array<Scalars['staginggoerli_Bytes']>>;
-  reconciledCaller_not_in?: InputMaybe<Array<Scalars['staginggoerli_Bytes']>>;
-  reconciledCaller_contains?: InputMaybe<Scalars['staginggoerli_Bytes']>;
-  reconciledCaller_not_contains?: InputMaybe<Scalars['staginggoerli_Bytes']>;
-  reconciledTransactionHash?: InputMaybe<Scalars['staginggoerli_Bytes']>;
-  reconciledTransactionHash_not?: InputMaybe<Scalars['staginggoerli_Bytes']>;
-  reconciledTransactionHash_in?: InputMaybe<Array<Scalars['staginggoerli_Bytes']>>;
-  reconciledTransactionHash_not_in?: InputMaybe<Array<Scalars['staginggoerli_Bytes']>>;
-  reconciledTransactionHash_contains?: InputMaybe<Scalars['staginggoerli_Bytes']>;
-  reconciledTransactionHash_not_contains?: InputMaybe<Scalars['staginggoerli_Bytes']>;
-  reconciledTimestamp?: InputMaybe<Scalars['BigInt']>;
-  reconciledTimestamp_not?: InputMaybe<Scalars['BigInt']>;
-  reconciledTimestamp_gt?: InputMaybe<Scalars['BigInt']>;
-  reconciledTimestamp_lt?: InputMaybe<Scalars['BigInt']>;
-  reconciledTimestamp_gte?: InputMaybe<Scalars['BigInt']>;
-  reconciledTimestamp_lte?: InputMaybe<Scalars['BigInt']>;
-  reconciledTimestamp_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  reconciledTimestamp_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  reconciledGasPrice?: InputMaybe<Scalars['BigInt']>;
-  reconciledGasPrice_not?: InputMaybe<Scalars['BigInt']>;
-  reconciledGasPrice_gt?: InputMaybe<Scalars['BigInt']>;
-  reconciledGasPrice_lt?: InputMaybe<Scalars['BigInt']>;
-  reconciledGasPrice_gte?: InputMaybe<Scalars['BigInt']>;
-  reconciledGasPrice_lte?: InputMaybe<Scalars['BigInt']>;
-  reconciledGasPrice_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  reconciledGasPrice_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  reconciledGasLimit?: InputMaybe<Scalars['BigInt']>;
-  reconciledGasLimit_not?: InputMaybe<Scalars['BigInt']>;
-  reconciledGasLimit_gt?: InputMaybe<Scalars['BigInt']>;
-  reconciledGasLimit_lt?: InputMaybe<Scalars['BigInt']>;
-  reconciledGasLimit_gte?: InputMaybe<Scalars['BigInt']>;
-  reconciledGasLimit_lte?: InputMaybe<Scalars['BigInt']>;
-  reconciledGasLimit_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  reconciledGasLimit_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  reconciledBlockNumber?: InputMaybe<Scalars['BigInt']>;
-  reconciledBlockNumber_not?: InputMaybe<Scalars['BigInt']>;
-  reconciledBlockNumber_gt?: InputMaybe<Scalars['BigInt']>;
-  reconciledBlockNumber_lt?: InputMaybe<Scalars['BigInt']>;
-  reconciledBlockNumber_gte?: InputMaybe<Scalars['BigInt']>;
-  reconciledBlockNumber_lte?: InputMaybe<Scalars['BigInt']>;
-  reconciledBlockNumber_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  reconciledBlockNumber_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  /** Filter for the block changed event. */
-  _change_block?: InputMaybe<staginggoerli_BlockChangedFilter>;
-};
-
-export type staginggoerli_DestinationTransfer_orderBy =
-  | 'id'
-  | 'chainId'
-  | 'transferId'
-  | 'nonce'
-  | 'to'
-  | 'callData'
-  | 'originDomain'
-  | 'destinationDomain'
-  | 'agent'
-  | 'recovery'
-  | 'forceSlow'
-  | 'receiveLocal'
-  | 'callback'
-  | 'callbackFee'
-  | 'relayerFee'
-  | 'destinationMinOut'
-  | 'status'
-  | 'routers'
-  | 'originSender'
-  | 'transactingAsset'
-  | 'transactingAmount'
-  | 'localAsset'
-  | 'localAmount'
-  | 'sponsorVaultRelayerFee'
-  | 'executedCaller'
-  | 'executedTransactionHash'
-  | 'executedTimestamp'
-  | 'executedGasPrice'
-  | 'executedGasLimit'
-  | 'executedBlockNumber'
-  | 'reconciledCaller'
-  | 'reconciledTransactionHash'
-  | 'reconciledTimestamp'
-  | 'reconciledGasPrice'
-  | 'reconciledGasLimit'
-  | 'reconciledBlockNumber';
-
-/** Defines the order direction, either ascending or descending */
-export type staginggoerli_OrderDirection =
-  | 'asc'
-  | 'desc';
-
-export type staginggoerli_OriginMessage = {
-  id: Scalars['ID'];
-  transferId?: Maybe<Scalars['staginggoerli_Bytes']>;
-  destinationDomain?: Maybe<Scalars['BigInt']>;
-  leaf?: Maybe<Scalars['staginggoerli_Bytes']>;
-  index?: Maybe<Scalars['BigInt']>;
-  root?: Maybe<Scalars['staginggoerli_Bytes']>;
-  message?: Maybe<Scalars['staginggoerli_Bytes']>;
-  transactionHash?: Maybe<Scalars['staginggoerli_Bytes']>;
-};
-
-export type staginggoerli_OriginMessage_filter = {
-  id?: InputMaybe<Scalars['ID']>;
-  id_not?: InputMaybe<Scalars['ID']>;
-  id_gt?: InputMaybe<Scalars['ID']>;
-  id_lt?: InputMaybe<Scalars['ID']>;
-  id_gte?: InputMaybe<Scalars['ID']>;
-  id_lte?: InputMaybe<Scalars['ID']>;
-  id_in?: InputMaybe<Array<Scalars['ID']>>;
-  id_not_in?: InputMaybe<Array<Scalars['ID']>>;
-  transferId?: InputMaybe<Scalars['staginggoerli_Bytes']>;
-  transferId_not?: InputMaybe<Scalars['staginggoerli_Bytes']>;
-  transferId_in?: InputMaybe<Array<Scalars['staginggoerli_Bytes']>>;
-  transferId_not_in?: InputMaybe<Array<Scalars['staginggoerli_Bytes']>>;
-  transferId_contains?: InputMaybe<Scalars['staginggoerli_Bytes']>;
-  transferId_not_contains?: InputMaybe<Scalars['staginggoerli_Bytes']>;
-  destinationDomain?: InputMaybe<Scalars['BigInt']>;
-  destinationDomain_not?: InputMaybe<Scalars['BigInt']>;
-  destinationDomain_gt?: InputMaybe<Scalars['BigInt']>;
-  destinationDomain_lt?: InputMaybe<Scalars['BigInt']>;
-  destinationDomain_gte?: InputMaybe<Scalars['BigInt']>;
-  destinationDomain_lte?: InputMaybe<Scalars['BigInt']>;
-  destinationDomain_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  destinationDomain_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  leaf?: InputMaybe<Scalars['staginggoerli_Bytes']>;
-  leaf_not?: InputMaybe<Scalars['staginggoerli_Bytes']>;
-  leaf_in?: InputMaybe<Array<Scalars['staginggoerli_Bytes']>>;
-  leaf_not_in?: InputMaybe<Array<Scalars['staginggoerli_Bytes']>>;
-  leaf_contains?: InputMaybe<Scalars['staginggoerli_Bytes']>;
-  leaf_not_contains?: InputMaybe<Scalars['staginggoerli_Bytes']>;
-  index?: InputMaybe<Scalars['BigInt']>;
-  index_not?: InputMaybe<Scalars['BigInt']>;
-  index_gt?: InputMaybe<Scalars['BigInt']>;
-  index_lt?: InputMaybe<Scalars['BigInt']>;
-  index_gte?: InputMaybe<Scalars['BigInt']>;
-  index_lte?: InputMaybe<Scalars['BigInt']>;
-  index_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  index_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  root?: InputMaybe<Scalars['staginggoerli_Bytes']>;
-  root_not?: InputMaybe<Scalars['staginggoerli_Bytes']>;
-  root_in?: InputMaybe<Array<Scalars['staginggoerli_Bytes']>>;
-  root_not_in?: InputMaybe<Array<Scalars['staginggoerli_Bytes']>>;
-  root_contains?: InputMaybe<Scalars['staginggoerli_Bytes']>;
-  root_not_contains?: InputMaybe<Scalars['staginggoerli_Bytes']>;
-  message?: InputMaybe<Scalars['staginggoerli_Bytes']>;
-  message_not?: InputMaybe<Scalars['staginggoerli_Bytes']>;
-  message_in?: InputMaybe<Array<Scalars['staginggoerli_Bytes']>>;
-  message_not_in?: InputMaybe<Array<Scalars['staginggoerli_Bytes']>>;
-  message_contains?: InputMaybe<Scalars['staginggoerli_Bytes']>;
-  message_not_contains?: InputMaybe<Scalars['staginggoerli_Bytes']>;
-  transactionHash?: InputMaybe<Scalars['staginggoerli_Bytes']>;
-  transactionHash_not?: InputMaybe<Scalars['staginggoerli_Bytes']>;
-  transactionHash_in?: InputMaybe<Array<Scalars['staginggoerli_Bytes']>>;
-  transactionHash_not_in?: InputMaybe<Array<Scalars['staginggoerli_Bytes']>>;
-  transactionHash_contains?: InputMaybe<Scalars['staginggoerli_Bytes']>;
-  transactionHash_not_contains?: InputMaybe<Scalars['staginggoerli_Bytes']>;
-  /** Filter for the block changed event. */
-  _change_block?: InputMaybe<staginggoerli_BlockChangedFilter>;
-};
-
-export type staginggoerli_OriginMessage_orderBy =
-  | 'id'
-  | 'transferId'
-  | 'destinationDomain'
-  | 'leaf'
-  | 'index'
-  | 'root'
-  | 'message'
-  | 'transactionHash';
-
-export type staginggoerli_OriginTransfer = {
-  id: Scalars['ID'];
-  chainId?: Maybe<Scalars['BigInt']>;
-  transferId?: Maybe<Scalars['staginggoerli_Bytes']>;
-  nonce?: Maybe<Scalars['BigInt']>;
-  to?: Maybe<Scalars['staginggoerli_Bytes']>;
-  callData?: Maybe<Scalars['staginggoerli_Bytes']>;
-  originDomain?: Maybe<Scalars['BigInt']>;
-  destinationDomain?: Maybe<Scalars['BigInt']>;
-  agent?: Maybe<Scalars['staginggoerli_Bytes']>;
-  recovery?: Maybe<Scalars['staginggoerli_Bytes']>;
-  forceSlow?: Maybe<Scalars['Boolean']>;
-  receiveLocal?: Maybe<Scalars['Boolean']>;
-  callback?: Maybe<Scalars['staginggoerli_Bytes']>;
-  callbackFee?: Maybe<Scalars['BigInt']>;
-  relayerFee?: Maybe<Scalars['BigInt']>;
-  destinationMinOut?: Maybe<Scalars['BigInt']>;
-  status?: Maybe<staginggoerli_TransferStatus>;
-  originMinOut?: Maybe<Scalars['BigInt']>;
-  transactingAsset?: Maybe<Scalars['staginggoerli_Bytes']>;
-  transactingAmount?: Maybe<Scalars['BigInt']>;
-  bridgedAsset?: Maybe<Scalars['staginggoerli_Bytes']>;
-  bridgedAmount?: Maybe<Scalars['BigInt']>;
-  message?: Maybe<staginggoerli_OriginMessage>;
-  caller?: Maybe<Scalars['staginggoerli_Bytes']>;
-  transactionHash?: Maybe<Scalars['staginggoerli_Bytes']>;
-  timestamp?: Maybe<Scalars['BigInt']>;
-  gasPrice?: Maybe<Scalars['BigInt']>;
-  gasLimit?: Maybe<Scalars['BigInt']>;
-  blockNumber?: Maybe<Scalars['BigInt']>;
-};
-
-export type staginggoerli_OriginTransfer_filter = {
-  id?: InputMaybe<Scalars['ID']>;
-  id_not?: InputMaybe<Scalars['ID']>;
-  id_gt?: InputMaybe<Scalars['ID']>;
-  id_lt?: InputMaybe<Scalars['ID']>;
-  id_gte?: InputMaybe<Scalars['ID']>;
-  id_lte?: InputMaybe<Scalars['ID']>;
-  id_in?: InputMaybe<Array<Scalars['ID']>>;
-  id_not_in?: InputMaybe<Array<Scalars['ID']>>;
-  chainId?: InputMaybe<Scalars['BigInt']>;
-  chainId_not?: InputMaybe<Scalars['BigInt']>;
-  chainId_gt?: InputMaybe<Scalars['BigInt']>;
-  chainId_lt?: InputMaybe<Scalars['BigInt']>;
-  chainId_gte?: InputMaybe<Scalars['BigInt']>;
-  chainId_lte?: InputMaybe<Scalars['BigInt']>;
-  chainId_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  chainId_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  transferId?: InputMaybe<Scalars['staginggoerli_Bytes']>;
-  transferId_not?: InputMaybe<Scalars['staginggoerli_Bytes']>;
-  transferId_in?: InputMaybe<Array<Scalars['staginggoerli_Bytes']>>;
-  transferId_not_in?: InputMaybe<Array<Scalars['staginggoerli_Bytes']>>;
-  transferId_contains?: InputMaybe<Scalars['staginggoerli_Bytes']>;
-  transferId_not_contains?: InputMaybe<Scalars['staginggoerli_Bytes']>;
-  nonce?: InputMaybe<Scalars['BigInt']>;
-  nonce_not?: InputMaybe<Scalars['BigInt']>;
-  nonce_gt?: InputMaybe<Scalars['BigInt']>;
-  nonce_lt?: InputMaybe<Scalars['BigInt']>;
-  nonce_gte?: InputMaybe<Scalars['BigInt']>;
-  nonce_lte?: InputMaybe<Scalars['BigInt']>;
-  nonce_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  nonce_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  to?: InputMaybe<Scalars['staginggoerli_Bytes']>;
-  to_not?: InputMaybe<Scalars['staginggoerli_Bytes']>;
-  to_in?: InputMaybe<Array<Scalars['staginggoerli_Bytes']>>;
-  to_not_in?: InputMaybe<Array<Scalars['staginggoerli_Bytes']>>;
-  to_contains?: InputMaybe<Scalars['staginggoerli_Bytes']>;
-  to_not_contains?: InputMaybe<Scalars['staginggoerli_Bytes']>;
-  callData?: InputMaybe<Scalars['staginggoerli_Bytes']>;
-  callData_not?: InputMaybe<Scalars['staginggoerli_Bytes']>;
-  callData_in?: InputMaybe<Array<Scalars['staginggoerli_Bytes']>>;
-  callData_not_in?: InputMaybe<Array<Scalars['staginggoerli_Bytes']>>;
-  callData_contains?: InputMaybe<Scalars['staginggoerli_Bytes']>;
-  callData_not_contains?: InputMaybe<Scalars['staginggoerli_Bytes']>;
-  originDomain?: InputMaybe<Scalars['BigInt']>;
-  originDomain_not?: InputMaybe<Scalars['BigInt']>;
-  originDomain_gt?: InputMaybe<Scalars['BigInt']>;
-  originDomain_lt?: InputMaybe<Scalars['BigInt']>;
-  originDomain_gte?: InputMaybe<Scalars['BigInt']>;
-  originDomain_lte?: InputMaybe<Scalars['BigInt']>;
-  originDomain_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  originDomain_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  destinationDomain?: InputMaybe<Scalars['BigInt']>;
-  destinationDomain_not?: InputMaybe<Scalars['BigInt']>;
-  destinationDomain_gt?: InputMaybe<Scalars['BigInt']>;
-  destinationDomain_lt?: InputMaybe<Scalars['BigInt']>;
-  destinationDomain_gte?: InputMaybe<Scalars['BigInt']>;
-  destinationDomain_lte?: InputMaybe<Scalars['BigInt']>;
-  destinationDomain_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  destinationDomain_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  agent?: InputMaybe<Scalars['staginggoerli_Bytes']>;
-  agent_not?: InputMaybe<Scalars['staginggoerli_Bytes']>;
-  agent_in?: InputMaybe<Array<Scalars['staginggoerli_Bytes']>>;
-  agent_not_in?: InputMaybe<Array<Scalars['staginggoerli_Bytes']>>;
-  agent_contains?: InputMaybe<Scalars['staginggoerli_Bytes']>;
-  agent_not_contains?: InputMaybe<Scalars['staginggoerli_Bytes']>;
-  recovery?: InputMaybe<Scalars['staginggoerli_Bytes']>;
-  recovery_not?: InputMaybe<Scalars['staginggoerli_Bytes']>;
-  recovery_in?: InputMaybe<Array<Scalars['staginggoerli_Bytes']>>;
-  recovery_not_in?: InputMaybe<Array<Scalars['staginggoerli_Bytes']>>;
-  recovery_contains?: InputMaybe<Scalars['staginggoerli_Bytes']>;
-  recovery_not_contains?: InputMaybe<Scalars['staginggoerli_Bytes']>;
-  forceSlow?: InputMaybe<Scalars['Boolean']>;
-  forceSlow_not?: InputMaybe<Scalars['Boolean']>;
-  forceSlow_in?: InputMaybe<Array<Scalars['Boolean']>>;
-  forceSlow_not_in?: InputMaybe<Array<Scalars['Boolean']>>;
-  receiveLocal?: InputMaybe<Scalars['Boolean']>;
-  receiveLocal_not?: InputMaybe<Scalars['Boolean']>;
-  receiveLocal_in?: InputMaybe<Array<Scalars['Boolean']>>;
-  receiveLocal_not_in?: InputMaybe<Array<Scalars['Boolean']>>;
-  callback?: InputMaybe<Scalars['staginggoerli_Bytes']>;
-  callback_not?: InputMaybe<Scalars['staginggoerli_Bytes']>;
-  callback_in?: InputMaybe<Array<Scalars['staginggoerli_Bytes']>>;
-  callback_not_in?: InputMaybe<Array<Scalars['staginggoerli_Bytes']>>;
-  callback_contains?: InputMaybe<Scalars['staginggoerli_Bytes']>;
-  callback_not_contains?: InputMaybe<Scalars['staginggoerli_Bytes']>;
-  callbackFee?: InputMaybe<Scalars['BigInt']>;
-  callbackFee_not?: InputMaybe<Scalars['BigInt']>;
-  callbackFee_gt?: InputMaybe<Scalars['BigInt']>;
-  callbackFee_lt?: InputMaybe<Scalars['BigInt']>;
-  callbackFee_gte?: InputMaybe<Scalars['BigInt']>;
-  callbackFee_lte?: InputMaybe<Scalars['BigInt']>;
-  callbackFee_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  callbackFee_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  relayerFee?: InputMaybe<Scalars['BigInt']>;
-  relayerFee_not?: InputMaybe<Scalars['BigInt']>;
-  relayerFee_gt?: InputMaybe<Scalars['BigInt']>;
-  relayerFee_lt?: InputMaybe<Scalars['BigInt']>;
-  relayerFee_gte?: InputMaybe<Scalars['BigInt']>;
-  relayerFee_lte?: InputMaybe<Scalars['BigInt']>;
-  relayerFee_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  relayerFee_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  destinationMinOut?: InputMaybe<Scalars['BigInt']>;
-  destinationMinOut_not?: InputMaybe<Scalars['BigInt']>;
-  destinationMinOut_gt?: InputMaybe<Scalars['BigInt']>;
-  destinationMinOut_lt?: InputMaybe<Scalars['BigInt']>;
-  destinationMinOut_gte?: InputMaybe<Scalars['BigInt']>;
-  destinationMinOut_lte?: InputMaybe<Scalars['BigInt']>;
-  destinationMinOut_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  destinationMinOut_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  status?: InputMaybe<staginggoerli_TransferStatus>;
-  status_not?: InputMaybe<staginggoerli_TransferStatus>;
-  status_in?: InputMaybe<Array<staginggoerli_TransferStatus>>;
-  status_not_in?: InputMaybe<Array<staginggoerli_TransferStatus>>;
-  originMinOut?: InputMaybe<Scalars['BigInt']>;
-  originMinOut_not?: InputMaybe<Scalars['BigInt']>;
-  originMinOut_gt?: InputMaybe<Scalars['BigInt']>;
-  originMinOut_lt?: InputMaybe<Scalars['BigInt']>;
-  originMinOut_gte?: InputMaybe<Scalars['BigInt']>;
-  originMinOut_lte?: InputMaybe<Scalars['BigInt']>;
-  originMinOut_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  originMinOut_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  transactingAsset?: InputMaybe<Scalars['staginggoerli_Bytes']>;
-  transactingAsset_not?: InputMaybe<Scalars['staginggoerli_Bytes']>;
-  transactingAsset_in?: InputMaybe<Array<Scalars['staginggoerli_Bytes']>>;
-  transactingAsset_not_in?: InputMaybe<Array<Scalars['staginggoerli_Bytes']>>;
-  transactingAsset_contains?: InputMaybe<Scalars['staginggoerli_Bytes']>;
-  transactingAsset_not_contains?: InputMaybe<Scalars['staginggoerli_Bytes']>;
-  transactingAmount?: InputMaybe<Scalars['BigInt']>;
-  transactingAmount_not?: InputMaybe<Scalars['BigInt']>;
-  transactingAmount_gt?: InputMaybe<Scalars['BigInt']>;
-  transactingAmount_lt?: InputMaybe<Scalars['BigInt']>;
-  transactingAmount_gte?: InputMaybe<Scalars['BigInt']>;
-  transactingAmount_lte?: InputMaybe<Scalars['BigInt']>;
-  transactingAmount_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  transactingAmount_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  bridgedAsset?: InputMaybe<Scalars['staginggoerli_Bytes']>;
-  bridgedAsset_not?: InputMaybe<Scalars['staginggoerli_Bytes']>;
-  bridgedAsset_in?: InputMaybe<Array<Scalars['staginggoerli_Bytes']>>;
-  bridgedAsset_not_in?: InputMaybe<Array<Scalars['staginggoerli_Bytes']>>;
-  bridgedAsset_contains?: InputMaybe<Scalars['staginggoerli_Bytes']>;
-  bridgedAsset_not_contains?: InputMaybe<Scalars['staginggoerli_Bytes']>;
-  bridgedAmount?: InputMaybe<Scalars['BigInt']>;
-  bridgedAmount_not?: InputMaybe<Scalars['BigInt']>;
-  bridgedAmount_gt?: InputMaybe<Scalars['BigInt']>;
-  bridgedAmount_lt?: InputMaybe<Scalars['BigInt']>;
-  bridgedAmount_gte?: InputMaybe<Scalars['BigInt']>;
-  bridgedAmount_lte?: InputMaybe<Scalars['BigInt']>;
-  bridgedAmount_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  bridgedAmount_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  message?: InputMaybe<Scalars['String']>;
-  message_not?: InputMaybe<Scalars['String']>;
-  message_gt?: InputMaybe<Scalars['String']>;
-  message_lt?: InputMaybe<Scalars['String']>;
-  message_gte?: InputMaybe<Scalars['String']>;
-  message_lte?: InputMaybe<Scalars['String']>;
-  message_in?: InputMaybe<Array<Scalars['String']>>;
-  message_not_in?: InputMaybe<Array<Scalars['String']>>;
-  message_contains?: InputMaybe<Scalars['String']>;
-  message_contains_nocase?: InputMaybe<Scalars['String']>;
-  message_not_contains?: InputMaybe<Scalars['String']>;
-  message_not_contains_nocase?: InputMaybe<Scalars['String']>;
-  message_starts_with?: InputMaybe<Scalars['String']>;
-  message_starts_with_nocase?: InputMaybe<Scalars['String']>;
-  message_not_starts_with?: InputMaybe<Scalars['String']>;
-  message_not_starts_with_nocase?: InputMaybe<Scalars['String']>;
-  message_ends_with?: InputMaybe<Scalars['String']>;
-  message_ends_with_nocase?: InputMaybe<Scalars['String']>;
-  message_not_ends_with?: InputMaybe<Scalars['String']>;
-  message_not_ends_with_nocase?: InputMaybe<Scalars['String']>;
-  message_?: InputMaybe<staginggoerli_OriginMessage_filter>;
-  caller?: InputMaybe<Scalars['staginggoerli_Bytes']>;
-  caller_not?: InputMaybe<Scalars['staginggoerli_Bytes']>;
-  caller_in?: InputMaybe<Array<Scalars['staginggoerli_Bytes']>>;
-  caller_not_in?: InputMaybe<Array<Scalars['staginggoerli_Bytes']>>;
-  caller_contains?: InputMaybe<Scalars['staginggoerli_Bytes']>;
-  caller_not_contains?: InputMaybe<Scalars['staginggoerli_Bytes']>;
-  transactionHash?: InputMaybe<Scalars['staginggoerli_Bytes']>;
-  transactionHash_not?: InputMaybe<Scalars['staginggoerli_Bytes']>;
-  transactionHash_in?: InputMaybe<Array<Scalars['staginggoerli_Bytes']>>;
-  transactionHash_not_in?: InputMaybe<Array<Scalars['staginggoerli_Bytes']>>;
-  transactionHash_contains?: InputMaybe<Scalars['staginggoerli_Bytes']>;
-  transactionHash_not_contains?: InputMaybe<Scalars['staginggoerli_Bytes']>;
-  timestamp?: InputMaybe<Scalars['BigInt']>;
-  timestamp_not?: InputMaybe<Scalars['BigInt']>;
-  timestamp_gt?: InputMaybe<Scalars['BigInt']>;
-  timestamp_lt?: InputMaybe<Scalars['BigInt']>;
-  timestamp_gte?: InputMaybe<Scalars['BigInt']>;
-  timestamp_lte?: InputMaybe<Scalars['BigInt']>;
-  timestamp_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  timestamp_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  gasPrice?: InputMaybe<Scalars['BigInt']>;
-  gasPrice_not?: InputMaybe<Scalars['BigInt']>;
-  gasPrice_gt?: InputMaybe<Scalars['BigInt']>;
-  gasPrice_lt?: InputMaybe<Scalars['BigInt']>;
-  gasPrice_gte?: InputMaybe<Scalars['BigInt']>;
-  gasPrice_lte?: InputMaybe<Scalars['BigInt']>;
-  gasPrice_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  gasPrice_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  gasLimit?: InputMaybe<Scalars['BigInt']>;
-  gasLimit_not?: InputMaybe<Scalars['BigInt']>;
-  gasLimit_gt?: InputMaybe<Scalars['BigInt']>;
-  gasLimit_lt?: InputMaybe<Scalars['BigInt']>;
-  gasLimit_gte?: InputMaybe<Scalars['BigInt']>;
-  gasLimit_lte?: InputMaybe<Scalars['BigInt']>;
-  gasLimit_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  gasLimit_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  blockNumber?: InputMaybe<Scalars['BigInt']>;
-  blockNumber_not?: InputMaybe<Scalars['BigInt']>;
-  blockNumber_gt?: InputMaybe<Scalars['BigInt']>;
-  blockNumber_lt?: InputMaybe<Scalars['BigInt']>;
-  blockNumber_gte?: InputMaybe<Scalars['BigInt']>;
-  blockNumber_lte?: InputMaybe<Scalars['BigInt']>;
-  blockNumber_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  blockNumber_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  /** Filter for the block changed event. */
-  _change_block?: InputMaybe<staginggoerli_BlockChangedFilter>;
-};
-
-export type staginggoerli_OriginTransfer_orderBy =
-  | 'id'
-  | 'chainId'
-  | 'transferId'
-  | 'nonce'
-  | 'to'
-  | 'callData'
-  | 'originDomain'
-  | 'destinationDomain'
-  | 'agent'
-  | 'recovery'
-  | 'forceSlow'
-  | 'receiveLocal'
-  | 'callback'
-  | 'callbackFee'
-  | 'relayerFee'
-  | 'destinationMinOut'
-  | 'status'
-  | 'originMinOut'
-  | 'transactingAsset'
-  | 'transactingAmount'
-  | 'bridgedAsset'
-  | 'bridgedAmount'
-  | 'message'
-  | 'caller'
-  | 'transactionHash'
-  | 'timestamp'
-  | 'gasPrice'
-  | 'gasLimit'
-  | 'blockNumber';
-
-export type staginggoerli_Relayer = {
-  id: Scalars['ID'];
-  isActive: Scalars['Boolean'];
-  relayer?: Maybe<Scalars['staginggoerli_Bytes']>;
-};
-
-export type staginggoerli_Relayer_filter = {
-  id?: InputMaybe<Scalars['ID']>;
-  id_not?: InputMaybe<Scalars['ID']>;
-  id_gt?: InputMaybe<Scalars['ID']>;
-  id_lt?: InputMaybe<Scalars['ID']>;
-  id_gte?: InputMaybe<Scalars['ID']>;
-  id_lte?: InputMaybe<Scalars['ID']>;
-  id_in?: InputMaybe<Array<Scalars['ID']>>;
-  id_not_in?: InputMaybe<Array<Scalars['ID']>>;
-  isActive?: InputMaybe<Scalars['Boolean']>;
-  isActive_not?: InputMaybe<Scalars['Boolean']>;
-  isActive_in?: InputMaybe<Array<Scalars['Boolean']>>;
-  isActive_not_in?: InputMaybe<Array<Scalars['Boolean']>>;
-  relayer?: InputMaybe<Scalars['staginggoerli_Bytes']>;
-  relayer_not?: InputMaybe<Scalars['staginggoerli_Bytes']>;
-  relayer_in?: InputMaybe<Array<Scalars['staginggoerli_Bytes']>>;
-  relayer_not_in?: InputMaybe<Array<Scalars['staginggoerli_Bytes']>>;
-  relayer_contains?: InputMaybe<Scalars['staginggoerli_Bytes']>;
-  relayer_not_contains?: InputMaybe<Scalars['staginggoerli_Bytes']>;
-  /** Filter for the block changed event. */
-  _change_block?: InputMaybe<staginggoerli_BlockChangedFilter>;
-};
-
-export type staginggoerli_Relayer_orderBy =
-  | 'id'
-  | 'isActive'
-  | 'relayer';
-
-export type staginggoerli_RootMessageProcessed = {
-  id: Scalars['ID'];
-  root?: Maybe<Scalars['staginggoerli_Bytes']>;
-  caller?: Maybe<Scalars['staginggoerli_Bytes']>;
-  transactionHash?: Maybe<Scalars['staginggoerli_Bytes']>;
-  timestamp?: Maybe<Scalars['BigInt']>;
-  gasPrice?: Maybe<Scalars['BigInt']>;
-  gasLimit?: Maybe<Scalars['BigInt']>;
-  blockNumber?: Maybe<Scalars['BigInt']>;
-};
-
-export type staginggoerli_RootMessageProcessed_filter = {
-  id?: InputMaybe<Scalars['ID']>;
-  id_not?: InputMaybe<Scalars['ID']>;
-  id_gt?: InputMaybe<Scalars['ID']>;
-  id_lt?: InputMaybe<Scalars['ID']>;
-  id_gte?: InputMaybe<Scalars['ID']>;
-  id_lte?: InputMaybe<Scalars['ID']>;
-  id_in?: InputMaybe<Array<Scalars['ID']>>;
-  id_not_in?: InputMaybe<Array<Scalars['ID']>>;
-  root?: InputMaybe<Scalars['staginggoerli_Bytes']>;
-  root_not?: InputMaybe<Scalars['staginggoerli_Bytes']>;
-  root_in?: InputMaybe<Array<Scalars['staginggoerli_Bytes']>>;
-  root_not_in?: InputMaybe<Array<Scalars['staginggoerli_Bytes']>>;
-  root_contains?: InputMaybe<Scalars['staginggoerli_Bytes']>;
-  root_not_contains?: InputMaybe<Scalars['staginggoerli_Bytes']>;
-  caller?: InputMaybe<Scalars['staginggoerli_Bytes']>;
-  caller_not?: InputMaybe<Scalars['staginggoerli_Bytes']>;
-  caller_in?: InputMaybe<Array<Scalars['staginggoerli_Bytes']>>;
-  caller_not_in?: InputMaybe<Array<Scalars['staginggoerli_Bytes']>>;
-  caller_contains?: InputMaybe<Scalars['staginggoerli_Bytes']>;
-  caller_not_contains?: InputMaybe<Scalars['staginggoerli_Bytes']>;
-  transactionHash?: InputMaybe<Scalars['staginggoerli_Bytes']>;
-  transactionHash_not?: InputMaybe<Scalars['staginggoerli_Bytes']>;
-  transactionHash_in?: InputMaybe<Array<Scalars['staginggoerli_Bytes']>>;
-  transactionHash_not_in?: InputMaybe<Array<Scalars['staginggoerli_Bytes']>>;
-  transactionHash_contains?: InputMaybe<Scalars['staginggoerli_Bytes']>;
-  transactionHash_not_contains?: InputMaybe<Scalars['staginggoerli_Bytes']>;
-  timestamp?: InputMaybe<Scalars['BigInt']>;
-  timestamp_not?: InputMaybe<Scalars['BigInt']>;
-  timestamp_gt?: InputMaybe<Scalars['BigInt']>;
-  timestamp_lt?: InputMaybe<Scalars['BigInt']>;
-  timestamp_gte?: InputMaybe<Scalars['BigInt']>;
-  timestamp_lte?: InputMaybe<Scalars['BigInt']>;
-  timestamp_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  timestamp_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  gasPrice?: InputMaybe<Scalars['BigInt']>;
-  gasPrice_not?: InputMaybe<Scalars['BigInt']>;
-  gasPrice_gt?: InputMaybe<Scalars['BigInt']>;
-  gasPrice_lt?: InputMaybe<Scalars['BigInt']>;
-  gasPrice_gte?: InputMaybe<Scalars['BigInt']>;
-  gasPrice_lte?: InputMaybe<Scalars['BigInt']>;
-  gasPrice_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  gasPrice_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  gasLimit?: InputMaybe<Scalars['BigInt']>;
-  gasLimit_not?: InputMaybe<Scalars['BigInt']>;
-  gasLimit_gt?: InputMaybe<Scalars['BigInt']>;
-  gasLimit_lt?: InputMaybe<Scalars['BigInt']>;
-  gasLimit_gte?: InputMaybe<Scalars['BigInt']>;
-  gasLimit_lte?: InputMaybe<Scalars['BigInt']>;
-  gasLimit_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  gasLimit_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  blockNumber?: InputMaybe<Scalars['BigInt']>;
-  blockNumber_not?: InputMaybe<Scalars['BigInt']>;
-  blockNumber_gt?: InputMaybe<Scalars['BigInt']>;
-  blockNumber_lt?: InputMaybe<Scalars['BigInt']>;
-  blockNumber_gte?: InputMaybe<Scalars['BigInt']>;
-  blockNumber_lte?: InputMaybe<Scalars['BigInt']>;
-  blockNumber_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  blockNumber_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  /** Filter for the block changed event. */
-  _change_block?: InputMaybe<staginggoerli_BlockChangedFilter>;
-};
-
-export type staginggoerli_RootMessageProcessed_orderBy =
-  | 'id'
-  | 'root'
-  | 'caller'
-  | 'transactionHash'
-  | 'timestamp'
-  | 'gasPrice'
-  | 'gasLimit'
-  | 'blockNumber';
-
-export type staginggoerli_RootMessageSent = {
-  id: Scalars['ID'];
-  spokeDomain?: Maybe<Scalars['BigInt']>;
-  hubDomain?: Maybe<Scalars['BigInt']>;
-  root?: Maybe<Scalars['staginggoerli_Bytes']>;
-  caller?: Maybe<Scalars['staginggoerli_Bytes']>;
-  transactionHash?: Maybe<Scalars['staginggoerli_Bytes']>;
-  timestamp?: Maybe<Scalars['BigInt']>;
-  gasPrice?: Maybe<Scalars['BigInt']>;
-  gasLimit?: Maybe<Scalars['BigInt']>;
-  blockNumber?: Maybe<Scalars['BigInt']>;
-};
-
-export type staginggoerli_RootMessageSent_filter = {
-  id?: InputMaybe<Scalars['ID']>;
-  id_not?: InputMaybe<Scalars['ID']>;
-  id_gt?: InputMaybe<Scalars['ID']>;
-  id_lt?: InputMaybe<Scalars['ID']>;
-  id_gte?: InputMaybe<Scalars['ID']>;
-  id_lte?: InputMaybe<Scalars['ID']>;
-  id_in?: InputMaybe<Array<Scalars['ID']>>;
-  id_not_in?: InputMaybe<Array<Scalars['ID']>>;
-  spokeDomain?: InputMaybe<Scalars['BigInt']>;
-  spokeDomain_not?: InputMaybe<Scalars['BigInt']>;
-  spokeDomain_gt?: InputMaybe<Scalars['BigInt']>;
-  spokeDomain_lt?: InputMaybe<Scalars['BigInt']>;
-  spokeDomain_gte?: InputMaybe<Scalars['BigInt']>;
-  spokeDomain_lte?: InputMaybe<Scalars['BigInt']>;
-  spokeDomain_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  spokeDomain_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  hubDomain?: InputMaybe<Scalars['BigInt']>;
-  hubDomain_not?: InputMaybe<Scalars['BigInt']>;
-  hubDomain_gt?: InputMaybe<Scalars['BigInt']>;
-  hubDomain_lt?: InputMaybe<Scalars['BigInt']>;
-  hubDomain_gte?: InputMaybe<Scalars['BigInt']>;
-  hubDomain_lte?: InputMaybe<Scalars['BigInt']>;
-  hubDomain_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  hubDomain_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  root?: InputMaybe<Scalars['staginggoerli_Bytes']>;
-  root_not?: InputMaybe<Scalars['staginggoerli_Bytes']>;
-  root_in?: InputMaybe<Array<Scalars['staginggoerli_Bytes']>>;
-  root_not_in?: InputMaybe<Array<Scalars['staginggoerli_Bytes']>>;
-  root_contains?: InputMaybe<Scalars['staginggoerli_Bytes']>;
-  root_not_contains?: InputMaybe<Scalars['staginggoerli_Bytes']>;
-  caller?: InputMaybe<Scalars['staginggoerli_Bytes']>;
-  caller_not?: InputMaybe<Scalars['staginggoerli_Bytes']>;
-  caller_in?: InputMaybe<Array<Scalars['staginggoerli_Bytes']>>;
-  caller_not_in?: InputMaybe<Array<Scalars['staginggoerli_Bytes']>>;
-  caller_contains?: InputMaybe<Scalars['staginggoerli_Bytes']>;
-  caller_not_contains?: InputMaybe<Scalars['staginggoerli_Bytes']>;
-  transactionHash?: InputMaybe<Scalars['staginggoerli_Bytes']>;
-  transactionHash_not?: InputMaybe<Scalars['staginggoerli_Bytes']>;
-  transactionHash_in?: InputMaybe<Array<Scalars['staginggoerli_Bytes']>>;
-  transactionHash_not_in?: InputMaybe<Array<Scalars['staginggoerli_Bytes']>>;
-  transactionHash_contains?: InputMaybe<Scalars['staginggoerli_Bytes']>;
-  transactionHash_not_contains?: InputMaybe<Scalars['staginggoerli_Bytes']>;
-  timestamp?: InputMaybe<Scalars['BigInt']>;
-  timestamp_not?: InputMaybe<Scalars['BigInt']>;
-  timestamp_gt?: InputMaybe<Scalars['BigInt']>;
-  timestamp_lt?: InputMaybe<Scalars['BigInt']>;
-  timestamp_gte?: InputMaybe<Scalars['BigInt']>;
-  timestamp_lte?: InputMaybe<Scalars['BigInt']>;
-  timestamp_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  timestamp_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  gasPrice?: InputMaybe<Scalars['BigInt']>;
-  gasPrice_not?: InputMaybe<Scalars['BigInt']>;
-  gasPrice_gt?: InputMaybe<Scalars['BigInt']>;
-  gasPrice_lt?: InputMaybe<Scalars['BigInt']>;
-  gasPrice_gte?: InputMaybe<Scalars['BigInt']>;
-  gasPrice_lte?: InputMaybe<Scalars['BigInt']>;
-  gasPrice_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  gasPrice_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  gasLimit?: InputMaybe<Scalars['BigInt']>;
-  gasLimit_not?: InputMaybe<Scalars['BigInt']>;
-  gasLimit_gt?: InputMaybe<Scalars['BigInt']>;
-  gasLimit_lt?: InputMaybe<Scalars['BigInt']>;
-  gasLimit_gte?: InputMaybe<Scalars['BigInt']>;
-  gasLimit_lte?: InputMaybe<Scalars['BigInt']>;
-  gasLimit_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  gasLimit_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  blockNumber?: InputMaybe<Scalars['BigInt']>;
-  blockNumber_not?: InputMaybe<Scalars['BigInt']>;
-  blockNumber_gt?: InputMaybe<Scalars['BigInt']>;
-  blockNumber_lt?: InputMaybe<Scalars['BigInt']>;
-  blockNumber_gte?: InputMaybe<Scalars['BigInt']>;
-  blockNumber_lte?: InputMaybe<Scalars['BigInt']>;
-  blockNumber_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  blockNumber_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  /** Filter for the block changed event. */
-  _change_block?: InputMaybe<staginggoerli_BlockChangedFilter>;
-};
-
-export type staginggoerli_RootMessageSent_orderBy =
-  | 'id'
-  | 'spokeDomain'
-  | 'hubDomain'
-  | 'root'
-  | 'caller'
-  | 'transactionHash'
-  | 'timestamp'
-  | 'gasPrice'
-  | 'gasLimit'
-  | 'blockNumber';
-
-export type staginggoerli_Router = {
-  id: Scalars['ID'];
-  isActive: Scalars['Boolean'];
-  owner?: Maybe<Scalars['staginggoerli_Bytes']>;
-  recipient?: Maybe<Scalars['staginggoerli_Bytes']>;
-  proposedOwner?: Maybe<Scalars['staginggoerli_Bytes']>;
-  proposedTimestamp?: Maybe<Scalars['BigInt']>;
-  assetBalances: Array<staginggoerli_AssetBalance>;
-};
-
-
-export type staginggoerli_RouterassetBalancesArgs = {
-  skip?: InputMaybe<Scalars['Int']>;
-  first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<staginggoerli_AssetBalance_orderBy>;
-  orderDirection?: InputMaybe<staginggoerli_OrderDirection>;
-  where?: InputMaybe<staginggoerli_AssetBalance_filter>;
-};
-
-export type staginggoerli_Router_filter = {
-  id?: InputMaybe<Scalars['ID']>;
-  id_not?: InputMaybe<Scalars['ID']>;
-  id_gt?: InputMaybe<Scalars['ID']>;
-  id_lt?: InputMaybe<Scalars['ID']>;
-  id_gte?: InputMaybe<Scalars['ID']>;
-  id_lte?: InputMaybe<Scalars['ID']>;
-  id_in?: InputMaybe<Array<Scalars['ID']>>;
-  id_not_in?: InputMaybe<Array<Scalars['ID']>>;
-  isActive?: InputMaybe<Scalars['Boolean']>;
-  isActive_not?: InputMaybe<Scalars['Boolean']>;
-  isActive_in?: InputMaybe<Array<Scalars['Boolean']>>;
-  isActive_not_in?: InputMaybe<Array<Scalars['Boolean']>>;
-  owner?: InputMaybe<Scalars['staginggoerli_Bytes']>;
-  owner_not?: InputMaybe<Scalars['staginggoerli_Bytes']>;
-  owner_in?: InputMaybe<Array<Scalars['staginggoerli_Bytes']>>;
-  owner_not_in?: InputMaybe<Array<Scalars['staginggoerli_Bytes']>>;
-  owner_contains?: InputMaybe<Scalars['staginggoerli_Bytes']>;
-  owner_not_contains?: InputMaybe<Scalars['staginggoerli_Bytes']>;
-  recipient?: InputMaybe<Scalars['staginggoerli_Bytes']>;
-  recipient_not?: InputMaybe<Scalars['staginggoerli_Bytes']>;
-  recipient_in?: InputMaybe<Array<Scalars['staginggoerli_Bytes']>>;
-  recipient_not_in?: InputMaybe<Array<Scalars['staginggoerli_Bytes']>>;
-  recipient_contains?: InputMaybe<Scalars['staginggoerli_Bytes']>;
-  recipient_not_contains?: InputMaybe<Scalars['staginggoerli_Bytes']>;
-  proposedOwner?: InputMaybe<Scalars['staginggoerli_Bytes']>;
-  proposedOwner_not?: InputMaybe<Scalars['staginggoerli_Bytes']>;
-  proposedOwner_in?: InputMaybe<Array<Scalars['staginggoerli_Bytes']>>;
-  proposedOwner_not_in?: InputMaybe<Array<Scalars['staginggoerli_Bytes']>>;
-  proposedOwner_contains?: InputMaybe<Scalars['staginggoerli_Bytes']>;
-  proposedOwner_not_contains?: InputMaybe<Scalars['staginggoerli_Bytes']>;
-  proposedTimestamp?: InputMaybe<Scalars['BigInt']>;
-  proposedTimestamp_not?: InputMaybe<Scalars['BigInt']>;
-  proposedTimestamp_gt?: InputMaybe<Scalars['BigInt']>;
-  proposedTimestamp_lt?: InputMaybe<Scalars['BigInt']>;
-  proposedTimestamp_gte?: InputMaybe<Scalars['BigInt']>;
-  proposedTimestamp_lte?: InputMaybe<Scalars['BigInt']>;
-  proposedTimestamp_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  proposedTimestamp_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  assetBalances_?: InputMaybe<staginggoerli_AssetBalance_filter>;
-  /** Filter for the block changed event. */
-  _change_block?: InputMaybe<staginggoerli_BlockChangedFilter>;
-};
-
-export type staginggoerli_Router_orderBy =
-  | 'id'
-  | 'isActive'
-  | 'owner'
-  | 'recipient'
-  | 'proposedOwner'
-  | 'proposedTimestamp'
-  | 'assetBalances';
-
-export type staginggoerli_Setting = {
-  id: Scalars['ID'];
-  maxRoutersPerTransfer: Scalars['BigInt'];
-  caller: Scalars['staginggoerli_Bytes'];
-};
-
-export type staginggoerli_Setting_filter = {
-  id?: InputMaybe<Scalars['ID']>;
-  id_not?: InputMaybe<Scalars['ID']>;
-  id_gt?: InputMaybe<Scalars['ID']>;
-  id_lt?: InputMaybe<Scalars['ID']>;
-  id_gte?: InputMaybe<Scalars['ID']>;
-  id_lte?: InputMaybe<Scalars['ID']>;
-  id_in?: InputMaybe<Array<Scalars['ID']>>;
-  id_not_in?: InputMaybe<Array<Scalars['ID']>>;
-  maxRoutersPerTransfer?: InputMaybe<Scalars['BigInt']>;
-  maxRoutersPerTransfer_not?: InputMaybe<Scalars['BigInt']>;
-  maxRoutersPerTransfer_gt?: InputMaybe<Scalars['BigInt']>;
-  maxRoutersPerTransfer_lt?: InputMaybe<Scalars['BigInt']>;
-  maxRoutersPerTransfer_gte?: InputMaybe<Scalars['BigInt']>;
-  maxRoutersPerTransfer_lte?: InputMaybe<Scalars['BigInt']>;
-  maxRoutersPerTransfer_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  maxRoutersPerTransfer_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  caller?: InputMaybe<Scalars['staginggoerli_Bytes']>;
-  caller_not?: InputMaybe<Scalars['staginggoerli_Bytes']>;
-  caller_in?: InputMaybe<Array<Scalars['staginggoerli_Bytes']>>;
-  caller_not_in?: InputMaybe<Array<Scalars['staginggoerli_Bytes']>>;
-  caller_contains?: InputMaybe<Scalars['staginggoerli_Bytes']>;
-  caller_not_contains?: InputMaybe<Scalars['staginggoerli_Bytes']>;
-  /** Filter for the block changed event. */
-  _change_block?: InputMaybe<staginggoerli_BlockChangedFilter>;
-};
-
-export type staginggoerli_Setting_orderBy =
-  | 'id'
-  | 'maxRoutersPerTransfer'
-  | 'caller';
-
-export type staginggoerli_SponsorVault = {
-  id: Scalars['ID'];
-  sponsorVault: Scalars['staginggoerli_Bytes'];
-};
-
-export type staginggoerli_SponsorVault_filter = {
-  id?: InputMaybe<Scalars['ID']>;
-  id_not?: InputMaybe<Scalars['ID']>;
-  id_gt?: InputMaybe<Scalars['ID']>;
-  id_lt?: InputMaybe<Scalars['ID']>;
-  id_gte?: InputMaybe<Scalars['ID']>;
-  id_lte?: InputMaybe<Scalars['ID']>;
-  id_in?: InputMaybe<Array<Scalars['ID']>>;
-  id_not_in?: InputMaybe<Array<Scalars['ID']>>;
-  sponsorVault?: InputMaybe<Scalars['staginggoerli_Bytes']>;
-  sponsorVault_not?: InputMaybe<Scalars['staginggoerli_Bytes']>;
-  sponsorVault_in?: InputMaybe<Array<Scalars['staginggoerli_Bytes']>>;
-  sponsorVault_not_in?: InputMaybe<Array<Scalars['staginggoerli_Bytes']>>;
-  sponsorVault_contains?: InputMaybe<Scalars['staginggoerli_Bytes']>;
-  sponsorVault_not_contains?: InputMaybe<Scalars['staginggoerli_Bytes']>;
-  /** Filter for the block changed event. */
-  _change_block?: InputMaybe<staginggoerli_BlockChangedFilter>;
-};
-
-export type staginggoerli_SponsorVault_orderBy =
-  | 'id'
-  | 'sponsorVault';
-
-export type staginggoerli_StableSwap = {
-  id: Scalars['ID'];
-  canonicalId: Scalars['staginggoerli_Bytes'];
-  domain?: Maybe<Scalars['BigInt']>;
-  swapPool: Scalars['staginggoerli_Bytes'];
-};
-
-export type staginggoerli_StableSwap_filter = {
-  id?: InputMaybe<Scalars['ID']>;
-  id_not?: InputMaybe<Scalars['ID']>;
-  id_gt?: InputMaybe<Scalars['ID']>;
-  id_lt?: InputMaybe<Scalars['ID']>;
-  id_gte?: InputMaybe<Scalars['ID']>;
-  id_lte?: InputMaybe<Scalars['ID']>;
-  id_in?: InputMaybe<Array<Scalars['ID']>>;
-  id_not_in?: InputMaybe<Array<Scalars['ID']>>;
-  canonicalId?: InputMaybe<Scalars['staginggoerli_Bytes']>;
-  canonicalId_not?: InputMaybe<Scalars['staginggoerli_Bytes']>;
-  canonicalId_in?: InputMaybe<Array<Scalars['staginggoerli_Bytes']>>;
-  canonicalId_not_in?: InputMaybe<Array<Scalars['staginggoerli_Bytes']>>;
-  canonicalId_contains?: InputMaybe<Scalars['staginggoerli_Bytes']>;
-  canonicalId_not_contains?: InputMaybe<Scalars['staginggoerli_Bytes']>;
-  domain?: InputMaybe<Scalars['BigInt']>;
-  domain_not?: InputMaybe<Scalars['BigInt']>;
-  domain_gt?: InputMaybe<Scalars['BigInt']>;
-  domain_lt?: InputMaybe<Scalars['BigInt']>;
-  domain_gte?: InputMaybe<Scalars['BigInt']>;
-  domain_lte?: InputMaybe<Scalars['BigInt']>;
-  domain_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  domain_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  swapPool?: InputMaybe<Scalars['staginggoerli_Bytes']>;
-  swapPool_not?: InputMaybe<Scalars['staginggoerli_Bytes']>;
-  swapPool_in?: InputMaybe<Array<Scalars['staginggoerli_Bytes']>>;
-  swapPool_not_in?: InputMaybe<Array<Scalars['staginggoerli_Bytes']>>;
-  swapPool_contains?: InputMaybe<Scalars['staginggoerli_Bytes']>;
-  swapPool_not_contains?: InputMaybe<Scalars['staginggoerli_Bytes']>;
-  /** Filter for the block changed event. */
-  _change_block?: InputMaybe<staginggoerli_BlockChangedFilter>;
-};
-
-export type staginggoerli_StableSwap_orderBy =
-  | 'id'
-  | 'canonicalId'
-  | 'domain'
-  | 'swapPool';
-
-export type staginggoerli_TransferStatus =
-  | 'XCalled'
-  | 'Executed'
-  | 'Reconciled'
-  | 'CompletedSlow'
-  | 'CompletedFast';
-
-export type staginggoerli__Block_ = {
-  /** The hash of the block */
-  hash?: Maybe<Scalars['staginggoerli_Bytes']>;
-  /** The block number */
-  number: Scalars['Int'];
-  /** Integer representation of the timestamp stored in blocks for the chain */
-  timestamp?: Maybe<Scalars['Int']>;
-};
-
-/** The type for the top-level _meta field */
-export type staginggoerli__Meta_ = {
-  /**
-   * Information about a specific subgraph block. The hash of the block
-   * will be null if the _meta field has a block constraint that asks for
-   * a block number. It will be filled if the _meta field has no block constraint
-   * and therefore asks for the latest  block
-   *
-   */
-  block: staginggoerli__Block_;
+  block: rinkeby__Block_;
   /** The deployment ID */
   deployment: Scalars['String'];
   /** If `true`, the subgraph encountered indexing errors at some past block */
@@ -12478,24 +10024,24 @@ export type goerli__Meta_ = {
   hasIndexingErrors: Scalars['Boolean'];
 };
 
-export type local1338_Asset = {
+export type testoptimismgoerli_Asset = {
   id: Scalars['ID'];
-  key?: Maybe<Scalars['local1338_Bytes']>;
-  local: Scalars['local1338_Bytes'];
-  adoptedAsset: Scalars['local1338_Bytes'];
-  canonicalId: Scalars['local1338_Bytes'];
+  key?: Maybe<Scalars['testoptimismgoerli_Bytes']>;
+  local: Scalars['testoptimismgoerli_Bytes'];
+  adoptedAsset: Scalars['testoptimismgoerli_Bytes'];
+  canonicalId: Scalars['testoptimismgoerli_Bytes'];
   canonicalDomain: Scalars['BigInt'];
   blockNumber: Scalars['BigInt'];
 };
 
-export type local1338_AssetBalance = {
+export type testoptimismgoerli_AssetBalance = {
   id: Scalars['ID'];
   amount: Scalars['BigInt'];
-  router: local1338_Router;
-  asset: local1338_Asset;
+  router: testoptimismgoerli_Router;
+  asset: testoptimismgoerli_Asset;
 };
 
-export type local1338_AssetBalance_filter = {
+export type testoptimismgoerli_AssetBalance_filter = {
   id?: InputMaybe<Scalars['ID']>;
   id_not?: InputMaybe<Scalars['ID']>;
   id_gt?: InputMaybe<Scalars['ID']>;
@@ -12532,7 +10078,7 @@ export type local1338_AssetBalance_filter = {
   router_ends_with_nocase?: InputMaybe<Scalars['String']>;
   router_not_ends_with?: InputMaybe<Scalars['String']>;
   router_not_ends_with_nocase?: InputMaybe<Scalars['String']>;
-  router_?: InputMaybe<local1338_Router_filter>;
+  router_?: InputMaybe<testoptimismgoerli_Router_filter>;
   asset?: InputMaybe<Scalars['String']>;
   asset_not?: InputMaybe<Scalars['String']>;
   asset_gt?: InputMaybe<Scalars['String']>;
@@ -12553,18 +10099,18 @@ export type local1338_AssetBalance_filter = {
   asset_ends_with_nocase?: InputMaybe<Scalars['String']>;
   asset_not_ends_with?: InputMaybe<Scalars['String']>;
   asset_not_ends_with_nocase?: InputMaybe<Scalars['String']>;
-  asset_?: InputMaybe<local1338_Asset_filter>;
+  asset_?: InputMaybe<testoptimismgoerli_Asset_filter>;
   /** Filter for the block changed event. */
-  _change_block?: InputMaybe<local1338_BlockChangedFilter>;
+  _change_block?: InputMaybe<testoptimismgoerli_BlockChangedFilter>;
 };
 
-export type local1338_AssetBalance_orderBy =
+export type testoptimismgoerli_AssetBalance_orderBy =
   | 'id'
   | 'amount'
   | 'router'
   | 'asset';
 
-export type local1338_Asset_filter = {
+export type testoptimismgoerli_Asset_filter = {
   id?: InputMaybe<Scalars['ID']>;
   id_not?: InputMaybe<Scalars['ID']>;
   id_gt?: InputMaybe<Scalars['ID']>;
@@ -12573,30 +10119,30 @@ export type local1338_Asset_filter = {
   id_lte?: InputMaybe<Scalars['ID']>;
   id_in?: InputMaybe<Array<Scalars['ID']>>;
   id_not_in?: InputMaybe<Array<Scalars['ID']>>;
-  key?: InputMaybe<Scalars['local1338_Bytes']>;
-  key_not?: InputMaybe<Scalars['local1338_Bytes']>;
-  key_in?: InputMaybe<Array<Scalars['local1338_Bytes']>>;
-  key_not_in?: InputMaybe<Array<Scalars['local1338_Bytes']>>;
-  key_contains?: InputMaybe<Scalars['local1338_Bytes']>;
-  key_not_contains?: InputMaybe<Scalars['local1338_Bytes']>;
-  local?: InputMaybe<Scalars['local1338_Bytes']>;
-  local_not?: InputMaybe<Scalars['local1338_Bytes']>;
-  local_in?: InputMaybe<Array<Scalars['local1338_Bytes']>>;
-  local_not_in?: InputMaybe<Array<Scalars['local1338_Bytes']>>;
-  local_contains?: InputMaybe<Scalars['local1338_Bytes']>;
-  local_not_contains?: InputMaybe<Scalars['local1338_Bytes']>;
-  adoptedAsset?: InputMaybe<Scalars['local1338_Bytes']>;
-  adoptedAsset_not?: InputMaybe<Scalars['local1338_Bytes']>;
-  adoptedAsset_in?: InputMaybe<Array<Scalars['local1338_Bytes']>>;
-  adoptedAsset_not_in?: InputMaybe<Array<Scalars['local1338_Bytes']>>;
-  adoptedAsset_contains?: InputMaybe<Scalars['local1338_Bytes']>;
-  adoptedAsset_not_contains?: InputMaybe<Scalars['local1338_Bytes']>;
-  canonicalId?: InputMaybe<Scalars['local1338_Bytes']>;
-  canonicalId_not?: InputMaybe<Scalars['local1338_Bytes']>;
-  canonicalId_in?: InputMaybe<Array<Scalars['local1338_Bytes']>>;
-  canonicalId_not_in?: InputMaybe<Array<Scalars['local1338_Bytes']>>;
-  canonicalId_contains?: InputMaybe<Scalars['local1338_Bytes']>;
-  canonicalId_not_contains?: InputMaybe<Scalars['local1338_Bytes']>;
+  key?: InputMaybe<Scalars['testoptimismgoerli_Bytes']>;
+  key_not?: InputMaybe<Scalars['testoptimismgoerli_Bytes']>;
+  key_in?: InputMaybe<Array<Scalars['testoptimismgoerli_Bytes']>>;
+  key_not_in?: InputMaybe<Array<Scalars['testoptimismgoerli_Bytes']>>;
+  key_contains?: InputMaybe<Scalars['testoptimismgoerli_Bytes']>;
+  key_not_contains?: InputMaybe<Scalars['testoptimismgoerli_Bytes']>;
+  local?: InputMaybe<Scalars['testoptimismgoerli_Bytes']>;
+  local_not?: InputMaybe<Scalars['testoptimismgoerli_Bytes']>;
+  local_in?: InputMaybe<Array<Scalars['testoptimismgoerli_Bytes']>>;
+  local_not_in?: InputMaybe<Array<Scalars['testoptimismgoerli_Bytes']>>;
+  local_contains?: InputMaybe<Scalars['testoptimismgoerli_Bytes']>;
+  local_not_contains?: InputMaybe<Scalars['testoptimismgoerli_Bytes']>;
+  adoptedAsset?: InputMaybe<Scalars['testoptimismgoerli_Bytes']>;
+  adoptedAsset_not?: InputMaybe<Scalars['testoptimismgoerli_Bytes']>;
+  adoptedAsset_in?: InputMaybe<Array<Scalars['testoptimismgoerli_Bytes']>>;
+  adoptedAsset_not_in?: InputMaybe<Array<Scalars['testoptimismgoerli_Bytes']>>;
+  adoptedAsset_contains?: InputMaybe<Scalars['testoptimismgoerli_Bytes']>;
+  adoptedAsset_not_contains?: InputMaybe<Scalars['testoptimismgoerli_Bytes']>;
+  canonicalId?: InputMaybe<Scalars['testoptimismgoerli_Bytes']>;
+  canonicalId_not?: InputMaybe<Scalars['testoptimismgoerli_Bytes']>;
+  canonicalId_in?: InputMaybe<Array<Scalars['testoptimismgoerli_Bytes']>>;
+  canonicalId_not_in?: InputMaybe<Array<Scalars['testoptimismgoerli_Bytes']>>;
+  canonicalId_contains?: InputMaybe<Scalars['testoptimismgoerli_Bytes']>;
+  canonicalId_not_contains?: InputMaybe<Scalars['testoptimismgoerli_Bytes']>;
   canonicalDomain?: InputMaybe<Scalars['BigInt']>;
   canonicalDomain_not?: InputMaybe<Scalars['BigInt']>;
   canonicalDomain_gt?: InputMaybe<Scalars['BigInt']>;
@@ -12614,10 +10160,10 @@ export type local1338_Asset_filter = {
   blockNumber_in?: InputMaybe<Array<Scalars['BigInt']>>;
   blockNumber_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
   /** Filter for the block changed event. */
-  _change_block?: InputMaybe<local1338_BlockChangedFilter>;
+  _change_block?: InputMaybe<testoptimismgoerli_BlockChangedFilter>;
 };
 
-export type local1338_Asset_orderBy =
+export type testoptimismgoerli_Asset_orderBy =
   | 'id'
   | 'key'
   | 'local'
@@ -12626,49 +10172,49 @@ export type local1338_Asset_orderBy =
   | 'canonicalDomain'
   | 'blockNumber';
 
-export type local1338_BlockChangedFilter = {
+export type testoptimismgoerli_BlockChangedFilter = {
   number_gte: Scalars['Int'];
 };
 
-export type local1338_Block_height = {
-  hash?: InputMaybe<Scalars['local1338_Bytes']>;
+export type testoptimismgoerli_Block_height = {
+  hash?: InputMaybe<Scalars['testoptimismgoerli_Bytes']>;
   number?: InputMaybe<Scalars['Int']>;
   number_gte?: InputMaybe<Scalars['Int']>;
 };
 
-export type local1338_DestinationTransfer = {
+export type testoptimismgoerli_DestinationTransfer = {
   id: Scalars['ID'];
   chainId?: Maybe<Scalars['BigInt']>;
-  transferId?: Maybe<Scalars['local1338_Bytes']>;
+  transferId?: Maybe<Scalars['testoptimismgoerli_Bytes']>;
   nonce?: Maybe<Scalars['BigInt']>;
-  to?: Maybe<Scalars['local1338_Bytes']>;
-  callData?: Maybe<Scalars['local1338_Bytes']>;
+  to?: Maybe<Scalars['testoptimismgoerli_Bytes']>;
+  callData?: Maybe<Scalars['testoptimismgoerli_Bytes']>;
   originDomain?: Maybe<Scalars['BigInt']>;
   destinationDomain?: Maybe<Scalars['BigInt']>;
-  agent?: Maybe<Scalars['local1338_Bytes']>;
-  recovery?: Maybe<Scalars['local1338_Bytes']>;
+  agent?: Maybe<Scalars['testoptimismgoerli_Bytes']>;
+  recovery?: Maybe<Scalars['testoptimismgoerli_Bytes']>;
   forceSlow?: Maybe<Scalars['Boolean']>;
   receiveLocal?: Maybe<Scalars['Boolean']>;
-  callback?: Maybe<Scalars['local1338_Bytes']>;
+  callback?: Maybe<Scalars['testoptimismgoerli_Bytes']>;
   callbackFee?: Maybe<Scalars['BigInt']>;
   relayerFee?: Maybe<Scalars['BigInt']>;
   destinationMinOut?: Maybe<Scalars['BigInt']>;
-  status?: Maybe<local1338_TransferStatus>;
-  routers?: Maybe<Array<local1338_Router>>;
-  originSender?: Maybe<Scalars['local1338_Bytes']>;
-  transactingAsset?: Maybe<Scalars['local1338_Bytes']>;
+  status?: Maybe<testoptimismgoerli_TransferStatus>;
+  routers?: Maybe<Array<testoptimismgoerli_Router>>;
+  originSender?: Maybe<Scalars['testoptimismgoerli_Bytes']>;
+  transactingAsset?: Maybe<Scalars['testoptimismgoerli_Bytes']>;
   transactingAmount?: Maybe<Scalars['BigInt']>;
-  localAsset?: Maybe<Scalars['local1338_Bytes']>;
+  localAsset?: Maybe<Scalars['testoptimismgoerli_Bytes']>;
   localAmount?: Maybe<Scalars['BigInt']>;
   sponsorVaultRelayerFee?: Maybe<Scalars['BigInt']>;
-  executedCaller?: Maybe<Scalars['local1338_Bytes']>;
-  executedTransactionHash?: Maybe<Scalars['local1338_Bytes']>;
+  executedCaller?: Maybe<Scalars['testoptimismgoerli_Bytes']>;
+  executedTransactionHash?: Maybe<Scalars['testoptimismgoerli_Bytes']>;
   executedTimestamp?: Maybe<Scalars['BigInt']>;
   executedGasPrice?: Maybe<Scalars['BigInt']>;
   executedGasLimit?: Maybe<Scalars['BigInt']>;
   executedBlockNumber?: Maybe<Scalars['BigInt']>;
-  reconciledCaller?: Maybe<Scalars['local1338_Bytes']>;
-  reconciledTransactionHash?: Maybe<Scalars['local1338_Bytes']>;
+  reconciledCaller?: Maybe<Scalars['testoptimismgoerli_Bytes']>;
+  reconciledTransactionHash?: Maybe<Scalars['testoptimismgoerli_Bytes']>;
   reconciledTimestamp?: Maybe<Scalars['BigInt']>;
   reconciledGasPrice?: Maybe<Scalars['BigInt']>;
   reconciledGasLimit?: Maybe<Scalars['BigInt']>;
@@ -12676,15 +10222,15 @@ export type local1338_DestinationTransfer = {
 };
 
 
-export type local1338_DestinationTransferroutersArgs = {
+export type testoptimismgoerli_DestinationTransferroutersArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<local1338_Router_orderBy>;
-  orderDirection?: InputMaybe<local1338_OrderDirection>;
-  where?: InputMaybe<local1338_Router_filter>;
+  orderBy?: InputMaybe<testoptimismgoerli_Router_orderBy>;
+  orderDirection?: InputMaybe<testoptimismgoerli_OrderDirection>;
+  where?: InputMaybe<testoptimismgoerli_Router_filter>;
 };
 
-export type local1338_DestinationTransfer_filter = {
+export type testoptimismgoerli_DestinationTransfer_filter = {
   id?: InputMaybe<Scalars['ID']>;
   id_not?: InputMaybe<Scalars['ID']>;
   id_gt?: InputMaybe<Scalars['ID']>;
@@ -12701,12 +10247,12 @@ export type local1338_DestinationTransfer_filter = {
   chainId_lte?: InputMaybe<Scalars['BigInt']>;
   chainId_in?: InputMaybe<Array<Scalars['BigInt']>>;
   chainId_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  transferId?: InputMaybe<Scalars['local1338_Bytes']>;
-  transferId_not?: InputMaybe<Scalars['local1338_Bytes']>;
-  transferId_in?: InputMaybe<Array<Scalars['local1338_Bytes']>>;
-  transferId_not_in?: InputMaybe<Array<Scalars['local1338_Bytes']>>;
-  transferId_contains?: InputMaybe<Scalars['local1338_Bytes']>;
-  transferId_not_contains?: InputMaybe<Scalars['local1338_Bytes']>;
+  transferId?: InputMaybe<Scalars['testoptimismgoerli_Bytes']>;
+  transferId_not?: InputMaybe<Scalars['testoptimismgoerli_Bytes']>;
+  transferId_in?: InputMaybe<Array<Scalars['testoptimismgoerli_Bytes']>>;
+  transferId_not_in?: InputMaybe<Array<Scalars['testoptimismgoerli_Bytes']>>;
+  transferId_contains?: InputMaybe<Scalars['testoptimismgoerli_Bytes']>;
+  transferId_not_contains?: InputMaybe<Scalars['testoptimismgoerli_Bytes']>;
   nonce?: InputMaybe<Scalars['BigInt']>;
   nonce_not?: InputMaybe<Scalars['BigInt']>;
   nonce_gt?: InputMaybe<Scalars['BigInt']>;
@@ -12715,18 +10261,18 @@ export type local1338_DestinationTransfer_filter = {
   nonce_lte?: InputMaybe<Scalars['BigInt']>;
   nonce_in?: InputMaybe<Array<Scalars['BigInt']>>;
   nonce_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  to?: InputMaybe<Scalars['local1338_Bytes']>;
-  to_not?: InputMaybe<Scalars['local1338_Bytes']>;
-  to_in?: InputMaybe<Array<Scalars['local1338_Bytes']>>;
-  to_not_in?: InputMaybe<Array<Scalars['local1338_Bytes']>>;
-  to_contains?: InputMaybe<Scalars['local1338_Bytes']>;
-  to_not_contains?: InputMaybe<Scalars['local1338_Bytes']>;
-  callData?: InputMaybe<Scalars['local1338_Bytes']>;
-  callData_not?: InputMaybe<Scalars['local1338_Bytes']>;
-  callData_in?: InputMaybe<Array<Scalars['local1338_Bytes']>>;
-  callData_not_in?: InputMaybe<Array<Scalars['local1338_Bytes']>>;
-  callData_contains?: InputMaybe<Scalars['local1338_Bytes']>;
-  callData_not_contains?: InputMaybe<Scalars['local1338_Bytes']>;
+  to?: InputMaybe<Scalars['testoptimismgoerli_Bytes']>;
+  to_not?: InputMaybe<Scalars['testoptimismgoerli_Bytes']>;
+  to_in?: InputMaybe<Array<Scalars['testoptimismgoerli_Bytes']>>;
+  to_not_in?: InputMaybe<Array<Scalars['testoptimismgoerli_Bytes']>>;
+  to_contains?: InputMaybe<Scalars['testoptimismgoerli_Bytes']>;
+  to_not_contains?: InputMaybe<Scalars['testoptimismgoerli_Bytes']>;
+  callData?: InputMaybe<Scalars['testoptimismgoerli_Bytes']>;
+  callData_not?: InputMaybe<Scalars['testoptimismgoerli_Bytes']>;
+  callData_in?: InputMaybe<Array<Scalars['testoptimismgoerli_Bytes']>>;
+  callData_not_in?: InputMaybe<Array<Scalars['testoptimismgoerli_Bytes']>>;
+  callData_contains?: InputMaybe<Scalars['testoptimismgoerli_Bytes']>;
+  callData_not_contains?: InputMaybe<Scalars['testoptimismgoerli_Bytes']>;
   originDomain?: InputMaybe<Scalars['BigInt']>;
   originDomain_not?: InputMaybe<Scalars['BigInt']>;
   originDomain_gt?: InputMaybe<Scalars['BigInt']>;
@@ -12743,18 +10289,18 @@ export type local1338_DestinationTransfer_filter = {
   destinationDomain_lte?: InputMaybe<Scalars['BigInt']>;
   destinationDomain_in?: InputMaybe<Array<Scalars['BigInt']>>;
   destinationDomain_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  agent?: InputMaybe<Scalars['local1338_Bytes']>;
-  agent_not?: InputMaybe<Scalars['local1338_Bytes']>;
-  agent_in?: InputMaybe<Array<Scalars['local1338_Bytes']>>;
-  agent_not_in?: InputMaybe<Array<Scalars['local1338_Bytes']>>;
-  agent_contains?: InputMaybe<Scalars['local1338_Bytes']>;
-  agent_not_contains?: InputMaybe<Scalars['local1338_Bytes']>;
-  recovery?: InputMaybe<Scalars['local1338_Bytes']>;
-  recovery_not?: InputMaybe<Scalars['local1338_Bytes']>;
-  recovery_in?: InputMaybe<Array<Scalars['local1338_Bytes']>>;
-  recovery_not_in?: InputMaybe<Array<Scalars['local1338_Bytes']>>;
-  recovery_contains?: InputMaybe<Scalars['local1338_Bytes']>;
-  recovery_not_contains?: InputMaybe<Scalars['local1338_Bytes']>;
+  agent?: InputMaybe<Scalars['testoptimismgoerli_Bytes']>;
+  agent_not?: InputMaybe<Scalars['testoptimismgoerli_Bytes']>;
+  agent_in?: InputMaybe<Array<Scalars['testoptimismgoerli_Bytes']>>;
+  agent_not_in?: InputMaybe<Array<Scalars['testoptimismgoerli_Bytes']>>;
+  agent_contains?: InputMaybe<Scalars['testoptimismgoerli_Bytes']>;
+  agent_not_contains?: InputMaybe<Scalars['testoptimismgoerli_Bytes']>;
+  recovery?: InputMaybe<Scalars['testoptimismgoerli_Bytes']>;
+  recovery_not?: InputMaybe<Scalars['testoptimismgoerli_Bytes']>;
+  recovery_in?: InputMaybe<Array<Scalars['testoptimismgoerli_Bytes']>>;
+  recovery_not_in?: InputMaybe<Array<Scalars['testoptimismgoerli_Bytes']>>;
+  recovery_contains?: InputMaybe<Scalars['testoptimismgoerli_Bytes']>;
+  recovery_not_contains?: InputMaybe<Scalars['testoptimismgoerli_Bytes']>;
   forceSlow?: InputMaybe<Scalars['Boolean']>;
   forceSlow_not?: InputMaybe<Scalars['Boolean']>;
   forceSlow_in?: InputMaybe<Array<Scalars['Boolean']>>;
@@ -12763,12 +10309,12 @@ export type local1338_DestinationTransfer_filter = {
   receiveLocal_not?: InputMaybe<Scalars['Boolean']>;
   receiveLocal_in?: InputMaybe<Array<Scalars['Boolean']>>;
   receiveLocal_not_in?: InputMaybe<Array<Scalars['Boolean']>>;
-  callback?: InputMaybe<Scalars['local1338_Bytes']>;
-  callback_not?: InputMaybe<Scalars['local1338_Bytes']>;
-  callback_in?: InputMaybe<Array<Scalars['local1338_Bytes']>>;
-  callback_not_in?: InputMaybe<Array<Scalars['local1338_Bytes']>>;
-  callback_contains?: InputMaybe<Scalars['local1338_Bytes']>;
-  callback_not_contains?: InputMaybe<Scalars['local1338_Bytes']>;
+  callback?: InputMaybe<Scalars['testoptimismgoerli_Bytes']>;
+  callback_not?: InputMaybe<Scalars['testoptimismgoerli_Bytes']>;
+  callback_in?: InputMaybe<Array<Scalars['testoptimismgoerli_Bytes']>>;
+  callback_not_in?: InputMaybe<Array<Scalars['testoptimismgoerli_Bytes']>>;
+  callback_contains?: InputMaybe<Scalars['testoptimismgoerli_Bytes']>;
+  callback_not_contains?: InputMaybe<Scalars['testoptimismgoerli_Bytes']>;
   callbackFee?: InputMaybe<Scalars['BigInt']>;
   callbackFee_not?: InputMaybe<Scalars['BigInt']>;
   callbackFee_gt?: InputMaybe<Scalars['BigInt']>;
@@ -12793,29 +10339,29 @@ export type local1338_DestinationTransfer_filter = {
   destinationMinOut_lte?: InputMaybe<Scalars['BigInt']>;
   destinationMinOut_in?: InputMaybe<Array<Scalars['BigInt']>>;
   destinationMinOut_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  status?: InputMaybe<local1338_TransferStatus>;
-  status_not?: InputMaybe<local1338_TransferStatus>;
-  status_in?: InputMaybe<Array<local1338_TransferStatus>>;
-  status_not_in?: InputMaybe<Array<local1338_TransferStatus>>;
+  status?: InputMaybe<testoptimismgoerli_TransferStatus>;
+  status_not?: InputMaybe<testoptimismgoerli_TransferStatus>;
+  status_in?: InputMaybe<Array<testoptimismgoerli_TransferStatus>>;
+  status_not_in?: InputMaybe<Array<testoptimismgoerli_TransferStatus>>;
   routers?: InputMaybe<Array<Scalars['String']>>;
   routers_not?: InputMaybe<Array<Scalars['String']>>;
   routers_contains?: InputMaybe<Array<Scalars['String']>>;
   routers_contains_nocase?: InputMaybe<Array<Scalars['String']>>;
   routers_not_contains?: InputMaybe<Array<Scalars['String']>>;
   routers_not_contains_nocase?: InputMaybe<Array<Scalars['String']>>;
-  routers_?: InputMaybe<local1338_Router_filter>;
-  originSender?: InputMaybe<Scalars['local1338_Bytes']>;
-  originSender_not?: InputMaybe<Scalars['local1338_Bytes']>;
-  originSender_in?: InputMaybe<Array<Scalars['local1338_Bytes']>>;
-  originSender_not_in?: InputMaybe<Array<Scalars['local1338_Bytes']>>;
-  originSender_contains?: InputMaybe<Scalars['local1338_Bytes']>;
-  originSender_not_contains?: InputMaybe<Scalars['local1338_Bytes']>;
-  transactingAsset?: InputMaybe<Scalars['local1338_Bytes']>;
-  transactingAsset_not?: InputMaybe<Scalars['local1338_Bytes']>;
-  transactingAsset_in?: InputMaybe<Array<Scalars['local1338_Bytes']>>;
-  transactingAsset_not_in?: InputMaybe<Array<Scalars['local1338_Bytes']>>;
-  transactingAsset_contains?: InputMaybe<Scalars['local1338_Bytes']>;
-  transactingAsset_not_contains?: InputMaybe<Scalars['local1338_Bytes']>;
+  routers_?: InputMaybe<testoptimismgoerli_Router_filter>;
+  originSender?: InputMaybe<Scalars['testoptimismgoerli_Bytes']>;
+  originSender_not?: InputMaybe<Scalars['testoptimismgoerli_Bytes']>;
+  originSender_in?: InputMaybe<Array<Scalars['testoptimismgoerli_Bytes']>>;
+  originSender_not_in?: InputMaybe<Array<Scalars['testoptimismgoerli_Bytes']>>;
+  originSender_contains?: InputMaybe<Scalars['testoptimismgoerli_Bytes']>;
+  originSender_not_contains?: InputMaybe<Scalars['testoptimismgoerli_Bytes']>;
+  transactingAsset?: InputMaybe<Scalars['testoptimismgoerli_Bytes']>;
+  transactingAsset_not?: InputMaybe<Scalars['testoptimismgoerli_Bytes']>;
+  transactingAsset_in?: InputMaybe<Array<Scalars['testoptimismgoerli_Bytes']>>;
+  transactingAsset_not_in?: InputMaybe<Array<Scalars['testoptimismgoerli_Bytes']>>;
+  transactingAsset_contains?: InputMaybe<Scalars['testoptimismgoerli_Bytes']>;
+  transactingAsset_not_contains?: InputMaybe<Scalars['testoptimismgoerli_Bytes']>;
   transactingAmount?: InputMaybe<Scalars['BigInt']>;
   transactingAmount_not?: InputMaybe<Scalars['BigInt']>;
   transactingAmount_gt?: InputMaybe<Scalars['BigInt']>;
@@ -12824,12 +10370,12 @@ export type local1338_DestinationTransfer_filter = {
   transactingAmount_lte?: InputMaybe<Scalars['BigInt']>;
   transactingAmount_in?: InputMaybe<Array<Scalars['BigInt']>>;
   transactingAmount_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  localAsset?: InputMaybe<Scalars['local1338_Bytes']>;
-  localAsset_not?: InputMaybe<Scalars['local1338_Bytes']>;
-  localAsset_in?: InputMaybe<Array<Scalars['local1338_Bytes']>>;
-  localAsset_not_in?: InputMaybe<Array<Scalars['local1338_Bytes']>>;
-  localAsset_contains?: InputMaybe<Scalars['local1338_Bytes']>;
-  localAsset_not_contains?: InputMaybe<Scalars['local1338_Bytes']>;
+  localAsset?: InputMaybe<Scalars['testoptimismgoerli_Bytes']>;
+  localAsset_not?: InputMaybe<Scalars['testoptimismgoerli_Bytes']>;
+  localAsset_in?: InputMaybe<Array<Scalars['testoptimismgoerli_Bytes']>>;
+  localAsset_not_in?: InputMaybe<Array<Scalars['testoptimismgoerli_Bytes']>>;
+  localAsset_contains?: InputMaybe<Scalars['testoptimismgoerli_Bytes']>;
+  localAsset_not_contains?: InputMaybe<Scalars['testoptimismgoerli_Bytes']>;
   localAmount?: InputMaybe<Scalars['BigInt']>;
   localAmount_not?: InputMaybe<Scalars['BigInt']>;
   localAmount_gt?: InputMaybe<Scalars['BigInt']>;
@@ -12846,18 +10392,18 @@ export type local1338_DestinationTransfer_filter = {
   sponsorVaultRelayerFee_lte?: InputMaybe<Scalars['BigInt']>;
   sponsorVaultRelayerFee_in?: InputMaybe<Array<Scalars['BigInt']>>;
   sponsorVaultRelayerFee_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  executedCaller?: InputMaybe<Scalars['local1338_Bytes']>;
-  executedCaller_not?: InputMaybe<Scalars['local1338_Bytes']>;
-  executedCaller_in?: InputMaybe<Array<Scalars['local1338_Bytes']>>;
-  executedCaller_not_in?: InputMaybe<Array<Scalars['local1338_Bytes']>>;
-  executedCaller_contains?: InputMaybe<Scalars['local1338_Bytes']>;
-  executedCaller_not_contains?: InputMaybe<Scalars['local1338_Bytes']>;
-  executedTransactionHash?: InputMaybe<Scalars['local1338_Bytes']>;
-  executedTransactionHash_not?: InputMaybe<Scalars['local1338_Bytes']>;
-  executedTransactionHash_in?: InputMaybe<Array<Scalars['local1338_Bytes']>>;
-  executedTransactionHash_not_in?: InputMaybe<Array<Scalars['local1338_Bytes']>>;
-  executedTransactionHash_contains?: InputMaybe<Scalars['local1338_Bytes']>;
-  executedTransactionHash_not_contains?: InputMaybe<Scalars['local1338_Bytes']>;
+  executedCaller?: InputMaybe<Scalars['testoptimismgoerli_Bytes']>;
+  executedCaller_not?: InputMaybe<Scalars['testoptimismgoerli_Bytes']>;
+  executedCaller_in?: InputMaybe<Array<Scalars['testoptimismgoerli_Bytes']>>;
+  executedCaller_not_in?: InputMaybe<Array<Scalars['testoptimismgoerli_Bytes']>>;
+  executedCaller_contains?: InputMaybe<Scalars['testoptimismgoerli_Bytes']>;
+  executedCaller_not_contains?: InputMaybe<Scalars['testoptimismgoerli_Bytes']>;
+  executedTransactionHash?: InputMaybe<Scalars['testoptimismgoerli_Bytes']>;
+  executedTransactionHash_not?: InputMaybe<Scalars['testoptimismgoerli_Bytes']>;
+  executedTransactionHash_in?: InputMaybe<Array<Scalars['testoptimismgoerli_Bytes']>>;
+  executedTransactionHash_not_in?: InputMaybe<Array<Scalars['testoptimismgoerli_Bytes']>>;
+  executedTransactionHash_contains?: InputMaybe<Scalars['testoptimismgoerli_Bytes']>;
+  executedTransactionHash_not_contains?: InputMaybe<Scalars['testoptimismgoerli_Bytes']>;
   executedTimestamp?: InputMaybe<Scalars['BigInt']>;
   executedTimestamp_not?: InputMaybe<Scalars['BigInt']>;
   executedTimestamp_gt?: InputMaybe<Scalars['BigInt']>;
@@ -12890,18 +10436,18 @@ export type local1338_DestinationTransfer_filter = {
   executedBlockNumber_lte?: InputMaybe<Scalars['BigInt']>;
   executedBlockNumber_in?: InputMaybe<Array<Scalars['BigInt']>>;
   executedBlockNumber_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  reconciledCaller?: InputMaybe<Scalars['local1338_Bytes']>;
-  reconciledCaller_not?: InputMaybe<Scalars['local1338_Bytes']>;
-  reconciledCaller_in?: InputMaybe<Array<Scalars['local1338_Bytes']>>;
-  reconciledCaller_not_in?: InputMaybe<Array<Scalars['local1338_Bytes']>>;
-  reconciledCaller_contains?: InputMaybe<Scalars['local1338_Bytes']>;
-  reconciledCaller_not_contains?: InputMaybe<Scalars['local1338_Bytes']>;
-  reconciledTransactionHash?: InputMaybe<Scalars['local1338_Bytes']>;
-  reconciledTransactionHash_not?: InputMaybe<Scalars['local1338_Bytes']>;
-  reconciledTransactionHash_in?: InputMaybe<Array<Scalars['local1338_Bytes']>>;
-  reconciledTransactionHash_not_in?: InputMaybe<Array<Scalars['local1338_Bytes']>>;
-  reconciledTransactionHash_contains?: InputMaybe<Scalars['local1338_Bytes']>;
-  reconciledTransactionHash_not_contains?: InputMaybe<Scalars['local1338_Bytes']>;
+  reconciledCaller?: InputMaybe<Scalars['testoptimismgoerli_Bytes']>;
+  reconciledCaller_not?: InputMaybe<Scalars['testoptimismgoerli_Bytes']>;
+  reconciledCaller_in?: InputMaybe<Array<Scalars['testoptimismgoerli_Bytes']>>;
+  reconciledCaller_not_in?: InputMaybe<Array<Scalars['testoptimismgoerli_Bytes']>>;
+  reconciledCaller_contains?: InputMaybe<Scalars['testoptimismgoerli_Bytes']>;
+  reconciledCaller_not_contains?: InputMaybe<Scalars['testoptimismgoerli_Bytes']>;
+  reconciledTransactionHash?: InputMaybe<Scalars['testoptimismgoerli_Bytes']>;
+  reconciledTransactionHash_not?: InputMaybe<Scalars['testoptimismgoerli_Bytes']>;
+  reconciledTransactionHash_in?: InputMaybe<Array<Scalars['testoptimismgoerli_Bytes']>>;
+  reconciledTransactionHash_not_in?: InputMaybe<Array<Scalars['testoptimismgoerli_Bytes']>>;
+  reconciledTransactionHash_contains?: InputMaybe<Scalars['testoptimismgoerli_Bytes']>;
+  reconciledTransactionHash_not_contains?: InputMaybe<Scalars['testoptimismgoerli_Bytes']>;
   reconciledTimestamp?: InputMaybe<Scalars['BigInt']>;
   reconciledTimestamp_not?: InputMaybe<Scalars['BigInt']>;
   reconciledTimestamp_gt?: InputMaybe<Scalars['BigInt']>;
@@ -12935,10 +10481,10 @@ export type local1338_DestinationTransfer_filter = {
   reconciledBlockNumber_in?: InputMaybe<Array<Scalars['BigInt']>>;
   reconciledBlockNumber_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
   /** Filter for the block changed event. */
-  _change_block?: InputMaybe<local1338_BlockChangedFilter>;
+  _change_block?: InputMaybe<testoptimismgoerli_BlockChangedFilter>;
 };
 
-export type local1338_DestinationTransfer_orderBy =
+export type testoptimismgoerli_DestinationTransfer_orderBy =
   | 'id'
   | 'chainId'
   | 'transferId'
@@ -12977,42 +10523,42 @@ export type local1338_DestinationTransfer_orderBy =
   | 'reconciledBlockNumber';
 
 /** Defines the order direction, either ascending or descending */
-export type local1338_OrderDirection =
+export type testoptimismgoerli_OrderDirection =
   | 'asc'
   | 'desc';
 
-export type local1338_OriginTransfer = {
+export type testoptimismgoerli_OriginTransfer = {
   id: Scalars['ID'];
   chainId?: Maybe<Scalars['BigInt']>;
-  transferId?: Maybe<Scalars['local1338_Bytes']>;
+  transferId?: Maybe<Scalars['testoptimismgoerli_Bytes']>;
   nonce?: Maybe<Scalars['BigInt']>;
-  to?: Maybe<Scalars['local1338_Bytes']>;
-  callData?: Maybe<Scalars['local1338_Bytes']>;
+  to?: Maybe<Scalars['testoptimismgoerli_Bytes']>;
+  callData?: Maybe<Scalars['testoptimismgoerli_Bytes']>;
   originDomain?: Maybe<Scalars['BigInt']>;
   destinationDomain?: Maybe<Scalars['BigInt']>;
-  agent?: Maybe<Scalars['local1338_Bytes']>;
-  recovery?: Maybe<Scalars['local1338_Bytes']>;
+  agent?: Maybe<Scalars['testoptimismgoerli_Bytes']>;
+  recovery?: Maybe<Scalars['testoptimismgoerli_Bytes']>;
   forceSlow?: Maybe<Scalars['Boolean']>;
   receiveLocal?: Maybe<Scalars['Boolean']>;
-  callback?: Maybe<Scalars['local1338_Bytes']>;
+  callback?: Maybe<Scalars['testoptimismgoerli_Bytes']>;
   callbackFee?: Maybe<Scalars['BigInt']>;
   relayerFee?: Maybe<Scalars['BigInt']>;
   destinationMinOut?: Maybe<Scalars['BigInt']>;
-  status?: Maybe<local1338_TransferStatus>;
+  status?: Maybe<testoptimismgoerli_TransferStatus>;
   originMinOut?: Maybe<Scalars['BigInt']>;
-  transactingAsset?: Maybe<Scalars['local1338_Bytes']>;
+  transactingAsset?: Maybe<Scalars['testoptimismgoerli_Bytes']>;
   transactingAmount?: Maybe<Scalars['BigInt']>;
-  bridgedAsset?: Maybe<Scalars['local1338_Bytes']>;
+  bridgedAsset?: Maybe<Scalars['testoptimismgoerli_Bytes']>;
   bridgedAmount?: Maybe<Scalars['BigInt']>;
-  caller?: Maybe<Scalars['local1338_Bytes']>;
-  transactionHash?: Maybe<Scalars['local1338_Bytes']>;
+  caller?: Maybe<Scalars['testoptimismgoerli_Bytes']>;
+  transactionHash?: Maybe<Scalars['testoptimismgoerli_Bytes']>;
   timestamp?: Maybe<Scalars['BigInt']>;
   gasPrice?: Maybe<Scalars['BigInt']>;
   gasLimit?: Maybe<Scalars['BigInt']>;
   blockNumber?: Maybe<Scalars['BigInt']>;
 };
 
-export type local1338_OriginTransfer_filter = {
+export type testoptimismgoerli_OriginTransfer_filter = {
   id?: InputMaybe<Scalars['ID']>;
   id_not?: InputMaybe<Scalars['ID']>;
   id_gt?: InputMaybe<Scalars['ID']>;
@@ -13029,12 +10575,12 @@ export type local1338_OriginTransfer_filter = {
   chainId_lte?: InputMaybe<Scalars['BigInt']>;
   chainId_in?: InputMaybe<Array<Scalars['BigInt']>>;
   chainId_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  transferId?: InputMaybe<Scalars['local1338_Bytes']>;
-  transferId_not?: InputMaybe<Scalars['local1338_Bytes']>;
-  transferId_in?: InputMaybe<Array<Scalars['local1338_Bytes']>>;
-  transferId_not_in?: InputMaybe<Array<Scalars['local1338_Bytes']>>;
-  transferId_contains?: InputMaybe<Scalars['local1338_Bytes']>;
-  transferId_not_contains?: InputMaybe<Scalars['local1338_Bytes']>;
+  transferId?: InputMaybe<Scalars['testoptimismgoerli_Bytes']>;
+  transferId_not?: InputMaybe<Scalars['testoptimismgoerli_Bytes']>;
+  transferId_in?: InputMaybe<Array<Scalars['testoptimismgoerli_Bytes']>>;
+  transferId_not_in?: InputMaybe<Array<Scalars['testoptimismgoerli_Bytes']>>;
+  transferId_contains?: InputMaybe<Scalars['testoptimismgoerli_Bytes']>;
+  transferId_not_contains?: InputMaybe<Scalars['testoptimismgoerli_Bytes']>;
   nonce?: InputMaybe<Scalars['BigInt']>;
   nonce_not?: InputMaybe<Scalars['BigInt']>;
   nonce_gt?: InputMaybe<Scalars['BigInt']>;
@@ -13043,18 +10589,18 @@ export type local1338_OriginTransfer_filter = {
   nonce_lte?: InputMaybe<Scalars['BigInt']>;
   nonce_in?: InputMaybe<Array<Scalars['BigInt']>>;
   nonce_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  to?: InputMaybe<Scalars['local1338_Bytes']>;
-  to_not?: InputMaybe<Scalars['local1338_Bytes']>;
-  to_in?: InputMaybe<Array<Scalars['local1338_Bytes']>>;
-  to_not_in?: InputMaybe<Array<Scalars['local1338_Bytes']>>;
-  to_contains?: InputMaybe<Scalars['local1338_Bytes']>;
-  to_not_contains?: InputMaybe<Scalars['local1338_Bytes']>;
-  callData?: InputMaybe<Scalars['local1338_Bytes']>;
-  callData_not?: InputMaybe<Scalars['local1338_Bytes']>;
-  callData_in?: InputMaybe<Array<Scalars['local1338_Bytes']>>;
-  callData_not_in?: InputMaybe<Array<Scalars['local1338_Bytes']>>;
-  callData_contains?: InputMaybe<Scalars['local1338_Bytes']>;
-  callData_not_contains?: InputMaybe<Scalars['local1338_Bytes']>;
+  to?: InputMaybe<Scalars['testoptimismgoerli_Bytes']>;
+  to_not?: InputMaybe<Scalars['testoptimismgoerli_Bytes']>;
+  to_in?: InputMaybe<Array<Scalars['testoptimismgoerli_Bytes']>>;
+  to_not_in?: InputMaybe<Array<Scalars['testoptimismgoerli_Bytes']>>;
+  to_contains?: InputMaybe<Scalars['testoptimismgoerli_Bytes']>;
+  to_not_contains?: InputMaybe<Scalars['testoptimismgoerli_Bytes']>;
+  callData?: InputMaybe<Scalars['testoptimismgoerli_Bytes']>;
+  callData_not?: InputMaybe<Scalars['testoptimismgoerli_Bytes']>;
+  callData_in?: InputMaybe<Array<Scalars['testoptimismgoerli_Bytes']>>;
+  callData_not_in?: InputMaybe<Array<Scalars['testoptimismgoerli_Bytes']>>;
+  callData_contains?: InputMaybe<Scalars['testoptimismgoerli_Bytes']>;
+  callData_not_contains?: InputMaybe<Scalars['testoptimismgoerli_Bytes']>;
   originDomain?: InputMaybe<Scalars['BigInt']>;
   originDomain_not?: InputMaybe<Scalars['BigInt']>;
   originDomain_gt?: InputMaybe<Scalars['BigInt']>;
@@ -13071,18 +10617,18 @@ export type local1338_OriginTransfer_filter = {
   destinationDomain_lte?: InputMaybe<Scalars['BigInt']>;
   destinationDomain_in?: InputMaybe<Array<Scalars['BigInt']>>;
   destinationDomain_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  agent?: InputMaybe<Scalars['local1338_Bytes']>;
-  agent_not?: InputMaybe<Scalars['local1338_Bytes']>;
-  agent_in?: InputMaybe<Array<Scalars['local1338_Bytes']>>;
-  agent_not_in?: InputMaybe<Array<Scalars['local1338_Bytes']>>;
-  agent_contains?: InputMaybe<Scalars['local1338_Bytes']>;
-  agent_not_contains?: InputMaybe<Scalars['local1338_Bytes']>;
-  recovery?: InputMaybe<Scalars['local1338_Bytes']>;
-  recovery_not?: InputMaybe<Scalars['local1338_Bytes']>;
-  recovery_in?: InputMaybe<Array<Scalars['local1338_Bytes']>>;
-  recovery_not_in?: InputMaybe<Array<Scalars['local1338_Bytes']>>;
-  recovery_contains?: InputMaybe<Scalars['local1338_Bytes']>;
-  recovery_not_contains?: InputMaybe<Scalars['local1338_Bytes']>;
+  agent?: InputMaybe<Scalars['testoptimismgoerli_Bytes']>;
+  agent_not?: InputMaybe<Scalars['testoptimismgoerli_Bytes']>;
+  agent_in?: InputMaybe<Array<Scalars['testoptimismgoerli_Bytes']>>;
+  agent_not_in?: InputMaybe<Array<Scalars['testoptimismgoerli_Bytes']>>;
+  agent_contains?: InputMaybe<Scalars['testoptimismgoerli_Bytes']>;
+  agent_not_contains?: InputMaybe<Scalars['testoptimismgoerli_Bytes']>;
+  recovery?: InputMaybe<Scalars['testoptimismgoerli_Bytes']>;
+  recovery_not?: InputMaybe<Scalars['testoptimismgoerli_Bytes']>;
+  recovery_in?: InputMaybe<Array<Scalars['testoptimismgoerli_Bytes']>>;
+  recovery_not_in?: InputMaybe<Array<Scalars['testoptimismgoerli_Bytes']>>;
+  recovery_contains?: InputMaybe<Scalars['testoptimismgoerli_Bytes']>;
+  recovery_not_contains?: InputMaybe<Scalars['testoptimismgoerli_Bytes']>;
   forceSlow?: InputMaybe<Scalars['Boolean']>;
   forceSlow_not?: InputMaybe<Scalars['Boolean']>;
   forceSlow_in?: InputMaybe<Array<Scalars['Boolean']>>;
@@ -13091,12 +10637,12 @@ export type local1338_OriginTransfer_filter = {
   receiveLocal_not?: InputMaybe<Scalars['Boolean']>;
   receiveLocal_in?: InputMaybe<Array<Scalars['Boolean']>>;
   receiveLocal_not_in?: InputMaybe<Array<Scalars['Boolean']>>;
-  callback?: InputMaybe<Scalars['local1338_Bytes']>;
-  callback_not?: InputMaybe<Scalars['local1338_Bytes']>;
-  callback_in?: InputMaybe<Array<Scalars['local1338_Bytes']>>;
-  callback_not_in?: InputMaybe<Array<Scalars['local1338_Bytes']>>;
-  callback_contains?: InputMaybe<Scalars['local1338_Bytes']>;
-  callback_not_contains?: InputMaybe<Scalars['local1338_Bytes']>;
+  callback?: InputMaybe<Scalars['testoptimismgoerli_Bytes']>;
+  callback_not?: InputMaybe<Scalars['testoptimismgoerli_Bytes']>;
+  callback_in?: InputMaybe<Array<Scalars['testoptimismgoerli_Bytes']>>;
+  callback_not_in?: InputMaybe<Array<Scalars['testoptimismgoerli_Bytes']>>;
+  callback_contains?: InputMaybe<Scalars['testoptimismgoerli_Bytes']>;
+  callback_not_contains?: InputMaybe<Scalars['testoptimismgoerli_Bytes']>;
   callbackFee?: InputMaybe<Scalars['BigInt']>;
   callbackFee_not?: InputMaybe<Scalars['BigInt']>;
   callbackFee_gt?: InputMaybe<Scalars['BigInt']>;
@@ -13121,10 +10667,10 @@ export type local1338_OriginTransfer_filter = {
   destinationMinOut_lte?: InputMaybe<Scalars['BigInt']>;
   destinationMinOut_in?: InputMaybe<Array<Scalars['BigInt']>>;
   destinationMinOut_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  status?: InputMaybe<local1338_TransferStatus>;
-  status_not?: InputMaybe<local1338_TransferStatus>;
-  status_in?: InputMaybe<Array<local1338_TransferStatus>>;
-  status_not_in?: InputMaybe<Array<local1338_TransferStatus>>;
+  status?: InputMaybe<testoptimismgoerli_TransferStatus>;
+  status_not?: InputMaybe<testoptimismgoerli_TransferStatus>;
+  status_in?: InputMaybe<Array<testoptimismgoerli_TransferStatus>>;
+  status_not_in?: InputMaybe<Array<testoptimismgoerli_TransferStatus>>;
   originMinOut?: InputMaybe<Scalars['BigInt']>;
   originMinOut_not?: InputMaybe<Scalars['BigInt']>;
   originMinOut_gt?: InputMaybe<Scalars['BigInt']>;
@@ -13133,12 +10679,12 @@ export type local1338_OriginTransfer_filter = {
   originMinOut_lte?: InputMaybe<Scalars['BigInt']>;
   originMinOut_in?: InputMaybe<Array<Scalars['BigInt']>>;
   originMinOut_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  transactingAsset?: InputMaybe<Scalars['local1338_Bytes']>;
-  transactingAsset_not?: InputMaybe<Scalars['local1338_Bytes']>;
-  transactingAsset_in?: InputMaybe<Array<Scalars['local1338_Bytes']>>;
-  transactingAsset_not_in?: InputMaybe<Array<Scalars['local1338_Bytes']>>;
-  transactingAsset_contains?: InputMaybe<Scalars['local1338_Bytes']>;
-  transactingAsset_not_contains?: InputMaybe<Scalars['local1338_Bytes']>;
+  transactingAsset?: InputMaybe<Scalars['testoptimismgoerli_Bytes']>;
+  transactingAsset_not?: InputMaybe<Scalars['testoptimismgoerli_Bytes']>;
+  transactingAsset_in?: InputMaybe<Array<Scalars['testoptimismgoerli_Bytes']>>;
+  transactingAsset_not_in?: InputMaybe<Array<Scalars['testoptimismgoerli_Bytes']>>;
+  transactingAsset_contains?: InputMaybe<Scalars['testoptimismgoerli_Bytes']>;
+  transactingAsset_not_contains?: InputMaybe<Scalars['testoptimismgoerli_Bytes']>;
   transactingAmount?: InputMaybe<Scalars['BigInt']>;
   transactingAmount_not?: InputMaybe<Scalars['BigInt']>;
   transactingAmount_gt?: InputMaybe<Scalars['BigInt']>;
@@ -13147,12 +10693,12 @@ export type local1338_OriginTransfer_filter = {
   transactingAmount_lte?: InputMaybe<Scalars['BigInt']>;
   transactingAmount_in?: InputMaybe<Array<Scalars['BigInt']>>;
   transactingAmount_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  bridgedAsset?: InputMaybe<Scalars['local1338_Bytes']>;
-  bridgedAsset_not?: InputMaybe<Scalars['local1338_Bytes']>;
-  bridgedAsset_in?: InputMaybe<Array<Scalars['local1338_Bytes']>>;
-  bridgedAsset_not_in?: InputMaybe<Array<Scalars['local1338_Bytes']>>;
-  bridgedAsset_contains?: InputMaybe<Scalars['local1338_Bytes']>;
-  bridgedAsset_not_contains?: InputMaybe<Scalars['local1338_Bytes']>;
+  bridgedAsset?: InputMaybe<Scalars['testoptimismgoerli_Bytes']>;
+  bridgedAsset_not?: InputMaybe<Scalars['testoptimismgoerli_Bytes']>;
+  bridgedAsset_in?: InputMaybe<Array<Scalars['testoptimismgoerli_Bytes']>>;
+  bridgedAsset_not_in?: InputMaybe<Array<Scalars['testoptimismgoerli_Bytes']>>;
+  bridgedAsset_contains?: InputMaybe<Scalars['testoptimismgoerli_Bytes']>;
+  bridgedAsset_not_contains?: InputMaybe<Scalars['testoptimismgoerli_Bytes']>;
   bridgedAmount?: InputMaybe<Scalars['BigInt']>;
   bridgedAmount_not?: InputMaybe<Scalars['BigInt']>;
   bridgedAmount_gt?: InputMaybe<Scalars['BigInt']>;
@@ -13161,18 +10707,18 @@ export type local1338_OriginTransfer_filter = {
   bridgedAmount_lte?: InputMaybe<Scalars['BigInt']>;
   bridgedAmount_in?: InputMaybe<Array<Scalars['BigInt']>>;
   bridgedAmount_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  caller?: InputMaybe<Scalars['local1338_Bytes']>;
-  caller_not?: InputMaybe<Scalars['local1338_Bytes']>;
-  caller_in?: InputMaybe<Array<Scalars['local1338_Bytes']>>;
-  caller_not_in?: InputMaybe<Array<Scalars['local1338_Bytes']>>;
-  caller_contains?: InputMaybe<Scalars['local1338_Bytes']>;
-  caller_not_contains?: InputMaybe<Scalars['local1338_Bytes']>;
-  transactionHash?: InputMaybe<Scalars['local1338_Bytes']>;
-  transactionHash_not?: InputMaybe<Scalars['local1338_Bytes']>;
-  transactionHash_in?: InputMaybe<Array<Scalars['local1338_Bytes']>>;
-  transactionHash_not_in?: InputMaybe<Array<Scalars['local1338_Bytes']>>;
-  transactionHash_contains?: InputMaybe<Scalars['local1338_Bytes']>;
-  transactionHash_not_contains?: InputMaybe<Scalars['local1338_Bytes']>;
+  caller?: InputMaybe<Scalars['testoptimismgoerli_Bytes']>;
+  caller_not?: InputMaybe<Scalars['testoptimismgoerli_Bytes']>;
+  caller_in?: InputMaybe<Array<Scalars['testoptimismgoerli_Bytes']>>;
+  caller_not_in?: InputMaybe<Array<Scalars['testoptimismgoerli_Bytes']>>;
+  caller_contains?: InputMaybe<Scalars['testoptimismgoerli_Bytes']>;
+  caller_not_contains?: InputMaybe<Scalars['testoptimismgoerli_Bytes']>;
+  transactionHash?: InputMaybe<Scalars['testoptimismgoerli_Bytes']>;
+  transactionHash_not?: InputMaybe<Scalars['testoptimismgoerli_Bytes']>;
+  transactionHash_in?: InputMaybe<Array<Scalars['testoptimismgoerli_Bytes']>>;
+  transactionHash_not_in?: InputMaybe<Array<Scalars['testoptimismgoerli_Bytes']>>;
+  transactionHash_contains?: InputMaybe<Scalars['testoptimismgoerli_Bytes']>;
+  transactionHash_not_contains?: InputMaybe<Scalars['testoptimismgoerli_Bytes']>;
   timestamp?: InputMaybe<Scalars['BigInt']>;
   timestamp_not?: InputMaybe<Scalars['BigInt']>;
   timestamp_gt?: InputMaybe<Scalars['BigInt']>;
@@ -13206,10 +10752,10 @@ export type local1338_OriginTransfer_filter = {
   blockNumber_in?: InputMaybe<Array<Scalars['BigInt']>>;
   blockNumber_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
   /** Filter for the block changed event. */
-  _change_block?: InputMaybe<local1338_BlockChangedFilter>;
+  _change_block?: InputMaybe<testoptimismgoerli_BlockChangedFilter>;
 };
 
-export type local1338_OriginTransfer_orderBy =
+export type testoptimismgoerli_OriginTransfer_orderBy =
   | 'id'
   | 'chainId'
   | 'transferId'
@@ -13239,13 +10785,13 @@ export type local1338_OriginTransfer_orderBy =
   | 'gasLimit'
   | 'blockNumber';
 
-export type local1338_Relayer = {
+export type testoptimismgoerli_Relayer = {
   id: Scalars['ID'];
   isActive: Scalars['Boolean'];
-  relayer?: Maybe<Scalars['local1338_Bytes']>;
+  relayer?: Maybe<Scalars['testoptimismgoerli_Bytes']>;
 };
 
-export type local1338_Relayer_filter = {
+export type testoptimismgoerli_Relayer_filter = {
   id?: InputMaybe<Scalars['ID']>;
   id_not?: InputMaybe<Scalars['ID']>;
   id_gt?: InputMaybe<Scalars['ID']>;
@@ -13258,41 +10804,41 @@ export type local1338_Relayer_filter = {
   isActive_not?: InputMaybe<Scalars['Boolean']>;
   isActive_in?: InputMaybe<Array<Scalars['Boolean']>>;
   isActive_not_in?: InputMaybe<Array<Scalars['Boolean']>>;
-  relayer?: InputMaybe<Scalars['local1338_Bytes']>;
-  relayer_not?: InputMaybe<Scalars['local1338_Bytes']>;
-  relayer_in?: InputMaybe<Array<Scalars['local1338_Bytes']>>;
-  relayer_not_in?: InputMaybe<Array<Scalars['local1338_Bytes']>>;
-  relayer_contains?: InputMaybe<Scalars['local1338_Bytes']>;
-  relayer_not_contains?: InputMaybe<Scalars['local1338_Bytes']>;
+  relayer?: InputMaybe<Scalars['testoptimismgoerli_Bytes']>;
+  relayer_not?: InputMaybe<Scalars['testoptimismgoerli_Bytes']>;
+  relayer_in?: InputMaybe<Array<Scalars['testoptimismgoerli_Bytes']>>;
+  relayer_not_in?: InputMaybe<Array<Scalars['testoptimismgoerli_Bytes']>>;
+  relayer_contains?: InputMaybe<Scalars['testoptimismgoerli_Bytes']>;
+  relayer_not_contains?: InputMaybe<Scalars['testoptimismgoerli_Bytes']>;
   /** Filter for the block changed event. */
-  _change_block?: InputMaybe<local1338_BlockChangedFilter>;
+  _change_block?: InputMaybe<testoptimismgoerli_BlockChangedFilter>;
 };
 
-export type local1338_Relayer_orderBy =
+export type testoptimismgoerli_Relayer_orderBy =
   | 'id'
   | 'isActive'
   | 'relayer';
 
-export type local1338_Router = {
+export type testoptimismgoerli_Router = {
   id: Scalars['ID'];
   isActive: Scalars['Boolean'];
-  owner?: Maybe<Scalars['local1338_Bytes']>;
-  recipient?: Maybe<Scalars['local1338_Bytes']>;
-  proposedOwner?: Maybe<Scalars['local1338_Bytes']>;
+  owner?: Maybe<Scalars['testoptimismgoerli_Bytes']>;
+  recipient?: Maybe<Scalars['testoptimismgoerli_Bytes']>;
+  proposedOwner?: Maybe<Scalars['testoptimismgoerli_Bytes']>;
   proposedTimestamp?: Maybe<Scalars['BigInt']>;
-  assetBalances: Array<local1338_AssetBalance>;
+  assetBalances: Array<testoptimismgoerli_AssetBalance>;
 };
 
 
-export type local1338_RouterassetBalancesArgs = {
+export type testoptimismgoerli_RouterassetBalancesArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<local1338_AssetBalance_orderBy>;
-  orderDirection?: InputMaybe<local1338_OrderDirection>;
-  where?: InputMaybe<local1338_AssetBalance_filter>;
+  orderBy?: InputMaybe<testoptimismgoerli_AssetBalance_orderBy>;
+  orderDirection?: InputMaybe<testoptimismgoerli_OrderDirection>;
+  where?: InputMaybe<testoptimismgoerli_AssetBalance_filter>;
 };
 
-export type local1338_Router_filter = {
+export type testoptimismgoerli_Router_filter = {
   id?: InputMaybe<Scalars['ID']>;
   id_not?: InputMaybe<Scalars['ID']>;
   id_gt?: InputMaybe<Scalars['ID']>;
@@ -13305,24 +10851,24 @@ export type local1338_Router_filter = {
   isActive_not?: InputMaybe<Scalars['Boolean']>;
   isActive_in?: InputMaybe<Array<Scalars['Boolean']>>;
   isActive_not_in?: InputMaybe<Array<Scalars['Boolean']>>;
-  owner?: InputMaybe<Scalars['local1338_Bytes']>;
-  owner_not?: InputMaybe<Scalars['local1338_Bytes']>;
-  owner_in?: InputMaybe<Array<Scalars['local1338_Bytes']>>;
-  owner_not_in?: InputMaybe<Array<Scalars['local1338_Bytes']>>;
-  owner_contains?: InputMaybe<Scalars['local1338_Bytes']>;
-  owner_not_contains?: InputMaybe<Scalars['local1338_Bytes']>;
-  recipient?: InputMaybe<Scalars['local1338_Bytes']>;
-  recipient_not?: InputMaybe<Scalars['local1338_Bytes']>;
-  recipient_in?: InputMaybe<Array<Scalars['local1338_Bytes']>>;
-  recipient_not_in?: InputMaybe<Array<Scalars['local1338_Bytes']>>;
-  recipient_contains?: InputMaybe<Scalars['local1338_Bytes']>;
-  recipient_not_contains?: InputMaybe<Scalars['local1338_Bytes']>;
-  proposedOwner?: InputMaybe<Scalars['local1338_Bytes']>;
-  proposedOwner_not?: InputMaybe<Scalars['local1338_Bytes']>;
-  proposedOwner_in?: InputMaybe<Array<Scalars['local1338_Bytes']>>;
-  proposedOwner_not_in?: InputMaybe<Array<Scalars['local1338_Bytes']>>;
-  proposedOwner_contains?: InputMaybe<Scalars['local1338_Bytes']>;
-  proposedOwner_not_contains?: InputMaybe<Scalars['local1338_Bytes']>;
+  owner?: InputMaybe<Scalars['testoptimismgoerli_Bytes']>;
+  owner_not?: InputMaybe<Scalars['testoptimismgoerli_Bytes']>;
+  owner_in?: InputMaybe<Array<Scalars['testoptimismgoerli_Bytes']>>;
+  owner_not_in?: InputMaybe<Array<Scalars['testoptimismgoerli_Bytes']>>;
+  owner_contains?: InputMaybe<Scalars['testoptimismgoerli_Bytes']>;
+  owner_not_contains?: InputMaybe<Scalars['testoptimismgoerli_Bytes']>;
+  recipient?: InputMaybe<Scalars['testoptimismgoerli_Bytes']>;
+  recipient_not?: InputMaybe<Scalars['testoptimismgoerli_Bytes']>;
+  recipient_in?: InputMaybe<Array<Scalars['testoptimismgoerli_Bytes']>>;
+  recipient_not_in?: InputMaybe<Array<Scalars['testoptimismgoerli_Bytes']>>;
+  recipient_contains?: InputMaybe<Scalars['testoptimismgoerli_Bytes']>;
+  recipient_not_contains?: InputMaybe<Scalars['testoptimismgoerli_Bytes']>;
+  proposedOwner?: InputMaybe<Scalars['testoptimismgoerli_Bytes']>;
+  proposedOwner_not?: InputMaybe<Scalars['testoptimismgoerli_Bytes']>;
+  proposedOwner_in?: InputMaybe<Array<Scalars['testoptimismgoerli_Bytes']>>;
+  proposedOwner_not_in?: InputMaybe<Array<Scalars['testoptimismgoerli_Bytes']>>;
+  proposedOwner_contains?: InputMaybe<Scalars['testoptimismgoerli_Bytes']>;
+  proposedOwner_not_contains?: InputMaybe<Scalars['testoptimismgoerli_Bytes']>;
   proposedTimestamp?: InputMaybe<Scalars['BigInt']>;
   proposedTimestamp_not?: InputMaybe<Scalars['BigInt']>;
   proposedTimestamp_gt?: InputMaybe<Scalars['BigInt']>;
@@ -13331,12 +10877,12 @@ export type local1338_Router_filter = {
   proposedTimestamp_lte?: InputMaybe<Scalars['BigInt']>;
   proposedTimestamp_in?: InputMaybe<Array<Scalars['BigInt']>>;
   proposedTimestamp_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  assetBalances_?: InputMaybe<local1338_AssetBalance_filter>;
+  assetBalances_?: InputMaybe<testoptimismgoerli_AssetBalance_filter>;
   /** Filter for the block changed event. */
-  _change_block?: InputMaybe<local1338_BlockChangedFilter>;
+  _change_block?: InputMaybe<testoptimismgoerli_BlockChangedFilter>;
 };
 
-export type local1338_Router_orderBy =
+export type testoptimismgoerli_Router_orderBy =
   | 'id'
   | 'isActive'
   | 'owner'
@@ -13345,13 +10891,13 @@ export type local1338_Router_orderBy =
   | 'proposedTimestamp'
   | 'assetBalances';
 
-export type local1338_Setting = {
+export type testoptimismgoerli_Setting = {
   id: Scalars['ID'];
   maxRoutersPerTransfer: Scalars['BigInt'];
-  caller: Scalars['local1338_Bytes'];
+  caller: Scalars['testoptimismgoerli_Bytes'];
 };
 
-export type local1338_Setting_filter = {
+export type testoptimismgoerli_Setting_filter = {
   id?: InputMaybe<Scalars['ID']>;
   id_not?: InputMaybe<Scalars['ID']>;
   id_gt?: InputMaybe<Scalars['ID']>;
@@ -13368,27 +10914,27 @@ export type local1338_Setting_filter = {
   maxRoutersPerTransfer_lte?: InputMaybe<Scalars['BigInt']>;
   maxRoutersPerTransfer_in?: InputMaybe<Array<Scalars['BigInt']>>;
   maxRoutersPerTransfer_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  caller?: InputMaybe<Scalars['local1338_Bytes']>;
-  caller_not?: InputMaybe<Scalars['local1338_Bytes']>;
-  caller_in?: InputMaybe<Array<Scalars['local1338_Bytes']>>;
-  caller_not_in?: InputMaybe<Array<Scalars['local1338_Bytes']>>;
-  caller_contains?: InputMaybe<Scalars['local1338_Bytes']>;
-  caller_not_contains?: InputMaybe<Scalars['local1338_Bytes']>;
+  caller?: InputMaybe<Scalars['testoptimismgoerli_Bytes']>;
+  caller_not?: InputMaybe<Scalars['testoptimismgoerli_Bytes']>;
+  caller_in?: InputMaybe<Array<Scalars['testoptimismgoerli_Bytes']>>;
+  caller_not_in?: InputMaybe<Array<Scalars['testoptimismgoerli_Bytes']>>;
+  caller_contains?: InputMaybe<Scalars['testoptimismgoerli_Bytes']>;
+  caller_not_contains?: InputMaybe<Scalars['testoptimismgoerli_Bytes']>;
   /** Filter for the block changed event. */
-  _change_block?: InputMaybe<local1338_BlockChangedFilter>;
+  _change_block?: InputMaybe<testoptimismgoerli_BlockChangedFilter>;
 };
 
-export type local1338_Setting_orderBy =
+export type testoptimismgoerli_Setting_orderBy =
   | 'id'
   | 'maxRoutersPerTransfer'
   | 'caller';
 
-export type local1338_SponsorVault = {
+export type testoptimismgoerli_SponsorVault = {
   id: Scalars['ID'];
-  sponsorVault: Scalars['local1338_Bytes'];
+  sponsorVault: Scalars['testoptimismgoerli_Bytes'];
 };
 
-export type local1338_SponsorVault_filter = {
+export type testoptimismgoerli_SponsorVault_filter = {
   id?: InputMaybe<Scalars['ID']>;
   id_not?: InputMaybe<Scalars['ID']>;
   id_gt?: InputMaybe<Scalars['ID']>;
@@ -13397,28 +10943,28 @@ export type local1338_SponsorVault_filter = {
   id_lte?: InputMaybe<Scalars['ID']>;
   id_in?: InputMaybe<Array<Scalars['ID']>>;
   id_not_in?: InputMaybe<Array<Scalars['ID']>>;
-  sponsorVault?: InputMaybe<Scalars['local1338_Bytes']>;
-  sponsorVault_not?: InputMaybe<Scalars['local1338_Bytes']>;
-  sponsorVault_in?: InputMaybe<Array<Scalars['local1338_Bytes']>>;
-  sponsorVault_not_in?: InputMaybe<Array<Scalars['local1338_Bytes']>>;
-  sponsorVault_contains?: InputMaybe<Scalars['local1338_Bytes']>;
-  sponsorVault_not_contains?: InputMaybe<Scalars['local1338_Bytes']>;
+  sponsorVault?: InputMaybe<Scalars['testoptimismgoerli_Bytes']>;
+  sponsorVault_not?: InputMaybe<Scalars['testoptimismgoerli_Bytes']>;
+  sponsorVault_in?: InputMaybe<Array<Scalars['testoptimismgoerli_Bytes']>>;
+  sponsorVault_not_in?: InputMaybe<Array<Scalars['testoptimismgoerli_Bytes']>>;
+  sponsorVault_contains?: InputMaybe<Scalars['testoptimismgoerli_Bytes']>;
+  sponsorVault_not_contains?: InputMaybe<Scalars['testoptimismgoerli_Bytes']>;
   /** Filter for the block changed event. */
-  _change_block?: InputMaybe<local1338_BlockChangedFilter>;
+  _change_block?: InputMaybe<testoptimismgoerli_BlockChangedFilter>;
 };
 
-export type local1338_SponsorVault_orderBy =
+export type testoptimismgoerli_SponsorVault_orderBy =
   | 'id'
   | 'sponsorVault';
 
-export type local1338_StableSwap = {
+export type testoptimismgoerli_StableSwap = {
   id: Scalars['ID'];
-  canonicalId: Scalars['local1338_Bytes'];
+  canonicalId: Scalars['testoptimismgoerli_Bytes'];
   domain?: Maybe<Scalars['BigInt']>;
-  swapPool: Scalars['local1338_Bytes'];
+  swapPool: Scalars['testoptimismgoerli_Bytes'];
 };
 
-export type local1338_StableSwap_filter = {
+export type testoptimismgoerli_StableSwap_filter = {
   id?: InputMaybe<Scalars['ID']>;
   id_not?: InputMaybe<Scalars['ID']>;
   id_gt?: InputMaybe<Scalars['ID']>;
@@ -13427,12 +10973,12 @@ export type local1338_StableSwap_filter = {
   id_lte?: InputMaybe<Scalars['ID']>;
   id_in?: InputMaybe<Array<Scalars['ID']>>;
   id_not_in?: InputMaybe<Array<Scalars['ID']>>;
-  canonicalId?: InputMaybe<Scalars['local1338_Bytes']>;
-  canonicalId_not?: InputMaybe<Scalars['local1338_Bytes']>;
-  canonicalId_in?: InputMaybe<Array<Scalars['local1338_Bytes']>>;
-  canonicalId_not_in?: InputMaybe<Array<Scalars['local1338_Bytes']>>;
-  canonicalId_contains?: InputMaybe<Scalars['local1338_Bytes']>;
-  canonicalId_not_contains?: InputMaybe<Scalars['local1338_Bytes']>;
+  canonicalId?: InputMaybe<Scalars['testoptimismgoerli_Bytes']>;
+  canonicalId_not?: InputMaybe<Scalars['testoptimismgoerli_Bytes']>;
+  canonicalId_in?: InputMaybe<Array<Scalars['testoptimismgoerli_Bytes']>>;
+  canonicalId_not_in?: InputMaybe<Array<Scalars['testoptimismgoerli_Bytes']>>;
+  canonicalId_contains?: InputMaybe<Scalars['testoptimismgoerli_Bytes']>;
+  canonicalId_not_contains?: InputMaybe<Scalars['testoptimismgoerli_Bytes']>;
   domain?: InputMaybe<Scalars['BigInt']>;
   domain_not?: InputMaybe<Scalars['BigInt']>;
   domain_gt?: InputMaybe<Scalars['BigInt']>;
@@ -13441,32 +10987,32 @@ export type local1338_StableSwap_filter = {
   domain_lte?: InputMaybe<Scalars['BigInt']>;
   domain_in?: InputMaybe<Array<Scalars['BigInt']>>;
   domain_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  swapPool?: InputMaybe<Scalars['local1338_Bytes']>;
-  swapPool_not?: InputMaybe<Scalars['local1338_Bytes']>;
-  swapPool_in?: InputMaybe<Array<Scalars['local1338_Bytes']>>;
-  swapPool_not_in?: InputMaybe<Array<Scalars['local1338_Bytes']>>;
-  swapPool_contains?: InputMaybe<Scalars['local1338_Bytes']>;
-  swapPool_not_contains?: InputMaybe<Scalars['local1338_Bytes']>;
+  swapPool?: InputMaybe<Scalars['testoptimismgoerli_Bytes']>;
+  swapPool_not?: InputMaybe<Scalars['testoptimismgoerli_Bytes']>;
+  swapPool_in?: InputMaybe<Array<Scalars['testoptimismgoerli_Bytes']>>;
+  swapPool_not_in?: InputMaybe<Array<Scalars['testoptimismgoerli_Bytes']>>;
+  swapPool_contains?: InputMaybe<Scalars['testoptimismgoerli_Bytes']>;
+  swapPool_not_contains?: InputMaybe<Scalars['testoptimismgoerli_Bytes']>;
   /** Filter for the block changed event. */
-  _change_block?: InputMaybe<local1338_BlockChangedFilter>;
+  _change_block?: InputMaybe<testoptimismgoerli_BlockChangedFilter>;
 };
 
-export type local1338_StableSwap_orderBy =
+export type testoptimismgoerli_StableSwap_orderBy =
   | 'id'
   | 'canonicalId'
   | 'domain'
   | 'swapPool';
 
-export type local1338_TransferStatus =
+export type testoptimismgoerli_TransferStatus =
   | 'XCalled'
   | 'Executed'
   | 'Reconciled'
   | 'CompletedSlow'
   | 'CompletedFast';
 
-export type local1338__Block_ = {
+export type testoptimismgoerli__Block_ = {
   /** The hash of the block */
-  hash?: Maybe<Scalars['local1338_Bytes']>;
+  hash?: Maybe<Scalars['testoptimismgoerli_Bytes']>;
   /** The block number */
   number: Scalars['Int'];
   /** Integer representation of the timestamp stored in blocks for the chain */
@@ -13474,7 +11020,7 @@ export type local1338__Block_ = {
 };
 
 /** The type for the top-level _meta field */
-export type local1338__Meta_ = {
+export type testoptimismgoerli__Meta_ = {
   /**
    * Information about a specific subgraph block. The hash of the block
    * will be null if the _meta field has a block constraint that asks for
@@ -13482,1451 +11028,7 @@ export type local1338__Meta_ = {
    * and therefore asks for the latest  block
    *
    */
-  block: local1338__Block_;
-  /** The deployment ID */
-  deployment: Scalars['String'];
-  /** If `true`, the subgraph encountered indexing errors at some past block */
-  hasIndexingErrors: Scalars['Boolean'];
-};
-
-export type stagingmumbai_AggregateRoot = {
-  id: Scalars['ID'];
-  root: Scalars['stagingmumbai_Bytes'];
-};
-
-export type stagingmumbai_AggregateRoot_filter = {
-  id?: InputMaybe<Scalars['ID']>;
-  id_not?: InputMaybe<Scalars['ID']>;
-  id_gt?: InputMaybe<Scalars['ID']>;
-  id_lt?: InputMaybe<Scalars['ID']>;
-  id_gte?: InputMaybe<Scalars['ID']>;
-  id_lte?: InputMaybe<Scalars['ID']>;
-  id_in?: InputMaybe<Array<Scalars['ID']>>;
-  id_not_in?: InputMaybe<Array<Scalars['ID']>>;
-  root?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
-  root_not?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
-  root_in?: InputMaybe<Array<Scalars['stagingmumbai_Bytes']>>;
-  root_not_in?: InputMaybe<Array<Scalars['stagingmumbai_Bytes']>>;
-  root_contains?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
-  root_not_contains?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
-  /** Filter for the block changed event. */
-  _change_block?: InputMaybe<stagingmumbai_BlockChangedFilter>;
-};
-
-export type stagingmumbai_AggregateRoot_orderBy =
-  | 'id'
-  | 'root';
-
-export type stagingmumbai_Asset = {
-  id: Scalars['ID'];
-  key?: Maybe<Scalars['stagingmumbai_Bytes']>;
-  local: Scalars['stagingmumbai_Bytes'];
-  adoptedAsset: Scalars['stagingmumbai_Bytes'];
-  canonicalId: Scalars['stagingmumbai_Bytes'];
-  canonicalDomain: Scalars['BigInt'];
-  blockNumber: Scalars['BigInt'];
-};
-
-export type stagingmumbai_AssetBalance = {
-  id: Scalars['ID'];
-  amount: Scalars['BigInt'];
-  router: stagingmumbai_Router;
-  asset: stagingmumbai_Asset;
-};
-
-export type stagingmumbai_AssetBalance_filter = {
-  id?: InputMaybe<Scalars['ID']>;
-  id_not?: InputMaybe<Scalars['ID']>;
-  id_gt?: InputMaybe<Scalars['ID']>;
-  id_lt?: InputMaybe<Scalars['ID']>;
-  id_gte?: InputMaybe<Scalars['ID']>;
-  id_lte?: InputMaybe<Scalars['ID']>;
-  id_in?: InputMaybe<Array<Scalars['ID']>>;
-  id_not_in?: InputMaybe<Array<Scalars['ID']>>;
-  amount?: InputMaybe<Scalars['BigInt']>;
-  amount_not?: InputMaybe<Scalars['BigInt']>;
-  amount_gt?: InputMaybe<Scalars['BigInt']>;
-  amount_lt?: InputMaybe<Scalars['BigInt']>;
-  amount_gte?: InputMaybe<Scalars['BigInt']>;
-  amount_lte?: InputMaybe<Scalars['BigInt']>;
-  amount_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  amount_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  router?: InputMaybe<Scalars['String']>;
-  router_not?: InputMaybe<Scalars['String']>;
-  router_gt?: InputMaybe<Scalars['String']>;
-  router_lt?: InputMaybe<Scalars['String']>;
-  router_gte?: InputMaybe<Scalars['String']>;
-  router_lte?: InputMaybe<Scalars['String']>;
-  router_in?: InputMaybe<Array<Scalars['String']>>;
-  router_not_in?: InputMaybe<Array<Scalars['String']>>;
-  router_contains?: InputMaybe<Scalars['String']>;
-  router_contains_nocase?: InputMaybe<Scalars['String']>;
-  router_not_contains?: InputMaybe<Scalars['String']>;
-  router_not_contains_nocase?: InputMaybe<Scalars['String']>;
-  router_starts_with?: InputMaybe<Scalars['String']>;
-  router_starts_with_nocase?: InputMaybe<Scalars['String']>;
-  router_not_starts_with?: InputMaybe<Scalars['String']>;
-  router_not_starts_with_nocase?: InputMaybe<Scalars['String']>;
-  router_ends_with?: InputMaybe<Scalars['String']>;
-  router_ends_with_nocase?: InputMaybe<Scalars['String']>;
-  router_not_ends_with?: InputMaybe<Scalars['String']>;
-  router_not_ends_with_nocase?: InputMaybe<Scalars['String']>;
-  router_?: InputMaybe<stagingmumbai_Router_filter>;
-  asset?: InputMaybe<Scalars['String']>;
-  asset_not?: InputMaybe<Scalars['String']>;
-  asset_gt?: InputMaybe<Scalars['String']>;
-  asset_lt?: InputMaybe<Scalars['String']>;
-  asset_gte?: InputMaybe<Scalars['String']>;
-  asset_lte?: InputMaybe<Scalars['String']>;
-  asset_in?: InputMaybe<Array<Scalars['String']>>;
-  asset_not_in?: InputMaybe<Array<Scalars['String']>>;
-  asset_contains?: InputMaybe<Scalars['String']>;
-  asset_contains_nocase?: InputMaybe<Scalars['String']>;
-  asset_not_contains?: InputMaybe<Scalars['String']>;
-  asset_not_contains_nocase?: InputMaybe<Scalars['String']>;
-  asset_starts_with?: InputMaybe<Scalars['String']>;
-  asset_starts_with_nocase?: InputMaybe<Scalars['String']>;
-  asset_not_starts_with?: InputMaybe<Scalars['String']>;
-  asset_not_starts_with_nocase?: InputMaybe<Scalars['String']>;
-  asset_ends_with?: InputMaybe<Scalars['String']>;
-  asset_ends_with_nocase?: InputMaybe<Scalars['String']>;
-  asset_not_ends_with?: InputMaybe<Scalars['String']>;
-  asset_not_ends_with_nocase?: InputMaybe<Scalars['String']>;
-  asset_?: InputMaybe<stagingmumbai_Asset_filter>;
-  /** Filter for the block changed event. */
-  _change_block?: InputMaybe<stagingmumbai_BlockChangedFilter>;
-};
-
-export type stagingmumbai_AssetBalance_orderBy =
-  | 'id'
-  | 'amount'
-  | 'router'
-  | 'asset';
-
-export type stagingmumbai_Asset_filter = {
-  id?: InputMaybe<Scalars['ID']>;
-  id_not?: InputMaybe<Scalars['ID']>;
-  id_gt?: InputMaybe<Scalars['ID']>;
-  id_lt?: InputMaybe<Scalars['ID']>;
-  id_gte?: InputMaybe<Scalars['ID']>;
-  id_lte?: InputMaybe<Scalars['ID']>;
-  id_in?: InputMaybe<Array<Scalars['ID']>>;
-  id_not_in?: InputMaybe<Array<Scalars['ID']>>;
-  key?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
-  key_not?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
-  key_in?: InputMaybe<Array<Scalars['stagingmumbai_Bytes']>>;
-  key_not_in?: InputMaybe<Array<Scalars['stagingmumbai_Bytes']>>;
-  key_contains?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
-  key_not_contains?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
-  local?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
-  local_not?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
-  local_in?: InputMaybe<Array<Scalars['stagingmumbai_Bytes']>>;
-  local_not_in?: InputMaybe<Array<Scalars['stagingmumbai_Bytes']>>;
-  local_contains?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
-  local_not_contains?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
-  adoptedAsset?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
-  adoptedAsset_not?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
-  adoptedAsset_in?: InputMaybe<Array<Scalars['stagingmumbai_Bytes']>>;
-  adoptedAsset_not_in?: InputMaybe<Array<Scalars['stagingmumbai_Bytes']>>;
-  adoptedAsset_contains?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
-  adoptedAsset_not_contains?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
-  canonicalId?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
-  canonicalId_not?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
-  canonicalId_in?: InputMaybe<Array<Scalars['stagingmumbai_Bytes']>>;
-  canonicalId_not_in?: InputMaybe<Array<Scalars['stagingmumbai_Bytes']>>;
-  canonicalId_contains?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
-  canonicalId_not_contains?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
-  canonicalDomain?: InputMaybe<Scalars['BigInt']>;
-  canonicalDomain_not?: InputMaybe<Scalars['BigInt']>;
-  canonicalDomain_gt?: InputMaybe<Scalars['BigInt']>;
-  canonicalDomain_lt?: InputMaybe<Scalars['BigInt']>;
-  canonicalDomain_gte?: InputMaybe<Scalars['BigInt']>;
-  canonicalDomain_lte?: InputMaybe<Scalars['BigInt']>;
-  canonicalDomain_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  canonicalDomain_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  blockNumber?: InputMaybe<Scalars['BigInt']>;
-  blockNumber_not?: InputMaybe<Scalars['BigInt']>;
-  blockNumber_gt?: InputMaybe<Scalars['BigInt']>;
-  blockNumber_lt?: InputMaybe<Scalars['BigInt']>;
-  blockNumber_gte?: InputMaybe<Scalars['BigInt']>;
-  blockNumber_lte?: InputMaybe<Scalars['BigInt']>;
-  blockNumber_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  blockNumber_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  /** Filter for the block changed event. */
-  _change_block?: InputMaybe<stagingmumbai_BlockChangedFilter>;
-};
-
-export type stagingmumbai_Asset_orderBy =
-  | 'id'
-  | 'key'
-  | 'local'
-  | 'adoptedAsset'
-  | 'canonicalId'
-  | 'canonicalDomain'
-  | 'blockNumber';
-
-export type stagingmumbai_BlockChangedFilter = {
-  number_gte: Scalars['Int'];
-};
-
-export type stagingmumbai_Block_height = {
-  hash?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
-  number?: InputMaybe<Scalars['Int']>;
-  number_gte?: InputMaybe<Scalars['Int']>;
-};
-
-export type stagingmumbai_ConnectorMeta = {
-  id: Scalars['ID'];
-  spokeDomain: Scalars['BigInt'];
-  hubDomain: Scalars['BigInt'];
-  amb: Scalars['stagingmumbai_Bytes'];
-  rootManager: Scalars['stagingmumbai_Bytes'];
-  mirrorConnector: Scalars['stagingmumbai_Bytes'];
-};
-
-export type stagingmumbai_ConnectorMeta_filter = {
-  id?: InputMaybe<Scalars['ID']>;
-  id_not?: InputMaybe<Scalars['ID']>;
-  id_gt?: InputMaybe<Scalars['ID']>;
-  id_lt?: InputMaybe<Scalars['ID']>;
-  id_gte?: InputMaybe<Scalars['ID']>;
-  id_lte?: InputMaybe<Scalars['ID']>;
-  id_in?: InputMaybe<Array<Scalars['ID']>>;
-  id_not_in?: InputMaybe<Array<Scalars['ID']>>;
-  spokeDomain?: InputMaybe<Scalars['BigInt']>;
-  spokeDomain_not?: InputMaybe<Scalars['BigInt']>;
-  spokeDomain_gt?: InputMaybe<Scalars['BigInt']>;
-  spokeDomain_lt?: InputMaybe<Scalars['BigInt']>;
-  spokeDomain_gte?: InputMaybe<Scalars['BigInt']>;
-  spokeDomain_lte?: InputMaybe<Scalars['BigInt']>;
-  spokeDomain_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  spokeDomain_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  hubDomain?: InputMaybe<Scalars['BigInt']>;
-  hubDomain_not?: InputMaybe<Scalars['BigInt']>;
-  hubDomain_gt?: InputMaybe<Scalars['BigInt']>;
-  hubDomain_lt?: InputMaybe<Scalars['BigInt']>;
-  hubDomain_gte?: InputMaybe<Scalars['BigInt']>;
-  hubDomain_lte?: InputMaybe<Scalars['BigInt']>;
-  hubDomain_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  hubDomain_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  amb?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
-  amb_not?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
-  amb_in?: InputMaybe<Array<Scalars['stagingmumbai_Bytes']>>;
-  amb_not_in?: InputMaybe<Array<Scalars['stagingmumbai_Bytes']>>;
-  amb_contains?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
-  amb_not_contains?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
-  rootManager?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
-  rootManager_not?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
-  rootManager_in?: InputMaybe<Array<Scalars['stagingmumbai_Bytes']>>;
-  rootManager_not_in?: InputMaybe<Array<Scalars['stagingmumbai_Bytes']>>;
-  rootManager_contains?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
-  rootManager_not_contains?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
-  mirrorConnector?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
-  mirrorConnector_not?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
-  mirrorConnector_in?: InputMaybe<Array<Scalars['stagingmumbai_Bytes']>>;
-  mirrorConnector_not_in?: InputMaybe<Array<Scalars['stagingmumbai_Bytes']>>;
-  mirrorConnector_contains?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
-  mirrorConnector_not_contains?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
-  /** Filter for the block changed event. */
-  _change_block?: InputMaybe<stagingmumbai_BlockChangedFilter>;
-};
-
-export type stagingmumbai_ConnectorMeta_orderBy =
-  | 'id'
-  | 'spokeDomain'
-  | 'hubDomain'
-  | 'amb'
-  | 'rootManager'
-  | 'mirrorConnector';
-
-export type stagingmumbai_DestinationMessage = {
-  id: Scalars['ID'];
-  leaf?: Maybe<Scalars['stagingmumbai_Bytes']>;
-  processed?: Maybe<Scalars['Boolean']>;
-  returnData?: Maybe<Scalars['stagingmumbai_Bytes']>;
-  transactionHash?: Maybe<Scalars['stagingmumbai_Bytes']>;
-};
-
-export type stagingmumbai_DestinationMessage_filter = {
-  id?: InputMaybe<Scalars['ID']>;
-  id_not?: InputMaybe<Scalars['ID']>;
-  id_gt?: InputMaybe<Scalars['ID']>;
-  id_lt?: InputMaybe<Scalars['ID']>;
-  id_gte?: InputMaybe<Scalars['ID']>;
-  id_lte?: InputMaybe<Scalars['ID']>;
-  id_in?: InputMaybe<Array<Scalars['ID']>>;
-  id_not_in?: InputMaybe<Array<Scalars['ID']>>;
-  leaf?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
-  leaf_not?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
-  leaf_in?: InputMaybe<Array<Scalars['stagingmumbai_Bytes']>>;
-  leaf_not_in?: InputMaybe<Array<Scalars['stagingmumbai_Bytes']>>;
-  leaf_contains?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
-  leaf_not_contains?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
-  processed?: InputMaybe<Scalars['Boolean']>;
-  processed_not?: InputMaybe<Scalars['Boolean']>;
-  processed_in?: InputMaybe<Array<Scalars['Boolean']>>;
-  processed_not_in?: InputMaybe<Array<Scalars['Boolean']>>;
-  returnData?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
-  returnData_not?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
-  returnData_in?: InputMaybe<Array<Scalars['stagingmumbai_Bytes']>>;
-  returnData_not_in?: InputMaybe<Array<Scalars['stagingmumbai_Bytes']>>;
-  returnData_contains?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
-  returnData_not_contains?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
-  transactionHash?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
-  transactionHash_not?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
-  transactionHash_in?: InputMaybe<Array<Scalars['stagingmumbai_Bytes']>>;
-  transactionHash_not_in?: InputMaybe<Array<Scalars['stagingmumbai_Bytes']>>;
-  transactionHash_contains?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
-  transactionHash_not_contains?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
-  /** Filter for the block changed event. */
-  _change_block?: InputMaybe<stagingmumbai_BlockChangedFilter>;
-};
-
-export type stagingmumbai_DestinationMessage_orderBy =
-  | 'id'
-  | 'leaf'
-  | 'processed'
-  | 'returnData'
-  | 'transactionHash';
-
-export type stagingmumbai_DestinationTransfer = {
-  id: Scalars['ID'];
-  chainId?: Maybe<Scalars['BigInt']>;
-  transferId?: Maybe<Scalars['stagingmumbai_Bytes']>;
-  nonce?: Maybe<Scalars['BigInt']>;
-  to?: Maybe<Scalars['stagingmumbai_Bytes']>;
-  callData?: Maybe<Scalars['stagingmumbai_Bytes']>;
-  originDomain?: Maybe<Scalars['BigInt']>;
-  destinationDomain?: Maybe<Scalars['BigInt']>;
-  agent?: Maybe<Scalars['stagingmumbai_Bytes']>;
-  recovery?: Maybe<Scalars['stagingmumbai_Bytes']>;
-  forceSlow?: Maybe<Scalars['Boolean']>;
-  receiveLocal?: Maybe<Scalars['Boolean']>;
-  callback?: Maybe<Scalars['stagingmumbai_Bytes']>;
-  callbackFee?: Maybe<Scalars['BigInt']>;
-  relayerFee?: Maybe<Scalars['BigInt']>;
-  destinationMinOut?: Maybe<Scalars['BigInt']>;
-  status?: Maybe<stagingmumbai_TransferStatus>;
-  routers?: Maybe<Array<stagingmumbai_Router>>;
-  originSender?: Maybe<Scalars['stagingmumbai_Bytes']>;
-  transactingAsset?: Maybe<Scalars['stagingmumbai_Bytes']>;
-  transactingAmount?: Maybe<Scalars['BigInt']>;
-  localAsset?: Maybe<Scalars['stagingmumbai_Bytes']>;
-  localAmount?: Maybe<Scalars['BigInt']>;
-  sponsorVaultRelayerFee?: Maybe<Scalars['BigInt']>;
-  executedCaller?: Maybe<Scalars['stagingmumbai_Bytes']>;
-  executedTransactionHash?: Maybe<Scalars['stagingmumbai_Bytes']>;
-  executedTimestamp?: Maybe<Scalars['BigInt']>;
-  executedGasPrice?: Maybe<Scalars['BigInt']>;
-  executedGasLimit?: Maybe<Scalars['BigInt']>;
-  executedBlockNumber?: Maybe<Scalars['BigInt']>;
-  reconciledCaller?: Maybe<Scalars['stagingmumbai_Bytes']>;
-  reconciledTransactionHash?: Maybe<Scalars['stagingmumbai_Bytes']>;
-  reconciledTimestamp?: Maybe<Scalars['BigInt']>;
-  reconciledGasPrice?: Maybe<Scalars['BigInt']>;
-  reconciledGasLimit?: Maybe<Scalars['BigInt']>;
-  reconciledBlockNumber?: Maybe<Scalars['BigInt']>;
-};
-
-
-export type stagingmumbai_DestinationTransferroutersArgs = {
-  skip?: InputMaybe<Scalars['Int']>;
-  first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<stagingmumbai_Router_orderBy>;
-  orderDirection?: InputMaybe<stagingmumbai_OrderDirection>;
-  where?: InputMaybe<stagingmumbai_Router_filter>;
-};
-
-export type stagingmumbai_DestinationTransfer_filter = {
-  id?: InputMaybe<Scalars['ID']>;
-  id_not?: InputMaybe<Scalars['ID']>;
-  id_gt?: InputMaybe<Scalars['ID']>;
-  id_lt?: InputMaybe<Scalars['ID']>;
-  id_gte?: InputMaybe<Scalars['ID']>;
-  id_lte?: InputMaybe<Scalars['ID']>;
-  id_in?: InputMaybe<Array<Scalars['ID']>>;
-  id_not_in?: InputMaybe<Array<Scalars['ID']>>;
-  chainId?: InputMaybe<Scalars['BigInt']>;
-  chainId_not?: InputMaybe<Scalars['BigInt']>;
-  chainId_gt?: InputMaybe<Scalars['BigInt']>;
-  chainId_lt?: InputMaybe<Scalars['BigInt']>;
-  chainId_gte?: InputMaybe<Scalars['BigInt']>;
-  chainId_lte?: InputMaybe<Scalars['BigInt']>;
-  chainId_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  chainId_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  transferId?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
-  transferId_not?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
-  transferId_in?: InputMaybe<Array<Scalars['stagingmumbai_Bytes']>>;
-  transferId_not_in?: InputMaybe<Array<Scalars['stagingmumbai_Bytes']>>;
-  transferId_contains?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
-  transferId_not_contains?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
-  nonce?: InputMaybe<Scalars['BigInt']>;
-  nonce_not?: InputMaybe<Scalars['BigInt']>;
-  nonce_gt?: InputMaybe<Scalars['BigInt']>;
-  nonce_lt?: InputMaybe<Scalars['BigInt']>;
-  nonce_gte?: InputMaybe<Scalars['BigInt']>;
-  nonce_lte?: InputMaybe<Scalars['BigInt']>;
-  nonce_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  nonce_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  to?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
-  to_not?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
-  to_in?: InputMaybe<Array<Scalars['stagingmumbai_Bytes']>>;
-  to_not_in?: InputMaybe<Array<Scalars['stagingmumbai_Bytes']>>;
-  to_contains?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
-  to_not_contains?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
-  callData?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
-  callData_not?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
-  callData_in?: InputMaybe<Array<Scalars['stagingmumbai_Bytes']>>;
-  callData_not_in?: InputMaybe<Array<Scalars['stagingmumbai_Bytes']>>;
-  callData_contains?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
-  callData_not_contains?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
-  originDomain?: InputMaybe<Scalars['BigInt']>;
-  originDomain_not?: InputMaybe<Scalars['BigInt']>;
-  originDomain_gt?: InputMaybe<Scalars['BigInt']>;
-  originDomain_lt?: InputMaybe<Scalars['BigInt']>;
-  originDomain_gte?: InputMaybe<Scalars['BigInt']>;
-  originDomain_lte?: InputMaybe<Scalars['BigInt']>;
-  originDomain_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  originDomain_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  destinationDomain?: InputMaybe<Scalars['BigInt']>;
-  destinationDomain_not?: InputMaybe<Scalars['BigInt']>;
-  destinationDomain_gt?: InputMaybe<Scalars['BigInt']>;
-  destinationDomain_lt?: InputMaybe<Scalars['BigInt']>;
-  destinationDomain_gte?: InputMaybe<Scalars['BigInt']>;
-  destinationDomain_lte?: InputMaybe<Scalars['BigInt']>;
-  destinationDomain_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  destinationDomain_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  agent?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
-  agent_not?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
-  agent_in?: InputMaybe<Array<Scalars['stagingmumbai_Bytes']>>;
-  agent_not_in?: InputMaybe<Array<Scalars['stagingmumbai_Bytes']>>;
-  agent_contains?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
-  agent_not_contains?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
-  recovery?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
-  recovery_not?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
-  recovery_in?: InputMaybe<Array<Scalars['stagingmumbai_Bytes']>>;
-  recovery_not_in?: InputMaybe<Array<Scalars['stagingmumbai_Bytes']>>;
-  recovery_contains?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
-  recovery_not_contains?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
-  forceSlow?: InputMaybe<Scalars['Boolean']>;
-  forceSlow_not?: InputMaybe<Scalars['Boolean']>;
-  forceSlow_in?: InputMaybe<Array<Scalars['Boolean']>>;
-  forceSlow_not_in?: InputMaybe<Array<Scalars['Boolean']>>;
-  receiveLocal?: InputMaybe<Scalars['Boolean']>;
-  receiveLocal_not?: InputMaybe<Scalars['Boolean']>;
-  receiveLocal_in?: InputMaybe<Array<Scalars['Boolean']>>;
-  receiveLocal_not_in?: InputMaybe<Array<Scalars['Boolean']>>;
-  callback?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
-  callback_not?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
-  callback_in?: InputMaybe<Array<Scalars['stagingmumbai_Bytes']>>;
-  callback_not_in?: InputMaybe<Array<Scalars['stagingmumbai_Bytes']>>;
-  callback_contains?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
-  callback_not_contains?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
-  callbackFee?: InputMaybe<Scalars['BigInt']>;
-  callbackFee_not?: InputMaybe<Scalars['BigInt']>;
-  callbackFee_gt?: InputMaybe<Scalars['BigInt']>;
-  callbackFee_lt?: InputMaybe<Scalars['BigInt']>;
-  callbackFee_gte?: InputMaybe<Scalars['BigInt']>;
-  callbackFee_lte?: InputMaybe<Scalars['BigInt']>;
-  callbackFee_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  callbackFee_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  relayerFee?: InputMaybe<Scalars['BigInt']>;
-  relayerFee_not?: InputMaybe<Scalars['BigInt']>;
-  relayerFee_gt?: InputMaybe<Scalars['BigInt']>;
-  relayerFee_lt?: InputMaybe<Scalars['BigInt']>;
-  relayerFee_gte?: InputMaybe<Scalars['BigInt']>;
-  relayerFee_lte?: InputMaybe<Scalars['BigInt']>;
-  relayerFee_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  relayerFee_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  destinationMinOut?: InputMaybe<Scalars['BigInt']>;
-  destinationMinOut_not?: InputMaybe<Scalars['BigInt']>;
-  destinationMinOut_gt?: InputMaybe<Scalars['BigInt']>;
-  destinationMinOut_lt?: InputMaybe<Scalars['BigInt']>;
-  destinationMinOut_gte?: InputMaybe<Scalars['BigInt']>;
-  destinationMinOut_lte?: InputMaybe<Scalars['BigInt']>;
-  destinationMinOut_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  destinationMinOut_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  status?: InputMaybe<stagingmumbai_TransferStatus>;
-  status_not?: InputMaybe<stagingmumbai_TransferStatus>;
-  status_in?: InputMaybe<Array<stagingmumbai_TransferStatus>>;
-  status_not_in?: InputMaybe<Array<stagingmumbai_TransferStatus>>;
-  routers?: InputMaybe<Array<Scalars['String']>>;
-  routers_not?: InputMaybe<Array<Scalars['String']>>;
-  routers_contains?: InputMaybe<Array<Scalars['String']>>;
-  routers_contains_nocase?: InputMaybe<Array<Scalars['String']>>;
-  routers_not_contains?: InputMaybe<Array<Scalars['String']>>;
-  routers_not_contains_nocase?: InputMaybe<Array<Scalars['String']>>;
-  routers_?: InputMaybe<stagingmumbai_Router_filter>;
-  originSender?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
-  originSender_not?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
-  originSender_in?: InputMaybe<Array<Scalars['stagingmumbai_Bytes']>>;
-  originSender_not_in?: InputMaybe<Array<Scalars['stagingmumbai_Bytes']>>;
-  originSender_contains?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
-  originSender_not_contains?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
-  transactingAsset?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
-  transactingAsset_not?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
-  transactingAsset_in?: InputMaybe<Array<Scalars['stagingmumbai_Bytes']>>;
-  transactingAsset_not_in?: InputMaybe<Array<Scalars['stagingmumbai_Bytes']>>;
-  transactingAsset_contains?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
-  transactingAsset_not_contains?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
-  transactingAmount?: InputMaybe<Scalars['BigInt']>;
-  transactingAmount_not?: InputMaybe<Scalars['BigInt']>;
-  transactingAmount_gt?: InputMaybe<Scalars['BigInt']>;
-  transactingAmount_lt?: InputMaybe<Scalars['BigInt']>;
-  transactingAmount_gte?: InputMaybe<Scalars['BigInt']>;
-  transactingAmount_lte?: InputMaybe<Scalars['BigInt']>;
-  transactingAmount_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  transactingAmount_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  localAsset?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
-  localAsset_not?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
-  localAsset_in?: InputMaybe<Array<Scalars['stagingmumbai_Bytes']>>;
-  localAsset_not_in?: InputMaybe<Array<Scalars['stagingmumbai_Bytes']>>;
-  localAsset_contains?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
-  localAsset_not_contains?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
-  localAmount?: InputMaybe<Scalars['BigInt']>;
-  localAmount_not?: InputMaybe<Scalars['BigInt']>;
-  localAmount_gt?: InputMaybe<Scalars['BigInt']>;
-  localAmount_lt?: InputMaybe<Scalars['BigInt']>;
-  localAmount_gte?: InputMaybe<Scalars['BigInt']>;
-  localAmount_lte?: InputMaybe<Scalars['BigInt']>;
-  localAmount_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  localAmount_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  sponsorVaultRelayerFee?: InputMaybe<Scalars['BigInt']>;
-  sponsorVaultRelayerFee_not?: InputMaybe<Scalars['BigInt']>;
-  sponsorVaultRelayerFee_gt?: InputMaybe<Scalars['BigInt']>;
-  sponsorVaultRelayerFee_lt?: InputMaybe<Scalars['BigInt']>;
-  sponsorVaultRelayerFee_gte?: InputMaybe<Scalars['BigInt']>;
-  sponsorVaultRelayerFee_lte?: InputMaybe<Scalars['BigInt']>;
-  sponsorVaultRelayerFee_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  sponsorVaultRelayerFee_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  executedCaller?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
-  executedCaller_not?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
-  executedCaller_in?: InputMaybe<Array<Scalars['stagingmumbai_Bytes']>>;
-  executedCaller_not_in?: InputMaybe<Array<Scalars['stagingmumbai_Bytes']>>;
-  executedCaller_contains?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
-  executedCaller_not_contains?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
-  executedTransactionHash?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
-  executedTransactionHash_not?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
-  executedTransactionHash_in?: InputMaybe<Array<Scalars['stagingmumbai_Bytes']>>;
-  executedTransactionHash_not_in?: InputMaybe<Array<Scalars['stagingmumbai_Bytes']>>;
-  executedTransactionHash_contains?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
-  executedTransactionHash_not_contains?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
-  executedTimestamp?: InputMaybe<Scalars['BigInt']>;
-  executedTimestamp_not?: InputMaybe<Scalars['BigInt']>;
-  executedTimestamp_gt?: InputMaybe<Scalars['BigInt']>;
-  executedTimestamp_lt?: InputMaybe<Scalars['BigInt']>;
-  executedTimestamp_gte?: InputMaybe<Scalars['BigInt']>;
-  executedTimestamp_lte?: InputMaybe<Scalars['BigInt']>;
-  executedTimestamp_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  executedTimestamp_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  executedGasPrice?: InputMaybe<Scalars['BigInt']>;
-  executedGasPrice_not?: InputMaybe<Scalars['BigInt']>;
-  executedGasPrice_gt?: InputMaybe<Scalars['BigInt']>;
-  executedGasPrice_lt?: InputMaybe<Scalars['BigInt']>;
-  executedGasPrice_gte?: InputMaybe<Scalars['BigInt']>;
-  executedGasPrice_lte?: InputMaybe<Scalars['BigInt']>;
-  executedGasPrice_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  executedGasPrice_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  executedGasLimit?: InputMaybe<Scalars['BigInt']>;
-  executedGasLimit_not?: InputMaybe<Scalars['BigInt']>;
-  executedGasLimit_gt?: InputMaybe<Scalars['BigInt']>;
-  executedGasLimit_lt?: InputMaybe<Scalars['BigInt']>;
-  executedGasLimit_gte?: InputMaybe<Scalars['BigInt']>;
-  executedGasLimit_lte?: InputMaybe<Scalars['BigInt']>;
-  executedGasLimit_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  executedGasLimit_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  executedBlockNumber?: InputMaybe<Scalars['BigInt']>;
-  executedBlockNumber_not?: InputMaybe<Scalars['BigInt']>;
-  executedBlockNumber_gt?: InputMaybe<Scalars['BigInt']>;
-  executedBlockNumber_lt?: InputMaybe<Scalars['BigInt']>;
-  executedBlockNumber_gte?: InputMaybe<Scalars['BigInt']>;
-  executedBlockNumber_lte?: InputMaybe<Scalars['BigInt']>;
-  executedBlockNumber_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  executedBlockNumber_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  reconciledCaller?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
-  reconciledCaller_not?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
-  reconciledCaller_in?: InputMaybe<Array<Scalars['stagingmumbai_Bytes']>>;
-  reconciledCaller_not_in?: InputMaybe<Array<Scalars['stagingmumbai_Bytes']>>;
-  reconciledCaller_contains?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
-  reconciledCaller_not_contains?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
-  reconciledTransactionHash?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
-  reconciledTransactionHash_not?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
-  reconciledTransactionHash_in?: InputMaybe<Array<Scalars['stagingmumbai_Bytes']>>;
-  reconciledTransactionHash_not_in?: InputMaybe<Array<Scalars['stagingmumbai_Bytes']>>;
-  reconciledTransactionHash_contains?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
-  reconciledTransactionHash_not_contains?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
-  reconciledTimestamp?: InputMaybe<Scalars['BigInt']>;
-  reconciledTimestamp_not?: InputMaybe<Scalars['BigInt']>;
-  reconciledTimestamp_gt?: InputMaybe<Scalars['BigInt']>;
-  reconciledTimestamp_lt?: InputMaybe<Scalars['BigInt']>;
-  reconciledTimestamp_gte?: InputMaybe<Scalars['BigInt']>;
-  reconciledTimestamp_lte?: InputMaybe<Scalars['BigInt']>;
-  reconciledTimestamp_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  reconciledTimestamp_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  reconciledGasPrice?: InputMaybe<Scalars['BigInt']>;
-  reconciledGasPrice_not?: InputMaybe<Scalars['BigInt']>;
-  reconciledGasPrice_gt?: InputMaybe<Scalars['BigInt']>;
-  reconciledGasPrice_lt?: InputMaybe<Scalars['BigInt']>;
-  reconciledGasPrice_gte?: InputMaybe<Scalars['BigInt']>;
-  reconciledGasPrice_lte?: InputMaybe<Scalars['BigInt']>;
-  reconciledGasPrice_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  reconciledGasPrice_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  reconciledGasLimit?: InputMaybe<Scalars['BigInt']>;
-  reconciledGasLimit_not?: InputMaybe<Scalars['BigInt']>;
-  reconciledGasLimit_gt?: InputMaybe<Scalars['BigInt']>;
-  reconciledGasLimit_lt?: InputMaybe<Scalars['BigInt']>;
-  reconciledGasLimit_gte?: InputMaybe<Scalars['BigInt']>;
-  reconciledGasLimit_lte?: InputMaybe<Scalars['BigInt']>;
-  reconciledGasLimit_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  reconciledGasLimit_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  reconciledBlockNumber?: InputMaybe<Scalars['BigInt']>;
-  reconciledBlockNumber_not?: InputMaybe<Scalars['BigInt']>;
-  reconciledBlockNumber_gt?: InputMaybe<Scalars['BigInt']>;
-  reconciledBlockNumber_lt?: InputMaybe<Scalars['BigInt']>;
-  reconciledBlockNumber_gte?: InputMaybe<Scalars['BigInt']>;
-  reconciledBlockNumber_lte?: InputMaybe<Scalars['BigInt']>;
-  reconciledBlockNumber_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  reconciledBlockNumber_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  /** Filter for the block changed event. */
-  _change_block?: InputMaybe<stagingmumbai_BlockChangedFilter>;
-};
-
-export type stagingmumbai_DestinationTransfer_orderBy =
-  | 'id'
-  | 'chainId'
-  | 'transferId'
-  | 'nonce'
-  | 'to'
-  | 'callData'
-  | 'originDomain'
-  | 'destinationDomain'
-  | 'agent'
-  | 'recovery'
-  | 'forceSlow'
-  | 'receiveLocal'
-  | 'callback'
-  | 'callbackFee'
-  | 'relayerFee'
-  | 'destinationMinOut'
-  | 'status'
-  | 'routers'
-  | 'originSender'
-  | 'transactingAsset'
-  | 'transactingAmount'
-  | 'localAsset'
-  | 'localAmount'
-  | 'sponsorVaultRelayerFee'
-  | 'executedCaller'
-  | 'executedTransactionHash'
-  | 'executedTimestamp'
-  | 'executedGasPrice'
-  | 'executedGasLimit'
-  | 'executedBlockNumber'
-  | 'reconciledCaller'
-  | 'reconciledTransactionHash'
-  | 'reconciledTimestamp'
-  | 'reconciledGasPrice'
-  | 'reconciledGasLimit'
-  | 'reconciledBlockNumber';
-
-/** Defines the order direction, either ascending or descending */
-export type stagingmumbai_OrderDirection =
-  | 'asc'
-  | 'desc';
-
-export type stagingmumbai_OriginMessage = {
-  id: Scalars['ID'];
-  transferId?: Maybe<Scalars['stagingmumbai_Bytes']>;
-  destinationDomain?: Maybe<Scalars['BigInt']>;
-  leaf?: Maybe<Scalars['stagingmumbai_Bytes']>;
-  index?: Maybe<Scalars['BigInt']>;
-  root?: Maybe<Scalars['stagingmumbai_Bytes']>;
-  message?: Maybe<Scalars['stagingmumbai_Bytes']>;
-  transactionHash?: Maybe<Scalars['stagingmumbai_Bytes']>;
-};
-
-export type stagingmumbai_OriginMessage_filter = {
-  id?: InputMaybe<Scalars['ID']>;
-  id_not?: InputMaybe<Scalars['ID']>;
-  id_gt?: InputMaybe<Scalars['ID']>;
-  id_lt?: InputMaybe<Scalars['ID']>;
-  id_gte?: InputMaybe<Scalars['ID']>;
-  id_lte?: InputMaybe<Scalars['ID']>;
-  id_in?: InputMaybe<Array<Scalars['ID']>>;
-  id_not_in?: InputMaybe<Array<Scalars['ID']>>;
-  transferId?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
-  transferId_not?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
-  transferId_in?: InputMaybe<Array<Scalars['stagingmumbai_Bytes']>>;
-  transferId_not_in?: InputMaybe<Array<Scalars['stagingmumbai_Bytes']>>;
-  transferId_contains?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
-  transferId_not_contains?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
-  destinationDomain?: InputMaybe<Scalars['BigInt']>;
-  destinationDomain_not?: InputMaybe<Scalars['BigInt']>;
-  destinationDomain_gt?: InputMaybe<Scalars['BigInt']>;
-  destinationDomain_lt?: InputMaybe<Scalars['BigInt']>;
-  destinationDomain_gte?: InputMaybe<Scalars['BigInt']>;
-  destinationDomain_lte?: InputMaybe<Scalars['BigInt']>;
-  destinationDomain_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  destinationDomain_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  leaf?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
-  leaf_not?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
-  leaf_in?: InputMaybe<Array<Scalars['stagingmumbai_Bytes']>>;
-  leaf_not_in?: InputMaybe<Array<Scalars['stagingmumbai_Bytes']>>;
-  leaf_contains?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
-  leaf_not_contains?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
-  index?: InputMaybe<Scalars['BigInt']>;
-  index_not?: InputMaybe<Scalars['BigInt']>;
-  index_gt?: InputMaybe<Scalars['BigInt']>;
-  index_lt?: InputMaybe<Scalars['BigInt']>;
-  index_gte?: InputMaybe<Scalars['BigInt']>;
-  index_lte?: InputMaybe<Scalars['BigInt']>;
-  index_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  index_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  root?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
-  root_not?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
-  root_in?: InputMaybe<Array<Scalars['stagingmumbai_Bytes']>>;
-  root_not_in?: InputMaybe<Array<Scalars['stagingmumbai_Bytes']>>;
-  root_contains?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
-  root_not_contains?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
-  message?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
-  message_not?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
-  message_in?: InputMaybe<Array<Scalars['stagingmumbai_Bytes']>>;
-  message_not_in?: InputMaybe<Array<Scalars['stagingmumbai_Bytes']>>;
-  message_contains?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
-  message_not_contains?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
-  transactionHash?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
-  transactionHash_not?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
-  transactionHash_in?: InputMaybe<Array<Scalars['stagingmumbai_Bytes']>>;
-  transactionHash_not_in?: InputMaybe<Array<Scalars['stagingmumbai_Bytes']>>;
-  transactionHash_contains?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
-  transactionHash_not_contains?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
-  /** Filter for the block changed event. */
-  _change_block?: InputMaybe<stagingmumbai_BlockChangedFilter>;
-};
-
-export type stagingmumbai_OriginMessage_orderBy =
-  | 'id'
-  | 'transferId'
-  | 'destinationDomain'
-  | 'leaf'
-  | 'index'
-  | 'root'
-  | 'message'
-  | 'transactionHash';
-
-export type stagingmumbai_OriginTransfer = {
-  id: Scalars['ID'];
-  chainId?: Maybe<Scalars['BigInt']>;
-  transferId?: Maybe<Scalars['stagingmumbai_Bytes']>;
-  nonce?: Maybe<Scalars['BigInt']>;
-  to?: Maybe<Scalars['stagingmumbai_Bytes']>;
-  callData?: Maybe<Scalars['stagingmumbai_Bytes']>;
-  originDomain?: Maybe<Scalars['BigInt']>;
-  destinationDomain?: Maybe<Scalars['BigInt']>;
-  agent?: Maybe<Scalars['stagingmumbai_Bytes']>;
-  recovery?: Maybe<Scalars['stagingmumbai_Bytes']>;
-  forceSlow?: Maybe<Scalars['Boolean']>;
-  receiveLocal?: Maybe<Scalars['Boolean']>;
-  callback?: Maybe<Scalars['stagingmumbai_Bytes']>;
-  callbackFee?: Maybe<Scalars['BigInt']>;
-  relayerFee?: Maybe<Scalars['BigInt']>;
-  destinationMinOut?: Maybe<Scalars['BigInt']>;
-  status?: Maybe<stagingmumbai_TransferStatus>;
-  originMinOut?: Maybe<Scalars['BigInt']>;
-  transactingAsset?: Maybe<Scalars['stagingmumbai_Bytes']>;
-  transactingAmount?: Maybe<Scalars['BigInt']>;
-  bridgedAsset?: Maybe<Scalars['stagingmumbai_Bytes']>;
-  bridgedAmount?: Maybe<Scalars['BigInt']>;
-  message?: Maybe<stagingmumbai_OriginMessage>;
-  caller?: Maybe<Scalars['stagingmumbai_Bytes']>;
-  transactionHash?: Maybe<Scalars['stagingmumbai_Bytes']>;
-  timestamp?: Maybe<Scalars['BigInt']>;
-  gasPrice?: Maybe<Scalars['BigInt']>;
-  gasLimit?: Maybe<Scalars['BigInt']>;
-  blockNumber?: Maybe<Scalars['BigInt']>;
-};
-
-export type stagingmumbai_OriginTransfer_filter = {
-  id?: InputMaybe<Scalars['ID']>;
-  id_not?: InputMaybe<Scalars['ID']>;
-  id_gt?: InputMaybe<Scalars['ID']>;
-  id_lt?: InputMaybe<Scalars['ID']>;
-  id_gte?: InputMaybe<Scalars['ID']>;
-  id_lte?: InputMaybe<Scalars['ID']>;
-  id_in?: InputMaybe<Array<Scalars['ID']>>;
-  id_not_in?: InputMaybe<Array<Scalars['ID']>>;
-  chainId?: InputMaybe<Scalars['BigInt']>;
-  chainId_not?: InputMaybe<Scalars['BigInt']>;
-  chainId_gt?: InputMaybe<Scalars['BigInt']>;
-  chainId_lt?: InputMaybe<Scalars['BigInt']>;
-  chainId_gte?: InputMaybe<Scalars['BigInt']>;
-  chainId_lte?: InputMaybe<Scalars['BigInt']>;
-  chainId_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  chainId_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  transferId?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
-  transferId_not?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
-  transferId_in?: InputMaybe<Array<Scalars['stagingmumbai_Bytes']>>;
-  transferId_not_in?: InputMaybe<Array<Scalars['stagingmumbai_Bytes']>>;
-  transferId_contains?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
-  transferId_not_contains?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
-  nonce?: InputMaybe<Scalars['BigInt']>;
-  nonce_not?: InputMaybe<Scalars['BigInt']>;
-  nonce_gt?: InputMaybe<Scalars['BigInt']>;
-  nonce_lt?: InputMaybe<Scalars['BigInt']>;
-  nonce_gte?: InputMaybe<Scalars['BigInt']>;
-  nonce_lte?: InputMaybe<Scalars['BigInt']>;
-  nonce_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  nonce_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  to?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
-  to_not?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
-  to_in?: InputMaybe<Array<Scalars['stagingmumbai_Bytes']>>;
-  to_not_in?: InputMaybe<Array<Scalars['stagingmumbai_Bytes']>>;
-  to_contains?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
-  to_not_contains?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
-  callData?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
-  callData_not?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
-  callData_in?: InputMaybe<Array<Scalars['stagingmumbai_Bytes']>>;
-  callData_not_in?: InputMaybe<Array<Scalars['stagingmumbai_Bytes']>>;
-  callData_contains?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
-  callData_not_contains?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
-  originDomain?: InputMaybe<Scalars['BigInt']>;
-  originDomain_not?: InputMaybe<Scalars['BigInt']>;
-  originDomain_gt?: InputMaybe<Scalars['BigInt']>;
-  originDomain_lt?: InputMaybe<Scalars['BigInt']>;
-  originDomain_gte?: InputMaybe<Scalars['BigInt']>;
-  originDomain_lte?: InputMaybe<Scalars['BigInt']>;
-  originDomain_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  originDomain_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  destinationDomain?: InputMaybe<Scalars['BigInt']>;
-  destinationDomain_not?: InputMaybe<Scalars['BigInt']>;
-  destinationDomain_gt?: InputMaybe<Scalars['BigInt']>;
-  destinationDomain_lt?: InputMaybe<Scalars['BigInt']>;
-  destinationDomain_gte?: InputMaybe<Scalars['BigInt']>;
-  destinationDomain_lte?: InputMaybe<Scalars['BigInt']>;
-  destinationDomain_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  destinationDomain_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  agent?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
-  agent_not?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
-  agent_in?: InputMaybe<Array<Scalars['stagingmumbai_Bytes']>>;
-  agent_not_in?: InputMaybe<Array<Scalars['stagingmumbai_Bytes']>>;
-  agent_contains?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
-  agent_not_contains?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
-  recovery?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
-  recovery_not?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
-  recovery_in?: InputMaybe<Array<Scalars['stagingmumbai_Bytes']>>;
-  recovery_not_in?: InputMaybe<Array<Scalars['stagingmumbai_Bytes']>>;
-  recovery_contains?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
-  recovery_not_contains?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
-  forceSlow?: InputMaybe<Scalars['Boolean']>;
-  forceSlow_not?: InputMaybe<Scalars['Boolean']>;
-  forceSlow_in?: InputMaybe<Array<Scalars['Boolean']>>;
-  forceSlow_not_in?: InputMaybe<Array<Scalars['Boolean']>>;
-  receiveLocal?: InputMaybe<Scalars['Boolean']>;
-  receiveLocal_not?: InputMaybe<Scalars['Boolean']>;
-  receiveLocal_in?: InputMaybe<Array<Scalars['Boolean']>>;
-  receiveLocal_not_in?: InputMaybe<Array<Scalars['Boolean']>>;
-  callback?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
-  callback_not?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
-  callback_in?: InputMaybe<Array<Scalars['stagingmumbai_Bytes']>>;
-  callback_not_in?: InputMaybe<Array<Scalars['stagingmumbai_Bytes']>>;
-  callback_contains?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
-  callback_not_contains?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
-  callbackFee?: InputMaybe<Scalars['BigInt']>;
-  callbackFee_not?: InputMaybe<Scalars['BigInt']>;
-  callbackFee_gt?: InputMaybe<Scalars['BigInt']>;
-  callbackFee_lt?: InputMaybe<Scalars['BigInt']>;
-  callbackFee_gte?: InputMaybe<Scalars['BigInt']>;
-  callbackFee_lte?: InputMaybe<Scalars['BigInt']>;
-  callbackFee_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  callbackFee_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  relayerFee?: InputMaybe<Scalars['BigInt']>;
-  relayerFee_not?: InputMaybe<Scalars['BigInt']>;
-  relayerFee_gt?: InputMaybe<Scalars['BigInt']>;
-  relayerFee_lt?: InputMaybe<Scalars['BigInt']>;
-  relayerFee_gte?: InputMaybe<Scalars['BigInt']>;
-  relayerFee_lte?: InputMaybe<Scalars['BigInt']>;
-  relayerFee_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  relayerFee_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  destinationMinOut?: InputMaybe<Scalars['BigInt']>;
-  destinationMinOut_not?: InputMaybe<Scalars['BigInt']>;
-  destinationMinOut_gt?: InputMaybe<Scalars['BigInt']>;
-  destinationMinOut_lt?: InputMaybe<Scalars['BigInt']>;
-  destinationMinOut_gte?: InputMaybe<Scalars['BigInt']>;
-  destinationMinOut_lte?: InputMaybe<Scalars['BigInt']>;
-  destinationMinOut_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  destinationMinOut_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  status?: InputMaybe<stagingmumbai_TransferStatus>;
-  status_not?: InputMaybe<stagingmumbai_TransferStatus>;
-  status_in?: InputMaybe<Array<stagingmumbai_TransferStatus>>;
-  status_not_in?: InputMaybe<Array<stagingmumbai_TransferStatus>>;
-  originMinOut?: InputMaybe<Scalars['BigInt']>;
-  originMinOut_not?: InputMaybe<Scalars['BigInt']>;
-  originMinOut_gt?: InputMaybe<Scalars['BigInt']>;
-  originMinOut_lt?: InputMaybe<Scalars['BigInt']>;
-  originMinOut_gte?: InputMaybe<Scalars['BigInt']>;
-  originMinOut_lte?: InputMaybe<Scalars['BigInt']>;
-  originMinOut_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  originMinOut_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  transactingAsset?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
-  transactingAsset_not?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
-  transactingAsset_in?: InputMaybe<Array<Scalars['stagingmumbai_Bytes']>>;
-  transactingAsset_not_in?: InputMaybe<Array<Scalars['stagingmumbai_Bytes']>>;
-  transactingAsset_contains?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
-  transactingAsset_not_contains?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
-  transactingAmount?: InputMaybe<Scalars['BigInt']>;
-  transactingAmount_not?: InputMaybe<Scalars['BigInt']>;
-  transactingAmount_gt?: InputMaybe<Scalars['BigInt']>;
-  transactingAmount_lt?: InputMaybe<Scalars['BigInt']>;
-  transactingAmount_gte?: InputMaybe<Scalars['BigInt']>;
-  transactingAmount_lte?: InputMaybe<Scalars['BigInt']>;
-  transactingAmount_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  transactingAmount_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  bridgedAsset?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
-  bridgedAsset_not?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
-  bridgedAsset_in?: InputMaybe<Array<Scalars['stagingmumbai_Bytes']>>;
-  bridgedAsset_not_in?: InputMaybe<Array<Scalars['stagingmumbai_Bytes']>>;
-  bridgedAsset_contains?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
-  bridgedAsset_not_contains?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
-  bridgedAmount?: InputMaybe<Scalars['BigInt']>;
-  bridgedAmount_not?: InputMaybe<Scalars['BigInt']>;
-  bridgedAmount_gt?: InputMaybe<Scalars['BigInt']>;
-  bridgedAmount_lt?: InputMaybe<Scalars['BigInt']>;
-  bridgedAmount_gte?: InputMaybe<Scalars['BigInt']>;
-  bridgedAmount_lte?: InputMaybe<Scalars['BigInt']>;
-  bridgedAmount_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  bridgedAmount_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  message?: InputMaybe<Scalars['String']>;
-  message_not?: InputMaybe<Scalars['String']>;
-  message_gt?: InputMaybe<Scalars['String']>;
-  message_lt?: InputMaybe<Scalars['String']>;
-  message_gte?: InputMaybe<Scalars['String']>;
-  message_lte?: InputMaybe<Scalars['String']>;
-  message_in?: InputMaybe<Array<Scalars['String']>>;
-  message_not_in?: InputMaybe<Array<Scalars['String']>>;
-  message_contains?: InputMaybe<Scalars['String']>;
-  message_contains_nocase?: InputMaybe<Scalars['String']>;
-  message_not_contains?: InputMaybe<Scalars['String']>;
-  message_not_contains_nocase?: InputMaybe<Scalars['String']>;
-  message_starts_with?: InputMaybe<Scalars['String']>;
-  message_starts_with_nocase?: InputMaybe<Scalars['String']>;
-  message_not_starts_with?: InputMaybe<Scalars['String']>;
-  message_not_starts_with_nocase?: InputMaybe<Scalars['String']>;
-  message_ends_with?: InputMaybe<Scalars['String']>;
-  message_ends_with_nocase?: InputMaybe<Scalars['String']>;
-  message_not_ends_with?: InputMaybe<Scalars['String']>;
-  message_not_ends_with_nocase?: InputMaybe<Scalars['String']>;
-  message_?: InputMaybe<stagingmumbai_OriginMessage_filter>;
-  caller?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
-  caller_not?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
-  caller_in?: InputMaybe<Array<Scalars['stagingmumbai_Bytes']>>;
-  caller_not_in?: InputMaybe<Array<Scalars['stagingmumbai_Bytes']>>;
-  caller_contains?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
-  caller_not_contains?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
-  transactionHash?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
-  transactionHash_not?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
-  transactionHash_in?: InputMaybe<Array<Scalars['stagingmumbai_Bytes']>>;
-  transactionHash_not_in?: InputMaybe<Array<Scalars['stagingmumbai_Bytes']>>;
-  transactionHash_contains?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
-  transactionHash_not_contains?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
-  timestamp?: InputMaybe<Scalars['BigInt']>;
-  timestamp_not?: InputMaybe<Scalars['BigInt']>;
-  timestamp_gt?: InputMaybe<Scalars['BigInt']>;
-  timestamp_lt?: InputMaybe<Scalars['BigInt']>;
-  timestamp_gte?: InputMaybe<Scalars['BigInt']>;
-  timestamp_lte?: InputMaybe<Scalars['BigInt']>;
-  timestamp_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  timestamp_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  gasPrice?: InputMaybe<Scalars['BigInt']>;
-  gasPrice_not?: InputMaybe<Scalars['BigInt']>;
-  gasPrice_gt?: InputMaybe<Scalars['BigInt']>;
-  gasPrice_lt?: InputMaybe<Scalars['BigInt']>;
-  gasPrice_gte?: InputMaybe<Scalars['BigInt']>;
-  gasPrice_lte?: InputMaybe<Scalars['BigInt']>;
-  gasPrice_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  gasPrice_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  gasLimit?: InputMaybe<Scalars['BigInt']>;
-  gasLimit_not?: InputMaybe<Scalars['BigInt']>;
-  gasLimit_gt?: InputMaybe<Scalars['BigInt']>;
-  gasLimit_lt?: InputMaybe<Scalars['BigInt']>;
-  gasLimit_gte?: InputMaybe<Scalars['BigInt']>;
-  gasLimit_lte?: InputMaybe<Scalars['BigInt']>;
-  gasLimit_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  gasLimit_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  blockNumber?: InputMaybe<Scalars['BigInt']>;
-  blockNumber_not?: InputMaybe<Scalars['BigInt']>;
-  blockNumber_gt?: InputMaybe<Scalars['BigInt']>;
-  blockNumber_lt?: InputMaybe<Scalars['BigInt']>;
-  blockNumber_gte?: InputMaybe<Scalars['BigInt']>;
-  blockNumber_lte?: InputMaybe<Scalars['BigInt']>;
-  blockNumber_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  blockNumber_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  /** Filter for the block changed event. */
-  _change_block?: InputMaybe<stagingmumbai_BlockChangedFilter>;
-};
-
-export type stagingmumbai_OriginTransfer_orderBy =
-  | 'id'
-  | 'chainId'
-  | 'transferId'
-  | 'nonce'
-  | 'to'
-  | 'callData'
-  | 'originDomain'
-  | 'destinationDomain'
-  | 'agent'
-  | 'recovery'
-  | 'forceSlow'
-  | 'receiveLocal'
-  | 'callback'
-  | 'callbackFee'
-  | 'relayerFee'
-  | 'destinationMinOut'
-  | 'status'
-  | 'originMinOut'
-  | 'transactingAsset'
-  | 'transactingAmount'
-  | 'bridgedAsset'
-  | 'bridgedAmount'
-  | 'message'
-  | 'caller'
-  | 'transactionHash'
-  | 'timestamp'
-  | 'gasPrice'
-  | 'gasLimit'
-  | 'blockNumber';
-
-export type stagingmumbai_Relayer = {
-  id: Scalars['ID'];
-  isActive: Scalars['Boolean'];
-  relayer?: Maybe<Scalars['stagingmumbai_Bytes']>;
-};
-
-export type stagingmumbai_Relayer_filter = {
-  id?: InputMaybe<Scalars['ID']>;
-  id_not?: InputMaybe<Scalars['ID']>;
-  id_gt?: InputMaybe<Scalars['ID']>;
-  id_lt?: InputMaybe<Scalars['ID']>;
-  id_gte?: InputMaybe<Scalars['ID']>;
-  id_lte?: InputMaybe<Scalars['ID']>;
-  id_in?: InputMaybe<Array<Scalars['ID']>>;
-  id_not_in?: InputMaybe<Array<Scalars['ID']>>;
-  isActive?: InputMaybe<Scalars['Boolean']>;
-  isActive_not?: InputMaybe<Scalars['Boolean']>;
-  isActive_in?: InputMaybe<Array<Scalars['Boolean']>>;
-  isActive_not_in?: InputMaybe<Array<Scalars['Boolean']>>;
-  relayer?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
-  relayer_not?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
-  relayer_in?: InputMaybe<Array<Scalars['stagingmumbai_Bytes']>>;
-  relayer_not_in?: InputMaybe<Array<Scalars['stagingmumbai_Bytes']>>;
-  relayer_contains?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
-  relayer_not_contains?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
-  /** Filter for the block changed event. */
-  _change_block?: InputMaybe<stagingmumbai_BlockChangedFilter>;
-};
-
-export type stagingmumbai_Relayer_orderBy =
-  | 'id'
-  | 'isActive'
-  | 'relayer';
-
-export type stagingmumbai_RootMessageProcessed = {
-  id: Scalars['ID'];
-  root?: Maybe<Scalars['stagingmumbai_Bytes']>;
-  caller?: Maybe<Scalars['stagingmumbai_Bytes']>;
-  transactionHash?: Maybe<Scalars['stagingmumbai_Bytes']>;
-  timestamp?: Maybe<Scalars['BigInt']>;
-  gasPrice?: Maybe<Scalars['BigInt']>;
-  gasLimit?: Maybe<Scalars['BigInt']>;
-  blockNumber?: Maybe<Scalars['BigInt']>;
-};
-
-export type stagingmumbai_RootMessageProcessed_filter = {
-  id?: InputMaybe<Scalars['ID']>;
-  id_not?: InputMaybe<Scalars['ID']>;
-  id_gt?: InputMaybe<Scalars['ID']>;
-  id_lt?: InputMaybe<Scalars['ID']>;
-  id_gte?: InputMaybe<Scalars['ID']>;
-  id_lte?: InputMaybe<Scalars['ID']>;
-  id_in?: InputMaybe<Array<Scalars['ID']>>;
-  id_not_in?: InputMaybe<Array<Scalars['ID']>>;
-  root?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
-  root_not?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
-  root_in?: InputMaybe<Array<Scalars['stagingmumbai_Bytes']>>;
-  root_not_in?: InputMaybe<Array<Scalars['stagingmumbai_Bytes']>>;
-  root_contains?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
-  root_not_contains?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
-  caller?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
-  caller_not?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
-  caller_in?: InputMaybe<Array<Scalars['stagingmumbai_Bytes']>>;
-  caller_not_in?: InputMaybe<Array<Scalars['stagingmumbai_Bytes']>>;
-  caller_contains?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
-  caller_not_contains?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
-  transactionHash?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
-  transactionHash_not?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
-  transactionHash_in?: InputMaybe<Array<Scalars['stagingmumbai_Bytes']>>;
-  transactionHash_not_in?: InputMaybe<Array<Scalars['stagingmumbai_Bytes']>>;
-  transactionHash_contains?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
-  transactionHash_not_contains?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
-  timestamp?: InputMaybe<Scalars['BigInt']>;
-  timestamp_not?: InputMaybe<Scalars['BigInt']>;
-  timestamp_gt?: InputMaybe<Scalars['BigInt']>;
-  timestamp_lt?: InputMaybe<Scalars['BigInt']>;
-  timestamp_gte?: InputMaybe<Scalars['BigInt']>;
-  timestamp_lte?: InputMaybe<Scalars['BigInt']>;
-  timestamp_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  timestamp_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  gasPrice?: InputMaybe<Scalars['BigInt']>;
-  gasPrice_not?: InputMaybe<Scalars['BigInt']>;
-  gasPrice_gt?: InputMaybe<Scalars['BigInt']>;
-  gasPrice_lt?: InputMaybe<Scalars['BigInt']>;
-  gasPrice_gte?: InputMaybe<Scalars['BigInt']>;
-  gasPrice_lte?: InputMaybe<Scalars['BigInt']>;
-  gasPrice_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  gasPrice_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  gasLimit?: InputMaybe<Scalars['BigInt']>;
-  gasLimit_not?: InputMaybe<Scalars['BigInt']>;
-  gasLimit_gt?: InputMaybe<Scalars['BigInt']>;
-  gasLimit_lt?: InputMaybe<Scalars['BigInt']>;
-  gasLimit_gte?: InputMaybe<Scalars['BigInt']>;
-  gasLimit_lte?: InputMaybe<Scalars['BigInt']>;
-  gasLimit_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  gasLimit_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  blockNumber?: InputMaybe<Scalars['BigInt']>;
-  blockNumber_not?: InputMaybe<Scalars['BigInt']>;
-  blockNumber_gt?: InputMaybe<Scalars['BigInt']>;
-  blockNumber_lt?: InputMaybe<Scalars['BigInt']>;
-  blockNumber_gte?: InputMaybe<Scalars['BigInt']>;
-  blockNumber_lte?: InputMaybe<Scalars['BigInt']>;
-  blockNumber_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  blockNumber_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  /** Filter for the block changed event. */
-  _change_block?: InputMaybe<stagingmumbai_BlockChangedFilter>;
-};
-
-export type stagingmumbai_RootMessageProcessed_orderBy =
-  | 'id'
-  | 'root'
-  | 'caller'
-  | 'transactionHash'
-  | 'timestamp'
-  | 'gasPrice'
-  | 'gasLimit'
-  | 'blockNumber';
-
-export type stagingmumbai_RootMessageSent = {
-  id: Scalars['ID'];
-  spokeDomain?: Maybe<Scalars['BigInt']>;
-  hubDomain?: Maybe<Scalars['BigInt']>;
-  root?: Maybe<Scalars['stagingmumbai_Bytes']>;
-  caller?: Maybe<Scalars['stagingmumbai_Bytes']>;
-  transactionHash?: Maybe<Scalars['stagingmumbai_Bytes']>;
-  timestamp?: Maybe<Scalars['BigInt']>;
-  gasPrice?: Maybe<Scalars['BigInt']>;
-  gasLimit?: Maybe<Scalars['BigInt']>;
-  blockNumber?: Maybe<Scalars['BigInt']>;
-};
-
-export type stagingmumbai_RootMessageSent_filter = {
-  id?: InputMaybe<Scalars['ID']>;
-  id_not?: InputMaybe<Scalars['ID']>;
-  id_gt?: InputMaybe<Scalars['ID']>;
-  id_lt?: InputMaybe<Scalars['ID']>;
-  id_gte?: InputMaybe<Scalars['ID']>;
-  id_lte?: InputMaybe<Scalars['ID']>;
-  id_in?: InputMaybe<Array<Scalars['ID']>>;
-  id_not_in?: InputMaybe<Array<Scalars['ID']>>;
-  spokeDomain?: InputMaybe<Scalars['BigInt']>;
-  spokeDomain_not?: InputMaybe<Scalars['BigInt']>;
-  spokeDomain_gt?: InputMaybe<Scalars['BigInt']>;
-  spokeDomain_lt?: InputMaybe<Scalars['BigInt']>;
-  spokeDomain_gte?: InputMaybe<Scalars['BigInt']>;
-  spokeDomain_lte?: InputMaybe<Scalars['BigInt']>;
-  spokeDomain_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  spokeDomain_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  hubDomain?: InputMaybe<Scalars['BigInt']>;
-  hubDomain_not?: InputMaybe<Scalars['BigInt']>;
-  hubDomain_gt?: InputMaybe<Scalars['BigInt']>;
-  hubDomain_lt?: InputMaybe<Scalars['BigInt']>;
-  hubDomain_gte?: InputMaybe<Scalars['BigInt']>;
-  hubDomain_lte?: InputMaybe<Scalars['BigInt']>;
-  hubDomain_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  hubDomain_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  root?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
-  root_not?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
-  root_in?: InputMaybe<Array<Scalars['stagingmumbai_Bytes']>>;
-  root_not_in?: InputMaybe<Array<Scalars['stagingmumbai_Bytes']>>;
-  root_contains?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
-  root_not_contains?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
-  caller?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
-  caller_not?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
-  caller_in?: InputMaybe<Array<Scalars['stagingmumbai_Bytes']>>;
-  caller_not_in?: InputMaybe<Array<Scalars['stagingmumbai_Bytes']>>;
-  caller_contains?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
-  caller_not_contains?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
-  transactionHash?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
-  transactionHash_not?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
-  transactionHash_in?: InputMaybe<Array<Scalars['stagingmumbai_Bytes']>>;
-  transactionHash_not_in?: InputMaybe<Array<Scalars['stagingmumbai_Bytes']>>;
-  transactionHash_contains?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
-  transactionHash_not_contains?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
-  timestamp?: InputMaybe<Scalars['BigInt']>;
-  timestamp_not?: InputMaybe<Scalars['BigInt']>;
-  timestamp_gt?: InputMaybe<Scalars['BigInt']>;
-  timestamp_lt?: InputMaybe<Scalars['BigInt']>;
-  timestamp_gte?: InputMaybe<Scalars['BigInt']>;
-  timestamp_lte?: InputMaybe<Scalars['BigInt']>;
-  timestamp_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  timestamp_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  gasPrice?: InputMaybe<Scalars['BigInt']>;
-  gasPrice_not?: InputMaybe<Scalars['BigInt']>;
-  gasPrice_gt?: InputMaybe<Scalars['BigInt']>;
-  gasPrice_lt?: InputMaybe<Scalars['BigInt']>;
-  gasPrice_gte?: InputMaybe<Scalars['BigInt']>;
-  gasPrice_lte?: InputMaybe<Scalars['BigInt']>;
-  gasPrice_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  gasPrice_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  gasLimit?: InputMaybe<Scalars['BigInt']>;
-  gasLimit_not?: InputMaybe<Scalars['BigInt']>;
-  gasLimit_gt?: InputMaybe<Scalars['BigInt']>;
-  gasLimit_lt?: InputMaybe<Scalars['BigInt']>;
-  gasLimit_gte?: InputMaybe<Scalars['BigInt']>;
-  gasLimit_lte?: InputMaybe<Scalars['BigInt']>;
-  gasLimit_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  gasLimit_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  blockNumber?: InputMaybe<Scalars['BigInt']>;
-  blockNumber_not?: InputMaybe<Scalars['BigInt']>;
-  blockNumber_gt?: InputMaybe<Scalars['BigInt']>;
-  blockNumber_lt?: InputMaybe<Scalars['BigInt']>;
-  blockNumber_gte?: InputMaybe<Scalars['BigInt']>;
-  blockNumber_lte?: InputMaybe<Scalars['BigInt']>;
-  blockNumber_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  blockNumber_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  /** Filter for the block changed event. */
-  _change_block?: InputMaybe<stagingmumbai_BlockChangedFilter>;
-};
-
-export type stagingmumbai_RootMessageSent_orderBy =
-  | 'id'
-  | 'spokeDomain'
-  | 'hubDomain'
-  | 'root'
-  | 'caller'
-  | 'transactionHash'
-  | 'timestamp'
-  | 'gasPrice'
-  | 'gasLimit'
-  | 'blockNumber';
-
-export type stagingmumbai_Router = {
-  id: Scalars['ID'];
-  isActive: Scalars['Boolean'];
-  owner?: Maybe<Scalars['stagingmumbai_Bytes']>;
-  recipient?: Maybe<Scalars['stagingmumbai_Bytes']>;
-  proposedOwner?: Maybe<Scalars['stagingmumbai_Bytes']>;
-  proposedTimestamp?: Maybe<Scalars['BigInt']>;
-  assetBalances: Array<stagingmumbai_AssetBalance>;
-};
-
-
-export type stagingmumbai_RouterassetBalancesArgs = {
-  skip?: InputMaybe<Scalars['Int']>;
-  first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<stagingmumbai_AssetBalance_orderBy>;
-  orderDirection?: InputMaybe<stagingmumbai_OrderDirection>;
-  where?: InputMaybe<stagingmumbai_AssetBalance_filter>;
-};
-
-export type stagingmumbai_Router_filter = {
-  id?: InputMaybe<Scalars['ID']>;
-  id_not?: InputMaybe<Scalars['ID']>;
-  id_gt?: InputMaybe<Scalars['ID']>;
-  id_lt?: InputMaybe<Scalars['ID']>;
-  id_gte?: InputMaybe<Scalars['ID']>;
-  id_lte?: InputMaybe<Scalars['ID']>;
-  id_in?: InputMaybe<Array<Scalars['ID']>>;
-  id_not_in?: InputMaybe<Array<Scalars['ID']>>;
-  isActive?: InputMaybe<Scalars['Boolean']>;
-  isActive_not?: InputMaybe<Scalars['Boolean']>;
-  isActive_in?: InputMaybe<Array<Scalars['Boolean']>>;
-  isActive_not_in?: InputMaybe<Array<Scalars['Boolean']>>;
-  owner?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
-  owner_not?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
-  owner_in?: InputMaybe<Array<Scalars['stagingmumbai_Bytes']>>;
-  owner_not_in?: InputMaybe<Array<Scalars['stagingmumbai_Bytes']>>;
-  owner_contains?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
-  owner_not_contains?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
-  recipient?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
-  recipient_not?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
-  recipient_in?: InputMaybe<Array<Scalars['stagingmumbai_Bytes']>>;
-  recipient_not_in?: InputMaybe<Array<Scalars['stagingmumbai_Bytes']>>;
-  recipient_contains?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
-  recipient_not_contains?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
-  proposedOwner?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
-  proposedOwner_not?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
-  proposedOwner_in?: InputMaybe<Array<Scalars['stagingmumbai_Bytes']>>;
-  proposedOwner_not_in?: InputMaybe<Array<Scalars['stagingmumbai_Bytes']>>;
-  proposedOwner_contains?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
-  proposedOwner_not_contains?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
-  proposedTimestamp?: InputMaybe<Scalars['BigInt']>;
-  proposedTimestamp_not?: InputMaybe<Scalars['BigInt']>;
-  proposedTimestamp_gt?: InputMaybe<Scalars['BigInt']>;
-  proposedTimestamp_lt?: InputMaybe<Scalars['BigInt']>;
-  proposedTimestamp_gte?: InputMaybe<Scalars['BigInt']>;
-  proposedTimestamp_lte?: InputMaybe<Scalars['BigInt']>;
-  proposedTimestamp_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  proposedTimestamp_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  assetBalances_?: InputMaybe<stagingmumbai_AssetBalance_filter>;
-  /** Filter for the block changed event. */
-  _change_block?: InputMaybe<stagingmumbai_BlockChangedFilter>;
-};
-
-export type stagingmumbai_Router_orderBy =
-  | 'id'
-  | 'isActive'
-  | 'owner'
-  | 'recipient'
-  | 'proposedOwner'
-  | 'proposedTimestamp'
-  | 'assetBalances';
-
-export type stagingmumbai_Setting = {
-  id: Scalars['ID'];
-  maxRoutersPerTransfer: Scalars['BigInt'];
-  caller: Scalars['stagingmumbai_Bytes'];
-};
-
-export type stagingmumbai_Setting_filter = {
-  id?: InputMaybe<Scalars['ID']>;
-  id_not?: InputMaybe<Scalars['ID']>;
-  id_gt?: InputMaybe<Scalars['ID']>;
-  id_lt?: InputMaybe<Scalars['ID']>;
-  id_gte?: InputMaybe<Scalars['ID']>;
-  id_lte?: InputMaybe<Scalars['ID']>;
-  id_in?: InputMaybe<Array<Scalars['ID']>>;
-  id_not_in?: InputMaybe<Array<Scalars['ID']>>;
-  maxRoutersPerTransfer?: InputMaybe<Scalars['BigInt']>;
-  maxRoutersPerTransfer_not?: InputMaybe<Scalars['BigInt']>;
-  maxRoutersPerTransfer_gt?: InputMaybe<Scalars['BigInt']>;
-  maxRoutersPerTransfer_lt?: InputMaybe<Scalars['BigInt']>;
-  maxRoutersPerTransfer_gte?: InputMaybe<Scalars['BigInt']>;
-  maxRoutersPerTransfer_lte?: InputMaybe<Scalars['BigInt']>;
-  maxRoutersPerTransfer_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  maxRoutersPerTransfer_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  caller?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
-  caller_not?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
-  caller_in?: InputMaybe<Array<Scalars['stagingmumbai_Bytes']>>;
-  caller_not_in?: InputMaybe<Array<Scalars['stagingmumbai_Bytes']>>;
-  caller_contains?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
-  caller_not_contains?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
-  /** Filter for the block changed event. */
-  _change_block?: InputMaybe<stagingmumbai_BlockChangedFilter>;
-};
-
-export type stagingmumbai_Setting_orderBy =
-  | 'id'
-  | 'maxRoutersPerTransfer'
-  | 'caller';
-
-export type stagingmumbai_SponsorVault = {
-  id: Scalars['ID'];
-  sponsorVault: Scalars['stagingmumbai_Bytes'];
-};
-
-export type stagingmumbai_SponsorVault_filter = {
-  id?: InputMaybe<Scalars['ID']>;
-  id_not?: InputMaybe<Scalars['ID']>;
-  id_gt?: InputMaybe<Scalars['ID']>;
-  id_lt?: InputMaybe<Scalars['ID']>;
-  id_gte?: InputMaybe<Scalars['ID']>;
-  id_lte?: InputMaybe<Scalars['ID']>;
-  id_in?: InputMaybe<Array<Scalars['ID']>>;
-  id_not_in?: InputMaybe<Array<Scalars['ID']>>;
-  sponsorVault?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
-  sponsorVault_not?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
-  sponsorVault_in?: InputMaybe<Array<Scalars['stagingmumbai_Bytes']>>;
-  sponsorVault_not_in?: InputMaybe<Array<Scalars['stagingmumbai_Bytes']>>;
-  sponsorVault_contains?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
-  sponsorVault_not_contains?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
-  /** Filter for the block changed event. */
-  _change_block?: InputMaybe<stagingmumbai_BlockChangedFilter>;
-};
-
-export type stagingmumbai_SponsorVault_orderBy =
-  | 'id'
-  | 'sponsorVault';
-
-export type stagingmumbai_StableSwap = {
-  id: Scalars['ID'];
-  canonicalId: Scalars['stagingmumbai_Bytes'];
-  domain?: Maybe<Scalars['BigInt']>;
-  swapPool: Scalars['stagingmumbai_Bytes'];
-};
-
-export type stagingmumbai_StableSwap_filter = {
-  id?: InputMaybe<Scalars['ID']>;
-  id_not?: InputMaybe<Scalars['ID']>;
-  id_gt?: InputMaybe<Scalars['ID']>;
-  id_lt?: InputMaybe<Scalars['ID']>;
-  id_gte?: InputMaybe<Scalars['ID']>;
-  id_lte?: InputMaybe<Scalars['ID']>;
-  id_in?: InputMaybe<Array<Scalars['ID']>>;
-  id_not_in?: InputMaybe<Array<Scalars['ID']>>;
-  canonicalId?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
-  canonicalId_not?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
-  canonicalId_in?: InputMaybe<Array<Scalars['stagingmumbai_Bytes']>>;
-  canonicalId_not_in?: InputMaybe<Array<Scalars['stagingmumbai_Bytes']>>;
-  canonicalId_contains?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
-  canonicalId_not_contains?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
-  domain?: InputMaybe<Scalars['BigInt']>;
-  domain_not?: InputMaybe<Scalars['BigInt']>;
-  domain_gt?: InputMaybe<Scalars['BigInt']>;
-  domain_lt?: InputMaybe<Scalars['BigInt']>;
-  domain_gte?: InputMaybe<Scalars['BigInt']>;
-  domain_lte?: InputMaybe<Scalars['BigInt']>;
-  domain_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  domain_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  swapPool?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
-  swapPool_not?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
-  swapPool_in?: InputMaybe<Array<Scalars['stagingmumbai_Bytes']>>;
-  swapPool_not_in?: InputMaybe<Array<Scalars['stagingmumbai_Bytes']>>;
-  swapPool_contains?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
-  swapPool_not_contains?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
-  /** Filter for the block changed event. */
-  _change_block?: InputMaybe<stagingmumbai_BlockChangedFilter>;
-};
-
-export type stagingmumbai_StableSwap_orderBy =
-  | 'id'
-  | 'canonicalId'
-  | 'domain'
-  | 'swapPool';
-
-export type stagingmumbai_TransferStatus =
-  | 'XCalled'
-  | 'Executed'
-  | 'Reconciled'
-  | 'CompletedSlow'
-  | 'CompletedFast';
-
-export type stagingmumbai__Block_ = {
-  /** The hash of the block */
-  hash?: Maybe<Scalars['stagingmumbai_Bytes']>;
-  /** The block number */
-  number: Scalars['Int'];
-  /** Integer representation of the timestamp stored in blocks for the chain */
-  timestamp?: Maybe<Scalars['Int']>;
-};
-
-/** The type for the top-level _meta field */
-export type stagingmumbai__Meta_ = {
-  /**
-   * Information about a specific subgraph block. The hash of the block
-   * will be null if the _meta field has a block constraint that asks for
-   * a block number. It will be filled if the _meta field has no block constraint
-   * and therefore asks for the latest  block
-   *
-   */
-  block: stagingmumbai__Block_;
+  block: testoptimismgoerli__Block_;
   /** The deployment ID */
   deployment: Scalars['String'];
   /** If `true`, the subgraph encountered indexing errors at some past block */
@@ -16377,6 +12479,1017 @@ export type optimismgoerli__Meta_ = {
   hasIndexingErrors: Scalars['Boolean'];
 };
 
+export type local1338_Asset = {
+  id: Scalars['ID'];
+  key?: Maybe<Scalars['local1338_Bytes']>;
+  local: Scalars['local1338_Bytes'];
+  adoptedAsset: Scalars['local1338_Bytes'];
+  canonicalId: Scalars['local1338_Bytes'];
+  canonicalDomain: Scalars['BigInt'];
+  blockNumber: Scalars['BigInt'];
+};
+
+export type local1338_AssetBalance = {
+  id: Scalars['ID'];
+  amount: Scalars['BigInt'];
+  router: local1338_Router;
+  asset: local1338_Asset;
+};
+
+export type local1338_AssetBalance_filter = {
+  id?: InputMaybe<Scalars['ID']>;
+  id_not?: InputMaybe<Scalars['ID']>;
+  id_gt?: InputMaybe<Scalars['ID']>;
+  id_lt?: InputMaybe<Scalars['ID']>;
+  id_gte?: InputMaybe<Scalars['ID']>;
+  id_lte?: InputMaybe<Scalars['ID']>;
+  id_in?: InputMaybe<Array<Scalars['ID']>>;
+  id_not_in?: InputMaybe<Array<Scalars['ID']>>;
+  amount?: InputMaybe<Scalars['BigInt']>;
+  amount_not?: InputMaybe<Scalars['BigInt']>;
+  amount_gt?: InputMaybe<Scalars['BigInt']>;
+  amount_lt?: InputMaybe<Scalars['BigInt']>;
+  amount_gte?: InputMaybe<Scalars['BigInt']>;
+  amount_lte?: InputMaybe<Scalars['BigInt']>;
+  amount_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  amount_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  router?: InputMaybe<Scalars['String']>;
+  router_not?: InputMaybe<Scalars['String']>;
+  router_gt?: InputMaybe<Scalars['String']>;
+  router_lt?: InputMaybe<Scalars['String']>;
+  router_gte?: InputMaybe<Scalars['String']>;
+  router_lte?: InputMaybe<Scalars['String']>;
+  router_in?: InputMaybe<Array<Scalars['String']>>;
+  router_not_in?: InputMaybe<Array<Scalars['String']>>;
+  router_contains?: InputMaybe<Scalars['String']>;
+  router_contains_nocase?: InputMaybe<Scalars['String']>;
+  router_not_contains?: InputMaybe<Scalars['String']>;
+  router_not_contains_nocase?: InputMaybe<Scalars['String']>;
+  router_starts_with?: InputMaybe<Scalars['String']>;
+  router_starts_with_nocase?: InputMaybe<Scalars['String']>;
+  router_not_starts_with?: InputMaybe<Scalars['String']>;
+  router_not_starts_with_nocase?: InputMaybe<Scalars['String']>;
+  router_ends_with?: InputMaybe<Scalars['String']>;
+  router_ends_with_nocase?: InputMaybe<Scalars['String']>;
+  router_not_ends_with?: InputMaybe<Scalars['String']>;
+  router_not_ends_with_nocase?: InputMaybe<Scalars['String']>;
+  router_?: InputMaybe<local1338_Router_filter>;
+  asset?: InputMaybe<Scalars['String']>;
+  asset_not?: InputMaybe<Scalars['String']>;
+  asset_gt?: InputMaybe<Scalars['String']>;
+  asset_lt?: InputMaybe<Scalars['String']>;
+  asset_gte?: InputMaybe<Scalars['String']>;
+  asset_lte?: InputMaybe<Scalars['String']>;
+  asset_in?: InputMaybe<Array<Scalars['String']>>;
+  asset_not_in?: InputMaybe<Array<Scalars['String']>>;
+  asset_contains?: InputMaybe<Scalars['String']>;
+  asset_contains_nocase?: InputMaybe<Scalars['String']>;
+  asset_not_contains?: InputMaybe<Scalars['String']>;
+  asset_not_contains_nocase?: InputMaybe<Scalars['String']>;
+  asset_starts_with?: InputMaybe<Scalars['String']>;
+  asset_starts_with_nocase?: InputMaybe<Scalars['String']>;
+  asset_not_starts_with?: InputMaybe<Scalars['String']>;
+  asset_not_starts_with_nocase?: InputMaybe<Scalars['String']>;
+  asset_ends_with?: InputMaybe<Scalars['String']>;
+  asset_ends_with_nocase?: InputMaybe<Scalars['String']>;
+  asset_not_ends_with?: InputMaybe<Scalars['String']>;
+  asset_not_ends_with_nocase?: InputMaybe<Scalars['String']>;
+  asset_?: InputMaybe<local1338_Asset_filter>;
+  /** Filter for the block changed event. */
+  _change_block?: InputMaybe<local1338_BlockChangedFilter>;
+};
+
+export type local1338_AssetBalance_orderBy =
+  | 'id'
+  | 'amount'
+  | 'router'
+  | 'asset';
+
+export type local1338_Asset_filter = {
+  id?: InputMaybe<Scalars['ID']>;
+  id_not?: InputMaybe<Scalars['ID']>;
+  id_gt?: InputMaybe<Scalars['ID']>;
+  id_lt?: InputMaybe<Scalars['ID']>;
+  id_gte?: InputMaybe<Scalars['ID']>;
+  id_lte?: InputMaybe<Scalars['ID']>;
+  id_in?: InputMaybe<Array<Scalars['ID']>>;
+  id_not_in?: InputMaybe<Array<Scalars['ID']>>;
+  key?: InputMaybe<Scalars['local1338_Bytes']>;
+  key_not?: InputMaybe<Scalars['local1338_Bytes']>;
+  key_in?: InputMaybe<Array<Scalars['local1338_Bytes']>>;
+  key_not_in?: InputMaybe<Array<Scalars['local1338_Bytes']>>;
+  key_contains?: InputMaybe<Scalars['local1338_Bytes']>;
+  key_not_contains?: InputMaybe<Scalars['local1338_Bytes']>;
+  local?: InputMaybe<Scalars['local1338_Bytes']>;
+  local_not?: InputMaybe<Scalars['local1338_Bytes']>;
+  local_in?: InputMaybe<Array<Scalars['local1338_Bytes']>>;
+  local_not_in?: InputMaybe<Array<Scalars['local1338_Bytes']>>;
+  local_contains?: InputMaybe<Scalars['local1338_Bytes']>;
+  local_not_contains?: InputMaybe<Scalars['local1338_Bytes']>;
+  adoptedAsset?: InputMaybe<Scalars['local1338_Bytes']>;
+  adoptedAsset_not?: InputMaybe<Scalars['local1338_Bytes']>;
+  adoptedAsset_in?: InputMaybe<Array<Scalars['local1338_Bytes']>>;
+  adoptedAsset_not_in?: InputMaybe<Array<Scalars['local1338_Bytes']>>;
+  adoptedAsset_contains?: InputMaybe<Scalars['local1338_Bytes']>;
+  adoptedAsset_not_contains?: InputMaybe<Scalars['local1338_Bytes']>;
+  canonicalId?: InputMaybe<Scalars['local1338_Bytes']>;
+  canonicalId_not?: InputMaybe<Scalars['local1338_Bytes']>;
+  canonicalId_in?: InputMaybe<Array<Scalars['local1338_Bytes']>>;
+  canonicalId_not_in?: InputMaybe<Array<Scalars['local1338_Bytes']>>;
+  canonicalId_contains?: InputMaybe<Scalars['local1338_Bytes']>;
+  canonicalId_not_contains?: InputMaybe<Scalars['local1338_Bytes']>;
+  canonicalDomain?: InputMaybe<Scalars['BigInt']>;
+  canonicalDomain_not?: InputMaybe<Scalars['BigInt']>;
+  canonicalDomain_gt?: InputMaybe<Scalars['BigInt']>;
+  canonicalDomain_lt?: InputMaybe<Scalars['BigInt']>;
+  canonicalDomain_gte?: InputMaybe<Scalars['BigInt']>;
+  canonicalDomain_lte?: InputMaybe<Scalars['BigInt']>;
+  canonicalDomain_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  canonicalDomain_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  blockNumber?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_not?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_gt?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_lt?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_gte?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_lte?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  blockNumber_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  /** Filter for the block changed event. */
+  _change_block?: InputMaybe<local1338_BlockChangedFilter>;
+};
+
+export type local1338_Asset_orderBy =
+  | 'id'
+  | 'key'
+  | 'local'
+  | 'adoptedAsset'
+  | 'canonicalId'
+  | 'canonicalDomain'
+  | 'blockNumber';
+
+export type local1338_BlockChangedFilter = {
+  number_gte: Scalars['Int'];
+};
+
+export type local1338_Block_height = {
+  hash?: InputMaybe<Scalars['local1338_Bytes']>;
+  number?: InputMaybe<Scalars['Int']>;
+  number_gte?: InputMaybe<Scalars['Int']>;
+};
+
+export type local1338_DestinationTransfer = {
+  id: Scalars['ID'];
+  chainId?: Maybe<Scalars['BigInt']>;
+  transferId?: Maybe<Scalars['local1338_Bytes']>;
+  nonce?: Maybe<Scalars['BigInt']>;
+  to?: Maybe<Scalars['local1338_Bytes']>;
+  callData?: Maybe<Scalars['local1338_Bytes']>;
+  originDomain?: Maybe<Scalars['BigInt']>;
+  destinationDomain?: Maybe<Scalars['BigInt']>;
+  agent?: Maybe<Scalars['local1338_Bytes']>;
+  recovery?: Maybe<Scalars['local1338_Bytes']>;
+  forceSlow?: Maybe<Scalars['Boolean']>;
+  receiveLocal?: Maybe<Scalars['Boolean']>;
+  callback?: Maybe<Scalars['local1338_Bytes']>;
+  callbackFee?: Maybe<Scalars['BigInt']>;
+  relayerFee?: Maybe<Scalars['BigInt']>;
+  destinationMinOut?: Maybe<Scalars['BigInt']>;
+  status?: Maybe<local1338_TransferStatus>;
+  routers?: Maybe<Array<local1338_Router>>;
+  originSender?: Maybe<Scalars['local1338_Bytes']>;
+  transactingAsset?: Maybe<Scalars['local1338_Bytes']>;
+  transactingAmount?: Maybe<Scalars['BigInt']>;
+  localAsset?: Maybe<Scalars['local1338_Bytes']>;
+  localAmount?: Maybe<Scalars['BigInt']>;
+  sponsorVaultRelayerFee?: Maybe<Scalars['BigInt']>;
+  executedCaller?: Maybe<Scalars['local1338_Bytes']>;
+  executedTransactionHash?: Maybe<Scalars['local1338_Bytes']>;
+  executedTimestamp?: Maybe<Scalars['BigInt']>;
+  executedGasPrice?: Maybe<Scalars['BigInt']>;
+  executedGasLimit?: Maybe<Scalars['BigInt']>;
+  executedBlockNumber?: Maybe<Scalars['BigInt']>;
+  reconciledCaller?: Maybe<Scalars['local1338_Bytes']>;
+  reconciledTransactionHash?: Maybe<Scalars['local1338_Bytes']>;
+  reconciledTimestamp?: Maybe<Scalars['BigInt']>;
+  reconciledGasPrice?: Maybe<Scalars['BigInt']>;
+  reconciledGasLimit?: Maybe<Scalars['BigInt']>;
+  reconciledBlockNumber?: Maybe<Scalars['BigInt']>;
+};
+
+
+export type local1338_DestinationTransferroutersArgs = {
+  skip?: InputMaybe<Scalars['Int']>;
+  first?: InputMaybe<Scalars['Int']>;
+  orderBy?: InputMaybe<local1338_Router_orderBy>;
+  orderDirection?: InputMaybe<local1338_OrderDirection>;
+  where?: InputMaybe<local1338_Router_filter>;
+};
+
+export type local1338_DestinationTransfer_filter = {
+  id?: InputMaybe<Scalars['ID']>;
+  id_not?: InputMaybe<Scalars['ID']>;
+  id_gt?: InputMaybe<Scalars['ID']>;
+  id_lt?: InputMaybe<Scalars['ID']>;
+  id_gte?: InputMaybe<Scalars['ID']>;
+  id_lte?: InputMaybe<Scalars['ID']>;
+  id_in?: InputMaybe<Array<Scalars['ID']>>;
+  id_not_in?: InputMaybe<Array<Scalars['ID']>>;
+  chainId?: InputMaybe<Scalars['BigInt']>;
+  chainId_not?: InputMaybe<Scalars['BigInt']>;
+  chainId_gt?: InputMaybe<Scalars['BigInt']>;
+  chainId_lt?: InputMaybe<Scalars['BigInt']>;
+  chainId_gte?: InputMaybe<Scalars['BigInt']>;
+  chainId_lte?: InputMaybe<Scalars['BigInt']>;
+  chainId_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  chainId_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  transferId?: InputMaybe<Scalars['local1338_Bytes']>;
+  transferId_not?: InputMaybe<Scalars['local1338_Bytes']>;
+  transferId_in?: InputMaybe<Array<Scalars['local1338_Bytes']>>;
+  transferId_not_in?: InputMaybe<Array<Scalars['local1338_Bytes']>>;
+  transferId_contains?: InputMaybe<Scalars['local1338_Bytes']>;
+  transferId_not_contains?: InputMaybe<Scalars['local1338_Bytes']>;
+  nonce?: InputMaybe<Scalars['BigInt']>;
+  nonce_not?: InputMaybe<Scalars['BigInt']>;
+  nonce_gt?: InputMaybe<Scalars['BigInt']>;
+  nonce_lt?: InputMaybe<Scalars['BigInt']>;
+  nonce_gte?: InputMaybe<Scalars['BigInt']>;
+  nonce_lte?: InputMaybe<Scalars['BigInt']>;
+  nonce_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  nonce_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  to?: InputMaybe<Scalars['local1338_Bytes']>;
+  to_not?: InputMaybe<Scalars['local1338_Bytes']>;
+  to_in?: InputMaybe<Array<Scalars['local1338_Bytes']>>;
+  to_not_in?: InputMaybe<Array<Scalars['local1338_Bytes']>>;
+  to_contains?: InputMaybe<Scalars['local1338_Bytes']>;
+  to_not_contains?: InputMaybe<Scalars['local1338_Bytes']>;
+  callData?: InputMaybe<Scalars['local1338_Bytes']>;
+  callData_not?: InputMaybe<Scalars['local1338_Bytes']>;
+  callData_in?: InputMaybe<Array<Scalars['local1338_Bytes']>>;
+  callData_not_in?: InputMaybe<Array<Scalars['local1338_Bytes']>>;
+  callData_contains?: InputMaybe<Scalars['local1338_Bytes']>;
+  callData_not_contains?: InputMaybe<Scalars['local1338_Bytes']>;
+  originDomain?: InputMaybe<Scalars['BigInt']>;
+  originDomain_not?: InputMaybe<Scalars['BigInt']>;
+  originDomain_gt?: InputMaybe<Scalars['BigInt']>;
+  originDomain_lt?: InputMaybe<Scalars['BigInt']>;
+  originDomain_gte?: InputMaybe<Scalars['BigInt']>;
+  originDomain_lte?: InputMaybe<Scalars['BigInt']>;
+  originDomain_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  originDomain_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  destinationDomain?: InputMaybe<Scalars['BigInt']>;
+  destinationDomain_not?: InputMaybe<Scalars['BigInt']>;
+  destinationDomain_gt?: InputMaybe<Scalars['BigInt']>;
+  destinationDomain_lt?: InputMaybe<Scalars['BigInt']>;
+  destinationDomain_gte?: InputMaybe<Scalars['BigInt']>;
+  destinationDomain_lte?: InputMaybe<Scalars['BigInt']>;
+  destinationDomain_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  destinationDomain_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  agent?: InputMaybe<Scalars['local1338_Bytes']>;
+  agent_not?: InputMaybe<Scalars['local1338_Bytes']>;
+  agent_in?: InputMaybe<Array<Scalars['local1338_Bytes']>>;
+  agent_not_in?: InputMaybe<Array<Scalars['local1338_Bytes']>>;
+  agent_contains?: InputMaybe<Scalars['local1338_Bytes']>;
+  agent_not_contains?: InputMaybe<Scalars['local1338_Bytes']>;
+  recovery?: InputMaybe<Scalars['local1338_Bytes']>;
+  recovery_not?: InputMaybe<Scalars['local1338_Bytes']>;
+  recovery_in?: InputMaybe<Array<Scalars['local1338_Bytes']>>;
+  recovery_not_in?: InputMaybe<Array<Scalars['local1338_Bytes']>>;
+  recovery_contains?: InputMaybe<Scalars['local1338_Bytes']>;
+  recovery_not_contains?: InputMaybe<Scalars['local1338_Bytes']>;
+  forceSlow?: InputMaybe<Scalars['Boolean']>;
+  forceSlow_not?: InputMaybe<Scalars['Boolean']>;
+  forceSlow_in?: InputMaybe<Array<Scalars['Boolean']>>;
+  forceSlow_not_in?: InputMaybe<Array<Scalars['Boolean']>>;
+  receiveLocal?: InputMaybe<Scalars['Boolean']>;
+  receiveLocal_not?: InputMaybe<Scalars['Boolean']>;
+  receiveLocal_in?: InputMaybe<Array<Scalars['Boolean']>>;
+  receiveLocal_not_in?: InputMaybe<Array<Scalars['Boolean']>>;
+  callback?: InputMaybe<Scalars['local1338_Bytes']>;
+  callback_not?: InputMaybe<Scalars['local1338_Bytes']>;
+  callback_in?: InputMaybe<Array<Scalars['local1338_Bytes']>>;
+  callback_not_in?: InputMaybe<Array<Scalars['local1338_Bytes']>>;
+  callback_contains?: InputMaybe<Scalars['local1338_Bytes']>;
+  callback_not_contains?: InputMaybe<Scalars['local1338_Bytes']>;
+  callbackFee?: InputMaybe<Scalars['BigInt']>;
+  callbackFee_not?: InputMaybe<Scalars['BigInt']>;
+  callbackFee_gt?: InputMaybe<Scalars['BigInt']>;
+  callbackFee_lt?: InputMaybe<Scalars['BigInt']>;
+  callbackFee_gte?: InputMaybe<Scalars['BigInt']>;
+  callbackFee_lte?: InputMaybe<Scalars['BigInt']>;
+  callbackFee_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  callbackFee_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  relayerFee?: InputMaybe<Scalars['BigInt']>;
+  relayerFee_not?: InputMaybe<Scalars['BigInt']>;
+  relayerFee_gt?: InputMaybe<Scalars['BigInt']>;
+  relayerFee_lt?: InputMaybe<Scalars['BigInt']>;
+  relayerFee_gte?: InputMaybe<Scalars['BigInt']>;
+  relayerFee_lte?: InputMaybe<Scalars['BigInt']>;
+  relayerFee_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  relayerFee_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  destinationMinOut?: InputMaybe<Scalars['BigInt']>;
+  destinationMinOut_not?: InputMaybe<Scalars['BigInt']>;
+  destinationMinOut_gt?: InputMaybe<Scalars['BigInt']>;
+  destinationMinOut_lt?: InputMaybe<Scalars['BigInt']>;
+  destinationMinOut_gte?: InputMaybe<Scalars['BigInt']>;
+  destinationMinOut_lte?: InputMaybe<Scalars['BigInt']>;
+  destinationMinOut_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  destinationMinOut_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  status?: InputMaybe<local1338_TransferStatus>;
+  status_not?: InputMaybe<local1338_TransferStatus>;
+  status_in?: InputMaybe<Array<local1338_TransferStatus>>;
+  status_not_in?: InputMaybe<Array<local1338_TransferStatus>>;
+  routers?: InputMaybe<Array<Scalars['String']>>;
+  routers_not?: InputMaybe<Array<Scalars['String']>>;
+  routers_contains?: InputMaybe<Array<Scalars['String']>>;
+  routers_contains_nocase?: InputMaybe<Array<Scalars['String']>>;
+  routers_not_contains?: InputMaybe<Array<Scalars['String']>>;
+  routers_not_contains_nocase?: InputMaybe<Array<Scalars['String']>>;
+  routers_?: InputMaybe<local1338_Router_filter>;
+  originSender?: InputMaybe<Scalars['local1338_Bytes']>;
+  originSender_not?: InputMaybe<Scalars['local1338_Bytes']>;
+  originSender_in?: InputMaybe<Array<Scalars['local1338_Bytes']>>;
+  originSender_not_in?: InputMaybe<Array<Scalars['local1338_Bytes']>>;
+  originSender_contains?: InputMaybe<Scalars['local1338_Bytes']>;
+  originSender_not_contains?: InputMaybe<Scalars['local1338_Bytes']>;
+  transactingAsset?: InputMaybe<Scalars['local1338_Bytes']>;
+  transactingAsset_not?: InputMaybe<Scalars['local1338_Bytes']>;
+  transactingAsset_in?: InputMaybe<Array<Scalars['local1338_Bytes']>>;
+  transactingAsset_not_in?: InputMaybe<Array<Scalars['local1338_Bytes']>>;
+  transactingAsset_contains?: InputMaybe<Scalars['local1338_Bytes']>;
+  transactingAsset_not_contains?: InputMaybe<Scalars['local1338_Bytes']>;
+  transactingAmount?: InputMaybe<Scalars['BigInt']>;
+  transactingAmount_not?: InputMaybe<Scalars['BigInt']>;
+  transactingAmount_gt?: InputMaybe<Scalars['BigInt']>;
+  transactingAmount_lt?: InputMaybe<Scalars['BigInt']>;
+  transactingAmount_gte?: InputMaybe<Scalars['BigInt']>;
+  transactingAmount_lte?: InputMaybe<Scalars['BigInt']>;
+  transactingAmount_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  transactingAmount_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  localAsset?: InputMaybe<Scalars['local1338_Bytes']>;
+  localAsset_not?: InputMaybe<Scalars['local1338_Bytes']>;
+  localAsset_in?: InputMaybe<Array<Scalars['local1338_Bytes']>>;
+  localAsset_not_in?: InputMaybe<Array<Scalars['local1338_Bytes']>>;
+  localAsset_contains?: InputMaybe<Scalars['local1338_Bytes']>;
+  localAsset_not_contains?: InputMaybe<Scalars['local1338_Bytes']>;
+  localAmount?: InputMaybe<Scalars['BigInt']>;
+  localAmount_not?: InputMaybe<Scalars['BigInt']>;
+  localAmount_gt?: InputMaybe<Scalars['BigInt']>;
+  localAmount_lt?: InputMaybe<Scalars['BigInt']>;
+  localAmount_gte?: InputMaybe<Scalars['BigInt']>;
+  localAmount_lte?: InputMaybe<Scalars['BigInt']>;
+  localAmount_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  localAmount_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  sponsorVaultRelayerFee?: InputMaybe<Scalars['BigInt']>;
+  sponsorVaultRelayerFee_not?: InputMaybe<Scalars['BigInt']>;
+  sponsorVaultRelayerFee_gt?: InputMaybe<Scalars['BigInt']>;
+  sponsorVaultRelayerFee_lt?: InputMaybe<Scalars['BigInt']>;
+  sponsorVaultRelayerFee_gte?: InputMaybe<Scalars['BigInt']>;
+  sponsorVaultRelayerFee_lte?: InputMaybe<Scalars['BigInt']>;
+  sponsorVaultRelayerFee_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  sponsorVaultRelayerFee_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  executedCaller?: InputMaybe<Scalars['local1338_Bytes']>;
+  executedCaller_not?: InputMaybe<Scalars['local1338_Bytes']>;
+  executedCaller_in?: InputMaybe<Array<Scalars['local1338_Bytes']>>;
+  executedCaller_not_in?: InputMaybe<Array<Scalars['local1338_Bytes']>>;
+  executedCaller_contains?: InputMaybe<Scalars['local1338_Bytes']>;
+  executedCaller_not_contains?: InputMaybe<Scalars['local1338_Bytes']>;
+  executedTransactionHash?: InputMaybe<Scalars['local1338_Bytes']>;
+  executedTransactionHash_not?: InputMaybe<Scalars['local1338_Bytes']>;
+  executedTransactionHash_in?: InputMaybe<Array<Scalars['local1338_Bytes']>>;
+  executedTransactionHash_not_in?: InputMaybe<Array<Scalars['local1338_Bytes']>>;
+  executedTransactionHash_contains?: InputMaybe<Scalars['local1338_Bytes']>;
+  executedTransactionHash_not_contains?: InputMaybe<Scalars['local1338_Bytes']>;
+  executedTimestamp?: InputMaybe<Scalars['BigInt']>;
+  executedTimestamp_not?: InputMaybe<Scalars['BigInt']>;
+  executedTimestamp_gt?: InputMaybe<Scalars['BigInt']>;
+  executedTimestamp_lt?: InputMaybe<Scalars['BigInt']>;
+  executedTimestamp_gte?: InputMaybe<Scalars['BigInt']>;
+  executedTimestamp_lte?: InputMaybe<Scalars['BigInt']>;
+  executedTimestamp_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  executedTimestamp_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  executedGasPrice?: InputMaybe<Scalars['BigInt']>;
+  executedGasPrice_not?: InputMaybe<Scalars['BigInt']>;
+  executedGasPrice_gt?: InputMaybe<Scalars['BigInt']>;
+  executedGasPrice_lt?: InputMaybe<Scalars['BigInt']>;
+  executedGasPrice_gte?: InputMaybe<Scalars['BigInt']>;
+  executedGasPrice_lte?: InputMaybe<Scalars['BigInt']>;
+  executedGasPrice_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  executedGasPrice_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  executedGasLimit?: InputMaybe<Scalars['BigInt']>;
+  executedGasLimit_not?: InputMaybe<Scalars['BigInt']>;
+  executedGasLimit_gt?: InputMaybe<Scalars['BigInt']>;
+  executedGasLimit_lt?: InputMaybe<Scalars['BigInt']>;
+  executedGasLimit_gte?: InputMaybe<Scalars['BigInt']>;
+  executedGasLimit_lte?: InputMaybe<Scalars['BigInt']>;
+  executedGasLimit_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  executedGasLimit_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  executedBlockNumber?: InputMaybe<Scalars['BigInt']>;
+  executedBlockNumber_not?: InputMaybe<Scalars['BigInt']>;
+  executedBlockNumber_gt?: InputMaybe<Scalars['BigInt']>;
+  executedBlockNumber_lt?: InputMaybe<Scalars['BigInt']>;
+  executedBlockNumber_gte?: InputMaybe<Scalars['BigInt']>;
+  executedBlockNumber_lte?: InputMaybe<Scalars['BigInt']>;
+  executedBlockNumber_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  executedBlockNumber_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  reconciledCaller?: InputMaybe<Scalars['local1338_Bytes']>;
+  reconciledCaller_not?: InputMaybe<Scalars['local1338_Bytes']>;
+  reconciledCaller_in?: InputMaybe<Array<Scalars['local1338_Bytes']>>;
+  reconciledCaller_not_in?: InputMaybe<Array<Scalars['local1338_Bytes']>>;
+  reconciledCaller_contains?: InputMaybe<Scalars['local1338_Bytes']>;
+  reconciledCaller_not_contains?: InputMaybe<Scalars['local1338_Bytes']>;
+  reconciledTransactionHash?: InputMaybe<Scalars['local1338_Bytes']>;
+  reconciledTransactionHash_not?: InputMaybe<Scalars['local1338_Bytes']>;
+  reconciledTransactionHash_in?: InputMaybe<Array<Scalars['local1338_Bytes']>>;
+  reconciledTransactionHash_not_in?: InputMaybe<Array<Scalars['local1338_Bytes']>>;
+  reconciledTransactionHash_contains?: InputMaybe<Scalars['local1338_Bytes']>;
+  reconciledTransactionHash_not_contains?: InputMaybe<Scalars['local1338_Bytes']>;
+  reconciledTimestamp?: InputMaybe<Scalars['BigInt']>;
+  reconciledTimestamp_not?: InputMaybe<Scalars['BigInt']>;
+  reconciledTimestamp_gt?: InputMaybe<Scalars['BigInt']>;
+  reconciledTimestamp_lt?: InputMaybe<Scalars['BigInt']>;
+  reconciledTimestamp_gte?: InputMaybe<Scalars['BigInt']>;
+  reconciledTimestamp_lte?: InputMaybe<Scalars['BigInt']>;
+  reconciledTimestamp_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  reconciledTimestamp_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  reconciledGasPrice?: InputMaybe<Scalars['BigInt']>;
+  reconciledGasPrice_not?: InputMaybe<Scalars['BigInt']>;
+  reconciledGasPrice_gt?: InputMaybe<Scalars['BigInt']>;
+  reconciledGasPrice_lt?: InputMaybe<Scalars['BigInt']>;
+  reconciledGasPrice_gte?: InputMaybe<Scalars['BigInt']>;
+  reconciledGasPrice_lte?: InputMaybe<Scalars['BigInt']>;
+  reconciledGasPrice_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  reconciledGasPrice_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  reconciledGasLimit?: InputMaybe<Scalars['BigInt']>;
+  reconciledGasLimit_not?: InputMaybe<Scalars['BigInt']>;
+  reconciledGasLimit_gt?: InputMaybe<Scalars['BigInt']>;
+  reconciledGasLimit_lt?: InputMaybe<Scalars['BigInt']>;
+  reconciledGasLimit_gte?: InputMaybe<Scalars['BigInt']>;
+  reconciledGasLimit_lte?: InputMaybe<Scalars['BigInt']>;
+  reconciledGasLimit_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  reconciledGasLimit_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  reconciledBlockNumber?: InputMaybe<Scalars['BigInt']>;
+  reconciledBlockNumber_not?: InputMaybe<Scalars['BigInt']>;
+  reconciledBlockNumber_gt?: InputMaybe<Scalars['BigInt']>;
+  reconciledBlockNumber_lt?: InputMaybe<Scalars['BigInt']>;
+  reconciledBlockNumber_gte?: InputMaybe<Scalars['BigInt']>;
+  reconciledBlockNumber_lte?: InputMaybe<Scalars['BigInt']>;
+  reconciledBlockNumber_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  reconciledBlockNumber_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  /** Filter for the block changed event. */
+  _change_block?: InputMaybe<local1338_BlockChangedFilter>;
+};
+
+export type local1338_DestinationTransfer_orderBy =
+  | 'id'
+  | 'chainId'
+  | 'transferId'
+  | 'nonce'
+  | 'to'
+  | 'callData'
+  | 'originDomain'
+  | 'destinationDomain'
+  | 'agent'
+  | 'recovery'
+  | 'forceSlow'
+  | 'receiveLocal'
+  | 'callback'
+  | 'callbackFee'
+  | 'relayerFee'
+  | 'destinationMinOut'
+  | 'status'
+  | 'routers'
+  | 'originSender'
+  | 'transactingAsset'
+  | 'transactingAmount'
+  | 'localAsset'
+  | 'localAmount'
+  | 'sponsorVaultRelayerFee'
+  | 'executedCaller'
+  | 'executedTransactionHash'
+  | 'executedTimestamp'
+  | 'executedGasPrice'
+  | 'executedGasLimit'
+  | 'executedBlockNumber'
+  | 'reconciledCaller'
+  | 'reconciledTransactionHash'
+  | 'reconciledTimestamp'
+  | 'reconciledGasPrice'
+  | 'reconciledGasLimit'
+  | 'reconciledBlockNumber';
+
+/** Defines the order direction, either ascending or descending */
+export type local1338_OrderDirection =
+  | 'asc'
+  | 'desc';
+
+export type local1338_OriginTransfer = {
+  id: Scalars['ID'];
+  chainId?: Maybe<Scalars['BigInt']>;
+  transferId?: Maybe<Scalars['local1338_Bytes']>;
+  nonce?: Maybe<Scalars['BigInt']>;
+  to?: Maybe<Scalars['local1338_Bytes']>;
+  callData?: Maybe<Scalars['local1338_Bytes']>;
+  originDomain?: Maybe<Scalars['BigInt']>;
+  destinationDomain?: Maybe<Scalars['BigInt']>;
+  agent?: Maybe<Scalars['local1338_Bytes']>;
+  recovery?: Maybe<Scalars['local1338_Bytes']>;
+  forceSlow?: Maybe<Scalars['Boolean']>;
+  receiveLocal?: Maybe<Scalars['Boolean']>;
+  callback?: Maybe<Scalars['local1338_Bytes']>;
+  callbackFee?: Maybe<Scalars['BigInt']>;
+  relayerFee?: Maybe<Scalars['BigInt']>;
+  destinationMinOut?: Maybe<Scalars['BigInt']>;
+  status?: Maybe<local1338_TransferStatus>;
+  originMinOut?: Maybe<Scalars['BigInt']>;
+  transactingAsset?: Maybe<Scalars['local1338_Bytes']>;
+  transactingAmount?: Maybe<Scalars['BigInt']>;
+  bridgedAsset?: Maybe<Scalars['local1338_Bytes']>;
+  bridgedAmount?: Maybe<Scalars['BigInt']>;
+  caller?: Maybe<Scalars['local1338_Bytes']>;
+  transactionHash?: Maybe<Scalars['local1338_Bytes']>;
+  timestamp?: Maybe<Scalars['BigInt']>;
+  gasPrice?: Maybe<Scalars['BigInt']>;
+  gasLimit?: Maybe<Scalars['BigInt']>;
+  blockNumber?: Maybe<Scalars['BigInt']>;
+};
+
+export type local1338_OriginTransfer_filter = {
+  id?: InputMaybe<Scalars['ID']>;
+  id_not?: InputMaybe<Scalars['ID']>;
+  id_gt?: InputMaybe<Scalars['ID']>;
+  id_lt?: InputMaybe<Scalars['ID']>;
+  id_gte?: InputMaybe<Scalars['ID']>;
+  id_lte?: InputMaybe<Scalars['ID']>;
+  id_in?: InputMaybe<Array<Scalars['ID']>>;
+  id_not_in?: InputMaybe<Array<Scalars['ID']>>;
+  chainId?: InputMaybe<Scalars['BigInt']>;
+  chainId_not?: InputMaybe<Scalars['BigInt']>;
+  chainId_gt?: InputMaybe<Scalars['BigInt']>;
+  chainId_lt?: InputMaybe<Scalars['BigInt']>;
+  chainId_gte?: InputMaybe<Scalars['BigInt']>;
+  chainId_lte?: InputMaybe<Scalars['BigInt']>;
+  chainId_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  chainId_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  transferId?: InputMaybe<Scalars['local1338_Bytes']>;
+  transferId_not?: InputMaybe<Scalars['local1338_Bytes']>;
+  transferId_in?: InputMaybe<Array<Scalars['local1338_Bytes']>>;
+  transferId_not_in?: InputMaybe<Array<Scalars['local1338_Bytes']>>;
+  transferId_contains?: InputMaybe<Scalars['local1338_Bytes']>;
+  transferId_not_contains?: InputMaybe<Scalars['local1338_Bytes']>;
+  nonce?: InputMaybe<Scalars['BigInt']>;
+  nonce_not?: InputMaybe<Scalars['BigInt']>;
+  nonce_gt?: InputMaybe<Scalars['BigInt']>;
+  nonce_lt?: InputMaybe<Scalars['BigInt']>;
+  nonce_gte?: InputMaybe<Scalars['BigInt']>;
+  nonce_lte?: InputMaybe<Scalars['BigInt']>;
+  nonce_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  nonce_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  to?: InputMaybe<Scalars['local1338_Bytes']>;
+  to_not?: InputMaybe<Scalars['local1338_Bytes']>;
+  to_in?: InputMaybe<Array<Scalars['local1338_Bytes']>>;
+  to_not_in?: InputMaybe<Array<Scalars['local1338_Bytes']>>;
+  to_contains?: InputMaybe<Scalars['local1338_Bytes']>;
+  to_not_contains?: InputMaybe<Scalars['local1338_Bytes']>;
+  callData?: InputMaybe<Scalars['local1338_Bytes']>;
+  callData_not?: InputMaybe<Scalars['local1338_Bytes']>;
+  callData_in?: InputMaybe<Array<Scalars['local1338_Bytes']>>;
+  callData_not_in?: InputMaybe<Array<Scalars['local1338_Bytes']>>;
+  callData_contains?: InputMaybe<Scalars['local1338_Bytes']>;
+  callData_not_contains?: InputMaybe<Scalars['local1338_Bytes']>;
+  originDomain?: InputMaybe<Scalars['BigInt']>;
+  originDomain_not?: InputMaybe<Scalars['BigInt']>;
+  originDomain_gt?: InputMaybe<Scalars['BigInt']>;
+  originDomain_lt?: InputMaybe<Scalars['BigInt']>;
+  originDomain_gte?: InputMaybe<Scalars['BigInt']>;
+  originDomain_lte?: InputMaybe<Scalars['BigInt']>;
+  originDomain_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  originDomain_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  destinationDomain?: InputMaybe<Scalars['BigInt']>;
+  destinationDomain_not?: InputMaybe<Scalars['BigInt']>;
+  destinationDomain_gt?: InputMaybe<Scalars['BigInt']>;
+  destinationDomain_lt?: InputMaybe<Scalars['BigInt']>;
+  destinationDomain_gte?: InputMaybe<Scalars['BigInt']>;
+  destinationDomain_lte?: InputMaybe<Scalars['BigInt']>;
+  destinationDomain_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  destinationDomain_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  agent?: InputMaybe<Scalars['local1338_Bytes']>;
+  agent_not?: InputMaybe<Scalars['local1338_Bytes']>;
+  agent_in?: InputMaybe<Array<Scalars['local1338_Bytes']>>;
+  agent_not_in?: InputMaybe<Array<Scalars['local1338_Bytes']>>;
+  agent_contains?: InputMaybe<Scalars['local1338_Bytes']>;
+  agent_not_contains?: InputMaybe<Scalars['local1338_Bytes']>;
+  recovery?: InputMaybe<Scalars['local1338_Bytes']>;
+  recovery_not?: InputMaybe<Scalars['local1338_Bytes']>;
+  recovery_in?: InputMaybe<Array<Scalars['local1338_Bytes']>>;
+  recovery_not_in?: InputMaybe<Array<Scalars['local1338_Bytes']>>;
+  recovery_contains?: InputMaybe<Scalars['local1338_Bytes']>;
+  recovery_not_contains?: InputMaybe<Scalars['local1338_Bytes']>;
+  forceSlow?: InputMaybe<Scalars['Boolean']>;
+  forceSlow_not?: InputMaybe<Scalars['Boolean']>;
+  forceSlow_in?: InputMaybe<Array<Scalars['Boolean']>>;
+  forceSlow_not_in?: InputMaybe<Array<Scalars['Boolean']>>;
+  receiveLocal?: InputMaybe<Scalars['Boolean']>;
+  receiveLocal_not?: InputMaybe<Scalars['Boolean']>;
+  receiveLocal_in?: InputMaybe<Array<Scalars['Boolean']>>;
+  receiveLocal_not_in?: InputMaybe<Array<Scalars['Boolean']>>;
+  callback?: InputMaybe<Scalars['local1338_Bytes']>;
+  callback_not?: InputMaybe<Scalars['local1338_Bytes']>;
+  callback_in?: InputMaybe<Array<Scalars['local1338_Bytes']>>;
+  callback_not_in?: InputMaybe<Array<Scalars['local1338_Bytes']>>;
+  callback_contains?: InputMaybe<Scalars['local1338_Bytes']>;
+  callback_not_contains?: InputMaybe<Scalars['local1338_Bytes']>;
+  callbackFee?: InputMaybe<Scalars['BigInt']>;
+  callbackFee_not?: InputMaybe<Scalars['BigInt']>;
+  callbackFee_gt?: InputMaybe<Scalars['BigInt']>;
+  callbackFee_lt?: InputMaybe<Scalars['BigInt']>;
+  callbackFee_gte?: InputMaybe<Scalars['BigInt']>;
+  callbackFee_lte?: InputMaybe<Scalars['BigInt']>;
+  callbackFee_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  callbackFee_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  relayerFee?: InputMaybe<Scalars['BigInt']>;
+  relayerFee_not?: InputMaybe<Scalars['BigInt']>;
+  relayerFee_gt?: InputMaybe<Scalars['BigInt']>;
+  relayerFee_lt?: InputMaybe<Scalars['BigInt']>;
+  relayerFee_gte?: InputMaybe<Scalars['BigInt']>;
+  relayerFee_lte?: InputMaybe<Scalars['BigInt']>;
+  relayerFee_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  relayerFee_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  destinationMinOut?: InputMaybe<Scalars['BigInt']>;
+  destinationMinOut_not?: InputMaybe<Scalars['BigInt']>;
+  destinationMinOut_gt?: InputMaybe<Scalars['BigInt']>;
+  destinationMinOut_lt?: InputMaybe<Scalars['BigInt']>;
+  destinationMinOut_gte?: InputMaybe<Scalars['BigInt']>;
+  destinationMinOut_lte?: InputMaybe<Scalars['BigInt']>;
+  destinationMinOut_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  destinationMinOut_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  status?: InputMaybe<local1338_TransferStatus>;
+  status_not?: InputMaybe<local1338_TransferStatus>;
+  status_in?: InputMaybe<Array<local1338_TransferStatus>>;
+  status_not_in?: InputMaybe<Array<local1338_TransferStatus>>;
+  originMinOut?: InputMaybe<Scalars['BigInt']>;
+  originMinOut_not?: InputMaybe<Scalars['BigInt']>;
+  originMinOut_gt?: InputMaybe<Scalars['BigInt']>;
+  originMinOut_lt?: InputMaybe<Scalars['BigInt']>;
+  originMinOut_gte?: InputMaybe<Scalars['BigInt']>;
+  originMinOut_lte?: InputMaybe<Scalars['BigInt']>;
+  originMinOut_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  originMinOut_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  transactingAsset?: InputMaybe<Scalars['local1338_Bytes']>;
+  transactingAsset_not?: InputMaybe<Scalars['local1338_Bytes']>;
+  transactingAsset_in?: InputMaybe<Array<Scalars['local1338_Bytes']>>;
+  transactingAsset_not_in?: InputMaybe<Array<Scalars['local1338_Bytes']>>;
+  transactingAsset_contains?: InputMaybe<Scalars['local1338_Bytes']>;
+  transactingAsset_not_contains?: InputMaybe<Scalars['local1338_Bytes']>;
+  transactingAmount?: InputMaybe<Scalars['BigInt']>;
+  transactingAmount_not?: InputMaybe<Scalars['BigInt']>;
+  transactingAmount_gt?: InputMaybe<Scalars['BigInt']>;
+  transactingAmount_lt?: InputMaybe<Scalars['BigInt']>;
+  transactingAmount_gte?: InputMaybe<Scalars['BigInt']>;
+  transactingAmount_lte?: InputMaybe<Scalars['BigInt']>;
+  transactingAmount_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  transactingAmount_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  bridgedAsset?: InputMaybe<Scalars['local1338_Bytes']>;
+  bridgedAsset_not?: InputMaybe<Scalars['local1338_Bytes']>;
+  bridgedAsset_in?: InputMaybe<Array<Scalars['local1338_Bytes']>>;
+  bridgedAsset_not_in?: InputMaybe<Array<Scalars['local1338_Bytes']>>;
+  bridgedAsset_contains?: InputMaybe<Scalars['local1338_Bytes']>;
+  bridgedAsset_not_contains?: InputMaybe<Scalars['local1338_Bytes']>;
+  bridgedAmount?: InputMaybe<Scalars['BigInt']>;
+  bridgedAmount_not?: InputMaybe<Scalars['BigInt']>;
+  bridgedAmount_gt?: InputMaybe<Scalars['BigInt']>;
+  bridgedAmount_lt?: InputMaybe<Scalars['BigInt']>;
+  bridgedAmount_gte?: InputMaybe<Scalars['BigInt']>;
+  bridgedAmount_lte?: InputMaybe<Scalars['BigInt']>;
+  bridgedAmount_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  bridgedAmount_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  caller?: InputMaybe<Scalars['local1338_Bytes']>;
+  caller_not?: InputMaybe<Scalars['local1338_Bytes']>;
+  caller_in?: InputMaybe<Array<Scalars['local1338_Bytes']>>;
+  caller_not_in?: InputMaybe<Array<Scalars['local1338_Bytes']>>;
+  caller_contains?: InputMaybe<Scalars['local1338_Bytes']>;
+  caller_not_contains?: InputMaybe<Scalars['local1338_Bytes']>;
+  transactionHash?: InputMaybe<Scalars['local1338_Bytes']>;
+  transactionHash_not?: InputMaybe<Scalars['local1338_Bytes']>;
+  transactionHash_in?: InputMaybe<Array<Scalars['local1338_Bytes']>>;
+  transactionHash_not_in?: InputMaybe<Array<Scalars['local1338_Bytes']>>;
+  transactionHash_contains?: InputMaybe<Scalars['local1338_Bytes']>;
+  transactionHash_not_contains?: InputMaybe<Scalars['local1338_Bytes']>;
+  timestamp?: InputMaybe<Scalars['BigInt']>;
+  timestamp_not?: InputMaybe<Scalars['BigInt']>;
+  timestamp_gt?: InputMaybe<Scalars['BigInt']>;
+  timestamp_lt?: InputMaybe<Scalars['BigInt']>;
+  timestamp_gte?: InputMaybe<Scalars['BigInt']>;
+  timestamp_lte?: InputMaybe<Scalars['BigInt']>;
+  timestamp_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  timestamp_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  gasPrice?: InputMaybe<Scalars['BigInt']>;
+  gasPrice_not?: InputMaybe<Scalars['BigInt']>;
+  gasPrice_gt?: InputMaybe<Scalars['BigInt']>;
+  gasPrice_lt?: InputMaybe<Scalars['BigInt']>;
+  gasPrice_gte?: InputMaybe<Scalars['BigInt']>;
+  gasPrice_lte?: InputMaybe<Scalars['BigInt']>;
+  gasPrice_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  gasPrice_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  gasLimit?: InputMaybe<Scalars['BigInt']>;
+  gasLimit_not?: InputMaybe<Scalars['BigInt']>;
+  gasLimit_gt?: InputMaybe<Scalars['BigInt']>;
+  gasLimit_lt?: InputMaybe<Scalars['BigInt']>;
+  gasLimit_gte?: InputMaybe<Scalars['BigInt']>;
+  gasLimit_lte?: InputMaybe<Scalars['BigInt']>;
+  gasLimit_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  gasLimit_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  blockNumber?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_not?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_gt?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_lt?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_gte?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_lte?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  blockNumber_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  /** Filter for the block changed event. */
+  _change_block?: InputMaybe<local1338_BlockChangedFilter>;
+};
+
+export type local1338_OriginTransfer_orderBy =
+  | 'id'
+  | 'chainId'
+  | 'transferId'
+  | 'nonce'
+  | 'to'
+  | 'callData'
+  | 'originDomain'
+  | 'destinationDomain'
+  | 'agent'
+  | 'recovery'
+  | 'forceSlow'
+  | 'receiveLocal'
+  | 'callback'
+  | 'callbackFee'
+  | 'relayerFee'
+  | 'destinationMinOut'
+  | 'status'
+  | 'originMinOut'
+  | 'transactingAsset'
+  | 'transactingAmount'
+  | 'bridgedAsset'
+  | 'bridgedAmount'
+  | 'caller'
+  | 'transactionHash'
+  | 'timestamp'
+  | 'gasPrice'
+  | 'gasLimit'
+  | 'blockNumber';
+
+export type local1338_Relayer = {
+  id: Scalars['ID'];
+  isActive: Scalars['Boolean'];
+  relayer?: Maybe<Scalars['local1338_Bytes']>;
+};
+
+export type local1338_Relayer_filter = {
+  id?: InputMaybe<Scalars['ID']>;
+  id_not?: InputMaybe<Scalars['ID']>;
+  id_gt?: InputMaybe<Scalars['ID']>;
+  id_lt?: InputMaybe<Scalars['ID']>;
+  id_gte?: InputMaybe<Scalars['ID']>;
+  id_lte?: InputMaybe<Scalars['ID']>;
+  id_in?: InputMaybe<Array<Scalars['ID']>>;
+  id_not_in?: InputMaybe<Array<Scalars['ID']>>;
+  isActive?: InputMaybe<Scalars['Boolean']>;
+  isActive_not?: InputMaybe<Scalars['Boolean']>;
+  isActive_in?: InputMaybe<Array<Scalars['Boolean']>>;
+  isActive_not_in?: InputMaybe<Array<Scalars['Boolean']>>;
+  relayer?: InputMaybe<Scalars['local1338_Bytes']>;
+  relayer_not?: InputMaybe<Scalars['local1338_Bytes']>;
+  relayer_in?: InputMaybe<Array<Scalars['local1338_Bytes']>>;
+  relayer_not_in?: InputMaybe<Array<Scalars['local1338_Bytes']>>;
+  relayer_contains?: InputMaybe<Scalars['local1338_Bytes']>;
+  relayer_not_contains?: InputMaybe<Scalars['local1338_Bytes']>;
+  /** Filter for the block changed event. */
+  _change_block?: InputMaybe<local1338_BlockChangedFilter>;
+};
+
+export type local1338_Relayer_orderBy =
+  | 'id'
+  | 'isActive'
+  | 'relayer';
+
+export type local1338_Router = {
+  id: Scalars['ID'];
+  isActive: Scalars['Boolean'];
+  owner?: Maybe<Scalars['local1338_Bytes']>;
+  recipient?: Maybe<Scalars['local1338_Bytes']>;
+  proposedOwner?: Maybe<Scalars['local1338_Bytes']>;
+  proposedTimestamp?: Maybe<Scalars['BigInt']>;
+  assetBalances: Array<local1338_AssetBalance>;
+};
+
+
+export type local1338_RouterassetBalancesArgs = {
+  skip?: InputMaybe<Scalars['Int']>;
+  first?: InputMaybe<Scalars['Int']>;
+  orderBy?: InputMaybe<local1338_AssetBalance_orderBy>;
+  orderDirection?: InputMaybe<local1338_OrderDirection>;
+  where?: InputMaybe<local1338_AssetBalance_filter>;
+};
+
+export type local1338_Router_filter = {
+  id?: InputMaybe<Scalars['ID']>;
+  id_not?: InputMaybe<Scalars['ID']>;
+  id_gt?: InputMaybe<Scalars['ID']>;
+  id_lt?: InputMaybe<Scalars['ID']>;
+  id_gte?: InputMaybe<Scalars['ID']>;
+  id_lte?: InputMaybe<Scalars['ID']>;
+  id_in?: InputMaybe<Array<Scalars['ID']>>;
+  id_not_in?: InputMaybe<Array<Scalars['ID']>>;
+  isActive?: InputMaybe<Scalars['Boolean']>;
+  isActive_not?: InputMaybe<Scalars['Boolean']>;
+  isActive_in?: InputMaybe<Array<Scalars['Boolean']>>;
+  isActive_not_in?: InputMaybe<Array<Scalars['Boolean']>>;
+  owner?: InputMaybe<Scalars['local1338_Bytes']>;
+  owner_not?: InputMaybe<Scalars['local1338_Bytes']>;
+  owner_in?: InputMaybe<Array<Scalars['local1338_Bytes']>>;
+  owner_not_in?: InputMaybe<Array<Scalars['local1338_Bytes']>>;
+  owner_contains?: InputMaybe<Scalars['local1338_Bytes']>;
+  owner_not_contains?: InputMaybe<Scalars['local1338_Bytes']>;
+  recipient?: InputMaybe<Scalars['local1338_Bytes']>;
+  recipient_not?: InputMaybe<Scalars['local1338_Bytes']>;
+  recipient_in?: InputMaybe<Array<Scalars['local1338_Bytes']>>;
+  recipient_not_in?: InputMaybe<Array<Scalars['local1338_Bytes']>>;
+  recipient_contains?: InputMaybe<Scalars['local1338_Bytes']>;
+  recipient_not_contains?: InputMaybe<Scalars['local1338_Bytes']>;
+  proposedOwner?: InputMaybe<Scalars['local1338_Bytes']>;
+  proposedOwner_not?: InputMaybe<Scalars['local1338_Bytes']>;
+  proposedOwner_in?: InputMaybe<Array<Scalars['local1338_Bytes']>>;
+  proposedOwner_not_in?: InputMaybe<Array<Scalars['local1338_Bytes']>>;
+  proposedOwner_contains?: InputMaybe<Scalars['local1338_Bytes']>;
+  proposedOwner_not_contains?: InputMaybe<Scalars['local1338_Bytes']>;
+  proposedTimestamp?: InputMaybe<Scalars['BigInt']>;
+  proposedTimestamp_not?: InputMaybe<Scalars['BigInt']>;
+  proposedTimestamp_gt?: InputMaybe<Scalars['BigInt']>;
+  proposedTimestamp_lt?: InputMaybe<Scalars['BigInt']>;
+  proposedTimestamp_gte?: InputMaybe<Scalars['BigInt']>;
+  proposedTimestamp_lte?: InputMaybe<Scalars['BigInt']>;
+  proposedTimestamp_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  proposedTimestamp_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  assetBalances_?: InputMaybe<local1338_AssetBalance_filter>;
+  /** Filter for the block changed event. */
+  _change_block?: InputMaybe<local1338_BlockChangedFilter>;
+};
+
+export type local1338_Router_orderBy =
+  | 'id'
+  | 'isActive'
+  | 'owner'
+  | 'recipient'
+  | 'proposedOwner'
+  | 'proposedTimestamp'
+  | 'assetBalances';
+
+export type local1338_Setting = {
+  id: Scalars['ID'];
+  maxRoutersPerTransfer: Scalars['BigInt'];
+  caller: Scalars['local1338_Bytes'];
+};
+
+export type local1338_Setting_filter = {
+  id?: InputMaybe<Scalars['ID']>;
+  id_not?: InputMaybe<Scalars['ID']>;
+  id_gt?: InputMaybe<Scalars['ID']>;
+  id_lt?: InputMaybe<Scalars['ID']>;
+  id_gte?: InputMaybe<Scalars['ID']>;
+  id_lte?: InputMaybe<Scalars['ID']>;
+  id_in?: InputMaybe<Array<Scalars['ID']>>;
+  id_not_in?: InputMaybe<Array<Scalars['ID']>>;
+  maxRoutersPerTransfer?: InputMaybe<Scalars['BigInt']>;
+  maxRoutersPerTransfer_not?: InputMaybe<Scalars['BigInt']>;
+  maxRoutersPerTransfer_gt?: InputMaybe<Scalars['BigInt']>;
+  maxRoutersPerTransfer_lt?: InputMaybe<Scalars['BigInt']>;
+  maxRoutersPerTransfer_gte?: InputMaybe<Scalars['BigInt']>;
+  maxRoutersPerTransfer_lte?: InputMaybe<Scalars['BigInt']>;
+  maxRoutersPerTransfer_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  maxRoutersPerTransfer_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  caller?: InputMaybe<Scalars['local1338_Bytes']>;
+  caller_not?: InputMaybe<Scalars['local1338_Bytes']>;
+  caller_in?: InputMaybe<Array<Scalars['local1338_Bytes']>>;
+  caller_not_in?: InputMaybe<Array<Scalars['local1338_Bytes']>>;
+  caller_contains?: InputMaybe<Scalars['local1338_Bytes']>;
+  caller_not_contains?: InputMaybe<Scalars['local1338_Bytes']>;
+  /** Filter for the block changed event. */
+  _change_block?: InputMaybe<local1338_BlockChangedFilter>;
+};
+
+export type local1338_Setting_orderBy =
+  | 'id'
+  | 'maxRoutersPerTransfer'
+  | 'caller';
+
+export type local1338_SponsorVault = {
+  id: Scalars['ID'];
+  sponsorVault: Scalars['local1338_Bytes'];
+};
+
+export type local1338_SponsorVault_filter = {
+  id?: InputMaybe<Scalars['ID']>;
+  id_not?: InputMaybe<Scalars['ID']>;
+  id_gt?: InputMaybe<Scalars['ID']>;
+  id_lt?: InputMaybe<Scalars['ID']>;
+  id_gte?: InputMaybe<Scalars['ID']>;
+  id_lte?: InputMaybe<Scalars['ID']>;
+  id_in?: InputMaybe<Array<Scalars['ID']>>;
+  id_not_in?: InputMaybe<Array<Scalars['ID']>>;
+  sponsorVault?: InputMaybe<Scalars['local1338_Bytes']>;
+  sponsorVault_not?: InputMaybe<Scalars['local1338_Bytes']>;
+  sponsorVault_in?: InputMaybe<Array<Scalars['local1338_Bytes']>>;
+  sponsorVault_not_in?: InputMaybe<Array<Scalars['local1338_Bytes']>>;
+  sponsorVault_contains?: InputMaybe<Scalars['local1338_Bytes']>;
+  sponsorVault_not_contains?: InputMaybe<Scalars['local1338_Bytes']>;
+  /** Filter for the block changed event. */
+  _change_block?: InputMaybe<local1338_BlockChangedFilter>;
+};
+
+export type local1338_SponsorVault_orderBy =
+  | 'id'
+  | 'sponsorVault';
+
+export type local1338_StableSwap = {
+  id: Scalars['ID'];
+  canonicalId: Scalars['local1338_Bytes'];
+  domain?: Maybe<Scalars['BigInt']>;
+  swapPool: Scalars['local1338_Bytes'];
+};
+
+export type local1338_StableSwap_filter = {
+  id?: InputMaybe<Scalars['ID']>;
+  id_not?: InputMaybe<Scalars['ID']>;
+  id_gt?: InputMaybe<Scalars['ID']>;
+  id_lt?: InputMaybe<Scalars['ID']>;
+  id_gte?: InputMaybe<Scalars['ID']>;
+  id_lte?: InputMaybe<Scalars['ID']>;
+  id_in?: InputMaybe<Array<Scalars['ID']>>;
+  id_not_in?: InputMaybe<Array<Scalars['ID']>>;
+  canonicalId?: InputMaybe<Scalars['local1338_Bytes']>;
+  canonicalId_not?: InputMaybe<Scalars['local1338_Bytes']>;
+  canonicalId_in?: InputMaybe<Array<Scalars['local1338_Bytes']>>;
+  canonicalId_not_in?: InputMaybe<Array<Scalars['local1338_Bytes']>>;
+  canonicalId_contains?: InputMaybe<Scalars['local1338_Bytes']>;
+  canonicalId_not_contains?: InputMaybe<Scalars['local1338_Bytes']>;
+  domain?: InputMaybe<Scalars['BigInt']>;
+  domain_not?: InputMaybe<Scalars['BigInt']>;
+  domain_gt?: InputMaybe<Scalars['BigInt']>;
+  domain_lt?: InputMaybe<Scalars['BigInt']>;
+  domain_gte?: InputMaybe<Scalars['BigInt']>;
+  domain_lte?: InputMaybe<Scalars['BigInt']>;
+  domain_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  domain_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  swapPool?: InputMaybe<Scalars['local1338_Bytes']>;
+  swapPool_not?: InputMaybe<Scalars['local1338_Bytes']>;
+  swapPool_in?: InputMaybe<Array<Scalars['local1338_Bytes']>>;
+  swapPool_not_in?: InputMaybe<Array<Scalars['local1338_Bytes']>>;
+  swapPool_contains?: InputMaybe<Scalars['local1338_Bytes']>;
+  swapPool_not_contains?: InputMaybe<Scalars['local1338_Bytes']>;
+  /** Filter for the block changed event. */
+  _change_block?: InputMaybe<local1338_BlockChangedFilter>;
+};
+
+export type local1338_StableSwap_orderBy =
+  | 'id'
+  | 'canonicalId'
+  | 'domain'
+  | 'swapPool';
+
+export type local1338_TransferStatus =
+  | 'XCalled'
+  | 'Executed'
+  | 'Reconciled'
+  | 'CompletedSlow'
+  | 'CompletedFast';
+
+export type local1338__Block_ = {
+  /** The hash of the block */
+  hash?: Maybe<Scalars['local1338_Bytes']>;
+  /** The block number */
+  number: Scalars['Int'];
+  /** Integer representation of the timestamp stored in blocks for the chain */
+  timestamp?: Maybe<Scalars['Int']>;
+};
+
+/** The type for the top-level _meta field */
+export type local1338__Meta_ = {
+  /**
+   * Information about a specific subgraph block. The hash of the block
+   * will be null if the _meta field has a block constraint that asks for
+   * a block number. It will be filled if the _meta field has no block constraint
+   * and therefore asks for the latest  block
+   *
+   */
+  block: local1338__Block_;
+  /** The deployment ID */
+  deployment: Scalars['String'];
+  /** If `true`, the subgraph encountered indexing errors at some past block */
+  hasIndexingErrors: Scalars['Boolean'];
+};
+
 export type mumbai_AggregateRoot = {
   id: Scalars['ID'];
   root: Scalars['mumbai_Bytes'];
@@ -17667,6 +14780,1450 @@ export type mumbai__Meta_ = {
    *
    */
   block: mumbai__Block_;
+  /** The deployment ID */
+  deployment: Scalars['String'];
+  /** If `true`, the subgraph encountered indexing errors at some past block */
+  hasIndexingErrors: Scalars['Boolean'];
+};
+
+export type stagingmumbai_AggregateRoot = {
+  id: Scalars['ID'];
+  root: Scalars['stagingmumbai_Bytes'];
+};
+
+export type stagingmumbai_AggregateRoot_filter = {
+  id?: InputMaybe<Scalars['ID']>;
+  id_not?: InputMaybe<Scalars['ID']>;
+  id_gt?: InputMaybe<Scalars['ID']>;
+  id_lt?: InputMaybe<Scalars['ID']>;
+  id_gte?: InputMaybe<Scalars['ID']>;
+  id_lte?: InputMaybe<Scalars['ID']>;
+  id_in?: InputMaybe<Array<Scalars['ID']>>;
+  id_not_in?: InputMaybe<Array<Scalars['ID']>>;
+  root?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
+  root_not?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
+  root_in?: InputMaybe<Array<Scalars['stagingmumbai_Bytes']>>;
+  root_not_in?: InputMaybe<Array<Scalars['stagingmumbai_Bytes']>>;
+  root_contains?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
+  root_not_contains?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
+  /** Filter for the block changed event. */
+  _change_block?: InputMaybe<stagingmumbai_BlockChangedFilter>;
+};
+
+export type stagingmumbai_AggregateRoot_orderBy =
+  | 'id'
+  | 'root';
+
+export type stagingmumbai_Asset = {
+  id: Scalars['ID'];
+  key?: Maybe<Scalars['stagingmumbai_Bytes']>;
+  local: Scalars['stagingmumbai_Bytes'];
+  adoptedAsset: Scalars['stagingmumbai_Bytes'];
+  canonicalId: Scalars['stagingmumbai_Bytes'];
+  canonicalDomain: Scalars['BigInt'];
+  blockNumber: Scalars['BigInt'];
+};
+
+export type stagingmumbai_AssetBalance = {
+  id: Scalars['ID'];
+  amount: Scalars['BigInt'];
+  router: stagingmumbai_Router;
+  asset: stagingmumbai_Asset;
+};
+
+export type stagingmumbai_AssetBalance_filter = {
+  id?: InputMaybe<Scalars['ID']>;
+  id_not?: InputMaybe<Scalars['ID']>;
+  id_gt?: InputMaybe<Scalars['ID']>;
+  id_lt?: InputMaybe<Scalars['ID']>;
+  id_gte?: InputMaybe<Scalars['ID']>;
+  id_lte?: InputMaybe<Scalars['ID']>;
+  id_in?: InputMaybe<Array<Scalars['ID']>>;
+  id_not_in?: InputMaybe<Array<Scalars['ID']>>;
+  amount?: InputMaybe<Scalars['BigInt']>;
+  amount_not?: InputMaybe<Scalars['BigInt']>;
+  amount_gt?: InputMaybe<Scalars['BigInt']>;
+  amount_lt?: InputMaybe<Scalars['BigInt']>;
+  amount_gte?: InputMaybe<Scalars['BigInt']>;
+  amount_lte?: InputMaybe<Scalars['BigInt']>;
+  amount_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  amount_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  router?: InputMaybe<Scalars['String']>;
+  router_not?: InputMaybe<Scalars['String']>;
+  router_gt?: InputMaybe<Scalars['String']>;
+  router_lt?: InputMaybe<Scalars['String']>;
+  router_gte?: InputMaybe<Scalars['String']>;
+  router_lte?: InputMaybe<Scalars['String']>;
+  router_in?: InputMaybe<Array<Scalars['String']>>;
+  router_not_in?: InputMaybe<Array<Scalars['String']>>;
+  router_contains?: InputMaybe<Scalars['String']>;
+  router_contains_nocase?: InputMaybe<Scalars['String']>;
+  router_not_contains?: InputMaybe<Scalars['String']>;
+  router_not_contains_nocase?: InputMaybe<Scalars['String']>;
+  router_starts_with?: InputMaybe<Scalars['String']>;
+  router_starts_with_nocase?: InputMaybe<Scalars['String']>;
+  router_not_starts_with?: InputMaybe<Scalars['String']>;
+  router_not_starts_with_nocase?: InputMaybe<Scalars['String']>;
+  router_ends_with?: InputMaybe<Scalars['String']>;
+  router_ends_with_nocase?: InputMaybe<Scalars['String']>;
+  router_not_ends_with?: InputMaybe<Scalars['String']>;
+  router_not_ends_with_nocase?: InputMaybe<Scalars['String']>;
+  router_?: InputMaybe<stagingmumbai_Router_filter>;
+  asset?: InputMaybe<Scalars['String']>;
+  asset_not?: InputMaybe<Scalars['String']>;
+  asset_gt?: InputMaybe<Scalars['String']>;
+  asset_lt?: InputMaybe<Scalars['String']>;
+  asset_gte?: InputMaybe<Scalars['String']>;
+  asset_lte?: InputMaybe<Scalars['String']>;
+  asset_in?: InputMaybe<Array<Scalars['String']>>;
+  asset_not_in?: InputMaybe<Array<Scalars['String']>>;
+  asset_contains?: InputMaybe<Scalars['String']>;
+  asset_contains_nocase?: InputMaybe<Scalars['String']>;
+  asset_not_contains?: InputMaybe<Scalars['String']>;
+  asset_not_contains_nocase?: InputMaybe<Scalars['String']>;
+  asset_starts_with?: InputMaybe<Scalars['String']>;
+  asset_starts_with_nocase?: InputMaybe<Scalars['String']>;
+  asset_not_starts_with?: InputMaybe<Scalars['String']>;
+  asset_not_starts_with_nocase?: InputMaybe<Scalars['String']>;
+  asset_ends_with?: InputMaybe<Scalars['String']>;
+  asset_ends_with_nocase?: InputMaybe<Scalars['String']>;
+  asset_not_ends_with?: InputMaybe<Scalars['String']>;
+  asset_not_ends_with_nocase?: InputMaybe<Scalars['String']>;
+  asset_?: InputMaybe<stagingmumbai_Asset_filter>;
+  /** Filter for the block changed event. */
+  _change_block?: InputMaybe<stagingmumbai_BlockChangedFilter>;
+};
+
+export type stagingmumbai_AssetBalance_orderBy =
+  | 'id'
+  | 'amount'
+  | 'router'
+  | 'asset';
+
+export type stagingmumbai_Asset_filter = {
+  id?: InputMaybe<Scalars['ID']>;
+  id_not?: InputMaybe<Scalars['ID']>;
+  id_gt?: InputMaybe<Scalars['ID']>;
+  id_lt?: InputMaybe<Scalars['ID']>;
+  id_gte?: InputMaybe<Scalars['ID']>;
+  id_lte?: InputMaybe<Scalars['ID']>;
+  id_in?: InputMaybe<Array<Scalars['ID']>>;
+  id_not_in?: InputMaybe<Array<Scalars['ID']>>;
+  key?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
+  key_not?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
+  key_in?: InputMaybe<Array<Scalars['stagingmumbai_Bytes']>>;
+  key_not_in?: InputMaybe<Array<Scalars['stagingmumbai_Bytes']>>;
+  key_contains?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
+  key_not_contains?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
+  local?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
+  local_not?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
+  local_in?: InputMaybe<Array<Scalars['stagingmumbai_Bytes']>>;
+  local_not_in?: InputMaybe<Array<Scalars['stagingmumbai_Bytes']>>;
+  local_contains?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
+  local_not_contains?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
+  adoptedAsset?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
+  adoptedAsset_not?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
+  adoptedAsset_in?: InputMaybe<Array<Scalars['stagingmumbai_Bytes']>>;
+  adoptedAsset_not_in?: InputMaybe<Array<Scalars['stagingmumbai_Bytes']>>;
+  adoptedAsset_contains?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
+  adoptedAsset_not_contains?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
+  canonicalId?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
+  canonicalId_not?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
+  canonicalId_in?: InputMaybe<Array<Scalars['stagingmumbai_Bytes']>>;
+  canonicalId_not_in?: InputMaybe<Array<Scalars['stagingmumbai_Bytes']>>;
+  canonicalId_contains?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
+  canonicalId_not_contains?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
+  canonicalDomain?: InputMaybe<Scalars['BigInt']>;
+  canonicalDomain_not?: InputMaybe<Scalars['BigInt']>;
+  canonicalDomain_gt?: InputMaybe<Scalars['BigInt']>;
+  canonicalDomain_lt?: InputMaybe<Scalars['BigInt']>;
+  canonicalDomain_gte?: InputMaybe<Scalars['BigInt']>;
+  canonicalDomain_lte?: InputMaybe<Scalars['BigInt']>;
+  canonicalDomain_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  canonicalDomain_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  blockNumber?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_not?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_gt?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_lt?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_gte?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_lte?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  blockNumber_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  /** Filter for the block changed event. */
+  _change_block?: InputMaybe<stagingmumbai_BlockChangedFilter>;
+};
+
+export type stagingmumbai_Asset_orderBy =
+  | 'id'
+  | 'key'
+  | 'local'
+  | 'adoptedAsset'
+  | 'canonicalId'
+  | 'canonicalDomain'
+  | 'blockNumber';
+
+export type stagingmumbai_BlockChangedFilter = {
+  number_gte: Scalars['Int'];
+};
+
+export type stagingmumbai_Block_height = {
+  hash?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
+  number?: InputMaybe<Scalars['Int']>;
+  number_gte?: InputMaybe<Scalars['Int']>;
+};
+
+export type stagingmumbai_ConnectorMeta = {
+  id: Scalars['ID'];
+  spokeDomain: Scalars['BigInt'];
+  hubDomain: Scalars['BigInt'];
+  amb: Scalars['stagingmumbai_Bytes'];
+  rootManager: Scalars['stagingmumbai_Bytes'];
+  mirrorConnector: Scalars['stagingmumbai_Bytes'];
+};
+
+export type stagingmumbai_ConnectorMeta_filter = {
+  id?: InputMaybe<Scalars['ID']>;
+  id_not?: InputMaybe<Scalars['ID']>;
+  id_gt?: InputMaybe<Scalars['ID']>;
+  id_lt?: InputMaybe<Scalars['ID']>;
+  id_gte?: InputMaybe<Scalars['ID']>;
+  id_lte?: InputMaybe<Scalars['ID']>;
+  id_in?: InputMaybe<Array<Scalars['ID']>>;
+  id_not_in?: InputMaybe<Array<Scalars['ID']>>;
+  spokeDomain?: InputMaybe<Scalars['BigInt']>;
+  spokeDomain_not?: InputMaybe<Scalars['BigInt']>;
+  spokeDomain_gt?: InputMaybe<Scalars['BigInt']>;
+  spokeDomain_lt?: InputMaybe<Scalars['BigInt']>;
+  spokeDomain_gte?: InputMaybe<Scalars['BigInt']>;
+  spokeDomain_lte?: InputMaybe<Scalars['BigInt']>;
+  spokeDomain_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  spokeDomain_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  hubDomain?: InputMaybe<Scalars['BigInt']>;
+  hubDomain_not?: InputMaybe<Scalars['BigInt']>;
+  hubDomain_gt?: InputMaybe<Scalars['BigInt']>;
+  hubDomain_lt?: InputMaybe<Scalars['BigInt']>;
+  hubDomain_gte?: InputMaybe<Scalars['BigInt']>;
+  hubDomain_lte?: InputMaybe<Scalars['BigInt']>;
+  hubDomain_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  hubDomain_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  amb?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
+  amb_not?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
+  amb_in?: InputMaybe<Array<Scalars['stagingmumbai_Bytes']>>;
+  amb_not_in?: InputMaybe<Array<Scalars['stagingmumbai_Bytes']>>;
+  amb_contains?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
+  amb_not_contains?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
+  rootManager?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
+  rootManager_not?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
+  rootManager_in?: InputMaybe<Array<Scalars['stagingmumbai_Bytes']>>;
+  rootManager_not_in?: InputMaybe<Array<Scalars['stagingmumbai_Bytes']>>;
+  rootManager_contains?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
+  rootManager_not_contains?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
+  mirrorConnector?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
+  mirrorConnector_not?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
+  mirrorConnector_in?: InputMaybe<Array<Scalars['stagingmumbai_Bytes']>>;
+  mirrorConnector_not_in?: InputMaybe<Array<Scalars['stagingmumbai_Bytes']>>;
+  mirrorConnector_contains?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
+  mirrorConnector_not_contains?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
+  /** Filter for the block changed event. */
+  _change_block?: InputMaybe<stagingmumbai_BlockChangedFilter>;
+};
+
+export type stagingmumbai_ConnectorMeta_orderBy =
+  | 'id'
+  | 'spokeDomain'
+  | 'hubDomain'
+  | 'amb'
+  | 'rootManager'
+  | 'mirrorConnector';
+
+export type stagingmumbai_DestinationMessage = {
+  id: Scalars['ID'];
+  leaf?: Maybe<Scalars['stagingmumbai_Bytes']>;
+  processed?: Maybe<Scalars['Boolean']>;
+  returnData?: Maybe<Scalars['stagingmumbai_Bytes']>;
+  transactionHash?: Maybe<Scalars['stagingmumbai_Bytes']>;
+};
+
+export type stagingmumbai_DestinationMessage_filter = {
+  id?: InputMaybe<Scalars['ID']>;
+  id_not?: InputMaybe<Scalars['ID']>;
+  id_gt?: InputMaybe<Scalars['ID']>;
+  id_lt?: InputMaybe<Scalars['ID']>;
+  id_gte?: InputMaybe<Scalars['ID']>;
+  id_lte?: InputMaybe<Scalars['ID']>;
+  id_in?: InputMaybe<Array<Scalars['ID']>>;
+  id_not_in?: InputMaybe<Array<Scalars['ID']>>;
+  leaf?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
+  leaf_not?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
+  leaf_in?: InputMaybe<Array<Scalars['stagingmumbai_Bytes']>>;
+  leaf_not_in?: InputMaybe<Array<Scalars['stagingmumbai_Bytes']>>;
+  leaf_contains?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
+  leaf_not_contains?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
+  processed?: InputMaybe<Scalars['Boolean']>;
+  processed_not?: InputMaybe<Scalars['Boolean']>;
+  processed_in?: InputMaybe<Array<Scalars['Boolean']>>;
+  processed_not_in?: InputMaybe<Array<Scalars['Boolean']>>;
+  returnData?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
+  returnData_not?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
+  returnData_in?: InputMaybe<Array<Scalars['stagingmumbai_Bytes']>>;
+  returnData_not_in?: InputMaybe<Array<Scalars['stagingmumbai_Bytes']>>;
+  returnData_contains?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
+  returnData_not_contains?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
+  transactionHash?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
+  transactionHash_not?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
+  transactionHash_in?: InputMaybe<Array<Scalars['stagingmumbai_Bytes']>>;
+  transactionHash_not_in?: InputMaybe<Array<Scalars['stagingmumbai_Bytes']>>;
+  transactionHash_contains?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
+  transactionHash_not_contains?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
+  /** Filter for the block changed event. */
+  _change_block?: InputMaybe<stagingmumbai_BlockChangedFilter>;
+};
+
+export type stagingmumbai_DestinationMessage_orderBy =
+  | 'id'
+  | 'leaf'
+  | 'processed'
+  | 'returnData'
+  | 'transactionHash';
+
+export type stagingmumbai_DestinationTransfer = {
+  id: Scalars['ID'];
+  chainId?: Maybe<Scalars['BigInt']>;
+  transferId?: Maybe<Scalars['stagingmumbai_Bytes']>;
+  nonce?: Maybe<Scalars['BigInt']>;
+  to?: Maybe<Scalars['stagingmumbai_Bytes']>;
+  callData?: Maybe<Scalars['stagingmumbai_Bytes']>;
+  originDomain?: Maybe<Scalars['BigInt']>;
+  destinationDomain?: Maybe<Scalars['BigInt']>;
+  agent?: Maybe<Scalars['stagingmumbai_Bytes']>;
+  recovery?: Maybe<Scalars['stagingmumbai_Bytes']>;
+  forceSlow?: Maybe<Scalars['Boolean']>;
+  receiveLocal?: Maybe<Scalars['Boolean']>;
+  callback?: Maybe<Scalars['stagingmumbai_Bytes']>;
+  callbackFee?: Maybe<Scalars['BigInt']>;
+  relayerFee?: Maybe<Scalars['BigInt']>;
+  destinationMinOut?: Maybe<Scalars['BigInt']>;
+  status?: Maybe<stagingmumbai_TransferStatus>;
+  routers?: Maybe<Array<stagingmumbai_Router>>;
+  originSender?: Maybe<Scalars['stagingmumbai_Bytes']>;
+  transactingAsset?: Maybe<Scalars['stagingmumbai_Bytes']>;
+  transactingAmount?: Maybe<Scalars['BigInt']>;
+  localAsset?: Maybe<Scalars['stagingmumbai_Bytes']>;
+  localAmount?: Maybe<Scalars['BigInt']>;
+  sponsorVaultRelayerFee?: Maybe<Scalars['BigInt']>;
+  executedCaller?: Maybe<Scalars['stagingmumbai_Bytes']>;
+  executedTransactionHash?: Maybe<Scalars['stagingmumbai_Bytes']>;
+  executedTimestamp?: Maybe<Scalars['BigInt']>;
+  executedGasPrice?: Maybe<Scalars['BigInt']>;
+  executedGasLimit?: Maybe<Scalars['BigInt']>;
+  executedBlockNumber?: Maybe<Scalars['BigInt']>;
+  reconciledCaller?: Maybe<Scalars['stagingmumbai_Bytes']>;
+  reconciledTransactionHash?: Maybe<Scalars['stagingmumbai_Bytes']>;
+  reconciledTimestamp?: Maybe<Scalars['BigInt']>;
+  reconciledGasPrice?: Maybe<Scalars['BigInt']>;
+  reconciledGasLimit?: Maybe<Scalars['BigInt']>;
+  reconciledBlockNumber?: Maybe<Scalars['BigInt']>;
+};
+
+
+export type stagingmumbai_DestinationTransferroutersArgs = {
+  skip?: InputMaybe<Scalars['Int']>;
+  first?: InputMaybe<Scalars['Int']>;
+  orderBy?: InputMaybe<stagingmumbai_Router_orderBy>;
+  orderDirection?: InputMaybe<stagingmumbai_OrderDirection>;
+  where?: InputMaybe<stagingmumbai_Router_filter>;
+};
+
+export type stagingmumbai_DestinationTransfer_filter = {
+  id?: InputMaybe<Scalars['ID']>;
+  id_not?: InputMaybe<Scalars['ID']>;
+  id_gt?: InputMaybe<Scalars['ID']>;
+  id_lt?: InputMaybe<Scalars['ID']>;
+  id_gte?: InputMaybe<Scalars['ID']>;
+  id_lte?: InputMaybe<Scalars['ID']>;
+  id_in?: InputMaybe<Array<Scalars['ID']>>;
+  id_not_in?: InputMaybe<Array<Scalars['ID']>>;
+  chainId?: InputMaybe<Scalars['BigInt']>;
+  chainId_not?: InputMaybe<Scalars['BigInt']>;
+  chainId_gt?: InputMaybe<Scalars['BigInt']>;
+  chainId_lt?: InputMaybe<Scalars['BigInt']>;
+  chainId_gte?: InputMaybe<Scalars['BigInt']>;
+  chainId_lte?: InputMaybe<Scalars['BigInt']>;
+  chainId_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  chainId_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  transferId?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
+  transferId_not?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
+  transferId_in?: InputMaybe<Array<Scalars['stagingmumbai_Bytes']>>;
+  transferId_not_in?: InputMaybe<Array<Scalars['stagingmumbai_Bytes']>>;
+  transferId_contains?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
+  transferId_not_contains?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
+  nonce?: InputMaybe<Scalars['BigInt']>;
+  nonce_not?: InputMaybe<Scalars['BigInt']>;
+  nonce_gt?: InputMaybe<Scalars['BigInt']>;
+  nonce_lt?: InputMaybe<Scalars['BigInt']>;
+  nonce_gte?: InputMaybe<Scalars['BigInt']>;
+  nonce_lte?: InputMaybe<Scalars['BigInt']>;
+  nonce_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  nonce_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  to?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
+  to_not?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
+  to_in?: InputMaybe<Array<Scalars['stagingmumbai_Bytes']>>;
+  to_not_in?: InputMaybe<Array<Scalars['stagingmumbai_Bytes']>>;
+  to_contains?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
+  to_not_contains?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
+  callData?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
+  callData_not?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
+  callData_in?: InputMaybe<Array<Scalars['stagingmumbai_Bytes']>>;
+  callData_not_in?: InputMaybe<Array<Scalars['stagingmumbai_Bytes']>>;
+  callData_contains?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
+  callData_not_contains?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
+  originDomain?: InputMaybe<Scalars['BigInt']>;
+  originDomain_not?: InputMaybe<Scalars['BigInt']>;
+  originDomain_gt?: InputMaybe<Scalars['BigInt']>;
+  originDomain_lt?: InputMaybe<Scalars['BigInt']>;
+  originDomain_gte?: InputMaybe<Scalars['BigInt']>;
+  originDomain_lte?: InputMaybe<Scalars['BigInt']>;
+  originDomain_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  originDomain_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  destinationDomain?: InputMaybe<Scalars['BigInt']>;
+  destinationDomain_not?: InputMaybe<Scalars['BigInt']>;
+  destinationDomain_gt?: InputMaybe<Scalars['BigInt']>;
+  destinationDomain_lt?: InputMaybe<Scalars['BigInt']>;
+  destinationDomain_gte?: InputMaybe<Scalars['BigInt']>;
+  destinationDomain_lte?: InputMaybe<Scalars['BigInt']>;
+  destinationDomain_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  destinationDomain_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  agent?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
+  agent_not?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
+  agent_in?: InputMaybe<Array<Scalars['stagingmumbai_Bytes']>>;
+  agent_not_in?: InputMaybe<Array<Scalars['stagingmumbai_Bytes']>>;
+  agent_contains?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
+  agent_not_contains?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
+  recovery?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
+  recovery_not?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
+  recovery_in?: InputMaybe<Array<Scalars['stagingmumbai_Bytes']>>;
+  recovery_not_in?: InputMaybe<Array<Scalars['stagingmumbai_Bytes']>>;
+  recovery_contains?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
+  recovery_not_contains?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
+  forceSlow?: InputMaybe<Scalars['Boolean']>;
+  forceSlow_not?: InputMaybe<Scalars['Boolean']>;
+  forceSlow_in?: InputMaybe<Array<Scalars['Boolean']>>;
+  forceSlow_not_in?: InputMaybe<Array<Scalars['Boolean']>>;
+  receiveLocal?: InputMaybe<Scalars['Boolean']>;
+  receiveLocal_not?: InputMaybe<Scalars['Boolean']>;
+  receiveLocal_in?: InputMaybe<Array<Scalars['Boolean']>>;
+  receiveLocal_not_in?: InputMaybe<Array<Scalars['Boolean']>>;
+  callback?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
+  callback_not?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
+  callback_in?: InputMaybe<Array<Scalars['stagingmumbai_Bytes']>>;
+  callback_not_in?: InputMaybe<Array<Scalars['stagingmumbai_Bytes']>>;
+  callback_contains?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
+  callback_not_contains?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
+  callbackFee?: InputMaybe<Scalars['BigInt']>;
+  callbackFee_not?: InputMaybe<Scalars['BigInt']>;
+  callbackFee_gt?: InputMaybe<Scalars['BigInt']>;
+  callbackFee_lt?: InputMaybe<Scalars['BigInt']>;
+  callbackFee_gte?: InputMaybe<Scalars['BigInt']>;
+  callbackFee_lte?: InputMaybe<Scalars['BigInt']>;
+  callbackFee_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  callbackFee_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  relayerFee?: InputMaybe<Scalars['BigInt']>;
+  relayerFee_not?: InputMaybe<Scalars['BigInt']>;
+  relayerFee_gt?: InputMaybe<Scalars['BigInt']>;
+  relayerFee_lt?: InputMaybe<Scalars['BigInt']>;
+  relayerFee_gte?: InputMaybe<Scalars['BigInt']>;
+  relayerFee_lte?: InputMaybe<Scalars['BigInt']>;
+  relayerFee_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  relayerFee_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  destinationMinOut?: InputMaybe<Scalars['BigInt']>;
+  destinationMinOut_not?: InputMaybe<Scalars['BigInt']>;
+  destinationMinOut_gt?: InputMaybe<Scalars['BigInt']>;
+  destinationMinOut_lt?: InputMaybe<Scalars['BigInt']>;
+  destinationMinOut_gte?: InputMaybe<Scalars['BigInt']>;
+  destinationMinOut_lte?: InputMaybe<Scalars['BigInt']>;
+  destinationMinOut_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  destinationMinOut_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  status?: InputMaybe<stagingmumbai_TransferStatus>;
+  status_not?: InputMaybe<stagingmumbai_TransferStatus>;
+  status_in?: InputMaybe<Array<stagingmumbai_TransferStatus>>;
+  status_not_in?: InputMaybe<Array<stagingmumbai_TransferStatus>>;
+  routers?: InputMaybe<Array<Scalars['String']>>;
+  routers_not?: InputMaybe<Array<Scalars['String']>>;
+  routers_contains?: InputMaybe<Array<Scalars['String']>>;
+  routers_contains_nocase?: InputMaybe<Array<Scalars['String']>>;
+  routers_not_contains?: InputMaybe<Array<Scalars['String']>>;
+  routers_not_contains_nocase?: InputMaybe<Array<Scalars['String']>>;
+  routers_?: InputMaybe<stagingmumbai_Router_filter>;
+  originSender?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
+  originSender_not?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
+  originSender_in?: InputMaybe<Array<Scalars['stagingmumbai_Bytes']>>;
+  originSender_not_in?: InputMaybe<Array<Scalars['stagingmumbai_Bytes']>>;
+  originSender_contains?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
+  originSender_not_contains?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
+  transactingAsset?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
+  transactingAsset_not?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
+  transactingAsset_in?: InputMaybe<Array<Scalars['stagingmumbai_Bytes']>>;
+  transactingAsset_not_in?: InputMaybe<Array<Scalars['stagingmumbai_Bytes']>>;
+  transactingAsset_contains?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
+  transactingAsset_not_contains?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
+  transactingAmount?: InputMaybe<Scalars['BigInt']>;
+  transactingAmount_not?: InputMaybe<Scalars['BigInt']>;
+  transactingAmount_gt?: InputMaybe<Scalars['BigInt']>;
+  transactingAmount_lt?: InputMaybe<Scalars['BigInt']>;
+  transactingAmount_gte?: InputMaybe<Scalars['BigInt']>;
+  transactingAmount_lte?: InputMaybe<Scalars['BigInt']>;
+  transactingAmount_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  transactingAmount_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  localAsset?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
+  localAsset_not?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
+  localAsset_in?: InputMaybe<Array<Scalars['stagingmumbai_Bytes']>>;
+  localAsset_not_in?: InputMaybe<Array<Scalars['stagingmumbai_Bytes']>>;
+  localAsset_contains?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
+  localAsset_not_contains?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
+  localAmount?: InputMaybe<Scalars['BigInt']>;
+  localAmount_not?: InputMaybe<Scalars['BigInt']>;
+  localAmount_gt?: InputMaybe<Scalars['BigInt']>;
+  localAmount_lt?: InputMaybe<Scalars['BigInt']>;
+  localAmount_gte?: InputMaybe<Scalars['BigInt']>;
+  localAmount_lte?: InputMaybe<Scalars['BigInt']>;
+  localAmount_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  localAmount_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  sponsorVaultRelayerFee?: InputMaybe<Scalars['BigInt']>;
+  sponsorVaultRelayerFee_not?: InputMaybe<Scalars['BigInt']>;
+  sponsorVaultRelayerFee_gt?: InputMaybe<Scalars['BigInt']>;
+  sponsorVaultRelayerFee_lt?: InputMaybe<Scalars['BigInt']>;
+  sponsorVaultRelayerFee_gte?: InputMaybe<Scalars['BigInt']>;
+  sponsorVaultRelayerFee_lte?: InputMaybe<Scalars['BigInt']>;
+  sponsorVaultRelayerFee_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  sponsorVaultRelayerFee_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  executedCaller?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
+  executedCaller_not?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
+  executedCaller_in?: InputMaybe<Array<Scalars['stagingmumbai_Bytes']>>;
+  executedCaller_not_in?: InputMaybe<Array<Scalars['stagingmumbai_Bytes']>>;
+  executedCaller_contains?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
+  executedCaller_not_contains?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
+  executedTransactionHash?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
+  executedTransactionHash_not?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
+  executedTransactionHash_in?: InputMaybe<Array<Scalars['stagingmumbai_Bytes']>>;
+  executedTransactionHash_not_in?: InputMaybe<Array<Scalars['stagingmumbai_Bytes']>>;
+  executedTransactionHash_contains?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
+  executedTransactionHash_not_contains?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
+  executedTimestamp?: InputMaybe<Scalars['BigInt']>;
+  executedTimestamp_not?: InputMaybe<Scalars['BigInt']>;
+  executedTimestamp_gt?: InputMaybe<Scalars['BigInt']>;
+  executedTimestamp_lt?: InputMaybe<Scalars['BigInt']>;
+  executedTimestamp_gte?: InputMaybe<Scalars['BigInt']>;
+  executedTimestamp_lte?: InputMaybe<Scalars['BigInt']>;
+  executedTimestamp_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  executedTimestamp_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  executedGasPrice?: InputMaybe<Scalars['BigInt']>;
+  executedGasPrice_not?: InputMaybe<Scalars['BigInt']>;
+  executedGasPrice_gt?: InputMaybe<Scalars['BigInt']>;
+  executedGasPrice_lt?: InputMaybe<Scalars['BigInt']>;
+  executedGasPrice_gte?: InputMaybe<Scalars['BigInt']>;
+  executedGasPrice_lte?: InputMaybe<Scalars['BigInt']>;
+  executedGasPrice_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  executedGasPrice_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  executedGasLimit?: InputMaybe<Scalars['BigInt']>;
+  executedGasLimit_not?: InputMaybe<Scalars['BigInt']>;
+  executedGasLimit_gt?: InputMaybe<Scalars['BigInt']>;
+  executedGasLimit_lt?: InputMaybe<Scalars['BigInt']>;
+  executedGasLimit_gte?: InputMaybe<Scalars['BigInt']>;
+  executedGasLimit_lte?: InputMaybe<Scalars['BigInt']>;
+  executedGasLimit_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  executedGasLimit_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  executedBlockNumber?: InputMaybe<Scalars['BigInt']>;
+  executedBlockNumber_not?: InputMaybe<Scalars['BigInt']>;
+  executedBlockNumber_gt?: InputMaybe<Scalars['BigInt']>;
+  executedBlockNumber_lt?: InputMaybe<Scalars['BigInt']>;
+  executedBlockNumber_gte?: InputMaybe<Scalars['BigInt']>;
+  executedBlockNumber_lte?: InputMaybe<Scalars['BigInt']>;
+  executedBlockNumber_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  executedBlockNumber_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  reconciledCaller?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
+  reconciledCaller_not?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
+  reconciledCaller_in?: InputMaybe<Array<Scalars['stagingmumbai_Bytes']>>;
+  reconciledCaller_not_in?: InputMaybe<Array<Scalars['stagingmumbai_Bytes']>>;
+  reconciledCaller_contains?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
+  reconciledCaller_not_contains?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
+  reconciledTransactionHash?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
+  reconciledTransactionHash_not?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
+  reconciledTransactionHash_in?: InputMaybe<Array<Scalars['stagingmumbai_Bytes']>>;
+  reconciledTransactionHash_not_in?: InputMaybe<Array<Scalars['stagingmumbai_Bytes']>>;
+  reconciledTransactionHash_contains?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
+  reconciledTransactionHash_not_contains?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
+  reconciledTimestamp?: InputMaybe<Scalars['BigInt']>;
+  reconciledTimestamp_not?: InputMaybe<Scalars['BigInt']>;
+  reconciledTimestamp_gt?: InputMaybe<Scalars['BigInt']>;
+  reconciledTimestamp_lt?: InputMaybe<Scalars['BigInt']>;
+  reconciledTimestamp_gte?: InputMaybe<Scalars['BigInt']>;
+  reconciledTimestamp_lte?: InputMaybe<Scalars['BigInt']>;
+  reconciledTimestamp_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  reconciledTimestamp_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  reconciledGasPrice?: InputMaybe<Scalars['BigInt']>;
+  reconciledGasPrice_not?: InputMaybe<Scalars['BigInt']>;
+  reconciledGasPrice_gt?: InputMaybe<Scalars['BigInt']>;
+  reconciledGasPrice_lt?: InputMaybe<Scalars['BigInt']>;
+  reconciledGasPrice_gte?: InputMaybe<Scalars['BigInt']>;
+  reconciledGasPrice_lte?: InputMaybe<Scalars['BigInt']>;
+  reconciledGasPrice_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  reconciledGasPrice_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  reconciledGasLimit?: InputMaybe<Scalars['BigInt']>;
+  reconciledGasLimit_not?: InputMaybe<Scalars['BigInt']>;
+  reconciledGasLimit_gt?: InputMaybe<Scalars['BigInt']>;
+  reconciledGasLimit_lt?: InputMaybe<Scalars['BigInt']>;
+  reconciledGasLimit_gte?: InputMaybe<Scalars['BigInt']>;
+  reconciledGasLimit_lte?: InputMaybe<Scalars['BigInt']>;
+  reconciledGasLimit_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  reconciledGasLimit_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  reconciledBlockNumber?: InputMaybe<Scalars['BigInt']>;
+  reconciledBlockNumber_not?: InputMaybe<Scalars['BigInt']>;
+  reconciledBlockNumber_gt?: InputMaybe<Scalars['BigInt']>;
+  reconciledBlockNumber_lt?: InputMaybe<Scalars['BigInt']>;
+  reconciledBlockNumber_gte?: InputMaybe<Scalars['BigInt']>;
+  reconciledBlockNumber_lte?: InputMaybe<Scalars['BigInt']>;
+  reconciledBlockNumber_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  reconciledBlockNumber_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  /** Filter for the block changed event. */
+  _change_block?: InputMaybe<stagingmumbai_BlockChangedFilter>;
+};
+
+export type stagingmumbai_DestinationTransfer_orderBy =
+  | 'id'
+  | 'chainId'
+  | 'transferId'
+  | 'nonce'
+  | 'to'
+  | 'callData'
+  | 'originDomain'
+  | 'destinationDomain'
+  | 'agent'
+  | 'recovery'
+  | 'forceSlow'
+  | 'receiveLocal'
+  | 'callback'
+  | 'callbackFee'
+  | 'relayerFee'
+  | 'destinationMinOut'
+  | 'status'
+  | 'routers'
+  | 'originSender'
+  | 'transactingAsset'
+  | 'transactingAmount'
+  | 'localAsset'
+  | 'localAmount'
+  | 'sponsorVaultRelayerFee'
+  | 'executedCaller'
+  | 'executedTransactionHash'
+  | 'executedTimestamp'
+  | 'executedGasPrice'
+  | 'executedGasLimit'
+  | 'executedBlockNumber'
+  | 'reconciledCaller'
+  | 'reconciledTransactionHash'
+  | 'reconciledTimestamp'
+  | 'reconciledGasPrice'
+  | 'reconciledGasLimit'
+  | 'reconciledBlockNumber';
+
+/** Defines the order direction, either ascending or descending */
+export type stagingmumbai_OrderDirection =
+  | 'asc'
+  | 'desc';
+
+export type stagingmumbai_OriginMessage = {
+  id: Scalars['ID'];
+  transferId?: Maybe<Scalars['stagingmumbai_Bytes']>;
+  destinationDomain?: Maybe<Scalars['BigInt']>;
+  leaf?: Maybe<Scalars['stagingmumbai_Bytes']>;
+  index?: Maybe<Scalars['BigInt']>;
+  root?: Maybe<Scalars['stagingmumbai_Bytes']>;
+  message?: Maybe<Scalars['stagingmumbai_Bytes']>;
+  transactionHash?: Maybe<Scalars['stagingmumbai_Bytes']>;
+};
+
+export type stagingmumbai_OriginMessage_filter = {
+  id?: InputMaybe<Scalars['ID']>;
+  id_not?: InputMaybe<Scalars['ID']>;
+  id_gt?: InputMaybe<Scalars['ID']>;
+  id_lt?: InputMaybe<Scalars['ID']>;
+  id_gte?: InputMaybe<Scalars['ID']>;
+  id_lte?: InputMaybe<Scalars['ID']>;
+  id_in?: InputMaybe<Array<Scalars['ID']>>;
+  id_not_in?: InputMaybe<Array<Scalars['ID']>>;
+  transferId?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
+  transferId_not?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
+  transferId_in?: InputMaybe<Array<Scalars['stagingmumbai_Bytes']>>;
+  transferId_not_in?: InputMaybe<Array<Scalars['stagingmumbai_Bytes']>>;
+  transferId_contains?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
+  transferId_not_contains?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
+  destinationDomain?: InputMaybe<Scalars['BigInt']>;
+  destinationDomain_not?: InputMaybe<Scalars['BigInt']>;
+  destinationDomain_gt?: InputMaybe<Scalars['BigInt']>;
+  destinationDomain_lt?: InputMaybe<Scalars['BigInt']>;
+  destinationDomain_gte?: InputMaybe<Scalars['BigInt']>;
+  destinationDomain_lte?: InputMaybe<Scalars['BigInt']>;
+  destinationDomain_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  destinationDomain_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  leaf?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
+  leaf_not?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
+  leaf_in?: InputMaybe<Array<Scalars['stagingmumbai_Bytes']>>;
+  leaf_not_in?: InputMaybe<Array<Scalars['stagingmumbai_Bytes']>>;
+  leaf_contains?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
+  leaf_not_contains?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
+  index?: InputMaybe<Scalars['BigInt']>;
+  index_not?: InputMaybe<Scalars['BigInt']>;
+  index_gt?: InputMaybe<Scalars['BigInt']>;
+  index_lt?: InputMaybe<Scalars['BigInt']>;
+  index_gte?: InputMaybe<Scalars['BigInt']>;
+  index_lte?: InputMaybe<Scalars['BigInt']>;
+  index_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  index_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  root?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
+  root_not?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
+  root_in?: InputMaybe<Array<Scalars['stagingmumbai_Bytes']>>;
+  root_not_in?: InputMaybe<Array<Scalars['stagingmumbai_Bytes']>>;
+  root_contains?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
+  root_not_contains?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
+  message?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
+  message_not?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
+  message_in?: InputMaybe<Array<Scalars['stagingmumbai_Bytes']>>;
+  message_not_in?: InputMaybe<Array<Scalars['stagingmumbai_Bytes']>>;
+  message_contains?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
+  message_not_contains?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
+  transactionHash?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
+  transactionHash_not?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
+  transactionHash_in?: InputMaybe<Array<Scalars['stagingmumbai_Bytes']>>;
+  transactionHash_not_in?: InputMaybe<Array<Scalars['stagingmumbai_Bytes']>>;
+  transactionHash_contains?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
+  transactionHash_not_contains?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
+  /** Filter for the block changed event. */
+  _change_block?: InputMaybe<stagingmumbai_BlockChangedFilter>;
+};
+
+export type stagingmumbai_OriginMessage_orderBy =
+  | 'id'
+  | 'transferId'
+  | 'destinationDomain'
+  | 'leaf'
+  | 'index'
+  | 'root'
+  | 'message'
+  | 'transactionHash';
+
+export type stagingmumbai_OriginTransfer = {
+  id: Scalars['ID'];
+  chainId?: Maybe<Scalars['BigInt']>;
+  transferId?: Maybe<Scalars['stagingmumbai_Bytes']>;
+  nonce?: Maybe<Scalars['BigInt']>;
+  to?: Maybe<Scalars['stagingmumbai_Bytes']>;
+  callData?: Maybe<Scalars['stagingmumbai_Bytes']>;
+  originDomain?: Maybe<Scalars['BigInt']>;
+  destinationDomain?: Maybe<Scalars['BigInt']>;
+  agent?: Maybe<Scalars['stagingmumbai_Bytes']>;
+  recovery?: Maybe<Scalars['stagingmumbai_Bytes']>;
+  forceSlow?: Maybe<Scalars['Boolean']>;
+  receiveLocal?: Maybe<Scalars['Boolean']>;
+  callback?: Maybe<Scalars['stagingmumbai_Bytes']>;
+  callbackFee?: Maybe<Scalars['BigInt']>;
+  relayerFee?: Maybe<Scalars['BigInt']>;
+  destinationMinOut?: Maybe<Scalars['BigInt']>;
+  status?: Maybe<stagingmumbai_TransferStatus>;
+  originMinOut?: Maybe<Scalars['BigInt']>;
+  transactingAsset?: Maybe<Scalars['stagingmumbai_Bytes']>;
+  transactingAmount?: Maybe<Scalars['BigInt']>;
+  bridgedAsset?: Maybe<Scalars['stagingmumbai_Bytes']>;
+  bridgedAmount?: Maybe<Scalars['BigInt']>;
+  message?: Maybe<stagingmumbai_OriginMessage>;
+  caller?: Maybe<Scalars['stagingmumbai_Bytes']>;
+  transactionHash?: Maybe<Scalars['stagingmumbai_Bytes']>;
+  timestamp?: Maybe<Scalars['BigInt']>;
+  gasPrice?: Maybe<Scalars['BigInt']>;
+  gasLimit?: Maybe<Scalars['BigInt']>;
+  blockNumber?: Maybe<Scalars['BigInt']>;
+};
+
+export type stagingmumbai_OriginTransfer_filter = {
+  id?: InputMaybe<Scalars['ID']>;
+  id_not?: InputMaybe<Scalars['ID']>;
+  id_gt?: InputMaybe<Scalars['ID']>;
+  id_lt?: InputMaybe<Scalars['ID']>;
+  id_gte?: InputMaybe<Scalars['ID']>;
+  id_lte?: InputMaybe<Scalars['ID']>;
+  id_in?: InputMaybe<Array<Scalars['ID']>>;
+  id_not_in?: InputMaybe<Array<Scalars['ID']>>;
+  chainId?: InputMaybe<Scalars['BigInt']>;
+  chainId_not?: InputMaybe<Scalars['BigInt']>;
+  chainId_gt?: InputMaybe<Scalars['BigInt']>;
+  chainId_lt?: InputMaybe<Scalars['BigInt']>;
+  chainId_gte?: InputMaybe<Scalars['BigInt']>;
+  chainId_lte?: InputMaybe<Scalars['BigInt']>;
+  chainId_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  chainId_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  transferId?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
+  transferId_not?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
+  transferId_in?: InputMaybe<Array<Scalars['stagingmumbai_Bytes']>>;
+  transferId_not_in?: InputMaybe<Array<Scalars['stagingmumbai_Bytes']>>;
+  transferId_contains?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
+  transferId_not_contains?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
+  nonce?: InputMaybe<Scalars['BigInt']>;
+  nonce_not?: InputMaybe<Scalars['BigInt']>;
+  nonce_gt?: InputMaybe<Scalars['BigInt']>;
+  nonce_lt?: InputMaybe<Scalars['BigInt']>;
+  nonce_gte?: InputMaybe<Scalars['BigInt']>;
+  nonce_lte?: InputMaybe<Scalars['BigInt']>;
+  nonce_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  nonce_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  to?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
+  to_not?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
+  to_in?: InputMaybe<Array<Scalars['stagingmumbai_Bytes']>>;
+  to_not_in?: InputMaybe<Array<Scalars['stagingmumbai_Bytes']>>;
+  to_contains?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
+  to_not_contains?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
+  callData?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
+  callData_not?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
+  callData_in?: InputMaybe<Array<Scalars['stagingmumbai_Bytes']>>;
+  callData_not_in?: InputMaybe<Array<Scalars['stagingmumbai_Bytes']>>;
+  callData_contains?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
+  callData_not_contains?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
+  originDomain?: InputMaybe<Scalars['BigInt']>;
+  originDomain_not?: InputMaybe<Scalars['BigInt']>;
+  originDomain_gt?: InputMaybe<Scalars['BigInt']>;
+  originDomain_lt?: InputMaybe<Scalars['BigInt']>;
+  originDomain_gte?: InputMaybe<Scalars['BigInt']>;
+  originDomain_lte?: InputMaybe<Scalars['BigInt']>;
+  originDomain_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  originDomain_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  destinationDomain?: InputMaybe<Scalars['BigInt']>;
+  destinationDomain_not?: InputMaybe<Scalars['BigInt']>;
+  destinationDomain_gt?: InputMaybe<Scalars['BigInt']>;
+  destinationDomain_lt?: InputMaybe<Scalars['BigInt']>;
+  destinationDomain_gte?: InputMaybe<Scalars['BigInt']>;
+  destinationDomain_lte?: InputMaybe<Scalars['BigInt']>;
+  destinationDomain_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  destinationDomain_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  agent?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
+  agent_not?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
+  agent_in?: InputMaybe<Array<Scalars['stagingmumbai_Bytes']>>;
+  agent_not_in?: InputMaybe<Array<Scalars['stagingmumbai_Bytes']>>;
+  agent_contains?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
+  agent_not_contains?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
+  recovery?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
+  recovery_not?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
+  recovery_in?: InputMaybe<Array<Scalars['stagingmumbai_Bytes']>>;
+  recovery_not_in?: InputMaybe<Array<Scalars['stagingmumbai_Bytes']>>;
+  recovery_contains?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
+  recovery_not_contains?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
+  forceSlow?: InputMaybe<Scalars['Boolean']>;
+  forceSlow_not?: InputMaybe<Scalars['Boolean']>;
+  forceSlow_in?: InputMaybe<Array<Scalars['Boolean']>>;
+  forceSlow_not_in?: InputMaybe<Array<Scalars['Boolean']>>;
+  receiveLocal?: InputMaybe<Scalars['Boolean']>;
+  receiveLocal_not?: InputMaybe<Scalars['Boolean']>;
+  receiveLocal_in?: InputMaybe<Array<Scalars['Boolean']>>;
+  receiveLocal_not_in?: InputMaybe<Array<Scalars['Boolean']>>;
+  callback?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
+  callback_not?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
+  callback_in?: InputMaybe<Array<Scalars['stagingmumbai_Bytes']>>;
+  callback_not_in?: InputMaybe<Array<Scalars['stagingmumbai_Bytes']>>;
+  callback_contains?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
+  callback_not_contains?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
+  callbackFee?: InputMaybe<Scalars['BigInt']>;
+  callbackFee_not?: InputMaybe<Scalars['BigInt']>;
+  callbackFee_gt?: InputMaybe<Scalars['BigInt']>;
+  callbackFee_lt?: InputMaybe<Scalars['BigInt']>;
+  callbackFee_gte?: InputMaybe<Scalars['BigInt']>;
+  callbackFee_lte?: InputMaybe<Scalars['BigInt']>;
+  callbackFee_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  callbackFee_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  relayerFee?: InputMaybe<Scalars['BigInt']>;
+  relayerFee_not?: InputMaybe<Scalars['BigInt']>;
+  relayerFee_gt?: InputMaybe<Scalars['BigInt']>;
+  relayerFee_lt?: InputMaybe<Scalars['BigInt']>;
+  relayerFee_gte?: InputMaybe<Scalars['BigInt']>;
+  relayerFee_lte?: InputMaybe<Scalars['BigInt']>;
+  relayerFee_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  relayerFee_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  destinationMinOut?: InputMaybe<Scalars['BigInt']>;
+  destinationMinOut_not?: InputMaybe<Scalars['BigInt']>;
+  destinationMinOut_gt?: InputMaybe<Scalars['BigInt']>;
+  destinationMinOut_lt?: InputMaybe<Scalars['BigInt']>;
+  destinationMinOut_gte?: InputMaybe<Scalars['BigInt']>;
+  destinationMinOut_lte?: InputMaybe<Scalars['BigInt']>;
+  destinationMinOut_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  destinationMinOut_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  status?: InputMaybe<stagingmumbai_TransferStatus>;
+  status_not?: InputMaybe<stagingmumbai_TransferStatus>;
+  status_in?: InputMaybe<Array<stagingmumbai_TransferStatus>>;
+  status_not_in?: InputMaybe<Array<stagingmumbai_TransferStatus>>;
+  originMinOut?: InputMaybe<Scalars['BigInt']>;
+  originMinOut_not?: InputMaybe<Scalars['BigInt']>;
+  originMinOut_gt?: InputMaybe<Scalars['BigInt']>;
+  originMinOut_lt?: InputMaybe<Scalars['BigInt']>;
+  originMinOut_gte?: InputMaybe<Scalars['BigInt']>;
+  originMinOut_lte?: InputMaybe<Scalars['BigInt']>;
+  originMinOut_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  originMinOut_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  transactingAsset?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
+  transactingAsset_not?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
+  transactingAsset_in?: InputMaybe<Array<Scalars['stagingmumbai_Bytes']>>;
+  transactingAsset_not_in?: InputMaybe<Array<Scalars['stagingmumbai_Bytes']>>;
+  transactingAsset_contains?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
+  transactingAsset_not_contains?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
+  transactingAmount?: InputMaybe<Scalars['BigInt']>;
+  transactingAmount_not?: InputMaybe<Scalars['BigInt']>;
+  transactingAmount_gt?: InputMaybe<Scalars['BigInt']>;
+  transactingAmount_lt?: InputMaybe<Scalars['BigInt']>;
+  transactingAmount_gte?: InputMaybe<Scalars['BigInt']>;
+  transactingAmount_lte?: InputMaybe<Scalars['BigInt']>;
+  transactingAmount_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  transactingAmount_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  bridgedAsset?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
+  bridgedAsset_not?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
+  bridgedAsset_in?: InputMaybe<Array<Scalars['stagingmumbai_Bytes']>>;
+  bridgedAsset_not_in?: InputMaybe<Array<Scalars['stagingmumbai_Bytes']>>;
+  bridgedAsset_contains?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
+  bridgedAsset_not_contains?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
+  bridgedAmount?: InputMaybe<Scalars['BigInt']>;
+  bridgedAmount_not?: InputMaybe<Scalars['BigInt']>;
+  bridgedAmount_gt?: InputMaybe<Scalars['BigInt']>;
+  bridgedAmount_lt?: InputMaybe<Scalars['BigInt']>;
+  bridgedAmount_gte?: InputMaybe<Scalars['BigInt']>;
+  bridgedAmount_lte?: InputMaybe<Scalars['BigInt']>;
+  bridgedAmount_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  bridgedAmount_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  message?: InputMaybe<Scalars['String']>;
+  message_not?: InputMaybe<Scalars['String']>;
+  message_gt?: InputMaybe<Scalars['String']>;
+  message_lt?: InputMaybe<Scalars['String']>;
+  message_gte?: InputMaybe<Scalars['String']>;
+  message_lte?: InputMaybe<Scalars['String']>;
+  message_in?: InputMaybe<Array<Scalars['String']>>;
+  message_not_in?: InputMaybe<Array<Scalars['String']>>;
+  message_contains?: InputMaybe<Scalars['String']>;
+  message_contains_nocase?: InputMaybe<Scalars['String']>;
+  message_not_contains?: InputMaybe<Scalars['String']>;
+  message_not_contains_nocase?: InputMaybe<Scalars['String']>;
+  message_starts_with?: InputMaybe<Scalars['String']>;
+  message_starts_with_nocase?: InputMaybe<Scalars['String']>;
+  message_not_starts_with?: InputMaybe<Scalars['String']>;
+  message_not_starts_with_nocase?: InputMaybe<Scalars['String']>;
+  message_ends_with?: InputMaybe<Scalars['String']>;
+  message_ends_with_nocase?: InputMaybe<Scalars['String']>;
+  message_not_ends_with?: InputMaybe<Scalars['String']>;
+  message_not_ends_with_nocase?: InputMaybe<Scalars['String']>;
+  message_?: InputMaybe<stagingmumbai_OriginMessage_filter>;
+  caller?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
+  caller_not?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
+  caller_in?: InputMaybe<Array<Scalars['stagingmumbai_Bytes']>>;
+  caller_not_in?: InputMaybe<Array<Scalars['stagingmumbai_Bytes']>>;
+  caller_contains?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
+  caller_not_contains?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
+  transactionHash?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
+  transactionHash_not?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
+  transactionHash_in?: InputMaybe<Array<Scalars['stagingmumbai_Bytes']>>;
+  transactionHash_not_in?: InputMaybe<Array<Scalars['stagingmumbai_Bytes']>>;
+  transactionHash_contains?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
+  transactionHash_not_contains?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
+  timestamp?: InputMaybe<Scalars['BigInt']>;
+  timestamp_not?: InputMaybe<Scalars['BigInt']>;
+  timestamp_gt?: InputMaybe<Scalars['BigInt']>;
+  timestamp_lt?: InputMaybe<Scalars['BigInt']>;
+  timestamp_gte?: InputMaybe<Scalars['BigInt']>;
+  timestamp_lte?: InputMaybe<Scalars['BigInt']>;
+  timestamp_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  timestamp_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  gasPrice?: InputMaybe<Scalars['BigInt']>;
+  gasPrice_not?: InputMaybe<Scalars['BigInt']>;
+  gasPrice_gt?: InputMaybe<Scalars['BigInt']>;
+  gasPrice_lt?: InputMaybe<Scalars['BigInt']>;
+  gasPrice_gte?: InputMaybe<Scalars['BigInt']>;
+  gasPrice_lte?: InputMaybe<Scalars['BigInt']>;
+  gasPrice_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  gasPrice_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  gasLimit?: InputMaybe<Scalars['BigInt']>;
+  gasLimit_not?: InputMaybe<Scalars['BigInt']>;
+  gasLimit_gt?: InputMaybe<Scalars['BigInt']>;
+  gasLimit_lt?: InputMaybe<Scalars['BigInt']>;
+  gasLimit_gte?: InputMaybe<Scalars['BigInt']>;
+  gasLimit_lte?: InputMaybe<Scalars['BigInt']>;
+  gasLimit_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  gasLimit_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  blockNumber?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_not?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_gt?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_lt?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_gte?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_lte?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  blockNumber_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  /** Filter for the block changed event. */
+  _change_block?: InputMaybe<stagingmumbai_BlockChangedFilter>;
+};
+
+export type stagingmumbai_OriginTransfer_orderBy =
+  | 'id'
+  | 'chainId'
+  | 'transferId'
+  | 'nonce'
+  | 'to'
+  | 'callData'
+  | 'originDomain'
+  | 'destinationDomain'
+  | 'agent'
+  | 'recovery'
+  | 'forceSlow'
+  | 'receiveLocal'
+  | 'callback'
+  | 'callbackFee'
+  | 'relayerFee'
+  | 'destinationMinOut'
+  | 'status'
+  | 'originMinOut'
+  | 'transactingAsset'
+  | 'transactingAmount'
+  | 'bridgedAsset'
+  | 'bridgedAmount'
+  | 'message'
+  | 'caller'
+  | 'transactionHash'
+  | 'timestamp'
+  | 'gasPrice'
+  | 'gasLimit'
+  | 'blockNumber';
+
+export type stagingmumbai_Relayer = {
+  id: Scalars['ID'];
+  isActive: Scalars['Boolean'];
+  relayer?: Maybe<Scalars['stagingmumbai_Bytes']>;
+};
+
+export type stagingmumbai_Relayer_filter = {
+  id?: InputMaybe<Scalars['ID']>;
+  id_not?: InputMaybe<Scalars['ID']>;
+  id_gt?: InputMaybe<Scalars['ID']>;
+  id_lt?: InputMaybe<Scalars['ID']>;
+  id_gte?: InputMaybe<Scalars['ID']>;
+  id_lte?: InputMaybe<Scalars['ID']>;
+  id_in?: InputMaybe<Array<Scalars['ID']>>;
+  id_not_in?: InputMaybe<Array<Scalars['ID']>>;
+  isActive?: InputMaybe<Scalars['Boolean']>;
+  isActive_not?: InputMaybe<Scalars['Boolean']>;
+  isActive_in?: InputMaybe<Array<Scalars['Boolean']>>;
+  isActive_not_in?: InputMaybe<Array<Scalars['Boolean']>>;
+  relayer?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
+  relayer_not?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
+  relayer_in?: InputMaybe<Array<Scalars['stagingmumbai_Bytes']>>;
+  relayer_not_in?: InputMaybe<Array<Scalars['stagingmumbai_Bytes']>>;
+  relayer_contains?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
+  relayer_not_contains?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
+  /** Filter for the block changed event. */
+  _change_block?: InputMaybe<stagingmumbai_BlockChangedFilter>;
+};
+
+export type stagingmumbai_Relayer_orderBy =
+  | 'id'
+  | 'isActive'
+  | 'relayer';
+
+export type stagingmumbai_RootMessageProcessed = {
+  id: Scalars['ID'];
+  root?: Maybe<Scalars['stagingmumbai_Bytes']>;
+  caller?: Maybe<Scalars['stagingmumbai_Bytes']>;
+  transactionHash?: Maybe<Scalars['stagingmumbai_Bytes']>;
+  timestamp?: Maybe<Scalars['BigInt']>;
+  gasPrice?: Maybe<Scalars['BigInt']>;
+  gasLimit?: Maybe<Scalars['BigInt']>;
+  blockNumber?: Maybe<Scalars['BigInt']>;
+};
+
+export type stagingmumbai_RootMessageProcessed_filter = {
+  id?: InputMaybe<Scalars['ID']>;
+  id_not?: InputMaybe<Scalars['ID']>;
+  id_gt?: InputMaybe<Scalars['ID']>;
+  id_lt?: InputMaybe<Scalars['ID']>;
+  id_gte?: InputMaybe<Scalars['ID']>;
+  id_lte?: InputMaybe<Scalars['ID']>;
+  id_in?: InputMaybe<Array<Scalars['ID']>>;
+  id_not_in?: InputMaybe<Array<Scalars['ID']>>;
+  root?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
+  root_not?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
+  root_in?: InputMaybe<Array<Scalars['stagingmumbai_Bytes']>>;
+  root_not_in?: InputMaybe<Array<Scalars['stagingmumbai_Bytes']>>;
+  root_contains?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
+  root_not_contains?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
+  caller?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
+  caller_not?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
+  caller_in?: InputMaybe<Array<Scalars['stagingmumbai_Bytes']>>;
+  caller_not_in?: InputMaybe<Array<Scalars['stagingmumbai_Bytes']>>;
+  caller_contains?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
+  caller_not_contains?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
+  transactionHash?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
+  transactionHash_not?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
+  transactionHash_in?: InputMaybe<Array<Scalars['stagingmumbai_Bytes']>>;
+  transactionHash_not_in?: InputMaybe<Array<Scalars['stagingmumbai_Bytes']>>;
+  transactionHash_contains?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
+  transactionHash_not_contains?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
+  timestamp?: InputMaybe<Scalars['BigInt']>;
+  timestamp_not?: InputMaybe<Scalars['BigInt']>;
+  timestamp_gt?: InputMaybe<Scalars['BigInt']>;
+  timestamp_lt?: InputMaybe<Scalars['BigInt']>;
+  timestamp_gte?: InputMaybe<Scalars['BigInt']>;
+  timestamp_lte?: InputMaybe<Scalars['BigInt']>;
+  timestamp_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  timestamp_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  gasPrice?: InputMaybe<Scalars['BigInt']>;
+  gasPrice_not?: InputMaybe<Scalars['BigInt']>;
+  gasPrice_gt?: InputMaybe<Scalars['BigInt']>;
+  gasPrice_lt?: InputMaybe<Scalars['BigInt']>;
+  gasPrice_gte?: InputMaybe<Scalars['BigInt']>;
+  gasPrice_lte?: InputMaybe<Scalars['BigInt']>;
+  gasPrice_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  gasPrice_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  gasLimit?: InputMaybe<Scalars['BigInt']>;
+  gasLimit_not?: InputMaybe<Scalars['BigInt']>;
+  gasLimit_gt?: InputMaybe<Scalars['BigInt']>;
+  gasLimit_lt?: InputMaybe<Scalars['BigInt']>;
+  gasLimit_gte?: InputMaybe<Scalars['BigInt']>;
+  gasLimit_lte?: InputMaybe<Scalars['BigInt']>;
+  gasLimit_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  gasLimit_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  blockNumber?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_not?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_gt?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_lt?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_gte?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_lte?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  blockNumber_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  /** Filter for the block changed event. */
+  _change_block?: InputMaybe<stagingmumbai_BlockChangedFilter>;
+};
+
+export type stagingmumbai_RootMessageProcessed_orderBy =
+  | 'id'
+  | 'root'
+  | 'caller'
+  | 'transactionHash'
+  | 'timestamp'
+  | 'gasPrice'
+  | 'gasLimit'
+  | 'blockNumber';
+
+export type stagingmumbai_RootMessageSent = {
+  id: Scalars['ID'];
+  spokeDomain?: Maybe<Scalars['BigInt']>;
+  hubDomain?: Maybe<Scalars['BigInt']>;
+  root?: Maybe<Scalars['stagingmumbai_Bytes']>;
+  caller?: Maybe<Scalars['stagingmumbai_Bytes']>;
+  transactionHash?: Maybe<Scalars['stagingmumbai_Bytes']>;
+  timestamp?: Maybe<Scalars['BigInt']>;
+  gasPrice?: Maybe<Scalars['BigInt']>;
+  gasLimit?: Maybe<Scalars['BigInt']>;
+  blockNumber?: Maybe<Scalars['BigInt']>;
+};
+
+export type stagingmumbai_RootMessageSent_filter = {
+  id?: InputMaybe<Scalars['ID']>;
+  id_not?: InputMaybe<Scalars['ID']>;
+  id_gt?: InputMaybe<Scalars['ID']>;
+  id_lt?: InputMaybe<Scalars['ID']>;
+  id_gte?: InputMaybe<Scalars['ID']>;
+  id_lte?: InputMaybe<Scalars['ID']>;
+  id_in?: InputMaybe<Array<Scalars['ID']>>;
+  id_not_in?: InputMaybe<Array<Scalars['ID']>>;
+  spokeDomain?: InputMaybe<Scalars['BigInt']>;
+  spokeDomain_not?: InputMaybe<Scalars['BigInt']>;
+  spokeDomain_gt?: InputMaybe<Scalars['BigInt']>;
+  spokeDomain_lt?: InputMaybe<Scalars['BigInt']>;
+  spokeDomain_gte?: InputMaybe<Scalars['BigInt']>;
+  spokeDomain_lte?: InputMaybe<Scalars['BigInt']>;
+  spokeDomain_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  spokeDomain_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  hubDomain?: InputMaybe<Scalars['BigInt']>;
+  hubDomain_not?: InputMaybe<Scalars['BigInt']>;
+  hubDomain_gt?: InputMaybe<Scalars['BigInt']>;
+  hubDomain_lt?: InputMaybe<Scalars['BigInt']>;
+  hubDomain_gte?: InputMaybe<Scalars['BigInt']>;
+  hubDomain_lte?: InputMaybe<Scalars['BigInt']>;
+  hubDomain_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  hubDomain_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  root?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
+  root_not?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
+  root_in?: InputMaybe<Array<Scalars['stagingmumbai_Bytes']>>;
+  root_not_in?: InputMaybe<Array<Scalars['stagingmumbai_Bytes']>>;
+  root_contains?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
+  root_not_contains?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
+  caller?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
+  caller_not?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
+  caller_in?: InputMaybe<Array<Scalars['stagingmumbai_Bytes']>>;
+  caller_not_in?: InputMaybe<Array<Scalars['stagingmumbai_Bytes']>>;
+  caller_contains?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
+  caller_not_contains?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
+  transactionHash?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
+  transactionHash_not?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
+  transactionHash_in?: InputMaybe<Array<Scalars['stagingmumbai_Bytes']>>;
+  transactionHash_not_in?: InputMaybe<Array<Scalars['stagingmumbai_Bytes']>>;
+  transactionHash_contains?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
+  transactionHash_not_contains?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
+  timestamp?: InputMaybe<Scalars['BigInt']>;
+  timestamp_not?: InputMaybe<Scalars['BigInt']>;
+  timestamp_gt?: InputMaybe<Scalars['BigInt']>;
+  timestamp_lt?: InputMaybe<Scalars['BigInt']>;
+  timestamp_gte?: InputMaybe<Scalars['BigInt']>;
+  timestamp_lte?: InputMaybe<Scalars['BigInt']>;
+  timestamp_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  timestamp_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  gasPrice?: InputMaybe<Scalars['BigInt']>;
+  gasPrice_not?: InputMaybe<Scalars['BigInt']>;
+  gasPrice_gt?: InputMaybe<Scalars['BigInt']>;
+  gasPrice_lt?: InputMaybe<Scalars['BigInt']>;
+  gasPrice_gte?: InputMaybe<Scalars['BigInt']>;
+  gasPrice_lte?: InputMaybe<Scalars['BigInt']>;
+  gasPrice_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  gasPrice_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  gasLimit?: InputMaybe<Scalars['BigInt']>;
+  gasLimit_not?: InputMaybe<Scalars['BigInt']>;
+  gasLimit_gt?: InputMaybe<Scalars['BigInt']>;
+  gasLimit_lt?: InputMaybe<Scalars['BigInt']>;
+  gasLimit_gte?: InputMaybe<Scalars['BigInt']>;
+  gasLimit_lte?: InputMaybe<Scalars['BigInt']>;
+  gasLimit_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  gasLimit_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  blockNumber?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_not?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_gt?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_lt?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_gte?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_lte?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  blockNumber_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  /** Filter for the block changed event. */
+  _change_block?: InputMaybe<stagingmumbai_BlockChangedFilter>;
+};
+
+export type stagingmumbai_RootMessageSent_orderBy =
+  | 'id'
+  | 'spokeDomain'
+  | 'hubDomain'
+  | 'root'
+  | 'caller'
+  | 'transactionHash'
+  | 'timestamp'
+  | 'gasPrice'
+  | 'gasLimit'
+  | 'blockNumber';
+
+export type stagingmumbai_Router = {
+  id: Scalars['ID'];
+  isActive: Scalars['Boolean'];
+  owner?: Maybe<Scalars['stagingmumbai_Bytes']>;
+  recipient?: Maybe<Scalars['stagingmumbai_Bytes']>;
+  proposedOwner?: Maybe<Scalars['stagingmumbai_Bytes']>;
+  proposedTimestamp?: Maybe<Scalars['BigInt']>;
+  assetBalances: Array<stagingmumbai_AssetBalance>;
+};
+
+
+export type stagingmumbai_RouterassetBalancesArgs = {
+  skip?: InputMaybe<Scalars['Int']>;
+  first?: InputMaybe<Scalars['Int']>;
+  orderBy?: InputMaybe<stagingmumbai_AssetBalance_orderBy>;
+  orderDirection?: InputMaybe<stagingmumbai_OrderDirection>;
+  where?: InputMaybe<stagingmumbai_AssetBalance_filter>;
+};
+
+export type stagingmumbai_Router_filter = {
+  id?: InputMaybe<Scalars['ID']>;
+  id_not?: InputMaybe<Scalars['ID']>;
+  id_gt?: InputMaybe<Scalars['ID']>;
+  id_lt?: InputMaybe<Scalars['ID']>;
+  id_gte?: InputMaybe<Scalars['ID']>;
+  id_lte?: InputMaybe<Scalars['ID']>;
+  id_in?: InputMaybe<Array<Scalars['ID']>>;
+  id_not_in?: InputMaybe<Array<Scalars['ID']>>;
+  isActive?: InputMaybe<Scalars['Boolean']>;
+  isActive_not?: InputMaybe<Scalars['Boolean']>;
+  isActive_in?: InputMaybe<Array<Scalars['Boolean']>>;
+  isActive_not_in?: InputMaybe<Array<Scalars['Boolean']>>;
+  owner?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
+  owner_not?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
+  owner_in?: InputMaybe<Array<Scalars['stagingmumbai_Bytes']>>;
+  owner_not_in?: InputMaybe<Array<Scalars['stagingmumbai_Bytes']>>;
+  owner_contains?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
+  owner_not_contains?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
+  recipient?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
+  recipient_not?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
+  recipient_in?: InputMaybe<Array<Scalars['stagingmumbai_Bytes']>>;
+  recipient_not_in?: InputMaybe<Array<Scalars['stagingmumbai_Bytes']>>;
+  recipient_contains?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
+  recipient_not_contains?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
+  proposedOwner?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
+  proposedOwner_not?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
+  proposedOwner_in?: InputMaybe<Array<Scalars['stagingmumbai_Bytes']>>;
+  proposedOwner_not_in?: InputMaybe<Array<Scalars['stagingmumbai_Bytes']>>;
+  proposedOwner_contains?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
+  proposedOwner_not_contains?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
+  proposedTimestamp?: InputMaybe<Scalars['BigInt']>;
+  proposedTimestamp_not?: InputMaybe<Scalars['BigInt']>;
+  proposedTimestamp_gt?: InputMaybe<Scalars['BigInt']>;
+  proposedTimestamp_lt?: InputMaybe<Scalars['BigInt']>;
+  proposedTimestamp_gte?: InputMaybe<Scalars['BigInt']>;
+  proposedTimestamp_lte?: InputMaybe<Scalars['BigInt']>;
+  proposedTimestamp_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  proposedTimestamp_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  assetBalances_?: InputMaybe<stagingmumbai_AssetBalance_filter>;
+  /** Filter for the block changed event. */
+  _change_block?: InputMaybe<stagingmumbai_BlockChangedFilter>;
+};
+
+export type stagingmumbai_Router_orderBy =
+  | 'id'
+  | 'isActive'
+  | 'owner'
+  | 'recipient'
+  | 'proposedOwner'
+  | 'proposedTimestamp'
+  | 'assetBalances';
+
+export type stagingmumbai_Setting = {
+  id: Scalars['ID'];
+  maxRoutersPerTransfer: Scalars['BigInt'];
+  caller: Scalars['stagingmumbai_Bytes'];
+};
+
+export type stagingmumbai_Setting_filter = {
+  id?: InputMaybe<Scalars['ID']>;
+  id_not?: InputMaybe<Scalars['ID']>;
+  id_gt?: InputMaybe<Scalars['ID']>;
+  id_lt?: InputMaybe<Scalars['ID']>;
+  id_gte?: InputMaybe<Scalars['ID']>;
+  id_lte?: InputMaybe<Scalars['ID']>;
+  id_in?: InputMaybe<Array<Scalars['ID']>>;
+  id_not_in?: InputMaybe<Array<Scalars['ID']>>;
+  maxRoutersPerTransfer?: InputMaybe<Scalars['BigInt']>;
+  maxRoutersPerTransfer_not?: InputMaybe<Scalars['BigInt']>;
+  maxRoutersPerTransfer_gt?: InputMaybe<Scalars['BigInt']>;
+  maxRoutersPerTransfer_lt?: InputMaybe<Scalars['BigInt']>;
+  maxRoutersPerTransfer_gte?: InputMaybe<Scalars['BigInt']>;
+  maxRoutersPerTransfer_lte?: InputMaybe<Scalars['BigInt']>;
+  maxRoutersPerTransfer_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  maxRoutersPerTransfer_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  caller?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
+  caller_not?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
+  caller_in?: InputMaybe<Array<Scalars['stagingmumbai_Bytes']>>;
+  caller_not_in?: InputMaybe<Array<Scalars['stagingmumbai_Bytes']>>;
+  caller_contains?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
+  caller_not_contains?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
+  /** Filter for the block changed event. */
+  _change_block?: InputMaybe<stagingmumbai_BlockChangedFilter>;
+};
+
+export type stagingmumbai_Setting_orderBy =
+  | 'id'
+  | 'maxRoutersPerTransfer'
+  | 'caller';
+
+export type stagingmumbai_SponsorVault = {
+  id: Scalars['ID'];
+  sponsorVault: Scalars['stagingmumbai_Bytes'];
+};
+
+export type stagingmumbai_SponsorVault_filter = {
+  id?: InputMaybe<Scalars['ID']>;
+  id_not?: InputMaybe<Scalars['ID']>;
+  id_gt?: InputMaybe<Scalars['ID']>;
+  id_lt?: InputMaybe<Scalars['ID']>;
+  id_gte?: InputMaybe<Scalars['ID']>;
+  id_lte?: InputMaybe<Scalars['ID']>;
+  id_in?: InputMaybe<Array<Scalars['ID']>>;
+  id_not_in?: InputMaybe<Array<Scalars['ID']>>;
+  sponsorVault?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
+  sponsorVault_not?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
+  sponsorVault_in?: InputMaybe<Array<Scalars['stagingmumbai_Bytes']>>;
+  sponsorVault_not_in?: InputMaybe<Array<Scalars['stagingmumbai_Bytes']>>;
+  sponsorVault_contains?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
+  sponsorVault_not_contains?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
+  /** Filter for the block changed event. */
+  _change_block?: InputMaybe<stagingmumbai_BlockChangedFilter>;
+};
+
+export type stagingmumbai_SponsorVault_orderBy =
+  | 'id'
+  | 'sponsorVault';
+
+export type stagingmumbai_StableSwap = {
+  id: Scalars['ID'];
+  canonicalId: Scalars['stagingmumbai_Bytes'];
+  domain?: Maybe<Scalars['BigInt']>;
+  swapPool: Scalars['stagingmumbai_Bytes'];
+};
+
+export type stagingmumbai_StableSwap_filter = {
+  id?: InputMaybe<Scalars['ID']>;
+  id_not?: InputMaybe<Scalars['ID']>;
+  id_gt?: InputMaybe<Scalars['ID']>;
+  id_lt?: InputMaybe<Scalars['ID']>;
+  id_gte?: InputMaybe<Scalars['ID']>;
+  id_lte?: InputMaybe<Scalars['ID']>;
+  id_in?: InputMaybe<Array<Scalars['ID']>>;
+  id_not_in?: InputMaybe<Array<Scalars['ID']>>;
+  canonicalId?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
+  canonicalId_not?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
+  canonicalId_in?: InputMaybe<Array<Scalars['stagingmumbai_Bytes']>>;
+  canonicalId_not_in?: InputMaybe<Array<Scalars['stagingmumbai_Bytes']>>;
+  canonicalId_contains?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
+  canonicalId_not_contains?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
+  domain?: InputMaybe<Scalars['BigInt']>;
+  domain_not?: InputMaybe<Scalars['BigInt']>;
+  domain_gt?: InputMaybe<Scalars['BigInt']>;
+  domain_lt?: InputMaybe<Scalars['BigInt']>;
+  domain_gte?: InputMaybe<Scalars['BigInt']>;
+  domain_lte?: InputMaybe<Scalars['BigInt']>;
+  domain_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  domain_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  swapPool?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
+  swapPool_not?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
+  swapPool_in?: InputMaybe<Array<Scalars['stagingmumbai_Bytes']>>;
+  swapPool_not_in?: InputMaybe<Array<Scalars['stagingmumbai_Bytes']>>;
+  swapPool_contains?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
+  swapPool_not_contains?: InputMaybe<Scalars['stagingmumbai_Bytes']>;
+  /** Filter for the block changed event. */
+  _change_block?: InputMaybe<stagingmumbai_BlockChangedFilter>;
+};
+
+export type stagingmumbai_StableSwap_orderBy =
+  | 'id'
+  | 'canonicalId'
+  | 'domain'
+  | 'swapPool';
+
+export type stagingmumbai_TransferStatus =
+  | 'XCalled'
+  | 'Executed'
+  | 'Reconciled'
+  | 'CompletedSlow'
+  | 'CompletedFast';
+
+export type stagingmumbai__Block_ = {
+  /** The hash of the block */
+  hash?: Maybe<Scalars['stagingmumbai_Bytes']>;
+  /** The block number */
+  number: Scalars['Int'];
+  /** Integer representation of the timestamp stored in blocks for the chain */
+  timestamp?: Maybe<Scalars['Int']>;
+};
+
+/** The type for the top-level _meta field */
+export type stagingmumbai__Meta_ = {
+  /**
+   * Information about a specific subgraph block. The hash of the block
+   * will be null if the _meta field has a block constraint that asks for
+   * a block number. It will be filled if the _meta field has no block constraint
+   * and therefore asks for the latest  block
+   *
+   */
+  block: stagingmumbai__Block_;
   /** The deployment ID */
   deployment: Scalars['String'];
   /** If `true`, the subgraph encountered indexing errors at some past block */
@@ -19117,6 +17674,1450 @@ export type stagingoptimismgoerli__Meta_ = {
   hasIndexingErrors: Scalars['Boolean'];
 };
 
+export type staginggoerli_AggregateRoot = {
+  id: Scalars['ID'];
+  root: Scalars['staginggoerli_Bytes'];
+};
+
+export type staginggoerli_AggregateRoot_filter = {
+  id?: InputMaybe<Scalars['ID']>;
+  id_not?: InputMaybe<Scalars['ID']>;
+  id_gt?: InputMaybe<Scalars['ID']>;
+  id_lt?: InputMaybe<Scalars['ID']>;
+  id_gte?: InputMaybe<Scalars['ID']>;
+  id_lte?: InputMaybe<Scalars['ID']>;
+  id_in?: InputMaybe<Array<Scalars['ID']>>;
+  id_not_in?: InputMaybe<Array<Scalars['ID']>>;
+  root?: InputMaybe<Scalars['staginggoerli_Bytes']>;
+  root_not?: InputMaybe<Scalars['staginggoerli_Bytes']>;
+  root_in?: InputMaybe<Array<Scalars['staginggoerli_Bytes']>>;
+  root_not_in?: InputMaybe<Array<Scalars['staginggoerli_Bytes']>>;
+  root_contains?: InputMaybe<Scalars['staginggoerli_Bytes']>;
+  root_not_contains?: InputMaybe<Scalars['staginggoerli_Bytes']>;
+  /** Filter for the block changed event. */
+  _change_block?: InputMaybe<staginggoerli_BlockChangedFilter>;
+};
+
+export type staginggoerli_AggregateRoot_orderBy =
+  | 'id'
+  | 'root';
+
+export type staginggoerli_Asset = {
+  id: Scalars['ID'];
+  key?: Maybe<Scalars['staginggoerli_Bytes']>;
+  local: Scalars['staginggoerli_Bytes'];
+  adoptedAsset: Scalars['staginggoerli_Bytes'];
+  canonicalId: Scalars['staginggoerli_Bytes'];
+  canonicalDomain: Scalars['BigInt'];
+  blockNumber: Scalars['BigInt'];
+};
+
+export type staginggoerli_AssetBalance = {
+  id: Scalars['ID'];
+  amount: Scalars['BigInt'];
+  router: staginggoerli_Router;
+  asset: staginggoerli_Asset;
+};
+
+export type staginggoerli_AssetBalance_filter = {
+  id?: InputMaybe<Scalars['ID']>;
+  id_not?: InputMaybe<Scalars['ID']>;
+  id_gt?: InputMaybe<Scalars['ID']>;
+  id_lt?: InputMaybe<Scalars['ID']>;
+  id_gte?: InputMaybe<Scalars['ID']>;
+  id_lte?: InputMaybe<Scalars['ID']>;
+  id_in?: InputMaybe<Array<Scalars['ID']>>;
+  id_not_in?: InputMaybe<Array<Scalars['ID']>>;
+  amount?: InputMaybe<Scalars['BigInt']>;
+  amount_not?: InputMaybe<Scalars['BigInt']>;
+  amount_gt?: InputMaybe<Scalars['BigInt']>;
+  amount_lt?: InputMaybe<Scalars['BigInt']>;
+  amount_gte?: InputMaybe<Scalars['BigInt']>;
+  amount_lte?: InputMaybe<Scalars['BigInt']>;
+  amount_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  amount_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  router?: InputMaybe<Scalars['String']>;
+  router_not?: InputMaybe<Scalars['String']>;
+  router_gt?: InputMaybe<Scalars['String']>;
+  router_lt?: InputMaybe<Scalars['String']>;
+  router_gte?: InputMaybe<Scalars['String']>;
+  router_lte?: InputMaybe<Scalars['String']>;
+  router_in?: InputMaybe<Array<Scalars['String']>>;
+  router_not_in?: InputMaybe<Array<Scalars['String']>>;
+  router_contains?: InputMaybe<Scalars['String']>;
+  router_contains_nocase?: InputMaybe<Scalars['String']>;
+  router_not_contains?: InputMaybe<Scalars['String']>;
+  router_not_contains_nocase?: InputMaybe<Scalars['String']>;
+  router_starts_with?: InputMaybe<Scalars['String']>;
+  router_starts_with_nocase?: InputMaybe<Scalars['String']>;
+  router_not_starts_with?: InputMaybe<Scalars['String']>;
+  router_not_starts_with_nocase?: InputMaybe<Scalars['String']>;
+  router_ends_with?: InputMaybe<Scalars['String']>;
+  router_ends_with_nocase?: InputMaybe<Scalars['String']>;
+  router_not_ends_with?: InputMaybe<Scalars['String']>;
+  router_not_ends_with_nocase?: InputMaybe<Scalars['String']>;
+  router_?: InputMaybe<staginggoerli_Router_filter>;
+  asset?: InputMaybe<Scalars['String']>;
+  asset_not?: InputMaybe<Scalars['String']>;
+  asset_gt?: InputMaybe<Scalars['String']>;
+  asset_lt?: InputMaybe<Scalars['String']>;
+  asset_gte?: InputMaybe<Scalars['String']>;
+  asset_lte?: InputMaybe<Scalars['String']>;
+  asset_in?: InputMaybe<Array<Scalars['String']>>;
+  asset_not_in?: InputMaybe<Array<Scalars['String']>>;
+  asset_contains?: InputMaybe<Scalars['String']>;
+  asset_contains_nocase?: InputMaybe<Scalars['String']>;
+  asset_not_contains?: InputMaybe<Scalars['String']>;
+  asset_not_contains_nocase?: InputMaybe<Scalars['String']>;
+  asset_starts_with?: InputMaybe<Scalars['String']>;
+  asset_starts_with_nocase?: InputMaybe<Scalars['String']>;
+  asset_not_starts_with?: InputMaybe<Scalars['String']>;
+  asset_not_starts_with_nocase?: InputMaybe<Scalars['String']>;
+  asset_ends_with?: InputMaybe<Scalars['String']>;
+  asset_ends_with_nocase?: InputMaybe<Scalars['String']>;
+  asset_not_ends_with?: InputMaybe<Scalars['String']>;
+  asset_not_ends_with_nocase?: InputMaybe<Scalars['String']>;
+  asset_?: InputMaybe<staginggoerli_Asset_filter>;
+  /** Filter for the block changed event. */
+  _change_block?: InputMaybe<staginggoerli_BlockChangedFilter>;
+};
+
+export type staginggoerli_AssetBalance_orderBy =
+  | 'id'
+  | 'amount'
+  | 'router'
+  | 'asset';
+
+export type staginggoerli_Asset_filter = {
+  id?: InputMaybe<Scalars['ID']>;
+  id_not?: InputMaybe<Scalars['ID']>;
+  id_gt?: InputMaybe<Scalars['ID']>;
+  id_lt?: InputMaybe<Scalars['ID']>;
+  id_gte?: InputMaybe<Scalars['ID']>;
+  id_lte?: InputMaybe<Scalars['ID']>;
+  id_in?: InputMaybe<Array<Scalars['ID']>>;
+  id_not_in?: InputMaybe<Array<Scalars['ID']>>;
+  key?: InputMaybe<Scalars['staginggoerli_Bytes']>;
+  key_not?: InputMaybe<Scalars['staginggoerli_Bytes']>;
+  key_in?: InputMaybe<Array<Scalars['staginggoerli_Bytes']>>;
+  key_not_in?: InputMaybe<Array<Scalars['staginggoerli_Bytes']>>;
+  key_contains?: InputMaybe<Scalars['staginggoerli_Bytes']>;
+  key_not_contains?: InputMaybe<Scalars['staginggoerli_Bytes']>;
+  local?: InputMaybe<Scalars['staginggoerli_Bytes']>;
+  local_not?: InputMaybe<Scalars['staginggoerli_Bytes']>;
+  local_in?: InputMaybe<Array<Scalars['staginggoerli_Bytes']>>;
+  local_not_in?: InputMaybe<Array<Scalars['staginggoerli_Bytes']>>;
+  local_contains?: InputMaybe<Scalars['staginggoerli_Bytes']>;
+  local_not_contains?: InputMaybe<Scalars['staginggoerli_Bytes']>;
+  adoptedAsset?: InputMaybe<Scalars['staginggoerli_Bytes']>;
+  adoptedAsset_not?: InputMaybe<Scalars['staginggoerli_Bytes']>;
+  adoptedAsset_in?: InputMaybe<Array<Scalars['staginggoerli_Bytes']>>;
+  adoptedAsset_not_in?: InputMaybe<Array<Scalars['staginggoerli_Bytes']>>;
+  adoptedAsset_contains?: InputMaybe<Scalars['staginggoerli_Bytes']>;
+  adoptedAsset_not_contains?: InputMaybe<Scalars['staginggoerli_Bytes']>;
+  canonicalId?: InputMaybe<Scalars['staginggoerli_Bytes']>;
+  canonicalId_not?: InputMaybe<Scalars['staginggoerli_Bytes']>;
+  canonicalId_in?: InputMaybe<Array<Scalars['staginggoerli_Bytes']>>;
+  canonicalId_not_in?: InputMaybe<Array<Scalars['staginggoerli_Bytes']>>;
+  canonicalId_contains?: InputMaybe<Scalars['staginggoerli_Bytes']>;
+  canonicalId_not_contains?: InputMaybe<Scalars['staginggoerli_Bytes']>;
+  canonicalDomain?: InputMaybe<Scalars['BigInt']>;
+  canonicalDomain_not?: InputMaybe<Scalars['BigInt']>;
+  canonicalDomain_gt?: InputMaybe<Scalars['BigInt']>;
+  canonicalDomain_lt?: InputMaybe<Scalars['BigInt']>;
+  canonicalDomain_gte?: InputMaybe<Scalars['BigInt']>;
+  canonicalDomain_lte?: InputMaybe<Scalars['BigInt']>;
+  canonicalDomain_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  canonicalDomain_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  blockNumber?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_not?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_gt?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_lt?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_gte?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_lte?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  blockNumber_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  /** Filter for the block changed event. */
+  _change_block?: InputMaybe<staginggoerli_BlockChangedFilter>;
+};
+
+export type staginggoerli_Asset_orderBy =
+  | 'id'
+  | 'key'
+  | 'local'
+  | 'adoptedAsset'
+  | 'canonicalId'
+  | 'canonicalDomain'
+  | 'blockNumber';
+
+export type staginggoerli_BlockChangedFilter = {
+  number_gte: Scalars['Int'];
+};
+
+export type staginggoerli_Block_height = {
+  hash?: InputMaybe<Scalars['staginggoerli_Bytes']>;
+  number?: InputMaybe<Scalars['Int']>;
+  number_gte?: InputMaybe<Scalars['Int']>;
+};
+
+export type staginggoerli_ConnectorMeta = {
+  id: Scalars['ID'];
+  spokeDomain: Scalars['BigInt'];
+  hubDomain: Scalars['BigInt'];
+  amb: Scalars['staginggoerli_Bytes'];
+  rootManager: Scalars['staginggoerli_Bytes'];
+  mirrorConnector: Scalars['staginggoerli_Bytes'];
+};
+
+export type staginggoerli_ConnectorMeta_filter = {
+  id?: InputMaybe<Scalars['ID']>;
+  id_not?: InputMaybe<Scalars['ID']>;
+  id_gt?: InputMaybe<Scalars['ID']>;
+  id_lt?: InputMaybe<Scalars['ID']>;
+  id_gte?: InputMaybe<Scalars['ID']>;
+  id_lte?: InputMaybe<Scalars['ID']>;
+  id_in?: InputMaybe<Array<Scalars['ID']>>;
+  id_not_in?: InputMaybe<Array<Scalars['ID']>>;
+  spokeDomain?: InputMaybe<Scalars['BigInt']>;
+  spokeDomain_not?: InputMaybe<Scalars['BigInt']>;
+  spokeDomain_gt?: InputMaybe<Scalars['BigInt']>;
+  spokeDomain_lt?: InputMaybe<Scalars['BigInt']>;
+  spokeDomain_gte?: InputMaybe<Scalars['BigInt']>;
+  spokeDomain_lte?: InputMaybe<Scalars['BigInt']>;
+  spokeDomain_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  spokeDomain_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  hubDomain?: InputMaybe<Scalars['BigInt']>;
+  hubDomain_not?: InputMaybe<Scalars['BigInt']>;
+  hubDomain_gt?: InputMaybe<Scalars['BigInt']>;
+  hubDomain_lt?: InputMaybe<Scalars['BigInt']>;
+  hubDomain_gte?: InputMaybe<Scalars['BigInt']>;
+  hubDomain_lte?: InputMaybe<Scalars['BigInt']>;
+  hubDomain_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  hubDomain_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  amb?: InputMaybe<Scalars['staginggoerli_Bytes']>;
+  amb_not?: InputMaybe<Scalars['staginggoerli_Bytes']>;
+  amb_in?: InputMaybe<Array<Scalars['staginggoerli_Bytes']>>;
+  amb_not_in?: InputMaybe<Array<Scalars['staginggoerli_Bytes']>>;
+  amb_contains?: InputMaybe<Scalars['staginggoerli_Bytes']>;
+  amb_not_contains?: InputMaybe<Scalars['staginggoerli_Bytes']>;
+  rootManager?: InputMaybe<Scalars['staginggoerli_Bytes']>;
+  rootManager_not?: InputMaybe<Scalars['staginggoerli_Bytes']>;
+  rootManager_in?: InputMaybe<Array<Scalars['staginggoerli_Bytes']>>;
+  rootManager_not_in?: InputMaybe<Array<Scalars['staginggoerli_Bytes']>>;
+  rootManager_contains?: InputMaybe<Scalars['staginggoerli_Bytes']>;
+  rootManager_not_contains?: InputMaybe<Scalars['staginggoerli_Bytes']>;
+  mirrorConnector?: InputMaybe<Scalars['staginggoerli_Bytes']>;
+  mirrorConnector_not?: InputMaybe<Scalars['staginggoerli_Bytes']>;
+  mirrorConnector_in?: InputMaybe<Array<Scalars['staginggoerli_Bytes']>>;
+  mirrorConnector_not_in?: InputMaybe<Array<Scalars['staginggoerli_Bytes']>>;
+  mirrorConnector_contains?: InputMaybe<Scalars['staginggoerli_Bytes']>;
+  mirrorConnector_not_contains?: InputMaybe<Scalars['staginggoerli_Bytes']>;
+  /** Filter for the block changed event. */
+  _change_block?: InputMaybe<staginggoerli_BlockChangedFilter>;
+};
+
+export type staginggoerli_ConnectorMeta_orderBy =
+  | 'id'
+  | 'spokeDomain'
+  | 'hubDomain'
+  | 'amb'
+  | 'rootManager'
+  | 'mirrorConnector';
+
+export type staginggoerli_DestinationMessage = {
+  id: Scalars['ID'];
+  leaf?: Maybe<Scalars['staginggoerli_Bytes']>;
+  processed?: Maybe<Scalars['Boolean']>;
+  returnData?: Maybe<Scalars['staginggoerli_Bytes']>;
+  transactionHash?: Maybe<Scalars['staginggoerli_Bytes']>;
+};
+
+export type staginggoerli_DestinationMessage_filter = {
+  id?: InputMaybe<Scalars['ID']>;
+  id_not?: InputMaybe<Scalars['ID']>;
+  id_gt?: InputMaybe<Scalars['ID']>;
+  id_lt?: InputMaybe<Scalars['ID']>;
+  id_gte?: InputMaybe<Scalars['ID']>;
+  id_lte?: InputMaybe<Scalars['ID']>;
+  id_in?: InputMaybe<Array<Scalars['ID']>>;
+  id_not_in?: InputMaybe<Array<Scalars['ID']>>;
+  leaf?: InputMaybe<Scalars['staginggoerli_Bytes']>;
+  leaf_not?: InputMaybe<Scalars['staginggoerli_Bytes']>;
+  leaf_in?: InputMaybe<Array<Scalars['staginggoerli_Bytes']>>;
+  leaf_not_in?: InputMaybe<Array<Scalars['staginggoerli_Bytes']>>;
+  leaf_contains?: InputMaybe<Scalars['staginggoerli_Bytes']>;
+  leaf_not_contains?: InputMaybe<Scalars['staginggoerli_Bytes']>;
+  processed?: InputMaybe<Scalars['Boolean']>;
+  processed_not?: InputMaybe<Scalars['Boolean']>;
+  processed_in?: InputMaybe<Array<Scalars['Boolean']>>;
+  processed_not_in?: InputMaybe<Array<Scalars['Boolean']>>;
+  returnData?: InputMaybe<Scalars['staginggoerli_Bytes']>;
+  returnData_not?: InputMaybe<Scalars['staginggoerli_Bytes']>;
+  returnData_in?: InputMaybe<Array<Scalars['staginggoerli_Bytes']>>;
+  returnData_not_in?: InputMaybe<Array<Scalars['staginggoerli_Bytes']>>;
+  returnData_contains?: InputMaybe<Scalars['staginggoerli_Bytes']>;
+  returnData_not_contains?: InputMaybe<Scalars['staginggoerli_Bytes']>;
+  transactionHash?: InputMaybe<Scalars['staginggoerli_Bytes']>;
+  transactionHash_not?: InputMaybe<Scalars['staginggoerli_Bytes']>;
+  transactionHash_in?: InputMaybe<Array<Scalars['staginggoerli_Bytes']>>;
+  transactionHash_not_in?: InputMaybe<Array<Scalars['staginggoerli_Bytes']>>;
+  transactionHash_contains?: InputMaybe<Scalars['staginggoerli_Bytes']>;
+  transactionHash_not_contains?: InputMaybe<Scalars['staginggoerli_Bytes']>;
+  /** Filter for the block changed event. */
+  _change_block?: InputMaybe<staginggoerli_BlockChangedFilter>;
+};
+
+export type staginggoerli_DestinationMessage_orderBy =
+  | 'id'
+  | 'leaf'
+  | 'processed'
+  | 'returnData'
+  | 'transactionHash';
+
+export type staginggoerli_DestinationTransfer = {
+  id: Scalars['ID'];
+  chainId?: Maybe<Scalars['BigInt']>;
+  transferId?: Maybe<Scalars['staginggoerli_Bytes']>;
+  nonce?: Maybe<Scalars['BigInt']>;
+  to?: Maybe<Scalars['staginggoerli_Bytes']>;
+  callData?: Maybe<Scalars['staginggoerli_Bytes']>;
+  originDomain?: Maybe<Scalars['BigInt']>;
+  destinationDomain?: Maybe<Scalars['BigInt']>;
+  agent?: Maybe<Scalars['staginggoerli_Bytes']>;
+  recovery?: Maybe<Scalars['staginggoerli_Bytes']>;
+  forceSlow?: Maybe<Scalars['Boolean']>;
+  receiveLocal?: Maybe<Scalars['Boolean']>;
+  callback?: Maybe<Scalars['staginggoerli_Bytes']>;
+  callbackFee?: Maybe<Scalars['BigInt']>;
+  relayerFee?: Maybe<Scalars['BigInt']>;
+  destinationMinOut?: Maybe<Scalars['BigInt']>;
+  status?: Maybe<staginggoerli_TransferStatus>;
+  routers?: Maybe<Array<staginggoerli_Router>>;
+  originSender?: Maybe<Scalars['staginggoerli_Bytes']>;
+  transactingAsset?: Maybe<Scalars['staginggoerli_Bytes']>;
+  transactingAmount?: Maybe<Scalars['BigInt']>;
+  localAsset?: Maybe<Scalars['staginggoerli_Bytes']>;
+  localAmount?: Maybe<Scalars['BigInt']>;
+  sponsorVaultRelayerFee?: Maybe<Scalars['BigInt']>;
+  executedCaller?: Maybe<Scalars['staginggoerli_Bytes']>;
+  executedTransactionHash?: Maybe<Scalars['staginggoerli_Bytes']>;
+  executedTimestamp?: Maybe<Scalars['BigInt']>;
+  executedGasPrice?: Maybe<Scalars['BigInt']>;
+  executedGasLimit?: Maybe<Scalars['BigInt']>;
+  executedBlockNumber?: Maybe<Scalars['BigInt']>;
+  reconciledCaller?: Maybe<Scalars['staginggoerli_Bytes']>;
+  reconciledTransactionHash?: Maybe<Scalars['staginggoerli_Bytes']>;
+  reconciledTimestamp?: Maybe<Scalars['BigInt']>;
+  reconciledGasPrice?: Maybe<Scalars['BigInt']>;
+  reconciledGasLimit?: Maybe<Scalars['BigInt']>;
+  reconciledBlockNumber?: Maybe<Scalars['BigInt']>;
+};
+
+
+export type staginggoerli_DestinationTransferroutersArgs = {
+  skip?: InputMaybe<Scalars['Int']>;
+  first?: InputMaybe<Scalars['Int']>;
+  orderBy?: InputMaybe<staginggoerli_Router_orderBy>;
+  orderDirection?: InputMaybe<staginggoerli_OrderDirection>;
+  where?: InputMaybe<staginggoerli_Router_filter>;
+};
+
+export type staginggoerli_DestinationTransfer_filter = {
+  id?: InputMaybe<Scalars['ID']>;
+  id_not?: InputMaybe<Scalars['ID']>;
+  id_gt?: InputMaybe<Scalars['ID']>;
+  id_lt?: InputMaybe<Scalars['ID']>;
+  id_gte?: InputMaybe<Scalars['ID']>;
+  id_lte?: InputMaybe<Scalars['ID']>;
+  id_in?: InputMaybe<Array<Scalars['ID']>>;
+  id_not_in?: InputMaybe<Array<Scalars['ID']>>;
+  chainId?: InputMaybe<Scalars['BigInt']>;
+  chainId_not?: InputMaybe<Scalars['BigInt']>;
+  chainId_gt?: InputMaybe<Scalars['BigInt']>;
+  chainId_lt?: InputMaybe<Scalars['BigInt']>;
+  chainId_gte?: InputMaybe<Scalars['BigInt']>;
+  chainId_lte?: InputMaybe<Scalars['BigInt']>;
+  chainId_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  chainId_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  transferId?: InputMaybe<Scalars['staginggoerli_Bytes']>;
+  transferId_not?: InputMaybe<Scalars['staginggoerli_Bytes']>;
+  transferId_in?: InputMaybe<Array<Scalars['staginggoerli_Bytes']>>;
+  transferId_not_in?: InputMaybe<Array<Scalars['staginggoerli_Bytes']>>;
+  transferId_contains?: InputMaybe<Scalars['staginggoerli_Bytes']>;
+  transferId_not_contains?: InputMaybe<Scalars['staginggoerli_Bytes']>;
+  nonce?: InputMaybe<Scalars['BigInt']>;
+  nonce_not?: InputMaybe<Scalars['BigInt']>;
+  nonce_gt?: InputMaybe<Scalars['BigInt']>;
+  nonce_lt?: InputMaybe<Scalars['BigInt']>;
+  nonce_gte?: InputMaybe<Scalars['BigInt']>;
+  nonce_lte?: InputMaybe<Scalars['BigInt']>;
+  nonce_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  nonce_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  to?: InputMaybe<Scalars['staginggoerli_Bytes']>;
+  to_not?: InputMaybe<Scalars['staginggoerli_Bytes']>;
+  to_in?: InputMaybe<Array<Scalars['staginggoerli_Bytes']>>;
+  to_not_in?: InputMaybe<Array<Scalars['staginggoerli_Bytes']>>;
+  to_contains?: InputMaybe<Scalars['staginggoerli_Bytes']>;
+  to_not_contains?: InputMaybe<Scalars['staginggoerli_Bytes']>;
+  callData?: InputMaybe<Scalars['staginggoerli_Bytes']>;
+  callData_not?: InputMaybe<Scalars['staginggoerli_Bytes']>;
+  callData_in?: InputMaybe<Array<Scalars['staginggoerli_Bytes']>>;
+  callData_not_in?: InputMaybe<Array<Scalars['staginggoerli_Bytes']>>;
+  callData_contains?: InputMaybe<Scalars['staginggoerli_Bytes']>;
+  callData_not_contains?: InputMaybe<Scalars['staginggoerli_Bytes']>;
+  originDomain?: InputMaybe<Scalars['BigInt']>;
+  originDomain_not?: InputMaybe<Scalars['BigInt']>;
+  originDomain_gt?: InputMaybe<Scalars['BigInt']>;
+  originDomain_lt?: InputMaybe<Scalars['BigInt']>;
+  originDomain_gte?: InputMaybe<Scalars['BigInt']>;
+  originDomain_lte?: InputMaybe<Scalars['BigInt']>;
+  originDomain_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  originDomain_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  destinationDomain?: InputMaybe<Scalars['BigInt']>;
+  destinationDomain_not?: InputMaybe<Scalars['BigInt']>;
+  destinationDomain_gt?: InputMaybe<Scalars['BigInt']>;
+  destinationDomain_lt?: InputMaybe<Scalars['BigInt']>;
+  destinationDomain_gte?: InputMaybe<Scalars['BigInt']>;
+  destinationDomain_lte?: InputMaybe<Scalars['BigInt']>;
+  destinationDomain_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  destinationDomain_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  agent?: InputMaybe<Scalars['staginggoerli_Bytes']>;
+  agent_not?: InputMaybe<Scalars['staginggoerli_Bytes']>;
+  agent_in?: InputMaybe<Array<Scalars['staginggoerli_Bytes']>>;
+  agent_not_in?: InputMaybe<Array<Scalars['staginggoerli_Bytes']>>;
+  agent_contains?: InputMaybe<Scalars['staginggoerli_Bytes']>;
+  agent_not_contains?: InputMaybe<Scalars['staginggoerli_Bytes']>;
+  recovery?: InputMaybe<Scalars['staginggoerli_Bytes']>;
+  recovery_not?: InputMaybe<Scalars['staginggoerli_Bytes']>;
+  recovery_in?: InputMaybe<Array<Scalars['staginggoerli_Bytes']>>;
+  recovery_not_in?: InputMaybe<Array<Scalars['staginggoerli_Bytes']>>;
+  recovery_contains?: InputMaybe<Scalars['staginggoerli_Bytes']>;
+  recovery_not_contains?: InputMaybe<Scalars['staginggoerli_Bytes']>;
+  forceSlow?: InputMaybe<Scalars['Boolean']>;
+  forceSlow_not?: InputMaybe<Scalars['Boolean']>;
+  forceSlow_in?: InputMaybe<Array<Scalars['Boolean']>>;
+  forceSlow_not_in?: InputMaybe<Array<Scalars['Boolean']>>;
+  receiveLocal?: InputMaybe<Scalars['Boolean']>;
+  receiveLocal_not?: InputMaybe<Scalars['Boolean']>;
+  receiveLocal_in?: InputMaybe<Array<Scalars['Boolean']>>;
+  receiveLocal_not_in?: InputMaybe<Array<Scalars['Boolean']>>;
+  callback?: InputMaybe<Scalars['staginggoerli_Bytes']>;
+  callback_not?: InputMaybe<Scalars['staginggoerli_Bytes']>;
+  callback_in?: InputMaybe<Array<Scalars['staginggoerli_Bytes']>>;
+  callback_not_in?: InputMaybe<Array<Scalars['staginggoerli_Bytes']>>;
+  callback_contains?: InputMaybe<Scalars['staginggoerli_Bytes']>;
+  callback_not_contains?: InputMaybe<Scalars['staginggoerli_Bytes']>;
+  callbackFee?: InputMaybe<Scalars['BigInt']>;
+  callbackFee_not?: InputMaybe<Scalars['BigInt']>;
+  callbackFee_gt?: InputMaybe<Scalars['BigInt']>;
+  callbackFee_lt?: InputMaybe<Scalars['BigInt']>;
+  callbackFee_gte?: InputMaybe<Scalars['BigInt']>;
+  callbackFee_lte?: InputMaybe<Scalars['BigInt']>;
+  callbackFee_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  callbackFee_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  relayerFee?: InputMaybe<Scalars['BigInt']>;
+  relayerFee_not?: InputMaybe<Scalars['BigInt']>;
+  relayerFee_gt?: InputMaybe<Scalars['BigInt']>;
+  relayerFee_lt?: InputMaybe<Scalars['BigInt']>;
+  relayerFee_gte?: InputMaybe<Scalars['BigInt']>;
+  relayerFee_lte?: InputMaybe<Scalars['BigInt']>;
+  relayerFee_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  relayerFee_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  destinationMinOut?: InputMaybe<Scalars['BigInt']>;
+  destinationMinOut_not?: InputMaybe<Scalars['BigInt']>;
+  destinationMinOut_gt?: InputMaybe<Scalars['BigInt']>;
+  destinationMinOut_lt?: InputMaybe<Scalars['BigInt']>;
+  destinationMinOut_gte?: InputMaybe<Scalars['BigInt']>;
+  destinationMinOut_lte?: InputMaybe<Scalars['BigInt']>;
+  destinationMinOut_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  destinationMinOut_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  status?: InputMaybe<staginggoerli_TransferStatus>;
+  status_not?: InputMaybe<staginggoerli_TransferStatus>;
+  status_in?: InputMaybe<Array<staginggoerli_TransferStatus>>;
+  status_not_in?: InputMaybe<Array<staginggoerli_TransferStatus>>;
+  routers?: InputMaybe<Array<Scalars['String']>>;
+  routers_not?: InputMaybe<Array<Scalars['String']>>;
+  routers_contains?: InputMaybe<Array<Scalars['String']>>;
+  routers_contains_nocase?: InputMaybe<Array<Scalars['String']>>;
+  routers_not_contains?: InputMaybe<Array<Scalars['String']>>;
+  routers_not_contains_nocase?: InputMaybe<Array<Scalars['String']>>;
+  routers_?: InputMaybe<staginggoerli_Router_filter>;
+  originSender?: InputMaybe<Scalars['staginggoerli_Bytes']>;
+  originSender_not?: InputMaybe<Scalars['staginggoerli_Bytes']>;
+  originSender_in?: InputMaybe<Array<Scalars['staginggoerli_Bytes']>>;
+  originSender_not_in?: InputMaybe<Array<Scalars['staginggoerli_Bytes']>>;
+  originSender_contains?: InputMaybe<Scalars['staginggoerli_Bytes']>;
+  originSender_not_contains?: InputMaybe<Scalars['staginggoerli_Bytes']>;
+  transactingAsset?: InputMaybe<Scalars['staginggoerli_Bytes']>;
+  transactingAsset_not?: InputMaybe<Scalars['staginggoerli_Bytes']>;
+  transactingAsset_in?: InputMaybe<Array<Scalars['staginggoerli_Bytes']>>;
+  transactingAsset_not_in?: InputMaybe<Array<Scalars['staginggoerli_Bytes']>>;
+  transactingAsset_contains?: InputMaybe<Scalars['staginggoerli_Bytes']>;
+  transactingAsset_not_contains?: InputMaybe<Scalars['staginggoerli_Bytes']>;
+  transactingAmount?: InputMaybe<Scalars['BigInt']>;
+  transactingAmount_not?: InputMaybe<Scalars['BigInt']>;
+  transactingAmount_gt?: InputMaybe<Scalars['BigInt']>;
+  transactingAmount_lt?: InputMaybe<Scalars['BigInt']>;
+  transactingAmount_gte?: InputMaybe<Scalars['BigInt']>;
+  transactingAmount_lte?: InputMaybe<Scalars['BigInt']>;
+  transactingAmount_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  transactingAmount_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  localAsset?: InputMaybe<Scalars['staginggoerli_Bytes']>;
+  localAsset_not?: InputMaybe<Scalars['staginggoerli_Bytes']>;
+  localAsset_in?: InputMaybe<Array<Scalars['staginggoerli_Bytes']>>;
+  localAsset_not_in?: InputMaybe<Array<Scalars['staginggoerli_Bytes']>>;
+  localAsset_contains?: InputMaybe<Scalars['staginggoerli_Bytes']>;
+  localAsset_not_contains?: InputMaybe<Scalars['staginggoerli_Bytes']>;
+  localAmount?: InputMaybe<Scalars['BigInt']>;
+  localAmount_not?: InputMaybe<Scalars['BigInt']>;
+  localAmount_gt?: InputMaybe<Scalars['BigInt']>;
+  localAmount_lt?: InputMaybe<Scalars['BigInt']>;
+  localAmount_gte?: InputMaybe<Scalars['BigInt']>;
+  localAmount_lte?: InputMaybe<Scalars['BigInt']>;
+  localAmount_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  localAmount_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  sponsorVaultRelayerFee?: InputMaybe<Scalars['BigInt']>;
+  sponsorVaultRelayerFee_not?: InputMaybe<Scalars['BigInt']>;
+  sponsorVaultRelayerFee_gt?: InputMaybe<Scalars['BigInt']>;
+  sponsorVaultRelayerFee_lt?: InputMaybe<Scalars['BigInt']>;
+  sponsorVaultRelayerFee_gte?: InputMaybe<Scalars['BigInt']>;
+  sponsorVaultRelayerFee_lte?: InputMaybe<Scalars['BigInt']>;
+  sponsorVaultRelayerFee_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  sponsorVaultRelayerFee_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  executedCaller?: InputMaybe<Scalars['staginggoerli_Bytes']>;
+  executedCaller_not?: InputMaybe<Scalars['staginggoerli_Bytes']>;
+  executedCaller_in?: InputMaybe<Array<Scalars['staginggoerli_Bytes']>>;
+  executedCaller_not_in?: InputMaybe<Array<Scalars['staginggoerli_Bytes']>>;
+  executedCaller_contains?: InputMaybe<Scalars['staginggoerli_Bytes']>;
+  executedCaller_not_contains?: InputMaybe<Scalars['staginggoerli_Bytes']>;
+  executedTransactionHash?: InputMaybe<Scalars['staginggoerli_Bytes']>;
+  executedTransactionHash_not?: InputMaybe<Scalars['staginggoerli_Bytes']>;
+  executedTransactionHash_in?: InputMaybe<Array<Scalars['staginggoerli_Bytes']>>;
+  executedTransactionHash_not_in?: InputMaybe<Array<Scalars['staginggoerli_Bytes']>>;
+  executedTransactionHash_contains?: InputMaybe<Scalars['staginggoerli_Bytes']>;
+  executedTransactionHash_not_contains?: InputMaybe<Scalars['staginggoerli_Bytes']>;
+  executedTimestamp?: InputMaybe<Scalars['BigInt']>;
+  executedTimestamp_not?: InputMaybe<Scalars['BigInt']>;
+  executedTimestamp_gt?: InputMaybe<Scalars['BigInt']>;
+  executedTimestamp_lt?: InputMaybe<Scalars['BigInt']>;
+  executedTimestamp_gte?: InputMaybe<Scalars['BigInt']>;
+  executedTimestamp_lte?: InputMaybe<Scalars['BigInt']>;
+  executedTimestamp_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  executedTimestamp_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  executedGasPrice?: InputMaybe<Scalars['BigInt']>;
+  executedGasPrice_not?: InputMaybe<Scalars['BigInt']>;
+  executedGasPrice_gt?: InputMaybe<Scalars['BigInt']>;
+  executedGasPrice_lt?: InputMaybe<Scalars['BigInt']>;
+  executedGasPrice_gte?: InputMaybe<Scalars['BigInt']>;
+  executedGasPrice_lte?: InputMaybe<Scalars['BigInt']>;
+  executedGasPrice_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  executedGasPrice_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  executedGasLimit?: InputMaybe<Scalars['BigInt']>;
+  executedGasLimit_not?: InputMaybe<Scalars['BigInt']>;
+  executedGasLimit_gt?: InputMaybe<Scalars['BigInt']>;
+  executedGasLimit_lt?: InputMaybe<Scalars['BigInt']>;
+  executedGasLimit_gte?: InputMaybe<Scalars['BigInt']>;
+  executedGasLimit_lte?: InputMaybe<Scalars['BigInt']>;
+  executedGasLimit_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  executedGasLimit_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  executedBlockNumber?: InputMaybe<Scalars['BigInt']>;
+  executedBlockNumber_not?: InputMaybe<Scalars['BigInt']>;
+  executedBlockNumber_gt?: InputMaybe<Scalars['BigInt']>;
+  executedBlockNumber_lt?: InputMaybe<Scalars['BigInt']>;
+  executedBlockNumber_gte?: InputMaybe<Scalars['BigInt']>;
+  executedBlockNumber_lte?: InputMaybe<Scalars['BigInt']>;
+  executedBlockNumber_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  executedBlockNumber_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  reconciledCaller?: InputMaybe<Scalars['staginggoerli_Bytes']>;
+  reconciledCaller_not?: InputMaybe<Scalars['staginggoerli_Bytes']>;
+  reconciledCaller_in?: InputMaybe<Array<Scalars['staginggoerli_Bytes']>>;
+  reconciledCaller_not_in?: InputMaybe<Array<Scalars['staginggoerli_Bytes']>>;
+  reconciledCaller_contains?: InputMaybe<Scalars['staginggoerli_Bytes']>;
+  reconciledCaller_not_contains?: InputMaybe<Scalars['staginggoerli_Bytes']>;
+  reconciledTransactionHash?: InputMaybe<Scalars['staginggoerli_Bytes']>;
+  reconciledTransactionHash_not?: InputMaybe<Scalars['staginggoerli_Bytes']>;
+  reconciledTransactionHash_in?: InputMaybe<Array<Scalars['staginggoerli_Bytes']>>;
+  reconciledTransactionHash_not_in?: InputMaybe<Array<Scalars['staginggoerli_Bytes']>>;
+  reconciledTransactionHash_contains?: InputMaybe<Scalars['staginggoerli_Bytes']>;
+  reconciledTransactionHash_not_contains?: InputMaybe<Scalars['staginggoerli_Bytes']>;
+  reconciledTimestamp?: InputMaybe<Scalars['BigInt']>;
+  reconciledTimestamp_not?: InputMaybe<Scalars['BigInt']>;
+  reconciledTimestamp_gt?: InputMaybe<Scalars['BigInt']>;
+  reconciledTimestamp_lt?: InputMaybe<Scalars['BigInt']>;
+  reconciledTimestamp_gte?: InputMaybe<Scalars['BigInt']>;
+  reconciledTimestamp_lte?: InputMaybe<Scalars['BigInt']>;
+  reconciledTimestamp_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  reconciledTimestamp_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  reconciledGasPrice?: InputMaybe<Scalars['BigInt']>;
+  reconciledGasPrice_not?: InputMaybe<Scalars['BigInt']>;
+  reconciledGasPrice_gt?: InputMaybe<Scalars['BigInt']>;
+  reconciledGasPrice_lt?: InputMaybe<Scalars['BigInt']>;
+  reconciledGasPrice_gte?: InputMaybe<Scalars['BigInt']>;
+  reconciledGasPrice_lte?: InputMaybe<Scalars['BigInt']>;
+  reconciledGasPrice_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  reconciledGasPrice_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  reconciledGasLimit?: InputMaybe<Scalars['BigInt']>;
+  reconciledGasLimit_not?: InputMaybe<Scalars['BigInt']>;
+  reconciledGasLimit_gt?: InputMaybe<Scalars['BigInt']>;
+  reconciledGasLimit_lt?: InputMaybe<Scalars['BigInt']>;
+  reconciledGasLimit_gte?: InputMaybe<Scalars['BigInt']>;
+  reconciledGasLimit_lte?: InputMaybe<Scalars['BigInt']>;
+  reconciledGasLimit_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  reconciledGasLimit_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  reconciledBlockNumber?: InputMaybe<Scalars['BigInt']>;
+  reconciledBlockNumber_not?: InputMaybe<Scalars['BigInt']>;
+  reconciledBlockNumber_gt?: InputMaybe<Scalars['BigInt']>;
+  reconciledBlockNumber_lt?: InputMaybe<Scalars['BigInt']>;
+  reconciledBlockNumber_gte?: InputMaybe<Scalars['BigInt']>;
+  reconciledBlockNumber_lte?: InputMaybe<Scalars['BigInt']>;
+  reconciledBlockNumber_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  reconciledBlockNumber_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  /** Filter for the block changed event. */
+  _change_block?: InputMaybe<staginggoerli_BlockChangedFilter>;
+};
+
+export type staginggoerli_DestinationTransfer_orderBy =
+  | 'id'
+  | 'chainId'
+  | 'transferId'
+  | 'nonce'
+  | 'to'
+  | 'callData'
+  | 'originDomain'
+  | 'destinationDomain'
+  | 'agent'
+  | 'recovery'
+  | 'forceSlow'
+  | 'receiveLocal'
+  | 'callback'
+  | 'callbackFee'
+  | 'relayerFee'
+  | 'destinationMinOut'
+  | 'status'
+  | 'routers'
+  | 'originSender'
+  | 'transactingAsset'
+  | 'transactingAmount'
+  | 'localAsset'
+  | 'localAmount'
+  | 'sponsorVaultRelayerFee'
+  | 'executedCaller'
+  | 'executedTransactionHash'
+  | 'executedTimestamp'
+  | 'executedGasPrice'
+  | 'executedGasLimit'
+  | 'executedBlockNumber'
+  | 'reconciledCaller'
+  | 'reconciledTransactionHash'
+  | 'reconciledTimestamp'
+  | 'reconciledGasPrice'
+  | 'reconciledGasLimit'
+  | 'reconciledBlockNumber';
+
+/** Defines the order direction, either ascending or descending */
+export type staginggoerli_OrderDirection =
+  | 'asc'
+  | 'desc';
+
+export type staginggoerli_OriginMessage = {
+  id: Scalars['ID'];
+  transferId?: Maybe<Scalars['staginggoerli_Bytes']>;
+  destinationDomain?: Maybe<Scalars['BigInt']>;
+  leaf?: Maybe<Scalars['staginggoerli_Bytes']>;
+  index?: Maybe<Scalars['BigInt']>;
+  root?: Maybe<Scalars['staginggoerli_Bytes']>;
+  message?: Maybe<Scalars['staginggoerli_Bytes']>;
+  transactionHash?: Maybe<Scalars['staginggoerli_Bytes']>;
+};
+
+export type staginggoerli_OriginMessage_filter = {
+  id?: InputMaybe<Scalars['ID']>;
+  id_not?: InputMaybe<Scalars['ID']>;
+  id_gt?: InputMaybe<Scalars['ID']>;
+  id_lt?: InputMaybe<Scalars['ID']>;
+  id_gte?: InputMaybe<Scalars['ID']>;
+  id_lte?: InputMaybe<Scalars['ID']>;
+  id_in?: InputMaybe<Array<Scalars['ID']>>;
+  id_not_in?: InputMaybe<Array<Scalars['ID']>>;
+  transferId?: InputMaybe<Scalars['staginggoerli_Bytes']>;
+  transferId_not?: InputMaybe<Scalars['staginggoerli_Bytes']>;
+  transferId_in?: InputMaybe<Array<Scalars['staginggoerli_Bytes']>>;
+  transferId_not_in?: InputMaybe<Array<Scalars['staginggoerli_Bytes']>>;
+  transferId_contains?: InputMaybe<Scalars['staginggoerli_Bytes']>;
+  transferId_not_contains?: InputMaybe<Scalars['staginggoerli_Bytes']>;
+  destinationDomain?: InputMaybe<Scalars['BigInt']>;
+  destinationDomain_not?: InputMaybe<Scalars['BigInt']>;
+  destinationDomain_gt?: InputMaybe<Scalars['BigInt']>;
+  destinationDomain_lt?: InputMaybe<Scalars['BigInt']>;
+  destinationDomain_gte?: InputMaybe<Scalars['BigInt']>;
+  destinationDomain_lte?: InputMaybe<Scalars['BigInt']>;
+  destinationDomain_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  destinationDomain_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  leaf?: InputMaybe<Scalars['staginggoerli_Bytes']>;
+  leaf_not?: InputMaybe<Scalars['staginggoerli_Bytes']>;
+  leaf_in?: InputMaybe<Array<Scalars['staginggoerli_Bytes']>>;
+  leaf_not_in?: InputMaybe<Array<Scalars['staginggoerli_Bytes']>>;
+  leaf_contains?: InputMaybe<Scalars['staginggoerli_Bytes']>;
+  leaf_not_contains?: InputMaybe<Scalars['staginggoerli_Bytes']>;
+  index?: InputMaybe<Scalars['BigInt']>;
+  index_not?: InputMaybe<Scalars['BigInt']>;
+  index_gt?: InputMaybe<Scalars['BigInt']>;
+  index_lt?: InputMaybe<Scalars['BigInt']>;
+  index_gte?: InputMaybe<Scalars['BigInt']>;
+  index_lte?: InputMaybe<Scalars['BigInt']>;
+  index_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  index_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  root?: InputMaybe<Scalars['staginggoerli_Bytes']>;
+  root_not?: InputMaybe<Scalars['staginggoerli_Bytes']>;
+  root_in?: InputMaybe<Array<Scalars['staginggoerli_Bytes']>>;
+  root_not_in?: InputMaybe<Array<Scalars['staginggoerli_Bytes']>>;
+  root_contains?: InputMaybe<Scalars['staginggoerli_Bytes']>;
+  root_not_contains?: InputMaybe<Scalars['staginggoerli_Bytes']>;
+  message?: InputMaybe<Scalars['staginggoerli_Bytes']>;
+  message_not?: InputMaybe<Scalars['staginggoerli_Bytes']>;
+  message_in?: InputMaybe<Array<Scalars['staginggoerli_Bytes']>>;
+  message_not_in?: InputMaybe<Array<Scalars['staginggoerli_Bytes']>>;
+  message_contains?: InputMaybe<Scalars['staginggoerli_Bytes']>;
+  message_not_contains?: InputMaybe<Scalars['staginggoerli_Bytes']>;
+  transactionHash?: InputMaybe<Scalars['staginggoerli_Bytes']>;
+  transactionHash_not?: InputMaybe<Scalars['staginggoerli_Bytes']>;
+  transactionHash_in?: InputMaybe<Array<Scalars['staginggoerli_Bytes']>>;
+  transactionHash_not_in?: InputMaybe<Array<Scalars['staginggoerli_Bytes']>>;
+  transactionHash_contains?: InputMaybe<Scalars['staginggoerli_Bytes']>;
+  transactionHash_not_contains?: InputMaybe<Scalars['staginggoerli_Bytes']>;
+  /** Filter for the block changed event. */
+  _change_block?: InputMaybe<staginggoerli_BlockChangedFilter>;
+};
+
+export type staginggoerli_OriginMessage_orderBy =
+  | 'id'
+  | 'transferId'
+  | 'destinationDomain'
+  | 'leaf'
+  | 'index'
+  | 'root'
+  | 'message'
+  | 'transactionHash';
+
+export type staginggoerli_OriginTransfer = {
+  id: Scalars['ID'];
+  chainId?: Maybe<Scalars['BigInt']>;
+  transferId?: Maybe<Scalars['staginggoerli_Bytes']>;
+  nonce?: Maybe<Scalars['BigInt']>;
+  to?: Maybe<Scalars['staginggoerli_Bytes']>;
+  callData?: Maybe<Scalars['staginggoerli_Bytes']>;
+  originDomain?: Maybe<Scalars['BigInt']>;
+  destinationDomain?: Maybe<Scalars['BigInt']>;
+  agent?: Maybe<Scalars['staginggoerli_Bytes']>;
+  recovery?: Maybe<Scalars['staginggoerli_Bytes']>;
+  forceSlow?: Maybe<Scalars['Boolean']>;
+  receiveLocal?: Maybe<Scalars['Boolean']>;
+  callback?: Maybe<Scalars['staginggoerli_Bytes']>;
+  callbackFee?: Maybe<Scalars['BigInt']>;
+  relayerFee?: Maybe<Scalars['BigInt']>;
+  destinationMinOut?: Maybe<Scalars['BigInt']>;
+  status?: Maybe<staginggoerli_TransferStatus>;
+  originMinOut?: Maybe<Scalars['BigInt']>;
+  transactingAsset?: Maybe<Scalars['staginggoerli_Bytes']>;
+  transactingAmount?: Maybe<Scalars['BigInt']>;
+  bridgedAsset?: Maybe<Scalars['staginggoerli_Bytes']>;
+  bridgedAmount?: Maybe<Scalars['BigInt']>;
+  message?: Maybe<staginggoerli_OriginMessage>;
+  caller?: Maybe<Scalars['staginggoerli_Bytes']>;
+  transactionHash?: Maybe<Scalars['staginggoerli_Bytes']>;
+  timestamp?: Maybe<Scalars['BigInt']>;
+  gasPrice?: Maybe<Scalars['BigInt']>;
+  gasLimit?: Maybe<Scalars['BigInt']>;
+  blockNumber?: Maybe<Scalars['BigInt']>;
+};
+
+export type staginggoerli_OriginTransfer_filter = {
+  id?: InputMaybe<Scalars['ID']>;
+  id_not?: InputMaybe<Scalars['ID']>;
+  id_gt?: InputMaybe<Scalars['ID']>;
+  id_lt?: InputMaybe<Scalars['ID']>;
+  id_gte?: InputMaybe<Scalars['ID']>;
+  id_lte?: InputMaybe<Scalars['ID']>;
+  id_in?: InputMaybe<Array<Scalars['ID']>>;
+  id_not_in?: InputMaybe<Array<Scalars['ID']>>;
+  chainId?: InputMaybe<Scalars['BigInt']>;
+  chainId_not?: InputMaybe<Scalars['BigInt']>;
+  chainId_gt?: InputMaybe<Scalars['BigInt']>;
+  chainId_lt?: InputMaybe<Scalars['BigInt']>;
+  chainId_gte?: InputMaybe<Scalars['BigInt']>;
+  chainId_lte?: InputMaybe<Scalars['BigInt']>;
+  chainId_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  chainId_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  transferId?: InputMaybe<Scalars['staginggoerli_Bytes']>;
+  transferId_not?: InputMaybe<Scalars['staginggoerli_Bytes']>;
+  transferId_in?: InputMaybe<Array<Scalars['staginggoerli_Bytes']>>;
+  transferId_not_in?: InputMaybe<Array<Scalars['staginggoerli_Bytes']>>;
+  transferId_contains?: InputMaybe<Scalars['staginggoerli_Bytes']>;
+  transferId_not_contains?: InputMaybe<Scalars['staginggoerli_Bytes']>;
+  nonce?: InputMaybe<Scalars['BigInt']>;
+  nonce_not?: InputMaybe<Scalars['BigInt']>;
+  nonce_gt?: InputMaybe<Scalars['BigInt']>;
+  nonce_lt?: InputMaybe<Scalars['BigInt']>;
+  nonce_gte?: InputMaybe<Scalars['BigInt']>;
+  nonce_lte?: InputMaybe<Scalars['BigInt']>;
+  nonce_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  nonce_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  to?: InputMaybe<Scalars['staginggoerli_Bytes']>;
+  to_not?: InputMaybe<Scalars['staginggoerli_Bytes']>;
+  to_in?: InputMaybe<Array<Scalars['staginggoerli_Bytes']>>;
+  to_not_in?: InputMaybe<Array<Scalars['staginggoerli_Bytes']>>;
+  to_contains?: InputMaybe<Scalars['staginggoerli_Bytes']>;
+  to_not_contains?: InputMaybe<Scalars['staginggoerli_Bytes']>;
+  callData?: InputMaybe<Scalars['staginggoerli_Bytes']>;
+  callData_not?: InputMaybe<Scalars['staginggoerli_Bytes']>;
+  callData_in?: InputMaybe<Array<Scalars['staginggoerli_Bytes']>>;
+  callData_not_in?: InputMaybe<Array<Scalars['staginggoerli_Bytes']>>;
+  callData_contains?: InputMaybe<Scalars['staginggoerli_Bytes']>;
+  callData_not_contains?: InputMaybe<Scalars['staginggoerli_Bytes']>;
+  originDomain?: InputMaybe<Scalars['BigInt']>;
+  originDomain_not?: InputMaybe<Scalars['BigInt']>;
+  originDomain_gt?: InputMaybe<Scalars['BigInt']>;
+  originDomain_lt?: InputMaybe<Scalars['BigInt']>;
+  originDomain_gte?: InputMaybe<Scalars['BigInt']>;
+  originDomain_lte?: InputMaybe<Scalars['BigInt']>;
+  originDomain_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  originDomain_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  destinationDomain?: InputMaybe<Scalars['BigInt']>;
+  destinationDomain_not?: InputMaybe<Scalars['BigInt']>;
+  destinationDomain_gt?: InputMaybe<Scalars['BigInt']>;
+  destinationDomain_lt?: InputMaybe<Scalars['BigInt']>;
+  destinationDomain_gte?: InputMaybe<Scalars['BigInt']>;
+  destinationDomain_lte?: InputMaybe<Scalars['BigInt']>;
+  destinationDomain_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  destinationDomain_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  agent?: InputMaybe<Scalars['staginggoerli_Bytes']>;
+  agent_not?: InputMaybe<Scalars['staginggoerli_Bytes']>;
+  agent_in?: InputMaybe<Array<Scalars['staginggoerli_Bytes']>>;
+  agent_not_in?: InputMaybe<Array<Scalars['staginggoerli_Bytes']>>;
+  agent_contains?: InputMaybe<Scalars['staginggoerli_Bytes']>;
+  agent_not_contains?: InputMaybe<Scalars['staginggoerli_Bytes']>;
+  recovery?: InputMaybe<Scalars['staginggoerli_Bytes']>;
+  recovery_not?: InputMaybe<Scalars['staginggoerli_Bytes']>;
+  recovery_in?: InputMaybe<Array<Scalars['staginggoerli_Bytes']>>;
+  recovery_not_in?: InputMaybe<Array<Scalars['staginggoerli_Bytes']>>;
+  recovery_contains?: InputMaybe<Scalars['staginggoerli_Bytes']>;
+  recovery_not_contains?: InputMaybe<Scalars['staginggoerli_Bytes']>;
+  forceSlow?: InputMaybe<Scalars['Boolean']>;
+  forceSlow_not?: InputMaybe<Scalars['Boolean']>;
+  forceSlow_in?: InputMaybe<Array<Scalars['Boolean']>>;
+  forceSlow_not_in?: InputMaybe<Array<Scalars['Boolean']>>;
+  receiveLocal?: InputMaybe<Scalars['Boolean']>;
+  receiveLocal_not?: InputMaybe<Scalars['Boolean']>;
+  receiveLocal_in?: InputMaybe<Array<Scalars['Boolean']>>;
+  receiveLocal_not_in?: InputMaybe<Array<Scalars['Boolean']>>;
+  callback?: InputMaybe<Scalars['staginggoerli_Bytes']>;
+  callback_not?: InputMaybe<Scalars['staginggoerli_Bytes']>;
+  callback_in?: InputMaybe<Array<Scalars['staginggoerli_Bytes']>>;
+  callback_not_in?: InputMaybe<Array<Scalars['staginggoerli_Bytes']>>;
+  callback_contains?: InputMaybe<Scalars['staginggoerli_Bytes']>;
+  callback_not_contains?: InputMaybe<Scalars['staginggoerli_Bytes']>;
+  callbackFee?: InputMaybe<Scalars['BigInt']>;
+  callbackFee_not?: InputMaybe<Scalars['BigInt']>;
+  callbackFee_gt?: InputMaybe<Scalars['BigInt']>;
+  callbackFee_lt?: InputMaybe<Scalars['BigInt']>;
+  callbackFee_gte?: InputMaybe<Scalars['BigInt']>;
+  callbackFee_lte?: InputMaybe<Scalars['BigInt']>;
+  callbackFee_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  callbackFee_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  relayerFee?: InputMaybe<Scalars['BigInt']>;
+  relayerFee_not?: InputMaybe<Scalars['BigInt']>;
+  relayerFee_gt?: InputMaybe<Scalars['BigInt']>;
+  relayerFee_lt?: InputMaybe<Scalars['BigInt']>;
+  relayerFee_gte?: InputMaybe<Scalars['BigInt']>;
+  relayerFee_lte?: InputMaybe<Scalars['BigInt']>;
+  relayerFee_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  relayerFee_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  destinationMinOut?: InputMaybe<Scalars['BigInt']>;
+  destinationMinOut_not?: InputMaybe<Scalars['BigInt']>;
+  destinationMinOut_gt?: InputMaybe<Scalars['BigInt']>;
+  destinationMinOut_lt?: InputMaybe<Scalars['BigInt']>;
+  destinationMinOut_gte?: InputMaybe<Scalars['BigInt']>;
+  destinationMinOut_lte?: InputMaybe<Scalars['BigInt']>;
+  destinationMinOut_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  destinationMinOut_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  status?: InputMaybe<staginggoerli_TransferStatus>;
+  status_not?: InputMaybe<staginggoerli_TransferStatus>;
+  status_in?: InputMaybe<Array<staginggoerli_TransferStatus>>;
+  status_not_in?: InputMaybe<Array<staginggoerli_TransferStatus>>;
+  originMinOut?: InputMaybe<Scalars['BigInt']>;
+  originMinOut_not?: InputMaybe<Scalars['BigInt']>;
+  originMinOut_gt?: InputMaybe<Scalars['BigInt']>;
+  originMinOut_lt?: InputMaybe<Scalars['BigInt']>;
+  originMinOut_gte?: InputMaybe<Scalars['BigInt']>;
+  originMinOut_lte?: InputMaybe<Scalars['BigInt']>;
+  originMinOut_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  originMinOut_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  transactingAsset?: InputMaybe<Scalars['staginggoerli_Bytes']>;
+  transactingAsset_not?: InputMaybe<Scalars['staginggoerli_Bytes']>;
+  transactingAsset_in?: InputMaybe<Array<Scalars['staginggoerli_Bytes']>>;
+  transactingAsset_not_in?: InputMaybe<Array<Scalars['staginggoerli_Bytes']>>;
+  transactingAsset_contains?: InputMaybe<Scalars['staginggoerli_Bytes']>;
+  transactingAsset_not_contains?: InputMaybe<Scalars['staginggoerli_Bytes']>;
+  transactingAmount?: InputMaybe<Scalars['BigInt']>;
+  transactingAmount_not?: InputMaybe<Scalars['BigInt']>;
+  transactingAmount_gt?: InputMaybe<Scalars['BigInt']>;
+  transactingAmount_lt?: InputMaybe<Scalars['BigInt']>;
+  transactingAmount_gte?: InputMaybe<Scalars['BigInt']>;
+  transactingAmount_lte?: InputMaybe<Scalars['BigInt']>;
+  transactingAmount_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  transactingAmount_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  bridgedAsset?: InputMaybe<Scalars['staginggoerli_Bytes']>;
+  bridgedAsset_not?: InputMaybe<Scalars['staginggoerli_Bytes']>;
+  bridgedAsset_in?: InputMaybe<Array<Scalars['staginggoerli_Bytes']>>;
+  bridgedAsset_not_in?: InputMaybe<Array<Scalars['staginggoerli_Bytes']>>;
+  bridgedAsset_contains?: InputMaybe<Scalars['staginggoerli_Bytes']>;
+  bridgedAsset_not_contains?: InputMaybe<Scalars['staginggoerli_Bytes']>;
+  bridgedAmount?: InputMaybe<Scalars['BigInt']>;
+  bridgedAmount_not?: InputMaybe<Scalars['BigInt']>;
+  bridgedAmount_gt?: InputMaybe<Scalars['BigInt']>;
+  bridgedAmount_lt?: InputMaybe<Scalars['BigInt']>;
+  bridgedAmount_gte?: InputMaybe<Scalars['BigInt']>;
+  bridgedAmount_lte?: InputMaybe<Scalars['BigInt']>;
+  bridgedAmount_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  bridgedAmount_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  message?: InputMaybe<Scalars['String']>;
+  message_not?: InputMaybe<Scalars['String']>;
+  message_gt?: InputMaybe<Scalars['String']>;
+  message_lt?: InputMaybe<Scalars['String']>;
+  message_gte?: InputMaybe<Scalars['String']>;
+  message_lte?: InputMaybe<Scalars['String']>;
+  message_in?: InputMaybe<Array<Scalars['String']>>;
+  message_not_in?: InputMaybe<Array<Scalars['String']>>;
+  message_contains?: InputMaybe<Scalars['String']>;
+  message_contains_nocase?: InputMaybe<Scalars['String']>;
+  message_not_contains?: InputMaybe<Scalars['String']>;
+  message_not_contains_nocase?: InputMaybe<Scalars['String']>;
+  message_starts_with?: InputMaybe<Scalars['String']>;
+  message_starts_with_nocase?: InputMaybe<Scalars['String']>;
+  message_not_starts_with?: InputMaybe<Scalars['String']>;
+  message_not_starts_with_nocase?: InputMaybe<Scalars['String']>;
+  message_ends_with?: InputMaybe<Scalars['String']>;
+  message_ends_with_nocase?: InputMaybe<Scalars['String']>;
+  message_not_ends_with?: InputMaybe<Scalars['String']>;
+  message_not_ends_with_nocase?: InputMaybe<Scalars['String']>;
+  message_?: InputMaybe<staginggoerli_OriginMessage_filter>;
+  caller?: InputMaybe<Scalars['staginggoerli_Bytes']>;
+  caller_not?: InputMaybe<Scalars['staginggoerli_Bytes']>;
+  caller_in?: InputMaybe<Array<Scalars['staginggoerli_Bytes']>>;
+  caller_not_in?: InputMaybe<Array<Scalars['staginggoerli_Bytes']>>;
+  caller_contains?: InputMaybe<Scalars['staginggoerli_Bytes']>;
+  caller_not_contains?: InputMaybe<Scalars['staginggoerli_Bytes']>;
+  transactionHash?: InputMaybe<Scalars['staginggoerli_Bytes']>;
+  transactionHash_not?: InputMaybe<Scalars['staginggoerli_Bytes']>;
+  transactionHash_in?: InputMaybe<Array<Scalars['staginggoerli_Bytes']>>;
+  transactionHash_not_in?: InputMaybe<Array<Scalars['staginggoerli_Bytes']>>;
+  transactionHash_contains?: InputMaybe<Scalars['staginggoerli_Bytes']>;
+  transactionHash_not_contains?: InputMaybe<Scalars['staginggoerli_Bytes']>;
+  timestamp?: InputMaybe<Scalars['BigInt']>;
+  timestamp_not?: InputMaybe<Scalars['BigInt']>;
+  timestamp_gt?: InputMaybe<Scalars['BigInt']>;
+  timestamp_lt?: InputMaybe<Scalars['BigInt']>;
+  timestamp_gte?: InputMaybe<Scalars['BigInt']>;
+  timestamp_lte?: InputMaybe<Scalars['BigInt']>;
+  timestamp_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  timestamp_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  gasPrice?: InputMaybe<Scalars['BigInt']>;
+  gasPrice_not?: InputMaybe<Scalars['BigInt']>;
+  gasPrice_gt?: InputMaybe<Scalars['BigInt']>;
+  gasPrice_lt?: InputMaybe<Scalars['BigInt']>;
+  gasPrice_gte?: InputMaybe<Scalars['BigInt']>;
+  gasPrice_lte?: InputMaybe<Scalars['BigInt']>;
+  gasPrice_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  gasPrice_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  gasLimit?: InputMaybe<Scalars['BigInt']>;
+  gasLimit_not?: InputMaybe<Scalars['BigInt']>;
+  gasLimit_gt?: InputMaybe<Scalars['BigInt']>;
+  gasLimit_lt?: InputMaybe<Scalars['BigInt']>;
+  gasLimit_gte?: InputMaybe<Scalars['BigInt']>;
+  gasLimit_lte?: InputMaybe<Scalars['BigInt']>;
+  gasLimit_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  gasLimit_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  blockNumber?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_not?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_gt?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_lt?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_gte?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_lte?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  blockNumber_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  /** Filter for the block changed event. */
+  _change_block?: InputMaybe<staginggoerli_BlockChangedFilter>;
+};
+
+export type staginggoerli_OriginTransfer_orderBy =
+  | 'id'
+  | 'chainId'
+  | 'transferId'
+  | 'nonce'
+  | 'to'
+  | 'callData'
+  | 'originDomain'
+  | 'destinationDomain'
+  | 'agent'
+  | 'recovery'
+  | 'forceSlow'
+  | 'receiveLocal'
+  | 'callback'
+  | 'callbackFee'
+  | 'relayerFee'
+  | 'destinationMinOut'
+  | 'status'
+  | 'originMinOut'
+  | 'transactingAsset'
+  | 'transactingAmount'
+  | 'bridgedAsset'
+  | 'bridgedAmount'
+  | 'message'
+  | 'caller'
+  | 'transactionHash'
+  | 'timestamp'
+  | 'gasPrice'
+  | 'gasLimit'
+  | 'blockNumber';
+
+export type staginggoerli_Relayer = {
+  id: Scalars['ID'];
+  isActive: Scalars['Boolean'];
+  relayer?: Maybe<Scalars['staginggoerli_Bytes']>;
+};
+
+export type staginggoerli_Relayer_filter = {
+  id?: InputMaybe<Scalars['ID']>;
+  id_not?: InputMaybe<Scalars['ID']>;
+  id_gt?: InputMaybe<Scalars['ID']>;
+  id_lt?: InputMaybe<Scalars['ID']>;
+  id_gte?: InputMaybe<Scalars['ID']>;
+  id_lte?: InputMaybe<Scalars['ID']>;
+  id_in?: InputMaybe<Array<Scalars['ID']>>;
+  id_not_in?: InputMaybe<Array<Scalars['ID']>>;
+  isActive?: InputMaybe<Scalars['Boolean']>;
+  isActive_not?: InputMaybe<Scalars['Boolean']>;
+  isActive_in?: InputMaybe<Array<Scalars['Boolean']>>;
+  isActive_not_in?: InputMaybe<Array<Scalars['Boolean']>>;
+  relayer?: InputMaybe<Scalars['staginggoerli_Bytes']>;
+  relayer_not?: InputMaybe<Scalars['staginggoerli_Bytes']>;
+  relayer_in?: InputMaybe<Array<Scalars['staginggoerli_Bytes']>>;
+  relayer_not_in?: InputMaybe<Array<Scalars['staginggoerli_Bytes']>>;
+  relayer_contains?: InputMaybe<Scalars['staginggoerli_Bytes']>;
+  relayer_not_contains?: InputMaybe<Scalars['staginggoerli_Bytes']>;
+  /** Filter for the block changed event. */
+  _change_block?: InputMaybe<staginggoerli_BlockChangedFilter>;
+};
+
+export type staginggoerli_Relayer_orderBy =
+  | 'id'
+  | 'isActive'
+  | 'relayer';
+
+export type staginggoerli_RootMessageProcessed = {
+  id: Scalars['ID'];
+  root?: Maybe<Scalars['staginggoerli_Bytes']>;
+  caller?: Maybe<Scalars['staginggoerli_Bytes']>;
+  transactionHash?: Maybe<Scalars['staginggoerli_Bytes']>;
+  timestamp?: Maybe<Scalars['BigInt']>;
+  gasPrice?: Maybe<Scalars['BigInt']>;
+  gasLimit?: Maybe<Scalars['BigInt']>;
+  blockNumber?: Maybe<Scalars['BigInt']>;
+};
+
+export type staginggoerli_RootMessageProcessed_filter = {
+  id?: InputMaybe<Scalars['ID']>;
+  id_not?: InputMaybe<Scalars['ID']>;
+  id_gt?: InputMaybe<Scalars['ID']>;
+  id_lt?: InputMaybe<Scalars['ID']>;
+  id_gte?: InputMaybe<Scalars['ID']>;
+  id_lte?: InputMaybe<Scalars['ID']>;
+  id_in?: InputMaybe<Array<Scalars['ID']>>;
+  id_not_in?: InputMaybe<Array<Scalars['ID']>>;
+  root?: InputMaybe<Scalars['staginggoerli_Bytes']>;
+  root_not?: InputMaybe<Scalars['staginggoerli_Bytes']>;
+  root_in?: InputMaybe<Array<Scalars['staginggoerli_Bytes']>>;
+  root_not_in?: InputMaybe<Array<Scalars['staginggoerli_Bytes']>>;
+  root_contains?: InputMaybe<Scalars['staginggoerli_Bytes']>;
+  root_not_contains?: InputMaybe<Scalars['staginggoerli_Bytes']>;
+  caller?: InputMaybe<Scalars['staginggoerli_Bytes']>;
+  caller_not?: InputMaybe<Scalars['staginggoerli_Bytes']>;
+  caller_in?: InputMaybe<Array<Scalars['staginggoerli_Bytes']>>;
+  caller_not_in?: InputMaybe<Array<Scalars['staginggoerli_Bytes']>>;
+  caller_contains?: InputMaybe<Scalars['staginggoerli_Bytes']>;
+  caller_not_contains?: InputMaybe<Scalars['staginggoerli_Bytes']>;
+  transactionHash?: InputMaybe<Scalars['staginggoerli_Bytes']>;
+  transactionHash_not?: InputMaybe<Scalars['staginggoerli_Bytes']>;
+  transactionHash_in?: InputMaybe<Array<Scalars['staginggoerli_Bytes']>>;
+  transactionHash_not_in?: InputMaybe<Array<Scalars['staginggoerli_Bytes']>>;
+  transactionHash_contains?: InputMaybe<Scalars['staginggoerli_Bytes']>;
+  transactionHash_not_contains?: InputMaybe<Scalars['staginggoerli_Bytes']>;
+  timestamp?: InputMaybe<Scalars['BigInt']>;
+  timestamp_not?: InputMaybe<Scalars['BigInt']>;
+  timestamp_gt?: InputMaybe<Scalars['BigInt']>;
+  timestamp_lt?: InputMaybe<Scalars['BigInt']>;
+  timestamp_gte?: InputMaybe<Scalars['BigInt']>;
+  timestamp_lte?: InputMaybe<Scalars['BigInt']>;
+  timestamp_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  timestamp_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  gasPrice?: InputMaybe<Scalars['BigInt']>;
+  gasPrice_not?: InputMaybe<Scalars['BigInt']>;
+  gasPrice_gt?: InputMaybe<Scalars['BigInt']>;
+  gasPrice_lt?: InputMaybe<Scalars['BigInt']>;
+  gasPrice_gte?: InputMaybe<Scalars['BigInt']>;
+  gasPrice_lte?: InputMaybe<Scalars['BigInt']>;
+  gasPrice_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  gasPrice_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  gasLimit?: InputMaybe<Scalars['BigInt']>;
+  gasLimit_not?: InputMaybe<Scalars['BigInt']>;
+  gasLimit_gt?: InputMaybe<Scalars['BigInt']>;
+  gasLimit_lt?: InputMaybe<Scalars['BigInt']>;
+  gasLimit_gte?: InputMaybe<Scalars['BigInt']>;
+  gasLimit_lte?: InputMaybe<Scalars['BigInt']>;
+  gasLimit_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  gasLimit_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  blockNumber?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_not?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_gt?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_lt?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_gte?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_lte?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  blockNumber_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  /** Filter for the block changed event. */
+  _change_block?: InputMaybe<staginggoerli_BlockChangedFilter>;
+};
+
+export type staginggoerli_RootMessageProcessed_orderBy =
+  | 'id'
+  | 'root'
+  | 'caller'
+  | 'transactionHash'
+  | 'timestamp'
+  | 'gasPrice'
+  | 'gasLimit'
+  | 'blockNumber';
+
+export type staginggoerli_RootMessageSent = {
+  id: Scalars['ID'];
+  spokeDomain?: Maybe<Scalars['BigInt']>;
+  hubDomain?: Maybe<Scalars['BigInt']>;
+  root?: Maybe<Scalars['staginggoerli_Bytes']>;
+  caller?: Maybe<Scalars['staginggoerli_Bytes']>;
+  transactionHash?: Maybe<Scalars['staginggoerli_Bytes']>;
+  timestamp?: Maybe<Scalars['BigInt']>;
+  gasPrice?: Maybe<Scalars['BigInt']>;
+  gasLimit?: Maybe<Scalars['BigInt']>;
+  blockNumber?: Maybe<Scalars['BigInt']>;
+};
+
+export type staginggoerli_RootMessageSent_filter = {
+  id?: InputMaybe<Scalars['ID']>;
+  id_not?: InputMaybe<Scalars['ID']>;
+  id_gt?: InputMaybe<Scalars['ID']>;
+  id_lt?: InputMaybe<Scalars['ID']>;
+  id_gte?: InputMaybe<Scalars['ID']>;
+  id_lte?: InputMaybe<Scalars['ID']>;
+  id_in?: InputMaybe<Array<Scalars['ID']>>;
+  id_not_in?: InputMaybe<Array<Scalars['ID']>>;
+  spokeDomain?: InputMaybe<Scalars['BigInt']>;
+  spokeDomain_not?: InputMaybe<Scalars['BigInt']>;
+  spokeDomain_gt?: InputMaybe<Scalars['BigInt']>;
+  spokeDomain_lt?: InputMaybe<Scalars['BigInt']>;
+  spokeDomain_gte?: InputMaybe<Scalars['BigInt']>;
+  spokeDomain_lte?: InputMaybe<Scalars['BigInt']>;
+  spokeDomain_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  spokeDomain_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  hubDomain?: InputMaybe<Scalars['BigInt']>;
+  hubDomain_not?: InputMaybe<Scalars['BigInt']>;
+  hubDomain_gt?: InputMaybe<Scalars['BigInt']>;
+  hubDomain_lt?: InputMaybe<Scalars['BigInt']>;
+  hubDomain_gte?: InputMaybe<Scalars['BigInt']>;
+  hubDomain_lte?: InputMaybe<Scalars['BigInt']>;
+  hubDomain_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  hubDomain_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  root?: InputMaybe<Scalars['staginggoerli_Bytes']>;
+  root_not?: InputMaybe<Scalars['staginggoerli_Bytes']>;
+  root_in?: InputMaybe<Array<Scalars['staginggoerli_Bytes']>>;
+  root_not_in?: InputMaybe<Array<Scalars['staginggoerli_Bytes']>>;
+  root_contains?: InputMaybe<Scalars['staginggoerli_Bytes']>;
+  root_not_contains?: InputMaybe<Scalars['staginggoerli_Bytes']>;
+  caller?: InputMaybe<Scalars['staginggoerli_Bytes']>;
+  caller_not?: InputMaybe<Scalars['staginggoerli_Bytes']>;
+  caller_in?: InputMaybe<Array<Scalars['staginggoerli_Bytes']>>;
+  caller_not_in?: InputMaybe<Array<Scalars['staginggoerli_Bytes']>>;
+  caller_contains?: InputMaybe<Scalars['staginggoerli_Bytes']>;
+  caller_not_contains?: InputMaybe<Scalars['staginggoerli_Bytes']>;
+  transactionHash?: InputMaybe<Scalars['staginggoerli_Bytes']>;
+  transactionHash_not?: InputMaybe<Scalars['staginggoerli_Bytes']>;
+  transactionHash_in?: InputMaybe<Array<Scalars['staginggoerli_Bytes']>>;
+  transactionHash_not_in?: InputMaybe<Array<Scalars['staginggoerli_Bytes']>>;
+  transactionHash_contains?: InputMaybe<Scalars['staginggoerli_Bytes']>;
+  transactionHash_not_contains?: InputMaybe<Scalars['staginggoerli_Bytes']>;
+  timestamp?: InputMaybe<Scalars['BigInt']>;
+  timestamp_not?: InputMaybe<Scalars['BigInt']>;
+  timestamp_gt?: InputMaybe<Scalars['BigInt']>;
+  timestamp_lt?: InputMaybe<Scalars['BigInt']>;
+  timestamp_gte?: InputMaybe<Scalars['BigInt']>;
+  timestamp_lte?: InputMaybe<Scalars['BigInt']>;
+  timestamp_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  timestamp_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  gasPrice?: InputMaybe<Scalars['BigInt']>;
+  gasPrice_not?: InputMaybe<Scalars['BigInt']>;
+  gasPrice_gt?: InputMaybe<Scalars['BigInt']>;
+  gasPrice_lt?: InputMaybe<Scalars['BigInt']>;
+  gasPrice_gte?: InputMaybe<Scalars['BigInt']>;
+  gasPrice_lte?: InputMaybe<Scalars['BigInt']>;
+  gasPrice_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  gasPrice_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  gasLimit?: InputMaybe<Scalars['BigInt']>;
+  gasLimit_not?: InputMaybe<Scalars['BigInt']>;
+  gasLimit_gt?: InputMaybe<Scalars['BigInt']>;
+  gasLimit_lt?: InputMaybe<Scalars['BigInt']>;
+  gasLimit_gte?: InputMaybe<Scalars['BigInt']>;
+  gasLimit_lte?: InputMaybe<Scalars['BigInt']>;
+  gasLimit_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  gasLimit_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  blockNumber?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_not?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_gt?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_lt?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_gte?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_lte?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  blockNumber_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  /** Filter for the block changed event. */
+  _change_block?: InputMaybe<staginggoerli_BlockChangedFilter>;
+};
+
+export type staginggoerli_RootMessageSent_orderBy =
+  | 'id'
+  | 'spokeDomain'
+  | 'hubDomain'
+  | 'root'
+  | 'caller'
+  | 'transactionHash'
+  | 'timestamp'
+  | 'gasPrice'
+  | 'gasLimit'
+  | 'blockNumber';
+
+export type staginggoerli_Router = {
+  id: Scalars['ID'];
+  isActive: Scalars['Boolean'];
+  owner?: Maybe<Scalars['staginggoerli_Bytes']>;
+  recipient?: Maybe<Scalars['staginggoerli_Bytes']>;
+  proposedOwner?: Maybe<Scalars['staginggoerli_Bytes']>;
+  proposedTimestamp?: Maybe<Scalars['BigInt']>;
+  assetBalances: Array<staginggoerli_AssetBalance>;
+};
+
+
+export type staginggoerli_RouterassetBalancesArgs = {
+  skip?: InputMaybe<Scalars['Int']>;
+  first?: InputMaybe<Scalars['Int']>;
+  orderBy?: InputMaybe<staginggoerli_AssetBalance_orderBy>;
+  orderDirection?: InputMaybe<staginggoerli_OrderDirection>;
+  where?: InputMaybe<staginggoerli_AssetBalance_filter>;
+};
+
+export type staginggoerli_Router_filter = {
+  id?: InputMaybe<Scalars['ID']>;
+  id_not?: InputMaybe<Scalars['ID']>;
+  id_gt?: InputMaybe<Scalars['ID']>;
+  id_lt?: InputMaybe<Scalars['ID']>;
+  id_gte?: InputMaybe<Scalars['ID']>;
+  id_lte?: InputMaybe<Scalars['ID']>;
+  id_in?: InputMaybe<Array<Scalars['ID']>>;
+  id_not_in?: InputMaybe<Array<Scalars['ID']>>;
+  isActive?: InputMaybe<Scalars['Boolean']>;
+  isActive_not?: InputMaybe<Scalars['Boolean']>;
+  isActive_in?: InputMaybe<Array<Scalars['Boolean']>>;
+  isActive_not_in?: InputMaybe<Array<Scalars['Boolean']>>;
+  owner?: InputMaybe<Scalars['staginggoerli_Bytes']>;
+  owner_not?: InputMaybe<Scalars['staginggoerli_Bytes']>;
+  owner_in?: InputMaybe<Array<Scalars['staginggoerli_Bytes']>>;
+  owner_not_in?: InputMaybe<Array<Scalars['staginggoerli_Bytes']>>;
+  owner_contains?: InputMaybe<Scalars['staginggoerli_Bytes']>;
+  owner_not_contains?: InputMaybe<Scalars['staginggoerli_Bytes']>;
+  recipient?: InputMaybe<Scalars['staginggoerli_Bytes']>;
+  recipient_not?: InputMaybe<Scalars['staginggoerli_Bytes']>;
+  recipient_in?: InputMaybe<Array<Scalars['staginggoerli_Bytes']>>;
+  recipient_not_in?: InputMaybe<Array<Scalars['staginggoerli_Bytes']>>;
+  recipient_contains?: InputMaybe<Scalars['staginggoerli_Bytes']>;
+  recipient_not_contains?: InputMaybe<Scalars['staginggoerli_Bytes']>;
+  proposedOwner?: InputMaybe<Scalars['staginggoerli_Bytes']>;
+  proposedOwner_not?: InputMaybe<Scalars['staginggoerli_Bytes']>;
+  proposedOwner_in?: InputMaybe<Array<Scalars['staginggoerli_Bytes']>>;
+  proposedOwner_not_in?: InputMaybe<Array<Scalars['staginggoerli_Bytes']>>;
+  proposedOwner_contains?: InputMaybe<Scalars['staginggoerli_Bytes']>;
+  proposedOwner_not_contains?: InputMaybe<Scalars['staginggoerli_Bytes']>;
+  proposedTimestamp?: InputMaybe<Scalars['BigInt']>;
+  proposedTimestamp_not?: InputMaybe<Scalars['BigInt']>;
+  proposedTimestamp_gt?: InputMaybe<Scalars['BigInt']>;
+  proposedTimestamp_lt?: InputMaybe<Scalars['BigInt']>;
+  proposedTimestamp_gte?: InputMaybe<Scalars['BigInt']>;
+  proposedTimestamp_lte?: InputMaybe<Scalars['BigInt']>;
+  proposedTimestamp_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  proposedTimestamp_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  assetBalances_?: InputMaybe<staginggoerli_AssetBalance_filter>;
+  /** Filter for the block changed event. */
+  _change_block?: InputMaybe<staginggoerli_BlockChangedFilter>;
+};
+
+export type staginggoerli_Router_orderBy =
+  | 'id'
+  | 'isActive'
+  | 'owner'
+  | 'recipient'
+  | 'proposedOwner'
+  | 'proposedTimestamp'
+  | 'assetBalances';
+
+export type staginggoerli_Setting = {
+  id: Scalars['ID'];
+  maxRoutersPerTransfer: Scalars['BigInt'];
+  caller: Scalars['staginggoerli_Bytes'];
+};
+
+export type staginggoerli_Setting_filter = {
+  id?: InputMaybe<Scalars['ID']>;
+  id_not?: InputMaybe<Scalars['ID']>;
+  id_gt?: InputMaybe<Scalars['ID']>;
+  id_lt?: InputMaybe<Scalars['ID']>;
+  id_gte?: InputMaybe<Scalars['ID']>;
+  id_lte?: InputMaybe<Scalars['ID']>;
+  id_in?: InputMaybe<Array<Scalars['ID']>>;
+  id_not_in?: InputMaybe<Array<Scalars['ID']>>;
+  maxRoutersPerTransfer?: InputMaybe<Scalars['BigInt']>;
+  maxRoutersPerTransfer_not?: InputMaybe<Scalars['BigInt']>;
+  maxRoutersPerTransfer_gt?: InputMaybe<Scalars['BigInt']>;
+  maxRoutersPerTransfer_lt?: InputMaybe<Scalars['BigInt']>;
+  maxRoutersPerTransfer_gte?: InputMaybe<Scalars['BigInt']>;
+  maxRoutersPerTransfer_lte?: InputMaybe<Scalars['BigInt']>;
+  maxRoutersPerTransfer_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  maxRoutersPerTransfer_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  caller?: InputMaybe<Scalars['staginggoerli_Bytes']>;
+  caller_not?: InputMaybe<Scalars['staginggoerli_Bytes']>;
+  caller_in?: InputMaybe<Array<Scalars['staginggoerli_Bytes']>>;
+  caller_not_in?: InputMaybe<Array<Scalars['staginggoerli_Bytes']>>;
+  caller_contains?: InputMaybe<Scalars['staginggoerli_Bytes']>;
+  caller_not_contains?: InputMaybe<Scalars['staginggoerli_Bytes']>;
+  /** Filter for the block changed event. */
+  _change_block?: InputMaybe<staginggoerli_BlockChangedFilter>;
+};
+
+export type staginggoerli_Setting_orderBy =
+  | 'id'
+  | 'maxRoutersPerTransfer'
+  | 'caller';
+
+export type staginggoerli_SponsorVault = {
+  id: Scalars['ID'];
+  sponsorVault: Scalars['staginggoerli_Bytes'];
+};
+
+export type staginggoerli_SponsorVault_filter = {
+  id?: InputMaybe<Scalars['ID']>;
+  id_not?: InputMaybe<Scalars['ID']>;
+  id_gt?: InputMaybe<Scalars['ID']>;
+  id_lt?: InputMaybe<Scalars['ID']>;
+  id_gte?: InputMaybe<Scalars['ID']>;
+  id_lte?: InputMaybe<Scalars['ID']>;
+  id_in?: InputMaybe<Array<Scalars['ID']>>;
+  id_not_in?: InputMaybe<Array<Scalars['ID']>>;
+  sponsorVault?: InputMaybe<Scalars['staginggoerli_Bytes']>;
+  sponsorVault_not?: InputMaybe<Scalars['staginggoerli_Bytes']>;
+  sponsorVault_in?: InputMaybe<Array<Scalars['staginggoerli_Bytes']>>;
+  sponsorVault_not_in?: InputMaybe<Array<Scalars['staginggoerli_Bytes']>>;
+  sponsorVault_contains?: InputMaybe<Scalars['staginggoerli_Bytes']>;
+  sponsorVault_not_contains?: InputMaybe<Scalars['staginggoerli_Bytes']>;
+  /** Filter for the block changed event. */
+  _change_block?: InputMaybe<staginggoerli_BlockChangedFilter>;
+};
+
+export type staginggoerli_SponsorVault_orderBy =
+  | 'id'
+  | 'sponsorVault';
+
+export type staginggoerli_StableSwap = {
+  id: Scalars['ID'];
+  canonicalId: Scalars['staginggoerli_Bytes'];
+  domain?: Maybe<Scalars['BigInt']>;
+  swapPool: Scalars['staginggoerli_Bytes'];
+};
+
+export type staginggoerli_StableSwap_filter = {
+  id?: InputMaybe<Scalars['ID']>;
+  id_not?: InputMaybe<Scalars['ID']>;
+  id_gt?: InputMaybe<Scalars['ID']>;
+  id_lt?: InputMaybe<Scalars['ID']>;
+  id_gte?: InputMaybe<Scalars['ID']>;
+  id_lte?: InputMaybe<Scalars['ID']>;
+  id_in?: InputMaybe<Array<Scalars['ID']>>;
+  id_not_in?: InputMaybe<Array<Scalars['ID']>>;
+  canonicalId?: InputMaybe<Scalars['staginggoerli_Bytes']>;
+  canonicalId_not?: InputMaybe<Scalars['staginggoerli_Bytes']>;
+  canonicalId_in?: InputMaybe<Array<Scalars['staginggoerli_Bytes']>>;
+  canonicalId_not_in?: InputMaybe<Array<Scalars['staginggoerli_Bytes']>>;
+  canonicalId_contains?: InputMaybe<Scalars['staginggoerli_Bytes']>;
+  canonicalId_not_contains?: InputMaybe<Scalars['staginggoerli_Bytes']>;
+  domain?: InputMaybe<Scalars['BigInt']>;
+  domain_not?: InputMaybe<Scalars['BigInt']>;
+  domain_gt?: InputMaybe<Scalars['BigInt']>;
+  domain_lt?: InputMaybe<Scalars['BigInt']>;
+  domain_gte?: InputMaybe<Scalars['BigInt']>;
+  domain_lte?: InputMaybe<Scalars['BigInt']>;
+  domain_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  domain_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  swapPool?: InputMaybe<Scalars['staginggoerli_Bytes']>;
+  swapPool_not?: InputMaybe<Scalars['staginggoerli_Bytes']>;
+  swapPool_in?: InputMaybe<Array<Scalars['staginggoerli_Bytes']>>;
+  swapPool_not_in?: InputMaybe<Array<Scalars['staginggoerli_Bytes']>>;
+  swapPool_contains?: InputMaybe<Scalars['staginggoerli_Bytes']>;
+  swapPool_not_contains?: InputMaybe<Scalars['staginggoerli_Bytes']>;
+  /** Filter for the block changed event. */
+  _change_block?: InputMaybe<staginggoerli_BlockChangedFilter>;
+};
+
+export type staginggoerli_StableSwap_orderBy =
+  | 'id'
+  | 'canonicalId'
+  | 'domain'
+  | 'swapPool';
+
+export type staginggoerli_TransferStatus =
+  | 'XCalled'
+  | 'Executed'
+  | 'Reconciled'
+  | 'CompletedSlow'
+  | 'CompletedFast';
+
+export type staginggoerli__Block_ = {
+  /** The hash of the block */
+  hash?: Maybe<Scalars['staginggoerli_Bytes']>;
+  /** The block number */
+  number: Scalars['Int'];
+  /** Integer representation of the timestamp stored in blocks for the chain */
+  timestamp?: Maybe<Scalars['Int']>;
+};
+
+/** The type for the top-level _meta field */
+export type staginggoerli__Meta_ = {
+  /**
+   * Information about a specific subgraph block. The hash of the block
+   * will be null if the _meta field has a block constraint that asks for
+   * a block number. It will be filled if the _meta field has no block constraint
+   * and therefore asks for the latest  block
+   *
+   */
+  block: staginggoerli__Block_;
+  /** The deployment ID */
+  deployment: Scalars['String'];
+  /** If `true`, the subgraph encountered indexing errors at some past block */
+  hasIndexingErrors: Scalars['Boolean'];
+};
+
 export type WithIndex<TObject> = TObject & Record<string, any>;
 export type ResolversObject<TObject> = WithIndex<TObject>;
 
@@ -19203,48 +19204,6 @@ export type DirectiveResolverFn<TResult = {}, TParent = {}, TContext = {}, TArgs
 export type ResolversTypes = ResolversObject<{
   Query: ResolverTypeWrapper<{}>;
   Subscription: ResolverTypeWrapper<{}>;
-  rinkeby_Asset: ResolverTypeWrapper<rinkeby_Asset>;
-  rinkeby_AssetBalance: ResolverTypeWrapper<rinkeby_AssetBalance>;
-  rinkeby_AssetBalance_filter: rinkeby_AssetBalance_filter;
-  rinkeby_AssetBalance_orderBy: rinkeby_AssetBalance_orderBy;
-  rinkeby_Asset_filter: rinkeby_Asset_filter;
-  rinkeby_Asset_orderBy: rinkeby_Asset_orderBy;
-  rinkeby_BigDecimal: ResolverTypeWrapper<Scalars['rinkeby_BigDecimal']>;
-  BigInt: ResolverTypeWrapper<Scalars['BigInt']>;
-  rinkeby_BlockChangedFilter: rinkeby_BlockChangedFilter;
-  rinkeby_Block_height: rinkeby_Block_height;
-  Boolean: ResolverTypeWrapper<Scalars['Boolean']>;
-  rinkeby_Bytes: ResolverTypeWrapper<Scalars['rinkeby_Bytes']>;
-  rinkeby_DestinationTransfer: ResolverTypeWrapper<rinkeby_DestinationTransfer>;
-  rinkeby_DestinationTransfer_filter: rinkeby_DestinationTransfer_filter;
-  rinkeby_DestinationTransfer_orderBy: rinkeby_DestinationTransfer_orderBy;
-  Float: ResolverTypeWrapper<Scalars['Float']>;
-  ID: ResolverTypeWrapper<Scalars['ID']>;
-  Int: ResolverTypeWrapper<Scalars['Int']>;
-  rinkeby_OrderDirection: rinkeby_OrderDirection;
-  rinkeby_OriginTransfer: ResolverTypeWrapper<rinkeby_OriginTransfer>;
-  rinkeby_OriginTransfer_filter: rinkeby_OriginTransfer_filter;
-  rinkeby_OriginTransfer_orderBy: rinkeby_OriginTransfer_orderBy;
-  rinkeby_Relayer: ResolverTypeWrapper<rinkeby_Relayer>;
-  rinkeby_Relayer_filter: rinkeby_Relayer_filter;
-  rinkeby_Relayer_orderBy: rinkeby_Relayer_orderBy;
-  rinkeby_Router: ResolverTypeWrapper<rinkeby_Router>;
-  rinkeby_Router_filter: rinkeby_Router_filter;
-  rinkeby_Router_orderBy: rinkeby_Router_orderBy;
-  rinkeby_Setting: ResolverTypeWrapper<rinkeby_Setting>;
-  rinkeby_Setting_filter: rinkeby_Setting_filter;
-  rinkeby_Setting_orderBy: rinkeby_Setting_orderBy;
-  rinkeby_SponsorVault: ResolverTypeWrapper<rinkeby_SponsorVault>;
-  rinkeby_SponsorVault_filter: rinkeby_SponsorVault_filter;
-  rinkeby_SponsorVault_orderBy: rinkeby_SponsorVault_orderBy;
-  rinkeby_StableSwap: ResolverTypeWrapper<rinkeby_StableSwap>;
-  rinkeby_StableSwap_filter: rinkeby_StableSwap_filter;
-  rinkeby_StableSwap_orderBy: rinkeby_StableSwap_orderBy;
-  String: ResolverTypeWrapper<Scalars['String']>;
-  rinkeby_TransferStatus: rinkeby_TransferStatus;
-  rinkeby__Block_: ResolverTypeWrapper<rinkeby__Block_>;
-  rinkeby__Meta_: ResolverTypeWrapper<rinkeby__Meta_>;
-  _SubgraphErrorPolicy_: _SubgraphErrorPolicy_;
   testgoerli_Asset: ResolverTypeWrapper<testgoerli_Asset>;
   testgoerli_AssetBalance: ResolverTypeWrapper<testgoerli_AssetBalance>;
   testgoerli_AssetBalance_filter: testgoerli_AssetBalance_filter;
@@ -19252,12 +19211,17 @@ export type ResolversTypes = ResolversObject<{
   testgoerli_Asset_filter: testgoerli_Asset_filter;
   testgoerli_Asset_orderBy: testgoerli_Asset_orderBy;
   testgoerli_BigDecimal: ResolverTypeWrapper<Scalars['testgoerli_BigDecimal']>;
+  BigInt: ResolverTypeWrapper<Scalars['BigInt']>;
   testgoerli_BlockChangedFilter: testgoerli_BlockChangedFilter;
   testgoerli_Block_height: testgoerli_Block_height;
+  Boolean: ResolverTypeWrapper<Scalars['Boolean']>;
   testgoerli_Bytes: ResolverTypeWrapper<Scalars['testgoerli_Bytes']>;
   testgoerli_DestinationTransfer: ResolverTypeWrapper<testgoerli_DestinationTransfer>;
   testgoerli_DestinationTransfer_filter: testgoerli_DestinationTransfer_filter;
   testgoerli_DestinationTransfer_orderBy: testgoerli_DestinationTransfer_orderBy;
+  Float: ResolverTypeWrapper<Scalars['Float']>;
+  ID: ResolverTypeWrapper<Scalars['ID']>;
+  Int: ResolverTypeWrapper<Scalars['Int']>;
   testgoerli_OrderDirection: testgoerli_OrderDirection;
   testgoerli_OriginTransfer: ResolverTypeWrapper<testgoerli_OriginTransfer>;
   testgoerli_OriginTransfer_filter: testgoerli_OriginTransfer_filter;
@@ -19277,9 +19241,11 @@ export type ResolversTypes = ResolversObject<{
   testgoerli_StableSwap: ResolverTypeWrapper<testgoerli_StableSwap>;
   testgoerli_StableSwap_filter: testgoerli_StableSwap_filter;
   testgoerli_StableSwap_orderBy: testgoerli_StableSwap_orderBy;
+  String: ResolverTypeWrapper<Scalars['String']>;
   testgoerli_TransferStatus: testgoerli_TransferStatus;
   testgoerli__Block_: ResolverTypeWrapper<testgoerli__Block_>;
   testgoerli__Meta_: ResolverTypeWrapper<testgoerli__Meta_>;
+  _SubgraphErrorPolicy_: _SubgraphErrorPolicy_;
   local1337_Asset: ResolverTypeWrapper<local1337_Asset>;
   local1337_AssetBalance: ResolverTypeWrapper<local1337_AssetBalance>;
   local1337_AssetBalance_filter: local1337_AssetBalance_filter;
@@ -19315,94 +19281,41 @@ export type ResolversTypes = ResolversObject<{
   local1337_TransferStatus: local1337_TransferStatus;
   local1337__Block_: ResolverTypeWrapper<local1337__Block_>;
   local1337__Meta_: ResolverTypeWrapper<local1337__Meta_>;
-  testoptimismgoerli_Asset: ResolverTypeWrapper<testoptimismgoerli_Asset>;
-  testoptimismgoerli_AssetBalance: ResolverTypeWrapper<testoptimismgoerli_AssetBalance>;
-  testoptimismgoerli_AssetBalance_filter: testoptimismgoerli_AssetBalance_filter;
-  testoptimismgoerli_AssetBalance_orderBy: testoptimismgoerli_AssetBalance_orderBy;
-  testoptimismgoerli_Asset_filter: testoptimismgoerli_Asset_filter;
-  testoptimismgoerli_Asset_orderBy: testoptimismgoerli_Asset_orderBy;
-  testoptimismgoerli_BigDecimal: ResolverTypeWrapper<Scalars['testoptimismgoerli_BigDecimal']>;
-  testoptimismgoerli_BlockChangedFilter: testoptimismgoerli_BlockChangedFilter;
-  testoptimismgoerli_Block_height: testoptimismgoerli_Block_height;
-  testoptimismgoerli_Bytes: ResolverTypeWrapper<Scalars['testoptimismgoerli_Bytes']>;
-  testoptimismgoerli_DestinationTransfer: ResolverTypeWrapper<testoptimismgoerli_DestinationTransfer>;
-  testoptimismgoerli_DestinationTransfer_filter: testoptimismgoerli_DestinationTransfer_filter;
-  testoptimismgoerli_DestinationTransfer_orderBy: testoptimismgoerli_DestinationTransfer_orderBy;
-  testoptimismgoerli_OrderDirection: testoptimismgoerli_OrderDirection;
-  testoptimismgoerli_OriginTransfer: ResolverTypeWrapper<testoptimismgoerli_OriginTransfer>;
-  testoptimismgoerli_OriginTransfer_filter: testoptimismgoerli_OriginTransfer_filter;
-  testoptimismgoerli_OriginTransfer_orderBy: testoptimismgoerli_OriginTransfer_orderBy;
-  testoptimismgoerli_Relayer: ResolverTypeWrapper<testoptimismgoerli_Relayer>;
-  testoptimismgoerli_Relayer_filter: testoptimismgoerli_Relayer_filter;
-  testoptimismgoerli_Relayer_orderBy: testoptimismgoerli_Relayer_orderBy;
-  testoptimismgoerli_Router: ResolverTypeWrapper<testoptimismgoerli_Router>;
-  testoptimismgoerli_Router_filter: testoptimismgoerli_Router_filter;
-  testoptimismgoerli_Router_orderBy: testoptimismgoerli_Router_orderBy;
-  testoptimismgoerli_Setting: ResolverTypeWrapper<testoptimismgoerli_Setting>;
-  testoptimismgoerli_Setting_filter: testoptimismgoerli_Setting_filter;
-  testoptimismgoerli_Setting_orderBy: testoptimismgoerli_Setting_orderBy;
-  testoptimismgoerli_SponsorVault: ResolverTypeWrapper<testoptimismgoerli_SponsorVault>;
-  testoptimismgoerli_SponsorVault_filter: testoptimismgoerli_SponsorVault_filter;
-  testoptimismgoerli_SponsorVault_orderBy: testoptimismgoerli_SponsorVault_orderBy;
-  testoptimismgoerli_StableSwap: ResolverTypeWrapper<testoptimismgoerli_StableSwap>;
-  testoptimismgoerli_StableSwap_filter: testoptimismgoerli_StableSwap_filter;
-  testoptimismgoerli_StableSwap_orderBy: testoptimismgoerli_StableSwap_orderBy;
-  testoptimismgoerli_TransferStatus: testoptimismgoerli_TransferStatus;
-  testoptimismgoerli__Block_: ResolverTypeWrapper<testoptimismgoerli__Block_>;
-  testoptimismgoerli__Meta_: ResolverTypeWrapper<testoptimismgoerli__Meta_>;
-  staginggoerli_AggregateRoot: ResolverTypeWrapper<staginggoerli_AggregateRoot>;
-  staginggoerli_AggregateRoot_filter: staginggoerli_AggregateRoot_filter;
-  staginggoerli_AggregateRoot_orderBy: staginggoerli_AggregateRoot_orderBy;
-  staginggoerli_Asset: ResolverTypeWrapper<staginggoerli_Asset>;
-  staginggoerli_AssetBalance: ResolverTypeWrapper<staginggoerli_AssetBalance>;
-  staginggoerli_AssetBalance_filter: staginggoerli_AssetBalance_filter;
-  staginggoerli_AssetBalance_orderBy: staginggoerli_AssetBalance_orderBy;
-  staginggoerli_Asset_filter: staginggoerli_Asset_filter;
-  staginggoerli_Asset_orderBy: staginggoerli_Asset_orderBy;
-  staginggoerli_BigDecimal: ResolverTypeWrapper<Scalars['staginggoerli_BigDecimal']>;
-  staginggoerli_BlockChangedFilter: staginggoerli_BlockChangedFilter;
-  staginggoerli_Block_height: staginggoerli_Block_height;
-  staginggoerli_Bytes: ResolverTypeWrapper<Scalars['staginggoerli_Bytes']>;
-  staginggoerli_ConnectorMeta: ResolverTypeWrapper<staginggoerli_ConnectorMeta>;
-  staginggoerli_ConnectorMeta_filter: staginggoerli_ConnectorMeta_filter;
-  staginggoerli_ConnectorMeta_orderBy: staginggoerli_ConnectorMeta_orderBy;
-  staginggoerli_DestinationMessage: ResolverTypeWrapper<staginggoerli_DestinationMessage>;
-  staginggoerli_DestinationMessage_filter: staginggoerli_DestinationMessage_filter;
-  staginggoerli_DestinationMessage_orderBy: staginggoerli_DestinationMessage_orderBy;
-  staginggoerli_DestinationTransfer: ResolverTypeWrapper<staginggoerli_DestinationTransfer>;
-  staginggoerli_DestinationTransfer_filter: staginggoerli_DestinationTransfer_filter;
-  staginggoerli_DestinationTransfer_orderBy: staginggoerli_DestinationTransfer_orderBy;
-  staginggoerli_OrderDirection: staginggoerli_OrderDirection;
-  staginggoerli_OriginMessage: ResolverTypeWrapper<staginggoerli_OriginMessage>;
-  staginggoerli_OriginMessage_filter: staginggoerli_OriginMessage_filter;
-  staginggoerli_OriginMessage_orderBy: staginggoerli_OriginMessage_orderBy;
-  staginggoerli_OriginTransfer: ResolverTypeWrapper<staginggoerli_OriginTransfer>;
-  staginggoerli_OriginTransfer_filter: staginggoerli_OriginTransfer_filter;
-  staginggoerli_OriginTransfer_orderBy: staginggoerli_OriginTransfer_orderBy;
-  staginggoerli_Relayer: ResolverTypeWrapper<staginggoerli_Relayer>;
-  staginggoerli_Relayer_filter: staginggoerli_Relayer_filter;
-  staginggoerli_Relayer_orderBy: staginggoerli_Relayer_orderBy;
-  staginggoerli_RootMessageProcessed: ResolverTypeWrapper<staginggoerli_RootMessageProcessed>;
-  staginggoerli_RootMessageProcessed_filter: staginggoerli_RootMessageProcessed_filter;
-  staginggoerli_RootMessageProcessed_orderBy: staginggoerli_RootMessageProcessed_orderBy;
-  staginggoerli_RootMessageSent: ResolverTypeWrapper<staginggoerli_RootMessageSent>;
-  staginggoerli_RootMessageSent_filter: staginggoerli_RootMessageSent_filter;
-  staginggoerli_RootMessageSent_orderBy: staginggoerli_RootMessageSent_orderBy;
-  staginggoerli_Router: ResolverTypeWrapper<staginggoerli_Router>;
-  staginggoerli_Router_filter: staginggoerli_Router_filter;
-  staginggoerli_Router_orderBy: staginggoerli_Router_orderBy;
-  staginggoerli_Setting: ResolverTypeWrapper<staginggoerli_Setting>;
-  staginggoerli_Setting_filter: staginggoerli_Setting_filter;
-  staginggoerli_Setting_orderBy: staginggoerli_Setting_orderBy;
-  staginggoerli_SponsorVault: ResolverTypeWrapper<staginggoerli_SponsorVault>;
-  staginggoerli_SponsorVault_filter: staginggoerli_SponsorVault_filter;
-  staginggoerli_SponsorVault_orderBy: staginggoerli_SponsorVault_orderBy;
-  staginggoerli_StableSwap: ResolverTypeWrapper<staginggoerli_StableSwap>;
-  staginggoerli_StableSwap_filter: staginggoerli_StableSwap_filter;
-  staginggoerli_StableSwap_orderBy: staginggoerli_StableSwap_orderBy;
-  staginggoerli_TransferStatus: staginggoerli_TransferStatus;
-  staginggoerli__Block_: ResolverTypeWrapper<staginggoerli__Block_>;
-  staginggoerli__Meta_: ResolverTypeWrapper<staginggoerli__Meta_>;
+  rinkeby_Asset: ResolverTypeWrapper<rinkeby_Asset>;
+  rinkeby_AssetBalance: ResolverTypeWrapper<rinkeby_AssetBalance>;
+  rinkeby_AssetBalance_filter: rinkeby_AssetBalance_filter;
+  rinkeby_AssetBalance_orderBy: rinkeby_AssetBalance_orderBy;
+  rinkeby_Asset_filter: rinkeby_Asset_filter;
+  rinkeby_Asset_orderBy: rinkeby_Asset_orderBy;
+  rinkeby_BigDecimal: ResolverTypeWrapper<Scalars['rinkeby_BigDecimal']>;
+  rinkeby_BlockChangedFilter: rinkeby_BlockChangedFilter;
+  rinkeby_Block_height: rinkeby_Block_height;
+  rinkeby_Bytes: ResolverTypeWrapper<Scalars['rinkeby_Bytes']>;
+  rinkeby_DestinationTransfer: ResolverTypeWrapper<rinkeby_DestinationTransfer>;
+  rinkeby_DestinationTransfer_filter: rinkeby_DestinationTransfer_filter;
+  rinkeby_DestinationTransfer_orderBy: rinkeby_DestinationTransfer_orderBy;
+  rinkeby_OrderDirection: rinkeby_OrderDirection;
+  rinkeby_OriginTransfer: ResolverTypeWrapper<rinkeby_OriginTransfer>;
+  rinkeby_OriginTransfer_filter: rinkeby_OriginTransfer_filter;
+  rinkeby_OriginTransfer_orderBy: rinkeby_OriginTransfer_orderBy;
+  rinkeby_Relayer: ResolverTypeWrapper<rinkeby_Relayer>;
+  rinkeby_Relayer_filter: rinkeby_Relayer_filter;
+  rinkeby_Relayer_orderBy: rinkeby_Relayer_orderBy;
+  rinkeby_Router: ResolverTypeWrapper<rinkeby_Router>;
+  rinkeby_Router_filter: rinkeby_Router_filter;
+  rinkeby_Router_orderBy: rinkeby_Router_orderBy;
+  rinkeby_Setting: ResolverTypeWrapper<rinkeby_Setting>;
+  rinkeby_Setting_filter: rinkeby_Setting_filter;
+  rinkeby_Setting_orderBy: rinkeby_Setting_orderBy;
+  rinkeby_SponsorVault: ResolverTypeWrapper<rinkeby_SponsorVault>;
+  rinkeby_SponsorVault_filter: rinkeby_SponsorVault_filter;
+  rinkeby_SponsorVault_orderBy: rinkeby_SponsorVault_orderBy;
+  rinkeby_StableSwap: ResolverTypeWrapper<rinkeby_StableSwap>;
+  rinkeby_StableSwap_filter: rinkeby_StableSwap_filter;
+  rinkeby_StableSwap_orderBy: rinkeby_StableSwap_orderBy;
+  rinkeby_TransferStatus: rinkeby_TransferStatus;
+  rinkeby__Block_: ResolverTypeWrapper<rinkeby__Block_>;
+  rinkeby__Meta_: ResolverTypeWrapper<rinkeby__Meta_>;
   goerli_AggregateRoot: ResolverTypeWrapper<goerli_AggregateRoot>;
   goerli_AggregateRoot_filter: goerli_AggregateRoot_filter;
   goerli_AggregateRoot_orderBy: goerli_AggregateRoot_orderBy;
@@ -19456,94 +19369,41 @@ export type ResolversTypes = ResolversObject<{
   goerli_TransferStatus: goerli_TransferStatus;
   goerli__Block_: ResolverTypeWrapper<goerli__Block_>;
   goerli__Meta_: ResolverTypeWrapper<goerli__Meta_>;
-  local1338_Asset: ResolverTypeWrapper<local1338_Asset>;
-  local1338_AssetBalance: ResolverTypeWrapper<local1338_AssetBalance>;
-  local1338_AssetBalance_filter: local1338_AssetBalance_filter;
-  local1338_AssetBalance_orderBy: local1338_AssetBalance_orderBy;
-  local1338_Asset_filter: local1338_Asset_filter;
-  local1338_Asset_orderBy: local1338_Asset_orderBy;
-  local1338_BigDecimal: ResolverTypeWrapper<Scalars['local1338_BigDecimal']>;
-  local1338_BlockChangedFilter: local1338_BlockChangedFilter;
-  local1338_Block_height: local1338_Block_height;
-  local1338_Bytes: ResolverTypeWrapper<Scalars['local1338_Bytes']>;
-  local1338_DestinationTransfer: ResolverTypeWrapper<local1338_DestinationTransfer>;
-  local1338_DestinationTransfer_filter: local1338_DestinationTransfer_filter;
-  local1338_DestinationTransfer_orderBy: local1338_DestinationTransfer_orderBy;
-  local1338_OrderDirection: local1338_OrderDirection;
-  local1338_OriginTransfer: ResolverTypeWrapper<local1338_OriginTransfer>;
-  local1338_OriginTransfer_filter: local1338_OriginTransfer_filter;
-  local1338_OriginTransfer_orderBy: local1338_OriginTransfer_orderBy;
-  local1338_Relayer: ResolverTypeWrapper<local1338_Relayer>;
-  local1338_Relayer_filter: local1338_Relayer_filter;
-  local1338_Relayer_orderBy: local1338_Relayer_orderBy;
-  local1338_Router: ResolverTypeWrapper<local1338_Router>;
-  local1338_Router_filter: local1338_Router_filter;
-  local1338_Router_orderBy: local1338_Router_orderBy;
-  local1338_Setting: ResolverTypeWrapper<local1338_Setting>;
-  local1338_Setting_filter: local1338_Setting_filter;
-  local1338_Setting_orderBy: local1338_Setting_orderBy;
-  local1338_SponsorVault: ResolverTypeWrapper<local1338_SponsorVault>;
-  local1338_SponsorVault_filter: local1338_SponsorVault_filter;
-  local1338_SponsorVault_orderBy: local1338_SponsorVault_orderBy;
-  local1338_StableSwap: ResolverTypeWrapper<local1338_StableSwap>;
-  local1338_StableSwap_filter: local1338_StableSwap_filter;
-  local1338_StableSwap_orderBy: local1338_StableSwap_orderBy;
-  local1338_TransferStatus: local1338_TransferStatus;
-  local1338__Block_: ResolverTypeWrapper<local1338__Block_>;
-  local1338__Meta_: ResolverTypeWrapper<local1338__Meta_>;
-  stagingmumbai_AggregateRoot: ResolverTypeWrapper<stagingmumbai_AggregateRoot>;
-  stagingmumbai_AggregateRoot_filter: stagingmumbai_AggregateRoot_filter;
-  stagingmumbai_AggregateRoot_orderBy: stagingmumbai_AggregateRoot_orderBy;
-  stagingmumbai_Asset: ResolverTypeWrapper<stagingmumbai_Asset>;
-  stagingmumbai_AssetBalance: ResolverTypeWrapper<stagingmumbai_AssetBalance>;
-  stagingmumbai_AssetBalance_filter: stagingmumbai_AssetBalance_filter;
-  stagingmumbai_AssetBalance_orderBy: stagingmumbai_AssetBalance_orderBy;
-  stagingmumbai_Asset_filter: stagingmumbai_Asset_filter;
-  stagingmumbai_Asset_orderBy: stagingmumbai_Asset_orderBy;
-  stagingmumbai_BigDecimal: ResolverTypeWrapper<Scalars['stagingmumbai_BigDecimal']>;
-  stagingmumbai_BlockChangedFilter: stagingmumbai_BlockChangedFilter;
-  stagingmumbai_Block_height: stagingmumbai_Block_height;
-  stagingmumbai_Bytes: ResolverTypeWrapper<Scalars['stagingmumbai_Bytes']>;
-  stagingmumbai_ConnectorMeta: ResolverTypeWrapper<stagingmumbai_ConnectorMeta>;
-  stagingmumbai_ConnectorMeta_filter: stagingmumbai_ConnectorMeta_filter;
-  stagingmumbai_ConnectorMeta_orderBy: stagingmumbai_ConnectorMeta_orderBy;
-  stagingmumbai_DestinationMessage: ResolverTypeWrapper<stagingmumbai_DestinationMessage>;
-  stagingmumbai_DestinationMessage_filter: stagingmumbai_DestinationMessage_filter;
-  stagingmumbai_DestinationMessage_orderBy: stagingmumbai_DestinationMessage_orderBy;
-  stagingmumbai_DestinationTransfer: ResolverTypeWrapper<stagingmumbai_DestinationTransfer>;
-  stagingmumbai_DestinationTransfer_filter: stagingmumbai_DestinationTransfer_filter;
-  stagingmumbai_DestinationTransfer_orderBy: stagingmumbai_DestinationTransfer_orderBy;
-  stagingmumbai_OrderDirection: stagingmumbai_OrderDirection;
-  stagingmumbai_OriginMessage: ResolverTypeWrapper<stagingmumbai_OriginMessage>;
-  stagingmumbai_OriginMessage_filter: stagingmumbai_OriginMessage_filter;
-  stagingmumbai_OriginMessage_orderBy: stagingmumbai_OriginMessage_orderBy;
-  stagingmumbai_OriginTransfer: ResolverTypeWrapper<stagingmumbai_OriginTransfer>;
-  stagingmumbai_OriginTransfer_filter: stagingmumbai_OriginTransfer_filter;
-  stagingmumbai_OriginTransfer_orderBy: stagingmumbai_OriginTransfer_orderBy;
-  stagingmumbai_Relayer: ResolverTypeWrapper<stagingmumbai_Relayer>;
-  stagingmumbai_Relayer_filter: stagingmumbai_Relayer_filter;
-  stagingmumbai_Relayer_orderBy: stagingmumbai_Relayer_orderBy;
-  stagingmumbai_RootMessageProcessed: ResolverTypeWrapper<stagingmumbai_RootMessageProcessed>;
-  stagingmumbai_RootMessageProcessed_filter: stagingmumbai_RootMessageProcessed_filter;
-  stagingmumbai_RootMessageProcessed_orderBy: stagingmumbai_RootMessageProcessed_orderBy;
-  stagingmumbai_RootMessageSent: ResolverTypeWrapper<stagingmumbai_RootMessageSent>;
-  stagingmumbai_RootMessageSent_filter: stagingmumbai_RootMessageSent_filter;
-  stagingmumbai_RootMessageSent_orderBy: stagingmumbai_RootMessageSent_orderBy;
-  stagingmumbai_Router: ResolverTypeWrapper<stagingmumbai_Router>;
-  stagingmumbai_Router_filter: stagingmumbai_Router_filter;
-  stagingmumbai_Router_orderBy: stagingmumbai_Router_orderBy;
-  stagingmumbai_Setting: ResolverTypeWrapper<stagingmumbai_Setting>;
-  stagingmumbai_Setting_filter: stagingmumbai_Setting_filter;
-  stagingmumbai_Setting_orderBy: stagingmumbai_Setting_orderBy;
-  stagingmumbai_SponsorVault: ResolverTypeWrapper<stagingmumbai_SponsorVault>;
-  stagingmumbai_SponsorVault_filter: stagingmumbai_SponsorVault_filter;
-  stagingmumbai_SponsorVault_orderBy: stagingmumbai_SponsorVault_orderBy;
-  stagingmumbai_StableSwap: ResolverTypeWrapper<stagingmumbai_StableSwap>;
-  stagingmumbai_StableSwap_filter: stagingmumbai_StableSwap_filter;
-  stagingmumbai_StableSwap_orderBy: stagingmumbai_StableSwap_orderBy;
-  stagingmumbai_TransferStatus: stagingmumbai_TransferStatus;
-  stagingmumbai__Block_: ResolverTypeWrapper<stagingmumbai__Block_>;
-  stagingmumbai__Meta_: ResolverTypeWrapper<stagingmumbai__Meta_>;
+  testoptimismgoerli_Asset: ResolverTypeWrapper<testoptimismgoerli_Asset>;
+  testoptimismgoerli_AssetBalance: ResolverTypeWrapper<testoptimismgoerli_AssetBalance>;
+  testoptimismgoerli_AssetBalance_filter: testoptimismgoerli_AssetBalance_filter;
+  testoptimismgoerli_AssetBalance_orderBy: testoptimismgoerli_AssetBalance_orderBy;
+  testoptimismgoerli_Asset_filter: testoptimismgoerli_Asset_filter;
+  testoptimismgoerli_Asset_orderBy: testoptimismgoerli_Asset_orderBy;
+  testoptimismgoerli_BigDecimal: ResolverTypeWrapper<Scalars['testoptimismgoerli_BigDecimal']>;
+  testoptimismgoerli_BlockChangedFilter: testoptimismgoerli_BlockChangedFilter;
+  testoptimismgoerli_Block_height: testoptimismgoerli_Block_height;
+  testoptimismgoerli_Bytes: ResolverTypeWrapper<Scalars['testoptimismgoerli_Bytes']>;
+  testoptimismgoerli_DestinationTransfer: ResolverTypeWrapper<testoptimismgoerli_DestinationTransfer>;
+  testoptimismgoerli_DestinationTransfer_filter: testoptimismgoerli_DestinationTransfer_filter;
+  testoptimismgoerli_DestinationTransfer_orderBy: testoptimismgoerli_DestinationTransfer_orderBy;
+  testoptimismgoerli_OrderDirection: testoptimismgoerli_OrderDirection;
+  testoptimismgoerli_OriginTransfer: ResolverTypeWrapper<testoptimismgoerli_OriginTransfer>;
+  testoptimismgoerli_OriginTransfer_filter: testoptimismgoerli_OriginTransfer_filter;
+  testoptimismgoerli_OriginTransfer_orderBy: testoptimismgoerli_OriginTransfer_orderBy;
+  testoptimismgoerli_Relayer: ResolverTypeWrapper<testoptimismgoerli_Relayer>;
+  testoptimismgoerli_Relayer_filter: testoptimismgoerli_Relayer_filter;
+  testoptimismgoerli_Relayer_orderBy: testoptimismgoerli_Relayer_orderBy;
+  testoptimismgoerli_Router: ResolverTypeWrapper<testoptimismgoerli_Router>;
+  testoptimismgoerli_Router_filter: testoptimismgoerli_Router_filter;
+  testoptimismgoerli_Router_orderBy: testoptimismgoerli_Router_orderBy;
+  testoptimismgoerli_Setting: ResolverTypeWrapper<testoptimismgoerli_Setting>;
+  testoptimismgoerli_Setting_filter: testoptimismgoerli_Setting_filter;
+  testoptimismgoerli_Setting_orderBy: testoptimismgoerli_Setting_orderBy;
+  testoptimismgoerli_SponsorVault: ResolverTypeWrapper<testoptimismgoerli_SponsorVault>;
+  testoptimismgoerli_SponsorVault_filter: testoptimismgoerli_SponsorVault_filter;
+  testoptimismgoerli_SponsorVault_orderBy: testoptimismgoerli_SponsorVault_orderBy;
+  testoptimismgoerli_StableSwap: ResolverTypeWrapper<testoptimismgoerli_StableSwap>;
+  testoptimismgoerli_StableSwap_filter: testoptimismgoerli_StableSwap_filter;
+  testoptimismgoerli_StableSwap_orderBy: testoptimismgoerli_StableSwap_orderBy;
+  testoptimismgoerli_TransferStatus: testoptimismgoerli_TransferStatus;
+  testoptimismgoerli__Block_: ResolverTypeWrapper<testoptimismgoerli__Block_>;
+  testoptimismgoerli__Meta_: ResolverTypeWrapper<testoptimismgoerli__Meta_>;
   optimismgoerli_AggregateRoot: ResolverTypeWrapper<optimismgoerli_AggregateRoot>;
   optimismgoerli_AggregateRoot_filter: optimismgoerli_AggregateRoot_filter;
   optimismgoerli_AggregateRoot_orderBy: optimismgoerli_AggregateRoot_orderBy;
@@ -19597,6 +19457,41 @@ export type ResolversTypes = ResolversObject<{
   optimismgoerli_TransferStatus: optimismgoerli_TransferStatus;
   optimismgoerli__Block_: ResolverTypeWrapper<optimismgoerli__Block_>;
   optimismgoerli__Meta_: ResolverTypeWrapper<optimismgoerli__Meta_>;
+  local1338_Asset: ResolverTypeWrapper<local1338_Asset>;
+  local1338_AssetBalance: ResolverTypeWrapper<local1338_AssetBalance>;
+  local1338_AssetBalance_filter: local1338_AssetBalance_filter;
+  local1338_AssetBalance_orderBy: local1338_AssetBalance_orderBy;
+  local1338_Asset_filter: local1338_Asset_filter;
+  local1338_Asset_orderBy: local1338_Asset_orderBy;
+  local1338_BigDecimal: ResolverTypeWrapper<Scalars['local1338_BigDecimal']>;
+  local1338_BlockChangedFilter: local1338_BlockChangedFilter;
+  local1338_Block_height: local1338_Block_height;
+  local1338_Bytes: ResolverTypeWrapper<Scalars['local1338_Bytes']>;
+  local1338_DestinationTransfer: ResolverTypeWrapper<local1338_DestinationTransfer>;
+  local1338_DestinationTransfer_filter: local1338_DestinationTransfer_filter;
+  local1338_DestinationTransfer_orderBy: local1338_DestinationTransfer_orderBy;
+  local1338_OrderDirection: local1338_OrderDirection;
+  local1338_OriginTransfer: ResolverTypeWrapper<local1338_OriginTransfer>;
+  local1338_OriginTransfer_filter: local1338_OriginTransfer_filter;
+  local1338_OriginTransfer_orderBy: local1338_OriginTransfer_orderBy;
+  local1338_Relayer: ResolverTypeWrapper<local1338_Relayer>;
+  local1338_Relayer_filter: local1338_Relayer_filter;
+  local1338_Relayer_orderBy: local1338_Relayer_orderBy;
+  local1338_Router: ResolverTypeWrapper<local1338_Router>;
+  local1338_Router_filter: local1338_Router_filter;
+  local1338_Router_orderBy: local1338_Router_orderBy;
+  local1338_Setting: ResolverTypeWrapper<local1338_Setting>;
+  local1338_Setting_filter: local1338_Setting_filter;
+  local1338_Setting_orderBy: local1338_Setting_orderBy;
+  local1338_SponsorVault: ResolverTypeWrapper<local1338_SponsorVault>;
+  local1338_SponsorVault_filter: local1338_SponsorVault_filter;
+  local1338_SponsorVault_orderBy: local1338_SponsorVault_orderBy;
+  local1338_StableSwap: ResolverTypeWrapper<local1338_StableSwap>;
+  local1338_StableSwap_filter: local1338_StableSwap_filter;
+  local1338_StableSwap_orderBy: local1338_StableSwap_orderBy;
+  local1338_TransferStatus: local1338_TransferStatus;
+  local1338__Block_: ResolverTypeWrapper<local1338__Block_>;
+  local1338__Meta_: ResolverTypeWrapper<local1338__Meta_>;
   mumbai_AggregateRoot: ResolverTypeWrapper<mumbai_AggregateRoot>;
   mumbai_AggregateRoot_filter: mumbai_AggregateRoot_filter;
   mumbai_AggregateRoot_orderBy: mumbai_AggregateRoot_orderBy;
@@ -19644,6 +19539,59 @@ export type ResolversTypes = ResolversObject<{
   mumbai_TransferStatus: mumbai_TransferStatus;
   mumbai__Block_: ResolverTypeWrapper<mumbai__Block_>;
   mumbai__Meta_: ResolverTypeWrapper<mumbai__Meta_>;
+  stagingmumbai_AggregateRoot: ResolverTypeWrapper<stagingmumbai_AggregateRoot>;
+  stagingmumbai_AggregateRoot_filter: stagingmumbai_AggregateRoot_filter;
+  stagingmumbai_AggregateRoot_orderBy: stagingmumbai_AggregateRoot_orderBy;
+  stagingmumbai_Asset: ResolverTypeWrapper<stagingmumbai_Asset>;
+  stagingmumbai_AssetBalance: ResolverTypeWrapper<stagingmumbai_AssetBalance>;
+  stagingmumbai_AssetBalance_filter: stagingmumbai_AssetBalance_filter;
+  stagingmumbai_AssetBalance_orderBy: stagingmumbai_AssetBalance_orderBy;
+  stagingmumbai_Asset_filter: stagingmumbai_Asset_filter;
+  stagingmumbai_Asset_orderBy: stagingmumbai_Asset_orderBy;
+  stagingmumbai_BigDecimal: ResolverTypeWrapper<Scalars['stagingmumbai_BigDecimal']>;
+  stagingmumbai_BlockChangedFilter: stagingmumbai_BlockChangedFilter;
+  stagingmumbai_Block_height: stagingmumbai_Block_height;
+  stagingmumbai_Bytes: ResolverTypeWrapper<Scalars['stagingmumbai_Bytes']>;
+  stagingmumbai_ConnectorMeta: ResolverTypeWrapper<stagingmumbai_ConnectorMeta>;
+  stagingmumbai_ConnectorMeta_filter: stagingmumbai_ConnectorMeta_filter;
+  stagingmumbai_ConnectorMeta_orderBy: stagingmumbai_ConnectorMeta_orderBy;
+  stagingmumbai_DestinationMessage: ResolverTypeWrapper<stagingmumbai_DestinationMessage>;
+  stagingmumbai_DestinationMessage_filter: stagingmumbai_DestinationMessage_filter;
+  stagingmumbai_DestinationMessage_orderBy: stagingmumbai_DestinationMessage_orderBy;
+  stagingmumbai_DestinationTransfer: ResolverTypeWrapper<stagingmumbai_DestinationTransfer>;
+  stagingmumbai_DestinationTransfer_filter: stagingmumbai_DestinationTransfer_filter;
+  stagingmumbai_DestinationTransfer_orderBy: stagingmumbai_DestinationTransfer_orderBy;
+  stagingmumbai_OrderDirection: stagingmumbai_OrderDirection;
+  stagingmumbai_OriginMessage: ResolverTypeWrapper<stagingmumbai_OriginMessage>;
+  stagingmumbai_OriginMessage_filter: stagingmumbai_OriginMessage_filter;
+  stagingmumbai_OriginMessage_orderBy: stagingmumbai_OriginMessage_orderBy;
+  stagingmumbai_OriginTransfer: ResolverTypeWrapper<stagingmumbai_OriginTransfer>;
+  stagingmumbai_OriginTransfer_filter: stagingmumbai_OriginTransfer_filter;
+  stagingmumbai_OriginTransfer_orderBy: stagingmumbai_OriginTransfer_orderBy;
+  stagingmumbai_Relayer: ResolverTypeWrapper<stagingmumbai_Relayer>;
+  stagingmumbai_Relayer_filter: stagingmumbai_Relayer_filter;
+  stagingmumbai_Relayer_orderBy: stagingmumbai_Relayer_orderBy;
+  stagingmumbai_RootMessageProcessed: ResolverTypeWrapper<stagingmumbai_RootMessageProcessed>;
+  stagingmumbai_RootMessageProcessed_filter: stagingmumbai_RootMessageProcessed_filter;
+  stagingmumbai_RootMessageProcessed_orderBy: stagingmumbai_RootMessageProcessed_orderBy;
+  stagingmumbai_RootMessageSent: ResolverTypeWrapper<stagingmumbai_RootMessageSent>;
+  stagingmumbai_RootMessageSent_filter: stagingmumbai_RootMessageSent_filter;
+  stagingmumbai_RootMessageSent_orderBy: stagingmumbai_RootMessageSent_orderBy;
+  stagingmumbai_Router: ResolverTypeWrapper<stagingmumbai_Router>;
+  stagingmumbai_Router_filter: stagingmumbai_Router_filter;
+  stagingmumbai_Router_orderBy: stagingmumbai_Router_orderBy;
+  stagingmumbai_Setting: ResolverTypeWrapper<stagingmumbai_Setting>;
+  stagingmumbai_Setting_filter: stagingmumbai_Setting_filter;
+  stagingmumbai_Setting_orderBy: stagingmumbai_Setting_orderBy;
+  stagingmumbai_SponsorVault: ResolverTypeWrapper<stagingmumbai_SponsorVault>;
+  stagingmumbai_SponsorVault_filter: stagingmumbai_SponsorVault_filter;
+  stagingmumbai_SponsorVault_orderBy: stagingmumbai_SponsorVault_orderBy;
+  stagingmumbai_StableSwap: ResolverTypeWrapper<stagingmumbai_StableSwap>;
+  stagingmumbai_StableSwap_filter: stagingmumbai_StableSwap_filter;
+  stagingmumbai_StableSwap_orderBy: stagingmumbai_StableSwap_orderBy;
+  stagingmumbai_TransferStatus: stagingmumbai_TransferStatus;
+  stagingmumbai__Block_: ResolverTypeWrapper<stagingmumbai__Block_>;
+  stagingmumbai__Meta_: ResolverTypeWrapper<stagingmumbai__Meta_>;
   stagingoptimismgoerli_AggregateRoot: ResolverTypeWrapper<stagingoptimismgoerli_AggregateRoot>;
   stagingoptimismgoerli_AggregateRoot_filter: stagingoptimismgoerli_AggregateRoot_filter;
   stagingoptimismgoerli_AggregateRoot_orderBy: stagingoptimismgoerli_AggregateRoot_orderBy;
@@ -19697,52 +19645,80 @@ export type ResolversTypes = ResolversObject<{
   stagingoptimismgoerli_TransferStatus: stagingoptimismgoerli_TransferStatus;
   stagingoptimismgoerli__Block_: ResolverTypeWrapper<stagingoptimismgoerli__Block_>;
   stagingoptimismgoerli__Meta_: ResolverTypeWrapper<stagingoptimismgoerli__Meta_>;
+  staginggoerli_AggregateRoot: ResolverTypeWrapper<staginggoerli_AggregateRoot>;
+  staginggoerli_AggregateRoot_filter: staginggoerli_AggregateRoot_filter;
+  staginggoerli_AggregateRoot_orderBy: staginggoerli_AggregateRoot_orderBy;
+  staginggoerli_Asset: ResolverTypeWrapper<staginggoerli_Asset>;
+  staginggoerli_AssetBalance: ResolverTypeWrapper<staginggoerli_AssetBalance>;
+  staginggoerli_AssetBalance_filter: staginggoerli_AssetBalance_filter;
+  staginggoerli_AssetBalance_orderBy: staginggoerli_AssetBalance_orderBy;
+  staginggoerli_Asset_filter: staginggoerli_Asset_filter;
+  staginggoerli_Asset_orderBy: staginggoerli_Asset_orderBy;
+  staginggoerli_BigDecimal: ResolverTypeWrapper<Scalars['staginggoerli_BigDecimal']>;
+  staginggoerli_BlockChangedFilter: staginggoerli_BlockChangedFilter;
+  staginggoerli_Block_height: staginggoerli_Block_height;
+  staginggoerli_Bytes: ResolverTypeWrapper<Scalars['staginggoerli_Bytes']>;
+  staginggoerli_ConnectorMeta: ResolverTypeWrapper<staginggoerli_ConnectorMeta>;
+  staginggoerli_ConnectorMeta_filter: staginggoerli_ConnectorMeta_filter;
+  staginggoerli_ConnectorMeta_orderBy: staginggoerli_ConnectorMeta_orderBy;
+  staginggoerli_DestinationMessage: ResolverTypeWrapper<staginggoerli_DestinationMessage>;
+  staginggoerli_DestinationMessage_filter: staginggoerli_DestinationMessage_filter;
+  staginggoerli_DestinationMessage_orderBy: staginggoerli_DestinationMessage_orderBy;
+  staginggoerli_DestinationTransfer: ResolverTypeWrapper<staginggoerli_DestinationTransfer>;
+  staginggoerli_DestinationTransfer_filter: staginggoerli_DestinationTransfer_filter;
+  staginggoerli_DestinationTransfer_orderBy: staginggoerli_DestinationTransfer_orderBy;
+  staginggoerli_OrderDirection: staginggoerli_OrderDirection;
+  staginggoerli_OriginMessage: ResolverTypeWrapper<staginggoerli_OriginMessage>;
+  staginggoerli_OriginMessage_filter: staginggoerli_OriginMessage_filter;
+  staginggoerli_OriginMessage_orderBy: staginggoerli_OriginMessage_orderBy;
+  staginggoerli_OriginTransfer: ResolverTypeWrapper<staginggoerli_OriginTransfer>;
+  staginggoerli_OriginTransfer_filter: staginggoerli_OriginTransfer_filter;
+  staginggoerli_OriginTransfer_orderBy: staginggoerli_OriginTransfer_orderBy;
+  staginggoerli_Relayer: ResolverTypeWrapper<staginggoerli_Relayer>;
+  staginggoerli_Relayer_filter: staginggoerli_Relayer_filter;
+  staginggoerli_Relayer_orderBy: staginggoerli_Relayer_orderBy;
+  staginggoerli_RootMessageProcessed: ResolverTypeWrapper<staginggoerli_RootMessageProcessed>;
+  staginggoerli_RootMessageProcessed_filter: staginggoerli_RootMessageProcessed_filter;
+  staginggoerli_RootMessageProcessed_orderBy: staginggoerli_RootMessageProcessed_orderBy;
+  staginggoerli_RootMessageSent: ResolverTypeWrapper<staginggoerli_RootMessageSent>;
+  staginggoerli_RootMessageSent_filter: staginggoerli_RootMessageSent_filter;
+  staginggoerli_RootMessageSent_orderBy: staginggoerli_RootMessageSent_orderBy;
+  staginggoerli_Router: ResolverTypeWrapper<staginggoerli_Router>;
+  staginggoerli_Router_filter: staginggoerli_Router_filter;
+  staginggoerli_Router_orderBy: staginggoerli_Router_orderBy;
+  staginggoerli_Setting: ResolverTypeWrapper<staginggoerli_Setting>;
+  staginggoerli_Setting_filter: staginggoerli_Setting_filter;
+  staginggoerli_Setting_orderBy: staginggoerli_Setting_orderBy;
+  staginggoerli_SponsorVault: ResolverTypeWrapper<staginggoerli_SponsorVault>;
+  staginggoerli_SponsorVault_filter: staginggoerli_SponsorVault_filter;
+  staginggoerli_SponsorVault_orderBy: staginggoerli_SponsorVault_orderBy;
+  staginggoerli_StableSwap: ResolverTypeWrapper<staginggoerli_StableSwap>;
+  staginggoerli_StableSwap_filter: staginggoerli_StableSwap_filter;
+  staginggoerli_StableSwap_orderBy: staginggoerli_StableSwap_orderBy;
+  staginggoerli_TransferStatus: staginggoerli_TransferStatus;
+  staginggoerli__Block_: ResolverTypeWrapper<staginggoerli__Block_>;
+  staginggoerli__Meta_: ResolverTypeWrapper<staginggoerli__Meta_>;
 }>;
 
 /** Mapping between all available schema types and the resolvers parents */
 export type ResolversParentTypes = ResolversObject<{
   Query: {};
   Subscription: {};
-  rinkeby_Asset: rinkeby_Asset;
-  rinkeby_AssetBalance: rinkeby_AssetBalance;
-  rinkeby_AssetBalance_filter: rinkeby_AssetBalance_filter;
-  rinkeby_Asset_filter: rinkeby_Asset_filter;
-  rinkeby_BigDecimal: Scalars['rinkeby_BigDecimal'];
-  BigInt: Scalars['BigInt'];
-  rinkeby_BlockChangedFilter: rinkeby_BlockChangedFilter;
-  rinkeby_Block_height: rinkeby_Block_height;
-  Boolean: Scalars['Boolean'];
-  rinkeby_Bytes: Scalars['rinkeby_Bytes'];
-  rinkeby_DestinationTransfer: rinkeby_DestinationTransfer;
-  rinkeby_DestinationTransfer_filter: rinkeby_DestinationTransfer_filter;
-  Float: Scalars['Float'];
-  ID: Scalars['ID'];
-  Int: Scalars['Int'];
-  rinkeby_OriginTransfer: rinkeby_OriginTransfer;
-  rinkeby_OriginTransfer_filter: rinkeby_OriginTransfer_filter;
-  rinkeby_Relayer: rinkeby_Relayer;
-  rinkeby_Relayer_filter: rinkeby_Relayer_filter;
-  rinkeby_Router: rinkeby_Router;
-  rinkeby_Router_filter: rinkeby_Router_filter;
-  rinkeby_Setting: rinkeby_Setting;
-  rinkeby_Setting_filter: rinkeby_Setting_filter;
-  rinkeby_SponsorVault: rinkeby_SponsorVault;
-  rinkeby_SponsorVault_filter: rinkeby_SponsorVault_filter;
-  rinkeby_StableSwap: rinkeby_StableSwap;
-  rinkeby_StableSwap_filter: rinkeby_StableSwap_filter;
-  String: Scalars['String'];
-  rinkeby__Block_: rinkeby__Block_;
-  rinkeby__Meta_: rinkeby__Meta_;
   testgoerli_Asset: testgoerli_Asset;
   testgoerli_AssetBalance: testgoerli_AssetBalance;
   testgoerli_AssetBalance_filter: testgoerli_AssetBalance_filter;
   testgoerli_Asset_filter: testgoerli_Asset_filter;
   testgoerli_BigDecimal: Scalars['testgoerli_BigDecimal'];
+  BigInt: Scalars['BigInt'];
   testgoerli_BlockChangedFilter: testgoerli_BlockChangedFilter;
   testgoerli_Block_height: testgoerli_Block_height;
+  Boolean: Scalars['Boolean'];
   testgoerli_Bytes: Scalars['testgoerli_Bytes'];
   testgoerli_DestinationTransfer: testgoerli_DestinationTransfer;
   testgoerli_DestinationTransfer_filter: testgoerli_DestinationTransfer_filter;
+  Float: Scalars['Float'];
+  ID: Scalars['ID'];
+  Int: Scalars['Int'];
   testgoerli_OriginTransfer: testgoerli_OriginTransfer;
   testgoerli_OriginTransfer_filter: testgoerli_OriginTransfer_filter;
   testgoerli_Relayer: testgoerli_Relayer;
@@ -19755,6 +19731,7 @@ export type ResolversParentTypes = ResolversObject<{
   testgoerli_SponsorVault_filter: testgoerli_SponsorVault_filter;
   testgoerli_StableSwap: testgoerli_StableSwap;
   testgoerli_StableSwap_filter: testgoerli_StableSwap_filter;
+  String: Scalars['String'];
   testgoerli__Block_: testgoerli__Block_;
   testgoerli__Meta_: testgoerli__Meta_;
   local1337_Asset: local1337_Asset;
@@ -19781,66 +19758,30 @@ export type ResolversParentTypes = ResolversObject<{
   local1337_StableSwap_filter: local1337_StableSwap_filter;
   local1337__Block_: local1337__Block_;
   local1337__Meta_: local1337__Meta_;
-  testoptimismgoerli_Asset: testoptimismgoerli_Asset;
-  testoptimismgoerli_AssetBalance: testoptimismgoerli_AssetBalance;
-  testoptimismgoerli_AssetBalance_filter: testoptimismgoerli_AssetBalance_filter;
-  testoptimismgoerli_Asset_filter: testoptimismgoerli_Asset_filter;
-  testoptimismgoerli_BigDecimal: Scalars['testoptimismgoerli_BigDecimal'];
-  testoptimismgoerli_BlockChangedFilter: testoptimismgoerli_BlockChangedFilter;
-  testoptimismgoerli_Block_height: testoptimismgoerli_Block_height;
-  testoptimismgoerli_Bytes: Scalars['testoptimismgoerli_Bytes'];
-  testoptimismgoerli_DestinationTransfer: testoptimismgoerli_DestinationTransfer;
-  testoptimismgoerli_DestinationTransfer_filter: testoptimismgoerli_DestinationTransfer_filter;
-  testoptimismgoerli_OriginTransfer: testoptimismgoerli_OriginTransfer;
-  testoptimismgoerli_OriginTransfer_filter: testoptimismgoerli_OriginTransfer_filter;
-  testoptimismgoerli_Relayer: testoptimismgoerli_Relayer;
-  testoptimismgoerli_Relayer_filter: testoptimismgoerli_Relayer_filter;
-  testoptimismgoerli_Router: testoptimismgoerli_Router;
-  testoptimismgoerli_Router_filter: testoptimismgoerli_Router_filter;
-  testoptimismgoerli_Setting: testoptimismgoerli_Setting;
-  testoptimismgoerli_Setting_filter: testoptimismgoerli_Setting_filter;
-  testoptimismgoerli_SponsorVault: testoptimismgoerli_SponsorVault;
-  testoptimismgoerli_SponsorVault_filter: testoptimismgoerli_SponsorVault_filter;
-  testoptimismgoerli_StableSwap: testoptimismgoerli_StableSwap;
-  testoptimismgoerli_StableSwap_filter: testoptimismgoerli_StableSwap_filter;
-  testoptimismgoerli__Block_: testoptimismgoerli__Block_;
-  testoptimismgoerli__Meta_: testoptimismgoerli__Meta_;
-  staginggoerli_AggregateRoot: staginggoerli_AggregateRoot;
-  staginggoerli_AggregateRoot_filter: staginggoerli_AggregateRoot_filter;
-  staginggoerli_Asset: staginggoerli_Asset;
-  staginggoerli_AssetBalance: staginggoerli_AssetBalance;
-  staginggoerli_AssetBalance_filter: staginggoerli_AssetBalance_filter;
-  staginggoerli_Asset_filter: staginggoerli_Asset_filter;
-  staginggoerli_BigDecimal: Scalars['staginggoerli_BigDecimal'];
-  staginggoerli_BlockChangedFilter: staginggoerli_BlockChangedFilter;
-  staginggoerli_Block_height: staginggoerli_Block_height;
-  staginggoerli_Bytes: Scalars['staginggoerli_Bytes'];
-  staginggoerli_ConnectorMeta: staginggoerli_ConnectorMeta;
-  staginggoerli_ConnectorMeta_filter: staginggoerli_ConnectorMeta_filter;
-  staginggoerli_DestinationMessage: staginggoerli_DestinationMessage;
-  staginggoerli_DestinationMessage_filter: staginggoerli_DestinationMessage_filter;
-  staginggoerli_DestinationTransfer: staginggoerli_DestinationTransfer;
-  staginggoerli_DestinationTransfer_filter: staginggoerli_DestinationTransfer_filter;
-  staginggoerli_OriginMessage: staginggoerli_OriginMessage;
-  staginggoerli_OriginMessage_filter: staginggoerli_OriginMessage_filter;
-  staginggoerli_OriginTransfer: staginggoerli_OriginTransfer;
-  staginggoerli_OriginTransfer_filter: staginggoerli_OriginTransfer_filter;
-  staginggoerli_Relayer: staginggoerli_Relayer;
-  staginggoerli_Relayer_filter: staginggoerli_Relayer_filter;
-  staginggoerli_RootMessageProcessed: staginggoerli_RootMessageProcessed;
-  staginggoerli_RootMessageProcessed_filter: staginggoerli_RootMessageProcessed_filter;
-  staginggoerli_RootMessageSent: staginggoerli_RootMessageSent;
-  staginggoerli_RootMessageSent_filter: staginggoerli_RootMessageSent_filter;
-  staginggoerli_Router: staginggoerli_Router;
-  staginggoerli_Router_filter: staginggoerli_Router_filter;
-  staginggoerli_Setting: staginggoerli_Setting;
-  staginggoerli_Setting_filter: staginggoerli_Setting_filter;
-  staginggoerli_SponsorVault: staginggoerli_SponsorVault;
-  staginggoerli_SponsorVault_filter: staginggoerli_SponsorVault_filter;
-  staginggoerli_StableSwap: staginggoerli_StableSwap;
-  staginggoerli_StableSwap_filter: staginggoerli_StableSwap_filter;
-  staginggoerli__Block_: staginggoerli__Block_;
-  staginggoerli__Meta_: staginggoerli__Meta_;
+  rinkeby_Asset: rinkeby_Asset;
+  rinkeby_AssetBalance: rinkeby_AssetBalance;
+  rinkeby_AssetBalance_filter: rinkeby_AssetBalance_filter;
+  rinkeby_Asset_filter: rinkeby_Asset_filter;
+  rinkeby_BigDecimal: Scalars['rinkeby_BigDecimal'];
+  rinkeby_BlockChangedFilter: rinkeby_BlockChangedFilter;
+  rinkeby_Block_height: rinkeby_Block_height;
+  rinkeby_Bytes: Scalars['rinkeby_Bytes'];
+  rinkeby_DestinationTransfer: rinkeby_DestinationTransfer;
+  rinkeby_DestinationTransfer_filter: rinkeby_DestinationTransfer_filter;
+  rinkeby_OriginTransfer: rinkeby_OriginTransfer;
+  rinkeby_OriginTransfer_filter: rinkeby_OriginTransfer_filter;
+  rinkeby_Relayer: rinkeby_Relayer;
+  rinkeby_Relayer_filter: rinkeby_Relayer_filter;
+  rinkeby_Router: rinkeby_Router;
+  rinkeby_Router_filter: rinkeby_Router_filter;
+  rinkeby_Setting: rinkeby_Setting;
+  rinkeby_Setting_filter: rinkeby_Setting_filter;
+  rinkeby_SponsorVault: rinkeby_SponsorVault;
+  rinkeby_SponsorVault_filter: rinkeby_SponsorVault_filter;
+  rinkeby_StableSwap: rinkeby_StableSwap;
+  rinkeby_StableSwap_filter: rinkeby_StableSwap_filter;
+  rinkeby__Block_: rinkeby__Block_;
+  rinkeby__Meta_: rinkeby__Meta_;
   goerli_AggregateRoot: goerli_AggregateRoot;
   goerli_AggregateRoot_filter: goerli_AggregateRoot_filter;
   goerli_Asset: goerli_Asset;
@@ -19877,66 +19818,30 @@ export type ResolversParentTypes = ResolversObject<{
   goerli_StableSwap_filter: goerli_StableSwap_filter;
   goerli__Block_: goerli__Block_;
   goerli__Meta_: goerli__Meta_;
-  local1338_Asset: local1338_Asset;
-  local1338_AssetBalance: local1338_AssetBalance;
-  local1338_AssetBalance_filter: local1338_AssetBalance_filter;
-  local1338_Asset_filter: local1338_Asset_filter;
-  local1338_BigDecimal: Scalars['local1338_BigDecimal'];
-  local1338_BlockChangedFilter: local1338_BlockChangedFilter;
-  local1338_Block_height: local1338_Block_height;
-  local1338_Bytes: Scalars['local1338_Bytes'];
-  local1338_DestinationTransfer: local1338_DestinationTransfer;
-  local1338_DestinationTransfer_filter: local1338_DestinationTransfer_filter;
-  local1338_OriginTransfer: local1338_OriginTransfer;
-  local1338_OriginTransfer_filter: local1338_OriginTransfer_filter;
-  local1338_Relayer: local1338_Relayer;
-  local1338_Relayer_filter: local1338_Relayer_filter;
-  local1338_Router: local1338_Router;
-  local1338_Router_filter: local1338_Router_filter;
-  local1338_Setting: local1338_Setting;
-  local1338_Setting_filter: local1338_Setting_filter;
-  local1338_SponsorVault: local1338_SponsorVault;
-  local1338_SponsorVault_filter: local1338_SponsorVault_filter;
-  local1338_StableSwap: local1338_StableSwap;
-  local1338_StableSwap_filter: local1338_StableSwap_filter;
-  local1338__Block_: local1338__Block_;
-  local1338__Meta_: local1338__Meta_;
-  stagingmumbai_AggregateRoot: stagingmumbai_AggregateRoot;
-  stagingmumbai_AggregateRoot_filter: stagingmumbai_AggregateRoot_filter;
-  stagingmumbai_Asset: stagingmumbai_Asset;
-  stagingmumbai_AssetBalance: stagingmumbai_AssetBalance;
-  stagingmumbai_AssetBalance_filter: stagingmumbai_AssetBalance_filter;
-  stagingmumbai_Asset_filter: stagingmumbai_Asset_filter;
-  stagingmumbai_BigDecimal: Scalars['stagingmumbai_BigDecimal'];
-  stagingmumbai_BlockChangedFilter: stagingmumbai_BlockChangedFilter;
-  stagingmumbai_Block_height: stagingmumbai_Block_height;
-  stagingmumbai_Bytes: Scalars['stagingmumbai_Bytes'];
-  stagingmumbai_ConnectorMeta: stagingmumbai_ConnectorMeta;
-  stagingmumbai_ConnectorMeta_filter: stagingmumbai_ConnectorMeta_filter;
-  stagingmumbai_DestinationMessage: stagingmumbai_DestinationMessage;
-  stagingmumbai_DestinationMessage_filter: stagingmumbai_DestinationMessage_filter;
-  stagingmumbai_DestinationTransfer: stagingmumbai_DestinationTransfer;
-  stagingmumbai_DestinationTransfer_filter: stagingmumbai_DestinationTransfer_filter;
-  stagingmumbai_OriginMessage: stagingmumbai_OriginMessage;
-  stagingmumbai_OriginMessage_filter: stagingmumbai_OriginMessage_filter;
-  stagingmumbai_OriginTransfer: stagingmumbai_OriginTransfer;
-  stagingmumbai_OriginTransfer_filter: stagingmumbai_OriginTransfer_filter;
-  stagingmumbai_Relayer: stagingmumbai_Relayer;
-  stagingmumbai_Relayer_filter: stagingmumbai_Relayer_filter;
-  stagingmumbai_RootMessageProcessed: stagingmumbai_RootMessageProcessed;
-  stagingmumbai_RootMessageProcessed_filter: stagingmumbai_RootMessageProcessed_filter;
-  stagingmumbai_RootMessageSent: stagingmumbai_RootMessageSent;
-  stagingmumbai_RootMessageSent_filter: stagingmumbai_RootMessageSent_filter;
-  stagingmumbai_Router: stagingmumbai_Router;
-  stagingmumbai_Router_filter: stagingmumbai_Router_filter;
-  stagingmumbai_Setting: stagingmumbai_Setting;
-  stagingmumbai_Setting_filter: stagingmumbai_Setting_filter;
-  stagingmumbai_SponsorVault: stagingmumbai_SponsorVault;
-  stagingmumbai_SponsorVault_filter: stagingmumbai_SponsorVault_filter;
-  stagingmumbai_StableSwap: stagingmumbai_StableSwap;
-  stagingmumbai_StableSwap_filter: stagingmumbai_StableSwap_filter;
-  stagingmumbai__Block_: stagingmumbai__Block_;
-  stagingmumbai__Meta_: stagingmumbai__Meta_;
+  testoptimismgoerli_Asset: testoptimismgoerli_Asset;
+  testoptimismgoerli_AssetBalance: testoptimismgoerli_AssetBalance;
+  testoptimismgoerli_AssetBalance_filter: testoptimismgoerli_AssetBalance_filter;
+  testoptimismgoerli_Asset_filter: testoptimismgoerli_Asset_filter;
+  testoptimismgoerli_BigDecimal: Scalars['testoptimismgoerli_BigDecimal'];
+  testoptimismgoerli_BlockChangedFilter: testoptimismgoerli_BlockChangedFilter;
+  testoptimismgoerli_Block_height: testoptimismgoerli_Block_height;
+  testoptimismgoerli_Bytes: Scalars['testoptimismgoerli_Bytes'];
+  testoptimismgoerli_DestinationTransfer: testoptimismgoerli_DestinationTransfer;
+  testoptimismgoerli_DestinationTransfer_filter: testoptimismgoerli_DestinationTransfer_filter;
+  testoptimismgoerli_OriginTransfer: testoptimismgoerli_OriginTransfer;
+  testoptimismgoerli_OriginTransfer_filter: testoptimismgoerli_OriginTransfer_filter;
+  testoptimismgoerli_Relayer: testoptimismgoerli_Relayer;
+  testoptimismgoerli_Relayer_filter: testoptimismgoerli_Relayer_filter;
+  testoptimismgoerli_Router: testoptimismgoerli_Router;
+  testoptimismgoerli_Router_filter: testoptimismgoerli_Router_filter;
+  testoptimismgoerli_Setting: testoptimismgoerli_Setting;
+  testoptimismgoerli_Setting_filter: testoptimismgoerli_Setting_filter;
+  testoptimismgoerli_SponsorVault: testoptimismgoerli_SponsorVault;
+  testoptimismgoerli_SponsorVault_filter: testoptimismgoerli_SponsorVault_filter;
+  testoptimismgoerli_StableSwap: testoptimismgoerli_StableSwap;
+  testoptimismgoerli_StableSwap_filter: testoptimismgoerli_StableSwap_filter;
+  testoptimismgoerli__Block_: testoptimismgoerli__Block_;
+  testoptimismgoerli__Meta_: testoptimismgoerli__Meta_;
   optimismgoerli_AggregateRoot: optimismgoerli_AggregateRoot;
   optimismgoerli_AggregateRoot_filter: optimismgoerli_AggregateRoot_filter;
   optimismgoerli_Asset: optimismgoerli_Asset;
@@ -19973,6 +19878,30 @@ export type ResolversParentTypes = ResolversObject<{
   optimismgoerli_StableSwap_filter: optimismgoerli_StableSwap_filter;
   optimismgoerli__Block_: optimismgoerli__Block_;
   optimismgoerli__Meta_: optimismgoerli__Meta_;
+  local1338_Asset: local1338_Asset;
+  local1338_AssetBalance: local1338_AssetBalance;
+  local1338_AssetBalance_filter: local1338_AssetBalance_filter;
+  local1338_Asset_filter: local1338_Asset_filter;
+  local1338_BigDecimal: Scalars['local1338_BigDecimal'];
+  local1338_BlockChangedFilter: local1338_BlockChangedFilter;
+  local1338_Block_height: local1338_Block_height;
+  local1338_Bytes: Scalars['local1338_Bytes'];
+  local1338_DestinationTransfer: local1338_DestinationTransfer;
+  local1338_DestinationTransfer_filter: local1338_DestinationTransfer_filter;
+  local1338_OriginTransfer: local1338_OriginTransfer;
+  local1338_OriginTransfer_filter: local1338_OriginTransfer_filter;
+  local1338_Relayer: local1338_Relayer;
+  local1338_Relayer_filter: local1338_Relayer_filter;
+  local1338_Router: local1338_Router;
+  local1338_Router_filter: local1338_Router_filter;
+  local1338_Setting: local1338_Setting;
+  local1338_Setting_filter: local1338_Setting_filter;
+  local1338_SponsorVault: local1338_SponsorVault;
+  local1338_SponsorVault_filter: local1338_SponsorVault_filter;
+  local1338_StableSwap: local1338_StableSwap;
+  local1338_StableSwap_filter: local1338_StableSwap_filter;
+  local1338__Block_: local1338__Block_;
+  local1338__Meta_: local1338__Meta_;
   mumbai_AggregateRoot: mumbai_AggregateRoot;
   mumbai_AggregateRoot_filter: mumbai_AggregateRoot_filter;
   mumbai_Asset: mumbai_Asset;
@@ -20005,6 +19934,42 @@ export type ResolversParentTypes = ResolversObject<{
   mumbai_StableSwap_filter: mumbai_StableSwap_filter;
   mumbai__Block_: mumbai__Block_;
   mumbai__Meta_: mumbai__Meta_;
+  stagingmumbai_AggregateRoot: stagingmumbai_AggregateRoot;
+  stagingmumbai_AggregateRoot_filter: stagingmumbai_AggregateRoot_filter;
+  stagingmumbai_Asset: stagingmumbai_Asset;
+  stagingmumbai_AssetBalance: stagingmumbai_AssetBalance;
+  stagingmumbai_AssetBalance_filter: stagingmumbai_AssetBalance_filter;
+  stagingmumbai_Asset_filter: stagingmumbai_Asset_filter;
+  stagingmumbai_BigDecimal: Scalars['stagingmumbai_BigDecimal'];
+  stagingmumbai_BlockChangedFilter: stagingmumbai_BlockChangedFilter;
+  stagingmumbai_Block_height: stagingmumbai_Block_height;
+  stagingmumbai_Bytes: Scalars['stagingmumbai_Bytes'];
+  stagingmumbai_ConnectorMeta: stagingmumbai_ConnectorMeta;
+  stagingmumbai_ConnectorMeta_filter: stagingmumbai_ConnectorMeta_filter;
+  stagingmumbai_DestinationMessage: stagingmumbai_DestinationMessage;
+  stagingmumbai_DestinationMessage_filter: stagingmumbai_DestinationMessage_filter;
+  stagingmumbai_DestinationTransfer: stagingmumbai_DestinationTransfer;
+  stagingmumbai_DestinationTransfer_filter: stagingmumbai_DestinationTransfer_filter;
+  stagingmumbai_OriginMessage: stagingmumbai_OriginMessage;
+  stagingmumbai_OriginMessage_filter: stagingmumbai_OriginMessage_filter;
+  stagingmumbai_OriginTransfer: stagingmumbai_OriginTransfer;
+  stagingmumbai_OriginTransfer_filter: stagingmumbai_OriginTransfer_filter;
+  stagingmumbai_Relayer: stagingmumbai_Relayer;
+  stagingmumbai_Relayer_filter: stagingmumbai_Relayer_filter;
+  stagingmumbai_RootMessageProcessed: stagingmumbai_RootMessageProcessed;
+  stagingmumbai_RootMessageProcessed_filter: stagingmumbai_RootMessageProcessed_filter;
+  stagingmumbai_RootMessageSent: stagingmumbai_RootMessageSent;
+  stagingmumbai_RootMessageSent_filter: stagingmumbai_RootMessageSent_filter;
+  stagingmumbai_Router: stagingmumbai_Router;
+  stagingmumbai_Router_filter: stagingmumbai_Router_filter;
+  stagingmumbai_Setting: stagingmumbai_Setting;
+  stagingmumbai_Setting_filter: stagingmumbai_Setting_filter;
+  stagingmumbai_SponsorVault: stagingmumbai_SponsorVault;
+  stagingmumbai_SponsorVault_filter: stagingmumbai_SponsorVault_filter;
+  stagingmumbai_StableSwap: stagingmumbai_StableSwap;
+  stagingmumbai_StableSwap_filter: stagingmumbai_StableSwap_filter;
+  stagingmumbai__Block_: stagingmumbai__Block_;
+  stagingmumbai__Meta_: stagingmumbai__Meta_;
   stagingoptimismgoerli_AggregateRoot: stagingoptimismgoerli_AggregateRoot;
   stagingoptimismgoerli_AggregateRoot_filter: stagingoptimismgoerli_AggregateRoot_filter;
   stagingoptimismgoerli_Asset: stagingoptimismgoerli_Asset;
@@ -20041,28 +20006,45 @@ export type ResolversParentTypes = ResolversObject<{
   stagingoptimismgoerli_StableSwap_filter: stagingoptimismgoerli_StableSwap_filter;
   stagingoptimismgoerli__Block_: stagingoptimismgoerli__Block_;
   stagingoptimismgoerli__Meta_: stagingoptimismgoerli__Meta_;
+  staginggoerli_AggregateRoot: staginggoerli_AggregateRoot;
+  staginggoerli_AggregateRoot_filter: staginggoerli_AggregateRoot_filter;
+  staginggoerli_Asset: staginggoerli_Asset;
+  staginggoerli_AssetBalance: staginggoerli_AssetBalance;
+  staginggoerli_AssetBalance_filter: staginggoerli_AssetBalance_filter;
+  staginggoerli_Asset_filter: staginggoerli_Asset_filter;
+  staginggoerli_BigDecimal: Scalars['staginggoerli_BigDecimal'];
+  staginggoerli_BlockChangedFilter: staginggoerli_BlockChangedFilter;
+  staginggoerli_Block_height: staginggoerli_Block_height;
+  staginggoerli_Bytes: Scalars['staginggoerli_Bytes'];
+  staginggoerli_ConnectorMeta: staginggoerli_ConnectorMeta;
+  staginggoerli_ConnectorMeta_filter: staginggoerli_ConnectorMeta_filter;
+  staginggoerli_DestinationMessage: staginggoerli_DestinationMessage;
+  staginggoerli_DestinationMessage_filter: staginggoerli_DestinationMessage_filter;
+  staginggoerli_DestinationTransfer: staginggoerli_DestinationTransfer;
+  staginggoerli_DestinationTransfer_filter: staginggoerli_DestinationTransfer_filter;
+  staginggoerli_OriginMessage: staginggoerli_OriginMessage;
+  staginggoerli_OriginMessage_filter: staginggoerli_OriginMessage_filter;
+  staginggoerli_OriginTransfer: staginggoerli_OriginTransfer;
+  staginggoerli_OriginTransfer_filter: staginggoerli_OriginTransfer_filter;
+  staginggoerli_Relayer: staginggoerli_Relayer;
+  staginggoerli_Relayer_filter: staginggoerli_Relayer_filter;
+  staginggoerli_RootMessageProcessed: staginggoerli_RootMessageProcessed;
+  staginggoerli_RootMessageProcessed_filter: staginggoerli_RootMessageProcessed_filter;
+  staginggoerli_RootMessageSent: staginggoerli_RootMessageSent;
+  staginggoerli_RootMessageSent_filter: staginggoerli_RootMessageSent_filter;
+  staginggoerli_Router: staginggoerli_Router;
+  staginggoerli_Router_filter: staginggoerli_Router_filter;
+  staginggoerli_Setting: staginggoerli_Setting;
+  staginggoerli_Setting_filter: staginggoerli_Setting_filter;
+  staginggoerli_SponsorVault: staginggoerli_SponsorVault;
+  staginggoerli_SponsorVault_filter: staginggoerli_SponsorVault_filter;
+  staginggoerli_StableSwap: staginggoerli_StableSwap;
+  staginggoerli_StableSwap_filter: staginggoerli_StableSwap_filter;
+  staginggoerli__Block_: staginggoerli__Block_;
+  staginggoerli__Meta_: staginggoerli__Meta_;
 }>;
 
 export type QueryResolvers<ContextType = MeshContext, ParentType extends ResolversParentTypes['Query'] = ResolversParentTypes['Query']> = ResolversObject<{
-  rinkeby_asset?: Resolver<Maybe<ResolversTypes['rinkeby_Asset']>, ParentType, ContextType, RequireFields<Queryrinkeby_assetArgs, 'id' | 'subgraphError'>>;
-  rinkeby_assets?: Resolver<Array<ResolversTypes['rinkeby_Asset']>, ParentType, ContextType, RequireFields<Queryrinkeby_assetsArgs, 'skip' | 'first' | 'subgraphError'>>;
-  rinkeby_assetBalance?: Resolver<Maybe<ResolversTypes['rinkeby_AssetBalance']>, ParentType, ContextType, RequireFields<Queryrinkeby_assetBalanceArgs, 'id' | 'subgraphError'>>;
-  rinkeby_assetBalances?: Resolver<Array<ResolversTypes['rinkeby_AssetBalance']>, ParentType, ContextType, RequireFields<Queryrinkeby_assetBalancesArgs, 'skip' | 'first' | 'subgraphError'>>;
-  rinkeby_router?: Resolver<Maybe<ResolversTypes['rinkeby_Router']>, ParentType, ContextType, RequireFields<Queryrinkeby_routerArgs, 'id' | 'subgraphError'>>;
-  rinkeby_routers?: Resolver<Array<ResolversTypes['rinkeby_Router']>, ParentType, ContextType, RequireFields<Queryrinkeby_routersArgs, 'skip' | 'first' | 'subgraphError'>>;
-  rinkeby_setting?: Resolver<Maybe<ResolversTypes['rinkeby_Setting']>, ParentType, ContextType, RequireFields<Queryrinkeby_settingArgs, 'id' | 'subgraphError'>>;
-  rinkeby_settings?: Resolver<Array<ResolversTypes['rinkeby_Setting']>, ParentType, ContextType, RequireFields<Queryrinkeby_settingsArgs, 'skip' | 'first' | 'subgraphError'>>;
-  rinkeby_relayer?: Resolver<Maybe<ResolversTypes['rinkeby_Relayer']>, ParentType, ContextType, RequireFields<Queryrinkeby_relayerArgs, 'id' | 'subgraphError'>>;
-  rinkeby_relayers?: Resolver<Array<ResolversTypes['rinkeby_Relayer']>, ParentType, ContextType, RequireFields<Queryrinkeby_relayersArgs, 'skip' | 'first' | 'subgraphError'>>;
-  rinkeby_stableSwap?: Resolver<Maybe<ResolversTypes['rinkeby_StableSwap']>, ParentType, ContextType, RequireFields<Queryrinkeby_stableSwapArgs, 'id' | 'subgraphError'>>;
-  rinkeby_stableSwaps?: Resolver<Array<ResolversTypes['rinkeby_StableSwap']>, ParentType, ContextType, RequireFields<Queryrinkeby_stableSwapsArgs, 'skip' | 'first' | 'subgraphError'>>;
-  rinkeby_sponsorVault?: Resolver<Maybe<ResolversTypes['rinkeby_SponsorVault']>, ParentType, ContextType, RequireFields<Queryrinkeby_sponsorVaultArgs, 'id' | 'subgraphError'>>;
-  rinkeby_sponsorVaults?: Resolver<Array<ResolversTypes['rinkeby_SponsorVault']>, ParentType, ContextType, RequireFields<Queryrinkeby_sponsorVaultsArgs, 'skip' | 'first' | 'subgraphError'>>;
-  rinkeby_originTransfer?: Resolver<Maybe<ResolversTypes['rinkeby_OriginTransfer']>, ParentType, ContextType, RequireFields<Queryrinkeby_originTransferArgs, 'id' | 'subgraphError'>>;
-  rinkeby_originTransfers?: Resolver<Array<ResolversTypes['rinkeby_OriginTransfer']>, ParentType, ContextType, RequireFields<Queryrinkeby_originTransfersArgs, 'skip' | 'first' | 'subgraphError'>>;
-  rinkeby_destinationTransfer?: Resolver<Maybe<ResolversTypes['rinkeby_DestinationTransfer']>, ParentType, ContextType, RequireFields<Queryrinkeby_destinationTransferArgs, 'id' | 'subgraphError'>>;
-  rinkeby_destinationTransfers?: Resolver<Array<ResolversTypes['rinkeby_DestinationTransfer']>, ParentType, ContextType, RequireFields<Queryrinkeby_destinationTransfersArgs, 'skip' | 'first' | 'subgraphError'>>;
-  rinkeby__meta?: Resolver<Maybe<ResolversTypes['rinkeby__Meta_']>, ParentType, ContextType, Partial<Queryrinkeby__metaArgs>>;
   testgoerli_asset?: Resolver<Maybe<ResolversTypes['testgoerli_Asset']>, ParentType, ContextType, RequireFields<Querytestgoerli_assetArgs, 'id' | 'subgraphError'>>;
   testgoerli_assets?: Resolver<Array<ResolversTypes['testgoerli_Asset']>, ParentType, ContextType, RequireFields<Querytestgoerli_assetsArgs, 'skip' | 'first' | 'subgraphError'>>;
   testgoerli_assetBalance?: Resolver<Maybe<ResolversTypes['testgoerli_AssetBalance']>, ParentType, ContextType, RequireFields<Querytestgoerli_assetBalanceArgs, 'id' | 'subgraphError'>>;
@@ -20101,56 +20083,25 @@ export type QueryResolvers<ContextType = MeshContext, ParentType extends Resolve
   local1337_destinationTransfer?: Resolver<Maybe<ResolversTypes['local1337_DestinationTransfer']>, ParentType, ContextType, RequireFields<Querylocal1337_destinationTransferArgs, 'id' | 'subgraphError'>>;
   local1337_destinationTransfers?: Resolver<Array<ResolversTypes['local1337_DestinationTransfer']>, ParentType, ContextType, RequireFields<Querylocal1337_destinationTransfersArgs, 'skip' | 'first' | 'subgraphError'>>;
   local1337__meta?: Resolver<Maybe<ResolversTypes['local1337__Meta_']>, ParentType, ContextType, Partial<Querylocal1337__metaArgs>>;
-  testoptimismgoerli_asset?: Resolver<Maybe<ResolversTypes['testoptimismgoerli_Asset']>, ParentType, ContextType, RequireFields<Querytestoptimismgoerli_assetArgs, 'id' | 'subgraphError'>>;
-  testoptimismgoerli_assets?: Resolver<Array<ResolversTypes['testoptimismgoerli_Asset']>, ParentType, ContextType, RequireFields<Querytestoptimismgoerli_assetsArgs, 'skip' | 'first' | 'subgraphError'>>;
-  testoptimismgoerli_assetBalance?: Resolver<Maybe<ResolversTypes['testoptimismgoerli_AssetBalance']>, ParentType, ContextType, RequireFields<Querytestoptimismgoerli_assetBalanceArgs, 'id' | 'subgraphError'>>;
-  testoptimismgoerli_assetBalances?: Resolver<Array<ResolversTypes['testoptimismgoerli_AssetBalance']>, ParentType, ContextType, RequireFields<Querytestoptimismgoerli_assetBalancesArgs, 'skip' | 'first' | 'subgraphError'>>;
-  testoptimismgoerli_router?: Resolver<Maybe<ResolversTypes['testoptimismgoerli_Router']>, ParentType, ContextType, RequireFields<Querytestoptimismgoerli_routerArgs, 'id' | 'subgraphError'>>;
-  testoptimismgoerli_routers?: Resolver<Array<ResolversTypes['testoptimismgoerli_Router']>, ParentType, ContextType, RequireFields<Querytestoptimismgoerli_routersArgs, 'skip' | 'first' | 'subgraphError'>>;
-  testoptimismgoerli_setting?: Resolver<Maybe<ResolversTypes['testoptimismgoerli_Setting']>, ParentType, ContextType, RequireFields<Querytestoptimismgoerli_settingArgs, 'id' | 'subgraphError'>>;
-  testoptimismgoerli_settings?: Resolver<Array<ResolversTypes['testoptimismgoerli_Setting']>, ParentType, ContextType, RequireFields<Querytestoptimismgoerli_settingsArgs, 'skip' | 'first' | 'subgraphError'>>;
-  testoptimismgoerli_relayer?: Resolver<Maybe<ResolversTypes['testoptimismgoerli_Relayer']>, ParentType, ContextType, RequireFields<Querytestoptimismgoerli_relayerArgs, 'id' | 'subgraphError'>>;
-  testoptimismgoerli_relayers?: Resolver<Array<ResolversTypes['testoptimismgoerli_Relayer']>, ParentType, ContextType, RequireFields<Querytestoptimismgoerli_relayersArgs, 'skip' | 'first' | 'subgraphError'>>;
-  testoptimismgoerli_stableSwap?: Resolver<Maybe<ResolversTypes['testoptimismgoerli_StableSwap']>, ParentType, ContextType, RequireFields<Querytestoptimismgoerli_stableSwapArgs, 'id' | 'subgraphError'>>;
-  testoptimismgoerli_stableSwaps?: Resolver<Array<ResolversTypes['testoptimismgoerli_StableSwap']>, ParentType, ContextType, RequireFields<Querytestoptimismgoerli_stableSwapsArgs, 'skip' | 'first' | 'subgraphError'>>;
-  testoptimismgoerli_sponsorVault?: Resolver<Maybe<ResolversTypes['testoptimismgoerli_SponsorVault']>, ParentType, ContextType, RequireFields<Querytestoptimismgoerli_sponsorVaultArgs, 'id' | 'subgraphError'>>;
-  testoptimismgoerli_sponsorVaults?: Resolver<Array<ResolversTypes['testoptimismgoerli_SponsorVault']>, ParentType, ContextType, RequireFields<Querytestoptimismgoerli_sponsorVaultsArgs, 'skip' | 'first' | 'subgraphError'>>;
-  testoptimismgoerli_originTransfer?: Resolver<Maybe<ResolversTypes['testoptimismgoerli_OriginTransfer']>, ParentType, ContextType, RequireFields<Querytestoptimismgoerli_originTransferArgs, 'id' | 'subgraphError'>>;
-  testoptimismgoerli_originTransfers?: Resolver<Array<ResolversTypes['testoptimismgoerli_OriginTransfer']>, ParentType, ContextType, RequireFields<Querytestoptimismgoerli_originTransfersArgs, 'skip' | 'first' | 'subgraphError'>>;
-  testoptimismgoerli_destinationTransfer?: Resolver<Maybe<ResolversTypes['testoptimismgoerli_DestinationTransfer']>, ParentType, ContextType, RequireFields<Querytestoptimismgoerli_destinationTransferArgs, 'id' | 'subgraphError'>>;
-  testoptimismgoerli_destinationTransfers?: Resolver<Array<ResolversTypes['testoptimismgoerli_DestinationTransfer']>, ParentType, ContextType, RequireFields<Querytestoptimismgoerli_destinationTransfersArgs, 'skip' | 'first' | 'subgraphError'>>;
-  testoptimismgoerli__meta?: Resolver<Maybe<ResolversTypes['testoptimismgoerli__Meta_']>, ParentType, ContextType, Partial<Querytestoptimismgoerli__metaArgs>>;
-  staginggoerli_asset?: Resolver<Maybe<ResolversTypes['staginggoerli_Asset']>, ParentType, ContextType, RequireFields<Querystaginggoerli_assetArgs, 'id' | 'subgraphError'>>;
-  staginggoerli_assets?: Resolver<Array<ResolversTypes['staginggoerli_Asset']>, ParentType, ContextType, RequireFields<Querystaginggoerli_assetsArgs, 'skip' | 'first' | 'subgraphError'>>;
-  staginggoerli_assetBalance?: Resolver<Maybe<ResolversTypes['staginggoerli_AssetBalance']>, ParentType, ContextType, RequireFields<Querystaginggoerli_assetBalanceArgs, 'id' | 'subgraphError'>>;
-  staginggoerli_assetBalances?: Resolver<Array<ResolversTypes['staginggoerli_AssetBalance']>, ParentType, ContextType, RequireFields<Querystaginggoerli_assetBalancesArgs, 'skip' | 'first' | 'subgraphError'>>;
-  staginggoerli_router?: Resolver<Maybe<ResolversTypes['staginggoerli_Router']>, ParentType, ContextType, RequireFields<Querystaginggoerli_routerArgs, 'id' | 'subgraphError'>>;
-  staginggoerli_routers?: Resolver<Array<ResolversTypes['staginggoerli_Router']>, ParentType, ContextType, RequireFields<Querystaginggoerli_routersArgs, 'skip' | 'first' | 'subgraphError'>>;
-  staginggoerli_setting?: Resolver<Maybe<ResolversTypes['staginggoerli_Setting']>, ParentType, ContextType, RequireFields<Querystaginggoerli_settingArgs, 'id' | 'subgraphError'>>;
-  staginggoerli_settings?: Resolver<Array<ResolversTypes['staginggoerli_Setting']>, ParentType, ContextType, RequireFields<Querystaginggoerli_settingsArgs, 'skip' | 'first' | 'subgraphError'>>;
-  staginggoerli_relayer?: Resolver<Maybe<ResolversTypes['staginggoerli_Relayer']>, ParentType, ContextType, RequireFields<Querystaginggoerli_relayerArgs, 'id' | 'subgraphError'>>;
-  staginggoerli_relayers?: Resolver<Array<ResolversTypes['staginggoerli_Relayer']>, ParentType, ContextType, RequireFields<Querystaginggoerli_relayersArgs, 'skip' | 'first' | 'subgraphError'>>;
-  staginggoerli_stableSwap?: Resolver<Maybe<ResolversTypes['staginggoerli_StableSwap']>, ParentType, ContextType, RequireFields<Querystaginggoerli_stableSwapArgs, 'id' | 'subgraphError'>>;
-  staginggoerli_stableSwaps?: Resolver<Array<ResolversTypes['staginggoerli_StableSwap']>, ParentType, ContextType, RequireFields<Querystaginggoerli_stableSwapsArgs, 'skip' | 'first' | 'subgraphError'>>;
-  staginggoerli_sponsorVault?: Resolver<Maybe<ResolversTypes['staginggoerli_SponsorVault']>, ParentType, ContextType, RequireFields<Querystaginggoerli_sponsorVaultArgs, 'id' | 'subgraphError'>>;
-  staginggoerli_sponsorVaults?: Resolver<Array<ResolversTypes['staginggoerli_SponsorVault']>, ParentType, ContextType, RequireFields<Querystaginggoerli_sponsorVaultsArgs, 'skip' | 'first' | 'subgraphError'>>;
-  staginggoerli_originTransfer?: Resolver<Maybe<ResolversTypes['staginggoerli_OriginTransfer']>, ParentType, ContextType, RequireFields<Querystaginggoerli_originTransferArgs, 'id' | 'subgraphError'>>;
-  staginggoerli_originTransfers?: Resolver<Array<ResolversTypes['staginggoerli_OriginTransfer']>, ParentType, ContextType, RequireFields<Querystaginggoerli_originTransfersArgs, 'skip' | 'first' | 'subgraphError'>>;
-  staginggoerli_destinationTransfer?: Resolver<Maybe<ResolversTypes['staginggoerli_DestinationTransfer']>, ParentType, ContextType, RequireFields<Querystaginggoerli_destinationTransferArgs, 'id' | 'subgraphError'>>;
-  staginggoerli_destinationTransfers?: Resolver<Array<ResolversTypes['staginggoerli_DestinationTransfer']>, ParentType, ContextType, RequireFields<Querystaginggoerli_destinationTransfersArgs, 'skip' | 'first' | 'subgraphError'>>;
-  staginggoerli_originMessage?: Resolver<Maybe<ResolversTypes['staginggoerli_OriginMessage']>, ParentType, ContextType, RequireFields<Querystaginggoerli_originMessageArgs, 'id' | 'subgraphError'>>;
-  staginggoerli_originMessages?: Resolver<Array<ResolversTypes['staginggoerli_OriginMessage']>, ParentType, ContextType, RequireFields<Querystaginggoerli_originMessagesArgs, 'skip' | 'first' | 'subgraphError'>>;
-  staginggoerli_destinationMessage?: Resolver<Maybe<ResolversTypes['staginggoerli_DestinationMessage']>, ParentType, ContextType, RequireFields<Querystaginggoerli_destinationMessageArgs, 'id' | 'subgraphError'>>;
-  staginggoerli_destinationMessages?: Resolver<Array<ResolversTypes['staginggoerli_DestinationMessage']>, ParentType, ContextType, RequireFields<Querystaginggoerli_destinationMessagesArgs, 'skip' | 'first' | 'subgraphError'>>;
-  staginggoerli_aggregateRoot?: Resolver<Maybe<ResolversTypes['staginggoerli_AggregateRoot']>, ParentType, ContextType, RequireFields<Querystaginggoerli_aggregateRootArgs, 'id' | 'subgraphError'>>;
-  staginggoerli_aggregateRoots?: Resolver<Array<ResolversTypes['staginggoerli_AggregateRoot']>, ParentType, ContextType, RequireFields<Querystaginggoerli_aggregateRootsArgs, 'skip' | 'first' | 'subgraphError'>>;
-  staginggoerli_connectorMeta?: Resolver<Maybe<ResolversTypes['staginggoerli_ConnectorMeta']>, ParentType, ContextType, RequireFields<Querystaginggoerli_connectorMetaArgs, 'id' | 'subgraphError'>>;
-  staginggoerli_connectorMetas?: Resolver<Array<ResolversTypes['staginggoerli_ConnectorMeta']>, ParentType, ContextType, RequireFields<Querystaginggoerli_connectorMetasArgs, 'skip' | 'first' | 'subgraphError'>>;
-  staginggoerli_rootMessageSent?: Resolver<Maybe<ResolversTypes['staginggoerli_RootMessageSent']>, ParentType, ContextType, RequireFields<Querystaginggoerli_rootMessageSentArgs, 'id' | 'subgraphError'>>;
-  staginggoerli_rootMessageSents?: Resolver<Array<ResolversTypes['staginggoerli_RootMessageSent']>, ParentType, ContextType, RequireFields<Querystaginggoerli_rootMessageSentsArgs, 'skip' | 'first' | 'subgraphError'>>;
-  staginggoerli_rootMessageProcessed?: Resolver<Maybe<ResolversTypes['staginggoerli_RootMessageProcessed']>, ParentType, ContextType, RequireFields<Querystaginggoerli_rootMessageProcessedArgs, 'id' | 'subgraphError'>>;
-  staginggoerli_rootMessageProcesseds?: Resolver<Array<ResolversTypes['staginggoerli_RootMessageProcessed']>, ParentType, ContextType, RequireFields<Querystaginggoerli_rootMessageProcessedsArgs, 'skip' | 'first' | 'subgraphError'>>;
-  staginggoerli__meta?: Resolver<Maybe<ResolversTypes['staginggoerli__Meta_']>, ParentType, ContextType, Partial<Querystaginggoerli__metaArgs>>;
+  rinkeby_asset?: Resolver<Maybe<ResolversTypes['rinkeby_Asset']>, ParentType, ContextType, RequireFields<Queryrinkeby_assetArgs, 'id' | 'subgraphError'>>;
+  rinkeby_assets?: Resolver<Array<ResolversTypes['rinkeby_Asset']>, ParentType, ContextType, RequireFields<Queryrinkeby_assetsArgs, 'skip' | 'first' | 'subgraphError'>>;
+  rinkeby_assetBalance?: Resolver<Maybe<ResolversTypes['rinkeby_AssetBalance']>, ParentType, ContextType, RequireFields<Queryrinkeby_assetBalanceArgs, 'id' | 'subgraphError'>>;
+  rinkeby_assetBalances?: Resolver<Array<ResolversTypes['rinkeby_AssetBalance']>, ParentType, ContextType, RequireFields<Queryrinkeby_assetBalancesArgs, 'skip' | 'first' | 'subgraphError'>>;
+  rinkeby_router?: Resolver<Maybe<ResolversTypes['rinkeby_Router']>, ParentType, ContextType, RequireFields<Queryrinkeby_routerArgs, 'id' | 'subgraphError'>>;
+  rinkeby_routers?: Resolver<Array<ResolversTypes['rinkeby_Router']>, ParentType, ContextType, RequireFields<Queryrinkeby_routersArgs, 'skip' | 'first' | 'subgraphError'>>;
+  rinkeby_setting?: Resolver<Maybe<ResolversTypes['rinkeby_Setting']>, ParentType, ContextType, RequireFields<Queryrinkeby_settingArgs, 'id' | 'subgraphError'>>;
+  rinkeby_settings?: Resolver<Array<ResolversTypes['rinkeby_Setting']>, ParentType, ContextType, RequireFields<Queryrinkeby_settingsArgs, 'skip' | 'first' | 'subgraphError'>>;
+  rinkeby_relayer?: Resolver<Maybe<ResolversTypes['rinkeby_Relayer']>, ParentType, ContextType, RequireFields<Queryrinkeby_relayerArgs, 'id' | 'subgraphError'>>;
+  rinkeby_relayers?: Resolver<Array<ResolversTypes['rinkeby_Relayer']>, ParentType, ContextType, RequireFields<Queryrinkeby_relayersArgs, 'skip' | 'first' | 'subgraphError'>>;
+  rinkeby_stableSwap?: Resolver<Maybe<ResolversTypes['rinkeby_StableSwap']>, ParentType, ContextType, RequireFields<Queryrinkeby_stableSwapArgs, 'id' | 'subgraphError'>>;
+  rinkeby_stableSwaps?: Resolver<Array<ResolversTypes['rinkeby_StableSwap']>, ParentType, ContextType, RequireFields<Queryrinkeby_stableSwapsArgs, 'skip' | 'first' | 'subgraphError'>>;
+  rinkeby_sponsorVault?: Resolver<Maybe<ResolversTypes['rinkeby_SponsorVault']>, ParentType, ContextType, RequireFields<Queryrinkeby_sponsorVaultArgs, 'id' | 'subgraphError'>>;
+  rinkeby_sponsorVaults?: Resolver<Array<ResolversTypes['rinkeby_SponsorVault']>, ParentType, ContextType, RequireFields<Queryrinkeby_sponsorVaultsArgs, 'skip' | 'first' | 'subgraphError'>>;
+  rinkeby_originTransfer?: Resolver<Maybe<ResolversTypes['rinkeby_OriginTransfer']>, ParentType, ContextType, RequireFields<Queryrinkeby_originTransferArgs, 'id' | 'subgraphError'>>;
+  rinkeby_originTransfers?: Resolver<Array<ResolversTypes['rinkeby_OriginTransfer']>, ParentType, ContextType, RequireFields<Queryrinkeby_originTransfersArgs, 'skip' | 'first' | 'subgraphError'>>;
+  rinkeby_destinationTransfer?: Resolver<Maybe<ResolversTypes['rinkeby_DestinationTransfer']>, ParentType, ContextType, RequireFields<Queryrinkeby_destinationTransferArgs, 'id' | 'subgraphError'>>;
+  rinkeby_destinationTransfers?: Resolver<Array<ResolversTypes['rinkeby_DestinationTransfer']>, ParentType, ContextType, RequireFields<Queryrinkeby_destinationTransfersArgs, 'skip' | 'first' | 'subgraphError'>>;
+  rinkeby__meta?: Resolver<Maybe<ResolversTypes['rinkeby__Meta_']>, ParentType, ContextType, Partial<Queryrinkeby__metaArgs>>;
   goerli_asset?: Resolver<Maybe<ResolversTypes['goerli_Asset']>, ParentType, ContextType, RequireFields<Querygoerli_assetArgs, 'id' | 'subgraphError'>>;
   goerli_assets?: Resolver<Array<ResolversTypes['goerli_Asset']>, ParentType, ContextType, RequireFields<Querygoerli_assetsArgs, 'skip' | 'first' | 'subgraphError'>>;
   goerli_assetBalance?: Resolver<Maybe<ResolversTypes['goerli_AssetBalance']>, ParentType, ContextType, RequireFields<Querygoerli_assetBalanceArgs, 'id' | 'subgraphError'>>;
@@ -20182,56 +20133,25 @@ export type QueryResolvers<ContextType = MeshContext, ParentType extends Resolve
   goerli_rootMessageProcessed?: Resolver<Maybe<ResolversTypes['goerli_RootMessageProcessed']>, ParentType, ContextType, RequireFields<Querygoerli_rootMessageProcessedArgs, 'id' | 'subgraphError'>>;
   goerli_rootMessageProcesseds?: Resolver<Array<ResolversTypes['goerli_RootMessageProcessed']>, ParentType, ContextType, RequireFields<Querygoerli_rootMessageProcessedsArgs, 'skip' | 'first' | 'subgraphError'>>;
   goerli__meta?: Resolver<Maybe<ResolversTypes['goerli__Meta_']>, ParentType, ContextType, Partial<Querygoerli__metaArgs>>;
-  local1338_asset?: Resolver<Maybe<ResolversTypes['local1338_Asset']>, ParentType, ContextType, RequireFields<Querylocal1338_assetArgs, 'id' | 'subgraphError'>>;
-  local1338_assets?: Resolver<Array<ResolversTypes['local1338_Asset']>, ParentType, ContextType, RequireFields<Querylocal1338_assetsArgs, 'skip' | 'first' | 'subgraphError'>>;
-  local1338_assetBalance?: Resolver<Maybe<ResolversTypes['local1338_AssetBalance']>, ParentType, ContextType, RequireFields<Querylocal1338_assetBalanceArgs, 'id' | 'subgraphError'>>;
-  local1338_assetBalances?: Resolver<Array<ResolversTypes['local1338_AssetBalance']>, ParentType, ContextType, RequireFields<Querylocal1338_assetBalancesArgs, 'skip' | 'first' | 'subgraphError'>>;
-  local1338_router?: Resolver<Maybe<ResolversTypes['local1338_Router']>, ParentType, ContextType, RequireFields<Querylocal1338_routerArgs, 'id' | 'subgraphError'>>;
-  local1338_routers?: Resolver<Array<ResolversTypes['local1338_Router']>, ParentType, ContextType, RequireFields<Querylocal1338_routersArgs, 'skip' | 'first' | 'subgraphError'>>;
-  local1338_setting?: Resolver<Maybe<ResolversTypes['local1338_Setting']>, ParentType, ContextType, RequireFields<Querylocal1338_settingArgs, 'id' | 'subgraphError'>>;
-  local1338_settings?: Resolver<Array<ResolversTypes['local1338_Setting']>, ParentType, ContextType, RequireFields<Querylocal1338_settingsArgs, 'skip' | 'first' | 'subgraphError'>>;
-  local1338_relayer?: Resolver<Maybe<ResolversTypes['local1338_Relayer']>, ParentType, ContextType, RequireFields<Querylocal1338_relayerArgs, 'id' | 'subgraphError'>>;
-  local1338_relayers?: Resolver<Array<ResolversTypes['local1338_Relayer']>, ParentType, ContextType, RequireFields<Querylocal1338_relayersArgs, 'skip' | 'first' | 'subgraphError'>>;
-  local1338_stableSwap?: Resolver<Maybe<ResolversTypes['local1338_StableSwap']>, ParentType, ContextType, RequireFields<Querylocal1338_stableSwapArgs, 'id' | 'subgraphError'>>;
-  local1338_stableSwaps?: Resolver<Array<ResolversTypes['local1338_StableSwap']>, ParentType, ContextType, RequireFields<Querylocal1338_stableSwapsArgs, 'skip' | 'first' | 'subgraphError'>>;
-  local1338_sponsorVault?: Resolver<Maybe<ResolversTypes['local1338_SponsorVault']>, ParentType, ContextType, RequireFields<Querylocal1338_sponsorVaultArgs, 'id' | 'subgraphError'>>;
-  local1338_sponsorVaults?: Resolver<Array<ResolversTypes['local1338_SponsorVault']>, ParentType, ContextType, RequireFields<Querylocal1338_sponsorVaultsArgs, 'skip' | 'first' | 'subgraphError'>>;
-  local1338_originTransfer?: Resolver<Maybe<ResolversTypes['local1338_OriginTransfer']>, ParentType, ContextType, RequireFields<Querylocal1338_originTransferArgs, 'id' | 'subgraphError'>>;
-  local1338_originTransfers?: Resolver<Array<ResolversTypes['local1338_OriginTransfer']>, ParentType, ContextType, RequireFields<Querylocal1338_originTransfersArgs, 'skip' | 'first' | 'subgraphError'>>;
-  local1338_destinationTransfer?: Resolver<Maybe<ResolversTypes['local1338_DestinationTransfer']>, ParentType, ContextType, RequireFields<Querylocal1338_destinationTransferArgs, 'id' | 'subgraphError'>>;
-  local1338_destinationTransfers?: Resolver<Array<ResolversTypes['local1338_DestinationTransfer']>, ParentType, ContextType, RequireFields<Querylocal1338_destinationTransfersArgs, 'skip' | 'first' | 'subgraphError'>>;
-  local1338__meta?: Resolver<Maybe<ResolversTypes['local1338__Meta_']>, ParentType, ContextType, Partial<Querylocal1338__metaArgs>>;
-  stagingmumbai_asset?: Resolver<Maybe<ResolversTypes['stagingmumbai_Asset']>, ParentType, ContextType, RequireFields<Querystagingmumbai_assetArgs, 'id' | 'subgraphError'>>;
-  stagingmumbai_assets?: Resolver<Array<ResolversTypes['stagingmumbai_Asset']>, ParentType, ContextType, RequireFields<Querystagingmumbai_assetsArgs, 'skip' | 'first' | 'subgraphError'>>;
-  stagingmumbai_assetBalance?: Resolver<Maybe<ResolversTypes['stagingmumbai_AssetBalance']>, ParentType, ContextType, RequireFields<Querystagingmumbai_assetBalanceArgs, 'id' | 'subgraphError'>>;
-  stagingmumbai_assetBalances?: Resolver<Array<ResolversTypes['stagingmumbai_AssetBalance']>, ParentType, ContextType, RequireFields<Querystagingmumbai_assetBalancesArgs, 'skip' | 'first' | 'subgraphError'>>;
-  stagingmumbai_router?: Resolver<Maybe<ResolversTypes['stagingmumbai_Router']>, ParentType, ContextType, RequireFields<Querystagingmumbai_routerArgs, 'id' | 'subgraphError'>>;
-  stagingmumbai_routers?: Resolver<Array<ResolversTypes['stagingmumbai_Router']>, ParentType, ContextType, RequireFields<Querystagingmumbai_routersArgs, 'skip' | 'first' | 'subgraphError'>>;
-  stagingmumbai_setting?: Resolver<Maybe<ResolversTypes['stagingmumbai_Setting']>, ParentType, ContextType, RequireFields<Querystagingmumbai_settingArgs, 'id' | 'subgraphError'>>;
-  stagingmumbai_settings?: Resolver<Array<ResolversTypes['stagingmumbai_Setting']>, ParentType, ContextType, RequireFields<Querystagingmumbai_settingsArgs, 'skip' | 'first' | 'subgraphError'>>;
-  stagingmumbai_relayer?: Resolver<Maybe<ResolversTypes['stagingmumbai_Relayer']>, ParentType, ContextType, RequireFields<Querystagingmumbai_relayerArgs, 'id' | 'subgraphError'>>;
-  stagingmumbai_relayers?: Resolver<Array<ResolversTypes['stagingmumbai_Relayer']>, ParentType, ContextType, RequireFields<Querystagingmumbai_relayersArgs, 'skip' | 'first' | 'subgraphError'>>;
-  stagingmumbai_stableSwap?: Resolver<Maybe<ResolversTypes['stagingmumbai_StableSwap']>, ParentType, ContextType, RequireFields<Querystagingmumbai_stableSwapArgs, 'id' | 'subgraphError'>>;
-  stagingmumbai_stableSwaps?: Resolver<Array<ResolversTypes['stagingmumbai_StableSwap']>, ParentType, ContextType, RequireFields<Querystagingmumbai_stableSwapsArgs, 'skip' | 'first' | 'subgraphError'>>;
-  stagingmumbai_sponsorVault?: Resolver<Maybe<ResolversTypes['stagingmumbai_SponsorVault']>, ParentType, ContextType, RequireFields<Querystagingmumbai_sponsorVaultArgs, 'id' | 'subgraphError'>>;
-  stagingmumbai_sponsorVaults?: Resolver<Array<ResolversTypes['stagingmumbai_SponsorVault']>, ParentType, ContextType, RequireFields<Querystagingmumbai_sponsorVaultsArgs, 'skip' | 'first' | 'subgraphError'>>;
-  stagingmumbai_originTransfer?: Resolver<Maybe<ResolversTypes['stagingmumbai_OriginTransfer']>, ParentType, ContextType, RequireFields<Querystagingmumbai_originTransferArgs, 'id' | 'subgraphError'>>;
-  stagingmumbai_originTransfers?: Resolver<Array<ResolversTypes['stagingmumbai_OriginTransfer']>, ParentType, ContextType, RequireFields<Querystagingmumbai_originTransfersArgs, 'skip' | 'first' | 'subgraphError'>>;
-  stagingmumbai_destinationTransfer?: Resolver<Maybe<ResolversTypes['stagingmumbai_DestinationTransfer']>, ParentType, ContextType, RequireFields<Querystagingmumbai_destinationTransferArgs, 'id' | 'subgraphError'>>;
-  stagingmumbai_destinationTransfers?: Resolver<Array<ResolversTypes['stagingmumbai_DestinationTransfer']>, ParentType, ContextType, RequireFields<Querystagingmumbai_destinationTransfersArgs, 'skip' | 'first' | 'subgraphError'>>;
-  stagingmumbai_originMessage?: Resolver<Maybe<ResolversTypes['stagingmumbai_OriginMessage']>, ParentType, ContextType, RequireFields<Querystagingmumbai_originMessageArgs, 'id' | 'subgraphError'>>;
-  stagingmumbai_originMessages?: Resolver<Array<ResolversTypes['stagingmumbai_OriginMessage']>, ParentType, ContextType, RequireFields<Querystagingmumbai_originMessagesArgs, 'skip' | 'first' | 'subgraphError'>>;
-  stagingmumbai_destinationMessage?: Resolver<Maybe<ResolversTypes['stagingmumbai_DestinationMessage']>, ParentType, ContextType, RequireFields<Querystagingmumbai_destinationMessageArgs, 'id' | 'subgraphError'>>;
-  stagingmumbai_destinationMessages?: Resolver<Array<ResolversTypes['stagingmumbai_DestinationMessage']>, ParentType, ContextType, RequireFields<Querystagingmumbai_destinationMessagesArgs, 'skip' | 'first' | 'subgraphError'>>;
-  stagingmumbai_aggregateRoot?: Resolver<Maybe<ResolversTypes['stagingmumbai_AggregateRoot']>, ParentType, ContextType, RequireFields<Querystagingmumbai_aggregateRootArgs, 'id' | 'subgraphError'>>;
-  stagingmumbai_aggregateRoots?: Resolver<Array<ResolversTypes['stagingmumbai_AggregateRoot']>, ParentType, ContextType, RequireFields<Querystagingmumbai_aggregateRootsArgs, 'skip' | 'first' | 'subgraphError'>>;
-  stagingmumbai_connectorMeta?: Resolver<Maybe<ResolversTypes['stagingmumbai_ConnectorMeta']>, ParentType, ContextType, RequireFields<Querystagingmumbai_connectorMetaArgs, 'id' | 'subgraphError'>>;
-  stagingmumbai_connectorMetas?: Resolver<Array<ResolversTypes['stagingmumbai_ConnectorMeta']>, ParentType, ContextType, RequireFields<Querystagingmumbai_connectorMetasArgs, 'skip' | 'first' | 'subgraphError'>>;
-  stagingmumbai_rootMessageSent?: Resolver<Maybe<ResolversTypes['stagingmumbai_RootMessageSent']>, ParentType, ContextType, RequireFields<Querystagingmumbai_rootMessageSentArgs, 'id' | 'subgraphError'>>;
-  stagingmumbai_rootMessageSents?: Resolver<Array<ResolversTypes['stagingmumbai_RootMessageSent']>, ParentType, ContextType, RequireFields<Querystagingmumbai_rootMessageSentsArgs, 'skip' | 'first' | 'subgraphError'>>;
-  stagingmumbai_rootMessageProcessed?: Resolver<Maybe<ResolversTypes['stagingmumbai_RootMessageProcessed']>, ParentType, ContextType, RequireFields<Querystagingmumbai_rootMessageProcessedArgs, 'id' | 'subgraphError'>>;
-  stagingmumbai_rootMessageProcesseds?: Resolver<Array<ResolversTypes['stagingmumbai_RootMessageProcessed']>, ParentType, ContextType, RequireFields<Querystagingmumbai_rootMessageProcessedsArgs, 'skip' | 'first' | 'subgraphError'>>;
-  stagingmumbai__meta?: Resolver<Maybe<ResolversTypes['stagingmumbai__Meta_']>, ParentType, ContextType, Partial<Querystagingmumbai__metaArgs>>;
+  testoptimismgoerli_asset?: Resolver<Maybe<ResolversTypes['testoptimismgoerli_Asset']>, ParentType, ContextType, RequireFields<Querytestoptimismgoerli_assetArgs, 'id' | 'subgraphError'>>;
+  testoptimismgoerli_assets?: Resolver<Array<ResolversTypes['testoptimismgoerli_Asset']>, ParentType, ContextType, RequireFields<Querytestoptimismgoerli_assetsArgs, 'skip' | 'first' | 'subgraphError'>>;
+  testoptimismgoerli_assetBalance?: Resolver<Maybe<ResolversTypes['testoptimismgoerli_AssetBalance']>, ParentType, ContextType, RequireFields<Querytestoptimismgoerli_assetBalanceArgs, 'id' | 'subgraphError'>>;
+  testoptimismgoerli_assetBalances?: Resolver<Array<ResolversTypes['testoptimismgoerli_AssetBalance']>, ParentType, ContextType, RequireFields<Querytestoptimismgoerli_assetBalancesArgs, 'skip' | 'first' | 'subgraphError'>>;
+  testoptimismgoerli_router?: Resolver<Maybe<ResolversTypes['testoptimismgoerli_Router']>, ParentType, ContextType, RequireFields<Querytestoptimismgoerli_routerArgs, 'id' | 'subgraphError'>>;
+  testoptimismgoerli_routers?: Resolver<Array<ResolversTypes['testoptimismgoerli_Router']>, ParentType, ContextType, RequireFields<Querytestoptimismgoerli_routersArgs, 'skip' | 'first' | 'subgraphError'>>;
+  testoptimismgoerli_setting?: Resolver<Maybe<ResolversTypes['testoptimismgoerli_Setting']>, ParentType, ContextType, RequireFields<Querytestoptimismgoerli_settingArgs, 'id' | 'subgraphError'>>;
+  testoptimismgoerli_settings?: Resolver<Array<ResolversTypes['testoptimismgoerli_Setting']>, ParentType, ContextType, RequireFields<Querytestoptimismgoerli_settingsArgs, 'skip' | 'first' | 'subgraphError'>>;
+  testoptimismgoerli_relayer?: Resolver<Maybe<ResolversTypes['testoptimismgoerli_Relayer']>, ParentType, ContextType, RequireFields<Querytestoptimismgoerli_relayerArgs, 'id' | 'subgraphError'>>;
+  testoptimismgoerli_relayers?: Resolver<Array<ResolversTypes['testoptimismgoerli_Relayer']>, ParentType, ContextType, RequireFields<Querytestoptimismgoerli_relayersArgs, 'skip' | 'first' | 'subgraphError'>>;
+  testoptimismgoerli_stableSwap?: Resolver<Maybe<ResolversTypes['testoptimismgoerli_StableSwap']>, ParentType, ContextType, RequireFields<Querytestoptimismgoerli_stableSwapArgs, 'id' | 'subgraphError'>>;
+  testoptimismgoerli_stableSwaps?: Resolver<Array<ResolversTypes['testoptimismgoerli_StableSwap']>, ParentType, ContextType, RequireFields<Querytestoptimismgoerli_stableSwapsArgs, 'skip' | 'first' | 'subgraphError'>>;
+  testoptimismgoerli_sponsorVault?: Resolver<Maybe<ResolversTypes['testoptimismgoerli_SponsorVault']>, ParentType, ContextType, RequireFields<Querytestoptimismgoerli_sponsorVaultArgs, 'id' | 'subgraphError'>>;
+  testoptimismgoerli_sponsorVaults?: Resolver<Array<ResolversTypes['testoptimismgoerli_SponsorVault']>, ParentType, ContextType, RequireFields<Querytestoptimismgoerli_sponsorVaultsArgs, 'skip' | 'first' | 'subgraphError'>>;
+  testoptimismgoerli_originTransfer?: Resolver<Maybe<ResolversTypes['testoptimismgoerli_OriginTransfer']>, ParentType, ContextType, RequireFields<Querytestoptimismgoerli_originTransferArgs, 'id' | 'subgraphError'>>;
+  testoptimismgoerli_originTransfers?: Resolver<Array<ResolversTypes['testoptimismgoerli_OriginTransfer']>, ParentType, ContextType, RequireFields<Querytestoptimismgoerli_originTransfersArgs, 'skip' | 'first' | 'subgraphError'>>;
+  testoptimismgoerli_destinationTransfer?: Resolver<Maybe<ResolversTypes['testoptimismgoerli_DestinationTransfer']>, ParentType, ContextType, RequireFields<Querytestoptimismgoerli_destinationTransferArgs, 'id' | 'subgraphError'>>;
+  testoptimismgoerli_destinationTransfers?: Resolver<Array<ResolversTypes['testoptimismgoerli_DestinationTransfer']>, ParentType, ContextType, RequireFields<Querytestoptimismgoerli_destinationTransfersArgs, 'skip' | 'first' | 'subgraphError'>>;
+  testoptimismgoerli__meta?: Resolver<Maybe<ResolversTypes['testoptimismgoerli__Meta_']>, ParentType, ContextType, Partial<Querytestoptimismgoerli__metaArgs>>;
   optimismgoerli_asset?: Resolver<Maybe<ResolversTypes['optimismgoerli_Asset']>, ParentType, ContextType, RequireFields<Queryoptimismgoerli_assetArgs, 'id' | 'subgraphError'>>;
   optimismgoerli_assets?: Resolver<Array<ResolversTypes['optimismgoerli_Asset']>, ParentType, ContextType, RequireFields<Queryoptimismgoerli_assetsArgs, 'skip' | 'first' | 'subgraphError'>>;
   optimismgoerli_assetBalance?: Resolver<Maybe<ResolversTypes['optimismgoerli_AssetBalance']>, ParentType, ContextType, RequireFields<Queryoptimismgoerli_assetBalanceArgs, 'id' | 'subgraphError'>>;
@@ -20263,6 +20183,25 @@ export type QueryResolvers<ContextType = MeshContext, ParentType extends Resolve
   optimismgoerli_rootMessageProcessed?: Resolver<Maybe<ResolversTypes['optimismgoerli_RootMessageProcessed']>, ParentType, ContextType, RequireFields<Queryoptimismgoerli_rootMessageProcessedArgs, 'id' | 'subgraphError'>>;
   optimismgoerli_rootMessageProcesseds?: Resolver<Array<ResolversTypes['optimismgoerli_RootMessageProcessed']>, ParentType, ContextType, RequireFields<Queryoptimismgoerli_rootMessageProcessedsArgs, 'skip' | 'first' | 'subgraphError'>>;
   optimismgoerli__meta?: Resolver<Maybe<ResolversTypes['optimismgoerli__Meta_']>, ParentType, ContextType, Partial<Queryoptimismgoerli__metaArgs>>;
+  local1338_asset?: Resolver<Maybe<ResolversTypes['local1338_Asset']>, ParentType, ContextType, RequireFields<Querylocal1338_assetArgs, 'id' | 'subgraphError'>>;
+  local1338_assets?: Resolver<Array<ResolversTypes['local1338_Asset']>, ParentType, ContextType, RequireFields<Querylocal1338_assetsArgs, 'skip' | 'first' | 'subgraphError'>>;
+  local1338_assetBalance?: Resolver<Maybe<ResolversTypes['local1338_AssetBalance']>, ParentType, ContextType, RequireFields<Querylocal1338_assetBalanceArgs, 'id' | 'subgraphError'>>;
+  local1338_assetBalances?: Resolver<Array<ResolversTypes['local1338_AssetBalance']>, ParentType, ContextType, RequireFields<Querylocal1338_assetBalancesArgs, 'skip' | 'first' | 'subgraphError'>>;
+  local1338_router?: Resolver<Maybe<ResolversTypes['local1338_Router']>, ParentType, ContextType, RequireFields<Querylocal1338_routerArgs, 'id' | 'subgraphError'>>;
+  local1338_routers?: Resolver<Array<ResolversTypes['local1338_Router']>, ParentType, ContextType, RequireFields<Querylocal1338_routersArgs, 'skip' | 'first' | 'subgraphError'>>;
+  local1338_setting?: Resolver<Maybe<ResolversTypes['local1338_Setting']>, ParentType, ContextType, RequireFields<Querylocal1338_settingArgs, 'id' | 'subgraphError'>>;
+  local1338_settings?: Resolver<Array<ResolversTypes['local1338_Setting']>, ParentType, ContextType, RequireFields<Querylocal1338_settingsArgs, 'skip' | 'first' | 'subgraphError'>>;
+  local1338_relayer?: Resolver<Maybe<ResolversTypes['local1338_Relayer']>, ParentType, ContextType, RequireFields<Querylocal1338_relayerArgs, 'id' | 'subgraphError'>>;
+  local1338_relayers?: Resolver<Array<ResolversTypes['local1338_Relayer']>, ParentType, ContextType, RequireFields<Querylocal1338_relayersArgs, 'skip' | 'first' | 'subgraphError'>>;
+  local1338_stableSwap?: Resolver<Maybe<ResolversTypes['local1338_StableSwap']>, ParentType, ContextType, RequireFields<Querylocal1338_stableSwapArgs, 'id' | 'subgraphError'>>;
+  local1338_stableSwaps?: Resolver<Array<ResolversTypes['local1338_StableSwap']>, ParentType, ContextType, RequireFields<Querylocal1338_stableSwapsArgs, 'skip' | 'first' | 'subgraphError'>>;
+  local1338_sponsorVault?: Resolver<Maybe<ResolversTypes['local1338_SponsorVault']>, ParentType, ContextType, RequireFields<Querylocal1338_sponsorVaultArgs, 'id' | 'subgraphError'>>;
+  local1338_sponsorVaults?: Resolver<Array<ResolversTypes['local1338_SponsorVault']>, ParentType, ContextType, RequireFields<Querylocal1338_sponsorVaultsArgs, 'skip' | 'first' | 'subgraphError'>>;
+  local1338_originTransfer?: Resolver<Maybe<ResolversTypes['local1338_OriginTransfer']>, ParentType, ContextType, RequireFields<Querylocal1338_originTransferArgs, 'id' | 'subgraphError'>>;
+  local1338_originTransfers?: Resolver<Array<ResolversTypes['local1338_OriginTransfer']>, ParentType, ContextType, RequireFields<Querylocal1338_originTransfersArgs, 'skip' | 'first' | 'subgraphError'>>;
+  local1338_destinationTransfer?: Resolver<Maybe<ResolversTypes['local1338_DestinationTransfer']>, ParentType, ContextType, RequireFields<Querylocal1338_destinationTransferArgs, 'id' | 'subgraphError'>>;
+  local1338_destinationTransfers?: Resolver<Array<ResolversTypes['local1338_DestinationTransfer']>, ParentType, ContextType, RequireFields<Querylocal1338_destinationTransfersArgs, 'skip' | 'first' | 'subgraphError'>>;
+  local1338__meta?: Resolver<Maybe<ResolversTypes['local1338__Meta_']>, ParentType, ContextType, Partial<Querylocal1338__metaArgs>>;
   mumbai_asset?: Resolver<Maybe<ResolversTypes['mumbai_Asset']>, ParentType, ContextType, RequireFields<Querymumbai_assetArgs, 'id' | 'subgraphError'>>;
   mumbai_assets?: Resolver<Array<ResolversTypes['mumbai_Asset']>, ParentType, ContextType, RequireFields<Querymumbai_assetsArgs, 'skip' | 'first' | 'subgraphError'>>;
   mumbai_assetBalance?: Resolver<Maybe<ResolversTypes['mumbai_AssetBalance']>, ParentType, ContextType, RequireFields<Querymumbai_assetBalanceArgs, 'id' | 'subgraphError'>>;
@@ -20290,6 +20229,37 @@ export type QueryResolvers<ContextType = MeshContext, ParentType extends Resolve
   mumbai_rootMessage?: Resolver<Maybe<ResolversTypes['mumbai_RootMessage']>, ParentType, ContextType, RequireFields<Querymumbai_rootMessageArgs, 'id' | 'subgraphError'>>;
   mumbai_rootMessages?: Resolver<Array<ResolversTypes['mumbai_RootMessage']>, ParentType, ContextType, RequireFields<Querymumbai_rootMessagesArgs, 'skip' | 'first' | 'subgraphError'>>;
   mumbai__meta?: Resolver<Maybe<ResolversTypes['mumbai__Meta_']>, ParentType, ContextType, Partial<Querymumbai__metaArgs>>;
+  stagingmumbai_asset?: Resolver<Maybe<ResolversTypes['stagingmumbai_Asset']>, ParentType, ContextType, RequireFields<Querystagingmumbai_assetArgs, 'id' | 'subgraphError'>>;
+  stagingmumbai_assets?: Resolver<Array<ResolversTypes['stagingmumbai_Asset']>, ParentType, ContextType, RequireFields<Querystagingmumbai_assetsArgs, 'skip' | 'first' | 'subgraphError'>>;
+  stagingmumbai_assetBalance?: Resolver<Maybe<ResolversTypes['stagingmumbai_AssetBalance']>, ParentType, ContextType, RequireFields<Querystagingmumbai_assetBalanceArgs, 'id' | 'subgraphError'>>;
+  stagingmumbai_assetBalances?: Resolver<Array<ResolversTypes['stagingmumbai_AssetBalance']>, ParentType, ContextType, RequireFields<Querystagingmumbai_assetBalancesArgs, 'skip' | 'first' | 'subgraphError'>>;
+  stagingmumbai_router?: Resolver<Maybe<ResolversTypes['stagingmumbai_Router']>, ParentType, ContextType, RequireFields<Querystagingmumbai_routerArgs, 'id' | 'subgraphError'>>;
+  stagingmumbai_routers?: Resolver<Array<ResolversTypes['stagingmumbai_Router']>, ParentType, ContextType, RequireFields<Querystagingmumbai_routersArgs, 'skip' | 'first' | 'subgraphError'>>;
+  stagingmumbai_setting?: Resolver<Maybe<ResolversTypes['stagingmumbai_Setting']>, ParentType, ContextType, RequireFields<Querystagingmumbai_settingArgs, 'id' | 'subgraphError'>>;
+  stagingmumbai_settings?: Resolver<Array<ResolversTypes['stagingmumbai_Setting']>, ParentType, ContextType, RequireFields<Querystagingmumbai_settingsArgs, 'skip' | 'first' | 'subgraphError'>>;
+  stagingmumbai_relayer?: Resolver<Maybe<ResolversTypes['stagingmumbai_Relayer']>, ParentType, ContextType, RequireFields<Querystagingmumbai_relayerArgs, 'id' | 'subgraphError'>>;
+  stagingmumbai_relayers?: Resolver<Array<ResolversTypes['stagingmumbai_Relayer']>, ParentType, ContextType, RequireFields<Querystagingmumbai_relayersArgs, 'skip' | 'first' | 'subgraphError'>>;
+  stagingmumbai_stableSwap?: Resolver<Maybe<ResolversTypes['stagingmumbai_StableSwap']>, ParentType, ContextType, RequireFields<Querystagingmumbai_stableSwapArgs, 'id' | 'subgraphError'>>;
+  stagingmumbai_stableSwaps?: Resolver<Array<ResolversTypes['stagingmumbai_StableSwap']>, ParentType, ContextType, RequireFields<Querystagingmumbai_stableSwapsArgs, 'skip' | 'first' | 'subgraphError'>>;
+  stagingmumbai_sponsorVault?: Resolver<Maybe<ResolversTypes['stagingmumbai_SponsorVault']>, ParentType, ContextType, RequireFields<Querystagingmumbai_sponsorVaultArgs, 'id' | 'subgraphError'>>;
+  stagingmumbai_sponsorVaults?: Resolver<Array<ResolversTypes['stagingmumbai_SponsorVault']>, ParentType, ContextType, RequireFields<Querystagingmumbai_sponsorVaultsArgs, 'skip' | 'first' | 'subgraphError'>>;
+  stagingmumbai_originTransfer?: Resolver<Maybe<ResolversTypes['stagingmumbai_OriginTransfer']>, ParentType, ContextType, RequireFields<Querystagingmumbai_originTransferArgs, 'id' | 'subgraphError'>>;
+  stagingmumbai_originTransfers?: Resolver<Array<ResolversTypes['stagingmumbai_OriginTransfer']>, ParentType, ContextType, RequireFields<Querystagingmumbai_originTransfersArgs, 'skip' | 'first' | 'subgraphError'>>;
+  stagingmumbai_destinationTransfer?: Resolver<Maybe<ResolversTypes['stagingmumbai_DestinationTransfer']>, ParentType, ContextType, RequireFields<Querystagingmumbai_destinationTransferArgs, 'id' | 'subgraphError'>>;
+  stagingmumbai_destinationTransfers?: Resolver<Array<ResolversTypes['stagingmumbai_DestinationTransfer']>, ParentType, ContextType, RequireFields<Querystagingmumbai_destinationTransfersArgs, 'skip' | 'first' | 'subgraphError'>>;
+  stagingmumbai_originMessage?: Resolver<Maybe<ResolversTypes['stagingmumbai_OriginMessage']>, ParentType, ContextType, RequireFields<Querystagingmumbai_originMessageArgs, 'id' | 'subgraphError'>>;
+  stagingmumbai_originMessages?: Resolver<Array<ResolversTypes['stagingmumbai_OriginMessage']>, ParentType, ContextType, RequireFields<Querystagingmumbai_originMessagesArgs, 'skip' | 'first' | 'subgraphError'>>;
+  stagingmumbai_destinationMessage?: Resolver<Maybe<ResolversTypes['stagingmumbai_DestinationMessage']>, ParentType, ContextType, RequireFields<Querystagingmumbai_destinationMessageArgs, 'id' | 'subgraphError'>>;
+  stagingmumbai_destinationMessages?: Resolver<Array<ResolversTypes['stagingmumbai_DestinationMessage']>, ParentType, ContextType, RequireFields<Querystagingmumbai_destinationMessagesArgs, 'skip' | 'first' | 'subgraphError'>>;
+  stagingmumbai_aggregateRoot?: Resolver<Maybe<ResolversTypes['stagingmumbai_AggregateRoot']>, ParentType, ContextType, RequireFields<Querystagingmumbai_aggregateRootArgs, 'id' | 'subgraphError'>>;
+  stagingmumbai_aggregateRoots?: Resolver<Array<ResolversTypes['stagingmumbai_AggregateRoot']>, ParentType, ContextType, RequireFields<Querystagingmumbai_aggregateRootsArgs, 'skip' | 'first' | 'subgraphError'>>;
+  stagingmumbai_connectorMeta?: Resolver<Maybe<ResolversTypes['stagingmumbai_ConnectorMeta']>, ParentType, ContextType, RequireFields<Querystagingmumbai_connectorMetaArgs, 'id' | 'subgraphError'>>;
+  stagingmumbai_connectorMetas?: Resolver<Array<ResolversTypes['stagingmumbai_ConnectorMeta']>, ParentType, ContextType, RequireFields<Querystagingmumbai_connectorMetasArgs, 'skip' | 'first' | 'subgraphError'>>;
+  stagingmumbai_rootMessageSent?: Resolver<Maybe<ResolversTypes['stagingmumbai_RootMessageSent']>, ParentType, ContextType, RequireFields<Querystagingmumbai_rootMessageSentArgs, 'id' | 'subgraphError'>>;
+  stagingmumbai_rootMessageSents?: Resolver<Array<ResolversTypes['stagingmumbai_RootMessageSent']>, ParentType, ContextType, RequireFields<Querystagingmumbai_rootMessageSentsArgs, 'skip' | 'first' | 'subgraphError'>>;
+  stagingmumbai_rootMessageProcessed?: Resolver<Maybe<ResolversTypes['stagingmumbai_RootMessageProcessed']>, ParentType, ContextType, RequireFields<Querystagingmumbai_rootMessageProcessedArgs, 'id' | 'subgraphError'>>;
+  stagingmumbai_rootMessageProcesseds?: Resolver<Array<ResolversTypes['stagingmumbai_RootMessageProcessed']>, ParentType, ContextType, RequireFields<Querystagingmumbai_rootMessageProcessedsArgs, 'skip' | 'first' | 'subgraphError'>>;
+  stagingmumbai__meta?: Resolver<Maybe<ResolversTypes['stagingmumbai__Meta_']>, ParentType, ContextType, Partial<Querystagingmumbai__metaArgs>>;
   stagingoptimismgoerli_asset?: Resolver<Maybe<ResolversTypes['stagingoptimismgoerli_Asset']>, ParentType, ContextType, RequireFields<Querystagingoptimismgoerli_assetArgs, 'id' | 'subgraphError'>>;
   stagingoptimismgoerli_assets?: Resolver<Array<ResolversTypes['stagingoptimismgoerli_Asset']>, ParentType, ContextType, RequireFields<Querystagingoptimismgoerli_assetsArgs, 'skip' | 'first' | 'subgraphError'>>;
   stagingoptimismgoerli_assetBalance?: Resolver<Maybe<ResolversTypes['stagingoptimismgoerli_AssetBalance']>, ParentType, ContextType, RequireFields<Querystagingoptimismgoerli_assetBalanceArgs, 'id' | 'subgraphError'>>;
@@ -20321,28 +20291,40 @@ export type QueryResolvers<ContextType = MeshContext, ParentType extends Resolve
   stagingoptimismgoerli_rootMessageProcessed?: Resolver<Maybe<ResolversTypes['stagingoptimismgoerli_RootMessageProcessed']>, ParentType, ContextType, RequireFields<Querystagingoptimismgoerli_rootMessageProcessedArgs, 'id' | 'subgraphError'>>;
   stagingoptimismgoerli_rootMessageProcesseds?: Resolver<Array<ResolversTypes['stagingoptimismgoerli_RootMessageProcessed']>, ParentType, ContextType, RequireFields<Querystagingoptimismgoerli_rootMessageProcessedsArgs, 'skip' | 'first' | 'subgraphError'>>;
   stagingoptimismgoerli__meta?: Resolver<Maybe<ResolversTypes['stagingoptimismgoerli__Meta_']>, ParentType, ContextType, Partial<Querystagingoptimismgoerli__metaArgs>>;
+  staginggoerli_asset?: Resolver<Maybe<ResolversTypes['staginggoerli_Asset']>, ParentType, ContextType, RequireFields<Querystaginggoerli_assetArgs, 'id' | 'subgraphError'>>;
+  staginggoerli_assets?: Resolver<Array<ResolversTypes['staginggoerli_Asset']>, ParentType, ContextType, RequireFields<Querystaginggoerli_assetsArgs, 'skip' | 'first' | 'subgraphError'>>;
+  staginggoerli_assetBalance?: Resolver<Maybe<ResolversTypes['staginggoerli_AssetBalance']>, ParentType, ContextType, RequireFields<Querystaginggoerli_assetBalanceArgs, 'id' | 'subgraphError'>>;
+  staginggoerli_assetBalances?: Resolver<Array<ResolversTypes['staginggoerli_AssetBalance']>, ParentType, ContextType, RequireFields<Querystaginggoerli_assetBalancesArgs, 'skip' | 'first' | 'subgraphError'>>;
+  staginggoerli_router?: Resolver<Maybe<ResolversTypes['staginggoerli_Router']>, ParentType, ContextType, RequireFields<Querystaginggoerli_routerArgs, 'id' | 'subgraphError'>>;
+  staginggoerli_routers?: Resolver<Array<ResolversTypes['staginggoerli_Router']>, ParentType, ContextType, RequireFields<Querystaginggoerli_routersArgs, 'skip' | 'first' | 'subgraphError'>>;
+  staginggoerli_setting?: Resolver<Maybe<ResolversTypes['staginggoerli_Setting']>, ParentType, ContextType, RequireFields<Querystaginggoerli_settingArgs, 'id' | 'subgraphError'>>;
+  staginggoerli_settings?: Resolver<Array<ResolversTypes['staginggoerli_Setting']>, ParentType, ContextType, RequireFields<Querystaginggoerli_settingsArgs, 'skip' | 'first' | 'subgraphError'>>;
+  staginggoerli_relayer?: Resolver<Maybe<ResolversTypes['staginggoerli_Relayer']>, ParentType, ContextType, RequireFields<Querystaginggoerli_relayerArgs, 'id' | 'subgraphError'>>;
+  staginggoerli_relayers?: Resolver<Array<ResolversTypes['staginggoerli_Relayer']>, ParentType, ContextType, RequireFields<Querystaginggoerli_relayersArgs, 'skip' | 'first' | 'subgraphError'>>;
+  staginggoerli_stableSwap?: Resolver<Maybe<ResolversTypes['staginggoerli_StableSwap']>, ParentType, ContextType, RequireFields<Querystaginggoerli_stableSwapArgs, 'id' | 'subgraphError'>>;
+  staginggoerli_stableSwaps?: Resolver<Array<ResolversTypes['staginggoerli_StableSwap']>, ParentType, ContextType, RequireFields<Querystaginggoerli_stableSwapsArgs, 'skip' | 'first' | 'subgraphError'>>;
+  staginggoerli_sponsorVault?: Resolver<Maybe<ResolversTypes['staginggoerli_SponsorVault']>, ParentType, ContextType, RequireFields<Querystaginggoerli_sponsorVaultArgs, 'id' | 'subgraphError'>>;
+  staginggoerli_sponsorVaults?: Resolver<Array<ResolversTypes['staginggoerli_SponsorVault']>, ParentType, ContextType, RequireFields<Querystaginggoerli_sponsorVaultsArgs, 'skip' | 'first' | 'subgraphError'>>;
+  staginggoerli_originTransfer?: Resolver<Maybe<ResolversTypes['staginggoerli_OriginTransfer']>, ParentType, ContextType, RequireFields<Querystaginggoerli_originTransferArgs, 'id' | 'subgraphError'>>;
+  staginggoerli_originTransfers?: Resolver<Array<ResolversTypes['staginggoerli_OriginTransfer']>, ParentType, ContextType, RequireFields<Querystaginggoerli_originTransfersArgs, 'skip' | 'first' | 'subgraphError'>>;
+  staginggoerli_destinationTransfer?: Resolver<Maybe<ResolversTypes['staginggoerli_DestinationTransfer']>, ParentType, ContextType, RequireFields<Querystaginggoerli_destinationTransferArgs, 'id' | 'subgraphError'>>;
+  staginggoerli_destinationTransfers?: Resolver<Array<ResolversTypes['staginggoerli_DestinationTransfer']>, ParentType, ContextType, RequireFields<Querystaginggoerli_destinationTransfersArgs, 'skip' | 'first' | 'subgraphError'>>;
+  staginggoerli_originMessage?: Resolver<Maybe<ResolversTypes['staginggoerli_OriginMessage']>, ParentType, ContextType, RequireFields<Querystaginggoerli_originMessageArgs, 'id' | 'subgraphError'>>;
+  staginggoerli_originMessages?: Resolver<Array<ResolversTypes['staginggoerli_OriginMessage']>, ParentType, ContextType, RequireFields<Querystaginggoerli_originMessagesArgs, 'skip' | 'first' | 'subgraphError'>>;
+  staginggoerli_destinationMessage?: Resolver<Maybe<ResolversTypes['staginggoerli_DestinationMessage']>, ParentType, ContextType, RequireFields<Querystaginggoerli_destinationMessageArgs, 'id' | 'subgraphError'>>;
+  staginggoerli_destinationMessages?: Resolver<Array<ResolversTypes['staginggoerli_DestinationMessage']>, ParentType, ContextType, RequireFields<Querystaginggoerli_destinationMessagesArgs, 'skip' | 'first' | 'subgraphError'>>;
+  staginggoerli_aggregateRoot?: Resolver<Maybe<ResolversTypes['staginggoerli_AggregateRoot']>, ParentType, ContextType, RequireFields<Querystaginggoerli_aggregateRootArgs, 'id' | 'subgraphError'>>;
+  staginggoerli_aggregateRoots?: Resolver<Array<ResolversTypes['staginggoerli_AggregateRoot']>, ParentType, ContextType, RequireFields<Querystaginggoerli_aggregateRootsArgs, 'skip' | 'first' | 'subgraphError'>>;
+  staginggoerli_connectorMeta?: Resolver<Maybe<ResolversTypes['staginggoerli_ConnectorMeta']>, ParentType, ContextType, RequireFields<Querystaginggoerli_connectorMetaArgs, 'id' | 'subgraphError'>>;
+  staginggoerli_connectorMetas?: Resolver<Array<ResolversTypes['staginggoerli_ConnectorMeta']>, ParentType, ContextType, RequireFields<Querystaginggoerli_connectorMetasArgs, 'skip' | 'first' | 'subgraphError'>>;
+  staginggoerli_rootMessageSent?: Resolver<Maybe<ResolversTypes['staginggoerli_RootMessageSent']>, ParentType, ContextType, RequireFields<Querystaginggoerli_rootMessageSentArgs, 'id' | 'subgraphError'>>;
+  staginggoerli_rootMessageSents?: Resolver<Array<ResolversTypes['staginggoerli_RootMessageSent']>, ParentType, ContextType, RequireFields<Querystaginggoerli_rootMessageSentsArgs, 'skip' | 'first' | 'subgraphError'>>;
+  staginggoerli_rootMessageProcessed?: Resolver<Maybe<ResolversTypes['staginggoerli_RootMessageProcessed']>, ParentType, ContextType, RequireFields<Querystaginggoerli_rootMessageProcessedArgs, 'id' | 'subgraphError'>>;
+  staginggoerli_rootMessageProcesseds?: Resolver<Array<ResolversTypes['staginggoerli_RootMessageProcessed']>, ParentType, ContextType, RequireFields<Querystaginggoerli_rootMessageProcessedsArgs, 'skip' | 'first' | 'subgraphError'>>;
+  staginggoerli__meta?: Resolver<Maybe<ResolversTypes['staginggoerli__Meta_']>, ParentType, ContextType, Partial<Querystaginggoerli__metaArgs>>;
 }>;
 
 export type SubscriptionResolvers<ContextType = MeshContext, ParentType extends ResolversParentTypes['Subscription'] = ResolversParentTypes['Subscription']> = ResolversObject<{
-  rinkeby_asset?: SubscriptionResolver<Maybe<ResolversTypes['rinkeby_Asset']>, "rinkeby_asset", ParentType, ContextType, RequireFields<Subscriptionrinkeby_assetArgs, 'id' | 'subgraphError'>>;
-  rinkeby_assets?: SubscriptionResolver<Array<ResolversTypes['rinkeby_Asset']>, "rinkeby_assets", ParentType, ContextType, RequireFields<Subscriptionrinkeby_assetsArgs, 'skip' | 'first' | 'subgraphError'>>;
-  rinkeby_assetBalance?: SubscriptionResolver<Maybe<ResolversTypes['rinkeby_AssetBalance']>, "rinkeby_assetBalance", ParentType, ContextType, RequireFields<Subscriptionrinkeby_assetBalanceArgs, 'id' | 'subgraphError'>>;
-  rinkeby_assetBalances?: SubscriptionResolver<Array<ResolversTypes['rinkeby_AssetBalance']>, "rinkeby_assetBalances", ParentType, ContextType, RequireFields<Subscriptionrinkeby_assetBalancesArgs, 'skip' | 'first' | 'subgraphError'>>;
-  rinkeby_router?: SubscriptionResolver<Maybe<ResolversTypes['rinkeby_Router']>, "rinkeby_router", ParentType, ContextType, RequireFields<Subscriptionrinkeby_routerArgs, 'id' | 'subgraphError'>>;
-  rinkeby_routers?: SubscriptionResolver<Array<ResolversTypes['rinkeby_Router']>, "rinkeby_routers", ParentType, ContextType, RequireFields<Subscriptionrinkeby_routersArgs, 'skip' | 'first' | 'subgraphError'>>;
-  rinkeby_setting?: SubscriptionResolver<Maybe<ResolversTypes['rinkeby_Setting']>, "rinkeby_setting", ParentType, ContextType, RequireFields<Subscriptionrinkeby_settingArgs, 'id' | 'subgraphError'>>;
-  rinkeby_settings?: SubscriptionResolver<Array<ResolversTypes['rinkeby_Setting']>, "rinkeby_settings", ParentType, ContextType, RequireFields<Subscriptionrinkeby_settingsArgs, 'skip' | 'first' | 'subgraphError'>>;
-  rinkeby_relayer?: SubscriptionResolver<Maybe<ResolversTypes['rinkeby_Relayer']>, "rinkeby_relayer", ParentType, ContextType, RequireFields<Subscriptionrinkeby_relayerArgs, 'id' | 'subgraphError'>>;
-  rinkeby_relayers?: SubscriptionResolver<Array<ResolversTypes['rinkeby_Relayer']>, "rinkeby_relayers", ParentType, ContextType, RequireFields<Subscriptionrinkeby_relayersArgs, 'skip' | 'first' | 'subgraphError'>>;
-  rinkeby_stableSwap?: SubscriptionResolver<Maybe<ResolversTypes['rinkeby_StableSwap']>, "rinkeby_stableSwap", ParentType, ContextType, RequireFields<Subscriptionrinkeby_stableSwapArgs, 'id' | 'subgraphError'>>;
-  rinkeby_stableSwaps?: SubscriptionResolver<Array<ResolversTypes['rinkeby_StableSwap']>, "rinkeby_stableSwaps", ParentType, ContextType, RequireFields<Subscriptionrinkeby_stableSwapsArgs, 'skip' | 'first' | 'subgraphError'>>;
-  rinkeby_sponsorVault?: SubscriptionResolver<Maybe<ResolversTypes['rinkeby_SponsorVault']>, "rinkeby_sponsorVault", ParentType, ContextType, RequireFields<Subscriptionrinkeby_sponsorVaultArgs, 'id' | 'subgraphError'>>;
-  rinkeby_sponsorVaults?: SubscriptionResolver<Array<ResolversTypes['rinkeby_SponsorVault']>, "rinkeby_sponsorVaults", ParentType, ContextType, RequireFields<Subscriptionrinkeby_sponsorVaultsArgs, 'skip' | 'first' | 'subgraphError'>>;
-  rinkeby_originTransfer?: SubscriptionResolver<Maybe<ResolversTypes['rinkeby_OriginTransfer']>, "rinkeby_originTransfer", ParentType, ContextType, RequireFields<Subscriptionrinkeby_originTransferArgs, 'id' | 'subgraphError'>>;
-  rinkeby_originTransfers?: SubscriptionResolver<Array<ResolversTypes['rinkeby_OriginTransfer']>, "rinkeby_originTransfers", ParentType, ContextType, RequireFields<Subscriptionrinkeby_originTransfersArgs, 'skip' | 'first' | 'subgraphError'>>;
-  rinkeby_destinationTransfer?: SubscriptionResolver<Maybe<ResolversTypes['rinkeby_DestinationTransfer']>, "rinkeby_destinationTransfer", ParentType, ContextType, RequireFields<Subscriptionrinkeby_destinationTransferArgs, 'id' | 'subgraphError'>>;
-  rinkeby_destinationTransfers?: SubscriptionResolver<Array<ResolversTypes['rinkeby_DestinationTransfer']>, "rinkeby_destinationTransfers", ParentType, ContextType, RequireFields<Subscriptionrinkeby_destinationTransfersArgs, 'skip' | 'first' | 'subgraphError'>>;
-  rinkeby__meta?: SubscriptionResolver<Maybe<ResolversTypes['rinkeby__Meta_']>, "rinkeby__meta", ParentType, ContextType, Partial<Subscriptionrinkeby__metaArgs>>;
   testgoerli_asset?: SubscriptionResolver<Maybe<ResolversTypes['testgoerli_Asset']>, "testgoerli_asset", ParentType, ContextType, RequireFields<Subscriptiontestgoerli_assetArgs, 'id' | 'subgraphError'>>;
   testgoerli_assets?: SubscriptionResolver<Array<ResolversTypes['testgoerli_Asset']>, "testgoerli_assets", ParentType, ContextType, RequireFields<Subscriptiontestgoerli_assetsArgs, 'skip' | 'first' | 'subgraphError'>>;
   testgoerli_assetBalance?: SubscriptionResolver<Maybe<ResolversTypes['testgoerli_AssetBalance']>, "testgoerli_assetBalance", ParentType, ContextType, RequireFields<Subscriptiontestgoerli_assetBalanceArgs, 'id' | 'subgraphError'>>;
@@ -20381,56 +20363,25 @@ export type SubscriptionResolvers<ContextType = MeshContext, ParentType extends 
   local1337_destinationTransfer?: SubscriptionResolver<Maybe<ResolversTypes['local1337_DestinationTransfer']>, "local1337_destinationTransfer", ParentType, ContextType, RequireFields<Subscriptionlocal1337_destinationTransferArgs, 'id' | 'subgraphError'>>;
   local1337_destinationTransfers?: SubscriptionResolver<Array<ResolversTypes['local1337_DestinationTransfer']>, "local1337_destinationTransfers", ParentType, ContextType, RequireFields<Subscriptionlocal1337_destinationTransfersArgs, 'skip' | 'first' | 'subgraphError'>>;
   local1337__meta?: SubscriptionResolver<Maybe<ResolversTypes['local1337__Meta_']>, "local1337__meta", ParentType, ContextType, Partial<Subscriptionlocal1337__metaArgs>>;
-  testoptimismgoerli_asset?: SubscriptionResolver<Maybe<ResolversTypes['testoptimismgoerli_Asset']>, "testoptimismgoerli_asset", ParentType, ContextType, RequireFields<Subscriptiontestoptimismgoerli_assetArgs, 'id' | 'subgraphError'>>;
-  testoptimismgoerli_assets?: SubscriptionResolver<Array<ResolversTypes['testoptimismgoerli_Asset']>, "testoptimismgoerli_assets", ParentType, ContextType, RequireFields<Subscriptiontestoptimismgoerli_assetsArgs, 'skip' | 'first' | 'subgraphError'>>;
-  testoptimismgoerli_assetBalance?: SubscriptionResolver<Maybe<ResolversTypes['testoptimismgoerli_AssetBalance']>, "testoptimismgoerli_assetBalance", ParentType, ContextType, RequireFields<Subscriptiontestoptimismgoerli_assetBalanceArgs, 'id' | 'subgraphError'>>;
-  testoptimismgoerli_assetBalances?: SubscriptionResolver<Array<ResolversTypes['testoptimismgoerli_AssetBalance']>, "testoptimismgoerli_assetBalances", ParentType, ContextType, RequireFields<Subscriptiontestoptimismgoerli_assetBalancesArgs, 'skip' | 'first' | 'subgraphError'>>;
-  testoptimismgoerli_router?: SubscriptionResolver<Maybe<ResolversTypes['testoptimismgoerli_Router']>, "testoptimismgoerli_router", ParentType, ContextType, RequireFields<Subscriptiontestoptimismgoerli_routerArgs, 'id' | 'subgraphError'>>;
-  testoptimismgoerli_routers?: SubscriptionResolver<Array<ResolversTypes['testoptimismgoerli_Router']>, "testoptimismgoerli_routers", ParentType, ContextType, RequireFields<Subscriptiontestoptimismgoerli_routersArgs, 'skip' | 'first' | 'subgraphError'>>;
-  testoptimismgoerli_setting?: SubscriptionResolver<Maybe<ResolversTypes['testoptimismgoerli_Setting']>, "testoptimismgoerli_setting", ParentType, ContextType, RequireFields<Subscriptiontestoptimismgoerli_settingArgs, 'id' | 'subgraphError'>>;
-  testoptimismgoerli_settings?: SubscriptionResolver<Array<ResolversTypes['testoptimismgoerli_Setting']>, "testoptimismgoerli_settings", ParentType, ContextType, RequireFields<Subscriptiontestoptimismgoerli_settingsArgs, 'skip' | 'first' | 'subgraphError'>>;
-  testoptimismgoerli_relayer?: SubscriptionResolver<Maybe<ResolversTypes['testoptimismgoerli_Relayer']>, "testoptimismgoerli_relayer", ParentType, ContextType, RequireFields<Subscriptiontestoptimismgoerli_relayerArgs, 'id' | 'subgraphError'>>;
-  testoptimismgoerli_relayers?: SubscriptionResolver<Array<ResolversTypes['testoptimismgoerli_Relayer']>, "testoptimismgoerli_relayers", ParentType, ContextType, RequireFields<Subscriptiontestoptimismgoerli_relayersArgs, 'skip' | 'first' | 'subgraphError'>>;
-  testoptimismgoerli_stableSwap?: SubscriptionResolver<Maybe<ResolversTypes['testoptimismgoerli_StableSwap']>, "testoptimismgoerli_stableSwap", ParentType, ContextType, RequireFields<Subscriptiontestoptimismgoerli_stableSwapArgs, 'id' | 'subgraphError'>>;
-  testoptimismgoerli_stableSwaps?: SubscriptionResolver<Array<ResolversTypes['testoptimismgoerli_StableSwap']>, "testoptimismgoerli_stableSwaps", ParentType, ContextType, RequireFields<Subscriptiontestoptimismgoerli_stableSwapsArgs, 'skip' | 'first' | 'subgraphError'>>;
-  testoptimismgoerli_sponsorVault?: SubscriptionResolver<Maybe<ResolversTypes['testoptimismgoerli_SponsorVault']>, "testoptimismgoerli_sponsorVault", ParentType, ContextType, RequireFields<Subscriptiontestoptimismgoerli_sponsorVaultArgs, 'id' | 'subgraphError'>>;
-  testoptimismgoerli_sponsorVaults?: SubscriptionResolver<Array<ResolversTypes['testoptimismgoerli_SponsorVault']>, "testoptimismgoerli_sponsorVaults", ParentType, ContextType, RequireFields<Subscriptiontestoptimismgoerli_sponsorVaultsArgs, 'skip' | 'first' | 'subgraphError'>>;
-  testoptimismgoerli_originTransfer?: SubscriptionResolver<Maybe<ResolversTypes['testoptimismgoerli_OriginTransfer']>, "testoptimismgoerli_originTransfer", ParentType, ContextType, RequireFields<Subscriptiontestoptimismgoerli_originTransferArgs, 'id' | 'subgraphError'>>;
-  testoptimismgoerli_originTransfers?: SubscriptionResolver<Array<ResolversTypes['testoptimismgoerli_OriginTransfer']>, "testoptimismgoerli_originTransfers", ParentType, ContextType, RequireFields<Subscriptiontestoptimismgoerli_originTransfersArgs, 'skip' | 'first' | 'subgraphError'>>;
-  testoptimismgoerli_destinationTransfer?: SubscriptionResolver<Maybe<ResolversTypes['testoptimismgoerli_DestinationTransfer']>, "testoptimismgoerli_destinationTransfer", ParentType, ContextType, RequireFields<Subscriptiontestoptimismgoerli_destinationTransferArgs, 'id' | 'subgraphError'>>;
-  testoptimismgoerli_destinationTransfers?: SubscriptionResolver<Array<ResolversTypes['testoptimismgoerli_DestinationTransfer']>, "testoptimismgoerli_destinationTransfers", ParentType, ContextType, RequireFields<Subscriptiontestoptimismgoerli_destinationTransfersArgs, 'skip' | 'first' | 'subgraphError'>>;
-  testoptimismgoerli__meta?: SubscriptionResolver<Maybe<ResolversTypes['testoptimismgoerli__Meta_']>, "testoptimismgoerli__meta", ParentType, ContextType, Partial<Subscriptiontestoptimismgoerli__metaArgs>>;
-  staginggoerli_asset?: SubscriptionResolver<Maybe<ResolversTypes['staginggoerli_Asset']>, "staginggoerli_asset", ParentType, ContextType, RequireFields<Subscriptionstaginggoerli_assetArgs, 'id' | 'subgraphError'>>;
-  staginggoerli_assets?: SubscriptionResolver<Array<ResolversTypes['staginggoerli_Asset']>, "staginggoerli_assets", ParentType, ContextType, RequireFields<Subscriptionstaginggoerli_assetsArgs, 'skip' | 'first' | 'subgraphError'>>;
-  staginggoerli_assetBalance?: SubscriptionResolver<Maybe<ResolversTypes['staginggoerli_AssetBalance']>, "staginggoerli_assetBalance", ParentType, ContextType, RequireFields<Subscriptionstaginggoerli_assetBalanceArgs, 'id' | 'subgraphError'>>;
-  staginggoerli_assetBalances?: SubscriptionResolver<Array<ResolversTypes['staginggoerli_AssetBalance']>, "staginggoerli_assetBalances", ParentType, ContextType, RequireFields<Subscriptionstaginggoerli_assetBalancesArgs, 'skip' | 'first' | 'subgraphError'>>;
-  staginggoerli_router?: SubscriptionResolver<Maybe<ResolversTypes['staginggoerli_Router']>, "staginggoerli_router", ParentType, ContextType, RequireFields<Subscriptionstaginggoerli_routerArgs, 'id' | 'subgraphError'>>;
-  staginggoerli_routers?: SubscriptionResolver<Array<ResolversTypes['staginggoerli_Router']>, "staginggoerli_routers", ParentType, ContextType, RequireFields<Subscriptionstaginggoerli_routersArgs, 'skip' | 'first' | 'subgraphError'>>;
-  staginggoerli_setting?: SubscriptionResolver<Maybe<ResolversTypes['staginggoerli_Setting']>, "staginggoerli_setting", ParentType, ContextType, RequireFields<Subscriptionstaginggoerli_settingArgs, 'id' | 'subgraphError'>>;
-  staginggoerli_settings?: SubscriptionResolver<Array<ResolversTypes['staginggoerli_Setting']>, "staginggoerli_settings", ParentType, ContextType, RequireFields<Subscriptionstaginggoerli_settingsArgs, 'skip' | 'first' | 'subgraphError'>>;
-  staginggoerli_relayer?: SubscriptionResolver<Maybe<ResolversTypes['staginggoerli_Relayer']>, "staginggoerli_relayer", ParentType, ContextType, RequireFields<Subscriptionstaginggoerli_relayerArgs, 'id' | 'subgraphError'>>;
-  staginggoerli_relayers?: SubscriptionResolver<Array<ResolversTypes['staginggoerli_Relayer']>, "staginggoerli_relayers", ParentType, ContextType, RequireFields<Subscriptionstaginggoerli_relayersArgs, 'skip' | 'first' | 'subgraphError'>>;
-  staginggoerli_stableSwap?: SubscriptionResolver<Maybe<ResolversTypes['staginggoerli_StableSwap']>, "staginggoerli_stableSwap", ParentType, ContextType, RequireFields<Subscriptionstaginggoerli_stableSwapArgs, 'id' | 'subgraphError'>>;
-  staginggoerli_stableSwaps?: SubscriptionResolver<Array<ResolversTypes['staginggoerli_StableSwap']>, "staginggoerli_stableSwaps", ParentType, ContextType, RequireFields<Subscriptionstaginggoerli_stableSwapsArgs, 'skip' | 'first' | 'subgraphError'>>;
-  staginggoerli_sponsorVault?: SubscriptionResolver<Maybe<ResolversTypes['staginggoerli_SponsorVault']>, "staginggoerli_sponsorVault", ParentType, ContextType, RequireFields<Subscriptionstaginggoerli_sponsorVaultArgs, 'id' | 'subgraphError'>>;
-  staginggoerli_sponsorVaults?: SubscriptionResolver<Array<ResolversTypes['staginggoerli_SponsorVault']>, "staginggoerli_sponsorVaults", ParentType, ContextType, RequireFields<Subscriptionstaginggoerli_sponsorVaultsArgs, 'skip' | 'first' | 'subgraphError'>>;
-  staginggoerli_originTransfer?: SubscriptionResolver<Maybe<ResolversTypes['staginggoerli_OriginTransfer']>, "staginggoerli_originTransfer", ParentType, ContextType, RequireFields<Subscriptionstaginggoerli_originTransferArgs, 'id' | 'subgraphError'>>;
-  staginggoerli_originTransfers?: SubscriptionResolver<Array<ResolversTypes['staginggoerli_OriginTransfer']>, "staginggoerli_originTransfers", ParentType, ContextType, RequireFields<Subscriptionstaginggoerli_originTransfersArgs, 'skip' | 'first' | 'subgraphError'>>;
-  staginggoerli_destinationTransfer?: SubscriptionResolver<Maybe<ResolversTypes['staginggoerli_DestinationTransfer']>, "staginggoerli_destinationTransfer", ParentType, ContextType, RequireFields<Subscriptionstaginggoerli_destinationTransferArgs, 'id' | 'subgraphError'>>;
-  staginggoerli_destinationTransfers?: SubscriptionResolver<Array<ResolversTypes['staginggoerli_DestinationTransfer']>, "staginggoerli_destinationTransfers", ParentType, ContextType, RequireFields<Subscriptionstaginggoerli_destinationTransfersArgs, 'skip' | 'first' | 'subgraphError'>>;
-  staginggoerli_originMessage?: SubscriptionResolver<Maybe<ResolversTypes['staginggoerli_OriginMessage']>, "staginggoerli_originMessage", ParentType, ContextType, RequireFields<Subscriptionstaginggoerli_originMessageArgs, 'id' | 'subgraphError'>>;
-  staginggoerli_originMessages?: SubscriptionResolver<Array<ResolversTypes['staginggoerli_OriginMessage']>, "staginggoerli_originMessages", ParentType, ContextType, RequireFields<Subscriptionstaginggoerli_originMessagesArgs, 'skip' | 'first' | 'subgraphError'>>;
-  staginggoerli_destinationMessage?: SubscriptionResolver<Maybe<ResolversTypes['staginggoerli_DestinationMessage']>, "staginggoerli_destinationMessage", ParentType, ContextType, RequireFields<Subscriptionstaginggoerli_destinationMessageArgs, 'id' | 'subgraphError'>>;
-  staginggoerli_destinationMessages?: SubscriptionResolver<Array<ResolversTypes['staginggoerli_DestinationMessage']>, "staginggoerli_destinationMessages", ParentType, ContextType, RequireFields<Subscriptionstaginggoerli_destinationMessagesArgs, 'skip' | 'first' | 'subgraphError'>>;
-  staginggoerli_aggregateRoot?: SubscriptionResolver<Maybe<ResolversTypes['staginggoerli_AggregateRoot']>, "staginggoerli_aggregateRoot", ParentType, ContextType, RequireFields<Subscriptionstaginggoerli_aggregateRootArgs, 'id' | 'subgraphError'>>;
-  staginggoerli_aggregateRoots?: SubscriptionResolver<Array<ResolversTypes['staginggoerli_AggregateRoot']>, "staginggoerli_aggregateRoots", ParentType, ContextType, RequireFields<Subscriptionstaginggoerli_aggregateRootsArgs, 'skip' | 'first' | 'subgraphError'>>;
-  staginggoerli_connectorMeta?: SubscriptionResolver<Maybe<ResolversTypes['staginggoerli_ConnectorMeta']>, "staginggoerli_connectorMeta", ParentType, ContextType, RequireFields<Subscriptionstaginggoerli_connectorMetaArgs, 'id' | 'subgraphError'>>;
-  staginggoerli_connectorMetas?: SubscriptionResolver<Array<ResolversTypes['staginggoerli_ConnectorMeta']>, "staginggoerli_connectorMetas", ParentType, ContextType, RequireFields<Subscriptionstaginggoerli_connectorMetasArgs, 'skip' | 'first' | 'subgraphError'>>;
-  staginggoerli_rootMessageSent?: SubscriptionResolver<Maybe<ResolversTypes['staginggoerli_RootMessageSent']>, "staginggoerli_rootMessageSent", ParentType, ContextType, RequireFields<Subscriptionstaginggoerli_rootMessageSentArgs, 'id' | 'subgraphError'>>;
-  staginggoerli_rootMessageSents?: SubscriptionResolver<Array<ResolversTypes['staginggoerli_RootMessageSent']>, "staginggoerli_rootMessageSents", ParentType, ContextType, RequireFields<Subscriptionstaginggoerli_rootMessageSentsArgs, 'skip' | 'first' | 'subgraphError'>>;
-  staginggoerli_rootMessageProcessed?: SubscriptionResolver<Maybe<ResolversTypes['staginggoerli_RootMessageProcessed']>, "staginggoerli_rootMessageProcessed", ParentType, ContextType, RequireFields<Subscriptionstaginggoerli_rootMessageProcessedArgs, 'id' | 'subgraphError'>>;
-  staginggoerli_rootMessageProcesseds?: SubscriptionResolver<Array<ResolversTypes['staginggoerli_RootMessageProcessed']>, "staginggoerli_rootMessageProcesseds", ParentType, ContextType, RequireFields<Subscriptionstaginggoerli_rootMessageProcessedsArgs, 'skip' | 'first' | 'subgraphError'>>;
-  staginggoerli__meta?: SubscriptionResolver<Maybe<ResolversTypes['staginggoerli__Meta_']>, "staginggoerli__meta", ParentType, ContextType, Partial<Subscriptionstaginggoerli__metaArgs>>;
+  rinkeby_asset?: SubscriptionResolver<Maybe<ResolversTypes['rinkeby_Asset']>, "rinkeby_asset", ParentType, ContextType, RequireFields<Subscriptionrinkeby_assetArgs, 'id' | 'subgraphError'>>;
+  rinkeby_assets?: SubscriptionResolver<Array<ResolversTypes['rinkeby_Asset']>, "rinkeby_assets", ParentType, ContextType, RequireFields<Subscriptionrinkeby_assetsArgs, 'skip' | 'first' | 'subgraphError'>>;
+  rinkeby_assetBalance?: SubscriptionResolver<Maybe<ResolversTypes['rinkeby_AssetBalance']>, "rinkeby_assetBalance", ParentType, ContextType, RequireFields<Subscriptionrinkeby_assetBalanceArgs, 'id' | 'subgraphError'>>;
+  rinkeby_assetBalances?: SubscriptionResolver<Array<ResolversTypes['rinkeby_AssetBalance']>, "rinkeby_assetBalances", ParentType, ContextType, RequireFields<Subscriptionrinkeby_assetBalancesArgs, 'skip' | 'first' | 'subgraphError'>>;
+  rinkeby_router?: SubscriptionResolver<Maybe<ResolversTypes['rinkeby_Router']>, "rinkeby_router", ParentType, ContextType, RequireFields<Subscriptionrinkeby_routerArgs, 'id' | 'subgraphError'>>;
+  rinkeby_routers?: SubscriptionResolver<Array<ResolversTypes['rinkeby_Router']>, "rinkeby_routers", ParentType, ContextType, RequireFields<Subscriptionrinkeby_routersArgs, 'skip' | 'first' | 'subgraphError'>>;
+  rinkeby_setting?: SubscriptionResolver<Maybe<ResolversTypes['rinkeby_Setting']>, "rinkeby_setting", ParentType, ContextType, RequireFields<Subscriptionrinkeby_settingArgs, 'id' | 'subgraphError'>>;
+  rinkeby_settings?: SubscriptionResolver<Array<ResolversTypes['rinkeby_Setting']>, "rinkeby_settings", ParentType, ContextType, RequireFields<Subscriptionrinkeby_settingsArgs, 'skip' | 'first' | 'subgraphError'>>;
+  rinkeby_relayer?: SubscriptionResolver<Maybe<ResolversTypes['rinkeby_Relayer']>, "rinkeby_relayer", ParentType, ContextType, RequireFields<Subscriptionrinkeby_relayerArgs, 'id' | 'subgraphError'>>;
+  rinkeby_relayers?: SubscriptionResolver<Array<ResolversTypes['rinkeby_Relayer']>, "rinkeby_relayers", ParentType, ContextType, RequireFields<Subscriptionrinkeby_relayersArgs, 'skip' | 'first' | 'subgraphError'>>;
+  rinkeby_stableSwap?: SubscriptionResolver<Maybe<ResolversTypes['rinkeby_StableSwap']>, "rinkeby_stableSwap", ParentType, ContextType, RequireFields<Subscriptionrinkeby_stableSwapArgs, 'id' | 'subgraphError'>>;
+  rinkeby_stableSwaps?: SubscriptionResolver<Array<ResolversTypes['rinkeby_StableSwap']>, "rinkeby_stableSwaps", ParentType, ContextType, RequireFields<Subscriptionrinkeby_stableSwapsArgs, 'skip' | 'first' | 'subgraphError'>>;
+  rinkeby_sponsorVault?: SubscriptionResolver<Maybe<ResolversTypes['rinkeby_SponsorVault']>, "rinkeby_sponsorVault", ParentType, ContextType, RequireFields<Subscriptionrinkeby_sponsorVaultArgs, 'id' | 'subgraphError'>>;
+  rinkeby_sponsorVaults?: SubscriptionResolver<Array<ResolversTypes['rinkeby_SponsorVault']>, "rinkeby_sponsorVaults", ParentType, ContextType, RequireFields<Subscriptionrinkeby_sponsorVaultsArgs, 'skip' | 'first' | 'subgraphError'>>;
+  rinkeby_originTransfer?: SubscriptionResolver<Maybe<ResolversTypes['rinkeby_OriginTransfer']>, "rinkeby_originTransfer", ParentType, ContextType, RequireFields<Subscriptionrinkeby_originTransferArgs, 'id' | 'subgraphError'>>;
+  rinkeby_originTransfers?: SubscriptionResolver<Array<ResolversTypes['rinkeby_OriginTransfer']>, "rinkeby_originTransfers", ParentType, ContextType, RequireFields<Subscriptionrinkeby_originTransfersArgs, 'skip' | 'first' | 'subgraphError'>>;
+  rinkeby_destinationTransfer?: SubscriptionResolver<Maybe<ResolversTypes['rinkeby_DestinationTransfer']>, "rinkeby_destinationTransfer", ParentType, ContextType, RequireFields<Subscriptionrinkeby_destinationTransferArgs, 'id' | 'subgraphError'>>;
+  rinkeby_destinationTransfers?: SubscriptionResolver<Array<ResolversTypes['rinkeby_DestinationTransfer']>, "rinkeby_destinationTransfers", ParentType, ContextType, RequireFields<Subscriptionrinkeby_destinationTransfersArgs, 'skip' | 'first' | 'subgraphError'>>;
+  rinkeby__meta?: SubscriptionResolver<Maybe<ResolversTypes['rinkeby__Meta_']>, "rinkeby__meta", ParentType, ContextType, Partial<Subscriptionrinkeby__metaArgs>>;
   goerli_asset?: SubscriptionResolver<Maybe<ResolversTypes['goerli_Asset']>, "goerli_asset", ParentType, ContextType, RequireFields<Subscriptiongoerli_assetArgs, 'id' | 'subgraphError'>>;
   goerli_assets?: SubscriptionResolver<Array<ResolversTypes['goerli_Asset']>, "goerli_assets", ParentType, ContextType, RequireFields<Subscriptiongoerli_assetsArgs, 'skip' | 'first' | 'subgraphError'>>;
   goerli_assetBalance?: SubscriptionResolver<Maybe<ResolversTypes['goerli_AssetBalance']>, "goerli_assetBalance", ParentType, ContextType, RequireFields<Subscriptiongoerli_assetBalanceArgs, 'id' | 'subgraphError'>>;
@@ -20462,56 +20413,25 @@ export type SubscriptionResolvers<ContextType = MeshContext, ParentType extends 
   goerli_rootMessageProcessed?: SubscriptionResolver<Maybe<ResolversTypes['goerli_RootMessageProcessed']>, "goerli_rootMessageProcessed", ParentType, ContextType, RequireFields<Subscriptiongoerli_rootMessageProcessedArgs, 'id' | 'subgraphError'>>;
   goerli_rootMessageProcesseds?: SubscriptionResolver<Array<ResolversTypes['goerli_RootMessageProcessed']>, "goerli_rootMessageProcesseds", ParentType, ContextType, RequireFields<Subscriptiongoerli_rootMessageProcessedsArgs, 'skip' | 'first' | 'subgraphError'>>;
   goerli__meta?: SubscriptionResolver<Maybe<ResolversTypes['goerli__Meta_']>, "goerli__meta", ParentType, ContextType, Partial<Subscriptiongoerli__metaArgs>>;
-  local1338_asset?: SubscriptionResolver<Maybe<ResolversTypes['local1338_Asset']>, "local1338_asset", ParentType, ContextType, RequireFields<Subscriptionlocal1338_assetArgs, 'id' | 'subgraphError'>>;
-  local1338_assets?: SubscriptionResolver<Array<ResolversTypes['local1338_Asset']>, "local1338_assets", ParentType, ContextType, RequireFields<Subscriptionlocal1338_assetsArgs, 'skip' | 'first' | 'subgraphError'>>;
-  local1338_assetBalance?: SubscriptionResolver<Maybe<ResolversTypes['local1338_AssetBalance']>, "local1338_assetBalance", ParentType, ContextType, RequireFields<Subscriptionlocal1338_assetBalanceArgs, 'id' | 'subgraphError'>>;
-  local1338_assetBalances?: SubscriptionResolver<Array<ResolversTypes['local1338_AssetBalance']>, "local1338_assetBalances", ParentType, ContextType, RequireFields<Subscriptionlocal1338_assetBalancesArgs, 'skip' | 'first' | 'subgraphError'>>;
-  local1338_router?: SubscriptionResolver<Maybe<ResolversTypes['local1338_Router']>, "local1338_router", ParentType, ContextType, RequireFields<Subscriptionlocal1338_routerArgs, 'id' | 'subgraphError'>>;
-  local1338_routers?: SubscriptionResolver<Array<ResolversTypes['local1338_Router']>, "local1338_routers", ParentType, ContextType, RequireFields<Subscriptionlocal1338_routersArgs, 'skip' | 'first' | 'subgraphError'>>;
-  local1338_setting?: SubscriptionResolver<Maybe<ResolversTypes['local1338_Setting']>, "local1338_setting", ParentType, ContextType, RequireFields<Subscriptionlocal1338_settingArgs, 'id' | 'subgraphError'>>;
-  local1338_settings?: SubscriptionResolver<Array<ResolversTypes['local1338_Setting']>, "local1338_settings", ParentType, ContextType, RequireFields<Subscriptionlocal1338_settingsArgs, 'skip' | 'first' | 'subgraphError'>>;
-  local1338_relayer?: SubscriptionResolver<Maybe<ResolversTypes['local1338_Relayer']>, "local1338_relayer", ParentType, ContextType, RequireFields<Subscriptionlocal1338_relayerArgs, 'id' | 'subgraphError'>>;
-  local1338_relayers?: SubscriptionResolver<Array<ResolversTypes['local1338_Relayer']>, "local1338_relayers", ParentType, ContextType, RequireFields<Subscriptionlocal1338_relayersArgs, 'skip' | 'first' | 'subgraphError'>>;
-  local1338_stableSwap?: SubscriptionResolver<Maybe<ResolversTypes['local1338_StableSwap']>, "local1338_stableSwap", ParentType, ContextType, RequireFields<Subscriptionlocal1338_stableSwapArgs, 'id' | 'subgraphError'>>;
-  local1338_stableSwaps?: SubscriptionResolver<Array<ResolversTypes['local1338_StableSwap']>, "local1338_stableSwaps", ParentType, ContextType, RequireFields<Subscriptionlocal1338_stableSwapsArgs, 'skip' | 'first' | 'subgraphError'>>;
-  local1338_sponsorVault?: SubscriptionResolver<Maybe<ResolversTypes['local1338_SponsorVault']>, "local1338_sponsorVault", ParentType, ContextType, RequireFields<Subscriptionlocal1338_sponsorVaultArgs, 'id' | 'subgraphError'>>;
-  local1338_sponsorVaults?: SubscriptionResolver<Array<ResolversTypes['local1338_SponsorVault']>, "local1338_sponsorVaults", ParentType, ContextType, RequireFields<Subscriptionlocal1338_sponsorVaultsArgs, 'skip' | 'first' | 'subgraphError'>>;
-  local1338_originTransfer?: SubscriptionResolver<Maybe<ResolversTypes['local1338_OriginTransfer']>, "local1338_originTransfer", ParentType, ContextType, RequireFields<Subscriptionlocal1338_originTransferArgs, 'id' | 'subgraphError'>>;
-  local1338_originTransfers?: SubscriptionResolver<Array<ResolversTypes['local1338_OriginTransfer']>, "local1338_originTransfers", ParentType, ContextType, RequireFields<Subscriptionlocal1338_originTransfersArgs, 'skip' | 'first' | 'subgraphError'>>;
-  local1338_destinationTransfer?: SubscriptionResolver<Maybe<ResolversTypes['local1338_DestinationTransfer']>, "local1338_destinationTransfer", ParentType, ContextType, RequireFields<Subscriptionlocal1338_destinationTransferArgs, 'id' | 'subgraphError'>>;
-  local1338_destinationTransfers?: SubscriptionResolver<Array<ResolversTypes['local1338_DestinationTransfer']>, "local1338_destinationTransfers", ParentType, ContextType, RequireFields<Subscriptionlocal1338_destinationTransfersArgs, 'skip' | 'first' | 'subgraphError'>>;
-  local1338__meta?: SubscriptionResolver<Maybe<ResolversTypes['local1338__Meta_']>, "local1338__meta", ParentType, ContextType, Partial<Subscriptionlocal1338__metaArgs>>;
-  stagingmumbai_asset?: SubscriptionResolver<Maybe<ResolversTypes['stagingmumbai_Asset']>, "stagingmumbai_asset", ParentType, ContextType, RequireFields<Subscriptionstagingmumbai_assetArgs, 'id' | 'subgraphError'>>;
-  stagingmumbai_assets?: SubscriptionResolver<Array<ResolversTypes['stagingmumbai_Asset']>, "stagingmumbai_assets", ParentType, ContextType, RequireFields<Subscriptionstagingmumbai_assetsArgs, 'skip' | 'first' | 'subgraphError'>>;
-  stagingmumbai_assetBalance?: SubscriptionResolver<Maybe<ResolversTypes['stagingmumbai_AssetBalance']>, "stagingmumbai_assetBalance", ParentType, ContextType, RequireFields<Subscriptionstagingmumbai_assetBalanceArgs, 'id' | 'subgraphError'>>;
-  stagingmumbai_assetBalances?: SubscriptionResolver<Array<ResolversTypes['stagingmumbai_AssetBalance']>, "stagingmumbai_assetBalances", ParentType, ContextType, RequireFields<Subscriptionstagingmumbai_assetBalancesArgs, 'skip' | 'first' | 'subgraphError'>>;
-  stagingmumbai_router?: SubscriptionResolver<Maybe<ResolversTypes['stagingmumbai_Router']>, "stagingmumbai_router", ParentType, ContextType, RequireFields<Subscriptionstagingmumbai_routerArgs, 'id' | 'subgraphError'>>;
-  stagingmumbai_routers?: SubscriptionResolver<Array<ResolversTypes['stagingmumbai_Router']>, "stagingmumbai_routers", ParentType, ContextType, RequireFields<Subscriptionstagingmumbai_routersArgs, 'skip' | 'first' | 'subgraphError'>>;
-  stagingmumbai_setting?: SubscriptionResolver<Maybe<ResolversTypes['stagingmumbai_Setting']>, "stagingmumbai_setting", ParentType, ContextType, RequireFields<Subscriptionstagingmumbai_settingArgs, 'id' | 'subgraphError'>>;
-  stagingmumbai_settings?: SubscriptionResolver<Array<ResolversTypes['stagingmumbai_Setting']>, "stagingmumbai_settings", ParentType, ContextType, RequireFields<Subscriptionstagingmumbai_settingsArgs, 'skip' | 'first' | 'subgraphError'>>;
-  stagingmumbai_relayer?: SubscriptionResolver<Maybe<ResolversTypes['stagingmumbai_Relayer']>, "stagingmumbai_relayer", ParentType, ContextType, RequireFields<Subscriptionstagingmumbai_relayerArgs, 'id' | 'subgraphError'>>;
-  stagingmumbai_relayers?: SubscriptionResolver<Array<ResolversTypes['stagingmumbai_Relayer']>, "stagingmumbai_relayers", ParentType, ContextType, RequireFields<Subscriptionstagingmumbai_relayersArgs, 'skip' | 'first' | 'subgraphError'>>;
-  stagingmumbai_stableSwap?: SubscriptionResolver<Maybe<ResolversTypes['stagingmumbai_StableSwap']>, "stagingmumbai_stableSwap", ParentType, ContextType, RequireFields<Subscriptionstagingmumbai_stableSwapArgs, 'id' | 'subgraphError'>>;
-  stagingmumbai_stableSwaps?: SubscriptionResolver<Array<ResolversTypes['stagingmumbai_StableSwap']>, "stagingmumbai_stableSwaps", ParentType, ContextType, RequireFields<Subscriptionstagingmumbai_stableSwapsArgs, 'skip' | 'first' | 'subgraphError'>>;
-  stagingmumbai_sponsorVault?: SubscriptionResolver<Maybe<ResolversTypes['stagingmumbai_SponsorVault']>, "stagingmumbai_sponsorVault", ParentType, ContextType, RequireFields<Subscriptionstagingmumbai_sponsorVaultArgs, 'id' | 'subgraphError'>>;
-  stagingmumbai_sponsorVaults?: SubscriptionResolver<Array<ResolversTypes['stagingmumbai_SponsorVault']>, "stagingmumbai_sponsorVaults", ParentType, ContextType, RequireFields<Subscriptionstagingmumbai_sponsorVaultsArgs, 'skip' | 'first' | 'subgraphError'>>;
-  stagingmumbai_originTransfer?: SubscriptionResolver<Maybe<ResolversTypes['stagingmumbai_OriginTransfer']>, "stagingmumbai_originTransfer", ParentType, ContextType, RequireFields<Subscriptionstagingmumbai_originTransferArgs, 'id' | 'subgraphError'>>;
-  stagingmumbai_originTransfers?: SubscriptionResolver<Array<ResolversTypes['stagingmumbai_OriginTransfer']>, "stagingmumbai_originTransfers", ParentType, ContextType, RequireFields<Subscriptionstagingmumbai_originTransfersArgs, 'skip' | 'first' | 'subgraphError'>>;
-  stagingmumbai_destinationTransfer?: SubscriptionResolver<Maybe<ResolversTypes['stagingmumbai_DestinationTransfer']>, "stagingmumbai_destinationTransfer", ParentType, ContextType, RequireFields<Subscriptionstagingmumbai_destinationTransferArgs, 'id' | 'subgraphError'>>;
-  stagingmumbai_destinationTransfers?: SubscriptionResolver<Array<ResolversTypes['stagingmumbai_DestinationTransfer']>, "stagingmumbai_destinationTransfers", ParentType, ContextType, RequireFields<Subscriptionstagingmumbai_destinationTransfersArgs, 'skip' | 'first' | 'subgraphError'>>;
-  stagingmumbai_originMessage?: SubscriptionResolver<Maybe<ResolversTypes['stagingmumbai_OriginMessage']>, "stagingmumbai_originMessage", ParentType, ContextType, RequireFields<Subscriptionstagingmumbai_originMessageArgs, 'id' | 'subgraphError'>>;
-  stagingmumbai_originMessages?: SubscriptionResolver<Array<ResolversTypes['stagingmumbai_OriginMessage']>, "stagingmumbai_originMessages", ParentType, ContextType, RequireFields<Subscriptionstagingmumbai_originMessagesArgs, 'skip' | 'first' | 'subgraphError'>>;
-  stagingmumbai_destinationMessage?: SubscriptionResolver<Maybe<ResolversTypes['stagingmumbai_DestinationMessage']>, "stagingmumbai_destinationMessage", ParentType, ContextType, RequireFields<Subscriptionstagingmumbai_destinationMessageArgs, 'id' | 'subgraphError'>>;
-  stagingmumbai_destinationMessages?: SubscriptionResolver<Array<ResolversTypes['stagingmumbai_DestinationMessage']>, "stagingmumbai_destinationMessages", ParentType, ContextType, RequireFields<Subscriptionstagingmumbai_destinationMessagesArgs, 'skip' | 'first' | 'subgraphError'>>;
-  stagingmumbai_aggregateRoot?: SubscriptionResolver<Maybe<ResolversTypes['stagingmumbai_AggregateRoot']>, "stagingmumbai_aggregateRoot", ParentType, ContextType, RequireFields<Subscriptionstagingmumbai_aggregateRootArgs, 'id' | 'subgraphError'>>;
-  stagingmumbai_aggregateRoots?: SubscriptionResolver<Array<ResolversTypes['stagingmumbai_AggregateRoot']>, "stagingmumbai_aggregateRoots", ParentType, ContextType, RequireFields<Subscriptionstagingmumbai_aggregateRootsArgs, 'skip' | 'first' | 'subgraphError'>>;
-  stagingmumbai_connectorMeta?: SubscriptionResolver<Maybe<ResolversTypes['stagingmumbai_ConnectorMeta']>, "stagingmumbai_connectorMeta", ParentType, ContextType, RequireFields<Subscriptionstagingmumbai_connectorMetaArgs, 'id' | 'subgraphError'>>;
-  stagingmumbai_connectorMetas?: SubscriptionResolver<Array<ResolversTypes['stagingmumbai_ConnectorMeta']>, "stagingmumbai_connectorMetas", ParentType, ContextType, RequireFields<Subscriptionstagingmumbai_connectorMetasArgs, 'skip' | 'first' | 'subgraphError'>>;
-  stagingmumbai_rootMessageSent?: SubscriptionResolver<Maybe<ResolversTypes['stagingmumbai_RootMessageSent']>, "stagingmumbai_rootMessageSent", ParentType, ContextType, RequireFields<Subscriptionstagingmumbai_rootMessageSentArgs, 'id' | 'subgraphError'>>;
-  stagingmumbai_rootMessageSents?: SubscriptionResolver<Array<ResolversTypes['stagingmumbai_RootMessageSent']>, "stagingmumbai_rootMessageSents", ParentType, ContextType, RequireFields<Subscriptionstagingmumbai_rootMessageSentsArgs, 'skip' | 'first' | 'subgraphError'>>;
-  stagingmumbai_rootMessageProcessed?: SubscriptionResolver<Maybe<ResolversTypes['stagingmumbai_RootMessageProcessed']>, "stagingmumbai_rootMessageProcessed", ParentType, ContextType, RequireFields<Subscriptionstagingmumbai_rootMessageProcessedArgs, 'id' | 'subgraphError'>>;
-  stagingmumbai_rootMessageProcesseds?: SubscriptionResolver<Array<ResolversTypes['stagingmumbai_RootMessageProcessed']>, "stagingmumbai_rootMessageProcesseds", ParentType, ContextType, RequireFields<Subscriptionstagingmumbai_rootMessageProcessedsArgs, 'skip' | 'first' | 'subgraphError'>>;
-  stagingmumbai__meta?: SubscriptionResolver<Maybe<ResolversTypes['stagingmumbai__Meta_']>, "stagingmumbai__meta", ParentType, ContextType, Partial<Subscriptionstagingmumbai__metaArgs>>;
+  testoptimismgoerli_asset?: SubscriptionResolver<Maybe<ResolversTypes['testoptimismgoerli_Asset']>, "testoptimismgoerli_asset", ParentType, ContextType, RequireFields<Subscriptiontestoptimismgoerli_assetArgs, 'id' | 'subgraphError'>>;
+  testoptimismgoerli_assets?: SubscriptionResolver<Array<ResolversTypes['testoptimismgoerli_Asset']>, "testoptimismgoerli_assets", ParentType, ContextType, RequireFields<Subscriptiontestoptimismgoerli_assetsArgs, 'skip' | 'first' | 'subgraphError'>>;
+  testoptimismgoerli_assetBalance?: SubscriptionResolver<Maybe<ResolversTypes['testoptimismgoerli_AssetBalance']>, "testoptimismgoerli_assetBalance", ParentType, ContextType, RequireFields<Subscriptiontestoptimismgoerli_assetBalanceArgs, 'id' | 'subgraphError'>>;
+  testoptimismgoerli_assetBalances?: SubscriptionResolver<Array<ResolversTypes['testoptimismgoerli_AssetBalance']>, "testoptimismgoerli_assetBalances", ParentType, ContextType, RequireFields<Subscriptiontestoptimismgoerli_assetBalancesArgs, 'skip' | 'first' | 'subgraphError'>>;
+  testoptimismgoerli_router?: SubscriptionResolver<Maybe<ResolversTypes['testoptimismgoerli_Router']>, "testoptimismgoerli_router", ParentType, ContextType, RequireFields<Subscriptiontestoptimismgoerli_routerArgs, 'id' | 'subgraphError'>>;
+  testoptimismgoerli_routers?: SubscriptionResolver<Array<ResolversTypes['testoptimismgoerli_Router']>, "testoptimismgoerli_routers", ParentType, ContextType, RequireFields<Subscriptiontestoptimismgoerli_routersArgs, 'skip' | 'first' | 'subgraphError'>>;
+  testoptimismgoerli_setting?: SubscriptionResolver<Maybe<ResolversTypes['testoptimismgoerli_Setting']>, "testoptimismgoerli_setting", ParentType, ContextType, RequireFields<Subscriptiontestoptimismgoerli_settingArgs, 'id' | 'subgraphError'>>;
+  testoptimismgoerli_settings?: SubscriptionResolver<Array<ResolversTypes['testoptimismgoerli_Setting']>, "testoptimismgoerli_settings", ParentType, ContextType, RequireFields<Subscriptiontestoptimismgoerli_settingsArgs, 'skip' | 'first' | 'subgraphError'>>;
+  testoptimismgoerli_relayer?: SubscriptionResolver<Maybe<ResolversTypes['testoptimismgoerli_Relayer']>, "testoptimismgoerli_relayer", ParentType, ContextType, RequireFields<Subscriptiontestoptimismgoerli_relayerArgs, 'id' | 'subgraphError'>>;
+  testoptimismgoerli_relayers?: SubscriptionResolver<Array<ResolversTypes['testoptimismgoerli_Relayer']>, "testoptimismgoerli_relayers", ParentType, ContextType, RequireFields<Subscriptiontestoptimismgoerli_relayersArgs, 'skip' | 'first' | 'subgraphError'>>;
+  testoptimismgoerli_stableSwap?: SubscriptionResolver<Maybe<ResolversTypes['testoptimismgoerli_StableSwap']>, "testoptimismgoerli_stableSwap", ParentType, ContextType, RequireFields<Subscriptiontestoptimismgoerli_stableSwapArgs, 'id' | 'subgraphError'>>;
+  testoptimismgoerli_stableSwaps?: SubscriptionResolver<Array<ResolversTypes['testoptimismgoerli_StableSwap']>, "testoptimismgoerli_stableSwaps", ParentType, ContextType, RequireFields<Subscriptiontestoptimismgoerli_stableSwapsArgs, 'skip' | 'first' | 'subgraphError'>>;
+  testoptimismgoerli_sponsorVault?: SubscriptionResolver<Maybe<ResolversTypes['testoptimismgoerli_SponsorVault']>, "testoptimismgoerli_sponsorVault", ParentType, ContextType, RequireFields<Subscriptiontestoptimismgoerli_sponsorVaultArgs, 'id' | 'subgraphError'>>;
+  testoptimismgoerli_sponsorVaults?: SubscriptionResolver<Array<ResolversTypes['testoptimismgoerli_SponsorVault']>, "testoptimismgoerli_sponsorVaults", ParentType, ContextType, RequireFields<Subscriptiontestoptimismgoerli_sponsorVaultsArgs, 'skip' | 'first' | 'subgraphError'>>;
+  testoptimismgoerli_originTransfer?: SubscriptionResolver<Maybe<ResolversTypes['testoptimismgoerli_OriginTransfer']>, "testoptimismgoerli_originTransfer", ParentType, ContextType, RequireFields<Subscriptiontestoptimismgoerli_originTransferArgs, 'id' | 'subgraphError'>>;
+  testoptimismgoerli_originTransfers?: SubscriptionResolver<Array<ResolversTypes['testoptimismgoerli_OriginTransfer']>, "testoptimismgoerli_originTransfers", ParentType, ContextType, RequireFields<Subscriptiontestoptimismgoerli_originTransfersArgs, 'skip' | 'first' | 'subgraphError'>>;
+  testoptimismgoerli_destinationTransfer?: SubscriptionResolver<Maybe<ResolversTypes['testoptimismgoerli_DestinationTransfer']>, "testoptimismgoerli_destinationTransfer", ParentType, ContextType, RequireFields<Subscriptiontestoptimismgoerli_destinationTransferArgs, 'id' | 'subgraphError'>>;
+  testoptimismgoerli_destinationTransfers?: SubscriptionResolver<Array<ResolversTypes['testoptimismgoerli_DestinationTransfer']>, "testoptimismgoerli_destinationTransfers", ParentType, ContextType, RequireFields<Subscriptiontestoptimismgoerli_destinationTransfersArgs, 'skip' | 'first' | 'subgraphError'>>;
+  testoptimismgoerli__meta?: SubscriptionResolver<Maybe<ResolversTypes['testoptimismgoerli__Meta_']>, "testoptimismgoerli__meta", ParentType, ContextType, Partial<Subscriptiontestoptimismgoerli__metaArgs>>;
   optimismgoerli_asset?: SubscriptionResolver<Maybe<ResolversTypes['optimismgoerli_Asset']>, "optimismgoerli_asset", ParentType, ContextType, RequireFields<Subscriptionoptimismgoerli_assetArgs, 'id' | 'subgraphError'>>;
   optimismgoerli_assets?: SubscriptionResolver<Array<ResolversTypes['optimismgoerli_Asset']>, "optimismgoerli_assets", ParentType, ContextType, RequireFields<Subscriptionoptimismgoerli_assetsArgs, 'skip' | 'first' | 'subgraphError'>>;
   optimismgoerli_assetBalance?: SubscriptionResolver<Maybe<ResolversTypes['optimismgoerli_AssetBalance']>, "optimismgoerli_assetBalance", ParentType, ContextType, RequireFields<Subscriptionoptimismgoerli_assetBalanceArgs, 'id' | 'subgraphError'>>;
@@ -20543,6 +20463,25 @@ export type SubscriptionResolvers<ContextType = MeshContext, ParentType extends 
   optimismgoerli_rootMessageProcessed?: SubscriptionResolver<Maybe<ResolversTypes['optimismgoerli_RootMessageProcessed']>, "optimismgoerli_rootMessageProcessed", ParentType, ContextType, RequireFields<Subscriptionoptimismgoerli_rootMessageProcessedArgs, 'id' | 'subgraphError'>>;
   optimismgoerli_rootMessageProcesseds?: SubscriptionResolver<Array<ResolversTypes['optimismgoerli_RootMessageProcessed']>, "optimismgoerli_rootMessageProcesseds", ParentType, ContextType, RequireFields<Subscriptionoptimismgoerli_rootMessageProcessedsArgs, 'skip' | 'first' | 'subgraphError'>>;
   optimismgoerli__meta?: SubscriptionResolver<Maybe<ResolversTypes['optimismgoerli__Meta_']>, "optimismgoerli__meta", ParentType, ContextType, Partial<Subscriptionoptimismgoerli__metaArgs>>;
+  local1338_asset?: SubscriptionResolver<Maybe<ResolversTypes['local1338_Asset']>, "local1338_asset", ParentType, ContextType, RequireFields<Subscriptionlocal1338_assetArgs, 'id' | 'subgraphError'>>;
+  local1338_assets?: SubscriptionResolver<Array<ResolversTypes['local1338_Asset']>, "local1338_assets", ParentType, ContextType, RequireFields<Subscriptionlocal1338_assetsArgs, 'skip' | 'first' | 'subgraphError'>>;
+  local1338_assetBalance?: SubscriptionResolver<Maybe<ResolversTypes['local1338_AssetBalance']>, "local1338_assetBalance", ParentType, ContextType, RequireFields<Subscriptionlocal1338_assetBalanceArgs, 'id' | 'subgraphError'>>;
+  local1338_assetBalances?: SubscriptionResolver<Array<ResolversTypes['local1338_AssetBalance']>, "local1338_assetBalances", ParentType, ContextType, RequireFields<Subscriptionlocal1338_assetBalancesArgs, 'skip' | 'first' | 'subgraphError'>>;
+  local1338_router?: SubscriptionResolver<Maybe<ResolversTypes['local1338_Router']>, "local1338_router", ParentType, ContextType, RequireFields<Subscriptionlocal1338_routerArgs, 'id' | 'subgraphError'>>;
+  local1338_routers?: SubscriptionResolver<Array<ResolversTypes['local1338_Router']>, "local1338_routers", ParentType, ContextType, RequireFields<Subscriptionlocal1338_routersArgs, 'skip' | 'first' | 'subgraphError'>>;
+  local1338_setting?: SubscriptionResolver<Maybe<ResolversTypes['local1338_Setting']>, "local1338_setting", ParentType, ContextType, RequireFields<Subscriptionlocal1338_settingArgs, 'id' | 'subgraphError'>>;
+  local1338_settings?: SubscriptionResolver<Array<ResolversTypes['local1338_Setting']>, "local1338_settings", ParentType, ContextType, RequireFields<Subscriptionlocal1338_settingsArgs, 'skip' | 'first' | 'subgraphError'>>;
+  local1338_relayer?: SubscriptionResolver<Maybe<ResolversTypes['local1338_Relayer']>, "local1338_relayer", ParentType, ContextType, RequireFields<Subscriptionlocal1338_relayerArgs, 'id' | 'subgraphError'>>;
+  local1338_relayers?: SubscriptionResolver<Array<ResolversTypes['local1338_Relayer']>, "local1338_relayers", ParentType, ContextType, RequireFields<Subscriptionlocal1338_relayersArgs, 'skip' | 'first' | 'subgraphError'>>;
+  local1338_stableSwap?: SubscriptionResolver<Maybe<ResolversTypes['local1338_StableSwap']>, "local1338_stableSwap", ParentType, ContextType, RequireFields<Subscriptionlocal1338_stableSwapArgs, 'id' | 'subgraphError'>>;
+  local1338_stableSwaps?: SubscriptionResolver<Array<ResolversTypes['local1338_StableSwap']>, "local1338_stableSwaps", ParentType, ContextType, RequireFields<Subscriptionlocal1338_stableSwapsArgs, 'skip' | 'first' | 'subgraphError'>>;
+  local1338_sponsorVault?: SubscriptionResolver<Maybe<ResolversTypes['local1338_SponsorVault']>, "local1338_sponsorVault", ParentType, ContextType, RequireFields<Subscriptionlocal1338_sponsorVaultArgs, 'id' | 'subgraphError'>>;
+  local1338_sponsorVaults?: SubscriptionResolver<Array<ResolversTypes['local1338_SponsorVault']>, "local1338_sponsorVaults", ParentType, ContextType, RequireFields<Subscriptionlocal1338_sponsorVaultsArgs, 'skip' | 'first' | 'subgraphError'>>;
+  local1338_originTransfer?: SubscriptionResolver<Maybe<ResolversTypes['local1338_OriginTransfer']>, "local1338_originTransfer", ParentType, ContextType, RequireFields<Subscriptionlocal1338_originTransferArgs, 'id' | 'subgraphError'>>;
+  local1338_originTransfers?: SubscriptionResolver<Array<ResolversTypes['local1338_OriginTransfer']>, "local1338_originTransfers", ParentType, ContextType, RequireFields<Subscriptionlocal1338_originTransfersArgs, 'skip' | 'first' | 'subgraphError'>>;
+  local1338_destinationTransfer?: SubscriptionResolver<Maybe<ResolversTypes['local1338_DestinationTransfer']>, "local1338_destinationTransfer", ParentType, ContextType, RequireFields<Subscriptionlocal1338_destinationTransferArgs, 'id' | 'subgraphError'>>;
+  local1338_destinationTransfers?: SubscriptionResolver<Array<ResolversTypes['local1338_DestinationTransfer']>, "local1338_destinationTransfers", ParentType, ContextType, RequireFields<Subscriptionlocal1338_destinationTransfersArgs, 'skip' | 'first' | 'subgraphError'>>;
+  local1338__meta?: SubscriptionResolver<Maybe<ResolversTypes['local1338__Meta_']>, "local1338__meta", ParentType, ContextType, Partial<Subscriptionlocal1338__metaArgs>>;
   mumbai_asset?: SubscriptionResolver<Maybe<ResolversTypes['mumbai_Asset']>, "mumbai_asset", ParentType, ContextType, RequireFields<Subscriptionmumbai_assetArgs, 'id' | 'subgraphError'>>;
   mumbai_assets?: SubscriptionResolver<Array<ResolversTypes['mumbai_Asset']>, "mumbai_assets", ParentType, ContextType, RequireFields<Subscriptionmumbai_assetsArgs, 'skip' | 'first' | 'subgraphError'>>;
   mumbai_assetBalance?: SubscriptionResolver<Maybe<ResolversTypes['mumbai_AssetBalance']>, "mumbai_assetBalance", ParentType, ContextType, RequireFields<Subscriptionmumbai_assetBalanceArgs, 'id' | 'subgraphError'>>;
@@ -20570,6 +20509,37 @@ export type SubscriptionResolvers<ContextType = MeshContext, ParentType extends 
   mumbai_rootMessage?: SubscriptionResolver<Maybe<ResolversTypes['mumbai_RootMessage']>, "mumbai_rootMessage", ParentType, ContextType, RequireFields<Subscriptionmumbai_rootMessageArgs, 'id' | 'subgraphError'>>;
   mumbai_rootMessages?: SubscriptionResolver<Array<ResolversTypes['mumbai_RootMessage']>, "mumbai_rootMessages", ParentType, ContextType, RequireFields<Subscriptionmumbai_rootMessagesArgs, 'skip' | 'first' | 'subgraphError'>>;
   mumbai__meta?: SubscriptionResolver<Maybe<ResolversTypes['mumbai__Meta_']>, "mumbai__meta", ParentType, ContextType, Partial<Subscriptionmumbai__metaArgs>>;
+  stagingmumbai_asset?: SubscriptionResolver<Maybe<ResolversTypes['stagingmumbai_Asset']>, "stagingmumbai_asset", ParentType, ContextType, RequireFields<Subscriptionstagingmumbai_assetArgs, 'id' | 'subgraphError'>>;
+  stagingmumbai_assets?: SubscriptionResolver<Array<ResolversTypes['stagingmumbai_Asset']>, "stagingmumbai_assets", ParentType, ContextType, RequireFields<Subscriptionstagingmumbai_assetsArgs, 'skip' | 'first' | 'subgraphError'>>;
+  stagingmumbai_assetBalance?: SubscriptionResolver<Maybe<ResolversTypes['stagingmumbai_AssetBalance']>, "stagingmumbai_assetBalance", ParentType, ContextType, RequireFields<Subscriptionstagingmumbai_assetBalanceArgs, 'id' | 'subgraphError'>>;
+  stagingmumbai_assetBalances?: SubscriptionResolver<Array<ResolversTypes['stagingmumbai_AssetBalance']>, "stagingmumbai_assetBalances", ParentType, ContextType, RequireFields<Subscriptionstagingmumbai_assetBalancesArgs, 'skip' | 'first' | 'subgraphError'>>;
+  stagingmumbai_router?: SubscriptionResolver<Maybe<ResolversTypes['stagingmumbai_Router']>, "stagingmumbai_router", ParentType, ContextType, RequireFields<Subscriptionstagingmumbai_routerArgs, 'id' | 'subgraphError'>>;
+  stagingmumbai_routers?: SubscriptionResolver<Array<ResolversTypes['stagingmumbai_Router']>, "stagingmumbai_routers", ParentType, ContextType, RequireFields<Subscriptionstagingmumbai_routersArgs, 'skip' | 'first' | 'subgraphError'>>;
+  stagingmumbai_setting?: SubscriptionResolver<Maybe<ResolversTypes['stagingmumbai_Setting']>, "stagingmumbai_setting", ParentType, ContextType, RequireFields<Subscriptionstagingmumbai_settingArgs, 'id' | 'subgraphError'>>;
+  stagingmumbai_settings?: SubscriptionResolver<Array<ResolversTypes['stagingmumbai_Setting']>, "stagingmumbai_settings", ParentType, ContextType, RequireFields<Subscriptionstagingmumbai_settingsArgs, 'skip' | 'first' | 'subgraphError'>>;
+  stagingmumbai_relayer?: SubscriptionResolver<Maybe<ResolversTypes['stagingmumbai_Relayer']>, "stagingmumbai_relayer", ParentType, ContextType, RequireFields<Subscriptionstagingmumbai_relayerArgs, 'id' | 'subgraphError'>>;
+  stagingmumbai_relayers?: SubscriptionResolver<Array<ResolversTypes['stagingmumbai_Relayer']>, "stagingmumbai_relayers", ParentType, ContextType, RequireFields<Subscriptionstagingmumbai_relayersArgs, 'skip' | 'first' | 'subgraphError'>>;
+  stagingmumbai_stableSwap?: SubscriptionResolver<Maybe<ResolversTypes['stagingmumbai_StableSwap']>, "stagingmumbai_stableSwap", ParentType, ContextType, RequireFields<Subscriptionstagingmumbai_stableSwapArgs, 'id' | 'subgraphError'>>;
+  stagingmumbai_stableSwaps?: SubscriptionResolver<Array<ResolversTypes['stagingmumbai_StableSwap']>, "stagingmumbai_stableSwaps", ParentType, ContextType, RequireFields<Subscriptionstagingmumbai_stableSwapsArgs, 'skip' | 'first' | 'subgraphError'>>;
+  stagingmumbai_sponsorVault?: SubscriptionResolver<Maybe<ResolversTypes['stagingmumbai_SponsorVault']>, "stagingmumbai_sponsorVault", ParentType, ContextType, RequireFields<Subscriptionstagingmumbai_sponsorVaultArgs, 'id' | 'subgraphError'>>;
+  stagingmumbai_sponsorVaults?: SubscriptionResolver<Array<ResolversTypes['stagingmumbai_SponsorVault']>, "stagingmumbai_sponsorVaults", ParentType, ContextType, RequireFields<Subscriptionstagingmumbai_sponsorVaultsArgs, 'skip' | 'first' | 'subgraphError'>>;
+  stagingmumbai_originTransfer?: SubscriptionResolver<Maybe<ResolversTypes['stagingmumbai_OriginTransfer']>, "stagingmumbai_originTransfer", ParentType, ContextType, RequireFields<Subscriptionstagingmumbai_originTransferArgs, 'id' | 'subgraphError'>>;
+  stagingmumbai_originTransfers?: SubscriptionResolver<Array<ResolversTypes['stagingmumbai_OriginTransfer']>, "stagingmumbai_originTransfers", ParentType, ContextType, RequireFields<Subscriptionstagingmumbai_originTransfersArgs, 'skip' | 'first' | 'subgraphError'>>;
+  stagingmumbai_destinationTransfer?: SubscriptionResolver<Maybe<ResolversTypes['stagingmumbai_DestinationTransfer']>, "stagingmumbai_destinationTransfer", ParentType, ContextType, RequireFields<Subscriptionstagingmumbai_destinationTransferArgs, 'id' | 'subgraphError'>>;
+  stagingmumbai_destinationTransfers?: SubscriptionResolver<Array<ResolversTypes['stagingmumbai_DestinationTransfer']>, "stagingmumbai_destinationTransfers", ParentType, ContextType, RequireFields<Subscriptionstagingmumbai_destinationTransfersArgs, 'skip' | 'first' | 'subgraphError'>>;
+  stagingmumbai_originMessage?: SubscriptionResolver<Maybe<ResolversTypes['stagingmumbai_OriginMessage']>, "stagingmumbai_originMessage", ParentType, ContextType, RequireFields<Subscriptionstagingmumbai_originMessageArgs, 'id' | 'subgraphError'>>;
+  stagingmumbai_originMessages?: SubscriptionResolver<Array<ResolversTypes['stagingmumbai_OriginMessage']>, "stagingmumbai_originMessages", ParentType, ContextType, RequireFields<Subscriptionstagingmumbai_originMessagesArgs, 'skip' | 'first' | 'subgraphError'>>;
+  stagingmumbai_destinationMessage?: SubscriptionResolver<Maybe<ResolversTypes['stagingmumbai_DestinationMessage']>, "stagingmumbai_destinationMessage", ParentType, ContextType, RequireFields<Subscriptionstagingmumbai_destinationMessageArgs, 'id' | 'subgraphError'>>;
+  stagingmumbai_destinationMessages?: SubscriptionResolver<Array<ResolversTypes['stagingmumbai_DestinationMessage']>, "stagingmumbai_destinationMessages", ParentType, ContextType, RequireFields<Subscriptionstagingmumbai_destinationMessagesArgs, 'skip' | 'first' | 'subgraphError'>>;
+  stagingmumbai_aggregateRoot?: SubscriptionResolver<Maybe<ResolversTypes['stagingmumbai_AggregateRoot']>, "stagingmumbai_aggregateRoot", ParentType, ContextType, RequireFields<Subscriptionstagingmumbai_aggregateRootArgs, 'id' | 'subgraphError'>>;
+  stagingmumbai_aggregateRoots?: SubscriptionResolver<Array<ResolversTypes['stagingmumbai_AggregateRoot']>, "stagingmumbai_aggregateRoots", ParentType, ContextType, RequireFields<Subscriptionstagingmumbai_aggregateRootsArgs, 'skip' | 'first' | 'subgraphError'>>;
+  stagingmumbai_connectorMeta?: SubscriptionResolver<Maybe<ResolversTypes['stagingmumbai_ConnectorMeta']>, "stagingmumbai_connectorMeta", ParentType, ContextType, RequireFields<Subscriptionstagingmumbai_connectorMetaArgs, 'id' | 'subgraphError'>>;
+  stagingmumbai_connectorMetas?: SubscriptionResolver<Array<ResolversTypes['stagingmumbai_ConnectorMeta']>, "stagingmumbai_connectorMetas", ParentType, ContextType, RequireFields<Subscriptionstagingmumbai_connectorMetasArgs, 'skip' | 'first' | 'subgraphError'>>;
+  stagingmumbai_rootMessageSent?: SubscriptionResolver<Maybe<ResolversTypes['stagingmumbai_RootMessageSent']>, "stagingmumbai_rootMessageSent", ParentType, ContextType, RequireFields<Subscriptionstagingmumbai_rootMessageSentArgs, 'id' | 'subgraphError'>>;
+  stagingmumbai_rootMessageSents?: SubscriptionResolver<Array<ResolversTypes['stagingmumbai_RootMessageSent']>, "stagingmumbai_rootMessageSents", ParentType, ContextType, RequireFields<Subscriptionstagingmumbai_rootMessageSentsArgs, 'skip' | 'first' | 'subgraphError'>>;
+  stagingmumbai_rootMessageProcessed?: SubscriptionResolver<Maybe<ResolversTypes['stagingmumbai_RootMessageProcessed']>, "stagingmumbai_rootMessageProcessed", ParentType, ContextType, RequireFields<Subscriptionstagingmumbai_rootMessageProcessedArgs, 'id' | 'subgraphError'>>;
+  stagingmumbai_rootMessageProcesseds?: SubscriptionResolver<Array<ResolversTypes['stagingmumbai_RootMessageProcessed']>, "stagingmumbai_rootMessageProcesseds", ParentType, ContextType, RequireFields<Subscriptionstagingmumbai_rootMessageProcessedsArgs, 'skip' | 'first' | 'subgraphError'>>;
+  stagingmumbai__meta?: SubscriptionResolver<Maybe<ResolversTypes['stagingmumbai__Meta_']>, "stagingmumbai__meta", ParentType, ContextType, Partial<Subscriptionstagingmumbai__metaArgs>>;
   stagingoptimismgoerli_asset?: SubscriptionResolver<Maybe<ResolversTypes['stagingoptimismgoerli_Asset']>, "stagingoptimismgoerli_asset", ParentType, ContextType, RequireFields<Subscriptionstagingoptimismgoerli_assetArgs, 'id' | 'subgraphError'>>;
   stagingoptimismgoerli_assets?: SubscriptionResolver<Array<ResolversTypes['stagingoptimismgoerli_Asset']>, "stagingoptimismgoerli_assets", ParentType, ContextType, RequireFields<Subscriptionstagingoptimismgoerli_assetsArgs, 'skip' | 'first' | 'subgraphError'>>;
   stagingoptimismgoerli_assetBalance?: SubscriptionResolver<Maybe<ResolversTypes['stagingoptimismgoerli_AssetBalance']>, "stagingoptimismgoerli_assetBalance", ParentType, ContextType, RequireFields<Subscriptionstagingoptimismgoerli_assetBalanceArgs, 'id' | 'subgraphError'>>;
@@ -20601,161 +20571,37 @@ export type SubscriptionResolvers<ContextType = MeshContext, ParentType extends 
   stagingoptimismgoerli_rootMessageProcessed?: SubscriptionResolver<Maybe<ResolversTypes['stagingoptimismgoerli_RootMessageProcessed']>, "stagingoptimismgoerli_rootMessageProcessed", ParentType, ContextType, RequireFields<Subscriptionstagingoptimismgoerli_rootMessageProcessedArgs, 'id' | 'subgraphError'>>;
   stagingoptimismgoerli_rootMessageProcesseds?: SubscriptionResolver<Array<ResolversTypes['stagingoptimismgoerli_RootMessageProcessed']>, "stagingoptimismgoerli_rootMessageProcesseds", ParentType, ContextType, RequireFields<Subscriptionstagingoptimismgoerli_rootMessageProcessedsArgs, 'skip' | 'first' | 'subgraphError'>>;
   stagingoptimismgoerli__meta?: SubscriptionResolver<Maybe<ResolversTypes['stagingoptimismgoerli__Meta_']>, "stagingoptimismgoerli__meta", ParentType, ContextType, Partial<Subscriptionstagingoptimismgoerli__metaArgs>>;
-}>;
-
-export type rinkeby_AssetResolvers<ContextType = MeshContext, ParentType extends ResolversParentTypes['rinkeby_Asset'] = ResolversParentTypes['rinkeby_Asset']> = ResolversObject<{
-  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
-  local?: Resolver<ResolversTypes['rinkeby_Bytes'], ParentType, ContextType>;
-  adoptedAsset?: Resolver<ResolversTypes['rinkeby_Bytes'], ParentType, ContextType>;
-  canonicalId?: Resolver<ResolversTypes['rinkeby_Bytes'], ParentType, ContextType>;
-  canonicalDomain?: Resolver<ResolversTypes['BigInt'], ParentType, ContextType>;
-  blockNumber?: Resolver<ResolversTypes['BigInt'], ParentType, ContextType>;
-  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
-}>;
-
-export type rinkeby_AssetBalanceResolvers<ContextType = MeshContext, ParentType extends ResolversParentTypes['rinkeby_AssetBalance'] = ResolversParentTypes['rinkeby_AssetBalance']> = ResolversObject<{
-  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
-  amount?: Resolver<ResolversTypes['BigInt'], ParentType, ContextType>;
-  router?: Resolver<ResolversTypes['rinkeby_Router'], ParentType, ContextType>;
-  asset?: Resolver<ResolversTypes['rinkeby_Asset'], ParentType, ContextType>;
-  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
-}>;
-
-export interface rinkeby_BigDecimalScalarConfig extends GraphQLScalarTypeConfig<ResolversTypes['rinkeby_BigDecimal'], any> {
-  name: 'rinkeby_BigDecimal';
-}
-
-export interface BigIntScalarConfig extends GraphQLScalarTypeConfig<ResolversTypes['BigInt'], any> {
-  name: 'BigInt';
-}
-
-export interface rinkeby_BytesScalarConfig extends GraphQLScalarTypeConfig<ResolversTypes['rinkeby_Bytes'], any> {
-  name: 'rinkeby_Bytes';
-}
-
-export type rinkeby_DestinationTransferResolvers<ContextType = MeshContext, ParentType extends ResolversParentTypes['rinkeby_DestinationTransfer'] = ResolversParentTypes['rinkeby_DestinationTransfer']> = ResolversObject<{
-  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
-  chainId?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
-  transferId?: Resolver<Maybe<ResolversTypes['rinkeby_Bytes']>, ParentType, ContextType>;
-  nonce?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
-  to?: Resolver<Maybe<ResolversTypes['rinkeby_Bytes']>, ParentType, ContextType>;
-  callData?: Resolver<Maybe<ResolversTypes['rinkeby_Bytes']>, ParentType, ContextType>;
-  originDomain?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
-  destinationDomain?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
-  agent?: Resolver<Maybe<ResolversTypes['rinkeby_Bytes']>, ParentType, ContextType>;
-  recovery?: Resolver<Maybe<ResolversTypes['rinkeby_Bytes']>, ParentType, ContextType>;
-  forceSlow?: Resolver<Maybe<ResolversTypes['Boolean']>, ParentType, ContextType>;
-  receiveLocal?: Resolver<Maybe<ResolversTypes['Boolean']>, ParentType, ContextType>;
-  callback?: Resolver<Maybe<ResolversTypes['rinkeby_Bytes']>, ParentType, ContextType>;
-  callbackFee?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
-  relayerFee?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
-  slippageTol?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
-  status?: Resolver<Maybe<ResolversTypes['rinkeby_TransferStatus']>, ParentType, ContextType>;
-  routers?: Resolver<Maybe<Array<ResolversTypes['rinkeby_Router']>>, ParentType, ContextType, RequireFields<rinkeby_DestinationTransferroutersArgs, 'skip' | 'first'>>;
-  originSender?: Resolver<Maybe<ResolversTypes['rinkeby_Bytes']>, ParentType, ContextType>;
-  transactingAsset?: Resolver<Maybe<ResolversTypes['rinkeby_Bytes']>, ParentType, ContextType>;
-  transactingAmount?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
-  localAsset?: Resolver<Maybe<ResolversTypes['rinkeby_Bytes']>, ParentType, ContextType>;
-  localAmount?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
-  sponsorVaultRelayerFee?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
-  executedCaller?: Resolver<Maybe<ResolversTypes['rinkeby_Bytes']>, ParentType, ContextType>;
-  executedTransactionHash?: Resolver<Maybe<ResolversTypes['rinkeby_Bytes']>, ParentType, ContextType>;
-  executedTimestamp?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
-  executedGasPrice?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
-  executedGasLimit?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
-  executedBlockNumber?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
-  reconciledCaller?: Resolver<Maybe<ResolversTypes['rinkeby_Bytes']>, ParentType, ContextType>;
-  reconciledTransactionHash?: Resolver<Maybe<ResolversTypes['rinkeby_Bytes']>, ParentType, ContextType>;
-  reconciledTimestamp?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
-  reconciledGasPrice?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
-  reconciledGasLimit?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
-  reconciledBlockNumber?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
-  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
-}>;
-
-export type rinkeby_OriginTransferResolvers<ContextType = MeshContext, ParentType extends ResolversParentTypes['rinkeby_OriginTransfer'] = ResolversParentTypes['rinkeby_OriginTransfer']> = ResolversObject<{
-  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
-  chainId?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
-  transferId?: Resolver<Maybe<ResolversTypes['rinkeby_Bytes']>, ParentType, ContextType>;
-  nonce?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
-  to?: Resolver<Maybe<ResolversTypes['rinkeby_Bytes']>, ParentType, ContextType>;
-  callData?: Resolver<Maybe<ResolversTypes['rinkeby_Bytes']>, ParentType, ContextType>;
-  originDomain?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
-  destinationDomain?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
-  agent?: Resolver<Maybe<ResolversTypes['rinkeby_Bytes']>, ParentType, ContextType>;
-  recovery?: Resolver<Maybe<ResolversTypes['rinkeby_Bytes']>, ParentType, ContextType>;
-  forceSlow?: Resolver<Maybe<ResolversTypes['Boolean']>, ParentType, ContextType>;
-  receiveLocal?: Resolver<Maybe<ResolversTypes['Boolean']>, ParentType, ContextType>;
-  callback?: Resolver<Maybe<ResolversTypes['rinkeby_Bytes']>, ParentType, ContextType>;
-  callbackFee?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
-  relayerFee?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
-  slippageTol?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
-  status?: Resolver<Maybe<ResolversTypes['rinkeby_TransferStatus']>, ParentType, ContextType>;
-  message?: Resolver<Maybe<ResolversTypes['rinkeby_Bytes']>, ParentType, ContextType>;
-  transactingAsset?: Resolver<Maybe<ResolversTypes['rinkeby_Bytes']>, ParentType, ContextType>;
-  transactingAmount?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
-  bridgedAsset?: Resolver<Maybe<ResolversTypes['rinkeby_Bytes']>, ParentType, ContextType>;
-  bridgedAmount?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
-  caller?: Resolver<Maybe<ResolversTypes['rinkeby_Bytes']>, ParentType, ContextType>;
-  transactionHash?: Resolver<Maybe<ResolversTypes['rinkeby_Bytes']>, ParentType, ContextType>;
-  timestamp?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
-  gasPrice?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
-  gasLimit?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
-  blockNumber?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
-  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
-}>;
-
-export type rinkeby_RelayerResolvers<ContextType = MeshContext, ParentType extends ResolversParentTypes['rinkeby_Relayer'] = ResolversParentTypes['rinkeby_Relayer']> = ResolversObject<{
-  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
-  isActive?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
-  relayer?: Resolver<Maybe<ResolversTypes['rinkeby_Bytes']>, ParentType, ContextType>;
-  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
-}>;
-
-export type rinkeby_RouterResolvers<ContextType = MeshContext, ParentType extends ResolversParentTypes['rinkeby_Router'] = ResolversParentTypes['rinkeby_Router']> = ResolversObject<{
-  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
-  isActive?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
-  owner?: Resolver<Maybe<ResolversTypes['rinkeby_Bytes']>, ParentType, ContextType>;
-  recipient?: Resolver<Maybe<ResolversTypes['rinkeby_Bytes']>, ParentType, ContextType>;
-  proposedOwner?: Resolver<Maybe<ResolversTypes['rinkeby_Bytes']>, ParentType, ContextType>;
-  proposedTimestamp?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
-  assetBalances?: Resolver<Array<ResolversTypes['rinkeby_AssetBalance']>, ParentType, ContextType, RequireFields<rinkeby_RouterassetBalancesArgs, 'skip' | 'first'>>;
-  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
-}>;
-
-export type rinkeby_SettingResolvers<ContextType = MeshContext, ParentType extends ResolversParentTypes['rinkeby_Setting'] = ResolversParentTypes['rinkeby_Setting']> = ResolversObject<{
-  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
-  maxRoutersPerTransfer?: Resolver<ResolversTypes['BigInt'], ParentType, ContextType>;
-  caller?: Resolver<ResolversTypes['rinkeby_Bytes'], ParentType, ContextType>;
-  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
-}>;
-
-export type rinkeby_SponsorVaultResolvers<ContextType = MeshContext, ParentType extends ResolversParentTypes['rinkeby_SponsorVault'] = ResolversParentTypes['rinkeby_SponsorVault']> = ResolversObject<{
-  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
-  sponsorVault?: Resolver<ResolversTypes['rinkeby_Bytes'], ParentType, ContextType>;
-  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
-}>;
-
-export type rinkeby_StableSwapResolvers<ContextType = MeshContext, ParentType extends ResolversParentTypes['rinkeby_StableSwap'] = ResolversParentTypes['rinkeby_StableSwap']> = ResolversObject<{
-  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
-  canonicalId?: Resolver<ResolversTypes['rinkeby_Bytes'], ParentType, ContextType>;
-  domain?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
-  swapPool?: Resolver<ResolversTypes['rinkeby_Bytes'], ParentType, ContextType>;
-  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
-}>;
-
-export type rinkeby__Block_Resolvers<ContextType = MeshContext, ParentType extends ResolversParentTypes['rinkeby__Block_'] = ResolversParentTypes['rinkeby__Block_']> = ResolversObject<{
-  hash?: Resolver<Maybe<ResolversTypes['rinkeby_Bytes']>, ParentType, ContextType>;
-  number?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
-  timestamp?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
-  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
-}>;
-
-export type rinkeby__Meta_Resolvers<ContextType = MeshContext, ParentType extends ResolversParentTypes['rinkeby__Meta_'] = ResolversParentTypes['rinkeby__Meta_']> = ResolversObject<{
-  block?: Resolver<ResolversTypes['rinkeby__Block_'], ParentType, ContextType>;
-  deployment?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
-  hasIndexingErrors?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
-  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+  staginggoerli_asset?: SubscriptionResolver<Maybe<ResolversTypes['staginggoerli_Asset']>, "staginggoerli_asset", ParentType, ContextType, RequireFields<Subscriptionstaginggoerli_assetArgs, 'id' | 'subgraphError'>>;
+  staginggoerli_assets?: SubscriptionResolver<Array<ResolversTypes['staginggoerli_Asset']>, "staginggoerli_assets", ParentType, ContextType, RequireFields<Subscriptionstaginggoerli_assetsArgs, 'skip' | 'first' | 'subgraphError'>>;
+  staginggoerli_assetBalance?: SubscriptionResolver<Maybe<ResolversTypes['staginggoerli_AssetBalance']>, "staginggoerli_assetBalance", ParentType, ContextType, RequireFields<Subscriptionstaginggoerli_assetBalanceArgs, 'id' | 'subgraphError'>>;
+  staginggoerli_assetBalances?: SubscriptionResolver<Array<ResolversTypes['staginggoerli_AssetBalance']>, "staginggoerli_assetBalances", ParentType, ContextType, RequireFields<Subscriptionstaginggoerli_assetBalancesArgs, 'skip' | 'first' | 'subgraphError'>>;
+  staginggoerli_router?: SubscriptionResolver<Maybe<ResolversTypes['staginggoerli_Router']>, "staginggoerli_router", ParentType, ContextType, RequireFields<Subscriptionstaginggoerli_routerArgs, 'id' | 'subgraphError'>>;
+  staginggoerli_routers?: SubscriptionResolver<Array<ResolversTypes['staginggoerli_Router']>, "staginggoerli_routers", ParentType, ContextType, RequireFields<Subscriptionstaginggoerli_routersArgs, 'skip' | 'first' | 'subgraphError'>>;
+  staginggoerli_setting?: SubscriptionResolver<Maybe<ResolversTypes['staginggoerli_Setting']>, "staginggoerli_setting", ParentType, ContextType, RequireFields<Subscriptionstaginggoerli_settingArgs, 'id' | 'subgraphError'>>;
+  staginggoerli_settings?: SubscriptionResolver<Array<ResolversTypes['staginggoerli_Setting']>, "staginggoerli_settings", ParentType, ContextType, RequireFields<Subscriptionstaginggoerli_settingsArgs, 'skip' | 'first' | 'subgraphError'>>;
+  staginggoerli_relayer?: SubscriptionResolver<Maybe<ResolversTypes['staginggoerli_Relayer']>, "staginggoerli_relayer", ParentType, ContextType, RequireFields<Subscriptionstaginggoerli_relayerArgs, 'id' | 'subgraphError'>>;
+  staginggoerli_relayers?: SubscriptionResolver<Array<ResolversTypes['staginggoerli_Relayer']>, "staginggoerli_relayers", ParentType, ContextType, RequireFields<Subscriptionstaginggoerli_relayersArgs, 'skip' | 'first' | 'subgraphError'>>;
+  staginggoerli_stableSwap?: SubscriptionResolver<Maybe<ResolversTypes['staginggoerli_StableSwap']>, "staginggoerli_stableSwap", ParentType, ContextType, RequireFields<Subscriptionstaginggoerli_stableSwapArgs, 'id' | 'subgraphError'>>;
+  staginggoerli_stableSwaps?: SubscriptionResolver<Array<ResolversTypes['staginggoerli_StableSwap']>, "staginggoerli_stableSwaps", ParentType, ContextType, RequireFields<Subscriptionstaginggoerli_stableSwapsArgs, 'skip' | 'first' | 'subgraphError'>>;
+  staginggoerli_sponsorVault?: SubscriptionResolver<Maybe<ResolversTypes['staginggoerli_SponsorVault']>, "staginggoerli_sponsorVault", ParentType, ContextType, RequireFields<Subscriptionstaginggoerli_sponsorVaultArgs, 'id' | 'subgraphError'>>;
+  staginggoerli_sponsorVaults?: SubscriptionResolver<Array<ResolversTypes['staginggoerli_SponsorVault']>, "staginggoerli_sponsorVaults", ParentType, ContextType, RequireFields<Subscriptionstaginggoerli_sponsorVaultsArgs, 'skip' | 'first' | 'subgraphError'>>;
+  staginggoerli_originTransfer?: SubscriptionResolver<Maybe<ResolversTypes['staginggoerli_OriginTransfer']>, "staginggoerli_originTransfer", ParentType, ContextType, RequireFields<Subscriptionstaginggoerli_originTransferArgs, 'id' | 'subgraphError'>>;
+  staginggoerli_originTransfers?: SubscriptionResolver<Array<ResolversTypes['staginggoerli_OriginTransfer']>, "staginggoerli_originTransfers", ParentType, ContextType, RequireFields<Subscriptionstaginggoerli_originTransfersArgs, 'skip' | 'first' | 'subgraphError'>>;
+  staginggoerli_destinationTransfer?: SubscriptionResolver<Maybe<ResolversTypes['staginggoerli_DestinationTransfer']>, "staginggoerli_destinationTransfer", ParentType, ContextType, RequireFields<Subscriptionstaginggoerli_destinationTransferArgs, 'id' | 'subgraphError'>>;
+  staginggoerli_destinationTransfers?: SubscriptionResolver<Array<ResolversTypes['staginggoerli_DestinationTransfer']>, "staginggoerli_destinationTransfers", ParentType, ContextType, RequireFields<Subscriptionstaginggoerli_destinationTransfersArgs, 'skip' | 'first' | 'subgraphError'>>;
+  staginggoerli_originMessage?: SubscriptionResolver<Maybe<ResolversTypes['staginggoerli_OriginMessage']>, "staginggoerli_originMessage", ParentType, ContextType, RequireFields<Subscriptionstaginggoerli_originMessageArgs, 'id' | 'subgraphError'>>;
+  staginggoerli_originMessages?: SubscriptionResolver<Array<ResolversTypes['staginggoerli_OriginMessage']>, "staginggoerli_originMessages", ParentType, ContextType, RequireFields<Subscriptionstaginggoerli_originMessagesArgs, 'skip' | 'first' | 'subgraphError'>>;
+  staginggoerli_destinationMessage?: SubscriptionResolver<Maybe<ResolversTypes['staginggoerli_DestinationMessage']>, "staginggoerli_destinationMessage", ParentType, ContextType, RequireFields<Subscriptionstaginggoerli_destinationMessageArgs, 'id' | 'subgraphError'>>;
+  staginggoerli_destinationMessages?: SubscriptionResolver<Array<ResolversTypes['staginggoerli_DestinationMessage']>, "staginggoerli_destinationMessages", ParentType, ContextType, RequireFields<Subscriptionstaginggoerli_destinationMessagesArgs, 'skip' | 'first' | 'subgraphError'>>;
+  staginggoerli_aggregateRoot?: SubscriptionResolver<Maybe<ResolversTypes['staginggoerli_AggregateRoot']>, "staginggoerli_aggregateRoot", ParentType, ContextType, RequireFields<Subscriptionstaginggoerli_aggregateRootArgs, 'id' | 'subgraphError'>>;
+  staginggoerli_aggregateRoots?: SubscriptionResolver<Array<ResolversTypes['staginggoerli_AggregateRoot']>, "staginggoerli_aggregateRoots", ParentType, ContextType, RequireFields<Subscriptionstaginggoerli_aggregateRootsArgs, 'skip' | 'first' | 'subgraphError'>>;
+  staginggoerli_connectorMeta?: SubscriptionResolver<Maybe<ResolversTypes['staginggoerli_ConnectorMeta']>, "staginggoerli_connectorMeta", ParentType, ContextType, RequireFields<Subscriptionstaginggoerli_connectorMetaArgs, 'id' | 'subgraphError'>>;
+  staginggoerli_connectorMetas?: SubscriptionResolver<Array<ResolversTypes['staginggoerli_ConnectorMeta']>, "staginggoerli_connectorMetas", ParentType, ContextType, RequireFields<Subscriptionstaginggoerli_connectorMetasArgs, 'skip' | 'first' | 'subgraphError'>>;
+  staginggoerli_rootMessageSent?: SubscriptionResolver<Maybe<ResolversTypes['staginggoerli_RootMessageSent']>, "staginggoerli_rootMessageSent", ParentType, ContextType, RequireFields<Subscriptionstaginggoerli_rootMessageSentArgs, 'id' | 'subgraphError'>>;
+  staginggoerli_rootMessageSents?: SubscriptionResolver<Array<ResolversTypes['staginggoerli_RootMessageSent']>, "staginggoerli_rootMessageSents", ParentType, ContextType, RequireFields<Subscriptionstaginggoerli_rootMessageSentsArgs, 'skip' | 'first' | 'subgraphError'>>;
+  staginggoerli_rootMessageProcessed?: SubscriptionResolver<Maybe<ResolversTypes['staginggoerli_RootMessageProcessed']>, "staginggoerli_rootMessageProcessed", ParentType, ContextType, RequireFields<Subscriptionstaginggoerli_rootMessageProcessedArgs, 'id' | 'subgraphError'>>;
+  staginggoerli_rootMessageProcesseds?: SubscriptionResolver<Array<ResolversTypes['staginggoerli_RootMessageProcessed']>, "staginggoerli_rootMessageProcesseds", ParentType, ContextType, RequireFields<Subscriptionstaginggoerli_rootMessageProcessedsArgs, 'skip' | 'first' | 'subgraphError'>>;
+  staginggoerli__meta?: SubscriptionResolver<Maybe<ResolversTypes['staginggoerli__Meta_']>, "staginggoerli__meta", ParentType, ContextType, Partial<Subscriptionstaginggoerli__metaArgs>>;
 }>;
 
 export type testgoerli_AssetResolvers<ContextType = MeshContext, ParentType extends ResolversParentTypes['testgoerli_Asset'] = ResolversParentTypes['testgoerli_Asset']> = ResolversObject<{
@@ -20779,6 +20625,10 @@ export type testgoerli_AssetBalanceResolvers<ContextType = MeshContext, ParentTy
 
 export interface testgoerli_BigDecimalScalarConfig extends GraphQLScalarTypeConfig<ResolversTypes['testgoerli_BigDecimal'], any> {
   name: 'testgoerli_BigDecimal';
+}
+
+export interface BigIntScalarConfig extends GraphQLScalarTypeConfig<ResolversTypes['BigInt'], any> {
+  name: 'BigInt';
 }
 
 export interface testgoerli_BytesScalarConfig extends GraphQLScalarTypeConfig<ResolversTypes['testgoerli_Bytes'], any> {
@@ -21062,66 +20912,65 @@ export type local1337__Meta_Resolvers<ContextType = MeshContext, ParentType exte
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
-export type testoptimismgoerli_AssetResolvers<ContextType = MeshContext, ParentType extends ResolversParentTypes['testoptimismgoerli_Asset'] = ResolversParentTypes['testoptimismgoerli_Asset']> = ResolversObject<{
+export type rinkeby_AssetResolvers<ContextType = MeshContext, ParentType extends ResolversParentTypes['rinkeby_Asset'] = ResolversParentTypes['rinkeby_Asset']> = ResolversObject<{
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
-  key?: Resolver<Maybe<ResolversTypes['testoptimismgoerli_Bytes']>, ParentType, ContextType>;
-  local?: Resolver<ResolversTypes['testoptimismgoerli_Bytes'], ParentType, ContextType>;
-  adoptedAsset?: Resolver<ResolversTypes['testoptimismgoerli_Bytes'], ParentType, ContextType>;
-  canonicalId?: Resolver<ResolversTypes['testoptimismgoerli_Bytes'], ParentType, ContextType>;
+  local?: Resolver<ResolversTypes['rinkeby_Bytes'], ParentType, ContextType>;
+  adoptedAsset?: Resolver<ResolversTypes['rinkeby_Bytes'], ParentType, ContextType>;
+  canonicalId?: Resolver<ResolversTypes['rinkeby_Bytes'], ParentType, ContextType>;
   canonicalDomain?: Resolver<ResolversTypes['BigInt'], ParentType, ContextType>;
   blockNumber?: Resolver<ResolversTypes['BigInt'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
-export type testoptimismgoerli_AssetBalanceResolvers<ContextType = MeshContext, ParentType extends ResolversParentTypes['testoptimismgoerli_AssetBalance'] = ResolversParentTypes['testoptimismgoerli_AssetBalance']> = ResolversObject<{
+export type rinkeby_AssetBalanceResolvers<ContextType = MeshContext, ParentType extends ResolversParentTypes['rinkeby_AssetBalance'] = ResolversParentTypes['rinkeby_AssetBalance']> = ResolversObject<{
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   amount?: Resolver<ResolversTypes['BigInt'], ParentType, ContextType>;
-  router?: Resolver<ResolversTypes['testoptimismgoerli_Router'], ParentType, ContextType>;
-  asset?: Resolver<ResolversTypes['testoptimismgoerli_Asset'], ParentType, ContextType>;
+  router?: Resolver<ResolversTypes['rinkeby_Router'], ParentType, ContextType>;
+  asset?: Resolver<ResolversTypes['rinkeby_Asset'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
-export interface testoptimismgoerli_BigDecimalScalarConfig extends GraphQLScalarTypeConfig<ResolversTypes['testoptimismgoerli_BigDecimal'], any> {
-  name: 'testoptimismgoerli_BigDecimal';
+export interface rinkeby_BigDecimalScalarConfig extends GraphQLScalarTypeConfig<ResolversTypes['rinkeby_BigDecimal'], any> {
+  name: 'rinkeby_BigDecimal';
 }
 
-export interface testoptimismgoerli_BytesScalarConfig extends GraphQLScalarTypeConfig<ResolversTypes['testoptimismgoerli_Bytes'], any> {
-  name: 'testoptimismgoerli_Bytes';
+export interface rinkeby_BytesScalarConfig extends GraphQLScalarTypeConfig<ResolversTypes['rinkeby_Bytes'], any> {
+  name: 'rinkeby_Bytes';
 }
 
-export type testoptimismgoerli_DestinationTransferResolvers<ContextType = MeshContext, ParentType extends ResolversParentTypes['testoptimismgoerli_DestinationTransfer'] = ResolversParentTypes['testoptimismgoerli_DestinationTransfer']> = ResolversObject<{
+export type rinkeby_DestinationTransferResolvers<ContextType = MeshContext, ParentType extends ResolversParentTypes['rinkeby_DestinationTransfer'] = ResolversParentTypes['rinkeby_DestinationTransfer']> = ResolversObject<{
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   chainId?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
-  transferId?: Resolver<Maybe<ResolversTypes['testoptimismgoerli_Bytes']>, ParentType, ContextType>;
+  transferId?: Resolver<Maybe<ResolversTypes['rinkeby_Bytes']>, ParentType, ContextType>;
   nonce?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
-  to?: Resolver<Maybe<ResolversTypes['testoptimismgoerli_Bytes']>, ParentType, ContextType>;
-  callData?: Resolver<Maybe<ResolversTypes['testoptimismgoerli_Bytes']>, ParentType, ContextType>;
+  to?: Resolver<Maybe<ResolversTypes['rinkeby_Bytes']>, ParentType, ContextType>;
+  callData?: Resolver<Maybe<ResolversTypes['rinkeby_Bytes']>, ParentType, ContextType>;
   originDomain?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
   destinationDomain?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
-  agent?: Resolver<Maybe<ResolversTypes['testoptimismgoerli_Bytes']>, ParentType, ContextType>;
-  recovery?: Resolver<Maybe<ResolversTypes['testoptimismgoerli_Bytes']>, ParentType, ContextType>;
+  agent?: Resolver<Maybe<ResolversTypes['rinkeby_Bytes']>, ParentType, ContextType>;
+  recovery?: Resolver<Maybe<ResolversTypes['rinkeby_Bytes']>, ParentType, ContextType>;
   forceSlow?: Resolver<Maybe<ResolversTypes['Boolean']>, ParentType, ContextType>;
   receiveLocal?: Resolver<Maybe<ResolversTypes['Boolean']>, ParentType, ContextType>;
-  callback?: Resolver<Maybe<ResolversTypes['testoptimismgoerli_Bytes']>, ParentType, ContextType>;
+  callback?: Resolver<Maybe<ResolversTypes['rinkeby_Bytes']>, ParentType, ContextType>;
   callbackFee?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
   relayerFee?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
-  destinationMinOut?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
-  status?: Resolver<Maybe<ResolversTypes['testoptimismgoerli_TransferStatus']>, ParentType, ContextType>;
-  routers?: Resolver<Maybe<Array<ResolversTypes['testoptimismgoerli_Router']>>, ParentType, ContextType, RequireFields<testoptimismgoerli_DestinationTransferroutersArgs, 'skip' | 'first'>>;
-  originSender?: Resolver<Maybe<ResolversTypes['testoptimismgoerli_Bytes']>, ParentType, ContextType>;
-  transactingAsset?: Resolver<Maybe<ResolversTypes['testoptimismgoerli_Bytes']>, ParentType, ContextType>;
+  slippageTol?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
+  status?: Resolver<Maybe<ResolversTypes['rinkeby_TransferStatus']>, ParentType, ContextType>;
+  routers?: Resolver<Maybe<Array<ResolversTypes['rinkeby_Router']>>, ParentType, ContextType, RequireFields<rinkeby_DestinationTransferroutersArgs, 'skip' | 'first'>>;
+  originSender?: Resolver<Maybe<ResolversTypes['rinkeby_Bytes']>, ParentType, ContextType>;
+  transactingAsset?: Resolver<Maybe<ResolversTypes['rinkeby_Bytes']>, ParentType, ContextType>;
   transactingAmount?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
-  localAsset?: Resolver<Maybe<ResolversTypes['testoptimismgoerli_Bytes']>, ParentType, ContextType>;
+  localAsset?: Resolver<Maybe<ResolversTypes['rinkeby_Bytes']>, ParentType, ContextType>;
   localAmount?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
   sponsorVaultRelayerFee?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
-  executedCaller?: Resolver<Maybe<ResolversTypes['testoptimismgoerli_Bytes']>, ParentType, ContextType>;
-  executedTransactionHash?: Resolver<Maybe<ResolversTypes['testoptimismgoerli_Bytes']>, ParentType, ContextType>;
+  executedCaller?: Resolver<Maybe<ResolversTypes['rinkeby_Bytes']>, ParentType, ContextType>;
+  executedTransactionHash?: Resolver<Maybe<ResolversTypes['rinkeby_Bytes']>, ParentType, ContextType>;
   executedTimestamp?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
   executedGasPrice?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
   executedGasLimit?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
   executedBlockNumber?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
-  reconciledCaller?: Resolver<Maybe<ResolversTypes['testoptimismgoerli_Bytes']>, ParentType, ContextType>;
-  reconciledTransactionHash?: Resolver<Maybe<ResolversTypes['testoptimismgoerli_Bytes']>, ParentType, ContextType>;
+  reconciledCaller?: Resolver<Maybe<ResolversTypes['rinkeby_Bytes']>, ParentType, ContextType>;
+  reconciledTransactionHash?: Resolver<Maybe<ResolversTypes['rinkeby_Bytes']>, ParentType, ContextType>;
   reconciledTimestamp?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
   reconciledGasPrice?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
   reconciledGasLimit?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
@@ -21129,31 +20978,31 @@ export type testoptimismgoerli_DestinationTransferResolvers<ContextType = MeshCo
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
-export type testoptimismgoerli_OriginTransferResolvers<ContextType = MeshContext, ParentType extends ResolversParentTypes['testoptimismgoerli_OriginTransfer'] = ResolversParentTypes['testoptimismgoerli_OriginTransfer']> = ResolversObject<{
+export type rinkeby_OriginTransferResolvers<ContextType = MeshContext, ParentType extends ResolversParentTypes['rinkeby_OriginTransfer'] = ResolversParentTypes['rinkeby_OriginTransfer']> = ResolversObject<{
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   chainId?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
-  transferId?: Resolver<Maybe<ResolversTypes['testoptimismgoerli_Bytes']>, ParentType, ContextType>;
+  transferId?: Resolver<Maybe<ResolversTypes['rinkeby_Bytes']>, ParentType, ContextType>;
   nonce?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
-  to?: Resolver<Maybe<ResolversTypes['testoptimismgoerli_Bytes']>, ParentType, ContextType>;
-  callData?: Resolver<Maybe<ResolversTypes['testoptimismgoerli_Bytes']>, ParentType, ContextType>;
+  to?: Resolver<Maybe<ResolversTypes['rinkeby_Bytes']>, ParentType, ContextType>;
+  callData?: Resolver<Maybe<ResolversTypes['rinkeby_Bytes']>, ParentType, ContextType>;
   originDomain?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
   destinationDomain?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
-  agent?: Resolver<Maybe<ResolversTypes['testoptimismgoerli_Bytes']>, ParentType, ContextType>;
-  recovery?: Resolver<Maybe<ResolversTypes['testoptimismgoerli_Bytes']>, ParentType, ContextType>;
+  agent?: Resolver<Maybe<ResolversTypes['rinkeby_Bytes']>, ParentType, ContextType>;
+  recovery?: Resolver<Maybe<ResolversTypes['rinkeby_Bytes']>, ParentType, ContextType>;
   forceSlow?: Resolver<Maybe<ResolversTypes['Boolean']>, ParentType, ContextType>;
   receiveLocal?: Resolver<Maybe<ResolversTypes['Boolean']>, ParentType, ContextType>;
-  callback?: Resolver<Maybe<ResolversTypes['testoptimismgoerli_Bytes']>, ParentType, ContextType>;
+  callback?: Resolver<Maybe<ResolversTypes['rinkeby_Bytes']>, ParentType, ContextType>;
   callbackFee?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
   relayerFee?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
-  destinationMinOut?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
-  status?: Resolver<Maybe<ResolversTypes['testoptimismgoerli_TransferStatus']>, ParentType, ContextType>;
-  originMinOut?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
-  transactingAsset?: Resolver<Maybe<ResolversTypes['testoptimismgoerli_Bytes']>, ParentType, ContextType>;
+  slippageTol?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
+  status?: Resolver<Maybe<ResolversTypes['rinkeby_TransferStatus']>, ParentType, ContextType>;
+  message?: Resolver<Maybe<ResolversTypes['rinkeby_Bytes']>, ParentType, ContextType>;
+  transactingAsset?: Resolver<Maybe<ResolversTypes['rinkeby_Bytes']>, ParentType, ContextType>;
   transactingAmount?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
-  bridgedAsset?: Resolver<Maybe<ResolversTypes['testoptimismgoerli_Bytes']>, ParentType, ContextType>;
+  bridgedAsset?: Resolver<Maybe<ResolversTypes['rinkeby_Bytes']>, ParentType, ContextType>;
   bridgedAmount?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
-  caller?: Resolver<Maybe<ResolversTypes['testoptimismgoerli_Bytes']>, ParentType, ContextType>;
-  transactionHash?: Resolver<Maybe<ResolversTypes['testoptimismgoerli_Bytes']>, ParentType, ContextType>;
+  caller?: Resolver<Maybe<ResolversTypes['rinkeby_Bytes']>, ParentType, ContextType>;
+  transactionHash?: Resolver<Maybe<ResolversTypes['rinkeby_Bytes']>, ParentType, ContextType>;
   timestamp?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
   gasPrice?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
   gasLimit?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
@@ -21161,270 +21010,54 @@ export type testoptimismgoerli_OriginTransferResolvers<ContextType = MeshContext
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
-export type testoptimismgoerli_RelayerResolvers<ContextType = MeshContext, ParentType extends ResolversParentTypes['testoptimismgoerli_Relayer'] = ResolversParentTypes['testoptimismgoerli_Relayer']> = ResolversObject<{
+export type rinkeby_RelayerResolvers<ContextType = MeshContext, ParentType extends ResolversParentTypes['rinkeby_Relayer'] = ResolversParentTypes['rinkeby_Relayer']> = ResolversObject<{
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   isActive?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
-  relayer?: Resolver<Maybe<ResolversTypes['testoptimismgoerli_Bytes']>, ParentType, ContextType>;
+  relayer?: Resolver<Maybe<ResolversTypes['rinkeby_Bytes']>, ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
-export type testoptimismgoerli_RouterResolvers<ContextType = MeshContext, ParentType extends ResolversParentTypes['testoptimismgoerli_Router'] = ResolversParentTypes['testoptimismgoerli_Router']> = ResolversObject<{
+export type rinkeby_RouterResolvers<ContextType = MeshContext, ParentType extends ResolversParentTypes['rinkeby_Router'] = ResolversParentTypes['rinkeby_Router']> = ResolversObject<{
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   isActive?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
-  owner?: Resolver<Maybe<ResolversTypes['testoptimismgoerli_Bytes']>, ParentType, ContextType>;
-  recipient?: Resolver<Maybe<ResolversTypes['testoptimismgoerli_Bytes']>, ParentType, ContextType>;
-  proposedOwner?: Resolver<Maybe<ResolversTypes['testoptimismgoerli_Bytes']>, ParentType, ContextType>;
+  owner?: Resolver<Maybe<ResolversTypes['rinkeby_Bytes']>, ParentType, ContextType>;
+  recipient?: Resolver<Maybe<ResolversTypes['rinkeby_Bytes']>, ParentType, ContextType>;
+  proposedOwner?: Resolver<Maybe<ResolversTypes['rinkeby_Bytes']>, ParentType, ContextType>;
   proposedTimestamp?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
-  assetBalances?: Resolver<Array<ResolversTypes['testoptimismgoerli_AssetBalance']>, ParentType, ContextType, RequireFields<testoptimismgoerli_RouterassetBalancesArgs, 'skip' | 'first'>>;
+  assetBalances?: Resolver<Array<ResolversTypes['rinkeby_AssetBalance']>, ParentType, ContextType, RequireFields<rinkeby_RouterassetBalancesArgs, 'skip' | 'first'>>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
-export type testoptimismgoerli_SettingResolvers<ContextType = MeshContext, ParentType extends ResolversParentTypes['testoptimismgoerli_Setting'] = ResolversParentTypes['testoptimismgoerli_Setting']> = ResolversObject<{
+export type rinkeby_SettingResolvers<ContextType = MeshContext, ParentType extends ResolversParentTypes['rinkeby_Setting'] = ResolversParentTypes['rinkeby_Setting']> = ResolversObject<{
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   maxRoutersPerTransfer?: Resolver<ResolversTypes['BigInt'], ParentType, ContextType>;
-  caller?: Resolver<ResolversTypes['testoptimismgoerli_Bytes'], ParentType, ContextType>;
+  caller?: Resolver<ResolversTypes['rinkeby_Bytes'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
-export type testoptimismgoerli_SponsorVaultResolvers<ContextType = MeshContext, ParentType extends ResolversParentTypes['testoptimismgoerli_SponsorVault'] = ResolversParentTypes['testoptimismgoerli_SponsorVault']> = ResolversObject<{
+export type rinkeby_SponsorVaultResolvers<ContextType = MeshContext, ParentType extends ResolversParentTypes['rinkeby_SponsorVault'] = ResolversParentTypes['rinkeby_SponsorVault']> = ResolversObject<{
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
-  sponsorVault?: Resolver<ResolversTypes['testoptimismgoerli_Bytes'], ParentType, ContextType>;
+  sponsorVault?: Resolver<ResolversTypes['rinkeby_Bytes'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
-export type testoptimismgoerli_StableSwapResolvers<ContextType = MeshContext, ParentType extends ResolversParentTypes['testoptimismgoerli_StableSwap'] = ResolversParentTypes['testoptimismgoerli_StableSwap']> = ResolversObject<{
+export type rinkeby_StableSwapResolvers<ContextType = MeshContext, ParentType extends ResolversParentTypes['rinkeby_StableSwap'] = ResolversParentTypes['rinkeby_StableSwap']> = ResolversObject<{
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
-  canonicalId?: Resolver<ResolversTypes['testoptimismgoerli_Bytes'], ParentType, ContextType>;
+  canonicalId?: Resolver<ResolversTypes['rinkeby_Bytes'], ParentType, ContextType>;
   domain?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
-  swapPool?: Resolver<ResolversTypes['testoptimismgoerli_Bytes'], ParentType, ContextType>;
+  swapPool?: Resolver<ResolversTypes['rinkeby_Bytes'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
-export type testoptimismgoerli__Block_Resolvers<ContextType = MeshContext, ParentType extends ResolversParentTypes['testoptimismgoerli__Block_'] = ResolversParentTypes['testoptimismgoerli__Block_']> = ResolversObject<{
-  hash?: Resolver<Maybe<ResolversTypes['testoptimismgoerli_Bytes']>, ParentType, ContextType>;
+export type rinkeby__Block_Resolvers<ContextType = MeshContext, ParentType extends ResolversParentTypes['rinkeby__Block_'] = ResolversParentTypes['rinkeby__Block_']> = ResolversObject<{
+  hash?: Resolver<Maybe<ResolversTypes['rinkeby_Bytes']>, ParentType, ContextType>;
   number?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   timestamp?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
-export type testoptimismgoerli__Meta_Resolvers<ContextType = MeshContext, ParentType extends ResolversParentTypes['testoptimismgoerli__Meta_'] = ResolversParentTypes['testoptimismgoerli__Meta_']> = ResolversObject<{
-  block?: Resolver<ResolversTypes['testoptimismgoerli__Block_'], ParentType, ContextType>;
-  deployment?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
-  hasIndexingErrors?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
-  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
-}>;
-
-export type staginggoerli_AggregateRootResolvers<ContextType = MeshContext, ParentType extends ResolversParentTypes['staginggoerli_AggregateRoot'] = ResolversParentTypes['staginggoerli_AggregateRoot']> = ResolversObject<{
-  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
-  root?: Resolver<ResolversTypes['staginggoerli_Bytes'], ParentType, ContextType>;
-  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
-}>;
-
-export type staginggoerli_AssetResolvers<ContextType = MeshContext, ParentType extends ResolversParentTypes['staginggoerli_Asset'] = ResolversParentTypes['staginggoerli_Asset']> = ResolversObject<{
-  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
-  key?: Resolver<Maybe<ResolversTypes['staginggoerli_Bytes']>, ParentType, ContextType>;
-  local?: Resolver<ResolversTypes['staginggoerli_Bytes'], ParentType, ContextType>;
-  adoptedAsset?: Resolver<ResolversTypes['staginggoerli_Bytes'], ParentType, ContextType>;
-  canonicalId?: Resolver<ResolversTypes['staginggoerli_Bytes'], ParentType, ContextType>;
-  canonicalDomain?: Resolver<ResolversTypes['BigInt'], ParentType, ContextType>;
-  blockNumber?: Resolver<ResolversTypes['BigInt'], ParentType, ContextType>;
-  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
-}>;
-
-export type staginggoerli_AssetBalanceResolvers<ContextType = MeshContext, ParentType extends ResolversParentTypes['staginggoerli_AssetBalance'] = ResolversParentTypes['staginggoerli_AssetBalance']> = ResolversObject<{
-  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
-  amount?: Resolver<ResolversTypes['BigInt'], ParentType, ContextType>;
-  router?: Resolver<ResolversTypes['staginggoerli_Router'], ParentType, ContextType>;
-  asset?: Resolver<ResolversTypes['staginggoerli_Asset'], ParentType, ContextType>;
-  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
-}>;
-
-export interface staginggoerli_BigDecimalScalarConfig extends GraphQLScalarTypeConfig<ResolversTypes['staginggoerli_BigDecimal'], any> {
-  name: 'staginggoerli_BigDecimal';
-}
-
-export interface staginggoerli_BytesScalarConfig extends GraphQLScalarTypeConfig<ResolversTypes['staginggoerli_Bytes'], any> {
-  name: 'staginggoerli_Bytes';
-}
-
-export type staginggoerli_ConnectorMetaResolvers<ContextType = MeshContext, ParentType extends ResolversParentTypes['staginggoerli_ConnectorMeta'] = ResolversParentTypes['staginggoerli_ConnectorMeta']> = ResolversObject<{
-  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
-  spokeDomain?: Resolver<ResolversTypes['BigInt'], ParentType, ContextType>;
-  hubDomain?: Resolver<ResolversTypes['BigInt'], ParentType, ContextType>;
-  amb?: Resolver<ResolversTypes['staginggoerli_Bytes'], ParentType, ContextType>;
-  rootManager?: Resolver<ResolversTypes['staginggoerli_Bytes'], ParentType, ContextType>;
-  mirrorConnector?: Resolver<ResolversTypes['staginggoerli_Bytes'], ParentType, ContextType>;
-  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
-}>;
-
-export type staginggoerli_DestinationMessageResolvers<ContextType = MeshContext, ParentType extends ResolversParentTypes['staginggoerli_DestinationMessage'] = ResolversParentTypes['staginggoerli_DestinationMessage']> = ResolversObject<{
-  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
-  leaf?: Resolver<Maybe<ResolversTypes['staginggoerli_Bytes']>, ParentType, ContextType>;
-  processed?: Resolver<Maybe<ResolversTypes['Boolean']>, ParentType, ContextType>;
-  returnData?: Resolver<Maybe<ResolversTypes['staginggoerli_Bytes']>, ParentType, ContextType>;
-  transactionHash?: Resolver<Maybe<ResolversTypes['staginggoerli_Bytes']>, ParentType, ContextType>;
-  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
-}>;
-
-export type staginggoerli_DestinationTransferResolvers<ContextType = MeshContext, ParentType extends ResolversParentTypes['staginggoerli_DestinationTransfer'] = ResolversParentTypes['staginggoerli_DestinationTransfer']> = ResolversObject<{
-  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
-  chainId?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
-  transferId?: Resolver<Maybe<ResolversTypes['staginggoerli_Bytes']>, ParentType, ContextType>;
-  nonce?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
-  to?: Resolver<Maybe<ResolversTypes['staginggoerli_Bytes']>, ParentType, ContextType>;
-  callData?: Resolver<Maybe<ResolversTypes['staginggoerli_Bytes']>, ParentType, ContextType>;
-  originDomain?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
-  destinationDomain?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
-  agent?: Resolver<Maybe<ResolversTypes['staginggoerli_Bytes']>, ParentType, ContextType>;
-  recovery?: Resolver<Maybe<ResolversTypes['staginggoerli_Bytes']>, ParentType, ContextType>;
-  forceSlow?: Resolver<Maybe<ResolversTypes['Boolean']>, ParentType, ContextType>;
-  receiveLocal?: Resolver<Maybe<ResolversTypes['Boolean']>, ParentType, ContextType>;
-  callback?: Resolver<Maybe<ResolversTypes['staginggoerli_Bytes']>, ParentType, ContextType>;
-  callbackFee?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
-  relayerFee?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
-  destinationMinOut?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
-  status?: Resolver<Maybe<ResolversTypes['staginggoerli_TransferStatus']>, ParentType, ContextType>;
-  routers?: Resolver<Maybe<Array<ResolversTypes['staginggoerli_Router']>>, ParentType, ContextType, RequireFields<staginggoerli_DestinationTransferroutersArgs, 'skip' | 'first'>>;
-  originSender?: Resolver<Maybe<ResolversTypes['staginggoerli_Bytes']>, ParentType, ContextType>;
-  transactingAsset?: Resolver<Maybe<ResolversTypes['staginggoerli_Bytes']>, ParentType, ContextType>;
-  transactingAmount?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
-  localAsset?: Resolver<Maybe<ResolversTypes['staginggoerli_Bytes']>, ParentType, ContextType>;
-  localAmount?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
-  sponsorVaultRelayerFee?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
-  executedCaller?: Resolver<Maybe<ResolversTypes['staginggoerli_Bytes']>, ParentType, ContextType>;
-  executedTransactionHash?: Resolver<Maybe<ResolversTypes['staginggoerli_Bytes']>, ParentType, ContextType>;
-  executedTimestamp?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
-  executedGasPrice?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
-  executedGasLimit?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
-  executedBlockNumber?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
-  reconciledCaller?: Resolver<Maybe<ResolversTypes['staginggoerli_Bytes']>, ParentType, ContextType>;
-  reconciledTransactionHash?: Resolver<Maybe<ResolversTypes['staginggoerli_Bytes']>, ParentType, ContextType>;
-  reconciledTimestamp?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
-  reconciledGasPrice?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
-  reconciledGasLimit?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
-  reconciledBlockNumber?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
-  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
-}>;
-
-export type staginggoerli_OriginMessageResolvers<ContextType = MeshContext, ParentType extends ResolversParentTypes['staginggoerli_OriginMessage'] = ResolversParentTypes['staginggoerli_OriginMessage']> = ResolversObject<{
-  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
-  transferId?: Resolver<Maybe<ResolversTypes['staginggoerli_Bytes']>, ParentType, ContextType>;
-  destinationDomain?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
-  leaf?: Resolver<Maybe<ResolversTypes['staginggoerli_Bytes']>, ParentType, ContextType>;
-  index?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
-  root?: Resolver<Maybe<ResolversTypes['staginggoerli_Bytes']>, ParentType, ContextType>;
-  message?: Resolver<Maybe<ResolversTypes['staginggoerli_Bytes']>, ParentType, ContextType>;
-  transactionHash?: Resolver<Maybe<ResolversTypes['staginggoerli_Bytes']>, ParentType, ContextType>;
-  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
-}>;
-
-export type staginggoerli_OriginTransferResolvers<ContextType = MeshContext, ParentType extends ResolversParentTypes['staginggoerli_OriginTransfer'] = ResolversParentTypes['staginggoerli_OriginTransfer']> = ResolversObject<{
-  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
-  chainId?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
-  transferId?: Resolver<Maybe<ResolversTypes['staginggoerli_Bytes']>, ParentType, ContextType>;
-  nonce?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
-  to?: Resolver<Maybe<ResolversTypes['staginggoerli_Bytes']>, ParentType, ContextType>;
-  callData?: Resolver<Maybe<ResolversTypes['staginggoerli_Bytes']>, ParentType, ContextType>;
-  originDomain?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
-  destinationDomain?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
-  agent?: Resolver<Maybe<ResolversTypes['staginggoerli_Bytes']>, ParentType, ContextType>;
-  recovery?: Resolver<Maybe<ResolversTypes['staginggoerli_Bytes']>, ParentType, ContextType>;
-  forceSlow?: Resolver<Maybe<ResolversTypes['Boolean']>, ParentType, ContextType>;
-  receiveLocal?: Resolver<Maybe<ResolversTypes['Boolean']>, ParentType, ContextType>;
-  callback?: Resolver<Maybe<ResolversTypes['staginggoerli_Bytes']>, ParentType, ContextType>;
-  callbackFee?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
-  relayerFee?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
-  destinationMinOut?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
-  status?: Resolver<Maybe<ResolversTypes['staginggoerli_TransferStatus']>, ParentType, ContextType>;
-  originMinOut?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
-  transactingAsset?: Resolver<Maybe<ResolversTypes['staginggoerli_Bytes']>, ParentType, ContextType>;
-  transactingAmount?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
-  bridgedAsset?: Resolver<Maybe<ResolversTypes['staginggoerli_Bytes']>, ParentType, ContextType>;
-  bridgedAmount?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
-  message?: Resolver<Maybe<ResolversTypes['staginggoerli_OriginMessage']>, ParentType, ContextType>;
-  caller?: Resolver<Maybe<ResolversTypes['staginggoerli_Bytes']>, ParentType, ContextType>;
-  transactionHash?: Resolver<Maybe<ResolversTypes['staginggoerli_Bytes']>, ParentType, ContextType>;
-  timestamp?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
-  gasPrice?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
-  gasLimit?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
-  blockNumber?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
-  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
-}>;
-
-export type staginggoerli_RelayerResolvers<ContextType = MeshContext, ParentType extends ResolversParentTypes['staginggoerli_Relayer'] = ResolversParentTypes['staginggoerli_Relayer']> = ResolversObject<{
-  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
-  isActive?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
-  relayer?: Resolver<Maybe<ResolversTypes['staginggoerli_Bytes']>, ParentType, ContextType>;
-  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
-}>;
-
-export type staginggoerli_RootMessageProcessedResolvers<ContextType = MeshContext, ParentType extends ResolversParentTypes['staginggoerli_RootMessageProcessed'] = ResolversParentTypes['staginggoerli_RootMessageProcessed']> = ResolversObject<{
-  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
-  root?: Resolver<Maybe<ResolversTypes['staginggoerli_Bytes']>, ParentType, ContextType>;
-  caller?: Resolver<Maybe<ResolversTypes['staginggoerli_Bytes']>, ParentType, ContextType>;
-  transactionHash?: Resolver<Maybe<ResolversTypes['staginggoerli_Bytes']>, ParentType, ContextType>;
-  timestamp?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
-  gasPrice?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
-  gasLimit?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
-  blockNumber?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
-  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
-}>;
-
-export type staginggoerli_RootMessageSentResolvers<ContextType = MeshContext, ParentType extends ResolversParentTypes['staginggoerli_RootMessageSent'] = ResolversParentTypes['staginggoerli_RootMessageSent']> = ResolversObject<{
-  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
-  spokeDomain?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
-  hubDomain?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
-  root?: Resolver<Maybe<ResolversTypes['staginggoerli_Bytes']>, ParentType, ContextType>;
-  caller?: Resolver<Maybe<ResolversTypes['staginggoerli_Bytes']>, ParentType, ContextType>;
-  transactionHash?: Resolver<Maybe<ResolversTypes['staginggoerli_Bytes']>, ParentType, ContextType>;
-  timestamp?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
-  gasPrice?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
-  gasLimit?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
-  blockNumber?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
-  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
-}>;
-
-export type staginggoerli_RouterResolvers<ContextType = MeshContext, ParentType extends ResolversParentTypes['staginggoerli_Router'] = ResolversParentTypes['staginggoerli_Router']> = ResolversObject<{
-  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
-  isActive?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
-  owner?: Resolver<Maybe<ResolversTypes['staginggoerli_Bytes']>, ParentType, ContextType>;
-  recipient?: Resolver<Maybe<ResolversTypes['staginggoerli_Bytes']>, ParentType, ContextType>;
-  proposedOwner?: Resolver<Maybe<ResolversTypes['staginggoerli_Bytes']>, ParentType, ContextType>;
-  proposedTimestamp?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
-  assetBalances?: Resolver<Array<ResolversTypes['staginggoerli_AssetBalance']>, ParentType, ContextType, RequireFields<staginggoerli_RouterassetBalancesArgs, 'skip' | 'first'>>;
-  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
-}>;
-
-export type staginggoerli_SettingResolvers<ContextType = MeshContext, ParentType extends ResolversParentTypes['staginggoerli_Setting'] = ResolversParentTypes['staginggoerli_Setting']> = ResolversObject<{
-  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
-  maxRoutersPerTransfer?: Resolver<ResolversTypes['BigInt'], ParentType, ContextType>;
-  caller?: Resolver<ResolversTypes['staginggoerli_Bytes'], ParentType, ContextType>;
-  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
-}>;
-
-export type staginggoerli_SponsorVaultResolvers<ContextType = MeshContext, ParentType extends ResolversParentTypes['staginggoerli_SponsorVault'] = ResolversParentTypes['staginggoerli_SponsorVault']> = ResolversObject<{
-  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
-  sponsorVault?: Resolver<ResolversTypes['staginggoerli_Bytes'], ParentType, ContextType>;
-  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
-}>;
-
-export type staginggoerli_StableSwapResolvers<ContextType = MeshContext, ParentType extends ResolversParentTypes['staginggoerli_StableSwap'] = ResolversParentTypes['staginggoerli_StableSwap']> = ResolversObject<{
-  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
-  canonicalId?: Resolver<ResolversTypes['staginggoerli_Bytes'], ParentType, ContextType>;
-  domain?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
-  swapPool?: Resolver<ResolversTypes['staginggoerli_Bytes'], ParentType, ContextType>;
-  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
-}>;
-
-export type staginggoerli__Block_Resolvers<ContextType = MeshContext, ParentType extends ResolversParentTypes['staginggoerli__Block_'] = ResolversParentTypes['staginggoerli__Block_']> = ResolversObject<{
-  hash?: Resolver<Maybe<ResolversTypes['staginggoerli_Bytes']>, ParentType, ContextType>;
-  number?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
-  timestamp?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
-  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
-}>;
-
-export type staginggoerli__Meta_Resolvers<ContextType = MeshContext, ParentType extends ResolversParentTypes['staginggoerli__Meta_'] = ResolversParentTypes['staginggoerli__Meta_']> = ResolversObject<{
-  block?: Resolver<ResolversTypes['staginggoerli__Block_'], ParentType, ContextType>;
+export type rinkeby__Meta_Resolvers<ContextType = MeshContext, ParentType extends ResolversParentTypes['rinkeby__Meta_'] = ResolversParentTypes['rinkeby__Meta_']> = ResolversObject<{
+  block?: Resolver<ResolversTypes['rinkeby__Block_'], ParentType, ContextType>;
   deployment?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   hasIndexingErrors?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
@@ -21646,66 +21279,66 @@ export type goerli__Meta_Resolvers<ContextType = MeshContext, ParentType extends
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
-export type local1338_AssetResolvers<ContextType = MeshContext, ParentType extends ResolversParentTypes['local1338_Asset'] = ResolversParentTypes['local1338_Asset']> = ResolversObject<{
+export type testoptimismgoerli_AssetResolvers<ContextType = MeshContext, ParentType extends ResolversParentTypes['testoptimismgoerli_Asset'] = ResolversParentTypes['testoptimismgoerli_Asset']> = ResolversObject<{
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
-  key?: Resolver<Maybe<ResolversTypes['local1338_Bytes']>, ParentType, ContextType>;
-  local?: Resolver<ResolversTypes['local1338_Bytes'], ParentType, ContextType>;
-  adoptedAsset?: Resolver<ResolversTypes['local1338_Bytes'], ParentType, ContextType>;
-  canonicalId?: Resolver<ResolversTypes['local1338_Bytes'], ParentType, ContextType>;
+  key?: Resolver<Maybe<ResolversTypes['testoptimismgoerli_Bytes']>, ParentType, ContextType>;
+  local?: Resolver<ResolversTypes['testoptimismgoerli_Bytes'], ParentType, ContextType>;
+  adoptedAsset?: Resolver<ResolversTypes['testoptimismgoerli_Bytes'], ParentType, ContextType>;
+  canonicalId?: Resolver<ResolversTypes['testoptimismgoerli_Bytes'], ParentType, ContextType>;
   canonicalDomain?: Resolver<ResolversTypes['BigInt'], ParentType, ContextType>;
   blockNumber?: Resolver<ResolversTypes['BigInt'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
-export type local1338_AssetBalanceResolvers<ContextType = MeshContext, ParentType extends ResolversParentTypes['local1338_AssetBalance'] = ResolversParentTypes['local1338_AssetBalance']> = ResolversObject<{
+export type testoptimismgoerli_AssetBalanceResolvers<ContextType = MeshContext, ParentType extends ResolversParentTypes['testoptimismgoerli_AssetBalance'] = ResolversParentTypes['testoptimismgoerli_AssetBalance']> = ResolversObject<{
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   amount?: Resolver<ResolversTypes['BigInt'], ParentType, ContextType>;
-  router?: Resolver<ResolversTypes['local1338_Router'], ParentType, ContextType>;
-  asset?: Resolver<ResolversTypes['local1338_Asset'], ParentType, ContextType>;
+  router?: Resolver<ResolversTypes['testoptimismgoerli_Router'], ParentType, ContextType>;
+  asset?: Resolver<ResolversTypes['testoptimismgoerli_Asset'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
-export interface local1338_BigDecimalScalarConfig extends GraphQLScalarTypeConfig<ResolversTypes['local1338_BigDecimal'], any> {
-  name: 'local1338_BigDecimal';
+export interface testoptimismgoerli_BigDecimalScalarConfig extends GraphQLScalarTypeConfig<ResolversTypes['testoptimismgoerli_BigDecimal'], any> {
+  name: 'testoptimismgoerli_BigDecimal';
 }
 
-export interface local1338_BytesScalarConfig extends GraphQLScalarTypeConfig<ResolversTypes['local1338_Bytes'], any> {
-  name: 'local1338_Bytes';
+export interface testoptimismgoerli_BytesScalarConfig extends GraphQLScalarTypeConfig<ResolversTypes['testoptimismgoerli_Bytes'], any> {
+  name: 'testoptimismgoerli_Bytes';
 }
 
-export type local1338_DestinationTransferResolvers<ContextType = MeshContext, ParentType extends ResolversParentTypes['local1338_DestinationTransfer'] = ResolversParentTypes['local1338_DestinationTransfer']> = ResolversObject<{
+export type testoptimismgoerli_DestinationTransferResolvers<ContextType = MeshContext, ParentType extends ResolversParentTypes['testoptimismgoerli_DestinationTransfer'] = ResolversParentTypes['testoptimismgoerli_DestinationTransfer']> = ResolversObject<{
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   chainId?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
-  transferId?: Resolver<Maybe<ResolversTypes['local1338_Bytes']>, ParentType, ContextType>;
+  transferId?: Resolver<Maybe<ResolversTypes['testoptimismgoerli_Bytes']>, ParentType, ContextType>;
   nonce?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
-  to?: Resolver<Maybe<ResolversTypes['local1338_Bytes']>, ParentType, ContextType>;
-  callData?: Resolver<Maybe<ResolversTypes['local1338_Bytes']>, ParentType, ContextType>;
+  to?: Resolver<Maybe<ResolversTypes['testoptimismgoerli_Bytes']>, ParentType, ContextType>;
+  callData?: Resolver<Maybe<ResolversTypes['testoptimismgoerli_Bytes']>, ParentType, ContextType>;
   originDomain?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
   destinationDomain?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
-  agent?: Resolver<Maybe<ResolversTypes['local1338_Bytes']>, ParentType, ContextType>;
-  recovery?: Resolver<Maybe<ResolversTypes['local1338_Bytes']>, ParentType, ContextType>;
+  agent?: Resolver<Maybe<ResolversTypes['testoptimismgoerli_Bytes']>, ParentType, ContextType>;
+  recovery?: Resolver<Maybe<ResolversTypes['testoptimismgoerli_Bytes']>, ParentType, ContextType>;
   forceSlow?: Resolver<Maybe<ResolversTypes['Boolean']>, ParentType, ContextType>;
   receiveLocal?: Resolver<Maybe<ResolversTypes['Boolean']>, ParentType, ContextType>;
-  callback?: Resolver<Maybe<ResolversTypes['local1338_Bytes']>, ParentType, ContextType>;
+  callback?: Resolver<Maybe<ResolversTypes['testoptimismgoerli_Bytes']>, ParentType, ContextType>;
   callbackFee?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
   relayerFee?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
   destinationMinOut?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
-  status?: Resolver<Maybe<ResolversTypes['local1338_TransferStatus']>, ParentType, ContextType>;
-  routers?: Resolver<Maybe<Array<ResolversTypes['local1338_Router']>>, ParentType, ContextType, RequireFields<local1338_DestinationTransferroutersArgs, 'skip' | 'first'>>;
-  originSender?: Resolver<Maybe<ResolversTypes['local1338_Bytes']>, ParentType, ContextType>;
-  transactingAsset?: Resolver<Maybe<ResolversTypes['local1338_Bytes']>, ParentType, ContextType>;
+  status?: Resolver<Maybe<ResolversTypes['testoptimismgoerli_TransferStatus']>, ParentType, ContextType>;
+  routers?: Resolver<Maybe<Array<ResolversTypes['testoptimismgoerli_Router']>>, ParentType, ContextType, RequireFields<testoptimismgoerli_DestinationTransferroutersArgs, 'skip' | 'first'>>;
+  originSender?: Resolver<Maybe<ResolversTypes['testoptimismgoerli_Bytes']>, ParentType, ContextType>;
+  transactingAsset?: Resolver<Maybe<ResolversTypes['testoptimismgoerli_Bytes']>, ParentType, ContextType>;
   transactingAmount?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
-  localAsset?: Resolver<Maybe<ResolversTypes['local1338_Bytes']>, ParentType, ContextType>;
+  localAsset?: Resolver<Maybe<ResolversTypes['testoptimismgoerli_Bytes']>, ParentType, ContextType>;
   localAmount?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
   sponsorVaultRelayerFee?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
-  executedCaller?: Resolver<Maybe<ResolversTypes['local1338_Bytes']>, ParentType, ContextType>;
-  executedTransactionHash?: Resolver<Maybe<ResolversTypes['local1338_Bytes']>, ParentType, ContextType>;
+  executedCaller?: Resolver<Maybe<ResolversTypes['testoptimismgoerli_Bytes']>, ParentType, ContextType>;
+  executedTransactionHash?: Resolver<Maybe<ResolversTypes['testoptimismgoerli_Bytes']>, ParentType, ContextType>;
   executedTimestamp?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
   executedGasPrice?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
   executedGasLimit?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
   executedBlockNumber?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
-  reconciledCaller?: Resolver<Maybe<ResolversTypes['local1338_Bytes']>, ParentType, ContextType>;
-  reconciledTransactionHash?: Resolver<Maybe<ResolversTypes['local1338_Bytes']>, ParentType, ContextType>;
+  reconciledCaller?: Resolver<Maybe<ResolversTypes['testoptimismgoerli_Bytes']>, ParentType, ContextType>;
+  reconciledTransactionHash?: Resolver<Maybe<ResolversTypes['testoptimismgoerli_Bytes']>, ParentType, ContextType>;
   reconciledTimestamp?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
   reconciledGasPrice?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
   reconciledGasLimit?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
@@ -21713,31 +21346,31 @@ export type local1338_DestinationTransferResolvers<ContextType = MeshContext, Pa
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
-export type local1338_OriginTransferResolvers<ContextType = MeshContext, ParentType extends ResolversParentTypes['local1338_OriginTransfer'] = ResolversParentTypes['local1338_OriginTransfer']> = ResolversObject<{
+export type testoptimismgoerli_OriginTransferResolvers<ContextType = MeshContext, ParentType extends ResolversParentTypes['testoptimismgoerli_OriginTransfer'] = ResolversParentTypes['testoptimismgoerli_OriginTransfer']> = ResolversObject<{
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   chainId?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
-  transferId?: Resolver<Maybe<ResolversTypes['local1338_Bytes']>, ParentType, ContextType>;
+  transferId?: Resolver<Maybe<ResolversTypes['testoptimismgoerli_Bytes']>, ParentType, ContextType>;
   nonce?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
-  to?: Resolver<Maybe<ResolversTypes['local1338_Bytes']>, ParentType, ContextType>;
-  callData?: Resolver<Maybe<ResolversTypes['local1338_Bytes']>, ParentType, ContextType>;
+  to?: Resolver<Maybe<ResolversTypes['testoptimismgoerli_Bytes']>, ParentType, ContextType>;
+  callData?: Resolver<Maybe<ResolversTypes['testoptimismgoerli_Bytes']>, ParentType, ContextType>;
   originDomain?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
   destinationDomain?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
-  agent?: Resolver<Maybe<ResolversTypes['local1338_Bytes']>, ParentType, ContextType>;
-  recovery?: Resolver<Maybe<ResolversTypes['local1338_Bytes']>, ParentType, ContextType>;
+  agent?: Resolver<Maybe<ResolversTypes['testoptimismgoerli_Bytes']>, ParentType, ContextType>;
+  recovery?: Resolver<Maybe<ResolversTypes['testoptimismgoerli_Bytes']>, ParentType, ContextType>;
   forceSlow?: Resolver<Maybe<ResolversTypes['Boolean']>, ParentType, ContextType>;
   receiveLocal?: Resolver<Maybe<ResolversTypes['Boolean']>, ParentType, ContextType>;
-  callback?: Resolver<Maybe<ResolversTypes['local1338_Bytes']>, ParentType, ContextType>;
+  callback?: Resolver<Maybe<ResolversTypes['testoptimismgoerli_Bytes']>, ParentType, ContextType>;
   callbackFee?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
   relayerFee?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
   destinationMinOut?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
-  status?: Resolver<Maybe<ResolversTypes['local1338_TransferStatus']>, ParentType, ContextType>;
+  status?: Resolver<Maybe<ResolversTypes['testoptimismgoerli_TransferStatus']>, ParentType, ContextType>;
   originMinOut?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
-  transactingAsset?: Resolver<Maybe<ResolversTypes['local1338_Bytes']>, ParentType, ContextType>;
+  transactingAsset?: Resolver<Maybe<ResolversTypes['testoptimismgoerli_Bytes']>, ParentType, ContextType>;
   transactingAmount?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
-  bridgedAsset?: Resolver<Maybe<ResolversTypes['local1338_Bytes']>, ParentType, ContextType>;
+  bridgedAsset?: Resolver<Maybe<ResolversTypes['testoptimismgoerli_Bytes']>, ParentType, ContextType>;
   bridgedAmount?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
-  caller?: Resolver<Maybe<ResolversTypes['local1338_Bytes']>, ParentType, ContextType>;
-  transactionHash?: Resolver<Maybe<ResolversTypes['local1338_Bytes']>, ParentType, ContextType>;
+  caller?: Resolver<Maybe<ResolversTypes['testoptimismgoerli_Bytes']>, ParentType, ContextType>;
+  transactionHash?: Resolver<Maybe<ResolversTypes['testoptimismgoerli_Bytes']>, ParentType, ContextType>;
   timestamp?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
   gasPrice?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
   gasLimit?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
@@ -21745,270 +21378,54 @@ export type local1338_OriginTransferResolvers<ContextType = MeshContext, ParentT
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
-export type local1338_RelayerResolvers<ContextType = MeshContext, ParentType extends ResolversParentTypes['local1338_Relayer'] = ResolversParentTypes['local1338_Relayer']> = ResolversObject<{
+export type testoptimismgoerli_RelayerResolvers<ContextType = MeshContext, ParentType extends ResolversParentTypes['testoptimismgoerli_Relayer'] = ResolversParentTypes['testoptimismgoerli_Relayer']> = ResolversObject<{
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   isActive?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
-  relayer?: Resolver<Maybe<ResolversTypes['local1338_Bytes']>, ParentType, ContextType>;
+  relayer?: Resolver<Maybe<ResolversTypes['testoptimismgoerli_Bytes']>, ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
-export type local1338_RouterResolvers<ContextType = MeshContext, ParentType extends ResolversParentTypes['local1338_Router'] = ResolversParentTypes['local1338_Router']> = ResolversObject<{
+export type testoptimismgoerli_RouterResolvers<ContextType = MeshContext, ParentType extends ResolversParentTypes['testoptimismgoerli_Router'] = ResolversParentTypes['testoptimismgoerli_Router']> = ResolversObject<{
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   isActive?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
-  owner?: Resolver<Maybe<ResolversTypes['local1338_Bytes']>, ParentType, ContextType>;
-  recipient?: Resolver<Maybe<ResolversTypes['local1338_Bytes']>, ParentType, ContextType>;
-  proposedOwner?: Resolver<Maybe<ResolversTypes['local1338_Bytes']>, ParentType, ContextType>;
+  owner?: Resolver<Maybe<ResolversTypes['testoptimismgoerli_Bytes']>, ParentType, ContextType>;
+  recipient?: Resolver<Maybe<ResolversTypes['testoptimismgoerli_Bytes']>, ParentType, ContextType>;
+  proposedOwner?: Resolver<Maybe<ResolversTypes['testoptimismgoerli_Bytes']>, ParentType, ContextType>;
   proposedTimestamp?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
-  assetBalances?: Resolver<Array<ResolversTypes['local1338_AssetBalance']>, ParentType, ContextType, RequireFields<local1338_RouterassetBalancesArgs, 'skip' | 'first'>>;
+  assetBalances?: Resolver<Array<ResolversTypes['testoptimismgoerli_AssetBalance']>, ParentType, ContextType, RequireFields<testoptimismgoerli_RouterassetBalancesArgs, 'skip' | 'first'>>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
-export type local1338_SettingResolvers<ContextType = MeshContext, ParentType extends ResolversParentTypes['local1338_Setting'] = ResolversParentTypes['local1338_Setting']> = ResolversObject<{
+export type testoptimismgoerli_SettingResolvers<ContextType = MeshContext, ParentType extends ResolversParentTypes['testoptimismgoerli_Setting'] = ResolversParentTypes['testoptimismgoerli_Setting']> = ResolversObject<{
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   maxRoutersPerTransfer?: Resolver<ResolversTypes['BigInt'], ParentType, ContextType>;
-  caller?: Resolver<ResolversTypes['local1338_Bytes'], ParentType, ContextType>;
+  caller?: Resolver<ResolversTypes['testoptimismgoerli_Bytes'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
-export type local1338_SponsorVaultResolvers<ContextType = MeshContext, ParentType extends ResolversParentTypes['local1338_SponsorVault'] = ResolversParentTypes['local1338_SponsorVault']> = ResolversObject<{
+export type testoptimismgoerli_SponsorVaultResolvers<ContextType = MeshContext, ParentType extends ResolversParentTypes['testoptimismgoerli_SponsorVault'] = ResolversParentTypes['testoptimismgoerli_SponsorVault']> = ResolversObject<{
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
-  sponsorVault?: Resolver<ResolversTypes['local1338_Bytes'], ParentType, ContextType>;
+  sponsorVault?: Resolver<ResolversTypes['testoptimismgoerli_Bytes'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
-export type local1338_StableSwapResolvers<ContextType = MeshContext, ParentType extends ResolversParentTypes['local1338_StableSwap'] = ResolversParentTypes['local1338_StableSwap']> = ResolversObject<{
+export type testoptimismgoerli_StableSwapResolvers<ContextType = MeshContext, ParentType extends ResolversParentTypes['testoptimismgoerli_StableSwap'] = ResolversParentTypes['testoptimismgoerli_StableSwap']> = ResolversObject<{
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
-  canonicalId?: Resolver<ResolversTypes['local1338_Bytes'], ParentType, ContextType>;
+  canonicalId?: Resolver<ResolversTypes['testoptimismgoerli_Bytes'], ParentType, ContextType>;
   domain?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
-  swapPool?: Resolver<ResolversTypes['local1338_Bytes'], ParentType, ContextType>;
+  swapPool?: Resolver<ResolversTypes['testoptimismgoerli_Bytes'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
-export type local1338__Block_Resolvers<ContextType = MeshContext, ParentType extends ResolversParentTypes['local1338__Block_'] = ResolversParentTypes['local1338__Block_']> = ResolversObject<{
-  hash?: Resolver<Maybe<ResolversTypes['local1338_Bytes']>, ParentType, ContextType>;
+export type testoptimismgoerli__Block_Resolvers<ContextType = MeshContext, ParentType extends ResolversParentTypes['testoptimismgoerli__Block_'] = ResolversParentTypes['testoptimismgoerli__Block_']> = ResolversObject<{
+  hash?: Resolver<Maybe<ResolversTypes['testoptimismgoerli_Bytes']>, ParentType, ContextType>;
   number?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   timestamp?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
-export type local1338__Meta_Resolvers<ContextType = MeshContext, ParentType extends ResolversParentTypes['local1338__Meta_'] = ResolversParentTypes['local1338__Meta_']> = ResolversObject<{
-  block?: Resolver<ResolversTypes['local1338__Block_'], ParentType, ContextType>;
-  deployment?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
-  hasIndexingErrors?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
-  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
-}>;
-
-export type stagingmumbai_AggregateRootResolvers<ContextType = MeshContext, ParentType extends ResolversParentTypes['stagingmumbai_AggregateRoot'] = ResolversParentTypes['stagingmumbai_AggregateRoot']> = ResolversObject<{
-  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
-  root?: Resolver<ResolversTypes['stagingmumbai_Bytes'], ParentType, ContextType>;
-  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
-}>;
-
-export type stagingmumbai_AssetResolvers<ContextType = MeshContext, ParentType extends ResolversParentTypes['stagingmumbai_Asset'] = ResolversParentTypes['stagingmumbai_Asset']> = ResolversObject<{
-  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
-  key?: Resolver<Maybe<ResolversTypes['stagingmumbai_Bytes']>, ParentType, ContextType>;
-  local?: Resolver<ResolversTypes['stagingmumbai_Bytes'], ParentType, ContextType>;
-  adoptedAsset?: Resolver<ResolversTypes['stagingmumbai_Bytes'], ParentType, ContextType>;
-  canonicalId?: Resolver<ResolversTypes['stagingmumbai_Bytes'], ParentType, ContextType>;
-  canonicalDomain?: Resolver<ResolversTypes['BigInt'], ParentType, ContextType>;
-  blockNumber?: Resolver<ResolversTypes['BigInt'], ParentType, ContextType>;
-  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
-}>;
-
-export type stagingmumbai_AssetBalanceResolvers<ContextType = MeshContext, ParentType extends ResolversParentTypes['stagingmumbai_AssetBalance'] = ResolversParentTypes['stagingmumbai_AssetBalance']> = ResolversObject<{
-  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
-  amount?: Resolver<ResolversTypes['BigInt'], ParentType, ContextType>;
-  router?: Resolver<ResolversTypes['stagingmumbai_Router'], ParentType, ContextType>;
-  asset?: Resolver<ResolversTypes['stagingmumbai_Asset'], ParentType, ContextType>;
-  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
-}>;
-
-export interface stagingmumbai_BigDecimalScalarConfig extends GraphQLScalarTypeConfig<ResolversTypes['stagingmumbai_BigDecimal'], any> {
-  name: 'stagingmumbai_BigDecimal';
-}
-
-export interface stagingmumbai_BytesScalarConfig extends GraphQLScalarTypeConfig<ResolversTypes['stagingmumbai_Bytes'], any> {
-  name: 'stagingmumbai_Bytes';
-}
-
-export type stagingmumbai_ConnectorMetaResolvers<ContextType = MeshContext, ParentType extends ResolversParentTypes['stagingmumbai_ConnectorMeta'] = ResolversParentTypes['stagingmumbai_ConnectorMeta']> = ResolversObject<{
-  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
-  spokeDomain?: Resolver<ResolversTypes['BigInt'], ParentType, ContextType>;
-  hubDomain?: Resolver<ResolversTypes['BigInt'], ParentType, ContextType>;
-  amb?: Resolver<ResolversTypes['stagingmumbai_Bytes'], ParentType, ContextType>;
-  rootManager?: Resolver<ResolversTypes['stagingmumbai_Bytes'], ParentType, ContextType>;
-  mirrorConnector?: Resolver<ResolversTypes['stagingmumbai_Bytes'], ParentType, ContextType>;
-  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
-}>;
-
-export type stagingmumbai_DestinationMessageResolvers<ContextType = MeshContext, ParentType extends ResolversParentTypes['stagingmumbai_DestinationMessage'] = ResolversParentTypes['stagingmumbai_DestinationMessage']> = ResolversObject<{
-  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
-  leaf?: Resolver<Maybe<ResolversTypes['stagingmumbai_Bytes']>, ParentType, ContextType>;
-  processed?: Resolver<Maybe<ResolversTypes['Boolean']>, ParentType, ContextType>;
-  returnData?: Resolver<Maybe<ResolversTypes['stagingmumbai_Bytes']>, ParentType, ContextType>;
-  transactionHash?: Resolver<Maybe<ResolversTypes['stagingmumbai_Bytes']>, ParentType, ContextType>;
-  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
-}>;
-
-export type stagingmumbai_DestinationTransferResolvers<ContextType = MeshContext, ParentType extends ResolversParentTypes['stagingmumbai_DestinationTransfer'] = ResolversParentTypes['stagingmumbai_DestinationTransfer']> = ResolversObject<{
-  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
-  chainId?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
-  transferId?: Resolver<Maybe<ResolversTypes['stagingmumbai_Bytes']>, ParentType, ContextType>;
-  nonce?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
-  to?: Resolver<Maybe<ResolversTypes['stagingmumbai_Bytes']>, ParentType, ContextType>;
-  callData?: Resolver<Maybe<ResolversTypes['stagingmumbai_Bytes']>, ParentType, ContextType>;
-  originDomain?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
-  destinationDomain?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
-  agent?: Resolver<Maybe<ResolversTypes['stagingmumbai_Bytes']>, ParentType, ContextType>;
-  recovery?: Resolver<Maybe<ResolversTypes['stagingmumbai_Bytes']>, ParentType, ContextType>;
-  forceSlow?: Resolver<Maybe<ResolversTypes['Boolean']>, ParentType, ContextType>;
-  receiveLocal?: Resolver<Maybe<ResolversTypes['Boolean']>, ParentType, ContextType>;
-  callback?: Resolver<Maybe<ResolversTypes['stagingmumbai_Bytes']>, ParentType, ContextType>;
-  callbackFee?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
-  relayerFee?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
-  destinationMinOut?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
-  status?: Resolver<Maybe<ResolversTypes['stagingmumbai_TransferStatus']>, ParentType, ContextType>;
-  routers?: Resolver<Maybe<Array<ResolversTypes['stagingmumbai_Router']>>, ParentType, ContextType, RequireFields<stagingmumbai_DestinationTransferroutersArgs, 'skip' | 'first'>>;
-  originSender?: Resolver<Maybe<ResolversTypes['stagingmumbai_Bytes']>, ParentType, ContextType>;
-  transactingAsset?: Resolver<Maybe<ResolversTypes['stagingmumbai_Bytes']>, ParentType, ContextType>;
-  transactingAmount?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
-  localAsset?: Resolver<Maybe<ResolversTypes['stagingmumbai_Bytes']>, ParentType, ContextType>;
-  localAmount?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
-  sponsorVaultRelayerFee?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
-  executedCaller?: Resolver<Maybe<ResolversTypes['stagingmumbai_Bytes']>, ParentType, ContextType>;
-  executedTransactionHash?: Resolver<Maybe<ResolversTypes['stagingmumbai_Bytes']>, ParentType, ContextType>;
-  executedTimestamp?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
-  executedGasPrice?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
-  executedGasLimit?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
-  executedBlockNumber?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
-  reconciledCaller?: Resolver<Maybe<ResolversTypes['stagingmumbai_Bytes']>, ParentType, ContextType>;
-  reconciledTransactionHash?: Resolver<Maybe<ResolversTypes['stagingmumbai_Bytes']>, ParentType, ContextType>;
-  reconciledTimestamp?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
-  reconciledGasPrice?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
-  reconciledGasLimit?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
-  reconciledBlockNumber?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
-  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
-}>;
-
-export type stagingmumbai_OriginMessageResolvers<ContextType = MeshContext, ParentType extends ResolversParentTypes['stagingmumbai_OriginMessage'] = ResolversParentTypes['stagingmumbai_OriginMessage']> = ResolversObject<{
-  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
-  transferId?: Resolver<Maybe<ResolversTypes['stagingmumbai_Bytes']>, ParentType, ContextType>;
-  destinationDomain?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
-  leaf?: Resolver<Maybe<ResolversTypes['stagingmumbai_Bytes']>, ParentType, ContextType>;
-  index?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
-  root?: Resolver<Maybe<ResolversTypes['stagingmumbai_Bytes']>, ParentType, ContextType>;
-  message?: Resolver<Maybe<ResolversTypes['stagingmumbai_Bytes']>, ParentType, ContextType>;
-  transactionHash?: Resolver<Maybe<ResolversTypes['stagingmumbai_Bytes']>, ParentType, ContextType>;
-  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
-}>;
-
-export type stagingmumbai_OriginTransferResolvers<ContextType = MeshContext, ParentType extends ResolversParentTypes['stagingmumbai_OriginTransfer'] = ResolversParentTypes['stagingmumbai_OriginTransfer']> = ResolversObject<{
-  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
-  chainId?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
-  transferId?: Resolver<Maybe<ResolversTypes['stagingmumbai_Bytes']>, ParentType, ContextType>;
-  nonce?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
-  to?: Resolver<Maybe<ResolversTypes['stagingmumbai_Bytes']>, ParentType, ContextType>;
-  callData?: Resolver<Maybe<ResolversTypes['stagingmumbai_Bytes']>, ParentType, ContextType>;
-  originDomain?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
-  destinationDomain?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
-  agent?: Resolver<Maybe<ResolversTypes['stagingmumbai_Bytes']>, ParentType, ContextType>;
-  recovery?: Resolver<Maybe<ResolversTypes['stagingmumbai_Bytes']>, ParentType, ContextType>;
-  forceSlow?: Resolver<Maybe<ResolversTypes['Boolean']>, ParentType, ContextType>;
-  receiveLocal?: Resolver<Maybe<ResolversTypes['Boolean']>, ParentType, ContextType>;
-  callback?: Resolver<Maybe<ResolversTypes['stagingmumbai_Bytes']>, ParentType, ContextType>;
-  callbackFee?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
-  relayerFee?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
-  destinationMinOut?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
-  status?: Resolver<Maybe<ResolversTypes['stagingmumbai_TransferStatus']>, ParentType, ContextType>;
-  originMinOut?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
-  transactingAsset?: Resolver<Maybe<ResolversTypes['stagingmumbai_Bytes']>, ParentType, ContextType>;
-  transactingAmount?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
-  bridgedAsset?: Resolver<Maybe<ResolversTypes['stagingmumbai_Bytes']>, ParentType, ContextType>;
-  bridgedAmount?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
-  message?: Resolver<Maybe<ResolversTypes['stagingmumbai_OriginMessage']>, ParentType, ContextType>;
-  caller?: Resolver<Maybe<ResolversTypes['stagingmumbai_Bytes']>, ParentType, ContextType>;
-  transactionHash?: Resolver<Maybe<ResolversTypes['stagingmumbai_Bytes']>, ParentType, ContextType>;
-  timestamp?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
-  gasPrice?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
-  gasLimit?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
-  blockNumber?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
-  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
-}>;
-
-export type stagingmumbai_RelayerResolvers<ContextType = MeshContext, ParentType extends ResolversParentTypes['stagingmumbai_Relayer'] = ResolversParentTypes['stagingmumbai_Relayer']> = ResolversObject<{
-  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
-  isActive?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
-  relayer?: Resolver<Maybe<ResolversTypes['stagingmumbai_Bytes']>, ParentType, ContextType>;
-  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
-}>;
-
-export type stagingmumbai_RootMessageProcessedResolvers<ContextType = MeshContext, ParentType extends ResolversParentTypes['stagingmumbai_RootMessageProcessed'] = ResolversParentTypes['stagingmumbai_RootMessageProcessed']> = ResolversObject<{
-  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
-  root?: Resolver<Maybe<ResolversTypes['stagingmumbai_Bytes']>, ParentType, ContextType>;
-  caller?: Resolver<Maybe<ResolversTypes['stagingmumbai_Bytes']>, ParentType, ContextType>;
-  transactionHash?: Resolver<Maybe<ResolversTypes['stagingmumbai_Bytes']>, ParentType, ContextType>;
-  timestamp?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
-  gasPrice?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
-  gasLimit?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
-  blockNumber?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
-  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
-}>;
-
-export type stagingmumbai_RootMessageSentResolvers<ContextType = MeshContext, ParentType extends ResolversParentTypes['stagingmumbai_RootMessageSent'] = ResolversParentTypes['stagingmumbai_RootMessageSent']> = ResolversObject<{
-  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
-  spokeDomain?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
-  hubDomain?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
-  root?: Resolver<Maybe<ResolversTypes['stagingmumbai_Bytes']>, ParentType, ContextType>;
-  caller?: Resolver<Maybe<ResolversTypes['stagingmumbai_Bytes']>, ParentType, ContextType>;
-  transactionHash?: Resolver<Maybe<ResolversTypes['stagingmumbai_Bytes']>, ParentType, ContextType>;
-  timestamp?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
-  gasPrice?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
-  gasLimit?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
-  blockNumber?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
-  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
-}>;
-
-export type stagingmumbai_RouterResolvers<ContextType = MeshContext, ParentType extends ResolversParentTypes['stagingmumbai_Router'] = ResolversParentTypes['stagingmumbai_Router']> = ResolversObject<{
-  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
-  isActive?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
-  owner?: Resolver<Maybe<ResolversTypes['stagingmumbai_Bytes']>, ParentType, ContextType>;
-  recipient?: Resolver<Maybe<ResolversTypes['stagingmumbai_Bytes']>, ParentType, ContextType>;
-  proposedOwner?: Resolver<Maybe<ResolversTypes['stagingmumbai_Bytes']>, ParentType, ContextType>;
-  proposedTimestamp?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
-  assetBalances?: Resolver<Array<ResolversTypes['stagingmumbai_AssetBalance']>, ParentType, ContextType, RequireFields<stagingmumbai_RouterassetBalancesArgs, 'skip' | 'first'>>;
-  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
-}>;
-
-export type stagingmumbai_SettingResolvers<ContextType = MeshContext, ParentType extends ResolversParentTypes['stagingmumbai_Setting'] = ResolversParentTypes['stagingmumbai_Setting']> = ResolversObject<{
-  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
-  maxRoutersPerTransfer?: Resolver<ResolversTypes['BigInt'], ParentType, ContextType>;
-  caller?: Resolver<ResolversTypes['stagingmumbai_Bytes'], ParentType, ContextType>;
-  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
-}>;
-
-export type stagingmumbai_SponsorVaultResolvers<ContextType = MeshContext, ParentType extends ResolversParentTypes['stagingmumbai_SponsorVault'] = ResolversParentTypes['stagingmumbai_SponsorVault']> = ResolversObject<{
-  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
-  sponsorVault?: Resolver<ResolversTypes['stagingmumbai_Bytes'], ParentType, ContextType>;
-  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
-}>;
-
-export type stagingmumbai_StableSwapResolvers<ContextType = MeshContext, ParentType extends ResolversParentTypes['stagingmumbai_StableSwap'] = ResolversParentTypes['stagingmumbai_StableSwap']> = ResolversObject<{
-  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
-  canonicalId?: Resolver<ResolversTypes['stagingmumbai_Bytes'], ParentType, ContextType>;
-  domain?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
-  swapPool?: Resolver<ResolversTypes['stagingmumbai_Bytes'], ParentType, ContextType>;
-  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
-}>;
-
-export type stagingmumbai__Block_Resolvers<ContextType = MeshContext, ParentType extends ResolversParentTypes['stagingmumbai__Block_'] = ResolversParentTypes['stagingmumbai__Block_']> = ResolversObject<{
-  hash?: Resolver<Maybe<ResolversTypes['stagingmumbai_Bytes']>, ParentType, ContextType>;
-  number?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
-  timestamp?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
-  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
-}>;
-
-export type stagingmumbai__Meta_Resolvers<ContextType = MeshContext, ParentType extends ResolversParentTypes['stagingmumbai__Meta_'] = ResolversParentTypes['stagingmumbai__Meta_']> = ResolversObject<{
-  block?: Resolver<ResolversTypes['stagingmumbai__Block_'], ParentType, ContextType>;
+export type testoptimismgoerli__Meta_Resolvers<ContextType = MeshContext, ParentType extends ResolversParentTypes['testoptimismgoerli__Meta_'] = ResolversParentTypes['testoptimismgoerli__Meta_']> = ResolversObject<{
+  block?: Resolver<ResolversTypes['testoptimismgoerli__Block_'], ParentType, ContextType>;
   deployment?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   hasIndexingErrors?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
@@ -22230,6 +21647,158 @@ export type optimismgoerli__Meta_Resolvers<ContextType = MeshContext, ParentType
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
+export type local1338_AssetResolvers<ContextType = MeshContext, ParentType extends ResolversParentTypes['local1338_Asset'] = ResolversParentTypes['local1338_Asset']> = ResolversObject<{
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  key?: Resolver<Maybe<ResolversTypes['local1338_Bytes']>, ParentType, ContextType>;
+  local?: Resolver<ResolversTypes['local1338_Bytes'], ParentType, ContextType>;
+  adoptedAsset?: Resolver<ResolversTypes['local1338_Bytes'], ParentType, ContextType>;
+  canonicalId?: Resolver<ResolversTypes['local1338_Bytes'], ParentType, ContextType>;
+  canonicalDomain?: Resolver<ResolversTypes['BigInt'], ParentType, ContextType>;
+  blockNumber?: Resolver<ResolversTypes['BigInt'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type local1338_AssetBalanceResolvers<ContextType = MeshContext, ParentType extends ResolversParentTypes['local1338_AssetBalance'] = ResolversParentTypes['local1338_AssetBalance']> = ResolversObject<{
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  amount?: Resolver<ResolversTypes['BigInt'], ParentType, ContextType>;
+  router?: Resolver<ResolversTypes['local1338_Router'], ParentType, ContextType>;
+  asset?: Resolver<ResolversTypes['local1338_Asset'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export interface local1338_BigDecimalScalarConfig extends GraphQLScalarTypeConfig<ResolversTypes['local1338_BigDecimal'], any> {
+  name: 'local1338_BigDecimal';
+}
+
+export interface local1338_BytesScalarConfig extends GraphQLScalarTypeConfig<ResolversTypes['local1338_Bytes'], any> {
+  name: 'local1338_Bytes';
+}
+
+export type local1338_DestinationTransferResolvers<ContextType = MeshContext, ParentType extends ResolversParentTypes['local1338_DestinationTransfer'] = ResolversParentTypes['local1338_DestinationTransfer']> = ResolversObject<{
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  chainId?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
+  transferId?: Resolver<Maybe<ResolversTypes['local1338_Bytes']>, ParentType, ContextType>;
+  nonce?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
+  to?: Resolver<Maybe<ResolversTypes['local1338_Bytes']>, ParentType, ContextType>;
+  callData?: Resolver<Maybe<ResolversTypes['local1338_Bytes']>, ParentType, ContextType>;
+  originDomain?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
+  destinationDomain?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
+  agent?: Resolver<Maybe<ResolversTypes['local1338_Bytes']>, ParentType, ContextType>;
+  recovery?: Resolver<Maybe<ResolversTypes['local1338_Bytes']>, ParentType, ContextType>;
+  forceSlow?: Resolver<Maybe<ResolversTypes['Boolean']>, ParentType, ContextType>;
+  receiveLocal?: Resolver<Maybe<ResolversTypes['Boolean']>, ParentType, ContextType>;
+  callback?: Resolver<Maybe<ResolversTypes['local1338_Bytes']>, ParentType, ContextType>;
+  callbackFee?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
+  relayerFee?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
+  destinationMinOut?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
+  status?: Resolver<Maybe<ResolversTypes['local1338_TransferStatus']>, ParentType, ContextType>;
+  routers?: Resolver<Maybe<Array<ResolversTypes['local1338_Router']>>, ParentType, ContextType, RequireFields<local1338_DestinationTransferroutersArgs, 'skip' | 'first'>>;
+  originSender?: Resolver<Maybe<ResolversTypes['local1338_Bytes']>, ParentType, ContextType>;
+  transactingAsset?: Resolver<Maybe<ResolversTypes['local1338_Bytes']>, ParentType, ContextType>;
+  transactingAmount?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
+  localAsset?: Resolver<Maybe<ResolversTypes['local1338_Bytes']>, ParentType, ContextType>;
+  localAmount?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
+  sponsorVaultRelayerFee?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
+  executedCaller?: Resolver<Maybe<ResolversTypes['local1338_Bytes']>, ParentType, ContextType>;
+  executedTransactionHash?: Resolver<Maybe<ResolversTypes['local1338_Bytes']>, ParentType, ContextType>;
+  executedTimestamp?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
+  executedGasPrice?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
+  executedGasLimit?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
+  executedBlockNumber?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
+  reconciledCaller?: Resolver<Maybe<ResolversTypes['local1338_Bytes']>, ParentType, ContextType>;
+  reconciledTransactionHash?: Resolver<Maybe<ResolversTypes['local1338_Bytes']>, ParentType, ContextType>;
+  reconciledTimestamp?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
+  reconciledGasPrice?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
+  reconciledGasLimit?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
+  reconciledBlockNumber?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type local1338_OriginTransferResolvers<ContextType = MeshContext, ParentType extends ResolversParentTypes['local1338_OriginTransfer'] = ResolversParentTypes['local1338_OriginTransfer']> = ResolversObject<{
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  chainId?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
+  transferId?: Resolver<Maybe<ResolversTypes['local1338_Bytes']>, ParentType, ContextType>;
+  nonce?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
+  to?: Resolver<Maybe<ResolversTypes['local1338_Bytes']>, ParentType, ContextType>;
+  callData?: Resolver<Maybe<ResolversTypes['local1338_Bytes']>, ParentType, ContextType>;
+  originDomain?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
+  destinationDomain?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
+  agent?: Resolver<Maybe<ResolversTypes['local1338_Bytes']>, ParentType, ContextType>;
+  recovery?: Resolver<Maybe<ResolversTypes['local1338_Bytes']>, ParentType, ContextType>;
+  forceSlow?: Resolver<Maybe<ResolversTypes['Boolean']>, ParentType, ContextType>;
+  receiveLocal?: Resolver<Maybe<ResolversTypes['Boolean']>, ParentType, ContextType>;
+  callback?: Resolver<Maybe<ResolversTypes['local1338_Bytes']>, ParentType, ContextType>;
+  callbackFee?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
+  relayerFee?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
+  destinationMinOut?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
+  status?: Resolver<Maybe<ResolversTypes['local1338_TransferStatus']>, ParentType, ContextType>;
+  originMinOut?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
+  transactingAsset?: Resolver<Maybe<ResolversTypes['local1338_Bytes']>, ParentType, ContextType>;
+  transactingAmount?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
+  bridgedAsset?: Resolver<Maybe<ResolversTypes['local1338_Bytes']>, ParentType, ContextType>;
+  bridgedAmount?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
+  caller?: Resolver<Maybe<ResolversTypes['local1338_Bytes']>, ParentType, ContextType>;
+  transactionHash?: Resolver<Maybe<ResolversTypes['local1338_Bytes']>, ParentType, ContextType>;
+  timestamp?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
+  gasPrice?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
+  gasLimit?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
+  blockNumber?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type local1338_RelayerResolvers<ContextType = MeshContext, ParentType extends ResolversParentTypes['local1338_Relayer'] = ResolversParentTypes['local1338_Relayer']> = ResolversObject<{
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  isActive?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  relayer?: Resolver<Maybe<ResolversTypes['local1338_Bytes']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type local1338_RouterResolvers<ContextType = MeshContext, ParentType extends ResolversParentTypes['local1338_Router'] = ResolversParentTypes['local1338_Router']> = ResolversObject<{
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  isActive?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  owner?: Resolver<Maybe<ResolversTypes['local1338_Bytes']>, ParentType, ContextType>;
+  recipient?: Resolver<Maybe<ResolversTypes['local1338_Bytes']>, ParentType, ContextType>;
+  proposedOwner?: Resolver<Maybe<ResolversTypes['local1338_Bytes']>, ParentType, ContextType>;
+  proposedTimestamp?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
+  assetBalances?: Resolver<Array<ResolversTypes['local1338_AssetBalance']>, ParentType, ContextType, RequireFields<local1338_RouterassetBalancesArgs, 'skip' | 'first'>>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type local1338_SettingResolvers<ContextType = MeshContext, ParentType extends ResolversParentTypes['local1338_Setting'] = ResolversParentTypes['local1338_Setting']> = ResolversObject<{
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  maxRoutersPerTransfer?: Resolver<ResolversTypes['BigInt'], ParentType, ContextType>;
+  caller?: Resolver<ResolversTypes['local1338_Bytes'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type local1338_SponsorVaultResolvers<ContextType = MeshContext, ParentType extends ResolversParentTypes['local1338_SponsorVault'] = ResolversParentTypes['local1338_SponsorVault']> = ResolversObject<{
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  sponsorVault?: Resolver<ResolversTypes['local1338_Bytes'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type local1338_StableSwapResolvers<ContextType = MeshContext, ParentType extends ResolversParentTypes['local1338_StableSwap'] = ResolversParentTypes['local1338_StableSwap']> = ResolversObject<{
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  canonicalId?: Resolver<ResolversTypes['local1338_Bytes'], ParentType, ContextType>;
+  domain?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
+  swapPool?: Resolver<ResolversTypes['local1338_Bytes'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type local1338__Block_Resolvers<ContextType = MeshContext, ParentType extends ResolversParentTypes['local1338__Block_'] = ResolversParentTypes['local1338__Block_']> = ResolversObject<{
+  hash?: Resolver<Maybe<ResolversTypes['local1338_Bytes']>, ParentType, ContextType>;
+  number?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  timestamp?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type local1338__Meta_Resolvers<ContextType = MeshContext, ParentType extends ResolversParentTypes['local1338__Meta_'] = ResolversParentTypes['local1338__Meta_']> = ResolversObject<{
+  block?: Resolver<ResolversTypes['local1338__Block_'], ParentType, ContextType>;
+  deployment?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  hasIndexingErrors?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
 export type mumbai_AggregateRootResolvers<ContextType = MeshContext, ParentType extends ResolversParentTypes['mumbai_AggregateRoot'] = ResolversParentTypes['mumbai_AggregateRoot']> = ResolversObject<{
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   root?: Resolver<ResolversTypes['mumbai_Bytes'], ParentType, ContextType>;
@@ -22419,6 +21988,222 @@ export type mumbai__Block_Resolvers<ContextType = MeshContext, ParentType extend
 
 export type mumbai__Meta_Resolvers<ContextType = MeshContext, ParentType extends ResolversParentTypes['mumbai__Meta_'] = ResolversParentTypes['mumbai__Meta_']> = ResolversObject<{
   block?: Resolver<ResolversTypes['mumbai__Block_'], ParentType, ContextType>;
+  deployment?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  hasIndexingErrors?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type stagingmumbai_AggregateRootResolvers<ContextType = MeshContext, ParentType extends ResolversParentTypes['stagingmumbai_AggregateRoot'] = ResolversParentTypes['stagingmumbai_AggregateRoot']> = ResolversObject<{
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  root?: Resolver<ResolversTypes['stagingmumbai_Bytes'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type stagingmumbai_AssetResolvers<ContextType = MeshContext, ParentType extends ResolversParentTypes['stagingmumbai_Asset'] = ResolversParentTypes['stagingmumbai_Asset']> = ResolversObject<{
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  key?: Resolver<Maybe<ResolversTypes['stagingmumbai_Bytes']>, ParentType, ContextType>;
+  local?: Resolver<ResolversTypes['stagingmumbai_Bytes'], ParentType, ContextType>;
+  adoptedAsset?: Resolver<ResolversTypes['stagingmumbai_Bytes'], ParentType, ContextType>;
+  canonicalId?: Resolver<ResolversTypes['stagingmumbai_Bytes'], ParentType, ContextType>;
+  canonicalDomain?: Resolver<ResolversTypes['BigInt'], ParentType, ContextType>;
+  blockNumber?: Resolver<ResolversTypes['BigInt'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type stagingmumbai_AssetBalanceResolvers<ContextType = MeshContext, ParentType extends ResolversParentTypes['stagingmumbai_AssetBalance'] = ResolversParentTypes['stagingmumbai_AssetBalance']> = ResolversObject<{
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  amount?: Resolver<ResolversTypes['BigInt'], ParentType, ContextType>;
+  router?: Resolver<ResolversTypes['stagingmumbai_Router'], ParentType, ContextType>;
+  asset?: Resolver<ResolversTypes['stagingmumbai_Asset'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export interface stagingmumbai_BigDecimalScalarConfig extends GraphQLScalarTypeConfig<ResolversTypes['stagingmumbai_BigDecimal'], any> {
+  name: 'stagingmumbai_BigDecimal';
+}
+
+export interface stagingmumbai_BytesScalarConfig extends GraphQLScalarTypeConfig<ResolversTypes['stagingmumbai_Bytes'], any> {
+  name: 'stagingmumbai_Bytes';
+}
+
+export type stagingmumbai_ConnectorMetaResolvers<ContextType = MeshContext, ParentType extends ResolversParentTypes['stagingmumbai_ConnectorMeta'] = ResolversParentTypes['stagingmumbai_ConnectorMeta']> = ResolversObject<{
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  spokeDomain?: Resolver<ResolversTypes['BigInt'], ParentType, ContextType>;
+  hubDomain?: Resolver<ResolversTypes['BigInt'], ParentType, ContextType>;
+  amb?: Resolver<ResolversTypes['stagingmumbai_Bytes'], ParentType, ContextType>;
+  rootManager?: Resolver<ResolversTypes['stagingmumbai_Bytes'], ParentType, ContextType>;
+  mirrorConnector?: Resolver<ResolversTypes['stagingmumbai_Bytes'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type stagingmumbai_DestinationMessageResolvers<ContextType = MeshContext, ParentType extends ResolversParentTypes['stagingmumbai_DestinationMessage'] = ResolversParentTypes['stagingmumbai_DestinationMessage']> = ResolversObject<{
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  leaf?: Resolver<Maybe<ResolversTypes['stagingmumbai_Bytes']>, ParentType, ContextType>;
+  processed?: Resolver<Maybe<ResolversTypes['Boolean']>, ParentType, ContextType>;
+  returnData?: Resolver<Maybe<ResolversTypes['stagingmumbai_Bytes']>, ParentType, ContextType>;
+  transactionHash?: Resolver<Maybe<ResolversTypes['stagingmumbai_Bytes']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type stagingmumbai_DestinationTransferResolvers<ContextType = MeshContext, ParentType extends ResolversParentTypes['stagingmumbai_DestinationTransfer'] = ResolversParentTypes['stagingmumbai_DestinationTransfer']> = ResolversObject<{
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  chainId?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
+  transferId?: Resolver<Maybe<ResolversTypes['stagingmumbai_Bytes']>, ParentType, ContextType>;
+  nonce?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
+  to?: Resolver<Maybe<ResolversTypes['stagingmumbai_Bytes']>, ParentType, ContextType>;
+  callData?: Resolver<Maybe<ResolversTypes['stagingmumbai_Bytes']>, ParentType, ContextType>;
+  originDomain?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
+  destinationDomain?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
+  agent?: Resolver<Maybe<ResolversTypes['stagingmumbai_Bytes']>, ParentType, ContextType>;
+  recovery?: Resolver<Maybe<ResolversTypes['stagingmumbai_Bytes']>, ParentType, ContextType>;
+  forceSlow?: Resolver<Maybe<ResolversTypes['Boolean']>, ParentType, ContextType>;
+  receiveLocal?: Resolver<Maybe<ResolversTypes['Boolean']>, ParentType, ContextType>;
+  callback?: Resolver<Maybe<ResolversTypes['stagingmumbai_Bytes']>, ParentType, ContextType>;
+  callbackFee?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
+  relayerFee?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
+  destinationMinOut?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
+  status?: Resolver<Maybe<ResolversTypes['stagingmumbai_TransferStatus']>, ParentType, ContextType>;
+  routers?: Resolver<Maybe<Array<ResolversTypes['stagingmumbai_Router']>>, ParentType, ContextType, RequireFields<stagingmumbai_DestinationTransferroutersArgs, 'skip' | 'first'>>;
+  originSender?: Resolver<Maybe<ResolversTypes['stagingmumbai_Bytes']>, ParentType, ContextType>;
+  transactingAsset?: Resolver<Maybe<ResolversTypes['stagingmumbai_Bytes']>, ParentType, ContextType>;
+  transactingAmount?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
+  localAsset?: Resolver<Maybe<ResolversTypes['stagingmumbai_Bytes']>, ParentType, ContextType>;
+  localAmount?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
+  sponsorVaultRelayerFee?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
+  executedCaller?: Resolver<Maybe<ResolversTypes['stagingmumbai_Bytes']>, ParentType, ContextType>;
+  executedTransactionHash?: Resolver<Maybe<ResolversTypes['stagingmumbai_Bytes']>, ParentType, ContextType>;
+  executedTimestamp?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
+  executedGasPrice?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
+  executedGasLimit?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
+  executedBlockNumber?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
+  reconciledCaller?: Resolver<Maybe<ResolversTypes['stagingmumbai_Bytes']>, ParentType, ContextType>;
+  reconciledTransactionHash?: Resolver<Maybe<ResolversTypes['stagingmumbai_Bytes']>, ParentType, ContextType>;
+  reconciledTimestamp?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
+  reconciledGasPrice?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
+  reconciledGasLimit?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
+  reconciledBlockNumber?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type stagingmumbai_OriginMessageResolvers<ContextType = MeshContext, ParentType extends ResolversParentTypes['stagingmumbai_OriginMessage'] = ResolversParentTypes['stagingmumbai_OriginMessage']> = ResolversObject<{
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  transferId?: Resolver<Maybe<ResolversTypes['stagingmumbai_Bytes']>, ParentType, ContextType>;
+  destinationDomain?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
+  leaf?: Resolver<Maybe<ResolversTypes['stagingmumbai_Bytes']>, ParentType, ContextType>;
+  index?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
+  root?: Resolver<Maybe<ResolversTypes['stagingmumbai_Bytes']>, ParentType, ContextType>;
+  message?: Resolver<Maybe<ResolversTypes['stagingmumbai_Bytes']>, ParentType, ContextType>;
+  transactionHash?: Resolver<Maybe<ResolversTypes['stagingmumbai_Bytes']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type stagingmumbai_OriginTransferResolvers<ContextType = MeshContext, ParentType extends ResolversParentTypes['stagingmumbai_OriginTransfer'] = ResolversParentTypes['stagingmumbai_OriginTransfer']> = ResolversObject<{
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  chainId?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
+  transferId?: Resolver<Maybe<ResolversTypes['stagingmumbai_Bytes']>, ParentType, ContextType>;
+  nonce?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
+  to?: Resolver<Maybe<ResolversTypes['stagingmumbai_Bytes']>, ParentType, ContextType>;
+  callData?: Resolver<Maybe<ResolversTypes['stagingmumbai_Bytes']>, ParentType, ContextType>;
+  originDomain?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
+  destinationDomain?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
+  agent?: Resolver<Maybe<ResolversTypes['stagingmumbai_Bytes']>, ParentType, ContextType>;
+  recovery?: Resolver<Maybe<ResolversTypes['stagingmumbai_Bytes']>, ParentType, ContextType>;
+  forceSlow?: Resolver<Maybe<ResolversTypes['Boolean']>, ParentType, ContextType>;
+  receiveLocal?: Resolver<Maybe<ResolversTypes['Boolean']>, ParentType, ContextType>;
+  callback?: Resolver<Maybe<ResolversTypes['stagingmumbai_Bytes']>, ParentType, ContextType>;
+  callbackFee?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
+  relayerFee?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
+  destinationMinOut?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
+  status?: Resolver<Maybe<ResolversTypes['stagingmumbai_TransferStatus']>, ParentType, ContextType>;
+  originMinOut?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
+  transactingAsset?: Resolver<Maybe<ResolversTypes['stagingmumbai_Bytes']>, ParentType, ContextType>;
+  transactingAmount?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
+  bridgedAsset?: Resolver<Maybe<ResolversTypes['stagingmumbai_Bytes']>, ParentType, ContextType>;
+  bridgedAmount?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
+  message?: Resolver<Maybe<ResolversTypes['stagingmumbai_OriginMessage']>, ParentType, ContextType>;
+  caller?: Resolver<Maybe<ResolversTypes['stagingmumbai_Bytes']>, ParentType, ContextType>;
+  transactionHash?: Resolver<Maybe<ResolversTypes['stagingmumbai_Bytes']>, ParentType, ContextType>;
+  timestamp?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
+  gasPrice?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
+  gasLimit?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
+  blockNumber?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type stagingmumbai_RelayerResolvers<ContextType = MeshContext, ParentType extends ResolversParentTypes['stagingmumbai_Relayer'] = ResolversParentTypes['stagingmumbai_Relayer']> = ResolversObject<{
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  isActive?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  relayer?: Resolver<Maybe<ResolversTypes['stagingmumbai_Bytes']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type stagingmumbai_RootMessageProcessedResolvers<ContextType = MeshContext, ParentType extends ResolversParentTypes['stagingmumbai_RootMessageProcessed'] = ResolversParentTypes['stagingmumbai_RootMessageProcessed']> = ResolversObject<{
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  root?: Resolver<Maybe<ResolversTypes['stagingmumbai_Bytes']>, ParentType, ContextType>;
+  caller?: Resolver<Maybe<ResolversTypes['stagingmumbai_Bytes']>, ParentType, ContextType>;
+  transactionHash?: Resolver<Maybe<ResolversTypes['stagingmumbai_Bytes']>, ParentType, ContextType>;
+  timestamp?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
+  gasPrice?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
+  gasLimit?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
+  blockNumber?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type stagingmumbai_RootMessageSentResolvers<ContextType = MeshContext, ParentType extends ResolversParentTypes['stagingmumbai_RootMessageSent'] = ResolversParentTypes['stagingmumbai_RootMessageSent']> = ResolversObject<{
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  spokeDomain?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
+  hubDomain?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
+  root?: Resolver<Maybe<ResolversTypes['stagingmumbai_Bytes']>, ParentType, ContextType>;
+  caller?: Resolver<Maybe<ResolversTypes['stagingmumbai_Bytes']>, ParentType, ContextType>;
+  transactionHash?: Resolver<Maybe<ResolversTypes['stagingmumbai_Bytes']>, ParentType, ContextType>;
+  timestamp?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
+  gasPrice?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
+  gasLimit?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
+  blockNumber?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type stagingmumbai_RouterResolvers<ContextType = MeshContext, ParentType extends ResolversParentTypes['stagingmumbai_Router'] = ResolversParentTypes['stagingmumbai_Router']> = ResolversObject<{
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  isActive?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  owner?: Resolver<Maybe<ResolversTypes['stagingmumbai_Bytes']>, ParentType, ContextType>;
+  recipient?: Resolver<Maybe<ResolversTypes['stagingmumbai_Bytes']>, ParentType, ContextType>;
+  proposedOwner?: Resolver<Maybe<ResolversTypes['stagingmumbai_Bytes']>, ParentType, ContextType>;
+  proposedTimestamp?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
+  assetBalances?: Resolver<Array<ResolversTypes['stagingmumbai_AssetBalance']>, ParentType, ContextType, RequireFields<stagingmumbai_RouterassetBalancesArgs, 'skip' | 'first'>>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type stagingmumbai_SettingResolvers<ContextType = MeshContext, ParentType extends ResolversParentTypes['stagingmumbai_Setting'] = ResolversParentTypes['stagingmumbai_Setting']> = ResolversObject<{
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  maxRoutersPerTransfer?: Resolver<ResolversTypes['BigInt'], ParentType, ContextType>;
+  caller?: Resolver<ResolversTypes['stagingmumbai_Bytes'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type stagingmumbai_SponsorVaultResolvers<ContextType = MeshContext, ParentType extends ResolversParentTypes['stagingmumbai_SponsorVault'] = ResolversParentTypes['stagingmumbai_SponsorVault']> = ResolversObject<{
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  sponsorVault?: Resolver<ResolversTypes['stagingmumbai_Bytes'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type stagingmumbai_StableSwapResolvers<ContextType = MeshContext, ParentType extends ResolversParentTypes['stagingmumbai_StableSwap'] = ResolversParentTypes['stagingmumbai_StableSwap']> = ResolversObject<{
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  canonicalId?: Resolver<ResolversTypes['stagingmumbai_Bytes'], ParentType, ContextType>;
+  domain?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
+  swapPool?: Resolver<ResolversTypes['stagingmumbai_Bytes'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type stagingmumbai__Block_Resolvers<ContextType = MeshContext, ParentType extends ResolversParentTypes['stagingmumbai__Block_'] = ResolversParentTypes['stagingmumbai__Block_']> = ResolversObject<{
+  hash?: Resolver<Maybe<ResolversTypes['stagingmumbai_Bytes']>, ParentType, ContextType>;
+  number?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  timestamp?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type stagingmumbai__Meta_Resolvers<ContextType = MeshContext, ParentType extends ResolversParentTypes['stagingmumbai__Meta_'] = ResolversParentTypes['stagingmumbai__Meta_']> = ResolversObject<{
+  block?: Resolver<ResolversTypes['stagingmumbai__Block_'], ParentType, ContextType>;
   deployment?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   hasIndexingErrors?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
@@ -22640,26 +22425,229 @@ export type stagingoptimismgoerli__Meta_Resolvers<ContextType = MeshContext, Par
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
+export type staginggoerli_AggregateRootResolvers<ContextType = MeshContext, ParentType extends ResolversParentTypes['staginggoerli_AggregateRoot'] = ResolversParentTypes['staginggoerli_AggregateRoot']> = ResolversObject<{
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  root?: Resolver<ResolversTypes['staginggoerli_Bytes'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type staginggoerli_AssetResolvers<ContextType = MeshContext, ParentType extends ResolversParentTypes['staginggoerli_Asset'] = ResolversParentTypes['staginggoerli_Asset']> = ResolversObject<{
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  key?: Resolver<Maybe<ResolversTypes['staginggoerli_Bytes']>, ParentType, ContextType>;
+  local?: Resolver<ResolversTypes['staginggoerli_Bytes'], ParentType, ContextType>;
+  adoptedAsset?: Resolver<ResolversTypes['staginggoerli_Bytes'], ParentType, ContextType>;
+  canonicalId?: Resolver<ResolversTypes['staginggoerli_Bytes'], ParentType, ContextType>;
+  canonicalDomain?: Resolver<ResolversTypes['BigInt'], ParentType, ContextType>;
+  blockNumber?: Resolver<ResolversTypes['BigInt'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type staginggoerli_AssetBalanceResolvers<ContextType = MeshContext, ParentType extends ResolversParentTypes['staginggoerli_AssetBalance'] = ResolversParentTypes['staginggoerli_AssetBalance']> = ResolversObject<{
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  amount?: Resolver<ResolversTypes['BigInt'], ParentType, ContextType>;
+  router?: Resolver<ResolversTypes['staginggoerli_Router'], ParentType, ContextType>;
+  asset?: Resolver<ResolversTypes['staginggoerli_Asset'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export interface staginggoerli_BigDecimalScalarConfig extends GraphQLScalarTypeConfig<ResolversTypes['staginggoerli_BigDecimal'], any> {
+  name: 'staginggoerli_BigDecimal';
+}
+
+export interface staginggoerli_BytesScalarConfig extends GraphQLScalarTypeConfig<ResolversTypes['staginggoerli_Bytes'], any> {
+  name: 'staginggoerli_Bytes';
+}
+
+export type staginggoerli_ConnectorMetaResolvers<ContextType = MeshContext, ParentType extends ResolversParentTypes['staginggoerli_ConnectorMeta'] = ResolversParentTypes['staginggoerli_ConnectorMeta']> = ResolversObject<{
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  spokeDomain?: Resolver<ResolversTypes['BigInt'], ParentType, ContextType>;
+  hubDomain?: Resolver<ResolversTypes['BigInt'], ParentType, ContextType>;
+  amb?: Resolver<ResolversTypes['staginggoerli_Bytes'], ParentType, ContextType>;
+  rootManager?: Resolver<ResolversTypes['staginggoerli_Bytes'], ParentType, ContextType>;
+  mirrorConnector?: Resolver<ResolversTypes['staginggoerli_Bytes'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type staginggoerli_DestinationMessageResolvers<ContextType = MeshContext, ParentType extends ResolversParentTypes['staginggoerli_DestinationMessage'] = ResolversParentTypes['staginggoerli_DestinationMessage']> = ResolversObject<{
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  leaf?: Resolver<Maybe<ResolversTypes['staginggoerli_Bytes']>, ParentType, ContextType>;
+  processed?: Resolver<Maybe<ResolversTypes['Boolean']>, ParentType, ContextType>;
+  returnData?: Resolver<Maybe<ResolversTypes['staginggoerli_Bytes']>, ParentType, ContextType>;
+  transactionHash?: Resolver<Maybe<ResolversTypes['staginggoerli_Bytes']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type staginggoerli_DestinationTransferResolvers<ContextType = MeshContext, ParentType extends ResolversParentTypes['staginggoerli_DestinationTransfer'] = ResolversParentTypes['staginggoerli_DestinationTransfer']> = ResolversObject<{
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  chainId?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
+  transferId?: Resolver<Maybe<ResolversTypes['staginggoerli_Bytes']>, ParentType, ContextType>;
+  nonce?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
+  to?: Resolver<Maybe<ResolversTypes['staginggoerli_Bytes']>, ParentType, ContextType>;
+  callData?: Resolver<Maybe<ResolversTypes['staginggoerli_Bytes']>, ParentType, ContextType>;
+  originDomain?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
+  destinationDomain?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
+  agent?: Resolver<Maybe<ResolversTypes['staginggoerli_Bytes']>, ParentType, ContextType>;
+  recovery?: Resolver<Maybe<ResolversTypes['staginggoerli_Bytes']>, ParentType, ContextType>;
+  forceSlow?: Resolver<Maybe<ResolversTypes['Boolean']>, ParentType, ContextType>;
+  receiveLocal?: Resolver<Maybe<ResolversTypes['Boolean']>, ParentType, ContextType>;
+  callback?: Resolver<Maybe<ResolversTypes['staginggoerli_Bytes']>, ParentType, ContextType>;
+  callbackFee?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
+  relayerFee?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
+  destinationMinOut?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
+  status?: Resolver<Maybe<ResolversTypes['staginggoerli_TransferStatus']>, ParentType, ContextType>;
+  routers?: Resolver<Maybe<Array<ResolversTypes['staginggoerli_Router']>>, ParentType, ContextType, RequireFields<staginggoerli_DestinationTransferroutersArgs, 'skip' | 'first'>>;
+  originSender?: Resolver<Maybe<ResolversTypes['staginggoerli_Bytes']>, ParentType, ContextType>;
+  transactingAsset?: Resolver<Maybe<ResolversTypes['staginggoerli_Bytes']>, ParentType, ContextType>;
+  transactingAmount?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
+  localAsset?: Resolver<Maybe<ResolversTypes['staginggoerli_Bytes']>, ParentType, ContextType>;
+  localAmount?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
+  sponsorVaultRelayerFee?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
+  executedCaller?: Resolver<Maybe<ResolversTypes['staginggoerli_Bytes']>, ParentType, ContextType>;
+  executedTransactionHash?: Resolver<Maybe<ResolversTypes['staginggoerli_Bytes']>, ParentType, ContextType>;
+  executedTimestamp?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
+  executedGasPrice?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
+  executedGasLimit?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
+  executedBlockNumber?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
+  reconciledCaller?: Resolver<Maybe<ResolversTypes['staginggoerli_Bytes']>, ParentType, ContextType>;
+  reconciledTransactionHash?: Resolver<Maybe<ResolversTypes['staginggoerli_Bytes']>, ParentType, ContextType>;
+  reconciledTimestamp?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
+  reconciledGasPrice?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
+  reconciledGasLimit?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
+  reconciledBlockNumber?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type staginggoerli_OriginMessageResolvers<ContextType = MeshContext, ParentType extends ResolversParentTypes['staginggoerli_OriginMessage'] = ResolversParentTypes['staginggoerli_OriginMessage']> = ResolversObject<{
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  transferId?: Resolver<Maybe<ResolversTypes['staginggoerli_Bytes']>, ParentType, ContextType>;
+  destinationDomain?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
+  leaf?: Resolver<Maybe<ResolversTypes['staginggoerli_Bytes']>, ParentType, ContextType>;
+  index?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
+  root?: Resolver<Maybe<ResolversTypes['staginggoerli_Bytes']>, ParentType, ContextType>;
+  message?: Resolver<Maybe<ResolversTypes['staginggoerli_Bytes']>, ParentType, ContextType>;
+  transactionHash?: Resolver<Maybe<ResolversTypes['staginggoerli_Bytes']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type staginggoerli_OriginTransferResolvers<ContextType = MeshContext, ParentType extends ResolversParentTypes['staginggoerli_OriginTransfer'] = ResolversParentTypes['staginggoerli_OriginTransfer']> = ResolversObject<{
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  chainId?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
+  transferId?: Resolver<Maybe<ResolversTypes['staginggoerli_Bytes']>, ParentType, ContextType>;
+  nonce?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
+  to?: Resolver<Maybe<ResolversTypes['staginggoerli_Bytes']>, ParentType, ContextType>;
+  callData?: Resolver<Maybe<ResolversTypes['staginggoerli_Bytes']>, ParentType, ContextType>;
+  originDomain?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
+  destinationDomain?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
+  agent?: Resolver<Maybe<ResolversTypes['staginggoerli_Bytes']>, ParentType, ContextType>;
+  recovery?: Resolver<Maybe<ResolversTypes['staginggoerli_Bytes']>, ParentType, ContextType>;
+  forceSlow?: Resolver<Maybe<ResolversTypes['Boolean']>, ParentType, ContextType>;
+  receiveLocal?: Resolver<Maybe<ResolversTypes['Boolean']>, ParentType, ContextType>;
+  callback?: Resolver<Maybe<ResolversTypes['staginggoerli_Bytes']>, ParentType, ContextType>;
+  callbackFee?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
+  relayerFee?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
+  destinationMinOut?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
+  status?: Resolver<Maybe<ResolversTypes['staginggoerli_TransferStatus']>, ParentType, ContextType>;
+  originMinOut?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
+  transactingAsset?: Resolver<Maybe<ResolversTypes['staginggoerli_Bytes']>, ParentType, ContextType>;
+  transactingAmount?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
+  bridgedAsset?: Resolver<Maybe<ResolversTypes['staginggoerli_Bytes']>, ParentType, ContextType>;
+  bridgedAmount?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
+  message?: Resolver<Maybe<ResolversTypes['staginggoerli_OriginMessage']>, ParentType, ContextType>;
+  caller?: Resolver<Maybe<ResolversTypes['staginggoerli_Bytes']>, ParentType, ContextType>;
+  transactionHash?: Resolver<Maybe<ResolversTypes['staginggoerli_Bytes']>, ParentType, ContextType>;
+  timestamp?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
+  gasPrice?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
+  gasLimit?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
+  blockNumber?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type staginggoerli_RelayerResolvers<ContextType = MeshContext, ParentType extends ResolversParentTypes['staginggoerli_Relayer'] = ResolversParentTypes['staginggoerli_Relayer']> = ResolversObject<{
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  isActive?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  relayer?: Resolver<Maybe<ResolversTypes['staginggoerli_Bytes']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type staginggoerli_RootMessageProcessedResolvers<ContextType = MeshContext, ParentType extends ResolversParentTypes['staginggoerli_RootMessageProcessed'] = ResolversParentTypes['staginggoerli_RootMessageProcessed']> = ResolversObject<{
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  root?: Resolver<Maybe<ResolversTypes['staginggoerli_Bytes']>, ParentType, ContextType>;
+  caller?: Resolver<Maybe<ResolversTypes['staginggoerli_Bytes']>, ParentType, ContextType>;
+  transactionHash?: Resolver<Maybe<ResolversTypes['staginggoerli_Bytes']>, ParentType, ContextType>;
+  timestamp?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
+  gasPrice?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
+  gasLimit?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
+  blockNumber?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type staginggoerli_RootMessageSentResolvers<ContextType = MeshContext, ParentType extends ResolversParentTypes['staginggoerli_RootMessageSent'] = ResolversParentTypes['staginggoerli_RootMessageSent']> = ResolversObject<{
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  spokeDomain?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
+  hubDomain?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
+  root?: Resolver<Maybe<ResolversTypes['staginggoerli_Bytes']>, ParentType, ContextType>;
+  caller?: Resolver<Maybe<ResolversTypes['staginggoerli_Bytes']>, ParentType, ContextType>;
+  transactionHash?: Resolver<Maybe<ResolversTypes['staginggoerli_Bytes']>, ParentType, ContextType>;
+  timestamp?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
+  gasPrice?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
+  gasLimit?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
+  blockNumber?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type staginggoerli_RouterResolvers<ContextType = MeshContext, ParentType extends ResolversParentTypes['staginggoerli_Router'] = ResolversParentTypes['staginggoerli_Router']> = ResolversObject<{
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  isActive?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  owner?: Resolver<Maybe<ResolversTypes['staginggoerli_Bytes']>, ParentType, ContextType>;
+  recipient?: Resolver<Maybe<ResolversTypes['staginggoerli_Bytes']>, ParentType, ContextType>;
+  proposedOwner?: Resolver<Maybe<ResolversTypes['staginggoerli_Bytes']>, ParentType, ContextType>;
+  proposedTimestamp?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
+  assetBalances?: Resolver<Array<ResolversTypes['staginggoerli_AssetBalance']>, ParentType, ContextType, RequireFields<staginggoerli_RouterassetBalancesArgs, 'skip' | 'first'>>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type staginggoerli_SettingResolvers<ContextType = MeshContext, ParentType extends ResolversParentTypes['staginggoerli_Setting'] = ResolversParentTypes['staginggoerli_Setting']> = ResolversObject<{
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  maxRoutersPerTransfer?: Resolver<ResolversTypes['BigInt'], ParentType, ContextType>;
+  caller?: Resolver<ResolversTypes['staginggoerli_Bytes'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type staginggoerli_SponsorVaultResolvers<ContextType = MeshContext, ParentType extends ResolversParentTypes['staginggoerli_SponsorVault'] = ResolversParentTypes['staginggoerli_SponsorVault']> = ResolversObject<{
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  sponsorVault?: Resolver<ResolversTypes['staginggoerli_Bytes'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type staginggoerli_StableSwapResolvers<ContextType = MeshContext, ParentType extends ResolversParentTypes['staginggoerli_StableSwap'] = ResolversParentTypes['staginggoerli_StableSwap']> = ResolversObject<{
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  canonicalId?: Resolver<ResolversTypes['staginggoerli_Bytes'], ParentType, ContextType>;
+  domain?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
+  swapPool?: Resolver<ResolversTypes['staginggoerli_Bytes'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type staginggoerli__Block_Resolvers<ContextType = MeshContext, ParentType extends ResolversParentTypes['staginggoerli__Block_'] = ResolversParentTypes['staginggoerli__Block_']> = ResolversObject<{
+  hash?: Resolver<Maybe<ResolversTypes['staginggoerli_Bytes']>, ParentType, ContextType>;
+  number?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  timestamp?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type staginggoerli__Meta_Resolvers<ContextType = MeshContext, ParentType extends ResolversParentTypes['staginggoerli__Meta_'] = ResolversParentTypes['staginggoerli__Meta_']> = ResolversObject<{
+  block?: Resolver<ResolversTypes['staginggoerli__Block_'], ParentType, ContextType>;
+  deployment?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  hasIndexingErrors?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
 export type Resolvers<ContextType = MeshContext> = ResolversObject<{
   Query?: QueryResolvers<ContextType>;
   Subscription?: SubscriptionResolvers<ContextType>;
-  rinkeby_Asset?: rinkeby_AssetResolvers<ContextType>;
-  rinkeby_AssetBalance?: rinkeby_AssetBalanceResolvers<ContextType>;
-  rinkeby_BigDecimal?: GraphQLScalarType;
-  BigInt?: GraphQLScalarType;
-  rinkeby_Bytes?: GraphQLScalarType;
-  rinkeby_DestinationTransfer?: rinkeby_DestinationTransferResolvers<ContextType>;
-  rinkeby_OriginTransfer?: rinkeby_OriginTransferResolvers<ContextType>;
-  rinkeby_Relayer?: rinkeby_RelayerResolvers<ContextType>;
-  rinkeby_Router?: rinkeby_RouterResolvers<ContextType>;
-  rinkeby_Setting?: rinkeby_SettingResolvers<ContextType>;
-  rinkeby_SponsorVault?: rinkeby_SponsorVaultResolvers<ContextType>;
-  rinkeby_StableSwap?: rinkeby_StableSwapResolvers<ContextType>;
-  rinkeby__Block_?: rinkeby__Block_Resolvers<ContextType>;
-  rinkeby__Meta_?: rinkeby__Meta_Resolvers<ContextType>;
   testgoerli_Asset?: testgoerli_AssetResolvers<ContextType>;
   testgoerli_AssetBalance?: testgoerli_AssetBalanceResolvers<ContextType>;
   testgoerli_BigDecimal?: GraphQLScalarType;
+  BigInt?: GraphQLScalarType;
   testgoerli_Bytes?: GraphQLScalarType;
   testgoerli_DestinationTransfer?: testgoerli_DestinationTransferResolvers<ContextType>;
   testgoerli_OriginTransfer?: testgoerli_OriginTransferResolvers<ContextType>;
@@ -22683,38 +22671,19 @@ export type Resolvers<ContextType = MeshContext> = ResolversObject<{
   local1337_StableSwap?: local1337_StableSwapResolvers<ContextType>;
   local1337__Block_?: local1337__Block_Resolvers<ContextType>;
   local1337__Meta_?: local1337__Meta_Resolvers<ContextType>;
-  testoptimismgoerli_Asset?: testoptimismgoerli_AssetResolvers<ContextType>;
-  testoptimismgoerli_AssetBalance?: testoptimismgoerli_AssetBalanceResolvers<ContextType>;
-  testoptimismgoerli_BigDecimal?: GraphQLScalarType;
-  testoptimismgoerli_Bytes?: GraphQLScalarType;
-  testoptimismgoerli_DestinationTransfer?: testoptimismgoerli_DestinationTransferResolvers<ContextType>;
-  testoptimismgoerli_OriginTransfer?: testoptimismgoerli_OriginTransferResolvers<ContextType>;
-  testoptimismgoerli_Relayer?: testoptimismgoerli_RelayerResolvers<ContextType>;
-  testoptimismgoerli_Router?: testoptimismgoerli_RouterResolvers<ContextType>;
-  testoptimismgoerli_Setting?: testoptimismgoerli_SettingResolvers<ContextType>;
-  testoptimismgoerli_SponsorVault?: testoptimismgoerli_SponsorVaultResolvers<ContextType>;
-  testoptimismgoerli_StableSwap?: testoptimismgoerli_StableSwapResolvers<ContextType>;
-  testoptimismgoerli__Block_?: testoptimismgoerli__Block_Resolvers<ContextType>;
-  testoptimismgoerli__Meta_?: testoptimismgoerli__Meta_Resolvers<ContextType>;
-  staginggoerli_AggregateRoot?: staginggoerli_AggregateRootResolvers<ContextType>;
-  staginggoerli_Asset?: staginggoerli_AssetResolvers<ContextType>;
-  staginggoerli_AssetBalance?: staginggoerli_AssetBalanceResolvers<ContextType>;
-  staginggoerli_BigDecimal?: GraphQLScalarType;
-  staginggoerli_Bytes?: GraphQLScalarType;
-  staginggoerli_ConnectorMeta?: staginggoerli_ConnectorMetaResolvers<ContextType>;
-  staginggoerli_DestinationMessage?: staginggoerli_DestinationMessageResolvers<ContextType>;
-  staginggoerli_DestinationTransfer?: staginggoerli_DestinationTransferResolvers<ContextType>;
-  staginggoerli_OriginMessage?: staginggoerli_OriginMessageResolvers<ContextType>;
-  staginggoerli_OriginTransfer?: staginggoerli_OriginTransferResolvers<ContextType>;
-  staginggoerli_Relayer?: staginggoerli_RelayerResolvers<ContextType>;
-  staginggoerli_RootMessageProcessed?: staginggoerli_RootMessageProcessedResolvers<ContextType>;
-  staginggoerli_RootMessageSent?: staginggoerli_RootMessageSentResolvers<ContextType>;
-  staginggoerli_Router?: staginggoerli_RouterResolvers<ContextType>;
-  staginggoerli_Setting?: staginggoerli_SettingResolvers<ContextType>;
-  staginggoerli_SponsorVault?: staginggoerli_SponsorVaultResolvers<ContextType>;
-  staginggoerli_StableSwap?: staginggoerli_StableSwapResolvers<ContextType>;
-  staginggoerli__Block_?: staginggoerli__Block_Resolvers<ContextType>;
-  staginggoerli__Meta_?: staginggoerli__Meta_Resolvers<ContextType>;
+  rinkeby_Asset?: rinkeby_AssetResolvers<ContextType>;
+  rinkeby_AssetBalance?: rinkeby_AssetBalanceResolvers<ContextType>;
+  rinkeby_BigDecimal?: GraphQLScalarType;
+  rinkeby_Bytes?: GraphQLScalarType;
+  rinkeby_DestinationTransfer?: rinkeby_DestinationTransferResolvers<ContextType>;
+  rinkeby_OriginTransfer?: rinkeby_OriginTransferResolvers<ContextType>;
+  rinkeby_Relayer?: rinkeby_RelayerResolvers<ContextType>;
+  rinkeby_Router?: rinkeby_RouterResolvers<ContextType>;
+  rinkeby_Setting?: rinkeby_SettingResolvers<ContextType>;
+  rinkeby_SponsorVault?: rinkeby_SponsorVaultResolvers<ContextType>;
+  rinkeby_StableSwap?: rinkeby_StableSwapResolvers<ContextType>;
+  rinkeby__Block_?: rinkeby__Block_Resolvers<ContextType>;
+  rinkeby__Meta_?: rinkeby__Meta_Resolvers<ContextType>;
   goerli_AggregateRoot?: goerli_AggregateRootResolvers<ContextType>;
   goerli_Asset?: goerli_AssetResolvers<ContextType>;
   goerli_AssetBalance?: goerli_AssetBalanceResolvers<ContextType>;
@@ -22734,38 +22703,19 @@ export type Resolvers<ContextType = MeshContext> = ResolversObject<{
   goerli_StableSwap?: goerli_StableSwapResolvers<ContextType>;
   goerli__Block_?: goerli__Block_Resolvers<ContextType>;
   goerli__Meta_?: goerli__Meta_Resolvers<ContextType>;
-  local1338_Asset?: local1338_AssetResolvers<ContextType>;
-  local1338_AssetBalance?: local1338_AssetBalanceResolvers<ContextType>;
-  local1338_BigDecimal?: GraphQLScalarType;
-  local1338_Bytes?: GraphQLScalarType;
-  local1338_DestinationTransfer?: local1338_DestinationTransferResolvers<ContextType>;
-  local1338_OriginTransfer?: local1338_OriginTransferResolvers<ContextType>;
-  local1338_Relayer?: local1338_RelayerResolvers<ContextType>;
-  local1338_Router?: local1338_RouterResolvers<ContextType>;
-  local1338_Setting?: local1338_SettingResolvers<ContextType>;
-  local1338_SponsorVault?: local1338_SponsorVaultResolvers<ContextType>;
-  local1338_StableSwap?: local1338_StableSwapResolvers<ContextType>;
-  local1338__Block_?: local1338__Block_Resolvers<ContextType>;
-  local1338__Meta_?: local1338__Meta_Resolvers<ContextType>;
-  stagingmumbai_AggregateRoot?: stagingmumbai_AggregateRootResolvers<ContextType>;
-  stagingmumbai_Asset?: stagingmumbai_AssetResolvers<ContextType>;
-  stagingmumbai_AssetBalance?: stagingmumbai_AssetBalanceResolvers<ContextType>;
-  stagingmumbai_BigDecimal?: GraphQLScalarType;
-  stagingmumbai_Bytes?: GraphQLScalarType;
-  stagingmumbai_ConnectorMeta?: stagingmumbai_ConnectorMetaResolvers<ContextType>;
-  stagingmumbai_DestinationMessage?: stagingmumbai_DestinationMessageResolvers<ContextType>;
-  stagingmumbai_DestinationTransfer?: stagingmumbai_DestinationTransferResolvers<ContextType>;
-  stagingmumbai_OriginMessage?: stagingmumbai_OriginMessageResolvers<ContextType>;
-  stagingmumbai_OriginTransfer?: stagingmumbai_OriginTransferResolvers<ContextType>;
-  stagingmumbai_Relayer?: stagingmumbai_RelayerResolvers<ContextType>;
-  stagingmumbai_RootMessageProcessed?: stagingmumbai_RootMessageProcessedResolvers<ContextType>;
-  stagingmumbai_RootMessageSent?: stagingmumbai_RootMessageSentResolvers<ContextType>;
-  stagingmumbai_Router?: stagingmumbai_RouterResolvers<ContextType>;
-  stagingmumbai_Setting?: stagingmumbai_SettingResolvers<ContextType>;
-  stagingmumbai_SponsorVault?: stagingmumbai_SponsorVaultResolvers<ContextType>;
-  stagingmumbai_StableSwap?: stagingmumbai_StableSwapResolvers<ContextType>;
-  stagingmumbai__Block_?: stagingmumbai__Block_Resolvers<ContextType>;
-  stagingmumbai__Meta_?: stagingmumbai__Meta_Resolvers<ContextType>;
+  testoptimismgoerli_Asset?: testoptimismgoerli_AssetResolvers<ContextType>;
+  testoptimismgoerli_AssetBalance?: testoptimismgoerli_AssetBalanceResolvers<ContextType>;
+  testoptimismgoerli_BigDecimal?: GraphQLScalarType;
+  testoptimismgoerli_Bytes?: GraphQLScalarType;
+  testoptimismgoerli_DestinationTransfer?: testoptimismgoerli_DestinationTransferResolvers<ContextType>;
+  testoptimismgoerli_OriginTransfer?: testoptimismgoerli_OriginTransferResolvers<ContextType>;
+  testoptimismgoerli_Relayer?: testoptimismgoerli_RelayerResolvers<ContextType>;
+  testoptimismgoerli_Router?: testoptimismgoerli_RouterResolvers<ContextType>;
+  testoptimismgoerli_Setting?: testoptimismgoerli_SettingResolvers<ContextType>;
+  testoptimismgoerli_SponsorVault?: testoptimismgoerli_SponsorVaultResolvers<ContextType>;
+  testoptimismgoerli_StableSwap?: testoptimismgoerli_StableSwapResolvers<ContextType>;
+  testoptimismgoerli__Block_?: testoptimismgoerli__Block_Resolvers<ContextType>;
+  testoptimismgoerli__Meta_?: testoptimismgoerli__Meta_Resolvers<ContextType>;
   optimismgoerli_AggregateRoot?: optimismgoerli_AggregateRootResolvers<ContextType>;
   optimismgoerli_Asset?: optimismgoerli_AssetResolvers<ContextType>;
   optimismgoerli_AssetBalance?: optimismgoerli_AssetBalanceResolvers<ContextType>;
@@ -22785,6 +22735,19 @@ export type Resolvers<ContextType = MeshContext> = ResolversObject<{
   optimismgoerli_StableSwap?: optimismgoerli_StableSwapResolvers<ContextType>;
   optimismgoerli__Block_?: optimismgoerli__Block_Resolvers<ContextType>;
   optimismgoerli__Meta_?: optimismgoerli__Meta_Resolvers<ContextType>;
+  local1338_Asset?: local1338_AssetResolvers<ContextType>;
+  local1338_AssetBalance?: local1338_AssetBalanceResolvers<ContextType>;
+  local1338_BigDecimal?: GraphQLScalarType;
+  local1338_Bytes?: GraphQLScalarType;
+  local1338_DestinationTransfer?: local1338_DestinationTransferResolvers<ContextType>;
+  local1338_OriginTransfer?: local1338_OriginTransferResolvers<ContextType>;
+  local1338_Relayer?: local1338_RelayerResolvers<ContextType>;
+  local1338_Router?: local1338_RouterResolvers<ContextType>;
+  local1338_Setting?: local1338_SettingResolvers<ContextType>;
+  local1338_SponsorVault?: local1338_SponsorVaultResolvers<ContextType>;
+  local1338_StableSwap?: local1338_StableSwapResolvers<ContextType>;
+  local1338__Block_?: local1338__Block_Resolvers<ContextType>;
+  local1338__Meta_?: local1338__Meta_Resolvers<ContextType>;
   mumbai_AggregateRoot?: mumbai_AggregateRootResolvers<ContextType>;
   mumbai_Asset?: mumbai_AssetResolvers<ContextType>;
   mumbai_AssetBalance?: mumbai_AssetBalanceResolvers<ContextType>;
@@ -22802,6 +22765,25 @@ export type Resolvers<ContextType = MeshContext> = ResolversObject<{
   mumbai_StableSwap?: mumbai_StableSwapResolvers<ContextType>;
   mumbai__Block_?: mumbai__Block_Resolvers<ContextType>;
   mumbai__Meta_?: mumbai__Meta_Resolvers<ContextType>;
+  stagingmumbai_AggregateRoot?: stagingmumbai_AggregateRootResolvers<ContextType>;
+  stagingmumbai_Asset?: stagingmumbai_AssetResolvers<ContextType>;
+  stagingmumbai_AssetBalance?: stagingmumbai_AssetBalanceResolvers<ContextType>;
+  stagingmumbai_BigDecimal?: GraphQLScalarType;
+  stagingmumbai_Bytes?: GraphQLScalarType;
+  stagingmumbai_ConnectorMeta?: stagingmumbai_ConnectorMetaResolvers<ContextType>;
+  stagingmumbai_DestinationMessage?: stagingmumbai_DestinationMessageResolvers<ContextType>;
+  stagingmumbai_DestinationTransfer?: stagingmumbai_DestinationTransferResolvers<ContextType>;
+  stagingmumbai_OriginMessage?: stagingmumbai_OriginMessageResolvers<ContextType>;
+  stagingmumbai_OriginTransfer?: stagingmumbai_OriginTransferResolvers<ContextType>;
+  stagingmumbai_Relayer?: stagingmumbai_RelayerResolvers<ContextType>;
+  stagingmumbai_RootMessageProcessed?: stagingmumbai_RootMessageProcessedResolvers<ContextType>;
+  stagingmumbai_RootMessageSent?: stagingmumbai_RootMessageSentResolvers<ContextType>;
+  stagingmumbai_Router?: stagingmumbai_RouterResolvers<ContextType>;
+  stagingmumbai_Setting?: stagingmumbai_SettingResolvers<ContextType>;
+  stagingmumbai_SponsorVault?: stagingmumbai_SponsorVaultResolvers<ContextType>;
+  stagingmumbai_StableSwap?: stagingmumbai_StableSwapResolvers<ContextType>;
+  stagingmumbai__Block_?: stagingmumbai__Block_Resolvers<ContextType>;
+  stagingmumbai__Meta_?: stagingmumbai__Meta_Resolvers<ContextType>;
   stagingoptimismgoerli_AggregateRoot?: stagingoptimismgoerli_AggregateRootResolvers<ContextType>;
   stagingoptimismgoerli_Asset?: stagingoptimismgoerli_AssetResolvers<ContextType>;
   stagingoptimismgoerli_AssetBalance?: stagingoptimismgoerli_AssetBalanceResolvers<ContextType>;
@@ -22821,10 +22803,29 @@ export type Resolvers<ContextType = MeshContext> = ResolversObject<{
   stagingoptimismgoerli_StableSwap?: stagingoptimismgoerli_StableSwapResolvers<ContextType>;
   stagingoptimismgoerli__Block_?: stagingoptimismgoerli__Block_Resolvers<ContextType>;
   stagingoptimismgoerli__Meta_?: stagingoptimismgoerli__Meta_Resolvers<ContextType>;
+  staginggoerli_AggregateRoot?: staginggoerli_AggregateRootResolvers<ContextType>;
+  staginggoerli_Asset?: staginggoerli_AssetResolvers<ContextType>;
+  staginggoerli_AssetBalance?: staginggoerli_AssetBalanceResolvers<ContextType>;
+  staginggoerli_BigDecimal?: GraphQLScalarType;
+  staginggoerli_Bytes?: GraphQLScalarType;
+  staginggoerli_ConnectorMeta?: staginggoerli_ConnectorMetaResolvers<ContextType>;
+  staginggoerli_DestinationMessage?: staginggoerli_DestinationMessageResolvers<ContextType>;
+  staginggoerli_DestinationTransfer?: staginggoerli_DestinationTransferResolvers<ContextType>;
+  staginggoerli_OriginMessage?: staginggoerli_OriginMessageResolvers<ContextType>;
+  staginggoerli_OriginTransfer?: staginggoerli_OriginTransferResolvers<ContextType>;
+  staginggoerli_Relayer?: staginggoerli_RelayerResolvers<ContextType>;
+  staginggoerli_RootMessageProcessed?: staginggoerli_RootMessageProcessedResolvers<ContextType>;
+  staginggoerli_RootMessageSent?: staginggoerli_RootMessageSentResolvers<ContextType>;
+  staginggoerli_Router?: staginggoerli_RouterResolvers<ContextType>;
+  staginggoerli_Setting?: staginggoerli_SettingResolvers<ContextType>;
+  staginggoerli_SponsorVault?: staginggoerli_SponsorVaultResolvers<ContextType>;
+  staginggoerli_StableSwap?: staginggoerli_StableSwapResolvers<ContextType>;
+  staginggoerli__Block_?: staginggoerli__Block_Resolvers<ContextType>;
+  staginggoerli__Meta_?: staginggoerli__Meta_Resolvers<ContextType>;
 }>;
 
 
-export type MeshContext = ConnextRinkebyContext & ConnextTestGoerliContext & ConnextLocal1337Context & ConnextTestOptimismGoerliContext & ConnextStagingGoerliContext & ConnextGoerliContext & ConnextLocal1338Context & ConnextMumbaiContext & ConnextOptimismGoerliContext & ConnextMumbaiContext & ConnextStagingOptimismGoerliContext & BaseMeshContext;
+export type MeshContext = ConnextTestGoerliContext & ConnextLocal1337Context & ConnextRinkebyContext & ConnextGoerliContext & ConnextTestOptimismGoerliContext & ConnextOptimismGoerliContext & ConnextLocal1338Context & ConnextMumbaiContext & ConnextStagingMumbaiContext & ConnextStagingOptimismGoerliContext & ConnextStagingGoerliContext & BaseMeshContext;
 
 
 const baseDir = pathModule.join(typeof __dirname === 'string' ? __dirname : '/', '..');
@@ -22832,23 +22833,23 @@ const baseDir = pathModule.join(typeof __dirname === 'string' ? __dirname : '/',
 const importFn = (moduleId: string) => {
   const relativeModuleId = (pathModule.isAbsolute(moduleId) ? pathModule.relative(baseDir, moduleId) : moduleId).split('\\').join('/').replace(baseDir + '/', '');
   switch(relativeModuleId) {
-    case ".graphclient/sources/Connext_Rinkeby/introspectionSchema":
-      return import("./sources/Connext_Rinkeby/introspectionSchema");
-    
     case ".graphclient/sources/Connext_Test_Goerli/introspectionSchema":
       return import("./sources/Connext_Test_Goerli/introspectionSchema");
     
     case ".graphclient/sources/Connext_Local1337/introspectionSchema":
       return import("./sources/Connext_Local1337/introspectionSchema");
     
-    case ".graphclient/sources/Connext_Test_OptimismGoerli/introspectionSchema":
-      return import("./sources/Connext_Test_OptimismGoerli/introspectionSchema");
-    
-    case ".graphclient/sources/Connext_Staging_Goerli/introspectionSchema":
-      return import("./sources/Connext_Staging_Goerli/introspectionSchema");
+    case ".graphclient/sources/Connext_Rinkeby/introspectionSchema":
+      return import("./sources/Connext_Rinkeby/introspectionSchema");
     
     case ".graphclient/sources/Connext_Goerli/introspectionSchema":
       return import("./sources/Connext_Goerli/introspectionSchema");
+    
+    case ".graphclient/sources/Connext_Test_OptimismGoerli/introspectionSchema":
+      return import("./sources/Connext_Test_OptimismGoerli/introspectionSchema");
+    
+    case ".graphclient/sources/Connext_OptimismGoerli/introspectionSchema":
+      return import("./sources/Connext_OptimismGoerli/introspectionSchema");
     
     case ".graphclient/sources/Connext_Local1338/introspectionSchema":
       return import("./sources/Connext_Local1338/introspectionSchema");
@@ -22856,11 +22857,14 @@ const importFn = (moduleId: string) => {
     case ".graphclient/sources/Connext_Mumbai/introspectionSchema":
       return import("./sources/Connext_Mumbai/introspectionSchema");
     
-    case ".graphclient/sources/Connext_OptimismGoerli/introspectionSchema":
-      return import("./sources/Connext_OptimismGoerli/introspectionSchema");
+    case ".graphclient/sources/Connext_Staging_Mumbai/introspectionSchema":
+      return import("./sources/Connext_Staging_Mumbai/introspectionSchema");
     
     case ".graphclient/sources/Connext_Staging_OptimismGoerli/introspectionSchema":
       return import("./sources/Connext_Staging_OptimismGoerli/introspectionSchema");
+    
+    case ".graphclient/sources/Connext_Staging_Goerli/introspectionSchema":
+      return import("./sources/Connext_Staging_Goerli/introspectionSchema");
     
     default:
       return Promise.reject(new Error(`Cannot find module '${relativeModuleId}'.`));
@@ -22900,6 +22904,7 @@ const connextOptimismGoerliTransforms = [];
 const connextTestOptimismGoerliTransforms = [];
 const connextStagingOptimismGoerliTransforms = [];
 const connextMumbaiTransforms = [];
+const connextStagingMumbaiTransforms = [];
 const connextLocal1337Transforms = [];
 const connextLocal1338Transforms = [];
 const additionalTypeDefs = [] as any[];
@@ -22983,14 +22988,14 @@ const connextMumbaiHandler = new GraphqlHandler({
               logger: logger.child("Connext_Mumbai"),
               importFn,
             });
-const connextMumbaiHandler = new GraphqlHandler({
-              name: "Connext_Mumbai",
+const connextStagingMumbaiHandler = new GraphqlHandler({
+              name: "Connext_Staging_Mumbai",
               config: {"endpoint":"https://api.thegraph.com/subgraphs/name/connext/nxtp-amarok-runtime-staging-mumbai","retry":5,"timeout":30000},
               baseDir,
               cache,
               pubsub,
-              store: sourcesStore.child("Connext_Mumbai"),
-              logger: logger.child("Connext_Mumbai"),
+              store: sourcesStore.child("Connext_Staging_Mumbai"),
+              logger: logger.child("Connext_Staging_Mumbai"),
               importFn,
             });
 const connextLocal1337Handler = new GraphqlHandler({
@@ -23077,8 +23082,8 @@ connextMumbaiTransforms[0] = new PrefixTransform({
                   pubsub,
                   importFn
                 });
-connextMumbaiTransforms[0] = new PrefixTransform({
-                  apiName: "Connext_Mumbai",
+connextStagingMumbaiTransforms[0] = new PrefixTransform({
+                  apiName: "Connext_Staging_Mumbai",
                   config: {"value":"stagingmumbai_","includeRootOperations":true,"ignore":["_SubgraphErrorPolicy_"]},
                   baseDir,
                   cache,
@@ -23165,6 +23170,14 @@ connextMumbaiTransforms[1] = new AutoPaginationTransform({
                   pubsub,
                   importFn
                 });
+connextStagingMumbaiTransforms[1] = new AutoPaginationTransform({
+                  apiName: "Connext_Staging_Mumbai",
+                  config: {"validateSchema":true,"limitOfRecords":250},
+                  baseDir,
+                  cache,
+                  pubsub,
+                  importFn
+                });
 connextLocal1337Transforms[1] = new AutoPaginationTransform({
                   apiName: "Connext_Local1337",
                   config: {"validateSchema":true,"limitOfRecords":250},
@@ -23222,9 +23235,9 @@ sources[7] = {
           transforms: connextMumbaiTransforms
         }
 sources[8] = {
-          name: 'Connext_Mumbai',
-          handler: connextMumbaiHandler,
-          transforms: connextMumbaiTransforms
+          name: 'Connext_Staging_Mumbai',
+          handler: connextStagingMumbaiHandler,
+          transforms: connextStagingMumbaiTransforms
         }
 sources[9] = {
           name: 'Connext_Local1337',

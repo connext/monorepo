@@ -12,12 +12,12 @@ directive @subgraphId(id: String!) on OBJECT
 "creates a virtual field on the entity that may be queried but cannot be set manually through the mappings API."
 directive @derivedFrom(field: String!) on FIELD_DEFINITION
 
-type mumbai_AggregateRoot {
+type stagingmumbai_AggregateRoot {
   id: ID!
-  root: mumbai_Bytes!
+  root: stagingmumbai_Bytes!
 }
 
-input mumbai_AggregateRoot_filter {
+input stagingmumbai_AggregateRoot_filter {
   id: ID
   id_not: ID
   id_gt: ID
@@ -26,39 +26,39 @@ input mumbai_AggregateRoot_filter {
   id_lte: ID
   id_in: [ID!]
   id_not_in: [ID!]
-  root: mumbai_Bytes
-  root_not: mumbai_Bytes
-  root_in: [mumbai_Bytes!]
-  root_not_in: [mumbai_Bytes!]
-  root_contains: mumbai_Bytes
-  root_not_contains: mumbai_Bytes
+  root: stagingmumbai_Bytes
+  root_not: stagingmumbai_Bytes
+  root_in: [stagingmumbai_Bytes!]
+  root_not_in: [stagingmumbai_Bytes!]
+  root_contains: stagingmumbai_Bytes
+  root_not_contains: stagingmumbai_Bytes
   """Filter for the block changed event."""
-  _change_block: mumbai_BlockChangedFilter
+  _change_block: stagingmumbai_BlockChangedFilter
 }
 
-enum mumbai_AggregateRoot_orderBy {
+enum stagingmumbai_AggregateRoot_orderBy {
   id
   root
 }
 
-type mumbai_Asset {
+type stagingmumbai_Asset {
   id: ID!
-  key: mumbai_Bytes
-  local: mumbai_Bytes!
-  adoptedAsset: mumbai_Bytes!
-  canonicalId: mumbai_Bytes!
+  key: stagingmumbai_Bytes
+  local: stagingmumbai_Bytes!
+  adoptedAsset: stagingmumbai_Bytes!
+  canonicalId: stagingmumbai_Bytes!
   canonicalDomain: BigInt!
   blockNumber: BigInt!
 }
 
-type mumbai_AssetBalance {
+type stagingmumbai_AssetBalance {
   id: ID!
   amount: BigInt!
-  router: mumbai_Router!
-  asset: mumbai_Asset!
+  router: stagingmumbai_Router!
+  asset: stagingmumbai_Asset!
 }
 
-input mumbai_AssetBalance_filter {
+input stagingmumbai_AssetBalance_filter {
   id: ID
   id_not: ID
   id_gt: ID
@@ -95,7 +95,7 @@ input mumbai_AssetBalance_filter {
   router_ends_with_nocase: String
   router_not_ends_with: String
   router_not_ends_with_nocase: String
-  router_: mumbai_Router_filter
+  router_: stagingmumbai_Router_filter
   asset: String
   asset_not: String
   asset_gt: String
@@ -116,19 +116,19 @@ input mumbai_AssetBalance_filter {
   asset_ends_with_nocase: String
   asset_not_ends_with: String
   asset_not_ends_with_nocase: String
-  asset_: mumbai_Asset_filter
+  asset_: stagingmumbai_Asset_filter
   """Filter for the block changed event."""
-  _change_block: mumbai_BlockChangedFilter
+  _change_block: stagingmumbai_BlockChangedFilter
 }
 
-enum mumbai_AssetBalance_orderBy {
+enum stagingmumbai_AssetBalance_orderBy {
   id
   amount
   router
   asset
 }
 
-input mumbai_Asset_filter {
+input stagingmumbai_Asset_filter {
   id: ID
   id_not: ID
   id_gt: ID
@@ -137,30 +137,30 @@ input mumbai_Asset_filter {
   id_lte: ID
   id_in: [ID!]
   id_not_in: [ID!]
-  key: mumbai_Bytes
-  key_not: mumbai_Bytes
-  key_in: [mumbai_Bytes!]
-  key_not_in: [mumbai_Bytes!]
-  key_contains: mumbai_Bytes
-  key_not_contains: mumbai_Bytes
-  local: mumbai_Bytes
-  local_not: mumbai_Bytes
-  local_in: [mumbai_Bytes!]
-  local_not_in: [mumbai_Bytes!]
-  local_contains: mumbai_Bytes
-  local_not_contains: mumbai_Bytes
-  adoptedAsset: mumbai_Bytes
-  adoptedAsset_not: mumbai_Bytes
-  adoptedAsset_in: [mumbai_Bytes!]
-  adoptedAsset_not_in: [mumbai_Bytes!]
-  adoptedAsset_contains: mumbai_Bytes
-  adoptedAsset_not_contains: mumbai_Bytes
-  canonicalId: mumbai_Bytes
-  canonicalId_not: mumbai_Bytes
-  canonicalId_in: [mumbai_Bytes!]
-  canonicalId_not_in: [mumbai_Bytes!]
-  canonicalId_contains: mumbai_Bytes
-  canonicalId_not_contains: mumbai_Bytes
+  key: stagingmumbai_Bytes
+  key_not: stagingmumbai_Bytes
+  key_in: [stagingmumbai_Bytes!]
+  key_not_in: [stagingmumbai_Bytes!]
+  key_contains: stagingmumbai_Bytes
+  key_not_contains: stagingmumbai_Bytes
+  local: stagingmumbai_Bytes
+  local_not: stagingmumbai_Bytes
+  local_in: [stagingmumbai_Bytes!]
+  local_not_in: [stagingmumbai_Bytes!]
+  local_contains: stagingmumbai_Bytes
+  local_not_contains: stagingmumbai_Bytes
+  adoptedAsset: stagingmumbai_Bytes
+  adoptedAsset_not: stagingmumbai_Bytes
+  adoptedAsset_in: [stagingmumbai_Bytes!]
+  adoptedAsset_not_in: [stagingmumbai_Bytes!]
+  adoptedAsset_contains: stagingmumbai_Bytes
+  adoptedAsset_not_contains: stagingmumbai_Bytes
+  canonicalId: stagingmumbai_Bytes
+  canonicalId_not: stagingmumbai_Bytes
+  canonicalId_in: [stagingmumbai_Bytes!]
+  canonicalId_not_in: [stagingmumbai_Bytes!]
+  canonicalId_contains: stagingmumbai_Bytes
+  canonicalId_not_contains: stagingmumbai_Bytes
   canonicalDomain: BigInt
   canonicalDomain_not: BigInt
   canonicalDomain_gt: BigInt
@@ -178,10 +178,10 @@ input mumbai_Asset_filter {
   blockNumber_in: [BigInt!]
   blockNumber_not_in: [BigInt!]
   """Filter for the block changed event."""
-  _change_block: mumbai_BlockChangedFilter
+  _change_block: stagingmumbai_BlockChangedFilter
 }
 
-enum mumbai_Asset_orderBy {
+enum stagingmumbai_Asset_orderBy {
   id
   key
   local
@@ -191,31 +191,32 @@ enum mumbai_Asset_orderBy {
   blockNumber
 }
 
-scalar mumbai_BigDecimal
+scalar stagingmumbai_BigDecimal
 
 scalar BigInt
 
-input mumbai_BlockChangedFilter {
+input stagingmumbai_BlockChangedFilter {
   number_gte: Int!
 }
 
-input mumbai_Block_height {
-  hash: mumbai_Bytes
+input stagingmumbai_Block_height {
+  hash: stagingmumbai_Bytes
   number: Int
   number_gte: Int
 }
 
-scalar mumbai_Bytes
+scalar stagingmumbai_Bytes
 
-type mumbai_DestinationMessage {
+type stagingmumbai_ConnectorMeta {
   id: ID!
-  leaf: mumbai_Bytes
-  processed: Boolean
-  returnData: mumbai_Bytes
-  transactionHash: mumbai_Bytes
+  spokeDomain: BigInt!
+  hubDomain: BigInt!
+  amb: stagingmumbai_Bytes!
+  rootManager: stagingmumbai_Bytes!
+  mirrorConnector: stagingmumbai_Bytes!
 }
 
-input mumbai_DestinationMessage_filter {
+input stagingmumbai_ConnectorMeta_filter {
   id: ID
   id_not: ID
   id_gt: ID
@@ -224,33 +225,97 @@ input mumbai_DestinationMessage_filter {
   id_lte: ID
   id_in: [ID!]
   id_not_in: [ID!]
-  leaf: mumbai_Bytes
-  leaf_not: mumbai_Bytes
-  leaf_in: [mumbai_Bytes!]
-  leaf_not_in: [mumbai_Bytes!]
-  leaf_contains: mumbai_Bytes
-  leaf_not_contains: mumbai_Bytes
+  spokeDomain: BigInt
+  spokeDomain_not: BigInt
+  spokeDomain_gt: BigInt
+  spokeDomain_lt: BigInt
+  spokeDomain_gte: BigInt
+  spokeDomain_lte: BigInt
+  spokeDomain_in: [BigInt!]
+  spokeDomain_not_in: [BigInt!]
+  hubDomain: BigInt
+  hubDomain_not: BigInt
+  hubDomain_gt: BigInt
+  hubDomain_lt: BigInt
+  hubDomain_gte: BigInt
+  hubDomain_lte: BigInt
+  hubDomain_in: [BigInt!]
+  hubDomain_not_in: [BigInt!]
+  amb: stagingmumbai_Bytes
+  amb_not: stagingmumbai_Bytes
+  amb_in: [stagingmumbai_Bytes!]
+  amb_not_in: [stagingmumbai_Bytes!]
+  amb_contains: stagingmumbai_Bytes
+  amb_not_contains: stagingmumbai_Bytes
+  rootManager: stagingmumbai_Bytes
+  rootManager_not: stagingmumbai_Bytes
+  rootManager_in: [stagingmumbai_Bytes!]
+  rootManager_not_in: [stagingmumbai_Bytes!]
+  rootManager_contains: stagingmumbai_Bytes
+  rootManager_not_contains: stagingmumbai_Bytes
+  mirrorConnector: stagingmumbai_Bytes
+  mirrorConnector_not: stagingmumbai_Bytes
+  mirrorConnector_in: [stagingmumbai_Bytes!]
+  mirrorConnector_not_in: [stagingmumbai_Bytes!]
+  mirrorConnector_contains: stagingmumbai_Bytes
+  mirrorConnector_not_contains: stagingmumbai_Bytes
+  """Filter for the block changed event."""
+  _change_block: stagingmumbai_BlockChangedFilter
+}
+
+enum stagingmumbai_ConnectorMeta_orderBy {
+  id
+  spokeDomain
+  hubDomain
+  amb
+  rootManager
+  mirrorConnector
+}
+
+type stagingmumbai_DestinationMessage {
+  id: ID!
+  leaf: stagingmumbai_Bytes
+  processed: Boolean
+  returnData: stagingmumbai_Bytes
+  transactionHash: stagingmumbai_Bytes
+}
+
+input stagingmumbai_DestinationMessage_filter {
+  id: ID
+  id_not: ID
+  id_gt: ID
+  id_lt: ID
+  id_gte: ID
+  id_lte: ID
+  id_in: [ID!]
+  id_not_in: [ID!]
+  leaf: stagingmumbai_Bytes
+  leaf_not: stagingmumbai_Bytes
+  leaf_in: [stagingmumbai_Bytes!]
+  leaf_not_in: [stagingmumbai_Bytes!]
+  leaf_contains: stagingmumbai_Bytes
+  leaf_not_contains: stagingmumbai_Bytes
   processed: Boolean
   processed_not: Boolean
   processed_in: [Boolean!]
   processed_not_in: [Boolean!]
-  returnData: mumbai_Bytes
-  returnData_not: mumbai_Bytes
-  returnData_in: [mumbai_Bytes!]
-  returnData_not_in: [mumbai_Bytes!]
-  returnData_contains: mumbai_Bytes
-  returnData_not_contains: mumbai_Bytes
-  transactionHash: mumbai_Bytes
-  transactionHash_not: mumbai_Bytes
-  transactionHash_in: [mumbai_Bytes!]
-  transactionHash_not_in: [mumbai_Bytes!]
-  transactionHash_contains: mumbai_Bytes
-  transactionHash_not_contains: mumbai_Bytes
+  returnData: stagingmumbai_Bytes
+  returnData_not: stagingmumbai_Bytes
+  returnData_in: [stagingmumbai_Bytes!]
+  returnData_not_in: [stagingmumbai_Bytes!]
+  returnData_contains: stagingmumbai_Bytes
+  returnData_not_contains: stagingmumbai_Bytes
+  transactionHash: stagingmumbai_Bytes
+  transactionHash_not: stagingmumbai_Bytes
+  transactionHash_in: [stagingmumbai_Bytes!]
+  transactionHash_not_in: [stagingmumbai_Bytes!]
+  transactionHash_contains: stagingmumbai_Bytes
+  transactionHash_not_contains: stagingmumbai_Bytes
   """Filter for the block changed event."""
-  _change_block: mumbai_BlockChangedFilter
+  _change_block: stagingmumbai_BlockChangedFilter
 }
 
-enum mumbai_DestinationMessage_orderBy {
+enum stagingmumbai_DestinationMessage_orderBy {
   id
   leaf
   processed
@@ -258,46 +323,46 @@ enum mumbai_DestinationMessage_orderBy {
   transactionHash
 }
 
-type mumbai_DestinationTransfer {
+type stagingmumbai_DestinationTransfer {
   id: ID!
   chainId: BigInt
-  transferId: mumbai_Bytes
+  transferId: stagingmumbai_Bytes
   nonce: BigInt
-  to: mumbai_Bytes
-  callData: mumbai_Bytes
+  to: stagingmumbai_Bytes
+  callData: stagingmumbai_Bytes
   originDomain: BigInt
   destinationDomain: BigInt
-  agent: mumbai_Bytes
-  recovery: mumbai_Bytes
+  agent: stagingmumbai_Bytes
+  recovery: stagingmumbai_Bytes
   forceSlow: Boolean
   receiveLocal: Boolean
-  callback: mumbai_Bytes
+  callback: stagingmumbai_Bytes
   callbackFee: BigInt
   relayerFee: BigInt
   destinationMinOut: BigInt
-  status: mumbai_TransferStatus
-  routers(skip: Int = 0, first: Int = 100, orderBy: mumbai_Router_orderBy, orderDirection: mumbai_OrderDirection, where: mumbai_Router_filter): [mumbai_Router!]
-  originSender: mumbai_Bytes
-  transactingAsset: mumbai_Bytes
+  status: stagingmumbai_TransferStatus
+  routers(skip: Int = 0, first: Int = 100, orderBy: stagingmumbai_Router_orderBy, orderDirection: stagingmumbai_OrderDirection, where: stagingmumbai_Router_filter): [stagingmumbai_Router!]
+  originSender: stagingmumbai_Bytes
+  transactingAsset: stagingmumbai_Bytes
   transactingAmount: BigInt
-  localAsset: mumbai_Bytes
+  localAsset: stagingmumbai_Bytes
   localAmount: BigInt
   sponsorVaultRelayerFee: BigInt
-  executedCaller: mumbai_Bytes
-  executedTransactionHash: mumbai_Bytes
+  executedCaller: stagingmumbai_Bytes
+  executedTransactionHash: stagingmumbai_Bytes
   executedTimestamp: BigInt
   executedGasPrice: BigInt
   executedGasLimit: BigInt
   executedBlockNumber: BigInt
-  reconciledCaller: mumbai_Bytes
-  reconciledTransactionHash: mumbai_Bytes
+  reconciledCaller: stagingmumbai_Bytes
+  reconciledTransactionHash: stagingmumbai_Bytes
   reconciledTimestamp: BigInt
   reconciledGasPrice: BigInt
   reconciledGasLimit: BigInt
   reconciledBlockNumber: BigInt
 }
 
-input mumbai_DestinationTransfer_filter {
+input stagingmumbai_DestinationTransfer_filter {
   id: ID
   id_not: ID
   id_gt: ID
@@ -314,12 +379,12 @@ input mumbai_DestinationTransfer_filter {
   chainId_lte: BigInt
   chainId_in: [BigInt!]
   chainId_not_in: [BigInt!]
-  transferId: mumbai_Bytes
-  transferId_not: mumbai_Bytes
-  transferId_in: [mumbai_Bytes!]
-  transferId_not_in: [mumbai_Bytes!]
-  transferId_contains: mumbai_Bytes
-  transferId_not_contains: mumbai_Bytes
+  transferId: stagingmumbai_Bytes
+  transferId_not: stagingmumbai_Bytes
+  transferId_in: [stagingmumbai_Bytes!]
+  transferId_not_in: [stagingmumbai_Bytes!]
+  transferId_contains: stagingmumbai_Bytes
+  transferId_not_contains: stagingmumbai_Bytes
   nonce: BigInt
   nonce_not: BigInt
   nonce_gt: BigInt
@@ -328,18 +393,18 @@ input mumbai_DestinationTransfer_filter {
   nonce_lte: BigInt
   nonce_in: [BigInt!]
   nonce_not_in: [BigInt!]
-  to: mumbai_Bytes
-  to_not: mumbai_Bytes
-  to_in: [mumbai_Bytes!]
-  to_not_in: [mumbai_Bytes!]
-  to_contains: mumbai_Bytes
-  to_not_contains: mumbai_Bytes
-  callData: mumbai_Bytes
-  callData_not: mumbai_Bytes
-  callData_in: [mumbai_Bytes!]
-  callData_not_in: [mumbai_Bytes!]
-  callData_contains: mumbai_Bytes
-  callData_not_contains: mumbai_Bytes
+  to: stagingmumbai_Bytes
+  to_not: stagingmumbai_Bytes
+  to_in: [stagingmumbai_Bytes!]
+  to_not_in: [stagingmumbai_Bytes!]
+  to_contains: stagingmumbai_Bytes
+  to_not_contains: stagingmumbai_Bytes
+  callData: stagingmumbai_Bytes
+  callData_not: stagingmumbai_Bytes
+  callData_in: [stagingmumbai_Bytes!]
+  callData_not_in: [stagingmumbai_Bytes!]
+  callData_contains: stagingmumbai_Bytes
+  callData_not_contains: stagingmumbai_Bytes
   originDomain: BigInt
   originDomain_not: BigInt
   originDomain_gt: BigInt
@@ -356,18 +421,18 @@ input mumbai_DestinationTransfer_filter {
   destinationDomain_lte: BigInt
   destinationDomain_in: [BigInt!]
   destinationDomain_not_in: [BigInt!]
-  agent: mumbai_Bytes
-  agent_not: mumbai_Bytes
-  agent_in: [mumbai_Bytes!]
-  agent_not_in: [mumbai_Bytes!]
-  agent_contains: mumbai_Bytes
-  agent_not_contains: mumbai_Bytes
-  recovery: mumbai_Bytes
-  recovery_not: mumbai_Bytes
-  recovery_in: [mumbai_Bytes!]
-  recovery_not_in: [mumbai_Bytes!]
-  recovery_contains: mumbai_Bytes
-  recovery_not_contains: mumbai_Bytes
+  agent: stagingmumbai_Bytes
+  agent_not: stagingmumbai_Bytes
+  agent_in: [stagingmumbai_Bytes!]
+  agent_not_in: [stagingmumbai_Bytes!]
+  agent_contains: stagingmumbai_Bytes
+  agent_not_contains: stagingmumbai_Bytes
+  recovery: stagingmumbai_Bytes
+  recovery_not: stagingmumbai_Bytes
+  recovery_in: [stagingmumbai_Bytes!]
+  recovery_not_in: [stagingmumbai_Bytes!]
+  recovery_contains: stagingmumbai_Bytes
+  recovery_not_contains: stagingmumbai_Bytes
   forceSlow: Boolean
   forceSlow_not: Boolean
   forceSlow_in: [Boolean!]
@@ -376,12 +441,12 @@ input mumbai_DestinationTransfer_filter {
   receiveLocal_not: Boolean
   receiveLocal_in: [Boolean!]
   receiveLocal_not_in: [Boolean!]
-  callback: mumbai_Bytes
-  callback_not: mumbai_Bytes
-  callback_in: [mumbai_Bytes!]
-  callback_not_in: [mumbai_Bytes!]
-  callback_contains: mumbai_Bytes
-  callback_not_contains: mumbai_Bytes
+  callback: stagingmumbai_Bytes
+  callback_not: stagingmumbai_Bytes
+  callback_in: [stagingmumbai_Bytes!]
+  callback_not_in: [stagingmumbai_Bytes!]
+  callback_contains: stagingmumbai_Bytes
+  callback_not_contains: stagingmumbai_Bytes
   callbackFee: BigInt
   callbackFee_not: BigInt
   callbackFee_gt: BigInt
@@ -406,29 +471,29 @@ input mumbai_DestinationTransfer_filter {
   destinationMinOut_lte: BigInt
   destinationMinOut_in: [BigInt!]
   destinationMinOut_not_in: [BigInt!]
-  status: mumbai_TransferStatus
-  status_not: mumbai_TransferStatus
-  status_in: [mumbai_TransferStatus!]
-  status_not_in: [mumbai_TransferStatus!]
+  status: stagingmumbai_TransferStatus
+  status_not: stagingmumbai_TransferStatus
+  status_in: [stagingmumbai_TransferStatus!]
+  status_not_in: [stagingmumbai_TransferStatus!]
   routers: [String!]
   routers_not: [String!]
   routers_contains: [String!]
   routers_contains_nocase: [String!]
   routers_not_contains: [String!]
   routers_not_contains_nocase: [String!]
-  routers_: mumbai_Router_filter
-  originSender: mumbai_Bytes
-  originSender_not: mumbai_Bytes
-  originSender_in: [mumbai_Bytes!]
-  originSender_not_in: [mumbai_Bytes!]
-  originSender_contains: mumbai_Bytes
-  originSender_not_contains: mumbai_Bytes
-  transactingAsset: mumbai_Bytes
-  transactingAsset_not: mumbai_Bytes
-  transactingAsset_in: [mumbai_Bytes!]
-  transactingAsset_not_in: [mumbai_Bytes!]
-  transactingAsset_contains: mumbai_Bytes
-  transactingAsset_not_contains: mumbai_Bytes
+  routers_: stagingmumbai_Router_filter
+  originSender: stagingmumbai_Bytes
+  originSender_not: stagingmumbai_Bytes
+  originSender_in: [stagingmumbai_Bytes!]
+  originSender_not_in: [stagingmumbai_Bytes!]
+  originSender_contains: stagingmumbai_Bytes
+  originSender_not_contains: stagingmumbai_Bytes
+  transactingAsset: stagingmumbai_Bytes
+  transactingAsset_not: stagingmumbai_Bytes
+  transactingAsset_in: [stagingmumbai_Bytes!]
+  transactingAsset_not_in: [stagingmumbai_Bytes!]
+  transactingAsset_contains: stagingmumbai_Bytes
+  transactingAsset_not_contains: stagingmumbai_Bytes
   transactingAmount: BigInt
   transactingAmount_not: BigInt
   transactingAmount_gt: BigInt
@@ -437,12 +502,12 @@ input mumbai_DestinationTransfer_filter {
   transactingAmount_lte: BigInt
   transactingAmount_in: [BigInt!]
   transactingAmount_not_in: [BigInt!]
-  localAsset: mumbai_Bytes
-  localAsset_not: mumbai_Bytes
-  localAsset_in: [mumbai_Bytes!]
-  localAsset_not_in: [mumbai_Bytes!]
-  localAsset_contains: mumbai_Bytes
-  localAsset_not_contains: mumbai_Bytes
+  localAsset: stagingmumbai_Bytes
+  localAsset_not: stagingmumbai_Bytes
+  localAsset_in: [stagingmumbai_Bytes!]
+  localAsset_not_in: [stagingmumbai_Bytes!]
+  localAsset_contains: stagingmumbai_Bytes
+  localAsset_not_contains: stagingmumbai_Bytes
   localAmount: BigInt
   localAmount_not: BigInt
   localAmount_gt: BigInt
@@ -459,18 +524,18 @@ input mumbai_DestinationTransfer_filter {
   sponsorVaultRelayerFee_lte: BigInt
   sponsorVaultRelayerFee_in: [BigInt!]
   sponsorVaultRelayerFee_not_in: [BigInt!]
-  executedCaller: mumbai_Bytes
-  executedCaller_not: mumbai_Bytes
-  executedCaller_in: [mumbai_Bytes!]
-  executedCaller_not_in: [mumbai_Bytes!]
-  executedCaller_contains: mumbai_Bytes
-  executedCaller_not_contains: mumbai_Bytes
-  executedTransactionHash: mumbai_Bytes
-  executedTransactionHash_not: mumbai_Bytes
-  executedTransactionHash_in: [mumbai_Bytes!]
-  executedTransactionHash_not_in: [mumbai_Bytes!]
-  executedTransactionHash_contains: mumbai_Bytes
-  executedTransactionHash_not_contains: mumbai_Bytes
+  executedCaller: stagingmumbai_Bytes
+  executedCaller_not: stagingmumbai_Bytes
+  executedCaller_in: [stagingmumbai_Bytes!]
+  executedCaller_not_in: [stagingmumbai_Bytes!]
+  executedCaller_contains: stagingmumbai_Bytes
+  executedCaller_not_contains: stagingmumbai_Bytes
+  executedTransactionHash: stagingmumbai_Bytes
+  executedTransactionHash_not: stagingmumbai_Bytes
+  executedTransactionHash_in: [stagingmumbai_Bytes!]
+  executedTransactionHash_not_in: [stagingmumbai_Bytes!]
+  executedTransactionHash_contains: stagingmumbai_Bytes
+  executedTransactionHash_not_contains: stagingmumbai_Bytes
   executedTimestamp: BigInt
   executedTimestamp_not: BigInt
   executedTimestamp_gt: BigInt
@@ -503,18 +568,18 @@ input mumbai_DestinationTransfer_filter {
   executedBlockNumber_lte: BigInt
   executedBlockNumber_in: [BigInt!]
   executedBlockNumber_not_in: [BigInt!]
-  reconciledCaller: mumbai_Bytes
-  reconciledCaller_not: mumbai_Bytes
-  reconciledCaller_in: [mumbai_Bytes!]
-  reconciledCaller_not_in: [mumbai_Bytes!]
-  reconciledCaller_contains: mumbai_Bytes
-  reconciledCaller_not_contains: mumbai_Bytes
-  reconciledTransactionHash: mumbai_Bytes
-  reconciledTransactionHash_not: mumbai_Bytes
-  reconciledTransactionHash_in: [mumbai_Bytes!]
-  reconciledTransactionHash_not_in: [mumbai_Bytes!]
-  reconciledTransactionHash_contains: mumbai_Bytes
-  reconciledTransactionHash_not_contains: mumbai_Bytes
+  reconciledCaller: stagingmumbai_Bytes
+  reconciledCaller_not: stagingmumbai_Bytes
+  reconciledCaller_in: [stagingmumbai_Bytes!]
+  reconciledCaller_not_in: [stagingmumbai_Bytes!]
+  reconciledCaller_contains: stagingmumbai_Bytes
+  reconciledCaller_not_contains: stagingmumbai_Bytes
+  reconciledTransactionHash: stagingmumbai_Bytes
+  reconciledTransactionHash_not: stagingmumbai_Bytes
+  reconciledTransactionHash_in: [stagingmumbai_Bytes!]
+  reconciledTransactionHash_not_in: [stagingmumbai_Bytes!]
+  reconciledTransactionHash_contains: stagingmumbai_Bytes
+  reconciledTransactionHash_not_contains: stagingmumbai_Bytes
   reconciledTimestamp: BigInt
   reconciledTimestamp_not: BigInt
   reconciledTimestamp_gt: BigInt
@@ -548,10 +613,10 @@ input mumbai_DestinationTransfer_filter {
   reconciledBlockNumber_in: [BigInt!]
   reconciledBlockNumber_not_in: [BigInt!]
   """Filter for the block changed event."""
-  _change_block: mumbai_BlockChangedFilter
+  _change_block: stagingmumbai_BlockChangedFilter
 }
 
-enum mumbai_DestinationTransfer_orderBy {
+enum stagingmumbai_DestinationTransfer_orderBy {
   id
   chainId
   transferId
@@ -591,23 +656,23 @@ enum mumbai_DestinationTransfer_orderBy {
 }
 
 """Defines the order direction, either ascending or descending"""
-enum mumbai_OrderDirection {
+enum stagingmumbai_OrderDirection {
   asc
   desc
 }
 
-type mumbai_OriginMessage {
+type stagingmumbai_OriginMessage {
   id: ID!
-  transferId: mumbai_Bytes
+  transferId: stagingmumbai_Bytes
   destinationDomain: BigInt
-  leaf: mumbai_Bytes
+  leaf: stagingmumbai_Bytes
   index: BigInt
-  root: mumbai_Bytes
-  message: mumbai_Bytes
-  transactionHash: mumbai_Bytes
+  root: stagingmumbai_Bytes
+  message: stagingmumbai_Bytes
+  transactionHash: stagingmumbai_Bytes
 }
 
-input mumbai_OriginMessage_filter {
+input stagingmumbai_OriginMessage_filter {
   id: ID
   id_not: ID
   id_gt: ID
@@ -616,12 +681,12 @@ input mumbai_OriginMessage_filter {
   id_lte: ID
   id_in: [ID!]
   id_not_in: [ID!]
-  transferId: mumbai_Bytes
-  transferId_not: mumbai_Bytes
-  transferId_in: [mumbai_Bytes!]
-  transferId_not_in: [mumbai_Bytes!]
-  transferId_contains: mumbai_Bytes
-  transferId_not_contains: mumbai_Bytes
+  transferId: stagingmumbai_Bytes
+  transferId_not: stagingmumbai_Bytes
+  transferId_in: [stagingmumbai_Bytes!]
+  transferId_not_in: [stagingmumbai_Bytes!]
+  transferId_contains: stagingmumbai_Bytes
+  transferId_not_contains: stagingmumbai_Bytes
   destinationDomain: BigInt
   destinationDomain_not: BigInt
   destinationDomain_gt: BigInt
@@ -630,12 +695,12 @@ input mumbai_OriginMessage_filter {
   destinationDomain_lte: BigInt
   destinationDomain_in: [BigInt!]
   destinationDomain_not_in: [BigInt!]
-  leaf: mumbai_Bytes
-  leaf_not: mumbai_Bytes
-  leaf_in: [mumbai_Bytes!]
-  leaf_not_in: [mumbai_Bytes!]
-  leaf_contains: mumbai_Bytes
-  leaf_not_contains: mumbai_Bytes
+  leaf: stagingmumbai_Bytes
+  leaf_not: stagingmumbai_Bytes
+  leaf_in: [stagingmumbai_Bytes!]
+  leaf_not_in: [stagingmumbai_Bytes!]
+  leaf_contains: stagingmumbai_Bytes
+  leaf_not_contains: stagingmumbai_Bytes
   index: BigInt
   index_not: BigInt
   index_gt: BigInt
@@ -644,29 +709,29 @@ input mumbai_OriginMessage_filter {
   index_lte: BigInt
   index_in: [BigInt!]
   index_not_in: [BigInt!]
-  root: mumbai_Bytes
-  root_not: mumbai_Bytes
-  root_in: [mumbai_Bytes!]
-  root_not_in: [mumbai_Bytes!]
-  root_contains: mumbai_Bytes
-  root_not_contains: mumbai_Bytes
-  message: mumbai_Bytes
-  message_not: mumbai_Bytes
-  message_in: [mumbai_Bytes!]
-  message_not_in: [mumbai_Bytes!]
-  message_contains: mumbai_Bytes
-  message_not_contains: mumbai_Bytes
-  transactionHash: mumbai_Bytes
-  transactionHash_not: mumbai_Bytes
-  transactionHash_in: [mumbai_Bytes!]
-  transactionHash_not_in: [mumbai_Bytes!]
-  transactionHash_contains: mumbai_Bytes
-  transactionHash_not_contains: mumbai_Bytes
+  root: stagingmumbai_Bytes
+  root_not: stagingmumbai_Bytes
+  root_in: [stagingmumbai_Bytes!]
+  root_not_in: [stagingmumbai_Bytes!]
+  root_contains: stagingmumbai_Bytes
+  root_not_contains: stagingmumbai_Bytes
+  message: stagingmumbai_Bytes
+  message_not: stagingmumbai_Bytes
+  message_in: [stagingmumbai_Bytes!]
+  message_not_in: [stagingmumbai_Bytes!]
+  message_contains: stagingmumbai_Bytes
+  message_not_contains: stagingmumbai_Bytes
+  transactionHash: stagingmumbai_Bytes
+  transactionHash_not: stagingmumbai_Bytes
+  transactionHash_in: [stagingmumbai_Bytes!]
+  transactionHash_not_in: [stagingmumbai_Bytes!]
+  transactionHash_contains: stagingmumbai_Bytes
+  transactionHash_not_contains: stagingmumbai_Bytes
   """Filter for the block changed event."""
-  _change_block: mumbai_BlockChangedFilter
+  _change_block: stagingmumbai_BlockChangedFilter
 }
 
-enum mumbai_OriginMessage_orderBy {
+enum stagingmumbai_OriginMessage_orderBy {
   id
   transferId
   destinationDomain
@@ -677,39 +742,39 @@ enum mumbai_OriginMessage_orderBy {
   transactionHash
 }
 
-type mumbai_OriginTransfer {
+type stagingmumbai_OriginTransfer {
   id: ID!
   chainId: BigInt
-  transferId: mumbai_Bytes
+  transferId: stagingmumbai_Bytes
   nonce: BigInt
-  to: mumbai_Bytes
-  callData: mumbai_Bytes
+  to: stagingmumbai_Bytes
+  callData: stagingmumbai_Bytes
   originDomain: BigInt
   destinationDomain: BigInt
-  agent: mumbai_Bytes
-  recovery: mumbai_Bytes
+  agent: stagingmumbai_Bytes
+  recovery: stagingmumbai_Bytes
   forceSlow: Boolean
   receiveLocal: Boolean
-  callback: mumbai_Bytes
+  callback: stagingmumbai_Bytes
   callbackFee: BigInt
   relayerFee: BigInt
   destinationMinOut: BigInt
-  status: mumbai_TransferStatus
+  status: stagingmumbai_TransferStatus
   originMinOut: BigInt
-  transactingAsset: mumbai_Bytes
+  transactingAsset: stagingmumbai_Bytes
   transactingAmount: BigInt
-  bridgedAsset: mumbai_Bytes
+  bridgedAsset: stagingmumbai_Bytes
   bridgedAmount: BigInt
-  message: mumbai_OriginMessage
-  caller: mumbai_Bytes
-  transactionHash: mumbai_Bytes
+  message: stagingmumbai_OriginMessage
+  caller: stagingmumbai_Bytes
+  transactionHash: stagingmumbai_Bytes
   timestamp: BigInt
   gasPrice: BigInt
   gasLimit: BigInt
   blockNumber: BigInt
 }
 
-input mumbai_OriginTransfer_filter {
+input stagingmumbai_OriginTransfer_filter {
   id: ID
   id_not: ID
   id_gt: ID
@@ -726,12 +791,12 @@ input mumbai_OriginTransfer_filter {
   chainId_lte: BigInt
   chainId_in: [BigInt!]
   chainId_not_in: [BigInt!]
-  transferId: mumbai_Bytes
-  transferId_not: mumbai_Bytes
-  transferId_in: [mumbai_Bytes!]
-  transferId_not_in: [mumbai_Bytes!]
-  transferId_contains: mumbai_Bytes
-  transferId_not_contains: mumbai_Bytes
+  transferId: stagingmumbai_Bytes
+  transferId_not: stagingmumbai_Bytes
+  transferId_in: [stagingmumbai_Bytes!]
+  transferId_not_in: [stagingmumbai_Bytes!]
+  transferId_contains: stagingmumbai_Bytes
+  transferId_not_contains: stagingmumbai_Bytes
   nonce: BigInt
   nonce_not: BigInt
   nonce_gt: BigInt
@@ -740,18 +805,18 @@ input mumbai_OriginTransfer_filter {
   nonce_lte: BigInt
   nonce_in: [BigInt!]
   nonce_not_in: [BigInt!]
-  to: mumbai_Bytes
-  to_not: mumbai_Bytes
-  to_in: [mumbai_Bytes!]
-  to_not_in: [mumbai_Bytes!]
-  to_contains: mumbai_Bytes
-  to_not_contains: mumbai_Bytes
-  callData: mumbai_Bytes
-  callData_not: mumbai_Bytes
-  callData_in: [mumbai_Bytes!]
-  callData_not_in: [mumbai_Bytes!]
-  callData_contains: mumbai_Bytes
-  callData_not_contains: mumbai_Bytes
+  to: stagingmumbai_Bytes
+  to_not: stagingmumbai_Bytes
+  to_in: [stagingmumbai_Bytes!]
+  to_not_in: [stagingmumbai_Bytes!]
+  to_contains: stagingmumbai_Bytes
+  to_not_contains: stagingmumbai_Bytes
+  callData: stagingmumbai_Bytes
+  callData_not: stagingmumbai_Bytes
+  callData_in: [stagingmumbai_Bytes!]
+  callData_not_in: [stagingmumbai_Bytes!]
+  callData_contains: stagingmumbai_Bytes
+  callData_not_contains: stagingmumbai_Bytes
   originDomain: BigInt
   originDomain_not: BigInt
   originDomain_gt: BigInt
@@ -768,18 +833,18 @@ input mumbai_OriginTransfer_filter {
   destinationDomain_lte: BigInt
   destinationDomain_in: [BigInt!]
   destinationDomain_not_in: [BigInt!]
-  agent: mumbai_Bytes
-  agent_not: mumbai_Bytes
-  agent_in: [mumbai_Bytes!]
-  agent_not_in: [mumbai_Bytes!]
-  agent_contains: mumbai_Bytes
-  agent_not_contains: mumbai_Bytes
-  recovery: mumbai_Bytes
-  recovery_not: mumbai_Bytes
-  recovery_in: [mumbai_Bytes!]
-  recovery_not_in: [mumbai_Bytes!]
-  recovery_contains: mumbai_Bytes
-  recovery_not_contains: mumbai_Bytes
+  agent: stagingmumbai_Bytes
+  agent_not: stagingmumbai_Bytes
+  agent_in: [stagingmumbai_Bytes!]
+  agent_not_in: [stagingmumbai_Bytes!]
+  agent_contains: stagingmumbai_Bytes
+  agent_not_contains: stagingmumbai_Bytes
+  recovery: stagingmumbai_Bytes
+  recovery_not: stagingmumbai_Bytes
+  recovery_in: [stagingmumbai_Bytes!]
+  recovery_not_in: [stagingmumbai_Bytes!]
+  recovery_contains: stagingmumbai_Bytes
+  recovery_not_contains: stagingmumbai_Bytes
   forceSlow: Boolean
   forceSlow_not: Boolean
   forceSlow_in: [Boolean!]
@@ -788,12 +853,12 @@ input mumbai_OriginTransfer_filter {
   receiveLocal_not: Boolean
   receiveLocal_in: [Boolean!]
   receiveLocal_not_in: [Boolean!]
-  callback: mumbai_Bytes
-  callback_not: mumbai_Bytes
-  callback_in: [mumbai_Bytes!]
-  callback_not_in: [mumbai_Bytes!]
-  callback_contains: mumbai_Bytes
-  callback_not_contains: mumbai_Bytes
+  callback: stagingmumbai_Bytes
+  callback_not: stagingmumbai_Bytes
+  callback_in: [stagingmumbai_Bytes!]
+  callback_not_in: [stagingmumbai_Bytes!]
+  callback_contains: stagingmumbai_Bytes
+  callback_not_contains: stagingmumbai_Bytes
   callbackFee: BigInt
   callbackFee_not: BigInt
   callbackFee_gt: BigInt
@@ -818,10 +883,10 @@ input mumbai_OriginTransfer_filter {
   destinationMinOut_lte: BigInt
   destinationMinOut_in: [BigInt!]
   destinationMinOut_not_in: [BigInt!]
-  status: mumbai_TransferStatus
-  status_not: mumbai_TransferStatus
-  status_in: [mumbai_TransferStatus!]
-  status_not_in: [mumbai_TransferStatus!]
+  status: stagingmumbai_TransferStatus
+  status_not: stagingmumbai_TransferStatus
+  status_in: [stagingmumbai_TransferStatus!]
+  status_not_in: [stagingmumbai_TransferStatus!]
   originMinOut: BigInt
   originMinOut_not: BigInt
   originMinOut_gt: BigInt
@@ -830,12 +895,12 @@ input mumbai_OriginTransfer_filter {
   originMinOut_lte: BigInt
   originMinOut_in: [BigInt!]
   originMinOut_not_in: [BigInt!]
-  transactingAsset: mumbai_Bytes
-  transactingAsset_not: mumbai_Bytes
-  transactingAsset_in: [mumbai_Bytes!]
-  transactingAsset_not_in: [mumbai_Bytes!]
-  transactingAsset_contains: mumbai_Bytes
-  transactingAsset_not_contains: mumbai_Bytes
+  transactingAsset: stagingmumbai_Bytes
+  transactingAsset_not: stagingmumbai_Bytes
+  transactingAsset_in: [stagingmumbai_Bytes!]
+  transactingAsset_not_in: [stagingmumbai_Bytes!]
+  transactingAsset_contains: stagingmumbai_Bytes
+  transactingAsset_not_contains: stagingmumbai_Bytes
   transactingAmount: BigInt
   transactingAmount_not: BigInt
   transactingAmount_gt: BigInt
@@ -844,12 +909,12 @@ input mumbai_OriginTransfer_filter {
   transactingAmount_lte: BigInt
   transactingAmount_in: [BigInt!]
   transactingAmount_not_in: [BigInt!]
-  bridgedAsset: mumbai_Bytes
-  bridgedAsset_not: mumbai_Bytes
-  bridgedAsset_in: [mumbai_Bytes!]
-  bridgedAsset_not_in: [mumbai_Bytes!]
-  bridgedAsset_contains: mumbai_Bytes
-  bridgedAsset_not_contains: mumbai_Bytes
+  bridgedAsset: stagingmumbai_Bytes
+  bridgedAsset_not: stagingmumbai_Bytes
+  bridgedAsset_in: [stagingmumbai_Bytes!]
+  bridgedAsset_not_in: [stagingmumbai_Bytes!]
+  bridgedAsset_contains: stagingmumbai_Bytes
+  bridgedAsset_not_contains: stagingmumbai_Bytes
   bridgedAmount: BigInt
   bridgedAmount_not: BigInt
   bridgedAmount_gt: BigInt
@@ -878,19 +943,19 @@ input mumbai_OriginTransfer_filter {
   message_ends_with_nocase: String
   message_not_ends_with: String
   message_not_ends_with_nocase: String
-  message_: mumbai_OriginMessage_filter
-  caller: mumbai_Bytes
-  caller_not: mumbai_Bytes
-  caller_in: [mumbai_Bytes!]
-  caller_not_in: [mumbai_Bytes!]
-  caller_contains: mumbai_Bytes
-  caller_not_contains: mumbai_Bytes
-  transactionHash: mumbai_Bytes
-  transactionHash_not: mumbai_Bytes
-  transactionHash_in: [mumbai_Bytes!]
-  transactionHash_not_in: [mumbai_Bytes!]
-  transactionHash_contains: mumbai_Bytes
-  transactionHash_not_contains: mumbai_Bytes
+  message_: stagingmumbai_OriginMessage_filter
+  caller: stagingmumbai_Bytes
+  caller_not: stagingmumbai_Bytes
+  caller_in: [stagingmumbai_Bytes!]
+  caller_not_in: [stagingmumbai_Bytes!]
+  caller_contains: stagingmumbai_Bytes
+  caller_not_contains: stagingmumbai_Bytes
+  transactionHash: stagingmumbai_Bytes
+  transactionHash_not: stagingmumbai_Bytes
+  transactionHash_in: [stagingmumbai_Bytes!]
+  transactionHash_not_in: [stagingmumbai_Bytes!]
+  transactionHash_contains: stagingmumbai_Bytes
+  transactionHash_not_contains: stagingmumbai_Bytes
   timestamp: BigInt
   timestamp_not: BigInt
   timestamp_gt: BigInt
@@ -924,10 +989,10 @@ input mumbai_OriginTransfer_filter {
   blockNumber_in: [BigInt!]
   blockNumber_not_in: [BigInt!]
   """Filter for the block changed event."""
-  _change_block: mumbai_BlockChangedFilter
+  _change_block: stagingmumbai_BlockChangedFilter
 }
 
-enum mumbai_OriginTransfer_orderBy {
+enum stagingmumbai_OriginTransfer_orderBy {
   id
   chainId
   transferId
@@ -960,355 +1025,407 @@ enum mumbai_OriginTransfer_orderBy {
 }
 
 type Query {
-  mumbai_asset(
+  stagingmumbai_asset(
     id: ID!
     """
     The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
     """
-    block: mumbai_Block_height
+    block: stagingmumbai_Block_height
     """
     Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
     """
     subgraphError: _SubgraphErrorPolicy_! = deny
-  ): mumbai_Asset
-  mumbai_assets(
+  ): stagingmumbai_Asset
+  stagingmumbai_assets(
     skip: Int = 0
     first: Int = 100
-    orderBy: mumbai_Asset_orderBy
-    orderDirection: mumbai_OrderDirection
-    where: mumbai_Asset_filter
+    orderBy: stagingmumbai_Asset_orderBy
+    orderDirection: stagingmumbai_OrderDirection
+    where: stagingmumbai_Asset_filter
     """
     The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
     """
-    block: mumbai_Block_height
+    block: stagingmumbai_Block_height
     """
     Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
     """
     subgraphError: _SubgraphErrorPolicy_! = deny
-  ): [mumbai_Asset!]!
-  mumbai_assetBalance(
+  ): [stagingmumbai_Asset!]!
+  stagingmumbai_assetBalance(
     id: ID!
     """
     The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
     """
-    block: mumbai_Block_height
+    block: stagingmumbai_Block_height
     """
     Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
     """
     subgraphError: _SubgraphErrorPolicy_! = deny
-  ): mumbai_AssetBalance
-  mumbai_assetBalances(
+  ): stagingmumbai_AssetBalance
+  stagingmumbai_assetBalances(
     skip: Int = 0
     first: Int = 100
-    orderBy: mumbai_AssetBalance_orderBy
-    orderDirection: mumbai_OrderDirection
-    where: mumbai_AssetBalance_filter
+    orderBy: stagingmumbai_AssetBalance_orderBy
+    orderDirection: stagingmumbai_OrderDirection
+    where: stagingmumbai_AssetBalance_filter
     """
     The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
     """
-    block: mumbai_Block_height
+    block: stagingmumbai_Block_height
     """
     Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
     """
     subgraphError: _SubgraphErrorPolicy_! = deny
-  ): [mumbai_AssetBalance!]!
-  mumbai_router(
+  ): [stagingmumbai_AssetBalance!]!
+  stagingmumbai_router(
     id: ID!
     """
     The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
     """
-    block: mumbai_Block_height
+    block: stagingmumbai_Block_height
     """
     Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
     """
     subgraphError: _SubgraphErrorPolicy_! = deny
-  ): mumbai_Router
-  mumbai_routers(
+  ): stagingmumbai_Router
+  stagingmumbai_routers(
     skip: Int = 0
     first: Int = 100
-    orderBy: mumbai_Router_orderBy
-    orderDirection: mumbai_OrderDirection
-    where: mumbai_Router_filter
+    orderBy: stagingmumbai_Router_orderBy
+    orderDirection: stagingmumbai_OrderDirection
+    where: stagingmumbai_Router_filter
     """
     The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
     """
-    block: mumbai_Block_height
+    block: stagingmumbai_Block_height
     """
     Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
     """
     subgraphError: _SubgraphErrorPolicy_! = deny
-  ): [mumbai_Router!]!
-  mumbai_setting(
+  ): [stagingmumbai_Router!]!
+  stagingmumbai_setting(
     id: ID!
     """
     The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
     """
-    block: mumbai_Block_height
+    block: stagingmumbai_Block_height
     """
     Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
     """
     subgraphError: _SubgraphErrorPolicy_! = deny
-  ): mumbai_Setting
-  mumbai_settings(
+  ): stagingmumbai_Setting
+  stagingmumbai_settings(
     skip: Int = 0
     first: Int = 100
-    orderBy: mumbai_Setting_orderBy
-    orderDirection: mumbai_OrderDirection
-    where: mumbai_Setting_filter
+    orderBy: stagingmumbai_Setting_orderBy
+    orderDirection: stagingmumbai_OrderDirection
+    where: stagingmumbai_Setting_filter
     """
     The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
     """
-    block: mumbai_Block_height
+    block: stagingmumbai_Block_height
     """
     Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
     """
     subgraphError: _SubgraphErrorPolicy_! = deny
-  ): [mumbai_Setting!]!
-  mumbai_relayer(
+  ): [stagingmumbai_Setting!]!
+  stagingmumbai_relayer(
     id: ID!
     """
     The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
     """
-    block: mumbai_Block_height
+    block: stagingmumbai_Block_height
     """
     Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
     """
     subgraphError: _SubgraphErrorPolicy_! = deny
-  ): mumbai_Relayer
-  mumbai_relayers(
+  ): stagingmumbai_Relayer
+  stagingmumbai_relayers(
     skip: Int = 0
     first: Int = 100
-    orderBy: mumbai_Relayer_orderBy
-    orderDirection: mumbai_OrderDirection
-    where: mumbai_Relayer_filter
+    orderBy: stagingmumbai_Relayer_orderBy
+    orderDirection: stagingmumbai_OrderDirection
+    where: stagingmumbai_Relayer_filter
     """
     The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
     """
-    block: mumbai_Block_height
+    block: stagingmumbai_Block_height
     """
     Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
     """
     subgraphError: _SubgraphErrorPolicy_! = deny
-  ): [mumbai_Relayer!]!
-  mumbai_stableSwap(
+  ): [stagingmumbai_Relayer!]!
+  stagingmumbai_stableSwap(
     id: ID!
     """
     The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
     """
-    block: mumbai_Block_height
+    block: stagingmumbai_Block_height
     """
     Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
     """
     subgraphError: _SubgraphErrorPolicy_! = deny
-  ): mumbai_StableSwap
-  mumbai_stableSwaps(
+  ): stagingmumbai_StableSwap
+  stagingmumbai_stableSwaps(
     skip: Int = 0
     first: Int = 100
-    orderBy: mumbai_StableSwap_orderBy
-    orderDirection: mumbai_OrderDirection
-    where: mumbai_StableSwap_filter
+    orderBy: stagingmumbai_StableSwap_orderBy
+    orderDirection: stagingmumbai_OrderDirection
+    where: stagingmumbai_StableSwap_filter
     """
     The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
     """
-    block: mumbai_Block_height
+    block: stagingmumbai_Block_height
     """
     Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
     """
     subgraphError: _SubgraphErrorPolicy_! = deny
-  ): [mumbai_StableSwap!]!
-  mumbai_sponsorVault(
+  ): [stagingmumbai_StableSwap!]!
+  stagingmumbai_sponsorVault(
     id: ID!
     """
     The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
     """
-    block: mumbai_Block_height
+    block: stagingmumbai_Block_height
     """
     Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
     """
     subgraphError: _SubgraphErrorPolicy_! = deny
-  ): mumbai_SponsorVault
-  mumbai_sponsorVaults(
+  ): stagingmumbai_SponsorVault
+  stagingmumbai_sponsorVaults(
     skip: Int = 0
     first: Int = 100
-    orderBy: mumbai_SponsorVault_orderBy
-    orderDirection: mumbai_OrderDirection
-    where: mumbai_SponsorVault_filter
+    orderBy: stagingmumbai_SponsorVault_orderBy
+    orderDirection: stagingmumbai_OrderDirection
+    where: stagingmumbai_SponsorVault_filter
     """
     The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
     """
-    block: mumbai_Block_height
+    block: stagingmumbai_Block_height
     """
     Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
     """
     subgraphError: _SubgraphErrorPolicy_! = deny
-  ): [mumbai_SponsorVault!]!
-  mumbai_originTransfer(
+  ): [stagingmumbai_SponsorVault!]!
+  stagingmumbai_originTransfer(
     id: ID!
     """
     The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
     """
-    block: mumbai_Block_height
+    block: stagingmumbai_Block_height
     """
     Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
     """
     subgraphError: _SubgraphErrorPolicy_! = deny
-  ): mumbai_OriginTransfer
-  mumbai_originTransfers(
+  ): stagingmumbai_OriginTransfer
+  stagingmumbai_originTransfers(
     skip: Int = 0
     first: Int = 100
-    orderBy: mumbai_OriginTransfer_orderBy
-    orderDirection: mumbai_OrderDirection
-    where: mumbai_OriginTransfer_filter
+    orderBy: stagingmumbai_OriginTransfer_orderBy
+    orderDirection: stagingmumbai_OrderDirection
+    where: stagingmumbai_OriginTransfer_filter
     """
     The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
     """
-    block: mumbai_Block_height
+    block: stagingmumbai_Block_height
     """
     Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
     """
     subgraphError: _SubgraphErrorPolicy_! = deny
-  ): [mumbai_OriginTransfer!]!
-  mumbai_destinationTransfer(
+  ): [stagingmumbai_OriginTransfer!]!
+  stagingmumbai_destinationTransfer(
     id: ID!
     """
     The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
     """
-    block: mumbai_Block_height
+    block: stagingmumbai_Block_height
     """
     Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
     """
     subgraphError: _SubgraphErrorPolicy_! = deny
-  ): mumbai_DestinationTransfer
-  mumbai_destinationTransfers(
+  ): stagingmumbai_DestinationTransfer
+  stagingmumbai_destinationTransfers(
     skip: Int = 0
     first: Int = 100
-    orderBy: mumbai_DestinationTransfer_orderBy
-    orderDirection: mumbai_OrderDirection
-    where: mumbai_DestinationTransfer_filter
+    orderBy: stagingmumbai_DestinationTransfer_orderBy
+    orderDirection: stagingmumbai_OrderDirection
+    where: stagingmumbai_DestinationTransfer_filter
     """
     The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
     """
-    block: mumbai_Block_height
+    block: stagingmumbai_Block_height
     """
     Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
     """
     subgraphError: _SubgraphErrorPolicy_! = deny
-  ): [mumbai_DestinationTransfer!]!
-  mumbai_originMessage(
+  ): [stagingmumbai_DestinationTransfer!]!
+  stagingmumbai_originMessage(
     id: ID!
     """
     The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
     """
-    block: mumbai_Block_height
+    block: stagingmumbai_Block_height
     """
     Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
     """
     subgraphError: _SubgraphErrorPolicy_! = deny
-  ): mumbai_OriginMessage
-  mumbai_originMessages(
+  ): stagingmumbai_OriginMessage
+  stagingmumbai_originMessages(
     skip: Int = 0
     first: Int = 100
-    orderBy: mumbai_OriginMessage_orderBy
-    orderDirection: mumbai_OrderDirection
-    where: mumbai_OriginMessage_filter
+    orderBy: stagingmumbai_OriginMessage_orderBy
+    orderDirection: stagingmumbai_OrderDirection
+    where: stagingmumbai_OriginMessage_filter
     """
     The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
     """
-    block: mumbai_Block_height
+    block: stagingmumbai_Block_height
     """
     Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
     """
     subgraphError: _SubgraphErrorPolicy_! = deny
-  ): [mumbai_OriginMessage!]!
-  mumbai_destinationMessage(
+  ): [stagingmumbai_OriginMessage!]!
+  stagingmumbai_destinationMessage(
     id: ID!
     """
     The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
     """
-    block: mumbai_Block_height
+    block: stagingmumbai_Block_height
     """
     Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
     """
     subgraphError: _SubgraphErrorPolicy_! = deny
-  ): mumbai_DestinationMessage
-  mumbai_destinationMessages(
+  ): stagingmumbai_DestinationMessage
+  stagingmumbai_destinationMessages(
     skip: Int = 0
     first: Int = 100
-    orderBy: mumbai_DestinationMessage_orderBy
-    orderDirection: mumbai_OrderDirection
-    where: mumbai_DestinationMessage_filter
+    orderBy: stagingmumbai_DestinationMessage_orderBy
+    orderDirection: stagingmumbai_OrderDirection
+    where: stagingmumbai_DestinationMessage_filter
     """
     The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
     """
-    block: mumbai_Block_height
+    block: stagingmumbai_Block_height
     """
     Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
     """
     subgraphError: _SubgraphErrorPolicy_! = deny
-  ): [mumbai_DestinationMessage!]!
-  mumbai_aggregateRoot(
+  ): [stagingmumbai_DestinationMessage!]!
+  stagingmumbai_aggregateRoot(
     id: ID!
     """
     The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
     """
-    block: mumbai_Block_height
+    block: stagingmumbai_Block_height
     """
     Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
     """
     subgraphError: _SubgraphErrorPolicy_! = deny
-  ): mumbai_AggregateRoot
-  mumbai_aggregateRoots(
+  ): stagingmumbai_AggregateRoot
+  stagingmumbai_aggregateRoots(
     skip: Int = 0
     first: Int = 100
-    orderBy: mumbai_AggregateRoot_orderBy
-    orderDirection: mumbai_OrderDirection
-    where: mumbai_AggregateRoot_filter
+    orderBy: stagingmumbai_AggregateRoot_orderBy
+    orderDirection: stagingmumbai_OrderDirection
+    where: stagingmumbai_AggregateRoot_filter
     """
     The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
     """
-    block: mumbai_Block_height
+    block: stagingmumbai_Block_height
     """
     Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
     """
     subgraphError: _SubgraphErrorPolicy_! = deny
-  ): [mumbai_AggregateRoot!]!
-  mumbai_rootMessage(
+  ): [stagingmumbai_AggregateRoot!]!
+  stagingmumbai_connectorMeta(
     id: ID!
     """
     The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
     """
-    block: mumbai_Block_height
+    block: stagingmumbai_Block_height
     """
     Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
     """
     subgraphError: _SubgraphErrorPolicy_! = deny
-  ): mumbai_RootMessage
-  mumbai_rootMessages(
+  ): stagingmumbai_ConnectorMeta
+  stagingmumbai_connectorMetas(
     skip: Int = 0
     first: Int = 100
-    orderBy: mumbai_RootMessage_orderBy
-    orderDirection: mumbai_OrderDirection
-    where: mumbai_RootMessage_filter
+    orderBy: stagingmumbai_ConnectorMeta_orderBy
+    orderDirection: stagingmumbai_OrderDirection
+    where: stagingmumbai_ConnectorMeta_filter
     """
     The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
     """
-    block: mumbai_Block_height
+    block: stagingmumbai_Block_height
     """
     Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
     """
     subgraphError: _SubgraphErrorPolicy_! = deny
-  ): [mumbai_RootMessage!]!
+  ): [stagingmumbai_ConnectorMeta!]!
+  stagingmumbai_rootMessageSent(
+    id: ID!
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: stagingmumbai_Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): stagingmumbai_RootMessageSent
+  stagingmumbai_rootMessageSents(
+    skip: Int = 0
+    first: Int = 100
+    orderBy: stagingmumbai_RootMessageSent_orderBy
+    orderDirection: stagingmumbai_OrderDirection
+    where: stagingmumbai_RootMessageSent_filter
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: stagingmumbai_Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): [stagingmumbai_RootMessageSent!]!
+  stagingmumbai_rootMessageProcessed(
+    id: ID!
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: stagingmumbai_Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): stagingmumbai_RootMessageProcessed
+  stagingmumbai_rootMessageProcesseds(
+    skip: Int = 0
+    first: Int = 100
+    orderBy: stagingmumbai_RootMessageProcessed_orderBy
+    orderDirection: stagingmumbai_OrderDirection
+    where: stagingmumbai_RootMessageProcessed_filter
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: stagingmumbai_Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): [stagingmumbai_RootMessageProcessed!]!
   """Access to subgraph metadata"""
-  mumbai__meta(block: mumbai_Block_height): mumbai__Meta_
+  stagingmumbai__meta(block: stagingmumbai_Block_height): stagingmumbai__Meta_
 }
 
-type mumbai_Relayer {
+type stagingmumbai_Relayer {
   id: ID!
   isActive: Boolean!
-  relayer: mumbai_Bytes
+  relayer: stagingmumbai_Bytes
 }
 
-input mumbai_Relayer_filter {
+input stagingmumbai_Relayer_filter {
   id: ID
   id_not: ID
   id_gt: ID
@@ -1321,36 +1438,34 @@ input mumbai_Relayer_filter {
   isActive_not: Boolean
   isActive_in: [Boolean!]
   isActive_not_in: [Boolean!]
-  relayer: mumbai_Bytes
-  relayer_not: mumbai_Bytes
-  relayer_in: [mumbai_Bytes!]
-  relayer_not_in: [mumbai_Bytes!]
-  relayer_contains: mumbai_Bytes
-  relayer_not_contains: mumbai_Bytes
+  relayer: stagingmumbai_Bytes
+  relayer_not: stagingmumbai_Bytes
+  relayer_in: [stagingmumbai_Bytes!]
+  relayer_not_in: [stagingmumbai_Bytes!]
+  relayer_contains: stagingmumbai_Bytes
+  relayer_not_contains: stagingmumbai_Bytes
   """Filter for the block changed event."""
-  _change_block: mumbai_BlockChangedFilter
+  _change_block: stagingmumbai_BlockChangedFilter
 }
 
-enum mumbai_Relayer_orderBy {
+enum stagingmumbai_Relayer_orderBy {
   id
   isActive
   relayer
 }
 
-type mumbai_RootMessage {
+type stagingmumbai_RootMessageProcessed {
   id: ID!
-  data: mumbai_Bytes
-  caller: mumbai_Bytes
-  transactionHash: mumbai_Bytes
-  logIndex: BigInt
-  transactionLogIndex: BigInt
+  root: stagingmumbai_Bytes
+  caller: stagingmumbai_Bytes
+  transactionHash: stagingmumbai_Bytes
   timestamp: BigInt
   gasPrice: BigInt
   gasLimit: BigInt
   blockNumber: BigInt
 }
 
-input mumbai_RootMessage_filter {
+input stagingmumbai_RootMessageProcessed_filter {
   id: ID
   id_not: ID
   id_gt: ID
@@ -1359,40 +1474,24 @@ input mumbai_RootMessage_filter {
   id_lte: ID
   id_in: [ID!]
   id_not_in: [ID!]
-  data: mumbai_Bytes
-  data_not: mumbai_Bytes
-  data_in: [mumbai_Bytes!]
-  data_not_in: [mumbai_Bytes!]
-  data_contains: mumbai_Bytes
-  data_not_contains: mumbai_Bytes
-  caller: mumbai_Bytes
-  caller_not: mumbai_Bytes
-  caller_in: [mumbai_Bytes!]
-  caller_not_in: [mumbai_Bytes!]
-  caller_contains: mumbai_Bytes
-  caller_not_contains: mumbai_Bytes
-  transactionHash: mumbai_Bytes
-  transactionHash_not: mumbai_Bytes
-  transactionHash_in: [mumbai_Bytes!]
-  transactionHash_not_in: [mumbai_Bytes!]
-  transactionHash_contains: mumbai_Bytes
-  transactionHash_not_contains: mumbai_Bytes
-  logIndex: BigInt
-  logIndex_not: BigInt
-  logIndex_gt: BigInt
-  logIndex_lt: BigInt
-  logIndex_gte: BigInt
-  logIndex_lte: BigInt
-  logIndex_in: [BigInt!]
-  logIndex_not_in: [BigInt!]
-  transactionLogIndex: BigInt
-  transactionLogIndex_not: BigInt
-  transactionLogIndex_gt: BigInt
-  transactionLogIndex_lt: BigInt
-  transactionLogIndex_gte: BigInt
-  transactionLogIndex_lte: BigInt
-  transactionLogIndex_in: [BigInt!]
-  transactionLogIndex_not_in: [BigInt!]
+  root: stagingmumbai_Bytes
+  root_not: stagingmumbai_Bytes
+  root_in: [stagingmumbai_Bytes!]
+  root_not_in: [stagingmumbai_Bytes!]
+  root_contains: stagingmumbai_Bytes
+  root_not_contains: stagingmumbai_Bytes
+  caller: stagingmumbai_Bytes
+  caller_not: stagingmumbai_Bytes
+  caller_in: [stagingmumbai_Bytes!]
+  caller_not_in: [stagingmumbai_Bytes!]
+  caller_contains: stagingmumbai_Bytes
+  caller_not_contains: stagingmumbai_Bytes
+  transactionHash: stagingmumbai_Bytes
+  transactionHash_not: stagingmumbai_Bytes
+  transactionHash_in: [stagingmumbai_Bytes!]
+  transactionHash_not_in: [stagingmumbai_Bytes!]
+  transactionHash_contains: stagingmumbai_Bytes
+  transactionHash_not_contains: stagingmumbai_Bytes
   timestamp: BigInt
   timestamp_not: BigInt
   timestamp_gt: BigInt
@@ -1426,33 +1525,136 @@ input mumbai_RootMessage_filter {
   blockNumber_in: [BigInt!]
   blockNumber_not_in: [BigInt!]
   """Filter for the block changed event."""
-  _change_block: mumbai_BlockChangedFilter
+  _change_block: stagingmumbai_BlockChangedFilter
 }
 
-enum mumbai_RootMessage_orderBy {
+enum stagingmumbai_RootMessageProcessed_orderBy {
   id
-  data
+  root
   caller
   transactionHash
-  logIndex
-  transactionLogIndex
   timestamp
   gasPrice
   gasLimit
   blockNumber
 }
 
-type mumbai_Router {
+type stagingmumbai_RootMessageSent {
   id: ID!
-  isActive: Boolean!
-  owner: mumbai_Bytes
-  recipient: mumbai_Bytes
-  proposedOwner: mumbai_Bytes
-  proposedTimestamp: BigInt
-  assetBalances(skip: Int = 0, first: Int = 100, orderBy: mumbai_AssetBalance_orderBy, orderDirection: mumbai_OrderDirection, where: mumbai_AssetBalance_filter): [mumbai_AssetBalance!]!
+  spokeDomain: BigInt
+  hubDomain: BigInt
+  root: stagingmumbai_Bytes
+  caller: stagingmumbai_Bytes
+  transactionHash: stagingmumbai_Bytes
+  timestamp: BigInt
+  gasPrice: BigInt
+  gasLimit: BigInt
+  blockNumber: BigInt
 }
 
-input mumbai_Router_filter {
+input stagingmumbai_RootMessageSent_filter {
+  id: ID
+  id_not: ID
+  id_gt: ID
+  id_lt: ID
+  id_gte: ID
+  id_lte: ID
+  id_in: [ID!]
+  id_not_in: [ID!]
+  spokeDomain: BigInt
+  spokeDomain_not: BigInt
+  spokeDomain_gt: BigInt
+  spokeDomain_lt: BigInt
+  spokeDomain_gte: BigInt
+  spokeDomain_lte: BigInt
+  spokeDomain_in: [BigInt!]
+  spokeDomain_not_in: [BigInt!]
+  hubDomain: BigInt
+  hubDomain_not: BigInt
+  hubDomain_gt: BigInt
+  hubDomain_lt: BigInt
+  hubDomain_gte: BigInt
+  hubDomain_lte: BigInt
+  hubDomain_in: [BigInt!]
+  hubDomain_not_in: [BigInt!]
+  root: stagingmumbai_Bytes
+  root_not: stagingmumbai_Bytes
+  root_in: [stagingmumbai_Bytes!]
+  root_not_in: [stagingmumbai_Bytes!]
+  root_contains: stagingmumbai_Bytes
+  root_not_contains: stagingmumbai_Bytes
+  caller: stagingmumbai_Bytes
+  caller_not: stagingmumbai_Bytes
+  caller_in: [stagingmumbai_Bytes!]
+  caller_not_in: [stagingmumbai_Bytes!]
+  caller_contains: stagingmumbai_Bytes
+  caller_not_contains: stagingmumbai_Bytes
+  transactionHash: stagingmumbai_Bytes
+  transactionHash_not: stagingmumbai_Bytes
+  transactionHash_in: [stagingmumbai_Bytes!]
+  transactionHash_not_in: [stagingmumbai_Bytes!]
+  transactionHash_contains: stagingmumbai_Bytes
+  transactionHash_not_contains: stagingmumbai_Bytes
+  timestamp: BigInt
+  timestamp_not: BigInt
+  timestamp_gt: BigInt
+  timestamp_lt: BigInt
+  timestamp_gte: BigInt
+  timestamp_lte: BigInt
+  timestamp_in: [BigInt!]
+  timestamp_not_in: [BigInt!]
+  gasPrice: BigInt
+  gasPrice_not: BigInt
+  gasPrice_gt: BigInt
+  gasPrice_lt: BigInt
+  gasPrice_gte: BigInt
+  gasPrice_lte: BigInt
+  gasPrice_in: [BigInt!]
+  gasPrice_not_in: [BigInt!]
+  gasLimit: BigInt
+  gasLimit_not: BigInt
+  gasLimit_gt: BigInt
+  gasLimit_lt: BigInt
+  gasLimit_gte: BigInt
+  gasLimit_lte: BigInt
+  gasLimit_in: [BigInt!]
+  gasLimit_not_in: [BigInt!]
+  blockNumber: BigInt
+  blockNumber_not: BigInt
+  blockNumber_gt: BigInt
+  blockNumber_lt: BigInt
+  blockNumber_gte: BigInt
+  blockNumber_lte: BigInt
+  blockNumber_in: [BigInt!]
+  blockNumber_not_in: [BigInt!]
+  """Filter for the block changed event."""
+  _change_block: stagingmumbai_BlockChangedFilter
+}
+
+enum stagingmumbai_RootMessageSent_orderBy {
+  id
+  spokeDomain
+  hubDomain
+  root
+  caller
+  transactionHash
+  timestamp
+  gasPrice
+  gasLimit
+  blockNumber
+}
+
+type stagingmumbai_Router {
+  id: ID!
+  isActive: Boolean!
+  owner: stagingmumbai_Bytes
+  recipient: stagingmumbai_Bytes
+  proposedOwner: stagingmumbai_Bytes
+  proposedTimestamp: BigInt
+  assetBalances(skip: Int = 0, first: Int = 100, orderBy: stagingmumbai_AssetBalance_orderBy, orderDirection: stagingmumbai_OrderDirection, where: stagingmumbai_AssetBalance_filter): [stagingmumbai_AssetBalance!]!
+}
+
+input stagingmumbai_Router_filter {
   id: ID
   id_not: ID
   id_gt: ID
@@ -1465,24 +1667,24 @@ input mumbai_Router_filter {
   isActive_not: Boolean
   isActive_in: [Boolean!]
   isActive_not_in: [Boolean!]
-  owner: mumbai_Bytes
-  owner_not: mumbai_Bytes
-  owner_in: [mumbai_Bytes!]
-  owner_not_in: [mumbai_Bytes!]
-  owner_contains: mumbai_Bytes
-  owner_not_contains: mumbai_Bytes
-  recipient: mumbai_Bytes
-  recipient_not: mumbai_Bytes
-  recipient_in: [mumbai_Bytes!]
-  recipient_not_in: [mumbai_Bytes!]
-  recipient_contains: mumbai_Bytes
-  recipient_not_contains: mumbai_Bytes
-  proposedOwner: mumbai_Bytes
-  proposedOwner_not: mumbai_Bytes
-  proposedOwner_in: [mumbai_Bytes!]
-  proposedOwner_not_in: [mumbai_Bytes!]
-  proposedOwner_contains: mumbai_Bytes
-  proposedOwner_not_contains: mumbai_Bytes
+  owner: stagingmumbai_Bytes
+  owner_not: stagingmumbai_Bytes
+  owner_in: [stagingmumbai_Bytes!]
+  owner_not_in: [stagingmumbai_Bytes!]
+  owner_contains: stagingmumbai_Bytes
+  owner_not_contains: stagingmumbai_Bytes
+  recipient: stagingmumbai_Bytes
+  recipient_not: stagingmumbai_Bytes
+  recipient_in: [stagingmumbai_Bytes!]
+  recipient_not_in: [stagingmumbai_Bytes!]
+  recipient_contains: stagingmumbai_Bytes
+  recipient_not_contains: stagingmumbai_Bytes
+  proposedOwner: stagingmumbai_Bytes
+  proposedOwner_not: stagingmumbai_Bytes
+  proposedOwner_in: [stagingmumbai_Bytes!]
+  proposedOwner_not_in: [stagingmumbai_Bytes!]
+  proposedOwner_contains: stagingmumbai_Bytes
+  proposedOwner_not_contains: stagingmumbai_Bytes
   proposedTimestamp: BigInt
   proposedTimestamp_not: BigInt
   proposedTimestamp_gt: BigInt
@@ -1491,12 +1693,12 @@ input mumbai_Router_filter {
   proposedTimestamp_lte: BigInt
   proposedTimestamp_in: [BigInt!]
   proposedTimestamp_not_in: [BigInt!]
-  assetBalances_: mumbai_AssetBalance_filter
+  assetBalances_: stagingmumbai_AssetBalance_filter
   """Filter for the block changed event."""
-  _change_block: mumbai_BlockChangedFilter
+  _change_block: stagingmumbai_BlockChangedFilter
 }
 
-enum mumbai_Router_orderBy {
+enum stagingmumbai_Router_orderBy {
   id
   isActive
   owner
@@ -1506,13 +1708,13 @@ enum mumbai_Router_orderBy {
   assetBalances
 }
 
-type mumbai_Setting {
+type stagingmumbai_Setting {
   id: ID!
   maxRoutersPerTransfer: BigInt!
-  caller: mumbai_Bytes!
+  caller: stagingmumbai_Bytes!
 }
 
-input mumbai_Setting_filter {
+input stagingmumbai_Setting_filter {
   id: ID
   id_not: ID
   id_gt: ID
@@ -1529,28 +1731,28 @@ input mumbai_Setting_filter {
   maxRoutersPerTransfer_lte: BigInt
   maxRoutersPerTransfer_in: [BigInt!]
   maxRoutersPerTransfer_not_in: [BigInt!]
-  caller: mumbai_Bytes
-  caller_not: mumbai_Bytes
-  caller_in: [mumbai_Bytes!]
-  caller_not_in: [mumbai_Bytes!]
-  caller_contains: mumbai_Bytes
-  caller_not_contains: mumbai_Bytes
+  caller: stagingmumbai_Bytes
+  caller_not: stagingmumbai_Bytes
+  caller_in: [stagingmumbai_Bytes!]
+  caller_not_in: [stagingmumbai_Bytes!]
+  caller_contains: stagingmumbai_Bytes
+  caller_not_contains: stagingmumbai_Bytes
   """Filter for the block changed event."""
-  _change_block: mumbai_BlockChangedFilter
+  _change_block: stagingmumbai_BlockChangedFilter
 }
 
-enum mumbai_Setting_orderBy {
+enum stagingmumbai_Setting_orderBy {
   id
   maxRoutersPerTransfer
   caller
 }
 
-type mumbai_SponsorVault {
+type stagingmumbai_SponsorVault {
   id: ID!
-  sponsorVault: mumbai_Bytes!
+  sponsorVault: stagingmumbai_Bytes!
 }
 
-input mumbai_SponsorVault_filter {
+input stagingmumbai_SponsorVault_filter {
   id: ID
   id_not: ID
   id_gt: ID
@@ -1559,29 +1761,29 @@ input mumbai_SponsorVault_filter {
   id_lte: ID
   id_in: [ID!]
   id_not_in: [ID!]
-  sponsorVault: mumbai_Bytes
-  sponsorVault_not: mumbai_Bytes
-  sponsorVault_in: [mumbai_Bytes!]
-  sponsorVault_not_in: [mumbai_Bytes!]
-  sponsorVault_contains: mumbai_Bytes
-  sponsorVault_not_contains: mumbai_Bytes
+  sponsorVault: stagingmumbai_Bytes
+  sponsorVault_not: stagingmumbai_Bytes
+  sponsorVault_in: [stagingmumbai_Bytes!]
+  sponsorVault_not_in: [stagingmumbai_Bytes!]
+  sponsorVault_contains: stagingmumbai_Bytes
+  sponsorVault_not_contains: stagingmumbai_Bytes
   """Filter for the block changed event."""
-  _change_block: mumbai_BlockChangedFilter
+  _change_block: stagingmumbai_BlockChangedFilter
 }
 
-enum mumbai_SponsorVault_orderBy {
+enum stagingmumbai_SponsorVault_orderBy {
   id
   sponsorVault
 }
 
-type mumbai_StableSwap {
+type stagingmumbai_StableSwap {
   id: ID!
-  canonicalId: mumbai_Bytes!
+  canonicalId: stagingmumbai_Bytes!
   domain: BigInt
-  swapPool: mumbai_Bytes!
+  swapPool: stagingmumbai_Bytes!
 }
 
-input mumbai_StableSwap_filter {
+input stagingmumbai_StableSwap_filter {
   id: ID
   id_not: ID
   id_gt: ID
@@ -1590,12 +1792,12 @@ input mumbai_StableSwap_filter {
   id_lte: ID
   id_in: [ID!]
   id_not_in: [ID!]
-  canonicalId: mumbai_Bytes
-  canonicalId_not: mumbai_Bytes
-  canonicalId_in: [mumbai_Bytes!]
-  canonicalId_not_in: [mumbai_Bytes!]
-  canonicalId_contains: mumbai_Bytes
-  canonicalId_not_contains: mumbai_Bytes
+  canonicalId: stagingmumbai_Bytes
+  canonicalId_not: stagingmumbai_Bytes
+  canonicalId_in: [stagingmumbai_Bytes!]
+  canonicalId_not_in: [stagingmumbai_Bytes!]
+  canonicalId_contains: stagingmumbai_Bytes
+  canonicalId_not_contains: stagingmumbai_Bytes
   domain: BigInt
   domain_not: BigInt
   domain_gt: BigInt
@@ -1604,17 +1806,17 @@ input mumbai_StableSwap_filter {
   domain_lte: BigInt
   domain_in: [BigInt!]
   domain_not_in: [BigInt!]
-  swapPool: mumbai_Bytes
-  swapPool_not: mumbai_Bytes
-  swapPool_in: [mumbai_Bytes!]
-  swapPool_not_in: [mumbai_Bytes!]
-  swapPool_contains: mumbai_Bytes
-  swapPool_not_contains: mumbai_Bytes
+  swapPool: stagingmumbai_Bytes
+  swapPool_not: stagingmumbai_Bytes
+  swapPool_in: [stagingmumbai_Bytes!]
+  swapPool_not_in: [stagingmumbai_Bytes!]
+  swapPool_contains: stagingmumbai_Bytes
+  swapPool_not_contains: stagingmumbai_Bytes
   """Filter for the block changed event."""
-  _change_block: mumbai_BlockChangedFilter
+  _change_block: stagingmumbai_BlockChangedFilter
 }
 
-enum mumbai_StableSwap_orderBy {
+enum stagingmumbai_StableSwap_orderBy {
   id
   canonicalId
   domain
@@ -1622,349 +1824,401 @@ enum mumbai_StableSwap_orderBy {
 }
 
 type Subscription {
-  mumbai_asset(
+  stagingmumbai_asset(
     id: ID!
     """
     The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
     """
-    block: mumbai_Block_height
+    block: stagingmumbai_Block_height
     """
     Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
     """
     subgraphError: _SubgraphErrorPolicy_! = deny
-  ): mumbai_Asset
-  mumbai_assets(
+  ): stagingmumbai_Asset
+  stagingmumbai_assets(
     skip: Int = 0
     first: Int = 100
-    orderBy: mumbai_Asset_orderBy
-    orderDirection: mumbai_OrderDirection
-    where: mumbai_Asset_filter
+    orderBy: stagingmumbai_Asset_orderBy
+    orderDirection: stagingmumbai_OrderDirection
+    where: stagingmumbai_Asset_filter
     """
     The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
     """
-    block: mumbai_Block_height
+    block: stagingmumbai_Block_height
     """
     Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
     """
     subgraphError: _SubgraphErrorPolicy_! = deny
-  ): [mumbai_Asset!]!
-  mumbai_assetBalance(
+  ): [stagingmumbai_Asset!]!
+  stagingmumbai_assetBalance(
     id: ID!
     """
     The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
     """
-    block: mumbai_Block_height
+    block: stagingmumbai_Block_height
     """
     Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
     """
     subgraphError: _SubgraphErrorPolicy_! = deny
-  ): mumbai_AssetBalance
-  mumbai_assetBalances(
+  ): stagingmumbai_AssetBalance
+  stagingmumbai_assetBalances(
     skip: Int = 0
     first: Int = 100
-    orderBy: mumbai_AssetBalance_orderBy
-    orderDirection: mumbai_OrderDirection
-    where: mumbai_AssetBalance_filter
+    orderBy: stagingmumbai_AssetBalance_orderBy
+    orderDirection: stagingmumbai_OrderDirection
+    where: stagingmumbai_AssetBalance_filter
     """
     The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
     """
-    block: mumbai_Block_height
+    block: stagingmumbai_Block_height
     """
     Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
     """
     subgraphError: _SubgraphErrorPolicy_! = deny
-  ): [mumbai_AssetBalance!]!
-  mumbai_router(
+  ): [stagingmumbai_AssetBalance!]!
+  stagingmumbai_router(
     id: ID!
     """
     The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
     """
-    block: mumbai_Block_height
+    block: stagingmumbai_Block_height
     """
     Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
     """
     subgraphError: _SubgraphErrorPolicy_! = deny
-  ): mumbai_Router
-  mumbai_routers(
+  ): stagingmumbai_Router
+  stagingmumbai_routers(
     skip: Int = 0
     first: Int = 100
-    orderBy: mumbai_Router_orderBy
-    orderDirection: mumbai_OrderDirection
-    where: mumbai_Router_filter
+    orderBy: stagingmumbai_Router_orderBy
+    orderDirection: stagingmumbai_OrderDirection
+    where: stagingmumbai_Router_filter
     """
     The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
     """
-    block: mumbai_Block_height
+    block: stagingmumbai_Block_height
     """
     Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
     """
     subgraphError: _SubgraphErrorPolicy_! = deny
-  ): [mumbai_Router!]!
-  mumbai_setting(
+  ): [stagingmumbai_Router!]!
+  stagingmumbai_setting(
     id: ID!
     """
     The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
     """
-    block: mumbai_Block_height
+    block: stagingmumbai_Block_height
     """
     Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
     """
     subgraphError: _SubgraphErrorPolicy_! = deny
-  ): mumbai_Setting
-  mumbai_settings(
+  ): stagingmumbai_Setting
+  stagingmumbai_settings(
     skip: Int = 0
     first: Int = 100
-    orderBy: mumbai_Setting_orderBy
-    orderDirection: mumbai_OrderDirection
-    where: mumbai_Setting_filter
+    orderBy: stagingmumbai_Setting_orderBy
+    orderDirection: stagingmumbai_OrderDirection
+    where: stagingmumbai_Setting_filter
     """
     The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
     """
-    block: mumbai_Block_height
+    block: stagingmumbai_Block_height
     """
     Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
     """
     subgraphError: _SubgraphErrorPolicy_! = deny
-  ): [mumbai_Setting!]!
-  mumbai_relayer(
+  ): [stagingmumbai_Setting!]!
+  stagingmumbai_relayer(
     id: ID!
     """
     The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
     """
-    block: mumbai_Block_height
+    block: stagingmumbai_Block_height
     """
     Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
     """
     subgraphError: _SubgraphErrorPolicy_! = deny
-  ): mumbai_Relayer
-  mumbai_relayers(
+  ): stagingmumbai_Relayer
+  stagingmumbai_relayers(
     skip: Int = 0
     first: Int = 100
-    orderBy: mumbai_Relayer_orderBy
-    orderDirection: mumbai_OrderDirection
-    where: mumbai_Relayer_filter
+    orderBy: stagingmumbai_Relayer_orderBy
+    orderDirection: stagingmumbai_OrderDirection
+    where: stagingmumbai_Relayer_filter
     """
     The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
     """
-    block: mumbai_Block_height
+    block: stagingmumbai_Block_height
     """
     Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
     """
     subgraphError: _SubgraphErrorPolicy_! = deny
-  ): [mumbai_Relayer!]!
-  mumbai_stableSwap(
+  ): [stagingmumbai_Relayer!]!
+  stagingmumbai_stableSwap(
     id: ID!
     """
     The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
     """
-    block: mumbai_Block_height
+    block: stagingmumbai_Block_height
     """
     Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
     """
     subgraphError: _SubgraphErrorPolicy_! = deny
-  ): mumbai_StableSwap
-  mumbai_stableSwaps(
+  ): stagingmumbai_StableSwap
+  stagingmumbai_stableSwaps(
     skip: Int = 0
     first: Int = 100
-    orderBy: mumbai_StableSwap_orderBy
-    orderDirection: mumbai_OrderDirection
-    where: mumbai_StableSwap_filter
+    orderBy: stagingmumbai_StableSwap_orderBy
+    orderDirection: stagingmumbai_OrderDirection
+    where: stagingmumbai_StableSwap_filter
     """
     The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
     """
-    block: mumbai_Block_height
+    block: stagingmumbai_Block_height
     """
     Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
     """
     subgraphError: _SubgraphErrorPolicy_! = deny
-  ): [mumbai_StableSwap!]!
-  mumbai_sponsorVault(
+  ): [stagingmumbai_StableSwap!]!
+  stagingmumbai_sponsorVault(
     id: ID!
     """
     The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
     """
-    block: mumbai_Block_height
+    block: stagingmumbai_Block_height
     """
     Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
     """
     subgraphError: _SubgraphErrorPolicy_! = deny
-  ): mumbai_SponsorVault
-  mumbai_sponsorVaults(
+  ): stagingmumbai_SponsorVault
+  stagingmumbai_sponsorVaults(
     skip: Int = 0
     first: Int = 100
-    orderBy: mumbai_SponsorVault_orderBy
-    orderDirection: mumbai_OrderDirection
-    where: mumbai_SponsorVault_filter
+    orderBy: stagingmumbai_SponsorVault_orderBy
+    orderDirection: stagingmumbai_OrderDirection
+    where: stagingmumbai_SponsorVault_filter
     """
     The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
     """
-    block: mumbai_Block_height
+    block: stagingmumbai_Block_height
     """
     Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
     """
     subgraphError: _SubgraphErrorPolicy_! = deny
-  ): [mumbai_SponsorVault!]!
-  mumbai_originTransfer(
+  ): [stagingmumbai_SponsorVault!]!
+  stagingmumbai_originTransfer(
     id: ID!
     """
     The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
     """
-    block: mumbai_Block_height
+    block: stagingmumbai_Block_height
     """
     Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
     """
     subgraphError: _SubgraphErrorPolicy_! = deny
-  ): mumbai_OriginTransfer
-  mumbai_originTransfers(
+  ): stagingmumbai_OriginTransfer
+  stagingmumbai_originTransfers(
     skip: Int = 0
     first: Int = 100
-    orderBy: mumbai_OriginTransfer_orderBy
-    orderDirection: mumbai_OrderDirection
-    where: mumbai_OriginTransfer_filter
+    orderBy: stagingmumbai_OriginTransfer_orderBy
+    orderDirection: stagingmumbai_OrderDirection
+    where: stagingmumbai_OriginTransfer_filter
     """
     The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
     """
-    block: mumbai_Block_height
+    block: stagingmumbai_Block_height
     """
     Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
     """
     subgraphError: _SubgraphErrorPolicy_! = deny
-  ): [mumbai_OriginTransfer!]!
-  mumbai_destinationTransfer(
+  ): [stagingmumbai_OriginTransfer!]!
+  stagingmumbai_destinationTransfer(
     id: ID!
     """
     The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
     """
-    block: mumbai_Block_height
+    block: stagingmumbai_Block_height
     """
     Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
     """
     subgraphError: _SubgraphErrorPolicy_! = deny
-  ): mumbai_DestinationTransfer
-  mumbai_destinationTransfers(
+  ): stagingmumbai_DestinationTransfer
+  stagingmumbai_destinationTransfers(
     skip: Int = 0
     first: Int = 100
-    orderBy: mumbai_DestinationTransfer_orderBy
-    orderDirection: mumbai_OrderDirection
-    where: mumbai_DestinationTransfer_filter
+    orderBy: stagingmumbai_DestinationTransfer_orderBy
+    orderDirection: stagingmumbai_OrderDirection
+    where: stagingmumbai_DestinationTransfer_filter
     """
     The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
     """
-    block: mumbai_Block_height
+    block: stagingmumbai_Block_height
     """
     Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
     """
     subgraphError: _SubgraphErrorPolicy_! = deny
-  ): [mumbai_DestinationTransfer!]!
-  mumbai_originMessage(
+  ): [stagingmumbai_DestinationTransfer!]!
+  stagingmumbai_originMessage(
     id: ID!
     """
     The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
     """
-    block: mumbai_Block_height
+    block: stagingmumbai_Block_height
     """
     Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
     """
     subgraphError: _SubgraphErrorPolicy_! = deny
-  ): mumbai_OriginMessage
-  mumbai_originMessages(
+  ): stagingmumbai_OriginMessage
+  stagingmumbai_originMessages(
     skip: Int = 0
     first: Int = 100
-    orderBy: mumbai_OriginMessage_orderBy
-    orderDirection: mumbai_OrderDirection
-    where: mumbai_OriginMessage_filter
+    orderBy: stagingmumbai_OriginMessage_orderBy
+    orderDirection: stagingmumbai_OrderDirection
+    where: stagingmumbai_OriginMessage_filter
     """
     The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
     """
-    block: mumbai_Block_height
+    block: stagingmumbai_Block_height
     """
     Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
     """
     subgraphError: _SubgraphErrorPolicy_! = deny
-  ): [mumbai_OriginMessage!]!
-  mumbai_destinationMessage(
+  ): [stagingmumbai_OriginMessage!]!
+  stagingmumbai_destinationMessage(
     id: ID!
     """
     The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
     """
-    block: mumbai_Block_height
+    block: stagingmumbai_Block_height
     """
     Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
     """
     subgraphError: _SubgraphErrorPolicy_! = deny
-  ): mumbai_DestinationMessage
-  mumbai_destinationMessages(
+  ): stagingmumbai_DestinationMessage
+  stagingmumbai_destinationMessages(
     skip: Int = 0
     first: Int = 100
-    orderBy: mumbai_DestinationMessage_orderBy
-    orderDirection: mumbai_OrderDirection
-    where: mumbai_DestinationMessage_filter
+    orderBy: stagingmumbai_DestinationMessage_orderBy
+    orderDirection: stagingmumbai_OrderDirection
+    where: stagingmumbai_DestinationMessage_filter
     """
     The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
     """
-    block: mumbai_Block_height
+    block: stagingmumbai_Block_height
     """
     Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
     """
     subgraphError: _SubgraphErrorPolicy_! = deny
-  ): [mumbai_DestinationMessage!]!
-  mumbai_aggregateRoot(
+  ): [stagingmumbai_DestinationMessage!]!
+  stagingmumbai_aggregateRoot(
     id: ID!
     """
     The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
     """
-    block: mumbai_Block_height
+    block: stagingmumbai_Block_height
     """
     Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
     """
     subgraphError: _SubgraphErrorPolicy_! = deny
-  ): mumbai_AggregateRoot
-  mumbai_aggregateRoots(
+  ): stagingmumbai_AggregateRoot
+  stagingmumbai_aggregateRoots(
     skip: Int = 0
     first: Int = 100
-    orderBy: mumbai_AggregateRoot_orderBy
-    orderDirection: mumbai_OrderDirection
-    where: mumbai_AggregateRoot_filter
+    orderBy: stagingmumbai_AggregateRoot_orderBy
+    orderDirection: stagingmumbai_OrderDirection
+    where: stagingmumbai_AggregateRoot_filter
     """
     The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
     """
-    block: mumbai_Block_height
+    block: stagingmumbai_Block_height
     """
     Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
     """
     subgraphError: _SubgraphErrorPolicy_! = deny
-  ): [mumbai_AggregateRoot!]!
-  mumbai_rootMessage(
+  ): [stagingmumbai_AggregateRoot!]!
+  stagingmumbai_connectorMeta(
     id: ID!
     """
     The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
     """
-    block: mumbai_Block_height
+    block: stagingmumbai_Block_height
     """
     Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
     """
     subgraphError: _SubgraphErrorPolicy_! = deny
-  ): mumbai_RootMessage
-  mumbai_rootMessages(
+  ): stagingmumbai_ConnectorMeta
+  stagingmumbai_connectorMetas(
     skip: Int = 0
     first: Int = 100
-    orderBy: mumbai_RootMessage_orderBy
-    orderDirection: mumbai_OrderDirection
-    where: mumbai_RootMessage_filter
+    orderBy: stagingmumbai_ConnectorMeta_orderBy
+    orderDirection: stagingmumbai_OrderDirection
+    where: stagingmumbai_ConnectorMeta_filter
     """
     The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
     """
-    block: mumbai_Block_height
+    block: stagingmumbai_Block_height
     """
     Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
     """
     subgraphError: _SubgraphErrorPolicy_! = deny
-  ): [mumbai_RootMessage!]!
+  ): [stagingmumbai_ConnectorMeta!]!
+  stagingmumbai_rootMessageSent(
+    id: ID!
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: stagingmumbai_Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): stagingmumbai_RootMessageSent
+  stagingmumbai_rootMessageSents(
+    skip: Int = 0
+    first: Int = 100
+    orderBy: stagingmumbai_RootMessageSent_orderBy
+    orderDirection: stagingmumbai_OrderDirection
+    where: stagingmumbai_RootMessageSent_filter
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: stagingmumbai_Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): [stagingmumbai_RootMessageSent!]!
+  stagingmumbai_rootMessageProcessed(
+    id: ID!
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: stagingmumbai_Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): stagingmumbai_RootMessageProcessed
+  stagingmumbai_rootMessageProcesseds(
+    skip: Int = 0
+    first: Int = 100
+    orderBy: stagingmumbai_RootMessageProcessed_orderBy
+    orderDirection: stagingmumbai_OrderDirection
+    where: stagingmumbai_RootMessageProcessed_filter
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: stagingmumbai_Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): [stagingmumbai_RootMessageProcessed!]!
   """Access to subgraph metadata"""
-  mumbai__meta(block: mumbai_Block_height): mumbai__Meta_
+  stagingmumbai__meta(block: stagingmumbai_Block_height): stagingmumbai__Meta_
 }
 
-enum mumbai_TransferStatus {
+enum stagingmumbai_TransferStatus {
   XCalled
   Executed
   Reconciled
@@ -1972,9 +2226,9 @@ enum mumbai_TransferStatus {
   CompletedFast
 }
 
-type mumbai__Block_ {
+type stagingmumbai__Block_ {
   """The hash of the block"""
-  hash: mumbai_Bytes
+  hash: stagingmumbai_Bytes
   """The block number"""
   number: Int!
   """Integer representation of the timestamp stored in blocks for the chain"""
@@ -1982,7 +2236,7 @@ type mumbai__Block_ {
 }
 
 """The type for the top-level _meta field"""
-type mumbai__Meta_ {
+type stagingmumbai__Meta_ {
   """
   Information about a specific subgraph block. The hash of the block
   will be null if the _meta field has a block constraint that asks for
@@ -1990,7 +2244,7 @@ type mumbai__Meta_ {
   and therefore asks for the latest  block
   
   """
-  block: mumbai__Block_!
+  block: stagingmumbai__Block_!
   """The deployment ID"""
   deployment: String!
   """If `true`, the subgraph encountered indexing errors at some past block"""

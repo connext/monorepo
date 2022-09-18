@@ -119,7 +119,7 @@ sources:
       - autoPagination:
           validateSchema: true
           limitOfRecords: 250
-  - name: Connext_Mumbai
+  - name: Connext_Staging_Mumbai
     handler:
       graphql:
         endpoint: https://api.thegraph.com/subgraphs/name/connext/nxtp-amarok-runtime-staging-mumbai
