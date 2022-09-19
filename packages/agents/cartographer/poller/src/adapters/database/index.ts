@@ -1,5 +1,6 @@
 import { jsonifyError, XTransfer, XTransferStatus, RouterBalance, XMessage, RootMessage } from "@connext/nxtp-utils";
 import { Pool } from "pg";
+import { TxnClientForSerializable } from "zapatos/db";
 
 import { getContext } from "../../shared";
 
@@ -17,8 +18,13 @@ import {
   getCheckPoint,
 } from "./client";
 
+export type Checkpoints = {
+  prefix: string;
+  checkpoints: { domain: string; checkpoint: number }[];
+};
+
 export type Database = {
-  saveTransfers: (xtransfers: XTransfer[], _pool?: Pool) => Promise<void>;
+  saveTransfers: (xtransfers: XTransfer[], checkpoints: Checkpoints, _pool?: Pool) => Promise<void>;
   getTransfersByStatus: (
     status: XTransferStatus,
     limit: number,
@@ -43,7 +49,7 @@ export type Database = {
   saveSentRootMessages: (messages: RootMessage[], _pool?: Pool) => Promise<void>;
   saveProcessedRootMessages: (messages: RootMessage[], _pool?: Pool) => Promise<void>;
   getPendingMessages: (_pool?: Pool) => Promise<XMessage[]>;
-  saveCheckPoint: (check: string, point: number, _pool?: Pool) => Promise<void>;
+  saveCheckPoint: (check: string, point: number, _pool?: Pool | TxnClientForSerializable) => Promise<void>;
   getCheckPoint: (check_name: string, _pool?: Pool) => Promise<number>;
 };
 

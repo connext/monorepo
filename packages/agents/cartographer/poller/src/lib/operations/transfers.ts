@@ -5,6 +5,7 @@ import {
   SubgraphQueryByTransferIDsMetaParams,
   XTransfer,
 } from "@connext/nxtp-utils";
+import { Checkpoints } from "../../adapters/database";
 
 import { getContext } from "../../shared";
 
@@ -102,18 +103,19 @@ export const updateTransfers = async () => {
       );
       logger.info("Retrieved origin transfer", _requestContext, _methodContext, { transfer });
     });
-    await database.saveTransfers(transfers);
-
-    await Promise.all(
-      domains.map(async (domain) => {
+    const checkpoints = domains
+      .map((domain) => {
         const domainTransfers = transfers.filter((transfer) => transfer.xparams!.originDomain === domain);
         const max = getMaxNonce(domainTransfers);
         const latest = subgraphOriginQueryMetaParams.get(domain)?.latestNonce ?? 0;
         if (domainTransfers.length > 0 && max > latest) {
-          await database.saveCheckPoint("origin_nonce_" + domain, max);
+          return { domain, checkpoint: max };
         }
-      }),
-    );
+        return undefined;
+      })
+      .filter((x) => !!x) as { domain: string; checkpoint: number }[];
+
+    await database.saveTransfers(transfers, { prefix: "origin_nonce_", checkpoints });
   }
 
   if (subgraphDestinationQueryMetaParams.size > 0) {
@@ -123,18 +125,20 @@ export const updateTransfers = async () => {
       transfers: transfers,
       count: transfers.length,
     });
-    await database.saveTransfers(transfers);
 
-    await Promise.all(
-      domains.map(async (domain) => {
+    const checkpoints = domains
+      .map((domain) => {
         const domainTransfers = transfers.filter((transfer) => transfer.xparams!.destinationDomain === domain);
         const max = getMaxNonce(domainTransfers);
         const latest = subgraphDestinationQueryMetaParams.get(domain)?.latestNonce ?? 0;
         if (domainTransfers.length > 0 && max > latest) {
-          await database.saveCheckPoint("destination_nonce_" + domain, max);
+          return { domain, checkpoint: max };
         }
-      }),
-    );
+        return undefined;
+      })
+      .filter((x) => !!x) as { domain: string; checkpoint: number }[];
+
+    await database.saveTransfers(transfers, { prefix: "destination_nonce_", checkpoints });
   }
 
   await Promise.all(
@@ -147,13 +151,15 @@ export const updateTransfers = async () => {
         domain: domain,
         count: domainTransfers.length,
       });
-      await database.saveTransfers(domainTransfers);
-
       const max = getMaxReconcileTimestamp(domainTransfers);
       const latest = subgraphReconcileQueryMetaParams.get(domain)?.fromTimestamp ?? 0;
+      let checkpoints: Checkpoints = { prefix: "destination_reconcile_timestamp_", checkpoints: [] };
       if (domainTransfers.length > 0 && max > latest) {
+        checkpoints.checkpoints = [{ domain, checkpoint: max }];
         await database.saveCheckPoint("destination_reconcile_timestamp_" + domain, max);
       }
+
+      await database.saveTransfers(domainTransfers, checkpoints);
     }),
   );
 
@@ -163,7 +169,7 @@ export const updateTransfers = async () => {
       transfers: transfers,
       count: transfers.length,
     });
-    await database.saveTransfers(transfers);
+    await database.saveTransfers(transfers, { checkpoints: [], prefix: "" });
   }
 
   if (subgraphDestinationPendingQueryMetaParams.size > 0) {
@@ -172,6 +178,6 @@ export const updateTransfers = async () => {
       transfers: transfers,
       count: transfers.length,
     });
-    await database.saveTransfers(transfers);
+    await database.saveTransfers(transfers, { checkpoints: [], prefix: "" });
   }
 };
