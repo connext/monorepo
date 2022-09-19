@@ -410,7 +410,7 @@ contract ConnextTest is ForgeHelper, Deployer {
         // These items would normally be replaced in the nested internal _xcall,
         // but will be defined as the "expected values" for the purpose of getting
         // the expected transfer ID.
-        originSender: msg.sender,
+        originSender: address(this),
         bridgedAmt: bridgedAmount,
         normalizedIn: amount,
         nonce: 0,
@@ -613,12 +613,12 @@ contract ConnextTest is ForgeHelper, Deployer {
     uint256 vaultOut,
     bool usesPortals
   ) public {
-    bool zeroAmountTransfer = args.params.bridgedAmt == 0;
-    address receiving = zeroAmountTransfer ? address(0) : args.params.receiveLocal
+    address receiving = args.params.canonicalDomain == 0 ? address(0) : args.params.receiveLocal
       ? _destinationLocal
       : _destinationAdopted;
 
     // Get initial balances, if applicable.
+    bool zeroAmountTransfer = args.params.bridgedAmt == 0;
     ExecuteBalances memory initial;
     if (!zeroAmountTransfer) {
       initial = utils_getExecuteBalances(
@@ -632,14 +632,7 @@ contract ConnextTest is ForgeHelper, Deployer {
 
     // Expect an event.
     vm.expectEmit(true, true, true, true);
-    emit Executed(
-      transferId,
-      args.params.to,
-      args,
-      zeroAmountTransfer ? address(0) : receiving,
-      bridgeOut + vaultOut,
-      address(this)
-    );
+    emit Executed(transferId, args.params.to, args, receiving, bridgeOut + vaultOut, address(this));
 
     // Execute on the bridge.
     _destinationConnext.execute(args);
