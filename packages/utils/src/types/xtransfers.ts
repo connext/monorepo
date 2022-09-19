@@ -158,15 +158,10 @@ export type XCallArgs = Static<typeof XCallArgsSchema>;
 
 export const ExecuteArgsSchema = Type.Object({
   params: CallParamsSchema,
-  local: TAddress,
   routers: Type.Array(TAddress),
   routerSignatures: Type.Array(Type.String()),
   sequencer: TAddress,
   sequencerSignature: Type.String(),
-  amount: TIntegerString,
-  normalizedIn: TIntegerString,
-  nonce: Type.Integer(),
-  originSender: TAddress,
 });
 
 export type ExecuteArgs = Static<typeof ExecuteArgsSchema>;
