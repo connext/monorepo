@@ -35,7 +35,7 @@ describe("Database client", () => {
 
   beforeEach(() => {
     pool = new Pool({
-      connectionString: "postgres://postgres:qwerty@localhost:5432/connext?sslmode=disable",
+      connectionString: process.env.DATABASE_URL || "postgres://postgres:qwerty@localhost:5432/connext?sslmode=disable",
       idleTimeoutMillis: 3000,
       allowExitOnIdle: true,
     });
