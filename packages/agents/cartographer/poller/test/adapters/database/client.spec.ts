@@ -307,7 +307,7 @@ describe("Database client", () => {
       },
     ];
     await saveRouterBalances(routerBalances, pool);
-    const res = await pool.query(`SELECT * FROM routers_with_balances`);
+    const res = await pool.query(`SELECT * FROM routers_with_balances order by address, domain, canonical_id`);
     const rb = convertToRouterBalance(res.rows);
     expect(rb).to.deep.eq(routerBalances);
   });
