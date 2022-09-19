@@ -5,7 +5,7 @@ import {ITokenRegistry} from "../../contracts/core/connext/interfaces/ITokenRegi
 import {IStableSwap} from "../../contracts/core/connext/interfaces/IStableSwap.sol";
 import {IWeth} from "../../contracts/core/connext/interfaces/IWeth.sol";
 
-import {LibConnextStorage, AppStorage, TokenId, UserFacingCallParams, CallParams} from "../../contracts/core/connext/libraries/LibConnextStorage.sol";
+import {LibConnextStorage, AppStorage, TokenId, CallParams} from "../../contracts/core/connext/libraries/LibConnextStorage.sol";
 import {IStableSwap} from "../../contracts/core/connext/interfaces/IStableSwap.sol";
 
 import {TestERC20} from "../../contracts/test/TestERC20.sol";
@@ -135,16 +135,31 @@ contract FacetHelper is ForgeHelper {
     // console.log("- isLocalOrigin", onCanonical);
   }
 
-  function utils_getCallParams(UserFacingCallParams memory params) public returns (CallParams memory) {
+  function utils_getCallParams(
+    uint32 _destination,
+    address _to,
+    address _asset,
+    address _delegate,
+    uint256 _amount,
+    uint256 _slippage,
+    bytes calldata _callData
+  ) public returns (CallParams memory) {
     return
-      CallParams(
-        params.to,
-        params.callData,
-        _originDomain,
-        params.destinationDomain, // destination domain
-        params.agent, // agent
-        false,
-        params.slippage
-      );
+      CallParams({
+        to: _to,
+        callData: _callData,
+        originDomain: _originDomain,
+        destinationDomain: _destination,
+        delegate: _delegate,
+        receiveLocal: false, // Always swap into adopted in xcall pass.
+        slippage: _slippage,
+        originSender: msg.sender,
+        // The following values should be assigned in _xcall.
+        nonce: 0,
+        canonicalDomain: 0,
+        bridgedAmt: 0,
+        normalizedIn: 0,
+        canonicalId: bytes32(0)
+      });
   }
 }

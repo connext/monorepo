@@ -133,6 +133,9 @@ library AssetLogic {
     uint256 _amountIn,
     uint256 _slippage
   ) internal pure returns (uint256) {
+    if (_amountIn == 0) {
+      return 0;
+    }
     // Get the min recieved (in same decimals as _amountIn)
     uint256 min = (_amountIn * (10_000 - _slippage)) / 10_000;
     return normalizeDecimals(_in, _out, min);
@@ -167,44 +170,41 @@ library AssetLogic {
   /**
    * @notice Swaps an adopted asset to the local (representation or canonical) nomad asset
    * @dev Will not swap if the asset passed in is the local asset
-   * @param _canonical - The canonical token
+   * @param _canonicalId - The canonical token identifier
+   * @param _canonicalDomain - The canonical token domain
    * @param _asset - The address of the adopted asset to swap into the local asset
    * @param _amount - The amount of the adopted asset to swap
    * @param _slippage - The minimum amount of slippage user will take on from _amount in BPS
    * @return The amount of local asset received from swap
-   * @return The address of asset received post-swap
-   */
+4   */
   function swapToLocalAssetIfNeeded(
-    TokenId memory _canonical,
+    bytes32 _canonicalId,
+    uint32 _canonicalDomain,
     address _asset,
+    address _local,
     uint256 _amount,
     uint256 _slippage
-  ) internal returns (uint256, address) {
-    AppStorage storage s = LibConnextStorage.connextStorage();
-
-    // Get the local token for this domain (may return canonical or representation).
-    address local = s.tokenRegistry.getLocalAddress(_canonical.domain, _canonical.id);
-
+  ) internal returns (uint256) {
     // If there's no amount, no need to swap.
     if (_amount == 0) {
-      return (_amount, local);
+      return _amount;
     }
 
     // Check the case where the adopted asset *is* the local asset. If so, no need to swap.
-    if (local == _asset) {
-      return (_amount, _asset);
+    if (_local == _asset) {
+      return _amount;
     }
 
     // Swap the asset to the proper local asset.
-    bytes32 key = keccak256(abi.encode(_canonical.id, _canonical.domain));
-    return
-      _swapAsset(
-        key,
-        _asset,
-        local,
-        _amount,
-        calculateSlippageBoundary(ERC20(_asset).decimals(), ERC20(local).decimals(), _amount, _slippage)
-      );
+    bytes32 key = keccak256(abi.encode(_canonicalId, _canonicalDomain));
+    (uint256 out, ) = _swapAsset(
+      key,
+      _asset,
+      _local,
+      _amount,
+      calculateSlippageBoundary(ERC20(_asset).decimals(), ERC20(_local).decimals(), _amount, _slippage)
+    );
+    return out;
   }
 
   /**
