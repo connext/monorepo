@@ -207,11 +207,77 @@ input optimismgoerli_Block_height {
 
 scalar optimismgoerli_Bytes
 
+type optimismgoerli_ConnectorMeta {
+  id: ID!
+  spokeDomain: BigInt!
+  hubDomain: BigInt!
+  amb: optimismgoerli_Bytes!
+  rootManager: optimismgoerli_Bytes!
+  mirrorConnector: optimismgoerli_Bytes!
+}
+
+input optimismgoerli_ConnectorMeta_filter {
+  id: ID
+  id_not: ID
+  id_gt: ID
+  id_lt: ID
+  id_gte: ID
+  id_lte: ID
+  id_in: [ID!]
+  id_not_in: [ID!]
+  spokeDomain: BigInt
+  spokeDomain_not: BigInt
+  spokeDomain_gt: BigInt
+  spokeDomain_lt: BigInt
+  spokeDomain_gte: BigInt
+  spokeDomain_lte: BigInt
+  spokeDomain_in: [BigInt!]
+  spokeDomain_not_in: [BigInt!]
+  hubDomain: BigInt
+  hubDomain_not: BigInt
+  hubDomain_gt: BigInt
+  hubDomain_lt: BigInt
+  hubDomain_gte: BigInt
+  hubDomain_lte: BigInt
+  hubDomain_in: [BigInt!]
+  hubDomain_not_in: [BigInt!]
+  amb: optimismgoerli_Bytes
+  amb_not: optimismgoerli_Bytes
+  amb_in: [optimismgoerli_Bytes!]
+  amb_not_in: [optimismgoerli_Bytes!]
+  amb_contains: optimismgoerli_Bytes
+  amb_not_contains: optimismgoerli_Bytes
+  rootManager: optimismgoerli_Bytes
+  rootManager_not: optimismgoerli_Bytes
+  rootManager_in: [optimismgoerli_Bytes!]
+  rootManager_not_in: [optimismgoerli_Bytes!]
+  rootManager_contains: optimismgoerli_Bytes
+  rootManager_not_contains: optimismgoerli_Bytes
+  mirrorConnector: optimismgoerli_Bytes
+  mirrorConnector_not: optimismgoerli_Bytes
+  mirrorConnector_in: [optimismgoerli_Bytes!]
+  mirrorConnector_not_in: [optimismgoerli_Bytes!]
+  mirrorConnector_contains: optimismgoerli_Bytes
+  mirrorConnector_not_contains: optimismgoerli_Bytes
+  """Filter for the block changed event."""
+  _change_block: optimismgoerli_BlockChangedFilter
+}
+
+enum optimismgoerli_ConnectorMeta_orderBy {
+  id
+  spokeDomain
+  hubDomain
+  amb
+  rootManager
+  mirrorConnector
+}
+
 type optimismgoerli_DestinationMessage {
   id: ID!
   leaf: optimismgoerli_Bytes
   processed: Boolean
   returnData: optimismgoerli_Bytes
+  transactionHash: optimismgoerli_Bytes
 }
 
 input optimismgoerli_DestinationMessage_filter {
@@ -239,6 +305,12 @@ input optimismgoerli_DestinationMessage_filter {
   returnData_not_in: [optimismgoerli_Bytes!]
   returnData_contains: optimismgoerli_Bytes
   returnData_not_contains: optimismgoerli_Bytes
+  transactionHash: optimismgoerli_Bytes
+  transactionHash_not: optimismgoerli_Bytes
+  transactionHash_in: [optimismgoerli_Bytes!]
+  transactionHash_not_in: [optimismgoerli_Bytes!]
+  transactionHash_contains: optimismgoerli_Bytes
+  transactionHash_not_contains: optimismgoerli_Bytes
   """Filter for the block changed event."""
   _change_block: optimismgoerli_BlockChangedFilter
 }
@@ -248,6 +320,7 @@ enum optimismgoerli_DestinationMessage_orderBy {
   leaf
   processed
   returnData
+  transactionHash
 }
 
 type optimismgoerli_DestinationTransfer {
@@ -596,6 +669,7 @@ type optimismgoerli_OriginMessage {
   index: BigInt
   root: optimismgoerli_Bytes
   message: optimismgoerli_Bytes
+  transactionHash: optimismgoerli_Bytes
 }
 
 input optimismgoerli_OriginMessage_filter {
@@ -647,6 +721,12 @@ input optimismgoerli_OriginMessage_filter {
   message_not_in: [optimismgoerli_Bytes!]
   message_contains: optimismgoerli_Bytes
   message_not_contains: optimismgoerli_Bytes
+  transactionHash: optimismgoerli_Bytes
+  transactionHash_not: optimismgoerli_Bytes
+  transactionHash_in: [optimismgoerli_Bytes!]
+  transactionHash_not_in: [optimismgoerli_Bytes!]
+  transactionHash_contains: optimismgoerli_Bytes
+  transactionHash_not_contains: optimismgoerli_Bytes
   """Filter for the block changed event."""
   _change_block: optimismgoerli_BlockChangedFilter
 }
@@ -659,6 +739,7 @@ enum optimismgoerli_OriginMessage_orderBy {
   index
   root
   message
+  transactionHash
 }
 
 type optimismgoerli_OriginTransfer {
@@ -1256,7 +1337,7 @@ type Query {
     """
     subgraphError: _SubgraphErrorPolicy_! = deny
   ): [optimismgoerli_AggregateRoot!]!
-  optimismgoerli_rootMessage(
+  optimismgoerli_connectorMeta(
     id: ID!
     """
     The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
@@ -1266,13 +1347,13 @@ type Query {
     Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
     """
     subgraphError: _SubgraphErrorPolicy_! = deny
-  ): optimismgoerli_RootMessage
-  optimismgoerli_rootMessages(
+  ): optimismgoerli_ConnectorMeta
+  optimismgoerli_connectorMetas(
     skip: Int = 0
     first: Int = 100
-    orderBy: optimismgoerli_RootMessage_orderBy
+    orderBy: optimismgoerli_ConnectorMeta_orderBy
     orderDirection: optimismgoerli_OrderDirection
-    where: optimismgoerli_RootMessage_filter
+    where: optimismgoerli_ConnectorMeta_filter
     """
     The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
     """
@@ -1281,7 +1362,59 @@ type Query {
     Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
     """
     subgraphError: _SubgraphErrorPolicy_! = deny
-  ): [optimismgoerli_RootMessage!]!
+  ): [optimismgoerli_ConnectorMeta!]!
+  optimismgoerli_rootMessageSent(
+    id: ID!
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: optimismgoerli_Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): optimismgoerli_RootMessageSent
+  optimismgoerli_rootMessageSents(
+    skip: Int = 0
+    first: Int = 100
+    orderBy: optimismgoerli_RootMessageSent_orderBy
+    orderDirection: optimismgoerli_OrderDirection
+    where: optimismgoerli_RootMessageSent_filter
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: optimismgoerli_Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): [optimismgoerli_RootMessageSent!]!
+  optimismgoerli_rootMessageProcessed(
+    id: ID!
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: optimismgoerli_Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): optimismgoerli_RootMessageProcessed
+  optimismgoerli_rootMessageProcesseds(
+    skip: Int = 0
+    first: Int = 100
+    orderBy: optimismgoerli_RootMessageProcessed_orderBy
+    orderDirection: optimismgoerli_OrderDirection
+    where: optimismgoerli_RootMessageProcessed_filter
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: optimismgoerli_Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): [optimismgoerli_RootMessageProcessed!]!
   """Access to subgraph metadata"""
   optimismgoerli__meta(block: optimismgoerli_Block_height): optimismgoerli__Meta_
 }
@@ -1321,20 +1454,18 @@ enum optimismgoerli_Relayer_orderBy {
   relayer
 }
 
-type optimismgoerli_RootMessage {
+type optimismgoerli_RootMessageProcessed {
   id: ID!
-  data: optimismgoerli_Bytes
+  root: optimismgoerli_Bytes
   caller: optimismgoerli_Bytes
   transactionHash: optimismgoerli_Bytes
-  logIndex: BigInt
-  transactionLogIndex: BigInt
   timestamp: BigInt
   gasPrice: BigInt
   gasLimit: BigInt
   blockNumber: BigInt
 }
 
-input optimismgoerli_RootMessage_filter {
+input optimismgoerli_RootMessageProcessed_filter {
   id: ID
   id_not: ID
   id_gt: ID
@@ -1343,12 +1474,12 @@ input optimismgoerli_RootMessage_filter {
   id_lte: ID
   id_in: [ID!]
   id_not_in: [ID!]
-  data: optimismgoerli_Bytes
-  data_not: optimismgoerli_Bytes
-  data_in: [optimismgoerli_Bytes!]
-  data_not_in: [optimismgoerli_Bytes!]
-  data_contains: optimismgoerli_Bytes
-  data_not_contains: optimismgoerli_Bytes
+  root: optimismgoerli_Bytes
+  root_not: optimismgoerli_Bytes
+  root_in: [optimismgoerli_Bytes!]
+  root_not_in: [optimismgoerli_Bytes!]
+  root_contains: optimismgoerli_Bytes
+  root_not_contains: optimismgoerli_Bytes
   caller: optimismgoerli_Bytes
   caller_not: optimismgoerli_Bytes
   caller_in: [optimismgoerli_Bytes!]
@@ -1361,22 +1492,6 @@ input optimismgoerli_RootMessage_filter {
   transactionHash_not_in: [optimismgoerli_Bytes!]
   transactionHash_contains: optimismgoerli_Bytes
   transactionHash_not_contains: optimismgoerli_Bytes
-  logIndex: BigInt
-  logIndex_not: BigInt
-  logIndex_gt: BigInt
-  logIndex_lt: BigInt
-  logIndex_gte: BigInt
-  logIndex_lte: BigInt
-  logIndex_in: [BigInt!]
-  logIndex_not_in: [BigInt!]
-  transactionLogIndex: BigInt
-  transactionLogIndex_not: BigInt
-  transactionLogIndex_gt: BigInt
-  transactionLogIndex_lt: BigInt
-  transactionLogIndex_gte: BigInt
-  transactionLogIndex_lte: BigInt
-  transactionLogIndex_in: [BigInt!]
-  transactionLogIndex_not_in: [BigInt!]
   timestamp: BigInt
   timestamp_not: BigInt
   timestamp_gt: BigInt
@@ -1413,13 +1528,116 @@ input optimismgoerli_RootMessage_filter {
   _change_block: optimismgoerli_BlockChangedFilter
 }
 
-enum optimismgoerli_RootMessage_orderBy {
+enum optimismgoerli_RootMessageProcessed_orderBy {
   id
-  data
+  root
   caller
   transactionHash
-  logIndex
-  transactionLogIndex
+  timestamp
+  gasPrice
+  gasLimit
+  blockNumber
+}
+
+type optimismgoerli_RootMessageSent {
+  id: ID!
+  spokeDomain: BigInt
+  hubDomain: BigInt
+  root: optimismgoerli_Bytes
+  caller: optimismgoerli_Bytes
+  transactionHash: optimismgoerli_Bytes
+  timestamp: BigInt
+  gasPrice: BigInt
+  gasLimit: BigInt
+  blockNumber: BigInt
+}
+
+input optimismgoerli_RootMessageSent_filter {
+  id: ID
+  id_not: ID
+  id_gt: ID
+  id_lt: ID
+  id_gte: ID
+  id_lte: ID
+  id_in: [ID!]
+  id_not_in: [ID!]
+  spokeDomain: BigInt
+  spokeDomain_not: BigInt
+  spokeDomain_gt: BigInt
+  spokeDomain_lt: BigInt
+  spokeDomain_gte: BigInt
+  spokeDomain_lte: BigInt
+  spokeDomain_in: [BigInt!]
+  spokeDomain_not_in: [BigInt!]
+  hubDomain: BigInt
+  hubDomain_not: BigInt
+  hubDomain_gt: BigInt
+  hubDomain_lt: BigInt
+  hubDomain_gte: BigInt
+  hubDomain_lte: BigInt
+  hubDomain_in: [BigInt!]
+  hubDomain_not_in: [BigInt!]
+  root: optimismgoerli_Bytes
+  root_not: optimismgoerli_Bytes
+  root_in: [optimismgoerli_Bytes!]
+  root_not_in: [optimismgoerli_Bytes!]
+  root_contains: optimismgoerli_Bytes
+  root_not_contains: optimismgoerli_Bytes
+  caller: optimismgoerli_Bytes
+  caller_not: optimismgoerli_Bytes
+  caller_in: [optimismgoerli_Bytes!]
+  caller_not_in: [optimismgoerli_Bytes!]
+  caller_contains: optimismgoerli_Bytes
+  caller_not_contains: optimismgoerli_Bytes
+  transactionHash: optimismgoerli_Bytes
+  transactionHash_not: optimismgoerli_Bytes
+  transactionHash_in: [optimismgoerli_Bytes!]
+  transactionHash_not_in: [optimismgoerli_Bytes!]
+  transactionHash_contains: optimismgoerli_Bytes
+  transactionHash_not_contains: optimismgoerli_Bytes
+  timestamp: BigInt
+  timestamp_not: BigInt
+  timestamp_gt: BigInt
+  timestamp_lt: BigInt
+  timestamp_gte: BigInt
+  timestamp_lte: BigInt
+  timestamp_in: [BigInt!]
+  timestamp_not_in: [BigInt!]
+  gasPrice: BigInt
+  gasPrice_not: BigInt
+  gasPrice_gt: BigInt
+  gasPrice_lt: BigInt
+  gasPrice_gte: BigInt
+  gasPrice_lte: BigInt
+  gasPrice_in: [BigInt!]
+  gasPrice_not_in: [BigInt!]
+  gasLimit: BigInt
+  gasLimit_not: BigInt
+  gasLimit_gt: BigInt
+  gasLimit_lt: BigInt
+  gasLimit_gte: BigInt
+  gasLimit_lte: BigInt
+  gasLimit_in: [BigInt!]
+  gasLimit_not_in: [BigInt!]
+  blockNumber: BigInt
+  blockNumber_not: BigInt
+  blockNumber_gt: BigInt
+  blockNumber_lt: BigInt
+  blockNumber_gte: BigInt
+  blockNumber_lte: BigInt
+  blockNumber_in: [BigInt!]
+  blockNumber_not_in: [BigInt!]
+  """Filter for the block changed event."""
+  _change_block: optimismgoerli_BlockChangedFilter
+}
+
+enum optimismgoerli_RootMessageSent_orderBy {
+  id
+  spokeDomain
+  hubDomain
+  root
+  caller
+  transactionHash
   timestamp
   gasPrice
   gasLimit
@@ -1918,7 +2136,7 @@ type Subscription {
     """
     subgraphError: _SubgraphErrorPolicy_! = deny
   ): [optimismgoerli_AggregateRoot!]!
-  optimismgoerli_rootMessage(
+  optimismgoerli_connectorMeta(
     id: ID!
     """
     The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
@@ -1928,13 +2146,13 @@ type Subscription {
     Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
     """
     subgraphError: _SubgraphErrorPolicy_! = deny
-  ): optimismgoerli_RootMessage
-  optimismgoerli_rootMessages(
+  ): optimismgoerli_ConnectorMeta
+  optimismgoerli_connectorMetas(
     skip: Int = 0
     first: Int = 100
-    orderBy: optimismgoerli_RootMessage_orderBy
+    orderBy: optimismgoerli_ConnectorMeta_orderBy
     orderDirection: optimismgoerli_OrderDirection
-    where: optimismgoerli_RootMessage_filter
+    where: optimismgoerli_ConnectorMeta_filter
     """
     The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
     """
@@ -1943,7 +2161,59 @@ type Subscription {
     Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
     """
     subgraphError: _SubgraphErrorPolicy_! = deny
-  ): [optimismgoerli_RootMessage!]!
+  ): [optimismgoerli_ConnectorMeta!]!
+  optimismgoerli_rootMessageSent(
+    id: ID!
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: optimismgoerli_Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): optimismgoerli_RootMessageSent
+  optimismgoerli_rootMessageSents(
+    skip: Int = 0
+    first: Int = 100
+    orderBy: optimismgoerli_RootMessageSent_orderBy
+    orderDirection: optimismgoerli_OrderDirection
+    where: optimismgoerli_RootMessageSent_filter
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: optimismgoerli_Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): [optimismgoerli_RootMessageSent!]!
+  optimismgoerli_rootMessageProcessed(
+    id: ID!
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: optimismgoerli_Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): optimismgoerli_RootMessageProcessed
+  optimismgoerli_rootMessageProcesseds(
+    skip: Int = 0
+    first: Int = 100
+    orderBy: optimismgoerli_RootMessageProcessed_orderBy
+    orderDirection: optimismgoerli_OrderDirection
+    where: optimismgoerli_RootMessageProcessed_filter
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: optimismgoerli_Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): [optimismgoerli_RootMessageProcessed!]!
   """Access to subgraph metadata"""
   optimismgoerli__meta(block: optimismgoerli_Block_height): optimismgoerli__Meta_
 }
@@ -1961,8 +2231,8 @@ type optimismgoerli__Block_ {
   hash: optimismgoerli_Bytes
   """The block number"""
   number: Int!
-  """Timestamp of the block if available, format depends on the chain"""
-  timestamp: String
+  """Integer representation of the timestamp stored in blocks for the chain"""
+  timestamp: Int
 }
 
 """The type for the top-level _meta field"""
