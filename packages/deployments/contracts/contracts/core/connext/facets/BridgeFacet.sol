@@ -415,29 +415,34 @@ contract BridgeFacet is BaseConnextFacet {
       // Check that the asset is supported -- can be either adopted or local.
       TokenId memory canonical;
 
-      // NOTE: above we check that you can only have `address(0)` as a transacting asset when
-      // you are sending 0-amounts. Because 0-amount transfers shortcircuit all checks on
-      // mappings keyed on hash(canonicalId, canonicalDomain), this is safe even when the
-      // address(0) asset is not whitelisted. These values are only used for the `transactionId`
-      // generation
+      // NOTE: Above we check that you can only have `address(0)` as the input asset if this is a
+      // 0-value transfer. Because 0-value transfers short-circuit all checks on mappings keyed on
+      // hash(canonicalId, canonicalDomain), this is safe even when the address(0) asset is not
+      // whitelisted.
       if (_asset != address(0)) {
-        // Retrieve the local asset.
-        local = s.tokenRegistry.getLocalAddress(_params.canonicalDomain, _params.canonicalId);
         // Retrieve the canonical token information.
         canonical = s.adoptedToCanonical[_asset];
 
         if (canonical.id == bytes32(0)) {
           // Here, the asset is *not* the adopted asset. The only other valid option
-          // is for this asset to be the local asset (e.g. transferring madEth on optimism)
+          // is for this asset to be the local asset (e.g. transferring madEth on optimism).
           // NOTE: It *cannot* be the canonical asset; the canonical asset is only used on
           // the canonical domain, where it is *also* the adopted asset.
           if (s.tokenRegistry.isLocalOrigin(_asset)) {
-            // revert, using a token of local origin that is not registered as adopted
+            // Revert, using a token of local origin that is not registered as adopted.
             revert BridgeFacet__xcall_notSupportedAsset();
           }
+          // The input asset is the local asset.
+          local = _asset;
 
+          // Get the global Token ID for this token.
           (uint32 canonicalDomain, bytes32 canonicalId) = s.tokenRegistry.getTokenId(_asset);
           canonical = TokenId(canonicalDomain, canonicalId);
+        } else {
+          // Input asset is either an adopted asset or the canonical asset.
+          // Retrieve the local asset address. If the input asset is the canonical asset,
+          // this call will just return the input asset address.
+          local = s.tokenRegistry.getLocalAddress(canonical.domain, canonical.id);
         }
 
         // Update CallParams to reflect the canonical token information.

@@ -630,7 +630,7 @@ contract ConnextTest is ForgeHelper, Deployer {
       );
     }
 
-    // Expect an event
+    // Expect an event.
     vm.expectEmit(true, true, true, true);
     emit Executed(
       transferId,
@@ -641,7 +641,7 @@ contract ConnextTest is ForgeHelper, Deployer {
       address(this)
     );
 
-    // execute on bridge
+    // Execute on the bridge.
     _destinationConnext.execute(args);
 
     uint256 pathLen = args.routers.length;
