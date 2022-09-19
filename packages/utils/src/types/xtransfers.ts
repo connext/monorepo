@@ -83,13 +83,19 @@ export const XTransferDestinationSchema = Type.Object({
 });
 
 export const CallParamsSchema = Type.Object({
-  to: TAddress,
-  callData: Type.String(),
   originDomain: Type.String(),
   destinationDomain: Type.String(),
-  agent: TAddress,
+  canonicalDomain: Type.String(),
+  to: TAddress,
+  delegate: TAddress,
   receiveLocal: Type.Boolean(),
-  destinationMinOut: TIntegerString,
+  callData: Type.String(),
+  slippage: TIntegerString,
+  originSender: TAddress,
+  bridgedAmt: Type.String(),
+  normalizedIn: TIntegerString,
+  nonce: TIntegerString,
+  canonicalId: Type.String(),
 });
 
 export const XTransferSchema = Type.Intersect([
@@ -137,6 +143,18 @@ export const DestinationTransferSchema = Type.Intersect([
 export type DestinationTransfer = Static<typeof DestinationTransferSchema>;
 
 export type CallParams = Static<typeof CallParamsSchema>;
+
+export const XCallArgsSchema = Type.Object({
+  destination: Type.String(),
+  to: TAddress,
+  asset: TAddress,
+  delegate: TAddress,
+  amount: TIntegerString,
+  slippage: TIntegerString,
+  callData: Type.String(),
+});
+
+export type XCallArgs = Static<typeof XCallArgsSchema>;
 
 export const ExecuteArgsSchema = Type.Object({
   params: CallParamsSchema,

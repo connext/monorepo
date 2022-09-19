@@ -87,8 +87,10 @@ export const mock = {
       ...overrides,
     }),
     xcallArgs: (overrides: Partial<XCallArgs> = {}): XCallArgs => ({
-      params: mock.entity.callParams(),
+      destination: mock.entity.callParams().destinationDomain,
+      to: mock.entity.callParams().to,
       asset: mock.asset.A.address,
+      delegate: 
       amount: utils.parseEther("1").toString(),
       originMinOut: "0",
       ...overrides,
