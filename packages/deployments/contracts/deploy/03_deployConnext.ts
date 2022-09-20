@@ -260,7 +260,7 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment): Promise<voi
     connext = (await hre.deployments.getOrNull(getDeploymentName("ConnextHandler")))!;
 
     const { cuts, tx: proposalTx, abi } = await proposeDiamondUpgrade(facets, hre, deployer);
-    if (!proposalTx) {
+    if (!proposalTx || !cuts.length) {
       console.log(`No upgrade needed, using previous deployment`);
     } else {
       console.log(`Proposal tx:`, proposalTx.hash);
@@ -270,20 +270,28 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment): Promise<voi
 
     // Fallthrough after proposal, will either work or fail depending on delay
     try {
-      const contract = new Contract(connext.address, connext.abi, deployer);
-      const upgradeTx = await contract.diamondCut(cuts, constants.AddressZero, "0x");
-      console.log("upgrade transaction", upgradeTx.hash);
-      const receipt = await upgradeTx.wait();
-      console.log("upgrade receipt", receipt);
+      if (cuts.length) {
+        const contract = new Contract(connext.address, connext.abi, deployer);
+        const acceptanceTime = (await contract.getAcceptanceTime(cuts, constants.AddressZero, "0x")).toNumber();
+        const currentTimeStamp = Math.floor(Date.now() / 1000);
+        if (acceptanceTime > currentTimeStamp) {
+          console.log(`delay not elapsed. still wait for ${acceptanceTime - currentTimeStamp} sec`);
+        } else {
+          const upgradeTx = await contract.diamondCut(cuts, constants.AddressZero, "0x");
+          console.log("upgrade transaction", upgradeTx.hash);
+          const receipt = await upgradeTx.wait();
+          console.log("upgrade receipt", receipt);
 
-      // Save updated abi to Connext Deployment
-      const diamondDeployment: DeploymentSubmission = {
-        ...connext,
-        abi: abi ?? connext.abi,
-      };
+          // Save updated abi to Connext Deployment
+          const diamondDeployment: DeploymentSubmission = {
+            ...connext,
+            abi: abi ?? connext.abi,
+          };
 
-      await hre.deployments.save(getDeploymentName("ConnextHandler"), diamondDeployment);
-      console.log("upgraded abi");
+          await hre.deployments.save(getDeploymentName("ConnextHandler"), diamondDeployment);
+          console.log("upgraded abi");
+        }
+      }
     } catch (e: any) {
       console.log(`upgrade failed`, e);
     }

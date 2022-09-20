@@ -56,17 +56,7 @@ struct ReconcileBalances {
 
 contract ConnextTest is ForgeHelper, Deployer {
   // ============ Events ============
-  event XCalled(
-    bytes32 indexed transferId,
-    uint256 indexed nonce,
-    bytes32 indexed messageHash,
-    CallParams params,
-    address asset,
-    address bridgedAsset,
-    uint256 amount,
-    uint256 bridgedAmount,
-    address caller
-  );
+  event XCalled(bytes32 indexed transferId, uint256 indexed nonce, bytes32 indexed messageHash, CallParams params);
 
   event Executed(
     bytes32 indexed transferId,
@@ -400,44 +390,35 @@ contract ConnextTest is ForgeHelper, Deployer {
     }
   }
 
-  // function utils_createCallParams(uint32 destination) public returns (CallParams memory) {
-  //   bool sendToDest = destination == _destination;
-  //   return
-  //     CallParams(
-  //       address(1111), // to
-  //       bytes(""), // callData
-  //       sendToDest ? _origin : _destination, // origin domain
-  //       destination, // dest domain
-  //       address(2222), // delegate
-  //       false, // receiveLocal
-  //       1000 // slippage tol
-  //     );
-  // }
-
-  // function utils_createUserCallParams(uint32 destination) public returns (UserFacingCallParams memory) {
-  //   return
-  //     UserFacingCallParams(
-  //       address(1111), // to
-  //       bytes(""), // callData
-  //       destination, // dest domain
-  //       address(2222), // delegate
-  //       1000 // slippage tol
-  //     );
-  // }
+  function utils_createCallParams(
+    uint32 destination,
+    uint256 amount,
+    uint256 bridgedAmount
+  ) public returns (CallParams memory) {
+    bool sendToDest = destination == _destination;
+    bytes32 canonicalId = TypeCasts.addressToBytes32(_canonical);
+    return
+      CallParams({
+        originDomain: sendToDest ? _origin : _destination,
+        destinationDomain: destination,
+        canonicalDomain: _canonicalDomain,
+        to: address(1111),
+        delegate: address(2222),
+        receiveLocal: false,
+        callData: bytes(""),
+        slippage: 1000,
+        // These items would normally be replaced in the nested internal _xcall,
+        // but will be defined as the "expected values" for the purpose of getting
+        // the expected transfer ID.
+        originSender: address(this),
+        bridgedAmt: bridgedAmount,
+        normalizedIn: amount,
+        nonce: 0,
+        canonicalId: canonicalId
+      });
+  }
 
   // ============ XCall helpers
-  // function utils_getCallParams(UserFacingCallParams memory params) public returns (CallParams memory) {
-  //   return
-  //     CallParams(
-  //       params.to,
-  //       params.callData,
-  //       _origin,
-  //       params.destinationDomain, // destination domain
-  //       params.delegate, // delegate
-  //       false, // receiveLocal
-  //       params.slippage
-  //     );
-  // }
 
   function utils_getXCallBalances(address transacting, address bridge) public returns (XCallBalances memory) {
     bool isDestination = bridge == address(_destinationConnext);
@@ -451,134 +432,80 @@ contract ConnextTest is ForgeHelper, Deployer {
       );
   }
 
-  // Calls `xcall` with given args and handles standard assertions.
-  function helpers_xcallAndAssert(
-    CallParams memory params,
-    address asset,
-    uint256 amount,
-    bytes4 expectedError,
-    bool shouldSwap
-  ) public {
-    bool shouldSucceed = keccak256(abi.encode(expectedError)) == keccak256(abi.encode(bytes4("")));
-    bool isCanonical = _canonicalDomain == s.domain;
-
-    if (asset == address(0)) {
-      // Both should be empty if the asset address is 0 (meaning this is probably a 0-value transfer).
-      params.canonicalId = bytes32("");
-      params.canonicalDomain = 0;
-    } else {
-      // Make sure canonical domain and ID are up to date in case this unit test altered the asset setup.
-      params.canonicalId = _canonicalId;
-      params.canonicalDomain = _canonicalDomain;
-    }
-
-    // If the bridged amount was pre-specified, it's likely we wanted to test a specific slippage
-    // amount below in the stableswap mock call.
-    if (params.bridgedAmt == 0) {
-      // TODO: Is the normalizedIn correct in all cases here? What about diff decimals?
-
-      if (shouldSwap) {
-        // Bridged amount of asset will be the amount post-swap.
-        // This is just an example of the kind of slippage we could expect.
-        params.bridgedAmt = (_defaultAmount * 9995) / _liquidityFeeDenominator;
-        // Normalized input amount is the pre-swap amount.
-        params.normalizedIn = amount;
-      } else if (asset == address(0)) {
-        // An asset address of 0 indicates this is a 0-value transfer.
-        params.bridgedAmt = 0;
-        params.normalizedIn = 0;
-      } else {
-        // No swap will occur, so the amount bridged should just be the amount in.
-        params.bridgedAmt = amount;
-        params.normalizedIn = amount;
-      }
-    } else if (params.normalizedIn == 0) {
-      params.normalizedIn = amount;
-    }
-
-    bytes32 transferId = _calculateTransferId(params);
-  }
-
   function utils_xcallAndAssert(
-    address asset,
-    uint256 amount,
-    address bridgedAsset,
-    uint256 bridgedAmount,
+    CallParams memory params,
+    address asset, // input asset
+    uint256 amount, // input amount
     uint256 relayerFee
   ) public returns (bytes32) {
-    // Approve the bridge to spend the input tokens.
+    XCallBalances memory initial;
     if (asset != address(0)) {
+      // Approve the bridge to spend the input tokens.
       IERC20(asset).approve(address(_originConnext), amount);
+      // Get initial balances if applicable.
+      initial = utils_getXCallBalances(asset, address(_originConnext));
     }
-    // Get initial balances.
-    XCallBalances memory initial = utils_getXCallBalances(asset, address(_originConnext));
 
-    // Register transfer ID on bridge
-    // bytes32 canonicalId = TypeCasts.addressToBytes32(_canonical);
-    CallParams memory params = CallParams({
-      originDomain: _originDomain,
-      destinationDomain: _destinationDomain,
-      canonicalDomain: _canonicalDomain,
-      to: address(11),
-      delegate: address(123456654321),
-      receiveLocal: false,
-      callData: bytes(""),
-      slippage: 1000,
-      // These items would normally be replaced in the nested internal _xcall,
-      // but will be defined as the "expected values" for the purpose of getting
-      // the expected transfer ID.
-      originSender: msg.sender,
-      bridgedAmt: bridgedAmount,
-      normalizedIn: amount,
-      nonce: 0,
-      canonicalId: _canonicalId
-    });
-    bytes32 transferId = keccak256(abi.encode(params));
+    {
+      // Expect a Sent event.
+      address bridgedAsset = asset == address(0) ? address(0) : _originLocal;
+      vm.expectEmit(true, true, true, true);
+      emit Send(
+        bridgedAsset,
+        address(_originConnext),
+        params.destinationDomain,
+        TypeCasts.addressToBytes32(address(_destinationConnext)),
+        params.bridgedAmt,
+        true
+      );
+    }
 
-    // Expect a Sent event
-    vm.expectEmit(true, true, true, true);
-    emit Send(
-      bridgedAsset,
-      address(_originConnext),
-      params.destinationDomain,
-      TypeCasts.addressToBytes32(address(_destinationConnext)),
-      bridgedAmount,
-      true
-    );
+    {
+      // Expect an XCalled event.
+      vm.expectEmit(true, true, true, true);
+      emit XCalled(
+        keccak256(abi.encode(params)),
+        params.nonce,
+        MockHome(address(MockXAppConnectionManager(address(_originManager)).home())).MESSAGE_HASH(),
+        params
+      );
+    }
 
-    // Expect an XCalled event
-    vm.expectEmit(true, true, true, true);
-    emit XCalled(transferId, params.nonce, MockBridgeRouter(_bridgeRouter).MESSAGE_HASH(), params);
+    bytes32 ret;
+    {
+      // Make call.
+      ret = _originConnext.xcall{value: relayerFee}(
+        params.destinationDomain,
+        params.to,
+        asset,
+        params.delegate,
+        amount,
+        params.slippage,
+        params.callData
+      );
+      // Compare returned transfer ID to expected transfer ID from expected call params.
+      assertEq(ret, keccak256(abi.encode(params)));
+    }
 
-    // Make call
-    bytes32 ret = _originConnext.xcall{value: _relayerFee}(
-      params.destinationDomain,
-      params.to,
-      asset,
-      params.delegate,
-      amount,
-      params.slippage,
-      params.callData
-    );
-    assertEq(ret, transferId);
-
-    // Check balances
-    XCallBalances memory end = utils_getXCallBalances(_args.asset, address(_originConnext));
-    assertEq(
-      end.bridgeTransacting,
-      _args.asset == _originLocal
-        ? initial.bridgeTransacting // will be transferred
-        : initial.bridgeTransacting + _args.amount // will be swapped
-    );
-    assertEq(
-      end.bridgeLocal,
-      // on xcall, local will be (1) transferred (or swapped) in, (2) sent to the bridge router
-      // meaning the balance should only change by the amount swapped
-      _args.asset == _bridged ? initial.bridgeLocal : initial.bridgeLocal - _bridgedAmt
-    );
-    assertEq(end.bridgeNative, initial.bridgeNative + _relayerFee);
-    assertEq(end.callerTransacting, initial.callerTransacting - _args.amount);
-    assertEq(end.callerNative, initial.callerNative - _relayerFee);
+    // Check balances if applicable.
+    if (asset != address(0)) {
+      XCallBalances memory end = utils_getXCallBalances(asset, address(_originConnext));
+      assertEq(
+        end.bridgeTransacting,
+        asset == _originLocal
+          ? initial.bridgeTransacting // will be transferred
+          : initial.bridgeTransacting + amount // will be swapped
+      );
+      assertEq(
+        end.bridgeLocal,
+        // on xcall, local will be (1) transferred (or swapped) in, (2) sent to the bridge router
+        // meaning the balance should only change by the amount swapped
+        asset == _originLocal ? initial.bridgeLocal : initial.bridgeLocal - params.bridgedAmt
+      );
+      assertEq(end.bridgeNative, initial.bridgeNative + relayerFee);
+      assertEq(end.callerTransacting, initial.callerTransacting - amount);
+      assertEq(end.callerNative, initial.callerNative - relayerFee);
+    }
 
     return ret;
   }
@@ -634,11 +561,8 @@ contract ConnextTest is ForgeHelper, Deployer {
 
   function utils_createExecuteArgs(
     CallParams memory params,
-    uint256 normalizedIn,
-    address local,
-    uint256 pathLen,
     bytes32 transferId,
-    uint256 bridgedAmt,
+    uint256 pathLen,
     uint256 liquidity
   ) public returns (ExecuteArgs memory) {
     (address[] memory routers, bytes[] memory routerSignatures) = utils_createRouters(pathLen, transferId, liquidity);
@@ -646,26 +570,16 @@ contract ConnextTest is ForgeHelper, Deployer {
     return
       ExecuteArgs(
         params, // CallParams
-        local, // local asset
         routers, // routers
         routerSignatures, // router signatures
         sequencer, // sequencer
-        sequencerSignature, // sequencer signatures
-        bridgedAmt, // amount
-        0, // nonce
-        normalizedIn, // origin in
-        address(this) // originSender
+        sequencerSignature // sequencer signatures
       );
   }
 
-  function utils_createExecuteArgs(
-    CallParams memory params,
-    uint256 normalizedIn,
-    uint256 pathLen,
-    bytes32 transferId,
-    uint256 bridgedAmt
-  ) public returns (ExecuteArgs memory) {
-    return utils_createExecuteArgs(params, normalizedIn, _destinationLocal, pathLen, transferId, bridgedAmt, 20 ether);
+  function utils_createExecuteArgs(CallParams memory params, uint256 pathLen) public returns (ExecuteArgs memory) {
+    bytes32 transferId = keccak256(abi.encode(params));
+    return utils_createExecuteArgs(params, transferId, pathLen, 20 ether);
   }
 
   function utils_getFastTransferAmount(uint256 amount) public returns (uint256) {
@@ -699,84 +613,87 @@ contract ConnextTest is ForgeHelper, Deployer {
     uint256 vaultOut,
     bool usesPortals
   ) public {
-    // Get initial balances
-    address receiving = args.params.receiveLocal ? _destinationLocal : _destinationAdopted;
-    ExecuteBalances memory initial = utils_getExecuteBalances(
-      args.local,
-      receiving,
-      address(_destinationConnext),
-      args.params.to,
-      args.routers
-    );
+    address receiving = args.params.canonicalDomain == 0 ? address(0) : args.params.receiveLocal
+      ? _destinationLocal
+      : _destinationAdopted;
 
-    // Expect an event
+    // Get initial balances, if applicable.
+    bool zeroAmountTransfer = args.params.bridgedAmt == 0;
+    ExecuteBalances memory initial;
+    if (!zeroAmountTransfer) {
+      initial = utils_getExecuteBalances(
+        _destinationLocal,
+        receiving,
+        address(_destinationConnext),
+        args.params.to,
+        args.routers
+      );
+    }
+
+    // Expect an event.
     vm.expectEmit(true, true, true, true);
-    emit Executed(
-      transferId,
-      args.params.to,
-      args,
-      args.local == address(0) ? address(0) : receiving,
-      bridgeOut + vaultOut,
-      address(this)
-    );
+    emit Executed(transferId, args.params.to, args, receiving, bridgeOut + vaultOut, address(this));
 
-    // execute on bridge
+    // Execute on the bridge.
     _destinationConnext.execute(args);
-
-    // assert updated balances
-    ExecuteBalances memory end = utils_getExecuteBalances(
-      args.local,
-      receiving,
-      address(_destinationConnext),
-      args.params.to,
-      args.routers
-    );
 
     uint256 pathLen = args.routers.length;
     bool isFast = pathLen != 0;
-    // You are using internal swaps, so the amount of the local asset on the bridge
-    // should *not* change iff you are using adopted assets. However, the router liquidity
-    // and bridge adopted balance should drop
-    if (!args.params.receiveLocal && _destinationLocal != _destinationAdopted) {
-      assertEq(end.bridgeLocal, initial.bridgeLocal);
-    } // else, local checked in receiving
-    assertEq(end.bridgeReceiving, usesPortals ? initial.bridgeReceiving : initial.bridgeReceiving - bridgeOut);
+    // Assert updated balances, if applicable.
+    if (!zeroAmountTransfer) {
+      ExecuteBalances memory end = utils_getExecuteBalances(
+        _destinationLocal,
+        receiving,
+        address(_destinationConnext),
+        args.params.to,
+        args.routers
+      );
 
-    // router loses the liquidity it provides (local)
-    uint256 debited = isFast ? (utils_getFastTransferAmount(args.amount)) / pathLen : 0;
-    address[] memory stored = _destinationConnext.routedTransfers(transferId);
-    if (isFast) {
-      for (uint256 i; i <= pathLen - 1; i++) {
-        assertEq(stored[i], args.routers[i]);
-        assertEq(end.liquidity[i], usesPortals ? initial.liquidity[i] : initial.liquidity[i] - debited);
+      // You are using internal swaps, so the amount of the local asset on the bridge
+      // should *not* change iff you are using adopted assets. However, the router liquidity
+      // and bridge adopted balance should drop
+      if (!args.params.receiveLocal && _destinationLocal != _destinationAdopted) {
+        assertEq(end.bridgeLocal, initial.bridgeLocal);
+      } // else, local checked in receiving
+      assertEq(end.bridgeReceiving, usesPortals ? initial.bridgeReceiving : initial.bridgeReceiving - bridgeOut);
+
+      // router loses the liquidity it provides (local)
+      uint256 debited = isFast ? (utils_getFastTransferAmount(args.params.bridgedAmt)) / pathLen : 0;
+      address[] memory stored = _destinationConnext.routedTransfers(transferId);
+      if (isFast) {
+        for (uint256 i; i <= pathLen - 1; i++) {
+          assertEq(stored[i], args.routers[i]);
+          assertEq(end.liquidity[i], usesPortals ? initial.liquidity[i] : initial.liquidity[i] - debited);
+        }
+
+        uint256 sweep = isFast ? debited + (args.params.bridgedAmt % pathLen) : 0;
+        assertEq(stored[pathLen - 1], args.routers[pathLen - 1]);
+        assertEq(
+          end.liquidity[pathLen - 1],
+          usesPortals ? initial.liquidity[pathLen - 1] : initial.liquidity[pathLen - 1] - sweep
+        );
+      } else {
+        assertEq(stored.length, 0);
       }
 
-      uint256 sweep = isFast ? debited + (args.amount % pathLen) : 0;
-      assertEq(stored[pathLen - 1], args.routers[pathLen - 1]);
+      // recipient gains (adopted/specified)
+      assertEq(end.toReceiving, initial.toReceiving + bridgeOut + vaultOut);
+
+      // relayer stored
+      assertEq(_destinationConnext.transferRelayer(transferId), address(this));
+
+      if (!usesPortals) {
+        return;
+      }
+      assertEq(_destinationConnext.getAavePortalDebt(transferId), bridgeOut);
       assertEq(
-        end.liquidity[pathLen - 1],
-        usesPortals ? initial.liquidity[pathLen - 1] : initial.liquidity[pathLen - 1] - sweep
+        _destinationConnext.getAavePortalFeeDebt(transferId),
+        (bridgeOut * _destinationConnext.aavePortalFee()) / 10000
       );
-    } else {
-      assertEq(stored.length, 0);
     }
-
-    // recipient gains (adopted/specified)
-    assertEq(end.toReceiving, initial.toReceiving + bridgeOut + vaultOut);
-
-    // relayer stored
-    assertEq(_destinationConnext.transferRelayer(transferId), address(this));
-
-    if (!usesPortals) {
-      return;
-    }
-    assertEq(_destinationConnext.getAavePortalDebt(transferId), bridgeOut);
-    assertEq(
-      _destinationConnext.getAavePortalFeeDebt(transferId),
-      (bridgeOut * _destinationConnext.aavePortalFee()) / 10000
-    );
   }
 
+  // Shortcut: no vault or portals.
   function utils_executeAndAssert(
     ExecuteArgs memory args,
     bytes32 transferId,
@@ -803,14 +720,13 @@ contract ConnextTest is ForgeHelper, Deployer {
   }
 
   function utils_reconcileAndAssert(
-    bytes32 transferId,
-    uint256 bridgedAmt,
-    address to,
-    address[] memory routers,
     CallParams memory params,
-    uint256 nonce,
-    address originSender
+    bytes32 transferId,
+    address[] memory routers
   ) public {
+    uint256 bridgedAmt = params.bridgedAmt;
+    uint256 nonce = params.nonce;
+    address originSender = params.originSender;
     // NOTE: the bridge router handles the minting and custodying of assets. as far
     // as connext is concerned, the funds will *always* be transferred to the contract
     // when `reconcile` is called. Mint funds to the contract to mock
@@ -851,139 +767,136 @@ contract ConnextTest is ForgeHelper, Deployer {
   }
 
   // ============ Testing scenarios ============
-  // you should be able to create a 0-value transfer
+  // you should be able to create a 0-value transfer (even with asset being defined)
   function test_Connext__zeroValueTransferShouldWork() public {
-    /// 0. setup contracts
+    // 0. setup contracts
     utils_setupAssets(_origin, true);
 
     // 1. `xcall` on the origin
-    CallParams memory params = utils_createCallParams(_destination);
-    XCallArgs memory xcall = XCallArgs(utils_createUserCallParams(_destination), _originLocal, 0);
-    bytes32 transferId = utils_xcallAndAssert(xcall, _originLocal, 0, 0);
+    CallParams memory params = utils_createCallParams(_destination, 0, 0);
+    bytes32 transferId = utils_xcallAndAssert(params, _originLocal, 0, 0);
 
     // 2. call `execute` on the destination
-    ExecuteArgs memory execute = utils_createExecuteArgs(params, xcall.amount, 1, transferId, 0);
+    ExecuteArgs memory execute = utils_createExecuteArgs(params, transferId, 1, 0);
     utils_executeAndAssert(execute, transferId, 0);
 
     // 3. call `handle` on the destination
-    utils_reconcileAndAssert(transferId, xcall.amount, xcall.params.to, execute.routers, params, 0, address(this));
+    utils_reconcileAndAssert(params, transferId, execute.routers);
   }
 
   // call a 0-value transfer with address(0) as asset
   function test_Connext__zeroValueTransferWithEmptyAssetShouldWork() public {
-    /// 0. setup contracts
+    // 0. setup contracts
     utils_setupAssets(_origin, true);
 
     // 1. `xcall` on the origin
-    CallParams memory params = utils_createCallParams(_destination);
+    CallParams memory params = utils_createCallParams(_destination, 0, 0);
     params.slippage = 0;
-    XCallArgs memory xcall = XCallArgs(
-      UserFacingCallParams(params.to, params.callData, params.destinationDomain, params.agent, params.slippage),
-      address(0),
-      0
-    );
-    _canonical = address(0);
-    _canonicalDomain = uint32(0);
-    bytes32 transferId = utils_xcallAndAssert(xcall, address(0), 0, 0);
+    params.canonicalId = bytes32("");
+    params.canonicalDomain = uint32(0);
+    bytes32 transferId = utils_xcallAndAssert(params, address(0), 0, 0);
 
     // 2. call `execute` on the destination
-    ExecuteArgs memory execute = utils_createExecuteArgs(params, 0, address(0), 1, transferId, 0, 10 ether);
+    ExecuteArgs memory execute = utils_createExecuteArgs(params, transferId, 1, 10 ether);
     utils_executeAndAssert(execute, transferId, 0, 0, false);
 
     // 3. call `handle` on the destination
-    utils_reconcileAndAssert(transferId, xcall.amount, xcall.params.to, execute.routers, params, 0, address(this));
+    utils_reconcileAndAssert(params, transferId, execute.routers);
   }
 
-  // you should be able to bridge tokens (local == adopted)
-  function test_Connext__bridgingTokensShouldWorkFastNoSwap() public {
-    /// 0. setup contracts
+  // you should be able to bridge local/representative tokens (local == adopted)
+  function test_Connext__bridgeFastLocalShouldWork() public {
+    // 0. setup contracts
     utils_setupAssets(_origin, true);
 
     // 1. `xcall` on the origin
-    CallParams memory params = utils_createCallParams(_destination);
-    XCallArgs memory xcall = XCallArgs(utils_createUserCallParams(_destination), _originLocal, 1 ether);
-    bytes32 transferId = utils_xcallAndAssert(xcall, _originLocal, xcall.amount, 0);
+    uint256 amount = 1 ether;
+    uint256 bridgedAmount = amount;
+    CallParams memory params = utils_createCallParams(_destination, amount, bridgedAmount);
+    bytes32 transferId = utils_xcallAndAssert(params, _originLocal, amount, 0);
 
     // 2. call `execute` on the destination
-    ExecuteArgs memory execute = utils_createExecuteArgs(params, xcall.amount, 2, transferId, xcall.amount);
-    utils_executeAndAssert(execute, transferId, utils_getFastTransferAmount(execute.amount));
+    ExecuteArgs memory execute = utils_createExecuteArgs(params, transferId, 2, 10 ether);
+    utils_executeAndAssert(execute, transferId, utils_getFastTransferAmount(bridgedAmount));
 
     // 3. call `handle` on the destination
-    utils_reconcileAndAssert(transferId, xcall.amount, params.to, execute.routers, params, 0, address(this));
+    utils_reconcileAndAssert(params, transferId, execute.routers);
   }
 
-  // you should be able to bridge tokens (local != adopted)
-  function test_Connext__bridgingTokensShouldWorkFastWithSwap() public {
-    /// 0. setup contracts
+  // you should be able to bridge adopted tokens (local != adopted)
+  function test_Connext__bridgeFastAdoptedShouldWork() public {
+    // 0. setup contracts
     utils_setupAssets(_other, false);
 
     // 1. `xcall` on the origin
-    CallParams memory params = utils_createCallParams(_destination);
-    XCallArgs memory args = XCallArgs(utils_createUserCallParams(_destination), _originAdopted, 1 ether);
-    uint256 expected = _originConnext.calculateSwap(
+    uint256 amount = 1 ether;
+    uint256 bridgedAmount = _originConnext.calculateSwap(
       _canonicalKey,
       0, // local idx always 0
       1, // adopted idx always 1
-      args.amount // no min
+      amount // no min
     );
-    bytes32 transferId = utils_xcallAndAssert(args, _originLocal, expected, 0);
+    CallParams memory params = utils_createCallParams(_destination, amount, bridgedAmount);
+    bytes32 transferId = utils_xcallAndAssert(params, _originAdopted, amount, 0);
 
     // 2. call `execute` on the destination
-    ExecuteArgs memory execute = utils_createExecuteArgs(params, args.amount, 1, transferId, expected);
-    uint256 swapped = _destinationConnext.calculateSwap(
+    ExecuteArgs memory execute = utils_createExecuteArgs(params, transferId, 1, bridgedAmount);
+    uint256 bridgedOut = _destinationConnext.calculateSwap(
       _canonicalKey,
       1, // adopted idx always 1
       0, // local idx always 0
-      utils_getFastTransferAmount(execute.amount)
+      utils_getFastTransferAmount(bridgedAmount)
     );
-    utils_executeAndAssert(execute, transferId, swapped);
+    utils_executeAndAssert(execute, transferId, bridgedOut);
 
     // 3. call `handle` on the destination
-    utils_reconcileAndAssert(transferId, expected, params.to, execute.routers, params, 0, address(this));
+    utils_reconcileAndAssert(params, transferId, execute.routers);
   }
 
-  // you should be able to bridge local asset (local != adopted)
-  function test_Connext__bridgingTokensShouldWorkFastWithLocalAndSwap() public {
-    /// 0. setup contracts
+  // you should be able to bridge local asset on origin to adopted asset on destination
+  function test_Connext__bridgeFastOriginLocalToDestinationAdoptedShouldWork() public {
+    // 0. setup contracts
     utils_setupAssets(_other, false);
 
     // 1. `xcall` on the origin
-    CallParams memory params = utils_createCallParams(_destination);
-    XCallArgs memory args = XCallArgs(utils_createUserCallParams(_destination), _originLocal, 1 ether);
-    bytes32 transferId = utils_xcallAndAssert(args, _originLocal, args.amount, 0);
+    uint256 amount = 1 ether;
+    uint256 bridgedAmount = amount;
+    CallParams memory params = utils_createCallParams(_destination, amount, bridgedAmount);
+    bytes32 transferId = utils_xcallAndAssert(params, _originLocal, amount, 0);
 
     // 2. call `execute` on the destination
-    ExecuteArgs memory execute = utils_createExecuteArgs(params, args.amount, 2, transferId, args.amount);
-    uint256 swapped = _destinationConnext.calculateSwap(
+    ExecuteArgs memory execute = utils_createExecuteArgs(params, transferId, 2, bridgedAmount);
+    uint256 bridgedOut = _destinationConnext.calculateSwap(
       _canonicalKey,
       1, // adopted idx always 1
       0, // local idx always 0
-      utils_getFastTransferAmount(execute.amount)
+      utils_getFastTransferAmount(bridgedAmount)
     );
-    utils_executeAndAssert(execute, transferId, swapped);
+    utils_executeAndAssert(execute, transferId, bridgedOut);
 
     // 3. call `handle` on the destination
-    utils_reconcileAndAssert(transferId, args.amount, args.params.to, execute.routers, params, 0, address(this));
+    utils_reconcileAndAssert(params, transferId, execute.routers);
   }
 
   // you should be able to use the slow path
-  function test_Connext__bridgingTokensShouldWorkSlow() public {
-    /// 0. setup contracts
+  function test_Connext__bridgeSlowLocalShouldWork() public {
+    // 0. setup contracts
     utils_setupAssets(_other, true); // local is adopted
 
     // 1. `xcall` on the origin
-    CallParams memory params = utils_createCallParams(_destination);
-    XCallArgs memory args = XCallArgs(utils_createUserCallParams(_destination), _originLocal, 1 ether);
-    bytes32 transferId = utils_xcallAndAssert(args, _originLocal, args.amount, 0);
+    uint256 amount = 1 ether;
+    uint256 bridgedAmount = amount;
+    CallParams memory params = utils_createCallParams(_destination, amount, bridgedAmount);
+    bytes32 transferId = utils_xcallAndAssert(params, _originLocal, amount, 0);
 
     // create execute args
-    ExecuteArgs memory execute = utils_createExecuteArgs(params, args.amount, 0, transferId, args.amount);
+    ExecuteArgs memory execute = utils_createExecuteArgs(params, transferId, 0, bridgedAmount);
 
     // 2. call `handle` on the destination
-    utils_reconcileAndAssert(transferId, args.amount, args.params.to, execute.routers, params, 0, address(this));
+    utils_reconcileAndAssert(params, transferId, execute.routers);
 
     // 3. call `execute` on the destination
-    utils_executeAndAssert(execute, transferId, args.amount);
+    utils_executeAndAssert(execute, transferId, bridgedAmount);
   }
 
   // you should be able to execute unpermissioned external call data
@@ -994,17 +907,16 @@ contract ConnextTest is ForgeHelper, Deployer {
     bytes memory callData = bytes("calling cool stuff");
 
     // 1. xcall
-    CallParams memory params = utils_createCallParams(_destination);
-    XCallArgs memory xcall = XCallArgs(utils_createUserCallParams(_destination), _originLocal, 1 ether);
-    xcall.params.to = address(callTo);
+    uint256 amount = 1 ether;
+    uint256 bridgedAmount = amount;
+    CallParams memory params = utils_createCallParams(_destination, amount, bridgedAmount);
     params.to = address(callTo);
-    xcall.params.callData = callData;
     params.callData = callData;
-    bytes32 transferId = utils_xcallAndAssert(xcall, _originLocal, xcall.amount, 0);
+    bytes32 transferId = utils_xcallAndAssert(params, _originLocal, amount, 0);
 
     // 2. call `execute` on the destination
-    ExecuteArgs memory execute = utils_createExecuteArgs(params, xcall.amount, 2, transferId, xcall.amount);
-    utils_executeAndAssert(execute, transferId, utils_getFastTransferAmount(execute.amount));
+    ExecuteArgs memory execute = utils_createExecuteArgs(params, transferId, 2, bridgedAmount);
+    utils_executeAndAssert(execute, transferId, utils_getFastTransferAmount(bridgedAmount));
     // NOTE: execute only passes if external call passes because of balance assertions on `to`
   }
 
@@ -1017,117 +929,116 @@ contract ConnextTest is ForgeHelper, Deployer {
     bytes memory callData = bytes("calling cool stuff");
 
     // 1. xcall
-    CallParams memory params = utils_createCallParams(_destination);
-    XCallArgs memory xcall = XCallArgs(utils_createUserCallParams(_destination), _originLocal, 1 ether);
-    xcall.params.to = address(callTo);
+    uint256 amount = 1 ether;
+    uint256 bridgedAmount = amount;
+    CallParams memory params = utils_createCallParams(_destination, amount, bridgedAmount);
     params.to = address(callTo);
-    xcall.params.callData = callData;
     params.callData = callData;
-    bytes32 transferId = utils_xcallAndAssert(xcall, _originLocal, xcall.amount, 0);
+    bytes32 transferId = utils_xcallAndAssert(params, _originLocal, amount, 0);
 
     // create execute args
-    ExecuteArgs memory execute = utils_createExecuteArgs(params, xcall.amount, 0, transferId, xcall.amount);
+    ExecuteArgs memory execute = utils_createExecuteArgs(params, transferId, 0, bridgedAmount);
 
     // 2. call `handle` on the destination
-    utils_reconcileAndAssert(transferId, xcall.amount, xcall.params.to, execute.routers, params, 0, address(this));
+    utils_reconcileAndAssert(params, transferId, execute.routers);
 
     // 3. call `execute` on the destination
-    utils_executeAndAssert(execute, transferId, execute.amount);
+    utils_executeAndAssert(execute, transferId, bridgedAmount);
     // NOTE: execute only passes if external call passes because of balance assertions on `to`
   }
 
   // you should be able to use a portal
-  function test_Connext__portalsShouldWork() public {
-    // 0. deploy pool + setup contracts
-    utils_setupAssets(_origin, false); // local != adopted
-    MockPool aavePool = new MockPool(false);
-    _destinationConnext.setAavePool(address(aavePool));
-    _destinationConnext.setAavePortalFee(5);
+  // function test_Connext__portalsShouldWork() public {
+  //   // 0. deploy pool + setup contracts
+  //   utils_setupAssets(_origin, false); // local != adopted
+  //   MockPool aavePool = new MockPool(false);
+  //   _destinationConnext.setAavePool(address(aavePool));
+  //   _destinationConnext.setAavePortalFee(5);
 
-    // 1. `xcall` on the origin
-    CallParams memory params = utils_createCallParams(_destination);
-    XCallArgs memory args = XCallArgs(utils_createUserCallParams(_destination), _originAdopted, 1 ether);
-    bytes32 transferId = utils_xcallAndAssert(args, _originLocal, args.amount, 0);
+  //   // 1. `xcall` on the origin
+  //   CallParams memory params = utils_createCallParams(_destination);
+  //   XCallArgs memory args = XCallArgs(utils_createUserCallParams(_destination), _originAdopted, 1 ether);
+  //   bytes32 transferId = utils_xcallAndAssert(params, _originLocal, args.amount, 0);
 
-    // 2. call `execute` on the destination
-    ExecuteArgs memory execute = utils_createExecuteArgs(
-      params,
-      args.amount,
-      _destinationLocal,
-      1,
-      transferId,
-      args.amount,
-      0
-    );
-    // whitelist routers for portal
-    _destinationConnext.approveRouterForPortal(execute.routers[0]);
-    assertTrue(_destinationConnext.getRouterApprovalForPortal(execute.routers[0]));
-    utils_executeAndAssert(execute, transferId, utils_getFastTransferAmount(args.amount), 0, true);
+  //   // 2. call `execute` on the destination
+  //   ExecuteArgs memory execute = utils_createExecuteArgs(
+  //     params,
+  //     args.amount,
+  //     _destinationLocal,
+  //     1,
+  //     transferId,
+  //     args.amount,
+  //     0
+  //   );
+  //   // whitelist routers for portal
+  //   _destinationConnext.approveRouterForPortal(execute.routers[0]);
+  //   assertTrue(_destinationConnext.getRouterApprovalForPortal(execute.routers[0]));
+  //   utils_executeAndAssert(execute, transferId, utils_getFastTransferAmount(args.amount), 0, true);
 
-    // 3. call `handle` on the destination
-    utils_reconcileAndAssert(transferId, args.amount, args.params.to, execute.routers, params, 0, address(this));
+  //   // 3. call `handle` on the destination
+  //   utils_reconcileAndAssert(transferId, args.amount, args.params.to, execute.routers, params, 0, address(this));
 
-    // 4. repay portal out of band
-    IERC20(_destinationAdopted).approve(address(_destinationConnext), 100 ether);
-    _destinationConnext.repayAavePortalFor(
-      params,
-      _destinationAdopted,
-      address(this),
-      execute.normalizedIn,
-      execute.amount,
-      0,
-      _destinationConnext.getAavePortalDebt(transferId),
-      _destinationConnext.getAavePortalFeeDebt(transferId)
-    );
-    assertEq(_destinationConnext.getAavePortalFeeDebt(transferId), 0);
-    assertEq(_destinationConnext.getAavePortalDebt(transferId), 0);
-  }
+  //   // 4. repay portal out of band
+  //   IERC20(_destinationAdopted).approve(address(_destinationConnext), 100 ether);
+  //   _destinationConnext.repayAavePortalFor(
+  //     params,
+  //     _destinationAdopted,
+  //     address(this),
+  //     execute.normalizedIn,
+  //     execute.amount,
+  //     0,
+  //     _destinationConnext.getAavePortalDebt(transferId),
+  //     _destinationConnext.getAavePortalFeeDebt(transferId)
+  //   );
+  //   assertEq(_destinationConnext.getAavePortalFeeDebt(transferId), 0);
+  //   assertEq(_destinationConnext.getAavePortalDebt(transferId), 0);
+  // }
 
-  // you should be able to bump + claim relayer fees
-  function test_Connext__relayerFeeBumpingAndClaimingWorks() public {
-    /// 0. setup contracts
-    utils_setupAssets(_origin, true);
+  // // you should be able to bump + claim relayer fees
+  // function test_Connext__relayerFeeBumpingAndClaimingWorks() public {
+  //   /// 0. setup contracts
+  //   utils_setupAssets(_origin, true);
 
-    // 1. `xcall` on the origin
-    uint256 relayerFee = 0.01 ether;
-    CallParams memory params = utils_createCallParams(_destination);
-    XCallArgs memory xcall = XCallArgs(utils_createUserCallParams(_destination), _originLocal, 1 ether);
-    bytes32 transferId = utils_xcallAndAssert(xcall, _originLocal, xcall.amount, relayerFee);
+  //   // 1. `xcall` on the origin
+  //   uint256 relayerFee = 0.01 ether;
+  //   CallParams memory params = utils_createCallParams(_destination);
+  //   XCallArgs memory xcall = XCallArgs(utils_createUserCallParams(_destination), _originLocal, 1 ether);
+  //   bytes32 transferId = utils_xcallAndAssert(params, _originLocal, xcall.amount, relayerFee);
 
-    // 2. bump transfer id
-    uint256 bump = 0.01 ether;
-    uint256 init = address(_originConnext).balance;
-    vm.expectEmit(true, true, true, true);
-    emit TransferRelayerFeesUpdated(transferId, bump + relayerFee, address(this));
-    _originConnext.bumpTransfer{value: bump}(transferId);
-    assertEq(_originConnext.relayerFees(transferId), bump + relayerFee);
-    assertEq(address(_originConnext).balance, bump + init);
+  //   // 2. bump transfer id
+  //   uint256 bump = 0.01 ether;
+  //   uint256 init = address(_originConnext).balance;
+  //   vm.expectEmit(true, true, true, true);
+  //   emit TransferRelayerFeesUpdated(transferId, bump + relayerFee, address(this));
+  //   _originConnext.bumpTransfer{value: bump}(transferId);
+  //   assertEq(_originConnext.relayerFees(transferId), bump + relayerFee);
+  //   assertEq(address(_originConnext).balance, bump + init);
 
-    // 3. call `execute` on the destination
-    ExecuteArgs memory execute = utils_createExecuteArgs(params, xcall.amount, 2, transferId, xcall.amount);
-    utils_executeAndAssert(execute, transferId, utils_getFastTransferAmount(execute.amount));
+  //   // 3. call `execute` on the destination
+  //   ExecuteArgs memory execute = utils_createExecuteArgs(params, xcall.amount, 2, transferId, xcall.amount);
+  //   utils_executeAndAssert(execute, transferId, utils_getFastTransferAmount(execute.amount));
 
-    // 4. initiate claim
-    address recipient = address(123123123454545);
-    bytes32[] memory ids = new bytes32[](1);
-    ids[0] = transferId;
-    vm.expectEmit(true, true, true, true);
-    emit InitiatedClaim(_origin, recipient, address(this), ids);
-    _destinationConnext.initiateClaim(_origin, recipient, ids);
+  //   // 4. initiate claim
+  //   address recipient = address(123123123454545);
+  //   bytes32[] memory ids = new bytes32[](1);
+  //   ids[0] = transferId;
+  //   vm.expectEmit(true, true, true, true);
+  //   emit InitiatedClaim(_origin, recipient, address(this), ids);
+  //   _destinationConnext.initiateClaim(_origin, recipient, ids);
 
-    // 5. process claim
-    vm.expectEmit(true, true, true, true);
-    emit Claimed(recipient, bump + relayerFee, ids);
+  //   // 5. process claim
+  //   vm.expectEmit(true, true, true, true);
+  //   emit Claimed(recipient, bump + relayerFee, ids);
 
-    uint256 recipientInit = recipient.balance;
-    _originRelayerFee.handle(
-      _destination,
-      0,
-      TypeCasts.addressToBytes32(address(_destinationRelayerFee)),
-      abi.encodePacked(uint8(1), recipient, ids.length, ids)
-    );
+  //   uint256 recipientInit = recipient.balance;
+  //   _originRelayerFee.handle(
+  //     _destination,
+  //     0,
+  //     TypeCasts.addressToBytes32(address(_destinationRelayerFee)),
+  //     abi.encodePacked(uint8(1), recipient, ids.length, ids)
+  //   );
 
-    assertEq(recipient.balance, recipientInit + bump + relayerFee);
-    assertEq(_originConnext.relayerFees(transferId), 0);
-  }
+  //   assertEq(recipient.balance, recipientInit + bump + relayerFee);
+  //   assertEq(_originConnext.relayerFees(transferId), 0);
+  // }
 }
