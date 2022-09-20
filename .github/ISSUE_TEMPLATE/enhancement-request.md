@@ -18,8 +18,9 @@ A clear and concise description of what you think could solve this problem.
 - [ ] Y happens
 
 **Impact**
-What OKR goal does this align to?
-Provide: Impact estimate = any quantitative forecast or qualitative context that would benefit us
+1. What OKR goal does this align to?
+
+2. Provide Impact estimate = ideally quantitative forecast, if not then qualitative description of impact 
 
 **Other Notes**
 A clear and concise description of what the problem is
