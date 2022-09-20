@@ -585,7 +585,8 @@ Note: We use `node-lib` as the template for all the packages. There are some oth
 ### Publishing Packages
 
 - Update the [`CHANGELOG.md`](./CHANGELOG.md).
-- Run `yarn version:all X.X.X` where `X.X.X` is the full version string of the NPM version to deploy (i.e. `0.0.1`).
+- Run `yarn version:all X.X.X` where `X.X.X` is the full version string of the NPM version to deploy (i.e. `0.0.1`). Use `X.X.X-beta.N` for Amarok releases from `production` branch and `X.X.X-alpha.N` for Amarok releases from `main` branch.
+- Commit and add a tag matching the version
 - Run `git push --follow-tags`.
 - The [GitHub action will](./.github/workflows/build-docker-image-and-verify.yml) publish the packages by recognizing the version tag.
 
