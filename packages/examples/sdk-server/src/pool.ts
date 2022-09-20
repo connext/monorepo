@@ -264,7 +264,7 @@ export const poolRoutes = async (server: FastifyInstance, sdkPoolInstance: NxtpS
     },
     async (request, reply) => {
       const { canonicalDomain, canonicalId } = request.body;
-      const res = await sdkPoolInstance.calculateCanonicalHash(canonicalDomain, canonicalId);
+      const res = sdkPoolInstance.calculateCanonicalHash(canonicalDomain, canonicalId);
       reply.status(200).send(res);
     },
   );
