@@ -1,6 +1,6 @@
 {
   "name": "@connext/nxtp",
-  "version": "0.2.0-beta.22",
+  "version": "0.2.0-beta.23",
   "private": true,
   "devDependencies": {
     "@istanbuljs/nyc-config-typescript": "1.0.2",
@@ -16,7 +16,6 @@
     "packages/utils",
     "packages/deployments/contracts",
     "packages/deployments/subgraph",
-    "packages/deployments/fx-subgraph",
     "packages/adapters/txservice",
     "packages/adapters/cache",
     "packages/adapters/subgraph",

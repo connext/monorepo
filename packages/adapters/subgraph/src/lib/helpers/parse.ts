@@ -1,4 +1,11 @@
-import { NxtpError, DestinationTransfer, OriginTransfer, OriginMessage, DestinationMessage } from "@connext/nxtp-utils";
+import {
+  NxtpError,
+  DestinationTransfer,
+  OriginTransfer,
+  OriginMessage,
+  DestinationMessage,
+  RootMessage,
+} from "@connext/nxtp-utils";
 import { BigNumber } from "ethers";
 
 import { XQueryResultParseError } from "../errors";
@@ -101,7 +108,7 @@ export const destinationTransfer = (entity: any): DestinationTransfer => {
   }
   for (const field of [
     ...SHARED_TRANSFER_ENTITY_REQUIREMENTS,
-    // NOTE: destinationDomain is not emitted by Reconciled event, it could be undefined.
+    "destinationDomain",
     "originDomain",
     "localAmount",
     "localAsset",
@@ -226,7 +233,7 @@ export const destinationMessage = (entity: any): DestinationMessage => {
     throw new NxtpError("Subgraph `DestinationMessage` entity parser: DestinationMessage entity is `undefined`.");
   }
   for (const field of ["leaf", "processed", "returnData", "domain"]) {
-    if (!entity[field]) {
+    if (entity[field] === undefined) {
       throw new NxtpError("Subgraph `DestinationMessage` entity parser: Message entity missing required field", {
         missingField: field,
         entity,
@@ -268,4 +275,43 @@ export const xquery = (response: any): Map<string, any[]> => {
   } else {
     throw new XQueryResultParseError({ response });
   }
+};
+
+export const rootMessage = (entity: any): RootMessage => {
+  // Sanity checks.
+  if (!entity) {
+    throw new NxtpError("Subgraph `RootMessage` entity parser: RootMessage, entity is `undefined`.");
+  }
+  for (const field of [
+    "id",
+    "spokeDomain",
+    "hubDomain",
+    "root",
+    "caller",
+    "transactionHash",
+    "timestamp",
+    "gasPrice",
+    "gasLimit",
+    "blockNumber",
+  ]) {
+    if (!entity[field]) {
+      throw new NxtpError("Subgraph `RootMessage` entity parser: Message entity missing required field", {
+        missingField: field,
+        entity,
+      });
+    }
+  }
+
+  return {
+    id: entity.id,
+    spokeDomain: entity.spokeDomain,
+    hubDomain: entity.hubDomain,
+    root: entity.root,
+    caller: entity.caller,
+    transactionHash: entity.transactionHash,
+    timestamp: entity.timestamp,
+    gasPrice: entity.gasPrice,
+    gasLimit: entity.gasLimit,
+    blockNumber: entity.blockNumber,
+  };
 };

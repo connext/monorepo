@@ -1,0 +1,38 @@
+# POLYGON
+type PolygonConnectorMeta @entity {
+  id: ID! # "PolygonConnectorMeta"
+  spokeDomain: BigInt!
+  hubDomain: BigInt!
+
+  amb: Bytes!
+  rootManager: Bytes!
+  mirrorConnector: Bytes!
+}
+
+# OPTIMISM
+type OptimismConnectorMeta @entity {
+  id: ID! # "OptimismConnectorMeta"
+  spokeDomain: BigInt!
+  hubDomain: BigInt!
+
+  amb: Bytes!
+  rootManager: Bytes!
+  mirrorConnector: Bytes!
+}
+
+# Common
+type RootMessageProcessed @entity {
+  id: ID!
+
+  spokeDomain: BigInt!
+  hubDomain: BigInt!
+  root: Bytes
+
+  # MessageProcessed Transaction
+  caller: Bytes
+  transactionHash: Bytes
+  timestamp: BigInt
+  gasPrice: BigInt
+  gasLimit: BigInt
+  blockNumber: BigInt
+}

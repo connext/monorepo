@@ -1,7 +1,7 @@
 import { task } from "hardhat/config";
 import { Contract } from "ethers";
 
-import { Env, getConnectorName, getDeploymentName, mustGetEnv } from "../src/utils";
+import { Env, getConnectorName, getDeploymentName, getMessagingProtocolConfig, mustGetEnv } from "../src/utils";
 import { MESSAGING_PROTOCOL_CONFIGS } from "../deployConfig/shared";
 
 type TaskArgs = {
@@ -25,11 +25,7 @@ export default task("set-xapp-manager", "Updates the xapp connection manager")
     console.log("deployer: ", deployer.address);
 
     // get messaging config
-    const network = env === "production" ? "mainnet" : env === "staging" ? "testnet" : "local";
-    const protocol = MESSAGING_PROTOCOL_CONFIGS[network];
-    if (!protocol || !protocol.configs[protocol.hub]) {
-      throw new Error(`Network ${network} is not supported! (no messaging config)`);
-    }
+    const protocol = getMessagingProtocolConfig(env);
     const chainId = +(await hre.getChainId());
     const connectorName = getDeploymentName(getConnectorName(protocol, chainId));
     const connector = await hre.deployments.getOrNull(connectorName);
@@ -60,6 +56,11 @@ export default task("set-xapp-manager", "Updates the xapp connection manager")
       const local = localRouterDeployment.address;
       const localRouter = new Contract(local, localRouterAbi, deployer);
 
+      const stored = await localRouter.xAppConnectionManager();
+      if (stored.toLowerCase() === connector.address.toLowerCase()) {
+        console.log(`${connector.address} already xapp connection manager on ${name}`);
+        continue;
+      }
       const tx = await localRouter.setXAppConnectionManager(connector.address);
       console.log(`set connector manager tx`, tx.hash);
       const receipt = await tx.wait();
