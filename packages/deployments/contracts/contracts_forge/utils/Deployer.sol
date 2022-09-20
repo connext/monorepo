@@ -357,7 +357,8 @@ contract Deployer {
     address tokenRegistry,
     address relayerFeeRouter,
     address payable promiseRouter,
-    uint256 acceptanceDelay
+    uint256 acceptanceDelay,
+    uint256 ownershipDelay
   ) internal returns (address) {
     bytes memory initCallData = abi.encodeWithSelector(
       DiamondInit.init.selector,
@@ -365,7 +366,8 @@ contract Deployer {
       tokenRegistry,
       relayerFeeRouter,
       promiseRouter,
-      acceptanceDelay
+      acceptanceDelay,
+      ownershipDelay
     );
 
     deployFacets();

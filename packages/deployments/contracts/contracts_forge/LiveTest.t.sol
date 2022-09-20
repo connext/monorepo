@@ -40,6 +40,9 @@ contract LiveTest is ForgeHelper {
 
   // you should be able to bump + claim relayer fees
   function test_execute() public {
+    if (block.chainid != 5) {
+      return;
+    }
     address[] memory routers = new address[](1);
     routers[0] = 0x71dD9fc6Fe5427F0c7cd7d42Bc89eFFe11C6d4B7;
     bytes[] memory routerSignatures = new bytes[](1);
@@ -88,6 +91,9 @@ contract LiveTest is ForgeHelper {
   }
 
   function test_xcall() public {
+    if (block.chainid != 5) {
+      return;
+    }
     address transactingAsset = 0x68Db1c8d85C09d546097C65ec7DCBFF4D6497CbF;
     vm.startPrank(0x54BAA998771639628ffC0206c3b916c466b79c89);
     TestERC20(transactingAsset).approve(address(connext), 150000000000000000);
@@ -130,6 +136,9 @@ contract LiveTest is ForgeHelper {
   }
 
   function test_xcall_native_asset_zero_amount() public {
+    if (block.chainid != 5) {
+      return;
+    }
     vm.startPrank(0x54BAA998771639628ffC0206c3b916c466b79c89);
 
     emit log_named_address("bridge router: ", address(connext.bridgeRouter()));

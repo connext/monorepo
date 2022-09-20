@@ -336,6 +336,9 @@ struct AppStorage {
    */
   // 38
   mapping(address => bool) approvedSequencers;
+  // 39
+  // @notice ownership delay for transferring ownership
+  uint256 _ownershipDelay;
 }
 
 library LibConnextStorage {
