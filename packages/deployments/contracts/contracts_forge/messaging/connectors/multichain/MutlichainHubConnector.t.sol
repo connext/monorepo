@@ -90,11 +90,7 @@ contract MultichainHubConnectorTest is ConnectorHelper {
     vm.mockCall(_executor, abi.encodeCall(Multichain.context, ()), abi.encode(_l2Connector, _chainIdL2, 1));
 
     // Mock the call to the root manager
-    vm.mockCall(
-      _rootManager,
-      abi.encodeCall(IRootManager.setOutboundRoot, (_mirrorDomain, bytes32(_data))),
-      abi.encode()
-    );
+    vm.mockCall(_rootManager, abi.encodeCall(IRootManager.aggregate, (_mirrorDomain, bytes32(_data))), abi.encode());
 
     // Resize fuzzed bytes to 32 bytes long
     bytes memory _dataCorrectSize = abi.encodePacked(bytes32(_data));
@@ -104,7 +100,7 @@ contract MultichainHubConnectorTest is ConnectorHelper {
     emit MessageProcessed(_dataCorrectSize, _amb);
 
     // Check: call to root manager?
-    vm.expectCall(_rootManager, abi.encodeCall(IRootManager.setOutboundRoot, (_mirrorDomain, bytes32(_data))));
+    vm.expectCall(_rootManager, abi.encodeCall(IRootManager.aggregate, (_mirrorDomain, bytes32(_data))));
 
     // multichain _amb has the same address, irrespective of underlying network
     vm.prank(_amb);
@@ -137,11 +133,7 @@ contract MultichainHubConnectorTest is ConnectorHelper {
     vm.mockCall(_executor, abi.encodeCall(Multichain.context, ()), abi.encode(_wrongMirror, _chainIdL2, 1));
 
     // Mock the call to the root manager
-    vm.mockCall(
-      _rootManager,
-      abi.encodeCall(IRootManager.setOutboundRoot, (_mirrorDomain, bytes32(_data))),
-      abi.encode()
-    );
+    vm.mockCall(_rootManager, abi.encodeCall(IRootManager.aggregate, (_mirrorDomain, bytes32(_data))), abi.encode());
 
     // Resize fuzzed bytes to 32 bytes long
     bytes memory _dataCorrectSize = abi.encodePacked(bytes32(_data));
@@ -163,11 +155,7 @@ contract MultichainHubConnectorTest is ConnectorHelper {
     vm.mockCall(_executor, abi.encodeCall(Multichain.context, ()), abi.encode(_l2Connector, _wrongId, 1));
 
     // Mock the call to the root manager
-    vm.mockCall(
-      _rootManager,
-      abi.encodeCall(IRootManager.setOutboundRoot, (_mirrorDomain, bytes32(_data))),
-      abi.encode()
-    );
+    vm.mockCall(_rootManager, abi.encodeCall(IRootManager.aggregate, (_mirrorDomain, bytes32(_data))), abi.encode());
 
     // Resize fuzzed bytes to 32 bytes long
     bytes memory _dataCorrectSize = abi.encodePacked(bytes32(_data));

@@ -424,7 +424,7 @@ contract MockConnector is SpokeConnector, IHubConnector {
       // FIXME: when using this.update it sets caller to address(this) not AMB
       aggregateRoot = bytes32(_data);
     } else {
-      RootManager(ROOT_MANAGER).setOutboundRoot(MIRROR_DOMAIN, bytes32(_data));
+      RootManager(ROOT_MANAGER).aggregate(MIRROR_DOMAIN, bytes32(_data));
     }
     emit MessageProcessed(_data, msg.sender);
   }

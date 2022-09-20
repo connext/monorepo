@@ -25,7 +25,7 @@ contract PolygonHubConnectorTest is ConnectorHelper {
   // ============ Utils ============
   function utils_setHubConnectorProcessMocks(address _sender) public {
     // 3. call to root manager
-    vm.mockCall(_rootManager, abi.encodeWithSelector(IRootManager.setOutboundRoot.selector), abi.encode(true));
+    vm.mockCall(_rootManager, abi.encodeWithSelector(IRootManager.aggregate.selector), abi.encode(true));
   }
 
   // ============ PolygonHubConnector.setFxChildTunnel ============

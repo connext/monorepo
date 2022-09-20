@@ -61,36 +61,35 @@ contract RootManager is MerkleTreeManager, ProposedOwnable, IRootManager {
   // ============ Public fns ============
 
   /**
-   * @notice This is called by relayers to generate + send the mixed root from mainnet via AMB to spoke domains
-   * @dev This must read information for the root from the registered AMBs
-   * TODO should we input domains or store them? (relayer can alter input domains)
-   * FIXME proper merkle tree implementation
+   * @notice This is called by relayers to take the current aggregate tree root and propagate it to all
+   * spoke domains.
+   * @dev Should be called by relayers at a regular interval.
    */
   function propagate() external override {
-    bytes32 aggregate = tree.root();
+    bytes32 _aggregated = tree.root();
 
-    uint256 numDomains = domains.length;
-    for (uint32 i; i < numDomains; ) {
-      address connector = connectors[domains[i]];
-      IHubConnector(connector).sendMessage(abi.encodePacked(aggregate));
+    uint256 _numDomains = domains.length;
+    for (uint32 i; i < _numDomains; ) {
+      address _connector = connectors[domains[i]];
+      IHubConnector(_connector).sendMessage(abi.encodePacked(_aggregated));
 
       unchecked {
         ++i;
       }
     }
-    emit RootPropagated(aggregate, domains);
+    emit RootPropagated(_aggregated, domains);
   }
 
   /**
    * @notice Accept an inbound root coming from a given domain's hub connector, inserting this incoming
-   * root into the current aggregate tree. The aggregate tree's root will eventually be propagated to all
-   * spoke domains.
+   * root into the current aggregate tree.
+   * @dev The aggregate tree's root, which will include this inbound root, will be propagated to all spoke
+   * domains on a regular basis.
+   *
    * @param _domain The source domain of the given root.
    * @param _inbound The inbound root coming from the given domain.
    */
-  function setOutboundRoot(uint32 _domain, bytes32 _inbound) external override onlyConnector(_domain) {
-    // outboundRoots[_domain] = _outbound;
-    // emit OutboundRootUpdated(_domain, _outbound);
+  function aggregate(uint32 _domain, bytes32 _inbound) external override onlyConnector(_domain) {
     tree.insert(_inbound);
     emit RootAggregated(_domain, _inbound, tree.count - 1);
   }

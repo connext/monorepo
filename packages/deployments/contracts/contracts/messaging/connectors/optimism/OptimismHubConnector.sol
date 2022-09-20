@@ -49,6 +49,6 @@ contract OptimismHubConnector is HubConnector, BaseOptimism {
     // get the data (should be the outbound root)
     require(_data.length == 32, "!length");
     // set the outbound root for optimism on root manager
-    IRootManager(ROOT_MANAGER).setOutboundRoot(MIRROR_DOMAIN, bytes32(_data));
+    IRootManager(ROOT_MANAGER).aggregate(MIRROR_DOMAIN, bytes32(_data));
   }
 }

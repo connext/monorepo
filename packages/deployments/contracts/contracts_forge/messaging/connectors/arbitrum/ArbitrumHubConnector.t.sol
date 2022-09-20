@@ -45,7 +45,7 @@ contract ArbitrumHubConnectorTest is ConnectorHelper {
   function utils_setHubConnectorProcessMocks(address _sender) public {
     utils_setHubConnectorVerifyMocks(_sender);
     // 3. call to root manager
-    vm.mockCall(_rootManager, abi.encodeWithSelector(IRootManager.setOutboundRoot.selector), abi.encode(true));
+    vm.mockCall(_rootManager, abi.encodeWithSelector(IRootManager.aggregate.selector), abi.encode(true));
   }
 
   // ============ ArbitrumHubConnector.setDefaultGasPrice ============
@@ -125,10 +125,7 @@ contract ArbitrumHubConnectorTest is ConnectorHelper {
     emit MessageProcessed(_data, _amb);
 
     // should call root manager
-    vm.expectCall(
-      _rootManager,
-      abi.encodeWithSelector(IRootManager.setOutboundRoot.selector, _l2Domain, bytes32(_data))
-    );
+    vm.expectCall(_rootManager, abi.encodeWithSelector(IRootManager.aggregate.selector, _l2Domain, bytes32(_data)));
 
     // call comes from amb
     vm.prank(_amb);
