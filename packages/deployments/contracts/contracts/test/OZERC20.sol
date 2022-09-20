@@ -7,6 +7,8 @@ pragma solidity 0.8.15;
 // removed to silence solidity inheritance issues
 
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import "@openzeppelin/contracts/token/ERC20/extensions/draft-IERC20Permit.sol";
+import {ECDSA} from "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
 import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 
 /**
@@ -33,7 +35,7 @@ import "@openzeppelin/contracts/utils/math/SafeMath.sol";
  * functions have been added to mitigate the well-known issues around setting
  * allowances. See {IERC20-approve}.
  */
-contract ERC20 is IERC20 {
+abstract contract ERC20 is IERC20, IERC20Permit {
   using SafeMath for uint256;
 
   mapping(address => uint256) private balances;
@@ -41,6 +43,9 @@ contract ERC20 is IERC20 {
   mapping(address => mapping(address => uint256)) private allowances;
 
   uint256 private supply;
+
+  bytes32 private immutable _PERMIT_TYPEHASH =
+    keccak256("Permit(address owner,address spender,uint256 value,uint256 nonce,uint256 deadline)");
 
   struct Token {
     string name;
@@ -287,4 +292,55 @@ contract ERC20 is IERC20 {
     address _to,
     uint256 _amount
   ) internal virtual {}
+
+  /**
+   * @dev See {IERC20Permit-permit}.
+   */
+  function permit(
+    address owner,
+    address spender,
+    uint256 amount,
+    uint256 deadline,
+    uint8 v,
+    bytes32 r,
+    bytes32 s
+  ) public virtual override {
+    require(block.timestamp <= deadline, "ERC20Permit: expired deadline");
+
+    bytes32 structHash = keccak256(
+      abi.encode(_PERMIT_TYPEHASH, owner, spender, amount, nonces[owner].current(), deadline)
+    );
+
+    // TODO: Gen hash
+    bytes32 hash;
+
+    address signer = ECDSA.recover(hash, v, r, s);
+    require(signer == owner, "ERC20Permit: invalid signature");
+
+    nonces[owner].increment();
+    _approve(owner, spender, amount);
+  }
+
+  /**
+   * @dev See {IERC20Permit-nonces}.
+   */
+  function nonces(address owner) public view override returns (uint256) {
+    return nonces[owner].current();
+  }
+
+  /**
+   * @dev See {IERC20Permit-DOMAIN_SEPARATOR}.
+   */
+  function DOMAIN_SEPARATOR() external view override returns (bytes32) {
+    // return
+    //   keccak256(
+    //     abi.encode(
+    //       keccak256("EIP712Domain(string name,string version,uint256 chainId,address verifyingContract)"),
+    //       keccak256(bytes(name)),
+    //       keccak256(bytes(version)),
+    //       chainid,
+    //       address(this)
+    //     )
+    //   );
+  }
 }
