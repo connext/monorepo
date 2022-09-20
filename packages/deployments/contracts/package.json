@@ -1,6 +1,6 @@
 {
   "name": "@connext/nxtp-contracts",
-  "version": "0.2.0-beta.23",
+  "version": "0.2.0-alpha.24",
   "description": "",
   "scripts": {
     "test": "yarn forge test --gas-report --no-match-contract 'LiveTest'",
@@ -21,7 +21,8 @@
     "tsp": "yarn run tsp:root \"$@\" --cwd $(pwd)",
     "hardhat": "hardhat",
     "size": "hardhat size-contracts",
-    "init": "ts-node ./src/init/main.ts"
+    "init": "ts-node ./src/init/main.ts",
+    "version": "yarn version"
   },
   "main": "dist/src/index.js",
   "types": "dist/src/index.d.ts",

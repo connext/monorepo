@@ -596,6 +596,34 @@ ALTER TABLE ONLY public.transfers
 
 
 --
+-- Name: messages_processed_index_idx; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX messages_processed_index_idx ON public.messages USING btree (processed, index);
+
+
+--
+-- Name: transfers_destination_domain_update_time_idx; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX transfers_destination_domain_update_time_idx ON public.transfers USING btree (destination_domain, update_time);
+
+
+--
+-- Name: transfers_origin_domain_xcall_timestamp_idx; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX transfers_origin_domain_xcall_timestamp_idx ON public.transfers USING btree (origin_domain, xcall_timestamp);
+
+
+--
+-- Name: transfers_status_xcall_timestamp_idx; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX transfers_status_xcall_timestamp_idx ON public.transfers USING btree (status, xcall_timestamp);
+
+
+--
 -- Name: transfers update_time_on_transfers; Type: TRIGGER; Schema: public; Owner: -
 --
 
@@ -639,4 +667,5 @@ INSERT INTO public.schema_migrations (version) VALUES
     ('20220824094332'),
     ('20220907212007'),
     ('20220914215736'),
-    ('20220914230120');
+    ('20220914230120'),
+    ('20220920101730');
