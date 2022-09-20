@@ -210,8 +210,6 @@ export type { IArbitrumOutbox } from "./contracts/messaging/interfaces/ambs/arbi
 export { IArbitrumOutbox__factory } from "./factories/contracts/messaging/interfaces/ambs/arbitrum/IArbitrumOutbox__factory";
 export type { IArbitrumRollup } from "./contracts/messaging/interfaces/ambs/arbitrum/IArbitrumRollup";
 export { IArbitrumRollup__factory } from "./factories/contracts/messaging/interfaces/ambs/arbitrum/IArbitrumRollup__factory";
-export type { ArbitrumL1Amb } from "./contracts/messaging/interfaces/ambs/ArbitrumL1Amb";
-export { ArbitrumL1Amb__factory } from "./factories/contracts/messaging/interfaces/ambs/ArbitrumL1Amb__factory";
 export type { GnosisAmb } from "./contracts/messaging/interfaces/ambs/GnosisAmb";
 export { GnosisAmb__factory } from "./factories/contracts/messaging/interfaces/ambs/GnosisAmb__factory";
 export type { Multichain } from "./contracts/messaging/interfaces/ambs/Multichain";
