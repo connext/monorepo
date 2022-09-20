@@ -325,8 +325,8 @@ abstract contract SpokeConnector is Connector, ConnectorManager, MerkleTreeManag
   }
 
   /**
-   * @notice Calculates the expected inbound root from an origin chain given a leaf (message hash), the index
-   * of the leaf, and the merkle proof of inclusion (path).
+   * @notice Checks whether a given message is valid. If so, calculates the expected inbound root from an
+   * origin chain given a leaf (message hash), the index of the leaf, and the merkle proof of inclusion.
    * @dev Reverts if message's MessageStatus != None (i.e. if message was already proven or processed).
    *
    * @param _messageHash Leaf (message hash) that requires proving.

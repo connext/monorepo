@@ -72,13 +72,13 @@ contract RootManager is MerkleTreeManager, ProposedOwnable, IRootManager {
     uint256 numDomains = domains.length;
     for (uint32 i; i < numDomains; ) {
       address connector = connectors[domains[i]];
-      IHubConnector(connector).sendMessage(aggregate);
+      IHubConnector(connector).sendMessage(abi.encodePacked(aggregate));
 
       unchecked {
         ++i;
       }
     }
-    emit RootPropagated(outboundRoots[hub], domains);
+    emit RootPropagated(aggregate, domains);
   }
 
   /**
