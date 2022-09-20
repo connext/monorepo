@@ -480,7 +480,6 @@ export class NxtpSdkPool {
     }
 
     const key = this.calculateCanonicalHash(canonicalDomain, canonicalId);
-    console.log("KEY:", key);
 
     let pool = this.pools.get(key);
     if (pool) {
@@ -503,7 +502,6 @@ export class NxtpSdkPool {
       data: encoded,
     });
     const adopted = this.connext.decodeFunctionResult("canonicalToAdopted(bytes32)", result)[0] as string;
-    console.log("adopted:", adopted);
 
     if (adopted == tokenAddress) {
       throw new PoolDoesNotExist(domainId, tokenAddress);
@@ -516,7 +514,6 @@ export class NxtpSdkPool {
       data: encoded,
     });
     const lpTokenAddress = this.connext.decodeFunctionResult("getSwapLPToken", result)[0] as string;
-    console.log("lpTokenAddress:", lpTokenAddress);
 
     encoded = this.erc20.encodeFunctionData("decimals");
     result = await this.chainReader.readTx({
@@ -525,7 +522,6 @@ export class NxtpSdkPool {
       data: encoded,
     });
     const localDecimals = this.erc20.decodeFunctionResult("decimals", result)[0] as number;
-    console.log("after decimals");
 
     result = await this.chainReader.readTx({
       chainId: Number(domainId),
@@ -533,7 +529,6 @@ export class NxtpSdkPool {
       data: encoded,
     });
     const adoptedDecimals = this.erc20.decodeFunctionResult("decimals", result)[0] as number;
-    console.log("after another decimals");
 
     encoded = this.erc20.encodeFunctionData("symbol");
     result = await this.chainReader.readTx({
@@ -542,11 +537,9 @@ export class NxtpSdkPool {
       data: encoded,
     });
     const tokenSymbol = this.erc20.decodeFunctionResult("symbol", result)[0] as string;
-    console.log("after symbol");
 
     const adoptedBalance = await this.getPoolTokenBalance(domainId, key, adopted);
     const localBalance = await this.getPoolTokenBalance(domainId, key, tokenAddress);
-    console.log("after balances");
 
     pool = new Pool(
       domainId,
