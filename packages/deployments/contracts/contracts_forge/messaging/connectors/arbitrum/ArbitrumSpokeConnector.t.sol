@@ -10,8 +10,8 @@ import {IRootManager} from "../../../../contracts/messaging/interfaces/IRootMana
 
 import {ArbitrumSpokeConnector} from "../../../../contracts/messaging/connectors/arbitrum/ArbitrumSpokeConnector.sol";
 
-import {ArbitrumL1Amb} from "../../../../contracts/messaging/interfaces/ambs/ArbitrumL1Amb.sol";
-import {ArbitrumL2Amb} from "../../../../contracts/messaging/interfaces/ambs/ArbitrumL2Amb.sol";
+import {IArbitrumInbox} from "../../../../contracts/messaging/interfaces/ambs/arbitrum/IArbitrumInbox.sol";
+import {ArbitrumL2Amb} from "../../../../contracts/messaging/interfaces/ambs/arbitrum/ArbitrumL2Amb.sol";
 
 import "../../../utils/ConnectorHelper.sol";
 import "../../../utils/Mock.sol";

@@ -10,8 +10,8 @@ import {IRootManager} from "../../../../contracts/messaging/interfaces/IRootMana
 
 import {ArbitrumHubConnector} from "../../../../contracts/messaging/connectors/arbitrum/ArbitrumHubConnector.sol";
 
-import {ArbitrumL1Amb} from "../../../../contracts/messaging/interfaces/ambs/ArbitrumL1Amb.sol";
-import {ArbitrumL2Amb} from "../../../../contracts/messaging/interfaces/ambs/ArbitrumL2Amb.sol";
+import {IArbitrumInbox} from "../../../../contracts/messaging/interfaces/ambs/arbitrum/IArbitrumInbox.sol";
+import {ArbitrumL2Amb} from "../../../../contracts/messaging/interfaces/ambs/arbitrum/ArbitrumL2Amb.sol";
 
 import "../../../utils/ConnectorHelper.sol";
 import "../../../utils/Mock.sol";
@@ -87,7 +87,7 @@ contract ArbitrumHubConnectorTest is ConnectorHelper {
   // ============ ArbitrumHubConnector.sendMessage ============
   function test_ArbitrumHubConnector__sendMessage_works() public {
     // setup mock
-    vm.mockCall(_amb, abi.encodeWithSelector(ArbitrumL1Amb.sendContractTransaction.selector), abi.encode(123));
+    vm.mockCall(_amb, abi.encodeWithSelector(IArbitrumInbox.sendContractTransaction.selector), abi.encode(123));
 
     // data
     bytes memory _data = abi.encode(123123123);
@@ -100,7 +100,7 @@ contract ArbitrumHubConnectorTest is ConnectorHelper {
     vm.expectCall(
       _amb,
       abi.encodeWithSelector(
-        ArbitrumL1Amb.sendContractTransaction.selector,
+        IArbitrumInbox.sendContractTransaction.selector,
         _mirrorGas,
         _defaultGasPrice,
         _l2Connector,
