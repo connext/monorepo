@@ -121,20 +121,11 @@ const sanitizeNull = (obj: { [s: string]: any }): any => {
 
 export const saveTransfers = async (xtransfers: XTransfer[], checkpoints: Checkpoints, _pool?: Pool): Promise<void> => {
   const poolToUse = _pool ?? pool;
-  const transfers: s.transfers.Insertable[] = xtransfers.map(convertToDbTransfer);
+  const transfers: s.transfers.Insertable[] = xtransfers.map(convertToDbTransfer).map(sanitizeNull);
 
-  await db.serializable(poolToUse, async (txnClient) => {
-    // TODO: make this a single query! we should be able to do this with postgres
+  await db.repeatableRead(poolToUse, async (txnClient) => {
     // TODO: Perfomance implications to be evaluated. Upgrade to batching of configured batch size N.
-    for (const oneTransfer of transfers) {
-      const transfer = sanitizeNull(oneTransfer);
-      await db.sql<s.transfers.SQL, s.transfers.JSONSelectable[]>`
-      INSERT INTO ${"transfers"} (${db.cols(transfer)})
-        VALUES (${db.vals(transfer)}) 
-      ON CONFLICT ("transfer_id") DO UPDATE 
-        SET (${db.cols(transfer)}) = (${db.vals(transfer)}) 
-      RETURNING *`.run(txnClient);
-    }
+    await db.upsert("transfers", transfers, ["transfer_id"]).run(txnClient);
     for (const checkpoint of checkpoints.checkpoints) {
       await saveCheckPoint(checkpoints.prefix + checkpoint.domain, checkpoint.checkpoint, txnClient);
     }
@@ -144,47 +135,25 @@ export const saveTransfers = async (xtransfers: XTransfer[], checkpoints: Checkp
 export const saveMessages = async (xMessages: XMessage[], _pool?: Pool): Promise<void> => {
   // The `xMessages` are the ones retrieved only from the origin or destination domain
   const poolToUse = _pool ?? pool;
-  const messages: s.messages.Insertable[] = xMessages.map(convertToDbMessage);
+  const messages: s.messages.Insertable[] = xMessages.map(convertToDbMessage).map(sanitizeNull);
 
-  for (const oneMessage of messages) {
-    const message = sanitizeNull(oneMessage);
-    await db.sql<s.messages.SQL, s.messages.JSONSelectable[]>`
-    INSERT INTO ${"messages"} (${db.cols(message)})
-    VALUES (${db.vals(message)}) 
-    ON CONFLICT ("leaf") DO UPDATE 
-      SET (${db.cols(message)}) = (${db.vals(message)}) 
-    RETURNING *`.run(poolToUse);
-  }
+  await db.upsert("messages", messages, ["leaf"]).run(poolToUse);
 };
 
 export const saveSentRootMessages = async (_messages: RootMessage[], _pool?: Pool): Promise<void> => {
   const poolToUse = _pool ?? pool;
-  const messages: s.sent_root_messages.Insertable[] = _messages.map(convertToDbSentRootMessage);
+  const messages: s.sent_root_messages.Insertable[] = _messages.map(convertToDbSentRootMessage).map(sanitizeNull);
 
-  for (const oneMessage of messages) {
-    const message = sanitizeNull(oneMessage);
-    await db.sql<s.sent_root_messages.SQL, s.sent_root_messages.JSONSelectable[]>`
-    INSERT INTO ${"sent_root_messages"} (${db.cols(message)})
-    VALUES (${db.vals(message)}) 
-    ON CONFLICT ("id") DO UPDATE 
-      SET (${db.cols(message)}) = (${db.vals(message)}) 
-    RETURNING *`.run(poolToUse);
-  }
+  await db.upsert("sent_root_messages", messages, ["id"]).run(poolToUse);
 };
 
 export const saveProcessedRootMessages = async (_messages: RootMessage[], _pool?: Pool): Promise<void> => {
   const poolToUse = _pool ?? pool;
-  const messages: s.processed_root_messages.Insertable[] = _messages.map(convertToDbProcessedRootMessage);
+  const messages: s.processed_root_messages.Insertable[] = _messages
+    .map(convertToDbProcessedRootMessage)
+    .map(sanitizeNull);
 
-  for (const oneMessage of messages) {
-    const message = sanitizeNull(oneMessage);
-    await db.sql<s.processed_root_messages.SQL, s.processed_root_messages.JSONSelectable[]>`
-    INSERT INTO ${"processed_root_messages"} (${db.cols(message)})
-    VALUES (${db.vals(message)}) 
-    ON CONFLICT ("id") DO UPDATE 
-      SET (${db.cols(message)}) = (${db.vals(message)}) 
-    RETURNING *`.run(poolToUse);
-  }
+  await db.upsert("processed_root_messages", messages, ["id"]).run(poolToUse);
 };
 
 export const getPendingMessages = async (
@@ -196,45 +165,36 @@ export const getPendingMessages = async (
   const poolToUse = _pool ?? pool;
   const processed = false;
 
-  const x = await db.sql<s.messages.SQL, s.messages.JSONSelectable[]>`
-  SELECT * FROM ${"messages"} 
-  WHERE ${{ processed }} 
-  ORDER BY "index" ${db.raw(`${orderDirection}`)} 
-    NULLS LAST 
-    LIMIT ${db.param(limit)}`.run(poolToUse);
+  const x = await db
+    .select("messages", { processed }, { limit, order: { by: "index", direction: orderDirection, nulls: "LAST" } })
+    .run(poolToUse);
+
   return x.map(convertFromDbMessage);
 };
 
 export const saveCheckPoint = async (
   check: string,
   point: number,
-  _pool?: Pool | db.TxnClientForSerializable,
+  _pool?: Pool | db.TxnClientForRepeatableRead,
 ): Promise<void> => {
   const poolToUse = _pool ?? pool;
   const checkpoint = { check_name: check, check_point: point };
 
-  await db.sql<s.checkpoints.SQL, s.checkpoints.JSONSelectable[]>`
-    INSERT INTO ${"checkpoints"} (${db.cols(checkpoint)})
-      VALUES (${db.vals(checkpoint)}) 
-    ON CONFLICT ("check_name") DO UPDATE 
-      SET (${db.cols(checkpoint)}) = (${db.vals(checkpoint)}) 
-    RETURNING *`.run(poolToUse);
+  await db.upsert("checkpoints", checkpoint, ["check_name"]).run(poolToUse);
 };
 
 export const getCheckPoint = async (check_name: string, _pool?: Pool): Promise<number> => {
   const poolToUse = _pool ?? pool;
-  const result = await db.sql<s.checkpoints.SQL, s.checkpoints.JSONSelectable[]>`
-  SELECT * FROM ${"checkpoints"} 
-  WHERE ${{ check_name }}`.run(poolToUse);
-  return BigNumber.from(result[0]?.check_point ?? 0).toNumber();
+
+  const result = await db.selectOne("checkpoints", { check_name }).run(poolToUse);
+  return BigNumber.from(result?.check_point ?? 0).toNumber();
 };
 
 export const getTransferByTransferId = async (transfer_id: string, _pool?: Pool): Promise<XTransfer | undefined> => {
   const poolToUse = _pool ?? pool;
-  const x = await db.sql<s.transfers.SQL, s.transfers.JSONSelectable[]>`
-  SELECT * FROM ${"transfers"} 
-  WHERE ${{ transfer_id }}`.run(poolToUse);
-  return x.length ? convertFromDbTransfer(x[0]) : undefined;
+
+  const x = await db.selectOne("transfers", { transfer_id }).run(poolToUse);
+  return x ? convertFromDbTransfer(x) : undefined;
 };
 
 export const getTransfersByStatus = async (
@@ -245,13 +205,14 @@ export const getTransfersByStatus = async (
   _pool?: Pool,
 ): Promise<XTransfer[]> => {
   const poolToUse = _pool ?? pool;
-  const x = await db.sql<s.transfers.SQL, s.transfers.JSONSelectable[]>`
-  SELECT * FROM ${"transfers"} 
-  WHERE ${{ status }} 
-  ORDER BY "xcall_timestamp" ${db.raw(`${orderDirection}`)} 
-    NULLS LAST 
-    LIMIT ${db.param(limit)} 
-    OFFSET ${db.param(offset)}`.run(poolToUse);
+
+  const x = await db
+    .select(
+      "transfers",
+      { status },
+      { limit, offset, order: { by: "nonce", direction: orderDirection, nulls: "LAST" } },
+    )
+    .run(poolToUse);
   return x.map(convertFromDbTransfer);
 };
 
@@ -262,12 +223,13 @@ export const getTransfersWithOriginPending = async (
   _pool?: Pool,
 ): Promise<string[]> => {
   const poolToUse = _pool ?? pool;
-  const transfers = await db.sql<s.transfers.SQL, s.transfers.JSONSelectable[]>`
-  SELECT * FROM ${"transfers"} 
-  WHERE ${{ origin_domain: domain }} 
-    AND "xcall_timestamp" IS NULL 
-  ORDER BY "update_time" ${db.raw(`${orderDirection}`)} 
-  LIMIT ${db.param(limit)}`.run(poolToUse);
+
+  const transfers = await db
+    .select("transfers", db.sql<s.transfers.SQL>`${{ origin_domain: domain }} AND xcall_timestamp IS NULL`, {
+      limit,
+      order: { by: "update_time", direction: orderDirection },
+    })
+    .run(poolToUse);
 
   const transfer_ids = transfers.map((transfer) => transfer.transfer_id);
   return transfer_ids;
@@ -280,14 +242,19 @@ export const getTransfersWithDestinationPending = async (
   _pool?: Pool,
 ): Promise<string[]> => {
   const poolToUse = _pool ?? pool;
-  const transfers = await db.sql<s.transfers.SQL, s.transfers.JSONSelectable[]>`
-  SELECT * FROM ${"transfers"} 
-  WHERE (${{ destination_domain: domain }} 
-    OR "destination_domain" IS NULL) 
-    AND ("xcall_timestamp" IS NOT NULL AND ("execute_timestamp" IS NULL 
-    OR "reconcile_timestamp" IS NULL)) 
-  ORDER BY "update_time" ${db.raw(`${orderDirection}`)} 
-  LIMIT ${db.param(limit)}`.run(poolToUse);
+
+  const transfers = await db
+    .select(
+      "transfers",
+      db.sql<s.transfers.SQL>`
+      (${{ destination_domain: domain }} 
+      OR "destination_domain" IS NULL)
+      AND ("xcall_timestamp" IS NOT NULL AND ("execute_timestamp" IS NULL 
+      OR "reconcile_timestamp" IS NULL))
+      `,
+      { order: { by: "update_time", direction: orderDirection }, limit },
+    )
+    .run(poolToUse);
 
   const transfer_ids = transfers.map((transfer) => transfer.transfer_id);
   return transfer_ids;
@@ -299,49 +266,45 @@ export const saveRouterBalances = async (routerBalances: RouterBalance[], _pool?
     return { address: router.router };
   });
 
-  // TODO: make this a single query! we should be able to do this with postgres
-  for (const router of routers) {
-    await db.sql<s.routers.SQL, s.routers.JSONSelectable>`
-    INSERT INTO ${"routers"} (${db.cols(router)}) 
-    VALUES (${db.vals(router)}) 
-    ON CONFLICT ("address") 
-      DO NOTHING 
-    RETURNING *`.run(poolToUse);
+  await db.repeatableRead(poolToUse, async (txnClient) => {
+    await db.upsert("routers", routers, ["address"], { updateColumns: db.doNothing }).run(txnClient);
 
-    const balances = (routerBalances.find((r) => r.router === router.address) ?? {}).assets ?? [];
-    const dbBalances: { balance: s.asset_balances.Insertable; asset: s.assets.Insertable }[] = balances.map((b) => {
-      return {
-        balance: {
-          asset_canonical_id: b.canonicalId,
-          asset_domain: b.domain,
-          router_address: router.address,
-          // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
-          balance: b.balance as any,
-        },
-        asset: {
-          local: b.local,
-          adopted: b.adoptedAsset,
-          canonical_id: b.canonicalId,
-          canonical_domain: b.canonicalDomain,
-          domain: b.domain,
-        },
-      };
-    });
+    for (const router of routers) {
+      const balances = (routerBalances.find((r) => r.router === router.address) ?? {}).assets ?? [];
+      const dbBalances: { balance: s.asset_balances.Insertable; asset: s.assets.Insertable }[] = balances.map((b) => {
+        return {
+          balance: {
+            asset_canonical_id: b.canonicalId,
+            asset_domain: b.domain,
+            router_address: router.address,
+            // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
+            balance: b.balance as any,
+          },
+          asset: {
+            local: b.local,
+            adopted: b.adoptedAsset,
+            canonical_id: b.canonicalId,
+            canonical_domain: b.canonicalDomain,
+            domain: b.domain,
+          },
+        };
+      });
 
-    for (const balance of dbBalances) {
-      await db.sql<s.assets.SQL, s.assets.JSONSelectable>`
-      INSERT INTO ${"assets"} (${db.cols(balance.asset)}) 
-      VALUES (${db.vals(balance.asset)}) 
-      ON CONFLICT ("canonical_id", "domain") DO UPDATE 
-        SET (${db.cols(balance.asset)}) = (${db.vals(balance.asset)}) 
-      RETURNING *`.run(poolToUse);
+      await db
+        .upsert(
+          "assets",
+          dbBalances.map((b) => b.asset),
+          ["canonical_id", "domain"],
+        )
+        .run(txnClient);
 
-      await db.sql<s.asset_balances.SQL, s.asset_balances.JSONSelectable>`
-      INSERT INTO ${"asset_balances"} (${db.cols(balance.balance)}) 
-      VALUES (${db.vals(balance.balance)}) 
-      ON CONFLICT ("asset_canonical_id", "asset_domain", "router_address") DO UPDATE 
-        SET (${db.cols(balance.balance)}) = (${db.vals(balance.balance)}) 
-      RETURNING *`.run(poolToUse);
+      await db
+        .upsert(
+          "asset_balances",
+          dbBalances.map((b) => b.balance),
+          ["asset_canonical_id", "asset_domain", "router_address"],
+        )
+        .run(txnClient);
     }
-  }
+  });
 };
