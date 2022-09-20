@@ -24,36 +24,37 @@ export type Checkpoints = {
 };
 
 export type Database = {
-  saveTransfers: (xtransfers: XTransfer[], checkpoints: Checkpoints, _pool?: Pool) => Promise<void>;
+  saveTransfers: (xtransfers: XTransfer[], _pool?: Pool | TxnClientForRepeatableRead) => Promise<void>;
   getTransfersByStatus: (
     status: XTransferStatus,
     limit: number,
     offset?: number,
     orderDirection?: "ASC" | "DESC",
-    _pool?: Pool,
+    _pool?: Pool | TxnClientForRepeatableRead,
   ) => Promise<XTransfer[]>;
   getTransfersWithOriginPending: (
     domain: string,
     limit: number,
     orderDirection?: "ASC" | "DESC",
-    _pool?: Pool,
+    _pool?: Pool | TxnClientForRepeatableRead,
   ) => Promise<string[]>;
   getTransfersWithDestinationPending: (
     domain: string,
     limit: number,
     orderDirection?: "ASC" | "DESC",
-    _pool?: Pool,
+    _pool?: Pool | TxnClientForRepeatableRead,
   ) => Promise<string[]>;
-  saveRouterBalances: (routerBalances: RouterBalance[], _pool?: Pool) => Promise<void>;
-  saveMessages: (messages: XMessage[], _pool?: Pool) => Promise<void>;
-  saveSentRootMessages: (messages: RootMessage[], _pool?: Pool) => Promise<void>;
-  saveProcessedRootMessages: (messages: RootMessage[], _pool?: Pool) => Promise<void>;
-  getPendingMessages: (_pool?: Pool) => Promise<XMessage[]>;
+  saveRouterBalances: (routerBalances: RouterBalance[], _pool?: Pool | TxnClientForRepeatableRead) => Promise<void>;
+  saveMessages: (messages: XMessage[], _pool?: Pool | TxnClientForRepeatableRead) => Promise<void>;
+  saveSentRootMessages: (messages: RootMessage[], _pool?: Pool | TxnClientForRepeatableRead) => Promise<void>;
+  saveProcessedRootMessages: (messages: RootMessage[], _pool?: Pool | TxnClientForRepeatableRead) => Promise<void>;
+  getPendingMessages: (_pool?: Pool | TxnClientForRepeatableRead) => Promise<XMessage[]>;
   saveCheckPoint: (check: string, point: number, _pool?: Pool | TxnClientForRepeatableRead) => Promise<void>;
-  getCheckPoint: (check_name: string, _pool?: Pool) => Promise<number>;
+  getCheckPoint: (check_name: string, _pool?: Pool | TxnClientForRepeatableRead) => Promise<number>;
 };
 
 export let pool: Pool;
+export * as db from "zapatos/db";
 
 export const getDatabase = async (): Promise<Database> => {
   const { config, logger } = getContext();

@@ -59,19 +59,19 @@ describe("Database client", () => {
 
   it("should save single transfer", async () => {
     const xTransfer = mock.entity.xtransfer({ status: XTransferStatus.Executed });
-    await saveTransfers([xTransfer], { checkpoints: [], prefix: "" }, pool);
+    await saveTransfers([xTransfer], pool);
   });
 
   it("should save single transfer null destination", async () => {
     let xTransferLocal = mock.entity.xtransfer({ status: XTransferStatus.Executed });
     xTransferLocal.xparams.destinationDomain = null as any;
-    await saveTransfers([xTransferLocal], { checkpoints: [], prefix: "" }, pool);
+    await saveTransfers([xTransferLocal], pool);
   });
 
   it("should upsert single transfer", async () => {
     const xTransfer = mock.entity.xtransfer({ status: XTransferStatus.Executed });
     xTransfer.destination!.status = XTransferStatus.CompletedFast;
-    await saveTransfers([xTransfer], { checkpoints: [], prefix: "" }, pool);
+    await saveTransfers([xTransfer], pool);
     const dbTransfer = await getTransferByTransferId(xTransfer.transferId, pool);
     expect(dbTransfer!.destination!.status).equal(XTransferStatus.CompletedFast);
     expect(dbTransfer!.transferId).equal(xTransfer.transferId);
@@ -82,12 +82,12 @@ describe("Database client", () => {
     const xcall_timestamp = xTransfer.origin!.xcall.timestamp;
     xTransfer.destination = undefined;
     const origin = xTransfer.origin;
-    await saveTransfers([xTransfer], { checkpoints: [], prefix: "" }, pool);
+    await saveTransfers([xTransfer], pool);
     const xTransferDestination = mock.entity.xtransfer({ status: XTransferStatus.CompletedFast });
     xTransfer.destination = xTransferDestination.destination;
     xTransfer.origin = undefined;
     const reconcile_timestamp = xTransfer.destination!.reconcile!.timestamp;
-    await saveTransfers([xTransfer], { checkpoints: [], prefix: "" }, pool);
+    await saveTransfers([xTransfer], pool);
     const dbTransfer = await getTransferByTransferId(xTransfer.transferId, pool);
     expect(dbTransfer!.destination!.status).equal(XTransferStatus.CompletedFast);
     expect(dbTransfer!.origin?.xcall.timestamp).equal(xcall_timestamp);
@@ -101,11 +101,11 @@ describe("Database client", () => {
     const origin = xTransfer.origin;
     xTransfer.origin = undefined;
     const reconcile_timestamp = xTransfer.destination!.reconcile!.timestamp;
-    await saveTransfers([xTransfer], { checkpoints: [], prefix: "" }, pool);
+    await saveTransfers([xTransfer], pool);
     xTransfer.origin = origin;
     xTransfer.destination = undefined;
     const xcall_timestamp = xTransfer.origin!.xcall.timestamp;
-    await saveTransfers([xTransfer], { checkpoints: [], prefix: "" }, pool);
+    await saveTransfers([xTransfer], pool);
     const dbTransfer = await getTransferByTransferId(xTransfer.transferId, pool);
     expect(dbTransfer!.destination!.status).equal(XTransferStatus.CompletedFast);
     expect(dbTransfer!.origin?.xcall.timestamp).equal(xcall_timestamp);
@@ -119,7 +119,7 @@ describe("Database client", () => {
     for (var _i = 0; _i < batchSize; _i++) {
       transfers.push(mock.entity.xtransfer({ status: XTransferStatus.Executed }));
     }
-    await saveTransfers(transfers, { checkpoints: [], prefix: "" }, pool);
+    await saveTransfers(transfers, pool);
   });
 
   it("should upsert multiple transfers", async () => {
@@ -127,7 +127,7 @@ describe("Database client", () => {
     for (let transfer of transfers) {
       transfer!.destination!.status = XTransferStatus.CompletedSlow;
     }
-    await saveTransfers(transfers, { checkpoints: [], prefix: "" }, pool);
+    await saveTransfers(transfers, pool);
     for (let transfer of transfers) {
       const dbTransfer = await getTransferByTransferId(transfer.transferId, pool);
       expect(dbTransfer!.destination!.status).equal(XTransferStatus.CompletedSlow);
@@ -137,7 +137,7 @@ describe("Database client", () => {
 
   it("should get transfer by status", async () => {
     const xTransfer = mock.entity.xtransfer({ status: XTransferStatus.CompletedFast });
-    await saveTransfers([xTransfer], { checkpoints: [], prefix: "" }, pool);
+    await saveTransfers([xTransfer], pool);
 
     const statusTransfers = await getTransfersByStatus(XTransferStatus.CompletedFast, 10, 0, "ASC", pool);
     expect(statusTransfers.length).greaterThan(0);
@@ -153,7 +153,7 @@ describe("Database client", () => {
         t.origin!.xcall.timestamp = index + 1;
         return t;
       });
-    await saveTransfers(transfers, { checkpoints: [], prefix: "" }, pool);
+    await saveTransfers(transfers, pool);
     const set1 = await getTransfersByStatus(XTransferStatus.Executed, 4, 0, "ASC", pool);
     expect(set1[0].nonce).to.eq(1);
   });
@@ -167,7 +167,7 @@ describe("Database client", () => {
         t.origin!.xcall.timestamp = index + 1;
         return t;
       });
-    await saveTransfers(transfers, { checkpoints: [], prefix: "" }, pool);
+    await saveTransfers(transfers, pool);
     const set1 = await getTransfersByStatus(XTransferStatus.Executed, 4, 0, "DESC", pool);
     expect(set1[0].nonce).to.eq(10);
   });
@@ -181,7 +181,7 @@ describe("Database client", () => {
         t.origin!.xcall.timestamp = index + 1;
         return t;
       });
-    await saveTransfers(transfers, { checkpoints: [], prefix: "" }, pool);
+    await saveTransfers(transfers, pool);
     const set1 = await getTransfersByStatus(XTransferStatus.Executed, 4, 0, "DESC", pool);
     expect(set1.length).to.eq(4);
   });
@@ -195,7 +195,7 @@ describe("Database client", () => {
         t.origin!.xcall.timestamp = index + 1;
         return t;
       });
-    await saveTransfers(transfers, { checkpoints: [], prefix: "" }, pool);
+    await saveTransfers(transfers, pool);
     const set1 = await getTransfersByStatus(XTransferStatus.Executed, 1, 9, "DESC", pool);
     expect(set1.length).to.eq(1);
     expect(set1[0].nonce).to.eq(1);
@@ -205,7 +205,7 @@ describe("Database client", () => {
     let xTransferLocal = mock.entity.xtransfer();
     xTransferLocal.xparams.forceSlow = true;
     xTransferLocal.xparams.receiveLocal = true;
-    await saveTransfers([xTransferLocal], { checkpoints: [], prefix: "" }, pool);
+    await saveTransfers([xTransferLocal], pool);
     const dbTransfer = await getTransferByTransferId(xTransferLocal.transferId, pool);
     expect(dbTransfer!.transferId).equal(xTransferLocal.transferId);
     expect(dbTransfer!.xparams!.forceSlow).equal(true);
@@ -214,7 +214,7 @@ describe("Database client", () => {
 
   it("should save missing boolean fields with defaults", async () => {
     const xTransferLocal = mock.entity.xtransfer();
-    await saveTransfers([xTransferLocal], { checkpoints: [], prefix: "" }, pool);
+    await saveTransfers([xTransferLocal], pool);
     const dbTransfer = await getTransferByTransferId(xTransferLocal.transferId, pool);
     expect(dbTransfer!.transferId).equal(xTransferLocal.transferId);
     expect(dbTransfer!.xparams!.forceSlow).equal(false);
@@ -336,10 +336,10 @@ describe("Database client", () => {
     const xTransfer3 = mock.entity.xtransfer({ status: XTransferStatus.Reconciled });
     xTransfer3.origin = undefined;
     const xTransfer3Id = xTransfer3.transferId;
-    await saveTransfers([xTransfer3], { checkpoints: [], prefix: "" }, pool);
+    await saveTransfers([xTransfer3], pool);
     const xTransfer4: XTransfer = mock.entity.xtransfer({ status: XTransferStatus.Executed });
     xTransfer4.destination!.execute!.timestamp = 4;
-    await saveTransfers([xTransfer1, xTransfer2, xTransfer3], { checkpoints: [], prefix: "" }, pool);
+    await saveTransfers([xTransfer1, xTransfer2, xTransfer3], pool);
     const transfers = await getTransfersWithOriginPending(xTransfer3.xparams.originDomain, 100, "ASC", pool);
     expect(transfers.length).greaterThan(0);
     expect(transfers).includes(xTransfer3Id);
@@ -353,10 +353,10 @@ describe("Database client", () => {
     const xTransfer3 = mock.entity.xtransfer({ status: XTransferStatus.XCalled });
     xTransfer3.destination = undefined;
     const xTransfer3Id = xTransfer3.transferId;
-    await saveTransfers([xTransfer3], { checkpoints: [], prefix: "" }, pool);
+    await saveTransfers([xTransfer3], pool);
     const xTransfer4: XTransfer = mock.entity.xtransfer({ status: XTransferStatus.Executed });
     xTransfer4.destination!.execute!.timestamp = 4;
-    await saveTransfers([xTransfer1, xTransfer2, xTransfer3], { checkpoints: [], prefix: "" }, pool);
+    await saveTransfers([xTransfer1, xTransfer2, xTransfer3], pool);
     const transfers = await getTransfersWithDestinationPending(xTransfer3.xparams.destinationDomain, 100, "ASC", pool);
     expect(transfers.length).greaterThan(0);
     expect(transfers).includes(xTransfer3Id);
@@ -453,7 +453,7 @@ describe("Database client", () => {
   it("should throw errors", async () => {
     await expect(getTransferByTransferId("")).to.eventually.not.be.rejected;
     await expect(getTransfersByStatus(undefined as any, undefined as any)).to.eventually.not.be.rejected;
-    await expect(saveTransfers(undefined as any, { checkpoints: [], prefix: "" })).to.eventually.not.be.rejected;
+    await expect(saveTransfers(undefined as any)).to.eventually.not.be.rejected;
     await expect(saveMessages(undefined as any)).to.eventually.not.be.rejected;
     await expect(saveSentRootMessages(undefined as any)).to.eventually.not.be.rejected;
     await expect(saveProcessedRootMessages(undefined as any)).to.eventually.not.be.rejected;

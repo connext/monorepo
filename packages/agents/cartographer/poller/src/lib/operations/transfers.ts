@@ -5,7 +5,7 @@ import {
   SubgraphQueryByTransferIDsMetaParams,
   XTransfer,
 } from "@connext/nxtp-utils";
-import { Checkpoints } from "../../adapters/database";
+import { Checkpoints, db, pool } from "../../adapters/database";
 
 import { getContext } from "../../shared";
 
@@ -115,7 +115,12 @@ export const updateTransfers = async () => {
       })
       .filter((x) => !!x) as { domain: string; checkpoint: number }[];
 
-    await database.saveTransfers(transfers, { prefix: "origin_nonce_", checkpoints });
+    await db.repeatableRead(pool, async (txnClient) => {
+      await database.saveTransfers(transfers, txnClient);
+      for (const checkpoint of checkpoints) {
+        await database.saveCheckPoint("origin_nonce_" + checkpoint.domain, checkpoint.checkpoint, txnClient);
+      }
+    });
   }
 
   if (subgraphDestinationQueryMetaParams.size > 0) {
@@ -138,7 +143,12 @@ export const updateTransfers = async () => {
       })
       .filter((x) => !!x) as { domain: string; checkpoint: number }[];
 
-    await database.saveTransfers(transfers, { prefix: "destination_nonce_", checkpoints });
+    await db.repeatableRead(pool, async (txnClient) => {
+      await database.saveTransfers(transfers, txnClient);
+      for (const checkpoint of checkpoints) {
+        await database.saveCheckPoint("destination_nonce_" + checkpoint.domain, checkpoint.checkpoint, txnClient);
+      }
+    });
   }
 
   await Promise.all(
@@ -153,13 +163,13 @@ export const updateTransfers = async () => {
       });
       const max = getMaxReconcileTimestamp(domainTransfers);
       const latest = subgraphReconcileQueryMetaParams.get(domain)?.fromTimestamp ?? 0;
-      let checkpoints: Checkpoints = { prefix: "destination_reconcile_timestamp_", checkpoints: [] };
-      if (domainTransfers.length > 0 && max > latest) {
-        checkpoints.checkpoints = [{ domain, checkpoint: max }];
-        await database.saveCheckPoint("destination_reconcile_timestamp_" + domain, max);
-      }
 
-      await database.saveTransfers(domainTransfers, checkpoints);
+      await db.repeatableRead(pool, async (txnClient) => {
+        await database.saveTransfers(domainTransfers, txnClient);
+        if (domainTransfers.length > 0 && max > latest) {
+          await database.saveCheckPoint("destination_reconcile_timestamp_" + domain, max);
+        }
+      });
     }),
   );
 
@@ -169,7 +179,7 @@ export const updateTransfers = async () => {
       transfers: transfers,
       count: transfers.length,
     });
-    await database.saveTransfers(transfers, { checkpoints: [], prefix: "" });
+    await database.saveTransfers(transfers);
   }
 
   if (subgraphDestinationPendingQueryMetaParams.size > 0) {
@@ -178,6 +188,6 @@ export const updateTransfers = async () => {
       transfers: transfers,
       count: transfers.length,
     });
-    await database.saveTransfers(transfers, { checkpoints: [], prefix: "" });
+    await database.saveTransfers(transfers);
   }
 };

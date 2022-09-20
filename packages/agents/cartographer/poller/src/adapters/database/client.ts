@@ -12,7 +12,7 @@ import * as db from "zapatos/db";
 import type * as s from "zapatos/schema";
 import { BigNumber } from "ethers";
 
-import { Checkpoints, pool } from "./index";
+import { pool } from "./index";
 
 const convertToDbTransfer = (transfer: XTransfer): s.transfers.Insertable => {
   return {
@@ -119,20 +119,21 @@ const sanitizeNull = (obj: { [s: string]: any }): any => {
   return Object.fromEntries(Object.entries(obj).filter(([_, v]) => v != null));
 };
 
-export const saveTransfers = async (xtransfers: XTransfer[], checkpoints: Checkpoints, _pool?: Pool): Promise<void> => {
+export const saveTransfers = async (
+  xtransfers: XTransfer[],
+  _pool?: Pool | db.TxnClientForRepeatableRead,
+): Promise<void> => {
   const poolToUse = _pool ?? pool;
   const transfers: s.transfers.Insertable[] = xtransfers.map(convertToDbTransfer).map(sanitizeNull);
 
-  await db.repeatableRead(poolToUse, async (txnClient) => {
-    // TODO: Perfomance implications to be evaluated. Upgrade to batching of configured batch size N.
-    await db.upsert("transfers", transfers, ["transfer_id"]).run(txnClient);
-    for (const checkpoint of checkpoints.checkpoints) {
-      await saveCheckPoint(checkpoints.prefix + checkpoint.domain, checkpoint.checkpoint, txnClient);
-    }
-  });
+  // TODO: Perfomance implications to be evaluated. Upgrade to batching of configured batch size N.
+  await db.upsert("transfers", transfers, ["transfer_id"]).run(poolToUse);
 };
 
-export const saveMessages = async (xMessages: XMessage[], _pool?: Pool): Promise<void> => {
+export const saveMessages = async (
+  xMessages: XMessage[],
+  _pool?: Pool | db.TxnClientForRepeatableRead,
+): Promise<void> => {
   // The `xMessages` are the ones retrieved only from the origin or destination domain
   const poolToUse = _pool ?? pool;
   const messages: s.messages.Insertable[] = xMessages.map(convertToDbMessage).map(sanitizeNull);
@@ -140,14 +141,20 @@ export const saveMessages = async (xMessages: XMessage[], _pool?: Pool): Promise
   await db.upsert("messages", messages, ["leaf"]).run(poolToUse);
 };
 
-export const saveSentRootMessages = async (_messages: RootMessage[], _pool?: Pool): Promise<void> => {
+export const saveSentRootMessages = async (
+  _messages: RootMessage[],
+  _pool?: Pool | db.TxnClientForRepeatableRead,
+): Promise<void> => {
   const poolToUse = _pool ?? pool;
   const messages: s.sent_root_messages.Insertable[] = _messages.map(convertToDbSentRootMessage).map(sanitizeNull);
 
   await db.upsert("sent_root_messages", messages, ["id"]).run(poolToUse);
 };
 
-export const saveProcessedRootMessages = async (_messages: RootMessage[], _pool?: Pool): Promise<void> => {
+export const saveProcessedRootMessages = async (
+  _messages: RootMessage[],
+  _pool?: Pool | db.TxnClientForRepeatableRead,
+): Promise<void> => {
   const poolToUse = _pool ?? pool;
   const messages: s.processed_root_messages.Insertable[] = _messages
     .map(convertToDbProcessedRootMessage)
@@ -157,7 +164,7 @@ export const saveProcessedRootMessages = async (_messages: RootMessage[], _pool?
 };
 
 export const getPendingMessages = async (
-  _pool?: Pool,
+  _pool?: Pool | db.TxnClientForRepeatableRead,
   limit = 100,
   orderDirection: "ASC" | "DESC" = "ASC",
 ): Promise<XMessage[]> => {
@@ -175,7 +182,7 @@ export const getPendingMessages = async (
 export const saveCheckPoint = async (
   check: string,
   point: number,
-  _pool?: Pool | db.TxnClientForRepeatableRead,
+  _pool?: Pool | db.TxnClientForRepeatableRead | db.TxnClientForRepeatableRead,
 ): Promise<void> => {
   const poolToUse = _pool ?? pool;
   const checkpoint = { check_name: check, check_point: point };
@@ -183,14 +190,20 @@ export const saveCheckPoint = async (
   await db.upsert("checkpoints", checkpoint, ["check_name"]).run(poolToUse);
 };
 
-export const getCheckPoint = async (check_name: string, _pool?: Pool): Promise<number> => {
+export const getCheckPoint = async (
+  check_name: string,
+  _pool?: Pool | db.TxnClientForRepeatableRead,
+): Promise<number> => {
   const poolToUse = _pool ?? pool;
 
   const result = await db.selectOne("checkpoints", { check_name }).run(poolToUse);
   return BigNumber.from(result?.check_point ?? 0).toNumber();
 };
 
-export const getTransferByTransferId = async (transfer_id: string, _pool?: Pool): Promise<XTransfer | undefined> => {
+export const getTransferByTransferId = async (
+  transfer_id: string,
+  _pool?: Pool | db.TxnClientForRepeatableRead,
+): Promise<XTransfer | undefined> => {
   const poolToUse = _pool ?? pool;
 
   const x = await db.selectOne("transfers", { transfer_id }).run(poolToUse);
@@ -202,7 +215,7 @@ export const getTransfersByStatus = async (
   limit: number,
   offset = 0,
   orderDirection: "ASC" | "DESC" = "ASC",
-  _pool?: Pool,
+  _pool?: Pool | db.TxnClientForRepeatableRead,
 ): Promise<XTransfer[]> => {
   const poolToUse = _pool ?? pool;
 
@@ -220,7 +233,7 @@ export const getTransfersWithOriginPending = async (
   domain: string,
   limit: number,
   orderDirection: "ASC" | "DESC" = "ASC",
-  _pool?: Pool,
+  _pool?: Pool | db.TxnClientForRepeatableRead,
 ): Promise<string[]> => {
   const poolToUse = _pool ?? pool;
 
@@ -239,7 +252,7 @@ export const getTransfersWithDestinationPending = async (
   domain: string,
   limit: number,
   orderDirection: "ASC" | "DESC" = "ASC",
-  _pool?: Pool,
+  _pool?: Pool | db.TxnClientForRepeatableRead,
 ): Promise<string[]> => {
   const poolToUse = _pool ?? pool;
 
@@ -260,7 +273,10 @@ export const getTransfersWithDestinationPending = async (
   return transfer_ids;
 };
 
-export const saveRouterBalances = async (routerBalances: RouterBalance[], _pool?: Pool): Promise<void> => {
+export const saveRouterBalances = async (
+  routerBalances: RouterBalance[],
+  _pool?: Pool | db.TxnClientForRepeatableRead,
+): Promise<void> => {
   const poolToUse = _pool ?? pool;
   const routers: s.routers.Insertable[] = routerBalances.map((router) => {
     return { address: router.router };
