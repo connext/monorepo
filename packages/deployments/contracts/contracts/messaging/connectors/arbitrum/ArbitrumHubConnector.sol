@@ -35,7 +35,7 @@ contract ArbitrumHubConnector is HubConnector {
   IArbitrumRollup public rollup;
 
   // Tracks which messages have been processed from bridge
-  mapping(uint256 => bool) processed;
+  mapping(uint256 => bool) public processed;
 
   // ============ Events ============
   event DefaultGasPriceUpdated(uint256 previous, uint256 current);
@@ -104,11 +104,16 @@ contract ArbitrumHubConnector is HubConnector {
     //
     // so to get the root data, we need to decode the _calldata. we can do this
     // by dropping the 4-byte selector, then using the rest as the raw _data.
+    require(_message.callData.length == 36, "!length");
+
     // NOTE: TypedMemView only loads 32-byte chunks onto stack, which is fine in this case
     bytes32 _data = _message.callData.ref(0).index(4, 32);
 
     // Update root manager
     IRootManager(ROOT_MANAGER).setOutboundRoot(MIRROR_DOMAIN, _data);
+
+    // Emit event
+    emit MessageProcessed(_message.callData, msg.sender);
   }
 
   function _validateSendRoot(
