@@ -29,7 +29,7 @@ import type {
 
 export interface BridgeTokenInterface extends utils.Interface {
   functions: {
-    "_PERMIT_TYPEHASH()": FunctionFragment;
+    "DOMAIN_SEPARATOR()": FunctionFragment;
     "allowance(address,address)": FunctionFragment;
     "approve(address,uint256)": FunctionFragment;
     "balanceOf(address)": FunctionFragment;
@@ -37,7 +37,6 @@ export interface BridgeTokenInterface extends utils.Interface {
     "decimals()": FunctionFragment;
     "decreaseAllowance(address,uint256)": FunctionFragment;
     "detailsHash()": FunctionFragment;
-    "domainSeparator()": FunctionFragment;
     "increaseAllowance(address,uint256)": FunctionFragment;
     "initialize()": FunctionFragment;
     "mint(address,uint256)": FunctionFragment;
@@ -57,7 +56,7 @@ export interface BridgeTokenInterface extends utils.Interface {
 
   getFunction(
     nameOrSignatureOrTopic:
-      | "_PERMIT_TYPEHASH"
+      | "DOMAIN_SEPARATOR"
       | "allowance"
       | "approve"
       | "balanceOf"
@@ -65,7 +64,6 @@ export interface BridgeTokenInterface extends utils.Interface {
       | "decimals"
       | "decreaseAllowance"
       | "detailsHash"
-      | "domainSeparator"
       | "increaseAllowance"
       | "initialize"
       | "mint"
@@ -84,7 +82,7 @@ export interface BridgeTokenInterface extends utils.Interface {
   ): FunctionFragment;
 
   encodeFunctionData(
-    functionFragment: "_PERMIT_TYPEHASH",
+    functionFragment: "DOMAIN_SEPARATOR",
     values?: undefined
   ): string;
   encodeFunctionData(
@@ -110,10 +108,6 @@ export interface BridgeTokenInterface extends utils.Interface {
   ): string;
   encodeFunctionData(
     functionFragment: "detailsHash",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "domainSeparator",
     values?: undefined
   ): string;
   encodeFunctionData(
@@ -185,7 +179,7 @@ export interface BridgeTokenInterface extends utils.Interface {
   ): string;
 
   decodeFunctionResult(
-    functionFragment: "_PERMIT_TYPEHASH",
+    functionFragment: "DOMAIN_SEPARATOR",
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "allowance", data: BytesLike): Result;
@@ -199,10 +193,6 @@ export interface BridgeTokenInterface extends utils.Interface {
   ): Result;
   decodeFunctionResult(
     functionFragment: "detailsHash",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "domainSeparator",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -336,7 +326,7 @@ export interface BridgeToken extends BaseContract {
   removeListener: OnEvent<this>;
 
   functions: {
-    _PERMIT_TYPEHASH(overrides?: CallOverrides): Promise<[string]>;
+    DOMAIN_SEPARATOR(overrides?: CallOverrides): Promise<[string]>;
 
     allowance(
       _owner: PromiseOrValue<string>,
@@ -371,8 +361,6 @@ export interface BridgeToken extends BaseContract {
 
     detailsHash(overrides?: CallOverrides): Promise<[string]>;
 
-    domainSeparator(overrides?: CallOverrides): Promise<[string]>;
-
     increaseAllowance(
       _spender: PromiseOrValue<string>,
       _addedValue: PromiseOrValue<BigNumberish>,
@@ -392,7 +380,7 @@ export interface BridgeToken extends BaseContract {
     name(overrides?: CallOverrides): Promise<[string]>;
 
     nonces(
-      arg0: PromiseOrValue<string>,
+      _owner: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<[BigNumber]>;
 
@@ -448,7 +436,7 @@ export interface BridgeToken extends BaseContract {
     ): Promise<ContractTransaction>;
   };
 
-  _PERMIT_TYPEHASH(overrides?: CallOverrides): Promise<string>;
+  DOMAIN_SEPARATOR(overrides?: CallOverrides): Promise<string>;
 
   allowance(
     _owner: PromiseOrValue<string>,
@@ -483,8 +471,6 @@ export interface BridgeToken extends BaseContract {
 
   detailsHash(overrides?: CallOverrides): Promise<string>;
 
-  domainSeparator(overrides?: CallOverrides): Promise<string>;
-
   increaseAllowance(
     _spender: PromiseOrValue<string>,
     _addedValue: PromiseOrValue<BigNumberish>,
@@ -504,7 +490,7 @@ export interface BridgeToken extends BaseContract {
   name(overrides?: CallOverrides): Promise<string>;
 
   nonces(
-    arg0: PromiseOrValue<string>,
+    _owner: PromiseOrValue<string>,
     overrides?: CallOverrides
   ): Promise<BigNumber>;
 
@@ -560,7 +546,7 @@ export interface BridgeToken extends BaseContract {
   ): Promise<ContractTransaction>;
 
   callStatic: {
-    _PERMIT_TYPEHASH(overrides?: CallOverrides): Promise<string>;
+    DOMAIN_SEPARATOR(overrides?: CallOverrides): Promise<string>;
 
     allowance(
       _owner: PromiseOrValue<string>,
@@ -595,8 +581,6 @@ export interface BridgeToken extends BaseContract {
 
     detailsHash(overrides?: CallOverrides): Promise<string>;
 
-    domainSeparator(overrides?: CallOverrides): Promise<string>;
-
     increaseAllowance(
       _spender: PromiseOrValue<string>,
       _addedValue: PromiseOrValue<BigNumberish>,
@@ -614,7 +598,7 @@ export interface BridgeToken extends BaseContract {
     name(overrides?: CallOverrides): Promise<string>;
 
     nonces(
-      arg0: PromiseOrValue<string>,
+      _owner: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
@@ -716,7 +700,7 @@ export interface BridgeToken extends BaseContract {
   };
 
   estimateGas: {
-    _PERMIT_TYPEHASH(overrides?: CallOverrides): Promise<BigNumber>;
+    DOMAIN_SEPARATOR(overrides?: CallOverrides): Promise<BigNumber>;
 
     allowance(
       _owner: PromiseOrValue<string>,
@@ -751,8 +735,6 @@ export interface BridgeToken extends BaseContract {
 
     detailsHash(overrides?: CallOverrides): Promise<BigNumber>;
 
-    domainSeparator(overrides?: CallOverrides): Promise<BigNumber>;
-
     increaseAllowance(
       _spender: PromiseOrValue<string>,
       _addedValue: PromiseOrValue<BigNumberish>,
@@ -772,7 +754,7 @@ export interface BridgeToken extends BaseContract {
     name(overrides?: CallOverrides): Promise<BigNumber>;
 
     nonces(
-      arg0: PromiseOrValue<string>,
+      _owner: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
@@ -829,7 +811,7 @@ export interface BridgeToken extends BaseContract {
   };
 
   populateTransaction: {
-    _PERMIT_TYPEHASH(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+    DOMAIN_SEPARATOR(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     allowance(
       _owner: PromiseOrValue<string>,
@@ -864,8 +846,6 @@ export interface BridgeToken extends BaseContract {
 
     detailsHash(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
-    domainSeparator(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
     increaseAllowance(
       _spender: PromiseOrValue<string>,
       _addedValue: PromiseOrValue<BigNumberish>,
@@ -885,7 +865,7 @@ export interface BridgeToken extends BaseContract {
     name(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     nonces(
-      arg0: PromiseOrValue<string>,
+      _owner: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
