@@ -55,6 +55,18 @@ abstract contract SpokeConnector is Connector, ConnectorManager, MerkleTreeManag
     Processed
   }
 
+  /**
+   * Struct for submitting a proof for a given message.
+   * @param message Bytes of message to be processed. The hash of this message is considered the leaf.
+   * @param proof Merkle proof of inclusion for given leaf.
+   * @param index Index of leaf in home's merkle tree.
+   */
+  struct Proof {
+    bytes message;
+    bytes32[32] path;
+    uint256 index;
+  }
+
   // ============ Public storage ============
 
   /**
@@ -224,22 +236,80 @@ abstract contract SpokeConnector is Connector, ConnectorManager, MerkleTreeManag
   /**
    * @notice Must be able to call the `handle` function on the BridgeRouter contract. This is called
    * on the destination domain to handle incoming messages.
+   *
+   * Proving:
+   * Calculates the expected inbound root from an origin chain given a leaf (message hash),
+   * the index of the leaf, and the merkle proof of inclusion (path). Next, we check to ensure that this
+   * calculated inbound root is included in the current aggregateRoot, given its index in the aggregator
+   * tree and the proof of inclusion.
+   *
+   * Processing:
+   * After all messages have been proven, we dispatch each message to Connext (BridgeRouter) for
+   * execution.
+   *
+   * @dev Currently, ALL messages in a given batch must path to the same shared inboundRoot, meaning they
+   * must all share an origin. See open TODO below for a potential solution to enable multi-origin batches.
    * @dev Intended to be called by the relayer at specific intervals during runtime.
-   * @param _message Bytes of message to be processed. The hash of this message is considered the leaf.
-   * @param _proof Merkle proof of inclusion for given leaf.
-   * @param _index Index of leaf in home's merkle tree.
+   * @dev Will record a calculated root as having been proven if we've already proven that it was included
+   * in the aggregateRoot.
+   *
+   * @param _proofs Batch of Proofs containing messages for proving/processing.
+   * @param _aggregatorPath Merkle path of inclusion for the inbound root.
+   * @param _aggregatorIndex Index of the inbound root in the aggregator's merkle tree in the hub.
    */
   function proveAndProcess(
-    bytes memory _message,
-    bytes32[32] calldata _proof,
-    uint256 _index
+    Proof[] calldata _proofs,
+    bytes32[32] calldata _aggregatorPath,
+    uint256 _aggregatorIndex
   ) external {
-    // 1. must prove existence of the given outbound root from destination domain
-    // 2. must prove the existence of the given message in the destination
-    // domain outbound root
-    require(prove(keccak256(_message), _proof, _index), "!prove");
-    // FIXME: implement proofs above before processing the message
-    process(_message);
+    // Sanity check: proofs are included.
+    require(_proofs.length > 0, "!proofs");
+
+    // Optimization: calculate the inbound root for the first message in the batch and validate that
+    // it's included in the aggregator tree. We can use this as a reference for every calculation
+    // below to minimize storage access calls.
+    bytes32 _messageHash = keccak256(_proofs[0].message);
+    // TODO: Could use an array of sharedRoots so you can submit a message batch of messages with
+    // different origins.
+    bytes32 _sharedRoot = calculateMessageRoot(_messageHash, _proofs[0].path, _proofs[0].index);
+
+    // Check to see if the root for this batch has already been proven.
+    if (!provenRoots[_sharedRoot]) {
+      // Calculate an aggregate root, given this inbound root, and make sure it matches the current
+      // aggregate root we have stored.
+      bytes32 _calculatedAggregateRoot = MerkleLib.branchRoot(_sharedRoot, _aggregatorPath, _aggregatorIndex);
+      require(_calculatedAggregateRoot == aggregateRoot, "!aggregateRoot");
+      // This inbound root has been proven. We should specify that to optimize future calls.
+      provenRoots[_sharedRoot] = true;
+    }
+
+    // Assuming the inbound root was proven, the first message is now proven.
+    messages[_messageHash] = MessageStatus.Proven;
+
+    // Now we handle proving all remaining messages in the batch - they should all share the same
+    // inbound root!
+    for (uint32 i = 1; i < _proofs.length; ) {
+      _messageHash = keccak256(_proofs[i].message);
+      bytes32 _calculatedRoot = calculateMessageRoot(_messageHash, _proofs[i].path, _proofs[i].index);
+      // Make sure this root matches the validated inbound root.
+      require(_calculatedRoot == _sharedRoot, "!sharedRoot");
+      // Message is proven!
+      messages[_messageHash] = MessageStatus.Proven;
+
+      unchecked {
+        ++i;
+      }
+    }
+
+    // All messages have been proven. We iterate separately here to process each message in the batch.
+    // NOTE: Going through the proving phase for all messages in the batch before processing ensures
+    // we hit reverts before we consume gas from `process` calls.
+    for (uint32 i = 0; i < _proofs.length; ) {
+      process(_proofs[i].message);
+      unchecked {
+        ++i;
+      }
+    }
   }
 
   // ============ Private fns ============
@@ -255,39 +325,31 @@ abstract contract SpokeConnector is Connector, ConnectorManager, MerkleTreeManag
   }
 
   /**
-   * @notice Attempts to prove the validity of message given its leaf, the
-   * merkle proof of inclusion for the leaf, and the index of the leaf.
-   * @dev Reverts if message's MessageStatus != None (i.e. if message was
-   * already proven or processed)
-   * @dev For convenience, we allow proving against any previous root.
-   * This means that witnesses never need to be updated for the new root
-   * @param _leaf Leaf of message to prove
-   * @param _proof Merkle proof of inclusion for leaf
-   * @param _index Index of leaf in home's merkle tree
-   * @return bool true if proof was valid and `prove` call succeeded
+   * @notice Calculates the expected inbound root from an origin chain given a leaf (message hash), the index
+   * of the leaf, and the merkle proof of inclusion (path).
+   * @dev Reverts if message's MessageStatus != None (i.e. if message was already proven or processed).
+   *
+   * @param _messageHash Leaf (message hash) that requires proving.
+   * @param _messagePath Merkle path of inclusion for the leaf.
+   * @param _messageIndex Index of leaf in the merkle tree on the origin chain of the message.
+   * @return bytes32 Calculated root.
    **/
-  function prove(
-    bytes32 _leaf,
-    bytes32[32] calldata _proof,
-    uint256 _index
-  ) internal returns (bool) {
-    // Ensure that message has not been proven or processed.
-    require(messages[_leaf] == MessageStatus.None, "!MessageStatus.None");
-
-    // Calculate the expected root based on the proof.
-    // bytes32 _calculatedRoot = MerkleLib.branchRoot(_leaf, _proof, _index);
-
-    // If the root is valid, change status to Proven.
-    // if (acceptableRoot(_calculatedRoot)) {
-    messages[_leaf] = MessageStatus.Proven;
-    return true;
-    // }
-    // return false;
+  function calculateMessageRoot(
+    bytes32 _messageHash,
+    bytes32[32] calldata _messagePath,
+    uint256 _messageIndex
+  ) internal view returns (bytes32) {
+    // Ensure that the given message has not already been proven and processed.
+    require(messages[_messageHash] == MessageStatus.None, "!MessageStatus.None");
+    // Calculate the expected inbound root from the message origin based on the proof.
+    // NOTE: Assuming a valid message was submitted with correct path/index, this should be an inbound root
+    // that the hub has received. If the message were invalid, the root calculated here would not exist in the
+    // aggregate root.
+    return MerkleLib.branchRoot(_messageHash, _messagePath, _messageIndex);
   }
 
   /**
-   * @notice Given formatted message, attempts to dispatch
-   * message payload to end recipient.
+   * @notice Given formatted message, attempts to dispatch message payload to end recipient.
    * @dev Recipient must implement a `handle` method (refer to IMessageRecipient.sol)
    * Reverts if formatted message's destination domain is not the Replica's domain,
    * if message has not been proven,

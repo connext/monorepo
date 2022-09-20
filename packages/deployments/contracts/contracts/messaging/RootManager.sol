@@ -1,20 +1,29 @@
 // SPDX-License-Identifier: MIT OR Apache-2.0
 pragma solidity 0.8.15;
 
+import {ProposedOwnable} from "../shared/ProposedOwnable.sol";
+
 import {IRootManager} from "./interfaces/IRootManager.sol";
 import {IHubConnector} from "./interfaces/IHubConnector.sol";
-import {ProposedOwnable} from "../shared/ProposedOwnable.sol";
+import {MerkleLib} from "./libraries/Merkle.sol";
+import {Message} from "./libraries/Message.sol";
+
+import {MerkleTreeManager} from "./Merkle.sol";
 
 /**
  * @notice This contract exists at cluster hubs, and aggregates all transfer roots from messaging
  * spokes into a single merkle root
  */
 
-contract RootManager is ProposedOwnable, IRootManager {
-  // ============ Events ============
-  event RootPropagated(bytes32 aggregate, uint32[] domains);
+contract RootManager is MerkleTreeManager, ProposedOwnable, IRootManager {
+  // ============ Libraries ============
 
-  event OutboundRootUpdated(uint32 domain, bytes32 outboundRoot);
+  using MerkleLib for MerkleLib.Tree;
+
+  // ============ Events ============
+  event RootAggregated(uint32 domain, bytes32 receivedRoot, uint256 index);
+
+  event RootPropagated(bytes32 aggregate, uint32[] domains);
 
   event ConnectorAdded(uint32 domain, address connector);
 
@@ -58,13 +67,11 @@ contract RootManager is ProposedOwnable, IRootManager {
    * FIXME proper merkle tree implementation
    */
   function propagate() external override {
-    uint32[] memory _domains = domains;
-    uint32 hub = _domains[0];
-    bytes memory aggregate = abi.encodePacked(outboundRoots[hub]);
+    bytes32 aggregate = tree.root();
 
-    uint256 numDomains = _domains.length;
+    uint256 numDomains = domains.length;
     for (uint32 i; i < numDomains; ) {
-      address connector = connectors[_domains[i]];
+      address connector = connectors[domains[i]];
       IHubConnector(connector).sendMessage(aggregate);
 
       unchecked {
@@ -74,9 +81,18 @@ contract RootManager is ProposedOwnable, IRootManager {
     emit RootPropagated(outboundRoots[hub], domains);
   }
 
-  function setOutboundRoot(uint32 _domain, bytes32 _outbound) external override onlyConnector(_domain) {
-    outboundRoots[_domain] = _outbound;
-    emit OutboundRootUpdated(_domain, _outbound);
+  /**
+   * @notice Accept an inbound root coming from a given domain's hub connector, inserting this incoming
+   * root into the current aggregate tree. The aggregate tree's root will eventually be propagated to all
+   * spoke domains.
+   * @param _domain The source domain of the given root.
+   * @param _inbound The inbound root coming from the given domain.
+   */
+  function setOutboundRoot(uint32 _domain, bytes32 _inbound) external override onlyConnector(_domain) {
+    // outboundRoots[_domain] = _outbound;
+    // emit OutboundRootUpdated(_domain, _outbound);
+    tree.insert(_inbound);
+    emit RootAggregated(_domain, _inbound, tree.count - 1);
   }
 
   // ============ Admin fns ============
