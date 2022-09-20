@@ -315,15 +315,15 @@ export class NxtpSdkPool {
   /**
    * Returns the transaction request for adding liquidity to a pool.
    * @param domainId The domain id of the pool.
-   * @param canonicalId The canonical ID of the asset to swap.
+   * @param key The hash of the domain and canonicalId of the asset.
    * @param amounts The amounts of the tokens to swap.
    * @param minToMint The minimum acceptable amount of LP tokens to mint.
    * @param deadline The deadline for the swap.
    */
   async addLiquidity(
     domainId: string,
-    canonicalId: string,
-    amounts: string[], // [0] for adopted asset, [1] for local asset
+    key: string,
+    amounts: number[], // [0] for adopted asset, [1] for local asset
     minToMint = "0",
     deadline?: number,
   ): Promise<providers.TransactionRequest> {
@@ -346,8 +346,6 @@ export class NxtpSdkPool {
       throw new ContractAddressMissing();
     }
 
-    const key = this.calculateCanonicalHash(domainId, canonicalId);
-
     const data = this.connext.encodeFunctionData("addSwapLiquidity", [key, amounts, minToMint, deadline]);
     const txRequest = {
       to: connextContract,
@@ -363,7 +361,7 @@ export class NxtpSdkPool {
   /**
    * Returns the transaction request for removing liquidity from a pool.
    * @param domainId The domain id of the pool.
-   * @param key The hash of the domain and canonicalId of the asset to swap.
+   * @param key The hash of the domain and canonicalId of the asset.
    * @param amount The amount of the token to swap.
    * @param minAmounts The minimum acceptable amounts of each token to burn.
    * @param deadline The deadline for the swap.
@@ -409,7 +407,7 @@ export class NxtpSdkPool {
   /**
    * Returns the transaction request for performing a swap in a pool.
    * @param domainId The domain id of the pool.
-   * @param canonicalId The canonical ID of the asset to swap.
+   * @param key The hash of the domain and canonicalId of the asset.
    * @param from The address of the token to sell.
    * @param to The address of the token to buy.
    * @param amount The amount of the selling token to swap.
@@ -418,7 +416,7 @@ export class NxtpSdkPool {
    */
   async swap(
     domainId: string,
-    canonicalId: string,
+    key: string,
     from: string,
     to: string,
     amount: string,
@@ -444,14 +442,12 @@ export class NxtpSdkPool {
     const { requestContext, methodContext } = createLoggingContext(this.swap.name);
     this.logger.info("Method start", requestContext, methodContext, {
       domainId,
-      canonicalId,
+      key,
       from,
       to,
       amount,
       deadline,
     });
-
-    const key = this.calculateCanonicalHash(domainId, canonicalId);
 
     const tokenIndexFrom = await this.getPoolTokenIndex(domainId, key, from);
     const tokenIndexTo = await this.getPoolTokenIndex(domainId, key, to);
@@ -551,8 +547,8 @@ export class NxtpSdkPool {
       [tokenAddress, adopted],
       [localDecimals, adoptedDecimals],
       [localBalance, adoptedBalance],
-      key,
       lpTokenAddress,
+      key,
     );
 
     return pool;
