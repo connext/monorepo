@@ -17,4 +17,10 @@ A clear and concise description of what you think could solve this problem.
 - [ ] X happens
 - [ ] Y happens
 
-**Other**
+**Impact**
+1. What OKR goal does this align to?
+
+2. Provide Impact estimate = ideally quantitative forecast, if not then qualitative description of impact 
+
+**Other Notes**
+A clear and concise description of what the problem is

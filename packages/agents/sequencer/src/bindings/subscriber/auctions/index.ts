@@ -69,6 +69,7 @@ export const bindSubscriber = async (queueName: string) => {
                 auctionStatus: status,
               });
             }
+            await cache.auctions.pruneAuctionData(message.transferId);
           } else {
             // No ack and requeue if child exits with error
             msg.nack();
