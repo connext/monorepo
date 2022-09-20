@@ -90,7 +90,7 @@ export const mock = {
       destination: mock.entity.callParams().destinationDomain,
       to: mock.entity.callParams().to,
       asset: mock.asset.A.address,
-      delegate: 
+      delegate: mkAddress(),
       amount: utils.parseEther("1").toString(),
       originMinOut: "0",
       ...overrides,
