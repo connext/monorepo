@@ -115,7 +115,7 @@ contract ArbitrumHubConnector is HubConnector {
     uint64 _nodeNum,
     bytes32 _sendRoot,
     bytes32 _blockHash
-  ) internal {
+  ) internal view {
     // Get the confirm data to ensure the node has been put on L1 with
     // the given block hash and send root
     bytes32 confirmData = _confirmHash(_blockHash, _sendRoot);
