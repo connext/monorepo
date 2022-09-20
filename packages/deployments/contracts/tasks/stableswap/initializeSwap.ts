@@ -147,7 +147,7 @@ export default task("initialize-stableswap", "Initializes stable swap")
       console.log("decimals: ", decimals);
 
       const tx = await connext.initializeSwap(
-        canonicalId,
+        key,
         [local, adopted],
         decimals,
         lpTokenName,
