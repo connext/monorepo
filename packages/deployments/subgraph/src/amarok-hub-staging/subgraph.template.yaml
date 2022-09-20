@@ -1,0 +1,58 @@
+specVersion: 0.0.4
+schema:
+  file: ./src/amarok-hub-staging/schema.graphql
+dataSources:
+  # PolygonHubConnector.sol events
+  - kind: ethereum/contract
+    name: PolygonHubConnector
+    network: "{{network}}"
+    source:
+      address: "{{address}}"
+      abi: PolygonHubConnector
+      # prettier-ignore
+      startBlock: {{startBlock}}
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.6
+      language: wasm/assemblyscript
+      entities:
+        - Asset
+        - AssetBalance
+        - Router
+        - Transfer
+      abis:
+        - name: PolygonHubConnector
+          file: ./src/amarok-hub-staging/abis/PolygonHubConnector.json
+      eventHandlers:
+        - event: MessageProcessed(bytes,address)
+          handler: handlePolygonMessageProcessed
+        - event: NewConnector(indexed uint32,indexed uint32,address,address,address)
+          handler: handlePolygonNewConnector
+      file: ./src/amarok-hub-staging/polygon-mapping.ts
+  # OptimismHubConnector.sol events
+  - kind: ethereum/contract
+    name: OptimismHubConnector
+    network: "{{network}}"
+    source:
+      address: "{{address}}"
+      abi: OptimismHubConnector
+      # prettier-ignore
+      startBlock: {{startBlock}}
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.6
+      language: wasm/assemblyscript
+      entities:
+        - Asset
+        - AssetBalance
+        - Router
+        - Transfer
+      abis:
+        - name: OptimismHubConnector
+          file: ./src/amarok-hub-staging/abis/OptimismHubConnector.json
+      eventHandlers:
+        - event: MessageProcessed(bytes,address)
+          handler: handleOptimismMessageProcessed
+        - event: NewConnector(indexed uint32,indexed uint32,address,address,address)
+          handler: handleOptimismNewConnector
+      file: ./src/amarok-hub-staging/optimism-mapping.ts
