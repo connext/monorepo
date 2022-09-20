@@ -137,7 +137,6 @@ abstract contract SpokeConnector is Connector, ConnectorManager, MerkleTreeManag
     require(_processGas >= 850_000, "!process gas");
     require(_reserveGas >= 15_000, "!reserve gas");
 
-    //
     PROCESS_GAS = _processGas;
     RESERVE_GAS = _reserveGas;
   }
@@ -213,6 +212,7 @@ abstract contract SpokeConnector is Connector, ConnectorManager, MerkleTreeManag
     );
     // insert the hashed message into the Merkle tree
     bytes32 _messageHash = keccak256(_message);
+    // TODO: Optimization: have insert return the leafIndex to save the `count()` call below.
     tree.insert(_messageHash);
     // TODO: see comment on queue manager at the top
     // Emit Dispatch event with message information
@@ -225,6 +225,9 @@ abstract contract SpokeConnector is Connector, ConnectorManager, MerkleTreeManag
    * @notice Must be able to call the `handle` function on the BridgeRouter contract. This is called
    * on the destination domain to handle incoming messages.
    * @dev Intended to be called by the relayer at specific intervals during runtime.
+   * @param _message Bytes of message to be processed. The hash of this message is considered the leaf.
+   * @param _proof Merkle proof of inclusion for given leaf.
+   * @param _index Index of leaf in home's merkle tree.
    */
   function proveAndProcess(
     bytes memory _message,
@@ -261,27 +264,25 @@ abstract contract SpokeConnector is Connector, ConnectorManager, MerkleTreeManag
    * @param _leaf Leaf of message to prove
    * @param _proof Merkle proof of inclusion for leaf
    * @param _index Index of leaf in home's merkle tree
-   * @return Returns true if proof was valid and `prove` call succeeded
+   * @return bool true if proof was valid and `prove` call succeeded
    **/
   function prove(
     bytes32 _leaf,
     bytes32[32] calldata _proof,
     uint256 _index
   ) internal returns (bool) {
-    // FIXME: actually implement this later
-    // ensure that message has not been proven or processed
+    // Ensure that message has not been proven or processed.
     require(messages[_leaf] == MessageStatus.None, "!MessageStatus.None");
-    // // calculate the expected root based on the proof
-    // bytes32 _calculatedRoot = MerkleLib.branchRoot(_leaf, _proof, _index);
-    // // if the root is valid, change status to Proven
-    // if (acceptableRoot(_calculatedRoot)) {
-    //   messages[_leaf] = MessageStatus.Proven;
-    //   return true;
-    // }
-    // return false;
 
+    // Calculate the expected root based on the proof.
+    // bytes32 _calculatedRoot = MerkleLib.branchRoot(_leaf, _proof, _index);
+
+    // If the root is valid, change status to Proven.
+    // if (acceptableRoot(_calculatedRoot)) {
     messages[_leaf] = MessageStatus.Proven;
     return true;
+    // }
+    // return false;
   }
 
   /**

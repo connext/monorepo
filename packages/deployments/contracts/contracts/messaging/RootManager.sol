@@ -58,12 +58,20 @@ contract RootManager is ProposedOwnable, IRootManager {
    * FIXME proper merkle tree implementation
    */
   function propagate() external override {
-    bytes memory aggregate = abi.encodePacked(outboundRoots[domains[0]]);
-    for (uint8 i; i < domains.length; i++) {
-      address connector = connectors[domains[i]];
+    uint32[] memory _domains = domains;
+    uint32 hub = _domains[0];
+    bytes memory aggregate = abi.encodePacked(outboundRoots[hub]);
+
+    uint256 numDomains = _domains.length;
+    for (uint32 i; i < numDomains; ) {
+      address connector = connectors[_domains[i]];
       IHubConnector(connector).sendMessage(aggregate);
+
+      unchecked {
+        ++i;
+      }
     }
-    emit RootPropagated(outboundRoots[domains[0]], domains);
+    emit RootPropagated(outboundRoots[hub], domains);
   }
 
   function setOutboundRoot(uint32 _domain, bytes32 _outbound) external override onlyConnector(_domain) {
