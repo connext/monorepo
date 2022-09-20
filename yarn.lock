@@ -824,6 +824,7 @@ __metadata:
     fastify: 4.5.3
     graphql: 16.6.0
     interval-promise: 1.4.0
+    merkletreejs: ^0.2.32
     mocha: 10.0.0
     nodemon: 2.0.19
     nyc: 15.1.0
