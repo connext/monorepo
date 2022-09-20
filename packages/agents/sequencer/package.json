@@ -1,6 +1,6 @@
 {
   "name": "@connext/nxtp-sequencer",
-  "version": "0.2.0-beta.22",
+  "version": "0.2.0-beta.23",
   "description": "Sequencer for Amarok, previously auctioneer",
   "author": "Connext",
   "license": "MIT",
@@ -35,28 +35,28 @@
     "@connext/nxtp-adapters-web3signer": "workspace:*",
     "@connext/nxtp-txservice": "workspace:*",
     "@connext/nxtp-utils": "workspace:*",
-    "@sinclair/typebox": "0.24.28",
+    "@sinclair/typebox": "0.24.39",
     "axios": "0.27.2",
-    "dd-trace": "3.0.0",
-    "ethers": "5.6.9",
-    "fastify": "4.5.0",
+    "dd-trace": "3.2.0",
+    "ethers": "5.7.0",
+    "fastify": "4.5.3",
     "foo-foo-mq": "7.1.0",
     "interval-promise": "1.4.0",
-    "pino": "8.4.1",
-    "prom-client": "14.0.1",
+    "pino": "8.5.0",
+    "prom-client": "14.1.0",
     "tsc": "2.0.4"
   },
   "devDependencies": {
-    "concurrently": "7.3.0",
-    "eslint": "8.22.0",
+    "concurrently": "7.4.0",
+    "eslint": "8.23.0",
     "mocha": "10.0.0",
     "nodemon": "2.0.19",
     "nyc": "15.1.0",
-    "pino-pretty": "9.0.1",
+    "pino-pretty": "9.1.0",
     "rimraf": "3.0.2",
     "sinon": "14.0.0",
     "ts-mocha": "10.0.0",
-    "typescript": "4.7.4"
+    "typescript": "4.8.3"
   },
   "stableVersion": "0.0.1"
 }

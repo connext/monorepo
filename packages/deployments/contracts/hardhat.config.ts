@@ -276,7 +276,7 @@ const config: HardhatUserConfig = {
       ropsten: process.env.ETHERSCAN_API_KEY!,
       goerli: process.env.ETHERSCAN_API_KEY!,
       "optimism-goerli": process.env.ETHERSCAN_API_KEY!,
-      mumbai: process.env.ETHERSCAN_API_KEY!,
+      mumbai: process.env.POLYGONSCAN_API_KEY!,
     },
     customChains: [
       {

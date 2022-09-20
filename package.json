@@ -1,13 +1,13 @@
 {
   "name": "@connext/nxtp",
-  "version": "0.2.0-beta.22",
+  "version": "0.2.0-beta.23",
   "private": true,
   "devDependencies": {
     "@istanbuljs/nyc-config-typescript": "1.0.2",
     "@jtbennett/ts-project-scripts": "1.0.0-rc.4",
-    "@typescript-eslint/eslint-plugin": "5.33.1",
-    "@typescript-eslint/parser": "5.33.1",
-    "eslint": "8.22.0",
+    "@typescript-eslint/eslint-plugin": "5.36.2",
+    "@typescript-eslint/parser": "5.36.2",
+    "eslint": "8.23.0",
     "eslint-plugin-import": "2.26.0",
     "eslint-plugin-node": "11.1.0",
     "rimraf": "3.0.2"
@@ -16,7 +16,6 @@
     "packages/utils",
     "packages/deployments/contracts",
     "packages/deployments/subgraph",
-    "packages/deployments/fx-subgraph",
     "packages/adapters/txservice",
     "packages/adapters/cache",
     "packages/adapters/subgraph",
@@ -33,7 +32,7 @@
   ],
   "scripts": {
     "lint:all": "yarn workspaces foreach --exclude @connext/nxtp-subgraph --exclude @connext/nxtp-integration run lint --fix",
-    "test:all": "yarn workspaces foreach --exclude @connext/nxtp-relayer --exclude @connext/nxtp-lighthouse --exclude @connext/nxtp-subgraph --exclude @connext/nxtp-integration run test",
+    "test:all": "yarn workspaces foreach --exclude @connext/nxtp-relayer --exclude @connext/nxtp-subgraph --exclude @connext/nxtp-integration run test",
     "clean:all": "yarn workspaces foreach --exclude @connext/nxtp-integration --exclude @connext/nxtp-subgraph run clean",
     "build:all": "yarn workspaces foreach -pt --exclude @connext/nxtp-subgraph run build",
     "verify:all": "yarn test:all && yarn clean:all && yarn build:all && yarn lint:all --max-warnings 0",

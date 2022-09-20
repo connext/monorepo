@@ -17,6 +17,7 @@ on:
 
 jobs:
   build-and-test:
+    if: github.ref != 'refs/heads/staging'
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -69,7 +70,6 @@ jobs:
       REGISTRY: ghcr.io
       IMAGE_NAME: connext/router-publisher
     runs-on: ubuntu-latest
-    needs: build-and-test
     permissions:
       contents: read
       packages: write
@@ -111,7 +111,6 @@ jobs:
       REGISTRY: ghcr.io
       IMAGE_NAME: connext/router-subscriber
     runs-on: ubuntu-latest
-    needs: build-and-test
     permissions:
       contents: read
       packages: write
@@ -153,7 +152,6 @@ jobs:
       REGISTRY: ghcr.io
       IMAGE_NAME: connext/router-executor
     runs-on: ubuntu-latest
-    needs: build-and-test
     permissions:
       contents: read
       packages: write
@@ -195,7 +193,6 @@ jobs:
       REGISTRY: ghcr.io
       IMAGE_NAME: connext/sequencer-publisher
     runs-on: ubuntu-latest
-    needs: build-and-test
     permissions:
       contents: read
       packages: write
@@ -237,7 +234,6 @@ jobs:
       REGISTRY: ghcr.io
       IMAGE_NAME: connext/sequencer-subscriber
     runs-on: ubuntu-latest
-    needs: build-and-test
     permissions:
       contents: read
       packages: write
@@ -279,7 +275,6 @@ jobs:
       REGISTRY: ghcr.io
       IMAGE_NAME: connext/cartographer-routers
     runs-on: ubuntu-latest
-    needs: build-and-test
     permissions:
       contents: read
       packages: write
@@ -321,7 +316,6 @@ jobs:
       REGISTRY: ghcr.io
       IMAGE_NAME: connext/cartographer-transfers
     runs-on: ubuntu-latest
-    needs: build-and-test
     permissions:
       contents: read
       packages: write
@@ -358,12 +352,11 @@ jobs:
     outputs:
       json: ${{ steps.meta.outputs.json }}
 
-  build-and-push-lighthouse-image:
+  build-and-push-cartographer-messages-image:
     env:
       REGISTRY: ghcr.io
-      IMAGE_NAME: connext/lighthouse
+      IMAGE_NAME: connext/cartographer-messages
     runs-on: ubuntu-latest
-    needs: build-and-test
     permissions:
       contents: read
       packages: write
@@ -395,7 +388,48 @@ jobs:
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
-          file: docker/lighthouse/Dockerfile
+          file: docker/cartographer/messages/Dockerfile
+
+    outputs:
+      json: ${{ steps.meta.outputs.json }}
+
+  build-and-push-lighthouse-prover-image:
+    env:
+      REGISTRY: ghcr.io
+      IMAGE_NAME: connext/lighthouse-prover
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Log in to the Container registry
+        uses: docker/login-action@f054a8b539a109f9f41c372932f1ae047eff08c9
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Extract metadata (tags, labels) for Docker
+        id: meta
+        uses: docker/metadata-action@98669ae865ea3cffbcbaa878cf57c20bbf1c6c38
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+          tags: |
+            type=sha,format=short
+            type=semver,pattern={{raw}}
+
+      - name: Build and push Docker image
+        uses: docker/build-push-action@ad44023a93711e3deb337508980b4b5e9bcdc5dc
+        with:
+          context: .
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          file: docker/lighthouse/prover/Dockerfile
 
     outputs:
       json: ${{ steps.meta.outputs.json }}
@@ -405,7 +439,6 @@ jobs:
       REGISTRY: ghcr.io
       IMAGE_NAME: connext/relayer
     runs-on: ubuntu-latest
-    needs: build-and-test
     permissions:
       contents: read
       packages: write
@@ -443,9 +476,11 @@ jobs:
       json: ${{ steps.meta.outputs.json }}
 
   smoke-tests:
+    if: github.ref != 'refs/heads/staging'
     runs-on: ubuntu-latest
     needs:
       [
+        build-and-test,
         build-and-push-router-publisher-image,
         build-and-push-router-subscriber-image,
         build-and-push-router-executor-image,
@@ -453,7 +488,8 @@ jobs:
         build-and-push-sequencer-subscriber-image,
         build-and-push-cartographer-routers-image,
         build-and-push-cartographer-transfers-image,
-        build-and-push-lighthouse-image,
+        build-and-push-cartographer-messages-image,
+        build-and-push-lighthouse-prover-image,
         build-and-push-relayer-image,
       ]
     env:
@@ -464,7 +500,8 @@ jobs:
       SEQUENCER_SUBSCRIBER_IMAGE: ${{ fromJSON(needs.build-and-push-sequencer-subscriber-image.outputs.json).tags[0] }}
       CARTOGRAPHER_TRANSFERS_IMAGE: ${{fromJSON(needs.build-and-push-cartographer-transfers-image.outputs.json).tags[0]}}
       CARTOGRAPHER_ROUTERS_IMAGE: ${{fromJSON(needs.build-and-push-cartographer-routers-image.outputs.json).tags[0]}}
-      LIGHTHOUSE_IMAGE: ${{fromJSON(needs.build-and-push-lighthouse-image.outputs.json).tags[0]}}
+      CARTOGRAPHER_MESSAGES_IMAGE: ${{fromJSON(needs.build-and-push-cartographer-messages-image.outputs.json).tags[0]}}
+      LIGHTHOUSE_PROVER_IMAGE: ${{fromJSON(needs.build-and-push-lighthouse-prover-image.outputs.json).tags[0]}}
       RELAYER_IMAGE: ${{ fromJSON(needs.build-and-push-relayer-image.outputs.json).tags[0] }}
       WEB3_SIGNER_PRIVATE_KEY_ROUTER: "0xc87509a1c067bbde78beb793e6fa76530b6382a4c0241e5e4a9ec0a0f44dc0d3"
       WEB3_SIGNER_PRIVATE_KEY_SEQUENCER: "0xae6ae8e5ccbfb04590405997ee2d52d2b330726137b875053c36d94e974d162f"
@@ -489,12 +526,15 @@ jobs:
       sequencer-subscriber-tags: ${{ needs.build-and-push-sequencer-subscriber-image.outputs.json }}
       cartographer-routers-tags: ${{ needs.build-and-push-cartographer-routers-image.outputs.json }}
       cartographer-transfers-tags: ${{ needs.build-and-push-cartographer-transfers-image.outputs.json }}
-      lighthouse-tags: ${{ needs.build-and-push-lighthouse-image.outputs.json }}
+      cartographer-messages-tags: ${{ needs.build-and-push-cartographer-messages-image.outputs.json }}
+      lighthouse-prover-tags: ${{ needs.build-and-push-lighthouse-prover-image.outputs.json }}
 
   e2e-tests:
+    if: github.ref != 'refs/heads/staging'
     runs-on: ubuntu-latest
     needs:
       [
+        build-and-test,
         build-and-push-router-publisher-image,
         build-and-push-router-subscriber-image,
         build-and-push-router-executor-image,
@@ -502,7 +542,8 @@ jobs:
         build-and-push-sequencer-subscriber-image,
         build-and-push-cartographer-routers-image,
         build-and-push-cartographer-transfers-image,
-        build-and-push-lighthouse-image,
+        build-and-push-cartographer-messages-image,
+        build-and-push-lighthouse-prover-image,
         build-and-push-relayer-image,
       ]
     env:
@@ -513,7 +554,8 @@ jobs:
       SEQUENCER_SUBSCRIBER_IMAGE: ${{ fromJSON(needs.build-and-push-sequencer-subscriber-image.outputs.json).tags[0] }}
       CARTOGRAPHER_TRANSFERS_IMAGE: ${{fromJSON(needs.build-and-push-cartographer-transfers-image.outputs.json).tags[0]}}
       CARTOGRAPHER_ROUTERS_IMAGE: ${{fromJSON(needs.build-and-push-cartographer-routers-image.outputs.json).tags[0]}}
-      LIGHTHOUSE_IMAGE: ${{fromJSON(needs.build-and-push-lighthouse-image.outputs.json).tags[0]}}
+      CARTOGRAPHER_MESSAGES_IMAGE: ${{fromJSON(needs.build-and-push-cartographer-messages-image.outputs.json).tags[0]}}
+      LIGHTHOUSE_PROVER_IMAGE: ${{fromJSON(needs.build-and-push-lighthouse-prover-image.outputs.json).tags[0]}}
       RELAYER_IMAGE: ${{ fromJSON(needs.build-and-push-relayer-image.outputs.json).tags[0] }}
       WEB3_SIGNER_PRIVATE_KEY_ROUTER: "0xc87509a1c067bbde78beb793e6fa76530b6382a4c0241e5e4a9ec0a0f44dc0d3"
       WEB3_SIGNER_PRIVATE_KEY_SEQUENCER: "0xae6ae8e5ccbfb04590405997ee2d52d2b330726137b875053c36d94e974d162f"
@@ -547,7 +589,8 @@ jobs:
       sequencer-subscriber-tags: ${{ needs.build-and-push-sequencer-subscriber-image.outputs.json }}
       cartographer-routers-tags: ${{ needs.build-and-push-cartographer-routers-image.outputs.json }}
       cartographer-transfers-tags: ${{ needs.build-and-push-cartographer-transfers-image.outputs.json }}
-      lighthouse-tags: ${{ needs.build-and-push-lighthouse-image.outputs.json }}
+      cartographer-messages-tags: ${{ needs.build-and-push-cartographer-messages-image.outputs.json }}
+      lighthouse-prover-tags: ${{ needs.build-and-push-lighthouse-prover-image.outputs.json }}
 
   terraform-infra:
     if: github.ref == 'refs/heads/staging' || github.ref == 'refs/heads/prod'
@@ -593,6 +636,7 @@ jobs:
       AWS_PROFILE: aws-deployer-connext
       TF_VAR_full_image_name_cartographer_routers: ${{ fromJSON(needs.smoke-tests.outputs.cartographer-routers-tags).tags[0] }}
       TF_VAR_full_image_name_cartographer_transfers: ${{ fromJSON(needs.smoke-tests.outputs.cartographer-transfers-tags).tags[0] }}
+      TF_VAR_full_image_name_cartographer_messages: ${{ fromJSON(needs.smoke-tests.outputs.cartographer-messages-tags).tags[0] }}
 
     runs-on: ubuntu-latest
     permissions:
@@ -647,6 +691,7 @@ jobs:
     outputs:
       cartographer-routers-tags: ${{ needs.smoke-tests.outputs.cartographer-routers-tags }}
       cartographer-transfers-tags: ${{ needs.smoke-tests.outputs.cartographer-transfers-tags }}
+      cartographer-messages-tags: ${{ needs.smoke-tests.outputs.cartographer-messages-tags }}
 
   terraform-services-core-staging-testnet:
     needs: [smoke-tests, terraform-infra]
@@ -658,7 +703,7 @@ jobs:
       TF_VAR_full_image_name_sequencer_publisher: ${{ fromJSON(needs.smoke-tests.outputs.sequencer-publisher-tags).tags[0] }}
       TF_VAR_full_image_name_sequencer_subscriber: ${{ fromJSON(needs.smoke-tests.outputs.sequencer-subscriber-tags).tags[0] }}
 
-      TF_VAR_full_image_name_lighthouse: ${{ fromJSON(needs.smoke-tests.outputs.lighthouse-tags).tags[0] }}
+      TF_VAR_full_image_name_lighthouse_prover: ${{ fromJSON(needs.smoke-tests.outputs.lighthouse-prover-tags).tags[0] }}
 
     runs-on: ubuntu-latest
     permissions:
@@ -716,7 +761,7 @@ jobs:
       router-publisher-tags: ${{ needs.smoke-tests.outputs.router-publisher-tags }}
       router-subscriber-tags: ${{ needs.smoke-tests.outputs.router-subscriber-tags }}
       router-executor-tags: ${{ needs.smoke-tests.outputs.router-executor-tags }}
-      lighthouse-tags: ${{ needs.smoke-tests.outputs.lighthouse-tags }}
+      lighthouse-prover-tags: ${{ needs.smoke-tests.outputs.lighthouse-prover-tags }}
 
   terraform-services-core-prod-testnet:
     if: github.ref == 'refs/heads/prod'
@@ -728,7 +773,7 @@ jobs:
       TF_VAR_full_image_name_router_executor: ${{ fromJSON(needs.e2e-tests.outputs.router-executor-tags).tags[0] }}
       TF_VAR_full_image_name_sequencer_publisher: ${{ fromJSON(needs.e2e-tests.outputs.sequencer-publisher-tags).tags[0] }}
       TF_VAR_full_image_name_sequencer_subscriber: ${{ fromJSON(needs.e2e-tests.outputs.sequencer-subscriber-tags).tags[0] }}
-      TF_VAR_full_image_name_lighthouse: ${{ fromJSON(needs.e2e-tests.outputs.lighthouse-tags).tags[0] }}
+      TF_VAR_full_image_name_lighthouse_prover: ${{ fromJSON(needs.e2e-tests.outputs.lighthouse-prover-tags).tags[0] }}
 
     runs-on: ubuntu-latest
     permissions:
@@ -784,7 +829,7 @@ jobs:
       router-publisher-tags: ${{ needs.e2e-tests.outputs.router-publisher-tags }}
       router-subscriber-tags: ${{ needs.e2e-tests.outputs.router-subscriber-tags }}
       router-executor-tags: ${{ needs.e2e-tests.outputs.router-executor-tags }}
-      lighthouse-tags: ${{ needs.e2e-tests.outputs.lighthouse-tags }}
+      lighthouse-prover-tags: ${{ needs.e2e-tests.outputs.lighthouse-prover-tags }}
 
   terraform-services-backend-prod-testnet:
     if: github.ref == 'refs/heads/prod'
@@ -793,6 +838,7 @@ jobs:
       AWS_PROFILE: aws-deployer-connext
       TF_VAR_full_image_name_cartographer_routers: ${{ fromJSON(needs.e2e-tests.outputs.cartographer-routers-tags).tags[0] }}
       TF_VAR_full_image_name_cartographer_transfers: ${{ fromJSON(needs.e2e-tests.outputs.cartographer-transfers-tags).tags[0] }}
+      TF_VAR_full_image_name_cartographer_messages: ${{ fromJSON(needs.e2e-tests.outputs.cartographer-messages-tags).tags[0] }}
 
     runs-on: ubuntu-latest
     permissions:
@@ -849,9 +895,10 @@ jobs:
       router-publisher-tags: ${{ needs.e2e-tests.outputs.router-publisher-tags }}
       router-subscriber-tags: ${{ needs.e2e-tests.outputs.router-subscriber-tags }}
       router-executor-tags: ${{ needs.e2e-tests.outputs.router-executor-tags }}
-      lighthouse-tags: ${{ needs.e2e-tests.outputs.lighthouse-tags }}
+      lighthouse-prover-tags: ${{ needs.e2e-tests.outputs.lighthouse-prover-tags }}
       cartographer-routers-tags: ${{ needs.e2e-tests.outputs.cartographer-routers-tags }}
       cartographer-transfers-tags: ${{ needs.e2e-tests.outputs.cartographer-transfers-tags }}
+      cartographer-messages-tags: ${{ needs.e2e-tests.outputs.cartographer-messages-tags }}
 
   terraform-services-backend-prod-mainnet:
     if: github.ref == 'refs/heads/prod'
@@ -860,6 +907,7 @@ jobs:
       AWS_PROFILE: aws-deployer-connext
       TF_VAR_full_image_name_cartographer_routers: ${{ fromJSON(needs.terraform-services-backend-prod-testnet.outputs.cartographer-routers-tags).tags[0] }}
       TF_VAR_full_image_name_cartographer_transfers: ${{ fromJSON(needs.terraform-services-backend-prod-testnet.outputs.cartographer-transfers-tags).tags[0] }}
+      TF_VAR_full_image_name_cartographer_messages: ${{ fromJSON(needs.terraform-services-backend-prod-testnet.outputs.cartographer-messages-tags).tags[0] }}
 
     runs-on: ubuntu-latest
     permissions:
@@ -920,7 +968,7 @@ jobs:
       TF_VAR_full_image_name_router_executor: ${{ fromJSON(needs.terraform-services-backend-prod-testnet.outputs.router-executor-tags).tags[0] }}
       TF_VAR_full_image_name_sequencer_publisher: ${{ fromJSON(needs.terraform-services-backend-prod-testnet.outputs.sequencer-publisher-tags).tags[0] }}
       TF_VAR_full_image_name_sequencer_subscriber: ${{ fromJSON(needs.terraform-services-backend-prod-testnet.outputs.sequencer-subscriber-tags).tags[0] }}
-      TF_VAR_full_image_name_lighthouse: ${{ fromJSON(needs.terraform-services-backend-prod-testnet.outputs.lighthouse-tags).tags[0] }}
+      TF_VAR_full_image_name_lighthouse_prover: ${{ fromJSON(needs.terraform-services-backend-prod-testnet.outputs.lighthouse-prover-tags).tags[0] }}
 
     runs-on: ubuntu-latest
     permissions:

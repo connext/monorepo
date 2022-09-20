@@ -1,6 +1,6 @@
 {
   "name": "@connext/nxtp-subgraph",
-  "version": "0.2.0-beta.22",
+  "version": "0.2.0-beta.23",
   "license": "UNLICENSED",
   "scripts": {
     "graph": "graph",
@@ -12,9 +12,12 @@
     "deploy": "ts-node ./src/deploy.ts",
     "deploy:amarok-runtime-v0": "yarn deploy amarok-runtime-v0 amarok-runtime-v0 all",
     "deploy:amarok-runtime-staging": "yarn deploy amarok-runtime-staging amarok-runtime-staging all",
+    "deploy:amarok-hub-staging": "yarn deploy amarok-hub-staging amarok-hub-staging all",
+    "deploy:amarok-hub-v0": "yarn deploy amarok-hub-v0 amarok-hub-v0 all",
     "deploy:amarok-stableswap-staging": "yarn deploy amarok-stableswap-staging amarok-stableswap-staging all",
     "prepare:v0": "yarn deploy amarok-runtime-v0 local mainnet",
     "prepare:staging": "yarn deploy amarok-runtime-staging local mainnet",
+    "prepare:hub-staging": "yarn deploy amarok-hub-staging local mainnet",
     "prepare:stableswap": "yarn deploy amarok-stableswap-staging local mainnet",
     "prepare:local_1337": "yarn deploy amarok-runtime-v0 local_1337 mainnet",
     "prepare:local_1338": "yarn deploy amarok-runtime-v0 local_1338 mainnet",
@@ -31,19 +34,19 @@
     "generated"
   ],
   "dependencies": {
-    "ethers": "5.6.9",
+    "ethers": "5.7.0",
     "js-yaml": "4.1.0",
     "mustache": "4.2.0",
     "ts-node": "10.9.1",
     "yaml": "2.1.1"
   },
   "devDependencies": {
-    "@graphprotocol/graph-cli": "0.33.0",
+    "@graphprotocol/graph-cli": "0.33.1",
     "@graphprotocol/graph-ts": "0.27.0",
     "@types/js-yaml": "4.0.5",
     "@types/mustache": "4.2.1",
     "@types/yaml": "1.9.7",
-    "eslint": "8.22.0",
+    "eslint": "8.23.0",
     "sinon": "14.0.0"
   },
   "stableVersion": "0.1.25"

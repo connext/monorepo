@@ -12,6 +12,7 @@ import {
   SubgraphQueryByTimestampMetaParams,
   OriginMessage,
   DestinationMessage,
+  RootMessage,
 } from "@connext/nxtp-utils";
 
 import { getHelpers } from "./lib/helpers";
@@ -36,6 +37,8 @@ import {
   getDestinationTransfersByDomainAndReconcileTimestampQuery,
   getOriginMessagesByDomainAndIndexQuery,
   getDestinationMessagesByDomainAndLeafQuery,
+  getSentRootMessagesByDomainAndBlockQuery,
+  getProcessedRootMessagesByDomainAndBlockQuery,
 } from "./lib/operations";
 import { SubgraphMap } from "./lib/entities";
 
@@ -302,7 +305,9 @@ export class SubgraphReader {
     const query = getDestinationTransfersByIdsQuery(prefix, [`"${transferId}"`]);
     const response = await execute(query);
     const transfers = [...response.values()][0][0];
-    return transfers.length === 1 ? parser.destinationTransfer(transfers[0]) : undefined;
+    return transfers.length === 1
+      ? parser.destinationTransfer({ ...transfers[0], destinationDomain: domain })
+      : undefined;
   }
 
   /**
@@ -355,7 +360,13 @@ export class SubgraphReader {
     const transfers: any[] = [];
     for (const key of response.keys()) {
       const value = response.get(key);
-      transfers.push(value?.flat());
+      const domainTransfers = value?.flat();
+
+      transfers.push(
+        domainTransfers?.map((x) => {
+          return { ...x, destinationDomain: key };
+        }),
+      );
     }
 
     const destinationTransfers: XTransfer[] = transfers
@@ -395,7 +406,12 @@ export class SubgraphReader {
     const transfers: any[] = [];
     for (const key of response.keys()) {
       const value = response.get(key);
-      transfers.push(value?.flat());
+      const domainTransfers = value?.flat();
+      transfers.push(
+        domainTransfers?.map((x) => {
+          return { ...x, destinationDomain: key };
+        }),
+      );
     }
 
     const destinationTransfers: XTransfer[] = transfers
@@ -417,7 +433,12 @@ export class SubgraphReader {
     const transfers: any[] = [];
     for (const key of response.keys()) {
       const value = response.get(key);
-      transfers.push(value?.flat());
+      const domainTransfers = value?.flat();
+      transfers.push(
+        domainTransfers?.map((x) => {
+          return { ...x, destinationDomain: key };
+        }),
+      );
     }
 
     const destinationTransfers: XTransfer[] = transfers
@@ -462,7 +483,12 @@ export class SubgraphReader {
     const transfers: any[] = [];
     for (const key of response.keys()) {
       const value = response.get(key);
-      transfers.push(value?.flat());
+      const domainTransfers = value?.flat();
+      transfers.push(
+        domainTransfers?.map((x) => {
+          return { ...x, destinationDomain: key };
+        }),
+      );
     }
 
     const destinationTransfers: XTransfer[] = transfers
@@ -505,7 +531,12 @@ export class SubgraphReader {
     const _transfers: any[] = [];
     for (const key of response.keys()) {
       const value = response.get(key);
-      _transfers.push(value?.flat());
+      const domainTransfers = value?.flat();
+      _transfers.push(
+        domainTransfers?.map((x) => {
+          return { ...x, destinationDomain: key };
+        }),
+      );
     }
 
     const destinationTransfers: XTransfer[] = _transfers
@@ -556,7 +587,7 @@ export class SubgraphReader {
     const { parser, execute } = getHelpers();
 
     let destinationMessages: DestinationMessage[] = [];
-    if (!params || params.values.length == 0) {
+    if (!params || params.size === 0) {
       return destinationMessages;
     }
 
@@ -578,5 +609,59 @@ export class SubgraphReader {
       .map(parser.destinationMessage);
 
     return destinationMessages;
+  }
+
+  /**
+   * Gets all the sent root messages starting with blocknumber for a given domain
+   */
+  public async getSentRootMessagesByDomain(
+    params: { domain: string; offset: number; limit: number }[],
+  ): Promise<RootMessage[]> {
+    const { parser, execute } = getHelpers();
+    const sentRootMessageQuery = getSentRootMessagesByDomainAndBlockQuery(params);
+    const response = await execute(sentRootMessageQuery);
+    const _messages: any[] = [];
+    for (const key of response.keys()) {
+      const value = response.get(key);
+      const flatten = value?.flat();
+      const _message = flatten?.map((x) => {
+        return { ...x, domain: key };
+      });
+      _messages.push(_message);
+    }
+
+    const sentRootMessages: RootMessage[] = _messages
+      .flat()
+      .filter((x: any) => !!x)
+      .map(parser.rootMessage);
+
+    return sentRootMessages;
+  }
+
+  /**
+   * Gets all the processed root messages starting with blocknumber for a given domain
+   */
+  public async getProcessedRootMessagesByDomain(
+    params: { domain: string; offset: number; limit: number }[],
+  ): Promise<RootMessage[]> {
+    const { parser, execute } = getHelpers();
+    const processedRootMessageQuery = getProcessedRootMessagesByDomainAndBlockQuery(params);
+    const response = await execute(processedRootMessageQuery);
+    const _messages: any[] = [];
+    for (const key of response.keys()) {
+      const value = response.get(key);
+      const flatten = value?.flat();
+      const _message = flatten?.map((x) => {
+        return { ...x, domain: key };
+      });
+      _messages.push(_message);
+    }
+
+    const processedRootMessages: RootMessage[] = _messages
+      .flat()
+      .filter((x: any) => !!x)
+      .map(parser.rootMessage);
+
+    return processedRootMessages;
   }
 }

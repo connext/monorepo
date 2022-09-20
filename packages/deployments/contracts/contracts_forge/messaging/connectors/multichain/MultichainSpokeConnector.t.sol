@@ -183,14 +183,14 @@ contract MultichainSpokeConnectorTest is ConnectorHelper {
   }
 
   // return false if the origin chain has an unexpected id
-  function test_MultichainSpokeConnector_verifySender_falseIfWrongOriginId(uint256 _wrongId, address _from) public {
-    vm.assume(_wrongId != _chainIdL2);
+  function test_MultichainSpokeConnector_verifySender_falseIfWrongOriginId(uint256 _wrongId) public {
+    vm.assume(_wrongId != _chainIdMainnet);
     // Mock the call to the executor, to retrieve the context
-    vm.mockCall(_executor, abi.encodeCall(Multichain.context, ()), abi.encode(_l1Connector, 1, _wrongId));
+    vm.mockCall(_executor, abi.encodeCall(Multichain.context, ()), abi.encode(_l1Connector, _wrongId, _chainIdL2));
 
     // multichain _amb has the same address, irrespective of underlying network
     vm.prank(_amb);
-    assertFalse(MultichainSpokeConnector(_l2Connector).verifySender(_from));
+    assertFalse(MultichainSpokeConnector(_l2Connector).verifySender(_l1Connector));
   }
 
   // reverse if sender != amb

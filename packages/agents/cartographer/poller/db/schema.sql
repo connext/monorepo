@@ -379,6 +379,24 @@ CREATE TABLE public.messages (
 
 
 --
+-- Name: processed_root_messages; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.processed_root_messages (
+    id character(66) NOT NULL,
+    spoke_domain character varying(255),
+    hub_domain character varying(255),
+    root character(66),
+    caller character(42),
+    transaction_hash character(66),
+    processed_timestamp integer,
+    gas_price numeric,
+    gas_limit numeric,
+    block_number integer
+);
+
+
+--
 -- Name: router_tvl; Type: VIEW; Schema: public; Owner: -
 --
 
@@ -400,6 +418,24 @@ CREATE VIEW public.router_tvl AS
 
 CREATE TABLE public.schema_migrations (
     version character varying(255) NOT NULL
+);
+
+
+--
+-- Name: sent_root_messages; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.sent_root_messages (
+    id character(66) NOT NULL,
+    spoke_domain character varying(255),
+    hub_domain character varying(255),
+    root character(66),
+    caller character(42),
+    transaction_hash character(66),
+    sent_timestamp integer,
+    gas_price numeric,
+    gas_limit numeric,
+    block_number integer
 );
 
 
@@ -520,6 +556,14 @@ ALTER TABLE ONLY public.messages
 
 
 --
+-- Name: processed_root_messages processed_root_messages_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.processed_root_messages
+    ADD CONSTRAINT processed_root_messages_pkey PRIMARY KEY (id);
+
+
+--
 -- Name: routers routers_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -536,11 +580,47 @@ ALTER TABLE ONLY public.schema_migrations
 
 
 --
+-- Name: sent_root_messages sent_root_messages_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.sent_root_messages
+    ADD CONSTRAINT sent_root_messages_pkey PRIMARY KEY (id);
+
+
+--
 -- Name: transfers transfers_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public.transfers
     ADD CONSTRAINT transfers_pkey PRIMARY KEY (transfer_id);
+
+
+--
+-- Name: messages_processed_index_idx; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX messages_processed_index_idx ON public.messages USING btree (processed, index);
+
+
+--
+-- Name: transfers_destination_domain_update_time_idx; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX transfers_destination_domain_update_time_idx ON public.transfers USING btree (destination_domain, update_time);
+
+
+--
+-- Name: transfers_origin_domain_xcall_timestamp_idx; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX transfers_origin_domain_xcall_timestamp_idx ON public.transfers USING btree (origin_domain, xcall_timestamp);
+
+
+--
+-- Name: transfers_status_xcall_timestamp_idx; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX transfers_status_xcall_timestamp_idx ON public.transfers USING btree (status, xcall_timestamp);
 
 
 --
@@ -585,4 +665,7 @@ INSERT INTO public.schema_migrations (version) VALUES
     ('20220811120125'),
     ('20220816134851'),
     ('20220824094332'),
-    ('20220907212007');
+    ('20220907212007'),
+    ('20220914215736'),
+    ('20220914230120'),
+    ('20220920101730');

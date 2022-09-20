@@ -1,6 +1,6 @@
 {
   "name": "@connext/nxtp-txservice",
-  "version": "0.2.0-beta.22",
+  "version": "0.2.0-beta.23",
   "description": "Robust transaction sending service for a wallet configured across multiple chains. Will bump gas and reattempt transactions as needed",
   "author": "Connext",
   "license": "MIT",
@@ -23,13 +23,13 @@
   "dependencies": {
     "@connext/nxtp-contracts": "workspace:*",
     "@connext/nxtp-utils": "workspace:*",
-    "@sinclair/typebox": "0.24.28",
-    "@typescript-eslint/eslint-plugin": "5.33.1",
+    "@sinclair/typebox": "0.24.39",
+    "@typescript-eslint/eslint-plugin": "5.36.2",
     "ajv": "8.11.0",
     "ajv-formats": "2.1.1",
     "axios": "0.27.2",
-    "ethers": "5.6.9",
-    "evt": "2.3.2",
+    "ethers": "5.7.0",
+    "evt": "2.4.1",
     "interval-promise": "1.4.0",
     "p-queue": "6.6.2"
   },
@@ -42,14 +42,14 @@
     "chai": "4.3.6",
     "chai-as-promised": "7.1.1",
     "chai-subset": "1.6.0",
-    "eslint": "8.22.0",
+    "eslint": "8.23.0",
     "mocha": "10.0.0",
     "nyc": "15.1.0",
     "rimraf": "3.0.2",
     "sinon": "14.0.0",
     "ts-mocha": "10.0.0",
     "tslib": "2.4.0",
-    "typescript": "4.7.4"
+    "typescript": "4.8.3"
   },
   "publishConfig": {
     "registry": "https://registry.npmjs.org",

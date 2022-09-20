@@ -11,6 +11,7 @@ import {
   getMessagingProtocolConfig,
   mustGetEnv,
 } from "../src/utils";
+import { HUB_PREFIX } from "../deployConfig/shared";
 
 type TaskArgs = {
   env?: Env;
@@ -19,14 +20,14 @@ type TaskArgs = {
 
 export default task("add-connectors", "Add all connectors to the root manager")
   .addOptionalParam("env", "Environment of contracts")
-  .addOptionalParam("remove", "Whether or not to remove connectors that exist")
+  .addFlag("remove", "Whether or not to remove connectors that exist")
   .setAction(async ({ env: _env, remove: _remove }: TaskArgs, hre) => {
     const chain = await hre.getChainId();
     const networkConfig = Object.values(hardhatConfig.networks!).find((n) => n?.chainId === +chain)!;
     const deployer = Wallet.fromMnemonic((networkConfig.accounts as any).mnemonic as unknown as string);
 
     const env = mustGetEnv(_env);
-    const remove = _remove ?? true;
+    const remove = _remove;
     console.log("env:", env);
     console.log("remove:", remove);
     console.log("deployer: ", deployer.address);
@@ -53,26 +54,26 @@ export default task("add-connectors", "Add all connectors to the root manager")
       hardhatConfig,
       env,
       async (deployment: ConnectorDeployment, _provider: providers.JsonRpcProvider) => {
-        const { name, address, chain } = deployment;
-        if (!name.includes("L1")) {
+        const { name, address, chain, mirrorChain } = deployment;
+        if (!name.includes(HUB_PREFIX) && !name.includes("Mainnet")) {
           // this is not the relevant connector
           return;
         }
         // connector now has "L1" in the title
         // NOTE: on mainnet connector there will be no mirror chain, so just register the mainnet
         // domain
-        const domain = await getDomainFromChainId(chain);
-        console.log(`trying to enroll connector for ${domain} (${chain})`);
+        const domain = await getDomainFromChainId(mirrorChain ?? chain);
+        console.log(`trying to enroll connector for ${domain} (${mirrorChain ?? chain})`);
 
         let stored = await rootManager.connectors(domain);
-        if (stored === address.toLowerCase()) {
+        if (stored.toLowerCase() === address.toLowerCase()) {
           console.log(`${name} already registered for ${domain}: ${address}`);
           return;
         }
 
         // Must either remove before enlisting
-        if (stored !== constants.AddressZero && remove) {
-          console.log(`Removing ${name} registered for ${domain}: ${address}`);
+        if (stored !== constants.AddressZero || remove) {
+          console.log(`Removing ${name} registered for ${domain}: ${stored}`);
           const tx = await rootManager.removeConnector(domain);
           console.log("remove connector tx submitted:", tx.hash);
           const receipt = await tx.wait();

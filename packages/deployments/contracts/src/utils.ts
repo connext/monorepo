@@ -34,14 +34,20 @@ export const getProtocolNetwork = (_chain: string | number, _env?: string): "mai
       "local";
 };
 
-export const getConnectorName = (config: MessagingProtocolConfig, chainId: number): string => {
-  const naming = config.configs[chainId];
+export const getConnectorName = (
+  config: MessagingProtocolConfig,
+  connectorChainId: number,
+  deployChainId?: number | undefined,
+): string => {
+  deployChainId = deployChainId ?? connectorChainId;
+
+  const naming = config.configs[connectorChainId];
   if (!naming) {
-    throw new Error(`Could not find ${chainId} in config`);
+    throw new Error(`Could not find ${connectorChainId} in config`);
   }
   // Only spoke connectors deployed for mainnet contracts
   return `${naming.prefix}${
-    config.hub === chainId && !naming.prefix.includes("Mainnet") ? HUB_PREFIX : SPOKE_PREFIX
+    config.hub === deployChainId && !naming.prefix.includes("Mainnet") ? HUB_PREFIX : SPOKE_PREFIX
   }Connector`;
 };
 
@@ -80,7 +86,8 @@ export const verify = async (
 
 // Gets the messaging protocol config for a given chain
 export const getMessagingProtocolConfig = (env: Env): MessagingProtocolConfig => {
-  const network = env === "production" ? "mainnet" : env === "staging" ? "testnet" : "local";
+  // TODO: "tesnet"  => "mainnet"  for production
+  const network = env === "production" ? "testnet" : env === "staging" ? "testnet" : "local";
   const protocol = MESSAGING_PROTOCOL_CONFIGS[network];
 
   if (!protocol || !protocol.configs[protocol.hub]) {
@@ -94,6 +101,7 @@ export type ConnectorDeployment = {
   address: string;
   abi: ContractInterface;
   mirrorConnector?: string;
+  mirrorChain?: number;
   chain: number;
   name: string;
 };
@@ -108,15 +116,15 @@ export const getConnectorDeployments = (env: Env): ConnectorDeployment[] => {
       // On the hub, you only need to connect the mainnet l1 connector (no mirror)
       connectors.push({
         chain: protocol.hub,
-        name: getDeploymentName(getConnectorName(protocol, protocol.hub)),
+        name: getDeploymentName(getConnectorName(protocol, protocol.hub), env),
         mirrorName: undefined,
         mirrorChain: undefined,
       });
       return;
     }
     // When not on the hub, there will be a name for both the hub and spoke side connectors
-    const hubName = getDeploymentName(getConnectorName(protocol, protocol.hub));
-    const spokeName = getDeploymentName(getConnectorName(protocol, chainId));
+    const hubName = getDeploymentName(getConnectorName(protocol, chainId, protocol.hub), env);
+    const spokeName = getDeploymentName(getConnectorName(protocol, chainId), env);
     connectors.push({
       chain: protocol.hub,
       name: hubName,
@@ -148,7 +156,7 @@ export const getConnectorDeployments = (env: Env): ConnectorDeployment[] => {
     // Get deployment records
     const { address, abi } = getAddressAndAbi(name, chain);
     const mirrorConnector = mirrorName && mirrorChain ? getAddressAndAbi(mirrorName, mirrorChain).address : undefined;
-    return { address, abi, mirrorConnector, chain, name };
+    return { address, abi, mirrorConnector, chain, mirrorChain, name };
   });
 
   return deployments;

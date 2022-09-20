@@ -1,6 +1,6 @@
 {
-  "name": "@connext/nxtp-lighthouse",
-  "version": "0.2.0-beta.22",
+  "name": "@connext/lighthouse",
+  "version": "0.2.0-beta.23",
   "description": "",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -9,8 +9,7 @@
     "src/**/*"
   ],
   "scripts": {
-    "dev": "concurrently -i -k -n 'app,tsc' -c 'green,cyan' 'nodemon'",
-    "start": "node --enable-source-maps dist/index.js'",
+    "start:prover": "node --enable-source-maps dist/tasks/prover/index.js",
     "lint": "eslint ./src --ext .ts --env node",
     "test": "nyc ts-mocha --require 'test/globalTestHook.ts' --check-leaks --exit --timeout 60000 'test/**/*.spec.ts'",
     "clean": "rimraf ./dist ./tsconfig.tsBuildInfo",
@@ -35,29 +34,30 @@
   "dependencies": {
     "@connext/nxtp-txservice": "workspace:*",
     "@connext/nxtp-utils": "workspace:*",
-    "@sinclair/typebox": "0.24.28",
+    "@sinclair/typebox": "0.24.39",
     "axios": "0.27.2",
-    "dotenv": "16.0.1",
-    "ethers": "5.6.9",
-    "fastify": "4.5.0",
+    "dd-trace": "^3.2.0",
+    "dotenv": "16.0.2",
+    "ethers": "5.7.0",
+    "fastify": "4.5.3",
     "graphql": "16.6.0",
-    "prom-client": "14.0.1"
+    "prom-client": "14.1.0"
   },
   "devDependencies": {
-    "@graphql-codegen/cli": "2.11.6",
+    "@graphql-codegen/cli": "2.12.0",
     "@types/mocha": "9.1.1",
     "@types/sinon": "10.0.13",
-    "concurrently": "7.3.0",
-    "eslint": "8.22.0",
+    "concurrently": "7.4.0",
+    "eslint": "8.23.0",
     "interval-promise": "1.4.0",
     "mocha": "10.0.0",
     "nodemon": "2.0.19",
     "nyc": "15.1.0",
-    "pino-pretty": "9.0.1",
+    "pino-pretty": "9.1.0",
     "rimraf": "3.0.2",
     "sinon": "14.0.0",
     "ts-mocha": "10.0.0",
-    "typescript": "4.7.4"
+    "typescript": "4.8.3"
   },
   "gitHead": "937a7cde93e6ac1e151c6374f48adf83d3fa4ec6",
   "stableVersion": "0.1.25"
