@@ -18,13 +18,26 @@
           "address": "0x68Db1c8d85C09d546097C65ec7DCBFF4D6497CbF"
         },
         {
-          "name": "madWETH",
+          "name": "nextWETH",
           "symbol": "TWETH",
           "address": "0x39B061B7e41DE8B721f9aEcEB6b3f17ECB7ba63E"
         }
       ],
       "providers": ["https://goerli.optimism.io/"]
-    }
+    },
+    "9991": {
+      "assets": [
+        {
+          "name": "TEST",
+          "symbol": "TEST",
+          "address": "0xeDb95D8037f769B72AAab41deeC92903A98C9E16"
+        },
+        {
+          "name": "nextWETH",
+          "symbol": "TWETH",
+          "address": "0x1E5341E4b7ed5D0680d9066aac0396F0b1bD1E69"
+        }
+      ],
   },
   "logLevel": "debug",
   "mnemonic": "<YOUR MNEMONIC HERE>",

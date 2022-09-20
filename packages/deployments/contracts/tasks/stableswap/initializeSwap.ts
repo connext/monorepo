@@ -1,4 +1,5 @@
-import { Contract, utils } from "ethers";
+import { Contract, utils, constants } from "ethers";
+import { defaultAbiCoder, solidityKeccak256 } from "ethers/lib/utils";
 import { task } from "hardhat/config";
 
 import { Env, getDeploymentName, mustGetEnv } from "../../src/utils";
@@ -97,12 +98,35 @@ export default task("initialize-stableswap", "Initializes stable swap")
       console.log("domain: ", domain);
       console.log("canonicalId: ", canonicalId);
 
-      const approvedAsset = await connext.approvedAssets(canonicalId);
-      console.log("approvedAsset: ", approvedAsset);
-      if (!approvedAsset) {
+      const canonicalTokenId = {
+        id: canonicalId,
+        domain: +domain,
+      };
+      const key = solidityKeccak256(
+        ["bytes"],
+        [defaultAbiCoder.encode(["bytes32", "uint32"], [canonicalTokenId.id, canonicalTokenId.domain])],
+      );
+
+      const [isAssetApproved] = connext.interface.decodeFunctionResult(
+        "approvedAssets(bytes32)",
+        await deployer.call({
+          to: connext.address,
+          value: constants.Zero,
+          data: connext.interface.encodeFunctionData("approvedAssets(bytes32)", [key]),
+        }),
+      );
+      console.log("approvedAsset: ", isAssetApproved);
+      if (!isAssetApproved) {
         throw new Error("Asset not approved");
       }
-      const adopted: string = await connext.canonicalToAdopted(canonicalId);
+
+      const [adopted] = connext.interface.decodeFunctionResult(
+        "canonicalToAdopted(bytes32)",
+        await deployer.call({
+          to: connext.address,
+          data: connext.interface.encodeFunctionData("canonicalToAdopted(bytes32)", [key]),
+        }),
+      );
       console.log("adopted asset ", adopted);
 
       const local: string = await tokenRegistry["getLocalAddress(uint32,bytes32)"](domain, canonicalId);
@@ -123,7 +147,7 @@ export default task("initialize-stableswap", "Initializes stable swap")
       console.log("decimals: ", decimals);
 
       const tx = await connext.initializeSwap(
-        canonicalId,
+        key,
         [local, adopted],
         decimals,
         lpTokenName,

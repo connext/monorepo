@@ -33,7 +33,8 @@ import "./utils/Deployer.sol";
 import "forge-std/console.sol";
 
 contract LiveTest is ForgeHelper {
-  IConnextHandler connext = IConnextHandler(0xB7CF5324641bD9F82903504c56c9DE2193B4822F);
+  // ConnextHandler on Optimism-Goerli
+  IConnextHandler connext = IConnextHandler(0xA04f29c24CCf3AF30D4164F608A56Dc495B2c976);
 
   // ============ Test set up ============
   function setUp() public {}
