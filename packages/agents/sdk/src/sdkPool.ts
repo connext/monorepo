@@ -543,10 +543,10 @@ export class NxtpSdkPool {
     pool = new Pool(
       domainId,
       `${tokenSymbol}-Pool`,
-      `${tokenSymbol}-mad${tokenSymbol}`,
-      [tokenAddress, adopted],
-      [localDecimals, adoptedDecimals],
-      [localBalance, adoptedBalance],
+      `${tokenSymbol}-next${tokenSymbol}`,
+      [adopted, tokenAddress],
+      [adoptedDecimals, localDecimals],
+      [adoptedBalance, localBalance],
       lpTokenAddress,
       key,
     );

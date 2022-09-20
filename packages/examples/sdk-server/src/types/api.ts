@@ -79,7 +79,7 @@ export const getUserPoolsSchema = Type.Object({
 export const addLiquiditySchema = Type.Object({
   domainId: Type.String(),
   key: Type.String(),
-  amounts: Type.Array(Type.String()),
+  amounts: Type.Array(Type.Number()),
   deadline: Type.Optional(Type.Number()),
   estimateGas: Type.Optional(Type.Boolean()),
 });
