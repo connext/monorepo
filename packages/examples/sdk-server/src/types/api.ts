@@ -108,3 +108,8 @@ export const approveIfNeededSchema = Type.Object({
   amount: Type.String(),
   infiniteApprove: Type.Optional(Type.Boolean()),
 });
+
+export const calculateCanonicalHashSchema = Type.Object({
+  canonicalDomain: Type.String(),
+  canonicalId: Type.String(),
+});
