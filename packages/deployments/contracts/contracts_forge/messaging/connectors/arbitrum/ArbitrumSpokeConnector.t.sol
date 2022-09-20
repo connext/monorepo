@@ -100,7 +100,14 @@ contract ArbitrumSpokeConnectorTest is ConnectorHelper {
     emit MessageSent(_data, _rootManager);
 
     // should call send contract transaction
-    vm.expectCall(_amb, abi.encodeWithSelector(ArbitrumL2Amb.sendTxToL1.selector, _l1Connector, _data));
+    vm.expectCall(
+      _amb,
+      abi.encodeWithSelector(
+        ArbitrumL2Amb.sendTxToL1.selector,
+        _l1Connector,
+        abi.encodeWithSelector(Connector.processMessage.selector, _data)
+      )
+    );
 
     vm.prank(_rootManager);
     ArbitrumSpokeConnector(_l2Connector).send();
