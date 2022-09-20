@@ -17,4 +17,8 @@ A clear and concise description of what you think could solve this problem.
 - [ ] X happens
 - [ ] Y happens
 
-**Other**
+**Expected Impact**
+A clear and concise description of what the problem is
+
+**Other Notes**
+A clear and concise description of what the problem is
