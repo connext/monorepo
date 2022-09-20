@@ -11,6 +11,7 @@ import {IBridgeRouter} from "../interfaces/IBridgeRouter.sol";
 import {IExecutor} from "../interfaces/IExecutor.sol";
 import {IStableSwap} from "../interfaces/IStableSwap.sol";
 import {ISponsorVault} from "../interfaces/ISponsorVault.sol";
+import {IConnectorManager} from "../../../messaging/interfaces/IConnectorManager.sol";
 
 import {SwapUtils} from "./SwapUtils.sol";
 
@@ -336,6 +337,11 @@ struct AppStorage {
    */
   // 38
   mapping(address => bool) approvedSequencers;
+  /**
+   * @notice Remote connection manager for xapp
+   */
+  // 39
+  IConnectorManager xAppConnectionManager;
 }
 
 library LibConnextStorage {

@@ -23,6 +23,7 @@ import {BaseConnextFacet} from "../BaseConnextFacet.sol";
 import {IProposedOwnable} from "../../../../shared/interfaces/IProposedOwnable.sol";
 import {RelayerFeeRouter} from "../../../relayer-fee/RelayerFeeRouter.sol";
 import {PromiseRouter} from "../../../promise/PromiseRouter.sol";
+import {IConnectorManager} from "../../../../messaging/interfaces/IConnectorManager.sol";
 
 // It is expected that this contract is customized if you want to deploy your diamond
 // with data from a deployment script. Use the init function to initialize state variables
@@ -36,7 +37,8 @@ contract DiamondInit is BaseConnextFacet {
     address _tokenRegistry, // Nomad token registry
     address _relayerFeeRouter,
     address payable _promiseRouter,
-    uint256 _acceptanceDelay
+    uint256 _acceptanceDelay,
+    address _xappConnectionManager
   ) external {
     // adding ERC165 data
     LibDiamond.DiamondStorage storage ds = LibDiamond.diamondStorage();
@@ -70,6 +72,7 @@ contract DiamondInit is BaseConnextFacet {
       s.tokenRegistry = ITokenRegistry(_tokenRegistry);
       s.LIQUIDITY_FEE_NUMERATOR = 9995;
       s.maxRoutersPerTransfer = 5;
+      s.xAppConnectionManager = IConnectorManager(_xAppConnectionManager);
     }
   }
 }

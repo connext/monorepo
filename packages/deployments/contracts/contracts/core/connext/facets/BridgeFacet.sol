@@ -30,7 +30,7 @@ import {ISponsorVault} from "../interfaces/ISponsorVault.sol";
 import {IBridgeHook} from "../interfaces/IBridgeHook.sol";
 import {IBridgeToken} from "../interfaces/IBridgeToken.sol";
 
-contract BridgeFacet is BaseConnextFacet, Router {
+contract BridgeFacet is BaseConnextFacet {
   // ============ Libraries ============
   using TypedMemView for bytes;
   using TypedMemView for bytes29;
@@ -240,6 +240,16 @@ contract BridgeFacet is BaseConnextFacet, Router {
     uint256 amount
   );
 
+  // ============ Modifiers ============
+
+  /**
+   * @notice Only accept messages from an Nomad Replica contract
+   */
+  modifier onlyReplica() {
+    require(_isReplica(msg.sender), "!replica");
+    _;
+  }
+
   // ============ Getters ============
 
   function relayerFees(bytes32 _transferId) public view returns (uint256) {
@@ -283,14 +293,6 @@ contract BridgeFacet is BaseConnextFacet, Router {
   }
 
   // ============ Admin methods ==============
-
-  // modifier onlyOwner() override(BaseConnextFacet, ProposedOwnable) {
-  //   _;
-  // }
-
-  // modifier onlyProposed() override(BaseConnextFacet, ProposedOwnable) {
-  //   _;
-  // }
 
   function setPromiseRouter(address payable _promiseRouter) external onlyOwner {
     address old = address(s.promiseRouter);
@@ -1304,5 +1306,42 @@ contract BridgeFacet is BaseConnextFacet, Router {
      */
   function _originAndNonce(uint32 _origin, uint32 _nonce) internal pure returns (uint64) {
     return (uint64(_origin) << 32) | _nonce;
+  }
+
+  // ============ XAppConnectionManager functions ============
+  // ============ External functions ============
+
+  /**
+   * @notice Modify the contract the xApp uses to validate Replica contracts
+   * @param _xAppConnectionManager The address of the xAppConnectionManager contract
+   */
+  function setXAppConnectionManager(address _xAppConnectionManager) external onlyOwner {
+    s.xAppConnectionManager = IConnectorManager(_xAppConnectionManager);
+  }
+
+  // ============ Internal functions ============
+
+  /**
+   * @notice Get the local Home contract from the xAppConnectionManager
+   * @return The local Home contract
+   */
+  function _home() internal view returns (IOutbox) {
+    return s.xAppConnectionManager.home();
+  }
+
+  /**
+   * @notice Determine whether _potentialReplica is an enrolled Replica from the xAppConnectionManager
+   * @return True if _potentialReplica is an enrolled Replica
+   */
+  function _isReplica(address _potentialReplica) internal view returns (bool) {
+    return s.xAppConnectionManager.isReplica(_potentialReplica);
+  }
+
+  /**
+   * @notice Get the local domain from the xAppConnectionManager
+   * @return The local domain
+   */
+  function _localDomain() internal view virtual returns (uint32) {
+    return s.xAppConnectionManager.localDomain();
   }
 }
