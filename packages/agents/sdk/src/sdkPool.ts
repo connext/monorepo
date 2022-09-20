@@ -20,6 +20,7 @@ export class Pool implements IPoolData {
   decimals: number[];
   balances: BigNumber[];
   lpTokenAddress: string;
+  canonicalHash: string; // hash of the domain and canonicalId
   address?: string; // no address if internal pool
 
   constructor(
@@ -30,6 +31,7 @@ export class Pool implements IPoolData {
     decimals: number[],
     balances: BigNumber[],
     lpTokenAddress: string,
+    canonicalHash: string,
     address?: string,
   ) {
     this.domainId = domainId;
@@ -39,6 +41,7 @@ export class Pool implements IPoolData {
     this.decimals = decimals;
     this.balances = balances;
     this.lpTokenAddress = lpTokenAddress;
+    this.canonicalHash = canonicalHash;
     this.address = address;
   }
 
@@ -538,16 +541,17 @@ export class NxtpSdkPool {
     });
     const tokenSymbol = this.erc20.decodeFunctionResult("symbol", result)[0] as string;
 
-    const adoptedBalance = await this.getPoolTokenBalance(domainId, key, adopted);
     const localBalance = await this.getPoolTokenBalance(domainId, key, tokenAddress);
+    const adoptedBalance = await this.getPoolTokenBalance(domainId, key, adopted);
 
     pool = new Pool(
       domainId,
       `${tokenSymbol}-Pool`,
       `${tokenSymbol}-mad${tokenSymbol}`,
-      [adopted, tokenAddress],
-      [adoptedDecimals, localDecimals],
-      [adoptedBalance, localBalance],
+      [tokenAddress, adopted],
+      [localDecimals, adoptedDecimals],
+      [localBalance, adoptedBalance],
+      key,
       lpTokenAddress,
     );
 
