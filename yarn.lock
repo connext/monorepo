@@ -1197,7 +1197,6 @@ __metadata:
     ethers: 5.7.0
     graphql-request: 5.0.0
     hyperid: 3.0.1
-    merkletreejs: ^0.2.32
     mocha: 10.0.0
     nyc: 15.1.0
     p-queue: 6.6.2
