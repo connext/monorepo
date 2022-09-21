@@ -77,13 +77,19 @@ export const mock = {
   loggingContext: (name = "TEST") => createLoggingContext(name, undefined, mkBytes32()),
   entity: {
     callParams: (overrides: Partial<CallParams> = {}): CallParams => ({
-      to: mkAddress("0xaaa"),
-      callData: "0x",
       originDomain: mock.domain.A,
       destinationDomain: mock.domain.B,
+      canonicalDomain: mock.domain.A,
+      to: mkAddress("0xaaa"),
+      delegate: mkAddress("0xbbb"),
       receiveLocal: false,
-      agent: mkAddress(),
-      destinationMinOut: "0",
+      callData: "0x",
+      slippage: "1_000",
+      originSender: mkAddress("0x111"),
+      bridgedAmt: "100",
+      normalizedIn: "100",
+      nonce: 1,
+      canonicalId: mkAddress("0x123"),
       ...overrides,
     }),
     xcallArgs: (overrides: Partial<XCallArgs> = {}): XCallArgs => ({
@@ -92,20 +98,16 @@ export const mock = {
       asset: mock.asset.A.address,
       delegate: mkAddress(),
       amount: utils.parseEther("1").toString(),
-      originMinOut: "0",
+      slippage: "1_000",
+      callData: "0x",
       ...overrides,
     }),
     executeArgs: (overrides: Partial<ExecuteArgs> = {}): ExecuteArgs => ({
       params: mock.entity.callParams(),
-      local: mock.asset.A.address,
       routers: [mkAddress("0x222")],
       routerSignatures: [mock.signature],
       sequencer: mockSequencer,
       sequencerSignature: mock.signature,
-      amount: utils.parseEther("1").toString(),
-      normalizedIn: utils.parseEther("1").toString(),
-      nonce: 0,
-      originSender: mkAddress(),
       ...overrides,
     }),
     auction: (overrides: Partial<Auction>): Auction => ({
@@ -144,6 +146,13 @@ export const mock = {
       overrides: {
         originDomain?: string;
         destinationDomain?: string;
+        canonicalDomain?: string;
+        canonicalId?: string;
+        delegate?: string;
+        slippage?: string;
+        originSender?: string;
+        bridgedAmt?: string;
+        normalizedIn?: string;
         originChain?: string;
         destinationChain?: string;
         amount?: string;
@@ -157,6 +166,13 @@ export const mock = {
     ): XTransfer => {
       const originDomain: string = overrides.originDomain ?? mock.domain.A;
       const destinationDomain: string = overrides.destinationDomain ?? mock.domain.B;
+      const canonicalDomain: string = overrides.canonicalDomain ?? mock.domain.A;
+      const canonicalId: string = overrides.canonicalId ?? "0";
+      const delegate: string = overrides.delegate ?? mkAddress("0x222");
+      const slippage: string = overrides.slippage ?? "1_000";
+      const originSender: string = overrides.originSender ?? mkAddress("0xaaa");
+      const bridgedAmt: string = overrides.bridgedAmt ?? "100";
+      const normalizedIn: string = overrides.normalizedIn ?? "100";
       const originChain: string = overrides.originChain ?? mock.chain.A;
       const destinationChain: string = overrides.destinationChain ?? mock.chain.B;
       const amount = overrides.amount ?? "1000";
@@ -178,13 +194,19 @@ export const mock = {
 
         // Call Params
         xparams: {
+          originDomain,
+          destinationDomain,
+          canonicalDomain,
           to: user,
           callData: "0x",
-          agent: mkAddress("0x"),
+          slippage,
           receiveLocal: false,
-          destinationMinOut: "0",
-          destinationDomain,
-          originDomain,
+          delegate,
+          originSender,
+          bridgedAmt,
+          normalizedIn,
+          nonce,
+          canonicalId,
         },
 
         origin: shouldHaveOriginDefined

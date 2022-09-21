@@ -94,7 +94,7 @@ export const CallParamsSchema = Type.Object({
   originSender: TAddress,
   bridgedAmt: Type.String(),
   normalizedIn: TIntegerString,
-  nonce: TIntegerString,
+  nonce: Type.Number(),
   canonicalId: Type.String(),
 });
 
