@@ -246,7 +246,6 @@ contract ConnextTest is ForgeHelper, Deployer {
       address(_originManager),
       address(_originRegistry),
       address(_originRelayerFee),
-      payable(address(_originPromise)),
       7 days,
       6 days
     );
@@ -257,7 +256,6 @@ contract ConnextTest is ForgeHelper, Deployer {
       address(_destinationManager),
       address(_destinationRegistry),
       address(_destinationRelayerFee),
-      payable(address(_destinationPromise)),
       7 days,
       6 days
     );
