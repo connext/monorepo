@@ -300,7 +300,7 @@ contract TokenRegistry is Initializable, XAppConnectionClient, ITokenRegistry {
     IBridgeToken(_token).initialize();
     // set the default token name & symbol
     (string memory _name, string memory _symbol) = _defaultDetails(_domain, _id);
-    IBridgeToken(_token).setDetails(_name, _symbol, 18);
+    IBridgeToken(_token).setDetails(_name, _symbol);
     // transfer ownership to bridgeRouter
     IBridgeToken(_token).transferOwnership(owner());
     // store token in mappings

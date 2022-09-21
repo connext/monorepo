@@ -20,11 +20,7 @@ interface IBridgeToken {
 
   function setDetailsHash(bytes32 _detailsHash) external;
 
-  function setDetails(
-    string calldata _name,
-    string calldata _symbol,
-    uint8 _decimals
-  ) external;
+  function setDetails(string calldata _name, string calldata _symbol) external;
 
   // inherited from ownable
   function transferOwnership(address _newOwner) external;

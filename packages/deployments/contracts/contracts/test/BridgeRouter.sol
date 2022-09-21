@@ -296,7 +296,7 @@ contract BridgeRouter is Router {
     // get the details hash
     if (tokenRegistry.isLocalOrigin(_token)) {
       // query token contract for details and calculate detailsHash
-      _detailsHash = BridgeMessage.getDetailsHash(_t.name(), _t.symbol(), _t.decimals());
+      _detailsHash = BridgeMessage.getDetailsHash(_t.name(), _t.symbol());
       _isLocal = true;
     } else {
       _detailsHash = _t.detailsHash();
