@@ -151,7 +151,6 @@ const sendXCall = async (
       agent: PARAMETERS.AGENTS.USER.address,
       callbackFee: "0",
       callData: "0x",
-      forceSlow: false,
       // TODO: Will need option to override `receiveLocal` when we do AMM-related tests.
       receiveLocal: true,
       recovery: PARAMETERS.AGENTS.USER.address,
@@ -602,7 +601,7 @@ describe("LOCAL:E2E", () => {
     const originProvider = new providers.JsonRpcProvider(PARAMETERS.A.RPC[0]);
     const { receipt, xcallData } = await sendXCall(
       sdkBase,
-      { forceSlow: false },
+      undefined,
       PARAMETERS.AGENTS.USER.signer.connect(originProvider),
     );
     const originTransfer = await getTransferByTransactionHash(sdkUtils, PARAMETERS.A.DOMAIN, receipt.transactionHash);
@@ -745,7 +744,7 @@ describe("LOCAL:E2E", () => {
     const originProvider = new providers.JsonRpcProvider(PARAMETERS.A.RPC[0]);
     const { receipt, xcallData } = await sendXCall(
       sdkBase,
-      { forceSlow: true },
+      undefined,
       PARAMETERS.AGENTS.USER.signer.connect(originProvider),
     );
 

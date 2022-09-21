@@ -7,7 +7,6 @@ import {
   RelayerAdded,
   RelayerRemoved,
   StableSwapAdded,
-  SponsorVaultUpdated,
   XCalled,
   Executed,
   Reconciled,
@@ -22,7 +21,6 @@ import {
 import {
   NewConnector,
   Dispatch,
-  Process,
   AggregateRootUpdated,
   MessageSent,
   MessageProcessed,
@@ -38,7 +36,6 @@ import {
   DestinationTransfer,
   Setting,
   OriginMessage,
-  DestinationMessage,
   AggregateRoot,
   RootMessageSent,
   RootMessageProcessed,
@@ -51,10 +48,10 @@ const DEFAULT_CONNECTOR_META_ID = "CONNECTOR_META_ID";
 
 /// MARK - Assets
 export function handleAssetAdded(event: AssetAdded): void {
-  let assetId = event.params.localAsset.toHex();
-  let asset = Asset.load(assetId);
+  let uniqueId = event.params.key.toHex();
+  let asset = Asset.load(uniqueId);
   if (asset == null) {
-    asset = new Asset(assetId);
+    asset = new Asset(uniqueId);
   }
   asset.key = event.params.key;
   asset.local = event.params.localAsset;
@@ -65,6 +62,7 @@ export function handleAssetAdded(event: AssetAdded): void {
   asset.save();
 }
 
+// TODO: Need an update!
 export function handleStableSwapAdded(event: StableSwapAdded): void {
   // StableSwapAdded: bytes32 canonicalId, uint32 domain, address swapPool, address caller
   let stableSwapId = `${event.params.canonicalId.toHex()}-${event.params.domain.toHex()}-${event.params.swapPool.toHex()}`;
@@ -76,18 +74,6 @@ export function handleStableSwapAdded(event: StableSwapAdded): void {
     stableSwap.domain = event.params.domain;
     stableSwap.swapPool = event.params.swapPool;
     stableSwap.save();
-  }
-}
-
-export function handleSponsorVaultUpdated(event: SponsorVaultUpdated): void {
-  // SponsorVaultUpdated: address oldSponsorVault, address newSponsorVault, address caller
-  let sponsorVaultId = event.params.newSponsorVault.toHex();
-  let sponsorVault = SponsorVault.load(sponsorVaultId);
-
-  if (sponsorVault == null) {
-    sponsorVault = new SponsorVault(sponsorVaultId);
-    sponsorVault.sponsorVault = event.params.newSponsorVault;
-    sponsorVault.save();
   }
 }
 
@@ -187,7 +173,7 @@ export function handleRouterOwnerAccepted(event: RouterOwnerAccepted): void {
  * @param event - The contract event to update the subgraph record with
  */
 export function handleRouterLiquidityAdded(event: RouterLiquidityAdded): void {
-  const assetBalance = getOrCreateAssetBalance(event.params.local, event.params.router);
+  const assetBalance = getOrCreateAssetBalance(event.params.key, event.params.router);
 
   // add new amount
   assetBalance.amount = assetBalance.amount.plus(event.params.amount);
@@ -203,7 +189,7 @@ export function handleRouterLiquidityAdded(event: RouterLiquidityAdded): void {
  */
 export function handleRouterLiquidityRemoved(event: RouterLiquidityRemoved): void {
   // ID is of the format ROUTER_ADDRESS-ASSET_ID
-  const assetBalance = getOrCreateAssetBalance(event.params.local, event.params.router);
+  const assetBalance = getOrCreateAssetBalance(event.params.key, event.params.router);
 
   // update amount
   assetBalance.amount = assetBalance.amount.minus(event.params.amount);
@@ -246,27 +232,33 @@ export function handleXCalled(event: XCalled): void {
   transfer.transferId = event.params.transferId;
   transfer.nonce = event.params.nonce;
   transfer.status = "XCalled";
-  transfer.originMinOut = event.params.xcallArgs.originMinOut;
+  transfer.messageHash = event.params.messageHash;
 
   // Call Params
-  transfer.to = event.params.xcallArgs.params.to;
-  transfer.callData = event.params.xcallArgs.params.callData;
-  transfer.originDomain = event.params.xcallArgs.params.originDomain;
-  transfer.destinationDomain = event.params.xcallArgs.params.destinationDomain;
-  transfer.recovery = event.params.xcallArgs.params.recovery;
-  transfer.agent = event.params.xcallArgs.params.agent;
-  transfer.forceSlow = event.params.xcallArgs.params.forceSlow;
-  transfer.receiveLocal = event.params.xcallArgs.params.receiveLocal;
-  transfer.callback = event.params.xcallArgs.params.callback;
-  transfer.callbackFee = event.params.xcallArgs.params.callbackFee;
-  transfer.relayerFee = event.params.xcallArgs.params.relayerFee;
-  transfer.destinationMinOut = event.params.xcallArgs.params.destinationMinOut;
+  transfer.originDomain = event.params.params.originDomain;
+  transfer.destinationDomain = event.params.params.destinationDomain;
+  transfer.canonicalDomain = event.params.params.canonicalDomain;
+  transfer.to = event.params.params.to;
+  transfer.delegate = event.params.params.delegate;
+  transfer.receiveLocal = event.params.params.receiveLocal;
+  transfer.callData = event.params.params.callData;
+  transfer.slippage = event.params.params.slippage;
+  transfer.originSender = event.params.params.originSender;
+  transfer.bridgedAmt = event.params.params.bridgedAmt;
+  transfer.normalizedIn = event.params.params.normalizedIn;
+  transfer.canonicalId = event.params.params.canonicalId;
 
   // Assets
-  transfer.asset = event.params.xcallArgs.asset;
-  transfer.amount = event.params.xcallArgs.amount;
-  transfer.bridgedAsset = event.params.bridgedAsset;
-  transfer.bridgedAmount = event.params.bridgedAmount;
+
+  let uniqueAssetId = getCanonicalHash(
+    event.params.params.canonicalDomain.toString(),
+    event.params.params.canonicalId.toString(),
+  );
+  let asset = Asset.load(uniqueAssetId);
+  if (asset == null) {
+    asset = new Asset(uniqueAssetId);
+  }
+  transfer.asset = asset.id;
 
   // Message
   let message = OriginMessage.load(event.params.messageHash.toHex());
@@ -274,13 +266,13 @@ export function handleXCalled(event: XCalled): void {
     message = new OriginMessage(event.params.messageHash.toHex());
   }
   message.leaf = event.params.messageHash;
-  message.destinationDomain = event.params.xcallArgs.params.destinationDomain;
+  message.destinationDomain = event.params.params.destinationDomain;
   message.transferId = event.params.transferId;
   message.save();
   transfer.message = message.id;
 
   // XCall Transaction
-  transfer.caller = event.params.caller;
+  transfer.caller = event.transaction.from;
   transfer.transactionHash = event.transaction.hash;
   transfer.timestamp = event.block.timestamp;
   transfer.gasPrice = event.transaction.gasPrice;
@@ -340,13 +332,8 @@ export function handleExecuted(event: Executed): void {
   transfer.callData = event.params.args.params.callData;
   transfer.originDomain = event.params.args.params.originDomain;
   transfer.destinationDomain = event.params.args.params.destinationDomain;
-  transfer.forceSlow = event.params.args.params.forceSlow;
   transfer.receiveLocal = event.params.args.params.receiveLocal;
-  transfer.recovery = event.params.args.params.recovery;
   transfer.agent = event.params.args.params.agent;
-  transfer.callback = event.params.args.params.callback;
-  transfer.callbackFee = event.params.args.params.callbackFee;
-  transfer.relayerFee = event.params.args.params.relayerFee;
   transfer.destinationMinOut = event.params.args.params.destinationMinOut;
 
   // Assets
@@ -452,20 +439,6 @@ export function handleDispatch(event: Dispatch): void {
 
   message.save();
 }
-
-// export function handleProcess(event: Process): void {
-//   let message = DestinationMessage.load(event.params.leaf.toHexString());
-//   if (message == null) {
-//     message = new DestinationMessage(event.params.leaf.toHexString());
-//   }
-
-//   message.leaf = event.params.leaf;
-//   message.processed = event.params.success;
-//   message.returnData = event.params.returnData;
-//   message.transactionHash = event.transaction.hash;
-
-//   message.save();
-// }
 
 export function handleAggregateRootUpdated(event: AggregateRootUpdated): void {
   let aggregateRoot = AggregateRoot.load(event.params.current.toHexString());
@@ -581,8 +554,8 @@ function getChainId(): BigInt {
   return chainId;
 }
 
-function getOrCreateAssetBalance(local: Address, routerAddress: Address): AssetBalance {
-  let assetBalanceId = local.toHex() + "-" + routerAddress.toHex();
+function getOrCreateAssetBalance(key: Bytes, routerAddress: Address): AssetBalance {
+  let assetBalanceId = key.toHex() + "-" + routerAddress.toHex();
   let assetBalance = AssetBalance.load(assetBalanceId);
 
   let router = Router.load(routerAddress.toHex());
@@ -593,10 +566,12 @@ function getOrCreateAssetBalance(local: Address, routerAddress: Address): AssetB
   }
 
   if (assetBalance == null) {
-    let asset = Asset.load(local.toHex());
+    let asset = Asset.load(key.toHex());
     if (asset == null) {
-      asset = new Asset(local.toHex());
-      asset.local = local;
+      asset = new Asset(key.toHex());
+
+      asset.key = key;
+      asset.local = new Bytes(32);
       asset.adoptedAsset = new Bytes(20);
       asset.canonicalId = new Bytes(32);
       asset.canonicalDomain = new BigInt(0);
