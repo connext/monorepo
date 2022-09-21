@@ -14,12 +14,15 @@ import {IERC165} from "../../interfaces/IERC165.sol";
 import {IWeth} from "../../interfaces/IWeth.sol";
 import {ITokenRegistry} from "../../interfaces/ITokenRegistry.sol";
 
+import {Executor} from "../../helpers/Executor.sol";
+
 import {LibDiamond} from "../../libraries/LibDiamond.sol";
 
 import {BaseConnextFacet} from "../BaseConnextFacet.sol";
 
 import {IProposedOwnable} from "../../../../shared/interfaces/IProposedOwnable.sol";
 import {RelayerFeeRouter} from "../../../relayer-fee/RelayerFeeRouter.sol";
+import {PromiseRouter} from "../../../promise/PromiseRouter.sol";
 
 // It is expected that this contract is customized if you want to deploy your diamond
 // with data from a deployment script. Use the init function to initialize state variables
@@ -32,8 +35,8 @@ contract DiamondInit is BaseConnextFacet {
     uint32 _domain,
     address _tokenRegistry, // Nomad token registry
     address _relayerFeeRouter,
-    uint256 _acceptanceDelay,
-    uint256 _ownershipDelay
+    address payable _promiseRouter,
+    uint256 _acceptanceDelay
   ) external {
     // adding ERC165 data
     LibDiamond.DiamondStorage storage ds = LibDiamond.diamondStorage();
@@ -62,10 +65,11 @@ contract DiamondInit is BaseConnextFacet {
       // ConnextHandler
       s.domain = _domain;
       s.relayerFeeRouter = RelayerFeeRouter(_relayerFeeRouter);
+      s.promiseRouter = PromiseRouter(_promiseRouter);
+      s.executor = new Executor(address(this));
       s.tokenRegistry = ITokenRegistry(_tokenRegistry);
       s.LIQUIDITY_FEE_NUMERATOR = 9995;
       s.maxRoutersPerTransfer = 5;
-      s._ownershipDelay = _ownershipDelay;
     }
   }
 }

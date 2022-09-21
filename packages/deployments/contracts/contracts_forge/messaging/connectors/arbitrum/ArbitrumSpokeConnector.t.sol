@@ -10,8 +10,8 @@ import {IRootManager} from "../../../../contracts/messaging/interfaces/IRootMana
 
 import {ArbitrumSpokeConnector} from "../../../../contracts/messaging/connectors/arbitrum/ArbitrumSpokeConnector.sol";
 
-import {IArbitrumInbox} from "../../../../contracts/messaging/interfaces/ambs/arbitrum/IArbitrumInbox.sol";
-import {ArbitrumL2Amb} from "../../../../contracts/messaging/interfaces/ambs/arbitrum/ArbitrumL2Amb.sol";
+import {ArbitrumL1Amb} from "../../../../contracts/messaging/interfaces/ambs/ArbitrumL1Amb.sol";
+import {ArbitrumL2Amb} from "../../../../contracts/messaging/interfaces/ambs/ArbitrumL2Amb.sol";
 
 import "../../../utils/ConnectorHelper.sol";
 import "../../../utils/Mock.sol";
@@ -100,14 +100,7 @@ contract ArbitrumSpokeConnectorTest is ConnectorHelper {
     emit MessageSent(_data, _rootManager);
 
     // should call send contract transaction
-    vm.expectCall(
-      _amb,
-      abi.encodeWithSelector(
-        ArbitrumL2Amb.sendTxToL1.selector,
-        _l1Connector,
-        abi.encodeWithSelector(Connector.processMessage.selector, _data)
-      )
-    );
+    vm.expectCall(_amb, abi.encodeWithSelector(ArbitrumL2Amb.sendTxToL1.selector, _l1Connector, _data));
 
     vm.prank(_rootManager);
     ArbitrumSpokeConnector(_l2Connector).send();

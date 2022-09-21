@@ -349,10 +349,12 @@ describe("Database client", () => {
 
   it("should save valid boolean fields", async () => {
     let xTransferLocal = mock.entity.xtransfer();
+    xTransferLocal.xparams.forceSlow = true;
     xTransferLocal.xparams.receiveLocal = true;
     await saveTransfers([xTransferLocal], pool);
     const dbTransfer = await getTransferByTransferId(xTransferLocal.transferId, pool);
     expect(dbTransfer!.transferId).equal(xTransferLocal.transferId);
+    expect(dbTransfer!.xparams!.forceSlow).equal(true);
     expect(dbTransfer!.xparams!.receiveLocal).equal(true);
   });
 
@@ -361,6 +363,7 @@ describe("Database client", () => {
     await saveTransfers([xTransferLocal], pool);
     const dbTransfer = await getTransferByTransferId(xTransferLocal.transferId, pool);
     expect(dbTransfer!.transferId).equal(xTransferLocal.transferId);
+    expect(dbTransfer!.xparams!.forceSlow).equal(false);
     expect(dbTransfer!.xparams!.receiveLocal).equal(false);
   });
 

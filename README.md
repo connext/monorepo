@@ -341,7 +341,7 @@ const callParams = {
 
 const xCallArgs = {
   params: callParams,
-  asset: "0xB5AabB55385bfBe31D627E2A717a7B189ddA4F8F", // the Kovan Test Token
+  transactingAssetId: "0xB5AabB55385bfBe31D627E2A717a7B189ddA4F8F", // the Kovan Test Token
   amount: "1000000000000000000", // amount to send (1 TEST)
   relayerFee: "0", // relayers on testnet don't take a fee
 };
@@ -356,7 +356,7 @@ This is necessary because funds will first be sent to the ConnextHandler contrac
 ```ts
 const approveTxReq = await nxtpSdkBase.approveIfNeeded(
   xCallArgs.params.originDomain,
-  xCallArgs.asset,
+  xCallArgs.transactingAssetId,
   xCallArgs.amount,
 );
 const approveTxReceipt = await signer.sendTransaction(approveTxReq);
@@ -433,7 +433,7 @@ const callParams = {
 
 const xCallArgs = {
   params: callParams,
-  asset: "0xB5AabB55385bfBe31D627E2A717a7B189ddA4F8F", // the Kovan Test Token
+  transactingAssetId: "0xB5AabB55385bfBe31D627E2A717a7B189ddA4F8F", // the Kovan Test Token
   amount: "0", // not sending any funds
   relayerFee: "0", // relayers on testnet don't take a fee
 };

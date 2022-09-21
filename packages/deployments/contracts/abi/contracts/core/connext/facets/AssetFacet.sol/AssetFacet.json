@@ -3,7 +3,6 @@
   "error AssetFacet__addAssetId_nativeAsset()",
   "error AssetFacet__removeAssetId_notAdded()",
   "error AssetFacet__setTokenRegistry_invalidTokenRegistry()",
-  "error BaseConnextFacet__getAdoptedAsset_notWhitelisted()",
   "error BaseConnextFacet__nonReentrant_reentrantCall()",
   "error BaseConnextFacet__onlyBridgeRouter_notBridgeRouter()",
   "error BaseConnextFacet__onlyOwner_notOwner()",

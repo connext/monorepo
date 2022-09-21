@@ -201,6 +201,7 @@ describe("Operations:Execute", () => {
         xparams: {
           to: 1234,
           callData: 5678,
+          forceSlow: false,
           receiveLocal: false,
         },
       };
@@ -259,7 +260,7 @@ describe("Operations:Execute", () => {
     });
 
     it("should return early if slow path", async () => {
-      await execute({ ...mockXTransfer, xparams: { ...mockXTransfer.xparams } }, requestContext);
+      await execute({ ...mockXTransfer, xparams: { ...mockXTransfer.xparams, forceSlow: true } }, requestContext);
       expect(mockSubContext.adapters.subgraph.getAssetBalance).to.not.be.called;
       expect(mockSendBid).to.not.be.called;
     });

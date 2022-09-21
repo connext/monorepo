@@ -115,7 +115,7 @@ export const deployBeaconProxy = async <T extends Contract = Contract>(
 };
 
 // List of all the router contracts to deploy (by name).
-const ROUTERS = ["RelayerFeeRouter", "BridgeRouter"];
+const ROUTERS = ["PromiseRouter", "RelayerFeeRouter", "BridgeRouter"];
 
 /**
  * Hardhat task for deploying the Routers.

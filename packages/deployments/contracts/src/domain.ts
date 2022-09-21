@@ -19,7 +19,6 @@ const chainIdToDomainMapping: Map<number, number> = new Map([
   [420, 0x676f7074], // optimism-goerli (gopti interpreted as int) 1735356532
   [69, 0x6b6f7074], // optimism-kovan (kopti interpreted as int) 1802465396
   [80001, 0x2707], // mumbai 9991
-  [421613, 0x67617262], // arbitrum-goerli (garb interpreted as int) 1734439522
   [1337, 1337],
   [1338, 1338],
 ]);

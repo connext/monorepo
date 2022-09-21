@@ -5,9 +5,9 @@ import {LibDiamond} from "../../../../contracts/core/connext/libraries/LibDiamon
 import {IStableSwap} from "../../../../contracts/core/connext/interfaces/IStableSwap.sol";
 import {ITokenRegistry} from "../../../../contracts/core/connext/interfaces/ITokenRegistry.sol";
 import {IWeth} from "../../../../contracts/core/connext/interfaces/IWeth.sol";
-import {BaseConnextFacet} from "../../../../contracts/core/connext/facets/BaseConnextFacet.sol";
 import {AssetFacet} from "../../../../contracts/core/connext/facets/AssetFacet.sol";
 import {TestERC20} from "../../../../contracts/test/TestERC20.sol";
+
 import {TokenId} from "../../../../contracts/core/connext/libraries/LibConnextStorage.sol";
 
 import {MockTokenRegistry} from "../../../utils/Mock.sol";
@@ -76,10 +76,8 @@ contract AssetFacetTest is AssetFacet, FacetHelper {
     assertTrue(this.canonicalToAdopted(_canonicalId) == _local);
   }
 
-  // if the canonicalToAdopted lookup fails using the helper, we revert: adopted asset not whitelisted
   function test_AssetFacet__canonicalToAdopted_notFound() public {
-    vm.expectRevert(BaseConnextFacet.BaseConnextFacet__getAdoptedAsset_notWhitelisted.selector);
-    this.canonicalToAdopted(_canonicalId);
+    assertTrue(this.canonicalToAdopted(_canonicalId) == address(0));
   }
 
   // adoptedToCanonical

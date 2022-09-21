@@ -83,25 +83,26 @@ export const XTransferDestinationSchema = Type.Object({
 });
 
 export const CallParamsSchema = Type.Object({
+  to: TAddress,
+  callData: Type.String(),
   originDomain: Type.String(),
   destinationDomain: Type.String(),
-  canonicalDomain: Type.String(),
-  to: TAddress,
-  delegate: TAddress,
+  agent: TAddress,
+  recovery: TAddress,
+  forceSlow: Type.Boolean(),
   receiveLocal: Type.Boolean(),
-  callData: Type.String(),
-  slippage: TIntegerString,
-  originSender: TAddress,
-  bridgedAmt: Type.String(),
-  normalizedIn: TIntegerString,
-  nonce: Type.Number(),
-  canonicalId: Type.String(),
+  callback: TAddress,
+  callbackFee: TIntegerString,
+  relayerFee: TIntegerString,
+  destinationMinOut: TIntegerString,
 });
 
 export const XTransferSchema = Type.Intersect([
   Type.Object({
     transferId: Type.String(),
-    messageHash: Type.String(),
+
+    // NOTE: Nonce is delivered by XCalled and Executed events, but not Reconciled event.
+    nonce: Type.Optional(Type.Integer()),
 
     // Call Params
     // NOTE: CallParams is emitted by XCalled and Executed events, but not Reconciled event.
@@ -117,6 +118,7 @@ export type XTransfer = Static<typeof XTransferSchema>;
 export const OriginTransferSchema = Type.Intersect([
   Type.Object({
     transferId: Type.String(),
+    nonce: Type.Integer(),
     xparams: CallParamsSchema,
   }),
   Type.Object({
@@ -129,6 +131,7 @@ export type OriginTransfer = Static<typeof OriginTransferSchema>;
 export const DestinationTransferSchema = Type.Intersect([
   Type.Object({
     transferId: Type.String(),
+    nonce: Type.Optional(Type.Integer()),
     xparams: CallParamsSchema,
   }),
   Type.Object({
@@ -141,23 +144,24 @@ export type DestinationTransfer = Static<typeof DestinationTransferSchema>;
 export type CallParams = Static<typeof CallParamsSchema>;
 
 export const XCallArgsSchema = Type.Object({
-  destination: Type.String(),
-  to: TAddress,
-  asset: TAddress,
-  delegate: TAddress,
-  amount: TIntegerString,
-  slippage: TIntegerString,
-  callData: Type.String(),
+  params: CallParamsSchema,
+  transactingAsset: Type.String(),
+  transactingAmount: TIntegerString,
+  originMinOut: TIntegerString,
 });
 
 export type XCallArgs = Static<typeof XCallArgsSchema>;
 
 export const ExecuteArgsSchema = Type.Object({
   params: CallParamsSchema,
+  local: TAddress,
   routers: Type.Array(TAddress),
   routerSignatures: Type.Array(Type.String()),
   sequencer: TAddress,
   sequencerSignature: Type.String(),
+  amount: TIntegerString,
+  nonce: Type.Integer(),
+  originSender: TAddress,
 });
 
 export type ExecuteArgs = Static<typeof ExecuteArgsSchema>;

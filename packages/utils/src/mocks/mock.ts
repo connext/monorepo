@@ -77,37 +77,37 @@ export const mock = {
   loggingContext: (name = "TEST") => createLoggingContext(name, undefined, mkBytes32()),
   entity: {
     callParams: (overrides: Partial<CallParams> = {}): CallParams => ({
+      to: mkAddress("0xaaa"),
+      callData: "0x",
       originDomain: mock.domain.A,
       destinationDomain: mock.domain.B,
-      canonicalDomain: mock.domain.A,
-      to: mkAddress("0xaaa"),
-      delegate: mkAddress("0xbbb"),
+      callback: mkAddress("0xbbbb"),
+      callbackFee: "0",
+      relayerFee: "123",
+      forceSlow: false,
       receiveLocal: false,
-      callData: "0x",
-      slippage: "1_000",
-      originSender: mkAddress("0x111"),
-      bridgedAmt: "100",
-      normalizedIn: "100",
-      nonce: 1,
-      canonicalId: mkAddress("0x123"),
+      agent: mkAddress(),
+      recovery: mkAddress("0xcccc"),
+      destinationMinOut: "0",
       ...overrides,
     }),
     xcallArgs: (overrides: Partial<XCallArgs> = {}): XCallArgs => ({
-      destination: mock.entity.callParams().destinationDomain,
-      to: mock.entity.callParams().to,
-      asset: mock.asset.A.address,
-      delegate: mkAddress(),
-      amount: utils.parseEther("1").toString(),
-      slippage: "1_000",
-      callData: "0x",
+      params: mock.entity.callParams(),
+      transactingAsset: mock.asset.A.address,
+      transactingAmount: utils.parseEther("1").toString(),
+      originMinOut: "0",
       ...overrides,
     }),
     executeArgs: (overrides: Partial<ExecuteArgs> = {}): ExecuteArgs => ({
       params: mock.entity.callParams(),
+      local: mock.asset.A.address,
       routers: [mkAddress("0x222")],
       routerSignatures: [mock.signature],
       sequencer: mockSequencer,
       sequencerSignature: mock.signature,
+      amount: utils.parseEther("1").toString(),
+      nonce: 0,
+      originSender: mkAddress(),
       ...overrides,
     }),
     auction: (overrides: Partial<Auction>): Auction => ({
@@ -146,34 +146,20 @@ export const mock = {
       overrides: {
         originDomain?: string;
         destinationDomain?: string;
-        canonicalDomain?: string;
-        canonicalId?: string;
-        delegate?: string;
-        slippage?: string;
-        originSender?: string;
-        bridgedAmt?: string;
-        normalizedIn?: string;
         originChain?: string;
         destinationChain?: string;
         amount?: string;
         status?: XTransferStatus;
         asset?: string;
         transferId?: string;
-        messageHash?: string;
         nonce?: number;
         user?: string;
+        relayerFee?: string;
         routers?: string[];
       } = {},
     ): XTransfer => {
       const originDomain: string = overrides.originDomain ?? mock.domain.A;
       const destinationDomain: string = overrides.destinationDomain ?? mock.domain.B;
-      const canonicalDomain: string = overrides.canonicalDomain ?? mock.domain.A;
-      const canonicalId: string = overrides.canonicalId ?? "0";
-      const delegate: string = overrides.delegate ?? mkAddress("0x222");
-      const slippage: string = overrides.slippage ?? "1_000";
-      const originSender: string = overrides.originSender ?? mkAddress("0xaaa");
-      const bridgedAmt: string = overrides.bridgedAmt ?? "100";
-      const normalizedIn: string = overrides.normalizedIn ?? "100";
       const originChain: string = overrides.originChain ?? mock.chain.A;
       const destinationChain: string = overrides.destinationChain ?? mock.chain.B;
       const amount = overrides.amount ?? "1000";
@@ -182,31 +168,32 @@ export const mock = {
       const transferId: string = overrides.transferId ?? getRandomBytes32();
       const nonce = overrides.nonce ?? 1234;
       const user: string = overrides.user ?? mkAddress("0xfaded");
+      const relayerFee = overrides.relayerFee ?? "12345";
       const routers = overrides.routers ?? [mock.address.router];
-      const messageHash: string = overrides.messageHash ?? getRandomBytes32();
 
-      const shouldHaveOriginDefined = true;
+      const shouldHaveOriginDefined = !!relayerFee;
       const shouldHaveDestinationDefined = !!status;
+      const isReconciledOnly = !shouldHaveOriginDefined && status === XTransferStatus.Reconciled;
+
       return {
         // Meta
         transferId,
-        messageHash,
+        nonce: !isReconciledOnly ? nonce : undefined,
 
         // Call Params
         xparams: {
-          originDomain,
-          destinationDomain,
-          canonicalDomain,
           to: user,
           callData: "0x",
-          slippage,
+          callback: mkAddress("0x"),
+          callbackFee: "0",
+          relayerFee,
+          recovery: mkAddress("0x"),
+          agent: mkAddress("0x"),
+          forceSlow: false,
           receiveLocal: false,
-          delegate,
-          originSender,
-          bridgedAmt,
-          normalizedIn,
-          nonce,
-          canonicalId,
+          destinationMinOut: "0",
+          destinationDomain,
+          originDomain,
         },
 
         origin: shouldHaveOriginDefined
@@ -301,6 +288,7 @@ export const mock = {
       call_data: mkBytes32("0xaaa"),
       callback: mkAddress("0x111"),
       callback_fee: "0",
+      recovery: mkAddress("0x112"),
       force_slow: false,
       receiveLocal: false,
       transfer_id: mkBytes32("0xbbb"),

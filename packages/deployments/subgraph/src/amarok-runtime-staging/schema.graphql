@@ -69,9 +69,15 @@ type OriginTransfer @entity {
   # CallParams
   to: Bytes
   callData: Bytes
+  originDomain: BigInt
   destinationDomain: BigInt
   agent: Bytes
+  recovery: Bytes
+  forceSlow: Boolean
   receiveLocal: Boolean
+  callback: Bytes
+  callbackFee: BigInt
+  relayerFee: BigInt
   destinationMinOut: BigInt
 
   # Event Data
@@ -80,9 +86,9 @@ type OriginTransfer @entity {
 
   # Asset
   # The asset that gets sent in.
-  asset: Bytes
+  transactingAsset: Bytes
   # Amount of asset sent in.
-  amount: BigInt
+  transactingAmount: BigInt
   # asset being bridged.
   bridgedAsset: Bytes
   # Amount of bridged nomad asset.
@@ -114,7 +120,12 @@ type DestinationTransfer @entity {
   originDomain: BigInt
   destinationDomain: BigInt
   agent: Bytes
+  recovery: Bytes
+  forceSlow: Boolean
   receiveLocal: Boolean
+  callback: Bytes
+  callbackFee: BigInt
+  relayerFee: BigInt
   destinationMinOut: BigInt
 
   # Event Data
@@ -124,9 +135,9 @@ type DestinationTransfer @entity {
 
   # Asset
   # The asset that gets delivered.
-  asset: Bytes
+  transactingAsset: Bytes
   # Amount of delivered asset.
-  amount: BigInt
+  transactingAmount: BigInt
   # The local version of the bridged asset.
   localAsset: Bytes
   # The amount of the local asset.

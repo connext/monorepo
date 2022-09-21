@@ -43,22 +43,22 @@ export const originTransfer = (entity: any): OriginTransfer => {
   return {
     // Meta Data
     transferId: entity.transferId,
+    nonce: BigNumber.from(entity.nonce).toNumber(),
 
     // Call Params
     xparams: {
+      to: entity.to,
+      callData: entity.callData,
+      callback: entity.callback,
+      callbackFee: entity.callbackFee,
+      relayerFee: entity.relayerFee,
+      forceSlow: entity.forceSlow,
+      receiveLocal: entity.receiveLocal,
       originDomain: entity.originDomain,
       destinationDomain: entity.destinationDomain,
-      canonicalDomain: entity.canonicalDomain,
-      to: entity.to,
-      delegate: entity.delegate,
-      receiveLocal: entity.receiveLocal,
-      callData: entity.callData,
-      slippage: entity.slippage,
-      originSender: entity.originSender,
-      bridgedAmt: entity.bridgedAmt,
-      normalizedIn: entity.normalizedIn,
-      nonce: BigNumber.from(entity.nonce).toNumber(),
-      canonicalId: entity.canonicalId,
+      recovery: entity.recovery,
+      agent: entity.agent,
+      destinationMinOut: entity.destinationMinOut,
     },
 
     // Origin Info
@@ -71,8 +71,8 @@ export const originTransfer = (entity: any): OriginTransfer => {
       // Assets
       assets: {
         transacting: {
-          asset: entity.asset,
-          amount: entity.amount,
+          asset: entity.transactingAsset,
+          amount: entity.transactingAmount,
         },
         bridged: {
           asset: entity.bridgedAsset,
@@ -127,22 +127,22 @@ export const destinationTransfer = (entity: any): DestinationTransfer => {
     // Meta Data
 
     transferId: entity.transferId,
+    nonce: entity.nonce ? BigNumber.from(entity.nonce).toNumber() : undefined,
 
     // Call Params
     xparams: {
-      originDomain: entity.originDomain,
-      destinationDomain: entity.destinationDomain,
-      canonicalDomain: entity.canonicalDomain,
       to: entity.to,
-      delegate: entity.delegate,
-      receiveLocal: entity.receiveLocal,
       callData: entity.callData,
-      slippage: entity.slippage,
-      originSender: entity.originSender,
-      bridgedAmt: entity.bridgedAmt,
-      normalizedIn: entity.normalizedIn,
-      nonce: entity.nonce ? BigNumber.from(entity.nonce).toNumber() : 0,
-      canonicalId: entity.canonicalId,
+      callback: entity.callback,
+      callbackFee: entity.callbackFee,
+      relayerFee: entity.relayerFee,
+      forceSlow: entity.forceSlow,
+      receiveLocal: entity.receiveLocal,
+      destinationDomain: entity.destinationDomain,
+      originDomain: entity.originDomain,
+      recovery: entity.recovery,
+      agent: entity.agent,
+      destinationMinOut: entity.destinationMinOut,
     },
 
     // Origin Info
@@ -159,10 +159,10 @@ export const destinationTransfer = (entity: any): DestinationTransfer => {
       // Assets
       assets: {
         transacting:
-          entity.amount && entity.asset
+          entity.transactingAmount && entity.transactingAsset
             ? {
-                asset: entity.asset,
-                amount: entity.amount,
+                asset: entity.transactingAsset,
+                amount: entity.transactingAmount,
               }
             : undefined,
         local: {

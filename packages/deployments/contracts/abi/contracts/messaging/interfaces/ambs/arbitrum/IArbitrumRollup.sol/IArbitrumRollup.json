@@ -1,3 +1,0 @@
-[
-  "function getNode(uint64) view returns (tuple(bytes32,bytes32,bytes32,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,bytes32))"
-]

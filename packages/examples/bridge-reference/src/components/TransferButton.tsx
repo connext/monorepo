@@ -107,14 +107,15 @@ export const TransferButton = ({
           agent: address!,
           callback: constants.AddressZero,
           recovery: address!,
+          forceSlow: false,
           receiveLocal: false,
           relayerFee: "0",
           destinationMinOut: utils
             .parseUnits(min_amount_out.toString(), source_contract_data?.decimals || 18)
             .toString(),
         },
-        asset: source_contract_data!.contract_address!,
-        amount: utils.parseUnits(amount?.toString() || "0", source_contract_data?.decimals || 18).toString(),
+        transactingAsset: source_contract_data!.contract_address!,
+        transactingAmount: utils.parseUnits(amount?.toString() || "0", source_contract_data?.decimals || 18).toString(),
         originMinOut: utils.parseUnits(min_amount_out.toString(), source_contract_data?.decimals || 18).toString(),
       };
 
@@ -123,8 +124,8 @@ export const TransferButton = ({
       try {
         const approve_request = await sdk.nxtpSdkBase.approveIfNeeded(
           xcallParams.params.originDomain,
-          xcallParams.asset,
-          xcallParams.amount,
+          xcallParams.transactingAsset,
+          xcallParams.transactingAmount,
           false,
         );
 

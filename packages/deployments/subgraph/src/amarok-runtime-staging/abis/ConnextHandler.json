@@ -847,13 +847,13 @@
       {
         "indexed": false,
         "internalType": "address",
-        "name": "asset",
+        "name": "transactingAsset",
         "type": "address"
       },
       {
         "indexed": false,
         "internalType": "uint256",
-        "name": "amount",
+        "name": "transactingAmount",
         "type": "uint256"
       },
       {
@@ -1127,12 +1127,12 @@
           },
           {
             "internalType": "address",
-            "name": "asset",
+            "name": "transactingAsset",
             "type": "address"
           },
           {
             "internalType": "uint256",
-            "name": "amount",
+            "name": "transactingAmount",
             "type": "uint256"
           },
           {
@@ -1738,12 +1738,12 @@
           },
           {
             "internalType": "address",
-            "name": "asset",
+            "name": "transactingAsset",
             "type": "address"
           },
           {
             "internalType": "uint256",
-            "name": "amount",
+            "name": "transactingAmount",
             "type": "uint256"
           },
           {

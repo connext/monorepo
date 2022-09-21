@@ -1,0 +1,8 @@
+[
+  "constructor(address)",
+  "event Executed(bytes32 indexed,address indexed,address indexed,address,uint256,address,uint32,bytes,bytes,bool)",
+  "function FAILURE_GAS() view returns (uint256)",
+  "function MAX_COPY() view returns (uint16)",
+  "function execute(tuple(bytes32,uint256,address,address,address,address,uint32,bytes)) returns (bool, bytes)",
+  "function getConnext() view returns (address)"
+]

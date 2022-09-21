@@ -807,6 +807,7 @@ describe("TESTNET:E2E", () => {
               callData: "0x",
               originDomain: domainInfo.ORIGIN.domain,
               destinationDomain: domainInfo.DESTINATION.domain,
+              forceSlow: false,
               receiveLocal: false,
               callback: constants.AddressZero,
               callbackFee: "0",
@@ -815,8 +816,8 @@ describe("TESTNET:E2E", () => {
               agent: agents.user.address,
               destinationMinOut: "0",
             },
-            asset: originAsset.address,
-            amount: TRANSFER_TOKEN_AMOUNT.toString(),
+            transactingAsset: originAsset.address,
+            transactingAmount: TRANSFER_TOKEN_AMOUNT.toString(),
             originMinOut: "0",
           };
           const encoded = connext.encodeFunctionData("xcall", [args]);

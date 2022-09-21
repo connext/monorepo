@@ -141,7 +141,7 @@ const sendXCall = async (
   xcallData: XCallArgs;
 }> => {
   logger.info("Formatting XCall.");
-  const { asset, amount, ...callParams } = xparams;
+  const { transactingAsset, transactingAmount, ...callParams } = xparams;
   const xcallData: XCallArgs = {
     params: {
       to: PARAMETERS.AGENTS.USER.address,
@@ -151,6 +151,7 @@ const sendXCall = async (
       agent: PARAMETERS.AGENTS.USER.address,
       callbackFee: "0",
       callData: "0x",
+      forceSlow: false,
       // TODO: Will need option to override `receiveLocal` when we do AMM-related tests.
       receiveLocal: true,
       recovery: PARAMETERS.AGENTS.USER.address,
@@ -158,8 +159,8 @@ const sendXCall = async (
       destinationMinOut: "0",
       ...callParams,
     },
-    asset: asset ?? PARAMETERS.A.DEPLOYMENTS.TestERC20,
-    amount: amount ?? "1000",
+    transactingAsset: transactingAsset ?? PARAMETERS.A.DEPLOYMENTS.TestERC20,
+    transactingAmount: transactingAmount ?? "1000",
     originMinOut: "0",
   };
   const tx = await sdkBase.xcall(xcallData);
@@ -601,7 +602,7 @@ describe("LOCAL:E2E", () => {
     const originProvider = new providers.JsonRpcProvider(PARAMETERS.A.RPC[0]);
     const { receipt, xcallData } = await sendXCall(
       sdkBase,
-      undefined,
+      { forceSlow: false },
       PARAMETERS.AGENTS.USER.signer.connect(originProvider),
     );
     const originTransfer = await getTransferByTransactionHash(sdkUtils, PARAMETERS.A.DOMAIN, receipt.transactionHash);
@@ -744,7 +745,7 @@ describe("LOCAL:E2E", () => {
     const originProvider = new providers.JsonRpcProvider(PARAMETERS.A.RPC[0]);
     const { receipt, xcallData } = await sendXCall(
       sdkBase,
-      undefined,
+      { forceSlow: true },
       PARAMETERS.AGENTS.USER.signer.connect(originProvider),
     );
 

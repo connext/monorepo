@@ -27,6 +27,7 @@ const mockTransfers: XTransfer[] = [
     xparams: {
       to: mkAddress("0xbeefdead"),
       callData: "0x0",
+      forceSlow: false,
       receiveLocal: false,
       callback: mkAddress("0x"),
       callbackFee: "0",

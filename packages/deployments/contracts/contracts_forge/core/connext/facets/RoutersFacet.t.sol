@@ -36,14 +36,11 @@ contract RoutersFacetTest is RoutersFacet, FacetHelper {
   address _asset0 = address(333000111);
   address _asset1 = address(333001111);
 
-  bytes32 _key;
-
   // ============ Test set up ============
   function setUp() public {
     setOwner(_owner);
     utils_deployAssetContracts();
     utils_setupAsset(true, false);
-    _key = keccak256(abi.encode(_canonicalId, _canonicalDomain));
   }
 
   // ============ Utils ==============
@@ -773,7 +770,7 @@ contract RoutersFacetTest is RoutersFacet, FacetHelper {
     uint256 initBalance = IERC20(_local).balanceOf(to);
 
     vm.expectEmit(true, true, true, true);
-    emit RouterLiquidityRemoved(_routerAgent0, to, _local, _key, amount, _routerAgent0);
+    emit RouterLiquidityRemoved(_routerAgent0, to, _local, amount, _routerAgent0);
     vm.prank(_routerAgent0);
     this.removeRouterLiquidityFor(amount, _local, payable(to), _routerAgent0);
 
@@ -826,7 +823,7 @@ contract RoutersFacetTest is RoutersFacet, FacetHelper {
     uint256 initBalance = IERC20(_local).balanceOf(_routerRecipient0);
 
     vm.expectEmit(true, true, true, true);
-    emit RouterLiquidityRemoved(_routerAgent0, _routerRecipient0, _local, _key, amount, _routerAgent0);
+    emit RouterLiquidityRemoved(_routerAgent0, _routerRecipient0, _local, amount, _routerAgent0);
     vm.prank(_routerAgent0);
     this.removeRouterLiquidity(amount, _local, payable(to));
 
@@ -846,7 +843,7 @@ contract RoutersFacetTest is RoutersFacet, FacetHelper {
     uint256 initBalance = IERC20(_local).balanceOf(to);
 
     vm.expectEmit(true, true, true, true);
-    emit RouterLiquidityRemoved(_routerAgent0, to, _local, _key, amount, _routerAgent0);
+    emit RouterLiquidityRemoved(_routerAgent0, to, _local, amount, _routerAgent0);
     vm.prank(_routerAgent0);
     this.removeRouterLiquidity(amount, _local, payable(to));
 

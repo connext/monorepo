@@ -4,12 +4,15 @@ pragma solidity 0.8.15;
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 
 import {RelayerFeeRouter} from "../../relayer-fee/RelayerFeeRouter.sol";
+import {PromiseRouter} from "../../promise/PromiseRouter.sol";
 
-import {ExecuteArgs, CallParams, TokenId} from "../libraries/LibConnextStorage.sol";
+import {XCallArgs, ExecuteArgs, CallParams, TokenId} from "../libraries/LibConnextStorage.sol";
 import {LibDiamond} from "../libraries/LibDiamond.sol";
 import {SwapUtils} from "../libraries/SwapUtils.sol";
 
 import {IStableSwap} from "./IStableSwap.sol";
+import {IExecutor} from "./IExecutor.sol";
+import {ISponsorVault} from "./ISponsorVault.sol";
 import {IWeth} from "./IWeth.sol";
 import {ITokenRegistry} from "./ITokenRegistry.sol";
 import {IBridgeRouter} from "./IBridgeRouter.sol";
@@ -62,9 +65,21 @@ interface IConnextHandler is IDiamondLoupe, IDiamondCut {
 
   function domain() external view returns (uint256);
 
+  function executor() external view returns (IExecutor);
+
   function nonce() external view returns (uint256);
 
+  function sponsorVault() external view returns (ISponsorVault);
+
+  function promiseRouter() external view returns (PromiseRouter);
+
   function approvedSequencers(address _sequencer) external view returns (bool);
+
+  function setPromiseRouter(address payable _promiseRouter) external;
+
+  function setExecutor(address _executor) external;
+
+  function setSponsorVault(address _sponsorVault) external;
 
   function addConnextion(uint32 _domain, address _connext) external;
 
@@ -72,31 +87,20 @@ interface IConnextHandler is IDiamondLoupe, IDiamondCut {
 
   function removeSequencer(address _sequencer) external;
 
-  function xcall(
-    uint32 _destination,
-    address _to,
-    address _asset,
-    address _delegate,
-    uint256 _amount,
-    uint256 _slippage,
-    bytes calldata _callData
-  ) external payable returns (bytes32);
-
-  function xcallIntoLocal(
-    uint32 _destination,
-    address _to,
-    address _asset,
-    address _delegate,
-    uint256 _amount,
-    uint256 _slippage,
-    bytes calldata _callData
-  ) external payable returns (bytes32);
+  function xcall(XCallArgs calldata _args) external payable returns (bytes32);
 
   function execute(ExecuteArgs calldata _args) external returns (bytes32 transferId);
 
-  function forceUpdateSlippage(CallParams calldata _params, uint256 _slippage) external;
-
   function bumpTransfer(bytes32 _transferId) external payable;
+
+  function forceReceiveLocal(
+    CallParams calldata _params,
+    uint256 _amount,
+    uint256 _nonce,
+    bytes32 _canonicalId,
+    uint32 _canonicalDomain,
+    address _originSender
+  ) external payable;
 
   // NomadFacet
   function bridgeRouter() external view returns (IBridgeRouter);
@@ -251,6 +255,10 @@ interface IConnextHandler is IDiamondLoupe, IDiamondCut {
 
   function repayAavePortal(
     CallParams calldata _params,
+    address _local,
+    address _originSender,
+    uint256 _bridgedAmt,
+    uint256 _nonce,
     uint256 _backingAmount,
     uint256 _feeAmount,
     uint256 _maxIn
@@ -258,6 +266,10 @@ interface IConnextHandler is IDiamondLoupe, IDiamondCut {
 
   function repayAavePortalFor(
     CallParams calldata _params,
+    address _adopted,
+    address _originSender,
+    uint256 _bridgedAmt,
+    uint256 _nonce,
     uint256 _backingAmount,
     uint256 _feeAmount
   ) external;

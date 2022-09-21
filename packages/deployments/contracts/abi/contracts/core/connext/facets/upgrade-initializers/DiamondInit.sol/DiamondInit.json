@@ -1,9 +1,8 @@
 [
-  "error BaseConnextFacet__getAdoptedAsset_notWhitelisted()",
   "error BaseConnextFacet__nonReentrant_reentrantCall()",
   "error BaseConnextFacet__onlyBridgeRouter_notBridgeRouter()",
   "error BaseConnextFacet__onlyOwner_notOwner()",
   "error BaseConnextFacet__onlyProposed_notProposedOwner()",
   "error BaseConnextFacet__whenNotPaused_paused()",
-  "function init(uint32,address,address,uint256,uint256)"
+  "function init(uint32,address,address,address,uint256)"
 ]

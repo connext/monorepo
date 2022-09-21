@@ -14,7 +14,7 @@ import {StableSwapFacet} from "../../contracts/core/connext/facets/StableSwapFac
 import {SwapAdminFacet} from "../../contracts/core/connext/facets/SwapAdminFacet.sol";
 import {PortalFacet} from "../../contracts/core/connext/facets/PortalFacet.sol";
 import {VersionFacet} from "../../contracts/core/connext/facets/VersionFacet.sol";
-import {CallParams} from "../../contracts/core/connext/libraries/LibConnextStorage.sol";
+import {XCallArgs, CallParams} from "../../contracts/core/connext/libraries/LibConnextStorage.sol";
 import {IDiamondCut} from "../../contracts/core/connext/interfaces/IDiamondCut.sol";
 
 import {Connext} from "./Connext.sol";
@@ -91,22 +91,29 @@ contract Deployer {
   }
 
   function getBridgeFacetCut(address _bridgeFacet) internal pure returns (IDiamondCut.FacetCut memory) {
-    bytes4[] memory bridgeFacetSelectors = new bytes4[](12);
+    bytes4[] memory bridgeFacetSelectors = new bytes4[](19);
     // getters
     bridgeFacetSelectors[0] = BridgeFacet.relayerFees.selector;
     bridgeFacetSelectors[1] = BridgeFacet.routedTransfers.selector;
     bridgeFacetSelectors[2] = BridgeFacet.reconciledTransfers.selector;
     bridgeFacetSelectors[3] = BridgeFacet.connextion.selector;
     bridgeFacetSelectors[4] = BridgeFacet.domain.selector;
-    bridgeFacetSelectors[5] = BridgeFacet.nonce.selector;
+    bridgeFacetSelectors[5] = BridgeFacet.executor.selector;
+    bridgeFacetSelectors[6] = BridgeFacet.nonce.selector;
+    bridgeFacetSelectors[7] = BridgeFacet.sponsorVault.selector;
+    bridgeFacetSelectors[8] = BridgeFacet.promiseRouter.selector;
     // admin
-    bridgeFacetSelectors[6] = BridgeFacet.addConnextion.selector;
-    bridgeFacetSelectors[7] = BridgeFacet.addSequencer.selector;
-    bridgeFacetSelectors[8] = BridgeFacet.removeSequencer.selector;
+    bridgeFacetSelectors[9] = BridgeFacet.setPromiseRouter.selector;
+    bridgeFacetSelectors[10] = BridgeFacet.setExecutor.selector;
+    bridgeFacetSelectors[11] = BridgeFacet.setSponsorVault.selector;
+    bridgeFacetSelectors[12] = BridgeFacet.addConnextion.selector;
+    bridgeFacetSelectors[13] = BridgeFacet.addSequencer.selector;
+    bridgeFacetSelectors[14] = BridgeFacet.removeSequencer.selector;
     // public
-    bridgeFacetSelectors[9] = BridgeFacet.xcall.selector;
-    bridgeFacetSelectors[10] = BridgeFacet.execute.selector;
-    bridgeFacetSelectors[11] = BridgeFacet.bumpTransfer.selector;
+    bridgeFacetSelectors[15] = BridgeFacet.xcall.selector;
+    bridgeFacetSelectors[16] = BridgeFacet.execute.selector;
+    bridgeFacetSelectors[17] = BridgeFacet.bumpTransfer.selector;
+    bridgeFacetSelectors[18] = BridgeFacet.forceReceiveLocal.selector;
     return
       IDiamondCut.FacetCut({
         facetAddress: _bridgeFacet,
@@ -288,17 +295,18 @@ contract Deployer {
   }
 
   function getTestSetterFacetCut(address _testSetterFacetFacet) internal pure returns (IDiamondCut.FacetCut memory) {
-    bytes4[] memory testSetterFacetSelectors = new bytes4[](10);
+    bytes4[] memory testSetterFacetSelectors = new bytes4[](11);
     testSetterFacetSelectors[0] = TestSetterFacet.setTestRelayerFees.selector;
     testSetterFacetSelectors[1] = TestSetterFacet.setTestTransferRelayer.selector;
     testSetterFacetSelectors[2] = TestSetterFacet.setTestApproveRouterForPortal.selector;
-    testSetterFacetSelectors[3] = TestSetterFacet.setTestApprovedRelayer.selector;
-    testSetterFacetSelectors[4] = TestSetterFacet.setTestRouterBalances.selector;
-    testSetterFacetSelectors[5] = TestSetterFacet.setTestApprovedRouter.selector;
-    testSetterFacetSelectors[6] = TestSetterFacet.setTestCanonicalToAdopted.selector;
-    testSetterFacetSelectors[7] = TestSetterFacet.setTestAavePortalDebt.selector;
-    testSetterFacetSelectors[8] = TestSetterFacet.setTestAavePortalFeeDebt.selector;
-    testSetterFacetSelectors[9] = TestSetterFacet.setTestRoutedTransfers.selector;
+    testSetterFacetSelectors[3] = TestSetterFacet.setTestSponsorVault.selector;
+    testSetterFacetSelectors[4] = TestSetterFacet.setTestApprovedRelayer.selector;
+    testSetterFacetSelectors[5] = TestSetterFacet.setTestRouterBalances.selector;
+    testSetterFacetSelectors[6] = TestSetterFacet.setTestApprovedRouter.selector;
+    testSetterFacetSelectors[7] = TestSetterFacet.setTestCanonicalToAdopted.selector;
+    testSetterFacetSelectors[8] = TestSetterFacet.setTestAavePortalDebt.selector;
+    testSetterFacetSelectors[9] = TestSetterFacet.setTestAavePortalFeeDebt.selector;
+    testSetterFacetSelectors[10] = TestSetterFacet.setTestRoutedTransfers.selector;
     return
       IDiamondCut.FacetCut({
         facetAddress: _testSetterFacetFacet,
@@ -348,16 +356,16 @@ contract Deployer {
     address xAppConnectionManager,
     address tokenRegistry,
     address relayerFeeRouter,
-    uint256 acceptanceDelay,
-    uint256 ownershipDelay
+    address payable promiseRouter,
+    uint256 acceptanceDelay
   ) internal returns (address) {
     bytes memory initCallData = abi.encodeWithSelector(
       DiamondInit.init.selector,
       domain,
       tokenRegistry,
       relayerFeeRouter,
-      acceptanceDelay,
-      ownershipDelay
+      promiseRouter,
+      acceptanceDelay
     );
 
     deployFacets();

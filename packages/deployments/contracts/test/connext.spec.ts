@@ -24,6 +24,7 @@ import {
   StableSwapFacet,
   ConnextHandler,
   DiamondInit,
+  PromiseRouter,
   PortalFacet,
 } from "../src/typechain-types";
 
@@ -112,6 +113,8 @@ describe("Connext", () => {
   let stableSwap: DummySwap;
   let originRelayerFeeRouter: RelayerFeeRouter;
   let destinationRelayerFeeRouter: RelayerFeeRouter;
+  let originPromiseRouter: PromiseRouter;
+  let destinationPromiseRouter: PromiseRouter;
   let home: Home;
   let destinationHome: Home;
   let snapshot: number;
@@ -160,6 +163,15 @@ describe("Connext", () => {
       [destinationXappConnectionManager.address],
     );
 
+    // Deploy PromiseRouters
+    originPromiseRouter = await deployUpgradeableProxy<PromiseRouter>("PromiseRouter", proxyOwner.address, [
+      originXappConnectionManager.address,
+    ]);
+
+    destinationPromiseRouter = await deployUpgradeableProxy<PromiseRouter>("PromiseRouter", proxyOwner.address, [
+      destinationXappConnectionManager.address,
+    ]);
+
     // Deploy facets
     const diamondCutFacet = await deployContract<DiamondCutFacet>("DiamondCutFacet");
     const diamondLoupeFacet = await deployContract<DiamondLoupeFacet>("DiamondLoupeFacet");
@@ -198,6 +210,7 @@ describe("Connext", () => {
         originTokenRegistry.address,
         weth.address,
         originRelayerFeeRouter.address,
+        originPromiseRouter.address,
       ]),
       "ConnextHandler",
     );
@@ -225,6 +238,7 @@ describe("Connext", () => {
         destinationTokenRegistry.address,
         weth.address,
         destinationRelayerFeeRouter.address,
+        destinationPromiseRouter.address,
       ]),
       "ConnextHandler",
     );
@@ -895,15 +909,16 @@ describe("Connext", () => {
       destinationDomain,
       callback: ZERO_ADDRESS,
       callbackFee: 0,
+      forceSlow: false,
       receiveLocal: false,
       recovery: user.address,
     };
-    const asset = originAdopted.address;
+    const transactingAssetId = originAdopted.address;
     const amount = utils.parseEther("0.0001");
     const relayerFee = utils.parseEther("0.00000001");
     const prepare = await originBridge
       .connect(user)
-      .xcall({ params, asset, amount, relayerFee }, { value: relayerFee });
+      .xcall({ params, transactingAssetId, amount, relayerFee }, { value: relayerFee });
     const prepareReceipt = await prepare.wait();
 
     // Check balance of user + bridge
@@ -997,14 +1012,15 @@ describe("Connext", () => {
       callback: ZERO_ADDRESS,
       callbackFee: 0,
       recovery: user.address,
+      forceSlow: false,
       receiveLocal: false,
     };
-    const asset = constants.AddressZero;
+    const transactingAssetId = constants.AddressZero;
     const amount = utils.parseEther("0.0001");
     const relayerFee = utils.parseEther("0.00000001");
     const prepare = await originBridge
       .connect(user)
-      .xcall({ params, asset, amount, relayerFee }, { value: amount.add(relayerFee) });
+      .xcall({ params, transactingAssetId, amount, relayerFee }, { value: amount.add(relayerFee) });
     const prepareReceipt = await prepare.wait();
 
     // Check balance of user + bridge
@@ -1104,15 +1120,16 @@ describe("Connext", () => {
       destinationDomain,
       callback: ZERO_ADDRESS,
       callbackFee: 0,
+      forceSlow: false,
       recovery: user.address,
       receiveLocal: false,
     };
-    const asset = originAdopted.address;
+    const transactingAssetId = originAdopted.address;
     const amount = utils.parseEther("0.0001");
     const relayerFee = utils.parseEther("0.00000001");
     const prepare = await originBridge
       .connect(user)
-      .xcall({ params, asset, amount, relayerFee }, { value: relayerFee });
+      .xcall({ params, transactingAssetId, amount, relayerFee }, { value: relayerFee });
     const prepareReceipt = await prepare.wait();
 
     const xcalledTopic = bridgeFacet.filters.XCalled().topics as string[];
@@ -1189,6 +1206,7 @@ describe("Connext", () => {
       destinationDomain,
       callback: ZERO_ADDRESS,
       callbackFee: 0,
+      forceSlow: false,
       receiveLocal: false,
     };
     const amount = utils.parseEther("0.001");
@@ -1228,11 +1246,11 @@ describe("Connext", () => {
       await originAdopted.connect(user).approve(originBridge.address, parseEther("100000"));
 
       // Prepare from the user
-      const asset = originAdopted.address;
+      const transactingAssetId = originAdopted.address;
       relayerFee = utils.parseEther("0.00000001");
       const prepare = await originBridge
         .connect(user)
-        .xcall({ params, asset, amount, relayerFee }, { value: relayerFee });
+        .xcall({ params, transactingAssetId, amount, relayerFee }, { value: relayerFee });
       const prepareReceipt = await prepare.wait();
 
       const xcalledTopic = bridgeFacet.filters.XCalled().topics as string[];
@@ -1416,6 +1434,7 @@ describe("Connext", () => {
       destinationDomain,
       callback: ZERO_ADDRESS,
       callbackFee: 0,
+      forceSlow: false,
       receiveLocal: false,
     };
 
@@ -1533,7 +1552,7 @@ describe("Connext", () => {
     let relayerFee: any;
     let routerAmount: any;
     let liquidityFee: any;
-    let asset: any;
+    let transactingAssetId: any;
     let nonce: any;
     let message: any;
     let transferId: any;
@@ -1577,14 +1596,15 @@ describe("Connext", () => {
         destinationDomain,
         callback: ZERO_ADDRESS,
         callbackFee: 0,
+        forceSlow: false,
         receiveLocal: false,
         recovery: user.address,
       };
-      asset = originAdopted.address;
+      transactingAssetId = originAdopted.address;
 
       const prepare = await originBridge
         .connect(user)
-        .xcall({ params, asset, amount, relayerFee }, { value: relayerFee });
+        .xcall({ params, transactingAssetId, amount, relayerFee }, { value: relayerFee });
       const prepareReceipt = await prepare.wait();
       const xcalledTopic = bridgeFacet.filters.XCalled().topics as string[];
       const originBridgeEvent = bridgeFacet.interface.parseLog(

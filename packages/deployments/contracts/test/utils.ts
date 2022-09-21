@@ -369,6 +369,7 @@ export const connextXCall = async (
     destinationDomain: number;
     callback: string;
     callbackFee: number;
+    forceSlow: boolean;
     receiveLocal: boolean;
   },
   connext: ConnextHandler,
@@ -378,10 +379,10 @@ export const connextXCall = async (
   await asset.connect(user).approve(connext.address, amount);
 
   // Prepare from the user
-  const assetId = asset.address;
+  const transactingAssetId = asset.address;
   const prepare = await connext
     .connect(user)
-    .xcall({ params, asset: assetId, amount, relayerFee }, { value: relayerFee });
+    .xcall({ params, transactingAssetId, amount, relayerFee }, { value: relayerFee });
   const prepareReceipt = await prepare.wait();
 
   const xcalledTopic = bridgeFacet.filters.XCalled().topics as string[];

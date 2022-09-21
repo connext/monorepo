@@ -183,8 +183,13 @@ export const execute = async (params: OriginTransfer, _requestContext: RequestCo
   const {
     origin,
     transferId,
-    xparams: { callData, to, originDomain, destinationDomain },
+    xparams: { callData, to, forceSlow, originDomain, destinationDomain },
   } = params;
+
+  if (forceSlow) {
+    logger.debug("Opt for slow path", requestContext, methodContext, {});
+    return;
+  }
 
   const dest = await subgraph.getDestinationTransferById(destinationDomain, transferId);
   if (dest) {

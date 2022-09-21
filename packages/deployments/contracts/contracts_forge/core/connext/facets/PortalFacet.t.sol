@@ -19,6 +19,8 @@ import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "../../../utils/Mock.sol";
 import "../../../utils/FacetHelper.sol";
 
+import "forge-std/console.sol";
+
 contract PortalFacetTest is PortalFacet, FacetHelper {
   // ============ Storage ============
   uint32 domain = _originDomain;
@@ -28,7 +30,8 @@ contract PortalFacetTest is PortalFacet, FacetHelper {
   address router = address(1111);
   address aavePool;
 
-  CallParams defaultParams;
+  bytes32 transferId;
+  CallParams params;
   address originSender = address(1232123);
   uint256 bridgedAmt = 1 ether;
   uint256 nonce = 89;
@@ -50,48 +53,47 @@ contract PortalFacetTest is PortalFacet, FacetHelper {
     // set pool
     s.aavePool = aavePool;
 
-    defaultParams = CallParams({
-      originDomain: _originDomain,
-      destinationDomain: _destinationDomain,
-      canonicalDomain: _canonicalDomain,
-      to: address(1111),
-      delegate: address(2222),
-      receiveLocal: false,
-      callData: bytes(""),
-      slippage: 1000,
-      originSender: msg.sender,
-      bridgedAmt: bridgedAmt,
-      normalizedIn: bridgedAmt,
-      nonce: nonce,
-      canonicalId: _canonicalId
-    });
+    params = CallParams(
+      address(11), // to
+      bytes(""), // callData
+      _originDomain, // origin domain
+      _destinationDomain, // destination domain
+      address(222222222), // agent
+      address(6666666), // recovery address
+      false, // forceSlow
+      false, // receiveLocal
+      address(0), // callback
+      0, // callbackFee
+      0, // relayer fee
+      1 ether // destinationMinOut
+    );
+
+    // set default transfer id
+    transferId = utils_calculateTransferId();
   }
 
   // ============ Test utils ============
 
-  // helper for getting updated params and transfer ID, should be called after setting up asset
-  function utils_getParams() public returns (CallParams memory, bytes32) {
-    // Update canonical ID info.
-    defaultParams.canonicalId = _canonicalId;
-    defaultParams.canonicalDomain = _canonicalDomain;
-    return (defaultParams, keccak256(abi.encode(defaultParams)));
+  function utils_calculateTransferId() public returns (bytes32) {
+    return keccak256(abi.encode(nonce, params, originSender, _canonicalId, _canonicalDomain, bridgedAmt));
   }
 
   function utils_repayPortal(
-    CallParams memory params,
-    uint256 backingAmount,
-    uint256 feeAmount,
-    uint256 maxIn
+    CallParams memory p,
+    uint256 _backingAmount,
+    uint256 _feeAmount,
+    uint256 _maxIn
   ) public {
-    this.repayAavePortal(params, backingAmount, feeAmount, maxIn);
+    this.repayAavePortal(p, _local, originSender, bridgedAmt, nonce, _backingAmount, _feeAmount, _maxIn);
   }
 
   function utils_repayPortalFor(
-    CallParams memory params,
-    uint256 backingAmount,
-    uint256 feeAmount
+    CallParams memory p,
+    address _adopted,
+    uint256 _backingAmount,
+    uint256 _feeAmount
   ) public {
-    this.repayAavePortalFor(params, backingAmount, feeAmount);
+    this.repayAavePortalFor(p, _adopted, originSender, bridgedAmt, nonce, _backingAmount, _feeAmount);
   }
 
   // ============ setAavePool ============
@@ -131,6 +133,7 @@ contract PortalFacetTest is PortalFacet, FacetHelper {
 
     vm.prank(address(10));
     vm.expectRevert(abi.encodeWithSelector(BaseConnextFacet.BaseConnextFacet__onlyOwner_notOwner.selector));
+
     this.setAavePortalFee(fee);
   }
 
@@ -148,8 +151,6 @@ contract PortalFacetTest is PortalFacet, FacetHelper {
   function test_PortalFacet__repayAavePortal_works() public {
     // set approval context
     s.routerPermissionInfo.approvedForPortalRouters[router] = true;
-
-    (CallParams memory params, bytes32 transferId) = utils_getParams();
 
     // set debt amount
     uint256 backing = 1111;
@@ -182,8 +183,6 @@ contract PortalFacetTest is PortalFacet, FacetHelper {
     // set approval context
     s.routerPermissionInfo.approvedForPortalRouters[router] = true;
 
-    (CallParams memory params, ) = utils_getParams();
-
     // set liquidity
     assertEq(s.routerBalances[router][_local], 0);
 
@@ -201,7 +200,6 @@ contract PortalFacetTest is PortalFacet, FacetHelper {
   function test_PortalFacet__repayAavePortal_failsIfSwapFailed() public {
     // we are on the destination domain where local != canonical
     utils_setupAsset(false, false);
-    (CallParams memory params, ) = utils_getParams();
 
     // set approval context
     s.routerPermissionInfo.approvedForPortalRouters[router] = true;
@@ -228,10 +226,9 @@ contract PortalFacetTest is PortalFacet, FacetHelper {
     utils_repayPortal(params, backing, fee, maxIn);
   }
 
-  function test_PortalFacet__repayAavePortal_failsIfRepayTooMuch() public {
+  function test_PortalFacet__repayAavePortal_failsIfRepalyTooMuch() public {
     // we are on the destination domain where local != canonical
     utils_setupAsset(false, false);
-    (CallParams memory params, bytes32 transferId) = utils_getParams();
 
     // set approval context
     s.routerPermissionInfo.approvedForPortalRouters[router] = true;
@@ -273,7 +270,7 @@ contract PortalFacetTest is PortalFacet, FacetHelper {
   function test_PortalFacet__repayAavePortal_shouldWorkUsingSwap() public {
     // we are on the destination domain where local != canonical
     utils_setupAsset(false, false);
-    (CallParams memory params, bytes32 transferId) = utils_getParams();
+    transferId = utils_calculateTransferId();
 
     // set approval context
     s.routerPermissionInfo.approvedForPortalRouters[router] = true;
@@ -319,22 +316,20 @@ contract PortalFacetTest is PortalFacet, FacetHelper {
   // ============ repayAavePortalFor ============
 
   // fails if not supported asset
-  // function test_PortalFacet__repayAavePortalFor_failsIfNotSupportedAsset() public {
-  //   // set debt amount
-  //   uint256 backing = 1111;
-  //   uint256 fee = 111;
+  function test_PortalFacet__repayAavePortalFor_failsIfNotSupportedAsset() public {
+    // set debt amount
+    uint256 backing = 1111;
+    uint256 fee = 111;
 
-  //   // we are on the destination domain where local != canonical
-  //   utils_setupAsset(false, false);
+    // we are on the destination domain where local != canonical
+    utils_setupAsset(false, false);
 
-  //   // address adopted = address(1);
-  //   // assertTrue(adopted != _adopted);
-  //   params.canonicalId = bytes32("bad");
-  //   params.canonicalDomain = 13;
+    address adopted = address(1);
+    assertTrue(adopted != _adopted);
 
-  //   vm.expectRevert(abi.encodeWithSelector(PortalFacet.PortalFacet__repayAavePortalFor_notSupportedAsset.selector));
-  //   utils_repayPortalFor(params, backing, fee);
-  // }
+    vm.expectRevert(abi.encodeWithSelector(PortalFacet.PortalFacet__repayAavePortalFor_notSupportedAsset.selector));
+    utils_repayPortalFor(params, adopted, backing, fee);
+  }
 
   // fails if zero amount
   function test_PortalFacet__repayAavePortalFor_failsIfZeroTotalAmount() public {
@@ -344,17 +339,16 @@ contract PortalFacetTest is PortalFacet, FacetHelper {
 
     // we are on the destination domain where local != canonical
     utils_setupAsset(false, false);
-    (CallParams memory params, ) = utils_getParams();
 
     vm.expectRevert(abi.encodeWithSelector(PortalFacet.PortalFacet__repayAavePortalFor_zeroAmount.selector));
-    utils_repayPortalFor(params, backing, fee);
+    utils_repayPortalFor(params, _adopted, backing, fee);
   }
 
   // should work
   function test_PortalFacet__repayAavePortalFor_shouldWork() public {
     // we are on the destination domain where local != canonical
     utils_setupAsset(false, false);
-    (CallParams memory params, bytes32 transferId) = utils_getParams();
+    transferId = utils_calculateTransferId();
 
     // set debt amount
     uint256 backing = 1111;
@@ -376,7 +370,7 @@ contract PortalFacetTest is PortalFacet, FacetHelper {
     vm.expectEmit(true, true, true, true);
     emit AavePortalRepayment(transferId, _adopted, backing, fee, sender);
     vm.prank(sender);
-    utils_repayPortalFor(params, backing, fee);
+    utils_repayPortalFor(params, _adopted, backing, fee);
 
     // assert balance decrement
     assertEq(IERC20(_adopted).balanceOf(sender), 0);

@@ -22,7 +22,6 @@ contract BaseConnextFacet {
   error BaseConnextFacet__onlyProposed_notProposedOwner();
   error BaseConnextFacet__whenNotPaused_paused();
   error BaseConnextFacet__nonReentrant_reentrantCall();
-  error BaseConnextFacet__getAdoptedAsset_notWhitelisted();
 
   // ============ Modifiers ============
 
@@ -95,28 +94,17 @@ contract BaseConnextFacet {
   }
 
   /**
-   * @notice Returns the adopted assets for given canonical information
-   */
-  function _getAdoptedAsset(bytes32 _canonicalId, uint32 _canonicalDomain) internal view returns (address) {
-    return _getAdoptedAsset(_calculateCanonicalHash(_canonicalId, _canonicalDomain));
-  }
-
-  /**
-   * @notice Returns the adopted assets for given canonical information
-   */
-  function _getAdoptedAsset(bytes32 _key) internal view returns (address) {
-    address adopted = s.canonicalToAdopted[_key];
-    if (adopted == address(0)) {
-      revert BaseConnextFacet__getAdoptedAsset_notWhitelisted();
-    }
-    return adopted;
-  }
-
-  /**
    * @notice Calculates a transferId
    */
-  function _calculateTransferId(CallParams memory _params) internal pure returns (bytes32) {
-    return keccak256(abi.encode(_params));
+  function _calculateTransferId(
+    CallParams memory _params,
+    uint256 _amount,
+    uint256 _nonce,
+    bytes32 _canonicalId,
+    uint32 _canonicalDomain,
+    address _originSender
+  ) internal pure returns (bytes32) {
+    return keccak256(abi.encode(_nonce, _params, _originSender, _canonicalId, _canonicalDomain, _amount));
   }
 
   /**

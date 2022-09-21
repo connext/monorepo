@@ -76,8 +76,8 @@ export class TransfersCache extends Cache {
       const transferIds = this.data.hgetall(`${this.prefix}:transfers`);
       for (const transferId in transferIds) {
         const transfer = await this.getTransfer(transferId);
-        if (transfer?.xparams?.nonce) {
-          const shouldBeDeleted = transfer.xparams.nonce < latestCompleted;
+        if (transfer?.nonce) {
+          const shouldBeDeleted = transfer.nonce < latestCompleted;
           if (shouldBeDeleted) {
             const deleted = await this.data.hdel(`${this.prefix}:transfers`, transferId);
             if (deleted !== 1) {
@@ -133,9 +133,9 @@ export class TransfersCache extends Cache {
                 : undefined,
           }
         : transfer;
-      const { transferId, xparams, origin, destination } = transfer;
+      const { transferId, nonce: _nonce, xparams, origin, destination } = transfer;
       const { originDomain } = xparams;
-      const nonce = Number(xparams.nonce);
+      const nonce = Number(_nonce);
       const stringified = JSON.stringify(transfer);
 
       // set transaction data at domain field in hash, hset returns the number of field that were added
