@@ -1,7 +1,7 @@
 import { TransactionService } from "@connext/nxtp-txservice";
 import { createRequestContext } from "@connext/nxtp-utils";
-import { canonizeId, ConnextHandlerInterface } from "@connext/nxtp-contracts";
-import { BigNumber, BytesLike, constants, utils } from "ethers";
+import { canonizeId } from "@connext/nxtp-contracts";
+import { BytesLike, utils } from "ethers";
 import Router from "@connext/nxtp-contracts/artifacts/contracts/core/Router.sol/Router.json";
 
 export const enrollHandlers = async (
@@ -45,33 +45,6 @@ export const enrollHandlers = async (
           );
         }
       }
-    }
-  }
-
-  // TODO: If Connext === bridge router, this contract property will be removed; remove
-  // the following code in that case!
-  // Set the bridge router in Connext contract.
-  for (const handler of handlers) {
-    const chainId = handler.chain;
-    const to = handler.ConnextHandler;
-    const res = await txService.readTx({
-      to,
-      data: ConnextHandlerInterface.encodeFunctionData("bridgeRouter"),
-      chainId,
-    });
-    const bridgeRouter = ConnextHandlerInterface.decodeFunctionResult("bridgeRouter", res)[0];
-
-    // If bridge router is not set, we need to set it to be the BridgeRouterUpgradeBeaconProxy address.
-    if (bridgeRouter === constants.AddressZero) {
-      await txService.sendTx(
-        {
-          to,
-          data: ConnextHandlerInterface.encodeFunctionData("setBridgeRouter", [handler.BridgeRouterUpgradeBeaconProxy]),
-          chainId,
-          value: BigNumber.from("0"),
-        },
-        requestContext,
-      );
     }
   }
 };
