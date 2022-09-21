@@ -56,7 +56,6 @@ describe("Helpers:Auctions", () => {
           callback: constants.AddressZero,
           callbackFee: "0",
           recovery: transfer.xparams.recovery,
-          forceSlow: transfer.xparams.forceSlow,
           receiveLocal: transfer.xparams.receiveLocal,
           agent: transfer.xparams.agent,
           relayerFee: transfer.xparams.relayerFee,

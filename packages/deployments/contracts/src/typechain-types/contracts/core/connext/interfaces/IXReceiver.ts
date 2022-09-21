@@ -21,36 +21,38 @@ import type {
   TypedListener,
   OnEvent,
   PromiseOrValue,
-} from "../../../../../common";
+} from "../../../../common";
 
-export interface DiamondInitInterface extends utils.Interface {
+export interface IXReceiverInterface extends utils.Interface {
   functions: {
-    "init(uint32,address,address,uint256)": FunctionFragment;
+    "xReceive(bytes32,uint256,address,address,uint32,bytes)": FunctionFragment;
   };
 
-  getFunction(nameOrSignatureOrTopic: "init"): FunctionFragment;
+  getFunction(nameOrSignatureOrTopic: "xReceive"): FunctionFragment;
 
   encodeFunctionData(
-    functionFragment: "init",
+    functionFragment: "xReceive",
     values: [
+      PromiseOrValue<BytesLike>,
       PromiseOrValue<BigNumberish>,
       PromiseOrValue<string>,
       PromiseOrValue<string>,
-      PromiseOrValue<BigNumberish>
+      PromiseOrValue<BigNumberish>,
+      PromiseOrValue<BytesLike>
     ]
   ): string;
 
-  decodeFunctionResult(functionFragment: "init", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "xReceive", data: BytesLike): Result;
 
   events: {};
 }
 
-export interface DiamondInit extends BaseContract {
+export interface IXReceiver extends BaseContract {
   connect(signerOrProvider: Signer | Provider | string): this;
   attach(addressOrName: string): this;
   deployed(): Promise<this>;
 
-  interface: DiamondInitInterface;
+  interface: IXReceiverInterface;
 
   queryFilter<TEvent extends TypedEvent>(
     event: TypedEventFilter<TEvent>,
@@ -72,51 +74,61 @@ export interface DiamondInit extends BaseContract {
   removeListener: OnEvent<this>;
 
   functions: {
-    init(
-      _domain: PromiseOrValue<BigNumberish>,
-      _tokenRegistry: PromiseOrValue<string>,
-      _relayerFeeRouter: PromiseOrValue<string>,
-      _acceptanceDelay: PromiseOrValue<BigNumberish>,
+    xReceive(
+      _transferId: PromiseOrValue<BytesLike>,
+      _amount: PromiseOrValue<BigNumberish>,
+      _asset: PromiseOrValue<string>,
+      _originSender: PromiseOrValue<string>,
+      _origin: PromiseOrValue<BigNumberish>,
+      _callData: PromiseOrValue<BytesLike>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
   };
 
-  init(
-    _domain: PromiseOrValue<BigNumberish>,
-    _tokenRegistry: PromiseOrValue<string>,
-    _relayerFeeRouter: PromiseOrValue<string>,
-    _acceptanceDelay: PromiseOrValue<BigNumberish>,
+  xReceive(
+    _transferId: PromiseOrValue<BytesLike>,
+    _amount: PromiseOrValue<BigNumberish>,
+    _asset: PromiseOrValue<string>,
+    _originSender: PromiseOrValue<string>,
+    _origin: PromiseOrValue<BigNumberish>,
+    _callData: PromiseOrValue<BytesLike>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
   callStatic: {
-    init(
-      _domain: PromiseOrValue<BigNumberish>,
-      _tokenRegistry: PromiseOrValue<string>,
-      _relayerFeeRouter: PromiseOrValue<string>,
-      _acceptanceDelay: PromiseOrValue<BigNumberish>,
+    xReceive(
+      _transferId: PromiseOrValue<BytesLike>,
+      _amount: PromiseOrValue<BigNumberish>,
+      _asset: PromiseOrValue<string>,
+      _originSender: PromiseOrValue<string>,
+      _origin: PromiseOrValue<BigNumberish>,
+      _callData: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
-    ): Promise<void>;
+    ): Promise<string>;
   };
 
   filters: {};
 
   estimateGas: {
-    init(
-      _domain: PromiseOrValue<BigNumberish>,
-      _tokenRegistry: PromiseOrValue<string>,
-      _relayerFeeRouter: PromiseOrValue<string>,
-      _acceptanceDelay: PromiseOrValue<BigNumberish>,
+    xReceive(
+      _transferId: PromiseOrValue<BytesLike>,
+      _amount: PromiseOrValue<BigNumberish>,
+      _asset: PromiseOrValue<string>,
+      _originSender: PromiseOrValue<string>,
+      _origin: PromiseOrValue<BigNumberish>,
+      _callData: PromiseOrValue<BytesLike>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
   };
 
   populateTransaction: {
-    init(
-      _domain: PromiseOrValue<BigNumberish>,
-      _tokenRegistry: PromiseOrValue<string>,
-      _relayerFeeRouter: PromiseOrValue<string>,
-      _acceptanceDelay: PromiseOrValue<BigNumberish>,
+    xReceive(
+      _transferId: PromiseOrValue<BytesLike>,
+      _amount: PromiseOrValue<BigNumberish>,
+      _asset: PromiseOrValue<string>,
+      _originSender: PromiseOrValue<string>,
+      _origin: PromiseOrValue<BigNumberish>,
+      _callData: PromiseOrValue<BytesLike>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
   };
